@@ -130,8 +130,6 @@
 		064C5AD823AB1A59001E80DD /* logging-impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 064C5A8723AB1A59001E80DD /* logging-impl.cc */; };
 		064C5AD923AB1A59001E80DD /* environment.cc in Sources */ = {isa = PBXBuildFile; fileRef = 064C5A8923AB1A59001E80DD /* environment.cc */; };
 		064C5ADA23AB1A59001E80DD /* engine-impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 064C5A8A23AB1A59001E80DD /* engine-impl.cc */; };
-		064C5ADB23AB1A59001E80DD /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 064C5A8C23AB1A59001E80DD /* .gitignore */; };
-		064C5ADC23AB1A59001E80DD /* .clang-format in Resources */ = {isa = PBXBuildFile; fileRef = 064C5A8D23AB1A59001E80DD /* .clang-format */; };
 		064C5ADD23AB1A59001E80DD /* javascript-task-runner.cc in Sources */ = {isa = PBXBuildFile; fileRef = 064C5A8F23AB1A59001E80DD /* javascript-task-runner.cc */; };
 		064C5ADE23AB1A59001E80DD /* javascript-task.cc in Sources */ = {isa = PBXBuildFile; fileRef = 064C5A9223AB1A59001E80DD /* javascript-task.cc */; };
 		064C5ADF23AB1A59001E80DD /* javascript-loader.cc in Sources */ = {isa = PBXBuildFile; fileRef = 064C5A9323AB1A59001E80DD /* javascript-loader.cc */; };
@@ -1216,8 +1214,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				064C5AF023AB1A70001E80DD /* res in Resources */,
-				064C5ADB23AB1A59001E80DD /* .gitignore in Resources */,
-				064C5ADC23AB1A59001E80DD /* .clang-format in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
