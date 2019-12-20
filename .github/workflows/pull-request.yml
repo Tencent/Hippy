@@ -10,6 +10,8 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: wagoid/commitlint-github-action@v1
+        with:
+          configFile: .commitlintrc.js
   build:
     runs-on: ubuntu-latest
     env:
