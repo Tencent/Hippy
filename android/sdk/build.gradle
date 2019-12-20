@@ -1,0 +1,491 @@
+apply plugin: 'com.android.library'
+
+ext {
+    def flag = System.getenv('CI')
+    if (flag != null && flag.toBoolean()) {
+        ISCI = true
+    } else {
+        ISCI = false
+    }
+    CLEAR_LOG = ISCI.toBoolean() ? System.getenv('discardLog') : false
+    OPEN_JAVA_DEBUG = ISCI.toBoolean() ? System.getenv('openJavaDebug') : true
+    BUILD_TOOL_SEVENZIP = ISCI.toBoolean() ? "7za" : System.getenv('7ZIP_PATH')
+    MAVEN_VERSION = ISCI.toBoolean() ? System.getenv('version') : "0.0.1"
+    //性能专用，会去掉所有日志，首页快速滑动下，日志会导致低端机卡顿
+    BUILD_FOR_PERFORMANCE=false
+    // ndkDir = /Users/fchan/Sdk/android-ndk-r19
+
+    // Visual Studio Debugging Support
+    skipCmakeAndNinja = System.getenv('skipCmakeAndNinja') != null
+}
+
+def findNdkFullPath() {
+    if (ISCI.toBoolean()) {
+        if (hasProperty('ndk.path')) {
+            def ndkDir = property('ndk.path')
+            return ndkDir
+        }
+        if (System.getenv('ANDROID_NDK') != null) {
+            def ndkDir = System.getenv('ANDROID_NDK')
+            return ndkDir
+        }
+    }
+    def ndkDir = project.android.ndkDirectory.absolutePath
+    if (ndkDir) {
+        return ndkDir
+    }
+    return null
+}
+
+def findSdkFullPath() {
+    if (hasProperty('sdk.path')) {
+        def ndkDir = property('sdk.path')
+        return ndkDir
+    }
+    if (System.getenv('ANDROID_SDK') != null) {
+        def ndkDir = System.getenv('ANDROID_SDK')
+        return ndkDir
+    }
+    def ndkDir = project.android.sdkDirectory.absolutePath
+    if (ndkDir) {
+        return ndkDir
+    }
+    return null
+}
+
+
+def isMacOs() {
+    return org.gradle.internal.os.OperatingSystem.current().isMacOsX()
+}
+
+def isWindows() {
+    return org.gradle.internal.os.OperatingSystem.current().isWindows()
+}
+
+def findToolChainPath() {
+    return findNdkFullPath() + "/build/cmake/android.toolchain.cmake"
+}
+
+def findNINJABuildPath() {
+    if (ISCI.toBoolean())
+        return findSdkFullPath() + "/cmake/bin/ninja"
+    else
+        return findSdkFullPath() + "/cmake/3.6.4111459/bin/ninja"
+}
+
+def findCmakeBinPath() {
+    if (ISCI.toBoolean())
+        return findSdkFullPath() + "/cmake/bin"
+    else
+        return findSdkFullPath() + "/cmake/3.6.4111459/bin"
+}
+
+def findCmakeBuildPath() {
+    if (ISCI.toBoolean())
+        return findCmakeBinPath() + "/cmake"
+    else
+        return findCmakeBinPath() + "/cmake"
+}
+
+task deleteCore(type: Delete) {
+    delete 'src/main/jni/core'
+}
+
+task copyCore(dependsOn: deleteCore, type: Copy) {
+    from '../../core'
+    into 'src/main/jni/core'
+}
+
+task compileCmake(dependsOn: copyCore, type: Exec) {
+
+    def cMakeWorkDir = file(project.buildDir.absolutePath + "/cmakeoutput")
+    cMakeWorkDir.deleteDir()
+    cMakeWorkDir.mkdirs()
+    setWorkingDir(cMakeWorkDir)
+
+    def arches = ["armeabi-v7a", "arm64-v8a", "x86"]
+    for (arch in arches) {
+    commandLine findCmakeBuildPath(),
+            "-DANDROID_ABI=${arch}",
+            "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=$project.buildDir.absolutePath/outputs/${arch}/",
+            "-DANDROID_TOOLCHAIN=clang",
+            "-DANDROID_CPP_FEATURES=rtti exceptions",
+            "-DANDROID_NDK=${findNdkFullPath()}",
+            "-DANDROID_PLATFORM=android-14",
+            "-DCMAKE_BUILD_TYPE=Release",
+            "-DCMAKE_TOOLCHAIN_FILE=${findToolChainPath()}",
+                "-G", "Android Gradle - Ninja", file("src/main/jni/${arch}").absolutePath
+    }
+
+}
+
+task compileNinja(dependsOn: compileCmake, type: Exec) {
+    def cMakeWorkDir = file(project.buildDir.absolutePath + "/cmakeoutput")
+    setWorkingDir(cMakeWorkDir)
+    commandLine findNINJABuildPath()
+}
+
+task skipCmakeAndNinjaTask() {}
+
+def getToolPath(String toolName) {
+    def fileName
+    if (isWindows()) {
+        fileName = "windows-x86_64"
+    } else if (isMacOs()) {
+        fileName = "darwin-x86_64"
+    } else {
+        fileName = "linux-x86_64"
+    }
+
+    return findNdkFullPath() + "/toolchains/arm-linux-androideabi-4.9/prebuilt/" + fileName + "/bin/" + toolName
+}
+
+def getToolPathArm64(String toolName) {
+    def fileName
+    if (isWindows()) {
+        fileName = "windows-x86_64"
+    } else if (isMacOs()) {
+        fileName = "darwin-x86_64"
+    } else {
+        fileName = "linux-x86_64"
+    }
+
+    return findNdkFullPath() + "/toolchains/aarch64-linux-android-4.9/prebuilt/" + fileName + "/bin/" + toolName
+}
+
+def getToolPathX86(String toolName) {
+    def fileName
+    if (isWindows()) {
+        fileName = "windows-x86_64"
+    } else if (isMacOs()) {
+        fileName = "darwin-x86_64"
+    } else {
+        fileName = "linux-x86_64"
+    }
+
+    return findNdkFullPath() + "/toolchains/x86-4.9/prebuilt/" + fileName + "/bin/" + toolName
+}
+
+task stripSO(dependsOn: compileNinja, type: Exec) {
+    commandLine getToolPath("arm-linux-androideabi-strip"),
+            "--strip-all",
+            "-x",
+            "$project.buildDir.absolutePath/outputs/armeabi-v7a/libhippybridge.so",
+            "-o",
+            "$projectDir.absolutePath/libs/armeabi/libhippybridge.so"
+
+    commandLine getToolPath("arm-linux-androideabi-strip"),
+            "--strip-all",
+            "-x",
+            "$project.buildDir.absolutePath/outputs/armeabi-v7a/libhippybridge.so",
+            "-o",
+            "$projectDir.absolutePath/libs/armeabi-v7a/libhippybridge.so"
+
+    commandLine getToolPathArm64("aarch64-linux-android-strip"),
+            "--strip-all",
+            "-x",
+            "$project.buildDir.absolutePath/outputs/arm64-v8a/libhippybridge.so",
+            "-o",
+            "$projectDir.absolutePath/libs/arm64-v8a/libhippybridge.so"
+
+    commandLine getToolPathX86("i686-linux-android-strip"),
+            "--strip-all",
+            "-x",
+            "$project.buildDir.absolutePath/outputs/x86/libhippybridge.so",
+            "-o",
+            "$projectDir.absolutePath/libs/x86/libhippybridge.so"
+}
+
+task stripSOv7a(dependsOn: stripSO, type: Exec) {
+    commandLine getToolPath("arm-linux-androideabi-strip"),
+            "--strip-all",
+            "-x",
+            "$project.buildDir.absolutePath/outputs/armeabi-v7a/libhippybridge.so",
+            "-o",
+            "$projectDir.absolutePath/libs/armeabi-v7a/libhippybridge.so"
+}
+
+task dealNdkLibSymbols(type: JavaExec) {
+    classpath = files("$projectDir/tools/rqdSymbol2.1.jar")
+    main = 'com.spirit.symbol.Main'
+    args '-input', projectDir.absolutePath + "/libs/armeabi-v7a/libhippybridge.so",
+            '-output', project.rootProject.projectDir.absolutePath + "/bin/libhippybridge.zip",
+            '-readelf', findNdkFullPath() + '/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin/arm-linux-androideabi-readelf'
+}
+task address2Line(type: Exec) {
+    def address = " 0x00004f8b"
+    commandLine getToolPath("arm-linux-androideabi-addr2line"),
+            "-C",
+            "-f",
+            "-e",
+            project.buildDir.absolutePath + "/outputs/libhippybridge.so",
+            address
+}
+
+task buildNdkLibs(dependsOn: (ISCI.toBoolean() ? dealNdkLibSymbols : stripSO)) {
+    copy {
+        from "src/main/jni/third_party/v8/x86"
+        into "$buildDir/jnilibs/x86/"
+    }
+
+    copy {
+        from "src/main/jni/third_party/v8/arm64-v8a"
+        into "$buildDir/jnilibs/arm64-v8a/"
+    }
+
+    copy {
+        from "src/main/jni/third_party/v8/armeabi-v7a"
+        into "$buildDir/jnilibs/armeabi-v7a/"
+    }
+    copy {
+        from "src/main/jni/third_party/v8/armeabi-v7a"
+        into "$buildDir/jnilibs/armeabi/"
+    }
+}
+
+//task cleanNdkLibs(type: Exec) {
+//    commandLine findNdkBuildFullPath(),
+//            "NDK_APPLICATION_MK=$projectDir/src/main/jni/Application.mk",
+//            "V8_NDK_DIR=$buildDir",
+
+//            '-C', file('src/main/jni/').absolutePath,
+//            'clean'
+//}
+
+
+android {
+    compileSdkVersion 28
+    buildToolsVersion '26.0.2'
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+
+        // 保证app使用aar时，会自动将该proguard文件添加到本身的proguard规则中
+        consumerProguardFiles 'proguard-rules.pro'
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            minifyEnabled false
+        }
+    }
+
+    sourceSets.main {
+        jni.srcDirs = []
+        jniLibs.srcDirs = ["$buildDir/jnilibs", 'libs']
+    }
+
+    tasks.withType(JavaCompile) {
+        compileTask -> compileTask.dependsOn buildNdkLibs
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+//    clean.dependsOn cleanNdkLibs
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    provided project(path:':support_ui')
+}
+
+afterEvaluate {
+    android.libraryVariants.each { variant ->
+        preJavaSources(variant)
+        dealAfterBuild(variant)
+        if (OPEN_JAVA_DEBUG != null && OPEN_JAVA_DEBUG.toBoolean()) {
+            variant.javaCompile.options.setDebug(true)
+        } else {
+            variant.javaCompile.options.setDebug(false)
+        }
+    }
+}
+
+def dealAfterBuild(variant) {
+    if (variant.buildType.name == 'release') {
+        String BUILD_TYPE = "${variant.buildType.name}"
+        String FLAVOR = "${variant.flavorName}"
+        File aarFile
+
+        variant.outputs.each { output ->
+            File file = output.outputFile
+            if (file.name.endsWith(".aar")) {
+                aarFile = file
+            }
+        }
+
+        project.tasks['bundleRelease'].finalizedBy task("dealAfterBuild${variant.name.capitalize()}") {
+            doLast {
+                unZipAar(aarFile)
+                buildQBAar(aarFile)
+                if (ISCI.toBoolean()) {
+                    copyMappingToBin(FLAVOR, BUILD_TYPE)
+                }
+            }
+        }
+    }
+}
+
+def unZipAar(file) {
+    copy {
+        from zipTree(file.absolutePath)
+        into ISCI.toBoolean() ? project.rootProject.projectDir.absolutePath + "/bin" : file.parentFile.absolutePath
+        include 'classes.jar'
+        rename 'classes.jar', 'hippy.jar'
+    }
+}
+
+def buildQBAar(aarFile) {
+    if (BUILD_TOOL_SEVENZIP == null) {
+        return
+    }
+    file(aarFile.parentFile.absolutePath + "/forqb").deleteDir()
+    copy {
+        from zipTree(aarFile.absolutePath)
+        into aarFile.parentFile.absolutePath + "/forqb/unzip/"
+    }
+    file(aarFile.parentFile.absolutePath + "/forqb/unzip/jni/armeabi/libmttv8.so").delete()
+    file(aarFile.parentFile.absolutePath + "/forqb/unzip/jni/armeabi/libmtt_shared.so").delete()
+
+    exec {
+        def arguments = new ArrayList<?>()
+        arguments.add("a")
+        arguments.add("-tzip")
+        arguments.add("-mx=9")
+        arguments.add(aarFile.parentFile.absolutePath + "/forqb/hippy-sdk-qb.aar")
+        arguments.add(aarFile.parentFile.absolutePath + "/forqb/unzip/*.*")
+        arguments.add(aarFile.parentFile.absolutePath + "/forqb/unzip/aidl")
+        arguments.add(aarFile.parentFile.absolutePath + "/forqb/unzip/jni")
+        arguments.add(aarFile.parentFile.absolutePath + "/forqb/unzip/assets")
+        arguments.add(aarFile.parentFile.absolutePath + "/forqb/unzip/libs")
+        arguments.add(aarFile.parentFile.absolutePath + "/forqb/unzip/res")
+        executable BUILD_TOOL_SEVENZIP
+        args arguments
+    }
+
+    copy {
+        from aarFile.parentFile.absolutePath + "/forqb/hippy-sdk-qb.aar"
+        into ISCI.toBoolean() ? (project.rootProject != null ? project.rootProject.projectDir.absolutePath + "/bin" : project.projectDir.absolutePath + "/bin") : aarFile.parentFile.absolutePath
+    }
+}
+
+def copyMappingToBin(flavor, buildType) {
+    String mappingPath
+    if ("$flavor" != "") {
+        mappingPath = project.buildDir.absolutePath + "/outputs/mapping/${flavor}/${buildType}/mapping.txt"
+    } else {
+        mappingPath = project.buildDir.absolutePath + "/outputs/mapping/${buildType}/mapping.txt"
+    }
+    print(mappingPath)
+    copy {
+        from mappingPath
+        into project.rootProject != null ? project.rootProject.projectDir.absolutePath + "/bin" : project.projectDir.absolutePath + "/bin"
+    }
+}
+
+def preJavaSources(variant) {
+    if (variant.buildType.name == 'release') {
+        String BUILD_TYPE = "${variant.buildType.name}"
+        String FLAVOR = "${variant.flavorName}"
+        task("preJavaSources${FLAVOR}${BUILD_TYPE}") {
+            if (ISCI.toBoolean()) {
+                //清除日志
+                if (CLEAR_LOG.toBoolean()) {
+                    println("清除Logger信息...(自定义LogUtils类)")
+                    ant.replaceregexp(match: '\\s+LogUtils\\.\\w+?\\([\\S\\s]*?\\);+\\s*$', replace: ';', flags: 'mg', encoding: 'utf-8', byline: 'false') {
+                        fileset(dir: project.projectDir.absolutePath + "/src") {
+                            include(name: "**/*.java")
+                            exclude(name: "**/LogUtils.java")
+                        }
+                    }
+
+                    println("清除Exception打印信息...")
+                    ant.replaceregexp(match: '\\w+\\.printStackTrace\\(\\);', replace: ';', flags: 'mg', encoding: 'utf-8', byline: 'false') {
+                        fileset(dir: project.projectDir.absolutePath + "/src") {
+                            include(name: "**/*.java")
+                            exclude(name: "**/LogUtils.java")
+                        }
+                    }
+
+                    println("清除Logger信息...(android Log类)")
+                    ant.replaceregexp(match: '\\s+Log\\.[deivw]\\([\\S\\s]+?\\);+\\s*$', replace: ';', flags: 'mg', encoding: 'utf-8', byline: 'false') {
+                        fileset(dir: project.projectDir.absolutePath + "/src") {
+                            include(name: "**/*.java")
+                            exclude(name: "**/LogUtils.java")
+                        }
+                    }
+                }
+
+                //备份代码
+                exec {
+                    def arguments = new ArrayList<?>()
+                    arguments.add("a")
+                    arguments.add("-tzip")
+                    arguments.add("-pThis is Sparta@9527")
+                    arguments.add("-mx=5")
+                    arguments.add(project.rootProject != null ? project.rootProject.projectDir.absolutePath + "/bin/" + project.name + "_src.zip" : project.projectDir.absolutePath + "/bin/" + project.name + "_src.zip")
+                    arguments.add(project.projectDir.absolutePath + "/src")
+                    executable BUILD_TOOL_SEVENZIP
+                    args arguments
+                }
+                copyAarToBin(variant)
+            }
+
+            if(BUILD_FOR_PERFORMANCE.toBoolean()){
+                println("清除Logger信息...(自定义LogUtils类)")
+                ant.replaceregexp(match: '\\s+LogUtils\\.\\w+?\\([\\S\\s]*?\\);+\\s*$', replace: ';', flags: 'mg', encoding: 'utf-8', byline: 'false') {
+                    fileset(dir: project.projectDir.absolutePath + "/src") {
+                        include(name: "**/*.java")
+                        exclude(name: "**/LogUtils.java")
+                    }
+                }
+
+                println("清除Exception打印信息...")
+                ant.replaceregexp(match: '\\w+\\.printStackTrace\\(\\);', replace: ';', flags: 'mg', encoding: 'utf-8', byline: 'false') {
+                    fileset(dir: project.projectDir.absolutePath + "/src") {
+                        include(name: "**/*.java")
+                        exclude(name: "**/LogUtils.java")
+                        exclude(name: "**/ConsoleModule.java")
+                    }
+                }
+
+                println("清除Logger信息...(android Log类)")
+                ant.replaceregexp(match: '\\s+Log\\.[deivw]\\([\\S\\s]+?\\);+\\s*$', replace: ';', flags: 'mg', encoding: 'utf-8', byline: 'false') {
+                    fileset(dir: project.projectDir.absolutePath + "/src") {
+                        include(name: "**/*.java")
+                        exclude(name: "**/LogUtils.java")
+                    }
+                }
+            }
+
+        }
+        def preJavaSources = tasks.findByName("preJavaSources${FLAVOR}${BUILD_TYPE}")
+        preJavaSources.dependsOn variant.preBuild.taskDependencies.getDependencies(variant.preBuild)
+        variant.preBuild.dependsOn preJavaSources
+    }
+}
+
+
+def copyAarToBin(variant) {
+    project.tasks['assembleRelease'].finalizedBy task("copyAarToBin${variant.name.capitalize()}") {
+        doLast {
+            def copyImpl = { File file ->
+                copy {
+                    from file.absolutePath
+                    into project.rootProject != null ? project.rootProject.projectDir.absolutePath + "/bin" : project.projectDir.absolutePath + "/bin"
+                }
+            }
+            variant.outputs.each { output ->
+                copyImpl(output.outputFile)
+            }
+        }
+    }
+}
+
+apply from: 'maven.gradle'

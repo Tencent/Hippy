@@ -1,0 +1,67 @@
+/* Tencent is pleased to support the open source community by making Hippy available.
+ * Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.tencent.mtt.hippy.utils;
+
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
+
+/**
+ * @Description: TODO
+ * @author: edsheng
+ * @date: 2017/11/24 15:54
+ * @version: V1.0
+ */
+
+public class PixelUtil
+{
+	static DisplayMetrics sMetrics = null;
+
+
+	private static DisplayMetrics getMetrics()
+	{
+		if (sMetrics == null)
+		{
+			sMetrics = ContextHolder.getAppContext().getResources().getDisplayMetrics();
+		}
+		return sMetrics;
+	}
+
+
+	public static float dp2px(float value)
+	{
+		return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, getMetrics());
+	}
+
+	public static float dp2px(double value)
+	{
+		return dp2px((float)value);
+	}
+
+	public static float px2dp(float value)
+	{
+		return value / getMetrics().density + 0.5f;
+	}
+
+	public static float sp2px(float value)
+	{
+		return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, value, getMetrics());
+	}
+
+	public static float px2sp(float value)
+	{
+		return value / getMetrics().scaledDensity + 0.5f;
+	}
+}

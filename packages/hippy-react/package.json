@@ -1,0 +1,30 @@
+{
+  "name": "hippy-react",
+  "version": "2.0.0",
+  "description": "Hippy react framework",
+  "main": "dist/index.js",
+  "homepage": "https://github.com/Tencent/Hippy",
+  "repository": "https://github.com/Tencent/Hippy/tree/master/packages/hippy-react",
+  "author": "XQ Kuang <x@kxq.io>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/Tencent/Hippy/issues"
+  },
+  "keywords": [
+    "hippy",
+    "hippy-react",
+    "native",
+    "web",
+    "framework",
+    "compiler"
+  ],
+  "dependencies": {
+    "fast-deep-equal": "^2.0.1",
+    "react": "^16.8.25",
+    "react-reconciler": "^0.21.0"
+  },
+  "devDependencies": {
+    "@types/react": "^16.8.25",
+    "@types/react-reconciler": "^0.18.0"
+  }
+}

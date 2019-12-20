@@ -1,0 +1,19 @@
+{
+  "include": [
+    "packages/**/*.js"
+  ],
+  "exclude": [
+    "packages/**/__tests__/*.test.js"
+  ],
+  "reporter": [
+    "lcov",
+    "text",
+    "text-summary"
+  ],
+  "require": [
+    "esm",
+    "module-alias/register",
+    "./scripts/flow-remove-types",
+    "./scripts/mock-global"
+  ]
+}

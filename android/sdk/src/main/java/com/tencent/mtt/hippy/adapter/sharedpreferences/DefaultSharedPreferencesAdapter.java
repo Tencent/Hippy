@@ -1,0 +1,39 @@
+/* Tencent is pleased to support the open source community by making Hippy available.
+ * Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.tencent.mtt.hippy.adapter.sharedpreferences;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+
+/**
+ * FileName: DefaultSharedPreferencesAdapter
+ * Description：
+ * History：
+ * 1.0 xiandongluo on 2017/11/13
+ */
+public class DefaultSharedPreferencesAdapter implements HippySharedPreferencesAdapter {
+
+    private  Context mContext;
+    public DefaultSharedPreferencesAdapter(Context context){
+        this.mContext = context;
+    }
+
+    @Override
+    public SharedPreferences getSharedPreferences() {
+        return mContext.getSharedPreferences("hippy_sdk_configs",Context.MODE_PRIVATE);
+    }
+
+}

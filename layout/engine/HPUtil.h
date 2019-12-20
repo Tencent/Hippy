@@ -1,0 +1,61 @@
+/* Tencent is pleased to support the open source community by making Hippy available.
+ * Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifndef HPUTIL_H_
+#define HPUTIL_H_
+
+#include "Flex.h"
+#include <assert.h>
+#include <math.h>
+#include <cmath>
+#include <stdarg.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+//#define __DEBUG__
+//#define LAYOUT_TIME_ANALYZE
+#define ASSERT(e) (assert(e))
+#define nullptr (NULL)
+#define VALUE_AUTO (NAN)
+#define VALUE_UNDEFINED (NAN)
+#define isUndefined(n) (std::isnan(n))
+#define isAuto(n) (std::isnan(n))
+#define isDefined(n) (!std::isnan(n))
+#define PixelRound(value, scale) (roundf((value) * (scale)) / (scale))
+#define PixelRoundInt(value) (roundf(value))
+#define NanAsINF(n) (std::isnan(n) ? INFINITY : n)
+
+typedef enum {
+  LogLevelInfo,
+  LogLevelVerbose,
+  LogLevelDebug,
+  LogLevelWarn,
+  LogLevelError,
+  LogLevelFatal,
+} LogLevel;
+
+#define HPLogd(...) HPLog(LogLevelDebug,  __VA_ARGS__)
+#define HPLogdStr(...) HPLog(LogLevelDebug, "%s", __VA_ARGS__)
+void HPLog(LogLevel level, const char *format, ...);
+
+bool FloatIsEqual(const float a, const float b);
+bool FloatIsEqualInScale(float a, float b, float scale);
+bool HPSizeIsEqual(HPSize a, HPSize b);
+bool HPSizeIsEqualInScale(HPSize a, HPSize b, float scale);
+float HPRoundValueToPixelGrid(float value, bool forceCeil, bool forceFloor);
+
+#endif

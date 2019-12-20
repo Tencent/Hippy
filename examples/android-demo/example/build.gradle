@@ -1,0 +1,48 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 26
+    buildToolsVersion '26.0.2'
+    defaultConfig {
+        applicationId "com.tencent.mtt.hippy.example"
+        minSdkVersion 14
+        targetSdkVersion 21
+        versionCode 1
+        versionName "1.0"
+        ndk {
+            abiFilters "armeabi-v7a"
+        }
+    }
+
+    signingConfigs {
+        release {
+            keyAlias 'key0'
+            keyPassword 'hippydemokeypass!'
+            storeFile file('./hippydemo.jks')
+            storePassword 'hippydemostorepass!'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+        debug {
+            minifyEnabled false
+        }
+    }
+//    externalNativeBuild {
+//        cmake {
+//            path file('../../../android/sdk/src/main/jni/armeabi-v7a/CMakeLists.txt')
+//        }
+//    }
+}
+
+dependencies {
+    compile project(path:':android-sdk')
+    compile project(path:':support_ui')
+    compile 'com.github.bumptech.glide:glide:3.6.1'
+    compile 'com.android.support:support-v4:26.1.0'
+}

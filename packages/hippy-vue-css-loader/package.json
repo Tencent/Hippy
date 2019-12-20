@@ -1,0 +1,25 @@
+{
+  "name": "hippy-vue-css-loader",
+  "version": "2.0.1",
+  "description": "hippy-vue style loader module for webpack",
+  "main": "dist/index.js",
+  "homepage": "https://github.com/Tencent/Hippy",
+  "repository": "https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-css-loader",
+  "author": "XQ Kuang <x@kxq.io>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/Tencent/Hippy/issues"
+  },
+  "keywords": [
+    "vue",
+    "hippy-vue",
+    "css-loader",
+    "webpack"
+  ],
+  "dependencies": {
+    "loader-utils": "^1.0.2"
+  },
+  "devDependencies": {
+    "ava": "^2.4.0"
+  }
+}

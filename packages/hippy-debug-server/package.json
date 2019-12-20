@@ -1,0 +1,28 @@
+{
+  "name": "hippy-debug-server",
+  "version": "2.0.0",
+  "description": "Dev server for hippy-core.",
+  "bin": {
+    "hippy-debug": "index.js"
+  },
+  "scripts": {},
+  "repository": "https://github.com/Tencent/Hippy/tree/master/packages/hippy-debug-server",
+  "keywords": [
+    "hippy",
+    "debugger",
+    "hippy-cli"
+  ],
+  "author": "XQ Kuang <x@kxq.io>",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "dependencies": {
+    "chrome-opn": "^1.0.1",
+    "find-up": "^4.1.0",
+    "koa": "^2.3.0",
+    "signale": "^1.4.0",
+    "ws": "^1.1.5",
+    "yargs": "^15.0.2"
+  }
+}
