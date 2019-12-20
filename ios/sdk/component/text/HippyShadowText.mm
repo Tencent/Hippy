@@ -241,7 +241,6 @@ static MTTSize x5MeasureFunc (MTTNodeRef node, float width, MeasureMode widthMea
 //MTTlayout
 - (NSTextStorage *)buildTextStorageForWidth:(CGFloat)width widthMode:(MeasureMode)widthMode
 {
-  // MttRN: https://github.com/facebook/hippy-native/issues/11412
   if (isnan(width))
   {
 		width = 0;
