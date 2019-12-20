@@ -2,11 +2,13 @@
 
 ![Hippy Group](https://img.shields.io/badge/group-Hippy-blue.svg) [![license](https://img.shields.io/badge/license-Apache%202-blue)](https://github.com/Tencent/Hippy/blob/master/LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Tencent/Hippy/pulls) ![node](https://img.shields.io/badge/node-%3E%3D10.0.0-green.svg) [![Actions Status](https://github.com/Tencent/Hippy/workflows/build/badge.svg)](https://github.com/Tencent/Hippy/actions)
 
+[English](./README.md) | 简体中文
+
 ## 介绍
 
 Hippy 是一个新生的跨端开发框架，目标是使开发者可以只写一套代码就直接运行于三个平台（iOS、Android 和 Web）。Hippy 的设计是面向传统 Web 开发者的，特别是之前有过 React Native 和 Vue 的开发者用起来会更为顺手，Hippy 致力于让前端开发跨端 App 更加容易。
 
-到目前位置，[腾讯](http://www.tencent.com/)内已经有了18款流行 App 在使用 Hippy 框架，每日触达数亿用户。
+到目前为止，[腾讯](http://www.tencent.com/)内已经有了18款流行 App 在使用 Hippy 框架，每日触达数亿用户。
 
 ## 特征
 
@@ -14,14 +16,14 @@ Hippy 是一个新生的跨端开发框架，目标是使开发者可以只写�
 * 不同的平台保持了相同的接口。
 * 通过 JS 引擎 binding 模式实现的前终端通讯，具备超强性能。
 * 提供了高性能的可复用列表。
-* 皆可平滑迁移到 Web 浏览器
-* 完整支持 Flex 的[布局引擎](./layout).
+* 皆可平滑迁移到 Web 浏览器。
+* 完整支持 Flex 的[布局引擎](./layout)。
 
 ## Project structure
 
 ```
 Hippy
-├── examples                          # 前终端范例代码
+├── examples                          # 前终端范例代码。
 │   ├── hippy-react-demo              # hippy-react 前端范例代码。
 │   ├── hippy-vue-demo                # hippy-vue 前端范例代码。
 │   ├── ios-demo                      # iOS 终端范例代码。
@@ -35,7 +37,7 @@ Hippy
 │   ├── hippy-vue-native-components   # hippy-vue 中浏览器中所没有的，额外的，终端定制组件。
 │   └── hippy-vue-router              # 在 hippy-vue 中运行的 vue-router。
 ├── ios
-│   └── sdk                           # iOS SDK
+│   └── sdk                           # iOS SDK。
 ├── android
 │   ├── support_ui                    # Android 终端实现的组件。
 │   └── sdk                           # Android SDK。

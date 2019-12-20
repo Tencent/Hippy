@@ -2,6 +2,8 @@
 
 ![Hippy Group](https://img.shields.io/badge/group-Hippy-blue.svg) [![license](https://img.shields.io/badge/license-Apache%202-blue)](https://github.com/Tencent/Hippy/blob/master/LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Tencent/Hippy/pulls) ![node](https://img.shields.io/badge/node-%3E%3D10.0.0-green.svg) [![Actions Status](https://github.com/Tencent/Hippy/workflows/build/badge.svg)](https://github.com/Tencent/Hippy/actions)
 
+English | [简体中文](./README.zh_CN.md)
+
 ## Introduction
 
 Hippy is a cross-platform development framework, aiming to help developers write once, run on three platforms(iOS, Android and Web). Hippy is quite friendly to web developers, especially who are familar with React or Vue. With Hippy, developers are able to create the cross platform app easily.
