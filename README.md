@@ -6,13 +6,13 @@ English | [简体中文](./README.zh_CN.md)
 
 ## Introduction
 
-Hippy is a cross-platform development framework, aiming to help developers write once, run on three platforms(iOS, Android and Web). Hippy is quite friendly to web developers, especially who are familar with React or Vue. With Hippy, developers are able to create the cross platform app easily.
+Hippy is a cross-platform development framework, aiming to help developers write once, run on three platforms(iOS, Android and Web). Hippy is quite friendly to web developers, especially who are familiar with React or Vue. With Hippy, developers are able to create the cross platform app easily.
 
 Hippy is now applied in 18 [Tencent](http://www.tencent.com/) apps concerning tens of billions of ordinary users.
 
 ## Advantages
 
-* Design for web developers, offically support web frameworks like `React` and `Vue`.
+* Design for web developers, officially support web frameworks like `React` and `Vue`.
 * Same APIs for different platforms.
 * Excellent performance with JS engine binding communication.
 * Build-in recyclable component with better performance.
