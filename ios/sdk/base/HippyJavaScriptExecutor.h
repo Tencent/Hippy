@@ -55,7 +55,6 @@ typedef void (^HippyJavaScriptCallback)(id result, NSError *error);
 @property (nonatomic, assign) std::weak_ptr<Environment> pEnv;
 @property (nonatomic, assign) hippy::napi::napi_context napi_ctx;
 @property (readonly) JSGlobalContextRef JSGlobalContextRef;
-@property (nonatomic, copy) NSString *businessName;
 /**
  * Executes BatchedBridge.flushedQueue on JS thread and calls the given callback
  * with JSValue, containing the next queue, and JSContext.
