@@ -99,7 +99,7 @@ if ([scrollViewListener respondsToSelector:_cmd]) { \
 
 - (void)didUpdateHippySubviews {
     [super didUpdateHippySubviews];
-    [self refreshViewPager:NO];
+    [self refreshViewPager:NO invokeOnPageSelectd:NO];
 }
 
 - (void)invalidate {
@@ -268,11 +268,11 @@ if ([scrollViewListener respondsToSelector:_cmd]) { \
     if (!isContentSizeEqual || !isFrameEqual) {
         self.previousFrame = self.frame;
         self.previousSize = self.contentSize;
-        [self refreshViewPager:YES];
+        [self refreshViewPager:YES invokeOnPageSelectd:YES];
     }
 }
 
-- (void)refreshViewPager:(BOOL)needResetToInitialPage {
+- (void)refreshViewPager:(BOOL)needResetToInitialPage invokeOnPageSelectd:(BOOL)invokeOnPageSelectd{
     if (!self.viewPagerItems.count) return;
     for (int i = 1; i < self.viewPagerItems.count; ++i) {
         UIView *lastViewPagerItem = self.viewPagerItems[i - 1];
@@ -314,17 +314,17 @@ if ([scrollViewListener respondsToSelector:_cmd]) { \
         return;
     }
     
-    if (self.onPageSelected && NO == CGSizeEqualToSize(CGSizeZero, self.contentSize)) {
+    self.contentSize = CGSizeMake(
+            lastViewPagerItem.frame.origin.x + lastViewPagerItem.frame.size.width,
+            lastViewPagerItem.frame.origin.y + lastViewPagerItem.frame.size.height);
+
+    if (self.onPageSelected && NO == CGSizeEqualToSize(CGSizeZero, self.contentSize) && invokeOnPageSelectd) {
         NSUInteger currentPageIndex = self.contentOffset.x / CGRectGetWidth(self.bounds);
         if (currentPageIndex != _lastPageIndex) {
             _lastPageIndex = currentPageIndex;
             self.onPageSelected(@{@"position": @(currentPageIndex)});
         }
     }
-
-    self.contentSize = CGSizeMake(
-            lastViewPagerItem.frame.origin.x + lastViewPagerItem.frame.size.width,
-            lastViewPagerItem.frame.origin.y + lastViewPagerItem.frame.size.height);
 }
 
 - (NSUInteger)nowPage {

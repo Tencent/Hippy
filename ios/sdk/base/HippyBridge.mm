@@ -245,14 +245,6 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)init)
     return self.batchedBridge.moduleClasses;
 }
 
-- (void)setModuleName:(NSString *)moduleName {
-    _moduleName = moduleName;
-    if ([self.batchedBridge isKindOfClass:[HippyBatchedBridge class]]) {
-        HippyBatchedBridge* batch = (HippyBatchedBridge*)self.batchedBridge;
-        [batch.javaScriptExecutor setBusinessName:moduleName];
-    }
-}
-
 - (id)moduleForName:(NSString *)moduleName
 {
     if ([self isKindOfClass: [HippyBatchedBridge class]]) {

@@ -57,7 +57,7 @@ HIPPY_EXPORT_MODULE()
 @synthesize pEnv = _pEnv;
 @synthesize napi_ctx = _napi_ctx;
 @synthesize JSGlobalContextRef = _JSGlobalContextRef;
-@synthesize businessName = _businessName;
+
 - (instancetype)initWithURL:(NSURL *)URL
 {
     HippyAssertParam(URL);

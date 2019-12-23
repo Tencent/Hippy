@@ -374,11 +374,7 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId)
                 }
                 
                 [p setValue: @(ani.endValue) forProp: key];
-                if (flag) {
-                    ani.state = HippyExtAnimationFinishState;
-                } else {
-                    ani.state = HippyExtAnimationReadyState;
-                }
+                ani.state = HippyExtAnimationFinishState;
                 HippyLogInfo(@"animationDidStop:%@ finish:%@ prop:%@ value:%@", animationId, @(flag), key, @(ani.endValue));
             }];
         }];

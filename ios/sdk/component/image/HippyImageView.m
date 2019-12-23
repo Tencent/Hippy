@@ -608,6 +608,9 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
         _borderWidthLayer = borderLayer;
         [self.layer addSublayer:borderLayer];
     }
+    else {
+        self.layer.mask = nil;
+    }
 }
 
 - (BOOL) needsUpdateCornerRadius {

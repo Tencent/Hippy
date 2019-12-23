@@ -35,7 +35,7 @@
     _animationIdWithPropDictionary = [NSMutableDictionary new];
     _valuesByKey = [NSMutableDictionary new];
     _hippyTag = viewTag;
-		_rootTag = rootTag;
+    _rootTag = rootTag;
     _originParams = params;
   }
   return self;

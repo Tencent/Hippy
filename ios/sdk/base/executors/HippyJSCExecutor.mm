@@ -152,15 +152,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 @synthesize pEnv = _pEnv;
 @synthesize napi_ctx = _napi_ctx;
 @synthesize JSGlobalContextRef = _JSGlobalContextRef;
-@synthesize businessName = _businessName;
 HIPPY_EXPORT_MODULE()
-- (void) setBusinessName:(NSString *)businessName {
-    _businessName = businessName;
-    if (nil == [self contextName] && businessName) {
-        [self setContextName:[NSString stringWithFormat:@"HippyJSContext(%@)", businessName]];
-    }
-}
-
 - (void)setBridge:(HippyBridge *)bridge
 {
     _bridge = bridge;
@@ -195,7 +187,9 @@ HIPPY_EXPORT_MODULE()
     __weak typeof(self) weakSelf = self;
     hippy::base::RegisterFunction function = [weakSelf](void *){
         typeof(self) strongSelf = weakSelf;
-        [strongSelf->_bridge handleBuffer:nil batchEnded:YES];
+        if (strongSelf) {
+            [strongSelf->_bridge handleBuffer:nil batchEnded:YES];
+        }
     };
     std::unique_ptr<Engine::RegisterMap> ptr(new Engine::RegisterMap());
     ptr->insert(std::make_pair("ASYNC_TASK_END", function));
@@ -228,9 +222,6 @@ HIPPY_EXPORT_MODULE()
         self->_pEngine = data.weak_engine_;
         _jscWrapper = data.jscWrapper;
         _context = [[HippyJavaScriptContext alloc] initWithJSContext:data.context onThread:self->_pEngine];
-        if (_businessName) {
-            [self setContextName:[NSString stringWithFormat:@"HippyJSContext(%@)", _businessName]];
-        }
     }
     return self;
 }
@@ -291,9 +282,6 @@ HIPPY_EXPORT_MODULE()
             context = js_context;
             self->_JSGlobalContextRef = context.JSGlobalContextRef;
             self->_context = [[HippyJavaScriptContext alloc] initWithJSContext:context onThread:self->_pEngine];
-            if (self.businessName) {
-                [self setContextName:[NSString stringWithFormat:@"HippyJSContext(%@)", self.businessName]];
-            }
             [[NSNotificationCenter defaultCenter] postNotificationName:HippyJavaScriptContextCreatedNotification
                                                                 object:context];
             
