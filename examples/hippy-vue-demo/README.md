@@ -85,6 +85,8 @@ Build the native codes in `ios` with [Xcode](https://developer.apple.com/xcode/)
 
 Start to run the native app after build and connect the debug server.
 
+> Take care, when you build own js project, here's defined a [alias to local hippy-vue](./scripts/hippy-webpack.android-vendor.js#L61), you should remove it first, otherwise build progress will prompt a ModuleNotFound error.
+
 ## Integrate the js files to native app
 
 ### Build the production js files

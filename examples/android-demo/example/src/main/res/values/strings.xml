@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Hippy Test</string>
+    <string name="app_name">Hippy Demo</string>
     <string name="deprecated_activity_name">Hippy Deprecated</string>
     <string name="activity_name">Hippy Test</string>
     <string name="activity_tiny_name">Hippy Tiny</string>

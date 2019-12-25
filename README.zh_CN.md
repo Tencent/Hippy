@@ -55,14 +55,14 @@ macOS 用户需要以下软件：
 
 1. [XCode](https://developer.apple.com/xcode/) 和 iOS SDK: 用以编译 iOS 终端 app。
 2. [Android Studio](https://developer.android.com/AndroidStudio) 和 NDK: 用以编译 Android app。
-3. [nodeJS](https://nodejs.org/en/): 用来运行前端编译脚本。
+3. [Node.JS](http://nodejs.cn/): 用来运行前端编译脚本。
 
 我们推荐使用 [homebrew](https://brew.sh/) 来安装依赖。
 
 Windows 用户需要以下软件:
 
 1. [Android Studio](https://developer.android.com/AndroidStudio) 和 NDK: 用以编译 Android app。
-2. [nodeJS](https://nodejs.org/en/): 用来前端运行编译脚本。
+3. [Node.JS](http://nodejs.cn/): 用来运行前端编译脚本。
 
 *Windows 用户受条件所限，暂时无法进行 iOS app 开发*
 
@@ -85,7 +85,7 @@ Windows 用户需要以下软件:
 
 1. 安装前端依赖，运行命令：`npm install`。
 2. 编译前端 SDK 包，运行命令： `npm run build`。
-3. 打开 ConEmnu 中的 Git Shell，并选择 hippy-react 范例项目进行编译：`npm run buildexample hippy-react-demo`，或者编译 hippy-vue 范例项目 `npm run buildexample hippy-vue-demo`。
+3. 打开一个命令行程序，并选择 hippy-react 范例项目进行编译：`npm run buildexample hippy-react-demo`，或者编译 hippy-vue 范例项目 `npm run buildexample hippy-vue-demo`。
 4. 用 Android Studio 来打开终端范例工程 `examples/android-demo`.
 5. 用 USB 数据线插上你的 Android 手机，需要确认手机打开 USB 调试模式和 USB 安装。
 6. 运行工程，并安装 apk。。。

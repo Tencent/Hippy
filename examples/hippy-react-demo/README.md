@@ -57,6 +57,8 @@ npm run hippy:build # Build the index js
 
 The output files will be placed at `dist/android` and `dist/ios` folders.
 
+> Take care, when you build own js project, here's defined a [alias to local hippy-react](./scripts/hippy-webpack.android-vendor.js#L61), you should remove it first, otherwise build progress will prompt a ModuleNotFound error.
+
 ### Integrate built output js to native
 
 #### iOS
