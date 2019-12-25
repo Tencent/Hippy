@@ -53,7 +53,7 @@ Hippy
 
 For macOS developers:
 
-1. [XCode](https://developer.apple.com/xcode/) with iOS sdk: build the iOS app.
+1. [Xcode](https://developer.apple.com/xcode/) with iOS sdk: build the iOS app.
 2. [Android Studio](https://developer.android.com/AndroidStudio) with NDK: build the android app.
 3. [Node.JS](https://nodejs.org/en/): run the build scripts.
 
@@ -90,7 +90,7 @@ Before build the android app, please make sure the SDK and NDK is installed, And
 5. Connect android phone with USB cable and make sure USB debugging mode and USB installation are enabled.
 6. Open the project with Android Studio, run and install the apk...
 
-> For Windows Developers: Because Hippy example build script is writen with `bash`. Here's the [ConEmnu](https://conemu.github.io/) with `git shell` recommended, it is provided the Linux environment for Windows.
+> For Windows Developers: Because Hippy example build script is writen with `bash`. Here's the [ConEmu](https://conemu.github.io/) with `git shell` recommended, it is provided the Linux environment for Windows.
 
 > If you encought the issue of `No toolchains found in the NDK toolchains folder for ABI with prefix: mips64el-linux-android`, here is the [solution](https://github.com/google/filament/issues/15#issuecomment-415423557).
 
