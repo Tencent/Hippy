@@ -92,7 +92,7 @@ Before build the android app, please make sure the SDK and NDK is installed, And
 
 > For Windows Developers: Because Hippy example build script is writen with `bash`. Here's the [ConEmnu](https://conemu.github.io/) with `git shell` recommended, it is provided the Linux environment for Windows.
 
-> If you encought the issue of `No toolchains found in the NDK toolchains folder for ABI with prefix: mips64el-linux-android`, here is the [solution](https://github.com/google/filament/issues/15#issuecomment-415423557).
+> If you encounter the issue of `No toolchains found in the NDK toolchains folder for ABI with prefix: mips64el-linux-android`, here is the [solution](https://github.com/google/filament/issues/15#issuecomment-415423557).
 
 ###
 
