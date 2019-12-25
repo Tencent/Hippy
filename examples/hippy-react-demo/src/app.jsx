@@ -62,17 +62,15 @@ export default class App extends Component {
           return <View style={styles.blankPage} />;
       }
     };
+
     const renderButton = () => {
-      const buttonArray = () => {
-        if (Platform.OS === 'ios') {
-          // 在模拟器支持调试，在真机支持扫码更新
-          return isSimulator ? ['API', '本地调试'] : ['API', '扫码'];
-        }
-        return ['API', '扫码', '本地调试'];
-        // return ['API', '本地调试'];
-      };
+      let buttonArray = ['API', '本地调试'];
+      // iOS 真机仅支持查看范例
+      if (Platform.OS === 'ios' && !isSimulator) {
+        buttonArray = ['API'];
+      }
       return (
-        buttonArray().map((v, i) => (
+        buttonArray.map((v, i) => (
           <View
             style={styles.button}
             onClick={() => this.setState({ pageIndex: i })}

@@ -6,13 +6,13 @@ English | [简体中文](./README.zh_CN.md)
 
 ## Introduction
 
-Hippy is a cross-platform development framework, aiming to help developers write once, run on three platforms(iOS, Android and Web). Hippy is quite friendly to web developers, especially who are familar with React or Vue. With Hippy, developers are able to create the cross platform app easily.
+Hippy is a cross-platform development framework, aiming to help developers write once, run on three platforms(iOS, Android and Web). Hippy is quite friendly to web developers, especially who are familiar with React or Vue. With Hippy, developers are able to create the cross platform app easily.
 
 Hippy is now applied in 18 [Tencent](http://www.tencent.com/) apps concerning tens of billions of ordinary users.
 
 ## Advantages
 
-* Design for web developers, offically support web frameworks like `React` and `Vue`.
+* Design for web developers, officially support web frameworks like `React` and `Vue`.
 * Same APIs for different platforms.
 * Excellent performance with JS engine binding communication.
 * Build-in recyclable component with better performance.
@@ -55,14 +55,14 @@ For macOS developers:
 
 1. [XCode](https://developer.apple.com/xcode/) with iOS sdk: build the iOS app.
 2. [Android Studio](https://developer.android.com/AndroidStudio) with NDK: build the android app.
-3. [nodeJS](https://nodejs.org/en/): run the build scripts.
+3. [Node.JS](https://nodejs.org/en/): run the build scripts.
 
 [homebrew](https://brew.sh/) is recommended to install the dependencies.
 
 For Windows developers:
 
 1. [Android Studio](https://developer.android.com/AndroidStudio) with NDK: build the android app.
-2. [nodeJS](https://nodejs.org/en/): run the build scripts.
+2. [Node.JS](https://nodejs.org/en/): run the build scripts.
 
 *Windows can't run the iOS development environment so far.*
 
@@ -85,12 +85,12 @@ Before build the android app, please make sure the SDK and NDK is installed, And
 
 1. Install the dependencies with `npm install`.
 2. Build the front-end sdk packages with `npm run build`.
-3. Start `ConEmu` with git shell, then build the hippy-react demo with `npm run buildexample -- hippy-react-demo`, or build the hippy-vue demo with `npm run buildexample -- hippy-vue-demo` .
+3. Open a terminal, then build the hippy-react demo with `npm run buildexample -- hippy-react-demo`, or build the hippy-vue demo with `npm run buildexample -- hippy-vue-demo` .
 4. Open the `examples/android-demo` with Android Studio.
 5. Connect android phone with USB cable and make sure USB debugging mode and USB installation are enabled.
 6. Open the project with Android Studio, run and install the apk...
 
-> For Windows Developers: Because Hippy example build script is writen with `bash`. Here's the [ConEmnu](https://conemu.github.io/) with git shell recommended, it is provided the Linux environment for Windows.
+> For Windows Developers: Because Hippy example build script is writen with `bash`. Here's the [ConEmnu](https://conemu.github.io/) with `git shell` recommended, it is provided the Linux environment for Windows.
 
 > If you encought the issue of `No toolchains found in the NDK toolchains folder for ABI with prefix: mips64el-linux-android`, here is the [solution](https://github.com/google/filament/issues/15#issuecomment-415423557).
 
