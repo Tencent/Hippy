@@ -53,7 +53,7 @@ Hippy
 
 For macOS developers:
 
-1. [XCode](https://developer.apple.com/xcode/) with iOS sdk: build the iOS app.
+1. [Xcode](https://developer.apple.com/xcode/) with iOS sdk: build the iOS app.
 2. [Android Studio](https://developer.android.com/AndroidStudio) with NDK: build the android app.
 3. [Node.JS](https://nodejs.org/en/): run the build scripts.
 

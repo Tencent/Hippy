@@ -53,7 +53,7 @@ Hippy
 
 macOS 用户需要以下软件：
 
-1. [XCode](https://developer.apple.com/xcode/) 和 iOS SDK: 用以编译 iOS 终端 app。
+1. [Xcode](https://developer.apple.com/xcode/) 和 iOS SDK: 用以编译 iOS 终端 app。
 2. [Android Studio](https://developer.android.com/AndroidStudio) 和 NDK: 用以编译 Android app。
 3. [Node.JS](http://nodejs.cn/): 用来运行前端编译脚本。
 
