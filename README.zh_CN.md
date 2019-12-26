@@ -21,7 +21,7 @@ Hippy 是一个新生的跨端开发框架，目标是使开发者可以只写�
 
 ## Project structure
 
-```
+```text
 Hippy
 ├── examples                          # 前终端范例代码。
 │   ├── hippy-react-demo              # hippy-react 前端范例代码。
@@ -62,9 +62,9 @@ macOS 用户需要以下软件：
 Windows 用户需要以下软件:
 
 1. [Android Studio](https://developer.android.com/AndroidStudio) 和 NDK: 用以编译 Android app。
-3. [Node.JS](http://nodejs.cn/): 用来运行前端编译脚本。
+2. [Node.JS](http://nodejs.cn/): 用来运行前端编译脚本。
 
-*Windows 用户受条件所限，暂时无法进行 iOS app 开发*
+> Windows 用户受条件所限，暂时无法进行 iOS app 开发
 
 ### 编译出你的 Hippy app
 
@@ -77,7 +77,7 @@ Windows 用户需要以下软件:
 3. 选择一个前端范例项目来啊进行编译：`npm run buildexample -- [hippy-react-demo|hippy-vue-demo]`。
 4. 启动 Xcode 并且开始编译终端 App：`open examples/ios-demo/HippyDemo.xcodeproj`。
 
-### 启动 Android App 来测试 hippy-react 或者 hippy-vue 范例。
+### 启动 Android App 来测试 hippy-react 或者 hippy-vue 范例
 
 我们推荐 Android 开发者使用真机，因为 Hippy 使用的 [X5](https://x5.tencent.com/) JS 引擎没有提供 x86 的库以至于无法支持 x86 模拟器，但是使用 ARM 模拟器又很慢。
 

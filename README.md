@@ -21,7 +21,7 @@ Hippy is now applied in 18 [Tencent](http://www.tencent.com/) apps reaching hund
 
 ## Project structure
 
-```
+```text
 Hippy
 ├── examples                          # Demo code for frontend or native developer.
 │   ├── hippy-react-demo              # hippy-react js demo code.
@@ -64,7 +64,7 @@ For Windows developers:
 1. [Android Studio](https://developer.android.com/AndroidStudio) with NDK: build the android app.
 2. [Node.JS](https://nodejs.org/en/): run the build scripts.
 
-*Windows can't run the iOS development environment so far.*
+> Windows can't run the iOS development environment so far.
 
 ### Build your first Hippy app
 
@@ -93,8 +93,6 @@ Before build the android app, please make sure the SDK and NDK is installed, And
 > For Windows Developers: Because Hippy example build script is writen with `bash`. Here's the [ConEmu](https://conemu.github.io/) with `git shell` recommended, it is provided the Linux environment for Windows.
 
 > If you encounter the issue of `No toolchains found in the NDK toolchains folder for ABI with prefix: mips64el-linux-android`, here is the [solution](https://github.com/google/filament/issues/15#issuecomment-415423557).
-
-###
 
 ## Contribution
 

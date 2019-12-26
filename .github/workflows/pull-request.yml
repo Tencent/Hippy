@@ -26,6 +26,8 @@ jobs:
         run: npm install
       - name: lint
         run: npm run lint
+      - name: markdownlint
+        run: npm run markdownlint
       - name: test
         run: npm run test
       - name: build
