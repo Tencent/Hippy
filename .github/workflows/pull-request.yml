@@ -16,12 +16,15 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    strategy:
+      matrix:
+        node: [ '10', '12' ]
     steps:
       - uses: actions/checkout@v1
       - name: setup-node
         uses: actions/setup-node@master
         with:
-          node-version: 10.x
+          node-version: ${{ matrix.node }}
       - name: install
         run: npm install
       - name: lint
