@@ -11,14 +11,15 @@ layout/cproject
 layout/.project
 layout/.settings
 examples/*/res/vendor-manifest.json
-android/sdk/build
-android/support_ui/build
 android/sdk/src/main/jni/core
-examples/android-demo/build/
-examples/android-demo/.gradle
-examples/android-demo/.idea/
-examples/android-demo/local.properties
-examples/android-demo/example/.externalNativeBuild
 examples/android-demo/example/src/main/assets/
 examples/ios-demo/HippyDemo.xcodeproj/project.xcworkspace/xcuserdata/*
 examples/ios-demo/HippyDemo.xcodeproj/xcuserdata/*
+
+# android
+*.iml
+local.properties
+.idea/
+.gradle/
+build/
+.externalNativeBuild
