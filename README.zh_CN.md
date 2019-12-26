@@ -74,7 +74,7 @@ Windows 用户需要以下软件:
 
 1. 安装前端依赖，运行命令：`npm install`。
 2. 编译前端 SDK 包，运行命令： `npm run build`。
-3. 选择一个前端范例项目来啊进行编译：`npm run buildexample -- [hippy-react-demo|hippy-vue-demo]`。
+3. 选择一个前端范例项目来进行编译：`npm run buildexample -- [hippy-react-demo|hippy-vue-demo]`。
 4. 启动 Xcode 并且开始编译终端 App：`open examples/ios-demo/HippyDemo.xcodeproj`。
 
 ### 启动 Android App 来测试 hippy-react 或者 hippy-vue 范例
