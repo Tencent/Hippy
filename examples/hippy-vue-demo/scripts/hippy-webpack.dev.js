@@ -1,7 +1,7 @@
-const path              = require('path');
-const webpack           = require('webpack');
-const VueLoaderPlugin   = require('vue-loader/lib/plugin');
-const pkg               = require('../package.json');
+const path = require('path');
+const webpack = require('webpack');
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const pkg = require('../package.json');
 
 module.exports = {
   mode: 'development',
@@ -86,9 +86,9 @@ module.exports = {
     extensions: ['.js', '.vue', '.json'],
     modules: [path.resolve(__dirname, '../node_modules')],
     alias: {
-      vue: path.resolve(__dirname, '../../../packages/hippy-vue'),
+      vue: path.resolve(__dirname, '../node_modules/hippy-vue'),
       '@': path.resolve('./src'),
-      'vue-router': path.resolve(__dirname, '../../../packages/hippy-vue-router'),
+      'vue-router': path.resolve(__dirname, '../node_modules/hippy-vue-router'),
     },
   },
 };

@@ -1,7 +1,7 @@
-const path                        = require('path');
-const webpack                     = require('webpack');
-const VueLoaderPlugin             = require('vue-loader/lib/plugin');
-const CaseSensitivePathsPlugin    = require('case-sensitive-paths-webpack-plugin');
+const path = require('path');
+const webpack = require('webpack');
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 
 const platform = 'ios';
 
@@ -67,8 +67,8 @@ module.exports = {
     extensions: ['.js', '.vue', '.json'],
     modules: [path.resolve(__dirname, '../node_modules')],
     alias: {
-      vue: path.resolve(__dirname, '../../../packages/hippy-vue'),
-      'vue-router': path.resolve(__dirname, '../../../packages/hippy-vue-router'),
+      vue: path.resolve(__dirname, '../node_modules/hippy-vue'),
+      'vue-router': path.resolve(__dirname, '../node_modules/hippy-vue-router'),
     },
   },
 };

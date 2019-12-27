@@ -1,10 +1,10 @@
-const path                        = require('path');
-const webpack                     = require('webpack');
-const VueLoaderPlugin             = require('vue-loader/lib/plugin');
-const CaseSensitivePathsPlugin    = require('case-sensitive-paths-webpack-plugin');
-const pkg                         = require('../package.json');
+const path = require('path');
+const webpack = require('webpack');
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
+const pkg = require('../package.json');
 // eslint-disable-next-line import/no-dynamic-require
-const manifest                    = require(path.resolve('./dist/android/vendor-manifest.json'));
+const manifest = require(path.resolve('./dist/android/vendor-manifest.json'));
 
 const platform = 'android';
 
@@ -84,9 +84,9 @@ module.exports = {
     extensions: ['.js', '.vue', '.json'],
     modules: [path.resolve(__dirname, '../node_modules')],
     alias: {
-      vue: path.resolve(__dirname, '../../../packages/hippy-vue'),
+      vue: path.resolve(__dirname, '../node_modules/hippy-vue'),
       '@': path.resolve('./src'),
-      'vue-router': path.resolve(__dirname, '../../../packages/hippy-vue-router'),
+      'vue-router': path.resolve(__dirname, '../node_modules/hippy-vue-router'),
     },
   },
 };
