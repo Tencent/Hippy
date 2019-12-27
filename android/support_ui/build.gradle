@@ -50,5 +50,3 @@ def unZipAar(file) {
         rename 'classes.jar', 'support-ui.jar'
     }
 }
-
-apply from: 'maven.gradle'
