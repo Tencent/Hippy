@@ -21,7 +21,7 @@
 */
 
 #import "HippyViewPagerItem.h"
-#import "UIView+React.h"
+#import "UIView+Hippy.h"
 
 @implementation HippyViewPagerItem
 

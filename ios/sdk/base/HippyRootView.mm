@@ -37,7 +37,7 @@
 #import "HippyUIManager.h"
 #import "HippyUtils.h"
 #import "HippyView.h"
-#import "UIView+React.h"
+#import "UIView+Hippy.h"
 #import "HippyBridge+Mtt.h"
 #import "HippyBundleURLProvider.h"
 

@@ -21,7 +21,7 @@
 */
 
 #import "HippyBaseListItemView.h"
-#import "UIView+React.h"
+#import "UIView+Hippy.h"
 
 @implementation HippyBaseListItemView
 

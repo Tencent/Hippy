@@ -20,9 +20,9 @@
 * limitations under the License.
 */
 
-#import "UIImageView+React.h"
+#import "UIImageView+Hippy.h"
 #import <objc/runtime.h>
-#import "UIView+React.h"
+#import "UIView+Hippy.h"
 #define HippyEventMethod(name, value, type) \
 - (void)set##name:(type)value \
 { \

@@ -21,7 +21,7 @@
 */
 
 #import "HippyRefreshWrapper.h"
-#import "UIView+React.h"
+#import "UIView+Hippy.h"
 #import "HippyRefreshWrapperItemView.h"
 #import "HippyScrollableProtocol.h"
 @interface HippyRefreshWrapper()<UIScrollViewDelegate>

@@ -28,7 +28,7 @@
 #import "HippyConvert.h"
 #import "HippyShadowView.h"
 #import "HippyUtils.h"
-#import "UIView+React.h"
+#import "UIView+Hippy.h"
 #import "HippyBridgeModule.h"
 
 typedef void (^HippyPropBlock)(id<HippyComponent> view, id json);

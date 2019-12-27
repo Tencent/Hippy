@@ -27,7 +27,7 @@
 #import "HippyConvert.h"
 #import "HippyLog.h"
 #import "HippyUtils.h"
-#import "UIView+React.h"
+#import "UIView+Hippy.h"
 #import "HippyBackgroundImageCacheManager.h"
 
 dispatch_queue_t g_background_queue = nil;

@@ -20,7 +20,7 @@
 * limitations under the License.
 */
 #import "HippyRefreshWrapperItemView.h"
-#import "UIView+React.h"
+#import "UIView+Hippy.h"
 @implementation HippyRefreshWrapperItemView
 
 - (void) setFrame:(CGRect)frame {

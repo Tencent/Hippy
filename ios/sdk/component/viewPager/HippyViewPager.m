@@ -21,7 +21,7 @@
 */
 
 #import "HippyViewPager.h"
-#import "UIView+React.h"
+#import "UIView+Hippy.h"
 #import "HippyLog.h"
 
 #define MTT_FORWARD_SCROLL_EVENT(call) \

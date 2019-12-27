@@ -24,7 +24,7 @@
 
 #import "HippyShadowText.h"
 #import "HippyUtils.h"
-#import "UIView+React.h"
+#import "UIView+Hippy.h"
 
 static void collectNonTextDescendants(HippyText *view, NSMutableArray *nonTextDescendants)
 {
