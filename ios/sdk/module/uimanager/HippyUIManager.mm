@@ -42,7 +42,7 @@
 #import "HippyUtils.h"
 #import "HippyView.h"
 #import "HippyViewManager.h"
-#import "UIView+React.h"
+#import "UIView+Hippy.h"
 #import "HippyExtAnimationViewParams.h"
 #import "HippyExtAnimationModule.h"
 #import "UIView+Private.h"

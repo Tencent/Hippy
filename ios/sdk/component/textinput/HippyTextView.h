@@ -24,7 +24,7 @@
 
 #import "HippyView.h"
 #import "HippyBaseTextInput.h"
-#import "UIView+React.h"
+#import "UIView+Hippy.h"
 
 @class HippyEventDispatcher;
 

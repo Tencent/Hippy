@@ -29,7 +29,7 @@
 #import "HippyUIManager.h"
 #import "HippyUtils.h"
 #import "UIView+Private.h"
-#import "UIView+React.h"
+#import "UIView+Hippy.h"
 #import "HippyInvalidating.h"
 
 

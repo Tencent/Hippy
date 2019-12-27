@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "UIView+React.h"
+#import "UIView+Hippy.h"
 
 #import <objc/runtime.h>
 

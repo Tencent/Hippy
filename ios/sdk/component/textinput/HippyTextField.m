@@ -25,7 +25,7 @@
 #import "HippyConvert.h"
 #import "HippyUtils.h"
 #import "HippyTextSelection.h"
-#import "UIView+React.h"
+#import "UIView+Hippy.h"
 
 @implementation HippyUITextField
 {

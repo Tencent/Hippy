@@ -22,7 +22,7 @@
 
 #import "HippyVideoPlayer.h"
 
-#import "UIView+React.h"
+#import "UIView+Hippy.h"
 
 @interface HippyVideoPlayer ()
 //视频播放器

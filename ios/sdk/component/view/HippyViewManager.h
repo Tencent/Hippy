@@ -27,7 +27,7 @@
 #import "HippyDefines.h"
 #import "HippyEventDispatcher.h"
 #import "HippyLog.h"
-#import "UIView+React.h"
+#import "UIView+Hippy.h"
 #import "HippyBundleURLProvider.h"
 
 @class HippyBridge;

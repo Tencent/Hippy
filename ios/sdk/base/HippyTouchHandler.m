@@ -21,7 +21,7 @@
 */
 
 #import "HippyTouchHandler.h"
-#import "UIView+React.h"
+#import "UIView+Hippy.h"
 #import "HippyScrollProtocol.h"
 #import "HippyUIManager.h"
 #import "HippyText.h"

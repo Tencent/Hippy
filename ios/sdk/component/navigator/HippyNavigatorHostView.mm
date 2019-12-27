@@ -25,7 +25,7 @@
 #import "HippyRootView.h"
 #import "HippyBridge.h"
 #import "HippyBridge+Private.h"
-#import "UIView+React.h"
+#import "UIView+Hippy.h"
 #import "HippyNavigatorItemViewController.h"
 #import "HippyNavigatorRootViewController.h"
 #import "HippyAssert.h"

@@ -23,7 +23,7 @@
 #import "HippyImageView.h"
 #import <objc/runtime.h>
 #import "HippyUtils.h"
-#import "UIView+React.h"
+#import "UIView+Hippy.h"
 #import "HippyImageViewCustomLoader.h"
 #import "HippyBridge+LocalFileSource.h"
 #import "HippyImageCacheManager.h"

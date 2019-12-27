@@ -23,7 +23,7 @@
 #import "HippyBaseListView.h"
 #import "HippyBridge.h"
 #import "HippyRootView.h"
-#import "UIView+React.h"
+#import "UIView+Hippy.h"
 #import "HippyScrollProtocol.h"
 
 #define CELL_TAG 10101

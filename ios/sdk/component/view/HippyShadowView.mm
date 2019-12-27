@@ -25,7 +25,7 @@
 #import "HippyConvert.h"
 #import "HippyLog.h"
 #import "HippyUtils.h"
-#import "UIView+React.h"
+#import "UIView+Hippy.h"
 #import "UIView+Private.h"
 
 static NSString *const HippyBackgroundColorProp = @"backgroundColor";

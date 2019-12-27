@@ -28,7 +28,7 @@
 #import "HippyShadowText.h"
 #import "HippyText.h"
 #import "HippyTextView.h"
-#import "UIView+React.h"
+#import "UIView+Hippy.h"
 #import "HippyVirtualTextNode.h"
 
 //遍历该shadowView（shadowText）的dirty且非shadowText的子view，将之加入到queue

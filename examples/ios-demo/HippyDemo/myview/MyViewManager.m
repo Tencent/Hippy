@@ -22,7 +22,7 @@
 
 #import "MyViewManager.h"
 #import "MyView.h"
-#import "UIView+React.h"
+#import "UIView+Hippy.h"
 #import "HippyUIManager.h"
 
 @implementation MyViewManager
