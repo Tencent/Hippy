@@ -17,7 +17,7 @@ import WebView from './components/web-view';
 import VideoPlayer from './components/video-player';
 import Animation from './modules/animation';
 import AnimationSet from './modules/animation-set';
-import StyleSheet from './modules/StyleSheet';
+import StyleSheet from './modules/stylesheet';
 import * as NetInfo from './modules/net-info';
 import * as NetworkModule from './modules/network-module';
 
