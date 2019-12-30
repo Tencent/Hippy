@@ -54,14 +54,14 @@ Hippy
 For macOS developers:
 
 1. [Xcode](https://developer.apple.com/xcode/) with iOS sdk: build the iOS app.
-2. [Android Studio](https://developer.android.com/AndroidStudio) with NDK: build the android app.
+2. [Android Studio](https://developer.android.com/studio) with NDK: build the android app.
 3. [Node.JS](https://nodejs.org/en/): run the build scripts.
 
 [homebrew](https://brew.sh/) is recommended to install the dependencies.
 
 For Windows developers:
 
-1. [Android Studio](https://developer.android.com/AndroidStudio) with NDK: build the android app.
+1. [Android Studio](https://developer.android.com/studio) with NDK: build the android app.
 2. [Node.JS](https://nodejs.org/en/): run the build scripts.
 
 > Windows can't run the iOS development environment so far.
