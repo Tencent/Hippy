@@ -78,10 +78,7 @@ struct napi_vm__ {
     CodeCacheSanityCheck::check(isolate, result, source);
   }
   static void PlatformDestroy() {
-    if (platform_) {
-      delete platform_;
-      platform_ = nullptr;
-    }
+    delete platform_;
 
     v8::V8::Dispose();
     v8::V8::ShutdownPlatform();

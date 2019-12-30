@@ -181,9 +181,7 @@ napi_vm napi_create_vm() {
 }
 
 void napi_vm_release(napi_vm vm) {
-  if (vm) {
-    delete vm;
-  }
+  delete vm;
 }
 
 void* napi_get_vm_data(napi_vm vm) {
