@@ -88,9 +88,7 @@ Windows 用户需要以下软件:
 3. 打开一个命令行程序，并选择 hippy-react 范例项目进行编译：`npm run buildexample hippy-react-demo`，或者编译 hippy-vue 范例项目 `npm run buildexample hippy-vue-demo`。
 4. 用 Android Studio 来打开终端范例工程 `examples/android-demo`.
 5. 用 USB 数据线插上你的 Android 手机，需要确认手机打开 USB 调试模式和 USB 安装。
-6. 运行工程，并安装 apk。。。
-
-> Windows 开发者：同时因为 Hippy 的范例编译脚本暂时是用 Bash 开发的，我们推荐使用带有 Git Shell 的 [ConEmu](https://conemu.github.io/) 来运行编译脚本，它提供了和 Linux 一样的命令运行环境。
+6. 运行工程，并安装 apk。
 
 > 如果 Android Studio 报了这个错误 `No toolchains found in the NDK toolchains folder for ABI with prefix: mips64el-linux-android`，这里有[解决办法](https://github.com/google/filament/issues/15#issuecomment-415423557)。
 

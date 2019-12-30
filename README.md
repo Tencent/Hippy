@@ -88,9 +88,7 @@ Before build the android app, please make sure the SDK and NDK is installed, And
 3. Open a terminal, then build the hippy-react demo with `npm run buildexample -- hippy-react-demo`, or build the hippy-vue demo with `npm run buildexample -- hippy-vue-demo` .
 4. Open the `examples/android-demo` with Android Studio.
 5. Connect android phone with USB cable and make sure USB debugging mode and USB installation are enabled.
-6. Open the project with Android Studio, run and install the apk...
-
-> For Windows Developers: Because Hippy example build script is writen with `bash`. Here's the [ConEmu](https://conemu.github.io/) with `git shell` recommended, it is provided the Linux environment for Windows.
+6. Open the project with Android Studio, run and install the apk.
 
 > If you encounter the issue of `No toolchains found in the NDK toolchains folder for ABI with prefix: mips64el-linux-android`, here is the [solution](https://github.com/google/filament/issues/15#issuecomment-415423557).
 
