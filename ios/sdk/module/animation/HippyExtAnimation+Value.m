@@ -57,20 +57,12 @@
 {
     double byValue = self.startValue - self.endValue;
 	if ([prop isEqualToString: @"top"]) {
-//        self.fromValue = @(center.y);
-//        self.toValue = @(center.y - (self.startValue - self.endValue));
         self.byValue = @(-byValue);
 	} else if ([prop isEqualToString: @"left"]) {
-//        self.fromValue = @(center.x);
-//        self.toValue = @(center.x - (self.startValue - self.endValue));
         self.byValue = @(-byValue);
 	} else if ([prop isEqualToString: @"right"]) {
-//        self.fromValue = @(center.x);
-//        self.toValue = @(center.x + (self.startValue - self.endValue));
         self.byValue = @(byValue);
 	} else if ([prop isEqualToString: @"bottom"]) {
-//        self.fromValue = @(center.y);
-//        self.toValue = @(center.y + (self.startValue - self.endValue));
         self.byValue = @(byValue);
 	}
 }

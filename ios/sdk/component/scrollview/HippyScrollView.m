@@ -776,10 +776,8 @@ HIPPY_SET_AND_PRESERVE_OFFSET(setKeyboardDismissMode, keyboardDismissMode, UIScr
 HIPPY_SET_AND_PRESERVE_OFFSET(setMaximumZoomScale, maximumZoomScale, CGFloat)
 HIPPY_SET_AND_PRESERVE_OFFSET(setMinimumZoomScale, minimumZoomScale, CGFloat)
 HIPPY_SET_AND_PRESERVE_OFFSET(setScrollEnabled, isScrollEnabled, BOOL)
-#if !TARGET_OS_TV
 HIPPY_SET_AND_PRESERVE_OFFSET(setPagingEnabled, isPagingEnabled, BOOL)
 HIPPY_SET_AND_PRESERVE_OFFSET(setScrollsToTop, scrollsToTop, BOOL)
-#endif
 HIPPY_SET_AND_PRESERVE_OFFSET(setShowsHorizontalScrollIndicator, showsHorizontalScrollIndicator, BOOL)
 HIPPY_SET_AND_PRESERVE_OFFSET(setShowsVerticalScrollIndicator, showsVerticalScrollIndicator, BOOL)
 HIPPY_SET_AND_PRESERVE_OFFSET(setZoomScale, zoomScale, CGFloat);

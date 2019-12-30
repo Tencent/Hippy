@@ -214,11 +214,7 @@ HIPPY_EXPORT_MODULE(AsyncStorage)
 - (NSDictionary *)_ensureSetup
 {
     HippyAssertThread(HippyGetMethodQueue(), @"Must be executed on storage thread");
-    
-#if TARGET_OS_TV
-    HippyLogWarn(@"Persistent storage is not supported on tvOS, your data may be removed at any point.")
-#endif
-    
+
     NSError *error = nil;
     if (!_HippyHasCreatedStorageDirectory) {
         [[NSFileManager defaultManager] createDirectoryAtPath:[self HippyGetStorageDirectory]

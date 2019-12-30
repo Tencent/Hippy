@@ -79,14 +79,10 @@ typedef NSURL HippyFileURL;
 + (UIKeyboardType)UIKeyboardType:(id)json;
 + (UIKeyboardAppearance)UIKeyboardAppearance:(id)json;
 + (UIReturnKeyType)UIReturnKeyType:(id)json;
-#if !TARGET_OS_TV
 + (UIDataDetectorTypes)UIDataDetectorTypes:(id)json;
-#endif
 
 + (UIViewContentMode)UIViewContentMode:(id)json;
-#if !TARGET_OS_TV
 + (UIBarStyle)UIBarStyle:(id)json;
-#endif
 
 + (CGFloat)CGFloat:(id)json;
 + (CGPoint)CGPoint:(id)json;

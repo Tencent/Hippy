@@ -23,10 +23,10 @@
 #import <Foundation/Foundation.h>
 #import "HippyBridgeModule.h"
 
-// ****此类必须继承才能使用****
-// 注册监听事件类，JS测可以调用接口监听终端事件响应，通过sendEvent将事件发送给JS
-
-
+/**abastract class
+ * need to be Derived for use
+ * 
+ */
 @interface HippyEventObserverModule : NSObject <HippyBridgeModule>
 
 - (void)addEventObserverForName:(NSString *)eventName;

@@ -60,7 +60,6 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)init)
 
 static void attemptAsynchronousLoadOfBundleAtURL(NSURL *scriptURL, __unused HippySourceLoadProgressBlock onProgress, HippySourceLoadBlock onComplete)
 {
-    //单签
     scriptURL = sanitizeURL(scriptURL);
     
     if (scriptURL.fileURL) {

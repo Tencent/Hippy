@@ -28,12 +28,10 @@
 @property (nonatomic, readonly) NSNumber *hippyTag;
 @property (nonatomic, readonly) NSNumber *rootTag;
 
-//大概是AnimationGroup需要用到的？单个动画应该只有一个animationId
 @property (nonatomic, readonly) NSDictionary <NSString *, NSNumber *> *animationIdWithPropDictionary;
 
 - (void)parse;
 
-//赋值给originParams
 - (instancetype)initWithParams:(NSDictionary *)params viewTag:(NSNumber *)viewTag rootTag:(NSNumber *)rootTag;
 
 - (void)setValue:(id)value forProp:(NSString *)prop;

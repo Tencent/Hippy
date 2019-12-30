@@ -26,8 +26,5 @@
 
 @property (nonatomic, copy) void (^boundsDidChangeBlock)(CGRect newBounds);
 @property (nonatomic, strong) NSNumber *hideStatusBar;
-#if !TARGET_OS_TV
 @property (nonatomic, assign) UIInterfaceOrientationMask supportedInterfaceOrientations;
-#endif
-
 @end

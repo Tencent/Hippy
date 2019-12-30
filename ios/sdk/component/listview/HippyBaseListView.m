@@ -66,8 +66,8 @@
 	BOOL _isInitialListReady;
 	NSUInteger _preNumberOfRows;
 	NSTimeInterval _lastScrollDispatchTime;
-    BOOL _hasFillListViewFrame;//缓存是否至少填满ListView Frame。只判断一次。onEndReach的必要条件之一
-    CGFloat _nowHeight;//当前cell累加到达的总高度（0、1、2、3...），配合_hasReachEnd使用
+    BOOL _hasFillListViewFrame;
+    CGFloat _nowHeight;
 }
 
 @synthesize node = _node;

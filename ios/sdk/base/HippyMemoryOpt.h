@@ -24,7 +24,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// 一些涉及内存优化的协议，仅限于UIView类型组件使用
+/// A protocol for memory optimization
+///
 @protocol HippyMemoryOpt <NSObject>
 @required
 /// invoked when memory warning received
