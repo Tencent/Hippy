@@ -98,7 +98,6 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
     return self;
 }
 
-//多根手指触碰时，touches可能count>1
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event;
 {
     [super touchesBegan:touches withEvent:event];
@@ -185,11 +184,6 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
                 }
             }
         } else {
-            //by rainywan
-            //在复杂情境（videoFeeds进度条）下，拖拽进度条touchMoved时，回传的touch对象的绑定view容易丢失（被edgeGesture、panScrollViewGesture等手势干扰）
-            //因此加这个备用方案，从moveViews取这个move的缓存
-            //暂时只发现touchEnd有这个问题。touchMove也是类似的方案
-            //但这要求view拥有onTouchMove属性
             if (_moveViews.count > 0 && _moveViews[0] && _moveViews[0][@"onTouchMove"]) {
                 NSDictionary *bundle = _moveViews[0][@"onTouchMove"];
                 if (bundle && bundle[@"view"]) {
@@ -267,11 +261,6 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
         }
     }
     self.state = UIGestureRecognizerStateCancelled;
-    //按压屏幕边缘滑动触发3d touch之后，feeds可能会进入touchesCancelled方法，但是没有调用reset方法。或者不进入touchesCancelled而直接调用reset
-    //下面两种情况都出现过
-    //1. touchesBegan->touchesMoved->touchesCancelled(无reset)
-    //2. touchesBegan->touchesMoved->reset(直接reset，无touchesCancelled)
-    //需要手动禁用再启用手势，否则feeds页面无法滑动
     self.enabled = NO;
     self.enabled = YES;
 }
@@ -303,12 +292,6 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
         if (index != NSNotFound) {
             result = _moveViews[index];
         } else {
-            //            UIView *view = touch.view;
-            //            if (nil == view) {
-            //                CGPoint point = [touch locationInView:[UIApplication sharedApplication].keyWindow];
-            //                view = [[[UIApplication sharedApplication] keyWindow] hitTest:point withEvent:event];
-            //            }
-            //            NSAssert(view, @"如果执行了这个assert，那把上面这句话打开吧");
             NSDictionary *result = [self responseViewForAction:@[@"onTouchMove", @"onPressOut", @"onClick"] inView: touch.view atPoint:[touch locationInView:touch.view]];
             [_moveTouches addObject: touch];
             [_moveViews addObject: result];
@@ -332,8 +315,6 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
             }
             
             if (clickView == nil || (index <= clickIndex && clickIndex != NSNotFound)) {
-                //view.onTouchMove在视频浮层中会被前端删除，导致崩溃，这里先做个判断
-                //点击视频的option按钮，在页面滑动即可重现
                 if (view.onTouchMove) {
                     CGPoint point = [touch locationInView: view];
                     point = [view convertPoint: point toView: _rootView];
@@ -544,16 +525,12 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
         }
     }
     
-    //2. touchesBegan->touchesMoved->reset(直接reset，无touchesCancelled)
-    //这种情况下，3d touch会导致cell一直处于选中状态
     if (_onPressInView) {
         _bPressIn = NO;
         if (_onPressInView.onPressOut) {
             _onPressInView.onPressOut(@{});
         }
     }
-    //touchBegan之后如果手势rest会导致后面的touchEnded,touchMoved不被调用
-    //导致首页feeds页面中某个cell一直处于被点击状态
     [self clearTimer];
     _bLongClick = NO;
     [self clearLongClickTimer];

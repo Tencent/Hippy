@@ -62,46 +62,11 @@ static void HippyTraverseViewNodes(id<HippyComponent> view, void (^block)(id<Hip
     }
 }
 
-//static BOOL CGRectNotNAN(CGRect frame) {
-//    if (isnan(frame.origin.x) ||
-//        isnan(frame.origin.y) ||
-//        isnan(frame.size.width) ||
-//        isnan(frame.size.height)) {
-//        return NO;
-//    }
-//    return YES;
-//}
-
 const char *HippyUIManagerQueueName = "com.tencent.hippy.ShadowQueue";
 NSString *const HippyUIManagerWillUpdateViewsDueToContentSizeMultiplierChangeNotification = @"HippyUIManagerWillUpdateViewsDueToContentSizeMultiplierChangeNotification";
 NSString *const HippyUIManagerDidRegisterRootViewNotification = @"HippyUIManagerDidRegisterRootViewNotification";
 NSString *const HippyUIManagerDidRemoveRootViewNotification = @"HippyUIManagerDidRemoveRootViewNotification";
 NSString *const HippyUIManagerRootViewKey = @"HippyUIManagerRootViewKey";
-
-
-//not used function
-//static UIViewAnimationCurve _currentKeyboardAnimationCurve;
-
-//not used function
-//static UIViewAnimationOptions UIViewAnimationOptionsFromHippyAnimationType(HippyAnimationType type)
-//{
-//  switch (type) {
-//    case HippyAnimationTypeLinear:
-//      return UIViewAnimationOptionCurveLinear;
-//    case HippyAnimationTypeEaseIn:
-//      return UIViewAnimationOptionCurveEaseIn;
-//    case HippyAnimationTypeEaseOut:
-//      return UIViewAnimationOptionCurveEaseOut;
-//    case HippyAnimationTypeEaseInEaseOut:
-//      return UIViewAnimationOptionCurveEaseInOut;
-//    case HippyAnimationTypeKeyboard:
-//      // http://stackoverflow.com/questions/18870447/how-to-use-the-default-ios7-uianimation-curve
-//      return (UIViewAnimationOptions)(_currentKeyboardAnimationCurve << 16);
-//    default:
-//      HippyLogError(@"Unsupported animation type %zd", type);
-//      return UIViewAnimationOptionCurveEaseInOut;
-//  }
-//}
 
 @implementation HippyUIManager
 {
@@ -120,9 +85,7 @@ NSString *const HippyUIManagerRootViewKey = @"HippyUIManagerRootViewKey";
     NSDictionary *_componentDataByName;
     
     NSMutableSet<id<HippyComponent>> *_bridgeTransactionListeners;
-#if !TARGET_OS_TV
     UIInterfaceOrientation _currentInterfaceOrientation;
-#endif
     
     NSMutableArray<HippyViewUpdateCompletedBlock> *_completeBlocks;
     
@@ -197,7 +160,6 @@ HIPPY_EXPORT_MODULE()
 
 - (void)interfaceOrientationWillChange:(NSNotification *)notification
 {
-#if !TARGET_OS_TV
     UIInterfaceOrientation nextOrientation =
     (UIInterfaceOrientation)[notification.userInfo[UIApplicationStatusBarOrientationUserInfoKey] integerValue];
     
@@ -213,7 +175,6 @@ HIPPY_EXPORT_MODULE()
         }
     
     _currentInterfaceOrientation = nextOrientation;
-#endif
 }
 
 - (void)invalidate
@@ -312,12 +273,10 @@ HIPPY_EXPORT_MODULE()
     
     _componentDataByName = [componentDataByName copy];
     
-#if !TARGET_OS_TV
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(interfaceOrientationWillChange:)
                                                  name:UIApplicationWillChangeStatusBarOrientationNotification
                                                object:nil];
-#endif
 }
 
 dispatch_queue_t HippyGetUIManagerQueue(void)
@@ -456,20 +415,21 @@ dispatch_queue_t HippyGetUIManagerQueue(void)
 - (void)setBackgroundColor:(UIColor *)color forView:(UIView *)view
 {
     HippyAssertMainQueue();
+/*
+      NSNumber *hippyTag = view.hippyTag;
+      dispatch_async(HippyGetUIManagerQueue(), ^{
+        if (!self->_viewRegistry) {
+          return;
+        }
     
-    //  NSNumber *hippyTag = view.hippyTag;
-    //  dispatch_async(HippyGetUIManagerQueue(), ^{
-    //    if (!self->_viewRegistry) {
-    //      return;
-    //    }
-    //
-    //    HippyShadowView *shadowView = self->_shadowViewRegistry[hippyTag];
-    //    HippyAssert(shadowView != nil, @"Could not locate root view with tag #%@", hippyTag);
-    //    shadowView.backgroundColor = color;
-    //    [self _amendPendingUIBlocksWithStylePropagationUpdateForShadowView:shadowView];
-    //    [self flushVirtualNodeBlocks];
-    //    [self flushUIBlocks];
-    //  });
+        HippyShadowView *shadowView = self->_shadowViewRegistry[hippyTag];
+        HippyAssert(shadowView != nil, @"Could not locate root view with tag #%@", hippyTag);
+        shadowView.backgroundColor = color;
+        [self _amendPendingUIBlocksWithStylePropagationUpdateForShadowView:shadowView];
+        [self flushVirtualNodeBlocks];
+        [self flushUIBlocks];
+      });
+ */
 }
 
 /**
@@ -986,8 +946,6 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
         HippyLogError(@"No component found for view with name \"%@\"", viewName);
     }
     id isAnimated = props[@"useAnimation"];
-    //这里的view props不仅有useAnimation，而且在某层还有animationId
-    //通过animationId与AnimationModule的createModule的animation绑定在一起
     if (isAnimated && [isAnimated isKindOfClass: [NSNumber class]]) {
         HippyExtAnimationModule *animationModule = self.bridge.animationModule;
         props = [animationModule bindAnimaiton:props viewTag: hippyTag rootTag: rootTag];
@@ -1434,9 +1392,7 @@ HIPPY_EXPORT_METHOD(measureInWindow:(nonnull NSNumber *)hippyTag
          allJSConstants[name] = constantsNamespace;
      }];
     
-#if !TARGET_OS_TV
     _currentInterfaceOrientation = [HippySharedApplication() statusBarOrientation];
-#endif
     [allJSConstants addEntriesFromDictionary:@{
                                                @"customBubblingEventTypes": bubblingEvents,
                                                @"customDirectEventTypes": directEvents,
@@ -1648,13 +1604,6 @@ static UIView *_jsResponder;
             [componentData setProps: props forView: view];
             self->_viewRegistry[tag] = view;
             CGRect frame = subNode.frame;
-            //如果native端的HippyRootView.frame发生改变，会触发重新布局，HippyShadowView会更新frame。
-            //但是HippyVirtualNode来不及更新frame。
-            //这里优先使用HippyShadowView.frame绘制view
-//            HippyShadowView *shadowView = self->_shadowViewRegistry[tag];
-//            if (shadowView && CGRectNotNAN(shadowView.frame)) {
-//                frame = shadowView.frame;
-//            }
             [view hippySetFrame:frame];
             if ([view respondsToSelector: @selector(hippyBridgeDidFinishTransaction)]) {
                 [tranctions addObject: view];

@@ -24,8 +24,12 @@
 #import "HippyBridgeModule.h"
 
 @interface HippyNetWork : NSObject <HippyBridgeModule, NSURLSessionDataDelegate>
-//子类覆盖实现，返回NSURLProtocol代理
+
+/// override it for customer protocols
 - (NSArray<Class> *) protocolClasses;
-//如果已经存在对应的value值，那这个方法将追加value而不是覆盖
+/**
+ * extra headers in http header
+ * value will be added to key if key already exists.
+ */
 - (NSDictionary<NSString *, NSString *> *)extraHeaders;
 @end

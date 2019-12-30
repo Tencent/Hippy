@@ -142,16 +142,12 @@
 		_textView.responderDelegate = self;
     _textView.backgroundColor = [UIColor clearColor];
     _textView.textColor = [UIColor blackColor];
-#if !TARGET_OS_TV
     _textView.scrollsToTop = NO;
-#endif
     _textView.scrollEnabled = NO;
     _textView.delegate = self;
 
     _scrollView = [[UIScrollView alloc] initWithFrame:CGRectZero];
-#if !TARGET_OS_TV
     _scrollView.scrollsToTop = NO;
-#endif
     [_scrollView addSubview:_textView];
 
       
@@ -336,10 +332,8 @@ static NSAttributedString *removeHippyTagFromString(NSAttributedString *string)
     _placeholderView.userInteractionEnabled = NO;
     _placeholderView.backgroundColor = [UIColor clearColor];
     _placeholderView.scrollEnabled = NO;
-#if !TARGET_OS_TV
     _placeholderView.editable = NO;
     _placeholderView.scrollsToTop = NO;
-#endif
     _placeholderView.attributedText =
     [[NSAttributedString alloc] initWithString:_placeholder attributes:@{
       NSFontAttributeName : (_textView.font ? _textView.font : [self defaultPlaceholderFont]),
@@ -396,11 +390,9 @@ static NSAttributedString *removeHippyTagFromString(NSAttributedString *string)
         {
             NSString *toBeString = textField.text;
             
-            //获取高亮部分
             UITextRange *selectedRange = [textField markedTextRange];
             UITextPosition *position = [textField positionFromPosition:selectedRange.start offset:0];
             
-            // 没有高亮选择的字，则对已输入的文字进行字数统计和限制
             if (!position)
             {
                 if (toBeString.length > theMaxLength)
@@ -419,7 +411,6 @@ static NSAttributedString *removeHippyTagFromString(NSAttributedString *string)
             }
             
         }
-        // 中文输入法以外的直接对其统计限制即可，不考虑其他语种情况
         else
         {
             if (toBeString.length > theMaxLength)
@@ -770,12 +761,6 @@ static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange,
 {
   return [UIColor colorWithRed:0.0/255.0 green:0.0/255.0 blue:0.098/255.0 alpha:0.22];
 }
-
-
-
-/*
-从hippy对齐过来的方法
- */
 
 - (NSString *)value
 {

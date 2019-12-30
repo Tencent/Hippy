@@ -41,16 +41,13 @@
   return self;
 }
 
-//把originParams深拷贝给styles
 - (void)parse
 {
     @synchronized (self) {
         NSMutableDictionary *props = [[NSMutableDictionary alloc] initWithDictionary: self.originParams];
         [props removeObjectForKey: @"useAnimation"];
         NSAssert1(0 == strcmp("com.tencent.hippy.ShadowQueue", dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL)), @"not in shadow queue, but in %s queue", dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL));
-        //深拷贝
         _styles = [props mutableDeepCopy];
-        //注：traversal是遍历的意思...
         [self traversalPropsForFindAniamtion: props];
     }
 }
@@ -63,7 +60,6 @@
 	return NO;
 }
 
-//递归寻找animationId
 - (void)traversalPropsForFindAniamtion:(id)props
 {
     if ([props isKindOfClass: [NSDictionary class]]) {
@@ -86,28 +82,6 @@
     }
 }
 
-//递归寻找animationId
-//Printing description of props:
-//{
-//    backgroundColor = 4294199351;
-//    height = 80;
-//    nativeName = View;
-//    transform =     (
-//                     {
-//                         translateX =             {
-//                             animationId = 0;
-//                         };
-//                     }
-//                     );
-//    width = 80;
-//}
-
-//Printing description of self->_valuesByKey:
-//{
-//    translateX =     {
-//        translateX = 150;
-//    };
-//}
 - (void)traversalProps:(id)props key:(NSString *)key value:(id)value
 {
     if ([props isKindOfClass: [NSDictionary class]]) {

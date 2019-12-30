@@ -31,8 +31,6 @@
 @end
 
 @interface HippyExtAnimationModule : NSObject<HippyBridgeModule, HippyInvalidating>
-
-//- (NSDictionary *)bindAnimaiton:(NSDictionary *)params;
 - (NSDictionary *)bindAnimaiton:(NSDictionary *)params viewTag:(NSNumber *)viewTag rootTag:(NSNumber *)rootTag;
 - (void)connectAnimationToView:(UIView *)view;
 @end

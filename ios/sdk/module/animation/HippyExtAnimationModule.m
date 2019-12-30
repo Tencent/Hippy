@@ -77,11 +77,9 @@
     NSMutableDictionary <NSNumber *, NSMutableArray <HippyExtAnimationViewParams *> *> *_paramsByAnimationId;
     NSMutableDictionary <NSNumber *, HippyExtAnimationViewParams *> *_paramsByHippyTag;
     NSLock *_lock;
-    //  NSMutableArray <NSNumber *> *_virtualAnimations;
     HippyExtAnimationIdCount *_virtualAnimations;
 }
 
-//@synthesize executeQueue = _executeQueue;
 @synthesize bridge = _bridge;
 
 HIPPY_EXPORT_MODULE(AnimationModule)
@@ -97,7 +95,6 @@ HIPPY_EXPORT_MODULE(AnimationModule)
         _paramsByHippyTag = [NSMutableDictionary new];
         _paramsByAnimationId = [NSMutableDictionary new];
         _lock = [[NSLock alloc] init];
-        //      _virtualAnimations = [NSMutableArray array];
         _virtualAnimations = [[HippyExtAnimationIdCount alloc] init];
     }
     return self;
@@ -117,8 +114,6 @@ HIPPY_EXPORT_MODULE(AnimationModule)
     return YES;
 }
 
-//bug：create->destroy->create后，如果不重新render：这个方法无法被调用到
-//- (NSDictionary *)bindAnimaiton:(NSDictionary *)params viewTag:(NSNumber *)viewTag rootTag:(NSNumber *)rootTag
 HIPPY_EXPORT_METHOD(createAnimation:(NSNumber *__nonnull)animationId
                   mode:(NSString *)mode
                   params:(NSDictionary *)params)
@@ -141,7 +136,7 @@ HIPPY_EXPORT_METHOD(createAnimationSet:(NSNumber *__nonnull)animationId animatio
         NSNumber *subAnimationId = info[@"animationId"];
         BOOL follow = [info[@"follow"] boolValue];
         HippyExtAnimation *ani = self->_animationById[subAnimationId];
-#ifdef DEBUG
+#ifdef NSAssert
         if (ani == nil) {
             HippyAssert(ani != nil, @"create group animation but use illege sub animaiton");
         }
@@ -157,9 +152,6 @@ HIPPY_EXPORT_METHOD(createAnimationSet:(NSNumber *__nonnull)animationId animatio
     HippyLogInfo(@"create group animations:%@",animationId);
 }
 
-//该方法会调用[HippyExtAnimationModule paramForAnimationId:]，
-//进而调用[HippyExtAnimationModule connectAnimationToView]
-//在里面执行动画
 HIPPY_EXPORT_METHOD(startAnimation:(NSNumber *__nonnull)animationId)
 {
     [_lock lock];
@@ -224,8 +216,6 @@ HIPPY_EXPORT_METHOD(resumeAnimation:(NSNumber *__nonnull)animationId) {
     [_lock unlock];
 }
 
-//这个方法真是神之命名？
-//这个方法里会调用[HippyExtAnimationModule connectAnimationToView]，该方法是真正执行动画的地方
 - (void) paramForAnimationId:(NSNumber *)animationId {
     NSArray <HippyExtAnimationViewParams *> *params = _paramsByAnimationId[animationId];
     NSMutableArray <NSNumber *> *hippyTags = [NSMutableArray new];
@@ -233,45 +223,33 @@ HIPPY_EXPORT_METHOD(resumeAnimation:(NSNumber *__nonnull)animationId) {
         [hippyTags addObject: param.hippyTag];
     }];
     
-    //如果这个animationId没有绑定任何view，则不往下执行
     if (!hippyTags.count) {
         return;
     }
     
     HippyLogInfo(@"animation begin:%@",animationId);
     __weak HippyExtAnimationModule *weakSelf = self;
-    //动画必须在主线程执行
     dispatch_async(dispatch_get_main_queue(), ^{
         [hippyTags enumerateObjectsUsingBlock:^(NSNumber * _Nonnull tag,__unused NSUInteger idx,__unused BOOL *stop) {
             UIView *view = [weakSelf.bridge.uiManager viewForHippyTag:tag];
             if (!view) {
-                //在这里相当于循环的continue
                 return;
             }
-            
-            //爱拍视频业务中，点击某个视频，底部会有loading动画，动画实现方式：动画1开始->动画1结束->动画2开始->动画2结束->动画1开始->动画1结束，如此直到视频载入结束。
-            //但是在动画过程中，点击返回按钮，会将当前unit从window上删除但不销毁，而导致原持续500毫秒的动画立刻结束，使动画1与2不停快速执行
-            //做个判断，如果view不在window上则不进行动画操作。
             if (view.window) {
-                //真正执行动画的地方
                 [weakSelf connectAnimationToView: view];
-                //在这里相当于循环的continue
                 return;
             }
             
-            //根据罗老师写的注释，以下是边缘情况
             HippyLogInfo(@"animation view is not added to window");
             [params enumerateObjectsUsingBlock:^(HippyExtAnimationViewParams * p,__unused NSUInteger idx, __unused BOOL *stop) {
                 [p.animationIdWithPropDictionary enumerateKeysAndObjectsUsingBlock:^(NSString * key, NSNumber * obj,__unused BOOL *stop1) {
                     HippyExtAnimation *ani = self->_animationById[obj];
                     if (![obj isEqual: animationId]) {
-                        //在这里相当于循环的continue
                         return;
                     }
                     
                     [p setValue: @(ani.endValue) forProp: key];
                     ani.state = HippyExtAnimationFinishState;
-                    //                  HippyLogInfo(@"animationDidStop:%@ finish:%@ prop:%@ value:%@", animationID, @(flag), key, @(ani.endValue));
                 }];
             }];
             [self.bridge.uiManager executeBlockOnUIManagerQueue:^{
@@ -290,17 +268,11 @@ HIPPY_EXPORT_METHOD(updateAnimation:(NSNumber *__nonnull)animationId params:(NSD
     }
     [_lock lock];
     HippyExtAnimation *ani = _animationById[animationId];
-//    if (ani.state == HippyExtAnimationStartedState) {
-//        HippyLogInfo(@"updateAnimation [%@] from [%@] to [%@] animation is not completed", animationId, @(ani.startValue), @(ani.endValue));
-//        [_lock unlock];
-//        return;
-//    }
     
     ani.state = HippyExtAnimationInitState;
     
     [ani updateAnimation: params];
     
-    // 更新
     NSMutableArray <HippyExtAnimationViewParams *> *viewParams = _paramsByAnimationId[animationId];
     NSMutableArray *updateParams = [NSMutableArray new];
     [viewParams enumerateObjectsUsingBlock:^(HippyExtAnimationViewParams * _Nonnull p,__unused NSUInteger idx,__unused BOOL * stop) {
@@ -313,13 +285,6 @@ HIPPY_EXPORT_METHOD(updateAnimation:(NSNumber *__nonnull)animationId params:(NSD
             }
         }];
     }];
-    
-    //    [self.bridge executeBlockOnComponentThread:^{
-    //      [self.bridge.uiManager updateNode: nil params: updateParams callBack: nil];
-    //    }];
-    
-    //调用updateView，更新动画属性
-    //最后收集各个view对应的rootTag，给rootView调用layoutAndMount
     [self.bridge.uiManager executeBlockOnUIManagerQueue:^{
         [self.bridge.uiManager updateViewsFromParams:viewParams completion:NULL];
     }];
@@ -364,8 +329,6 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId)
     
     NSMutableArray <HippyExtAnimationViewParams *> *params = [_paramsByAnimationId[animationId] copy];
     [self.bridge.uiManager executeBlockOnUIManagerQueue:^{
-        //这段代码放在UIManagerQueue中执行原因在于：
-        //这段代码和375行代码都会对HippyExtAnimationViewParams中的_style进行修改，导致错误crash'dictionary was mutabled when enum'
         [params enumerateObjectsUsingBlock:^(HippyExtAnimationViewParams * p,__unused NSUInteger idx, __unused BOOL * stop) {
             [p.animationIdWithPropDictionary enumerateKeysAndObjectsUsingBlock:^(NSString * key, NSNumber * obj,__unused BOOL * stop1) {
                 HippyExtAnimation *ani = self->_animationById[obj];
@@ -382,8 +345,6 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId)
     [_lock unlock];
     
     [self.bridge.uiManager executeBlockOnUIManagerQueue:^{
-        //如果hippy示例销毁早于动画的结束，那么
-        //这里的调用可能uiManager为nil，不过看起来没啥问题，先观察一下
         [self.bridge.uiManager updateViewsFromParams:params completion:^(HippyUIManager *uiManager) {
             UIView *view = [uiManager viewForHippyTag:viewId];
             if (flag) {
@@ -400,7 +361,6 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId)
     }];
     NSNumber *animationSetId = [anim valueForKey:@"animationParentID"];
     if (animationSetId) {
-        //    [_virtualAnimations removeObject:animationSetID];
         if ([_virtualAnimations subtractionCountForAnimationId:animationSetId]) {
             [self.bridge.eventDispatcher dispatchEvent:@"EventDispatcher" methodName:@"receiveNativeEvent" args:@{@"eventName": @"onAnimationEnd", @"extra": animationSetId}];
         }
@@ -410,19 +370,10 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId)
     }
 }
 #pragma mark -
-
-//如果props[@"useAnimation"]为true，那么
-//在[HippyUIManager createView:]和[HippyUIManager updateView:]中就会调用这个方法
-
-//一顿操作猛如虎，其实就是：
-//在_paramsByAnimationID根据animationId做了一份索引
-//在_paramsByHippyTag根据hippyTag做了一份索引
-//然后复制了一份最初的props回去
 - (NSDictionary *)bindAnimaiton:(NSDictionary *)params viewTag:(NSNumber *)viewTag rootTag:(NSNumber *)rootTag
 {
     [_lock lock];
     
-    //p是对这个params的封装
     HippyExtAnimationViewParams *p = [[HippyExtAnimationViewParams alloc] initWithParams: params viewTag:viewTag rootTag: rootTag];
     [p parse];
     
@@ -430,14 +381,12 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId)
     [p.animationIdWithPropDictionary enumerateKeysAndObjectsUsingBlock:^(NSString * key, NSNumber * animationId,__unused BOOL * stop) {
         HippyExtAnimation *ani = self->_animationById[animationId];
         
-        //这个if看不懂。。
         if (ani.state == HippyExtAnimationFinishState) {
             [p setValue: @(ani.endValue) forProp: key];
         } else {
             [p setValue: @(ani.startValue) forProp: key];
         }
         
-        //viewParams是
         NSMutableArray *viewParams = self->_paramsByAnimationId[animationId];
         if (viewParams == nil) {
             viewParams = [NSMutableArray new];
@@ -445,11 +394,9 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId)
         }
         
         if (!contain) {
-            //如果不包含，就添加
             [viewParams addObject: p];
             HippyLogInfo(@"bind aniamtion [%@] to view [%@] prop [%@]",animationId, viewTag, key);
         } else {
-            //如果包含，就替换
             NSInteger index = [viewParams indexOfObject: p];
             if (index != NSNotFound) {
                 [viewParams removeObjectAtIndex: index];
@@ -457,15 +404,12 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId)
             [viewParams addObject: p];
         }
     }];
-    
-    //根据RhippyTag做了一份索引
     [_paramsByHippyTag setObject: p forKey: viewTag];
     [_lock unlock];
     
     return p.updateParams;
 }
 
-//真正执行动画的地方，createAnimation和startAnimation都会调用这个地方
 - (void)connectAnimationToView:(UIView *)view
 {
     [_lock lock];
@@ -475,11 +419,9 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId)
     NSMutableArray <CAAnimation *> *animations = [NSMutableArray new];
     [p.animationIdWithPropDictionary enumerateKeysAndObjectsUsingBlock:^(NSString *prop, NSNumber * animationId,__unused BOOL * stop) {
         HippyExtAnimation *animation = self->_animationById[animationId];
-        //createAnimation的时候也会进这个地方，由于HippyExtAnimationState为InitState，故不调用
         if (animation.state != HippyExtAnimationReadyState) {
             return;
         }
-        //取出关键的动画
         CAAnimation *ani = [animation animationOfView: view forProp: prop];
         animation.state = HippyExtAnimationStartedState;
         [ani setValue: animationId forKey: @"animationID"];
@@ -491,11 +433,8 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId)
         [animations addObject: ani];
         HippyLogInfo(@"connect aniamtion[%@] to view [%@] prop [%@] from [%@] to [%@]",animationId, view.hippyTag, prop, @(animation.startValue), @(animation.endValue));
     }];
-    
-    //遍历动画  一一执行
     [animations enumerateObjectsUsingBlock:^(CAAnimation * _Nonnull ani, __unused NSUInteger idx, __unused BOOL *stop) {
         NSNumber *animationId = [ani valueForKey: @"animationID"];
-        //真正执行动画的地方
         [view.layer addAnimation: ani forKey: [NSString stringWithFormat: @"%@", animationId]];
     }];
     

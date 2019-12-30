@@ -117,9 +117,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)init)
     
     UIView *view = [self.manager view];
     view.hippyTag = tag;
-#if !TARGET_OS_TV
     view.multipleTouchEnabled = YES;
-#endif
     view.userInteractionEnabled = YES; // required for touch handling
     view.layer.allowsGroupOpacity = YES; // required for touch handling
     return view;
@@ -130,18 +128,13 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)init)
     return [self.manager node: tag name: _name props: props];
 }
 
-/**
- MttRN:为了让view在初始化的时候获取属性
- */
 - (UIView *)createViewWithTag:(NSNumber *)tag initProps:(NSDictionary *)props
 {
     self.manager.props = props;
     UIView *view = [self.manager view];
     view.hippyTag = tag;
     view.rootTag = props[@"rootTag"];
-#if !TARGET_OS_TV
     view.multipleTouchEnabled = YES;
-#endif
     view.userInteractionEnabled = YES; // required for touch handling
     view.layer.allowsGroupOpacity = YES; // required for touch handling
     return view;

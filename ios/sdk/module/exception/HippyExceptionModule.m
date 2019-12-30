@@ -51,14 +51,13 @@ HIPPY_EXPORT_METHOD(handleException:(NSString *)title detail:(NSString *)detail 
 			[formatStacks addObject: @{@"methodName": method, @"file": file, @"lineNumber": line, @"column": column}];
 		}
 	}
-	NSDictionary *errorInfo = @{
-															NSLocalizedDescriptionKey:title?:@"unknown",
-                                                            NSLocalizedFailureReasonErrorKey: detail?:@"unkonwn",
-															HippyJSStackTraceKey:formatStacks,
-															@"HippyTimeIntervalKey":timeInterval ?:@(0),
-														};
+	NSDictionary *errorInfo = @{NSLocalizedDescriptionKey:title?:@"unknown",
+                                NSLocalizedFailureReasonErrorKey: detail?:@"unkonwn",
+                                HippyJSStackTraceKey:formatStacks,
+                                @"HippyTimeIntervalKey":timeInterval ?:@(0),
+                                };
 
-  NSError *error = [NSError errorWithDomain:HippyErrorDomain code:1 userInfo:errorInfo];
+    NSError *error = [NSError errorWithDomain:HippyErrorDomain code:1 userInfo:errorInfo];
     HippyFatal(error);
 }
 

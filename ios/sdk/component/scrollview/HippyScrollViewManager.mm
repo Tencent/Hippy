@@ -69,10 +69,8 @@ HIPPY_EXPORT_VIEW_PROPERTY(keyboardDismissMode, UIScrollViewKeyboardDismissMode)
 HIPPY_EXPORT_VIEW_PROPERTY(maximumZoomScale, CGFloat)
 HIPPY_EXPORT_VIEW_PROPERTY(minimumZoomScale, CGFloat)
 HIPPY_EXPORT_VIEW_PROPERTY(scrollEnabled, BOOL)
-#if !TARGET_OS_TV
 HIPPY_EXPORT_VIEW_PROPERTY(pagingEnabled, BOOL)
 HIPPY_EXPORT_VIEW_PROPERTY(scrollsToTop, BOOL)
-#endif
 HIPPY_EXPORT_VIEW_PROPERTY(showsHorizontalScrollIndicator, BOOL)
 HIPPY_EXPORT_VIEW_PROPERTY(showsVerticalScrollIndicator, BOOL)
 HIPPY_EXPORT_VIEW_PROPERTY(stickyHeaderIndices, NSIndexSet)
