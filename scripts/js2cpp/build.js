@@ -73,10 +73,11 @@ function GetAllRequiredFiles(platform) {
       path.resolve(__dirname, `../../core/js/entry/${platform}/hippy.js`),
       path.resolve(__dirname, '../../core/js/modules/ExceptionHandle.js'),
     ];
+
     rl.on('line', (line) => {
       if(line.split('//')[0].indexOf('require') > -1) {
         let _path = line.split("('")[1].split("')")[0];
-        filePaths.push(`${__dirname}/../../core/js/entry/${platform}/${_path}`);
+        filePaths.push(path.resolve(__dirname, `../../core/js/entry/${platform}/${_path}`));
       }
     });
     rl.on('close', () => {
@@ -103,8 +104,7 @@ function GenerateCPP(platform, buildDirPath) {
 
     GetAllRequiredFiles(platform).then((files_arr) => {
         files_arr.forEach((filePath) => {
-            let file_split_arr = filePath.split('/');
-            let file_name = file_split_arr[file_split_arr.length - 1].split('.')[0];
+            let file_name = path.basename(filePath, '.js');
             let file_buffer = readFileToBuffer(platform, filePath);
             let byte_arr = [];
             for(let i = 0; i < file_buffer.length; i++) {
