@@ -259,9 +259,7 @@ void HippyExecuteOnMainQueue(dispatch_block_t block)
     if (HippyIsMainQueue()) {
         block();
     } else {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            block();
-        });
+        dispatch_async(dispatch_get_main_queue(), block);
     }
 }
 
@@ -270,13 +268,9 @@ void HippyExecuteOnMainThread(dispatch_block_t block, BOOL sync)
     if (HippyIsMainQueue()) {
         block();
     } else if (sync) {
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            block();
-        });
+        dispatch_sync(dispatch_get_main_queue(), block);
     } else {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            block();
-        });
+        dispatch_async(dispatch_get_main_queue(), block);
     }
 }
 
