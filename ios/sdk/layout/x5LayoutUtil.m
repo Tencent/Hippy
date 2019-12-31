@@ -24,7 +24,7 @@
 
 static void x5ExecuteOnMainThread(dispatch_block_t block, BOOL sync)
 {
-    if ([NSThread mainThread]) {
+    if ([NSThread isMainThread]) {
         block();
     } else if (sync) {
         dispatch_sync(dispatch_get_main_queue(), ^{
