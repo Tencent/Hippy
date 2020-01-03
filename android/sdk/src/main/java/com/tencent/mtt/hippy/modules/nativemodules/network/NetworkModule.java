@@ -140,15 +140,10 @@ public class NetworkModule extends HippyNativeModuleBase
 		HippyMap headers = request.getMap("headers");
 		if (headers != null)
 		{
-			HippyArray requestCookies = headers.getArray("Cookie");
-			saveCookie2Manager(url, requestCookies);
 			hippyMapToRequestHeaders(httpRequest, headers);
 		}
 		String body = request.getString("body");
 		httpRequest.setBody(body);
-		String cookie = getCookieManager().getCookie(url);
-		if (!TextUtils.isEmpty(cookie))
-			httpRequest.addHeader(HttpHeader.REQ.COOKIE, cookie);
 
 		HippyGlobalConfigs configs = mContext.getGlobalConfigs();
 		HippyHttpAdapter adapter = null;
