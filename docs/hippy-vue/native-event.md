@@ -14,13 +14,13 @@ const app = getApp();
 
 export default {
   method: {
-    listner(rsp) {
+    listener(rsp) {
       console.log(rsp.result);
     }
   },
   didMount() {
-    // 通过 app 监听 rotate 事件，并通过 this.listner 在事件发生时触发回调。
-    app.$on('rotate', this.listner);
+    // 通过 app 监听 rotate 事件，并通过 this.listener 在事件发生时触发回调。
+    app.$on('rotate', this.listener);
   }
 }
 
@@ -31,5 +31,5 @@ export default {
 如果不需要使用的时候记得调用一下移除监听的方法，一般放在组件的卸载生命周期中执行。
 
 ```jsx
-app.$off('rotate', this.listner);
+app.$off('rotate', this.listener);
 ```
