@@ -150,6 +150,7 @@
 		064C5AEE23AB1A59001E80DD /* js-native-api-value-jsc.cc in Sources */ = {isa = PBXBuildFile; fileRef = 064C5ABC23AB1A59001E80DD /* js-native-api-value-jsc.cc */; };
 		064C5AF023AB1A70001E80DD /* res in Resources */ = {isa = PBXBuildFile; fileRef = 064C5AEF23AB1A70001E80DD /* res */; };
 		064C5AF223AB1B99001E80DD /* native-source-code-ios.cc in Sources */ = {isa = PBXBuildFile; fileRef = 064C5AF123AB1B99001E80DD /* native-source-code-ios.cc */; };
+		CA555F3723C235B500B990EB /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = CA555F3623C235B500B990EB /* .gitignore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -473,6 +474,7 @@
 		064C5ABE23AB1A59001E80DD /* callback-info.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "callback-info.h"; sourceTree = "<group>"; };
 		064C5AEF23AB1A70001E80DD /* res */ = {isa = PBXFileReference; lastKnownFileType = folder; path = res; sourceTree = "<group>"; };
 		064C5AF123AB1B99001E80DD /* native-source-code-ios.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "native-source-code-ios.cc"; sourceTree = "<group>"; };
+		CA555F3623C235B500B990EB /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1069,6 +1071,7 @@
 				064C5A9523AB1A59001E80DD /* modules */,
 				064C5AA023AB1A59001E80DD /* base */,
 				064C5AAF23AB1A59001E80DD /* napi */,
+				CA555F3623C235B500B990EB /* .gitignore */,
 			);
 			name = core;
 			path = ../../core;
@@ -1215,6 +1218,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CA555F3723C235B500B990EB /* .gitignore in Resources */,
 				064C5AF023AB1A70001E80DD /* res in Resources */,
 				064C5ADB23AB1A59001E80DD /* .gitignore in Resources */,
 				064C5ADC23AB1A59001E80DD /* .clang-format in Resources */,

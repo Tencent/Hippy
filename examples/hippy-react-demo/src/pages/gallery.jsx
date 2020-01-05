@@ -144,11 +144,6 @@ export default class Gallery extends Component {
           style: 1,
         },
         {
-          id: 'MyView',
-          name: 'MyView 组件',
-          style: 1,
-        },
-        {
           id: 'Animation',
           name: 'Animation 组件',
           style: 2,
