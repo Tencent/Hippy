@@ -20,7 +20,7 @@ Pod::Spec.new do |s|
   s.description      = <<-DESC
 TODO: Add long description of the pod here.
                        DESC
-  s.homepage         = 'https://github.com/Tencent/Hippy'
+  s.homepage         = 'https://tencent.github.io/Hippy/#/'
   s.license          = { :type => 'Apache2', :file => 'LICENSE' }
   s.author           = { 'mengyanluo' => 'mengyanluo@tencent.com' }
   s.source           = {:git => 'https://github.com/Tencent/Hippy.git', :tag => s.version}
