@@ -6,12 +6,12 @@
 
 # 集成到自定义工程中
 
-### 使用pod集成
+## 使用pod集成
 1.安装[CocoaPods](https://cocoapods.org/)
 
 2.在用户自定义工程目录下创建podfile文件，文本如下
 
-```
+```text
 #保持pod文件目录结构
 install! "cocoapods", :preserve_pod_file_structure => true
 platform :ios, '8.0'
@@ -25,12 +25,12 @@ end
 ```
 3.在命令行中执行命令
 
-~~~
+```text
 pod install
-~~~
+```
 4.使用cocoapods生成的.xcworkspace后缀名的工程文件来打开工程。
 
-### 使用源码直接集成
+## 使用源码直接集成
 1.从GitHub中将源码ios源码下载，将ios/sdk文件夹以及core文件夹拖入工程中
 
 2.删除对core/js文件夹的引用。
