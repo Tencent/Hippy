@@ -86,13 +86,23 @@
 
 列表下拉刷新组件，里面只能包裹 `<ul-refresh>` 和 `<ul>` 组件。
 
+## 方法
+
+### refreshCompleted
+
+`() => void` 告知终端内容刷新已经结束，收起刷新栏。
+
+### startRefresh
+
+`() => void` 手动告知终端开始刷新，下拉刷新栏。
+
 ## 事件
 
 ### refresh
 
-下拉刷新回弹后触发刷新回调
+下拉刷新回弹后触发刷新回掉函数的事件。
 
-下拉刷新，加载数据完成后需要用 `Vue.Native.callUIFunction(this.$refs.refreshWrapper, 'refreshComplected', null);` 告知终端刷新已经结束，可以弹回去了。
+下拉刷新，加载数据完成后需要用 [refreshCompleted()](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-list-refresh.vue#L105) 告知终端刷新已经结束，可以弹回去了。
 
 | 类型     | 必需 |
 | -------- | -------- |

@@ -17,7 +17,7 @@
     "router",
     "routing"
   ],
-  "dependencies": {
-    "path-to-regexp": "^3.0.0"
+  "devDependencies": {
+    "path-to-regexp": "^1.7.0"
   }
 }

@@ -89,6 +89,7 @@ module.exports = {
       vue: path.resolve(__dirname, '../../../packages/hippy-vue'),
       '@': path.resolve('./src'),
       'vue-router': path.resolve(__dirname, '../../../packages/hippy-vue-router'),
+      'hippy-vue-native-components': path.resolve(__dirname, '../../../packages/hippy-vue-native-components'),
     },
   },
 };

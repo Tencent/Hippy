@@ -18,10 +18,10 @@
     "hippy:build": "webpack --config ./scripts/hippy-webpack.ios.js --config ./scripts/hippy-webpack.android.js"
   },
   "dependencies": {
+    "core-js": "^3.4.3",
     "hippy-vue": "^2.0.0",
     "hippy-vue-native-components": "^2.0.0",
     "hippy-vue-router": "^2.0.0",
-    "core-js": "^3.4.3",
     "vue": "^2.6.10",
     "vue-router": "^3.1.3"
   },
