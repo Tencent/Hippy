@@ -3,6 +3,26 @@ name: build
 on: [pull_request]
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [ '10', '13' ]
+    steps:
+      - uses: actions/checkout@v1
+      - name: setup-node
+        uses: actions/setup-node@master
+        with:
+          node-version: ${{ matrix.node }}
+          registry-url: 'https://npm.pkg.github.com'
+      - name: install
+        run: npm install
+      - name: lint
+        run: npm run lint
+      - name: test
+        run: npm run test
+      - name: build
+        run: npm run build
   commitlint:
     runs-on: ubuntu-latest
     env:
@@ -12,26 +32,12 @@ jobs:
       - uses: wagoid/commitlint-github-action@v1
         with:
           configFile: .commitlintrc.js
-  build:
+  markdownlint:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    strategy:
-      matrix:
-        node: [ '10', '12' ]
     steps:
       - uses: actions/checkout@v1
-      - name: setup-node
-        uses: actions/setup-node@master
-        with:
-          node-version: ${{ matrix.node }}
-      - name: install
-        run: npm install
-      - name: lint
-        run: npm run lint
       - name: markdownlint
-        run: npm run markdownlint
-      - name: test
-        run: npm run test
-      - name: build
-        run: npm run build
+        uses: nosborn/github-action-markdown-cli@v1.1.1
+        with:
+          config_file: .markdownlintrc.json
+          files: ./*.md ./docs/**/*.md
