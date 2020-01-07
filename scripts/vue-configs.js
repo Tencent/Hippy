@@ -129,7 +129,9 @@ function genConfig(name) {
         },
       }),
       alias(aliases),
-      node(),
+      node({
+        preferBuiltins: true,
+      }),
       cjs(),
     ].concat(opts.plugins || []),
     output: {

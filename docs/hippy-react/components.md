@@ -202,7 +202,7 @@ import icon from './qb_icon_new.png';
 
 ## 方法
 
-### refreshComplected
+### refreshCompleted
 
 `() => void` 调用此方法，告知 RefreshWrapper 已经刷新完毕，RefreshWrapper 将会收起刷新栏。
 
