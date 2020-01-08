@@ -1,5 +1,5 @@
 <template>
-  <div id="iframe-demo">
+  <div id="iframe-demo" :style="iframeStyle">
     <label>地址栏：</label>
     <input
       id="address"
@@ -15,11 +15,16 @@
 </template>
 
 <script>
+import Vue from 'vue';
+
 export default {
   data() {
     return {
       url: 'https://v.qq.com',
       displayUrl: 'https://v.qq.com',
+      iframeStyle: {
+        'min-height': Vue.Native ? 100 : '100vh',
+      },
     };
   },
   methods: {
@@ -53,7 +58,6 @@ export default {
     display: flex;
     flex: 1;
     flex-direction: column;
-    min-height: 100vh;
   }
   #iframe-demo #address {
     height: 48px;
