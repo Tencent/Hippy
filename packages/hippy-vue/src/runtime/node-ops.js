@@ -21,7 +21,7 @@ function createComment(text) {
 }
 
 function insertBefore(pNode, newNode, referenceNode) {
-  if (pNode.childNodes.indexOf(newNode) > 0) {
+  if (pNode.childNodes.indexOf(newNode) >= 0) {
     // move it if the node has existed
     pNode.moveChild(newNode, referenceNode);
   } else {
