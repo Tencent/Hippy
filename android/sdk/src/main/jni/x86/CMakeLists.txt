@@ -18,7 +18,11 @@ add_compile_options(
 	-pipe
 	-fPIC
 	-Wno-unused-local-typedefs
-
+	-march=i686
+	-mtune=intel
+	-m32
+	-mssse3
+	-mfpmath=sse
 	-ffunction-sections
 	-funwind-tables
 	-fstack-protector

@@ -103,7 +103,7 @@ task compileCmake(dependsOn: copyCore, type: Exec) {
     cMakeWorkDir.mkdirs()
     setWorkingDir(cMakeWorkDir)
 
-    def arches = ["armeabi-v7a", "arm64-v8a", "x86"]
+    def arches = ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"]
     for (arch in arches) {
     commandLine findCmakeBuildPath(),
             "-DANDROID_ABI=${arch}",
@@ -166,6 +166,17 @@ def getToolPathX86(String toolName) {
     return findNdkFullPath() + "/toolchains/x86-4.9/prebuilt/" + fileName + "/bin/" + toolName
 }
 
+def getToolPathX86_64(String toolName) {
+    def fileName
+    if (isWindows()) {
+        fileName = "windows-x86_64"
+    } else if (isMacOs()) {
+        fileName = "darwin-x86_64"
+    } else {
+        fileName = "linux-x86_64"
+    }
+    return findNdkFullPath() + "/toolchains/x86_64-4.9/prebuilt/" + fileName + "/bin/" + toolName
+}
 task stripSO(dependsOn: compileNinja, type: Exec) {
     commandLine getToolPath("arm-linux-androideabi-strip"),
             "--strip-all",
@@ -194,6 +205,12 @@ task stripSO(dependsOn: compileNinja, type: Exec) {
             "$project.buildDir.absolutePath/outputs/x86/libhippybridge.so",
             "-o",
             "$projectDir.absolutePath/libs/x86/libhippybridge.so"
+    commandLine getToolPathX86_64("x86_64-linux-android-strip"),
+            "--strip-all",
+            "-x",
+            "$project.buildDir.absolutePath/outputs/x86_64/libhippybridge.so",
+            "-o",
+            "$projectDir.absolutePath/libs/x86_64/libhippybridge.so"
 }
 
 task stripSOv7a(dependsOn: stripSO, type: Exec) {
@@ -226,6 +243,10 @@ task buildNdkLibs(dependsOn: (ISCI.toBoolean() ? dealNdkLibSymbols : stripSO)) {
     copy {
         from "src/main/jni/third_party/v8/x86"
         into "$buildDir/jnilibs/x86/"
+    }
+    copy {
+        from "src/main/jni/third_party/v8/x86_64"
+        into "$buildDir/jnilibs/x86_64/"
     }
 
     copy {
