@@ -20,7 +20,9 @@ jobs:
       - name: lint
         run: npm run lint
       - name: test
-        run: npm run test
+        run: npm run coverage
+      - name: coverage
+        run: npm run codecov
       - name: build
         run: npm run build
   commitlint:
