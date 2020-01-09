@@ -123,8 +123,7 @@ function GenerateCPP(platform, buildDirPath) {
         code += CodePieces.piece_1;
 
         for(let i = 2; i < files_arr.length; i++) {
-            let file_split_arr = files_arr[i].split('/');
-            let file_name = file_split_arr[file_split_arr.length - 1].split('.')[0];
+            let file_name = path.basename(files_arr[i], ".js")
             code += `
       {"${file_name}.js", {k_${file_name}, arraysize(k_${file_name}) - 1}},  // NOLINT`;
         }
