@@ -199,6 +199,11 @@ class ViewNode {
       );
     }
 
+    // remove childNode if exist
+    if (childNode.isMounted) {
+      this.removeChild(childNode);
+    }
+
     childNode.parentNode = this;
 
     if (this.lastChild) {
