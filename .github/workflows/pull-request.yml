@@ -1,6 +1,6 @@
 name: build
 
-on: [pull_request]
+on: [ push, pull_request ]
 
 jobs:
   build:
@@ -14,7 +14,7 @@ jobs:
         uses: actions/setup-node@master
         with:
           node-version: ${{ matrix.node }}
-          registry-url: 'https://npm.pkg.github.com'
+          registry-url: https://npm.pkg.github.com
       - name: install
         run: npm install
       - name: lint
@@ -23,9 +23,9 @@ jobs:
         run: npm run coverage
       - name: coverage
         if: matrix.node == '10.x'
-        uses: coverallsapp/github-action@master
+        uses: codecov/codecov-action@v1
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          token: 783d2587-ef59-48ec-8e21-68d5abbd42b4
       - name: build
         run: npm run build
   commitlint:
