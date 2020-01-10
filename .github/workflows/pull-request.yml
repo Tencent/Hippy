@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [ '10', '13' ]
+        node: [ 10.x, 13.x ]
     steps:
       - uses: actions/checkout@v1
       - name: setup-node
@@ -22,7 +22,10 @@ jobs:
       - name: test
         run: npm run coverage
       - name: coverage
-        run: npm run codecov
+        if: matrix.node == '10.x'
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: build
         run: npm run build
   commitlint:
