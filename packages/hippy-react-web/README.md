@@ -23,7 +23,7 @@ module.exports = {
   resolve: {
     alias: {
       // Make the the hippy-react-web alias to hippy-react
-      'hippy-react': 'hippy-react-web',
+      '@hippy/react': '@hippy/react-web',
     },
   },
 };

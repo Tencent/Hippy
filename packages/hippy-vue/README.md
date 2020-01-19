@@ -18,7 +18,7 @@ write a `hippy-vue` alias to `vue` in webpack config will be ok.
 
 ```javascript
 // import Vue from 'vue';
-import Vue from 'hippy-vue'; // Replace original vue to hippy-vue, others are all the same.
+import Vue from '@hippy/vue'; // Replace original vue to hippy-vue, others are all the same.
 ```
 
 ## Advanced topics
@@ -35,7 +35,7 @@ Pure component use for define the component and native mapping, for example:
 **IMPORTANT:** Element can't with methods, need method, use `Vue.component()` in next section.
 
 ```javascript
-import Vue from 'hippy-vue';
+import Vue from '@hippy/vue';
 
 /*
  * Register the ComponentName as same as native defined directly
@@ -96,7 +96,7 @@ The most important is the methods to call native methods:
 Access the native capability just create a simple function.
 
 ```javascript
-import Vue from 'hippy-vue';
+import Vue from '@hippy/vue';
 
 function callNativeCapability(...args) {
   Vue.Native.callNative('ModuleName', 'MethodName', args);

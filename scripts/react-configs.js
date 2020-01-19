@@ -46,11 +46,11 @@ function banner(name, version) {
 }
 
 const builds = {
-  'hippy-react': {
+  '@hippy/react': {
     entry: './packages/hippy-react/src/index.ts',
     dest: './packages/hippy-react/dist/index.js',
     format: 'es',
-    banner: banner('hippy-react', hippyReactPackage.version),
+    banner: banner('@hippy/react', hippyReactPackage.version),
     external(id) {
       return !![
         'react',
@@ -58,11 +58,11 @@ const builds = {
       ].find(ext => id.startsWith(ext));
     },
   },
-  'hippy-react-web': {
+  '@hippy/react-web': {
     entry: './packages/hippy-react-web/src/index.ts',
     dest: './packages/hippy-react-web/dist/index.js',
     format: 'es',
-    banner: banner('hippy-react-web', hippyReactWebPackage.version),
+    banner: banner('@hippy/react-web', hippyReactWebPackage.version),
     external(id) {
       return !![
         'react',
