@@ -143,7 +143,7 @@ async function getMoviesFromApi() {
 
 ``` jsx
 import React from "react";
-import { View } from "@tencent/hippy-react";
+import { View } from "@hippy/react";
 
 export default class WebSocketExpo extends React.Component {
   componentWillMount() {

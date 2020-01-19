@@ -19,7 +19,7 @@
 Create a empty react project with [create-react-app](https://reactjs.org/docs/create-a-new-react-app.html),
 then enter into the project and install `hippy-react` with npm:
 
-    npm install hippy-react
+    npm install @hippy/react
 
 ## Advanced topics
 
