@@ -1,8 +1,8 @@
 # Hippy Cross Platform Framework
 
-![Hippy Group](https://img.shields.io/badge/group-Hippy-blue.svg) [![license](https://img.shields.io/badge/license-Apache%202-blue)](https://github.com/Tencent/Hippy/blob/master/LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Tencent/Hippy/pulls) ![node](https://img.shields.io/badge/node-%3E%3D10.0.0-green.svg) [![Actions Status](https://github.com/Tencent/Hippy/workflows/build/badge.svg)](https://github.com/Tencent/Hippy/actions)
+![Hippy Group](https://img.shields.io/badge/group-Hippy-blue.svg) [![license](https://img.shields.io/badge/license-Apache%202-blue)](https://github.com/Tencent/Hippy/blob/master/LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Tencent/Hippy/pulls) ![node](https://img.shields.io/badge/node-%3E%3D10.0.0-green.svg) [![Actions Status](https://github.com/Tencent/Hippy/workflows/build/badge.svg?branch=master)](https://github.com/Tencent/Hippy/actions) [![Codecov](https://img.shields.io/codecov/c/github/Tencent/Hippy)](https://codecov.io/gh/Tencent/Hippy)
 
-English | [简体中文](./README.zh_CN.md)
+English | [简体中文](./README.zh_CN.md) | [Homepage](//tencent.github.io/Hippy/)
 
 ## Introduction
 
@@ -54,14 +54,14 @@ Hippy
 For macOS developers:
 
 1. [Xcode](https://developer.apple.com/xcode/) with iOS sdk: build the iOS app.
-2. [Android Studio](https://developer.android.com/AndroidStudio) with NDK: build the android app.
+2. [Android Studio](https://developer.android.com/studio) with NDK: build the android app.
 3. [Node.JS](https://nodejs.org/en/): run the build scripts.
 
 [homebrew](https://brew.sh/) is recommended to install the dependencies.
 
 For Windows developers:
 
-1. [Android Studio](https://developer.android.com/AndroidStudio) with NDK: build the android app.
+1. [Android Studio](https://developer.android.com/studio) with NDK: build the android app.
 2. [Node.JS](https://nodejs.org/en/): run the build scripts.
 
 > Windows can't run the iOS development environment so far.
@@ -88,9 +88,7 @@ Before build the android app, please make sure the SDK and NDK is installed, And
 3. Open a terminal, then build the hippy-react demo with `npm run buildexample -- hippy-react-demo`, or build the hippy-vue demo with `npm run buildexample -- hippy-vue-demo` .
 4. Open the `examples/android-demo` with Android Studio.
 5. Connect android phone with USB cable and make sure USB debugging mode and USB installation are enabled.
-6. Open the project with Android Studio, run and install the apk...
-
-> For Windows Developers: Because Hippy example build script is writen with `bash`. Here's the [ConEmu](https://conemu.github.io/) with `git shell` recommended, it is provided the Linux environment for Windows.
+6. Open the project with Android Studio, run and install the apk.
 
 > If you encounter the issue of `No toolchains found in the NDK toolchains folder for ABI with prefix: mips64el-linux-android`, here is the [solution](https://github.com/google/filament/issues/15#issuecomment-415423557).
 

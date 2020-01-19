@@ -33,7 +33,6 @@
 }
 
 - (void)setKeyboardType:(UIKeyboardType)keyboardType {
-  //此处UIKeyboardTypeTwitter代表password
     NSString *tempPwdStr = self.text;
     self.text = @"";
   if (keyboardType == UIKeyboardTypeTwitter) {
@@ -64,7 +63,6 @@
 
 - (BOOL)canBecomeFirstResponder
 {
-  //return _jsRequestingFirstResponder;
   return YES;
 }
 
@@ -132,11 +130,9 @@
     HippyUITextField *_textView;
 }
 
-//当键盘出现或改变时调用
 - (void)keyboardWillShow:(NSNotification *)aNotification
 {
     [super keyboardWillShow:aNotification];
-    //获取键盘的高度
     NSDictionary *userInfo = [aNotification userInfo];
     NSValue *aValue = [userInfo objectForKey:UIKeyboardFrameEndUserInfoKey];
     CGRect keyboardRect = [aValue CGRectValue];
@@ -161,9 +157,6 @@
     [_textView addTarget:self action:@selector(textFieldDidChange) forControlEvents:UIControlEventEditingChanged];
     [_textView addTarget:self action:@selector(textFieldBeginEditing) forControlEvents:UIControlEventEditingDidBegin];
     [_textView addTarget:self action:@selector(textFieldSubmitEditing) forControlEvents:UIControlEventEditingDidEndOnExit];
-      
-//    [_textView addTarget:self action:@selector(textFieldEndEditing) forControlEvents:UIControlEventEditingDidEnd];
-    
     [self addSubview:_textView];
   }
   return self;
@@ -226,11 +219,9 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
     {
         NSString *toBeString = textField.text;
         
-        //获取高亮部分
         UITextRange *selectedRange = [textField markedTextRange];
         UITextPosition *position = [textField positionFromPosition:selectedRange.start offset:0];
         
-        // 没有高亮选择的字，则对已输入的文字进行字数统计和限制
         if (!position)
         {
             if (toBeString.length > theMaxLength)
@@ -248,7 +239,6 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
             }
         }
     }
-    // 中文输入法以外的直接对其统计限制即可，不考虑其他语种情况
     else
     {
         if (toBeString.length > theMaxLength)
@@ -316,7 +306,6 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 //defaultValue
 - (void)setDefaultValue:(NSString *)defaultValue
 {
-    //只有当前输入框没有text的情况下才应该填入defaultValue
     if (defaultValue && 0 == [self text].length) {
         [_textView setText:defaultValue];
     }
@@ -331,27 +320,6 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 - (void)blur{
     [_textView resignFirstResponder];
 }
-
-//native
-//- (BOOL)becomeFirstResponder {
-//  if (_onFocus){
-//    _onFocus(@{});
-//  }
-//  return [super becomeFirstResponder];
-//}
-//
-//- (BOOL)resignFirstResponder {
-//  if (_onBlur) {
-//    _onBlur(@{});
-//  }
-//  return [super resignFirstResponder];
-//}
-
-//- (BOOL)canBecomeFirstResponder
-//{
-//  return YES;
-//}
-
 
 - (BOOL)becomeFirstResponder
 {
@@ -375,7 +343,6 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 
 - (BOOL)resignFirstResponder
 {
-//  _nativeEventCount = 0;
   [super resignFirstResponder];
   return [_textView resignFirstResponder];
 }
@@ -387,46 +354,8 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 
 - (void)updateFrames
 {
-  // Adjust the insets so that they are as close as possible to single-line
-  // HippyTextField defaults, using the system defaults of font size 17 and a
-  // height of 31 points.
-  //
-  // We apply the left inset to the frame since a negative left text-container
-  // inset mysteriously causes the text to be hidden until the text view is
-  // first focused.
-//  UIEdgeInsets adjustedFrameInset = UIEdgeInsetsZero;
-//  adjustedFrameInset.left = _contentInset.left - 5;
-  
-//  UIEdgeInsets adjustedTextContainerInset = _contentInset;
-//  adjustedTextContainerInset.top += 5;
-//  adjustedTextContainerInset.left = 0;
-//
-//  CGRect frame = UIEdgeInsetsInsetRect(self.bounds, adjustedFrameInset);
   _textView.frame = self.bounds;
-//  [self updateContentSize];
-  
-//  _textView.textContainerInset = adjustedTextContainerInset;
-//  _placeholderView.textContainerInset = adjustedTextContainerInset;
 }
-
-//- (void)updateContentSize
-//{
-//  CGSize size = (CGSize){_scrollView.frame.size.width, INFINITY};
-//  size.height = [_textView sizeThatFits:size].height;
-//  _scrollView.contentSize = size;
-//  _textView.frame = (CGRect){CGPointZero, size};
-//
-//  if (_viewDidCompleteInitialLayout && _onContentSizeChange && !CGSizeEqualToSize(_previousContentSize, size)) {
-//    _previousContentSize = size;
-//    _onContentSizeChange(@{
-//                           @"contentSize": @{
-//                               @"height": @(size.height),
-//                               @"width": @(size.width),
-//                               },
-//                           @"target": self.hippyTag,
-//                           });
-//  }
-//}
 
 - (void)layoutSubviews
 {

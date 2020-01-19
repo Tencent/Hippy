@@ -1,8 +1,8 @@
 # Hippy 跨端开发框架
 
-![Hippy Group](https://img.shields.io/badge/group-Hippy-blue.svg) [![license](https://img.shields.io/badge/license-Apache%202-blue)](https://github.com/Tencent/Hippy/blob/master/LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Tencent/Hippy/pulls) ![node](https://img.shields.io/badge/node-%3E%3D10.0.0-green.svg) [![Actions Status](https://github.com/Tencent/Hippy/workflows/build/badge.svg)](https://github.com/Tencent/Hippy/actions)
+![Hippy Group](https://img.shields.io/badge/group-Hippy-blue.svg) [![license](https://img.shields.io/badge/license-Apache%202-blue)](https://github.com/Tencent/Hippy/blob/master/LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Tencent/Hippy/pulls) ![node](https://img.shields.io/badge/node-%3E%3D10.0.0-green.svg) [![Actions Status](https://github.com/Tencent/Hippy/workflows/build/badge.svg?branch=master)](https://github.com/Tencent/Hippy/actions) [![Codecov](https://img.shields.io/codecov/c/github/Tencent/Hippy)](https://codecov.io/gh/Tencent/Hippy)
 
-[English](./README.md) | 简体中文
+[English](./README.md) | 简体中文 | [官网](//tencent.github.io/Hippy/) | [文章专栏](https://cloud.tencent.com/developer/column/84006) | [QQ群：784894901](//shang.qq.com/wpa/qunwpa?idkey=7bff52aca3aac75a4f1ba96c1844a5e3b62000351890182eb60311542d75fa1a)
 
 ## 介绍
 
@@ -54,14 +54,14 @@ Hippy
 macOS 用户需要以下软件：
 
 1. [Xcode](https://developer.apple.com/xcode/) 和 iOS SDK: 用以编译 iOS 终端 app。
-2. [Android Studio](https://developer.android.com/AndroidStudio) 和 NDK: 用以编译 Android app。
+2. [Android Studio](https://developer.android.com/studio) 和 NDK: 用以编译 Android app。
 3. [Node.JS](http://nodejs.cn/): 用来运行前端编译脚本。
 
 我们推荐使用 [homebrew](https://brew.sh/) 来安装依赖。
 
 Windows 用户需要以下软件:
 
-1. [Android Studio](https://developer.android.com/AndroidStudio) 和 NDK: 用以编译 Android app。
+1. [Android Studio](https://developer.android.com/studio) 和 NDK: 用以编译 Android app。
 2. [Node.JS](http://nodejs.cn/): 用来运行前端编译脚本。
 
 > Windows 用户受条件所限，暂时无法进行 iOS app 开发
@@ -74,7 +74,7 @@ Windows 用户需要以下软件:
 
 1. 安装前端依赖，运行命令：`npm install`。
 2. 编译前端 SDK 包，运行命令： `npm run build`。
-3. 选择一个前端范例项目来啊进行编译：`npm run buildexample -- [hippy-react-demo|hippy-vue-demo]`。
+3. 选择一个前端范例项目来进行编译：`npm run buildexample -- [hippy-react-demo|hippy-vue-demo]`。
 4. 启动 Xcode 并且开始编译终端 App：`open examples/ios-demo/HippyDemo.xcodeproj`。
 
 ### 启动 Android App 来测试 hippy-react 或者 hippy-vue 范例
@@ -86,11 +86,9 @@ Windows 用户需要以下软件:
 1. 安装前端依赖，运行命令：`npm install`。
 2. 编译前端 SDK 包，运行命令： `npm run build`。
 3. 打开一个命令行程序，并选择 hippy-react 范例项目进行编译：`npm run buildexample hippy-react-demo`，或者编译 hippy-vue 范例项目 `npm run buildexample hippy-vue-demo`。
-4. 用 Android Studio 来打开终端范例工程 `examples/android-demo`.
+4. 用 Android Studio 来打开终端范例工程 `examples/android-demo`。
 5. 用 USB 数据线插上你的 Android 手机，需要确认手机打开 USB 调试模式和 USB 安装。
-6. 运行工程，并安装 apk。。。
-
-> Windows 开发者：同时因为 Hippy 的范例编译脚本暂时是用 Bash 开发的，我们推荐使用带有 Git Shell 的 [ConEmu](https://conemu.github.io/) 来运行编译脚本，它提供了和 Linux 一样的命令运行环境。
+6. 运行工程，并安装 apk。
 
 > 如果 Android Studio 报了这个错误 `No toolchains found in the NDK toolchains folder for ABI with prefix: mips64el-linux-android`，这里有[解决办法](https://github.com/google/filament/issues/15#issuecomment-415423557)。
 

@@ -2,6 +2,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-plusplus */
 
+/* eslint-disable-next-line import/no-extraneous-dependencies */
 import Regexp from 'path-to-regexp';
 import { cleanPath } from './util/path';
 import { assert, warn } from './util/warn';

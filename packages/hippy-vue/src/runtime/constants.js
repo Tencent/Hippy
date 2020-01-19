@@ -9,7 +9,7 @@ const GLOBAL_STYLE_NAME   = '__HIPPY_VUE_STYLES__';
 /**
  * Hippy debug address
  */
-const HIPPY_DEBUG_ADDRESS = 'http://127.0.0.1:8082/';
+const HIPPY_DEBUG_ADDRESS = `http://127.0.0.1:${process.env.PORT}/`;
 
 /**
  * Hippy static resources protocol

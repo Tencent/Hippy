@@ -25,7 +25,6 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface HippyFetchInfo : NSObject
-//YES表示如果遇到302跳转则停止跳转，将302结果上报。否则自动跳转不上报302状态
 @property (nonatomic, readonly, assign) BOOL report302Status;
 @property (nonatomic, readonly, strong) HippyPromiseResolveBlock resolveBlock;
 @property (nonatomic, readonly, strong) HippyPromiseRejectBlock rejectBlock;

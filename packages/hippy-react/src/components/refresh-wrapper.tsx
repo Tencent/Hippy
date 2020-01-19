@@ -19,6 +19,14 @@ interface RefreshWrapperItemViewProps {
 class RefreshWrapper extends React.Component<RefreshWrapperProps, {}> {
   private instance: HTMLDivElement | null = null;
 
+  public refreshComplected: () => void;
+
+  constructor(props: RefreshWrapperProps) {
+    super(props);
+    // TODO: Upward compatible with the the old typo mistake.
+    this.refreshComplected = this.refreshCompleted.bind(this);
+  }
+
   private getRefresh(): ReactElement | null {
     const { getRefresh } = this.props;
     if (typeof getRefresh === 'function') {
@@ -37,7 +45,7 @@ class RefreshWrapper extends React.Component<RefreshWrapperProps, {}> {
   /**
    * Call native that data is refreshed
    */
-  public refreshComplected() {
+  public refreshCompleted() {
     callUIFunction(this.instance, 'refreshComplected', null);
   }
 

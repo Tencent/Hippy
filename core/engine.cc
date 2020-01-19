@@ -47,11 +47,7 @@ Engine::Engine(EngineId engine_id) : vm_(nullptr), id_(engine_id) {
 }
 
 Engine::~Engine() {
-  if (js_runner_) {
-    delete js_runner_;
-  }
-
-  js_runner_ = nullptr;
+  delete js_runner_;
 }
 
 void Engine::TerminateRunner() {

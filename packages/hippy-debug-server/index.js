@@ -3,7 +3,7 @@
 const yargs       = require('yargs');
 const startServer = require('./server');
 
-const { argv } = yargs()
+const { argv } = yargs
   .alias('v', 'version')
   .describe('v', 'show version information')
   .alias('h', 'help')

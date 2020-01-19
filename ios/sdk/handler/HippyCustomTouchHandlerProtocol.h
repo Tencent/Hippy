@@ -24,19 +24,15 @@
 #import <Foundation/Foundation.h>
 
 
+/**
+ *  used for custom touche handler
+ */
 @protocol HippyCustomTouchHandlerProtocol<HippyBridgeModule>
 
-//@required
-//
-//- (void)imageView:(HippyImageView *)imageView
-//        loadAtUrl:(NSURL *)url
-// placeholderImage:(UIImage *)placeholderImage
-//          context:(void *)context
-//         progress:(void (^)(long long, long long))progressBlock
-//        completed:(void (^)(NSData *, NSURL *, NSError *))completedBlock;
-//
-//- (void)cancelImageDownload:(UIImageView *)imageView withUrl:(NSURL *)url;
-
+/**
+*  if The following methods return YES, HippyTouchHandler will return,
+ * see implements in HippyTouchHandler.m
+ */
 @optional
 - (BOOL)customTouchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event;
 

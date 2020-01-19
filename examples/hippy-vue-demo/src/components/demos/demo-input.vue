@@ -43,6 +43,7 @@
 </template>
 
 <script>
+import Vue from 'vue';
 /**
    * 这个 Demo 里有直接操作 DOM 的章节
    */
@@ -56,7 +57,7 @@ export default {
     };
   },
   mounted() {
-    this.$refs.inputDemo.childNodes.find(element => element.tagName === 'input').focus();
+    this.getChildNodes(this.$refs.inputDemo.childNodes).find(element => element.tagName === 'input').focus();
   },
   methods: {
     /**
@@ -70,7 +71,7 @@ export default {
        * 当点击顶部 View 时取消所有输入框的 focus 状态
        */
     blurAllInput() {
-      this.$refs.inputDemo.childNodes.filter(element => element.tagName === 'input').forEach(input => input.blur());
+      this.getChildNodes(this.$refs.inputDemo.childNodes).filter(element => element.tagName === 'input').forEach(input => input.blur());
     },
     /**
        * 点击输入框时，点击事件会冒泡到顶部 View 导致 focus 时又被 blur 了，所以这里需要阻止一下冒泡
@@ -83,6 +84,9 @@ export default {
     },
     onKeyboardWillShow(evt) {
       console.log(evt);
+    },
+    getChildNodes(childNodes) {
+      return !Vue.Native ? Array.from(childNodes) : childNodes;
     },
   },
 };

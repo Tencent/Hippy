@@ -24,16 +24,13 @@
 
 static void x5ExecuteOnMainThread(dispatch_block_t block, BOOL sync)
 {
-    if ([NSThread mainThread]) {
+    if (0 == strcmp(dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL),
+                    dispatch_queue_get_label(dispatch_get_main_queue()))) {
         block();
     } else if (sync) {
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            block();
-        });
+        dispatch_sync(dispatch_get_main_queue(), block);
     } else {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            block();
-        });
+        dispatch_async(dispatch_get_main_queue(), block);
     }
 }
 
