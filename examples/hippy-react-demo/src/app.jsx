@@ -4,7 +4,7 @@ import {
   View,
   Text,
   Platform,
-} from 'hippy-react';
+} from '@hippy/react';
 import Gallery from './pages/gallery';
 import Debug from './pages/debug';
 import SafeAreaView from './shared/SafeAreaView';

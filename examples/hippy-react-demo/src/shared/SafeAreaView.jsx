@@ -4,7 +4,7 @@ import {
   View,
   Platform,
   Dimensions,
-} from 'hippy-react';
+} from '@hippy/react';
 import Utils from '../utils';
 
 const styles = StyleSheet.create({

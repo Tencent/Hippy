@@ -1,7 +1,11 @@
 import React from 'react';
 import {
-  StyleSheet, View, Platform, Text, ViewPager,
-} from 'hippy-react';
+  StyleSheet,
+  View,
+  Platform,
+  Text,
+  ViewPager,
+} from '@hippy/react';
 import { CirclePagerView, SquarePagerView, TrianglePagerView } from '../../shared/PagerItemView';
 
 const DEFAULT_DOT_RADIUS = 6;

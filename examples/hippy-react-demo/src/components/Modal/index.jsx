@@ -5,7 +5,7 @@ import {
   StyleSheet,
   Text,
   View,
-} from 'hippy-react';
+} from '@hippy/react';
 
 const SKIN_COLOR = {
   mainLight: '#4c9afa',

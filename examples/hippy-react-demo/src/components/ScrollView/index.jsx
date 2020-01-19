@@ -4,7 +4,7 @@ import {
   ScrollView,
   Text,
   StyleSheet,
-} from 'hippy-react';
+} from '@hippy/react';
 
 const styles = StyleSheet.create({
   itemStyle: {

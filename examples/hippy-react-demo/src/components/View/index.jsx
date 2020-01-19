@@ -4,7 +4,7 @@ import {
   Text,
   View,
   StyleSheet,
-} from 'hippy-react';
+} from '@hippy/react';
 import MyView from '../../externals/MyView/MyView';
 
 const styles = StyleSheet.create({
