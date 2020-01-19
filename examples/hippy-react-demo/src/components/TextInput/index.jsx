@@ -5,7 +5,7 @@ import {
   StyleSheet,
   View,
   Text,
-} from 'hippy-react';
+} from '@hippy/react';
 
 const styles = StyleSheet.create({
   container_style: {

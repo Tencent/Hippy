@@ -31,10 +31,10 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 ### Add new depenedencies
 
-* hippy-vue
-* hippy-vue-native-components
-* hippy-vue-router
-* hippy-vue-css-loader
+* @hippy/vue
+* @hippy/vue-native-components
+* @hippy/vue-router
+* @hippy/vue-css-loader
 
 ### Important files
 

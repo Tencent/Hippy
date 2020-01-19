@@ -12,7 +12,7 @@
 
 ```js
 import React from 'react';
-import { RefreshWrapper, ListView, View, StyleSheet, Text } from 'hippy-react';
+import { RefreshWrapper, ListView, View, StyleSheet, Text } from '@hippy/react';
 import { mockData } from './UIStyles/mock';
 import Style1 from './UIStyles/style1';
 import Style2 from './UIStyles/style2';

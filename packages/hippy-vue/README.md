@@ -63,7 +63,7 @@ Use [Vue component registration](https://vuejs.org/v2/guide/components-registrat
 For example:
 
 ```javascript
-import Vue from 'hippy-vue';
+import Vue from '@hippy/vue';
 
 // Define a `BeautyText` element
 Vue.registerElement('BeautyText');

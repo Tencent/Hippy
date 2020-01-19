@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import HippyVueNativeComponents from 'hippy-vue-native-components';
+import HippyVueNativeComponents from '@hippy/vue-native-components';
 import App from './app.vue';
 import routes from './routes';
 import { setApp } from './util';
