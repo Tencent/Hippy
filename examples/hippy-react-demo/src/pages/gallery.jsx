@@ -7,7 +7,7 @@ import {
   StyleSheet,
   Text,
   View,
-} from 'hippy-react';
+} from '@hippy/react';
 import * as components from '../components';
 import * as modules from '../modules';
 import * as externals from '../externals';

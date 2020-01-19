@@ -5,7 +5,7 @@ import {
   Text,
   Image,
   Platform,
-} from 'hippy-react';
+} from '@hippy/react';
 import Utils from '../../../utils';
 
 const IMAGE_WIDTH = Utils.getScreenWidth() - 2 * 12;

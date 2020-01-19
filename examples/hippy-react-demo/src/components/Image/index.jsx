@@ -4,7 +4,8 @@ import {
   Text,
   Image,
   StyleSheet,
-} from 'hippy-react';
+} from '@hippy/react';
+
 // Import the image to base64 for defaultSource props.
 /* eslint-disable-next-line import/no-webpack-loader-syntax */
 import defaultSource from '!!url-loader?modules!./defaultSource.jpg';

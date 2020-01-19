@@ -71,7 +71,7 @@ For the C++ module, the methods are injected into JS enviroment, just call the m
 For the modules implemented by Objective C or Java, use the `callNative` for execution.
 
 ```javascript
-const { callNative, callNativeWithPromise } from 'hippy-react';
+const { callNative, callNativeWithPromise } from '@hippy/react';
 
 const SomeModule = {
   /**

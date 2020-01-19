@@ -1,7 +1,10 @@
 import React from 'react';
 import {
-  Text, View, StyleSheet, WebView,
-} from 'hippy-react';
+  Text,
+  View,
+  StyleSheet,
+  WebView,
+} from '@hippy/react';
 
 const styles = StyleSheet.create({
   itemTitle: {

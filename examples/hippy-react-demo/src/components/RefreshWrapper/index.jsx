@@ -5,7 +5,7 @@ import {
   View,
   StyleSheet,
   Text,
-} from 'hippy-react';
+} from '@hippy/react';
 import mockData from './UIStyles/mock';
 import Style1 from './UIStyles/Style1';
 import Style2 from './UIStyles/Style2';

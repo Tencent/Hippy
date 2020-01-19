@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text } from 'hippy-react';
+import { Text } from '@hippy/react';
 import MyView from './MyView';
 
 // 使用自定义的View

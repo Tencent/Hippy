@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, Text, StyleSheet } from 'hippy-react';
+import { ScrollView, Text, StyleSheet } from '@hippy/react';
 import Slider from './Slider';
 
 const IMAGE_URLS = [
