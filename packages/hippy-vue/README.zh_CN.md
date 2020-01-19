@@ -17,7 +17,7 @@
 
 ```javascript
 // import Vue from 'vue';
-import Vue from 'hippy-vue'; // 只需要把 Vue 的运行时库替换为 Hippy Vue，其它的一概不变。
+import Vue from '@hippy/vue'; // 只需要把 Vue 的运行时库替换为 Hippy Vue，其它的一概不变。
 ```
 
 ## 限制

@@ -50,10 +50,14 @@ function getFrameworkVersion(opts) {
         case dependencyList.includes('@tencent/hippy-react-qb'):
           framework = 'hippy-react-qb';
           break;
-        case dependencyList.includes('hippy-react') || dependencyList.includes('hippy-react'):
+        case dependencyList.includes('@hippy/react'):
+        case dependencyList.includes('@tencent/hippy-react'):
+        case dependencyList.includes('hippy-react'):
           framework = 'hippy-react';
           break;
-        case dependencyList.includes('hippy-vue') || dependencyList.includes('hippy-vue'):
+        case dependencyList.includes('@hippy/vue'):
+        case dependencyList.includes('@tencent/hippy-vue'):
+        case dependencyList.includes('hippy-vue'):
           framework = 'hippy-vue';
           break;
         default:
