@@ -1,6 +1,6 @@
 # 转 Web
 
-hippy-react 通过 [hippy-react-web](//www.npmjs.com/package/hippy-react-web) 库来将 Hippy 应用转译、运行在浏览器中。
+hippy-react 通过 [@hippy/react-web](//www.npmjs.com/package/@hippy/react-web) 库来将 Hippy 应用转译、运行在浏览器中。
 
 > 该项目仍在开发中，有不完善的地方，欢迎 PR。
 

@@ -8,7 +8,7 @@ Hippy 的所有样式支持由终端直接提供，基本和浏览器一致，�
 
 ```jsx  
 import React from 'react';
-import { View  } from '@tencent/hippy-react';
+import { View  } from '@hippy/react';
 
 function InlineStyleDemo() {
   return (
@@ -24,7 +24,7 @@ function InlineStyleDemo() {
 
 ```jsx  
 import React from 'react';
-import { View, StyleSheet, Text } from '@tencent/hippy-react';
+import { View, StyleSheet, Text } from '@hippy/react';
 
 class StyleSheetDemo extends React.Component {
   render() {

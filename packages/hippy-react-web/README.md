@@ -6,7 +6,7 @@
 
 ## Introduction
 
-`hippy-react-web` is the web adapter for `hippy-react`, it keeps the same interface with `hippy-react`
+`@hippy/react-web` is the web adapter for `hippy-react`, it keeps the same interface with `hippy-react`
 To make hippy-react app running in web browser.
 
 The project is still working progress, contributions are welcome.
