@@ -29,7 +29,7 @@ Confirmed the new component name and methods with Native develop, then write  ne
 
 ```javascript
 import React from 'react';
-import { callUIFunction } from 'hippy-react';
+import { callUIFunction } from '@hippy/react';
 
 class CustomComponent extends React.Component {
   /**
@@ -105,7 +105,7 @@ The touch event is able to apply to `View` component directly, for example the `
 
 ```javascript
 import React from 'react';
-import { View, Text } from 'hippy-react';
+import { View, Text } from '@hippy/react';
 
 function Container() {
   function clickHandler(eventName) {
