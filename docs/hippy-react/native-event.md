@@ -7,7 +7,7 @@
 这里是向前端发送一个名叫 rotate 的事件，里面有个参数是 result，这样就发送到前端去了。
 
 ```jsx
-import { HippyEventEmitter } from '@tencent/hippy-react';
+import { HippyEventEmitter } from '@hippy/react';
 
 const hippyEventEmitter = new HippyEventEmitter();
 this.call = hippyEventEmitter.addListener('rotate', evt => console.log(evt.result));

@@ -76,7 +76,7 @@ component: {
 hippy-vue 的模块其实只是一个 `Vue.Native.callNative` 调用，写个 `function` 即可。
 
 ```js
-import Vue from 'hippy-vue';
+import Vue from 'vue';
 
 function log(msg) {
   Vue.Native.callNative("TestModule", "log", msg)
