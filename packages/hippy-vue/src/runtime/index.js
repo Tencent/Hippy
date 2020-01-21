@@ -13,8 +13,10 @@ import {
   mergeOptions,
   extend,
 } from 'core/util/index';
+import { once } from 'shared/util';
 import { patch } from './patch';
 import {
+  registerBuiltinElements,
   registerElement,
   getElementMap,
   mustUseProp,
@@ -52,6 +54,22 @@ extend(Vue.options.directives, platformDirectives);
 
 // install platform patch function
 Vue.prototype.__patch__ = patch;
+
+// Override _init method for built-in elements register
+// The method will execute after other middleware,
+// because Vue.use() can be placed before new Vue().
+// It should have a workaround in future.
+const { _init: oldInit } = Vue.prototype;
+Vue.prototype._init = function _init(options = {}) {
+  oldInit.call(this, options);
+  // Built-in elements registering execute one time.
+  once(() => {
+    const { disableBuiltinElements } = options;
+    if (!(typeof disableBuiltinElements === 'boolean' && disableBuiltinElements)) {
+      Vue.use(registerBuiltinElements);
+    }
+  })();
+};
 
 // Override $mount for attend the compiler.
 Vue.prototype.$mount = function $mount(el, hydrating) {
