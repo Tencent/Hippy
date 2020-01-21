@@ -1,4 +1,5 @@
 import test from 'ava';
+import { registerBuiltinElements } from '../../../../elements';
 import { EventDispatcher } from '../dispatcher';
 import { setApp, getApp } from '../../../../util';
 import ElementNode from '../../../element-node';
@@ -7,6 +8,7 @@ let childNode;
 let textareaNode;
 
 test.before(() => {
+  registerBuiltinElements();
   const rootNode = new ElementNode('div');
   childNode = new ElementNode('div');
   textareaNode = new ElementNode('textarea');
