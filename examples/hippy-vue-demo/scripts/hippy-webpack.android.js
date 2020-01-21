@@ -5,7 +5,7 @@ const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 const pkg = require('../package.json');
 // eslint-disable-next-line import/no-dynamic-require
 const manifest = require(path.resolve('./dist/android/vendor-manifest.json'));
-
+const SimpleProgressWebpackPlugin = require("simple-progress-webpack-plugin");
 const platform = 'android';
 
 module.exports = {
@@ -31,6 +31,7 @@ module.exports = {
       context: process.cwd(),
       manifest,
     }),
+    new SimpleProgressWebpackPlugin()
   ],
   module: {
     rules: [

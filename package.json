@@ -57,7 +57,8 @@
     "typedoc-plugin-no-inherit": "^1.1.10",
     "typescript": "^3.7.4",
     "vue": "^2.6.10",
-    "watch": "^1.0.2"
+    "watch": "^1.0.2",
+    "webpack-cli": "^3.3.10"
   },
   "_moduleAliases": {
     "vue": "node_modules/vue/src/core/index",

@@ -22,6 +22,7 @@
     "hippy-vue": "^2.0.0",
     "hippy-vue-native-components": "^2.0.0",
     "hippy-vue-router": "^2.0.0",
+    "simple-progress-webpack-plugin": "^1.1.2",
     "vue": "^2.6.10",
     "vue-router": "^3.1.3"
   },
