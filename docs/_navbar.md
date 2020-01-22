@@ -1,5 +1,6 @@
 * 起步
   * [开始接入](guide/integration.md)
+  * [Core C++ 扩展](core/introduction.md)
   * [Android](android/integration.md)
   * [iOS](ios/integration.md)
   * [前端调试](guide/debug.md)
