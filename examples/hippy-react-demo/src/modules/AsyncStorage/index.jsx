@@ -6,7 +6,7 @@ import {
   AsyncStorage,
   ScrollView,
   StyleSheet,
-} from 'hippy-react';
+} from '@hippy/react';
 
 const styles = StyleSheet.create({
   containerStyle: {

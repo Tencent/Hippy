@@ -2,7 +2,8 @@
   "name": "hippy",
   "private": true,
   "scripts": {
-    "build": "node ./scripts/js2cpp/build.js && node ./scripts/build.js",
+    "build": "node ./scripts/build.js",
+    "buildcore": "node ./scripts/js2cpp/build.js",
     "buildexample": "node ./scripts/build-example.js",
     "commitlint": "commitlint --color",
     "markdownlint": "markdownlint --config .markdownlintrc.json ./*.md ./docs/**/*.md",

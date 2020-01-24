@@ -4,7 +4,7 @@ import {
   View,
   StyleSheet,
   Text,
-} from 'hippy-react';
+} from '@hippy/react';
 
 const STYLE_LOADING = 100;
 const MAX_FETCH_TIMES = 100;

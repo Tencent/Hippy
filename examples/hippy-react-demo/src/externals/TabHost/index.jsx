@@ -5,7 +5,7 @@ import {
   Text,
   ViewPager,
   StyleSheet,
-} from 'hippy-react';
+} from '@hippy/react';
 import {
   SquarePagerView,
   TrianglePagerView,

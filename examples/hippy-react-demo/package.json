@@ -20,14 +20,15 @@
     "React"
   ],
   "dependencies": {
-    "hippy-react": "^2.0.0",
-    "hippy-react-web": "^2.0.0",
+    "@hippy/react": "^2.0.1",
+    "@hippy/react-web": "^2.0.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "regenerator-runtime": "^0.13.3",
     "simple-progress-webpack-plugin": "^1.1.2"
   },
   "devDependencies": {
+    "@hippy/debug-server": "^2.0.1",
     "@babel/core": "^7.7.5",
     "@babel/plugin-proposal-class-properties": "^7.7.4",
     "@babel/preset-env": "^7.7.6",
@@ -37,7 +38,6 @@
     "case-sensitive-paths-webpack-plugin": "^2.2.0",
     "css-loader": "^3.4.0",
     "file-loader": "^5.0.2",
-    "hippy-debug-server": "^2.0.0",
     "html-webpack-plugin": "^3.2.0",
     "style-loader": "^1.0.2",
     "unicode-loader": "^1.0.7",

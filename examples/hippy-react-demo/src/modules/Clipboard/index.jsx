@@ -5,7 +5,7 @@ import {
   View,
   StyleSheet,
   Clipboard,
-} from 'hippy-react';
+} from '@hippy/react';
 
 const styles = StyleSheet.create({
   itemTitle: {

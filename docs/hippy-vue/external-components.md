@@ -2,7 +2,7 @@
 
 # 终端扩展组件
 
-扩展组件是终端提供了一些很方便的组件，在 hippy-vue 中由 [hippy-vue-native-components](//www.npmjs.com/package/hippy-vue-native-components) 提供，但因为暂时还没有 `hippy-vue-web-components` 所以暂时无法在浏览器中使用。
+扩展组件是终端提供了一些很方便的组件，在 hippy-vue 中由 [@hippy/vue-native-components](//www.npmjs.com/package/@hippy/vue-native-components) 提供，但因为暂时还没有 `@hippy/vue-web-components` 所以暂时无法在浏览器中使用。
 
 # animation
 

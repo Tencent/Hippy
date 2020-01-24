@@ -1,4 +1,4 @@
-import { callNative, callNativeWithPromise } from 'hippy-react';
+import { callNative, callNativeWithPromise } from '@hippy/react';
 
 /*
  自定义module

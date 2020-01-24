@@ -5,7 +5,7 @@ import {
   NetInfo,
   Text,
   NetworkModule,
-} from 'hippy-react';
+} from '@hippy/react';
 
 const styles = StyleSheet.create({
   text: {

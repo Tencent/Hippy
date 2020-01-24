@@ -19,7 +19,7 @@
 Create a empty react project with [create-react-app](https://reactjs.org/docs/create-a-new-react-app.html),
 then enter into the project and install `hippy-react` with npm:
 
-    npm install hippy-react
+    npm install @hippy/react
 
 ## Advanced topics
 
@@ -29,7 +29,7 @@ Confirmed the new component name and methods with Native develop, then write  ne
 
 ```javascript
 import React from 'react';
-import { callUIFunction } from 'hippy-react';
+import { callUIFunction } from '@hippy/react';
 
 class CustomComponent extends React.Component {
   /**
@@ -71,7 +71,7 @@ For the C++ module, the methods are injected into JS enviroment, just call the m
 For the modules implemented by Objective C or Java, use the `callNative` for execution.
 
 ```javascript
-const { callNative, callNativeWithPromise } from 'hippy-react';
+const { callNative, callNativeWithPromise } from '@hippy/react';
 
 const SomeModule = {
   /**
@@ -105,7 +105,7 @@ The touch event is able to apply to `View` component directly, for example the `
 
 ```javascript
 import React from 'react';
-import { View, Text } from 'hippy-react';
+import { View, Text } from '@hippy/react';
 
 function Container() {
   function clickHandler(eventName) {

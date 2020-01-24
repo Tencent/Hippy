@@ -6,7 +6,7 @@
 
 ## Introduction
 
-`hippy-react-web` is the web adapter for `hippy-react`, it keeps the same interface with `hippy-react`
+`@hippy/react-web` is the web adapter for `hippy-react`, it keeps the same interface with `hippy-react`
 To make hippy-react app running in web browser.
 
 The project is still working progress, contributions are welcome.
@@ -23,7 +23,7 @@ module.exports = {
   resolve: {
     alias: {
       // Make the the hippy-react-web alias to hippy-react
-      'hippy-react': 'hippy-react-web',
+      '@hippy/react': '@hippy/react-web',
     },
   },
 };

@@ -63,7 +63,7 @@ module.exports = {
       {
         test: /\.css$/,
         use: [
-          'hippy-vue-css-loader',
+          '@hippy/vue-css-loader',
         ],
       },
       {
@@ -88,7 +88,8 @@ module.exports = {
     alias: {
       vue: path.resolve(__dirname, '../node_modules/hippy-vue'),
       '@': path.resolve('./src'),
-      'vue-router': path.resolve(__dirname, '../node_modules/hippy-vue-router'),
+      '@hippy/vue-native-components': path.resolve(__dirname, '../../../packages/hippy-vue-native-components'),
+      'vue-router': path.resolve(__dirname, '../../../packages/hippy-vue-router'),
     },
   },
 };

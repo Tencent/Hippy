@@ -1,5 +1,5 @@
 import { makeMap } from 'shared/util';
-import * as builtInComponents from './built-in';
+import * as BUILT_IN_ELEMENTS from './built-in';
 
 const isReservedTag = makeMap(
   'template,script,style,element,content,slot,'
@@ -102,14 +102,15 @@ function isUnknownElement(el) {
 }
 
 // Register components
-Object.keys(builtInComponents).forEach((tagName) => {
-  const meta = builtInComponents[tagName];
-  registerElement(tagName, meta);
-});
+function registerBuiltinElements() {
+  Object.keys(BUILT_IN_ELEMENTS).forEach((tagName) => {
+    const meta = BUILT_IN_ELEMENTS[tagName];
+    registerElement(tagName, meta);
+  });
+}
 
 export {
   isReservedTag,
-  builtInComponents,
   normalizeElementName,
   registerElement,
   getElementMap,
@@ -120,4 +121,5 @@ export {
   mustUseProp,
   getTagNamespace,
   isUnknownElement,
+  registerBuiltinElements,
 };

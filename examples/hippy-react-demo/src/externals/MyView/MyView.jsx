@@ -1,5 +1,6 @@
-import React from "react";
-import { UIManagerModule } from "hippy-react";
+import React from 'react';
+import { UIManagerModule } from '@hippy/react';
+
 
 export default class MyView extends React.Component {
   changeColor(color) {

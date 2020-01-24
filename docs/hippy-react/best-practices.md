@@ -33,8 +33,8 @@ PK进度条动画
 ## 示例代码
 
 ``` jsx
-import { Animation, StyleSheet } from "@tencent/hippy-react";
-import { Component } from 'react';
+import { Animation, StyleSheet } from "@hippy/react";
+import React, { Component } from 'react';
 
 export default class AnimationExample extends Component {
   componentDidMount() {

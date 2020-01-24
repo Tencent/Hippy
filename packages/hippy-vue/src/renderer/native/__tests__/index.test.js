@@ -1,6 +1,7 @@
 // TODO: Add UIManagerModule mock module to verify result correction.
 
 import test from 'ava';
+import { registerBuiltinElements } from '../../../elements';
 import DocumentNode from '../../document-node';
 import {
   renderToNative,
@@ -13,6 +14,7 @@ import { setApp } from '../../../util';
 const ROOT_VIEW_ID = 10;
 
 test.before(() => {
+  registerBuiltinElements();
   global.__HIPPYNATIVEGLOBAL__ = {
     Platform: {
     },
