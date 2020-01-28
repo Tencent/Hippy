@@ -30,6 +30,7 @@
 - (instancetype)initWithFrame:(CGRect)frame {
     if (self = [super initWithFrame:frame]) {
         _innerTextView = [[UITextView alloc] initWithFrame:frame];
+        [_innerTextView setFrame:CGRectMake(60, 60, 100, 120)];
         [self addSubview:_innerTextView];
     }
     return self;

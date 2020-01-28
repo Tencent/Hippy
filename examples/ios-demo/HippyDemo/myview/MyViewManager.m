@@ -45,7 +45,6 @@ HIPPY_EXPORT_METHOD(changeColor:(nonnull NSNumber *)reactTag
 - (UIView *)view {
     return [MyView new];
 }
-
 - (UIColor *)colorWithHexString:(NSString *)hexString alpha:(CGFloat)alpha {
     hexString = [hexString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     hexString = [hexString stringByReplacingOccurrencesOfString:@"#" withString:@""];

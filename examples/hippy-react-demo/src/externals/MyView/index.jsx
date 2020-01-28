@@ -7,7 +7,7 @@ export default class MyViewDemo extends React.Component {
   componentDidMount() {
     // 调用控件扩展的方法，不过一般不这么做都是扩展在属性里面
     setTimeout(() => {
-      this.myview.changeColor('red');
+      this.myview.changeColor('#897789');
     }, 1000);
   }
 
@@ -22,7 +22,7 @@ export default class MyViewDemo extends React.Component {
       <MyView
         ref={(ref) => { this.myview = ref; }}
         text={text}
-        style={{ width: 250, height: 100, color: 'black' }}
+        style={{ width: 250, height: 100, color: '#000000' }}
       >
         <Text style={{
           marginTop: 2,
