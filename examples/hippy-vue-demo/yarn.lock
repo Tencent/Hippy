@@ -657,6 +657,40 @@
   dependencies:
     "@hapi/hoek" "^8.3.0"
 
+"@hippy/debug-server@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.npm.taobao.org/@hippy/debug-server/download/@hippy/debug-server-2.0.1.tgz#1a3fe6df43c2f6c1da93fe32c6981c6267ea758c"
+  integrity sha1-Gj/m30PC9sHak/4yxpgcYmfqdYw=
+  dependencies:
+    chrome-opn "^1.0.1"
+    find-up "^4.1.0"
+    koa "^2.3.0"
+    signale "^1.4.0"
+    ws "^1.1.5"
+    yargs "^15.0.2"
+
+"@hippy/vue-css-loader@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.npm.taobao.org/@hippy/vue-css-loader/download/@hippy/vue-css-loader-2.0.1.tgz#0e2bf4f18ba8b89bc044ec18c156940209a70951"
+  integrity sha1-Div08YuouJvAROwYwVaUAgmnCVE=
+  dependencies:
+    loader-utils "^1.0.2"
+
+"@hippy/vue-native-components@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.npm.taobao.org/@hippy/vue-native-components/download/@hippy/vue-native-components-2.0.1.tgz#4262f2964039ac4d06717e1d74dc5795ce64db0f"
+  integrity sha1-QmLylkA5rE0GcX4ddNxXlc5k2w8=
+
+"@hippy/vue-router@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.npm.taobao.org/@hippy/vue-router/download/@hippy/vue-router-2.0.1.tgz#99668673df5833e30e1f99fd2bc42a4b2e54bbab"
+  integrity sha1-mWaGc99YM+MOH5n9K8QqSy5Uu6s=
+
+"@hippy/vue@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.npm.taobao.org/@hippy/vue/download/@hippy/vue-2.0.1.tgz#2f4896c1b02b39f17ce6335054103eeee99ccde0"
+  integrity sha1-L0iWwbArOfF85jNQVBA+7umczeA=
+
 "@intervolga/optimize-cssnano-plugin@^1.0.5":
   version "1.0.6"
   resolved "https://registry.npm.taobao.org/@intervolga/optimize-cssnano-plugin/download/@intervolga/optimize-cssnano-plugin-1.0.6.tgz#be7c7846128b88f6a9b1d1261a0ad06eb5c0fdf8"
@@ -1700,7 +1734,8 @@ caseless@~0.12.0:
 
 chalk@2.3.x:
   version "2.3.2"
-  resolved "https://registry.npm.taobao.org/chalk/download/chalk-2.3.2.tgz?cache=0&sync_timestamp=1573282897812&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fchalk%2Fdownload%2Fchalk-2.3.2.tgz#250dc96b07491bfd601e648d66ddf5f60c7a5c65"
+  resolved "https://registry.npm.taobao.org/chalk/download/chalk-2.3.2.tgz#250dc96b07491bfd601e648d66ddf5f60c7a5c65"
+  integrity sha1-JQ3JawdJG/1gHmSNZt319gx6XGU=
   dependencies:
     ansi-styles "^3.2.1"
     escape-string-regexp "^1.0.5"
@@ -3562,37 +3597,6 @@ highlight.js@^9.6.0:
   dependencies:
     handlebars "^4.5.3"
 
-hippy-debug-server@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.npm.taobao.org/hippy-debug-server/download/hippy-debug-server-2.0.0.tgz#e75bf719167adbe748fb4d3d6feb10833045f377"
-  dependencies:
-    chrome-opn "^1.0.1"
-    find-up "^4.1.0"
-    koa "^2.3.0"
-    signale "^1.4.0"
-    ws "^1.1.5"
-    yargs "^15.0.2"
-
-hippy-vue-css-loader@^2.0.0:
-  version "2.0.1"
-  resolved "https://registry.npm.taobao.org/hippy-vue-css-loader/download/hippy-vue-css-loader-2.0.1.tgz#9ebdefbc52fb912a33562744698b2dedb7ff7c73"
-  dependencies:
-    loader-utils "^1.0.2"
-
-hippy-vue-native-components@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.npm.taobao.org/hippy-vue-native-components/download/hippy-vue-native-components-2.0.0.tgz#48023e868b5dfcc3f1e75eb8db309e82f66f6943"
-
-hippy-vue-router@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.npm.taobao.org/hippy-vue-router/download/hippy-vue-router-2.0.0.tgz#8507bdc7badff22a3f93bf351311892e39fc4023"
-  dependencies:
-    path-to-regexp "^3.0.0"
-
-hippy-vue@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.npm.taobao.org/hippy-vue/download/hippy-vue-2.0.0.tgz#09a2efa88137e34032a8b1d560a1cb954a7d3e88"
-
 hmac-drbg@^1.0.0:
   version "1.0.1"
   resolved "https://registry.npm.taobao.org/hmac-drbg/download/hmac-drbg-1.0.1.tgz#d2745701025a6c775a6c545793ed502fc0c649a1"
@@ -4474,6 +4478,7 @@ log-symbols@^2.2.0:
 log-update@2.3.x:
   version "2.3.0"
   resolved "https://registry.npm.taobao.org/log-update/download/log-update-2.3.0.tgz#88328fd7d1ce7938b29283746f0b1bc126b24708"
+  integrity sha1-iDKP19HOeTiykoN0bwsbwSayRwg=
   dependencies:
     ansi-escapes "^3.0.0"
     cli-cursor "^2.0.0"
@@ -5320,10 +5325,6 @@ path-parse@^1.0.6:
 path-to-regexp@0.1.7:
   version "0.1.7"
   resolved "https://registry.npm.taobao.org/path-to-regexp/download/path-to-regexp-0.1.7.tgz#df604178005f522f15eb4490e7247a1bfaa67f8c"
-
-path-to-regexp@^3.0.0:
-  version "3.2.0"
-  resolved "https://registry.npm.taobao.org/path-to-regexp/download/path-to-regexp-3.2.0.tgz#fa7877ecbc495c601907562222453c43cc204a5f"
 
 path-type@^2.0.0:
   version "2.0.0"
@@ -6338,6 +6339,7 @@ signale@^1.4.0:
 simple-progress-webpack-plugin@^1.1.2:
   version "1.1.2"
   resolved "https://registry.npm.taobao.org/simple-progress-webpack-plugin/download/simple-progress-webpack-plugin-1.1.2.tgz#eb366f6abd2e1f68cb8512762bbfcf3bce057d4b"
+  integrity sha1-6zZvar0uH2jLhRJ2K7/PO84FfUs=
   dependencies:
     chalk "2.3.x"
     figures "2.0.x"
@@ -7421,7 +7423,8 @@ wrap-ansi@^2.0.0:
 
 wrap-ansi@^3.0.1:
   version "3.0.1"
-  resolved "https://registry.npm.taobao.org/wrap-ansi/download/wrap-ansi-3.0.1.tgz?cache=0&sync_timestamp=1573488536792&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fwrap-ansi%2Fdownload%2Fwrap-ansi-3.0.1.tgz#288a04d87eda5c286e060dfe8f135ce8d007f8ba"
+  resolved "https://registry.npm.taobao.org/wrap-ansi/download/wrap-ansi-3.0.1.tgz#288a04d87eda5c286e060dfe8f135ce8d007f8ba"
+  integrity sha1-KIoE2H7aXChuBg3+jxNc6NAH+Lo=
   dependencies:
     string-width "^2.1.1"
     strip-ansi "^4.0.0"

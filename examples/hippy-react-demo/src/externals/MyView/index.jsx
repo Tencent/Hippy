@@ -6,9 +6,8 @@ import MyView from './MyView';
 export default class MyViewDemo extends React.Component {
   componentDidMount() {
     // 调用控件扩展的方法，不过一般不这么做都是扩展在属性里面
-    console.log(self.refs.myview)
     setTimeout(() => {
-      this.myview.changeColor('#0055f0');
+      this.myview.changeColor('red');
     }, 1000);
   }
 

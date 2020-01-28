@@ -698,6 +698,38 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
+"@hippy/debug-server@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.npm.taobao.org/@hippy/debug-server/download/@hippy/debug-server-2.0.1.tgz#1a3fe6df43c2f6c1da93fe32c6981c6267ea758c"
+  integrity sha1-Gj/m30PC9sHak/4yxpgcYmfqdYw=
+  dependencies:
+    chrome-opn "^1.0.1"
+    find-up "^4.1.0"
+    koa "^2.3.0"
+    signale "^1.4.0"
+    ws "^1.1.5"
+    yargs "^15.0.2"
+
+"@hippy/react-web@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.npm.taobao.org/@hippy/react-web/download/@hippy/react-web-2.0.1.tgz#0321388941d3dc98b043b40190358c26bea8a3b6"
+  integrity sha1-AyE4iUHT3JiwQ7QBkDWMJr6oo7Y=
+  dependencies:
+    bezier-easing "^2.1.0"
+    debounce "^1.2.0"
+    react "^16.11.0"
+    react-dom "^16.11.0"
+    swiper "^4.5.0"
+
+"@hippy/react@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.npm.taobao.org/@hippy/react/download/@hippy/react-2.0.1.tgz#369299f9a22423c304659afe36e4e850587d23b7"
+  integrity sha1-NpKZ+aIkI8MEZZr+NuToUFh9I7c=
+  dependencies:
+    fast-deep-equal "^2.0.1"
+    react "^16.8.25"
+    react-reconciler "^0.21.0"
+
 "@types/color-name@^1.1.1":
   version "1.1.1"
   resolved "https://registry.npm.taobao.org/@types/color-name/download/@types/color-name-1.1.1.tgz#1c1261bbeaa10a8055bbc5d8ab84b7b2afc846a0"
@@ -2418,35 +2450,6 @@ hash.js@^1.0.0, hash.js@^1.0.3:
 he@1.2.x:
   version "1.2.0"
   resolved "https://registry.npm.taobao.org/he/download/he-1.2.0.tgz#84ae65fa7eafb165fddb61566ae14baf05664f0f"
-
-hippy-debug-server@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.npm.taobao.org/hippy-debug-server/download/hippy-debug-server-2.0.0.tgz#e75bf719167adbe748fb4d3d6feb10833045f377"
-  dependencies:
-    chrome-opn "^1.0.1"
-    find-up "^4.1.0"
-    koa "^2.3.0"
-    signale "^1.4.0"
-    ws "^1.1.5"
-    yargs "^15.0.2"
-
-hippy-react-web@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.npm.taobao.org/hippy-react-web/download/hippy-react-web-2.0.0.tgz#0f7283574fb38dd1c0c05bee6667ce6d9c54e10c"
-  dependencies:
-    bezier-easing "^2.1.0"
-    debounce "^1.2.0"
-    react "^16.11.0"
-    react-dom "^16.11.0"
-    swiper "^4.5.0"
-
-hippy-react@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.npm.taobao.org/hippy-react/download/hippy-react-2.0.0.tgz#e5bde3b9e43af12117434c1a860ed52fe947e77d"
-  dependencies:
-    fast-deep-equal "^2.0.1"
-    react "^16.8.25"
-    react-reconciler "^0.21.0"
 
 hmac-drbg@^1.0.0:
   version "1.0.1"
