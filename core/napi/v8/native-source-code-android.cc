@@ -5,7 +5,7 @@
 * js2cpp is maintenance by Lucas Pei <lucaspei@tencent.com>
 * Copyright © 2020 Tencent. All rights reserved.
 *
-* Generated at Mon Jan 20 2020 13:54:15 GMT+0800 (GMT+08:00).
+* Generated at Wed Jan 29 2020 15:50:33 GMT+0800 (GMT+08:00).
 * DO NOT EDIT IT.
 */
 #include "core/napi/native-source-code.h"

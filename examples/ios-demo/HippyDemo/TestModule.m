@@ -49,5 +49,20 @@ HIPPY_EXPORT_METHOD(debug:(nonnull NSNumber *)instanceId)
     vc.modalPresentationStyle = UIModalPresentationFullScreen;
     [nav presentViewController:vc animated:YES completion:NULL];
 }
-
+HIPPY_EXPORT_METHOD(log:(NSString *)log)
+{
+    NSLog(@"%@",log);
+}
+HIPPY_EXPORT_METHOD(helloNative:(NSDictionary *)hippyMap)
+{
+    NSLog(@"%@",hippyMap);
+}
+HIPPY_EXPORT_METHOD(helloNativeWithPromise:(NSDictionary *)hippyMap resolver:(__unused HippyPromiseResolveBlock)resolve rejecter:(__unused HippyPromiseRejectBlock)reject)
+{
+    NSDictionary *dict = @{
+    @"code":@"1",
+    @"result":@"hello i am from native"
+    };
+    resolve(dict);
+}
 @end

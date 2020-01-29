@@ -158,6 +158,21 @@ export default class Gallery extends Component {
           name: 'NetInfo 能力',
           style: 2,
         },
+        {
+          id: 'TestModule',
+          name: 'TestModule 能力',
+          style: 2,
+        },
+        {
+          id: 'AsyncStorage',
+          name: 'AsyncStorage 能力',
+          style: 2,
+        },
+        {
+          id: 'NativeEvent',
+          name: 'NativeEvent 能力',
+          style: 2,
+        }
       ],
     };
     this.renderRow = this.renderRow.bind(this);
@@ -246,7 +261,7 @@ export default class Gallery extends Component {
     if (page === 'Home') {
       header = (
         <View style={[styles.container]}>
-          <View style={{ backgroundColor: styles.title.backgroundColor, marginLeft: 12  }}>
+          <View style={{ backgroundColor: styles.title.backgroundColor, marginLeft: 12 }}>
             <Text numberOfLines={1} style={[styles.title, { fontWeight: 'bold' }]}>
               Hippy React 示例
             </Text>
@@ -285,8 +300,8 @@ export default class Gallery extends Component {
     }
     return (
       <View style={{ flex: 1, backgroundColor: '#fff' }}>
-        { header }
-        { content }
+        {header}
+        {content}
       </View>
     );
   }

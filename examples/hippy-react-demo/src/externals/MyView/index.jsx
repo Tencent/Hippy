@@ -22,7 +22,7 @@ export default class MyViewDemo extends React.Component {
       <MyView
         ref={(ref) => { this.myview = ref; }}
         text={text}
-        style={{ width: 250, height: 100, color: '#000000' }}
+        style={{ width: 250, height: 200, color: '#000000', backgroundColor: 'red' }}
       >
         <Text style={{
           marginTop: 2,

@@ -32,8 +32,8 @@ public class MyView extends FrameLayout implements HippyViewBase
 	public MyView(Context context)
 	{
 		super(context);
-		mPaint.setTextSize(100);
-		setBackgroundColor(Color.GRAY);
+		mPaint.setTextSize(60);
+//		setBackgroundColor(Color.GRAY);
 	}
 
 	@Override
