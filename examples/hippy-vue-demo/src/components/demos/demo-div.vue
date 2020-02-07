@@ -6,6 +6,9 @@
         <p class="div-demo-1-text">Hippy 背景图展示</p>
       </div>
       <label>Transform</label>
+      <span class="demo">测试</span>
+      <label class="demo3">嗷嗷</label>
+      <!-- <div class="demo3">嗷嗷</div> -->
       <div class="div-demo-transform">
         <p class="div-demo-transform-text">Transform</p>
       </div>
@@ -36,79 +39,91 @@
 </template>
 
 <style scope>
+span {
+  color: red;
+}
+.demo1 {
+  width: 100px;
+  height: 50px;
+  color: red;
+}
+.demo3 {
+  width: 100px;
+  height: 50px;
+  color: yellow;
+}
+/* Common CSS Styles */
 
-  /* Common CSS Styles */
+#div-demo {
+  flex: 1;
+  overflow-y: scroll;
+}
 
-  #div-demo {
-    flex: 1;
-    overflow-y: scroll;
-  }
+.display-flex {
+  display: flex;
+}
 
-  .display-flex {
-    display: flex;
-  }
+.flex-row {
+  flex-direction: row;
+}
 
-  .flex-row {
-    flex-direction: row;
-  }
+.flex-column {
+  flex-direction: column;
+}
 
-  .flex-column {
-    flex-direction: column;
-  }
+.text-block {
+  width: 100px;
+  height: 100px;
+  line-height: 100px;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #40b883;
+  font-size: 80px;
+  margin: 20px;
+  color: #40b883;
+  text-align: center;
+}
 
-  .text-block {
-    width: 100px;
-    height: 100px;
-    line-height: 100px;
-    border-style: solid;
-    border-width: 1px;
-    border-color: #40b883;
-    font-size: 80px;
-    margin: 20px;
-    color: #40b883;
-    text-align: center;
-  }
+/* Specfic styles */
+.div-demo-1 {
+  display: flex;
+  height: 40px;
+  background-image: url("http://mat1.gtimg.com/www/qq2018/imgs/qq_logo_2018x2.png");
+  background-repeat: no-repeat;
+}
 
-  /* Specfic styles */
-  .div-demo-1 {
-    display: flex;
-    height: 40px;
-    background-image: url('http://mat1.gtimg.com/www/qq2018/imgs/qq_logo_2018x2.png');
-    background-repeat: no-repeat;
-  }
+.div-demo-1-text {
+  margin-left: 40px;
+}
 
-  .div-demo-1-text {
-    margin-left: 40px;
-  }
+/* flex-direction is necessary for horizontal scrolling for Native */
+.div-demo-2 {
+  overflow-x: scroll;
+  margin: 10px;
+  flex-direction: row;
+}
 
-  /* flex-direction is necessary for horizontal scrolling for Native */
-  .div-demo-2 {
-    overflow-x: scroll;
-    margin: 10px;
-    flex-direction: row;
-  }
+.div-demo-2-container {
+  width: 1000px;
+}
 
-  .div-demo-2-container {
-    width: 1000px;
-  }
+.div-demo-3 {
+  overflow-y: scroll;
+  margin: 10px;
+  height: 320px;
+}
 
-  .div-demo-3 {
-    overflow-y: scroll;
-    margin: 10px;
-    height: 320px;
-  }
+.div-demo-transform {
+  background-color: #40b883;
+  transform: rotate(30deg) scale(0.5);
+  width: 120px;
+  height: 120px;
+}
 
-  .div-demo-transform {
-    background-color: #40b883;
-    transform: rotate(30deg) scale(.5);
-    width: 120px;
-    height: 120px;
-  }
-
-  .div-demo-transform-text {
-    line-height: 120px;
-    height: 120px;
-    width: 120px;
-    text-align: center;
-  }
+.div-demo-transform-text {
+  line-height: 120px;
+  height: 120px;
+  width: 120px;
+  text-align: center;
+}
 </style>
