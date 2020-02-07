@@ -132,7 +132,7 @@ class TypeSelector extends SimpleSelector {
   }
 
   match(node) {
-    return node._tagName === this.cssType;
+    return node.tagName === this.cssType;
   }
 
   lookupSort(sorter, base) {
