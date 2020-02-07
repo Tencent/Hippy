@@ -132,7 +132,7 @@ class TypeSelector extends SimpleSelector {
   }
 
   match(node) {
-    return node.cssType === this.cssType;
+    return node.tagName === this.cssType;
   }
 
   lookupSort(sorter, base) {
@@ -497,7 +497,7 @@ class RuleSet {
   toString() {
     return `${this.selectors.join(', ')} {${
       this.declarations.map((d, i) => `${i === 0 ? ' ' : ''}${d.property}: ${d.value}`).join('; ')
-    }}`;
+      }}`;
   }
 
   lookupSort(sorter) {
