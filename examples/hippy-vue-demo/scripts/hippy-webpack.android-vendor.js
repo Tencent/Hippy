@@ -65,11 +65,9 @@ module.exports = {
   },
   resolve: {
     extensions: ['.js', '.vue', '.json'],
-    modules: [path.resolve(__dirname, '../node_modules')],
     alias: {
-      vue: path.resolve(__dirname, '../../../packages/hippy-vue'),
-      'vue-router': path.resolve(__dirname, '../../../packages/hippy-vue-router'),
-      '@hippy/vue-native-components': path.resolve(__dirname, '../../../packages/hippy-vue-native-components'),
+      vue: '@hippy/vue',
+      'vue-router': '@hippy/vue-router',
     },
   },
 };
