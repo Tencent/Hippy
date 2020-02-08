@@ -16,44 +16,44 @@ const IMAGE_HEIGHT = Math.floor(IMAGE_WIDTH / IMAGE_ASPECT_RATIO);
 
 const styles = StyleSheet.create({
   imageContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
+    flexDirection: 'row',
+    justifyContent: 'center',
     height: IMAGE_HEIGHT,
-    marginTop: 8
+    marginTop: 8,
   },
   normalText: {
     fontSize: 11,
-    color: "#aaaaaa",
-    alignSelf: "center"
+    color: '#aaaaaa',
+    alignSelf: 'center',
   },
   image: {
     width: IMAGE_WIDTH,
-    height: IMAGE_HEIGHT
+    height: IMAGE_HEIGHT,
   },
   title: {
-    fontSize: Platform.OS === "android" ? 17 : 18,
+    fontSize: Platform.OS === 'android' ? 17 : 18,
     lineHeight: 24,
-    color: "#242424"
+    color: '#242424',
   },
   tagLine: {
     marginTop: 8,
     height: 20,
-    flexDirection: "row",
-    justifyContent: "flex-start"
-  }
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+  },
 });
 
 export default function Style1(props) {
   const {
-    itemBean: { title, picList }
+    itemBean: { title, picList },
   } = props;
   let {
-    itemBean: { subInfo }
+    itemBean: { subInfo },
   } = props;
   let textViewItems = null;
   if (subInfo && subInfo.length) {
     subInfo = Utils.uniqueArray(subInfo);
-    const textArr = subInfo.join(" ");
+    const textArr = subInfo.join(' ');
     textViewItems = (
       <Text style={styles.normalText} numberOfLines={1}>
         {textArr}
@@ -77,8 +77,8 @@ export default function Style1(props) {
             styles.image,
             {
               marginLeft: 6,
-              marginRight: 6
-            }
+              marginRight: 6,
+            },
           ]}
           source={{ uri: picList[1] }}
           resizeMode={Image.resizeMode.cover}

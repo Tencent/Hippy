@@ -172,7 +172,7 @@ export default class Gallery extends Component {
           id: 'NativeEvent',
           name: 'NativeEvent 能力',
           style: 2,
-        }
+        },
       ],
     };
     this.renderRow = this.renderRow.bind(this);

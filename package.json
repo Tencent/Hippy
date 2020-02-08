@@ -9,7 +9,7 @@
     "markdownlint": "markdownlint --config .markdownlintrc.json ./*.md ./docs/**/*.md",
     "coverage": "nyc ava",
     "codecov": "cat ./coverage/lcov.info | codecov",
-    "lint": "eslint \"packages/**/*.@(js|ts|tsx)\" \"examples/hippy-react-demo/**/*.@(js|jsx)\"",
+    "lint": "eslint \"packages/**/*.@(js|ts|tsx)\" \"examples/hippy-react-demo/**/*.@(js|jsx)\" --fix",
     "clean": "rimraf ./coverage ./nyc_output packages/*/dist",
     "test": "ava",
     "watch": "watch \"npm run build\" ./packages --ignoreDotFiles --ignoreUnreadable --ignoreDirectoryPattern '/dist/'",
