@@ -62,6 +62,9 @@ Update the `script` fields in `package.json`:
 ```
 npm run hippy:dev
 ```
+
+> Take care, for dev target, the demo project has defined a [alias to local hippy-vue](./scripts/hippy-webpack.dev.js#L96) in line 96 to line 130, you should remove it first if you don't use it.
+
 ### Start a debug server
 
 Keep the `hippy:dev` running and open anther terminal, and execute:
@@ -78,14 +81,11 @@ Then you will see the cellphone in below list, click on the `Inspect` will popup
 
 For iOS we need Safari, at first need the `Develop` menu appear(`Develop` menu toggle is available in `Preference` -> `Advanced` -> `Show Develop menu in menu bar`). Then you will see the Simulator or Cellphone in the `Develop` menu, point to the device and click on the JSContext to open debugger window.
 
-
 ### Build the native
 
 Build the native codes in `ios` with [Xcode](https://developer.apple.com/xcode/), or `android` with [Android Studio](https://developer.android.com/studio).
 
 Start to run the native app after build and connect the debug server.
-
-> Take care, when you build own js project, here's defined a [alias to local hippy-vue](./scripts/hippy-webpack.android-vendor.js#L61), you should remove it first, otherwise build progress will prompt a ModuleNotFound error.
 
 ## Integrate the js files to native app
 
