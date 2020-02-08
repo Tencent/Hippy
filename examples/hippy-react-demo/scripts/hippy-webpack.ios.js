@@ -72,9 +72,5 @@ module.exports = {
   },
   resolve: {
     extensions: ['.js', '.jsx', '.json'],
-    modules: [path.resolve(__dirname, '../node_modules')],
-    alias: {
-      '@hippy/react': path.resolve(__dirname, '../../../packages/hippy-react'),
-    },
   },
 };
