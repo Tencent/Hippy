@@ -117,6 +117,27 @@ function setsAreEqual(as, bs) {
   return true;
 }
 
+/**
+ * endsWith polyfill for iOS 8 compatiblity
+ *
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/endsWith#Polyfill
+ *
+ * @param {string} str - The characters with specified string.
+ * @param {string} search - The characters to be searched for at the end of str.
+ * @param {number} length - If provided, it is used as the length of str. Defaults to str.length.
+ * @return {boolean}
+ */
+function endsWith(str, search, length) {
+  if (String.prototype.endsWith) {
+    return str.endsWith(search, length);
+  }
+  let strLen = length;
+  if (strLen === undefined || strLen > str.length) {
+    strLen = str.length;
+  }
+  return str.slice(strLen - search.length, strLen) === search;
+}
+
 export {
   VUE_VERSION,
   HIPPY_VUE_VERSION,
@@ -132,4 +153,5 @@ export {
   arrayCount,
   isFunction,
   setsAreEqual,
+  endsWith,
 };
