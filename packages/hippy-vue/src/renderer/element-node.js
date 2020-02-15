@@ -11,6 +11,7 @@ import {
   unicodeToChar,
   tryConvertNumber,
   setsAreEqual,
+  endsWith,
 } from '../util';
 import Native from '../runtime/native';
 
@@ -168,8 +169,8 @@ class ElementNode extends ViewNode {
           if (property.toLowerCase().indexOf('color') >= 0) {
             v = colorParser(v, Native.Platform);
           // Convert inline length style, drop the px unit
-          } else if (v.indexOf('px') === v.length - 2) {
-            v = parseFloat(value.slice(0, value.indexOf('px')));
+          } else if (endsWith(v, 'px')) {
+            v = parseFloat(value.slice(0, value.length - 2));
           } else {
             v = tryConvertNumber(v);
           }
