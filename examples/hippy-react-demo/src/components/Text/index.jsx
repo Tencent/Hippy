@@ -46,6 +46,11 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     textAlign: 'center',
   },
+  customFont: {
+    color: '#0052d9',
+    fontSize: 32,
+    fontFamily: 'TTTGB',
+  },
 });
 
 export default class TextExpo extends React.Component {
@@ -131,6 +136,10 @@ export default class TextExpo extends React.Component {
               Hello world, I am a spider man and I have five friends in other universe.
             </Text>
           </Text>
+        </View>
+        {renderTitle('Custom font')}
+        <View style={styles.itemContent}>
+          <Text numberOfLines={1} style={styles.customFont}>Hippy 跨端框架</Text>
         </View>
       </ScrollView>
     );
