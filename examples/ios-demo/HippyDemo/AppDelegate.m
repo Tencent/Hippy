@@ -30,6 +30,19 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+
+    // List available fonts exist.
+    /*
+    for (NSString* family in [UIFont familyNames])
+    {
+      NSLog(@"%@", family);
+      for (NSString* name in [UIFont fontNamesForFamilyName: family])
+      {
+        NSLog(@" %@", name);
+      }
+    }
+    */
+
     // Override point for customization after application launch.
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     ViewController *vc = [ViewController new];
