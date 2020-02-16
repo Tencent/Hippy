@@ -4,6 +4,12 @@
 
 核心组件的定义是跟浏览器、Vue 中保持一致，如果只使用这些组件的话，可以直接跨浏览器。
 
+# a
+
+该组件目前映射到 Text，目前主要用于在 hippy-vue-router 中进行页面跳转。
+
+一切同 [p](hippy-vue/components.md?id=p)。
+
 # button
 
 [[范例：demo-button.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-button.vue)
@@ -17,11 +23,64 @@
 | click       | 当按钮被点击以后调用此回调函数。  例如， `@click="clickHandler"` | `Function`                                | `ALL`    |
 | longClick   | 当按钮被长按以后调用此回调函数。  例如， `@longClick="longClickHandler"}` | `Function`                                | `ALL`    |
 
+# div
+
+[[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue)
+
+别的组件容器，默认不可以滚动。可以通过增加样式参数 `overflow-y: scroll` 切换为可以纵向滚动容器，或者增加样式参数 `overflow-x: scroll` 切换为水平滚动容器。
+
+## 参数
+
+| 参数               | 描述                                                         | 类型                                 | 支持平台  |
+| ------------------ | ------------------------------------------------------------ | ------------------------------------ | --------- |
+| accessibilityLabel | 设置当用户与此元素交互时，“读屏器”（对视力障碍人士的辅助功能）阅读的文字。默认情况下，这个文字会通过遍历所有的子元素并累加所有的文本标签来构建。 | `node`                               | `ALL`     |
+| accessible         | 当此属性为 `true` 时，表示此视图时一个启用了无障碍功能的元素。默认情况下，所有可触摸操作的元素都是无障碍功能元素。 | `boolean`                            | `ALL`     |
+| style              | -                                                            | [`View Styles`](style/layout.md) | `ALL`     |
+| collapsable        | 如果一个 `View` 只用于布局它的子组件，则它可能会为了优化而从原生布局树中移除。 把此属性设为 `false` 可以禁用这个优化，以确保对应视图在原生结构中存在。 | `boolean`                            | `Android` |
+| opacity            | 配置 `View` 的透明度，同时会影响子节点的透明度               | `number`                             | `ALL`     |
+| overflow           | 指定当子节点内容溢出其父级 `View` 容器时, 是否剪辑内容       | `enum`(visible, hidden)         | `ALL`     |
+
+## 事件
+
+| 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
+| ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
+| layout           | 这个事件会在布局计算完成后立即调用一次，不过收到此事件时新的布局可能还没有在屏幕上呈现，尤其是一个布局动画正在进行中的时候。 | `Function`                           | `ALL`     |
+
+# form
+
+[[范例：demo-div.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue)
+
+别的组件容器。
+
+一切同 [div](hippy-vue/components.md?id=div)。
+
+# iframe
+
+[[范例：demo-iframe.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-iframe.vue)
+
+内嵌网页容器。
+
+## 参数
+
+| 参数               | 描述                                                         | 类型                                 | 支持平台  |
+| ------------------ | ------------------------------------------------------------ | ------------------------------------ | --------- |
+| src | 内嵌用的网址 | `string`                               | `ALL`     |
+
+## 事件
+
+| 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
+| ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
+| load           | 网页加载成功后会触发 | `Function`                           | `ALL`     |
+
 # img
 
 [[范例：demo-img.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-img.vue)
 
 图片组件，和浏览器的一样。
+
+> **注意：** 必须指定样式中的宽度和高度，否则无法工作。
+
+> **注意：** Android 端默认会带上灰底色用于图片占位，可以加上 `background-color: transparent` 样式改为透明背景。
 
 ## 参数
 
@@ -38,7 +97,7 @@
 | loadStart   | 加载开始时调用。 | `Function`                                                   | `ALL`    |
 | loadEnd     | 加载结束后，不论成功还是失败，调用此回调函数。               | `Function`                                                   | `ALL`    |
 | error       | 当加载错误的时候调用此回调函数。| `Function`                                                   | `ALL`    |
-| onProgress       | 当加载错误的时候调用此回调函数。 | `Function`                                                   | `ALL`    |
+| progress       | 当加载错误的时候调用此回调函数。 | `Function`                                                   | `ALL`    |
 
 # input
 
@@ -91,19 +150,16 @@
 
 ## 参数
 
-|                       |                                                              |                                                              |           |
-| --------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | --------- |
 | 参数                  | 描述                                                         | 类型                                                         | 支持平台  |
+| --------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | --------- |
 | defaultValue          | 提供一个文本框中的初始值。当用户开始输入的时候，值就可以改变。  在一些简单的使用情形下，如果你不想用监听消息然后更新 value 属性的方法来保持属性和状态同步的时候，就可以用 defaultValue 来代替。 | `string`                                                     | `ALL`     |
-| editable              | 如果为 false，文本框是不可编辑的。                           | `boolean`                                                    | `ALL`     |
-| keyboardType          | 决定弹出的何种软键盘的。 注意，`password`仅在属性 `multiline=false` 单行文本框时生效。 | `enum`(default, numeric, password, email, phone-pad) | `ALL`     |
-| maxLength             | 限制文本框中最多的字符数。使用这个属性而不用JS 逻辑去实现，可以避免闪烁的现象。 | `numbers`                                                    | `ALL`     |
+| disabled              | 如果为 true                           | `boolean`                                                    | `ALL`     |
+| type          | 决定弹出的何种软键盘的。 注意，`password`仅在属性 `multiline=false` 单行文本框时生效。 | `enum`(default, numeric, password, email, phone-pad) | `ALL`     |
+| maxlength             | 限制文本框中最多的字符数。使用这个属性而不用JS 逻辑去实现，可以避免闪烁的现象。 | `numbers`                                                    | `ALL`     |
 | numberOfLines         | 设置 `input` 的最大行数，在使用的时候必需同时设置 `multiline` 参数为 `true`。 | `number`                                                     | `ALL`     |
 | placeholder           | 如果没有任何文字输入，会显示此字符串。                       | `string`                                                     | `ALL`     |
 | placeholderTextColor  | 占位字符串显示的文字颜色。                                   | [`color`](style/color.md)                                | `ALL`     |
-| placeholderTextColors | -                                                            | [`color`](style/color.md)                                | `ALL`     |
 | returnKeyType         | 指定软键盘的回车键显示的样式。                               | `enum`(done, go, next, search, send)              | `ALL`     |
-| underlineColorAndroid | `input` 下底线的颜色。 可以设置为'transparent'来去掉下底线。 | `string`                                                     | `Android` |
 | value                 | 指定 `input` 组件的值。                                  | `string`                                                     | `ALL`     |
 | autoFocus             | 组件渲染时自动获得焦点。                                       | `boolean`                                                    | `ALL`     |
 
@@ -113,10 +169,53 @@
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | blur                | 当文本框失去焦点的时候调用此回调函数。                       | `Function`                                                   | `ALL`     |
 | chang          | 当文本框内容变化时调用此回调函数。改变后的文字内容会作为参数传递。 | `Function`                                                   | `ALL`     |
-| keyboardWillShow    | 在弹出输入法键盘时候会触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260}`。仅在 `iOS` 可用，`Android` 输入法不会遮挡App画面 | `Function`                                                   | `iOS`     |
+| keyboardWillShow    | 在弹出输入法键盘时候会触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260}`。                                     | `Function`                                                   | `ALL`     |
 | endEditing          | 当文本输入结束后调用此回调函数。                             | `Function`                                                   | `ALL`     |
 | layout              | 当组件挂载或者布局变化的时候调用，参数为`{ x, y, width, height }`。 | `Function`                                                   | `ALL`     |
 | selectionChange     | 当输入框选择文字的范围被改变时调用。返回参数的样式如 `{ nativeEvent: { selection: { start, end } } }`。 | `Function`                                                   | `ALL`     |
+
+# label
+
+[[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-p.vue)
+
+显示文本。
+
+一切同 [p](hippy-vue/components.md?id=p)。
+
+# li
+
+ul 的子节点，终端层节点回收和复用的最小颗粒度。
+
+[[范例：demo-list.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-list.vue)
+
+## 参数
+
+| 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
+| --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
+| type            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升list 性能。 | `(index: number) => any`                                    | `ALL`    |
+| key             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [Vue 官文](//cn.vuejs.org/v2/guide/list.html) | `(index: number) => any`                                    | `ALL`    |
+| sticky       | 对应的item是否需要使用悬停效果（滚动到顶部时，会悬停在List顶部，不会滚出屏幕） | `boolean`                                | `ALL`    |
+
+# p
+
+[[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-p.vue)
+
+显示文本，不过因为 Hippy 下没有 `display: inline` 的显示模式，默认全部都是 flex 的。
+
+## 参数
+
+| 参数          | 描述                                                         | 类型                                      | 支持平台 |
+| ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
+| numberOfLines | 用来当文本过长的时候裁剪文本。包括折叠产生的换行在内，总的行数不会超过这个属性的限制。 | `number`                                  | `ALL`    |
+| opacity       | 配置 `View` 的透明度，同时会影响子节点的透明度。             | `number`                                  | `ALL`    |
+| onClick       | 当文本被点击以后调用此回调函数。  例如， `onClick={() => console.log('onClick') }` | `Function`                                | `ALL`    |
+| ellipsizeMode* | 当设定了 `numberOfLines` 值后，这个参数指定了字符串如何被截断。所以，在使用 `ellipsizeMode` 时，必须得同时指定 `numberOfLines` 数值。 | `enum`(head, middle, tail, clip)| `ALL`    |
+
+* ellipsizeMode 的参数含义：
+  * `head` - 文字将会从头开始截断，保证字符串的最后的文字可以正常显示在 `Text` 组件的最后，而从开头给截断的文字，将以 “...” 代替，例如 “...wxyz”；
+  * `middle` - "文字将会从中间开始截断，保证字符串的最后与最前的文字可以正常显示在Text组件的响应位置，而中间给截断的文字，将以 “...” 代替，例如 “ab...yz”
+  * `tail` - 文字将会从最后开始截断，保证字符串的最前的文字可以正常显示在 Text 组件的最前，而从最后给截断的文字，将以 “...” 代替，例如 “abcd...”；
+  * `clip` - 超过指定行数的文字会被直接截断，不显示“...”，
 
 # ul
 
@@ -162,41 +261,6 @@ Hippy 的重点功能，高性能的可复用列表组件。里面第一层只�
 > * `yIndex`: numbere - 滑动到 Y 方向的 xIndex 个 item
 > * `animated`: boolean - 滑动过程是否使用动画
 
-# li
-
-ul 的子节点，终端层节点回收和复用的最小颗粒度。
-
-[[范例：demo-list.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-list.vue)
-
-## 参数
-
-| 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
-| --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
-| type            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升list 性能。 | `(index: number) => any`                                    | `ALL`    |
-| key             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [Vue 官文](//cn.vuejs.org/v2/guide/list.html) | `(index: number) => any`                                    | `ALL`    |
-| sticky       | 对应的item是否需要使用悬停效果（滚动到顶部时，会悬停在List顶部，不会滚出屏幕） | `boolean`                                | `ALL`    |
-
-# p
-
-[[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-p.vue)
-
-显示文本，不因为 Hippy 下没有 `display: inline` 的显示模式，默认全部都是 flex 的。
-
-## 参数
-
-| 参数          | 描述                                                         | 类型                                      | 支持平台 |
-| ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| numberOfLines | 用来当文本过长的时候裁剪文本。包括折叠产生的换行在内，总的行数不会超过这个属性的限制。 | `number`                                  | `ALL`    |
-| opacity       | 配置 `View` 的透明度，同时会影响子节点的透明度。             | `number`                                  | `ALL`    |
-| onClick       | 当文本被点击以后调用此回调函数。  例如， `onClick={() => console.log('onClick') }` | `Function`                                | `ALL`    |
-| ellipsizeMode* | 当设定了 `numberOfLines` 值后，这个参数指定了字符串如何被截断。所以，在使用 `ellipsizeMode` 时，必须得同时指定 `numberOfLines` 数值。 | `enum`(head, middle, tail, clip)| `ALL`    |
-
-* ellipsizeMode 的参数含义：
-  * `head` - 文字将会从头开始截断，保证字符串的最后的文字可以正常显示在 `Text` 组件的最后，而从开头给截断的文字，将以 “...” 代替，例如 “...wxyz”；
-  * `middle` - "文字将会从中间开始截断，保证字符串的最后与最前的文字可以正常显示在Text组件的响应位置，而中间给截断的文字，将以 “...” 代替，例如 “ab...yz”
-  * `tail` - 文字将会从最后开始截断，保证字符串的最前的文字可以正常显示在 Text 组件的最前，而从最后给截断的文字，将以 “...” 代替，例如 “abcd...”；
-  * `clip` - 超过指定行数的文字会被直接截断，不显示“...”，
-
 ## 事件
 
 | 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
@@ -211,14 +275,6 @@ ul 的子节点，终端层节点回收和复用的最小颗粒度。
 
 一切同 [p](hippy-vue/components.md?id=p)。
 
-# label
-
-[[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-p.vue)
-
-显示文本。
-
-一切同 [p](hippy-vue/components.md?id=p)。
-
 # textarea
 
 [[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-textarea.vue)
@@ -226,54 +282,3 @@ ul 的子节点，终端层节点回收和复用的最小颗粒度。
 多行文本输入框。
 
 一切同 [input](hippy-vue/components.md?id=input)。
-
-# div
-
-[[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue)
-
-别的组件容器。
-
-## 参数
-
-| 参数               | 描述                                                         | 类型                                 | 支持平台  |
-| ------------------ | ------------------------------------------------------------ | ------------------------------------ | --------- |
-| accessibilityLabel | 设置当用户与此元素交互时，“读屏器”（对视力障碍人士的辅助功能）阅读的文字。默认情况下，这个文字会通过遍历所有的子元素并累加所有的文本标签来构建。 | `node`                               | `ALL`     |
-| accessible         | 当此属性为 `true` 时，表示此视图时一个启用了无障碍功能的元素。默认情况下，所有可触摸操作的元素都是无障碍功能元素。 | `boolean`                            | `ALL`     |
-| style              | -                                                            | [`View Styles`](style/layout.md) | `ALL`     |
-| collapsable        | 如果一个 `View` 只用于布局它的子组件，则它可能会为了优化而从原生布局树中移除。 把此属性设为 `false` 可以禁用这个优化，以确保对应视图在原生结构中存在。 | `boolean`                            | `Android` |
-| opacity            | 配置 `View` 的透明度，同时会影响子节点的透明度               | `number`                             | `ALL`     |
-| overflow           | 指定当子节点内容溢出其父级 `View` 容器时, 是否剪辑内容       | `enum`(visible, hidden)         | `ALL`     |
-
-## 事件
-
-| 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
-| ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| onLayout           | 这个事件会在布局计算完成后立即调用一次，不过收到此事件时新的布局可能还没有在屏幕上呈现，尤其是一个布局动画正在进行中的时候。 | `Function`                           | `ALL`     |
-
-# form
-
-[[范例：demo-div.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue)
-
-别的组件容器。
-
-一切同 [div](hippy-vue/components.md?id=div)。
-
-# iframe
-
-[[范例：demo-iframe.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-iframe.vue)
-
-内嵌网页容器。
-
-> 需要注意的是，因为底层机制的不同，iframe 网页内的 cookie 无法与 Hippy 业务共享。
-
-## 参数
-
-| 参数               | 描述                                                         | 类型                                 | 支持平台  |
-| ------------------ | ------------------------------------------------------------ | ------------------------------------ | --------- |
-| src | 内嵌用的网址 | `string`                               | `ALL`     |
-
-## 事件
-
-| 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
-| ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| load           | 网页加载成功后会触发 | `Function`                           | `ALL`     |
