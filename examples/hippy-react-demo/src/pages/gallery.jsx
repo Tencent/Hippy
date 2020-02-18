@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {
+import HippyReact, {
   BackAndroid,
   Image,
   ListView,
@@ -78,6 +78,10 @@ export default class Gallery extends Component {
       page: 'Home',
       // TODO: Make the demo detail be in the demo folder.
       dataSource: [
+        {
+          text: `Hippy-React: ${HippyReact.version}`,
+          style: 0,
+        },
         {
           id: 'View',
           name: 'View 组件',
@@ -212,30 +216,42 @@ export default class Gallery extends Component {
   renderRow(index) {
     const { dataSource, pressItem } = this.state;
     const rowData = dataSource[index];
-    if (!rowData.style) return null;
-    return (
-      <View style={styles.rowContainer}>
-        <View
-          onPressIn={() => this.feedback(rowData.id)}
-          onPressOut={() => this.feedback()}
-          onClick={() => this.clickTo(rowData.id)}
-          style={[styles.buttonView, {
-            borderColor: (rowData.style === 1 ? SKIN_COLOR.mainLight : SKIN_COLOR.otherLight),
-            opacity: (pressItem === rowData.id ? 0.5 : 1),
-          }]}
-        >
-          <Text
-            style={[
-              styles.buttonText,
-              { color: (rowData.style === 1 ? SKIN_COLOR.mainLight : SKIN_COLOR.otherLight) },
-            ]}
-          >
-            {rowData.name}
-
-          </Text>
-        </View>
-      </View>
-    );
+    switch (rowData.style) {
+      case 0:
+        return (
+          <View style={{ height: 30 }}>
+            <Text style={{ flex: 1, textAlign: 'center', lineHeight: 30 }}>
+              { rowData.text }
+            </Text>
+          </View>
+        );
+      case 1:
+      case 2:
+        return (
+          <View style={styles.rowContainer}>
+            <View
+              onPressIn={() => this.feedback(rowData.id)}
+              onPressOut={() => this.feedback()}
+              onClick={() => this.clickTo(rowData.id)}
+              style={[styles.buttonView, {
+                borderColor: (rowData.style === 1 ? SKIN_COLOR.mainLight : SKIN_COLOR.otherLight),
+                opacity: (pressItem === rowData.id ? 0.5 : 1),
+              }]}
+            >
+              <Text
+                style={[
+                  styles.buttonText,
+                  { color: (rowData.style === 1 ? SKIN_COLOR.mainLight : SKIN_COLOR.otherLight) },
+                ]}
+              >
+                {rowData.name}
+              </Text>
+            </View>
+          </View>
+        );
+      default:
+        return null;
+    }
   }
 
   render() {

@@ -97,9 +97,7 @@ class AnimationSet implements AnimationSet {
     // Set as iOS default
     let animationEventName = 'onAnimation';
     // If running in Android, change it.
-    if (__PLATFORM__ && __PLATFORM__ === 'android') {
-      animationEventName = 'onHippyAnimation';
-    } else if (Device.platform.OS === 'android') {
+    if (__PLATFORM__ === 'android' || Device.platform.OS === 'android') {
       animationEventName = 'onHippyAnimation';
     }
 

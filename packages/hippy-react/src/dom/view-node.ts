@@ -1,7 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 
-import DocumentNode from './document-node';
 import { insertChild, removeChild } from '../renderer/render';
 import '../../../../types/global';
 
@@ -26,9 +25,6 @@ interface NodeMeta {
 
 class ViewNode {
   public nodeId: number;
-
-  // Point to root document element.
-  private _ownerDocument: ViewNode | null = null;
 
   // Component meta information, such as native component will use.
   public meta: NodeMeta = {
@@ -68,24 +64,6 @@ class ViewNode {
     return this.childNodes.length
       ? this.childNodes[this.childNodes.length - 1]
       : null;
-  }
-
-  /* istanbul ignore next */
-  get ownerDocument(): ViewNode | null {
-    if (this._ownerDocument) {
-      return this._ownerDocument;
-    }
-
-    let el: ViewNode | null = this;
-    while (!(el instanceof DocumentNode)) {
-      if (el.parentNode) {
-        el = el.parentNode;
-      } else {
-        break;
-      }
-    }
-    this._ownerDocument = el;
-    return el;
   }
 
   get isMounted() {
