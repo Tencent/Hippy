@@ -1,7 +1,7 @@
 /* eslint-disable no-use-before-define */
 
 import { HippyEventEmitter } from '../events';
-import { Bridge } from '../native';
+import { Bridge } from '../global';
 
 type NetworkChangeEventData = any;
 type NetworkInfoCallback = (data: NetworkChangeEventData) => void;

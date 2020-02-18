@@ -1,9 +1,9 @@
 import React, { FunctionComponent, ComponentClass } from 'react';
 import Document from './dom/document-node';
 import renderer from './renderer';
-import { HippyRegister } from './native';
+import * as Native from './native';
 import { setRootContainer } from './utils/node';
-import { trace, setSilent } from './utils';
+import { trace, warn, setSilent } from './utils';
 
 const {
   createContainer,
@@ -11,7 +11,7 @@ const {
   getPublicRootInstance,
 } = renderer;
 
-interface HippyInstanceConfig {
+interface HippyReactConfig {
   /**
    * Hippy app name, it's will register to `__GLOBAL__.appRegister` object,
    * waiting the native load instance event for start the app.
@@ -40,14 +40,23 @@ interface SuperProps {
 
 const componentName = ['%c[Hippy-React process.env.HIPPY_REACT_VERSION]%c', 'color: #61dafb', 'color: auto'];
 
-interface Hippy {
-  config: HippyInstanceConfig;
+interface HippyReact {
+  config: HippyReactConfig;
   rootContainer: any;
   // Keep foward comaptatble.
   regist: () => void;
 }
 
-class Hippy implements Hippy {
+class HippyReact implements HippyReact {
+  // version
+  static version = process.env.HIPPY_REACT_VERSION;
+
+  // Native methods
+  static get Native() {
+    warn('HippyReact.Native interface is not stable yet. DO NOT USE IT');
+    return Native;
+  }
+
   /**
    * Create new Hippy instance
    *
@@ -56,7 +65,7 @@ class Hippy implements Hippy {
    * @param {Component} config.entryPage - The Entry page of Hippy app.
    * @param {function} config.callback - The callback after rendering.
    */
-  constructor(config: HippyInstanceConfig) {
+  constructor(config: HippyReactConfig) {
     if (!config.appName || !config.entryPage) {
       throw new TypeError('Invalid arguments');
     }
@@ -73,11 +82,12 @@ class Hippy implements Hippy {
    * Start hippy app execution.
    */
   public start() {
-    HippyRegister.regist(this.config.appName, this.render);
+    Native.HippyRegister.regist(this.config.appName, this.render);
   }
 
   /**
    * Native rendering callback
+   * @param {Object} superProps - The props passed by native start the app.
    */
   private render(superProps: SuperProps) {
     const {
@@ -105,4 +115,4 @@ class Hippy implements Hippy {
   }
 }
 
-export default Hippy;
+export default HippyReact;
