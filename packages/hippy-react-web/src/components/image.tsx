@@ -105,7 +105,7 @@ export class Image extends React.Component {
     if (onLoadStart) {
       onLoadStart();
     }
-    ImageLoader.load(source.uri, this.onLoad, this.onError);
+    ImageLoader.load(source.uri, this.onLoad.bind(this), this.onError.bind(this));
   }
 
   onLoad(e) {
