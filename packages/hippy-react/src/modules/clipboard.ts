@@ -1,4 +1,4 @@
-import { Bridge } from '../native';
+import { Bridge } from '../global';
 
 /**
  * The the string contents from clipboard

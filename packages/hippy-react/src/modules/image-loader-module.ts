@@ -1,4 +1,4 @@
-import { Bridge } from '../native';
+import { Bridge } from '../global';
 
 /**
  * Get the image size before rendering.

@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 
 import { Fiber } from 'react-reconciler';
-import { Bridge, Device, UIManager } from '../native';
+import { Bridge, Device, UIManager } from '../global';
 import { getRootViewId, findNodeById, findNodeByCondition } from '../utils/node';
 import { warn } from '../utils';
 

@@ -25,8 +25,6 @@ declare module NodeJS  {
       jsModuleList?: any;
       animationId: number;
       renderCount: number;
-      /* eslint-disable-next-line camelcase */
-      report_js_trace: boolean;
     };
     Hippy: Hippy.HippyConstance;
   }
