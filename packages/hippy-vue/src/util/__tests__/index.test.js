@@ -110,3 +110,15 @@ test('setsAreEqual test', (t) => {
   });
   t.is(err2.message, 'as.values is not a function');
 });
+
+test('endsWith test', (t) => {
+  t.true(util.endsWith('100px', 'px'));
+  t.false(util.endsWith('100', 'px'));
+  t.true(util.endsWith('px', 'px'));
+  t.false(util.endsWith('x', 'px'));
+  delete String.prototype.endsWith;
+  const str = 'To be, or not to be, that is the question.';
+  t.true(util.endsWith(str, 'question.'));
+  t.false(util.endsWith(str, 'to be'));
+  t.true(util.endsWith(str, 'to be', 19));
+});
