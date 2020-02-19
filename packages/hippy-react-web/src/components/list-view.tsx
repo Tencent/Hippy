@@ -47,6 +47,7 @@ export class ListView extends React.Component {
       getRowType,
       getRowStyle,
       dataSource,
+      getRowKey,
     } = this.props;
     const itemList = [];
 
@@ -64,8 +65,14 @@ export class ListView extends React.Component {
         itemStyle = getRowStyle(index);
       }
 
+      let key = '';
+      if (typeof getRowKey === 'function') {
+        key = getRowKey(index);
+      }
+
       itemList.push((
         <ListViewItem
+          key={key}
           style={itemStyle}
           type={typeof getRowType === 'function' ? `${getRowType(index)}` : '0'}
           // iSticky={rowShouldSticky ? rowShouldSticky(index) : false}
@@ -83,6 +90,8 @@ export class ListView extends React.Component {
     delete nativeProps.getRowType;
     delete nativeProps.getRowHeight;
     delete nativeProps.numberOfRows;
+    delete nativeProps.getRowStyle;
+    delete nativeProps.getRowKey;
 
     const newProps = Object.assign({}, nativeProps, {
       style: formatWebStyle(nativeProps.style),
