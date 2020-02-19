@@ -106,7 +106,7 @@ function applyLayout(Component: any) {
     componentDidMount,
     function componentDidMount() {
       this.layoutState = emptyObject;
-      this.isMounted = true;
+      this.hasMounted = true;
       if (this.props.onLayout) {
         observe(this);
       }
@@ -127,7 +127,7 @@ function applyLayout(Component: any) {
   Component.prototype.componentWillUnmount = safeOverride(
     componentWillUnmount,
     function componentWillUnmount() {
-      this.isMounted = false;
+      this.hasMounted = false;
       if (this.props.onLayout) {
         unobserve(this);
       }
@@ -141,7 +141,7 @@ function applyLayout(Component: any) {
     if (onLayout) {
       const node = findNodeHandle(this);
       UIManager.measure(node, (x: number, y: number, width: number, height: number) => {
-        if (this.isMounted) {
+        if (this.hasMounted) {
           if (
             layout.x !== x
             || layout.y !== y
