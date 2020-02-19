@@ -75,14 +75,28 @@ HIPPY_EXPORT_MODULE(View)
 
 HIPPY_EXPORT_VIEW_PROPERTY(accessibilityLabel, NSString)
 HIPPY_EXPORT_VIEW_PROPERTY(backgroundColor, UIColor)
+HIPPY_EXPORT_VIEW_PROPERTY(shadowSpread, CGFloat)
 
 HIPPY_REMAP_VIEW_PROPERTY(accessible, isAccessibilityElement, BOOL)
 HIPPY_REMAP_VIEW_PROPERTY(opacity, alpha, CGFloat)
 
 HIPPY_REMAP_VIEW_PROPERTY(backgroundImage, backgroundImageUrl, NSString)
 
+HIPPY_REMAP_VIEW_PROPERTY(shadowOffset, layer.shadowOffset, CGSize)
+HIPPY_REMAP_VIEW_PROPERTY(shadowOpacity, layer.shadowOpacity, float)
+HIPPY_REMAP_VIEW_PROPERTY(shadowRadius, layer.shadowRadius, CGFloat)
+
 HIPPY_EXPORT_VIEW_PROPERTY(backgroundPositionX, CGFloat)
 HIPPY_EXPORT_VIEW_PROPERTY(backgroundPositionY, CGFloat)
+
+HIPPY_CUSTOM_VIEW_PROPERTY(shadowColor, UIColor, HippyView) {
+    if (json) {
+        view.layer.shadowColor = [HippyConvert UIColor:json].CGColor;
+    }
+    else {
+        view.layer.shadowColor = [UIColor blackColor].CGColor;
+    }
+}
 
 HIPPY_CUSTOM_VIEW_PROPERTY(overflow, OverflowType, HippyView)
 {
