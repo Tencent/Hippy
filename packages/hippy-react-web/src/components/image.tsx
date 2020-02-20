@@ -96,6 +96,11 @@ export class Image extends React.Component {
     };
   }
 
+  constructor(props) {
+    super(props);
+    this.onLoad = this.onLoad.bind(this);
+    this.onError = this.onError.bind(this);
+  }
 
   componentDidMount() {
     const {
@@ -160,6 +165,7 @@ export class Image extends React.Component {
     delete newProps.sources;
     delete newProps.onLoad;
     delete newProps.onLayout;
+    delete newProps.onLoadEnd;
     return (
       <View {...newProps}>
         <View
