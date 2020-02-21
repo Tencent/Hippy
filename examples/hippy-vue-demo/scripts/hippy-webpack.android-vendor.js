@@ -26,8 +26,8 @@ module.exports = {
     new CaseSensitivePathsPlugin(),
     new VueLoaderPlugin(),
     new webpack.DllPlugin({
-      context: path.resolve('..'),
-      path: path.resolve(`./dist/${platform}/[name]-manifest.json`),
+      context: path.resolve(__dirname, '..'),
+      path: path.resolve(__dirname, `../dist/${platform}/[name]-manifest.json`),
       name: 'hippyVueBase',
     }),
   ],
