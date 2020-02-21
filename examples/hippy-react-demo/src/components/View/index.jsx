@@ -5,7 +5,6 @@ import {
   View,
   StyleSheet,
 } from '@hippy/react';
-import MyView from '../../externals/MyView/MyView';
 
 const styles = StyleSheet.create({
   itemTitle: {
@@ -62,17 +61,6 @@ export default function ViewExpo() {
         <View style={[styles.smallRectangle, { backgroundColor: 'blue' }]} />
         <View style={[styles.smallRectangle, { backgroundColor: 'green' }]} />
       </View>
-      <MyView text="你好，我是MyView" style={{ width: 250, height: 100, color: 'black' }}>
-        <Text style={{
-          marginTop: 2,
-          marginLeft: 2,
-          fontSize: 8,
-          color: '#4c9afa',
-        }}
-        >
-          MyView内部的文字
-        </Text>
-      </MyView>
     </ScrollView>
   );
 }

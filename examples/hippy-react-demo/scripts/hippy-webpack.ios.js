@@ -2,9 +2,7 @@ const path                        = require('path');
 const webpack                     = require('webpack');
 const CaseSensitivePathsPlugin    = require('case-sensitive-paths-webpack-plugin');
 const pkg                         = require('../package.json');
-// eslint-disable-next-line import/no-dynamic-require
-const manifest                    = require(path.resolve('./dist/ios/vendor-manifest.json'));
-
+const manifest                    = require('../dist/ios/vendor-manifest.json');
 
 const platform = 'ios';
 
@@ -27,7 +25,7 @@ module.exports = {
     }),
     new CaseSensitivePathsPlugin(),
     new webpack.DllReferencePlugin({
-      context: process.cwd(),
+      context: path.resolve(__dirname, '..'),
       manifest,
     }),
   ],
