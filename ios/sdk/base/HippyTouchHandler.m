@@ -25,6 +25,7 @@
 #import "HippyScrollProtocol.h"
 #import "HippyUIManager.h"
 #import "HippyText.h"
+#import "UIView+Private.h"
 
 typedef void(^ViewBlock)(UIView* view, BOOL* stop);
 
@@ -374,11 +375,11 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
                                                         inView:(UIView *)targetView
                                                        atPoint:(CGPoint)point
 {
-    NSDictionary *result = [self responseViewForAction:actions inView:targetView];
+    NSDictionary *result = [self nextResponseViewForAction:actions inView:targetView atPoint:point];
     NSNumber *innerTag = [targetView hippyTagAtPoint:point];
     if (innerTag && ![targetView.hippyTag isEqual:innerTag]) {
         UIView *innerView = [_bridge.uiManager viewForHippyTag:innerTag];
-        NSDictionary *innerResult = [self responseViewForAction:actions inView:innerView];
+        NSDictionary *innerResult = [self nextResponseViewForAction:actions inView:innerView atPoint:point];
         NSMutableDictionary *mergedResult = [result mutableCopy];
         [mergedResult addEntriesFromDictionary:innerResult];
         return mergedResult;
@@ -386,8 +387,9 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
     return result;
 }
 
-- (NSDictionary <NSString *, UIView *> *)responseViewForAction:(NSArray *)actions
-                                                        inView:(UIView *)targetView
+- (NSDictionary <NSString *, UIView *> *)nextResponseViewForAction:(NSArray *)actions
+                                                            inView:(UIView *)targetView
+                                                           atPoint:(CGPoint)point
 {
     NSMutableDictionary *result = [NSMutableDictionary new];
     NSMutableArray *findActions = [NSMutableArray arrayWithArray: actions];
@@ -451,8 +453,7 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
             }
             
             if (onInterceptTouchEvent) break;
-            
-            view = (UIView *)view.superview;
+            view = [view nextResponseViewAtPoint:point];
             index++;
         }
     }
