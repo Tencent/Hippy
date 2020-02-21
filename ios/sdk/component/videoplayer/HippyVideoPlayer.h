@@ -30,8 +30,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)pause;
 - (void)seekToTime:(CMTime)time;
 @property (nonatomic, strong) NSString *src;
-@property (nonatomic, assign) BOOL *autoPlay;
-@property (nonatomic, assign) BOOL *loop;
+@property (nonatomic, assign) BOOL autoPlay;
+@property (nonatomic, assign) BOOL loop;
 @property (nonatomic, strong) HippyDirectEventBlock onLoad;
 @end
 
