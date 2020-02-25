@@ -100,7 +100,7 @@ import App from './app';
 new Hippy({
   appName: 'Demo',  // 终端分配的业务名称
   entryPage: App,   // 对应业务启动时的组件
-  slient: false,    // 设置为 true 可以关闭框架日志输出
+  silent: false,    // 设置为 true 可以关闭框架日志输出
 }).start();
 ```
 

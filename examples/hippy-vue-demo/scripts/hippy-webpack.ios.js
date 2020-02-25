@@ -1,12 +1,11 @@
-const path = require("path");
-const webpack = require("webpack");
-const VueLoaderPlugin = require("vue-loader/lib/plugin");
-const CaseSensitivePathsPlugin = require("case-sensitive-paths-webpack-plugin");
-const pkg = require("../package.json");
-// eslint-disable-next-line import/no-dynamic-require
-const manifest = require(path.resolve("./dist/ios/vendor-manifest.json"));
-const SimpleProgressWebpackPlugin = require("simple-progress-webpack-plugin");
-const platform = "ios";
+const path                        = require('path');
+const webpack                     = require('webpack');
+const VueLoaderPlugin             = require('vue-loader/lib/plugin');
+const CaseSensitivePathsPlugin    = require('case-sensitive-paths-webpack-plugin');
+const pkg                         = require('../package.json');
+const manifest                    = require('../dist/ios/vendor-manifest.json');
+
+const platform = 'ios';
 
 module.exports = {
   mode: "production",
@@ -28,8 +27,8 @@ module.exports = {
     new CaseSensitivePathsPlugin(),
     new VueLoaderPlugin(),
     new webpack.DllReferencePlugin({
-      context: process.cwd(),
-      manifest
+      context: path.resolve(__dirname, '..'),
+      manifest,
     }),
     new SimpleProgressWebpackPlugin()
   ],
@@ -81,13 +80,11 @@ module.exports = {
     ]
   },
   resolve: {
-    extensions: [".js", ".vue", ".json"],
-    modules: [path.resolve(__dirname, "../node_modules")],
+    extensions: ['.js', '.vue', '.json'],
     alias: {
-      vue: path.resolve(__dirname, '../../../packages/hippy-vue'),
+      vue: '@hippy/vue',
       '@': path.resolve('./src'),
-      '@hippy/vue-native-components': path.resolve(__dirname, '../../../packages/hippy-vue-native-components'),
-      'vue-router': path.resolve(__dirname, '../../../packages/hippy-vue-router'),
+      'vue-router': '@hippy/vue-router',
     },
   },
 };

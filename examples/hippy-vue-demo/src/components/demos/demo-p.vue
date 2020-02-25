@@ -12,6 +12,8 @@
     <p class="p-demo-4 p-demo-content">这里有条下划线</p>
     <label>删除线：</label>
     <p class="p-demo-5 p-demo-content">这里有条删除线</p>
+    <label>自定义字体：</label>
+    <p class="p-demo-6 p-demo-content">腾讯字体 Hippy</p>
   </div>
 </template>
 
@@ -37,5 +39,11 @@
 
 .p-demo .p-demo-5 {
   text-decoration: line-through;
+}
+
+.p-demo .p-demo-6 {
+  color: #0052d9;
+  font-family: TTTGB;
+  font-size: 32px;
 }
 </style>

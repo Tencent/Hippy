@@ -66,6 +66,7 @@
  */
 @property (nonatomic, assign) BOOL removeClippedSubviews;
 
+@property (nonatomic, assign) CGFloat shadowSpread;
 /**
  * Hide subviews if they are outside the view bounds.
  * This is an optimisation used predominantly with RKScrollViews

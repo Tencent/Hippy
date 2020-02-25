@@ -416,9 +416,8 @@ if ([scrollViewListener respondsToSelector:_cmd]) { \
     return _scrollView;
 }
 
-- (NSArray *)scrollListeners {
-    HippyAssert(NO, @"不应该执行[HippyScrollView scrollListeners]方法");
-    return nil;
+- (NSHashTable *)scrollListeners {
+    return _scrollListeners;
 }
 
 - (NSDictionary *)scrollEventBody
