@@ -3,6 +3,7 @@
 import { Fiber } from 'react-reconciler';
 import { Bridge, Device, UIManager } from '../native';
 import { getRootViewId, findNodeById, findNodeByCondition } from '../utils/node';
+import { warn } from '../utils';
 
 const {
   createNode,
@@ -27,11 +28,23 @@ function getNodeIdByRef(stringRef: string): Fiber {
 
 function callUIFunction(...args: any[]): void {
   const [targetNode, funcName, ...options] = args;
-  const componentName = targetNode.nativeName;
+  let { nativeName: componentName, nodeId } = targetNode;
+
+  if ((!nodeId || !componentName) && targetNode._reactInternalFiber) {
+    warn('[callUIFunction] Passing component instance as targetNode will affect performance, use ref to instead.');
+    const node = targetNode._reactInternalFiber.child;
+    componentName = (node
+      && node.memoizedProps
+      && node.memoizedProps.nativeName)
+      || targetNode._reactInternalFiber.type.name;
+
+    nodeId = node && node.stateNode ? node.stateNode.nodeId : 0;
+  }
+
   if (!componentName) {
     throw new Error('callUIFunction is calling a unnamed component');
   }
-  const { nodeId } = targetNode;
+
   if (!nodeId) {
     throw new Error('callUIFunction is calling a component have no nodeId');
   }
