@@ -16,8 +16,8 @@ export class ViewPager extends Component {
   }
 
   componentDidMount() {
-    const { initialPage = 0, onPageSelected } = this.props;
-    this.viewPagerSwiper = new Swiper('.swiper-container', {
+    const { initialPage = 0, onPageSelected, scrollEnabled } = this.props;
+    this.viewPagerSwiper = new Swiper(this.containerRef, {
       initialSlide: initialPage,
       autoHeight: true,
       on: {
@@ -27,6 +27,7 @@ export class ViewPager extends Component {
           if (onPageSelected) onPageSelected({ position: this.activeIndex });
         },
       },
+      allowTouchMove: !!scrollEnabled,
     });
   }
 
@@ -38,7 +39,7 @@ export class ViewPager extends Component {
 
   setPageWithoutAnimation(index: number) {
     if (Number.isInteger(index)) {
-      this.viewPagerSwiper.slideTo(index);
+      this.viewPagerSwiper.slideTo(index, 0);
     }
   }
 
@@ -53,7 +54,7 @@ export class ViewPager extends Component {
     };
     return (
       <div style={style}>
-        <div className="swiper-container" style={style}>
+        <div ref={ref => this.containerRef = ref } className="swiper-container" style={style}>
           <div className="swiper-wrapper">
             {renderViewPagerItem()}
           </div>
