@@ -534,7 +534,7 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
 	}
 
 	@Override
-	public void dispatchFunction(final HippyTextInput view, String functionName, final HippyArray var, Promise promise)
+	public void dispatchFunction(final HippyTextInput view, String functionName, final HippyArray var)
 	{
 		switch (functionName)
 		{
