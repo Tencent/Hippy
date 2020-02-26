@@ -598,16 +598,12 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 	}
 
 	/***
-	 * dispatch the js call UI Function. This method is deprecated, due to not having promise parameter
-	 * 这dispatchFunction没有Promise c参数，不再满足需要，已经被废弃，建议不要再重写这个函数
-	 * 如果非要重写这个被废弃的函数，则不要那个带有Promise promise参数的同名函数。
-	 * 否则的话，会出现重复调用（2个dispatchFunction都会被调用到）
+	 * dispatch the js call UI Function.
 	 * @see #dispatchFunction(View, String, HippyArray, Promise)
 	 * @param view
 	 * @param functionName
 	 * @param var
 	 */
-	@Deprecated
 	public void dispatchFunction(T view, String functionName, HippyArray var)
 	{
 	}

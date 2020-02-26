@@ -13,24 +13,17 @@ ext {
     MAVEN_VERSION = ISCI.toBoolean() ? System.getenv('version') : "0.0.1"
     //性能专用，会去掉所有日志，首页快速滑动下，日志会导致低端机卡顿
     BUILD_FOR_PERFORMANCE=false
-    // ndkDir = /Users/fchan/Sdk/android-ndk-r19
+    Properties properties = new Properties()
+    FilepropertyFile = new File(rootDir.getAbsolutePath()+ "/local.properties")
+    properties.load(FilepropertyFile.newDataInputStream())
+    ndkDir = properties.getProperty('ndk.dir')
+    sdkDir = properties.getProperty('sdk.dir')
 
     // Visual Studio Debugging Support
     skipCmakeAndNinja = System.getenv('skipCmakeAndNinja') != null
 }
 
 def findNdkFullPath() {
-    if (ISCI.toBoolean()) {
-        if (hasProperty('ndk.path')) {
-            def ndkDir = property('ndk.path')
-            return ndkDir
-        }
-        if (System.getenv('ANDROID_NDK') != null) {
-            def ndkDir = System.getenv('ANDROID_NDK')
-            return ndkDir
-        }
-    }
-    def ndkDir = project.android.ndkDirectory.absolutePath
     if (ndkDir) {
         return ndkDir
     }
@@ -38,17 +31,8 @@ def findNdkFullPath() {
 }
 
 def findSdkFullPath() {
-    if (hasProperty('sdk.path')) {
-        def ndkDir = property('sdk.path')
-        return ndkDir
-    }
-    if (System.getenv('ANDROID_SDK') != null) {
-        def ndkDir = System.getenv('ANDROID_SDK')
-        return ndkDir
-    }
-    def ndkDir = project.android.sdkDirectory.absolutePath
-    if (ndkDir) {
-        return ndkDir
+    if (sdkDir) {
+        return sdkDir
     }
     return null
 }
@@ -508,5 +492,3 @@ def copyAarToBin(variant) {
         }
     }
 }
-
-apply from: 'maven.gradle'
