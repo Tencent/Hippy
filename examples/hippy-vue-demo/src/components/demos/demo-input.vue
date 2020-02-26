@@ -5,6 +5,7 @@
       placeholder="Text"
       class="input"
       v-model="text"
+      ref="input"
       @click="stopPropagation"
       @keyboardWillShow="onKeyboardWillShow"
     />
@@ -12,8 +13,14 @@
       <span>文本内容为：</span>
       <span>{{ text }}</span>
     </div>
-    <button class="update-button"  @click="clearTextContent" >
+    <button class="input-button" @click="clearTextContent" >
       <span>清空文本内容</span>
+    </button>
+    <button class="input-button" @click="focus" >
+      <span>Focus</span>
+    </button>
+    <button class="input-button" @click="blur" >
+      <span>Blur</span>
     </button>
     <label>数字:</label>
     <input
@@ -88,6 +95,14 @@ export default {
     getChildNodes(childNodes) {
       return !Vue.Native ? Array.from(childNodes) : childNodes;
     },
+    focus(evt) {
+      evt.stopPropagation();
+      this.$refs.input.focus();
+    },
+    blur(evt) {
+      evt.stopPropagation();
+      this.$refs.input.blur();
+    },
   },
 };
 </script>
@@ -110,10 +125,12 @@ export default {
   placeholder-text-color: #aaa;
   /* underline-color-android: #40b883; */
 }
-.demo-input .update-button {
+.demo-input .input-button {
   border-color: #4c9afa;
   border-width: 1px;
   padding-left: 10px;
   padding-right: 10px;
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
 </style>
