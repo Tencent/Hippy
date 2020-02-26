@@ -32,8 +32,11 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   button: {
+    width: 200,
     borderColor: '#4c9afa',
     borderWidth: 1,
+    marginTop: 5,
+    marginBottom: 5,
   },
 });
 
@@ -44,12 +47,22 @@ export default class TextInputExpo extends Component {
       textContent: '',
     };
     this.changeInputContent = this.changeInputContent.bind(this);
+    this.focus = this.focus.bind(this);
+    this.blur = this.blur.bind(this);
   }
 
   changeInputContent() {
     this.setState({
       textContent: `当前时间毫秒：${Date.now()}`,
     });
+  }
+
+  focus() {
+    this.input.focus();
+  }
+
+  blur() {
+    this.input.blur();
   }
 
   render() {
@@ -61,15 +74,21 @@ export default class TextInputExpo extends Component {
     );
     return (
       <ScrollView style={styles.container_style}>
-        {renderTitle('email')}
+        {renderTitle('text')}
         <TextInput
+          ref={(ref) => { this.input = ref; }}
           style={styles.input_style}
-          keyboardType="email"
-          placeholder="email"
+          placeholder="text"
           defaultValue={textContent}
         />
         <View style={styles.button} onClick={this.changeInputContent}>
           <Text>点击改变输入框内容</Text>
+        </View>
+        <View style={styles.button} onClick={this.focus}>
+          <Text>Focus</Text>
+        </View>
+        <View style={styles.button} onClick={this.blur}>
+          <Text>Blur</Text>
         </View>
         {renderTitle('numeric')}
         <TextInput
