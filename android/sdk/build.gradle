@@ -513,10 +513,11 @@ publish {
   bintrayKey = key
   userOrg = 'hippy'
   repoName = 'Hippy'
-  groupId = 'com.tencent.hippy'
+  groupId = 'com.tencent.hippy'N
   artifactId = 'hippy-release'
   publishVersion = '2.0.3'
   dryRun = false
   desc = 'Hippy library for Android'
   website = 'https://github.com/Tencent/Hippy'
 }
+
