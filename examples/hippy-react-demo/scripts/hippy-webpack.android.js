@@ -1,34 +1,34 @@
-const path                        = require('path');
-const webpack                     = require('webpack');
-const CaseSensitivePathsPlugin    = require('case-sensitive-paths-webpack-plugin');
-const pkg                         = require('../package.json');
-const manifest                    = require('../dist/android/vendor-manifest.json');
-
-const platform = 'android';
+const path = require("path");
+const webpack = require("webpack");
+const CaseSensitivePathsPlugin = require("case-sensitive-paths-webpack-plugin");
+const pkg = require("../package.json");
+const manifest = require("../dist/android/vendor-manifest.json");
+const SimpleProgressWebpackPlugin = require("simple-progress-webpack-plugin");
+const platform = "android";
 
 module.exports = {
-  mode: 'production',
+  mode: "production",
   bail: true,
   entry: {
-    index: ['regenerator-runtime', path.resolve(pkg.main)],
+    index: ["regenerator-runtime", path.resolve(pkg.main)]
   },
   output: {
     filename: `[name].${platform}.js`,
     path: path.resolve(`./dist/${platform}/`),
-    globalObject: '(0, eval)("this")',
+    globalObject: '(0, eval)("this")'
   },
   plugins: [
     new webpack.NamedModulesPlugin(),
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify('production'),
-      __PLATFORM__: JSON.stringify(platform),
+      "process.env.NODE_ENV": JSON.stringify("production"),
+      __PLATFORM__: JSON.stringify(platform)
     }),
     new CaseSensitivePathsPlugin(),
     new webpack.DllReferencePlugin({
-      context: path.resolve(__dirname, '..'),
-      manifest,
+      context: path.resolve(__dirname, ".."),
+      manifest
     }),
-    new SimpleProgressWebpackPlugin(),
+    new SimpleProgressWebpackPlugin()
   ],
   module: {
     rules: [
@@ -36,40 +36,40 @@ module.exports = {
         test: /\.(jsx?)$/,
         use: [
           {
-            loader: 'babel-loader',
+            loader: "babel-loader",
             options: {
               presets: [
-                '@babel/preset-react',
+                "@babel/preset-react",
                 [
-                  '@babel/preset-env',
+                  "@babel/preset-env",
                   {
                     targets: {
-                      chrome: 57,
-                    },
-                  },
-                ],
+                      chrome: 57
+                    }
+                  }
+                ]
               ],
-              plugins: ['@babel/plugin-proposal-class-properties'],
-            },
+              plugins: ["@babel/plugin-proposal-class-properties"]
+            }
           },
-          'unicode-loader',
-        ],
+          "unicode-loader"
+        ]
       },
       {
         test: /\.(png|jpg|gif)$/,
         use: [
           {
-            loader: 'file-loader',
+            loader: "file-loader",
             options: {
-              name: '[name].[ext]',
-              outputPath: 'assets/',
-            },
-          },
-        ],
-      },
-    ],
+              name: "[name].[ext]",
+              outputPath: "assets/"
+            }
+          }
+        ]
+      }
+    ]
   },
   resolve: {
-    extensions: ['.js', '.jsx', '.json'],
-  },
+    extensions: [".js", ".jsx", ".json"]
+  }
 };

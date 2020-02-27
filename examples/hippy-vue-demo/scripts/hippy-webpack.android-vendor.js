@@ -2,9 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
-
 const platform = 'android';
-
 module.exports = {
   mode: 'production',
   bail: true,

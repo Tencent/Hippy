@@ -39,6 +39,7 @@
     "eslint-plugin-vue": "^5.0.0",
     "unicode-loader": "^1.0.7",
     "vue-template-compiler": "^2.6.10",
+    "webpack-bundle-analyzer": "^3.6.0",
     "webpack-cli": "^3.3.10"
   }
 }

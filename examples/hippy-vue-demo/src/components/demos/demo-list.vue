@@ -180,7 +180,7 @@ export default {
         return;
       }
       const { list } = this.$refs;
-      list.scrollToIndex(0, list.childNodes.length - 1);
+      list.scrollToIndex(0, list.childNodes.length - 1, true);
     },
   },
 };
