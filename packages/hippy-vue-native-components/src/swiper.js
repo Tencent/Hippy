@@ -1,5 +1,7 @@
 /* eslint-disable no-param-reassign */
 
+import { getEventRedirector } from './utils';
+
 function registerSwiper(Vue) {
   Vue.registerElement('hi-swiper', {
     component: {
@@ -73,16 +75,19 @@ function registerSwiper(Vue) {
         }
       },
     },
-    template: `
-      <hi-swiper
-        ref="swiper"
-        :initialPage="$initialSlide"
-        @pageSelected="onPageSelected"
-        @pageScroll="onPageScroll"
-        >
-        <slot />
-      </hi-swiper>
-    `,
+    render(h) {
+      const on = getEventRedirector.call(this, [
+        ['dropped', 'pageSelected'],
+        ['dragging', 'pageScroll'],
+      ]);
+      return h('hi-swiper', {
+        on,
+        ref: 'swiper',
+        props: {
+          initialPage: this.$initialSlide,
+        },
+      }, this.$slots.default);
+    },
   });
 }
 
