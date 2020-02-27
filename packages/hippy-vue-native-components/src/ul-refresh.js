@@ -1,3 +1,5 @@
+import { getEventRedirector } from './utils';
+
 function registerUlRefresh(Vue) {
   Vue.registerElement('hi-ul-refresh-wrapper', {
     component: {
@@ -31,11 +33,15 @@ function registerUlRefresh(Vue) {
         Vue.Native.callUIFunction(this.$refs.refreshWrapper, 'refreshComplected', null);
       },
     },
-    template: `
-      <hi-ul-refresh-wrapper ref="refreshWrapper" @refresh="onRefresh">
-        <slot />
-      </hi-ul-refresh-wrapper>
-    `,
+    render(h) {
+      const on = getEventRedirector.call(this, [
+        'refresh',
+      ]);
+      return h('hi-ul-refresh-wrapper', {
+        on,
+        ref: 'refreshWrapper',
+      }, this.$slots.default);
+    },
   });
 
   Vue.component('ul-refresh', {
