@@ -564,15 +564,18 @@ public class ArgumentUtils
 				catalystArray.pushString(str);
 			}
 		}
-		else if (array instanceof Bundle[])
+		else if (array instanceof Parcelable[])
 		{
-			Bundle[] bundles = (Bundle[]) ((Bundle[]) array);
-			length = bundles.length;
+      Parcelable[] parcelables = (Parcelable[]) ((Parcelable[]) array);
+			length = parcelables.length;
 
 			for (index = 0; index < length; ++index)
 			{
-				Bundle bundle = bundles[index];
-				catalystArray.pushMap(fromBundle(bundle));
+				Parcelable parcelable = parcelables[index];
+				if (parcelable instanceof Bundle)
+				{
+          catalystArray.pushMap(fromBundle((Bundle) parcelable));
+        }
 			}
 		}
 		else if (array instanceof int[])
