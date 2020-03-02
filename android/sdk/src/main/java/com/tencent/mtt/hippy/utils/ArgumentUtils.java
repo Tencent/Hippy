@@ -16,6 +16,7 @@
 package com.tencent.mtt.hippy.utils;
 
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 
