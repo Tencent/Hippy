@@ -138,7 +138,12 @@ HIPPY_EXPORT_METHOD(getValue:(nonnull NSNumber *)hippyTag
         if (![view isKindOfClass:[HippyBaseTextInput class]]) {
             HippyLogError(@"Invalid view returned from registry, expecting HippyBaseTextInput, got: %@", view);
         }
-        callback(@[[view value]]);
+        NSString *stringValue = [view value];
+        if (nil == stringValue) {
+            stringValue = @"";
+        }
+        NSArray *callBack = [NSArray arrayWithObject:[NSDictionary dictionaryWithObject:stringValue forKey:@"text"]];
+        callback(callBack);
     }];
 }
 
