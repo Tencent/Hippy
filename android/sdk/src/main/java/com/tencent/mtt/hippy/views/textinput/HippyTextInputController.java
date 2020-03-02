@@ -533,14 +533,25 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
 
 	}
 
+  @Override
+  public void dispatchFunction(final HippyTextInput view, String functionName, HippyArray params, Promise promise)
+  {
+    switch (functionName)
+    {
+      case COMMAND_getValue:
+        if (promise != null) {
+          HippyMap resultMap = view.jsGetValue();
+          promise.resolve(resultMap);
+        }
+        break;
+    }
+  }
+
 	@Override
-	public void dispatchFunction(final HippyTextInput view, String functionName, final HippyArray var, Promise promise)
+	public void dispatchFunction(final HippyTextInput view, String functionName, final HippyArray var)
 	{
 		switch (functionName)
 		{
-			case COMMAND_getValue:
-				view.jsGetValue();
-				break;
 			case COMMAND_setValue:
 				if(var != null && var.getString(0) !=null )
 				{
