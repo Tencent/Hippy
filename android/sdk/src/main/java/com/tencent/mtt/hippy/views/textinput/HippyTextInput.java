@@ -664,12 +664,13 @@ public class HippyTextInput extends EditText implements HippyViewBase, CommonBor
 		}
 	}
 
-	public void jsGetValue()
+	public HippyMap jsGetValue()
 	{
 		HippyMap hippyMap = new HippyMap();
 		hippyMap.pushString("text", getText().toString());
-		mHippyContext.getModuleManager().getJavaScriptModule(EventDispatcher.class)
-				.receiveUIComponentEvent(getId(), "getValue", hippyMap);
+		return hippyMap;
+//		mHippyContext.getModuleManager().getJavaScriptModule(EventDispatcher.class)
+//				.receiveUIComponentEvent(getId(), "getValue", hippyMap);
 	}
 	public boolean bUserSetValue = false;
 	public void jsSetValue(String value,int pos)
