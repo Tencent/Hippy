@@ -30,7 +30,7 @@ TODO: Add long description of the pod here.
   s.libraries    = "c++"
   s.ios.deployment_target = '8.0'
   s.pod_target_xcconfig = {'USER_HEADER_SEARCH_PATHS' => '${PODS_TARGET_SRCROOT} ${PODS_TARGET_SRCROOT}/ios/sdk/**'}
-  if ENV['USE_FRAMEWORK']
+  if ENV['hippy_use_frameworks']
   else
     s.user_target_xcconfig = {'OTHER_LDFLAGS' => '-force_load "${PODS_CONFIGURATION_BUILD_DIR}/hippy/libhippy.a"'}
 end
