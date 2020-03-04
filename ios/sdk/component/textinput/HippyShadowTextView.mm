@@ -33,7 +33,7 @@ static MTTSize x5MeasureFunc (MTTNodeRef node, float width, MeasureMode widthMea
     NSString *text = shadowText.text ?: shadowText.placeholder;
     if (nil == shadowText.dicAttributes) {
         if (shadowText.font == nil) {
-            shadowText.font = [UIFont new];
+            shadowText.font = [UIFont systemFontOfSize:16];
         }
         shadowText.dicAttributes = @{NSFontAttributeName: shadowText.font};
     }
