@@ -52,8 +52,13 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
 
 	private boolean					mFlingEnabled					= true;
 
+	private boolean					mPagingEnabled					= false;
+
 	protected int					mScrollEventThrottle			= 400; // 400ms最多回调一次
 	private long					mLastScrollEventTimeStamp		= -1;
+
+	protected int					mScrollMinOffset			    = 0;
+	private int					    mLastY				            = 0;
 
 	public HippyVerticalScrollView(Context context)
 	{
@@ -194,12 +199,15 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
 			if (mScrollEventEnable)
 			{
 				long currTime = System.currentTimeMillis();
-				if (currTime - mLastScrollEventTimeStamp < mScrollEventThrottle)
-				{
+				int offsetY = Math.abs(y - mLastY);
+				if (mScrollMinOffset > 0 && offsetY >= mScrollMinOffset) {
+					mLastY = y;
+				} else if ((mScrollMinOffset == 0) && (currTime - mLastScrollEventTimeStamp >= mScrollEventThrottle)) {
+					mLastScrollEventTimeStamp = currTime;
+				} else {
 					return;
 				}
 
-				mLastScrollEventTimeStamp = currTime;
 				HippyScrollViewEventHelper.emitScrollEvent(this);
 			}
 
@@ -216,32 +224,48 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
 			return;
 		}
 
-		super.fling(velocityY);
+		if (mPagingEnabled)
+		{
+			smoothScrollToPage(velocityY);
+		}
+		else
+		{
+			super.fling(velocityY);
+		}
+
 		if (mMomentumScrollBeginEventEnable)
 		{
 			HippyScrollViewEventHelper.emitScrollMomentumBeginEvent(this);
 		}
 		Runnable runnable = new Runnable()
 		{
+			private boolean mSnappingToPage = false;
 			@Override
-			public void run()
-			{
-				if (mDoneFlinging)
-				{
-					if (mMomentumScrollEndEventEnable)
-					{
-						HippyScrollViewEventHelper.emitScrollMomentumEndEvent(HippyVerticalScrollView.this);
+			public void run() {
+				if (mDoneFlinging) {
+					boolean doneWithAllScrolling = true;
+					if (mPagingEnabled && !mSnappingToPage) {
+						mSnappingToPage = true;
+						smoothScrollToPage(0);
+						doneWithAllScrolling = false;
 					}
-				}
-				else
-				{
+
+					if (doneWithAllScrolling) {
+						if (mMomentumScrollEndEventEnable) {
+							HippyScrollViewEventHelper.emitScrollMomentumEndEvent(HippyVerticalScrollView.this);
+						}
+					} else {
+						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+							postOnAnimationDelayed(this, HippyScrollViewEventHelper.MOMENTUM_DELAY);
+						} else {
+							HippyVerticalScrollView.this.getHandler().postDelayed(this, 16 + HippyScrollViewEventHelper.MOMENTUM_DELAY);
+						}
+					}
+				} else {
 					mDoneFlinging = true;
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-					{
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
 						postOnAnimationDelayed(this, HippyScrollViewEventHelper.MOMENTUM_DELAY);
-					}
-					else
-					{
+					} else {
 						HippyVerticalScrollView.this.getHandler().postDelayed(this, HippyScrollViewEventHelper.MOMENTUM_DELAY);
 					}
 				}
@@ -255,6 +279,24 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
 		{
 			this.getHandler().postDelayed(runnable, HippyScrollViewEventHelper.MOMENTUM_DELAY);
 		}
+	}
+
+	private void smoothScrollToPage(int velocity)
+	{
+		int height = getHeight();
+		int currentY = getScrollY();
+		int predictedY = currentY + velocity;
+		int page = 0;
+		if (height != 0)
+		{
+			page = currentY / height;
+		}
+
+		if (predictedY > page * height + height / 2)
+		{
+			page = page + 1;
+		}
+		smoothScrollTo(getScrollX(), page * height);
 	}
 
 	@Override
@@ -306,6 +348,13 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
 
 	@Override
 	public void setPagingEnabled(boolean pagingEnabled) {
+		mPagingEnabled = pagingEnabled;
+	}
 
+	@Override
+	public void setScrollMinOffset(int scrollMinOffset)
+	{
+		scrollMinOffset = Math.max(5, scrollMinOffset);
+		mScrollMinOffset = (int)PixelUtil.dp2px(scrollMinOffset);
 	}
 }

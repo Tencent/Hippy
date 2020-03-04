@@ -16,6 +16,7 @@
 package com.tencent.mtt.hippy.views.image;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Movie;
@@ -30,6 +31,7 @@ import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.adapter.image.HippyDrawable;
 import com.tencent.mtt.hippy.adapter.image.HippyImageLoader;
+import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
@@ -358,7 +360,18 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 		// send onLoadEnd event
 		if (mShouldSendImageEvent[ImageEvent.ONLOAD_END.ordinal()])
 		{
-			getOnLoadEndEvent().send(this, null);
+			HippyMap map = new HippyMap();
+			map.pushInt("success", 1);
+			if (mSourceDrawable != null) {
+			    Bitmap bitmap = mSourceDrawable.getBitmap();
+			    if (bitmap != null) {
+					HippyMap imageSize = new HippyMap();
+					imageSize.pushInt("width", bitmap.getWidth());
+					imageSize.pushInt("height", bitmap.getHeight());
+					map.pushMap("image", imageSize);
+				}
+			}
+			getOnLoadEndEvent().send(this, map);
 		}
 	}
 
@@ -373,7 +386,9 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 		// send onLoadEnd event
 		if (mShouldSendImageEvent[ImageEvent.ONLOAD_END.ordinal()])
 		{
-			getOnLoadEndEvent().send(this, null);
+			HippyMap map = new HippyMap();
+			map.pushInt("success", 0);
+			getOnLoadEndEvent().send(this, map);
 		}
 	}
 

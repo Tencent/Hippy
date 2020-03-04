@@ -1,0 +1,61 @@
+/* Tencent is pleased to support the open source community by making Hippy available.
+ * Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.tencent.mtt.tkd.views.list;
+
+import com.tencent.mtt.hippy.HippyRootView;
+import com.tencent.mtt.hippy.annotation.HippyController;
+import com.tencent.mtt.hippy.annotation.HippyControllerProps;
+import com.tencent.mtt.hippy.common.HippyArray;
+import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.uimanager.ControllerManager;
+import com.tencent.mtt.hippy.uimanager.HippyViewController;
+import com.tencent.mtt.hippy.uimanager.ListViewRenderNode;
+import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.mtt.hippy.views.list.HippyListView;
+import com.tencent.mtt.hippy.views.list.HippyListViewController;
+import com.tencent.mtt.tkd.views.list.TkdListView;
+import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewBase;
+import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewItem;
+
+import android.content.Context;
+import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+
+/**
+ * Created by leonardgong on 2017/12/7 0007.
+ */
+
+@HippyController(name = TkdListViewController.CLASS_NAME)
+public class TkdListViewController extends HippyListViewController
+{
+	public static final String CLASS_NAME = "tkdListView";
+
+	protected View createViewImpl(Context context)
+	{
+		return new TkdListView(context);
+	}
+
+	@HippyControllerProps(name = "enableExposureReport")
+	public void setOnExposureReport(HippyListView hippyListView, boolean enable)
+	{
+		if (hippyListView instanceof TkdListView)
+		{
+			TkdListView listView = (TkdListView) hippyListView;
+			listView.setEnableExposureReport(enable);
+		}
+	}
+}

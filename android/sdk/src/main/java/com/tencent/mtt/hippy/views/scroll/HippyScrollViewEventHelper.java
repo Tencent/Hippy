@@ -63,7 +63,7 @@ public class HippyScrollViewEventHelper
         emitScrollEvent(view, EVENT_TYPE_ANIMATION_END);
     }
 
-	private static void emitScrollEvent(ViewGroup view, String scrollEventType)
+	protected static void emitScrollEvent(ViewGroup view, String scrollEventType)
 	{
 		if(view == null)
 		{
