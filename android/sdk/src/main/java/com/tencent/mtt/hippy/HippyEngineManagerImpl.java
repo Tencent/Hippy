@@ -884,6 +884,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 				if (throwable instanceof HippyJsException)
 				{
 					mGlobalConfigs.getExceptionHandler().handleJsException((HippyJsException) throwable);
+					mEngineContext.getBridgeManager().notifyModuleJsException((HippyJsException) throwable);
 				}
 				else
 				{

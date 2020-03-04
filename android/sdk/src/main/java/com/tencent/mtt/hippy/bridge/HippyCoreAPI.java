@@ -54,6 +54,9 @@ import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
 import com.tencent.mtt.hippy.views.viewpager.HippyViewPagerController;
 import com.tencent.mtt.hippy.views.viewpager.HippyViewPagerItemController;
 import com.tencent.mtt.hippy.views.webview.HippyWebViewController;
+import com.tencent.mtt.tkd.views.scroll.TkdScrollViewController;
+import com.tencent.mtt.tkd.views.list.TkdListItemViewController;
+import com.tencent.mtt.tkd.views.list.TkdListViewController;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -224,6 +227,9 @@ public class HippyCoreAPI implements HippyAPIProvider
 		components.add(HippyWebViewController.class);
 		components.add(AudioViewController.class);
 		components.add(VideoHippyViewController.class);
+    components.add(TkdScrollViewController.class);
+    components.add(TkdListItemViewController.class);
+    components.add(TkdListViewController.class);
 		return components;
 	}
 }

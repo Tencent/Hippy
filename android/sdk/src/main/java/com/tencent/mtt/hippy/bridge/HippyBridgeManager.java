@@ -19,6 +19,7 @@ import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
 import com.tencent.mtt.hippy.common.Callback;
+import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
 
 
@@ -32,6 +33,8 @@ public interface HippyBridgeManager
 	void initBridge(Callback<Boolean> callback);
 
 	void runBundle(int id, HippyBundleLoader loader, HippyEngine.ModuleListener listener, HippyRootView hippyRootView);
+
+	void notifyModuleJsException(final HippyJsException exception);
 
 	void loadInstance(String name, int id, HippyMap params);
 
