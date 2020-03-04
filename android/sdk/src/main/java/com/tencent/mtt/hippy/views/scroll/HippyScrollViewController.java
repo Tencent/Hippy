@@ -121,6 +121,12 @@ public class HippyScrollViewController<T extends ViewGroup & HippyScrollView> ex
 		view.setScrollEventThrottle(scrollEventThrottle);
 	}
 
+	@HippyControllerProps(name = "scrollMinOffset", defaultType = HippyControllerProps.NUMBER, defaultNumber = 5)
+	public void setScrollMinOffset(HippyScrollView view, int scrollMinOffset)
+	{
+		view.setScrollMinOffset(scrollMinOffset);
+	}
+
 	@Override
 	public void dispatchFunction(View view, String functionName, HippyArray args) {
 		super.dispatchFunction(view, functionName, args);
