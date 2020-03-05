@@ -66,7 +66,7 @@ public class TkdScrollViewController extends HippyScrollViewController
 
 				if (animated)
 				{
-					((TkdScrollView)view).callSmoothScrollTo(destX, destY);
+					((TkdScrollView)view).callSmoothScrollTo(destX, destY, 0);
 				}
 				else
 				{
