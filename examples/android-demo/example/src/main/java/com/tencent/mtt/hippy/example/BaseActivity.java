@@ -12,6 +12,7 @@ import com.tencent.mtt.hippy.HippyEngineManager;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.HippyRootViewParams;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyAssetBundleLoader;
+import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.modules.nativemodules.deviceevent.DeviceEventModule;
 
@@ -110,8 +111,12 @@ public class BaseActivity extends Activity implements EngineListener, DeviceEven
         public void onInitialized(int statusCode, String msg,HippyRootView hippyRootView) {
           if (statusCode == 0) {
 
-
           }
+        }
+
+        @Override
+        public boolean onJsException(HippyJsException exception) {
+          return true;
         }
       }
     );
