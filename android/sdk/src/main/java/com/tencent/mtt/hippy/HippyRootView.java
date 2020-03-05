@@ -370,8 +370,15 @@ public class HippyRootView extends FrameLayout
 			}
 
 			HippyMap dimensionMap = DimensionsUtil.getDimensions(windowWidth, windowHeight, mEngineContext.getGlobalConfigs().getContext(), shouldUseScreenDisplay);
+			int dimensionW = 0;
+			int dimensionH = 0;
+			if (dimensionMap != null) {
+				HippyMap windowMap = dimensionMap.getMap("windowPhysicalPixels");
+				dimensionW = windowMap.getInt("width");
+				dimensionH = windowMap.getInt("height");
+			}
 			// 如果windowHeight是无效值，则允许客户端定制
-			if (windowHeight < 0 && mEngineContext.getGlobalConfigs() != null)
+			if ((windowHeight < 0 || dimensionW == dimensionH) && mEngineContext.getGlobalConfigs() != null)
 			{
 				HippyDeviceAdapter deviceAdapter = mEngineContext.getGlobalConfigs().getDeviceAdapter();
 				if (deviceAdapter != null)
