@@ -241,14 +241,14 @@ class ViewNode {
 
     if (childNode.prevSibling) {
       childNode.prevSibling.nextSibling = childNode.nextSibling;
-      childNode.prevSibling = null;
     }
 
     if (childNode.nextSibling) {
       childNode.nextSibling.prevSibling = childNode.prevSibling;
-      childNode.nextSibling = null;
     }
 
+    childNode.prevSibling = null;
+    childNode.nextSibling = null;
     this.childNodes = this.childNodes.filter(node => node !== childNode);
   }
 
