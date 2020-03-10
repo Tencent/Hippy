@@ -23,11 +23,15 @@ import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
+import com.tencent.mtt.hippy.views.refresh.HippyPullHeaderView;
 import com.tencent.mtt.hippy.views.scroll.HippyScrollViewEventHelper;
 import com.tencent.mtt.supportui.views.recyclerview.LinearLayoutManager;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerView;
+import com.tencent.mtt.supportui.views.recyclerview.Scroller;
+
 import android.content.Context;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewTreeObserver;
 
 /**
@@ -36,6 +40,13 @@ import android.view.ViewTreeObserver;
 
 public class HippyListView extends RecyclerView implements HippyViewBase
 {
+  public final static int	REFRESH_STATE_IDLE						= 0;
+  public final static int	REFRESH_STATE_LOADING					= 1;
+  public final static int	REFRESH_STATE_PULLING					= 2;
+
+  protected int mRefreshState					= REFRESH_STATE_IDLE;
+  protected boolean mEnableRefresh    = true;
+
 	private HippyListAdapter					mListAdapter;
 
 	private Context								mContext;
@@ -68,7 +79,8 @@ public class HippyListView extends RecyclerView implements HippyViewBase
 	private OnScrollDragEndedEvent				mOnScrollDragEndedEvent;
 	private OnScrollFlingStartedEvent			mOnScrollFlingStartedEvent;
 	private OnScrollFlingEndedEvent				mOnScrollFlingEndedEvent;
-	private OnScrollEvent						mOnScrollEvent;
+	private OnScrollEvent						      mOnScrollEvent;
+	private OnRefreshEvent                mOnRefreshEvent;
 
 	public HippyListView(Context context)
 	{
@@ -172,6 +184,58 @@ public class HippyListView extends RecyclerView implements HippyViewBase
 	{
 		mScrollEventThrottle = scrollEventThrottle;
 	}
+
+  public boolean isInRefreshArea()
+  {
+    final int totalHeight = mAdapter.getTotalHeight();
+    return (getOffsetY() <= 0 || getHeight() > totalHeight);
+  }
+
+  public View getCustomHeaderView() {
+	  if (getChildCount() > 0) {
+	    View firstChild = getChildAt(0);
+      final ViewHolder holder = getChildViewHolderInt(firstChild);
+      if (holder != null) {
+        return holder.mContent;
+      }
+    }
+
+	  return null;
+  }
+
+  public void onRefreshFinish() {
+	  if (mRefreshState == REFRESH_STATE_LOADING) {
+	    if (mOffsetY < mState.mCustomHeaderHeight) {
+        smoothScrollBy(0, -mOffsetY + mState.mCustomHeaderHeight, false, true);
+      }
+      mRefreshState = REFRESH_STATE_IDLE;
+	  }
+  }
+
+  @Override
+  protected boolean shouldStopReleaseGlows(boolean canGoRefresh, boolean fromTouch)
+  {
+    if (mEnableRefresh) {
+//      Scroller scroller = mViewFlinger.getScroller();
+//      if (scroller.isFinished() && scroller.isFling() && getOffsetY() < 0) {
+//        canGoRefresh = true;
+//      }
+
+      if (!canGoRefresh) {
+        return false;
+      }
+
+      if (isInRefreshArea()) {
+        if (mRefreshState == REFRESH_STATE_IDLE || mRefreshState == REFRESH_STATE_PULLING) {
+          sendOnRefreshEvent();
+          mRefreshState = REFRESH_STATE_LOADING;
+        }
+        return true;
+      }
+    }
+
+    return false;
+  }
 
 	@Override
 	protected void onScrollDragStarted()
@@ -462,4 +526,27 @@ public class HippyListView extends RecyclerView implements HippyViewBase
 	{
 
 	}
+
+  protected class OnRefreshEvent extends HippyViewEvent
+  {
+    public OnRefreshEvent(String eventName) {
+      super(eventName);
+    }
+  }
+
+  protected OnRefreshEvent getOnRefreshEvent()
+  {
+    if (mOnRefreshEvent == null) {
+      mOnRefreshEvent = new OnRefreshEvent(HippyScrollViewEventHelper.EVENT_TYPE_REFRESH);
+    }
+    return mOnRefreshEvent;
+  }
+
+  protected void sendOnRefreshEvent()
+  {
+    View headerView = getCustomHeaderView();
+    if (headerView != null && headerView instanceof HippyPullHeaderView) {
+      getOnRefreshEvent().send(headerView, getOnRefreshEvent());
+    }
+  }
 }
