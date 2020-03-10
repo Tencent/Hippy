@@ -44,6 +44,8 @@ import com.tencent.mtt.hippy.views.list.HippyListItemViewController;
 import com.tencent.mtt.hippy.views.list.HippyListViewController;
 import com.tencent.mtt.hippy.views.modal.HippyModalHostManager;
 import com.tencent.mtt.hippy.views.navigator.NavigatorController;
+import com.tencent.mtt.hippy.views.refresh.HippyPullFooterViewController;
+import com.tencent.mtt.hippy.views.refresh.HippyPullHeaderViewController;
 import com.tencent.mtt.hippy.views.refresh.RefreshWrapperController;
 import com.tencent.mtt.hippy.views.refresh.RefreshWrapperItemController;
 import com.tencent.mtt.hippy.views.scroll.HippyScrollViewController;
@@ -223,6 +225,8 @@ public class HippyCoreAPI implements HippyAPIProvider
 		components.add(HippyModalHostManager.class);
 		components.add(RefreshWrapperController.class);
 		components.add(RefreshWrapperItemController.class);
+    components.add(HippyPullHeaderViewController.class);
+    components.add(HippyPullFooterViewController.class);
 		components.add(NavigatorController.class);
 		components.add(HippyWebViewController.class);
 		components.add(AudioViewController.class);

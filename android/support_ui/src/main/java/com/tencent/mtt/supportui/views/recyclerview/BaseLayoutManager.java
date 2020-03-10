@@ -855,7 +855,7 @@ public abstract class BaseLayoutManager extends RecyclerViewBase.LayoutManager
 	private int fixLayoutEndGap(int endOffset, RecyclerViewBase.Recycler recycler, RecyclerViewBase.State state, boolean canOffsetChildren)
 	{
 		// 下拉刷新的时候，刷新的位置距离顶部是有距离的，但是这个距离是主动调用了smoothScrollBy来消除的，所以这里不需要fixGap了，anyuanzhao
-		if (mRecyclerView.isRefreshing())
+		if (mRecyclerView.isRefreshing() || mRecyclerView.mState.mCustomHeaderHeight > 0)
 		{
 			return 0;
 		}
@@ -2478,7 +2478,7 @@ public abstract class BaseLayoutManager extends RecyclerViewBase.LayoutManager
 			@Override
 			public int getEndAfterPadding()
 			{
-				return getHeight() - getPaddingBottom();
+				return getHeight() - getPaddingBottom() + mRecyclerView.mState.mCustomHeaderHeight;
 			}
 
 			@Override
@@ -2490,7 +2490,7 @@ public abstract class BaseLayoutManager extends RecyclerViewBase.LayoutManager
 			@Override
 			public int getStartAfterPadding()
 			{
-				return getPaddingTop();
+				return getPaddingTop() - mRecyclerView.mState.mCustomHeaderHeight;
 			}
 
 			@Override
