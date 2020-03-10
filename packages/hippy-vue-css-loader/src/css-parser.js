@@ -9,6 +9,11 @@ import { tryConvertNumber } from '@vue/util/index';
 
 const PROPERTIES_MAP = {
   textDecoration: 'textDecorationLine',
+  boxShadowOffset: 'shadowOffset',
+  boxShadowOpacity: 'shadowOpacity',
+  boxShadowRadius: 'shadowRadius',
+  boxShadowSpread: 'shadowSpread',
+  boxShadowColor: 'shadowColor',
 };
 
 const commentRegexp = /\/\*[^*]*\*+([^/*][^*]*\*+)*\//g;
@@ -58,7 +63,7 @@ function convertPxUnitToPt(value) {
     return value;
   }
   // If value unit is px, change to use pt as 1:1.
-  if (value.indexOf('px') === value.length - 2) {
+  if (value.endsWith('px')) {
     const num = parseFloat(value.slice(0, value.indexOf('px')), 10);
     if (!Number.isNaN(num)) {
       value = num;
@@ -344,11 +349,27 @@ function parseCSS(css, options) {
       case 'fontWeight':
         // Keep string and going on.
         break;
+      case 'shadowOffset': {
+        const pos = value.split(' ')
+          .filter(v => v)
+          .map(v => convertPxUnitToPt(v));
+        const [x] = pos;
+        let [, y] = pos;
+        if (!y) {
+          y = x;
+        }
+        // FIXME: should not be width and height, should be x and y.
+        value = {
+          width: x,
+          height: y,
+        };
+        break;
+      }
       default: {
         value = tryConvertNumber(value);
         // Convert the px to pt for specific properties
-        const sizeProperties = ['top', 'left', 'right', 'bottom', 'height', 'width', 'size', 'padding', 'margin', 'ratio', 'radius'];
-        if (sizeProperties.findIndex(size => property.toLowerCase().indexOf(size) > -1) > -1) {
+        const sizeProperties = ['top', 'left', 'right', 'bottom', 'height', 'width', 'size', 'padding', 'margin', 'ratio', 'radius', 'offset', 'spread'];
+        if (sizeProperties.find(size => property.toLowerCase().indexOf(size) > -1)) {
           value = convertPxUnitToPt(value);
         }
       }
@@ -742,3 +763,6 @@ function parseCSS(css, options) {
 }
 
 export default parseCSS;
+export {
+  PROPERTIES_MAP,
+};
