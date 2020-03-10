@@ -22,8 +22,10 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.DiffUtils;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
+import com.tencent.mtt.hippy.uimanager.PullHeaderRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.utils.LogUtils;
+import com.tencent.mtt.hippy.views.refresh.HippyPullHeaderView;
 import com.tencent.mtt.supportui.views.recyclerview.*;
 
 import java.util.ArrayList;
@@ -81,7 +83,11 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
 		//LogUtils.d("HippyListView", "onCreateContentViewWithPos start position " + position);
 		RenderNode contentViewRenderNode = mHippyContext.getRenderManager().getRenderNode(mParentRecyclerView.getId()).getChildAt(position);
 		contentViewRenderNode.setLazy(false);
-		contentHolder.mContentView = contentViewRenderNode.createViewRecursive();
+		View view = contentViewRenderNode.createViewRecursive();
+    contentHolder.mContentView = view;
+    if (view != null && view instanceof HippyPullHeaderView) {
+      ((HippyPullHeaderView)view).setParentView(mParentRecyclerView);
+    }
 		contentHolder.mBindNode = contentViewRenderNode;
 		contentHolder.isCreated = true;
 		//LogUtils.d("HippyListView", "onCreateContentViewWithPos end position " + position);
@@ -412,6 +418,20 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
 			}
 		}
 	}
+
+  @Override
+  public int getCustomHeaderViewHeight()
+  {
+    RenderNode listNode = mHippyContext.getRenderManager().getRenderNode(mParentRecyclerView.getId());
+    if (listNode != null && listNode.getChildCount() > 0) {
+      RenderNode listItemNode = listNode.getChildAt(0);
+      if (listItemNode != null && listItemNode instanceof PullHeaderRenderNode) {
+        return listItemNode.getHeight();
+      }
+    }
+
+    return 0;
+  }
 
 	@Override
 	public int getItemHeight(int index)

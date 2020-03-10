@@ -1382,13 +1382,14 @@ public abstract class RecyclerViewBase extends ViewGroup
 	protected void releaseGlows(boolean canGoRefresh, boolean fromTouch)
 	{
 		final int totalHeight = mState.mTotalHeight;
-		if (mOffsetY < 0 || getHeight() > totalHeight)
+		if (mOffsetY < mState.mCustomHeaderHeight || getHeight() > totalHeight)
 		{
 			if (shouldStopReleaseGlows(canGoRefresh, fromTouch))
 			{
-				return;
-			}
-			scrollToTop(null);
+        smoothScrollBy(0, -mOffsetY, false, true);
+			} else {
+        scrollToTop(null);
+      }
 		}
 		else if (mOffsetY > totalHeight - getHeight())
 		{
@@ -2037,6 +2038,7 @@ public abstract class RecyclerViewBase extends ViewGroup
 		final boolean animateChangesAdvanced = ENABLE_PREDICTIVE_ANIMATIONS && animateChangesSimple && predictiveItemAnimationsEnabled();
 		mItemsAddedOrRemoved = mItemsChanged = false;
 		ArrayMap<View, Rect> appearingViewInitialBounds = null;
+    mState.mCustomHeaderHeight = mAdapter.getCustomHeaderViewHeight();
 		mState.mInPreLayout = animateChangesAdvanced;
 		mState.mItemCount = mAdapter.getItemCount();
 		//		Log.e("leo", "dispatchLayout " + mState.mTotalHeight);
@@ -3225,6 +3227,7 @@ public abstract class RecyclerViewBase extends ViewGroup
 					if (pendingOffset == BaseLayoutManager.INVALID_OFFSET)
 					{
 						pendingOffset = mLayout.getDecoratedStart(first);
+            pendingOffset = pendingOffset + mState.mCustomHeaderHeight;
 					}
 
 				}
@@ -4654,6 +4657,8 @@ public abstract class RecyclerViewBase extends ViewGroup
 			//			Log.e("leo", "getListTotalHeight getHeader + getFooter " + height + ", " + this.toString());
 			return getTotalHeight() + height;
 		}
+
+		public abstract int getCustomHeaderViewHeight();
 
 		public abstract int getHeaderViewHeight(int position);
 
@@ -7815,6 +7820,7 @@ public abstract class RecyclerViewBase extends ViewGroup
 
 		public int											mHeaderCountInScreen							= 0;
 		public int											mFooterCountInScreen							= 0;
+		public int                      mCustomHeaderHeight               = 0;
 
 		State reset()
 		{
@@ -8103,10 +8109,10 @@ public abstract class RecyclerViewBase extends ViewGroup
 	public void scrollToTop(OnScrollFinishListener listener)
 	{
 		{
-			smoothScrollBy(0, -mOffsetY, false, true);
+			smoothScrollBy(0, -mOffsetY + mState.mCustomHeaderHeight, false, true);
 		}
 		mViewFlinger.mScrollFinishListener = listener;
-		mViewFlinger.mTargetPosition = -mOffsetY;
+		mViewFlinger.mTargetPosition = -mOffsetY + mState.mCustomHeaderHeight;
 	}
 
 	public void scrollToTopAtOnce()
