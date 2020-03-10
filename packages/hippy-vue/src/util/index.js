@@ -86,7 +86,7 @@ function capitalizeFirstLetter(str) {
 /**
  * Convert string to number as possible
  */
-const numberRegEx = new RegExp('^[+-]?\\d+(\\.\\d+)?$');
+const numberRegEx = new RegExp('^[+-]?(\\d+)?(\\.\\d+)?$');
 function tryConvertNumber(str) {
   if (typeof str === 'number') {
     return str;
