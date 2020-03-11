@@ -24,6 +24,7 @@ import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.uimanager.ListViewRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.mtt.supportui.views.recyclerview.BaseLayoutManager;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewBase;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewItem;
 
@@ -83,10 +84,22 @@ public class HippyListViewController extends HippyViewController<HippyListView>
 		view.setListData();
 	}
 
+  @Override
+  protected View createViewImpl(Context context) {
+    return new HippyListView(context, BaseLayoutManager.VERTICAL);
+  }
+
 	@Override
-	protected View createViewImpl(Context context)
+	protected View createViewImpl(Context context, HippyMap iniProps)
 	{
-		return new HippyListView(context);
+    if (iniProps != null && iniProps.containsKey("horizontal"))
+    {
+      return new HippyListView(context, BaseLayoutManager.HORIZONTAL);
+    }
+    else
+    {
+      return new HippyListView(context, BaseLayoutManager.VERTICAL);
+    }
 	}
 
 	@Override

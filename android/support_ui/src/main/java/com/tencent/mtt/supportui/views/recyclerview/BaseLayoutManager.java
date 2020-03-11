@@ -2544,7 +2544,7 @@ public abstract class BaseLayoutManager extends RecyclerViewBase.LayoutManager
 			@Override
 			public int getEndAfterPadding()
 			{
-				return getWidth() - getPaddingRight();
+				return getWidth() - getPaddingRight() + mRecyclerView.mState.mCustomHeaderWidth;
 			}
 
 			@Override
@@ -2556,7 +2556,7 @@ public abstract class BaseLayoutManager extends RecyclerViewBase.LayoutManager
 			@Override
 			public int getStartAfterPadding()
 			{
-				return getPaddingLeft();
+				return getPaddingLeft() - mRecyclerView.mState.mCustomHeaderWidth;
 			}
 
 			@Override
