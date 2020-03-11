@@ -1383,33 +1383,48 @@ public abstract class RecyclerViewBase extends ViewGroup
 
   }
 
+  protected void releaseGlowsForHorizontal() {
+    if (mOffsetX < mState.mCustomHeaderWidth || getWidth() > mState.mTotalHeight) {
+      scrollToTop(null);
+    } else if (mOffsetX > mState.mTotalHeight - getWidth()) {
+      smoothScrollBy(mState.mTotalHeight - getWidth() - mOffsetX, 0);
+    }
+  }
+
+  protected void releaseGlowsForVertical() {
+    final int totalHeight = mState.mTotalHeight;
+    if (mOffsetY < mState.mCustomHeaderHeight || getHeight() > totalHeight)
+    {
+      scrollToTop(null);
+    }
+    else if (mOffsetY > totalHeight - getHeight())
+    {
+      smoothScrollBy(0, totalHeight - getHeight() - mOffsetY);
+    }
+    else if (mOffsetY >= totalHeight - getHeight() && needNotifyFooter)
+    {
+      if (this.shouldPrebindItem() && mOffsetY + getHeight() != totalHeight)
+      {
+        return;
+      }
+      // Log.d("leo", "onrelease glows neednotify");
+      needNotifyFooter = false;
+      checkNotifyFooterOnRelease = false;
+      mRecycler.notifyLastFooterAppeared();
+    }
+  }
+
 	protected void releaseGlows(boolean canGoRefresh, boolean fromTouch)
 	{
-		final int totalHeight = mState.mTotalHeight;
 		if (shouldStopReleaseGlows(canGoRefresh, fromTouch)) {
 		  return;
     }
 
-		if (mOffsetY < mState.mCustomHeaderHeight || getHeight() > totalHeight)
-		{
-        scrollToTop(null);
-		}
-		else if (mOffsetY > totalHeight - getHeight())
-		{
-			smoothScrollBy(0, totalHeight - getHeight() - mOffsetY);
-		}
-		else if (mOffsetY >= totalHeight - getHeight() && needNotifyFooter)
-		{
-			if (this.shouldPrebindItem() && mOffsetY + getHeight() != totalHeight)
-			{
-				return;
-			}
-			// Log.d("leo", "onrelease glows neednotify");
-			needNotifyFooter = false;
-			checkNotifyFooterOnRelease = false;
-			mRecycler.notifyLastFooterAppeared();
-		}
-
+		if (mLayout.canScrollHorizontally()) {
+      releaseGlowsForHorizontal();
+    } else {
+      releaseGlowsForVertical();
+    }
 	}
 
 	// /*private*/ void scrollToInSpringBack(int x, int y)
@@ -3234,7 +3249,8 @@ public abstract class RecyclerViewBase extends ViewGroup
 					if (pendingOffset == BaseLayoutManager.INVALID_OFFSET)
 					{
 						pendingOffset = mLayout.getDecoratedStart(first);
-            pendingOffset = pendingOffset + mState.mCustomHeaderHeight;
+            pendingOffset = mLayout.canScrollHorizontally() ?
+              pendingOffset + mState.mCustomHeaderWidth : pendingOffset + mState.mCustomHeaderHeight;
 					}
 
 				}
@@ -8124,11 +8140,15 @@ public abstract class RecyclerViewBase extends ViewGroup
 
 	public void scrollToTop(OnScrollFinishListener listener)
 	{
-		{
-			smoothScrollBy(0, -mOffsetY + mState.mCustomHeaderHeight, false, true);
-		}
-		mViewFlinger.mScrollFinishListener = listener;
-		mViewFlinger.mTargetPosition = -mOffsetY + mState.mCustomHeaderHeight;
+	  if (mLayout.canScrollHorizontally()) {
+      smoothScrollBy(-mOffsetX + mState.mCustomHeaderWidth, 0, false, true);
+      mViewFlinger.mScrollFinishListener = listener;
+      mViewFlinger.mTargetPosition = -mOffsetX + mState.mCustomHeaderWidth;
+    } else {
+      smoothScrollBy(0, -mOffsetY + mState.mCustomHeaderHeight, false, true);
+      mViewFlinger.mScrollFinishListener = listener;
+      mViewFlinger.mTargetPosition = -mOffsetY + mState.mCustomHeaderHeight;
+    }
 	}
 
 	public void scrollToTopAtOnce()

@@ -496,6 +496,21 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
 	}
 
   @Override
+  public int getItemWidth(int index)
+  {
+    RenderNode listNode = mHippyContext.getRenderManager().getRenderNode(mParentRecyclerView.getId());
+    if (listNode != null && listNode.getChildCount() > index && index >= 0)
+    {
+      RenderNode listItemNode = listNode.getChildAt(index);
+      if (listItemNode != null)
+      {
+        return listItemNode.getWidth();
+      }
+    }
+    return 0;
+  }
+
+  @Override
   public int getTotalHeight()
   {
     if (isAutoCalculateItemHeight())
@@ -511,15 +526,22 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
       {
         for (int i = 0; i < itemCount; i++)
         {
-          mContentHeight += getItemHeight(i);
-          mContentHeight += getItemMaigin(LOCATION_TOP, i);
-          mContentHeight += getItemMaigin(LOCATION_BOTTOM, i);
-
+          if (mParentRecyclerView.mLayout.canScrollHorizontally()) {
+            mContentHeight += getItemWidth(i);
+            mContentHeight += getItemMaigin(LOCATION_LEFT, i);
+            mContentHeight += getItemMaigin(LOCATION_RIGHT, i);
+          } else {
+            mContentHeight += getItemHeight(i);
+            mContentHeight += getItemMaigin(LOCATION_TOP, i);
+            mContentHeight += getItemMaigin(LOCATION_BOTTOM, i);
+          }
         }
       }
     }
 
-    return mContentHeight - getCustomFooterViewHeight();
+    int footerViewSize = mParentRecyclerView.mLayout.canScrollHorizontally() ?
+                            getCustomFooterViewWidth() : getCustomFooterViewHeight();
+    return mContentHeight - footerViewSize;
   }
 
 	@Override

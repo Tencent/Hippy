@@ -798,7 +798,7 @@ public abstract class RecyclerAdapter extends RecyclerViewBase.Adapter<RecyclerV
 		{
 			if (mParentRecyclerView.mLayout.canScrollHorizontally())
 			{
-				params = new RecyclerViewBase.LayoutParams(getItemHeight(position), ViewGroup.LayoutParams.MATCH_PARENT);
+				params = new RecyclerViewBase.LayoutParams(getItemWidth(position), ViewGroup.LayoutParams.MATCH_PARENT);
 			}
 			else
 			{
