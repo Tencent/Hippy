@@ -1379,17 +1379,20 @@ public abstract class RecyclerViewBase extends ViewGroup
 		return false;
 	}
 
+	protected void onTouchMove(int x, int y) {
+
+  }
+
 	protected void releaseGlows(boolean canGoRefresh, boolean fromTouch)
 	{
 		final int totalHeight = mState.mTotalHeight;
+		if (shouldStopReleaseGlows(canGoRefresh, fromTouch)) {
+		  return;
+    }
+
 		if (mOffsetY < mState.mCustomHeaderHeight || getHeight() > totalHeight)
 		{
-			if (shouldStopReleaseGlows(canGoRefresh, fromTouch))
-			{
-        smoothScrollBy(0, -mOffsetY, false, true);
-			} else {
         scrollToTop(null);
-      }
 		}
 		else if (mOffsetY > totalHeight - getHeight())
 		{
@@ -1875,6 +1878,7 @@ public abstract class RecyclerViewBase extends ViewGroup
 							}
 						}
 					}
+					onTouchMove(x, y);
 				}
 				mLastTouchX = x;
 				mLastTouchY = y;
@@ -2039,6 +2043,9 @@ public abstract class RecyclerViewBase extends ViewGroup
 		mItemsAddedOrRemoved = mItemsChanged = false;
 		ArrayMap<View, Rect> appearingViewInitialBounds = null;
     mState.mCustomHeaderHeight = mAdapter.getCustomHeaderViewHeight();
+    mState.mCustomFooterHeight = mAdapter.getCustomFooterViewHeight();
+    mState.mCustomHeaderWidth  = mAdapter.getCustomHeaderViewWidth();
+    mState.mCustomFooterWidth  = mAdapter.getCustomFooterViewWidth();
 		mState.mInPreLayout = animateChangesAdvanced;
 		mState.mItemCount = mAdapter.getItemCount();
 		//		Log.e("leo", "dispatchLayout " + mState.mTotalHeight);
@@ -4659,6 +4666,12 @@ public abstract class RecyclerViewBase extends ViewGroup
 		}
 
 		public abstract int getCustomHeaderViewHeight();
+
+    public abstract int getCustomFooterViewHeight();
+
+    public abstract int getCustomHeaderViewWidth();
+
+    public abstract int getCustomFooterViewWidth();
 
 		public abstract int getHeaderViewHeight(int position);
 
@@ -7821,6 +7834,9 @@ public abstract class RecyclerViewBase extends ViewGroup
 		public int											mHeaderCountInScreen							= 0;
 		public int											mFooterCountInScreen							= 0;
 		public int                      mCustomHeaderHeight               = 0;
+    public int                      mCustomFooterHeight               = 0;
+    public int                      mCustomHeaderWidth                = 0;
+    public int                      mCustomFooterWidth                = 0;
 
 		State reset()
 		{

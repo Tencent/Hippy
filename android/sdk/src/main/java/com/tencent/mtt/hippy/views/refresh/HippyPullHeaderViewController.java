@@ -48,15 +48,21 @@ public class HippyPullHeaderViewController extends HippyViewController<HippyPull
   public void dispatchFunction(HippyPullHeaderView view, String functionName, HippyArray dataArray)
   {
     super.dispatchFunction(view, functionName, dataArray);
-    switch (functionName)
-    {
-      case "refreshFinish":
+    View parent = view.getParentView();
+    if (parent != null && parent instanceof HippyListView) {
+      switch (functionName)
       {
-        View parent = view.getParentView();
-        if (parent != null && parent instanceof HippyListView) {
-          ((HippyListView)parent).onRefreshFinish();
+        case "collapsePullHeader":
+        {
+          ((HippyListView)parent).onHeaderRefreshFinish();
+          break;
         }
-        break;
+
+        case "expandPullHeader":
+        {
+          ((HippyListView)parent).onHeaderRefresh();
+          break;
+        }
       }
     }
   }

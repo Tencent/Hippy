@@ -23,8 +23,10 @@ import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
+import com.tencent.mtt.hippy.views.refresh.HippyPullFooterView;
 import com.tencent.mtt.hippy.views.refresh.HippyPullHeaderView;
 import com.tencent.mtt.hippy.views.scroll.HippyScrollViewEventHelper;
+import com.tencent.mtt.supportui.views.recyclerview.BaseLayoutManager;
 import com.tencent.mtt.supportui.views.recyclerview.LinearLayoutManager;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerView;
 import com.tencent.mtt.supportui.views.recyclerview.Scroller;
@@ -42,9 +44,16 @@ public class HippyListView extends RecyclerView implements HippyViewBase
 {
   public final static int	REFRESH_STATE_IDLE						= 0;
   public final static int	REFRESH_STATE_LOADING					= 1;
-  public final static int	REFRESH_STATE_PULLING					= 2;
+  //public final static int	REFRESH_STATE_PULLING					= 2;
 
-  protected int mRefreshState					= REFRESH_STATE_IDLE;
+  public static final String	EVENT_TYPE_HEADER_RELEASED	  = "onHeaderReleased";
+  public static final String	EVENT_TYPE_HEADER_PULLING	    = "onHeaderPulling";
+
+  public static final String	EVENT_TYPE_FOOTER_RELEASED	  = "onFooterReleased";
+  public static final String	EVENT_TYPE_FOOTER_PULLING	    = "onFooterPulling";
+
+  protected int mHeaderRefreshState					= REFRESH_STATE_IDLE;
+  protected int mFooterRefreshState					= REFRESH_STATE_IDLE;
   protected boolean mEnableRefresh    = true;
 
 	private HippyListAdapter					mListAdapter;
@@ -80,17 +89,26 @@ public class HippyListView extends RecyclerView implements HippyViewBase
 	private OnScrollFlingStartedEvent			mOnScrollFlingStartedEvent;
 	private OnScrollFlingEndedEvent				mOnScrollFlingEndedEvent;
 	private OnScrollEvent						      mOnScrollEvent;
-	private OnRefreshEvent                mOnRefreshEvent;
+
+	private void init(Context context, int orientation) {
+    mHippyContext = ((HippyInstanceContext) context).getEngineContext();
+    this.setLayoutManager(new LinearLayoutManager(context, orientation, false));
+    mContext = context;
+    setRepeatableSuspensionMode(false);
+    mListAdapter = createAdapter(this, mHippyContext);
+    setAdapter(mListAdapter);
+  }
+
+  public HippyListView(Context context, int orientation)
+  {
+    super(context);
+    init(context, orientation);
+  }
 
 	public HippyListView(Context context)
 	{
 		super(context);
-		mHippyContext = ((HippyInstanceContext) context).getEngineContext();
-		this.setLayoutManager(new LinearLayoutManager(context));
-		mContext = context;
-		setRepeatableSuspensionMode(false);
-		mListAdapter = createAdapter(this, mHippyContext);
-		setAdapter(mListAdapter);
+    init(context, BaseLayoutManager.VERTICAL);
 	}
 
 	protected HippyListAdapter createAdapter(RecyclerView hippyRecyclerView, HippyEngineContext hippyEngineContext)
@@ -185,12 +203,6 @@ public class HippyListView extends RecyclerView implements HippyViewBase
 		mScrollEventThrottle = scrollEventThrottle;
 	}
 
-  public boolean isInRefreshArea()
-  {
-    final int totalHeight = mAdapter.getTotalHeight();
-    return (getOffsetY() <= 0 || getHeight() > totalHeight);
-  }
-
   public View getCustomHeaderView() {
 	  if (getChildCount() > 0) {
 	    View firstChild = getChildAt(0);
@@ -203,13 +215,57 @@ public class HippyListView extends RecyclerView implements HippyViewBase
 	  return null;
   }
 
-  public void onRefreshFinish() {
-	  if (mRefreshState == REFRESH_STATE_LOADING) {
+  public View getCustomFooterView() {
+    if (getChildCount() > 0) {
+      View lastChild = getChildAt(getChildCount() - 1);
+      final ViewHolder holder = getChildViewHolderInt(lastChild);
+      if (holder != null) {
+        return holder.mContent;
+      }
+    }
+
+    return null;
+  }
+
+  public void onHeaderRefreshFinish() {
+	  if (mHeaderRefreshState == REFRESH_STATE_LOADING) {
 	    if (mOffsetY < mState.mCustomHeaderHeight) {
         smoothScrollBy(0, -mOffsetY + mState.mCustomHeaderHeight, false, true);
       }
-      mRefreshState = REFRESH_STATE_IDLE;
+      mHeaderRefreshState = REFRESH_STATE_IDLE;
 	  }
+  }
+
+  public void onFooterRefreshFinish() {
+    if (mFooterRefreshState == REFRESH_STATE_LOADING) {
+      int contentOffsetY = getTotalHeight() - getHeight();
+      if (mOffsetY > contentOffsetY) {
+        smoothScrollBy(0, contentOffsetY - mOffsetY, false, true);
+      }
+      mFooterRefreshState = REFRESH_STATE_IDLE;
+    }
+  }
+
+  public void onHeaderRefresh() {
+    if (mHeaderRefreshState == REFRESH_STATE_IDLE) {
+      smoothScrollBy(0, -mOffsetY, false, true);
+    }
+  }
+
+  protected void onTouchMove(int x, int y) {
+	  int totalHeight = mAdapter.getTotalHeight();
+    HippyMap param = new HippyMap();
+    float contentOffset = 0;
+
+	  if (getOffsetY() < mState.mCustomHeaderHeight) {
+      contentOffset = Math.abs((getOffsetY() - mState.mCustomHeaderHeight));
+      param.pushDouble("contentOffset", PixelUtil.px2dp(contentOffset));
+      sendPullHeaderEvent(EVENT_TYPE_HEADER_PULLING, param);
+	  } else if (getOffsetY() > totalHeight - getHeight()) {
+      contentOffset = Math.abs((getOffsetY() - totalHeight - getHeight()));
+      param.pushDouble("contentOffset", PixelUtil.px2dp(contentOffset));
+      sendPullHeaderEvent(EVENT_TYPE_FOOTER_PULLING, param);
+    }
   }
 
   @Override
@@ -225,12 +281,31 @@ public class HippyListView extends RecyclerView implements HippyViewBase
         return false;
       }
 
-      if (isInRefreshArea()) {
-        if (mRefreshState == REFRESH_STATE_IDLE || mRefreshState == REFRESH_STATE_PULLING) {
-          sendOnRefreshEvent();
-          mRefreshState = REFRESH_STATE_LOADING;
+      int totalHeight = mAdapter.getTotalHeight();
+      if (getOffsetY() <= 0 || getHeight() > (totalHeight - mState.mCustomHeaderHeight)) {
+        if (mHeaderRefreshState == REFRESH_STATE_IDLE) {
+          sendPullHeaderEvent(EVENT_TYPE_HEADER_RELEASED, new HippyMap());
+          mHeaderRefreshState = REFRESH_STATE_LOADING;
         }
+        smoothScrollBy(0, -mOffsetY, false, true);
         return true;
+      } else {
+        int refreshEnableOffsetY = totalHeight - getHeight() + mState.mCustomFooterHeight;
+        if ((totalHeight - mState.mCustomHeaderHeight) < getHeight() || getOffsetY() >= refreshEnableOffsetY) {
+          if (mFooterRefreshState == REFRESH_STATE_IDLE) {
+            sendPullFooterEvent(EVENT_TYPE_FOOTER_RELEASED, new HippyMap());
+            mFooterRefreshState = REFRESH_STATE_LOADING;
+          }
+
+          View footerView = getCustomFooterView();
+          if (footerView != null && footerView instanceof HippyPullFooterView) {
+            boolean stickEnabled = ((HippyPullFooterView)footerView).getStickEnabled();
+            if (stickEnabled) {
+              smoothScrollBy(0, refreshEnableOffsetY - mOffsetY, false, true);
+              return true;
+            }
+          }
+        }
       }
     }
 
@@ -527,26 +602,28 @@ public class HippyListView extends RecyclerView implements HippyViewBase
 
 	}
 
-  protected class OnRefreshEvent extends HippyViewEvent
+  protected class PullElementEvent extends HippyViewEvent
   {
-    public OnRefreshEvent(String eventName) {
+    public PullElementEvent(String eventName) {
       super(eventName);
     }
   }
 
-  protected OnRefreshEvent getOnRefreshEvent()
+  protected void sendPullHeaderEvent(String eventName, HippyMap param)
   {
-    if (mOnRefreshEvent == null) {
-      mOnRefreshEvent = new OnRefreshEvent(HippyScrollViewEventHelper.EVENT_TYPE_REFRESH);
-    }
-    return mOnRefreshEvent;
-  }
-
-  protected void sendOnRefreshEvent()
-  {
+    PullElementEvent event = new PullElementEvent(eventName);
     View headerView = getCustomHeaderView();
     if (headerView != null && headerView instanceof HippyPullHeaderView) {
-      getOnRefreshEvent().send(headerView, getOnRefreshEvent());
+      event.send(headerView, param);
+    }
+  }
+
+  protected void sendPullFooterEvent(String eventName, HippyMap param)
+  {
+    PullElementEvent event = new PullElementEvent(eventName);
+    View footerView = getCustomFooterView();
+    if (footerView != null && footerView instanceof HippyPullFooterView) {
+      event.send(footerView, param);
     }
   }
 }
