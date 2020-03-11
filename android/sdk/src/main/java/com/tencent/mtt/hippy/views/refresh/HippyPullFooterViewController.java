@@ -20,6 +20,7 @@ import android.view.View;
 
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.annotation.HippyController;
+import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
@@ -29,14 +30,14 @@ import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.views.list.HippyListView;
 
 @HippyController(name = HippyPullFooterViewController.CLASS_NAME, isLazyLoad = true)
-public class HippyPullFooterViewController extends HippyViewController<HippyPullHeaderView>
+public class HippyPullFooterViewController extends HippyViewController<HippyPullFooterView>
 {
 	public static final String CLASS_NAME = "PullFooterView";
 
 	@Override
 	protected View createViewImpl(Context context)
 	{
-		return new HippyPullHeaderView(context);
+		return new HippyPullFooterView(context);
 	}
 
 	@Override
@@ -44,19 +45,25 @@ public class HippyPullFooterViewController extends HippyViewController<HippyPull
 		return new PullFooterRenderNode(id,  props, className, hippyRootView, controllerManager, lazy);
 	}
 
+  @HippyControllerProps(name = "sticky", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+  public void setStickEnabled(HippyPullFooterView view, boolean flag)
+  {
+    view.setStickEnabled(flag);
+  }
+
   @Override
-  public void dispatchFunction(HippyPullHeaderView view, String functionName, HippyArray dataArray)
+  public void dispatchFunction(HippyPullFooterView view, String functionName, HippyArray dataArray)
   {
     super.dispatchFunction(view, functionName, dataArray);
-    switch (functionName)
-    {
-      case "refreshFinish":
+    View parent = view.getParentView();
+    if (parent != null && parent instanceof HippyListView) {
+      switch (functionName)
       {
-        View parent = view.getParentView();
-        if (parent != null && parent instanceof HippyListView) {
-          ((HippyListView)parent).onRefreshFinish();
+        case "collapsePullFooter":
+        {
+          ((HippyListView)parent).onFooterRefreshFinish();
+          break;
         }
-        break;
       }
     }
   }

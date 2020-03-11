@@ -23,6 +23,7 @@ import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 public class HippyPullFooterView extends HippyViewGroup
 {
   private View mParentView;
+  private boolean mStickEnabled = false;
 
 	public HippyPullFooterView(Context context)
 	{
@@ -37,4 +38,11 @@ public class HippyPullFooterView extends HippyViewGroup
     return mParentView;
   }
 
+  public void setStickEnabled(boolean enabled) {
+    mStickEnabled = enabled;
+  }
+
+  public boolean getStickEnabled() {
+	  return mStickEnabled;
+  }
 }
