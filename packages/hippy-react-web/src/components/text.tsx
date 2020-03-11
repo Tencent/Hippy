@@ -54,9 +54,9 @@ export class Text extends React.Component {
   }
 
   render() {
-    let { style, ellipsizeMode } = this.props;
+    let { style } = this.props;
     const { isInAParentText } = this.context;
-    const { numberOfLines } = this.props;
+    const { numberOfLines, ellipsizeMode } = this.props;
     if (style) {
       style = formatWebStyle(style);
     }
