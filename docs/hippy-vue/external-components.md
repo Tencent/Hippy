@@ -72,6 +72,12 @@
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | dragging                | 拖动时触发。                            | `Function`                                                   | `ALL`    |
 | dropped   | 拖拽松手时触发，就是确定了滚动的页面时触发。                                                            | `Function`                                                   | `ALL`    |
+| stateChanged*   | 手指行为发生改变时触发，包含了 idle、dragging、settling 三种状态，通过 state 参数返回                                                             | `Function`                                                   | `ALL`    |
+
+* stateChanged 三种值的意思：
+  * idle 空闲状态
+  * dragging 拖拽中
+  * settling 松手后触发，然后马上回到 idle
 
 # swiper-slide
 
