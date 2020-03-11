@@ -57,7 +57,7 @@ interface ViewPagerProps {
    * @param {string} str - Page scroll state event data
    * This can be one of the following values:
    *
-   * * idel
+   * * idle
    * * dragging
    * * settling
    */

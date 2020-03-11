@@ -7,7 +7,8 @@
       <button class="toolbar-btn" @click="scrollToNextPage">
         <span>翻到下一页</span>
       </button>
-      <p class="toolbar-text">当前第 {{ currentSlideNum + 1 }} 页</p>
+      <p class="toolbar-text">当前第 {{ currentSlideNum + 1 }} 页，</p>
+      <p class="toolbar-text">滚屏状态：{{ state }}</p>
     </div>
     <!--
       swiper 组件参数
@@ -22,7 +23,8 @@
       needAnimation
       :current="currentSlide"
       @dragging="onDragging"
-      @dropped="onDropped">
+      @dropped="onDropped"
+      @stateChanged="onStateChanged">
       <!-- slides -->
       <swiper-slide
         v-for="n in dataSource"
@@ -63,6 +65,8 @@ export default {
       // 所以这里单独做个变量，保存当前正在显示的值，跟 currentSlide 的值做个区分，避免推拉现象。
       currentSlideNum: 2,
 
+      // 设置默认滚屏状态
+      state: 'idle',
     };
   },
   mounted() {
@@ -91,6 +95,10 @@ export default {
     onDropped(evt) {
       // 更细当前页码
       this.currentSlideNum = evt.currentSlide;
+    },
+    onStateChanged(evt) {
+      // 更新当前滚屏状态
+      this.state = evt.state;
     },
   },
 };

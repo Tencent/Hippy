@@ -15,6 +15,9 @@ function registerSwiper(Vue) {
             event.nextSlide = nativeEventParams.position;
             event.offset = nativeEventParams.offset;
             break;
+          case 'onPageScrollStateChanged':
+            event.state = nativeEventParams.pageScrollState;
+            break;
           default:
         }
         return event;
@@ -65,6 +68,10 @@ function registerSwiper(Vue) {
       onPageSelected(evt) {
         this.$emit('dropped', evt);
       },
+      // On page scroll state changed.
+      onPageScrollStateChanged(evt) {
+        this.$emit('stateChanged', evt);
+      },
     },
     watch: {
       current(to) {
@@ -79,6 +86,7 @@ function registerSwiper(Vue) {
       const on = getEventRedirector.call(this, [
         ['dropped', 'pageSelected'],
         ['dragging', 'pageScroll'],
+        ['stateChanged', 'pageScrollStateChanged'],
       ]);
       return h('hi-swiper', {
         on,
