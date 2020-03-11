@@ -229,18 +229,32 @@ public class HippyListView extends RecyclerView implements HippyViewBase
 
   public void onHeaderRefreshFinish() {
 	  if (mHeaderRefreshState == REFRESH_STATE_LOADING) {
-	    if (mOffsetY < mState.mCustomHeaderHeight) {
-        smoothScrollBy(0, -mOffsetY + mState.mCustomHeaderHeight, false, true);
+      if (mLayout.canScrollHorizontally()) {
+        if (mOffsetX < mState.mCustomHeaderWidth) {
+          smoothScrollBy(-mOffsetX + mState.mCustomHeaderWidth, 0, false, true);
+        }
+      } else {
+        if (mOffsetY < mState.mCustomHeaderHeight) {
+          smoothScrollBy(0, -mOffsetY + mState.mCustomHeaderHeight, false, true);
+        }
       }
+
       mHeaderRefreshState = REFRESH_STATE_IDLE;
 	  }
   }
 
   public void onFooterRefreshFinish() {
     if (mFooterRefreshState == REFRESH_STATE_LOADING) {
-      int contentOffsetY = getTotalHeight() - getHeight();
-      if (mOffsetY > contentOffsetY) {
-        smoothScrollBy(0, contentOffsetY - mOffsetY, false, true);
+      if (mLayout.canScrollHorizontally()) {
+        int contentOffsetX = getTotalHeight() - getWidth();
+        if (mOffsetX > contentOffsetX) {
+          smoothScrollBy(contentOffsetX - mOffsetX, 0, false, true);
+        }
+      } else {
+        int contentOffsetY = getTotalHeight() - getHeight();
+        if (mOffsetY > contentOffsetY) {
+          smoothScrollBy(0, contentOffsetY - mOffsetY, false, true);
+        }
       }
       mFooterRefreshState = REFRESH_STATE_IDLE;
     }
@@ -248,7 +262,11 @@ public class HippyListView extends RecyclerView implements HippyViewBase
 
   public void onHeaderRefresh() {
     if (mHeaderRefreshState == REFRESH_STATE_IDLE) {
-      smoothScrollBy(0, -mOffsetY, false, true);
+      if (mLayout.canScrollHorizontally()) {
+        smoothScrollBy(-mOffsetX, 0, false, true);
+      } else {
+        smoothScrollBy(0, -mOffsetY, false, true);
+      }
     }
   }
 
@@ -257,15 +275,84 @@ public class HippyListView extends RecyclerView implements HippyViewBase
     HippyMap param = new HippyMap();
     float contentOffset = 0;
 
-	  if (getOffsetY() < mState.mCustomHeaderHeight) {
-      contentOffset = Math.abs((getOffsetY() - mState.mCustomHeaderHeight));
-      param.pushDouble("contentOffset", PixelUtil.px2dp(contentOffset));
-      sendPullHeaderEvent(EVENT_TYPE_HEADER_PULLING, param);
-	  } else if (getOffsetY() > totalHeight - getHeight()) {
-      contentOffset = Math.abs((getOffsetY() - totalHeight - getHeight()));
-      param.pushDouble("contentOffset", PixelUtil.px2dp(contentOffset));
-      sendPullHeaderEvent(EVENT_TYPE_FOOTER_PULLING, param);
+    if (mLayout.canScrollHorizontally()) {
+      if (mOffsetX < mState.mCustomHeaderWidth) {
+        contentOffset = Math.abs((mOffsetX - mState.mCustomHeaderWidth));
+      } else if (mOffsetX > totalHeight - getWidth()) {
+        contentOffset = Math.abs((mOffsetX - totalHeight - getWidth()));
+      }
+    } else {
+      if (getOffsetY() < mState.mCustomHeaderHeight) {
+        contentOffset = Math.abs((getOffsetY() - mState.mCustomHeaderHeight));
+      } else if (getOffsetY() > totalHeight - getHeight()) {
+        contentOffset = Math.abs((getOffsetY() - totalHeight - getHeight()));
+      }
     }
+
+    param.pushDouble("contentOffset", PixelUtil.px2dp(contentOffset));
+    sendPullHeaderEvent(EVENT_TYPE_FOOTER_PULLING, param);
+  }
+
+  private boolean shouldStopReleaseGlowsForHorizontal() {
+    int totalHeight = mAdapter.getTotalHeight();
+    if (mOffsetX <= 0 || getWidth() > (totalHeight - mState.mCustomHeaderWidth)) {
+      if (mHeaderRefreshState == REFRESH_STATE_IDLE) {
+        sendPullHeaderEvent(EVENT_TYPE_HEADER_RELEASED, new HippyMap());
+        mHeaderRefreshState = REFRESH_STATE_LOADING;
+      }
+      smoothScrollBy(-mOffsetX, 0, false, true);
+      return true;
+    } else {
+      int refreshEnableOffsetX = totalHeight - getWidth() + mState.mCustomFooterWidth;
+      if ((totalHeight - mState.mCustomHeaderWidth) < getWidth() || mOffsetX >= refreshEnableOffsetX) {
+        if (mFooterRefreshState == REFRESH_STATE_IDLE) {
+          sendPullFooterEvent(EVENT_TYPE_FOOTER_RELEASED, new HippyMap());
+          mFooterRefreshState = REFRESH_STATE_LOADING;
+        }
+
+        View footerView = getCustomFooterView();
+        if (footerView != null && footerView instanceof HippyPullFooterView) {
+          boolean stickEnabled = ((HippyPullFooterView) footerView).getStickEnabled();
+          if (stickEnabled) {
+            smoothScrollBy(refreshEnableOffsetX - mOffsetX, 0, false, true);
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
+  private boolean shouldStopReleaseGlowsForVertical() {
+    int totalHeight = mAdapter.getTotalHeight();
+    if (getOffsetY() <= 0 || getHeight() > (totalHeight - mState.mCustomHeaderHeight)) {
+      if (mHeaderRefreshState == REFRESH_STATE_IDLE) {
+        sendPullHeaderEvent(EVENT_TYPE_HEADER_RELEASED, new HippyMap());
+        mHeaderRefreshState = REFRESH_STATE_LOADING;
+      }
+      smoothScrollBy(0, -mOffsetY, false, true);
+      return true;
+    } else {
+      int refreshEnableOffsetY = totalHeight - getHeight() + mState.mCustomFooterHeight;
+      if ((totalHeight - mState.mCustomHeaderHeight) < getHeight() || getOffsetY() >= refreshEnableOffsetY) {
+        if (mFooterRefreshState == REFRESH_STATE_IDLE) {
+          sendPullFooterEvent(EVENT_TYPE_FOOTER_RELEASED, new HippyMap());
+          mFooterRefreshState = REFRESH_STATE_LOADING;
+        }
+
+        View footerView = getCustomFooterView();
+        if (footerView != null && footerView instanceof HippyPullFooterView) {
+          boolean stickEnabled = ((HippyPullFooterView)footerView).getStickEnabled();
+          if (stickEnabled) {
+            smoothScrollBy(0, refreshEnableOffsetY - mOffsetY, false, true);
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
   }
 
   @Override
@@ -281,31 +368,10 @@ public class HippyListView extends RecyclerView implements HippyViewBase
         return false;
       }
 
-      int totalHeight = mAdapter.getTotalHeight();
-      if (getOffsetY() <= 0 || getHeight() > (totalHeight - mState.mCustomHeaderHeight)) {
-        if (mHeaderRefreshState == REFRESH_STATE_IDLE) {
-          sendPullHeaderEvent(EVENT_TYPE_HEADER_RELEASED, new HippyMap());
-          mHeaderRefreshState = REFRESH_STATE_LOADING;
-        }
-        smoothScrollBy(0, -mOffsetY, false, true);
-        return true;
+      if (mLayout.canScrollHorizontally()) {
+        return shouldStopReleaseGlowsForHorizontal();
       } else {
-        int refreshEnableOffsetY = totalHeight - getHeight() + mState.mCustomFooterHeight;
-        if ((totalHeight - mState.mCustomHeaderHeight) < getHeight() || getOffsetY() >= refreshEnableOffsetY) {
-          if (mFooterRefreshState == REFRESH_STATE_IDLE) {
-            sendPullFooterEvent(EVENT_TYPE_FOOTER_RELEASED, new HippyMap());
-            mFooterRefreshState = REFRESH_STATE_LOADING;
-          }
-
-          View footerView = getCustomFooterView();
-          if (footerView != null && footerView instanceof HippyPullFooterView) {
-            boolean stickEnabled = ((HippyPullFooterView)footerView).getStickEnabled();
-            if (stickEnabled) {
-              smoothScrollBy(0, refreshEnableOffsetY - mOffsetY, false, true);
-              return true;
-            }
-          }
-        }
+        return shouldStopReleaseGlowsForVertical();
       }
     }
 
