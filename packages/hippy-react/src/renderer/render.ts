@@ -15,6 +15,26 @@ interface Style {
 
 const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
 
+let __batchIdle = true;
+let __renderId: number = 0;
+
+function startBatch() {
+  if (__batchIdle) {
+    __renderId = Date.now();
+    UIManagerModule.startBatch(__renderId);
+  }
+}
+
+function endBatch() {
+  if (__batchIdle) {
+    __batchIdle = false;
+    Promise.resolve().then(() => {
+      UIManagerModule.endBatch(__renderId);
+      __batchIdle = true;
+    });
+  }
+}
+
 /**
  * Translate to native props from attributes and meta
  */
@@ -87,15 +107,14 @@ function insertChild(parentNode: ViewNode, childNode: ViewNode, atIndex = -1) {
   }
 
   const rootViewId = getRootViewId();
-  const renderId = Date.now();
   // Render the root node
   if (isLayout(parentNode) && !parentNode.isMounted) {
     // Start real native work.
     const translated = renderToNativeWithChildren(rootViewId, childNode);
     trace(...componentName, 'insertChild layout', translated);
-    UIManagerModule.startBatch(renderId);
+    startBatch();
     UIManagerModule.createNode(rootViewId, translated);
-    UIManagerModule.endBatch(renderId);
+    endBatch();
     parentNode.traverseChildren((node: ViewNode) => {
       if (!node.isMounted) {
         node.isMounted = true;
@@ -105,9 +124,9 @@ function insertChild(parentNode: ViewNode, childNode: ViewNode, atIndex = -1) {
   } else if (parentNode.isMounted && !childNode.isMounted) {
     const translated = renderToNativeWithChildren(rootViewId, childNode);
     trace(...componentName, 'insertChild child', translated);
-    UIManagerModule.startBatch(renderId);
+    startBatch();
     UIManagerModule.createNode(rootViewId, translated);
-    UIManagerModule.endBatch(renderId);
+    endBatch();
     childNode.traverseChildren((node: ViewNode) => {
       if (!node.isMounted) {
         node.isMounted = true;
@@ -126,7 +145,6 @@ function removeChild(parentNode: ViewNode, childNode: ViewNode) {
       targetNode.isMounted = false;
     }
   });
-  const renderId = Date.now();
   const rootViewId = getRootViewId();
   const deleteNodeIds: Hippy.NativeNode[] = [{
     id: childNode.nodeId,
@@ -134,9 +152,9 @@ function removeChild(parentNode: ViewNode, childNode: ViewNode) {
     index: childNode.index,
   }];
   trace(...componentName, 'deleteNode', deleteNodeIds);
-  UIManagerModule.startBatch(renderId);
+  startBatch();
   UIManagerModule.deleteNode(rootViewId, deleteNodeIds);
-  UIManagerModule.endBatch(renderId);
+  endBatch();
 }
 
 function updateChild(parentNode: Element) {
@@ -144,12 +162,11 @@ function updateChild(parentNode: Element) {
     return;
   }
   const rootViewId = getRootViewId();
-  const renderId = Date.now();
   const translated = renderToNative(rootViewId, parentNode);
   trace(...componentName, 'updateNode', translated);
-  UIManagerModule.startBatch(renderId);
+  startBatch();
   UIManagerModule.updateNode(rootViewId, [translated]);
-  UIManagerModule.endBatch(renderId);
+  endBatch();
 }
 
 function updateWithChildren(parentNode: ViewNode) {
@@ -157,14 +174,13 @@ function updateWithChildren(parentNode: ViewNode) {
     return;
   }
   const rootViewId = getRootViewId();
-  const renderId = Date.now();
   const translated = renderToNativeWithChildren(rootViewId, parentNode);
   trace(...componentName, 'updateWithChildren', translated);
-  UIManagerModule.startBatch(renderId);
+  startBatch();
   translated.forEach((item) => {
     UIManagerModule.updateNode(rootViewId, [item]);
   });
-  UIManagerModule.endBatch(renderId);
+  endBatch();
 }
 
 export {
