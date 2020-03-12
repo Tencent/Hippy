@@ -130,13 +130,12 @@ public class TkdListViewAdapter extends HippyListAdapter
   @Override
   public void notifyEndReached()
   {
-
-  }
-
-  @Override
-  public void onPreload()
-  {
-    // send onEndReached message here
-    getOnEndReachedEvent().send(mParentRecyclerView, null);
+    if (mParentRecyclerView instanceof TkdListView) {
+      TkdListView listView = (TkdListView)mParentRecyclerView;
+      if (!listView.isLoading() && listView.shouldEmitEndReachedEvent()) {
+        getOnEndReachedEvent().send(mParentRecyclerView, null);
+        listView.setIsLoading(true);
+      }
+    }
   }
 }

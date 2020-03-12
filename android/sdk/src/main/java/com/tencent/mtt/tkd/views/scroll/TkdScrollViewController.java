@@ -86,25 +86,33 @@ public class TkdScrollViewController extends HippyScrollViewController
 	{
 		super.dispatchFunction(view, functionName, params, promise);
 		if(view instanceof TkdScrollView) {
-			if (TextUtils.equals(SCROLL_TO_POSITION, functionName)) {
-				int distance = 0;
-				try {
-					Integer temp = Integer.parseInt(params.getString(0));
-					distance = (int)PixelUtil.dp2px(temp.floatValue());
-				} catch (Exception e) {
+      if (TextUtils.equals(SCROLL_TO_POSITION, functionName)) {
+        String msg = "";
+        int distance = 0;
+        int duration = 0;
+        if (params != null && params.size() > 0) {
+          HippyMap paramsMap = params.getMap(0);
+          if (paramsMap != null) {
+            distance = (int)PixelUtil.dp2px(paramsMap.getInt("distance"));
+            duration = paramsMap.getInt("duration");
+          }
+        } else {
+          msg = "invalid parameter!";
+        }
 
-				}
+        if (distance != 0) {
+          ((TkdScrollView)view).callScrollToPosition(distance, duration, promise);
+        } else {
+          msg = "invalid distance parameter!";
+        }
 
-				int duration = params.getInt(4);
-				if (distance > 0) {
-					((TkdScrollView)view).callScrollToPosition(distance, duration, promise);
-				} else if (promise != null) {
-					HippyMap resultMap = new HippyMap();
-					resultMap.pushString("msg", "invalid distance parameter!");
-					promise.resolve(resultMap);
-				}
-			}
-		}
+        if (!TextUtils.isEmpty(msg) && promise != null) {
+          HippyMap resultMap = new HippyMap();
+          resultMap.pushString("msg", msg);
+          promise.resolve(resultMap);
+        }
+      }
+    }
 	}
 
 	@HippyControllerProps(name = "preloadDistance", defaultType = HippyControllerProps.NUMBER, defaultNumber = 200)
