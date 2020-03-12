@@ -26,6 +26,7 @@ import com.tencent.mtt.hippy.uimanager.ListViewRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.views.list.HippyListView;
 import com.tencent.mtt.hippy.views.list.HippyListViewController;
+import com.tencent.mtt.supportui.views.recyclerview.BaseLayoutManager;
 import com.tencent.mtt.tkd.views.list.TkdListView;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewBase;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewItem;
@@ -49,13 +50,60 @@ public class TkdListViewController extends HippyListViewController
 		return new TkdListView(context);
 	}
 
+  @Override
+  protected View createViewImpl(Context context, HippyMap iniProps)
+  {
+    if (iniProps != null && iniProps.containsKey("horizontal"))
+    {
+      return new TkdListView(context, BaseLayoutManager.HORIZONTAL);
+    }
+    else
+    {
+      return new TkdListView(context, BaseLayoutManager.VERTICAL);
+    }
+  }
+
 	@HippyControllerProps(name = "enableExposureReport")
 	public void setOnExposureReport(HippyListView hippyListView, boolean enable)
 	{
-		if (hippyListView instanceof TkdListView)
-		{
+		if (hippyListView instanceof TkdListView) {
 			TkdListView listView = (TkdListView) hippyListView;
 			listView.setEnableExposureReport(enable);
 		}
 	}
+
+  @HippyControllerProps(name = "preloadDistance", defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
+  public void setPreloadDistance(HippyListView hippyListView, int preloadDistance)
+  {
+    if (hippyListView instanceof TkdListView) {
+      TkdListView listView = (TkdListView) hippyListView;
+      listView.setPreloadDistance(preloadDistance);
+    }
+  }
+
+  @HippyControllerProps(name = "scrollMinOffset", defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
+  public void setScrollMinOffset(HippyListView hippyListView, int scrollMinOffset)
+  {
+    if (hippyListView instanceof TkdListView) {
+      TkdListView listView = (TkdListView) hippyListView;
+      listView.setScrollMinOffset(scrollMinOffset);
+    }
+  }
+
+  @Override
+  public void dispatchFunction(HippyListView view, String functionName, HippyArray dataArray)
+  {
+    super.dispatchFunction(view, functionName, dataArray);
+    switch (functionName)
+    {
+      case "loadMoreFinish ":
+      {
+        if (view instanceof TkdListView) {
+          TkdListView listView = (TkdListView)view;
+          listView.callLoadMoreFinish();
+        }
+        break;
+      }
+    }
+  }
 }

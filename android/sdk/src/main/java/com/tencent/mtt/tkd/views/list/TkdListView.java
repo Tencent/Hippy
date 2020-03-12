@@ -40,15 +40,129 @@ import android.view.ViewTreeObserver;
 
 public class TkdListView extends HippyListView
 {
-	public TkdListView(Context context)
-	{
+  private int mPreloadDistance     = 0;
+  protected int	mScrollMinOffset	 = 0;
+  private boolean mIsLoading       = false;
+
+	public TkdListView(Context context) {
 		super(context);
 	}
+
+  public TkdListView(Context context, int orientation) {
+    super(context, orientation);
+  }
 
 	protected HippyListAdapter createAdapter(RecyclerView hippyRecyclerView, HippyEngineContext hippyEngineContext)
 	{
 		return new TkdListViewAdapter(hippyRecyclerView, hippyEngineContext);
 	}
+
+  @Override
+  public void onScrolled(int x, int y)
+  {
+    super.onScrolled(x, y);
+    Log.e("maxli", "onScrolled: x=" + x + ", y=" + y);
+    if (!mIsLoading && shouldEmitEndReachedEvent()) {
+      mAdapter.onPreload();
+      //mIsLoading = true;
+    }
+  }
+
+  private boolean shouldEmitEndReachedEvent() {
+    if (mLayout.canScrollHorizontally()){
+      int pdx = mState.mTotalHeight - mOffsetX - getWidth();
+      if (pdx <= mPreloadDistance) {
+        return true;
+      }
+    } else {
+      int pdy = mState.mTotalHeight - mOffsetY - getHeight();
+      if (pdy <= mPreloadDistance) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  public void callLoadMoreFinish() {
+    mIsLoading = false;
+  }
+
+  public void setScrollMinOffset(int scrollMinOffset)
+  {
+    scrollMinOffset = Math.max(200, scrollMinOffset);
+    mScrollMinOffset = (int)PixelUtil.dp2px(scrollMinOffset);
+  }
+
+  protected void sendOnScrollEvent()
+  {
+    if (mScrollEventEnable)
+    {
+      long currTime = System.currentTimeMillis();
+
+      if (mScrollMinOffset > 0) {
+        if (mLayout.canScrollHorizontally()) {
+          if (mLastOffsetX == Integer.MIN_VALUE) {
+            mLastOffsetX = mState.mCustomHeaderWidth;
+          }
+
+          if (mOffsetX - mLastOffsetX >= mScrollMinOffset){
+            mLastOffsetX = mOffsetX;
+            getOnScrollEvent().send(this, generateScrollEvent());
+          }
+        } else {
+          if (mLastOffsetY == Integer.MIN_VALUE) {
+            mLastOffsetY = mState.mCustomHeaderHeight;
+          }
+
+          if (mOffsetY - mLastOffsetY >= mScrollMinOffset){
+            mLastOffsetY = mOffsetY;
+            getOnScrollEvent().send(this, generateScrollEvent());
+          }
+        }
+      } else if ((mScrollMinOffset == 0) && (currTime - mLastScrollEventTimeStamp >= mScrollEventThrottle)) {
+        mLastScrollEventTimeStamp = currTime;
+        getOnScrollEvent().send(this, generateScrollEvent());
+      }
+    }
+  }
+
+  protected HippyMap generateScrollEvent()
+  {
+    HippyMap contentOffset = new HippyMap();
+    HippyMap contentSize = new HippyMap();
+    HippyMap frame = new HippyMap();
+    if (mLayout.canScrollHorizontally()) {
+      contentOffset.pushInt("x", (int)PixelUtil.px2dp(mOffsetX - mState.mCustomHeaderWidth));
+      contentOffset.pushInt("y", (int)PixelUtil.px2dp(0));
+
+      contentSize.pushInt("width", (int)PixelUtil.px2dp(mState.mTotalHeight));
+      contentSize.pushInt("height", (int)PixelUtil.px2dp(getHeight()));
+
+      frame.pushInt("x", (int)PixelUtil.px2dp(mOffsetX  - mState.mCustomHeaderWidth));
+      frame.pushInt("y", (int)PixelUtil.px2dp(0));
+      frame.pushInt("width", (int)PixelUtil.px2dp(getWidth()));
+      frame.pushInt("height", (int)PixelUtil.px2dp(getHeight()));
+    } else {
+      contentOffset.pushInt("x", (int)PixelUtil.px2dp(0));
+      contentOffset.pushInt("y", (int)PixelUtil.px2dp(mOffsetY - mState.mCustomHeaderHeight));
+
+      contentSize.pushInt("width", (int)PixelUtil.px2dp(getWidth()));
+      contentSize.pushInt("height", (int)PixelUtil.px2dp(mState.mTotalHeight));
+
+      frame.pushInt("x", (int)PixelUtil.px2dp(0));
+      frame.pushInt("y", (int)PixelUtil.px2dp(mOffsetY - mState.mCustomHeaderWidth));
+      frame.pushInt("width", (int)PixelUtil.px2dp(getWidth()));
+      frame.pushInt("height", (int)PixelUtil.px2dp(getHeight()));
+    }
+
+    HippyMap event = new HippyMap();
+    event.pushMap("contentOffset", contentOffset);
+    event.pushMap("contentSize", contentSize);
+    event.pushMap("frame", frame);
+
+    return event;
+  }
 
 	@Override
 	public void onScrollStateChanged(int oldState, int newState)
@@ -71,6 +185,12 @@ public class TkdListView extends HippyListView
 			((TkdListViewAdapter)getAdapter()).setEnableExposureReport(enableExposureReport);
 		}
 	}
+
+  public void setPreloadDistance(int preloadDistance)
+  {
+    preloadDistance = Math.max(0, preloadDistance);
+    mPreloadDistance = (int)PixelUtil.dp2px(preloadDistance);
+  }
 
 	@Override
 	public void scrollToTopAtOnce()

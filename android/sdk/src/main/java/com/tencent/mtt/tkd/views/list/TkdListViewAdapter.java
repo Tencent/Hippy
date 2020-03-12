@@ -24,11 +24,11 @@ import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewBase;
 
 public class TkdListViewAdapter extends HippyListAdapter
 {
-	private boolean								mEnableScrollForReport;
-	private boolean								mEnableExposureReport           = true;
-	private HippyMap							mExposureReportResultMap;
-	int											mScrollEventThrottle			= 200;
-	int											mScrollForReportThrottle		= 200;
+	private boolean	mEnableScrollForReport;
+	private boolean	mEnableExposureReport = true;
+	private HippyMap mExposureReportResultMap;
+	int mScrollEventThrottle = 400;
+	int	mScrollForReportThrottle	= 200;
 
 	public TkdListViewAdapter(RecyclerView recyclerView, HippyEngineContext HippyContext)
 	{
@@ -126,4 +126,17 @@ public class TkdListViewAdapter extends HippyListAdapter
 	{
 		return true;
 	}
+
+  @Override
+  public void notifyEndReached()
+  {
+
+  }
+
+  @Override
+  public void onPreload()
+  {
+    // send onEndReached message here
+    getOnEndReachedEvent().send(mParentRecyclerView, null);
+  }
 }
