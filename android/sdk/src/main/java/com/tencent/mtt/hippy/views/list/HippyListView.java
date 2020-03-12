@@ -276,23 +276,35 @@ public class HippyListView extends RecyclerView implements HippyViewBase
 	  int totalHeight = mAdapter.getTotalHeight();
     HippyMap param = new HippyMap();
     float contentOffset = 0;
+    String eventName = "";
 
     if (mLayout.canScrollHorizontally()) {
       if (mOffsetX < mState.mCustomHeaderWidth) {
         contentOffset = Math.abs((mOffsetX - mState.mCustomHeaderWidth));
+        eventName = EVENT_TYPE_HEADER_PULLING;
       } else if (mOffsetX > totalHeight - getWidth()) {
         contentOffset = Math.abs((mOffsetX - totalHeight - getWidth()));
+        eventName = EVENT_TYPE_FOOTER_PULLING;
       }
     } else {
       if (getOffsetY() < mState.mCustomHeaderHeight) {
         contentOffset = Math.abs((getOffsetY() - mState.mCustomHeaderHeight));
+        eventName = EVENT_TYPE_HEADER_PULLING;
       } else if (getOffsetY() > totalHeight - getHeight()) {
         contentOffset = Math.abs((getOffsetY() - totalHeight - getHeight()));
+        eventName = EVENT_TYPE_FOOTER_PULLING;
       }
     }
 
     param.pushDouble("contentOffset", PixelUtil.px2dp(contentOffset));
-    sendPullHeaderEvent(EVENT_TYPE_FOOTER_PULLING, param);
+    switch (eventName) {
+      case EVENT_TYPE_HEADER_PULLING:
+        sendPullHeaderEvent(eventName, param);
+        break;
+      case EVENT_TYPE_FOOTER_PULLING:
+        sendPullFooterEvent(eventName, param);
+        break;
+    }
   }
 
   private boolean shouldStopReleaseGlowsForHorizontal() {

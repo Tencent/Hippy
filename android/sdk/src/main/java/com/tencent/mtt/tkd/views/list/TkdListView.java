@@ -19,6 +19,7 @@ import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
@@ -30,26 +31,28 @@ import com.tencent.mtt.hippy.views.scroll.HippyScrollViewEventHelper;
 import com.tencent.mtt.supportui.views.recyclerview.LinearLayoutManager;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerView;
 import android.content.Context;
+import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ViewTreeObserver;
 
-/**
- * Created by leonardgong on 2017/12/7 0007.
- */
-
-public class TkdListView extends HippyListView
+public class TkdListView extends HippyListView implements RecyclerView.OnListScrollListener
 {
+  public static final String	EVENT_TYPE_DRAG_END		= "onDragEnd";
+  public static final String	EVENT_TYPE_SCROLL_END		= "onScrollEnd";
+
   private int mPreloadDistance     = 0;
   protected int	mScrollMinOffset	 = 0;
   private boolean mIsLoading       = false;
 
 	public TkdListView(Context context) {
 		super(context);
+		addOnListScrollListener(this);
 	}
 
   public TkdListView(Context context, int orientation) {
     super(context, orientation);
+    addOnListScrollListener(this);
   }
 
 	protected HippyListAdapter createAdapter(RecyclerView hippyRecyclerView, HippyEngineContext hippyEngineContext)
@@ -57,18 +60,34 @@ public class TkdListView extends HippyListView
 		return new TkdListViewAdapter(hippyRecyclerView, hippyEngineContext);
 	}
 
+  public void onStartDrag() {
+
+  }
+
+  public void onScroll(int dx, int dy) {
+
+  }
+
+  public void onScrollEnd() {
+    new OnScrollEvent(EVENT_TYPE_SCROLL_END).send(this, null);
+  }
+
+  public void onDragEnd() {
+    new OnScrollEvent(EVENT_TYPE_DRAG_END).send(this, null);
+  }
+
+  public void onStartFling() {
+
+  }
+
   @Override
   public void onScrolled(int x, int y)
   {
     super.onScrolled(x, y);
-    Log.e("maxli", "onScrolled: x=" + x + ", y=" + y);
-    if (!mIsLoading && shouldEmitEndReachedEvent()) {
-      mAdapter.onPreload();
-      //mIsLoading = true;
-    }
+    mAdapter.notifyEndReached();
   }
 
-  private boolean shouldEmitEndReachedEvent() {
+  public boolean shouldEmitEndReachedEvent() {
     if (mLayout.canScrollHorizontally()){
       int pdx = mState.mTotalHeight - mOffsetX - getWidth();
       if (pdx <= mPreloadDistance) {
@@ -84,8 +103,12 @@ public class TkdListView extends HippyListView
     return false;
   }
 
-  public void callLoadMoreFinish() {
-    mIsLoading = false;
+  public boolean isLoading() {
+	  return mIsLoading;
+  }
+
+  public void setIsLoading(boolean isLoading) {
+    mIsLoading = isLoading;
   }
 
   public void setScrollMinOffset(int scrollMinOffset)
@@ -162,6 +185,28 @@ public class TkdListView extends HippyListView
     event.pushMap("frame", frame);
 
     return event;
+  }
+
+  public void scrollToIndex(int distance, int duration, final Promise promise)
+  {
+    if (!mState.didStructureChange()) {
+      if (mLayout.canScrollHorizontally()) {
+        mViewFlinger.smoothScrollBy(distance, 0, duration,true);
+      } else {
+        mViewFlinger.smoothScrollBy(0, distance, duration,true);
+      }
+
+      new Handler().postDelayed(new Runnable() {
+        @Override
+        public void run() {
+          if (promise != null) {
+            HippyMap resultMap = new HippyMap();
+            resultMap.pushString("msg", "on scroll end!");
+            promise.resolve(resultMap);
+          }
+        }
+      }, duration);
+    }
   }
 
 	@Override
