@@ -193,6 +193,11 @@ public class HippyListViewController extends HippyViewController<HippyListView>
 				view.scrollToContentOffset(xOffset, yOffset, animated,duration);
 				break;
 			}
+      case "scrollToTop":
+      {
+        view.scrollToTop(null);
+        break;
+      }
 		}
 	}
 }

@@ -77,7 +77,9 @@ public class HippyListView extends RecyclerView implements HippyViewBase
 	protected boolean							mScrollEnable					= true;
 
 	protected int								mScrollEventThrottle			= 400;  // 400ms最多回调一次
-	private long								mLastScrollEventTimeStamp		= -1;
+  protected int					      mLastOffsetX			        = Integer.MIN_VALUE;
+  protected int					      mLastOffsetY			        = Integer.MIN_VALUE;
+  protected long							mLastScrollEventTimeStamp		= -1;
 
 	private boolean								mHasRemovePreDraw				= false;
 	private ViewTreeObserver.OnPreDrawListener	mPreDrawListener				= null;
@@ -181,7 +183,7 @@ public class HippyListView extends RecyclerView implements HippyViewBase
 		mScrollEventEnable = enable;
 	}
 
-	private HippyMap generateScrollEvent()
+	protected HippyMap generateScrollEvent()
 	{
 		HippyMap contentOffset = new HippyMap();
 		contentOffset.pushDouble("x", PixelUtil.px2dp(0));
@@ -546,12 +548,11 @@ public class HippyListView extends RecyclerView implements HippyViewBase
 		if (mScrollEventEnable)
 		{
 			long currTime = System.currentTimeMillis();
-			if (currTime - mLastScrollEventTimeStamp < mScrollEventThrottle)
-			{
-				return;
-			}
+      if (currTime - mLastScrollEventTimeStamp < mScrollEventThrottle) {
+        return;
+      }
 
-			mLastScrollEventTimeStamp = currTime;
+      mLastScrollEventTimeStamp = currTime;
 			getOnScrollEvent().send(this, generateScrollEvent());
 		}
 	}
