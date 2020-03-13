@@ -29,6 +29,7 @@ import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.common.HippyTag;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.dom.node.StyleNode;
 import com.tencent.mtt.hippy.modules.Promise;
@@ -47,8 +48,8 @@ import java.util.Map;
 
 public abstract class HippyViewController<T extends View & HippyViewBase> implements View.OnFocusChangeListener
 {
-	private static final String								TAG								= "HippyViewController";
-
+	private static final String	TAG						     = "HippyViewController";
+	
 	private static MatrixUtil.MatrixDecompositionContext	sMatrixDecompositionContext		= new MatrixUtil.MatrixDecompositionContext();
 	private static double[]									sTransformDecompositionArray	= new double[16];
     private boolean bUserChageFocus = false;
@@ -81,7 +82,9 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 
 			LogUtils.d(TAG, "createView id " + id);
 			view.setId(id);
-			view.setTag(className);
+			//view.setTag(className);
+      HippyMap tagObj = HippyTag.getTagMap(className, initialProps);
+      view.setTag(tagObj);
 		}
 		return view;
 	}

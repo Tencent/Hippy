@@ -27,6 +27,7 @@ import android.widget.FrameLayout;
 import com.tencent.mtt.hippy.adapter.device.HippyDeviceAdapter;
 import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorEvent;
 import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.common.HippyTag;
 import com.tencent.mtt.hippy.devsupport.DevFloatButton;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.HippyModuleManager;
@@ -79,7 +80,9 @@ public class HippyRootView extends FrameLayout
 		mInstanceId = ID_COUNTER.addAndGet(ROOT_VIEW_TAG_INCREMENT);
 
 		setId(mInstanceId);
-		setTag(NodeProps.ROOT_NODE);
+		//setTag(NodeProps.ROOT_NODE);
+    HippyMap tagMap = HippyTag.getTagMap(NodeProps.ROOT_NODE, null);
+    setTag(tagMap);
 		getViewTreeObserver().addOnGlobalLayoutListener(getGlobalLayoutListener());
 		setOnSystemUiVisibilityChangeListener(getGlobalLayoutListener());
 	}
