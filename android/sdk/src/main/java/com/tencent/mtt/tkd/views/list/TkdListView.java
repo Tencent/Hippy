@@ -44,6 +44,7 @@ public class TkdListView extends HippyListView implements RecyclerView.OnListScr
   private int mPreloadDistance     = 0;
   protected int	mScrollMinOffset	 = 0;
   private boolean mIsLoading       = false;
+  private Promise mPromise         = null;
 
 	public TkdListView(Context context) {
 		super(context);
@@ -70,6 +71,12 @@ public class TkdListView extends HippyListView implements RecyclerView.OnListScr
 
   public void onScrollEnd() {
     new OnScrollEvent(EVENT_TYPE_SCROLL_END).send(this, null);
+    if (mPromise != null) {
+      HippyMap resultMap = new HippyMap();
+      resultMap.pushString("msg", "on scroll end!");
+      mPromise.resolve(resultMap);
+      mPromise = null;
+    }
   }
 
   public void onDragEnd() {
@@ -162,8 +169,8 @@ public class TkdListView extends HippyListView implements RecyclerView.OnListScr
       contentSize.pushInt("width", (int)PixelUtil.px2dp(mState.mTotalHeight));
       contentSize.pushInt("height", (int)PixelUtil.px2dp(getHeight()));
 
-      frame.pushInt("x", (int)PixelUtil.px2dp(mOffsetX  - mState.mCustomHeaderWidth));
-      frame.pushInt("y", (int)PixelUtil.px2dp(0));
+      frame.pushInt("x", (int)PixelUtil.px2dp(getX()));
+      frame.pushInt("y", (int)PixelUtil.px2dp(getY()));
       frame.pushInt("width", (int)PixelUtil.px2dp(getWidth()));
       frame.pushInt("height", (int)PixelUtil.px2dp(getHeight()));
     } else {
@@ -173,8 +180,8 @@ public class TkdListView extends HippyListView implements RecyclerView.OnListScr
       contentSize.pushInt("width", (int)PixelUtil.px2dp(getWidth()));
       contentSize.pushInt("height", (int)PixelUtil.px2dp(mState.mTotalHeight));
 
-      frame.pushInt("x", (int)PixelUtil.px2dp(0));
-      frame.pushInt("y", (int)PixelUtil.px2dp(mOffsetY - mState.mCustomHeaderWidth));
+      frame.pushInt("x", (int)PixelUtil.px2dp(getX()));
+      frame.pushInt("y", (int)PixelUtil.px2dp(getY()));
       frame.pushInt("width", (int)PixelUtil.px2dp(getWidth()));
       frame.pushInt("height", (int)PixelUtil.px2dp(getHeight()));
     }
@@ -196,16 +203,7 @@ public class TkdListView extends HippyListView implements RecyclerView.OnListScr
         mViewFlinger.smoothScrollBy(0, distance, duration,true);
       }
 
-      new Handler().postDelayed(new Runnable() {
-        @Override
-        public void run() {
-          if (promise != null) {
-            HippyMap resultMap = new HippyMap();
-            resultMap.pushString("msg", "on scroll end!");
-            promise.resolve(resultMap);
-          }
-        }
-      }, duration);
+      mPromise = promise;
     }
   }
 
