@@ -26,6 +26,7 @@ import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.common.HippyTag;
 import com.tencent.mtt.hippy.dom.flex.FlexSpacing;
 import com.tencent.mtt.hippy.dom.node.*;
 import com.tencent.mtt.hippy.modules.Promise;
@@ -340,7 +341,7 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 
 			//		boolean isLayoutOnly=false;
 			boolean isLayoutOnly = (NodeProps.VIEW_CLASS_NAME.equals(node.getViewClass())) && jsJustLayout((HippyMap) props.get(NodeProps.STYLE))
-					&& !isTouchEvent(props);
+					&& !isTouchEvent(props) && HippyTag.jsJustLayout(props);
 			LogUtils.d(TAG, "dom create node id: " + id + " mClassName " + className + " pid " + pid + " mIndex:" + index + " isJustLayout :"
 					+ isLayoutOnly + " isVirtual " + isVirtual);
 			//			mContext.getGlobalConfigs().getLogAdapter().log(TAG,"dom create node id: " + id + " mClassName " + className + " pid " + pid + " mIndex:" + index + " isJustLayout :"

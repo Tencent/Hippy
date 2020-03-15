@@ -33,8 +33,24 @@ import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 
 public class TkdListItemView extends HippyListItemView
 {
+  public final static int EXPOSURE_STATE_APPEAR         = 0;
+  public final static int EXPOSURE_STATE_DISAPPEAR      = 1;
+  public final static String  EXPOSURE_EVENT_APPEAR     = "onAppear";
+  public final static String EXPOSURE_EVENT_DISAPPEAR   = "onDisAppear";
+
+  private int mExposureState = EXPOSURE_STATE_DISAPPEAR;
+
 	public TkdListItemView(Context context)
 	{
 		super(context);
 	}
+
+	public int getExposureState() {
+	  return mExposureState;
+  }
+
+  public void setExposureState(int state) {
+    mExposureState = state;
+  }
+
 }

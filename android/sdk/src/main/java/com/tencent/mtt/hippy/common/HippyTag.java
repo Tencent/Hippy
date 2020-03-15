@@ -15,15 +15,21 @@
  */
 package com.tencent.mtt.hippy.common;
 
+import android.view.View;
+
 public class HippyTag
 {
-  public static String TAG_CLASS_NAME                   = "className";
-  public static String TAG_PROPS                        = "props";
-  public static String TAG_PROPS_WILL_APPEAR            = "willAppear";
-  public static String TAG_PROPS_DID_APPEAR             = "didAppear";
-  public static String TAG_PROPS_DID_DISAPPEAR          = "didDisappear";
+  private final static String TAG_CLASS_NAME                  = "className";
+  private final static String TAG_PROPS                       = "props";
+  public final static String TAG_PROPS_WILL_APPEAR            = "onWillAppear";
+  public final static String TAG_PROPS_DID_APPEAR             = "onDidAppear";
+  public final static String TAG_PROPS_DID_DISAPPEAR          = "onDidDisappear";
+  private final static String TAG_EXPOSURE_STATE              = "exposureState";
+  public final static int TAG_EXPOSURE_STATE_WILL_APPEAR      = 0;
+  public final static int TAG_EXPOSURE_STATE_DID_APPEAR       = 1;
+  public final static int TAG_EXPOSURE_STATE_DID_DISAPPEAR    = 2;
 
-  public static HippyMap getTagMap(String className, HippyMap iniProps) {
+  public static HippyMap createTagMap(String className, HippyMap iniProps) {
     HippyMap tagMap = new HippyMap();
     tagMap.pushString(TAG_CLASS_NAME, className);
 
@@ -41,19 +47,74 @@ public class HippyTag
         propsMap.pushString(TAG_PROPS_DID_DISAPPEAR, "");
       }
 
-      tagMap.pushMap(TAG_PROPS, propsMap);
+      if (propsMap.size() > 0) {
+        tagMap.pushMap(TAG_PROPS, propsMap);
+        tagMap.pushInt(TAG_EXPOSURE_STATE, TAG_EXPOSURE_STATE_DID_DISAPPEAR);
+      }
     }
     return tagMap;
   }
 
-  public static String getClassName(Object tagObj) {
-    if (tagObj != null && tagObj instanceof HippyMap) {
-      HippyMap tagMap = (HippyMap)tagObj;
-      if (tagMap.containsKey(TAG_CLASS_NAME)) {
-        return tagMap.getString(TAG_CLASS_NAME);
+  public static String getClassName(View view) {
+    if (view != null) {
+      Object tagObj = view.getTag();
+      if (tagObj != null && tagObj instanceof HippyMap) {
+        HippyMap tagMap = (HippyMap)tagObj;
+        if (tagMap.containsKey(TAG_CLASS_NAME)) {
+          return tagMap.getString(TAG_CLASS_NAME);
+        }
       }
     }
 
     return null;
+  }
+
+  public static void setExposureState(View view, int state) {
+    if (view != null) {
+      Object tagObj = view.getTag();
+      if (tagObj != null && tagObj instanceof HippyMap) {
+        HippyMap tagMap = (HippyMap)tagObj;
+        tagMap.pushInt(TAG_EXPOSURE_STATE, state);
+        view.setTag(tagObj);
+      }
+    }
+  }
+
+  public static int getExposureState(View view) {
+    if (view != null) {
+      Object tagObj = view.getTag();
+      if (tagObj != null && tagObj instanceof HippyMap) {
+        HippyMap tagMap = (HippyMap)tagObj;
+        if (tagMap.containsKey(TAG_EXPOSURE_STATE)) {
+          return tagMap.getInt(TAG_EXPOSURE_STATE);
+        }
+      }
+    }
+
+    return -1;
+  }
+
+  public static boolean isContainEventOfExposure (View view, String event) {
+    if (view != null) {
+      Object tagObj = view.getTag();
+      if (tagObj != null && tagObj instanceof HippyMap) {
+        HippyMap tagMap = (HippyMap)tagObj;
+        if (tagMap.containsKey(TAG_PROPS)) {
+          HippyMap propsMap = tagMap.getMap(TAG_PROPS);
+          return propsMap.containsKey(event);
+        }
+      }
+    }
+
+    return false;
+  }
+
+  public static boolean jsJustLayout(HippyMap props) {
+    if (props != null && (props.containsKey(TAG_PROPS_WILL_APPEAR)
+      || props.containsKey(TAG_PROPS_DID_APPEAR) || props.containsKey(TAG_PROPS_DID_DISAPPEAR))) {
+      return false;
+    }
+
+    return true;
   }
 }
