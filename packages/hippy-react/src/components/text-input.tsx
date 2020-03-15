@@ -291,7 +291,11 @@ class TextInput extends React.Component<TextInputProps, {}> {
     const nativeProps = { ...this.props };
     ['underlineColorAndroid', 'placeholderTextColor', 'placeholderTextColors'].forEach((prop) => {
       if (typeof (this.props as any)[prop] === 'string') {
-        if (typeof nativeProps.style === 'object') {
+        if (Array.isArray(nativeProps.style)) {
+          nativeProps.style.push({
+            [prop]: (this.props as any)[prop],
+          });
+        } else if (typeof nativeProps.style === 'object') {
           (nativeProps.style as any)[prop] = (this.props as any)[prop];
         } else {
           nativeProps.style = {
