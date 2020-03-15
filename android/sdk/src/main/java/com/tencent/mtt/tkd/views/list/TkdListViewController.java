@@ -68,15 +68,6 @@ public class TkdListViewController extends HippyListViewController
     }
   }
 
-	@HippyControllerProps(name = "enableExposureReport")
-	public void setOnExposureReport(HippyListView hippyListView, boolean enable)
-	{
-		if (hippyListView instanceof TkdListView) {
-			TkdListView listView = (TkdListView) hippyListView;
-			listView.setEnableExposureReport(enable);
-		}
-	}
-
   @HippyControllerProps(name = "preloadDistance", defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
   public void setPreloadDistance(HippyListView hippyListView, int preloadDistance)
   {
@@ -132,7 +123,7 @@ public class TkdListViewController extends HippyListViewController
         }
 
         if (distance != 0) {
-          ((TkdListView)view).scrollToIndex(distance, duration, promise);
+          ((TkdListView)view).scrollWithDistance(distance, duration, promise);
         } else {
           msg = "invalid distance parameter!";
         }

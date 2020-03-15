@@ -562,13 +562,23 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
 		if (listViewNode != null && listViewNode.getChildCount() > index)
 		{
 			RenderNode listItemNode = mHippyContext.getRenderManager().getRenderNode(mParentRecyclerView.getId()).getChildAt(index);
-			if (listItemNode != null && listItemNode.getProps() != null)
+			if (listItemNode != null)
 			{
-				HippyMap listItemProps = listItemNode.getProps();
-				if (listItemProps.get(ListItemRenderNode.ITEM_VIEW_TYPE) != null)
-				{
-					return listItemProps.getInt(ListItemRenderNode.ITEM_VIEW_TYPE);
-				}
+			  if (listItemNode instanceof PullFooterRenderNode) {
+			    return RecyclerViewBase.ViewHolder.TYPE_CUSTOM_FOOTER;
+        }
+
+        if (listItemNode instanceof PullHeaderRenderNode) {
+          return RecyclerViewBase.ViewHolder.TYPE_CUSTOM_HEADERE;
+        }
+
+			  if (listItemNode.getProps() != null) {
+          HippyMap listItemProps = listItemNode.getProps();
+          if (listItemProps.get(ListItemRenderNode.ITEM_VIEW_TYPE) != null)
+          {
+            return listItemProps.getInt(ListItemRenderNode.ITEM_VIEW_TYPE);
+          }
+        }
 			}
 		}
 		return super.getItemViewType(index);
