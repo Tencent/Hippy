@@ -4,7 +4,7 @@
 
 ## 继承 ModuleBase
 
-在 [core/module/](//github.com/Tencent/Hippy/tree/master/core/modules) 下创建 test-module.h
+在 [core/modules/](//github.com/Tencent/Hippy/tree/master/core/modules) 下创建 test-module.h
 
 ```cpp
 #ifndef CORE_MODULES_TEST_MODULE_H_
@@ -23,30 +23,33 @@ class TestModule : public ModuleBase {
 #endif // CORE_MODULES_TEST_MODULE_H_
 ```
 
-在 [core/module/](//github.com/Tencent/Hippy/tree/master/core/modules) 下创建 test-module.cc
+在 [core/modules/](//github.com/Tencent/Hippy/tree/master/core/modules) 下创建 test-module.cc
 
 ```cpp
 #include "core/modules/module-register.h"
 #include "core/modules/test-module.h"
 #include "core/napi/js-native-api.h"
-
+#include "core/base/logging.h"
 REGISTER_MODULE(TestModule, RetStr)
 REGISTER_MODULE(TestModule, Print)
 
 void TestModule::RetStr(const hippy::napi::CallbackInfo& info) {
-  hippy::napi::napi_context context = info.GetContext();
+  std::shared_ptr<Environment> env = info.GetEnv();
+  hippy::napi::napi_context context = env->getContext();
   HIPPY_CHECK(context);
+
   info.GetReturnValue()->Set(hippy::napi::napi_create_string(context, "hello world"));
 }
 
 void TestModule::Print(const hippy::napi::CallbackInfo& info) {
-  hippy::napi::napi_context context = info.GetContext();
+  std::shared_ptr<Environment> env = info.GetEnv();
+  hippy::napi::napi_context context = env->getContext();
   HIPPY_CHECK(context);
-
   HIPPY_LOG(hippy::Debug, "hello world");
 
   info.GetReturnValue()->SetUndefined();
 }
+
 ```
 
 # JS 桥接
