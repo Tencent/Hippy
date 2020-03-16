@@ -614,8 +614,8 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
 					oldFoucusAbaility = ((ViewGroup) viewParent).getDescendantFocusability(); //Get the current value
 					((ViewGroup) viewParent).setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);//Block the fouse.
 				}
-				view.clearFocus();
 				view.hideInputMethod();
+				view.clearFocus();
 				if (viewParent != null && viewParent instanceof HippyRootView)
 				{
 					((ViewGroup) viewParent).setDescendantFocusability(oldFoucusAbaility);
