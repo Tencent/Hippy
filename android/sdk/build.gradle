@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'
 
 ext {
     def flag = System.getenv('CI')
@@ -81,7 +82,6 @@ task copyCore(dependsOn: deleteCore, type: Copy) {
 }
 
 task compileCmake(dependsOn: copyCore, type: Exec) {
-
     def cMakeWorkDir = file(project.buildDir.absolutePath + "/cmakeoutput")
     cMakeWorkDir.deleteDir()
     cMakeWorkDir.mkdirs()
@@ -260,7 +260,7 @@ task buildNdkLibs(dependsOn: (ISCI.toBoolean() ? dealNdkLibSymbols : stripSO)) {
 
 android {
     compileSdkVersion 28
-    buildToolsVersion '26.0.2'
+    buildToolsVersion '28.0.3'
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 28
@@ -285,6 +285,10 @@ android {
         jniLibs.srcDirs = ["$buildDir/jnilibs", 'libs']
     }
 
+    tasks.withType(Javadoc).all {
+      enabled false
+    }
+
     tasks.withType(JavaCompile) {
         compileTask -> compileTask.dependsOn buildNdkLibs
     }
@@ -296,8 +300,8 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    provided project(path:':support_ui')
+    api fileTree(dir: 'libs', include: ['*.jar'])
+    compileOnly project(path:':support_ui')
 }
 
 afterEvaluate {
@@ -325,15 +329,15 @@ def dealAfterBuild(variant) {
             }
         }
 
-        project.tasks['bundleRelease'].finalizedBy task("dealAfterBuild${variant.name.capitalize()}") {
-            doLast {
-                unZipAar(aarFile)
-                buildQBAar(aarFile)
-                if (ISCI.toBoolean()) {
-                    copyMappingToBin(FLAVOR, BUILD_TYPE)
-                }
-            }
-        }
+//        project.tasks['bundleRelease'].finalizedBy task("dealAfterBuild${variant.name.capitalize()}") {
+//            doLast {
+//                unZipAar(aarFile)
+//                buildQBAar(aarFile)
+//                if (ISCI.toBoolean()) {
+//                    copyMappingToBin(FLAVOR, BUILD_TYPE)
+//                }
+//            }
+//        }
     }
 }
 
@@ -491,4 +495,24 @@ def copyAarToBin(variant) {
             }
         }
     }
+}
+
+Properties properties = new Properties()
+InputStream inputStream = project.rootProject.file('local.properties').newDataInputStream()
+properties.load( inputStream )
+
+def user = properties.getProperty('bintrayUser')
+def key = properties.getProperty('bintrayKey')
+println("bintrayUpload: bintrayUser=" + user + ", bintrayKey=" + key)
+publish {
+  bintrayUser = user
+  bintrayKey = key
+  userOrg = 'hippy'
+  repoName = 'Hippy'
+  groupId = 'com.tencent.hippy'
+  artifactId = 'hippy-snapshot'
+  publishVersion = '0.0.1'
+  dryRun = false
+  desc = 'Hippy library for Android'
+  website = 'https://github.com/Tencent/Hippy'
 }
