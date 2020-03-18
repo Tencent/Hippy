@@ -1,11 +1,23 @@
-# Changelog
+# Change Log
 
 All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [2.0.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.0.1...2.0.2) (2020-03-18)
 
-## [2.0.1] - 2020-01-22
+### Bug Fixes
+
+* **hippy-vue:** add TypeSelector test ([38f08ef](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/38f08ef4180fa08781492ea80f3dcfbc3ad37036))
+* **hippy-vue:** fix css selectors TypeSelector match ([de98e8a](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/de98e8a560ee771d4f10fcbd3642afccfc92e70e))
+* **hippy-vue:** fix wrong preSibling of childNode's nexSibling ([6e76d5e](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/6e76d5e1ead0a1d359ab0ec3d25d94c2ffed792b))
+* **hippy-vue:** fixed css selectors TypeSelector match ([adddcea](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/adddcea319c816d49deed0b2893e6ee82c203648))
+* **vue:** setStyle px unit determine ([8379d53](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/8379d53e4b275dda8243b1869eded475a0113373))
+
+### Features
+
+* **vue:** added disabled props to input tag ([47facd4](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/47facd4584b1361a760fd62162b0d4f9384ee673))
+
+## 2.0.1 (2020-01-22)
 
 ### Added
 
@@ -16,19 +28,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Rename to @hippy/vue.
 
-## [2.0.0] - 2019-12-18
+## 2.0.0 (2019-12-18)
 
 ### Change
 
 * Removed the npm namespace prefix '@tencent', restore to version 2.0.0, and make it public.
 
-## [2.0.0] - 2019-11-21
+## 2.0.0 (2019-11-21)
 
 ### Changed
 
 * Nothing different with beta.4 but released.
 
-## [2.0.0-beta.4] - 2019-10-22
+## 2.0.0-beta.4 (2019-10-22)
 
 ### Added
 
@@ -38,7 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Improved the log system.
 
-## [1.3.3] - 2019-09-20
+## 1.3.3 (2019-09-20)
 
 ### Added
 
@@ -49,7 +61,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Fixed length value in `<style>` that supports number.
 
-## [1.3.2] - 2019-09-05
+## 1.3.2 (2019-09-05)
 
 ### Added
 
@@ -60,13 +72,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Fixed font-weight inline style must be string - thx @luckyzeng
 
-## [1.3.1] - 2019-08-27
+## 1.3.1 (2019-08-27)
 
 ### Changed
 
 * Optimized list rendering with merge li render request - thx @luckyzeng
 
-## [1.3.0] - 2019-08-12
+## 1.3.0 (2019-08-12)
 
 ### Added
 
@@ -86,13 +98,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Fixed Vue.Native.statusBarHeight calculate issue.
 * Make onKeyboardWillShow event be dp unit in Android.
 
-## [1.2.17] - 2019-07-08
+## 1.2.17 (2019-07-08)
 
 ### Fixed
 
 * Fixed image src tag specific for iOS issue.
 
-## [1.2.16] - 2019-07-05
+## 1.2.16 (2019-07-05)
 
 ### Added
 
@@ -108,7 +120,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * changed scrollTo option needAnimation to duration 
 
-## [1.2.15] - 2019-06-19
+## 1.2.15 (2019-06-19)
 
 ### Added
 
@@ -127,7 +139,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Fixed ul resort order issue - thx @justinzyang
 
-## [1.2.14] - 2019-06-06
+## 1.2.14 (2019-06-06)
 
 ### Added
 
@@ -140,27 +152,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Try to convert to number in setStyle
 * Prevent infinite loop caused by class name like .aa_bb.aa
 
-## [1.2.13] - 2019-05-20
+## 1.2.13 (2019-05-20)
 
 ### Chagne
 
 * Ignore throw error when app is not initialized.
 * Updated iPhone X determine method for Vue.Native.isIPhoneX.
 
-## [1.2.12] - 2019-05-07
+## 1.2.12 (2019-05-07)
 
 ### Fixed
 
 * Fixed same size class compare by setsAreEqual() issue. - Thanks @mandydyluo
 * Fixed children style updating when parent id/class changed. - Thanks @mandydyluo's PR.
 
-##  [1.2.11] - 2019-04-25
+## 1.2.11 (2019-04-25)
 
 ### Added
 
 * TextInput added onContentSizeChange event handler
 
-## [1.2.10] - 2019-04-12
+## 1.2.10 (2019-04-12)
 
 ### Added
 
@@ -172,19 +184,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * updateNode is excluding child.
 * Update style when value changed only.
 
-## [1.2.9] - 2019-04-08
+## 1.2.9 (2019-04-08)
 
 ### Changed
 
 * Changed Vue.Native.Cookie.set() key/value argument to keyValue for set multiple values.
 
-## [1.2.8] - 2019-04-08
+## 1.2.8 (2019-04-08)
 
 ### Added
 
 * Added Cookie interface to Vue.Native, with getAll/set methods
 
-## [1.2.7] - 2019-04-02
+## 1.2.7 (2019-04-02)
 
 ### Changed
 
@@ -195,31 +207,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Fixed v-model binding for `<input>` specific for iOS.
 
-## [1.2.6] - 2019-03-22
+## 1.2.6 (2019-03-22)
 
 ### Changed
 
 * Makes numberOfRows of ul will not trigger updateNode except iOS.
 
-## [1.2.5] - 2019-03-20
+## 1.2.5 (2019-03-20)
 
 ### Added
 
 * Added Device, OSVersion, APILevel fields to Vue.Native.
 
-## [1.2.4] - 2019-03-06
+## 1.2.4 (2019-03-06)
 
 ### Changed
 
 * Improved input type checking and removed default keyboardType props for input element.
 
-## [1.2.3] - 2019-03-05
+## 1.2.3 (2019-03-05)
 
 ### Fixed
 
 * 1.2.2 forget to build issue. T_T
 
-## [1.2.2] - 2019-03-05
+## 1.2.2 (2019-03-05)
 
 ### Added
 
@@ -229,21 +241,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Fixed input/textarea content update by state issue
 
-## [1.2.1] - 2019-02-22
+## 1.2.1 (2019-02-22)
 
 ### Changed
 
 * Matched Android scrollEventThrottle changes - /hippy/Android/commit/5aec89aef917564c448db1cc86a64f90b65741c4
 * Updated Vue dependency to latest 2.6.7.
 
-## [1.2.0] - 2018-12-20
+## 1.2.0 (2018-12-20)
 
 ### Changed
 
 * Updated to latest dependencies such as Vue 2.5.21 and Hippy 1.0.1.
 * Added error prompt when native event trigger while app not initialized.
 
-## [1.1.13] - 2018-12-07
+## 1.1.13 (2018-12-07)
 
 ### Added
 
@@ -254,7 +266,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Change the TextInput appearance be the same between iOS and Android.
 
-## [1.1.12] - 2018-12-04
+## 1.1.12 (2018-12-04)
 
 ### Added
 
@@ -265,7 +277,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Revert `Change the log output for lower level info.` patch, it makes Vue.registerElement('TAG_NAME') got RangeError.
 
-## [1.1.11] - 2018-11-30
+## 1.1.11 (2018-11-30)
 
 ### Added
 
@@ -288,7 +300,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Fixed <keep-alive> for TextInput.
 
-## [1.1.10] - 2018-11-17
+## 1.1.10 (2018-11-17)
 
 ### Added
 
@@ -307,7 +319,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Dropped color convert from cli.
 
-## [1.1.9] - 2018-11-15
+## 1.1.9 (2018-11-15)
 
 ### Added
 
@@ -325,7 +337,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added multiline props to fix input type="password" behavior in iOS.
 * Fixed callUIFunction in iOS require real component name issue.
 
-## [1.1.8] - 2018-11-03
+## 1.1.8 (2018-11-03)
 
 ### Fixed
 
@@ -333,7 +345,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Initial fixed CSS compiler comment issue.
 * Initial fixed RegExp without sticky flag when Style Matcher initializing.
 
-## [1.1.7] - 2018-10-26
+## 1.1.7 (2018-10-26)
 
 ### Added
 
@@ -353,7 +365,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Fixed transparent color support.
 * [BREAK CHANGES]: Swap the stupid overflow-x/y css property for ScrollView.
 
-## [1.1.6] - 2018-10-11
+## 1.1.6 (2018-10-11)
 
 ### Added
 
@@ -361,7 +373,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added Element.getBoundingClientRect() method for get the size and position of element.
 * Added onLayout event handler.
 
-## [1.1.5] - 2018-10-10
+## 1.1.5 (2018-10-10)
 
 ### Added
 
@@ -373,7 +385,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Fixed registerElement issues with default component properties.
 
-## [1.1.4] - 2018-10-09
+## 1.1.4 (2018-10-09)
 
 ### Added
 
@@ -383,7 +395,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Fixed the eslint issues checked by CodeCC.
 
-## [1.1.3] - 2018-09-20
+## 1.1.3 (2018-09-20)
 
 ### Added
 
@@ -399,20 +411,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * iOS text node be a number caused crash issue.
 * Event name without `on` prefix issue
 
-## [1.1.2] - 2018-08-31
+## 1.1.2 (2018-08-31)
 
 ### Added
 
 * Added Vue.Native property to handler the native properties.
 * Added &nbsp; replace with space.
 
-## [1.1.1] - 2018-08-31
+## 1.1.1 (2018-08-31)
 
 ### Added
 
 * Added a tag to support hippy-vue-router.
 
-## [1.0.0] - 2018-08-29
+## 1.0.0 (2018-08-29)
 
 ### Added
 
@@ -423,13 +435,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Added arrayCount for count elements in array by iterator.
 
-## [1.0.0-beta.7] - 2018-08-27
+## 1.0.0-beta.7 (2018-08-27)
 
 ### Fixed
 
 * Fixed iOS compatible issues.
 
-## [1.0.0-beta.6] - 2018-08-23
+## 1.0.0-beta.6 (2018-08-23)
 
 ### Fixed
 
