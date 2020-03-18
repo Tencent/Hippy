@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'hippy'
-  s.version          = '2.0.1'
+  s.version          = '2.0.2'
   s.summary          = 'hippy lib for ios'
 
 # This description is used to generate tags and improve search results.
@@ -33,5 +33,5 @@ TODO: Add long description of the pod here.
   if ENV['hippy_use_frameworks']
   else
     s.user_target_xcconfig = {'OTHER_LDFLAGS' => '-force_load "${PODS_CONFIGURATION_BUILD_DIR}/hippy/libhippy.a"'}
-end
+  end
 end
