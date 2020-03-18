@@ -24,11 +24,13 @@ target TargetName do
     #pod 'hippy', '2.0.0'
 end
 ```
+
 3.在命令行中执行命令
 
 ```text
 pod install
 ```
+
 4.使用cocoapods生成的.xcworkspace后缀名的工程文件来打开工程。
 
 ## 使用源码直接集成
