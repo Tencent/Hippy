@@ -13,6 +13,7 @@
     "clean": "rimraf ./coverage ./nyc_output packages/*/dist",
     "test": "ava",
     "watch": "watch \"npm run build\" ./packages --ignoreDotFiles --ignoreUnreadable --ignoreDirectoryPattern '/dist/'",
+    "publish": "lerna version patch --conventional-commits --sign-git-commit",
     "doc": "docsify serve docs"
   },
   "engines": {

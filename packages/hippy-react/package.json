@@ -1,6 +1,6 @@
 {
   "name": "@hippy/react",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Hippy react framework",
   "main": "dist/index.js",
   "homepage": "https://github.com/Tencent/Hippy",

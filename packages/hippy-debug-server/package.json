@@ -1,6 +1,6 @@
 {
   "name": "@hippy/debug-server",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Dev server for hippy-core.",
   "bin": {
     "hippy-debug": "index.js"
