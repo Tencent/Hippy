@@ -35,6 +35,24 @@ public class HippyListItemView extends HippyViewGroup
 
 	private static final boolean	VIEW_LEVEL_MONITOR_ENABLE	= false;
 	private Paint					mPaint;
+  //public final static int EXPOSURE_STATE_WILL_APPEAR         = 0;
+  public final static int EXPOSURE_STATE_APPEAR              = 1;
+  //public final static int EXPOSURE_STATE_WILL_DISAPPEAR      = 2;
+  public final static int EXPOSURE_STATE_DISAPPEAR           = 3;
+  //public final static String  EXPOSURE_EVENT_WILL_APPEAR   = "onWillAppear";
+  public final static String  EXPOSURE_EVENT_APPEAR          = "onAppear";
+  //public final static String EXPOSURE_EVENT_WILL_DISAPPEAR   = "onWillDisAppear";
+  public final static String EXPOSURE_EVENT_DISAPPEAR        = "onDisAppear";
+
+  private int mExposureState = EXPOSURE_STATE_DISAPPEAR;
+
+  public int getExposureState() {
+    return mExposureState;
+  }
+
+  public void setExposureState(int state) {
+    mExposureState = state;
+  }
 
 	public HippyListItemView(Context context)
 	{
