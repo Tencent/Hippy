@@ -95,14 +95,14 @@ public class TkdListView extends HippyListView implements RecyclerView.OnListScr
 
   }
 
-  private void sendExposureEvent(View view, String eventName) {
-	  if (HippyTag.isContainTheSpecKey(view, eventName) ||
-      ((view instanceof TkdListItemView) && (eventName.equals(TkdListItemView.EXPOSURE_EVENT_APPEAR) || eventName.equals(TkdListItemView.EXPOSURE_EVENT_DISAPPEAR)))) {
+  protected void sendExposureEvent(View view, String eventName) {
+	  super.sendExposureEvent(view, eventName);
+	  if (HippyTag.isContainTheSpecKey(view, eventName)) {
       new HippyViewEvent(eventName).send(view, null);
     }
   }
 
-  private void checkExposureView(View view, int visibleStart, int visibleEnd,
+  protected void checkExposureView(View view, int visibleStart, int visibleEnd,
                                  int parentStart, int parentEnd) {
 	  if (view == null || view instanceof HippyPullHeaderView || view instanceof HippyPullFooterView) {
 	    return;
@@ -143,13 +143,13 @@ public class TkdListView extends HippyListView implements RecyclerView.OnListScr
         sendExposureEvent(view, HippyTag.TAG_PROPS_WILL_APPEAR);
         HippyTag.setExposureState(view, HippyTag.TAG_EXPOSURE_STATE_WILL_APPEAR);
       }
-      else if (cell != null)
-      {
-        if (cell.getExposureState() == TkdListItemView.EXPOSURE_STATE_DISAPPEAR) {
-          sendExposureEvent(view, TkdListItemView.EXPOSURE_EVENT_APPEAR);
-          cell.setExposureState(TkdListItemView.EXPOSURE_STATE_APPEAR);
-        }
-      }
+//      else if (cell != null)
+//      {
+//        if (cell.getExposureState() == TkdListItemView.EXPOSURE_STATE_DISAPPEAR) {
+//          sendExposureEvent(view, TkdListItemView.EXPOSURE_EVENT_APPEAR);
+//          cell.setExposureState(TkdListItemView.EXPOSURE_STATE_APPEAR);
+//        }
+//      }
     }
     else if (myEnd <= visibleStart || myStart >= (visibleEnd - 1))   //离开
     {
@@ -163,12 +163,10 @@ public class TkdListView extends HippyListView implements RecyclerView.OnListScr
         sendExposureEvent(view, HippyTag.TAG_PROPS_DID_DISAPPEAR);
         HippyTag.setExposureState(view, HippyTag.TAG_EXPOSURE_STATE_DID_DISAPPEAR);
       }
-      else if (cell != null)
+      else if (cell != null && cell.getExposureState() != TkdListItemView.EXPOSURE_STATE_DISAPPEAR)
       {
-        if (cell.getExposureState() == TkdListItemView.EXPOSURE_STATE_APPEAR) {
-          sendExposureEvent(view, TkdListItemView.EXPOSURE_EVENT_DISAPPEAR);
-          cell.setExposureState(TkdListItemView.EXPOSURE_STATE_DISAPPEAR);
-        }
+        sendExposureEvent(view, TkdListItemView.EXPOSURE_EVENT_DISAPPEAR);
+        cell.setExposureState(TkdListItemView.EXPOSURE_STATE_DISAPPEAR);
       }
     }
     else if ((myStart >= visibleStart && myEnd <= visibleEnd) || (myStart <= visibleStart && myEnd > visibleEnd))
@@ -183,43 +181,11 @@ public class TkdListView extends HippyListView implements RecyclerView.OnListScr
         sendExposureEvent(view, HippyTag.TAG_PROPS_DID_APPEAR);
         HippyTag.setExposureState(view, HippyTag.TAG_EXPOSURE_STATE_DID_APPEAR);
       }
-      else if (cell != null)
+      else if (cell != null && cell.getExposureState() != TkdListItemView.EXPOSURE_STATE_APPEAR)
       {
-        if (cell.getExposureState() == TkdListItemView.EXPOSURE_STATE_DISAPPEAR) {
-          sendExposureEvent(view, TkdListItemView.EXPOSURE_EVENT_APPEAR);
-          cell.setExposureState(TkdListItemView.EXPOSURE_STATE_APPEAR);
-        }
+        sendExposureEvent(view, TkdListItemView.EXPOSURE_EVENT_APPEAR);
+        cell.setExposureState(TkdListItemView.EXPOSURE_STATE_APPEAR);
       }
-    }
-  }
-
-  private void dispatchExposureEvent() {
-	  if (mLayout instanceof BaseLayoutManager) {
-      BaseLayoutManager.OrientationHelper layoutHelper = ((BaseLayoutManager)mLayout).mOrientationHelper;
-      int count = getChildCount();
-      int fixOffset = (mLayout.canScrollHorizontally()) ? mState.mCustomHeaderWidth : mState.mCustomHeaderHeight;
-      int start = layoutHelper.getStartAfterPadding() + fixOffset;
-      int end = layoutHelper.getEndAfterPadding() - fixOffset;
-      for (int i = 0; i < count; i++) {
-        final View child = getChildAt(i);
-        final int childStart = layoutHelper.getDecoratedStart(child);
-        final int childEnd = layoutHelper.getDecoratedEnd(child);
-        if (child instanceof RecyclerViewItem)
-        {
-          RecyclerViewItem itemView = (RecyclerViewItem)child;
-          if (itemView.getChildCount() > 0) {
-            checkExposureView(itemView.getChildAt(0), start, end, childStart, childEnd);
-          }
-        }
-      }
-    }
-  }
-
-  @Override
-  protected void onLayout(boolean changed, int l, int t, int r, int b) {
-	  super.onLayout(changed, l, t, r, b);
-	  if (changed) {
-      dispatchExposureEvent();
     }
   }
 
@@ -228,7 +194,6 @@ public class TkdListView extends HippyListView implements RecyclerView.OnListScr
   {
     super.onScrolled(x, y);
     mAdapter.notifyEndReached();
-    dispatchExposureEvent();
   }
 
   public boolean shouldEmitEndReachedEvent() {
