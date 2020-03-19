@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy.views.list;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.common.HippyTag;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
@@ -29,11 +30,13 @@ import com.tencent.mtt.hippy.views.scroll.HippyScrollViewEventHelper;
 import com.tencent.mtt.supportui.views.recyclerview.BaseLayoutManager;
 import com.tencent.mtt.supportui.views.recyclerview.LinearLayoutManager;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerView;
+import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewItem;
 import com.tencent.mtt.supportui.views.recyclerview.Scroller;
 
 import android.content.Context;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
 /**
@@ -428,12 +431,83 @@ public class HippyListView extends RecyclerView implements HippyViewBase
 		}
 	}
 
+  @Override
+  protected void onLayout(boolean changed, int l, int t, int r, int b) {
+    super.onLayout(changed, l, t, r, b);
+    if (changed) {
+      dispatchExposureEvent();
+    }
+  }
+
 	@Override
 	public void onScrolled(int x, int y)
 	{
 		super.onScrolled(x, y);
 		sendOnScrollEvent();
+    dispatchExposureEvent();
 	}
+
+  protected void sendExposureEvent(View view, String eventName) {
+    if (eventName.equals(HippyListItemView.EXPOSURE_EVENT_APPEAR)
+      || eventName.equals(HippyListItemView.EXPOSURE_EVENT_DISAPPEAR)) {
+      new HippyViewEvent(eventName).send(view, null);
+    }
+  }
+
+  protected void checkExposureView(View view, int visibleStart, int visibleEnd,
+                                 int parentStart, int parentEnd) {
+    if (view == null || !(view instanceof HippyListItemView)) {
+      return;
+    }
+
+    int myStart = (mLayout.canScrollHorizontally()) ? view.getLeft() : view.getTop();
+    int myEnd = (mLayout.canScrollHorizontally()) ? view.getRight() : view.getBottom();
+    myStart += parentStart;
+    myEnd += parentStart;
+
+    HippyListItemView itemView = (HippyListItemView)view;
+
+    //相交
+    if ((myStart < visibleStart && myEnd > visibleStart) || (myStart < visibleEnd && myEnd > visibleEnd)) {
+
+    }
+    else if (myEnd <= visibleStart || myStart >= (visibleEnd - 1))   //离开
+    {
+      if (itemView.getExposureState() != HippyListItemView.EXPOSURE_STATE_DISAPPEAR) {
+        sendExposureEvent(view, HippyListItemView.EXPOSURE_EVENT_DISAPPEAR);
+        itemView.setExposureState(HippyListItemView.EXPOSURE_STATE_DISAPPEAR);
+      }
+    }
+    else if ((myStart >= visibleStart && myEnd <= visibleEnd) || (myStart <= visibleStart && myEnd > visibleEnd))
+    {
+      if (itemView.getExposureState() != HippyListItemView.EXPOSURE_STATE_APPEAR) {
+        sendExposureEvent(view, HippyListItemView.EXPOSURE_EVENT_APPEAR);
+        itemView.setExposureState(HippyListItemView.EXPOSURE_STATE_APPEAR);
+      }
+    }
+  }
+
+  private void dispatchExposureEvent() {
+    if (mLayout instanceof BaseLayoutManager) {
+      BaseLayoutManager.OrientationHelper layoutHelper = ((BaseLayoutManager)mLayout).mOrientationHelper;
+      int count = getChildCount();
+      int fixOffset = (mLayout.canScrollHorizontally()) ? mState.mCustomHeaderWidth : mState.mCustomHeaderHeight;
+      int start = layoutHelper.getStartAfterPadding() + fixOffset;
+      int end = layoutHelper.getEndAfterPadding() - fixOffset;
+      for (int i = 0; i < count; i++) {
+        final View child = getChildAt(i);
+        final int childStart = layoutHelper.getDecoratedStart(child);
+        final int childEnd = layoutHelper.getDecoratedEnd(child);
+        if (child instanceof RecyclerViewItem)
+        {
+          RecyclerViewItem itemView = (RecyclerViewItem)child;
+          if (itemView.getChildCount() > 0) {
+            checkExposureView(itemView.getChildAt(0), start, end, childStart, childEnd);
+          }
+        }
+      }
+    }
+  }
 
 	@Override
 	protected void onAttachedToWindow()
