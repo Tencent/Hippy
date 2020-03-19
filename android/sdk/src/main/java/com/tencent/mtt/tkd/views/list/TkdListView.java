@@ -96,7 +96,7 @@ public class TkdListView extends HippyListView implements RecyclerView.OnListScr
   }
 
   private void sendExposureEvent(View view, String eventName) {
-	  if (HippyTag.isContainEventOfExposure(view, eventName) ||
+	  if (HippyTag.isContainTheSpecKey(view, eventName) ||
       ((view instanceof TkdListItemView) && (eventName.equals(TkdListItemView.EXPOSURE_EVENT_APPEAR) || eventName.equals(TkdListItemView.EXPOSURE_EVENT_DISAPPEAR)))) {
       new HippyViewEvent(eventName).send(view, null);
     }
@@ -123,6 +123,9 @@ public class TkdListView extends HippyListView implements RecyclerView.OnListScr
     }
 
     int state = HippyTag.getExposureState(view);
+	  if (state == -1) {
+      state = HippyTag.TAG_EXPOSURE_STATE_DID_DISAPPEAR;
+    }
     TkdListItemView cell = null;
     if (view instanceof TkdListItemView) {
       cell = (TkdListItemView)view;

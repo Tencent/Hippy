@@ -15,12 +15,12 @@
  */
 package com.tencent.mtt.hippy.common;
 
+import android.text.TextUtils;
 import android.view.View;
 
 public class HippyTag
 {
   private final static String TAG_CLASS_NAME                  = "className";
-  private final static String TAG_PROPS                       = "props";
   public final static String TAG_PROPS_WILL_APPEAR            = "onWillAppear";
   public final static String TAG_PROPS_DID_APPEAR             = "onDidAppear";
   public final static String TAG_PROPS_DID_DISAPPEAR          = "onDidDisappear";
@@ -33,60 +33,30 @@ public class HippyTag
     HippyMap tagMap = new HippyMap();
     tagMap.pushString(TAG_CLASS_NAME, className);
 
-    if (iniProps != null) {
-      HippyMap propsMap = new HippyMap();
+    if (iniProps != null && iniProps.size() > 0) {
       if (iniProps.containsKey(TAG_PROPS_WILL_APPEAR)) {
-        propsMap.pushString(TAG_PROPS_WILL_APPEAR, "");
+        tagMap.pushString(TAG_PROPS_WILL_APPEAR, "");
       }
 
       if (iniProps.containsKey(TAG_PROPS_DID_APPEAR)) {
-        propsMap.pushString(TAG_PROPS_DID_APPEAR, "");
+        tagMap.pushString(TAG_PROPS_DID_APPEAR, "");
       }
 
       if (iniProps.containsKey(TAG_PROPS_DID_DISAPPEAR)) {
-        propsMap.pushString(TAG_PROPS_DID_DISAPPEAR, "");
-      }
-
-      if (propsMap.size() > 0) {
-        tagMap.pushMap(TAG_PROPS, propsMap);
-        tagMap.pushInt(TAG_EXPOSURE_STATE, TAG_EXPOSURE_STATE_DID_DISAPPEAR);
+        tagMap.pushString(TAG_PROPS_DID_DISAPPEAR, "");
       }
     }
+
     return tagMap;
   }
 
-  public static String getClassName(View view) {
-    if (view != null) {
+  private static int getIntValue(View view, String key) {
+    if (view != null && key != null) {
       Object tagObj = view.getTag();
       if (tagObj != null && tagObj instanceof HippyMap) {
         HippyMap tagMap = (HippyMap)tagObj;
-        if (tagMap.containsKey(TAG_CLASS_NAME)) {
-          return tagMap.getString(TAG_CLASS_NAME);
-        }
-      }
-    }
-
-    return null;
-  }
-
-  public static void setExposureState(View view, int state) {
-    if (view != null) {
-      Object tagObj = view.getTag();
-      if (tagObj != null && tagObj instanceof HippyMap) {
-        HippyMap tagMap = (HippyMap)tagObj;
-        tagMap.pushInt(TAG_EXPOSURE_STATE, state);
-        view.setTag(tagObj);
-      }
-    }
-  }
-
-  public static int getExposureState(View view) {
-    if (view != null) {
-      Object tagObj = view.getTag();
-      if (tagObj != null && tagObj instanceof HippyMap) {
-        HippyMap tagMap = (HippyMap)tagObj;
-        if (tagMap.containsKey(TAG_EXPOSURE_STATE)) {
-          return tagMap.getInt(TAG_EXPOSURE_STATE);
+        if (tagMap.containsKey(key)) {
+          return tagMap.getInt(key);
         }
       }
     }
@@ -94,15 +64,58 @@ public class HippyTag
     return -1;
   }
 
-  public static boolean isContainEventOfExposure (View view, String event) {
-    if (view != null) {
+  private static void setIntValue(View view, String key, int value) {
+    if (view != null && key != null) {
       Object tagObj = view.getTag();
       if (tagObj != null && tagObj instanceof HippyMap) {
         HippyMap tagMap = (HippyMap)tagObj;
-        if (tagMap.containsKey(TAG_PROPS)) {
-          HippyMap propsMap = tagMap.getMap(TAG_PROPS);
-          return propsMap.containsKey(event);
+        tagMap.pushInt(key, value);
+      }
+    }
+  }
+
+  private static String getStringValue(View view, String key) {
+    if (view != null && key != null) {
+      Object tagObj = view.getTag();
+      if (tagObj != null && tagObj instanceof HippyMap) {
+        HippyMap tagMap = (HippyMap)tagObj;
+        if (tagMap.containsKey(key)) {
+          return tagMap.getString(key);
         }
+      }
+    }
+
+    return null;
+  }
+
+  private static void setStringValue(View view, String key, String value) {
+    if (view != null && key != null) {
+      Object tagObj = view.getTag();
+      if (tagObj != null && tagObj instanceof HippyMap) {
+        HippyMap tagMap = (HippyMap)tagObj;
+        tagMap.pushString(key, (value == null ? "" : value));
+      }
+    }
+  }
+
+  public static String getClassName(View view) {
+    return getStringValue(view, TAG_CLASS_NAME);
+  }
+
+  public static void setExposureState(View view, int state) {
+    setIntValue(view, TAG_EXPOSURE_STATE, state);
+  }
+
+  public static int getExposureState(View view) {
+    return getIntValue(view, TAG_EXPOSURE_STATE);
+  }
+
+  public static boolean isContainTheSpecKey(View view, String key) {
+    if (view != null && key != null) {
+      Object tagObj = view.getTag();
+      if (tagObj != null && tagObj instanceof HippyMap) {
+        HippyMap tagMap = (HippyMap)tagObj;
+        return tagMap.containsKey(key);
       }
     }
 
