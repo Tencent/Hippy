@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import HippyReact, {
+import {
   BackAndroid,
   Image,
   ListView,
@@ -78,10 +78,6 @@ export default class Gallery extends Component {
       page: 'Home',
       // TODO: Make the demo detail be in the demo folder.
       dataSource: [
-        {
-          text: `Hippy-React: ${HippyReact.version}`,
-          style: 0,
-        },
         {
           id: 'View',
           name: 'View 组件',
