@@ -58,14 +58,15 @@ public class TkdListViewController extends HippyListViewController
   @Override
   protected View createViewImpl(Context context, HippyMap iniProps)
   {
-    if (iniProps != null && iniProps.containsKey("horizontal"))
-    {
-      return new TkdListView(context, BaseLayoutManager.HORIZONTAL);
+    int orientation = BaseLayoutManager.VERTICAL;
+    if (iniProps != null) {
+      if ((iniProps.containsKey("direction") && iniProps.getString("direction").equals("horizontal"))
+        || iniProps.containsKey("horizontal")) {
+        orientation = BaseLayoutManager.HORIZONTAL;
+      }
     }
-    else
-    {
-      return new TkdListView(context, BaseLayoutManager.VERTICAL);
-    }
+
+    return new TkdListView(context, orientation);
   }
 
   @HippyControllerProps(name = "preloadDistance", defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)

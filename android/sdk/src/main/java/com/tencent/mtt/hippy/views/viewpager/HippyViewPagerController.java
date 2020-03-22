@@ -58,14 +58,15 @@ public class HippyViewPagerController extends HippyViewController<HippyViewPager
   @Override
   protected View createViewImpl(Context context, HippyMap iniProps)
   {
-    if (iniProps != null && iniProps.containsKey("vertical"))
-    {
-      return new HippyViewPager(context, true);
+    boolean isVertical = false;
+    if (iniProps != null) {
+      if ((iniProps.containsKey("direction") && iniProps.getString("direction").equals("vertical"))
+      || iniProps.containsKey("vertical")) {
+        isVertical = true;
+      }
     }
-    else
-    {
-      return new HippyViewPager(context, false);
-    }
+
+    return new HippyViewPager(context, isVertical);
   }
 
 	@Override
