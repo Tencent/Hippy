@@ -16,6 +16,7 @@
 package com.tencent.mtt.hippy.views.viewpager;
 
 import com.tencent.mtt.hippy.HippyInstanceContext;
+import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.hippy.utils.LogUtils;
@@ -52,21 +53,40 @@ public class HippyViewPager extends ViewPager implements HippyViewBase
 	private ViewPagerPageChangeListener	mPageListener;
 	private String								mOverflow;
 	private Handler						mHandler			= new Handler(Looper.getMainLooper());
+  private Promise           mCallBackPromise;
+
+	private void init(Context context) {
+    setCallPageChangedOnFirstLayout(true);
+    setEnableReLayoutOnAttachToWindow(false);
+
+    mPageListener = new ViewPagerPageChangeListener(this);
+    setOnPageChangeListener(mPageListener);
+    setAdapter(createAdapter(context));
+    setLeftDragOutSizeEnabled(false);
+    setRightDragOutSizeEnabled(false);
+  }
+
+  public HippyViewPager(Context context, boolean isVertical)
+  {
+    super(context, isVertical);
+    init(context);
+  }
 
 	public HippyViewPager(Context context)
 	{
 		super(context);
-		setCallPageChangedOnFirstLayout(true);
-		setEnableReLayoutOnAttachToWindow(false);
-
-		mPageListener = new ViewPagerPageChangeListener(this);
-		setOnPageChangeListener(mPageListener);
-		setAdapter(createAdapter(context));
-		setLeftDragOutSizeEnabled(false);
-		setRightDragOutSizeEnabled(false);
+    init(context);
 	}
 
-	protected HippyViewPagerAdapter createAdapter(Context context)
+	public void setCallBackPromise(Promise promise) {
+    mCallBackPromise = promise;
+  }
+
+  public Promise getCallBackPromise() {
+    return mCallBackPromise;
+  }
+
+  protected HippyViewPagerAdapter createAdapter(Context context)
 	{
 		return new HippyViewPagerAdapter((HippyInstanceContext) context, this);
 	}
