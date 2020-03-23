@@ -460,6 +460,13 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 
 	private void updateProperties()
 	{
+    HippyInstanceContext hippyInstanceContext = (HippyInstanceContext)getContext();
+    if (hippyInstanceContext != null && (hippyInstanceContext.getBaseContext() instanceof Activity)){
+      Activity currentActivity = (Activity)(hippyInstanceContext.getBaseContext());
+      if (currentActivity != null && currentActivity.isFinishing()) {
+        return;
+      }
+    }
 
 		if (mTransparent)
 		{
