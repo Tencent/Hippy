@@ -19,7 +19,7 @@ namespace Hippy {
     name?: string;
     style?: NativeStyle;
     props?: {
-      [key: string]: string | number;
+      [key: string]: string | number | style;
     }
   }
 

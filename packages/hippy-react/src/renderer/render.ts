@@ -9,13 +9,9 @@ import { getRootViewId, getRootContainer } from '../utils/node';
 import { trace, warn } from '../utils';
 
 
-interface Style {
-  [key: string]: null | string | number | number[];
-}
-
 const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
 
-let __batchIdle = true;
+let __batchIdle: boolean = true;
 let __renderId: number = 0;
 
 function startBatch() {
