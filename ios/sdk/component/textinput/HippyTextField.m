@@ -347,11 +347,6 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
   return [_textView resignFirstResponder];
 }
 
-- (BOOL)canBecomeFirstResponder
-{
-  return [_textView canBecomeFirstResponder];
-}
-
 - (void)updateFrames
 {
   _textView.frame = self.bounds;
