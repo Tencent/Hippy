@@ -231,7 +231,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 						}
 					}
 				}
-			}, param);
+			}, param, this);
 		}
 	}
 	//用户设置了,Js属性设置背景色
@@ -457,7 +457,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 		if (duration == 0) {
 			duration = 1000;
 		}
-		
+
 		long now = System.currentTimeMillis();
 
 		if (!isGifPaused)
@@ -528,19 +528,19 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 	}
 
 	private boolean isGifPaused = false;
-	
+
 	public void startPlay()
 	{
 		isGifPaused = false;
 		invalidate();
 	}
-	
+
 	public void pause()
 	{
 		isGifPaused = true;
 		mGifLastPlayTime = -1;
 	}
-	
+
 
 	private OnLoadEvent getOnLoadEvent()
 	{

@@ -3,6 +3,7 @@ package com.tencent.mtt.hippy.example;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.view.View;
 import android.view.Window;
 
 import com.bumptech.glide.Glide;
@@ -47,7 +48,7 @@ public class MyActivityTiny extends Activity
 			{
 				// 网络图片加载，异步加载
 				@Override
-				public void fetchImage(final String url, final Callback requestCallback, Object param)
+				public void fetchImage(final String url, final Callback requestCallback, Object param, View view)
 				{
 					Glide.with(ContextHolder.getAppContext()).load(url).asBitmap().into(new SimpleTarget() {
 						@Override

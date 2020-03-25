@@ -314,7 +314,7 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 				{
 					handleImageRequest(null, sourceType, throwable);
 				}
-			}, param);
+			}, param, this);
 		}
 	}
 

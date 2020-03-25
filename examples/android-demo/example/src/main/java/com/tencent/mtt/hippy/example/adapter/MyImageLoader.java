@@ -3,6 +3,7 @@ package com.tencent.mtt.hippy.example.adapter;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.View;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.GlideBitmapDrawable;
@@ -31,7 +32,7 @@ public class MyImageLoader extends HippyImageLoader
 
 	// 网络图片加载，异步加载
 	@Override
-	public void fetchImage(final String url, final Callback requestCallback, Object param)
+	public void fetchImage(final String url, final Callback requestCallback, Object param, View view)
 	{
 		Glide.with(ContextHolder.getAppContext()).load(url).into(new SimpleTarget() {
 			@Override

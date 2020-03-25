@@ -14,6 +14,8 @@
  */
 package com.tencent.mtt.supportui.adapters.image;
 
+import android.view.View;
+
 /**
  * Created by leonardgong on 2017/12/4 0004.
  */
@@ -23,10 +25,12 @@ public interface IImageLoaderAdapter<T>
 	/**
 	 * fetch image with url and asynchronous callback
 	 *
-	 * @param url
-	 * @param requestListener
+	 * @param url url
+	 * @param requestListener requestListener
+   * @param param param
+   * @param view cur view, maybe null
 	 */
-	void fetchImage(String url, T requestListener, Object param);
+	void fetchImage(String url, T requestListener, Object param, View view);
 
 	/**
 	 * get image with url and return immediately

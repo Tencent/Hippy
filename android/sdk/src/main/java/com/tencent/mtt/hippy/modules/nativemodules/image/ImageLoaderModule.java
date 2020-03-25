@@ -85,7 +85,7 @@ public class ImageLoaderModule extends HippyNativeModuleBase
 				{
 					promise.reject("fetch image fail " + source);
 				}
-			}, null);
+			}, null, null);
 		}
 	}
 
@@ -109,6 +109,6 @@ public class ImageLoaderModule extends HippyNativeModuleBase
 			public void onRequestFail(Throwable throwable, String source)
 			{
 			}
-		}, null);
+		}, null, null);
 	}
 }
