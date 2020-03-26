@@ -5,6 +5,8 @@ ANDROID_SDK_CMAKE_BIN=/home/ianwang/Android/Sdk/cmake/3.6.4111459/bin
 ANDROID_NDK=/home/ianwang/Android/Sdk/ndk-bundle
 #for windows strip 
 #ANDROID_SO_STRIP=${ANDROID_NDK}/toolchains/arm-linux-androideabi-4.9/prebuilt/windows-x86_64/bin/arm-linux-androideabi-strip
+#for mac strip
+#ANDROID_SO_STRIP=${ANDROID_NDK}/toolchains/arm-linux-androideabi-4.9/prebuilt/darwin-x86_64/bin/arm-linux-androideabi-strip
 #for linux strip
 ANDROID_SO_STRIP=${ANDROID_NDK}/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-strip
 
