@@ -85,7 +85,10 @@ export class AnimationSet {
   renderStyleAttribute(finalValue) {
     if (!this.refNode) return;
     if (this.styleAttribute) {
-      this.refNode.style[this.styleAttribute.toString()] = `${finalValue}px`;
+      this.refNode.style[this.styleAttribute.toString()] = normalizeValue(
+        this.styleAttribute.toString(),
+        finalValue,
+      );
     } else if (this.transformStyleAttribute) {
       const transformValue = normalizeValue(this.transformStyleAttribute, finalValue);
       this.refNode.style.transform = `${this.transformStyleAttribute}(${transformValue})`;
