@@ -43,6 +43,7 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -77,15 +78,16 @@ public class HippyTextInput extends EditText implements HippyViewBase, CommonBor
 	private ReactContentSizeWatcher 	mReactContentSizeWatcher =  null;
 	public HippyTextInput(Context context)
 	{
-		super(context);
-		mHippyContext = ((HippyInstanceContext) context).getEngineContext();
-		setFocusable(true);
-		mDefaultGravityHorizontal = getGravity() & (Gravity.HORIZONTAL_GRAVITY_MASK | Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK);
-		mDefaultGravityVertical = getGravity() & Gravity.VERTICAL_GRAVITY_MASK;
-		// Android这个EditText控件默认带有内边距，强制去掉内边距
-		setPadding(0, 0, 0, 0);
+    super(context);
+    mHippyContext = ((HippyInstanceContext) context).getEngineContext();
+    setFocusable(true);
+    setFocusableInTouchMode(true);
+    setOverScrollMode(View.OVER_SCROLL_IF_CONTENT_SCROLLS);
 
-
+    mDefaultGravityHorizontal = getGravity() & (Gravity.HORIZONTAL_GRAVITY_MASK | Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK);
+    mDefaultGravityVertical = getGravity() & Gravity.VERTICAL_GRAVITY_MASK;
+    // 临时规避一下EditTextView重设hint不生效的问题
+    setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 	}
 	@Override
 	public void onEditorAction(int actionCode) {
@@ -438,6 +440,9 @@ public class HippyTextInput extends EditText implements HippyViewBase, CommonBor
 				@Override
 				public void afterTextChanged(Editable s)
 				{
+          HippyTextInput.this.layout(HippyTextInput.this.getLeft(), HippyTextInput.this.getTop(), HippyTextInput.this.getRight(),
+            HippyTextInput.this.getBottom());
+
 					if (TextUtils.isEmpty((mValidator))) //如果没有正则匹配
 					{
 						//如果文本输入过,判断是否两次相同
