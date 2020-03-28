@@ -24,6 +24,9 @@ let __batchIdle: boolean = true;
 let __renderId: number = 0;
 let __batchNodes: batchChunk[] = [];
 
+/**
+ * Convert an ordered node array into multiple fragments
+ */
 function chunkNodes(batchNodes: batchChunk[]) {
   const result: batchChunk[] = [];
   for (let i = 0; i < batchNodes.length; i += 1) {
@@ -61,7 +64,7 @@ function endBatch() {
           trace(...componentName, optType, chunk.nodes);
           UIManagerModule.createNode(rootViewId, chunk.nodes);
         } else {
-          // 删除和更新批量操作会有问题，需要逐个调用bridge
+          // batch updates and creations look problematic, so keep the original call-by-call logic
           chunk.nodes.forEach((node) => {
             trace(...componentName, optType, chunk.nodes);
             UIManagerModule[optType](rootViewId, [node]);
@@ -151,7 +154,6 @@ function insertChild(parentNode: ViewNode, childNode: ViewNode, atIndex = -1) {
   if (isLayout(parentNode) && !parentNode.isMounted) {
     // Start real native work.
     const translated = renderToNativeWithChildren(rootViewId, childNode);
-    // trace(...componentName, 'insertChild layout', translated);
     startBatch();
     __batchNodes.push({
       type: batchType.createNode,
@@ -166,7 +168,6 @@ function insertChild(parentNode: ViewNode, childNode: ViewNode, atIndex = -1) {
   // Render others child nodes.
   } else if (parentNode.isMounted && !childNode.isMounted) {
     const translated = renderToNativeWithChildren(rootViewId, childNode);
-    // trace(...componentName, 'insertChild child', translated);
     startBatch();
     __batchNodes.push({
       type: batchType.createNode,
@@ -197,7 +198,6 @@ function removeChild(parentNode: ViewNode, childNode: ViewNode) {
     pId: childNode.parentNode ? childNode.parentNode.nodeId : rootViewId,
     index: childNode.index,
   }];
-  // trace(...componentName, 'deleteNode', deleteNodeIds);
   startBatch();
   __batchNodes.push({
     type: batchType.deleteNode,
@@ -212,7 +212,6 @@ function updateChild(parentNode: Element) {
   }
   const rootViewId = getRootViewId();
   const translated = renderToNative(rootViewId, parentNode);
-  // trace(...componentName, 'updateNode', translated);
   startBatch();
   if (translated) {
     __batchNodes.push({
@@ -229,15 +228,11 @@ function updateWithChildren(parentNode: ViewNode) {
   }
   const rootViewId = getRootViewId();
   const translated = renderToNativeWithChildren(rootViewId, parentNode);
-  // trace(...componentName, 'updateWithChildren', translated);
   startBatch();
   __batchNodes.push({
     type: batchType.updateNode,
     nodes: translated,
   });
-  // translated.forEach((item) => {
-  //   UIManagerModule.updateNode(rootViewId, [item]);
-  // });
   endBatch();
 }
 
