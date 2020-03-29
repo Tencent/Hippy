@@ -172,10 +172,10 @@ AnimationSet为实现动画集合添加了3个属性
 
 ## 回调
 
-* onHippyAnimationStart(callback)：注册一个动画的监听回调，在动画开始时将会回调callback；
-* onHippyAnimationEnd(callback)：注册一个动画的监听回调，在动画结束时将会回调callback；
-* onHippyAnimationCancel(callback)：注册一个动画的监听回调，在动画被取消时将会回调callback，取消的情况包括：尚未start或尚未结束的动画被destroy时；
-* onHippyAnimationRepeat(callback)：注册一个动画的监听回调，当动画开始下一次重复播放时callback将被回调；
+* onAnimationStart(callback)：注册一个动画的监听回调，在动画开始时将会回调callback；
+* onAnimationEnd(callback)：注册一个动画的监听回调，在动画结束时将会回调callback；
+* onAnimationCancel(callback)：注册一个动画的监听回调，在动画被取消时将会回调callback，取消的情况包括：尚未start或尚未结束的动画被destroy时；
+* onAnimationRepeat(callback)：注册一个动画的监听回调，当动画开始下一次重复播放时callback将被回调；
 
 # 手势系统
 
