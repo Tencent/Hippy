@@ -57,7 +57,7 @@
 
 `(callback: () => void) => void` 注册一个动画的监听回调，当动画开始下一次重复播放时callback将被回调。
 
-### onHippyAnimationStart
+### onAnimationStart
 
 `(callback: () => void) => void` 注册一个动画的监听回调，在动画开始时将会回调callback。
 
@@ -114,7 +114,7 @@
 
 `(callback: () => void) => void` 注册一个动画的监听回调，当动画开始下一次重复播放时 callback 将被回调。
 
-### onHippyAnimationStart
+### onAnimationStart
 
 `(callback: () => void) => void` 注册一个动画的监听回调，在动画开始时将会回调 callback。
 
