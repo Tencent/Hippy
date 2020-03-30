@@ -18,11 +18,46 @@ import {
 
 const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
 
+if (typeof global.Symbol !== 'function') {
+  global.Symbol = str => str;
+}
+
+/**
+ * UI Operations
+ */
+const NODE_OPERATION_TYPES = {
+  createNode: Symbol('createNode'),
+  updateNode: Symbol('updateNode'),
+  deleteNode: Symbol('deleteNode'),
+};
+let __batchIdle = true;
+let __batchNodes = [];
+
+/**
+ * Convert an ordered node array into multiple fragments
+ */
+function chunkNodes(batchNodes) {
+  const result = [];
+  for (let i = 0; i < batchNodes.length; i += 1) {
+    const chunk = batchNodes[i];
+    const { type, nodes } = chunk;
+    const _chunk = result[result.length - 1];
+    if (!_chunk || _chunk.type !== type) {
+      result.push({
+        type,
+        nodes,
+      });
+    } else {
+      _chunk.nodes = _chunk.nodes.concat(nodes);
+    }
+  }
+  return result;
+}
+
 /**
  * Initial CSS Map;
  */
 let __cssMap;
-let __batchIdle = true;
 
 function startBatch() {
   if (__batchIdle) {
@@ -30,15 +65,56 @@ function startBatch() {
   }
 }
 
-function endBatch() {
-  if (__batchIdle) {
-    __batchIdle = false;
-    const { $nextTick } = getApp();
-    $nextTick(() => {
-      UIManagerModule.endBatch();
-      __batchIdle = true;
-    });
+function endBatch(app) {
+  if (!__batchIdle) {
+    return;
   }
+  __batchIdle = false;
+  const {
+    $nextTick,
+    $options: {
+      rootViewId,
+    },
+  } = app;
+
+  $nextTick(() => {
+    const chunks = chunkNodes(__batchNodes);
+    chunks.forEach((chunk) => {
+      switch (chunk.type) {
+        case NODE_OPERATION_TYPES.createNode:
+          trace(...componentName, 'createNode', chunk.nodes);
+          UIManagerModule.createNode(rootViewId, chunk.nodes);
+          break;
+        case NODE_OPERATION_TYPES.updateNode:
+          trace(...componentName, 'updateNode', chunk.nodes);
+          // FIXME: iOS should be able to update mutiple nodes at once.
+          if (__PLATFORM__ === 'ios' || Native.Platform === 'ios') {
+            chunk.nodes.forEach(node => (
+              UIManagerModule.updateNode(rootViewId, [node])
+            ));
+          } else {
+            UIManagerModule.updateNode(rootViewId, chunk.nodes);
+          }
+          break;
+        case NODE_OPERATION_TYPES.deleteNode:
+          trace(...componentName, 'deleteNode', chunk.nodes);
+          // FIXME: iOS should be able to delete mutiple nodes at once.
+          if (__PLATFORM__ === 'ios' || Native.Platform === 'ios') {
+            chunk.nodes.forEach(node => (
+              UIManagerModule.deleteNode(rootViewId, [node])
+            ));
+          } else {
+            UIManagerModule.deleteNode(rootViewId, chunk.nodes);
+          }
+          break;
+        default:
+          // pass
+      }
+    });
+    UIManagerModule.endBatch();
+    __batchIdle = true;
+    __batchNodes = [];
+  });
 }
 function getCssMap() {
   const { $options } = getApp();
@@ -272,10 +348,12 @@ function insertChild(parentNode, childNode, atIndex = -1) {
   if (isLayout(parentNode, rootView) && !parentNode.isMounted) {
     // Start real native work.
     const translated = renderToNativeWithChildren(rootViewId, parentNode);
-    trace(...componentName, 'insertChild layout', translated);
     startBatch();
-    UIManagerModule.createNode(rootViewId, translated);
-    endBatch();
+    __batchNodes.push({
+      type: NODE_OPERATION_TYPES.createNode,
+      nodes: translated,
+    });
+    endBatch(app);
     parentNode.traverseChildren((node) => {
       if (!node.isMounted) {
         node.isMounted = true;
@@ -284,11 +362,12 @@ function insertChild(parentNode, childNode, atIndex = -1) {
   // Render others child nodes.
   } else if (parentNode.isMounted && !childNode.isMounted) {
     const translated = renderToNativeWithChildren(rootViewId, childNode);
-    trace(...componentName, 'insertChild child', translated);
-
     startBatch();
-    UIManagerModule.createNode(rootViewId, translated);
-    endBatch();
+    __batchNodes.push({
+      type: NODE_OPERATION_TYPES.createNode,
+      nodes: translated,
+    });
+    endBatch(app);
     childNode.traverseChildren((node) => {
       if (!node.isMounted) {
         node.isMounted = true;
@@ -312,7 +391,7 @@ function removeChild(parentNode, childNode) {
       node.isMounted = false;
     }
   });
-  const { $options: { rootViewId } } = getApp();
+  const app = getApp();
   const deleteNodeIds = [];
   childNode.traverseChildren((targetNode) => {
     if (targetNode.meta.skipAddToDom) {
@@ -324,36 +403,44 @@ function removeChild(parentNode, childNode) {
       pId: targetNode.parentNode.nodeId,
     });
   });
-  trace(...componentName, 'deleteNode', deleteNodeIds);
   startBatch();
-  UIManagerModule.deleteNode(rootViewId, deleteNodeIds);
-  endBatch();
+  __batchNodes.push({
+    type: NODE_OPERATION_TYPES.deleteNode,
+    nodes: deleteNodeIds,
+  });
+  endBatch(app);
 }
 
 function updateChild(parentNode) {
   if (!parentNode.isMounted) {
     return;
   }
-  const { $options: { rootViewId } } = getApp();
+  const app = getApp();
+  const { $options: { rootViewId } } = app;
   const translated = renderToNative(rootViewId, parentNode);
-  trace(...componentName, 'updateNode', translated);
-  startBatch();
-  UIManagerModule.updateNode(rootViewId, [translated]);
-  endBatch();
+  if (translated) {
+    startBatch();
+    __batchNodes.push({
+      type: NODE_OPERATION_TYPES.updateNode,
+      nodes: [translated],
+    });
+    endBatch(app);
+  }
 }
 
 function updateWithChildren(parentNode) {
   if (!parentNode.isMounted) {
     return;
   }
-  const { $options: { rootViewId } } = getApp();
+  const app = getApp();
+  const { $options: { rootViewId } } = app;
   const translated = renderToNativeWithChildren(rootViewId, parentNode);
-  trace(...componentName, 'updateWithChildren', translated);
   startBatch();
-  translated.forEach((item) => {
-    UIManagerModule.updateNode(rootViewId, [item]);
+  __batchNodes.push({
+    type: NODE_OPERATION_TYPES.updateNode,
+    nodes: translated,
   });
-  endBatch();
+  endBatch(app);
 }
 
 export {
