@@ -8,15 +8,42 @@ import * as UIManagerModule from '../modules/ui-manager-module';
 import { getRootViewId, getRootContainer } from '../utils/node';
 import { trace, warn } from '../utils';
 
-
-interface Style {
-  [key: string]: null | string | number | number[];
-}
-
 const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
 
-let __batchIdle = true;
+const enum batchType {
+  createNode = 'createNode',
+  updateNode = 'updateNode',
+  deleteNode = 'deleteNode'
+}
+interface batchChunk {
+  type: batchType,
+  nodes: Hippy.NativeNode[]
+}
+
+let __batchIdle: boolean = true;
 let __renderId: number = 0;
+let __batchNodes: batchChunk[] = [];
+
+/**
+ * Convert an ordered node array into multiple fragments
+ */
+function chunkNodes(batchNodes: batchChunk[]) {
+  const result: batchChunk[] = [];
+  for (let i = 0; i < batchNodes.length; i += 1) {
+    const chunk: batchChunk = batchNodes[i];
+    const { type, nodes } = chunk;
+    const _chunk = result[result.length - 1];
+    if (!_chunk || _chunk.type !== type) {
+      result.push({
+        type,
+        nodes,
+      });
+    } else {
+      _chunk.nodes = _chunk.nodes.concat(nodes);
+    }
+  }
+  return result;
+}
 
 function startBatch() {
   if (__batchIdle) {
@@ -29,7 +56,23 @@ function endBatch() {
   if (__batchIdle) {
     __batchIdle = false;
     Promise.resolve().then(() => {
+      const chunks = chunkNodes(__batchNodes);
+      const rootViewId = getRootViewId();
+      chunks.forEach((chunk) => {
+        const optType = chunk.type;
+        if (optType === batchType.createNode) {
+          trace(...componentName, optType, chunk.nodes);
+          UIManagerModule.createNode(rootViewId, chunk.nodes);
+        } else {
+          // batch updates and creations look problematic, so keep the original call-by-call logic
+          chunk.nodes.forEach((node) => {
+            trace(...componentName, optType, chunk.nodes);
+            UIManagerModule[optType](rootViewId, [node]);
+          });
+        }
+      });
       UIManagerModule.endBatch(__renderId);
+      __batchNodes = [];
       __batchIdle = true;
     });
   }
@@ -111,9 +154,11 @@ function insertChild(parentNode: ViewNode, childNode: ViewNode, atIndex = -1) {
   if (isLayout(parentNode) && !parentNode.isMounted) {
     // Start real native work.
     const translated = renderToNativeWithChildren(rootViewId, childNode);
-    trace(...componentName, 'insertChild layout', translated);
     startBatch();
-    UIManagerModule.createNode(rootViewId, translated);
+    __batchNodes.push({
+      type: batchType.createNode,
+      nodes: translated,
+    });
     endBatch();
     parentNode.traverseChildren((node: ViewNode) => {
       if (!node.isMounted) {
@@ -123,9 +168,11 @@ function insertChild(parentNode: ViewNode, childNode: ViewNode, atIndex = -1) {
   // Render others child nodes.
   } else if (parentNode.isMounted && !childNode.isMounted) {
     const translated = renderToNativeWithChildren(rootViewId, childNode);
-    trace(...componentName, 'insertChild child', translated);
     startBatch();
-    UIManagerModule.createNode(rootViewId, translated);
+    __batchNodes.push({
+      type: batchType.createNode,
+      nodes: translated,
+    });
     endBatch();
     childNode.traverseChildren((node: ViewNode) => {
       if (!node.isMounted) {
@@ -151,9 +198,11 @@ function removeChild(parentNode: ViewNode, childNode: ViewNode) {
     pId: childNode.parentNode ? childNode.parentNode.nodeId : rootViewId,
     index: childNode.index,
   }];
-  trace(...componentName, 'deleteNode', deleteNodeIds);
   startBatch();
-  UIManagerModule.deleteNode(rootViewId, deleteNodeIds);
+  __batchNodes.push({
+    type: batchType.deleteNode,
+    nodes: deleteNodeIds,
+  });
   endBatch();
 }
 
@@ -163,9 +212,13 @@ function updateChild(parentNode: Element) {
   }
   const rootViewId = getRootViewId();
   const translated = renderToNative(rootViewId, parentNode);
-  trace(...componentName, 'updateNode', translated);
   startBatch();
-  UIManagerModule.updateNode(rootViewId, [translated]);
+  if (translated) {
+    __batchNodes.push({
+      type: batchType.updateNode,
+      nodes: [translated],
+    });
+  }
   endBatch();
 }
 
@@ -175,10 +228,10 @@ function updateWithChildren(parentNode: ViewNode) {
   }
   const rootViewId = getRootViewId();
   const translated = renderToNativeWithChildren(rootViewId, parentNode);
-  trace(...componentName, 'updateWithChildren', translated);
   startBatch();
-  translated.forEach((item) => {
-    UIManagerModule.updateNode(rootViewId, [item]);
+  __batchNodes.push({
+    type: batchType.updateNode,
+    nodes: translated,
   });
   endBatch();
 }
