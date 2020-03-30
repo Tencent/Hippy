@@ -5,23 +5,28 @@ import Hippy from '@localTypes/hippy';
 import ViewNode from '../dom/view-node';
 import Element from '../dom/element-node';
 import * as UIManagerModule from '../modules/ui-manager-module';
+import { Device } from '../global';
 import { getRootViewId, getRootContainer } from '../utils/node';
 import { trace, warn } from '../utils';
 
 const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
 
-const enum batchType {
-  createNode = 'createNode',
-  updateNode = 'updateNode',
-  deleteNode = 'deleteNode'
+interface BatchType {
+  [key: string]: Symbol;
 }
+
+const NODE_OPERATION_TYPES: BatchType = {
+  createNode: Symbol('createNode'),
+  updateNode: Symbol('updateNode'),
+  deleteNode: Symbol('deleteNode'),
+};
+
 interface batchChunk {
-  type: batchType,
+  type: Symbol,
   nodes: Hippy.NativeNode[]
 }
 
 let __batchIdle: boolean = true;
-let __renderId: number = 0;
 let __batchNodes: batchChunk[] = [];
 
 /**
@@ -47,35 +52,53 @@ function chunkNodes(batchNodes: batchChunk[]) {
 
 function startBatch() {
   if (__batchIdle) {
-    __renderId = Date.now();
-    UIManagerModule.startBatch(__renderId);
+    UIManagerModule.startBatch();
   }
 }
 
-function endBatch() {
-  if (__batchIdle) {
-    __batchIdle = false;
-    Promise.resolve().then(() => {
-      const chunks = chunkNodes(__batchNodes);
-      const rootViewId = getRootViewId();
-      chunks.forEach((chunk) => {
-        const optType = chunk.type;
-        if (optType === batchType.createNode) {
-          trace(...componentName, optType, chunk.nodes);
-          UIManagerModule.createNode(rootViewId, chunk.nodes);
-        } else {
-          // batch updates and creations look problematic, so keep the original call-by-call logic
-          chunk.nodes.forEach((node) => {
-            trace(...componentName, optType, chunk.nodes);
-            UIManagerModule[optType](rootViewId, [node]);
-          });
-        }
-      });
-      UIManagerModule.endBatch(__renderId);
-      __batchNodes = [];
-      __batchIdle = true;
-    });
+function endBatch(rootViewId) {
+  if (!__batchIdle) {
+    return;
   }
+  __batchIdle = false;
+  Promise.resolve().then(() => {
+    const chunks = chunkNodes(__batchNodes);
+    chunks.forEach((chunk) => {
+      switch (chunk.type) {
+        case NODE_OPERATION_TYPES.createNode:
+          trace(...componentName, 'createNode', chunk.nodes);
+          UIManagerModule.createNode(rootViewId, chunk.nodes);
+          break;
+        case NODE_OPERATION_TYPES.updateNode:
+          trace(...componentName, 'updateNode', chunk.nodes);
+          // FIXME: iOS should be able to update mutiple nodes at once.
+          if (__PLATFORM__ === 'ios' || Device.platform.OS === 'ios') {
+            chunk.nodes.forEach(node => (
+              UIManagerModule.updateNode(rootViewId, [node])
+            ));
+          } else {
+            UIManagerModule.updateNode(rootViewId, chunk.nodes);
+          }
+          break;
+        case NODE_OPERATION_TYPES.deleteNode:
+          trace(...componentName, 'deleteNode', chunk.nodes);
+          // FIXME: iOS should be able to delete mutiple nodes at once.
+          if (__PLATFORM__ === 'ios' || Device.platform.OS === 'ios') {
+            chunk.nodes.forEach(node => (
+              UIManagerModule.deleteNode(rootViewId, [node])
+            ));
+          } else {
+            UIManagerModule.deleteNode(rootViewId, chunk.nodes);
+          }
+          break;
+        default:
+          // pass
+      }
+    });
+    UIManagerModule.endBatch();
+    __batchNodes = [];
+    __batchIdle = true;
+  });
 }
 
 /**
@@ -156,10 +179,10 @@ function insertChild(parentNode: ViewNode, childNode: ViewNode, atIndex = -1) {
     const translated = renderToNativeWithChildren(rootViewId, childNode);
     startBatch();
     __batchNodes.push({
-      type: batchType.createNode,
+      type: NODE_OPERATION_TYPES.createNode,
       nodes: translated,
     });
-    endBatch();
+    endBatch(rootViewId);
     parentNode.traverseChildren((node: ViewNode) => {
       if (!node.isMounted) {
         node.isMounted = true;
@@ -170,10 +193,10 @@ function insertChild(parentNode: ViewNode, childNode: ViewNode, atIndex = -1) {
     const translated = renderToNativeWithChildren(rootViewId, childNode);
     startBatch();
     __batchNodes.push({
-      type: batchType.createNode,
+      type: NODE_OPERATION_TYPES.createNode,
       nodes: translated,
     });
-    endBatch();
+    endBatch(rootViewId);
     childNode.traverseChildren((node: ViewNode) => {
       if (!node.isMounted) {
         node.isMounted = true;
@@ -200,10 +223,10 @@ function removeChild(parentNode: ViewNode, childNode: ViewNode) {
   }];
   startBatch();
   __batchNodes.push({
-    type: batchType.deleteNode,
+    type: NODE_OPERATION_TYPES.deleteNode,
     nodes: deleteNodeIds,
   });
-  endBatch();
+  endBatch(rootViewId);
 }
 
 function updateChild(parentNode: Element) {
@@ -215,11 +238,11 @@ function updateChild(parentNode: Element) {
   startBatch();
   if (translated) {
     __batchNodes.push({
-      type: batchType.updateNode,
+      type: NODE_OPERATION_TYPES.updateNode,
       nodes: [translated],
     });
   }
-  endBatch();
+  endBatch(rootViewId);
 }
 
 function updateWithChildren(parentNode: ViewNode) {
@@ -230,10 +253,10 @@ function updateWithChildren(parentNode: ViewNode) {
   const translated = renderToNativeWithChildren(rootViewId, parentNode);
   startBatch();
   __batchNodes.push({
-    type: batchType.updateNode,
+    type: NODE_OPERATION_TYPES.updateNode,
     nodes: translated,
   });
-  endBatch();
+  endBatch(rootViewId);
 }
 
 export {
