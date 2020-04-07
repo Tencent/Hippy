@@ -358,7 +358,7 @@ static MTTSize x5MeasureFunc (MTTNodeRef node, float width, MeasureMode widthMea
                      scaleMultiplier:_allowFontScaling ? _fontSizeMultiplier : 1.0];
 
   CGFloat heightOfTallestSubview = 0.0;
-    NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:self.text];
+  NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:self.text?:@""];
   for (HippyShadowView *child in [self hippySubviews]) {
     if ([child isKindOfClass:[HippyShadowText class]]) {
       HippyShadowText *shadowText = (HippyShadowText *)child;
@@ -375,6 +375,7 @@ static MTTSize x5MeasureFunc (MTTNodeRef node, float width, MeasureMode widthMea
       [child setTextComputed];
     }else {
       //MTTlayout
+      MTTNodeDoLayout(child.nodeRef, NAN, NAN);
       float width = MTTNodeLayoutGetWidth(child.nodeRef);
       float height = MTTNodeLayoutGetHeight(child.nodeRef);
       if (isnan(width) || isnan(height)) {
