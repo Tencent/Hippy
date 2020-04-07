@@ -92,7 +92,7 @@ export class Gallery extends Component {
   renderRow(index) {
     const { dataSource, pressItem } = this.state;
     const rowData = dataSource[index];
-    const styleType = rowData.meta.style;
+    const { style: styleType } = rowData.meta;
     return (
       <View style={styles.rowContainer}>
         <View
