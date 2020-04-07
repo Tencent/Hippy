@@ -43,11 +43,30 @@ interface TouchEvent {
 }
 
 interface FocusEvent {
-
   /**
    * Focus status
    */
   focus: boolean;
+}
+
+/**
+ * Event response from onTextChange of TextInput
+ */
+interface TextInputEvent {
+  /**
+   * The text content in TextInput
+   */
+  text: string;
+}
+
+/**
+ * Event response from onHeaderPulling and onFooterPulling
+ */
+interface PullingEvent {
+  /**
+   * Dragging gap
+   */
+  contentOffset: number;
 }
 
 export {
@@ -55,4 +74,6 @@ export {
   LayoutEvent,
   TouchEvent,
   FocusEvent,
+  TextInputEvent,
+  PullingEvent,
 };

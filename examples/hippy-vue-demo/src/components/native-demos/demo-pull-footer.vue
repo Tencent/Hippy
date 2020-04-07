@@ -27,7 +27,7 @@
       </li>
       /**
        * 上拉组件
-       *   > 如果不需要显示加载情况，可以直接使用 <ul> 的 onEndReached 实现一直加载
+       *   > 如果不需要显示加载情况，可以直接使用 ul 的 onEndReached 实现一直加载
        *
        * 属性：
        *   sticky: 上拉后保持显示，在执行 collapsePullFooter 后收起
