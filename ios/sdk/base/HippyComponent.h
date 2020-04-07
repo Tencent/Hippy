@@ -29,7 +29,6 @@
  * properties. Unlike JS method callbacks, these can be called multiple times.
  */
 typedef void (^HippyDirectEventBlock)(NSDictionary *body);
-typedef void (^HippyBubblingEventBlock)(NSDictionary *body);
 
 /**
  * Logical node in a tree of application components. Both `ShadowView` and
