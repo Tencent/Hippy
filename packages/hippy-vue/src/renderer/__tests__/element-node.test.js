@@ -139,3 +139,18 @@ test('Element.setStyle test', (t) => {
   node.setStyle('caretColor', '#abcdef');
   t.is(node.attributes['caret-color'], 4289449455);
 });
+
+test('Element.setStyle with pre-processed style test', (t) => {
+  const node = new ElementNode('div');
+  node.beforeLoadStyle = (decl) => {
+    const { property, value } = decl;
+    return {
+      property: property.slice(0, decl.property.length - 2),
+      value: value.slice(0, decl.value.length - 2),
+    };
+  };
+  node.setStyle('backgroundColor', 'white');
+  node.setStyle('width', '100px');
+  t.is(node.style.backgroundCol, 'whi');
+  t.is(node.style.wid, 100);
+});

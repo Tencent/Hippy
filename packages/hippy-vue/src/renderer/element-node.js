@@ -12,6 +12,7 @@ import {
   tryConvertNumber,
   setsAreEqual,
   endsWith,
+  getBeforeLoadStyle,
 } from '../util';
 import Native from '../runtime/native';
 
@@ -39,6 +40,9 @@ class ElementNode extends ViewNode {
 
     // Event observer.
     this._emitter = null;
+
+    // Style pre-processor
+    this.beforeLoadStyle = getBeforeLoadStyle();
   }
 
   toString() {
@@ -147,12 +151,19 @@ class ElementNode extends ViewNode {
     delete this.attributes[key];
   }
 
-  setStyle(property, value) {
-    if (value === undefined) {
-      delete this.style[property];
+  setStyle(property_, value_) {
+    if (value_ === undefined) {
+      delete this.style[property_];
       return;
     }
+    // Preprocess the style
+    const { property, value } = this.beforeLoadStyle({
+      property: property_,
+      value: value_,
+    });
     let v = value;
+
+    // Process the specifc style value
     switch (property) {
       case 'fontWeight':
         if (typeof v !== 'string') {
