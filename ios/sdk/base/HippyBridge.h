@@ -175,6 +175,17 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 - (void)whitelistedModulesDidChange;
 
 /**
+ * Called and inject Object before Hippy execute JS source code
+ * Keys will be mounted at JS Global Object.
+ * Values will be mounted at Keys.
+ * Values must be JSON Strings.
+ * Default behivor is to insert device info mounted at __HIPPYNATIVEGLOBAL__ object
+ * subclass can override it and mount custom objects
+ * IMPORTANT:subclass must call [super objectsBeforeExecuteCode] and add its entries to yours
+ */
+- (NSDictionary *)objectsBeforeExecuteCode;
+
+/**
  * All registered bridge module classes.
  */
 @property (nonatomic, copy, readonly) NSArray<Class> *moduleClasses;
