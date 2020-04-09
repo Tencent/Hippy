@@ -116,15 +116,14 @@ function endBatch(app) {
     __batchNodes = [];
   });
 }
-function getCssMap() {
-  const { $options } = getApp();
 
+function getCssMap() {
   if (__cssMap) {
     return __cssMap;
   }
   // HERE IS A SECRET STARTUP OPTION: beforeStyleLoadHook
   // Usage for process the styles while styles loading.
-  const cssRules = fromAstNodes(global[GLOBAL_STYLE_NAME], $options.beforeLoadStyle);
+  const cssRules = fromAstNodes(global[GLOBAL_STYLE_NAME]);
   __cssMap = new SelectorsMap(cssRules);
   delete global[GLOBAL_STYLE_NAME];
   return __cssMap;

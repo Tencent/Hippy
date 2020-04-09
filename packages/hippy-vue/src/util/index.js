@@ -10,6 +10,19 @@ const HIPPY_VUE_VERSION = process.env.HIPPY_VUE_VERSION;
 let _App;
 let _Vue;
 
+/**
+ * Style pre-process hook
+ *
+ * Use for hack the style processing, update the property
+ * or value mannuly.
+ *
+ * @param {Object} decl - Style declaration.
+ * @param {string} decl.property - Style property name.
+ * @param {string|number} decl.value - Style property value.
+ * @returns {Object} decl - Processed declaration, original declaration by default.
+ */
+let _beforeLoadStyle = decl => decl;
+
 function setVue(Vue) {
   _Vue = Vue;
 }
@@ -24,6 +37,14 @@ function setApp(app) {
 
 function getApp() {
   return _App;
+}
+
+function setBeforeLoadStyle(beforeLoadStyle) {
+  _beforeLoadStyle = beforeLoadStyle;
+}
+
+function getBeforeLoadStyle() {
+  return _beforeLoadStyle;
 }
 
 const infoTrace = once(() => {
@@ -145,6 +166,8 @@ export {
   getVue,
   setApp,
   getApp,
+  setBeforeLoadStyle,
+  getBeforeLoadStyle,
   trace,
   warn,
   capitalizeFirstLetter,

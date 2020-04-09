@@ -13,7 +13,6 @@ import {
   mergeOptions,
   extend,
 } from 'core/util/index';
-import { once } from 'shared/util';
 import { patch } from './patch';
 import {
   registerBuiltinElements,
@@ -23,7 +22,12 @@ import {
   isReservedTag,
   isUnknownElement,
 } from '../elements';
-import { setApp, isFunction, trace } from '../util';
+import {
+  setApp,
+  isFunction,
+  trace,
+  setBeforeLoadStyle,
+} from '../util';
 import DocumentNode from '../renderer/document-node';
 import { Event } from '../renderer/native/event';
 import Native, { HippyRegister } from './native';
@@ -54,22 +58,6 @@ extend(Vue.options.directives, platformDirectives);
 
 // install platform patch function
 Vue.prototype.__patch__ = patch;
-
-// Override _init method for built-in elements register
-// The method will execute after other middleware,
-// because Vue.use() can be placed before new Vue().
-// It should have a workaround in future.
-const { _init: oldInit } = Vue.prototype;
-Vue.prototype._init = function _init(options = {}) {
-  oldInit.call(this, options);
-  // Built-in elements registering execute one time.
-  once(() => {
-    const { disableBuiltinElements } = options;
-    if (!(typeof disableBuiltinElements === 'boolean' && disableBuiltinElements)) {
-      Vue.use(registerBuiltinElements);
-    }
-  })();
-};
 
 // Override $mount for attend the compiler.
 Vue.prototype.$mount = function $mount(el, hydrating) {
@@ -106,6 +94,12 @@ Vue.prototype.$mount = function $mount(el, hydrating) {
  */
 Vue.prototype.$start = function $start(callback) {
   setApp(this);
+
+  // beforeLoadStyle is a hidden option for pre-process
+  // the style declaration globally.
+  if (isFunction(this.$options.beforeLoadStyle)) {
+    setBeforeLoadStyle(this.$options.beforeLoadStyle);
+  }
   let self = this;
 
   // register native components into Vue.
@@ -113,6 +107,9 @@ Vue.prototype.$start = function $start(callback) {
     Vue.component(entry.meta.component.name, entry.meta.component);
   });
 
+  // Register the entry point into Hippy
+  // The callback will be exectue when Native trigger loadInstance
+  // or runApplication event.
   HippyRegister.regist(this.$options.appName, (superProps) => {
     const { __instanceId__: rootViewId } = superProps;
     self.$options.$superProps = superProps;
@@ -120,17 +117,18 @@ Vue.prototype.$start = function $start(callback) {
 
     trace(...componentName, 'Start', this.$options.appName, 'with rootViewId', rootViewId, superProps);
 
+    // Destroy the old instance and set the new one when restart the app
     if (self.$el) {
       self.$destroy();
-      // FIXME: Seems memory leak for hippy.
-      //        Because old instance should be destroyed.
       const AppConstructor = Vue.extend(self.$options);
       self = new AppConstructor(self.$options);
       setApp(self);
     }
 
+    // Draw the app.
     self.$mount();
 
+    // Draw the iPhone status bar background.
     if (Native.Platform === 'ios') {
       const statusBar = iPhone.drawStatusBar(this.$options);
       if (statusBar) {
@@ -142,6 +140,7 @@ Vue.prototype.$start = function $start(callback) {
       }
     }
 
+    // Call the callback
     if (isFunction(callback)) {
       callback(self, superProps);
     }
@@ -161,6 +160,7 @@ function initComputed(Comp) {
   Object.keys(computed).forEach(key => defineComputed(Comp.prototype, key, computed[key]));
 }
 
+// Override component for avoid built-in component warning.
 Vue.component = function component(id, definition) {
   if (!definition) {
     return this.options.components[id];
@@ -173,6 +173,7 @@ Vue.component = function component(id, definition) {
   return definition;
 };
 
+// Override extend for avoid built-in component warning.
 Vue.extend = function hippyExtend(extendOptions) {
   extendOptions = extendOptions || {};
   const Super = this;
@@ -233,5 +234,8 @@ Vue.extend = function hippyExtend(extendOptions) {
 
 // Binding Native Properties
 Vue.Native = Native;
+
+// Register the built-in elements
+Vue.use(registerBuiltinElements);
 
 export default Vue;
