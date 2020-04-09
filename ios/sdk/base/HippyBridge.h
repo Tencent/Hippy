@@ -90,6 +90,11 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  * Async batched bridge used to communicate with the JavaScript application.
  */
 @interface HippyBridge : NSObject <HippyInvalidating>
+
+- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)delegate
+                       bundleURL:(NSURL *)bundleURL
+                  moduleProvider:(HippyBridgeModuleProviderBlock)block
+                   launchOptions:(NSDictionary *)launchOptions;
 /**
  * Creates a new bridge with a custom HippyBridgeDelegate.
  *
@@ -173,17 +178,6 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  * will be initialized immediately.
  */
 - (void)whitelistedModulesDidChange;
-
-/**
- * Called and inject Object before Hippy execute JS source code
- * Keys will be mounted at JS Global Object.
- * Values will be mounted at Keys.
- * Values must be JSON Strings.
- * Default behivor is to insert device info mounted at __HIPPYNATIVEGLOBAL__ object
- * subclass can override it and mount custom objects
- * IMPORTANT:subclass must call [super objectsBeforeExecuteCode] and add its entries to yours
- */
-- (NSDictionary *)objectsBeforeExecuteCode;
 
 /**
  * All registered bridge module classes.
