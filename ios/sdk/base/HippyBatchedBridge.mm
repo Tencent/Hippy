@@ -219,7 +219,12 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)
         if (sourceCode && strongSelf.loading) {
             //mount custom objects before executing JS Code
             dispatch_group_t objectGroup = dispatch_group_create();
-            NSDictionary *objects = [self objectsBeforeExecuteCode];
+            
+            NSMutableDictionary *objects = [NSMutableDictionary dictionaryWithObject:[self deviceInfo] forKey:@"__HIPPYNATIVEGLOBAL__"];
+            if ([self.delegate respondsToSelector:@selector(objectsBeforeExecuteCode)]) {
+                NSDictionary *customObjects = [self.delegate objectsBeforeExecuteCode];
+                [objects addEntriesFromDictionary:customObjects];
+            }
             for (NSString *key in [objects allKeys]) {
                 NSString *value = objects[key];
                 HippyAssert([value isKindOfClass:[NSString class]], @"value must be NSString");

@@ -307,15 +307,6 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)init)
     [self.batchedBridge whitelistedModulesDidChange];
 }
 
-- (NSString *)deviceInfo {
-    //implement in subclass HippyBatchedBridge.mm
-    return @"";
-}
-
-- (NSDictionary *)objectsBeforeExecuteCode {
-    return @{@"__HIPPYNATIVEGLOBAL__": [self deviceInfo]};
-}
-
 - (void)reload
 {
     /**
@@ -343,7 +334,9 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)init)
 
     // Only update bundleURL from delegate if delegate bundleURL has changed
     NSURL *previousDelegateURL = _delegateBundleURL;
-    _delegateBundleURL = [self.delegate sourceURLForBridge:self];
+    if ([self.delegate respondsToSelector:@selector(sourceURLForBridge:)]) {
+        _delegateBundleURL = [self.delegate sourceURLForBridge:self];
+    }
     if (_delegateBundleURL && ![_delegateBundleURL isEqual:previousDelegateURL]) {
         _bundleURL = _delegateBundleURL;
     }
