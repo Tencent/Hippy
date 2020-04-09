@@ -327,10 +327,8 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)
     [_performanceLogger markStartForTag:HippyPLNativeModuleInit];
     
     NSArray<id<HippyBridgeModule>> *extraModules = nil;
-    if (self.delegate) {
-        if ([self.delegate respondsToSelector:@selector(extraModulesForBridge:)]) {
-            extraModules = [self.delegate extraModulesForBridge:_parentBridge];
-        }
+    if (self.delegate && [self.delegate respondsToSelector:@selector(extraModulesForBridge:)]) {
+        extraModules = [self.delegate extraModulesForBridge:_parentBridge];
     } else if (self.moduleProvider) {
         extraModules = self.moduleProvider();
     }
