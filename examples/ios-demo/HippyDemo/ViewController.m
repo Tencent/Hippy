@@ -23,7 +23,7 @@
 #import "ViewController.h"
 #import "HippyRootView.h"
 
-@interface ViewController ()
+@interface ViewController ()<HippyBridgeDelegate>
 
 @end
 
@@ -40,12 +40,28 @@
 
     NSString *commonBundlePath = [[NSBundle mainBundle] pathForResource:@"vendor.ios" ofType:@"js" inDirectory:@"res"];
     NSString *businessBundlePath = [[NSBundle mainBundle] pathForResource:@"index.ios" ofType:@"js" inDirectory:@"res"];
-    HippyBridge *bridge = [[HippyBridge alloc] initWithBundleURL:[NSURL fileURLWithPath:commonBundlePath] moduleProvider:nil launchOptions:nil];
+    HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:self bundleURL:[NSURL fileURLWithPath:commonBundlePath] moduleProvider:nil launchOptions:nil];
     HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:bridge businessURL:[NSURL fileURLWithPath:businessBundlePath] moduleName:@"Demo" initialProperties:  @{@"isSimulator": @(isSimulator)} launchOptions:nil shareOptions:nil debugMode:NO delegate:nil];
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     rootView.frame = self.view.bounds;
     [self.view addSubview:rootView];
 }
 
+- (NSDictionary *)objectsBeforeExecuteCode {
+    NSDictionary *dic1 = @{@"name": @"zs", @"gender": @"male"};
+    NSDictionary *dic2 = @{@"name": @"ls", @"gender": @"male"};
+    NSDictionary *dic3 = @{@"name": @"ww", @"gender": @"female"};
+        
+    NSData *data1 = [NSJSONSerialization dataWithJSONObject:dic1 options:0 error:nil];
+    NSData *data2 = [NSJSONSerialization dataWithJSONObject:dic2 options:0 error:nil];
+    NSData *data3 = [NSJSONSerialization dataWithJSONObject:dic3 options:0 error:nil];
+    
+    NSString *string1 = [[NSString alloc] initWithData:data1 encoding:NSUTF8StringEncoding];
+    NSString *string2 = [[NSString alloc] initWithData:data2 encoding:NSUTF8StringEncoding];
+    NSString *string3 = [[NSString alloc] initWithData:data3 encoding:NSUTF8StringEncoding];
+    
+    NSDictionary *ret = @{@"info1": string1, @"info2": string2, @"info3": string3};
+    return ret;
+}
 
 @end
