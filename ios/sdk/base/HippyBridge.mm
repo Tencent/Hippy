@@ -307,6 +307,15 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)init)
     [self.batchedBridge whitelistedModulesDidChange];
 }
 
+- (NSString *)deviceInfo {
+    //implement in subclass HippyBatchedBridge.mm
+    return @"";
+}
+
+- (NSDictionary *)objectsBeforeExecuteCode {
+    return @{@"__HIPPYNATIVEGLOBAL__": [self deviceInfo]};
+}
+
 - (void)reload
 {
     /**

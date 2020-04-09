@@ -217,17 +217,23 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)
     dispatch_group_notify(initModulesAndLoadSource, bridgeQueue, ^{
         HippyBatchedBridge *strongSelf = weakSelf;
         if (sourceCode && strongSelf.loading) {
-            //加载common包之前注入一些全局变量信息
-            NSString *deviceInfo = [self deviceInfo];
-            [strongSelf->_javaScriptExecutor injectJSONText:deviceInfo asGlobalObjectNamed:@"__HIPPYNATIVEGLOBAL__" callback:^(NSError *error) {
-                
-                // load bootstrap.js after config has been setted
+            //mount custom objects before executing JS Code
+            dispatch_group_t objectGroup = dispatch_group_create();
+            NSDictionary *objects = [self objectsBeforeExecuteCode];
+            for (NSString *key in [objects allKeys]) {
+                NSString *value = objects[key];
+                HippyAssert([value isKindOfClass:[NSString class]], @"value must be NSString");
+                dispatch_group_enter(objectGroup);
+                [strongSelf->_javaScriptExecutor injectJSONText:value asGlobalObjectNamed:key callback:^(NSError *error) {
+                    dispatch_group_leave(objectGroup);
+                }];
+            }
+            dispatch_group_notify(objectGroup, bridgeQueue, ^{
                 if (self->_javaScriptExecutor.pEnv.lock()) {
                     self->_javaScriptExecutor.pEnv.lock()->loadModules();
                 }
-
                 [strongSelf executeSourceCode:sourceCode];
-            }];
+            });
         }
     });
     
