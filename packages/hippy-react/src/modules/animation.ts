@@ -251,7 +251,8 @@ class Animation implements Animation {
       throw new TypeError('Update animation mode not supported');
     }
 
-    Object.entries(newConfig).forEach(([prop, value]) => {
+    (Object.keys(newConfig) as (keyof AnimationOptions)[]).forEach((prop) => {
+      const value = newConfig[prop];
       if (prop === 'startValue') {
         let startValue: AnimationValue = 0;
         if (newConfig.startValue instanceof Animation) {
