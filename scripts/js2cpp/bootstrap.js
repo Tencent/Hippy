@@ -1,12 +1,14 @@
+/* eslint-disable no-unused-expressions */
+/* eslint-disable func-names */
 (function (getInternalBinding) {
   global.Hippy = {};
-  
+
   const bindingObj = {};
   const internalBinding = function internalBinding(module) {
-  if (typeof bindingObj[module] !== 'object') {
-    bindingObj[module] = getInternalBinding(module);
-  }
-  return bindingObj[module];
+    if (typeof bindingObj[module] !== 'object') {
+      bindingObj[module] = getInternalBinding(module);
+    }
+    return bindingObj[module];
   };
 
   const ContextifyScript = internalBinding('ContextifyModule');
@@ -18,11 +20,11 @@
     }
 
     static require(filePath) {
-      let file_path_arr = filePath.split('/');
-      let filename = file_path_arr[file_path_arr.length - 1];
-      const cached = NativeModule._cache[filename];
+      const filePathArr = filePath.split('/');
+      const filename = filePathArr[filePathArr.length - 1];
+      const cached = NativeModule.cache[filename];
       if (cached) {
-      return cached.exports;
+        return cached.exports;
       }
 
       const nativeModule = new NativeModule(filename);
@@ -39,10 +41,10 @@
     }
 
     cache() {
-      NativeModule._cache[this.filename] = this;
+      NativeModule.cache[this.filename] = this;
     }
   }
-  NativeModule._cache = {};
+  NativeModule.cache = {};
 
   // Startup
   NativeModule.require('hippy.js');
