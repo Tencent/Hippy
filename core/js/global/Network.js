@@ -2,7 +2,8 @@ global.Headers = class Headers {
   constructor(initValues) {
     this._headers = {};
     if (typeof initValues === 'object') {
-      Object.entries(initValues).forEach(([key, value]) => {
+      Object.keys(initValues).forEach((key) => {
+        const value = initValues[key];
         if (value instanceof Array) {
           value.forEach((oneData) => {
             this.append(key, oneData);
