@@ -24,6 +24,10 @@ const styles = StyleSheet.create({
     margin: 20,
     borderColor: '#eee',
     borderWidth: 1,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    backgroundColor: '#69d45d',
+    marginTop: 50,
   },
   itemTitle: {
     alignItems: 'flex-start',
