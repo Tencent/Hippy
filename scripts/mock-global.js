@@ -1,3 +1,5 @@
+/* eslint-disable no-underscore-dangle */
+
 global.__PLATFORM__ = null;
 global.__HIPPYNATIVEGLOBAL__ = {};
 global.__GLOBAL__ = {
