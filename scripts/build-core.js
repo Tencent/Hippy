@@ -4,7 +4,7 @@ const readline    = require('readline');
 // FIXME: I have no idea the config have no effect in eslintrc, disabled the rule here.
 /* eslint-disable-next-line import/no-extraneous-dependencies */
 const babel       = require('@babel/core');
-const package     = require('../../package.json');
+const package     = require('../package.json');
 
 /**
  * Babel configuration for iOS compiling
@@ -78,6 +78,14 @@ for (let i = 0; i < wrapperEndBuffer.length; i += 1) {
 }
 
 /**
+ * Get the absolute full path
+ * @param {string} path - relative path
+ */
+function getAbsolutePath(relativePath) {
+  return path.resolve(__dirname, relativePath);
+}
+
+/**
  * Get the core js files list for specific platform.
  *
  * @param {android|ios} platform - specific platform.
@@ -85,18 +93,18 @@ for (let i = 0; i < wrapperEndBuffer.length; i += 1) {
 function getAllRequiredFiles(platform) {
   return new Promise((resole) => {
     const rl = readline.createInterface({
-      input: fs.createReadStream(path.resolve(__dirname, `../../core/js/entry/${platform}/hippy.js`)),
+      input: fs.createReadStream(getAbsolutePath(`../core/js/entry/${platform}/hippy.js`)),
     });
     const filePaths = [
-      path.resolve(__dirname, './bootstrap.js'),
-      path.resolve(__dirname, `../../core/js/entry/${platform}/hippy.js`),
-      path.resolve(__dirname, '../../core/js/modules/ExceptionHandle.js'),
+      getAbsolutePath('../core/js/bootstrap.js'),
+      getAbsolutePath(`../core/js/entry/${platform}/hippy.js`),
+      getAbsolutePath('../core/js/modules/ExceptionHandle.js'),
     ];
 
     rl.on('line', (line) => {
       if (line.split('//')[0].indexOf('require') > -1) {
         const entry = line.split("('")[1].split("')")[0];
-        filePaths.push(path.resolve(__dirname, `../../core/js/entry/${platform}/${entry}`));
+        filePaths.push(getAbsolutePath(`../core/js/entry/${platform}/${entry}`));
       }
     });
     rl.on('close', () => {
@@ -176,5 +184,5 @@ function generateCpp(platform, buildDirPath) {
 }
 
 // Start to work
-generateCpp('ios', path.resolve(__dirname, '../../core/napi/jsc'));
-generateCpp('android', path.resolve(__dirname, '../../core/napi/v8/'));
+generateCpp('ios', getAbsolutePath('../core/napi/jsc'));
+generateCpp('android', getAbsolutePath('../core/napi/v8/'));
