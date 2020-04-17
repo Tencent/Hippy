@@ -51,16 +51,8 @@
     NSDictionary *dic1 = @{@"name": @"zs", @"gender": @"male"};
     NSDictionary *dic2 = @{@"name": @"ls", @"gender": @"male"};
     NSDictionary *dic3 = @{@"name": @"ww", @"gender": @"female"};
-        
-    NSData *data1 = [NSJSONSerialization dataWithJSONObject:dic1 options:0 error:nil];
-    NSData *data2 = [NSJSONSerialization dataWithJSONObject:dic2 options:0 error:nil];
-    NSData *data3 = [NSJSONSerialization dataWithJSONObject:dic3 options:0 error:nil];
-    
-    NSString *string1 = [[NSString alloc] initWithData:data1 encoding:NSUTF8StringEncoding];
-    NSString *string2 = [[NSString alloc] initWithData:data2 encoding:NSUTF8StringEncoding];
-    NSString *string3 = [[NSString alloc] initWithData:data3 encoding:NSUTF8StringEncoding];
-    
-    NSDictionary *ret = @{@"info1": string1, @"info2": string2, @"info3": string3};
+            
+    NSDictionary *ret = @{@"info1": dic1, @"info2": dic2, @"info3": dic3};
     return ret;
 }
 
