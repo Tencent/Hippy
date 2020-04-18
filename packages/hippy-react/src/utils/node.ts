@@ -2,12 +2,9 @@
 /* eslint-disable no-continue */
 
 import { Fiber } from 'react-reconciler';
-import { trace } from './index';
 import '@localTypes/global';
 
 type RootContainer = any;
-
-const componentName = ['%c[root]%c', 'color: blue', 'color: auto'];
 
 // Single root instance
 let rootContainer: RootContainer;
@@ -29,17 +26,18 @@ function getRootViewId() {
   return rootViewId;
 }
 
-function findNodeByCondition(condition: (node: Fiber) => boolean) {
+function findNodeByCondition(condition: (node: Fiber) => boolean): null | Fiber {
   if (!rootContainer) {
     return null;
   }
-  const start = Date.now();
   const { current: root } = rootContainer;
-  const queue = [root];
+  const queue: Fiber[] = [root];
   while (queue.length) {
     const targetNode = queue.shift();
+    if (!targetNode) {
+      break;
+    }
     if (condition(targetNode)) {
-      trace(...componentName, 'findNodeById spend', Date.now() - start, targetNode);
       return targetNode;
     }
     if (targetNode.child) {
@@ -49,7 +47,6 @@ function findNodeByCondition(condition: (node: Fiber) => boolean) {
       queue.push(targetNode.sibling);
     }
   }
-  trace(...componentName, 'findNodeById spend', Date.now() - start, 'ms', null);
   return null;
 }
 

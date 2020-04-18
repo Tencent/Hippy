@@ -139,4 +139,12 @@ export default [
       style: 2,
     },
   },
+  {
+    path: '/UIManagerModule',
+    name: 'UIManagerModule 模块',
+    component: PAGE_LIST.UIManagerModule,
+    meta: {
+      style: 2,
+    },
+  },
 ];
