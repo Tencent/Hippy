@@ -44,7 +44,6 @@ export class Gallery extends Component {
     super(props);
     this.state = {
       pressItem: '',
-      // TODO: Make the demo detail be in the demo folder.
       dataSource: [...routes],
     };
     this.renderRow = this.renderRow.bind(this);
