@@ -19,10 +19,14 @@ const  {
   document: UIManager,
   register: HippyRegister,
   on: addEventListener,
+  off: removeEventListener,
+  emit: dispatchEvent,
 } = global.Hippy;
 
 export {
   addEventListener,
+  removeEventListener,
+  dispatchEvent,
   AsyncStorage,
   Bridge,
   Device,
