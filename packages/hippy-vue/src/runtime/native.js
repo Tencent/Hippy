@@ -8,6 +8,8 @@ import {
 
 const {
   on,
+  off,
+  emit,
   bridge: {
     callNative,
     callNativeWithPromise,
@@ -56,6 +58,8 @@ const Native = {
    * Global device event listener
    */
   on,
+  off,
+  emit,
 
   /**
    * Get the device pixel ratio

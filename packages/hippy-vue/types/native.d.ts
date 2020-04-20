@@ -72,6 +72,33 @@ interface Native {
    */
   OnePixel: number;
 
+
+  /**
+   * Register a listener for a specific event, and the listener will be called
+   * when the event is triggered.
+   *
+   * @param {string} eventName - The event name will be registered.
+   * @param {Function} listener - Event callback.
+   */
+  on(eventName: string, listener: Function): void;
+
+  /**
+   * Remove specific event listener,
+   *
+   * @param {string} eventName - The event name will be removed.
+   * @param {Function} listener - Specific event callback will be removed,
+   *                              the listeners will clean all if not specific.
+   */
+  off(eventName: string, listener?: Function): void;
+
+  /**
+   * Trigger a event with arguments.
+   *
+   * @param {string} eventName - The event name will be trigger.
+   * @param  {any} args - Event callback arguments.
+   */
+  emit(eventName: string, ...args: any[]): void;
+
   /**
    * Call native UI methods.
    */
