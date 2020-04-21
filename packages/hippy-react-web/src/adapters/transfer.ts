@@ -245,21 +245,20 @@ function hackWebStyle(webStyle_: any) {
   }
 }
 
-function formatWebStyle(style: any) {
-  const webStyle = {};
-
+function assignWebStyle(style: any, webStyle: any) {
   if (Array.isArray(style)) {
     style.forEach((itemStyle) => {
-      Object.assign(webStyle, itemStyle);
-
-      hackWebStyle(webStyle);
+      assignWebStyle(itemStyle, webStyle);
     });
   } else {
     Object.assign(webStyle, style);
-
-    hackWebStyle(webStyle);
   }
+}
 
+function formatWebStyle(style: any) {
+  const webStyle = {};
+  assignWebStyle(style, webStyle);
+  hackWebStyle(webStyle);
   return webStyle;
 }
 
