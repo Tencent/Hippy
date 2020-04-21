@@ -395,7 +395,11 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 			setContent(SOURCE_TYPE_DEFAULT_SRC);
 			setUrl(mUrl);
 		}
-		fetchImageByUrl(mUrl, SOURCE_TYPE_SRC);
+		// 避免不必要的图片加载
+    // listview item中的imageView会在刷新时重新执行detach->attach，如果重新拉取图片，会导致闪烁
+		if (getBitmap() == null) {
+      fetchImageByUrl(mUrl, SOURCE_TYPE_SRC);
+    }
 		onDrawableAttached();
 	}
 
