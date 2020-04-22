@@ -24,8 +24,8 @@ module.exports = {
     }),
     new CaseSensitivePathsPlugin(),
     new webpack.DllPlugin({
-      context: path.resolve('..'),
-      path: path.resolve(`./dist/${platform}/[name]-manifest.json`),
+      context: path.resolve(__dirname, '..'),
+      path: path.resolve(__dirname, `../dist/${platform}/[name]-manifest.json`),
       name: 'hippyReactBase',
     }),
   ],
@@ -56,9 +56,5 @@ module.exports = {
   },
   resolve: {
     extensions: ['.js', '.jsx', '.json'],
-    modules: [path.resolve(__dirname, '../node_modules')],
-    alias: {
-      'hippy-react': path.resolve(__dirname, '../../../packages/hippy-react'),
-    },
   },
 };

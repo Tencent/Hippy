@@ -12,6 +12,8 @@ hippy-react 的组件接近终端，语法上接近 React Native。
 
 > **注意：** 必须指定样式中的宽度和高度，否则无法工作。
 
+> **注意：** Android 端默认会带上灰底色用于图片占位，可以加上 `backgroundColor: transparent` 样式改为透明背景。
+
 ## 基本用法
 
 直接加载远程图片：
@@ -128,18 +130,18 @@ import icon from './qb_icon_new.png';
 
 | 参数                  | 描述                                                         | 类型                                                         | 支持平台 |
 | --------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | -------- |
-| animated              | -                                                            | `boolean`                                                    | `ALL`    |
-| animationType         | -                                                            | `enum`(none, slide, fade, slide_fade) | `ALL`    |
-| supportedOrientations | -                                                            | `enum`(portrait, portrait-upside-down, landscape, landscape-left, landscape-right)[] | `ALL`    |
+| animated              | 弹出时是否需要带动画                                                            | `boolean`                                                    | `ALL`    |
+| animationType         | 动画效果                                                            | `enum`(none, slide, fade, slide_fade) | `ALL`    |
+| supportedOrientations | 支持屏幕翻转方向                                                            | `enum`(portrait, portrait-upside-down, landscape, landscape-left, landscape-right)[] | `ALL`    |
 | immersionStatusBar    | 是否是沉浸式状态栏。                                         | `boolean`                                                    | `ALL`    |
 | darkStatusBarText     | 是否是亮色主体文字，默认字体是黑色的，改成 true 后会认为 Modal 背景为暗色调，字体就会改成白色。 | `boolean`                                                    | `ALL`    |
 | onShow                | 在`Modal`显示时会执行此回调函数。                            | `Function`                                                   | `ALL`    |
-| onOrientationChange   | -                                                            | `Function`                                                   | `ALL`    |
+| onOrientationChange   | 屏幕旋转方向改变时执行会回调                       | `Function`                                                   | `ALL`    |
 | onRequestClose        | 在`Modal`请求关闭时会执行此回调函数，一般时在 Android 系统里按下硬件返回按钮时触发，一般要在里面处理关闭弹窗。 | `Function`                                                   | `ALL`    |
 | primaryKey            | -                                                            | `string`                                                     | `iOS`    |
 | onDismiss             | -                                                            | `Function`                                                   | `iOS`    |
-| transparent           | -                                                            | `boolean`                                                    | `ALL`    |
-| visible               | -                                                            | `boolean`                                                    | `ALL`    |
+| transparent           | 背景是否是透明的                      | `boolean`                                                    | `ALL`    |
+| visible               | 是否显示                                                       | `boolean`                                                    | `ALL`    |
 
 # Navigator
 
@@ -309,9 +311,8 @@ import icon from './qb_icon_new.png';
 
 ## 参数
 
-|                       |                                                              |                                                              |           |
-| --------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | --------- |
 | 参数                  | 描述                                                         | 类型                                                         | 支持平台  |
+| --------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | --------- |
 | defaultValue          | 提供一个文本框中的初始值。当用户开始输入的时候，值就可以改变。  在一些简单的使用情形下，如果你不想用监听消息然后更新 value 属性的方法来保持属性和状态同步的时候，就可以用 defaultValue 来代替。 | `string`                                                     | `ALL`     |
 | editable              | 如果为 false，文本框是不可编辑的。                           | `boolean`                                                    | `ALL`     |
 | keyboardType          | 决定弹出的何种软键盘的。 注意，`password`仅在属性 `multiline=false` 单行文本框时生效。 | `enum`(default, numeric, password, email, phone-pad) | `ALL`     |

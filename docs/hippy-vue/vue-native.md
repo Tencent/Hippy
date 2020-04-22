@@ -20,6 +20,22 @@ hippy-vue 通过在 Vue 上绑定了一个 `Native` 属性，实现获取终端�
 console.log(Vue.Native.version); // 2.0.0
 ```
 
+## Device
+
+获取设备名称，iPhone 可以拿到具体的 iPhone 型号，Android 设备暂时只能拿到 `Android device`的文本。
+
+## OSVersion
+
+iOS 版本。
+
+## APILevel
+
+Android 操作系统版本。
+
+## SDKVersion
+
+Hippy 终端 SDK 版本。
+
 ## Platform
 
 获取操作系统
@@ -97,3 +113,19 @@ Hippy 中通过 fetch 服务返回的 `set-cookie` Header 会自动将 Cookie �
 | url | string | 是       | 设置指定 URL 下设置的 cookie |
 | keyValue | string | 是       | 需要设置成 Cookie 的完整字符串，例如`name=someone;gender=female` |
 | expreDate | Date | 否 | Date 类型的过期时间，不填不过期 |
+
+## Clipboard
+
+剪贴板读写模块，但是目前只支持纯文本。
+
+### getString()
+
+返回值：
+
+* string
+
+### setString(content)
+
+| 参数 | 类型     | 必需 | 参数意义 |
+| --------  | -------- | -------- |  -------- |
+| content | string | 是       | 保存进入剪贴板的内容 |

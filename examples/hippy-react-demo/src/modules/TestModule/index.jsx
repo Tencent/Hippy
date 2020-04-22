@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text } from 'hippy-react';
+import { Text } from '@hippy/react';
 import TestModule from './TestModule';
 
 // 展示自定义Module的使用

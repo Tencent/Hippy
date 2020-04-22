@@ -6,7 +6,7 @@ import {
   StyleSheet,
   callNative,
   HippyEventEmitter,
-} from 'hippy-react';
+} from '@hippy/react';
 
 const styles = StyleSheet.create({
   text: {

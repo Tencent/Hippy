@@ -56,17 +56,16 @@ typedef BOOL (^HippyArgumentBlock)(HippyBridge *, NSUInteger, id);
     NSInvocation *_invocation;
     NSArray<HippyArgumentBlock> *_argumentBlocks;
     NSString *_methodSignature;
+    NSString *_JSMethodName;
     SEL _selector;
 }
-
-@synthesize JSMethodName = _JSMethodName;
 
 static void HippyLogArgumentError(__unused HippyModuleMethod *method, __unused NSUInteger index,
                                 __unused id valueOrType, __unused const char *issue)
 {
     HippyLogError(@"Argument %tu (%@) of %@.%@ %s", index, valueOrType,
                 HippyBridgeModuleNameForClass(method->_moduleClass),
-                method->_JSMethodName, issue);
+                method.JSMethodName, issue);
 }
 
 HIPPY_NOT_IMPLEMENTED(- (instancetype)init)
@@ -431,6 +430,7 @@ break; \
             methodName = [methodName substringToIndex:colonRange.location];
         }
         methodName = [methodName stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+        _JSMethodName = methodName;
         HippyAssert(methodName.length, @"%@ is not a valid JS function name, please"
                   " supply an alternative using HIPPY_REMAP_METHOD()", _methodSignature);
     }
@@ -474,7 +474,7 @@ break; \
                         If you haven\'t changed this method yourself, this usually means that \
                         your versions of the native code and JavaScript code are out of sync. \
                         Updating both should make this error go away.",
-                        HippyBridgeModuleNameForClass(_moduleClass), _JSMethodName,
+                          HippyBridgeModuleNameForClass(_moduleClass), self.JSMethodName,
                         (long)actualCount, (long)expectedCount);
             return nil;
         }

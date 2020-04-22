@@ -6,7 +6,7 @@ import {
   StyleSheet,
   Text,
   View,
-} from 'hippy-react';
+} from '@hippy/react';
 
 const styles = StyleSheet.create({
   stepText: {

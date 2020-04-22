@@ -1,9 +1,8 @@
-/* eslint-disable import/no-mutable-exports */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import '@localTypes/global';
 import { HippyEventEmitter } from '../events';
-import { Bridge, Device } from '../native';
+import { Bridge, Device } from '../global';
 
 const hippyEventEmitter = new HippyEventEmitter();
 const backPressSubscriptions = new Set();
@@ -60,7 +59,7 @@ const realBackAndroid = {
 /**
  * Fake BackAndroid for iOS
  */
-let BackAndroid = {
+const fakeBackAndroid = {
   exitApp() {},
   addListener(handler: EventListener): BackAndroidRevoker {
     return {
@@ -71,15 +70,13 @@ let BackAndroid = {
   initEventListener() {},
 };
 
-if (__PLATFORM__) {
-  if (__PLATFORM__ === 'android') {
-    BackAndroid = realBackAndroid;
-    BackAndroid.initEventListener();
+const BackAndroid = (() => {
+  if (__PLATFORM__ === 'android' || Device.platform.OS === 'android') {
+    realBackAndroid.initEventListener();
+    return realBackAndroid;
   }
-} else if (Device.platform.OS === 'android') {
-  BackAndroid = realBackAndroid;
-  BackAndroid.initEventListener();
-}
+  return fakeBackAndroid;
+})();
 
 export default BackAndroid;
 export {

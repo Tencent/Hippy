@@ -1,7 +1,10 @@
 import React from 'react';
 import {
-  Focusable, ScrollView, Text, View,
-} from 'hippy-react';
+  Focusable,
+  ScrollView,
+  Text,
+  View,
+} from '@hippy/react';
 
 export default class FocusableExpo extends React.Component {
   constructor(props) {

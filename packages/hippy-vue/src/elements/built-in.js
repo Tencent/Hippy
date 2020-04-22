@@ -201,6 +201,12 @@ const input = {
           return newValue;
         },
       },
+      disabled: {
+        name: 'editable',
+        propsValue(value) {
+          return !value;
+        },
+      },
       value: 'defaultValue',
       maxlength: 'maxLength',
     },

@@ -102,6 +102,26 @@ dispatch_queue_t g_background_queue = nil;
   return clipView ?: self.window;
 }
 
+- (UIView *)nextResponseViewAtPoint:(CGPoint)point {
+    UIView *superView = [self superview];
+    if (superView && self.hippyTag) {
+        NSArray<UIView *> *subviews = [superView subviews];
+        NSUInteger index = [subviews indexOfObject:self];
+        if (0 != index) {
+            for (NSInteger i = index - 1; i >= 0 ; i--) {
+                UIView *siblingView = subviews[i];
+                CGPoint pointInsiblingView = [self convertPoint:point toView:siblingView];
+                BOOL pointInside = [siblingView pointInside:pointInsiblingView withEvent:nil];
+                if (pointInside) {
+                    UIView *hitTestView = [siblingView hitTest:pointInsiblingView withEvent:nil];
+                    return hitTestView ? hitTestView : siblingView;
+                }
+            }
+        }
+    }
+    return superView;
+}
+
 @end
 
 static NSString *HippyRecursiveAccessibilityLabel(UIView *view)
@@ -144,6 +164,8 @@ static NSString *HippyRecursiveAccessibilityLabel(UIView *view)
     _backgroundColor = super.backgroundColor;
     _backgroundCachemanager = HippyBackgroundImageCacheManager.sharedInstance;
     _backgroundCachemanager.g_background_queue = g_background_queue;
+    self.layer.shadowOffset = CGSizeZero;
+    self.layer.shadowRadius = 0.f;
   }
 
   return self;
@@ -495,6 +517,15 @@ void HippyBoarderColorsRelease(HippyBorderColors c)
     }
 }
 
+- (void)drawShadowForLayer {
+    self.layer.shadowPath = nil;
+    if (0 != self.shadowSpread) {
+        CGRect rect = CGRectInset(self.layer.bounds, -self.shadowSpread, -self.shadowSpread);
+        UIBezierPath *path = [UIBezierPath bezierPathWithRect:rect];
+        self.layer.shadowPath = path.CGPath;
+    }
+}
+
 - (void)displayLayer:(CALayer *)layer
 {
     if (CGSizeEqualToSize(layer.bounds.size, CGSizeZero)) {
@@ -503,7 +534,7 @@ void HippyBoarderColorsRelease(HippyBorderColors c)
     
     __weak CALayer *weakLayer = layer;
     __weak HippyBackgroundImageCacheManager* weakBackgroundCacheManager = _backgroundCachemanager;
-    HippyUpdateShadowPathForView(self);
+    [self drawShadowForLayer];
     
     const HippyCornerRadii cornerRadii = [self cornerRadii];
     const UIEdgeInsets borderInsets = [self bordersAsInsets];
@@ -640,31 +671,6 @@ static BOOL HippyLayerHasShadow(CALayer *layer)
   // Inherit background color if a shadow has been set, as an optimization
   if (HippyLayerHasShadow(self.layer)) {
     self.backgroundColor = inheritedBackgroundColor;
-  }
-}
-
-static void HippyUpdateShadowPathForView(HippyView *view)
-{
-  if (HippyLayerHasShadow(view.layer)) {
-    if (CGColorGetAlpha(view.backgroundColor.CGColor) > 0.999) {
-
-      // If view has a solid background color, calculate shadow path from border
-      const HippyCornerRadii cornerRadii = [view cornerRadii];
-      const HippyCornerInsets cornerInsets = HippyGetCornerInsets(cornerRadii, UIEdgeInsetsZero);
-      CGPathRef shadowPath = HippyPathCreateWithRoundedRect(view.bounds, cornerInsets, NULL);
-      view.layer.shadowPath = shadowPath;
-      CGPathRelease(shadowPath);
-
-    } else {
-
-      // Can't accurately calculate box shadow, so fall back to pixel-based shadow
-      view.layer.shadowPath = nil;
-
-      HippyLogWarn(@"View #%@ of type %@ has a shadow set but cannot calculate "
-                 "shadow efficiently. Consider setting a background color to "
-                 "fix this, or apply the shadow to a more specific component.",
-                 view.hippyTag, [view class]);
-    }
   }
 }
 

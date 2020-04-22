@@ -10,7 +10,9 @@ Hippy 已经提供了完整的[前终端范例](//github.com/Tencent/Hippy/tree/
 
 # 前端接入
 
-Hippy 同时支持 React 和 Vue 两种语法，通过 [hippy-react](//www.npmjs.com/package/hippy-react) 和 [hippy-vue](//www.npmjs.com/package/hippy-vue) 两个包提供实现。
+Hippy 同时支持 React 和 Vue 两种语法，通过 [@hippy/react](//www.npmjs.com/package/@hippy/react) 和 [@hippy/vue](//www.npmjs.com/package/@hippy/vue) 两个包提供实现。
+
+> 但是从工程上我们依然称呼它们为 `hippy-react` 和 `hippy-vue`。
 
 # hippy-react
 
@@ -26,7 +28,7 @@ hippy-react 工程暂时只能通过手工配置初始化（后期会提供基�
 
 | 包名                | 说明                       |
 | ------------------- | -------------------------- |
-| hippy-react         | hippy-react 运行时和渲染层 |
+| @hippy/react        | hippy-react 运行时和渲染层 |
 | react               | react 本体                 |
 | regenerator-runtime | async/await 转换运行时     |
 
@@ -38,12 +40,12 @@ hippy-react 工程暂时只能通过手工配置初始化（后期会提供基�
 
 | 包名                                    | 说明                                           |
 | --------------------------------------- | ---------------------------------------------- |
-| babel/core                              | Babel - 高版本 ES 转换为 ES6 和 ES5 的转译程序 |
 | @babel/plugin-proposal-class-properties | Babel 插件 - 支持仍在草案的 Class Properties   |
 | @babel/preset-env                       | Babel 插件 - 根据所设置的环境选择 polyfill     |
 | @babel/preset-react                     | Babel 插件 - 转译 JSX 到 JS                    |
+| @hippy/debug-server                      | Hippy 前终端调试服务                           |
+| babel/core                              | Babel - 高版本 ES 转换为 ES6 和 ES5 的转译程序 |
 | babel-loader                            | Webpack 插件 - 加载 Babel 转译后的代码         |
-| hippy-debug-server                      | Hippy 前终端调试服务                           |
 | unicode-loader                          | Webpack 插件 - Hippy 只支持 unicode 的代码     |
 | webpack                                 | Webpack 打包程序                               |
 | webpack-cli                             | Webpack 命令行                                 |
@@ -92,13 +94,13 @@ hippy-react 工程暂时只能通过手工配置初始化（后期会提供基�
 入口文件非常简单，只是从 hippy-react 里初始化一个 Hippy 实例。
 
 ```js
-import { Hippy } from 'hippy-react';
+import { Hippy } from '@hippy/react';
 import App from './app';
 
 new Hippy({
   appName: 'Demo',  // 终端分配的业务名称
   entryPage: App,   // 对应业务启动时的组件
-  slient: false,    // 设置为 true 可以关闭框架日志输出
+  silent: false,    // 设置为 true 可以关闭框架日志输出
 }).start();
 ```
 
@@ -131,9 +133,9 @@ hippy-vue 相对简单很多，hippy-vue 只是 [Vue](//vuejs.org) 在终端上�
 
 | 包名                        | 说明                             |
 | --------------------------- | -------------------------------- |
-| hippy-vue                   | hippy-vue 运行时核心             |
-| hippy-vue-native-components | hippy-vue 的扩展终端组件         |
-| hippy-vue-router            | vue-router 在 hippy-vue 上的移植 |
+| @hippy/vue                   | hippy-vue 运行时核心             |
+| @hippy/vue-native-components | hippy-vue 的扩展终端组件         |
+| @hippy/vue-router            | vue-router 在 hippy-vue 上的移植 |
 
 ## hippy-vue 编译时依赖
 
@@ -143,8 +145,8 @@ hippy-vue 相对简单很多，hippy-vue 只是 [Vue](//vuejs.org) 在终端上�
 
 | 包名                 | 说明                                       |
 | -------------------- | ------------------------------------------ |
-| hippy-debug-server   | Hippy 前终端调试服务                       |
-| hippy-vue-css-loader | hippy-vue 的 CSS 文本到 JS 语法树转换      |
+| @hippy/debug-server   | Hippy 前终端调试服务                       |
+| @hippy/vue-css-loader | hippy-vue 的 CSS 文本到 JS 语法树转换      |
 | unicode-loader       | Webpack 插件 - Hippy 只支持 unicode 字符集 |
 
 可选的：
@@ -191,7 +193,7 @@ hippy-cli 初始化的项目自带了一个[Web 端入口文件](//github.com/Te
 ```js
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import HippyVueNativeComponents from 'hippy-vue-native-components';
+import HippyVueNativeComponents from '@hippy/vue-native-components';
 import App from './app.vue';
 import routes from './routes';
 import { setApp } from './util';
@@ -274,7 +276,7 @@ setApp(app);
 
 ## 路由
 
-hippy-vue-router 完整支持 vue-router 中的跳转功能，具体请参考 [hippy-vue-router](hippy-vue/router.md) 文档。
+`@hippy/vue-router` 完整支持 vue-router 中的跳转功能，具体请参考 [hippy-vue-router](hippy-vue/router.md) 文档。
 
 ## hippy-vue 转 Web
 

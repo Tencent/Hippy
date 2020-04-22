@@ -40,7 +40,7 @@ NSString *const HippyJavaScriptDidLoadNotification = @"HippyJavaScriptDidLoadNot
 NSString *const HippyJavaScriptDidFailToLoadNotification = @"HippyJavaScriptDidFailToLoadNotification";
 NSString *const HippyDidInitializeModuleNotification = @"HippyDidInitializeModuleNotification";
 NSString *const HippyBusinessDidLoadNotification = @"HippyBusinessDidLoadNotification";
-NSString *const _HippySDKVersion = @"0.3.6a";
+NSString *const _HippySDKVersion = @"2.0.2";
 
 static NSMutableArray<Class> *HippyModuleClasses;
 NSArray<Class> *HippyGetModuleClasses(void)
@@ -60,11 +60,11 @@ void HippyRegisterModule(Class moduleClass)
     dispatch_once(&onceToken, ^{
         HippyModuleClasses = [NSMutableArray new];
     });
-    
+
     HippyAssert([moduleClass conformsToProtocol:@protocol(HippyBridgeModule)],
               @"%@ does not conform to the HippyBridgeModule protocol",
               moduleClass);
-    
+
     // Register module
     [HippyModuleClasses addObject:moduleClass];
 }
@@ -78,7 +78,7 @@ NSString *HippyBridgeModuleNameForClass(Class cls)
     HippyAssert([cls conformsToProtocol:@protocol(HippyBridgeModule)],
               @"Bridge module `%@` does not conform to HippyBridgeModule", cls);
 #endif
-    
+
     NSString *name = [cls moduleName];
     if (name.length == 0) {
         name = NSStringFromClass(cls);
@@ -86,7 +86,7 @@ NSString *HippyBridgeModuleNameForClass(Class cls)
     if ([name hasPrefix:@"Hippy"] || [name hasPrefix:@"hippy"]) {
         name = [name substringFromIndex:5];
     }
-    
+
     return name;
 }
 
@@ -96,11 +96,11 @@ void HippyVerifyAllModulesExported(NSArray *extraModules)
     // Check for unexported modules
     unsigned int classCount;
     Class *classes = objc_copyClassList(&classCount);
-    
+
     NSMutableSet *moduleClasses = [NSMutableSet new];
     [moduleClasses addObjectsFromArray:HippyGetModuleClasses()];
     [moduleClasses addObjectsFromArray:[extraModules valueForKeyPath:@"class"]];
-    
+
     for (unsigned int i = 0; i < classCount; i++) {
         Class cls = classes[i];
         Class superclass = cls;
@@ -109,7 +109,7 @@ void HippyVerifyAllModulesExported(NSArray *extraModules)
                 if ([moduleClasses containsObject:cls]) {
                     break;
                 }
-                
+
                 // Verify it's not a super-class of one of our moduleClasses
                 BOOL isModuleSuperClass = NO;
                 for (Class moduleClass in moduleClasses) {
@@ -121,14 +121,14 @@ void HippyVerifyAllModulesExported(NSArray *extraModules)
                 if (isModuleSuperClass) {
                     break;
                 }
-                
+
                 HippyLogWarn(@"Class %@ was not exported. Did you forget to use HIPPY_EXPORT_MODULE()?", cls);
                 break;
             }
             superclass = class_getSuperclass(superclass);
         }
     }
-    
+
     free(classes);
 }
 #endif
@@ -147,7 +147,7 @@ dispatch_queue_t HippyJSThread;
 {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        
+
         // Set up JS thread
         HippyJSThread = (id)kCFNull;
     });
@@ -174,7 +174,7 @@ static HippyBridge *HippyCurrentBridgeInstance = nil;
 - (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)delegate
                    launchOptions:(NSDictionary *)launchOptions
 {
-    
+
     return [self initWithDelegate:delegate
                         bundleURL:nil
                    moduleProvider:nil
@@ -204,7 +204,7 @@ static HippyBridge *HippyCurrentBridgeInstance = nil;
         _shareOptions = [NSMutableDictionary new];
         _appVerson = @"";
         [self setUp];
-        
+
         HippyExecuteOnMainQueue(^{ [self bindKeys]; });
     }
     return self;
@@ -225,10 +225,10 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)init)
 - (void)bindKeys
 {
     HippyAssertMainQueue();
-    
+
 #if TARGET_IPHONE_SIMULATOR
     HippyKeyCommands *commands = [HippyKeyCommands sharedInstance];
-    
+
     // reload in current mode
     __weak typeof(self) weakSelf = self;
     [commands registerKeyCommandWithInput:@"r"
@@ -251,7 +251,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)init)
         return [self moduleForName:moduleName];
     } else
         return [self.batchedBridge moduleForName:moduleName];
-    
+
 }
 
 - (id)moduleForClass:(Class)moduleClass
@@ -267,7 +267,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)init)
 {
     if (!_isInitImageLoader) {
         _imageLoader = [[self modulesConformingToProtocol: @protocol(HippyImageViewCustomLoader)] lastObject];
-        
+
         if (_imageLoader) {
             _isInitImageLoader = YES;
         }
@@ -331,14 +331,14 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)init)
     _performanceLogger = [HippyPerformanceLogger new];
     [_performanceLogger markStartForTag:HippyPLBridgeStartup];
     //  [_performanceLogger markStartForTag:HippyPLTTI];
-    
+
     // Only update bundleURL from delegate if delegate bundleURL has changed
     NSURL *previousDelegateURL = _delegateBundleURL;
     _delegateBundleURL = [self.delegate sourceURLForBridge:self];
     if (_delegateBundleURL && ![_delegateBundleURL isEqual:previousDelegateURL]) {
         _bundleURL = _delegateBundleURL;
     }
-    
+
     // Sanitize the bundle URL
     _bundleURL = [HippyConvert NSURL:_bundleURL.absoluteString];
 #ifndef HIPPY_DEBUG
@@ -381,7 +381,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)init)
 {
     HippyBridge *batchedBridge = self.batchedBridge;
     self.batchedBridge = nil;
-    
+
     if (batchedBridge) {
         HippyExecuteOnMainQueue(^{
             [batchedBridge invalidate];

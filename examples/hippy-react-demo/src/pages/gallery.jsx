@@ -1,24 +1,14 @@
 import React, { Component } from 'react';
+import { withRouter } from 'react-router-dom';
 import {
   BackAndroid,
-  Image,
   ListView,
   Platform,
   StyleSheet,
   Text,
   View,
-} from 'hippy-react';
-import * as components from '../components';
-import * as modules from '../modules';
-import * as externals from '../externals';
-
-import BACK_ICON from './back-icon.png';
-
-const PAGE_LIST = {
-  ...components,
-  ...modules,
-  ...externals,
-};
+} from '@hippy/react';
+import routes from '../routes';
 
 const SKIN_COLOR = {
   mainLight: '#4c9afa',
@@ -28,28 +18,6 @@ const SKIN_COLOR = {
 
 
 const styles = StyleSheet.create({
-  container: {
-    height: 56,
-    backgroundColor: SKIN_COLOR.mainLight,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  backIcon: {
-    width: 24,
-    height: 24,
-  },
-  headerButton: {
-    height: 64,
-    paddingHorizontal: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 20,
-    color: SKIN_COLOR.textWhite,
-    lineHeight: 24,
-  },
   rowContainer: {
     alignItems: 'center',
   },
@@ -71,108 +39,26 @@ const styles = StyleSheet.create({
   },
 });
 
-export default class Gallery extends Component {
+export class Gallery extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      page: 'Home',
+      pressItem: '',
       // TODO: Make the demo detail be in the demo folder.
-      dataSource: [
-        {
-          id: 'View',
-          name: 'View 组件',
-          style: 1,
-        },
-        {
-          id: 'Clipboard',
-          name: 'Clipboard 组件',
-          style: 1,
-        },
-        {
-          id: 'Text',
-          name: 'Text 组件',
-          style: 1,
-        },
-        {
-          id: 'Image',
-          name: 'Image 组件',
-          style: 1,
-        },
-        {
-          id: 'ListView',
-          name: 'ListView 组件',
-          style: 1,
-        },
-        {
-          id: 'RefreshWrapper',
-          name: 'RefreshWrapper 组件',
-          style: 1,
-        },
-        {
-          id: 'ScrollView',
-          name: 'ScrollView 组件',
-          style: 1,
-        },
-        {
-          id: 'ViewPager',
-          name: 'ViewPager 组件',
-          style: 1,
-        },
-        {
-          id: 'TextInput',
-          name: 'TextInput 组件',
-          style: 1,
-        },
-        {
-          id: 'Modal',
-          name: 'Modal 组件',
-          style: 1,
-        },
-        {
-          id: 'Slider',
-          name: 'Slider 组件',
-          style: 1,
-        },
-        {
-          id: 'TabHost',
-          name: 'TabHost 组件',
-          style: 1,
-        },
-        {
-          id: 'WebView',
-          name: 'WebView 组件',
-          style: 1,
-        },
-        {
-          id: 'MyView',
-          name: 'MyView 组件',
-          style: 1,
-        },
-        {
-          id: 'Animation',
-          name: 'Animation 组件',
-          style: 2,
-        },
-        {
-          id: 'NetInfo',
-          name: 'NetInfo 能力',
-          style: 2,
-        },
-      ],
+      dataSource: [...routes],
     };
     this.renderRow = this.renderRow.bind(this);
     this.getRowType = this.getRowType.bind(this);
-    this.clickBack = this.clickBack.bind(this);
+    this.getRowKey = this.getRowKey.bind(this);
+    this.clickTo = this.clickTo.bind(this);
   }
 
   componentDidMount() {
-    const { page } = this.state;
+    const { history } = this.props;
     if (Platform.OS === 'android') {
       BackAndroid.addListener(() => {
-        if (page !== 'Home') {
-          this.setState({
-            page: 'Home',
-          });
+        if (history.index === 0) {
+          history.goBack();
           return true;
         }
         return false;
@@ -189,6 +75,12 @@ export default class Gallery extends Component {
     return item.style;
   }
 
+  getRowKey(index) {
+    const { dataSource } = this.state;
+    const item = dataSource[index];
+    return item.path || `${index}`;
+  }
+
   feedback(itemId) {
     const pressItem = itemId || '';
     this.setState({
@@ -196,42 +88,33 @@ export default class Gallery extends Component {
     });
   }
 
-
   clickTo(pageId) {
-    this.setState({
-      page: pageId,
-    });
-  }
-
-  clickBack() {
-    this.setState({
-      page: 'Home',
-    });
+    const { history } = this.props;
+    history.push(pageId);
   }
 
   renderRow(index) {
     const { dataSource, pressItem } = this.state;
     const rowData = dataSource[index];
-    if (!rowData.style) return null;
+    const styleType = rowData.meta.style;
     return (
       <View style={styles.rowContainer}>
         <View
-          onPressIn={() => this.feedback(rowData.id)}
+          onPressIn={() => this.feedback(rowData.path)}
           onPressOut={() => this.feedback()}
-          onClick={() => this.clickTo(rowData.id)}
+          onClick={() => this.clickTo(rowData.path)}
           style={[styles.buttonView, {
-            borderColor: (rowData.style === 1 ? SKIN_COLOR.mainLight : SKIN_COLOR.otherLight),
-            opacity: (pressItem === rowData.id ? 0.5 : 1),
+            borderColor: (styleType === 1 ? SKIN_COLOR.mainLight : SKIN_COLOR.otherLight),
+            opacity: (pressItem === rowData.path ? 0.5 : 1),
           }]}
         >
           <Text
             style={[
               styles.buttonText,
-              { color: (rowData.style === 1 ? SKIN_COLOR.mainLight : SKIN_COLOR.otherLight) },
+              { color: (styleType === 1 ? SKIN_COLOR.mainLight : SKIN_COLOR.otherLight) },
             ]}
           >
             {rowData.name}
-
           </Text>
         </View>
       </View>
@@ -240,54 +123,16 @@ export default class Gallery extends Component {
 
   render() {
     const { dataSource } = this.state;
-    let header;
-    let content;
-    const { page } = this.state;
-    if (page === 'Home') {
-      header = (
-        <View style={[styles.container]}>
-          <View style={{ backgroundColor: styles.title.backgroundColor, marginLeft: 12  }}>
-            <Text numberOfLines={1} style={[styles.title, { fontWeight: 'bold' }]}>
-              Hippy React 示例
-            </Text>
-          </View>
-        </View>
-      );
-      content = (
-        <ListView
-          style={{ flex: 1, backgroundColor: '#ffffff' }}
-          numberOfRows={dataSource.length}
-          renderRow={this.renderRow}
-          getRowType={this.getRowType}
-        />
-      );
-    } else {
-      header = (
-        <View style={[styles.container]}>
-          <View
-            onClick={this.clickBack}
-            style={[styles.headerButton, Platform.OS === 'ios' ? null : { marginLeft: 20 }]}
-          >
-            <Image
-              style={styles.backIcon}
-              source={{ uri: BACK_ICON }}
-            />
-          </View>
-          <View style={styles.headerButton}>
-            <Text numberOfLines={1} style={styles.title}>
-              {page}
-            </Text>
-          </View>
-        </View>
-      );
-      const Content = PAGE_LIST[page];
-      content = <Content />;
-    }
     return (
-      <View style={{ flex: 1, backgroundColor: '#fff' }}>
-        { header }
-        { content }
-      </View>
+      <ListView
+        style={{ flex: 1, backgroundColor: '#ffffff' }}
+        numberOfRows={dataSource.length}
+        renderRow={this.renderRow}
+        getRowType={this.getRowType}
+        getRowKey={this.getRowKey}
+      />
     );
   }
 }
+
+export default withRouter(Gallery);

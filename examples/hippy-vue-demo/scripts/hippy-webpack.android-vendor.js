@@ -26,8 +26,8 @@ module.exports = {
     new CaseSensitivePathsPlugin(),
     new VueLoaderPlugin(),
     new webpack.DllPlugin({
-      context: path.resolve('..'),
-      path: path.resolve(`./dist/${platform}/[name]-manifest.json`),
+      context: path.resolve(__dirname, '..'),
+      path: path.resolve(__dirname, `../dist/${platform}/[name]-manifest.json`),
       name: 'hippyVueBase',
     }),
   ],
@@ -65,10 +65,9 @@ module.exports = {
   },
   resolve: {
     extensions: ['.js', '.vue', '.json'],
-    modules: [path.resolve(__dirname, '../node_modules')],
     alias: {
-      vue: path.resolve(__dirname, '../../../packages/hippy-vue'),
-      'vue-router': path.resolve(__dirname, '../../../packages/hippy-vue-router'),
+      vue: '@hippy/vue',
+      'vue-router': '@hippy/vue-router',
     },
   },
 };

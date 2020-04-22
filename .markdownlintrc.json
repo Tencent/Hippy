@@ -3,7 +3,7 @@
   "no-blanks-blockquote": false,
   "single-h1": false,
   "first-line-h1": false,
-  "ol-prefix": false,
-  "blanks-around-fences": false,
-  "no-blanks-quota": false
+  "no-multiple-blanks": {
+    "maximum": 2
+  }
 }

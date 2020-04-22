@@ -26,6 +26,16 @@ test('set isMounted test', (t) => {
   t.is(node.isMounted, true);
 });
 
+test('append exist child test', (t) => {
+  const parentNode = new ViewNode();
+  const childNode = new ViewNode();
+  const childNode2 = new ViewNode();
+  parentNode.appendChild(childNode);
+  parentNode.appendChild(childNode2);
+  parentNode.appendChild(childNode);
+  t.is(parentNode.lastChild, childNode);
+});
+
 test('findChild test', (t) => {
   const parentNode = new ViewNode();
   const childNode = new ViewNode();

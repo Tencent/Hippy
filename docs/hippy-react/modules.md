@@ -1,6 +1,8 @@
 <!-- markdownlint-disable no-duplicate-header  -->
 <!-- markdownlint-disable no-blacks-blockquote -->
 
+# 模块
+
 # Animation
 
 [[Animation 范例]](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/modules/Animation)
@@ -55,7 +57,7 @@
 
 `(callback: () => void) => void` 注册一个动画的监听回调，当动画开始下一次重复播放时callback将被回调。
 
-### onHippyAnimationStart
+### onAnimationStart
 
 `(callback: () => void) => void` 注册一个动画的监听回调，在动画开始时将会回调callback。
 
@@ -112,7 +114,7 @@
 
 `(callback: () => void) => void` 注册一个动画的监听回调，当动画开始下一次重复播放时 callback 将被回调。
 
-### onHippyAnimationStart
+### onAnimationStart
 
 `(callback: () => void) => void` 注册一个动画的监听回调，在动画开始时将会回调 callback。
 
@@ -343,7 +345,7 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 | 参数          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| OS | 用来判断是在 iOS 或者 Adroid 下 | string                                  | `ALL`    |
+| OS | 用来判断是在 iOS 或者 Android 下 | string                                  | `ALL`    |
 
 # Stylesheet
 

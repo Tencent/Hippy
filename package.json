@@ -1,20 +1,25 @@
 {
   "name": "hippy",
   "private": true,
+  "author": "Hippy Team <hippy@tencent.com>",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=10.0.0"
+  },
   "scripts": {
-    "build": "node ./scripts/js2cpp/build.js && node ./scripts/build.js",
+    "build": "node ./scripts/build.js",
+    "buildcore": "node ./scripts/build-core.js",
     "buildexample": "node ./scripts/build-example.js",
     "commitlint": "commitlint --color",
     "markdownlint": "markdownlint --config .markdownlintrc.json ./*.md ./docs/**/*.md",
     "coverage": "nyc ava",
-    "lint": "eslint \"packages/**/*.@(js|ts|tsx)\" \"examples/hippy-react-demo/**/*.@(js|jsx)\"",
+    "codecov": "cat ./coverage/lcov.info | codecov",
+    "lint": "eslint \"packages/**/*.@(js|ts|tsx)\" \"examples/hippy-react-demo/**/*.@(js|jsx)\" ./scripts/*.js",
     "clean": "rimraf ./coverage ./nyc_output packages/*/dist",
     "test": "ava",
     "watch": "watch \"npm run build\" ./packages --ignoreDotFiles --ignoreUnreadable --ignoreDirectoryPattern '/dist/'",
+    "publish": "lerna version patch --conventional-commits --sign-git-commit",
     "doc": "docsify serve docs"
-  },
-  "engines": {
-    "node": ">=10.0.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^8.1.0",
@@ -24,6 +29,7 @@
     "@typescript-eslint/parser": "^2.15.0",
     "@wessberg/rollup-plugin-ts": "^1.1.72",
     "ava": "^2.2.0",
+    "codecov": "^3.6.1",
     "csstype": "^2.6.7",
     "docsify-cli": "^4.4.0",
     "eslint": "^6.1.0",
@@ -34,7 +40,6 @@
     "eslint-plugin-react": "^7.14.3",
     "esm": "^3.2.25",
     "flow-remove-types": "^1.2.3",
-    "fs-extra": "^8.1.0",
     "lerna": "^3.16.4",
     "markdownlint-cli": "^0.20.0",
     "module-alias": "^2.2.1",
@@ -49,6 +54,7 @@
     "rollup-plugin-flow-no-whitespace": "^1.0.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-replace": "^2.2.0",
+    "shelljs": "^0.8.3",
     "tslib": "^1.10.0",
     "typedoc": "^0.15.0",
     "typedoc-plugin-markdown": "^2.2.10",

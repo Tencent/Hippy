@@ -37,17 +37,6 @@ module.exports = {
     // Turn of extensions checking temporary
     'import/extensions': 'off',
 
-    // Note you must disable the base rule as it can report incorrect errors
-    'no-unused-vars': 'off',
-    '@typescript-eslint/no-unused-vars': [
-        'error',
-        {
-          vars: 'all',
-          args: 'after-used',
-          ignoreRestSiblings: false
-        },
-    ],
-
     // https://github.com/benmosher/eslint-plugin-import/tree/master/docs/rules/namespace.md#allowcomputed
     'import/namespace': [
       'error',
@@ -86,9 +75,9 @@ module.exports = {
           '__HIPPYNATIVEGLOBAL__',
           '__instanceId__',
           '_reactInternalFiber',
-        ]
-      }
-    ]
+        ],
+      },
+    ],
   },
   settings: {
     'import/resolver': {
@@ -107,9 +96,9 @@ module.exports = {
           ['@css-loader', './packages/hippy-vue-css-loader/src'],
           ['@native-components', './packages/hippy-vue-native-components/src'],
         ],
-        extensions: ['.ts', '.tsx', '.js', '.jsx', '.json']
-      }
-    }
+        extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
+      },
+    },
   },
   overrides: [
     {
@@ -123,7 +112,18 @@ module.exports = {
 
         // Force use 2 space for indent
         '@typescript-eslint/indent': ['error', 2],
-      }
-    }
-  ]
+
+        // Note you must disable the base rule as it can report incorrect errors
+        'no-unused-vars': 'off',
+        '@typescript-eslint/no-unused-vars': [
+            'error',
+            {
+              vars: 'all',
+              args: 'after-used',
+              ignoreRestSiblings: false,
+            },
+        ],
+      },
+    },
+  ],
 }

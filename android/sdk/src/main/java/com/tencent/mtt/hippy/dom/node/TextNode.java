@@ -151,6 +151,7 @@ public class TextNode extends StyleNode
 	public void fontSize(float fontSize)
 	{
 		this.mFontSize = (int) Math.ceil(PixelUtil.dp2px(fontSize));
+    markUpdated();
 	}
 
 	@HippyControllerProps(name = NodeProps.FONT_FAMILY)

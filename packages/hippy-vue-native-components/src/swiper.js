@@ -1,5 +1,7 @@
 /* eslint-disable no-param-reassign */
 
+import { getEventRedirector } from './utils';
+
 function registerSwiper(Vue) {
   Vue.registerElement('hi-swiper', {
     component: {
@@ -12,6 +14,9 @@ function registerSwiper(Vue) {
           case 'onPageScroll':
             event.nextSlide = nativeEventParams.position;
             event.offset = nativeEventParams.offset;
+            break;
+          case 'onPageScrollStateChanged':
+            event.state = nativeEventParams.pageScrollState;
             break;
           default:
         }
@@ -63,6 +68,10 @@ function registerSwiper(Vue) {
       onPageSelected(evt) {
         this.$emit('dropped', evt);
       },
+      // On page scroll state changed.
+      onPageScrollStateChanged(evt) {
+        this.$emit('stateChanged', evt);
+      },
     },
     watch: {
       current(to) {
@@ -73,16 +82,20 @@ function registerSwiper(Vue) {
         }
       },
     },
-    template: `
-      <hi-swiper
-        ref="swiper"
-        :initialPage="$initialSlide"
-        @pageSelected="onPageSelected"
-        @pageScroll="onPageScroll"
-        >
-        <slot />
-      </hi-swiper>
-    `,
+    render(h) {
+      const on = getEventRedirector.call(this, [
+        ['dropped', 'pageSelected'],
+        ['dragging', 'pageScroll'],
+        ['stateChanged', 'pageScrollStateChanged'],
+      ]);
+      return h('hi-swiper', {
+        on,
+        ref: 'swiper',
+        props: {
+          initialPage: this.$initialSlide,
+        },
+      }, this.$slots.default);
+    },
   });
 }
 

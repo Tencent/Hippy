@@ -4,6 +4,7 @@ import React from 'react';
 import { View } from './view';
 import { formatWebStyle } from '../adapters/transfer';
 import StyleSheet from '../modules/stylesheet';
+import applyLayout from '../adapters/apply-layout';
 
 const styles = StyleSheet.create({
   baseVertical: {
@@ -76,8 +77,8 @@ export class ScrollView extends React.Component {
       WebkitOverflowScrolling: 'touch',
     };
     const newStyle = horizontal
-      ? Object.assign({}, style, iOSTouchStyle, styles.baseHorizontal)
-      : Object.assign({}, style, iOSTouchStyle, styles.baseVertical);
+      ? { ...formatWebStyle(style), ...iOSTouchStyle, ...styles.baseHorizontal }
+      : { ...formatWebStyle(style), ...iOSTouchStyle, ...styles.baseVertical };
     newProps.style = formatWebStyle(newStyle);
     if (typeof newProps.onScroll === 'function') {
       const onScrollFunc = newProps.onScroll;
@@ -140,4 +141,4 @@ export class ScrollView extends React.Component {
   }
 }
 
-export default ScrollView;
+export default applyLayout(ScrollView);

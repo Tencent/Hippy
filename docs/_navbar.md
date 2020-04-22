@@ -1,9 +1,11 @@
 * 起步
   * [开始接入](guide/integration.md)
+  * [Core C++ 扩展](core/introduction.md)
   * [Android](android/integration.md)
   * [iOS](ios/integration.md)
   * [前端调试](guide/debug.md)
   * [网络请求](guide/network-request.md)
+  * [自定义字体](guide/custom-font.md)
   * [技术支持](guide/support.md)
 
 * Hippy-React
