@@ -77,8 +77,8 @@ export class ScrollView extends React.Component {
       WebkitOverflowScrolling: 'touch',
     };
     const newStyle = horizontal
-      ? Object.assign({}, style, iOSTouchStyle, styles.baseHorizontal)
-      : Object.assign({}, style, iOSTouchStyle, styles.baseVertical);
+      ? { ...formatWebStyle(style), ...iOSTouchStyle, ...styles.baseHorizontal }
+      : { ...formatWebStyle(style), ...iOSTouchStyle, ...styles.baseVertical };
     newProps.style = formatWebStyle(newStyle);
     if (typeof newProps.onScroll === 'function') {
       const onScrollFunc = newProps.onScroll;
