@@ -123,7 +123,9 @@ export class Image extends React.Component {
         url: imageInfo.src,
       });
     }
-    onLoadEnd();
+    if (onLoadEnd) {
+      onLoadEnd();
+    }
   }
 
   onError() {

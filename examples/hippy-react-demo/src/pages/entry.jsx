@@ -4,8 +4,6 @@ import {
   Route,
 } from 'react-router-dom';
 import { View } from '@hippy/react';
-
-
 import Gallery from './gallery';
 import routes from '../routes';
 import Header from '../shared/Header';
@@ -18,7 +16,6 @@ const ALLROUTES = [{
     style: 1,
   },
 }, ...routes];
-
 
 export const Entry = () => (
   <View style={{ flex: 1, backgroundColor: '#fff' }}>
