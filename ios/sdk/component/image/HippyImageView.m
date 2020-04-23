@@ -181,6 +181,7 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
 {
 	if (![_source isEqualToArray: source]) {
 		_source = [source copy];
+        self.animatedImage = nil;
 		[self updateImage: nil];
 		[self reloadImage];
 	}
