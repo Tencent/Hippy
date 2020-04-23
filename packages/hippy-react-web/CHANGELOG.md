@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.3](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/compare/2.0.2...2.0.3) (2020-04-23)
+
+
+### Bug Fixes
+
+* **hippy-react-web:** scroll-view style should be called by formatWebS… ([#233](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/issues/233)) ([9db12a4](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/commit/9db12a4fff59908c48f5547ddeb6deba68903af8))
+* **react-web:** annimation-set support opacity ([b29e92c](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/commit/b29e92cac95f444925a99dcae82cdf5bcbd47f2a))
+
+
+### Features
+
+* **hippy-react-web:** added default export for hippy-react web ([62cbdb0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/commit/62cbdb0cb7d65c989439e1d7ffb0a5fa1143eddd))
+* **react-web:** support layout event ([fafa65c](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/commit/fafa65c2fc6f23cc717f35a163cdf4d7b43ff6a5))
+
+
+
+
+
 ## [2.0.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/compare/2.0.1...2.0.2) (2020-03-18)
 
 

@@ -1,9 +1,9 @@
 {
   "name": "@hippy/react",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Hippy react framework",
   "main": "dist/index.js",
-  "homepage": "https://github.com/Tencent/Hippy",
+  "homepage": "http://hippyjs.org",
   "repository": "https://github.com/Tencent/Hippy/tree/master/packages/hippy-react",
   "author": "XQ Kuang <x@kxq.io>",
   "license": "Apache-2.0",

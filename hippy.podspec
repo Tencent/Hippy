@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'hippy'
-  s.version          = '2.0.2'
+  s.version          = '2.0.3'
   s.summary          = 'hippy lib for ios'
 
 # This description is used to generate tags and improve search results.
@@ -20,7 +20,7 @@ Pod::Spec.new do |s|
   s.description      = <<-DESC
 TODO: Add long description of the pod here.
                        DESC
-  s.homepage         = 'https://tencent.github.io/Hippy/#/'
+  s.homepage         = 'http://hippyjs.org'
   s.license          = { :type => 'Apache2', :file => 'LICENSE' }
   s.author           = { 'mengyanluo' => 'mengyanluo@tencent.com' }
   s.source           = {:git => 'https://github.com/Tencent/Hippy.git', :tag => s.version}
