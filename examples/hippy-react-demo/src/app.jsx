@@ -46,6 +46,7 @@ export default class App extends Component {
   render() {
     const { pageIndex } = this.state;
     const { isSimulator, __instanceId__: instanceId } = this.props;
+
     const renderPage = () => {
       switch (pageIndex) {
         case 0:

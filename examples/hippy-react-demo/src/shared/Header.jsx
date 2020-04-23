@@ -1,6 +1,6 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
-import {
+import HippyReact, {
   Image,
   Platform,
   StyleSheet,
@@ -50,6 +50,12 @@ const Header = ({ history, route }) => {
         <View style={{ backgroundColor: styles.title.backgroundColor, marginLeft: 12  }}>
           <Text numberOfLines={1} style={[styles.title, { fontWeight: 'bold' }]}>
             {route.name}
+          </Text>
+        </View>
+        <View style={styles.headerButton}>
+          <Text numberOfLines={1} style={styles.title}>
+            v
+            {HippyReact.version}
           </Text>
         </View>
       </View>

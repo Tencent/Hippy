@@ -2,7 +2,7 @@ import './global';
 import {
   Device,
 } from './native';
-import Hippy from './hippy';
+import HippyReact from './hippy';
 import View from './components/view';
 import Text from './components/text';
 import Image from './components/image';
@@ -21,6 +21,7 @@ import StyleSheet from './modules/stylesheet';
 import * as NetInfo from './modules/net-info';
 import * as NetworkModule from './modules/network-module';
 
+const Hippy = HippyReact;
 const ConsoleModule = console;
 
 const Platform = {
@@ -42,6 +43,7 @@ const PixelRatio = {
 const AsyncStorage = localStorage;
 const ImageBackground = Image;
 
+export default HippyReact;
 export {
   Hippy,
   View,

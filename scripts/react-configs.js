@@ -83,6 +83,7 @@ function genConfig(name) {
     plugins: [
       replace({
         'process.env.HIPPY_REACT_VERSION': `"${hippyReactPackage.version}"`,
+        'process.env.HIPPY_REACT_WEB_VERSION': `"${hippyReactWebPackage.version}"`,
       }),
       typescript({
         transpileOnly: true,
