@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.3](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.0.2...2.0.3) (2020-04-23)
+
+
+### Features
+
+* **hippy-vue:** make beforeStyleLoad hooks applied in runtime ([2fc49cf](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/2fc49cf819c32038b780569a8d278a865e438703))
+
+
+
+
+
 ## [2.0.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.0.1...2.0.2) (2020-03-18)
 
 ### Bug Fixes

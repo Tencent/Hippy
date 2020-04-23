@@ -52,6 +52,9 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
   },
+  black: {
+    color: 'black',
+  },
 });
 
 /**
@@ -115,6 +118,13 @@ const UIManagerModuleDemo = function UIManagerModuleDemo() {
    */
   const getBoxPosition = async () => {
     try {
+      /**
+       * Be careful: the promise returns support in the newer than 2.0.3 version
+       * use the callback method for forward compatibility for the previous version.
+       *
+       * Demo:
+       * UIManagerModule.measureInWindow(box.current, (response) => setMeasuredPosition(response))
+       */
       const response = await UIManagerModule.measureInWindow(box.current);
       setMeasuredPosition(response);
     } catch (err) {
@@ -146,17 +156,17 @@ const UIManagerModuleDemo = function UIManagerModuleDemo() {
       <View style={styles.row}>
         <View style={styles.full}>
           <Text>Box style:</Text>
-          <Text>{`Width: ${boxStyle.width}`}</Text>
-          <Text>{`Height: ${boxStyle.height}`}</Text>
-          <Text>{`Left: ${boxStyle.left}`}</Text>
-          <Text>{`Top: ${boxStyle.top}`}</Text>
+          <Text style={styles.black}>{`Width: ${boxStyle.width}`}</Text>
+          <Text style={styles.black}>{`Height: ${boxStyle.height}`}</Text>
+          <Text style={styles.black}>{`Left: ${boxStyle.left}`}</Text>
+          <Text style={styles.black}>{`Top: ${boxStyle.top}`}</Text>
         </View>
         <View style={styles.full}>
           <Text>measureInWindow output:</Text>
-          <Text>{`Width: ${measuredPosition.width}`}</Text>
-          <Text>{`Height: ${measuredPosition.height}`}</Text>
-          <Text>{`X: ${measuredPosition.x}`}</Text>
-          <Text>{`Y: ${measuredPosition.y}`}</Text>
+          <Text style={styles.black}>{`Width: ${measuredPosition.width}`}</Text>
+          <Text style={styles.black}>{`Height: ${measuredPosition.height}`}</Text>
+          <Text style={styles.black}>{`X: ${measuredPosition.x}`}</Text>
+          <Text style={styles.black}>{`Y: ${measuredPosition.y}`}</Text>
         </View>
       </View>
     </View>

@@ -515,7 +515,7 @@ publish {
   repoName = 'Hippy'
   groupId = 'com.tencent.hippy'
   artifactId = 'hippy-release'
-  publishVersion = '2.0.2'
+  publishVersion = '2.0.3'
   dryRun = false
   desc = 'Hippy library for Android'
   website = 'https://github.com/Tencent/Hippy'
