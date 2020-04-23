@@ -45,4 +45,4 @@ jobs:
         uses: nosborn/github-action-markdown-cli@v1.1.1
         with:
           config_file: .markdownlintrc.json
-          files: ./*.md ./docs/**/*.md
+          files: ./README*.md ./PUBLISH*.md ./docs/**/*.md
