@@ -7,10 +7,11 @@
 更新版本和 CHANGELOG 使用：
 
 ```bash
-lerna version --conventional-commits
+lerna version --conventional-commits --tag-version-prefix=''
 ```
 
-* `--conventional-commits` 代表生成基于 conventional 提交规范的 CHANGELOG。
+* `--conventional-commits` - 生成基于 conventional 提交规范的 CHANGELOG。
+* `--tag-version-prefix` - 改为空字符，这样生成的版本号 tag 前面就不会带上默认的 `v`。
 
 ## 2. 回退 commit 并删除自动生成的 tag
 
@@ -108,8 +109,10 @@ git push --tags # 提交 tag
 * 前端发布到 npmjs.com
 
   ```bash
-  lerna run "npm run publish"
+  lerna exec "npm run publish"
   ```
+
+  > 如果开启了 npm 二次验证会一直问你一次性密码，正常输入即可。
 
 * iOS 发布到 cocoapods.org
 
@@ -119,4 +122,4 @@ git push --tags # 提交 tag
 
 * Android 发布到 [bintray](https://bintray.com/beta/#/hippy/Hippy/hippy-release?tab=overview)
 
-  在 Android Studio 中打开 `examples/android-demo` 项目，并且在旁边的 Gradle 面板中运行 `android-demo` > `android-sdk` > `publishing` > `:android-sdk:publish`
+  在 Android Studio 中打开 `examples/android-demo` 项目，并且在旁边的 Gradle 面板中运行 `android-demo` > `android-sdk` > `publishing` > `:android-sdk:bintrayUpload`
