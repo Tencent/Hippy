@@ -276,7 +276,7 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
@@ -321,26 +321,22 @@ afterEvaluate {
 
 def dealAfterBuild(variant) {
     if (variant.buildType.name == 'release') {
-        String BUILD_TYPE = "${variant.buildType.name}"
-        String FLAVOR = "${variant.flavorName}"
-        File aarFile
+      String BUILD_TYPE = "${variant.buildType.name}"
+      String FLAVOR = "${variant.flavorName}"
+      File aarFile
 
-        variant.outputs.each { output ->
-            File file = output.outputFile
-            if (file.name.endsWith(".aar")) {
-                aarFile = file
-            }
+      variant.outputs.each { output ->
+        File file = output.outputFile
+        if (file.name.endsWith(".aar")) {
+          aarFile = file
         }
+      }
 
-//        project.tasks['bundleRelease'].finalizedBy task("dealAfterBuild${variant.name.capitalize()}") {
-//            doLast {
-//                unZipAar(aarFile)
-//                buildQBAar(aarFile)
-//                if (ISCI.toBoolean()) {
-//                    copyMappingToBin(FLAVOR, BUILD_TYPE)
-//                }
-//            }
-//        }
+      variant.assemble.finalizedBy task("dealAfterBuild${variant.name.capitalize()}") {
+        doLast {
+          unZipAar(aarFile)
+        }
+      }
     }
 }
 
