@@ -31,6 +31,7 @@
 #if HIPPY_DEV
 
 static BOOL isEnabled = YES;
+static CGFloat const HippyDevMsgViewHeight = 22.f;
 
 @implementation HippyDevLoadingView
 {
@@ -88,7 +89,15 @@ HIPPY_EXPORT_METHOD(showMessage:(NSString *)message color:(UIColor *)color backg
     self->_showDate = [NSDate date];
     if (!self->_window && !HippyRunningInTestEnvironment()) {
       CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
-      self->_window = [[UIWindow alloc] initWithFrame:CGRectMake(0, 0, screenWidth, 22)];
+      CGFloat viewHeight = HippyDevMsgViewHeight;
+      if (@available(iOS 11.0, *)) {
+          UIEdgeInsets safeAreaInsets = [[UIApplication sharedApplication] delegate].window.safeAreaInsets;
+          if (safeAreaInsets.bottom > 0) {
+              //is iPhoneX
+              viewHeight += safeAreaInsets.top;
+          }
+      }
+      self->_window = [[UIWindow alloc] initWithFrame:CGRectMake(0, 0, screenWidth, viewHeight)];
       self->_window.windowLevel = UIWindowLevelStatusBar + 1;
       // set a root VC so rotation is supported
       self->_window.rootViewController = [UIViewController new];
