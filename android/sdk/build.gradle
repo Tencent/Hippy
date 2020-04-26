@@ -305,7 +305,6 @@ android {
 
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
-    compileOnly project(path:':support_ui')
 }
 
 afterEvaluate {
