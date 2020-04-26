@@ -47,6 +47,9 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 	protected String				mUrl;
 	protected String				mDefaultSourceUrl;
 
+	// the 'mURL' is fetched succeed
+	protected boolean               mIsUrlFetchSucceed;
+
 	protected int					mTintColor;
 	protected ScaleType				mScaleType;
 	protected int                   mBoxShadowX;
@@ -94,6 +97,7 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 		if (!TextUtils.equals(url, mUrl))
 		{
 			mUrl = url;
+			mIsUrlFetchSucceed = false;
 			if (isAttached())
 			{
 				onDrawableDetached();
@@ -326,6 +330,7 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 			if (sourceType == SOURCE_TYPE_SRC)
 			{
 				mSourceDrawable = null;
+				mIsUrlFetchSucceed = false;
 				handleGetImageFail(requestInfo instanceof Throwable ? (Throwable) requestInfo : null);
 			}
 			else if (sourceType == SOURCE_TYPE_DEFAULT_SRC)
@@ -339,6 +344,7 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 			if (sourceType == SOURCE_TYPE_SRC)
 			{
 				mSourceDrawable = resultDrawable;
+				mIsUrlFetchSucceed = true;
 				handleGetImageSuccess();
 			}
 			else if (sourceType == SOURCE_TYPE_DEFAULT_SRC)
@@ -395,7 +401,12 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 			setContent(SOURCE_TYPE_DEFAULT_SRC);
 			setUrl(mUrl);
 		}
-		fetchImageByUrl(mUrl, SOURCE_TYPE_SRC);
+		// avoid duplicated fetching for same url
+    // imageView inside listview item will be executed as detach->attach,
+    // fetching same image again will cause flashing
+		if (getBitmap() == null || !mIsUrlFetchSucceed) {
+		  fetchImageByUrl(mUrl, SOURCE_TYPE_SRC);
+		}
 		onDrawableAttached();
 	}
 
