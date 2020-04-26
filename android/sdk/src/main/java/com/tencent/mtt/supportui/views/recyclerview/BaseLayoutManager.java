@@ -693,7 +693,7 @@ public abstract class BaseLayoutManager extends RecyclerViewBase.LayoutManager
 		mRecyclerView.checkNotifyFooterAppearWithFewChild(endOffset);
 		//		checkChildNotMuch(endOffset);
 		// changes may cause gaps on the UI, try to fix them.
-		if (getChildCount() > 0 && !mPreventFixGap)
+		if (getChildCount() > 0 && !mPreventFixGap && mRecyclerView.mState.mCustomHeaderHeight == 0)
 		{
 			// because layout from end may be changed by scroll to position
 			// we re-calculate it.
