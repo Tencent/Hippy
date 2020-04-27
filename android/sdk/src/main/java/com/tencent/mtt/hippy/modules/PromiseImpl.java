@@ -45,7 +45,11 @@ public class PromiseImpl implements Promise
 		this.mModuleFunc = moduleFunc;
 		this.mCallId = callId;
 	}
-	
+
+	public String getCallId() {
+		return mCallId;
+	}
+
 	public boolean isCallback()
 	{
 		return !TextUtils.equals(mCallId, CALL_ID_NO_CALLBACK);
