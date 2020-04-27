@@ -36,6 +36,7 @@ import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
+import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.utils.UrlUtils;
 import com.tencent.mtt.hippy.views.common.CommonBackgroundDrawable;
 import com.tencent.mtt.hippy.views.common.CommonBorder;
@@ -52,6 +53,11 @@ import com.tencent.mtt.supportui.views.asyncimage.ContentDrawable;
 
 public class HippyImageView extends AsyncImageView implements CommonBorder, HippyViewBase, HippyRecycler
 {
+	public static final String PROPS_WIDTH  = "width";
+	public static final String PROPS_HEIGHT = "height";
+	public static final String PROPS_ISGIF  = "isGif";
+
+	private HippyMap mIniProps = new HippyMap();
 	private boolean mHasSetTempBackgroundColor = false;
 	private boolean mUserHasSetBackgroudnColor = false;
 	private int 	mUserSetBackgroundColor = Color.TRANSPARENT;
@@ -137,6 +143,28 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 		}
 	}
 
+	public void setIniProps(HippyMap iniProps) {
+		int width = 0;
+		int height = 0;
+
+		if (iniProps.containsKey("style")) {
+			HippyMap styles = iniProps.getMap("style");
+			if (styles != null) {
+				if (styles.containsKey(PROPS_WIDTH)) {
+					width = Math.round(PixelUtil.dp2px(styles.getDouble(PROPS_WIDTH)));
+				}
+
+				if (styles.containsKey(PROPS_HEIGHT)) {
+					height = Math.round(PixelUtil.dp2px(styles.getDouble(PROPS_HEIGHT)));
+				}
+			}
+		}
+
+		mIniProps.pushBoolean(PROPS_ISGIF, iniProps.getBoolean(PROPS_ISGIF));
+		mIniProps.pushInt(PROPS_WIDTH, width);
+		mIniProps.pushInt(PROPS_HEIGHT, height);
+	}
+
     /**
      * 前端传递下来的参数
      * left 到左边的距离
@@ -195,6 +223,10 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 	{
 		if (mImageAdapter != null)
 		{
+			if (param != null) {
+				mIniProps.pushObject("extraData", param);
+			}
+
 			// 这里不判断下是取背景图片还是取当前图片怎么行？
 			String url = sourceType == SOURCE_TYPE_SRC ? mUrl : mDefaultSourceUrl;
 			mImageAdapter.fetchImage(url, new HippyImageLoader.Callback()
@@ -233,7 +265,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 						}
 					}
 				}
-			}, param);
+			}, mIniProps);
 		}
 	}
 	//用户设置了,Js属性设置背景色
