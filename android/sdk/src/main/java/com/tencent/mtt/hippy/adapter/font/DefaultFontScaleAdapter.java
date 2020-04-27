@@ -26,4 +26,9 @@ public class DefaultFontScaleAdapter implements HippyFontScaleAdapter {
     public float getFontScale() {
         return 1;
     }
+
+    @Override
+    public CharSequence getEmoticonText(CharSequence text, int fontSize) {
+        return text;
+    }
 }
