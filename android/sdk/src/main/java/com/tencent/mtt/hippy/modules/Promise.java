@@ -27,4 +27,6 @@ public interface Promise
     void reject(Object error);
     
 	boolean isCallback();
+
+	String getCallId();
 }
