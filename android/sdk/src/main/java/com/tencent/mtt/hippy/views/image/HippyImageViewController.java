@@ -40,6 +40,17 @@ public class HippyImageViewController extends HippyViewController<HippyImageView
 	public static final String	CLASS_NAME	= "Image";
 
 	@Override
+	protected View createViewImpl(Context context, HippyMap iniProps)
+	{
+		HippyImageView imageView = new HippyImageView(context);
+		if (iniProps != null) {
+			imageView.setIniProps(iniProps);
+		}
+
+		return imageView;
+	}
+
+	@Override
 	protected View createViewImpl(Context context)
 	{
 		return new HippyImageView(context);
