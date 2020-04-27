@@ -498,16 +498,31 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 		HippyMap dimensionMap = DimensionsUtil.getDimensions(-1, -1, mContext.getGlobalConfigs().getContext(), false);
 
 		// windowHeight是无效值，则允许客户端定制
+		String pkgName = "";
+		String url = "";
+		String appVersion = "";
 		if (mContext.getGlobalConfigs() != null && mContext.getGlobalConfigs().getDeviceAdapter() != null)
 		{
 			mContext.getGlobalConfigs().getDeviceAdapter().reviseDimensionIfNeed(mContext.getGlobalConfigs().getContext(), dimensionMap, false,
 					false);
 		}
 		globalParams.pushMap("Dimensions", dimensionMap);
+
+		if (mThirdPartyAdapter != null) {
+			pkgName = mThirdPartyAdapter.getPackageName();
+			url = mThirdPartyAdapter.getPageUrl();
+			appVersion = mThirdPartyAdapter.getAppVersion();
+		}
+
 		HippyMap platformParams = new HippyMap();
 		platformParams.pushString("OS", "android");
+		platformParams.pushString("PackageName", pkgName);
 		platformParams.pushInt("APILevel", Build.VERSION.SDK_INT);
 		globalParams.pushMap("Platform", platformParams);
+		HippyMap tkd = new HippyMap();
+		tkd.pushString("url", (url == null) ? "" : url);
+		tkd.pushString("appVersion", appVersion);
+		globalParams.pushMap("tkd", tkd);
 		return ArgumentUtils.objectToJson(globalParams);
 	}
 }
