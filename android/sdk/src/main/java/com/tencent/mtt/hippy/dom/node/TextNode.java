@@ -44,7 +44,7 @@ public class TextNode extends StyleNode
 	SpannableStringBuilder			mSpanned;
 
 	public final static int			UNSET							= -1;
-	String							mText;
+	CharSequence					mText;
 	protected int					mNumberOfLines					= UNSET;
 
 	protected int					mFontSize						= (int) Math.ceil(PixelUtil.dp2px(NodeProps.FONT_SIZE_SP));
@@ -437,7 +437,7 @@ public class TextNode extends StyleNode
 	public void layoutBefore(HippyEngineContext context)
 	{
 		super.layoutBefore(context);
-		if (mFontScaleAdapter == null && mEnableScale)
+		if (mFontScaleAdapter == null)
 		{
 			mFontScaleAdapter = context.getGlobalConfigs().getFontScaleAdapter();
 		}
@@ -446,15 +446,22 @@ public class TextNode extends StyleNode
 			return;
 		}
 
+		if (mFontScaleAdapter != null && !TextUtils.isEmpty(mText)) {
+			CharSequence s = mFontScaleAdapter.getEmoticonText(mText, mFontSize);
+			if (s != null) {
+				mText = s;
+			}
+		}
+
 		mSpanned = createSpan(mText, true);
 	}
 
-	protected void createCustomSpan(String text, Spannable spannableText)
+	protected void createCustomSpan(CharSequence text, Spannable spannableText)
 	{
 
 	}
 
-	private SpannableStringBuilder createSpan(String text, boolean useChild)
+	private SpannableStringBuilder createSpan(CharSequence text, boolean useChild)
 	{
 		if (text != null)
 		{
@@ -476,7 +483,7 @@ public class TextNode extends StyleNode
 		return new SpannableStringBuilder("");
 	}
 
-	private void createSpanOperations(List<SpanOperation> ops, SpannableStringBuilder sb, TextNode textNode, String text, boolean useChild)
+	private void createSpanOperations(List<SpanOperation> ops, SpannableStringBuilder sb, TextNode textNode, CharSequence text, boolean useChild)
 	{
 		int start = sb.length();
 		sb.append(text);
