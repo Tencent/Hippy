@@ -15,6 +15,9 @@
  */
 package com.tencent.mtt.hippy.common;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -198,5 +201,60 @@ public class HippyArray
 	public String toString()
 	{
 		return mDatas == null ? "null" : mDatas.toString();
+	}
+
+	public void pushJSONArray(JSONArray jArray) {
+		if (jArray == null || jArray.length() <= 0) {
+			return;
+		}
+
+		try {
+			for (int i = 0; i < jArray.length(); i++) {
+				Object obj = jArray.opt(i);
+				if (obj == null) {
+					pushNull();
+				} else if (obj instanceof JSONObject) {
+					HippyMap hippyMap = new HippyMap();
+					hippyMap.pushJSONObject((JSONObject)obj);
+					pushMap(hippyMap);
+				} else if (obj instanceof JSONArray) {
+					HippyArray hippyArray = new HippyArray();
+					hippyArray.pushJSONArray((JSONArray)obj);
+					pushArray(hippyArray);
+				} else {
+					pushObject(obj);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public JSONArray toJSONArray() {
+		JSONArray jArray = new JSONArray();
+		if (size() <= 0) {
+			return jArray;
+		}
+
+		try {
+			Iterator<Object> it = mDatas.iterator();
+			Object value;
+			while (it.hasNext()) {
+				value = it.next();
+				if(value instanceof HippyMap) {
+					JSONObject jObjectMap = ((HippyMap)value).toJSONObject();
+					jArray.put(jObjectMap);
+				} else if(value instanceof HippyArray) {
+					JSONArray jObjectArray = ((HippyArray)value).toJSONArray();
+					jArray.put(jObjectArray);
+				} else {
+					jArray.put(value);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return jArray;
 	}
 }
