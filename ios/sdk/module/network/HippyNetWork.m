@@ -87,8 +87,19 @@ HIPPY_EXPORT_METHOD(fetch:(NSDictionary *)params resolver:(__unused HippyPromise
             [request setHTTPBody: postData];
         }
     }
+    // Get the redirect mode
+    // https://fetch.spec.whatwg.org/#concept-request-redirect-mode
     NSString *redirect = params[@"redirect"];
-    BOOL report302Status = (nil == redirect || [redirect isEqualToString:@"manual"]);
+    NSArray *redirectModes = @[@"follow", @"manual", @"error"];
+    unsigned short redirectMode = [redirectModes indexOfObject:redirect];
+    BOOL report302Status = nil;
+    switch (redirectMode) {
+        case 2:
+            // TODO: error redirect mode implementation.
+        case 1:
+            report302Status = true;
+            break;
+    }
     HippyFetchInfo *fetchInfo = [[HippyFetchInfo alloc] initWithResolveBlock:resolve rejectBlock:reject report302Status:report302Status];
     NSURLSessionConfiguration *sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
     sessionConfiguration.protocolClasses = [self protocolClasses];
