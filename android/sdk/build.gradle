@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.novoda.bintray-release'
+apply from: 'maven.gradle'
 
 ext {
     def flag = System.getenv('CI')
@@ -341,9 +341,10 @@ def dealAfterBuild(variant) {
 }
 
 def unZipAar(file) {
+  println("=======projectDir=" + projectDir.absolutePath)
     copy {
         from zipTree(file.absolutePath)
-        into ISCI.toBoolean() ? project.rootProject.projectDir.absolutePath + "/bin" : file.parentFile.absolutePath
+        into projectDir.absolutePath + "/libs"
         include 'classes.jar'
         rename 'classes.jar', 'hippy.jar'
     }
