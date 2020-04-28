@@ -126,13 +126,23 @@ public class NetworkModule extends HippyNativeModuleBase
 		httpRequest.setConnectTimeout(10 * 1000);
 		httpRequest.setReadTimeout(10 * 1000);
 		String redirect = request.getString("redirect");
-		if (!TextUtils.isEmpty(redirect) && TextUtils.equals("follow", redirect))
-		{
-			httpRequest.setInstanceFollowRedirects(true);
-		}
-		else
-		{
-			httpRequest.setInstanceFollowRedirects(false);
+
+		// Get the redirect mode
+		// https://fetch.spec.whatwg.org/#concept-request-redirect-mode
+		if (!TextUtils.isEmpty(redirect)) {
+			switch(redirect) {
+				case "error":
+					// TODO: error redirect mode implementation.
+				case "manual": {
+					httpRequest.setInstanceFollowRedirects(false);
+					break;
+				}
+				default: {
+					// Use "follow" redirect mode as default
+					httpRequest.setInstanceFollowRedirects(true);
+				}
+
+			}
 		}
 		httpRequest.setUseCaches(false);
 		httpRequest.setMethod(method);
