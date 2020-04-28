@@ -91,15 +91,10 @@ public class TkdListViewController extends HippyListViewController
   public void dispatchFunction(HippyListView view, String functionName, HippyArray dataArray)
   {
     super.dispatchFunction(view, functionName, dataArray);
-    switch (functionName)
-    {
-      case "loadMoreFinish ":
-      {
-        if (view instanceof TkdListView) {
-          TkdListView listView = (TkdListView)view;
-          listView.setIsLoading(false);
-        }
-        break;
+    if (!TextUtils.isEmpty(functionName) && view instanceof TkdListView) {
+      if (functionName.equals("loadMoreFinish")) {
+        TkdListView listView = (TkdListView) view;
+        listView.setIsLoading(false);
       }
     }
   }
