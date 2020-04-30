@@ -90,6 +90,7 @@ NSString *const HippyUIManagerRootViewKey = @"HippyUIManagerRootViewKey";
     NSMutableArray<HippyViewUpdateCompletedBlock> *_completeBlocks;
     
     NSMutableSet<NSNumber *> *_listAnimatedViewTags;
+    CreateHippyViewBlock _createHippyViewBlock;
 }
 
 @synthesize bridge = _bridge;
@@ -187,6 +188,7 @@ HIPPY_EXPORT_MODULE()
     _pendingUIBlocks = nil;
     _pendingVirtualNodeBlocks = nil;
     _shadowViewRegistry = nil;
+    _createHippyViewBlock = nil;
     
     dispatch_async(dispatch_get_main_queue(), ^{
         for (NSNumber *rootViewTag in self->_rootViewTags) {
@@ -315,6 +317,9 @@ dispatch_queue_t HippyGetUIManagerQueue(void)
 #endif
     // Register view
     _viewRegistry[hippyTag] = rootView;
+    if (_createHippyViewBlock) {
+        _createHippyViewBlock(rootView, hippyTag);
+    }
     
     HippyVirtualNode *node = [HippyVirtualNode createNode: hippyTag viewName: @"HippyRootContentView" props: @{}];
     _nodeRegistry[hippyTag] = node;
@@ -474,6 +479,13 @@ dispatch_queue_t HippyGetUIManagerQueue(void)
     }
     
     [_pendingUIBlocks addObject:block];
+}
+
+- (void)addCreateHippyViewBlock:(CreateHippyViewBlock)block {
+    if(!block) {
+        return;
+    }
+    _createHippyViewBlock = [block copy];
 }
 
 - (void)addVirtulNodeBlock:(HippyVirtualNodeManagerUIBlock)block
@@ -973,9 +985,9 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
     
     // Dispatch view creation directly to the main thread instead of adding to
     // UIBlocks array. This way, it doesn't get deferred until after layout.
-    
+    __weak HippyUIManager *weakSelf = self;
     [self addUIBlock:^(HippyUIManager *uiManager, __unused NSDictionary<NSNumber *,UIView *> *viewRegistry) {
-        
+        HippyUIManager *sSelf = weakSelf;
         HippyVirtualNode *node = uiManager->_nodeRegistry[hippyTag];
         
         if ([node isListSubNode] && [node cellNode] && !viewRegistry[[[node cellNode] hippyTag]]) {
@@ -991,6 +1003,9 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
                 [uiManager->_bridgeTransactionListeners addObject:view];
             }
             uiManager->_viewRegistry[hippyTag] = view;
+            if (sSelf->_createHippyViewBlock) {
+                sSelf->_createHippyViewBlock(view, hippyTag);
+            }
         }
         
         if ([node isKindOfClass:[HippyVirtualList class]]) {
@@ -1504,6 +1519,9 @@ static UIView *_jsResponder;
                     subview = [componentData createViewWithTag: tag initProps: props];
                     [componentData setProps: props forView: subview];
                     self->_viewRegistry[tag] = subview;
+                    if (self->_createHippyViewBlock) {
+                        self->_createHippyViewBlock(subview, tag);
+                    }
                 } else {
                     HippyComponentData *componentData = self->_componentDataByName[oldSubNode.viewName];
                     NSDictionary *oldProps = oldSubNode.props;
@@ -1532,6 +1550,9 @@ static UIView *_jsResponder;
                     subview = [componentData createViewWithTag: tag initProps: props];
                     [componentData setProps: props forView: subview];
                     self->_viewRegistry[tag] = subview;
+                    if (self->_createHippyViewBlock) {
+                        self->_createHippyViewBlock(subview, tag);
+                    }
                 } else {
                     [subview sendDetachedFromWindowEvent];
                     [subview.layer removeAllAnimations];
@@ -1579,6 +1600,9 @@ static UIView *_jsResponder;
             UIView *view = [componentData createViewWithTag: tag initProps: props];
             [componentData setProps: props forView: view];
             self->_viewRegistry[tag] = view;
+            if (self->_createHippyViewBlock) {
+                self->_createHippyViewBlock(view, tag);
+            }
             CGRect frame = subNode.frame;
             [view hippySetFrame:frame];
             if ([view respondsToSelector: @selector(hippyBridgeDidFinishTransaction)]) {

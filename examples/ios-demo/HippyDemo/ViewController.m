@@ -22,6 +22,7 @@
 
 #import "ViewController.h"
 #import "HippyRootView.h"
+#import "HippyUIManager.h"
 
 @interface ViewController ()<HippyBridgeDelegate>
 
@@ -41,6 +42,9 @@
     NSString *commonBundlePath = [[NSBundle mainBundle] pathForResource:@"vendor.ios" ofType:@"js" inDirectory:@"res"];
     NSString *businessBundlePath = [[NSBundle mainBundle] pathForResource:@"index.ios" ofType:@"js" inDirectory:@"res"];
     HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:self bundleURL:[NSURL fileURLWithPath:commonBundlePath] moduleProvider:nil launchOptions:nil];
+    [bridge.uiManager addCreateHippyViewBlock:^(UIView *hippyView, NSNumber *hippyTag) {
+        // Optional. executed when a hippy view has created
+    }];
     HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:bridge businessURL:[NSURL fileURLWithPath:businessBundlePath] moduleName:@"Demo" initialProperties:  @{@"isSimulator": @(isSimulator)} launchOptions:nil shareOptions:nil debugMode:NO delegate:nil];
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     rootView.frame = self.view.bounds;

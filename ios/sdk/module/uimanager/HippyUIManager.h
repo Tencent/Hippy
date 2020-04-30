@@ -110,6 +110,9 @@ HIPPY_EXTERN NSString *const HippyUIManagerRootViewKey;
 
 - (void)executeBlockOnUIManagerQueue:(dispatch_block_t)block;
 
+/// Schedule a block to be executed when a hippy view has created.
+- (void)addCreateHippyViewBlock:(CreateHippyViewBlock)block;
+
 /**
  * Given a hippyTag from a component, find its root view, if possible.
  * Otherwise, this will give back nil.

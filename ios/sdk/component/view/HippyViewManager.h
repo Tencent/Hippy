@@ -36,7 +36,7 @@
 
 typedef void (^HippyViewManagerUIBlock)(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry);
 
-typedef UIView* (^CreateHippyViewWithPropsBlock)(HippyBridge *bridge, NSString *classname, NSDictionary *props);
+typedef void (^CreateHippyViewBlock)(UIView *hippyView, NSNumber *hippyTag);
 
 
 @interface HippyViewManager : NSObject <HippyBridgeModule>
