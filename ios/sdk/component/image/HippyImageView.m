@@ -189,10 +189,13 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
 
 - (void)setDefaultImage:(UIImage *)defaultImage
 {
-	if (_defaultImage != defaultImage) {
-		_defaultImage = defaultImage;
-        [self updateImage:_defaultImage];
-	}
+    if (_defaultImage != defaultImage) {
+        BOOL shouldUpdateImage = (self.image == _defaultImage);
+        _defaultImage = defaultImage;
+        if (shouldUpdateImage) {
+            [self updateImage:_defaultImage];
+        }
+    }
 }
 
 - (void)setCapInsets:(UIEdgeInsets)capInsets
