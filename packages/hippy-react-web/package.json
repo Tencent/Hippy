@@ -22,9 +22,11 @@
     "debounce": "^1.2.0",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
+    "rmc-list-view": "^0.11.5",
     "swiper": "^4.5.0"
   },
   "devDependencies": {
+    "@types/core-js": "^2.5.3",
     "@types/debounce": "^1.2.0",
     "@types/react": "^16.9.11",
     "@types/react-dom": "^16.9.3",
