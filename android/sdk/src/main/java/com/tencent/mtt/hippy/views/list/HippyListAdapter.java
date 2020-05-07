@@ -52,6 +52,15 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
 		mHippyContext = HippyContext;
 	}
 
+  @Override
+  public String getViewHolderReUseKey(int position) {
+	  if (position < 0 || position > getItemCount()) {
+	    return null;
+    }
+
+    return String.valueOf(position);
+  }
+
 	@Override
 	public RecyclerView.ViewHolderWrapper onCreateSuspendViewHolderWithPos(RecyclerViewBase parent, int position, int viewType)
 	{
