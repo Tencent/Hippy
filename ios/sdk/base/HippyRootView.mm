@@ -139,6 +139,7 @@ NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotif
 }
 
 - (instancetype)initWithBundleURL:(NSURL *)bundleURL
+                   moduleProvider:(HippyBridgeModuleProviderBlock)block
 					   moduleName:(NSString *)moduleName
 				initialProperties:(NSDictionary *)initialProperties
 					launchOptions:(NSDictionary *)launchOptions
@@ -151,7 +152,7 @@ NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotif
 	[extendsLaunchOptions addEntriesFromDictionary: launchOptions];
 	[extendsLaunchOptions setObject: @(mode) forKey:@"DebugMode"];
   	HippyBridge *bridge = [[HippyBridge alloc] initWithBundleURL:bundleURL
-                                            moduleProvider:nil
+                                            moduleProvider:block
                                              launchOptions:extendsLaunchOptions];
 	return [self initWithBridge:bridge moduleName:moduleName initialProperties:initialProperties shareOptions:shareOptions delegate: delegate];
 }
@@ -170,7 +171,7 @@ NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotif
         NSString *bundleStr = [NSString stringWithFormat:@"http://%@%@",localhost,[HippyBundleURLProvider sharedInstance].debugPathUrl];
         NSURL *bundleUrl = [NSURL URLWithString:bundleStr];
         
-        if (self = [self initWithBundleURL: bundleUrl moduleName: moduleName initialProperties: initialProperties launchOptions: launchOptions shareOptions: shareOptions debugMode: mode delegate: delegate]) {
+        if (self = [self initWithBundleURL: bundleUrl moduleProvider:nil moduleName: moduleName initialProperties: initialProperties launchOptions: launchOptions shareOptions: shareOptions debugMode: mode delegate: delegate]) {
         }
         return self;
 	} else {

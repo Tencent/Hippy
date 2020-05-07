@@ -61,6 +61,7 @@ extern NSString *const HippyContentDidAppearNotification;
 					  delegate:(id<HippyRootViewDelegate>)delegate;
 
 - (instancetype)initWithBundleURL:(NSURL *)bundleURL
+                   moduleProvider:(HippyBridgeModuleProviderBlock)block
 					   moduleName:(NSString *)moduleName
 				initialProperties:(NSDictionary *)initialProperties
 					launchOptions:(NSDictionary *)launchOptions
