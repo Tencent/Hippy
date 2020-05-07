@@ -23,11 +23,11 @@
 #import "NSNumber+HippyNumberDeepCopy.h"
 
 @implementation NSNumber (HippyNumberDeepCopy)
-- (id)deepCopy {
+- (id)hippy_deepCopy {
     return self;
 }
 
-- (id)mutableDeepCopy {
+- (id)hippy_mutableDeepCopy {
     return self;
 }
 @end

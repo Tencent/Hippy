@@ -23,12 +23,12 @@
 #import "NSArray+HippyArrayDeepCopy.h"
 
 @implementation NSArray (HippyArrayDeepCopy)
-- (id)deepCopy {
+- (id)hippy_deepCopy {
     NSMutableArray *array = [NSMutableArray arrayWithCapacity:[self count]];
     for (id item in self) {
         id copiedItem = nil;
         if ([item conformsToProtocol:@protocol(HippyDeepCopyProtocol)]) {
-            copiedItem = [item deepCopy];
+            copiedItem = [item hippy_deepCopy];
         }
         else if ([item respondsToSelector:@selector(copy)]) {
             copiedItem = [item copy];
@@ -41,12 +41,12 @@
     return [NSArray arrayWithArray:array];
 }
 
-- (id)mutableDeepCopy {
+- (id)hippy_mutableDeepCopy {
     NSMutableArray *array = [NSMutableArray arrayWithCapacity:[self count]];
     for (id item in self) {
         id copiedItem = nil;
         if ([item conformsToProtocol:@protocol(HippyDeepCopyProtocol)]) {
-            copiedItem = [item mutableDeepCopy];
+            copiedItem = [item hippy_mutableDeepCopy];
         }
         else if ([item conformsToProtocol:@protocol(NSMutableCopying)]) {
             copiedItem = [item mutableCopy];

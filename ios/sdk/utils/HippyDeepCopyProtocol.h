@@ -26,8 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol HippyDeepCopyProtocol <NSObject>
 @required
-- (id)deepCopy;
-- (id)mutableDeepCopy;
+- (id)hippy_deepCopy;
+- (id)hippy_mutableDeepCopy;
 @end
 
 NS_ASSUME_NONNULL_END
