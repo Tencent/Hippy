@@ -180,7 +180,9 @@
         thePage = 0;
     }else{
         for (int i = 0;i < self.viewPagerItems.count;i++) {
-            if ([self rightPointOfView:self.viewPagerItems[i]].x > nowContentOffsetX) {
+            UIView *pageItem = self.viewPagerItems[i];
+            CGPoint point = [self middlePointOfView:pageItem];
+            if (point.x > nowContentOffsetX) {
                 thePage = i;
                 break;
             }
@@ -359,7 +361,9 @@
         return 0;
     }
     for (int i = 0;i < self.viewPagerItems.count;i++) {
-        if ([self rightPointOfView:self.viewPagerItems[i]].x > nowX) {
+        UIView *pageItem = self.viewPagerItems[i];
+        CGPoint point = [self middlePointOfView:pageItem];
+        if (point.x > nowX) {
             thePage = i;
             break;
         }
@@ -376,6 +380,12 @@
 //计算某个view的frame的右上角顶点的坐标
 - (CGPoint)rightPointOfView:(UIView *)view {
     CGFloat x = view.frame.origin.x + view.frame.size.width;
+    CGFloat y = view.frame.origin.y;
+    return CGPointMake(x, y);
+}
+
+- (CGPoint)middlePointOfView:(UIView *)view {
+    CGFloat x = view.frame.origin.x + view.frame.size.width*0.5;
     CGFloat y = view.frame.origin.y;
     return CGPointMake(x, y);
 }
