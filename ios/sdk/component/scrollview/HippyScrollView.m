@@ -389,18 +389,6 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 
 #pragma mark - ScrollView delegate
 
-#define HIPPY_SEND_SCROLL_EVENT(_eventName, _userData) { \
-NSString *eventName = NSStringFromSelector(@selector(_eventName)); \
-[self sendScrollEventWithName:eventName scrollView:_scrollView userData:_userData]; \
-}
-
-#define HIPPY_FORWARD_SCROLL_EVENT(call) \
-for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) { \
-if ([scrollViewListener respondsToSelector:_cmd]) { \
-[scrollViewListener call]; \
-} \
-}
-
 - (void)addScrollListener:(NSObject<UIScrollViewDelegate> *)scrollListener
 {
     [_scrollListeners addObject:scrollListener];
@@ -469,7 +457,11 @@ if ([scrollViewListener respondsToSelector:_cmd]) { \
         _lastScrollDispatchTime = now;
         _allowNextScrollNoMatterWhat = NO;
     }
-    HIPPY_FORWARD_SCROLL_EVENT(scrollViewDidScroll:scrollView);
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidScroll:)]) {
+            [scrollViewListener scrollViewDidScroll:scrollView];
+        }
+    }
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
@@ -479,7 +471,11 @@ if ([scrollViewListener respondsToSelector:_cmd]) { \
         self.onScrollBeginDrag([self scrollEventBody]);
     }
     [[self rootView] cancelTouches];
-    HIPPY_FORWARD_SCROLL_EVENT(scrollViewWillBeginDragging:scrollView);
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewWillBeginDragging:)]) {
+            [scrollViewListener scrollViewWillBeginDragging:scrollView];
+        }
+    }
 }
 
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset
@@ -546,12 +542,20 @@ if ([scrollViewListener respondsToSelector:_cmd]) { \
         [mutableBody addEntriesFromDictionary:userData];
         self.onScrollEndDrag(mutableBody);
     }
-    HIPPY_FORWARD_SCROLL_EVENT(scrollViewWillEndDragging:scrollView withVelocity:velocity targetContentOffset:targetContentOffset);
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewWillEndDragging:withVelocity:targetContentOffset:)]) {
+            [scrollViewListener scrollViewWillEndDragging:scrollView withVelocity:velocity targetContentOffset:targetContentOffset];
+        }
+    }
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
-    HIPPY_FORWARD_SCROLL_EVENT(scrollViewDidEndDragging:scrollView willDecelerate:decelerate);
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndDragging:willDecelerate:)]) {
+            [scrollViewListener scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
+        }
+    }
 }
 
 - (void)scrollViewWillBeginZooming:(UIScrollView *)scrollView withView:(UIView *)view
@@ -559,7 +563,11 @@ if ([scrollViewListener respondsToSelector:_cmd]) { \
     if (self.onScrollBeginDrag) {
         self.onScrollBeginDrag([self scrollEventBody]);
     }
-    HIPPY_FORWARD_SCROLL_EVENT(scrollViewWillBeginZooming:scrollView withView:view);
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewWillBeginZooming:withView:)]) {
+            [scrollViewListener scrollViewWillBeginZooming:scrollView withView:view];
+        }
+    }
 }
 
 - (void)scrollViewDidZoom:(UIScrollView *)scrollView
@@ -567,7 +575,11 @@ if ([scrollViewListener respondsToSelector:_cmd]) { \
     if (self.onScroll) {
         self.onScroll([self scrollEventBody]);
     }
-    HIPPY_FORWARD_SCROLL_EVENT(scrollViewDidZoom:scrollView);
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidZoom:)]) {
+            [scrollViewListener scrollViewDidZoom:scrollView];
+        }
+    }
 }
 
 - (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(CGFloat)scale
@@ -575,7 +587,11 @@ if ([scrollViewListener respondsToSelector:_cmd]) { \
     if (self.onScrollEndDrag) {
         self.onScrollEndDrag([self scrollEventBody]);
     }
-    HIPPY_FORWARD_SCROLL_EVENT(scrollViewDidEndZooming:scrollView withView:view atScale:scale);
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndZooming:withView:atScale:)]) {
+            [scrollViewListener scrollViewDidEndZooming:scrollView withView:view atScale:scale];
+        }
+    }
 }
 
 - (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView
@@ -583,7 +599,11 @@ if ([scrollViewListener respondsToSelector:_cmd]) { \
     if (self.onMomentumScrollBegin) {
         self.onMomentumScrollBegin([self scrollEventBody]);
     }
-    HIPPY_FORWARD_SCROLL_EVENT(scrollViewWillBeginDecelerating: scrollView);
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewWillBeginDecelerating:)]) {
+            [scrollViewListener scrollViewWillBeginDecelerating:scrollView];
+        }
+    }
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
@@ -596,7 +616,11 @@ if ([scrollViewListener respondsToSelector:_cmd]) { \
         self.onMomentumScrollEnd([self scrollEventBody]);
     }
     // Fire the end deceleration event
-    HIPPY_FORWARD_SCROLL_EVENT(scrollViewDidEndDecelerating:scrollView);
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndDecelerating:)]) {
+            [scrollViewListener scrollViewDidEndDecelerating:scrollView];
+        }
+    }
 }
 
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
@@ -615,13 +639,17 @@ if ([scrollViewListener respondsToSelector:_cmd]) { \
         self.onScrollAnimationEnd(event);
     }
     // Fire the end deceleration event
-    HIPPY_FORWARD_SCROLL_EVENT(scrollViewDidEndScrollingAnimation:scrollView);
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndScrollingAnimation:)]) {
+            [scrollViewListener scrollViewDidEndScrollingAnimation:scrollView];
+        }
+    }
 }
 
 - (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView
 {
     for (NSObject<UIScrollViewDelegate> *scrollListener in _scrollListeners) {
-        if ([scrollListener respondsToSelector:_cmd] &&
+        if ([scrollListener respondsToSelector:@selector(scrollViewShouldScrollToTop:)] &&
             ![scrollListener scrollViewShouldScrollToTop:scrollView]) {
             return NO;
         }
