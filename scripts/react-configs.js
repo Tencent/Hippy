@@ -70,6 +70,7 @@ const builds = {
         'bezier-easing',
         'debounce',
         'swiper',
+        'rmc-list-view',
       ].find(ext => id.startsWith(ext));
     },
   },
