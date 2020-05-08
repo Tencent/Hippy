@@ -22,10 +22,7 @@
 
 #import <Foundation/Foundation.h>
 #import "HippyDeepCopyProtocol.h"
-NS_ASSUME_NONNULL_BEGIN
 
 @interface NSArray (HippyArrayDeepCopy)<HippyDeepCopyProtocol>
 
 @end
-
-NS_ASSUME_NONNULL_END
