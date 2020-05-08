@@ -21,8 +21,8 @@ publishing {
   repositories {
     maven {
       //url = "https://mirrors.tencent.com/repository/maven/thirdparty-Snapshots/"
-      //url = "https://mirrors.tencent.com/repository/maven/thirdparty/"
-      url = "https://mirrors.tencent.com/repository/maven/AMobileQQ"
+      url = "https://mirrors.tencent.com/repository/maven/thirdparty/"
+      //url = "https://mirrors.tencent.com/repository/maven/AMobileQQ"
       credentials {
         //修改为自己的账号密码，可在mirrors.tencent.com上查询密码
         username MAVEN_USER
@@ -36,7 +36,7 @@ publishing {
       groupId "com.tencent.mobileqq"
       artifactId "Hippy"
       //version "0.0.2-SNAPSHOT"
-      version "0.1.1"
+      version "0.1.2"
       artifact("libs/hippy.jar")     //托管指定路径的包
 
       pom.withXml {
@@ -46,7 +46,7 @@ publishing {
         propertiesNode.appendNode('jarDescription', 'Hippy SDK for QQ 8.3.9')
         propertiesNode.appendNode('sourceUrl', 'https://github.com/siguangli/Hippy/tree/hippyForViola')
         propertiesNode.appendNode('deployUrl', 'https://github.com/siguangli/Hippy/tree/hippyForViola')
-        propertiesNode.appendNode('commitId', '0.1.1')
+        propertiesNode.appendNode('commitId', '0.1.2')
       }
     }
   }
