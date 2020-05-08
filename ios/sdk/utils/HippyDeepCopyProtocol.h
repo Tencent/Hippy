@@ -22,12 +22,8 @@
 
 #import <Foundation/Foundation.h>
 
-NS_ASSUME_NONNULL_BEGIN
-
 @protocol HippyDeepCopyProtocol <NSObject>
 @required
-- (id)deepCopy;
-- (id)mutableDeepCopy;
+- (id)hippyDeepCopy;
+- (id)hippyMutableDeepCopy;
 @end
-
-NS_ASSUME_NONNULL_END
