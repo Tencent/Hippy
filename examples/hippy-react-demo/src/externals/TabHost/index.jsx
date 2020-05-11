@@ -164,6 +164,7 @@ export default class TabHostExample extends React.Component {
           }}
           style={{ flex: 1 }}
           initialPage={0}
+          scrollEnabled={true}
           onPageSelected={e => this.onViewPagerChange(e.position)}
         >
           {navList.map((v, idx) => TabHostExample.getPage(v, idx))}
