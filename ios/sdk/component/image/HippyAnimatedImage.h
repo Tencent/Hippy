@@ -63,6 +63,7 @@ extern const NSTimeInterval kHippyAnimatedImageDelayTimeIntervalMinimum;
 // Pass either a `UIImage` or an `HippyAnimatedImage` and get back its size
 + (CGSize)sizeForImage:(id)image;
 
+- (UIImage *)imageAtIndex:(NSUInteger)index;
 //check if data is kind of animated image
 + (BOOL)isAnimatedImageData:(NSData *)data;
 // On success, the initializers return an `HippyAnimatedImage` with all fields initialized, on failure they return `nil` and an error will be logged.
