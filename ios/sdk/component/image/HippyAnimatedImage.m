@@ -208,9 +208,9 @@ static NSHashTable *allAnimatedImagesWeak;
         }
         
         // Early return if not GIF!
-        CFStringRef imageSourceContainerType = CGImageSourceGetType(_imageSource);
-        BOOL isGIFData = UTTypeConformsTo(imageSourceContainerType, kUTTypeGIF);
-        if (!isGIFData) {
+        size_t imageCount = CGImageSourceGetCount(_imageSource);
+        BOOL isAnimatedImage = imageCount > 1;
+        if (!isAnimatedImage) {
             RAILog(RAILogLevelError, @"Supplied data is of type %@ and doesn't seem to be GIF data %@", imageSourceContainerType, data);
             return nil;
         }
@@ -226,7 +226,6 @@ static NSHashTable *allAnimatedImagesWeak;
         //     };
         // }
         NSDictionary *imageProperties = (__bridge_transfer NSDictionary *)CGImageSourceCopyProperties(_imageSource, NULL);
-        // gif 图片循环只一次时 ，loopcount 为 nil，会转为0，导致无限播放
         id loopCountObject = [[imageProperties objectForKey:(id)kCGImagePropertyGIFDictionary] objectForKey:(id)kCGImagePropertyGIFLoopCount];
         if (loopCountObject) {
             _loopCount = [loopCountObject unsignedIntegerValue];
@@ -234,7 +233,6 @@ static NSHashTable *allAnimatedImagesWeak;
             _loopCount = 1;
         }
         // Iterate through frame images
-        size_t imageCount = CGImageSourceGetCount(_imageSource);
         NSUInteger skippedFrameCount = 0;
         NSMutableDictionary *delayTimesForIndexesMutable = [NSMutableDictionary dictionaryWithCapacity:imageCount];
         for (size_t i = 0; i < imageCount; i++) {
@@ -362,26 +360,14 @@ static NSHashTable *allAnimatedImagesWeak;
     return animatedImage;
 }
 
-+ (BOOL) isAnimatedImageData:(NSData *)data {
++ (BOOL)isAnimatedImageData:(NSData *)data {
     if (data) {
-        
-        if(!data||data.length<12)
-            return NO;
-        char bytes[12] = {0};
-        [data getBytes:&bytes length:12];
-        
-        const char gif[3] = {'G', 'I', 'F'};
-        if (!memcmp(bytes, gif, 3)) {
-            return YES;
+        CGImageSourceRef isRef = CGImageSourceCreateWithData((__bridge CFDataRef)data, NULL);
+        if (isRef) {
+            size_t count = CGImageSourceGetCount(isRef);
+            CFRelease(isRef);
+            return count > 1;
         }
-        
-        return NO;
-        /*
-         CGImageSourceRef isRef = CGImageSourceCreateWithData((__bridge CFDataRef)data, NULL);
-         CFStringRef imageSourceContainerType = CGImageSourceGetType(isRef);
-         BOOL isGIFData = UTTypeConformsTo(imageSourceContainerType, kUTTypeGIF);
-         return isGIFData;
-         */
     }
     return NO;
 }
