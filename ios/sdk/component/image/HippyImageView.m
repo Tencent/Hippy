@@ -29,7 +29,6 @@
 #import "HippyImageCacheManager.h"
 #import "HippyAnimatedImage.h"
 #import <Accelerate/Accelerate.h>
-#import "NSData+Format.h"
 
 static NSOperationQueue *hippy_image_queue() {
     static dispatch_once_t onceToken;
@@ -275,8 +274,7 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
             BOOL fileExist = [[NSFileManager defaultManager] fileExistsAtPath:localPath isDirectory:&isDirectory];
             if (fileExist && !isDirectory) {
                 NSData *imageData = [NSData dataWithContentsOfFile:localPath];
-                BOOL isSharpP = NO;
-                if ([imageData hippy_isGif] || isSharpP) {
+                if ([HippyAnimatedImage animatedImageWithGIFData:imageData]) {
                     if (_animatedImageOperation) {
                         [_animatedImageOperation cancel];
                     }
@@ -304,8 +302,7 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
 					weakSelf.onProgress(@{@"loaded": @((double)currentLength), @"total": @((double)totalLength)});
 				}
 			} completed:^(NSData *data, NSURL *url, NSError *error) {
-                BOOL isSharpP = NO;
-                if ([data hippy_isGif] || isSharpP) {
+                if ([HippyAnimatedImage animatedImageWithGIFData:data]) {
                     if (weakSelf.animatedImageOperation) {
                         [weakSelf.animatedImageOperation cancel];
                     }
@@ -325,8 +322,7 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
                     base64Data = [uri substringFromIndex:range.location + range.length];
                 }
 				NSData *imageData = [[NSData alloc] initWithBase64EncodedString:base64Data options: NSDataBase64DecodingIgnoreUnknownCharacters];
-                BOOL isSharpP = NO;
-                if ([imageData hippy_isGif] || isSharpP) {
+                if ([HippyAnimatedImage isAnimatedImageData:imageData]) {
                     if (_animatedImageOperation) {
                         [_animatedImageOperation cancel];
                     }
@@ -388,7 +384,7 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
     if (imageSourceRef) {
         size_t imageCount = CGImageSourceGetCount(imageSourceRef);
         CFRelease(imageSourceRef);
-        HippyAssert(imageCount < 2, @"not for GIF image");
+        HippyAssert(imageCount < 2, @"not for Animated image");
     }
 #endif
     return [UIImage imageWithData:data];
@@ -420,7 +416,7 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
     if (_task == task) {
         NSDictionary *source = [self.source firstObject];
         if (!error) {
-            BOOL isGif = [_data hippy_isGif];
+            BOOL isGif = [HippyAnimatedImage isAnimatedImageData:_data];
             if (isGif) {
                 if (_animatedImageOperation) {
                     [_animatedImageOperation cancel];
