@@ -30,6 +30,13 @@
 #import "HippyAnimatedImage.h"
 #import <Accelerate/Accelerate.h>
 
+typedef struct _BorderRadiusStruct {
+    CGFloat topLeftRadius;
+    CGFloat topRightRadius;
+    CGFloat bottomLeftRadius;
+    CGFloat bottomRightRadius;
+}BorderRadiusStruct;
+
 static NSOperationQueue *hippy_image_queue() {
     static dispatch_once_t onceToken;
     static NSOperationQueue *_hippy_image_queue = nil;
@@ -126,6 +133,7 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
     long long _totalLength;
     NSMutableData *_data;
     __weak CALayer *_borderWidthLayer;
+    BOOL _needsUpdateBorderRadius;
 }
 
 @property (nonatomic) HippyAnimatedImageOperation *animatedImageOperation;
@@ -138,6 +146,11 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
 	if (self = [super init]) {
 		_bridge = bridge;
 		self.clipsToBounds = YES;
+        _needsUpdateBorderRadius = NO;
+        _borderTopLeftRadius = CGFLOAT_MAX;
+        _borderTopRightRadius = CGFLOAT_MAX;
+        _borderBottomLeftRadius = CGFLOAT_MAX;
+        _borderBottomRightRadius = CGFLOAT_MAX;
 	}
 	return self;
 }
@@ -224,6 +237,7 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
     if (nil == self.image) {
         [self reloadImage];
     }
+    [self updateCornerRadius];
 }
 
 - (void)setResizeMode:(HippyResizeMode)resizeMode
@@ -525,7 +539,6 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
 	}
 	else {
 		self.image = image;
-        [self updateCornerRadius];
 	}
 }
 
@@ -561,29 +574,29 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
         CGFloat minY = CGRectGetMinY(contentRect);
         CGFloat maxX = CGRectGetMaxX(contentRect);
         CGFloat maxY = CGRectGetMaxY(contentRect);
-        
+        BorderRadiusStruct boderRadiusStruct = [self properBorderRadius];
         UIBezierPath *bezierPath = [UIBezierPath bezierPath];
-        CGPoint p1 = CGPointMake(minX + _borderTopLeftRadius, minY);
+        CGPoint p1 = CGPointMake(minX + boderRadiusStruct.topLeftRadius, minY);
         [bezierPath moveToPoint:p1];
-        CGPoint p2 = CGPointMake(maxX - _borderTopRightRadius, minY);
+        CGPoint p2 = CGPointMake(maxX - boderRadiusStruct.topRightRadius, minY);
         [bezierPath addLineToPoint:p2];
-        CGPoint p3 = CGPointMake(maxX - _borderTopRightRadius, minY + _borderTopRightRadius);
-        [bezierPath addArcWithCenter:p3 radius:_borderTopRightRadius startAngle:M_PI_2 + M_PI endAngle:0 clockwise:YES];
+        CGPoint p3 = CGPointMake(maxX - boderRadiusStruct.topRightRadius, minY + boderRadiusStruct.topRightRadius);
+        [bezierPath addArcWithCenter:p3 radius:boderRadiusStruct.topRightRadius startAngle:M_PI_2 + M_PI endAngle:0 clockwise:YES];
         
-        CGPoint p4 = CGPointMake(maxX, maxY - _borderBottomRightRadius);
+        CGPoint p4 = CGPointMake(maxX, maxY - boderRadiusStruct.bottomRightRadius);
         [bezierPath addLineToPoint:p4];
-        CGPoint p5 = CGPointMake(maxX - _borderBottomRightRadius, maxY - _borderBottomRightRadius);
-        [bezierPath addArcWithCenter:p5 radius:_borderBottomRightRadius startAngle:0 endAngle:M_PI_2 clockwise:YES];
+        CGPoint p5 = CGPointMake(maxX - boderRadiusStruct.bottomRightRadius, maxY - boderRadiusStruct.bottomRightRadius);
+        [bezierPath addArcWithCenter:p5 radius:boderRadiusStruct.bottomRightRadius startAngle:0 endAngle:M_PI_2 clockwise:YES];
         
-        CGPoint p6 = CGPointMake(minX + _borderBottomLeftRadius, maxY);
+        CGPoint p6 = CGPointMake(minX + boderRadiusStruct.bottomLeftRadius, maxY);
         [bezierPath addLineToPoint:p6];
-        CGPoint p7 = CGPointMake(minX + _borderBottomLeftRadius, maxY - _borderBottomLeftRadius);
-        [bezierPath addArcWithCenter:p7 radius:_borderBottomLeftRadius startAngle:M_PI_2 endAngle:M_PI clockwise:YES];
+        CGPoint p7 = CGPointMake(minX + boderRadiusStruct.bottomLeftRadius, maxY - boderRadiusStruct.bottomLeftRadius);
+        [bezierPath addArcWithCenter:p7 radius:boderRadiusStruct.bottomLeftRadius startAngle:M_PI_2 endAngle:M_PI clockwise:YES];
         
-        CGPoint p8 = CGPointMake(minX, minY + _borderTopLeftRadius);
+        CGPoint p8 = CGPointMake(minX, minY + boderRadiusStruct.topLeftRadius);
         [bezierPath addLineToPoint:p8];
-        CGPoint p9 = CGPointMake(minX + _borderTopLeftRadius, minY + _borderTopLeftRadius);
-        [bezierPath addArcWithCenter:p9 radius:_borderTopLeftRadius startAngle:M_PI endAngle:M_PI + M_PI_2 clockwise:YES];
+        CGPoint p9 = CGPointMake(minX + boderRadiusStruct.topLeftRadius, minY + boderRadiusStruct.topLeftRadius);
+        [bezierPath addArcWithCenter:p9 radius:boderRadiusStruct.topLeftRadius startAngle:M_PI endAngle:M_PI + M_PI_2 clockwise:YES];
         [bezierPath closePath];
         
         CAShapeLayer *mask = [CAShapeLayer layer];
@@ -604,14 +617,49 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
     }
 }
 
+- (void)setBorderTopLeftRadius:(CGFloat)borderTopLeftRadius {
+    _borderTopLeftRadius = borderTopLeftRadius;
+    _needsUpdateBorderRadius = YES;
+}
+
+- (void)setBorderTopRightRadius:(CGFloat)borderTopRightRadius {
+    _borderTopRightRadius = borderTopRightRadius;
+    _needsUpdateBorderRadius = YES;
+}
+
+- (void)setBorderBottomLeftRadius:(CGFloat)borderBottomLeftRadius {
+    _borderBottomLeftRadius = borderBottomLeftRadius;
+    _needsUpdateBorderRadius = YES;
+}
+
+- (void)setBorderBottomRightRadius:(CGFloat)borderBottomRightRadius {
+    _borderBottomRightRadius = borderBottomRightRadius;
+    _needsUpdateBorderRadius = YES;
+}
+
+- (void)setBorderRadius:(CGFloat)borderRadius {
+    _borderRadius = borderRadius;
+    _needsUpdateBorderRadius = YES;
+}
+
 - (BOOL) needsUpdateCornerRadius {
-    if (_borderTopLeftRadius > CGFLOAT_MIN ||
-        _borderTopRightRadius > CGFLOAT_MIN ||
-        _borderBottomLeftRadius > CGFLOAT_MIN ||
-        _borderBottomRightRadius > CGFLOAT_MIN) {
-        return YES;
-    }
-    return NO;
+    return _needsUpdateBorderRadius;
+}
+
+- (BorderRadiusStruct)properBorderRadius {
+    BorderRadiusStruct radius = {0,0,0,0};
+    CGFloat halfWidth = CGRectGetWidth(self.bounds) / 2.f;
+    CGFloat halfHeight = CGRectGetHeight(self.bounds) / 2.f;
+    CGFloat halfSide = MIN(halfWidth, halfHeight);
+    CGFloat topLeftRadius = _borderTopLeftRadius != CGFLOAT_MAX ? _borderTopLeftRadius : _borderRadius;
+    CGFloat topRightRadius = _borderTopRightRadius != CGFLOAT_MAX ? _borderTopRightRadius : _borderRadius;
+    CGFloat bottomLeftRadius = _borderBottomLeftRadius != CGFLOAT_MAX ? _borderBottomLeftRadius : _borderRadius;
+    CGFloat bottomRightRadius = _borderBottomRightRadius != CGFLOAT_MAX ? _borderBottomRightRadius : _borderRadius;
+    radius.topLeftRadius = MIN(topLeftRadius, halfSide);
+    radius.topRightRadius = MIN(topRightRadius, halfSide);
+    radius.bottomLeftRadius = MIN(bottomLeftRadius, halfSide);
+    radius.bottomRightRadius = MIN(bottomRightRadius, halfSide);
+    return radius;
 }
 
 @end
