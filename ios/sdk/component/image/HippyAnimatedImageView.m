@@ -419,22 +419,6 @@ static NSUInteger gcd(NSUInteger a, NSUInteger b)
     }
 }
 
-//- (void)URLSession:(__unused NSURLSession *)session task:(nonnull NSURLSessionTask *)task didCompleteWithError:(nullable NSError *)error
-//{
-//    if (!error) {
-//        BOOL isGIF = [HippyAnimatedImage isAnimatedImageData:self->_data];
-//        if (isGIF) {
-//            dispatch_async(dispatch_get_main_queue(), ^{
-//                self.animatedImage = [HippyAnimatedImage animatedImageWithGIFData:self->_data];
-//            });
-//        }
-//        else {
-//            [super URLSession:session task:task didCompleteWithError:error];
-//        }
-//    }
-//    [session finishTasksAndInvalidate];
-//}
-
 + (NSString *)defaultRunLoopMode
 {
     // Key off `activeProcessorCount` (as opposed to `processorCount`) since the system could shut down cores in certain situations.
