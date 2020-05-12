@@ -46,6 +46,7 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 
 	protected String				mUrl;
 	protected String				mDefaultSourceUrl;
+  protected String				mImageType;
 
 	// the 'mURL' is fetched succeed
 	protected boolean               mIsUrlFetchSucceed;
@@ -83,6 +84,7 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 		super(context);
 		mUrl = null;
 		mDefaultSourceUrl = null;
+    mImageType = null;
 		setFadeEnabled(false);
 		setFadeDuration(FADE_DURATION);
 	}
@@ -91,6 +93,10 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 	{
 		mImageAdapter = imageAdapter;
 	}
+
+  public void setImageType(String type) {
+    mImageType = type;
+  }
 
 	public void setUrl(String url)
 	{
@@ -462,7 +468,7 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 		return null;
 	}
 
-	private void setContent(int sourceType)
+	protected void setContent(int sourceType)
 	{
 		if (mContentDrawable != null)
 		{
@@ -477,11 +483,15 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 			}
 			else if (sourceType == SOURCE_TYPE_DEFAULT_SRC && mDefaultSourceDrawable != null)
 			{
-				((ContentDrawable) mContentDrawable).setBitmap(mDefaultSourceDrawable.getBitmap());
+        if (mContentDrawable instanceof ContentDrawable) {
+          ((ContentDrawable) mContentDrawable).setBitmap(mDefaultSourceDrawable.getBitmap());
+        }
 			}
 			if (mBGDrawable != null)
 			{
-				((ContentDrawable) mContentDrawable).setBorder(mBGDrawable.getBorderRadiusArray(), mBGDrawable.getBorderWidthArray());
+        if (mContentDrawable instanceof ContentDrawable) {
+          ((ContentDrawable) mContentDrawable).setBorder(mBGDrawable.getBorderRadiusArray(), mBGDrawable.getBorderWidthArray());
+        }
 				setBackgroundDrawable(new LayerDrawable(new Drawable[] { mBGDrawable, mContentDrawable }));
 			}
 			else
@@ -494,11 +504,13 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 
 	protected void updateContentDrawableProperty()
 	{
-		((ContentDrawable) mContentDrawable).setBitmap(getBitmap());
-		((ContentDrawable) mContentDrawable).setTintColor(getTintColor());
-		((ContentDrawable) mContentDrawable).setScaleType(mScaleType);
-		((ContentDrawable) mContentDrawable).setImagePositionX(mImagePositionX);
-		((ContentDrawable) mContentDrawable).setImagePositionY(mImagePositionY);
+    if (mContentDrawable instanceof ContentDrawable) {
+      ((ContentDrawable) mContentDrawable).setBitmap(getBitmap());
+      ((ContentDrawable) mContentDrawable).setTintColor(getTintColor());
+      ((ContentDrawable) mContentDrawable).setScaleType(mScaleType);
+      ((ContentDrawable) mContentDrawable).setImagePositionX(mImagePositionX);
+      ((ContentDrawable) mContentDrawable).setImagePositionY(mImagePositionY);
+    }
 	}
 
 	protected void handleGetImageStart()

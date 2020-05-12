@@ -56,6 +56,12 @@ public class HippyImageViewController extends HippyViewController<HippyImageView
 		return new HippyImageView(context);
 	}
 
+  @HippyControllerProps(name = NodeProps.CUSTOM_PROP_IMAGE_TYPE, defaultType = HippyControllerProps.STRING, defaultString = "")
+  public void setImageType(HippyImageView hippyImageView, String type)
+  {
+    hippyImageView.setImageType(type);
+  }
+
 	@HippyControllerProps(name = "src", defaultType = HippyControllerProps.STRING, defaultString = "")
 	public void setUrl(HippyImageView hippyImageView, String url)
 	{
