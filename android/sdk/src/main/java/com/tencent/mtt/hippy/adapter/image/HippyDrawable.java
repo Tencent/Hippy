@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageDecoder;
 import android.graphics.Movie;
+import android.graphics.drawable.Drawable;
 import android.util.Base64;
 
 
@@ -23,11 +24,18 @@ public class HippyDrawable implements IDrawableTarget
 	// 原始数据的来源：base64 / assets / file
 	protected String mSource;
 
+  protected Drawable mDrawable;
+
 	// GIF动画
 	private Movie mGifMovie;
 
 	// 静态图片
 	private Bitmap mBitmap;
+
+  public void setDrawable(Drawable drawable)
+  {
+    mDrawable = drawable;
+  }
 
 	/**
 	 * 设置原始数据。预期这个原始数据是GIF，或Bitmap的原始数据
@@ -231,6 +239,12 @@ public class HippyDrawable implements IDrawableTarget
 	{
 		return mSource;
 	}
+
+  @Override
+  public Drawable getDrawable()
+  {
+    return mDrawable;
+  }
 
 	@Override
 	public Object getExtraData()
