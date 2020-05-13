@@ -92,7 +92,7 @@ Vue.prototype.$mount = function $mount(el, hydrating) {
  *
  * @param {function} callback - Callback after register completed.
  */
-Vue.prototype.$start = function $start(callback) {
+Vue.prototype.$start = function $start(afterCallback, beforeCallback) {
   setApp(this);
 
   // beforeLoadStyle is a hidden option for pre-process
@@ -100,7 +100,6 @@ Vue.prototype.$start = function $start(callback) {
   if (isFunction(this.$options.beforeLoadStyle)) {
     setBeforeLoadStyle(this.$options.beforeLoadStyle);
   }
-  let self = this;
 
   // register native components into Vue.
   getElementMap().forEach((entry) => {
@@ -112,37 +111,43 @@ Vue.prototype.$start = function $start(callback) {
   // or runApplication event.
   HippyRegister.regist(this.$options.appName, (superProps) => {
     const { __instanceId__: rootViewId } = superProps;
-    self.$options.$superProps = superProps;
-    self.$options.rootViewId = rootViewId;
+    this.$options.$superProps = superProps;
+    this.$options.rootViewId = rootViewId;
 
     trace(...componentName, 'Start', this.$options.appName, 'with rootViewId', rootViewId, superProps);
 
     // Destroy the old instance and set the new one when restart the app
-    if (self.$el) {
-      self.$destroy();
-      const AppConstructor = Vue.extend(self.$options);
-      self = new AppConstructor(self.$options);
-      setApp(self);
+    if (this.$el) {
+      this.$destroy();
+      const AppConstructor = Vue.extend(this.$options);
+      const newApp = new AppConstructor(this.$options);
+      setApp(newApp);
+    }
+
+    // Call the callback before $mount
+    if (isFunction(beforeCallback)) {
+      beforeCallback(this, superProps);
     }
 
     // Draw the app.
-    self.$mount();
+    this.$mount();
 
     // Draw the iPhone status bar background.
+    // It should execute after $mount, otherwise this.$el will be undefined.
     if (Native.Platform === 'ios') {
       const statusBar = iPhone.drawStatusBar(this.$options);
       if (statusBar) {
-        if (!self.$el.childNodes.length) {
-          self.$el.appendChild(statusBar);
+        if (!this.$el.childNodes.length) {
+          this.$el.appendChild(statusBar);
         } else {
-          self.$el.insertBefore(statusBar, self.$el.childNodes[0]);
+          this.$el.insertBefore(statusBar, this.$el.childNodes[0]);
         }
       }
     }
 
-    // Call the callback
-    if (isFunction(callback)) {
-      callback(self, superProps);
+    // Call the callback after $mount
+    if (isFunction(afterCallback)) {
+      afterCallback(this, superProps);
     }
   });
 };
