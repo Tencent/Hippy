@@ -288,7 +288,7 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
             BOOL fileExist = [[NSFileManager defaultManager] fileExistsAtPath:localPath isDirectory:&isDirectory];
             if (fileExist && !isDirectory) {
                 NSData *imageData = [NSData dataWithContentsOfFile:localPath];
-                if ([HippyAnimatedImage animatedImageWithGIFData:imageData]) {
+                if ([HippyAnimatedImage isAnimatedImageData:imageData]) {
                     if (_animatedImageOperation) {
                         [_animatedImageOperation cancel];
                     }
@@ -316,7 +316,7 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
 					weakSelf.onProgress(@{@"loaded": @((double)currentLength), @"total": @((double)totalLength)});
 				}
 			} completed:^(NSData *data, NSURL *url, NSError *error) {
-                if ([HippyAnimatedImage animatedImageWithGIFData:data]) {
+                if ([HippyAnimatedImage isAnimatedImageData:data]) {
                     if (weakSelf.animatedImageOperation) {
                         [weakSelf.animatedImageOperation cancel];
                     }
@@ -705,8 +705,8 @@ HIPPY_ENUM_CONVERTER(HippyResizeMode, (@{
 }
 - (void) main {
     if (![self isCancelled] && _animatedImageData &&_imageView) {
-        HippyAnimatedImage *animatedImage  = [HippyAnimatedImage animatedImageWithGIFData:_animatedImageData];
         if (![self isCancelled] && _imageView) {
+            HippyAnimatedImage *animatedImage  = [HippyAnimatedImage animatedImageWithGIFData:_animatedImageData];
             __weak HippyImageView *wIV = _imageView;
             __weak NSString *wURL = _url;
             dispatch_async(dispatch_get_main_queue(), ^{
