@@ -225,8 +225,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)init)
             
             // Build setter block
             void (^setterBlock)(id target, id json) = nil;
-            if (type == NSSelectorFromString(@"HippyBubblingEventBlock:") ||
-                type == NSSelectorFromString(@"HippyDirectEventBlock:")) {
+            if (type == NSSelectorFromString(@"HippyDirectEventBlock:")) {
                 
                 // Special case for event handlers
                 __weak HippyViewManager *weakManager = self.manager;
@@ -451,7 +450,6 @@ break; \
 - (NSDictionary<NSString *, id> *)viewConfig
 {
     NSMutableArray<NSString *> *directEvents = [NSMutableArray new];
-    NSMutableArray<NSString *> *bubblingEvents = [NSMutableArray new];
     unsigned int count = 0;
     NSMutableDictionary *propTypes = [NSMutableDictionary new];
     Method *methods = class_copyMethodList(object_getClass(_managerClass), &count);
@@ -469,10 +467,7 @@ break; \
                                 "to '%@'", name, _name, propTypes[name], type);
                 }
                 
-                if ([type isEqualToString:@"HippyBubblingEventBlock"]) {
-                    [bubblingEvents addObject:HippyNormalizeInputEventName(name)];
-                    propTypes[name] = @"BOOL";
-                } else if ([type isEqualToString:@"HippyDirectEventBlock"]) {
+                if ([type isEqualToString:@"HippyDirectEventBlock"]) {
                     [directEvents addObject:HippyNormalizeInputEventName(name)];
                     propTypes[name] = @"BOOL";
                 } else {
@@ -482,26 +477,9 @@ break; \
         }
     }
     free(methods);
-    
-    if (HIPPY_DEBUG) {
-        for (NSString *event in directEvents) {
-            if ([bubblingEvents containsObject:event]) {
-                HippyLogError(@"Component '%@' registered '%@' as both a bubbling event "
-                            "and a direct event", _name, event);
-            }
-        }
-        for (NSString *event in bubblingEvents) {
-            if ([directEvents containsObject:event]) {
-                HippyLogError(@"Component '%@' registered '%@' as both a bubbling event "
-                            "and a direct event", _name, event);
-            }
-        }
-    }
-    
     return @{
              @"propTypes" : propTypes,
              @"directEvents" : directEvents,
-             @"bubblingEvents" : bubblingEvents,
              };
 }
 

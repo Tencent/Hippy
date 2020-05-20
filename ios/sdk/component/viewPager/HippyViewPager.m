@@ -24,13 +24,6 @@
 #import "UIView+Hippy.h"
 #import "HippyLog.h"
 
-#define MTT_FORWARD_SCROLL_EVENT(call) \
-for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollViewListener) { \
-if ([scrollViewListener respondsToSelector:_cmd]) { \
-[scrollViewListener call]; \
-} \
-}
-
 @interface HippyViewPager()
 @property (nonatomic, strong) NSMutableArray<UIView *> *viewPagerItems;
 @property (nonatomic, assign) BOOL isScrolling;//视图正在滚动中
@@ -162,14 +155,22 @@ if ([scrollViewListener respondsToSelector:_cmd]) { \
                             @"offset": @(offsetRate),//备注：xq说这里是比例，取值-1到1;
                             });
     }
-    MTT_FORWARD_SCROLL_EVENT(scrollViewDidScroll:scrollView);
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollViewListener) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidScroll:)]) {
+            [scrollViewListener scrollViewDidScroll:scrollView];
+        }
+    }
 }
 
 //用户拖拽的开始，也是整个滚动流程的开始
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
     self.pageOfBeginDragging = self.nowPage;
     self.isScrolling = YES;
-    MTT_FORWARD_SCROLL_EVENT(scrollViewWillBeginDragging:scrollView);
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollViewListener) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewWillBeginDragging:)]) {
+            [scrollViewListener scrollViewWillBeginDragging:scrollView];
+        }
+    }
 }
 
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset {
@@ -179,7 +180,9 @@ if ([scrollViewListener respondsToSelector:_cmd]) { \
         thePage = 0;
     }else{
         for (int i = 0;i < self.viewPagerItems.count;i++) {
-            if ([self rightPointOfView:self.viewPagerItems[i]].x > nowContentOffsetX) {
+            UIView *pageItem = self.viewPagerItems[i];
+            CGPoint point = [self middlePointOfView:pageItem];
+            if (point.x > nowContentOffsetX) {
                 thePage = i;
                 break;
             }
@@ -196,15 +199,27 @@ if ([scrollViewListener respondsToSelector:_cmd]) { \
                               });
         _lastPageIndex = thePage;
     }
-    MTT_FORWARD_SCROLL_EVENT(scrollViewWillEndDragging:scrollView withVelocity:velocity targetContentOffset:targetContentOffset);
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollViewListener) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewWillEndDragging:withVelocity:targetContentOffset:)]) {
+            [scrollViewListener scrollViewWillEndDragging:scrollView withVelocity:velocity targetContentOffset:targetContentOffset];
+        }
+    }
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
-    MTT_FORWARD_SCROLL_EVENT(scrollViewDidEndDragging:scrollView willDecelerate:decelerate);
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollViewListener) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndDragging:willDecelerate:)]) {
+            [scrollViewListener scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
+        }
+    }
 }
 
 - (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView {
-    MTT_FORWARD_SCROLL_EVENT(scrollViewWillBeginDecelerating:scrollView);
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollViewListener) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewWillBeginDecelerating:)]) {
+            [scrollViewListener scrollViewWillBeginDecelerating:scrollView];
+        }
+    }
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
@@ -216,15 +231,27 @@ if ([scrollViewListener respondsToSelector:_cmd]) { \
     self.isScrolling = NO;
     self.cachedPosition = INT_MAX;
     self.pageOfBeginDragging = 0;
-    MTT_FORWARD_SCROLL_EVENT(scrollViewDidEndDecelerating:scrollView);
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollViewListener) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndDecelerating:)]) {
+            [scrollViewListener scrollViewDidEndDecelerating:scrollView];
+        }
+    }
 }
 
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView {
-    MTT_FORWARD_SCROLL_EVENT(scrollViewDidEndScrollingAnimation:scrollView);
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollViewListener) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndScrollingAnimation:)]) {
+            [scrollViewListener scrollViewDidEndScrollingAnimation:scrollView];
+        }
+    }
 }
 
 - (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView {
-    MTT_FORWARD_SCROLL_EVENT(scrollViewDidScrollToTop:scrollView);
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollViewListener) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidScrollToTop:)]) {
+            [scrollViewListener scrollViewDidScrollToTop:scrollView];
+        }
+    }
 }
 
 #pragma mark scrollview listener methods
@@ -334,7 +361,9 @@ if ([scrollViewListener respondsToSelector:_cmd]) { \
         return 0;
     }
     for (int i = 0;i < self.viewPagerItems.count;i++) {
-        if ([self rightPointOfView:self.viewPagerItems[i]].x > nowX) {
+        UIView *pageItem = self.viewPagerItems[i];
+        CGPoint point = [self middlePointOfView:pageItem];
+        if (point.x > nowX) {
             thePage = i;
             break;
         }
@@ -351,6 +380,12 @@ if ([scrollViewListener respondsToSelector:_cmd]) { \
 //计算某个view的frame的右上角顶点的坐标
 - (CGPoint)rightPointOfView:(UIView *)view {
     CGFloat x = view.frame.origin.x + view.frame.size.width;
+    CGFloat y = view.frame.origin.y;
+    return CGPointMake(x, y);
+}
+
+- (CGPoint)middlePointOfView:(UIView *)view {
+    CGFloat x = view.frame.origin.x + view.frame.size.width*0.5;
     CGFloat y = view.frame.origin.y;
     return CGPointMake(x, y);
 }

@@ -40,7 +40,7 @@ NSString *const HippyJavaScriptDidLoadNotification = @"HippyJavaScriptDidLoadNot
 NSString *const HippyJavaScriptDidFailToLoadNotification = @"HippyJavaScriptDidFailToLoadNotification";
 NSString *const HippyDidInitializeModuleNotification = @"HippyDidInitializeModuleNotification";
 NSString *const HippyBusinessDidLoadNotification = @"HippyBusinessDidLoadNotification";
-NSString *const _HippySDKVersion = @"2.0.2";
+NSString *const _HippySDKVersion = @"2.0.3";
 
 static NSMutableArray<Class> *HippyModuleClasses;
 NSArray<Class> *HippyGetModuleClasses(void)
@@ -334,7 +334,9 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)init)
 
     // Only update bundleURL from delegate if delegate bundleURL has changed
     NSURL *previousDelegateURL = _delegateBundleURL;
-    _delegateBundleURL = [self.delegate sourceURLForBridge:self];
+    if ([self.delegate respondsToSelector:@selector(sourceURLForBridge:)]) {
+        _delegateBundleURL = [self.delegate sourceURLForBridge:self];
+    }
     if (_delegateBundleURL && ![_delegateBundleURL isEqual:previousDelegateURL]) {
         _bundleURL = _delegateBundleURL;
     }

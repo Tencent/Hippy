@@ -1344,7 +1344,6 @@ HIPPY_EXPORT_METHOD(measureInWindow:(nonnull NSNumber *)hippyTag
 {
     NSMutableDictionary<NSString *, NSDictionary *> *allJSConstants = [NSMutableDictionary new];
     NSMutableDictionary<NSString *, NSDictionary *> *directEvents = [NSMutableDictionary new];
-    NSMutableDictionary<NSString *, NSDictionary *> *bubblingEvents = [NSMutableDictionary new];
     
     [_componentDataByName enumerateKeysAndObjectsUsingBlock:
      ^(NSString *name, HippyComponentData *componentData, __unused BOOL *stop) {
@@ -1366,35 +1365,12 @@ HIPPY_EXPORT_METHOD(measureInWindow:(nonnull NSNumber *)hippyTag
                                              @"registrationName": [eventName stringByReplacingCharactersInRange:(NSRange){0, 3} withString:@"on"],
                                              };
              }
-             if (HIPPY_DEBUG && bubblingEvents[eventName]) {
-                 HippyLogError(@"Component '%@' re-registered bubbling event '%@' as a "
-                             "direct event", componentData.name, eventName);
-             }
          }
-         
-         // Add bubbling events
-         for (NSString *eventName in viewConfig[@"bubblingEvents"]) {
-             if (!bubblingEvents[eventName]) {
-                 NSString *bubbleName = [eventName stringByReplacingCharactersInRange:(NSRange){0, 3} withString:@"on"];
-                 bubblingEvents[eventName] = @{
-                                               @"phasedRegistrationNames": @{
-                                                       @"bubbled": bubbleName,
-                                                       @"captured": [bubbleName stringByAppendingString:@"Capture"],
-                                                       }
-                                               };
-             }
-             if (HIPPY_DEBUG && directEvents[eventName]) {
-                 HippyLogError(@"Component '%@' re-registered direct event '%@' as a "
-                             "bubbling event", componentData.name, eventName);
-             }
-         }
-         
          allJSConstants[name] = constantsNamespace;
      }];
     
     _currentInterfaceOrientation = [HippySharedApplication() statusBarOrientation];
     [allJSConstants addEntriesFromDictionary:@{
-                                               @"customBubblingEventTypes": bubblingEvents,
                                                @"customDirectEventTypes": directEvents,
                                                @"Dimensions": HippyExportedDimensions(NO)
                                                }];

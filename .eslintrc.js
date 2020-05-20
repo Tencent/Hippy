@@ -71,6 +71,7 @@ module.exports = {
       'error',
       {
         allow: [
+          '__ISHIPPY__',
           '__GLOBAL__',
           '__HIPPYNATIVEGLOBAL__',
           '__instanceId__',

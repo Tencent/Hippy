@@ -185,6 +185,7 @@ export default class ListExample extends React.Component {
         onEndReached={this.onEndReached}
         getRowType={this.getRowType}
         getRowKey={this.getRowKey}
+        initialListSize={15}
       />
     );
   }

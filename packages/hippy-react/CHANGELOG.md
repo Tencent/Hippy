@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.3](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.0.2...2.0.3) (2020-04-23)
+
+
+### Bug Fixes
+
+* **hippy-react:** drop Object.entries() for lower iOS compatible ([d76b074](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/d76b074b7ed2536422be6052c56165be83b341c2))
+
+
+### Features
+
+* **hippy-react:** merge createNode operation ([#200](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/issues/200)) ([04d77a0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/04d77a074c5d43cbf4bfa0cc40c513167314addc))
+* **hippy-react-web:** added default export for hippy-react web ([62cbdb0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/62cbdb0cb7d65c989439e1d7ffb0a5fa1143eddd))
+
+
+
+
+
 ## [2.0.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.0.1...2.0.2) (2020-03-18)
 
 

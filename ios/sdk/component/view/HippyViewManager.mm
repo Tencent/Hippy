@@ -138,6 +138,7 @@ HIPPY_CUSTOM_VIEW_PROPERTY(pointerEvents, HippyPointerEvents, HippyView)
       // Unspecified values do not.
       // This wouldn't override a container view's `userInteractionEnabled = NO`
       view.userInteractionEnabled = YES;
+      break;
     case HippyPointerEventsNone:
       view.userInteractionEnabled = NO;
       break;

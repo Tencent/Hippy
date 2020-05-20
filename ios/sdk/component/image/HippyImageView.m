@@ -181,6 +181,7 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
 {
 	if (![_source isEqualToArray: source]) {
 		_source = [source copy];
+        self.animatedImage = nil;
 		[self updateImage: nil];
 		[self reloadImage];
 	}
@@ -188,10 +189,13 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
 
 - (void)setDefaultImage:(UIImage *)defaultImage
 {
-	if (_defaultImage != defaultImage) {
-		_defaultImage = defaultImage;
-        [self updateImage:_defaultImage];
-	}
+    if (_defaultImage != defaultImage) {
+        BOOL shouldUpdateImage = (self.image == _defaultImage);
+        _defaultImage = defaultImage;
+        if (shouldUpdateImage) {
+            [self updateImage:_defaultImage];
+        }
+    }
 }
 
 - (void)setCapInsets:(UIEdgeInsets)capInsets
@@ -276,7 +280,7 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
                     if (_animatedImageOperation) {
                         [_animatedImageOperation cancel];
                     }
-                    _animatedImageOperation = [[HippyAnimatedImageOperation alloc] initWithAnimatedImageData:_data imageView:self imageURL:source[@"uri"]];
+                    _animatedImageOperation = [[HippyAnimatedImageOperation alloc] initWithAnimatedImageData:imageData imageView:self imageURL:source[@"uri"]];
                     [animated_image_queue() addOperation:_animatedImageOperation];
                 }
                 else {

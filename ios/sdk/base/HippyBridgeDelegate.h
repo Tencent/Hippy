@@ -27,6 +27,8 @@
 
 @protocol HippyBridgeDelegate <NSObject>
 
+@optional
+
 /**
  * The location of the JavaScript source file. When running from the packager
  * this should be an absolute URL, e.g. `http://localhost:8081/index.ios.bundle`.
@@ -35,7 +37,13 @@
  */
 - (NSURL *)sourceURLForBridge:(HippyBridge *)bridge;
 
-@optional
+/**
+ * Called and inject Object before Hippy execute JS source code
+ * Keys will be mounted at JS Global Object.
+ * Values will be mounted at Keys.
+ * Values must be JSON Strings.
+ */
+- (NSDictionary *)objectsBeforeExecuteCode;
 
 /**
  * The bridge will attempt to load the JS source code from the location specified
