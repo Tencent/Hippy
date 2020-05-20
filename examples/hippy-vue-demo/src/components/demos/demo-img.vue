@@ -30,7 +30,6 @@
   margin: 30px;
   border-width: 1px;
   border-color: #40b883;
-  background-color: #aaa;
 }
 
 #demo-img .contain {
