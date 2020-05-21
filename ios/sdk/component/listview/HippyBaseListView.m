@@ -230,6 +230,31 @@
 
 #pragma mark - Delegate & Datasource
 
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+	if (self.node.props[@"editable"]) {
+    return self.node.props[@"editable"];
+	} else {
+		return NO;
+	}	
+}
+
+- (NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath {
+	NSString *delText = self.node.props[@"delText"];
+  return delText;
+}
+
+- (BOOL)tableView: (UITableView *)tableView shouldIndentWhileEditingRowAtIndexPath:(NSIndexPath *)indexPath {		
+	return NO;
+}
+
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+	HippyVirtualCell *node = [_dataSource cellForIndexPath: indexPath];
+	NSInteger index = [self.node.subNodes indexOfObject: node];
+	if (self.onDelete) {
+		self.onDelete(@{@"index": @(index)});
+	}  
+}
+
 - (NSInteger)numberOfSectionsInTableView:(__unused UITableView *)tableView
 {
 	return [_dataSource numberOfSection];

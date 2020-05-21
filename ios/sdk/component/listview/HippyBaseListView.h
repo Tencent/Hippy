@@ -44,6 +44,7 @@
 @property (nonatomic, copy) HippyDirectEventBlock onMomentumScrollEnd;
 @property (nonatomic, copy) HippyDirectEventBlock onRowWillDisplay;
 @property (nonatomic, copy) HippyDirectEventBlock onEndReached;
+@property (nonatomic, copy) HippyDirectEventBlock onDelete;
 @property (nonatomic, assign) NSUInteger preloadItemNumber;
 @property (nonatomic, assign) CGFloat initialContentOffset;
 @property (nonatomic, assign) BOOL manualScroll;

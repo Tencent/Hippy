@@ -101,6 +101,9 @@ import icon from './qb_icon_new.png';
 | scrollEventThrottle   | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onScroll` 回调事件 | `number`                                                    | `ALL`    |
 | rowShouldSticky       | 在回调函数，根据传入参数index（ListView单元格的index）返回true或false指定对应的item是否需要使用悬停效果（滚动到顶部时，会悬停在List顶部，不会滚出屏幕） | `(index: number) => boolean`                                | `ALL`    |
 | showScrollIndicator   | 是否显示垂直滚动条。 因为目前 ListView 其实仅有垂直滚动一种方向，水平滚动会导致 `onEndReached` 等一堆问题暂不建议使用，所以 `showScrollIndicator` 也仅用来控制是否显示垂直滚动条。 | `boolean`                                                   | `ALL`    |
+| editable   | 是否可编辑，开启侧滑删除时需要设置为 `true` | `boolean`                                                   | `iOS`    |
+| delText   | 侧滑删除文本 | `string`                                                   | `iOS`    |
+| onDelete   | 在列表项侧滑删除时调起 | `Function`                                                   | `iOS`    |
 
 ## 方法
 
