@@ -91,7 +91,7 @@ function registerSwiper(Vue) {
       return h('hi-swiper', {
         on,
         ref: 'swiper',
-        props: {
+        attrs: {
           initialPage: this.$initialSlide,
         },
       }, this.$slots.default);
