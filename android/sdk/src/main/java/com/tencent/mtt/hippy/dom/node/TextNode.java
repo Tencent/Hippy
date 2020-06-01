@@ -648,14 +648,14 @@ public class TextNode extends StyleNode
 			if (layout.getLineCount() > mNumberOfLines)
 			{
 				int lastLineStart = layout.getLineStart(mNumberOfLines - 1);
-				int lastLineEnd = layout.getLineEnd(mNumberOfLines - 1);
+				int lastLineEnd = layout.getLineEnd(mNumberOfLines);
 				if (lastLineStart < lastLineEnd)
 				{
 					layout = createLayoutWithNumberOfLine(lastLineStart, lastLineEnd, layout.getWidth());
 				}
 			}
 		}
-		
+
 		layout.getPaint().setTextSize(mFontSize);
 		return layout;
 	}
