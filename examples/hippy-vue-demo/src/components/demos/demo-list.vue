@@ -36,7 +36,7 @@
       <li
         v-for="(ui, index) in dataSource"
         :key="index"
-        :type="'row-' + ui.style"
+        :type="ui.style"
         @layout="onItemLayout"
       >
         <style-one v-if="ui.style == 1" :itemBean="ui.itemBean" />
