@@ -25,9 +25,13 @@ import android.text.style.AbsoluteSizeSpan;
 import android.text.style.ForegroundColorSpan;
 import android.view.MotionEvent;
 import android.view.View;
+
+import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.adapter.exception.HippyExceptionHandlerAdapter;
+import com.tencent.mtt.hippy.dom.node.DomNode;
 import com.tencent.mtt.hippy.dom.node.HippyNativeGestureSpan;
+import com.tencent.mtt.hippy.dom.node.TextNode;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.hippy.utils.LogUtils;
@@ -80,6 +84,22 @@ public class HippyTextView extends View implements CommonBorder, HippyViewBase, 
 	{
 		mLayout = null;
 	}
+  
+  @Override
+  public void setId(int id) {
+	  super.setId(id);
+  
+    Context context = getContext();
+    if (context != null && context instanceof HippyInstanceContext) {
+      HippyEngineContext engineContext = ((HippyInstanceContext) context).getEngineContext();
+      if (engineContext != null) {
+        DomNode node = engineContext.getDomManager().getNode(id);
+        if (node != null && node instanceof TextNode) {
+          ((TextNode)node).setTextView(this);
+        }
+      }
+    }
+  }
 
 	public HippyTextView(Context context)
 	{

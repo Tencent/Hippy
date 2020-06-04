@@ -17,18 +17,23 @@ package com.tencent.mtt.hippy.dom.node;
 
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.text.*;
 import android.text.style.*;
 import android.util.Log;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.adapter.font.HippyFontScaleAdapter;
+import com.tencent.mtt.hippy.adapter.image.HippyImageLoader;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.flex.*;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
+import com.tencent.mtt.hippy.views.text.HippyTextView;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,12 +85,16 @@ public class TextNode extends StyleNode
 	public static final String		PROP_SHADOW_OFFSET_HEIGHT		= "height";
 	public static final String		PROP_SHADOW_RADIUS				= "textShadowRadius";
 	public static final String		PROP_SHADOW_COLOR				= "textShadowColor";
+  
+  public static final String		IMAGE_SPAN_TEXT				= "[img]";
 
 	final TextPaint					sTextPaintInstance				= new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
 
 	private final boolean			mIsVirtual;
 
 	protected boolean				mEnableScale					= false;
+  
+  private WeakReference<HippyTextView> mTextViewWeakRefrence = null;
 
 
 	public TextNode(boolean mIsVirtual)
@@ -95,6 +104,16 @@ public class TextNode extends StyleNode
 			setMeasureFunction(TEXT_MEASURE_FUNCTION);
 	}
 
+	public void setTextView(HippyTextView view) {
+    mTextViewWeakRefrence = new WeakReference<HippyTextView>(view);
+  }
+	
+  public void postInvalidateDelayed(long delayMilliseconds) {
+	  if (mTextViewWeakRefrence != null && mTextViewWeakRefrence.get() != null) {
+      mTextViewWeakRefrence.get().postInvalidateDelayed(delayMilliseconds);
+    }
+  }
+  
 	public boolean isVirtual()
 	{
 		return mIsVirtual;
@@ -432,6 +451,8 @@ public class TextNode extends StyleNode
 	}
 
 	protected HippyFontScaleAdapter	mFontScaleAdapter;
+	
+	protected HippyImageLoader mImageAdapter;
 
 	@Override
 	public void layoutBefore(HippyEngineContext context)
@@ -441,6 +462,12 @@ public class TextNode extends StyleNode
 		{
 			mFontScaleAdapter = context.getGlobalConfigs().getFontScaleAdapter();
 		}
+    
+    if (mImageAdapter == null)
+    {
+      mImageAdapter = context.getGlobalConfigs().getImageLoaderAdapter();
+    }
+		
 		if (mIsVirtual)
 		{
 			return;
@@ -482,7 +509,38 @@ public class TextNode extends StyleNode
 		}
 		return new SpannableStringBuilder("");
 	}
+	
+	private void createImageSpanOperation(List<SpanOperation> ops, SpannableStringBuilder sb, ImageNode imageNode) {
+    String url = null;
+    HippyMap props = imageNode.getTotalProps();
+    if (props != null && props.containsKey("src")) {
+      url = props.getString("src");
+    }
+    
+	  if (TextUtils.isEmpty(url)) {
+      return;
+    }
+	  
+    Drawable drawable = new ColorDrawable(Color.parseColor("#00000000"));
+    int width = Math.round(imageNode.getStyleWidth());
+    int height = Math.round(imageNode.getStyleHeight());
+    drawable.setBounds(0, 0, width, height);
+    
+    HippyImageSpan imageSpan = new HippyImageSpan(drawable, url, imageNode, mImageAdapter);
+    imageNode.setImageSpan(imageSpan);
 
+    int start = sb.length();
+    sb.append(IMAGE_SPAN_TEXT);
+    int end = start + IMAGE_SPAN_TEXT.length();
+    ops.add(new SpanOperation(start, end, imageSpan));
+    
+    if (imageNode.getGestureTypes() != null && imageNode.getGestureTypes().size() > 0) {
+      HippyNativeGestureSpan span = new HippyNativeGestureSpan(imageNode.getId(), true);
+      span.addGestureTypes(imageNode.getGestureTypes());
+      ops.add(new SpanOperation(start, end, span));
+    }
+  }
+  
 	private void createSpanOperations(List<SpanOperation> ops, SpannableStringBuilder sb, TextNode textNode, CharSequence text, boolean useChild)
 	{
 		int start = sb.length();
@@ -551,18 +609,14 @@ public class TextNode extends StyleNode
 		}
 
 
-		if (useChild)
-		{
-			for (int i = 0; i < textNode.getChildCount(); i++)
-			{
+		if (useChild) {
+			for (int i = 0; i < textNode.getChildCount(); i++) {
 				DomNode domNode = textNode.getChildAt(i);
-				if (domNode instanceof TextNode)
-				{
+				if (domNode instanceof TextNode) {
 					createSpanOperations(ops, sb, (TextNode) domNode, ((TextNode) domNode).mText, useChild);
-				}
-				//TODO://  image in text is not support now
-				else
-				{
+				} else if (domNode instanceof ImageNode) {
+          createImageSpanOperation(ops, sb, (ImageNode)domNode);
+        } else {
 					throw new RuntimeException(domNode.getViewClass() + "is not support in Text");
 				}
 
@@ -750,7 +804,12 @@ public class TextNode extends StyleNode
 			{
 				spanFlags = Spannable.SPAN_INCLUSIVE_INCLUSIVE;
 			}
-			sb.setSpan(what, start, end, spanFlags);
+			
+			try {
+        sb.setSpan(what, start, end, spanFlags);
+      } catch (Exception e) {
+			  Log.e("TextNode", "setSpan exception msg: " + e.getMessage());
+      }
 		}
 	}
 }
