@@ -309,6 +309,11 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 		}
 	}
 
+	public DomNode getNode(final int id) {
+    DomNode node = mNodeRegistry.getNode(id);
+    return node;
+  }
+	
 	public void createNode(final HippyRootView hippyRootView, final int id, int pid, int index, final String className, HippyMap map)
 	{
 		//	assertThread();
