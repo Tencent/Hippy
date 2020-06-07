@@ -291,7 +291,7 @@
                 _nowHeight = 0;
             }
         }
-        BOOL isLastIndex = [indexPath section] == lastSectionIndex && [indexPath row] == lastRowIndexInSection;
+        BOOL isLastIndex = [indexPath section] == lastSectionIndex && ([indexPath row] == lastRowIndexInSection || [indexPath row] == [self tableView:tableView numberOfRowsInSection:lastSectionIndex] - 1); 
         
         if (isLastIndex && _hasFillListViewFrame) {
             self.onEndReached(@{});
