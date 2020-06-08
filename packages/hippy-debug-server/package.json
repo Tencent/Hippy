@@ -19,7 +19,6 @@
     "node": ">=10.0.0"
   },
   "dependencies": {
-    "chrome-opn": "^1.0.1",
     "find-up": "^4.1.0",
     "koa": "^2.3.0",
     "signale": "^1.4.0",
