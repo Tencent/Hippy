@@ -161,9 +161,7 @@ class Animation implements Animation {
     // Set as iOS default
     let animationEventName = 'onAnimation';
     // If running in Android, change it.
-    if (__PLATFORM__ && __PLATFORM__ === 'android') {
-      animationEventName = 'onHippyAnimation';
-    } else if (Device.platform.OS === 'android') {
+    if (__PLATFORM__ === 'android' || Device.platform.OS === 'android') {
       animationEventName = 'onHippyAnimation';
     }
 
@@ -253,7 +251,8 @@ class Animation implements Animation {
       throw new TypeError('Update animation mode not supported');
     }
 
-    Object.entries(newConfig).forEach(([prop, value]) => {
+    (Object.keys(newConfig) as (keyof AnimationOptions)[]).forEach((prop) => {
+      const value = newConfig[prop];
       if (prop === 'startValue') {
         let startValue: AnimationValue = 0;
         if (newConfig.startValue instanceof Animation) {

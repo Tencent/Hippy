@@ -96,13 +96,13 @@ export default {
     },
     async onRefresh() {
       // 重新获取数据
-      this.refreshText = '刷新数据中，请稍等，完成后将自动收起';
+      this.refreshText = '刷新数据中，请稍等3秒，完成后将自动收起';
       const dataSource = await this.mockFetchData();
       await (new Promise(resolve => setTimeout(() => resolve(), 3000)));
       this.refreshText = REFRESH_TEXT;
       this.dataSource = dataSource.reverse();
       // 注意这里需要告诉终端刷新已经结束了，否则会一直卡着。
-      Vue.Native.callUIFunction(this.$refs.refreshWrapper, 'refreshComplected', null);
+      this.$refs.refreshWrapper.refreshCompleted();
     },
     async onEndReached() {
       const { dataSource } = this;

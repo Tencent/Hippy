@@ -6,7 +6,7 @@
 
 ```javascript
 import  React from "react";
-import { UIManagerModule } from "@tencent/hippy-react"
+import { UIManagerModule } from "@hippy/react"
 
 export class MyView extends React.Component {
   constructor(props) {
@@ -44,7 +44,7 @@ export class MyView extends React.Component {
 
 ```javascript
 // TestModule.js
-import { callNative, callNativeWithPromise } from "@tencent/hippy-react"
+import { callNative, callNativeWithPromise } from "@hippy/react"
 
 /*
  自定义module
@@ -69,7 +69,7 @@ export { TestModule }
 
 ```jsx
 import React from "react";
-import { Text } from "@tencent/hippy-react"
+import { Text } from "@hippy/react"
 import { TestModule } from "./TestModule"
 
 //展示自定义Module的使用

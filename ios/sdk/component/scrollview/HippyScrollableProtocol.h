@@ -36,7 +36,7 @@ for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners
 - (void)addScrollListener:(NSObject<UIScrollViewDelegate> *)scrollListener;
 - (void)removeScrollListener:(NSObject<UIScrollViewDelegate> *)scrollListener;
 - (UIScrollView *)realScrollView;
-- (NSArray *)scrollListeners;
+- (NSHashTable *)scrollListeners;
 
 @optional
 - (void)scrollToOffset:(CGPoint)offset animated:(BOOL)animated;

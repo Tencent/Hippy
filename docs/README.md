@@ -4,6 +4,14 @@ Hippy 可以理解为一个精简版的浏览器，从底层做了大量工作�
 
 同时，Hippy 从底层进行了大量优化，在启动速度、可复用列表组件、渲染效率、动画速度、网络通信等等都提供了业内顶尖的性能表现。
 
+## 交流链接
+
+* [文章专栏](https://cloud.tencent.com/developer/column/84006)
+* QQ 群：[784894901](//shang.qq.com/wpa/qunwpa?idkey=7bff52aca3aac75a4f1ba96c1844a5e3b62000351890182eb60311542d75fa1a) - 点击链接启动 QQ 加入，或者复制群号码手工加入
+* QQ群二维码，使用手机QQ扫描加入
+
+![QQ群二维码](https://puui.qpic.cn/vupload/0/1578363513271_py0yktxq7x.png/0)
+
 ## 功能对比
 
 Hippy 从底层增加了很多和浏览器相同的接口，方便了开发者使用，这里有几个 Hippy 的独有功能。

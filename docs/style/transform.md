@@ -9,6 +9,7 @@
 ```jsx
 transform([{ rotateX: '45deg' }, { rotateZ: '0.785398rad' }])
 ```
+
 它与 CSS 的 transform 参数类似，请参考 [MDN](//developer.mozilla.org/zh-CN/docs/Web/CSS/transform) 上的详细信息。
 
 | 类型                                                                                                                                                                                                                                                                                                                                                    | 必需 |

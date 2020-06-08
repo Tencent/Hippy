@@ -83,6 +83,9 @@ const img = {
   symbol: components.Image,
   component: {
     name: NATIVE_COMPONENT_NAME_MAP[components.Image],
+    defaultNativeStyle: {
+      backgroundColor: 0,
+    },
     attributeMaps: {
       // TODO: check placeholder or defaultSource value in compile-time wll be better.
       placeholder: {
@@ -94,9 +97,9 @@ const img = {
           return value;
         },
       },
-      // TODO: source property is working for iOS and src is just working for Android.
-      //       source property should remove as soon.
-      //       And Native renderer the workaround should remove.
+      // For Anroid, will use src property
+      // For iOS, will convert to use source property
+      // At line: hippy-vuv/renderer/native/index.js line 196.
       src(value) {
         let url = value;
         if (/^assets/.test(url)) {
@@ -199,6 +202,12 @@ const input = {
             return value;
           }
           return newValue;
+        },
+      },
+      disabled: {
+        name: 'editable',
+        propsValue(value) {
+          return !value;
         },
       },
       value: 'defaultValue',

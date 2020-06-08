@@ -1,3 +1,4 @@
+const fs                = require('fs');
 const path              = require('path');
 const webpack           = require('webpack');
 const pkg               = require('../package.json');
@@ -73,8 +74,22 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.jsx', '.json'],
     modules: [path.resolve(__dirname, '../node_modules')],
-    alias: {
-      'hippy-react': path.resolve(__dirname, '../../../packages/hippy-react'),
-    },
+    alias: (() => {
+      const aliases = {};
+
+      // If hippy-react was built exist then make a alias
+      // Remove the section if you don't use it
+      const hippyReactPath = path.resolve(__dirname, '../../../packages/hippy-react');
+      if (fs.existsSync(path.resolve(hippyReactPath, 'dist/index.js'))) {
+        /* eslint-disable-next-line no-console */
+        console.warn(`* Using the @hippy/react in ${hippyReactPath}`);
+        aliases['@hippy/react'] = hippyReactPath;
+      } else {
+        /* eslint-disable-next-line no-console */
+        console.warn('* Using the @hippy/react defined in package.json');
+      }
+
+      return aliases;
+    })(),
   },
 };

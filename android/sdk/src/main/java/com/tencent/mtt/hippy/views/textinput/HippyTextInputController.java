@@ -533,14 +533,25 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
 
 	}
 
+  @Override
+  public void dispatchFunction(final HippyTextInput view, String functionName, HippyArray params, Promise promise)
+  {
+    switch (functionName)
+    {
+      case COMMAND_getValue:
+        if (promise != null) {
+          HippyMap resultMap = view.jsGetValue();
+          promise.resolve(resultMap);
+        }
+        break;
+    }
+  }
+
 	@Override
-	public void dispatchFunction(final HippyTextInput view, String functionName, final HippyArray var, Promise promise)
+	public void dispatchFunction(final HippyTextInput view, String functionName, final HippyArray var)
 	{
 		switch (functionName)
 		{
-			case COMMAND_getValue:
-				view.jsGetValue();
-				break;
 			case COMMAND_setValue:
 				if(var != null && var.getString(0) !=null )
 				{
@@ -603,8 +614,8 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
 					oldFoucusAbaility = ((ViewGroup) viewParent).getDescendantFocusability(); //Get the current value
 					((ViewGroup) viewParent).setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);//Block the fouse.
 				}
-				view.clearFocus();
 				view.hideInputMethod();
+				view.clearFocus();
 				if (viewParent != null && viewParent instanceof HippyRootView)
 				{
 					((ViewGroup) viewParent).setDescendantFocusability(oldFoucusAbaility);

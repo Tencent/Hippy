@@ -13,20 +13,21 @@ import {
   SimpleSelectorSequence,
   Selector,
 } from './css-selectors';
-import { isFunction } from '../../../util';
+import { getBeforeLoadStyle } from '../../../util';
 
 function isDeclaration(node) {
   return node.type === 'declaration';
 }
 
-function processDeclarationProperty(property) {
-  return property;
-}
-
-function createDeclaration(decl) {
-  return {
-    property: processDeclarationProperty(decl.property),
-    value: decl.value,
+function createDeclaration(beforeLoadStyle) {
+  return (decl) => {
+    const newDecl = beforeLoadStyle(decl);
+    if (process.env.NODE_ENV !== 'production') {
+      if (!newDecl) {
+        throw new Error('beforeLoadStyle hook must returns the processed style object');
+      }
+    }
+    return newDecl;
   };
 }
 
@@ -84,24 +85,13 @@ function createSelector(sel) {
   }
 }
 
-function fromAstNodes(astRules = [], beforeStyleLoadHook) {
-  let createDeclarationWrapper = createDeclaration;
-  // Wrap the createDeclaration if beforeStyleLoadHook defined in Vue startup options.
-  // For process the the style declaration property and value.
-  if (isFunction(beforeStyleLoadHook)) {
-    createDeclarationWrapper = (decl) => {
-      const newDecl = beforeStyleLoadHook(decl);
-      if (process.env.NODE_ENV !== 'production') {
-        if (!newDecl) {
-          throw new Error('beforeLoadStyle hook must returns the processed style object');
-        }
-      }
-      return newDecl;
-    };
-  }
+function fromAstNodes(astRules = []) {
+  const beforeLoadStyle = getBeforeLoadStyle();
 
   return astRules.map((rule) => {
-    const declarations = rule.declarations.filter(isDeclaration).map(createDeclarationWrapper);
+    const declarations = rule.declarations
+      .filter(isDeclaration)
+      .map(createDeclaration(beforeLoadStyle));
     const selectors = rule.selectors.map(createSelector);
     const ruleSet = new RuleSet(selectors, declarations);
     return ruleSet;

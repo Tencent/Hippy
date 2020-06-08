@@ -1,7 +1,10 @@
 import React from 'react';
 import {
-  StyleSheet, View, Platform, Text, ViewPager,
-} from 'hippy-react';
+  StyleSheet,
+  View,
+  Text,
+  ViewPager,
+} from '@hippy/react';
 import { CirclePagerView, SquarePagerView, TrianglePagerView } from '../../shared/PagerItemView';
 
 const DEFAULT_DOT_RADIUS = 6;
@@ -56,7 +59,6 @@ const styles = StyleSheet.create({
 export default class PagerExample extends React.Component {
     state = {
       selectedIndex: 0,
-      width: 0,
     };
 
     constructor(props) {
@@ -68,31 +70,6 @@ export default class PagerExample extends React.Component {
       this.setState({
         selectedIndex: pageData.position,
       });
-    }
-
-    setPage(idx) {
-      this.scrollTo(idx, true);
-    }
-
-    setPageWithoutAnimation(idx) {
-      this.scrollTo(idx, false);
-    }
-
-    // 外部调用执行滑动
-    scrollTo(idx, animated) {
-      const { selectedIndex, width } = this.state;
-      if (idx !== selectedIndex) {
-        if (Platform.OS === 'ios') {
-          this.viewpager.scrollTo({
-            x: idx * width,
-            animated: !!animated,
-          });
-        } else if (animated) {
-          this.viewpager.setPage(idx);
-        } else {
-          this.viewpager.setPageWithoutAnimation(idx);
-        }
-      }
     }
 
     render() {

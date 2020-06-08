@@ -24,7 +24,7 @@ function banner(name, version) {
 
   return `/*!
  * ${name} v${version}
- * (Using Vue v${VueVersion}${name !== 'hippy-vue' ? andHippyVueString : ''})
+ * (Using Vue v${VueVersion}${name !== '@hippy/vue' ? andHippyVueString : ''})
  * Build at: ${new Date()}
  *
  * Tencent is pleased to support the open source community by making
@@ -71,35 +71,35 @@ const aliases = {
 };
 
 const builds = {
-  'hippy-vue': {
+  '@hippy/vue': {
     entry: resolvePackage('hippy-vue', 'src/index.js'),
     dest: resolvePackage('hippy-vue', 'dist/index.js'),
     format: 'es',
-    banner: banner('hippy-vue', hippyVuePackage.version),
+    banner: banner('@hippy/vue', hippyVuePackage.version),
   },
-  'hippy-vue-css-loader': {
+  '@hippy/vue-css-loader': {
     entry: resolvePackage('hippy-vue-css-loader', 'src/index.js'),
     dest: resolvePackage('hippy-vue-css-loader', 'dist/index.js'),
     format: 'cjs',
     moduleName: 'hippy-vue-css-loader',
-    banner: banner('hippy-vue-css-loader', cssLoaderPackage.version),
+    banner: banner('@hippy/vue-css-loader', cssLoaderPackage.version),
     external(id) {
       return id in Object.keys(cssLoaderPackage.dependencies);
     },
   },
-  'hippy-vue-native-components': {
+  '@hippy/vue-native-components': {
     entry: resolvePackage('hippy-vue-native-components', 'src/index.js'),
     dest: resolvePackage('hippy-vue-native-components', 'dist/index.js'),
     format: 'es',
     moduleName: 'hippy-vue-native-components',
-    banner: banner('hippy-vue-native-components', nativeComponentsPackage.version),
+    banner: banner('@hippy/vue-native-components', nativeComponentsPackage.version),
   },
-  'hippy-vue-router': {
+  '@hippy/vue-router': {
     entry: resolvePackage('hippy-vue-router', 'src/index.js'),
     dest: resolvePackage('hippy-vue-router', 'dist/index.js'),
     format: 'es',
     moduleName: 'hippy-vue-router',
-    banner: banner('hippy-vue-router', routerPackage.version),
+    banner: banner('@hippy/vue-router', routerPackage.version),
   },
 };
 
@@ -129,7 +129,9 @@ function genConfig(name) {
         },
       }),
       alias(aliases),
-      node(),
+      node({
+        preferBuiltins: true,
+      }),
       cjs(),
     ].concat(opts.plugins || []),
     output: {

@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import HippyVueNativeComponents from 'hippy-vue-native-components';
+import HippyVueNativeComponents from '@hippy/vue-native-components';
 import App from './app.vue';
 import routes from './routes';
 import { setApp } from './util';
@@ -9,8 +9,6 @@ import { setApp } from './util';
 // Vue.config.silent = true;
 
 Vue.config.productionTip = false;
-
-debugger;
 
 // Hippy 终端组件扩展中间件，可以使用 modal、view-pager、tab-host、ul-refresh 等原生组件了。
 Vue.use(HippyVueNativeComponents);

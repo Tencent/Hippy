@@ -1,12 +1,12 @@
 {
-  "name": "hippy-vue",
-  "version": "2.0.0",
+  "name": "@hippy/vue",
+  "version": "2.0.3",
   "description": "Vue binding for Hippy native framework",
   "author": "XQ Kuang <x@kxq.io>",
   "license": "Apache-2.0",
   "main": "dist/index.js",
   "types": "types/index.d.ts",
-  "homepage": "https://github.com/Tencent/Hippy",
+  "homepage": "http://hippyjs.org",
   "repository": "https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue",
   "bugs": {
     "url": "https://github.com/Tencent/Hippy/issues"
@@ -20,6 +20,6 @@
     "compiler"
   ],
   "devDependencies": {
-    "ava": "^2.4.0"
+    "ava": "^3.5.0"
   }
 }

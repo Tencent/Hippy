@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 26
-    buildToolsVersion '26.0.2'
+    buildToolsVersion '28.0.3'
     defaultConfig {
         applicationId "com.tencent.mtt.hippy.example"
         minSdkVersion 14
@@ -41,8 +41,8 @@ android {
 }
 
 dependencies {
-    compile project(path:':android-sdk')
-    compile project(path:':support_ui')
-    compile 'com.github.bumptech.glide:glide:3.6.1'
-    compile 'com.android.support:support-v4:26.1.0'
+    api project(path:':android-sdk')
+    api project(path:':support_ui')
+    api 'com.github.bumptech.glide:glide:3.6.1'
+    api 'com.android.support:support-v4:26.1.0'
 }

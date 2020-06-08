@@ -28,6 +28,7 @@ const getComponentName = (originComponentName) => {
     return originComponentName;
   }
 
+  // FIXME: should remove soon.
   switch (originComponentName) {
     case 'ListView':
     case 'QBListView':
@@ -276,7 +277,7 @@ Hippy.bridge.callNative = (...callArguments) => {
     }
   }
 
-  throw new ReferenceError('Native module[func] not found');
+  throw new ReferenceError(`Native ${callArguments[0]}.${callArguments[1]}() not found`);
 };
 
 Hippy.bridge.callNativeWithPromise = (...callArguments) => {
@@ -311,7 +312,7 @@ Hippy.bridge.callNativeWithPromise = (...callArguments) => {
     });
   }
 
-  throw new ReferenceError('Native module[func] not found');
+  return Promise.reject(new ReferenceError(`Native ${callArguments[0]}.${callArguments[1]}() not found`));
 };
 
 Hippy.bridge.callNativeWithCallbackId = (...callArguments) => {
@@ -356,7 +357,7 @@ Hippy.bridge.callNativeWithCallbackId = (...callArguments) => {
     }
   }
 
-  throw new ReferenceError('Native module[func] not found');
+  throw new ReferenceError(`Native ${callArguments[0]}.${callArguments[1]}() not found`);
 };
 
 Hippy.bridge.removeNativeCallback = () => {};

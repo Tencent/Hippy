@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'
 
 ext {
     def flag = System.getenv('CI')
@@ -13,24 +14,17 @@ ext {
     MAVEN_VERSION = ISCI.toBoolean() ? System.getenv('version') : "0.0.1"
     //性能专用，会去掉所有日志，首页快速滑动下，日志会导致低端机卡顿
     BUILD_FOR_PERFORMANCE=false
-    // ndkDir = /Users/fchan/Sdk/android-ndk-r19
+    Properties properties = new Properties()
+    FilepropertyFile = new File(rootDir.getAbsolutePath()+ "/local.properties")
+    properties.load(FilepropertyFile.newDataInputStream())
+    ndkDir = properties.getProperty('ndk.dir')
+    sdkDir = properties.getProperty('sdk.dir')
 
     // Visual Studio Debugging Support
     skipCmakeAndNinja = System.getenv('skipCmakeAndNinja') != null
 }
 
 def findNdkFullPath() {
-    if (ISCI.toBoolean()) {
-        if (hasProperty('ndk.path')) {
-            def ndkDir = property('ndk.path')
-            return ndkDir
-        }
-        if (System.getenv('ANDROID_NDK') != null) {
-            def ndkDir = System.getenv('ANDROID_NDK')
-            return ndkDir
-        }
-    }
-    def ndkDir = project.android.ndkDirectory.absolutePath
     if (ndkDir) {
         return ndkDir
     }
@@ -38,17 +32,8 @@ def findNdkFullPath() {
 }
 
 def findSdkFullPath() {
-    if (hasProperty('sdk.path')) {
-        def ndkDir = property('sdk.path')
-        return ndkDir
-    }
-    if (System.getenv('ANDROID_SDK') != null) {
-        def ndkDir = System.getenv('ANDROID_SDK')
-        return ndkDir
-    }
-    def ndkDir = project.android.sdkDirectory.absolutePath
-    if (ndkDir) {
-        return ndkDir
+    if (sdkDir) {
+        return sdkDir
     }
     return null
 }
@@ -97,13 +82,16 @@ task copyCore(dependsOn: deleteCore, type: Copy) {
 }
 
 task compileCmake(dependsOn: copyCore, type: Exec) {
-
     def cMakeWorkDir = file(project.buildDir.absolutePath + "/cmakeoutput")
     cMakeWorkDir.deleteDir()
     cMakeWorkDir.mkdirs()
     setWorkingDir(cMakeWorkDir)
 
-    def arches = ["armeabi-v7a", "arm64-v8a", "x86"]
+    def arches = ["armeabi-v7a", "x86", "x86_64"]
+    // FIXME: arm64-v8a so can't compile with other arches, it only supports building standalone.
+    //        Comment on the orignal arches definitions, then uncomment the following lines and
+    //        line starts 179 to compile arm64-v8a
+    // def arches = ["arm64-v8a"]
     for (arch in arches) {
     commandLine findCmakeBuildPath(),
             "-DANDROID_ABI=${arch}",
@@ -166,6 +154,17 @@ def getToolPathX86(String toolName) {
     return findNdkFullPath() + "/toolchains/x86-4.9/prebuilt/" + fileName + "/bin/" + toolName
 }
 
+def getToolPathX86_64(String toolName) {
+    def fileName
+    if (isWindows()) {
+        fileName = "windows-x86_64"
+    } else if (isMacOs()) {
+        fileName = "darwin-x86_64"
+    } else {
+        fileName = "linux-x86_64"
+    }
+    return findNdkFullPath() + "/toolchains/x86_64-4.9/prebuilt/" + fileName + "/bin/" + toolName
+}
 task stripSO(dependsOn: compileNinja, type: Exec) {
     commandLine getToolPath("arm-linux-androideabi-strip"),
             "--strip-all",
@@ -181,12 +180,12 @@ task stripSO(dependsOn: compileNinja, type: Exec) {
             "-o",
             "$projectDir.absolutePath/libs/armeabi-v7a/libhippybridge.so"
 
-    commandLine getToolPathArm64("aarch64-linux-android-strip"),
-            "--strip-all",
-            "-x",
-            "$project.buildDir.absolutePath/outputs/arm64-v8a/libhippybridge.so",
-            "-o",
-            "$projectDir.absolutePath/libs/arm64-v8a/libhippybridge.so"
+//    commandLine getToolPathArm64("aarch64-linux-android-strip"),
+//            "--strip-all",
+//            "-x",
+//            "$project.buildDir.absolutePath/outputs/arm64-v8a/libhippybridge.so",
+//            "-o",
+//            "$projectDir.absolutePath/libs/arm64-v8a/libhippybridge.so"
 
     commandLine getToolPathX86("i686-linux-android-strip"),
             "--strip-all",
@@ -194,6 +193,12 @@ task stripSO(dependsOn: compileNinja, type: Exec) {
             "$project.buildDir.absolutePath/outputs/x86/libhippybridge.so",
             "-o",
             "$projectDir.absolutePath/libs/x86/libhippybridge.so"
+    commandLine getToolPathX86_64("x86_64-linux-android-strip"),
+            "--strip-all",
+            "-x",
+            "$project.buildDir.absolutePath/outputs/x86_64/libhippybridge.so",
+            "-o",
+            "$projectDir.absolutePath/libs/x86_64/libhippybridge.so"
 }
 
 task stripSOv7a(dependsOn: stripSO, type: Exec) {
@@ -227,6 +232,10 @@ task buildNdkLibs(dependsOn: (ISCI.toBoolean() ? dealNdkLibSymbols : stripSO)) {
         from "src/main/jni/third_party/v8/x86"
         into "$buildDir/jnilibs/x86/"
     }
+    copy {
+        from "src/main/jni/third_party/v8/x86_64"
+        into "$buildDir/jnilibs/x86_64/"
+    }
 
     copy {
         from "src/main/jni/third_party/v8/arm64-v8a"
@@ -255,7 +264,7 @@ task buildNdkLibs(dependsOn: (ISCI.toBoolean() ? dealNdkLibSymbols : stripSO)) {
 
 android {
     compileSdkVersion 28
-    buildToolsVersion '26.0.2'
+    buildToolsVersion '28.0.3'
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 28
@@ -280,6 +289,10 @@ android {
         jniLibs.srcDirs = ["$buildDir/jnilibs", 'libs']
     }
 
+    tasks.withType(Javadoc).all {
+      enabled false
+    }
+
     tasks.withType(JavaCompile) {
         compileTask -> compileTask.dependsOn buildNdkLibs
     }
@@ -291,8 +304,8 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    provided project(path:':support_ui')
+    api fileTree(dir: 'libs', include: ['*.jar'])
+    compileOnly project(path:':support_ui')
 }
 
 afterEvaluate {
@@ -320,15 +333,15 @@ def dealAfterBuild(variant) {
             }
         }
 
-        project.tasks['bundleRelease'].finalizedBy task("dealAfterBuild${variant.name.capitalize()}") {
-            doLast {
-                unZipAar(aarFile)
-                buildQBAar(aarFile)
-                if (ISCI.toBoolean()) {
-                    copyMappingToBin(FLAVOR, BUILD_TYPE)
-                }
-            }
-        }
+//        project.tasks['bundleRelease'].finalizedBy task("dealAfterBuild${variant.name.capitalize()}") {
+//            doLast {
+//                unZipAar(aarFile)
+//                buildQBAar(aarFile)
+//                if (ISCI.toBoolean()) {
+//                    copyMappingToBin(FLAVOR, BUILD_TYPE)
+//                }
+//            }
+//        }
     }
 }
 
@@ -488,4 +501,22 @@ def copyAarToBin(variant) {
     }
 }
 
-apply from: 'maven.gradle'
+Properties properties = new Properties()
+InputStream inputStream = project.rootProject.file('local.properties').newDataInputStream()
+properties.load( inputStream )
+
+def user = properties.getProperty('bintrayUser')
+def key = properties.getProperty('bintrayKey')
+println("bintrayUpload: bintrayUser=" + user + ", bintrayKey=" + key)
+publish {
+  bintrayUser = user
+  bintrayKey = key
+  userOrg = 'hippy'
+  repoName = 'Hippy'
+  groupId = 'com.tencent.hippy'
+  artifactId = 'hippy-release'
+  publishVersion = '2.0.3'
+  dryRun = false
+  desc = 'Hippy library for Android'
+  website = 'https://github.com/Tencent/Hippy'
+}

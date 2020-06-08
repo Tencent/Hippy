@@ -4,7 +4,7 @@ import {
   View,
   StyleSheet,
   Text,
-} from 'hippy-react';
+} from '@hippy/react';
 
 const STYLE_LOADING = 100;
 const MAX_FETCH_TIMES = 100;
@@ -185,6 +185,7 @@ export default class ListExample extends React.Component {
         onEndReached={this.onEndReached}
         getRowType={this.getRowType}
         getRowKey={this.getRowKey}
+        initialListSize={15}
       />
     );
   }

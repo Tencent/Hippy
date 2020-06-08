@@ -319,7 +319,7 @@ Hippy_ARRAY_CONVERTER(HippyFontVariantDescriptor)
     for (NSString *name in [UIFont fontNamesForFamilyName:familyName]) {
         UIFont *match = [UIFont fontWithName:name size:fontSize];
         if (isItalic == isItalicFont(match) &&
-            isCondensed == isCondensedFont(match)) {
+            (isCondensed == isCondensedFont(match) || !font)) {
             CGFloat testWeight = weightOfFont(match);
             if (ABS(testWeight - fontWeight) < ABS(closestWeight - fontWeight)) {
                 font = match;

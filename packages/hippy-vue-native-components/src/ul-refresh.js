@@ -1,10 +1,9 @@
+import { getEventRedirector } from './utils';
+
 function registerUlRefresh(Vue) {
-  Vue.registerElement('ul-refresh-wrapper', {
+  Vue.registerElement('hi-ul-refresh-wrapper', {
     component: {
       name: 'RefreshWrapper',
-      defaultNativeProps: {
-        bounceTime: 100,
-      },
     },
   });
 
@@ -14,16 +13,39 @@ function registerUlRefresh(Vue) {
     },
   });
 
-  Vue.component('ul-refresh', {
+  Vue.component('ul-refresh-wrapper', {
     inheritAttrs: false,
-    methods: {
-      startRefresh() {
-        Vue.Native.callUIFunction(this, 'startRefresh', null);
-      },
-      refreshComplected() {
-        Vue.Native.callUIFunction(this, 'refreshComplected', null);
+    props: {
+      bounceTime: {
+        type: Number,
+        defaultValue: 100,
       },
     },
+    methods: {
+      onRefresh(evt) {
+        this.$emit('refresh', evt);
+      },
+      startRefresh() {
+        Vue.Native.callUIFunction(this.$refs.refreshWrapper, 'startRefresh', null);
+      },
+      refreshCompleted() {
+        // FIXME: Here's a typo mistake `refreshComplected` in native sdk.
+        Vue.Native.callUIFunction(this.$refs.refreshWrapper, 'refreshComplected', null);
+      },
+    },
+    render(h) {
+      const on = getEventRedirector.call(this, [
+        'refresh',
+      ]);
+      return h('hi-ul-refresh-wrapper', {
+        on,
+        ref: 'refreshWrapper',
+      }, this.$slots.default);
+    },
+  });
+
+  Vue.component('ul-refresh', {
+    inheritAttrs: false,
     template: `
       <hi-refresh-wrapper-item :style="{position: 'absolute', left: 0, right: 0}">
         <div>

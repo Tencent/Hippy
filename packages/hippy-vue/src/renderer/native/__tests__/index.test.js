@@ -1,6 +1,7 @@
 // TODO: Add UIManagerModule mock module to verify result correction.
 
 import test from 'ava';
+import { registerBuiltinElements } from '../../../elements';
 import DocumentNode from '../../document-node';
 import {
   renderToNative,
@@ -13,6 +14,7 @@ import { setApp } from '../../../util';
 const ROOT_VIEW_ID = 10;
 
 test.before(() => {
+  registerBuiltinElements();
   global.__HIPPYNATIVEGLOBAL__ = {
     Platform: {
     },
@@ -115,7 +117,9 @@ test('renderToNative test with children', (t) => {
       name: 'Image',
       props: {
         src: 'http://www.qq.com',
-        style: {},
+        style: {
+          backgroundColor: 0,
+        },
       },
     },
     {
@@ -182,7 +186,9 @@ test('img attributeMaps test', (t) => {
     props: {
       alt: 'Test',
       src: 'http://mat1.gtimg.com/www/qq2018/imgs/qq_logo_2018x2.png',
-      style: {},
+      style: {
+        backgroundColor: 0,
+      },
     },
   });
 });
@@ -364,4 +370,34 @@ test('text element with number text test', (t) => {
   t.throws(() => {
     parentNode.setText(null);
   }, TypeError);
+});
+
+test('Image.setStyle(background-color) test', (t) => {
+  const imgWithoutBg = DocumentNode.createElement('img');
+  const withoutBg = renderToNative(ROOT_VIEW_ID, imgWithoutBg);
+  t.deepEqual(withoutBg, {
+    id: 32,
+    index: 0,
+    pId: 10,
+    name: 'Image',
+    props: {
+      style: {
+        backgroundColor: 0,
+      },
+    },
+  });
+  const imgWithBg = DocumentNode.createElement('img');
+  imgWithBg.setStyle('backgroundColor', '#abcdef');
+  const withBg = renderToNative(ROOT_VIEW_ID, imgWithBg);
+  t.deepEqual(withBg, {
+    id: 33,
+    index: 0,
+    pId: 10,
+    name: 'Image',
+    props: {
+      style: {
+        backgroundColor: 4289449455,
+      },
+    },
+  });
 });

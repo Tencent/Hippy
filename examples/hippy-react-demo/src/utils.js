@@ -2,7 +2,7 @@ import {
   Dimensions,
   PixelRatio,
   Platform,
-} from 'hippy-react';
+} from '@hippy/react';
 
 const Utils = {
   getScreenWidth() {

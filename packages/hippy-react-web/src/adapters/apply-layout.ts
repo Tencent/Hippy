@@ -1,3 +1,19 @@
+/**
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * This source code is licensed under the Apache-2.0 license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * This source code is based on react-native-web project.
+ * https://github.com/necolas/react-native-web/blob/0.11.7//packages/react-native-web/src/modules/applyLayout/index.js
+ *
+ * Copyright (c) Nicolas Gallagher.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-shadow */
 /* eslint-disable no-console */
@@ -90,7 +106,7 @@ function applyLayout(Component: any) {
     componentDidMount,
     function componentDidMount() {
       this.layoutState = emptyObject;
-      this.isMounted = true;
+      this.hasMounted = true;
       if (this.props.onLayout) {
         observe(this);
       }
@@ -111,7 +127,7 @@ function applyLayout(Component: any) {
   Component.prototype.componentWillUnmount = safeOverride(
     componentWillUnmount,
     function componentWillUnmount() {
-      this.isMounted = false;
+      this.hasMounted = false;
       if (this.props.onLayout) {
         unobserve(this);
       }
@@ -125,7 +141,7 @@ function applyLayout(Component: any) {
     if (onLayout) {
       const node = findNodeHandle(this);
       UIManager.measure(node, (x: number, y: number, width: number, height: number) => {
-        if (this.isMounted) {
+        if (this.hasMounted) {
           if (
             layout.x !== x
             || layout.y !== y

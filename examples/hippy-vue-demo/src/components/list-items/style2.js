@@ -1,6 +1,6 @@
 import Vue from 'vue';
 
-Vue.component('style-two', {
+export default Vue.component('style-two', {
   inheritAttrs: false,
   props: ['itemBean'],
   template: `

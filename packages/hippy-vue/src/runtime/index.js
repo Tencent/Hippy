@@ -15,13 +15,19 @@ import {
 } from 'core/util/index';
 import { patch } from './patch';
 import {
+  registerBuiltinElements,
   registerElement,
   getElementMap,
   mustUseProp,
   isReservedTag,
   isUnknownElement,
 } from '../elements';
-import { setApp, isFunction, trace } from '../util';
+import {
+  setApp,
+  isFunction,
+  trace,
+  setBeforeLoadStyle,
+} from '../util';
 import DocumentNode from '../renderer/document-node';
 import { Event } from '../renderer/native/event';
 import Native, { HippyRegister } from './native';
@@ -86,46 +92,62 @@ Vue.prototype.$mount = function $mount(el, hydrating) {
  *
  * @param {function} callback - Callback after register completed.
  */
-Vue.prototype.$start = function $start(callback) {
+Vue.prototype.$start = function $start(afterCallback, beforeCallback) {
   setApp(this);
-  let self = this;
+
+  // beforeLoadStyle is a hidden option for pre-process
+  // the style declaration globally.
+  if (isFunction(this.$options.beforeLoadStyle)) {
+    setBeforeLoadStyle(this.$options.beforeLoadStyle);
+  }
 
   // register native components into Vue.
   getElementMap().forEach((entry) => {
     Vue.component(entry.meta.component.name, entry.meta.component);
   });
 
+  // Register the entry point into Hippy
+  // The callback will be exectue when Native trigger loadInstance
+  // or runApplication event.
   HippyRegister.regist(this.$options.appName, (superProps) => {
     const { __instanceId__: rootViewId } = superProps;
-    self.$options.$superProps = superProps;
-    self.$options.rootViewId = rootViewId;
+    this.$options.$superProps = superProps;
+    this.$options.rootViewId = rootViewId;
 
     trace(...componentName, 'Start', this.$options.appName, 'with rootViewId', rootViewId, superProps);
 
-    if (self.$el) {
-      self.$destroy();
-      // FIXME: Seems memory leak for hippy.
-      //        Because old instance should be destroyed.
-      const AppConstructor = Vue.extend(self.$options);
-      self = new AppConstructor(self.$options);
-      setApp(self);
+    // Destroy the old instance and set the new one when restart the app
+    if (this.$el) {
+      this.$destroy();
+      const AppConstructor = Vue.extend(this.$options);
+      const newApp = new AppConstructor(this.$options);
+      setApp(newApp);
     }
 
-    self.$mount();
+    // Call the callback before $mount
+    if (isFunction(beforeCallback)) {
+      beforeCallback(this, superProps);
+    }
 
+    // Draw the app.
+    this.$mount();
+
+    // Draw the iPhone status bar background.
+    // It should execute after $mount, otherwise this.$el will be undefined.
     if (Native.Platform === 'ios') {
       const statusBar = iPhone.drawStatusBar(this.$options);
       if (statusBar) {
-        if (!self.$el.childNodes.length) {
-          self.$el.appendChild(statusBar);
+        if (!this.$el.childNodes.length) {
+          this.$el.appendChild(statusBar);
         } else {
-          self.$el.insertBefore(statusBar, self.$el.childNodes[0]);
+          this.$el.insertBefore(statusBar, this.$el.childNodes[0]);
         }
       }
     }
 
-    if (isFunction(callback)) {
-      callback(self, superProps);
+    // Call the callback after $mount
+    if (isFunction(afterCallback)) {
+      afterCallback(this, superProps);
     }
   });
 };
@@ -143,6 +165,7 @@ function initComputed(Comp) {
   Object.keys(computed).forEach(key => defineComputed(Comp.prototype, key, computed[key]));
 }
 
+// Override component for avoid built-in component warning.
 Vue.component = function component(id, definition) {
   if (!definition) {
     return this.options.components[id];
@@ -155,6 +178,7 @@ Vue.component = function component(id, definition) {
   return definition;
 };
 
+// Override extend for avoid built-in component warning.
 Vue.extend = function hippyExtend(extendOptions) {
   extendOptions = extendOptions || {};
   const Super = this;
@@ -215,5 +239,8 @@ Vue.extend = function hippyExtend(extendOptions) {
 
 // Binding Native Properties
 Vue.Native = Native;
+
+// Register the built-in elements
+Vue.use(registerBuiltinElements);
 
 export default Vue;

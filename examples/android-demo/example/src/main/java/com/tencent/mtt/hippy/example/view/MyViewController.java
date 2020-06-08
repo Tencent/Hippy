@@ -50,9 +50,9 @@ public class MyViewController extends HippyViewController<MyView>
 
 	//this is show receive js call
 	@Override
-	public void dispatchFunction(MyView view, String functionName, HippyArray params, Promise promise)
+	public void dispatchFunction(MyView view, String functionName, HippyArray params)
 	{
-		super.dispatchFunction(view, functionName, params, promise);
+		super.dispatchFunction(view, functionName, params);
 	    switch (functionName)
         {
             case "changeColor":
@@ -60,12 +60,5 @@ public class MyViewController extends HippyViewController<MyView>
                    view.setColor(Color.parseColor(color));
                 break;
         }
-
-        if (promise != null)
-		{
-			HippyMap resultMap = new HippyMap();
-			resultMap.pushString("msg", "color changed of course!");
-			promise.resolve(resultMap);
-		}
 	}
 }

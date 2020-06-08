@@ -56,8 +56,6 @@
 @property (nonatomic, assign) NSInteger mostRecentEventCount;
 @property (nonatomic, strong) NSNumber *maxLength;
 @property (nonatomic, copy) HippyDirectEventBlock onKeyPress;
-
-//@property (nonatomic, copy) HippyDirectEventBlock onChange;
 @property (nonatomic, copy) HippyDirectEventBlock onContentSizeChange;
 @property (nonatomic, copy) HippyDirectEventBlock onSelectionChange;
 @property (nonatomic, copy) HippyDirectEventBlock onTextInput;

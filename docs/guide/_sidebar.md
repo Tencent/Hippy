@@ -5,4 +5,5 @@
 * [网络请求](guide/network-request.md)
 * [定时器](guide/timer.md)
 * [日志](guide/console.md)
+* [自定义字体](guide/custom-font.md)
 * [技术支持](guide/support.md)

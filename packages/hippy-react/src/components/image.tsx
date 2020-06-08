@@ -106,7 +106,7 @@ interface ImageProps extends LayoutableProps, ClickableProps {
 
 function handleImgUrl(url: string): string {
   if (url && !/^(http|https):\/\//.test(url) && url.indexOf('assets') > -1) {
-    if (process.env.NODE_ENV === 'dev') {
+    if (process.env.NODE_ENV === 'development') {
       const addStr1 = 'http://'; // do not change this, otherwise js-min went wrong
       return `${addStr1}127.0.0.1:${process.env.PORT}/${url}`;
     }

@@ -90,6 +90,11 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  * Async batched bridge used to communicate with the JavaScript application.
  */
 @interface HippyBridge : NSObject <HippyInvalidating>
+
+- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)delegate
+                       bundleURL:(NSURL *)bundleURL
+                  moduleProvider:(HippyBridgeModuleProviderBlock)block
+                   launchOptions:(NSDictionary *)launchOptions;
 /**
  * Creates a new bridge with a custom HippyBridgeDelegate.
  *

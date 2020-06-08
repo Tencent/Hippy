@@ -71,8 +71,47 @@ namespace Hippy {
       startBatch(renderId: number): void;
       updateNode(rootViewId: number, queue: NativeNode[]): void;
     };
-    on(event: string, callback: Function): void;
+
+    /**
+     * Register a listener for a specific event, and the listener will be called
+     * when the event is triggered.
+     *
+     * @param {string} eventName - The event name will be registered.
+     * @param {Function} listener - Event callback.
+     */
+    on(eventName: string, listener: Function): void;
+
+    /**
+     * Remove specific event listener,
+     *
+     * @param {string} eventName - The event name will be removed.
+     * @param {Function} listener - Specific event callback will be removed,
+     *                              the listeners will clean all if not specific.
+     */
+    off(eventName: string, listener?: Function): void;
+
+    /**
+     * Trigger a event with arguments.
+     *
+     * @param {string} eventName - The event name will be trigger.
+     * @param  {any} args - Event callback arguments.
+     */
+    emit(eventName: string, ...args: any[]): void;
+
     register: {
+      /**
+       * Register the Hippy app entry function, the native will trigger an event to execute the function
+       * and start the app.
+       *
+       * The different platforms the event name is different, for Android it's 'loadInstance',
+       * for iOS it's 'runApplication'.
+       *
+       * For the same app startup multiple times, it needs to use a different Javascript Context
+       * for the environment isolation.
+       *
+       * @param {string} appName - The app name will be register.
+       * @param {*} entryFunc - The entry function will be execute after native called.
+       */
       regist(appName: string, entryFunc: Function): void;
     };
   }

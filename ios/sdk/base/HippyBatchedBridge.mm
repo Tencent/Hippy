@@ -217,17 +217,25 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)
     dispatch_group_notify(initModulesAndLoadSource, bridgeQueue, ^{
         HippyBatchedBridge *strongSelf = weakSelf;
         if (sourceCode && strongSelf.loading) {
-            //加载common包之前注入一些全局变量信息
-            NSString *deviceInfo = [self deviceInfo];
-            [strongSelf->_javaScriptExecutor injectJSONText:deviceInfo asGlobalObjectNamed:@"__HIPPYNATIVEGLOBAL__" callback:^(NSError *error) {
-                
-                // load bootstrap.js after config has been setted
+            //mount custom objects before executing JS Code
+            dispatch_group_t objectGroup = dispatch_group_create();
+            NSMutableDictionary *objects = [NSMutableDictionary dictionaryWithDictionary:[self deviceInfo]];
+            if ([self.delegate respondsToSelector:@selector(objectsBeforeExecuteCode)]) {
+                NSDictionary *customObjects = [self.delegate objectsBeforeExecuteCode];
+                [objects addEntriesFromDictionary:customObjects];
+            }
+            NSData *data = [NSJSONSerialization dataWithJSONObject:objects options:0 error:nil];
+            NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+            dispatch_group_enter(objectGroup);
+            [strongSelf->_javaScriptExecutor injectJSONText:string asGlobalObjectNamed:@"__HIPPYNATIVEGLOBAL__" callback:^(NSError *error) {
+                dispatch_group_leave(objectGroup);
+            }];
+            dispatch_group_notify(objectGroup, bridgeQueue, ^{
                 if (self->_javaScriptExecutor.pEnv.lock()) {
                     self->_javaScriptExecutor.pEnv.lock()->loadModules();
                 }
-
                 [strongSelf executeSourceCode:sourceCode];
-            }];
+            });
         }
     });
     
@@ -316,10 +324,8 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)
     [_performanceLogger markStartForTag:HippyPLNativeModuleInit];
     
     NSArray<id<HippyBridgeModule>> *extraModules = nil;
-    if (self.delegate) {
-        if ([self.delegate respondsToSelector:@selector(extraModulesForBridge:)]) {
-            extraModules = [self.delegate extraModulesForBridge:_parentBridge];
-        }
+    if (self.delegate && [self.delegate respondsToSelector:@selector(extraModulesForBridge:)]) {
+        extraModules = [self.delegate extraModulesForBridge:_parentBridge];
     } else if (self.moduleProvider) {
         extraModules = self.moduleProvider();
     }
@@ -642,7 +648,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)
              };
 }
 
-- (NSString *)deviceInfo {
+- (NSDictionary *)deviceInfo {
     //该方法可能从非UI线程调用
     NSString *iosVersion = [[UIDevice currentDevice] systemVersion];
     CGFloat rotateBounds = _screenSize.size.height < _screenSize.size.width;
@@ -659,10 +665,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)
     [deviceInfo setValue:_HippySDKVersion forKey:@"SDKVersion"];
     [deviceInfo setValue: _parentBridge.appVerson forKey:@"AppVersion"];
     [deviceInfo setValue:[self HippyExportedDimensions:rotateBounds] forKey:@"Dimensions"];
-    
-    NSData *data = [NSJSONSerialization dataWithJSONObject:deviceInfo options:0 error:nil];
-    NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    return string;
+    return [NSDictionary dictionaryWithDictionary:deviceInfo];
 }
 
 - (void)_flushPendingCalls

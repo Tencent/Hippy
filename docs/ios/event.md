@@ -25,10 +25,10 @@
 
 这里是向前端发送一个名叫rotate的事件里面有个参数是result，这样就发送到前端去了。然后在前端进行接收处理。
 
-PS: 最新版Hippy的监听器添加方法由`addEventListener`改为了`addListener`
+PS: 最新版 Hippy 的监听器添加方法由`addEventListener`改为了`addListener`
 
 ```jsx
-import { HippyEventEmitter } from '@tencent/hippy-react';
+import { HippyEventEmitter } from '@hippy/react';
 
 let hippyEventEmitter = new HippyEventEmitter();
 this.call = hippyEventEmitter.addListener("rotate", (e) => {

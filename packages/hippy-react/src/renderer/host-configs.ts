@@ -24,6 +24,8 @@ function appendInitialChild(parent: Element, child: Element) {
 
 function commitMount() {}
 
+function commitTextUpdate() {}
+
 function commitUpdate(
   instance: any,
   updatePayload: any,
@@ -175,6 +177,7 @@ export {
   appendChildToContainer,
   appendInitialChild,
   commitMount,
+  commitTextUpdate,
   commitUpdate,
   createContainerChildSet,
   createInstance,

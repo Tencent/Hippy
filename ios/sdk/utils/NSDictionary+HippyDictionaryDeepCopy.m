@@ -23,13 +23,13 @@
 #import "NSDictionary+HippyDictionaryDeepCopy.h"
 
 @implementation NSDictionary (HippyDictionaryDeepCopy)
-- (id)deepCopy {
+- (id)hippyDeepCopy {
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithCapacity:[self count]];
     [self enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
         id copiedKey = [key copy];
         id copiedObj = nil;
         if ([obj conformsToProtocol:@protocol(HippyDeepCopyProtocol)]) {
-            copiedObj = [obj deepCopy];
+            copiedObj = [obj hippyDeepCopy];
         }
         else if ([obj respondsToSelector:@selector(copy)]) {
             copiedObj = [obj copy];
@@ -42,14 +42,14 @@
     return [NSDictionary dictionaryWithDictionary:dictionary];
 }
 
-- (id)mutableDeepCopy {
+- (id)hippyMutableDeepCopy {
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithCapacity:[self count]];
     for (id key in self) {
         id copiedKey = [key mutableCopy];
         id obj = [self objectForKey:key];
         id copiedObj = nil;
         if ([obj conformsToProtocol:@protocol(HippyDeepCopyProtocol)]) {
-            copiedObj = [obj mutableDeepCopy];
+            copiedObj = [obj hippyMutableDeepCopy];
         }
         else if ([obj conformsToProtocol:@protocol(NSMutableCopying)]) {
             copiedObj = [obj mutableCopy];

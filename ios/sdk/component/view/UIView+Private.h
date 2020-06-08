@@ -28,6 +28,7 @@
 - (void)hippy_remountAllSubviews;
 - (void)hippy_updateClippedSubviewsWithClipRect:(CGRect)clipRect relativeToView:(UIView *)clipView;
 - (UIView *)hippy_findClipView;
+- (UIView *)nextResponseViewAtPoint:(CGPoint)point;
 
 // zIndex sorting
 - (void)clearSortedSubviews;

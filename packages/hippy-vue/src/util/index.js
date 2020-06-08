@@ -10,6 +10,19 @@ const HIPPY_VUE_VERSION = process.env.HIPPY_VUE_VERSION;
 let _App;
 let _Vue;
 
+/**
+ * Style pre-process hook
+ *
+ * Use for hack the style processing, update the property
+ * or value mannuly.
+ *
+ * @param {Object} decl - Style declaration.
+ * @param {string} decl.property - Style property name.
+ * @param {string|number} decl.value - Style property value.
+ * @returns {Object} decl - Processed declaration, original declaration by default.
+ */
+let _beforeLoadStyle = decl => decl;
+
 function setVue(Vue) {
   _Vue = Vue;
 }
@@ -24,6 +37,14 @@ function setApp(app) {
 
 function getApp() {
   return _App;
+}
+
+function setBeforeLoadStyle(beforeLoadStyle) {
+  _beforeLoadStyle = beforeLoadStyle;
+}
+
+function getBeforeLoadStyle() {
+  return _beforeLoadStyle;
 }
 
 const infoTrace = once(() => {
@@ -117,6 +138,27 @@ function setsAreEqual(as, bs) {
   return true;
 }
 
+/**
+ * endsWith polyfill for iOS 8 compatiblity
+ *
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/endsWith#Polyfill
+ *
+ * @param {string} str - The characters with specified string.
+ * @param {string} search - The characters to be searched for at the end of str.
+ * @param {number} length - If provided, it is used as the length of str. Defaults to str.length.
+ * @return {boolean}
+ */
+function endsWith(str, search, length) {
+  if (String.prototype.endsWith) {
+    return str.endsWith(search, length);
+  }
+  let strLen = length;
+  if (strLen === undefined || strLen > str.length) {
+    strLen = str.length;
+  }
+  return str.slice(strLen - search.length, strLen) === search;
+}
+
 export {
   VUE_VERSION,
   HIPPY_VUE_VERSION,
@@ -124,6 +166,8 @@ export {
   getVue,
   setApp,
   getApp,
+  setBeforeLoadStyle,
+  getBeforeLoadStyle,
   trace,
   warn,
   capitalizeFirstLetter,
@@ -132,4 +176,5 @@ export {
   arrayCount,
   isFunction,
   setsAreEqual,
+  endsWith,
 };

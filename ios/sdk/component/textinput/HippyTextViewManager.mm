@@ -138,7 +138,12 @@ HIPPY_EXPORT_METHOD(getValue:(nonnull NSNumber *)hippyTag
         if (![view isKindOfClass:[HippyBaseTextInput class]]) {
             HippyLogError(@"Invalid view returned from registry, expecting HippyBaseTextInput, got: %@", view);
         }
-        callback(@[[view value]]);
+        NSString *stringValue = [view value];
+        if (nil == stringValue) {
+            stringValue = @"";
+        }
+        NSArray *callBack = [NSArray arrayWithObject:[NSDictionary dictionaryWithObject:stringValue forKey:@"text"]];
+        callback(callBack);
     }];
 }
 
@@ -156,8 +161,7 @@ HIPPY_REMAP_VIEW_PROPERTY(enablesReturnKeyAutomatically, textView.enablesReturnK
 HIPPY_REMAP_VIEW_PROPERTY(keyboardType, textView.keyboardType, UIKeyboardType)
 HIPPY_REMAP_VIEW_PROPERTY(keyboardAppearance, textView.keyboardAppearance, UIKeyboardAppearance)
 HIPPY_EXPORT_VIEW_PROPERTY(maxLength, NSNumber)
-HIPPY_EXPORT_VIEW_PROPERTY(onChange, HippyBubblingEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onContentSizeChange, HippyBubblingEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onContentSizeChange, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onSelectionChange, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onTextInput, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onEndEditing, HippyDirectEventBlock)

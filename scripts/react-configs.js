@@ -9,7 +9,7 @@ const hippyReactPackage = require('../packages/hippy-react/package.json');
 const hippyReactWebPackage = require('../packages/hippy-react-web/package.json');
 
 const aliases = {
-  '@localTypes': path.resolve('./types'),
+  '@localTypes': path.resolve(__dirname, '../types'),
 };
 
 function banner(name, version) {
@@ -46,11 +46,11 @@ function banner(name, version) {
 }
 
 const builds = {
-  'hippy-react': {
+  '@hippy/react': {
     entry: './packages/hippy-react/src/index.ts',
     dest: './packages/hippy-react/dist/index.js',
     format: 'es',
-    banner: banner('hippy-react', hippyReactPackage.version),
+    banner: banner('@hippy/react', hippyReactPackage.version),
     external(id) {
       return !![
         'react',
@@ -58,11 +58,11 @@ const builds = {
       ].find(ext => id.startsWith(ext));
     },
   },
-  'hippy-react-web': {
+  '@hippy/react-web': {
     entry: './packages/hippy-react-web/src/index.ts',
     dest: './packages/hippy-react-web/dist/index.js',
     format: 'es',
-    banner: banner('hippy-react-web', hippyReactWebPackage.version),
+    banner: banner('@hippy/react-web', hippyReactWebPackage.version),
     external(id) {
       return !![
         'react',
@@ -70,6 +70,7 @@ const builds = {
         'bezier-easing',
         'debounce',
         'swiper',
+        'rmc-list-view',
       ].find(ext => id.startsWith(ext));
     },
   },
@@ -83,6 +84,7 @@ function genConfig(name) {
     plugins: [
       replace({
         'process.env.HIPPY_REACT_VERSION': `"${hippyReactPackage.version}"`,
+        'process.env.HIPPY_REACT_WEB_VERSION': `"${hippyReactWebPackage.version}"`,
       }),
       typescript({
         transpileOnly: true,

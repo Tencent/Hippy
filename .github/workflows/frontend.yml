@@ -1,0 +1,48 @@
+name: build
+
+on: [ push, pull_request ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [ 10.x, 13.x ]
+    steps:
+      - uses: actions/checkout@v1
+      - name: setup-node
+        uses: actions/setup-node@master
+        with:
+          node-version: ${{ matrix.node }}
+          registry-url: https://npm.pkg.github.com
+      - name: install
+        run: npm install
+      - name: lint
+        run: npm run lint
+      - name: test
+        run: npm run coverage
+      - name: coverage
+        if: matrix.node == '10.x'
+        uses: codecov/codecov-action@v1
+        with:
+          token: 783d2587-ef59-48ec-8e21-68d5abbd42b4
+      - name: build
+        run: npm run build
+  commitlint:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v1
+      - uses: wagoid/commitlint-github-action@v1
+        with:
+          configFile: .commitlintrc.js
+  markdownlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: markdownlint
+        uses: nosborn/github-action-markdown-cli@v1.1.1
+        with:
+          config_file: .markdownlintrc.json
+          files: ./README*.md ./PUBLISH*.md ./docs/**/*.md

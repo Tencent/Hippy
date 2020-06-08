@@ -1,17 +1,24 @@
 import test from 'ava';
+import { registerBuiltinElements } from '../../../../elements';
 import { EventDispatcher } from '../dispatcher';
 import { setApp, getApp } from '../../../../util';
 import ElementNode from '../../../element-node';
 
 let childNode;
 let textareaNode;
+let listview;
+let iframe;
 
 test.before(() => {
+  registerBuiltinElements();
   const rootNode = new ElementNode('div');
   childNode = new ElementNode('div');
   textareaNode = new ElementNode('textarea');
+  listview = new ElementNode('ul');
+  iframe = new ElementNode('iframe');
   rootNode.appendChild(childNode);
   childNode.appendChild(textareaNode);
+  childNode.appendChild(listview);
   textareaNode.addEventListener('test', () => {});
 
   const app = {
@@ -117,7 +124,34 @@ test('receiveUIComponentEvent onSelectionChange test', (t) => {
   t.pass();
 });
 
-test('receiveUIComponentEvent onScroll test', (t) => {
+test('receiveUIComponentEvent onKeyboardWillShow test', (t) => {
+  t.is(EventDispatcher.receiveUIComponentEvent(), undefined);
+  EventDispatcher.receiveUIComponentEvent([
+    textareaNode.nodeId,
+    'onKeyboardWillShow',
+    {
+      keyboardHeight: 123,
+    },
+  ]);
+  t.pass();
+});
+
+test('receiveUIComponentEvent onContentSizeChange test', (t) => {
+  t.is(EventDispatcher.receiveUIComponentEvent(), undefined);
+  EventDispatcher.receiveUIComponentEvent([
+    textareaNode.nodeId,
+    'onContentSizeChange',
+    {
+      contentSize: {
+        width: 1,
+        height: 2,
+      },
+    },
+  ]);
+  t.pass();
+});
+
+test('receiveUIComponentEvent div.onScroll test', (t) => {
   t.is(EventDispatcher.receiveUIComponentEvent(), undefined);
   EventDispatcher.receiveUIComponentEvent([
     childNode.nodeId,
@@ -127,6 +161,34 @@ test('receiveUIComponentEvent onScroll test', (t) => {
         x: 1,
         y: 2,
       },
+    },
+  ]);
+  t.pass();
+});
+
+test('receiveUIComponentEvent ul.onScroll test', (t) => {
+  t.is(EventDispatcher.receiveUIComponentEvent(), undefined);
+  EventDispatcher.receiveUIComponentEvent([
+    listview.nodeId,
+    'onScroll',
+    {
+      contentOffset: {
+        x: 1,
+        y: 2,
+      },
+    },
+  ]);
+  t.pass();
+});
+
+test('receiveUIComponentEvent onTouch test', (t) => {
+  t.is(EventDispatcher.receiveUIComponentEvent(), undefined);
+  EventDispatcher.receiveUIComponentEvent([
+    childNode.nodeId,
+    'onTouchDown',
+    {
+      page_x: 1,
+      page_y: 2,
     },
   ]);
   t.pass();
@@ -144,6 +206,18 @@ test('receiveUIComponentEvent onLayout test', (t) => {
         width: 100,
         height: 200,
       },
+    },
+  ]);
+  t.pass();
+});
+
+test('receiveUIComponentEvent onLoad test', (t) => {
+  t.is(EventDispatcher.receiveUIComponentEvent(), undefined);
+  EventDispatcher.receiveUIComponentEvent([
+    iframe.nodeId,
+    'onLoad',
+    {
+      url: 'http://hippyjs.org',
     },
   ]);
   t.pass();

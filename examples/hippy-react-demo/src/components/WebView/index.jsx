@@ -1,7 +1,10 @@
 import React from 'react';
 import {
-  Text, View, StyleSheet, WebView,
-} from 'hippy-react';
+  Text,
+  View,
+  StyleSheet,
+  WebView,
+} from '@hippy/react';
 
 const styles = StyleSheet.create({
   itemTitle: {
@@ -32,9 +35,9 @@ export default function WebViewExample() {
         source={{
           uri: 'https://www.qq.com',
           method: 'get',
-          userAgent: `Mozilla/5.0 (Linux; U; Android 5.1.1;
-            zh-cn; vivo X7 Build/LMY47V) AppleWebKit/537.36 (KHTML, like Gecko)Version/4.0 Chrome/37.0.0.0 MQQBrowser/8.2
-            Mobile Safari/537.36`,
+          userAgent: 'Mozilla/5.0 (Linux; U; Android 5.1.1; '
+            + 'zh-cn; vivo X7 Build/LMY47V) AppleWebKit/537.36 (KHTML, like Gecko)Version/4.0 Chrome/37.0.0.0 MQQBrowser/8.2 '
+            + 'Mobile Safari/537.36',
         }}
         style={styles.webViewStyle}
       />
