@@ -1,4 +1,7 @@
-const mimes = {
+const path = require('path');
+
+const mimeTypes = {
+  unknown: 'application/octet-stream',
   css: 'text/css',
   less: 'text/css',
   gif: 'image/gif',
@@ -20,4 +23,10 @@ const mimes = {
   xml: 'text/xml',
 };
 
-module.exports = mimes;
+function parseMimeType(pathName) {
+  let extName = path.extname(pathName);
+  extName = extName ? extName.slice(1) : 'unknown';
+  return mimeTypes[extName];
+}
+
+module.exports = parseMimeType;

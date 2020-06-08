@@ -14,6 +14,10 @@ const { argv } = yargs
     default: 'dist/dev/index.bundle',
     describe: 'Path of the jsbundle for debugging',
   })
+  .option('static', {
+    type: 'string',
+    describe: 'Path of the static files such as images',
+  })
   .option('host', {
     type: 'string',
     default: 'localhost',
@@ -24,7 +28,12 @@ const { argv } = yargs
     default: '38989',
     describe: 'The port the debug server will listen to',
   })
-  .epilog('copyright 2019');
+  .option('verbose', {
+    type: 'boolean',
+    default: false,
+    describe: 'Output error detals',
+  })
+  .epilog(`Copyright (C) 2017-${new Date().getFullYear()} THL A29 Limited, a Tencent company.`);
 
 if (argv.verbose) {
   process.env.VERBOSE = true;
@@ -39,8 +48,4 @@ if (argv.version) {
 }
 
 // Execute command
-startServer({
-  entry: argv.entry,
-  host: argv.host,
-  port: argv.port,
-});
+startServer(argv);
