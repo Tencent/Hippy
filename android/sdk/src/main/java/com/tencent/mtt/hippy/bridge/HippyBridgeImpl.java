@@ -176,7 +176,8 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 			LogUtils.e("HippyEngineMonitor", "runScriptFromAssets ======core====== " + codeCacheTag + ", canUseCodeCache == " + canUseCodeCache);
 			String codeCacheDir = mCodeCacheRootDir + codeCacheTag + File.separator;
 			File file = new File(codeCacheDir);
-			LogUtils.d("HippyEngineMonitor", "codeCacheDir file size : " + (file.listFiles() != null ? file.listFiles().length : 0));
+			File[] codeCacheDirListFiles = file.listFiles();
+			LogUtils.d("HippyEngineMonitor", "codeCacheDir file size : " + (codeCacheDirListFiles != null ? codeCacheDirListFiles.length : 0));
 			return runScriptFromAssets(fileName, assetManager, canUseCodeCache, codeCacheDir, mV8RuntimeId, callback);
 		}
 		else
