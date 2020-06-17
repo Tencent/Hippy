@@ -8,7 +8,6 @@ require('../../global/TimerModule.js'); // setTimeout clearTimeout setInterval c
 require('../../global/ConsoleModule.js'); // console
 require('../../global/UIManagerModule.js'); // Hippy.document
 require('../../global/Network.js'); // Headers fetch Response
-require('../../global/WebSocket.js'); // WebSocket
 require('../../global/Storage.js'); // localStrorageAsync                                   to_do use jsbinding
 require('../../global/android/Dimensions.js'); // Hippy.device.window Hippy.device.screen Hippy.device.pixelRatio
 require('../../global/UtilsModule.js'); // Hippy.device.vibrate Hippy.device.cancelVibrate
