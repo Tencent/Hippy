@@ -1,4 +1,5 @@
 import Hippy from './hippy';
+import WebSocket from '../packages/hippy-react/src/modules/websocket';
 
 declare module NodeJS  {
   interface Global {
@@ -27,5 +28,6 @@ declare module NodeJS  {
       renderCount: number;
     };
     Hippy: Hippy.HippyConstance;
+    WebSocket: WebSocket;
   }
 }
