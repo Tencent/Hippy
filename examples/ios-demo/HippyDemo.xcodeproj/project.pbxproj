@@ -120,7 +120,6 @@
 		064C5A5823AB1A51001E80DD /* HippyFrameUpdate.m in Sources */ = {isa = PBXBuildFile; fileRef = 064C59DD23AB1A51001E80DD /* HippyFrameUpdate.m */; };
 		064C5A5923AB1A51001E80DD /* HippyDisplayLink.m in Sources */ = {isa = PBXBuildFile; fileRef = 064C59DE23AB1A51001E80DD /* HippyDisplayLink.m */; };
 		064C5A5A23AB1A51001E80DD /* HippyRootShadowView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 064C59E023AB1A51001E80DD /* HippyRootShadowView.mm */; };
-		064C5A5B23AB1A51001E80DD /* HippyWebSocketExecutor.mm in Sources */ = {isa = PBXBuildFile; fileRef = 064C59E423AB1A51001E80DD /* HippyWebSocketExecutor.mm */; };
 		064C5A5C23AB1A51001E80DD /* HippySRWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 064C59E823AB1A51001E80DD /* HippySRWebSocket.m */; };
 		064C5A5D23AB1A51001E80DD /* HippyWebSocketManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 064C59E923AB1A51001E80DD /* HippyWebSocketManager.m */; };
 		064C5AD723AB1A59001E80DD /* engine.cc in Sources */ = {isa = PBXBuildFile; fileRef = 064C5A8423AB1A59001E80DD /* engine.cc */; };
@@ -407,10 +406,8 @@
 		064C59DF23AB1A51001E80DD /* HippyRootViewInternal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyRootViewInternal.h; sourceTree = "<group>"; };
 		064C59E023AB1A51001E80DD /* HippyRootShadowView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyRootShadowView.mm; sourceTree = "<group>"; };
 		064C59E323AB1A51001E80DD /* HippyWebSocketProxyDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyWebSocketProxyDelegate.h; sourceTree = "<group>"; };
-		064C59E423AB1A51001E80DD /* HippyWebSocketExecutor.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyWebSocketExecutor.mm; sourceTree = "<group>"; };
 		064C59E523AB1A51001E80DD /* HippyWebSocketManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyWebSocketManager.h; sourceTree = "<group>"; };
 		064C59E623AB1A51001E80DD /* HippyWebSocketProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyWebSocketProxy.h; sourceTree = "<group>"; };
-		064C59E723AB1A51001E80DD /* HippyWebSocketExecutor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyWebSocketExecutor.h; sourceTree = "<group>"; };
 		064C59E823AB1A51001E80DD /* HippySRWebSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippySRWebSocket.m; sourceTree = "<group>"; };
 		064C59E923AB1A51001E80DD /* HippyWebSocketManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyWebSocketManager.m; sourceTree = "<group>"; };
 		064C59EA23AB1A51001E80DD /* HippySRWebSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippySRWebSocket.h; sourceTree = "<group>"; };
@@ -1038,10 +1035,8 @@
 			isa = PBXGroup;
 			children = (
 				064C59E323AB1A51001E80DD /* HippyWebSocketProxyDelegate.h */,
-				064C59E423AB1A51001E80DD /* HippyWebSocketExecutor.mm */,
 				064C59E523AB1A51001E80DD /* HippyWebSocketManager.h */,
 				064C59E623AB1A51001E80DD /* HippyWebSocketProxy.h */,
-				064C59E723AB1A51001E80DD /* HippyWebSocketExecutor.h */,
 				064C59E823AB1A51001E80DD /* HippySRWebSocket.m */,
 				064C59E923AB1A51001E80DD /* HippyWebSocketManager.m */,
 				064C59EA23AB1A51001E80DD /* HippySRWebSocket.h */,
@@ -1296,7 +1291,6 @@
 				064C5A3923AB1A51001E80DD /* HippyModalCustomAnimationTransition.m in Sources */,
 				064C5A3423AB1A51001E80DD /* HippyTextManager.mm in Sources */,
 				064C5A4B23AB1A51001E80DD /* HippyRootView.mm in Sources */,
-				064C5A5B23AB1A51001E80DD /* HippyWebSocketExecutor.mm in Sources */,
 				064C5AED23AB1A59001E80DD /* js-native-api-jsc.cc in Sources */,
 				064C5A1E23AB1A51001E80DD /* HippyAnimatedImageView.m in Sources */,
 				067AB97523B5F309009D5EE2 /* MyViewManager.m in Sources */,
