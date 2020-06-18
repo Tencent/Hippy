@@ -304,6 +304,7 @@ static NSUInteger gcd(NSUInteger a, NSUInteger b)
         const NSTimeInterval kDisplayRefreshRate = 60.0; // 60Hz
         self.displayLink.frameInterval = MAX([self frameDelayGreatestCommonDivisor] * kDisplayRefreshRate, 1);
 
+        [self.layer setNeedsDisplay];
         self.displayLink.paused = NO;
     } else {
         [super startAnimating];
