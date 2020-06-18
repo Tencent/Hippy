@@ -1046,10 +1046,15 @@ HIPPY_EXPORT_METHOD(updateView:(nonnull NSNumber *)hippyTag
     } else {
         shadowView.animated = NO;
     }
-    
-    NSDictionary *newProps = [shadowView mergeProps: props];
-    NSDictionary *virtualProps = shadowView.props;
-    [componentData setProps:newProps forShadowView:shadowView];
+        
+    NSDictionary *newProps = props;
+    NSDictionary *virtualProps = props;
+    if (shadowView) {
+        newProps = [shadowView mergeProps: props];
+        virtualProps = shadowView.props;
+        [componentData setProps:newProps forShadowView:shadowView];
+    }
+
     
     [self addVirtulNodeBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,HippyVirtualNode *> *virtualNodeRegistry) {
         HippyVirtualNode *node = virtualNodeRegistry[hippyTag];
