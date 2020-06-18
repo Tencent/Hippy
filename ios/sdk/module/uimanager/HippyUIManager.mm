@@ -1321,23 +1321,13 @@ HIPPY_EXPORT_METHOD(measureInWindow:(nonnull NSNumber *)hippyTag
             callback(@[]);
             return;
         }
-        
-        UIView *rootView = viewRegistry[view.rootTag];
-        if (!rootView) {
-            HippyLogWarn(@"measure cannot find view's root view with tag #%@", hippyTag);
-            callback(@[]);
-            return;
-        }
-        
-        CGRect windowFrame = [rootView convertRect:view.frame fromView:view.superview];
+                
+        CGRect windowFrame = [view.window convertRect:view.frame fromView:view.superview];
         callback(@[@{@"width":@(CGRectGetWidth(windowFrame)),
                      @"height": @(CGRectGetHeight(windowFrame)),
                      @"x":@(windowFrame.origin.x),
                      @"y":@(windowFrame.origin.y)}]);
     }];
-    
-    
-    
 }
 
 - (NSDictionary<NSString *, id> *)constantsToExport
