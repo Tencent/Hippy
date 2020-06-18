@@ -393,7 +393,12 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
   _effectiveLetterSpacing = letterSpacing.doubleValue;
 
-  UIFont *font = [HippyFont updateFont:nil
+  UIFont *f = nil;
+  if (fontFamily) {
+    f = [UIFont fontWithName:fontFamily size:[fontSize floatValue]];
+  }
+
+  UIFont *font = [HippyFont updateFont:f
                           withFamily:fontFamily
                                 size:fontSize
                               weight:fontWeight
