@@ -21,134 +21,30 @@
  */
 
 #import "HippyDefines.h"
-
-#if HIPPY_DEV // Only supported in dev mode
-
 #import "HippyWebSocketManager.h"
-
 #import "HippyConvert.h"
 #import "HippyLog.h"
 #import "HippyUtils.h"
 #import "HippySRWebSocket.h"
 
-#pragma mark - HippyWebSocketObserver
-
-@interface HippyWebSocketObserver : NSObject <HippySRWebSocketDelegate> {
-    NSURL *_url;
-}
-
-@property (nonatomic, strong) HippySRWebSocket *socket;
-@property (nonatomic, weak) id<HippyWebSocketProxyDelegate> delegate;
-@property (nonatomic, strong) dispatch_semaphore_t socketOpenSemaphore;
-
-- (instancetype)initWithURL:(NSURL *)url delegate:(id<HippyWebSocketProxyDelegate>)delegate;
-
-@end
-
-@implementation HippyWebSocketObserver
-
-- (instancetype)initWithURL:(NSURL *)url delegate:(id<HippyWebSocketProxyDelegate>)delegate
-{
-    if ((self = [self init])) {
-        _url = url;
-        _delegate = delegate;
-    }
-    return self;
-}
-
-- (void)start
-{
-    [self stop];
-    _socket = [[HippySRWebSocket alloc] initWithURL:_url];
-    _socket.delegate = self;
-    
-    [_socket open];
-}
-
-- (void)stop
-{
-    _socket.delegate = nil;
-    [_socket closeWithCode:1000 reason:@"Invalidated"];
-    _socket = nil;
-}
-
-- (void)webSocket:(__unused HippySRWebSocket *)webSocket didReceiveMessage:(id)message
-{
-    if (_delegate) {
-        NSError *error = nil;
-        NSDictionary<NSString *, id> *msg = HippyJSONParse(message, &error);
-        
-        if (!error) {
-            [_delegate socketProxy:[HippyWebSocketManager sharedInstance] didReceiveMessage:msg];
-        } else {
-            HippyLogError(@"WebSocketManager failed to parse message with error %@\n<message>\n%@\n</message>", error, message);
-        }
-    }
-}
-
-- (void)reconnect
-{
-    __weak HippySRWebSocket *socket = _socket;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        // Only reconnect if the observer wasn't stoppped while we were waiting
-        if (socket) {
-            [self start];
-        }
-    });
-}
-
-- (void)webSocket:(__unused HippySRWebSocket *)webSocket didFailWithError:(__unused NSError *)error
-{
-    [self reconnect];
-}
-
-- (void)webSocket:(__unused HippySRWebSocket *)webSocket didCloseWithCode:(__unused NSInteger)code reason:(__unused NSString *)reason wasClean:(__unused BOOL)wasClean
-{
-    [self reconnect];
-}
-
-@end
+static NSUInteger socketIndex = 0;
 
 #pragma mark - HippyWebSocketManager
 
-@interface HippyWebSocketManager()
+@interface HippyWebSocketManager()<HippySRWebSocketDelegate>
 
-@property (nonatomic, strong) NSMutableDictionary *sockets;
+@property (nonatomic, strong) NSMutableDictionary<NSNumber *, HippySRWebSocket *> *sockets;
 @property (nonatomic, strong) dispatch_queue_t queue;
 
 @end
 
 @implementation HippyWebSocketManager
 
-+ (instancetype)sharedInstance
-{
-    static HippyWebSocketManager *sharedInstance = nil;
-    static dispatch_once_t onceToken;
-    
-    dispatch_once(&onceToken, ^{
-        sharedInstance = [self new];
-    });
-    
-    return sharedInstance;
-}
+HIPPY_EXPORT_MODULE(websocket)
 
-- (void)setDelegate:(id<HippyWebSocketProxyDelegate>)delegate forURL:(NSURL *)url
+- (dispatch_queue_t)methodQueue
 {
-    NSString *key = [url absoluteString];
-    HippyWebSocketObserver *observer = _sockets[key];
-    
-    if (observer) {
-        if (!delegate) {
-            [observer stop];
-            [_sockets removeObjectForKey:key];
-        } else {
-            observer.delegate = delegate;
-        }
-    } else {
-        HippyWebSocketObserver *newObserver = [[HippyWebSocketObserver alloc] initWithURL:url delegate:delegate];
-        [newObserver start];
-        _sockets[key] = newObserver;
-    }
+  return _queue;
 }
 
 - (instancetype)init
@@ -160,6 +56,83 @@
     return self;
 }
 
-@end
+- (void)invalidate
+{
+    for (HippySRWebSocket *socket in _sockets.allValues) {
+        socket.delegate = nil;
+        [socket close];
+    }
+}
 
-#endif
+HIPPY_EXPORT_METHOD(connect:(NSDictionary *)params resolver:(HippyPromiseResolveBlock)resolve rejecter:(HippyPromiseRejectBlock)reject) {
+    NSDictionary *headers = params[@"headers"];
+    NSString *url = params[@"url"];
+    NSString *protocols = headers[@"Sec-WebSocket-Protocol"];
+    NSArray<NSString *> *protocolArray = [protocols componentsSeparatedByString:@","];
+    HippySRWebSocket *socket = [[HippySRWebSocket alloc] initWithURL:[NSURL URLWithString:url] protocols:protocolArray];
+    socket.delegate = self;
+    NSNumber *socketId = @(socketIndex++);
+    [_sockets setObject:socket forKey:socketId];
+    resolve(@{@"code": @(0), @"id": socketId});
+}
+
+HIPPY_EXPORT_METHOD(close:(NSDictionary *)params) {
+    NSNumber *socketId = params[@"id"];
+    NSNumber *code = params[@"code"];
+    NSString *reason = params[@"reason"];
+    HippySRWebSocket *socket = [_sockets objectForKey:socketId];
+    if (socket) {
+        [socket closeWithCode:[code integerValue] reason:reason];
+        [_sockets removeObjectForKey:socketId];
+    }
+}
+
+HIPPY_EXPORT_METHOD(send:(NSDictionary *)params) {
+    NSNumber *socketId = params[@"id"];
+    NSString *data = params[@"data"];
+    HippySRWebSocket *socket = [_sockets objectForKey:socketId];
+    if (socket) {
+        [socket send:data];
+        [_sockets removeObjectForKey:socketId];
+    }
+}
+
+- (void)webSocket:(HippySRWebSocket *)webSocket didReceiveMessage:(id)message {
+    dispatch_async(_queue, ^{
+        NSString *data = [[NSString alloc] initWithData:message encoding:NSUTF8StringEncoding];
+        [self sendEventType:@"onMessage" socket:webSocket data:data];
+    });
+}
+
+- (void)webSocketDidOpen:(HippySRWebSocket *)webSocket {
+    dispatch_async(_queue, ^{
+        [self sendEventType:@"onOpen" socket:webSocket data:@{}];
+    });
+}
+
+- (void)webSocket:(HippySRWebSocket *)webSocket didFailWithError:(NSError *)error {
+    NSString *errString = [error localizedFailureReason];
+    [self sendEventType:@"onError" socket:webSocket data:@{@"error": errString}];
+}
+
+- (void)webSocket:(HippySRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean {
+    NSDictionary *data = @{@"code": @(code), @"reason": reason};
+    [self sendEventType:@"onClose" socket:webSocket data:data];
+}
+
+- (void)webSocket:(HippySRWebSocket *)webSocket didReceivePong:(NSData *)pongPayload {
+    
+}
+
+- (void)sendEventType:(NSString *)type socket:(HippySRWebSocket *)socket data:(id)data {
+    for (NSNumber *key in [_sockets allKeys]) {
+        HippySRWebSocket *canSocket = [_sockets objectForKey:key];
+        if (canSocket == socket) {
+            NSDictionary *params = @{@"id": key, @"type": type, @"data": data?:@{}};
+            [self sendEvent:@"hippyWebsocketEvents" params:params];
+            break;
+        }
+    }
+}
+
+@end
