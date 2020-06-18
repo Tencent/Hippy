@@ -62,6 +62,45 @@ static MTTSize x5MeasureFunc (MTTNodeRef node, float width, MeasureMode widthMea
   return result;
 }
 
+static void resetFontAttribute(NSTextStorage *textStorage) {
+    NSLayoutManager *layoutManager = textStorage.layoutManagers.firstObject;
+    NSUInteger numberOfGlyphs = [layoutManager numberOfGlyphs];
+    if (0 != numberOfGlyphs) {
+        NSUInteger stringLength = [textStorage length];
+        NSRange lineFramentEffectiveRange = {0, 0};
+        [layoutManager lineFragmentUsedRectForGlyphAtIndex:numberOfGlyphs - 1 effectiveRange:&lineFramentEffectiveRange];
+        while (1 == lineFramentEffectiveRange.length) {
+            NSUInteger attributeIndex = 0;
+            NSRange shrinkEffectiveRange = {0, 0};
+            BOOL didShrinkKernSpacing = NO;
+            do {
+                NSNumber *kernValue = [textStorage attribute:NSKernAttributeName atIndex:attributeIndex effectiveRange:&shrinkEffectiveRange];
+                if (nil != kernValue) {
+                    NSNumber *previousKernValue = @([kernValue integerValue] - 1);
+                    [textStorage addAttribute:NSKernAttributeName value:previousKernValue range:shrinkEffectiveRange];
+                    didShrinkKernSpacing = YES;
+                }
+                attributeIndex += shrinkEffectiveRange.length;
+            } while (attributeIndex < stringLength);
+            
+            if (NO == didShrinkKernSpacing) {
+                attributeIndex = 0;
+                shrinkEffectiveRange = {0, 0};
+                do {
+                    UIFont *fontValue = [textStorage attribute:NSFontAttributeName atIndex:attributeIndex effectiveRange:&shrinkEffectiveRange];
+                    if (nil != fontValue) {
+                        CGFloat fontSize = [fontValue pointSize];
+                        UIFont *smallerFont = [fontValue fontWithSize:fontSize - 1];
+                        [textStorage addAttribute:NSFontAttributeName value:smallerFont range:shrinkEffectiveRange];
+                    }
+                    attributeIndex += shrinkEffectiveRange.length;
+                } while (attributeIndex < stringLength);
+            }
+            [layoutManager lineFragmentUsedRectForGlyphAtIndex:numberOfGlyphs - 1 effectiveRange:&lineFramentEffectiveRange];
+        }
+    }
+}
+
 - (instancetype)init
 {
   if ((self = [super init])) {
@@ -284,6 +323,11 @@ static MTTSize x5MeasureFunc (MTTNodeRef node, float width, MeasureMode widthMea
   [layoutManager addTextContainer:textContainer];
   [layoutManager ensureLayoutForTextContainer:textContainer];
 
+  if (_autoLetterSpacing) {
+    resetFontAttribute(textStorage);
+    _cachedAttributedString = [[NSAttributedString alloc] initWithAttributedString:textStorage];
+  }
+    
   _cachedTextStorageWidth = width;
   _cachedTextStorageWidthMode = widthMode;
   _cachedTextStorage = textStorage;

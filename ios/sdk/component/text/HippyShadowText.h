@@ -69,6 +69,7 @@ extern NSString *const HippyShadowViewAttributeName;
 @property (nonatomic, assign) BOOL adjustsFontSizeToFit;
 @property (nonatomic, assign) CGFloat minimumFontScale;
 @property (nonatomic, copy) NSString *text;
+@property (nonatomic, assign) BOOL autoLetterSpacing;
 
 - (void)recomputeText;
 - (NSAttributedString *)_attributedStringWithFontFamily:(NSString *)fontFamily
