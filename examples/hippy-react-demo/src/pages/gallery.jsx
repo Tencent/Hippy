@@ -68,10 +68,7 @@ export class Gallery extends Component {
   getRowType(index) {
     const { dataSource } = this.state;
     const item = dataSource[index];
-    if (!item.style) {
-      return null;
-    }
-    return item.style;
+    return item.meta.style;
   }
 
   getRowKey(index) {
