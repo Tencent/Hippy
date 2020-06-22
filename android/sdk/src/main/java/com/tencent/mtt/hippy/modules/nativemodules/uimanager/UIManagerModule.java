@@ -58,11 +58,11 @@ public class UIManagerModule extends HippyNativeModuleBase
 			for (int i = 0; i < len; i++)
 			{
 				HippyMap nodeArray = hippyArray.getMap(i);
-				int tag = (int) nodeArray.get(ID);
-				int pTag = (int) nodeArray.get(PID);
-				int index = (int) nodeArray.get(INDEX);
-				String className = (String) nodeArray.get(NAME);
-				HippyMap props = (HippyMap) nodeArray.get(PROPS);
+        int tag = nodeArray.getInt(ID);
+        int pTag = nodeArray.getInt(PID);
+        int index = nodeArray.getInt(INDEX);
+        String className = nodeArray.getString(NAME);
+        HippyMap props = nodeArray.getMap(PROPS);
 				domManager.createNode(hippyRootView, tag, pTag, index, className, props);
 			}
 		}
@@ -80,8 +80,8 @@ public class UIManagerModule extends HippyNativeModuleBase
 			for (int i = 0; i < len; i++)
 			{
 				HippyMap nodemap = updateArray.getMap(i);
-				int id = (int) nodemap.get(ID);
-				HippyMap props = (HippyMap) nodemap.get(PROPS);
+				int id = nodemap.getInt(ID);
+				HippyMap props = nodemap.getMap(PROPS);
 				domManager.updateNode(id, props, hippyRootView);
 			}
 		}
@@ -97,7 +97,7 @@ public class UIManagerModule extends HippyNativeModuleBase
 			for (int i = 0; i < len; i++)
 			{
 				HippyMap nodemap = delete.getMap(i);
-				int id = (int) nodemap.get(ID);
+				int id = nodemap.getInt(ID);
 				domManager.deleteNode(id);
 			}
 		}
