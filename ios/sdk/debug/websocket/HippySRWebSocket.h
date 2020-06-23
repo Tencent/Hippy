@@ -54,6 +54,7 @@ extern NSString *const HippySRHTTPResponseErrorKey;
 
 @property (nonatomic, readonly) HippySRReadyState readyState;
 @property (nonatomic, readonly, strong) NSURL *url;
+@property (nonatomic, assign) NSUInteger socketID;
 
 // This returns the negotiated protocol.
 // It will be nil until after the handshake completes.
