@@ -277,7 +277,7 @@ Hippy_ARRAY_CONVERTER(HippyFontVariantDescriptor)
 
     // Gracefully handle being given a font name rather than font family, for
     // example: "Helvetica Light Oblique" rather than just "Helvetica".
-    if (!didFindFont && [UIFont fontNamesForFamilyName:familyName].count == 0) {
+    if (!didFindFont && [familyName length] > 0 && [UIFont fontNamesForFamilyName:familyName].count == 0) {
         familyName = font.familyName;
         fontWeight = weight ? fontWeight : weightOfFont(font);
         isItalic = style ? isItalic : isItalicFont(font);
@@ -316,14 +316,16 @@ Hippy_ARRAY_CONVERTER(HippyFontVariantDescriptor)
 
     // Get the closest font that matches the given weight for the fontFamily
     CGFloat closestWeight = INFINITY;
-    for (NSString *name in [UIFont fontNamesForFamilyName:familyName]) {
-        UIFont *match = [UIFont fontWithName:name size:fontSize];
-        if (isItalic == isItalicFont(match) &&
-            (isCondensed == isCondensedFont(match) || !font)) {
-            CGFloat testWeight = weightOfFont(match);
-            if (ABS(testWeight - fontWeight) < ABS(closestWeight - fontWeight)) {
-                font = match;
-                closestWeight = testWeight;
+    if ([familyName length] > 0) {
+        for (NSString *name in [UIFont fontNamesForFamilyName:familyName]) {
+            UIFont *match = [UIFont fontWithName:name size:fontSize];
+            if (isItalic == isItalicFont(match) &&
+                (isCondensed == isCondensedFont(match) || !font)) {
+                CGFloat testWeight = weightOfFont(match);
+                if (ABS(testWeight - fontWeight) < ABS(closestWeight - fontWeight)) {
+                    font = match;
+                    closestWeight = testWeight;
+                }
             }
         }
     }
