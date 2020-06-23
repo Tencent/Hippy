@@ -31,12 +31,18 @@ public class DevSupportManager
 
 	DevServerInterface	mDevImp	= null;
 	boolean				mSupportDev;
+	String mServerHost;
 
 	public DevSupportManager(HippyGlobalConfigs configs, boolean enableDev, String serverHost, String bundleName)
 	{
 		this.mDevImp = DevFactory.create(configs, enableDev, serverHost, bundleName);
 		mSupportDev = enableDev;
+		mServerHost = serverHost;
 	}
+
+	public String getServerHost() {
+	  return mServerHost;
+  }
 
 	public boolean supportDev()
 	{
