@@ -71,7 +71,8 @@ HIPPY_EXPORT_METHOD(connect:(NSDictionary *)params resolver:(HippyPromiseResolve
     NSArray<NSString *> *protocolArray = [protocols componentsSeparatedByString:@","];
     HippySRWebSocket *socket = [[HippySRWebSocket alloc] initWithURL:[NSURL URLWithString:url] protocols:protocolArray];
     socket.delegate = self;
-    NSNumber *socketId = @(socketIndex++);
+    socket.socketID = socketIndex++;
+    NSNumber *socketId = @(socket.socketID);
     [_sockets setObject:socket forKey:socketId];
     resolve(@{@"code": @(0), @"id": socketId});
     [socket open];
@@ -84,7 +85,6 @@ HIPPY_EXPORT_METHOD(close:(NSDictionary *)params) {
     HippySRWebSocket *socket = [_sockets objectForKey:socketId];
     if (socket) {
         [socket closeWithCode:[code integerValue] reason:reason];
-        [_sockets removeObjectForKey:socketId];
     }
 }
 
@@ -94,13 +94,12 @@ HIPPY_EXPORT_METHOD(send:(NSDictionary *)params) {
     HippySRWebSocket *socket = [_sockets objectForKey:socketId];
     if (socket) {
         [socket send:data];
-        [_sockets removeObjectForKey:socketId];
     }
 }
 
 - (void)webSocket:(HippySRWebSocket *)webSocket didReceiveMessage:(id)message {
     dispatch_async(_queue, ^{
-        [self sendEventType:@"onMessage" socket:webSocket data:message];
+        [self sendEventType:@"onMessage" socket:webSocket data:@{@"type":@"text", @"data": message}];
     });
 }
 
@@ -113,11 +112,13 @@ HIPPY_EXPORT_METHOD(send:(NSDictionary *)params) {
 - (void)webSocket:(HippySRWebSocket *)webSocket didFailWithError:(NSError *)error {
     NSString *errString = [error localizedFailureReason];
     [self sendEventType:@"onError" socket:webSocket data:@{@"error": errString}];
+    [_sockets removeObjectForKey:@(webSocket.socketID)];
 }
 
 - (void)webSocket:(HippySRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean {
     NSDictionary *data = @{@"code": @(code), @"reason": reason};
     [self sendEventType:@"onClose" socket:webSocket data:data];
+    [_sockets removeObjectForKey:@(webSocket.socketID)];
 }
 
 - (void)webSocket:(HippySRWebSocket *)webSocket didReceivePong:(NSData *)pongPayload {
