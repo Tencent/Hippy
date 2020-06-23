@@ -74,6 +74,7 @@ HIPPY_EXPORT_METHOD(connect:(NSDictionary *)params resolver:(HippyPromiseResolve
     NSNumber *socketId = @(socketIndex++);
     [_sockets setObject:socket forKey:socketId];
     resolve(@{@"code": @(0), @"id": socketId});
+    [socket open];
 }
 
 HIPPY_EXPORT_METHOD(close:(NSDictionary *)params) {
@@ -99,8 +100,7 @@ HIPPY_EXPORT_METHOD(send:(NSDictionary *)params) {
 
 - (void)webSocket:(HippySRWebSocket *)webSocket didReceiveMessage:(id)message {
     dispatch_async(_queue, ^{
-        NSString *data = [[NSString alloc] initWithData:message encoding:NSUTF8StringEncoding];
-        [self sendEventType:@"onMessage" socket:webSocket data:data];
+        [self sendEventType:@"onMessage" socket:webSocket data:message];
     });
 }
 
