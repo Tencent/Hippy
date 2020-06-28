@@ -19,6 +19,7 @@ import com.tencent.mtt.supportui.adapters.image.IDrawableTarget;
 import com.tencent.mtt.supportui.adapters.image.IImageLoaderAdapter;
 import com.tencent.mtt.supportui.adapters.image.IImageRequestListener;
 import com.tencent.mtt.supportui.views.IBorder;
+import com.tencent.mtt.supportui.views.IShadow;
 
 import android.animation.Animator;
 import android.animation.IntEvaluator;
@@ -29,13 +30,14 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.text.TextUtils;
+import android.view.View;
 import android.view.ViewGroup;
 
 /**
  * Created by leonardgong on 2017/12/7 0007.
  */
 
-public class AsyncImageView extends ViewGroup implements Animator.AnimatorListener, ValueAnimator.AnimatorUpdateListener, IBorder
+public class AsyncImageView extends ViewGroup implements Animator.AnimatorListener, ValueAnimator.AnimatorUpdateListener, IBorder, IShadow
 {
 	public static final int			FADE_DURATION			= 150;
 
@@ -53,9 +55,6 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 
 	protected int					mTintColor;
 	protected ScaleType				mScaleType;
-	protected int                   mBoxShadowX;
-	protected int                   mBoxShadowY;
-	protected int                   mBoxShadowSpreadSize;
 	protected Drawable				mContentDrawable;
 
 	private boolean					mIsAttached;
@@ -188,25 +187,7 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 		mTintColor = tintColor;
 		applyTintColor(mTintColor);
 	}
-
-	public void setBoxShadowX(int boxShadowX)
-	{
-		mBoxShadowX = boxShadowX;
-
-	}
-
-	public void setBoxShadowY(int boxShadowY)
-	{
-		mBoxShadowY = boxShadowY;
-
-	}
-
-	public void setBoxShadowSpreadSize(int boxShadowSpreadSize)
-	{
-		mBoxShadowSpreadSize = boxShadowSpreadSize;
-
-	}
-
+	
 	protected void applyTintColor(int tintColor)
 	{
 		if (mContentDrawable instanceof ContentDrawable)
@@ -491,6 +472,9 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 			{
         if (mContentDrawable instanceof ContentDrawable) {
           ((ContentDrawable) mContentDrawable).setBorder(mBGDrawable.getBorderRadiusArray(), mBGDrawable.getBorderWidthArray());
+          ((ContentDrawable) mContentDrawable).setShadowOffsetX(mBGDrawable.getShadowOffsetX());
+          ((ContentDrawable) mContentDrawable).setShadowOffsetY(mBGDrawable.getShadowOffsetY());
+          ((ContentDrawable) mContentDrawable).setShadowRadius(mBGDrawable.getShadowRadius());
         }
 				setBackgroundDrawable(new LayerDrawable(new Drawable[] { mBGDrawable, mContentDrawable }));
 			}
@@ -625,7 +609,41 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 	{
 		getBackGround().setBackgroundColor(color);
 	}
+  
+  @Override
+  public void setShadowOffsetX(float x) {
+    getBackGround().setShadowOffsetX(x);
+  }
+  
+  @Override
+  public void setShadowOffsetY(float y) {
+    getBackGround().setShadowOffsetY(y);
+  }
+  
+  @Override
+  public void setShadowOpacity(float opacity) {
+    getBackGround().setShadowOpacity(opacity);
+  }
+  
+  @Override
+  public void setShadowRadius(float radius) {
+    getBackGround().setShadowRadius(Math.abs(radius));
+    if (radius != 0) {
+      setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+    }
+  }
+  
+  @Override
+  public void setShadowSpread(float spread) {
 
+  }
+  
+  @Override
+  public void setShadowColor(int color) {
+    getBackGround().setShadowColor(color);
+  }
+	
+	
 	private BackgroundDrawable getBackGround()
 	{
 		if (mBGDrawable == null)
