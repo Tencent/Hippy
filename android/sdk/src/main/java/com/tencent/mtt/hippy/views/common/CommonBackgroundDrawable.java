@@ -42,4 +42,25 @@ public class CommonBackgroundDrawable extends BackgroundDrawable
 			super.setBorderWidth(width, position);
 		}
 	}
+  
+  public void setShadowOffsetX(float x) {
+    if (!FlexConstants.isUndefined(x)) {
+      x = PixelUtil.dp2px(x);
+      super.setShadowOffsetX(x);
+    }
+  }
+  
+  public void setShadowOffsetY(float y) {
+    if (!FlexConstants.isUndefined(y)) {
+      y = PixelUtil.dp2px(y);
+      super.setShadowOffsetY(y);
+    }
+  }
+  
+  public void setShadowRadius(float radius) {
+    if (!FlexConstants.isUndefined(radius)) {
+      radius = PixelUtil.dp2px(radius);
+      super.setShadowRadius(radius);
+    }
+  }
 }
