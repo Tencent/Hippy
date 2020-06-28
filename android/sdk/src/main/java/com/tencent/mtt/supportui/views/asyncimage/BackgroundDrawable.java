@@ -26,6 +26,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
@@ -35,7 +36,7 @@ import android.os.Build;
  * Created by leonardgong on 2017/11/30 0030.
  */
 
-public class BackgroundDrawable extends Drawable
+public class BackgroundDrawable extends BaseDrawable
 {
 
 	private float[]	mBorderWidthArray;
@@ -50,6 +51,11 @@ public class BackgroundDrawable extends Drawable
 	private RectF	mTempRectForBorderRadius;
 	private Path	mPathForBorderRadius;
 	private boolean	mNeedUpdateBorderPath	= false;
+  
+  private Paint mShadowPaint;
+  protected float mShadowOpacity = 0.8f;
+  protected int mShadowColor = Color.GRAY;
+  protected RectF mShadowRect;
 
 	/**
 	 * solve drawPath problem on 4.x android
@@ -61,7 +67,16 @@ public class BackgroundDrawable extends Drawable
 	public BackgroundDrawable()
 	{
 		mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    mShadowPaint = new Paint();
 	}
+  
+  @Override
+  public void setBounds(int left, int top, int right, int bottom) {
+    super.setBounds(left, top, right, bottom);
+    mShadowRect = new RectF(left + mShadowRadius - mShadowOffsetX, top + mShadowRadius - mShadowOffsetY, right - mShadowRadius - mShadowOffsetX,
+      bottom - mShadowRadius - mShadowOffsetY);
+    updateContentRegion();
+  }
 
 	@Override
 	public void draw(Canvas canvas)
@@ -139,6 +154,9 @@ public class BackgroundDrawable extends Drawable
 
 			/** clear canvas first **/
 			mBitmapCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+      
+      drawBGShadow(mBitmapCanvas);
+      
 			if (!hasBorderRadius)
 			{
 				drawBG(mBitmapCanvas);
@@ -152,6 +170,8 @@ public class BackgroundDrawable extends Drawable
 		}
 		else
 		{
+      drawBGShadow(canvas);
+		  
 			if (!hasBorderRadius)
 			{
 				drawBG(canvas);
@@ -163,6 +183,21 @@ public class BackgroundDrawable extends Drawable
 		}
 	}
 
+	private void drawBGShadow (Canvas canvas) {
+	  if (mShadowRadius == 0 || mShadowOpacity <= 0) {
+	    return;
+    }
+
+	  int opacity = (mShadowOpacity >= 1) ? 255 : Math.round(255 * mShadowOpacity);
+    
+    mShadowPaint.setColor(Color.TRANSPARENT);
+    mShadowPaint.setAntiAlias(true);
+    mShadowPaint.setAlpha(opacity);
+    mShadowPaint.setShadowLayer(mShadowRadius, mShadowOffsetX, mShadowOffsetY, mShadowColor);
+    mShadowPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_ATOP));
+    canvas.drawRect(mShadowRect, mShadowPaint);
+  }
+	
 	private void drawBGWithRadius(Canvas canvas)
 	{
 		// updateStyle border with radius path
@@ -209,7 +244,7 @@ public class BackgroundDrawable extends Drawable
 		// draw border
 		if (CommonTool.hasPositiveItem(mBorderWidthArray))
 		{
-			Rect bounds = getBounds();
+      RectF bounds = mRect;
 
 			int border = Math.round( mBorderWidthArray[0]); //一定大于-0
 
@@ -255,12 +290,13 @@ public class BackgroundDrawable extends Drawable
 			{
 				bottomLeftRadius = mBorderRadiusArray[0];
 			}
-			int top = bounds.top;
-			int left = bounds.left;
-			int bottom = bounds.bottom;
-			int  right = bounds.right;
-			int width = bounds.width();
-			int height = bounds.height();
+      
+      float top = bounds.top;
+      float left = bounds.left;
+      float bottom = bounds.bottom;
+      float  right = bounds.right;
+      float width = bounds.width();
+      float height = bounds.height();
 
 			mPaint.setAntiAlias(false);
 			mPaint.setStrokeWidth(border);
@@ -422,13 +458,13 @@ public class BackgroundDrawable extends Drawable
 		{ // color is not transparent
 			mPaint.setColor(mBackgroundColor);
 			mPaint.setStyle(Paint.Style.FILL);
-			canvas.drawRect(getBounds(), mPaint);
+			canvas.drawRect(mRect, mPaint);
 		}
 
 		// draw border
 		if (CommonTool.hasPositiveItem(mBorderWidthArray))
 		{
-			Rect bounds = getBounds();
+      RectF bounds = mRect;
 
 			int borderLeft = Math.round(mBorderWidthArray[1]);
 			if (borderLeft == 0 && mBorderWidthArray[0] > 0)
@@ -471,10 +507,10 @@ public class BackgroundDrawable extends Drawable
 				colorBottom = mBorderColorArray[0];
 			}
 
-			int top = bounds.top;
-			int left = bounds.left;
-			int width = bounds.width();
-			int height = bounds.height();
+			float top = bounds.top;
+      float left = bounds.left;
+      float width = bounds.width();
+      float height = bounds.height();
 
 			mPaint.setAntiAlias(false);
 
@@ -554,7 +590,7 @@ public class BackgroundDrawable extends Drawable
 
 		mPathForBorderRadius.reset();
 
-		mTempRectForBorderRadius.set(getBounds());
+		mTempRectForBorderRadius.set(mRect);
 		float fullBorderWidth = mBorderWidthArray == null ? 0 : mBorderWidthArray[0];
 		if (fullBorderWidth > 1)
 		{
@@ -672,4 +708,26 @@ public class BackgroundDrawable extends Drawable
 	{
 		return mBorderRadiusArray;
 	}
+ 
+	public float getShadowOffsetX() {
+	  return mShadowOffsetX;
+  }
+  
+  public float getShadowOffsetY() {
+    return mShadowOffsetY;
+  }
+  
+  public float getShadowRadius() {
+    return mShadowRadius;
+  }
+  
+  public void setShadowOpacity(float opacity) {
+    mShadowOpacity = opacity;
+    invalidateSelf();
+  }
+  
+  public void setShadowColor(int color) {
+    mShadowColor = color;
+    invalidateSelf();
+  }
 }

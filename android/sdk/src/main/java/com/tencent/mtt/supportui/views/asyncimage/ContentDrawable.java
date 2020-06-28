@@ -37,7 +37,7 @@ import android.os.Build;
  * Created by leonardgong on 2017/12/5 0005.
  */
 
-public class ContentDrawable extends Drawable
+public class ContentDrawable extends BaseDrawable
 {
 
 	protected Bitmap					mContentBitmap;
@@ -54,7 +54,7 @@ public class ContentDrawable extends Drawable
 	private boolean						mNeedUpdateBorderPath;
 	private Path						mBorderPath;
 	private RectF						mTempRectForBorderRadius;
-
+	
 	private int							mImagePositionX;
 	private int							mImagePositionY;
 	public Path						    mSelfClipPath =  null;//自定义裁剪路径,这里按理应该设置位private,通过接口修改.鉴于981的改动风险,直接位public
@@ -64,7 +64,13 @@ public class ContentDrawable extends Drawable
 		mAlpha = 255;
 		mNeedUpdateBorderPath = true;
 	}
-
+  
+  @Override
+  public void setBounds(int left, int top, int right, int bottom) {
+    super.setBounds(left, top, right, bottom);
+    updateContentRegion();
+  }
+	
 	public void setBitmap(Bitmap contentBitmap)
 	{
 		mContentBitmap = contentBitmap;
@@ -113,14 +119,14 @@ public class ContentDrawable extends Drawable
 			{
 				mTempRectForBorderRadius = new RectF();
 			}
-			mTempRectForBorderRadius.set(getBounds());
+			mTempRectForBorderRadius.set(mRect);
 			// calc scale here
 			int bitmapWidth = mContentBitmap.getWidth();
 			int bitmapHeight = mContentBitmap.getHeight();
-			int boundWidth = getBounds().width();
-			int boundHeight = getBounds().height();
-			float xScale = (float) boundWidth / bitmapWidth;
-			float yScale = (float) boundHeight / bitmapHeight;
+			float boundWidth = mRect.width();
+      float boundHeight = mRect.height();
+			float xScale = boundWidth / bitmapWidth;
+			float yScale = boundHeight / bitmapHeight;
 
 			// border rect
 			switch (mScaleType)
@@ -236,12 +242,15 @@ public class ContentDrawable extends Drawable
 		{
 			mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		}
+		
 		updatePath();
+    updateContentRegion();
+    
 		if (mContentBitmap != null)
 		{
 			Matrix matrix = new Matrix();
 			matrix.reset();
-			RectF scaleDst = new RectF(0, 0, getBounds().width(), getBounds().height());
+			RectF scaleDst = mRect;
 			float fullBorderWidth = this.mBorderWidthArray == null ? 0.0F : this.mBorderWidthArray[0];
 			if (fullBorderWidth > 1.0F)
 			{
@@ -250,10 +259,10 @@ public class ContentDrawable extends Drawable
 			// calc scale here
 			int bitmapWidth = mContentBitmap.getWidth();
 			int bitmapHeight = mContentBitmap.getHeight();
-			int boundWidth = getBounds().width();
-			int boundHeight = getBounds().height();
-			float xScale = (float) boundWidth / bitmapWidth;
-			float yScale = (float) boundHeight / bitmapHeight;
+      float boundWidth = mRect.width();
+      float boundHeight = mRect.height();
+			float xScale = boundWidth / bitmapWidth;
+			float yScale = boundHeight / bitmapHeight;
 
 			// bitmap scale rect
 			switch (mScaleType)

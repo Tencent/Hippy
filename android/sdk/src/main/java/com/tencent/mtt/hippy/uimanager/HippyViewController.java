@@ -37,6 +37,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.common.CommonBorder;
 import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
+import com.tencent.mtt.supportui.views.IShadow;
 
 import java.util.Map;
 
@@ -358,6 +359,48 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 		new HippyViewEvent("onFocus").send(v, hippyMap);
 		}
 	}
+  
+  @HippyControllerProps(name = NodeProps.SHADOW_OFFSET_X, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
+  public void setShadowOffsetX(T view, float shadowOffsetX)
+  {
+    if (view instanceof IShadow)
+      ((IShadow) view).setShadowOffsetX(shadowOffsetX);
+  }
+  
+  @HippyControllerProps(name = NodeProps.SHADOW_OFFSET_Y, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
+  public void setShadowOffsetY(T view, float shadowOffsetY)
+  {
+    if (view instanceof IShadow)
+      ((IShadow) view).setShadowOffsetY(shadowOffsetY);
+  }
+  
+  @HippyControllerProps(name = NodeProps.SHADOW_OPACITY, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
+  public void setShadowOpacity(T view, float shadowOpacity)
+  {
+    if (view instanceof IShadow)
+      ((IShadow) view).setShadowOpacity(shadowOpacity);
+  }
+  
+  @HippyControllerProps(name = NodeProps.SHADOW_RADIUS, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
+  public void setShadowRadius(T view, float shadowRadius)
+  {
+    if (view instanceof IShadow)
+      ((IShadow) view).setShadowRadius(shadowRadius);
+  }
+  
+  @HippyControllerProps(name = NodeProps.SHADOW_SPREAD, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
+  public void setShadowSpread(T view, float shadowSpread)
+  {
+    if (view instanceof IShadow)
+      ((IShadow) view).setShadowSpread(shadowSpread);
+  }
+  
+  @HippyControllerProps(name = NodeProps.SHADOW_COLOR, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
+  public void setShadowColor(T view, int shadowColor)
+  {
+    if (view instanceof IShadow)
+      ((IShadow) view).setShadowColor(shadowColor);
+  }
 
 	@HippyControllerProps(name = NodeProps.BORDER_LEFT_WIDTH, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
 	public void setLeftBorderWidth(T view, float borderLeftWidth)
