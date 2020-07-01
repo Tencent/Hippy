@@ -1,7 +1,5 @@
 import colorParser from '@css-loader/color-parser';
-
 import { isDef } from 'shared/util';
-
 import {
   HIPPY_VUE_VERSION,
   warn,
