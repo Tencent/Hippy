@@ -1,7 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 
-import colorParser from '@css-loader/color-parser';
 import ViewNode from './view-node';
 import { updateChild, updateWithChildren } from './native';
 import { getViewMeta, normalizeElementName } from '../elements';
@@ -132,7 +131,7 @@ class ElementNode extends ViewNode {
           break;
         case 'caretColor':
         case 'caret-color':
-          this.attributes['caret-color'] = colorParser(value);
+          this.attributes['caret-color'] = Native.parseColor(value);
           break;
         default:
           this.attributes[key] = tryConvertNumber(value);
@@ -171,14 +170,14 @@ class ElementNode extends ViewNode {
         }
         break;
       case 'caretColor':
-        this.attributes['caret-color'] = colorParser(value);
+        this.attributes['caret-color'] = Native.parseColor(value);
         break;
       default: {
         if (typeof v === 'string') {
           v = value.trim();
           // Convert inline color style to int
           if (property.toLowerCase().indexOf('color') >= 0) {
-            v = colorParser(v, Native.Platform);
+            v = Native.parseColor(v);
           // Convert inline length style, drop the px unit
           } else if (endsWith(v, 'px')) {
             v = parseFloat(value.slice(0, value.length - 2));
