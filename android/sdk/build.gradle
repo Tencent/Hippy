@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-apply from: 'maven.gradle'
+apply plugin: 'com.novoda.bintray-release'
 
 ext {
     def flag = System.getenv('CI')
