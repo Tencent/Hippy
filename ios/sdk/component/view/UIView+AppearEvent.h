@@ -20,27 +20,11 @@
 * limitations under the License.
 */
 
-#import "HippyBaseListItemView.h"
-#import "UIView+Hippy.h"
+#import <UIKit/UIKit.h>
 
-@implementation HippyBaseListItemView
+@interface UIView (AppearEvent)
 
-- (void)hippySetFrame:(CGRect)frame
-{
-	[super hippySetFrame: frame];
-	self.frame = self.bounds;
-}
-
-- (void)viewAppearEvent {
-    if (self.onAppear) {
-        self.onAppear(@{});
-    }
-}
-
-- (void)viewDisappearEvent {
-    if (self.onDisappear) {
-        self.onDisappear(@{});
-    }
-}
+- (void)viewAppearEvent;
+- (void)viewDisappearEvent;
 
 @end

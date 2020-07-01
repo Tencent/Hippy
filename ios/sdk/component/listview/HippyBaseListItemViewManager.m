@@ -29,6 +29,8 @@ HIPPY_EXPORT_MODULE(ListViewItem)
 
 HIPPY_EXPORT_VIEW_PROPERTY(type, NSString)
 HIPPY_EXPORT_VIEW_PROPERTY(isSticky, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(onAppear, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onDisappear, HippyDirectEventBlock)
 
 - (UIView *)view
 {
