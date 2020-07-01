@@ -121,37 +121,34 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:coder)
 
 - (void)dismissModalViewController
 {
-  if (_isPresented) {
-    [_delegate dismissModalHostView:self withViewController:_modalViewController animated:[self hasAnimationType]];
-      [[UIApplication sharedApplication]setStatusBarStyle:originStyle];
-    _isPresented = NO;
-  }
+    if (_isPresented) {
+        [_delegate dismissModalHostView:self withViewController:_modalViewController animated:[self hasAnimationType]];
+        [[UIApplication sharedApplication] setStatusBarStyle:originStyle];
+        _isPresented = NO;
+    }
 }
 
 - (void)didMoveToWindow
 {
-  [super didMoveToWindow];
+    [super didMoveToWindow];
 
-  if (!_isPresented && self.window) {
-    HippyAssert(self.hippyViewController, @"Can't present modal view controller without a presenting view controller");
-
-    _modalViewController.supportedInterfaceOrientations = [self supportedOrientationsMask];
-    if ([self.animationType isEqualToString:@"fade"]) {
-      _modalViewController.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
-    } else if ([self.animationType isEqualToString:@"slide"]) {
-      _modalViewController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
-		} else if ([self.animationType isEqualToString: @"slide_fade"]) {
-			_modalViewController.modalPresentationStyle = UIModalPresentationCustom;
-			_modalViewController.transitioningDelegate = _delegate;
-		}
-    [_delegate presentModalHostView:self withViewController:_modalViewController animated:[self hasAnimationType]];
-    _isPresented = YES;
-      
-      originStyle = [UIApplication sharedApplication].statusBarStyle;
-      UIStatusBarStyle theStyle = self.darkStatusBarText ? UIStatusBarStyleDefault : UIStatusBarStyleLightContent;
-      [[UIApplication sharedApplication]setStatusBarStyle:theStyle];
-
-  }
+    if (!_isPresented && self.window) {
+        HippyAssert(self.hippyViewController, @"Can't present modal view controller without a presenting view controller");
+        _modalViewController.supportedInterfaceOrientations = [self supportedOrientationsMask];
+        if ([self.animationType isEqualToString:@"fade"]) {
+            _modalViewController.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+        } else if ([self.animationType isEqualToString:@"slide"]) {
+            _modalViewController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
+        } else if ([self.animationType isEqualToString: @"slide_fade"]) {
+            _modalViewController.modalPresentationStyle = UIModalPresentationCustom;
+            _modalViewController.transitioningDelegate = _delegate;
+        }
+        [_delegate presentModalHostView:self withViewController:_modalViewController animated:[self hasAnimationType]];
+        _isPresented = YES;
+        originStyle = [UIApplication sharedApplication].statusBarStyle;
+        UIStatusBarStyle theStyle = self.darkStatusBarText ? UIStatusBarStyleDefault : UIStatusBarStyleLightContent;
+        [[UIApplication sharedApplication] setStatusBarStyle:theStyle];
+    }
 }
 
 - (void)didMoveToSuperview
