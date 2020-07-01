@@ -25,6 +25,8 @@
 #import "HippyRootView.h"
 #import "UIView+Hippy.h"
 #import "HippyScrollProtocol.h"
+#import "HippyHeaderRefresh.h"
+#import "HippyFooterRefresh.h"
 
 #define CELL_TAG 10101
 
@@ -54,7 +56,7 @@
 }
 @end
 
-@interface HippyBaseListView() <HippyScrollProtocol>
+@interface HippyBaseListView() <HippyScrollProtocol, HippyRefreshDelegate>
 
 
 @end
@@ -68,6 +70,9 @@
 	NSTimeInterval _lastScrollDispatchTime;
     BOOL _hasFillListViewFrame;
     CGFloat _nowHeight;
+    NSArray<HippyVirtualNode *> *_subNodes;
+    HippyHeaderRefresh *_headerRefreshView;
+    HippyFooterRefresh *_footerRefreshView;
 }
 
 @synthesize node = _node;
@@ -130,7 +135,21 @@
         return NO;
     }
 	NSUInteger numberOfRows = [number integerValue];
-    if (self.node.subNodes.count == numberOfRows) {
+    
+    static dispatch_once_t onceToken;
+    static NSPredicate *predicate = nil;
+    dispatch_once(&onceToken, ^{
+        predicate = [NSPredicate predicateWithBlock:^BOOL(id  _Nullable evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
+            if ([evaluatedObject isKindOfClass:[HippyVirtualCell class]]) {
+                return YES;
+            }
+            return NO;
+        }];
+    });
+    
+    _subNodes = [self.node.subNodes filteredArrayUsingPredicate:predicate];
+    
+    if ([_subNodes count] == numberOfRows) {
         if (numberOfRows == 0 && _preNumberOfRows == numberOfRows) return NO;
         [self reloadData];
         _preNumberOfRows = numberOfRows;
@@ -141,7 +160,7 @@
 
 - (void)reloadData
 {
-	[_dataSource setDataSource:(NSArray <HippyVirtualCell *> *)self.node.subNodes];
+	[_dataSource setDataSource:(NSArray <HippyVirtualCell *> *)_subNodes];
 	[_tableView reloadData];
     
     if (self.initialContentOffset) {
@@ -163,9 +182,25 @@
   _tableView.frame = self.bounds;
 }
 
-- (void)insertHippySubview:(__unused UIView *)subview atIndex:(__unused NSInteger)atIndex
+- (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex
 {
-	
+    if ([subview isKindOfClass:[HippyHeaderRefresh class]]) {
+        if (_headerRefreshView) {
+            [_headerRefreshView removeFromSuperview];
+        }
+        _headerRefreshView = (HippyHeaderRefresh *)subview;
+        [_headerRefreshView setScrollView:self.tableView];
+        _headerRefreshView.delegate = self;
+        _headerRefreshView.frame = [self.node.subNodes[atIndex] frame];
+    } else if ([subview isKindOfClass:[HippyFooterRefresh class]]) {
+        if (_footerRefreshView) {
+            [_footerRefreshView removeFromSuperview];
+        }
+        _footerRefreshView = (HippyFooterRefresh *)subview;
+        [_footerRefreshView setScrollView:self.tableView];
+        _footerRefreshView.delegate = self;
+        _footerRefreshView.frame = [self.node.subNodes[atIndex] frame];
+    }
 }
 
 #pragma mark -Scrollable
@@ -272,7 +307,7 @@
 {
     
 	HippyVirtualCell *node = [_dataSource cellForIndexPath: indexPath];
-	NSInteger index = [self.node.subNodes indexOfObject: node];
+	NSInteger index = [_subNodes indexOfObject: node];
 	if (self.onRowWillDisplay) {
 		self.onRowWillDisplay(@{@"index": @(index), @"frame": @{@"x":@(CGRectGetMinX(cell.frame)), @"y": @(CGRectGetMinY(cell.frame)), @"width": @(CGRectGetWidth(cell.frame)), @"height": @(CGRectGetHeight(cell.frame))}});
 	}
@@ -355,6 +390,9 @@
             [scrollViewListener scrollViewDidScroll:scrollView];
         }
     }
+    
+    [_headerRefreshView scrollViewDidScroll];
+    [_footerRefreshView scrollViewDidScroll];
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
@@ -393,6 +431,8 @@
             [scrollViewListener scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
         }
     }
+    [_headerRefreshView scrollViewDidEndDragging];
+    [_footerRefreshView scrollViewDidEndDragging];
 }
 
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset
@@ -527,4 +567,8 @@
     return [_tableView showsVerticalScrollIndicator];
 }
 
+#pragma mark HippyRefresh Delegate
+- (void)refreshView:(HippyRefresh *)refreshView statusChanged:(HippyRefreshStatus)status {
+    
+}
 @end
