@@ -15,6 +15,7 @@
 		0612F02323A8BE320079E622 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 0612F02223A8BE320079E622 /* AppDelegate.m */; };
 		0612F02923A8BE320079E622 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0612F02823A8BE320079E622 /* ViewController.m */; };
 		0612F03423A8BE330079E622 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 0612F03323A8BE330079E622 /* main.m */; };
+		0640D25824AC75DD00F122A0 /* UIView+AppearEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 0640D25724AC75DD00F122A0 /* UIView+AppearEvent.m */; };
 		064C59EB23AB1A51001E80DD /* x5LayoutUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 064C58CB23AB1A50001E80DD /* x5LayoutUtil.m */; };
 		064C59EC23AB1A51001E80DD /* MTTLayout.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 064C58CF23AB1A50001E80DD /* MTTLayout.cpp */; };
 		064C59ED23AB1A51001E80DD /* MTTLayoutCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 064C58D223AB1A51001E80DD /* MTTLayoutCache.cpp */; };
@@ -173,6 +174,8 @@
 		0612F02823A8BE320079E622 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		0612F03223A8BE330079E622 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0612F03323A8BE330079E622 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		0640D25624AC75DD00F122A0 /* UIView+AppearEvent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIView+AppearEvent.h"; sourceTree = "<group>"; };
+		0640D25724AC75DD00F122A0 /* UIView+AppearEvent.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIView+AppearEvent.m"; sourceTree = "<group>"; };
 		064C58C823AB1A50001E80DD /* HippyCustomTouchHandlerProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyCustomTouchHandlerProtocol.h; sourceTree = "<group>"; };
 		064C58CA23AB1A50001E80DD /* MTTLayoutCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MTTLayoutCache.h; sourceTree = "<group>"; };
 		064C58CB23AB1A50001E80DD /* x5LayoutUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = x5LayoutUtil.m; sourceTree = "<group>"; };
@@ -906,6 +909,8 @@
 				064C596923AB1A51001E80DD /* UIView+Hippy.mm */,
 				064C595B23AB1A51001E80DD /* HippyBackgroundImageCacheManager.h */,
 				064C596523AB1A51001E80DD /* HippyBackgroundImageCacheManager.m */,
+				0640D25624AC75DD00F122A0 /* UIView+AppearEvent.h */,
+				0640D25724AC75DD00F122A0 /* UIView+AppearEvent.m */,
 			);
 			path = view;
 			sourceTree = "<group>";
@@ -1399,6 +1404,7 @@
 				0612F03423A8BE330079E622 /* main.m in Sources */,
 				064C5A5623AB1A51001E80DD /* HippyModuleData.mm in Sources */,
 				064C5A4723AB1A51001E80DD /* HippyTouchHandler.m in Sources */,
+				0640D25824AC75DD00F122A0 /* UIView+AppearEvent.m in Sources */,
 				064C5A3023AB1A51001E80DD /* HippyNavigatorViewManager.m in Sources */,
 				064C5A3F23AB1A51001E80DD /* NSNumber+HippyNumberDeepCopy.m in Sources */,
 				064C59F723AB1A51001E80DD /* HippyExtAnimationGroup.m in Sources */,

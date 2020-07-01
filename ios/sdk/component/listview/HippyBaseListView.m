@@ -27,6 +27,7 @@
 #import "HippyScrollProtocol.h"
 #import "HippyHeaderRefresh.h"
 #import "HippyFooterRefresh.h"
+#import "UIView+AppearEvent.h"
 
 #define CELL_TAG 10101
 
@@ -331,6 +332,15 @@
         if (isLastIndex && _hasFillListViewFrame) {
             self.onEndReached(@{});
         }
+    }
+    if ([cell isKindOfClass:[HippyBaseListViewCell class]]) {
+        [[(HippyBaseListViewCell *)cell cellView] viewAppearEvent];
+    }
+}
+
+- (void)tableView:(UITableView *)tableView didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath*)indexPath {
+    if ([cell isKindOfClass:[HippyBaseListViewCell class]]) {
+        [[(HippyBaseListViewCell *)cell cellView] viewDisappearEvent];
     }
 }
 
