@@ -1,4 +1,7 @@
+import colorParser from '@css-loader/color-parser';
+
 import { isDef } from 'shared/util';
+
 import {
   HIPPY_VUE_VERSION,
   warn,
@@ -326,6 +329,22 @@ const Native = {
       });
     }));
     return Promise.race([timeout, measure]);
+  },
+
+  /**
+   * parse the color to int32Color which native can understand.
+   * @param { String | Number } color
+   * @param { {platform: "ios" | "android"} } options
+   * @returns { Number } int32Color
+   */
+  parseColor(color, options = { platform: Native.Platform }) {
+    const cache = CACHE.COLOR_PARSER || (CACHE.COLOR_PARSER = Object.create(null));
+    if (!cache[color]) {
+      const int32Color = colorParser(color, options);
+      // cache the calculation result
+      cache[color] = int32Color;
+    }
+    return cache[color];
   },
 };
 
