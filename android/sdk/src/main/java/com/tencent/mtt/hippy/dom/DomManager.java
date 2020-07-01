@@ -313,7 +313,7 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
     DomNode node = mNodeRegistry.getNode(id);
     return node;
   }
-	
+
 	public void createNode(final HippyRootView hippyRootView, final int id, int pid, int index, final String className, HippyMap map)
 	{
 		//	assertThread();
@@ -406,8 +406,7 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 		}
 		else
 		{
-			Log.e("DomManager", "Create Node DomManager Parent IS Null fuck please call saizhao");
-			//			mContext.getGlobalConfigs().getLogAdapter().log(TAG,"Create Node DomManager Parent IS Null fuck please call saizhao");
+			Log.e("DomManager", "Create Node DomManager Parent IS Null");
 		}
 
 	}
