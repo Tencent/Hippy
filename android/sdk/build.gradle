@@ -344,7 +344,7 @@ def unZipAar(file) {
   println("=======projectDir=" + projectDir.absolutePath)
     copy {
         from zipTree(file.absolutePath)
-        into projectDir.absolutePath + "/libs"
+        into file.parentFile.absolutePath
         include 'classes.jar'
         rename 'classes.jar', 'hippy.jar'
     }
