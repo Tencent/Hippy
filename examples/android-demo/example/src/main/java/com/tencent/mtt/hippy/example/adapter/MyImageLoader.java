@@ -28,7 +28,13 @@ public class MyImageLoader extends HippyImageLoader
 {
 	private Timer mTimer = new Timer("MyImageLoader", true);
 	private Handler mHandler = new Handler(Looper.getMainLooper());
-
+  
+  @Override
+  public void destroyIfNeed(){
+    mHandler = null;
+    mTimer = null;
+  }
+	
 	// 网络图片加载，异步加载
 	@Override
 	public void fetchImage(final String url, final Callback requestCallback, Object param)
