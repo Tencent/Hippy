@@ -46,7 +46,9 @@ public class MyActivity extends Activity
 			initParams.imageLoader = new MyImageLoader();
 
 			// 可选：是否设置为debug模式，默认为false。调试模式下，所有jsbundle都是从debug server上下载
-			initParams.debugMode = false;
+			initParams.debugMode = true;
+			// 可选：修改本地调试端口，默认为localhost:38989
+      //initParams.debugServerHost="localhost:8082";
 			// 可选：是否打印引擎的完整的log。默认为false
 			initParams.enableLog = true;
 			// 可选：debugMode = false 时必须设置coreJSAssetsPath或coreJSFilePath（debugMode = true时，所有jsbundle都是从debug server上下载）

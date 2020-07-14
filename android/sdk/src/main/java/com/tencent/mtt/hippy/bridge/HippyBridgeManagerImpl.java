@@ -71,20 +71,22 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 	int						mBridgeType							= BRIDGE_TYPE_NORMAL;
 	boolean					mEnableHippyBuffer					= false;
 	ArrayList<String>		mLoadedBundleInfo					= null;
-	private GrowByteBuffer  mGrowByteBuffer;                     
+	private GrowByteBuffer  mGrowByteBuffer;
 	private StringBuilder   mStringBuilder;
 	private  boolean        mIsDevModule                        = false;
+  private  String         mServerHost;
 	private int				mGroupId;
 	private HippyThirdPartyAdapter mThirdPartyAdapter;
 	HippyEngine.ModuleListener mLoadModuleListener;
 
-	public HippyBridgeManagerImpl(HippyEngineContext context, HippyBundleLoader coreBundleLoader, int bridgeType, boolean enableHippyBuffer, boolean isDevModule, int groupId, HippyThirdPartyAdapter thirdPartyAdapter)
+	public HippyBridgeManagerImpl(HippyEngineContext context, HippyBundleLoader coreBundleLoader, int bridgeType, boolean enableHippyBuffer, boolean isDevModule, String serverHost, int groupId, HippyThirdPartyAdapter thirdPartyAdapter)
 	{
 		this.mContext = context;
 		this.mCoreBundleLoader = coreBundleLoader;
 		this.mBridgeType = bridgeType;
 		this.mEnableHippyBuffer = enableHippyBuffer;
 		this.mIsDevModule = isDevModule;
+    this.mServerHost = serverHost;
 		this.mGroupId = groupId;
 		mThirdPartyAdapter = thirdPartyAdapter;
 
@@ -112,7 +114,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 					try
 					{
 						mHippyBridge = new HippyBridgeImpl(mContext.getGlobalConfigs().getContext(), HippyBridgeManagerImpl.this,
-								mBridgeType == BRIDGE_TYPE_SINGLE_THREAD, !mEnableHippyBuffer, this.mIsDevModule);
+								mBridgeType == BRIDGE_TYPE_SINGLE_THREAD, !mEnableHippyBuffer, this.mIsDevModule, mServerHost);
 
 						mHippyBridge.initJSBridge(getGlobalConfigs(), new NativeCallback(mHandler) {
 							@Override
