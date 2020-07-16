@@ -3,7 +3,7 @@
 import { getOptions } from 'loader-utils';
 import { GLOBAL_STYLE_NAME } from '@vue/runtime/constants';
 import parseCSS from './css-parser';
-import translateColor from './color-parser';
+import { translateColor, translateColors } from './color-parser';
 
 let sourceId              = 0;
 
@@ -20,8 +20,13 @@ function hippyVueCSSLoader(source) {
       declarations: n.declarations.map((dec) => {
         let { value } = dec;
         // FIXME: Should have a strict property with colors map.
-        if (dec.property && dec.property.toLowerCase().indexOf('color') > -1) {
-          value = translateColor(value, options);
+        if (dec.property) {
+          const propertyName = dec.property.toLowerCase();
+          if (propertyName.indexOf('colors') > -1) {
+            value = translateColors(value, options);
+          } else if (propertyName.indexOf('color') > -1) {
+            value = translateColor(value, options);
+          }
         }
         return {
           type: dec.type,

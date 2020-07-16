@@ -351,4 +351,39 @@ function translateColor(color, options = {}) {
   return int32Color;
 }
 
+/**
+ * translate multi colors
+ * @param {String | String[]} colors Colors likes "red, rgba(10, 20, 9, 0.6), #333"
+ * @param {{ platform: String }} options
+ * @returns {Number[]}
+ */
+function translateColors(colors, options) {
+  let colorsArray = [];
+  if (typeof colors === 'string') {
+    const colorsMetaArray = colors.split(',');
+    // meta after splitted like:
+    // before: "red, rgb(10,20,10), #333"
+    // after: ["red", " rgba(10", "20", "10)", " #333"]
+    let endFlagDepth = 0;
+    colorsMetaArray.reduce((res, color) => {
+      if (endFlagDepth) {
+        res[res.length - 1] += `,${color.trim()}`;
+      } else {
+        res.push(color.trim());
+      }
+      if (color.indexOf('(') >= 0) {
+        endFlagDepth += 1;
+      } else if (color.indexOf(')') >= 0) {
+        endFlagDepth -= 1;
+      }
+      return res;
+    }, colorsArray);
+  } else if (Array.isArray(colors)) {
+    colorsArray = colors;
+  }
+  return colorsArray.map(color => translateColor(color.trim(), options));
+}
+
+export { translateColor, translateColors };
+
 export default translateColor;
