@@ -87,6 +87,7 @@ HIPPY_REMAP_VIEW_PROPERTY(shadowRadius, layer.shadowRadius, CGFloat)
 
 HIPPY_EXPORT_VIEW_PROPERTY(backgroundPositionX, CGFloat)
 HIPPY_EXPORT_VIEW_PROPERTY(backgroundPositionY, CGFloat)
+HIPPY_EXPORT_VIEW_PROPERTY(onInterceptTouchEvent, BOOL)
 
 HIPPY_CUSTOM_VIEW_PROPERTY(shadowColor, UIColor, HippyView) {
     if (json) {
