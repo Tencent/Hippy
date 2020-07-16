@@ -69,8 +69,6 @@
 	BOOL _isInitialListReady;
 	NSUInteger _preNumberOfRows;
 	NSTimeInterval _lastScrollDispatchTime;
-    BOOL _hasFillListViewFrame;
-    CGFloat _nowHeight;
     NSArray<HippyVirtualNode *> *_subNodes;
     HippyHeaderRefresh *_headerRefreshView;
     HippyFooterRefresh *_footerRefreshView;
@@ -88,7 +86,6 @@
 		_isInitialListReady = NO;
 		_preNumberOfRows = 0;
         _preloadItemNumber = 1;
-        _hasFillListViewFrame = NO;
 		[self initTableView];
 	}
 	
@@ -320,16 +317,9 @@
             lastRowIndexInSection = 0;
         }
         
-        if (!_hasFillListViewFrame) {
-            _nowHeight += cell.frame.size.height;
-            if (_nowHeight > tableView.frame.size.height) {//只判断一次
-                _hasFillListViewFrame = YES;
-                _nowHeight = 0;
-            }
-        }
         BOOL isLastIndex = [indexPath section] == lastSectionIndex && [indexPath row] == lastRowIndexInSection;
         
-        if (isLastIndex && _hasFillListViewFrame) {
+        if (isLastIndex) {
             self.onEndReached(@{});
         }
     }
