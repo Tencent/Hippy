@@ -54,7 +54,7 @@ public class ContentDrawable extends BaseDrawable
 	private boolean						mNeedUpdateBorderPath;
 	private Path						mBorderPath;
 	private RectF						mTempRectForBorderRadius;
-	
+
 	private int							mImagePositionX;
 	private int							mImagePositionY;
 	public Path						    mSelfClipPath =  null;//自定义裁剪路径,这里按理应该设置位private,通过接口修改.鉴于981的改动风险,直接位public
@@ -124,7 +124,7 @@ public class ContentDrawable extends BaseDrawable
 			int bitmapWidth = mContentBitmap.getWidth();
 			int bitmapHeight = mContentBitmap.getHeight();
 			float boundWidth = mRect.width();
-      float boundHeight = mRect.height();
+			float boundHeight = mRect.height();
 			float xScale = boundWidth / bitmapWidth;
 			float yScale = boundHeight / bitmapHeight;
 
@@ -242,9 +242,9 @@ public class ContentDrawable extends BaseDrawable
 		{
 			mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		}
-		
+
+		updateContentRegion();
 		updatePath();
-    updateContentRegion();
     
 		if (mContentBitmap != null)
 		{
@@ -259,8 +259,8 @@ public class ContentDrawable extends BaseDrawable
 			// calc scale here
 			int bitmapWidth = mContentBitmap.getWidth();
 			int bitmapHeight = mContentBitmap.getHeight();
-      float boundWidth = mRect.width();
-      float boundHeight = mRect.height();
+			float boundWidth = mRect.width();
+			float boundHeight = mRect.height();
 			float xScale = boundWidth / bitmapWidth;
 			float yScale = boundHeight / bitmapHeight;
 
@@ -321,8 +321,8 @@ public class ContentDrawable extends BaseDrawable
 
 			scaleDst.top += mImagePositionY;
 			scaleDst.bottom += mImagePositionY;
-				scaleDst.left += mImagePositionX;
-				scaleDst.right += mImagePositionX;
+			scaleDst.left += mImagePositionX;
+			scaleDst.right += mImagePositionX;
 
 			matrix.setRectToRect(new RectF(0, 0, mContentBitmap.getWidth(), mContentBitmap.getHeight()), scaleDst, Matrix.ScaleToFit.FILL);
 

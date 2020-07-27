@@ -23,7 +23,7 @@ import android.graphics.drawable.Drawable;
 
 public interface IDrawableTarget
 {
-  Drawable getDrawable();
+	Drawable getDrawable();
 
 	Bitmap getBitmap();
 

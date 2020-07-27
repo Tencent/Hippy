@@ -25,15 +25,16 @@ public abstract class BaseDrawable extends Drawable
   protected float mShadowOffsetY;
   protected float mShadowRadius;
   protected RectF mRect = new RectF();
-  
-  public void updateContentRegion() {
+
+  public void updateContentRegion()
+  {
     Rect rectT = getBounds();
-    
+
     float topT = rectT.top + mShadowRadius;
     float leftT = rectT.left + mShadowRadius;
     float rightT = rectT.right - mShadowRadius;
     float bottomT = rectT.bottom - mShadowRadius;
-    
+
     if (mShadowOffsetX > 0) {
       if (mShadowRadius >= mShadowOffsetX) {
         leftT -= mShadowOffsetX;
@@ -50,7 +51,7 @@ public abstract class BaseDrawable extends Drawable
         rightT += mShadowRadius;
       }
     }
-    
+
     if (mShadowOffsetY > 0) {
       if (mShadowRadius >= mShadowOffsetY) {
         topT -= mShadowOffsetY;
@@ -67,21 +68,24 @@ public abstract class BaseDrawable extends Drawable
         bottomT += mShadowRadius;
       }
     }
-    
+
     mRect.set(new RectF(leftT, topT, rightT, bottomT));
   }
-  
-  public void setShadowOffsetX(float x) {
+
+  public void setShadowOffsetX(float x)
+  {
     mShadowOffsetX = x;
     invalidateSelf();
   }
-  
-  public void setShadowOffsetY(float y) {
+
+  public void setShadowOffsetY(float y)
+  {
     mShadowOffsetY = y;
     invalidateSelf();
   }
-  
-  public void setShadowRadius(float radius) {
+
+  public void setShadowRadius(float radius)
+  {
     mShadowRadius = radius;
     invalidateSelf();
   }

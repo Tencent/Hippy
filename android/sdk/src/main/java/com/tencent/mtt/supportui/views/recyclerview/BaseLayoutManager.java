@@ -627,6 +627,8 @@ public abstract class BaseLayoutManager extends RecyclerViewBase.LayoutManager
 					: -mRecyclerView.mAdapter.getHeaderViewCount();
 		}
 		anchorItemPosition = mRecyclerView.validateAnchorItemPosition(anchorItemPosition);
+        anchorItemPosition = validateAnchorPosition(mRenderState.mItemDirection, anchorItemPosition,
+                state.getItemCount());
 		detachAndScrapAttachedViews(recycler);
 		if (state.mDataChanged)
 		{
@@ -2252,6 +2254,11 @@ public abstract class BaseLayoutManager extends RecyclerViewBase.LayoutManager
 				}
 			}
 		}
+	}
+
+	public int validateAnchorPosition(int dataDirection, int currentPos,int totalCount)
+	{
+		return currentPos;
 	}
 
 	@Override

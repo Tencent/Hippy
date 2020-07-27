@@ -269,15 +269,18 @@ public class LinearLayoutManager extends BaseLayoutManager
 			for (int i = 0; i < itemCount; i++)
 			{
 				offsetMap.append(i, currOffset);
-				if (mRecyclerView.mLayout.canScrollHorizontally()) {
-          currOffset += ((RecyclerAdapter)mRecyclerView.getAdapter()).getItemWidth(i);
-          currOffset += mRecyclerView.getAdapter().getItemMaigin(LOCATION_LEFT, i);
-          currOffset += mRecyclerView.getAdapter().getItemMaigin(LOCATION_RIGHT, i);
-        } else {
-          currOffset += ((RecyclerAdapter)mRecyclerView.getAdapter()).getItemHeight(i);
-          currOffset += mRecyclerView.getAdapter().getItemMaigin(LOCATION_TOP, i);
-          currOffset += mRecyclerView.getAdapter().getItemMaigin(LOCATION_BOTTOM, i);
-        }
+				if (mRecyclerView.mLayout.canScrollHorizontally())
+				{
+					currOffset += ((RecyclerAdapter)mRecyclerView.getAdapter()).getItemWidth(i);
+					currOffset += mRecyclerView.getAdapter().getItemMaigin(LOCATION_LEFT, i);
+					currOffset += mRecyclerView.getAdapter().getItemMaigin(LOCATION_RIGHT, i);
+				}
+				else
+				{
+					currOffset += ((RecyclerAdapter)mRecyclerView.getAdapter()).getItemHeight(i);
+					currOffset += mRecyclerView.getAdapter().getItemMaigin(LOCATION_TOP, i);
+					currOffset += mRecyclerView.getAdapter().getItemMaigin(LOCATION_BOTTOM, i);
+				}
 			}
 		}
 	}
