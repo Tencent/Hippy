@@ -924,33 +924,33 @@ public abstract class RecyclerAdapter extends RecyclerViewBase.Adapter<RecyclerV
 		boolean onItemLongClick(View view, int position);
 	}
 
-  @Override
-  public int getCustomHeaderViewWidth()
-  {
-    // TODO Auto-generated method stub
-    return 0;
-  }
+	@Override
+	public int getCustomHeaderViewWidth()
+	{
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
-  @Override
-  public int getCustomFooterViewWidth()
-  {
-    // TODO Auto-generated method stub
-    return 0;
-  }
+	@Override
+	public int getCustomFooterViewWidth()
+	{
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
-  @Override
-  public int getCustomHeaderViewHeight()
-  {
-    // TODO Auto-generated method stub
-    return 0;
-  }
+	@Override
+	public int getCustomHeaderViewHeight()
+	{
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
-  @Override
-  public int getCustomFooterViewHeight()
-  {
-    // TODO Auto-generated method stub
-    return 0;
-  }
+	@Override
+	public int getCustomFooterViewHeight()
+	{
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
 	@Override
 	public int getHeaderViewHeight(int position)

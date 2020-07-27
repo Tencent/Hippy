@@ -48,7 +48,7 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 
 	protected String				mUrl;
 	protected String				mDefaultSourceUrl;
-  protected String				mImageType;
+	protected String				mImageType;
 
 	// the 'mURL' is fetched succeed
 	protected boolean               mIsUrlFetchSucceed;
@@ -83,7 +83,7 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 		super(context);
 		mUrl = null;
 		mDefaultSourceUrl = null;
-    mImageType = null;
+		mImageType = null;
 		setFadeEnabled(false);
 		setFadeDuration(FADE_DURATION);
 	}
@@ -93,9 +93,10 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 		mImageAdapter = imageAdapter;
 	}
 
-  public void setImageType(String type) {
-    mImageType = type;
-  }
+	public void setImageType(String type)
+	{
+		mImageType = type;
+	}
 
 	public void setUrl(String url)
 	{
@@ -187,7 +188,7 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 		mTintColor = tintColor;
 		applyTintColor(mTintColor);
 	}
-	
+
 	protected void applyTintColor(int tintColor)
 	{
 		if (mContentDrawable instanceof ContentDrawable)
@@ -389,8 +390,8 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 			setUrl(mUrl);
 		}
 		// avoid duplicated fetching for same url
-    // imageView inside listview item will be executed as detach->attach,
-    // fetching same image again will cause flashing
+		// imageView inside listview item will be executed as detach->attach,
+		// fetching same image again will cause flashing
 		if (getBitmap() == null || !mIsUrlFetchSucceed) {
 		  fetchImageByUrl(mUrl, SOURCE_TYPE_SRC);
 		}
@@ -464,18 +465,20 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 			}
 			else if (sourceType == SOURCE_TYPE_DEFAULT_SRC && mDefaultSourceDrawable != null)
 			{
-        if (mContentDrawable instanceof ContentDrawable) {
-          ((ContentDrawable) mContentDrawable).setBitmap(mDefaultSourceDrawable.getBitmap());
-        }
+				if (mContentDrawable instanceof ContentDrawable)
+				{
+					((ContentDrawable) mContentDrawable).setBitmap(mDefaultSourceDrawable.getBitmap());
+				}
 			}
 			if (mBGDrawable != null)
 			{
-        if (mContentDrawable instanceof ContentDrawable) {
-          ((ContentDrawable) mContentDrawable).setBorder(mBGDrawable.getBorderRadiusArray(), mBGDrawable.getBorderWidthArray());
-          ((ContentDrawable) mContentDrawable).setShadowOffsetX(mBGDrawable.getShadowOffsetX());
-          ((ContentDrawable) mContentDrawable).setShadowOffsetY(mBGDrawable.getShadowOffsetY());
-          ((ContentDrawable) mContentDrawable).setShadowRadius(mBGDrawable.getShadowRadius());
-        }
+				if (mContentDrawable instanceof ContentDrawable)
+				{
+					((ContentDrawable) mContentDrawable).setBorder(mBGDrawable.getBorderRadiusArray(), mBGDrawable.getBorderWidthArray());
+					((ContentDrawable) mContentDrawable).setShadowOffsetX(mBGDrawable.getShadowOffsetX());
+					((ContentDrawable) mContentDrawable).setShadowOffsetY(mBGDrawable.getShadowOffsetY());
+					((ContentDrawable) mContentDrawable).setShadowRadius(mBGDrawable.getShadowRadius());
+				}
 				setBackgroundDrawable(new LayerDrawable(new Drawable[] { mBGDrawable, mContentDrawable }));
 			}
 			else
@@ -488,13 +491,14 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 
 	protected void updateContentDrawableProperty()
 	{
-    if (mContentDrawable instanceof ContentDrawable) {
-      ((ContentDrawable) mContentDrawable).setBitmap(getBitmap());
-      ((ContentDrawable) mContentDrawable).setTintColor(getTintColor());
-      ((ContentDrawable) mContentDrawable).setScaleType(mScaleType);
-      ((ContentDrawable) mContentDrawable).setImagePositionX(mImagePositionX);
-      ((ContentDrawable) mContentDrawable).setImagePositionY(mImagePositionY);
-    }
+		if (mContentDrawable instanceof ContentDrawable)
+		{
+			((ContentDrawable) mContentDrawable).setBitmap(getBitmap());
+			((ContentDrawable) mContentDrawable).setTintColor(getTintColor());
+			((ContentDrawable) mContentDrawable).setScaleType(mScaleType);
+			((ContentDrawable) mContentDrawable).setImagePositionX(mImagePositionX);
+			((ContentDrawable) mContentDrawable).setImagePositionY(mImagePositionY);
+		}
 	}
 
 	protected void handleGetImageStart()
@@ -609,41 +613,47 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 	{
 		getBackGround().setBackgroundColor(color);
 	}
-  
-  @Override
-  public void setShadowOffsetX(float x) {
-    getBackGround().setShadowOffsetX(x);
-  }
-  
-  @Override
-  public void setShadowOffsetY(float y) {
-    getBackGround().setShadowOffsetY(y);
-  }
-  
-  @Override
-  public void setShadowOpacity(float opacity) {
-    getBackGround().setShadowOpacity(opacity);
-  }
-  
-  @Override
-  public void setShadowRadius(float radius) {
-    getBackGround().setShadowRadius(Math.abs(radius));
-    if (radius != 0) {
-      setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-    }
-  }
-  
-  @Override
-  public void setShadowSpread(float spread) {
 
-  }
-  
-  @Override
-  public void setShadowColor(int color) {
-    getBackGround().setShadowColor(color);
-  }
-	
-	
+	@Override
+	public void setShadowOffsetX(float x)
+	{
+		getBackGround().setShadowOffsetX(x);
+	}
+
+	@Override
+	public void setShadowOffsetY(float y)
+	{
+		getBackGround().setShadowOffsetY(y);
+	}
+
+	@Override
+	public void setShadowOpacity(float opacity)
+	{
+		getBackGround().setShadowOpacity(opacity);
+	}
+
+	@Override
+	public void setShadowRadius(float radius)
+	{
+		getBackGround().setShadowRadius(Math.abs(radius));
+		if (radius != 0)
+		{
+			setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+		}
+	}
+
+	@Override
+	public void setShadowSpread(float spread) {
+
+	}
+
+	@Override
+	public void setShadowColor(int color)
+	{
+		getBackGround().setShadowColor(color);
+	}
+
+
 	private BackgroundDrawable getBackGround()
 	{
 		if (mBGDrawable == null)
