@@ -2,7 +2,7 @@ package com.tencent.mtt.supportui.views;
 
 public interface IShadow
 {
-  void setShadowOffsetY(float y);
+	void setShadowOffsetY(float y);
   
 	void setShadowOffsetX(float x);
 
@@ -11,6 +11,6 @@ public interface IShadow
 	void setShadowRadius(float radius);
 
 	void setShadowSpread(float spread);
-  
-  void setShadowColor(int color);
+
+	void setShadowColor(int color);
 }
