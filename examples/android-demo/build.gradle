@@ -1,31 +1,61 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    repositories {
-        google()
-        jcenter()
+  ext {
+    def propFile = file('maven-auth.properties')
+    def keys = ['MAVEN_USER', 'MAVEN_PWD']
+    if (propFile.exists()) {
+      project.file('maven-auth.properties').with {
+        Properties p = new Properties()
+        it.withReader('UTF-8') { p.load(it) }
+        MAVEN_USER = p.get('maven_username')
+        MAVEN_PWD = p.get('maven_password')
+        println("=======MAVEN_USER=" + MAVEN_USER + ", MAVEN_PWD=" + MAVEN_PWD)
+      }
+    } else {
+      MAVEN_USER = ""
+      MAVEN_PWD = ""
     }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.2.1'
-        classpath 'com.novoda:bintray-release:0.9.2'
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
+  }
+  repositories {
+    maven {
+      url 'https://mirrors.tencent.com/repository/maven/qqbrowser'
+      credentials {
+        username MAVEN_USER
+        password MAVEN_PWD
+      }
     }
-    configurations.all {
-        resolutionStrategy.cacheChangingModulesFor 1, 'seconds'
-        resolutionStrategy.cacheDynamicVersionsFor 1, 'seconds'
-    }
+    google()
+    jcenter()
+  }
+  dependencies {
+    classpath 'com.android.tools.build:gradle:3.2.1'
+    classpath 'com.novoda:bintray-release:0.9.2'
+    // NOTE: Do not place your application dependencies here; they belong
+    // in the individual module build.gradle files
+  }
+  configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 1, 'seconds'
+    resolutionStrategy.cacheDynamicVersionsFor 1, 'seconds'
+  }
 }
 
 allprojects {
-    repositories {
-        google()
-        jcenter()
+  repositories {
+    maven {
+      url 'https://mirrors.tencent.com/repository/maven/qqbrowser'
+      credentials {
+        username MAVEN_USER
+        password MAVEN_PWD
+      }
     }
-    configurations.all {
-        resolutionStrategy.cacheChangingModulesFor 1, 'seconds'
-        resolutionStrategy.cacheDynamicVersionsFor 1, 'seconds'
-    }
+    google()
+    jcenter()
+  }
+  configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 1, 'seconds'
+    resolutionStrategy.cacheDynamicVersionsFor 1, 'seconds'
+  }
 }
 
 task clean(type: Delete) {
