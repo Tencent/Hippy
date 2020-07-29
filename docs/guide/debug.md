@@ -4,6 +4,8 @@
 
 Hippy 是直接运行于手机的 JS 引擎中的，在 Android 上使用 WebSocket 通过 [Chrome DevTools Protocol](//chromedevtools.github.io/devtools-protocol/) 与电脑上的 Chrome 进行通讯调试，而 iOS 上使用内置 的 [JavaScriptCore](//developer.apple.com/documentation/javascriptcore) 与 [Safari](//www.apple.com.cn/cn/safari/) 连接进行调试。
 
+Hippy中运行的JS代码可以来源于本地文件(local file)，或者远程服务地址(server)。
+
 [hippy-debug-server](//www.npmjs.com/package/hippy-debug-server) 就是为了解决调试模式下终端模式获取调试用 JS 文件，以及将 [Chrome DevTools Protocol](//chromedevtools.github.io/devtools-protocol/) 传输回调试器而诞生。
 
 # 终端环境准备
@@ -39,6 +41,12 @@ Hippy 是直接运行于手机的 JS 引擎中的，在 Android 上使用 WebSoc
     ![Safari 调试器](//puui.qpic.cn/vupload/0/1577796789605_xogl73o57yk.png/0)
 
 7. 当 JS 文件发生改动时，自动编译会执行，但是终端却无法获知 JS 文件已经发生改变，需要通过 `Command + R` 键手动刷新一下。
+
+## 远程调试
+
+默认情况下，iOS使用本地服务地址进行代码调试。Hippy客户端从服务器地址获取JS代码并运行Hippy业务。但是用户可能遇到真机调试的问题，这就需要真机连接远程地址。
+在`TestModuel.m`文件中，打开`REMOTEDEBUG`宏，并填入Hippy服务地址与业务名称，即可实现远程调试。
+
 
 # Android
 
