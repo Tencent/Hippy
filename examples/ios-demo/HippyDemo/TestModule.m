@@ -42,7 +42,17 @@ HIPPY_EXPORT_METHOD(debug:(nonnull NSNumber *)instanceId)
 #if TARGET_IPHONE_SIMULATOR
 	isSimulator = YES;
 #endif
+
+
+//#define REMOTEDEBUG
+    
+#ifdef REMOTEDEBUG
+    NSURL *url = [NSURL URLWithString:@"your server ip address"];
+    HippyBridge *bridge = [[HippyBridge alloc] initWithBundleURL:url moduleProvider:nil launchOptions:nil];
+    HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:bridge moduleName:@"your module name" initialProperties:@{@"isSimulator": @(isSimulator) shareOptions:nil delegate:nil];
+#else
     HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:nil businessURL:nil moduleName:@"Demo" initialProperties:@{@"isSimulator": @(isSimulator)} launchOptions:nil shareOptions:nil debugMode:YES delegate:nil];
+#endif
 	rootView.backgroundColor = [UIColor whiteColor];
 	rootView.frame = vc.view.bounds;
 	[vc.view addSubview:rootView];
