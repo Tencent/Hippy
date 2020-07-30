@@ -634,11 +634,12 @@ public class HippyListView extends RecyclerView implements HippyViewBase
 		if (mScrollEventEnable)
 		{
 			long currTime = System.currentTimeMillis();
-      if (currTime - mLastScrollEventTimeStamp < mScrollEventThrottle) {
-        return;
-      }
+			if (currTime - mLastScrollEventTimeStamp < mScrollEventThrottle)
+			{
+				return;
+			}
 
-      mLastScrollEventTimeStamp = currTime;
+			mLastScrollEventTimeStamp = currTime;
 			getOnScrollEvent().send(this, generateScrollEvent());
 		}
 	}

@@ -237,6 +237,10 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback
 
 	public static void handleTouchDown(HippyEngineContext context, int mTagId, float x, float y, int viewId)
 	{
+		if (context == null)
+		{
+			return;
+		}
 		int[] viewCoords = new int[2];
 		getLocationInWindow(context, viewId, viewCoords);
 		HippyMap params = new HippyMap();
@@ -249,6 +253,10 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback
 
 	public static void handleTouchMove(HippyEngineContext context, int mTagId, float x, float y, int viewId)
 	{
+		if (context == null)
+		{
+			return;
+		}
 		int[] viewCoords = new int[2];
 		getLocationInWindow(context, viewId, viewCoords);
 		HippyMap params = new HippyMap();
@@ -261,6 +269,10 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback
 
 	public static void handleTouchEnd(HippyEngineContext context, int mTagId, float x, float y, int viewId)
 	{
+		if (context == null)
+		{
+			return;
+		}
 		int[] viewCoords = new int[2];
 		getLocationInWindow(context, viewId, viewCoords);
 		HippyMap params = new HippyMap();
@@ -273,6 +285,10 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback
 
 	public static void handleTouchCancel(HippyEngineContext context, int mTagId, float x, float y, int viewId)
 	{
+		if (context == null)
+		{
+			return;
+		}
 		int[] viewCoords = new int[2];
 		getLocationInWindow(context, viewId, viewCoords);
 		HippyMap params = new HippyMap();
@@ -295,6 +311,10 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback
 
 	private static void getLocationInWindow(HippyEngineContext context, int id, int[] viewCoords)
 	{
+		if (context == null)
+		{
+			return;
+		}
 		if (id >= 0)
 		{
 			View view = context.getRenderManager().getControllerManager().findView(id);

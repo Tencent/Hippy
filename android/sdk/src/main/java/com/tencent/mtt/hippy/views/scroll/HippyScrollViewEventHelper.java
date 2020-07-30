@@ -97,7 +97,11 @@ public class HippyScrollViewEventHelper
 		if (view != null && view.getContext() instanceof HippyInstanceContext)
 		{
 			HippyEngineContext context = ((HippyInstanceContext) view.getContext()).getEngineContext();
-			context.getModuleManager().getJavaScriptModule(EventDispatcher.class).receiveUIComponentEvent(view.getId(), scrollEventType, event);
+			if (context != null)
+			{
+				context.getModuleManager().getJavaScriptModule(EventDispatcher.class)
+						.receiveUIComponentEvent(view.getId(), scrollEventType, event);
+			}
 		}
 	}
 }

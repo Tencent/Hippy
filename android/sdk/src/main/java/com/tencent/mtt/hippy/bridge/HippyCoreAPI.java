@@ -51,7 +51,6 @@ import com.tencent.mtt.hippy.views.refresh.RefreshWrapperItemController;
 import com.tencent.mtt.hippy.views.scroll.HippyScrollViewController;
 import com.tencent.mtt.hippy.views.text.HippyTextViewController;
 import com.tencent.mtt.hippy.views.textinput.HippyTextInputController;
-import com.tencent.mtt.hippy.views.videoview.VideoHippyViewController;
 import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
 import com.tencent.mtt.hippy.views.viewpager.HippyViewPagerController;
 import com.tencent.mtt.hippy.views.viewpager.HippyViewPagerItemController;
@@ -225,15 +224,14 @@ public class HippyCoreAPI implements HippyAPIProvider
 		components.add(HippyModalHostManager.class);
 		components.add(RefreshWrapperController.class);
 		components.add(RefreshWrapperItemController.class);
-    components.add(HippyPullHeaderViewController.class);
-    components.add(HippyPullFooterViewController.class);
+		components.add(HippyPullHeaderViewController.class);
+		components.add(HippyPullFooterViewController.class);
 		components.add(NavigatorController.class);
 		components.add(HippyWebViewController.class);
 		components.add(AudioViewController.class);
-		components.add(VideoHippyViewController.class);
-    components.add(TkdScrollViewController.class);
-    components.add(TkdListItemViewController.class);
-    components.add(TkdListViewController.class);
+		components.add(TkdScrollViewController.class);
+		components.add(TkdListItemViewController.class);
+		components.add(TkdListViewController.class);
 		return components;
 	}
 }

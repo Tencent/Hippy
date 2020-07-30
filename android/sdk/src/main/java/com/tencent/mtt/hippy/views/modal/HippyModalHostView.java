@@ -70,9 +70,14 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 	@Override
 	public void onInstanceDestroy(int instanceId)
 	{
-			HippyInstanceContext hippyInstanceContext = (HippyInstanceContext) getContext();
-			hippyInstanceContext.getEngineContext().removeInstanceLifecycleEventListener(this);
-			dismiss();
+		HippyInstanceContext hippyInstanceContext = (HippyInstanceContext) getContext();
+		final HippyEngineContext engineContext = hippyInstanceContext.getEngineContext();
+		if (engineContext != null)
+		{
+			engineContext.removeInstanceLifecycleEventListener(this);
+		}
+
+		dismiss();
 	}
 
 	public interface OnRequestCloseListener
@@ -97,8 +102,11 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 		super(context);
 
 		HippyInstanceContext hippyInstanceContext = (HippyInstanceContext) context;
-		hippyInstanceContext.getEngineContext().addInstanceLifecycleEventListener(this);
-
+		final HippyEngineContext engineContext = hippyInstanceContext.getEngineContext();
+		if (engineContext != null)
+		{
+			engineContext.addInstanceLifecycleEventListener(this);
+		}
 
 		mHostView = new DialogRootViewGroup(context);
 	}

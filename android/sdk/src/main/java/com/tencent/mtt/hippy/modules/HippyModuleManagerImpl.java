@@ -327,7 +327,6 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
 				{
 					param = (HippyCallNativeParams) msg.obj;
 					HippyArray array = param.mParams;
-
 					id = mANRMonitor.startMonitor(param.mModuleName, param.mModuleFunc);
 					doCallNatives(param.mModuleName, param.mModuleFunc, param.mCallId, array);
 				}

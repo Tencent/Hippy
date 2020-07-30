@@ -224,10 +224,10 @@ public class DiffUtils
 				if (toValue != null && (toValue instanceof HippyArray))
 				{
 					HippyArray diffResult = diffArray((HippyArray) fromValue, (HippyArray) toValue, diffLevel + 1);
-          //tintColor复用的时候必须要强制更新
-          if (fromKey.equals("tintColors") || fromKey.equals("tintColor")) {
-            diffResult = (HippyArray)toValue;
-          }
+					//tintColor复用的时候必须要强制更新
+					if (fromKey.equals("tintColors") || fromKey.equals("tintColor")) {
+						diffResult = (HippyArray)toValue;
+					}
 					//这里diffResult == null标识属性没有更新
 					if (diffResult != null /* && diffResult.size() > 0*/)
 					{

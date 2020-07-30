@@ -15,8 +15,10 @@
  */
 package com.tencent.mtt.hippy.uimanager;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Looper;
 import android.os.MessageQueue;
 import android.text.TextUtils;
@@ -26,6 +28,7 @@ import android.view.ViewParent;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.HippyRootView;
+import com.tencent.mtt.hippy.adapter.dtcollect.IHippyDtCollectAdapter;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
@@ -50,13 +53,18 @@ import java.util.Map;
 public abstract class HippyViewController<T extends View & HippyViewBase> implements View.OnFocusChangeListener
 {
 	private static final String	TAG						     = "HippyViewController";
-	
-	private static MatrixUtil.MatrixDecompositionContext	sMatrixDecompositionContext		= new MatrixUtil.MatrixDecompositionContext();
-	private static double[]									sTransformDecompositionArray	= new double[16];
-    private boolean bUserChageFocus = false;
+
+  private static MatrixUtil.MatrixDecompositionContext	sMatrixDecompositionContext		= new MatrixUtil.MatrixDecompositionContext();
+	private static double[]	sTransformDecompositionArray	= new double[16];
+	private boolean bUserChageFocus = false;
+	private HippyEngineContext mEngineContext;
 	public View createView(HippyRootView rootView, int id, HippyEngineContext hippyContext, String className, HippyMap initialProps)
 	{
 		View view = null;
+		if (mEngineContext == null) {
+			mEngineContext = hippyContext;
+		}
+
 		if (rootView != null)
 		{
 			Context rootViewContext = rootView.getContext();
@@ -84,8 +92,8 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 			LogUtils.d(TAG, "createView id " + id);
 			view.setId(id);
 			//view.setTag(className);
-      HippyMap tagObj = HippyTag.createTagMap(className, initialProps);
-      view.setTag(tagObj);
+			HippyMap tagObj = HippyTag.createTagMap(className, initialProps);
+			view.setTag(tagObj);
 		}
 		return view;
 	}
@@ -185,7 +193,101 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 	{
 		return null;
 	}
+	@SuppressLint("NewApi")
+	private static class DTViewPGListner implements  View.OnAttachStateChangeListener
+    {
+	IHippyDtCollectAdapter mCollectAdapter = null;
+    DTViewPGListner(IHippyDtCollectAdapter collectAdapter){
+		mCollectAdapter = collectAdapter;
+	}
+	@Override
+	public void onViewAttachedToWindow(android.view.View view)
+	{
+		if (view != null && view.getContext() instanceof HippyInstanceContext)
+		{
+			mCollectAdapter.pageExposeure(view);
+		}
+	}
 
+	@Override
+	public void onViewDetachedFromWindow(View view)
+	{
+		view.removeOnAttachStateChangeListener(this);
+	}
+    };
+	@SuppressLint("NewApi")
+	private static class DTViewElementListner implements  View.OnAttachStateChangeListener
+    {
+        IHippyDtCollectAdapter mCollectAdapter = null;
+        DTViewElementListner(IHippyDtCollectAdapter collectAdapter){
+            mCollectAdapter = collectAdapter;
+        }
+        @Override
+        public void onViewAttachedToWindow(android.view.View view)
+        {
+            if (view != null && view.getContext() instanceof HippyInstanceContext)
+            {
+                mCollectAdapter.elementExposeure(view);
+            }
+        }
+
+        @Override
+        public void onViewDetachedFromWindow(android.view.View view)
+        {
+            view.removeOnAttachStateChangeListener(this);
+        }
+    };
+
+	@HippyControllerProps(name = "dt_pgid", defaultType = HippyControllerProps.STRING, defaultString = "")
+	public void setPid(T view, String pid)
+	{
+		if (mEngineContext != null) {
+			IHippyDtCollectAdapter collectAdapter = mEngineContext.getGlobalConfigs().getDtCollectAdapter();
+			if (collectAdapter != null) {
+                collectAdapter.setPageId(view, pid);
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) {
+					view.addOnAttachStateChangeListener( new DTViewPGListner(collectAdapter));
+				}
+			}
+		}
+	}
+
+	@HippyControllerProps(name = "dt_eid", defaultType = HippyControllerProps.STRING, defaultString = "")
+	public void setEid(T view, String eid)
+	{
+		if (mEngineContext != null) {
+			IHippyDtCollectAdapter collectAdapter = mEngineContext.getGlobalConfigs().getDtCollectAdapter();
+			if (collectAdapter != null) {
+				collectAdapter.setElementId(view, eid);
+				//浏览器是14
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) {
+					view.addOnAttachStateChangeListener( new DTViewElementListner(collectAdapter));
+				}
+			}
+		}
+	}
+
+	@HippyControllerProps(name = "dt_params", defaultType = HippyControllerProps.STRING, defaultString = "")
+	public void setElementParams(T view, String params)
+	{
+		if (mEngineContext != null) {
+			IHippyDtCollectAdapter collectAdapter = mEngineContext.getGlobalConfigs().getDtCollectAdapter();
+			if (collectAdapter != null) {
+				collectAdapter.setElementParams(view, params);
+			}
+		}
+	}
+
+	@HippyControllerProps(name = "dt_pg_params", defaultType = HippyControllerProps.STRING, defaultString = "")
+	public void setPageParams(T view, String params)
+	{
+		if (mEngineContext != null) {
+			IHippyDtCollectAdapter collectAdapter = mEngineContext.getGlobalConfigs().getDtCollectAdapter();
+			if (collectAdapter != null) {
+				collectAdapter.setPageParams(view, params);
+			}
+		}
+	}
 
 	/** transform **/
 	@HippyControllerProps(name = NodeProps.TRANSFORM, defaultType = HippyControllerProps.ARRAY)

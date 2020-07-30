@@ -47,6 +47,7 @@ import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
+import com.tencent.mtt.hippy.adapter.dtcollect.IHippyDtCollectAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -180,6 +181,7 @@ public abstract class HippyEngine
 	public abstract HippyRootView loadModule(ModuleLoadParams loadParams, ModuleListener listener);
 	public abstract HippyRootView loadModule(ModuleLoadParams loadParams, ModuleListener listener, HippyRootView.OnLoadCompleteListener onLoadCompleteListener);
 
+
 	/**
 	 * 摧毁一个hippy业务模块
 	 * @param moduleView
@@ -305,6 +307,8 @@ public abstract class HippyEngine
 		public HippySoLoaderAdapter soLoader;
 		// 可选参数 device adapter
 		public HippyDeviceAdapter deviceAdapter;
+		// dt数据收集上报
+		public IHippyDtCollectAdapter dtCollectAdapter;
 		// 设置Hippy引擎的组，同一组的HippyEngine，会共享C层的v8 引擎实例。 默认值为-1（无效组，即不属于任何group组）
 		public int groupId = -1;
 		// 可选参数 日志输出
@@ -410,8 +414,13 @@ public abstract class HippyEngine
 	public static final int STATUS_WRONG_STATE_LISTEN	= -151;
 	// 初始化过程，抛出了未知的异常，详情需要查看传回的Throwable
 	public static final int STATUS_INIT_EXCEPTION	= -200;
-
+	//bundleUniKey==null,路径为空
 	public static final int STATUS_VARIABLE_UNINIT	= -500;
+	//业务JSBundle执行返回错误
+	public static final int STATUS_ERR_RUN_BUNDLE   = -600;
+	//重复加载同一JSBundle
+	public static final int STATUS_REPEAT_LOAD	    = -700;
+	
 	/**
 	 * Hippy引擎初始化结果listener
 	 */

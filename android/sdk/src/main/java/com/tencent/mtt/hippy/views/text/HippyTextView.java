@@ -184,10 +184,13 @@ public class HippyTextView extends View implements CommonBorder, HippyViewBase, 
 			if (context instanceof HippyInstanceContext)
 			{
 				HippyInstanceContext hippyInstanceContext = (HippyInstanceContext) context;
-				HippyExceptionHandlerAdapter defaultExceptionHandler = hippyInstanceContext.getEngineContext().getGlobalConfigs()
-						.getExceptionHandler();
-				if (defaultExceptionHandler != null)
-					defaultExceptionHandler.handleNativeException(new RuntimeException("hippyTextView onDraw" + e.getMessage()), true);
+				HippyEngineContext hippyEngineContext = hippyInstanceContext.getEngineContext();
+				if (hippyEngineContext != null)
+				{
+					HippyExceptionHandlerAdapter defaultExceptionHandler = hippyEngineContext.getGlobalConfigs().getExceptionHandler();
+					if (defaultExceptionHandler != null)
+						defaultExceptionHandler.handleNativeException(new RuntimeException("hippyTextView onDraw" + e.getMessage()), true);
+				}
 			}
 		}
 	}

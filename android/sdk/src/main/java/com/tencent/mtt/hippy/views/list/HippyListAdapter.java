@@ -642,7 +642,7 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
 	{
 		if (mOnEndReachedEvent == null)
 		{
-			mOnEndReachedEvent = new OnEndReachedEvent("onLoadMore");
+			mOnEndReachedEvent = new OnEndReachedEvent("onEndReached");
 		}
 		return mOnEndReachedEvent;
 	}

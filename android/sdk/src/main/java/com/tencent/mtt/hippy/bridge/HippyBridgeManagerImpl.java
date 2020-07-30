@@ -171,32 +171,29 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 					final String bundleUniKey = loader.getBundleUniKey();
 					if (loader != null && mLoadedBundleInfo != null && !TextUtils.isEmpty(bundleUniKey) && mLoadedBundleInfo.contains(bundleUniKey))
 					{
-						notifyModuleLoaded(HippyEngine.STATUS_VARIABLE_UNINIT, "load module error. loader.getBundleUniKey=null",null);
+						notifyModuleLoaded(HippyEngine.STATUS_REPEAT_LOAD, "repeat load module. loader.getBundleUniKey=" + bundleUniKey,null);
 						return true;
 					}
 
-					final HippyRootView localRootView = rootView;
 					if (!TextUtils.isEmpty(bundleUniKey)) {
+						if (mLoadedBundleInfo == null) {
+							mLoadedBundleInfo = new ArrayList<>();
+						}
+						mLoadedBundleInfo.add(bundleUniKey);
+						
 						loader.load(mHippyBridge, new NativeCallback(mHandler) {
 							@Override
 							public void Call(long value, Message msg, String action) {
 								boolean success = value == 1 ? true : false;
 								if (success) {
-									if (mLoadedBundleInfo == null) {
-										mLoadedBundleInfo = new ArrayList<>();
-									}
-									mLoadedBundleInfo.add(bundleUniKey);
-									if(localRootView != null)
-										notifyModuleLoaded(HippyEngine.STATUS_OK, null, localRootView);
-									else
-										notifyModuleLoaded(HippyEngine.STATUS_WRONG_STATE, "load module error. loader.load failed. check the file.", null);
+									notifyModuleLoaded(HippyEngine.STATUS_OK, null, null);
 								} else {
-									notifyModuleLoaded(HippyEngine.STATUS_WRONG_STATE, "load module error. loader.load failed. check the file.", null);
+									notifyModuleLoaded(HippyEngine.STATUS_ERR_RUN_BUNDLE, "load module error. loader.load failed. check the file.", null);
 								}
 							}
 						});
 					} else {
-						notifyModuleLoaded(HippyEngine.STATUS_VARIABLE_UNINIT, "load module error. loader.getBundleUniKey=null",null);
+						notifyModuleLoaded(HippyEngine.STATUS_VARIABLE_UNINIT, "can not load module. loader.getBundleUniKey=null",null);
 					}
 
 					return true;
@@ -333,50 +330,50 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 		mHandler.sendMessage(message);
 	}
 
-  public void notifyModuleJsException(final HippyJsException exception)
-  {
-    if (UIThreadUtils.isOnUiThread()) {
-      if(mLoadModuleListener != null && mLoadModuleListener.onJsException(exception)) {
-        mLoadModuleListener = null;
-      }
-    }
-    else
-    {
-      UIThreadUtils.runOnUiThread(new Runnable()
-      {
-        @Override
-        public void run()
-        {
-          if(mLoadModuleListener != null && mLoadModuleListener.onJsException(exception)) {
-            mLoadModuleListener = null;
-          }
-        }
-      });
-    }
-  }
+	public void notifyModuleJsException(final HippyJsException exception)
+	{
+		if (UIThreadUtils.isOnUiThread()) {
+			if(mLoadModuleListener != null && mLoadModuleListener.onJsException(exception)) {
+				mLoadModuleListener = null;
+			}
+		}
+		else
+		{
+			UIThreadUtils.runOnUiThread(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					if(mLoadModuleListener != null && mLoadModuleListener.onJsException(exception)) {
+						mLoadModuleListener = null;
+					}
+				}
+			});
+		}
+	}
 
-  private void notifyModuleLoaded(final int statusCode, final String msg,final HippyRootView hippyRootView)
-  {
-    if (UIThreadUtils.isOnUiThread()) {
-      if(mLoadModuleListener != null) {
-        mLoadModuleListener.onInitialized(statusCode, msg,hippyRootView);
-        //mLoadModuleListener = null;
-      }
-    }
-    else
-    {
-      UIThreadUtils.runOnUiThread(new Runnable() {
-        @Override
-        public void run() {
-          if(mLoadModuleListener != null) {
-            mLoadModuleListener.onInitialized(statusCode, msg, hippyRootView);
-            //mLoadModuleListener = null;
-          }
-        }
-      });
-    }
-  }
-  
+	private void notifyModuleLoaded(final int statusCode, final String msg,final HippyRootView hippyRootView)
+	{
+		if (UIThreadUtils.isOnUiThread()) {
+			if(mLoadModuleListener != null) {
+				mLoadModuleListener.onInitialized(statusCode, msg,hippyRootView);
+				//mLoadModuleListener = null;
+			}
+		}
+		else
+		{
+			UIThreadUtils.runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					if(mLoadModuleListener != null) {
+						mLoadModuleListener.onInitialized(statusCode, msg, hippyRootView);
+						//mLoadModuleListener = null;
+					}
+				}
+			});
+		}
+	}
+
 	@Override
 	public void loadInstance(String name, int id, HippyMap params)
 	{

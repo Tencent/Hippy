@@ -21,6 +21,7 @@ import com.tencent.mtt.hippy.adapter.DefaultLogAdapter;
 import com.tencent.mtt.hippy.adapter.HippyLogAdapter;
 import com.tencent.mtt.hippy.adapter.device.DefaultDeviceAdapter;
 import com.tencent.mtt.hippy.adapter.device.HippyDeviceAdapter;
+import com.tencent.mtt.hippy.adapter.dtcollect.IHippyDtCollectAdapter;
 import com.tencent.mtt.hippy.adapter.exception.DefaultExceptionHandler;
 import com.tencent.mtt.hippy.adapter.exception.HippyExceptionHandlerAdapter;
 import com.tencent.mtt.hippy.adapter.executor.DefaultExecutorSupplierAdapter;
@@ -98,9 +99,9 @@ public class HippyGlobalConfigs
 	 */
 	private HippyDeviceAdapter				mDeviceAdapter;
 
-
-
 	private HippyLogAdapter					mLogAdapter;
+
+	private IHippyDtCollectAdapter          mDtCollectAdapter;
 
 	public HippyGlobalConfigs(HippyEngine.EngineInitParams params)
 	{
@@ -116,13 +117,14 @@ public class HippyGlobalConfigs
 		this.mSoLoaderAdapter = params.soLoader;
 		this.mDeviceAdapter = params.deviceAdapter;
 		this.mLogAdapter = params.logAdapter;
+		this.mDtCollectAdapter = params.dtCollectAdapter;
 	}
 
 	private HippyGlobalConfigs(Context context,  HippySharedPreferencesAdapter sharedPreferencesAdapter,
 			HippyExceptionHandlerAdapter exceptionHandler, HippyHttpAdapter httpAdapter, HippyImageLoader imageLoaderAdapter,
 			HippyExecutorSupplierAdapter executorSupplierAdapter, HippyStorageAdapter storageAdapter, HippyEngineMonitorAdapter engineMonitorAdapter,
 			HippyFontScaleAdapter hippyFontScaleAdapter, HippySoLoaderAdapter hippySoLoaderAdapter, HippyDeviceAdapter hippyDeviceAdapter,
-			HippyLogAdapter hippyLogAdapter)
+			HippyLogAdapter hippyLogAdapter, IHippyDtCollectAdapter dtCollectAdapter)
 	{
 		this.mContext = context;
 		this.mSharedPreferencesAdapter = sharedPreferencesAdapter;
@@ -136,6 +138,7 @@ public class HippyGlobalConfigs
 		this.mSoLoaderAdapter = hippySoLoaderAdapter;
 		this.mDeviceAdapter = hippyDeviceAdapter;
 		this.mLogAdapter = hippyLogAdapter;
+		this.mDtCollectAdapter = dtCollectAdapter;
 	}
 
 	public void destroyIfNeed()
@@ -227,6 +230,10 @@ public class HippyGlobalConfigs
 		return mEngineMonitorAdapter;
 	}
 
+	public IHippyDtCollectAdapter getDtCollectAdapter() {
+		return mDtCollectAdapter;
+	}
+
 	@Deprecated
 	public void to(HippyEngine.EngineInitParams params)
 	{
@@ -242,6 +249,7 @@ public class HippyGlobalConfigs
 		params.soLoader = mSoLoaderAdapter;
 		params.deviceAdapter = mDeviceAdapter;
 		params.logAdapter = mLogAdapter;
+		params.dtCollectAdapter = mDtCollectAdapter;
 	}
 
 	public static class Builder
@@ -271,10 +279,17 @@ public class HippyGlobalConfigs
 
 		private HippyLogAdapter					mLogAdapter;
 
+		private IHippyDtCollectAdapter          mDtCollectAdapter;
 
 		public HippyLogAdapter getLogAdapter()
 		{
 			return mLogAdapter;
+		}
+
+		public Builder setDtCollectAdapter(IHippyDtCollectAdapter mDtCollectAdapter)
+		{
+			this.mDtCollectAdapter = mDtCollectAdapter;
+			return this;
 		}
 
 		public Builder setLogAdapter(HippyLogAdapter mLogAdapter)
@@ -406,7 +421,7 @@ public class HippyGlobalConfigs
 
 			HippyGlobalConfigs configs = new HippyGlobalConfigs(mContext,  mSharedPreferencesAdapter, mExceptionHandler,
 					mHttpAdapter, mImageLoaderAdapter, mExecutorSupplierAdapter, mStorageAdapter, mEngineMonitorAdapter, mFontScaleAdapter,
-					mSoLoaderAdapter, mDeviceAdapter, mLogAdapter);
+					mSoLoaderAdapter, mDeviceAdapter, mLogAdapter, mDtCollectAdapter);
 			return configs;
 		}
 	}

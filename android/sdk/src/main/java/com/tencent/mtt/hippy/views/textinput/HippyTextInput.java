@@ -216,9 +216,11 @@ public class HippyTextInput extends EditText implements HippyViewBase, CommonBor
 				contentSize.pushDouble("height", mPreviousContentWidth);
 				HippyMap eventData = new HippyMap();
 				eventData.pushMap("contentSize", contentSize);
-				mHippyContext.getModuleManager().getJavaScriptModule(EventDispatcher.class)
-						.receiveUIComponentEvent(getId(), "onContentSizeChange", eventData);
-
+				if (mHippyContext != null)
+				{
+					mHippyContext.getModuleManager().getJavaScriptModule(EventDispatcher.class)
+							.receiveUIComponentEvent(getId(), "onContentSizeChange", eventData);
+				}
 			}
 		}
 	}
