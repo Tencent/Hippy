@@ -11,11 +11,10 @@ class JNIEnvironment;
 
 class HippyNativeGlobal {
  public:
-  HippyNativeGlobal() = default;
-  ~HippyNativeGlobal() = default;
+  HippyNativeGlobal() = delete;
 
  public:
-  void registerGlobal(const char* char_globalConfig,
+  static void registerGlobal(const char* char_globalConfig,
                       V8Runtime* runtime);
 };
 

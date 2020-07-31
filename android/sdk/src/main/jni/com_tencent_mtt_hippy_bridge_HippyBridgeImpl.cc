@@ -253,8 +253,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_initJSFramework(
     globalObject->Set(v8::String::NewFromUtf8(isolate, "hippyCallNatives"),
                       functionTemplate->GetFunction());
 
-    HippyNativeGlobal globalConfig;
-    globalConfig.registerGlobal(char_globalConfig_tmp, runtime);
+    HippyNativeGlobal::registerGlobal(char_globalConfig_tmp, runtime);
 
     // load bootstrap.js after load config
     if (environment) {
