@@ -10,8 +10,7 @@
 CodeCacheRunnable::~CodeCacheRunnable() { code_cache = ""; }
 
 void CodeCacheRunnable::run(const char* code_cache_path) {
-  std::string str(code_cache_path, strlen(code_cache_path));
-  std::ofstream outfile(str);
+  std::ofstream outfile(code_cache_path);
   outfile.write(code_cache.data(), code_cache.length());
   outfile.close();
 }
