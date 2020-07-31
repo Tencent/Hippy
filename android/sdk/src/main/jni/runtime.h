@@ -15,7 +15,7 @@
 class Environment;
 class Engine;
 
-typedef struct V8Runtime_ {
+struct V8Runtime {
   v8::Isolate* isolate;
   // v8::Persistent<v8::Context> context;
   jobject hippyBridge;
@@ -24,6 +24,6 @@ typedef struct V8Runtime_ {
   std::weak_ptr<Engine> pEngine;
   std::weak_ptr<Environment> env;
   bool bIsDevModule = false;
-} V8Runtime;
+};
 
 #endif  // RUNTIME_H_
