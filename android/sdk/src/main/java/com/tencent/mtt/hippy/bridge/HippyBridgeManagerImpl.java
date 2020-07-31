@@ -442,6 +442,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 	public void destroy()
 	{
 		mIsInit = false;
+		mLoadModuleListener = null;
 		if (mHandler != null)
 		{
 			mHandler.removeMessages(MSG_CODE_INIT_BRIDGE);
