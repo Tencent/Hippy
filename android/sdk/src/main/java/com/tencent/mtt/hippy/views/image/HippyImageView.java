@@ -46,6 +46,8 @@ import com.tencent.mtt.supportui.adapters.image.IDrawableTarget;
 import com.tencent.mtt.supportui.views.asyncimage.AsyncImageView;
 import com.tencent.mtt.supportui.views.asyncimage.BackgroundDrawable;
 import com.tencent.mtt.supportui.views.asyncimage.ContentDrawable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by leonardgong on 2017/12/4 0004.
@@ -147,7 +149,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 		int width = 0;
 		int height = 0;
 
-    mIniProps.clear();
+		mIniProps.clear();
 
 		if (iniProps.containsKey(NodeProps.STYLE)) {
 			HippyMap styles = iniProps.getMap(NodeProps.STYLE);
@@ -160,15 +162,15 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 					height = Math.round(PixelUtil.dp2px(styles.getDouble(NodeProps.HEIGHT)));
 				}
 
-        if (styles.containsKey(NodeProps.RESIZE_MODE)) {
-          mIniProps.pushString(NodeProps.RESIZE_MODE, styles.getString(NodeProps.RESIZE_MODE));
-        }
+				if (styles.containsKey(NodeProps.RESIZE_MODE)) {
+					mIniProps.pushString(NodeProps.RESIZE_MODE, styles.getString(NodeProps.RESIZE_MODE));
+				}
 			}
 		}
 
 		if (iniProps.containsKey(NodeProps.CUSTOM_PROP_IMAGE_TYPE)) {
-      mIniProps.pushString(NodeProps.CUSTOM_PROP_IMAGE_TYPE, iniProps.getString(NodeProps.CUSTOM_PROP_IMAGE_TYPE));
-    }
+			mIniProps.pushString(NodeProps.CUSTOM_PROP_IMAGE_TYPE, iniProps.getString(NodeProps.CUSTOM_PROP_IMAGE_TYPE));
+		}
 
 		mIniProps.pushBoolean(NodeProps.CUSTOM_PROP_ISGIF, iniProps.getBoolean(NodeProps.CUSTOM_PROP_ISGIF));
 		mIniProps.pushInt(NodeProps.WIDTH, width);
@@ -233,8 +235,18 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 	{
 		if (mImageAdapter != null)
 		{
-			if (param != null) {
-				mIniProps.pushObject("extraData", param);
+			if (param == null)
+			{
+				param = new HashMap<String, Object>();
+			}
+
+			if (param instanceof Map)
+			{
+				try {
+					((Map) param).put("props", mIniProps);
+				} catch (Exception e) {
+
+				}
 			}
 
 			// 这里不判断下是取背景图片还是取当前图片怎么行？
@@ -275,7 +287,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 						}
 					}
 				}
-			}, mIniProps);
+			}, param);
 		}
 	}
 	//用户设置了,Js属性设置背景色
