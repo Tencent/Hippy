@@ -84,22 +84,22 @@ public class HippyListViewController extends HippyViewController<HippyListView>
 		view.setListData();
 	}
 
-  @Override
-  protected View createViewImpl(Context context) {
-    return new HippyListView(context, BaseLayoutManager.VERTICAL);
-  }
+	@Override
+	protected View createViewImpl(Context context) {
+		return new HippyListView(context, BaseLayoutManager.VERTICAL);
+	}
 
 	@Override
 	protected View createViewImpl(Context context, HippyMap iniProps)
 	{
-    if (iniProps != null && iniProps.containsKey("horizontal"))
-    {
-      return new HippyListView(context, BaseLayoutManager.HORIZONTAL);
-    }
-    else
-    {
-      return new HippyListView(context, BaseLayoutManager.VERTICAL);
-    }
+		if (iniProps != null && iniProps.containsKey("horizontal"))
+		{
+			return new HippyListView(context, BaseLayoutManager.HORIZONTAL);
+		}
+		else
+		{
+			return new HippyListView(context, BaseLayoutManager.VERTICAL);
+		}
 	}
 
 	@Override
@@ -143,6 +143,12 @@ public class HippyListViewController extends HippyViewController<HippyListView>
 	public void setOnScrollEventEnable(HippyListView view, boolean flag)
 	{
 		view.setOnScrollEventEnable(flag);
+	}
+
+	@HippyControllerProps(name = "exposureEventEnabled", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	public void setExposureEventEnable(HippyListView view, boolean flag)
+	{
+		view.setExposureEventEnable(flag);
 	}
 
 	@HippyControllerProps(name = "scrollEnabled", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = true)
