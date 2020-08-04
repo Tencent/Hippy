@@ -168,6 +168,7 @@ public void forceUpdateNode(int);
 
 -keep class com.tencent.mtt.hippy.views.** {*;}
 -keep interface com.tencent.mtt.hippy.bridge.HippyBridge {*;}
+-keep interface com.tencent.mtt.hippy.bridge.HippyBridgeManager {*;}
 
 -keep class com.tencent.mtt.supportui.views.** {*;}
 -keep class com.tencent.mtt.hippy.utils.** {*;}
