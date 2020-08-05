@@ -392,7 +392,8 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 		// avoid duplicated fetching for same url
 		// imageView inside listview item will be executed as detach->attach,
 		// fetching same image again will cause flashing
-		if (getBitmap() == null || !mIsUrlFetchSucceed) {
+		Bitmap bm = getBitmap();
+		if (bm == null || bm.isRecycled() || !mIsUrlFetchSucceed) {
 		  fetchImageByUrl(mUrl, SOURCE_TYPE_SRC);
 		}
 		onDrawableAttached();
