@@ -64,12 +64,12 @@ public class ContentDrawable extends BaseDrawable
 		mAlpha = 255;
 		mNeedUpdateBorderPath = true;
 	}
-  
-  @Override
-  public void setBounds(int left, int top, int right, int bottom) {
-    super.setBounds(left, top, right, bottom);
-    updateContentRegion();
-  }
+
+	@Override
+	public void setBounds(int left, int top, int right, int bottom) {
+		super.setBounds(left, top, right, bottom);
+		updateContentRegion();
+	}
 	
 	public void setBitmap(Bitmap contentBitmap)
 	{
@@ -250,7 +250,8 @@ public class ContentDrawable extends BaseDrawable
 		{
 			Matrix matrix = new Matrix();
 			matrix.reset();
-			RectF scaleDst = mRect;
+			RectF scaleDst = new RectF(mRect);
+
 			float fullBorderWidth = this.mBorderWidthArray == null ? 0.0F : this.mBorderWidthArray[0];
 			if (fullBorderWidth > 1.0F)
 			{
