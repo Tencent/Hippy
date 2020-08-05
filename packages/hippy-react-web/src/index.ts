@@ -2,6 +2,10 @@ import './global';
 import {
   Device,
 } from './native';
+import {
+  HippyEventListener,
+  HippyEventEmitter,
+} from './events';
 import HippyReact from './hippy';
 import View from './components/view';
 import Text from './components/text';
@@ -69,4 +73,6 @@ export {
   PixelRatio,
   AsyncStorage,
   NetInfo,
+  HippyEventListener,
+  HippyEventEmitter,
 };
