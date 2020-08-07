@@ -76,5 +76,8 @@
     "@router": "packages/hippy-vue-router/src",
     "@css-loader": "packages/hippy-vue-css-loader/src",
     "@native-components": "packages/hippy-vue-native-components/src"
+  },
+  "dependencies": {
+    "@types/event-emitter": "^0.3.3"
   }
 }

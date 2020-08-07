@@ -10,11 +10,11 @@ function getNameForEvent(event: string) {
 }
 
 class HippyEventEmitter {
-  // 静态属性（类属性），维护全部的Listener
+  // static property which manage all listeners Instance
   static AllHippyEventListeners = new Map()
 
-  // 这个是维护实例自己的hippyEventListeners
-  hippyEventListeners: Map<string, HippyEventListener> // string为eventName
+  // Instance property manage the listeners which belongs to this Instance
+  hippyEventListeners: Map<string, HippyEventListener>
 
   constructor(sharedListeners?: Map<string, HippyEventListener>) {
     if (sharedListeners && typeof sharedListeners === 'object') {
@@ -24,25 +24,24 @@ class HippyEventEmitter {
     }
   }
 
-  // 共享已注册的事件
+  // share all the Listeners which belongs to this instance
   public sharedListeners() {
-    // TODO: Map结构是否需要转换为object？
     return this.hippyEventListeners;
   }
 
-  // 为某个事件添加回调函数。
+  // add callback function to a Listener
   public addListener(event: string, callback: (data?: any) => void, context?: any) {
     if (typeof event !== 'string' || typeof callback !== 'function') {
       throw new TypeError('Invalid arguments');
     }
     const eventName = getNameForEvent(event);
     let registedListener = this.hippyEventListeners.get(eventName);
-    // 判断实例是否注册了该事件
+    // Determine whether the instance is registered
     if (!registedListener) {
-      // 判断AllHippyEventListeners中是否注册了该事件
+      // Determine whether AllHippyEventListeners had registered the event
       registedListener = HippyEventEmitter.AllHippyEventListeners.get(eventName);
       if (!registedListener) {
-      // 全局和实例维护的listener都没有的话就创建一个。
+      // Create one if none
         registedListener = new HippyEventListener(event);
         this.hippyEventListeners.set(eventName, registedListener);
       }
@@ -55,7 +54,7 @@ class HippyEventEmitter {
     return new EventEmitterRevoker(listenerId, registedListener);
   }
 
-  // 清除某个事件所有的回调函数
+  // clear all callback function for one Listener
   removeAllListeners(event: string) {
     if (typeof event !== 'string') {
       throw new TypeError('Invalid arguments');
@@ -70,7 +69,6 @@ class HippyEventEmitter {
     }
   }
 
-  // 触发事件（全局触发，不单单可以触发某个实例emitter的listener）
   // eslint-disable-next-line class-methods-use-this
   emit(event: string, param: any) {
     if (typeof event !== 'string') {
@@ -84,7 +82,7 @@ class HippyEventEmitter {
     return true;
   }
 
-  // 查看某个事件有多少个回调函数
+  // see the callback function number
   listenerSize(event: string) {
     if (typeof event !== 'string') {
       throw new TypeError('Invalid arguments');

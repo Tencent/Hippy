@@ -2,10 +2,6 @@ import './global';
 import {
   Device,
 } from './native';
-import {
-  HippyEventListener,
-  HippyEventEmitter,
-} from './events';
 import HippyReact from './hippy';
 import View from './components/view';
 import Text from './components/text';
@@ -24,6 +20,8 @@ import AnimationSet from './modules/animation-set';
 import StyleSheet from './modules/stylesheet';
 import * as NetInfo from './modules/net-info';
 import * as NetworkModule from './modules/network-module';
+import HippyEventListener from './events/listener';
+import HippyEventEmitter from './events/emitter';
 
 const Hippy = HippyReact;
 const ConsoleModule = console;
