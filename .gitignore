@@ -19,6 +19,7 @@ examples/ios-demo/HippyDemo.xcodeproj/project.xcworkspace/xcuserdata/*
 examples/ios-demo/HippyDemo.xcodeproj/xcuserdata/*
 examples/hippy-react-demo/package-lock.json
 examples/hippy-vue-demo/package-lock.json
+examples/android-demo/maven-auth.properties
 
 # android
 *.iml
