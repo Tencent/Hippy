@@ -27,17 +27,11 @@ std::string JniUtils::ConvertJByteArrayToString(JNIEnv* env, jbyteArray byteArra
   return ret;
 }
 
-char* JniUtils::CopyCharToChar(const char* source_char) {
-  if (source_char == NULL) {
-    return NULL;
-  }
-  char* temp_char = NULL;
-  int source_char_length = strlen(source_char);
-  temp_char = (char*)malloc(source_char_length + 1);
-  memcpy(temp_char, source_char, source_char_length);
-  temp_char[source_char_length] = 0;
-
-  return temp_char;
+std::string JniUtils::ConvertJStrToString(JNIEnv* env, jstring str) {
+  auto tmp = env->GetStringUTFChars(str, nullptr);
+  std::string ret = tmp;
+  env->ReleaseStringUTFChars(str, tmp);
+  return ret;
 }
 
 HippyBuffer* JniUtils::writeToBuffer(v8::Isolate* isolate,

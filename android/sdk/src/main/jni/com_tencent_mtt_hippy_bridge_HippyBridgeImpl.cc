@@ -205,7 +205,6 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_initJSFramework(
     runtime->bridgeParamJson = false;
   }
 
-  JniUtils utils;
   auto char_globalConfig = JniUtils::ConvertJByteArrayToString(env, globalConfig, 0, 0);
 
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
@@ -293,18 +292,10 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromFile(
     return false;
   }
 
-  const char* char_filePath = env->GetStringUTFChars(filePath, NULL);
-  const char* char_scriptName = env->GetStringUTFChars(scriptName, NULL);
-  const char* char_codeCacheDir = env->GetStringUTFChars(codeCacheDir, NULL);
+  auto str_filePath = JniUtils::ConvertJStrToString(env, filePath);
+  auto str_scriptName = JniUtils::ConvertJStrToString(env, scriptName);
+  auto str_codeCacheDir = JniUtils::ConvertJStrToString(env, codeCacheDir);
 
-  JniUtils utils;
-  char* char_filePath_copy = utils.CopyCharToChar(char_filePath);
-  char* char_scriptName_copy = utils.CopyCharToChar(char_scriptName);
-  char* char_codeCacheDir_copy = utils.CopyCharToChar(char_codeCacheDir);
-
-  env->ReleaseStringUTFChars(filePath, char_filePath);
-  env->ReleaseStringUTFChars(scriptName, char_scriptName);
-  env->ReleaseStringUTFChars(codeCacheDir, char_codeCacheDir);
   env->DeleteLocalRef(filePath);
   env->DeleteLocalRef(scriptName);
   env->DeleteLocalRef(codeCacheDir);
@@ -314,13 +305,9 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromFile(
       std::make_shared<JavaRef>(env, jcallback);
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
   task->callback = [v8RuntimePtr, save_object_ = std::move(save_object),
-                    char_filePath_copy, char_scriptName_copy,
-                    char_codeCacheDir_copy, canUseCodeCache] {
+                    str_filePath = std::move(str_filePath), str_scriptName = std::move(str_scriptName),
+                    str_codeCacheDir = std::move(str_codeCacheDir), canUseCodeCache] {
     //HIPPY_LOG(hippy::Debug, "runScriptFromFile enter tast");
-
-    char* char_filePath_copy_tmp = char_filePath_copy;
-    char* char_scriptName_copy_tmp = char_scriptName_copy;
-    char* char_codeCacheDir_copy_tmp = char_codeCacheDir_copy;
 
 	/*auto time2 = std::chrono::time_point_cast<std::chrono::milliseconds>(
                      std::chrono::system_clock::now())
@@ -329,12 +316,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromFile(
 
     std::vector<char> buf;
     {
-      std::string str = "";
-      if (char_filePath_copy_tmp) {
-        str =
-            std::string(char_filePath_copy_tmp, strlen(char_filePath_copy_tmp));
-      }
-      std::ifstream jsfile(str);
+      std::ifstream jsfile(str_filePath);
       if (jsfile) {
         jsfile.seekg(0, std::ios::end);
         buf.resize(static_cast<size_t>(jsfile.tellg()) + 1);
@@ -343,21 +325,6 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromFile(
         buf.back() = 0;
         jsfile.close();
       } else {
-        if (char_filePath_copy_tmp) {
-          free(char_filePath_copy_tmp);
-        }
-        char_filePath_copy_tmp = NULL;
-
-        if (char_scriptName_copy_tmp) {
-          free(char_scriptName_copy_tmp);
-        }
-        char_scriptName_copy_tmp = NULL;
-
-        if (char_codeCacheDir_copy_tmp) {
-          free(char_codeCacheDir_copy_tmp);
-        }
-        char_codeCacheDir_copy_tmp = NULL;
-
         return false;
       }
     }
@@ -367,28 +334,13 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromFile(
                      .time_since_epoch()
                      .count();*/
 
-    bool flag = runScript(buf.data(), char_scriptName_copy_tmp, canUseCodeCache,
-                          char_codeCacheDir_copy_tmp, v8RuntimePtr);
+    bool flag = runScript(buf.data(), str_scriptName.c_str(), canUseCodeCache,
+                          str_codeCacheDir.c_str(), v8RuntimePtr);
 
 	/*auto time4 = std::chrono::time_point_cast<std::chrono::milliseconds>(
                      std::chrono::system_clock::now())
                      .time_since_epoch()
                      .count();*/
-
-    if (char_filePath_copy_tmp) {
-      free(char_filePath_copy_tmp);
-    }
-    char_filePath_copy_tmp = NULL;
-
-    if (char_scriptName_copy_tmp) {
-      free(char_scriptName_copy_tmp);
-    }
-    char_scriptName_copy_tmp = NULL;
-
-    if (char_codeCacheDir_copy_tmp) {
-      free(char_codeCacheDir_copy_tmp);
-    }
-    char_codeCacheDir_copy_tmp = NULL;
 
     jlong value = flag == false ? 0 : 1;
     CallJavaMethod(save_object_->obj(), value);
@@ -431,15 +383,9 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromAssets(
     return false;
   }
 
-  const char* char_assetName = env->GetStringUTFChars(assetName, NULL);
-  const char* char_codeCacheDir = env->GetStringUTFChars(codeCacheDir, NULL);
+  auto char_assetName = JniUtils::ConvertJStrToString(env, assetName);
+  auto char_codeCacheDir = JniUtils::ConvertJStrToString(env, codeCacheDir);
 
-  JniUtils utils;
-  char* char_assetName_copy = utils.CopyCharToChar(char_assetName);
-  char* char_codeCacheDir_copy = utils.CopyCharToChar(char_codeCacheDir);
-
-  env->ReleaseStringUTFChars(assetName, char_assetName);
-  env->ReleaseStringUTFChars(codeCacheDir, char_codeCacheDir);
   env->DeleteLocalRef(assetName);
   env->DeleteLocalRef(codeCacheDir);
 
@@ -450,16 +396,13 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromAssets(
       std::make_shared<JavaRef>(env, jcallback);
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
   task->callback = [v8RuntimePtr, save_object_ = std::move(save_object),
-                    aassetManager, canUseCodeCache, char_assetName_copy,
-                    char_codeCacheDir_copy] {
+                    aassetManager, canUseCodeCache, char_assetName = std::move(char_assetName),
+                    char_codeCacheDir = std::move(char_codeCacheDir)] {
     //HIPPY_LOG(hippy::Debug, "runScriptFromAssets enter task");
-
-    char* char_assetName_copy_tmp = char_assetName_copy;
-    char* char_codeCacheDir_copy_tmp = char_codeCacheDir_copy;
 
     std::vector<char> buf;
     if (aassetManager) {
-      auto asset = AAssetManager_open(aassetManager, char_assetName_copy_tmp,
+      auto asset = AAssetManager_open(aassetManager, char_assetName.c_str(),
                                       AASSET_MODE_STREAMING);
       if (asset) {
         buf.resize(AAsset_getLength(asset) + 1);
@@ -473,47 +416,15 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromAssets(
         AAsset_close(asset);
       } else {
         CallJavaMethod(save_object_->obj(), 0);
-
-        if (char_assetName_copy_tmp) {
-          free(char_assetName_copy_tmp);
-        }
-        char_assetName_copy_tmp = NULL;
-
-        if (char_codeCacheDir_copy_tmp) {
-          free(char_codeCacheDir_copy_tmp);
-        }
-        char_codeCacheDir_copy_tmp = NULL;
-
         return;
       }
     } else {
       CallJavaMethod(save_object_->obj(), 0);
-
-      if (char_assetName_copy_tmp) {
-        free(char_assetName_copy_tmp);
-      }
-      char_assetName_copy_tmp = NULL;
-
-      if (char_codeCacheDir_copy_tmp) {
-        free(char_codeCacheDir_copy_tmp);
-      }
-      char_codeCacheDir_copy_tmp = NULL;
-
       return;
     }
 
-    bool flag = runScript(buf.data(), char_assetName_copy_tmp, canUseCodeCache,
-                          char_codeCacheDir_copy_tmp, v8RuntimePtr);
-
-    if (char_assetName_copy_tmp) {
-      free(char_assetName_copy_tmp);
-    }
-    char_assetName_copy_tmp = NULL;
-
-    if (char_codeCacheDir_copy_tmp) {
-      free(char_codeCacheDir_copy_tmp);
-    }
-    char_codeCacheDir_copy_tmp = NULL;
+    bool flag = runScript(buf.data(), char_assetName.c_str(), canUseCodeCache,
+                          char_codeCacheDir.c_str(), v8RuntimePtr);
 
     jlong value = flag == true ? 1 : 0;
     CallJavaMethod(save_object_->obj(), value);
@@ -546,12 +457,8 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_callFunction(
   }
 
   V8Runtime* runtime = reinterpret_cast<V8Runtime*>(v8RuntimePtr);
-  const char* char_action = env->GetStringUTFChars(action, NULL);
+  auto char_action = JniUtils::ConvertJStrToString(env, action);
 
-  JniUtils utils;
-  char* char_action_copy = utils.CopyCharToChar(char_action);
-
-  env->ReleaseStringUTFChars(action, char_action);
   env->DeleteLocalRef(action);
 
   auto str_params = JniUtils::ConvertJByteArrayToString(env, params, offset, length);
@@ -560,17 +467,9 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_callFunction(
       std::make_shared<JavaRef>(env, jcallback);
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
   task->callback = [runtime, save_object_ = std::move(save_object),
-                    char_action_copy, str_params = std::move(str_params)] {
-    char* char_action_copy_tmp = char_action_copy;
-
+                    char_action = std::move(char_action), str_params = std::move(str_params)] {
     if (runtime->isolate == NULL) {
       CallJavaMethod(save_object_->obj(), 0);
-
-      if (char_action_copy_tmp) {
-        free(char_action_copy_tmp);
-      }
-      char_action_copy_tmp = NULL;
-
       return;
     }
 
@@ -591,8 +490,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_callFunction(
         v8::Local<v8::Context>::New(isolate, napi_ctx->context_persistent);
     v8::Context::Scope context_scope(context);
 
-    if (runtime->bIsDevModule && char_action_copy_tmp &&
-        strcmp(char_action_copy_tmp, "onWebsocketMsg") == 0) {
+    if (runtime->bIsDevModule && (char_action == "onWebsocketMsg")) {
       V8InspectorClientImpl::sendMessageToV8(str_params.c_str());
     } else {
       if (runtime->hippyBridgeJSFunc.IsEmpty()) {
@@ -607,7 +505,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_callFunction(
       v8::Handle<v8::String> paramsValue =
           v8::String::NewFromUtf8(isolate, str_params.c_str());
       v8::Handle<v8::String> actionValue =
-          v8::String::NewFromUtf8(isolate, char_action_copy_tmp);
+          v8::String::NewFromUtf8(isolate, char_action.c_str());
 
       v8::Handle<v8::Object> global = context->Global();
       v8::Handle<v8::Value> JSON =
@@ -629,7 +527,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_callFunction(
         }
 
         // for debug
-        if (strcmp(char_action_copy_tmp, "loadInstance") == 0) {
+        if (char_action == "loadInstance") {
           size_t len = str_params.find("\"id") - 11;
           LucasTestBussinessCalledCache = str_params.substr(9, len) +
                                           std::string(" ") +
@@ -646,12 +544,6 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_callFunction(
     }
 
     CallJavaMethod(save_object_->obj(), 1);
-
-    if (char_action_copy_tmp) {
-      free(char_action_copy_tmp);
-    }
-
-    char_action_copy_tmp = NULL;
   };
 
   std::shared_ptr<Engine> engine = runtime->pEngine.lock();
@@ -670,12 +562,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runNativeRunnable(
     jobject jcallback) {
   //HIPPY_LOG(hippy::Debug, "runNativeRunnable start");
 
-  const char* char_codeCachePath = env->GetStringUTFChars(codeCachePath, NULL);
-
-  JniUtils utils;
-  char* char_codeCachePath_copy = utils.CopyCharToChar(char_codeCachePath);
-
-  env->ReleaseStringUTFChars(codeCachePath, char_codeCachePath);
+  auto char_codeCachePath = JniUtils::ConvertJStrToString(env, codeCachePath);
   env->DeleteLocalRef(codeCachePath);
 
   V8Runtime* runtime = reinterpret_cast<V8Runtime*>(v8RuntimePtr);
@@ -683,20 +570,12 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runNativeRunnable(
   std::shared_ptr<JavaRef> save_object =
       std::make_shared<JavaRef>(env, jcallback);
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-  task->callback = [char_codeCachePath_copy,
+  task->callback = [char_codeCachePath = std::move(char_codeCachePath),
                     save_object_ = std::move(save_object), runnableId] {
     //HIPPY_LOG(hippy::Debug, "runNativeRunnable enter task");
 
-    char* char_codeCachePath_copy_tmp = char_codeCachePath_copy;
-
     if (runnableId == 0) {
       CallJavaMethod(save_object_->obj(), 0);
-
-      if (char_codeCachePath_copy_tmp) {
-        free(char_codeCachePath_copy_tmp);
-      }
-      char_codeCachePath_copy_tmp = NULL;
-
       return;
     }
 
@@ -704,17 +583,12 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runNativeRunnable(
         reinterpret_cast<CodeCacheRunnable*>(runnableId);
 
     if (runnable) {
-      runnable->run(char_codeCachePath_copy_tmp);
+      runnable->run(char_codeCachePath.c_str());
       delete runnable;
     }
     runnable = NULL;
 
     CallJavaMethod(save_object_->obj(), 1);
-
-    if (char_codeCachePath_copy_tmp) {
-      free(char_codeCachePath_copy_tmp);
-    }
-    char_codeCachePath_copy_tmp = NULL;
 
     //HIPPY_LOG(hippy::Debug, "runNativeRunnable leave task");
   };
