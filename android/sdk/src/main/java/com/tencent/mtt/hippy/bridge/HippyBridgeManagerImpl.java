@@ -39,6 +39,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
+import org.json.JSONObject;
 
 /**
  * FileName: HippyBridgeManager
@@ -518,6 +519,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 		String pkgName = "";
 		String url = "";
 		String appVersion = "";
+		HippyMap extraDataMap = new HippyMap();
 		if (mContext.getGlobalConfigs() != null && mContext.getGlobalConfigs().getDeviceAdapter() != null)
 		{
 			mContext.getGlobalConfigs().getDeviceAdapter().reviseDimensionIfNeed(mContext.getGlobalConfigs().getContext(), dimensionMap, false,
@@ -529,6 +531,8 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 			pkgName = mThirdPartyAdapter.getPackageName();
 			url = mThirdPartyAdapter.getPageUrl();
 			appVersion = mThirdPartyAdapter.getAppVersion();
+			JSONObject jObject = mThirdPartyAdapter.getExtraData();
+			extraDataMap.pushJSONObject(jObject);
 		}
 
 		HippyMap platformParams = new HippyMap();
@@ -539,6 +543,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 		HippyMap tkd = new HippyMap();
 		tkd.pushString("url", (url == null) ? "" : url);
 		tkd.pushString("appVersion", appVersion);
+		tkd.pushMap("extra", extraDataMap);
 		globalParams.pushMap("tkd", tkd);
 		return ArgumentUtils.objectToJson(globalParams);
 	}
