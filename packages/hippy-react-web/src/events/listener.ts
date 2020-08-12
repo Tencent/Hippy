@@ -1,9 +1,6 @@
-import { Emitter } from 'event-emitter';
+import ee, { Emitter } from 'event-emitter';
+import allOff from 'event-emitter/all-off';
 import HippyEventEmitter from './emitter';
-
-import ee = require ('event-emitter');
-import allOff = require('event-emitter/all-off');
-
 
 interface HippyEventListener {
   eventName: string;
