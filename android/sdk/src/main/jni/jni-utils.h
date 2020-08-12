@@ -6,6 +6,7 @@
 #define JNI_UTILS_H_
 
 #include <jni.h>
+#include <string>
 
 #include "third_party/v8/v8.h"
 
@@ -17,8 +18,8 @@ class JniUtils {
   ~JniUtils() = default;
 
  public:
-  char* ConvertJByteArrayToChars(JNIEnv* env, jbyteArray byteArray, jint offset,
-                                 jint length);
+  static std::string ConvertJByteArrayToString(JNIEnv* env, jbyteArray byteArray, jint offset,
+                                               jint length);
   char* CopyCharToChar(const char* source_char);
   HippyBuffer* writeToBuffer(v8::Isolate* isolate, v8::Local<v8::Object> value);
 

@@ -61,14 +61,14 @@ void V8InspectorClientImpl::initInspectorClient(V8Runtime* runtime) {
   }
 }
 
-void V8InspectorClientImpl::sendMessageToV8(char* params) {
+void V8InspectorClientImpl::sendMessageToV8(const char* params) {
   if (V8ChannelImpl::channel_ != nullptr) {
     if (strcmp(params, "chrome_socket_closed") == 0) {
       delete V8ChannelImpl::channel_;
       V8ChannelImpl::channel_ =
           new V8ChannelImpl(V8ChannelImpl::runtime_);
     } else {
-      uint8_t* debug_msg = reinterpret_cast<uint8_t*>(params);
+      auto debug_msg = reinterpret_cast<const uint8_t*>(params);
       v8_inspector::StringView message_view(debug_msg, strlen(params));
       V8ChannelImpl::channel_->session_->dispatchProtocolMessage(message_view);
     }

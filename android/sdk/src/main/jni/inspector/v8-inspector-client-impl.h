@@ -13,7 +13,7 @@ class V8InspectorClientImpl : public v8_inspector::V8InspectorClient {
   ~V8InspectorClientImpl() override = default;
 
   static void initInspectorClient(V8Runtime* runtime);
-  static void sendMessageToV8(char* params);
+  static void sendMessageToV8(const char* params);
   static void onContextDestroyed(V8Runtime* runtime);
 
   void runMessageLoopOnPause(int contextGroupId) override;

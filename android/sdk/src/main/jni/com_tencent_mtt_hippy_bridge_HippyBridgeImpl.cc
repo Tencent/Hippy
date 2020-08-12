@@ -206,13 +206,12 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_initJSFramework(
   }
 
   JniUtils utils;
-  char* char_globalConfig =
-      utils.ConvertJByteArrayToChars(env, globalConfig, 0, 0);
+  auto char_globalConfig = JniUtils::ConvertJByteArrayToString(env, globalConfig, 0, 0);
 
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
   std::shared_ptr<JavaRef> save_object =
       std::make_shared<JavaRef>(env, jcallback);
-  task->callback = [runtime, char_globalConfig,
+  task->callback = [runtime, char_globalConfig = std::move(char_globalConfig),
                     save_object_ = std::move(save_object)] {
     //HIPPY_LOG(hippy::Debug, "initJSFramework enter task");
 
@@ -229,7 +228,6 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_initJSFramework(
       return;
     }
 
-    char* char_globalConfig_tmp = char_globalConfig;
     v8::Isolate* isolate = napi_ctx->isolate_;
     v8::HandleScope handle_scope(isolate);
 
@@ -253,17 +251,12 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_initJSFramework(
     globalObject->Set(v8::String::NewFromUtf8(isolate, "hippyCallNatives"),
                       functionTemplate->GetFunction());
 
-    HippyNativeGlobal::registerGlobal(char_globalConfig_tmp, runtime);
+    HippyNativeGlobal::registerGlobal(char_globalConfig.c_str(), runtime);
 
     // load bootstrap.js after load config
     if (environment) {
       environment->loadModules();
     }
-
-    if (char_globalConfig_tmp) {
-      free(char_globalConfig_tmp);
-    }
-    char_globalConfig_tmp = NULL;
 
     jlong value = reinterpret_cast<jlong>(runtime);
     CallJavaMethod(save_object_->obj(), value);
@@ -561,16 +554,14 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_callFunction(
   env->ReleaseStringUTFChars(action, char_action);
   env->DeleteLocalRef(action);
 
-  char* char_params =
-      utils.ConvertJByteArrayToChars(env, params, offset, length);
+  auto str_params = JniUtils::ConvertJByteArrayToString(env, params, offset, length);
 
   std::shared_ptr<JavaRef> save_object =
       std::make_shared<JavaRef>(env, jcallback);
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
   task->callback = [runtime, save_object_ = std::move(save_object),
-                    char_action_copy, char_params] {
+                    char_action_copy, str_params = std::move(str_params)] {
     char* char_action_copy_tmp = char_action_copy;
-    char* char_params_tmp = char_params;
 
     if (runtime->isolate == NULL) {
       CallJavaMethod(save_object_->obj(), 0);
@@ -579,11 +570,6 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_callFunction(
         free(char_action_copy_tmp);
       }
       char_action_copy_tmp = NULL;
-
-      if (char_params_tmp) {
-        free(char_params_tmp);
-      }
-      char_params_tmp = NULL;
 
       return;
     }
@@ -607,7 +593,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_callFunction(
 
     if (runtime->bIsDevModule && char_action_copy_tmp &&
         strcmp(char_action_copy_tmp, "onWebsocketMsg") == 0) {
-      V8InspectorClientImpl::sendMessageToV8(char_params_tmp);
+      V8InspectorClientImpl::sendMessageToV8(str_params.c_str());
     } else {
       if (runtime->hippyBridgeJSFunc.IsEmpty()) {
         v8::Local<v8::String> hippyBridgeStr =
@@ -619,7 +605,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_callFunction(
       }
 
       v8::Handle<v8::String> paramsValue =
-          v8::String::NewFromUtf8(isolate, char_params_tmp);
+          v8::String::NewFromUtf8(isolate, str_params.c_str());
       v8::Handle<v8::String> actionValue =
           v8::String::NewFromUtf8(isolate, char_action_copy_tmp);
 
@@ -644,9 +630,8 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_callFunction(
 
         // for debug
         if (strcmp(char_action_copy_tmp, "loadInstance") == 0) {
-          std::string params_str(char_params_tmp);
-          size_t len = params_str.find("\"id") - 11;
-          LucasTestBussinessCalledCache = params_str.substr(9, len) +
+          size_t len = str_params.find("\"id") - 11;
+          LucasTestBussinessCalledCache = str_params.substr(9, len) +
                                           std::string(" ") +
                                           LucasTestBussinessCalledCache;
           if (LucasTestBussinessCalledCache.length() >= 160) {
@@ -656,7 +641,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_callFunction(
         }
       } else {
         ExceptionHandler exception;
-        exception.JSONException(runtime, char_params_tmp);
+        exception.JSONException(runtime, str_params.c_str());
       }
     }
 
@@ -667,11 +652,6 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_callFunction(
     }
 
     char_action_copy_tmp = NULL;
-
-    if (char_params_tmp) {
-      free(char_params_tmp);
-    }
-    char_params_tmp = NULL;
   };
 
   std::shared_ptr<Engine> engine = runtime->pEngine.lock();

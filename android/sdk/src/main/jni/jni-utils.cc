@@ -9,23 +9,22 @@
 
 #include "hippy-buffer.h"  // NOLINT(build/include_subdir)
 
-char* JniUtils::ConvertJByteArrayToChars(JNIEnv* env, jbyteArray byteArray,
-                                         jint offset, jint length) {
-  jbyte* bytes = env->GetByteArrayElements(byteArray, 0);
-  *bytes += offset;
-  char* charArray = NULL;
-  if (bytes != NULL) {
-    int charLength = length == 0 ? env->GetArrayLength(byteArray) : length;
-    if (charLength > 0) {
-      charArray = (char*)malloc(charLength + 1);
-      charArray[charLength] = 0;
-      memcpy(charArray, bytes, charLength);
-    }
-  }
+std::string JniUtils::ConvertJByteArrayToString(JNIEnv* env, jbyteArray byteArray,
+                                                jint offset, jint length) {
+  std::string ret;
+
+  jbyte* bytes = env->GetByteArrayElements(byteArray, nullptr);
+  if (!bytes)
+    return ret;
+
+  int len = length ? length : env->GetArrayLength(byteArray);
+  len -= offset;
+  if (len > 0)
+    ret = std::string((char*)bytes + offset, len);
 
   env->ReleaseByteArrayElements(byteArray, bytes, 0);
 
-  return charArray;
+  return ret;
 }
 
 char* JniUtils::CopyCharToChar(const char* source_char) {
