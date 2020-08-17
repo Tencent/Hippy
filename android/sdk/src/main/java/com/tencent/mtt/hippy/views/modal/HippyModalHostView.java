@@ -156,7 +156,8 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 	{
 		if (mDialog != null)
 		{
-			mDialog.dismiss();
+			boolean isFinishing = (mDialog.getContext() instanceof Activity) && ((Activity) mDialog.getContext()).isFinishing();
+			if (!isFinishing) mDialog.dismiss();
 			mDialog = null;
 			ViewGroup parent = (ViewGroup) mHostView.getParent();
 			parent.removeViewAt(0);
