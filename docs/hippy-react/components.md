@@ -92,6 +92,7 @@ import icon from './qb_icon_new.png';
 | getRowStyle           | -                                                            | `(index: number) => any`                                    | `ALL`    |
 | getRowType            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升list 性能。 | `(index: number) => any`                                    | `ALL`    |
 | getRowKey             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [React 官文](//reactjs.org/docs/lists-and-keys.html) | `(index: number) => any`                                    | `ALL`    |
+| preloadItemNumber     | 指定当列表滚动至倒数第几行时触发 `onEndReached` 回调。 | `number` | `ALL` |
 | onEndReached          | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `onEndReached` 回调。 | `Function`                                                  | `ALL`    |
 | onMomentumScrollBegin | 在 `ListView` 开始滑动的时候调起                           | `Function`                                                  | `ALL`    |
 | onMomentumScrollEnd   | 在 `ListView` 结束滑动的时候调起                           | `Function`                                                  | `ALL`    |
