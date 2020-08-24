@@ -21,6 +21,7 @@ import android.os.Message;
 
 import com.tencent.mtt.hippy.HippyAPIProvider;
 import com.tencent.mtt.hippy.HippyEngineContext;
+import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorAdapter;
 import com.tencent.mtt.hippy.annotation.HippyNativeModule;
 import com.tencent.mtt.hippy.bridge.HippyCallNativeParams;
 import com.tencent.mtt.hippy.common.HippyArray;
@@ -232,6 +233,13 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
 
 	void doCallNatives(String moduleName, String moduleFunc, String callId, HippyArray params)
 	{
+		if (mContext != null) {
+			HippyEngineMonitorAdapter monitorAdapter = mContext.getGlobalConfigs().getEngineMonitorAdapter();
+			if (monitorAdapter != null) {
+				monitorAdapter.reportDoCallNatives(moduleName, moduleFunc);
+			}
+		}
+
 		PromiseImpl promise = new PromiseImpl(mContext, moduleName, moduleFunc, callId);
 		try
 		{

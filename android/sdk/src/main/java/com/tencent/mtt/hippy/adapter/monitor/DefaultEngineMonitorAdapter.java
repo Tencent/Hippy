@@ -57,4 +57,9 @@ public class DefaultEngineMonitorAdapter implements HippyEngineMonitorAdapter
 	{
 
 	}
+
+	@Override
+	public void reportDoCallNatives(String moduleName, String moduleFunc) {
+
+	}
 }

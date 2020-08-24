@@ -267,6 +267,17 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 		}
 	}
 
+	@HippyControllerProps(name = "dt_report_policy", defaultType = HippyControllerProps.STRING, defaultString = "")
+	public void setReportPolicy(T view, String policy)
+	{
+		if (mEngineContext != null) {
+			IHippyDtCollectAdapter collectAdapter = mEngineContext.getGlobalConfigs().getDtCollectAdapter();
+			if (collectAdapter != null) {
+				collectAdapter.setReportPolicy(view, policy);
+			}
+		}
+	}
+
 	@HippyControllerProps(name = "dt_params", defaultType = HippyControllerProps.STRING, defaultString = "")
 	public void setElementParams(T view, String params)
 	{

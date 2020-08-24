@@ -25,6 +25,8 @@ public interface IHippyDtCollectAdapter
 
     void setElementParams(Object object, String params);
 
+    void setReportPolicy(Object object, String policy);
+
     void reportClickEvent(Object object);
 
     //page主动曝光
