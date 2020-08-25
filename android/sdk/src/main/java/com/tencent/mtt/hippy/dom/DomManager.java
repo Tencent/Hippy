@@ -360,7 +360,7 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 			if (realIndex > parentNode.getChildCount())
 			{
 				realIndex = parentNode.getChildCount();
-				Log.e("DomManager", "createNode  addChild  error index > parent.size");
+				LogUtils.e("DomManager", "createNode  addChild  error index > parent.size");
 				//				mContext.getGlobalConfigs().getLogAdapter().log(TAG,"createNode  addChild  error index > parent.size");
 			}
 			parentNode.addChildAt(node, realIndex);
@@ -406,7 +406,7 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 		}
 		else
 		{
-			Log.e("DomManager", "Create Node DomManager Parent IS Null");
+			LogUtils.e("DomManager", "Create Node DomManager Parent IS Null");
 		}
 
 	}
@@ -551,7 +551,7 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 		}
 		else
 		{
-			Log.e(TAG, "update error node is null id " + id);
+			LogUtils.e(TAG, "update error node is null id " + id);
 
 			mContext.getGlobalConfigs().getLogAdapter().log(TAG, "update error node is null id " + id);
 		}
