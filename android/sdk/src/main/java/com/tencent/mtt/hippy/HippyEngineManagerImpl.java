@@ -97,7 +97,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 	boolean             						mDevManagerInited 			= false;
 	TimeMonitor									mStartTimeMonitor;
 	boolean										mHasReportEngineLoadResult	= false;
-	private int									mGroupId;
 	private HippyThirdPartyAdapter	mThirdPartyAdapter;
 
 	Handler										mHandler					= new Handler(Looper.getMainLooper())
@@ -710,7 +709,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 	public abstract int getBridgeType();
 
 	@Override
-	public void handleThreadUncaughtException(Thread t, Throwable e)
+	public void handleThreadUncaughtException(Thread t, Throwable e, Integer groupId)
 	{
 		if (mDebugMode && mDevSupportManager != null)
 		{
