@@ -60,7 +60,7 @@ public final class HippyNormalEngineManager extends HippyEngineManagerImpl
 			{
 				if (mThreadExecutor == null)
 				{
-					mThreadExecutor = new ThreadExecutor();
+					mThreadExecutor = new ThreadExecutor(-1);
 					mThreadExecutor.setUncaughtExceptionHandler(this);
 				}
 			}
@@ -75,9 +75,9 @@ public final class HippyNormalEngineManager extends HippyEngineManagerImpl
 	}
 
 	@Override
-	public void handleThreadUncaughtException(Thread t, Throwable e)
+	public void handleThreadUncaughtException(Thread t, Throwable e, Integer groupId)
 	{
-		super.handleThreadUncaughtException(t, e);
+		super.handleThreadUncaughtException(t, e, groupId);
 		if (mDebugMode && mDevSupportManager != null)
 		{
 			synchronized (mLock)
