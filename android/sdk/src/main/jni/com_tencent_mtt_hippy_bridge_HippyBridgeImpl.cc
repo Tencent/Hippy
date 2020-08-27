@@ -816,3 +816,67 @@ bool runScript(const char* script,
   //HIPPY_LOG(hippy::Debug, "runScript end");
   return flag;
 }
+
+JNIEXPORT void JNICALL
+Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runOnJSThread(JNIEnv *env, jobject thiz,
+                                                                jlong runtimeId,
+                                                                jobject runnable) {
+  auto runtime = reinterpret_cast<V8Runtime *>(runtimeId);
+  if (!runtime) {
+    HIPPY_LOG(hippy::Error, "runtime is null");
+    return;
+  }
+
+  auto runnableObj = std::make_shared<JavaRef>(env, runnable);
+  auto task = std::make_shared<JavaScriptTask>();
+  auto funcName = "runOnJSThread";
+  task->callback = [runnableObj = std::move(runnableObj), funcName]() {
+      jclass javaClass = nullptr;
+      auto env = JNIEnvironment::AttachCurrentThread();
+      do {
+        javaClass = env->GetObjectClass(runnableObj->obj());
+        if (!javaClass) {
+          HIPPY_LOG(hippy::Error, "%s, cannot find class for object", funcName);
+          break;
+        }
+        jmethodID methodId = env->GetMethodID(javaClass, "run", "()V");
+        if (!methodId) {
+          HIPPY_LOG(hippy::Error, "%s, cannot find method id", funcName);
+          break;
+        }
+        env->CallVoidMethod(runnableObj->obj(), methodId);
+        JNIEnvironment::clearJEnvException(env);
+      } while (false);
+      if (javaClass)
+        env->DeleteLocalRef(javaClass);
+  };
+
+  auto engine = runtime->pEngine.lock();
+  if (engine) {
+    engine->jsRunner()->postTask(task);
+  }
+}
+
+JNIEXPORT jlongArray JNICALL
+Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_getV8Runtime(JNIEnv *env, jobject thiz,
+                                                               jlong runtimeId) {
+  auto runtime = reinterpret_cast<V8Runtime*>(runtimeId);
+  if (!runtime)
+    return nullptr;
+
+  auto environment = runtime->env.lock();
+  if (!environment)
+    return nullptr;
+  auto napi = environment->getContext();
+  if (!napi)
+    return nullptr;
+
+  jlong v8Runtime[] = {
+    reinterpret_cast<jlong>(napi->isolate_),
+    reinterpret_cast<jlong>(&napi->context_persistent),
+  };
+
+  auto ret = env->NewLongArray(2);
+  env->SetLongArrayRegion(ret, 0, 2, v8Runtime);
+  return ret;
+}

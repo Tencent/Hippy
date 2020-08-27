@@ -208,6 +208,16 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
     }
 
 	@Override
+	public void runOnJSThread(Runnable runnable) {
+		runOnJSThread(mV8RuntimeId, runnable);
+	}
+
+	@Override
+	public long[] getV8Runtime() {
+		return getV8Runtime(mV8RuntimeId);
+	}
+
+	@Override
 	public void destroy(NativeCallback callback)
 	{
 		if (mDebugWebSocketClient != null)
@@ -266,6 +276,10 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 	public native void runNativeRunnable(String codeCacheFile, long nativeRunnableId, long V8RuntimId, NativeCallback callback);
 
 	public native String getCrashMessage();
+
+	private native void runOnJSThread(long runtimeId, Runnable runnable);
+
+	private native long[] getV8Runtime(long runtimeId);
 
 	public void callNatives(String moduleName, String moduleFunc, String callId, byte[] params)
 	{
