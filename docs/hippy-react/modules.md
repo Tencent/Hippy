@@ -203,7 +203,7 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 ### BackAndroid.exitApp
 
-`() => void`直接执行终端的推出 App 逻辑。
+`() => void`直接执行终端的退出 App 逻辑。
 
 ### BackAndroid.removeListener
 
