@@ -43,4 +43,6 @@ public interface HippyEngineMonitorAdapter
 	void reportBridgeANR(String message);
 
 	void reportDoCallNatives(String moduleName, String moduleFunc);
+
+	void reportGestureEventCallStack(String funcName, String msg);
 }

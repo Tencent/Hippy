@@ -14,6 +14,7 @@
  */
 package com.tencent.mtt.hippy.bridge;
 
+import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import java.util.ArrayList;
 
 import com.tencent.mtt.hippy.HippyEngine;
@@ -57,6 +58,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 	static final int		FUNCTION_ACTION_DESTROY_INSTANCE	= 4;
 	static final int		FUNCTION_ACTION_CALLBACK			= 5;
 	static final int		FUNCTION_ACTION_CALL_JSMODULE		= 6;
+	static final int		FUNCTION_ACTION_CALL_JSMODULE_REPORT = 99;
 	public static final int	BRIDGE_TYPE_SINGLE_THREAD			= 2;
 	public static final int	BRIDGE_TYPE_NORMAL					= 1;
 	public static final int	BRIDGE_TYPE_REMOTE_DEBUG			= 0;
@@ -234,6 +236,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 							action = "callBack";
 							break;
 						case FUNCTION_ACTION_CALL_JSMODULE:
+						case FUNCTION_ACTION_CALL_JSMODULE_REPORT:
 							action = "callJsModule";
 							break;
 					}
@@ -290,6 +293,9 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 						}
 						else
 						{
+							if (msg.arg2 == FUNCTION_ACTION_CALL_JSMODULE_REPORT) {
+								NativeGestureDispatcher.reportGestureEventCallStack(mContext, "mHippyBridge.callFunction", json);
+							}
 							mHippyBridge.callFunction(action, json, null);
 						}
 					}
@@ -461,7 +467,20 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 		map.pushString("methodName", methodName);
 		map.pushObject("params", param);
 
-		Message message = mHandler.obtainMessage(MSG_CODE_CALL_FUNCTION, 0, FUNCTION_ACTION_CALL_JSMODULE, map);
+		int msgType = FUNCTION_ACTION_CALL_JSMODULE;
+		if (moduleName.equals("EventDispatcher") && methodName.equals("receiveNativeGesture")) {
+			String name = "";
+			int id = -1;
+			if (param != null && param instanceof HippyMap) {
+				HippyMap paramMap = (HippyMap)param;
+				name = paramMap.getString("name");
+				id = paramMap.getInt("id");
+			}
+			msgType = FUNCTION_ACTION_CALL_JSMODULE_REPORT;
+			NativeGestureDispatcher.reportGestureEventCallStack(mContext, "callJavaScriptModule", "name=" + name + ", id=" + id);
+		}
+
+		Message message = mHandler.obtainMessage(MSG_CODE_CALL_FUNCTION, 0, msgType, map);
 		mHandler.sendMessage(message);
 	}
 

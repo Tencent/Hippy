@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy.adapter.monitor;
 
+import android.util.Log;
 import com.tencent.mtt.hippy.HippyRootView;
 
 import java.util.List;
@@ -60,6 +61,11 @@ public class DefaultEngineMonitorAdapter implements HippyEngineMonitorAdapter
 
 	@Override
 	public void reportDoCallNatives(String moduleName, String moduleFunc) {
+
+	}
+
+	@Override
+	public void reportGestureEventCallStack(String funcName, String msg) {
 
 	}
 }
