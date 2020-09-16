@@ -20,21 +20,12 @@
 * limitations under the License.
 */
 
+#import <Foundation/Foundation.h>
+#import "HippyImageProviderProtocol.h"
 
-#import "HippyBridgeModule.h"
-@class HippyImageView;
+@interface HippyDefaultImageProvider : NSObject<HippyImageProviderProtocol>
 
-@protocol HippyImageViewCustomLoader<HippyBridgeModule>
-
-@required
-
-- (void)imageView:(HippyImageView *)imageView
-		loadAtUrl:(NSURL *)url
- placeholderImage:(UIImage *)placeholderImage
-		  context:(void *)context
-		 progress:(void (^)(long long, long long))progressBlock
-		completed:(void (^)(NSData *, NSURL *, NSError *))completedBlock;
-
-- (void)cancelImageDownload:(UIImageView *)imageView withUrl:(NSURL *)url;
+@property(nonatomic, assign) BOOL needsDownSampling;
+@property(nonatomic, assign) CGSize imageViewSize;
 
 @end

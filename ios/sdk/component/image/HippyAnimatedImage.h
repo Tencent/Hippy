@@ -22,8 +22,7 @@
 
 
 #import <UIKit/UIKit.h>
-
-// Allow user classes conveniently just importing one header.
+#import "HippyImageProviderProtocol.h"
 #import "HippyAnimatedImageView.h"
 
 
@@ -64,8 +63,11 @@ extern const NSTimeInterval kHippyAnimatedImageDelayTimeIntervalMinimum;
 + (CGSize)sizeForImage:(id)image;
 
 - (UIImage *)imageAtIndex:(NSUInteger)index;
-//check if data is kind of animated image
-+ (BOOL)isAnimatedImageData:(NSData *)data;
+
+- (instancetype)initWithAnimatedImageProvider:(id<HippyImageProviderProtocol>)imageProvider;
+- (instancetype)initWithAnimatedImageProvider:(id<HippyImageProviderProtocol>)imageProvider optimalFrameCacheSize:(NSUInteger)optimalFrameCacheSize predrawingEnabled:(BOOL)isPredrawingEnabled;
++ (instancetype)animatedImageWithAnimatedImageProvider:(id<HippyImageProviderProtocol>)imageProvider;
+
 // On success, the initializers return an `HippyAnimatedImage` with all fields initialized, on failure they return `nil` and an error will be logged.
 - (instancetype)initWithAnimatedGIFData:(NSData *)data;
 // Pass 0 for optimalFrameCacheSize to get the default, predrawing is enabled by default.
@@ -73,6 +75,7 @@ extern const NSTimeInterval kHippyAnimatedImageDelayTimeIntervalMinimum;
 + (instancetype)animatedImageWithGIFData:(NSData *)data;
 
 @property (nonatomic, strong, readonly) NSData *data; // The data the receiver was initialized with; read-only
+@property (nonatomic, strong, readonly) id<HippyImageProviderProtocol> imageProvider;
 
 @end
 

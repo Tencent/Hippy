@@ -20,9 +20,11 @@
 * limitations under the License.
 */
 
+#import <UIKit/UIKit.h>
 #import "HippyImageLoaderModule.h"
 #import "HippyImageCacheManager.h"
-#import <UIKit/UIKit.h>
+#import "HippyImageProviderProtocol.h"
+
 @implementation HippyImageLoaderModule
 
 HIPPY_EXPORT_MODULE(ImageLoaderModule)
@@ -50,7 +52,9 @@ HIPPY_EXPORT_METHOD(getSize:(NSString *)urlString resolver:(HippyPromiseResolveB
             reject(@"2", @"url request error", error);
 		} else {
             [[HippyImageCacheManager sharedInstance] setImageCacheData:data forURLString:urlString];
-			UIImage *image = [UIImage imageWithData:data];
+            Class<HippyImageProviderProtocol> ipClass = imageProviderClass(data);
+            id<HippyImageProviderProtocol> instance = [ipClass imageProviderInstanceForData:data];
+            UIImage *image = [instance image];
 			if (image) {
 				NSDictionary *dic = @{@"width": @(image.size.width), @"height": @(image.size.height)};
 				resolve(dic);

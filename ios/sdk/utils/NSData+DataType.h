@@ -20,21 +20,13 @@
 * limitations under the License.
 */
 
+#import <Foundation/Foundation.h>
 
-#import "HippyBridgeModule.h"
-@class HippyImageView;
+@interface NSData (DataType)
 
-@protocol HippyImageViewCustomLoader<HippyBridgeModule>
+- (BOOL)hippy_isGif;
+- (BOOL)hippy_isAPNG;
 
-@required
-
-- (void)imageView:(HippyImageView *)imageView
-		loadAtUrl:(NSURL *)url
- placeholderImage:(UIImage *)placeholderImage
-		  context:(void *)context
-		 progress:(void (^)(long long, long long))progressBlock
-		completed:(void (^)(NSData *, NSURL *, NSError *))completedBlock;
-
-- (void)cancelImageDownload:(UIImageView *)imageView withUrl:(NSURL *)url;
+- (BOOL)hippy_isAnimatedImage;
 
 @end
