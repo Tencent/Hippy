@@ -6,6 +6,7 @@ import demoP from './demo-p.vue';
 import demoTextarea from './demo-textarea.vue';
 import demoList from './demo-list.vue';
 import demoIFrame from './demo-iframe.vue';
+import demoWebSocket from './demo-websocket.vue';
 
 const demos = {
   demoDiv: {
@@ -39,6 +40,10 @@ const demos = {
   demoIFrame: {
     name: 'iframe 组件',
     component: demoIFrame,
+  },
+  demoWebSocket: {
+    name: 'WebSocket',
+    component: demoWebSocket,
   },
 };
 

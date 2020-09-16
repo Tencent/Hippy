@@ -167,10 +167,27 @@ public void forceUpdateNode(int);
 -keep class * extends com.tencent.mtt.hippy.dom.node.DomNode {*;}
 
 -keep class com.tencent.mtt.hippy.views.** {*;}
+-keep class com.tencent.mtt.tkd.views.** {*;}
 -keep interface com.tencent.mtt.hippy.bridge.HippyBridge {*;}
 
 -keep class com.tencent.mtt.supportui.views.** {*;}
 -keep class com.tencent.mtt.hippy.utils.** {*;}
 -keep class com.tencent.mtt.hippy.dom.node.TypeFaceUtil {*;}
+-keep class com.tencent.mtt.hippy.adapter.image.HippyImageLoader {*;}
 
+-keepclasseswithmembers class com.tencent.mtt.supportui.** {
+public <methods>;
+}
+
+-keepclasseswithmembers class com.tencent.mtt.supportui.** {
+protected <methods>;
+}
+
+-keepclasseswithmembers class com.tencent.mtt.supportui.** {
+public <fields>;
+}
+
+-keepclasseswithmembers class com.tencent.mtt.supportui.** {
+protected <fields>;
+}
 

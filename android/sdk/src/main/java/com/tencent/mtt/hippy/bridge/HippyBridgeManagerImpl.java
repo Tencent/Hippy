@@ -30,9 +30,9 @@ import com.tencent.mtt.hippy.modules.HippyModuleManager;
 import com.tencent.mtt.hippy.utils.ArgumentUtils;
 import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.GrowByteBuffer;
-import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
 import com.tencent.mtt.hippy.utils.LogUtils;
+import com.tencent.mtt.hippy.utils.UIThreadUtils;
 
 import android.os.Build;
 import android.os.Handler;
@@ -332,35 +332,51 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 		Message message = mHandler.obtainMessage(MSG_CODE_RUN_BUNDLE, 0, id, loader);
 		mHandler.sendMessage(message);
 	}
-	private void notifyModuleLoaded(final int statusCode, final String msg,final HippyRootView hippyRootView)
-	{
-		if (mLoadModuleListener != null)
-		{
-			if (UIThreadUtils.isOnUiThread())
-			{
-				if(mLoadModuleListener != null)
-				{
-					mLoadModuleListener.onInitialized(statusCode, msg,hippyRootView);
-					mLoadModuleListener = null;
-				}
-			}
-			else
-			{
-				UIThreadUtils.runOnUiThread(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						if(mLoadModuleListener != null) {
-							mLoadModuleListener.onInitialized(statusCode, msg, hippyRootView);
-							mLoadModuleListener = null;
-						}
-					}
-				});
-			}
-		}
-	}
 
+  public void notifyModuleJsException(final HippyJsException exception)
+  {
+    if (UIThreadUtils.isOnUiThread()) {
+      if(mLoadModuleListener != null && mLoadModuleListener.onJsException(exception)) {
+        mLoadModuleListener = null;
+      }
+    }
+    else
+    {
+      UIThreadUtils.runOnUiThread(new Runnable()
+      {
+        @Override
+        public void run()
+        {
+          if(mLoadModuleListener != null && mLoadModuleListener.onJsException(exception)) {
+            mLoadModuleListener = null;
+          }
+        }
+      });
+    }
+  }
+
+  private void notifyModuleLoaded(final int statusCode, final String msg,final HippyRootView hippyRootView)
+  {
+    if (UIThreadUtils.isOnUiThread()) {
+      if(mLoadModuleListener != null) {
+        mLoadModuleListener.onInitialized(statusCode, msg,hippyRootView);
+        //mLoadModuleListener = null;
+      }
+    }
+    else
+    {
+      UIThreadUtils.runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+          if(mLoadModuleListener != null) {
+            mLoadModuleListener.onInitialized(statusCode, msg, hippyRootView);
+            //mLoadModuleListener = null;
+          }
+        }
+      });
+    }
+  }
+  
 	@Override
 	public void loadInstance(String name, int id, HippyMap params)
 	{
@@ -426,6 +442,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 	public void destroy()
 	{
 		mIsInit = false;
+		mLoadModuleListener = null;
 		if (mHandler != null)
 		{
 			mHandler.removeMessages(MSG_CODE_INIT_BRIDGE);
@@ -482,16 +499,31 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 		HippyMap dimensionMap = DimensionsUtil.getDimensions(-1, -1, mContext.getGlobalConfigs().getContext(), false);
 
 		// windowHeight是无效值，则允许客户端定制
+		String pkgName = "";
+		String url = "";
+		String appVersion = "";
 		if (mContext.getGlobalConfigs() != null && mContext.getGlobalConfigs().getDeviceAdapter() != null)
 		{
 			mContext.getGlobalConfigs().getDeviceAdapter().reviseDimensionIfNeed(mContext.getGlobalConfigs().getContext(), dimensionMap, false,
 					false);
 		}
 		globalParams.pushMap("Dimensions", dimensionMap);
+
+		if (mThirdPartyAdapter != null) {
+			pkgName = mThirdPartyAdapter.getPackageName();
+			url = mThirdPartyAdapter.getPageUrl();
+			appVersion = mThirdPartyAdapter.getAppVersion();
+		}
+
 		HippyMap platformParams = new HippyMap();
 		platformParams.pushString("OS", "android");
+		platformParams.pushString("PackageName", pkgName);
 		platformParams.pushInt("APILevel", Build.VERSION.SDK_INT);
 		globalParams.pushMap("Platform", platformParams);
+		HippyMap tkd = new HippyMap();
+		tkd.pushString("url", (url == null) ? "" : url);
+		tkd.pushString("appVersion", appVersion);
+		globalParams.pushMap("tkd", tkd);
 		return ArgumentUtils.objectToJson(globalParams);
 	}
 }

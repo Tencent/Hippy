@@ -3,7 +3,6 @@ import Style from '@localTypes/style';
 import { LayoutEvent } from '@localTypes/event';
 import { callUIFunction } from '../modules/ui-manager-module';
 import { warn } from '../utils';
-import { Device } from '../native';
 
 type DataItem = any;
 
@@ -69,7 +68,7 @@ interface ListViewProps {
    * @param {number} index - Index Of data.
    * @returns {string}
    */
-  getRowType?(index: number): string;
+  getRowType?(index: number): number;
 
   /**
    * Returns the style for specific index of row.
@@ -146,9 +145,8 @@ interface ListViewProps {
 }
 
 interface ListItemViewProps {
-  type?: string;
   key?: string;
-  itemViewType?: string;
+  type?: number;
   sticky?: boolean;
   style?: Style;
   onLayout?: (evt: any) => void;
@@ -170,6 +168,13 @@ function ListViewItem(props: ListItemViewProps) {
  */
 class ListView extends React.Component<ListViewProps, ListViewState> {
   private instance: HTMLUListElement | null = null;
+
+  /**
+  * @ignore
+  */
+  static defaultProps = {
+    numberOfRows: 0,
+  };
 
   /**
    * @ignore
@@ -283,15 +288,11 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
       }
 
       if (typeof getRowType === 'function') {
-        let type = getRowType(index);
-        if (type) {
-          if (typeof type !== 'string') {
-            type = (type as any).toString();
-          }
+        const type = getRowType(index);
+        if (!Number.isInteger(type)) {
+          warn('getRowType must returns a number');
+        } else {
           itemProps.type = type;
-          if (Device.platform.OS === 'android') {
-            itemProps.itemViewType = type;
-          }
         }
       }
 
@@ -327,12 +328,5 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
     );
   }
 }
-
-/**
-* @ignore
-*/
-ListView.defaultProps = {
-  numberOfRows: 0,
-};
 
 export default ListView;

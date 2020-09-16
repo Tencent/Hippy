@@ -82,12 +82,12 @@ HIPPY_REMAP_VIEW_PROPERTY(opacity, alpha, CGFloat)
 
 HIPPY_REMAP_VIEW_PROPERTY(backgroundImage, backgroundImageUrl, NSString)
 
-HIPPY_REMAP_VIEW_PROPERTY(shadowOffset, layer.shadowOffset, CGSize)
 HIPPY_REMAP_VIEW_PROPERTY(shadowOpacity, layer.shadowOpacity, float)
 HIPPY_REMAP_VIEW_PROPERTY(shadowRadius, layer.shadowRadius, CGFloat)
 
 HIPPY_EXPORT_VIEW_PROPERTY(backgroundPositionX, CGFloat)
 HIPPY_EXPORT_VIEW_PROPERTY(backgroundPositionY, CGFloat)
+HIPPY_EXPORT_VIEW_PROPERTY(onInterceptTouchEvent, BOOL)
 
 HIPPY_CUSTOM_VIEW_PROPERTY(shadowColor, UIColor, HippyView) {
     if (json) {
@@ -95,6 +95,37 @@ HIPPY_CUSTOM_VIEW_PROPERTY(shadowColor, UIColor, HippyView) {
     }
     else {
         view.layer.shadowColor = [UIColor blackColor].CGColor;
+    }
+}
+
+HIPPY_CUSTOM_VIEW_PROPERTY(shadowOffsetX, CGFloat, HippyView) {
+    if (json) {
+        CGSize shadowOffset = view.layer.shadowOffset;
+        shadowOffset.width = [HippyConvert CGFloat:json];
+        view.layer.shadowOffset = shadowOffset;
+    }
+}
+
+HIPPY_CUSTOM_VIEW_PROPERTY(shadowOffsetY, CGFloat, HippyView) {
+    if (json) {
+        CGSize shadowOffset = view.layer.shadowOffset;
+        shadowOffset.height = [HippyConvert CGFloat:json];
+        view.layer.shadowOffset = shadowOffset;
+    }
+}
+
+HIPPY_CUSTOM_VIEW_PROPERTY(shadowOffset, NSDictionary, HippyView) {
+    if (json) {
+        NSDictionary *offset = [HippyConvert NSDictionary:json];
+        NSNumber *width = offset[@"width"];
+        if (nil == width) {
+            width = offset[@"x"];
+        }
+        NSNumber *height = offset[@"height"];
+        if (nil == height) {
+            height = offset[@"y"];
+        }
+        view.layer.shadowOffset = CGSizeMake([width floatValue], [height floatValue]);
     }
 }
 
@@ -138,6 +169,7 @@ HIPPY_CUSTOM_VIEW_PROPERTY(pointerEvents, HippyPointerEvents, HippyView)
       // Unspecified values do not.
       // This wouldn't override a container view's `userInteractionEnabled = NO`
       view.userInteractionEnabled = YES;
+      break;
     case HippyPointerEventsNone:
       view.userInteractionEnabled = NO;
       break;

@@ -27,7 +27,7 @@ import com.tencent.mtt.hippy.views.list.IRecycleItemTypeChange;
 
 public class ListItemRenderNode extends RenderNode
 {
-	public static final String		ITEM_VIEW_TYPE	= "itemViewType";
+	public static final String		ITEM_VIEW_TYPE	= "type";
 	public static final String		ITEM_STICKY		= "sticky";
 
 	private boolean					mShouldSticky;

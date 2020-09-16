@@ -140,9 +140,6 @@ public final class HippyInstanceContext extends ContextWrapper
 		// 所以本类里的所有变量都得置空，避免这些变量及这些变量内部的其他变量也无法释放。
 		// new 一个新的Context，而不用Activity自带的Context，不是个好主意，存在大隐患。应该重构去除。
 		mDestroyListeners = null;
-//		mEngineContext = null;
-//		mModuleParams = null;
-//		mBundleLoader = null;
 	}
 
 	HippyEngine mHippyEngineManager;

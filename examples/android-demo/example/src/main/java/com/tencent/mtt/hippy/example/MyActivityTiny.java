@@ -63,17 +63,7 @@ public class MyActivityTiny extends Activity
 
 			// 可选：debugMode = false 时必须设置（debugMode = true时，所有jsbundle都是从debug server上下载）
 			initParams.coreJSAssetsPath = "vendor.android.js";
-
-			String test = "externalData";
-			initParams.thirdPartyAdapter = new HippyThirdPartyAdapter(test) {
-				@Override
-				public void SetHippyBridgeId(long runtimeId) {
-					if (mExternalData != null) {
-
-					}
-				}
-			};
-
+			
 			// 根据EngineInitParams创建引擎实例
 			mHippyEngine = HippyEngine.create(initParams);
 			// 异步初始化Hippy引擎

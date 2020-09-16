@@ -20,7 +20,9 @@ import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.dom.node.ImageNode;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
+import com.tencent.mtt.hippy.dom.node.StyleNode;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 
 import android.content.Context;
@@ -38,12 +40,35 @@ public class HippyImageViewController extends HippyViewController<HippyImageView
 {
 
 	public static final String	CLASS_NAME	= "Image";
+  
+  @Override
+  protected StyleNode createNode(boolean virtual)
+  {
+    return new ImageNode(virtual);
+  }
+	
+	@Override
+	protected View createViewImpl(Context context, HippyMap iniProps)
+	{
+		HippyImageView imageView = new HippyImageView(context);
+		if (iniProps != null) {
+			imageView.setIniProps(iniProps);
+		}
+
+		return imageView;
+	}
 
 	@Override
 	protected View createViewImpl(Context context)
 	{
 		return new HippyImageView(context);
 	}
+
+  @HippyControllerProps(name = NodeProps.CUSTOM_PROP_IMAGE_TYPE, defaultType = HippyControllerProps.STRING, defaultString = "")
+  public void setImageType(HippyImageView hippyImageView, String type)
+  {
+    hippyImageView.setImageType(type);
+  }
 
 	@HippyControllerProps(name = "src", defaultType = HippyControllerProps.STRING, defaultString = "")
 	public void setUrl(HippyImageView hippyImageView, String url)

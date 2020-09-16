@@ -31,4 +31,16 @@
 	self.frame = self.bounds;
 }
 
+- (void)viewAppearEvent {
+    if (self.onAppear) {
+        self.onAppear(@{});
+    }
+}
+
+- (void)viewDisappearEvent {
+    if (self.onDisappear) {
+        self.onDisappear(@{});
+    }
+}
+
 @end

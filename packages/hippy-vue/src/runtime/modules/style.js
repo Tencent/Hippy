@@ -39,11 +39,13 @@ function updateStyle(oldVNode, vNode) {
     style = extend({}, style);
     vNode.data.style = style;
   }
+  // Remove the removed styles at first
   Object.keys(oldStyle).forEach((name) => {
     if (style[name] === undefined) {
-      elm.setStyle(normalize(name), '');
+      elm.setStyle(normalize(name), undefined);
     }
   });
+  // Then set the new styles.
   Object.keys(style).forEach((name) => {
     cur = style[name];
     elm.setStyle(normalize(name), cur);

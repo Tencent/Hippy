@@ -6,6 +6,8 @@ import android.util.SparseIntArray;
 import android.view.View;
 
 import static com.tencent.mtt.supportui.views.recyclerview.RecyclerViewBase.Adapter.LOCATION_BOTTOM;
+import static com.tencent.mtt.supportui.views.recyclerview.RecyclerViewBase.Adapter.LOCATION_LEFT;
+import static com.tencent.mtt.supportui.views.recyclerview.RecyclerViewBase.Adapter.LOCATION_RIGHT;
 import static com.tencent.mtt.supportui.views.recyclerview.RecyclerViewBase.Adapter.LOCATION_TOP;
 import static com.tencent.mtt.supportui.views.recyclerview.RecyclerViewBase.LAYOUT_TYPE_LIST;
 
@@ -267,9 +269,15 @@ public class LinearLayoutManager extends BaseLayoutManager
 			for (int i = 0; i < itemCount; i++)
 			{
 				offsetMap.append(i, currOffset);
-				currOffset += ((RecyclerAdapter)mRecyclerView.getAdapter()).getItemHeight(i);
-				currOffset += mRecyclerView.getAdapter().getItemMaigin(LOCATION_TOP, i);
-				currOffset += mRecyclerView.getAdapter().getItemMaigin(LOCATION_BOTTOM, i);
+				if (mRecyclerView.mLayout.canScrollHorizontally()) {
+          currOffset += ((RecyclerAdapter)mRecyclerView.getAdapter()).getItemWidth(i);
+          currOffset += mRecyclerView.getAdapter().getItemMaigin(LOCATION_LEFT, i);
+          currOffset += mRecyclerView.getAdapter().getItemMaigin(LOCATION_RIGHT, i);
+        } else {
+          currOffset += ((RecyclerAdapter)mRecyclerView.getAdapter()).getItemHeight(i);
+          currOffset += mRecyclerView.getAdapter().getItemMaigin(LOCATION_TOP, i);
+          currOffset += mRecyclerView.getAdapter().getItemMaigin(LOCATION_BOTTOM, i);
+        }
 			}
 		}
 	}

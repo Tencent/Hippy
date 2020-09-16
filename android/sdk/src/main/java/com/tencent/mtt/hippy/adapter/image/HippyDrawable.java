@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageDecoder;
 import android.graphics.Movie;
+import android.graphics.drawable.Drawable;
 import android.util.Base64;
 
 
@@ -23,11 +24,18 @@ public class HippyDrawable implements IDrawableTarget
 	// 原始数据的来源：base64 / assets / file
 	protected String mSource;
 
+  protected Drawable mDrawable;
+
 	// GIF动画
 	private Movie mGifMovie;
 
 	// 静态图片
 	private Bitmap mBitmap;
+
+  public void setDrawable(Drawable drawable)
+  {
+    mDrawable = drawable;
+  }
 
 	/**
 	 * 设置原始数据。预期这个原始数据是GIF，或Bitmap的原始数据
@@ -60,7 +68,9 @@ public class HippyDrawable implements IDrawableTarget
 		FileInputStream is = null;
 		try {
 			is = new FileInputStream(path);
-			setData(is);
+			byte[] rawData = new byte[is.available()];
+			is.read(rawData);
+			setData(rawData);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -75,26 +85,32 @@ public class HippyDrawable implements IDrawableTarget
 		}
 	}
 
-	/**
-	 * 设置原始数据。raw data in input stream
-	 * @param is stream
-	 */
-	public void setData(InputStream is)
+	public void setData(File path, boolean isGif)
 	{
-		mGifMovie = Movie.decodeStream(is);
-		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N)
-		{
-			try {
-				is.reset();
-			} catch (IOException e) {
-				e.printStackTrace();
+		FileInputStream is = null;
+		try {
+			is = new FileInputStream(path);
+			if (isGif) {
+				mGifMovie = Movie.decodeStream(is);
+				mBitmap = null;
+			} else {
+				mBitmap = BitmapFactory.decodeStream(is);
+				mGifMovie = null;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			if (is != null) {
+				try {
+					is.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		}
-		if (mGifMovie == null)
-			mBitmap = BitmapFactory.decodeStream(is);
-		else
-			mBitmap = null;
 	}
+
 	public void setDataForTarge28Assets(String assetsFile)
 	{
 		ImageDecoder.Source source = null;
@@ -161,8 +177,10 @@ public class HippyDrawable implements IDrawableTarget
 				}
 				else
 				{
-				is = ContextHolder.getAppContext().getAssets().open(mSource.substring("assets://".length()));
-				setData(is);
+					is = ContextHolder.getAppContext().getAssets().open(mSource.substring("assets://".length()));
+					byte[] rawData = new byte[is.available()];
+					is.read(rawData);
+					setData(rawData);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -221,6 +239,12 @@ public class HippyDrawable implements IDrawableTarget
 	{
 		return mSource;
 	}
+
+  @Override
+  public Drawable getDrawable()
+  {
+    return mDrawable;
+  }
 
 	@Override
 	public Object getExtraData()

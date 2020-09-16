@@ -276,7 +276,7 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
@@ -305,7 +305,6 @@ android {
 
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
-    compileOnly project(path:':support_ui')
 }
 
 afterEvaluate {
@@ -322,33 +321,30 @@ afterEvaluate {
 
 def dealAfterBuild(variant) {
     if (variant.buildType.name == 'release') {
-        String BUILD_TYPE = "${variant.buildType.name}"
-        String FLAVOR = "${variant.flavorName}"
-        File aarFile
+      String BUILD_TYPE = "${variant.buildType.name}"
+      String FLAVOR = "${variant.flavorName}"
+      File aarFile
 
-        variant.outputs.each { output ->
-            File file = output.outputFile
-            if (file.name.endsWith(".aar")) {
-                aarFile = file
-            }
+      variant.outputs.each { output ->
+        File file = output.outputFile
+        if (file.name.endsWith(".aar")) {
+          aarFile = file
         }
+      }
 
-//        project.tasks['bundleRelease'].finalizedBy task("dealAfterBuild${variant.name.capitalize()}") {
-//            doLast {
-//                unZipAar(aarFile)
-//                buildQBAar(aarFile)
-//                if (ISCI.toBoolean()) {
-//                    copyMappingToBin(FLAVOR, BUILD_TYPE)
-//                }
-//            }
-//        }
+      variant.assemble.finalizedBy task("dealAfterBuild${variant.name.capitalize()}") {
+        doLast {
+          unZipAar(aarFile)
+        }
+      }
     }
 }
 
 def unZipAar(file) {
+  println("=======projectDir=" + projectDir.absolutePath)
     copy {
         from zipTree(file.absolutePath)
-        into ISCI.toBoolean() ? project.rootProject.projectDir.absolutePath + "/bin" : file.parentFile.absolutePath
+        into file.parentFile.absolutePath
         include 'classes.jar'
         rename 'classes.jar', 'hippy.jar'
     }
@@ -520,3 +516,4 @@ publish {
   desc = 'Hippy library for Android'
   website = 'https://github.com/Tencent/Hippy'
 }
+

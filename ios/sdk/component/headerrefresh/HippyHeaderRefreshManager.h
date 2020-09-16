@@ -20,12 +20,8 @@
 * limitations under the License.
 */
 
-#import <Foundation/Foundation.h>
+#import "HippyViewManager.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@interface HippyHeaderRefreshManager : HippyViewManager
 
-@interface NSData(Format)
-- (BOOL)hippy_isGif;
 @end
-
-NS_ASSUME_NONNULL_END

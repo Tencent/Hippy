@@ -21,8 +21,13 @@
 */
 
 #import <UIKit/UIKit.h>
+#import "HippyComponent.h"
 
 @interface HippyBaseListItemView : UIView
-@property (nonatomic, strong) NSString *type;
+
+@property (nonatomic, strong) id type;
 @property (nonatomic, assign) BOOL isSticky;
+@property (nonatomic, copy) HippyDirectEventBlock onAppear;
+@property (nonatomic, copy) HippyDirectEventBlock onDisappear;
+
 @end

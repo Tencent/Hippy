@@ -18,12 +18,15 @@ package com.tencent.mtt.hippy.views.viewpager;
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyArray;
+import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
+import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -41,12 +44,30 @@ public class HippyViewPagerController extends HippyViewController<HippyViewPager
 	private static final String FUNC_SET_PAGE				= "setPage";
 	private static final String FUNC_SET_PAGE_WITHOUT_ANIM	= "setPageWithoutAnimation";
 
+  private static final String FUNC_SET_INDEX				= "setIndex";
+  private static final String FUNC_NEXT_PAGE				= "next";
+  private static final String FUNC_PREV_PAGE				= "prev";
+
 	@Override
 	protected View createViewImpl(Context context)
 	{
 		HippyViewPager viewPager = new HippyViewPager(context);
 		return viewPager;
 	}
+
+  @Override
+  protected View createViewImpl(Context context, HippyMap iniProps)
+  {
+    boolean isVertical = false;
+    if (iniProps != null) {
+      if ((iniProps.containsKey("direction") && iniProps.getString("direction").equals("vertical"))
+      || iniProps.containsKey("vertical")) {
+        isVertical = true;
+      }
+    }
+
+    return new HippyViewPager(context, isVertical);
+  }
 
 	@Override
 	public View getChildAt(HippyViewPager hippyViewPager, int i)
@@ -125,6 +146,8 @@ public class HippyViewPagerController extends HippyViewController<HippyViewPager
 			return;
 		}
 
+    int curr = view.getCurrentItem();
+
 		switch (functionName)
 		{
 			case FUNC_SET_PAGE:
@@ -147,9 +170,64 @@ public class HippyViewPagerController extends HippyViewController<HippyViewPager
 					}
 				}
 				break;
+      case FUNC_SET_INDEX:
+        if (var != null && var.size() > 0) {
+          HippyMap paramsMap = var.getMap(0);
+          if (paramsMap != null && paramsMap.size() > 0 && paramsMap.containsKey("index")) {
+            int index  = paramsMap.getInt("index");
+            boolean animated = paramsMap.containsKey("animated") ?
+              paramsMap.getBoolean("animated") : true;
+            view.switchToPage(index, animated);
+          }
+        }
+        break;
+      case FUNC_NEXT_PAGE:
+        int total = view.getAdapter().getCount();
+        if (curr < total - 1) {
+          view.switchToPage(curr + 1, true);
+        }
+        break;
+      case FUNC_PREV_PAGE:
+        if (curr > 0) {
+          view.switchToPage(curr - 1, true);
+        }
+        break;
 			default:
 				break;
 		}
-
 	}
+
+  @Override
+  public void dispatchFunction(HippyViewPager view, String functionName, HippyArray params, Promise promise)
+  {
+    if (view == null) {
+      return;
+    }
+
+    switch (functionName)
+    {
+      case FUNC_SET_INDEX:
+        if (params != null && params.size() > 0) {
+          HippyMap paramsMap = params.getMap(0);
+          if (paramsMap != null && paramsMap.size() > 0 && paramsMap.containsKey("index")) {
+            int index  = paramsMap.getInt("index");
+            boolean animated = paramsMap.containsKey("animated") ?
+              paramsMap.getBoolean("animated") : true;
+            view.setCallBackPromise(promise);
+            view.switchToPage(index, animated);
+            return;
+          }
+        }
+
+        if (promise != null) {
+          String msg = "invalid parameter!";
+          HippyMap resultMap = new HippyMap();
+          resultMap.pushString("msg", msg);
+          promise.resolve(resultMap);
+        }
+        break;
+      default:
+        break;
+    }
+  }
 }

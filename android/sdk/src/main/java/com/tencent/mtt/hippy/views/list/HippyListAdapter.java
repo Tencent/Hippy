@@ -22,8 +22,12 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.DiffUtils;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
+import com.tencent.mtt.hippy.uimanager.PullFooterRenderNode;
+import com.tencent.mtt.hippy.uimanager.PullHeaderRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.utils.LogUtils;
+import com.tencent.mtt.hippy.views.refresh.HippyPullFooterView;
+import com.tencent.mtt.hippy.views.refresh.HippyPullHeaderView;
 import com.tencent.mtt.supportui.views.recyclerview.*;
 
 import java.util.ArrayList;
@@ -47,6 +51,15 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
 		super(recyclerView);
 		mHippyContext = HippyContext;
 	}
+
+  @Override
+  public String getViewHolderReUseKey(int position) {
+	  if (position < 0 || position > getItemCount()) {
+	    return null;
+    }
+
+    return String.valueOf(position);
+  }
 
 	@Override
 	public RecyclerView.ViewHolderWrapper onCreateSuspendViewHolderWithPos(RecyclerViewBase parent, int position, int viewType)
@@ -81,7 +94,14 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
 		//LogUtils.d("HippyListView", "onCreateContentViewWithPos start position " + position);
 		RenderNode contentViewRenderNode = mHippyContext.getRenderManager().getRenderNode(mParentRecyclerView.getId()).getChildAt(position);
 		contentViewRenderNode.setLazy(false);
-		contentHolder.mContentView = contentViewRenderNode.createViewRecursive();
+		View view = contentViewRenderNode.createViewRecursive();
+    contentHolder.mContentView = view;
+    if (view != null && view instanceof HippyPullHeaderView) {
+      ((HippyPullHeaderView)view).setParentView(mParentRecyclerView);
+    }
+    if (view != null && view instanceof HippyPullFooterView) {
+      ((HippyPullFooterView)view).setParentView(mParentRecyclerView);
+    }
 		contentHolder.mBindNode = contentViewRenderNode;
 		contentHolder.isCreated = true;
 		//LogUtils.d("HippyListView", "onCreateContentViewWithPos end position " + position);
@@ -413,6 +433,62 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
 		}
 	}
 
+  @Override
+  public int getCustomHeaderViewWidth()
+  {
+    RenderNode listNode = mHippyContext.getRenderManager().getRenderNode(mParentRecyclerView.getId());
+    if (listNode != null && listNode.getChildCount() > 0) {
+      RenderNode listItemNode = listNode.getChildAt(0);
+      if (listItemNode != null && listItemNode instanceof PullHeaderRenderNode) {
+        return listItemNode.getWidth();
+      }
+    }
+
+    return 0;
+  }
+
+  @Override
+  public int getCustomFooterViewWidth()
+  {
+    RenderNode listNode = mHippyContext.getRenderManager().getRenderNode(mParentRecyclerView.getId());
+    if (listNode != null && listNode.getChildCount() > 0) {
+      RenderNode listItemNode = listNode.getChildAt(listNode.getChildCount() - 1);
+      if (listItemNode != null && listItemNode instanceof PullFooterRenderNode) {
+        return listItemNode.getWidth();
+      }
+    }
+
+    return 0;
+  }
+
+  @Override
+  public int getCustomHeaderViewHeight()
+  {
+    RenderNode listNode = mHippyContext.getRenderManager().getRenderNode(mParentRecyclerView.getId());
+    if (listNode != null && listNode.getChildCount() > 0) {
+      RenderNode listItemNode = listNode.getChildAt(0);
+      if (listItemNode != null && listItemNode instanceof PullHeaderRenderNode) {
+        return listItemNode.getHeight();
+      }
+    }
+
+    return 0;
+  }
+
+  @Override
+  public int getCustomFooterViewHeight()
+  {
+    RenderNode listNode = mHippyContext.getRenderManager().getRenderNode(mParentRecyclerView.getId());
+    if (listNode != null && listNode.getChildCount() > 0) {
+      RenderNode listItemNode = listNode.getChildAt(listNode.getChildCount() - 1);
+      if (listItemNode != null && listItemNode instanceof PullFooterRenderNode) {
+        return listItemNode.getHeight();
+      }
+    }
+
+    return 0;
+  }
+
 	@Override
 	public int getItemHeight(int index)
 	{
@@ -427,6 +503,55 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
 		}
 		return 0;
 	}
+
+  @Override
+  public int getItemWidth(int index)
+  {
+    RenderNode listNode = mHippyContext.getRenderManager().getRenderNode(mParentRecyclerView.getId());
+    if (listNode != null && listNode.getChildCount() > index && index >= 0)
+    {
+      RenderNode listItemNode = listNode.getChildAt(index);
+      if (listItemNode != null)
+      {
+        return listItemNode.getWidth();
+      }
+    }
+    return 0;
+  }
+
+  @Override
+  public int getTotalHeight()
+  {
+    if (isAutoCalculateItemHeight())
+    {
+      mContentHeight = -1;
+    }
+    if (mContentHeight == -1)
+    {
+      int itemCount = getItemCount();
+      mContentHeight = 0;
+
+      if (mParentRecyclerView.mLayoutType == RecyclerViewBase.LAYOUT_TYPE_LIST)
+      {
+        for (int i = 0; i < itemCount; i++)
+        {
+          if (mParentRecyclerView.mLayout.canScrollHorizontally()) {
+            mContentHeight += getItemWidth(i);
+            mContentHeight += getItemMaigin(LOCATION_LEFT, i);
+            mContentHeight += getItemMaigin(LOCATION_RIGHT, i);
+          } else {
+            mContentHeight += getItemHeight(i);
+            mContentHeight += getItemMaigin(LOCATION_TOP, i);
+            mContentHeight += getItemMaigin(LOCATION_BOTTOM, i);
+          }
+        }
+      }
+    }
+
+    int footerViewSize = mParentRecyclerView.mLayout.canScrollHorizontally() ?
+                            getCustomFooterViewWidth() : getCustomFooterViewHeight();
+    return mContentHeight - footerViewSize;
+  }
 
 	@Override
 	public int getItemCount()
@@ -446,13 +571,23 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
 		if (listViewNode != null && listViewNode.getChildCount() > index)
 		{
 			RenderNode listItemNode = mHippyContext.getRenderManager().getRenderNode(mParentRecyclerView.getId()).getChildAt(index);
-			if (listItemNode != null && listItemNode.getProps() != null)
+			if (listItemNode != null)
 			{
-				HippyMap listItemProps = listItemNode.getProps();
-				if (listItemProps.get(ListItemRenderNode.ITEM_VIEW_TYPE) != null)
-				{
-					return listItemProps.getInt(ListItemRenderNode.ITEM_VIEW_TYPE);
-				}
+			  if (listItemNode instanceof PullFooterRenderNode) {
+			    return RecyclerViewBase.ViewHolder.TYPE_CUSTOM_FOOTER;
+        }
+
+        if (listItemNode instanceof PullHeaderRenderNode) {
+          return RecyclerViewBase.ViewHolder.TYPE_CUSTOM_HEADERE;
+        }
+
+			  if (listItemNode.getProps() != null) {
+          HippyMap listItemProps = listItemNode.getProps();
+          if (listItemProps.get(ListItemRenderNode.ITEM_VIEW_TYPE) != null)
+          {
+            return listItemProps.getInt(ListItemRenderNode.ITEM_VIEW_TYPE);
+          }
+        }
 			}
 		}
 		return super.getItemViewType(index);
@@ -507,7 +642,7 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
 	{
 		if (mOnEndReachedEvent == null)
 		{
-			mOnEndReachedEvent = new OnEndReachedEvent("onEndReached");
+			mOnEndReachedEvent = new OnEndReachedEvent("onLoadMore");
 		}
 		return mOnEndReachedEvent;
 	}

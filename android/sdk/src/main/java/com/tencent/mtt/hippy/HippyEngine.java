@@ -41,6 +41,7 @@ import com.tencent.mtt.hippy.adapter.storage.DefaultStorageAdapter;
 import com.tencent.mtt.hippy.adapter.storage.HippyStorageAdapter;
 import com.tencent.mtt.hippy.bridge.HippyCoreAPI;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
+import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.LogUtils;
@@ -425,8 +426,11 @@ public abstract class HippyEngine
 		 */
 		public void onInitialized(int statusCode, String msg);
 	}
-    public interface ModuleListener
-    {
-        public void onInitialized(int statusCode, String msg,HippyRootView hippyRootView);
-    }
+
+	public interface ModuleListener
+	{
+		public void onInitialized(int statusCode, String msg,HippyRootView hippyRootView);
+
+		boolean onJsException(HippyJsException exception);
+	}
 }

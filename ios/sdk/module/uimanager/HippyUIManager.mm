@@ -1046,10 +1046,15 @@ HIPPY_EXPORT_METHOD(updateView:(nonnull NSNumber *)hippyTag
     } else {
         shadowView.animated = NO;
     }
-    
-    NSDictionary *newProps = [shadowView mergeProps: props];
-    NSDictionary *virtualProps = shadowView.props;
-    [componentData setProps:newProps forShadowView:shadowView];
+        
+    NSDictionary *newProps = props;
+    NSDictionary *virtualProps = props;
+    if (shadowView) {
+        newProps = [shadowView mergeProps: props];
+        virtualProps = shadowView.props;
+        [componentData setProps:newProps forShadowView:shadowView];
+    }
+
     
     [self addVirtulNodeBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,HippyVirtualNode *> *virtualNodeRegistry) {
         HippyVirtualNode *node = virtualNodeRegistry[hippyTag];
@@ -1321,23 +1326,13 @@ HIPPY_EXPORT_METHOD(measureInWindow:(nonnull NSNumber *)hippyTag
             callback(@[]);
             return;
         }
-        
-        UIView *rootView = viewRegistry[view.rootTag];
-        if (!rootView) {
-            HippyLogWarn(@"measure cannot find view's root view with tag #%@", hippyTag);
-            callback(@[]);
-            return;
-        }
-        
-        CGRect windowFrame = [rootView convertRect:view.frame fromView:view.superview];
+                
+        CGRect windowFrame = [view.window convertRect:view.frame fromView:view.superview];
         callback(@[@{@"width":@(CGRectGetWidth(windowFrame)),
                      @"height": @(CGRectGetHeight(windowFrame)),
                      @"x":@(windowFrame.origin.x),
                      @"y":@(windowFrame.origin.y)}]);
     }];
-    
-    
-    
 }
 
 - (NSDictionary<NSString *, id> *)constantsToExport

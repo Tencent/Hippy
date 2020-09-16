@@ -11,7 +11,6 @@ require('../../global/ios/promise.js'); // add Promise when iosVersion < 9, to_d
 require('../../global/ConsoleModule.js'); // console
 require('../../global/UIManagerModule.js'); // document
 require('../../global/Network.js'); // Headers fetch Response
-require('../../global/WebSocket.js'); // WebSocket
 require('../../global/Storage.js'); // localStrorageAsync                                     to_do use jsbinding
 require('../../global/ios/Dimensions.js'); // Hippy.device.window Hippy.device.screen Hippy.device.pixelRatio   to_do ios the same as android, __HIPPYNATIVEGLOBAL__.Dimensions下
 require('../../global/UtilsModule.js'); // Hippy.device.vibrate Hippy.device.cancelVibrate                to_do ios the same as android

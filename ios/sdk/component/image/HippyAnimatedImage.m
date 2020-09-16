@@ -206,35 +206,15 @@ static NSHashTable *allAnimatedImagesWeak;
             RAILog(RAILogLevelError, @"Failed to `CGImageSourceCreateWithData` for animated GIF data %@", data);
             return nil;
         }
-        
         // Early return if not GIF!
-        CFStringRef imageSourceContainerType = CGImageSourceGetType(_imageSource);
-        BOOL isGIFData = UTTypeConformsTo(imageSourceContainerType, kUTTypeGIF);
-        if (!isGIFData) {
+        size_t imageCount = CGImageSourceGetCount(_imageSource);
+        BOOL isAnimatedImage = imageCount > 1;
+        if (!isAnimatedImage) {
             RAILog(RAILogLevelError, @"Supplied data is of type %@ and doesn't seem to be GIF data %@", imageSourceContainerType, data);
             return nil;
         }
-        
-        // Get `LoopCount`
-        // Note: 0 means repeating the animation indefinitely.
-        // Image properties example:
-        // {
-        //     FileSize = 314446;
-        //     "{GIF}" = {
-        //         HasGlobalColorMap = 1;
-        //         LoopCount = 0;
-        //     };
-        // }
-        NSDictionary *imageProperties = (__bridge_transfer NSDictionary *)CGImageSourceCopyProperties(_imageSource, NULL);
-        // gif 图片循环只一次时 ，loopcount 为 nil，会转为0，导致无限播放
-        id loopCountObject = [[imageProperties objectForKey:(id)kCGImagePropertyGIFDictionary] objectForKey:(id)kCGImagePropertyGIFLoopCount];
-        if (loopCountObject) {
-            _loopCount = [loopCountObject unsignedIntegerValue];
-        } else {
-            _loopCount = 1;
-        }
+        _loopCount = [self getLoopCount];
         // Iterate through frame images
-        size_t imageCount = CGImageSourceGetCount(_imageSource);
         NSUInteger skippedFrameCount = 0;
         NSMutableDictionary *delayTimesForIndexesMutable = [NSMutableDictionary dictionaryWithCapacity:imageCount];
         for (size_t i = 0; i < imageCount; i++) {
@@ -362,30 +342,6 @@ static NSHashTable *allAnimatedImagesWeak;
     return animatedImage;
 }
 
-+ (BOOL) isAnimatedImageData:(NSData *)data {
-    if (data) {
-        
-        if(!data||data.length<12)
-            return NO;
-        char bytes[12] = {0};
-        [data getBytes:&bytes length:12];
-        
-        const char gif[3] = {'G', 'I', 'F'};
-        if (!memcmp(bytes, gif, 3)) {
-            return YES;
-        }
-        
-        return NO;
-        /*
-         CGImageSourceRef isRef = CGImageSourceCreateWithData((__bridge CFDataRef)data, NULL);
-         CFStringRef imageSourceContainerType = CGImageSourceGetType(isRef);
-         BOOL isGIFData = UTTypeConformsTo(imageSourceContainerType, kUTTypeGIF);
-         return isGIFData;
-         */
-    }
-    return NO;
-}
-
 - (void)dealloc
 {
     if (_weakProxy) {
@@ -484,9 +440,37 @@ static NSHashTable *allAnimatedImagesWeak;
     });
 }
 
+- (NSUInteger)getLoopCount {
+    // Get `LoopCount`
+    // Note: 0 means repeating the animation indefinitely.
+    // Image properties example:
+    // {
+    //     FileSize = 314446;
+    //     "{GIF}" = {
+    //         HasGlobalColorMap = 1;
+    //         LoopCount = 0;
+    //     };
+    // }
+    if (_imageSource) {
+        CFStringRef imageSourceContainerType = CGImageSourceGetType(_imageSource);
+        NSString *imagePropertyKey = (id)kCGImagePropertyGIFDictionary;
+        if (UTTypeConformsTo(imageSourceContainerType, kUTTypePNG)) {
+            imagePropertyKey = (id)kCGImagePropertyPNGDictionary;
+        }
+        NSDictionary *imageProperties = (__bridge_transfer NSDictionary *)CGImageSourceCopyProperties(_imageSource, NULL);
+        id loopCountObject = [[imageProperties objectForKey:imagePropertyKey] objectForKey:(id)kCGImagePropertyGIFLoopCount];
+        if (loopCountObject) {
+            NSUInteger loopCount = [loopCountObject unsignedIntegerValue];
+            return 0 == loopCount ? NSUIntegerMax : loopCount;
+        }
+        else {
+            return 1;
+        }
+    }
+    return 0;
+}
 
-+ (CGSize)sizeForImage:(id)image
-{
++ (CGSize)sizeForImage:(id)image {
     CGSize imageSize = CGSizeZero;
     
     // Early return for nil
@@ -508,9 +492,20 @@ static NSHashTable *allAnimatedImagesWeak;
     return imageSize;
 }
 
-
-#pragma mark - Private Methods
-#pragma mark Frame Loading
++ (BOOL)isAnimatedImageData:(NSData *)data {
+    if (data) {
+        //for a image with 1312182 bytes,it takes 0.00002 seconds at most to invoke CGImageSourceCreateWithData
+        //GIF,APNG images are animatable
+        CGImageSourceRef isRef = CGImageSourceCreateWithData((__bridge CFDataRef)data, NULL);
+        if (isRef) {
+            //for a image with 1312182 bytes,it takes 0.006239 seconds at most to invoke CGImageSourceGetCount
+            size_t count = CGImageSourceGetCount(isRef);
+            CFRelease(isRef);
+            return count > 1;
+        }
+    }
+    return NO;
+}
 
 - (UIImage *)imageAtIndex:(NSUInteger)index
 {
@@ -532,7 +527,6 @@ static NSHashTable *allAnimatedImagesWeak;
     
     return image;
 }
-
 
 #pragma mark Frame Caching
 

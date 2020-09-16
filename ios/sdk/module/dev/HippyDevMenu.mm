@@ -177,10 +177,6 @@ HIPPY_EXPORT_MODULE()
 {
 	_bridge = bridge;
 	
-	if ([_defaults boolForKey: @"JSDebug"]) {
-		Class jsDebuggingExecutorClass = objc_lookUpClass("HippyWebSocketExecutor");
-		self.executorClass = jsDebuggingExecutorClass;
-	}
 #if TARGET_IPHONE_SIMULATOR
     if (bridge.debugMode) {
         __weak HippyDevMenu *weakSelf = self;
@@ -275,22 +271,6 @@ HIPPY_EXPORT_MODULE()
   [items addObject:[HippyDevMenuItem buttonItemWithTitle:@"Reload" handler:^{
     [weakSelf reload];
   }]];
-
-//  Class jsDebuggingExecutorClass = objc_lookUpClass("HippyWebSocketExecutor");
-//	
-//	BOOL isDebuggingJS = _executorClass && _executorClass == jsDebuggingExecutorClass;
-//	NSString *debugTitleJS = isDebuggingJS ? @"Stop Remote JS Debugging" : @"Debug JS Remotely";
-//	[items addObject: [HippyDevMenuItem buttonItemWithTitle: debugTitleJS handler: ^{
-//		if ([debugTitleJS isEqualToString:@"Stop Remote JS Debugging"]) {
-//			[self->_defaults setBool: NO forKey: @"JSDebug"];
-//		} else {
-//			[self->_defaults setBool: YES forKey: @"JSDebug"];
-//		}
-//		[self->_defaults synchronize];
-//	  	weakSelf.executorClass = isDebuggingJS ? Nil : jsDebuggingExecutorClass;
-//	}]];
-
-
   return items;
 }
 
@@ -351,10 +331,6 @@ HIPPY_EXPORT_METHOD(show)
 			// support for custom executors in the dev menu. But right now this is
 			// needed to prevent overriding a custom executor with the default if a
 			// custom executor has been set directly on the bridge
-			if (executorClass == Nil &&
-					_bridge.executorClass != objc_lookUpClass("HippyWebSocketExecutor")) {
-				return;
-			}
 			_bridge.executorClass = executorClass;
 			[_bridge reload];
 		}

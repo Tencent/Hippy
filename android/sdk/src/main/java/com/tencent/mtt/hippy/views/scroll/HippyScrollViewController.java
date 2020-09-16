@@ -20,7 +20,7 @@ import com.tencent.mtt.hippy.utils.PixelUtil;
 @HippyController(name = HippyScrollViewController.CLASS_NAME)
 public class HippyScrollViewController<T extends ViewGroup & HippyScrollView> extends HippyGroupController
 {
-	private static final String	SCROLL_TO	= "scrollTo";
+  protected static final String	SCROLL_TO	= "scrollTo";
 	private static final String	SCROLL_TO_WITHOPTIONS	= "scrollToWithOptions";
 
 	public static final String	CLASS_NAME	= "ScrollView";
@@ -119,6 +119,12 @@ public class HippyScrollViewController<T extends ViewGroup & HippyScrollView> ex
 	public void setScrollEventThrottle(HippyScrollView view, int scrollEventThrottle)
 	{
 		view.setScrollEventThrottle(scrollEventThrottle);
+	}
+
+	@HippyControllerProps(name = "scrollMinOffset", defaultType = HippyControllerProps.NUMBER, defaultNumber = 5)
+	public void setScrollMinOffset(HippyScrollView view, int scrollMinOffset)
+	{
+		view.setScrollMinOffset(scrollMinOffset);
 	}
 
 	@Override

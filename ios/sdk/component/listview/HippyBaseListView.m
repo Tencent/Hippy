@@ -25,6 +25,9 @@
 #import "HippyRootView.h"
 #import "UIView+Hippy.h"
 #import "HippyScrollProtocol.h"
+#import "HippyHeaderRefresh.h"
+#import "HippyFooterRefresh.h"
+#import "UIView+AppearEvent.h"
 
 #define CELL_TAG 10101
 
@@ -54,7 +57,7 @@
 }
 @end
 
-@interface HippyBaseListView() <HippyScrollProtocol>
+@interface HippyBaseListView() <HippyScrollProtocol, HippyRefreshDelegate>
 
 
 @end
@@ -66,8 +69,9 @@
 	BOOL _isInitialListReady;
 	NSUInteger _preNumberOfRows;
 	NSTimeInterval _lastScrollDispatchTime;
-    BOOL _hasFillListViewFrame;
-    CGFloat _nowHeight;
+    NSArray<HippyVirtualNode *> *_subNodes;
+    HippyHeaderRefresh *_headerRefreshView;
+    HippyFooterRefresh *_footerRefreshView;
 }
 
 @synthesize node = _node;
@@ -82,7 +86,6 @@
 		_isInitialListReady = NO;
 		_preNumberOfRows = 0;
         _preloadItemNumber = 1;
-        _hasFillListViewFrame = NO;
 		[self initTableView];
 	}
 	
@@ -130,7 +133,21 @@
         return NO;
     }
 	NSUInteger numberOfRows = [number integerValue];
-    if (self.node.subNodes.count == numberOfRows) {
+    
+    static dispatch_once_t onceToken;
+    static NSPredicate *predicate = nil;
+    dispatch_once(&onceToken, ^{
+        predicate = [NSPredicate predicateWithBlock:^BOOL(id  _Nullable evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
+            if ([evaluatedObject isKindOfClass:[HippyVirtualCell class]]) {
+                return YES;
+            }
+            return NO;
+        }];
+    });
+    
+    _subNodes = [self.node.subNodes filteredArrayUsingPredicate:predicate];
+    
+    if ([_subNodes count] == numberOfRows) {
         if (numberOfRows == 0 && _preNumberOfRows == numberOfRows) return NO;
         [self reloadData];
         _preNumberOfRows = numberOfRows;
@@ -141,7 +158,7 @@
 
 - (void)reloadData
 {
-	[_dataSource setDataSource:(NSArray <HippyVirtualCell *> *)self.node.subNodes];
+	[_dataSource setDataSource:(NSArray <HippyVirtualCell *> *)_subNodes];
 	[_tableView reloadData];
     
     if (self.initialContentOffset) {
@@ -163,9 +180,25 @@
   _tableView.frame = self.bounds;
 }
 
-- (void)insertHippySubview:(__unused UIView *)subview atIndex:(__unused NSInteger)atIndex
+- (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex
 {
-	
+    if ([subview isKindOfClass:[HippyHeaderRefresh class]]) {
+        if (_headerRefreshView) {
+            [_headerRefreshView removeFromSuperview];
+        }
+        _headerRefreshView = (HippyHeaderRefresh *)subview;
+        [_headerRefreshView setScrollView:self.tableView];
+        _headerRefreshView.delegate = self;
+        _headerRefreshView.frame = [self.node.subNodes[atIndex] frame];
+    } else if ([subview isKindOfClass:[HippyFooterRefresh class]]) {
+        if (_footerRefreshView) {
+            [_footerRefreshView removeFromSuperview];
+        }
+        _footerRefreshView = (HippyFooterRefresh *)subview;
+        [_footerRefreshView setScrollView:self.tableView];
+        _footerRefreshView.delegate = self;
+        _footerRefreshView.frame = [self.node.subNodes[atIndex] frame];
+    }
 }
 
 #pragma mark -Scrollable
@@ -272,7 +305,7 @@
 {
     
 	HippyVirtualCell *node = [_dataSource cellForIndexPath: indexPath];
-	NSInteger index = [self.node.subNodes indexOfObject: node];
+	NSInteger index = [_subNodes indexOfObject: node];
 	if (self.onRowWillDisplay) {
 		self.onRowWillDisplay(@{@"index": @(index), @"frame": @{@"x":@(CGRectGetMinX(cell.frame)), @"y": @(CGRectGetMinY(cell.frame)), @"width": @(CGRectGetWidth(cell.frame)), @"height": @(CGRectGetHeight(cell.frame))}});
 	}
@@ -284,18 +317,20 @@
             lastRowIndexInSection = 0;
         }
         
-        if (!_hasFillListViewFrame) {
-            _nowHeight += cell.frame.size.height;
-            if (_nowHeight > tableView.frame.size.height) {//只判断一次
-                _hasFillListViewFrame = YES;
-                _nowHeight = 0;
-            }
-        }
         BOOL isLastIndex = [indexPath section] == lastSectionIndex && [indexPath row] == lastRowIndexInSection;
         
-        if (isLastIndex && _hasFillListViewFrame) {
+        if (isLastIndex) {
             self.onEndReached(@{});
         }
+    }
+    if ([cell isKindOfClass:[HippyBaseListViewCell class]]) {
+        [[(HippyBaseListViewCell *)cell cellView] viewAppearEvent];
+    }
+}
+
+- (void)tableView:(UITableView *)tableView didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath*)indexPath {
+    if ([cell isKindOfClass:[HippyBaseListViewCell class]]) {
+        [[(HippyBaseListViewCell *)cell cellView] viewDisappearEvent];
     }
 }
 
@@ -340,13 +375,6 @@
 
 #pragma mark - Scroll
 
-#define MTT_FORWARD_SCROLL_EVENT(call) \
-for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) { \
-if ([scrollViewListener respondsToSelector:_cmd]) { \
-[scrollViewListener call]; \
-} \
-}
-
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
 	NSTimeInterval now = CACurrentMediaTime();
@@ -357,7 +385,14 @@ if ([scrollViewListener respondsToSelector:_cmd]) { \
 		_lastScrollDispatchTime = now;
 	}
 	
-	MTT_FORWARD_SCROLL_EVENT(scrollViewDidScroll: scrollView);
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidScroll:)]) {
+            [scrollViewListener scrollViewDidScroll:scrollView];
+        }
+    }
+    
+    [_headerRefreshView scrollViewDidScroll];
+    [_footerRefreshView scrollViewDidScroll];
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
@@ -365,9 +400,13 @@ if ([scrollViewListener respondsToSelector:_cmd]) { \
 	if (self.onScrollBeginDrag) {
 		self.onScrollBeginDrag([self scrollBodyData]);
 	}
-  _manualScroll = YES;
+    _manualScroll = YES;
 	[self cancelTouch];
-	MTT_FORWARD_SCROLL_EVENT(scrollViewWillBeginDragging: scrollView);
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewWillBeginDragging:)]) {
+            [scrollViewListener scrollViewWillBeginDragging:scrollView];
+        }
+    }
 }
 
 - (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView
@@ -375,7 +414,11 @@ if ([scrollViewListener respondsToSelector:_cmd]) { \
 	if (self.onMomentumScrollBegin) {
 		self.onMomentumScrollBegin([self scrollBodyData]);
 	}
-	MTT_FORWARD_SCROLL_EVENT(scrollViewWillBeginDecelerating: scrollView);
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewWillBeginDecelerating:)]) {
+            [scrollViewListener scrollViewWillBeginDecelerating:scrollView];
+        }
+    }
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
@@ -383,7 +426,13 @@ if ([scrollViewListener respondsToSelector:_cmd]) { \
 	if (!decelerate) {
 		_manualScroll = NO;
 	}
-	MTT_FORWARD_SCROLL_EVENT(scrollViewDidEndDragging: scrollView willDecelerate: decelerate);
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndDragging:willDecelerate:)]) {
+            [scrollViewListener scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
+        }
+    }
+    [_headerRefreshView scrollViewDidEndDragging];
+    [_footerRefreshView scrollViewDidEndDragging];
 }
 
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset
@@ -399,7 +448,11 @@ if ([scrollViewListener respondsToSelector:_cmd]) { \
 		self.onScrollEndDrag([self scrollBodyData]);
 	}
 	
-	MTT_FORWARD_SCROLL_EVENT(scrollViewWillEndDragging: scrollView withVelocity: velocity targetContentOffset: targetContentOffset);
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewWillEndDragging:withVelocity:targetContentOffset:)]) {
+            [scrollViewListener scrollViewWillEndDragging:scrollView withVelocity:velocity targetContentOffset:targetContentOffset];
+        }
+    }
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
@@ -412,27 +465,47 @@ if ([scrollViewListener respondsToSelector:_cmd]) { \
 		self.onMomentumScrollEnd([self scrollBodyData]);
 	}
 	
-	MTT_FORWARD_SCROLL_EVENT(scrollViewDidEndDecelerating:scrollView);
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndDecelerating:)]) {
+            [scrollViewListener scrollViewDidEndDecelerating:scrollView];
+        }
+    }
 }
 
 - (void)scrollViewWillBeginZooming:(UIScrollView *)scrollView withView:(UIView *)view
 {
-	MTT_FORWARD_SCROLL_EVENT(scrollViewWillBeginZooming: scrollView withView: view);
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewWillBeginZooming:withView:)]) {
+            [scrollViewListener scrollViewWillBeginZooming:scrollView withView:view];
+        }
+    }
 }
 
 - (void)scrollViewDidZoom:(UIScrollView *)scrollView
 {
-	MTT_FORWARD_SCROLL_EVENT(scrollViewDidZoom:scrollView);
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidZoom:)]) {
+            [scrollViewListener scrollViewDidZoom:scrollView];
+        }
+    }
 }
 
 - (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(CGFloat)scale
 {
-	MTT_FORWARD_SCROLL_EVENT(scrollViewDidEndZooming: scrollView withView: view atScale: scale);
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndZooming:withView:atScale:)]) {
+            [scrollViewListener scrollViewDidEndZooming:scrollView withView:view atScale:scale];
+        }
+    }
 }
 
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
 {
-	MTT_FORWARD_SCROLL_EVENT(scrollViewDidEndScrollingAnimation: scrollView);
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndScrollingAnimation:)]) {
+            [scrollViewListener scrollViewDidEndScrollingAnimation:scrollView];
+        }
+    }
 }
 
 - (NSDictionary *)scrollBodyData
@@ -494,4 +567,8 @@ if ([scrollViewListener respondsToSelector:_cmd]) { \
     return [_tableView showsVerticalScrollIndicator];
 }
 
+#pragma mark HippyRefresh Delegate
+- (void)refreshView:(HippyRefresh *)refreshView statusChanged:(HippyRefreshStatus)status {
+    
+}
 @end

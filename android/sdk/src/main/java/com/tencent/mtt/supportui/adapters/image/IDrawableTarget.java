@@ -1,17 +1,10 @@
-/*!
- * iOS SDK
- *
- * Tencent is pleased to support the open source community by making
- * Hippy available.
- *
- * Copyright (C) 2019 THL A29 Limited, a Tencent company.
- * All rights reserved.
+/* 	Copyright (C) 2018 Tencent, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,17 +12,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.tencent.mtt.supportui.adapters.image;
 
-#import "HippyDefines.h"
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 
-#if HIPPY_DEV // Debug executors are only supported in dev mode
+/**
+ * Created by leonardgong on 2017/12/4 0004.
+ */
 
-#import "HippyJavaScriptExecutor.h"
+public interface IDrawableTarget
+{
+	Drawable getDrawable();
 
-@interface HippyWebSocketExecutor : NSObject <HippyJavaScriptExecutor>
+	Bitmap getBitmap();
 
-- (instancetype)initWithURL:(NSURL *)URL;
+	String getSource();
 
-@end
+	Object getExtraData();
 
-#endif
+	void onDrawableAttached();
+
+	void onDrawableDetached();
+}

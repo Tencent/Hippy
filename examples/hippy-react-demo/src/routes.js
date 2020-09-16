@@ -124,6 +124,14 @@ export default [
     },
   },
   {
+    path: '/WebSocket',
+    name: 'WebSocket 模块',
+    component: PAGE_LIST.WebSocket,
+    meta: {
+      style: 2,
+    },
+  },
+  {
     path: '/Animation',
     name: 'Animation 组件',
     component: PAGE_LIST.Animation,

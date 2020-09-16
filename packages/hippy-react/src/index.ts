@@ -23,8 +23,11 @@ import ScrollView from './components/scroll-view';
 import Modal from './components/modal';
 import Focusable from './components/focusable';
 import WebView from './components/web-view';
+import WebSocket from './modules/websocket';
 import * as Native from './native';
 import * as StyleSheet from './modules/stylesheet';
+
+global.WebSocket = WebSocket;
 
 const  {
   AsyncStorage,
@@ -116,6 +119,7 @@ export {
   Focusable,
   WebView,
   ImageBackground,
+  WebSocket,
 };
 
 export default HippyReact;

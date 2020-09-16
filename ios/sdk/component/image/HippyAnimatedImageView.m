@@ -304,6 +304,7 @@ static NSUInteger gcd(NSUInteger a, NSUInteger b)
         const NSTimeInterval kDisplayRefreshRate = 60.0; // 60Hz
         self.displayLink.frameInterval = MAX([self frameDelayGreatestCommonDivisor] * kDisplayRefreshRate, 1);
 
+        [self.layer setNeedsDisplay];
         self.displayLink.paused = NO;
     } else {
         [super startAnimating];
@@ -418,22 +419,6 @@ static NSUInteger gcd(NSUInteger a, NSUInteger b)
         self.currentFrameIndex++;
     }
 }
-
-//- (void)URLSession:(__unused NSURLSession *)session task:(nonnull NSURLSessionTask *)task didCompleteWithError:(nullable NSError *)error
-//{
-//    if (!error) {
-//        BOOL isGIF = [HippyAnimatedImage isAnimatedImageData:self->_data];
-//        if (isGIF) {
-//            dispatch_async(dispatch_get_main_queue(), ^{
-//                self.animatedImage = [HippyAnimatedImage animatedImageWithGIFData:self->_data];
-//            });
-//        }
-//        else {
-//            [super URLSession:session task:task didCompleteWithError:error];
-//        }
-//    }
-//    [session finishTasksAndInvalidate];
-//}
 
 + (NSString *)defaultRunLoopMode
 {

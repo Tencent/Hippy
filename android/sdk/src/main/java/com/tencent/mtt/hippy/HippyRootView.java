@@ -27,6 +27,7 @@ import android.widget.FrameLayout;
 import com.tencent.mtt.hippy.adapter.device.HippyDeviceAdapter;
 import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorEvent;
 import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.common.HippyTag;
 import com.tencent.mtt.hippy.devsupport.DevFloatButton;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.HippyModuleManager;
@@ -79,7 +80,9 @@ public class HippyRootView extends FrameLayout
 		mInstanceId = ID_COUNTER.addAndGet(ROOT_VIEW_TAG_INCREMENT);
 
 		setId(mInstanceId);
-		setTag(NodeProps.ROOT_NODE);
+		//setTag(NodeProps.ROOT_NODE);
+    HippyMap tagMap = HippyTag.createTagMap(NodeProps.ROOT_NODE, null);
+    setTag(tagMap);
 		getViewTreeObserver().addOnGlobalLayoutListener(getGlobalLayoutListener());
 		setOnSystemUiVisibilityChangeListener(getGlobalLayoutListener());
 	}
@@ -370,8 +373,15 @@ public class HippyRootView extends FrameLayout
 			}
 
 			HippyMap dimensionMap = DimensionsUtil.getDimensions(windowWidth, windowHeight, mEngineContext.getGlobalConfigs().getContext(), shouldUseScreenDisplay);
+			int dimensionW = 0;
+			int dimensionH = 0;
+			if (dimensionMap != null) {
+				HippyMap windowMap = dimensionMap.getMap("windowPhysicalPixels");
+				dimensionW = windowMap.getInt("width");
+				dimensionH = windowMap.getInt("height");
+			}
 			// 如果windowHeight是无效值，则允许客户端定制
-			if (windowHeight < 0 && mEngineContext.getGlobalConfigs() != null)
+			if ((windowHeight < 0 || dimensionW == dimensionH) && mEngineContext.getGlobalConfigs() != null)
 			{
 				HippyDeviceAdapter deviceAdapter = mEngineContext.getGlobalConfigs().getDeviceAdapter();
 				if (deviceAdapter != null)
