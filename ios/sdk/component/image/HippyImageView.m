@@ -292,7 +292,7 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
             if (fileExist && !isDirectory) {
                 NSData *imageData = [NSData dataWithContentsOfFile:localPath];
                 Class<HippyImageProviderProtocol> ipClass = imageProviderClass(imageData);
-                id<HippyImageProviderProtocol> instance = [ipClass imageProviderInstanceForData:imageData];
+                id<HippyImageProviderProtocol> instance = [self instanceImageProviderFromClass:ipClass imageData:imageData];
                 BOOL isAnimatedImage = [ipClass isAnimatedImage:imageData];
                 if (isAnimatedImage) {
                     if (_animatedImageOperation) {
@@ -323,7 +323,7 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
 				}
 			} completed:^(NSData *data, NSURL *url, NSError *error) {
                 Class<HippyImageProviderProtocol> ipClass = imageProviderClass(data);
-                id<HippyImageProviderProtocol> instance = [ipClass imageProviderInstanceForData:data];
+                id<HippyImageProviderProtocol> instance = [self instanceImageProviderFromClass:ipClass imageData:data];
                 BOOL isAnimatedImage = [ipClass isAnimatedImage:data];
                 if (isAnimatedImage) {
                     if (weakSelf.animatedImageOperation) {
@@ -346,7 +346,7 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
                 }
 				NSData *imageData = [[NSData alloc] initWithBase64EncodedString:base64Data options: NSDataBase64DecodingIgnoreUnknownCharacters];
                 Class<HippyImageProviderProtocol> ipClass = imageProviderClass(imageData);
-                id<HippyImageProviderProtocol> instance = [ipClass imageProviderInstanceForData:imageData];
+                id<HippyImageProviderProtocol> instance = [self instanceImageProviderFromClass:ipClass imageData:imageData];
                 BOOL isAnimatedImage = [ipClass isAnimatedImage:imageData];
                 if (isAnimatedImage) {
                     if (_animatedImageOperation) {
@@ -405,8 +405,8 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
     if (nil == data) {
         return nil;
     }
-    Class<HippyImageProviderProtocol> ipClass = imageProviderClass(_data);
-    id<HippyImageProviderProtocol> instance = [ipClass imageProviderInstanceForData:_data];
+    Class<HippyImageProviderProtocol> ipClass = imageProviderClass(data);
+    id<HippyImageProviderProtocol> instance = [self instanceImageProviderFromClass:ipClass imageData:data];
     return [instance image];
 }
 
@@ -437,7 +437,7 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
         NSDictionary *source = [self.source firstObject];
         if (!error) {
             Class<HippyImageProviderProtocol> ipClass = imageProviderClass(_data);
-            id<HippyImageProviderProtocol> instance = [ipClass imageProviderInstanceForData:_data];
+            id<HippyImageProviderProtocol> instance = [self instanceImageProviderFromClass:ipClass imageData:_data];
             BOOL isAnimatedImage = [ipClass isAnimatedImage:_data];
             if (isAnimatedImage) {
                 if (_animatedImageOperation) {
