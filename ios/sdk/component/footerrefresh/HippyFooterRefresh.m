@@ -84,7 +84,7 @@
             [UIView animateWithDuration:.2f
                 animations:^{
                     UIEdgeInsets insets = self.scrollView.contentInset;
-                    self.scrollView.contentInset = UIEdgeInsetsMake(insets.top, insets.left, -height, insets.right);
+                    self.scrollView.contentInset = UIEdgeInsetsMake(insets.top, insets.left, height, insets.right);
                 }
                 completion:^(BOOL finished) {
                     if (self.onFooterReleased) {
