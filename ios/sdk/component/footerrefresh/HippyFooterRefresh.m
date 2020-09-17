@@ -104,6 +104,17 @@
     }
 }
 
+- (void)refresh {
+    [UIView animateWithDuration:.2f
+        animations:^{
+            CGPoint bottomOffset = CGPointMake(0, self.scrollView.contentSize.height - self.scrollView.bounds.size.height + self.scrollView.contentInset.bottom);
+            [self.scrollView setContentOffset:bottomOffset animated:YES];
+        }
+        completion:^(BOOL finished) {
+            self.status = HippyRefreshStatusStartLoading;
+        }];
+}
+
 - (void)dealloc {
     [_scrollView removeObserver:self forKeyPath:@"contentSize"];
 }
