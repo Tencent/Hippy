@@ -32,7 +32,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(refreshStick, BOOL)
 HIPPY_EXPORT_VIEW_PROPERTY(onFooterReleased, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onFooterPulling, HippyDirectEventBlock)
 
-HIPPY_EXPORT_METHOD(pullFooterFinished : (nonnull NSNumber *)reactTag) {
+HIPPY_EXPORT_METHOD(collapsePullFooter : (nonnull NSNumber *)reactTag) {
     [self.bridge.uiManager addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
         HippyRefresh *refreshView = viewRegistry[reactTag];
         [refreshView refreshFinish];
