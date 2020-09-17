@@ -39,6 +39,13 @@ HIPPY_EXPORT_METHOD(collapsePullFooter : (nonnull NSNumber *)reactTag) {
     }];
 }
 
+HIPPY_EXPORT_METHOD(expandPullFooter : (nonnull NSNumber *)reactTag) {
+    [self.bridge.uiManager addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
+        HippyRefresh *refreshView = viewRegistry[reactTag];
+        [refreshView refresh];
+    }];
+}
+
 - (UIView *)view {
     return [[HippyFooterRefresh alloc] init];
 }
