@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "core/base/logging.h"
 #include "core/base/macros.h"
 
 namespace hippy {
@@ -38,7 +39,7 @@ Thread::Thread(const Options& options) : stack_size_(options.stack_size()) {
     stack_size_ = PTHREAD_STACK_MIN;
   }
 
-  setName(options.name());
+  SetName(options.name());
 }
 
 Thread::~Thread() {}
@@ -61,18 +62,21 @@ void Thread::Start() {
   }
 
   result = pthread_create(&thread_, &attr, ThreadEntry, this);
-  thread_id_.initId(thread_);
+  thread_id_.InitId(thread_);
   HIPPY_USE(result);
 }
 
-void Thread::Join() { pthread_join(thread_, nullptr); }
+void Thread::Join() {
+  int ret = pthread_join(thread_, nullptr);
+  HIPPY_LOG(hippy::Debug, "Thread::Join ret = %d", ret);
+}
 
-void Thread::setName(const char* name) {
+void Thread::SetName(const char* name) {
   strncpy(name_, name, arraysize(name_));
   name_[arraysize(name_) - 1] = '\0';
 }
 
-static void setThreadName(const char* name) {
+static void SetThreadName(const char* name) {
 #ifdef OS_ANDROID
   pthread_setname_np(pthread_self(), name);
 #else
@@ -86,13 +90,15 @@ static void* ThreadEntry(void* arg) {
   }
 
   Thread* thread = reinterpret_cast<Thread*>(arg);
-  setThreadName(thread->name());
+  SetThreadName(thread->name());
   thread->Run();
 
   return nullptr;
 }
 
-ThreadId Thread::getCurrent() { return ThreadId::getCurrent(); }
+ThreadId Thread::GetCurrent() {
+  return ThreadId::GetCurrent();
+}
 
 }  // namespace base
 }  // namespace hippy

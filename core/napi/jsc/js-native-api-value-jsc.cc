@@ -20,312 +20,277 @@
  *
  */
 
-#include "core/napi/jsc/js-native-api-jsc.h"
-
 #include <limits.h>
+
 #include <iostream>
 
 #include "core/base/logging.h"
 #include "core/napi/js-native-api.h"
+#include "core/napi/jsc/js-native-api-jsc.h"
 #include "core/napi/jsc/js-native-jsc-helper.h"
 
 namespace hippy {
 namespace napi {
 
-bool napi_get_value_number(napi_context context,
-                           napi_value value,
-                           double* result) {
-  HIPPY_DCHECK(context);
-
-  JSValueRef valueRef = value->value_;
-  if (JSValueIsNumber(context->context_, valueRef)) {
-    *result = JSValueToNumber(context->context_, valueRef, nullptr);
+bool JSCCtx::GetValueNumber(std::shared_ptr<CtxValue> value, double* result) {
+  std::shared_ptr<JSCCtxValue> ctx_value =
+      std::static_pointer_cast<JSCCtxValue>(value);
+  JSValueRef value_ref = ctx_value->value_;
+  if (JSValueIsNumber(context_, value_ref)) {
+    *result = JSValueToNumber(context_, value_ref, nullptr);
     return true;
   }
 
   return false;
 }
 
-bool napi_get_value_number(napi_context context,
-                           napi_value value,
-                           int32_t* result) {
-  HIPPY_DCHECK(context);
-
-  JSValueRef valueRef = value->value_;
-  if (JSValueIsNumber(context->context_, valueRef)) {
-    *result = JSValueToNumber(context->context_, valueRef, nullptr);
+bool JSCCtx::GetValueNumber(std::shared_ptr<CtxValue> value, int32_t* result) {
+  std::shared_ptr<JSCCtxValue> ctx_value =
+      std::static_pointer_cast<JSCCtxValue>(value);
+  JSValueRef value_ref = ctx_value->value_;
+  if (JSValueIsNumber(context_, value_ref)) {
+    *result = JSValueToNumber(context_, value_ref, nullptr);
     return true;
   }
 
   return false;
 }
 
-bool napi_get_value_boolean(napi_context context,
-                            napi_value value,
-                            bool* result) {
-  HIPPY_DCHECK(context);
-
-  JSValueRef valueRef = value->value_;
-  if (JSValueIsBoolean(context->context_, valueRef)) {
-    *result = JSValueToBoolean(context->context_, valueRef);
+bool JSCCtx::GetValueBoolean(std::shared_ptr<CtxValue> value, bool* result) {
+  std::shared_ptr<JSCCtxValue> ctx_value =
+      std::static_pointer_cast<JSCCtxValue>(value);
+  JSValueRef value_ref = ctx_value->value_;
+  if (JSValueIsBoolean(context_, value_ref)) {
+    *result = JSValueToBoolean(context_, value_ref);
     return true;
   }
 
   return false;
 }
 
-bool napi_get_value_string(napi_context context,
-                           napi_value value,
-                           std::string* result) {
-  HIPPY_DCHECK(context);
-
-  JSValueRef valueRef = value->value_;
-  if (JSValueIsString(context->context_, valueRef)) {
-    JSStringRef stringRef =
-        JSValueToStringCopy(context->context_, valueRef, nullptr);
-    size_t maxBufferSize = JSStringGetMaximumUTF8CStringSize(stringRef);
-    char* utf8Buffer = new char[maxBufferSize];
-    JSStringGetUTF8CString(stringRef, utf8Buffer, maxBufferSize);
-    std::string jsString(utf8Buffer);
-    delete[] utf8Buffer;
-    *result = jsString;
+bool JSCCtx::GetValueString(std::shared_ptr<CtxValue> value,
+                            std::string* result) {
+  std::shared_ptr<JSCCtxValue> ctx_value =
+      std::static_pointer_cast<JSCCtxValue>(value);
+  JSValueRef value_ref = ctx_value->value_;
+  if (JSValueIsString(context_, value_ref)) {
+    JSStringRef str_ref = JSValueToStringCopy(context_, value_ref, nullptr);
+    size_t max_size = JSStringGetMaximumUTF8CStringSize(str_ref);
+    char* buf = new char[max_size];
+    JSStringGetUTF8CString(str_ref, buf, max_size);
+    std::string js_str(buf);
+    delete[] buf;
+    *result = js_str;
     return true;
   }
 
   return false;
 }
 
-bool napi_is_array(napi_context context, napi_value value) {
-  HIPPY_DCHECK(context);
-
-  JSValueRef valueRef = value->value_;
-  if (JSValueIsObject(context->context_, valueRef)) {
+bool JSCCtx::IsArray(std::shared_ptr<CtxValue> value) {
+  std::shared_ptr<JSCCtxValue> ctx_value =
+      std::static_pointer_cast<JSCCtxValue>(value);
+  JSValueRef value_ref = ctx_value->value_;
+  if (JSValueIsObject(context_, value_ref)) {
     JSStringRef name = JSStringCreateWithUTF8CString("Array");
     JSObjectRef array = (JSObjectRef)JSObjectGetProperty(
-        context->context_, JSContextGetGlobalObject(context->context_), name,
-        NULL);
+        context_, JSContextGetGlobalObject(context_), name, NULL);
     JSStringRelease(name);
     name = JSStringCreateWithUTF8CString("isArray");
     JSObjectRef isArray =
-        (JSObjectRef)JSObjectGetProperty(context->context_, array, name, NULL);
+        (JSObjectRef)JSObjectGetProperty(context_, array, name, NULL);
     JSStringRelease(name);
-    JSValueRef retval = JSObjectCallAsFunction(context->context_, isArray, NULL,
-                                               1, &valueRef, NULL);
-    if (JSValueIsBoolean(context->context_, retval)) {
-      return JSValueToBoolean(context->context_, retval);
+    JSValueRef retval =
+        JSObjectCallAsFunction(context_, isArray, NULL, 1, &value_ref, NULL);
+    if (JSValueIsBoolean(context_, retval)) {
+      return JSValueToBoolean(context_, retval);
     }
   }
 
   return false;
 }
 
-uint32_t napi_get_array_length(napi_context context, napi_value value) {
-  HIPPY_DCHECK(context);
-
-  JSValueRef valueRef = value->value_;
-  JSObjectRef array = JSValueToObject(context->context_, valueRef, nullptr);
+uint32_t JSCCtx::GetArrayLength(std::shared_ptr<CtxValue> value) {
+  std::shared_ptr<JSCCtxValue> ctx_value =
+      std::static_pointer_cast<JSCCtxValue>(value);
+  JSValueRef value_ref = ctx_value->value_;
+  JSObjectRef array = JSValueToObject(context_, value_ref, nullptr);
   JSStringRef pname = JSStringCreateWithUTF8CString("length");
-  JSValueRef val =
-      JSObjectGetProperty(context->context_, array, pname, nullptr);
+  JSValueRef val = JSObjectGetProperty(context_, array, pname, nullptr);
   JSStringRelease(pname);
-  uint32_t count = JSValueToNumber(context->context_, val, nullptr);
+  uint32_t count = JSValueToNumber(context_, val, nullptr);
 
   return count;
 }
 
-napi_value napi_copy_array_element(napi_context context,
-                                   napi_value value,
-                                   uint32_t index) {
-  HIPPY_DCHECK(context);
-
-  uint32_t count = napi_get_array_length(context, value);
-  if (count <= 0 || index >= count) {
-    return nullptr;
-  }
-
-  JSValueRef valueRef = value->value_;
-  JSObjectRef array = JSValueToObject(context->context_, valueRef, nullptr);
-  JSValueRef elem =
-      JSObjectGetPropertyAtIndex(context->context_, array, index, nullptr);
-  napi_value v = std::make_shared<napi_value__>(context, elem);
-  return v;
-}
-
-bool napi_get_value_json(napi_context context,
-                         napi_value value,
-                         std::string* result) {
-  HIPPY_DCHECK(context);
-
-  JSValueRef valueRef = value->value_;
-  JSStringRef stringRef =
-      JSValueCreateJSONString(context->context_, valueRef, 0, nullptr);
-  size_t maxBufferSize = JSStringGetMaximumUTF8CStringSize(stringRef);
-  JSStringRelease(stringRef);
-  char* utf8Buffer = new char[maxBufferSize];
-  JSStringGetUTF8CString(stringRef, utf8Buffer, maxBufferSize);
-  std::string jsString(utf8Buffer);
-  delete[] utf8Buffer;
-  *result = jsString;
+bool JSCCtx::GetValueJson(std::shared_ptr<CtxValue> value,
+                          std::string* result) {
+  std::shared_ptr<JSCCtxValue> ctx_value =
+      std::static_pointer_cast<JSCCtxValue>(value);
+  JSValueRef value_ref = ctx_value->value_;
+  JSStringRef str_ref =
+      JSValueCreateJSONString(context_, value_ref, 0, nullptr);
+  size_t max_size = JSStringGetMaximumUTF8CStringSize(str_ref);
+  JSStringRelease(str_ref);
+  char* buf = new char[max_size];
+  JSStringGetUTF8CString(str_ref, buf, max_size);
+  std::string js_str(buf);
+  delete[] buf;
+  *result = js_str;
   return true;
 }
 
-bool napi_has_named_property(napi_context context,
-                             napi_value value,
-                             const char* utf8name) {
-  HIPPY_DCHECK(context);
-
-  JSValueRef valueRef = value->value_;
-  JSObjectRef object = JSValueToObject(context->context_, valueRef, nullptr);
-  JSStringRef property_name = JSStringCreateWithUTF8CString(utf8name);
-  bool hasProperty =
-      JSObjectHasProperty(context->context_, object, property_name);
+bool JSCCtx::HasNamedProperty(std::shared_ptr<CtxValue> value,
+                              const char* name) {
+  std::shared_ptr<JSCCtxValue> ctx_value =
+      std::static_pointer_cast<JSCCtxValue>(value);
+  JSValueRef value_ref = ctx_value->value_;
+  JSObjectRef object = JSValueToObject(context_, value_ref, nullptr);
+  JSStringRef property_name = JSStringCreateWithUTF8CString(name);
+  bool ret = JSObjectHasProperty(context_, object, property_name);
   JSStringRelease(property_name);
-  return hasProperty;
+  return ret;
 }
 
-napi_value napi_copy_named_property(napi_context context,
-                                    napi_value value,
-                                    const char* utf8name) {
-  HIPPY_DCHECK(context);
-
-  JSValueRef valueRef = value->value_;
-  JSObjectRef object = JSValueToObject(context->context_, valueRef, nullptr);
-  JSStringRef property_name = JSStringCreateWithUTF8CString(utf8name);
-  JSValueRef property =
-      JSObjectGetProperty(context->context_, object, property_name, nullptr);
-  JSStringRelease(property_name);
-  if (JSValueIsNull(context->context_, property) ||
-      JSValueIsUndefined(context->context_, property)) {
-    return nullptr;
-  }
-
-  napi_value v = std::make_shared<napi_value__>(context, property);
-  return v;
-}
-
-bool napi_is_function(napi_context context, napi_value value) {
-  HIPPY_DCHECK(context);
-
+bool JSCCtx::IsFunction(std::shared_ptr<CtxValue> value) {
   if (!value) {
     return false;
   }
-
-  JSValueRef valueRef = value->value_;
-  if (!JSValueIsObject(context->context_, valueRef)) {
+  std::shared_ptr<JSCCtxValue> ctx_value =
+      std::static_pointer_cast<JSCCtxValue>(value);
+  JSValueRef value_ref = ctx_value->value_;
+  if (!JSValueIsObject(context_, value_ref)) {
     return false;
   }
 
-  JSObjectRef object = JSValueToObject(context->context_, valueRef, nullptr);
-  return JSObjectIsFunction(context->context_, object);
+  JSObjectRef object = JSValueToObject(context_, value_ref, nullptr);
+  return JSObjectIsFunction(context_, object);
 }
 
-std::string napi_copy_function_name(napi_context context, napi_value function) {
+std::string JSCCtx::CopyFunctionName(std::shared_ptr<CtxValue> function) {
   return "";
 }
 
-napi_value napi_create_number(napi_context context, double number) {
-  HIPPY_DCHECK(context);
-
-  JSValueRef value = JSValueMakeNumber(context->context_, number);
-  napi_value v = std::make_shared<napi_value__>(context, value);
-  return v;
+std::shared_ptr<CtxValue> JSCCtx::CreateNumber(double number) {
+  JSValueRef value = JSValueMakeNumber(context_, number);
+  return std::make_shared<JSCCtxValue>(context_, value);
 }
 
-napi_value napi_create_boolean(napi_context context, bool b) {
-  HIPPY_DCHECK(context);
-
-  JSValueRef value = JSValueMakeBoolean(context->context_, b);
-  napi_value v = std::make_shared<napi_value__>(context, value);
-  return v;
+std::shared_ptr<CtxValue> JSCCtx::CreateBoolean(bool b) {
+  JSValueRef value = JSValueMakeBoolean(context_, b);
+  return std::make_shared<JSCCtxValue>(context_, value);
 }
 
-napi_value napi_create_string(napi_context context, const char* string) {
-  HIPPY_DCHECK(context);
-
-  JSStringRef stringRef = JSStringCreateWithUTF8CString(string);
-  JSValueRef value = JSValueMakeString(context->context_, stringRef);
-  JSStringRelease(stringRef);
-  napi_value v = std::make_shared<napi_value__>(context, value);
-  return v;
+std::shared_ptr<CtxValue> JSCCtx::CreateString(const char* string) {
+  JSStringRef str_ref = JSStringCreateWithUTF8CString(string);
+  JSValueRef value = JSValueMakeString(context_, str_ref);
+  JSStringRelease(str_ref);
+  return std::make_shared<JSCCtxValue>(context_, value);
 }
 
-napi_value napi_create_undefined(napi_context context) {
-  HIPPY_DCHECK(context);
-
-  JSValueRef value = JSValueMakeUndefined(context->context_);
-  napi_value v = std::make_shared<napi_value__>(context, value);
-  return v;
+std::shared_ptr<CtxValue> JSCCtx::CreateUndefined() {
+  JSValueRef value = JSValueMakeUndefined(context_);
+  return std::make_shared<JSCCtxValue>(context_, value);
 }
 
-napi_value napi_create_null(napi_context context) {
-  HIPPY_DCHECK(context);
-
-  JSValueRef value = JSValueMakeNull(context->context_);
-  napi_value v = std::make_shared<napi_value__>(context, value);
-  return v;
+std::shared_ptr<CtxValue> JSCCtx::CreateNull() {
+  JSValueRef value = JSValueMakeNull(context_);
+  return std::make_shared<JSCCtxValue>(context_, value);
 }
 
-napi_value napi_create_object(napi_context context, const char* json) {
-  HIPPY_DCHECK(context);
-
-  JSStringRef stringRef = JSStringCreateWithUTF8CString(json);
-  JSValueRef value = JSValueMakeFromJSONString(context->context_, stringRef);
-  JSStringRelease(stringRef);
-  napi_value v = std::make_shared<napi_value__>(context, value);
-  return v;
+std::shared_ptr<CtxValue> JSCCtx::CreateObject(const char* json) {
+  JSStringRef str_ref = JSStringCreateWithUTF8CString(json);
+  JSValueRef value = JSValueMakeFromJSONString(context_, str_ref);
+  JSStringRelease(str_ref);
+  return std::make_shared<JSCCtxValue>(context_, value);
 }
 
-napi_value napi_create_array(napi_context context,
-                             size_t count,
-                             napi_value value[]) {
-  HIPPY_DCHECK(context);
-
+std::shared_ptr<CtxValue> JSCCtx::CreateArray(
+    size_t count,
+    std::shared_ptr<CtxValue> array[]) {
   if (count <= 0) {
     return nullptr;
   }
 
-  JSValueRef valuesRef[count];  // NOLINT(runtime/arrays)
+  JSValueRef values[count];  // NOLINT(runtime/arrays)
   for (size_t i = 0; i < count; i++) {
-    valuesRef[i] = value[i]->value_;
+    std::shared_ptr<JSCCtxValue> ele_value =
+        std::static_pointer_cast<JSCCtxValue>(array[i]);
+    values[i] = ele_value->value_;
   }
-  JSValueRef valueRef =
-      JSObjectMakeArray(context->context_, count, valuesRef, nullptr);
-  napi_value v = std::make_shared<napi_value__>(context, valueRef);
-  return v;
+  JSValueRef value_ref = JSObjectMakeArray(context_, count, values, nullptr);
+  return std::make_shared<JSCCtxValue>(context_, value_ref);
 }
 
-napi_value napi_call_function(napi_context context,
-                              napi_value function,
-                              size_t argument_count,
-                              const napi_value argumets[]) {
-  HIPPY_DCHECK(context);
-
-  JSValueRef valueRef = function->value_;
-  JSObjectRef object = const_cast<JSObjectRef>(valueRef);
-  if (argument_count <= 0) {
-    JSValueRef exception = nullptr;
-    JSValueRef retValueRef = JSObjectCallAsFunction(
-        context->context_, object, nullptr, 0, nullptr, &exception);
-    exception_description(context->context_, exception);
-    napi_value retValue = std::make_shared<napi_value__>(context, retValueRef);
-    return retValue;
-  }
-
-  JSValueRef values[argument_count];  // NOLINT(runtime/arrays)
-  for (size_t i = 0; i < argument_count; i++) {
-    values[i] = argumets[i]->value_;
-  }
-
-  JSValueRef exception = nullptr;
-  JSValueRef retValueRef = JSObjectCallAsFunction(
-      context->context_, object, nullptr, argument_count, values, &exception);
-  exception_description(context->context_, exception);
-
-  if (!retValueRef) {
+std::shared_ptr<CtxValue> JSCCtx::CopyArrayElement(
+    std::shared_ptr<CtxValue> array,
+    uint32_t index) {
+  std::shared_ptr<JSCCtxValue> array_value =
+      std::static_pointer_cast<JSCCtxValue>(array);
+  uint32_t count = GetArrayLength(array_value);
+  if (count <= 0 || index >= count) {
     return nullptr;
   }
 
-  return std::make_shared<napi_value__>(context, retValueRef);
+  JSValueRef value_ref = array_value->value_;
+  JSObjectRef array_ref = JSValueToObject(context_, value_ref, nullptr);
+  JSValueRef element =
+      JSObjectGetPropertyAtIndex(context_, array_ref, index, nullptr);
+  return std::make_shared<JSCCtxValue>(context_, element);
+}
+
+std::shared_ptr<CtxValue> JSCCtx::CopyNamedProperty(
+    std::shared_ptr<CtxValue> value,
+    const char* name) {
+  std::shared_ptr<JSCCtxValue> ctx_value =
+      std::static_pointer_cast<JSCCtxValue>(value);
+  JSValueRef value_ref = ctx_value->value_;
+  JSObjectRef object = JSValueToObject(context_, value_ref, nullptr);
+  JSStringRef property_name = JSStringCreateWithUTF8CString(name);
+  JSValueRef property =
+      JSObjectGetProperty(context_, object, property_name, nullptr);
+  JSStringRelease(property_name);
+  if (JSValueIsNull(context_, property) ||
+      JSValueIsUndefined(context_, property)) {
+    return nullptr;
+  }
+
+  return std::make_shared<JSCCtxValue>(context_, property);
+}
+
+std::shared_ptr<CtxValue> JSCCtx::CallFunction(
+    std::shared_ptr<CtxValue> function,
+    size_t argc,
+    const std::shared_ptr<CtxValue> args[]) {
+  std::shared_ptr<JSCCtxValue> func_value =
+      std::static_pointer_cast<JSCCtxValue>(function);
+  JSValueRef value_ref = func_value->value_;
+  JSObjectRef object = const_cast<JSObjectRef>(value_ref);
+  if (argc <= 0) {
+    JSValueRef exception = nullptr;
+    JSValueRef ret_value_ref = JSObjectCallAsFunction(context_, object, nullptr,
+                                                      0, nullptr, &exception);
+    ExceptionDescription(context_, exception);
+    return std::make_shared<JSCCtxValue>(context_, ret_value_ref);
+  }
+
+  JSValueRef values[argc];  // NOLINT(runtime/arrays)
+  for (size_t i = 0; i < argc; i++) {
+    std::shared_ptr<JSCCtxValue> arg_value =
+        std::static_pointer_cast<JSCCtxValue>(args[i]);
+    values[i] = arg_value->value_;
+  }
+
+  JSValueRef exception = nullptr;
+  JSValueRef ret_value_ref = JSObjectCallAsFunction(context_, object, nullptr,
+                                                    argc, values, &exception);
+  ExceptionDescription(context_, exception);
+
+  if (!ret_value_ref) {
+    return nullptr;
+  }
+
+  return std::make_shared<JSCCtxValue>(context_, ret_value_ref);
 }
 
 }  // namespace napi

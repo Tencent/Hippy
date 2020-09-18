@@ -28,6 +28,7 @@
 #include <android/log.h>
 #else
 #include <stdio.h>
+
 #include <iostream>
 #endif  // OS_ANDROID
 

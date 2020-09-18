@@ -20,23 +20,8 @@
  *
  */
 
-#ifndef CORE_NAPI_NATIVE_SOURCE_CODE_H_
-#define CORE_NAPI_NATIVE_SOURCE_CODE_H_
+#include "core/task/common-task.h"
 
-#include <stddef.h>
-#include <stdint.h>
-
-#include <string>
-
-namespace hippy {
-
-struct NativeSourceCode {
-  const uint8_t* data_;
-  size_t length_;  // strlen(data_)
-};
-
-const NativeSourceCode GetNativeSourceCode(const std::string& filename);
-
-}  // namespace hippy
-
-#endif  // CORE_NAPI_NATIVE_SOURCE_CODE_H_
+void CommonTask::Run() {
+  func_();
+}

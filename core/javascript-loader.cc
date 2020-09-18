@@ -28,19 +28,20 @@
 #include <thread>  // NOLINT(build/c++11)
 #include <utility>
 
-JavaScriptLoader::JavaScriptLoader() : m_filePath(nullptr) {}
+JavaScriptLoader::JavaScriptLoader()
+    : file_path_(nullptr), progress_(nullptr), complete_(nullptr) {}
 
 JavaScriptLoader::~JavaScriptLoader() {
-  if (m_filePath) {
-    free(m_filePath);
+  if (file_path_) {
+    free(file_path_);
   }
-  m_filePath = nullptr;
+  file_path_ = nullptr;
 
-  m_complete = nullptr;
-  m_progress = nullptr;
+  complete_ = nullptr;
+  progress_ = nullptr;
 }
 
-int JavaScriptLoader::loadBundleAtURL(const std::string& scriptURL,
+int JavaScriptLoader::LoadBundleAtURL(const std::string& scriptURL,
                                       OnProgress progress,
                                       OnComplete complete) {
   int ret = 0;
@@ -60,12 +61,11 @@ int JavaScriptLoader::loadBundleAtURL(const std::string& scriptURL,
     if (isLocalFile) {
       std::shared_ptr<JavaScriptLoader> loader =
           std::make_shared<JavaScriptLoader>();
-      std::thread([
-        loader = std::move(loader), scriptURL, prefixLen, progress, complete
-      ]() {
-        loader->initLoader(scriptURL, static_cast<int>(prefixLen), progress,
+      std::thread([loader = std::move(loader), scriptURL, prefixLen, progress,
+                   complete]() {
+        loader->InitLoader(scriptURL, static_cast<int>(prefixLen), progress,
                            complete);
-        loader->threadFunc();
+        loader->ThreadFunc();
       });
     } else {  // net work;
     }
@@ -74,26 +74,28 @@ int JavaScriptLoader::loadBundleAtURL(const std::string& scriptURL,
   return ret;
 }
 
-void JavaScriptLoader::initLoader(const std::string& scriptURL, int pos,
-                                  OnProgress progress, OnComplete complete) {
+void JavaScriptLoader::InitLoader(const std::string& scriptURL,
+                                  int pos,
+                                  OnProgress progress,
+                                  OnComplete complete) {
   std::string path = scriptURL.substr(pos);
 
   size_t length = path.length();
   auto str = reinterpret_cast<char*>(malloc(length));
   memcpy(str, path.c_str(), length);
 
-  m_filePath = str;
+  file_path_ = str;
 
-  m_progress = progress;
-  m_complete = complete;
+  progress_ = progress;
+  complete_ = complete;
 }
 
-void JavaScriptLoader::threadFunc() {
-  std::ifstream ifs(m_filePath);
+void JavaScriptLoader::ThreadFunc() {
+  std::ifstream ifs(file_path_);
   std::string source((std::istreambuf_iterator<char>(ifs)),
                      (std::istreambuf_iterator<char>()));
 
-  if (m_complete) {
-    m_complete(0, source, source.length());
+  if (complete_) {
+    complete_(0, source, source.length());
   }
 }

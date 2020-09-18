@@ -38,7 +38,7 @@ class JavaScriptTaskRunner;
 
 class TimerModule : public ModuleBase {
  public:
-  explicit TimerModule(hippy::napi::napi_context context);
+  explicit TimerModule();
   ~TimerModule();
 
   void SetTimeout(const hippy::napi::CallbackInfo& info);
@@ -48,27 +48,28 @@ class TimerModule : public ModuleBase {
 
  private:
   using TaskId = hippy::base::Task::TaskId;
+  using CtxValue = hippy::napi::CtxValue;
+  using Ctx = hippy::napi::Ctx;
 
-  hippy::napi::napi_value Start(const hippy::napi::CallbackInfo& info,
-                                bool repeat);
+  std::shared_ptr<CtxValue> Start(const hippy::napi::CallbackInfo& info,
+                                  bool repeat);
   void RemoveTask(std::shared_ptr<JavaScriptTask> task);
-  void Cancel(TaskId task_id);
+  void Cancel(TaskId task_id, std::shared_ptr<Scope> scope);
 
   struct TaskEntry {
-    TaskEntry(hippy::napi::napi_context context,
+    TaskEntry(std::shared_ptr<Ctx> context,
               std::weak_ptr<JavaScriptTask> task,
-              hippy::napi::napi_value function) {
+              std::shared_ptr<CtxValue> function) {
       task_ = std::move(task);
       function_ = function;
       context_ = context;
     }
 
     std::weak_ptr<JavaScriptTask> task_;
-    hippy::napi::napi_value function_;
-    hippy::napi::napi_context context_;
+    std::shared_ptr<CtxValue> function_;
+    std::shared_ptr<Ctx> context_;
   };
 
-  JavaScriptTaskRunner* task_runner_ = nullptr;
   std::unordered_map<TaskId, std::shared_ptr<TaskEntry>> task_map_;
 
   static const int kTimerInvalidId = 0;

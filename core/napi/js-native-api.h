@@ -25,6 +25,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+
 #include <string>
 
 #include "core/napi/js-native-api-types.h"
@@ -32,88 +33,12 @@
 namespace hippy {
 namespace napi {
 
-void napi_set_last_error(napi_context context, napi_status error);
-napi_status napi_get_last_error(napi_context context);
-std::string napi_str_error(napi_context context, napi_status error);
+std::shared_ptr<CtxValue> GetInternalBindingFn(std::shared_ptr<Scope> scope);
 
-napi_vm napi_create_vm();
-void napi_vm_release(napi_vm vm);
-napi_context napi_create_context(napi_vm vm);
-void napi_context_release(napi_vm vm, napi_context context);
+std::shared_ptr<VM> CreateVM();
 
-void* napi_get_vm_data(napi_vm vm);
-void* napi_get_platfrom(napi_vm vm);
-void  napi_enter_context(napi_context context);
-void  napi_exit_context(napi_context context);
-
-void napi_register_uncaught_exception_callback(napi_vm vm);
-
-void napi_add_module_class(napi_context context,
-                           const ModuleClassMap& modules);
-void napi_register_global_module(napi_context context,
-                                 const ModuleClassMap& modules);
-napi_value napi_get_internal_binding(napi_context context);
-bool napi_register_global_in_js(napi_context context);
-
-napi_value napi_evaluate_javascript(napi_context context,
-                                    const uint8_t* javascript_data,
-                                    size_t javascript_length,
-                                    const char* filename = nullptr);
-
+void DetachThread();
 // Create Value
-
-napi_value napi_create_number(napi_context context, double number);
-napi_value napi_create_boolean(napi_context context, bool b);
-napi_value napi_create_string(napi_context context, const char* string);
-napi_value napi_create_undefined(napi_context context);
-napi_value napi_create_null(napi_context context);
-napi_value napi_create_object(napi_context context, const char* json);
-napi_value napi_create_array(napi_context context,
-                             size_t count,
-                             napi_value value[]);
-
-// Get From Value
-
-bool napi_get_value_number(napi_context context,
-                           napi_value value,
-                           double* result);
-bool napi_get_value_number(napi_context context,
-                           napi_value value,
-                           int32_t* result);
-bool napi_get_value_boolean(napi_context context,
-                            napi_value value,
-                            bool* result);
-bool napi_get_value_string(napi_context context,
-                           napi_value value,
-                           std::string* result);
-bool napi_get_value_json(napi_context context,
-                         napi_value value,
-                         std::string* result);
-
-// Array Helpers
-
-bool napi_is_array(napi_context context, napi_value value);
-uint32_t napi_get_array_length(napi_context context, napi_value value);
-napi_value napi_copy_array_element(napi_context context,
-                                   napi_value value,
-                                   uint32_t index);
-
-// Object Helpers
-
-bool napi_has_named_property(napi_context context,
-                             napi_value value,
-                             const char* utf8name);
-napi_value napi_copy_named_property(napi_context context,
-                                    napi_value value,
-                                    const char* utf8name);
-// Function Helpers
-
-bool napi_is_function(napi_context context, napi_value value);
-std::string napi_copy_function_name(napi_context context, napi_value function);
-napi_value napi_call_function(napi_context context,
-                              napi_value function,
-                              size_t argument_count = 0,
-                              const napi_value argumets[] = nullptr);
 
 }  // namespace napi
 }  // namespace hippy

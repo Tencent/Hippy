@@ -27,9 +27,11 @@
 #include "core/napi/callback-info.h"
 #include "core/napi/js-native-api-types.h"
 
+class Scope;
+
 class ContextifyModule : public ModuleBase {
  public:
-  explicit ContextifyModule(hippy::napi::napi_context context) {}
+  explicit ContextifyModule(){};
   void RunInThisContext(const hippy::napi::CallbackInfo& info);
 };
 

@@ -22,7 +22,9 @@
 
 #include "core/task/javascript-task.h"
 
-bool JavaScriptTask::is_priority_task() { return false; }
+bool JavaScriptTask::isPriorityTask() {
+  return false;
+}
 
 void JavaScriptTask::Run() {
   if (callback) {

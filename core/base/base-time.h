@@ -20,33 +20,22 @@
  *
  */
 
-#ifndef CORE_BASE_COMMON_H_
-#define CORE_BASE_COMMON_H_
+#ifndef CORE_BASE_TIME_H_
+#define CORE_BASE_TIME_H_
 
-#include <functional>
-#include <string>
-#include <unordered_map>
+#include <stdint.h>
+
+#include <chrono>
 
 namespace hippy {
 namespace base {
-
-const std::string kVMCreateCBKey = "VM_CREATED";
-const std::string kContextCreatedCBKey = "CONTEXT_CREATED";
-const std::string KScopeInitializedCBKey = "SCOPE_INITIALIEZED";
-const std::string kAsyncTaskEndKey = "ASYNC_TASK_END";
-
-using RegisterFunction = std::function<void(void*)>;
-using RegisterMap = std::unordered_map<std::string, RegisterFunction>;
-
-template <class F>
-auto MakeCopyable(F&& f) {
-  auto s = std::make_shared<std::decay_t<F>>(std::forward<F>(f));
-  return [s](auto&&... args) -> decltype(auto) {
-    return (*s)(decltype(args)(args)...);
-  };
+inline uint64_t MonotonicallyIncreasingTime() {
+  auto now = std::chrono::steady_clock::now();
+  auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now)
+                    .time_since_epoch();
+  return std::chrono::duration_cast<std::chrono::milliseconds>(now_ms).count();
 }
-
 }  // namespace base
 }  // namespace hippy
 
-#endif
+#endif  // CORE_BASE_TIME_H_

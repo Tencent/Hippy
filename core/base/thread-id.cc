@@ -31,19 +31,19 @@ pthread_t ThreadId::kInvalidId = 0;
 
 ThreadId::~ThreadId() {}
 
-void ThreadId::initId(pthread_t id) {
-  if (m_id_ != kInvalidId) {
+void ThreadId::InitId(pthread_t id) {
+  if (id_ != kInvalidId) {
     return;
   }
 
   HIPPY_CHECK(id != (pthread_t)(0));
-  m_id_ = id;
+  id_ = id;
 }
 
-ThreadId ThreadId::getCurrent() {
+ThreadId ThreadId::GetCurrent() {
   ThreadId id;
   pthread_t tid = pthread_self();
-  id.initId(tid);
+  id.InitId(tid);
   return id;
 }
 
