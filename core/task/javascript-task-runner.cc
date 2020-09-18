@@ -26,17 +26,19 @@
 
 #include "core/base/task.h"
 
-JavaScriptTaskRunner::JavaScriptTaskRunner() { setName("hippy.js"); }
+JavaScriptTaskRunner::JavaScriptTaskRunner() {
+  SetName("hippy.js");
+}
 
-bool JavaScriptTaskRunner::is_js_thread() {
-  return this->Id() == hippy::base::ThreadId::getCurrent();
+bool JavaScriptTaskRunner::IsJsThread() {
+  return this->Id() == hippy::base::ThreadId::GetCurrent();
 }
 
 // keep the same with TaskRunner::run
-void JavaScriptTaskRunner::pauseThreadForInspector() {
-  m_isInspectorCallPause = true;
+void JavaScriptTaskRunner::PauseThreadForInspector() {
+  is_inspector_call_pause_ = true;
 
-  while (m_isInspectorCallPause) {
+  while (is_inspector_call_pause_) {
     std::shared_ptr<hippy::base::Task> task = GetNext();
     if (task == nullptr) {
       return;
@@ -48,6 +50,6 @@ void JavaScriptTaskRunner::pauseThreadForInspector() {
   }
 }
 
-void JavaScriptTaskRunner::resumeThreadForInspector() {
-  m_isInspectorCallPause = false;
+void JavaScriptTaskRunner::ResumeThreadForInspector() {
+  is_inspector_call_pause_ = false;
 }

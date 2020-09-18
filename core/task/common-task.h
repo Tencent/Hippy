@@ -20,38 +20,18 @@
  *
  */
 
-#ifndef ANDROID_HIPPY_COPYABLELAMBDA_H
-#define ANDROID_HIPPY_COPYABLELAMBDA_H
+#ifndef CORE_TASK_COMMON_TASK_H_
+#define CORE_TASK_COMMON_TASK_H_
 
-namespace hippy {
-namespace base {
+#include <functional>
 
-template <typename T>
-class CopyableLambda {
+#include "core/base/task.h"
+
+class CommonTask : public hippy::base::Task {
  public:
-  explicit CopyableLambda(T func)
-      : impl_(std::make_shared<Impl>(std::move(func))) {}
-
-  template <typename... ArgType>
-  void operator()(ArgType&&... args) const {
-    impl_->func_(std::forward<ArgType>(args)...);
-  }
-
- private:
-  class Impl {
-   public:
-    explicit Impl(T func) : func_(std::move(func)) {}
-    T func_;
-  };
-
-  std::shared_ptr<Impl> impl_;
+  void Run() override;
+  virtual inline bool isPriorityTask() override { return false; };
+  std::function<void()> func_;
 };
 
-template <typename T>
-CopyableLambda<T> MakeCopyable(T lambda) {
-  return CopyableLambda<T>(std::move(lambda));
-}
-
-}  // namespace base
-}  // namespace hippy
-#endif  // ANDROID_HIPPY_COPYABLELAMBDA_H
+#endif  // CORE_TASK_COMMON_TASK_H_

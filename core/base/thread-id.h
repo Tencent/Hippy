@@ -34,14 +34,14 @@ class ThreadId {
   constexpr ThreadId() noexcept = default;
   ~ThreadId();
 
-  bool operator==(const ThreadId& other) const { return m_id_ == other.m_id_; }
-  bool operator!=(const ThreadId& other) const { return m_id_ != other.m_id_; }
+  bool operator==(const ThreadId& other) const { return id_ == other.id_; }
+  bool operator!=(const ThreadId& other) const { return id_ != other.id_; }
 
-  void initId(pthread_t id);
-  static ThreadId getCurrent();
+  void InitId(pthread_t id);
+  static ThreadId GetCurrent();
 
  private:
-  pthread_t m_id_ = kInvalidId;
+  pthread_t id_ = kInvalidId;
   static pthread_t kInvalidId;
 };
 

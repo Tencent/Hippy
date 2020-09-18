@@ -24,6 +24,7 @@
 #define CORE_BASE_LOGGING_H_
 
 #include <assert.h>
+
 #include <string>
 
 namespace hippy {
@@ -48,7 +49,10 @@ void Log(LoggingLevel level, const char* format, Args&&... args) {
   GetLoggingFunction(level)(format, args...);
 }
 template <typename... Args>
-void Log(LoggingLevel level, const char* file, int line, const char* format,
+void Log(LoggingLevel level,
+         const char* file,
+         int line,
+         const char* format,
          Args&&... args) {
   GetLoggingFunction(level)(GetLoggingFormat(file, line, format).c_str(),
                             args...);
@@ -66,14 +70,16 @@ void Log(LoggingLevel level, const char* file, int line, const char* format,
 #define HIPPY_DLOG(level, ...) (void(0))
 #endif  // DEBUG
 
-// TODO(botmanli): print current call stack and do data report
+// TODO(botmanli): print current call stack and do data_ report
 #define HIPPY_CHECK_WITH_MSG(condition, message) \
   assert(condition);                             \
-  if (!(condition)) HIPPY_LOG(hippy::Fatal, "check failed: %s", message)
+  if (!(condition))                              \
+  HIPPY_LOG(hippy::Fatal, "check failed: %s", message)
 
 #define HIPPY_DCHECK_WITH_MSG(condition, message) \
   assert(condition);                              \
-  if (!(condition)) HIPPY_DLOG(hippy::Fatal, "check failed: %s", message)
+  if (!(condition))                               \
+  HIPPY_DLOG(hippy::Fatal, "check failed: %s", message)
 
 #define HIPPY_CHECK(condition) HIPPY_CHECK_WITH_MSG(condition, #condition)
 #define HIPPY_DCHECK(condition) HIPPY_DCHECK_WITH_MSG(condition, #condition)

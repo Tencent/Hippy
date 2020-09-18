@@ -1,20 +1,46 @@
+/*
+ *
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 #ifndef INSPECTOR_V8_INSPECTOR_CLIENT_IMPL_H_
 #define INSPECTOR_V8_INSPECTOR_CLIENT_IMPL_H_
 
 #include <memory>
 #include <string>
 
-#include "jni-env.h"  // NOLINT(build/include_subdir)
-#include "runtime.h"  // NOLINT(build/include_subdir)
+#include "core/scope.h"
+#include "scoped-java-ref.h"
+#include "v8-channel-impl.h"
 
 class V8InspectorClientImpl : public v8_inspector::V8InspectorClient {
  public:
-  V8InspectorClientImpl() = default;
-  ~V8InspectorClientImpl() override = default;
+  V8InspectorClientImpl(std::shared_ptr<Scope> scope);
+  ~V8InspectorClientImpl() = default;
 
-  static void initInspectorClient(V8Runtime* runtime);
-  static void sendMessageToV8(char* params);
-  static void onContextDestroyed(V8Runtime* runtime);
+  void Reset(std::shared_ptr<Scope> scope, std::shared_ptr<JavaRef> bridge);
+  void Connect(std::shared_ptr<JavaRef> bridge);
+
+  void SendMessageToV8(std::shared_ptr<std::vector<uint8_t>> params);
+  void CreateContext();
+  void DestroyContext();
 
   void runMessageLoopOnPause(int contextGroupId) override;
   void quitMessageLoopOnPause() override;
@@ -48,7 +74,8 @@ class V8InspectorClientImpl : public v8_inspector::V8InspectorClient {
                          v8::Isolate::MessageErrorLevel level,
                          const v8_inspector::StringView& message,
                          const v8_inspector::StringView& url,
-                         unsigned lineNumber, unsigned columnNumber,
+                         unsigned lineNumber,
+                         unsigned columnNumber,
                          v8_inspector::V8StackTrace*) override {}
 
   v8::MaybeLocal<v8::Value> memoryInfo(v8::Isolate*,
@@ -70,6 +97,12 @@ class V8InspectorClientImpl : public v8_inspector::V8InspectorClient {
   bool canExecuteScripts(int contextGroupId) override { return true; }
 
   void maxAsyncCallStackDepthChanged(int depth) override {}
+
+ private:
+  std::shared_ptr<Scope> scope_;
+  std::unique_ptr<v8_inspector::V8Inspector> inspector_;
+  std::unique_ptr<V8ChannelImpl> channel_;
+  std::unique_ptr<v8_inspector::V8InspectorSession> session_;
 };
 
 #endif  // INSPECTOR_V8_INSPECTOR_CLIENT_IMPL_H_

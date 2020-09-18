@@ -31,7 +31,9 @@ std::atomic<hippy::base::Task::TaskId> g_next_task_id{100};
 namespace hippy {
 namespace base {
 
-Task::Task() { id_ = g_next_task_id.fetch_add(1); }
+Task::Task() {
+  id_ = g_next_task_id.fetch_add(1);
+}
 
 }  // namespace base
 }  // namespace hippy

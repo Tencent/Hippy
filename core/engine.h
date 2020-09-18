@@ -29,54 +29,51 @@
 
 #include "core/base/common.h"
 #include "core/napi/js-native-api-types.h"
+#include "core/task/javascript-task-runner.h"
+#include "core/task/worker-task-runner.h"
 
-class EngineImpl;
-class Environment;
-class JavaScriptTaskRunner;
+class Scope;
 
-class Engine : public std::enable_shared_from_this<Engine> {
+class Engine {
  public:
-  using EngineId = int32_t;
   using RegisterMap = hippy::base::RegisterMap;
+  using WorkerTaskRunner = hippy::base::WorkerTaskRunner;
+  using VM = hippy::napi::VM;
+  using RegisterFunction = hippy::base::RegisterFunction;
 
-  explicit Engine(EngineId engine_id);
+  explicit Engine(
+      std::unique_ptr<RegisterMap> map = std::make_unique<RegisterMap>());
   virtual ~Engine();
 
-  std::weak_ptr<Environment> CreateEnvironment(const std::string& name = "", std::unique_ptr<RegisterMap> map = std::unique_ptr<RegisterMap>());
-  std::weak_ptr<Environment> GetEnvironment(hippy::napi::napi_context context);
-  void RemoveEnvironment(std::weak_ptr<Environment> env);
+  void Enter();
+  void Exit();
+  std::shared_ptr<Scope> CreateScope(
+      const std::string& name = "",
+      std::unique_ptr<RegisterMap> map = std::unique_ptr<RegisterMap>());
+  inline const std::shared_ptr<VM> GetVM() { return vm_; }
 
   void TerminateRunner();
-  inline JavaScriptTaskRunner* jsRunner() { return js_runner_; }
-  inline hippy::napi::napi_vm GetVM() { return vm_; }
-  inline void UnRefEnvironment() {
-    std::lock_guard<std::mutex> lock(m_mutex);
-    environment_count_--;
+  inline std::shared_ptr<JavaScriptTaskRunner> GetJSRunner() {
+    return js_runner_;
   }
-  inline size_t GetEnvironmentCount() {
-    std::lock_guard<std::mutex> lock(m_mutex);
-
-    return environment_count_;
+  inline std::shared_ptr<hippy::base::WorkerTaskRunner> GetWorkerTaskRunner() {
+    return worker_task_runner_;
   }
-  void* ConvertVMData();
-  void* GetJSPlatform();
 
  private:
-  void setupThreads();
-  hippy::napi::napi_vm createVM();
-  inline hippy::napi::napi_vm getVM() { return vm_; }
-  std::shared_ptr<Engine> GetPtr() { return shared_from_this(); }
+  void SetupThreads();
+  void CreateVM();
 
  private:
-  friend class Environment;
-  friend class EngineImpl;
+  static const uint32_t kDefaultWorkerPoolSize;
 
-  std::vector<std::shared_ptr<Environment>> env_list_;
-  JavaScriptTaskRunner* js_runner_;
-  hippy::napi::napi_vm vm_;
-  EngineId id_;
-  std::mutex m_mutex;
-  size_t environment_count_;
+  std::shared_ptr<JavaScriptTaskRunner> js_runner_;
+  std::shared_ptr<WorkerTaskRunner> worker_task_runner_;
+  std::shared_ptr<VM> vm_;
+  std::unique_ptr<RegisterMap> map_;
+  std::mutex cnt_mutex_;
+  std::mutex runner_mutex_;
+  uint32_t scope_cnt_;
 };
 
 #endif  // CORE_ENGINE_H_

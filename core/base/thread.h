@@ -50,9 +50,9 @@ class Thread {
   explicit Thread(const Options& options);
   virtual ~Thread();
 
-  void setName(const char* name);
+  void SetName(const char* name);
   inline ThreadId Id() { return thread_id_; }
-  static ThreadId getCurrent();
+  static ThreadId GetCurrent();
 
   virtual void Run() = 0;
   void Start();

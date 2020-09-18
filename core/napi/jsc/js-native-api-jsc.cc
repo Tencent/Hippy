@@ -27,7 +27,6 @@
 #include <string>
 
 #include "core/base/logging.h"
-#include "core/engine-impl.h"
 #include "core/napi/callback-info.h"
 #include "core/napi/js-native-api.h"
 #include "core/napi/jsc/js-native-jsc-helper.h"
@@ -35,123 +34,41 @@
 namespace hippy {
 namespace napi {
 
-class ContextManager {
- public:
-  ContextManager() = default;
-  ~ContextManager() = default;
-
- public:
-  static ContextManager* instance() {
-    static std::once_flag flag;
-    static ContextManager* _in;
-
-    std::call_once(flag, [] { _in = new ContextManager(); });
-
-    return _in;
-  }
-
-  napi_context__* get_context(JSContextRef ctx) {
-    std::lock_guard<std::mutex> lock(m_mutex);
-
-    size_t count = context_list.size();
-    for (size_t i = 0; i < count; i++) {
-      napi_context__* context = context_list[i];
-      if (context->context_ == JSContextGetGlobalContext(ctx)) {
-        return context;
-      }
-    }
-
-    return nullptr;
-  }
-
-  JsCallback get_callback(napi_context context,
-                          const std::string& className,
-                          const std::string& functionName) {
-    std::lock_guard<std::mutex> lock(m_mutex);
-
-    for (const auto& cls : context->modules) {
-      const std::string& class_name = cls.first;
-      if (className.find(class_name) != std::string::npos) {
-        for (const auto& fn : cls.second) {
-          const std::string& function_name = fn.first;
-          if (functionName.find(function_name) != std::string::npos) {
-            return fn.second;
-          }
-        }
-        return nullptr;
-      }
-    }
-    return nullptr;
-  }
-
-  void add_context(napi_context__* context) {
-    std::lock_guard<std::mutex> lock(m_mutex);
-
-    context_list.push_back(context);
-  }
-
-  void remove_context(napi_context context) {
-    std::lock_guard<std::mutex> lock(m_mutex);
-
-    auto item =
-        std::find(std::begin(context_list), std::end(context_list), context);
-    if (item != context_list.end()) {
-      context_list.erase(item);
-    }
-  }
-
- private:
-  std::vector<napi_context__*> context_list;
-  std::mutex m_mutex;
-};
-
-JSValueRef JS_Function_Callback(JSContextRef ctx,
-                                JSObjectRef function,
-                                JSObjectRef thisObject,
-                                size_t argumentCount,
-                                const JSValueRef arguments[],
-                                JSValueRef* exception) {
-  napi_context__* context = ContextManager::instance()->get_context(ctx);
-  if (!context) {
+JSValueRef JsCallbackFunc(JSContextRef ctx,
+                          JSObjectRef function,
+                          JSObjectRef thisObject,
+                          size_t argumentCount,
+                          const JSValueRef arguments[],
+                          JSValueRef* exception_ref) {
+  void* data = JSObjectGetPrivate(function);
+  if (!data) {
     return JSValueMakeUndefined(ctx);
   }
-
-  JSStringRef object_js_string = JSValueToStringCopy(ctx, thisObject, nullptr);
-  std::string object_name = js_string_to_utf8(object_js_string);
-  size_t pos = object_name.find_first_of("object");
-  size_t n = strlen("object");
-  object_name.replace(pos, n, "");
-
-  JSStringRef function_js_string = JSValueToStringCopy(ctx, function, nullptr);
-  std::string function_name = js_string_to_utf8(function_js_string);
-  pos = function_name.find_first_of("function");
-  n = strlen("function");
-  function_name.replace(pos, n, "");
-
-  JsCallback func = ContextManager::instance()->get_callback(
-      context, object_name, function_name);
-  if (!func) {
+  FunctionData* fn_data = reinterpret_cast<FunctionData*>(data);
+  std::shared_ptr<Scope> scope = fn_data->scope_.lock();
+  if (!scope) {
     return JSValueMakeUndefined(ctx);
   }
-
-  std::shared_ptr<Environment> env = EngineImpl::instance()->GetEnvWithContext(context).lock();
-  if (!env) {
-      return JSValueMakeUndefined(ctx);
-  }
-  CallbackInfo info(env);
+  JsCallback cb = fn_data->callback_;
+  std::shared_ptr<JSCCtx> context =
+      std::static_pointer_cast<JSCCtx>(scope->GetContext());
+  CallbackInfo info(scope);
   for (size_t i = 0; i < argumentCount; i++) {
-    info.AddValue(std::make_shared<napi_value__>(context, arguments[i]));
+    info.AddValue(
+        std::make_shared<JSCCtxValue>(context->GetCtxRef(), arguments[i]));
   }
-  func(info);
+  cb(info);
 
-  napi_value js_exception = info.GetExceptionValue()->Get();
-  if (js_exception) {
-    *exception = js_exception->value_;
+  std::shared_ptr<JSCCtxValue> exception =
+      std::static_pointer_cast<JSCCtxValue>(info.GetExceptionValue()->Get());
+  if (exception) {
+    *exception_ref = exception->value_;
     return JSValueMakeUndefined(ctx);
   }
 
-  napi_value ret_value = info.GetReturnValue()->Get();
-  if (ret_value == nullptr) {
+  std::shared_ptr<JSCCtxValue> ret_value =
+      std::static_pointer_cast<JSCCtxValue>(info.GetReturnValue()->Get());
+  if (!ret_value) {
     return JSValueMakeUndefined(ctx);
   }
 
@@ -159,231 +76,217 @@ JSValueRef JS_Function_Callback(JSContextRef ctx,
   return valueRef;
 }
 
-void napi_set_last_error(napi_context context, napi_status error) {
-  HIPPY_DCHECK(context);
-
-  context->error = error;
-}
-
-napi_status napi_get_last_error(napi_context context) {
-  HIPPY_DCHECK(context);
-
-  return context->error;
-}
-
-std::string napi_str_error(napi_context context, napi_status error) {
-  return "";
-}
-
-napi_vm napi_create_vm() {
-  napi_vm vm = new napi_vm__();
-  return vm;
-}
-
-void napi_vm_release(napi_vm vm) {
-  delete vm;
-}
-
-void* napi_get_vm_data(napi_vm vm) {
-  return (void*)vm->vm;
-}
-
-void* napi_get_context_data(napi_context context) {
-  return (void*)context->context_;
-}
-
-void  napi_enter_context(napi_context context) {}
-void  napi_exit_context(napi_context context) {}
-
-void* napi_get_platfrom(napi_vm vm) {
-  return nullptr;
-}
-
-void napi_throw_exception(const napi_context context, const char* value) {}
-
-void napi_throw_exception(const napi_context context, napi_value value) {}
-void napi_register_uncaught_exception_callback(napi_vm vm) {}
-
-napi_context napi_create_context(napi_vm vm) {
-  if (vm == nullptr) {
-    return nullptr;
+JSObjectRef RegisterModule(std::shared_ptr<Scope> scope,
+                           JSContextRef ctx,
+                           std::string module_name,
+                           ModuleClass module) {
+  JSClassDefinition cls_def = kJSClassDefinitionEmpty;
+  cls_def.className = module_name.c_str();
+  JSClassRef cls_ref = JSClassCreate(&cls_def);
+  JSObjectRef module_obj = JSObjectMake(ctx, cls_ref, nullptr);
+  JSClassRelease(cls_ref);
+  for (auto fn : module) {
+    JSClassDefinition fn_def = kJSClassDefinitionEmpty;
+    fn_def.className = fn.first.c_str();
+    fn_def.callAsFunction = JsCallbackFunc;
+    std::unique_ptr<FunctionData> fn_data =
+        std::make_unique<FunctionData>(scope, fn.second);
+    JSClassRef fn_ref = JSClassCreate(&fn_def);
+    JSObjectRef fn_obj =
+        JSObjectMake(ctx, fn_ref, reinterpret_cast<void*>(fn_data.get()));
+    JSStringRef fn_str_ref = JSStringCreateWithUTF8CString(fn_def.className);
+    JSObjectSetProperty(ctx, module_obj, fn_str_ref, fn_obj,
+                        kJSPropertyAttributeReadOnly, nullptr);
+    JSStringRelease(fn_str_ref);
+    JSClassRelease(fn_ref);
+    scope->SaveFunctionData(std::move(fn_data));
   }
 
-  napi_context__* context = new napi_context__(vm->vm);
-  ContextManager::instance()->add_context(context);
-
-  return context;
+  std::shared_ptr<JSCCtx> context =
+      std::static_pointer_cast<JSCCtx>(scope->GetContext());
+  std::shared_ptr<JSCCtxValue> module_value =
+      std::make_shared<JSCCtxValue>(context->GetCtxRef(), module_obj);
+  scope->AddModuleValue(module_name, module_value);
+  return module_obj;
 }
 
-void napi_context_release(napi_vm vm, napi_context context) {
-  ContextManager::instance()->remove_context(context);
-
-  delete context;
+std::shared_ptr<VM> CreateVM() {
+  return std::make_shared<JSCVM>();
 }
 
-void napi_add_module_class(napi_context context,
-                           const ModuleClassMap& modules) {
-  HIPPY_DCHECK(context);
-  context->modules.insert(modules.begin(), modules.end());
+void DetachThread() {}
+
+void JSCVM::RegisterUncaughtExceptionCallback() {}
+
+std::shared_ptr<Ctx> JSCVM::CreateContext() {
+  return std::make_shared<JSCCtx>(vm_);
 }
 
-JSValueRef getInternalBinding(JSContextRef ctx,
+JSValueRef GetInternalBinding(JSContextRef ctx,
                               JSObjectRef function,
                               JSObjectRef thisObject,
-                              size_t argumentCount,
-                              const JSValueRef arguments[],
+                              size_t argc,
+                              const JSValueRef argv[],
                               JSValueRef* exception) {
-  if (argumentCount <= 0) {
+  if (argc <= 0) {
     return JSValueMakeNull(ctx);
   }
 
-  napi_context__* context = ContextManager::instance()->get_context(ctx);
-  if (!context) {
+  JSValueRef name_ref = argv[0];
+  if (!JSValueIsString(ctx, name_ref)) {
     return JSValueMakeNull(ctx);
   }
 
-  JSValueRef valueRef = arguments[0];
-  if (!JSValueIsString(ctx, valueRef)) {
+  BindingData* binding_data =
+      reinterpret_cast<BindingData*>(JSObjectGetPrivate(function));
+  std::shared_ptr<Scope> scope = binding_data->scope_.lock();
+  if (!scope) {
     return JSValueMakeNull(ctx);
   }
 
-  JSStringRef stringRef = JSValueToStringCopy(ctx, valueRef, nullptr);
-  std::string moduel_name = js_string_to_utf8(stringRef);
-  auto module_class = context->modules.find(moduel_name);
-  if (module_class == context->modules.end()) {
+  JSStringRef name_str_ref = JSValueToStringCopy(ctx, name_ref, nullptr);
+  std::string module_name = JsStrToUTF8(name_str_ref);
+  JSStringRelease(name_str_ref);
+
+  std::shared_ptr<JSCCtxValue> module_value =
+      std::static_pointer_cast<JSCCtxValue>(scope->GetModuleValue(module_name));
+  if (module_value) {
+    return module_value->value_;
+  }
+
+  ModuleClassMap module_class_map = binding_data->map_;
+  auto it = module_class_map.find(module_name);
+  if (it == module_class_map.end()) {
     return JSValueMakeNull(ctx);
   }
 
-  const std::string& className = module_class->first;
-  size_t count = module_class->second.size();
-  JSStaticFunction* staticFunctions = new JSStaticFunction[count + 1];
-  size_t index = 0;
-  for (const auto& fn : module_class->second) {
-    JSStaticFunction function = {};
-    const std::string& functionName = fn.first;
-    function.name = functionName.c_str();
-    function.callAsFunction = JS_Function_Callback;
-    function.attributes =
-        kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete;
-    staticFunctions[index++] = function;
-  }
-  staticFunctions[count] = {0, 0, 0};
-
-  JSStaticValue staticValues[] = {0, 0, 0, 0};
-
-  JSClassDefinition classDefinition = kJSClassDefinitionEmpty;
-  classDefinition.className = className.c_str();
-  classDefinition.staticFunctions = staticFunctions;
-  classDefinition.staticValues = staticValues;
-  classDefinition.attributes = kJSClassAttributeNone;
-  classDefinition.callAsConstructor = nullptr;
-  JSClassRef classRef = JSClassCreate(&classDefinition);
-  JSObjectRef object = JSObjectMake(context->context_, classRef, nullptr);
-  return object;
+  return RegisterModule(scope, ctx, module_name, it->second);
 }
 
-napi_value napi_get_internal_binding(napi_context context) {
-  HIPPY_DCHECK(context);
-
-  JSObjectRef functionObject = JSObjectMakeFunctionWithCallback(
-      context->context_, NULL, getInternalBinding);
-  napi_value retValue = std::make_shared<napi_value__>(context, functionObject);
+std::shared_ptr<CtxValue> GetInternalBindingFn(std::shared_ptr<Scope> scope) {
+  std::shared_ptr<JSCCtx> context =
+      std::static_pointer_cast<JSCCtx>(scope->GetContext());
+  JSClassDefinition cls_def = kJSClassDefinitionEmpty;
+  cls_def.callAsFunction = GetInternalBinding;
+  JSClassRef cls_ref = JSClassCreate(&cls_def);
+  JSObjectRef functionObject = JSObjectMake(context->GetCtxRef(), cls_ref,
+                                            scope->GetBindingData().get());
+  JSClassRelease(cls_ref);
+  std::shared_ptr<CtxValue> retValue =
+      std::make_shared<JSCCtxValue>(context->GetCtxRef(), functionObject);
   return retValue;
 }
 
-void napi_register_global_module(napi_context context,
-                                 const ModuleClassMap& modules) {
-  HIPPY_DCHECK(context);
+bool JSCCtx::RegisterGlobalInJs() {
+  JSStringRef global_ref = JSStringCreateWithUTF8CString("global");
+  JSObjectSetProperty(context_, JSContextGetGlobalObject(context_), global_ref,
+                      JSContextGetGlobalObject(context_),
+                      kJSPropertyAttributeDontDelete, nullptr);
+  JSStringRelease(global_ref);
 
-  for (const auto& cls : modules) {
-    const std::string& className = cls.first;
-    size_t count = cls.second.size();
-    JSStaticFunction* staticFunctions = new JSStaticFunction[count + 1];
-    size_t index = 0;
-
-    for (const auto& fn : cls.second) {
-      const std::string& functionName = fn.first;
-      JSStaticFunction function = {};
-      function.name = functionName.c_str();
-      function.callAsFunction = JS_Function_Callback;
-      function.attributes =
-          kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete;
-      staticFunctions[index++] = function;
-    }
-
-    staticFunctions[count] = {0, 0, 0};
-
-    JSStaticValue staticValues[] = {0, 0, 0, 0};
-
-    JSClassDefinition classDefinition = kJSClassDefinitionEmpty;
-    classDefinition.className = className.c_str();
-    classDefinition.staticFunctions = staticFunctions;
-    classDefinition.staticValues = staticValues;
-    classDefinition.attributes = kJSClassAttributeNone;
-    classDefinition.callAsConstructor = nullptr;
-    JSClassRef classRef = JSClassCreate(&classDefinition);
-    JSObjectRef object = JSObjectMake(context->context_, classRef, nullptr);
-
-    JSStringRef stringRef = JSStringCreateWithUTF8CString(className.c_str());
-    JSObjectSetProperty(context->context_, JSContextGetGlobalObject(context->context_), stringRef,
-                        object, kJSPropertyAttributeNone, nullptr);
-    JSStringRelease(stringRef);
-  }
+  return true;
 }
 
-bool napi_register_global_in_js(napi_context context) {
-  HIPPY_DCHECK(context);
-
-  JSGlobalContextRef ctx = context->context_;
-
-  JSValueRef jsError = NULL;
-  JSStringRef name = JSStringCreateWithUTF8CString("global");
-  JSObjectSetProperty(ctx, JSContextGetGlobalObject(context->context_), name, JSContextGetGlobalObject(context->context_),
-                      kJSPropertyAttributeNone, &jsError);
-  JSStringRelease(name);
-
-  exception_description(context->context_, jsError);
-
-  if (jsError) {
+bool JSCCtx::SetGlobalVar(const std::string& name, const char* json) {
+  JSObjectRef global_obj = JSContextGetGlobalObject(context_);
+  JSStringRef name_ref = JSStringCreateWithUTF8CString(name.c_str());
+  JSStringRef json_ref = JSStringCreateWithUTF8CString(json);
+  JSValueRef value_ref = JSValueMakeFromJSONString(context_, json_ref);
+  JSValueRef js_error = nullptr;
+  JSObjectSetProperty(context_, global_obj, name_ref, value_ref,
+                      kJSPropertyAttributeNone, &js_error);
+  JSStringRelease(name_ref);
+  JSStringRelease(json_ref);
+  if (js_error) {
     return false;
+  }
+  return true;
+}
+
+std::shared_ptr<CtxValue> JSCCtx::GetGlobalVar(const std::string& name) {
+  JSObjectRef global_obj = JSContextGetGlobalObject(context_);
+  JSStringRef name_ref = JSStringCreateWithUTF8CString(name.c_str());
+  JSValueRef value_ref =
+      JSObjectGetProperty(context_, global_obj, name_ref, nullptr);
+  bool value_is_undefined = JSValueIsUndefined(context_, value_ref);
+  JSStringRelease(name_ref);
+  if (value_is_undefined) {
+    return nullptr;
   } else {
-    return true;
+    std::shared_ptr<JSCCtxValue> jscctx_value =
+        std::make_shared<JSCCtxValue>(context_, value_ref);
+    return jscctx_value;
   }
 }
 
-napi_value napi_evaluate_javascript(napi_context context,
-                                    const uint8_t* javascript_data,
-                                    size_t javascript_length,
-                                    const char* filename) {
-  HIPPY_DCHECK(context);
+std::shared_ptr<CtxValue> JSCCtx::GetProperty(
+    const std::shared_ptr<CtxValue>& object,
+    const std::string& name) {
+  CtxValue* value = object.get();
+  JSCCtxValue* jsc_value = static_cast<JSCCtxValue*>(value);
+  if (JSValueIsObject(context_, jsc_value->value_)) {
+    JSObjectRef obj_ref = (JSObjectRef)jsc_value->value_;
+    JSStringRef name_ref = JSStringCreateWithUTF8CString(name.c_str());
+    JSValueRef value_ref =
+        JSObjectGetProperty(context_, obj_ref, name_ref, nullptr);
+    bool value_is_undefined = JSValueIsUndefined(context_, value_ref);
+    JSStringRelease(name_ref);
+    if (value_is_undefined) {
+      return nullptr;
+    } else {
+      std::shared_ptr<JSCCtxValue> jscctx_value =
+          std::make_shared<JSCCtxValue>(context_, value_ref);
+      return jscctx_value;
+    }
+  }
+  return nullptr;
+}
 
-  if (!javascript_data || !javascript_length) {
+void JSCCtx::RegisterGlobalModule(std::shared_ptr<Scope> scope,
+                                  const ModuleClassMap& module_cls_map) {
+  std::shared_ptr<JSCCtx> ctx =
+      std::static_pointer_cast<JSCCtx>(scope->GetContext());
+  JSGlobalContextRef ctx_ref = ctx->GetCtxRef();
+  for (const auto& module : module_cls_map) {
+    RegisterModule(scope, ctx_ref, module.first, module.second);
+  }
+}
+
+void JSCCtx::RegisterNativeBinding(const std::string& name,
+                                   hippy::base::RegisterFunction fn,
+                                   void* data) {
+  return;
+};
+
+std::shared_ptr<CtxValue> JSCCtx::EvaluateJavascript(const uint8_t* data,
+                                                     size_t len,
+                                                     const char* name) {
+  if (!data || !len) {
     return nullptr;
   }
 
-  JSGlobalContextRef ctx = context->context_;
-  const char* javascript = reinterpret_cast<const char*>(javascript_data);
-  JSStringRef jsString = JSStringCreateWithUTF8CString(javascript);
+  const char* js = reinterpret_cast<const char*>(data);
+  JSStringRef js_string = JSStringCreateWithUTF8CString(js);
   JSValueRef exception = nullptr;
 
-  JSStringRef filenameRef = nullptr;
-  if (filename && strlen(filename) > 0) {
-    filenameRef = JSStringCreateWithUTF8CString(filename);
+  JSStringRef file_name_ref = nullptr;
+  if (name && strlen(name) > 0) {
+    file_name_ref = JSStringCreateWithUTF8CString(name);
   }
-  JSValueRef value =
-      JSEvaluateScript(ctx, jsString, nullptr, filenameRef, 1, &exception);
-  if (filenameRef) {
-    JSStringRelease(filenameRef);
+  JSValueRef value = JSEvaluateScript(context_, js_string, nullptr,
+                                      file_name_ref, 1, &exception);
+  if (file_name_ref) {
+    JSStringRelease(file_name_ref);
   }
-  JSStringRelease(jsString);
+  JSStringRelease(js_string);
 
-  exception_description(context->context_, exception);
+  ExceptionDescription(context_, exception);
 
   if (!value) {
     return nullptr;
   }
 
-  return std::make_shared<napi_value__>(context, value);
+  return std::make_shared<JSCCtxValue>(context_, value);
 }
 
 }  // namespace napi

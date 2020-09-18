@@ -29,11 +29,11 @@
 
 class JavaScriptTask : public hippy::base::Task {
  public:
-  bool is_priority_task() override;
+  bool isPriorityTask() override;
   void Run() override;
 
   using Function = std::function<void()>;
-  Function callback;
+  Function callback = nullptr;
 };
 
 #endif  // CORE_TASK_JAVASCRIPT_TASK_H_

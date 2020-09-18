@@ -24,6 +24,7 @@
 #define CORE_BASE_TASK_RUNNER_H_
 
 #include <stdint.h>
+
 #include <condition_variable>  // NOLINT(build/c++11)
 #include <memory>
 #include <mutex>  // NOLINT(build/c++11)
@@ -46,13 +47,13 @@ class TaskRunner : public Thread {
 
   void Run() override;
   void Terminate();
-  void postTask(std::shared_ptr<Task> task);
-  void postDelayedTask(std::shared_ptr<Task> task,
+  void PostTask(std::shared_ptr<Task> task);
+  void PostDelayedTask(std::shared_ptr<Task> task,
                        DelayedTimeInMs delay_in_mseconds);
-  void cancelTask(std::shared_ptr<Task> task);
+  void CancelTask(std::shared_ptr<Task> task);
 
  protected:
-  void postTaskNoLock(std::shared_ptr<Task> task);
+  void PostTaskNoLock(std::shared_ptr<Task> task);
   std::shared_ptr<Task> popTaskFromDelayedQueueNoLock(DelayedTimeInMs now);
   std::shared_ptr<Task> GetNext();
 
@@ -66,12 +67,13 @@ class TaskRunner : public Thread {
       return left.first > right.first;
     }
   };
-  std::priority_queue<DelayedEntry, std::vector<DelayedEntry>,
+  std::priority_queue<DelayedEntry,
+                      std::vector<DelayedEntry>,
                       DelayedEntryCompare>
       delayed_task_queue_;
 
-  std::mutex m_mutex;
-  std::condition_variable m_cv;
+  std::mutex mutex_;
+  std::condition_variable cv_;
 };
 
 }  // namespace base

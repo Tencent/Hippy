@@ -20,11 +20,10 @@
  *
  */
 
-#include "core/napi/js-native-api.h"
-
 #include <string>
 
 #include "core/base/logging.h"
+#include "core/napi/js-native-api.h"
 #include "core/napi/v8/js-native-api-v8.h"
 
 namespace hippy {
@@ -32,130 +31,136 @@ namespace napi {
 
 // Create Value
 
-napi_value napi_create_number(napi_context context, double number) {
-  HIPPY_DCHECK(context);
-  v8::Isolate *isolate = context->isolate_;
-  v8::HandleScope isolate_scope(isolate);
+std::shared_ptr<CtxValue> V8Ctx::CreateNumber(double number) {
+  v8::HandleScope isolate_scope(isolate_);
 
-  v8::Handle<v8::Value> v8number = v8::Number::New(isolate, number);
+  v8::Handle<v8::Value> v8number = v8::Number::New(isolate_, number);
   if (v8number.IsEmpty()) {
     return nullptr;
   }
-  return std::make_shared<napi_value__>(isolate, v8number);
+  return std::make_shared<V8CtxValue>(isolate_, v8number);
 }
 
-napi_value napi_create_boolean(napi_context context, bool b) {
-  HIPPY_DCHECK(context);
-  v8::Isolate *isolate = context->isolate_;
-  v8::HandleScope isolate_scope(isolate);
+std::shared_ptr<CtxValue> V8Ctx::CreateBoolean(bool b) {
+  v8::HandleScope isolate_scope(isolate_);
 
-  v8::Handle<v8::Boolean> v8Boolean = v8::Boolean::New(isolate, b);
+  v8::Handle<v8::Boolean> v8Boolean = v8::Boolean::New(isolate_, b);
   if (v8Boolean.IsEmpty()) {
     return nullptr;
   }
-  return std::make_shared<napi_value__>(isolate, v8Boolean);
+  return std::make_shared<V8CtxValue>(isolate_, v8Boolean);
 }
 
-napi_value napi_create_string(napi_context context, const char *string) {
-  HIPPY_DCHECK(context);
+std::shared_ptr<CtxValue> V8Ctx::CreateString(const char *string) {
   if (!string) {
     return nullptr;
   }
-  v8::Isolate *isolate = context->isolate_;
-  v8::HandleScope isolate_scope(isolate);
+  v8::HandleScope isolate_scope(isolate_);
 
   v8::Handle<v8::String> v8String =
-      v8::String::NewFromUtf8(isolate, string, v8::NewStringType::kNormal)
+      v8::String::NewFromUtf8(isolate_, string, v8::NewStringType::kNormal)
           .ToLocalChecked();
   if (v8String.IsEmpty()) {
     return nullptr;
   }
-  return std::make_shared<napi_value__>(isolate, v8String);
+  return std::make_shared<V8CtxValue>(isolate_, v8String);
 }
 
-napi_value napi_create_undefined(napi_context context) {
-  HIPPY_DCHECK(context);
-  v8::Isolate *isolate = context->isolate_;
-  v8::HandleScope isolate_scope(isolate);
+std::shared_ptr<CtxValue> V8Ctx::CreateUndefined() {
+  v8::HandleScope isolate_scope(isolate_);
 
-  v8::Handle<v8::Value> undefined = v8::Undefined(isolate);
+  v8::Handle<v8::Value> undefined = v8::Undefined(isolate_);
   if (undefined.IsEmpty()) {
     return nullptr;
   }
-  return std::make_shared<napi_value__>(isolate, undefined);
+  return std::make_shared<V8CtxValue>(isolate_, undefined);
 }
 
-napi_value napi_create_null(napi_context context) {
-  HIPPY_DCHECK(context);
-  v8::Isolate *isolate = context->isolate_;
-  v8::HandleScope isolate_scope(isolate);
+std::shared_ptr<CtxValue> V8Ctx::CreateNull() {
+  v8::HandleScope isolate_scope(isolate_);
 
-  v8::Handle<v8::Value> v8Null = v8::Null(isolate);
+  v8::Handle<v8::Value> v8Null = v8::Null(isolate_);
   if (v8Null.IsEmpty()) {
     return nullptr;
   }
-  return std::make_shared<napi_value__>(isolate, v8Null);
+  return std::make_shared<V8CtxValue>(isolate_, v8Null);
 }
 
-napi_value napi_create_object(napi_context context, const char *json) {
-  HIPPY_DCHECK(context);
+v8::Handle<v8::Value> V8Ctx::ParseJson(const char *json) {
+  v8::HandleScope handle_scope(isolate_);
+
+  v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  /*
+  v8::Handle<v8::String> str =
+      v8::String::NewFromUtf8(isolate_, json, v8::NewStringType::kNormal)
+          .ToLocalChecked();
+
+  return v8::json_cls::Parse(isolate_, str).ToLocalChecked();
+  */
+  v8::Handle<v8::Object> global = context->Global();
+  v8::Handle<v8::Value> json_cls =
+      global->Get(v8::String::NewFromUtf8(isolate_, "JSON"));
+  v8::Handle<v8::Value> json_parse_func =
+      v8::Handle<v8::Object>::Cast(json_cls)->Get(
+          v8::String::NewFromUtf8(isolate_, "parse"));
+  v8::Handle<v8::String> v8_str = v8::String::NewFromUtf8(isolate_, json);
+  v8::Handle<v8::Value> argv[1] = {v8_str};
+  return v8::Handle<v8::Function>::Cast(json_parse_func)
+      ->Call(json_cls, 1, argv);
+}
+
+std::shared_ptr<CtxValue> V8Ctx::CreateObject(const char *json) {
   if (!json) {
     return nullptr;
   }
-  v8::Isolate *isolate = context->isolate_;
-  v8::HandleScope handle_scope(isolate);
 
-  v8::Handle<v8::Context> v8context = context->context_persistent.Get(isolate);
-  v8::Context::Scope context_scope(v8context);
-  v8::Handle<v8::String> v8String =
-      v8::String::NewFromUtf8(isolate, json, v8::NewStringType::kNormal)
-          .ToLocalChecked();
-  v8::MaybeLocal<v8::Value> maybeObj = v8::JSON::Parse(v8context, v8String);
-  if (maybeObj.IsEmpty()) {
-    return nullptr;
-  }
-
-  v8::Handle<v8::Value> object = maybeObj.ToLocalChecked();
+  v8::Handle<v8::Value> object = ParseJson(json);
   if (object.IsEmpty()) {
     return nullptr;
   }
-  return std::make_shared<napi_value__>(isolate, object);
+  return std::make_shared<V8CtxValue>(isolate_, object);
 }
 
-napi_value napi_create_array(napi_context context,
-                             size_t count,
-                             napi_value value[]) {
-  HIPPY_DCHECK(context);
+std::shared_ptr<CtxValue> V8Ctx::CreateArray(
+    size_t count,
+    std::shared_ptr<CtxValue> value[]) {
   if (!count) {
     return nullptr;
   }
-  v8::Isolate *isolate = context->isolate_;
-  v8::HandleScope handle_scope(isolate);
+  v8::HandleScope handle_scope(isolate_);
 
-  v8::Handle<v8::Array> array = v8::Array::New(isolate, count);
+  v8::Handle<v8::Array> array = v8::Array::New(isolate_, count);
+  v8::Local<v8::Context> v8context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(v8context);
   for (size_t i = 0; i < count; i++) {
-    array->Set(i, value[i]->persisent_value.Get(isolate));
+    std::shared_ptr<V8CtxValue> ctx_value =
+        std::static_pointer_cast<V8CtxValue>(value[i]);
+    const v8::Persistent<v8::Value> &persistent_value =
+        ctx_value->persisent_value_;
+    v8::Handle<v8::Value> handle_value =
+        v8::Handle<v8::Value>::New(isolate_, persistent_value);
+    array->Set(i, handle_value);
   }
-  return std::make_shared<napi_value__>(isolate, array);
+  return std::make_shared<V8CtxValue>(isolate_, array);
 }
 
 // Get From Value
 
-bool napi_get_value_number(napi_context context,
-                           napi_value value,
-                           double *result) {
-  HIPPY_DCHECK(context);
+bool V8Ctx::GetValueNumber(std::shared_ptr<CtxValue> value, double *result) {
   if (!value || !result) {
     return false;
   }
-  v8::Isolate *isolate = context->isolate_;
-  v8::HandleScope handle_scope(isolate);
+  v8::HandleScope handle_scope(isolate_);
 
-  v8::Local<v8::Context> v8context = context->context_persistent.Get(isolate);
+  v8::Local<v8::Context> v8context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(v8context);
-  const v8::Persistent<v8::Value> &persistent_value = value->persisent_value;
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(value);
+  const v8::Persistent<v8::Value> &persistent_value =
+      ctx_value->persisent_value_;
   v8::Handle<v8::Value> handle_value =
-      v8::Handle<v8::Value>::New(isolate, persistent_value);
+      v8::Handle<v8::Value>::New(isolate_, persistent_value);
 
   if (handle_value.IsEmpty() || !handle_value->IsNumber()) {
     return false;
@@ -171,21 +176,19 @@ bool napi_get_value_number(napi_context context,
   return true;
 }
 
-bool napi_get_value_number(napi_context context,
-                           napi_value value,
-                           int32_t *result) {
-  HIPPY_DCHECK(context);
+bool V8Ctx::GetValueNumber(std::shared_ptr<CtxValue> value, int32_t *result) {
   if (!value || !result) {
     return false;
   }
-  v8::Isolate *isolate = context->isolate_;
-  v8::HandleScope handle_scope(isolate);
-
-  v8::Local<v8::Context> v8context = context->context_persistent.Get(isolate);
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> v8context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(v8context);
-  const v8::Persistent<v8::Value> &persistent_value = value->persisent_value;
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(value);
+  const v8::Persistent<v8::Value> &persistent_value =
+      ctx_value->persisent_value_;
   v8::Handle<v8::Value> handle_value =
-      v8::Handle<v8::Value>::New(isolate, persistent_value);
+      v8::Handle<v8::Value>::New(isolate_, persistent_value);
 
   if (handle_value.IsEmpty() || !handle_value->IsInt32()) {
     return false;
@@ -201,27 +204,25 @@ bool napi_get_value_number(napi_context context,
   return true;
 }
 
-bool napi_get_value_boolean(napi_context context,
-                            napi_value value,
-                            bool *result) {
-  HIPPY_DCHECK(context);
+bool V8Ctx::GetValueBoolean(std::shared_ptr<CtxValue> value, bool *result) {
   if (!value || !result) {
     return false;
   }
-  v8::Isolate *isolate = context->isolate_;
-  v8::HandleScope handle_scope(isolate);
-
-  v8::Local<v8::Context> v8context = context->context_persistent.Get(isolate);
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> v8context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(v8context);
-  const v8::Persistent<v8::Value> &persistent_value = value->persisent_value;
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(value);
+  const v8::Persistent<v8::Value> &persistent_value =
+      ctx_value->persisent_value_;
   v8::Handle<v8::Value> handle_value =
-      v8::Handle<v8::Value>::New(isolate, persistent_value);
+      v8::Handle<v8::Value>::New(isolate_, persistent_value);
 
   if (handle_value.IsEmpty() || !handle_value->IsBoolean()) {
     return false;
   }
 
-  v8::Handle<v8::Boolean> boolean = handle_value->ToBoolean(isolate);
+  v8::Handle<v8::Boolean> boolean = handle_value->ToBoolean(isolate_);
   if (boolean.IsEmpty()) {
     return false;
   }
@@ -230,82 +231,77 @@ bool napi_get_value_boolean(napi_context context,
   return true;
 }
 
-bool napi_get_value_string(napi_context context,
-                           napi_value value,
+bool V8Ctx::GetValueString(std::shared_ptr<CtxValue> value,
                            std::string *result) {
-  HIPPY_DCHECK(context);
+  HIPPY_DLOG(hippy::Debug, "V8Ctx::GetValueString");
   if (!value || !result) {
     return false;
   }
-  v8::Isolate *isolate = context->isolate_;
-  v8::HandleScope handle_scope(isolate);
-
-  v8::Local<v8::Context> v8context = context->context_persistent.Get(isolate);
-  v8::Context::Scope context_scope(v8context);
-  const v8::Persistent<v8::Value> &persistent_value = value->persisent_value;
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(value);
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  const v8::Persistent<v8::Value> &persistent_value =
+      ctx_value->persisent_value_;
   v8::Handle<v8::Value> handle_value =
-      v8::Handle<v8::Value>::New(isolate, persistent_value);
-
+      v8::Handle<v8::Value>::New(isolate_, persistent_value);
   if (handle_value.IsEmpty()) {
     return false;
   }
 
   if (handle_value->IsString() || handle_value->IsStringObject()) {
-    v8::String::Utf8Value utf8String(isolate, handle_value);
+    v8::String::Utf8Value utf8String(isolate_, handle_value);
     *result = *utf8String;
     return true;
   }
-
   return false;
 }
 
-bool napi_get_value_json(napi_context context,
-                         napi_value value,
-                         std::string *result) {
-  HIPPY_DCHECK(context);
+bool V8Ctx::GetValueJson(std::shared_ptr<CtxValue> value, std::string *result) {
   if (!value || !result) {
     return false;
   }
-  v8::Isolate *isolate = context->isolate_;
-  v8::HandleScope handle_scope(isolate);
-
-  v8::Local<v8::Context> v8context = context->context_persistent.Get(isolate);
-  v8::Context::Scope context_scope(v8context);
-  const v8::Persistent<v8::Value> &persistent_value = value->persisent_value;
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(value);
+  const v8::Persistent<v8::Value> &persistent_value =
+      ctx_value->persisent_value_;
   v8::Handle<v8::Value> handle_value =
-      v8::Handle<v8::Value>::New(isolate, persistent_value);
-
+      v8::Handle<v8::Value>::New(isolate_, persistent_value);
   if (handle_value.IsEmpty() || !handle_value->IsObject()) {
     return false;
   }
 
   v8::MaybeLocal<v8::String> v8MaybeString =
-      v8::JSON::Stringify(v8context, handle_value);
+      v8::JSON::Stringify(context, handle_value);
   if (v8MaybeString.IsEmpty()) {
     return false;
   }
 
   v8::Handle<v8::String> v8String = v8MaybeString.ToLocalChecked();
-  v8::String::Utf8Value utf8Value(isolate, v8String);
+  v8::String::Utf8Value utf8Value(isolate_, v8String);
   *result = *utf8Value;
   return true;
 }
 
 // Array Helpers
 
-bool napi_is_array(napi_context context, napi_value value) {
-  HIPPY_DCHECK(context);
+bool V8Ctx::IsArray(std::shared_ptr<CtxValue> value) {
   if (!value) {
     return false;
   }
-  v8::Isolate *isolate = context->isolate_;
-  v8::HandleScope handle_scope(isolate);
-
-  v8::Local<v8::Context> v8context = context->context_persistent.Get(isolate);
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> v8context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(v8context);
-  const v8::Persistent<v8::Value> &persistent_value = value->persisent_value;
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(value);
+  const v8::Persistent<v8::Value> &persistent_value =
+      ctx_value->persisent_value_;
   v8::Handle<v8::Value> handle_value =
-      v8::Handle<v8::Value>::New(isolate, persistent_value);
+      v8::Handle<v8::Value>::New(isolate_, persistent_value);
 
   if (handle_value.IsEmpty()) {
     return false;
@@ -313,19 +309,19 @@ bool napi_is_array(napi_context context, napi_value value) {
   return handle_value->IsArray();
 }
 
-uint32_t napi_get_array_length(napi_context context, napi_value value) {
-  HIPPY_DCHECK(context);
+uint32_t V8Ctx::GetArrayLength(std::shared_ptr<CtxValue> value) {
   if (value == nullptr) {
     return 0;
   }
-  v8::Isolate *isolate = context->isolate_;
-  v8::HandleScope handle_scope(isolate);
-
-  v8::Local<v8::Context> v8context = context->context_persistent.Get(isolate);
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> v8context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(v8context);
-  const v8::Persistent<v8::Value> &persistent_value = value->persisent_value;
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(value);
+  const v8::Persistent<v8::Value> &persistent_value =
+      ctx_value->persisent_value_;
   v8::Handle<v8::Value> handle_value =
-      v8::Handle<v8::Value>::New(isolate, persistent_value);
+      v8::Handle<v8::Value>::New(isolate_, persistent_value);
 
   if (handle_value.IsEmpty()) {
     return 0;
@@ -339,21 +335,21 @@ uint32_t napi_get_array_length(napi_context context, napi_value value) {
   return 0;
 }
 
-napi_value napi_copy_array_element(napi_context context,
-                                   napi_value value,
-                                   uint32_t index) {
-  HIPPY_DCHECK(context);
+std::shared_ptr<CtxValue> V8Ctx::CopyArrayElement(
+    std::shared_ptr<CtxValue> value,
+    uint32_t index) {
   if (!value) {
     return nullptr;
   }
-  v8::Isolate *isolate = context->isolate_;
-  v8::HandleScope handle_scope(isolate);
-
-  v8::Local<v8::Context> v8context = context->context_persistent.Get(isolate);
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> v8context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(v8context);
-  const v8::Persistent<v8::Value> &persistent_value = value->persisent_value;
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(value);
+  const v8::Persistent<v8::Value> &persistent_value =
+      ctx_value->persisent_value_;
   v8::Handle<v8::Value> handle_value =
-      v8::Handle<v8::Value>::New(isolate, persistent_value);
+      v8::Handle<v8::Value>::New(isolate_, persistent_value);
 
   if (handle_value.IsEmpty()) {
     return nullptr;
@@ -366,28 +362,27 @@ napi_value napi_copy_array_element(napi_context context,
       return nullptr;
     }
 
-    return std::make_shared<napi_value__>(isolate, value);
+    return std::make_shared<V8CtxValue>(isolate_, value);
   }
   return nullptr;
 }
 
 // Object Helpers
 
-bool napi_has_named_property(napi_context context,
-                             napi_value value,
+bool V8Ctx::HasNamedProperty(std::shared_ptr<CtxValue> value,
                              const char *utf8name) {
-  HIPPY_DCHECK(context);
   if (!value || !utf8name) {
     return false;
   }
-  v8::Isolate *isolate = context->isolate_;
-  v8::HandleScope handle_scope(isolate);
-
-  v8::Local<v8::Context> v8context = context->context_persistent.Get(isolate);
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> v8context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(v8context);
-  const v8::Persistent<v8::Value> &persistent_value = value->persisent_value;
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(value);
+  const v8::Persistent<v8::Value> &persistent_value =
+      ctx_value->persisent_value_;
   v8::Handle<v8::Value> handle_value =
-      v8::Handle<v8::Value>::New(isolate, persistent_value);
+      v8::Handle<v8::Value>::New(isolate_, persistent_value);
 
   if (handle_value.IsEmpty()) {
     return false;
@@ -396,7 +391,7 @@ bool napi_has_named_property(napi_context context,
   if (handle_value->IsMap()) {
     v8::Map *map = v8::Map::Cast(*handle_value);
     v8::Local<v8::String> key =
-        v8::String::NewFromUtf8(isolate, utf8name, v8::NewStringType::kNormal)
+        v8::String::NewFromUtf8(isolate_, utf8name, v8::NewStringType::kNormal)
             .ToLocalChecked();
     if (key.IsEmpty()) {
       return false;
@@ -408,21 +403,21 @@ bool napi_has_named_property(napi_context context,
   return false;
 }
 
-napi_value napi_copy_named_property(napi_context context,
-                                    napi_value value,
-                                    const char *utf8name) {
-  HIPPY_DCHECK(context);
+std::shared_ptr<CtxValue> V8Ctx::CopyNamedProperty(
+    std::shared_ptr<CtxValue> value,
+    const char *utf8name) {
   if (!value || !utf8name) {
     return nullptr;
   }
-  v8::Isolate *isolate = context->isolate_;
-  v8::HandleScope handle_scope(isolate);
-
-  v8::Local<v8::Context> v8context = context->context_persistent.Get(isolate);
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> v8context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(v8context);
-  const v8::Persistent<v8::Value> &persistent_value = value->persisent_value;
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(value);
+  const v8::Persistent<v8::Value> &persistent_value =
+      ctx_value->persisent_value_;
   v8::Handle<v8::Value> handle_value =
-      v8::Handle<v8::Value>::New(isolate, persistent_value);
+      v8::Handle<v8::Value>::New(isolate_, persistent_value);
 
   if (handle_value.IsEmpty()) {
     return nullptr;
@@ -435,14 +430,14 @@ napi_value napi_copy_named_property(napi_context context,
     }
 
     v8::Local<v8::String> key =
-        v8::String::NewFromUtf8(isolate, utf8name, v8::NewStringType::kNormal)
+        v8::String::NewFromUtf8(isolate_, utf8name, v8::NewStringType::kNormal)
             .ToLocalChecked();
     if (key.IsEmpty()) {
       return nullptr;
     }
 
-    return std::make_shared<napi_value__>(
-        isolate, map->Get(v8context, key).ToLocalChecked());
+    return std::make_shared<V8CtxValue>(
+        isolate_, map->Get(v8context, key).ToLocalChecked());
   }
 
   return nullptr;
@@ -450,19 +445,19 @@ napi_value napi_copy_named_property(napi_context context,
 
 // Function Helpers
 
-bool napi_is_function(napi_context context, napi_value value) {
-  HIPPY_DCHECK(context);
-  if (!context || !value) {
+bool V8Ctx::IsFunction(std::shared_ptr<CtxValue> value) {
+  if (!value) {
     return false;
   }
-  v8::Isolate *isolate = context->isolate_;
-  v8::HandleScope handle_scope(isolate);
-
-  v8::Local<v8::Context> v8context = context->context_persistent.Get(isolate);
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> v8context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(v8context);
-  const v8::Persistent<v8::Value> &persistent_value = value->persisent_value;
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(value);
+  const v8::Persistent<v8::Value> &persistent_value =
+      ctx_value->persisent_value_;
   v8::Handle<v8::Value> handle_value =
-      v8::Handle<v8::Value>::New(isolate, persistent_value);
+      v8::Handle<v8::Value>::New(isolate_, persistent_value);
 
   if (handle_value.IsEmpty()) {
     return false;
@@ -471,26 +466,26 @@ bool napi_is_function(napi_context context, napi_value value) {
   return handle_value->IsFunction();
 }
 
-std::string napi_copy_function_name(napi_context context, napi_value function) {
-  HIPPY_DCHECK(context);
-  if (!context || !function) {
+std::string V8Ctx::CopyFunctionName(std::shared_ptr<CtxValue> function) {
+  if (!function) {
     return nullptr;
   }
-  v8::Isolate *isolate = context->isolate_;
-  v8::HandleScope handle_scope(isolate);
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> v8context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(v8context);
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(function);
+  const v8::Persistent<v8::Value> &persistent_value =
+      ctx_value->persisent_value_;
+  v8::Handle<v8::Value> handle_value =
+      v8::Handle<v8::Value>::New(isolate_, persistent_value);
 
-  const v8::Persistent<v8::Value> &persistent_value = function->persisent_value;
-  v8::Handle<v8::Context> ctx = context->context_persistent.Get(isolate);
-  v8::Context::Scope context_scope(ctx);
-  v8::Handle<v8::Value> value =
-      v8::Handle<v8::Value>::New(isolate, persistent_value);
-
-  if (value.IsEmpty()) {
+  if (handle_value.IsEmpty()) {
     return nullptr;
   }
 
-  if (value->IsFunction()) {
-    v8::String::Utf8Value functionName(isolate, value);
+  if (handle_value->IsFunction()) {
+    v8::String::Utf8Value functionName(isolate_, handle_value);
     std::string jsString(*functionName);
 
     return jsString;
@@ -499,63 +494,65 @@ std::string napi_copy_function_name(napi_context context, napi_value function) {
   return strdup("function param is not a function");
 }
 
-napi_value napi_call_function(napi_context context,
-                              napi_value function,
-                              size_t argument_count,
-                              const napi_value argumets[]) {
-  HIPPY_DCHECK(context);
+std::shared_ptr<CtxValue> V8Ctx::CallFunction(
+    std::shared_ptr<CtxValue> function,
+    size_t argument_count,
+    const std::shared_ptr<CtxValue> arguments[]) {
+  HIPPY_DLOG(hippy::Debug, "V8Ctx CallFunction begin");
 
   if (!function) {
+    HIPPY_DLOG(hippy::Error, "function is nullptr");
     return nullptr;
   }
 
-  //HIPPY_LOG(hippy::Debug, "napi_call_function start");
+  v8::HandleScope handle_scope(isolate_);
 
-  v8::Isolate *isolate = context->isolate_;
-  v8::HandleScope handleScope(isolate);
-
-  v8::Local<v8::Context> v8Context = context->context_persistent.Get(isolate);
-  v8::Context::Scope contextScope(v8Context);
-  if (v8Context.IsEmpty() || v8Context->Global().IsEmpty()) {
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope contextScope(context);
+  if (context.IsEmpty() || context->Global().IsEmpty()) {
+    HIPPY_DLOG(hippy::Error, "CallFunction context error");
     return nullptr;
   }
 
   // v8::TryCatch tryCatch(isolate);
-
-  const v8::Persistent<v8::Value> &persistent_value = function->persisent_value;
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(function);
+  const v8::Persistent<v8::Value> &persistent_value =
+      ctx_value->persisent_value_;
   v8::Handle<v8::Value> handle_value =
-      v8::Handle<v8::Value>::New(isolate, persistent_value);
+      v8::Handle<v8::Value>::New(isolate_, persistent_value);
   if (!handle_value->IsFunction()) {
+    HIPPY_LOG(hippy::Warning, "CallFunction handle_value is not a function");
     return nullptr;
   }
 
-  v8::Function *v8Func = v8::Function::Cast(*handle_value);
-  if (v8Func == nullptr) {
+  v8::Function *v8_fn = v8::Function::Cast(*handle_value);
+  if (!v8_fn) {
+    HIPPY_LOG(hippy::Error, "CallFunction cast v8_fn error");
     return nullptr;
   }
 
-  std::vector<v8::Handle<v8::Value>> args(argument_count);
+  v8::Handle<v8::Value> args[argument_count];
   for (size_t i = 0; i < argument_count; i++) {
-    const v8::Persistent<v8::Value> &value = argumets[i]->persisent_value;
-    args[i] = v8::Handle<v8::Value>::New(isolate, value);
+    std::shared_ptr<V8CtxValue> argument =
+        std::static_pointer_cast<V8CtxValue>(arguments[i]);
+    const v8::Persistent<v8::Value> &persistent_value =
+        argument->persisent_value_;
+    args[i] = v8::Handle<v8::Value>::New(isolate_, persistent_value);
   }
-  v8::MaybeLocal<v8::Value> maybeResult =
-      v8Func->Call(v8Context, v8Context->Global(),
-                   static_cast<int>(argument_count), args.data());
 
-  if (!maybeResult.IsEmpty()) {
-    v8::Local<v8::Value> result = maybeResult.ToLocalChecked();
+  HIPPY_DLOG(hippy::Debug, "CallFunction call fn");
+  v8::MaybeLocal<v8::Value> maybe_result = v8_fn->Call(
+      context, context->Global(), static_cast<int>(argument_count), args);
+
+  if (!maybe_result.IsEmpty()) {
+    HIPPY_DLOG(hippy::Debug, "CallFunction maybe_result is not empty");
+    v8::Local<v8::Value> result = maybe_result.ToLocalChecked();
     if (!result.IsEmpty()) {
-      return std::make_shared<napi_value__>(isolate, result);
+      HIPPY_DLOG(hippy::Debug, "CallFunction result is not empty");
+      return std::make_shared<V8CtxValue>(isolate_, result);
     }
   }
-
-  // v8::Local<v8::String> errorString = tryCatch.Message()->Get();
-  // v8::String::Utf8Value utf8Value(isolate, errorString);
-
-  // HIPPY_LOG(hippy::Debug, "function call error %s", *utf8Value);
-
-  //HIPPY_LOG(hippy::Debug, "napi_call_function end");
 
   return nullptr;
 }
