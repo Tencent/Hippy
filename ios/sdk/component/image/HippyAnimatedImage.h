@@ -71,7 +71,7 @@ extern const NSTimeInterval kHippyAnimatedImageDelayTimeIntervalMinimum;
 // On success, the initializers return an `HippyAnimatedImage` with all fields initialized, on failure they return `nil` and an error will be logged.
 - (instancetype)initWithAnimatedGIFData:(NSData *)data;
 // Pass 0 for optimalFrameCacheSize to get the default, predrawing is enabled by default.
-- (instancetype)initWithAnimatedGIFData:(NSData *)data optimalFrameCacheSize:(NSUInteger)optimalFrameCacheSize predrawingEnabled:(BOOL)isPredrawingEnabled NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithAnimatedGIFData:(NSData *)data optimalFrameCacheSize:(NSUInteger)optimalFrameCacheSize predrawingEnabled:(BOOL)isPredrawingEnabled;
 + (instancetype)animatedImageWithGIFData:(NSData *)data;
 
 @property (nonatomic, strong, readonly) NSData *data; // The data the receiver was initialized with; read-only

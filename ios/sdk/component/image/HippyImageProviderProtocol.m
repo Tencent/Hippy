@@ -22,28 +22,10 @@
 
 #import "HippyImageProviderProtocol.h"
 #import "objc/runtime.h"
+#import "HippyBridge.h"
 
-static NSSet<Class<HippyImageProviderProtocol>> *allImageProviderClasses() {
-    static dispatch_once_t onceToken;
-    static NSSet<Class<HippyImageProviderProtocol>> *clses = nil;
-    dispatch_once(&onceToken, ^{
-        NSMutableSet *providers = [NSMutableSet setWithCapacity:50000];
-        unsigned int count = 0;
-        Class *allClasses = objc_copyClassList(&count);
-        for (int i = 0; i < count; i++) {
-            Class c = allClasses[i];
-            if (class_conformsToProtocol(c, @protocol(HippyImageProviderProtocol))) {
-                [providers addObject:c];
-            }
-        }
-        free(allClasses);
-        clses = [NSSet setWithSet:providers];
-    });
-    return clses;
-}
-
-Class<HippyImageProviderProtocol> imageProviderClass(NSData *data) {
-    NSSet<Class<HippyImageProviderProtocol>> *classes = allImageProviderClasses();
+Class<HippyImageProviderProtocol> imageProviderClassFromBridge(NSData *data, HippyBridge *bridge) {
+    NSSet<Class<HippyImageProviderProtocol>> *classes = [bridge imageProviders];
     NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(id  _Nullable evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
         if ([evaluatedObject conformsToProtocol:@protocol(HippyImageProviderProtocol)]) {
             Class<HippyImageProviderProtocol> class = (Class<HippyImageProviderProtocol>)evaluatedObject;

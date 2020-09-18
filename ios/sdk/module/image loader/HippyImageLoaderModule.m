@@ -46,13 +46,15 @@ HIPPY_EXPORT_METHOD(getSize:(NSString *)urlString resolver:(HippyPromiseResolveB
     }
     CFURLRef urlRef = CFURLCreateWithBytes(NULL, [uriData bytes], [uriData length], kCFStringEncodingUTF8, NULL);
     NSURL *source_url = CFBridgingRelease(urlRef);
+    __weak __typeof(self) weakSelf = self;
 	[[[NSURLSession sharedSession] dataTaskWithURL:source_url completionHandler:^(NSData * _Nullable data, __unused NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        __typeof(weakSelf) strongSelf = weakSelf;
 		if (error) {
             NSError *error = [NSError errorWithDomain:@"ImageLoaderModuleDomain" code:1 userInfo:@{@"reason": @"url parse error"}];
             reject(@"2", @"url request error", error);
 		} else {
             [[HippyImageCacheManager sharedInstance] setImageCacheData:data forURLString:urlString];
-            Class<HippyImageProviderProtocol> ipClass = imageProviderClass(data);
+            Class<HippyImageProviderProtocol> ipClass = imageProviderClassFromBridge(data, strongSelf.bridge);
             id<HippyImageProviderProtocol> instance = [ipClass imageProviderInstanceForData:data];
             UIImage *image = [instance image];
 			if (image) {

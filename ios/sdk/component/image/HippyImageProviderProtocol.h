@@ -21,11 +21,11 @@
 */
 
 #import <Foundation/Foundation.h>
+#import "HippyBridgeModule.h"
 
-@class UIImage;
-@class RCTBridge;
+@class UIImage, HippyBridge;
 
-@protocol HippyImageProviderProtocol <NSObject>
+@protocol HippyImageProviderProtocol <NSObject, HippyBridgeModule>
 
 @required
 
@@ -75,7 +75,7 @@
 extern "C" {
 #endif
 
-Class<HippyImageProviderProtocol> imageProviderClass(NSData *data);
+Class<HippyImageProviderProtocol> imageProviderClassFromBridge(NSData *data, HippyBridge *bridge);
 
 #ifdef __cplusplus
 }

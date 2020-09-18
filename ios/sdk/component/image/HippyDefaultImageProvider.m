@@ -34,6 +34,8 @@
 
 @implementation HippyDefaultImageProvider
 
+HIPPY_EXPORT_MODULE(defaultImageProvider)
+
 + (BOOL)canHandleData:(NSData *)data {
     return YES;
 }
