@@ -24,12 +24,13 @@
 #define CORE_NAPI_CALLBACK_INFO_H_
 
 #include <stdio.h>
+
 #include <memory>
 #include <vector>
 
 #include "core/base/macros.h"
-#include "core/environment.h"
 #include "core/napi/js-native-api-types.h"
+#include "core/scope.h"
 
 namespace hippy {
 namespace napi {
@@ -39,11 +40,11 @@ class ReturnValue {
   ReturnValue() = default;
 
   void SetUndefined() { value_ = nullptr; }
-  void Set(napi_value value) { value_ = value; }
-  napi_value Get() const { return value_; }
+  void Set(std::shared_ptr<CtxValue> value) { value_ = value; }
+  std::shared_ptr<CtxValue> Get() const { return value_; }
 
  private:
-  napi_value value_;
+  std::shared_ptr<CtxValue> value_;
 
   DISALLOW_COPY_AND_ASSIGN(ReturnValue);
 };
@@ -52,31 +53,31 @@ class ExceptionValue {
  public:
   ExceptionValue() = default;
 
-  void Set(napi_value value) { value_ = value; }
-  void Set(napi_context context, const char* value);
-  napi_value Get() const { return value_; }
+  void Set(std::shared_ptr<CtxValue> value) { value_ = value; }
+  void Set(std::shared_ptr<Ctx> context, const char* value);
+  std::shared_ptr<CtxValue> Get() const { return value_; }
 
  private:
-  napi_value value_;
+  std::shared_ptr<CtxValue> value_;
 
   DISALLOW_COPY_AND_ASSIGN(ExceptionValue);
 };
 
 class CallbackInfo {
  public:
-  explicit CallbackInfo(std::shared_ptr<Environment> env);
+  explicit CallbackInfo(std::shared_ptr<Scope> scope);
 
-  void AddValue(napi_value value);
-  napi_value operator[](int index) const;
+  void AddValue(std::shared_ptr<CtxValue> value);
+  std::shared_ptr<CtxValue> operator[](int index) const;
 
   size_t Length() const { return values_.size(); }
-  std::shared_ptr<Environment> GetEnv() const { return env_; }
+  std::shared_ptr<Scope> GetScope() const { return scope_; }
   ReturnValue* GetReturnValue() const { return ret_value_.get(); }
   ExceptionValue* GetExceptionValue() const { return exception_value_.get(); }
 
  private:
-  std::shared_ptr<Environment> env_;
-  std::vector<napi_value> values_;
+  std::shared_ptr<Scope> scope_;
+  std::vector<std::shared_ptr<CtxValue>> values_;
   std::unique_ptr<ReturnValue> ret_value_;
   std::unique_ptr<ExceptionValue> exception_value_;
 

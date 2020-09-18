@@ -24,6 +24,7 @@
 #define CORE_JAVASCRIPT_LOADER_H_
 
 #include <stdint.h>
+
 #include <functional>
 #include <string>
 
@@ -35,18 +36,21 @@ class JavaScriptLoader {
   JavaScriptLoader();
   virtual ~JavaScriptLoader();
 
-  static int loadBundleAtURL(const std::string& scriptURL, OnProgress progress,
+  static int LoadBundleAtURL(const std::string& scriptURL,
+                             OnProgress progress,
                              OnComplete complete);
 
  private:
-  void initLoader(const std::string& scriptURL, int pos, OnProgress progress,
+  void InitLoader(const std::string& scriptURL,
+                  int pos,
+                  OnProgress progress,
                   OnComplete complete);
-  void threadFunc();
+  void ThreadFunc();
 
  private:
-  char* m_filePath;
-  OnProgress m_progress;
-  OnComplete m_complete;
+  char* file_path_;
+  OnProgress progress_;
+  OnComplete complete_;
 };
 
 #endif  // CORE_JAVASCRIPT_LOADER_H_

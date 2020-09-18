@@ -25,25 +25,11 @@
 #include <memory>
 #include <utility>
 
+#include "core/base/base-time.h"
 #include "core/base/logging.h"
 #include "core/base/macros.h"
 #include "core/base/task.h"
-
-namespace {
-
-using hippy::base::TaskRunner;
-
-TaskRunner::DelayedTimeInMs MonotonicallyIncreasingTime() {
-  auto now = std::chrono::steady_clock::now();
-  auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now)
-                    .time_since_epoch();
-  TaskRunner::DelayedTimeInMs count =
-      std::chrono::duration_cast<std::chrono::milliseconds>(now_ms).count();
-
-  return count;
-}
-
-}  // namespace
+#include "core/napi/js-native-api.h"
 
 namespace hippy {
 namespace base {
@@ -52,26 +38,21 @@ TaskRunner::TaskRunner() : Thread(Options("Task Runner")) {
   is_terminated_ = false;
 }
 
-TaskRunner::~TaskRunner() {
-  std::lock_guard<std::mutex> lock(m_mutex);
-
-  HIPPY_CHECK(is_terminated_);
-  HIPPY_CHECK(task_queue_.empty());
-  HIPPY_CHECK(delayed_task_queue_.empty());
-}
+TaskRunner::~TaskRunner() {}
 
 // when update this code, please update
-// JavaScriptTaskRunner::pauseThreadForInspector at the same time
+// JavaScriptTaskRunner::PauseThreadForInspector at the same time
 void TaskRunner::Run() {
   while (true) {
     std::shared_ptr<Task> task = GetNext();
     if (task == nullptr) {
       return;
     }
+    HIPPY_DLOG(hippy::Debug, "run task, id = %d", task->id_);
 
     bool is_cancel = false;
     {
-      std::lock_guard<std::mutex> lock(m_mutex);
+      std::lock_guard<std::mutex> lock(mutex_);
       is_cancel = task->canceled_;
     }
     if (is_cancel == false) {
@@ -82,32 +63,38 @@ void TaskRunner::Run() {
 
 void TaskRunner::Terminate() {
   {
-    std::lock_guard<std::mutex> lock(m_mutex);
+    std::unique_lock<std::mutex> lock(mutex_);
+    HIPPY_DLOG(hippy::Debug, "TaskRunner::Terminate task_queue_ size = %d",
+               task_queue_.size());
+    if (is_terminated_) {
+      HIPPY_DLOG(hippy::Debug, "TaskRunner has been terminated");
+      return;
+    }
     is_terminated_ = true;
+    if (this->Id() == hippy::base::ThreadId::GetCurrent()) {
+      HIPPY_LOG(hippy::Error, "terminate in task");
+      return;
+    }
   }
-
-  m_cv.notify_one();
+  cv_.notify_one();
+  HIPPY_DLOG(hippy::Debug, "TaskRunner Terminate join begin");
   Join();
-
-  std::lock_guard<std::mutex> lock(m_mutex);
-  while (!task_queue_.empty())
-    task_queue_.pop();
-  while (!delayed_task_queue_.empty())
-    delayed_task_queue_.pop();
+  HIPPY_DLOG(hippy::Debug, "TaskRunner Terminate join end");
 }
 
-void TaskRunner::postTask(std::shared_ptr<Task> task) {
-  std::lock_guard<std::mutex> lock(m_mutex);
+void TaskRunner::PostTask(std::shared_ptr<Task> task) {
+  HIPPY_DLOG(hippy::Debug, "TaskRunner::PostTask task id = %d", task->id_);
+  std::lock_guard<std::mutex> lock(mutex_);
 
-  postTaskNoLock(std::move(task));
+  PostTaskNoLock(std::move(task));
 
-  m_cv.notify_one();
+  cv_.notify_one();
 }
 
-void TaskRunner::postDelayedTask(
+void TaskRunner::PostDelayedTask(
     std::shared_ptr<Task> task,
     TaskRunner::DelayedTimeInMs delay_in_mseconds) {
-  std::lock_guard<std::mutex> lock(m_mutex);
+  std::lock_guard<std::mutex> lock(mutex_);
 
   if (is_terminated_) {
     return;
@@ -116,11 +103,11 @@ void TaskRunner::postDelayedTask(
   DelayedTimeInMs deadline = MonotonicallyIncreasingTime() + delay_in_mseconds;
   delayed_task_queue_.push(std::make_pair(deadline, std::move(task)));
 
-  m_cv.notify_one();
+  cv_.notify_one();
 }
 
-void TaskRunner::cancelTask(std::shared_ptr<Task> task) {
-  std::lock_guard<std::mutex> lock(m_mutex);
+void TaskRunner::CancelTask(std::shared_ptr<Task> task) {
+  std::lock_guard<std::mutex> lock(mutex_);
 
   if (!task) {
     return;
@@ -128,7 +115,7 @@ void TaskRunner::cancelTask(std::shared_ptr<Task> task) {
   task->canceled_ = true;
 }
 
-void TaskRunner::postTaskNoLock(std::shared_ptr<Task> task) {
+void TaskRunner::PostTaskNoLock(std::shared_ptr<Task> task) {
   if (is_terminated_) {
     return;
   }
@@ -137,13 +124,13 @@ void TaskRunner::postTaskNoLock(std::shared_ptr<Task> task) {
 }
 
 std::shared_ptr<Task> TaskRunner::GetNext() {
-  std::unique_lock<std::mutex> lock(m_mutex);
+  std::unique_lock<std::mutex> lock(mutex_);
 
   for (;;) {
     DelayedTimeInMs now = MonotonicallyIncreasingTime();
     std::shared_ptr<Task> task = popTaskFromDelayedQueueNoLock(now);
     while (task) {
-      postTaskNoLock(std::move(task));
+      PostTaskNoLock(std::move(task));
       task = popTaskFromDelayedQueueNoLock(now);
     }
 
@@ -154,7 +141,8 @@ std::shared_ptr<Task> TaskRunner::GetNext() {
     }
 
     if (is_terminated_) {
-      m_cv.notify_all();
+      hippy::napi::DetachThread();
+      HIPPY_DLOG(hippy::Debug, "TaskRunner terminate");
       return nullptr;
     }
 
@@ -162,11 +150,11 @@ std::shared_ptr<Task> TaskRunner::GetNext() {
       const DelayedEntry& delayed_task = delayed_task_queue_.top();
       DelayedTimeInMs wait_in_msseconds = delayed_task.first - now;
       bool notified =
-          m_cv.wait_for(lock, std::chrono::milliseconds(wait_in_msseconds)) ==
+          cv_.wait_for(lock, std::chrono::milliseconds(wait_in_msseconds)) ==
           std::cv_status::timeout;
       HIPPY_USE(notified);
     } else {
-      m_cv.wait(lock);
+      cv_.wait(lock);
     }
   }
 }

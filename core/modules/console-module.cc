@@ -23,17 +23,16 @@
 #include "core/modules/console-module.h"
 
 #include <string.h>
+
 #include <string>
 
-#include "core/environment.h"
 #include "core/base/logging.h"
 #include "core/modules/module-register.h"
 #include "core/napi/callback-info.h"
 #include "core/napi/js-native-api.h"
+#include "core/scope.h"
 
 REGISTER_MODULE(ConsoleModule, Log)
-
-namespace napi = ::hippy::napi;
 
 namespace {
 
@@ -53,13 +52,13 @@ std::string EscapeMessage(const std::string& message) {
 
 }  // namespace
 
-void ConsoleModule::Log(const napi::CallbackInfo& info) {
-  std::shared_ptr<Environment> env = info.GetEnv();
-  napi::napi_context context = env->getContext();
+void ConsoleModule::Log(const hippy::napi::CallbackInfo& info) {
+  std::shared_ptr<Scope> scope = info.GetScope();
+  std::shared_ptr<hippy::napi::Ctx> context = scope->GetContext();
   HIPPY_CHECK(context);
 
   std::string message;
-  if (!napi_get_value_string(context, info[0], &message)) {
+  if (!context->GetValueString(info[0], &message)) {
     info.GetExceptionValue()->Set(context,
                                   "The first argument must be string.");
     return;
@@ -71,7 +70,7 @@ void ConsoleModule::Log(const napi::CallbackInfo& info) {
     HIPPY_LOG(hippy::Debug, log_msg);
   } else {
     std::string type;
-    if (!napi::napi_get_value_string(context, info[1], &type) || type.empty()) {
+    if (!context->GetValueString(info[1], &type) || type.empty()) {
       info.GetExceptionValue()->Set(
           context, "The second argument must be non-empty string.");
       return;
@@ -81,7 +80,7 @@ void ConsoleModule::Log(const napi::CallbackInfo& info) {
       HIPPY_LOG(hippy::Info, log_msg);
     else if (type.compare("warn") == 0)
       HIPPY_LOG(hippy::Warning, log_msg);
-    else if (type.compare("error") == 0)
+    else if (type.compare("error_") == 0)
       HIPPY_LOG(hippy::Error, log_msg);
     else if (type.compare("fatal") == 0)
       HIPPY_LOG(hippy::Fatal, log_msg);

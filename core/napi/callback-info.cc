@@ -21,31 +21,32 @@
  */
 
 #include "core/napi/callback-info.h"
+
 #include "core/napi/js-native-api.h"
 
 namespace hippy {
 namespace napi {
 
-CallbackInfo::CallbackInfo(std::shared_ptr<Environment> env): env_(env) {
+CallbackInfo::CallbackInfo(std::shared_ptr<Scope> scope) : scope_(scope) {
   ret_value_ = std::make_unique<ReturnValue>();
   exception_value_ = std::make_unique<ExceptionValue>();
 }
 
-void CallbackInfo::AddValue(napi_value value) {
+void CallbackInfo::AddValue(std::shared_ptr<CtxValue> value) {
   if (!value)
     return;
   values_.push_back(value);
 }
 
-napi_value CallbackInfo::operator[](int index) const {
+std::shared_ptr<CtxValue> CallbackInfo::operator[](int index) const {
   if (index < 0 || index >= Length()) {
     return nullptr;
   }
   return values_[index];
 }
 
-void ExceptionValue::Set(napi_context context, const char* value) {
-  value_ = napi_create_string(context, value);
+void ExceptionValue::Set(std::shared_ptr<Ctx> context, const char* value) {
+  value_ = context->CreateString(value);
 }
 
 }  // namespace napi

@@ -31,14 +31,14 @@ class JavaScriptTaskRunner : public hippy::base::TaskRunner {
   ~JavaScriptTaskRunner() = default;
 
  public:
-  bool is_js_thread();
+  bool IsJsThread();
 
  public:
-  void pauseThreadForInspector();
-  void resumeThreadForInspector();
+  void PauseThreadForInspector();
+  void ResumeThreadForInspector();
 
  private:
-  bool m_isInspectorCallPause = false;
+  bool is_inspector_call_pause_ = false;
 };
 
 #endif  // CORE_TASK_JAVASCRIPT_TASK_RUNNER_H_

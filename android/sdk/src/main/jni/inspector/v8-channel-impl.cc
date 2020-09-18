@@ -1,60 +1,81 @@
+/*
+ *
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 #include "inspector/v8-channel-impl.h"
 
 #include <string>
-#include "core/base/logging.h"
+
 #include "jni-env.h"  // NOLINT(build/include_subdir)
 
-std::unique_ptr<v8_inspector::V8Inspector> V8ChannelImpl::inspector_ = nullptr;
-V8ChannelImpl* V8ChannelImpl::channel_ = nullptr;
-V8Runtime* V8ChannelImpl::runtime_ = nullptr;
-
-V8ChannelImpl::V8ChannelImpl(V8Runtime* runtime) {
-  V8ChannelImpl::runtime_ = runtime;
-  V8ChannelImpl::channel_ = this;
-  session_ =
-      V8ChannelImpl::inspector_->connect(1, this, v8_inspector::StringView());
-}
+V8ChannelImpl::V8ChannelImpl(std::shared_ptr<JavaRef> bridge)
+    : bridge_(bridge) {}
 
 void V8ChannelImpl::sendResponse(
-    int callId, std::unique_ptr<v8_inspector::StringBuffer> message) {
-
+    int callId,
+    std::unique_ptr<v8_inspector::StringBuffer> message) {
   if (message->string().is8Bit()) {
     return;
   }
 
   const uint16_t* source = message->string().characters16();
   int len = message->string().length();
-  jbyteArray jMessage = JNIEnvironment::AttachCurrentThread()->NewByteArray(len * sizeof(*source));
+  jbyteArray msg = JNIEnvironment::AttachCurrentThread()->NewByteArray(
+      len * sizeof(*source));
   JNIEnvironment::AttachCurrentThread()->SetByteArrayRegion(
-      jMessage, 0, len * sizeof(*source),
+      msg, 0, len * sizeof(*source),
       reinterpret_cast<const jbyte*>(reinterpret_cast<const char*>(source)));
 
-  if (JNIEnvironment::getInstance()->wrapper.inspectorChannelMethodID) {
-    JNIEnvironment::AttachCurrentThread()->CallVoidMethod(V8ChannelImpl::runtime_->hippyBridge, JNIEnvironment::getInstance()->wrapper.inspectorChannelMethodID, jMessage);
+  if (JNIEnvironment::GetInstance()->wrapper_.inspector_channel_method_id &&
+      bridge_) {
+    JNIEnvironment::AttachCurrentThread()->CallVoidMethod(
+        bridge_->GetObj(),
+        JNIEnvironment::GetInstance()->wrapper_.inspector_channel_method_id,
+        msg);
   }
 
-  JNIEnvironment::AttachCurrentThread()->DeleteLocalRef(jMessage);
+  JNIEnvironment::AttachCurrentThread()->DeleteLocalRef(msg);
 }
 
 void V8ChannelImpl::sendNotification(
     std::unique_ptr<v8_inspector::StringBuffer> message) {
-
   if (message->string().is8Bit()) {
     return;
   }
 
   const uint16_t* source = message->string().characters16();
   int len = message->string().length();
-  jbyteArray jMessage = JNIEnvironment::AttachCurrentThread()->NewByteArray(len * sizeof(*source));
+  jbyteArray msg = JNIEnvironment::AttachCurrentThread()->NewByteArray(
+      len * sizeof(*source));
   JNIEnvironment::AttachCurrentThread()->SetByteArrayRegion(
-      jMessage, 0, len * sizeof(*source),
+      msg, 0, len * sizeof(*source),
       reinterpret_cast<const jbyte*>(reinterpret_cast<const char*>(source)));
 
-  if (JNIEnvironment::getInstance()->wrapper.inspectorChannelMethodID) {
-    JNIEnvironment::AttachCurrentThread()->CallVoidMethod(V8ChannelImpl::runtime_->hippyBridge,
-        JNIEnvironment::getInstance()->wrapper.inspectorChannelMethodID,
-                           jMessage);
+  if (JNIEnvironment::GetInstance()->wrapper_.inspector_channel_method_id &&
+      bridge_) {
+    JNIEnvironment::AttachCurrentThread()->CallVoidMethod(
+        bridge_->GetObj(),
+        JNIEnvironment::GetInstance()->wrapper_.inspector_channel_method_id,
+        msg);
   }
 
-  JNIEnvironment::AttachCurrentThread()->DeleteLocalRef(jMessage);
+  JNIEnvironment::AttachCurrentThread()->DeleteLocalRef(msg);
 }

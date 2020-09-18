@@ -34,7 +34,7 @@ class Task {
 
   Task();
   virtual ~Task() = default;
-  virtual bool is_priority_task() = 0;
+  virtual bool isPriorityTask() = 0;
   virtual void Run() = 0;
 
   TaskId id_;

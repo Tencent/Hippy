@@ -25,6 +25,7 @@
 
 #include <JavaScriptCore/JavaScriptCore.h>
 #include <stdio.h>
+
 #include <mutex>  // NOLINT(build/c++11)
 #include <vector>
 
@@ -34,45 +35,117 @@
 namespace hippy {
 namespace napi {
 
-struct napi_vm__ {
-  napi_vm__() {
-    vm = JSContextGroupCreate();
-  }
+class JSCVM : public VM {
+ public:
+  JSCVM() { vm_ = JSContextGroupCreate(); }
 
-  ~napi_vm__() {
-    JSContextGroupRelease(vm);
-    vm = nullptr;
+  ~JSCVM() {
+    JSContextGroupRelease(vm_);
+    vm_ = nullptr;
   }
-  JSContextGroupRef vm;
+  JSContextGroupRef vm_;
+
+  virtual void RegisterUncaughtExceptionCallback();
+  virtual std::shared_ptr<Ctx> CreateContext();
 };
 
-struct napi_context__ {
-  explicit napi_context__(JSContextGroupRef vm) {
+class JSCCtx : public Ctx {
+ public:
+  explicit JSCCtx(JSContextGroupRef vm) {
     context_ = JSGlobalContextCreateInGroup(vm, nullptr);
+
+    error_ = napi_ok;
   }
 
-  ~napi_context__() {
+  ~JSCCtx() {
     JSGlobalContextRelease(context_);
     context_ = nullptr;
   }
 
-  JSGlobalContextRef context_;
-  ModuleClassMap modules;
+  JSGlobalContextRef GetCtxRef() { return context_; }
 
-  napi_status error;
+  virtual bool RegisterGlobalInJs();
+  virtual bool SetGlobalVar(const std::string& name, const char* json);
+  virtual std::shared_ptr<CtxValue> GetGlobalVar(const std::string& name);
+  virtual std::shared_ptr<CtxValue> GetProperty(
+      const std::shared_ptr<CtxValue>& object,
+      const std::string& name);
+  virtual void RegisterGlobalModule(std::shared_ptr<Scope> scope,
+                                    const ModuleClassMap& modules);
+  virtual void RegisterNativeBinding(const std::string& name,
+                                     hippy::base::RegisterFunction fn,
+                                     void* data);
+  virtual std::shared_ptr<CtxValue> EvaluateJavascript(
+      const uint8_t* data,
+      size_t len,
+      const char* name = nullptr);
+  virtual std::shared_ptr<CtxValue> CreateNumber(double number);
+  virtual std::shared_ptr<CtxValue> CreateBoolean(bool b);
+  virtual std::shared_ptr<CtxValue> CreateString(const char* string);
+  virtual std::shared_ptr<CtxValue> CreateUndefined();
+  virtual std::shared_ptr<CtxValue> CreateNull();
+  virtual std::shared_ptr<CtxValue> CreateObject(const char* json);
+  virtual std::shared_ptr<CtxValue> CreateArray(
+      size_t count,
+      std::shared_ptr<CtxValue> value[]);
+
+  // Get From Value
+  virtual std::shared_ptr<CtxValue> CallFunction(
+      std::shared_ptr<CtxValue> function,
+      size_t argument_count = 0,
+      const std::shared_ptr<CtxValue> argumets[] = nullptr);
+
+  virtual bool GetValueNumber(std::shared_ptr<CtxValue>, double* result);
+  virtual bool GetValueNumber(std::shared_ptr<CtxValue>, int32_t* result);
+  virtual bool GetValueBoolean(std::shared_ptr<CtxValue>, bool* result);
+  virtual bool GetValueString(std::shared_ptr<CtxValue>, std::string* result);
+  virtual bool GetValueJson(std::shared_ptr<CtxValue>, std::string* result);
+
+  // Array Helpers
+
+  virtual bool IsArray(std::shared_ptr<CtxValue>);
+  virtual uint32_t GetArrayLength(std::shared_ptr<CtxValue>);
+  virtual std::shared_ptr<CtxValue> CopyArrayElement(std::shared_ptr<CtxValue>,
+                                                     uint32_t index);
+
+  // Object Helpers
+
+  virtual bool HasNamedProperty(std::shared_ptr<CtxValue>, const char* name);
+  virtual std::shared_ptr<CtxValue> CopyNamedProperty(std::shared_ptr<CtxValue>,
+                                                      const char* name);
+  // Function Helpers
+
+  virtual bool IsFunction(std::shared_ptr<CtxValue>);
+  virtual std::string CopyFunctionName(std::shared_ptr<CtxValue>);
+
+  virtual bool RunScriptWithCache(std::unique_ptr<std::vector<char>> script,
+                                  const std::string& file_name,
+                                  bool is_use_code_cache,
+                                  std::shared_ptr<std::vector<char>> cache) {
+    return false;
+  };
+
+  virtual std::shared_ptr<CtxValue> GetJsFn(const std::string& name) {
+    return nullptr;
+  };
+
+  JSGlobalContextRef context_;
+  napi_status error_;
 };
 
-struct napi_value__ {
-  napi_value__(napi_context context, JSValueRef value)
+class JSCCtxValue : public CtxValue {
+ public:
+  JSCCtxValue(JSGlobalContextRef context, JSValueRef value)
       : context_(context), value_(value) {
-    JSValueProtect(context_->context_, value_);
+    JSValueProtect(context_, value_);
   }
-  ~napi_value__() { JSValueUnprotect(context_->context_, value_); }
 
-  napi_context context_;
+  ~JSCCtxValue() { JSValueUnprotect(context_, value_); }
+
+  JSGlobalContextRef context_;
   JSValueRef value_;
 
-  DISALLOW_COPY_AND_ASSIGN(napi_value__);
+  DISALLOW_COPY_AND_ASSIGN(JSCCtxValue);
 };
 
 }  // namespace napi

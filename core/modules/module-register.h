@@ -24,6 +24,7 @@
 #define CORE_MODULES_MODULE_REGISTER_H_
 
 #include <stdio.h>
+
 #include <memory>
 #include <string>
 
@@ -31,6 +32,7 @@
 #include "core/modules/module-base.h"
 #include "core/napi/callback-info.h"
 #include "core/napi/js-native-api-types.h"
+#include "core/scope.h"
 
 #define REGISTER_MODULE(Module, Function)                                   \
   auto __##Module##Function##__ = [] {                                      \
@@ -80,29 +82,25 @@ class ModuleRegister {
   hippy::napi::JsCallback GenerateCallback(Function Module::*member_fn,
                                            const std::string& module_name) {
     return [member_fn, module_name](const hippy::napi::CallbackInfo& info) {
-      // Get module from or Add module to |context|.
-      std::shared_ptr<Environment> env = info.GetEnv();
-      hippy::napi::napi_context context = env->getContext();
-      auto pModule = GetModuleFromContext(context, module_name);
-      if (!pModule) {
-        auto module = std::make_unique<Module>(context);
-        pModule = module.get();
-        AddModuleToEnv(context, module_name, std::move(module));
+      std::shared_ptr<Scope> scope = info.GetScope();
+      if (!scope) {
+        return;
+      }
+
+      auto module_ptr = scope->GetModuleClass(module_name);
+      if (!module_ptr) {
+        auto module = std::make_unique<Module>();
+        module_ptr = module.get();
+        scope->AddModuleClass(module_name, std::move(module));
       }
 
       // Call module function.
-      auto target = static_cast<Module*>(pModule);
+      auto target = static_cast<Module*>(module_ptr);
       if (target) {
         std::mem_fn(member_fn)(*target, info);
       }
     };
   }
-
-  static ModuleBase* GetModuleFromContext(hippy::napi::napi_context ctx,
-                                          const std::string& module_name);
-  static void AddModuleToEnv(hippy::napi::napi_context ctx,
-                             const std::string& module_name,
-                             std::unique_ptr<ModuleBase> module);
 
   hippy::napi::ModuleClassMap internal_modules_;
   hippy::napi::ModuleClassMap global_modules_;

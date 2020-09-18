@@ -1,58 +1,77 @@
-//
-// Created by howlpan on 2019/4/18.
-//
+/*
+ *
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
 #include "exception-handler.h"  // NOLINT(build/include_subdir)
+
+#include "core/base/logging.h"
 #include "jni-env.h"    // NOLINT(build/include_subdir)
 #include "jni-utils.h"  // NOLINT(build/include_subdir)
-#include "core/base/logging.h"
 
-void ExceptionHandler::reportJsException(v8::Isolate* isolate,
+void ExceptionHandler::ReportJsException(std::shared_ptr<V8Runtime> runtime,
                                          std::stringstream& description_stream,
                                          std::stringstream& stack_stream) {
-  v8::HandleScope handle_scope(isolate);
-  v8::Local<v8::Context> context = isolate->GetCurrentContext();
-  v8::Context::Scope context_scope(context);
+  HIPPY_DLOG(hippy::Debug, "ReportJsException begin");
 
   JNIEnv* env = JNIEnvironment::AttachCurrentThread();
 
   jstring jException = env->NewStringUTF(description_stream.str().c_str());
   jstring jStackTrace = env->NewStringUTF(stack_stream.str().c_str());
 
-  v8::Local<v8::Value> cached_data = context->GetEmbedderData(0);
-  if (!cached_data.IsEmpty())
-  {
-    V8Runtime* runtime =
-        static_cast<V8Runtime*>(v8::External::Cast(*cached_data)->Value());
+  if (runtime->bridge_) {
     env->CallVoidMethod(
-        runtime->hippyBridge,
-        JNIEnvironment::getInstance()->wrapper.reportExceptionMethodID,
+        runtime->bridge_->GetObj(),
+        JNIEnvironment::GetInstance()->wrapper_.report_exception_method_id,
         jException, jStackTrace);
-  } else {
-    HIPPY_LOG(hippy::Error, "reportJsException cached_data is empty");
   }
 
   // delete local ref
   env->DeleteLocalRef(jException);
   env->DeleteLocalRef(jStackTrace);
+
+  HIPPY_DLOG(hippy::Debug, "ReportJsException end");
 }
 
-void ExceptionHandler::JSONException(V8Runtime* runtime, const char* jsonValue) {
-  if (runtime == NULL) {
+void ExceptionHandler::JSONException(std::shared_ptr<V8Runtime> runtime,
+                                     const char* jsonValue) {
+  if (!runtime) {  // nullptr
     return;
   }
 
-  if (jsonValue == NULL) {
+  if (!jsonValue) {  // nullptr
     return;
   }
 
   JNIEnv* env = JNIEnvironment::AttachCurrentThread();
 
-  jstring jException = env->NewStringUTF("Hippy Bridge parse json error");
+  jstring jException = env->NewStringUTF("Hippy Bridge parse json error_");
   jstring jStackTrace = env->NewStringUTF(jsonValue);
 
   // call function
-  env->CallVoidMethod(runtime->hippyBridge, JNIEnvironment::getInstance()->wrapper.reportExceptionMethodID, jException, jStackTrace);
+  if (runtime->bridge_) {
+    env->CallVoidMethod(
+        runtime->bridge_->GetObj(),
+        JNIEnvironment::GetInstance()->wrapper_.report_exception_method_id,
+        jException, jStackTrace);
+  }
 
   // delete local ref
   env->DeleteLocalRef(jException);

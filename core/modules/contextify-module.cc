@@ -23,35 +23,34 @@
 #include "core/modules/contextify-module.h"
 
 #include <string.h>
+
 #include <memory>
 #include <string>
 
 #include "core/base/logging.h"
 #include "core/modules/module-register.h"
 #include "core/napi/callback-info.h"
+#include "core/napi/js-native-api-types.h"
 #include "core/napi/js-native-api.h"
 #include "core/napi/native-source-code.h"
 
 REGISTER_MODULE(ContextifyModule, RunInThisContext)
 
-namespace napi = ::hippy::napi;
-
-void ContextifyModule::RunInThisContext(const napi::CallbackInfo& info) {
-  std::shared_ptr<Environment> env = info.GetEnv();
-  napi::napi_context context = env->getContext();
+void ContextifyModule::RunInThisContext(const hippy::napi::CallbackInfo& info) {
+  std::shared_ptr<Scope> scope = info.GetScope();
+  std::shared_ptr<hippy::napi::Ctx> context = scope->GetContext();
   HIPPY_CHECK(context);
 
   std::string key;
-  if (!napi::napi_get_value_string(context, info[0], &key)) {
+  if (!context->GetValueString(info[0], &key)) {
     info.GetExceptionValue()->Set(
         context, "The first argument must be non-empty string.");
     return;
   }
 
-  //HIPPY_LOG(hippy::Debug, "RunInThisContext key = %s", key.c_str());
-
+  HIPPY_DLOG(hippy::Debug, "RunInThisContext key = %s", key.c_str());
   auto source_code = hippy::GetNativeSourceCode(key.c_str());
-  napi::napi_value ret = napi::napi_evaluate_javascript(
-      context, source_code.data, source_code.length, key.c_str());
+  std::shared_ptr<hippy::napi::CtxValue> ret = context->EvaluateJavascript(
+      source_code.data_, source_code.length_, key.c_str());
   info.GetReturnValue()->Set(ret);
 }
