@@ -51,7 +51,7 @@ class HippyWebViewInner extends WebView {
 		settings.setDatabasePath(context.getDir("hwebview_databases", 0).getPath());
 		settings.setGeolocationDatabasePath(context.getDir("hwebview_geolocation", 0).getPath());
 		settings.setLoadsImagesAutomatically(true);
-		settings.setAllowContentAccess(true);
+		settings.setAllowContentAccess(false);
 		settings.setDatabaseEnabled(true);
 		settings.setDomStorageEnabled(true);
 		settings.setLoadWithOverviewMode(true);
