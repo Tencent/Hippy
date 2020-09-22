@@ -58,22 +58,6 @@ HIPPY_EXTERN NSString *const HippyFBJSContextClassKey;
 HIPPY_EXTERN NSString *const HippyFBJSValueClassKey;
 
 /**
- * @experimental
- * May be used to pre-create the JSContext to make HippyJSCExecutor creation less costly.
- * Avoid using this; it's experimental and is not likely to be supported long-term.
- */
-@interface HippyJSContextProvider : NSObject
-
-- (instancetype)initWithUseCustomJSCLibrary:(BOOL)useCustomJSCLibrary;
-
-/**
- * Marks whether the provider uses the custom implementation of JSC and not the system one.
- */
-@property (nonatomic, readonly, assign) BOOL useCustomJSCLibrary;
-
-@end
-
-/**
  * Uses a JavaScriptCore context as the execution engine.
  */
 @interface HippyJSCExecutor : NSObject <HippyJavaScriptExecutor>
@@ -90,25 +74,6 @@ HIPPY_EXTERN NSString *const HippyFBJSValueClassKey;
  * @default is "HippyJSContext"
  */
 @property (nonatomic, copy) NSString *contextName;
-
-/**
- * Inits a new executor instance with given flag that's used
- * to initialize HippyJSCWrapper.
- */
-- (instancetype)initWithUseCustomJSCLibrary:(BOOL)useCustomJSCLibrary;
-
-/**
- * @experimental
- * Pass a HippyJSContextProvider object to use an NSThread/JSContext pair that have already been created.
- * The returned executor has already executed the supplied application script synchronously.
- * The underlying JSContext will be returned in the JSContext pointer if it is non-NULL and there was no error.
- * If an error occurs, this method will return nil and specify the error in the error pointer if it is non-NULL.
- */
-+ (instancetype)initializedExecutorWithContextProvider:(HippyJSContextProvider *)JSContextProvider
-                                     applicationScript:(NSData *)applicationScript
-                                             sourceURL:(NSURL *)sourceURL
-                                             JSContext:(JSContext **)JSContext
-                                                 error:(NSError **)error;
 
 /**
  * Invokes the given module/method directly. The completion block will be called with the

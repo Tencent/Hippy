@@ -42,9 +42,9 @@ NSError *HippyNSErrorFromJSError(JSValue *exception)
   return [NSError errorWithDomain:HippyErrorDomain code:1 userInfo:userInfo];
 }
 
-NSError *HippyNSErrorFromJSErrorRef(JSValueRef exceptionRef, JSGlobalContextRef ctx, HippyJSCWrapper *jscWrapper)
+NSError *HippyNSErrorFromJSErrorRef(JSValueRef exceptionRef, JSGlobalContextRef ctx)
 {
-  JSContext *context = [jscWrapper->JSContext contextWithJSGlobalContextRef:ctx];
-  JSValue *exception = [jscWrapper->JSValue valueWithJSValueRef:exceptionRef inContext:context];
+  JSContext *context = [JSContext contextWithJSGlobalContextRef:ctx];
+  JSValue *exception = [JSValue valueWithJSValueRef:exceptionRef inContext:context];
   return HippyNSErrorFromJSError(exception);
 }
