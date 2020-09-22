@@ -26,7 +26,10 @@
 
 #import "HippyBridgeModule.h"
 #import "HippyInvalidating.h"
-#include "engine-impl.h"
+
+#include "engine.h"
+#include "scope.h"
+#include "js-native-api-types.h"
 
 typedef void (^HippyJavaScriptCompleteBlock)(NSError *error);
 typedef void (^HippyJavaScriptCallback)(id result, NSError *error);
@@ -37,6 +40,7 @@ typedef void (^HippyJavaScriptCallback)(id result, NSError *error);
  */
 @protocol HippyJavaScriptExecutor <HippyInvalidating, HippyBridgeModule>
 
+- (instancetype)initWithExecurotKey:(NSString *)execurotkey;
 /**
  * Used to set up the executor after the bridge has been fully initialized.
  * Do any expensive setup in this method instead of `-init`.
@@ -48,12 +52,11 @@ typedef void (^HippyJavaScriptCallback)(id result, NSError *error);
  */
 @property (nonatomic, readonly, getter=isValid) BOOL valid;
 
+@property (nonatomic, copy) NSString *executorkey;
 /*
  *hippy-core js engine
  */
-@property (nonatomic, assign) std::weak_ptr<Engine> pEngine;
-@property (nonatomic, assign) std::weak_ptr<Environment> pEnv;
-@property (nonatomic, assign) hippy::napi::napi_context napi_ctx;
+@property (atomic, assign) std::shared_ptr<Scope> pScope;
 @property (readonly) JSGlobalContextRef JSGlobalContextRef;
 /**
  * Executes BatchedBridge.flushedQueue on JS thread and calls the given callback
