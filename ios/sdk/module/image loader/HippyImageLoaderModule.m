@@ -20,9 +20,11 @@
 * limitations under the License.
 */
 
+#import <UIKit/UIKit.h>
 #import "HippyImageLoaderModule.h"
 #import "HippyImageCacheManager.h"
-#import <UIKit/UIKit.h>
+#import "HippyImageProviderProtocol.h"
+
 @implementation HippyImageLoaderModule
 
 HIPPY_EXPORT_MODULE(ImageLoaderModule)
@@ -44,13 +46,17 @@ HIPPY_EXPORT_METHOD(getSize:(NSString *)urlString resolver:(HippyPromiseResolveB
     }
     CFURLRef urlRef = CFURLCreateWithBytes(NULL, [uriData bytes], [uriData length], kCFStringEncodingUTF8, NULL);
     NSURL *source_url = CFBridgingRelease(urlRef);
+    __weak __typeof(self) weakSelf = self;
 	[[[NSURLSession sharedSession] dataTaskWithURL:source_url completionHandler:^(NSData * _Nullable data, __unused NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        __typeof(weakSelf) strongSelf = weakSelf;
 		if (error) {
             NSError *error = [NSError errorWithDomain:@"ImageLoaderModuleDomain" code:1 userInfo:@{@"reason": @"url parse error"}];
             reject(@"2", @"url request error", error);
 		} else {
             [[HippyImageCacheManager sharedInstance] setImageCacheData:data forURLString:urlString];
-			UIImage *image = [UIImage imageWithData:data];
+            Class<HippyImageProviderProtocol> ipClass = imageProviderClassFromBridge(data, strongSelf.bridge);
+            id<HippyImageProviderProtocol> instance = [ipClass imageProviderInstanceForData:data];
+            UIImage *image = [instance image];
 			if (image) {
 				NSDictionary *dic = @{@"width": @(image.size.width), @"height": @(image.size.height)};
 				resolve(dic);

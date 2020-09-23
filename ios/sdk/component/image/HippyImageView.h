@@ -25,15 +25,20 @@
 #import "HippyConvert.h"
 #import "HippyAnimatedImageView.h"
 #import "HippyMemoryOpt.h"
+#import "HippyImageProviderProtocol.h"
+
 @class HippyBridge;
 @class HippyImageView;
+
 @interface HippyAnimatedImageOperation : NSOperation {
     NSData *_animatedImageData;
     NSString *_url;
     __weak HippyImageView *_imageView;
+    id<HippyImageProviderProtocol> _imageProvider;
 }
 
 - (id) initWithAnimatedImageData:(NSData *)data imageView:(HippyImageView *)imageView imageURL:(NSString *)url;
+- (id) initWithAnimatedImageProvider:(id<HippyImageProviderProtocol>)imageProvider imageView:(HippyImageView *)imageView imageURL:(NSString *)url;
 
 @end
 
@@ -54,7 +59,7 @@ typedef NS_ENUM(NSInteger, HippyResizeMode) {
 @property (nonatomic, strong) UIImage *defaultImage;
 @property (nonatomic, assign) UIImageRenderingMode renderingMode;
 @property (nonatomic, weak) HippyBridge *bridge;
-
+@property (nonatomic, assign) BOOL needDownsampleing;
 @property (nonatomic, assign) CGFloat borderTopLeftRadius;
 @property (nonatomic, assign) CGFloat borderTopRightRadius;
 @property (nonatomic, assign) CGFloat borderBottomLeftRadius;

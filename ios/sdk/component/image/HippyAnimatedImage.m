@@ -70,6 +70,7 @@ typedef NS_ENUM(NSUInteger, HippyAnimatedImageFrameCacheSize) {
 // We are lying about the actual type here to gain static type checking and eliminate casts.
 // The actual type of the object is `HippyWeakProxy`.
 @property (nonatomic, strong, readonly) HippyAnimatedImage *weakProxy;
+@property (nonatomic, strong) id<HippyImageProviderProtocol> imageProvider;
 
 @end
 
@@ -169,6 +170,140 @@ static NSHashTable *allAnimatedImagesWeak;
     return animatedImage;
 }
 
+- (instancetype)initWithAnimatedImageProvider:(id<HippyImageProviderProtocol>)imageProvider {
+    return [self initWithAnimatedImageProvider:imageProvider optimalFrameCacheSize:9 predrawingEnabled:YES];
+}
+
+- (instancetype)initWithAnimatedImageProvider:(id<HippyImageProviderProtocol>)imageProvider optimalFrameCacheSize:(NSUInteger)optimalFrameCacheSize predrawingEnabled:(BOOL)isPredrawingEnabled {
+    if (nil == imageProvider) {
+        RAILog(RAILogLevelError, @"No Image Provide data supplied.");
+        return nil;
+    }
+    self = [super init];
+    if (self) {
+        _imageProvider = imageProvider;
+        _predrawingEnabled = isPredrawingEnabled;
+        
+        // Initialize internal data structures
+        _cachedFramesForIndexes = [[NSMutableDictionary alloc] init];
+        _cachedFrameIndexes = [[NSMutableIndexSet alloc] init];
+        _requestedFrameIndexes = [[NSMutableIndexSet alloc] init];
+        
+        //loop count
+        if ([imageProvider respondsToSelector:@selector(loopCount)]) {
+            _loopCount = [imageProvider loopCount];
+        }
+        
+        // Iterate through frame images
+        NSUInteger imageCount = [imageProvider imageCount];
+        
+        NSUInteger skippedFrameCount = 0;
+        NSMutableDictionary *delayTimesForIndexesMutable = [NSMutableDictionary dictionaryWithCapacity:imageCount];
+        for (NSUInteger i = 0; i < imageCount; i++) {
+            @autoreleasepool {
+                UIImage *frameImage = nil;
+                if ([imageProvider respondsToSelector:@selector(imageAtFrame:)]) {
+                    frameImage = [imageProvider imageAtFrame:i];
+                }
+                // Check for valid `frameImage` before parsing its properties as frames can be corrupted (and `frameImage` even `nil` when `frameImageRef` was valid).
+                if (frameImage) {
+                    // Set poster image
+                    if (!self.posterImage) {
+                        _posterImage = frameImage;
+                        // Set its size to proxy our size.
+                        _size = _posterImage.size;
+                        // Remember index of poster image so we never purge it; also add it to the cache.
+                        _posterImageFrameIndex = i;
+                        [self.cachedFramesForIndexes setObject:self.posterImage forKey:@(self.posterImageFrameIndex)];
+                        [self.cachedFrameIndexes addIndex:self.posterImageFrameIndex];
+                    }
+                    
+                    // Get `DelayTime`
+                    // Note: It's not in (1/100) of a second like still falsely described in the documentation as per iOS 8 (rdar://19507384) but in seconds stored as `kCFNumberFloat32Type`.
+                    // Frame properties example:
+                    // {
+                    //     ColorModel = RGB;
+                    //     Depth = 8;
+                    //     PixelHeight = 960;
+                    //     PixelWidth = 640;
+                    //     "{GIF}" = {
+                    //         DelayTime = "0.4";
+                    //         UnclampedDelayTime = "0.4";
+                    //     };
+                    // }
+                    const NSTimeInterval kDelayTimeIntervalDefault = 0.1f;
+                    NSTimeInterval delayTimeAtFrame = kDelayTimeIntervalDefault;
+                    if ([imageProvider respondsToSelector:@selector(delayTimeAtFrame:)]) {
+                        delayTimeAtFrame = [imageProvider delayTimeAtFrame:i];
+                    }
+                    
+                    // Support frame delays as low as `kHippyAnimatedImageDelayTimeIntervalMinimum`, with anything below being rounded up to `kDelayTimeIntervalDefault` for legacy compatibility.
+                    // To support the minimum even when rounding errors occur, use an epsilon when comparing. We downcast to float because that's what we get for delayTime from ImageIO.
+                    if (delayTimeAtFrame < ((float)kHippyAnimatedImageDelayTimeIntervalMinimum - FLT_EPSILON)) {
+                        RAILog(RAILogLevelInfo, @"Rounding frame %zu's `delayTime` from %f up to default %f (minimum supported: %f).", i, [delayTime floatValue], kDelayTimeIntervalDefault, kHippyAnimatedImageDelayTimeIntervalMinimum);
+                        delayTimeAtFrame = kDelayTimeIntervalDefault;
+                    }
+                    delayTimesForIndexesMutable[@(i)] = @(delayTimeAtFrame);
+                } else {
+                    skippedFrameCount++;
+                    RAILog(RAILogLevelInfo, @"Dropping frame %zu because valid `UIImage` %@ did result in `nil`-`UIImage`.", i, frameImage);
+                }
+            }
+        }
+        _delayTimesForIndexes = [delayTimesForIndexesMutable copy];
+        _frameCount = imageCount;
+        
+        if (self.frameCount == 0) {
+            RAILog(RAILogLevelInfo, @"Failed to create any valid frames for GIF with properties %@", imageProperties);
+            return nil;
+        } else if (self.frameCount == 1) {
+            // Warn when we only have a single frame but return a valid GIF.
+            RAILog(RAILogLevelInfo, @"Created valid GIF but with only a single frame. Image properties: %@", imageProperties);
+        } else {
+            // We have multiple frames, rock on!
+        }
+        
+        // If no value is provided, select a default based on the GIF.
+        if (optimalFrameCacheSize == 0) {
+            // Calculate the optimal frame cache size: try choosing a larger buffer window depending on the predicted image size.
+            // It's only dependent on the image size & number of frames and never changes.
+            CGFloat animatedImageDataSize = CGImageGetBytesPerRow(self.posterImage.CGImage) * self.size.height * (self.frameCount - skippedFrameCount) / MEGABYTE;
+            if (animatedImageDataSize <= HippyAnimatedImageDataSizeCategoryAll) {
+                _frameCacheSizeOptimal = self.frameCount;
+            } else if (animatedImageDataSize <= HippyAnimatedImageDataSizeCategoryDefault) {
+                // This value doesn't depend on device memory much because if we're not keeping all frames in memory we will always be decoding 1 frame up ahead per 1 frame that gets played and at this point we might as well just keep a small buffer just large enough to keep from running out of frames.
+                _frameCacheSizeOptimal = HippyAnimatedImageFrameCacheSizeDefault;
+            } else {
+                // The predicted size exceeds the limits to build up a cache and we go into low memory mode from the beginning.
+                _frameCacheSizeOptimal = HippyAnimatedImageFrameCacheSizeLowMemory;
+            }
+        } else {
+            // Use the provided value.
+            _frameCacheSizeOptimal = optimalFrameCacheSize;
+        }
+        // In any case, cap the optimal cache size at the frame count.
+        _frameCacheSizeOptimal = MIN(_frameCacheSizeOptimal, self.frameCount);
+        
+        // Convenience/minor performance optimization; keep an index set handy with the full range to return in `-frameIndexesToCache`.
+        _allFramesIndexSet = [[NSIndexSet alloc] initWithIndexesInRange:NSMakeRange(0, self.frameCount)];
+        
+        // See the property declarations for descriptions.
+        _weakProxy = (id)[HippyWeakProxy weakProxyForObject:self];
+        
+        // Register this instance in the weak table for memory notifications. The NSHashTable will clean up after itself when we're gone.
+        // Note that HippyAnimatedImages can be created on any thread, so the hash table must be locked.
+        @synchronized(allAnimatedImagesWeak) {
+            [allAnimatedImagesWeak addObject:self];
+        }
+        
+    }
+    return self;
+}
+
++ (instancetype)animatedImageWithAnimatedImageProvider:(id<HippyImageProviderProtocol>)imageProvider {
+    HippyAnimatedImage *animatedImage = [[HippyAnimatedImage alloc] initWithAnimatedImageProvider:imageProvider];
+    return animatedImage;
+}
 
 - (instancetype)initWithAnimatedGIFData:(NSData *)data
 {
@@ -492,33 +627,25 @@ static NSHashTable *allAnimatedImagesWeak;
     return imageSize;
 }
 
-+ (BOOL)isAnimatedImageData:(NSData *)data {
-    if (data) {
-        //for a image with 1312182 bytes,it takes 0.00002 seconds at most to invoke CGImageSourceCreateWithData
-        //GIF,APNG images are animatable
-        CGImageSourceRef isRef = CGImageSourceCreateWithData((__bridge CFDataRef)data, NULL);
-        if (isRef) {
-            //for a image with 1312182 bytes,it takes 0.006239 seconds at most to invoke CGImageSourceGetCount
-            size_t count = CGImageSourceGetCount(isRef);
-            CFRelease(isRef);
-            return count > 1;
-        }
-    }
-    return NO;
-}
-
 - (UIImage *)imageAtIndex:(NSUInteger)index
 {
     // It's very important to use the cached `_imageSource` since the random access to a frame with `CGImageSourceCreateImageAtIndex` turns from an O(1) into an O(n) operation when re-initializing the image source every time.
-    CGImageRef imageRef = CGImageSourceCreateImageAtIndex(_imageSource, index, NULL);
+    UIImage *image = nil;
+    if (_imageSource) {
+        // It's very important to use the cached `_imageSource` since the random access to a frame with `CGImageSourceCreateImageAtIndex` turns from an O(1) into an O(n) operation when re-initializing the image source every time.
+        CGImageRef imageRef = CGImageSourceCreateImageAtIndex(_imageSource, index, NULL);
 
-    // Early return for nil
-    if (!imageRef) {
-        return nil;
+        // Early return for nil
+        if (!imageRef) {
+            return nil;
+        }
+
+        image = [UIImage imageWithCGImage:imageRef];
+        CFRelease(imageRef);
     }
-
-    UIImage *image = [UIImage imageWithCGImage:imageRef];
-    CFRelease(imageRef);
+    else if (_imageProvider) {
+        image = [_imageProvider imageAtFrame:index];
+    }
     
     // Loading in the image object is only half the work, the displaying image view would still have to synchronosly wait and decode the image, so we go ahead and do that here on the background thread.
     if (self.isPredrawingEnabled) {

@@ -39,7 +39,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(onError, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onPartialLoad, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onLoad, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onLoadEnd, HippyDirectEventBlock)
-
+HIPPY_EXPORT_VIEW_PROPERTY(needDownsampleing, BOOL)
 
 HIPPY_CUSTOM_VIEW_PROPERTY(tintColor, UIColor, HippyImageView)
 {
