@@ -280,8 +280,6 @@ std::shared_ptr<CtxValue> JSCCtx::EvaluateJavascript(const uint8_t* data,
   }
   JSStringRelease(js_string);
 
-  ExceptionDescription(context_, exception);
-
   if (!value) {
     return nullptr;
   }
