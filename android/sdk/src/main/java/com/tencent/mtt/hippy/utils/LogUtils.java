@@ -24,7 +24,7 @@ import com.tencent.mtt.hippy.BuildConfig;
  */
 public class LogUtils
 {
-	private static boolean DEBUG_ENABLE = BuildConfig.DEBUG;
+	private static boolean DEBUG_ENABLE = false;
 
     public static void enableDebugLog(boolean debuggable)
     {
