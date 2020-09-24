@@ -103,8 +103,18 @@ void Scope::Initialized() {
   std::shared_ptr<CtxValue> internal_binding_fn =
       hippy::napi::GetInternalBindingFn(self);
   std::shared_ptr<CtxValue> argv[] = {internal_binding_fn};
+  std::shared_ptr<std::string> exception = std::make_shared<std::string>();
   std::shared_ptr<CtxValue> ret_value =
-      context_->CallFunction(function, 1, argv);
+      context_->CallFunction(function, 1, argv, &exception);
+
+  it = map_->find(hippy::base::kHandleExceptionKey);
+  if (it != map_->end() && !exception->empty()) {
+    RegisterFunction f = it->second;
+    if (f) {
+      f((void*)exception->c_str());
+    }
+  }
+
   it = map_->find(hippy::base::KScopeInitializedCBKey);
   if (it != map_->end()) {
     RegisterFunction f = it->second;

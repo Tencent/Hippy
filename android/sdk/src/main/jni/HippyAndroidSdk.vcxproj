@@ -35,21 +35,20 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="code-cache-runnable.cc" />
-    <ClCompile Include="code-cache-sanity-check.cc" />
     <ClCompile Include="com_tencent_mtt_hippy_bridge_HippyBridgeImpl.cc" />
+    <ClCompile Include="core\base\file.cc" />
     <ClCompile Include="core\base\logging.cc" />
     <ClCompile Include="core\base\task.cc" />
     <ClCompile Include="core\base\task-runner.cc" />
     <ClCompile Include="core\base\thread.cc" />
     <ClCompile Include="core\base\thread-id.cc" />
-    <ClCompile Include="core\engine-impl.cc" />
     <ClCompile Include="core\engine.cc" />
-    <ClCompile Include="core\environment.cc" />
+    <ClCompile Include="core\scope.cc" />
     <ClCompile Include="core\javascript-loader.cc" />
     <ClCompile Include="core\napi\callback-info.cc" />
     <ClCompile Include="core\napi\v8\native-source-code-android.cc" />
     <ClCompile Include="core\platform\logging-impl.cc" />
+    <ClCompile Include="core\task\common-task.cc" />
     <ClCompile Include="core\task\javascript-task-runner.cc" />
     <ClCompile Include="core\task\javascript-task.cc" />
     <ClCompile Include="core\modules\console-module.cc" />
@@ -58,36 +57,35 @@
     <ClCompile Include="core\modules\timer-module.cc" />
     <ClCompile Include="core\napi\v8\js-native-api-v8.cc" />
     <ClCompile Include="core\napi\v8\js-native-api-value-v8.cc" />
+    <ClCompile Include="core\task\worker-task-runner.cc" />
     <ClCompile Include="exception-handler.cc" />
     <ClCompile Include="hippy-buffer.cc" />
-    <ClCompile Include="hippy-native-global.cc" />
     <ClCompile Include="inspector\v8-channel-impl.cc" />
     <ClCompile Include="inspector\v8-inspector-client-impl.cc" />
     <ClCompile Include="jni-env.cc" />
     <ClCompile Include="jni-utils.cc" />
-    <ClCompile Include="runtime.cc" />
     <ClCompile Include="scoped-java-ref.cc" />
-    <ClCompile Include="third_party\md5.cc" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="code-cache-runnable.h" />
-    <ClInclude Include="code-cache-sanity-check.h" />
     <ClInclude Include="com_tencent_mtt_hippy_bridge_HippyBridgeImpl.h" />
+    <ClInclude Include="core\base\base-time.h" />
+    <ClInclude Include="core\base\common.h" />
+    <ClInclude Include="core\base\file.h" />
     <ClInclude Include="core\base\lock-queue.h" />
     <ClInclude Include="core\base\logging.h" />
     <ClInclude Include="core\base\task.h" />
     <ClInclude Include="core\base\task-runner.h" />
     <ClInclude Include="core\base\thread.h" />
     <ClInclude Include="core\base\thread-id.h" />
-    <ClInclude Include="core\engine-impl.h" />
+    <ClInclude Include="core\base\time.h" />
     <ClInclude Include="core\engine.h" />
-    <ClInclude Include="core\environment.h" />
+    <ClInclude Include="core\scope.h" />
     <ClInclude Include="core\javascript-loader.h" />
-    <ClInclude Include="core\modules\js-value-helper.h" />
     <ClInclude Include="core\modules\module-base.h" />
     <ClInclude Include="core\napi\callback-info.h" />
     <ClInclude Include="core\napi\native-source-code.h" />
     <ClInclude Include="core\platform\logging-impl.h" />
+    <ClInclude Include="core\task\common-task.h" />
     <ClInclude Include="core\task\javascript-task-runner.h" />
     <ClInclude Include="core\task\javascript-task.h" />
     <ClInclude Include="core\modules\console-module.h" />
@@ -98,16 +96,15 @@
     <ClInclude Include="core\napi\js-native-api-types.h" />
     <ClInclude Include="core\napi\v8\js-native-api-v8.h" />
     <ClInclude Include="core\base\macros.h" />
+    <ClInclude Include="core\task\worker-task-runner.h" />
     <ClInclude Include="exception-handler.h" />
     <ClInclude Include="hippy-buffer.h" />
-    <ClInclude Include="hippy-native-global.h" />
     <ClInclude Include="inspector\v8-channel-impl.h" />
     <ClInclude Include="inspector\v8-inspector-client-impl.h" />
     <ClInclude Include="jni-env.h" />
     <ClInclude Include="jni-utils.h" />
     <ClInclude Include="runtime.h" />
     <ClInclude Include="scoped-java-ref.h" />
-    <ClInclude Include="third_party\md5.h" />
     <ClInclude Include="third_party\v8\libplatform\libplatform-export.h" />
     <ClInclude Include="third_party\v8\libplatform\libplatform.h" />
     <ClInclude Include="third_party\v8\libplatform\v8-tracing.h" />
