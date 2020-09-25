@@ -438,24 +438,37 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
     if (_task == task) {
         NSDictionary *source = [self.source firstObject];
         if (!error) {
-            Class<HippyImageProviderProtocol> ipClass = imageProviderClassFromBridge(_data, self.bridge);
-            id<HippyImageProviderProtocol> instance = [self instanceImageProviderFromClass:ipClass imageData:_data];
-            BOOL isAnimatedImage = [ipClass isAnimatedImage:_data];
-            if (isAnimatedImage) {
-                if (_animatedImageOperation) {
-                    [_animatedImageOperation cancel];
+            if ([_data length] > 0) {
+                Class<HippyImageProviderProtocol> ipClass = imageProviderClassFromBridge(_data, self.bridge);
+                id<HippyImageProviderProtocol> instance = [self instanceImageProviderFromClass:ipClass imageData:_data];
+                BOOL isAnimatedImage = [ipClass isAnimatedImage:_data];
+                if (isAnimatedImage) {
+                    if (_animatedImageOperation) {
+                        [_animatedImageOperation cancel];
+                    }
+                    _animatedImageOperation = [[HippyAnimatedImageOperation alloc] initWithAnimatedImageProvider:instance imageView:self imageURL:source[@"uri"]];
+                    [animated_image_queue() addOperation:_animatedImageOperation];
                 }
-                _animatedImageOperation = [[HippyAnimatedImageOperation alloc] initWithAnimatedImageProvider:instance imageView:self imageURL:source[@"uri"]];
-                [animated_image_queue() addOperation:_animatedImageOperation];
+                else {
+                    [[HippyImageCacheManager sharedInstance] setImageCacheData:_data forURLString:source[@"uri"]];
+                    UIImage *image = [self imageFromData:_data];;
+                    if (image) {
+                        [self loadImage: image url:source[@"uri"] error:nil needBlur:YES needCache:YES];
+                    } else {
+                        NSError *theError = [NSError errorWithDomain:@"imageFromDataErrorDomain" code:1 userInfo:@{@"reason": @"Error in imageFromData"}];
+                        [self loadImage: nil url:source[@"uri"] error:theError needBlur:YES needCache:YES];
+                    }
+                }
             }
             else {
-                [[HippyImageCacheManager sharedInstance] setImageCacheData:_data forURLString:source[@"uri"]];
-                UIImage *image = [self imageFromData:_data];;
-                if (image) {
-                    [self loadImage: image url:source[@"uri"] error:nil needBlur:YES needCache:YES];
-                } else {
-                    NSError *theError = [NSError errorWithDomain:@"imageFromDataErrorDomain" code:1 userInfo:@{@"reason": @"Error in imageFromData"}];
-                    [self loadImage: nil url:source[@"uri"] error:theError needBlur:YES needCache:YES];
+                NSURLResponse *response = [task response];
+                if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
+                    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+                    NSUInteger statusCode = [httpResponse statusCode];
+                    NSString *errorMessage = [NSString stringWithFormat:@"no data received, HTTPStatusCode is %zd", statusCode];
+                    NSDictionary *userInfo = @{NSLocalizedDescriptionKey: errorMessage};
+                    NSError *error = [NSError errorWithDomain:@"ImageLoadDomain" code:1 userInfo:userInfo];
+                    [self loadImage:nil url:source[@"uri"] error:error needBlur:NO needCache:NO];
                 }
             }
         } else {
