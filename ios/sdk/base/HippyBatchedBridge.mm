@@ -921,7 +921,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithBundleURL:(__unused NSURL *)bundle
                          if (error) {
                              *error = jsError;
                          }
-#if DEBUG
+#ifdef DEBUG
                          JSValue *length = result[@"length"];
                          HippyAssert([length isNumber] && [length toUInt32] == 2,
                                    @"Return value of a callFunction must be an array of size 2");

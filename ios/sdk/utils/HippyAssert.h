@@ -160,7 +160,7 @@ HIPPY_EXTERN NSString *HippyFormatError(NSString *message, NSArray<HippyJSStackF
 /**
  * Convenience macro to assert which thread is currently running (DEBUG mode only)
  */
-#if DEBUG
+#ifdef DEBUG
 
 #define HippyAssertThread(thread, format...) \
 _Pragma("clang diagnostic push") \

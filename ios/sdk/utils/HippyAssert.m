@@ -149,7 +149,7 @@ void HippyFatal(NSError *error)
     if (fatalHandler) {
         fatalHandler(error);
     } else {
-#if DEBUG
+#ifdef DEBUG
         @try {
 #endif
             
@@ -161,7 +161,7 @@ void HippyFatal(NSError *error)
             }
             
             [NSException raise:name format:@"%@", message];
-#if DEBUG
+#ifdef DEBUG
         } @catch (NSException *e) {}
 #endif
     }
