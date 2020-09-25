@@ -93,7 +93,8 @@ class JSCCtx : public Ctx {
   virtual std::shared_ptr<CtxValue> CallFunction(
       std::shared_ptr<CtxValue> function,
       size_t argument_count = 0,
-      const std::shared_ptr<CtxValue> argumets[] = nullptr);
+      const std::shared_ptr<CtxValue> argumets[] = nullptr,
+      std::shared_ptr<std::string>* exception = nullptr);
 
   virtual bool GetValueNumber(std::shared_ptr<CtxValue>, double* result);
   virtual bool GetValueNumber(std::shared_ptr<CtxValue>, int32_t* result);
@@ -117,17 +118,11 @@ class JSCCtx : public Ctx {
 
   virtual bool IsFunction(std::shared_ptr<CtxValue>);
   virtual std::string CopyFunctionName(std::shared_ptr<CtxValue>);
-
-  virtual bool RunScriptWithCache(std::unique_ptr<std::vector<char>> script,
-                                  const std::string& file_name,
-                                  bool is_use_code_cache,
-                                  std::shared_ptr<std::vector<char>> cache) {
-    return false;
-  };
-
   virtual std::shared_ptr<CtxValue> GetJsFn(const std::string& name) {
     return nullptr;
   };
+
+  bool HandleJsException(JSValueRef value, std::string& exception_str);
 
   JSGlobalContextRef context_;
   napi_status error_;

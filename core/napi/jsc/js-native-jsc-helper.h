@@ -28,13 +28,12 @@
 #include <string>
 
 #include "core/napi/js-native-api-types.h"
+#include "core/napi/jsc/js-native-api-jsc.h"
 
 namespace hippy {
 namespace napi {
 
 std::string JsStrToUTF8(JSStringRef str);
-void ExceptionDescription(JSContextRef ctx, JSValueRef exception);
-// void ReportJSExecption(std::shared_ptr<JSCCtx> context, JSValueRef value);
 
 }  // namespace napi
 }  // namespace hippy

@@ -195,9 +195,9 @@ bool RunScript(std::shared_ptr<V8Runtime> runtime,
     return false;
   }
 
-  bool flag = runtime->scope_->GetContext()->RunScriptWithCache(
-      std::move(script_content), file_name, is_use_code_cache,
-      code_cache_content);
+  bool flag = std::static_pointer_cast<V8Ctx>(runtime->scope_->GetContext())
+                  ->RunScriptWithCache(std::move(script_content), file_name,
+                                       is_use_code_cache, code_cache_content);
   if (is_use_code_cache) {
     if (code_cache_content->size() > 0) {
       std::unique_ptr<CommonTask> task = std::make_unique<CommonTask>();
@@ -661,7 +661,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromFile(
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
   task->callback = [runtime, save_object_ = std::move(save_object), script_name,
                     canUseCodeCache, code_cache_dir, file_path, time1] {
-    HIPPY_LOG(hippy::Debug, "runScriptFromFile enter tast");
+    HIPPY_DLOG(hippy::Debug, "runScriptFromFile enter tast");
     bool flag = RunScript(runtime, script_name, canUseCodeCache, code_cache_dir,
                           file_path, nullptr);
     jlong value = flag == false ? 0 : 1;

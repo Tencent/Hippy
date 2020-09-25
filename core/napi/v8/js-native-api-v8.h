@@ -183,12 +183,13 @@ struct V8Ctx : public Ctx {
   virtual std::shared_ptr<CtxValue> CallFunction(
       std::shared_ptr<CtxValue> function,
       size_t argument_count,
-      const std::shared_ptr<CtxValue> argumets[]);
+      const std::shared_ptr<CtxValue> argumets[],
+      std::shared_ptr<std::string>* exception = nullptr);
 
   virtual bool RunScriptWithCache(std::unique_ptr<std::vector<char>> script,
                                   const std::string &file_name,
                                   bool is_use_code_cache,
-                                  std::shared_ptr<std::vector<char>> cache);
+                                  std::shared_ptr<std::vector<char>> &cache);
   virtual std::shared_ptr<CtxValue> GetJsFn(const std::string &name);
 
   v8::Isolate *isolate_;

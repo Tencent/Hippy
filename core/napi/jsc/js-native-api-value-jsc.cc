@@ -28,6 +28,7 @@
 #include "core/napi/js-native-api.h"
 #include "core/napi/jsc/js-native-api-jsc.h"
 #include "core/napi/jsc/js-native-jsc-helper.h"
+#include "core/napi/native-source-code.h"
 
 namespace hippy {
 namespace napi {
@@ -261,7 +262,8 @@ std::shared_ptr<CtxValue> JSCCtx::CopyNamedProperty(
 std::shared_ptr<CtxValue> JSCCtx::CallFunction(
     std::shared_ptr<CtxValue> function,
     size_t argc,
-    const std::shared_ptr<CtxValue> args[]) {
+    const std::shared_ptr<CtxValue> args[],
+    std::shared_ptr<std::string>* exception) {
   std::shared_ptr<JSCCtxValue> func_value =
       std::static_pointer_cast<JSCCtxValue>(function);
   JSValueRef value_ref = func_value->value_;
@@ -270,7 +272,6 @@ std::shared_ptr<CtxValue> JSCCtx::CallFunction(
     JSValueRef exception = nullptr;
     JSValueRef ret_value_ref = JSObjectCallAsFunction(context_, object, nullptr,
                                                       0, nullptr, &exception);
-    ExceptionDescription(context_, exception);
     return std::make_shared<JSCCtxValue>(context_, ret_value_ref);
   }
 
@@ -281,16 +282,61 @@ std::shared_ptr<CtxValue> JSCCtx::CallFunction(
     values[i] = arg_value->value_;
   }
 
-  JSValueRef exception = nullptr;
-  JSValueRef ret_value_ref = JSObjectCallAsFunction(context_, object, nullptr,
-                                                    argc, values, &exception);
-  ExceptionDescription(context_, exception);
+  std::string exception_str;
+  JSValueRef exception_ref = nullptr;
+  JSValueRef ret_value_ref = JSObjectCallAsFunction(
+      context_, object, nullptr, argc, values, &exception_ref);
+  if (exception_ref) {
+    HandleJsException(exception_ref, exception_str);
+  }
+
+  if (exception && exception_ref) {
+    *exception = std::make_shared<std::string>(exception_str);
+  }
 
   if (!ret_value_ref) {
     return nullptr;
   }
 
   return std::make_shared<JSCCtxValue>(context_, ret_value_ref);
+}
+
+bool JSCCtx::HandleJsException(JSValueRef value, std::string& exception_str) {
+  if (!value) {
+    return false;
+  }
+
+  std::shared_ptr<CtxValue> exception_obj =
+      std::make_shared<JSCCtxValue>(context_, value);
+  std::shared_ptr<CtxValue> msg_obj =
+      CopyNamedProperty(exception_obj, "message");
+  std::string msg_str;
+  GetValueString(msg_obj, &msg_str);
+  std::shared_ptr<CtxValue> stack_obj =
+      CopyNamedProperty(exception_obj, "stack");
+  std::string stack_str;
+  GetValueString(stack_obj, &stack_str);
+  exception_str = "{\"message\":\"" + msg_str + "\",\"stack\":\"" + stack_str +
+                  std::string("\"}");
+
+  auto source_code = hippy::GetNativeSourceCode("ExceptionHandle.js");
+  HIPPY_DCHECK(source_code.data_ && source_code.length_);
+  std::shared_ptr<CtxValue> function = EvaluateJavascript(
+      source_code.data_, source_code.length_, "ExceptionHandle.js");
+  bool is_func = IsFunction(function);
+  HIPPY_CHECK_WITH_MSG(
+      is_func == true,
+      "HandleUncaughtJsError ExceptionHandle.js don't return function!!!");
+  if (!is_func) {
+    return false;
+  }
+
+  std::shared_ptr<CtxValue> args[2];
+  args[0] = CreateString("uncaughtException");
+  args[1] = exception_obj;
+  CallFunction(function, 2, args, nullptr);
+
+  return true;
 }
 
 }  // namespace napi
