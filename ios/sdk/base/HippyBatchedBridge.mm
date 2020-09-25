@@ -36,7 +36,7 @@
 #import "HippyUtils.h"
 #import "HippyRedBox.h"
 #import "HippyDevLoadingView.h"
-#include "environment.h"
+#include "scope.h"
 
 #define HippyAssertJSThread()
 //
@@ -217,25 +217,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)
     dispatch_group_notify(initModulesAndLoadSource, bridgeQueue, ^{
         HippyBatchedBridge *strongSelf = weakSelf;
         if (sourceCode && strongSelf.loading) {
-            //mount custom objects before executing JS Code
-            dispatch_group_t objectGroup = dispatch_group_create();
-            NSMutableDictionary *objects = [NSMutableDictionary dictionaryWithDictionary:[self deviceInfo]];
-            if ([self.delegate respondsToSelector:@selector(objectsBeforeExecuteCode)]) {
-                NSDictionary *customObjects = [self.delegate objectsBeforeExecuteCode];
-                [objects addEntriesFromDictionary:customObjects];
-            }
-            NSData *data = [NSJSONSerialization dataWithJSONObject:objects options:0 error:nil];
-            NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-            dispatch_group_enter(objectGroup);
-            [strongSelf->_javaScriptExecutor injectJSONText:string asGlobalObjectNamed:@"__HIPPYNATIVEGLOBAL__" callback:^(NSError *error) {
-                dispatch_group_leave(objectGroup);
-            }];
-            dispatch_group_notify(objectGroup, bridgeQueue, ^{
-                if (self->_javaScriptExecutor.pEnv.lock()) {
-                    self->_javaScriptExecutor.pEnv.lock()->loadModules();
-                }
-                [strongSelf executeSourceCode:sourceCode];
-            });
+            [strongSelf executeSourceCode:sourceCode];
         }
     });
     
@@ -360,7 +342,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)
         
         // Instantiate moduleData container
         HippyModuleData *moduleData = [[HippyModuleData alloc] initWithModuleInstance:module
-                                                                           bridge:self];
+                                                                               bridge:self];
         moduleDataByName[moduleName] = moduleData;
         [moduleClassesByID addObject:moduleClass];
         [moduleDataByID addObject:moduleData];
@@ -378,9 +360,9 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)
     // probably just replace this with [self moduleForClass:self.executorClass]
     //HIPPY_PROFILE_BEGIN_EVENT(0, @"JavaScriptExecutor", nil);
     if (!_javaScriptExecutor) {
-        id<HippyJavaScriptExecutor> executorModule = [self.executorClass new];
+        id<HippyJavaScriptExecutor> executorModule = [[self.executorClass alloc] initWithExecurotKey:self.executorKey];
         HippyModuleData *moduleData = [[HippyModuleData alloc] initWithModuleInstance:executorModule
-                                                                           bridge:self];
+                                                                               bridge:self];
         moduleDataByName[moduleData.name] = moduleData;
         [moduleClassesByID addObject:self.executorClass];
         [moduleDataByID addObject:moduleData];
