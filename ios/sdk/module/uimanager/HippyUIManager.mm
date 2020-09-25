@@ -1203,16 +1203,18 @@ HIPPY_EXPORT_METHOD(dispatchViewManagerCommand:(nonnull NSNumber *)hippyTag
     if (previousPendingUIBlocks.count) {
         // Execute the previously queued UI blocks
         dispatch_async(dispatch_get_main_queue(), ^{
-            HippyUIManager *uiManager = weakManager;
-            @try {
-                for (HippyViewManagerUIBlock block in previousPendingUIBlocks) {
-                    block(uiManager, uiManager->_viewRegistry);
+            if (weakManager) {
+                HippyUIManager *uiManager = weakManager;
+                @try {
+                    for (HippyViewManagerUIBlock block in previousPendingUIBlocks) {
+                        block(uiManager, uiManager->_viewRegistry);
+                    }
+                    
+                    [uiManager flushListView];
                 }
-                
-                [uiManager flushListView];
-            }
-            @catch (NSException *exception) {
-                HippyLogError(@"Exception thrown while executing UI block: %@", exception);
+                @catch (NSException *exception) {
+                    HippyLogError(@"Exception thrown while executing UI block: %@", exception);
+                }
             }
         });
     }
