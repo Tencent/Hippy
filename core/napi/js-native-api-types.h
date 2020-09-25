@@ -104,7 +104,8 @@ class Ctx {
   virtual std::shared_ptr<CtxValue> CallFunction(
       std::shared_ptr<CtxValue> function,
       size_t argument_count = 0,
-      const std::shared_ptr<CtxValue> argumets[] = nullptr) = 0;
+      const std::shared_ptr<CtxValue> argumets[] = nullptr,
+      std::shared_ptr<std::string>* exception = nullptr) = 0;
 
   virtual bool GetValueNumber(std::shared_ptr<CtxValue>, double* result) = 0;
   virtual bool GetValueNumber(std::shared_ptr<CtxValue>, int32_t* result) = 0;
@@ -130,12 +131,6 @@ class Ctx {
 
   virtual bool IsFunction(std::shared_ptr<CtxValue>) = 0;
   virtual std::string CopyFunctionName(std::shared_ptr<CtxValue>) = 0;
-
-  virtual bool RunScriptWithCache(
-      std::unique_ptr<std::vector<char>> script,
-      const std::string& file_name,
-      bool is_use_code_cache,
-      std::shared_ptr<std::vector<char>> cache) = 0;
   virtual std::shared_ptr<CtxValue> GetJsFn(const std::string& name) = 0;
 };
 

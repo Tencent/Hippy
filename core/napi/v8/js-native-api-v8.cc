@@ -48,7 +48,7 @@ std::mutex V8VM::mutex_;
 namespace {
 
 void JsCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info) {
-  HIPPY_LOG(hippy::Debug, "JsCallbackFunc begin");
+  HIPPY_DLOG(hippy::Debug, "JsCallbackFunc begin");
 
   auto data = info.Data().As<v8::External>();
   if (data.IsEmpty()) {
@@ -418,7 +418,7 @@ std::shared_ptr<CtxValue> GetInternalBindingFn(std::shared_ptr<Scope> scope) {
 bool V8Ctx::RunScriptWithCache(std::unique_ptr<std::vector<char>> script,
                                const std::string& file_name,
                                bool is_use_code_cache,
-                               std::shared_ptr<std::vector<char>> cache) {
+                               std::shared_ptr<std::vector<char>>& cache) {
   HIPPY_DLOG(hippy::Debug,
              "V8Ctx::RunScriptWithCache file_name = %s, is_use_code_cache = %d",
              file_name.c_str(), is_use_code_cache);

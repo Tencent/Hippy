@@ -497,7 +497,8 @@ std::string V8Ctx::CopyFunctionName(std::shared_ptr<CtxValue> function) {
 std::shared_ptr<CtxValue> V8Ctx::CallFunction(
     std::shared_ptr<CtxValue> function,
     size_t argument_count,
-    const std::shared_ptr<CtxValue> arguments[]) {
+    const std::shared_ptr<CtxValue> arguments[],
+    std::shared_ptr<std::string>* exception) {
   HIPPY_DLOG(hippy::Debug, "V8Ctx CallFunction begin");
 
   if (!function) {

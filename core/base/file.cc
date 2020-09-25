@@ -36,7 +36,7 @@ namespace base {
 bool HippyFile::SaveFile(const char* file_path,
                          std::shared_ptr<std::vector<char>> content,
                          std::ios::openmode mode) {
-  HIPPY_LOG(hippy::Debug, "SaveFile file_path = %s", file_path);
+  HIPPY_DLOG(hippy::Debug, "SaveFile file_path = %s", file_path);
   std::ofstream file(file_path, mode);
   if (file.is_open()) {
     file.write(content->data(), content->size());
@@ -49,7 +49,7 @@ bool HippyFile::SaveFile(const char* file_path,
 
 std::unique_ptr<std::vector<char>> HippyFile::ReadFile(const char* file_path,
                                                        bool is_auto_fill) {
-  HIPPY_LOG(hippy::Debug, "ReadFile file_path = %s", file_path);
+  HIPPY_DLOG(hippy::Debug, "ReadFile file_path = %s", file_path);
   std::ifstream file(file_path);
   std::vector<char> file_data;
 
@@ -67,25 +67,25 @@ std::unique_ptr<std::vector<char>> HippyFile::ReadFile(const char* file_path,
       file_data.back() = 0;
     }
     file.close();
-    HIPPY_LOG(hippy::Debug, "ReadFile succ");
+    HIPPY_DLOG(hippy::Debug, "ReadFile succ");
   } else {
-    HIPPY_LOG(hippy::Debug, "ReadFile fail");
+    HIPPY_DLOG(hippy::Debug, "ReadFile fail");
   }
   return std::make_unique<std::vector<char>>(std::move(file_data));
 }
 
 int HippyFile::RmFullPath(std::string dir_full_path) {
-  HIPPY_LOG(hippy::Debug, "RmFullPath dir_full_path = %s",
+  HIPPY_DLOG(hippy::Debug, "RmFullPath dir_full_path = %s",
             dir_full_path.c_str());
   DIR* dir_parent = opendir(dir_full_path.c_str());
   if (!dir_parent) {
-    HIPPY_LOG(hippy::Debug, "RmFullPath dir_parent null");
+    HIPPY_DLOG(hippy::Debug, "RmFullPath dir_parent null");
     return -1;
   }
   struct dirent* dir;
   struct stat st;
   while ((dir = readdir(dir_parent)) != nullptr) {
-    HIPPY_LOG(hippy::Debug, "RmFullPath dir %d", dir);
+    HIPPY_DLOG(hippy::Debug, "RmFullPath dir %d", dir);
     if (strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0) {
       continue;
     }
@@ -113,17 +113,17 @@ int HippyFile::RmFullPath(std::string dir_full_path) {
     return -1;
   }
   closedir(dir_parent);
-  HIPPY_LOG(hippy::Debug, "RmFullPath succ");
+  HIPPY_DLOG(hippy::Debug, "RmFullPath succ");
   return 0;
 }
 
 int HippyFile::CreateDir(const char* path, mode_t mode) {
-  HIPPY_LOG(hippy::Debug, "CreateDir path = %s", path);
+  HIPPY_DLOG(hippy::Debug, "CreateDir path = %s", path);
   return mkdir(path, mode);
 }
 
 int HippyFile::CheckDir(const char* path, int mode) {
-  HIPPY_LOG(hippy::Debug, "CheckDir path = %s", path);
+  HIPPY_DLOG(hippy::Debug, "CheckDir path = %s", path);
   return access(path, mode);
 };
 
