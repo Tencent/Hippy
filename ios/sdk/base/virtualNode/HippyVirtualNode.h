@@ -34,13 +34,9 @@
 
 @interface HippyVirtualNode : NSObject <HippyComponent>
 
-+ (HippyVirtualNode *)createNode:(NSNumber *)hippyTag
-									viewName:(NSString *)viewName
-										 props:(NSDictionary *)props;
++ (HippyVirtualNode *)createNode:(NSNumber *)hippyTag viewName:(NSString *)viewName props:(NSDictionary *)props;
 
-- (instancetype)initWithTag:(NSNumber *)hippyTag
-									 viewName:(NSString *)viewName
-											props:(NSDictionary *)props;
+- (instancetype)initWithTag:(NSNumber *)hippyTag viewName:(NSString *)viewName props:(NSDictionary *)props;
 
 @property (nonatomic, retain) NSMutableArray <HippyVirtualNode *> *subNodes;
 
