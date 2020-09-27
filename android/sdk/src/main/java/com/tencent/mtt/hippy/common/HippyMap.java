@@ -34,7 +34,7 @@ public class HippyMap
 	private final HashMap<String, Object>	mDatas;
 
 	@Override
-	public String toString() 
+	public String toString()
 	{
 		return mDatas == null ? "null" : mDatas.toString();
 	}
@@ -69,40 +69,65 @@ public class HippyMap
 		return mDatas.get(key);
 	}
 
-	public String getString(String key)
-	{
-		Object value = mDatas.get(key);
-		return value == null ? null : String.valueOf(value);
-	}
+  public String getString(String key, String defaultValue)
+  {
+    Object value = mDatas.get(key);
+    return value == null ? defaultValue : String.valueOf(value);
+  }
+
+  public String getString(String key)
+  {
+    return getString(key, null);
+  }
 
 	public void remove(String key)
 	{
 		mDatas.remove(key);
 	}
 
-	public double getDouble(String key)
-	{
-		Object value = mDatas.get(key);
-		return value instanceof Number ? ((Number) value).doubleValue() : 0;
-	}
+  public double getDouble(String key, double defaultValue)
+  {
+    Object value = mDatas.get(key);
+    return value instanceof Number ? ((Number) value).doubleValue() : defaultValue;
+  }
 
-	public int getInt(String key)
-	{
-		Object value = mDatas.get(key);
-		return value instanceof Number ? ((Number) value).intValue() : 0;
-	}
+  public double getDouble(String key)
+  {
+    return getDouble(key, 0);
+  }
 
-	public boolean getBoolean(String key)
-	{
-		Object value = mDatas.get(key);
-		return value != null && (boolean) value;
-	}
+  public int getInt(String key, int defaultValue)
+  {
+    Object value = mDatas.get(key);
+    return value instanceof Number ? ((Number) value).intValue() : defaultValue;
+  }
 
-	public long getLong(String key)
-	{
-		Object value = mDatas.get(key);
-		return value instanceof Number ? ((Number) value).longValue() : 0;
-	}
+  public int getInt(String key)
+  {
+    return getInt(key, 0);
+  }
+
+  public boolean getBoolean(String key, boolean defaultValue)
+  {
+    Object value = mDatas.get(key);
+    return value == null ? defaultValue : (boolean) value;
+  }
+
+  public boolean getBoolean(String key)
+  {
+    return getBoolean(key, false);
+  }
+
+  public long getLong(String key, long defaultValue)
+  {
+    Object value = mDatas.get(key);
+    return value instanceof Number ? ((Number) value).longValue() : defaultValue;
+  }
+
+  public long getLong(String key)
+  {
+    return getLong(key, 0);
+  }
 
 	public HippyMap getMap(String key)
 	{
