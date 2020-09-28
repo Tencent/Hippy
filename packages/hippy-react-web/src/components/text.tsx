@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { formatWebStyle } from '../adapters/transfer';
 import applyLayout from '../adapters/apply-layout';
 
@@ -48,6 +49,10 @@ export class Text extends React.Component {
     this.state = {};
   }
 
+  // 声明Context对象属性
+  static childContextTypes = {
+    isInAParentText: PropTypes.bool
+  }
 
   getChildContext() {
     return { isInAParentText: true };
