@@ -151,19 +151,14 @@ void HippyFatal(NSError *error)
     } else {
 #ifdef DEBUG
         @try {
-#endif
-            
             NSString *name = [NSString stringWithFormat:@"%@: %@", HippyFatalExceptionName, error.localizedDescription];
             NSString *message = HippyFormatError(error.localizedDescription, error.userInfo[HippyJSStackTraceKey], 75);
-            
             if (failReason) {
                 name = [NSString stringWithFormat:@"%@: %@[Reason]: %@", HippyFatalExceptionName, error.localizedDescription, failReason];
             }
-            
             [NSException raise:name format:@"%@", message];
-#ifdef DEBUG
         } @catch (NSException *e) {}
-#endif
+#endif //#ifdef DEBUG
     }
 }
 
