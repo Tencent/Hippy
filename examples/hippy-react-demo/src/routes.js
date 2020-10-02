@@ -52,6 +52,14 @@ export default [
     },
   },
   {
+    path: '/PullHeader',
+    name: 'PullHeader 组件',
+    component: PAGE_LIST.PullHeader,
+    meta: {
+      style: 1,
+    },
+  },
+  {
     path: '/RefreshWrapper',
     name: 'RefreshWrapper 组件',
     component: PAGE_LIST.RefreshWrapper,

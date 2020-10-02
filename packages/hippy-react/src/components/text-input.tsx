@@ -3,13 +3,10 @@
 
 import React from 'react';
 import Style from '@localTypes/style';
+import { TextInputEvent } from '@localTypes/event';
 import { LayoutableProps, ClickableProps } from '../types';
 import { callUIFunction } from '../modules/ui-manager-module';
 import { Device } from '../native';
-
-interface TextInputResponse {
-  text: string;
-}
 
 interface KeyboardWillShowEvent {
   keyboardHeight: number;
@@ -208,7 +205,7 @@ class TextInput extends React.Component<TextInputProps, {}> {
    */
   public getValue(): Promise<string> {
     return new Promise((resolve) => {
-      callUIFunction(this.instance, 'getValue', (res: TextInputResponse) => resolve(res.text));
+      callUIFunction(this.instance, 'getValue', (res: TextInputEvent) => resolve(res.text));
     });
   }
 
@@ -258,7 +255,7 @@ class TextInput extends React.Component<TextInputProps, {}> {
     callUIFunction(this.instance, 'clear', []);
   }
 
-  private _onChangeText(e: TextInputResponse) {
+  private _onChangeText(e: TextInputEvent) {
     const { onChangeText } = this.props;
     if (typeof onChangeText === 'function') {
       onChangeText(e.text);

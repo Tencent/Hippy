@@ -126,7 +126,11 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
             if (clickView == nil || (index <= clickIndex && clickIndex != NSNotFound)) {
                 CGPoint point = [touch locationInView: view];
                 point = [view convertPoint: point toView: _rootView];
-                view.onTouchDown(@{@"page_x": @(point.x), @"page_y": @(point.y)});
+                if (view.onTouchDown) {
+                    if ([self checkViewBelongToTouchHandler:view]) {
+                        view.onTouchDown(@{@"page_x": @(point.x), @"page_y": @(point.y)});
+                    }
+                }
             }
         }
         
@@ -181,7 +185,9 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
                 CGPoint point = [touch locationInView: view];
                 point = [view convertPoint: point toView: _rootView];
                 if (view.onTouchEnd) {
-                    view.onTouchEnd(@{@"page_x": @(point.x), @"page_y": @(point.y)});
+                    if ([self checkViewBelongToTouchHandler:view]) {
+                        view.onTouchEnd(@{@"page_x": @(point.x), @"page_y": @(point.y)});
+                    }
                 }
             }
         } else {
@@ -192,7 +198,9 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
                     CGPoint point = [touch locationInView: theView];
                     point = [theView convertPoint: point toView: _rootView];
                     if (theView.onTouchEnd) {
-                        theView.onTouchEnd(@{@"page_x": @(point.x), @"page_y": @(point.y)});
+                        if ([self checkViewBelongToTouchHandler:theView]) {
+                            theView.onTouchEnd(@{@"page_x": @(point.x), @"page_y": @(point.y)});
+                        }
                     }
                 }
             }
@@ -200,17 +208,20 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
         
         if (result[@"onPressOut"][@"view"]) {
             UIView *pressOutView = result[@"onPressOut"][@"view"];
-            if (pressOutView == _onPressInView) {
-                pressOutView.onPressOut(@{});
-                _onPressInView = nil;
-                _bPressIn = NO;
-
+            if (pressOutView == _onPressInView && pressOutView.onPressOut) {
+                if ([self checkViewBelongToTouchHandler:pressOutView]) {
+                    pressOutView.onPressOut(@{});
+                    _onPressInView = nil;
+                    _bPressIn = NO;
+                }
             }
         }
         
         if (clickView && clickView == _onClickView) {
-            if (!_bLongClick) {
-                clickView.onClick(@{});
+            if (!_bLongClick && clickView.onClick) {
+                if ([self checkViewBelongToTouchHandler:clickView]) {
+                    clickView.onClick(@{});
+                }
             }
             [self clearTimer];
             [self clearLongClickTimer];
@@ -250,14 +261,20 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
             if (clickView == nil || (index <= clickIndex && clickIndex != NSNotFound)) {
                 CGPoint point = [touch locationInView: view];
                 point = [view convertPoint: point toView: _rootView];
-                view.onTouchCancel(@{@"page_x": @(point.x), @"page_y": @(point.y)});
+                if (view.onTouchCancel) {
+                    if ([self checkViewBelongToTouchHandler:view]) {
+                        view.onTouchCancel(@{@"page_x": @(point.x), @"page_y": @(point.y)});
+                    }
+                }
             }
         }
         
         if (result[@"onPressOut"][@"view"]) {
             UIView *pressOutView = result[@"onPressOut"][@"view"];
-            if (pressOutView == _onPressInView) {
-                pressOutView.onPressOut(@{});
+            if (pressOutView == _onPressInView && pressOutView.onPressOut) {
+                if ([self checkViewBelongToTouchHandler:pressOutView]) {
+                    pressOutView.onPressOut(@{});
+                }
             }
         }
     }
@@ -319,12 +336,20 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
                 if (view.onTouchMove) {
                     CGPoint point = [touch locationInView: view];
                     point = [view convertPoint: point toView: _rootView];
-                    view.onTouchMove(@{@"page_x": @(point.x), @"page_y": @(point.y)});
+                    if ([self checkViewBelongToTouchHandler:view]) {
+                        view.onTouchMove(@{@"page_x": @(point.x), @"page_y": @(point.y)});
+                    }
                 }
             }
         }
     }
     self.state = UIGestureRecognizerStateChanged;
+}
+
+- (BOOL)checkViewBelongToTouchHandler:(UIView *)view {
+    NSNumber *reactTag = [view hippyTag];
+    UIView *checkView = [_bridge.uiManager viewForHippyTag:reactTag];
+    return checkView == view;
 }
 
 - (void)clearTimer
@@ -345,8 +370,10 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
 - (void)scheduleTimer:(__unused NSTimer *)timer
 {
     if (!_bPressIn) {
-        if (_onPressInView) {
-            _onPressInView.onPressIn(@{});
+        if (_onPressInView && _onPressInView.onPressIn) {
+            if ([self checkViewBelongToTouchHandler:_onPressInView]) {
+                _onPressInView.onPressIn(@{});
+            }
         }
         _bPressIn = YES;
     }
@@ -357,8 +384,10 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
 - (void) longClickTimer:(__unused NSTimer *)timer {
     if (!_bLongClick) {
         _bLongClick = YES;
-        if (_onLongClickView) {
-            _onLongClickView.onLongClick(@{});
+        if (_onLongClickView && _onLongClickView.onLongClick) {
+            if ([self checkViewBelongToTouchHandler:_onLongClickView]) {
+                _onLongClickView.onLongClick(@{});
+            }
         }
     }
 }
@@ -507,7 +536,9 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
     if (_onPressInView) {
         _bPressIn = NO;
         if (_onPressInView.onPressOut) {
-            _onPressInView.onPressOut(@{});
+            if ([self checkViewBelongToTouchHandler:_onPressInView]) {
+                _onPressInView.onPressOut(@{});
+            }
         }
     }
     _bLongClick = NO;
@@ -529,7 +560,9 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
     if (_onPressInView) {
         _bPressIn = NO;
         if (_onPressInView.onPressOut) {
-            _onPressInView.onPressOut(@{});
+            if ([self checkViewBelongToTouchHandler:_onPressInView]) {
+                _onPressInView.onPressOut(@{});
+            }
         }
     }
     [self clearTimer];
