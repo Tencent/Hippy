@@ -49,7 +49,7 @@ export function TextInput(props_) {
     }
   }
 
-  const { style, keyboardType } = props;
+  const { style, keyboardType, editable = true } = props;
   let inputType = 'text';
   if (keyboardType) {
     if (keyboardType === 'numeric' || keyboardType === 'phone-pad') {
@@ -63,6 +63,7 @@ export function TextInput(props_) {
   const newProps = Object.assign({}, props, {
     style: formatWebStyle(style),
     type: inputType,
+    readOnly: editable ? false : true
   });
 
   if (typeof newProps.onChangeText === 'function') {
@@ -75,8 +76,11 @@ export function TextInput(props_) {
   }
   delete newProps.keyboardType;
   delete newProps.onLayout;
+  delete newProps.editable;
+
+  const { multiline, ..._newProps } = newProps;
   return (
-    <input {...newProps} />
+    multiline ? <textarea cols={20} rows={2} {..._newProps}/> : <input {..._newProps}/>
   );
 }
 
