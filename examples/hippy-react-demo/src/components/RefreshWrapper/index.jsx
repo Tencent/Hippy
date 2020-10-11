@@ -6,10 +6,10 @@ import {
   StyleSheet,
   Text,
 } from '@hippy/react';
-import mockData from './UIStyles/mock';
-import Style1 from './UIStyles/Style1';
-import Style2 from './UIStyles/Style2';
-import Style5 from './UIStyles/Style5';
+import mockData from '../../shared/UIStyles/mock';
+import Style1 from '../../shared/UIStyles/Style1';
+import Style2 from '../../shared/UIStyles/Style2';
+import Style5 from '../../shared/UIStyles/Style5';
 
 const STYLE_LOADING = 100;
 const MAX_FETCH_TIMES = 50;

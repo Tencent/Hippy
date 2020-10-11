@@ -6,7 +6,7 @@ import {
   Image,
   Platform,
 } from '@hippy/react';
-import Utils from '../../../utils';
+import Utils from '../../utils';
 
 const IMAGE_WIDTH = Utils.getScreenWidth() - 2 * 12;
 const IMAGE_HEIGHT = Math.floor(IMAGE_WIDTH * 188 / 336);
