@@ -148,7 +148,7 @@ export class Image extends React.Component {
 
   render() {
     let { style } = this.props;
-    const { isLoadSuccess } = this.state
+    const { isLoadSuccess } = this.state;
     const {
       source, sources, resizeMode, children, defaultSource,
     } = this.props;
