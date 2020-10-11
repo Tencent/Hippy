@@ -44,14 +44,14 @@ const styles = {
  * @noInheritDoc
  */
 export class Text extends React.Component {
+  // 声明Context对象属性
+  static childContextTypes = {
+    isInAParentText: PropTypes.bool,
+  }
+
   constructor(props) {
     super(props);
     this.state = {};
-  }
-
-  // 声明Context对象属性
-  static childContextTypes = {
-    isInAParentText: PropTypes.bool
   }
 
   getChildContext() {
