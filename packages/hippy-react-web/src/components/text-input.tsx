@@ -1,3 +1,5 @@
+/* eslint-disable no-unneeded-ternary */
+
 import React from 'react';
 import { formatWebStyle } from '../adapters/transfer';
 import applyLayout from '../adapters/apply-layout';
@@ -63,7 +65,7 @@ export function TextInput(props_) {
   const newProps = Object.assign({}, props, {
     style: formatWebStyle(style),
     type: inputType,
-    readOnly: editable ? false : true
+    readOnly: editable ? false : true,
   });
 
   if (typeof newProps.onChangeText === 'function') {
@@ -80,7 +82,7 @@ export function TextInput(props_) {
 
   const { multiline, ..._newProps } = newProps;
   return (
-    multiline ? <textarea cols={20} rows={2} {..._newProps}/> : <input {..._newProps}/>
+    multiline ? <textarea cols={20} rows={2} {..._newProps} /> : <input {..._newProps} />
   );
 }
 
