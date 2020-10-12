@@ -89,6 +89,8 @@ import icon from './qb_icon_new.png';
 | numberOfRows          | 指定列表的行数，一般直接传入数据源条数 `length` 即可。       | `number`                                                    | `ALL`    |
 | initialContentOffset  | 初始位移值 -- 在列表初始化时即可指定滚动距离，避免初始化后再通过 scrollTo 系列方法产生的闪动。 | `number`                                                    | `ALL`    |
 | renderRow             | 这里的入参是当前row 的index，在这里可以凭借index 获取到具体这一行单元格的数据，从而决定如何渲染这个单元格。 | `(index: number) => Node`                                   | `ALL`    |
+| renderPullHeader      | 渲染下拉时的头部视图 | `() => Node`                                   | `ALL`    |
+| renderPullFooter | 渲染下拉时的底部视图 | `() => Node` | `ALL` |
 | getRowStyle           | -                                                            | `(index: number) => any`                                    | `ALL`    |
 | getRowType            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升list 性能。 | `(index: number) => number`                                    | `ALL`    |
 | getRowKey             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [React 官文](//reactjs.org/docs/lists-and-keys.html) | `(index: number) => any`                                    | `ALL`    |
@@ -120,6 +122,14 @@ import icon from './qb_icon_new.png';
 > * `xIndex`: number - 滑动到 X 方向的第 xIndex 个 item
 > * `yIndex`: numbere - 滑动到 Y 方向的 xIndex 个 item
 > * `animated`: boolean - 滑动过程是否使用动画
+
+### collapsePullHeader
+
+`() => void` 当 `renderPullHeader` 渲染出下拉头部 View 时，通过该方法可以手工收起 `PullHeader` 视图。
+
+### collapsePullFooter
+
+`() => void` 当 `renderPullFooter` 渲染出上拉底部 View 时，通过该方法可以手工收起 `PullFooter` 视图。
 
 # Modal
 
@@ -187,7 +197,29 @@ import icon from './qb_icon_new.png';
 >   * initProps: Object - 初始化参数
 >   * toDirection: left | right | top | bottom - 自定义页面pop 的方向
 
+# PullHeader
+
+*版本要求：`> 2.1.0`*
+
+[[PullHeader 范例]](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/components/PullHeader)
+
+## 方法
+
+功能整合进 [ListView 组件](#ListView) 中，请参考它的 `renderPullHeader` 属性和 `collapsePullHeader` 方法。
+
+# PullFooter
+
+*版本要求：`> 2.1.0`*
+
+参考 [[PullHeader 范例]](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/components/PullHeader)
+
+## 方法
+
+功能整合进 [ListView 组件](#ListView) 中，请参考它的 `renderPullFooter` 属性和 `collapsePullFooter` 方法。
+
 # RefreshWrapper
+
+**DEPRECATED: 已经过时，请使用更好的 [#PullHeader](PullHeader 组件) 代替**
 
 [[RefreshWrapper 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/RefreshWrapper)
 
