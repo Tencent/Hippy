@@ -40,6 +40,8 @@ public final class HippyNativeModuleInfo
 
 	private final String									mName;
 
+	private final String []									mNames;
+
 	private final HippyNativeModule.Thread					mThread;
 
 	private final Provider<? extends HippyNativeModuleBase>	mProvider;
@@ -52,10 +54,13 @@ public final class HippyNativeModuleInfo
 
 	private boolean											mInit	= false;
 
+	private boolean                                         mIsDestroyed = false;
+
 	public HippyNativeModuleInfo(Class cls, Provider<? extends HippyNativeModuleBase> provider)
 	{
 		HippyNativeModule annotation = (HippyNativeModule) cls.getAnnotation(HippyNativeModule.class);
 		this.mName = annotation.name();
+		this.mNames = annotation.names();
 		this.mClass = cls;
 		this.mThread = annotation.thread();
 		mProvider = provider;
@@ -79,9 +84,21 @@ public final class HippyNativeModuleInfo
 		}
 	}
 
+	public boolean shouldDestroy() {
+		return mIsDestroyed ? false : true;
+	}
+
+	public void onDestroy() {
+		mIsDestroyed = true;
+	}
+
 	public String getName()
 	{
 		return mName;
+	}
+
+	public String[] getNames () {
+		return mNames;
 	}
 
 	public HippyNativeModuleBase getInstance()
