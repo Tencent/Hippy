@@ -70,11 +70,21 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
 				for (Class cls : keys)
 				{
 					HippyNativeModuleInfo moduleInfo = new HippyNativeModuleInfo(cls, nativeModules.get(cls));
-					if (mNativeModuleInfo.containsKey(moduleInfo.getName()))
-					{
-						throw new RuntimeException("There is already a native module named : " + moduleInfo.getName());
+					String[] names = moduleInfo.getNames();
+					if (names != null && names.length > 0) {
+						for (int i = 0; i < names.length; i++) {
+							String name = names[i];
+							if (!mNativeModuleInfo.containsKey(name)) {
+								mNativeModuleInfo.put(name, moduleInfo);
+							}
+						}
 					}
-					mNativeModuleInfo.put(moduleInfo.getName(), moduleInfo);
+
+					if (!mNativeModuleInfo.containsKey(moduleInfo.getName()))
+					{
+						mNativeModuleInfo.put(moduleInfo.getName(), moduleInfo);
+						//throw new RuntimeException("There is already a native module named : " + moduleInfo.getName());
+					}
 				}
 			}
 
@@ -128,8 +138,9 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
 			if (entry != null)
 			{
 				moduleInfo = entry.getValue();
-				if (moduleInfo != null)
+				if (moduleInfo != null && moduleInfo.shouldDestroy())
 				{
+					moduleInfo.onDestroy();
 					if (moduleInfo.getThread() == HippyNativeModule.Thread.DOM)
 					{
 						if (mDomThreadHandler != null)

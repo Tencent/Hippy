@@ -20,7 +20,7 @@ import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
  * 展示自定义module
  */
 
-@HippyNativeModule(name = TestModule.CLASSNAME)
+@HippyNativeModule(name = TestModule.CLASSNAME, names = {"TestModuleA", "TestModuleB"})
 public class TestModule extends HippyNativeModuleBase {
     final static String CLASSNAME = "TestModule";
 

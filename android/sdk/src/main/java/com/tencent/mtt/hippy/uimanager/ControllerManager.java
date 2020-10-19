@@ -77,10 +77,17 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener
 				{
 					HippyController hippyNativeModule = (HippyController) hippyComponent.getAnnotation(HippyController.class);
 					String name = hippyNativeModule.name();
+					String[] names = hippyNativeModule.names();
 					boolean lazy = hippyNativeModule.isLazyLoad();
 					try
 					{
-						mControllerRegistry.addControllerHolder(name, new ControllerHolder((HippyViewController) hippyComponent.newInstance(), lazy));
+						ControllerHolder holder = new ControllerHolder((HippyViewController) hippyComponent.newInstance(), lazy);
+						mControllerRegistry.addControllerHolder(name, holder);
+						if (names != null && names.length > 0) {
+							for (int i = 0; i < names.length; i++) {
+								mControllerRegistry.addControllerHolder(names[i], holder);
+							}
+						}
 					}
 					catch (InstantiationException e)
 					{
