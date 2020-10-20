@@ -252,7 +252,10 @@ bool V8Ctx::RegisterGlobalInJs() {
   v8::Context::Scope context_scope(context);
   v8::Local<v8::Object> global = context->Global();
 
-  return global->Set(v8::String::NewFromUtf8(isolate_, "global"), global);
+  return global->Set(
+    v8::String::NewFromUtf8(isolate_, "global", v8::NewStringType::kNormal)
+        .FromMaybe(v8::Local<v8::String>()),
+    global);
 }
 
 bool V8Ctx::SetGlobalVar(const std::string& name, const char* json) {
@@ -264,8 +267,10 @@ bool V8Ctx::SetGlobalVar(const std::string& name, const char* json) {
   v8::Local<v8::Object> global = context->Global();
   v8::Handle<v8::Value> json_value = ParseJson(json);
   if (!json_value.IsEmpty()) {
-    return global->Set(v8::String::NewFromUtf8(isolate_, name.c_str()),
-                       json_value);
+    return global->Set(v8::String::NewFromUtf8(isolate_, name.c_str(),
+                                             v8::NewStringType::kNormal)
+                         .FromMaybe(v8::Local<v8::String>()),
+                     json_value);
   }
   return false;
 }
@@ -309,8 +314,8 @@ void V8Ctx::RegisterGlobalModule(std::shared_ptr<Scope> scope,
 
     v8::Handle<v8::String> classNameKey =
         v8::String::NewFromUtf8(isolate_, cls.first.c_str(),
-                                v8::NewStringType::kNormal)
-            .ToLocalChecked();
+                            v8::NewStringType::kNormal)
+            .FromMaybe(v8::Local<v8::String>());
 
     v8::Maybe<bool> ret =
         v8_context->Global()->Set(v8_context, classNameKey, function);
@@ -332,9 +337,12 @@ void V8Ctx::RegisterNativeBinding(const std::string& name,
       v8::External::New(isolate_, (void*)data_tuple_.get()));
   fn_template->RemovePrototype();
   context->Global()
-      ->Set(context, v8::String::NewFromUtf8(isolate_, name.c_str()),
-            fn_template->GetFunction())
-      .ToChecked();
+    ->Set(context,
+          v8::String::NewFromUtf8(isolate_, name.c_str(),
+                                  v8::NewStringType::kNormal)
+              .FromMaybe(v8::Local<v8::String>()),
+          fn_template->GetFunction())
+    .ToChecked();
 }
 
 std::shared_ptr<CtxValue> V8Ctx::EvaluateJavascript(
@@ -372,8 +380,8 @@ std::shared_ptr<CtxValue> V8Ctx::EvaluateJavascript(
           std::string("hippy-core:///internal_") + std::string(js_file_name);
     }
     v8::ScriptOrigin origin(v8::String::NewFromUtf8(isolate_, file_name.c_str(),
-                                                    v8::NewStringType::kNormal)
-                                .ToLocalChecked());
+                                                v8::NewStringType::kNormal)
+                            .FromMaybe(v8::Local<v8::String>()));
     v8_maybe_script = v8::Script::Compile(v8_context, v8_string, &origin);
   } else {
     v8_maybe_script = v8::Script::Compile(v8_context, v8_string);
@@ -426,8 +434,12 @@ bool V8Ctx::RunScriptWithCache(std::unique_ptr<std::vector<char>> script,
   v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
   v8::Handle<v8::String> v8_source =
-      v8::String::NewFromUtf8(isolate_, script->data());
-  v8::ScriptOrigin origin(v8::String::NewFromUtf8(isolate_, file_name.c_str()));
+    v8::String::NewFromUtf8(isolate_, script->data(),
+                            v8::NewStringType::kNormal)
+        .FromMaybe(v8::Local<v8::String>());
+  v8::ScriptOrigin origin(v8::String::NewFromUtf8(isolate_, file_name.c_str(),
+                                                v8::NewStringType::kNormal)
+                            .FromMaybe(v8::Local<v8::String>()));
   v8::MaybeLocal<v8::Script> v8_script;
   if (cache && !cache->empty()) {
     HIPPY_DLOG(hippy::Debug, "code_cache_content not empty");
@@ -478,7 +490,8 @@ std::shared_ptr<CtxValue> V8Ctx::GetJsFn(const std::string& name) {
       v8::Local<v8::Context>::New(isolate_, context_persistent_);*/
   v8::Context::Scope context_scope(context);
   v8::Local<v8::String> js_name =
-      v8::String::NewFromUtf8(isolate_, name.c_str());
+    v8::String::NewFromUtf8(isolate_, name.c_str(), v8::NewStringType::kNormal)
+        .FromMaybe(v8::Local<v8::String>());
   v8::Local<v8::Function> value = v8::Local<v8::Function>::Cast(
       context_persistent_.Get(isolate_)->Global()->Get(js_name));
   return std::make_shared<V8CtxValue>(isolate_, value);

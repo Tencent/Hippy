@@ -12,7 +12,7 @@
  */
 namespace v8 {
 
-class V8_EXPORT Testing {
+class Testing {
  public:
   enum StressType {
     kStressTypeOpt,
