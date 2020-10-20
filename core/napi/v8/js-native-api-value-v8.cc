@@ -100,11 +100,14 @@ v8::Handle<v8::Value> V8Ctx::ParseJson(const char *json) {
   */
   v8::Handle<v8::Object> global = context->Global();
   v8::Handle<v8::Value> json_cls =
-      global->Get(v8::String::NewFromUtf8(isolate_, "JSON"));
+      global->Get(v8::String::NewFromUtf8(isolate_, "JSON")
+                      .FromMaybe(v8::Local<v8::String>()));
   v8::Handle<v8::Value> json_parse_func =
       v8::Handle<v8::Object>::Cast(json_cls)->Get(
-          v8::String::NewFromUtf8(isolate_, "parse"));
-  v8::Handle<v8::String> v8_str = v8::String::NewFromUtf8(isolate_, json);
+          v8::String::NewFromUtf8(isolate_, "parse")
+              .FromMaybe(v8::Local<v8::String>()));
+  v8::Handle<v8::String> v8_str = v8::String::NewFromUtf8(isolate_, json)
+                                      .FromMaybe(v8::Local<v8::String>());
   v8::Handle<v8::Value> argv[1] = {v8_str};
   return v8::Handle<v8::Function>::Cast(json_parse_func)
       ->Call(json_cls, 1, argv);

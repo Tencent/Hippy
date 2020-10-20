@@ -41,7 +41,7 @@ V8_PLATFORM_EXPORT std::unique_ptr<v8::Platform> NewDefaultPlatform(
         InProcessStackDumping::kDisabled,
     std::unique_ptr<v8::TracingController> tracing_controller = {});
 
-V8_PLATFORM_EXPORT V8_DEPRECATE_SOON(
+__attribute__ ((visibility("default"))) V8_DEPRECATE_SOON(
     "Use NewDefaultPlatform instead",
     v8::Platform* CreateDefaultPlatform(
         int thread_pool_size = 0,

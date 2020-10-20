@@ -424,9 +424,11 @@ static void CallNative(void* data) {
     } else {
       v8::Handle<v8::Object> global = v8_context->Global();
       v8::Handle<v8::Value> JSON =
-          global->Get(v8::String::NewFromUtf8(isolate, "JSON"));
+          global->Get(v8::String::NewFromUtf8(isolate, "JSON")
+                          .FromMaybe(v8::Local<v8::String>()));
       v8::Handle<v8::Value> fun = v8::Handle<v8::Object>::Cast(JSON)->Get(
-          v8::String::NewFromUtf8(isolate, "stringify"));
+          v8::String::NewFromUtf8(isolate, "stringify")
+              .FromMaybe(v8::Local<v8::String>()));
       v8::Handle<v8::Value> argv[1] = {info[3]};
       v8::Handle<v8::Value> s =
           v8::Handle<v8::Function>::Cast(fun)->Call(JSON, 1, argv);
