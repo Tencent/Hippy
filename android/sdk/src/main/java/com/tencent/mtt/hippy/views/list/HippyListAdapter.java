@@ -649,9 +649,18 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
 
 	protected class OnEndReachedEvent extends HippyViewEvent
 	{
+	  // 兼容以前的 onEndReached 事件
+    private HippyViewEvent mCompatEvent = new HippyViewEvent("onEndReached");
+
 		public OnEndReachedEvent(String eventName)
 		{
 			super(eventName);
 		}
-	}
+
+    @Override
+    public void send(View view, Object param) {
+      super.send(view, param);
+      mCompatEvent.send(view, param);
+    }
+  }
 }
