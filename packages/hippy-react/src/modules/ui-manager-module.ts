@@ -126,10 +126,15 @@ function callUIFunction(ref: Element | Fiber, funcName: string, ...options: any[
  * Get the ref position and size in the visible window.
  * > For the position and size in the layout, use onLayout event.
  *
+ * @param {string} method
  * @param {Fiber | Element} ref - ref that need to measure.
  * @param {function} callBack
  */
-function measureInWindow(ref: Fiber, callback?: (layout: LayoutContent) => void) {
+function measureInWindowByMethod(
+  method: string,
+  ref: Fiber,
+  callback?: (layout: LayoutContent) => void,
+) {
   const nodeId = getNodeIdByRef(ref);
   return new Promise((resolve, reject) => {
     if (!nodeId) {
@@ -137,9 +142,9 @@ function measureInWindow(ref: Fiber, callback?: (layout: LayoutContent) => void)
         // Forward compatibility for old callback
         callback('this view is null');
       }
-      return reject(new Error('measureInWindow cannot get nodeId'));
+      return reject(new Error(`${method} cannot get nodeId`));
     }
-    return Bridge.callNative('UIManagerModule', 'measureInWindow', nodeId, (layout: LayoutContent | string) => {
+    return Bridge.callNative('UIManagerModule', method, nodeId, (layout: LayoutContent | string) => {
       if (callback && isFunction(callback)) {
         callback(layout);
       }
@@ -149,6 +154,32 @@ function measureInWindow(ref: Fiber, callback?: (layout: LayoutContent) => void)
       return resolve(layout);
     });
   });
+}
+
+/**
+ * Get the ref position and size in the visible window.
+ * > For the position and size in the layout, use onLayout event.
+ *
+ * @param {Fiber | Element} ref - ref that need to measure.
+ * @param {function} callBack
+ */
+function measureInWindow(ref: Fiber, callback?: (layout: LayoutContent) => void) {
+  return measureInWindowByMethod('measureInWindow', ref, callback);
+}
+
+/**
+ * Get the ref position and size in the visible window.
+ * > For the position and size in the layout, use onLayout event.
+ *
+ * @param {Fiber | Element} ref - ref that need to measure.
+ * @param {function} callBack
+ */
+function measureInAppWindow(ref: Fiber, callback?: (layout: LayoutContent) => void) {
+  if (Device.platform.OS === 'android') {
+    return measureInWindowByMethod('measureInWindow', ref, callback);
+  }
+
+  return measureInWindowByMethod('measureInAppWindow', ref, callback);
 }
 
 export {
@@ -164,4 +195,5 @@ export {
   getElementFromFiberRef,
   callUIFunction,
   measureInWindow,
+  measureInAppWindow,
 };
