@@ -950,3 +950,85 @@ void JNI_OnUnload(JavaVM* vm, void* reserved) {
 
   JNIEnvironment::DestroyInstance();
 }
+
+JNIEXPORT void JNICALL
+Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runOnJSThread(JNIEnv *env, jobject thiz,
+                                                                jlong v8RuntimePtr,
+                                                                jobject runnable) {
+  std::shared_ptr<V8Runtime> runtime;
+  {
+    std::lock_guard<std::mutex> lock(runtime_mutex);
+    auto runtime_it = RuntimeMap.find(v8RuntimePtr);
+    if (runtime_it == RuntimeMap.end()) {
+      HIPPY_LOG(hippy::Warning, "HippyBridgeImpl runOnJSThread, v8RuntimePtr invalid");
+      return;
+    }
+    runtime = runtime_it->second;
+  }
+
+  auto runnableObj = std::make_shared<JavaRef>(env, runnable);
+  auto task = std::make_shared<JavaScriptTask>();
+  auto funcName = "runOnJSThread";
+  task->callback = [runnableObj = std::move(runnableObj), funcName]() {
+      jclass javaClass = nullptr;
+      auto env = JNIEnvironment::AttachCurrentThread();
+      do {
+        javaClass = env->GetObjectClass(runnableObj->GetObj());
+        if (!javaClass) {
+          HIPPY_LOG(hippy::Error, "%s, cannot find class for object", funcName);
+          break;
+        }
+        jmethodID methodId = env->GetMethodID(javaClass, "run", "()V");
+        if (!methodId) {
+          HIPPY_LOG(hippy::Error, "%s, cannot find method id", funcName);
+          break;
+        }
+        env->CallVoidMethod(runnableObj->GetObj(), methodId);
+        JNIEnvironment::ClearJEnvException(env);
+      } while (false);
+      if (javaClass)
+        env->DeleteLocalRef(javaClass);
+  };
+
+  auto engine = runtime->engine_;
+  if (!engine) {
+    HIPPY_LOG(hippy::Error, "%s, engine is null", funcName);
+    return;
+  }
+
+  auto runner = engine->GetJSRunner();
+  if (!runner) {
+    HIPPY_LOG(hippy::Error, "%s, runner is null", funcName);
+    return;
+  }
+
+  runner->PostTask(task);
+}
+
+JNIEXPORT jlongArray JNICALL
+Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_getV8Runtime(JNIEnv *env,
+                                                               jobject thiz,
+                                                               jlong v8RuntimePtr) {
+  std::shared_ptr<V8Runtime> runtime;
+  {
+    std::lock_guard<std::mutex> lock(runtime_mutex);
+    auto runtime_it = RuntimeMap.find(v8RuntimePtr);
+    if (runtime_it == RuntimeMap.end()) {
+      HIPPY_LOG(hippy::Warning, "HippyBridgeImpl getV8Runtime, v8RuntimePtr invalid");
+      return nullptr;
+    }
+    runtime = runtime_it->second;
+  }
+
+  auto tmp = runtime->scope_->GetContext();
+  std::shared_ptr<hippy::napi::V8Ctx> ctx = std::static_pointer_cast<hippy::napi::V8Ctx>(tmp);
+
+  jlong v8Runtime[] = {
+    reinterpret_cast<jlong>(ctx->isolate_),
+    reinterpret_cast<jlong>(&ctx->context_persistent_),
+  };
+
+  auto ret = env->NewLongArray(2);
+  env->SetLongArrayRegion(ret, 0, 2, v8Runtime);
+  return ret;
+}

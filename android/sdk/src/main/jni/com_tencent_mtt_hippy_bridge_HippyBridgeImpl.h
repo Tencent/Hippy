@@ -118,6 +118,14 @@ JNIEXPORT jstring JNICALL
 Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_getCrashMessage(JNIEnv *,
                                                                   jobject);
 
+JNIEXPORT void JNICALL
+Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runOnJSThread(JNIEnv *env, jobject thiz,
+                                                                jlong runtime_id,
+                                                                jobject runnable);
+JNIEXPORT jlongArray JNICALL
+Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_getV8Runtime(JNIEnv *env, jobject thiz,
+                                                               jlong runtime_id);
+
 #ifdef __cplusplus
 }
 #endif
