@@ -80,6 +80,8 @@ typedef NS_ENUM(NSInteger, HippyResizeMode) {
 
 - (UIImage *) imageFromData:(NSData *)data;
 
+- (void)clearImageIfDetached;
+
 - (BOOL) needsUpdateCornerRadius;
 @end
 
