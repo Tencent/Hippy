@@ -21,21 +21,18 @@
  */
 
 #import "HippyViewManager.h"
-
+#import "HippyModalHostView.h"
 #import "HippyInvalidating.h"
 
 #define HippyModalHostViewDismissNotification     @"HippyModalHostViewDismissNotification"
 
-typedef void (^HippyModalViewInteractionBlock)(UIViewController *hippyViewController, UIViewController *viewController, BOOL animated, dispatch_block_t completionBlock);
+@protocol HippyModalHostViewInteractor;
+
+typedef void (^HippyModalViewInteractionBlock)(UIViewController *reactViewController, UIViewController *viewController, BOOL animated, dispatch_block_t completionBlock);
 
 @interface HippyModalHostViewManager : HippyViewManager <HippyInvalidating>
 
-/**
- * `presentationBlock` and `dismissalBlock` allow you to control how a Modal interacts with your case,
- * e.g. in case you have a native navigator that has its own way to display a modal.
- * If these are not specified, it falls back to the UIViewController standard way of presenting.
- */
-@property (nonatomic, strong) HippyModalViewInteractionBlock presentationBlock;
-@property (nonatomic, strong) HippyModalViewInteractionBlock dismissalBlock;
+@property (nonatomic, strong) NSHashTable *hostViews;
+@property (nonatomic, strong) id<HippyModalHostViewInteractor, UIViewControllerTransitioningDelegate> transitioningDelegate;
 
 @end
