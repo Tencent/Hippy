@@ -315,8 +315,8 @@ HIPPY_EXPORT_MODULE(AsyncStorage)
          *  HippyBridge.moduleName must be set.
          *  If not, HippyAsyncLocalStorage will write configuration into public file
          */
-        HippyAssert(_bridge.moduleName, @"重要！！这里一定要给HippyBridge.moduleName属性赋值。");
-        _storageDirectory = [[_storageDirectory stringByAppendingPathComponent:HippyStorageDirectory] stringByAppendingPathComponent:_bridge.moduleName];
+        HippyAssert([[self bridge] moduleName], @"HippyBridge.moduleName must not be null");
+        _storageDirectory = [[_storageDirectory stringByAppendingPathComponent:HippyStorageDirectory] stringByAppendingPathComponent:[self bridge].moduleName];
     }
     return _storageDirectory;
 }
