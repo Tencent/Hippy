@@ -100,7 +100,8 @@ static BOOL isiPhoneX()
     if (self = [super initWithDelegate:bridge.delegate
                              bundleURL:bridge.bundleURL
                         moduleProvider:bridge.moduleProvider
-                         launchOptions:bridge.launchOptions]) {
+                         launchOptions:bridge.launchOptions
+                           executorKey:bridge.executorKey]) {
         HippyExecuteOnMainThread(^{
             self->_screenSize = [UIScreen mainScreen].bounds;
             self->_statusBarHeight = [UIApplication sharedApplication].statusBarFrame.size.height;
