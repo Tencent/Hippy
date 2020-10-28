@@ -47,8 +47,12 @@
 @property (nonatomic, strong) NSArray<NSString *> *supportedOrientations;
 @property (nonatomic, copy) HippyDirectEventBlock onOrientationChange;
 @property (nonatomic, strong) NSNumber *hideStatusBar;
-@property (nonatomic, strong) HippyTouchHandler *touchHandler;
+@property (nonatomic, readonly) HippyBridge *bridge;
+@property (nonatomic, readonly) BOOL isPresented;
+@property (nonatomic, strong) HippyModalHostViewController *modalViewController;
+@property (nonatomic, readonly) HippyTouchHandler *touchHandler;
 
 - (instancetype)initWithBridge:(HippyBridge *)bridge NS_DESIGNATED_INITIALIZER;
+- (void)notifyForBoundsChange:(CGRect)newBounds;
 
 @end
