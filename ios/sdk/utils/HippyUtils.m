@@ -276,30 +276,30 @@ void HippyExecuteOnMainThread(dispatch_block_t block, BOOL sync)
 
 CGFloat HippyScreenScale()
 {
-    static CGFloat scale;
+    static CGFloat scale = CGFLOAT_MAX;
     static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
+    if (CGFLOAT_MAX == scale) {
         HippyExecuteOnMainThread(^{
-            scale = [UIScreen mainScreen].scale;
+            dispatch_once(&onceToken, ^{
+                scale = [UIScreen mainScreen].scale;
+            });
         }, YES);
-    });
+    }
     
     return scale;
 }
 
 CGSize HippyScreenSize()
 {
-    // FIXME: this caches the bounds at app start, whatever those were, and then
-    // doesn't update when the device is rotated. We need to find another thread-
-    // safe way to get the screen size.
-    
-    static CGSize size;
+    static CGSize size = {0, 0};
     static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
+    if (CGSizeEqualToSize(CGSizeZero, size)) {
         HippyExecuteOnMainThread(^{
-            size = [UIScreen mainScreen].bounds.size;
+            dispatch_once(&onceToken, ^{
+                size = [UIScreen mainScreen].bounds.size;
+            });
         }, YES);
-    });
+    }
     
     return size;
 }
