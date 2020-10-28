@@ -151,8 +151,9 @@ NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotif
 	[extendsLaunchOptions addEntriesFromDictionary: launchOptions];
 	[extendsLaunchOptions setObject: @(mode) forKey:@"DebugMode"];
   	HippyBridge *bridge = [[HippyBridge alloc] initWithBundleURL:bundleURL
-                                            moduleProvider:nil
-                                             launchOptions:extendsLaunchOptions];
+                                                  moduleProvider:nil
+                                                   launchOptions:extendsLaunchOptions
+                                                     executorKey:moduleName];
 	return [self initWithBridge:bridge moduleName:moduleName initialProperties:initialProperties shareOptions:shareOptions delegate: delegate];
 }
 
