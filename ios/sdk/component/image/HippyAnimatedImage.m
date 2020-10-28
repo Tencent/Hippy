@@ -171,7 +171,7 @@ static NSHashTable *allAnimatedImagesWeak;
 }
 
 - (instancetype)initWithAnimatedImageProvider:(id<HippyImageProviderProtocol>)imageProvider {
-    return [self initWithAnimatedImageProvider:imageProvider optimalFrameCacheSize:9 predrawingEnabled:YES];
+    return [self initWithAnimatedImageProvider:imageProvider optimalFrameCacheSize:9 predrawingEnabled:NO];
 }
 
 - (instancetype)initWithAnimatedImageProvider:(id<HippyImageProviderProtocol>)imageProvider optimalFrameCacheSize:(NSUInteger)optimalFrameCacheSize predrawingEnabled:(BOOL)isPredrawingEnabled {
@@ -307,7 +307,7 @@ static NSHashTable *allAnimatedImagesWeak;
 
 - (instancetype)initWithAnimatedGIFData:(NSData *)data
 {
-    return [self initWithAnimatedGIFData:data optimalFrameCacheSize:0 predrawingEnabled:YES];
+    return [self initWithAnimatedGIFData:data optimalFrameCacheSize:0 predrawingEnabled:NO];
 }
 
 - (instancetype)initWithAnimatedGIFData:(NSData *)data optimalFrameCacheSize:(NSUInteger)optimalFrameCacheSize predrawingEnabled:(BOOL)isPredrawingEnabled
