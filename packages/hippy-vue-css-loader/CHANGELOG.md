@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.1.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-css-loader/compare/2.0.3...2.1.0) (2020-10-29)
+
+
+### Features
+
+* **hippy-vue:** box-shadow style support ([0604461](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-css-loader/commit/06044610f85f891d52d28439b3a48554c8db6487))
+
+
+
+
+
+# [2.1.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-css-loader/compare/2.0.3...2.1.0) (2020-10-29)
+
+
+### Features
+
+* **hippy-vue:** box-shadow style support ([0604461](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-css-loader/commit/06044610f85f891d52d28439b3a48554c8db6487))
+
+
+
+
+
 ## [2.0.3](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-css-loader/compare/2.0.2...2.0.3) (2020-04-23)
 
 **Note:** Version bump only for package @hippy/vue-css-loader
