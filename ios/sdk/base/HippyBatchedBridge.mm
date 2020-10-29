@@ -684,7 +684,8 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)
         [self.redBox showErrorMessage:[error localizedDescription]
                             withStack:[error userInfo][HippyJSStackTraceKey]];
     }
-    HippyFatal(error);
+    NSError *retError = HippyErrorFromErrorAndModuleName(error, self.moduleName);
+    HippyFatal(retError);
 }
 
 HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithBundleURL:(__unused NSURL *)bundleURL
@@ -1024,7 +1025,8 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithBundleURL:(__unused NSURL *)bundle
             }
             
         }
-        HippyFatal(error);
+        NSError *retError = HippyErrorFromErrorAndModuleName(error, self.moduleName);
+        HippyFatal(retError);
     }
     
     if (!_valid) {
@@ -1180,7 +1182,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithBundleURL:(__unused NSURL *)bundle
         NSString *message = [NSString stringWithFormat:
                              @"Exception '%@' was thrown while invoking %@ on target %@ with params %@",
                              exception, method.JSMethodName, moduleData.name, params];
-        NSError *error = HippyErrorWithMessage(message);
+        NSError *error = HippyErrorWithMessageAndModuleName(message, self.moduleName);
         if (self.parentBridge.useCommonBridge) {
             NSDictionary *errorInfo = @{NSLocalizedDescriptionKey: message, @"module": self.parentBridge.moduleName ? : @""};
             error = [[NSError alloc] initWithDomain: HippyErrorDomain code: 0 userInfo: errorInfo];

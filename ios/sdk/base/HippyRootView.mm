@@ -296,7 +296,8 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 	HippyBridge *bridge = notification.userInfo[@"bridge"];
 	NSError *error = notification.userInfo[@"error"];
 	if (bridge == self.bridge && error) {
-		HippyFatal(error);
+        NSError *retError = HippyErrorFromErrorAndModuleName(error, self.bridge.moduleName);
+		HippyFatal(retError);
 	}
 }
 
@@ -329,14 +330,16 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 - (void)secondaryBundleDidLoadSourceCode:(NSError *)error
 {
 	if (error) {
-		HippyFatal(error);
+        NSError *retError = HippyErrorFromErrorAndModuleName(error, self.bridge.moduleName);
+		HippyFatal(retError);
 	}
 }
 
 - (void)secondayBundleDidFinishLoad:(NSError *)error
 {
 	if (error) {
-		HippyFatal(error);
+        NSError *retError = HippyErrorFromErrorAndModuleName(error, self.bridge.moduleName);
+		HippyFatal(retError);
 	}
 }
 
