@@ -509,6 +509,26 @@ NSError *HippyErrorWithMessage(NSString *message)
     return [[NSError alloc] initWithDomain:HippyErrorDomain code:0 userInfo:errorInfo];
 }
 
+NSError *HippyErrorWithMessageAndModuleName(NSString *message, NSString *moduleName) {
+    NSDictionary<NSString *, id> *errorInfo = @{NSLocalizedDescriptionKey: message, HippyFatalModuleName:moduleName?:@"unknown"};
+    return [[NSError alloc] initWithDomain:HippyErrorDomain code:0 userInfo:errorInfo];
+}
+
+NSError *HippyErrorFromErrorAndModuleName(NSError *error, NSString *moduleName) {
+    NSDictionary *userInfo = [error userInfo];
+    if (userInfo) {
+        NSMutableDictionary *ui = [NSMutableDictionary dictionaryWithDictionary:userInfo];
+        [ui setObject:moduleName?:@"unknown" forKey:HippyFatalModuleName];
+        userInfo = [NSDictionary dictionaryWithDictionary:ui];
+    }
+    else {
+        userInfo = @{HippyFatalModuleName: moduleName?:@"unknown"};
+    }
+    NSError *retError = [NSError errorWithDomain:error.domain code:error.code userInfo:userInfo];
+    return retError;
+}
+
+
 double HippyZeroIfNaN(double value)
 {
     return isnan(value) || isinf(value) ? 0 : value;
