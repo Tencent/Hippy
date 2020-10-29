@@ -356,6 +356,8 @@ HIPPY_EXPORT_METHOD(setContextName:(nonnull NSString *)contextName)
                 id objcValue = nil;
                 std::shared_ptr<hippy::napi::Ctx> jsccontext = self.pScope->GetContext();
                 std::shared_ptr<hippy::napi::CtxValue> batchedbridge_value = jsccontext->GetGlobalVar("__fbBatchedBridge");
+                std::shared_ptr<hippy::napi::JSCCtxValue> jsc_resultValue = nullptr;
+                std::shared_ptr<std::string> exception = nullptr;
                 if (batchedbridge_value) {
                     std::shared_ptr<hippy::napi::CtxValue> method_value = jsccontext->GetProperty(batchedbridge_value, [method UTF8String]);
                     if (method_value) {
@@ -365,13 +367,8 @@ HIPPY_EXPORT_METHOD(setContextName:(nonnull NSString *)contextName)
                                 JSValueRef value = [JSValue valueWithObject:arguments[i] inContext:[strongSelf JSContext]].JSValueRef;
                                 function_params[i] = std::make_shared<hippy::napi::JSCCtxValue>([strongSelf JSGlobalContextRef], value);
                             }
-                            std::shared_ptr<hippy::napi::CtxValue> resultValue = jsccontext->CallFunction(method_value, arguments.count, function_params);
-                            std::shared_ptr<hippy::napi::JSCCtxValue> jsc_resultValue = std::static_pointer_cast<hippy::napi::JSCCtxValue>(resultValue);
-                            if (jsc_resultValue) {
-                                JSValueRef resutlRef = jsc_resultValue->value_;
-                                JSValue *objc_value = [JSValue valueWithJSValueRef:resutlRef inContext:[strongSelf JSContext]];
-                                objcValue = unwrapResult ? [objc_value toObject] : objc_value;
-                            }
+                            std::shared_ptr<hippy::napi::CtxValue> resultValue = jsccontext->CallFunction(method_value, arguments.count, function_params, &exception);
+                            jsc_resultValue = std::static_pointer_cast<hippy::napi::JSCCtxValue>(resultValue);
                         }
                         else {
                             executeError = HippyErrorWithMessage([NSString stringWithFormat:@"%@ is not a function", method]);
@@ -383,6 +380,17 @@ HIPPY_EXPORT_METHOD(setContextName:(nonnull NSString *)contextName)
                 }
                 else {
                     executeError = HippyErrorWithMessage(@"__fbBatchedBridge not found");
+                }
+                if (exception || executeError) {
+                    if (exception) {
+                        NSString *string = [NSString stringWithUTF8String:exception->c_str()];
+                        executeError = HippyErrorWithMessage(string);
+                    }
+                }
+                else if (jsc_resultValue) {
+                    JSValueRef resutlRef = jsc_resultValue->value_;
+                    JSValue *objc_value = [JSValue valueWithJSValueRef:resutlRef inContext:[strongSelf JSContext]];
+                    objcValue = unwrapResult ? [objc_value toObject] : objc_value;
                 }
                 onComplete(objcValue, executeError);
 #ifndef HIPPY_DEBUG
