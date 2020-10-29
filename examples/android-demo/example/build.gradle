@@ -6,6 +6,7 @@ android {
     defaultConfig {
         applicationId "com.tencent.mtt.hippy.example"
         minSdkVersion 14
+        // noinspection ExpiredTargetSdkVersion
         targetSdkVersion 21
         versionCode 1
         versionName "1.0"

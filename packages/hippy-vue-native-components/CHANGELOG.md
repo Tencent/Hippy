@@ -3,6 +3,40 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.1.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-native-components/compare/2.0.3...2.1.0) (2020-10-29)
+
+
+### Bug Fixes
+
+* **hippy-vue:** fix hippy-vue transform multi-animation not working ([84bd58b](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-native-components/commit/84bd58be840ea3f5ddd9d387e92b5a084387e9d1))
+* **swiper:** fixed props passing ([3081d69](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-native-components/commit/3081d6999fe7ce7556798d41caaa5bdee5907fb3))
+
+
+### Features
+
+* **hippy-vue:** added pull-header and pull-footer components support ([3fbc862](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-native-components/commit/3fbc86230eef085fe1e33efc53c8507bf3598233))
+
+
+
+
+
+# [2.1.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-native-components/compare/2.0.3...2.1.0) (2020-10-29)
+
+
+### Bug Fixes
+
+* **hippy-vue:** fix hippy-vue transform multi-animation not working ([84bd58b](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-native-components/commit/84bd58be840ea3f5ddd9d387e92b5a084387e9d1))
+* **swiper:** fixed props passing ([3081d69](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-native-components/commit/3081d6999fe7ce7556798d41caaa5bdee5907fb3))
+
+
+### Features
+
+* **hippy-vue:** added pull-header and pull-footer components support ([3fbc862](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-native-components/commit/3fbc86230eef085fe1e33efc53c8507bf3598233))
+
+
+
+
+
 ## [2.0.3](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-native-components/compare/2.0.2...2.0.3) (2020-04-23)
 
 **Note:** Version bump only for package @hippy/vue-native-components

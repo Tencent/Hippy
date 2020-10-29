@@ -121,5 +121,4 @@ git push --tags # 提交 tag
   ```
 
 * Android 发布到 [bintray](https://bintray.com/beta/#/hippy/Hippy/hippy-release?tab=overview)
-
-  在 Android Studio 中打开 `examples/android-demo` 项目，并且在旁边的 Gradle 面板中运行 `android-demo` > `android-sdk` > `publishing` > `:android-sdk:bintrayUpload`
+ 在 Android Studio 中打开 `examples/android-demo` 项目，在`local.properties`添加`bintrayUser=[user]`和`bintrayKey=[key]`，其中`[user]`和`[key]` 分别对应用户在bintray的 `账号名`和 `API key` ，添加完后字旁边的 Gradle 面板中运行 `android-demo` > `android-sdk` > `publishing` > `:android-sdk:bintrayUpload` .

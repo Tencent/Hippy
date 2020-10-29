@@ -3,6 +3,46 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.1.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.0.3...2.1.0) (2020-10-29)
+
+
+### Bug Fixes
+
+* **hippy-react:** fix hippy-react animationSet destroy problem ([#382](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/issues/382)) ([3c66ca6](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/3c66ca676d8f4fa3bc852492d24e533c617b252d))
+* **hippy-react:** removed unncessary Object.values() ([8a68d44](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/8a68d44d7c7bd439b2be0badc542e9224685c76f))
+* **hippy-react:** restore the ListView type props be number ([#367](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/issues/367)) ([231ec5a](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/231ec5a37b41eb778b649e079ec5d6bbe712fb8f)), closes [/github.com/Tencent/Hippy/commit/9de74e331b797c2137b1d0e3d08cd0dde0ee821a#diff-ccaf44058906717491bd079958ea5684a93acaa5d726e22cb34c0a6c82c79](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/issues/diff-ccaf44058906717491bd079958ea5684a93acaa5d726e22cb34c0a6c82c79)
+* **hippy-vue:** fix hippy-vue transform multi-animation not working ([84bd58b](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/84bd58be840ea3f5ddd9d387e92b5a084387e9d1))
+
+
+### Features
+
+* **hippy-react:** add new method measureInAppWindow ([e25bb67](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/e25bb676942b89fbb57601d7c4ac2c9ce8ec175f))
+* **hippy-react:** added PullHeader and PullFooter components support ([2fcdee9](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/2fcdee9b3ef290f40a25321c978a0c232299b06a))
+
+
+
+
+
+# [2.1.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.0.3...2.1.0) (2020-10-29)
+
+
+### Bug Fixes
+
+* **hippy-react:** fix hippy-react animationSet destroy problem ([#382](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/issues/382)) ([3c66ca6](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/3c66ca676d8f4fa3bc852492d24e533c617b252d))
+* **hippy-react:** removed unncessary Object.values() ([8a68d44](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/8a68d44d7c7bd439b2be0badc542e9224685c76f))
+* **hippy-react:** restore the ListView type props be number ([#367](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/issues/367)) ([231ec5a](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/231ec5a37b41eb778b649e079ec5d6bbe712fb8f)), closes [/github.com/Tencent/Hippy/commit/9de74e331b797c2137b1d0e3d08cd0dde0ee821a#diff-ccaf44058906717491bd079958ea5684a93acaa5d726e22cb34c0a6c82c79](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/issues/diff-ccaf44058906717491bd079958ea5684a93acaa5d726e22cb34c0a6c82c79)
+* **hippy-vue:** fix hippy-vue transform multi-animation not working ([84bd58b](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/84bd58be840ea3f5ddd9d387e92b5a084387e9d1))
+
+
+### Features
+
+* **hippy-react:** add new method measureInAppWindow ([e25bb67](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/e25bb676942b89fbb57601d7c4ac2c9ce8ec175f))
+* **hippy-react:** added PullHeader and PullFooter components support ([2fcdee9](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/2fcdee9b3ef290f40a25321c978a0c232299b06a))
+
+
+
+
+
 ## [2.0.3](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.0.2...2.0.3) (2020-04-23)
 
 

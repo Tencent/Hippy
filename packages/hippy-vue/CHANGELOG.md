@@ -3,6 +3,46 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.1.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.0.3...2.1.0) (2020-10-29)
+
+
+### Bug Fixes
+
+* **hippy-vue:** fix hippy-vue transform multi-animation not working ([84bd58b](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/84bd58be840ea3f5ddd9d387e92b5a084387e9d1))
+* **vue:** fixed remove style issue ([#329](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/issues/329)) ([33f2f7d](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/33f2f7d3a1518e70471a060b930b3372d6b49c99))
+
+
+### Features
+
+* **hippy-vue:** add new method measureInAppWindow ([e6348a2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/e6348a2fa31ea61fcfda66151c15830871f47ab6))
+* **hippy-vue:** added the callback execution before $mount in $start ([1a1cc3f](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/1a1cc3fb5ee92a3dd704765bc628530f9f146c8b))
+* **hippy-vue:** box-shadow style support ([0604461](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/06044610f85f891d52d28439b3a48554c8db6487))
+* **hippy-vue:** export parseColor api for HippyVue ([a354c94](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/a354c94ede4542bb9111c030e088a70f617ca0c7))
+
+
+
+
+
+# [2.1.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.0.3...2.1.0) (2020-10-29)
+
+
+### Bug Fixes
+
+* **hippy-vue:** fix hippy-vue transform multi-animation not working ([84bd58b](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/84bd58be840ea3f5ddd9d387e92b5a084387e9d1))
+* **vue:** fixed remove style issue ([#329](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/issues/329)) ([33f2f7d](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/33f2f7d3a1518e70471a060b930b3372d6b49c99))
+
+
+### Features
+
+* **hippy-vue:** add new method measureInAppWindow ([e6348a2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/e6348a2fa31ea61fcfda66151c15830871f47ab6))
+* **hippy-vue:** added the callback execution before $mount in $start ([1a1cc3f](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/1a1cc3fb5ee92a3dd704765bc628530f9f146c8b))
+* **hippy-vue:** box-shadow style support ([0604461](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/06044610f85f891d52d28439b3a48554c8db6487))
+* **hippy-vue:** export parseColor api for HippyVue ([a354c94](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/a354c94ede4542bb9111c030e088a70f617ca0c7))
+
+
+
+
+
 ## [2.0.3](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.0.2...2.0.3) (2020-04-23)
 
 
