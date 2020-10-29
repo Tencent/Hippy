@@ -31,7 +31,7 @@ const {
 
 const CACHE = {};
 
-const measureInWindowByMethod = function (el, method) {
+const measureInWindowByMethod = function measureInWindowByMethod(el, method) {
   const empty = {
     top: -1,
     left: -1,
