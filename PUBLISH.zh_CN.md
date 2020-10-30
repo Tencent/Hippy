@@ -120,9 +120,19 @@ git push --tags # 提交 tag
 
 * iOS 发布到 cocoapods.org
 
-  ```bash
-  pod trunk push hippy.podspec
-  ```
+    如果没有cocoapod账户，先进行注册
+
+    ```bash
+    pod trunk register [EMAIL] [NAME]
+    ```
+
+    然后发布
+
+    ```bash
+    pod trunk push hippy.podspec
+    ```
+
+  > 如果发布时参数检查失败，可以在`pod`命令前面加上 `COCOAPODS_VALIDATOR_SKIP_XCODEBUILD=1` 参数
 
 * Android 发布到 [bintray](https://bintray.com/beta/#/hippy/Hippy/hippy-release?tab=overview)
  在 Android Studio 中打开 `examples/android-demo` 项目，在`local.properties`添加`bintrayUser=[user]`和`bintrayKey=[key]`，其中`[user]`和`[key]` 分别对应用户在bintray的 `账号名`和 `API key` ，添加完后字旁边的 Gradle 面板中运行 `android-demo` > `android-sdk` > `publishing` > `:android-sdk:bintrayUpload` 即可发布.
