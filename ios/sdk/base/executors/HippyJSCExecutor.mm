@@ -98,7 +98,12 @@ HIPPY_EXPORT_MODULE()
     
     if (self = [super init]) {
         _valid = YES;
-        self.executorkey = execurotkey;
+        //TODO
+        //maybe bug in JavaScriptCore：
+        //JSContextRef held by JSContextGroupRef cannot be deallocated,
+        //unless JSContextGroupRef is deallocated
+        //so wo use one JSContextGroupRef holds only one JSContextRef unless we fix it.
+        //self.executorkey = execurotkey;
         std::shared_ptr<Engine> engine = [[HippyJSEnginesMapper defaultInstance] createJSEngineForKey:self.executorkey];
         std::unique_ptr<Engine::RegisterMap> map = [self registerMap];
         const char *pName = [execurotkey UTF8String]?:"";
