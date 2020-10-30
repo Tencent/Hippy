@@ -521,9 +521,9 @@ static NSHashTable *allAnimatedImagesWeak;
     CFRelease(imageRef);
     
     // Loading in the image object is only half the work, the displaying image view would still have to synchronosly wait and decode the image, so we go ahead and do that here on the background thread.
-    if (self.isPredrawingEnabled) {
-        image = [[self class] predrawnImageFromImage:image];
-    }
+//    if (self.isPredrawingEnabled) {
+//        image = [[self class] predrawnImageFromImage:image];
+//    }
     
     return image;
 }
