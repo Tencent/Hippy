@@ -53,6 +53,7 @@ import java.util.Map;
 public abstract class HippyViewController<T extends View & HippyViewBase> implements View.OnFocusChangeListener
 {
 	private static final String	TAG						     = "HippyViewController";
+	public static final String DT_EBLID = "dt_elementBizLeafIdentifier";
 
   private static MatrixUtil.MatrixDecompositionContext	sMatrixDecompositionContext		= new MatrixUtil.MatrixDecompositionContext();
 	private static double[]	sTransformDecompositionArray	= new double[16];
@@ -263,6 +264,17 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) {
 					view.addOnAttachStateChangeListener( new DTViewElementListner(collectAdapter));
 				}
+			}
+		}
+	}
+
+	@HippyControllerProps(name = DT_EBLID, defaultType = HippyControllerProps.STRING, defaultString = "")
+	public void setElementBizLeafIdentifier(T view, String elementBizLeafId)
+	{
+		if (mEngineContext != null) {
+			IHippyDtCollectAdapter collectAdapter = mEngineContext.getGlobalConfigs().getDtCollectAdapter();
+			if (collectAdapter != null) {
+				collectAdapter.setElementBizLeafIdentifier(view, elementBizLeafId);
 			}
 		}
 	}

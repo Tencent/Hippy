@@ -15,6 +15,8 @@
  */
 package com.tencent.mtt.hippy.uimanager;
 
+import static com.tencent.mtt.hippy.uimanager.HippyViewController.DT_EBLID;
+
 import android.text.TextUtils;
 
 import com.tencent.mtt.hippy.common.HippyArray;
@@ -179,6 +181,10 @@ public class DiffUtils
 		Set<String> fromKeys = from.keySet();
 		for (String fromKey : fromKeys)
 		{
+			if (fromKey.equals(DT_EBLID)) {
+				continue;
+			}
+
 			Object fromValue = from.get(fromKey);
 			Object toValue = to.get(fromKey);
 			if (fromValue instanceof Boolean)
@@ -278,7 +284,7 @@ public class DiffUtils
 		for (String toKey : tos)
 		{
 
-			if (from.get(toKey) != null)
+			if (from.get(toKey) != null || toKey.equals(DT_EBLID))
 			{
 				continue;
 			}
@@ -568,6 +574,10 @@ public class DiffUtils
 			if (pt.mType == Patch.TYPE_PROPS)
 			{
 				PropsPatch propsPatch = (PropsPatch) pt.mPatch;
+				HippyMap propsToUpdate = propsPatch.mPropsToUpdate;
+				if (propsToUpdate.containsKey(DT_EBLID)) {
+					propsToUpdate.remove(DT_EBLID);
+				}
 				controllerManager.updateView(propsPatch.mId, propsPatch.mClassName, propsPatch.mPropsToUpdate);
 			}
 			else if (pt.mType == Patch.TYPE_LAYOUT)
