@@ -461,7 +461,7 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
 - (void)URLSession:(__unused NSURLSession *)session task:(nonnull NSURLSessionTask *)task didCompleteWithError:(nullable NSError *)error
 {
     if (_task == task) {
-        NSDictionary *source = [self.source firstObject];
+        NSString *urlString = [[[task originalRequest] URL] absoluteString];
         if (!error) {
             if ([_data length] > 0) {
                 Class<HippyImageProviderProtocol> ipClass = imageProviderClassFromBridge(_data, self.bridge);
@@ -471,17 +471,17 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
                     if (_animatedImageOperation) {
                         [_animatedImageOperation cancel];
                     }
-                    _animatedImageOperation = [[HippyAnimatedImageOperation alloc] initWithAnimatedImageProvider:instance imageView:self imageURL:source[@"uri"]];
+                    _animatedImageOperation = [[HippyAnimatedImageOperation alloc] initWithAnimatedImageProvider:instance imageView:self imageURL:urlString];
                     [animated_image_queue() addOperation:_animatedImageOperation];
                 }
                 else {
-                    [[HippyImageCacheManager sharedInstance] setImageCacheData:_data forURLString:source[@"uri"]];
+                    [[HippyImageCacheManager sharedInstance] setImageCacheData:_data forURLString:urlString];
                     UIImage *image = [self imageFromData:_data];;
                     if (image) {
-                        [self loadImage: image url:source[@"uri"] error:nil needBlur:YES needCache:YES];
+                        [self loadImage: image url:urlString error:nil needBlur:YES needCache:YES];
                     } else {
                         NSError *theError = [NSError errorWithDomain:@"imageFromDataErrorDomain" code:1 userInfo:@{@"reason": @"Error in imageFromData"}];
-                        [self loadImage: nil url:source[@"uri"] error:theError needBlur:YES needCache:YES];
+                        [self loadImage: nil url:urlString error:theError needBlur:YES needCache:YES];
                     }
                 }
             }
@@ -493,11 +493,11 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
                     NSString *errorMessage = [NSString stringWithFormat:@"no data received, HTTPStatusCode is %zd", statusCode];
                     NSDictionary *userInfo = @{NSLocalizedDescriptionKey: errorMessage};
                     NSError *error = [NSError errorWithDomain:@"ImageLoadDomain" code:1 userInfo:userInfo];
-                    [self loadImage:nil url:source[@"uri"] error:error needBlur:NO needCache:NO];
+                    [self loadImage:nil url:urlString error:error needBlur:NO needCache:NO];
                 }
             }
         } else {
-            [self loadImage:nil url:source[@"uri"] error:error needBlur:YES needCache:YES];
+            [self loadImage:nil url:urlString error:error needBlur:YES needCache:YES];
         }
     }
     [session finishTasksAndInvalidate];
