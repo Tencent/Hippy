@@ -16,17 +16,17 @@
 步骤如下：
 
 1. 创建一个Android工程
-2. DEMO工程编译后会在android\sdk\build\outputs\aar目录下生成
-   sdk-release.aar，android\support_ui\build\outputs\aar目录下生成support-ui.jar
-   将sdk-release.aar和support-ui.jar拷贝到你的libs目录下
-3. 配置一下build.gradle
+
+2. 集成maven版本，版本信息可以在 [版本查询地址](https://bintray.com/beta/#/hippy/Hippy/hippy-release?tab=overview)查询，build.gradle配置如下
 
 ```java
-    compile(name:'sdk-release', ext:'aar')
-    compile files('libs/support-ui.jar')
-    compile 'com.github.bumptech.glide:glide:3.6.1'
-    compile 'com.android.support:support-v4:25.3.1'
+    implementation 'com.tencent.hippy:hippy-release:2.1.0'
+    implementation 'com.github.bumptech.glide:glide:3.6.1'
+    implementation 'com.android.support:support-v4:25.3.1'
 ```
+
+1. 如果需要自己打包集成的，可以把DEMO工程编译后在android\sdk\build\outputs\aar目录下生成的
+   sdk-release.aar直接集成到你的项目工程里面
 
 后面的 glide 与support-v4 主要是用来demo里面拉图，如果你们有自己的拉图库，可以使用自己的拉图代码。
 4. 如果要进一步精简包大小，可以添加如下filter，排除掉armeabi-v7a下的so库，这样可以减小hippy 50%的大小：
