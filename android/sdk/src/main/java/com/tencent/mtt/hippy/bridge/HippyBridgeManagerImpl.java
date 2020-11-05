@@ -14,7 +14,10 @@
  */
 package com.tencent.mtt.hippy.bridge;
 
-import java.util.ArrayList;
+import android.os.Build;
+import android.os.Handler;
+import android.os.Message;
+import android.text.TextUtils;
 
 import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyEngineContext;
@@ -30,14 +33,9 @@ import com.tencent.mtt.hippy.modules.HippyModuleManager;
 import com.tencent.mtt.hippy.utils.ArgumentUtils;
 import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.GrowByteBuffer;
-import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
-import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 
-import android.os.Build;
-import android.os.Handler;
-import android.os.Message;
-import android.text.TextUtils;
+import java.util.ArrayList;
 
 /**
  * FileName: HippyBridgeManager
@@ -71,7 +69,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 	int						mBridgeType							= BRIDGE_TYPE_NORMAL;
 	boolean					mEnableHippyBuffer					= false;
 	ArrayList<String>		mLoadedBundleInfo					= null;
-	private GrowByteBuffer  mGrowByteBuffer;                     
+	private GrowByteBuffer  mGrowByteBuffer;
 	private StringBuilder   mStringBuilder;
 	private  boolean        mIsDevModule                        = false;
 	private int				mGroupId;
@@ -119,7 +117,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 							public void Call(long value, Message msg, String action) {
 
 								if (mThirdPartyAdapter != null) {
-									mThirdPartyAdapter.SetHippyBridgeId(value);
+                  					mThirdPartyAdapter.onRuntimeInit(value);
 								}
 								mContext.getStartTimeMonitor().startEvent(HippyEngineMonitorEvent.ENGINE_LOAD_EVENT_LOAD_COMMONJS);
 								boolean flag = true;
@@ -300,6 +298,9 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 				}
 				case MSG_CODE_DESTROY_BRIDGE:
 				{
+					if (mThirdPartyAdapter != null) {
+						mThirdPartyAdapter.onRuntimeDestroy();
+					}
 					mHippyBridge.destroy(null);
 					return true;
 				}
@@ -376,7 +377,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
       });
     }
   }
-  
+
 	@Override
 	public void loadInstance(String name, int id, HippyMap params)
 	{
@@ -525,5 +526,10 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 		tkd.pushString("appVersion", appVersion);
 		globalParams.pushMap("tkd", tkd);
 		return ArgumentUtils.objectToJson(globalParams);
+	}
+
+	@Override
+	public HippyThirdPartyAdapter getThirdPartyAdapter() {
+		return mThirdPartyAdapter;
 	}
 }

@@ -7,7 +7,9 @@ public abstract class HippyThirdPartyAdapter
     public HippyThirdPartyAdapter() { mExternalData = null; }
     public HippyThirdPartyAdapter(Object externalData) { mExternalData = externalData; }
 
-    public abstract void SetHippyBridgeId(long runtimeId);
+    public abstract void onRuntimeInit(long runtimeId);
+    public abstract void onRuntimeDestroy();
+
     public abstract String getPackageName();
     public abstract String getAppVersion();
 
