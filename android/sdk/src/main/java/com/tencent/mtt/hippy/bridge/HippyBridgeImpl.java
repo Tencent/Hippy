@@ -85,7 +85,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 				this.mCodeCacheThreadExecutor.allowCoreThreadTimeOut(true);
 			}
 		}
-        
+
 		if (!mBridgeParamJson)
 		{
 			mHippyBuffer = new HippyBuffer();
@@ -239,13 +239,14 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 				mCodeCacheThreadExecutor = null;
 			}
 		}
-		
+
 		if (!mBridgeParamJson && mHippyBuffer != null)
 		{
 			mHippyBuffer.release();
 		}
 
 		destroy(mV8RuntimeId, mSingleThreadMode, callback);
+		mV8RuntimeId = 0;
 		mBridgeCallback = null;
 	}
 
