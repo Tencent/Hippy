@@ -588,18 +588,20 @@ static NSHashTable *allAnimatedImagesWeak;
     // }
     if (_imageSource) {
         CFStringRef imageSourceContainerType = CGImageSourceGetType(_imageSource);
-        NSString *imagePropertyKey = (id)kCGImagePropertyGIFDictionary;
+        NSString *imagePropertyKey = (NSString *)kCGImagePropertyGIFDictionary;
+        NSString *loopCountKey = (NSString *)kCGImagePropertyGIFLoopCount;
         if (UTTypeConformsTo(imageSourceContainerType, kUTTypePNG)) {
-            imagePropertyKey = (id)kCGImagePropertyPNGDictionary;
+            imagePropertyKey = (NSString *)kCGImagePropertyPNGDictionary;
+            loopCountKey = (NSString *)kCGImagePropertyAPNGLoopCount;
         }
         NSDictionary *imageProperties = (__bridge_transfer NSDictionary *)CGImageSourceCopyProperties(_imageSource, NULL);
-        id loopCountObject = [[imageProperties objectForKey:imagePropertyKey] objectForKey:(id)kCGImagePropertyGIFLoopCount];
+        id loopCountObject = [[imageProperties objectForKey:imagePropertyKey] objectForKey:loopCountKey];
         if (loopCountObject) {
             NSUInteger loopCount = [loopCountObject unsignedIntegerValue];
             return 0 == loopCount ? NSUIntegerMax : loopCount;
         }
         else {
-            return 1;
+            return NSUIntegerMax;
         }
     }
     return 0;
