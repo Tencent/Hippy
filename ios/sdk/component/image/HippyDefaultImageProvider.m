@@ -23,6 +23,7 @@
 #import <UIKit/UIKit.h>
 #import "HippyDefaultImageProvider.h"
 #import "NSData+DataType.h"
+#import <CoreServices/CoreServices.h>
 
 @interface HippyDefaultImageProvider () {
     NSData *_data;
@@ -129,7 +130,28 @@ HIPPY_EXPORT_MODULE(defaultImageProvider)
         return count;
     }
     return 0;
+}
 
+- (NSUInteger)loopCount {
+    if (_imageSourceRef) {
+        CFStringRef imageSourceContainerType = CGImageSourceGetType(_imageSourceRef);
+        NSString *imagePropertyKey = (NSString *)kCGImagePropertyGIFDictionary;
+        NSString *loopCountKey = (NSString *)kCGImagePropertyGIFLoopCount;
+        if (UTTypeConformsTo(imageSourceContainerType, kUTTypePNG)) {
+            imagePropertyKey = (NSString *)kCGImagePropertyPNGDictionary;
+            loopCountKey = (NSString *)kCGImagePropertyAPNGLoopCount;
+        }
+        NSDictionary *imageProperties = (__bridge_transfer NSDictionary *)CGImageSourceCopyProperties(_imageSourceRef, NULL);
+        id loopCountObject = [[imageProperties objectForKey:imagePropertyKey] objectForKey:loopCountKey];
+        if (loopCountObject) {
+            NSUInteger loopCount = [loopCountObject unsignedIntegerValue];
+            return 0 == loopCount ? NSUIntegerMax : loopCount;
+        }
+        else {
+            return NSUIntegerMax;
+        }
+    }
+    return 0;
 }
 
 - (NSTimeInterval)delayTimeAtFrame:(NSUInteger)frame {
