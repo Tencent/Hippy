@@ -19,6 +19,8 @@ public interface IHippyDtCollectAdapter
 {
     void setPageId(Object object, String pageId);
 
+    void setPageContentId(Object object, String pgContentId);
+
     void setPageParams(Object object, String params);
 
     void setElementId(Object object, String elementId);

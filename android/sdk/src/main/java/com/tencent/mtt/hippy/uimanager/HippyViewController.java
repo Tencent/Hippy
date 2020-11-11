@@ -268,6 +268,17 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 		}
 	}
 
+	@HippyControllerProps(name = "dt_pg_contentid", defaultType = HippyControllerProps.STRING, defaultString = "")
+	public void setPageContentId(T view, String pgContentId)
+	{
+		if (mEngineContext != null) {
+			IHippyDtCollectAdapter collectAdapter = mEngineContext.getGlobalConfigs().getDtCollectAdapter();
+			if (collectAdapter != null) {
+				collectAdapter.setPageContentId(view, pgContentId);
+			}
+		}
+	}
+
 	@HippyControllerProps(name = DT_EBLID, defaultType = HippyControllerProps.STRING, defaultString = "")
 	public void setElementBizLeafIdentifier(T view, String elementBizLeafId)
 	{
