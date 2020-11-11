@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.1.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-native-components/compare/2.1.0...2.1.1) (2020-11-11)
+
+
+### Bug Fixes
+
+* **hippy-vue:** fixed tryConvertNumber bug & some compatible issue ([ba8836d](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-native-components/commit/ba8836d9b3c3461f013d325c0e86c84233e3ede6))
+
+
+
 # [2.1.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-native-components/compare/2.0.3...2.1.0) (2020-10-29)
 
 
