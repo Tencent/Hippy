@@ -85,9 +85,15 @@ function registerAnimation(Vue) {
     let animationIds = Object.keys(otherStyles).map(key => style[key].animationId);
     if (Array.isArray(transform) && transform.length > 0) {
       const transformIds = [];
-      transform.forEach(entity => Object.values(entity)
-        .forEach(value => Number.isInteger(value.animationId)
-            && transformIds.push(value.animationId)));
+      transform.forEach(entity => Object.keys(entity)
+        .forEach((key) => {
+          if (entity[key]) {
+            const { animationId } = entity[key];
+            if (typeof animationId === 'number' && animationId % 1 === 0) {
+              transformIds.push(animationId);
+            }
+          }
+        }));
       animationIds = [...animationIds, ...transformIds];
     }
     return animationIds;
