@@ -64,26 +64,6 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
 	@Override
 	public RecyclerView.ViewHolderWrapper onCreateSuspendViewHolderWithPos(RecyclerViewBase parent, int position, int viewType)
 	{
-		// 查找当前view树上的child有没有当前suspend的node
-		int childCount = mParentRecyclerView.getChildCount();
-		View currentSuspendView = ((BaseLayoutManager) mParentRecyclerView.getLayoutManager()).getCurrentSuspentionView();
-		if (currentSuspendView == null)
-		{
-			return null;
-		}
-		for (int i = 0; i < childCount; i++)
-		{
-			RecyclerViewBase.ViewHolder childHolder = mParentRecyclerView.getChildViewHolder(currentSuspendView);
-			if (childHolder != null && childHolder.mContentHolder instanceof NodeHolder)
-			{
-				RenderNode childNode = ((NodeHolder) childHolder.mContentHolder).mBindNode;
-				RenderNode willCreateViewNode = mHippyContext.getRenderManager().getRenderNode(mParentRecyclerView.getId()).getChildAt(position);
-				if (childNode == willCreateViewNode && childHolder instanceof RecyclerView.ViewHolderWrapper)
-				{
-					return (RecyclerView.ViewHolderWrapper) childHolder;
-				}
-			}
-		}
 		return null;
 	}
 
