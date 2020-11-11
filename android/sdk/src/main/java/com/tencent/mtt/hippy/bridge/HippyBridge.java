@@ -39,6 +39,13 @@ public interface HippyBridge
 
     public void callFunction(String action, byte[] bytes, int offset, int length, NativeCallback callback);
 
+	public void runOnJSThread(Runnable runnable);
+
+	/**
+	 * return pointer to v8 isolate and context
+	 */
+	public long[] getV8Runtime();
+
 	public static interface BridgeCallback
 	{
 		public void callNatives(String moduleName, String moduleFunc, String callId, HippyArray params);

@@ -14,7 +14,10 @@
  */
 package com.tencent.mtt.hippy.bridge;
 
-import java.util.ArrayList;
+import android.os.Build;
+import android.os.Handler;
+import android.os.Message;
+import android.text.TextUtils;
 
 import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyEngineContext;
@@ -30,14 +33,10 @@ import com.tencent.mtt.hippy.modules.HippyModuleManager;
 import com.tencent.mtt.hippy.utils.ArgumentUtils;
 import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.GrowByteBuffer;
-import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 
-import android.os.Build;
-import android.os.Handler;
-import android.os.Message;
-import android.text.TextUtils;
+import java.util.ArrayList;
 
 /**
  * FileName: HippyBridgeManager
@@ -46,6 +45,7 @@ import android.text.TextUtils;
  */
 public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.BridgeCallback, Handler.Callback
 {
+	private static final String TAG = "HippyBridgeManagerImpl";
 	static final int		MSG_CODE_INIT_BRIDGE				= 10;
 	static final int		MSG_CODE_RUN_BUNDLE					= 11;
 	static final int		MSG_CODE_CALL_FUNCTION				= 12;
@@ -71,7 +71,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 	int						mBridgeType							= BRIDGE_TYPE_NORMAL;
 	boolean					mEnableHippyBuffer					= false;
 	ArrayList<String>		mLoadedBundleInfo					= null;
-	private GrowByteBuffer  mGrowByteBuffer;                     
+	private GrowByteBuffer  mGrowByteBuffer;
 	private StringBuilder   mStringBuilder;
 	private  boolean        mIsDevModule                        = false;
 	private int				mGroupId;
@@ -119,7 +119,12 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 							public void Call(long value, Message msg, String action) {
 
 								if (mThirdPartyAdapter != null) {
-									mThirdPartyAdapter.SetHippyBridgeId(value);
+									long[] v8Runtime = mHippyBridge.getV8Runtime();
+									if (v8Runtime != null && v8Runtime.length == 2) {
+										mThirdPartyAdapter.onRuntimeInit(HippyBridgeManagerImpl.this, value, v8Runtime[0], v8Runtime[1]);
+									} else {
+										LogUtils.e(TAG, "getV8Runtime failed");
+									}
 								}
 								mContext.getStartTimeMonitor().startEvent(HippyEngineMonitorEvent.ENGINE_LOAD_EVENT_LOAD_COMMONJS);
 								boolean flag = true;
@@ -300,6 +305,9 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 				}
 				case MSG_CODE_DESTROY_BRIDGE:
 				{
+					if (mThirdPartyAdapter != null) {
+						mThirdPartyAdapter.onRuntimeUninit();
+					}
 					mHippyBridge.destroy(null);
 					return true;
 				}
@@ -376,7 +384,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
       });
     }
   }
-  
+
 	@Override
 	public void loadInstance(String name, int id, HippyMap params)
 	{
@@ -525,5 +533,17 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 		tkd.pushString("appVersion", appVersion);
 		globalParams.pushMap("tkd", tkd);
 		return ArgumentUtils.objectToJson(globalParams);
+	}
+
+	@Override
+	public HippyThirdPartyAdapter getThirdPartyAdapter() {
+		return mThirdPartyAdapter;
+	}
+
+	@Override
+	public void runOnJSThread(Runnable runnable) {
+		if (mHippyBridge != null) {
+			mHippyBridge.runOnJSThread(runnable);
+		}
 	}
 }
