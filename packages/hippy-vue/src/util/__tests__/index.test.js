@@ -61,7 +61,7 @@ test('tryConvertNumber output test', (t) => {
   t.is(util.tryConvertNumber(123), 123);
   t.is(util.tryConvertNumber('123'), 123);
   t.is(util.tryConvertNumber('abc'), 'abc');
-  t.is(util.tryConvertNumber('123abc'), '123abc');
+  t.is(util.tryConvertNumber('123abc'), 123);
   t.is(util.tryConvertNumber('abc123'), 'abc123');
   const obj = {};
   t.is(util.tryConvertNumber(obj), obj);

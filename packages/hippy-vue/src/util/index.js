@@ -86,14 +86,15 @@ function capitalizeFirstLetter(str) {
 /**
  * Convert string to number as possible
  */
-const numberRegEx = new RegExp('^[+-]?(\\d+)?(\\.\\d+)?$');
+// const numberRegEx = new RegExp('^[+-]?(\\d+)?(\\.\\d+)?$');
 function tryConvertNumber(str) {
   if (typeof str === 'number') {
     return str;
   }
-  if (typeof str === 'string' && numberRegEx.test(str)) {
+  if (typeof str === 'string') {
     try {
-      return parseFloat(str);
+      const parsedNumber = parseFloat(str);
+      if (!Number.isNaN(parsedNumber)) return parsedNumber;
     } catch (err) {
       // pass
     }
