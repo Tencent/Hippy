@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.1.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/compare/2.0.3...2.1.1) (2020-11-11)
+
+**Note:** Version bump only for package @hippy/react-web
+
+
+
+
+
 # [2.1.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/compare/2.0.3...2.1.0) (2020-10-29)
 
 **Note:** Version bump only for package @hippy/react-web
