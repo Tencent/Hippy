@@ -654,7 +654,7 @@ public class TextNode extends StyleNode
 				}
 			}
 		}
-		
+
 		layout.getPaint().setTextSize(mFontSize);
 		return layout;
 	}
@@ -666,9 +666,10 @@ public class TextNode extends StyleNode
 			return null;
 		}
 		String text = mSpanned.toString();
+		int textLength = text.length();
 		SpannableStringBuilder temp = (SpannableStringBuilder) mSpanned.subSequence(0, text.length());
 		String newString = text.subSequence(0, lastLineStart).toString()
-				+ truncate(text.substring(lastLineStart, lastLineEnd), sTextPaintInstance, width, mTruncateAt);
+				+ truncate(text.substring(lastLineStart, textLength), sTextPaintInstance, width, mTruncateAt);
 
 		int start = newString.length() - 1 >= 0 ? newString.length() - 1 : 0;
 		CharacterStyle hippyStyleSpans[] = temp.getSpans(start, text.length(), CharacterStyle.class);
