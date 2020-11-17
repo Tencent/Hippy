@@ -34,7 +34,7 @@ function content(ctx, fullStaticPath) {
     if (stat.isDirectory()) {
       returns = dir(ctx.url, reqPath);
     } else {
-      returns = fs.readFileSync(reqPath, 'binary');
+      returns = fs.readFileSync(reqPath);
     }
   }
 
