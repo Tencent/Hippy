@@ -53,18 +53,6 @@ async function startDevServer(args) {
     if (verbose) {
       logger.info('Received url request', ctx.url);
     }
-    // Response entry js file for debugging
-    if (ctx.path === '/index.bundle') {
-      if (verbose) {
-        logger.info('Reading entry', entry);
-      }
-      const jsContent = fs.readFileSync(entry);
-      ctx.res.writeHead(200, {
-        'Content-Type': 'application/javascript',
-      });
-      ctx.res.write(jsContent);
-      return ctx.res.end();
-    }
 
     // Response the content of version request
     if (ctx.path === '/json/version') {
