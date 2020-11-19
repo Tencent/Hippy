@@ -294,7 +294,9 @@ static void installBasicSynchronousHooksOnContext(JSContext *context)
 
 HIPPY_EXPORT_METHOD(setContextName:(nonnull NSString *)contextName)
 {
-    [[self JSContext] setName:contextName];
+    [self executeBlockOnJavaScriptQueue:^{
+        [[self JSContext] setName:contextName];
+    }];
 }
 
 - (void)dealloc
