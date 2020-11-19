@@ -90,20 +90,21 @@ HIPPY_EXPORT_MODULE()
 
 - (void)setBridge:(HippyBridge *)bridge
 {
-    _bridge = bridge;
-    _performanceLogger = [bridge performanceLogger];
+    if (_bridge != bridge) {
+        _bridge = bridge;
+        _performanceLogger = [bridge performanceLogger];
+    }
 }
 
-- (instancetype)initWithExecurotKey:(NSString *)execurotkey {
+- (instancetype)initWithExecurotKey:(NSString *)execurotkey bridge:(HippyBridge *)bridge {
     
     if (self = [super init]) {
         _valid = YES;
-        //TODO
         //maybe bug in JavaScriptCore：
         //JSContextRef held by JSContextGroupRef cannot be deallocated,
         //unless JSContextGroupRef is deallocated
-        //so wo use one JSContextGroupRef holds only one JSContextRef unless we fix it.
-        //self.executorkey = execurotkey;
+        self.executorkey = execurotkey;
+        self.bridge = bridge;
         std::shared_ptr<Engine> engine = [[HippyJSEnginesMapper defaultInstance] createJSEngineForKey:self.executorkey];
         std::unique_ptr<Engine::RegisterMap> map = [self registerMap];
         const char *pName = [execurotkey UTF8String]?:"";
@@ -151,6 +152,13 @@ HIPPY_EXPORT_MODULE()
             context->SetGlobalVar("__fbBatchedBridgeConfig", [[strongSelf.bridge moduleConfig] UTF8String]);
             JSContext* jsContext = [JSContext contextWithJSGlobalContextRef:context->GetCtxRef()];
             installBasicSynchronousHooksOnContext(jsContext);
+            jsContext[@"reportUncaughtException"] = ^(NSString* err) {
+                HippyJSCExecutor *strongSelf = weakSelf;
+                if (strongSelf && err) {
+                    NSError *error = HippyErrorWithMessageAndModuleName(err, strongSelf.bridge.moduleName);
+                    HippyFatal(error);
+                }
+            };
             jsContext[@"nativeRequireModuleConfig"] = ^NSArray *(NSString *moduleName) {
                 HippyJSCExecutor *strongSelf = weakSelf;
                 if (!strongSelf.valid) {
