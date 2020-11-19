@@ -140,6 +140,9 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
 }
 
 @property (nonatomic) HippyAnimatedImageOperation *animatedImageOperation;
+@property (atomic, strong) NSString *pendingImageSourceUri;// The image source that's being loaded from the network
+@property (atomic, strong) NSString *imageSourceUri;// The image source that's currently displayed
+
 @end
 
 @implementation HippyImageView
@@ -168,9 +171,9 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
 	[super didMoveToWindow];
 	if (!self.window) {
 		[self cancelImageLoad];
-	} else {
-		[self reloadImage];
-	}
+    } else if ([self shouldChangeImageSource]) {
+      [self reloadImage];
+    }
 }
 
 - (void)didReceiveMemoryWarning {
@@ -265,6 +268,20 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
 	}
 }
 
+- (BOOL)shouldChangeImageSource
+{
+// We need to reload if the desired image source is different from the current image
+// source AND the image load that's pending
+    NSDictionary *source = [self.source firstObject];
+    if (source) {
+        NSString *desiredImageSource = source[@"uri"];
+  
+        return ![desiredImageSource isEqual:self.imageSourceUri] &&
+        ![desiredImageSource isEqual:self.pendingImageSourceUri];
+    }
+    return NO;
+}
+
 - (void)reloadImage
 {
     NSDictionary *source = [self.source firstObject];
@@ -273,7 +290,7 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
             _onLoadStart(@{});
         }
         NSString *uri = source[@"uri"];
-        
+        self.pendingImageSourceUri = uri;
         BOOL isBlurredImage = NO;
         UIImage *image = [[HippyImageCacheManager sharedInstance] loadImageFromCacheForURLString:uri radius:_blurRadius isBlurredImage:&isBlurredImage];
         if (image) {
@@ -406,6 +423,7 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
 
 - (void)cancelImageLoad
 {
+    self.pendingImageSourceUri = nil;
 	NSDictionary *source = [self.source firstObject];
 	if (_bridge.imageLoader) {
         [_animatedImageOperation cancel];
@@ -426,6 +444,7 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
 	[self cancelImageLoad];
 	[self.layer removeAnimationForKey:@"contents"];
 	self.image = nil;
+    self.imageSourceUri = nil;
 }
 
 - (UIImage *) imageFromData:(NSData *)data {
@@ -520,6 +539,8 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
 	
 	__weak typeof(self) weakSelf = self;
 	void (^setImageBlock)(UIImage *) = ^(UIImage *image) {
+        weakSelf.pendingImageSourceUri = nil;
+        weakSelf.imageSourceUri = url;
 		if (image.hippyKeyframeAnimation) {
 			[weakSelf.layer addAnimation:image.hippyKeyframeAnimation forKey:@"contents"];
 		} else {
