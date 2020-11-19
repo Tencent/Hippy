@@ -361,7 +361,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)
     // probably just replace this with [self moduleForClass:self.executorClass]
     //HIPPY_PROFILE_BEGIN_EVENT(0, @"JavaScriptExecutor", nil);
     if (!_javaScriptExecutor) {
-        id<HippyJavaScriptExecutor> executorModule = [[self.executorClass alloc] initWithExecurotKey:self.executorKey];
+        id<HippyJavaScriptExecutor> executorModule = [[self.executorClass alloc] initWithExecurotKey:self.executorKey bridge:self];
         HippyModuleData *moduleData = [[HippyModuleData alloc] initWithModuleInstance:executorModule
                                                                                bridge:self];
         moduleDataByName[moduleData.name] = moduleData;
