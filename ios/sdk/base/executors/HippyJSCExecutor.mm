@@ -139,7 +139,13 @@ HIPPY_EXPORT_MODULE()
                     [deviceInfo addEntriesFromDictionary:customObjects];
                 }
             }
-            NSData *data = [NSJSONSerialization dataWithJSONObject:deviceInfo options:0 error:nil];
+            NSError *JSONSerializationError = nil;
+            NSData *data = [NSJSONSerialization dataWithJSONObject:deviceInfo options:0 error:&JSONSerializationError];
+            if (JSONSerializationError) {
+                NSString *errorString = [NSString stringWithFormat:@"device parse error:%@, deviceInfo:%@", [JSONSerializationError localizedFailureReason], deviceInfo];
+                NSError *error = HippyErrorWithMessageAndModuleName(errorString, strongSelf.bridge.moduleName);
+                HippyFatal(error);
+            }
             NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
             context->SetGlobalVar("__HIPPYNATIVEGLOBAL__", [string UTF8String]);
             context->SetGlobalVar("__fbBatchedBridgeConfig", [[strongSelf.bridge moduleConfig] UTF8String]);
@@ -359,6 +365,8 @@ HIPPY_EXPORT_METHOD(setContextName:(nonnull NSString *)contextName)
 #ifndef HIPPY_DEBUG
             @try {
 #endif
+                HippyBridge *bridge = [strongSelf bridge];
+                NSString *moduleName = [bridge moduleName];
                 NSError *executeError = nil;
                 id objcValue = nil;
                 std::shared_ptr<hippy::napi::Ctx> jsccontext = self.pScope->GetContext();
@@ -378,20 +386,20 @@ HIPPY_EXPORT_METHOD(setContextName:(nonnull NSString *)contextName)
                             jsc_resultValue = std::static_pointer_cast<hippy::napi::JSCCtxValue>(resultValue);
                         }
                         else {
-                            executeError = HippyErrorWithMessage([NSString stringWithFormat:@"%@ is not a function", method]);
+                            executeError = HippyErrorWithMessageAndModuleName([NSString stringWithFormat:@"%@ is not a function", method], moduleName);
                         }
                     }
                     else {
-                        executeError = HippyErrorWithMessage([NSString stringWithFormat:@"property/function %@ not found in __fbBatchedBridge", method]);
+                        executeError = HippyErrorWithMessageAndModuleName([NSString stringWithFormat:@"property/function %@ not found in __fbBatchedBridge", method], moduleName);
                     }
                 }
                 else {
-                    executeError = HippyErrorWithMessage(@"__fbBatchedBridge not found");
+                    executeError = HippyErrorWithMessageAndModuleName(@"__fbBatchedBridge not found", moduleName);
                 }
                 if (exception || executeError) {
                     if (exception) {
                         NSString *string = [NSString stringWithUTF8String:exception->c_str()];
-                        executeError = HippyErrorWithMessage(string);
+                        executeError = HippyErrorWithMessageAndModuleName(string, moduleName);
                     }
                 }
                 else if (jsc_resultValue) {
