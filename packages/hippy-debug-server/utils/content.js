@@ -27,7 +27,7 @@ function content(ctx, fullStaticPath) {
   let returns = '';
 
   if (!exist) {
-    returns = `${reqPath} is not found.`;
+    returns = null;
   } else {
     const stat = fs.statSync(reqPath);
 
