@@ -88,6 +88,10 @@ async function startDevServer(args) {
 
     // Read the file content from specific path
     const contentStr = content(ctx, staticPath);
+    if (!contentStr) {
+      ctx.res.writeHead(404);
+      return ctx.res.end();
+    }
     ctx.res.writeHead(200, {
       'Content-Type': parseMimeType(ctx.path),
     });
