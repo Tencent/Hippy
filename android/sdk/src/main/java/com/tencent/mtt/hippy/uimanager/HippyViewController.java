@@ -419,6 +419,13 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 			((CommonBorder) view).setBorderWidth(borderWidth, CommonBorder.BorderWidthDirection.ALL.ordinal());
 	}
 
+	@HippyControllerProps(name = NodeProps.BORDER_STYLES, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
+	public void setBorderStyle(T view, int borderStyle)
+	{
+		if (view instanceof CommonBorder)
+			((CommonBorder) view).setBorderStyle(borderStyle);
+	}
+
 	@HippyControllerProps(name = NodeProps.NEXT_FOCUS_DOWN_ID, defaultType = HippyControllerProps.BOOLEAN)
 	public void setNextFocusDownId(T view, int id)
 	{
