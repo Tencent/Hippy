@@ -276,8 +276,8 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
     if (source) {
         NSString *desiredImageSource = source[@"uri"];
   
-        return ![desiredImageSource isEqual:self.imageSourceUri] &&
-        ![desiredImageSource isEqual:self.pendingImageSourceUri];
+        return ![desiredImageSource isEqualToString:self.imageSourceUri] &&
+        ![desiredImageSource isEqualToString:self.pendingImageSourceUri];
     }
     return NO;
 }
