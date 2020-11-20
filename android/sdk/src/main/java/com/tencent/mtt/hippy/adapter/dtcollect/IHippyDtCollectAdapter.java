@@ -31,6 +31,12 @@ public interface IHippyDtCollectAdapter
 
     void setElementBizLeafIdentifier(Object object, String elementBizLeafId);
 
+    void setElementInteractPolicy(Object view, String param);
+
+    void setElementExposePolicy(Object view, String param);
+
+    void setElementEndExposePolicy(Object view, String param);
+
     void reportClickEvent(Object object);
 
     //page主动曝光

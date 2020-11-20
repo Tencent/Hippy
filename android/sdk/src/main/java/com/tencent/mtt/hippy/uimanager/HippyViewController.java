@@ -323,6 +323,40 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 		}
 	}
 
+	@HippyControllerProps(name = "dt_interactReportPolicy", defaultType = HippyControllerProps.STRING, defaultString = "")
+	public void setElementInteractPolicy(T view, String params)
+	{
+		if (mEngineContext != null) {
+			IHippyDtCollectAdapter collectAdapter = mEngineContext.getGlobalConfigs().getDtCollectAdapter();
+			if (collectAdapter != null) {
+				collectAdapter.setElementInteractPolicy(view, params);
+			}
+		}
+	}
+
+	@HippyControllerProps(name = "dt_exposureReportPolicy", defaultType = HippyControllerProps.STRING, defaultString = "")
+	public void setElementExposePolicy(T view, String params)
+	{
+		if (mEngineContext != null) {
+			IHippyDtCollectAdapter collectAdapter = mEngineContext.getGlobalConfigs().getDtCollectAdapter();
+			if (collectAdapter != null) {
+				collectAdapter.setElementExposePolicy(view, params);
+			}
+		}
+	}
+
+	@HippyControllerProps(name = "dt_endExposureReportPolicy", defaultType = HippyControllerProps.STRING, defaultString = "")
+	public void setElementEndExposePolicy(T view, String params)
+	{
+		if (mEngineContext != null) {
+			IHippyDtCollectAdapter collectAdapter = mEngineContext.getGlobalConfigs().getDtCollectAdapter();
+			if (collectAdapter != null) {
+				collectAdapter.setElementEndExposePolicy(view, params);
+			}
+		}
+	}
+
+
 	/** transform **/
 	@HippyControllerProps(name = NodeProps.TRANSFORM, defaultType = HippyControllerProps.ARRAY)
 	public void setTransform(T view, HippyArray transformArray)
