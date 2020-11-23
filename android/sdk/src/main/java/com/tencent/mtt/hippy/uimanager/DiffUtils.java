@@ -19,6 +19,7 @@ import static com.tencent.mtt.hippy.uimanager.HippyViewController.DT_EBLID;
 
 import android.text.TextUtils;
 
+import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
@@ -569,16 +570,27 @@ public class DiffUtils
 
 	public static void doPatch(ControllerManager controllerManager, List<PatchType> patches)
 	{
+		HippyEngineContext hippyContext = controllerManager.mContext;
+
 		for (PatchType pt : patches)
 		{
 			if (pt.mType == Patch.TYPE_PROPS)
 			{
 				PropsPatch propsPatch = (PropsPatch) pt.mPatch;
 				HippyMap propsToUpdate = propsPatch.mPropsToUpdate;
-				if (propsToUpdate.containsKey(DT_EBLID)) {
-					propsToUpdate.remove(DT_EBLID);
+				RenderNode node = hippyContext.getRenderManager().getRenderNode(propsPatch.mId);
+				if (node != null) {
+					HippyMap props = node.getProps();
+					if (node.mHasSetDteblId) {
+						if (propsToUpdate.containsKey(DT_EBLID)) {
+							propsToUpdate.remove(DT_EBLID);
+						}
+					} else if (props != null && props.containsKey(DT_EBLID)) {
+						propsToUpdate.pushString(DT_EBLID, props.getString(DT_EBLID));
+					}
 				}
-				controllerManager.updateView(propsPatch.mId, propsPatch.mClassName, propsPatch.mPropsToUpdate);
+
+				controllerManager.updateView(propsPatch.mId, propsPatch.mClassName, propsToUpdate);
 			}
 			else if (pt.mType == Patch.TYPE_LAYOUT)
 			{

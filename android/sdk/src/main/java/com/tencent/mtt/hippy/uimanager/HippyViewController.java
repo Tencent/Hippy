@@ -22,6 +22,7 @@ import android.os.Build;
 import android.os.Looper;
 import android.os.MessageQueue;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -284,7 +285,12 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 	{
 		if (mEngineContext != null) {
 			IHippyDtCollectAdapter collectAdapter = mEngineContext.getGlobalConfigs().getDtCollectAdapter();
+			RenderNode node = mEngineContext.getRenderManager().getRenderNode(view.getId());
 			if (collectAdapter != null) {
+				if (node != null) {
+					node.mHasSetDteblId = true;
+				}
+
 				collectAdapter.setElementBizLeafIdentifier(view, elementBizLeafId);
 			}
 		}

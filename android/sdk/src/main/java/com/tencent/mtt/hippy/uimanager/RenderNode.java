@@ -66,6 +66,8 @@ public class RenderNode
 
 	boolean				mNotifyManageChildren	= false;
 
+	boolean             mHasSetDteblId          = false;
+
 	List<UIFunction>	mUIFunction				= null;
 
 	public RenderNode getParent()
