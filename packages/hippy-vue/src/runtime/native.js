@@ -173,7 +173,9 @@ const Native = {
       // Assume false in most cases.
       let isIPhoneX = false;
       if (Native.Platform === 'ios') {
-        isIPhoneX = Native.Dimensions.screen.statusBarHeight === 44;
+        // iOS12 - iPhone11: 48 Phone12/12 pro/12 pro max: 47 other: 44
+        const statusBarHeightList = [44, 47, 48];
+        isIPhoneX = statusBarHeightList.indexOf(Native.Dimensions.screen.statusBarHeight) > -1;
       }
       CACHE.isIPhoneX = isIPhoneX;
     }
