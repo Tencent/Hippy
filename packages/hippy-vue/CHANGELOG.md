@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.1.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.1.1...2.1.2) (2020-11-23)
+
+
+### Features
+
+* **hippy-vue:** added iOS12 statusBarHeight ([d33e993](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/d33e993b72b3627e3fd73e5f5e08d8c34d4ee23d))
+* **hippy-vue, hippy-react:** changeTryConvertNumberCompatibility ([714faaf](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/714faaf11988659b450a3276342597b7ed095a17))
+
+
+
+
+
 ## [2.1.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.1.0...2.1.1) (2020-11-11)
 
 
