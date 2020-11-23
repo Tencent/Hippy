@@ -11,6 +11,14 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [2.1.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-native-components/compare/2.1.1...2.1.2) (2020-11-23)
+
+**Note:** Version bump only for package @hippy/vue-native-components
+
+
+
+
+
 ## [2.1.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-native-components/compare/2.1.0...2.1.1) (2020-11-11)
 
 
