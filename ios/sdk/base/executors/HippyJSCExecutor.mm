@@ -306,7 +306,7 @@ static void installBasicSynchronousHooksOnContext(JSContext *context)
     return _executorkey?:[NSString stringWithFormat:@"%p", self];
 }
 
-HIPPY_EXPORT_METHOD(setContextName:(nonnull NSString *)contextName)
+HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName)
 {
     [self executeBlockOnJavaScriptQueue:^{
         [[self JSContext] setName:contextName];
