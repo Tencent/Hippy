@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.1.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.1.1...2.1.2) (2020-11-23)
+
+
+### Features
+
+* **hippy-vue, hippy-react:** changeTryConvertNumberCompatibility ([714faaf](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/714faaf11988659b450a3276342597b7ed095a17))
+
+
+
+
+
 ## [2.1.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.1.0...2.1.1) (2020-11-11)
 
 
