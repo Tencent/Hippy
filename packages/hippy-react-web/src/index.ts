@@ -32,6 +32,18 @@ const Dimensions = {
   get(name: 'window' | 'screen') {
     return Device[name];
   },
+  set(dimensions: { window?: typeof Device['window']; screen?: typeof Device['screen'] }) {
+    if (typeof window === 'object') {
+      console.error('Dimensions cannot be set in the browser');
+      return;
+    }
+    if (dimensions.window) {
+      Device.window = dimensions.window;
+    }
+    if (dimensions.screen) {
+      Device.screen = dimensions.screen;
+    }
+  },
 };
 
 const PixelRatio = {
@@ -40,7 +52,7 @@ const PixelRatio = {
   },
 };
 
-const AsyncStorage = localStorage;
+const AsyncStorage = typeof window === 'object' ? localStorage : null;
 const ImageBackground = Image;
 
 export default HippyReact;
