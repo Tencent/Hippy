@@ -31,6 +31,9 @@ import java.util.List;
 public class HippyViewPagerAdapter extends ViewPagerAdapter
 {
 	private static final String		TAG				= "HippyViewPagerAdapter";
+	private static final int MIN_LOOP_SIZE = 4;
+  private static final int LOOP_COUNT_FACTOR = 1000;
+  private static final int INIT_ITEM_FACTOR = 100;
 
 	protected List<View>			mViews			= new ArrayList<View>();
 
@@ -41,12 +44,22 @@ public class HippyViewPagerAdapter extends ViewPagerAdapter
 
 	protected HippyViewPager		mViewPager;
 
+	private boolean mLoop;
+
 
 	public HippyViewPagerAdapter(HippyInstanceContext context, HippyViewPager viewPager)
 	{
 		mEngineContext = context;
 		mViewPager = viewPager;
 	}
+
+  protected void setLoop(boolean loop) {
+    mLoop = loop;
+  }
+
+  private boolean enableLoop() {
+    return mLoop && getItemViewSize() >= MIN_LOOP_SIZE;
+  }
 
 	public void setChildSize(int size)
 	{
@@ -115,11 +128,13 @@ public class HippyViewPagerAdapter extends ViewPagerAdapter
 		return mViews == null ? 0 : mViews.size();
 	}
 
-	@Override
-	public int getCount()
-	{
-		return mChildSize;
-	}
+  @Override
+  public int getCount() {
+    if (enableLoop()) {
+      return mChildSize * LOOP_COUNT_FACTOR;
+    }
+    return mChildSize;
+  }
 
 	@Override
 	public int getItemPosition(Object object)
@@ -139,6 +154,8 @@ public class HippyViewPagerAdapter extends ViewPagerAdapter
 	@Override
 	public Object instantiateItem(ViewGroup container, int position)
 	{
+	  position = tryToUpdatePos(position);
+
 		View viewWrapper = null;
 		if (mViews != null && position < mViews.size())
 		{
@@ -158,11 +175,20 @@ public class HippyViewPagerAdapter extends ViewPagerAdapter
 		return viewWrapper;
 	}
 
-	@Override
-	public int getInitialItemIndex()
-	{
-		return mInitPageIndex;
-	}
+  private int tryToUpdatePos(int position) {
+    if (enableLoop()) {
+      return position % getItemViewSize();
+    }
+    return position;
+  }
+
+  @Override
+  public int getInitialItemIndex() {
+    if (enableLoop()) {
+      return mInitPageIndex + getItemViewSize() * INIT_ITEM_FACTOR;
+    }
+    return mInitPageIndex;
+  }
 
 	@Override
 	public void destroyItem(ViewGroup container, int position, Object object)
