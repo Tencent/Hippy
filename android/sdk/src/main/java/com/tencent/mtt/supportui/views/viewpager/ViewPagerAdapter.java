@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 public abstract class ViewPagerAdapter
 {
 	private DataSetObservable mObservable			= new DataSetObservable();
+	private float mPageSize = 1.f;
 
 	public static final int		POSITION_UNCHANGED	= -1;
 	public static final int		POSITION_NONE		= -2;
@@ -301,7 +302,12 @@ public abstract class ViewPagerAdapter
 	 */
 	public float getPageSize(int position)
 	{
-		return 1.f;
+		return mPageSize;
+	}
+
+	public void setPageSize(float pageSize)
+	{
+		mPageSize = pageSize;
 	}
 
 	public View getTab(int index)
