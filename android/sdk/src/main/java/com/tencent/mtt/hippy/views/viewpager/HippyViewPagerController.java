@@ -138,6 +138,22 @@ public class HippyViewPagerController extends HippyViewController<HippyViewPager
 	{
 		pager.setOverflow(overflow);
 	}
+
+  @HippyControllerProps(name = "pageSize", defaultNumber = 1.f, defaultType = HippyControllerProps.NUMBER)
+  public void setPageSize(HippyViewPager pager, float pageSize) {
+    pager.getAdapter().setPageSize(pageSize);
+  }
+
+  @HippyControllerProps(name = "loop", defaultBoolean = false, defaultType = HippyControllerProps.BOOLEAN)
+  public void loop(HippyViewPager pager, boolean loop) {
+    pager.getAdapter().setLoop(loop);
+  }
+
+  @HippyControllerProps(name = "middlePageOffset", defaultNumber = Float.MAX_VALUE, defaultType = HippyControllerProps.NUMBER)
+  public void setMiddlePageOffset(HippyViewPager pager, float middlePageOffset) {
+    pager.middlePageOffset = PixelUtil.dp2px(middlePageOffset);
+  }
+
 	@Override
 	public void dispatchFunction(HippyViewPager view, String functionName, HippyArray var)
 	{

@@ -220,6 +220,10 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 	/* private */ int									mDrawingOrder;
 	/* private */ ArrayList<View>						mDrawingOrderedChildren;
 	/* private */static final ViewPositionComparator	sPositionComparator				= new ViewPositionComparator();
+
+  public float middlePageOffset = Float.MAX_VALUE;
+
+
 	/**
 	 * Indicates that the pager is in an idle, settled state. The current page
 	 * is fully in view and no animation is in progress.
@@ -803,6 +807,18 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 		{
 			final int size = getClientSize();
 			dest = (int) (size * Math.max(mFirstOffset, Math.min(curInfo.offset, mLastOffset)));
+
+      if (curInfo.position >= 1 && curInfo.position < mAdapter.getCount() - 1) {
+        if (Float.compare(middlePageOffset, Float.MAX_VALUE) == 0) {
+          dest -= mPageMargin + (int) ((size - (mAdapter.getPageSize(curInfo.position) * size + 2 * mPageMargin)) / 2);
+        } else {
+          dest -= middlePageOffset;
+        }
+      }
+
+      if (curInfo.position >= mAdapter.getCount() - 1) {
+        dest += mPageMargin;
+      }
 		}
 		if (smoothScroll)
 		{
