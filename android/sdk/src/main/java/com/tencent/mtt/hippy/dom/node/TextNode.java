@@ -702,7 +702,7 @@ public class TextNode extends StyleNode
 		}
 		else
 		{
-			layout = new StaticLayout(text, textPaint, (int) width, mTextAlign, 1.f, 0.f, true);
+			layout = new StaticLayout(text, textPaint, (int) Math.ceil(width), mTextAlign, 1.f, 0.f, true);
 		}
 		if (mNumberOfLines != UNSET && mNumberOfLines > 0)
 		{
