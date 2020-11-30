@@ -4,6 +4,7 @@ import React from 'react';
 import Style from '@localTypes/style';
 import { LayoutableProps, ClickableProps } from '../types';
 import { unicodeToChar } from '../utils';
+import { Device } from '../global';
 
 interface TextProps extends LayoutableProps, ClickableProps {
   /**
@@ -80,6 +81,13 @@ function Text({ style, ...nativeProps }: TextProps) {
       nativeProps.text = unicodeToChar(text);
       nativeProps.children = nativeProps.text;
     }
+  }
+
+  if (
+    (__PLATFORM__ === 'android' || Device.platform.OS === 'android')
+    && (typeof nativeProps.key !== 'string' && typeof nativeProps.key !== 'number')
+  ) {
+    nativeProps.key = nativeProps.text;
   }
 
   return (
