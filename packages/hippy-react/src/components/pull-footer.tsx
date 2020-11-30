@@ -37,14 +37,14 @@ class PullFooter extends React.Component<PullFooterProps, {}> {
    * Expand the PullView and display the content
    */
   expandPullFooter() {
-    callUIFunction(this.instance, 'expandPullFooter');
+    callUIFunction(this.instance, 'expandPullFooter', []);
   }
 
   /**
    * Collapse the PullView and hide the content
    */
   collapsePullFooter() {
-    callUIFunction(this.instance, 'collapsePullFooter');
+    callUIFunction(this.instance, 'collapsePullFooter', []);
   }
 
   render() {
