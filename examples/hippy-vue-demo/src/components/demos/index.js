@@ -8,6 +8,7 @@ import demoTextarea from './demo-textarea.vue';
 import demoList from './demo-list.vue';
 import demoIFrame from './demo-iframe.vue';
 import demoWebSocket from './demo-websocket.vue';
+import demoSetNativeProps from './demo-set-native-props.vue';
 
 const demos = {
   demoDiv: {
@@ -49,6 +50,10 @@ const demos = {
   demoWebSocket: {
     name: 'WebSocket',
     component: demoWebSocket,
+  },
+  demoSetNativeProps: {
+    name: 'setNativeProps',
+    component: demoSetNativeProps,
   },
 };
 

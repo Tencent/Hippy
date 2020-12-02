@@ -132,6 +132,14 @@ export default [
     },
   },
   {
+    path: '/SetNativeProps',
+    name: 'setNativeProps能力',
+    component: PAGE_LIST.SetNativeProps,
+    meta: {
+      style: 1,
+    },
+  },
+  {
     path: '/WebSocket',
     name: 'WebSocket 模块',
     component: PAGE_LIST.WebSocket,
