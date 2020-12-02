@@ -3,7 +3,6 @@
 if ! git lfs help 1>/dev/null 2>&1 ; then
     echo ''
     echo "You should intall LFS first!"
-    echo "Please following instructions on 'http://tapd.oa.com/QB/markdown_wikis/view/#1010110511006951537'"
     exit 1
 fi
 
