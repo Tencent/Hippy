@@ -183,7 +183,6 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
      * right 到右边的距离
      * top 到上边的距离
      * botttom 到下边的距离
-     * 修复:https://git.code.oa.com/hippy/hippy/issues/23
      * Robinsli
      * */
 	public void setNinePatchCoordinate(boolean shouldClearNinePatch, int left, int top, int right, int botttom)

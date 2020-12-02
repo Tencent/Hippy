@@ -125,7 +125,6 @@ public class RefreshWrapper extends HippyViewGroup
 	public boolean dispatchTouchEvent(MotionEvent event)
 	{
 		/**
-		 * 解决bug：https://git.code.oa.com/hippy/hippy/issues/70
 		 * 如果一个页面用RefreshWrapper包含ViewPager，横向滑动很容易触发下拉刷新。
 		 */
         float nowMoveY = event.getRawY();

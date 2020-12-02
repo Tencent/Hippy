@@ -37,6 +37,42 @@ test('Element.setAttribute("caretColor") test', (t) => {
   t.is(caretColorNode.attributes['caret-color'], 4289379276);
 });
 
+test('Element.setNativeProps test', (t) => {
+  const node = new ElementNode('p');
+  node.setNativeProps({ abc: 'abc' });
+  t.is(node.style.abc, 'abc');
+  node.setNativeProps({ style: { abc: 'abc' } });
+  t.is(node.style.abc, 'abc');
+  node.setNativeProps({ bcd: '123' });
+  t.is(node.style.bcd, 123);
+  node.setNativeProps({ style: { bcd: '123' } });
+  t.is(node.style.bcd, 123);
+  node.setNativeProps({ fontWeight: '100' });
+  t.is(node.style.fontWeight, '100');
+  node.setNativeProps({ style: { fontWeight: '100' } });
+  t.is(node.style.fontWeight, '100');
+  node.setNativeProps({ fontWeight: 200 });
+  t.is(node.style.fontWeight, '200');
+  node.setNativeProps({ style: { fontWeight: 200 } });
+  t.is(node.style.fontWeight, '200');
+  node.setNativeProps({ fontWeight: 'bold' });
+  t.is(node.style.fontWeight, 'bold');
+  node.setNativeProps({ style: { fontWeight: 'bold' } });
+  t.is(node.style.fontWeight, 'bold');
+  node.setNativeProps({ width: '100px' });
+  t.is(node.style.width, 100);
+  node.setNativeProps({ style: { width: '100px' } });
+  t.is(node.style.width, 100);
+  node.setNativeProps({ height: '100.201px' });
+  t.is(node.style.height, 100.201);
+  node.setNativeProps({ cde: {} });
+  t.deepEqual(node.style.cde, {});
+  node.setNativeProps({ caretColor: '#abcdef' });
+  t.is(node.attributes['caret-color'], 4289449455);
+  node.setNativeProps({ style: { caretColor: '#abcdef' } });
+  t.is(node.attributes['caret-color'], 4289449455);
+});
+
 test('Element.hasAttribute test', (t) => {
   const testNode = new ElementNode('div');
   const key = 'test';
