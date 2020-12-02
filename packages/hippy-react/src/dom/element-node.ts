@@ -290,14 +290,13 @@ class ElementNode extends ViewNode {
   setNativeProps(nativeProps: NativePropsStyle) {
     if (nativeProps) {
       const { style } = nativeProps;
-      let styleProps = nativeProps;
       if (style) {
-        styleProps = (style as NativePropsStyle);
+        const styleProps = (style as NativePropsStyle);
+        Object.keys(styleProps).forEach((key) => {
+          this.setStyle(key, styleProps[key], true);
+        });
+        updateChild(this);
       }
-      Object.keys(styleProps).forEach((key) => {
-        this.setStyle(key, styleProps[key], true);
-      });
-      updateChild(this);
     }
   }
 
