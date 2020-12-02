@@ -26,27 +26,35 @@ export default {
     onTouchDown1(evt) {
       evt.stopPropagation();
       const position = evt.touches[0].clientX - 40;
+      /* eslint-disable-next-line no-console */
       console.log('touchdown x', position, this.screenWidth);
       this.demon1Point.setNativeProps({
-        left: position,
+        style: {
+          left: position,
+        },
       });
     },
     onTouchMove1(evt) {
       evt.stopPropagation();
       const position = evt.touches[0].clientX - 40;
+      /* eslint-disable-next-line no-console */
       console.log('touchmove x', position, this.screenWidth);
       this.demon1Point.setNativeProps({
-        left: position,
+        style: {
+          left: position,
+        },
       });
     },
     onTouchDown2(evt) {
       evt.stopPropagation();
       this.demon2Left = evt.touches[0].clientX - 40;
+      /* eslint-disable-next-line no-console */
       console.log('touchdown x', this.demon2Left, this.screenWidth);
     },
     onTouchMove2(evt) {
       evt.stopPropagation();
       this.demon2Left = evt.touches[0].clientX - 40;
+      /* eslint-disable-next-line no-console */
       console.log('touchmove x', this.demon2Left, this.screenWidth);
     },
   },
