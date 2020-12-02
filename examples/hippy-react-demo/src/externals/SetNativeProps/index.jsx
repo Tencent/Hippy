@@ -77,7 +77,9 @@ export default class SetNativePropsDemo extends React.Component {
     console.log('touchdown x', pageX, position, screenWidth);
     if (this.demo1PointDom) {
       this.demo1PointDom.setNativeProps({
-        left: position,
+        style: {
+          left: position,
+        },
       });
     }
   }

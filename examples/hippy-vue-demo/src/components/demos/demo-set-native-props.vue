@@ -40,7 +40,9 @@ export default {
       /* eslint-disable-next-line no-console */
       console.log('touchmove x', position, this.screenWidth);
       this.demon1Point.setNativeProps({
-        left: position,
+        style: {
+          left: position,
+        },
       });
     },
     onTouchDown2(evt) {
