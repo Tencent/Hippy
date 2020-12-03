@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.1.4](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/compare/2.1.3...2.1.4) (2020-12-03)
+
+
+### Bug Fixes
+
+* **hippy-react-web:** suppress childContextTypes warning ([#431](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/issues/431)) ([4a7ba66](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/commit/4a7ba66fc7ada2ba0f4010ab49b4e24d1886bca2))
+
+
+### Features
+
+* **hippy-vue,hippy-react:** perf setNativeProps ([5cd1291](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/commit/5cd12910262ad3bb15d07c2dc974a829958a2b86))
+* support isomorphic rendering ([#415](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/issues/415)) ([c131734](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/commit/c1317348bab9d38990decf7d39f0631d807ab9a5))
+
+
+
+
+
 ## [2.1.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/compare/2.1.1...2.1.2) (2020-11-23)
 
 **Note:** Version bump only for package @hippy/react-web

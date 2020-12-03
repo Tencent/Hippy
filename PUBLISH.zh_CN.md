@@ -22,20 +22,8 @@ lerna version [VERSION] --conventional-commits --tag-version-prefix='' --no-push
 lerna 生成版本号和 CHANGELOG 后，需要回退一下版本，所有发布改动需要合并到一个 commit 中。
 
 ```bash
-git rebase -i HEAD^
+git reset --soft HEAD^
 ```
-
-进入 vim 或者编辑器后选择最后一个版本的 commit，并将要修改的 `pick` 修改成 `edit`，如果是 vim 则输入 `:` 并输入 `wq` 保存退出 vim。
-
-此时进入 rebase 状态。
-
-首先需要更新一下 commit message，因为自动生成的无法通过自动代码检查。
-
-```bash
-git commit --amend -S
-```
-
-输入符合 [Convention Commit](https://conventionalcommits.org/) 规范的 commit message，版本发布一般推荐使用：`chore(release): released [VERSION]` 这样的 commit message。
 
 同时删除 tag，一会儿更新后需要重新生成 tag
 
@@ -90,10 +78,13 @@ git status
 
 ```bash
 git add [FILES]
-git rebase --continue
 ```
 
-会结束 rebase 状态，然后再次检查 commit 中的内容正确。
+输入符合 [Convention Commit](https://conventionalcommits.org/) 规范的 commit message
+
+```bash
+git commit -m 'chore(release): released [VERSION]'
+```
 
 打上 tag
 
@@ -135,4 +126,4 @@ git push --tags # 提交 tag
   > 如果发布时参数检查失败，可以在`pod`命令前面加上 `COCOAPODS_VALIDATOR_SKIP_XCODEBUILD=1` 参数
 
 * Android 发布到 [bintray](https://bintray.com/beta/#/hippy/Hippy/hippy-release?tab=overview)
- 在 Android Studio 中打开 `examples/android-demo` 项目，在`local.properties`添加`bintrayUser=[user]`和`bintrayKey=[key]`，其中`[user]`和`[key]` 分别对应用户在bintray的 `账号名`和 `API key` ，添加完后字旁边的 Gradle 面板中运行 `android-demo` > `android-sdk` > `publishing` > `:android-sdk:bintrayUpload` 即可发布.
+ 在 Android Studio 中打开 `examples/android-demo` 项目，在`local.properties`添加`bintrayUser=[user]`和`bintrayKey=[key]`，其中`[user]`和`[key]` 分别对应用户在bintray的 `账号名`和 `API key` ，添加完后字旁边的 Gradle 面板中运行 `android-demo` > `android-sdk` > `publishing` > `:android-sdk:bintrayUpload` 即可发布。
