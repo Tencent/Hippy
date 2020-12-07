@@ -1,6 +1,6 @@
 # setNativeProps
 
-在做一些高频动画效果时由于需要经历JS层的多次重新渲染，会出现滞后卡顿的现象，`setNativeProps`提供了`ElementNode`下"简单粗暴"的方法直接修改终端原生组件的样式来优化性能。P.S. 可能产生的数据同步等逻辑上的副作用需要业务自行解决
+在做一些高频动画效果时由于需要经历JS层的多次重新渲染，会出现滞后卡顿的现象，`setNativeProps`提供了`ElementNode`下"简单粗暴"的方法直接修改终端原生组件的样式来优化性能，该方法目前只能修改 `style` 样式，其余属性暂不支持。P.S. 可能产生的数据同步等逻辑上的副作用需要业务自行解决
 
 ## React
 
@@ -17,7 +17,7 @@
     componentDidMount() {
        const customElementDom = UIManagerModule.getElementFromFiberRef(this.customComRef);
        customElementDom.setNativeProps({
-         height: 100
+         style: { height: 100 }
        })
     }
    render() {
