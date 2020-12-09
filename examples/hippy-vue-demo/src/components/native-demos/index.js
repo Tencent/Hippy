@@ -3,6 +3,7 @@ import demoVueNative from './demo-vue-native.vue';
 import demoAnimation from './demo-animation.vue';
 import demoDialog from './demo-dialog.vue';
 import demoSwiper from './demo-swiper.vue';
+import demoSwiperExtension from './demo-swiper-extension.vue';
 import demoPullHeader from './demo-pull-header.vue';
 import demoPullFooter from './demo-pull-footer.vue';
 import demoSetNativeProps from '../demos/demo-set-native-props.vue';
@@ -26,6 +27,10 @@ if (Vue.Native) {
     demoSwiper: {
       name: 'swiper 组件',
       component: demoSwiper,
+    },
+    demoLoopSwiper: {
+      name: 'swiper 组件扩展',
+      component: demoSwiperExtension,
     },
     demoPullHeader: {
       name: 'pull-header 下拉组件',

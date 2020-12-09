@@ -1,5 +1,3 @@
-
-
 import * as components from './components';
 import * as modules from './modules';
 import * as externals from './externals';
@@ -87,6 +85,14 @@ export default [
     path: '/ViewPager',
     name: 'ViewPager 组件',
     component: PAGE_LIST.ViewPager,
+    meta: {
+      style: 1,
+    },
+  },
+  {
+    path: '/ViewPagerExtension',
+    name: 'ViewPager 组件扩展',
+    component: PAGE_LIST.ViewPagerExtension,
     meta: {
       style: 1,
     },
