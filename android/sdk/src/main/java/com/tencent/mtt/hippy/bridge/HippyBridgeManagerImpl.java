@@ -112,9 +112,9 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 					final com.tencent.mtt.hippy.common.Callback<Boolean> callback = (com.tencent.mtt.hippy.common.Callback<Boolean>) msg.obj;
 					try
 					{
-						mHippyBridge = new HippyBridgeImpl(mContext.getGlobalConfigs().getContext(), HippyBridgeManagerImpl.this,
+						mHippyBridge = new HippyBridgeImpl(mContext, HippyBridgeManagerImpl.this,
 								mBridgeType == BRIDGE_TYPE_SINGLE_THREAD, !mEnableHippyBuffer, this.mIsDevModule, this.mDebugServerHost);
-
+						
 						mHippyBridge.initJSBridge(getGlobalConfigs(), new NativeCallback(mHandler) {
 							@Override
 							public void Call(long value, Message msg, String action) {

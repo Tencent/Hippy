@@ -15,20 +15,13 @@
  */
 package com.tencent.mtt.hippy.bridge.bundleloader;
 
-import static com.tencent.mtt.hippy.bridge.HippyBridge.URI_SCHEME_FILE;
-
 import android.text.TextUtils;
 import com.tencent.mtt.hippy.bridge.HippyBridge;
 import com.tencent.mtt.hippy.bridge.NativeCallback;
 
-/**
- * FileName: HippyFileBundleLoader
- * Description：
- * History：
- */
-public class HippyFileBundleLoader implements HippyBundleLoader
+public class HippyRemoteBundleLoader implements HippyBundleLoader
 {
-	String			mFilePath;
+	String			mUrl;
 
 	boolean         mIsDebugMode = false;
 
@@ -36,20 +29,18 @@ public class HippyFileBundleLoader implements HippyBundleLoader
 
 	private String	mCodeCacheTag;
 
-	public HippyFileBundleLoader(String filePath)
+	public HippyRemoteBundleLoader(String url)
 	{
-		this(filePath, false, "");
+		this(url, false, "");
 	}
 
-	public HippyFileBundleLoader(String filePath, boolean canUseCodeCache, String codeCacheTag)
-	{
-		this.mFilePath = filePath;
+	public HippyRemoteBundleLoader(String url, boolean canUseCodeCache, String codeCacheTag) {
+		this.mUrl = url;
 		this.mCanUseCodeCache = canUseCodeCache;
 		this.mCodeCacheTag = codeCacheTag;
 	}
 
-	public void setCodeCache(boolean canUseCodeCache, String codeCacheTag)
-	{
+	public void setCodeCache(boolean canUseCodeCache, String codeCacheTag) {
 		this.mCanUseCodeCache = canUseCodeCache;
 		this.mCodeCacheTag = codeCacheTag;
 	}
@@ -61,28 +52,20 @@ public class HippyFileBundleLoader implements HippyBundleLoader
 	@Override
 	public boolean load(HippyBridge bridge, NativeCallback callback)
 	{
-		if (TextUtils.isEmpty(mFilePath)) {
+		if (TextUtils.isEmpty(mUrl)) {
 			return false;
 		}
 
-		String uri = getPath();
-		return bridge.runScriptFromUri(uri, null, mCanUseCodeCache, mCodeCacheTag, callback);
-		//return bridge.runScriptFromFile(mFilePath, mFilePath,mCanUseCodeCache,mCodeCacheTag, callback);
+		return bridge.runScriptFromUri(mUrl, null, mCanUseCodeCache, mCodeCacheTag, callback);
 	}
 
 	@Override
-	public String getPath()
-	{
-		if (mFilePath != null && !mFilePath.startsWith(URI_SCHEME_FILE))
-			return URI_SCHEME_FILE + mFilePath;
-		else
-			return mFilePath;
-	}
+	public String getPath() { return mUrl; }
 
 	@Override
 	public String getRawPath()
 	{
-		return mFilePath;
+		return mUrl;
 	}
 
 	@Override
@@ -102,6 +85,5 @@ public class HippyFileBundleLoader implements HippyBundleLoader
 	{
 		return mCodeCacheTag;
 	}
-
 
 }
