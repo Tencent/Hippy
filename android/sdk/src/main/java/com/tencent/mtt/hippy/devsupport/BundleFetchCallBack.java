@@ -16,6 +16,7 @@
 package com.tencent.mtt.hippy.devsupport;
 
 import java.io.File;
+import java.io.InputStream;
 
 /**
  * @author: edsheng
@@ -25,6 +26,8 @@ import java.io.File;
 
 public interface BundleFetchCallBack {
     void onSuccess(File file);
+
+    void onSuccess(InputStream inputStream);
 
     void onFail(Exception exception);
 }

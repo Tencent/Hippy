@@ -27,11 +27,16 @@ import com.tencent.mtt.hippy.common.HippyArray;
  */
 public interface HippyBridge
 {
+	static final String URI_SCHEME_ASSETS = "asset:";
+	static final String URI_SCHEME_FILE   = "file:";
+
 	public void initJSBridge(String gobalConfig, NativeCallback callback, int groupId);
 
 	public boolean runScriptFromFile(String filePath, String scriptName, boolean canUseCodeCache, String codeCacheTag, NativeCallback callback);
 
 	public boolean runScriptFromAssets(String fileName, AssetManager assetManager, boolean canUseCodeCache, String codeCacheTag, NativeCallback callback);
+
+	public boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache, String codeCacheTag, NativeCallback callback);
 
 	public void destroy(NativeCallback callback);
 
