@@ -17,104 +17,48 @@
       <Configuration>Release</Configuration>
       <Platform>ARM64</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug|x64">
-      <Configuration>Debug</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|x64">
-      <Configuration>Release</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug|x86">
-      <Configuration>Debug</Configuration>
-      <Platform>x86</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|x86">
-      <Configuration>Release</Configuration>
-      <Platform>x86</Platform>
-    </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="code-cache-runnable.cc" />
-    <ClCompile Include="code-cache-sanity-check.cc" />
-    <ClCompile Include="com_tencent_mtt_hippy_bridge_HippyBridgeImpl.cc" />
-    <ClCompile Include="core\base\logging.cc" />
-    <ClCompile Include="core\base\task.cc" />
-    <ClCompile Include="core\base\task-runner.cc" />
-    <ClCompile Include="core\base\thread.cc" />
-    <ClCompile Include="core\base\thread-id.cc" />
-    <ClCompile Include="core\engine-impl.cc" />
-    <ClCompile Include="core\engine.cc" />
-    <ClCompile Include="core\environment.cc" />
-    <ClCompile Include="core\javascript-loader.cc" />
-    <ClCompile Include="core\napi\callback-info.cc" />
-    <ClCompile Include="core\napi\v8\native-source-code-android.cc" />
-    <ClCompile Include="core\platform\logging-impl.cc" />
-    <ClCompile Include="core\task\javascript-task-runner.cc" />
-    <ClCompile Include="core\task\javascript-task.cc" />
-    <ClCompile Include="core\modules\console-module.cc" />
-    <ClCompile Include="core\modules\contextify-module.cc" />
-    <ClCompile Include="core\modules\module-register.cc" />
-    <ClCompile Include="core\modules\timer-module.cc" />
-    <ClCompile Include="core\napi\v8\js-native-api-v8.cc" />
-    <ClCompile Include="core\napi\v8\js-native-api-value-v8.cc" />
-    <ClCompile Include="exception-handler.cc" />
-    <ClCompile Include="hippy-buffer.cc" />
-    <ClCompile Include="hippy-native-global.cc" />
-    <ClCompile Include="inspector\v8-channel-impl.cc" />
-    <ClCompile Include="inspector\v8-inspector-client-impl.cc" />
-    <ClCompile Include="jni-env.cc" />
-    <ClCompile Include="jni-utils.cc" />
-    <ClCompile Include="runtime.cc" />
-    <ClCompile Include="scoped-java-ref.cc" />
-    <ClCompile Include="third_party\md5.cc" />
+    <None Include=".clang-format" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="code-cache-runnable.h" />
-    <ClInclude Include="code-cache-sanity-check.h" />
-    <ClInclude Include="com_tencent_mtt_hippy_bridge_HippyBridgeImpl.h" />
-    <ClInclude Include="core\base\lock-queue.h" />
-    <ClInclude Include="core\base\logging.h" />
-    <ClInclude Include="core\base\task.h" />
-    <ClInclude Include="core\base\task-runner.h" />
-    <ClInclude Include="core\base\thread.h" />
-    <ClInclude Include="core\base\thread-id.h" />
-    <ClInclude Include="core\engine-impl.h" />
-    <ClInclude Include="core\engine.h" />
-    <ClInclude Include="core\environment.h" />
-    <ClInclude Include="core\javascript-loader.h" />
-    <ClInclude Include="core\modules\js-value-helper.h" />
-    <ClInclude Include="core\modules\module-base.h" />
-    <ClInclude Include="core\napi\callback-info.h" />
-    <ClInclude Include="core\napi\native-source-code.h" />
-    <ClInclude Include="core\platform\logging-impl.h" />
-    <ClInclude Include="core\task\javascript-task-runner.h" />
-    <ClInclude Include="core\task\javascript-task.h" />
-    <ClInclude Include="core\modules\console-module.h" />
-    <ClInclude Include="core\modules\contextify-module.h" />
-    <ClInclude Include="core\modules\module-register.h" />
-    <ClInclude Include="core\modules\timer-module.h" />
-    <ClInclude Include="core\napi\js-native-api.h" />
-    <ClInclude Include="core\napi\js-native-api-types.h" />
-    <ClInclude Include="core\napi\v8\js-native-api-v8.h" />
-    <ClInclude Include="core\base\macros.h" />
-    <ClInclude Include="exception-handler.h" />
-    <ClInclude Include="hippy-buffer.h" />
-    <ClInclude Include="hippy-native-global.h" />
-    <ClInclude Include="inspector\v8-channel-impl.h" />
-    <ClInclude Include="inspector\v8-inspector-client-impl.h" />
-    <ClInclude Include="jni-env.h" />
-    <ClInclude Include="jni-utils.h" />
-    <ClInclude Include="runtime.h" />
-    <ClInclude Include="scoped-java-ref.h" />
-    <ClInclude Include="third_party\md5.h" />
+    <ClCompile Include="src\inspector\v8_channel_impl.cc" />
+    <ClCompile Include="src\inspector\v8_inspector_client_impl.cc" />
+    <ClCompile Include="src\jni\com_tencent_mtt_hippy_bridge_HippyBridgeImpl.cc" />
+    <ClCompile Include="src\jni\exception_handler.cc" />
+    <ClCompile Include="src\jni\hippy_buffer.cc" />
+    <ClCompile Include="src\jni\jni_env.cc" />
+    <ClCompile Include="src\jni\jni_utils.cc" />
+    <ClCompile Include="src\jni\runtime.cc" />
+    <ClCompile Include="src\jni\scoped_java_ref.cc" />
+    <ClCompile Include="src\jni\uri.cc" />
+    <ClCompile Include="src\loader\adr_loader.cc" />
+    <ClCompile Include="src\loader\asset_loader.cc" />
+    <ClCompile Include="src\loader\file_loader.cc" />
+    <ClCompile Include="src\loader\http_loader.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\hippy.h" />
+    <ClInclude Include="include\inspector\v8_channel_impl.h" />
+    <ClInclude Include="include\inspector\v8_inspector_client_impl.h" />
+    <ClInclude Include="include\jni\com_tencent_mtt_hippy_bridge_HippyBridgeImpl.h" />
+    <ClInclude Include="include\jni\exception_handler.h" />
+    <ClInclude Include="include\jni\hippy_buffer.h" />
+    <ClInclude Include="include\jni\jni_env.h" />
+    <ClInclude Include="include\jni\jni_utils.h" />
+    <ClInclude Include="include\jni\runtime.h" />
+    <ClInclude Include="include\jni\scoped_java_ref.h" />
+    <ClInclude Include="include\jni\uri.h" />
+    <ClInclude Include="include\loader\adr_loader.h" />
+    <ClInclude Include="include\loader\asset_loader.h" />
+    <ClInclude Include="include\loader\file_loader.h" />
+    <ClInclude Include="include\loader\http_loader.h" />
     <ClInclude Include="third_party\v8\libplatform\libplatform-export.h" />
     <ClInclude Include="third_party\v8\libplatform\libplatform.h" />
     <ClInclude Include="third_party\v8\libplatform\v8-tracing.h" />
-    <ClInclude Include="third_party\v8\v8-debug.h" />
-    <ClInclude Include="third_party\v8\v8-experimental.h" />
     <ClInclude Include="third_party\v8\v8-inspector-protocol.h" />
     <ClInclude Include="third_party\v8\v8-inspector.h" />
+    <ClInclude Include="third_party\v8\v8-internal.h" />
     <ClInclude Include="third_party\v8\v8-platform.h" />
     <ClInclude Include="third_party\v8\v8-profiler.h" />
     <ClInclude Include="third_party\v8\v8-testing.h" />
@@ -122,13 +66,21 @@
     <ClInclude Include="third_party\v8\v8-value-serializer-version.h" />
     <ClInclude Include="third_party\v8\v8-version-string.h" />
     <ClInclude Include="third_party\v8\v8-version.h" />
+    <ClInclude Include="third_party\v8\v8-wasm-trap-handler-posix.h" />
+    <ClInclude Include="third_party\v8\v8-wasm-trap-handler-win.h" />
     <ClInclude Include="third_party\v8\v8.h" />
     <ClInclude Include="third_party\v8\v8config.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\core\core.vcxproj">
+      <Project>{33620009-97b0-440a-88c7-af0afd05dad8}</Project>
+      <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{e0581439-c51a-4f6c-9abf-d697c33333b0}</ProjectGuid>
     <Keyword>Android</Keyword>
-    <RootNamespace>hippybridge</RootNamespace>
+    <RootNamespace>hippy</RootNamespace>
     <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
     <ApplicationType>Android</ApplicationType>
     <ApplicationTypeRevision>3.0</ApplicationTypeRevision>
@@ -138,6 +90,7 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>Clang_5_0</PlatformToolset>
+    <AndroidAPILevel>android-28</AndroidAPILevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -156,40 +109,15 @@
     <PlatformToolset>Clang_5_0</PlatformToolset>
     <AndroidAPILevel>android-16</AndroidAPILevel>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>Clang_5_0</PlatformToolset>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>Clang_5_0</PlatformToolset>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>Clang_5_0</PlatformToolset>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>Clang_5_0</PlatformToolset>
-  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Label="Shared" />
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+    <OutDir>$(ProjectDir)..\..\..\build\outputs\arm64-v8a\</OutDir>
+    <IntDir>$(ProjectDir)..\..\..\build\intermediates\$(Platform)\$(Configuration)\</IntDir>
+    <IncludePath>.;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
   </PropertyGroup>
@@ -197,51 +125,30 @@
     <IncludePath>.;$(IncludePath)</IncludePath>
     <OutDir>$(ProjectDir)..\..\..\build\outputs\armeabi-v7a\</OutDir>
     <IntDir>$(ProjectDir)..\..\..\build\intermediates\$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>lib$(RootNamespace)bridge</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <IncludePath>.;$(IncludePath)</IncludePath>
     <OutDir>$(ProjectDir)..\..\..\build\outputs\armeabi-v7a\</OutDir>
     <IntDir>$(ProjectDir)..\..\..\build\intermediates\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile>
-      </PrecompiledHeaderFile>
-      <CppLanguageStandard>c++14</CppLanguageStandard>
-    </ClCompile>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile>
-      </PrecompiledHeaderFile>
-      <CppLanguageStandard>c++14</CppLanguageStandard>
-    </ClCompile>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
-    <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile>
-      </PrecompiledHeaderFile>
-      <CppLanguageStandard>c++14</CppLanguageStandard>
-    </ClCompile>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
-    <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile>
-      </PrecompiledHeaderFile>
-      <CppLanguageStandard>c++14</CppLanguageStandard>
-    </ClCompile>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <CppLanguageStandard>c++14</CppLanguageStandard>
+      <PreprocessorDefinitions>__ANDROID_API__=$(AndroidAPILevelNumber);OS_ANDROID;DEBUG</PreprocessorDefinitions>
     </ClCompile>
+    <PostBuildEvent>
+      <Command>cd ../../../.. &amp;&amp; set skipCmakeAndNinja=1 &amp;&amp; gradle :example:assembleDebug</Command>
+      <Message>Building example-debug.apk</Message>
+    </PostBuildEvent>
+    <Link>
+      <OutputFile>$(ProjectDir)..\..\..\build\outputs\arm64-v8a\$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalDependencies>third_party\v8\arm64-v8a\libmtt_shared.so;third_party\v8\arm64-v8a\libmttv8.so</AdditionalDependencies>
+      <AdditionalOptions>-lm</AdditionalOptions>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <ClCompile>
@@ -253,23 +160,31 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile>
-      </PrecompiledHeaderFile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>../../../../../core/include/core/core.h</PrecompiledHeaderFile>
       <CppLanguageStandard>c++14</CppLanguageStandard>
       <PreprocessorDefinitions>__ANDROID_API__=$(AndroidAPILevelNumber);OS_ANDROID;DEBUG</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\third_party\v8_72;.;.\include;..\..\..\..\..\core\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>third_party\v8\armeabi-v7a\libmtt_shared.so;third_party\v8\armeabi-v7a\libmttv8.so</AdditionalDependencies>
+      <AdditionalDependencies>third_party\v8_72\v8\armeabi-v7a\libmtt_shared.so;third_party\v8_72\v8\armeabi-v7a\libmttv8.so</AdditionalDependencies>
       <OutputFile>$(ProjectDir)..\..\..\build\outputs\armeabi-v7a\$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalOptions>-lm</AdditionalOptions>
     </Link>
     <PostBuildEvent>
-      <Command>cd ../../../.. &amp;&amp; set skipCmakeAndNinja=1 &amp;&amp; gradle :example:assembleDebug</Command>
+      <Command>cd ../../../../../examples/android-demo &amp;&amp; set skipCmakeAndNinja=1 &amp;&amp; gradlew :example:assembleDebug</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Building example-debug.apk</Message>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <PreLinkEvent>
+      <Command>
+      </Command>
+    </PreLinkEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <ClCompile>

@@ -37,7 +37,7 @@ const CodePieces = {
 * Generated at ${new Date().toString()}.
 * DO NOT EDIT IT.
 */
-#include "core/napi/native-source-code.h"
+#include "core/napi/native_source_code.h"
 #include <unordered_map>
 #include "core/base/macros.h"
 
@@ -170,7 +170,7 @@ function generateCpp(platform, buildDirPath) {
 
     code += CodePieces.piece2;
 
-    const targetPath = `${buildDirPath}/native-source-code-${platform}.cc`;
+    const targetPath = `${buildDirPath}/native_source_code_${platform}.cc`;
     fs.writeFile(targetPath, code, (err) => {
       if (err) {
         /* eslint-disable-next-line no-console */
@@ -184,5 +184,5 @@ function generateCpp(platform, buildDirPath) {
 }
 
 // Start to work
-generateCpp('ios', getAbsolutePath('../core/napi/jsc'));
-generateCpp('android', getAbsolutePath('../core/napi/v8/'));
+generateCpp('ios', getAbsolutePath('../core/src/napi/jsc/'));
+generateCpp('android', getAbsolutePath('../core/src/napi/v8/'));
