@@ -729,8 +729,9 @@ public class TextNode extends StyleNode
 		}
 		String text = mSpanned.toString();
 		SpannableStringBuilder temp = (SpannableStringBuilder) mSpanned.subSequence(0, text.length());
+		String ellipsizeStr = (String)TextUtils.ellipsize(text.substring(lastLineStart), sTextPaintInstance, width, TextUtils.TruncateAt.END);
 		String newString = text.subSequence(0, lastLineStart).toString()
-				+ truncate(text.substring(lastLineStart, lastLineEnd), sTextPaintInstance, width, mTruncateAt);
+				+ truncate(ellipsizeStr, sTextPaintInstance, width, mTruncateAt);
 
 		int start = newString.length() - 1 >= 0 ? newString.length() - 1 : 0;
 		CharacterStyle hippyStyleSpans[] = temp.getSpans(start, text.length(), CharacterStyle.class);
