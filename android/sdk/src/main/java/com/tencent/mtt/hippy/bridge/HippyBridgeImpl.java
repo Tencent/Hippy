@@ -15,10 +15,20 @@
  */
 package com.tencent.mtt.hippy.bridge;
 
+import android.util.Log;
+import com.tencent.mtt.hippy.HippyEngineContext;
+import com.tencent.mtt.hippy.devsupport.DevServerCallBack;
+import com.tencent.mtt.hippy.devsupport.DevServerConfig;
+import com.tencent.mtt.hippy.devsupport.DevSupportManager;
+import com.tencent.mtt.hippy.utils.ContextHolder;
+import com.tencent.mtt.hippy.utils.UIThreadUtils;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Locale;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -40,6 +50,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 	private static volatile ThreadPoolExecutor	mCodeCacheThreadExecutor	= null;
 	private static volatile int					sBridgeNum					= 0;
 	private static Object						sBridgeSyncLock;
+	private static int TIMEOUT = 3000;
 
 	static
 	{
@@ -59,15 +70,16 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 	private DebugWebSocketClient				mDebugWebSocketClient;
 	private String                              mDebugGobalConfig;
 	private NativeCallback                      mDebugInitJSFrameworkCallback;
+	private HippyEngineContext                  mContext;
 
-	public HippyBridgeImpl(Context context, BridgeCallback callback, boolean singleThreadMode,
-			boolean jsonBrige, boolean isDevModule, String debugServerHost)
+	public HippyBridgeImpl(HippyEngineContext engineContext, BridgeCallback callback, boolean singleThreadMode, boolean jsonBrige, boolean isDevModule, String debugServerHost)
 	{
 		this.mBridgeCallback = callback;
 		this.mSingleThreadMode = singleThreadMode;
 		this.mBridgeParamJson = jsonBrige;
 		this.mIsDevModule = isDevModule;
 		this.mDebugServerHost = debugServerHost;
+		this.mContext = engineContext;
 
 		synchronized (sBridgeSyncLock)
 		{
@@ -75,6 +87,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 
 			if (mCodeCacheRootDir == null)
 			{
+				Context context = mContext.getGlobalConfigs().getContext();
 				File hippyFile = FileUtils.getHippyFile(context);
 				if (hippyFile != null)
 				{
@@ -129,6 +142,8 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 				public void onFailure(final Throwable cause)
 				{
 					LogUtils.e("hippyCore", "js debug socket connect failed");
+
+                    initJSEngine(groupId);
 				}
 			});
 		}
@@ -177,6 +192,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 		{
 			return false;
 		}
+
 		if (!TextUtils.isEmpty(codeCacheTag) && !TextUtils.isEmpty(mCodeCacheRootDir))
 		{
 			LogUtils.e("HippyEngineMonitor", "runScriptFromAssets ======core====== " + codeCacheTag + ", canUseCodeCache == " + canUseCodeCache);
@@ -189,6 +205,29 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 		{
 			LogUtils.e("HippyEngineMonitor", "runScriptFromAssets codeCacheTag is null");
 			return runScriptFromAssets(fileName, assetManager, false, "" + codeCacheTag + File.separator, mV8RuntimeId, callback);
+		}
+	}
+
+	@Override
+	public boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache, String codeCacheTag, NativeCallback callback)
+	{
+		if (!mInit)
+		{
+			return false;
+		}
+
+		if (!TextUtils.isEmpty(codeCacheTag) && !TextUtils.isEmpty(mCodeCacheRootDir))
+		{
+			LogUtils.e("HippyEngineMonitor", "runScriptFromAssets ======core====== " + codeCacheTag + ", canUseCodeCache == " + canUseCodeCache);
+			String codeCacheDir = mCodeCacheRootDir + codeCacheTag + File.separator;
+			File file = new File(codeCacheDir);
+			LogUtils.d("HippyEngineMonitor", "codeCacheDir file size : " + (file.listFiles() != null ? file.listFiles().length : 0));
+			return runScriptFromUri(uri, assetManager, canUseCodeCache, codeCacheDir, mV8RuntimeId, callback);
+		}
+		else
+		{
+			LogUtils.e("HippyEngineMonitor", "runScriptFromAssets codeCacheTag is null");
+			return runScriptFromUri(uri, assetManager, false, "" + codeCacheTag + File.separator, mV8RuntimeId, callback);
 		}
 	}
 
@@ -266,6 +305,8 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 
 	public native boolean runScriptFromAssets(String fileName, AssetManager assetManager, boolean canUseCodeCache, String codeCacheDir, long V8RuntimId, NativeCallback callback);
 
+	public native boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache, String codeCacheDir, long V8RuntimId, NativeCallback callback);
+
 	public native void destroy(long V8RuntimId, boolean useLowMemoryMode, NativeCallback callback);
 
 	public native void callFunction(String action, byte[] params, int offset, int length, long V8RuntimId, NativeCallback callback);
@@ -300,6 +341,65 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 				mDebugWebSocketClient.sendMessage(msg);
 			}
 		}
+	}
+
+	public byte[] fetchResourceWithUri(String uri) {
+		if (mContext == null || TextUtils.isEmpty(uri) || !uri.startsWith("http://")) {
+			return null;
+		}
+
+		final String resUrl = uri;
+		final ByteArrayOutputStream output = new ByteArrayOutputStream();
+		final CountDownLatch countDownLatch = new CountDownLatch(1);
+		UIThreadUtils.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				DevSupportManager devManager = mContext.getDevSupportManager();
+				if (devManager == null || !devManager.supportDev()) {
+					countDownLatch.countDown();
+					return;
+				}
+
+				devManager.loadRemoteResource(resUrl, new DevServerCallBack() {
+					@Override
+					public void onDevBundleLoadReady(File bundle) {}
+
+					@Override
+					public void onDevBundleReLoad() {}
+
+					@Override
+					public void onDevBundleLoadReady(InputStream inputStream) {
+						try {
+							byte[] b = new byte[2048];
+							int size = 0;
+							while ((size = inputStream.read(b)) > 0) {
+								output.write(b, 0, size);
+							}
+						} catch (Exception e) {
+							LogUtils.e("hippy", "requireSubResource: " + e.getMessage());
+						} finally {
+							countDownLatch.countDown();
+						}
+
+					}
+
+					@Override
+					public void onInitDevError(Throwable e) {
+						LogUtils.e("hippy", "requireSubResource: " + e.getMessage());
+						countDownLatch.countDown();
+					}
+				});
+			}
+		});
+
+		try {
+			//countDownLatch.await(TIMEOUT, TimeUnit.MILLISECONDS);
+			countDownLatch.await();
+		} catch (InterruptedException e) {
+			LogUtils.e("hippy", "requireSubResource: " + e.getMessage());
+		}
+
+		return output.toByteArray();
 	}
 
 	private HippyArray bytesToArgument(byte param[])

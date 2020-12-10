@@ -29,6 +29,10 @@ public interface DevServerInterface
 {
 	void reload(DevRemoteDebugProxy remoteDebugManager);
 
+	String createResourceUrl(String resName);
+
+	void loadRemoteResource(String url, DevServerCallBack serverCallBack);
+
 	void setDevServerCallback(DevServerCallBack devServerCallback);
 
 	void attachToHost(HippyRootView view);
