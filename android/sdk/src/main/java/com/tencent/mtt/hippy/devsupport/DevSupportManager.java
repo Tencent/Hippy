@@ -60,11 +60,19 @@ public class DevSupportManager
 
 	public void init(DevRemoteDebugProxy remoteDebugManager)
 	{
-		mDevImp.reload(remoteDebugManager);
+
+	}
+
+	public String createResourceUrl(String resName) {
+		return mDevImp.createResourceUrl(resName);
 	}
 
 	public void handleException(Throwable throwable)
 	{
 		mDevImp.handleException(throwable);
+	}
+
+	public void loadRemoteResource(String url, DevServerCallBack serverCallBack) {
+		mDevImp.loadRemoteResource(url, serverCallBack);
 	}
 }
