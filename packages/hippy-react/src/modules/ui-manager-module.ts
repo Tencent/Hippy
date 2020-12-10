@@ -49,6 +49,7 @@ function getElementFromFiberRef(ref: Fiber | Element) {
  */
 function getNodeIdByRef(ref: string | Fiber | Element): number {
   // typeof ref === 'string'
+  let tempRef = ref;
   if (typeof ref === 'string') {
     warn(`getNodeIdByRef('${ref}') use string ref will affect to performance, recommend use reference to the ref instead`);
     const targetElement = findNodeByCondition((node: Fiber) => {
@@ -62,19 +63,19 @@ function getNodeIdByRef(ref: string | Fiber | Element): number {
     if (!targetElement || !targetElement.stateNode) {
       return 0;
     }
-    return targetElement.stateNode.nodeId;
+    tempRef = targetElement.stateNode;
   }
 
-  // typeof ref === 'Fiber'
-  if (!(ref as Element).nodeId) {
-    const targetElement = getElementFromFiberRef(ref);
+  // typeof fiberRef === 'Fiber'
+  if (!(tempRef as Element).nodeId) {
+    const targetElement = getElementFromFiberRef(tempRef);
     if (!targetElement) {
       return 0;
     }
     return targetElement.nodeId;
   }
   // typeof ref === 'Element'
-  return (ref as Element).nodeId;
+  return (tempRef as Element).nodeId;
 }
 
 /**
