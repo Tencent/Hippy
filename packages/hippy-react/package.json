@@ -1,6 +1,6 @@
 {
   "name": "@hippy/react",
-  "version": "2.1.4",
+  "version": "2.1.5",
   "description": "Hippy react framework",
   "main": "dist/index.js",
   "homepage": "http://hippyjs.org",
@@ -20,11 +20,11 @@
   ],
   "dependencies": {
     "fast-deep-equal": "^2.0.1",
-    "react": "^16.8.25",
+    "react": "^16.14.0",
     "react-reconciler": "^0.21.0"
   },
   "devDependencies": {
-    "@types/react": "^16.8.25",
+    "@types/react": "^16.14.0",
     "@types/react-reconciler": "^0.18.0"
   }
 }

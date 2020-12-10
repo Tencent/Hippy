@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.1.5](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.1.4...2.1.5) (2020-12-10)
+
+
+### Bug Fixes
+
+* **hippy-react:** continue finding nodeId if stringref's stateNode is a ([#442](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/issues/442)) ([3860d3f](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/3860d3ff3c36299b1f973dedbede83bcf94fa9ad))
+
+
+
+
+
 ## [2.1.4](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.1.3...2.1.4) (2020-12-03)
 
 
