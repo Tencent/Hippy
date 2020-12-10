@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.1.5](https://github.com/Tencent/Hippy/compare/2.1.4...2.1.5) (2020-12-10)
+
+
+### Bug Fixes
+
+* **android:** correct text truncate ([58efa65](https://github.com/Tencent/Hippy/commit/58efa65fc47030639238547813b85b9a2f304df5))
+* **android:** support customize debug port ([2b88947](https://github.com/Tencent/Hippy/commit/2b88947f1a6fc8a7c1097e8fe445ab64cc511f16))
+* **hippy-react:** continue finding nodeId if stringref's stateNode is a ([#442](https://github.com/Tencent/Hippy/issues/442)) ([3860d3f](https://github.com/Tencent/Hippy/commit/3860d3ff3c36299b1f973dedbede83bcf94fa9ad))
+
+
+
+
+
 ## [2.1.4](https://github.com/Tencent/Hippy/compare/2.1.3...2.1.4) (2020-12-03)
 
 

@@ -393,6 +393,11 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
         itemList.push(pullFooter);
       }
 
+      if (typeof rowShouldSticky === 'function') {
+        Object.assign(nativeProps, {
+          rowShouldSticky: true,
+        });
+      }
       nativeProps.numberOfRows = itemList.length;
       (nativeProps as ListViewProps).initialListSize = initialListSize;
       (nativeProps as ListViewProps).style = {
