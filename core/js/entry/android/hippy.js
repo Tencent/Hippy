@@ -2,6 +2,7 @@
 require('../../global/Others.js');
 
 // add global functions, do not change this order
+require('../../global/DynamicLoad.js');
 require('../../global/Platform.js'); // Hippy.device.platform
 require('../../bridge/android/js2native.js');
 require('../../global/TimerModule.js'); // setTimeout clearTimeout setInterval clearInterval
