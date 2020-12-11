@@ -20,6 +20,7 @@ ext {
     ndkDir = properties.getProperty('ndk.dir')
     sdkDir = properties.getProperty('sdk.dir')
 
+    v8Version = "v8_72"
     // Visual Studio Debugging Support
     skipCmakeAndNinja = System.getenv('skipCmakeAndNinja') != null
 }
@@ -72,16 +73,7 @@ def findCmakeBuildPath() {
         return findCmakeBinPath() + "/cmake"
 }
 
-task deleteCore(type: Delete) {
-    delete 'src/main/jni/core'
-}
-
-task copyCore(dependsOn: deleteCore, type: Copy) {
-    from '../../core'
-    into 'src/main/jni/core'
-}
-
-task compileCmake(dependsOn: copyCore, type: Exec) {
+task compileCmake(type: Exec) {
     def cMakeWorkDir = file(project.buildDir.absolutePath + "/cmakeoutput")
     cMakeWorkDir.deleteDir()
     cMakeWorkDir.mkdirs()
@@ -94,6 +86,7 @@ task compileCmake(dependsOn: copyCore, type: Exec) {
     // def arches = ["arm64-v8a"]
     for (arch in arches) {
     commandLine findCmakeBuildPath(),
+            "-DJS_ENGINE=V8",
             "-DANDROID_ABI=${arch}",
             "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=$project.buildDir.absolutePath/outputs/${arch}/",
             "-DANDROID_TOOLCHAIN=clang",
@@ -101,8 +94,9 @@ task compileCmake(dependsOn: copyCore, type: Exec) {
             "-DANDROID_NDK=${findNdkFullPath()}",
             "-DANDROID_PLATFORM=android-14",
             "-DCMAKE_BUILD_TYPE=Release",
+            "-DV8_VERSION=${v8Version}",
             "-DCMAKE_TOOLCHAIN_FILE=${findToolChainPath()}",
-                "-G", "Android Gradle - Ninja", file("src/main/jni/${arch}").absolutePath
+                "-G", "Android Gradle - Ninja", file("src/main/jni/").absolutePath
     }
 
 }
@@ -165,7 +159,7 @@ def getToolPathX86_64(String toolName) {
     }
     return findNdkFullPath() + "/toolchains/x86_64-4.9/prebuilt/" + fileName + "/bin/" + toolName
 }
-task stripSO(dependsOn: compileNinja, type: Exec) {
+task stripSO(dependsOn: (skipCmakeAndNinja.toBoolean() ? skipCmakeAndNinjaTask : compileNinja), type: Exec) {
     commandLine getToolPath("arm-linux-androideabi-strip"),
             "--strip-all",
             "-x",
@@ -223,31 +217,31 @@ task address2Line(type: Exec) {
             "-C",
             "-f",
             "-e",
-            project.buildDir.absolutePath + "/outputs/libhippybridge.so",
+            project.buildDir.absolutePath + "/outputs/armeabi-v7a/libhippybridge.so",
             address
 }
 
 task buildNdkLibs(dependsOn: (ISCI.toBoolean() ? dealNdkLibSymbols : stripSO)) {
     copy {
-        from "src/main/jni/third_party/v8/x86"
+        from "src/main/jni/third_party/${v8Version}/v8/x86"
         into "$buildDir/jnilibs/x86/"
     }
     copy {
-        from "src/main/jni/third_party/v8/x86_64"
+        from "src/main/jni/third_party/${v8Version}/v8/x86_64"
         into "$buildDir/jnilibs/x86_64/"
     }
 
     copy {
-        from "src/main/jni/third_party/v8/arm64-v8a"
+        from "src/main/jni/third_party/${v8Version}/v8/arm64-v8a"
         into "$buildDir/jnilibs/arm64-v8a/"
     }
 
     copy {
-        from "src/main/jni/third_party/v8/armeabi-v7a"
+        from "src/main/jni/third_party/${v8Version}/v8/armeabi-v7a"
         into "$buildDir/jnilibs/armeabi-v7a/"
     }
     copy {
-        from "src/main/jni/third_party/v8/armeabi-v7a"
+        from "src/main/jni/third_party/${v8Version}/v8/armeabi-v7a"
         into "$buildDir/jnilibs/armeabi/"
     }
 }
@@ -276,7 +270,7 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
