@@ -2,9 +2,8 @@
 require('../../global/Others.js');
 
 // add global functions, do not change this order
+require('../../global/DynamicLoad.js');
 require('../../global/Platform.js'); // Hippy.device.platform
-
-
 require('../../bridge/ios/js2native.js'); // Hippy.bridge
 require('../../global/TimerModule.js'); // setTimeout clearTimeout setInterval clearInterval
 require('../../global/ios/promise.js'); // add Promise when iosVersion < 9, to_do
