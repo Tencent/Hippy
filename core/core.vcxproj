@@ -1,0 +1,244 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|ARM">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM">
+      <Configuration>Release</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|ARM64">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM64">
+      <Configuration>Release</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x86">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x86">
+      <Configuration>Release</Configuration>
+      <Platform>x86</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\base\base-time.h" />
+    <ClInclude Include="include\base\common.h" />
+    <ClInclude Include="include\base\file.h" />
+    <ClInclude Include="include\base\logging.h" />
+    <ClInclude Include="include\base\macros.h" />
+    <ClInclude Include="include\base\task-runner.h" />
+    <ClInclude Include="include\base\task.h" />
+    <ClInclude Include="include\base\thread-id.h" />
+    <ClInclude Include="include\base\thread.h" />
+    <ClInclude Include="include\core\base\base_time.h" />
+    <ClInclude Include="include\core\base\common.h" />
+    <ClInclude Include="include\core\base\file.h" />
+    <ClInclude Include="include\core\base\logging.h" />
+    <ClInclude Include="include\core\base\macros.h" />
+    <ClInclude Include="include\core\base\task_runner.h" />
+    <ClInclude Include="include\core\base\task.h" />
+    <ClInclude Include="include\core\base\thread_id.h" />
+    <ClInclude Include="include\core\base\thread.h" />
+    <ClInclude Include="include\core\base\uri_loader.h" />
+    <ClInclude Include="include\core\core.h" />
+    <ClInclude Include="include\core\engine.h" />
+    <ClInclude Include="include\core\modules\console_module.h" />
+    <ClInclude Include="include\core\modules\contextify_module.h" />
+    <ClInclude Include="include\core\modules\module_base.h" />
+    <ClInclude Include="include\core\modules\module_register.h" />
+    <ClInclude Include="include\core\modules\timer_module.h" />
+    <ClInclude Include="include\core\napi\callback_info.h" />
+    <ClInclude Include="include\core\napi\js_native_api_types.h" />
+    <ClInclude Include="include\core\napi\js_native_api.h" />
+    <ClInclude Include="include\core\napi\native_source_code.h" />
+    <ClInclude Include="include\core\napi\v8\js_native_api_v8.h" />
+    <ClInclude Include="include\core\platform\logging_impl.h" />
+    <ClInclude Include="include\core\scope.h" />
+    <ClInclude Include="include\core\task\common_task.h" />
+    <ClInclude Include="include\core\task\javascript_task_runner.h" />
+    <ClInclude Include="include\core\task\javascript_task.h" />
+    <ClInclude Include="include\core\task\worker_task_runner.h" />
+    <ClInclude Include="include\engine.h" />
+    <ClInclude Include="include\modules\console-module.h" />
+    <ClInclude Include="include\modules\contextify-module.h" />
+    <ClInclude Include="include\modules\module-base.h" />
+    <ClInclude Include="include\modules\module-register.h" />
+    <ClInclude Include="include\modules\timer-module.h" />
+    <ClInclude Include="include\napi\callback-info.h" />
+    <ClInclude Include="include\napi\js-native-api-types.h" />
+    <ClInclude Include="include\napi\js-native-api.h" />
+    <ClInclude Include="include\napi\jsc\js-native-api-jsc.h" />
+    <ClInclude Include="include\napi\jsc\js-native-jsc-helper.h" />
+    <ClInclude Include="include\napi\native-source-code.h" />
+    <ClInclude Include="include\napi\v8\js-native-api-v8.h" />
+    <ClInclude Include="include\platform\logging-impl.h" />
+    <ClInclude Include="include\scope.h" />
+    <ClInclude Include="include\task\common-task.h" />
+    <ClInclude Include="include\task\javascript-task-runner.h" />
+    <ClInclude Include="include\task\javascript-task.h" />
+    <ClInclude Include="include\task\worker-task-runner.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\base\file.cc" />
+    <ClCompile Include="src\base\logging.cc" />
+    <ClCompile Include="src\base\task_runner.cc" />
+    <ClCompile Include="src\base\task.cc" />
+    <ClCompile Include="src\base\thread_id.cc" />
+    <ClCompile Include="src\base\thread.cc" />
+    <ClCompile Include="src\engine.cc" />
+    <ClCompile Include="src\modules\console_module.cc" />
+    <ClCompile Include="src\modules\contextify_module.cc" />
+    <ClCompile Include="src\modules\module_register.cc" />
+    <ClCompile Include="src\modules\timer_module.cc" />
+    <ClCompile Include="src\napi\callback_info.cc" />
+    <ClCompile Include="src\napi\v8\js_native_api_v8.cc" />
+    <ClCompile Include="src\napi\v8\js_native_api_value_v8.cc" />
+    <ClCompile Include="src\napi\v8\native_source_code_android.cc" />
+    <ClCompile Include="src\platform\logging_impl.cc" />
+    <ClCompile Include="src\scope.cc" />
+    <ClCompile Include="src\task\common_task.cc" />
+    <ClCompile Include="src\task\javascript_task_runner.cc" />
+    <ClCompile Include="src\task\javascript_task.cc" />
+    <ClCompile Include="src\task\worker_task_runner.cc" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{33620009-97b0-440a-88c7-af0afd05dad8}</ProjectGuid>
+    <Keyword>Android</Keyword>
+    <RootNamespace>core</RootNamespace>
+    <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
+    <ApplicationType>Android</ApplicationType>
+    <ApplicationTypeRevision>3.0</ApplicationTypeRevision>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>Clang_5_0</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>Clang_5_0</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>Clang_5_0</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>Clang_5_0</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>Clang_5_0</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>Clang_5_0</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>Clang_5_0</PlatformToolset>
+    <AndroidAPILevel>android-16</AndroidAPILevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>Clang_5_0</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <OutDir>$(SolutionDir)..\..\..\..\..\core\$(Platform)\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>..\android\sdk\src\main\jni\third_party\v8_72;.\include;..\android\sdk\src\main\jni;..\android\sdk\src\main\jni\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <CppLanguageStandard>c++14</CppLanguageStandard>
+      <PreprocessorDefinitions>OS_ANDROID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+</Project>
