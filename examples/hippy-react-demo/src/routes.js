@@ -163,4 +163,12 @@ export default [
       style: 2,
     },
   },
+  {
+    path: '/SetNativeProps',
+    name: 'setNativeProps能力',
+    component: PAGE_LIST.SetNativeProps,
+    meta: {
+      style: 2,
+    },
+  },
 ];

@@ -22,16 +22,23 @@ const getNodeById = findNodeById;
  *
  * @param {Fiber} ref - ref instance.
  */
-function getElementFromFiberRef(ref: Fiber) {
+function getElementFromFiberRef(ref: Fiber | Element) {
+  if (ref instanceof Element) {
+    return ref;
+  }
   // FIXME: should not use the private _reactInternalFiber
-  let targetNode = (ref as any)._reactInternalFiber.child;
-  while (targetNode && !targetNode.stateNode) {
-    targetNode = targetNode.child;
+  const internalFiber = (ref as any)._reactInternalFiber;
+  if (internalFiber && internalFiber.child) {
+    let targetNode = internalFiber.child;
+    while (targetNode && !(targetNode.stateNode instanceof Element)) {
+      targetNode = targetNode.child;
+    }
+    if (!targetNode || !targetNode.stateNode) {
+      return null;
+    }
+    return targetNode.stateNode;
   }
-  if (!targetNode || !targetNode.stateNode) {
-    return null;
-  }
-  return targetNode.stateNode;
+  return null;
 }
 
 /**
@@ -42,6 +49,7 @@ function getElementFromFiberRef(ref: Fiber) {
  */
 function getNodeIdByRef(ref: string | Fiber | Element): number {
   // typeof ref === 'string'
+  let tempRef = ref;
   if (typeof ref === 'string') {
     warn(`getNodeIdByRef('${ref}') use string ref will affect to performance, recommend use reference to the ref instead`);
     const targetElement = findNodeByCondition((node: Fiber) => {
@@ -55,19 +63,19 @@ function getNodeIdByRef(ref: string | Fiber | Element): number {
     if (!targetElement || !targetElement.stateNode) {
       return 0;
     }
-    return targetElement.stateNode.nodeId;
+    tempRef = targetElement.stateNode;
   }
 
-  // typeof ref === 'Fiber'
-  if (!(ref as Element).nodeId) {
-    const targetElement = getElementFromFiberRef((ref as Fiber));
+  // typeof fiberRef === 'Fiber'
+  if (!(tempRef as Element).nodeId) {
+    const targetElement = getElementFromFiberRef(tempRef);
     if (!targetElement) {
       return 0;
     }
     return targetElement.nodeId;
   }
   // typeof ref === 'Element'
-  return (ref as Element).nodeId;
+  return (tempRef as Element).nodeId;
 }
 
 /**
@@ -82,7 +90,7 @@ function callUIFunction(ref: Element | Fiber, funcName: string, ...options: any[
   let { nativeName: componentName, nodeId } = ref as Element;
 
   if (!nodeId || !componentName) {
-    const targetElement = getElementFromFiberRef((ref as Fiber));
+    const targetElement = getElementFromFiberRef(ref);
     if (targetElement) {
       ({ nodeId, nativeName: componentName } = targetElement);
     }
