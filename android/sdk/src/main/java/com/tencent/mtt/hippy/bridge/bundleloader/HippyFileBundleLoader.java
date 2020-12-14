@@ -28,6 +28,8 @@ import com.tencent.mtt.hippy.bridge.NativeCallback;
  */
 public class HippyFileBundleLoader implements HippyBundleLoader
 {
+	private static final String FILE_STR = "file://";
+
 	String			mFilePath;
 
 	boolean         mIsDebugMode = false;
@@ -65,7 +67,7 @@ public class HippyFileBundleLoader implements HippyBundleLoader
 			return false;
 		}
 
-		String uri = getPath();
+		String uri = (!mFilePath.startsWith(URI_SCHEME_FILE)) ? (URI_SCHEME_FILE + mFilePath) : mFilePath;
 		return bridge.runScriptFromUri(uri, null, mCanUseCodeCache, mCodeCacheTag, callback);
 		//return bridge.runScriptFromFile(mFilePath, mFilePath,mCanUseCodeCache,mCodeCacheTag, callback);
 	}
@@ -73,8 +75,8 @@ public class HippyFileBundleLoader implements HippyBundleLoader
 	@Override
 	public String getPath()
 	{
-		if (mFilePath != null && !mFilePath.startsWith(URI_SCHEME_FILE))
-			return URI_SCHEME_FILE + mFilePath;
+		if (mFilePath != null && !mFilePath.startsWith(FILE_STR))
+			return FILE_STR + mFilePath;
 		else
 			return mFilePath;
 	}
