@@ -401,6 +401,10 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
       };
     }
 
+    if (!nativeProps.onLoadMore && nativeProps.onEndReached) {
+      nativeProps.onLoadMore = nativeProps.onEndReached;
+    }
+
     return (
       <ul
         ref={(ref) => { this.instance = ref; }}

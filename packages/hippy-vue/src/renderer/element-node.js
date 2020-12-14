@@ -66,6 +66,9 @@ class ElementNode extends ViewNode {
     return this._meta;
   }
 
+  get emitter() {
+    return this._emitter;
+  }
 
   hasAttribute(key) {
     return !!this.attributes[key];
@@ -266,6 +269,10 @@ class ElementNode extends ViewNode {
       }
     }
 
+    if (this.polyFillNativeEvents) {
+      this.polyFillNativeEvents('addEvent', eventNames, callback, options);
+    }
+
     updateChild(this);
   }
 
@@ -273,6 +280,11 @@ class ElementNode extends ViewNode {
     if (!this._emitter) {
       return null;
     }
+
+    if (this.polyFillNativeEvents) {
+      this.polyFillNativeEvents('removeEvent', eventNames, callback, options);
+    }
+
     return this._emitter.removeEventListener(eventNames, callback, options);
   }
 
