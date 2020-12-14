@@ -31,6 +31,7 @@ import com.tencent.mtt.hippy.bridge.NativeCallback;
  */
 public class HippyAssetBundleLoader implements HippyBundleLoader
 {
+	private static final String ASSETS_STR = "assets://";
 	private Context	mContext;
 
 	private String mAssetPath;
@@ -66,22 +67,26 @@ public class HippyAssetBundleLoader implements HippyBundleLoader
 		}
 
 		AssetManager assetManager = mContext.getAssets();
-		return bridge.runScriptFromUri(getPath(), assetManager, mCanUseCodeCache, mCodeCacheTag, callback);
+		String uri = mAssetPath;
+		if (!mAssetPath.startsWith(URI_SCHEME_ASSETS)) {
+			if (mAssetPath.startsWith("/")) {
+				uri = URI_SCHEME_ASSETS + mAssetPath;
+			} else {
+				uri = URI_SCHEME_ASSETS + "/" + mAssetPath;
+			}
+		}
+
+		return bridge.runScriptFromUri(uri, assetManager, mCanUseCodeCache, mCodeCacheTag, callback);
 		//return bridge.runScriptFromAssets(mAssetPath, assetManager,mCanUseCodeCache,mCodeCacheTag, callback);
 	}
 
 	@Override
 	public String getPath()
 	{
-		if (mAssetPath != null && !mAssetPath.startsWith(URI_SCHEME_ASSETS)) {
-			if (mAssetPath.startsWith("/")) {
-				return URI_SCHEME_ASSETS + mAssetPath;
-			} else {
-				return URI_SCHEME_ASSETS + "/" + mAssetPath;
-			}
-		} else {
+		if (mAssetPath != null && !mAssetPath.startsWith(ASSETS_STR))
+			return ASSETS_STR + mAssetPath;
+		else
 			return mAssetPath;
-		}
 	}
 
 	@Override
