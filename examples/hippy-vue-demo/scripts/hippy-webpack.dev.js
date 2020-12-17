@@ -17,6 +17,7 @@ if (fs.existsSync(hippyVueCssLoaderPath)) {
 
 module.exports = {
   mode: 'development',
+  devtool: 'eval-source-map',
   watch: true,
   watchOptions: {
     aggregateTimeout: 1500,
@@ -46,6 +47,7 @@ module.exports = {
         test: /\.vue$/,
         use: [
           'vue-loader',
+          'scope-loader',
           'unicode-loader',
         ],
       },
@@ -76,6 +78,13 @@ module.exports = {
         test: /\.css$/,
         use: [
           cssLoader,
+        ],
+      },
+      {
+        test: /\.less$/,
+        use: [
+          cssLoader,
+          'less-loader',
         ],
       },
       {
