@@ -4,6 +4,17 @@ const webpack           = require('webpack');
 const VueLoaderPlugin   = require('vue-loader/lib/plugin');
 const pkg               = require('../package.json');
 
+let cssLoader = '@hippy/vue-css-loader';
+const hippyVueCssLoaderPath = path.resolve(__dirname, '../../../packages/hippy-vue-css-loader/dist/index.js');
+if (fs.existsSync(hippyVueCssLoaderPath)) {
+  /* eslint-disable-next-line no-console */
+  console.warn(`* Using the @hippy/vue-css-loader in ${hippyVueCssLoaderPath}`);
+  cssLoader = hippyVueCssLoaderPath;
+} else {
+  /* eslint-disable-next-line no-console */
+  console.warn('* Using the @hippy/vue-css-loader defined in package.json');
+}
+
 module.exports = {
   mode: 'development',
   watch: true,
@@ -64,7 +75,7 @@ module.exports = {
       {
         test: /\.css$/,
         use: [
-          '@hippy/vue-css-loader',
+          cssLoader,
         ],
       },
       {
