@@ -6,7 +6,7 @@ import {
   Text,
   View,
 } from '@hippy/react';
-import Utils from '../../../utils';
+import Utils from '../../utils';
 
 const IMAGE_CONTAINER_WIDTH = Utils.getScreenWidth() - 2 * 12;
 const IMAGE_SPACE = 6;

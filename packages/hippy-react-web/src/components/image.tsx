@@ -98,6 +98,9 @@ export class Image extends React.Component {
 
   constructor(props) {
     super(props);
+    this.state = {
+      isLoadSuccess: false,
+    };
     this.onLoad = this.onLoad.bind(this);
     this.onError = this.onError.bind(this);
   }
@@ -115,6 +118,9 @@ export class Image extends React.Component {
 
   onLoad(e) {
     const { onLoad, onLoadEnd } = this.props;
+    this.setState({
+      isLoadSuccess: true,
+    });
     if (onLoad) {
       const imageInfo = e.path[0];
       onLoad({
@@ -141,11 +147,10 @@ export class Image extends React.Component {
   }
 
   render() {
-    let {
-      style,
-    } = this.props;
+    let { style } = this.props;
+    const { isLoadSuccess } = this.state;
     const {
-      source, sources, resizeMode, children,
+      source, sources, resizeMode, children, defaultSource,
     } = this.props;
     if (style) {
       style = formatWebStyle(style);
@@ -160,6 +165,9 @@ export class Image extends React.Component {
       newProps.src = sources[0].uri;
     }
 
+    if (!isLoadSuccess) {
+      newProps.src = defaultSource;
+    }
 
     const finalResizeMode = resizeMode || newProps.style.resizeMode || ImageResizeMode.cover;
 

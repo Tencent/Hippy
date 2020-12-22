@@ -63,6 +63,13 @@ test('tryConvertNumber output test', (t) => {
   t.is(util.tryConvertNumber('abc'), 'abc');
   t.is(util.tryConvertNumber('123abc'), '123abc');
   t.is(util.tryConvertNumber('abc123'), 'abc123');
+  t.is(util.tryConvertNumber('12e3'), 12000);
+  t.is(util.tryConvertNumber('123.12'), 123.12);
+  t.is(util.tryConvertNumber('123.'), 123);
+  t.is(util.tryConvertNumber('.123'), 0.123);
+  t.is(util.tryConvertNumber('.123.'), '.123.');
+  t.is(util.tryConvertNumber('.123.1'), '.123.1');
+  t.is(util.tryConvertNumber(''), '');
   const obj = {};
   t.is(util.tryConvertNumber(obj), obj);
 });

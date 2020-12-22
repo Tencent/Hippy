@@ -330,46 +330,35 @@
 
 - (void)tableView:(UITableView *)tableView didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath*)indexPath {
     if ([cell isKindOfClass:[HippyBaseListViewCell class]]) {
-        [[(HippyBaseListViewCell *)cell cellView] viewDisappearEvent];
+        HippyBaseListViewCell *hippyCell = (HippyBaseListViewCell *)cell;
+        [[hippyCell cellView] viewDisappearEvent];
+        hippyCell.node.cell = nil;
     }
 }
 
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	HippyVirtualCell *newNode = [_dataSource cellForIndexPath: indexPath];
-	NSString *identifier = newNode.itemViewType;
+	HippyVirtualCell *indexNode = [_dataSource cellForIndexPath: indexPath];
+	NSString *identifier = indexNode.itemViewType;
 	HippyBaseListViewCell *cell = (HippyBaseListViewCell *)[tableView dequeueReusableCellWithIdentifier: identifier];
-	while (cell && !([[(HippyVirtualCell *)cell.node itemViewType] isEqualToString: newNode.itemViewType])) {
-        // 此处cell还在tableView上，将导致泄漏
-        [cell removeFromSuperview];
-		cell =(HippyBaseListViewCell *)[tableView dequeueReusableCellWithIdentifier: identifier];
-		if (cell == nil) {
-			HippyLogInfo(@"cannot find right cell:%@", @(indexPath.row));
-		}
-	}
-	if (cell.node.cell != cell) {
-        // 此处cell还在tableView上，将导致泄漏
-        [cell removeFromSuperview];
-		cell = nil;
-	}
-	
-	if (cell == nil) {
-		cell = [[[self listViewCellClass] alloc] initWithStyle: UITableViewCellStyleDefault reuseIdentifier: identifier];
-		cell.tableView = tableView;
-		cell.cellView = [_bridge.uiManager createViewFromNode:newNode];
-	} else {
-		UIView *cellView = [_bridge.uiManager updateNode: cell.node withNode: newNode];
-		if (cellView == nil) {
-			cell.cellView = [_bridge.uiManager createViewFromNode: newNode];
-		} else {
-			cell.cellView = cellView;
-		}
-	}
-	cell.node.cell = nil;
-	
-	newNode.cell = cell;
-	cell.node = newNode;
+    if (nil == cell) {
+        cell = [[[self listViewCellClass] alloc] initWithStyle: UITableViewCellStyleDefault reuseIdentifier: identifier];
+        cell.tableView = tableView;
+    }
+    UIView *cellView = nil;
+    if (cell.node.cell) {
+        cellView = [_bridge.uiManager createViewFromNode:indexNode];
+    }
+    else {
+        cellView = [_bridge.uiManager updateNode:cell.node withNode:indexNode];
+        if (nil == cellView) {
+            cellView = [_bridge.uiManager createViewFromNode:indexNode];
+        }
+    }
+    cell.cellView = cellView;
+    cell.node = indexNode;
+    cell.node.cell = cell;
 	return cell;
 }
 

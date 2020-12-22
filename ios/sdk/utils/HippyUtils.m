@@ -276,30 +276,30 @@ void HippyExecuteOnMainThread(dispatch_block_t block, BOOL sync)
 
 CGFloat HippyScreenScale()
 {
-    static CGFloat scale;
+    static CGFloat scale = CGFLOAT_MAX;
     static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
+    if (CGFLOAT_MAX == scale) {
         HippyExecuteOnMainThread(^{
-            scale = [UIScreen mainScreen].scale;
+            dispatch_once(&onceToken, ^{
+                scale = [UIScreen mainScreen].scale;
+            });
         }, YES);
-    });
+    }
     
     return scale;
 }
 
 CGSize HippyScreenSize()
 {
-    // FIXME: this caches the bounds at app start, whatever those were, and then
-    // doesn't update when the device is rotated. We need to find another thread-
-    // safe way to get the screen size.
-    
-    static CGSize size;
+    static CGSize size = {0, 0};
     static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
+    if (CGSizeEqualToSize(CGSizeZero, size)) {
         HippyExecuteOnMainThread(^{
-            size = [UIScreen mainScreen].bounds.size;
+            dispatch_once(&onceToken, ^{
+                size = [UIScreen mainScreen].bounds.size;
+            });
         }, YES);
-    });
+    }
     
     return size;
 }
@@ -508,6 +508,26 @@ NSError *HippyErrorWithMessage(NSString *message)
     NSDictionary<NSString *, id> *errorInfo = @{NSLocalizedDescriptionKey: message};
     return [[NSError alloc] initWithDomain:HippyErrorDomain code:0 userInfo:errorInfo];
 }
+
+NSError *HippyErrorWithMessageAndModuleName(NSString *message, NSString *moduleName) {
+    NSDictionary<NSString *, id> *errorInfo = @{NSLocalizedDescriptionKey: message, HippyFatalModuleName:moduleName?:@"unknown"};
+    return [[NSError alloc] initWithDomain:HippyErrorDomain code:0 userInfo:errorInfo];
+}
+
+NSError *HippyErrorFromErrorAndModuleName(NSError *error, NSString *moduleName) {
+    NSDictionary *userInfo = [error userInfo];
+    if (userInfo) {
+        NSMutableDictionary *ui = [NSMutableDictionary dictionaryWithDictionary:userInfo];
+        [ui setObject:moduleName?:@"unknown" forKey:HippyFatalModuleName];
+        userInfo = [NSDictionary dictionaryWithDictionary:ui];
+    }
+    else {
+        userInfo = @{HippyFatalModuleName: moduleName?:@"unknown"};
+    }
+    NSError *retError = [NSError errorWithDomain:error.domain code:error.code userInfo:userInfo];
+    return retError;
+}
+
 
 double HippyZeroIfNaN(double value)
 {

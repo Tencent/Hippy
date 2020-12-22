@@ -40,7 +40,7 @@ NSString *const HippyJavaScriptDidLoadNotification = @"HippyJavaScriptDidLoadNot
 NSString *const HippyJavaScriptDidFailToLoadNotification = @"HippyJavaScriptDidFailToLoadNotification";
 NSString *const HippyDidInitializeModuleNotification = @"HippyDidInitializeModuleNotification";
 NSString *const HippyBusinessDidLoadNotification = @"HippyBusinessDidLoadNotification";
-NSString *const _HippySDKVersion = @"2.0.3";
+NSString *const _HippySDKVersion = @"2.1.5";
 
 static NSMutableArray<Class> *HippyModuleClasses;
 NSArray<Class> *HippyGetModuleClasses(void)
@@ -84,7 +84,12 @@ NSString *HippyBridgeModuleNameForClass(Class cls)
         name = NSStringFromClass(cls);
     }
     if ([name hasPrefix:@"Hippy"] || [name hasPrefix:@"hippy"]) {
-        name = [name substringFromIndex:5];
+        //an exception,QB uses it
+        if ([name isEqualToString:@"HippyIFrame"]) {
+        }
+        else {
+            name = [name substringFromIndex:5];
+        }
     }
 
     return name;
@@ -179,23 +184,27 @@ static HippyBridge *HippyCurrentBridgeInstance = nil;
     return [self initWithDelegate:delegate
                         bundleURL:nil
                    moduleProvider:nil
-                    launchOptions:launchOptions];
+                    launchOptions:launchOptions
+                      executorKey:nil];
 }
 
 - (instancetype)initWithBundleURL:(NSURL *)bundleURL
                    moduleProvider:(HippyBridgeModuleProviderBlock)block
                     launchOptions:(NSDictionary *)launchOptions
+                      executorKey:(NSString *)executorKey;
 {
     return [self initWithDelegate:nil
                         bundleURL:bundleURL
                    moduleProvider:block
-                    launchOptions:launchOptions];
+                    launchOptions:launchOptions
+                      executorKey:executorKey];
 }
 
 - (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)delegate
                        bundleURL:(NSURL *)bundleURL
                   moduleProvider:(HippyBridgeModuleProviderBlock)block
                    launchOptions:(NSDictionary *)launchOptions
+                     executorKey:(NSString *)executorKey
 {
     if (self = [super init]) {
         _delegate = delegate;
@@ -204,6 +213,7 @@ static HippyBridge *HippyCurrentBridgeInstance = nil;
         _debugMode = [launchOptions[@"DebugMode"] boolValue];
         _shareOptions = [NSMutableDictionary new];
         _appVerson = @"";
+        _executorKey = executorKey;
         [self setUp];
 
         HippyExecuteOnMainQueue(^{ [self bindKeys]; });

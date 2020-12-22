@@ -1,6 +1,9 @@
 import React from 'react';
 import Style from '@localTypes/style';
 import { LayoutEvent } from '@localTypes/event';
+import ListViewItem, { ListViewItemProps } from './list-view-item';
+import PullHeader from './pull-header';
+import PullFooter from './pull-footer';
 import { callUIFunction } from '../modules/ui-manager-module';
 import { warn } from '../utils';
 
@@ -56,11 +59,15 @@ interface ListViewProps {
    * @param {number} index - Index Of data.
    * @returns {React.Component}
    */
-  renderRow(
+  renderRow?(
     data: DataItem,
     unknown?: any, // FIXME: What's the argument meaning?
     index?: number,
   ): React.ReactElement;
+
+  renderPullHeader?(): React.ReactElement;
+
+  renderPullFooter?(): React.ReactElement;
 
   /**
    * Each row have different type, it will be using at render recycle.
@@ -141,7 +148,6 @@ interface ListViewProps {
    * Called when the user stops dragging the scroll view and it either stops or begins to glide.
    */
   onScrollEndDrag?(): void;
-
 }
 
 interface ListItemViewProps {
@@ -150,16 +156,14 @@ interface ListItemViewProps {
   sticky?: boolean;
   style?: Style;
   onLayout?: (evt: any) => void;
+  onHeaderPulling?(): void;
+  onHeaderReleased?(): void;
+  onFooterPulling?(): void;
+  onFooterReleased?(): void;
 }
 
 interface ListViewState {
   initialListReady: boolean;
-}
-
-function ListViewItem(props: ListItemViewProps) {
-  return (
-    <li nativeName="ListViewItem" {...props} />
-  );
 }
 
 /**
@@ -168,6 +172,10 @@ function ListViewItem(props: ListItemViewProps) {
  */
 class ListView extends React.Component<ListViewProps, ListViewState> {
   private instance: HTMLUListElement | null = null;
+
+  private pullHeader: PullHeader | null = null;
+
+  private pullFooter: PullFooter | null = null;
 
   /**
   * @ignore
@@ -225,6 +233,42 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
     callUIFunction(this.instance, 'scrollToContentOffset', [xOffset, yOffset, animated]);
   }
 
+  /**
+   * Expand the PullHeaderView and display the content
+   */
+  expandPullHeader() {
+    if (this.pullHeader) {
+      this.pullHeader.expandPullHeader();
+    }
+  }
+
+  /**
+   * Collapse the PullHeaderView and hide the content
+   */
+  collapsePullHeader() {
+    if (this.pullHeader) {
+      this.pullHeader.collapsePullHeader();
+    }
+  }
+
+  /**
+   * Expand the PullFooterView and display the content
+   */
+  expandPullFooter() {
+    if (this.pullFooter) {
+      this.pullFooter.expandPullFooter();
+    }
+  }
+
+  /**
+   * Collapse the PullView and hide the content
+   */
+  collapsePullFooter() {
+    if (this.pullFooter) {
+      this.pullFooter.collapsePullFooter();
+    }
+  }
+
   private handleInitialListReady() {
     this.setState({ initialListReady: true });
   }
@@ -233,10 +277,12 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
    * @ignore
    */
   public render() {
-    let { numberOfRows } = this.props;
     const {
+      children,
       style,
       renderRow,
+      renderPullHeader,
+      renderPullFooter,
       getRowType,
       getRowStyle,
       getRowKey,
@@ -244,77 +290,121 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
       initialListSize,
       rowShouldSticky,
       onRowLayout,
+      onHeaderPulling,
+      onHeaderReleased,
+      onFooterPulling,
+      onFooterReleased,
       ...nativeProps
     } = this.props;
-    if (typeof renderRow !== 'function') {
-      throw new Error('renderRow props is necessary for ListView');
-    }
 
-    const {
-      initialListReady,
-    } = this.state;
     const itemList = [];
+    // Deprecated: Fallback for up-forward compatible.
+    if (typeof renderRow === 'function') {
+      const {
+        initialListReady,
+      } = this.state;
 
-    if (!numberOfRows && dataSource) {
-      numberOfRows = dataSource.length;
-    }
+      let { numberOfRows } = this.props;
+      let pullHeader = null;
+      let pullFooter = null;
 
-    if (!initialListReady) {
-      numberOfRows = Math.min(numberOfRows, (initialListSize || 10));
-    }
-
-    for (let index = 0; index < numberOfRows; index += 1) {
-      const itemProps: ListItemViewProps = {};
-      let rowChildren;
-
-      if (dataSource) {
-        rowChildren = renderRow(dataSource[index], null, index);
-      } else {
-        rowChildren = renderRow(index);
+      if (typeof renderPullHeader === 'function') {
+        pullHeader = (
+          <PullHeader
+            ref={(ref) => { this.pullHeader = ref; }}
+            onHeaderPulling={onHeaderPulling}
+            onHeaderReleased={onHeaderReleased}
+          >
+            { renderPullHeader() }
+          </PullHeader>
+        );
       }
 
-      if (typeof getRowKey === 'function') {
-        itemProps.key = getRowKey(index);
+      if (typeof renderPullFooter === 'function') {
+        pullFooter = (
+          <PullFooter
+            ref={(ref) => { this.pullFooter = ref; }}
+            onFooterPulling={onFooterPulling}
+            onFooterReleased={onFooterReleased}
+          >
+            { renderPullFooter() }
+          </PullFooter>
+        );
       }
 
-      if (typeof getRowStyle === 'function') {
-        itemProps.style = getRowStyle(index);
+      if (!numberOfRows && dataSource) {
+        numberOfRows = dataSource.length;
       }
 
-      if (typeof onRowLayout === 'function') {
-        itemProps.onLayout = (e: any) => {
-          onRowLayout(e, index);
-        };
+      if (!initialListReady) {
+        numberOfRows = Math.min(numberOfRows, (initialListSize || 10));
       }
 
-      if (typeof getRowType === 'function') {
-        const type = getRowType(index);
-        if (!Number.isInteger(type)) {
-          warn('getRowType must returns a number');
+      for (let index = 0; index < numberOfRows; index += 1) {
+        const itemProps: ListViewItemProps = {};
+        let rowChildren;
+
+        if (dataSource) {
+          rowChildren = renderRow(dataSource[index], null, index);
         } else {
+          rowChildren = renderRow(index);
+        }
+
+        if (typeof getRowKey === 'function') {
+          itemProps.key = getRowKey(index);
+        }
+
+        if (typeof getRowStyle === 'function') {
+          itemProps.style = getRowStyle(index);
+        }
+
+        if (typeof onRowLayout === 'function') {
+          itemProps.onLayout = (e: any) => {
+            onRowLayout(e, index);
+          };
+        }
+
+        if (typeof getRowType === 'function') {
+          const type = getRowType(index);
+          if (!Number.isInteger(type)) {
+            warn('getRowType must returns a number');
+          }
           itemProps.type = type;
+        }
+
+        if (typeof rowShouldSticky === 'function') {
+          itemProps.sticky = rowShouldSticky(index);
+        }
+
+        if (rowChildren) {
+          itemList.push((
+            <ListViewItem {...itemProps}>
+              {rowChildren}
+            </ListViewItem>
+          ));
         }
       }
 
+      if (pullHeader) {
+        itemList.unshift(pullHeader);
+      }
+
+      if (pullFooter) {
+        itemList.push(pullFooter);
+      }
+
       if (typeof rowShouldSticky === 'function') {
-        itemProps.sticky = rowShouldSticky(index);
+        Object.assign(nativeProps, {
+          rowShouldSticky: true,
+        });
       }
-
-      if (rowChildren) {
-        itemList.push((
-          <ListViewItem {...itemProps}>
-            {rowChildren}
-          </ListViewItem>
-        ));
-      }
+      nativeProps.numberOfRows = itemList.length;
+      (nativeProps as ListViewProps).initialListSize = initialListSize;
+      (nativeProps as ListViewProps).style = {
+        overflow: 'scroll',
+        ...style,
+      };
     }
-
-    nativeProps.numberOfRows = itemList.length;
-    (nativeProps as ListViewProps).initialListSize = initialListSize;
-    (nativeProps as ListViewProps).style = {
-      overflow: 'scroll',
-      ...style,
-    };
 
     return (
       <ul
@@ -323,7 +413,7 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
         initialListReady={this.handleInitialListReady}
         {...nativeProps}
       >
-        {itemList}
+        {itemList.length ? itemList : children}
       </ul>
     );
   }

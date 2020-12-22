@@ -597,7 +597,6 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
 				 * public static final int FOCUS_BLOCK_DESCENDANTS = 0x60000;
 				 * 
 				 * 为了避免在clearFoucus过后,不要让HippyRootView的其他View获得焦点,先把HippyRootView的焦点屏蔽掉.
-				 * https://git.code.oa.com/hippy/hippy/issues/41
 				 */
 
 				//find the HippyRootView

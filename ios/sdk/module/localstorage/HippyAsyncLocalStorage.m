@@ -310,15 +310,13 @@ HIPPY_EXPORT_MODULE(AsyncStorage)
 {
     if (nil == _storageDirectory) {
         _storageDirectory = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject;
-        /* HippyAsyncLocalStorage负责将配置文件写入本地磁盘
-         * 在调用者指定[HippyBridge moduleName]属性的情况下，HippyAsyncLocalStorage会在HippyStorageDirectory目录下依据[HippyBridge moduleName]返回值再次建一个文件夹用于存放当前业务配置。
-         * 保证各业务之间数据独立互不共享。
-         * !!!请在初始化HippyRootView的时候务必传入moduleName参数!!!。
-         * 若调用者不指定[HippyBridge moduleName]，HippyAsyncLocalStorage会将配置写入公共存储文件HippyStorageDirectory中，这样会造成如下问题：
-         * 1.多业务同时写入一个文件造成崩溃。 2.多业务写配置文件时若key值相同造成数据错乱。
+        /** HippyAsyncLocalStorage writes configuration into disk
+         *  HippyAsyncLocalStorage will create folder named [HippyBridge moduleName].
+         *  HippyBridge.moduleName must be set.
+         *  If not, HippyAsyncLocalStorage will write configuration into public file
          */
-        HippyAssert(_bridge.moduleName, @"重要！！这里一定要给HippyBridge.moduleName属性赋值。");
-        _storageDirectory = [[_storageDirectory stringByAppendingPathComponent:HippyStorageDirectory] stringByAppendingPathComponent:_bridge.moduleName];
+        HippyAssert([[self bridge] moduleName], @"HippyBridge.moduleName must not be null");
+        _storageDirectory = [[_storageDirectory stringByAppendingPathComponent:HippyStorageDirectory] stringByAppendingPathComponent:[self bridge].moduleName];
     }
     return _storageDirectory;
 }

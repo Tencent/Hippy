@@ -150,7 +150,7 @@ HIPPY_EXPORT_MODULE()
 
 - (dispatch_queue_t)methodQueue
 {
-  return HippyJSThread;
+  return dispatch_get_main_queue();
 }
 
 - (void)invalidate
@@ -192,16 +192,18 @@ HIPPY_EXPORT_MODULE()
 {
   NSDate *nextScheduledTarget = [NSDate distantFuture];
   NSMutableArray<NSNumber *> *timersToCall = [NSMutableArray new];
+  NSMutableArray<NSNumber *> *timersToRemove = [NSMutableArray new];
   for (_HippyTimer *timer in _timers.allValues) {
-    if ([timer updateFoundNeedsJSUpdate]) {
+    if ([timer updateFoundNeedsJSUpdate] && timer.callbackID) {
       [timersToCall addObject:timer.callbackID];
     }
-    if (!timer.target) {
-      [_timers removeObjectForKey:timer.callbackID];
+    if (!timer.target && timer.callbackID) {
+        [timersToRemove addObject:timer.callbackID];
     } else {
       nextScheduledTarget = [nextScheduledTarget earlierDate:timer.target];
     }
   }
+  [_timers removeObjectsForKeys:timersToRemove];
 
   // Call timers that need to be called
   if (timersToCall.count > 0) {

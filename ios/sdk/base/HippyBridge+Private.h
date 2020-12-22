@@ -152,6 +152,7 @@ HIPPY_EXTERN void HippyVerifyAllModulesExported(NSArray *extraModules);
 @property (nonatomic, assign, readonly) BOOL moduleSetupComplete;
 
 @property (nonatomic, strong) dispatch_semaphore_t semaphore;
+@property (nonatomic, strong) dispatch_semaphore_t moduleSemaphore;
 
 - (instancetype)initWithParentBridge:(HippyBridge *)bridge NS_DESIGNATED_INITIALIZER;
 - (void)start;
