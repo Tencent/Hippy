@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { formatWebStyle } from '../adapters/transfer';
 import applyLayout from '../adapters/apply-layout';
 
@@ -54,6 +53,7 @@ export class Text extends React.Component {
     super(props);
     this.state = {};
   }
+
 
   getChildContext() {
     return { isInAParentText: true };
