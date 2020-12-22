@@ -100,7 +100,8 @@ static BOOL isiPhoneX()
     if (self = [super initWithDelegate:bridge.delegate
                              bundleURL:bridge.bundleURL
                         moduleProvider:bridge.moduleProvider
-                         launchOptions:bridge.launchOptions]) {
+                         launchOptions:bridge.launchOptions
+                           executorKey:bridge.executorKey]) {
         HippyExecuteOnMainThread(^{
             self->_screenSize = [UIScreen mainScreen].bounds;
             self->_statusBarHeight = [UIApplication sharedApplication].statusBarFrame.size.height;
@@ -137,7 +138,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)
 {
     
     self.semaphore = dispatch_semaphore_create(0);
-    
+    self.moduleSemaphore = dispatch_semaphore_create(1);
     [[NSNotificationCenter defaultCenter]
      postNotificationName:HippyJavaScriptWillStartLoadingNotification
      object:_parentBridge userInfo:@{@"bridge": self}];
@@ -303,6 +304,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)
 - (void)initModulesWithDispatchGroup:(__unused dispatch_group_t)dispatchGroup
 {
     //HIPPY_PROFILE_BEGIN_EVENT(0, @"-[HippyBatchedBridge initModules]", nil);
+    dispatch_semaphore_wait(self.moduleSemaphore, DISPATCH_TIME_FOREVER);
     [_performanceLogger markStartForTag:HippyPLNativeModuleInit];
     
     NSArray<id<HippyBridgeModule>> *extraModules = nil;
@@ -360,7 +362,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)
     // probably just replace this with [self moduleForClass:self.executorClass]
     //HIPPY_PROFILE_BEGIN_EVENT(0, @"JavaScriptExecutor", nil);
     if (!_javaScriptExecutor) {
-        id<HippyJavaScriptExecutor> executorModule = [[self.executorClass alloc] initWithExecurotKey:self.executorKey];
+        id<HippyJavaScriptExecutor> executorModule = [[self.executorClass alloc] initWithExecurotKey:self.executorKey bridge:self];
         HippyModuleData *moduleData = [[HippyModuleData alloc] initWithModuleInstance:executorModule
                                                                                bridge:self];
         moduleDataByName[moduleData.name] = moduleData;
@@ -407,7 +409,8 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)
     _moduleDataByName = [moduleDataByName copy];
     _moduleClassesByID = [moduleClassesByID copy];
     //HIPPY_PROFILE_END_EVENT(HippyProfileTagAlways, @"");
-    
+    dispatch_semaphore_signal(self.moduleSemaphore);
+
     // Synchronously set up the pre-initialized modules
     //HIPPY_PROFILE_BEGIN_EVENT(0, @"extraModules", nil);
     for (HippyModuleData *moduleData in _moduleDataByID) {
@@ -511,6 +514,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)
 - (NSString *)moduleConfig
 {
     NSMutableArray<NSArray *> *config = [NSMutableArray new];
+    dispatch_semaphore_wait(self.moduleSemaphore, DISPATCH_TIME_FOREVER);
     for (HippyModuleData *moduleData in _moduleDataByID) {
         if (self.executorClass == [HippyJSCExecutor class]) {
             [config addObject:@[moduleData.name]];
@@ -518,7 +522,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)
             [config addObject:HippyNullIfNil(moduleData.config)];
         }
     }
-    
+    dispatch_semaphore_signal(self.moduleSemaphore);
     return HippyJSONStringify(@{
                               @"remoteModuleConfig": config,
                               }, NULL);
@@ -683,7 +687,8 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)
         [self.redBox showErrorMessage:[error localizedDescription]
                             withStack:[error userInfo][HippyJSStackTraceKey]];
     }
-    HippyFatal(error);
+    NSError *retError = HippyErrorFromErrorAndModuleName(error, self.moduleName);
+    HippyFatal(retError);
 }
 
 HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithBundleURL:(__unused NSURL *)bundleURL
@@ -1023,7 +1028,8 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithBundleURL:(__unused NSURL *)bundle
             }
             
         }
-        HippyFatal(error);
+        NSError *retError = HippyErrorFromErrorAndModuleName(error, self.moduleName);
+        HippyFatal(retError);
     }
     
     if (!_valid) {
@@ -1179,7 +1185,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithBundleURL:(__unused NSURL *)bundle
         NSString *message = [NSString stringWithFormat:
                              @"Exception '%@' was thrown while invoking %@ on target %@ with params %@",
                              exception, method.JSMethodName, moduleData.name, params];
-        NSError *error = HippyErrorWithMessage(message);
+        NSError *error = HippyErrorWithMessageAndModuleName(message, self.moduleName);
         if (self.parentBridge.useCommonBridge) {
             NSDictionary *errorInfo = @{NSLocalizedDescriptionKey: message, @"module": self.parentBridge.moduleName ? : @""};
             error = [[NSError alloc] initWithDomain: HippyErrorDomain code: 0 userInfo: errorInfo];

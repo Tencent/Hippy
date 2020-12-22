@@ -25,14 +25,14 @@ class PullHeader extends React.Component<PullHeaderProps, {}> {
    * Expand the PullView and display the content
    */
   expandPullHeader() {
-    callUIFunction(this.instance, 'expandPullHeader');
+    callUIFunction(this.instance, 'expandPullHeader', []);
   }
 
   /**
    * Collapse the PullView and hide the content
    */
   collapsePullHeader() {
-    callUIFunction(this.instance, 'collapsePullHeader');
+    callUIFunction(this.instance, 'collapsePullHeader', []);
   }
 
   render() {

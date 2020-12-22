@@ -44,10 +44,11 @@ const styles = {
  * @noInheritDoc
  */
 export class Text extends React.Component {
-  // 声明Context对象属性
+  // suppress waring:
+  // - childContextTypes must be defined in order to use getChildContext()
   static childContextTypes = {
-    isInAParentText: PropTypes.bool,
-  }
+    isInAParentText: () => {},
+  };
 
   constructor(props) {
     super(props);

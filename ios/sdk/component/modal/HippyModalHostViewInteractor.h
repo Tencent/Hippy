@@ -20,22 +20,15 @@
 * limitations under the License.
 */
 
+#import <Foundation/Foundation.h>
+#import "HippyModalHostView.h"
+#import "HippyModalHostViewController.h"
 
-#import "HippyBridgeModule.h"
-@class HippyImageView;
+@protocol HippyModalHostViewInteractor <NSObject>
 
-@protocol HippyImageViewCustomLoader<HippyBridgeModule>
+- (void)presentModalHostView:(HippyModalHostView *)modalHostView withViewController:(HippyModalHostViewController *)viewController animated:(BOOL)animated;
+- (void)dismissModalHostView:(HippyModalHostView *)modalHostView withViewController:(HippyModalHostViewController *)viewController animated:(BOOL)animated;
 
-@required
-
-- (void)imageView:(HippyImageView *)imageView
-		loadAtUrl:(NSURL *)url
- placeholderImage:(UIImage *)placeholderImage
-		  context:(void *)context
-		 progress:(void (^)(long long, long long))progressBlock
-		completed:(void (^)(NSData *, NSURL *, NSError *))completedBlock;
-
-- (void)cancelImageDownload:(UIImageView *)imageView withUrl:(NSURL *)url;
-
-- (void)loadImage:(NSURL *)url completed:(void (^)(NSData *, NSURL *, NSError *, BOOL cached))completedBlock;
 @end
+
+

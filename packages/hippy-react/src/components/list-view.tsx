@@ -6,7 +6,6 @@ import PullHeader from './pull-header';
 import PullFooter from './pull-footer';
 import { callUIFunction } from '../modules/ui-manager-module';
 import { warn } from '../utils';
-import { Device } from '../native';
 
 type DataItem = any;
 
@@ -366,17 +365,11 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
         }
 
         if (typeof getRowType === 'function') {
-          let type = getRowType(index);
-          if (type) {
-            if (typeof type !== 'string') {
-              type = (type as any).toString();
-            }
-            if (Device.platform.OS === 'android') {
-              itemProps.itemViewType = type;
-            } else {
-              itemProps.type = type;
-            }
+          const type = getRowType(index);
+          if (!Number.isInteger(type)) {
+            warn('getRowType must returns a number');
           }
+          itemProps.type = type;
         }
 
         if (typeof rowShouldSticky === 'function') {
@@ -400,6 +393,11 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
         itemList.push(pullFooter);
       }
 
+      if (typeof rowShouldSticky === 'function') {
+        Object.assign(nativeProps, {
+          rowShouldSticky: true,
+        });
+      }
       nativeProps.numberOfRows = itemList.length;
       (nativeProps as ListViewProps).initialListSize = initialListSize;
       (nativeProps as ListViewProps).style = {

@@ -27,6 +27,7 @@ NSString *const HippyErrorDomain = @"HippyErrorDomain";
 NSString *const HippyJSStackTraceKey = @"HippyJSStackTraceKey";
 NSString *const HippyJSRawStackTraceKey = @"HippyJSRawStackTraceKey";
 NSString *const HippyFatalExceptionName = @"HippyFatalException";
+NSString *const HippyFatalModuleName = @"HippyFatalModuleName";
 
 static NSString *const HippyAssertFunctionStack = @"HippyAssertFunctionStack";
 
@@ -138,12 +139,15 @@ void HippyFatal(NSError *error)
     if (failReason && failReason.length >= 100) {
         failReason = [[failReason substringToIndex:100] stringByAppendingString:@"(...Description Too Long)"];
     }
+    NSString *fatalMessage = nil;
+    NSString *moduleDescription = [NSString stringWithFormat:@"Module:%@", error.userInfo[HippyFatalModuleName]?:@"unknown"];
     if (failReason) {
-        _HippyLogNativeInternal(HippyLogLevelFatal, NULL, 0, @"%@[Reason]: %@", error.localizedDescription, failReason);
+        fatalMessage = [NSString stringWithFormat:@"%@,%@[Reason]: %@", moduleDescription, error.localizedDescription, failReason];
     } else {
-        _HippyLogNativeInternal(HippyLogLevelFatal, NULL, 0, @"%@", error.localizedDescription);
+        fatalMessage = [NSString stringWithFormat:@"%@,%@", moduleDescription, error.localizedDescription];
     }
-    
+    _HippyLogNativeInternal(HippyLogLevelFatal, NULL, 0, @"%@", fatalMessage);
+
     
     HippyFatalHandler fatalHandler = HippyGetFatalHandler();
     if (fatalHandler) {
@@ -151,19 +155,14 @@ void HippyFatal(NSError *error)
     } else {
 #ifdef DEBUG
         @try {
-#endif
-            
             NSString *name = [NSString stringWithFormat:@"%@: %@", HippyFatalExceptionName, error.localizedDescription];
             NSString *message = HippyFormatError(error.localizedDescription, error.userInfo[HippyJSStackTraceKey], 75);
-            
             if (failReason) {
                 name = [NSString stringWithFormat:@"%@: %@[Reason]: %@", HippyFatalExceptionName, error.localizedDescription, failReason];
             }
-            
             [NSException raise:name format:@"%@", message];
-#ifdef DEBUG
         } @catch (NSException *e) {}
-#endif
+#endif //#ifdef DEBUG
     }
 }
 

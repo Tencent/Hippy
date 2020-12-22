@@ -14,7 +14,10 @@
  */
 package com.tencent.mtt.hippy.bridge;
 
-import java.util.ArrayList;
+import android.os.Build;
+import android.os.Handler;
+import android.os.Message;
+import android.text.TextUtils;
 
 import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyEngineContext;
@@ -30,14 +33,9 @@ import com.tencent.mtt.hippy.modules.HippyModuleManager;
 import com.tencent.mtt.hippy.utils.ArgumentUtils;
 import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.GrowByteBuffer;
-import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
-import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 
-import android.os.Build;
-import android.os.Handler;
-import android.os.Message;
-import android.text.TextUtils;
+import java.util.ArrayList;
 
 /**
  * FileName: HippyBridgeManager
@@ -71,20 +69,23 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 	int						mBridgeType							= BRIDGE_TYPE_NORMAL;
 	boolean					mEnableHippyBuffer					= false;
 	ArrayList<String>		mLoadedBundleInfo					= null;
-	private GrowByteBuffer  mGrowByteBuffer;                     
+	private GrowByteBuffer  mGrowByteBuffer;
 	private StringBuilder   mStringBuilder;
-	private  boolean        mIsDevModule                        = false;
+	private boolean         mIsDevModule                        = false;
+	private String          mDebugServerHost;
 	private int				mGroupId;
 	private HippyThirdPartyAdapter mThirdPartyAdapter;
 	HippyEngine.ModuleListener mLoadModuleListener;
 
-	public HippyBridgeManagerImpl(HippyEngineContext context, HippyBundleLoader coreBundleLoader, int bridgeType, boolean enableHippyBuffer, boolean isDevModule, int groupId, HippyThirdPartyAdapter thirdPartyAdapter)
+	public HippyBridgeManagerImpl(HippyEngineContext context, HippyBundleLoader coreBundleLoader, int bridgeType,
+			boolean enableHippyBuffer, boolean isDevModule, String debugServerHost, int groupId, HippyThirdPartyAdapter thirdPartyAdapter)
 	{
 		this.mContext = context;
 		this.mCoreBundleLoader = coreBundleLoader;
 		this.mBridgeType = bridgeType;
 		this.mEnableHippyBuffer = enableHippyBuffer;
 		this.mIsDevModule = isDevModule;
+		this.mDebugServerHost = debugServerHost;
 		this.mGroupId = groupId;
 		mThirdPartyAdapter = thirdPartyAdapter;
 
@@ -112,14 +113,14 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 					try
 					{
 						mHippyBridge = new HippyBridgeImpl(mContext.getGlobalConfigs().getContext(), HippyBridgeManagerImpl.this,
-								mBridgeType == BRIDGE_TYPE_SINGLE_THREAD, !mEnableHippyBuffer, this.mIsDevModule);
+								mBridgeType == BRIDGE_TYPE_SINGLE_THREAD, !mEnableHippyBuffer, this.mIsDevModule, this.mDebugServerHost);
 
 						mHippyBridge.initJSBridge(getGlobalConfigs(), new NativeCallback(mHandler) {
 							@Override
 							public void Call(long value, Message msg, String action) {
 
 								if (mThirdPartyAdapter != null) {
-									mThirdPartyAdapter.SetHippyBridgeId(value);
+                  					mThirdPartyAdapter.onRuntimeInit(value);
 								}
 								mContext.getStartTimeMonitor().startEvent(HippyEngineMonitorEvent.ENGINE_LOAD_EVENT_LOAD_COMMONJS);
 								boolean flag = true;
@@ -300,6 +301,9 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 				}
 				case MSG_CODE_DESTROY_BRIDGE:
 				{
+					if (mThirdPartyAdapter != null) {
+						mThirdPartyAdapter.onRuntimeDestroy();
+					}
 					mHippyBridge.destroy(null);
 					return true;
 				}
@@ -376,7 +380,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
       });
     }
   }
-  
+
 	@Override
 	public void loadInstance(String name, int id, HippyMap params)
 	{
@@ -525,5 +529,10 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 		tkd.pushString("appVersion", appVersion);
 		globalParams.pushMap("tkd", tkd);
 		return ArgumentUtils.objectToJson(globalParams);
+	}
+
+	@Override
+	public HippyThirdPartyAdapter getThirdPartyAdapter() {
+		return mThirdPartyAdapter;
 	}
 }

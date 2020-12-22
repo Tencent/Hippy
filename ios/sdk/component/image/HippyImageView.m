@@ -131,6 +131,7 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
 
 @interface HippyImageView () {
     NSURLSessionDataTask *_task;
+    NSURL *_imageLoadURL;
     long long _totalLength;
     NSMutableData *_data;
     __weak CALayer *_borderWidthLayer;
@@ -139,6 +140,9 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
 }
 
 @property (nonatomic) HippyAnimatedImageOperation *animatedImageOperation;
+@property (atomic, strong) NSString *pendingImageSourceUri;// The image source that's being loaded from the network
+@property (atomic, strong) NSString *imageSourceUri;// The image source that's currently displayed
+
 @end
 
 @implementation HippyImageView
@@ -167,9 +171,9 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
 	[super didMoveToWindow];
 	if (!self.window) {
 		[self cancelImageLoad];
-	} else {
-		[self reloadImage];
-	}
+    } else if ([self shouldChangeImageSource]) {
+      [self reloadImage];
+    }
 }
 
 - (void)didReceiveMemoryWarning {
@@ -264,15 +268,29 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
 	}
 }
 
+- (BOOL)shouldChangeImageSource
+{
+// We need to reload if the desired image source is different from the current image
+// source AND the image load that's pending
+    NSDictionary *source = [self.source firstObject];
+    if (source) {
+        NSString *desiredImageSource = source[@"uri"];
+  
+        return ![desiredImageSource isEqualToString:self.imageSourceUri] &&
+        ![desiredImageSource isEqualToString:self.pendingImageSourceUri];
+    }
+    return NO;
+}
+
 - (void)reloadImage
 {
     NSDictionary *source = [self.source firstObject];
-	if (source && CGRectGetWidth(self.frame) > 0 && CGRectGetHeight(self.frame) > 0) {
-		if (_onLoadStart) {
-			_onLoadStart(@{});
-		}
+    if (source && CGRectGetWidth(self.frame) > 0 && CGRectGetHeight(self.frame) > 0) {
+        if (_onLoadStart) {
+            _onLoadStart(@{});
+        }
         NSString *uri = source[@"uri"];
-        
+        self.pendingImageSourceUri = uri;
         BOOL isBlurredImage = NO;
         UIImage *image = [[HippyImageCacheManager sharedInstance] loadImageFromCacheForURLString:uri radius:_blurRadius isBlurredImage:&isBlurredImage];
         if (image) {
@@ -291,7 +309,7 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
             BOOL fileExist = [[NSFileManager defaultManager] fileExistsAtPath:localPath isDirectory:&isDirectory];
             if (fileExist && !isDirectory) {
                 NSData *imageData = [NSData dataWithContentsOfFile:localPath];
-                Class<HippyImageProviderProtocol> ipClass = imageProviderClassFromBridge(imageData, _bridge);
+                Class<HippyImageProviderProtocol> ipClass = imageProviderClassFromBridge(imageData, self.bridge);
                 id<HippyImageProviderProtocol> instance = [self instanceImageProviderFromClass:ipClass imageData:imageData];
                 BOOL isAnimatedImage = [ipClass isAnimatedImage:imageData];
                 if (isAnimatedImage) {
@@ -312,19 +330,45 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
             }
             return;
         }
-		if(_bridge.imageLoader && source_url) {
-            if (_defaultImage) {
-                self.image = _defaultImage;
+        
+        __weak typeof(self) weakSelf = self;
+        
+        typedef void (^HandleBase64CompletedBlock)(NSString *);
+        HandleBase64CompletedBlock handleBase64CompletedBlock = ^void(NSString *base64Data) {
+            NSRange range = [base64Data rangeOfString:@";base64,"];
+            if (NSNotFound != range.location) {
+                base64Data = [base64Data substringFromIndex:range.location + range.length];
+                NSData *imageData = [[NSData alloc] initWithBase64EncodedString:base64Data
+                                                                        options: NSDataBase64DecodingIgnoreUnknownCharacters];
+                Class<HippyImageProviderProtocol> ipClass = imageProviderClassFromBridge(imageData, self.bridge);
+                id<HippyImageProviderProtocol> instance = [self instanceImageProviderFromClass:ipClass imageData:imageData];
+                BOOL isAnimatedImage = [ipClass isAnimatedImage:imageData];
+                if (isAnimatedImage) {
+                    if (weakSelf.animatedImageOperation) {
+                        [weakSelf.animatedImageOperation cancel];
+                    }
+                    weakSelf.animatedImageOperation = [[HippyAnimatedImageOperation alloc] initWithAnimatedImageProvider:instance imageView:self imageURL:source[@"uri"]];
+                    [animated_image_queue() addOperation:weakSelf.animatedImageOperation];
+                }
+                else {
+                    UIImage *image = [instance image];
+                    NSError *error = nil;
+                    if (!image) {
+                        error = [NSError errorWithDomain: NSURLErrorDomain code: -1 userInfo: @{NSLocalizedDescriptionKey: @"base64 url is invalidated"}];
+                    }
+                    [weakSelf loadImage: image url: source[@"uri"] error: error needBlur:YES needCache:YES];
+                }
             }
-            __weak __typeof(self) weakSelf = self;
-            [_bridge.imageLoader imageView:weakSelf loadAtUrl:source_url placeholderImage:_defaultImage context: NULL progress:^(long long currentLength, long long totalLength) {
-                __typeof(weakSelf) strongSelf = weakSelf;
-				if (strongSelf.onProgress) {
-					strongSelf.onProgress(@{@"loaded": @((double)currentLength), @"total": @((double)totalLength)});
-				}
-			} completed:^(NSData *data, NSURL *url, NSError *error) {
-                __typeof(weakSelf) strongSelf = weakSelf;
-                Class<HippyImageProviderProtocol> ipClass = imageProviderClassFromBridge(data, strongSelf.bridge);
+        };
+        
+        typedef void(^HandleImageCompletedBlock)(NSURL *);
+        HandleImageCompletedBlock handleImageCompletedBlock = ^void(NSURL *source_url) {
+            [weakSelf.bridge.imageLoader imageView:weakSelf loadAtUrl:source_url placeholderImage:weakSelf.defaultImage context: NULL progress:^(long long currentLength, long long totalLength) {
+                if (weakSelf.onProgress) {
+                    weakSelf.onProgress(@{@"loaded": @((double)currentLength), @"total": @((double)totalLength)});
+                }
+            } completed:^(NSData *data, NSURL *url, NSError *error) {
+                Class<HippyImageProviderProtocol> ipClass = imageProviderClassFromBridge(data, self.bridge);
                 id<HippyImageProviderProtocol> instance = [self instanceImageProviderFromClass:ipClass imageData:data];
                 BOOL isAnimatedImage = [ipClass isAnimatedImage:data];
                 if (isAnimatedImage) {
@@ -336,36 +380,34 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
                 }
                 else {
                     UIImage *image = [instance image];
-                    [weakSelf loadImage: image url: url.absoluteString error: error needBlur:YES needCache:YES];
-                }
-			}];
-		} else {
-			if ([uri hasPrefix: @"data:image/"]) {
-                NSString *base64Data = uri;
-                NSRange range = [uri rangeOfString:@";base64,"];
-                if (NSNotFound != range.location) {
-                    base64Data = [uri substringFromIndex:range.location + range.length];
-                }
-				NSData *imageData = [[NSData alloc] initWithBase64EncodedString:base64Data options: NSDataBase64DecodingIgnoreUnknownCharacters];
-                Class<HippyImageProviderProtocol> ipClass = imageProviderClassFromBridge(imageData, self.bridge);
-                id<HippyImageProviderProtocol> instance = [self instanceImageProviderFromClass:ipClass imageData:imageData];
-                BOOL isAnimatedImage = [ipClass isAnimatedImage:imageData];
-                if (isAnimatedImage) {
-                    if (_animatedImageOperation) {
-                        [_animatedImageOperation cancel];
-                    }
-                    _animatedImageOperation = [[HippyAnimatedImageOperation alloc] initWithAnimatedImageProvider:instance imageView:self imageURL:source[@"uri"]];
-                    [animated_image_queue() addOperation:_animatedImageOperation];
-                }
-                else {
-                    UIImage *image = [instance image];
                     NSError *error = nil;
                     if (!image) {
                         error = [NSError errorWithDomain: NSURLErrorDomain code: -1 userInfo: @{NSLocalizedDescriptionKey: @"base64 url is invalidated"}];
                     }
-                    [self loadImage: image url: source[@"uri"] error: error needBlur:YES needCache:YES];
+                    [weakSelf loadImage: image url: source[@"uri"] error: error needBlur:YES needCache:YES];
                 }
-			}
+            }];
+        };
+        
+        if(_bridge.imageLoader && source_url) {
+            if (_defaultImage) {
+                weakSelf.image = _defaultImage;
+            }
+            
+            if ([[source_url absoluteString] hasPrefix: @"data:image/"]) {
+                handleBase64CompletedBlock([source_url absoluteString]);
+            } else {
+                if (_imageLoadURL) {
+                    [_bridge.imageLoader cancelImageDownload:self withUrl:_imageLoadURL];
+                }
+                _imageLoadURL = source_url;
+                handleImageCompletedBlock(source_url);
+            }
+            
+        } else {
+            if ([uri hasPrefix: @"data:image/"]) {
+                handleBase64CompletedBlock(uri);
+            }
             else {
                 if (_task) {
                     [self cancelImageLoad];
@@ -375,12 +417,13 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
                 _task = [session dataTaskWithURL:source_url];
                 [_task resume];
             }
-		}
-	}
+        }
+    }
 }
 
 - (void)cancelImageLoad
 {
+    self.pendingImageSourceUri = nil;
 	NSDictionary *source = [self.source firstObject];
 	if (_bridge.imageLoader) {
         [_animatedImageOperation cancel];
@@ -401,6 +444,7 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
 	[self cancelImageLoad];
 	[self.layer removeAnimationForKey:@"contents"];
 	self.image = nil;
+    self.imageSourceUri = nil;
 }
 
 - (UIImage *) imageFromData:(NSData *)data {
@@ -436,7 +480,7 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
 - (void)URLSession:(__unused NSURLSession *)session task:(nonnull NSURLSessionTask *)task didCompleteWithError:(nullable NSError *)error
 {
     if (_task == task) {
-        NSDictionary *source = [self.source firstObject];
+        NSString *urlString = [[[task originalRequest] URL] absoluteString];
         if (!error) {
             if ([_data length] > 0) {
                 Class<HippyImageProviderProtocol> ipClass = imageProviderClassFromBridge(_data, self.bridge);
@@ -446,17 +490,17 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
                     if (_animatedImageOperation) {
                         [_animatedImageOperation cancel];
                     }
-                    _animatedImageOperation = [[HippyAnimatedImageOperation alloc] initWithAnimatedImageProvider:instance imageView:self imageURL:source[@"uri"]];
+                    _animatedImageOperation = [[HippyAnimatedImageOperation alloc] initWithAnimatedImageProvider:instance imageView:self imageURL:urlString];
                     [animated_image_queue() addOperation:_animatedImageOperation];
                 }
                 else {
-                    [[HippyImageCacheManager sharedInstance] setImageCacheData:_data forURLString:source[@"uri"]];
+                    [[HippyImageCacheManager sharedInstance] setImageCacheData:_data forURLString:urlString];
                     UIImage *image = [self imageFromData:_data];;
                     if (image) {
-                        [self loadImage: image url:source[@"uri"] error:nil needBlur:YES needCache:YES];
+                        [self loadImage: image url:urlString error:nil needBlur:YES needCache:YES];
                     } else {
                         NSError *theError = [NSError errorWithDomain:@"imageFromDataErrorDomain" code:1 userInfo:@{@"reason": @"Error in imageFromData"}];
-                        [self loadImage: nil url:source[@"uri"] error:theError needBlur:YES needCache:YES];
+                        [self loadImage: nil url:urlString error:theError needBlur:YES needCache:YES];
                     }
                 }
             }
@@ -468,11 +512,11 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
                     NSString *errorMessage = [NSString stringWithFormat:@"no data received, HTTPStatusCode is %zd", statusCode];
                     NSDictionary *userInfo = @{NSLocalizedDescriptionKey: errorMessage};
                     NSError *error = [NSError errorWithDomain:@"ImageLoadDomain" code:1 userInfo:userInfo];
-                    [self loadImage:nil url:source[@"uri"] error:error needBlur:NO needCache:NO];
+                    [self loadImage:nil url:urlString error:error needBlur:NO needCache:NO];
                 }
             }
         } else {
-            [self loadImage:nil url:source[@"uri"] error:error needBlur:YES needCache:YES];
+            [self loadImage:nil url:urlString error:error needBlur:YES needCache:YES];
         }
     }
     [session finishTasksAndInvalidate];
@@ -495,6 +539,8 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
 	
 	__weak typeof(self) weakSelf = self;
 	void (^setImageBlock)(UIImage *) = ^(UIImage *image) {
+        weakSelf.pendingImageSourceUri = nil;
+        weakSelf.imageSourceUri = url;
 		if (image.hippyKeyframeAnimation) {
 			[weakSelf.layer addAnimation:image.hippyKeyframeAnimation forKey:@"contents"];
 		} else {
@@ -558,7 +604,7 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
 //    self.layer.magnificationFilter = kCAFilterTrilinear;
 
     if (image.images) {
-        HippyAssert(NO, @"GIF图片不应该进入这个逻辑");
+        HippyAssert(NO, @"GIF should not invoke this");
 	}
 	else {
 		self.image = image;
