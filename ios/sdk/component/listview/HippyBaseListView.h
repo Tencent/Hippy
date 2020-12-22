@@ -36,7 +36,6 @@
 @end
 
 @interface HippyBaseListView : UIView <HippyBaseListViewProtocol, HippyScrollableProtocol, UITableViewDelegate, UITableViewDataSource, HippyInvalidating>
-
 @property (nonatomic, copy) HippyDirectEventBlock initialListReady;
 @property (nonatomic, copy) HippyDirectEventBlock onScrollBeginDrag;
 @property (nonatomic, copy) HippyDirectEventBlock onScroll;
@@ -59,8 +58,4 @@
 - (instancetype)initWithBridge:(HippyBridge *)bridge;
 - (void)scrollToContentOffset:(CGPoint)point animated:(BOOL)animated;
 - (void)scrollToIndex:(NSInteger)index animated:(BOOL)animated;
-
-- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath NS_REQUIRES_SUPER;
-- (void)tableView:(UITableView *)tableView didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath*)indexPath NS_REQUIRES_SUPER;
-
 @end
