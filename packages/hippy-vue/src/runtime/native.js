@@ -31,6 +31,42 @@ const {
 
 const CACHE = {};
 
+const measureInWindowByMethod = function measureInWindowByMethod(el, method) {
+  const empty = {
+    top: -1,
+    left: -1,
+    bottom: -1,
+    right: -1,
+    width: -1,
+    height: -1,
+  };
+  if (!el.isMounted || !el.nodeId) {
+    return empty;
+  }
+  const { nodeId } = el;
+  // FIXME: callNativeWithPromise was broken in iOS, it response
+  // UIManager was called with 3 arguments, but expect 2.
+  // So wrap the function with a Promise.
+  const timeout = new Promise(resolve => setTimeout(() => {
+    resolve(empty);
+  }, 100));
+  const measure = new Promise(resolve => callNative('UIManagerModule', method, nodeId, (pos) => {
+    // Android error handler.
+    if (!pos || pos === 'this view is null') {
+      return resolve(empty);
+    }
+    return resolve({
+      top: pos.y,
+      left: pos.x,
+      bottom: pos.y + pos.height,
+      right: pos.x + pos.width,
+      width: pos.width,
+      height: pos.height,
+    });
+  }));
+  return Promise.race([timeout, measure]);
+};
+
 /**
  * Native communication module
  */
@@ -137,7 +173,9 @@ const Native = {
       // Assume false in most cases.
       let isIPhoneX = false;
       if (Native.Platform === 'ios') {
-        isIPhoneX = Native.Dimensions.screen.statusBarHeight === 44;
+        // iOS12 - iPhone11: 48 Phone12/12 pro/12 pro max: 47 other: 44
+        const statusBarHeightList = [44, 47, 48];
+        isIPhoneX = statusBarHeightList.indexOf(Native.Dimensions.screen.statusBarHeight) > -1;
       }
       CACHE.isIPhoneX = isIPhoneX;
     }
@@ -294,39 +332,17 @@ const Native = {
    * Measure the component size and position.
    */
   measureInWindow(el) {
-    const empty = {
-      top: -1,
-      left: -1,
-      bottom: -1,
-      right: -1,
-      width: -1,
-      height: -1,
-    };
-    if (!el.isMounted || !el.nodeId) {
-      return empty;
+    return measureInWindowByMethod(el, 'measureInWindow');
+  },
+
+  /**
+   * Measure the component size and position.
+   */
+  measureInAppWindow(el) {
+    if (Native.Platform === 'android') {
+      return measureInWindowByMethod(el, 'measureInWindow');
     }
-    const { nodeId } = el;
-    // FIXME: callNativeWithPromise was broken in iOS, it response
-    // UIManager was called with 3 arguments, but expect 2.
-    // So wrap the function with a Promise.
-    const timeout = new Promise(resolve => setTimeout(() => {
-      resolve(empty);
-    }, 100));
-    const measure = new Promise(resolve => callNative('UIManagerModule', 'measureInWindow', nodeId, (pos) => {
-    // Android error handler.
-      if (!pos || pos === 'this view is null') {
-        return resolve(empty);
-      }
-      return resolve({
-        top: pos.y,
-        left: pos.x,
-        bottom: pos.y + pos.height,
-        right: pos.x + pos.width,
-        width: pos.width,
-        height: pos.height,
-      });
-    }));
-    return Promise.race([timeout, measure]);
+    return measureInWindowByMethod(el, 'measureInAppWindow');
   },
 
   /**

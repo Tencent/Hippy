@@ -5,6 +5,7 @@ const pkg               = require('../package.json');
 
 module.exports = {
   mode: 'development',
+  devtool: 'eval-source-map',
   watch: true,
   watchOptions: {
     aggregateTimeout: 1500,

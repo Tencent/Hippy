@@ -40,7 +40,7 @@ typedef void (^HippyJavaScriptCallback)(id result, NSError *error);
  */
 @protocol HippyJavaScriptExecutor <HippyInvalidating, HippyBridgeModule>
 
-- (instancetype)initWithExecurotKey:(NSString *)execurotkey;
+- (instancetype)initWithExecurotKey:(NSString *)execurotkey bridge:(HippyBridge *)bridge;
 /**
  * Used to set up the executor after the bridge has been fully initialized.
  * Do any expensive setup in this method instead of `-init`.

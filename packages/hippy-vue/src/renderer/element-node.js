@@ -1,7 +1,8 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 
-import ViewNode from './view-node';
+import colorParser from '@css-loader/color-parser';
+import { PROPERTIES_MAP } from '@css-loader/css-parser';
 import { updateChild, updateWithChildren } from './native';
 import { getViewMeta, normalizeElementName } from '../elements';
 import { Event, EventEmitter } from './native/event';
@@ -13,6 +14,7 @@ import {
   endsWith,
   getBeforeLoadStyle,
 } from '../util';
+import ViewNode from './view-node';
 import Native from '../runtime/native';
 
 class ElementNode extends ViewNode {
@@ -150,37 +152,45 @@ class ElementNode extends ViewNode {
     delete this.attributes[key];
   }
 
-  setStyle(property_, value_) {
-    if (value_ === undefined) {
-      delete this.style[property_];
+  setStyle(property, value, isBatchUpdate = false) {
+    if (value === undefined) {
+      delete this.style[property];
       return;
     }
+
     // Preprocess the style
-    const { property, value } = this.beforeLoadStyle({
-      property: property_,
-      value: value_,
+    let {
+      property: p,
+      value: v,
+    } = this.beforeLoadStyle({
+      property,
+      value,
     });
-    let v = value;
 
     // Process the specifc style value
-    switch (property) {
+    switch (p) {
       case 'fontWeight':
         if (typeof v !== 'string') {
           v = v.toString();
         }
         break;
       case 'caretColor':
-        this.attributes['caret-color'] = Native.parseColor(value);
+        this.attributes['caret-color'] = colorParser(v);
         break;
       default: {
+        // Convert the property to W3C standard.
+        if (Object.prototype.hasOwnProperty.call(PROPERTIES_MAP, p)) {
+          p = PROPERTIES_MAP[p];
+        }
+        // Convert the value
         if (typeof v === 'string') {
-          v = value.trim();
+          v = v.trim();
           // Convert inline color style to int
-          if (property.toLowerCase().indexOf('color') >= 0) {
-            v = Native.parseColor(v);
+          if (p.toLowerCase().indexOf('color') >= 0) {
+            v = colorParser(v, Native.Platform);
           // Convert inline length style, drop the px unit
           } else if (endsWith(v, 'px')) {
-            v = parseFloat(value.slice(0, value.length - 2));
+            v = parseFloat(v.slice(0, v.length - 2));
           } else {
             v = tryConvertNumber(v);
           }
@@ -188,11 +198,28 @@ class ElementNode extends ViewNode {
       }
     }
 
-    if (v === undefined || v === null || this.style[property] === v) {
+    if (v === undefined || v === null || this.style[p] === v) {
       return;
     }
-    this.style[property] = v;
-    updateChild(this);
+    this.style[p] = v;
+    if (!isBatchUpdate) {
+      updateChild(this);
+    }
+  }
+
+  /**
+   * set native style props
+   */
+  setNativeProps(nativeProps) {
+    if (nativeProps) {
+      const { style } = nativeProps;
+      if (style) {
+        Object.keys(style).forEach((key) => {
+          this.setStyle(key, style[key], true);
+        });
+        updateChild(this);
+      }
+    }
   }
 
   setStyleScope(styleScopeId) {

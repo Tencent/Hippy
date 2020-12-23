@@ -151,8 +151,9 @@ NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotif
 	[extendsLaunchOptions addEntriesFromDictionary: launchOptions];
 	[extendsLaunchOptions setObject: @(mode) forKey:@"DebugMode"];
   	HippyBridge *bridge = [[HippyBridge alloc] initWithBundleURL:bundleURL
-                                            moduleProvider:nil
-                                             launchOptions:extendsLaunchOptions];
+                                                  moduleProvider:nil
+                                                   launchOptions:extendsLaunchOptions
+                                                     executorKey:moduleName];
 	return [self initWithBridge:bridge moduleName:moduleName initialProperties:initialProperties shareOptions:shareOptions delegate: delegate];
 }
 
@@ -295,7 +296,8 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 	HippyBridge *bridge = notification.userInfo[@"bridge"];
 	NSError *error = notification.userInfo[@"error"];
 	if (bridge == self.bridge && error) {
-		HippyFatal(error);
+        NSError *retError = HippyErrorFromErrorAndModuleName(error, self.bridge.moduleName);
+		HippyFatal(retError);
 	}
 }
 
@@ -328,14 +330,16 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 - (void)secondaryBundleDidLoadSourceCode:(NSError *)error
 {
 	if (error) {
-		HippyFatal(error);
+        NSError *retError = HippyErrorFromErrorAndModuleName(error, self.bridge.moduleName);
+		HippyFatal(retError);
 	}
 }
 
 - (void)secondayBundleDidFinishLoad:(NSError *)error
 {
 	if (error) {
-		HippyFatal(error);
+        NSError *retError = HippyErrorFromErrorAndModuleName(error, self.bridge.moduleName);
+		HippyFatal(retError);
 	}
 }
 
