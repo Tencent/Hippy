@@ -3,6 +3,32 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.1.6](https://github.com/Tencent/Hippy/compare/2.1.5...2.1.6) (2020-12-23)
+
+
+### Bug Fixes
+
+* **android:** add shadow offset props ([0f8eb08](https://github.com/Tencent/Hippy/commit/0f8eb084facd324b9298f218a2457445073ca648))
+* **android:** draw shadow with border radius ([87a608a](https://github.com/Tencent/Hippy/commit/87a608ab744ac7ed7f0a5a44e27fd847d89100fd))
+* **hippy-react:** fixed hairlineWidth NaN in ios ([82faee1](https://github.com/Tencent/Hippy/commit/82faee1f6693dce534ad97e18f4a42d9af1d2d9d))
+* **hippy-vue,hippy-react:** compatible loadMore and endReached event ([#429](https://github.com/Tencent/Hippy/issues/429)) ([d992cbe](https://github.com/Tencent/Hippy/commit/d992cbefbd9a0f76bee70bf604df7d377a08e97c))
+* **ios:** fix crash caused by a nil pScope ([2ae1349](https://github.com/Tencent/Hippy/commit/2ae134969cea5a0601a7e61d7c677ac4541dd050))
+* **ios:** fix memory leaks in HippyBaseListViewCell ([#453](https://github.com/Tencent/Hippy/issues/453)) ([39d1760](https://github.com/Tencent/Hippy/commit/39d1760dd04e4fe75370632ef1c4106bc466f5e2))
+* **ios:** hippy image loader will search the cache ([c13f4d1](https://github.com/Tencent/Hippy/commit/c13f4d14bc0677a5fd61228d1f2e4f59da0c822f))
+
+
+### Features
+
+* **demo:** perf demo dev debug experience ([#452](https://github.com/Tencent/Hippy/issues/452)) ([20fda8c](https://github.com/Tencent/Hippy/commit/20fda8c92b8bebb584b4636ea4685c18d5969215))
+* **hippy-react:** added hippy-react boxShadow attr and demo ([#458](https://github.com/Tencent/Hippy/issues/458)) ([6fd6a34](https://github.com/Tencent/Hippy/commit/6fd6a342f7c0b7b6aa742eeee5c585e9e5a1d31b))
+* **hippy-vue:** change boxShadowOffset standard format ([7be6617](https://github.com/Tencent/Hippy/commit/7be661783182ef6d2e024e260c462bc33dcba4e6))
+* **hippy-vue:** vue css selectors support dynamic import ([#440](https://github.com/Tencent/Hippy/issues/440)) ([3baa571](https://github.com/Tencent/Hippy/commit/3baa57105df8f4e7a46d52d4334a88ee921c388d))
+* **hippy-vue-example:** change dev cssloader path ([#451](https://github.com/Tencent/Hippy/issues/451)) ([795bf75](https://github.com/Tencent/Hippy/commit/795bf7588af20e740de23b0295f87b2bf69e8343))
+
+
+
+
+
 ## [2.1.5](https://github.com/Tencent/Hippy/compare/2.1.4...2.1.5) (2020-12-10)
 
 
