@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.1.6](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-css-loader/compare/2.1.5...2.1.6) (2020-12-23)
+
+
+### Features
+
+* **hippy-vue:** change boxShadowOffset standard format ([7be6617](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-css-loader/commit/7be661783182ef6d2e024e260c462bc33dcba4e6))
+
+
+
+
+
 ## [2.1.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-css-loader/compare/2.1.1...2.1.2) (2020-11-23)
 
 **Note:** Version bump only for package @hippy/vue-css-loader
