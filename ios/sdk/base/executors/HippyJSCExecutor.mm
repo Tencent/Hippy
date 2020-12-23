@@ -213,17 +213,22 @@ HIPPY_EXPORT_MODULE()
 - (JSContext *)JSContext {
     if (nil == _JSContext) {
         _JSContext = [JSContext contextWithJSGlobalContextRef:[self JSGlobalContextRef]];
-        [[NSNotificationCenter defaultCenter] postNotificationName:HippyJavaScriptContextCreatedNotification
-                                                            object:_JSContext];
+        if (_JSContext) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:HippyJavaScriptContextCreatedNotification
+                                                                object:_JSContext];
+        }
     }
     return _JSContext;
 }
 
 - (JSGlobalContextRef)JSGlobalContextRef {
     if (nil == _JSGlobalContextRef) {
-        const std::shared_ptr<hippy::napi::Ctx> &napiCtx = self.pScope->GetContext();
-        std::shared_ptr<hippy::napi::JSCCtx> jscContext = std::static_pointer_cast<hippy::napi::JSCCtx>(napiCtx);
-        _JSGlobalContextRef = jscContext->GetCtxRef();
+        std::shared_ptr<Scope> scope = self.pScope;
+        if (scope) {
+            std::shared_ptr<hippy::napi::Ctx> napiCtx = scope->GetContext();
+            std::shared_ptr<hippy::napi::JSCCtx> jscContext = std::static_pointer_cast<hippy::napi::JSCCtx>(napiCtx);
+            _JSGlobalContextRef = jscContext->GetCtxRef();
+        }
     }
     return _JSGlobalContextRef;
 }
