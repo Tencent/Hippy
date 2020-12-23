@@ -979,6 +979,7 @@ void MTTNode::layoutImpl(float parentWidth, float parentHeight,  FlexLayoutActio
 				if(parent&& parent->getNodeAlign(this) == FlexAlignStretch
 					&& axisDim[mainAxis] == axisDim[parent->getCrossAxis()]
 					&& style.positionType != PositionTypeAbsolute) {
+					//http://tapd.oa.com/10053071/bugtrace/bugs/view?bug_id=1010053071064138683
 					//it this node has text child and node main axis(width) is stretch
 					//,cross axis length(height) is undefined
 					//text can has multi-line, text's height can affect parent's height

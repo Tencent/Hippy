@@ -23,7 +23,6 @@
 #import "HippyExceptionModule.h"
 #import "HippyLog.h"
 #import "HippyAssert.h"
-#import "HippyBridge.h"
 
 @implementation HippyExceptionModule
 
@@ -56,7 +55,6 @@ HIPPY_EXPORT_METHOD(handleException:(NSString *)title detail:(NSString *)detail 
                                 NSLocalizedFailureReasonErrorKey: detail?:@"unkonwn",
                                 HippyJSStackTraceKey:formatStacks,
                                 @"HippyTimeIntervalKey":timeInterval ?:@(0),
-                                HippyFatalModuleName:[[self bridge] moduleName]?:@"unknown"
                                 };
 
     NSError *error = [NSError errorWithDomain:HippyErrorDomain code:1 userInfo:errorInfo];

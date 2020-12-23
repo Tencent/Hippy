@@ -10,6 +10,6 @@
 
 
 [GitHub](//github.com/Tencent/Hippy)
-[快速开始](/README.md)
+[开始接入](guide/integration.md)
 
 ![color](#fff)

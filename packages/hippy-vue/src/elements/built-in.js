@@ -64,9 +64,6 @@ const div = {
             length: 1,
           };
           break;
-        case 'onFocus':
-          event.isFocused = nativeEventName.focus;
-          break;
         default:
       }
       return event;

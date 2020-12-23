@@ -134,12 +134,6 @@
 | ------ | -------- |
 | number | 否       |
 
-# box-shadow
-
-| 类型   | 必需 |
-| ------ | -------- |
-| [参考例子](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-shadow.vue) | 否       |
-
 # opacity
 
 | 类型   | 必需 |

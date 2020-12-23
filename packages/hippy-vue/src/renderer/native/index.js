@@ -118,19 +118,13 @@ function endBatch(app) {
 }
 
 function getCssMap() {
-  // To support dynamic import. __cssMap can be loaded from differnet js file.
-  // __cssMap should be create/append if global[GLOBAL_STYLE_NAME] exists;
-  if (__cssMap && !global[GLOBAL_STYLE_NAME]) {
+  if (__cssMap) {
     return __cssMap;
   }
   // HERE IS A SECRET STARTUP OPTION: beforeStyleLoadHook
   // Usage for process the styles while styles loading.
   const cssRules = fromAstNodes(global[GLOBAL_STYLE_NAME]);
-  if (__cssMap) {
-    __cssMap.append(cssRules);
-  } else {
-    __cssMap = new SelectorsMap(cssRules);
-  }
+  __cssMap = new SelectorsMap(cssRules);
   delete global[GLOBAL_STYLE_NAME];
   return __cssMap;
 }

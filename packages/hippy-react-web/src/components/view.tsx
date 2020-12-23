@@ -42,14 +42,11 @@ class View extends React.Component {
     const newProps = Object.assign({}, this.props, {
       style: finalStyle,
     });
-    const accessibilityLabelValue = newProps.accessibilityLabel;
     delete newProps.onPressIn;
     delete newProps.onPressOut;
     delete newProps.onLayout;
-    delete newProps.accessibilityLabel;
-
     return (
-      <div {...newProps} ref={withRef} aria-label={accessibilityLabelValue} />
+      <div {...newProps} ref={withRef} />
     );
   }
 }

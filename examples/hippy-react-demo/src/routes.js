@@ -52,14 +52,6 @@ export default [
     },
   },
   {
-    path: '/PullHeader',
-    name: 'PullHeader 组件',
-    component: PAGE_LIST.PullHeader,
-    meta: {
-      style: 1,
-    },
-  },
-  {
     path: '/RefreshWrapper',
     name: 'RefreshWrapper 组件',
     component: PAGE_LIST.RefreshWrapper,
@@ -159,14 +151,6 @@ export default [
     path: '/UIManagerModule',
     name: 'UIManagerModule 模块',
     component: PAGE_LIST.UIManagerModule,
-    meta: {
-      style: 2,
-    },
-  },
-  {
-    path: '/SetNativeProps',
-    name: 'setNativeProps能力',
-    component: PAGE_LIST.SetNativeProps,
     meta: {
       style: 2,
     },

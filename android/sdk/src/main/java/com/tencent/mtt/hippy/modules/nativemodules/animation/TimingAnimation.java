@@ -186,6 +186,7 @@ public class TimingAnimation extends Animation implements ValueAnimator.Animator
 			 * 小于0 		无限次
 			 * 0 			1次 = (0+1)次
 			 * n  			是n次
+			 * bugFix:https://git.code.oa.com/hippy/hippy/issues/73
 			 * */
 			if(mRepeatCount > 0 )
 				mRepeatCount = mRepeatCount - 1;

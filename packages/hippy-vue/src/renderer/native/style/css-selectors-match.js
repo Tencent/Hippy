@@ -45,11 +45,6 @@ class SelectorsMap {
     ruleSets.forEach(rule => rule.lookupSort(this));
   }
 
-  append(appendRules) {
-    this.ruleSets.join(appendRules);
-    appendRules.forEach(rule => rule.lookupSort(this));
-  }
-
   query(node) {
     const { tagName, id, classList } = node;
     const selectorClasses = [

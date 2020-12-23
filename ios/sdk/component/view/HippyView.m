@@ -30,17 +30,18 @@
 #import "UIView+Hippy.h"
 #import "HippyBackgroundImageCacheManager.h"
 
-
-dispatch_queue_t global_hpview_queue(){
-    static dispatch_queue_t g_background_queue = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        g_background_queue = dispatch_queue_create("com.tencent.mtt.hippy.hpview", DISPATCH_QUEUE_SERIAL);
-    });
-    return g_background_queue;
-}
+dispatch_queue_t g_background_queue = nil;
 
 @implementation UIView (HippyViewUnmounting)
+
++ (void)initialize
+{
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    g_background_queue = dispatch_queue_create("com.tencent.mtt.hippy.hpview", DISPATCH_QUEUE_SERIAL);
+      
+  });
+}
 
 - (void)hippy_remountAllSubviews
 {
@@ -162,7 +163,7 @@ static NSString *HippyRecursiveAccessibilityLabel(UIView *view)
     _borderStyle = HippyBorderStyleSolid;
     _backgroundColor = super.backgroundColor;
     _backgroundCachemanager = HippyBackgroundImageCacheManager.sharedInstance;
-    _backgroundCachemanager.g_background_queue = global_hpview_queue();
+    _backgroundCachemanager.g_background_queue = g_background_queue;
     self.layer.shadowOffset = CGSizeZero;
     self.layer.shadowRadius = 0.f;
   }
@@ -575,7 +576,7 @@ void HippyBoarderColorsRelease(HippyBorderColors c)
     
     __weak typeof(self) weakSelf = self;
     HippyBoarderColorsRetain(borderColors);
-    dispatch_async(global_hpview_queue(), ^{
+    dispatch_async(g_background_queue, ^{
         UIImage *image = HippyGetBorderImage(weakSelf.borderStyle,
                                            theFrame.size,
                                            cornerRadii,
@@ -782,7 +783,7 @@ setBorderStyle()
       __weak HippyBackgroundImageCacheManager* weakBackgroundImageCacheManager = _backgroundCachemanager;
       NSString *weakBackgroundImageUrl = self.backgroundImageUrl;
       NSNumber *weakHippyTag = self.hippyTag;
-      dispatch_async(global_hpview_queue(), ^{
+      dispatch_async(g_background_queue, ^{
         [weakBackgroundImageCacheManager releaseBackgroundImageCacheWithUrl:weakBackgroundImageUrl frame:frame hippyTag:weakHippyTag];
       });
   }

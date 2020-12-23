@@ -86,13 +86,12 @@ function capitalizeFirstLetter(str) {
 /**
  * Convert string to number as possible
  */
-const numberRegEx = new RegExp('^[+-]?\\d*\\.?\\d*([Ee][+-]?\\d+)?$');
-const notEmptyRegEx = new RegExp('^.+$');
+const numberRegEx = new RegExp('^[+-]?\\d+(\\.\\d+)?$');
 function tryConvertNumber(str) {
   if (typeof str === 'number') {
     return str;
   }
-  if (typeof str === 'string' && numberRegEx.test(str) && notEmptyRegEx.test(str)) {
+  if (typeof str === 'string' && numberRegEx.test(str)) {
     try {
       return parseFloat(str);
     } catch (err) {

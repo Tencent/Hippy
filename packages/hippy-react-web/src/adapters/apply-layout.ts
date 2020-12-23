@@ -54,9 +54,7 @@ const triggerAll = () => {
     });
 };
 
-if (typeof window === 'object') {
-  window.addEventListener('resize', debounce(triggerAll, 16), false);
-}
+window.addEventListener('resize', debounce(triggerAll, 16), false);
 
 function observe(instance: LayoutElement) {
   id += 1;

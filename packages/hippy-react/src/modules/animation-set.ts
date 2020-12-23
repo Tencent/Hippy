@@ -157,8 +157,6 @@ class AnimationSet implements AnimationSet {
    */
   public destroy() {
     this.removeEventListener();
-    this.animationList.forEach(item => Number.isInteger(item.animationId)
-        && Bridge.callNative('AnimationModule', 'destroyAnimation', item.animationId));
     Bridge.callNative('AnimationModule', 'destroyAnimation', this.animationId);
   }
 

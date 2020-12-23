@@ -21,7 +21,6 @@ const mimeTypes = {
   wma: 'audio/x-ms-wma',
   wmv: 'video/x-ms-wmv',
   xml: 'text/xml',
-  bundle: 'application/javascript',
 };
 
 function parseMimeType(pathName) {

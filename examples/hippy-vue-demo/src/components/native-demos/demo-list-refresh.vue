@@ -1,5 +1,5 @@
 <template>
-  <div id="demo-pull-header">
+  <div id="demo-list">
     <div class="toolbar">
       <button class="toolbar-btn" @click="scrollToNextPage">
         <span>翻到下一页</span>
@@ -10,40 +10,32 @@
       <p class="toolbar-text">列表元素数量：{{ dataSource.length }}</p>
     </div>
 
-    <!-- numberOfRows is necessary by iOS first screen rendering -->
-    <ul
-      id="list"
-      ref="list"
-      @endReached="onEndReached"
-      :numberOfRows="dataSource.length"
-    >
-      /**
-       * 下拉组件
-       *
-       * 事件：
-       *   idle: 滑动距离在 pull-header 区域内触发一次，参数 contentOffset，滑动距离
-       *   pulling: 滑动距离超出 pull-header 后触发一次，参数 contentOffset，滑动距离
-       *   refresh: 滑动超出距离，松手后触发一次
-       */
-      <pull-header
-        ref="pullHeader"
-        class="ul-refresh"
-        @idle="onIdle"
-        @pulling="onPulling"
-        @released="onRefresh"
-      >
+    <!-- ul 的下拉刷新需要裹到 ul-refresh-wrapper 组件里，注意它也要全屏样式 -->
+    <ul-refresh-wrapper ref="refreshWrapper" class="fullscreen" @refresh="onRefresh">
+      <!-- 下拉刷新组件，可以嵌入图片 -->
+      <ul-refresh class="ul-refresh">
         <p class="ul-refresh-text">{{ refreshText }}</p>
-      </pull-header>
-      <li
-        v-for="(ui, index) in dataSource"
-        :key="index"
-        :type="'row-' + ui.style"
+      </ul-refresh>
+      <!-- numberOfRows is necessary by iOS first screen rendering -->
+      <ul
+        id="list"
+        ref="list"
+        @endReached="onEndReached"
+        @scroll="onScroll"
+        :numberOfRows="dataSource.length"
       >
-        <style-one v-if="ui.style == 1" :itemBean="ui.itemBean" />
-        <style-two v-if="ui.style == 2" :itemBean="ui.itemBean" />
-        <style-five v-if="ui.style == 5" :itemBean="ui.itemBean" />
-      </li>
-    </ul>
+        <li
+          v-for="(ui, index) in dataSource"
+          :key="index"
+          :type="ui.style"
+          @layout="onItemLayout"
+        >
+            <style-one v-if="ui.style == 1" :itemBean="ui.itemBean" />
+            <style-two v-if="ui.style == 2" :itemBean="ui.itemBean" />
+            <style-five v-if="ui.style == 5" :itemBean="ui.itemBean" />
+        </li>
+       </ul>
+    </ul-refresh-wrapper>
     <p id="loading" v-show="loadingState">{{ loadingState }}</p>
   </div>
 </template>
@@ -56,6 +48,8 @@ import '../list-items';
 const STYLE_LOADING = 100;
 const MAX_FETCH_TIMES = 50;
 const REFRESH_TEXT = '下拉后放开，将会刷新';
+
+const heightOfComponents = {};
 
 export default {
   data() {
@@ -77,6 +71,16 @@ export default {
     // 所以需要加一个锁，当未加载完成时不进行二次加载
     this.isLoading = false;
     this.dataSource = [...mockData];
+
+    // 启动时保存一下屏幕高度，一会儿算曝光时会用到
+    if (Vue.Native) {
+      this.$windowHeight = Vue.Native.Dimensions.window.height;
+    } else {
+      this.$windowHeight = window.innerHeight;
+    }
+
+    // 初始化时曝光，因为子元素加载需要时间，建议延迟 500 毫秒后执行
+    setTimeout(() => this.exposureReport(0), 500);
   },
   methods: {
     mockFetchData() {
@@ -90,12 +94,6 @@ export default {
         }, 300);
       });
     },
-    onIdle() {
-      this.refreshText = REFRESH_TEXT;
-    },
-    onPulling() {
-      this.refreshText = '松手即可进行刷新';
-    },
     async onRefresh() {
       // 重新获取数据
       this.refreshText = '刷新数据中，请稍等3秒，完成后将自动收起';
@@ -104,7 +102,7 @@ export default {
       this.refreshText = REFRESH_TEXT;
       this.dataSource = dataSource.reverse();
       // 注意这里需要告诉终端刷新已经结束了，否则会一直卡着。
-      this.$refs.pullHeader.collapsePullHeader();
+      this.$refs.refreshWrapper.refreshCompleted();
     },
     async onEndReached() {
       const { dataSource } = this;
@@ -126,6 +124,38 @@ export default {
       this.loadingState = '';
       this.dataSource = [...dataSource, ...newData];
       this.isLoading = false;
+    },
+    // 需要说明的是，Web 端的 overflow: scroll，滚屏时并不会触发 scroll 消息，这个方法仅针对 Native.
+    onScroll(evt) {
+      evt.stopPropagation(); // 这个事件触发比较频繁，最好阻止一下冒泡。
+      this.scrollPos = {
+        top: evt.offsetY,
+        left: evt.offsetX,
+      };
+      // 初始化时曝光上报
+      this.exposureReport(evt.offsetY);
+    },
+    onItemLayout(evt) {
+      // 保存一下 ListItemView 尺寸的高度
+      heightOfComponents[evt.target.index] = evt.top;
+    },
+    /**
+     * 曝光上报
+     * @param {number} screenTop 屏幕高度
+     */
+    exposureReport(screenTop) {
+      // 获取可视范围内的组件
+      const componentsInWindow = Object.keys(heightOfComponents).filter(
+        (index) => {
+          const height = heightOfComponents[index];
+          return (
+            screenTop <= height && screenTop + this.$windowHeight >= height
+          );
+        },
+      );
+      // 其实没有上报，只是把界面上正在曝光的组件列出来了。
+      // 同时曝光锁还得业务自己做。
+      console.log('Exposuring components:', componentsInWindow);
     },
     /**
      * 翻到下一页
@@ -164,85 +194,87 @@ export default {
 </script>
 
 <style scoped>
-#demo-pull-header {
+#demo-list {
   flex: 1;
   padding: 12px;
 }
 
-#demo-pull-header #loading {
+#demo-list #loading {
   font-size: 11px;
   color: #aaa;
   align-self: center;
 }
 
-#demo-pull-header #toolbar {
+#demo-list #toolbar {
   display: flex;
   height: 40px;
   flex-direction: row;
 }
 
-#demo-pull-header .ul-refresh {
+#demo-list .ul-refresh {
+  flex: 1;
   background-color: green;
 }
 
-#demo-pull-header .ul-refresh-text {
+#demo-list .ul-refresh-text {
+  flex: 1;
   color: white;
   height: 60px;
   line-height: 60px;
   text-align: center;
 }
 
-#demo-pull-header #list {
+#demo-list #list {
   flex: 1;
   background-color: white;
 }
 
-#demo-pull-header .article-title {
+#demo-list .article-title {
   font-size: 17px;
   line-height: 24px;
   color: #242424;
 }
 
-#demo-pull-header .normal-text {
+#demo-list .normal-text {
   font-size: 11px;
   color: #aaa;
   align-self: center;
 }
 
-#demo-pull-header .image {
+#demo-list .image {
   flex: 1;
   height: 160px;
   resize-mode: cover;
 }
 
-#demo-pull-header .style-one-image-container {
+#demo-list .style-one-image-container {
   flex-direction: row;
   justify-content: center;
   margin-top: 8px;
   flex: 1;
 }
 
-#demo-pull-header .style-one-image {
+#demo-list .style-one-image {
   height: 120px;
 }
 
-#demo-pull-header .style-two {
+#demo-list .style-two {
   flex-direction: row;
   justify-content: space-between;
 }
 
-#demo-pull-header .style-two-left-container {
+#demo-list .style-two-left-container {
   flex: 1;
   flex-direction: column;
   justify-content: center;
   margin-right: 8px;
 }
 
-#demo-pull-header .style-two-image-container {
+#demo-list .style-two-image-container {
   flex: 1;
 }
 
-#demo-pull-header .style-two-image {
+#demo-list .style-two-image {
   height: 140px;
 }
 </style>

@@ -37,5 +37,4 @@
 
 - (void)cancelImageDownload:(UIImageView *)imageView withUrl:(NSURL *)url;
 
-- (void)loadImage:(NSURL *)url completed:(void (^)(NSData *, NSURL *, NSError *, BOOL cached))completedBlock;
 @end

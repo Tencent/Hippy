@@ -28,7 +28,7 @@
 #import "HippyTouchHandler.h"
 #import "HippyUIManager.h"
 #import "UIView+Hippy.h"
-#import "HippyModalHostViewInteractor.h"
+
 #import <UIKit/UIKit.h>
 
 @implementation HippyModalHostView
@@ -36,6 +36,7 @@
   __weak HippyBridge *_bridge;
   BOOL _isPresented;
   HippyModalHostViewController *_modalViewController;
+  HippyTouchHandler *_touchHandler;
   UIView *_hippySubview;
     UIStatusBarStyle originStyle;
   UIInterfaceOrientation _lastKnownOrientation;

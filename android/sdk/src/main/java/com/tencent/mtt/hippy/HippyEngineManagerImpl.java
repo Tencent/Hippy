@@ -558,7 +558,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 		}
 		resetEngine();
 
-		mEngineContext = new HippyEngineContextImpl(mDebugMode, mServerHost);
+		mEngineContext = new HippyEngineContextImpl(mDebugMode);
 		mEngineContext.getBridgeManager().initBridge(new Callback<Boolean>()
 		{
 			@Override
@@ -759,11 +759,10 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 		 */
 		private DomManager													mDomManager;
 
-		public HippyEngineContextImpl(boolean isDevModule, String debugServerHost)
+		public HippyEngineContextImpl(boolean isDevModule)
 		{
 			mModuleManager = new HippyModuleManagerImpl(this, mAPIProviders);
-			mBridgeManager = new HippyBridgeManagerImpl(this, mCoreBundleLoader, HippyEngineManagerImpl.this.getBridgeType(),
-					mEnableHippyBuffer, isDevModule, debugServerHost, mGroupId, mThirdPartyAdapter);
+			mBridgeManager = new HippyBridgeManagerImpl(this, mCoreBundleLoader, HippyEngineManagerImpl.this.getBridgeType(), mEnableHippyBuffer, isDevModule, mGroupId, mThirdPartyAdapter);
 			mRenderManager = new RenderManager(this, mAPIProviders);
 			mDomManager = new DomManager(this);
 		}

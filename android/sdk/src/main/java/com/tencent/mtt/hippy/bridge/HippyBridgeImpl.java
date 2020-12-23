@@ -52,7 +52,6 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 	private BridgeCallback						mBridgeCallback;
 	private boolean								mInit						= false;
 	private boolean								mIsDevModule				= false;
-	private String                              mDebugServerHost;
 	private boolean								mSingleThreadMode			= false;
 	private boolean								mBridgeParamJson;
 	private HippyBuffer                         mHippyBuffer;
@@ -60,14 +59,12 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 	private String                              mDebugGobalConfig;
 	private NativeCallback                      mDebugInitJSFrameworkCallback;
 
-	public HippyBridgeImpl(Context context, BridgeCallback callback, boolean singleThreadMode,
-			boolean jsonBrige, boolean isDevModule, String debugServerHost)
+	public HippyBridgeImpl(Context context, BridgeCallback callback, boolean singleThreadMode, boolean jsonBrige, boolean isDevModule)
 	{
 		this.mBridgeCallback = callback;
 		this.mSingleThreadMode = singleThreadMode;
 		this.mBridgeParamJson = jsonBrige;
 		this.mIsDevModule = isDevModule;
-		this.mDebugServerHost = debugServerHost;
 
 		synchronized (sBridgeSyncLock)
 		{
@@ -88,7 +85,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 				this.mCodeCacheThreadExecutor.allowCoreThreadTimeOut(true);
 			}
 		}
-
+        
 		if (!mBridgeParamJson)
 		{
 			mHippyBuffer = new HippyBuffer();
@@ -112,10 +109,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 		{
 			mDebugWebSocketClient = new DebugWebSocketClient();
 			mDebugWebSocketClient.setOnReceiveDataCallback(this);
-			if (TextUtils.isEmpty(mDebugServerHost)) {
-				mDebugServerHost = "localhost:38989";
-			}
-			mDebugWebSocketClient.connect(String.format(Locale.US, "ws://%s/debugger-proxy?role=android_client", mDebugServerHost), new DebugWebSocketClient.JSDebuggerCallback()
+			mDebugWebSocketClient.connect(String.format(Locale.US, "ws://%s/debugger-proxy?role=android_client", "localhost:38989"), new DebugWebSocketClient.JSDebuggerCallback()
 			{
 				@Override
 				public void onSuccess(String response)
@@ -245,14 +239,13 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 				mCodeCacheThreadExecutor = null;
 			}
 		}
-
+		
 		if (!mBridgeParamJson && mHippyBuffer != null)
 		{
 			mHippyBuffer.release();
 		}
 
 		destroy(mV8RuntimeId, mSingleThreadMode, callback);
-		mV8RuntimeId = 0;
 		mBridgeCallback = null;
 	}
 

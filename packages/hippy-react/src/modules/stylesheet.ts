@@ -1,7 +1,7 @@
 import Style from '@localTypes/style';
 import { Device } from '../native';
 
-const ratio = Device.window.scale;
+const ratio = Device.pixelRatio;
 /* eslint-disable-next-line import/no-mutable-exports */
 let hairlineWidth = Math.round(0.4 * ratio) / ratio;
 if (hairlineWidth === 0) {

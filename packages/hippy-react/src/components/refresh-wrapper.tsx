@@ -14,8 +14,6 @@ interface RefreshWrapperItemViewProps {
 
 /**
  * Simply to implement the drag down to refresh feature.
- *
- * @deprecated
  * @noInheritDoc
  */
 class RefreshWrapper extends React.Component<RefreshWrapperProps, {}> {

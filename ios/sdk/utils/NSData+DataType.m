@@ -56,7 +56,7 @@ static bool memcontains(const void *s, const void *t, size_t sl, size_t tl) {
     const void *bytes = [self bytes];
     const char pngSig[8] = {0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a};
     const char pngacTL[4] = {'a', 'c', 'T', 'L'};
-    if (0 == memcmp(bytes, pngSig, 8) &&
+    if (memcmp(bytes, pngSig, 8) &&
         memcontains(bytes, pngacTL, 0x50, 4)) {
         return YES;
     }

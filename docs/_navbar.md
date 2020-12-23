@@ -1,5 +1,4 @@
 * 起步
-  * [Hippy概述](/README.md)
   * [开始接入](guide/integration.md)
   * [Core C++ 扩展](core/introduction.md)
   * [Android](android/integration.md)
@@ -34,4 +33,3 @@
   * [外观](style/appearance.md)
   * [颜色](style/color.md)
   * [变形](style/transform.md)
-  * [setNativeProps](style/setNativeProps.md)

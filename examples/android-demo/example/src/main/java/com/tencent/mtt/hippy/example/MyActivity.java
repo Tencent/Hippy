@@ -44,7 +44,7 @@ public class MyActivity extends Activity
 			initParams.context = this;
 			// 必须：图片加载器
 			initParams.imageLoader = new MyImageLoader();
-			initParams.debugServerHost = "localhost:38989";
+
 			// 可选：是否设置为debug模式，默认为false。调试模式下，所有jsbundle都是从debug server上下载
 			initParams.debugMode = false;
 			// 可选：是否打印引擎的完整的log。默认为false

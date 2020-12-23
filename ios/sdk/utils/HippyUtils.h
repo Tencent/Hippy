@@ -108,12 +108,6 @@ HIPPY_EXTERN BOOL HippyForceTouchAvailable(void);
 // Create an NSError in the HippyErrorDomain
 HIPPY_EXTERN NSError *HippyErrorWithMessage(NSString *message);
 
-// Create an NSError in the HippyErrorDomain
-HIPPY_EXTERN NSError *HippyErrorWithMessageAndModuleName(NSString *message, NSString *moduleName);
-
-// Create an NSError with HippyFatalModuleName from another error
-HIPPY_EXTERN NSError *HippyErrorFromErrorAndModuleName(NSError *error, NSString *moduleName);
-
 // Convert nil values to NSNull, and vice-versa
 #define HippyNullIfNil(value) (value ?: (id)kCFNull)
 #define HippyNilIfNull(value) (value == (id)kCFNull ? nil : value)

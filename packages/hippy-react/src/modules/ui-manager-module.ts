@@ -22,23 +22,16 @@ const getNodeById = findNodeById;
  *
  * @param {Fiber} ref - ref instance.
  */
-function getElementFromFiberRef(ref: Fiber | Element) {
-  if (ref instanceof Element) {
-    return ref;
-  }
+function getElementFromFiberRef(ref: Fiber) {
   // FIXME: should not use the private _reactInternalFiber
-  const internalFiber = (ref as any)._reactInternalFiber;
-  if (internalFiber && internalFiber.child) {
-    let targetNode = internalFiber.child;
-    while (targetNode && !(targetNode.stateNode instanceof Element)) {
-      targetNode = targetNode.child;
-    }
-    if (!targetNode || !targetNode.stateNode) {
-      return null;
-    }
-    return targetNode.stateNode;
+  let targetNode = (ref as any)._reactInternalFiber.child;
+  while (targetNode && !targetNode.stateNode) {
+    targetNode = targetNode.child;
   }
-  return null;
+  if (!targetNode || !targetNode.stateNode) {
+    return null;
+  }
+  return targetNode.stateNode;
 }
 
 /**
@@ -49,7 +42,6 @@ function getElementFromFiberRef(ref: Fiber | Element) {
  */
 function getNodeIdByRef(ref: string | Fiber | Element): number {
   // typeof ref === 'string'
-  let tempRef = ref;
   if (typeof ref === 'string') {
     warn(`getNodeIdByRef('${ref}') use string ref will affect to performance, recommend use reference to the ref instead`);
     const targetElement = findNodeByCondition((node: Fiber) => {
@@ -63,19 +55,19 @@ function getNodeIdByRef(ref: string | Fiber | Element): number {
     if (!targetElement || !targetElement.stateNode) {
       return 0;
     }
-    tempRef = targetElement.stateNode;
+    return targetElement.stateNode.nodeId;
   }
 
-  // typeof fiberRef === 'Fiber'
-  if (!(tempRef as Element).nodeId) {
-    const targetElement = getElementFromFiberRef(tempRef);
+  // typeof ref === 'Fiber'
+  if (!(ref as Element).nodeId) {
+    const targetElement = getElementFromFiberRef((ref as Fiber));
     if (!targetElement) {
       return 0;
     }
     return targetElement.nodeId;
   }
   // typeof ref === 'Element'
-  return (tempRef as Element).nodeId;
+  return (ref as Element).nodeId;
 }
 
 /**
@@ -90,7 +82,7 @@ function callUIFunction(ref: Element | Fiber, funcName: string, ...options: any[
   let { nativeName: componentName, nodeId } = ref as Element;
 
   if (!nodeId || !componentName) {
-    const targetElement = getElementFromFiberRef(ref);
+    const targetElement = getElementFromFiberRef((ref as Fiber));
     if (targetElement) {
       ({ nodeId, nativeName: componentName } = targetElement);
     }
@@ -134,15 +126,10 @@ function callUIFunction(ref: Element | Fiber, funcName: string, ...options: any[
  * Get the ref position and size in the visible window.
  * > For the position and size in the layout, use onLayout event.
  *
- * @param {string} method
  * @param {Fiber | Element} ref - ref that need to measure.
  * @param {function} callBack
  */
-function measureInWindowByMethod(
-  method: string,
-  ref: Fiber,
-  callback?: (layout: LayoutContent) => void,
-) {
+function measureInWindow(ref: Fiber, callback?: (layout: LayoutContent) => void) {
   const nodeId = getNodeIdByRef(ref);
   return new Promise((resolve, reject) => {
     if (!nodeId) {
@@ -150,9 +137,9 @@ function measureInWindowByMethod(
         // Forward compatibility for old callback
         callback('this view is null');
       }
-      return reject(new Error(`${method} cannot get nodeId`));
+      return reject(new Error('measureInWindow cannot get nodeId'));
     }
-    return Bridge.callNative('UIManagerModule', method, nodeId, (layout: LayoutContent | string) => {
+    return Bridge.callNative('UIManagerModule', 'measureInWindow', nodeId, (layout: LayoutContent | string) => {
       if (callback && isFunction(callback)) {
         callback(layout);
       }
@@ -162,32 +149,6 @@ function measureInWindowByMethod(
       return resolve(layout);
     });
   });
-}
-
-/**
- * Get the ref position and size in the visible window.
- * > For the position and size in the layout, use onLayout event.
- *
- * @param {Fiber | Element} ref - ref that need to measure.
- * @param {function} callBack
- */
-function measureInWindow(ref: Fiber, callback?: (layout: LayoutContent) => void) {
-  return measureInWindowByMethod('measureInWindow', ref, callback);
-}
-
-/**
- * Get the ref position and size in the visible window.
- * > For the position and size in the layout, use onLayout event.
- *
- * @param {Fiber | Element} ref - ref that need to measure.
- * @param {function} callBack
- */
-function measureInAppWindow(ref: Fiber, callback?: (layout: LayoutContent) => void) {
-  if (Device.platform.OS === 'android') {
-    return measureInWindowByMethod('measureInWindow', ref, callback);
-  }
-
-  return measureInWindowByMethod('measureInAppWindow', ref, callback);
 }
 
 export {
@@ -203,5 +164,4 @@ export {
   getElementFromFiberRef,
   callUIFunction,
   measureInWindow,
-  measureInAppWindow,
 };

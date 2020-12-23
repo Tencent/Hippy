@@ -36,10 +36,7 @@
     "case-sensitive-paths-webpack-plugin": "^2.2.0",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
-    "less-loader": "^7.1.0",
-    "scope-loader": "^1.0.3",
     "unicode-loader": "^1.0.7",
-    "vue-loader": "^15.9.6",
     "vue-template-compiler": "^2.6.10",
     "webpack-cli": "^3.3.10"
   }

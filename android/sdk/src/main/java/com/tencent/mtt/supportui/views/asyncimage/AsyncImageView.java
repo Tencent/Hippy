@@ -39,10 +39,7 @@ import android.view.ViewGroup;
 
 public class AsyncImageView extends ViewGroup implements Animator.AnimatorListener, ValueAnimator.AnimatorUpdateListener, IBorder, IShadow
 {
-	public static final int         FADE_DURATION			= 150;
-	public final static int         IMAGE_UNLOAD            = 0;
-	public final static int         IMAGE_LOADING           = 1;
-	public final static int         IMAGE_LOADED            = 2;
+	public static final int			FADE_DURATION			= 150;
 
 	protected static int			SOURCE_TYPE_SRC			= 1;
 	protected static int			SOURCE_TYPE_DEFAULT_SRC	= 2;
@@ -54,7 +51,7 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 	protected String				mImageType;
 
 	// the 'mURL' is fetched succeed
-	protected int                   mUrlFetchState = IMAGE_UNLOAD;
+	protected boolean               mIsUrlFetchSucceed;
 
 	protected int					mTintColor;
 	protected ScaleType				mScaleType;
@@ -96,7 +93,8 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 		mImageAdapter = imageAdapter;
 	}
 
-	public void setImageType(String type) {
+	public void setImageType(String type)
+	{
 		mImageType = type;
 	}
 
@@ -105,7 +103,6 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 		if (!TextUtils.equals(url, mUrl))
 		{
 			mUrl = url;
-			mUrlFetchState = IMAGE_UNLOAD;
 			if (isAttached())
 			{
 				onDrawableDetached();
@@ -256,8 +253,6 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 				{
 					return;
 				}
-
-				mUrlFetchState = IMAGE_LOADING;
 				onFetchImage(url);
 				handleGetImageStart();
 				doFetchImage(getFetchParam(), sourceType);
@@ -385,7 +380,7 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 	{
 		mIsAttached = true;
 		super.onAttachedToWindow();
-		if (mDefaultSourceDrawable != null && shouldFetchImage())
+		if (mDefaultSourceDrawable != null)
 		{
 			mDefaultSourceDrawable.onDrawableAttached();
 			setContent(SOURCE_TYPE_DEFAULT_SRC);

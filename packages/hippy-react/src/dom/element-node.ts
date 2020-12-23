@@ -20,10 +20,6 @@ interface Attributes {
   [key: string]: string | number | true;
 }
 
-interface NativePropsStyle {
-  [key: string]: string | object | number | Transform
-}
-
 class ElementNode extends ViewNode {
   tagName: string;
 
@@ -259,7 +255,7 @@ class ElementNode extends ViewNode {
   }
 
   /* istanbul ignore next */
-  setStyle(property: string, value: string | number | Transform, isBatchUpdate: boolean = false) {
+  setStyle(property: string, value: string | number |Transform) {
     if (value === null) {
       delete (this.style as any)[property];
       return;
@@ -279,25 +275,7 @@ class ElementNode extends ViewNode {
       return;
     }
     (this.style as any)[property] = v;
-    if (!isBatchUpdate) {
-      updateChild(this);
-    }
-  }
-
-  /**
-   * set native style props
-   */
-  setNativeProps(nativeProps: NativePropsStyle) {
-    if (nativeProps) {
-      const { style } = nativeProps;
-      if (style) {
-        const styleProps = (style as NativePropsStyle);
-        Object.keys(styleProps).forEach((key) => {
-          this.setStyle(key, styleProps[key], true);
-        });
-        updateChild(this);
-      }
-    }
+    updateChild(this);
   }
 
   setText(text: string) {

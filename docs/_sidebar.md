@@ -1,6 +1,6 @@
 <!-- docs/_sidebar.md -->
 
-* [首页](/)
+* [Home](/)
 * [开始接入](guide/integration.md)
 * [Hippy-React](hippy-react/introduction.md)
 * [Hippy-Vue](hippy-vue/introduction.md)

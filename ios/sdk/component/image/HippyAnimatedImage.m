@@ -171,7 +171,7 @@ static NSHashTable *allAnimatedImagesWeak;
 }
 
 - (instancetype)initWithAnimatedImageProvider:(id<HippyImageProviderProtocol>)imageProvider {
-    return [self initWithAnimatedImageProvider:imageProvider optimalFrameCacheSize:9 predrawingEnabled:NO];
+    return [self initWithAnimatedImageProvider:imageProvider optimalFrameCacheSize:9 predrawingEnabled:YES];
 }
 
 - (instancetype)initWithAnimatedImageProvider:(id<HippyImageProviderProtocol>)imageProvider optimalFrameCacheSize:(NSUInteger)optimalFrameCacheSize predrawingEnabled:(BOOL)isPredrawingEnabled {
@@ -307,7 +307,7 @@ static NSHashTable *allAnimatedImagesWeak;
 
 - (instancetype)initWithAnimatedGIFData:(NSData *)data
 {
-    return [self initWithAnimatedGIFData:data optimalFrameCacheSize:0 predrawingEnabled:NO];
+    return [self initWithAnimatedGIFData:data optimalFrameCacheSize:0 predrawingEnabled:YES];
 }
 
 - (instancetype)initWithAnimatedGIFData:(NSData *)data optimalFrameCacheSize:(NSUInteger)optimalFrameCacheSize predrawingEnabled:(BOOL)isPredrawingEnabled
@@ -588,20 +588,18 @@ static NSHashTable *allAnimatedImagesWeak;
     // }
     if (_imageSource) {
         CFStringRef imageSourceContainerType = CGImageSourceGetType(_imageSource);
-        NSString *imagePropertyKey = (NSString *)kCGImagePropertyGIFDictionary;
-        NSString *loopCountKey = (NSString *)kCGImagePropertyGIFLoopCount;
+        NSString *imagePropertyKey = (id)kCGImagePropertyGIFDictionary;
         if (UTTypeConformsTo(imageSourceContainerType, kUTTypePNG)) {
-            imagePropertyKey = (NSString *)kCGImagePropertyPNGDictionary;
-            loopCountKey = (NSString *)kCGImagePropertyAPNGLoopCount;
+            imagePropertyKey = (id)kCGImagePropertyPNGDictionary;
         }
         NSDictionary *imageProperties = (__bridge_transfer NSDictionary *)CGImageSourceCopyProperties(_imageSource, NULL);
-        id loopCountObject = [[imageProperties objectForKey:imagePropertyKey] objectForKey:loopCountKey];
+        id loopCountObject = [[imageProperties objectForKey:imagePropertyKey] objectForKey:(id)kCGImagePropertyGIFLoopCount];
         if (loopCountObject) {
             NSUInteger loopCount = [loopCountObject unsignedIntegerValue];
             return 0 == loopCount ? NSUIntegerMax : loopCount;
         }
         else {
-            return NSUIntegerMax;
+            return 1;
         }
     }
     return 0;

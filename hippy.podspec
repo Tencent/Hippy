@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'hippy'
-  s.version          = '2.1.5'
+  s.version          = '2.0.3'
   s.summary          = 'hippy lib for ios'
 
 # This description is used to generate tags and improve search results.
@@ -29,7 +29,7 @@ TODO: Add long description of the pod here.
   s.exclude_files = ['core/napi/v8','core/js']
   s.libraries    = "c++"
   s.ios.deployment_target = '8.0'
-  s.xcconfig = {'USER_HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy ${PODS_ROOT}/hippy/ios/sdk/**'}
+  s.pod_target_xcconfig = {'USER_HEADER_SEARCH_PATHS' => '${PODS_TARGET_SRCROOT} ${PODS_TARGET_SRCROOT}/ios/sdk/**'}
   if ENV['hippy_use_frameworks']
   else
     s.user_target_xcconfig = {'OTHER_LDFLAGS' => '-force_load "${PODS_CONFIGURATION_BUILD_DIR}/hippy/libhippy.a"'}

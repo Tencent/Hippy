@@ -95,8 +95,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 - (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)delegate
                        bundleURL:(NSURL *)bundleURL
                   moduleProvider:(HippyBridgeModuleProviderBlock)block
-                   launchOptions:(NSDictionary *)launchOptions
-                     executorKey:(NSString *)executorKey;
+                   launchOptions:(NSDictionary *)launchOptions;
 /**
  * Creates a new bridge with a custom HippyBridgeDelegate.
  *
@@ -111,8 +110,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 - (instancetype)initWithBundleURL:(NSURL *)bundleURL
                    moduleProvider:(HippyBridgeModuleProviderBlock)block
-                    launchOptions:(NSDictionary *)launchOptions
-                      executorKey:(NSString *)executorKey;
+                    launchOptions:(NSDictionary *)launchOptions;
 
 /**
  * This method is used to call functions in the JavaScript application context.

@@ -96,17 +96,15 @@ public class RefreshWrapper extends HippyViewGroup
 
 	void bounceToHead(float toTransY)
 	{
-		if (mContentView != null && mRefreshWrapperItemView != null) {
-			Animator contentAnimator = ObjectAnimator.ofFloat(mContentView, "TranslationY", mContentView.getTranslationY(), toTransY);
-			contentAnimator.setDuration(mBounceTime);
-			contentAnimator.setInterpolator(new AccelerateInterpolator());
-			Animator wrapperAnimator = ObjectAnimator.ofFloat(mRefreshWrapperItemView, "TranslationY", mRefreshWrapperItemView.getTranslationY(),
-					toTransY);
-			wrapperAnimator.setInterpolator(new AccelerateInterpolator());
-			wrapperAnimator.setDuration(mBounceTime);
-			contentAnimator.start();
-			wrapperAnimator.start();
-		}
+		Animator contentAnimator = ObjectAnimator.ofFloat(mContentView, "TranslationY", mContentView.getTranslationY(), toTransY);
+		contentAnimator.setDuration(mBounceTime);
+		contentAnimator.setInterpolator(new AccelerateInterpolator());
+		Animator wrapperAnimator = ObjectAnimator.ofFloat(mRefreshWrapperItemView, "TranslationY", mRefreshWrapperItemView.getTranslationY(),
+				toTransY);
+		wrapperAnimator.setInterpolator(new AccelerateInterpolator());
+		wrapperAnimator.setDuration(mBounceTime);
+		contentAnimator.start();
+		wrapperAnimator.start();
 	}
 
 
@@ -125,6 +123,7 @@ public class RefreshWrapper extends HippyViewGroup
 	public boolean dispatchTouchEvent(MotionEvent event)
 	{
 		/**
+		 * 解决bug：https://git.code.oa.com/hippy/hippy/issues/70
 		 * 如果一个页面用RefreshWrapper包含ViewPager，横向滑动很容易触发下拉刷新。
 		 */
         float nowMoveY = event.getRawY();

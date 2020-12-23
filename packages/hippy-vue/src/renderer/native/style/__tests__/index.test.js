@@ -30,30 +30,3 @@ test('TypeSelector test', (t) => {
   const matchedCSS = cssMap.query(node);
   t.is(matchedCSS.selectors.length, 4);
 });
-
-test('AppendSelector test', (t) => {
-  const APPEND_AST = [{
-    selectors: [
-      '#id',
-      '*',
-    ],
-    declarations: [
-      {
-        type: 'declaration',
-        property: 'IdSelector',
-        value: 'IdSelector',
-      },
-      {
-        type: 'declaration',
-        property: 'UniversalSelector',
-        value: 'UniversalSelector',
-      },
-    ],
-  }];
-  const appendRules = fromAstNodes(APPEND_AST);
-  cssMap.append(appendRules);
-  const node = new ElementNode('div');
-  node.setAttribute('id', 'id');
-  const matchedCSS = cssMap.query(node);
-  t.is(matchedCSS.selectors.length, 9);
-});

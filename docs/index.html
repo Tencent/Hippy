@@ -47,19 +47,5 @@
   		s.parentNode.insertBefore(mta, s);
   	})();
   </script>
-  <script>
-    (function () {
-      if (['zh-CN', 'zh'].indexOf(navigator.language) !== -1 && location.host !== 'cn.hippyjs.org') {
-        if (localStorage.getItem('PREFER_GITHUB')) {
-          return;
-        }
-        if (confirm('建议大陆用户访问部署在国内的 cn.hippyjs.org，如需跳转请点击“确定”按钮。')) {
-          location.replace(location.protocol + '//cn.hippyjs.org/' + location.hash);
-        } else {
-          localStorage.setItem('PREFER_GITHUB', true);
-        }
-      }
-    })();
-  </script>
 </body>
 </html>

@@ -44,7 +44,6 @@ const mockDataArray = [
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
-    collapsable: false,
   },
   itemContainer: {
     padding: 12,
@@ -187,7 +186,6 @@ export default class ListExample extends React.Component {
         getRowType={this.getRowType}
         getRowKey={this.getRowKey}
         initialListSize={15}
-        rowShouldSticky={index => index === 2}
       />
     );
   }

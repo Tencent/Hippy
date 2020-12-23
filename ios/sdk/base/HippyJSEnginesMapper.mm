@@ -89,7 +89,6 @@ using EngineMapper = std::unordered_map<std::string, EngineRef>;
         ref.second--;
         if (0 == ref.second) {
             std::shared_ptr<Engine> engine = ref.first;
-            engine->TerminateRunner();
             _engineMapper.erase(it);
         }
     }
