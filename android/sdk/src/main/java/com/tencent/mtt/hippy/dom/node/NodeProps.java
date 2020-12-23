@@ -86,13 +86,14 @@ public class NodeProps
 	public static final String				BORDER_RIGHT_COLOR			= "borderRightColor";
 	public static final String				BORDER_BOTTOM_COLOR			= "borderBottomColor";
 	public static final String				BORDER_STYLES				= "borderStyle";
-  
-  public static final String				SHADOW_COLOR				 = "shadowColor";
-  public static final String				SHADOW_OFFSET_X			 = "shadowOffsetX";
-  public static final String				SHADOW_OFFSET_Y			 = "shadowOffsetY";
-  public static final String				SHADOW_OPACITY			 = "shadowOpacity";
-  public static final String				SHADOW_RADIUS			   = "shadowRadius";
-  public static final String				SHADOW_SPREAD				 = "shadowSpread";
+
+	public static final String				SHADOW_COLOR                = "shadowColor";
+	public static final String				SHADOW_OFFSET               = "shadowOffset";
+	public static final String				SHADOW_OFFSET_X             = "shadowOffsetX";
+	public static final String				SHADOW_OFFSET_Y             = "shadowOffsetY";
+	public static final String				SHADOW_OPACITY              = "shadowOpacity";
+	public static final String				SHADOW_RADIUS               = "shadowRadius";
+	public static final String				SHADOW_SPREAD               = "shadowSpread";
 	
 	//View props
 
