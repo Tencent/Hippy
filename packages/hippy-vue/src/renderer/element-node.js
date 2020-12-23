@@ -155,7 +155,7 @@ class ElementNode extends ViewNode {
     delete this.attributes[key];
   }
 
-  setStyle(property, value) {
+  setStyle(property, value, isBatchUpdate = false) {
     if (value === undefined) {
       delete this.style[property];
       return;
@@ -205,7 +205,24 @@ class ElementNode extends ViewNode {
       return;
     }
     this.style[p] = v;
-    updateChild(this);
+    if (!isBatchUpdate) {
+      updateChild(this);
+    }
+  }
+
+  /**
+   * set native style props
+   */
+  setNativeProps(nativeProps) {
+    if (nativeProps) {
+      const { style } = nativeProps;
+      if (style) {
+        Object.keys(style).forEach((key) => {
+          this.setStyle(key, style[key], true);
+        });
+        updateChild(this);
+      }
+    }
   }
 
   setStyleScope(styleScopeId) {

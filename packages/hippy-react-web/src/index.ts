@@ -34,6 +34,7 @@ const Dimensions = {
   },
   set(dimensions: { window?: typeof Device['window']; screen?: typeof Device['screen'] }) {
     if (typeof window === 'object') {
+      /* eslint-disable-next-line no-console */
       console.error('Dimensions cannot be set in the browser');
       return;
     }

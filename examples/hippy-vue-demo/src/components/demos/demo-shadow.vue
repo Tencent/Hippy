@@ -27,7 +27,9 @@
   }
 
   #shadow-demo .shadow {
-    box-shadow-offset: 10px;
+    box-shadow-offset: 60px 10px;
+    /*box-shadow-offset-x: 60px;*/
+    /*box-shadow-offset-y: 10px;*/
     box-shadow-opacity: .3;
     box-shadow-radius: 4px;
     box-shadow-spread: 15px;

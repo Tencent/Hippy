@@ -5,6 +5,7 @@ import demoDialog from './demo-dialog.vue';
 import demoSwiper from './demo-swiper.vue';
 import demoPullHeader from './demo-pull-header.vue';
 import demoPullFooter from './demo-pull-footer.vue';
+import demoSetNativeProps from '../demos/demo-set-native-props.vue';
 
 const demos = {};
 
@@ -33,6 +34,10 @@ if (Vue.Native) {
     demoPullFooter: {
       name: 'pull-footer 上拉组件',
       component: demoPullFooter,
+    },
+    demoSetNativeProps: {
+      name: 'setNativeProps',
+      component: demoSetNativeProps,
     },
   });
 }

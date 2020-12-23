@@ -70,7 +70,7 @@ For Windows developers:
 
 ### Start the iOS simulator with hippy-react or hippy-vue demo
 
-For iOS we recommend to use iOS simulator when first try, however, you may change the Xcode configuration to install the app to iPhone if you are a iOS expert.
+For iOS we recommend to use iOS simulator when first try, however, you may change the Xcode configuration to install the app to iPhone if you are an iOS expert.
 
 1. Install the dependencies with `npm install`.
 2. Build the front-end sdk packages with `npm run build`.
