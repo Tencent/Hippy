@@ -20,6 +20,14 @@ export default [
     },
   },
   {
+    path: '/BoxShadow',
+    name: 'BoxShadow 范例',
+    component: PAGE_LIST.BoxShadow,
+    meta: {
+      style: 1,
+    },
+  },
+  {
     path: '/Clipboard',
     name: 'Clipboard 组件',
     component: PAGE_LIST.Clipboard,
