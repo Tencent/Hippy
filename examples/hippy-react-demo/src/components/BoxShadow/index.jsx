@@ -14,17 +14,18 @@ import {
  * and set some offset(e.g. top or left) for content to cover shadow background.
  *
  * boxShadow consists attrs as follow：boxShadowOpacity，boxShadowRadius，boxShadowColor，
- * boxShadowOffsetX，boxShadowOffsetY，boxShadowSpread(iOS only)
+ * boxShadowOffsetX，boxShadowOffsetY，boxShadowSpread(iOS only).
  *
- * 注意: Android 的阴影大小根据容器体积大小来决定，通过在容器上对矩形view做阴影来实现，阴影会有一个实体的背景色。
- * 因此必须用content内容去遮挡住阴影的实体背景，该背景由容易大小、阴影圆角和阴影便宜共同决定。
- * Android带有阴影的容器大小(170*170)必须大于内容的大小(160*160)，同时要将内容做一定的偏移（如top或者left）来遮盖阴影背景。
+ * 注意: Android的阴影大小根据容器体积大小来决定，通过在容器上对矩形view做阴影来实现，阴影会有一个实体的背景色。
+ * 因此必须用content内容去遮挡住阴影的实体背景，该背景由容器大小、阴影圆角和阴影偏移共同决定。
+ * Android带有阴影的Container容器大小(170*170)必须大于Content内容的大小(160*160)，
+ * 同时要将Content内容做一定的偏移（如top或者left）来遮盖阴影背景。
  *
  * boxShadow支持以下属性：boxShadowOpacity，boxShadowRadius，boxShadowColor，
- * boxShadowOffsetX，boxShadowOffsetY，boxShadowSpread(仅iOS)
+ * boxShadowOffsetX，boxShadowOffsetY，boxShadowSpread(仅iOS).
  *
  * if you use borderRadius, Android container & content both should be set.
- * 如果设置了borderRadius，在Android上必须同时在容器和内容同时设置该属性
+ * 如果设置了borderRadius，在Android上必须同时在Container容器和Content内容同时设置该属性。
  */
 const stylesNoOffset = StyleSheet.create({
   shadowDemo: {
@@ -83,13 +84,13 @@ const stylesNoOffset = StyleSheet.create({
 /**
  * P.S. Android shadow size is based on the container size
  * and a solid shadow background exists.
- * so shadow offset is not fully supported on Android.
+ * Shadow offset is not fully supported on Android.
  * if you have to use boxShadowOffset,
  * the tricky methods below is for reference on both Android and iOS
  *
  * 注意: Android 的阴影大小根据容器体积大小来决定，通过在容器上对矩形view做阴影来实现，阴影会有一个实体的背景色。
- * 因此在Android上shadow offset没有很好地支持。
- * 如果你必须要使用boxShadowOffset，可以通过以下的小技巧来调整适配
+ * 在Android上shadow offset没有很好地支持。
+ * 如果你必须要使用boxShadowOffset，可以通过以下的小技巧来调整适配。
  */
 const stylesOffset = StyleSheet.create({
   // android boxShadow style
