@@ -31,16 +31,16 @@ const styles = StyleSheet.create({
 });
 
 function HorizontalScrollView(props) {
-  const { scrollRef } = props;
+  const { scrollRef, ...otherProps } = props;
   return (
-    <ul ref={scrollRef} {...props} />
+    <ul ref={scrollRef} {...otherProps} />
   );
 }
 
 function VerticalScrollView(props) {
-  const { scrollRef } = props;
+  const { scrollRef, ...otherProps } = props;
   return (
-    <ul ref={scrollRef} {...props} />
+    <ul ref={scrollRef} {...otherProps} />
   );
 }
 
