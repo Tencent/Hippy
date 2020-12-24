@@ -102,7 +102,7 @@ void ContextifyModule::LoadUriContent(const CallbackInfo& info) {
   if (context->IsFunction(function)) {
     cb_func_map_[uri] = function;
   } else {
-    HIPPY_DLOG(hippy::debug, "cb is not function");
+    HIPPY_DLOG(hippy::Debug, "cb is not function");
     function = nullptr;
   }
 
@@ -151,7 +151,7 @@ void ContextifyModule::LoadUriContent(const CallbackInfo& info) {
       std::shared_ptr<CtxValue> error;
       if (!move_code.empty()) {
         auto last_dir_str_obj = ctx->GetGlobalStrVar("__HIPPYCURDIR__");
-        HIPPY_DLOG(hippy::debug, "__HIPPYCURDIR__ cur_dir = %s",
+        HIPPY_DLOG(hippy::Debug, "__HIPPYCURDIR__ cur_dir = %s",
                    cur_dir.c_str());
         ctx->SetGlobalStrVar("__HIPPYCURDIR__", cur_dir.c_str());
         std::string exception;
@@ -159,7 +159,7 @@ void ContextifyModule::LoadUriContent(const CallbackInfo& info) {
         ctx->SetGlobalObjVar("__HIPPYCURDIR__", last_dir_str_obj);
         std::string last_dir_str;
         ctx->GetValueString(last_dir_str_obj, &last_dir_str);
-        HIPPY_DLOG(hippy::debug, "restore __HIPPYCURDIR__ = %s",
+        HIPPY_DLOG(hippy::Debug, "restore __HIPPYCURDIR__ = %s",
                    last_dir_str.c_str());
         if (exception.empty()) {
           error = ctx->CreateNull();
@@ -172,7 +172,7 @@ void ContextifyModule::LoadUriContent(const CallbackInfo& info) {
 
       std::shared_ptr<CtxValue> function = weak_function.lock();
       if (function) {
-        HIPPY_DLOG(hippy::debug, "run js cb");
+        HIPPY_DLOG(hippy::Debug, "run js cb");
         std::shared_ptr<CtxValue> argv[] = {error};
         ctx->CallFunction(function, 1, argv);
         RemoveCBFunc(uri);
