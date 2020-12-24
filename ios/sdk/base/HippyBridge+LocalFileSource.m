@@ -32,7 +32,20 @@ NSInteger HippyLocalFileNOFilExist = 100;
 
 - (NSString *) workFolder {
     NSString *string = objc_getAssociatedObject(self, HippyWorkerFolderKey);
+    if (!string) {
+        string = [[self bundleURL] absoluteString];
+    }
     return string;
+}
+
+- (NSString *)workFolder2 {
+    NSString *workFolder = [self workFolder];
+    if (workFolder) {
+        NSRange range = [workFolder rangeOfString:@"/" options:NSBackwardsSearch];
+        NSString *noIndex = [workFolder substringToIndex:range.location + 1];
+        return noIndex;
+    }
+    return @"";
 }
 
 + (NSString *) defaultHippyLocalFileScheme {

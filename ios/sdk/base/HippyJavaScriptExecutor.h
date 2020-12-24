@@ -29,7 +29,7 @@
 
 #include "engine.h"
 #include "scope.h"
-#include "js-native-api-types.h"
+#include "js_native_api_types.h"
 
 typedef void (^HippyJavaScriptCompleteBlock)(NSError *error);
 typedef void (^HippyJavaScriptCallback)(id result, NSError *error);
