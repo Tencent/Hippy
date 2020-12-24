@@ -67,6 +67,8 @@ test('tryConvertNumber output test', (t) => {
   t.is(util.tryConvertNumber('123.12'), 123.12);
   t.is(util.tryConvertNumber('123.'), 123);
   t.is(util.tryConvertNumber('.123'), 0.123);
+  t.is(util.tryConvertNumber('+.123'), 0.123);
+  t.is(util.tryConvertNumber('-.123'), -0.123);
   t.is(util.tryConvertNumber('.123.'), '.123.');
   t.is(util.tryConvertNumber('.123.1'), '.123.1');
   t.is(util.tryConvertNumber(''), '');

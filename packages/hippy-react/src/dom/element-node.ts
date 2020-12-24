@@ -24,6 +24,21 @@ interface NativePropsStyle {
   [key: string]: string | object | number | Transform
 }
 
+interface PropertiesMap {
+  [propName: string]: string;
+}
+
+const PROPERTIES_MAP: PropertiesMap = {
+  textDecoration: 'textDecorationLine',
+  boxShadowOffset: 'shadowOffset',
+  boxShadowOffsetX: 'shadowOffsetX',
+  boxShadowOffsetY: 'shadowOffsetY',
+  boxShadowOpacity: 'shadowOpacity',
+  boxShadowRadius: 'shadowRadius',
+  boxShadowSpread: 'shadowSpread',
+  boxShadowColor: 'shadowColor',
+};
+
 class ElementNode extends ViewNode {
   tagName: string;
 
@@ -154,6 +169,10 @@ class ElementNode extends ViewNode {
           // Apply the styles
           Object.keys(mergedStyles).forEach((styleKey) => {
             const styleValue = (mergedStyles as any)[styleKey];
+            // Convert the property to W3C standard.
+            if (Object.prototype.hasOwnProperty.call(PROPERTIES_MAP, styleKey)) {
+              styleKey = PROPERTIES_MAP[styleKey];
+            }
             if (styleKey === 'transform') {
               const transforms = {};
               if (!Array.isArray(styleValue)) {
@@ -265,20 +284,25 @@ class ElementNode extends ViewNode {
       return;
     }
     let v = value;
+    let p = property;
+    // Convert the property to W3C standard.
+    if (Object.prototype.hasOwnProperty.call(PROPERTIES_MAP, property)) {
+      p = PROPERTIES_MAP[property];
+    }
     if (typeof v === 'string') {
       v = (value as string).trim();
-      if (property.toLowerCase().indexOf('colors') > -1) {
+      if (p.toLowerCase().indexOf('colors') > -1) {
         (v as any) = colorArrayParse(v as any);
-      } else if (property.toLowerCase().indexOf('color') > -1) {
+      } else if (p.toLowerCase().indexOf('color') > -1) {
         v = colorParse(v);
       } else {
         v = tryConvertNumber(v);
       }
     }
-    if (v === undefined || v === null || (this.style as any)[property] === v) {
+    if (v === undefined || v === null || (this.style as any)[p] === v) {
       return;
     }
-    (this.style as any)[property] = v;
+    (this.style as any)[p] = v;
     if (!isBatchUpdate) {
       updateChild(this);
     }

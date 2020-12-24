@@ -6,6 +6,7 @@
 import test from 'ava';
 import ElementNode from '../element-node';
 import DocumentNode from '../document-node';
+import ListNode from '../list-node';
 
 test.before(() => {
   global.__GLOBAL__ = {
@@ -177,4 +178,32 @@ test('Element.setStyle with pre-processed style test', (t) => {
   node.setStyle('width', '100px');
   t.is(node.style.backgroundCol, 'whi');
   t.is(node.style.wid, 100);
+});
+
+test('Element.dispatchEvent with pollyfill event', (t) => {
+  const node = new ListNode('ul');
+  let called = false;
+  const callback = (event) => {
+    called = true;
+    return event;
+  };
+
+  t.is(called, false);
+  t.is(node._emitter, null);
+  t.is(node.removeEventListener('loadMore', callback), null);
+  node.addEventListener('loadMore', callback);
+  t.true(!!node._emitter);
+  let event = DocumentNode.createEvent('loadMore');
+  node.dispatchEvent(event);
+  t.is(called, true);
+  node.removeEventListener('loadMore', callback);
+  t.true(!!node._emitter);
+
+  called = false;
+  t.is(called, false);
+  node.addEventListener('endReached', callback);
+  event = DocumentNode.createEvent('loadMore');
+  node.dispatchEvent(event);
+  t.is(called, true);
+  node.removeEventListener('endReached', callback);
 });
