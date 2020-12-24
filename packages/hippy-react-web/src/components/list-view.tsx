@@ -125,6 +125,7 @@ export class ListView extends React.Component {
    * @param rowId
    */
   renderRow(rowData, sectionId, rowId) {
+    const convertRowId = Number(rowId);
     const {
       renderRow,
       getRowStyle,
@@ -132,17 +133,17 @@ export class ListView extends React.Component {
       getRowType,
       getRowHeight,
     } = this.props;
-    const itemStyle = isFunc(getRowStyle) ? getRowStyle(rowId) : {};
-    const key = isFunc(getRowKey) ? getRowKey(rowId) : '';
-    const height = isFunc(getRowHeight) ? getRowHeight(rowId) : '';
+    const itemStyle = isFunc(getRowStyle) ? getRowStyle(convertRowId) : {};
+    const key = isFunc(getRowKey) ? getRowKey(convertRowId) : '';
+    const height = isFunc(getRowHeight) ? getRowHeight(convertRowId) : '';
     return (
       <ListViewItem
         key={key}
         style={itemStyle}
         height={height}
-        type={isFunc(getRowType) ? `${getRowType(rowId)}` : '0'}
+        type={isFunc(getRowType) ? `${getRowType(convertRowId)}` : '0'}
       >
-        {renderRow(rowId)}
+        {renderRow(convertRowId)}
       </ListViewItem>
     );
   }
