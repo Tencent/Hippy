@@ -106,7 +106,7 @@ global.fetch = (url, options) => {
 
   const opts = options || {};
 
-  let reqHeads = [];
+  let reqHeads = {};
   if (opts.headers) {
     if (opts.headers instanceof Headers) {
       reqHeads = opts.headers.getAll();
@@ -121,7 +121,7 @@ global.fetch = (url, options) => {
   const reqOptions = {
     method: opts.method || 'GET',
     url,
-    headers: reqHeads || [],
+    headers: reqHeads || {},
     body: opts.body || '',
   };
 
