@@ -104,6 +104,30 @@ static BOOL HippyMergeRecursive(NSMutableDictionary *destination, NSDictionary *
     return modified;
 }
 
+//get mutable dictionary from a key
+//dictionaries with same key share same memory
+static NSMutableDictionary *mutableDictionaryForKey(NSString *key, BOOL *created) {
+    static dispatch_once_t onceToken;
+    static NSMapTable *mapTable = NULL;
+    dispatch_once(&onceToken, ^{
+        mapTable = [NSMapTable strongToWeakObjectsMapTable];
+    });
+    if (key) {
+        NSMutableDictionary *dic = [mapTable objectForKey:key];
+        if (!dic) {
+            dic = [[NSMutableDictionary alloc] initWithCapacity:16];
+            [mapTable setObject:dic forKey:key];
+            *created = YES;
+        }
+        else {
+            *created = NO;
+        }
+        return dic;
+    }
+    *created = YES;
+    return [[NSMutableDictionary alloc] initWithCapacity:16];
+}
+
 static dispatch_queue_t HippyGetMethodQueue()
 {
     // We want all instances to share the same queue since they will be reading/writing the same files.
@@ -191,7 +215,7 @@ HIPPY_EXPORT_MODULE(AsyncStorage)
         [self HippyDeleteStorageDirectory];
     }
     _clearOnInvalidate = NO;
-    [_manifest removeAllObjects];
+//    [_manifest removeAllObjects];
     _haveSetup = NO;
 }
 
@@ -227,12 +251,17 @@ HIPPY_EXPORT_MODULE(AsyncStorage)
         _HippyHasCreatedStorageDirectory = YES;
     }
     if (!_haveSetup) {
-        NSDictionary *errorOut;
-        NSString *serialized = HippyReadFile([self HippyGetManifestFilePath], nil, &errorOut);
-        _manifest = serialized ? HippyJSONParseMutable(serialized, &error) : [NSMutableDictionary new];
-        if (error) {
-            HippyLogWarn(@"Failed to parse manifest - creating new one.\n\n%@", error);
-            _manifest = [NSMutableDictionary new];
+        BOOL created = NO;
+        _manifest = mutableDictionaryForKey(self.bridge.moduleName, &created);
+        if (created) {
+            NSDictionary *errorOut;
+            NSString *serialized = HippyReadFile([self HippyGetManifestFilePath], nil, &errorOut);
+            NSMutableDictionary *tmpDic = serialized ? HippyJSONParseMutable(serialized, &error) : [NSMutableDictionary new];
+            if (error) {
+                HippyLogWarn(@"Failed to parse manifest - creating new one.\n\n%@", error);
+                tmpDic = [NSMutableDictionary new];
+            }
+            [_manifest addEntriesFromDictionary:tmpDic];
         }
         _haveSetup = YES;
     }
