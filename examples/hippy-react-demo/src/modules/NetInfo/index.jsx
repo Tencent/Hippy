@@ -54,7 +54,7 @@ export default class NetInfoExample extends React.Component {
       },
     }).then((responseJson) => {
       // eslint-disable-next-line no-console
-      console.error(responseJson);
+      console.log('成功', responseJson);
       self.setState({
         infoText: `成功: ${responseJson.body}`,
       });
@@ -64,7 +64,7 @@ export default class NetInfoExample extends React.Component {
         infoText: `收到错误: ${error}`,
       });
       // eslint-disable-next-line no-console
-      console.error(error);
+      console.error('收到错误:', error);
     });
 
     /**
