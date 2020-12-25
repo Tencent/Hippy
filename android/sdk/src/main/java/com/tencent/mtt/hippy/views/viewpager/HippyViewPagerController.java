@@ -151,7 +151,7 @@ public class HippyViewPagerController extends HippyViewController<HippyViewPager
 
   @HippyControllerProps(name = "middlePageOffset", defaultNumber = 1.f, defaultType = HippyControllerProps.NUMBER)
   public void setMiddlePageOffset(HippyViewPager pager, float middlePageOffset) {
-    pager.middlePageOffset = middlePageOffset;
+    pager.middlePageOffset = PixelUtil.dp2px(middlePageOffset);
   }
 
 	@Override
