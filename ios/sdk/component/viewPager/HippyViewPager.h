@@ -39,7 +39,9 @@ typedef void(^ViewPagerItemsCountChanged)(NSUInteger count);
 
 @property (nonatomic, assign) NSInteger initialPage;
 @property (nonatomic, assign) CGPoint targetOffset;
-@property (nonatomic, assign) BOOL loop;
+@property (nonatomic, assign) BOOL loop;                // Allow loop scrolling.
+@property (nonatomic, assign) CGFloat pageSize;         // The percentage of single page width to pager width, the final calculated width will be rounded down.
+@property (nonatomic, assign) CGFloat middlePageOffset; // The left offset of the current page. Default value: CGFLOAT_MAX, which is center-aligned.
 @property (nonatomic, assign, readonly) NSUInteger pageCount;
 @property (nonatomic, copy) ViewPagerItemsCountChanged itemsChangedBlock;
 
