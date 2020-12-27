@@ -39,7 +39,9 @@ typedef void(^ViewPagerItemsCountChanged)(NSUInteger count);
 
 @property (nonatomic, assign) NSInteger initialPage;
 @property (nonatomic, assign) CGPoint targetOffset;
-@property (nonatomic, assign) BOOL loop;
+@property (nonatomic, assign) BOOL loop;                // 是否循环滚动
+@property (nonatomic, assign) CGFloat pageSize;         // 单page宽度与pager宽度的百分比
+@property (nonatomic, assign) CGFloat middlePageOffset; // 当前page的左偏移，为具体偏移值
 @property (nonatomic, assign, readonly) NSUInteger pageCount;
 @property (nonatomic, copy) ViewPagerItemsCountChanged itemsChangedBlock;
 
