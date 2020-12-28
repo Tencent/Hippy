@@ -143,7 +143,9 @@ export class Image extends React.Component {
         },
       });
     }
-    onLoadEnd();
+    if (onLoadEnd) {
+      onLoadEnd();
+    }
   }
 
   render() {
