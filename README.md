@@ -73,9 +73,11 @@ For Windows developers:
 For iOS we recommend to use iOS simulator when first try, however, you may change the Xcode configuration to install the app to iPhone if you are an iOS expert.
 
 1. Install the dependencies with `npm install`.
-2. Build the front-end sdk packages with `npm run build`.
-3. Choose a demo to build with `npm run buildexample -- [hippy-react-demo|hippy-vue-demo]`.
-4. Start the Xcode and build the iOS app with `open examples/ios-demo/HippyDemo.xcodeproj`.
+2. Install dependencies of each npm package with `lerna bootstrap`.
+3. Build the front-end sdk packages at root directory with `npm run build`.
+4. Choose a demo to build with `npm run buildexample -- [hippy-react-demo|hippy-vue-demo]`.
+5. Start the Xcode and build the iOS app with `open examples/ios-demo/HippyDemo.xcodeproj`.
+6. `cd` to hippy-react-demo or hippy-vue-demo, run `npm run hippy:dev` and `npm run hippy:debug` respectively to start the live debug mode
 
 ### Start the android app with hippy-react or hippy-vue demo
 
@@ -84,11 +86,13 @@ For Android we recommend to use the real cellphone for better experience, becaus
 Before build the android app, please make sure the SDK and NDK is installed, And *DO NOT* update the build toolchain.
 
 1. Install the dependencies with `npm install`.
-2. Build the front-end sdk packages with `npm run build`.
-3. Open a terminal, then build the hippy-react demo with `npm run buildexample -- hippy-react-demo`, or build the hippy-vue demo with `npm run buildexample -- hippy-vue-demo` .
-4. Open the `examples/android-demo` with Android Studio.
-5. Connect android phone with USB cable and make sure USB debugging mode and USB installation are enabled.
-6. Open the project with Android Studio, run and install the apk.
+2. Install dependencies of each npm package with `lerna bootstrap`.
+3. Build the front-end sdk packages at root directory with `npm run build`.
+4. Open a terminal, then build the hippy-react demo with `npm run buildexample -- hippy-react-demo`, or build the hippy-vue demo with `npm run buildexample -- hippy-vue-demo` .
+5. Open the `examples/android-demo` with Android Studio.
+6. Connect android phone with USB cable and make sure USB debugging mode and USB installation are enabled.
+7. Open the project with Android Studio, run and install the apk.
+8. `cd` to hippy-react-demo or hippy-vue-demo, run `npm run hippy:dev` and `npm run hippy:debug` respectively to start the live debug mode.
 
 > If you encounter the issue of `No toolchains found in the NDK toolchains folder for ABI with prefix: mips64el-linux-android`, here is the [solution](https://github.com/google/filament/issues/15#issuecomment-415423557).
 
