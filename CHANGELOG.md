@@ -3,6 +3,41 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.2.1](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/compare/2.2.0...2.2.1) (2020-12-28)
+
+
+### Bug Fixes
+
+* **hippy-react-web:** fixed image onLoadEnd undefined ([#470](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/issues/470)) ([6e312b6](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/commit/6e312b6b623d3e53ff12e725003dc28a10a7e61f))
+
+
+
+
+
+# [2.2.0](https://github.com/Tencent/Hippy/compare/2.1.6...2.2.0) (2020-12-25)
+
+
+### Bug Fixes
+
+* **android:** local image uri start with file:// ([34ba5cf](https://github.com/Tencent/Hippy/commit/34ba5cfc4085eaceb0d050affe726858223229c1))
+* **core:** add jni code ([f5451fd](https://github.com/Tencent/Hippy/commit/f5451fd151acf8d33f6f3336e119aa9aeaa94b34))
+* **hippy-core:** fixed network header default type ([#466](https://github.com/Tencent/Hippy/issues/466)) ([2879afc](https://github.com/Tencent/Hippy/commit/2879afcfbfc2aa87a515a3f74de40e6e1d909033))
+* **hippy-react-web:** fixed api to web issues and some warnings ([#456](https://github.com/Tencent/Hippy/issues/456)) ([80efec7](https://github.com/Tencent/Hippy/commit/80efec7aca16cd5a16575bac6696c7f12cf04626))
+* **hippy-react,hippy-vue:** fixed boxShadow annotation ([#460](https://github.com/Tencent/Hippy/issues/460)) ([fceb70e](https://github.com/Tencent/Hippy/commit/fceb70ee4803a978ea4c1b28fd33700b991dee42))
+
+
+### Features
+
+* **android:** support dynamic load ([67b0b3f](https://github.com/Tencent/Hippy/commit/67b0b3f9becb26fdcd729c05b2a940134eba58b7))
+* **core:** add dynamic load ([20e2ed9](https://github.com/Tencent/Hippy/commit/20e2ed983d556897c9b9c2fcc7e6d8d858131070))
+* **core:** update so ([5d6a25c](https://github.com/Tencent/Hippy/commit/5d6a25c2db8d6dd1987c851adc4836430291bda8))
+* **ios:** add dynamic load ([50c427a](https://github.com/Tencent/Hippy/commit/50c427ab4361b7c5e3c0463965553dd2043af43c))
+* **ios:** same businesses will share same memory in LocalStorage modul ([8ab4b3b](https://github.com/Tencent/Hippy/commit/8ab4b3b44885d44dba41ba3798cfe1bcfc948cb1))
+
+
+
+
+
 ## [2.1.6](https://github.com/Tencent/Hippy/compare/2.1.5...2.1.6) (2020-12-23)
 
 
