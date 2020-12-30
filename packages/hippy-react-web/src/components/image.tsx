@@ -100,6 +100,8 @@ export class Image extends React.Component {
     super(props);
     this.state = {
       isLoadSuccess: false,
+      imageUrl: props.source ? props.source.uri : '',
+      prevImageUrl: props.source ? props.source.uri : '',
     };
     this.onLoad = this.onLoad.bind(this);
     this.onError = this.onError.bind(this);
@@ -113,13 +115,29 @@ export class Image extends React.Component {
     if (onLoadStart) {
       onLoadStart();
     }
-    ImageLoader.load(source.uri, this.onLoad, this.onError);
+    if (source) {
+      ImageLoader.load(source.uri, this.onLoad, this.onError);
+    }
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { source } = this.props;
-    if (nextProps.source.uri !== source.uri) {
-      ImageLoader.load(nextProps.source.uri, this.onLoad, this.onError);
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.source && nextProps.source.uri !== prevState.imageUrl) {
+      return {
+        imageUrl: nextProps.source.uri,
+        prevImageUrl: prevState.imageUrl,
+      };
+    }
+    return null;
+  }
+
+  componentDidUpdate() {
+    const { imageUrl, prevImageUrl } = this.state;
+    if (imageUrl !== prevImageUrl) {
+      ImageLoader.load(imageUrl, this.onLoad, this.onError);
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({
+        prevImageUrl: imageUrl,
+      });
     }
   }
 
