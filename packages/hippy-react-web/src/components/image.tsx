@@ -116,6 +116,12 @@ export class Image extends React.Component {
     ImageLoader.load(source.uri, this.onLoad, this.onError);
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.source.uri !== this.props.source.uri) {
+      ImageLoader.load(nextProps.source.uri, this.onLoad, this.onError);
+    }
+  }
+
   onLoad(e) {
     const { onLoad, onLoadEnd } = this.props;
     this.setState({
@@ -152,7 +158,7 @@ export class Image extends React.Component {
     let { style } = this.props;
     const { isLoadSuccess } = this.state;
     const {
-      source, sources, resizeMode, children, defaultSource,
+      source, sources, resizeMode, children, defaultSource = "",
     } = this.props;
     if (style) {
       style = formatWebStyle(style);
@@ -178,6 +184,8 @@ export class Image extends React.Component {
     delete newProps.onLoad;
     delete newProps.onLayout;
     delete newProps.onLoadEnd;
+    delete newProps.defaultSource;
+
     return (
       <View {...newProps}>
         <View
