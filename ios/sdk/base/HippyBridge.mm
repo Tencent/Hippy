@@ -34,6 +34,8 @@
 #import "HippyUtils.h"
 #import "HippyUIManager.h"
 #import "HippyExtAnimationModule.h"
+#import "HippyRedBox.h"
+
 NSString *const HippyReloadNotification = @"HippyReloadNotification";
 NSString *const HippyJavaScriptWillStartLoadingNotification = @"HippyJavaScriptWillStartLoadingNotification";
 NSString *const HippyJavaScriptDidLoadNotification = @"HippyJavaScriptDidLoadNotification";
@@ -441,5 +443,11 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)init)
     return [self.batchedBridge callFunctionOnModule:module method:method arguments:arguments error:error];
 }
 
+- (void)setRedBoxShowEnabled:(BOOL)enabled {
+#if HIPPY_DEBUG
+    HippyRedBox *redBox = [self redBox];
+    redBox.showEnabled = enabled;
+#endif //HIPPY_DEBUG
+}
 
 @end

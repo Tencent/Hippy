@@ -345,6 +345,14 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 
 HIPPY_EXPORT_MODULE()
 
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        _showEnabled = YES;
+    }
+    return self;
+}
+
 - (void)registerErrorCustomizer:(id<HippyErrorCustomizer>)errorCustomizer
 {
   dispatch_async(dispatch_get_main_queue(), ^{
@@ -411,6 +419,9 @@ HIPPY_EXPORT_MODULE()
 
 - (void)showErrorMessage:(NSString *)message withStack:(NSArray *)stack isUpdate:(BOOL)isUpdate
 {
+  if (!_showEnabled) {
+    return;
+  }
   if (![[stack firstObject] isKindOfClass:[HippyJSStackFrame class]]) {
     stack = [HippyJSStackFrame stackFramesWithDictionaries:stack];
   }
