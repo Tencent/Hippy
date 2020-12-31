@@ -98,10 +98,11 @@ export class Image extends React.Component {
 
   constructor(props) {
     super(props);
+    const initImageUrl = props.source ? props.source.uri : '';
     this.state = {
       isLoadSuccess: false,
-      imageUrl: props.source ? props.source.uri : '',
-      prevImageUrl: props.source ? props.source.uri : '',
+      imageUrl: initImageUrl,
+      prevImageUrl: initImageUrl,
     };
     this.onLoad = this.onLoad.bind(this);
     this.onError = this.onError.bind(this);
