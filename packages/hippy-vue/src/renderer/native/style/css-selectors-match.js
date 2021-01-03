@@ -46,7 +46,7 @@ class SelectorsMap {
   }
 
   append(appendRules) {
-    this.ruleSets.join(appendRules);
+    this.ruleSets.concat(appendRules);
     appendRules.forEach(rule => rule.lookupSort(this));
   }
 
