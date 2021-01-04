@@ -49,6 +49,50 @@
 | orientationChange   | 屏幕旋转方向改变                                           | `Function`                                                   | `ALL`    |
 | requestClose        | 在`Modal`请求关闭时会执行此回调函数，一般时在 Android 系统里按下硬件返回按钮时触发，一般要在里面处理关闭弹窗。 | `Function`                                                   | `Android`    |
 
+# pull-header
+
+*版本要求：`> 2.1.0`*
+
+[[范例：demo-pull-header.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-pull-header.vue)
+
+平时隐藏，在 [ul](../components?id=ul) 组件的下拉时才会显示的组件，可以用于下拉刷新等操作。
+
+## 方法
+
+### collapsePullHeader
+
+`() => void` 告知终端可以收起 `pull-header` 了。
+
+## 事件
+
+| 事件名称          | 描述                                                       | 类型                                      | 支持平台 |
+| ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
+| idle                |  滑动距离在 pull-header 区域内触发一次，返回滚动距离          | `(contentOffset: number)=> void`          | `ALL`    |
+| pulling             |  滑动距离超出 pull-header 后触发一次，返回滚动距离           | `(contentOffset: number)=> void`          | `ALL`    |
+| refresh             |  滑动超出距离，松手后触发一次                               | `()=> void`          | `ALL`    |
+
+# pull-footer
+
+*版本要求：`> 2.1.0`*
+
+[[范例：demo-pull-footer.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-pull-footer.vue)
+
+平时隐藏，在 [ul](../components?id=ul) 组件的上拉时才会显示的组件，可以用于上拉加载更多时的提示、加载进度等显示。
+
+## 方法
+
+### collapsePullFooter
+
+`() => void` 告知终端可以收起 `pull-footer` 了。
+
+## 事件
+
+| 事件名称          | 描述                                                       | 类型                                      | 支持平台 |
+| ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
+| idle                |  滑动距离在 pull-footer 区域内触发一次，返回滚动距离          | `(contentOffset: number)=> void`          | `ALL`    |
+| pulling             |  滑动距离超出 pull-footer 后触发一次，返回滚动距离           | `(contentOffset: number)=> void`          | `ALL`    |
+| refresh             |  滑动超出距离，松手后触发一次                               | `()=> void`          | `ALL`    |
+
 # swiper
 
 [[范例：demo-swiper.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-swiper.vue)
@@ -86,6 +130,8 @@
 轮播组件页容器。
 
 # ul-refresh-wrapper
+
+**DEPRECATED: 已经过时，请使用更好的 [#pull-header](pull-header 组件) 代替**
 
 [[范例：demo-list-refresh.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-list-refresh.vue)
 
