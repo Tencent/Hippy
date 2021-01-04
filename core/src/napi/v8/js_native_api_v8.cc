@@ -547,6 +547,7 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const uint8_t* data,
   v8::Handle<v8::String> source;
 
   v8::TryCatch try_catch(isolate_);
+  try_catch.SetVerbose(true);
   switch (encodeing) {
     case Encoding::ONE_BYTE_ENCODING: {
       ExternalOneByteStringResourceImpl* one_byte =
@@ -605,6 +606,7 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const std::string&& script,
   v8::Handle<v8::String> source;
 
   v8::TryCatch try_catch(isolate_);
+  try_catch.SetVerbose(true);
   switch (encodeing) {
     case Encoding::ONE_BYTE_ENCODING: {
       ExternalOneByteStringResourceImpl* one_byte =
@@ -655,6 +657,7 @@ std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
     std::string* cache,
     std::string* exception) {
   v8::TryCatch try_catch(isolate_);
+  try_catch.SetVerbose(true);
   v8::ScriptOrigin origin(v8::String::NewFromUtf8(isolate_, file_name.c_str(),
                                                   v8::NewStringType::kNormal)
                               .FromMaybe(v8::Local<v8::String>()));
