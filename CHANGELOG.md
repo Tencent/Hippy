@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.2.2](https://github.com/Tencent/Hippy/compare/2.2.1...2.2.2) (2021-01-04)
+
+
+### Bug Fixes
+
+* **hippy-react-web:** fixed image newProps src unRendered problem ([#472](https://github.com/Tencent/Hippy/issues/472)) ([86bd187](https://github.com/Tencent/Hippy/commit/86bd1874ff6ebb9f5ad97260e595b6e35b54cd29))
+* **hippy-vue:** fix css rulesets concat error ([d0c900c](https://github.com/Tencent/Hippy/commit/d0c900c44be8c7759db8539a3c57be845471d227))
+* **ios:** fix gif play error when using gif cache data ([32d0729](https://github.com/Tencent/Hippy/commit/32d07295e6d5efa5feebeeb9b587a6f607bdc081))
+
+
+### Features
+
+* **ios:** set a switch for red box show ([eb44a9c](https://github.com/Tencent/Hippy/commit/eb44a9c41386ec496b3d9f9da6aaade614fa2447))
+
+
+
+
+
 ## [2.2.1](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/compare/2.2.0...2.2.1) (2020-12-28)
 
 

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.2.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.2.1...2.2.2) (2021-01-04)
+
+
+### Bug Fixes
+
+* **hippy-vue:** fix css rulesets concat error ([d0c900c](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/d0c900c44be8c7759db8539a3c57be845471d227))
+
+
+
+
+
 ## [2.2.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.2.0...2.2.1) (2020-12-28)
 
 **Note:** Version bump only for package @hippy/vue
