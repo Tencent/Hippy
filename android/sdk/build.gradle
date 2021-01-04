@@ -1,6 +1,26 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.novoda.bintray-release'
 
+buildscript {
+  repositories {
+    google()
+    jcenter()
+  }
+  dependencies {
+    classpath 'com.android.tools.build:gradle:3.2.1'
+    classpath 'com.novoda:bintray-release:0.9.2'
+    // NOTE: Do not place your application dependencies here; they belong
+    // in the individual module build.gradle files
+  }
+}
+
+allprojects {
+  repositories {
+    google()
+    jcenter()
+  }
+}
+
 ext {
     def flag = System.getenv('CI')
     if (flag != null && flag.toBoolean()) {
@@ -11,34 +31,30 @@ ext {
     CLEAR_LOG = ISCI.toBoolean() ? System.getenv('discardLog') : false
     OPEN_JAVA_DEBUG = ISCI.toBoolean() ? System.getenv('openJavaDebug') : true
     BUILD_TOOL_SEVENZIP = ISCI.toBoolean() ? "7za" : System.getenv('7ZIP_PATH')
-    MAVEN_VERSION = ISCI.toBoolean() ? System.getenv('version') : "0.0.1"
+
     //性能专用，会去掉所有日志，首页快速滑动下，日志会导致低端机卡顿
     BUILD_FOR_PERFORMANCE=false
+
     Properties properties = new Properties()
     FilepropertyFile = new File(rootDir.getAbsolutePath()+ "/local.properties")
     properties.load(FilepropertyFile.newDataInputStream())
-    ndkDir = properties.getProperty('ndk.dir')
-    sdkDir = properties.getProperty('sdk.dir')
+    ndk_dir = properties.getProperty('ndk.dir')
+    sdk_dir = properties.getProperty('sdk.dir')
 
-    v8Version = "v8_72"
+    if (ndk_dir == null || ndk_dir.length() <= 0 || sdk_dir == null || sdk_dir.length() <= 0) {
+        throw new GradleException("Failed to get ndk.dir or sdk.dir property in the local.properties file! " +
+                "Please check SDK Location setting before sync project.")
+    }
+
+    ARCHIVES_BASE_NAME = "android-sdk"
+    SDK_VERSION = "2.2.0"
+    V8_VERSION = "v8_72"
+    CMAKE_VERSION = "3.6.4111459" //"3.10.2.4988404"
+    OUTPUT_FILE_NAME = ARCHIVES_BASE_NAME + "-" + SDK_VERSION + ".aar"
+
     // Visual Studio Debugging Support
     skipCmakeAndNinja = System.getenv('skipCmakeAndNinja') != null
 }
-
-def findNdkFullPath() {
-    if (ndkDir) {
-        return ndkDir
-    }
-    return null
-}
-
-def findSdkFullPath() {
-    if (sdkDir) {
-        return sdkDir
-    }
-    return null
-}
-
 
 def isMacOs() {
     return org.gradle.internal.os.OperatingSystem.current().isMacOsX()
@@ -49,28 +65,17 @@ def isWindows() {
 }
 
 def findToolChainPath() {
-    return findNdkFullPath() + "/build/cmake/android.toolchain.cmake"
+    return ndk_dir + "/build/cmake/android.toolchain.cmake"
 }
 
 def findNINJABuildPath() {
-    if (ISCI.toBoolean())
-        return findSdkFullPath() + "/cmake/bin/ninja"
-    else
-        return findSdkFullPath() + "/cmake/3.6.4111459/bin/ninja"
-}
-
-def findCmakeBinPath() {
-    if (ISCI.toBoolean())
-        return findSdkFullPath() + "/cmake/bin"
-    else
-        return findSdkFullPath() + "/cmake/3.6.4111459/bin"
+    def ninjaBuildPath = sdk_dir + "/cmake/" + CMAKE_VERSION + "/bin/ninja"
+    return ninjaBuildPath
 }
 
 def findCmakeBuildPath() {
-    if (ISCI.toBoolean())
-        return findCmakeBinPath() + "/cmake"
-    else
-        return findCmakeBinPath() + "/cmake"
+    def cmakeBuildPath = sdk_dir + "/cmake/" + CMAKE_VERSION + "/bin/cmake"
+    return cmakeBuildPath
 }
 
 task compileCmake(type: Exec) {
@@ -91,10 +96,10 @@ task compileCmake(type: Exec) {
             "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=$project.buildDir.absolutePath/outputs/${arch}/",
             "-DANDROID_TOOLCHAIN=clang",
             "-DANDROID_CPP_FEATURES=rtti exceptions",
-            "-DANDROID_NDK=${findNdkFullPath()}",
+            "-DANDROID_NDK=${ndk_dir}",
             "-DANDROID_PLATFORM=android-14",
             "-DCMAKE_BUILD_TYPE=Release",
-            "-DV8_VERSION=${v8Version}",
+            "-DV8_VERSION=${V8_VERSION}",
             "-DCMAKE_TOOLCHAIN_FILE=${findToolChainPath()}",
                 "-G", "Android Gradle - Ninja", file("src/main/jni/").absolutePath
     }
@@ -119,7 +124,7 @@ def getToolPath(String toolName) {
         fileName = "linux-x86_64"
     }
 
-    return findNdkFullPath() + "/toolchains/arm-linux-androideabi-4.9/prebuilt/" + fileName + "/bin/" + toolName
+    return ndk_dir + "/toolchains/arm-linux-androideabi-4.9/prebuilt/" + fileName + "/bin/" + toolName
 }
 
 def getToolPathArm64(String toolName) {
@@ -132,7 +137,7 @@ def getToolPathArm64(String toolName) {
         fileName = "linux-x86_64"
     }
 
-    return findNdkFullPath() + "/toolchains/aarch64-linux-android-4.9/prebuilt/" + fileName + "/bin/" + toolName
+    return ndk_dir + "/toolchains/aarch64-linux-android-4.9/prebuilt/" + fileName + "/bin/" + toolName
 }
 
 def getToolPathX86(String toolName) {
@@ -145,7 +150,7 @@ def getToolPathX86(String toolName) {
         fileName = "linux-x86_64"
     }
 
-    return findNdkFullPath() + "/toolchains/x86-4.9/prebuilt/" + fileName + "/bin/" + toolName
+    return ndk_dir + "/toolchains/x86-4.9/prebuilt/" + fileName + "/bin/" + toolName
 }
 
 def getToolPathX86_64(String toolName) {
@@ -157,7 +162,7 @@ def getToolPathX86_64(String toolName) {
     } else {
         fileName = "linux-x86_64"
     }
-    return findNdkFullPath() + "/toolchains/x86_64-4.9/prebuilt/" + fileName + "/bin/" + toolName
+    return ndk_dir + "/toolchains/x86_64-4.9/prebuilt/" + fileName + "/bin/" + toolName
 }
 task stripSO(dependsOn: (skipCmakeAndNinja.toBoolean() ? skipCmakeAndNinjaTask : compileNinja), type: Exec) {
     commandLine getToolPath("arm-linux-androideabi-strip"),
@@ -209,7 +214,7 @@ task dealNdkLibSymbols(type: JavaExec) {
     main = 'com.spirit.symbol.Main'
     args '-input', projectDir.absolutePath + "/libs/armeabi-v7a/libhippybridge.so",
             '-output', project.rootProject.projectDir.absolutePath + "/bin/libhippybridge.zip",
-            '-readelf', findNdkFullPath() + '/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin/arm-linux-androideabi-readelf'
+            '-readelf', ndk_dir + '/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin/arm-linux-androideabi-readelf'
 }
 task address2Line(type: Exec) {
     def address = " 0x00004f8b"
@@ -223,25 +228,25 @@ task address2Line(type: Exec) {
 
 task buildNdkLibs(dependsOn: (ISCI.toBoolean() ? dealNdkLibSymbols : stripSO)) {
     copy {
-        from "src/main/jni/third_party/${v8Version}/v8/x86"
+        from "src/main/jni/third_party/${V8_VERSION}/v8/x86"
         into "$buildDir/jnilibs/x86/"
     }
     copy {
-        from "src/main/jni/third_party/${v8Version}/v8/x86_64"
+        from "src/main/jni/third_party/${V8_VERSION}/v8/x86_64"
         into "$buildDir/jnilibs/x86_64/"
     }
 
     copy {
-        from "src/main/jni/third_party/${v8Version}/v8/arm64-v8a"
+        from "src/main/jni/third_party/${V8_VERSION}/v8/arm64-v8a"
         into "$buildDir/jnilibs/arm64-v8a/"
     }
 
     copy {
-        from "src/main/jni/third_party/${v8Version}/v8/armeabi-v7a"
+        from "src/main/jni/third_party/${V8_VERSION}/v8/armeabi-v7a"
         into "$buildDir/jnilibs/armeabi-v7a/"
     }
     copy {
-        from "src/main/jni/third_party/${v8Version}/v8/armeabi-v7a"
+        from "src/main/jni/third_party/${V8_VERSION}/v8/armeabi-v7a"
         into "$buildDir/jnilibs/armeabi/"
     }
 }
@@ -257,6 +262,7 @@ task buildNdkLibs(dependsOn: (ISCI.toBoolean() ? dealNdkLibSymbols : stripSO)) {
 
 
 android {
+    archivesBaseName = ARCHIVES_BASE_NAME + "-" + SDK_VERSION
     compileSdkVersion 28
     buildToolsVersion '28.0.3'
     defaultConfig {
@@ -275,6 +281,12 @@ android {
         }
         debug {
             minifyEnabled false
+        }
+    }
+
+    libraryVariants.all {variant ->
+        variant.outputs.all {
+            outputFileName = OUTPUT_FILE_NAME
         }
     }
 
@@ -335,7 +347,6 @@ def dealAfterBuild(variant) {
 }
 
 def unZipAar(file) {
-  println("=======projectDir=" + projectDir.absolutePath)
     copy {
         from zipTree(file.absolutePath)
         into file.parentFile.absolutePath
@@ -505,7 +516,7 @@ publish {
   repoName = 'Hippy'
   groupId = 'com.tencent.hippy'
   artifactId = 'hippy-release'
-  publishVersion = '2.2.0'
+  publishVersion = SDK_VERSION
   dryRun = false
   desc = 'Hippy library for Android'
   website = 'https://github.com/Tencent/Hippy'
