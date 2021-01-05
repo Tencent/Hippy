@@ -29,19 +29,16 @@ class ListNode extends ElementNode {
    * Poly fill native event
    */
   polyFillNativeEvents(method, eventNames, callback, options) {
-    if (method === 'addEvent') {
-      if (eventNames === 'endReached' || eventNames === 'loadMore') {
-        const name = eventNames === 'endReached' ? 'loadMore' : 'endReached';
-        if (this.emitter) {
-          this.emitter.addEventListener(name, callback, options);
-        }
-      }
-    } else if (method === 'removeEvent') {
-      if (eventNames === 'endReached' || eventNames === 'loadMore') {
-        const name = eventNames === 'endReached' ? 'loadMore' : 'endReached';
-        if (this.emitter) {
-          this.emitter.removeEventListener(name, callback, options);
-        }
+    const eventHandlerMap = {
+      addEvent: 'addEventListener',
+      removeEvent: 'removeEventListener',
+    };
+    let name = eventNames;
+    if (eventNames === 'endReached' || eventNames === 'loadMore') {
+      name = eventNames === 'endReached' ? 'loadMore' : 'endReached';
+      if (this.emitter && eventHandlerMap[method]) {
+        const handler = eventHandlerMap[method];
+        this.emitter[handler](name, callback, options);
       }
     }
   }

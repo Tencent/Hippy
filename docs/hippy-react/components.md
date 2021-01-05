@@ -93,6 +93,8 @@ import icon from './qb_icon_new.png';
 | getRowType            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升list 性能。 | `(index: number) => number`                                    | `ALL`    |
 | getRowKey             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [React 官文](//reactjs.org/docs/lists-and-keys.html) | `(index: number) => any`                                    | `ALL`    |
 | preloadItemNumber     | 指定当列表滚动至倒数第几行时触发 `onEndReached` 回调。 | `number` | `ALL` |
+| onAppear     | 当有`ListViewItem`滑动进入屏幕时（曝光）触发，入参返回曝光的`ListViewItem`对应索引值。 | `(index) => any` | `ALL（Android目前回调时机上不准确，待修复）` |
+| onDisappear     | 当有`ListViewItem`滑动离开屏幕时触发，入参返回离开的`ListViewItem`对应索引值。 | `(index) => any` | `ALL（Android目前回调时机上不准确，待修复）` |
 | onEndReached          | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `onEndReached` 回调。 | `Function`                                                  | `ALL`    |
 | onMomentumScrollBegin | 在 `ListView` 开始滑动的时候调起                           | `Function`                                                  | `ALL`    |
 | onMomentumScrollEnd   | 在 `ListView` 结束滑动的时候调起                           | `Function`                                                  | `ALL`    |
@@ -102,6 +104,9 @@ import icon from './qb_icon_new.png';
 | scrollEventThrottle   | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onScroll` 回调事件 | `number`                                                    | `ALL`    |
 | rowShouldSticky       | 在回调函数，根据传入参数index（ListView单元格的index）返回true或false指定对应的item是否需要使用悬停效果（滚动到顶部时，会悬停在List顶部，不会滚出屏幕） | `(index: number) => boolean`                                | `ALL`    |
 | showScrollIndicator   | 是否显示垂直滚动条。 因为目前 ListView 其实仅有垂直滚动一种方向，水平滚动会导致 `onEndReached` 等一堆问题暂不建议使用，所以 `showScrollIndicator` 也仅用来控制是否显示垂直滚动条。 | `boolean`                                                   | `ALL`    |
+| renderPullHeader   | 设置列表下拉头部（刷新条），配合`onHeaderReleased`和`onHeaderPulling`使用, 参考 [DEMO](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/PullHeader/index.jsx) | `() => View`                                                   | `ALL`    |
+| onHeaderPulling   | 下拉过程中触发, 事件会通过 contentOffset 参数返回拖拽高度，可以根据下拉偏移量做相应的逻辑 | `(obj: { contentOffset: number }) => any`                                                   | `ALL`    |
+| onHeaderReleased   | 下拉超过内容高度，松手后触发 | `() => any`                                                   | `ALL`    |
 
 ## 方法
 
@@ -118,7 +123,7 @@ import icon from './qb_icon_new.png';
 `(xIndex: number, yIndex: number: animated: boolean) => void` 通知 ListView 滑动到第几个 item。
 
 > * `xIndex`: number - 滑动到 X 方向的第 xIndex 个 item
-> * `yIndex`: numbere - 滑动到 Y 方向的 xIndex 个 item
+> * `yIndex`: number - 滑动到 Y 方向的 yIndex 个 item
 > * `animated`: boolean - 滑动过程是否使用动画
 
 # Modal
