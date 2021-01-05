@@ -49,11 +49,15 @@
 - (void)setCellView:(UIView *)cellView
 {
 	UIView *selfCellView = [self cellView];
+    // simulate a hierarchical change in order to invoke -didMoveToWindow of subviews.
+    [selfCellView removeFromSuperview];
 	if (selfCellView != cellView) {
-		[selfCellView removeFromSuperview];
+        [cellView removeFromSuperview];
 		cellView.tag = CELL_TAG;
 		[self.contentView addSubview: cellView];
-	}
+    } else {
+        [self.contentView addSubview: selfCellView];
+    }
 }
 @end
 
