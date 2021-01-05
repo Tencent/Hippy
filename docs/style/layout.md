@@ -213,6 +213,16 @@ Hippy 的样式排版使用了 Flex 布局。值得注意的是，尚不兼容�
 | --------------- | -------- |
 | number | 否       |
 
+# lineHeight
+
+[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/line-height)
+
+`lineHeight` 属性用于设置多行元素的空间量，如多行文本的间距，hippy里仅支持设置具体数值。
+
+| 类型            | 必需 |
+| --------------- | -------- |
+| number | 否       |
+
 # margin
 
 [[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/margin)
