@@ -4,6 +4,7 @@ import ViewNode from './view-node';
 import TextNode from './text-node';
 import InputNode from './input-node';
 import ListNode from './list-node';
+import ListItemNode from './list-item-node';
 import { Event } from './native/event';
 
 class DocumentNode extends ViewNode {
@@ -31,6 +32,8 @@ class DocumentNode extends ViewNode {
         return new InputNode(tagName);
       case 'ul':
         return new ListNode(tagName);
+      case 'li':
+        return new ListItemNode(tagName);
       default:
         return new ElementNode(tagName);
     }
@@ -45,8 +48,7 @@ class DocumentNode extends ViewNode {
   }
 
   static createEvent(eventName) {
-    const eventInstance = new Event(eventName);
-    return eventInstance;
+    return new Event(eventName);
   }
 }
 
