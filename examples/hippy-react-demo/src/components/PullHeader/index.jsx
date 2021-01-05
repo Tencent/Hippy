@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
   itemContainer: {
     padding: 12,
   },
-  spliter: {
+  splitter: {
     marginLeft: 12,
     marginRight: 12,
     height: 0.5,
@@ -32,9 +32,10 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   pullContainer: {
+    height: 60,
     backgroundColor: 'green',
   },
-  pulllContent: {
+  pullContent: {
     color: 'white',
     height: 60,
     textAlign: 'center',
@@ -70,7 +71,7 @@ export default class PullHeaderExample extends React.Component {
 
   async componentDidMount() {
     const dataSource = await this.mockFetchData();
-    this.setState({ dataSource });
+    this.setState({ dataSource }, () => this.listView.collapsePullHeader());
   }
 
   /**
@@ -95,7 +96,7 @@ export default class PullHeaderExample extends React.Component {
       dataSource.pop();
     }
     const newDataSource = dataSource.concat(newData);
-    this.setState({ dataSource: newDataSource });
+    this.setState({ dataSource: newDataSource }, () => this.listView.collapsePullHeader());
   }
 
   /**
@@ -127,7 +128,7 @@ export default class PullHeaderExample extends React.Component {
     if (this.fetchingDataFlag) {
       return;
     }
-    if (evt.contentOffset > styles.pulllContent.height) {
+    if (evt.contentOffset > styles.pullContent.height) {
       this.setState({
         pullingText: '松手，即可触发刷新',
       });
@@ -199,7 +200,7 @@ export default class PullHeaderExample extends React.Component {
     const { pullingText } = this.state;
     return (
       <View style={styles.pullContainer}>
-        <Text style={styles.pulllContent}>{ pullingText }</Text>
+        <Text style={styles.pullContent}>{ pullingText }</Text>
       </View>
     );
   }
@@ -237,7 +238,7 @@ export default class PullHeaderExample extends React.Component {
         </View>
         {
           !isLastItem ? (
-            <View style={styles.spliter} />
+            <View style={styles.splitter} />
           ) : null
         }
       </View>

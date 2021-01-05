@@ -150,6 +150,10 @@ const li = {
   component: {
     name: NATIVE_COMPONENT_NAME_MAP[components.ListViewItem],
   },
+  eventNamesMap: mapEvent([
+    ['appear', 'onAppear'],
+    ['disappear', (__PLATFORM__ === 'android' || Native.Platform === 'android') ? 'onDisAppear' : 'onDisappear'],
+  ]),
 };
 
 // Text area
