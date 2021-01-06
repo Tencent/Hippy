@@ -24,6 +24,7 @@
       @endReached="onEndReached"
       @scroll="onScroll"
       :numberOfRows="dataSource.length"
+      :exposureEventEnabled="true"
     >
       <!--
         li 有两个参数是一定要加上的。
@@ -38,6 +39,8 @@
         :key="index"
         :type="ui.style"
         @layout="onItemLayout"
+        @appear="onAppear(index)"
+        @disappear="onDisappear(index)"
       >
         <style-one v-if="ui.style == 1" :itemBean="ui.itemBean" />
         <style-two v-if="ui.style == 2" :itemBean="ui.itemBean" />
@@ -89,6 +92,14 @@ export default {
     setTimeout(() => this.exposureReport(0), 500);
   },
   methods: {
+    // TODO android onAppear不完善，暂时不适用
+    onAppear(index) {
+      console.log('onAppear', index);
+    },
+    // TODO android onDisappear不完善，暂时不适用
+    onDisappear(index) {
+      console.log('onDisappear', index);
+    },
     mockFetchData() {
       return new Promise((resolve) => {
         setTimeout(() => {
