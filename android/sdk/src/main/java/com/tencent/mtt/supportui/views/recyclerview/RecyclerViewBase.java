@@ -31,10 +31,6 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.animation.Interpolator;
 
-/**
- * Created by leonardgong on 2017/12/7 0007.
- */
-
 public abstract class RecyclerViewBase extends ViewGroup
 {
 	public static final int								TRAVERSAL_PURPOSE_MODECHANGE				= 1991102;
@@ -1906,6 +1902,7 @@ public abstract class RecyclerViewBase extends ViewGroup
 							}
 						}
 					}
+					onTouchMove(x, y);
 				}
 				mLastTouchX = x;
 				mLastTouchY = y;
