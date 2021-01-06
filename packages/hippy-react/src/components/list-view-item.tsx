@@ -8,6 +8,7 @@ interface ListViewItemProps {
   sticky?: boolean;
   style?: Style;
   onLayout?: (evt: any) => void;
+  [props: string]: any
 }
 
 function ListViewItem(props: ListViewItemProps) {

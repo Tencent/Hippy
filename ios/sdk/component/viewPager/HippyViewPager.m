@@ -73,9 +73,6 @@
     if (_itemsChangedBlock) {
         _itemsChangedBlock([self.viewPagerItems count]);
     }
-
-    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
-    [view addGestureRecognizer:tap];
 }
 
 - (void)removeHippySubview:(UIView *)subview {

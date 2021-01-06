@@ -119,6 +119,22 @@ export default class ListExample extends React.Component {
     this.setState({ dataSource: newDataSource });
   }
 
+  // TODO android onAppear不完善，暂时不适用
+  // 曝光
+  // eslint-disable-next-line class-methods-use-this
+  onAppear(index) {
+    // eslint-disable-next-line no-console
+    console.log('onAppear', index);
+  }
+
+  // TODO android onDisappear不完善，暂时不适用
+  // 隐藏
+  // eslint-disable-next-line class-methods-use-this
+  onDisappear(index) {
+    // eslint-disable-next-line no-console
+    console.log('onDisappear', index);
+  }
+
   getRowType(index) {
     const self = this;
     const item = self.state.dataSource[index];
@@ -188,6 +204,8 @@ export default class ListExample extends React.Component {
         getRowKey={this.getRowKey}
         initialListSize={15}
         rowShouldSticky={index => index === 2}
+        onAppear={index => this.onAppear(index)}
+        onDisappear={index => this.onDisappear(index)}
       />
     );
   }
