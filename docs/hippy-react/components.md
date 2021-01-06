@@ -46,7 +46,7 @@ import icon from './qb_icon_new.png';
 | ------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | -------- |
 | onLayout      | 当元素挂载或者布局改变的时候调用，参数为： `{ nativeEvent: { layout: { x, y, width, height } } }`。 | `Function`                                                   | `ALL`    |
 | onLoad        | 加载成功完成时调用此回调函数。                               | `Function`                                                   | `ALL`    |
-| onLoadStart   | 加载开始时调用。 例如, `onLoadStart={(e) => this.setState({ loading: true })}` | `Function`                                                   | `ALL`    |
+| onLoadStart   | 加载开始时调用。 例如, `onLoadStart={() => this.setState({ loading: true })}` | `Function`                                                   | `ALL`    |
 | onLoadEnd     | 加载结束后，不论成功还是失败，调用此回调函数。               | `Function`                                                   | `ALL`    |
 | resizeMode    | 决定当组件尺寸和图片尺寸不成比例的时候如何调整图片的大小。   |  `enum`(cover, contain, stretch, repeat, center) | `ALL`    |
 | source        | uri是一个表示图片的资源标识的字符串，需要用http路径。  现在支持的图片格式有 `png` , `jpg` , `jpeg` , `bmp` , `gif` 。 | `{ uri: string }`                                            | `ALL`    |
@@ -125,6 +125,10 @@ import icon from './qb_icon_new.png';
 > * `xIndex`: number - 滑动到 X 方向的第 xIndex 个 item
 > * `yIndex`: number - 滑动到 Y 方向的 yIndex 个 item
 > * `animated`: boolean - 滑动过程是否使用动画
+
+### collapsePullHeader
+
+`() => void` 收起刷新条PullHeader。当设置了`renderPullHeader`后，每当下拉刷新结束需要主动调用该方法结束。
 
 # Modal
 

@@ -71,7 +71,9 @@ export default class PullHeaderExample extends React.Component {
 
   async componentDidMount() {
     const dataSource = await this.mockFetchData();
-    this.setState({ dataSource }, () => this.listView.collapsePullHeader());
+    this.setState({ dataSource });
+    // 结束时需主动调用collapsePullHeader
+    this.listView.collapsePullHeader();
   }
 
   /**
@@ -96,7 +98,7 @@ export default class PullHeaderExample extends React.Component {
       dataSource.pop();
     }
     const newDataSource = dataSource.concat(newData);
-    this.setState({ dataSource: newDataSource }, () => this.listView.collapsePullHeader());
+    this.setState({ dataSource: newDataSource });
   }
 
   /**
@@ -106,6 +108,8 @@ export default class PullHeaderExample extends React.Component {
     if (this.fetchingDataFlag) {
       return;
     }
+    // eslint-disable-next-line no-console
+    console.log('onHeaderReleased');
     this.setState({
       pullingText: '刷新数据中，请稍等，3秒后自动收起',
     });
@@ -128,6 +132,8 @@ export default class PullHeaderExample extends React.Component {
     if (this.fetchingDataFlag) {
       return;
     }
+    // eslint-disable-next-line no-console
+    console.log('onHeaderPulling', evt.contentOffset);
     if (evt.contentOffset > styles.pullContent.height) {
       this.setState({
         pullingText: '松手，即可触发刷新',
