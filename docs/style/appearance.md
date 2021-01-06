@@ -6,7 +6,7 @@
 
 | 类型               | 必需 |
 | ------------------ | -------- |
-| [color](color.md) | 否       |
+| [color](style/color.md) | 否       |
 
 # backfaceVisibility
 
@@ -18,7 +18,7 @@
 
 | 类型               | 必需 |
 | ------------------ | -------- |
-| [color](color.md) | 否       |
+| [color](style/color.md) | 否       |
 
 # borderBottomEndRadius
 
@@ -48,19 +48,19 @@
 
 | 类型               | 必需 |
 | ------------------ | -------- |
-| [color](color.md) | 否       |
+| [color](style/color.md) | 否       |
 
 # borderEndColor
 
 | 类型               | 必需 |
 | ------------------ | -------- |
-| [color](color.md) | 否       |
+| [color](style/color.md) | 否       |
 
 # borderLeftColor
 
 | 类型               | 必需 |
 | ------------------ | -------- |
-| [color](color.md) | 否       |
+| [color](style/color.md) | 否       |
 
 # borderLeftWidth
 
@@ -78,7 +78,7 @@
 
 | 类型               | 必需 |
 | ------------------ | -------- |
-| [color](color.md) | 否       |
+| [color](style/color.md) | 否       |
 
 # borderRightWidth
 
@@ -90,7 +90,7 @@
 
 | 类型               | 必需 |
 | ------------------ | -------- |
-| [color](color.md) | 否       |
+| [color](style/color.md) | 否       |
 
 # borderStyle
 
@@ -102,7 +102,7 @@
 
 | 类型               | 必需 |
 | ------------------ | -------- |
-| [color](color.md) | 否       |
+| [color](style/color.md) | 否       |
 
 # borderTopLeftRadius
 
