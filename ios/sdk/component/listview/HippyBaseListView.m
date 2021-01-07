@@ -48,12 +48,11 @@
 
 - (void)setCellView:(UIView *)cellView
 {
-	UIView *selfCellView = [self cellView];
-	if (selfCellView != cellView) {
-		[selfCellView removeFromSuperview];
-		cellView.tag = CELL_TAG;
-		[self.contentView addSubview: cellView];
-	}
+    // simulate a hierarchical change in order to invoke -didMoveToWindow of subviews.
+    UIView *selfCellView = [self cellView];
+    [selfCellView removeFromSuperview];
+    cellView.tag = CELL_TAG;
+    [self.contentView addSubview: cellView];
 }
 @end
 
@@ -128,12 +127,6 @@
 
 - (BOOL)flush
 {
-    NSNumber *number = self.node.props[@"numberOfRows"];
-    if ([number isEqual:[NSNull null]]) {
-        return NO;
-    }
-	NSUInteger numberOfRows = [number integerValue];
-    
     static dispatch_once_t onceToken;
     static NSPredicate *predicate = nil;
     dispatch_once(&onceToken, ^{
@@ -146,14 +139,13 @@
     });
     
     _subNodes = [self.node.subNodes filteredArrayUsingPredicate:predicate];
-    
-    if ([_subNodes count] == numberOfRows) {
-        if (numberOfRows == 0 && _preNumberOfRows == numberOfRows) return NO;
-        [self reloadData];
-        _preNumberOfRows = numberOfRows;
-        return YES;
+    NSUInteger numberOfRows = [_subNodes count];
+    if (numberOfRows == 0 && _preNumberOfRows == numberOfRows) {
+        return NO;
     }
-    return NO;
+    [self reloadData];
+    _preNumberOfRows = numberOfRows;
+    return YES;
 }
 
 - (void)reloadData

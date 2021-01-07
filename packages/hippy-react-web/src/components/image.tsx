@@ -98,8 +98,11 @@ export class Image extends React.Component {
 
   constructor(props) {
     super(props);
+    const initImageUrl = props.source ? props.source.uri : '';
     this.state = {
       isLoadSuccess: false,
+      imageUrl: initImageUrl,
+      prevImageUrl: initImageUrl,
     };
     this.onLoad = this.onLoad.bind(this);
     this.onError = this.onError.bind(this);
@@ -113,7 +116,30 @@ export class Image extends React.Component {
     if (onLoadStart) {
       onLoadStart();
     }
-    ImageLoader.load(source.uri, this.onLoad, this.onError);
+    if (source) {
+      ImageLoader.load(source.uri, this.onLoad, this.onError);
+    }
+  }
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.source && nextProps.source.uri !== prevState.imageUrl) {
+      return {
+        imageUrl: nextProps.source.uri,
+        prevImageUrl: prevState.imageUrl,
+      };
+    }
+    return null;
+  }
+
+  componentDidUpdate() {
+    const { imageUrl, prevImageUrl } = this.state;
+    if (imageUrl !== prevImageUrl) {
+      ImageLoader.load(imageUrl, this.onLoad, this.onError);
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({
+        prevImageUrl: imageUrl,
+      });
+    }
   }
 
   onLoad(e) {
@@ -152,7 +178,7 @@ export class Image extends React.Component {
     let { style } = this.props;
     const { isLoadSuccess } = this.state;
     const {
-      source, sources, resizeMode, children, defaultSource,
+      source, sources, resizeMode, children, defaultSource = '',
     } = this.props;
     if (style) {
       style = formatWebStyle(style);
@@ -178,6 +204,8 @@ export class Image extends React.Component {
     delete newProps.onLoad;
     delete newProps.onLayout;
     delete newProps.onLoadEnd;
+    delete newProps.defaultSource;
+
     return (
       <View {...newProps}>
         <View
