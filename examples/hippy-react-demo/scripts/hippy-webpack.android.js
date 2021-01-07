@@ -1,6 +1,7 @@
 const path                        = require('path');
 const webpack                     = require('webpack');
 const CaseSensitivePathsPlugin    = require('case-sensitive-paths-webpack-plugin');
+const HippyDynamicImportPlugin    = require('@hippy/hippy-dynamic-import-plugin');
 const pkg                         = require('../package.json');
 const manifest                    = require('../dist/android/vendor-manifest.json');
 
@@ -28,6 +29,7 @@ module.exports = {
       context: path.resolve(__dirname, '..'),
       manifest,
     }),
+    new HippyDynamicImportPlugin(),
   ],
   module: {
     rules: [
