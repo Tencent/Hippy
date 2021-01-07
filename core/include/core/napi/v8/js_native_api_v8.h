@@ -214,7 +214,8 @@ struct V8Ctx : public Ctx {
       std::string *exception = nullptr,
       Encoding encodeing = Encoding::UNKNOWN_ENCODING);
 
-  virtual std::shared_ptr<CtxValue> GetJsFn(const std::string &name);
+  virtual std::shared_ptr<CtxValue> GetJsFn(const std::string &name,
+                                            std::string *exception = nullptr);
 
   void GetMessageInfo(v8::Local<v8::Message> message,
                       std::string &desc,

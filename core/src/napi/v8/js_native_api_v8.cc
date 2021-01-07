@@ -722,7 +722,8 @@ std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
   return std::make_shared<V8CtxValue>(isolate_, v8_value);
 }
 
-std::shared_ptr<CtxValue> V8Ctx::GetJsFn(const std::string& name) {
+std::shared_ptr<CtxValue> V8Ctx::GetJsFn(const std::string& name,
+                                         std::string* exception) {
   HIPPY_DLOG(hippy::Debug, "GetJsFn name = %s", name.c_str());
   v8::HandleScope handle_scope(isolate_);
   v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
