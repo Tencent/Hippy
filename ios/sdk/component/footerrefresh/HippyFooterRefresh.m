@@ -46,7 +46,9 @@
         HippyRefreshStatusStartLoading != [self status] &&
         HippyRefreshStatusFinishLoading != [self status]) {
             CGFloat offset = _scrollView.contentOffset.y;
-            self.onFooterPulling(@{@"contentOffset": @(offset)});
+            if (offset >= 0) {
+                self.onFooterPulling(@{@"contentOffset": @(offset)});
+            }
         }
     }
 }
