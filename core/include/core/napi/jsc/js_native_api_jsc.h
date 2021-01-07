@@ -120,9 +120,8 @@ class JSCCtx : public Ctx {
 
   virtual bool IsFunction(std::shared_ptr<CtxValue>);
   virtual std::string CopyFunctionName(std::shared_ptr<CtxValue>);
-  virtual std::shared_ptr<CtxValue> GetJsFn(const std::string& name) {
-    return nullptr;
-  };
+  virtual std::shared_ptr<CtxValue> GetJsFn(const std::string& name,
+                                            std::string* exception = nullptr);
 
   bool HandleJsException(JSValueRef value, std::string& exception_str);
 

@@ -571,7 +571,8 @@ std::shared_ptr<CtxValue> V8Ctx::CallFunction(
       if (exception) {
         *exception = GetException(try_catch);
       } else {
-        HIPPY_DLOG(hippy::Warning, "try_catch.ReThrow");
+        HIPPY_DLOG(hippy::Warning, "try_catch.ReThrow, exception = %s",
+                   GetException(try_catch).c_str());
         try_catch.ReThrow();
       }
     }
