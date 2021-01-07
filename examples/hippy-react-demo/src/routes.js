@@ -179,4 +179,12 @@ export default [
       style: 2,
     },
   },
+  {
+    path: '/DynamicImport',
+    name: 'DynamicImport 能力',
+    component: PAGE_LIST.DynamicImport,
+    meta: {
+      style: 2,
+    },
+  },
 ];
