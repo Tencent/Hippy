@@ -22,12 +22,15 @@
 
 #import <UIKit/UIKit.h>
 #import "HippyComponent.h"
+#import "HippyBaseListViewCell.h"
 
-@interface HippyBaseListItemView : UIView
+@interface HippyBaseListItemView : UIView<ViewAppearStateProtocol>
 
 @property (nonatomic, strong) id type;
 @property (nonatomic, assign) BOOL isSticky;
 @property (nonatomic, copy) HippyDirectEventBlock onAppear;
 @property (nonatomic, copy) HippyDirectEventBlock onDisappear;
+@property (nonatomic, copy) HippyDirectEventBlock onWillAppear;
+@property (nonatomic, copy) HippyDirectEventBlock onWillDisappear;
 
 @end
