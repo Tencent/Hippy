@@ -31,6 +31,8 @@ HIPPY_EXPORT_VIEW_PROPERTY(type, id)
 HIPPY_EXPORT_VIEW_PROPERTY(isSticky, BOOL)
 HIPPY_EXPORT_VIEW_PROPERTY(onAppear, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onDisappear, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onWillAppear, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onWillDisappear, HippyDirectEventBlock)
 
 - (UIView *)view
 {
