@@ -41,6 +41,8 @@
         @layout="onItemLayout"
         @appear="onAppear(index)"
         @disappear="onDisappear(index)"
+        @willAppear="onWillAppear(index)"
+        @willDisappear="onWillDisappear(index)"
       >
         <style-one v-if="ui.style == 1" :itemBean="ui.itemBean" />
         <style-two v-if="ui.style == 2" :itemBean="ui.itemBean" />
@@ -92,13 +94,21 @@ export default {
     setTimeout(() => this.exposureReport(0), 500);
   },
   methods: {
-    // TODO android onAppear不完善，暂时不适用
+    // item完全曝光
     onAppear(index) {
       console.log('onAppear', index);
     },
-    // TODO android onDisappear不完善，暂时不适用
+    // item完全隐藏
     onDisappear(index) {
       console.log('onDisappear', index);
+    },
+    // item至少一个像素曝光
+    onWillAppear(index) {
+      console.log('onWillAppear', index);
+    },
+    // item至少一个像素隐藏
+    onWillDisappear(index) {
+      console.log('onWillDisappear', index);
     },
     mockFetchData() {
       return new Promise((resolve) => {
