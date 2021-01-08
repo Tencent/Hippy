@@ -185,6 +185,54 @@
 
 一切同 [p](hippy-vue/components.md?id=p)。
 
+# ul
+
+[[范例：demo-list.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-list.vue)
+
+Hippy 的重点功能，高性能的可复用列表组件。里面第一层只能包含 `<li>`。
+
+## 参数
+
+| 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
+| --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
+| numberOfRows          | 指定列表的行数，一般直接传入数据源条数 `length` 即可。       | `number`                                                    | `ALL`    |
+| initialContentOffset  | 初始位移值 -- 在列表初始化时即可指定滚动距离，避免初始化后再通过 scrollTo 系列方法产生的闪动。 | `number`                                                    | `ALL`
+| scrollEventThrottle   | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onScroll` 回调事件，默认 200ms | `number`                                                    | `ALL`    |
+| showScrollIndicator   | 是否显示垂直滚动条。 因为目前 ListView 其实仅有垂直滚动一种方向，水平滚动会导致 `onEndReached` 等一堆问题暂不建议使用，所以 `showScrollIndicator` 也仅用来控制是否显示垂直滚动条。 | `boolean`                                                   | `ALL`    |
+| preloadItemNumber     | 指定当列表滚动至倒数第几行时触发 `onEndReached` 回调。 | `number` | `ALL` |
+| exposureEventEnabled | Android曝光能力启用开关，如果要使用`appear`、`disappear`相关事件，Android需要设置（iOS无需设置）| `boolean` | `Android`
+| endReached | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `endReached` 回调。 | `Function`                                                  | `ALL`    |
+
+## 事件
+
+| 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
+| ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
+| endReached          | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `onEndReached` 回调。 | `Function`                                                  | `ALL`    |
+| momentumScrollBegin | 在 `ScrollView` 开始滑动的时候调起                           | `Function`                                                  | `ALL`    |
+| momentumScrollEnd   | 在 `ScrollView` 结束滑动的时候调起                           | `Function`                                                  | `ALL`    |
+ scroll              | 当触发 `ListView` 的滑动事件时回调，在 `ListView` 滑动时回调，因此调用会非常频繁，请使用 `scrollEventThrottle` 进行频率控制。 注意：ListView 在滚动时会进行组件回收，不要在滚动时对 renderRow() 生成的 ListItemView 做任何 ref 节点级的操作（例如：所有 callUIFunction 和 measureInWindow 方法），回收后的节点将无法再进行操作而报错。 | `(obj: { contentOffset: { x: number, y: number } }) => any` | `ALL`    |
+| scrollBeginDrag     | 当用户开始拖拽 `ScrollView` 时调用。                         | `Function`                                                  | `ALL`    |
+| scrollEndDrag       | 当用户停止拖拽 `ScrollView` 或者放手让 `ScrollView` 开始滑动的时候调用 | `Function`                                                  | `ALL`    |
+| layout      | 当元素挂载或者布局改变的时候调用，参数为： `{ nativeEvent: { layout: { x, y, width, height } } }`。 | `Function`                                | `ALL`    |
+
+## 方法
+
+### scrollTo
+
+`(xOffset: number, yOffset: number: duration: number) => void` 通知 ListView 滑动到某个具体坐标偏移值(offset)的位置。
+
+> * `xOffset`: number - 滑动到 X 方向的 offset
+> * `yOffset`: numbere - 滑动到 Y 方向的 offset
+> * `number`: boolean - 多长事件滚到指定位置
+
+### scrollToIndex
+
+`(xIndex: number, yIndex: number: animated: boolean) => void` 通知 ListView 滑动到第几个 item。
+
+> * `xIndex`: number - 滑动到 X 方向的第 xIndex 个 item
+> * `yIndex`: number - 滑动到 Y 方向的 yIndex 个 item
+> * `animated`: boolean - 滑动过程是否使用动画
+
 # li
 
 ul 的子节点，终端层节点回收和复用的最小颗粒度。
@@ -198,8 +246,10 @@ ul 的子节点，终端层节点回收和复用的最小颗粒度。
 | type            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升list 性能。 | `number`              | `ALL`    |
 | key             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [Vue 官文](//cn.vuejs.org/v2/guide/list.html) | `string`                                    | `ALL`    |
 | sticky       | 对应的item是否需要使用悬停效果（滚动到顶部时，会悬停在List顶部，不会滚出屏幕） | `boolean`                                | `ALL`
-| appear       | 当有`li`节点滑动进入屏幕时（曝光）触发，入参返回曝光的`li`节点对应索引值。 | `(index) => any` | `ALL（Android目前回调时机上不准确，待修复）` |
-| disappear       | 当有`li`节点滑动离开屏幕时触发，入参返回离开的`li`节点对应索引值。 | `(index) => any` | `ALL（Android目前回调时机上不准确，待修复）` |
+| appear       | 当有`li`节点滑动进入屏幕时（曝光）触发，入参返回曝光的`li`节点对应索引值。 | `(index) => any` | `ALL` |
+| disappear       | 当有`li`节点滑动离开屏幕时触发，入参返回离开的`li`节点对应索引值。 | `(index) => any` | `ALL` |
+| willAppear       | 当有`li`节点至少一个像素滑动进入屏幕时（曝光）触发，入参返回曝光的`li`节点对应索引值。 | `(index) => any` | `ALL` |
+| willDisappear       | 当有`li`节点至少一个像素滑动离开屏幕时触发，入参返回离开的`li`节点对应索引值。 | `(index) => any` | `ALL` |
 
 # p
 
@@ -221,59 +271,6 @@ ul 的子节点，终端层节点回收和复用的最小颗粒度。
   * `middle` - "文字将会从中间开始截断，保证字符串的最后与最前的文字可以正常显示在Text组件的响应位置，而中间给截断的文字，将以 “...” 代替，例如 “ab...yz”
   * `tail` - 文字将会从最后开始截断，保证字符串的最前的文字可以正常显示在 Text 组件的最前，而从最后给截断的文字，将以 “...” 代替，例如 “abcd...”；
   * `clip` - 超过指定行数的文字会被直接截断，不显示“...”，
-
-# ul
-
-[[范例：demo-list.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-list.vue)
-
-Hippy 的重点功能，高性能的可复用列表组件。里面第一层只能包含 `<li>`。
-
-## 参数
-
-| 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
-| --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
-| numberOfRows          | 指定列表的行数，一般直接传入数据源条数 `length` 即可。       | `number`                                                    | `ALL`    |
-| initialContentOffset  | 初始位移值 -- 在列表初始化时即可指定滚动距离，避免初始化后再通过 scrollTo 系列方法产生的闪动。 | `number`                                                    | `ALL`
-| scrollEventThrottle   | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onScroll` 回调事件，默认 200ms | `number`                                                    | `ALL`    |
-| showScrollIndicator   | 是否显示垂直滚动条。 因为目前 ListView 其实仅有垂直滚动一种方向，水平滚动会导致 `onEndReached` 等一堆问题暂不建议使用，所以 `showScrollIndicator` 也仅用来控制是否显示垂直滚动条。 | `boolean`                                                   | `ALL`    |
-| preloadItemNumber     | 指定当列表滚动至倒数第几行时触发 `onEndReached` 回调。 | `number` | `ALL` |
-| exposureEventEnabled | 曝光能力启用开关（仅Android需设置）| `boolean` | `Android`
-| endReached | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `endReached` 回调。 | `Function`                                                  | `ALL`    |
-
-## 事件
-
-| 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
-| ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| endReached          | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `onEndReached` 回调。 | `Function`                                                  | `ALL`    |
-| momentumScrollBegin | 在 `ScrollView` 开始滑动的时候调起                           | `Function`                                                  | `ALL`    |
-| momentumScrollEnd   | 在 `ScrollView` 结束滑动的时候调起                           | `Function`                                                  | `ALL`    |
- scroll              | 当触发 `ListView` 的滑动事件时回调，在 `ListView` 滑动时回调，因此调用会非常频繁，请使用 `scrollEventThrottle` 进行频率控制。 注意：ListView 在滚动时会进行组件回收，不要在滚动时对 renderRow() 生成的 ListItemView 做任何 ref 节点级的操作（例如：所有 callUIFunction 和 measureInWindow 方法），回收后的节点将无法再进行操作而报错。 | `(obj: { contentOffset: { x: number, y: number } }) => any` | `ALL`    |
-| scrollBeginDrag     | 当用户开始拖拽 `ScrollView` 时调用。                         | `Function`                                                  | `ALL`    |
-| scrollEndDrag       | 当用户停止拖拽 `ScrollView` 或者放手让 `ScrollView` 开始滑动的时候调用 | `Function`                                                  | `ALL`    |
-
-## 方法
-
-### scrollTo
-
-`(xOffset: number, yOffset: number: duration: number) => void` 通知 ListView 滑动到某个具体坐标偏移值(offset)的位置。
-
-> * `xOffset`: number - 滑动到 X 方向的 offset
-> * `yOffset`: numbere - 滑动到 Y 方向的 offset
-> * `number`: boolean - 多长事件滚到指定位置
-
-### scrollToIndex
-
-`(xIndex: number, yIndex: number: animated: boolean) => void` 通知 ListView 滑动到第几个 item。
-
-> * `xIndex`: number - 滑动到 X 方向的第 xIndex 个 item
-> * `yIndex`: number - 滑动到 Y 方向的 yIndex 个 item
-> * `animated`: boolean - 滑动过程是否使用动画
-
-## 事件
-
-| 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
-| ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| layout      | 当元素挂载或者布局改变的时候调用，参数为： `{ nativeEvent: { layout: { x, y, width, height } } }`。 | `Function`                                | `ALL`    |
 
 # span
 
