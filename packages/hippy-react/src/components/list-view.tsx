@@ -163,8 +163,10 @@ interface ListItemViewProps {
   sticky?: boolean;
   style?: Style;
   onLayout?: (evt: any) => void;
-  onAppear?: (evt: any) => void;
-  onDisappear?: (evt: any) => void;
+  onAppear?: (index: number) => void;
+  onDisappear?: (index: number) => void;
+  onWillAppear?: (index: number) => void;
+  onWillDisappear?: (index: number) => void;
   onHeaderPulling?(): void;
   onHeaderReleased?(): void;
   onFooterPulling?(): void;
@@ -329,6 +331,8 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
       onFooterReleased,
       onAppear,
       onDisappear,
+      onWillAppear,
+      onWillDisappear,
       ...nativeProps
     } = this.props;
 
@@ -411,6 +415,18 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
           };
         }
 
+        if (typeof onWillAppear === 'function') {
+          itemProps[this.convertName(onWillAppear.name)] = () => {
+            onWillAppear(index);
+          };
+        }
+
+        if (typeof onWillDisappear === 'function') {
+          itemProps[this.convertName(onWillDisappear.name)] = () => {
+            onWillDisappear(index);
+          };
+        }
+
         if (typeof getRowType === 'function') {
           const type = getRowType(index);
           if (!Number.isInteger(type)) {
@@ -445,9 +461,8 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
           rowShouldSticky: true,
         });
       }
-      if (typeof onAppear === 'function' || typeof onDisappear === 'function') {
-        nativeProps.exposureEventEnabled = true;
-      }
+      const appearEventList = [onAppear, onDisappear, onWillAppear, onWillDisappear];
+      nativeProps.exposureEventEnabled = appearEventList.some(func => typeof func === 'function');
       nativeProps.numberOfRows = itemList.length;
       (nativeProps as ListViewProps).initialListSize = initialListSize;
       (nativeProps as ListViewProps).style = {
