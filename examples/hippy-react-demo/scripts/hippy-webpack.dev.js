@@ -1,6 +1,7 @@
 const fs                = require('fs');
 const path              = require('path');
 const webpack           = require('webpack');
+const HippyDynamicImportPlugin = require('@hippy/hippy-dynamic-import-plugin');
 const pkg               = require('../package.json');
 
 module.exports = {
@@ -17,6 +18,7 @@ module.exports = {
     filename: 'index.bundle',
     strictModuleExceptionHandling: true,
     path: path.resolve('./dist/dev/'),
+    globalObject: '(0, eval)("this")',
   },
   plugins: [
     new webpack.DefinePlugin({
@@ -27,6 +29,7 @@ module.exports = {
       },
       __PLATFORM__: null,
     }),
+    new HippyDynamicImportPlugin(),
   ],
   module: {
     rules: [
