@@ -341,11 +341,9 @@
         }
     }
     if (_previousVisibleCells && ![_previousVisibleCells isEqualToArray:visibleCells]) {
-        NSMutableSet *previousCells = [NSMutableSet setWithArray:_previousVisibleCells];
-        NSMutableSet *cells = [NSMutableSet setWithArray:visibleCells];
-        [previousCells unionSet:cells];
-        [previousCells minusSet:cells];
-        for (HippyBaseListViewCell *cell in previousCells) {
+        NSMutableArray<HippyBaseListViewCell *> *diff = [_previousVisibleCells mutableCopy];
+        [diff removeObjectsInArray:visibleCells];
+        for (HippyBaseListViewCell *cell in diff) {
             [cell setCellShowState:CellNotShowState];
         }
     }
