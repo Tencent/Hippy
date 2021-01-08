@@ -43,4 +43,35 @@
     }
 }
 
+- (void)viewWillAppearEvent {
+    if (self.onWillAppear) {
+        self.onWillAppear(@{});
+    }
+}
+
+- (void)viewWillDisappearEvent {
+    if (self.onWillDisappear) {
+        self.onWillDisappear(@{});
+    }
+}
+
+- (void)cellAppearStateChanged:(CellAppearState)state {
+    switch (state) {
+        case CellWillAppearState:
+            [self viewWillAppearEvent];
+            break;
+        case CellDidAppearState:
+            [self viewAppearEvent];
+            break;
+        case CellWillDisappearState:
+            [self viewWillDisappearEvent];
+            break;
+        case CellDidDisappearState:
+            [self viewDisappearEvent];
+            break;
+        default:
+            break;
+    }
+}
+
 @end
