@@ -31,8 +31,6 @@ import com.tencent.mtt.hippy.modules.HippyModuleManager;
 import com.tencent.mtt.hippy.utils.ArgumentUtils;
 import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.GrowByteBuffer;
-import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
-import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 
 import android.os.Build;
@@ -41,11 +39,6 @@ import android.os.Message;
 import android.text.TextUtils;
 import org.json.JSONObject;
 
-/**
- * FileName: HippyBridgeManager
- * Description：
- * History：
- */
 public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.BridgeCallback, Handler.Callback
 {
 	static final int		MSG_CODE_INIT_BRIDGE				= 10;
@@ -304,7 +297,23 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 				}
 				case MSG_CODE_DESTROY_BRIDGE:
 				{
-					mHippyBridge.destroy(null);
+					final com.tencent.mtt.hippy.common.Callback<Boolean> destroyCallback = (com.tencent.mtt.hippy.common.Callback<Boolean>) msg.obj;
+					mHippyBridge.destroy(new NativeCallback(mHandler) {
+						@Override
+						public void Call(long value, Message msg, String action) {
+							Boolean success = value == 1 ? true : false;
+							mHippyBridge.onDestroy();
+							if (destroyCallback != null) {
+								RuntimeException exception = null;
+								if (!success) {
+									exception = new RuntimeException("destroy core failed!!! msg.what=" + msg.what);
+								}
+
+								destroyCallback.callback(success, exception);
+							}
+						}
+					});
+
 					return true;
 				}
 			}
@@ -443,16 +452,20 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 	}
 
 	@Override
-	public void destroy()
-	{
+	public void destroyBridge(Callback<Boolean> callback) {
+		mHandler = new Handler(mContext.getThreadExecutor().getJsThread().getLooper(), this);
+		Message message = mHandler.obtainMessage(MSG_CODE_DESTROY_BRIDGE, callback);
+		mHandler.sendMessage(message);
+	}
+
+	@Override
+	public void destroy() {
 		mIsInit = false;
 		mLoadModuleListener = null;
-		if (mHandler != null)
-		{
+		if (mHandler != null) {
 			mHandler.removeMessages(MSG_CODE_INIT_BRIDGE);
 			mHandler.removeMessages(MSG_CODE_RUN_BUNDLE);
 			mHandler.removeMessages(MSG_CODE_CALL_FUNCTION);
-			mHandler.sendEmptyMessage(MSG_CODE_DESTROY_BRIDGE);
 		}
 	}
 

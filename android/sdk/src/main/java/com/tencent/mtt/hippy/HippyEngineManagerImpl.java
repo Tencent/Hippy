@@ -51,11 +51,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-/**
- * FileName: HippyEngineManagerImpl
- * Description：
- * History：
- */
 public abstract class HippyEngineManagerImpl extends HippyEngineManager implements DevServerCallBack, HippyRootView.OnSizeChangedListener,
 		HippyRootView.OnResumeAndPauseListener, ThreadExecutor.UncaughtExceptionHandler
 {
@@ -188,19 +183,37 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 	}
 
 	@Override
-	public void destroyEngine()
-	{
+	public void destroyEngine() {
+		if (mEngineContext == null) {
+			return;
+		}
+
+		final Handler handler = new Handler(Looper.myLooper());
+		mEngineContext.destroyBridge(new Callback<Boolean>() {
+			@Override
+			public void callback(Boolean param, Throwable e) {
+				Runnable task = new Runnable() {
+					@Override
+					public void run() {
+						onDestroy();
+					}
+				};
+
+				handler.post(task);
+			}
+		});
+	}
+
+	protected void onDestroy() {
 		mCurrentState = EngineState.DESTROYED;
-		for (HippyRootView rootView : mInstances)
-		{
+		for (HippyRootView rootView : mInstances) {
 			destroyInstance(rootView);
 		}
 
 		mEventListeners.clear();
 		resetEngine();
 
-		if (mGlobalConfigs != null)
-		{
+		if (mGlobalConfigs != null) {
 			mGlobalConfigs.destroyIfNeed();
 		}
 		mExtendDatas.clear();
@@ -908,6 +921,10 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 		@Override
 		public int getEngineId() {
 			return HippyEngineManagerImpl.this.getId();
+		}
+
+		public void destroyBridge(Callback<Boolean> callback) {
+			mBridgeManager.destroyBridge(callback);
 		}
 
 		public void destroy()

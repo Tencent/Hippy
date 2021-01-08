@@ -46,6 +46,8 @@ public interface HippyBridgeManager
 
 	void execCallback(Object params);
 
+	void destroyBridge(Callback<Boolean> callback);
+
 	void destroy();
 
 	void callJavaScriptModule(String mName, String name, Object params);

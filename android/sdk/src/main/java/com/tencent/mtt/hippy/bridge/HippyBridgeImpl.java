@@ -248,45 +248,43 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
     }
 
 	@Override
-	public void destroy(NativeCallback callback)
-	{
-		if (mDebugWebSocketClient != null)
-		{
+    public void onDestroy() {
+		if (mDebugWebSocketClient != null) {
 			mDebugWebSocketClient.closeQuietly();
+			mDebugWebSocketClient = null;
 		}
 
-		if (!mInit)
-		{
+		if (!mInit) {
 			return;
 		}
+
 		mInit = false;
-		synchronized (sBridgeSyncLock)
-		{
+		synchronized (sBridgeSyncLock) {
 			--sBridgeNum;
-			if (sBridgeNum == 0)
-			{
-				try
-				{
-					if (mCodeCacheThreadExecutor != null)
-					{
+			if (sBridgeNum == 0) {
+				try {
+					if (mCodeCacheThreadExecutor != null) {
 						mCodeCacheThreadExecutor.shutdownNow();
 					}
 				}
-				catch (Throwable e)
-				{
+				catch (Throwable e) {
 
 				}
 				mCodeCacheThreadExecutor = null;
 			}
 		}
-		
-		if (!mBridgeParamJson && mHippyBuffer != null)
-		{
+
+		if (!mBridgeParamJson && mHippyBuffer != null) {
 			mHippyBuffer.release();
 		}
 
-		destroy(mV8RuntimeId, mSingleThreadMode, callback);
+		mV8RuntimeId = 0;
 		mBridgeCallback = null;
+	}
+
+	@Override
+	public void destroy(NativeCallback callback) {
+		destroy(mV8RuntimeId, mSingleThreadMode, callback);
 	}
 
 	/**
