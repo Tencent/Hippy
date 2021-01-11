@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy.views.list;
 
+import android.util.Log;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.common.HippyMap;
@@ -22,6 +23,8 @@ import com.tencent.mtt.hippy.common.HippyTag;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
+import com.tencent.mtt.hippy.uimanager.RenderManager;
+import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.refresh.HippyPullFooterView;
@@ -39,63 +42,58 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
-/**
- * Created by leonardgong on 2017/12/7 0007.
- */
-
 public class HippyListView extends RecyclerView implements HippyViewBase
 {
-  public final static int	REFRESH_STATE_IDLE						= 0;
-  public final static int	REFRESH_STATE_LOADING					= 1;
-  //public final static int	REFRESH_STATE_PULLING					= 2;
+    public final static int	REFRESH_STATE_IDLE                  = 0;
+    public final static int	REFRESH_STATE_LOADING               = 1;
 
-  public static final String	EVENT_TYPE_HEADER_RELEASED	  = "onHeaderReleased";
-  public static final String	EVENT_TYPE_HEADER_PULLING	    = "onHeaderPulling";
+    public static final String	EVENT_TYPE_HEADER_RELEASED      = "onHeaderReleased";
+    public static final String	EVENT_TYPE_HEADER_PULLING       = "onHeaderPulling";
 
-  public static final String	EVENT_TYPE_FOOTER_RELEASED	  = "onFooterReleased";
-  public static final String	EVENT_TYPE_FOOTER_PULLING	    = "onFooterPulling";
+    public static final String	EVENT_TYPE_FOOTER_RELEASED      = "onFooterReleased";
+    public static final String	EVENT_TYPE_FOOTER_PULLING       = "onFooterPulling";
 
-  protected int mHeaderRefreshState					= REFRESH_STATE_IDLE;
-  protected int mFooterRefreshState					= REFRESH_STATE_IDLE;
-  protected boolean mEnableRefresh    = true;
+    protected int mHeaderRefreshState                           = REFRESH_STATE_IDLE;
+    protected int mFooterRefreshState                           = REFRESH_STATE_IDLE;
+    protected boolean mEnableRefresh                            = true;
 
-	private HippyListAdapter					mListAdapter;
+    private HippyListAdapter					mListAdapter;
 
-	private Context								mContext;
+    private Context								mContext;
 
-	private HippyEngineContext					mHippyContext;
+    private HippyEngineContext					mHippyContext;
 
-	private NativeGestureDispatcher				mGestureDispatcher;
+    private NativeGestureDispatcher				mGestureDispatcher;
 
-	protected boolean							mScrollBeginDragEventEnable		= false;
+    protected boolean							mScrollBeginDragEventEnable		= false;
 
-	protected boolean							mScrollEndDragEventEnable		= false;
+    protected boolean							mScrollEndDragEventEnable		= false;
 
-	protected boolean							mMomentumScrollBeginEventEnable	= false;
+    protected boolean							mMomentumScrollBeginEventEnable	= false;
 
-	protected boolean							mMomentumScrollEndEventEnable	= false;
+    protected boolean							mMomentumScrollEndEventEnable	= false;
 
-	protected boolean							mScrollEventEnable				= true;
+    protected boolean							mScrollEventEnable				= true;
 
-	protected boolean							mScrollEnable					= true;
+    protected boolean							mScrollEnable					= true;
 
     protected boolean							mExposureEventEnable			= false;
 
-	protected int								mScrollEventThrottle			= 400;  // 400ms最多回调一次
+    protected int								mScrollEventThrottle			= 400;  // 400ms最多回调一次
     protected int					            mLastOffsetX			        = Integer.MIN_VALUE;
     protected int					            mLastOffsetY			        = Integer.MIN_VALUE;
     protected long							    mLastScrollEventTimeStamp		= -1;
 
-	private boolean								mHasRemovePreDraw				= false;
-	private ViewTreeObserver.OnPreDrawListener	mPreDrawListener				= null;
-	private ViewTreeObserver					mViewTreeObserver				= null;
-	private OnInitialListReadyEvent				mOnInitialListReadyEvent;
+    private boolean								mHasRemovePreDraw				= false;
+    private ViewTreeObserver.OnPreDrawListener	mPreDrawListener				= null;
+    private ViewTreeObserver					mViewTreeObserver				= null;
+    private OnInitialListReadyEvent				mOnInitialListReadyEvent;
 
-	private OnScrollDragStartedEvent			mOnScrollDragStartedEvent;
-	private OnScrollDragEndedEvent				mOnScrollDragEndedEvent;
-	private OnScrollFlingStartedEvent			mOnScrollFlingStartedEvent;
-	private OnScrollFlingEndedEvent				mOnScrollFlingEndedEvent;
-	private OnScrollEvent						      mOnScrollEvent;
+    private OnScrollDragStartedEvent			mOnScrollDragStartedEvent;
+    private OnScrollDragEndedEvent				mOnScrollDragEndedEvent;
+    private OnScrollFlingStartedEvent			mOnScrollFlingStartedEvent;
+    private OnScrollFlingEndedEvent				mOnScrollFlingEndedEvent;
+    private OnScrollEvent						mOnScrollEvent;
 
     private void init(Context context, int orientation) {
         mHippyContext = ((HippyInstanceContext) context).getEngineContext();
@@ -112,108 +110,108 @@ public class HippyListView extends RecyclerView implements HippyViewBase
         init(context, orientation);
     }
 
-	public HippyListView(Context context)
-	{
-		super(context);
-    init(context, BaseLayoutManager.VERTICAL);
-	}
+    public HippyListView(Context context)
+    {
+        super(context);
+        init(context, BaseLayoutManager.VERTICAL);
+    }
 
-	protected HippyListAdapter createAdapter(RecyclerView hippyRecyclerView, HippyEngineContext hippyEngineContext)
-	{
-		return new HippyListAdapter(hippyRecyclerView, hippyEngineContext);
-	}
+    protected HippyListAdapter createAdapter(RecyclerView hippyRecyclerView, HippyEngineContext hippyEngineContext)
+    {
+        return new HippyListAdapter(hippyRecyclerView, hippyEngineContext);
+    }
 
-	@Override
-	public NativeGestureDispatcher getGestureDispatcher()
-	{
-		return mGestureDispatcher;
-	}
+    @Override
+    public NativeGestureDispatcher getGestureDispatcher()
+    {
+        return mGestureDispatcher;
+    }
 
-	@Override
-	public void setGestureDispatcher(NativeGestureDispatcher dispatcher)
-	{
-		this.mGestureDispatcher = dispatcher;
-	}
+    @Override
+    public void setGestureDispatcher(NativeGestureDispatcher dispatcher)
+    {
+        this.mGestureDispatcher = dispatcher;
+    }
 
-	@Override
-	public boolean onTouchEvent(MotionEvent motionEvent)
-	{
-		if (!mScrollEnable)
-		{
-			return false;
-		}
-		return super.onTouchEvent(motionEvent);
-	}
+    @Override
+    public boolean onTouchEvent(MotionEvent motionEvent)
+    {
+        if (!mScrollEnable)
+        {
+            return false;
+        }
+        return super.onTouchEvent(motionEvent);
+    }
 
-	@Override
-	public boolean onInterceptTouchEvent(MotionEvent motionEvent)
-	{
-		if (!mScrollEnable)
-		{
-			return false;
-		}
-		return super.onInterceptTouchEvent(motionEvent);
-	}
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent motionEvent)
+    {
+        if (!mScrollEnable)
+        {
+            return false;
+        }
+        return super.onInterceptTouchEvent(motionEvent);
+    }
 
 
-	public void setListData()
-	{
-		LogUtils.d("hippylistview", "setListData");
-		mListAdapter.notifyDataSetChanged();
-		dispatchLayout();
-	}
+    public void setListData()
+    {
+        LogUtils.d("hippylistview", "setListData");
+        mListAdapter.notifyDataSetChanged();
+        dispatchLayout();
+    }
 
-	public void setScrollBeginDragEventEnable(boolean enable)
-	{
-		mScrollBeginDragEventEnable = enable;
-	}
+    public void setScrollBeginDragEventEnable(boolean enable)
+    {
+        mScrollBeginDragEventEnable = enable;
+    }
 
-	public void setScrollEndDragEventEnable(boolean enable)
-	{
-		mScrollEndDragEventEnable = enable;
-	}
+    public void setScrollEndDragEventEnable(boolean enable)
+    {
+        mScrollEndDragEventEnable = enable;
+    }
 
-	public void setMomentumScrollBeginEventEnable(boolean enable)
-	{
-		mMomentumScrollBeginEventEnable = enable;
-	}
+    public void setMomentumScrollBeginEventEnable(boolean enable)
+    {
+        mMomentumScrollBeginEventEnable = enable;
+    }
 
-	public void setMomentumScrollEndEventEnable(boolean enable)
-	{
-		mMomentumScrollEndEventEnable = enable;
-	}
+    public void setMomentumScrollEndEventEnable(boolean enable)
+    {
+        mMomentumScrollEndEventEnable = enable;
+    }
 
-	public void setOnScrollEventEnable(boolean enable)
-	{
-		mScrollEventEnable = enable;
-	}
+    public void setOnScrollEventEnable(boolean enable)
+    {
+        mScrollEventEnable = enable;
+    }
 
-	protected HippyMap generateScrollEvent()
-	{
-		HippyMap contentOffset = new HippyMap();
-		contentOffset.pushDouble("x", PixelUtil.px2dp(0));
-		contentOffset.pushDouble("y", PixelUtil.px2dp(getOffsetY()));
+    protected HippyMap generateScrollEvent()
+    {
+        HippyMap contentOffset = new HippyMap();
+        contentOffset.pushDouble("x", PixelUtil.px2dp(0));
+        contentOffset.pushDouble("y", PixelUtil.px2dp(getOffsetY()));
 
-		HippyMap event = new HippyMap();
-		event.pushMap("contentOffset", contentOffset);
+        HippyMap event = new HippyMap();
+        event.pushMap("contentOffset", contentOffset);
 
-		return event;
-	}
+        return event;
+    }
 
-	public void setScrollEnable(boolean enable)
-	{
-		mScrollEnable = enable;
-	}
+    public void setScrollEnable(boolean enable)
+    {
+        mScrollEnable = enable;
+    }
 
     public void setExposureEventEnable(boolean enable)
     {
         mExposureEventEnable = enable;
     }
 
-	public void setScrollEventThrottle(int scrollEventThrottle)
-	{
-		mScrollEventThrottle = scrollEventThrottle;
-	}
+    public void setScrollEventThrottle(int scrollEventThrottle)
+    {
+        mScrollEventThrottle = scrollEventThrottle;
+    }
 
     public View getCustomHeaderView() {
         if (getChildCount() > 0) {
@@ -402,41 +400,41 @@ public class HippyListView extends RecyclerView implements HippyViewBase
         return false;
     }
 
-	@Override
-	protected void onScrollDragStarted()
-	{
-		if (mScrollBeginDragEventEnable)
-		{
-			getOnScrollDragStartedEvent().send(this, generateScrollEvent());
-		}
-	}
+    @Override
+    protected void onScrollDragStarted()
+    {
+        if (mScrollBeginDragEventEnable)
+        {
+            getOnScrollDragStartedEvent().send(this, generateScrollEvent());
+        }
+    }
 
-	@Override
-	protected void onScrollDragEnded()
-	{
-		if (mScrollEndDragEventEnable)
-		{
-			getOnScrollDragEndedEvent().send(this, generateScrollEvent());
-		}
-	}
+    @Override
+    protected void onScrollDragEnded()
+    {
+        if (mScrollEndDragEventEnable)
+        {
+            getOnScrollDragEndedEvent().send(this, generateScrollEvent());
+        }
+    }
 
-	@Override
-	protected void onScrollFlingStarted()
-	{
-		if (mMomentumScrollBeginEventEnable)
-		{
-			getOnScrollFlingStartedEvent().send(this, generateScrollEvent());
-		}
-	}
+    @Override
+    protected void onScrollFlingStarted()
+    {
+        if (mMomentumScrollBeginEventEnable)
+        {
+            getOnScrollFlingStartedEvent().send(this, generateScrollEvent());
+        }
+    }
 
-	@Override
-	protected void onScrollFlingEnded()
-	{
-		if (mMomentumScrollEndEventEnable)
-		{
-			getOnScrollFlingEndedEvent().send(this, generateScrollEvent());
-		}
-	}
+    @Override
+    protected void onScrollFlingEnded()
+    {
+        if (mMomentumScrollEndEventEnable)
+        {
+            getOnScrollFlingEndedEvent().send(this, generateScrollEvent());
+        }
+    }
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
@@ -456,15 +454,25 @@ public class HippyListView extends RecyclerView implements HippyViewBase
         }
     }
 
-    protected void sendExposureEvent(View view, String eventName) {
-        if (eventName.equals(HippyListItemView.EXPOSURE_EVENT_APPEAR)
-                || eventName.equals(HippyListItemView.EXPOSURE_EVENT_DISAPPEAR)) {
+    protected void sendExposureEvent(View view, String eventName, HippyMap props) {
+        if (props.containsKey(eventName)) {
             new HippyViewEvent(eventName).send(view, null);
         }
     }
 
-    protected void checkExposureView(View view, int visibleStart, int visibleEnd,
-            int parentStart, int parentEnd) {
+    private HippyMap getItemViewProps(int id) {
+        if (mHippyContext == null) {
+            return null;
+        }
+        RenderNode node = mHippyContext.getRenderManager().getRenderNode(id);
+        if (node == null) {
+            return null;
+        }
+
+        return node.getProps();
+    }
+
+    protected void checkExposureView(View view, int visibleStart, int visibleEnd, int parentStart, int parentEnd) {
         if (view == null || !(view instanceof HippyListItemView)) {
             return;
         }
@@ -475,22 +483,37 @@ public class HippyListView extends RecyclerView implements HippyViewBase
         myEnd += parentStart;
 
         HippyListItemView itemView = (HippyListItemView)view;
-
-        //相交
-        if ((myStart < visibleStart && myEnd > visibleStart) || (myStart < visibleEnd && myEnd > visibleEnd)) {
-
+        HippyMap props = getItemViewProps(itemView.getId());
+        if (props == null) {
+            return;
         }
-        else if (myEnd <= visibleStart || myStart >= (visibleEnd - 1))   //离开
-        {
+
+        int currentExposureState = itemView.getExposureState();
+        int viewSize = (mLayout.canScrollHorizontally()) ? view.getWidth() : view.getHeight();
+        int correctingValueForDisappear = (int) Math.ceil(viewSize * 0.1f);
+
+        if (myEnd <= (visibleStart + correctingValueForDisappear) || myStart >= (visibleEnd - correctingValueForDisappear)) {
             if (itemView.getExposureState() != HippyListItemView.EXPOSURE_STATE_DISAPPEAR) {
-                sendExposureEvent(view, HippyListItemView.EXPOSURE_EVENT_DISAPPEAR);
+                if (itemView.getExposureState() == HippyListItemView.EXPOSURE_STATE_APPEAR) {
+                    sendExposureEvent(view, HippyListItemView.EXPOSURE_EVENT_WILL_DISAPPEAR, props);
+                }
+                sendExposureEvent(view, HippyListItemView.EXPOSURE_EVENT_DISAPPEAR, props);
                 itemView.setExposureState(HippyListItemView.EXPOSURE_STATE_DISAPPEAR);
             }
-        }
-        else if ((myStart >= visibleStart && myEnd <= visibleEnd) || (myStart <= visibleStart && myEnd > visibleEnd))
-        {
+        } else if ((myStart < visibleStart && myEnd > visibleStart) || (myStart < visibleEnd && myEnd > visibleEnd)) {
+            if (currentExposureState == HippyListItemView.EXPOSURE_STATE_APPEAR) {
+                sendExposureEvent(view, HippyListItemView.EXPOSURE_EVENT_WILL_DISAPPEAR, props);
+                itemView.setExposureState(HippyListItemView.EXPOSURE_STATE_WILL_DISAPPEAR);
+            } else if (currentExposureState == HippyListItemView.EXPOSURE_STATE_DISAPPEAR) {
+                sendExposureEvent(view, HippyListItemView.EXPOSURE_EVENT_WILL_APPEAR, props);
+                itemView.setExposureState(HippyListItemView.EXPOSURE_STATE_WILL_APPEAR);
+            }
+        } else if ((myStart >= visibleStart && myEnd <= visibleEnd) || (myStart <= visibleStart && myEnd > visibleEnd)) {
             if (itemView.getExposureState() != HippyListItemView.EXPOSURE_STATE_APPEAR) {
-                sendExposureEvent(view, HippyListItemView.EXPOSURE_EVENT_APPEAR);
+                if (itemView.getExposureState() == HippyListItemView.EXPOSURE_STATE_DISAPPEAR) {
+                    sendExposureEvent(view, HippyListItemView.EXPOSURE_EVENT_WILL_APPEAR, props);
+                }
+                sendExposureEvent(view, HippyListItemView.EXPOSURE_EVENT_APPEAR, props);
                 itemView.setExposureState(HippyListItemView.EXPOSURE_STATE_APPEAR);
             }
         }
@@ -518,251 +541,251 @@ public class HippyListView extends RecyclerView implements HippyViewBase
         }
     }
 
-	@Override
-	protected void onAttachedToWindow()
-	{
-		super.onAttachedToWindow();
-		if (!mHasRemovePreDraw)
-		{
-			mViewTreeObserver = getViewTreeObserver();
-			if (mPreDrawListener == null)
-			{
-				mPreDrawListener = new ViewTreeObserver.OnPreDrawListener()
-				{
-					@Override
-					public boolean onPreDraw()
-					{
-						if (mAdapter.getItemCount() > 0 && HippyListView.this.getChildCount() > 0)
-						{
-							mViewTreeObserver.removeOnPreDrawListener(this);
-							mHasRemovePreDraw = true;
+    @Override
+    protected void onAttachedToWindow()
+    {
+        super.onAttachedToWindow();
+        if (!mHasRemovePreDraw)
+        {
+            mViewTreeObserver = getViewTreeObserver();
+            if (mPreDrawListener == null)
+            {
+                mPreDrawListener = new ViewTreeObserver.OnPreDrawListener()
+                {
+                    @Override
+                    public boolean onPreDraw()
+                    {
+                        if (mAdapter.getItemCount() > 0 && HippyListView.this.getChildCount() > 0)
+                        {
+                            mViewTreeObserver.removeOnPreDrawListener(this);
+                            mHasRemovePreDraw = true;
 
-							post(new Runnable()
-							{
-								@Override
-								public void run()
-								{
-									HippyListView.this.onInitialListReady();
-									getOnInitialListReadyEvent().send(HippyListView.this, null);
-								}
-							});
+                            post(new Runnable()
+                            {
+                                @Override
+                                public void run()
+                                {
+                                    HippyListView.this.onInitialListReady();
+                                    getOnInitialListReadyEvent().send(HippyListView.this, null);
+                                }
+                            });
 
-						}
-						return true;
-					}
-				};
-			}
-			mViewTreeObserver.removeOnPreDrawListener(mPreDrawListener);
-			mViewTreeObserver.addOnPreDrawListener(mPreDrawListener);
+                        }
+                        return true;
+                    }
+                };
+            }
+            mViewTreeObserver.removeOnPreDrawListener(mPreDrawListener);
+            mViewTreeObserver.addOnPreDrawListener(mPreDrawListener);
 
-		}
-	}
+        }
+    }
 
-	@Override
-	protected void onDetachedFromWindow()
-	{
-		if (mPreDrawListener != null && mViewTreeObserver != null)
-		{
-			mViewTreeObserver.removeOnPreDrawListener(mPreDrawListener);
-		}
-		super.onDetachedFromWindow();
-	}
+    @Override
+    protected void onDetachedFromWindow()
+    {
+        if (mPreDrawListener != null && mViewTreeObserver != null)
+        {
+            mViewTreeObserver.removeOnPreDrawListener(mPreDrawListener);
+        }
+        super.onDetachedFromWindow();
+    }
 
-	public void scrollToIndex(int xIndex, int yIndex, boolean animated,int duration)
-	{
-		if (animated)
-		{
-			int scrollToYPos = getHeightBefore(yIndex) - getOffsetY();
-			if(duration != 0) //如果用户设置了duration
-			{
-				if (scrollToYPos != 0)
-				{
-					if (!mState.didStructureChange() )
-					{
-						mViewFlinger.smoothScrollBy(0, scrollToYPos, duration,true);
-					}
-				}
-			}
-			else
-			{
-				smoothScrollBy(0, scrollToYPos);
-			}
-		}
-		else
-		{
-			scrollToPosition(yIndex, 0);
-			post(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					dispatchLayout();
-				}
-			});
-		}
-	}
+    public void scrollToIndex(int xIndex, int yIndex, boolean animated,int duration)
+    {
+        if (animated)
+        {
+            int scrollToYPos = getHeightBefore(yIndex) - getOffsetY();
+            if(duration != 0) //如果用户设置了duration
+            {
+                if (scrollToYPos != 0)
+                {
+                    if (!mState.didStructureChange() )
+                    {
+                        mViewFlinger.smoothScrollBy(0, scrollToYPos, duration,true);
+                    }
+                }
+            }
+            else
+            {
+                smoothScrollBy(0, scrollToYPos);
+            }
+        }
+        else
+        {
+            scrollToPosition(yIndex, 0);
+            post(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    dispatchLayout();
+                }
+            });
+        }
+    }
 
-	public void scrollToContentOffset(double xOffset, double yOffset, boolean animated,int duration)
-	{
-		int yOffsetInPixel = (int) PixelUtil.dp2px(yOffset);
-		if (animated)
-		{
-			int scrollToYPos = yOffsetInPixel - getOffsetY();
-			if(duration != 0) //如果用户设置了duration
-			{
-				if (scrollToYPos != 0)
-				{
-					if (!mState.didStructureChange() )
-					{
-						mViewFlinger.smoothScrollBy(0, scrollToYPos, duration,true);
-					}
-				}
-			}
-			else
-			{
-				smoothScrollBy(0, scrollToYPos);
-			}
-		}
-		else
-		{
-			//			scrollToPosition(0, -yOffsetInPixel);
-			scrollBy(0, yOffsetInPixel - getOffsetY());
-			post(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					dispatchLayout();
-				}
-			});
-		}
-	}
+    public void scrollToContentOffset(double xOffset, double yOffset, boolean animated,int duration)
+    {
+        int yOffsetInPixel = (int) PixelUtil.dp2px(yOffset);
+        if (animated)
+        {
+            int scrollToYPos = yOffsetInPixel - getOffsetY();
+            if(duration != 0) //如果用户设置了duration
+            {
+                if (scrollToYPos != 0)
+                {
+                    if (!mState.didStructureChange() )
+                    {
+                        mViewFlinger.smoothScrollBy(0, scrollToYPos, duration,true);
+                    }
+                }
+            }
+            else
+            {
+                smoothScrollBy(0, scrollToYPos);
+            }
+        }
+        else
+        {
+            //			scrollToPosition(0, -yOffsetInPixel);
+            scrollBy(0, yOffsetInPixel - getOffsetY());
+            post(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    dispatchLayout();
+                }
+            });
+        }
+    }
 
-	protected void sendOnScrollEvent()
-	{
-		if (mScrollEventEnable)
-		{
-			long currTime = System.currentTimeMillis();
-      if (currTime - mLastScrollEventTimeStamp < mScrollEventThrottle) {
-        return;
-      }
+    protected void sendOnScrollEvent()
+    {
+        if (mScrollEventEnable)
+        {
+            long currTime = System.currentTimeMillis();
+            if (currTime - mLastScrollEventTimeStamp < mScrollEventThrottle) {
+                return;
+            }
 
-      mLastScrollEventTimeStamp = currTime;
-			getOnScrollEvent().send(this, generateScrollEvent());
-		}
-	}
+            mLastScrollEventTimeStamp = currTime;
+            getOnScrollEvent().send(this, generateScrollEvent());
+        }
+    }
 
-	// start drag event
-	protected OnScrollDragStartedEvent getOnScrollDragStartedEvent()
-	{
-		if (mOnScrollDragStartedEvent == null)
-		{
-			mOnScrollDragStartedEvent = new OnScrollDragStartedEvent(HippyScrollViewEventHelper.EVENT_TYPE_BEGIN_DRAG);
-		}
-		return mOnScrollDragStartedEvent;
-	}
+    // start drag event
+    protected OnScrollDragStartedEvent getOnScrollDragStartedEvent()
+    {
+        if (mOnScrollDragStartedEvent == null)
+        {
+            mOnScrollDragStartedEvent = new OnScrollDragStartedEvent(HippyScrollViewEventHelper.EVENT_TYPE_BEGIN_DRAG);
+        }
+        return mOnScrollDragStartedEvent;
+    }
 
-	protected class OnScrollDragStartedEvent extends HippyViewEvent
-	{
-		public OnScrollDragStartedEvent(String eventName)
-		{
-			super(eventName);
-		}
-	}
+    protected class OnScrollDragStartedEvent extends HippyViewEvent
+    {
+        public OnScrollDragStartedEvent(String eventName)
+        {
+            super(eventName);
+        }
+    }
 
-	// end drag event
-	protected OnScrollDragEndedEvent getOnScrollDragEndedEvent()
-	{
-		if (mOnScrollDragEndedEvent == null)
-		{
-			mOnScrollDragEndedEvent = new OnScrollDragEndedEvent(HippyScrollViewEventHelper.EVENT_TYPE_END_DRAG);
-		}
-		return mOnScrollDragEndedEvent;
-	}
+    // end drag event
+    protected OnScrollDragEndedEvent getOnScrollDragEndedEvent()
+    {
+        if (mOnScrollDragEndedEvent == null)
+        {
+            mOnScrollDragEndedEvent = new OnScrollDragEndedEvent(HippyScrollViewEventHelper.EVENT_TYPE_END_DRAG);
+        }
+        return mOnScrollDragEndedEvent;
+    }
 
-	protected class OnScrollDragEndedEvent extends HippyViewEvent
-	{
-		public OnScrollDragEndedEvent(String eventName)
-		{
-			super(eventName);
-		}
-	}
+    protected class OnScrollDragEndedEvent extends HippyViewEvent
+    {
+        public OnScrollDragEndedEvent(String eventName)
+        {
+            super(eventName);
+        }
+    }
 
-	// start fling
-	protected OnScrollFlingStartedEvent getOnScrollFlingStartedEvent()
-	{
-		if (mOnScrollFlingStartedEvent == null)
-		{
-			mOnScrollFlingStartedEvent = new OnScrollFlingStartedEvent(HippyScrollViewEventHelper.EVENT_TYPE_MOMENTUM_BEGIN);
-		}
-		return mOnScrollFlingStartedEvent;
-	}
+    // start fling
+    protected OnScrollFlingStartedEvent getOnScrollFlingStartedEvent()
+    {
+        if (mOnScrollFlingStartedEvent == null)
+        {
+            mOnScrollFlingStartedEvent = new OnScrollFlingStartedEvent(HippyScrollViewEventHelper.EVENT_TYPE_MOMENTUM_BEGIN);
+        }
+        return mOnScrollFlingStartedEvent;
+    }
 
-	protected class OnScrollFlingStartedEvent extends HippyViewEvent
-	{
-		public OnScrollFlingStartedEvent(String eventName)
-		{
-			super(eventName);
-		}
-	}
+    protected class OnScrollFlingStartedEvent extends HippyViewEvent
+    {
+        public OnScrollFlingStartedEvent(String eventName)
+        {
+            super(eventName);
+        }
+    }
 
-	// end fling
-	protected OnScrollFlingEndedEvent getOnScrollFlingEndedEvent()
-	{
-		if (mOnScrollFlingEndedEvent == null)
-		{
-			mOnScrollFlingEndedEvent = new OnScrollFlingEndedEvent(HippyScrollViewEventHelper.EVENT_TYPE_MOMENTUM_END);
-		}
-		return mOnScrollFlingEndedEvent;
-	}
+    // end fling
+    protected OnScrollFlingEndedEvent getOnScrollFlingEndedEvent()
+    {
+        if (mOnScrollFlingEndedEvent == null)
+        {
+            mOnScrollFlingEndedEvent = new OnScrollFlingEndedEvent(HippyScrollViewEventHelper.EVENT_TYPE_MOMENTUM_END);
+        }
+        return mOnScrollFlingEndedEvent;
+    }
 
-	protected class OnScrollFlingEndedEvent extends HippyViewEvent
-	{
-		public OnScrollFlingEndedEvent(String eventName)
-		{
-			super(eventName);
-		}
-	}
+    protected class OnScrollFlingEndedEvent extends HippyViewEvent
+    {
+        public OnScrollFlingEndedEvent(String eventName)
+        {
+            super(eventName);
+        }
+    }
 
-	// scroll
-	protected OnScrollEvent getOnScrollEvent()
-	{
-		if (mOnScrollEvent == null)
-		{
-			mOnScrollEvent = new OnScrollEvent(HippyScrollViewEventHelper.EVENT_TYPE_SCROLL);
-		}
-		return mOnScrollEvent;
-	}
+    // scroll
+    protected OnScrollEvent getOnScrollEvent()
+    {
+        if (mOnScrollEvent == null)
+        {
+            mOnScrollEvent = new OnScrollEvent(HippyScrollViewEventHelper.EVENT_TYPE_SCROLL);
+        }
+        return mOnScrollEvent;
+    }
 
-	protected class OnScrollEvent extends HippyViewEvent
-	{
-		public OnScrollEvent(String eventName)
-		{
-			super(eventName);
-		}
-	}
+    protected class OnScrollEvent extends HippyViewEvent
+    {
+        public OnScrollEvent(String eventName)
+        {
+            super(eventName);
+        }
+    }
 
-	private OnInitialListReadyEvent getOnInitialListReadyEvent()
-	{
-		if (mOnInitialListReadyEvent == null)
-		{
-			mOnInitialListReadyEvent = new OnInitialListReadyEvent("initialListReady");
-		}
-		return mOnInitialListReadyEvent;
-	}
+    private OnInitialListReadyEvent getOnInitialListReadyEvent()
+    {
+        if (mOnInitialListReadyEvent == null)
+        {
+            mOnInitialListReadyEvent = new OnInitialListReadyEvent("initialListReady");
+        }
+        return mOnInitialListReadyEvent;
+    }
 
-	private class OnInitialListReadyEvent extends HippyViewEvent
-	{
-		public OnInitialListReadyEvent(String eventName)
-		{
-			super(eventName);
-		}
-	}
+    private class OnInitialListReadyEvent extends HippyViewEvent
+    {
+        public OnInitialListReadyEvent(String eventName)
+        {
+            super(eventName);
+        }
+    }
 
-	protected void onInitialListReady()
-	{
+    protected void onInitialListReady()
+    {
 
-	}
+    }
 
     protected class PullElementEvent extends HippyViewEvent
     {
