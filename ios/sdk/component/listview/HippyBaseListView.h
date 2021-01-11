@@ -26,9 +26,7 @@
 #import "HippyUIManager.h"
 #import "HippyBaseListViewProtocol.h"
 #import "HippyBaseListViewDataSource.h"
-
-@class HippyListTableView;
-@protocol HippyListTableViewLayoutProtocol;
+#import "HippyListTableView.h"
 
 @interface HippyBaseListView : UIView <HippyBaseListViewProtocol, HippyScrollableProtocol, UITableViewDelegate, UITableViewDataSource, HippyInvalidating, HippyListTableViewLayoutProtocol>
 
