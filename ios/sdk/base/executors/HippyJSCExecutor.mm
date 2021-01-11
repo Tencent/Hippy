@@ -344,6 +344,7 @@ static void installBasicSynchronousHooksOnContext(JSContext *context)
         return;
     }
     _valid = NO;
+    self.pScope->WillExit();
     self.pScope = nullptr;
     _JSContext.name = @"HippyJSContext(delete)";
     _JSContext = nil;

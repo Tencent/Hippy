@@ -161,7 +161,9 @@ class Ctx {
       std::string* cache = nullptr,
       std::string* exception = nullptr,
       Encoding encodeing = Encoding::UNKNOWN_ENCODING) = 0;
-  virtual std::shared_ptr<CtxValue> GetJsFn(const std::string& name) = 0;
+  virtual std::shared_ptr<CtxValue> GetJsFn(
+      const std::string& name,
+      std::string* exception = nullptr) = 0;
 };
 
 class VM {
