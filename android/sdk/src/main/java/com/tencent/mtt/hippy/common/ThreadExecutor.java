@@ -27,9 +27,11 @@ public class ThreadExecutor implements Thread.UncaughtExceptionHandler
 	HippyHandlerThread			mJsBridgeThread;
 	HippyHandlerThread			mDomThread;
 	UncaughtExceptionHandler	mUncaughtExceptionHandler;
+	private int				    mGroupId = -1;
 
-	public ThreadExecutor()
+	public ThreadExecutor(int groupId)
 	{
+		mGroupId = groupId;
 		mJsThread = new HippyHandlerThread("hippy-js-Thread");
 		mJsThread.setUncaughtExceptionHandler(this);
 
@@ -134,7 +136,7 @@ public class ThreadExecutor implements Thread.UncaughtExceptionHandler
 	{
 		if (mUncaughtExceptionHandler != null)
 		{
-			mUncaughtExceptionHandler.handleThreadUncaughtException(t, e);
+			mUncaughtExceptionHandler.handleThreadUncaughtException(t, e, mGroupId);
 		}
 		else
 		{
@@ -145,6 +147,6 @@ public class ThreadExecutor implements Thread.UncaughtExceptionHandler
 
 	public interface UncaughtExceptionHandler
 	{
-		public void handleThreadUncaughtException(Thread t, Throwable e);
+		public void handleThreadUncaughtException(Thread t, Throwable e, Integer groupId);
 	}
 }
