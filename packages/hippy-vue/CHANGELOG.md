@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.3.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.2.2...2.3.0) (2021-01-11)
+
+
+### Bug Fixes
+
+* **hippy-vue,hippy-react:** fixed listview appear & disappear event ([86c02fd](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/86c02fde0e47ff8862e92a4892c768da78a63674))
+
+
+### Features
+
+* **hippy-vue,hippy-react:** added willAppear & willDisappear event ([d0eb0f1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/d0eb0f1aac4a13886fed6682ac08e2c082bd8448))
+
+
+
+
+
 ## [2.2.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.2.1...2.2.2) (2021-01-04)
 
 

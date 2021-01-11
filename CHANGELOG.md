@@ -3,6 +3,36 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.3.0](https://github.com/Tencent/Hippy/compare/2.2.2...2.3.0) (2021-01-11)
+
+
+### Bug Fixes
+
+* **android:** revert RecyclerViewBase onTouchMove call ([2bbf339](https://github.com/Tencent/Hippy/commit/2bbf3399e481fdecf9a12c72bb69b444f6cee6de))
+* **core:** fix exception rethrow bug ([60cf9cc](https://github.com/Tencent/Hippy/commit/60cf9ccea1098a9fb5b91c60f3259e378b52194a))
+* **hippy-react-web:** correctly add px to number style values ([f774726](https://github.com/Tencent/Hippy/commit/f7747265d18565811e4346f6b342d23c26cf3827))
+* **hippy-vue,hippy-react:** fixed listview appear & disappear event ([86c02fd](https://github.com/Tencent/Hippy/commit/86c02fde0e47ff8862e92a4892c768da78a63674))
+* **ios:** fix a notification error with wrong object ([ae8fa7f](https://github.com/Tencent/Hippy/commit/ae8fa7ffcdecc0aed28f79d59174210d65cb82fd))
+* **ios:** fix header file include error ([7786837](https://github.com/Tencent/Hippy/commit/77868370777043363f689fd5696463ad816044f7))
+* **ios:** fix image show when image source did not change ([a67e81d](https://github.com/Tencent/Hippy/commit/a67e81d0b15c6d8e6836dc3813dfe8ec33cd31d3))
+* **ios:** onPulling will occur on right number ([f79d99d](https://github.com/Tencent/Hippy/commit/f79d99d8bd49e9c4d106c99a929b7cd2f9d6b543))
+* **ios:** remove an unused gesture ([7259e94](https://github.com/Tencent/Hippy/commit/7259e944e0b817b1a324680dd92a75461c5e9185))
+* **ios:** remove check numberOfRows property ([269a75c](https://github.com/Tencent/Hippy/commit/269a75c2c7bf7e010d54c906ac09209e6cd5fc0e))
+
+
+### Features
+
+* **core:** add delloc event ([b11ae13](https://github.com/Tencent/Hippy/commit/b11ae136b6b6a62506f60697c83009078c2f28fb))
+* **hippy-react:** forward Text ref ([5595dc1](https://github.com/Tencent/Hippy/commit/5595dc14d430c0289692358b47de3975f40945c2))
+* **hippy-react-web:** added ScrollView scrollEnabled attribute ([efb1ea1](https://github.com/Tencent/Hippy/commit/efb1ea15dea6b16fe06222d604297339354733f1))
+* **hippy-vue-demo,hippy-react-demo:** add dynamic import demo ([c4f357b](https://github.com/Tencent/Hippy/commit/c4f357b77d5ee5183f960afbebff7d0f7b1298c9))
+* **hippy-vue,hippy-react:** added willAppear & willDisappear event ([d0eb0f1](https://github.com/Tencent/Hippy/commit/d0eb0f1aac4a13886fed6682ac08e2c082bd8448))
+* **ios:** add appear event for cell in list view ([#496](https://github.com/Tencent/Hippy/issues/496)) ([2b9b653](https://github.com/Tencent/Hippy/commit/2b9b653d284041743c7915f0e016eea6dbe72d1e))
+
+
+
+
+
 ## [2.2.2](https://github.com/Tencent/Hippy/compare/2.2.1...2.2.2) (2021-01-04)
 
 

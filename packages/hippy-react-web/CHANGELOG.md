@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.3.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/compare/2.2.2...2.3.0) (2021-01-11)
+
+
+### Bug Fixes
+
+* **hippy-react-web:** correctly add px to number style values ([f774726](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/commit/f7747265d18565811e4346f6b342d23c26cf3827))
+
+
+### Features
+
+* **hippy-react-web:** added ScrollView scrollEnabled attribute ([efb1ea1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/commit/efb1ea15dea6b16fe06222d604297339354733f1))
+
+
+
+
+
 ## [2.2.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/compare/2.2.1...2.2.2) (2021-01-04)
 
 
