@@ -15,14 +15,14 @@
  */
 package com.tencent.mtt.hippy;
 
+import android.os.Handler;
+import android.os.Looper;
 import com.tencent.mtt.hippy.bridge.HippyBridgeManagerImpl;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
+import com.tencent.mtt.hippy.common.Callback;
 import com.tencent.mtt.hippy.common.ThreadExecutor;
+import com.tencent.mtt.hippy.utils.LogUtils;
 
-/**
- * FileName: HippyNormalEngineManager
- * Description：
- */
 public final class HippyNormalEngineManager extends HippyEngineManagerImpl
 {
 	private volatile ThreadExecutor mThreadExecutor;
@@ -35,20 +35,19 @@ public final class HippyNormalEngineManager extends HippyEngineManagerImpl
 	}
 
 	@Override
-	public void destroyEngine()
-	{
-		super.destroyEngine();
-		//last destroy thread excetor
-
-		synchronized (mLock)
-		{
-			if (mThreadExecutor != null)
-			{
+	protected void onDestroy() {
+		super.onDestroy();
+		synchronized (mLock) {
+			if (mThreadExecutor != null) {
 				mThreadExecutor.destroy();
 				mThreadExecutor = null;
 			}
 		}
+	}
 
+	@Override
+	public void destroyEngine() {
+		super.destroyEngine();
 	}
 
 	@Override
@@ -60,7 +59,7 @@ public final class HippyNormalEngineManager extends HippyEngineManagerImpl
 			{
 				if (mThreadExecutor == null)
 				{
-					mThreadExecutor = new ThreadExecutor();
+					mThreadExecutor = new ThreadExecutor(-1);
 					mThreadExecutor.setUncaughtExceptionHandler(this);
 				}
 			}
@@ -75,9 +74,9 @@ public final class HippyNormalEngineManager extends HippyEngineManagerImpl
 	}
 
 	@Override
-	public void handleThreadUncaughtException(Thread t, Throwable e)
+	public void handleThreadUncaughtException(Thread t, Throwable e, Integer groupId)
 	{
-		super.handleThreadUncaughtException(t, e);
+		super.handleThreadUncaughtException(t, e, groupId);
 		if (mDebugMode && mDevSupportManager != null)
 		{
 			synchronized (mLock)

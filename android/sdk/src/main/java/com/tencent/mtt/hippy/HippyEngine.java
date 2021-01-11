@@ -60,13 +60,14 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public abstract class HippyEngine
 {
-	private static final AtomicInteger		sIdCounter			= new AtomicInteger();
-
-	final CopyOnWriteArrayList<EngineListener>	mEventListeners	= new CopyOnWriteArrayList();
-	ModuleListener								mModuleListener;
-	volatile EngineState					mCurrentState 		= EngineState.UNINIT;
+	private static final AtomicInteger		    sIdCounter			= new AtomicInteger();
+	final CopyOnWriteArrayList<EngineListener>	mEventListeners	    = new CopyOnWriteArrayList();
+	volatile EngineState					    mCurrentState 		= EngineState.UNINIT;
 	// Engine的ID，唯一
-	private int								mID 				= sIdCounter.getAndIncrement();
+	private int								    mID 				= sIdCounter.getAndIncrement();
+	// Engine所属的分组ID，同一个组共享线程和isolate，不同context
+	protected int							    mGroupId;
+	ModuleListener								mModuleListener;
 
 	HippyEngine()
 	{
@@ -84,15 +85,12 @@ public abstract class HippyEngine
 		ContextHolder.initAppContext(params.context);
 
 		HippyEngine hippyEngine = null;
-		switch (params.engineMode)
-		{
-			case NORMAL:
-				hippyEngine = new HippyNormalEngineManager(params, null);
-				break;
-			case SINGLE_THREAD:
-				hippyEngine = new HippySingleThreadEngineManager(params, null);
-				break;
+		if (params.groupId == -1) {
+			hippyEngine = new HippyNormalEngineManager(params, null);
+		} else {
+			hippyEngine = new HippySingleThreadEngineManager(params, null);
 		}
+
 		return hippyEngine;
 	}
 
@@ -141,6 +139,14 @@ public abstract class HippyEngine
 	public EngineState getEngineState()
 	{
 		return mCurrentState;
+	}
+
+	/**
+	 * get group id
+	 */
+	public int getGroupId()
+	{
+		return mGroupId;
 	}
 
 	/**
@@ -230,17 +236,6 @@ public abstract class HippyEngine
 	}
 
 	/**
-	 * Hippy engine mode
-	 * normal ---  正常模式,具有最好的隔离已经运行速度
-	 * low_memory --- 内存极简模式
-	 */
-	public enum EngineMode
-	{
-		NORMAL,
-		SINGLE_THREAD
-	}
-
-	/**
 	 * Hippy engine Type
 	 */
 	public enum EngineType
@@ -268,8 +263,6 @@ public abstract class HippyEngine
 		// 可选参数 指定需要预加载的业务模块bundle 文件路径
 		public HippyBundleLoader jsPreloadFilePath;
 		public boolean debugMode = false;
-		// 可选参数 引擎模式 默认为NORMAL
-		public EngineMode engineMode = EngineMode.NORMAL;
 		// 可选参数 是否开启调试模式，默认为false，不开启
 		// 可选参数 Hippy Server的jsbundle名字，默认为"index.bundle"。debugMode = true时有效
 		public String debugBundleName = "index.bundle";
