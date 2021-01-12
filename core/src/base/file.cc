@@ -56,12 +56,12 @@ std::string HippyFile::ReadFile(const char* file_path, bool is_auto_fill) {
     std::streamsize size = file.gcount();
     file.clear();
     file.seekg(0, std::ios_base::beg);
-    int data_size = size;
+    long data_size = size;
     if (is_auto_fill) {
       data_size += 1;
     }
     ret.resize(data_size);
-    int read_size = file.read(&ret[0], size).gcount();
+    long read_size = file.read(&ret[0], size).gcount();
     if (size != read_size) {
       HIPPY_LOG(hippy::Warning,
                 "ReadFile file_path = %s, size = %d, read_size = %d", file_path,
