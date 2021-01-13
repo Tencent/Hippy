@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.3.1](https://github.com/Tencent/Hippy/compare/2.3.0...2.3.1) (2021-01-13)
+
+
+### Bug Fixes
+
+* **ios:** fix bug that onPageScroll and onPageSelected invoke incorrect ([f86623d](https://github.com/Tencent/Hippy/commit/f86623d5e0d19194efe5a1fd0a2225e07c2d3cec))
+
+
+### Features
+
+* **core:** added destroyInstance event ([1dd9783](https://github.com/Tencent/Hippy/commit/1dd97839a98df0e4979672861b90e33651dcdfc8))
+* **hippy-react:** added Text displayName ([f591206](https://github.com/Tencent/Hippy/commit/f5912066a56d3ebed8a5ec0cd96e8bedc46d792f))
+
+
+
+
+
 # [2.3.0](https://github.com/Tencent/Hippy/compare/2.2.2...2.3.0) (2021-01-11)
 
 
