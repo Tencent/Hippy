@@ -49,7 +49,11 @@ interface TextProps extends LayoutableProps, ClickableProps {
  * `Text` doesn't support nesting.
  * @noInheritDoc
  */
-const Text = React.forwardRef(({ style, ...nativeProps }: TextProps, ref) => {
+function forwardRef(
+  { style, ...nativeProps }: TextProps,
+  // eslint-disable-next-line max-len
+  ref: string | ((instance: HTMLParagraphElement | null) => void) | React.RefObject<HTMLParagraphElement> | null | undefined,
+) {
   const nativeStyle: undefined | Style | Style[] = style;
 
   // Fill default color
@@ -83,9 +87,11 @@ const Text = React.forwardRef(({ style, ...nativeProps }: TextProps, ref) => {
   }
 
   return (
-    // @ts-ignore
+  // @ts-ignore
     <p ref={ref} nativeName="Text" style={nativeStyle} {...nativeProps} />
   );
-});
-
+}
+forwardRef.displayName = 'Text';
+const Text = React.forwardRef(forwardRef);
+Text.displayName = 'Text';
 export default Text;
