@@ -24,6 +24,7 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.utils.LogUtils;
+import com.tencent.mtt.hippy.views.wormhole.HippyWormholeManager;
 
 import java.util.*;
 

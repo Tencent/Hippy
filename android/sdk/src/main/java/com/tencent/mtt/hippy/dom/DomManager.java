@@ -338,7 +338,7 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 				isVirtual = true;
 			}
 
-			DomNode node = mContext.getRenderManager().createStyleNode(className, isVirtual, id);
+			DomNode node = mContext.getRenderManager().createStyleNode(className, isVirtual, id, hippyRootView.getId());
 
 			node.setLazy(parentNode.isLazy() || mContext.getRenderManager().getControllerManager().isControllerLazy(className));
 			node.setProps(map);

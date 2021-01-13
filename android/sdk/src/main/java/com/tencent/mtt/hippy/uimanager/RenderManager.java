@@ -29,6 +29,7 @@ import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
+import com.tencent.mtt.hippy.views.wormhole.HippyWormholeManager;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -169,13 +170,19 @@ public class RenderManager
 		{
 			uiNode.mParent.addDeleteId(id, uiNode);
 			addUpdateNodeIfNeeded(uiNode.mParent);
+			if (TextUtils.equals(HippyWormholeManager.WORMHOLE_TKD, uiNode.getClassName())) {
+				//render node回收的时候给前端发送虫洞item回收事件
+				HippyMap props = uiNode.getProps();
+				int rootId = uiNode.mRootView.getId();
+				HippyWormholeManager.getInstance().sendItemDeleteMessageToClient(props, rootId);
+			}
 		}
 		else if (TextUtils.equals(NodeProps.ROOT_NODE, uiNode.getClassName()))
 		{
 			addUpdateNodeIfNeeded(uiNode);
 		}
-		deleteSelfFromParent(uiNode);
 
+		deleteSelfFromParent(uiNode);
 	}
 
 	public void dispatchUIFunction(int id, String functionName, HippyArray var, Promise promise)
@@ -266,9 +273,9 @@ public class RenderManager
 		}
 	}
 
-	public DomNode createStyleNode(String className, boolean isVirtual, int id)
+	public DomNode createStyleNode(String className, boolean isVirtual, int id, int rootId)
 	{
-		DomNode domNode = mControllerManager.createStyleNode(className, isVirtual);
+		DomNode domNode = mControllerManager.createStyleNode(className, isVirtual, rootId);
 		domNode.setViewClassName(className);
 		domNode.setId(id);
 		return domNode;

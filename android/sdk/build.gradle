@@ -270,7 +270,7 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
@@ -299,7 +299,7 @@ android {
 
 dependencies {
   api fileTree(dir: 'libs', include: ['*.jar'])
-  compileOnly 'com.tencent.mtt:support-ui:2.1.0'
+  compileOnly 'com.tencent.mtt:support-ui:99.0.12'
 }
 
 afterEvaluate {

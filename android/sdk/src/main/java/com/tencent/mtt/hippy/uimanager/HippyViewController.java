@@ -151,6 +151,11 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 
 	}
 
+	protected StyleNode createNode(boolean isVirtual, int rootId)
+	{
+		return new StyleNode();
+	}
+
 	protected StyleNode createNode(boolean isVirtual)
 	{
 		return new StyleNode();
@@ -184,7 +189,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 	/**
 	 * please use createViewImpl(Context context,HippyMap iniProps) instead ,it
 	 * will be removed no longer
-	 * 
+	 *
 	 * @param context
 	 * @return
 	 */
@@ -537,9 +542,9 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 	{
 		if(bUserChageFocus) //只有用户导致的焦点获取，会通知出去
 		{
-		HippyMap hippyMap = new HippyMap();
-		hippyMap.pushBoolean("focus", hasFocus);
-		new HippyViewEvent("onFocus").send(v, hippyMap);
+			HippyMap hippyMap = new HippyMap();
+			hippyMap.pushBoolean("focus", hasFocus);
+			new HippyViewEvent("onFocus").send(v, hippyMap);
 		}
 	}
 
@@ -863,7 +868,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 
 	/***
 	 * batch complete
-	 * 
+	 *
 	 * @param view
 	 */
 	public void onBatchComplete(T view)

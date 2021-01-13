@@ -38,6 +38,7 @@ import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.views.list.HippyRecycler;
 import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
+import com.tencent.mtt.hippy.views.wormhole.HippyWormholeManager;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -175,10 +176,13 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener
 		return view;
 	}
 
-	public StyleNode createStyleNode(String className, boolean isVirtual)
-	{
-		return mControllerRegistry.getViewController(className).createNode(isVirtual);
-	}
+  public StyleNode createStyleNode(String className, boolean isVirtual, int rootId) {
+    if (className.equals(HippyWormholeManager.WORMHOLE_TKD)) {
+      return mControllerRegistry.getViewController(className).createNode(isVirtual, rootId);
+    } else {
+      return mControllerRegistry.getViewController(className).createNode(isVirtual);
+    }
+  }
 
 	public void updateView(int id, String name, HippyMap newProps)
 	{
@@ -337,9 +341,10 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener
 		}
 		HippyViewController hippyChildViewController = null;
     Object childTagString = HippyTag.getClassName(child);
+		String childClassName = "";
 		if (childTagString instanceof String)
 		{
-      String childClassName = (String)childTagString;
+			childClassName = (String)childTagString;
 			if (!TextUtils.isEmpty(childClassName))
 			{
 				hippyChildViewController = mControllerRegistry.getViewController(childClassName);
@@ -350,7 +355,7 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener
 			}
 		}
 
-		if (child instanceof ViewGroup)
+		if (child instanceof ViewGroup && (TextUtils.isEmpty(childClassName) || !childClassName.equals("TKDWormhole")))
 		{
 			ViewGroup childViewGroup = (ViewGroup) child;
 			if (hippyChildViewController != null)

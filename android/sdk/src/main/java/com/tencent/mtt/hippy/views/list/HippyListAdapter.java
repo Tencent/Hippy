@@ -15,6 +15,8 @@
  */
 package com.tencent.mtt.hippy.views.list;
 
+import static com.tencent.mtt.supportui.views.recyclerview.RecyclerViewBase.ViewHolder.TYPE_WORMHOLE;
+
 import android.view.View;
 import android.view.ViewGroup;
 import com.tencent.mtt.hippy.HippyEngineContext;
@@ -30,6 +32,7 @@ import com.tencent.mtt.hippy.views.refresh.HippyPullFooterView;
 import com.tencent.mtt.hippy.views.refresh.HippyPullHeaderView;
 import com.tencent.mtt.supportui.views.recyclerview.*;
 
+import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewBase.ViewHolder;
 import java.util.ArrayList;
 
 /**
@@ -193,14 +196,14 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
 	RecyclerViewBase.ViewHolder findBestHolderRecursive(int position, int targetType, RecyclerViewBase.Recycler recycler)
 	{
 		RecyclerViewBase.ViewHolder matchHolder = getScrapViewForPositionInner(position, targetType, recycler);
-		if (matchHolder == null)
-		{
-			matchHolder = recycler.getViewHolderForPosition(position);
-		}
+		if (targetType != TYPE_WORMHOLE) {
+			if (matchHolder == null) {
+				matchHolder = recycler.getViewHolderForPosition(position);
+			}
 
-		if (matchHolder != null && ((NodeHolder) matchHolder.mContentHolder).mBindNode.isDelete())
-		{
-			matchHolder = findBestHolderRecursive(position, targetType, recycler);
+			if (matchHolder != null && ((NodeHolder) matchHolder.mContentHolder).mBindNode.isDelete()) {
+				matchHolder = findBestHolderRecursive(position, targetType, recycler);
+			}
 		}
 
 		return matchHolder;
@@ -553,21 +556,34 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
 			RenderNode listItemNode = mHippyContext.getRenderManager().getRenderNode(mParentRecyclerView.getId()).getChildAt(index);
 			if (listItemNode != null)
 			{
-			  if (listItemNode instanceof PullFooterRenderNode) {
-			    return RecyclerViewBase.ViewHolder.TYPE_CUSTOM_FOOTER;
-        }
+				if (listItemNode instanceof PullFooterRenderNode) {
+					return RecyclerViewBase.ViewHolder.TYPE_CUSTOM_FOOTER;
+				}
 
-        if (listItemNode instanceof PullHeaderRenderNode) {
-          return RecyclerViewBase.ViewHolder.TYPE_CUSTOM_HEADERE;
-        }
+				if (listItemNode instanceof PullHeaderRenderNode) {
+					return RecyclerViewBase.ViewHolder.TYPE_CUSTOM_HEADERE;
+				}
 
-			  if (listItemNode.getProps() != null) {
-          HippyMap listItemProps = listItemNode.getProps();
-          if (listItemProps.get(ListItemRenderNode.ITEM_VIEW_TYPE) != null)
-          {
-            return listItemProps.getInt(ListItemRenderNode.ITEM_VIEW_TYPE);
-          }
-        }
+				if (listItemNode.getProps() != null) {
+					HippyMap listItemProps = listItemNode.getProps();
+					Object typeObj = listItemProps.get(ListItemRenderNode.ITEM_VIEW_TYPE);
+					if (typeObj != null) {
+						int type = 0;
+						if (typeObj instanceof String) {
+							try {
+								type = Integer.parseInt((String)typeObj);
+							} catch (NumberFormatException e) {
+
+							}
+						}
+
+						if (type == ViewHolder.TYPE_WORMHOLE) {
+							return type;
+						}
+
+						return listItemProps.getInt(ListItemRenderNode.ITEM_VIEW_TYPE);
+					}
+				}
 			}
 		}
 		return super.getItemViewType(index);
