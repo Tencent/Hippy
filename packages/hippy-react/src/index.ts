@@ -16,6 +16,8 @@ import Text from './components/text';
 import Image from './components/image';
 import ListView from './components/list-view';
 import ListViewItem from './components/list-view-item';
+import WaterfallView from './components/waterfall-view';
+import WaterfallViewItem from './components/waterfall-view-item';
 import RefreshWrapper from './components/refresh-wrapper';
 import Navigator from './components/navigator';
 import ViewPager from './components/view-pager';
@@ -113,6 +115,8 @@ export {
   Image,
   ListView,
   ListViewItem,
+  WaterfallView,
+  WaterfallViewItem,
   RefreshWrapper,
   Navigator,
   ViewPager,

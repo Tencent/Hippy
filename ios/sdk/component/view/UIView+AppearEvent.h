@@ -21,12 +21,38 @@
 */
 
 #import <UIKit/UIKit.h>
+#import "HippyComponent.h"
+
+typedef NS_ENUM(NSUInteger, ViewVisibilityStatus) {
+    ViewVisibilityUnknown,
+    ViewNotVisible,
+    ViewHalfVisible,
+    ViewCompletelyVisible,
+};
+
+typedef NS_ENUM(NSUInteger, AppearEventStatus) {
+    AppearEventStatusUnknown,
+    AppearEventStatusWillAppear,
+    AppearEventStatusDidAppear,
+    AppearEventStatusWillDisappear,
+    AppearEventStatusDidDisappear
+};
 
 @interface UIView (AppearEvent)
+
+@property (nonatomic, copy) HippyDirectEventBlock onWillAppear;
+@property (nonatomic, copy) HippyDirectEventBlock onDidAppear;
+@property (nonatomic, copy) HippyDirectEventBlock onWillDisappear;
+@property (nonatomic, copy) HippyDirectEventBlock onDidDisappear;
+@property (nonatomic, assign) ViewVisibilityStatus visibilityStatus;
+@property (nonatomic, assign) AppearEventStatus appearEventStatus;
 
 - (void)viewAppearEvent;
 - (void)viewDisappearEvent;
 - (void)viewWillAppearEvent;
 - (void)viewWillDisappearEvent;
+
+- (ViewVisibilityStatus)visibilityStatusInView:(UIView *)view;
+- (void)checkViewsVisibilityStatusAndSendEventIfNeededInView:(UIView *)view;
 
 @end

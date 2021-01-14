@@ -162,6 +162,11 @@
 		85BCD46E2578C58000638DB4 /* js_native_api_value_jsc.cc in Sources */ = {isa = PBXBuildFile; fileRef = 85BCD4332578C58000638DB4 /* js_native_api_value_jsc.cc */; };
 		85BCD46F2578C58000638DB4 /* js_native_api_jsc.cc in Sources */ = {isa = PBXBuildFile; fileRef = 85BCD4342578C58000638DB4 /* js_native_api_jsc.cc */; };
 		85BCD47C257A0AFE00638DB4 /* ios_loader.cc in Sources */ = {isa = PBXBuildFile; fileRef = 85BCD477257A0AFD00638DB4 /* ios_loader.cc */; };
+		8C5A963F25B67B4A0019A30D /* HippyCollectionViewWaterfallLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C5A963D25B67B4A0019A30D /* HippyCollectionViewWaterfallLayout.m */; };
+		8C5A975D25B67D0C0019A30D /* HippyWaterfallItemView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C5A975C25B67D0C0019A30D /* HippyWaterfallItemView.m */; };
+		8C5A976125B67DBB0019A30D /* HippyWaterfallItemViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C5A976025B67DBB0019A30D /* HippyWaterfallItemViewManager.m */; };
+		8C5A976525B67E990019A30D /* HippyWaterfallView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C5A976425B67E990019A30D /* HippyWaterfallView.m */; };
+		8C5A9AFB25B6D4470019A30D /* HippyWaterfallViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C5A9AFA25B6D4470019A30D /* HippyWaterfallViewManager.m */; };
 		AC63515623F92C99007FABA5 /* TTTGB-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = AC63515523F92C99007FABA5 /* TTTGB-Medium.otf */; };
 /* End PBXBuildFile section */
 
@@ -513,6 +518,16 @@
 		85BCD4342578C58000638DB4 /* js_native_api_jsc.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_native_api_jsc.cc; sourceTree = "<group>"; };
 		85BCD475257A0AFD00638DB4 /* ios_loader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ios_loader.h; sourceTree = "<group>"; };
 		85BCD477257A0AFD00638DB4 /* ios_loader.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ios_loader.cc; sourceTree = "<group>"; };
+		8C5A963D25B67B4A0019A30D /* HippyCollectionViewWaterfallLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyCollectionViewWaterfallLayout.m; sourceTree = "<group>"; };
+		8C5A963E25B67B4A0019A30D /* HippyCollectionViewWaterfallLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyCollectionViewWaterfallLayout.h; sourceTree = "<group>"; };
+		8C5A975B25B67D0C0019A30D /* HippyWaterfallItemView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyWaterfallItemView.h; sourceTree = "<group>"; };
+		8C5A975C25B67D0C0019A30D /* HippyWaterfallItemView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyWaterfallItemView.m; sourceTree = "<group>"; };
+		8C5A975F25B67DBB0019A30D /* HippyWaterfallItemViewManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyWaterfallItemViewManager.h; sourceTree = "<group>"; };
+		8C5A976025B67DBB0019A30D /* HippyWaterfallItemViewManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyWaterfallItemViewManager.m; sourceTree = "<group>"; };
+		8C5A976325B67E990019A30D /* HippyWaterfallView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyWaterfallView.h; sourceTree = "<group>"; };
+		8C5A976425B67E990019A30D /* HippyWaterfallView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyWaterfallView.m; sourceTree = "<group>"; };
+		8C5A9AF925B6D4470019A30D /* HippyWaterfallViewManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyWaterfallViewManager.h; sourceTree = "<group>"; };
+		8C5A9AFA25B6D4470019A30D /* HippyWaterfallViewManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyWaterfallViewManager.m; sourceTree = "<group>"; };
 		AC63515523F92C99007FABA5 /* TTTGB-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "TTTGB-Medium.otf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -777,6 +792,7 @@
 		064C590E23AB1A51001E80DD /* component */ = {
 			isa = PBXGroup;
 			children = (
+				8C90971D25AEF4D900BB1416 /* waterfalllist */,
 				06082A7224AB222000AF85BC /* footerrefresh */,
 				06082A6A24AB222000AF85BC /* headerrefresh */,
 				06082A6F24AB222000AF85BC /* refresh */,
@@ -1339,6 +1355,23 @@
 			path = loader;
 			sourceTree = "<group>";
 		};
+		8C90971D25AEF4D900BB1416 /* waterfalllist */ = {
+			isa = PBXGroup;
+			children = (
+				8C5A963E25B67B4A0019A30D /* HippyCollectionViewWaterfallLayout.h */,
+				8C5A963D25B67B4A0019A30D /* HippyCollectionViewWaterfallLayout.m */,
+				8C5A975B25B67D0C0019A30D /* HippyWaterfallItemView.h */,
+				8C5A975C25B67D0C0019A30D /* HippyWaterfallItemView.m */,
+				8C5A975F25B67DBB0019A30D /* HippyWaterfallItemViewManager.h */,
+				8C5A976025B67DBB0019A30D /* HippyWaterfallItemViewManager.m */,
+				8C5A976325B67E990019A30D /* HippyWaterfallView.h */,
+				8C5A976425B67E990019A30D /* HippyWaterfallView.m */,
+				8C5A9AF925B6D4470019A30D /* HippyWaterfallViewManager.h */,
+				8C5A9AFA25B6D4470019A30D /* HippyWaterfallViewManager.m */,
+			);
+			path = waterfalllist;
+			sourceTree = "<group>";
+		};
 		AC63515223F922E5007FABA5 /* fonts */ = {
 			isa = PBXGroup;
 			children = (
@@ -1431,6 +1464,7 @@
 				064C5A1823AB1A51001E80DD /* HippySimpleWebView.m in Sources */,
 				06FF8EEF2511C20900C03900 /* NSData+DataType.m in Sources */,
 				85BCD4582578C58000638DB4 /* engine.cc in Sources */,
+				8C5A976525B67E990019A30D /* HippyWaterfallView.m in Sources */,
 				064C5A4923AB1A51001E80DD /* HippyEventDispatcher.m in Sources */,
 				064C5A0123AB1A51001E80DD /* HippyExceptionModule.m in Sources */,
 				064C59EE23AB1A51001E80DD /* MTTTStyle.cpp in Sources */,
@@ -1468,6 +1502,8 @@
 				064C59F623AB1A51001E80DD /* HippyExtAnimationModule.m in Sources */,
 				85BCD46C2578C58000638DB4 /* js_native_jsc_helper.cc in Sources */,
 				06082A7A24AB222000AF85BC /* HippyFooterRefreshManager.m in Sources */,
+				064C5AF223AB1B99001E80DD /* native-source-code-ios.cc in Sources */,
+				8C5A963F25B67B4A0019A30D /* HippyCollectionViewWaterfallLayout.m in Sources */,
 				064C5A2523AB1A51001E80DD /* HippyBaseListView.m in Sources */,
 				064C5A3923AB1A51001E80DD /* HippyModalCustomAnimationTransition.m in Sources */,
 				064C5A3423AB1A51001E80DD /* HippyTextManager.mm in Sources */,
@@ -1506,6 +1542,7 @@
 				06082A7824AB222000AF85BC /* HippyHeaderRefreshManager.m in Sources */,
 				85BCD45F2578C58000638DB4 /* console_module.cc in Sources */,
 				064C5A3323AB1A51001E80DD /* HippyVirtualTextNode.m in Sources */,
+				8C5A975D25B67D0C0019A30D /* HippyWaterfallItemView.m in Sources */,
 				064C5A0E23AB1A51001E80DD /* HippyViewPager.m in Sources */,
 				064C5A2223AB1A51001E80DD /* HippyBaseListViewDataSource.m in Sources */,
 				064C5A1C23AB1A51001E80DD /* HippyImageView.m in Sources */,
@@ -1562,6 +1599,9 @@
 				064C59FD23AB1A51001E80DD /* HippyAsyncLocalStorage.m in Sources */,
 				06F3E3E025A5D867007934F6 /* HippyListTableView.m in Sources */,
 				064C5A5923AB1A51001E80DD /* HippyDisplayLink.m in Sources */,
+				8C5A976125B67DBB0019A30D /* HippyWaterfallItemViewManager.m in Sources */,
+				06F2A7772519E880000AF839 /* common-task.cc in Sources */,
+				064C5AE723AB1A59001E80DD /* logging.cc in Sources */,
 				064C5A3E23AB1A51001E80DD /* HippyAssert.m in Sources */,
 				064C5A4323AB1A51001E80DD /* NSDictionary+HippyDictionaryDeepCopy.m in Sources */,
 				064C59F323AB1A51001E80DD /* HippyFetchInfo.m in Sources */,
@@ -1569,6 +1609,7 @@
 				064C5A1D23AB1A51001E80DD /* HippyAnimatedImage.m in Sources */,
 				067AB96F23B5EEF4009D5EE2 /* TestModule.m in Sources */,
 				06FF8EEC2511C10B00C03900 /* HippyDefaultImageProvider.m in Sources */,
+				8C5A9AFB25B6D4470019A30D /* HippyWaterfallViewManager.m in Sources */,
 				064C5A2E23AB1A51001E80DD /* HippyNavigatorHostView.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

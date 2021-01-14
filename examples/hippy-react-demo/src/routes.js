@@ -52,6 +52,14 @@ export default [
     },
   },
   {
+    path: '/WaterfallList',
+    name: 'WaterfallList 组件',
+    component: PAGE_LIST.WaterfallList,
+    meta: {
+      style: 1,
+    },
+  },
+  {
     path: '/ListView',
     name: 'ListView 组件',
     component: PAGE_LIST.ListView,

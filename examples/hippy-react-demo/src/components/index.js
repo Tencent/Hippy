@@ -3,6 +3,7 @@
 export { default as Focusable } from './Focusable';
 export { default as Image } from './Image';
 export { default as ListView } from './ListView';
+export { default as WaterfallList } from './WaterfallList';
 export { default as Modal } from './Modal';
 export { default as RefreshWrapper } from './RefreshWrapper';
 export { default as PullHeader } from './PullHeader';
