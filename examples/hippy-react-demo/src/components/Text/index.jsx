@@ -148,8 +148,8 @@ export default class TextExpo extends React.Component {
         <View style={styles.itemContent}>
           <Text>
             <Text numberOfLines={1} style={styles.normalText}>后面有张图片</Text>
-            <Image style={{ width:70, height:35 }} source={{ uri: imgURL }} />
-            <Text numberOfLines={1} style={ styles.customFont }>前面有张图片</Text>
+            <Image style={{ width: 70, height: 35 }} source={{ uri: imgURL }} />
+            <Text numberOfLines={1} style={styles.customFont}>前面有张图片</Text>
           </Text>
         </View>
       </ScrollView>
