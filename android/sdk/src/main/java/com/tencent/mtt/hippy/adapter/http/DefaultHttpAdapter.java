@@ -108,6 +108,15 @@ public class DefaultHttpAdapter implements HippyHttpAdapter
 					connection = createConnection(request);
 					fillHeader(connection, request);
 					fillPostBody(connection, request);
+
+					if (connection.getResponseCode() == HttpURLConnection.HTTP_MOVED_TEMP) {
+					  connection.disconnect();
+					  request.setUrl(connection.getHeaderField("Location"));
+					  connection = createConnection(request);
+					  fillHeader(connection, request);
+					  fillPostBody(connection, request);
+					}
+
 					response = createResponse(connection);
 
 					callback.onTaskSuccess(request, response);
