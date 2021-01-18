@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.3.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.3.1...2.3.2) (2021-01-18)
+
+
+### Bug Fixes
+
+* **hippy-react:** fix appendChild error in react16 by key diff ([233e40c](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/233e40c48511eee5745f189a6b9b58df1604a377))
+
+
+
+
+
 ## [2.3.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.3.0...2.3.1) (2021-01-13)
 
 

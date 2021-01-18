@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.3.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.3.1...2.3.2) (2021-01-18)
+
+
+### Features
+
+* **hippy-react:** added demo key ([bd2201b](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/bd2201b525c33642a67f11b9cd4e95c0c51159bc))
+
+
+
+
+
 ## [2.3.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.3.0...2.3.1) (2021-01-13)
 
 **Note:** Version bump only for package @hippy/vue
