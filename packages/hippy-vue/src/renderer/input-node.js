@@ -40,6 +40,20 @@ class InputNode extends ElementNode {
   clear() {
     Native.callUIFunction(this, 'clear', []);
   }
+
+  /**
+   * Show input method selection dialog.
+   */
+  showInputMethod() {
+    Native.callUIFunction(this, 'showInputMethod', []);
+  }
+
+  /**
+   * hideInputMethod
+   */
+  hideInputMethod() {
+    Native.callUIFunction(this, 'hideInputMethod', []);
+  }
 }
 
 export default InputNode;
