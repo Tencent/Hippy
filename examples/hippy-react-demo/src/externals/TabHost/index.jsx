@@ -132,7 +132,7 @@ export default class TabHostExample extends React.Component {
             navList.map((v, idx) => (
               <View
                 style={navStyles.navItem}
-                key={`nav_${v.id}_${v.idx}`}
+                key={`nav_${v}`}
                 activeOpacity={0.5}
                 onClick={() => this.pressNavItem(idx)}
               >
