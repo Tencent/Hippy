@@ -82,9 +82,10 @@ function hackWebStyle(webStyle_: any) {
     });
   }
 
-  if (webStyle.lineHeight && webStyle.lineHeight.toString()
-    .indexOf('px') === -1) {
-    webStyle.lineHeight += 'px';
+  if (webStyle.lineHeight) {
+    if (typeof webStyle.lineHeight === 'number' || /^[\d.]+$/.test(webStyle.lineHeight)) {
+      webStyle.lineHeight += 'px';
+    }
   }
 
   if (!webStyle.position) {

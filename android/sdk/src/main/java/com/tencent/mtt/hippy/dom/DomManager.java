@@ -346,7 +346,7 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 
 			//		boolean isLayoutOnly=false;
 			boolean isLayoutOnly = (NodeProps.VIEW_CLASS_NAME.equals(node.getViewClass())) && jsJustLayout((HippyMap) props.get(NodeProps.STYLE))
-					&& !isTouchEvent(props) && HippyTag.jsJustLayout(props);
+					&& !isTouchEvent(props);
 			LogUtils.d(TAG, "dom create node id: " + id + " mClassName " + className + " pid " + pid + " mIndex:" + index + " isJustLayout :"
 					+ isLayoutOnly + " isVirtual " + isVirtual);
 			//			mContext.getGlobalConfigs().getLogAdapter().log(TAG,"dom create node id: " + id + " mClassName " + className + " pid " + pid + " mIndex:" + index + " isJustLayout :"

@@ -36,7 +36,7 @@ Hippy 的包体积在业内也是非常具有竞争力的。
 
 ListView 在滑动时的性能对比，Hippy 可以一直保持十分流畅的状态
 
-![渲染性能](//res.imtt.qq.com/hippydoc/img/out/listxingneng.png)
+![渲染性能](//static.res.qq.com/nav/hippydoc/img/listxingneng.png)
 
 ## 内存占用
 

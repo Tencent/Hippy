@@ -117,6 +117,12 @@ export class ScrollView extends React.Component {
         }, 200);
       };
     }
+    if (newProps.scrollEnabled === false) {
+      newProps.style.overflow = 'hidden';
+    } else {
+      newProps.style.overflow = 'scroll';
+    }
+    delete newProps.scrollEnabled;
     delete newProps.showsVerticalScrollIndicator;
     delete newProps.showsHorizontalScrollIndicator;
     delete newProps.horizontal;

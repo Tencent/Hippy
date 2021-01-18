@@ -92,6 +92,7 @@ global.hippyBridge = (_action, _callObj) => {
       break;
     }
     case 'destroyInstance': {
+      global.Hippy.emit('destroyInstance');
       const renderId = Date.now().toString();
       Hippy.bridge.callNative('UIManagerModule', 'startBatch', renderId);
       Hippy.bridge.callNative('UIManagerModule', 'deleteNode', callObj, [{ id: callObj }]);

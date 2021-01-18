@@ -40,6 +40,12 @@ HIPPY_EXTERN NSString *const HippyJSCThreadName;
  */
 HIPPY_EXTERN NSString *const HippyJavaScriptContextCreatedNotification;
 
+
+/**
+ * A Key to referenct to a HippyBridge class in HippyJavaScriptContextCreatedNotification.
+ */
+HIPPY_EXTERN NSString *const HippyJavaScriptContextCreatedNotificationBridgeKey;
+
 /**
  * A key to a reference to a JSContext class, held in the the current thread's
  *  dictionary. The reference would point to the JSContext class in the JS VM

@@ -63,7 +63,7 @@ public abstract class HippyEngineHost
 	{
 		HippyEngineManager.Builder builder = new HippyEngineManager.Builder();
 		builder.setHippyGlobalConfigs(getHippyGlobalConfigs()).setCoreBundleLoader(getCoreBundleLoader()).setPreloadBundleLoader(preloadBundleLoader)
-				.setPackages(getPackages()).setSupportDev(false).setDebugJs("").setEngineMode(getEngineMode()).setEnableHippyBuffer(enableHippyBufferBridge()).setGroupId(getGroupId());
+				.setPackages(getPackages()).setSupportDev(false).setDebugJs("").setEnableHippyBuffer(enableHippyBufferBridge()).setGroupId(getGroupId());
 
 		HippyEngineManager engineManager = builder.build();
 		return engineManager;
@@ -79,7 +79,7 @@ public abstract class HippyEngineHost
 	{
 		HippyEngineManager.Builder builder = new HippyEngineManager.Builder();
 		builder.setHippyGlobalConfigs(getHippyGlobalConfigs()).setCoreBundleLoader(null).setPackages(getPackages()).setSupportDev(true)
-				.setDebugJs(debugJs).setEngineMode(getEngineMode()).setGroupId(getGroupId());
+				.setDebugJs(debugJs).setGroupId(getGroupId());
 
 		HippyEngineManager engineManager = builder.build();
 		return engineManager;
@@ -110,15 +110,6 @@ public abstract class HippyEngineHost
 	protected HippyBundleLoader getCoreBundleLoader()
 	{
 		return null;
-	}
-
-	/**
-	 * @see HippyEngine.EngineMode
-	 * @return
-	 */
-	protected HippyEngine.EngineMode getEngineMode()
-	{
-		return HippyEngine.EngineMode.NORMAL;
 	}
 
 	protected boolean enableHippyBufferBridge()

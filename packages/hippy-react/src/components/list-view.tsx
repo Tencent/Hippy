@@ -6,6 +6,8 @@ import PullHeader from './pull-header';
 import PullFooter from './pull-footer';
 import { callUIFunction } from '../modules/ui-manager-module';
 import { warn } from '../utils';
+import { Device } from '../native';
+
 
 type DataItem = any;
 
@@ -148,6 +150,11 @@ interface ListViewProps {
    * Called when the user stops dragging the scroll view and it either stops or begins to glide.
    */
   onScrollEndDrag?(): void;
+
+  /**
+   * android expose ability flag
+   */
+  exposureEventEnabled?: boolean
 }
 
 interface ListItemViewProps {
@@ -156,6 +163,10 @@ interface ListItemViewProps {
   sticky?: boolean;
   style?: Style;
   onLayout?: (evt: any) => void;
+  onAppear?: (index: number) => void;
+  onDisappear?: (index: number) => void;
+  onWillAppear?: (index: number) => void;
+  onWillDisappear?: (index: number) => void;
   onHeaderPulling?(): void;
   onHeaderReleased?(): void;
   onFooterPulling?(): void;
@@ -165,6 +176,17 @@ interface ListItemViewProps {
 interface ListViewState {
   initialListReady: boolean;
 }
+
+interface AttrMap {
+  [propName: string]: string;
+}
+
+const androidAttrMap: AttrMap = {
+  onDisappear: 'onDisAppear',
+};
+const iosAttrMap: AttrMap = {
+  onDisappear: 'onDisappear',
+};
 
 /**
  * Recyclable list for better performance, and lower memory usage.
@@ -203,6 +225,19 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
     if (!getRowKey) {
       warn('ListView needs getRowKey to specific the key of item');
     }
+  }
+
+  /**
+   * change key
+   */
+  // eslint-disable-next-line class-methods-use-this
+  private convertName(attr: string): string {
+    if (Device.platform.OS === 'android' && androidAttrMap[attr]) {
+      return androidAttrMap[attr];
+    } if (Device.platform.OS === 'ios' && iosAttrMap[attr]) {
+      return iosAttrMap[attr];
+    }
+    return attr;
   }
 
   /**
@@ -294,6 +329,10 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
       onHeaderReleased,
       onFooterPulling,
       onFooterReleased,
+      onAppear,
+      onDisappear,
+      onWillAppear,
+      onWillDisappear,
       ...nativeProps
     } = this.props;
 
@@ -364,6 +403,30 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
           };
         }
 
+        if (typeof onAppear === 'function') {
+          itemProps[this.convertName(onAppear.name)] = () => {
+            onAppear(index);
+          };
+        }
+
+        if (typeof onDisappear === 'function') {
+          itemProps[this.convertName(onDisappear.name)] = () => {
+            onDisappear(index);
+          };
+        }
+
+        if (typeof onWillAppear === 'function') {
+          itemProps[this.convertName(onWillAppear.name)] = () => {
+            onWillAppear(index);
+          };
+        }
+
+        if (typeof onWillDisappear === 'function') {
+          itemProps[this.convertName(onWillDisappear.name)] = () => {
+            onWillDisappear(index);
+          };
+        }
+
         if (typeof getRowType === 'function') {
           const type = getRowType(index);
           if (!Number.isInteger(type)) {
@@ -398,6 +461,8 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
           rowShouldSticky: true,
         });
       }
+      const appearEventList = [onAppear, onDisappear, onWillAppear, onWillDisappear];
+      nativeProps.exposureEventEnabled = appearEventList.some(func => typeof func === 'function');
       nativeProps.numberOfRows = itemList.length;
       (nativeProps as ListViewProps).initialListSize = initialListSize;
       (nativeProps as ListViewProps).style = {
