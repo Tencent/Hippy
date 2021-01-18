@@ -255,18 +255,21 @@ HIPPY_EXPORT_MODULE()
 
 - (JSContext *)JSContext {
     if (nil == _JSContext) {
-        _JSContext = [JSContext contextWithJSGlobalContextRef:[self JSGlobalContextRef]];
-        HippyBridge *bridge = self.bridge;
-        if ([bridge isKindOfClass:[HippyBatchedBridge class]]) {
-            bridge = [(HippyBatchedBridge *)bridge parentBridge];
-        }
-        NSDictionary *userInfo = nil;
-        if (bridge) {
-            userInfo = @{HippyJavaScriptContextCreatedNotificationBridgeKey: bridge};
-        }
-        if (_JSContext) {
-            [[NSNotificationCenter defaultCenter] postNotificationName:HippyJavaScriptContextCreatedNotification
-                                                                object:nil userInfo:userInfo];
+        JSGlobalContextRef contextRef = [self JSGlobalContextRef];
+        if (contextRef) {
+            _JSContext = [JSContext contextWithJSGlobalContextRef:contextRef];
+            HippyBridge *bridge = self.bridge;
+            if ([bridge isKindOfClass:[HippyBatchedBridge class]]) {
+                bridge = [(HippyBatchedBridge *)bridge parentBridge];
+            }
+            NSDictionary *userInfo = nil;
+            if (bridge) {
+                userInfo = @{HippyJavaScriptContextCreatedNotificationBridgeKey: bridge};
+            }
+            if (_JSContext) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:HippyJavaScriptContextCreatedNotification
+                                                                    object:nil userInfo:userInfo];
+            }
         }
     }
     return _JSContext;
@@ -443,9 +446,13 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName)
                     if (method_value) {
                         if (jsccontext->IsFunction(method_value)) {
                             std::shared_ptr<hippy::napi::CtxValue> function_params[arguments.count];
-                            for (NSUInteger i = 0; i < arguments.count; i++) {
-                                JSValueRef value = [JSValue valueWithObject:arguments[i] inContext:[strongSelf JSContext]].JSValueRef;
-                                function_params[i] = std::make_shared<hippy::napi::JSCCtxValue>([strongSelf JSGlobalContextRef], value);
+                            if (arguments.count > 0) {
+                                JSContext *context = [strongSelf JSContext];
+                                JSGlobalContextRef globalContextRef = [strongSelf JSGlobalContextRef];
+                                for (NSUInteger i = 0; i < arguments.count; i++) {
+                                    JSValueRef value = [JSValue valueWithObject:arguments[i] inContext:context].JSValueRef;
+                                    function_params[i] = std::make_shared<hippy::napi::JSCCtxValue>(globalContextRef, value);
+                                }
                             }
                             std::shared_ptr<hippy::napi::CtxValue> resultValue = jsccontext->CallFunction(method_value, arguments.count, function_params, &exception);
                             jsc_resultValue = std::static_pointer_cast<hippy::napi::JSCCtxValue>(resultValue);
@@ -537,7 +544,9 @@ static NSData *loadPossiblyBundledApplicationScript(NSData *script, __unused NSU
 static void registerNativeRequire(JSContext *context, HippyJSCExecutor *executor)
 {
     __weak HippyJSCExecutor *weakExecutor = executor;
-    context[@"nativeRequire"] = ^(NSNumber *moduleID) { [weakExecutor _nativeRequire:moduleID]; };
+    context[@"nativeRequire"] = ^(NSNumber *moduleID) {
+        [weakExecutor _nativeRequire:moduleID];
+    };
 }
 
 static NSLock *jslock() {
