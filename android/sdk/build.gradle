@@ -24,7 +24,7 @@ allprojects {
 ext {
   ARCHIVES_BASE_NAME = "android-sdk"
   V8_VERSION = "v8_72"
-  CMAKE_PATH = "/src/main/jni/CMakeLists.txt"
+  CMAKE_PATH = "../../android/sdk/src/main/jni/CMakeLists.txt"
   OUTPUT_DIR = "$buildDir/outputs/aar/"
 }
 
