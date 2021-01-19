@@ -1157,9 +1157,12 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithBundleURL:(__unused NSURL *)bundle
                 method:(NSUInteger)methodID
                 params:(NSArray *)params
 {
-    if (!_valid) {
-        return nil;
-    }
+    //hippy will send 'destroyInstance' event to JS.
+    //JS may call actions after that.
+    //so HippyBatchBridge needs to be valid
+//    if (!_valid) {
+//        return nil;
+//    }
     
     HippyModuleData *moduleData = _moduleDataByID[moduleID];
     if (HIPPY_DEBUG && !moduleData) {

@@ -98,8 +98,10 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)init);
     //HIPPY_PROFILE_BEGIN_EVENT(HippyProfileTagAlways, @"[HippyModuleData setUpInstanceAndBridge] [_instanceLock lock]", @{ @"moduleClass": NSStringFromClass(_moduleClass) });
     {
         std::unique_lock<std::mutex> lock(_instanceLock);
-        
-        if (!_setupComplete && _bridge.valid) {
+        //hippy will send 'destroyInstance' event to JS.
+        //JS may call actions after that.
+        //so ModuleData needs to be valid
+        if (!_setupComplete) {
             if (!_instance) {
                 if (HIPPY_DEBUG && _requiresMainQueueSetup) {
                     HippyAssertMainQueue();
@@ -178,13 +180,16 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)init);
 
 - (void)setUpMethodQueue
 {
-    if (_instance && ![self methodQueueWithoutInstance] && _bridge.valid) {
+    //hippy will send 'destroyInstance' event to JS.
+    //JS may call actions after that.
+    //so ModuleData needs to be valid
+    if (_instance && ![self methodQueueWithoutInstance]) {
         //HIPPY_PROFILE_BEGIN_EVENT(HippyProfileTagAlways, @"[HippyModuleData setUpMethodQueue]", nil);
         BOOL implementsMethodQueue = [_instance respondsToSelector:@selector(methodQueue)];
-        if (implementsMethodQueue && _bridge.valid) {
+        if (implementsMethodQueue) {
             self.methodQueue = _instance.methodQueue;
         }
-        if (![self methodQueueWithoutInstance] && _bridge.valid) {
+        if (![self methodQueueWithoutInstance]) {
             // Create new queue (store queueName, as it isn't retained by dispatch_queue)
             _queueName = [NSString stringWithFormat:@"com.tencent.hippy.%@Queue", self.name];
             self.methodQueue = dispatch_queue_create(_queueName.UTF8String, DISPATCH_QUEUE_SERIAL);
@@ -369,7 +374,10 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)init);
 
 - (void)invalidate
 {
-    self.methodQueue = nil;
+    //hippy will send 'destroyInstance' event to JS.
+    //JS may call actions after that.
+    //so methodQueue needs to be valid
+//    self.methodQueue = nil;
 }
 
 - (NSString *)description
