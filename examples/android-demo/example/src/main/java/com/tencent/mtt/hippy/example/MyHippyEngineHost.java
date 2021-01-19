@@ -52,7 +52,7 @@ public class MyHippyEngineHost extends HippyEngineHost
 	@Override
 	public HippyGlobalConfigs getHippyGlobalConfigs()
 	{
-		return new HippyGlobalConfigs.Builder().setContext(mApplication).setExceptionHandler(new MyExceptionHandler()).setImageLoaderAdapter(new MyImageLoader()).build();
+		return new HippyGlobalConfigs.Builder().setContext(mApplication).setExceptionHandler(new MyExceptionHandler()).setImageLoaderAdapter(new MyImageLoader(mApplication)).build();
 	}
 
 	@Override
