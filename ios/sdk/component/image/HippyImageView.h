@@ -86,6 +86,8 @@ typedef NS_ENUM(NSInteger, HippyResizeMode) {
 @end
 
 @interface HippyConvert(HippyResizeMode)
+
 + (HippyResizeMode)HippyResizeMode:(id)json;
+
 @end
 
