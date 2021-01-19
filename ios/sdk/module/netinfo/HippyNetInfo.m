@@ -66,7 +66,15 @@ static NSString *currentReachabilityType(SCNetworkReachabilityRef reachabilityRe
     else {
         return HippyReachabilityStateUnknown;
     }
+}
 
+static SCNetworkReachabilityRef createReachabilityRefWithZeroAddress() {
+    struct sockaddr_in zeroAddress;
+    bzero(&zeroAddress, sizeof(zeroAddress));
+    zeroAddress.sin_len = sizeof(zeroAddress);
+    zeroAddress.sin_family = AF_INET;
+    SCNetworkReachabilityRef reachability = SCNetworkReachabilityCreateWithAddress(kCFAllocatorDefault, (struct sockaddr *)&zeroAddress);
+    return reachability;
 }
 
 static void HippyReachabilityCallback(__unused SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void *info) {
@@ -93,11 +101,7 @@ static void HippyReachabilityCallback(__unused SCNetworkReachabilityRef target, 
 - (void) addEventObserverForName:(NSString *)eventName {
     if ([eventName isEqualToString:@"networkStatusDidChange"]) {
         if (!_reachability) {
-            struct sockaddr_in zeroAddress;
-            bzero(&zeroAddress, sizeof(zeroAddress));
-            zeroAddress.sin_len = sizeof(zeroAddress);
-            zeroAddress.sin_family = AF_INET;
-            _reachability = SCNetworkReachabilityCreateWithAddress(kCFAllocatorDefault, (struct sockaddr *)&zeroAddress);
+            _reachability = createReachabilityRefWithZeroAddress();
             SCNetworkReachabilityContext context = { 0, ( __bridge void *)self, NULL, NULL, NULL };
             SCNetworkReachabilitySetCallback(_reachability, HippyReachabilityCallback, &context);
             SCNetworkReachabilityScheduleWithRunLoop(_reachability, CFRunLoopGetMain(), kCFRunLoopCommonModes);
@@ -136,31 +140,25 @@ static void HippyReachabilityCallback(__unused SCNetworkReachabilityRef target, 
 HIPPY_EXPORT_METHOD(getCurrentConnectivity:(HippyPromiseResolveBlock)resolve
                   reject:(__unused HippyPromiseRejectBlock)reject)
 {
-//    resolve(@{@"network_info": _status ?: HippyReachabilityStateUnknown});
+    if (!resolve) {
+        return;
+    }
     //return network type if it was set and not unknown type
     if (_networkType) {
         resolve(@{@"network_info": _networkType});
     }
     //else try to get network type
     else {
-        BOOL reachabilityCreated = NO;
         SCNetworkReachabilityRef reachability = NULL;
         if (_reachability) {
-            reachability = _reachability;
+            reachability = CFRetain(_reachability);
         }
         else {
-            struct sockaddr_in zeroAddress;
-            bzero(&zeroAddress, sizeof(zeroAddress));
-            zeroAddress.sin_len = sizeof(zeroAddress);
-            zeroAddress.sin_family = AF_INET;
-            reachability = SCNetworkReachabilityCreateWithAddress(kCFAllocatorDefault, (struct sockaddr *)&zeroAddress);
-            reachabilityCreated = YES;
+            reachability = createReachabilityRefWithZeroAddress();
         }
         NSString *type = currentReachabilityType(reachability);
         resolve(@{@"network_info": type});
-        if (reachabilityCreated) {
-            CFRelease(reachability);
-        }
+        CFRelease(reachability);
     }
 }
 
