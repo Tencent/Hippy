@@ -41,6 +41,8 @@ using ModuleClassMap = hippy::napi::ModuleClassMap;
 using BindingData = hippy::napi::BindingData;
 using CtxValue = hippy::napi::CtxValue;
 
+const std::string DEALLOC_FUNCTION_NAME = "HippyDealloc";
+
 Scope::Scope(Engine* engine,
              const std::string& name,
              std::unique_ptr<RegisterMap> map)
@@ -49,6 +51,46 @@ Scope::Scope(Engine* engine,
 Scope::~Scope() {
   HIPPY_DLOG(hippy::Debug, "~Scope");
   engine_->Exit();
+}
+
+void Scope::WillExit() {
+  HIPPY_DLOG(hippy::Debug, "WillExit begin");
+  std::promise<std::shared_ptr<CtxValue>> promise;
+  std::future<std::shared_ptr<CtxValue>> future = promise.get_future();
+  std::weak_ptr<Ctx> weak_context = context_;
+  JavaScriptTask::Function cb = hippy::base::MakeCopyable(
+      [weak_context, p = std::move(promise)]() mutable {
+        HIPPY_DLOG(hippy::Debug, "run js WillExit begin");
+        std::shared_ptr<CtxValue> rst = nullptr;
+        std::shared_ptr<Ctx> context = weak_context.lock();
+        if (context) {
+          std::shared_ptr<CtxValue> fn =
+              context->GetJsFn(DEALLOC_FUNCTION_NAME);
+          bool is_fn = context->IsFunction(fn);
+          if (is_fn) {
+            std::string exception;
+            context->CallFunction(fn, 0, nullptr, &exception);
+            if (exception.length() > 0) {
+              HIPPY_LOG(hippy::Error, "WillExit error, exception = %s",
+                        exception.c_str());
+            } else {
+              HIPPY_DLOG(hippy::Debug, "js WillExit end");
+            }
+          }
+        }
+        p.set_value(rst);
+      });
+  std::shared_ptr<JavaScriptTaskRunner> runner = engine_->GetJSRunner();
+  if (runner->IsJsThread()) {
+    cb();
+  } else {
+    std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
+    task->callback = cb;
+    runner->PostTask(task);
+  }
+
+  future.get();
+  HIPPY_DLOG(hippy::Debug, "ExitCtx end");
 }
 
 bool Scope::LoadModules() {
@@ -166,11 +208,14 @@ void Scope::RunJS(const std::string&& js,
                   const std::string& name,
                   std::string* exception,
                   Encoding encodeing) {
-  JavaScriptTask::Function callback = [=] {
-    if (!context_) {
+  std::weak_ptr<Ctx> weak_context = context_;
+  JavaScriptTask::Function callback = [js, name, exception, encodeing,
+                                       weak_context] {
+    std::shared_ptr<Ctx> context = weak_context.lock();
+    if (!context) {
       return;
     }
-    context_->RunScript(std::move(js), name, false, nullptr, exception, encodeing);
+    context->RunScript(std::move(js), name, false, nullptr, exception, encodeing);
   };
 
   std::shared_ptr<JavaScriptTaskRunner> runner = engine_->GetJSRunner();
@@ -187,11 +232,13 @@ void Scope::RunJS(const uint8_t* data,
                   size_t len,
                   const std::string& name,
                   std::string* exception) {
-  JavaScriptTask::Function callback = [=] {
-    if (!context_) {
+  std::weak_ptr<Ctx> weak_context = context_;
+  JavaScriptTask::Function callback = [data, len, name, exception, weak_context] {
+    std::shared_ptr<Ctx> context = weak_context.lock();
+    if (!context) {
       return;
     }
-    context_->RunScript(data, len, name, false, nullptr, exception,
+    context->RunScript(data, len, name, false, nullptr, exception,
                         hippy::napi::ONE_BYTE_ENCODING);
   };
 
@@ -211,10 +258,12 @@ std::shared_ptr<CtxValue> Scope::RunJSSync(const uint8_t* data,
                                            std::string* exception) {
   std::promise<std::shared_ptr<CtxValue>> promise;
   std::future<std::shared_ptr<CtxValue>> future = promise.get_future();
+  std::weak_ptr<Ctx> weak_context = context_;
   JavaScriptTask::Function cb =
-      hippy::base::MakeCopyable([data, len, name, context = context_, exception,
+      hippy::base::MakeCopyable([data, len, name, weak_context, exception,
                                  p = std::move(promise)]() mutable {
         std::shared_ptr<CtxValue> rst = nullptr;
+        std::shared_ptr<Ctx> context = weak_context.lock();
         if (context) {
           rst = context->RunScript(data, len, name, false, nullptr, exception,
                                    hippy::napi::ONE_BYTE_ENCODING);

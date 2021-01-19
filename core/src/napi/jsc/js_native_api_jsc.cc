@@ -277,9 +277,7 @@ std::shared_ptr<CtxValue> JSCCtx::GetGlobalObjVar(const std::string& name,
   if (is_undefined) {
     return nullptr;
   } else {
-    std::shared_ptr<JSCCtxValue> jscctx_value =
-        std::make_shared<JSCCtxValue>(context_, value_ref);
-    return jscctx_value;
+    return std::make_shared<JSCCtxValue>(context_, value_ref);
   }
 }
 
@@ -323,6 +321,11 @@ void JSCCtx::RegisterNativeBinding(const std::string& name,
                                    hippy::base::RegisterFunction fn,
                                    void* data) {
   return;
+};
+
+std::shared_ptr<CtxValue> JSCCtx::GetJsFn(const std::string& name,
+                                          std::string* exception) {
+  return GetGlobalObjVar(name, exception);
 };
 
 std::shared_ptr<CtxValue> JSCCtx::RunScript(const uint8_t* data,

@@ -61,6 +61,7 @@ class Scope {
         std::unique_ptr<RegisterMap> map);
   ~Scope();
 
+  void WillExit();
   inline std::shared_ptr<Ctx> GetContext() { return context_; }
   inline std::unique_ptr<RegisterMap>& GetRegisterMap() { return map_; }
 

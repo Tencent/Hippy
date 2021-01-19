@@ -59,8 +59,6 @@ static const int64_t kDebuggerEngineId = -9999;
 
 static std::shared_ptr<V8InspectorClientImpl> global_inspector = nullptr;
 
-static const std::string kFileProtocol = ":";
-
 namespace {
 
 void CallJavaMethod(jobject obj, jlong value) {
@@ -662,6 +660,8 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_callFunction(
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
   task->callback = [runtime, save_object_ = std::move(save_object), action_name,
                     hippy_params] {
+    HIPPY_DLOG(hippy::Debug, "js callFunction action_name = %s, hippy_params = %s",
+               action_name.c_str(), hippy_params.c_str());
     std::shared_ptr<Ctx> context = runtime->GetScope()->GetContext();
     if (runtime->IsDebug() && !action_name.compare("onWebsocketMsg")) {
       global_inspector->SendMessageToV8(hippy_params);
@@ -722,26 +722,33 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_destroy(
   HIPPY_DLOG(hippy::Debug, "destroy begin");
   int64_t runtime_id = v8RuntimePtr;
   std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
-  if (runtime) {
-    Runtime::Erase(runtime);
-  } else {
+  if (!runtime) {
     HIPPY_LOG(hippy::Warning, "HippyBridgeImpl destroy, v8RuntimePtr invalid");
     return;
   }
 
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
   task->callback = [runtime, runtime_id] {
+    HIPPY_LOG(hippy::Debug, "js destroy");
     if (runtime->IsDebug()) {
       global_inspector->DestroyContext();
+      global_inspector->Reset(nullptr, runtime->GetBridge());
+    } else {
+      runtime->GetScope()->WillExit();
     }
 
     runtime->SetScope(nullptr);
+    Runtime::Erase(runtime);
     Runtime::ReleaseKey(runtime_id);
   };
-  runtime->GetEngine()->GetJSRunner()->PostTask(task);
   int64_t group = runtime->GetGroupId();
+  if (group == kDebuggerEngineId) {
+    runtime->GetScope()->WillExit();
+  }
+  runtime->GetEngine()->GetJSRunner()->PostTask(task);
   HIPPY_DLOG(hippy::Debug, "destroy, group = %lld", group);
   if (group == kDebuggerEngineId) {
+  
   } else if (group == kDefaultEngineId) {
     runtime->GetEngine()->TerminateRunner();
   } else {
@@ -761,7 +768,6 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_destroy(
       HIPPY_LOG(hippy::Fatal, "engine not find");
     }
   }
-
   CallJavaMethod(jcallback, 1);
   HIPPY_DLOG(hippy::Debug, "destroy end");
 }

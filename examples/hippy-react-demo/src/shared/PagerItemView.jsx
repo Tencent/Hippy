@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
 
 function generateShapePagerView(shapeStyle) {
   return title => (
-    <View style={styles.pageContainer}>
+    <View style={styles.pageContainer} key={title}>
       <View style={[styles.shapeBase, shapeStyle]} />
       <View style={styles.mainRec}>
         {title ? <Text style={styles.title}>{title}</Text> : null}

@@ -19,12 +19,6 @@ import android.content.res.AssetManager;
 
 import com.tencent.mtt.hippy.common.HippyArray;
 
-/**
- * FileName: HippyBridge
- * Description：
- * History：
- * 1.0 xiandongluo on 2017/11/14
- */
 public interface HippyBridge
 {
 	static final String URI_SCHEME_ASSETS = "asset:";
@@ -37,6 +31,8 @@ public interface HippyBridge
 	public boolean runScriptFromAssets(String fileName, AssetManager assetManager, boolean canUseCodeCache, String codeCacheTag, NativeCallback callback);
 
 	public boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache, String codeCacheTag, NativeCallback callback);
+
+	void onDestroy();
 
 	public void destroy(NativeCallback callback);
 
