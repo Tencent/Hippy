@@ -60,7 +60,7 @@ hippy-react 工程暂时只能通过手工配置初始化（后期会提供基�
 
 ## hippy-react 编译配置
 
-配置全部放置于 [scripts](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/scripts) 目录下，其实只是 [webpack](//webpack.js.org/) 的配置文件，建议先阅读 [webpack](//webpack.js.org/) 官网内容，具备一定基础后再进行修改。
+当前 hippy-react 采用 `Webpack 4`构建（暂时不建议升级到`Webpack 5`），配置全部放置于 [scripts](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/scripts) 目录下，其实只是 [webpack](//webpack.js.org/) 的配置文件，建议先阅读 [webpack](//webpack.js.org/) 官网内容，具备一定基础后再进行修改。
 
 ### hippy-react 终端开发调试用编译配置
 
@@ -177,7 +177,7 @@ hippy-vue 相对简单很多，hippy-vue 只是 [Vue](//vuejs.org) 在终端上�
 
 ## hippy-vue 编译配置
 
-配置全部放置于 [scripts](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/scripts) 目录下，其实只是 [webpack](//webpack.js.org/) 的配置文件，建议先阅读 [webpack](//webpack.js.org/) 官网内容，具备一定基础后再进行修改。
+当前 hippy-vue 采用 `Webpack 4`构建（暂时不建议升级到`Weppack 5`），配置全部放置于 [scripts](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/scripts) 目录下，其实只是 [webpack](//webpack.js.org/) 的配置文件，建议先阅读 [webpack](//webpack.js.org/) 官网内容，具备一定基础后再进行修改。
 
 ### hippy-vue 终端开发调试用编译配置
 
