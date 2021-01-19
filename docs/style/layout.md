@@ -289,6 +289,38 @@ Hippy 的样式排版使用了 Flex 布局。值得注意的是，尚不兼容�
 | --------------- | -------- |
 | number | 否       |
 
+# maxHeight
+
+[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/max-height)
+
+| 类型            | 必需 |
+| --------------- | -------- |
+| number | 否       |
+
+# maxWidth
+
+[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/max-width)
+
+| 类型            | 必需 |
+| --------------- | -------- |
+| number | 否       |
+
+# minHeight
+
+[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/min-height)
+
+| 类型            | 必需 |
+| --------------- | -------- |
+| number | 否       |
+
+# minWidth
+
+[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/min-width)
+
+| 类型            | 必需 |
+| --------------- | -------- |
+| number | 否       |
+
 # overflow
 
 `overflow` 定义了子元素超过父容器宽高度后的显示情况 `overflow: hidden` 的情况会导致子元素被父容器切割超出显示范围的部分 `overflow: visible` 会让子容器正常显示全部，即使超出父容器的显示范围。

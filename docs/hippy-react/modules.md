@@ -243,6 +243,24 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 > Anrdoid 特别说明：因为历史遗留问题，screen 下的 statusBarHeight 是按实际像素算的，window 下经过修正已经是 dp 单位。
 
+# ImageLoaderModule
+
+通过该模块可以对远程图片进行相应操作
+
+## 方法
+
+### ImageLoaderModule.getSize
+
+`(url: string) => Promise<{width, height}>` 获取图片大小（会同时预加载图片）。
+
+> * url - 图片地址
+
+### ImageLoaderModule.prefetch
+
+`(url: string) => void` 用于预加载图片。
+
+> * url - 图片地址
+
 # NetInfo
 
 [[NetInfo 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/modules/NetInfo)
