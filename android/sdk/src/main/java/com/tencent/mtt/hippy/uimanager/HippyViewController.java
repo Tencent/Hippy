@@ -84,8 +84,8 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 			LogUtils.d(TAG, "createView id " + id);
 			view.setId(id);
 			//view.setTag(className);
-      HippyMap tagObj = HippyTag.createTagMap(className, initialProps);
-      view.setTag(tagObj);
+			HippyMap tagObj = HippyTag.createTagMap(className, initialProps);
+			view.setTag(tagObj);
 		}
 		return view;
 	}
