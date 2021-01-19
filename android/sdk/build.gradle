@@ -49,9 +49,24 @@ android {
                 "-DCMAKE_BUILD_TYPE=Release",
                 "-DV8_VERSION=${V8_VERSION}"
 
-        abiFilters 'armeabi-v7a', 'arm64-v8a'
+        abiFilters 'armeabi-v7a'
         //'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
       }
+    }
+
+    packagingOptions {
+      pickFirst 'lib/armeabi-v7a/libmtt_shared.so'
+      pickFirst 'lib/armeabi-v7a/libmttv8.so'
+      pickFirst 'lib/armeabi-v7a/libhippybridge.so'
+      pickFirst 'lib/arm64-v8a/libmtt_shared.so'
+      pickFirst 'lib/arm64-v8a/libmttv8.so'
+      pickFirst 'lib/arm64-v8a/libhippybridge.so'
+      pickFirst 'lib/x86/libmtt_shared.so'
+      pickFirst 'lib/x86/libmttv8.so'
+      pickFirst 'lib/x86/libhippybridge.so'
+      pickFirst 'lib/x86_64/libmtt_shared.so'
+      pickFirst 'lib/x86_64/libmttv8.so'
+      pickFirst 'lib/x86_64/libhippybridge.so'
     }
   }
 
@@ -81,7 +96,31 @@ dependencies {
   api fileTree(dir: 'libs', include: ['*.jar'])
 }
 
+task dealAfterEvaluate() {
+  copy {
+    from "src/main/jni/third_party/$V8_VERSION/v8/x86"
+    into "libs/x86/"
+    include "libmtt_shared.so", "libmttv8.so"
+  }
+  copy {
+    from "src/main/jni/third_party/$V8_VERSION/v8/x86_64"
+    into "libs/x86_64/"
+    include "libmtt_shared.so", "libmttv8.so"
+  }
+  copy {
+    from "src/main/jni/third_party/$V8_VERSION/v8/arm64-v8a"
+    into "libs/arm64-v8a/"
+    include "libmtt_shared.so", "libmttv8.so"
+  }
+  copy {
+    from "src/main/jni/third_party/$V8_VERSION/v8/armeabi-v7a"
+    into "libs/armeabi-v7a/"
+    include "libmtt_shared.so", "libmttv8.so"
+  }
+}
+
 afterEvaluate {
+  dealAfterEvaluate
   def assembleReleaseTask = project.tasks.findByName('assembleRelease')
   if (assembleReleaseTask != null) {
     assembleReleaseTask.finalizedBy dealAfterBuild
