@@ -49,7 +49,7 @@ public class MyActivityTiny extends Activity
 				@Override
 				public void fetchImage(final String url, final Callback requestCallback, Object param)
 				{
-					Glide.with(ContextHolder.getAppContext()).load(url).asBitmap().into(new SimpleTarget() {
+					Glide.with(MyActivityTiny.this).load(url).asBitmap().into(new SimpleTarget() {
 						@Override
 						public void onResourceReady(Object object, GlideAnimation glideAnimation) {
 							HippyDrawable hippyTarget = new HippyDrawable();
