@@ -118,11 +118,14 @@ global.fetch = (url, options) => {
     }
   }
 
+  const { method, headers, body, ...ohterOptions } = opts;
+
   const reqOptions = {
-    method: opts.method || 'GET',
+    method: method || 'GET',
     url,
     headers: reqHeads || [],
-    body: opts.body || '',
+    body: body || '',
+    ...ohterOptions
   };
 
   return new Promise((resolve, reject) => {
