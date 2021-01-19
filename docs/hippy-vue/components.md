@@ -171,11 +171,43 @@
 | 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | blur                | 当文本框失去焦点的时候调用此回调函数。                       | `Function`                                                   | `ALL`     |
-| chang          | 当文本框内容变化时调用此回调函数。改变后的文字内容会作为参数传递。 | `Function`                                                   | `ALL`     |
+| change          | 当文本框内容变化时调用此回调函数。改变后的文字内容会作为参数传递。 | `Function`                                                   | `ALL`     |
 | keyboardWillShow    | 在弹出输入法键盘时候会触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260}`。                                     | `Function`                                                   | `ALL`     |
 | endEditing          | 当文本输入结束后调用此回调函数。                             | `Function`                                                   | `ALL`     |
 | layout              | 当组件挂载或者布局变化的时候调用，参数为`{ x, y, width, height }`。 | `Function`                                                   | `ALL`     |
 | selectionChange     | 当输入框选择文字的范围被改变时调用。返回参数的样式如 `{ nativeEvent: { selection: { start, end } } }`。 | `Function`                                                   | `ALL`     |
+
+## 方法
+
+### blur
+
+`() => void` 让指定的 input 组件失去光标焦点，与 focus() 的作用相反。
+
+### clear
+
+`() => void` 清空输入框的内容。
+
+### focus
+
+`() => void` 指派 input 获得焦点。
+
+### getValue
+
+`() => Promise<string>` 获得文本框中的内容。
+
+### hideInputMethod
+
+`() => void` 隐藏软键盘。
+
+### setValue
+
+`(value: string) => void` 设置文本框内容。
+
+> * value: string - 文本框内容
+
+### showInputMethod
+
+`() => void` 显示软键盘。
 
 # label
 

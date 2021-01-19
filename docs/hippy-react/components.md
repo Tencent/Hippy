@@ -449,6 +449,7 @@ import icon from './qb_icon_new.png';
 | onPageSelected           | 指定一个函数，当page被选中时进行回调，回调参数是一个对象event，包括position值 回调参数： `position`: number -被选中即将滑到的目标page的index | `(obj: {position: number}) => void`                 | `ALL`    |
 | onPageScroll             | 指定一个函数，当page被滑动时进行回调，回调参数是一个对象event，包括position值与offset值 回调参数： `position`: number -即将滑到的目标page的index `offset`: number -当前被选中的page的相对位移，取值范围-1到1 | `(obj: {position: number, offset: number}) => void` | `ALL`    |
 | onPageScrollStateChanged | 指定一个函数，当page的滑动状态改变时进行回调 回调参数： `pageScrollState`: string -改变后的状态，idle表示停止，dragging表示用户用手拖拽，settling表示page正在滑动 | `(pageScrollState: string) => void`          | `ALL`    |
+| direction | 设置viewPager滚动方向，不设置默认横向滚动，设置 `vertical` 为竖向滚动 | `string`          | `Android`    |
 
 ## 方法
 
