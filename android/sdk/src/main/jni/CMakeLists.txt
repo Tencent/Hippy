@@ -1,3 +1,4 @@
+
 cmake_minimum_required(VERSION 3.4.1)
 
 set(CMAKE_VERBOSE_MAKEFILE on)
@@ -29,8 +30,9 @@ set(ABI_COMPILE_OPTIONS
 	-fomit-frame-pointer
   )
 
-message("ANDROID_ABI: ${ANDROID_ABI}")
-if (${ANDROID_ABI} STREQUAL "armeabi-v7a")
+message("CMAKE_ANDROID_ARCH_ABI: ${CMAKE_ANDROID_ARCH_ABI}")
+
+if (${CMAKE_ANDROID_ARCH_ABI} STREQUAL "armeabi-v7a")
   set(ABI_COMPILE_OPTIONS
     ${ABI_COMPILE_OPTIONS}
     -march=armv7-a
@@ -39,9 +41,9 @@ if (${ANDROID_ABI} STREQUAL "armeabi-v7a")
 	  -mfloat-abi=softfp
 	  -mthumb
   )
-elseif (${ANDROID_ABI} STREQUAL "arm64-v8a")
-  
-elseif (${ANDROID_ABI} STREQUAL "x86")
+elseif (${CMAKE_ANDROID_ARCH_ABI} STREQUAL "arm64-v8a")
+
+elseif (${CMAKE_ANDROID_ARCH_ABI} STREQUAL "x86")
   set(ABI_COMPILE_OPTIONS
     ${ABI_COMPILE_OPTIONS}
     -march=i686
@@ -50,7 +52,7 @@ elseif (${ANDROID_ABI} STREQUAL "x86")
 	  -mssse3
 	  -mfpmath=sse
   )
-elseif (${ANDROID_ABI} STREQUAL "x86_64")
+elseif (${CMAKE_ANDROID_ARCH_ABI} STREQUAL "x86_64")
   set(ABI_COMPILE_OPTIONS
     ${ABI_COMPILE_OPTIONS}
     -march=x86-64
@@ -60,15 +62,13 @@ elseif (${ANDROID_ABI} STREQUAL "x86_64")
 	  -msse4.2
     )
 else()
-  message("${ANDROID_ABI} is not supported")
+  message("${CMAKE_ANDROID_ARCH_ABI} is not supported")
 endif()
 message("ABI_COMPILE_OPTIONS: ${ABI_COMPILE_OPTIONS}")
 
 
 add_definitions("-DOS_ANDROID")
-
 add_compile_options(${ABI_COMPILE_OPTIONS})
-
 
 get_filename_component(CORE_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../core" REALPATH)
 
@@ -93,9 +93,7 @@ else()
   message("${JS_ENGINE} is not supported")
 endif()
 message("CORE_SRC: ${CORE_SRC}")
-
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -s")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${CORE_SRC_DIR}/include)
@@ -108,7 +106,13 @@ set_target_properties(libmttv8 PROPERTIES IMPORTED_LOCATION ${PROJECT_SOURCE_DIR
 add_library(libmtt_shared SHARED IMPORTED)
 set_target_properties(libmtt_shared PROPERTIES IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/third_party/${V8_VERSION}/v8/${ANDROID_ABI}/libmtt_shared.so)
 
-add_library(hippybridge SHARED ${CORE_SRC} ${URL_PARSER_SRC} ${JNI_SRC})
-target_link_libraries(hippybridge android log libmttv8 libmtt_shared)
+set(HIPPY_TARGET_NAME "hippybridge")
 
-set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG " )
+add_library(${HIPPY_TARGET_NAME} SHARED ${CORE_SRC} ${URL_PARSER_SRC} ${JNI_SRC})
+target_link_libraries(${HIPPY_TARGET_NAME} android log libmttv8 libmtt_shared)
+
+#add_custom_command(TARGET ${HIPPY_TARGET_NAME} POST_BUILD
+#            COMMAND "${CMAKE_STRIP}" -g -S -d --strip-debug --verbose
+#            ../../../build/outputs/${CMAKE_ANDROID_ARCH_ABI}/lib${HIPPY_TARGET_NAME}.so
+#            COMMENT "Strip debug symbols")
+
