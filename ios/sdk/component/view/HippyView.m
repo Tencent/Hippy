@@ -632,20 +632,28 @@ void HippyBoarderColorsRelease(HippyBorderColors c)
         if (!weakSelf.backgroundImageUrl) {
             setImageBlock(image);
         } else {
-            CGRect weakFrame = CGRectMake(weakSelf.backgroundPositionX, weakSelf.backgroundPositionY, theFrame.size.width, theFrame.size.height);
+            CGFloat backgroundPositionX = weakSelf.backgroundPositionX;
+            CGFloat backgroundPositionY = weakSelf.backgroundPositionY;
+            CGRect weakFrame = CGRectMake(backgroundPositionX,
+                                          backgroundPositionY,
+                                          theFrame.size.width - backgroundPositionX,
+                                          theFrame.size.height - backgroundPositionY);
+            CGRect weakFrameAfterInset = UIEdgeInsetsInsetRect(weakFrame, borderInsets);
             
-            [weakBackgroundCacheManager imageWithUrl:weakSelf.backgroundImageUrl frame:weakFrame hippyTag:weakSelf.hippyTag handler:^(UIImage *decodedImage, NSError *error) {
+            
+            [weakBackgroundCacheManager imageWithUrl:weakSelf.backgroundImageUrl frame:weakFrameAfterInset hippyTag:weakSelf.hippyTag handler:^(UIImage *decodedImage, NSError *error) {
                 if (error) {
                     HippyLogError(@"weakBackgroundCacheManagerLog %@", error);
                     return;
                 }
+                
                 UIGraphicsBeginImageContextWithOptions(theFrame.size, NO, image.scale);
                 CGSize size = theFrame.size;
                 
                 
                 [image drawInRect:(CGRect){CGPointZero, size}];
-                [decodedImage drawInRect:CGRectMake(borderInsets.left,
-                                                    borderInsets.top,
+                [decodedImage drawInRect:CGRectMake(borderInsets.left + backgroundPositionX,
+                                                    borderInsets.top + backgroundPositionY,
                                                     decodedImage.size.width,
                                                     decodedImage.size.height)];
                 UIImage *resultingImage = UIGraphicsGetImageFromCurrentImageContext();
@@ -786,14 +794,6 @@ setBorderStyle()
         [weakBackgroundImageCacheManager releaseBackgroundImageCacheWithUrl:weakBackgroundImageUrl frame:frame hippyTag:weakHippyTag];
       });
   }
-}
-
-- (void)setBackgroundPositionX:(CGFloat)backgroundPositionX {
-  _backgroundPositionX = -backgroundPositionX;
-}
-
-- (void)setBackgroundPositionY:(CGFloat)backgroundPositionY {
-  _backgroundPositionY = -backgroundPositionY;
 }
 
 @end
