@@ -22,9 +22,10 @@ allprojects {
 }
 
 ext {
+  println("===============projectDir.absolutePath=" + projectDir.absolutePath)
   ARCHIVES_BASE_NAME = "android-sdk"
   V8_VERSION = "v8_72"
-  CMAKE_PATH = "../../android/sdk/src/main/jni/CMakeLists.txt"
+  CMAKE_PATH = "$projectDir.absolutePath/src/main/jni/CMakeLists.txt"
   OUTPUT_DIR = "$buildDir/outputs/aar/"
 }
 
@@ -49,7 +50,7 @@ android {
                 "-DCMAKE_BUILD_TYPE=Release",
                 "-DV8_VERSION=${V8_VERSION}"
 
-        abiFilters 'armeabi-v7a'
+        abiFilters 'armeabi-v7a', 'arm64-v8a'
         //'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
       }
     }
