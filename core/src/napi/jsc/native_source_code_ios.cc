@@ -5,7 +5,7 @@
 * js2cpp is maintenance by Hippy Team <hippy@tencent.com>
 * Copyright © 2018-2021 Tencent. All rights reserved.
 *
-* Generated at Wed Jan 13 2021 18:29:05 GMT+0800 (China Standard Time).
+* Generated at Wed Jan 20 2021 13:05:22 GMT+0800 (China Standard Time).
 * DO NOT EDIT IT.
 */
 #include "core/napi/native_source_code.h"

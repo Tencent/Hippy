@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.3.3](https://github.com/Tencent/Hippy/compare/2.3.2...2.3.3) (2021-01-20)
+
+
+### Bug Fixes
+
+* **android:** can not find cmake path ([720750a](https://github.com/Tencent/Hippy/commit/720750a2312614436f609c484f521a3c9eefe7ae))
+* **ios:** fix image load error event ([d4099ee](https://github.com/Tencent/Hippy/commit/d4099eea71c2f9d4f4dc19c120edd25d78e46362))
+* **ios:** fix network type judgment method ([#517](https://github.com/Tencent/Hippy/issues/517)) ([73daf87](https://github.com/Tencent/Hippy/commit/73daf87a9b7b418281296efd29493c16717d7835))
+
+
+### Features
+
+* **ios:** hippy now will send ‘destroyInstance’ event to JS ([b0ae490](https://github.com/Tencent/Hippy/commit/b0ae490d9ac13b9f79d6b0e95c7add02bf4ecb07))
+* **ios:** optimize image load error message ([e20bed9](https://github.com/Tencent/Hippy/commit/e20bed987e86a5a184247196243867d3aa75b3c4))
+
+
+
+
+
 ## [2.3.2](https://github.com/Tencent/Hippy/compare/2.3.1...2.3.2) (2021-01-18)
 
 
