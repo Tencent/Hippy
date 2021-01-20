@@ -79,6 +79,8 @@ Windows 用户需要以下软件:
 5. 启动 Xcode 并且开始编译终端 App：`open examples/ios-demo/HippyDemo.xcodeproj`。
 6. cd 到 hippy-react-demo 或者 hippy-vue-demo 目录，分别执行 `npm run hippy:dev` 和 `npm run hippy:debug`, 即开启实时 Debug 模式。
 
+在 example 调试模式下，@hippy/react、@hippy/vue等的npm模块会直接链接到 `packages` > `[different package]` >`dist` 下面，所以如果你修改了package下的源代码并且想让其在example中生效，请重新在根目录执行 `npm run build`。
+
 ### 启动 Android App 来测试 hippy-react 或者 hippy-vue 范例
 
 我们推荐 Android 开发者使用真机，因为 Hippy 使用的 [X5](https://x5.tencent.com/) JS 引擎没有提供 x86 的库以至于无法支持 x86 模拟器，但是使用 ARM 模拟器又很慢。
@@ -93,6 +95,8 @@ Windows 用户需要以下软件:
 6. 用 USB 数据线插上你的 Android 手机，需要确认手机打开 USB 调试模式和 USB 安装。
 7. 运行工程，并安装 apk。
 8. cd 到 hippy-react-demo 或者 hippy-vue-demo 目录，分别执行 `npm run hippy:dev` 和 `npm run hippy:debug`, 即开启实时 Debug 模式。
+
+在 example 调试模式下，@hippy/react、@hippy/vue等的npm模块会直接链接到 `packages` > `[different package]` >`dist` 下面，所以如果你修改了package下的源代码并且想让其在example中生效，请重新在根目录执行 `npm run build`。
 
 > 如果 Android Studio 报了这个错误 `No toolchains found in the NDK toolchains folder for ABI with prefix: mips64el-linux-android`，这里有[解决办法](https://github.com/google/filament/issues/15#issuecomment-415423557)。
 

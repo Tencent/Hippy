@@ -77,7 +77,9 @@ For iOS we recommend to use iOS simulator when first try, however, you may chang
 3. Build the front-end sdk packages at root directory with `npm run build`.
 4. Choose a demo to build with `npm run buildexample -- [hippy-react-demo|hippy-vue-demo]`.
 5. Start the Xcode and build the iOS app with `open examples/ios-demo/HippyDemo.xcodeproj`.
-6. `cd` to hippy-react-demo or hippy-vue-demo, run `npm run hippy:dev` and `npm run hippy:debug` respectively to start the live debug mode
+6. `cd` to `examples` hippy-react-demo or hippy-vue-demo, run `npm run hippy:dev` and `npm run hippy:debug` respectively to start the live debug mode
+
+On example debug mode, npm packages such as @hippy/react, @hippy/vue are linked to `packages` > `[different package]` >`dist`, so if you have changed package source code and make it take effect in examples, please call `npm run build` at root directory again.
 
 ### Start the android app with hippy-react or hippy-vue demo
 
@@ -93,6 +95,8 @@ Before build the android app, please make sure the SDK and NDK is installed, And
 6. Connect android phone with USB cable and make sure USB debugging mode and USB installation are enabled.
 7. Open the project with Android Studio, run and install the apk.
 8. `cd` to hippy-react-demo or hippy-vue-demo, run `npm run hippy:dev` and `npm run hippy:debug` respectively to start the live debug mode.
+
+On example debug mode, npm packages such as @hippy/react, @hippy/vue are linked to `packages` > `[different package]` >`dist`, so if you have changed package source code and make it take effect in examples, please call `npm run build` at root directory again.
 
 > If you encounter the issue of `No toolchains found in the NDK toolchains folder for ABI with prefix: mips64el-linux-android`, here is the [solution](https://github.com/google/filament/issues/15#issuecomment-415423557).
 
