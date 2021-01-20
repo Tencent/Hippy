@@ -42,19 +42,6 @@ android {
     // 保证app使用aar时，会自动将该proguard文件添加到本身的proguard规则中
     consumerProguardFiles 'proguard-rules.pro'
 
-    externalNativeBuild {
-      cmake {
-        arguments "-DJS_ENGINE=V8",
-                "-DANDROID_CPP_FEATURES=rtti exceptions",
-                "-DANDROID_PLATFORM=android-21",
-                "-DCMAKE_BUILD_TYPE=Release",
-                "-DV8_VERSION=${V8_VERSION}"
-
-        abiFilters 'armeabi-v7a', 'arm64-v8a'
-        //'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
-      }
-    }
-
     packagingOptions {
       pickFirst 'lib/armeabi-v7a/libmtt_shared.so'
       pickFirst 'lib/armeabi-v7a/libmttv8.so'
@@ -75,9 +62,31 @@ android {
     release {
       minifyEnabled true
       proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+      externalNativeBuild {
+        cmake {
+          arguments "-DJS_ENGINE=V8",
+                  "-DANDROID_CPP_FEATURES=rtti exceptions",
+                  "-DANDROID_PLATFORM=android-21",
+                  "-DCMAKE_BUILD_TYPE=Release",
+                  "-DV8_VERSION=${V8_VERSION}"
+
+          abiFilters 'armeabi-v7a', 'arm64-v8a' //'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+        }
+      }
     }
     debug {
       minifyEnabled false
+      externalNativeBuild {
+        cmake {
+          arguments "-DJS_ENGINE=V8",
+                  "-DANDROID_CPP_FEATURES=rtti exceptions",
+                  "-DANDROID_PLATFORM=android-21",
+                  "-DCMAKE_BUILD_TYPE=Debug",
+                  "-DV8_VERSION=${V8_VERSION}"
+
+          abiFilters 'arm64-v8a'
+        }
+      }
     }
   }
 
@@ -122,19 +131,23 @@ task dealAfterEvaluate() {
 
 afterEvaluate {
   dealAfterEvaluate
-  def assembleReleaseTask = project.tasks.findByName('assembleRelease')
-  if (assembleReleaseTask != null) {
-    assembleReleaseTask.finalizedBy dealAfterBuild
+  android.libraryVariants.each { variant ->
+    def assembleTask
+    if (variant.buildType.name == 'release') {
+      assembleTask = project.tasks.findByName('assembleRelease')
+    } else {
+      assembleTask = project.tasks.findByName('assembleDebug')
+    }
+    assembleTask.finalizedBy dealAfterBuild
   }
 }
 
 task dealAfterBuild() {
   doLast {
-    file(OUTPUT_DIR).list().each{f ->
-      println("===============dealAfterBuild: f=" + f)
-      if (f.contains("release.aar")) {
+    file(OUTPUT_DIR).list().each{fileName ->
+      if (fileName.contains(".aar")) {
         copy {
-          from zipTree("${OUTPUT_DIR}/${f}")
+          from zipTree("$OUTPUT_DIR/$fileName")
           into OUTPUT_DIR
           include 'classes.jar', 'jni/'
           rename 'classes.jar', 'hippy.jar'
