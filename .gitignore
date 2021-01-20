@@ -26,7 +26,7 @@ android/sdk/libs/x86/libmttv8.so
 android/sdk/libs/x86_64/libhippybridge.so
 android/sdk/libs/x86_64/libmtt_shared.so
 android/sdk/libs/x86_64/libmttv8.so
-android/sdk/.cxx
+android/sdk/.cxx/*
 examples/android-demo/example/src/main/assets/
 examples/ios-demo/HippyDemo.xcodeproj/project.xcworkspace/xcuserdata/*
 examples/ios-demo/HippyDemo.xcodeproj/xcuserdata/*
