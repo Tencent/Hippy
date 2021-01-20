@@ -323,7 +323,8 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription){
                         [self loadImage:image url:uri error:nil needBlur:!isBlurredImage needCache:YES];
                     }
                     else {
-                        NSError *theError = imageErrorFromParams(ImageDataUnavailable, @"image data unavailable");
+                        NSString *errorMessage = [NSString stringWithFormat:@"image data unavailable for uri %@", uri];
+                        NSError *theError = imageErrorFromParams(ImageDataUnavailable, errorMessage);
                         [self loadImage: nil url:uri error:theError needBlur:YES needCache:NO];
                     }
                 }
@@ -359,13 +360,15 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription){
                         [self loadImage:image url:source_url.absoluteString error:nil needBlur:YES needCache:YES];
                     }
                     else {
-                        NSError *theError = imageErrorFromParams(ImageDataUnavailable, @"image data unavailable");
+                        NSString *errorMessage = [NSString stringWithFormat:@"image data unavailable for uri %@", source_url.absoluteString];
+                        NSError *theError = imageErrorFromParams(ImageDataUnavailable, errorMessage);
                         [self loadImage: nil url:source_url.absoluteString error:theError needBlur:YES needCache:NO];
                     }
                 }
             }
             else {
-                NSError *error = imageErrorFromParams(ImageDataNotExist, @"local image data not exist");
+                NSString *errorMessage = [NSString stringWithFormat:@"local image data not exist %@", source_url.absoluteString];
+                NSError *error = imageErrorFromParams(ImageDataNotExist, errorMessage);
                 [self loadImage:nil url:source_url.absoluteString error:error needBlur:YES needCache:NO];
             }
             return;
@@ -426,7 +429,8 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription){
                         [weakSelf loadImage:image url:source[@"uri"] error:nil needBlur:YES needCache:YES];
                     }
                     else {
-                        NSError *error = imageErrorFromParams(ImageDataUnavailable, @"base64 data not available");
+                        NSString *errorMessage = [NSString stringWithFormat:@"image data unavailable %@", source[@"uri"]];
+                        NSError *error = imageErrorFromParams(ImageDataUnavailable, errorMessage);
                         [weakSelf loadImage:nil url:source[@"uri"] error:error needBlur:YES needCache:NO];
                     }
                 }
@@ -543,7 +547,8 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription){
                         [[HippyImageCacheManager sharedInstance] setImageCacheData:_data forURLString:urlString];
                         [self loadImage: image url:urlString error:nil needBlur:YES needCache:YES];
                     } else {
-                        NSError *theError = imageErrorFromParams(ImageDataUnavailable, @"image data not available");
+                        NSString *errorMessage = [NSString stringWithFormat:@"image data unavailable %@", urlString];
+                        NSError *theError = imageErrorFromParams(ImageDataUnavailable, errorMessage);
                         [self loadImage: nil url:urlString error:theError needBlur:YES needCache:NO];
                     }
                 }
@@ -553,7 +558,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription){
                 if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
                     NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
                     NSUInteger statusCode = [httpResponse statusCode];
-                    NSString *errorMessage = [NSString stringWithFormat:@"no data received, HTTPStatusCode is %zd", statusCode];
+                    NSString *errorMessage = [NSString stringWithFormat:@"no data received, HTTPStatusCode is %zd, url is %@", statusCode, urlString];
                     NSError *imgError = imageErrorFromParams(ImageDataUnavailable, errorMessage);
                     [self loadImage:nil url:urlString error:imgError needBlur:NO needCache:NO];
                 }
