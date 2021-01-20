@@ -430,6 +430,14 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 		}
 	}
 
+  @Override
+  public void sendNightModeChangedEvent(boolean isOnNightMode)
+  {
+    HippyMap params = new HippyMap();
+    params.pushBoolean("NightMode", isOnNightMode);
+    sendEvent("NightModeChanged", params);
+  }
+
 	@Override
 	public void preloadModule(HippyBundleLoader loader)
 	{

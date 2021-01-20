@@ -12,7 +12,7 @@
 
       <activity android:name=".MyActivity"
         android:label="@string/app_name"
-        android:configChanges="orientation|screenSize"
+        android:configChanges="orientation|screenSize|uiMode"
         >
         <intent-filter>
           <action android:name="android.intent.action.MAIN" />

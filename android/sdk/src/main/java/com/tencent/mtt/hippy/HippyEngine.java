@@ -204,11 +204,13 @@ public abstract class HippyEngine
 
 	/**
 	 * send event
-	 * 
+	 *
 	 * @param event
 	 * @param params
 	 */
 	public abstract void sendEvent(String event, Object params);
+
+  public abstract void sendNightModeChangedEvent(boolean isOnNightMode);
 
 	/**
 	 * 预加载业务模块

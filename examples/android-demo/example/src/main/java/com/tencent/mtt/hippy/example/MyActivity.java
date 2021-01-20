@@ -1,6 +1,8 @@
 package com.tencent.mtt.hippy.example;
 
 import android.app.Activity;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.Window;
 
@@ -27,6 +29,8 @@ import java.util.List;
  */
 public class MyActivity extends Activity
 {
+  private Configuration mPrevConfig = new Configuration(getResources().getConfiguration());
+
 	private HippyEngine mHippyEngine;
 	private HippyRootView mHippyView;
 
@@ -156,4 +160,23 @@ public class MyActivity extends Activity
 	public void doActivityBack() {
 		super.onBackPressed();
 	}
+
+  @Override
+  public void onConfigurationChanged(Configuration newConfig) {
+    super.onConfigurationChanged(newConfig);
+    if (mHippyEngine != null && isNightModeChanged(newConfig)) {
+      mHippyEngine.sendNightModeChangedEvent(isOnNightMode(newConfig));
+    }
+    mPrevConfig = new Configuration(newConfig);
+  }
+
+  private boolean isNightModeChanged(Configuration newConfig) {
+    return (newConfig.diff(mPrevConfig) & ActivityInfo.CONFIG_UI_MODE) != 0
+      && isOnNightMode(newConfig) != isOnNightMode(mPrevConfig);
+  }
+
+  private boolean isOnNightMode(Configuration configuration) {
+    return (configuration.uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
+  }
+
 }
