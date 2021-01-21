@@ -21,6 +21,8 @@ export default {
     },
   },
   components: {
+    // 在已经支持动态加载的终端版本，可以加 /* webpackMode: "lazy" */，也可以不加，默认就是lazy模式；
+    // 在不支持动态加载的终端版本，可以添加 /* webpackMode: "eager" */ 不进行分包
     AsyncComponent: () => import(/* webpackMode: "lazy" */ './dynamicImport/async-component.vue'),
   },
 };
