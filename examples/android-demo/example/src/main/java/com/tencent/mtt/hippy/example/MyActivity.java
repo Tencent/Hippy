@@ -29,7 +29,7 @@ import java.util.List;
  */
 public class MyActivity extends Activity
 {
-  private Configuration mPrevConfig = new Configuration(getResources().getConfiguration());
+  private Configuration mPrevConfig;
 
 	private HippyEngine mHippyEngine;
 	private HippyRootView mHippyView;
@@ -39,6 +39,7 @@ public class MyActivity extends Activity
 	{
 		super.onCreate(savedInstanceState);
 		getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+    mPrevConfig = new Configuration(getResources().getConfiguration());
 
 		// 1/3. 初始化hippy引擎
 		{
