@@ -44,8 +44,18 @@ module.exports = {
 };
 ```
 
+### 降级方案
+
+在终端不支持 dynamic import 的版本，可以利用Webpack提供的 `/* webpackMode: "eager" */` 注释停止生成额外的chunk。
+
+```javascript
+// 在import()中增加magic comment例子如下：
+AsyncComponent: () => import(/* webpackMode: "eager" */ './dynamicImport/async-component.vue'),
+```
+
+具体原理可以参看[webpack](https://webpack.docschina.org/api/module-methods/)
+
 ## TODO
 
 + 支持网络加载分包
-+ Hippy 2.2以下版本兼容`dynamic import`语法
-
++ Hippy 2.2以下可以直接不用webpack注释来兼容
