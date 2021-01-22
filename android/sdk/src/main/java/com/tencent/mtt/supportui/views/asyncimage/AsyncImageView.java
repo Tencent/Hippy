@@ -252,12 +252,13 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 			if (shouldUseFetchImageMode(url))
 			{
 				url = url.trim().replaceAll(" ", "%20");
-				if (!shouldFetchImage())
-				{
-					return;
+				if (sourceType == SOURCE_TYPE_SRC) {
+					if (!shouldFetchImage()) {
+						return;
+					}
+					mUrlFetchState = IMAGE_LOADING;
 				}
 
-				mUrlFetchState = IMAGE_LOADING;
 				onFetchImage(url);
 				handleGetImageStart();
 				doFetchImage(getFetchParam(), sourceType);
@@ -314,31 +315,25 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 		}
 	}
 
-	protected void handleImageRequest(IDrawableTarget resultDrawable, int sourceType, Object requestInfo)
-	{
-		if (resultDrawable == null)
-		{
-			mContentDrawable = null;
-			if (sourceType == SOURCE_TYPE_SRC)
-			{
+	protected void handleImageRequest(IDrawableTarget resultDrawable, int sourceType, Object requestInfo) {
+		if (resultDrawable == null) {
+			if (sourceType == SOURCE_TYPE_SRC) {
 				mSourceDrawable = null;
+				if (mDefaultSourceDrawable != null) {
+					setContent(SOURCE_TYPE_DEFAULT_SRC);
+				} else {
+					mContentDrawable = null;
+				}
 				handleGetImageFail(requestInfo instanceof Throwable ? (Throwable) requestInfo : null);
-			}
-			else if (sourceType == SOURCE_TYPE_DEFAULT_SRC)
-			{
+			} else if (sourceType == SOURCE_TYPE_DEFAULT_SRC) {
 				mDefaultSourceDrawable = null;
 			}
-		}
-		else
-		{
+		} else {
 			mContentDrawable = generateContentDrawable();
-			if (sourceType == SOURCE_TYPE_SRC)
-			{
+			if (sourceType == SOURCE_TYPE_SRC) {
 				mSourceDrawable = resultDrawable;
 				handleGetImageSuccess();
-			}
-			else if (sourceType == SOURCE_TYPE_DEFAULT_SRC)
-			{
+			} else if (sourceType == SOURCE_TYPE_DEFAULT_SRC) {
 				mDefaultSourceDrawable = resultDrawable;
 			}
 			setContent(sourceType);
@@ -389,7 +384,6 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 		{
 			mDefaultSourceDrawable.onDrawableAttached();
 			setContent(SOURCE_TYPE_DEFAULT_SRC);
-			setUrl(mUrl);
 		}
 
 		fetchImageByUrl(mUrl, SOURCE_TYPE_SRC);
@@ -463,7 +457,7 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 			}
 			else if (sourceType == SOURCE_TYPE_DEFAULT_SRC && mDefaultSourceDrawable != null)
 			{
-				if (mContentDrawable instanceof ContentDrawable)
+				if (mContentDrawable instanceof ContentDrawable && (mUrlFetchState != IMAGE_LOADED || mSourceDrawable == null))
 				{
 					((ContentDrawable) mContentDrawable).setBitmap(mDefaultSourceDrawable.getBitmap());
 				}
