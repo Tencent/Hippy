@@ -49,11 +49,6 @@ import com.tencent.mtt.supportui.views.asyncimage.ContentDrawable;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by leonardgong on 2017/12/4 0004.
- * harryguo modified 2019/4/23 support gif
- */
-
 public class HippyImageView extends AsyncImageView implements CommonBorder, HippyViewBase, HippyRecycler
 {
 	public static final String IMAGE_TYPE_APNG  = "apng";
@@ -103,7 +98,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 		setImagePositionX(0);
 		setImagePositionY(0);
 		mUrl = null;
-    mImageType = null;
+		mImageType = null;
 		setBackgroundDrawable(null);
 		for (int i = 0; i < mShouldSendImageEvent.length; i++)
 		{
@@ -134,7 +129,6 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 	private OnLoadStartEvent			mOnLoadStartEvent;
 	private boolean[]					mShouldSendImageEvent;
 	private Rect						mNinePatchRect;
-	protected String 					mHippyImageViewDefalutImgeUrl = null; //如果用戶設置了默認顯示的圖片,在拉完source失败后要用默认图
 
 	public HippyImageView(Context context)
 	{
@@ -229,9 +223,9 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 	}
 
 	public void setHippyViewDefaultSource(String defaultSourceUrl) {
-			mHippyImageViewDefalutImgeUrl = defaultSourceUrl;
-			setDefaultSource(mHippyImageViewDefalutImgeUrl); //这一句还是要,不要,如果用户没有设置source就没有图
+		setDefaultSource(defaultSourceUrl); //这一句还是要,不要,如果用户没有设置source就没有图
 	}
+
 	@Override
 	protected void doFetchImage(Object param, final int sourceType)
 	{
@@ -252,13 +246,9 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 			}
 
 			// 这里不判断下是取背景图片还是取当前图片怎么行？
-			String url = sourceType == SOURCE_TYPE_SRC ? mUrl : mDefaultSourceUrl;
+			final String url = sourceType == SOURCE_TYPE_SRC ? mUrl : mDefaultSourceUrl;
 			mImageAdapter.fetchImage(url, new HippyImageLoader.Callback()
 			{
-				// 在此保存着fetchImage时的url，以备：在onRequestSuccess时，用这个mFetchUrl和HippyImageView里的mUrl做对比，
-				// 看看是否同一个url（很可能不相同的。因为HippyImageView会经常复用，所以他的mUrl会经常被重设）
-				String mFetchUrl = mUrl;
-
 				@Override
 				public void onRequestStart(HippyDrawable drawableTarget)
 				{
@@ -266,31 +256,35 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 				}
 
 				@Override
-				public void onRequestSuccess(HippyDrawable drawableTarget)
-				{
-					if (TextUtils.equals(mFetchUrl, mUrl)) {
+				public void onRequestSuccess(HippyDrawable drawableTarget) {
+					if (sourceType == SOURCE_TYPE_SRC) {
+						if (!TextUtils.equals(url, mUrl)) {
+							return;
+						}
 						mUrlFetchState = IMAGE_LOADED;
-						handleImageRequest(drawableTarget, sourceType, null);
 					}
+
+					if (sourceType == SOURCE_TYPE_DEFAULT_SRC && !TextUtils.equals(url, mDefaultSourceUrl)) {
+						return;
+					}
+
+					handleImageRequest(drawableTarget, sourceType, null);
 				}
 
 				@Override
-				public void onRequestFail(Throwable throwable, String source)
-				{
-					if (TextUtils.equals(mFetchUrl, mUrl))
-					{
+				public void onRequestFail(Throwable throwable, String source) {
+					if (sourceType == SOURCE_TYPE_SRC) {
+						if (!TextUtils.equals(url, mUrl)) {
+							return;
+						}
 						mUrlFetchState = IMAGE_UNLOAD;
-						//如果用戶設置了默認顯示的圖片,在拉完source失败后要用默认图
-						if(sourceType == SOURCE_TYPE_SRC && !TextUtils.isEmpty(mHippyImageViewDefalutImgeUrl))
-						{
-							mDefaultSourceUrl = null;//吧之前的默认背景清理下
-							setDefaultSource(mHippyImageViewDefalutImgeUrl);
-						}
-						else
-						{
-							handleImageRequest(null, sourceType, throwable);
-						}
 					}
+
+					if (sourceType == SOURCE_TYPE_DEFAULT_SRC && !TextUtils.equals(url, mDefaultSourceUrl)) {
+						return;
+					}
+
+					handleImageRequest(null, sourceType, throwable);
 				}
 			}, param);
 		}
