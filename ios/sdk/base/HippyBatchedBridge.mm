@@ -1169,7 +1169,12 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithBundleURL:(__unused NSURL *)bundle
         HippyLogError(@"No module found for id '%lu'", (unsigned long)moduleID);
         return nil;
     }
-    
+    //not for UI Actions if NO==_valid
+    if (!_valid) {
+        if ([[moduleData name] isEqualToString:@"UIManager"]) {
+            return nil;
+        }
+    }
     id<HippyBridgeMethod> method = moduleData.methods[methodID];
     if (HIPPY_DEBUG && !method) {
         HippyLogError(@"Unknown methodID: %lu for module: %lu (%@)", (unsigned long)methodID, (unsigned long)moduleID, moduleData.name);
