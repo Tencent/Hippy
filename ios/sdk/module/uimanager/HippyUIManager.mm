@@ -745,12 +745,14 @@ HIPPY_EXPORT_METHOD(removeRootView:(nonnull NSNumber *)rootHippyTag)
     [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         HippyAssertMainQueue();
         UIView *rootView = viewRegistry[rootHippyTag];
-        [uiManager _purgeChildren:(NSArray<id<HippyComponent>> *)rootView.hippySubviews
-                     fromRegistry:(NSMutableDictionary<NSNumber *, id<HippyComponent>> *)viewRegistry];
-        [(NSMutableDictionary *)viewRegistry removeObjectForKey:rootHippyTag];
-        [[NSNotificationCenter defaultCenter] postNotificationName:HippyUIManagerDidRemoveRootViewNotification
-                                                            object:uiManager
-                                                          userInfo:@{HippyUIManagerRootViewKey: rootView}];
+        if (rootView) {
+            [uiManager _purgeChildren:(NSArray<id<HippyComponent>> *)rootView.hippySubviews
+                         fromRegistry:(NSMutableDictionary<NSNumber *, id<HippyComponent>> *)viewRegistry];
+            [(NSMutableDictionary *)viewRegistry removeObjectForKey:rootHippyTag];
+            [[NSNotificationCenter defaultCenter] postNotificationName:HippyUIManagerDidRemoveRootViewNotification
+                                                                object:uiManager
+                                                              userInfo:@{HippyUIManagerRootViewKey: rootView}];
+        }
     }];
 }
 
