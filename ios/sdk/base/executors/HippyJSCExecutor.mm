@@ -148,17 +148,19 @@ HIPPY_EXPORT_MODULE()
 
 - (std::unique_ptr<Engine::RegisterMap>) registerMap {
     __weak HippyJSCExecutor *weakSelf = self;
+    __weak id<HippyBridgeDelegate> weakBridgeDelegate = self.bridge.delegate;
     hippy::base::RegisterFunction taskEndCB = [weakSelf](void *){
         HippyJSCExecutor *strongSelf = weakSelf;
         if (strongSelf) {
             [strongSelf->_bridge handleBuffer:nil batchEnded:YES];
         }
     };
-    hippy::base::RegisterFunction ctxCreateCB = [weakSelf](void* p){
+    hippy::base::RegisterFunction ctxCreateCB = [weakSelf, weakBridgeDelegate](void* p){
         HippyJSCExecutor *strongSelf = weakSelf;
         if (!strongSelf) {
             return;
         }
+        id<HippyBridgeDelegate> strongBridgeDelegate = weakBridgeDelegate;
         ScopeWrapper* wrapper = reinterpret_cast<ScopeWrapper*>(p);
         std::shared_ptr<Scope> scope = wrapper->scope_.lock();
         if (scope) {
@@ -166,8 +168,8 @@ HIPPY_EXPORT_MODULE()
             JSContext* jsContext = [JSContext contextWithJSGlobalContextRef:context->GetCtxRef()];
             context->RegisterGlobalInJs();
             NSMutableDictionary *deviceInfo = [NSMutableDictionary dictionaryWithDictionary:[strongSelf.bridge deviceInfo]];
-            if ([strongSelf.bridge.delegate respondsToSelector:@selector(objectsBeforeExecuteCode)]) {
-                NSDictionary *customObjects = [strongSelf.bridge.delegate objectsBeforeExecuteCode];
+            if ([strongBridgeDelegate respondsToSelector:@selector(objectsBeforeExecuteCode)]) {
+                NSDictionary *customObjects = [strongBridgeDelegate objectsBeforeExecuteCode];
                 if (customObjects) {
                     [deviceInfo addEntriesFromDictionary:customObjects];
                 }
