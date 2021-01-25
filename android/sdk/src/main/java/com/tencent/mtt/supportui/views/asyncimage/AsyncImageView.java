@@ -320,6 +320,9 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 			if (sourceType == SOURCE_TYPE_SRC) {
 				mSourceDrawable = null;
 				if (mDefaultSourceDrawable != null) {
+					if (mContentDrawable == null) {
+						mContentDrawable = generateContentDrawable();
+					}
 					setContent(SOURCE_TYPE_DEFAULT_SRC);
 				} else {
 					mContentDrawable = null;
