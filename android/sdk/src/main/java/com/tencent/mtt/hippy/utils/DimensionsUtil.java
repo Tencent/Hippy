@@ -121,6 +121,7 @@ public class DimensionsUtil
 				? NAV_BAR_HEIGHT_RES_NAME : NAV_BAR_HEIGHT_LANDSCAPE_RES_NAME;
 
 		int result = 0;
+
 		try {
 			int resourceId = context.getResources().getIdentifier(navBarHeightIdentifier,"dimen", "android");
 			result = context.getResources().getDimensionPixelSize(resourceId);
