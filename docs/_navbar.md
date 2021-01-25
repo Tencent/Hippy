@@ -36,3 +36,7 @@
   * [颜色](style/color.md)
   * [变形](style/transform.md)
   * [更改终端属性](style/setNativeProps.md)
+  
+* 博客
+  * [2.x](https://github.com/Tencent/Hippy/wiki/Hippy-v2.x-ChangeLog)
+ 
