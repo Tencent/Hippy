@@ -67,6 +67,12 @@
         <p>{{ Vue.Native.OnePixel }}</p>
       </div>
 
+      <!-- Android底部导航栏高度 -->
+      <div v-if="Vue.Native.Dimensions.screen.navigatorBarHeight" class="native-block">
+        <label class="vue-native-title">Vue.Native.Dimensions.screen.navigatorBarHeight</label>
+        <p>{{ Vue.Native.Dimensions.screen.navigatorBarHeight }}</p>
+      </div>
+
       <!-- 一个像素的 pt 值 -->
       <div v-if="Vue.Native.Dimensions.screen.statusBarHeight" class="native-block">
         <label class="vue-native-title">Vue.Native.Dimensions.screen.statusBarHeight</label>
