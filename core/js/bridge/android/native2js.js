@@ -92,62 +92,11 @@ global.hippyBridge = (_action, _callObj) => {
       break;
     }
     case 'destroyInstance': {
-      global.Hippy.emit('destroyInstance');
+      global.Hippy.emit('destroyInstance', callObj);
       const renderId = Date.now().toString();
       Hippy.bridge.callNative('UIManagerModule', 'startBatch', renderId);
       Hippy.bridge.callNative('UIManagerModule', 'deleteNode', callObj, [{ id: callObj }]);
       Hippy.bridge.callNative('UIManagerModule', 'endBatch', renderId);
-
-      const currentNodeTree = __GLOBAL__.nodeTreeCache[callObj];
-      if (currentNodeTree && Array.isArray(currentNodeTree)) {
-        let rootViewNode;
-
-        currentNodeTree.every((node) => {
-          if (node) {
-            rootViewNode = node;
-            return false;
-          }
-          return true;
-        });
-
-        if (rootViewNode) {
-          while (!(rootViewNode && rootViewNode.memoizedProps && (typeof rootViewNode.memoizedProps.__instanceId__ !== 'undefined'))) {
-            rootViewNode = rootViewNode.return;
-            if (!rootViewNode) {
-              break;
-            }
-          }
-
-          if (rootViewNode) {
-            const deleteNodeWork = (currentNode) => {
-              if (currentNode.child) {
-                deleteNodeWork(currentNode.child);
-              }
-
-              const instance = currentNode.stateNode;
-              try {
-                if (instance && typeof instance.componentWillUnmount === 'function') {
-                  instance.componentWillUnmount();
-                }
-
-                const { ref } = currentNode;
-                if (typeof ref === 'function') {
-                  ref();
-                }
-              } catch (e) {
-                console.error(e); // eslint-disable-line
-              }
-
-              if (currentNode.sibling) {
-                deleteNodeWork(currentNode.sibling);
-              }
-            };
-
-            deleteNodeWork(rootViewNode);
-          }
-        }
-      }
-
       delete __GLOBAL__.nodeIdCache[callObj];
       delete __GLOBAL__.nodeTreeCache[callObj];
       __GLOBAL__.destroyInstanceList[callObj] = true;
