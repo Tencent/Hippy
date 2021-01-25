@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.3.4](https://github.com/Tencent/Hippy/compare/2.3.3...2.3.4) (2021-01-25)
+
+
+### Bug Fixes
+
+* **android:** add debug and release argument for cmake ([fff9084](https://github.com/Tencent/Hippy/commit/fff90840b71d7267e4bb502de372502d7a4f3398))
+* **android:** add support-annotations:28.0.0 ([46d5bf2](https://github.com/Tencent/Hippy/commit/46d5bf2e7a285c571187f8c34a9df2c1225ad42f))
+* **ios:** block ui actions when bridge is invalide ([2581f3d](https://github.com/Tencent/Hippy/commit/2581f3d948760b51d31647f82b8588d29c91ceca))
+* **ios:** fix error on drawing image with backgroundPositionX/Y ([a57240a](https://github.com/Tencent/Hippy/commit/a57240a044235e85cfbaefcd8ea77d791a044a28))
+* **ios:** fix reference cycle in block ([3a77ebe](https://github.com/Tencent/Hippy/commit/3a77ebe1849b12522dd3d5e3bd4dd90d0909ee73))
+* **ios:** no more tracking safa area for tableview ([df91cb4](https://github.com/Tencent/Hippy/commit/df91cb4ca1a399be4ec8705b5f962852e24c671a))
+
+
+### Features
+
+* **hippy-core:** add navigatorBarHeight ([71b5470](https://github.com/Tencent/Hippy/commit/71b5470475d71564275001f67600218d0569348b))
+
+
+
+
+
 ## [2.3.3](https://github.com/Tencent/Hippy/compare/2.3.2...2.3.3) (2021-01-20)
 
 

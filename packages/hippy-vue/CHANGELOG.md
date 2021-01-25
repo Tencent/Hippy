@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.3.4](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.3.3...2.3.4) (2021-01-25)
+
+
+### Features
+
+* **hippy-core:** add navigatorBarHeight ([71b5470](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/71b5470475d71564275001f67600218d0569348b))
+
+
+
+
+
 ## [2.3.3](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.3.2...2.3.3) (2021-01-20)
 
 **Note:** Version bump only for package @hippy/vue

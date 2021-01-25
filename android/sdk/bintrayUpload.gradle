@@ -5,7 +5,7 @@ def gitUrl = "https://github.com/Tencent/Hippy"
 def groupIdDefined  = "com.tencent.hippy"
 def artifactIdDefined = "hippy-release"
 // def artifactIdDefined  = "hippy-snapshot"
-def versionDefined = "2.3.3"
+def versionDefined = "2.3.4"
 
 Properties properties = new Properties()
 InputStream inputStream = project.rootProject.file('local.properties').newDataInputStream()
