@@ -8,8 +8,6 @@ android {
         minSdkVersion 21
         // noinspection ExpiredTargetSdkVersion
         targetSdkVersion 29
-        versionCode 1
-        versionName "1.0"
     }
 
     signingConfigs {
