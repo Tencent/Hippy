@@ -14,6 +14,9 @@
  */
 package com.tencent.mtt.hippy.bridge;
 
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
@@ -510,39 +513,53 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 		}
 	}
 
+    String getGlobalConfigs() {
+		Context context = mContext.getGlobalConfigs().getContext();
+		assert(context != null);
 
-
-	String getGlobalConfigs()
-	{
 		HippyMap globalParams = new HippyMap();
-		HippyMap dimensionMap = DimensionsUtil.getDimensions(-1, -1, mContext.getGlobalConfigs().getContext(), false);
+		HippyMap dimensionMap = DimensionsUtil.getDimensions(-1, -1, context, false);
 
-		// windowHeight是无效值，则允许客户端定制
-		String pkgName = "";
-		String url = "";
-		String appVersion = "";
-		if (mContext.getGlobalConfigs() != null && mContext.getGlobalConfigs().getDeviceAdapter() != null)
-		{
-			mContext.getGlobalConfigs().getDeviceAdapter().reviseDimensionIfNeed(mContext.getGlobalConfigs().getContext(), dimensionMap, false,
+		if (mContext.getGlobalConfigs() != null && mContext.getGlobalConfigs().getDeviceAdapter() != null) {
+			mContext.getGlobalConfigs().getDeviceAdapter().reviseDimensionIfNeed(context, dimensionMap, false,
 					false);
 		}
 		globalParams.pushMap("Dimensions", dimensionMap);
 
+		String packageName = "";
+		String versionName = "";
+		try {
+			PackageManager packageManager = context.getPackageManager();
+			PackageInfo packageInfo = packageManager.getPackageInfo(
+					context.getPackageName(), 0);
+			packageName = packageInfo.packageName;
+			versionName = packageInfo.versionName;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		String pageUrl = "";
+		String appName = "";
+		String appVersion = "";
 		if (mThirdPartyAdapter != null) {
-			pkgName = mThirdPartyAdapter.getPackageName();
-			url = mThirdPartyAdapter.getPageUrl();
+			appName = mThirdPartyAdapter.getPackageName();
 			appVersion = mThirdPartyAdapter.getAppVersion();
+			pageUrl = mThirdPartyAdapter.getPageUrl();
 		}
 
 		HippyMap platformParams = new HippyMap();
 		platformParams.pushString("OS", "android");
-		platformParams.pushString("PackageName", pkgName);
+		platformParams.pushString("PackageName", (packageName == null) ? "" : packageName);
+		platformParams.pushString("VersionName", (versionName == null) ? "" : versionName);
 		platformParams.pushInt("APILevel", Build.VERSION.SDK_INT);
 		globalParams.pushMap("Platform", platformParams);
+
 		HippyMap tkd = new HippyMap();
-		tkd.pushString("url", (url == null) ? "" : url);
-		tkd.pushString("appVersion", appVersion);
+		tkd.pushString("url", (pageUrl == null) ? "" : pageUrl);
+		tkd.pushString("appName", (appName == null) ? "" : appName);
+		tkd.pushString("appVersion", (appVersion == null) ? "" : appVersion);
 		globalParams.pushMap("tkd", tkd);
+
 		return ArgumentUtils.objectToJson(globalParams);
 	}
 
