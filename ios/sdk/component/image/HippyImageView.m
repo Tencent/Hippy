@@ -666,8 +666,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription){
         [_borderWidthLayer removeFromSuperlayer];
     }
     if ([self needsUpdateCornerRadius]) {
-        CGRect contentRect = UIEdgeInsetsInsetRect(self.bounds, _capInsets);
-        
+        CGRect contentRect = self.bounds;
 #ifdef HippyLog
         CGFloat width = CGRectGetWidth(contentRect);
         CGFloat height = CGRectGetHeight(contentRect);
@@ -689,35 +688,8 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription){
         }
 #endif
         
-        CGFloat minX = CGRectGetMinX(contentRect);
-        CGFloat minY = CGRectGetMinY(contentRect);
-        CGFloat maxX = CGRectGetMaxX(contentRect);
-        CGFloat maxY = CGRectGetMaxY(contentRect);
         BorderRadiusStruct boderRadiusStruct = [self properBorderRadius];
-        UIBezierPath *bezierPath = [UIBezierPath bezierPath];
-        CGPoint p1 = CGPointMake(minX + boderRadiusStruct.topLeftRadius, minY);
-        [bezierPath moveToPoint:p1];
-        CGPoint p2 = CGPointMake(maxX - boderRadiusStruct.topRightRadius, minY);
-        [bezierPath addLineToPoint:p2];
-        CGPoint p3 = CGPointMake(maxX - boderRadiusStruct.topRightRadius, minY + boderRadiusStruct.topRightRadius);
-        [bezierPath addArcWithCenter:p3 radius:boderRadiusStruct.topRightRadius startAngle:M_PI_2 + M_PI endAngle:0 clockwise:YES];
-        
-        CGPoint p4 = CGPointMake(maxX, maxY - boderRadiusStruct.bottomRightRadius);
-        [bezierPath addLineToPoint:p4];
-        CGPoint p5 = CGPointMake(maxX - boderRadiusStruct.bottomRightRadius, maxY - boderRadiusStruct.bottomRightRadius);
-        [bezierPath addArcWithCenter:p5 radius:boderRadiusStruct.bottomRightRadius startAngle:0 endAngle:M_PI_2 clockwise:YES];
-        
-        CGPoint p6 = CGPointMake(minX + boderRadiusStruct.bottomLeftRadius, maxY);
-        [bezierPath addLineToPoint:p6];
-        CGPoint p7 = CGPointMake(minX + boderRadiusStruct.bottomLeftRadius, maxY - boderRadiusStruct.bottomLeftRadius);
-        [bezierPath addArcWithCenter:p7 radius:boderRadiusStruct.bottomLeftRadius startAngle:M_PI_2 endAngle:M_PI clockwise:YES];
-        
-        CGPoint p8 = CGPointMake(minX, minY + boderRadiusStruct.topLeftRadius);
-        [bezierPath addLineToPoint:p8];
-        CGPoint p9 = CGPointMake(minX + boderRadiusStruct.topLeftRadius, minY + boderRadiusStruct.topLeftRadius);
-        [bezierPath addArcWithCenter:p9 radius:boderRadiusStruct.topLeftRadius startAngle:M_PI endAngle:M_PI + M_PI_2 clockwise:YES];
-        [bezierPath closePath];
-        
+        UIBezierPath *bezierPath = [self bezierPathFromBorderRadius:boderRadiusStruct contentRect:contentRect];
         CAShapeLayer *mask = [CAShapeLayer layer];
         mask.path = bezierPath.CGPath;
         self.layer.mask = mask;
@@ -734,6 +706,38 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription){
     else {
         self.layer.mask = nil;
     }
+}
+
+- (UIBezierPath *)bezierPathFromBorderRadius:(BorderRadiusStruct)boderRadiusStruct contentRect:(CGRect)contentRect {
+    CGFloat minX = CGRectGetMinX(contentRect);
+    CGFloat minY = CGRectGetMinY(contentRect);
+    CGFloat maxX = CGRectGetMaxX(contentRect);
+    CGFloat maxY = CGRectGetMaxY(contentRect);
+    
+    UIBezierPath *bezierPath = [UIBezierPath bezierPath];
+    CGPoint p1 = CGPointMake(minX + boderRadiusStruct.topLeftRadius, minY);
+    [bezierPath moveToPoint:p1];
+    CGPoint p2 = CGPointMake(maxX - boderRadiusStruct.topRightRadius, minY);
+    [bezierPath addLineToPoint:p2];
+    CGPoint p3 = CGPointMake(maxX - boderRadiusStruct.topRightRadius, minY + boderRadiusStruct.topRightRadius);
+    [bezierPath addArcWithCenter:p3 radius:boderRadiusStruct.topRightRadius startAngle:M_PI_2 + M_PI endAngle:0 clockwise:YES];
+
+    CGPoint p4 = CGPointMake(maxX, maxY - boderRadiusStruct.bottomRightRadius);
+    [bezierPath addLineToPoint:p4];
+    CGPoint p5 = CGPointMake(maxX - boderRadiusStruct.bottomRightRadius, maxY - boderRadiusStruct.bottomRightRadius);
+    [bezierPath addArcWithCenter:p5 radius:boderRadiusStruct.bottomRightRadius startAngle:0 endAngle:M_PI_2 clockwise:YES];
+
+    CGPoint p6 = CGPointMake(minX + boderRadiusStruct.bottomLeftRadius, maxY);
+    [bezierPath addLineToPoint:p6];
+    CGPoint p7 = CGPointMake(minX + boderRadiusStruct.bottomLeftRadius, maxY - boderRadiusStruct.bottomLeftRadius);
+    [bezierPath addArcWithCenter:p7 radius:boderRadiusStruct.bottomLeftRadius startAngle:M_PI_2 endAngle:M_PI clockwise:YES];
+
+    CGPoint p8 = CGPointMake(minX, minY + boderRadiusStruct.topLeftRadius);
+    [bezierPath addLineToPoint:p8];
+    CGPoint p9 = CGPointMake(minX + boderRadiusStruct.topLeftRadius, minY + boderRadiusStruct.topLeftRadius);
+    [bezierPath addArcWithCenter:p9 radius:boderRadiusStruct.topLeftRadius startAngle:M_PI endAngle:M_PI + M_PI_2 clockwise:YES];
+    [bezierPath closePath];
+    return bezierPath;
 }
 
 - (void)setBorderTopLeftRadius:(CGFloat)borderTopLeftRadius {
