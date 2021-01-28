@@ -152,7 +152,7 @@ public class NodeProps
 	public static final String				STYLE						= "style";
 	public static final String				PROPS						= "props";
 	public static final String				ROOT_NODE					= "RootNode";
-	public static final String				CUSTOM_PROP					= "customProp";
+	public static final String				CUSTOM_PROPS                = "customProps";
 	public static final String				CUSTOM_PROP_ISGIF           = "isGif";
 	public static final String				CUSTOM_PROP_IMAGE_TYPE      = "imageType";
 

@@ -41,12 +41,6 @@ import com.tencent.mtt.supportui.views.IShadow;
 
 import java.util.Map;
 
-/**
- * @author: edsheng
- * @date: 2017/11/29 14:14
- * @version: V1.0
- */
-
 public abstract class HippyViewController<T extends View & HippyViewBase> implements View.OnFocusChangeListener
 {
 	private static final String	TAG						     = "HippyViewController";
@@ -54,9 +48,11 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 	private static MatrixUtil.MatrixDecompositionContext	sMatrixDecompositionContext		= new MatrixUtil.MatrixDecompositionContext();
 	private static double[]									sTransformDecompositionArray	= new double[16];
     private boolean bUserChageFocus = false;
-	public View createView(HippyRootView rootView, int id, HippyEngineContext hippyContext, String className, HippyMap initialProps)
-	{
+
+	public View createView(HippyRootView rootView, int id, HippyEngineContext hippyEngineContext, String className,
+			HippyMap initialProps) {
 		View view = null;
+
 		if (rootView != null)
 		{
 			Context rootViewContext = rootView.getContext();
@@ -597,12 +593,6 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 		{
 			view.removeOnAttachStateChangeListener(NativeGestureDispatcher.getOnDetachedFromWindowListener());
 		}
-	}
-
-	@HippyControllerProps(name = NodeProps.CUSTOM_PROP)
-	public void setCustomProp(T view, String methodName, Object props)
-	{
-
 	}
 
 	protected void setGestureType(T view, String type, boolean flag)
