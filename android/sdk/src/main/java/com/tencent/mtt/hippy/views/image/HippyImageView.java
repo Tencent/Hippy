@@ -167,6 +167,10 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 				if (styles.containsKey(NodeProps.RESIZE_MODE)) {
 					mIniProps.pushString(NodeProps.RESIZE_MODE, styles.getString(NodeProps.RESIZE_MODE));
 				}
+
+        if (styles.containsKey(NodeProps.GAUSSIAN_BLUR)) {
+          mIniProps.pushString(NodeProps.GAUSSIAN_BLUR, styles.getString(NodeProps.GAUSSIAN_BLUR));
+        }
 			}
 		}
 
@@ -551,7 +555,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 		if (duration == 0) {
 			duration = 1000;
 		}
-		
+
 		long now = System.currentTimeMillis();
 
 		if (!isGifPaused)
@@ -651,19 +655,19 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 	}
 
 	private boolean isGifPaused = false;
-	
+
 	public void startPlay()
 	{
 		isGifPaused = false;
 		invalidate();
 	}
-	
+
 	public void pause()
 	{
 		isGifPaused = true;
 		mGifLastPlayTime = -1;
 	}
-	
+
 
 	private OnLoadEvent getOnLoadEvent()
 	{

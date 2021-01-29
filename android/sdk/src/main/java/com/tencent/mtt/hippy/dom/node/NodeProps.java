@@ -94,7 +94,7 @@ public class NodeProps
 	public static final String				SHADOW_OPACITY              = "shadowOpacity";
 	public static final String				SHADOW_RADIUS               = "shadowRadius";
 	public static final String				SHADOW_SPREAD               = "shadowSpread";
-	
+
 	//View props
 
 	public static final String				ENABLED						= "enabled";
@@ -117,6 +117,7 @@ public class NodeProps
 	public static final String				ELLIPSIZE_MODE				= "ellipsizeMode";
 	public static final String				ON							= "on";
 	public static final String				RESIZE_MODE					= "resizeMode";
+  public static final String				GAUSSIAN_BLUR				= "gaussianBlur";
 	public static final String				RESIZE_METHOD				= "resizeMethod";
 	public static final String				TEXT_ALIGN					= "textAlign";
 	public static final String				TEXT_ALIGN_VERTICAL			= "textAlignVertical";
