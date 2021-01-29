@@ -773,11 +773,13 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithBundleURL:(__unused NSURL *)bundle
             
             //HIPPY_PROFILE_BEGIN_EVENT(0, @"-[HippyBatchedBridge dispatchBlock", @{ @"loading": @(self.loading) });
             
-            if (self.loading) {
-                HippyAssert(self->_pendingCalls != nil, @"Can't add pending call, bridge is no longer loading");
-                [self->_pendingCalls addObject:block];
-            } else {
-                block();
+            @autoreleasepool {
+                if (self.loading) {
+                    HippyAssert(self->_pendingCalls != nil, @"Can't add pending call, bridge is no longer loading");
+                    [self->_pendingCalls addObject:block];
+                } else {
+                    block();
+                }
             }
             
             //HIPPY_PROFILE_END_EVENT(HippyProfileTagAlways, @"");
