@@ -163,7 +163,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 				}
 
         if (styles.containsKey(NodeProps.GAUSSIAN_BLUR)) {
-          mIniProps.pushString(NodeProps.GAUSSIAN_BLUR, styles.getString(NodeProps.GAUSSIAN_BLUR));
+          mIniProps.pushBoolean(NodeProps.GAUSSIAN_BLUR, styles.getBoolean(NodeProps.GAUSSIAN_BLUR));
         }
 			}
 		}
@@ -649,7 +649,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 	}
 
 	private boolean isGifPaused = false;
-  
+
 	public void startPlay()
 	{
 		isGifPaused = false;
