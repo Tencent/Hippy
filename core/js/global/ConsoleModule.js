@@ -11,6 +11,15 @@ const indent = (level) => {
 let inspectObject = null;
 let inspect = null;
 
+function getOwnPropertyDescriptors(param) {
+  const result = {};
+  const propKeys = Object.keys(param);
+  propKeys.forEach((key, index) => {
+    result[propKeys[index]] = Object.getOwnPropertyDescriptor(param, propKeys[index]);
+  });
+  return result;
+}
+
 inspectObject = (value, level = 0, recurseTimes = 2, linebreak = '\n') => {
   if (value === null) {
     return 'null';
@@ -53,8 +62,7 @@ inspectObject = (value, level = 0, recurseTimes = 2, linebreak = '\n') => {
   if (value instanceof Error) {
     return `${value.stack || Error.prototype.toString.call(value)}`;
   }
-
-  const descs = Object.getOwnPropertyDescriptors(value);
+  const descs = getOwnPropertyDescriptors(value);
   const keys = Object.keys(descs);
   const pairs = [];
   keys.forEach((key) => {
