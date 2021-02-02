@@ -1,15 +1,9 @@
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 
-def gitUrl = "https://github.com/Tencent/Hippy"
-def groupIdDefined  = "com.tencent.hippy"
-def artifactIdDefined = "hippy-release"
-// def artifactIdDefined  = "hippy-snapshot"
-def versionDefined = "2.3.4"
-
 Properties properties = new Properties()
 InputStream inputStream = project.rootProject.file('local.properties').newDataInputStream()
-properties.load( inputStream )
+properties.load(inputStream)
 
 bintray {
     user = properties.getProperty('bintrayUser')
@@ -18,14 +12,14 @@ bintray {
     publications = ['HippyPublication'] // 'HippyPublication'与下面的publishing闭包里的名称对应
     publish = true // 上传后立即发布到Bintray平台
     pkg {
-        repo = "Hippy"  // 必填。bintray平台仓库名，必须已经创建过。
-        name = "$artifactIdDefined"  // 必填。仓库里包package的名称，没有的话会自动创建。
-        userOrg = "hippy"
-        licenses = ["Apache-2.0"] // 首次创建package则必须，否则选填。
-        vcsUrl = "$gitUrl" // 首次创建package则必须，否则选填。
+        repo = BINTRAY_REPO
+        name = BINTRAY_ARTIFACT_ID
+        userOrg = BINTRAY_URSER_ORG
+        licenses = ["Apache-2.0"]
+        vcsUrl = BINTRAY_GIT_URL
         version {
-            name = "$versionDefined"
-            desc = "Hippy library for Android"
+            name = VERSION_NAME
+            desc = BINTRAY_VERSION_DESC
         }
     }
 }
@@ -35,9 +29,9 @@ publishing {
     publications {
         HippyPublication(MavenPublication) {
             artifact("$buildDir/outputs/aar/android-sdk-release.aar")
-            groupId "$groupIdDefined"
-            artifactId "$artifactIdDefined"
-            version "$versionDefined"
+            groupId project.BINTRAY_GROUP_ID
+            artifactId project.BINTRAY_ARTIFACT_ID
+            version project.VERSION_NAME
             pom.withXml {
                 def dependenciesNode = asNode().appendNode('dependencies')
                 // Iterate over the implementation dependencies (we don't want the test ones), adding a <dependency> node for each
