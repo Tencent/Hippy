@@ -70,11 +70,11 @@ function transformHexToRgba(color: number) {
 }
 
 function isNumeric(num: unknown) {
-  if (typeof num === 'number' && isFinite(num)) {
+  if (typeof num === 'number' && Number.isFinite(num)) {
     return true;
   }
   if (typeof num === 'string') {
-    return !isNaN(num) && !isNaN(parseFloat(num));
+    return !Number.isNaN(Number(num)) && !Number.isNaN(parseFloat(num));
   }
   return false;
 }
