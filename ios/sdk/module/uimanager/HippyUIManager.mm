@@ -49,6 +49,8 @@
 #import "HippyVirtualNode.h"
 #import "HippyBaseListViewProtocol.h"
 #import "HippyMemoryOpt.h"
+#import "HippyDeviceBaseInfo.h"
+
 @protocol HippyBaseListViewProtocol;
 
 static void HippyTraverseViewNodes(id<HippyComponent> view, void (^block)(id<HippyComponent>))
@@ -85,7 +87,6 @@ NSString *const HippyUIManagerRootViewKey = @"HippyUIManagerRootViewKey";
     NSDictionary *_componentDataByName;
     
     NSMutableSet<id<HippyComponent>> *_bridgeTransactionListeners;
-    UIInterfaceOrientation _currentInterfaceOrientation;
     
     NSMutableArray<HippyViewUpdateCompletedBlock> *_completeBlocks;
     
@@ -156,25 +157,6 @@ HIPPY_EXPORT_MODULE()
         _completeBlocks = [NSMutableArray array];
     }
     return _completeBlocks;
-}
-
-- (void)interfaceOrientationWillChange:(NSNotification *)notification
-{
-    UIInterfaceOrientation nextOrientation =
-    (UIInterfaceOrientation)[notification.userInfo[UIApplicationStatusBarOrientationUserInfoKey] integerValue];
-    
-    // Update when we go from portrait to landscape, or landscape to portrait
-    if ((UIInterfaceOrientationIsPortrait(_currentInterfaceOrientation) &&
-         !UIInterfaceOrientationIsPortrait(nextOrientation)) ||
-        (UIInterfaceOrientationIsLandscape(_currentInterfaceOrientation) &&
-         !UIInterfaceOrientationIsLandscape(nextOrientation))) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-            [_bridge.eventDispatcher dispatchEvent: @"Dimensions" methodName: @"set" args: HippyExportedDimensions(YES)];
-#pragma clang diagnostic pop
-        }
-    
-    _currentInterfaceOrientation = nextOrientation;
 }
 
 - (void)invalidate
@@ -272,11 +254,6 @@ HIPPY_EXPORT_MODULE()
     }
     
     _componentDataByName = [componentDataByName copy];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(interfaceOrientationWillChange:)
-                                                 name:UIApplicationWillChangeStatusBarOrientationNotification
-                                               object:nil];
 }
 
 dispatch_queue_t HippyGetUIManagerQueue(void)
@@ -1371,61 +1348,35 @@ HIPPY_EXPORT_METHOD(measureInAppWindow:(nonnull NSNumber *)hippyTag
     NSMutableDictionary<NSString *, NSDictionary *> *directEvents = [NSMutableDictionary new];
     
     [_componentDataByName enumerateKeysAndObjectsUsingBlock:
-     ^(NSString *name, HippyComponentData *componentData, __unused BOOL *stop) {
+        ^(NSString *name, HippyComponentData *componentData, __unused BOOL *stop) {
          
-         NSMutableDictionary<NSString *, id> *constantsNamespace =
-         [NSMutableDictionary dictionaryWithDictionary:allJSConstants[name]];
+            NSMutableDictionary<NSString *, id> *constantsNamespace = [NSMutableDictionary dictionaryWithDictionary:allJSConstants[name]];
          
-         // Add manager class
-         constantsNamespace[@"Manager"] = HippyBridgeModuleNameForClass(componentData.managerClass);
+            // Add manager class
+            constantsNamespace[@"Manager"] = HippyBridgeModuleNameForClass(componentData.managerClass);
          
-         // Add native props
-         NSDictionary<NSString *, id> *viewConfig = [componentData viewConfig];
-         constantsNamespace[@"NativeProps"] = viewConfig[@"propTypes"];
+            // Add native props
+            NSDictionary<NSString *, id> *viewConfig = [componentData viewConfig];
+            constantsNamespace[@"NativeProps"] = viewConfig[@"propTypes"];
          
-         // Add direct events
-         for (NSString *eventName in viewConfig[@"directEvents"]) {
-             if (!directEvents[eventName]) {
-                 directEvents[eventName] = @{
-                                             @"registrationName": [eventName stringByReplacingCharactersInRange:(NSRange){0, 3} withString:@"on"],
-                                             };
-             }
-         }
-         allJSConstants[name] = constantsNamespace;
-     }];
+            // Add direct events
+            for (NSString *eventName in viewConfig[@"directEvents"]) {
+                if (!directEvents[eventName]) {
+                    directEvents[eventName] = @{
+                                                @"registrationName": [eventName stringByReplacingCharactersInRange:(NSRange){0, 3} withString:@"on"],
+                                                };
+                }
+            }
+            allJSConstants[name] = constantsNamespace;
+    }];
     
-    _currentInterfaceOrientation = [HippySharedApplication() statusBarOrientation];
+    NSDictionary *dim = hippyExportedDimensions();
     [allJSConstants addEntriesFromDictionary:@{
                                                @"customDirectEventTypes": directEvents,
-                                               @"Dimensions": HippyExportedDimensions(NO)
+                                               @"Dimensions": dim
                                                }];
-    
     return allJSConstants;
 }
-
-static BOOL isiPhoneX()
-{
-    CGRect screenBounds = [UIScreen mainScreen].bounds;
-    return MAX(CGRectGetWidth(screenBounds), CGRectGetHeight(screenBounds)) >= 812;
-}
-
-static NSDictionary *HippyExportedDimensions(BOOL rotateBounds)
-{
-    HippyAssertMainQueue();
-    
-    // Don't use HippyScreenSize since it the interface orientation doesn't apply to it
-    CGRect screenSize = [[UIScreen mainScreen] bounds];
-    return @{
-             @"window": @{
-                     @"width": @(rotateBounds ? screenSize.size.height : screenSize.size.width),
-                     @"height": @(rotateBounds ? screenSize.size.width : screenSize.size.height),
-                     @"scale": @(HippyScreenScale()),
-                     @"statusBarHeight": isiPhoneX() ? @(44) : @(20),
-                     },
-             @"screen": @{@"statusBarHeight": isiPhoneX() ? @(44) : @(20)}
-             };
-}
-
 
 - (void)rootViewForHippyTag:(NSNumber *)hippyTag withCompletion:(void (^)(UIView *view))completion
 {
