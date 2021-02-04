@@ -25,7 +25,7 @@
 
 @interface HippyDefaultImageProvider : NSObject<HippyImageProviderProtocol>
 
-@property(nonatomic, assign) BOOL needsDownSampling;
+@property(nonatomic, assign) BOOL downSample;
 @property(nonatomic, assign) CGSize imageViewSize;
 
 @end
