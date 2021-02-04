@@ -157,18 +157,24 @@ HIPPY_EXPORT_MODULE(defaultImageProvider)
 - (NSTimeInterval)delayTimeAtFrame:(NSUInteger)frame {
     const NSTimeInterval kDelayTimeIntervalDefault = 0.1;
     if (_imageSourceRef) {
-        NSDictionary *frameProperties = (__bridge_transfer NSDictionary *)CGImageSourceCopyPropertiesAtIndex(_imageSourceRef, frame, NULL);
-        NSDictionary *framePropertiesGIF = [frameProperties objectForKey:(id)kCGImagePropertyGIFDictionary];
-        
-        // Try to use the unclamped delay time; fall back to the normal delay time.
-        NSNumber *delayTime = [framePropertiesGIF objectForKey:(id)kCGImagePropertyGIFUnclampedDelayTime];
+        NSDictionary *frameProperties = CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(_imageSourceRef, frame, NULL));
+        NSString *imagePropertyKey = (NSString *)kCGImagePropertyGIFDictionary;
+        NSString *delayTimeKey = (NSString *)kCGImagePropertyGIFDelayTime;
+        NSString *unclampedDelayTime = (NSString *)kCGImagePropertyGIFUnclampedDelayTime;
+        if (UTTypeConformsTo(CGImageSourceGetType(_imageSourceRef), kUTTypePNG)) {
+            imagePropertyKey = (NSString *)kCGImagePropertyPNGDictionary;
+            delayTimeKey = (NSString *)kCGImagePropertyAPNGDelayTime;
+            unclampedDelayTime = (NSString *)kCGImagePropertyAPNGUnclampedDelayTime;
+        }
+        NSDictionary *framePropertiesAni = [frameProperties objectForKey:imagePropertyKey];
+        NSNumber *delayTime = [framePropertiesAni objectForKey:unclampedDelayTime];
         if (!delayTime) {
-            delayTime = [framePropertiesGIF objectForKey:(id)kCGImagePropertyGIFDelayTime];
+            delayTime = [framePropertiesAni objectForKey:delayTimeKey];
         }
         if (!delayTime) {
             delayTime = @(kDelayTimeIntervalDefault);
         }
-        return [delayTime floatValue];
+        return [delayTime doubleValue];
     }
     return kDelayTimeIntervalDefault;
 }
