@@ -46,16 +46,31 @@ module.exports = {
 
 ### 降级方案
 
-在终端不支持 dynamic import 的版本，可以利用Webpack提供的 `/* webpackMode: "eager" */` 注释停止生成额外的chunk。
+在终端不支持 dynamic import 的版本，可以使用以下两种方法阻止分包。具体原理可以参看[webpack](https://webpack.docschina.org/api/module-methods/)。
+
++ 利用Webpack提供的 `/* webpackMode: "eager" */` magic comment 停止生成额外的chunk。
 
 ```javascript
 // 在import()中增加magic comment例子如下：
 AsyncComponent: () => import(/* webpackMode: "eager" */ './dynamicImport/async-component.vue'),
 ```
 
-具体原理可以参看[webpack](https://webpack.docschina.org/api/module-methods/)
++ 在 Webpack 配置中利用 `webpack.optimize.LimitChunkCountPlugin`。具体原理可以参看[webpack](https://webpack.docschina.org/plugins/limit-chunk-count-plugin/)。
+
+```javascript
+// 通过配置webpack.optimize.LimitChunkCountPlugin的maxChunks为1，
+// dynamic import 会替换成 Promise.resolve
+  plugins: [
+    ...,
+    new HippyDynamicImportPlugin(),
+    // LimitChunkCountPlugin can control dynamic import ability
+    // Using 1 will prevent any additional chunks from being added
+    new webpack.optimize.LimitChunkCountPlugin({
+       maxChunks: 1,
+    }),
+  ],
+```
 
 ## TODO
 
 + 支持网络加载分包
-+ Hippy 2.2以下可以直接不用webpack注释来兼容

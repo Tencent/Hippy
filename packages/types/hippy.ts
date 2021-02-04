@@ -100,7 +100,8 @@ namespace Hippy {
 
     register: {
       /**
-       * Register the Hippy app entry function, the native will trigger an event to execute the function
+       * Register the Hippy app entry function,
+       * the native will trigger an event to execute the function
        * and start the app.
        *
        * The different platforms the event name is different, for Android it's 'loadInstance',

@@ -9,7 +9,7 @@ const hippyReactPackage = require('../packages/hippy-react/package.json');
 const hippyReactWebPackage = require('../packages/hippy-react-web/package.json');
 
 const aliases = {
-  '@localTypes': path.resolve(__dirname, '../types'),
+  '@localTypes': path.resolve(__dirname, '../packages/types'),
 };
 
 function banner(name, version) {
