@@ -34,7 +34,7 @@ export default {
 app.$off('rotate', this.listener);
 ```
 
-# 销毁事件
+# 实例销毁事件
 
 `最低支持版本 2.3.4`
 
