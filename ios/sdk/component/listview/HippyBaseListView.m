@@ -29,6 +29,7 @@
 #import "HippyFooterRefresh.h"
 #import "UIView+AppearEvent.h"
 #import "HippyBaseListViewCell.h"
+#import "HippyVirtualNode.h"
 
 @interface HippyBaseListView() <HippyScrollProtocol, HippyRefreshDelegate>
 

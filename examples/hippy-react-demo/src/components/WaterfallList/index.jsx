@@ -114,7 +114,7 @@ export default class WaterfallViewExample extends React.Component {
       dataSource: mockDataArray,
       initialListSize: 28,
       pullingText: '继续下拉触发刷新',
-      fetchingDataFlag: false
+      fetchingDataFlag: false,
     };
     this.fetchTimes = 0;
     this.getRenderRow = this.getRenderRow.bind(this);
@@ -258,7 +258,7 @@ export default class WaterfallViewExample extends React.Component {
       <WaterfallView
         style={{ flex: 1, backgroundColor: '#ffffff' }}
         renderRow={this.getRenderRow}
-        numberOfColumns={2}
+        numberOfColumns={3}
         numberOfRows={dataSource.length}
         contentInset={{ top: 0, left: 8, bottom: 0, right: 8 }}
         scrollEventThrottle={16}

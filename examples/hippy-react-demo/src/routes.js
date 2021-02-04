@@ -68,6 +68,14 @@ export default [
     },
   },
   {
+    path: '/FlowList',
+    name: 'FlowList 组件',
+    component: PAGE_LIST.FlowList,
+    meta: {
+      style: 1,
+    },
+  },
+  {
     path: '/PullHeader',
     name: 'PullHeader 组件',
     component: PAGE_LIST.PullHeader,

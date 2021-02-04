@@ -1502,7 +1502,6 @@
 				064C59F623AB1A51001E80DD /* HippyExtAnimationModule.m in Sources */,
 				85BCD46C2578C58000638DB4 /* js_native_jsc_helper.cc in Sources */,
 				06082A7A24AB222000AF85BC /* HippyFooterRefreshManager.m in Sources */,
-				064C5AF223AB1B99001E80DD /* native-source-code-ios.cc in Sources */,
 				8C5A963F25B67B4A0019A30D /* HippyCollectionViewWaterfallLayout.m in Sources */,
 				064C5A2523AB1A51001E80DD /* HippyBaseListView.m in Sources */,
 				064C5A3923AB1A51001E80DD /* HippyModalCustomAnimationTransition.m in Sources */,
@@ -1600,8 +1599,6 @@
 				06F3E3E025A5D867007934F6 /* HippyListTableView.m in Sources */,
 				064C5A5923AB1A51001E80DD /* HippyDisplayLink.m in Sources */,
 				8C5A976125B67DBB0019A30D /* HippyWaterfallItemViewManager.m in Sources */,
-				06F2A7772519E880000AF839 /* common-task.cc in Sources */,
-				064C5AE723AB1A59001E80DD /* logging.cc in Sources */,
 				064C5A3E23AB1A51001E80DD /* HippyAssert.m in Sources */,
 				064C5A4323AB1A51001E80DD /* NSDictionary+HippyDictionaryDeepCopy.m in Sources */,
 				064C59F323AB1A51001E80DD /* HippyFetchInfo.m in Sources */,
@@ -1732,6 +1729,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = F533UC9A9D;
 				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../../core/include\"";
 				INFOPLIST_FILE = HippyDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
@@ -1750,6 +1748,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = F533UC9A9D;
 				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../../core/include\"";
 				INFOPLIST_FILE = HippyDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;

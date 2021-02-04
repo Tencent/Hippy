@@ -18,6 +18,9 @@ import ListView from './components/list-view';
 import ListViewItem from './components/list-view-item';
 import WaterfallView from './components/waterfall-view';
 import WaterfallViewItem from './components/waterfall-view-item';
+import FlowList from './components/flow-list';
+import FlowListSection from './components/flow-list-section';
+import FlowListCell from './components/flow-list-cell';
 import RefreshWrapper from './components/refresh-wrapper';
 import Navigator from './components/navigator';
 import ViewPager from './components/view-pager';
@@ -117,6 +120,9 @@ export {
   ListViewItem,
   WaterfallView,
   WaterfallViewItem,
+  FlowList,
+  FlowListSection,
+  FlowListCell,
   RefreshWrapper,
   Navigator,
   ViewPager,
