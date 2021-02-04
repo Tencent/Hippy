@@ -72,7 +72,7 @@ HIPPY_EXPORT_MODULE(defaultImageProvider)
         if (_data) {
             CGFloat view_width = _imageViewSize.width;
             CGFloat view_height = _imageViewSize.height;
-            if (_needsDownSampling && view_width > 0 && view_height > 0) {
+            if (_downSample && view_width > 0 && view_height > 0) {
                 CGFloat scale = [UIScreen mainScreen].scale;
                 NSDictionary *options = @{(NSString *)kCGImageSourceShouldCache: @(NO)};
                 CGImageSourceRef ref = CGImageSourceCreateWithData((__bridge CFDataRef)_data, (__bridge CFDictionaryRef)options);
@@ -90,9 +90,6 @@ HIPPY_EXPORT_MODULE(defaultImageProvider)
                                                          (NSString *)kCGImageSourceCreateThumbnailWithTransform: @(YES), (NSString *)kCGImageSourceThumbnailMaxPixelSize: @(maxDimensionInPixels)};
                             CGImageRef downsampleImageRef = CGImageSourceCreateThumbnailAtIndex(ref, 0, (__bridge CFDictionaryRef)downsampleOptions);
                             _image = [UIImage imageWithCGImage: downsampleImageRef];
-                            if (nil == _image) {
-                                _image = [UIImage imageWithData:_data];
-                            }
                             CGImageRelease(downsampleImageRef);
                         }
                         CFRelease(properties);
@@ -100,13 +97,13 @@ HIPPY_EXPORT_MODULE(defaultImageProvider)
                     CFRelease(ref);
                 }
             }
-            else {
-                _image = [UIImage imageWithData:_data];
-            }
         }
         else {
             _image = [self imageAtFrame:0];
         }
+    }
+    if (!_image) {
+        _image = [UIImage imageWithData:_data];
     }
     return _image;
 }
