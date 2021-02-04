@@ -49,8 +49,6 @@ allprojects {
   }
 }
 
-def loadLibrary
-
 android {
   archivesBaseName = ARCHIVES_BASE_NAME
   compileSdkVersion COMPILE_SDK_VERSION as int
