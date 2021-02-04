@@ -91,7 +91,7 @@ module.exports = {
           ['shared', 'vue/src/shared'],
           ['sfc', 'vue/src/sfc'],
           ['he', './packages/hippy-vue/util/entity-decoder'],
-          ['@localTypes', './types'],
+          ['@localTypes', './packages/types'],
           ['@vue', './packages/hippy-vue/src'],
           ['@router', './packages/hippy-vue-router/src'],
           ['@css-loader', './packages/hippy-vue-css-loader/src'],
