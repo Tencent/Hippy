@@ -403,8 +403,12 @@ public abstract class HippyEngine
 	public static final int STATUS_WRONG_STATE_LISTEN	= -151;
 	// 初始化过程，抛出了未知的异常，详情需要查看传回的Throwable
 	public static final int STATUS_INIT_EXCEPTION	= -200;
-
+	//bundleUniKey==null,路径为空
 	public static final int STATUS_VARIABLE_UNINIT	= -500;
+	//业务JSBundle执行返回错误
+	public static final int STATUS_ERR_RUN_BUNDLE   = -600;
+	//重复加载同一JSBundle
+	public static final int STATUS_REPEAT_LOAD      = -700;
 	/**
 	 * Hippy引擎初始化结果listener
 	 */

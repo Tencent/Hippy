@@ -40,6 +40,7 @@ import com.tencent.mtt.hippy.utils.GrowByteBuffer;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 
 import java.util.ArrayList;
+import org.json.JSONObject;
 
 public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.BridgeCallback, Handler.Callback
 {
@@ -169,13 +170,13 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 						return true;
 					}
 					final String bundleUniKey = loader.getBundleUniKey();
+					final HippyRootView localRootView = rootView;
 					if (loader != null && mLoadedBundleInfo != null && !TextUtils.isEmpty(bundleUniKey) && mLoadedBundleInfo.contains(bundleUniKey))
 					{
-						notifyModuleLoaded(HippyEngine.STATUS_VARIABLE_UNINIT, "load module error. loader.getBundleUniKey=null",null);
+						notifyModuleLoaded(HippyEngine.STATUS_REPEAT_LOAD, "repeat load module. loader.getBundleUniKey=" + bundleUniKey, localRootView);
 						return true;
 					}
 
-					final HippyRootView localRootView = rootView;
 					if (!TextUtils.isEmpty(bundleUniKey)) {
 						loader.load(mHippyBridge, new NativeCallback(mHandler) {
 							@Override
@@ -191,12 +192,12 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 									else
 										notifyModuleLoaded(HippyEngine.STATUS_WRONG_STATE, "load module error. loader.load failed. check the file.", null);
 								} else {
-									notifyModuleLoaded(HippyEngine.STATUS_WRONG_STATE, "load module error. loader.load failed. check the file.", null);
+									notifyModuleLoaded(HippyEngine.STATUS_ERR_RUN_BUNDLE, "load module error. loader.load failed. check the file.", null);
 								}
 							}
 						});
 					} else {
-						notifyModuleLoaded(HippyEngine.STATUS_VARIABLE_UNINIT, "load module error. loader.getBundleUniKey=null",null);
+						notifyModuleLoaded(HippyEngine.STATUS_VARIABLE_UNINIT, "can not load module. loader.getBundleUniKey=null",null);
 					}
 
 					return true;
@@ -542,10 +543,13 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 		String pageUrl = "";
 		String appName = "";
 		String appVersion = "";
+		HippyMap extraDataMap = new HippyMap();
 		if (mThirdPartyAdapter != null) {
 			appName = mThirdPartyAdapter.getPackageName();
 			appVersion = mThirdPartyAdapter.getAppVersion();
 			pageUrl = mThirdPartyAdapter.getPageUrl();
+			JSONObject jObject = mThirdPartyAdapter.getExtraData();
+			extraDataMap.pushJSONObject(jObject);
 		}
 
 		HippyMap platformParams = new HippyMap();
@@ -560,6 +564,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 		tkd.pushString("url", (pageUrl == null) ? "" : pageUrl);
 		tkd.pushString("appName", (appName == null) ? "" : appName);
 		tkd.pushString("appVersion", (appVersion == null) ? "" : appVersion);
+		tkd.pushMap("extra", extraDataMap);
 		globalParams.pushMap("tkd", tkd);
 
 		return ArgumentUtils.objectToJson(globalParams);

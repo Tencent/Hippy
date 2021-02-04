@@ -43,11 +43,17 @@ public class HippyDrawable implements IDrawableTarget
 	 */
 	public void setData(byte[] rawData)
 	{
-		mGifMovie = Movie.decodeByteArray(rawData, 0, rawData.length);
-		if (mGifMovie == null)
-			mBitmap = BitmapFactory.decodeByteArray(rawData, 0, rawData.length);
-		else
-			mBitmap = null;
+		try {
+			mGifMovie = Movie.decodeByteArray(rawData, 0, rawData.length);
+			if (mGifMovie == null)
+				mBitmap = BitmapFactory.decodeByteArray(rawData, 0, rawData.length);
+			else
+				mBitmap = null;
+		} catch (OutOfMemoryError e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -97,6 +103,8 @@ public class HippyDrawable implements IDrawableTarget
 				mBitmap = BitmapFactory.decodeStream(is);
 				mGifMovie = null;
 			}
+		} catch (OutOfMemoryError e) {
+			e.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -1,12 +1,9 @@
 package com.tencent.mtt.hippy.adapter.thirdparty;
 
+import org.json.JSONObject;
+
 public abstract class HippyThirdPartyAdapter
 {
-    protected Object mExternalData;
-
-    public HippyThirdPartyAdapter() { mExternalData = null; }
-    public HippyThirdPartyAdapter(Object externalData) { mExternalData = externalData; }
-
     public abstract void onRuntimeInit(long runtimeId);
     public abstract void onRuntimeDestroy();
 
@@ -15,4 +12,7 @@ public abstract class HippyThirdPartyAdapter
 
     public abstract void setPageUrl(String url);
     public abstract String getPageUrl();
+
+    public abstract void setExtraData(JSONObject extraData);
+    public abstract JSONObject getExtraData();
 }
