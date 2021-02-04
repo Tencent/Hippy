@@ -21,7 +21,7 @@ this.call = hippyEventEmitter.addListener('rotate', evt => console.log(evt.resul
 this.call.remove()
 ```
 
-# 销毁事件
+# 实例销毁事件
 
 `最低支持版本 2.3.4`
 
