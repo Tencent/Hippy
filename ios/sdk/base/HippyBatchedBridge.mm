@@ -36,6 +36,7 @@
 #import "HippyUtils.h"
 #import "HippyRedBox.h"
 #import "HippyDevLoadingView.h"
+#import "HippyDeviceBaseInfo.h"
 #include "scope.h"
 
 #define HippyAssertJSThread()
@@ -70,9 +71,7 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     NSArray<Class> *_moduleClassesByID;
     NSUInteger _modulesInitializedOnMainQueue;
     HippyDisplayLink *_displayLink;
-    CGRect _screenSize;
-    CGFloat _statusBarHeight;
-
+    NSDictionary *_dimDic;
 }
 
 @synthesize flowID = _flowID;
@@ -82,16 +81,6 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
 @synthesize valid = _valid;
 @synthesize errorOccured = _errorOccured;
 @synthesize performanceLogger = _performanceLogger;
-
-static BOOL isiPhoneX()
-{
-    if (@available(iOS 11.0, *)) {
-        CGFloat height = [[UIApplication sharedApplication] delegate].window.safeAreaInsets.bottom;
-        return (height > 0);
-    } else {
-        return NO;
-    }
-}
 
 - (instancetype)initWithParentBridge:(HippyBridge *)bridge
 {
@@ -103,13 +92,7 @@ static BOOL isiPhoneX()
                          launchOptions:bridge.launchOptions
                            executorKey:bridge.executorKey]) {
         HippyExecuteOnMainThread(^{
-            self->_screenSize = [UIScreen mainScreen].bounds;
-            self->_statusBarHeight = [UIApplication sharedApplication].statusBarFrame.size.height;
-            //有产品反馈feeds碰到了statusBarHeight为0的情况，猜测和闪屏or新手引导等情况隐藏了状态栏有关
-            //这里还是做一层兼容，毕竟绝多数情况是期望statusBarHeight是一个非0值的
-            if (self->_statusBarHeight == 0) {
-                self->_statusBarHeight = isiPhoneX() ? 44 : 20;
-            }
+            self->_dimDic = hippyExportedDimensions();
         }, YES);
         _parentBridge = bridge;
         _performanceLogger = [bridge performanceLogger];
@@ -612,45 +595,22 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)
 #endif
 }
 
-- (NSDictionary *)HippyExportedDimensions:(BOOL )rotateBounds
-{
-    
-    // Don't use HippyScreenSize since it the interface orientation doesn't apply to it
-    return @{
-             // 备注，window和screen的区别在于有没有底bar虚拟导航栏，而iOS没有这个东西，所以window和screen是一样的
-             @"window": @{
-                     @"width": @(rotateBounds ? _screenSize.size.height : _screenSize.size.width),
-                     @"height": @(rotateBounds ? _screenSize.size.width : _screenSize.size.height),
-                     @"scale": @(HippyScreenScale()),
-                     @"statusBarHeight": @(_statusBarHeight)
-                     },
-             @"screen": @{
-                     @"width": @(rotateBounds ? _screenSize.size.height : _screenSize.size.width),
-                     @"height": @(rotateBounds ? _screenSize.size.width : _screenSize.size.height),
-                     @"scale": @(HippyScreenScale()),
-                     @"fontScale": @(1),
-                     @"statusBarHeight": @(_statusBarHeight)
-                     }
-             };
-}
-
 - (NSDictionary *)deviceInfo {
     //该方法可能从非UI线程调用
     NSString *iosVersion = [[UIDevice currentDevice] systemVersion];
-    CGFloat rotateBounds = _screenSize.size.height < _screenSize.size.width;
-    
     struct utsname systemInfo;
     uname(&systemInfo);
     NSString *deviceModel = [NSString stringWithCString:systemInfo.machine
                                                encoding:NSUTF8StringEncoding];
-    
     NSMutableDictionary *deviceInfo = [NSMutableDictionary dictionary];
     [deviceInfo setValue:@"ios" forKey:@"OS"];
     [deviceInfo setValue:iosVersion forKey:@"OSVersion"];
     [deviceInfo setValue:deviceModel forKey:@"Device"];
     [deviceInfo setValue:_HippySDKVersion forKey:@"SDKVersion"];
     [deviceInfo setValue: _parentBridge.appVerson forKey:@"AppVersion"];
-    [deviceInfo setValue:[self HippyExportedDimensions:rotateBounds] forKey:@"Dimensions"];
+    if (_dimDic) {
+        [deviceInfo setValue:_dimDic forKey:@"Dimensions"];
+    }
     return [NSDictionary dictionaryWithDictionary:deviceInfo];
 }
 
