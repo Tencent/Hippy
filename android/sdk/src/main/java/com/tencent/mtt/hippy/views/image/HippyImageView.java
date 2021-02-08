@@ -162,9 +162,9 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 					mIniProps.pushString(NodeProps.RESIZE_MODE, styles.getString(NodeProps.RESIZE_MODE));
 				}
 
-        if (styles.containsKey(NodeProps.GAUSSIAN_BLUR)) {
-          mIniProps.pushBoolean(NodeProps.GAUSSIAN_BLUR, styles.getBoolean(NodeProps.GAUSSIAN_BLUR));
-        }
+				if (styles.containsKey(NodeProps.GAUSSIAN_BLUR)) {
+					mIniProps.pushBoolean(NodeProps.GAUSSIAN_BLUR, styles.getBoolean(NodeProps.GAUSSIAN_BLUR));
+				}
 			}
 		}
 
