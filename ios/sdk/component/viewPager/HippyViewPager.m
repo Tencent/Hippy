@@ -36,6 +36,9 @@
 @property (nonatomic, copy) NSHashTable<id<UIScrollViewDelegate>> *scrollViewListener;
 @property (nonatomic, assign) NSUInteger lastPageIndex;
 @property (nonatomic, assign) CGFloat targetContentOffsetX;
+@property (nonatomic, assign) BOOL didFirstTimeLayout;
+@property (nonatomic, assign) BOOL invokeOnPageSelectd;
+@property (nonatomic, assign) BOOL needsLayoutItems;
 
 @end
 
@@ -55,6 +58,9 @@
         self.scrollViewListener = [NSHashTable weakObjectsHashTable];
         self.lastPageIndex = NSUIntegerMax;
         self.targetContentOffsetX = CGFLOAT_MAX;
+        if (@available(iOS 11.0, *)) {
+            self.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+        }
     }
     return self;
 }
@@ -85,11 +91,16 @@
 
 - (void)hippySetFrame:(CGRect)frame {
     [super hippySetFrame:frame];
+    self.invokeOnPageSelectd = YES;
+    self.needsLayoutItems = YES;
+    [self setNeedsLayout];
 }
 
 - (void)didUpdateHippySubviews {
     [super didUpdateHippySubviews];
-    [self refreshViewPager:NO invokeOnPageSelectd:NO];
+    self.invokeOnPageSelectd = NO;
+    self.needsLayoutItems = YES;
+    [self setNeedsLayout];
 }
 
 - (void)invalidate {
@@ -302,11 +313,17 @@
     if (!isContentSizeEqual || !isFrameEqual) {
         self.previousFrame = self.frame;
         self.previousSize = self.contentSize;
-        [self refreshViewPager:YES invokeOnPageSelectd:YES];
+        self.invokeOnPageSelectd = YES;
+        self.needsLayoutItems = YES;
+        [self setNeedsLayout];
     }
 }
 
-- (void)refreshViewPager:(BOOL)needResetToInitialPage invokeOnPageSelectd:(BOOL)invokeOnPageSelectd{
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    if (!self.needsLayoutItems) {
+        return;
+    }
     if (!self.viewPagerItems.count) return;
     for (int i = 1; i < self.viewPagerItems.count; ++i) {
         UIView *lastViewPagerItem = self.viewPagerItems[i - 1];
@@ -328,12 +345,11 @@
     }
     
     //如果是第一次加载，那么走initialPage的逻辑
-    if (needResetToInitialPage) {
+    if (!_didFirstTimeLayout) {
         UIView *theItem = self.viewPagerItems[self.initialPage];
         self.contentOffset = theItem.frame.origin;
+        _didFirstTimeLayout = YES;
     }
-
-    //如果是删除的最后一个pager，那么会有越位风险？
     if (self.contentOffset.x > self.contentSize.width
         && 0 != self.contentSize.width
         )
@@ -351,14 +367,15 @@
     self.contentSize = CGSizeMake(
             lastViewPagerItem.frame.origin.x + lastViewPagerItem.frame.size.width,
             lastViewPagerItem.frame.origin.y + lastViewPagerItem.frame.size.height);
-
-    if (self.onPageSelected && NO == CGSizeEqualToSize(CGSizeZero, self.contentSize) && invokeOnPageSelectd) {
+    if (self.onPageSelected && NO == CGSizeEqualToSize(CGSizeZero, self.contentSize) && _invokeOnPageSelectd) {
         NSUInteger currentPageIndex = self.contentOffset.x / CGRectGetWidth(self.bounds);
         if (currentPageIndex != _lastPageIndex) {
             _lastPageIndex = currentPageIndex;
             self.onPageSelected(@{@"position": @(currentPageIndex)});
         }
     }
+    [self setPage:_lastPageIndex animated:YES];
+    self.needsLayoutItems = NO;
 }
 
 - (NSUInteger)nowPage {
