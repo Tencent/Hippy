@@ -22,18 +22,14 @@
 
 #import <UIKit/UIKit.h>
 
+@class HippyBridge;
+
 @interface HippyBackgroundImageCacheManager : NSObject
-@property(strong, nonatomic) dispatch_queue_t g_background_queue;
+
+@property(nonatomic, weak)HippyBridge *bridge;
 
 typedef void(^HippyBackgroundImageCompletionHandler)(UIImage* decodedImage, NSError *error);
-+ (HippyBackgroundImageCacheManager *)sharedInstance;
 
-- (void)imageWithUrl:(NSString *)url
-               frame:(CGRect)frame
-            hippyTag:(NSNumber *)hippyTag
-             handler:(HippyBackgroundImageCompletionHandler)completionHandler ;
-//释放
-- (void)releaseBackgroundImageCacheWithUrl:(NSString *)uri
-                                     frame:(CGRect)frame
-                                  hippyTag:(NSNumber *)hippyTag;
+- (void)imageWithUrl:(NSString *)uri completionHandler:(HippyBackgroundImageCompletionHandler)completionHandler;
+
 @end
