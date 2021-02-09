@@ -30,6 +30,33 @@
 #import "UIView+Hippy.h"
 #import "HippyBackgroundImageCacheManager.h"
 
+static CGSize makeSizeConstrainWithType(CGSize originSize, CGSize constrainSize, NSString *resizeMode) {
+    //width / height
+    const CGFloat deviceHeight = originSize.width / originSize.height;
+    if (resizeMode && NSOrderedSame == [resizeMode compare:@"contain" options:NSCaseInsensitiveSearch]) {
+        CGSize result = originSize;
+        result.width = constrainSize.width;
+        result.height = result.width / deviceHeight;
+        if (result.height > constrainSize.height) {
+            result.height = constrainSize.height;
+            result.width = result.height * deviceHeight;
+        }
+        return result;
+    }
+    else if (resizeMode && NSOrderedSame == [resizeMode compare:@"cover" options:NSCaseInsensitiveSearch]) {
+        CGSize result = originSize;
+        result.width = constrainSize.width;
+        result.height = result.width / deviceHeight;
+        if (result.height < constrainSize.height) {
+            result.height = constrainSize.height;
+            result.width = result.height * deviceHeight;
+        }
+        return result;
+
+    }
+    return originSize;
+}
+
 
 dispatch_queue_t global_hpview_queue(){
     static dispatch_queue_t g_background_queue = nil;
@@ -161,8 +188,6 @@ static NSString *HippyRecursiveAccessibilityLabel(UIView *view)
         _borderBottomRightRadius = -1;
         _borderStyle = HippyBorderStyleSolid;
         _backgroundColor = super.backgroundColor;
-        _backgroundCachemanager = HippyBackgroundImageCacheManager.sharedInstance;
-        _backgroundCachemanager.g_background_queue = global_hpview_queue();
         self.layer.shadowOffset = CGSizeZero;
         self.layer.shadowRadius = 0.f;
     }
@@ -532,7 +557,6 @@ void HippyBoarderColorsRelease(HippyBorderColors c)
     }
     
     __weak CALayer *weakLayer = layer;
-    __weak HippyBackgroundImageCacheManager* weakBackgroundCacheManager = _backgroundCachemanager;
     [self drawShadowForLayer];
     
     const HippyCornerRadii cornerRadii = [self cornerRadii];
@@ -572,7 +596,7 @@ void HippyBoarderColorsRelease(HippyBorderColors c)
     
     CGRect theFrame = self.frame;
     NSInteger clipToBounds = self.clipsToBounds;
-    
+    NSString *backgroundSize = self.backgroundSize;
     __weak typeof(self) weakSelf = self;
     HippyBoarderColorsRetain(borderColors);
     dispatch_async(global_hpview_queue(), ^{
@@ -634,14 +658,8 @@ void HippyBoarderColorsRelease(HippyBorderColors c)
         } else {
             CGFloat backgroundPositionX = weakSelf.backgroundPositionX;
             CGFloat backgroundPositionY = weakSelf.backgroundPositionY;
-            CGRect weakFrame = CGRectMake(backgroundPositionX,
-                                          backgroundPositionY,
-                                          theFrame.size.width - backgroundPositionX,
-                                          theFrame.size.height - backgroundPositionY);
-            CGRect weakFrameAfterInset = UIEdgeInsetsInsetRect(weakFrame, borderInsets);
-            
-            
-            [weakBackgroundCacheManager imageWithUrl:weakSelf.backgroundImageUrl frame:weakFrameAfterInset hippyTag:weakSelf.hippyTag handler:^(UIImage *decodedImage, NSError *error) {
+            HippyBackgroundImageCacheManager* weakBackgroundCacheManager = [weakSelf backgroundCachemanager];
+            [weakBackgroundCacheManager imageWithUrl:weakSelf.backgroundImageUrl completionHandler:^(UIImage *decodedImage, NSError *error) {
                 if (error) {
                     HippyLogError(@"weakBackgroundCacheManagerLog %@", error);
                     return;
@@ -652,20 +670,28 @@ void HippyBoarderColorsRelease(HippyBorderColors c)
                 
                 
                 [image drawInRect:(CGRect){CGPointZero, size}];
+                CGSize imageSize = decodedImage.size;
+                CGSize targetSize = UIEdgeInsetsInsetRect(theFrame, [weakSelf bordersAsInsets]).size;
+                
+                CGSize drawSize = makeSizeConstrainWithType(imageSize, targetSize, backgroundSize);
+                
                 [decodedImage drawInRect:CGRectMake(borderInsets.left + backgroundPositionX,
                                                     borderInsets.top + backgroundPositionY,
-                                                    decodedImage.size.width,
-                                                    decodedImage.size.height)];
+                                                    drawSize.width,
+                                                    drawSize.height)];
                 UIImage *resultingImage = UIGraphicsGetImageFromCurrentImageContext();
                 UIGraphicsEndImageContext();
                 setImageBlock(resultingImage);
             }];
         }
-        
-        
     });
-    
-    
+}
+
+- (HippyBackgroundImageCacheManager *)backgroundCachemanager {
+    if (!_backgroundCachemanager) {
+        _backgroundCachemanager = [[HippyBackgroundImageCacheManager alloc] init];
+    }
+    return _backgroundCachemanager;
 }
 
 static BOOL HippyLayerHasShadow(CALayer *layer)
@@ -783,17 +809,6 @@ setBorderStyle()
     CGColorRelease(_borderRightColor);
     CGColorRelease(_borderBottomColor);
     CGColorRelease(_borderLeftColor);
-    
-    
-    if (self.backgroundImageUrl) {
-        CGRect frame = CGRectMake(_backgroundPositionX, _backgroundPositionY, self.frame.size.width, self.frame.size.height);
-        __weak HippyBackgroundImageCacheManager* weakBackgroundImageCacheManager = _backgroundCachemanager;
-        NSString *weakBackgroundImageUrl = self.backgroundImageUrl;
-        NSNumber *weakHippyTag = self.hippyTag;
-        dispatch_async(global_hpview_queue(), ^{
-            [weakBackgroundImageCacheManager releaseBackgroundImageCacheWithUrl:weakBackgroundImageUrl frame:frame hippyTag:weakHippyTag];
-        });
-    }
 }
 
 @end
