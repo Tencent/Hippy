@@ -22,21 +22,14 @@ import android.graphics.Paint;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.tencent.mtt.hippy.HippyEngineContext;
-import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.HippyRootView;
-import com.tencent.mtt.hippy.common.HippyMap;
-import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
-import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 
 public class HippyListItemView extends HippyViewGroup
 {
-
 	private static final boolean	VIEW_LEVEL_MONITOR_ENABLE	= false;
 	private Paint					mPaint;
-    private HippyEngineContext      hippyEngineContext;
 
 	public final static int EXPOSURE_STATE_WILL_APPEAR          = 0;
 	public final static int EXPOSURE_STATE_APPEAR               = 1;
@@ -61,7 +54,7 @@ public class HippyListItemView extends HippyViewGroup
 	public HippyListItemView(Context context)
 	{
 		super(context);
-        hippyEngineContext = ((HippyInstanceContext) context).getEngineContext();
+
 		if (VIEW_LEVEL_MONITOR_ENABLE)
 		{
 			mPaint = new Paint();

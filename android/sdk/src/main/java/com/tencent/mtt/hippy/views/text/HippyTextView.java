@@ -39,12 +39,6 @@ import com.tencent.mtt.hippy.views.common.CommonBackgroundDrawable;
 import com.tencent.mtt.hippy.views.common.CommonBorder;
 import com.tencent.mtt.hippy.views.list.HippyRecycler;
 
-/**
- * @Description: TODO
- * @author: edsheng
- * @date: 2018/2/28 19:45
- * @version: V1.0
- */
 public class HippyTextView extends View implements CommonBorder, HippyViewBase, HippyRecycler
 {
 	private CommonBackgroundDrawable	mBGDrawable;
@@ -84,22 +78,22 @@ public class HippyTextView extends View implements CommonBorder, HippyViewBase, 
 	{
 		mLayout = null;
 	}
-  
-  @Override
-  public void setId(int id) {
-	  super.setId(id);
-  
-    Context context = getContext();
-    if (context != null && context instanceof HippyInstanceContext) {
-      HippyEngineContext engineContext = ((HippyInstanceContext) context).getEngineContext();
-      if (engineContext != null) {
-        DomNode node = engineContext.getDomManager().getNode(id);
-        if (node != null && node instanceof TextNode) {
-          ((TextNode)node).setTextView(this);
-        }
-      }
-    }
-  }
+
+	@Override
+	public void setId(int id) {
+		super.setId(id);
+
+		Context context = getContext();
+		if (context != null && context instanceof HippyInstanceContext) {
+			HippyEngineContext engineContext = ((HippyInstanceContext) context).getEngineContext();
+			if (engineContext != null) {
+				DomNode node = engineContext.getDomManager().getNode(id);
+				if (node != null && node instanceof TextNode) {
+					((TextNode)node).setTextView(this);
+				}
+			}
+		}
+	}
 
 	public HippyTextView(Context context)
 	{
