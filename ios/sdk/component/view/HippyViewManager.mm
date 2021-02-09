@@ -89,6 +89,15 @@ HIPPY_EXPORT_VIEW_PROPERTY(backgroundPositionX, CGFloat)
 HIPPY_EXPORT_VIEW_PROPERTY(backgroundPositionY, CGFloat)
 HIPPY_EXPORT_VIEW_PROPERTY(onInterceptTouchEvent, BOOL)
 
+HIPPY_CUSTOM_VIEW_PROPERTY(backgroundSize, NSString, HippyView) {
+    NSString *bgSize = @"auto";
+    if (json) {
+        bgSize = [HippyConvert NSString:json];
+    }
+    view.backgroundSize = bgSize;
+    [view.layer setNeedsDisplay];
+}
+
 HIPPY_CUSTOM_VIEW_PROPERTY(shadowColor, UIColor, HippyView) {
     if (json) {
         view.layer.shadowColor = [HippyConvert UIColor:json].CGColor;
