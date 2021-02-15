@@ -15,12 +15,9 @@
  */
 package com.tencent.mtt.hippy.bridge;
 
-import android.util.Log;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.devsupport.DevServerCallBack;
-import com.tencent.mtt.hippy.devsupport.DevServerConfig;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
-import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -35,7 +32,6 @@ import java.util.concurrent.TimeUnit;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.text.TextUtils;
-import com.tencent.mtt.hippy.bridge.libraryloader.LibraryLoader;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.devsupport.DebugWebSocketClient;
 import com.tencent.mtt.hippy.devsupport.DevRemoteDebugProxy;
@@ -55,7 +51,6 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 	static
 	{
 		sBridgeSyncLock = new Object();
-		LibraryLoader.loadLibraryIfNeed("hippybridge");
 	}
 
 	private static volatile String				mCodeCacheRootDir;
