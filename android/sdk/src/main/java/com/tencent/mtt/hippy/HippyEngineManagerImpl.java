@@ -29,7 +29,6 @@ import com.tencent.mtt.hippy.bridge.bundleloader.HippyAssetBundleLoader;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyFileBundleLoader;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyRemoteBundleLoader;
-import com.tencent.mtt.hippy.bridge.libraryloader.LibraryLoader;
 import com.tencent.mtt.hippy.common.Callback;
 import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
@@ -136,8 +135,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 		this.mServerHost = params.debugServerHost;
 		this.mGroupId = params.groupId;
 		this.mThirdPartyAdapter = params.thirdPartyAdapter;
-		LibraryLoader.init(configs.getContext(),
-				configs.getSharedPreferencesAdapter().getSharedPreferences(), configs.getSoLoaderAdapter());
 	}
 
 	/**
