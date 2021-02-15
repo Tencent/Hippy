@@ -286,7 +286,7 @@ task excludeV8Libs(dependsOn: addArmeabiDir) {
   }
 }
 
-task dealAfterAssembleRelease(dependsOn: excludeV8Libs) {
+task generateReleaseAar(dependsOn: excludeV8Libs) {
   doLast {
     if (INCLUDE_ABI_ARMEABI.toBoolean() || EXCLUDE_V8.toBoolean()) {
       file("$OUTPUT_PATH/$releaseOutputFileName").delete()
@@ -300,6 +300,15 @@ task dealAfterAssembleRelease(dependsOn: excludeV8Libs) {
         executable "7z"
         args arguments
       }
+    }
+  }
+}
+
+task dealAfterAssembleRelease(dependsOn: generateReleaseAar) {
+  doLast {
+    copy {
+      from "$OUTPUT_PATH/$releaseOutputFileName"
+      into "$projectDir.absolutePath/../../examples/android-demo/example/libs"
     }
   }
 }
