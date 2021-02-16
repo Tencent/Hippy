@@ -388,7 +388,7 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 				}
 
 				if (alphaAnimation != null) {
-					alphaAnimation.setDuration(1000);
+					alphaAnimation.setDuration(200);
 					alphaAnimation.start();
 				}
 			}

@@ -15,12 +15,6 @@
  */
 package com.tencent.mtt.hippy.adapter.monitor;
 
-/**
- * FileName: HippyEngineMonitorEvent
- * Description：
- * History：
- * 1.0 xiandongluo on 2018/1/25
- */
 public class HippyEngineMonitorEvent
 {
 	public static String	ENGINE_LOAD_EVENT_INIT_INSTANCE			= "initInstance";
