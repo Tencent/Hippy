@@ -216,6 +216,11 @@ public class HippyMap
 		{
 			pushLong(key, (Long) obj);
 		}
+		else if (obj instanceof Byte)
+		{
+			Integer iObj = ((Byte) obj).intValue();
+			pushInt(key, iObj);
+		}
 		else
 		{
 			Class<?> clazz = obj.getClass();

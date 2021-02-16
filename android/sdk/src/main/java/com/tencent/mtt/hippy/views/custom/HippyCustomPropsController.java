@@ -15,8 +15,11 @@
  */
 package com.tencent.mtt.hippy.views.custom;
 
+import com.tencent.mtt.hippy.HippyEngineContext;
+import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
+import com.tencent.mtt.hippy.uimanager.RenderNode;
 
 import android.content.Context;
 import android.view.View;
@@ -25,6 +28,7 @@ import android.view.View;
 public class HippyCustomPropsController extends HippyViewController
 {
 	public static final String CLASS_NAME = "CustomProps";
+	public static final String DT_EBLID = "dt_elementBizLeafIdentifier";
 
 	@Override
 	protected View createViewImpl(Context context)
@@ -34,5 +38,25 @@ public class HippyCustomPropsController extends HippyViewController
 
 	public void setCustomProps(View view, String methodName, Object props) {
 
+	}
+
+	protected void onSetDTElementBizLeafIdentifier(View view) {
+		if (view == null) {
+			return;
+		}
+
+		Context context = view.getContext();
+		if (context instanceof HippyInstanceContext) {
+			HippyEngineContext engineContext = ((HippyInstanceContext)context).getEngineContext();
+			assert (engineContext != null);
+			if (engineContext == null) {
+				return;
+			}
+
+			RenderNode node = engineContext.getRenderManager().getRenderNode(view.getId());
+			if (node != null) {
+				node.mHasSetDteblId = true;
+			}
+		}
 	}
 }
