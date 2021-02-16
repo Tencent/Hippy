@@ -350,9 +350,9 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 	{
 		if(bUserChageFocus) //只有用户导致的焦点获取，会通知出去
 		{
-		HippyMap hippyMap = new HippyMap();
-		hippyMap.pushBoolean("focus", hasFocus);
-		new HippyViewEvent("onFocus").send(v, hippyMap);
+			HippyMap hippyMap = new HippyMap();
+			hippyMap.pushBoolean("focus", hasFocus);
+			new HippyViewEvent("onFocus").send(v, hippyMap);
 		}
 	}
 

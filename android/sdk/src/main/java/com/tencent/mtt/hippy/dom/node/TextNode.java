@@ -452,7 +452,7 @@ public class TextNode extends StyleNode
 	public void layoutBefore(HippyEngineContext context)
 	{
 		super.layoutBefore(context);
-		if (mFontScaleAdapter == null)
+		if (mFontScaleAdapter == null && mEnableScale)
 		{
 			mFontScaleAdapter = context.getGlobalConfigs().getFontScaleAdapter();
 		}
