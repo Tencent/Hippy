@@ -32,7 +32,6 @@
 size_t SafeGetArrayLength(JNIEnv* env, const jbyteArray& jarray) {
   HIPPY_DCHECK(jarray);
   jsize length = env->GetArrayLength(jarray);
-  HIPPY_DCHECK(length > 0);
   return static_cast<size_t>(std::max(0, length));
 }
 

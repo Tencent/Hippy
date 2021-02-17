@@ -134,6 +134,7 @@
 		067AB96F23B5EEF4009D5EE2 /* TestModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 067AB96D23B5EEF3009D5EE2 /* TestModule.m */; };
 		067AB97523B5F309009D5EE2 /* MyViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 067AB97123B5F309009D5EE2 /* MyViewManager.m */; };
 		067AB97623B5F309009D5EE2 /* MyView.m in Sources */ = {isa = PBXBuildFile; fileRef = 067AB97423B5F309009D5EE2 /* MyView.m */; };
+		06868AF925CA4A6B0024A0BA /* HippyDeviceBaseInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 06868AF825CA4A6B0024A0BA /* HippyDeviceBaseInfo.m */; };
 		06F2A76F2519E319000AF839 /* HippyJSEnginesMapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 06F2A76E2519E319000AF839 /* HippyJSEnginesMapper.mm */; };
 		06F3E3E025A5D867007934F6 /* HippyListTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 06F3E3DF25A5D867007934F6 /* HippyListTableView.m */; };
 		06FF8BD62511BC0400C03900 /* HippyImageProviderProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 06FF8BD52511BC0400C03900 /* HippyImageProviderProtocol.m */; };
@@ -450,6 +451,8 @@
 		067AB97223B5F309009D5EE2 /* MyView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyView.h; sourceTree = "<group>"; };
 		067AB97323B5F309009D5EE2 /* MyViewManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyViewManager.h; sourceTree = "<group>"; };
 		067AB97423B5F309009D5EE2 /* MyView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyView.m; sourceTree = "<group>"; };
+		06868AF725CA4A6B0024A0BA /* HippyDeviceBaseInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyDeviceBaseInfo.h; sourceTree = "<group>"; };
+		06868AF825CA4A6B0024A0BA /* HippyDeviceBaseInfo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyDeviceBaseInfo.m; sourceTree = "<group>"; };
 		06F2A76D2519E319000AF839 /* HippyJSEnginesMapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyJSEnginesMapper.h; sourceTree = "<group>"; };
 		06F2A76E2519E319000AF839 /* HippyJSEnginesMapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyJSEnginesMapper.mm; sourceTree = "<group>"; };
 		06F3E3DE25A5D867007934F6 /* HippyListTableView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyListTableView.h; sourceTree = "<group>"; };
@@ -1093,6 +1096,8 @@
 				064C59DE23AB1A51001E80DD /* HippyDisplayLink.m */,
 				064C59DF23AB1A51001E80DD /* HippyRootViewInternal.h */,
 				064C59E023AB1A51001E80DD /* HippyRootShadowView.mm */,
+				06868AF725CA4A6B0024A0BA /* HippyDeviceBaseInfo.h */,
+				06868AF825CA4A6B0024A0BA /* HippyDeviceBaseInfo.m */,
 			);
 			path = base;
 			sourceTree = "<group>";
@@ -1559,6 +1564,7 @@
 				064C5A2623AB1A51001E80DD /* HippyViewManager.mm in Sources */,
 				064C5A1F23AB1A51001E80DD /* HippyImageViewManager.m in Sources */,
 				064C5A5423AB1A51001E80DD /* HippyBridge+LocalFileSource.m in Sources */,
+				06868AF925CA4A6B0024A0BA /* HippyDeviceBaseInfo.m in Sources */,
 				064C59FD23AB1A51001E80DD /* HippyAsyncLocalStorage.m in Sources */,
 				06F3E3E025A5D867007934F6 /* HippyListTableView.m in Sources */,
 				064C5A5923AB1A51001E80DD /* HippyDisplayLink.m in Sources */,

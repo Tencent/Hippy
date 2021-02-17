@@ -2,7 +2,7 @@
 /* eslint-disable no-param-reassign */
 
 import { insertChild, removeChild } from '../renderer/render';
-import '../../../../types/global';
+import '../../../types/global';
 
 let currentNodeId: number = 0;
 function getNodeId() {

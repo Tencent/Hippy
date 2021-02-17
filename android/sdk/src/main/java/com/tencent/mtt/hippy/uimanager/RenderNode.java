@@ -27,12 +27,6 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 
 import java.util.*;
 
-/**
- * @author: edsheng
- * @date: 2017/12/6 14:29
- * @version: V1.0
- */
-
 public class RenderNode
 {
 	int					mId, mX, mY, mWidth, mHeight;
@@ -65,6 +59,8 @@ public class RenderNode
 	boolean				mIsLazyLoad				= false;
 
 	boolean				mNotifyManageChildren	= false;
+
+	public boolean      mHasSetDteblId          = false;
 
 	List<UIFunction>	mUIFunction				= null;
 

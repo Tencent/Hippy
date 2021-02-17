@@ -41,6 +41,7 @@ import com.tencent.mtt.hippy.adapter.storage.DefaultStorageAdapter;
 import com.tencent.mtt.hippy.adapter.storage.HippyStorageAdapter;
 import com.tencent.mtt.hippy.bridge.HippyCoreAPI;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
+import com.tencent.mtt.hippy.bridge.libraryloader.LibraryLoader;
 import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.utils.ContextHolder;
@@ -68,6 +69,10 @@ public abstract class HippyEngine
 	// Engine所属的分组ID，同一个组共享线程和isolate，不同context
 	protected int							    mGroupId;
 	ModuleListener								mModuleListener;
+
+	static {
+		LibraryLoader.loadLibraryIfNeed();
+	}
 
 	HippyEngine()
 	{
@@ -204,7 +209,7 @@ public abstract class HippyEngine
 
 	/**
 	 * send event
-	 * 
+	 *
 	 * @param event
 	 * @param params
 	 */
@@ -403,8 +408,12 @@ public abstract class HippyEngine
 	public static final int STATUS_WRONG_STATE_LISTEN	= -151;
 	// 初始化过程，抛出了未知的异常，详情需要查看传回的Throwable
 	public static final int STATUS_INIT_EXCEPTION	= -200;
-
+	//bundleUniKey==null,路径为空
 	public static final int STATUS_VARIABLE_UNINIT	= -500;
+	//业务JSBundle执行返回错误
+	public static final int STATUS_ERR_RUN_BUNDLE   = -600;
+	//重复加载同一JSBundle
+	public static final int STATUS_REPEAT_LOAD      = -700;
 	/**
 	 * Hippy引擎初始化结果listener
 	 */

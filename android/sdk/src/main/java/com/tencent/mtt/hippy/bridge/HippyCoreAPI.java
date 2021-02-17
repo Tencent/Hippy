@@ -39,6 +39,7 @@ import com.tencent.mtt.hippy.modules.nativemodules.uimanager.UIManagerModule;
 import com.tencent.mtt.hippy.modules.nativemodules.utils.UtilsModule;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.views.audioview.AudioViewController;
+import com.tencent.mtt.hippy.views.custom.HippyCustomPropsController;
 import com.tencent.mtt.hippy.views.image.HippyImageViewController;
 import com.tencent.mtt.hippy.views.list.HippyListItemViewController;
 import com.tencent.mtt.hippy.views.list.HippyListViewController;
@@ -51,7 +52,6 @@ import com.tencent.mtt.hippy.views.refresh.RefreshWrapperItemController;
 import com.tencent.mtt.hippy.views.scroll.HippyScrollViewController;
 import com.tencent.mtt.hippy.views.text.HippyTextViewController;
 import com.tencent.mtt.hippy.views.textinput.HippyTextInputController;
-import com.tencent.mtt.hippy.views.videoview.VideoHippyViewController;
 import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
 import com.tencent.mtt.hippy.views.viewpager.HippyViewPagerController;
 import com.tencent.mtt.hippy.views.viewpager.HippyViewPagerItemController;
@@ -64,6 +64,8 @@ import java.util.Map;
 
 public class HippyCoreAPI implements HippyAPIProvider
 {
+	public final static String VIDEO_CONTROLLER_CLASS_NAME = "com.tencent.mtt.hippy.views.videoview.VideoHippyViewController";
+
 	@Override
 	public Map<Class<? extends HippyNativeModuleBase>, Provider<? extends HippyNativeModuleBase>> getNativeModules(final HippyEngineContext context)
 	{
@@ -221,7 +223,18 @@ public class HippyCoreAPI implements HippyAPIProvider
 		components.add(NavigatorController.class);
 		components.add(HippyWebViewController.class);
 		components.add(AudioViewController.class);
-		components.add(VideoHippyViewController.class);
+		components.add(HippyCustomPropsController.class);
+
+		addControllerWithClassName(VIDEO_CONTROLLER_CLASS_NAME, components);
 		return components;
+	}
+
+	private void addControllerWithClassName(String className, List<Class<? extends HippyViewController>> components) {
+		try {
+			Class videoControllerClass = Class.forName(className);
+			components.add(videoControllerClass);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
 	}
 }

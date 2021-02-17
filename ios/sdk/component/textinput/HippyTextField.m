@@ -29,91 +29,91 @@
 
 @implementation HippyUITextField
 {
-  BOOL _jsRequestingFirstResponder;
+    BOOL _jsRequestingFirstResponder;
 }
 
 - (void)setKeyboardType:(UIKeyboardType)keyboardType {
     NSString *tempPwdStr = self.text;
     self.text = @"";
-  if (keyboardType == UIKeyboardTypeTwitter) {
-    self.secureTextEntry = true;
-  } else {
-    self.secureTextEntry = false;
-    [super setKeyboardType:keyboardType];
-  }
+    if (keyboardType == UIKeyboardTypeTwitter) {
+        self.secureTextEntry = true;
+    } else {
+        self.secureTextEntry = false;
+        [super setKeyboardType:keyboardType];
+    }
     self.text = tempPwdStr;
 }
 
 - (void)setEditable:(BOOL)editable
 {
-  _editable = editable;
-  [self setEnabled:editable];
+    _editable = editable;
+    [self setEnabled:editable];
 }
 
 - (void)paste:(id)sender
 {
-  _textWasPasted = YES;
-  [super paste:sender];
+    _textWasPasted = YES;
+    [super paste:sender];
 }
 
 - (void)hippyWillMakeFirstResponder
 {
-  _jsRequestingFirstResponder = YES;
+    _jsRequestingFirstResponder = YES;
 }
 
 - (BOOL)canBecomeFirstResponder
 {
-  return YES;
+    return YES;
 }
 
 - (BOOL)becomeFirstResponder
 {
-  if (_responderDelegate && [_responderDelegate respondsToSelector: @selector(textview_becomeFirstResponder)]) {
-    [_responderDelegate textview_becomeFirstResponder];
-  }
-  
-  return [super becomeFirstResponder];
+    if (_responderDelegate && [_responderDelegate respondsToSelector: @selector(textview_becomeFirstResponder)]) {
+        [_responderDelegate textview_becomeFirstResponder];
+    }
+    
+    return [super becomeFirstResponder];
 }
 
 - (BOOL)resignFirstResponder
 {
-  if (_responderDelegate && [_responderDelegate respondsToSelector: @selector(textview_resignFirstResponder)]) {
-    [_responderDelegate textview_resignFirstResponder];
-  }
-  return [super resignFirstResponder];
+    if (_responderDelegate && [_responderDelegate respondsToSelector: @selector(textview_resignFirstResponder)]) {
+        [_responderDelegate textview_resignFirstResponder];
+    }
+    return [super resignFirstResponder];
 }
 
 - (void)textview_becomeFirstResponder
 {
-  if (_onFocus){
-    _onFocus(@{});
-  }
+    if (_onFocus){
+        _onFocus(@{});
+    }
 }
 
 - (void)textview_resignFirstResponder
 {
-  if (_onBlur) {
-    _onBlur(@{});
-  }
+    if (_onBlur) {
+        _onBlur(@{});
+    }
 }
 
 
 - (void)hippyDidMakeFirstResponder
 {
-  _jsRequestingFirstResponder = YES;
+    _jsRequestingFirstResponder = YES;
 }
 
 - (void)didMoveToWindow
 {
-  if (_jsRequestingFirstResponder) {
-    [self becomeFirstResponder];
-    [self hippyDidMakeFirstResponder];
-  }
+    if (_jsRequestingFirstResponder) {
+        [self becomeFirstResponder];
+        [self hippyDidMakeFirstResponder];
+    }
 }
 
 - (void)dealloc
 {
-  _responderDelegate = nil;
+    _responderDelegate = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -146,20 +146,20 @@
 
 - (instancetype)init
 {
-  if ((self = [super initWithFrame:CGRectZero])) {
-    [self setContentInset:UIEdgeInsetsZero];
-    _textView = [[HippyUITextField alloc] initWithFrame:CGRectZero];
-    _textView.responderDelegate = self;
-    _textView.backgroundColor = [UIColor clearColor];
-    _textView.textColor = [UIColor blackColor];
-    _textView.delegate = self;
-    [_textView addObserver:self forKeyPath:@"selectedTextRange" options:0 context:nil];
-    [_textView addTarget:self action:@selector(textFieldDidChange) forControlEvents:UIControlEventEditingChanged];
-    [_textView addTarget:self action:@selector(textFieldBeginEditing) forControlEvents:UIControlEventEditingDidBegin];
-    [_textView addTarget:self action:@selector(textFieldSubmitEditing) forControlEvents:UIControlEventEditingDidEndOnExit];
-    [self addSubview:_textView];
-  }
-  return self;
+    if ((self = [super initWithFrame:CGRectZero])) {
+        [self setContentInset:UIEdgeInsetsZero];
+        _textView = [[HippyUITextField alloc] initWithFrame:CGRectZero];
+        _textView.responderDelegate = self;
+        _textView.backgroundColor = [UIColor clearColor];
+        _textView.textColor = [UIColor blackColor];
+        _textView.delegate = self;
+        [_textView addObserver:self forKeyPath:@"selectedTextRange" options:0 context:nil];
+        [_textView addTarget:self action:@selector(textFieldDidChange) forControlEvents:UIControlEventEditingChanged];
+        [_textView addTarget:self action:@selector(textFieldBeginEditing) forControlEvents:UIControlEventEditingDidBegin];
+        [_textView addTarget:self action:@selector(textFieldSubmitEditing) forControlEvents:UIControlEventEditingDidEndOnExit];
+        [self addSubview:_textView];
+    }
+    return self;
 }
 
 - (void)dealloc
@@ -265,8 +265,8 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
     
     
     _onChangeText(@{
-                    @"text": _textView.text,
-                    });
+        @"text": _textView.text,
+                  });
     
     [self sendSelectionEvent];
 }
@@ -277,17 +277,17 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
-  if (_onEndEditing) {
-    _onEndEditing(@{
-        @"text": textField.text,
-    });
-  }
+    if (_onEndEditing) {
+        _onEndEditing(@{
+            @"text": textField.text,
+                      });
+    }
     if (_onKeyPress) {
         _onKeyPress(@{
-                        @"key": @"enter",
-                        });
+            @"key": @"enter",
+                    });
     }
-  return YES;
+    return YES;
 }
 
 #pragma mark - Notification Method
@@ -329,62 +329,72 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 
 - (BOOL)becomeFirstResponder
 {
-  return [_textView becomeFirstResponder];
+    return [_textView becomeFirstResponder];
 }
 
 - (void)textview_becomeFirstResponder
 {
-  if (_onFocus){
-    _onFocus(@{});
-  }
+    if (_onFocus){
+        _onFocus(@{});
+    }
 }
 
 - (void)textview_resignFirstResponder
 {
-  if (_onBlur) {
-    _onBlur(@{});
-  }
+    if (_onBlur) {
+        _onBlur(@{});
+    }
 }
 
 
 - (BOOL)resignFirstResponder
 {
-  [super resignFirstResponder];
-  return [_textView resignFirstResponder];
+    [super resignFirstResponder];
+    return [_textView resignFirstResponder];
 }
 
 - (void)updateFrames
 {
-  _textView.frame = self.bounds;
+    _textView.frame = self.bounds;
 }
 
 - (void)layoutSubviews
 {
-  [super layoutSubviews];
-  
-  // Start sending content size updates only after the view has been laid out
-  // otherwise we send multiple events with bad dimensions on initial render.
-//  _viewDidCompleteInitialLayout = YES;
-  
-  [self updateFrames];
+    [super layoutSubviews];
+    
+    // Start sending content size updates only after the view has been laid out
+    // otherwise we send multiple events with bad dimensions on initial render.
+    //  _viewDidCompleteInitialLayout = YES;
+    
+    [self updateFrames];
 }
 
 - (void)setContentInset:(UIEdgeInsets)contentInset
 {
-  [super setContentInset:contentInset];
-  [self updateFrames];
+    [super setContentInset:contentInset];
+    [self updateFrames];
 }
 
 - (void)setPlaceholder:(NSString *)placeholder
 {
-  if (_placeholderTextColor) {
     _placeholder = placeholder;
-    _textView.attributedPlaceholder = [[NSAttributedString alloc] initWithString:placeholder attributes:@{NSForegroundColorAttributeName: _placeholderTextColor}];
-  } else {
-    _textView.placeholder = placeholder;
-  }
-  
+    [self updatePlaceholder];
 }
+
+- (void)setPlaceholderTextColor:(UIColor *)placeholderTextColor
+{
+    _placeholderTextColor = placeholderTextColor;
+    [self updatePlaceholder];
+}
+
+- (void)updatePlaceholder {
+    _textView.placeholder = _placeholder;
+    if (_placeholderTextColor && _placeholder) {
+        NSAttributedString *attributedString = [[NSAttributedString alloc] initWithString:_placeholder attributes:@{NSForegroundColorAttributeName: _placeholderTextColor}];
+        _textView.attributedPlaceholder = attributedString;
+    }
+}
+
 - (void)setText:(NSString *)text
 {
     double version = UIDevice.currentDevice.systemVersion.doubleValue;
@@ -392,30 +402,22 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
         text = [text stringByReplacingOccurrencesOfString:@"జ్ఞ‌ా" withString:@" "];
     }
     
-  _textView.text = text;
+    _textView.text = text;
     _text = text;
-}
-
-- (void)setPlaceholderTextColor:(UIColor *)placeholderTextColor
-{
-  _placeholderTextColor = placeholderTextColor;
-  if (_placeholder) {
-      _textView.attributedPlaceholder = [[NSAttributedString alloc] initWithString:_placeholder attributes:@{NSForegroundColorAttributeName: placeholderTextColor}];
-  }
 }
 
 - (void)setFontSize:(NSNumber *)fontSize
 {
-  _fontSize = fontSize;
-  if ([fontSize floatValue] > 0) {
-    [_textView setFont:[UIFont systemFontOfSize:[fontSize floatValue]]];
-  }
-
+    _fontSize = fontSize;
+    if ([fontSize floatValue] > 0) {
+        [_textView setFont:[UIFont systemFontOfSize:[fontSize floatValue]]];
+    }
+    
 }
 
 - (void)setValue:(NSString *)value
 {
-  [_textView setText:value];
+    [_textView setText:value];
 }
 
 - (NSString *)value {
@@ -424,7 +426,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 
 - (void)setFont:(UIFont *)font
 {
-  _textView.font = font;
+    _textView.font = font;
 }
 
 - (void) setTextColor:(UIColor *)textColor {
@@ -437,33 +439,33 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 
 - (UIFont *)font
 {
-  return _textView.font;
+    return _textView.font;
 }
 
 - (void)sendSelectionEvent
 {
-  if (_onSelectionChange &&
-      _textView.selectedTextRange != _previousSelectionRange &&
-      ![_textView.selectedTextRange isEqual:_previousSelectionRange]) {
-    
-    _previousSelectionRange = _textView.selectedTextRange;
-    
-    UITextRange *selection = _textView.selectedTextRange;
-    NSInteger start = [_textView offsetFromPosition:[_textView beginningOfDocument] toPosition:selection.start];
-    NSInteger end = [_textView offsetFromPosition:[_textView beginningOfDocument] toPosition:selection.end];
-    _onSelectionChange(@{
-                         @"selection": @{
-                             @"start": @(start),
-                             @"end": @(end),
-                             },
-                         });
-  }
+    if (_onSelectionChange &&
+        _textView.selectedTextRange != _previousSelectionRange &&
+        ![_textView.selectedTextRange isEqual:_previousSelectionRange]) {
+        
+        _previousSelectionRange = _textView.selectedTextRange;
+        
+        UITextRange *selection = _textView.selectedTextRange;
+        NSInteger start = [_textView offsetFromPosition:[_textView beginningOfDocument] toPosition:selection.start];
+        NSInteger end = [_textView offsetFromPosition:[_textView beginningOfDocument] toPosition:selection.end];
+        _onSelectionChange(@{
+            @"selection": @{
+                    @"start": @(start),
+                    @"end": @(end),
+            },
+                           });
+    }
 }
 
 
 - (void)clearText
 {
-  [_textView setText:@""];
+    [_textView setText:@""];
 }
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
