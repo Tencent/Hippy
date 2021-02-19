@@ -21,6 +21,7 @@
  */
 
 #import "HippyJavaScriptLoader.h"
+#import "HippyComponent.h"
 
 @class HippyBridge;
 @protocol HippyBridgeModule;
@@ -36,6 +37,8 @@
  * pointing to a path inside the app resources, e.g. `file://.../main.jsbundle`.
  */
 - (NSURL *)sourceURLForBridge:(HippyBridge *)bridge;
+
+- (void)componentWillBePurged:(id<HippyComponent>)component;
 
 /**
  * Called and inject Object before Hippy execute JS source code
