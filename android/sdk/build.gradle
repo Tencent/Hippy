@@ -3,7 +3,7 @@ apply from: './bintrayUpload.gradle'
 
 ext {
   CMAKE_PATH = "$projectDir.absolutePath/src/main/jni/CMakeLists.txt"
-  OUTPUT_PATH = "$buildDir/outputs/aar/"
+  OUTPUT_PATH = "$buildDir/outputs/aar"
   THIRD_PARTY_LIBRARY_PATH = "$projectDir.absolutePath/src/main/jni/third_party"
   JNI_LIBRARY_PATH = "$projectDir.absolutePath/libs"
 }
@@ -63,7 +63,7 @@ android {
     consumerProguardFiles 'proguard-rules.pro'
 
     buildConfigField("String", "PRODUCT_FLAVORS", "\"" + PRODUCT_FLAVORS + "\"")
-    buildConfigField("boolean", "ENABLE_SO_DOWNLOAD", (PRODUCT_FLAVORS == 'QQ') ? "false" : "true")
+    buildConfigField("boolean", "ENABLE_SO_DOWNLOAD", ENABLE_SO_DOWNLOAD)
 
     packagingOptions {
       pickFirst 'lib/armeabi-v7a/libmtt_shared.so'
@@ -93,10 +93,17 @@ android {
                   "-DCMAKE_BUILD_TYPE=Release",
                   "-DV8_VERSION=$V8_VERSION"
 
-          if (PRODUCT_FLAVORS == 'SIMULATOR') {
-            abiFilters 'x86', 'x86_64'
-          } else {
-            abiFilters 'armeabi-v7a', 'arm64-v8a'
+          if (INCLUDE_ABI_ARMEABI_V7A.toBoolean()) {
+            abiFilters 'armeabi-v7a'
+          }
+          if (INCLUDE_ABI_ARM64_V8A.toBoolean()) {
+            abiFilters 'arm64-v8a'
+          }
+          if (INCLUDE_ABI_X86.toBoolean()) {
+            abiFilters 'x86'
+          }
+          if (INCLUDE_ABI_X86_64.toBoolean()) {
+            abiFilters 'x86_64'
           }
         }
       }
@@ -111,11 +118,7 @@ android {
                   "-DCMAKE_BUILD_TYPE=Debug",
                   "-DV8_VERSION=$V8_VERSION"
 
-          if (PRODUCT_FLAVORS == 'SIMULATOR') {
-            abiFilters 'x86_64'
-          } else {
-            abiFilters 'arm64-v8a'
-          }
+          abiFilters 'arm64-v8a'
         }
       }
     }
@@ -153,49 +156,159 @@ dependencies {
   }
 }
 
-task clearJNILibs() {
-  File libs = new File(JNI_LIBRARY_PATH);
-  if (libs.exists()) {
-    libs.deleteDir()
+task copyJNILibs() {
+  file("$JNI_LIBRARY_PATH").deleteDir()
+
+  if (INCLUDE_ABI_ARMEABI_V7A.toBoolean()) {
+    copy {
+      from "$THIRD_PARTY_LIBRARY_PATH/$V8_VERSION/v8/armeabi-v7a/libmtt_shared.so",
+              "$THIRD_PARTY_LIBRARY_PATH/$V8_VERSION/v8/armeabi-v7a/libmttv8.so",
+              "$THIRD_PARTY_LIBRARY_PATH/layout/armeabi-v7a/libflexbox.so"
+      into "$JNI_LIBRARY_PATH/armeabi-v7a/"
+    }
+  }
+  if (INCLUDE_ABI_ARM64_V8A.toBoolean()) {
+    copy {
+      from "$THIRD_PARTY_LIBRARY_PATH/$V8_VERSION/v8/arm64-v8a/libmtt_shared.so",
+              "$THIRD_PARTY_LIBRARY_PATH/$V8_VERSION/v8/arm64-v8a/libmttv8.so",
+              "$THIRD_PARTY_LIBRARY_PATH/layout/arm64-v8a/libflexbox.so"
+      into "$JNI_LIBRARY_PATH/arm64-v8a/"
+    }
+  }
+  if (INCLUDE_ABI_X86.toBoolean()) {
+    copy {
+      from "$THIRD_PARTY_LIBRARY_PATH/$V8_VERSION/v8/x86/libmtt_shared.so",
+              "$THIRD_PARTY_LIBRARY_PATH/$V8_VERSION/v8/x86/libmttv8.so",
+              "$THIRD_PARTY_LIBRARY_PATH/layout/x86/libflexbox.so"
+      into "$JNI_LIBRARY_PATH/x86/"
+    }
+  }
+  if (INCLUDE_ABI_X86_64.toBoolean()) {
+    copy {
+      from "$THIRD_PARTY_LIBRARY_PATH/$V8_VERSION/v8/x86_64/libmtt_shared.so",
+              "$THIRD_PARTY_LIBRARY_PATH/$V8_VERSION/v8/x86_64/libmttv8.so",
+              "$THIRD_PARTY_LIBRARY_PATH/layout/x86_64/libflexbox.so"
+      into "$JNI_LIBRARY_PATH/x86_64/"
+    }
   }
 }
 
-task installJNILibs(dependsOn: clearJNILibs) {
-  def arches = (PRODUCT_FLAVORS == 'SIMULATOR') ? ['x86', 'x86_64'] : ['armeabi-v7a', 'arm64-v8a']
-  for (arch in arches) {
-    copy {
-      from "$THIRD_PARTY_LIBRARY_PATH/$V8_VERSION/v8/$arch/libmtt_shared.so",
-              "$THIRD_PARTY_LIBRARY_PATH/$V8_VERSION/v8/$arch/libmttv8.so",
-              "$THIRD_PARTY_LIBRARY_PATH/layout/$arch/libflexbox.so"
-      into "$JNI_LIBRARY_PATH/$arch/"
-    }
+project.tasks.whenTaskAdded { task ->
+  if (task.name.equals('assembleRelease')) {
+    task.finalizedBy dealAfterAssembleRelease
   }
+
+  if (task.name.equals('assembleDebug')) {
+    task.finalizedBy dealAfterAssembleDebug
+  }
+
 }
 
 afterEvaluate {
-  installJNILibs
-  android.libraryVariants.each { variant ->
-    def assembleTask
-    if (variant.buildType.name == 'release') {
-      assembleTask = project.tasks.findByName('assembleRelease')
-    } else {
-      assembleTask = project.tasks.findByName('assembleDebug')
-    }
-    assembleTask.finalizedBy dealAfterBuild
-  }
+  copyJNILibs
 }
 
-task dealAfterBuild() {
+task dealAfterAssembleDebug() {
   doLast {
+    file("$OUTPUT_PATH/debug").deleteDir()
+
     file(OUTPUT_PATH).list().each{fileName ->
-      if (fileName.contains(".aar")) {
+      if (fileName.contains("debug.aar")) {
         copy {
           from zipTree("$OUTPUT_PATH/$fileName")
+          into "$OUTPUT_PATH/debug"
+        }
+        copy {
+          from "$OUTPUT_PATH/debug"
           into OUTPUT_PATH
-          include 'classes.jar', 'jni/'
+          include 'classes.jar'
           rename 'classes.jar', 'hippy.jar'
         }
       }
+    }
+  }
+}
+
+def releaseOutputFileName = "$ARCHIVES_BASE_NAME-release.aar"
+
+task unzipAar() {
+  doLast {
+    file("$OUTPUT_PATH/release").deleteDir()
+
+    copy {
+      from zipTree("$OUTPUT_PATH/$releaseOutputFileName")
+      into "$OUTPUT_PATH/release"
+    }
+    copy {
+      from "$OUTPUT_PATH/release"
+      into OUTPUT_PATH
+      include 'classes.jar'
+      rename 'classes.jar', 'hippy.jar'
+    }
+  }
+}
+
+task addArmeabiDir(dependsOn: unzipAar) {
+  doLast {
+    if (INCLUDE_ABI_ARMEABI.toBoolean()) {
+      copy {
+        from "$OUTPUT_PATH/release/jni/armeabi-v7a"
+        into "$OUTPUT_PATH/release/jni/armeabi"
+      }
+    }
+  }
+}
+
+task excludeV8Libs(dependsOn: addArmeabiDir) {
+  doLast {
+    if (EXCLUDE_V8.toBoolean()) {
+      if (INCLUDE_ABI_ARMEABI.toBoolean()) {
+        file("$OUTPUT_PATH/release/jni/armeabi/libmttv8.so").delete()
+        file("$OUTPUT_PATH/release/jni/armeabi/libmtt_shared.so").delete()
+      }
+      if (INCLUDE_ABI_ARMEABI_V7A.toBoolean()) {
+        file("$OUTPUT_PATH/release/jni/armeabi-v7a/libmttv8.so").delete()
+        file("$OUTPUT_PATH/release/jni/armeabi-v7a/libmtt_shared.so").delete()
+      }
+      if (INCLUDE_ABI_ARM64_V8A.toBoolean()) {
+        file("$OUTPUT_PATH/release/jni/arm64-v8a/libmttv8.so").delete()
+        file("$OUTPUT_PATH/release/jni/arm64-v8a/libmtt_shared.so").delete()
+      }
+      if (INCLUDE_ABI_X86.toBoolean()) {
+        file("$OUTPUT_PATH/release/jni/x86/libmttv8.so").delete()
+        file("$OUTPUT_PATH/release/jni/x86/libmtt_shared.so").delete()
+      }
+      if (INCLUDE_ABI_X86_64.toBoolean()) {
+        file("$OUTPUT_PATH/release/jni/x86_64/libmttv8.so").delete()
+        file("$OUTPUT_PATH/release/jni/x86_64/libmtt_shared.so").delete()
+      }
+    }
+  }
+}
+
+task generateReleaseAar(dependsOn: excludeV8Libs) {
+  doLast {
+    if (INCLUDE_ABI_ARMEABI.toBoolean() || EXCLUDE_V8.toBoolean()) {
+      file("$OUTPUT_PATH/$releaseOutputFileName").delete()
+      exec {
+        def arguments = new ArrayList<?>()
+        arguments.add("a")
+        arguments.add("-tzip")
+        arguments.add("-mx=9")
+        arguments.add("$OUTPUT_PATH/$releaseOutputFileName")
+        arguments.add("$OUTPUT_PATH/release/*")
+        executable "7z"
+        args arguments
+      }
+    }
+  }
+}
+
+task dealAfterAssembleRelease(dependsOn: generateReleaseAar) {
+  doLast {
+    copy {
+      from "$OUTPUT_PATH/$releaseOutputFileName"
+      into "$projectDir.absolutePath/../../examples/android-demo/example/libs"
     }
   }
 }

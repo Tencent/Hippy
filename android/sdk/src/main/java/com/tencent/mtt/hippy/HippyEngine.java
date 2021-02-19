@@ -41,6 +41,7 @@ import com.tencent.mtt.hippy.adapter.storage.DefaultStorageAdapter;
 import com.tencent.mtt.hippy.adapter.storage.HippyStorageAdapter;
 import com.tencent.mtt.hippy.bridge.HippyCoreAPI;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
+import com.tencent.mtt.hippy.bridge.libraryloader.LibraryLoader;
 import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.utils.ContextHolder;
@@ -68,6 +69,10 @@ public abstract class HippyEngine
 	// Engine所属的分组ID，同一个组共享线程和isolate，不同context
 	protected int							    mGroupId;
 	ModuleListener								mModuleListener;
+
+	static {
+		LibraryLoader.loadLibraryIfNeed();
+	}
 
 	HippyEngine()
 	{
@@ -204,7 +209,7 @@ public abstract class HippyEngine
 
 	/**
 	 * send event
-	 * 
+	 *
 	 * @param event
 	 * @param params
 	 */
