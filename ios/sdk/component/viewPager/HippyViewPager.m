@@ -37,7 +37,7 @@
 @property (nonatomic, assign) NSUInteger lastPageIndex;
 @property (nonatomic, assign) CGFloat targetContentOffsetX;
 @property (nonatomic, assign) BOOL didFirstTimeLayout;
-@property (nonatomic, assign) BOOL invokeOnPageSelectd;
+@property (nonatomic, assign) BOOL invokeOnPageSelected;
 @property (nonatomic, assign) BOOL needsLayoutItems;
 
 @end
@@ -91,14 +91,14 @@
 
 - (void)hippySetFrame:(CGRect)frame {
     [super hippySetFrame:frame];
-    self.invokeOnPageSelectd = YES;
+    self.invokeOnPageSelected = YES;
     self.needsLayoutItems = YES;
     [self setNeedsLayout];
 }
 
 - (void)didUpdateHippySubviews {
     [super didUpdateHippySubviews];
-    self.invokeOnPageSelectd = NO;
+    self.invokeOnPageSelected = NO;
     self.needsLayoutItems = YES;
     [self setNeedsLayout];
 }
@@ -313,7 +313,7 @@
     if (!isContentSizeEqual || !isFrameEqual) {
         self.previousFrame = self.frame;
         self.previousSize = self.contentSize;
-        self.invokeOnPageSelectd = YES;
+        self.invokeOnPageSelected = YES;
         self.needsLayoutItems = YES;
         [self setNeedsLayout];
     }
@@ -367,7 +367,7 @@
     self.contentSize = CGSizeMake(
             lastViewPagerItem.frame.origin.x + lastViewPagerItem.frame.size.width,
             lastViewPagerItem.frame.origin.y + lastViewPagerItem.frame.size.height);
-    if (self.onPageSelected && NO == CGSizeEqualToSize(CGSizeZero, self.contentSize) && _invokeOnPageSelectd) {
+    if (self.onPageSelected && NO == CGSizeEqualToSize(CGSizeZero, self.contentSize) && _invokeOnPageSelected) {
         NSUInteger currentPageIndex = self.contentOffset.x / CGRectGetWidth(self.bounds);
         if (currentPageIndex != _lastPageIndex) {
             _lastPageIndex = currentPageIndex;
