@@ -40,7 +40,7 @@ interface ImageProps extends LayoutableProps, ClickableProps {
    * Fill color to the image
    */
   tintColor?: number | string;
-  tintColors?: number[] | string[];
+  tintColors?: (number | string)[];
 
   /**
    * Image style when `Image` have other children.

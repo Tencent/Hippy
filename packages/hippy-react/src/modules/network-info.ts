@@ -8,7 +8,7 @@ type NetworkInfoCallback = (data: NetworkChangeEventData) => void;
 
 interface NetInfoRevoker {
   eventName: string;
-  listener: NetworkInfoCallback;
+  listener?: NetworkInfoCallback;
 }
 
 const DEVICE_CONNECTIVITY_EVENT = 'networkStatusDidChange';

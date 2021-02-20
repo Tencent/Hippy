@@ -26,8 +26,8 @@ function colorParse(color: Color, options: ColorParserOption = {}) {
   }
   let int32Color = baseColor(color);
   if (!options.platform) {
-    /* eslint-disable-next-line no-param-reassign */
-    options.platform = __PLATFORM__ || Device.platform.OS;
+    /* eslint-disable-next-line no-param-reassign,no-underscore-dangle */
+    options.platform = global.__PLATFORM__ || Device.platform.OS;
   }
   if (int32Color === null) {
     return 0;

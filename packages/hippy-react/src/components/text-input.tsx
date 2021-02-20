@@ -113,7 +113,7 @@ interface TextInputProps extends LayoutableProps, ClickableProps {
    */
   placeholderTextColors?: string[];
 
-  style: Style;
+  style?: Style;
 
   /**
    * Callback that is called when the text input is blurred.

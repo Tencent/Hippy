@@ -161,7 +161,8 @@ class Animation implements Animation {
     // Set as iOS default
     let animationEventName = 'onAnimation';
     // If running in Android, change it.
-    if (__PLATFORM__ === 'android' || Device.platform.OS === 'android') {
+    // eslint-disable-next-line no-underscore-dangle
+    if (global.__PLATFORM__ === 'android' || Device.platform.OS === 'android') {
       animationEventName = 'onHippyAnimation';
     }
 

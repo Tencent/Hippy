@@ -2,7 +2,7 @@ import HippyEventListener from './listener';
 
 interface EventEmitterRevoker {
   callback: number;
-  bindListener: HippyEventListener;
+  bindListener?: HippyEventListener;
 }
 
 class EventEmitterRevoker implements EventEmitterRevoker {

@@ -71,7 +71,8 @@ const fakeBackAndroid = {
 };
 
 const BackAndroid = (() => {
-  if (__PLATFORM__ === 'android' || Device.platform.OS === 'android') {
+  // eslint-disable-next-line no-underscore-dangle
+  if (global.__PLATFORM__ === 'android' || Device.platform.OS === 'android') {
     realBackAndroid.initEventListener();
     return realBackAndroid;
   }
