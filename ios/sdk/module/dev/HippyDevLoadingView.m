@@ -91,7 +91,7 @@ HIPPY_EXPORT_METHOD(showMessage:(NSString *)message color:(UIColor *)color backg
       CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
       CGFloat viewHeight = HippyDevMsgViewHeight;
       if (@available(iOS 11.0, *)) {
-          UIEdgeInsets safeAreaInsets = [[UIApplication sharedApplication] delegate].window.safeAreaInsets;
+          UIEdgeInsets safeAreaInsets = HippyKeyWindow().safeAreaInsets;
           if (safeAreaInsets.bottom > 0) {
               //is iPhoneX
               viewHeight += safeAreaInsets.top;
