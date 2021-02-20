@@ -25,6 +25,8 @@
 @class HippyRootView;
 
 @protocol HippyRootViewDelegate <NSObject>
+
+@optional
 /**
  * Called after the root view's content is updated to a new size. The method is not called
  * when both old size and new size have a dimension that equals to zero.
@@ -39,5 +41,11 @@
  * Called after finish load the bundle.
  */
 - (void)rootView:(HippyRootView *)rootView didLoadFinish:(BOOL)success;
+
+/**
+ * Called when rootview dealloc.
+ */
+
+- (void)rootViewWillBePurged:(HippyRootView *)rootView;
 
 @end

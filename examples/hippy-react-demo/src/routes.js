@@ -12,6 +12,14 @@ const PAGE_LIST = {
 
 export default [
   {
+    path: '/Feeds',
+    name: '虫洞示例',
+    component: PAGE_LIST.WormholeDemo,
+    meta: {
+      style: 1,
+    },
+  },
+  {
     path: '/View',
     name: 'View 组件',
     component: PAGE_LIST.View,
