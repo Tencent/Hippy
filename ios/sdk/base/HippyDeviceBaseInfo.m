@@ -24,16 +24,7 @@
 #import <UIKit/UIApplication.h>
 #import "HippyEventDispatcher.h"
 #import "HippyAssert.h"
-
-static UIWindow *hippyKeyWindow() {
-    NSArray<__kindof UIWindow *> *windows = [[UIApplication sharedApplication] windows];
-    for (UIWindow *window in windows) {
-        if ([window isKeyWindow]) {
-            return window;
-        }
-    }
-    return nil;
-}
+#import "HippyUtils.h"
 
 static BOOL isiPhoneX()
 {
@@ -48,7 +39,7 @@ static BOOL isiPhoneX()
 NSDictionary *hippyExportedDimensions() {
     NSCAssert([NSThread mainThread], @"this function can only be called in main thread");
     CGSize screenSize = [UIScreen mainScreen].bounds.size;
-    CGSize windowSize = hippyKeyWindow() ? hippyKeyWindow().bounds.size : screenSize;
+    CGSize windowSize = HippyKeyWindow() ? HippyKeyWindow().bounds.size : screenSize;
     CGFloat statusBarHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
     if (statusBarHeight == 0) {
         statusBarHeight = isiPhoneX() ? 44 : 20;
