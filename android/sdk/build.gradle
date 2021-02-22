@@ -93,7 +93,7 @@ android {
                   "-DCMAKE_BUILD_TYPE=Release",
                   "-DV8_VERSION=$V8_VERSION"
 
-          if (INCLUDE_ABI_ARMEABI_V7A.toBoolean()) {
+          if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() || INCLUDE_ABI_ARMEABI.toBoolean()) {
             abiFilters 'armeabi-v7a'
           }
           if (INCLUDE_ABI_ARM64_V8A.toBoolean()) {
@@ -159,7 +159,7 @@ dependencies {
 task copyJNILibs() {
   file("$JNI_LIBRARY_PATH").deleteDir()
 
-  if (INCLUDE_ABI_ARMEABI_V7A.toBoolean()) {
+  if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() || INCLUDE_ABI_ARMEABI.toBoolean()) {
     copy {
       from "$THIRD_PARTY_LIBRARY_PATH/$V8_VERSION/v8/armeabi-v7a/libmtt_shared.so",
               "$THIRD_PARTY_LIBRARY_PATH/$V8_VERSION/v8/armeabi-v7a/libmttv8.so",
@@ -266,7 +266,7 @@ task excludeV8Libs(dependsOn: addArmeabiDir) {
         file("$OUTPUT_PATH/release/jni/armeabi/libmttv8.so").delete()
         file("$OUTPUT_PATH/release/jni/armeabi/libmtt_shared.so").delete()
       }
-      if (INCLUDE_ABI_ARMEABI_V7A.toBoolean()) {
+      if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() || INCLUDE_ABI_ARMEABI.toBoolean()) {
         file("$OUTPUT_PATH/release/jni/armeabi-v7a/libmttv8.so").delete()
         file("$OUTPUT_PATH/release/jni/armeabi-v7a/libmtt_shared.so").delete()
       }
