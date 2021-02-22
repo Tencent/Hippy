@@ -320,7 +320,7 @@ void V8Ctx::GetMessageInfo(v8::Local<v8::Message> message,
         *script_name ? *script_name : "<script name conversion failed>";
     std::string stack_function_name =
         *function_name ? *function_name : "<function name conversion failed>";
-    stack_stream << "\n"
+    stack_stream << "\\n"
                  << stack_script_name << ": " << frame->GetLineNumber() << ": "
                  << frame->GetColumn() << ": " << stack_function_name;
   }

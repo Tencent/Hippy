@@ -37,7 +37,7 @@
 #import "HippyRedBox.h"
 #import "HippyDevLoadingView.h"
 #import "HippyDeviceBaseInfo.h"
-#include "scope.h"
+#include "core/scope.h"
 
 #define HippyAssertJSThread()
 //
