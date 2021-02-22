@@ -27,9 +27,9 @@
 #import "HippyBridgeModule.h"
 #import "HippyInvalidating.h"
 
-#include "engine.h"
-#include "scope.h"
-#include "js_native_api_types.h"
+#include "core/engine.h"
+#include "core/scope.h"
+#include "core/napi/js_native_api_types.h"
 
 typedef void (^HippyJavaScriptCompleteBlock)(NSError *error);
 typedef void (^HippyJavaScriptCallback)(id result, NSError *error);
