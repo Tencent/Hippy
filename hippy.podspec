@@ -29,7 +29,8 @@ TODO: Add long description of the pod here.
   s.exclude_files = ['core/include/core/napi/v8','core/src/napi/v8','core/js']
   s.libraries    = "c++"
   s.ios.deployment_target = '8.0'
-  s.xcconfig = {'USER_HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy ${PODS_ROOT}/hippy/ios/sdk/** ${PODS_ROOT}/hippy/core/include'}
+  s.xcconfig = {'HEADER_SEARCH_PATHS' => '"${PODS_ROOT}/hippy" "${PODS_ROOT}/hippy/ios/sdk/**" "${PODS_ROOT}/hippy/core/include"'}
+  s.header_mappings_dir = 'core/include/'
   if ENV['hippy_use_frameworks']
   else
     s.user_target_xcconfig = {'OTHER_LDFLAGS' => '-force_load "${PODS_CONFIGURATION_BUILD_DIR}/hippy/libhippy.a"'}
