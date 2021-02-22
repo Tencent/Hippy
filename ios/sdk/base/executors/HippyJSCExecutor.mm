@@ -45,12 +45,12 @@
 #import "HippyBridge+LocalFileSource.h"
 #include "ios_loader.h"
 #import "HippyBridge+Private.h"
-#include "js_native_api_jsc.h"
-#include "javascript_task.h"
-#include "js_native_api.h"
-#include "scope.h"
-#include "javascript_task_runner.h"
-#include "engine.h"
+#include "core/napi/jsc/js_native_api_jsc.h"
+#include "core/task/javascript_task.h"
+#include "core/napi/js_native_api.h"
+#include "core/scope.h"
+#include "core/task/javascript_task_runner.h"
+#include "core/engine.h"
 
 NSString *const HippyJSCThreadName = @"com.tencent.hippy.JavaScript";
 NSString *const HippyJavaScriptContextCreatedNotification = @"HippyJavaScriptContextCreatedNotification";
