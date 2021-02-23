@@ -69,6 +69,11 @@ module.exports = {
                   },
                 ],
               ],
+              plugins: [
+                ['@babel/plugin-proposal-class-properties', { loose: true }],
+                ['@babel/plugin-proposal-decorators', { legacy: true }],
+                ['@babel/plugin-transform-runtime', { regenerator: true }],
+              ],
             },
           },
           'unicode-loader',
