@@ -527,6 +527,7 @@ std::shared_ptr<CtxValue> V8Ctx::CallFunction(
   }
 
   v8::TryCatch try_catch(isolate_);
+  try_catch.SetVerbose(true);
   std::shared_ptr<V8CtxValue> ctx_value =
       std::static_pointer_cast<V8CtxValue>(function);
   const v8::Persistent<v8::Value> &persistent_value =
@@ -539,19 +540,6 @@ std::shared_ptr<CtxValue> V8Ctx::CallFunction(
   }
 
   v8::Function *v8_fn = v8::Function::Cast(*handle_value);
-  if (!v8_fn) {
-    if (try_catch.HasCaught()) {
-      HIPPY_DLOG(hippy::Warning, "CallFunction caught error");
-      if (exception) {
-        *exception = GetException(try_catch);
-      } else {
-        try_catch.ReThrow();
-      }
-    }
-    HIPPY_LOG(hippy::Error, "CallFunction cast v8_fn error");
-    return nullptr;
-  }
-
   v8::Handle<v8::Value> args[argument_count];
   for (size_t i = 0; i < argument_count; i++) {
     std::shared_ptr<V8CtxValue> argument =

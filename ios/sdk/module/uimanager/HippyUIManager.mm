@@ -960,25 +960,7 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
         if ([node isListSubNode] && [node cellNode] && !viewRegistry[[[node cellNode] hippyTag]]) {
             return ;
         }
-        
-        UIView *view = [componentData createViewWithTag:hippyTag initProps: newProps];
-        if (view) {
-            view.viewName = viewName;
-            [componentData setProps:props forView:view]; // Must be done before bgColor to prevent wrong default
-            
-            if ([view respondsToSelector:@selector(hippyBridgeDidFinishTransaction)]) {
-                [uiManager->_bridgeTransactionListeners addObject:view];
-            }
-            uiManager->_viewRegistry[hippyTag] = view;
-        }
-        
-        if ([node isKindOfClass:[HippyVirtualList class]]) {
-            if ([view conformsToProtocol: @protocol(HippyBaseListViewProtocol)]) {
-                id <HippyBaseListViewProtocol> listview = (id<HippyBaseListViewProtocol>)view;
-                listview.node = (HippyVirtualList *)node;
-                [uiManager->_listTags addObject:hippyTag];
-            }
-        }
+        [uiManager createViewByComponentData:componentData hippyVirtualNode:node hippyTag:hippyTag properties:newProps viewName:viewName];
     }];
     
     [self addVirtulNodeBlock:^(HippyUIManager *uiManager, __unused NSDictionary<NSNumber *,HippyVirtualNode *> *virtualNodeRegistry) {
@@ -988,6 +970,32 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
             uiManager->_nodeRegistry[hippyTag] = node;
         }
     }];
+}
+
+- (UIView *)createViewByComponentData:(HippyComponentData *)componentData
+                 hippyVirtualNode:(HippyVirtualNode *)node
+                         hippyTag:(NSNumber *)hippyTag
+                       properties:(NSDictionary *)props
+                         viewName:(NSString *)viewName {
+    UIView *view = [componentData createViewWithTag:hippyTag initProps: props];
+    if (view) {
+        view.viewName = viewName;
+        [componentData setProps:props forView:view]; // Must be done before bgColor to prevent wrong default
+        
+        if ([view respondsToSelector:@selector(hippyBridgeDidFinishTransaction)]) {
+            [self->_bridgeTransactionListeners addObject:view];
+        }
+        self->_viewRegistry[hippyTag] = view;
+    }
+    
+    if ([node isKindOfClass:[HippyVirtualList class]]) {
+        if ([view conformsToProtocol: @protocol(HippyBaseListViewProtocol)]) {
+            id <HippyBaseListViewProtocol> listview = (id<HippyBaseListViewProtocol>)view;
+            listview.node = (HippyVirtualList *)node;
+            [self->_listTags addObject:hippyTag];
+        }
+    }
+    return view;
 }
 
 - (void) updateViewsFromParams:(NSArray<HippyExtAnimationViewParams *> *)params completion:(HippyViewUpdateCompletedBlock)block{
@@ -1477,9 +1485,7 @@ static UIView *_jsResponder;
                     NSNumber *tag = subNode.hippyTag;
                     NSDictionary *props = subNode.props;
                     HippyComponentData *componentData = self->_componentDataByName[viewName];
-                    subview = [componentData createViewWithTag: tag initProps: props];
-                    [componentData setProps: props forView: subview];
-                    self->_viewRegistry[tag] = subview;
+                    subview = [self createViewByComponentData:componentData hippyVirtualNode:subNode hippyTag:tag properties:props viewName:viewName];
                 } else {
                     HippyComponentData *componentData = self->_componentDataByName[oldSubNode.viewName];
                     NSDictionary *oldProps = oldSubNode.props;
@@ -1505,9 +1511,7 @@ static UIView *_jsResponder;
                     NSNumber *tag = subNode.hippyTag;
                     NSDictionary *props = subNode.props;
                     HippyComponentData *componentData = self->_componentDataByName[viewName];
-                    subview = [componentData createViewWithTag: tag initProps: props];
-                    [componentData setProps: props forView: subview];
-                    self->_viewRegistry[tag] = subview;
+                    subview = [self createViewByComponentData:componentData hippyVirtualNode:subNode hippyTag:tag properties:props viewName:viewName];
                 } else {
                     [subview sendDetachedFromWindowEvent];
                     [subview.layer removeAllAnimations];
@@ -1552,9 +1556,7 @@ static UIView *_jsResponder;
             NSNumber *tag = subNode.hippyTag;
             NSDictionary *props = subNode.props;
             HippyComponentData *componentData = self->_componentDataByName[viewName];
-            UIView *view = [componentData createViewWithTag: tag initProps: props];
-            [componentData setProps: props forView: view];
-            self->_viewRegistry[tag] = view;
+            UIView *view = [self createViewByComponentData:componentData hippyVirtualNode:subNode hippyTag:tag properties:props viewName:viewName];
             CGRect frame = subNode.frame;
             [view hippySetFrame:frame];
             if ([view respondsToSelector: @selector(hippyBridgeDidFinishTransaction)]) {
