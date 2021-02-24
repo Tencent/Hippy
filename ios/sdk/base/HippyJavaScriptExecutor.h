@@ -26,13 +26,12 @@
 
 #import "HippyBridgeModule.h"
 #import "HippyInvalidating.h"
-
-#include "core/engine.h"
-#include "core/scope.h"
-#include "core/napi/js_native_api_types.h"
+#include <memory>
 
 typedef void (^HippyJavaScriptCompleteBlock)(NSError *error);
 typedef void (^HippyJavaScriptCallback)(id result, NSError *error);
+
+class Scope;
 
 /**
  * Abstracts away a JavaScript execution context - we may be running code in a
