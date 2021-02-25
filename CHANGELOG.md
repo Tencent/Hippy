@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.5.0](https://github.com/Tencent/Hippy/compare/2.4.0...2.5.0) (2021-02-25)
+
+
+### Bug Fixes
+
+* **ios:** fix viewpager bug ([54b0e06](https://github.com/Tencent/Hippy/commit/54b0e060b1dc078d83f830ce3a9b42df210dec56))
+
+
+### Reverts
+
+* Revert "feat(hippy-core): export so symbol" ([94842f6](https://github.com/Tencent/Hippy/commit/94842f69c5001cf69226848978e93703a3828c1c))
+
+
+
+
+
 # [2.4.0](https://github.com/Tencent/Hippy/compare/2.3.4...2.4.0) (2021-02-25)
 
 
