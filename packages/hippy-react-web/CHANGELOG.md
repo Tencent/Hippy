@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.4.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/compare/2.3.4...2.4.0) (2021-02-25)
+
+
+### Bug Fixes
+
+* **hippy-react-web:** correct margin and padding style values ([#543](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/issues/543)) ([0754a68](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/commit/0754a682ffe894f36c48b1a739c65ab8b76e9a24))
+
+
+
+
+
 ## [2.3.4](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/compare/2.3.3...2.3.4) (2021-01-25)
 
 **Note:** Version bump only for package @hippy/react-web

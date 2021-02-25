@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.4.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.3.4...2.4.0) (2021-02-25)
+
+
+### Bug Fixes
+
+* **hippy-vue:** fix vue webpack dll problem ([bbdc95c](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/bbdc95cd602d8d545a2958cd1b877905300b1c4d))
+
+
+
+
+
 ## [2.3.4](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.3.3...2.3.4) (2021-01-25)
 
 **Note:** Version bump only for package @hippy/react

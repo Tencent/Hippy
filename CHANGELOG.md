@@ -3,6 +3,56 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.4.0](https://github.com/Tencent/Hippy/compare/2.3.4...2.4.0) (2021-02-25)
+
+
+### Bug Fixes
+
+* **android:** add usesCleartextTraffic=true ([6c21253](https://github.com/Tencent/Hippy/commit/6c2125336fadc85df86743b62874bf7393bc3d3c))
+* **android:** merge some bug fix from QB branch ([5ad10ae](https://github.com/Tencent/Hippy/commit/5ad10ae476ad8178996cf5ada0e11115c196edc0))
+* **android:** merge some bug fix from QQ branch ([a9b9460](https://github.com/Tencent/Hippy/commit/a9b94603627612f4b84a0100345a7a898a3bb385))
+* **android:** onCreateSuspendViewHolderWithPos should return null ([7efa9c9](https://github.com/Tencent/Hippy/commit/7efa9c9a980dc54ba879e1a7c9a4ed3536a37f27))
+* **android:** support only include armeabi ([3e60c4d](https://github.com/Tencent/Hippy/commit/3e60c4d9e02ef20e2ad7731a23eec73eab75f208))
+* **android:** update v8 77 so ([a05fdaf](https://github.com/Tencent/Hippy/commit/a05fdaf8c1cc069c560a44fbe96e7807e1432023))
+* **android:** webview set allow content access to false ([b12e5cf](https://github.com/Tencent/Hippy/commit/b12e5cfd25008ecdb29c780a250ab5a58087175c))
+* **core:** avoid iOS map crash ([7657ab5](https://github.com/Tencent/Hippy/commit/7657ab53bc2c7ee998bed8cbd52f923996843e04))
+* **core:** fix debug crash ([748c6de](https://github.com/Tencent/Hippy/commit/748c6dede274f423c21c955f003f7cc7a751d046))
+* **core:** fix js exception report bug ([1b27277](https://github.com/Tencent/Hippy/commit/1b27277be0e4060d6480aea835c4d8c832bc6f70))
+* **feat:** change build-core script ([38b99dd](https://github.com/Tencent/Hippy/commit/38b99dd9510da2e4c4ba4fd7525f78398cc9a0e5))
+* **hippy-core:** remove getOwnPropertyDescriptors ([58f5ff7](https://github.com/Tencent/Hippy/commit/58f5ff7729b57c246ccce7f72d103e5af6498165))
+* **hippy-react-web:** correct margin and padding style values ([#543](https://github.com/Tencent/Hippy/issues/543)) ([0754a68](https://github.com/Tencent/Hippy/commit/0754a682ffe894f36c48b1a739c65ab8b76e9a24))
+* **hippy-react,hippy-vue:** add examples webpack sourcetype ([839da97](https://github.com/Tencent/Hippy/commit/839da975819024647a9797a836792dabeeb19acf))
+* **hippy-vue:** fix vue webpack dll problem ([bbdc95c](https://github.com/Tencent/Hippy/commit/bbdc95cd602d8d545a2958cd1b877905300b1c4d))
+* **hippy-vue,hippy-react:** added example babel plugins ([cd54ce9](https://github.com/Tencent/Hippy/commit/cd54ce91082f81257095d7979ea6ca717bd323f9))
+* **hippy-vue,hippy-react:** change webpack vendor script ([4ac88cb](https://github.com/Tencent/Hippy/commit/4ac88cbf03ec4ea34538ce27b850f8d4ab1c24be))
+* **ios:** add [@autoreleasepool](https://github.com/autoreleasepool) in hippy custom js thread callback block ([b0518a2](https://github.com/Tencent/Hippy/commit/b0518a25dd0f46a69ac78cb6261cbe8ca661dc63))
+* **ios:** fix apng image delay time error ([f8eb557](https://github.com/Tencent/Hippy/commit/f8eb557ab92167bd9351d149078373e3ceeebdd7))
+* **ios:** fix backgroundSize property of View component ([e16cedf](https://github.com/Tencent/Hippy/commit/e16cedf9301194ec22cfe312dfef11a9cf5cf6a8))
+* **ios:** fix device orientation change event bug ([d80c6a3](https://github.com/Tencent/Hippy/commit/d80c6a36f0a6aa17345740571c72b2fa140dfc84))
+* **ios:** fix image down sample error ([b967ceb](https://github.com/Tencent/Hippy/commit/b967cebad80c9eb55f3fc3dbade3bf9d7b697324))
+* **ios:** fix image insets error ([9651d84](https://github.com/Tencent/Hippy/commit/9651d8412d9ed234a984d8321ee39d8cec22d6b0))
+* **ios:** fix potential crash because of a nil context pointer ([e8c1820](https://github.com/Tencent/Hippy/commit/e8c18208376715a636d2288df123d86b44e7d8af))
+* **ios:** fix protential crash when AppDelegate.window called ([5048b0b](https://github.com/Tencent/Hippy/commit/5048b0b772fc78c766fea5ca67fcb764bb0b3a32))
+* **ios:** fix text input placeholder error ([83b6f48](https://github.com/Tencent/Hippy/commit/83b6f48da3bef9dbd35669badef8db040cf97f74))
+* **ios:** fix view creation missing if view is created lazily ([b8747ac](https://github.com/Tencent/Hippy/commit/b8747acf62c913731c471422ad80c40fe6969aac))
+* **ios:** fix viewpager component bug ([#564](https://github.com/Tencent/Hippy/issues/564)) ([56c481b](https://github.com/Tencent/Hippy/commit/56c481bda62a3268b2259430f54fa685de2eafcd))
+
+
+### Features
+
+* **android:** add gaussian blur property to image ([6c7290e](https://github.com/Tencent/Hippy/commit/6c7290e19bfa4ecda11b0dad00ef49e7b615f624))
+* **android:** add local aar dependencies in demo ([227302c](https://github.com/Tencent/Hippy/commit/227302c5dea8d117213ac5b3461abd738ad9c796))
+* **android:** change gaussian blur property type ([2733d1a](https://github.com/Tencent/Hippy/commit/2733d1a249ec0b6feae8530f803ba7e1111e8fe7))
+* **android:** night mode support ([31ca5d1](https://github.com/Tencent/Hippy/commit/31ca5d1b1e371b846bc73d7790a248cd409d9e9f))
+* **android:** support abi and v8 gradle setting ([8961799](https://github.com/Tencent/Hippy/commit/8961799439c890fc84ce24fc593697c3b4307a9e))
+* **android:** support assemble by product flavors ([d0ecb6a](https://github.com/Tencent/Hippy/commit/d0ecb6a615c58c4e89648bb1fe41d8a5c1ea9e17))
+* **android:** support register multi module name ([3060283](https://github.com/Tencent/Hippy/commit/30602839b598d2ff51b2260faab7a4551bf14ebc))
+* **hippy-core:** export so symbol ([3f9d5cb](https://github.com/Tencent/Hippy/commit/3f9d5cb98079176f03874a6b6607d6fb43ed1b3a))
+
+
+
+
+
 ## [2.3.4](https://github.com/Tencent/Hippy/compare/2.3.3...2.3.4) (2021-01-25)
 
 
