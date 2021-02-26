@@ -40,5 +40,5 @@ public interface HippyEngineMonitorAdapter
 
 	void reportGestureEventCallStack(String funcName, String msg);
 
-	void reportClickEvent(Object object);
+	void reportClickEvent(Object object, boolean isCustomEvent);
 }
