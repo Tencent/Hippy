@@ -189,6 +189,10 @@ NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotif
 							[weakSelf bundleFinishedLoading: bridge.batchedBridge];
 						}
 					});
+                    
+                    if (delegate && [delegate respondsToSelector:@selector(rootView:didLoadFinish:)]) {
+                        [delegate rootView:weakSelf didLoadFinish:success];
+                    }
 				}];
 			}
 		}
