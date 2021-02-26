@@ -3861,10 +3861,29 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 		}
 	}
 
-	protected boolean onStartDrag(boolean left)
-	{
-		return true;
-	}
+  @Override
+  public boolean canScrollHorizontally(int direction) {
+    if (!mScrollEnabled) {
+      return false;
+    }
+    return horizontalCanScroll(direction);
+  }
+
+  @Override
+  public boolean canScrollVertically(int direction) {
+    if (!mScrollEnabled) {
+      return false;
+    }
+    return verticalCanScroll(direction);
+  }
+
+	protected boolean onStartDrag(boolean left) {
+    if (left) {
+      return horizontalCanScroll(1);
+    } else {
+      return horizontalCanScroll(-1);
+    }
+  }
 
 	/**
 	 * Start a fake drag of the pager.
