@@ -4900,4 +4900,8 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 	{
 		mCallPageChangedOnFirstLayout = enable;
 	}
+
+	public boolean isScrollEnabled() {
+	  return mScrollEnabled;
+  }
 }
