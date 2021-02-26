@@ -143,8 +143,7 @@ public class HippyNativeGestureSpan implements NativeGestureProcessor.Callback
 						}
 						else
 						{
-							NativeGestureDispatcher.handleClick(mContext, mTagId);
-							reportCustomClickEvent(view);
+							NativeGestureDispatcher.handleClick(view, mContext, mTagId, true);
 						}
 					}
 				}
@@ -172,15 +171,6 @@ public class HippyNativeGestureSpan implements NativeGestureProcessor.Callback
 		lastY = y;
 		return handle;
 
-	}
-
-	private void reportCustomClickEvent(View view) {
-		if (mContext != null && view != null) {
-			HippyEngineMonitorAdapter monitorAdapter = mContext.getGlobalConfigs().getEngineMonitorAdapter();
-			if (monitorAdapter != null) {
-				monitorAdapter.reportClickEvent(view);
-			}
-		}
 	}
 
 	@Override
