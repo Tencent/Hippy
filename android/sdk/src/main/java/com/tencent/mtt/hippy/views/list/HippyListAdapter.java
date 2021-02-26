@@ -613,6 +613,11 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
 		return mPreloadItemNum;
 	}
 
+	@Override
+	public void onPreload() {
+		getOnEndReachedEvent().send(mParentRecyclerView, null);
+	}
+
 	protected void setPreloadItemNumber(int preloadItemNum)
 	{
 		mPreloadItemNum = preloadItemNum;
