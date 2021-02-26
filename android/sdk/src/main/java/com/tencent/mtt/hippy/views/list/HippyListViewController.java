@@ -173,6 +173,12 @@ public class HippyListViewController extends HippyViewController<HippyListView>
 		}
 	}
 
+  @HippyControllerProps(name = "overScrollEnabled", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = true)
+  public void setOverScrollEnabled(HippyListView view, boolean flag)
+  {
+    view.setOverScrollEnabled(flag);
+  }
+
 	@Override
 	public void dispatchFunction(HippyListView view, String functionName, HippyArray dataArray)
 	{
