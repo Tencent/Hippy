@@ -49,14 +49,11 @@ import com.tencent.mtt.supportui.views.asyncimage.ContentDrawable;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by leonardgong on 2017/12/4 0004.
- * harryguo modified 2019/4/23 support gif
- */
-
 public class HippyImageView extends AsyncImageView implements CommonBorder, HippyViewBase, HippyRecycler
 {
-  public static final String IMAGE_TYPE_APNG  = "apng";
+	public static final String IMAGE_TYPE_APNG  = "apng";
+	public static final String IMAGE_TYPE_GIF   = "gif";
+	public static final String IMAGE_PROPS      = "props";
 
 	private HippyMap mIniProps = new HippyMap();
 	private boolean mHasSetTempBackgroundColor = false;
@@ -101,7 +98,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 		setImagePositionX(0);
 		setImagePositionY(0);
 		mUrl = null;
-    mImageType = null;
+		mImageType = null;
 		setBackgroundDrawable(null);
 		for (int i = 0; i < mShouldSendImageEvent.length; i++)
 		{
@@ -132,7 +129,6 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 	private OnLoadStartEvent			mOnLoadStartEvent;
 	private boolean[]					mShouldSendImageEvent;
 	private Rect						mNinePatchRect;
-	protected String 					mHippyImageViewDefalutImgeUrl = null; //如果用戶設置了默認顯示的圖片,在拉完source失败后要用默认图
 
 	public HippyImageView(Context context)
 	{
@@ -165,6 +161,10 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 				if (styles.containsKey(NodeProps.RESIZE_MODE)) {
 					mIniProps.pushString(NodeProps.RESIZE_MODE, styles.getString(NodeProps.RESIZE_MODE));
 				}
+
+				if (styles.containsKey(NodeProps.GAUSSIAN_BLUR)) {
+					mIniProps.pushBoolean(NodeProps.GAUSSIAN_BLUR, styles.getBoolean(NodeProps.GAUSSIAN_BLUR));
+				}
 			}
 		}
 
@@ -172,6 +172,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 			mIniProps.pushString(NodeProps.CUSTOM_PROP_IMAGE_TYPE, iniProps.getString(NodeProps.CUSTOM_PROP_IMAGE_TYPE));
 		}
 
+		mIniProps.pushInt(NodeProps.REPEAT_COUNT, iniProps.getInt(NodeProps.REPEAT_COUNT));
 		mIniProps.pushBoolean(NodeProps.CUSTOM_PROP_ISGIF, iniProps.getBoolean(NodeProps.CUSTOM_PROP_ISGIF));
 		mIniProps.pushInt(NodeProps.WIDTH, width);
 		mIniProps.pushInt(NodeProps.HEIGHT, height);
@@ -226,9 +227,9 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 	}
 
 	public void setHippyViewDefaultSource(String defaultSourceUrl) {
-			mHippyImageViewDefalutImgeUrl = defaultSourceUrl;
-			setDefaultSource(mHippyImageViewDefalutImgeUrl); //这一句还是要,不要,如果用户没有设置source就没有图
+		setDefaultSource(defaultSourceUrl); //这一句还是要,不要,如果用户没有设置source就没有图
 	}
+
 	@Override
 	protected void doFetchImage(Object param, final int sourceType)
 	{
@@ -242,20 +243,16 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 			if (param instanceof Map)
 			{
 				try {
-					((Map) param).put("props", mIniProps);
+					((Map) param).put(IMAGE_PROPS, mIniProps);
 				} catch (Exception e) {
 
 				}
 			}
 
 			// 这里不判断下是取背景图片还是取当前图片怎么行？
-			String url = sourceType == SOURCE_TYPE_SRC ? mUrl : mDefaultSourceUrl;
+			final String url = sourceType == SOURCE_TYPE_SRC ? mUrl : mDefaultSourceUrl;
 			mImageAdapter.fetchImage(url, new HippyImageLoader.Callback()
 			{
-				// 在此保存着fetchImage时的url，以备：在onRequestSuccess时，用这个mFetchUrl和HippyImageView里的mUrl做对比，
-				// 看看是否同一个url（很可能不相同的。因为HippyImageView会经常复用，所以他的mUrl会经常被重设）
-				String mFetchUrl = mUrl;
-
 				@Override
 				public void onRequestStart(HippyDrawable drawableTarget)
 				{
@@ -263,28 +260,35 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 				}
 
 				@Override
-				public void onRequestSuccess(HippyDrawable drawableTarget)
-				{
-					if (TextUtils.equals(mFetchUrl, mUrl))
-						handleImageRequest(drawableTarget, sourceType, null);
+				public void onRequestSuccess(HippyDrawable drawableTarget) {
+					if (sourceType == SOURCE_TYPE_SRC) {
+						if (!TextUtils.equals(url, mUrl)) {
+							return;
+						}
+						mUrlFetchState = IMAGE_LOADED;
+					}
+
+					if (sourceType == SOURCE_TYPE_DEFAULT_SRC && !TextUtils.equals(url, mDefaultSourceUrl)) {
+						return;
+					}
+
+					handleImageRequest(drawableTarget, sourceType, null);
 				}
 
 				@Override
-				public void onRequestFail(Throwable throwable, String source)
-				{
-					if (TextUtils.equals(mFetchUrl, mUrl))
-					{
-						//如果用戶設置了默認顯示的圖片,在拉完source失败后要用默认图
-						if(sourceType == SOURCE_TYPE_SRC && !TextUtils.isEmpty(mHippyImageViewDefalutImgeUrl))
-						{
-							mDefaultSourceUrl =null;//吧之前的默认背景清理下
-							setDefaultSource(mHippyImageViewDefalutImgeUrl);
+				public void onRequestFail(Throwable throwable, String source) {
+					if (sourceType == SOURCE_TYPE_SRC) {
+						if (!TextUtils.equals(url, mUrl)) {
+							return;
 						}
-						else
-						{
-						handleImageRequest(null, sourceType, throwable);
-						}
+						mUrlFetchState = IMAGE_UNLOAD;
 					}
+
+					if (sourceType == SOURCE_TYPE_DEFAULT_SRC && !TextUtils.equals(url, mDefaultSourceUrl)) {
+						return;
+					}
+
+					handleImageRequest(null, sourceType, throwable);
 				}
 			}, param);
 		}
@@ -512,23 +516,23 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 		}
 
 		if (!TextUtils.isEmpty(mImageType) && mImageType.equals(IMAGE_TYPE_APNG) && sourceType == SOURCE_TYPE_SRC) {
-      if (target != null) {
-        Drawable drawable = target.getDrawable();
-        if (drawable != null) {
-          mSourceDrawable = null;
-          mContentDrawable = drawable;
-          mIsUrlFetchSucceed = true;
-          setContent(sourceType);
-          handleGetImageSuccess();
-          return;
-        }
-      }
+			if (target != null) {
+				Drawable drawable = target.getDrawable();
+				if (drawable != null) {
+					mSourceDrawable = null;
+					mContentDrawable = drawable;
+					mUrlFetchState = IMAGE_LOADED;
+					setContent(sourceType);
+					handleGetImageSuccess();
+					return;
+				}
+			}
 
-      mIsUrlFetchSucceed = false;
-      handleGetImageFail(requestInfo instanceof Throwable ? (Throwable) requestInfo : null);
-    } else {
-      super.handleImageRequest(target, sourceType, requestInfo);
-    }
+			mUrlFetchState = IMAGE_UNLOAD;
+			handleGetImageFail(requestInfo instanceof Throwable ? (Throwable) requestInfo : null);
+		} else {
+			super.handleImageRequest(target, sourceType, requestInfo);
+		}
 	}
 
 	/**
@@ -545,7 +549,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 		if (duration == 0) {
 			duration = 1000;
 		}
-		
+
 		long now = System.currentTimeMillis();
 
 		if (!isGifPaused)
@@ -577,6 +581,35 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 		if (!isGifPaused)
 		{
 			postInvalidateDelayed(40);
+		}
+
+		return false;
+	}
+
+	protected boolean shouldFetchImage() {
+		if (mUrlFetchState == IMAGE_LOADING) {
+			return false;
+		} else if (mUrlFetchState == IMAGE_UNLOAD) {
+			return true;
+		}
+
+		boolean isGif = mIniProps.getBoolean(NodeProps.CUSTOM_PROP_ISGIF);
+		if (!isGif) {
+			isGif = !TextUtils.isEmpty(mImageType) && mImageType.equals(IMAGE_TYPE_GIF);
+		}
+
+		if (!TextUtils.isEmpty(mImageType) && mImageType.equals(IMAGE_TYPE_APNG)
+				&& mContentDrawable != null && !(mContentDrawable instanceof ContentDrawable)) {
+			return false;
+		} else if (isGif) {
+			if (mGifMovie == null) {
+				return true;
+			}
+		} else {
+			Bitmap bitmap = getBitmap();
+			if (bitmap == null || bitmap.isRecycled()) {
+				return true;
+			}
 		}
 
 		return false;
@@ -616,19 +649,19 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 	}
 
 	private boolean isGifPaused = false;
-	
+
 	public void startPlay()
 	{
 		isGifPaused = false;
 		invalidate();
 	}
-	
+
 	public void pause()
 	{
 		isGifPaused = true;
 		mGifLastPlayTime = -1;
 	}
-	
+
 
 	private OnLoadEvent getOnLoadEvent()
 	{

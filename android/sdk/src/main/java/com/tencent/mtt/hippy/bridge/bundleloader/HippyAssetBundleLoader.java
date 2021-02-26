@@ -15,6 +15,8 @@
  */
 package com.tencent.mtt.hippy.bridge.bundleloader;
 
+import static com.tencent.mtt.hippy.bridge.HippyBridge.URI_SCHEME_ASSETS;
+
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.text.TextUtils;
@@ -60,12 +62,22 @@ public class HippyAssetBundleLoader implements HippyBundleLoader
 	@Override
 	public boolean load(HippyBridge bridge, NativeCallback callback)
 	{
-		if (TextUtils.isEmpty(mAssetPath))
-		{
+		if (TextUtils.isEmpty(mAssetPath)) {
 			return false;
 		}
+
 		AssetManager assetManager = mContext.getAssets();
-		return bridge.runScriptFromAssets(mAssetPath, assetManager,mCanUseCodeCache,mCodeCacheTag, callback);
+		String uri = mAssetPath;
+		if (!mAssetPath.startsWith(URI_SCHEME_ASSETS)) {
+			if (mAssetPath.startsWith("/")) {
+				uri = URI_SCHEME_ASSETS + mAssetPath;
+			} else {
+				uri = URI_SCHEME_ASSETS + "/" + mAssetPath;
+			}
+		}
+
+		return bridge.runScriptFromUri(uri, assetManager, mCanUseCodeCache, mCodeCacheTag, callback);
+		//return bridge.runScriptFromAssets(mAssetPath, assetManager,mCanUseCodeCache,mCodeCacheTag, callback);
 	}
 
 	@Override

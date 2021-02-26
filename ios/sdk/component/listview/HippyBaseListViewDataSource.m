@@ -83,7 +83,6 @@
 	return nil;
 }
 
-//FIXME: 这个地方默认section只有一个，否则row应该在单次循环后置0。目前ListView暂时不支持多section
 - (NSIndexPath *)indexPathOfCell:(HippyVirtualCell *)cell
 {
 	NSInteger section = 0;

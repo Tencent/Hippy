@@ -26,16 +26,10 @@
 #import "HippyUIManager.h"
 #import "HippyBaseListViewProtocol.h"
 #import "HippyBaseListViewDataSource.h"
+#import "HippyListTableView.h"
 
-@interface HippyBaseListViewCell : UITableViewCell
+@interface HippyBaseListView : UIView <HippyBaseListViewProtocol, HippyScrollableProtocol, UITableViewDelegate, UITableViewDataSource, HippyInvalidating, HippyListTableViewLayoutProtocol>
 
-@property (nonatomic, weak) UITableView *tableView;
-@property (nonatomic, assign) UIView *cellView;
-@property (nonatomic, weak) HippyVirtualCell *node;
-
-@end
-
-@interface HippyBaseListView : UIView <HippyBaseListViewProtocol, HippyScrollableProtocol, UITableViewDelegate, UITableViewDataSource, HippyInvalidating>
 @property (nonatomic, copy) HippyDirectEventBlock initialListReady;
 @property (nonatomic, copy) HippyDirectEventBlock onScrollBeginDrag;
 @property (nonatomic, copy) HippyDirectEventBlock onScroll;
@@ -50,12 +44,17 @@
 @property (nonatomic, assign) BOOL bounces;
 @property (nonatomic, assign) BOOL showScrollIndicator;
 
-@property (nonatomic, strong) UITableView *tableView;
+@property (nonatomic, strong) HippyListTableView *tableView;
 @property (nonatomic, strong, readonly) HippyBaseListViewDataSource *dataSource;
 @property (nonatomic, assign) NSTimeInterval scrollEventThrottle;
+
 - (void)reloadData;
 - (Class)listViewCellClass;
 - (instancetype)initWithBridge:(HippyBridge *)bridge;
 - (void)scrollToContentOffset:(CGPoint)point animated:(BOOL)animated;
 - (void)scrollToIndex:(NSInteger)index animated:(BOOL)animated;
+
+- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath NS_REQUIRES_SUPER;
+- (void)tableView:(UITableView *)tableView didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath*)indexPath NS_REQUIRES_SUPER;
+
 @end

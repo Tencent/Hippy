@@ -6,7 +6,7 @@
 
 | 类型               | 必需 |
 | ------------------ | -------- |
-| [color](color.md) | 否       |
+| [color](style/color.md) | 否       |
 
 # backfaceVisibility
 
@@ -18,7 +18,7 @@
 
 | 类型               | 必需 |
 | ------------------ | -------- |
-| [color](color.md) | 否       |
+| [color](style/color.md) | 否       |
 
 # borderBottomEndRadius
 
@@ -48,19 +48,19 @@
 
 | 类型               | 必需 |
 | ------------------ | -------- |
-| [color](color.md) | 否       |
+| [color](style/color.md) | 否       |
 
 # borderEndColor
 
 | 类型               | 必需 |
 | ------------------ | -------- |
-| [color](color.md) | 否       |
+| [color](style/color.md) | 否       |
 
 # borderLeftColor
 
 | 类型               | 必需 |
 | ------------------ | -------- |
-| [color](color.md) | 否       |
+| [color](style/color.md) | 否       |
 
 # borderLeftWidth
 
@@ -78,7 +78,7 @@
 
 | 类型               | 必需 |
 | ------------------ | -------- |
-| [color](color.md) | 否       |
+| [color](style/color.md) | 否       |
 
 # borderRightWidth
 
@@ -90,7 +90,7 @@
 
 | 类型               | 必需 |
 | ------------------ | -------- |
-| [color](color.md) | 否       |
+| [color](style/color.md) | 否       |
 
 # borderStyle
 
@@ -102,7 +102,7 @@
 
 | 类型               | 必需 |
 | ------------------ | -------- |
-| [color](color.md) | 否       |
+| [color](style/color.md) | 否       |
 
 # borderTopLeftRadius
 
@@ -134,11 +134,12 @@
 | ------ | -------- |
 | number | 否       |
 
-# box-shadow
+# boxShadow
 
-| 类型   | 必需 |
-| ------ | -------- |
-| [参考例子](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-shadow.vue) | 否       |
+| 类型   | 必需 | 平台 |
+| ------ | -------- | --------|
+| [Hippy-React 参考例子](https://github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/components/BoxShadow/index.jsx) | 否 | 双平台支持，Android实现有差异（详见例子）
+| [Hippy-Vue 参考例子](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-shadow.vue) | 否 | 双平台支持，Android实现有差异（详见例子）
 
 # opacity
 

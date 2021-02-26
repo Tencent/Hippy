@@ -31,6 +31,14 @@
 #import "HippyDefaultImageProvider.h"
 #import <Accelerate/Accelerate.h>
 
+NSString *const HippyImageErrorDomain = @"HippyImageErrorDomain";
+
+typedef NS_ENUM(NSUInteger, ImageDataError) {
+    ImageDataUnavailable = 1001,
+    ImageDataNotExist,
+    ImageDataReceivedError,
+};
+
 typedef struct _BorderRadiusStruct {
     CGFloat topLeftRadius;
     CGFloat topRightRadius;
@@ -123,6 +131,10 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
 	CGContextRelease(ctx);
 	free(buffer1.data);
 	return outputImage;
+}
+
+NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription){
+    return [NSError errorWithDomain:HippyImageErrorDomain code:errorCode userInfo:@{NSLocalizedDescriptionKey: errorDescription?:@""}];
 }
 
 @interface UIImage (Hippy)
@@ -292,11 +304,34 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
         NSString *uri = source[@"uri"];
         self.pendingImageSourceUri = uri;
         BOOL isBlurredImage = NO;
-        UIImage *image = [[HippyImageCacheManager sharedInstance] loadImageFromCacheForURLString:uri radius:_blurRadius isBlurredImage:&isBlurredImage];
-        if (image) {
-            [self loadImage:image url:uri error:nil needBlur:!isBlurredImage needCache:NO];
-            return;
+        NSData *data = [[HippyImageCacheManager sharedInstance] imageCacheDataForURLString:uri];
+        if (data) {
+            Class<HippyImageProviderProtocol> ipClass = imageProviderClassFromBridge(data, self.bridge);
+            id<HippyImageProviderProtocol> instance = [ipClass imageProviderInstanceForData:data];
+            if (instance) {
+                BOOL isAnimatedImage = [instance imageCount] > 1;
+                if (isAnimatedImage) {
+                    if (_animatedImageOperation) {
+                        [_animatedImageOperation cancel];
+                    }
+                    _animatedImageOperation = [[HippyAnimatedImageOperation alloc] initWithAnimatedImageProvider:instance imageView:self imageURL:uri];
+                    [animated_image_queue() addOperation:_animatedImageOperation];
+                }
+                else {
+                    UIImage *image = [instance image];
+                    if (image) {
+                        [self loadImage:image url:uri error:nil needBlur:!isBlurredImage needCache:YES];
+                    }
+                    else {
+                        NSString *errorMessage = [NSString stringWithFormat:@"image data unavailable for uri %@", uri];
+                        NSError *theError = imageErrorFromParams(ImageDataUnavailable, errorMessage);
+                        [self loadImage: nil url:uri error:theError needBlur:YES needCache:NO];
+                    }
+                }
+                return;
+            }
         }
+
         NSData *uriData = [uri dataUsingEncoding:NSUTF8StringEncoding];
         if (nil == uriData) {
             return;
@@ -321,11 +356,19 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
                 }
                 else {
                     UIImage *image = [instance image];
-                    [self loadImage:image url:source_url.absoluteString error:nil needBlur:YES needCache:YES];
+                    if (image) {
+                        [self loadImage:image url:source_url.absoluteString error:nil needBlur:YES needCache:YES];
+                    }
+                    else {
+                        NSString *errorMessage = [NSString stringWithFormat:@"image data unavailable for uri %@", source_url.absoluteString];
+                        NSError *theError = imageErrorFromParams(ImageDataUnavailable, errorMessage);
+                        [self loadImage: nil url:source_url.absoluteString error:theError needBlur:YES needCache:NO];
+                    }
                 }
             }
             else {
-                NSError *error = [NSError errorWithDomain:HippyLocalFileReadErrorDomain code:HippyLocalFileNOFilExist userInfo:@{@"fileExist": @(fileExist), @"isDirectory": @(isDirectory), @"uri": uri}];
+                NSString *errorMessage = [NSString stringWithFormat:@"local image data not exist %@", source_url.absoluteString];
+                NSError *error = imageErrorFromParams(ImageDataNotExist, errorMessage);
                 [self loadImage:nil url:source_url.absoluteString error:error needBlur:YES needCache:NO];
             }
             return;
@@ -352,11 +395,13 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
                 }
                 else {
                     UIImage *image = [instance image];
-                    NSError *error = nil;
-                    if (!image) {
-                        error = [NSError errorWithDomain: NSURLErrorDomain code: -1 userInfo: @{NSLocalizedDescriptionKey: @"base64 url is invalidated"}];
+                    if (image) {
+                        [weakSelf loadImage: image url: source[@"uri"] error: nil needBlur:YES needCache:YES];
                     }
-                    [weakSelf loadImage: image url: source[@"uri"] error: error needBlur:YES needCache:YES];
+                    else {
+                        NSError *error = imageErrorFromParams(ImageDataUnavailable, @"base64 data not available");
+                        [self loadImage: nil url:source[@"uri"] error:error needBlur:YES needCache:NO];
+                    }
                 }
             }
         };
@@ -380,11 +425,14 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
                 }
                 else {
                     UIImage *image = [instance image];
-                    NSError *error = nil;
-                    if (!image) {
-                        error = [NSError errorWithDomain: NSURLErrorDomain code: -1 userInfo: @{NSLocalizedDescriptionKey: @"base64 url is invalidated"}];
+                    if (image) {
+                        [weakSelf loadImage:image url:source[@"uri"] error:nil needBlur:YES needCache:YES];
                     }
-                    [weakSelf loadImage: image url: source[@"uri"] error: error needBlur:YES needCache:YES];
+                    else {
+                        NSString *errorMessage = [NSString stringWithFormat:@"image data unavailable %@", source[@"uri"]];
+                        NSError *error = imageErrorFromParams(ImageDataUnavailable, errorMessage);
+                        [weakSelf loadImage:nil url:source[@"uri"] error:error needBlur:YES needCache:NO];
+                    }
                 }
             }];
         };
@@ -494,13 +542,14 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
                     [animated_image_queue() addOperation:_animatedImageOperation];
                 }
                 else {
-                    [[HippyImageCacheManager sharedInstance] setImageCacheData:_data forURLString:urlString];
                     UIImage *image = [self imageFromData:_data];;
                     if (image) {
+                        [[HippyImageCacheManager sharedInstance] setImageCacheData:_data forURLString:urlString];
                         [self loadImage: image url:urlString error:nil needBlur:YES needCache:YES];
                     } else {
-                        NSError *theError = [NSError errorWithDomain:@"imageFromDataErrorDomain" code:1 userInfo:@{@"reason": @"Error in imageFromData"}];
-                        [self loadImage: nil url:urlString error:theError needBlur:YES needCache:YES];
+                        NSString *errorMessage = [NSString stringWithFormat:@"image data unavailable %@", urlString];
+                        NSError *theError = imageErrorFromParams(ImageDataUnavailable, errorMessage);
+                        [self loadImage: nil url:urlString error:theError needBlur:YES needCache:NO];
                     }
                 }
             }
@@ -509,14 +558,14 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
                 if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
                     NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
                     NSUInteger statusCode = [httpResponse statusCode];
-                    NSString *errorMessage = [NSString stringWithFormat:@"no data received, HTTPStatusCode is %zd", statusCode];
-                    NSDictionary *userInfo = @{NSLocalizedDescriptionKey: errorMessage};
-                    NSError *error = [NSError errorWithDomain:@"ImageLoadDomain" code:1 userInfo:userInfo];
-                    [self loadImage:nil url:urlString error:error needBlur:NO needCache:NO];
+                    NSString *errorMessage = [NSString stringWithFormat:@"no data received, HTTPStatusCode is %zd, url is %@", statusCode, urlString];
+                    NSError *imgError = imageErrorFromParams(ImageDataUnavailable, errorMessage);
+                    [self loadImage:nil url:urlString error:imgError needBlur:NO needCache:NO];
                 }
             }
         } else {
-            [self loadImage:nil url:urlString error:error needBlur:YES needCache:YES];
+            NSError *imgError = imageErrorFromParams(ImageDataReceivedError, error.localizedDescription);
+            [self loadImage:nil url:urlString error:imgError needBlur:YES needCache:NO];
         }
     }
     [session finishTasksAndInvalidate];
@@ -585,6 +634,7 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
 	image = image ? : _defaultImage;
 	if (!image) {
 		self.image = nil;
+        self.imageSourceUri = nil;
 		return;
 	}
 	
@@ -616,8 +666,7 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
         [_borderWidthLayer removeFromSuperlayer];
     }
     if ([self needsUpdateCornerRadius]) {
-        CGRect contentRect = UIEdgeInsetsInsetRect(self.bounds, _capInsets);
-        
+        CGRect contentRect = self.bounds;
 #ifdef HippyLog
         CGFloat width = CGRectGetWidth(contentRect);
         CGFloat height = CGRectGetHeight(contentRect);
@@ -639,35 +688,8 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
         }
 #endif
         
-        CGFloat minX = CGRectGetMinX(contentRect);
-        CGFloat minY = CGRectGetMinY(contentRect);
-        CGFloat maxX = CGRectGetMaxX(contentRect);
-        CGFloat maxY = CGRectGetMaxY(contentRect);
         BorderRadiusStruct boderRadiusStruct = [self properBorderRadius];
-        UIBezierPath *bezierPath = [UIBezierPath bezierPath];
-        CGPoint p1 = CGPointMake(minX + boderRadiusStruct.topLeftRadius, minY);
-        [bezierPath moveToPoint:p1];
-        CGPoint p2 = CGPointMake(maxX - boderRadiusStruct.topRightRadius, minY);
-        [bezierPath addLineToPoint:p2];
-        CGPoint p3 = CGPointMake(maxX - boderRadiusStruct.topRightRadius, minY + boderRadiusStruct.topRightRadius);
-        [bezierPath addArcWithCenter:p3 radius:boderRadiusStruct.topRightRadius startAngle:M_PI_2 + M_PI endAngle:0 clockwise:YES];
-        
-        CGPoint p4 = CGPointMake(maxX, maxY - boderRadiusStruct.bottomRightRadius);
-        [bezierPath addLineToPoint:p4];
-        CGPoint p5 = CGPointMake(maxX - boderRadiusStruct.bottomRightRadius, maxY - boderRadiusStruct.bottomRightRadius);
-        [bezierPath addArcWithCenter:p5 radius:boderRadiusStruct.bottomRightRadius startAngle:0 endAngle:M_PI_2 clockwise:YES];
-        
-        CGPoint p6 = CGPointMake(minX + boderRadiusStruct.bottomLeftRadius, maxY);
-        [bezierPath addLineToPoint:p6];
-        CGPoint p7 = CGPointMake(minX + boderRadiusStruct.bottomLeftRadius, maxY - boderRadiusStruct.bottomLeftRadius);
-        [bezierPath addArcWithCenter:p7 radius:boderRadiusStruct.bottomLeftRadius startAngle:M_PI_2 endAngle:M_PI clockwise:YES];
-        
-        CGPoint p8 = CGPointMake(minX, minY + boderRadiusStruct.topLeftRadius);
-        [bezierPath addLineToPoint:p8];
-        CGPoint p9 = CGPointMake(minX + boderRadiusStruct.topLeftRadius, minY + boderRadiusStruct.topLeftRadius);
-        [bezierPath addArcWithCenter:p9 radius:boderRadiusStruct.topLeftRadius startAngle:M_PI endAngle:M_PI + M_PI_2 clockwise:YES];
-        [bezierPath closePath];
-        
+        UIBezierPath *bezierPath = [self bezierPathFromBorderRadius:boderRadiusStruct contentRect:contentRect];
         CAShapeLayer *mask = [CAShapeLayer layer];
         mask.path = bezierPath.CGPath;
         self.layer.mask = mask;
@@ -684,6 +706,38 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
     else {
         self.layer.mask = nil;
     }
+}
+
+- (UIBezierPath *)bezierPathFromBorderRadius:(BorderRadiusStruct)boderRadiusStruct contentRect:(CGRect)contentRect {
+    CGFloat minX = CGRectGetMinX(contentRect);
+    CGFloat minY = CGRectGetMinY(contentRect);
+    CGFloat maxX = CGRectGetMaxX(contentRect);
+    CGFloat maxY = CGRectGetMaxY(contentRect);
+    
+    UIBezierPath *bezierPath = [UIBezierPath bezierPath];
+    CGPoint p1 = CGPointMake(minX + boderRadiusStruct.topLeftRadius, minY);
+    [bezierPath moveToPoint:p1];
+    CGPoint p2 = CGPointMake(maxX - boderRadiusStruct.topRightRadius, minY);
+    [bezierPath addLineToPoint:p2];
+    CGPoint p3 = CGPointMake(maxX - boderRadiusStruct.topRightRadius, minY + boderRadiusStruct.topRightRadius);
+    [bezierPath addArcWithCenter:p3 radius:boderRadiusStruct.topRightRadius startAngle:M_PI_2 + M_PI endAngle:0 clockwise:YES];
+
+    CGPoint p4 = CGPointMake(maxX, maxY - boderRadiusStruct.bottomRightRadius);
+    [bezierPath addLineToPoint:p4];
+    CGPoint p5 = CGPointMake(maxX - boderRadiusStruct.bottomRightRadius, maxY - boderRadiusStruct.bottomRightRadius);
+    [bezierPath addArcWithCenter:p5 radius:boderRadiusStruct.bottomRightRadius startAngle:0 endAngle:M_PI_2 clockwise:YES];
+
+    CGPoint p6 = CGPointMake(minX + boderRadiusStruct.bottomLeftRadius, maxY);
+    [bezierPath addLineToPoint:p6];
+    CGPoint p7 = CGPointMake(minX + boderRadiusStruct.bottomLeftRadius, maxY - boderRadiusStruct.bottomLeftRadius);
+    [bezierPath addArcWithCenter:p7 radius:boderRadiusStruct.bottomLeftRadius startAngle:M_PI_2 endAngle:M_PI clockwise:YES];
+
+    CGPoint p8 = CGPointMake(minX, minY + boderRadiusStruct.topLeftRadius);
+    [bezierPath addLineToPoint:p8];
+    CGPoint p9 = CGPointMake(minX + boderRadiusStruct.topLeftRadius, minY + boderRadiusStruct.topLeftRadius);
+    [bezierPath addArcWithCenter:p9 radius:boderRadiusStruct.topLeftRadius startAngle:M_PI endAngle:M_PI + M_PI_2 clockwise:YES];
+    [bezierPath closePath];
+    return bezierPath;
 }
 
 - (void)setBorderTopLeftRadius:(CGFloat)borderTopLeftRadius {
@@ -736,7 +790,7 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius)
     if ([instance isKindOfClass:[HippyDefaultImageProvider class]]) {
         HippyDefaultImageProvider *provider = (HippyDefaultImageProvider *)instance;
         provider.imageViewSize = _size;
-        provider.needsDownSampling = _needDownsampleing;
+        provider.downSample = _downSample;
     }
     return instance;
 }

@@ -1,10 +1,12 @@
 const fs                = require('fs');
 const path              = require('path');
 const webpack           = require('webpack');
+const HippyDynamicImportPlugin = require('@hippy/hippy-dynamic-import-plugin');
 const pkg               = require('../package.json');
 
 module.exports = {
   mode: 'development',
+  devtool: 'eval-source-map',
   watch: true,
   watchOptions: {
     aggregateTimeout: 1500,
@@ -16,6 +18,7 @@ module.exports = {
     filename: 'index.bundle',
     strictModuleExceptionHandling: true,
     path: path.resolve('./dist/dev/'),
+    globalObject: '(0, eval)("this")',
   },
   plugins: [
     new webpack.DefinePlugin({
@@ -26,6 +29,7 @@ module.exports = {
       },
       __PLATFORM__: null,
     }),
+    new HippyDynamicImportPlugin(),
   ],
   module: {
     rules: [
@@ -35,6 +39,7 @@ module.exports = {
           {
             loader: 'babel-loader',
             options: {
+              sourceType: 'unambiguous',
               presets: [
                 '@babel/preset-react',
                 [
@@ -48,7 +53,9 @@ module.exports = {
                 ],
               ],
               plugins: [
-                '@babel/plugin-proposal-class-properties',
+                ['@babel/plugin-proposal-class-properties'],
+                ['@babel/plugin-proposal-decorators', { legacy: true }],
+                ['@babel/plugin-transform-runtime', { regenerator: true }],
               ],
             },
           },

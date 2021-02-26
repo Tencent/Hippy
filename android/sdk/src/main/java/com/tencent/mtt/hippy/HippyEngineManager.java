@@ -150,7 +150,6 @@ public abstract class HippyEngineManager extends HippyEngine
 		private List<HippyAPIProvider>			mPackages;
 		private boolean						mSupportDev	= false;
 		private String						mDebugJs;
-		private EngineMode mEngineMode;
 		private boolean 					mBridgeHippyBuffer = false;
 		private int 						mGroupId = -1;
 
@@ -194,12 +193,6 @@ public abstract class HippyEngineManager extends HippyEngine
 			return this;
 		}
 
-		Builder setEngineMode(EngineMode mode)
-		{
-			this.mEngineMode = mode;
-			return this;
-		}
-
 		Builder setEnableHippyBuffer(boolean enable)
 		{
 			this.mBridgeHippyBuffer = enable;
@@ -224,7 +217,6 @@ public abstract class HippyEngineManager extends HippyEngine
 			EngineInitParams params = new EngineInitParams();
 			mGlobalConfigs.to(params);
 			params.debugMode = mSupportDev;
-			params.engineMode = mEngineMode;
 			if (mCoreBundleLoader instanceof HippyAssetBundleLoader)
 				params.coreJSAssetsPath = mCoreBundleLoader.getRawPath();
 			else if (mCoreBundleLoader instanceof HippyFileBundleLoader)
@@ -239,14 +231,10 @@ public abstract class HippyEngineManager extends HippyEngine
 			params.check();
 
 			HippyEngineManager hippyEngineManager = null;
-			switch (mEngineMode)
-			{
-				case NORMAL:
-					hippyEngineManager = new HippyNormalEngineManager(params, mPreloadBundleLoader);
-					break;
-				case SINGLE_THREAD:
-					hippyEngineManager = new HippySingleThreadEngineManager(params, mPreloadBundleLoader);
-					break;
+			if (mGroupId == -1) {
+				hippyEngineManager = new HippyNormalEngineManager(params, mPreloadBundleLoader);
+			} else {
+				hippyEngineManager = new HippySingleThreadEngineManager(params, mPreloadBundleLoader);
 			}
 
 			return hippyEngineManager;

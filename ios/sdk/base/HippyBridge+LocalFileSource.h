@@ -31,6 +31,8 @@ extern NSInteger HippyLocalFileNOFilExist;
 
 @property (nonatomic, copy) NSString *workFolder;
 
+@property (nonatomic, readonly) NSString *workFolder2;
+
 + (BOOL) isHippyLocalFileURLString:(NSString *)string;
 
 - (NSString *)absoluteStringFromHippyLocalFileURLString:(NSString *)string;

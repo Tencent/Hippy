@@ -69,6 +69,20 @@ function transformHexToRgba(color: number) {
   return `rbga(${red},${green},${blue},${alpha})`;
 }
 
+function isNumeric(num: unknown) {
+  if (typeof num === 'number' && Number.isFinite(num)) {
+    return true;
+  }
+  if (typeof num === 'string') {
+    return !Number.isNaN(Number(num)) && !Number.isNaN(parseFloat(num));
+  }
+  return false;
+}
+
+function toPx(num: unknown) {
+  return isNumeric(num) ? `${num}px` : num;
+}
+
 function hackWebStyle(webStyle_: any) {
   const webStyle = webStyle_;
   /*
@@ -82,10 +96,7 @@ function hackWebStyle(webStyle_: any) {
     });
   }
 
-  if (webStyle.lineHeight && webStyle.lineHeight.toString()
-    .indexOf('px') === -1) {
-    webStyle.lineHeight += 'px';
-  }
+  toPx(webStyle.lineHeight);
 
   if (!webStyle.position) {
     webStyle.position = 'relative';
@@ -120,24 +131,28 @@ function hackWebStyle(webStyle_: any) {
 
   // 处理marginHorizontal
   if (hasOwnProperty(webStyle, 'marginHorizontal')) {
-    webStyle.marginLeft = `${webStyle.marginHorizontal}px`;
-    webStyle.marginRight = `${webStyle.marginHorizontal}px`;
+    const val = toPx(webStyle.marginHorizontal);
+    webStyle.marginLeft = val;
+    webStyle.marginRight = val;
   }
 
   // 处理marginVertical
   if (hasOwnProperty(webStyle, 'marginVertical')) {
-    webStyle.marginTop = `${webStyle.marginVertical}px`;
-    webStyle.marginBottom = `${webStyle.marginVertical}px`;
+    const val = toPx(webStyle.marginVertical);
+    webStyle.marginTop = val;
+    webStyle.marginBottom = val;
   }
   // 处理paddingHorizontal
   if (hasOwnProperty(webStyle, 'paddingHorizontal')) {
-    webStyle.paddingLeft = `${webStyle.paddingHorizontal}px`;
-    webStyle.paddingRight = `${webStyle.paddingHorizontal}px`;
+    const val = toPx(webStyle.paddingHorizontal);
+    webStyle.paddingLeft = val;
+    webStyle.paddingRight = val;
   }
   // 处理paddingVertical
   if (hasOwnProperty(webStyle, 'paddingVertical')) {
-    webStyle.paddingTop = `${webStyle.paddingVertical}px`;
-    webStyle.paddingBottom = `${webStyle.paddingVertical}px`;
+    const val = toPx(webStyle.paddingVertical);
+    webStyle.paddingTop = val;
+    webStyle.paddingBottom = val;
   }
 
   if (webStyle.height && webStyle.height === 0.5) {

@@ -72,7 +72,7 @@ HIPPY_EXPORT_MODULE(defaultImageProvider)
         if (_data) {
             CGFloat view_width = _imageViewSize.width;
             CGFloat view_height = _imageViewSize.height;
-            if (_needsDownSampling && view_width > 0 && view_height > 0) {
+            if (_downSample && view_width > 0 && view_height > 0) {
                 CGFloat scale = [UIScreen mainScreen].scale;
                 NSDictionary *options = @{(NSString *)kCGImageSourceShouldCache: @(NO)};
                 CGImageSourceRef ref = CGImageSourceCreateWithData((__bridge CFDataRef)_data, (__bridge CFDictionaryRef)options);
@@ -90,9 +90,6 @@ HIPPY_EXPORT_MODULE(defaultImageProvider)
                                                          (NSString *)kCGImageSourceCreateThumbnailWithTransform: @(YES), (NSString *)kCGImageSourceThumbnailMaxPixelSize: @(maxDimensionInPixels)};
                             CGImageRef downsampleImageRef = CGImageSourceCreateThumbnailAtIndex(ref, 0, (__bridge CFDictionaryRef)downsampleOptions);
                             _image = [UIImage imageWithCGImage: downsampleImageRef];
-                            if (nil == _image) {
-                                _image = [UIImage imageWithData:_data];
-                            }
                             CGImageRelease(downsampleImageRef);
                         }
                         CFRelease(properties);
@@ -100,13 +97,13 @@ HIPPY_EXPORT_MODULE(defaultImageProvider)
                     CFRelease(ref);
                 }
             }
-            else {
-                _image = [UIImage imageWithData:_data];
-            }
         }
         else {
             _image = [self imageAtFrame:0];
         }
+    }
+    if (!_image) {
+        _image = [UIImage imageWithData:_data];
     }
     return _image;
 }
@@ -157,18 +154,24 @@ HIPPY_EXPORT_MODULE(defaultImageProvider)
 - (NSTimeInterval)delayTimeAtFrame:(NSUInteger)frame {
     const NSTimeInterval kDelayTimeIntervalDefault = 0.1;
     if (_imageSourceRef) {
-        NSDictionary *frameProperties = (__bridge_transfer NSDictionary *)CGImageSourceCopyPropertiesAtIndex(_imageSourceRef, frame, NULL);
-        NSDictionary *framePropertiesGIF = [frameProperties objectForKey:(id)kCGImagePropertyGIFDictionary];
-        
-        // Try to use the unclamped delay time; fall back to the normal delay time.
-        NSNumber *delayTime = [framePropertiesGIF objectForKey:(id)kCGImagePropertyGIFUnclampedDelayTime];
+        NSDictionary *frameProperties = CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(_imageSourceRef, frame, NULL));
+        NSString *imagePropertyKey = (NSString *)kCGImagePropertyGIFDictionary;
+        NSString *delayTimeKey = (NSString *)kCGImagePropertyGIFDelayTime;
+        NSString *unclampedDelayTime = (NSString *)kCGImagePropertyGIFUnclampedDelayTime;
+        if (UTTypeConformsTo(CGImageSourceGetType(_imageSourceRef), kUTTypePNG)) {
+            imagePropertyKey = (NSString *)kCGImagePropertyPNGDictionary;
+            delayTimeKey = (NSString *)kCGImagePropertyAPNGDelayTime;
+            unclampedDelayTime = (NSString *)kCGImagePropertyAPNGUnclampedDelayTime;
+        }
+        NSDictionary *framePropertiesAni = [frameProperties objectForKey:imagePropertyKey];
+        NSNumber *delayTime = [framePropertiesAni objectForKey:unclampedDelayTime];
         if (!delayTime) {
-            delayTime = [framePropertiesGIF objectForKey:(id)kCGImagePropertyGIFDelayTime];
+            delayTime = [framePropertiesAni objectForKey:delayTimeKey];
         }
         if (!delayTime) {
             delayTime = @(kDelayTimeIntervalDefault);
         }
-        return [delayTime floatValue];
+        return [delayTime doubleValue];
     }
     return kDelayTimeIntervalDefault;
 }

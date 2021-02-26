@@ -31,16 +31,16 @@ const styles = StyleSheet.create({
 });
 
 function HorizontalScrollView(props) {
-  const { scrollRef } = props;
+  const { scrollRef, ...otherProps } = props;
   return (
-    <ul ref={scrollRef} {...props} />
+    <ul ref={scrollRef} {...otherProps} />
   );
 }
 
 function VerticalScrollView(props) {
-  const { scrollRef } = props;
+  const { scrollRef, ...otherProps } = props;
   return (
-    <ul ref={scrollRef} {...props} />
+    <ul ref={scrollRef} {...otherProps} />
   );
 }
 
@@ -117,6 +117,12 @@ export class ScrollView extends React.Component {
         }, 200);
       };
     }
+    if (newProps.scrollEnabled === false) {
+      newProps.style.overflow = 'hidden';
+    } else {
+      newProps.style.overflow = 'scroll';
+    }
+    delete newProps.scrollEnabled;
     delete newProps.showsVerticalScrollIndicator;
     delete newProps.showsHorizontalScrollIndicator;
     delete newProps.horizontal;

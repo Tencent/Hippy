@@ -15,9 +15,6 @@
  */
 package com.tencent.smtt.flexbox;
 
-//import android.util.Log;
-
-import com.tencent.mtt.hippy.bridge.libraryloader.LibraryLoader;
 import com.tencent.mtt.hippy.dom.flex.FlexAlign;
 import com.tencent.mtt.hippy.dom.flex.FlexCSSDirection;
 import com.tencent.mtt.hippy.dom.flex.FlexConstants;
@@ -35,10 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FlexNode implements FlexNodeAPI<FlexNode> {
-    static {
-        LibraryLoader.loadLibraryIfNeed("flexbox");
-    }
-
     private FlexNode mParent;
     private List<FlexNode> mChildren;
     private long mNativeFlexNode;

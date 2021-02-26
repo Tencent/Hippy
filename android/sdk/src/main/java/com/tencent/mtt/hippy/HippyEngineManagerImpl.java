@@ -28,7 +28,7 @@ import com.tencent.mtt.hippy.bridge.HippyBridgeManagerImpl;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyAssetBundleLoader;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyFileBundleLoader;
-import com.tencent.mtt.hippy.bridge.libraryloader.LibraryLoader;
+import com.tencent.mtt.hippy.bridge.bundleloader.HippyRemoteBundleLoader;
 import com.tencent.mtt.hippy.common.Callback;
 import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
@@ -45,15 +45,11 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import java.io.File;
+import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-/**
- * FileName: HippyEngineManagerImpl
- * Description：
- * History：
- */
 public abstract class HippyEngineManagerImpl extends HippyEngineManager implements DevServerCallBack, HippyRootView.OnSizeChangedListener,
 		HippyRootView.OnResumeAndPauseListener, ThreadExecutor.UncaughtExceptionHandler
 {
@@ -97,7 +93,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 	boolean             						mDevManagerInited 			= false;
 	TimeMonitor									mStartTimeMonitor;
 	boolean										mHasReportEngineLoadResult	= false;
-	private int									mGroupId;
 	private HippyThirdPartyAdapter	mThirdPartyAdapter;
 
 	Handler										mHandler					= new Handler(Looper.getMainLooper())
@@ -134,14 +129,12 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 		this.mPreloadBundleLoader = preloadBundleLoader;
 		this.mAPIProviders = params.providers;
 		this.mDebugMode = params.debugMode;
-		this.mServerBundleName = params.debugMode ? params.debugBundleName : "";;
+		this.mServerBundleName = params.debugMode ? params.debugBundleName : "";
 		this.mStartTimeMonitor = new TimeMonitor(!params.debugMode);
 		this.mEnableHippyBuffer = params.enableBuffer;
 		this.mServerHost = params.debugServerHost;
 		this.mGroupId = params.groupId;
 		this.mThirdPartyAdapter = params.thirdPartyAdapter;
-		LibraryLoader.init(configs.getContext(),
-				configs.getSharedPreferencesAdapter().getSharedPreferences(), configs.getSoLoaderAdapter());
 	}
 
 	/**
@@ -169,10 +162,11 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 			mDevSupportManager = new DevSupportManager(mGlobalConfigs, mDebugMode, mServerHost, mServerBundleName);
 			mDevSupportManager.setDevCallback(this);
 
-			if(mDebugMode)
-			{
+			if(mDebugMode) {
 				mDevSupportManager.init(null);
-				return;
+				String url = mDevSupportManager.createResourceUrl(mServerBundleName);
+				mCoreBundleLoader = new HippyRemoteBundleLoader(url);
+				((HippyRemoteBundleLoader)mCoreBundleLoader).setIsDebugMode(true);
 			}
 
 			LogUtils.d(TAG, "start restartEngineInBackground...");
@@ -186,19 +180,37 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 	}
 
 	@Override
-	public void destroyEngine()
-	{
+	public void destroyEngine() {
+		if (mEngineContext == null) {
+			return;
+		}
+
+		final Handler handler = new Handler(Looper.myLooper());
+		mEngineContext.destroyBridge(new Callback<Boolean>() {
+			@Override
+			public void callback(Boolean param, Throwable e) {
+				Runnable task = new Runnable() {
+					@Override
+					public void run() {
+						onDestroy();
+					}
+				};
+
+				handler.post(task);
+			}
+		});
+	}
+
+	protected void onDestroy() {
 		mCurrentState = EngineState.DESTROYED;
-		for (HippyRootView rootView : mInstances)
-		{
+		for (HippyRootView rootView : mInstances) {
 			destroyInstance(rootView);
 		}
 
 		mEventListeners.clear();
 		resetEngine();
 
-		if (mGlobalConfigs != null)
-		{
+		if (mGlobalConfigs != null) {
 			mGlobalConfigs.destroyIfNeed();
 		}
 		mExtendDatas.clear();
@@ -558,7 +570,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 		}
 		resetEngine();
 
-		mEngineContext = new HippyEngineContextImpl(mDebugMode);
+		mEngineContext = new HippyEngineContextImpl(mDebugMode, mServerHost);
 		mEngineContext.getBridgeManager().initBridge(new Callback<Boolean>()
 		{
 			@Override
@@ -679,11 +691,21 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 		}
 	}
 
+	@Override
+	public void onDevBundleLoadReady(InputStream inputStream) {
+
+	}
+
+	@Override
+	public void onDevBundleReLoad() {
+		restartEngineInBackground();
+	}
 
 	@Override
 	public void onDevBundleLoadReady(File bundle)
 	{
 		mCoreBundleLoader = new HippyFileBundleLoader(bundle.getAbsolutePath());
+		((HippyFileBundleLoader)mCoreBundleLoader).setIsDebugMode(true);
 		restartEngineInBackground();
 	}
 
@@ -717,7 +739,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 	public abstract int getBridgeType();
 
 	@Override
-	public void handleThreadUncaughtException(Thread t, Throwable e)
+	public void handleThreadUncaughtException(Thread t, Throwable e, Integer groupId)
 	{
 		if (mDebugMode && mDevSupportManager != null)
 		{
@@ -759,10 +781,11 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 		 */
 		private DomManager													mDomManager;
 
-		public HippyEngineContextImpl(boolean isDevModule)
+		public HippyEngineContextImpl(boolean isDevModule, String debugServerHost)
 		{
 			mModuleManager = new HippyModuleManagerImpl(this, mAPIProviders);
-			mBridgeManager = new HippyBridgeManagerImpl(this, mCoreBundleLoader, HippyEngineManagerImpl.this.getBridgeType(), mEnableHippyBuffer, isDevModule, mGroupId, mThirdPartyAdapter);
+			mBridgeManager = new HippyBridgeManagerImpl(this, mCoreBundleLoader, HippyEngineManagerImpl.this.getBridgeType(),
+					mEnableHippyBuffer, isDevModule, debugServerHost, mGroupId, mThirdPartyAdapter);
 			mRenderManager = new RenderManager(this, mAPIProviders);
 			mDomManager = new DomManager(this);
 		}
@@ -903,6 +926,10 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 		@Override
 		public int getEngineId() {
 			return HippyEngineManagerImpl.this.getId();
+		}
+
+		public void destroyBridge(Callback<Boolean> callback) {
+			mBridgeManager.destroyBridge(callback);
 		}
 
 		public void destroy()

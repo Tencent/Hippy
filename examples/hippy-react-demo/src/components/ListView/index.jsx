@@ -44,6 +44,7 @@ const mockDataArray = [
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
+    collapsable: false,
   },
   itemContainer: {
     padding: 12,
@@ -118,6 +119,36 @@ export default class ListExample extends React.Component {
     this.setState({ dataSource: newDataSource });
   }
 
+  // item完全曝光
+  // eslint-disable-next-line class-methods-use-this
+  onAppear(index) {
+    // eslint-disable-next-line no-console
+    console.log('onAppear', index);
+  }
+
+  // item完全隐藏
+  // eslint-disable-next-line class-methods-use-this
+  onDisappear(index) {
+    // eslint-disable-next-line no-console
+    console.log('onDisappear', index);
+  }
+
+  // TODO android onWillAppear不完善，暂时不适用
+  // item至少一个像素曝光
+  // eslint-disable-next-line class-methods-use-this
+  onWillAppear(index) {
+    // eslint-disable-next-line no-console
+    console.log('onWillAppear', index);
+  }
+
+  // TODO android onWillDisappear不完善，暂时不适用
+  // item至少一个像素隐藏
+  // eslint-disable-next-line class-methods-use-this
+  onWillDisappear(index) {
+    // eslint-disable-next-line no-console
+    console.log('onWillDisappear', index);
+  }
+
   getRowType(index) {
     const self = this;
     const item = self.state.dataSource[index];
@@ -186,6 +217,11 @@ export default class ListExample extends React.Component {
         getRowType={this.getRowType}
         getRowKey={this.getRowKey}
         initialListSize={15}
+        rowShouldSticky={index => index === 2}
+        onAppear={index => this.onAppear(index)}
+        onDisappear={index => this.onDisappear(index)}
+        onWillAppear={index => this.onWillAppear(index)}
+        onWillDisappear={index => this.onWillDisappear(index)}
       />
     );
   }

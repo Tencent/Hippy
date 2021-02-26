@@ -41,16 +41,21 @@
 #import "HippyRedBox.h"
 #import "HippyJSCWrapper.h"
 #import "HippyJSCErrorHandling.h"
-#include "js-native-api-jsc.h"
-#include "javascript-task.h"
-#include "js-native-api.h"
-#include "scope.h"
-#include "javascript-task-runner.h"
-#include "engine.h"
 #import "HippyJSEnginesMapper.h"
+#import "HippyBridge+LocalFileSource.h"
+#include "ios_loader.h"
+#import "HippyBridge+Private.h"
+#include "core/napi/jsc/js_native_api_jsc.h"
+#include "core/task/javascript_task.h"
+#include "core/napi/js_native_api.h"
+#include "core/scope.h"
+#include "core/task/javascript_task_runner.h"
+#include "core/engine.h"
 
 NSString *const HippyJSCThreadName = @"com.tencent.hippy.JavaScript";
 NSString *const HippyJavaScriptContextCreatedNotification = @"HippyJavaScriptContextCreatedNotification";
+NSString *const HippyJavaScriptContextCreatedNotificationBridgeKey = @"HippyJavaScriptContextCreatedNotificationBridgeKey";
+
 HIPPY_EXTERN NSString *const HippyFBJSContextClassKey = @"_HippyFBJSContextClassKey";
 HIPPY_EXTERN NSString *const HippyFBJSValueClassKey = @"_HippyFBJSValueClassKey";
 
@@ -69,6 +74,28 @@ struct RandomAccessBundleData {
     std::unique_ptr<ModuleData[]> table;
     RandomAccessBundleData(): bundle(nullptr, fclose) {}
 };
+
+static std::string normalizeFunc(const std::string &uri) {
+    if (uri.length()) {
+        NSString *path = [NSString stringWithUTF8String:uri.c_str()];
+        NSURL *url = [NSURL URLWithString:path];
+        NSURL *finalURL = [url standardizedURL];
+        const char *normalize = [[finalURL absoluteString] UTF8String];
+        return normalize;
+    }
+    return uri;
+}
+
+static std::string loadFunc(const std::string &uri) {
+    NSString *URIString = [NSString stringWithUTF8String:uri.c_str()];
+    NSURL *url = [NSURL URLWithString:URIString];
+    NSError *error = nil;
+    NSString *string = [NSString stringWithContentsOfURL:url encoding:NSUTF8StringEncoding error:&error];
+    if (error) {
+        HippyFatal(error);
+    }
+    return [string UTF8String]?:"";
+}
 
 @implementation HippyJSCExecutor
 {
@@ -90,10 +117,8 @@ HIPPY_EXPORT_MODULE()
 
 - (void)setBridge:(HippyBridge *)bridge
 {
-    if (_bridge != bridge) {
-        _bridge = bridge;
-        _performanceLogger = [bridge performanceLogger];
-    }
+    _bridge = bridge;
+    _performanceLogger = [bridge performanceLogger];
 }
 
 - (instancetype)initWithExecurotKey:(NSString *)execurotkey bridge:(HippyBridge *)bridge {
@@ -110,32 +135,41 @@ HIPPY_EXPORT_MODULE()
         const char *pName = [execurotkey UTF8String]?:"";
         std::shared_ptr<Scope> scope = engine->CreateScope(pName, std::move(map));
         self.pScope = scope;
+        [self initURILoader];
     }
     
     return self;
 }
 
+- (void)initURILoader {
+    std::shared_ptr<IOSLoader> loader = std::make_shared<IOSLoader>(normalizeFunc, loadFunc);
+    self.pScope->SetUriLoader(loader);
+}
+
 - (std::unique_ptr<Engine::RegisterMap>) registerMap {
     __weak HippyJSCExecutor *weakSelf = self;
+    __weak id<HippyBridgeDelegate> weakBridgeDelegate = self.bridge.delegate;
     hippy::base::RegisterFunction taskEndCB = [weakSelf](void *){
         HippyJSCExecutor *strongSelf = weakSelf;
         if (strongSelf) {
             [strongSelf->_bridge handleBuffer:nil batchEnded:YES];
         }
     };
-    hippy::base::RegisterFunction ctxCreateCB = [weakSelf](void* p){
+    hippy::base::RegisterFunction ctxCreateCB = [weakSelf, weakBridgeDelegate](void* p){
         HippyJSCExecutor *strongSelf = weakSelf;
         if (!strongSelf) {
             return;
         }
+        id<HippyBridgeDelegate> strongBridgeDelegate = weakBridgeDelegate;
         ScopeWrapper* wrapper = reinterpret_cast<ScopeWrapper*>(p);
         std::shared_ptr<Scope> scope = wrapper->scope_.lock();
         if (scope) {
             std::shared_ptr<hippy::napi::JSCCtx> context = std::static_pointer_cast<hippy::napi::JSCCtx>(scope->GetContext());
+            JSContext* jsContext = [JSContext contextWithJSGlobalContextRef:context->GetCtxRef()];
             context->RegisterGlobalInJs();
             NSMutableDictionary *deviceInfo = [NSMutableDictionary dictionaryWithDictionary:[strongSelf.bridge deviceInfo]];
-            if ([strongSelf.bridge.delegate respondsToSelector:@selector(objectsBeforeExecuteCode)]) {
-                NSDictionary *customObjects = [strongSelf.bridge.delegate objectsBeforeExecuteCode];
+            if ([strongBridgeDelegate respondsToSelector:@selector(objectsBeforeExecuteCode)]) {
+                NSDictionary *customObjects = [strongBridgeDelegate objectsBeforeExecuteCode];
                 if (customObjects) {
                     [deviceInfo addEntriesFromDictionary:customObjects];
                 }
@@ -148,9 +182,9 @@ HIPPY_EXPORT_MODULE()
                 HippyFatal(error);
             }
             NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-            context->SetGlobalVar("__HIPPYNATIVEGLOBAL__", [string UTF8String]);
-            context->SetGlobalVar("__fbBatchedBridgeConfig", [[strongSelf.bridge moduleConfig] UTF8String]);
-            JSContext* jsContext = [JSContext contextWithJSGlobalContextRef:context->GetCtxRef()];
+            context->SetGlobalJsonVar("__HIPPYNATIVEGLOBAL__", [string UTF8String]);
+            context->SetGlobalJsonVar("__fbBatchedBridgeConfig", [[strongSelf.bridge moduleConfig] UTF8String]);
+            context->SetGlobalStrVar("__HIPPYCURDIR__", [strongSelf.bridge.workFolder2 UTF8String]);
             installBasicSynchronousHooksOnContext(jsContext);
             jsContext[@"reportUncaughtException"] = ^(NSString* err) {
                 HippyJSCExecutor *strongSelf = weakSelf;
@@ -204,26 +238,53 @@ HIPPY_EXPORT_MODULE()
     #endif
         }
     };
+    hippy::base::RegisterFunction jsExceptionCB = [weakSelf](void *p) {
+        HippyJSCExecutor *strongSelf = weakSelf;
+        if (strongSelf && p) {
+            const char *errorString = (char*)p;
+            NSString *err = [NSString stringWithUTF8String:errorString];
+            NSError *error = HippyErrorWithMessage(err);
+            // NSError *error = RCTErrorWithMessageAndModule(err, strongSelf.bridge.moduleName);
+            HippyFatal(error);
+        }
+    };
     std::unique_ptr<Engine::RegisterMap> ptr = std::make_unique<Engine::RegisterMap>();
     ptr->insert(std::make_pair("ASYNC_TASK_END", taskEndCB));
     ptr->insert(std::make_pair(hippy::base::kContextCreatedCBKey, ctxCreateCB));
+    ptr->insert(std::make_pair(hippy::base::kHandleExceptionKey, jsExceptionCB));
     return ptr;
 }
 
 - (JSContext *)JSContext {
     if (nil == _JSContext) {
-        _JSContext = [JSContext contextWithJSGlobalContextRef:[self JSGlobalContextRef]];
-        [[NSNotificationCenter defaultCenter] postNotificationName:HippyJavaScriptContextCreatedNotification
-                                                            object:_JSContext];
+        JSGlobalContextRef contextRef = [self JSGlobalContextRef];
+        if (contextRef) {
+            _JSContext = [JSContext contextWithJSGlobalContextRef:contextRef];
+            HippyBridge *bridge = self.bridge;
+            if ([bridge isKindOfClass:[HippyBatchedBridge class]]) {
+                bridge = [(HippyBatchedBridge *)bridge parentBridge];
+            }
+            NSDictionary *userInfo = nil;
+            if (bridge) {
+                userInfo = @{HippyJavaScriptContextCreatedNotificationBridgeKey: bridge};
+            }
+            if (_JSContext) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:HippyJavaScriptContextCreatedNotification
+                                                                    object:nil userInfo:userInfo];
+            }
+        }
     }
     return _JSContext;
 }
 
 - (JSGlobalContextRef)JSGlobalContextRef {
     if (nil == _JSGlobalContextRef) {
-        const std::shared_ptr<hippy::napi::Ctx> &napiCtx = self.pScope->GetContext();
-        std::shared_ptr<hippy::napi::JSCCtx> jscContext = std::static_pointer_cast<hippy::napi::JSCCtx>(napiCtx);
-        _JSGlobalContextRef = jscContext->GetCtxRef();
+        std::shared_ptr<Scope> scope = self.pScope;
+        if (scope) {
+            std::shared_ptr<hippy::napi::Ctx> napiCtx = scope->GetContext();
+            std::shared_ptr<hippy::napi::JSCCtx> jscContext = std::static_pointer_cast<hippy::napi::JSCCtx>(napiCtx);
+            _JSGlobalContextRef = jscContext->GetCtxRef();
+        }
     }
     return _JSGlobalContextRef;
 }
@@ -288,6 +349,7 @@ static void installBasicSynchronousHooksOnContext(JSContext *context)
         return;
     }
     _valid = NO;
+    self.pScope->WillExit();
     self.pScope = nullptr;
     _JSContext.name = @"HippyJSContext(delete)";
     _JSContext = nil;
@@ -378,17 +440,23 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName)
                 NSError *executeError = nil;
                 id objcValue = nil;
                 std::shared_ptr<hippy::napi::Ctx> jsccontext = self.pScope->GetContext();
-                std::shared_ptr<hippy::napi::CtxValue> batchedbridge_value = jsccontext->GetGlobalVar("__fbBatchedBridge");
+                std::shared_ptr<hippy::napi::CtxValue> batchedbridge_value = jsccontext->GetGlobalObjVar("__fbBatchedBridge");
                 std::shared_ptr<hippy::napi::JSCCtxValue> jsc_resultValue = nullptr;
-                std::shared_ptr<std::string> exception = nullptr;
+                std::string exception;
+                JSContext *jsContext = [strongSelf JSContext];
+                JSGlobalContextRef globalContextRef = [strongSelf JSGlobalContextRef];
+                if (!jsContext || !globalContextRef) {
+                    onComplete([NSNull null], nil);
+                    return;
+                }
                 if (batchedbridge_value) {
                     std::shared_ptr<hippy::napi::CtxValue> method_value = jsccontext->GetProperty(batchedbridge_value, [method UTF8String]);
                     if (method_value) {
                         if (jsccontext->IsFunction(method_value)) {
                             std::shared_ptr<hippy::napi::CtxValue> function_params[arguments.count];
                             for (NSUInteger i = 0; i < arguments.count; i++) {
-                                JSValueRef value = [JSValue valueWithObject:arguments[i] inContext:[strongSelf JSContext]].JSValueRef;
-                                function_params[i] = std::make_shared<hippy::napi::JSCCtxValue>([strongSelf JSGlobalContextRef], value);
+                                JSValueRef value = [JSValue valueWithObject:arguments[i] inContext:jsContext].JSValueRef;
+                                function_params[i] = std::make_shared<hippy::napi::JSCCtxValue>(globalContextRef, value);
                             }
                             std::shared_ptr<hippy::napi::CtxValue> resultValue = jsccontext->CallFunction(method_value, arguments.count, function_params, &exception);
                             jsc_resultValue = std::static_pointer_cast<hippy::napi::JSCCtxValue>(resultValue);
@@ -404,9 +472,9 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName)
                 else {
                     executeError = HippyErrorWithMessageAndModuleName(@"__fbBatchedBridge not found", moduleName);
                 }
-                if (exception || executeError) {
-                    if (exception) {
-                        NSString *string = [NSString stringWithUTF8String:exception->c_str()];
+                if (!exception.empty() || executeError) {
+                    if (!exception.empty()) {
+                        NSString *string = [NSString stringWithUTF8String:exception.c_str()];
                         executeError = HippyErrorWithMessageAndModuleName(string, moduleName);
                     }
                 }
@@ -480,7 +548,9 @@ static NSData *loadPossiblyBundledApplicationScript(NSData *script, __unused NSU
 static void registerNativeRequire(JSContext *context, HippyJSCExecutor *executor)
 {
     __weak HippyJSCExecutor *weakExecutor = executor;
-    context[@"nativeRequire"] = ^(NSNumber *moduleID) { [weakExecutor _nativeRequire:moduleID]; };
+    context[@"nativeRequire"] = ^(NSNumber *moduleID) {
+        [weakExecutor _nativeRequire:moduleID];
+    };
 }
 
 static NSLock *jslock() {

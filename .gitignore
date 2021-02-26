@@ -11,14 +11,18 @@ layout/cproject
 layout/.project
 layout/.settings
 examples/*/res/vendor-manifest.json
-android/sdk/src/main/jni/core
+android/sdk/src/main/jni/.vs
 android/sdk/maven-auth.properties
-android/sdk/libs/hippy.jar
+android/sdk/local.properties
+android/sdk/libs/*
+android/sdk/.cxx/*
 examples/android-demo/example/src/main/assets/
 examples/ios-demo/HippyDemo.xcodeproj/project.xcworkspace/xcuserdata/*
 examples/ios-demo/HippyDemo.xcodeproj/xcuserdata/*
 examples/hippy-react-demo/package-lock.json
 examples/hippy-vue-demo/package-lock.json
+examples/android-demo/maven-auth.properties
+examples/android-demo/example/.cxx/
 
 # android
 *.iml
@@ -27,3 +31,6 @@ local.properties
 .gradle/
 build/
 .externalNativeBuild
+
+# core
+core/ARM

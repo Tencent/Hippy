@@ -49,6 +49,8 @@
 #import "HippyVirtualNode.h"
 #import "HippyBaseListViewProtocol.h"
 #import "HippyMemoryOpt.h"
+#import "HippyDeviceBaseInfo.h"
+
 @protocol HippyBaseListViewProtocol;
 
 static void HippyTraverseViewNodes(id<HippyComponent> view, void (^block)(id<HippyComponent>))
@@ -85,7 +87,6 @@ NSString *const HippyUIManagerRootViewKey = @"HippyUIManagerRootViewKey";
     NSDictionary *_componentDataByName;
     
     NSMutableSet<id<HippyComponent>> *_bridgeTransactionListeners;
-    UIInterfaceOrientation _currentInterfaceOrientation;
     
     NSMutableArray<HippyViewUpdateCompletedBlock> *_completeBlocks;
     
@@ -156,25 +157,6 @@ HIPPY_EXPORT_MODULE()
         _completeBlocks = [NSMutableArray array];
     }
     return _completeBlocks;
-}
-
-- (void)interfaceOrientationWillChange:(NSNotification *)notification
-{
-    UIInterfaceOrientation nextOrientation =
-    (UIInterfaceOrientation)[notification.userInfo[UIApplicationStatusBarOrientationUserInfoKey] integerValue];
-    
-    // Update when we go from portrait to landscape, or landscape to portrait
-    if ((UIInterfaceOrientationIsPortrait(_currentInterfaceOrientation) &&
-         !UIInterfaceOrientationIsPortrait(nextOrientation)) ||
-        (UIInterfaceOrientationIsLandscape(_currentInterfaceOrientation) &&
-         !UIInterfaceOrientationIsLandscape(nextOrientation))) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-            [_bridge.eventDispatcher dispatchEvent: @"Dimensions" methodName: @"set" args: HippyExportedDimensions(YES)];
-#pragma clang diagnostic pop
-        }
-    
-    _currentInterfaceOrientation = nextOrientation;
 }
 
 - (void)invalidate
@@ -272,11 +254,6 @@ HIPPY_EXPORT_MODULE()
     }
     
     _componentDataByName = [componentDataByName copy];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(interfaceOrientationWillChange:)
-                                                 name:UIApplicationWillChangeStatusBarOrientationNotification
-                                               object:nil];
 }
 
 dispatch_queue_t HippyGetUIManagerQueue(void)
@@ -745,12 +722,14 @@ HIPPY_EXPORT_METHOD(removeRootView:(nonnull NSNumber *)rootHippyTag)
     [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         HippyAssertMainQueue();
         UIView *rootView = viewRegistry[rootHippyTag];
-        [uiManager _purgeChildren:(NSArray<id<HippyComponent>> *)rootView.hippySubviews
-                     fromRegistry:(NSMutableDictionary<NSNumber *, id<HippyComponent>> *)viewRegistry];
-        [(NSMutableDictionary *)viewRegistry removeObjectForKey:rootHippyTag];
-        [[NSNotificationCenter defaultCenter] postNotificationName:HippyUIManagerDidRemoveRootViewNotification
-                                                            object:uiManager
-                                                          userInfo:@{HippyUIManagerRootViewKey: rootView}];
+        if (rootView) {
+            [uiManager _purgeChildren:(NSArray<id<HippyComponent>> *)rootView.hippySubviews
+                         fromRegistry:(NSMutableDictionary<NSNumber *, id<HippyComponent>> *)viewRegistry];
+            [(NSMutableDictionary *)viewRegistry removeObjectForKey:rootHippyTag];
+            [[NSNotificationCenter defaultCenter] postNotificationName:HippyUIManagerDidRemoveRootViewNotification
+                                                                object:uiManager
+                                                              userInfo:@{HippyUIManagerRootViewKey: rootView}];
+        }
     }];
 }
 
@@ -981,25 +960,7 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
         if ([node isListSubNode] && [node cellNode] && !viewRegistry[[[node cellNode] hippyTag]]) {
             return ;
         }
-        
-        UIView *view = [componentData createViewWithTag:hippyTag initProps: newProps];
-        if (view) {
-            view.viewName = viewName;
-            [componentData setProps:props forView:view]; // Must be done before bgColor to prevent wrong default
-            
-            if ([view respondsToSelector:@selector(hippyBridgeDidFinishTransaction)]) {
-                [uiManager->_bridgeTransactionListeners addObject:view];
-            }
-            uiManager->_viewRegistry[hippyTag] = view;
-        }
-        
-        if ([node isKindOfClass:[HippyVirtualList class]]) {
-            if ([view conformsToProtocol: @protocol(HippyBaseListViewProtocol)]) {
-                id <HippyBaseListViewProtocol> listview = (id<HippyBaseListViewProtocol>)view;
-                listview.node = (HippyVirtualList *)node;
-                [uiManager->_listTags addObject:hippyTag];
-            }
-        }
+        [uiManager createViewByComponentData:componentData hippyVirtualNode:node hippyTag:hippyTag properties:newProps viewName:viewName];
     }];
     
     [self addVirtulNodeBlock:^(HippyUIManager *uiManager, __unused NSDictionary<NSNumber *,HippyVirtualNode *> *virtualNodeRegistry) {
@@ -1009,6 +970,32 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
             uiManager->_nodeRegistry[hippyTag] = node;
         }
     }];
+}
+
+- (UIView *)createViewByComponentData:(HippyComponentData *)componentData
+                 hippyVirtualNode:(HippyVirtualNode *)node
+                         hippyTag:(NSNumber *)hippyTag
+                       properties:(NSDictionary *)props
+                         viewName:(NSString *)viewName {
+    UIView *view = [componentData createViewWithTag:hippyTag initProps: props];
+    if (view) {
+        view.viewName = viewName;
+        [componentData setProps:props forView:view]; // Must be done before bgColor to prevent wrong default
+        
+        if ([view respondsToSelector:@selector(hippyBridgeDidFinishTransaction)]) {
+            [self->_bridgeTransactionListeners addObject:view];
+        }
+        self->_viewRegistry[hippyTag] = view;
+    }
+    
+    if ([node isKindOfClass:[HippyVirtualList class]]) {
+        if ([view conformsToProtocol: @protocol(HippyBaseListViewProtocol)]) {
+            id <HippyBaseListViewProtocol> listview = (id<HippyBaseListViewProtocol>)view;
+            listview.node = (HippyVirtualList *)node;
+            [self->_listTags addObject:hippyTag];
+        }
+    }
+    return view;
 }
 
 - (void) updateViewsFromParams:(NSArray<HippyExtAnimationViewParams *> *)params completion:(HippyViewUpdateCompletedBlock)block{
@@ -1369,61 +1356,35 @@ HIPPY_EXPORT_METHOD(measureInAppWindow:(nonnull NSNumber *)hippyTag
     NSMutableDictionary<NSString *, NSDictionary *> *directEvents = [NSMutableDictionary new];
     
     [_componentDataByName enumerateKeysAndObjectsUsingBlock:
-     ^(NSString *name, HippyComponentData *componentData, __unused BOOL *stop) {
+        ^(NSString *name, HippyComponentData *componentData, __unused BOOL *stop) {
          
-         NSMutableDictionary<NSString *, id> *constantsNamespace =
-         [NSMutableDictionary dictionaryWithDictionary:allJSConstants[name]];
+            NSMutableDictionary<NSString *, id> *constantsNamespace = [NSMutableDictionary dictionaryWithDictionary:allJSConstants[name]];
          
-         // Add manager class
-         constantsNamespace[@"Manager"] = HippyBridgeModuleNameForClass(componentData.managerClass);
+            // Add manager class
+            constantsNamespace[@"Manager"] = HippyBridgeModuleNameForClass(componentData.managerClass);
          
-         // Add native props
-         NSDictionary<NSString *, id> *viewConfig = [componentData viewConfig];
-         constantsNamespace[@"NativeProps"] = viewConfig[@"propTypes"];
+            // Add native props
+            NSDictionary<NSString *, id> *viewConfig = [componentData viewConfig];
+            constantsNamespace[@"NativeProps"] = viewConfig[@"propTypes"];
          
-         // Add direct events
-         for (NSString *eventName in viewConfig[@"directEvents"]) {
-             if (!directEvents[eventName]) {
-                 directEvents[eventName] = @{
-                                             @"registrationName": [eventName stringByReplacingCharactersInRange:(NSRange){0, 3} withString:@"on"],
-                                             };
-             }
-         }
-         allJSConstants[name] = constantsNamespace;
-     }];
+            // Add direct events
+            for (NSString *eventName in viewConfig[@"directEvents"]) {
+                if (!directEvents[eventName]) {
+                    directEvents[eventName] = @{
+                                                @"registrationName": [eventName stringByReplacingCharactersInRange:(NSRange){0, 3} withString:@"on"],
+                                                };
+                }
+            }
+            allJSConstants[name] = constantsNamespace;
+    }];
     
-    _currentInterfaceOrientation = [HippySharedApplication() statusBarOrientation];
+    NSDictionary *dim = hippyExportedDimensions();
     [allJSConstants addEntriesFromDictionary:@{
                                                @"customDirectEventTypes": directEvents,
-                                               @"Dimensions": HippyExportedDimensions(NO)
+                                               @"Dimensions": dim
                                                }];
-    
     return allJSConstants;
 }
-
-static BOOL isiPhoneX()
-{
-    CGRect screenBounds = [UIScreen mainScreen].bounds;
-    return MAX(CGRectGetWidth(screenBounds), CGRectGetHeight(screenBounds)) >= 812;
-}
-
-static NSDictionary *HippyExportedDimensions(BOOL rotateBounds)
-{
-    HippyAssertMainQueue();
-    
-    // Don't use HippyScreenSize since it the interface orientation doesn't apply to it
-    CGRect screenSize = [[UIScreen mainScreen] bounds];
-    return @{
-             @"window": @{
-                     @"width": @(rotateBounds ? screenSize.size.height : screenSize.size.width),
-                     @"height": @(rotateBounds ? screenSize.size.width : screenSize.size.height),
-                     @"scale": @(HippyScreenScale()),
-                     @"statusBarHeight": isiPhoneX() ? @(44) : @(20),
-                     },
-             @"screen": @{@"statusBarHeight": isiPhoneX() ? @(44) : @(20)}
-             };
-}
-
 
 - (void)rootViewForHippyTag:(NSNumber *)hippyTag withCompletion:(void (^)(UIView *view))completion
 {
@@ -1524,9 +1485,7 @@ static UIView *_jsResponder;
                     NSNumber *tag = subNode.hippyTag;
                     NSDictionary *props = subNode.props;
                     HippyComponentData *componentData = self->_componentDataByName[viewName];
-                    subview = [componentData createViewWithTag: tag initProps: props];
-                    [componentData setProps: props forView: subview];
-                    self->_viewRegistry[tag] = subview;
+                    subview = [self createViewByComponentData:componentData hippyVirtualNode:subNode hippyTag:tag properties:props viewName:viewName];
                 } else {
                     HippyComponentData *componentData = self->_componentDataByName[oldSubNode.viewName];
                     NSDictionary *oldProps = oldSubNode.props;
@@ -1552,9 +1511,7 @@ static UIView *_jsResponder;
                     NSNumber *tag = subNode.hippyTag;
                     NSDictionary *props = subNode.props;
                     HippyComponentData *componentData = self->_componentDataByName[viewName];
-                    subview = [componentData createViewWithTag: tag initProps: props];
-                    [componentData setProps: props forView: subview];
-                    self->_viewRegistry[tag] = subview;
+                    subview = [self createViewByComponentData:componentData hippyVirtualNode:subNode hippyTag:tag properties:props viewName:viewName];
                 } else {
                     [subview sendDetachedFromWindowEvent];
                     [subview.layer removeAllAnimations];
@@ -1599,9 +1556,7 @@ static UIView *_jsResponder;
             NSNumber *tag = subNode.hippyTag;
             NSDictionary *props = subNode.props;
             HippyComponentData *componentData = self->_componentDataByName[viewName];
-            UIView *view = [componentData createViewWithTag: tag initProps: props];
-            [componentData setProps: props forView: view];
-            self->_viewRegistry[tag] = view;
+            UIView *view = [self createViewByComponentData:componentData hippyVirtualNode:subNode hippyTag:tag properties:props viewName:viewName];
             CGRect frame = subNode.frame;
             [view hippySetFrame:frame];
             if ([view respondsToSelector: @selector(hippyBridgeDidFinishTransaction)]) {

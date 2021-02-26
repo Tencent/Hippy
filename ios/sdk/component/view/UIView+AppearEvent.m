@@ -26,5 +26,6 @@
 
 - (void)viewAppearEvent {}
 - (void)viewDisappearEvent {}
-
+- (void)viewWillAppearEvent {}
+- (void)viewWillDisappearEvent {}
 @end

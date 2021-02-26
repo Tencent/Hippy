@@ -28,37 +28,9 @@
 #import "HippyHeaderRefresh.h"
 #import "HippyFooterRefresh.h"
 #import "UIView+AppearEvent.h"
-
-#define CELL_TAG 10101
-
-@implementation HippyBaseListViewCell
-
-- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
-{
-	if (self = [super initWithStyle: style reuseIdentifier: reuseIdentifier]) {
-		self.backgroundColor = [UIColor clearColor];
-	}
-	return self;
-}
-
-- (UIView *)cellView
-{
-	return [self.contentView viewWithTag: CELL_TAG];
-}
-
-- (void)setCellView:(UIView *)cellView
-{
-	UIView *selfCellView = [self cellView];
-	if (selfCellView != cellView) {
-		[selfCellView removeFromSuperview];
-		cellView.tag = CELL_TAG;
-		[self.contentView addSubview: cellView];
-	}
-}
-@end
+#import "HippyBaseListViewCell.h"
 
 @interface HippyBaseListView() <HippyScrollProtocol, HippyRefreshDelegate>
-
 
 @end
 
@@ -72,6 +44,7 @@
     NSArray<HippyVirtualNode *> *_subNodes;
     HippyHeaderRefresh *_headerRefreshView;
     HippyFooterRefresh *_footerRefreshView;
+    NSArray<HippyBaseListViewCell *> *_previousVisibleCells;
 }
 
 @synthesize node = _node;
@@ -105,9 +78,10 @@
 - (void)initTableView
 {
 	if (_tableView == nil) {
-		_tableView = [[UITableView alloc] initWithFrame:CGRectZero style: UITableViewStylePlain];
+		_tableView = [[HippyListTableView alloc] initWithFrame:CGRectZero style: UITableViewStylePlain];
 		_tableView.dataSource = self;
 		_tableView.delegate = self;
+        _tableView.layoutDelegate = self;
         _tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 		_tableView.backgroundColor = [UIColor clearColor];
 		_tableView.allowsSelection = NO;
@@ -116,6 +90,7 @@
 		if (@available(iOS 11.0, *))
 		{
 			_tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+            _tableView.insetsContentViewsToSafeArea = NO;
 		}
         
 		[self addSubview:_tableView];
@@ -128,12 +103,6 @@
 
 - (BOOL)flush
 {
-    NSNumber *number = self.node.props[@"numberOfRows"];
-    if ([number isEqual:[NSNull null]]) {
-        return NO;
-    }
-	NSUInteger numberOfRows = [number integerValue];
-    
     static dispatch_once_t onceToken;
     static NSPredicate *predicate = nil;
     dispatch_once(&onceToken, ^{
@@ -146,14 +115,13 @@
     });
     
     _subNodes = [self.node.subNodes filteredArrayUsingPredicate:predicate];
-    
-    if ([_subNodes count] == numberOfRows) {
-        if (numberOfRows == 0 && _preNumberOfRows == numberOfRows) return NO;
-        [self reloadData];
-        _preNumberOfRows = numberOfRows;
-        return YES;
+    NSUInteger numberOfRows = [_subNodes count];
+    if (numberOfRows == 0 && _preNumberOfRows == numberOfRows) {
+        return NO;
     }
-    return NO;
+    [self reloadData];
+    _preNumberOfRows = numberOfRows;
+    return YES;
 }
 
 - (void)reloadData
@@ -303,7 +271,6 @@
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    
 	HippyVirtualCell *node = [_dataSource cellForIndexPath: indexPath];
 	NSInteger index = [_subNodes indexOfObject: node];
 	if (self.onRowWillDisplay) {
@@ -323,54 +290,64 @@
             self.onEndReached(@{});
         }
     }
-    if ([cell isKindOfClass:[HippyBaseListViewCell class]]) {
-        [[(HippyBaseListViewCell *)cell cellView] viewAppearEvent];
-    }
 }
 
 - (void)tableView:(UITableView *)tableView didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath*)indexPath {
+    NSAssert([cell isKindOfClass:[HippyBaseListViewCell class]], @"cell must be subclass of HippyBaseListViewCell");
     if ([cell isKindOfClass:[HippyBaseListViewCell class]]) {
-        [[(HippyBaseListViewCell *)cell cellView] viewDisappearEvent];
+        HippyBaseListViewCell *hippyCell = (HippyBaseListViewCell *)cell;
+        hippyCell.node.cell = nil;
     }
 }
 
-
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	HippyVirtualCell *newNode = [_dataSource cellForIndexPath: indexPath];
-	NSString *identifier = newNode.itemViewType;
+	HippyVirtualCell *indexNode = [_dataSource cellForIndexPath: indexPath];
+	NSString *identifier = indexNode.itemViewType;
 	HippyBaseListViewCell *cell = (HippyBaseListViewCell *)[tableView dequeueReusableCellWithIdentifier: identifier];
-	while (cell && !([[(HippyVirtualCell *)cell.node itemViewType] isEqualToString: newNode.itemViewType])) {
-        // 此处cell还在tableView上，将导致泄漏
-        [cell removeFromSuperview];
-		cell =(HippyBaseListViewCell *)[tableView dequeueReusableCellWithIdentifier: identifier];
-		if (cell == nil) {
-			HippyLogInfo(@"cannot find right cell:%@", @(indexPath.row));
-		}
-	}
-	if (cell.node.cell != cell) {
-        // 此处cell还在tableView上，将导致泄漏
-        [cell removeFromSuperview];
-		cell = nil;
-	}
-	
-	if (cell == nil) {
-		cell = [[[self listViewCellClass] alloc] initWithStyle: UITableViewCellStyleDefault reuseIdentifier: identifier];
-		cell.tableView = tableView;
-		cell.cellView = [_bridge.uiManager createViewFromNode:newNode];
-	} else {
-		UIView *cellView = [_bridge.uiManager updateNode: cell.node withNode: newNode];
-		if (cellView == nil) {
-			cell.cellView = [_bridge.uiManager createViewFromNode: newNode];
-		} else {
-			cell.cellView = cellView;
-		}
-	}
-	cell.node.cell = nil;
-	
-	newNode.cell = cell;
-	cell.node = newNode;
+    if (nil == cell) {
+        Class cls = [self listViewCellClass];
+        NSAssert([cls isSubclassOfClass:[HippyBaseListViewCell class]], @"listViewCellClass must return a subclass of HippyBaseListViewCell");
+        cell = [[cls alloc] initWithStyle: UITableViewCellStyleDefault reuseIdentifier: identifier];
+        cell.tableView = tableView;
+    }
+    UIView *cellView = nil;
+    if (cell.node.cell) {
+        cellView = [_bridge.uiManager createViewFromNode:indexNode];
+    }
+    else {
+        cellView = [_bridge.uiManager updateNode:cell.node withNode:indexNode];
+        if (nil == cellView) {
+            cellView = [_bridge.uiManager createViewFromNode:indexNode];
+        }
+    }
+    NSAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)], @"subviews of HippyBaseListViewCell must conform to protocol ViewAppearStateProtocol");
+    cell.cellView = (UIView<ViewAppearStateProtocol> *)cellView;
+    cell.node = indexNode;
+    cell.node.cell = cell;
 	return cell;
+}
+
+- (void)tableViewDidLayoutSubviews:(HippyListTableView *)tableView {
+    NSArray<HippyBaseListViewCell *> *visibleCells = [self.tableView visibleCells];
+    for (HippyBaseListViewCell *cell in visibleCells) {
+        CGRect cellRectInTableView = [self.tableView convertRect:[cell bounds] fromView:cell];
+        CGRect intersection = CGRectIntersection(cellRectInTableView, [self.tableView bounds]);
+        if (CGRectEqualToRect(cellRectInTableView, intersection)) {
+            [cell setCellShowState:CellFullShowState];
+        }
+        else if (!CGRectIsNull(intersection)) {
+            [cell setCellShowState:CellHalfShowState];
+        }
+    }
+    if (_previousVisibleCells && ![_previousVisibleCells isEqualToArray:visibleCells]) {
+        NSMutableArray<HippyBaseListViewCell *> *diff = [_previousVisibleCells mutableCopy];
+        [diff removeObjectsInArray:visibleCells];
+        for (HippyBaseListViewCell *cell in diff) {
+            [cell setCellShowState:CellNotShowState];
+        }
+    }
+    _previousVisibleCells = visibleCells;
 }
 
 #pragma mark - Scroll

@@ -20,6 +20,14 @@ export default [
     },
   },
   {
+    path: '/BoxShadow',
+    name: 'BoxShadow 范例',
+    component: PAGE_LIST.BoxShadow,
+    meta: {
+      style: 1,
+    },
+  },
+  {
     path: '/Clipboard',
     name: 'Clipboard 组件',
     component: PAGE_LIST.Clipboard,
@@ -167,6 +175,14 @@ export default [
     path: '/SetNativeProps',
     name: 'setNativeProps能力',
     component: PAGE_LIST.SetNativeProps,
+    meta: {
+      style: 2,
+    },
+  },
+  {
+    path: '/DynamicImport',
+    name: 'DynamicImport 能力',
+    component: PAGE_LIST.DynamicImport,
     meta: {
       style: 2,
     },

@@ -36,15 +36,12 @@ import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
+import com.tencent.mtt.hippy.views.custom.HippyCustomPropsController;
 import com.tencent.mtt.hippy.views.list.HippyRecycler;
 import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
 
 import java.lang.reflect.Field;
 import java.util.List;
-
-/**
- * Created by leonardgong on 2017/11/27 0027.
- */
 
 public class ControllerManager implements HippyInstanceLifecycleEventListener
 {
@@ -63,7 +60,8 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener
 		mControllerUpdateManger = new ControllerUpdateManger();
 		mContext.addInstanceLifecycleEventListener(this);
 		processControllers(hippyPackages);
-
+		mControllerUpdateManger.setCustomPropsController(mControllerRegistry.getViewController(
+				HippyCustomPropsController.CLASS_NAME));
 	}
 
 	private void processControllers(List<HippyAPIProvider> hippyPackages)
@@ -77,10 +75,17 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener
 				{
 					HippyController hippyNativeModule = (HippyController) hippyComponent.getAnnotation(HippyController.class);
 					String name = hippyNativeModule.name();
+					String[] names = hippyNativeModule.names();
 					boolean lazy = hippyNativeModule.isLazyLoad();
 					try
 					{
-						mControllerRegistry.addControllerHolder(name, new ControllerHolder((HippyViewController) hippyComponent.newInstance(), lazy));
+						ControllerHolder holder = new ControllerHolder((HippyViewController) hippyComponent.newInstance(), lazy);
+						mControllerRegistry.addControllerHolder(name, holder);
+						if (names != null && names.length > 0) {
+							for (int i = 0; i < names.length; i++) {
+								mControllerRegistry.addControllerHolder(names[i], holder);
+							}
+						}
 					}
 					catch (InstantiationException e)
 					{
@@ -240,7 +245,7 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener
 			ViewGroup newParent = (ViewGroup) mControllerRegistry.getView(toId);
 			if (newParent != null)
 			{
-        String parentClassName = HippyTag.getClassName(newParent);
+				String parentClassName = HippyTag.getClassName(newParent);
 				mControllerRegistry.getViewController(parentClassName).addView(newParent, view, index);
 			}
 
@@ -329,10 +334,10 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener
 			return;
 		}
 		HippyViewController hippyChildViewController = null;
-    Object childTagString = HippyTag.getClassName(child);
+		Object childTagString = HippyTag.getClassName(child);
 		if (childTagString instanceof String)
 		{
-      String childClassName = (String)childTagString;
+			String childClassName = (String)childTagString;
 			if (!TextUtils.isEmpty(childClassName))
 			{
 				hippyChildViewController = mControllerRegistry.getViewController(childClassName);
@@ -367,10 +372,10 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener
 			return;
 		}
 
-    Object parentTagString = HippyTag.getClassName(viewParent);
-    if (parentTagString instanceof String)
+		Object parentTagString = HippyTag.getClassName(viewParent);
+		if (parentTagString instanceof String)
 		{
-      String className = (String)parentTagString;
+			String className = (String)parentTagString;
 			//remove component Like listView there is a RecycleItemView is not js UI
 			if (mControllerRegistry.getControllerHolder(className) != null)
 			{
@@ -518,7 +523,7 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener
 				//				mContext.getGlobalConfigs().getLogAdapter().log( TAG,"addChild id: " + id + " pid: " + pid);
 				// childView.getParent()==null  this is the move action do first  so the child has a parent we do nothing  temp
 
-        String parentClassName = HippyTag.getClassName(parentView);
+				String parentClassName = HippyTag.getClassName(parentView);
 				mControllerRegistry.getViewController(parentClassName).addView((ViewGroup) parentView, childView, index);
 			}
 //			else
@@ -539,15 +544,15 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener
 			// 这个错误原因是：前端用了某个UI控件来做父亲，而这个UI控件实际上是不应该做父亲的（不是ViewGroup），务必要把这个parentView的className打出来
 			String parentTag = null, parentClass = null, childTag = null, childClass = null;
 			if (parentView != null) {
-        Object temp = HippyTag.getClassName(parentView);
+				Object temp = HippyTag.getClassName(parentView);
 				if (temp != null)
 					parentTag = temp.toString();
 				parentClass = parentView.getClass().getName();
 			}
 			if (childView != null) {
-        Object temp = HippyTag.getClassName(childView);
+				Object temp = HippyTag.getClassName(childView);
 				if (temp != null)
-				childTag = temp.toString();
+					childTag = temp.toString();
 				childClass = childView.getClass().getName();
 			}
 			Exception exception = new RuntimeException("child null or parent not ViewGroup pid " + pid

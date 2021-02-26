@@ -7,7 +7,7 @@ hippy-vue 其实是基于官方 Vue 2.x 源代码，通过改写 [node-ops](//gi
 
 # 架构图
 
-![hippy-vue 架构图](//puui.qpic.cn/vupload/0/1577801546992_n7r9xz1xd1o.png/0)
+![hippy-vue 架构图](//static.res.qq.com/nav/hippydoc/img/hippy-vue.png)
 
 # 样式
 
@@ -38,3 +38,7 @@ hippy-vue 仍在开发中，目前主要有以下几个需要支持的地方，�
 因为终端和浏览器不同，终端的动画在没有关联组件时也会自动运行，所以不能将它声明在 CSS 中脱离组件的生命周期，目前封装了一个 [animation](hippy-vue/native-components.md?id=animation) 组件在 `@hippy/react-native-components` 中，将动画和组件的声明周期绑定在一起。
 
 未来会把 Vue 的 [transtion](https://vuejs.org/v2/api/#transition) 移植过来，还请静候。
+
+## 未完善的组件和模块
+
+Hippy-Vue 核心组件和模块，与 Hippy-React 是使用相同的终端能力。若 Hippy-Vue 没有列举的组件、模块，可自行先封装。

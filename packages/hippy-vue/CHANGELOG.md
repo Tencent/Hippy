@@ -3,6 +3,47 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.2.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.2.0...2.2.1) (2020-12-28)
+
+**Note:** Version bump only for package @hippy/vue
+
+
+
+
+
+# [2.2.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.1.6...2.2.0) (2020-12-25)
+
+**Note:** Version bump only for package @hippy/vue
+
+
+
+
+
+## [2.1.6](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.1.5...2.1.6) (2020-12-23)
+
+
+### Bug Fixes
+
+* **hippy-vue,hippy-react:** compatible loadMore and endReached event ([#429](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/issues/429)) ([d992cbe](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/d992cbefbd9a0f76bee70bf604df7d377a08e97c))
+
+
+### Features
+
+* **hippy-react:** added hippy-react boxShadow attr and demo ([#458](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/issues/458)) ([6fd6a34](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/6fd6a342f7c0b7b6aa742eeee5c585e9e5a1d31b))
+* **hippy-vue:** vue css selectors support dynamic import ([#440](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/issues/440)) ([3baa571](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/3baa57105df8f4e7a46d52d4334a88ee921c388d))
+
+
+
+
+
+## [2.1.5](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.1.4...2.1.5) (2020-12-10)
+
+**Note:** Version bump only for package @hippy/vue
+
+
+
+
+
 ## [2.1.4](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.1.3...2.1.4) (2020-12-03)
 
 

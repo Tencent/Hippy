@@ -41,12 +41,6 @@ import com.tencent.mtt.supportui.views.IShadow;
 
 import java.util.Map;
 
-/**
- * @author: edsheng
- * @date: 2017/11/29 14:14
- * @version: V1.0
- */
-
 public abstract class HippyViewController<T extends View & HippyViewBase> implements View.OnFocusChangeListener
 {
 	private static final String	TAG						     = "HippyViewController";
@@ -54,9 +48,11 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 	private static MatrixUtil.MatrixDecompositionContext	sMatrixDecompositionContext		= new MatrixUtil.MatrixDecompositionContext();
 	private static double[]									sTransformDecompositionArray	= new double[16];
     private boolean bUserChageFocus = false;
-	public View createView(HippyRootView rootView, int id, HippyEngineContext hippyContext, String className, HippyMap initialProps)
-	{
+
+	public View createView(HippyRootView rootView, int id, HippyEngineContext hippyEngineContext, String className,
+			HippyMap initialProps) {
 		View view = null;
+
 		if (rootView != null)
 		{
 			Context rootViewContext = rootView.getContext();
@@ -84,8 +80,8 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 			LogUtils.d(TAG, "createView id " + id);
 			view.setId(id);
 			//view.setTag(className);
-      HippyMap tagObj = HippyTag.createTagMap(className, initialProps);
-      view.setTag(tagObj);
+			HippyMap tagObj = HippyTag.createTagMap(className, initialProps);
+			view.setTag(tagObj);
 		}
 		return view;
 	}
@@ -354,53 +350,65 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 	{
 		if(bUserChageFocus) //只有用户导致的焦点获取，会通知出去
 		{
-		HippyMap hippyMap = new HippyMap();
-		hippyMap.pushBoolean("focus", hasFocus);
-		new HippyViewEvent("onFocus").send(v, hippyMap);
+			HippyMap hippyMap = new HippyMap();
+			hippyMap.pushBoolean("focus", hasFocus);
+			new HippyViewEvent("onFocus").send(v, hippyMap);
 		}
 	}
-  
-  @HippyControllerProps(name = NodeProps.SHADOW_OFFSET_X, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
-  public void setShadowOffsetX(T view, float shadowOffsetX)
-  {
-    if (view instanceof IShadow)
-      ((IShadow) view).setShadowOffsetX(shadowOffsetX);
-  }
-  
-  @HippyControllerProps(name = NodeProps.SHADOW_OFFSET_Y, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
-  public void setShadowOffsetY(T view, float shadowOffsetY)
-  {
-    if (view instanceof IShadow)
-      ((IShadow) view).setShadowOffsetY(shadowOffsetY);
-  }
-  
-  @HippyControllerProps(name = NodeProps.SHADOW_OPACITY, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
-  public void setShadowOpacity(T view, float shadowOpacity)
-  {
-    if (view instanceof IShadow)
-      ((IShadow) view).setShadowOpacity(shadowOpacity);
-  }
-  
-  @HippyControllerProps(name = NodeProps.SHADOW_RADIUS, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
-  public void setShadowRadius(T view, float shadowRadius)
-  {
-    if (view instanceof IShadow)
-      ((IShadow) view).setShadowRadius(shadowRadius);
-  }
-  
-  @HippyControllerProps(name = NodeProps.SHADOW_SPREAD, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
-  public void setShadowSpread(T view, float shadowSpread)
-  {
-    if (view instanceof IShadow)
-      ((IShadow) view).setShadowSpread(shadowSpread);
-  }
-  
-  @HippyControllerProps(name = NodeProps.SHADOW_COLOR, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
-  public void setShadowColor(T view, int shadowColor)
-  {
-    if (view instanceof IShadow)
-      ((IShadow) view).setShadowColor(shadowColor);
-  }
+
+	@HippyControllerProps(name = NodeProps.SHADOW_OFFSET, defaultType = HippyControllerProps.MAP)
+	public void setShadowOffset(T view, HippyMap shadowOffset)
+	{
+		if (shadowOffset != null && view instanceof IShadow)
+		{
+			float shadowOffsetX = shadowOffset.getInt("x");
+			float shadowOffsetY = shadowOffset.getInt("y");
+			((IShadow) view).setShadowOffsetX(shadowOffsetX);
+			((IShadow) view).setShadowOffsetY(shadowOffsetY);
+		}
+	}
+
+	@HippyControllerProps(name = NodeProps.SHADOW_OFFSET_X, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
+	public void setShadowOffsetX(T view, float shadowOffsetX)
+	{
+		if (view instanceof IShadow)
+			((IShadow) view).setShadowOffsetX(shadowOffsetX);
+	}
+
+	@HippyControllerProps(name = NodeProps.SHADOW_OFFSET_Y, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
+	public void setShadowOffsetY(T view, float shadowOffsetY)
+	{
+		if (view instanceof IShadow)
+			((IShadow) view).setShadowOffsetY(shadowOffsetY);
+	}
+
+	@HippyControllerProps(name = NodeProps.SHADOW_OPACITY, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
+	public void setShadowOpacity(T view, float shadowOpacity)
+	{
+		if (view instanceof IShadow)
+			((IShadow) view).setShadowOpacity(shadowOpacity);
+	}
+
+	@HippyControllerProps(name = NodeProps.SHADOW_RADIUS, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
+	public void setShadowRadius(T view, float shadowRadius)
+	{
+		if (view instanceof IShadow)
+			((IShadow) view).setShadowRadius(shadowRadius);
+	}
+
+	@HippyControllerProps(name = NodeProps.SHADOW_SPREAD, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
+	public void setShadowSpread(T view, float shadowSpread)
+	{
+		if (view instanceof IShadow)
+			((IShadow) view).setShadowSpread(shadowSpread);
+	}
+
+	@HippyControllerProps(name = NodeProps.SHADOW_COLOR, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
+	public void setShadowColor(T view, int shadowColor)
+	{
+		if (view instanceof IShadow)
+			((IShadow) view).setShadowColor(shadowColor);
+	}
 
 	@HippyControllerProps(name = NodeProps.BORDER_LEFT_WIDTH, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
 	public void setLeftBorderWidth(T view, float borderLeftWidth)
@@ -585,12 +593,6 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 		{
 			view.removeOnAttachStateChangeListener(NativeGestureDispatcher.getOnDetachedFromWindowListener());
 		}
-	}
-
-	@HippyControllerProps(name = NodeProps.CUSTOM_PROP)
-	public void setCustomProp(T view, String methodName, Object props)
-	{
-
 	}
 
 	protected void setGestureType(T view, String type, boolean flag)

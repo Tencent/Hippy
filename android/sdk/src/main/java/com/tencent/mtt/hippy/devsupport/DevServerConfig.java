@@ -26,7 +26,7 @@ public class DevServerConfig
 
 	private static final String	HIPPYDEBUGPREF		= "hippydebugpref";
 
-	private static final String	JS_BUNDLE_FILE_NAME	= "HippyDevBundle.js";
+	public static final String	JS_BUNDLE_FILE_NAME	= "HippyDevBundle.js";
 
 	boolean						mLiveDebug			= false;
 

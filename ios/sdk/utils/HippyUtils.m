@@ -467,8 +467,6 @@ UIWindow *__nullable HippyKeyWindow(void)
     if (HippyRunningInAppExtension()) {
         return nil;
     }
-    
-    // TODO: replace with a more robust solution
     return HippySharedApplication().keyWindow;
 }
 

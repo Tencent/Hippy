@@ -3,6 +3,50 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.2.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.2.0...2.2.1) (2020-12-28)
+
+**Note:** Version bump only for package @hippy/react
+
+
+
+
+
+# [2.2.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.1.6...2.2.0) (2020-12-25)
+
+**Note:** Version bump only for package @hippy/react
+
+
+
+
+
+## [2.1.6](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.1.5...2.1.6) (2020-12-23)
+
+
+### Bug Fixes
+
+* **hippy-react:** fixed hairlineWidth NaN in ios ([82faee1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/82faee1f6693dce534ad97e18f4a42d9af1d2d9d))
+* **hippy-vue,hippy-react:** compatible loadMore and endReached event ([#429](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/issues/429)) ([d992cbe](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/d992cbefbd9a0f76bee70bf604df7d377a08e97c))
+
+
+### Features
+
+* **hippy-react:** added hippy-react boxShadow attr and demo ([#458](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/issues/458)) ([6fd6a34](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/6fd6a342f7c0b7b6aa742eeee5c585e9e5a1d31b))
+
+
+
+
+
+## [2.1.5](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.1.4...2.1.5) (2020-12-10)
+
+
+### Bug Fixes
+
+* **hippy-react:** continue finding nodeId if stringref's stateNode is a ([#442](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/issues/442)) ([3860d3f](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/3860d3ff3c36299b1f973dedbede83bcf94fa9ad))
+
+
+
+
+
 ## [2.1.4](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.1.3...2.1.4) (2020-12-03)
 
 

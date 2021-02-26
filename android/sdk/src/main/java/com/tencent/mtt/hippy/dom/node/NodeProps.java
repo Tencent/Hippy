@@ -86,14 +86,15 @@ public class NodeProps
 	public static final String				BORDER_RIGHT_COLOR			= "borderRightColor";
 	public static final String				BORDER_BOTTOM_COLOR			= "borderBottomColor";
 	public static final String				BORDER_STYLES				= "borderStyle";
-  
-  public static final String				SHADOW_COLOR				 = "shadowColor";
-  public static final String				SHADOW_OFFSET_X			 = "shadowOffsetX";
-  public static final String				SHADOW_OFFSET_Y			 = "shadowOffsetY";
-  public static final String				SHADOW_OPACITY			 = "shadowOpacity";
-  public static final String				SHADOW_RADIUS			   = "shadowRadius";
-  public static final String				SHADOW_SPREAD				 = "shadowSpread";
-	
+
+	public static final String				SHADOW_COLOR                = "shadowColor";
+	public static final String				SHADOW_OFFSET               = "shadowOffset";
+	public static final String				SHADOW_OFFSET_X             = "shadowOffsetX";
+	public static final String				SHADOW_OFFSET_Y             = "shadowOffsetY";
+	public static final String				SHADOW_OPACITY              = "shadowOpacity";
+	public static final String				SHADOW_RADIUS               = "shadowRadius";
+	public static final String				SHADOW_SPREAD               = "shadowSpread";
+
 	//View props
 
 	public static final String				ENABLED						= "enabled";
@@ -117,6 +118,7 @@ public class NodeProps
 	public static final String				ON							= "on";
 	public static final String				RESIZE_MODE					= "resizeMode";
 	public static final String				RESIZE_METHOD				= "resizeMethod";
+  public static final String				GAUSSIAN_BLUR				= "gaussianBlur";
 	public static final String				TEXT_ALIGN					= "textAlign";
 	public static final String				TEXT_ALIGN_VERTICAL			= "textAlignVertical";
 	public static final String				TEXT_DECORATION_LINE		= "textDecorationLine";
@@ -146,16 +148,14 @@ public class NodeProps
 
 	public static final String				VIEW_CLASS_NAME				= "View";
 	public static final String				TEXT_CLASS_NAME				= "Text";
-  public static final String				IMAGE_CLASS_NAME			= "Image";
-
+	public static final String				IMAGE_CLASS_NAME			= "Image";
 
 	public static final String				STYLE						= "style";
 	public static final String				PROPS						= "props";
 	public static final String				ROOT_NODE					= "RootNode";
-	public static final String				CUSTOM_PROP					= "customProp";
-  public static final String				CUSTOM_PROP_ISGIF		= "isGif";
-  public static final String				CUSTOM_PROP_IMAGE_TYPE		= "imageType";
-
+	public static final String				CUSTOM_PROPS                = "customProps";
+	public static final String				CUSTOM_PROP_ISGIF           = "isGif";
+	public static final String				CUSTOM_PROP_IMAGE_TYPE      = "imageType";
 
 	public static final String				PROP_ACCESSIBILITY_LABEL	= "accessibilityLabel";
 	public static final String				FOCUSABLE					= "focusable";

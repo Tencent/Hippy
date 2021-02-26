@@ -10,6 +10,8 @@ import { tryConvertNumber } from '@vue/util/index';
 const PROPERTIES_MAP = {
   textDecoration: 'textDecorationLine',
   boxShadowOffset: 'shadowOffset',
+  boxShadowOffsetX: 'shadowOffsetX',
+  boxShadowOffsetY: 'shadowOffsetY',
   boxShadowOpacity: 'shadowOpacity',
   boxShadowRadius: 'shadowRadius',
   boxShadowSpread: 'shadowSpread',
@@ -360,8 +362,8 @@ function parseCSS(css, options) {
         }
         // FIXME: should not be width and height, should be x and y.
         value = {
-          width: x,
-          height: y,
+          x,
+          y,
         };
         break;
       }

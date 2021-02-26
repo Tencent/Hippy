@@ -33,3 +33,15 @@ export default {
 ```jsx
 app.$off('rotate', this.listener);
 ```
+
+# 实例销毁事件
+
+`最低支持版本 2.3.4`
+
+当hippy js引擎或者context被销毁时会调用该事件，hippy业务可以通过监听 `destroyInstance` 事件做一些离开时的操作，但回调函数不能使用 `async`
+
+```jsx
+Hippy.on('destroyInstance', () => {
+    // do something
+});
+```

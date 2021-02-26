@@ -39,6 +39,8 @@ public @interface HippyNativeModule
 
 	String name();
 
+	String [] names() default {};
+
 	Thread thread() default Thread.BRIDGE;
 
 	boolean init() default false;
