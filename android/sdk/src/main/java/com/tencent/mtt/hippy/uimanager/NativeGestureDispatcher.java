@@ -22,6 +22,7 @@ import android.view.ViewConfiguration;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.HippyRootView;
+import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorAdapter;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.javascriptmodules.EventDispatcher;
@@ -30,11 +31,6 @@ import com.tencent.mtt.hippy.utils.PixelUtil;
 
 import java.util.HashSet;
 
-/**
- * FileName: NativeGestureDispatcher
- * Description：
- * History：
- */
 public class NativeGestureDispatcher implements NativeGestureProcessor.Callback
 {
 	private static final String				TAG						= "NativeGestureDispatcher";
@@ -57,8 +53,8 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback
 																					public void run()
 																					{
 																						int tagId = view.getId();
-																						handleClick(((HippyInstanceContext) view.getContext())
-																								.getEngineContext(), tagId);
+																						handleClick(view, ((HippyInstanceContext)view.getContext())
+																								.getEngineContext(), tagId, false);
 																					}
 																				}, TAP_TIMEOUT);
 																			}
@@ -166,12 +162,16 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback
 		return mOnDetachedFromWindowListener;
 	}
 
-	public static void handleClick(HippyEngineContext context, int tagId)
-	{
-		if (context == null)
-		{
+	public static void handleClick(View target, HippyEngineContext context, int tagId, boolean isCustomEvent) {
+		if (context == null) {
 			return;
 		}
+
+		HippyEngineMonitorAdapter monitorAdapter = context.getGlobalConfigs().getEngineMonitorAdapter();
+		if (monitorAdapter != null && target != null) {
+			monitorAdapter.reportClickEvent(target, isCustomEvent);
+		}
+
 		HippyMap params = new HippyMap();
 		params.pushString(KEY_EVENT_NAME, NodeProps.ON_CLICK);
 		params.pushInt(KEY_TAG_ID, tagId);
