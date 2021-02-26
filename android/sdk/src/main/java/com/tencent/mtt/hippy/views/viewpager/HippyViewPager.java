@@ -47,7 +47,6 @@ public class HippyViewPager extends ViewPager implements HippyViewBase
 
 
 	private NativeGestureDispatcher		mGestureDispatcher;
-	private boolean						mScrollEnabled		= true;
 	private boolean						mFirstUpdateChild	= true;
 	private boolean 					mReNotifyOnAttach = false;
 	private ViewPagerPageChangeListener	mPageListener;
@@ -158,7 +157,7 @@ public class HippyViewPager extends ViewPager implements HippyViewBase
 	@Override
 	public boolean onInterceptTouchEvent(MotionEvent ev)
 	{
-		if (!mScrollEnabled)
+		if (!isScrollEnabled())
 		{
 			return false;
 		}
@@ -169,7 +168,7 @@ public class HippyViewPager extends ViewPager implements HippyViewBase
 	@Override
 	public boolean onTouchEvent(MotionEvent ev)
 	{
-		if (!mScrollEnabled)
+		if (!isScrollEnabled())
 		{
 			return false;
 		}
@@ -245,11 +244,6 @@ public class HippyViewPager extends ViewPager implements HippyViewBase
 				mPageListener.onPageSelected(item);
 			}
 		}
-	}
-
-	public void setScrollEnabled(boolean scrollEnabled)
-	{
-		mScrollEnabled = scrollEnabled;
 	}
 
 	@Override
