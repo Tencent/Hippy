@@ -637,7 +637,9 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)
     }
     
     _loading = NO;
-    [_javaScriptExecutor invalidate];
+    [_javaScriptExecutor executeBlockOnJavaScriptQueue:^{
+        [self->_javaScriptExecutor invalidate];
+    }];
     
     [[NSNotificationCenter defaultCenter]
      postNotificationName:HippyJavaScriptDidFailToLoadNotification
