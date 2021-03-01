@@ -33,7 +33,6 @@ TODO: Add long description of the pod here.
     cores.source_files = 'core/**/*.{h,cc}'
     cores.exclude_files = ['core/include/core/napi/v8','core/src/napi/v8','core/js']
     cores.libraries = 'c++'
-    cores.private_header_files = 'core/include/**/*.h'
     cores.header_mappings_dir = 'core/include/'
   end 
 
