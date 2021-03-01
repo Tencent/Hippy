@@ -29,10 +29,6 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
 import android.graphics.drawable.NinePatchDrawable;
 
-/**
- * Created by leonardgong on 2017/12/5 0005.
- */
-
 class HippyContentDrawable extends ContentDrawable
 {
 	private Rect				mNinePatchRect;
