@@ -108,15 +108,12 @@
  * location specified by the `sourceURLForBridge:` method, however, if you want
  * to handle loading the JS yourself, you can do so by implementing this method.
  */
-- (void)loadSourceForBridge:(HippyBridge *)bridge
-                 onProgress:(HippySourceLoadProgressBlock)onProgress
-                 onComplete:(HippySourceLoadBlock)loadCallback;
+- (void)loadSourceForBridge:(HippyBridge *)bridge onProgress:(HippySourceLoadProgressBlock)onProgress onComplete:(HippySourceLoadBlock)loadCallback;
 
 /**
  * Similar to loadSourceForBridge:onProgress:onComplete: but without progress
  * reporting.
  */
-- (void)loadSourceForBridge:(HippyBridge *)bridge
-                  withBlock:(HippySourceLoadBlock)loadCallback;
+- (void)loadSourceForBridge:(HippyBridge *)bridge withBlock:(HippySourceLoadBlock)loadCallback;
 
 @end

@@ -142,13 +142,12 @@ HIPPY_EXTERN NSString *const HippyUIManagerRootViewKey;
  */
 - (void)setNeedsLayout;
 
-
 - (UIView *)createViewFromNode:(HippyVirtualNode *)node;
 - (UIView *)updateNode:(HippyVirtualNode *)oldNode withNode:(HippyVirtualNode *)node;
 
 - (void)removeNativeNode:(HippyVirtualNode *)node;
 - (void)removeNativeNodeView:(UIView *)nodeView;
-- (void) updateViewsFromParams:(NSArray<HippyExtAnimationViewParams *> *)params completion:(HippyViewUpdateCompletedBlock)block;
+- (void)updateViewsFromParams:(NSArray<HippyExtAnimationViewParams *> *)params completion:(HippyViewUpdateCompletedBlock)block;
 @end
 
 /**
@@ -161,4 +160,3 @@ HIPPY_EXTERN NSString *const HippyUIManagerRootViewKey;
 @property (nonatomic, readonly) HippyUIManager *uiManager;
 
 @end
-

@@ -34,17 +34,15 @@
 
 @implementation HippyModalHostShadowView
 
-- (void)insertHippySubview:(id<HippyComponent>)subview atIndex:(NSInteger)atIndex
-{
-  [super insertHippySubview:subview atIndex:atIndex];
-  if ([subview isKindOfClass:[HippyShadowView class]]) {
-    CGRect frame = {.origin = CGPointZero, .size = HippyScreenSize()};
-    [(HippyShadowView *)subview setFrame:frame];
-  }
+- (void)insertHippySubview:(id<HippyComponent>)subview atIndex:(NSInteger)atIndex {
+    [super insertHippySubview:subview atIndex:atIndex];
+    if ([subview isKindOfClass:[HippyShadowView class]]) {
+        CGRect frame = { .origin = CGPointZero, .size = HippyScreenSize() };
+        [(HippyShadowView *)subview setFrame:frame];
+    }
 }
 
 @end
-
 
 @implementation HippyModalHostViewManager
 
@@ -60,15 +58,14 @@ HIPPY_EXPORT_VIEW_PROPERTY(onOrientationChange, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(primaryKey, NSString)
 HIPPY_EXPORT_VIEW_PROPERTY(hideStatusBar, NSNumber)
 
-- (UIView *)view
-{
-  HippyModalHostView *view = [[HippyModalHostView alloc] initWithBridge:self.bridge];
-  view.delegate = self.transitioningDelegate;
-  if (!_hostViews) {
-    _hostViews = [NSHashTable weakObjectsHashTable];
-  }
-  [_hostViews addObject:view];
-  return view;
+- (UIView *)view {
+    HippyModalHostView *view = [[HippyModalHostView alloc] initWithBridge:self.bridge];
+    view.delegate = self.transitioningDelegate;
+    if (!_hostViews) {
+        _hostViews = [NSHashTable weakObjectsHashTable];
+    }
+    [_hostViews addObject:view];
+    return view;
 }
 
 - (id<HippyModalHostViewInteractor, UIViewControllerTransitioningDelegate>)transitioningDelegate {
@@ -78,17 +75,15 @@ HIPPY_EXPORT_VIEW_PROPERTY(hideStatusBar, NSNumber)
     return _transitioningDelegate;
 }
 
-- (HippyShadowView *)shadowView
-{
-  return [HippyModalHostShadowView new];
+- (HippyShadowView *)shadowView {
+    return [HippyModalHostShadowView new];
 }
 
-- (void)invalidate
-{
-  for (HippyModalHostView *hostView in _hostViews) {
-    [hostView invalidate];
-  }
-  [_hostViews removeAllObjects];
+- (void)invalidate {
+    for (HippyModalHostView *hostView in _hostViews) {
+        [hostView invalidate];
+    }
+    [_hostViews removeAllObjects];
 }
 
 @end

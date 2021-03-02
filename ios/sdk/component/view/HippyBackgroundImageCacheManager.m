@@ -26,7 +26,7 @@
 #import "HippyImageViewCustomLoader.h"
 #import "HippyUtils.h"
 
-@interface HippyBackgroundImageCacheManager()
+@interface HippyBackgroundImageCacheManager ()
 
 @end
 
@@ -53,12 +53,10 @@
             UIImage *image = [UIImage imageWithData:imgData scale:[UIScreen mainScreen].scale];
             completionHandler(image, error);
         }];
-    }
-    else {
+    } else {
         if ([uri hasPrefix:@"http://"] || [uri hasPrefix:@"https://"]) {
             [self loadHTTPURL:imageURL completionHandler:completionHandler];
-        }
-        else if ([uri hasPrefix:@"data:image/"]) {
+        } else if ([uri hasPrefix:@"data:image/"]) {
             [self loadBase64URL:imageURL completionHandler:completionHandler];
         }
     }
@@ -66,24 +64,24 @@
 
 - (void)loadHTTPURL:(NSURL *)URL completionHandler:(HippyBackgroundImageCompletionHandler)completionHandler {
     NSURLRequest *request = [NSURLRequest requestWithURL:URL cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:10];
-    NSURLSession *session=[NSURLSession sharedSession];
-    NSURLSessionDataTask *dataTask=[session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (data) {
-            CGFloat scale = [UIScreen mainScreen].scale;
-            UIImage *originImage = [UIImage imageWithData:data scale:scale];
-            if (originImage) {
-                completionHandler(originImage, nil);
-            }
-            else {
-                NSString *errorString = [NSString stringWithFormat:@"image decode error:%@", [URL absoluteString]];
-                NSError *error = HippyErrorWithMessageAndModuleName(errorString, self.bridge.moduleName);
-                completionHandler(nil, error);
-            }
-        }
-        else {
-            completionHandler(nil, error);
-        }
-    }];
+    NSURLSession *session = [NSURLSession sharedSession];
+    NSURLSessionDataTask *dataTask =
+        [session dataTaskWithRequest:request
+                   completionHandler:^(NSData *_Nullable data, NSURLResponse *_Nullable response, NSError *_Nullable error) {
+                       if (data) {
+                           CGFloat scale = [UIScreen mainScreen].scale;
+                           UIImage *originImage = [UIImage imageWithData:data scale:scale];
+                           if (originImage) {
+                               completionHandler(originImage, nil);
+                           } else {
+                               NSString *errorString = [NSString stringWithFormat:@"image decode error:%@", [URL absoluteString]];
+                               NSError *error = HippyErrorWithMessageAndModuleName(errorString, self.bridge.moduleName);
+                               completionHandler(nil, error);
+                           }
+                       } else {
+                           completionHandler(nil, error);
+                       }
+                   }];
     [dataTask resume];
 }
 
@@ -93,14 +91,12 @@
         UIImage *image = [UIImage imageWithData:imgData scale:[UIScreen mainScreen].scale];
         if (image) {
             completionHandler(image, nil);
-        }
-        else {
+        } else {
             NSString *errorString = [NSString stringWithFormat:@"image decode error for base64URL"];
             NSError *error = HippyErrorWithMessageAndModuleName(errorString, self.bridge.moduleName);
             completionHandler(nil, error);
         }
-    }
-    else {
+    } else {
         NSString *errorString = [NSString stringWithFormat:@"data convert error for base64URL"];
         NSError *error = HippyErrorWithMessageAndModuleName(errorString, self.bridge.moduleName);
         completionHandler(nil, error);

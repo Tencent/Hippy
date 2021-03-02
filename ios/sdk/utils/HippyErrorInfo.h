@@ -31,8 +31,6 @@
 @property (nonatomic, copy, readonly) NSString *errorMessage;
 @property (nonatomic, copy, readonly) NSArray<HippyJSStackFrame *> *stack;
 
-
-- (instancetype)initWithErrorMessage:(NSString *)errorMessage
-                               stack:(NSArray<HippyJSStackFrame *> *)stack;
+- (instancetype)initWithErrorMessage:(NSString *)errorMessage stack:(NSArray<HippyJSStackFrame *> *)stack;
 
 @end
