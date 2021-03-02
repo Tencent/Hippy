@@ -50,28 +50,26 @@ static const NSTimeInterval kIdleCallbackFrameDeadline = 0.001;
 - (instancetype)initWithCallbackID:(NSNumber *)callbackID
                           interval:(NSTimeInterval)interval
                         targetTime:(NSTimeInterval)targetTime
-                           repeats:(BOOL)repeats
-{
-  if ((self = [super init])) {
-    _interval = interval;
-    _repeats = repeats;
-    _callbackID = callbackID;
-    _target = [NSDate dateWithTimeIntervalSinceNow:targetTime];
-  }
-  return self;
+                           repeats:(BOOL)repeats {
+    if ((self = [super init])) {
+        _interval = interval;
+        _repeats = repeats;
+        _callbackID = callbackID;
+        _target = [NSDate dateWithTimeIntervalSinceNow:targetTime];
+    }
+    return self;
 }
 
 /**
  * Returns `YES` if we should invoke the JS callback.
  */
-- (BOOL)updateFoundNeedsJSUpdate
-{
-  if (_target && _target.timeIntervalSinceNow <= 0) {
-    // The JS Timers will do fine grained calculating of expired timeouts.
-    _target = _repeats ? [NSDate dateWithTimeIntervalSinceNow:_interval] : nil;
-    return YES;
-  }
-  return NO;
+- (BOOL)updateFoundNeedsJSUpdate {
+    if (_target && _target.timeIntervalSinceNow <= 0) {
+        // The JS Timers will do fine grained calculating of expired timeouts.
+        _target = _repeats ? [NSDate dateWithTimeIntervalSinceNow:_interval] : nil;
+        return YES;
+    }
+    return NO;
 }
 
 @end
@@ -81,32 +79,28 @@ static const NSTimeInterval kIdleCallbackFrameDeadline = 0.001;
 @end
 
 // NSTimer retains its target, insert this class to break potential retain cycles
-@implementation _HippyTimingProxy
-{
-  __weak id _target;
+@implementation _HippyTimingProxy {
+    __weak id _target;
 }
 
-+ (instancetype)proxyWithTarget:(id)target
-{
-  _HippyTimingProxy *proxy = [self new];
-  if (proxy) {
-    proxy->_target = target;
-  }
-  return proxy;
++ (instancetype)proxyWithTarget:(id)target {
+    _HippyTimingProxy *proxy = [self new];
+    if (proxy) {
+        proxy->_target = target;
+    }
+    return proxy;
 }
 
-- (void)timerDidFire
-{
-  [_target timerDidFire];
+- (void)timerDidFire {
+    [_target timerDidFire];
 }
 
 @end
 
-@implementation HippyTiming
-{
-  NSMutableDictionary<NSNumber *, _HippyTimer *> *_timers;
-  NSTimer *_sleepTimer;
-  BOOL _sendIdleEvents;
+@implementation HippyTiming {
+    NSMutableDictionary<NSNumber *, _HippyTimer *> *_timers;
+    NSTimer *_sleepTimer;
+    BOOL _sendIdleEvents;
 }
 
 @synthesize bridge = _bridge;
@@ -115,157 +109,131 @@ static const NSTimeInterval kIdleCallbackFrameDeadline = 0.001;
 
 HIPPY_EXPORT_MODULE()
 
-- (void)setBridge:(HippyBridge *)bridge
-{
-  HippyAssert(!_bridge, @"Should never be initialized twice!");
+- (void)setBridge:(HippyBridge *)bridge {
+    HippyAssert(!_bridge, @"Should never be initialized twice!");
 
-  _paused = YES;
-  _timers = [NSMutableDictionary new];
-
-  for (NSString *name in @[UIApplicationWillResignActiveNotification,
-                           UIApplicationDidEnterBackgroundNotification,
-                           UIApplicationWillTerminateNotification]) {
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(stopTimers)
-                                                 name:name
-                                               object:nil];
-  }
-
-  for (NSString *name in @[UIApplicationDidBecomeActiveNotification,
-                           UIApplicationWillEnterForegroundNotification]) {
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(startTimers)
-                                                 name:name
-                                               object:nil];
-  }
-
-  _bridge = bridge;
-}
-
-- (void)dealloc
-{
-  [_sleepTimer invalidate];
-  [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
-
-- (dispatch_queue_t)methodQueue
-{
-  return dispatch_get_main_queue();
-}
-
-- (void)invalidate
-{
-  [self stopTimers];
-  _bridge = nil;
-}
-
-- (void)stopTimers
-{
-  if (!_paused) {
     _paused = YES;
-    if (_pauseCallback) {
-      _pauseCallback();
+    _timers = [NSMutableDictionary new];
+
+    for (NSString *name in
+        @[UIApplicationWillResignActiveNotification, UIApplicationDidEnterBackgroundNotification, UIApplicationWillTerminateNotification]) {
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(stopTimers) name:name object:nil];
     }
-  }
+
+    for (NSString *name in @[UIApplicationDidBecomeActiveNotification, UIApplicationWillEnterForegroundNotification]) {
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(startTimers) name:name object:nil];
+    }
+
+    _bridge = bridge;
 }
 
-- (void)startTimers
-{
-  if (!_bridge || ![self hasPendingTimers]) {
-    return;
-  }
-
-  if (_paused) {
-    _paused = NO;
-    if (_pauseCallback) {
-      _pauseCallback();
-    }
-  }
+- (void)dealloc {
+    [_sleepTimer invalidate];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (BOOL)hasPendingTimers
-{
-  return _sendIdleEvents || _timers.count > 0;
+- (dispatch_queue_t)methodQueue {
+    return dispatch_get_main_queue();
 }
 
-- (void)didUpdateFrame:(HippyFrameUpdate *)update
-{
-  NSDate *nextScheduledTarget = [NSDate distantFuture];
-  NSMutableArray<NSNumber *> *timersToCall = [NSMutableArray new];
-  NSMutableArray<NSNumber *> *timersToRemove = [NSMutableArray new];
-  for (_HippyTimer *timer in _timers.allValues) {
-    if ([timer updateFoundNeedsJSUpdate] && timer.callbackID) {
-      [timersToCall addObject:timer.callbackID];
+- (void)invalidate {
+    [self stopTimers];
+    _bridge = nil;
+}
+
+- (void)stopTimers {
+    if (!_paused) {
+        _paused = YES;
+        if (_pauseCallback) {
+            _pauseCallback();
+        }
     }
-    if (!timer.target && timer.callbackID) {
-        [timersToRemove addObject:timer.callbackID];
+}
+
+- (void)startTimers {
+    if (!_bridge || ![self hasPendingTimers]) {
+        return;
+    }
+
+    if (_paused) {
+        _paused = NO;
+        if (_pauseCallback) {
+            _pauseCallback();
+        }
+    }
+}
+
+- (BOOL)hasPendingTimers {
+    return _sendIdleEvents || _timers.count > 0;
+}
+
+- (void)didUpdateFrame:(HippyFrameUpdate *)update {
+    NSDate *nextScheduledTarget = [NSDate distantFuture];
+    NSMutableArray<NSNumber *> *timersToCall = [NSMutableArray new];
+    NSMutableArray<NSNumber *> *timersToRemove = [NSMutableArray new];
+    for (_HippyTimer *timer in _timers.allValues) {
+        if ([timer updateFoundNeedsJSUpdate] && timer.callbackID) {
+            [timersToCall addObject:timer.callbackID];
+        }
+        if (!timer.target && timer.callbackID) {
+            [timersToRemove addObject:timer.callbackID];
+        } else {
+            nextScheduledTarget = [nextScheduledTarget earlierDate:timer.target];
+        }
+    }
+    [_timers removeObjectsForKeys:timersToRemove];
+
+    // Call timers that need to be called
+    if (timersToCall.count > 0) {
+        [_bridge enqueueJSCall:@"JSTimersExecution" method:@"callTimers" args:@[timersToCall] completion:NULL];
+    }
+
+    if (_sendIdleEvents) {
+        NSTimeInterval frameElapsed = (CACurrentMediaTime() - update.timestamp);
+        if (kFrameDuration - frameElapsed >= kIdleCallbackFrameDeadline) {
+            NSTimeInterval currentTimestamp = [[NSDate date] timeIntervalSince1970];
+            NSNumber *absoluteFrameStartMS = @((currentTimestamp - frameElapsed) * 1000);
+            [_bridge enqueueJSCall:@"JSTimersExecution" method:@"callIdleCallbacks" args:@[absoluteFrameStartMS] completion:NULL];
+        }
+    }
+
+    // Switch to a paused state only if we didn't call any timer this frame, so if
+    // in response to this timer another timer is scheduled, we don't pause and unpause
+    // the displaylink frivolously.
+    if (!_sendIdleEvents && timersToCall.count == 0) {
+        // No need to call the pauseCallback as HippyDisplayLink will ask us about our paused
+        // status immediately after completing this call
+        if (_timers.count == 0) {
+            _paused = YES;
+        }
+        // If the next timer is more than 1 second out, pause and schedule an NSTimer;
+        else if ([nextScheduledTarget timeIntervalSinceNow] > kMinimumSleepInterval) {
+            [self scheduleSleepTimer:nextScheduledTarget];
+            _paused = YES;
+        }
+    }
+}
+
+- (void)scheduleSleepTimer:(NSDate *)sleepTarget {
+    if (!_sleepTimer || !_sleepTimer.valid) {
+        _sleepTimer = [[NSTimer alloc] initWithFireDate:sleepTarget interval:0 target:[_HippyTimingProxy proxyWithTarget:self]
+                                               selector:@selector(timerDidFire)
+                                               userInfo:nil
+                                                repeats:NO];
+        [[NSRunLoop currentRunLoop] addTimer:_sleepTimer forMode:NSDefaultRunLoopMode];
     } else {
-      nextScheduledTarget = [nextScheduledTarget earlierDate:timer.target];
+        _sleepTimer.fireDate = [_sleepTimer.fireDate earlierDate:sleepTarget];
     }
-  }
-  [_timers removeObjectsForKeys:timersToRemove];
-
-  // Call timers that need to be called
-  if (timersToCall.count > 0) {
-    [_bridge enqueueJSCall:@"JSTimersExecution"
-                    method:@"callTimers"
-                      args:@[timersToCall]
-                completion:NULL];
-  }
-
-  if (_sendIdleEvents) {
-    NSTimeInterval frameElapsed = (CACurrentMediaTime() - update.timestamp);
-    if (kFrameDuration - frameElapsed >= kIdleCallbackFrameDeadline) {
-      NSTimeInterval currentTimestamp = [[NSDate date] timeIntervalSince1970];
-      NSNumber *absoluteFrameStartMS = @((currentTimestamp - frameElapsed) * 1000);
-      [_bridge enqueueJSCall:@"JSTimersExecution"
-                      method:@"callIdleCallbacks"
-                        args:@[absoluteFrameStartMS]
-                  completion:NULL];
-    }
-  }
-
-  // Switch to a paused state only if we didn't call any timer this frame, so if
-  // in response to this timer another timer is scheduled, we don't pause and unpause
-  // the displaylink frivolously.
-  if (!_sendIdleEvents && timersToCall.count == 0) {
-    // No need to call the pauseCallback as HippyDisplayLink will ask us about our paused
-    // status immediately after completing this call
-    if (_timers.count == 0) {
-      _paused = YES;
-    }
-    // If the next timer is more than 1 second out, pause and schedule an NSTimer;
-    else if ([nextScheduledTarget timeIntervalSinceNow] > kMinimumSleepInterval) {
-      [self scheduleSleepTimer:nextScheduledTarget];
-      _paused = YES;
-    }
-  }
 }
 
-- (void)scheduleSleepTimer:(NSDate *)sleepTarget
-{
-  if (!_sleepTimer || !_sleepTimer.valid) {
-    _sleepTimer = [[NSTimer alloc] initWithFireDate:sleepTarget
-                                           interval:0
-                                             target:[_HippyTimingProxy proxyWithTarget:self]
-                                           selector:@selector(timerDidFire)
-                                           userInfo:nil
-                                            repeats:NO];
-    [[NSRunLoop currentRunLoop] addTimer:_sleepTimer forMode:NSDefaultRunLoopMode];
-  } else {
-    _sleepTimer.fireDate = [_sleepTimer.fireDate earlierDate:sleepTarget];
-  }
-}
+- (void)timerDidFire {
+    _sleepTimer = nil;
+    if (_paused) {
+        [self startTimers];
 
-- (void)timerDidFire
-{
-  _sleepTimer = nil;
-  if (_paused) {
-    [self startTimers];
-
-    // Immediately dispatch frame, so we don't have to wait on the displaylink.
-    [self didUpdateFrame:nil];
-  }
+        // Immediately dispatch frame, so we don't have to wait on the displaylink.
+        [self didUpdateFrame:nil];
+    }
 }
 
 /**
@@ -275,54 +243,57 @@ HIPPY_EXPORT_MODULE()
  * calculating the timer's target time. We calculate this by passing in
  * Date.now() from JS and then subtracting that from the current time here.
  */
+// clang-format off
 HIPPY_EXPORT_METHOD(createTimer:(nonnull NSNumber *)callbackID
-                  duration:(NSTimeInterval)jsDuration
-                  jsSchedulingTime:(NSDate *)jsSchedulingTime
-                  repeats:(BOOL)repeats)
-{
-  if (jsDuration == 0 && repeats == NO) {
-    // For super fast, one-off timers, just enqueue them immediately rather than waiting a frame.
-    [_bridge _immediatelyCallTimer:callbackID];
-    return;
-  }
-
-  NSTimeInterval jsSchedulingOverhead = MAX(-jsSchedulingTime.timeIntervalSinceNow, 0);
-
-  NSTimeInterval targetTime = jsDuration - jsSchedulingOverhead;
-  if (jsDuration < 0.018) { // Make sure short intervals run each frame
-    jsDuration = 0;
-  }
-
-  _HippyTimer *timer = [[_HippyTimer alloc] initWithCallbackID:callbackID
-                                                  interval:jsDuration
-                                                targetTime:targetTime
-                                                   repeats:repeats];
-  _timers[callbackID] = timer;
-  if (_paused) {
-    if ([timer.target timeIntervalSinceNow] > kMinimumSleepInterval) {
-      [self scheduleSleepTimer:timer.target];
-    } else {
-      [self startTimers];
+                    duration:(NSTimeInterval)jsDuration
+                    jsSchedulingTime:(NSDate *)jsSchedulingTime
+                    repeats:(BOOL)repeats) {
+    if (jsDuration == 0 && repeats == NO) {
+        // For super fast, one-off timers, just enqueue them immediately rather than waiting a frame.
+        [_bridge _immediatelyCallTimer:callbackID];
+        return;
     }
-  }
+    
+    NSTimeInterval jsSchedulingOverhead = MAX(-jsSchedulingTime.timeIntervalSinceNow, 0);
+    
+    NSTimeInterval targetTime = jsDuration - jsSchedulingOverhead;
+    if (jsDuration < 0.018) { // Make sure short intervals run each frame
+        jsDuration = 0;
+    }
+    
+    _HippyTimer *timer = [[_HippyTimer alloc] initWithCallbackID:callbackID
+                                                        interval:jsDuration
+                                                      targetTime:targetTime
+                                                         repeats:repeats];
+    _timers[callbackID] = timer;
+    if (_paused) {
+        if ([timer.target timeIntervalSinceNow] > kMinimumSleepInterval) {
+            [self scheduleSleepTimer:timer.target];
+        } else {
+            [self startTimers];
+        }
+    }
 }
+// clang-format on
 
-HIPPY_EXPORT_METHOD(deleteTimer:(nonnull NSNumber *)timerID)
-{
-  [_timers removeObjectForKey:timerID];
-  if (![self hasPendingTimers]) {
-    [self stopTimers];
-  }
+// clang-format off
+HIPPY_EXPORT_METHOD(deleteTimer:(nonnull NSNumber *)timerID) {
+    [_timers removeObjectForKey:timerID];
+    if (![self hasPendingTimers]) {
+        [self stopTimers];
+    }
 }
+// clang-format on
 
-HIPPY_EXPORT_METHOD(setSendIdleEvents:(BOOL)sendIdleEvents)
-{
-  _sendIdleEvents = sendIdleEvents;
-  if (sendIdleEvents) {
-    [self startTimers];
-  } else if (![self hasPendingTimers]) {
-    [self stopTimers];
-  }
+// clang-format off
+HIPPY_EXPORT_METHOD(setSendIdleEvents:(BOOL)sendIdleEvents) {
+    _sendIdleEvents = sendIdleEvents;
+    if (sendIdleEvents) {
+        [self startTimers];
+    } else if (![self hasPendingTimers]) {
+        [self stopTimers];
+    }
 }
+// clang-format on
 
 @end

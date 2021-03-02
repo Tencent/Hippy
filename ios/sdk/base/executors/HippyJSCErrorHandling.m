@@ -26,25 +26,23 @@
 #import "HippyJSStackFrame.h"
 #import "HippyJSCWrapper.h"
 
-NSError *HippyNSErrorFromJSError(JSValue *exception)
-{
-  NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
-  userInfo[NSLocalizedDescriptionKey] = [NSString stringWithFormat:@"Unhandled JS Exception: %@", [exception[@"name"] toString] ?: @"Unknown"];
-  NSString *const exceptionMessage = [exception[@"message"] toString];
-  if ([exceptionMessage length]) {
-    userInfo[NSLocalizedFailureReasonErrorKey] = exceptionMessage;
-  }
-  NSString *const stack = [exception[@"stack"] toString];
-  if ([stack length]) {
-    NSArray<HippyJSStackFrame *> *const unsymbolicatedFrames = [HippyJSStackFrame stackFramesWithLines:stack];
-    userInfo[HippyJSStackTraceKey] = unsymbolicatedFrames;
-  }
-  return [NSError errorWithDomain:HippyErrorDomain code:1 userInfo:userInfo];
+NSError *HippyNSErrorFromJSError(JSValue *exception) {
+    NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
+    userInfo[NSLocalizedDescriptionKey] = [NSString stringWithFormat:@"Unhandled JS Exception: %@", [exception[@"name"] toString] ?: @"Unknown"];
+    NSString *const exceptionMessage = [exception[@"message"] toString];
+    if ([exceptionMessage length]) {
+        userInfo[NSLocalizedFailureReasonErrorKey] = exceptionMessage;
+    }
+    NSString *const stack = [exception[@"stack"] toString];
+    if ([stack length]) {
+        NSArray<HippyJSStackFrame *> *const unsymbolicatedFrames = [HippyJSStackFrame stackFramesWithLines:stack];
+        userInfo[HippyJSStackTraceKey] = unsymbolicatedFrames;
+    }
+    return [NSError errorWithDomain:HippyErrorDomain code:1 userInfo:userInfo];
 }
 
-NSError *HippyNSErrorFromJSErrorRef(JSValueRef exceptionRef, JSGlobalContextRef ctx)
-{
-  JSContext *context = [JSContext contextWithJSGlobalContextRef:ctx];
-  JSValue *exception = [JSValue valueWithJSValueRef:exceptionRef inContext:context];
-  return HippyNSErrorFromJSError(exception);
+NSError *HippyNSErrorFromJSErrorRef(JSValueRef exceptionRef, JSGlobalContextRef ctx) {
+    JSContext *context = [JSContext contextWithJSGlobalContextRef:ctx];
+    JSValue *exception = [JSValue valueWithJSValueRef:exceptionRef inContext:context];
+    return HippyNSErrorFromJSError(exception);
 }

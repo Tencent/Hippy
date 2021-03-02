@@ -42,7 +42,7 @@ typedef void (^HippyDirectEventBlock)(NSDictionary *body);
 @property (nonatomic, copy) NSString *viewName;
 @property (nonatomic, copy) NSDictionary *props;
 @property (nonatomic, assign) CGRect frame;
-@property (nonatomic, weak) id <HippyComponent> parent;
+@property (nonatomic, weak) id<HippyComponent> parent;
 
 - (void)insertHippySubview:(id<HippyComponent>)subview atIndex:(NSInteger)atIndex;
 - (void)removeHippySubview:(id<HippyComponent>)subview;
@@ -75,8 +75,7 @@ typedef void (^HippyDirectEventBlock)(NSDictionary *body);
 
 @end
 
-//hippy use multiple of 10 as tag of root view
-static inline BOOL HippyIsHippyRootView(NSNumber *hippyTag)
-{
+// hippy use multiple of 10 as tag of root view
+static inline BOOL HippyIsHippyRootView(NSNumber *hippyTag) {
     return hippyTag.integerValue % 10 == 0;
 }

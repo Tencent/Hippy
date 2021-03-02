@@ -29,93 +29,82 @@
 #import "HippyTextSelection.h"
 #import "UIView+Hippy.h"
 
-@implementation HippyUITextView
-{
+@implementation HippyUITextView {
     BOOL _jsRequestingFirstResponder;
 }
 
-- (void)paste:(id)sender
-{
+- (void)paste:(id)sender {
     _textWasPasted = YES;
     [super paste:sender];
 }
 
-- (void)hippyWillMakeFirstResponder
-{
+- (void)hippyWillMakeFirstResponder {
     _jsRequestingFirstResponder = YES;
 }
 
-- (BOOL)canBecomeFirstResponder
-{
-    //return _jsRequestingFirstResponder;
+- (BOOL)canBecomeFirstResponder {
+    // return _jsRequestingFirstResponder;
     return YES;
 }
 
-- (BOOL)becomeFirstResponder
-{
-    if (_responderDelegate && [_responderDelegate respondsToSelector: @selector(textview_becomeFirstResponder)]) {
+- (BOOL)becomeFirstResponder {
+    if (_responderDelegate && [_responderDelegate respondsToSelector:@selector(textview_becomeFirstResponder)]) {
         [_responderDelegate textview_becomeFirstResponder];
     }
-    
+
     return [super becomeFirstResponder];
 }
 
-- (BOOL)resignFirstResponder
-{
-    if (_responderDelegate && [_responderDelegate respondsToSelector: @selector(textview_resignFirstResponder)]) {
+- (BOOL)resignFirstResponder {
+    if (_responderDelegate && [_responderDelegate respondsToSelector:@selector(textview_resignFirstResponder)]) {
         [_responderDelegate textview_resignFirstResponder];
     }
     return [super resignFirstResponder];
 }
 
-- (void)hippyDidMakeFirstResponder
-{
+- (void)hippyDidMakeFirstResponder {
     _jsRequestingFirstResponder = YES;
 }
 
-- (void)didMoveToWindow
-{
+- (void)didMoveToWindow {
     if (_jsRequestingFirstResponder) {
         [self becomeFirstResponder];
         [self hippyDidMakeFirstResponder];
     }
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     _responderDelegate = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 @end
 
-@interface HippyTextView() <HippyUITextViewResponseDelegate>
+@interface HippyTextView () <HippyUITextViewResponseDelegate>
 @end
 
-@implementation HippyTextView
-{
+@implementation HippyTextView {
     NSString *_placeholder;
     UITextView *_placeholderView;
     HippyText *_richTextView;
     NSAttributedString *_pendingAttributedText;
     UIScrollView *_scrollView;
-    
+
     UITextRange *_previousSelectionRange;
     NSUInteger _previousTextLength;
     CGFloat _previousContentHeight;
     NSString *_predictedText;
-    
+
     BOOL _blockTextShouldChange;
     BOOL _nativeUpdatesInFlight;
     NSInteger _nativeEventCount;
-    
+
     CGSize _previousContentSize;
     BOOL _viewDidCompleteInitialLayout;
 }
 
 //当键盘出现或改变时调用
-- (void)keyboardWillShow:(NSNotification *)aNotification
-{
+- (void)keyboardWillShow:(NSNotification *)aNotification {
     [super keyboardWillShow:aNotification];
     //获取键盘的高度
     NSDictionary *userInfo = [aNotification userInfo];
@@ -123,21 +112,17 @@
     CGRect keyboardRect = [aValue CGRectValue];
     CGFloat keyboardHeight = keyboardRect.size.height;
     if (self.isFirstResponder && _onKeyboardWillShow) {
-        _onKeyboardWillShow(
-                            @{@"keyboardHeight":@(keyboardHeight)}
-                            );
+        _onKeyboardWillShow(@{ @"keyboardHeight": @(keyboardHeight) });
     }
-    
 }
 
-- (instancetype)init
-{
+- (instancetype)init {
     if ((self = [super initWithFrame:CGRectZero])) {
         //    _contentInset = UIEdgeInsetsZero;
         [self setContentInset:UIEdgeInsetsZero];
         _placeholderTextColor = [self defaultPlaceholderTextColor];
         _blurOnSubmit = NO;
-        
+
         _textView = [[HippyUITextView alloc] initWithFrame:CGRectZero];
         _textView.responderDelegate = self;
         _textView.backgroundColor = [UIColor clearColor];
@@ -145,46 +130,41 @@
         _textView.scrollsToTop = NO;
         _textView.scrollEnabled = NO;
         _textView.delegate = self;
-        
+
         _scrollView = [[UIScrollView alloc] initWithFrame:CGRectZero];
         _scrollView.scrollsToTop = NO;
         [_scrollView addSubview:_textView];
-        
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(textFieldEditChanged:)
-                                                     name:UITextViewTextDidChangeNotification
+
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textFieldEditChanged:) name:UITextViewTextDidChangeNotification
                                                    object:_textView];
-        
+
         [self addSubview:_scrollView];
     }
     return self;
 }
 
-HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithFrame:(CGRect)frame)
-HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
+HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithFrame : (CGRect)frame)
+HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 
-- (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)index
-{
+- (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)index {
     [super insertHippySubview:subview atIndex:index];
     if ([subview isKindOfClass:[HippyText class]]) {
         if (_richTextView) {
             HippyLogError(@"Tried to insert a second <Text> into <TextInput> - there can only be one.");
         }
         _richTextView = (HippyText *)subview;
-        
+
         if (subview.backgroundColor) {
             NSMutableDictionary<NSString *, id> *attrs = [_textView.typingAttributes mutableCopy];
             attrs[NSBackgroundColorAttributeName] = subview.backgroundColor;
             _textView.typingAttributes = attrs;
         }
-        
+
         [self performTextUpdate];
     }
 }
 
-- (void)removeHippySubview:(UIView *)subview
-{
+- (void)removeHippySubview:(UIView *)subview {
     [super removeHippySubview:subview];
     if (_richTextView == subview) {
         _richTextView = nil;
@@ -192,15 +172,13 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
     }
 }
 
-- (void)didUpdateHippySubviews
-{
+- (void)didUpdateHippySubviews {
     // Do nothing, as we don't allow non-text subviews
 }
 
-- (void)setMostRecentEventCount:(NSInteger)mostRecentEventCount
-{
+- (void)setMostRecentEventCount:(NSInteger)mostRecentEventCount {
     _mostRecentEventCount = mostRecentEventCount;
-    
+
     // Props are set after uiBlockToAmendWithShadowViewRegistry, which means that
     // at the time performTextUpdate is called, _mostRecentEventCount will be
     // behind _eventCount, with the result that performPendingTextUpdate will do
@@ -209,8 +187,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
     [self performPendingTextUpdate];
 }
 
-- (void)performTextUpdate
-{
+- (void)performTextUpdate {
     if (_richTextView) {
         _pendingAttributedText = _richTextView.textStorage;
         [self performPendingTextUpdate];
@@ -219,8 +196,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
     }
 }
 
-static NSAttributedString *removeHippyTagFromString(NSAttributedString *string)
-{
+static NSAttributedString *removeHippyTagFromString(NSAttributedString *string) {
     if (string.length == 0) {
         return string;
     } else {
@@ -230,12 +206,11 @@ static NSAttributedString *removeHippyTagFromString(NSAttributedString *string)
     }
 }
 
-- (void)performPendingTextUpdate
-{
+- (void)performPendingTextUpdate {
     if (!_pendingAttributedText || _mostRecentEventCount < _nativeEventCount || _nativeUpdatesInFlight) {
         return;
     }
-    
+
     // The underlying <Text> node that produces _pendingAttributedText has a hippy tag attribute on it that causes the
     // -isEqualToAttributedString: comparison below to spuriously fail. We don't want that comparison to fail unless it
     // needs to because when the comparison fails, we end up setting attributedText on the text view, which clears
@@ -243,24 +218,24 @@ static NSAttributedString *removeHippyTagFromString(NSAttributedString *string)
     //
     // TODO: Kill this after we finish passing all style/attribute info into JS.
     _pendingAttributedText = removeHippyTagFromString(_pendingAttributedText);
-    
+
     if ([_textView.attributedText isEqualToAttributedString:_pendingAttributedText]) {
-        _pendingAttributedText = nil; // Don't try again.
+        _pendingAttributedText = nil;  // Don't try again.
         return;
     }
-    
+
     // When we update the attributed text, there might be pending autocorrections
     // that will get accepted by default. In order for this to not garble our text,
     // we temporarily block all textShouldChange events so they are not applied.
     _blockTextShouldChange = YES;
-    
+
     UITextRange *selection = _textView.selectedTextRange;
     NSInteger oldTextLength = _textView.attributedText.length;
-    
+
     _textView.attributedText = _pendingAttributedText;
     _predictedText = _pendingAttributedText.string;
     _pendingAttributedText = nil;
-    
+
     if (selection.empty) {
         // maintain cursor position relative to the end of the old text
         NSInteger start = [_textView offsetFromPosition:_textView.beginningOfDocument toPosition:selection.start];
@@ -269,16 +244,15 @@ static NSAttributedString *removeHippyTagFromString(NSAttributedString *string)
         UITextPosition *position = [_textView positionFromPosition:_textView.beginningOfDocument offset:newOffset];
         _textView.selectedTextRange = [_textView textRangeFromPosition:position toPosition:position];
     }
-    
+
     [_textView layoutIfNeeded];
-    
+
     [self updatePlaceholderVisibility];
-    
+
     _blockTextShouldChange = NO;
 }
 
-- (void)updateFrames
-{
+- (void)updateFrames {
     // Adjust the insets so that they are as close as possible to single-line
     // HippyTextField defaults, using the system defaults of font size 17 and a
     // height of 31 points.
@@ -288,45 +262,43 @@ static NSAttributedString *removeHippyTagFromString(NSAttributedString *string)
     // first focused.
     UIEdgeInsets adjustedFrameInset = UIEdgeInsetsZero;
     adjustedFrameInset.left = [self contentInset].left - 5;
-    
+
     UIEdgeInsets adjustedTextContainerInset = [self contentInset];
     //  adjustedTextContainerInset.top += 5;
     adjustedTextContainerInset.left = 0;
-    
+
     CGRect frame = UIEdgeInsetsInsetRect(self.bounds, adjustedFrameInset);
     _textView.frame = frame;
     _placeholderView.frame = frame;
     _scrollView.frame = frame;
     [self updateContentSize];
-    
+
     _textView.textContainerInset = adjustedTextContainerInset;
     _placeholderView.textContainerInset = adjustedTextContainerInset;
 }
 
-- (void)updateContentSize
-{
-    CGSize size = (CGSize){_scrollView.frame.size.width, INFINITY};
+- (void)updateContentSize {
+    CGSize size = (CGSize) { _scrollView.frame.size.width, INFINITY };
     size.height = [_textView sizeThatFits:size].height;
     _scrollView.contentSize = size;
-    _textView.frame = (CGRect){CGPointZero, size};
-    
+    _textView.frame = (CGRect) { CGPointZero, size };
+
     if (_viewDidCompleteInitialLayout && _onContentSizeChange && !CGSizeEqualToSize(_previousContentSize, size)) {
         _previousContentSize = size;
         _onContentSizeChange(@{
-            @"contentSize": @{
-                    @"height": @(size.height),
-                    @"width": @(size.width),
+            @"contentSize": @ {
+                @"height": @(size.height),
+                @"width": @(size.width),
             },
             @"target": self.hippyTag,
-                             });
+        });
     }
 }
 
-- (void)updatePlaceholder
-{
+- (void)updatePlaceholder {
     [_placeholderView removeFromSuperview];
     _placeholderView = nil;
-    
+
     if (_placeholder) {
         _placeholderView = [[UITextView alloc] initWithFrame:self.bounds];
         _placeholderView.userInteractionEnabled = NO;
@@ -334,37 +306,32 @@ static NSAttributedString *removeHippyTagFromString(NSAttributedString *string)
         _placeholderView.scrollEnabled = NO;
         _placeholderView.editable = NO;
         _placeholderView.scrollsToTop = NO;
-        _placeholderView.attributedText =
-        [[NSAttributedString alloc] initWithString:_placeholder attributes:@{
-            NSFontAttributeName : (_textView.font ? _textView.font : [self defaultPlaceholderFont]),
-            NSForegroundColorAttributeName : _placeholderTextColor
+        _placeholderView.attributedText = [[NSAttributedString alloc] initWithString:_placeholder attributes:@{
+            NSFontAttributeName: (_textView.font ? _textView.font : [self defaultPlaceholderFont]),
+            NSForegroundColorAttributeName: _placeholderTextColor
         }];
         _placeholderView.textAlignment = _textView.textAlignment;
-        
+
         [self insertSubview:_placeholderView belowSubview:_textView];
         [self updatePlaceholderVisibility];
     }
 }
 
-- (UIFont *)font
-{
+- (UIFont *)font {
     return _textView.font;
 }
 
-- (void)setFont:(UIFont *)font
-{
+- (void)setFont:(UIFont *)font {
     _textView.font = font;
     [self updatePlaceholder];
 }
 
-- (void)setPlaceholder:(NSString *)placeholder
-{
+- (void)setPlaceholder:(NSString *)placeholder {
     _placeholder = placeholder;
     [self updatePlaceholder];
 }
 
-- (void)setPlaceholderTextColor:(UIColor *)placeholderTextColor
-{
+- (void)setPlaceholderTextColor:(UIColor *)placeholderTextColor {
     if (placeholderTextColor) {
         _placeholderTextColor = placeholderTextColor;
     } else {
@@ -373,8 +340,7 @@ static NSAttributedString *removeHippyTagFromString(NSAttributedString *string)
     [self updatePlaceholder];
 }
 
-- (void)setContentInset:(UIEdgeInsets)contentInset
-{
+- (void)setContentInset:(UIEdgeInsets)contentInset {
     [super setContentInset:contentInset];
     //  _contentInset = contentInset;
     [self updateFrames];
@@ -386,42 +352,31 @@ static NSAttributedString *removeHippyTagFromString(NSAttributedString *string)
         NSInteger theMaxLength = self.maxLength.integerValue;
         NSString *toBeString = textField.text;
         NSString *lang = [textField.textInputMode primaryLanguage];
-        if ([lang isEqualToString:@"zh-Hans"])// 简体中文输入
+        if ([lang isEqualToString:@"zh-Hans"])  // 简体中文输入
         {
             NSString *toBeString = textField.text;
-            
+
             UITextRange *selectedRange = [textField markedTextRange];
             UITextPosition *position = [textField positionFromPosition:selectedRange.start offset:0];
-            
-            if (!position)
-            {
-                if (toBeString.length > theMaxLength)
-                {
+
+            if (!position) {
+                if (toBeString.length > theMaxLength) {
                     NSRange rangeIndex = [toBeString rangeOfComposedCharacterSequenceAtIndex:theMaxLength];
-                    if (rangeIndex.length == 1)
-                    {
+                    if (rangeIndex.length == 1) {
                         textField.text = [toBeString substringToIndex:theMaxLength];
-                    }
-                    else
-                    {
+                    } else {
                         NSRange rangeRange = [toBeString rangeOfComposedCharacterSequencesForRange:NSMakeRange(0, theMaxLength)];
                         textField.text = [toBeString substringWithRange:rangeRange];
                     }
                 }
             }
-            
-        }
-        else
-        {
-            if (toBeString.length > theMaxLength)
-            {
+
+        } else {
+            if (toBeString.length > theMaxLength) {
                 NSRange rangeIndex = [toBeString rangeOfComposedCharacterSequenceAtIndex:theMaxLength];
-                if (rangeIndex.length == 1)
-                {
+                if (rangeIndex.length == 1) {
                     textField.text = [toBeString substringToIndex:theMaxLength];
-                }
-                else
-                {
+                } else {
                     NSRange rangeRange = [toBeString rangeOfComposedCharacterSequencesForRange:NSMakeRange(0, theMaxLength)];
                     textField.text = [toBeString substringWithRange:rangeRange];
                 }
@@ -430,8 +385,7 @@ static NSAttributedString *removeHippyTagFromString(NSAttributedString *string)
     }
 }
 
-- (BOOL)textView:(HippyUITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
-{
+- (BOOL)textView:(HippyUITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
     if (_onKeyPress) {
         NSString *resultKey = text;
         if ([text isEqualToString:@" "]) {
@@ -441,9 +395,9 @@ static NSAttributedString *removeHippyTagFromString(NSAttributedString *string)
         } else if ([text isEqualToString:@"\n"]) {
             resultKey = @"enter";
         }
-        _onKeyPress(@{@"key":resultKey});
+        _onKeyPress(@{ @"key": resultKey });
     }
-    
+
     if (textView.textWasPasted) {
         textView.textWasPasted = NO;
     } else {
@@ -466,86 +420,78 @@ static NSAttributedString *removeHippyTagFromString(NSAttributedString *string)
             return NO;
         }
     }
-    
+
     // So we need to track that there is a native update in flight just in case JS manages to come back around and update
     // things /before/ UITextView can update itself asynchronously.  If there is a native update in flight, we defer the
     // JS update when it comes in and apply the deferred update once textViewDidChange fires with the native update applied.
     if (_blockTextShouldChange) {
         return NO;
     }
-    
+
     _nativeUpdatesInFlight = YES;
-    
+
     if (range.location + range.length > _predictedText.length) {
         // _predictedText got out of sync in a bad way, so let's just force sync it.  Haven't been able to repro this, but
         // it's causing a real crash here: #6523822
         _predictedText = textView.text;
     }
-    
+
     NSString *previousText = [_predictedText substringWithRange:range];
     if (_predictedText) {
         _predictedText = [_predictedText stringByReplacingCharactersInRange:range withString:text];
     } else {
         _predictedText = text;
     }
-    
+
     if (_onTextInput) {
         _onTextInput(@{
             @"text": text,
             @"previousText": previousText ?: @"",
-            @"range": @{
-                    @"start": @(range.location),
-                    @"end": @(range.location + range.length)
-            },
+            @"range": @ { @"start": @(range.location), @"end": @(range.location + range.length) },
             @"eventCount": @(_nativeEventCount),
-                     });
+        });
     }
-    
+
     return YES;
 }
 
-- (void)textViewDidChangeSelection:(HippyUITextView *)textView
-{
-    if (_onSelectionChange &&
-        textView.selectedTextRange != _previousSelectionRange &&
-        ![textView.selectedTextRange isEqual:_previousSelectionRange]) {
-        
+- (void)textViewDidChangeSelection:(HippyUITextView *)textView {
+    if (_onSelectionChange && textView.selectedTextRange != _previousSelectionRange
+        && ![textView.selectedTextRange isEqual:_previousSelectionRange]) {
         _previousSelectionRange = textView.selectedTextRange;
-        
+
         UITextRange *selection = textView.selectedTextRange;
         NSInteger start = [textView offsetFromPosition:textView.beginningOfDocument toPosition:selection.start];
         NSInteger end = [textView offsetFromPosition:textView.beginningOfDocument toPosition:selection.end];
         _onSelectionChange(@{
-            @"selection": @{
-                    @"start": @(start),
-                    @"end": @(end),
+            @"selection": @ {
+                @"start": @(start),
+                @"end": @(end),
             },
-                           });
-        
+        });
+
         if (_onChangeText) {
             _onChangeText(@{
                 @"text": self.text,
-                          });
+            });
         }
     }
 }
 
-- (NSString *)text
-{
+- (NSString *)text {
     return _textView.text;
 }
 
-- (void)setSelection:(HippyTextSelection *)selection
-{
+- (void)setSelection:(HippyTextSelection *)selection {
     if (!selection) {
         return;
     }
-    
+
     UITextRange *currentSelection = _textView.selectedTextRange;
     UITextPosition *start = [_textView positionFromPosition:_textView.beginningOfDocument offset:selection.start];
     UITextPosition *end = [_textView positionFromPosition:_textView.beginningOfDocument offset:selection.end];
     UITextRange *selectedTextRange = [_textView textRangeFromPosition:start toPosition:end];
-    
+
     NSInteger eventLag = _nativeEventCount - _mostRecentEventCount;
     if (eventLag == 0 && ![currentSelection isEqual:selectedTextRange]) {
         _previousSelectionRange = selectedTextRange;
@@ -555,18 +501,17 @@ static NSAttributedString *removeHippyTagFromString(NSAttributedString *string)
     }
 }
 
-- (void)setText:(NSString *)text
-{
+- (void)setText:(NSString *)text {
     double version = UIDevice.currentDevice.systemVersion.doubleValue;
     if (version >= 10.0 && version < 12.0) {
         text = [text stringByReplacingOccurrencesOfString:@"జ్ఞ‌ా" withString:@" "];
     }
-    
+
     NSInteger eventLag = _nativeEventCount - _mostRecentEventCount;
     if (eventLag == 0 && ![text isEqualToString:_textView.text]) {
         UITextRange *selection = _textView.selectedTextRange;
         NSInteger oldTextLength = _textView.text.length;
-        
+
         _predictedText = text;
         _textView.text = text;
         [self textViewDidChange:_textView];
@@ -578,25 +523,24 @@ static NSAttributedString *removeHippyTagFromString(NSAttributedString *string)
             UITextPosition *position = [_textView positionFromPosition:_textView.beginningOfDocument offset:newOffset];
             _textView.selectedTextRange = [_textView textRangeFromPosition:position toPosition:position];
         }
-        
+
         [self updatePlaceholderVisibility];
-        [self updateContentSize]; //keep the text wrapping when the length of
-        //the textline has been extended longer than the length of textinputView
+        [self updateContentSize];  // keep the text wrapping when the length of
+        // the textline has been extended longer than the length of textinputView
     } else if (eventLag > HippyTextUpdateLagWarningThreshold) {
         HippyLogWarn(@"Native TextInput(%@) is %ld events ahead of JS - try to make your JS faster.", self.text, (long)eventLag);
     }
 }
 
-- (void) setTextColor:(UIColor *)textColor {
+- (void)setTextColor:(UIColor *)textColor {
     _textView.textColor = textColor;
 }
 
-- (UIColor *) textColor {
+- (UIColor *)textColor {
     return _textView.textColor;
 }
 
-- (void)updatePlaceholderVisibility
-{
+- (void)updatePlaceholderVisibility {
     if (_textView.text.length > 0) {
         [_placeholderView setHidden:YES];
     } else {
@@ -604,18 +548,15 @@ static NSAttributedString *removeHippyTagFromString(NSAttributedString *string)
     }
 }
 
-- (void)setAutoCorrect:(BOOL)autoCorrect
-{
+- (void)setAutoCorrect:(BOOL)autoCorrect {
     _textView.autocorrectionType = (autoCorrect ? UITextAutocorrectionTypeYes : UITextAutocorrectionTypeNo);
 }
 
-- (BOOL)autoCorrect
-{
+- (BOOL)autoCorrect {
     return _textView.autocorrectionType == UITextAutocorrectionTypeYes;
 }
 
-- (BOOL)textViewShouldBeginEditing:(UITextView *)textView
-{
+- (BOOL)textViewShouldBeginEditing:(UITextView *)textView {
     if (_selectTextOnFocus) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [textView selectAll:nil];
@@ -624,16 +565,14 @@ static NSAttributedString *removeHippyTagFromString(NSAttributedString *string)
     return YES;
 }
 
-- (void)textViewDidBeginEditing:(__unused UITextView *)textView
-{
+- (void)textViewDidBeginEditing:(__unused UITextView *)textView {
     if (_clearTextOnFocus) {
         _textView.text = @"";
         [self updatePlaceholderVisibility];
     }
 }
 
-static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange, NSRange *secondRange)
-{
+static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange, NSRange *secondRange) {
     NSInteger firstMismatch = -1;
     for (NSUInteger ii = 0; ii < MAX(first.length, second.length); ii++) {
         if (ii >= first.length || ii >= second.length || [first characterAtIndex:ii] != [second characterAtIndex:ii]) {
@@ -641,11 +580,11 @@ static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange,
             break;
         }
     }
-    
+
     if (firstMismatch == -1) {
         return NO;
     }
-    
+
     NSUInteger ii = second.length;
     NSUInteger lastMismatch = first.length;
     while (ii > firstMismatch && lastMismatch > firstMismatch) {
@@ -655,17 +594,16 @@ static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange,
         ii--;
         lastMismatch--;
     }
-    
+
     *firstRange = NSMakeRange(firstMismatch, lastMismatch - firstMismatch);
     *secondRange = NSMakeRange(firstMismatch, ii - firstMismatch);
     return YES;
 }
 
-- (void)textViewDidChange:(UITextView *)textView
-{
+- (void)textViewDidChange:(UITextView *)textView {
     [self updatePlaceholderVisibility];
     [self updateContentSize];
-    
+
     // Detect when textView updates happend that didn't invoke `shouldChangeTextInRange`
     // (e.g. typing simplified chinese in pinyin will insert and remove spaces without
     // calling shouldChangeTextInRange).  This will cause JS to get out of sync so we
@@ -679,14 +617,14 @@ static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange,
         [self textViewDidChangeSelection:textView];
         _predictedText = textView.text;
     }
-    
+
     _nativeUpdatesInFlight = NO;
     //  _nativeEventCount++;
-    
+
     if (!self.hippyTag || !_onChangeText) {
         return;
     }
-    
+
     // When the context size increases, iOS updates the contentSize twice; once
     // with a lower height, then again with the correct height. To prevent a
     // spurious event from being sent, we track the previous, and only send the
@@ -703,140 +641,117 @@ static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange,
     _previousContentHeight = contentHeight;
     _onChangeText(@{
         @"text": self.text,
-        @"contentSize": @{
-                @"height": @(contentHeight),
-                @"width": @(textView.contentSize.width)
-        },
+        @"contentSize": @ { @"height": @(contentHeight), @"width": @(textView.contentSize.width) },
         @"target": self.hippyTag,
         @"eventCount": @(_nativeEventCount),
-                  });
+    });
 }
 
-- (void)textViewDidEndEditing:(__unused UITextView *)textView
-{
+- (void)textViewDidEndEditing:(__unused UITextView *)textView {
     if (_onEndEditing) {
         _onEndEditing(@{
             @"text": textView.text,
-                      });
+        });
     }
 }
 
-- (BOOL)isFirstResponder
-{
+- (BOOL)isFirstResponder {
     return [_textView isFirstResponder];
 }
 
-- (BOOL)canBecomeFirstResponder
-{
+- (BOOL)canBecomeFirstResponder {
     return [_textView canBecomeFirstResponder];
 }
 
-- (void)hippyWillMakeFirstResponder
-{
+- (void)hippyWillMakeFirstResponder {
     [_textView hippyWillMakeFirstResponder];
 }
 
-- (void)hippyDidMakeFirstResponder
-{
+- (void)hippyDidMakeFirstResponder {
     [_textView hippyDidMakeFirstResponder];
 }
 
-- (void)layoutSubviews
-{
+- (void)layoutSubviews {
     [super layoutSubviews];
-    
+
     // Start sending content size updates only after the view has been laid out
     // otherwise we send multiple events with bad dimensions on initial render.
     _viewDidCompleteInitialLayout = YES;
-    
+
     [self updateFrames];
 }
 
-- (UIFont *)defaultPlaceholderFont
-{
+- (UIFont *)defaultPlaceholderFont {
     return [UIFont systemFontOfSize:17];
 }
 
-- (UIColor *)defaultPlaceholderTextColor
-{
-    return [UIColor colorWithRed:0.0/255.0 green:0.0/255.0 blue:0.098/255.0 alpha:0.22];
+- (UIColor *)defaultPlaceholderTextColor {
+    return [UIColor colorWithRed:0.0 / 255.0 green:0.0 / 255.0 blue:0.098 / 255.0 alpha:0.22];
 }
 
-- (NSString *)value
-{
+- (NSString *)value {
     return _textView.text;
 }
 
-
-- (void)setValue:(NSString *)value
-{
+- (void)setValue:(NSString *)value {
     [self setText:value];
 }
 
-- (void)setFontSize:(NSNumber *)fontSize{
+- (void)setFontSize:(NSNumber *)fontSize {
     _fontSize = fontSize;
-    
+
     if ([fontSize floatValue] > 0) {
         [self setFont:[UIFont systemFontOfSize:[fontSize floatValue]]];
     }
 }
 
-
-- (void)setDefaultValue:(NSString *)defaultValue{
+- (void)setDefaultValue:(NSString *)defaultValue {
     if (defaultValue) {
         [self setText:defaultValue];
-        
+
         _defaultValue = defaultValue;
     }
 }
 
-- (void)focus{
+- (void)focus {
     [self becomeFirstResponder];
 }
 
-- (void)blur{
+- (void)blur {
     [self resignFirstResponder];
 }
 
-- (void)clearText
-{
+- (void)clearText {
     [self setText:@""];
 }
 
-- (BOOL)becomeFirstResponder
-{
+- (BOOL)becomeFirstResponder {
     [self setTextViewKeyboardAppearance];
     return [_textView becomeFirstResponder];
 }
 
-- (void)textview_becomeFirstResponder
-{
-    if (_onFocus){
+- (void)textview_becomeFirstResponder {
+    if (_onFocus) {
         _onFocus(@{});
     }
 }
 
-- (void)textview_resignFirstResponder
-{
+- (void)textview_resignFirstResponder {
     if (_onBlur) {
         _onBlur(@{});
     }
 }
 
-
-- (BOOL)resignFirstResponder
-{
+- (BOOL)resignFirstResponder {
     _nativeEventCount = 0;
     [super resignFirstResponder];
     return [_textView resignFirstResponder];
 }
 
-- (void)setTextViewKeyboardAppearance{
-    
+- (void)setTextViewKeyboardAppearance {
     if (_textView) {
         _textView.keyboardAppearance = UIKeyboardAppearanceDefault;
     }
 }
-
 
 @end
