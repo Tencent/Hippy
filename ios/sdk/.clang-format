@@ -1,0 +1,41 @@
+# 
+# Reference: https://releases.llvm.org/11.0.0/tools/clang/docs/ClangFormatStyleOptions.html
+# 
+# Created by eddiecmchen on 2020/02/07
+#
+
+BasedOnStyle: WebKit
+
+AccessModifierOffset: -4
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+AlignEscapedNewlinesLeft: true
+AlignOperands: true
+AlignTrailingComments: true
+SpacesBeforeTrailingComments: 2
+AllowAllParametersOfDeclarationOnNextLine: true
+AllowShortBlocksOnASingleLine : false
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false 
+ColumnLimit: 150
+CommentPragmas: '^ IWYU pragma:'
+PointerAlignment: Right
+IndentWidth: 4
+MaxEmptyLinesToKeep: 1
+ObjCBreakBeforeNestedBlockParam: false
+ObjCSpaceAfterProperty: true
+ObjCBlockIndentWidth: 4
+SpacesInSquareBrackets: false
+SpacesInParentheses : false
+SpaceBeforeAssignmentOperators: true
+SpacesInContainerLiterals: false
+IndentWrappedFunctionNames: true
+KeepEmptyLinesAtTheStartOfBlocks: false
+SpaceAfterCStyleCast: false
+SortIncludes: false
+IndentCaseLabels: true 
+BreakBeforeBraces: Attach
+TabWidth: 4
+UseTab: Never
