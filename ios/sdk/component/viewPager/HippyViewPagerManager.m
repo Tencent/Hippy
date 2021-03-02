@@ -43,7 +43,6 @@ HIPPY_EXPORT_VIEW_PROPERTY(onPageScrollStateChanged, HippyDirectEventBlock)
 // clang-format off
 HIPPY_EXPORT_METHOD(setPage:(nonnull NSNumber *)hippyTag
         pageNumber:(__unused NSNumber *)pageNumber) {
-// clang-format on
     [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[hippyTag];
 
@@ -54,13 +53,12 @@ HIPPY_EXPORT_METHOD(setPage:(nonnull NSNumber *)hippyTag
         NSInteger pageNumberInteger = pageNumber.integerValue;
         [(HippyViewPager *)view setPage:pageNumberInteger animated:YES];
     }];
-
 }
+// clang-format on
 
 // clang-format off
 HIPPY_EXPORT_METHOD(setPageWithoutAnimation:(nonnull NSNumber *)hippyTag
         pageNumber:(__unused NSNumber *)pageNumber) {
-// clang-format on
     [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[hippyTag];
         if (view == nil || ![view isKindOfClass:[HippyViewPager class]]) {
@@ -71,6 +69,6 @@ HIPPY_EXPORT_METHOD(setPageWithoutAnimation:(nonnull NSNumber *)hippyTag
         [(HippyViewPager *)view setPage:pageNumberInteger animated:NO];
     }];
 }
-
+// clang-format on
 
 @end

@@ -370,11 +370,11 @@ static void installBasicSynchronousHooksOnContext(JSContext *context)
 
 // clang-format off
 HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
-// clang-format on
     [self executeBlockOnJavaScriptQueue:^{
         [[self JSContext] setName:contextName];
     }];
 }
+// clang-format on
 
 - (void)dealloc
 {

@@ -140,7 +140,6 @@ static void HippyReachabilityCallback(__unused SCNetworkReachabilityRef target, 
 // clang-format off
 HIPPY_EXPORT_METHOD(getCurrentConnectivity:(HippyPromiseResolveBlock)resolve
                   reject:(__unused HippyPromiseRejectBlock)reject) {
-// clang-format on
     if (!resolve) {
         return;
     }
@@ -162,5 +161,6 @@ HIPPY_EXPORT_METHOD(getCurrentConnectivity:(HippyPromiseResolveBlock)resolve
         CFRelease(reachability);
     }
 }
+// clang-format on
 
 @end

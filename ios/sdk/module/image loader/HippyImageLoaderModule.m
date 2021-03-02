@@ -34,7 +34,6 @@ HIPPY_EXPORT_MODULE(ImageLoaderModule)
 
 // clang-format off
 HIPPY_EXPORT_METHOD(getSize:(NSString *)urlString resolver:(HippyPromiseResolveBlock)resolve rejecter:(HippyPromiseRejectBlock)reject) {
-// clang-format on
     UIImage *image = [[HippyImageCacheManager sharedInstance] loadImageFromCacheForURLString:urlString radius:0 isBlurredImage:nil];
     if (image) {
         NSDictionary *dic = @{@"width": @(image.size.width), @"height": @(image.size.height)};
@@ -82,10 +81,10 @@ HIPPY_EXPORT_METHOD(getSize:(NSString *)urlString resolver:(HippyPromiseResolveB
         }] resume];
     }
 }
+// clang-format on
 
 // clang-format off
 HIPPY_EXPORT_METHOD(prefetch:(NSString *)urlString) {
-// clang-format on
     NSData *uriData = [urlString dataUsingEncoding:NSUTF8StringEncoding];
     if (nil == uriData) {
         return;
@@ -119,5 +118,6 @@ HIPPY_EXPORT_METHOD(prefetch:(NSString *)urlString) {
         
     }
 }
+// clang-format on
 
 @end

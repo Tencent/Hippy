@@ -34,21 +34,21 @@ HIPPY_EXPORT_VIEW_PROPERTY(onFooterPulling, HippyDirectEventBlock)
 
 // clang-format off
 HIPPY_EXPORT_METHOD(collapsePullFooter : (nonnull NSNumber *)reactTag) {
-// clang-format on
     [self.bridge.uiManager addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
         HippyRefresh *refreshView = viewRegistry[reactTag];
         [refreshView refreshFinish];
     }];
 }
+// clang-format on
 
 // clang-format off
 HIPPY_EXPORT_METHOD(expandPullFooter : (nonnull NSNumber *)reactTag) {
-// clang-format on
     [self.bridge.uiManager addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
         HippyRefresh *refreshView = viewRegistry[reactTag];
         [refreshView refresh];
     }];
 }
+// clang-format on
 
 - (UIView *)view {
     return [[HippyFooterRefresh alloc] init];

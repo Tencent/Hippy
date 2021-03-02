@@ -46,7 +46,6 @@ HIPPY_EXPORT_MODULE(network)
 
 // clang-format off
 HIPPY_EXPORT_METHOD(fetch:(NSDictionary *)params resolver:(__unused HippyPromiseResolveBlock)resolve rejecter:(__unused HippyPromiseRejectBlock)reject) {
-// clang-format on
     NSString *method = params[@"method"];
     NSString *url = params[@"url"];
     NSDictionary *header = params[@"headers"];
@@ -98,6 +97,7 @@ HIPPY_EXPORT_METHOD(fetch:(NSDictionary *)params resolver:(__unused HippyPromise
     setFetchInfoForSessionTask(task, fetchInfo);
     [task resume];
 }
+// clang-format on
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task
 willPerformHTTPRedirection:(NSHTTPURLResponse *)response
@@ -168,7 +168,6 @@ didCompleteWithError:(nullable NSError *)error {
 
 // clang-format off
 HIPPY_EXPORT_METHOD(getCookie:(NSString *)urlString resolver:(HippyPromiseResolveBlock)resolve rejecter:(__unused HippyPromiseRejectBlock)reject) {
-// clang-format on
     NSData *uriData = [urlString dataUsingEncoding:NSUTF8StringEncoding];
     if (nil == uriData) {
         resolve(@"");
@@ -186,10 +185,10 @@ HIPPY_EXPORT_METHOD(getCookie:(NSString *)urlString resolver:(HippyPromiseResolv
     }
     resolve(string);
 }
+// clang-format on
 
 // clang-format off
 HIPPY_EXPORT_METHOD(setCookie:(NSString *)urlString keyValue:(NSString *)keyValue expireString:(NSString *)expireString) {
-// clang-format on
     NSData *uriData = [urlString dataUsingEncoding:NSUTF8StringEncoding];
     if (nil == uriData) {
         return;
@@ -214,7 +213,7 @@ HIPPY_EXPORT_METHOD(setCookie:(NSString *)urlString keyValue:(NSString *)keyValu
                 NSHTTPCookie *cookie = [NSHTTPCookie cookieWithProperties:dictionary];
                 if (cookie) {
                     [cookies addObject:cookie];
-                    //给ios11以上的系统设置WKCookie
+                    //set WKCookie for system version abover iOS11
                     if (@available(iOS 11.0, *)) {
                         WKWebsiteDataStore *ds = [WKWebsiteDataStore defaultDataStore];
                         [ds.httpCookieStore setCookie:cookie completionHandler:NULL];
@@ -225,5 +224,6 @@ HIPPY_EXPORT_METHOD(setCookie:(NSString *)urlString keyValue:(NSString *)keyValu
         [[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookies:cookies forURL:source_url mainDocumentURL:nil];
     });
 }
+// clang-format on
 
 @end

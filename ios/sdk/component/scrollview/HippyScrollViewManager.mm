@@ -31,18 +31,18 @@
 @implementation HippyConvert (UIScrollView)
 
 HIPPY_ENUM_CONVERTER(UIScrollViewKeyboardDismissMode, (@{
-  @"none": @(UIScrollViewKeyboardDismissModeNone),
-  @"on-drag": @(UIScrollViewKeyboardDismissModeOnDrag),
-  @"interactive": @(UIScrollViewKeyboardDismissModeInteractive),
-  // Backwards compatibility
-  @"onDrag": @(UIScrollViewKeyboardDismissModeOnDrag),
-}), UIScrollViewKeyboardDismissModeNone, integerValue)
+    @"none": @(UIScrollViewKeyboardDismissModeNone),
+    @"on-drag": @(UIScrollViewKeyboardDismissModeOnDrag),
+    @"interactive": @(UIScrollViewKeyboardDismissModeInteractive),
+    // Backwards compatibility
+    @"onDrag": @(UIScrollViewKeyboardDismissModeOnDrag),
+                                                       }), UIScrollViewKeyboardDismissModeNone, integerValue)
 
 HIPPY_ENUM_CONVERTER(UIScrollViewIndicatorStyle, (@{
-  @"default": @(UIScrollViewIndicatorStyleDefault),
-  @"black": @(UIScrollViewIndicatorStyleBlack),
-  @"white": @(UIScrollViewIndicatorStyleWhite),
-}), UIScrollViewIndicatorStyleDefault, integerValue)
+    @"default": @(UIScrollViewIndicatorStyleDefault),
+    @"black": @(UIScrollViewIndicatorStyleBlack),
+    @"white": @(UIScrollViewIndicatorStyleWhite),
+                                                  }), UIScrollViewIndicatorStyleDefault, integerValue)
 
 @end
 
@@ -52,7 +52,7 @@ HIPPY_EXPORT_MODULE(ScrollView)
 
 - (UIView *)view
 {
-  return [[HippyScrollView alloc] initWithEventDispatcher:self.bridge.eventDispatcher];
+    return [[HippyScrollView alloc] initWithEventDispatcher:self.bridge.eventDispatcher];
 }
 
 HIPPY_EXPORT_VIEW_PROPERTY(alwaysBounceHorizontal, BOOL)
@@ -95,81 +95,81 @@ HIPPY_EXPORT_VIEW_PROPERTY(onScrollAnimationEnd, HippyDirectEventBlock)
 // overflow: 'scroll'.
 HIPPY_CUSTOM_SHADOW_PROPERTY(overflow, OverflowType, HippyShadowView) {
     (void)json;
-  view.overflow = OverflowScroll;
+    view.overflow = OverflowScroll;
 }
 
 // clang-format off
 HIPPY_EXPORT_METHOD(getContentSize:(nonnull NSNumber *)hippyTag
-                  callback:(HippyResponseSenderBlock)callback) {
-// clang-format on
-  [self.bridge.uiManager addUIBlock:
-   ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-
-    HippyScrollView *view = viewRegistry[hippyTag];
-    
-    if (view == nil) return ;
-     
-    if (!view || ![view isKindOfClass:[HippyScrollView class]]) {
-      HippyLogError(@"Cannot find HippyScrollView with tag #%@", hippyTag);
-      return;
-    }
-     
-    CGSize size = view.scrollView.contentSize;
-    callback(@[@{
-      @"width" : @(size.width),
-      @"height" : @(size.height)
-    }]);
-  }];
+                    callback:(HippyResponseSenderBlock)callback) {
+    [self.bridge.uiManager addUIBlock:
+     ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+        
+        HippyScrollView *view = viewRegistry[hippyTag];
+        
+        if (view == nil) return ;
+        
+        if (!view || ![view isKindOfClass:[HippyScrollView class]]) {
+            HippyLogError(@"Cannot find HippyScrollView with tag #%@", hippyTag);
+            return;
+        }
+        
+        CGSize size = view.scrollView.contentSize;
+        callback(@[@{
+                       @"width" : @(size.width),
+                       @"height" : @(size.height)
+        }]);
+    }];
 }
+// clang-format on
 
 // clang-format off
 HIPPY_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)hippyTag
-                  offsetX:(CGFloat)x
-                  offsetY:(CGFloat)y
-                  animated:(BOOL)animated) {
-// clang-format on
-  [self.bridge.uiManager addUIBlock:
-   ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
-    UIView *view = viewRegistry[hippyTag];
-    if (view == nil) return ;
-    if ([view conformsToProtocol:@protocol(HippyScrollableProtocol)]) {
-      [(id<HippyScrollableProtocol>)view scrollToOffset:(CGPoint){x, y} animated:animated];
-    } else {
-      HippyLogError(@"tried to scrollTo: on non-HippyScrollableProtocol view %@ "
-                  "with tag #%@", view, hippyTag);
-    }
-  }];
+                    offsetX:(CGFloat)x
+                    offsetY:(CGFloat)y
+                    animated:(BOOL)animated) {
+    [self.bridge.uiManager addUIBlock:
+     ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+        UIView *view = viewRegistry[hippyTag];
+        if (view == nil) return ;
+        if ([view conformsToProtocol:@protocol(HippyScrollableProtocol)]) {
+            [(id<HippyScrollableProtocol>)view scrollToOffset:(CGPoint){x, y} animated:animated];
+        } else {
+            HippyLogError(@"tried to scrollTo: on non-HippyScrollableProtocol view %@ "
+                          "with tag #%@", view, hippyTag);
+        }
+    }];
 }
+// clang-format on
 
 // clang-format off
 HIPPY_EXPORT_METHOD(scrollToWithOptions:(nonnull NSNumber *)hippyTag
-                  options:(NSDictionary *)options) {
-// clang-format on
+                    options:(NSDictionary *)options) {
     [self.bridge.uiManager addUIBlock:
      ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
-         UIView *view = viewRegistry[hippyTag];
-         if (view == nil) return ;
-         if ([view conformsToProtocol:@protocol(HippyScrollableProtocol)]) {
-             CGFloat duration = 1.0;
-             CGFloat x = 0;
-             CGFloat y = 0;
-             if (options && [options[@"duration"] isKindOfClass:[NSNumber class]]) {//毫秒
-                 duration = ((NSNumber *)(options[@"duration"])).floatValue / 1000.0;
-             }
-             if (options && [options[@"x"] isKindOfClass:[NSNumber class]]) {
-                 x = ((NSNumber *)(options[@"x"])).floatValue;
-             }
-             if (options && [options[@"y"] isKindOfClass:[NSNumber class]]) {
-                 y = ((NSNumber *)(options[@"y"])).floatValue;
-             }
-             [UIView animateWithDuration:duration animations:^{
-                 ((HippyScrollView *)view).scrollView.contentOffset = CGPointMake(x, y);
-             }];
-         } else {
-             HippyLogError(@"tried to scrollTo: on non-HippyScrollableProtocol view %@ "
-                         "with tag #%@", view, hippyTag);
-         }
-     }];
+        UIView *view = viewRegistry[hippyTag];
+        if (view == nil) return ;
+        if ([view conformsToProtocol:@protocol(HippyScrollableProtocol)]) {
+            CGFloat duration = 1.0;
+            CGFloat x = 0;
+            CGFloat y = 0;
+            if (options && [options[@"duration"] isKindOfClass:[NSNumber class]]) {//毫秒
+                duration = ((NSNumber *)(options[@"duration"])).floatValue / 1000.0;
+            }
+            if (options && [options[@"x"] isKindOfClass:[NSNumber class]]) {
+                x = ((NSNumber *)(options[@"x"])).floatValue;
+            }
+            if (options && [options[@"y"] isKindOfClass:[NSNumber class]]) {
+                y = ((NSNumber *)(options[@"y"])).floatValue;
+            }
+            [UIView animateWithDuration:duration animations:^{
+                ((HippyScrollView *)view).scrollView.contentOffset = CGPointMake(x, y);
+            }];
+        } else {
+            HippyLogError(@"tried to scrollTo: on non-HippyScrollableProtocol view %@ "
+                          "with tag #%@", view, hippyTag);
+        }
+    }];
 }
+// clang-format on
 
 @end

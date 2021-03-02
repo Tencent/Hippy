@@ -58,7 +58,6 @@ HIPPY_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)hippyTag
 									xIndex:(__unused NSNumber *)xIndex
 									yIndex:(__unused NSNumber *)yIndex
 									animation:(nonnull NSNumber *)animation) {
-// clang-format on
 	[self.bridge.uiManager addUIBlock:
 	 ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
 		 HippyBaseListView *view = (HippyBaseListView *)viewRegistry[hippyTag];
@@ -69,13 +68,13 @@ HIPPY_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)hippyTag
 		 [view scrollToIndex: yIndex.integerValue animated: [animation boolValue]];
 	 }];
 }
+// clang-format on
 
 // clang-format off
 HIPPY_EXPORT_METHOD(scrollToContentOffset:(nonnull NSNumber *)hippyTag
 									x:(nonnull NSNumber *)x
 									y:(nonnull NSNumber *)y
 									animation:(nonnull NSNumber *)animation) {
-// clang-format on
 	[self.bridge.uiManager addUIBlock:
 	 ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
 		 HippyBaseListView *view = (HippyBaseListView *)viewRegistry[hippyTag];
@@ -86,7 +85,6 @@ HIPPY_EXPORT_METHOD(scrollToContentOffset:(nonnull NSNumber *)hippyTag
 		 [view scrollToContentOffset:CGPointMake([x floatValue], [y floatValue]) animated: [animation boolValue]];
 	 }];
 }
-
-
+// clang-format on
 
 @end

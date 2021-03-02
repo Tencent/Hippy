@@ -116,17 +116,16 @@ HIPPY_EXPORT_MODULE(AnimationModule)
 
 // clang-format off
 HIPPY_EXPORT_METHOD(createAnimation:(NSNumber *__nonnull)animationId mode:(NSString *)mode params:(NSDictionary *)params) {
-// clang-format on
     [_lock lock];
     HippyExtAnimation *ani = [[HippyExtAnimation alloc] initWithMode: mode animationId: animationId config: params];
     [_animationById setObject: ani forKey: animationId];
     [_lock unlock];
     HippyLogInfo(@"create animation Id:%@",animationId);
 }
+// clang-format on
 
 // clang-format off
 HIPPY_EXPORT_METHOD(createAnimationSet:(NSNumber *__nonnull)animationId animations:(NSDictionary *)animations) {
-// clang-format on
     [_lock lock];
     HippyExtAnimationGroup *group = [[HippyExtAnimationGroup alloc] initWithMode: @"group" animationId: animationId config: animations];
     group.virtualAnimation = [animations[@"virtual"] boolValue];
@@ -151,10 +150,10 @@ HIPPY_EXPORT_METHOD(createAnimationSet:(NSNumber *__nonnull)animationId animatio
     
     HippyLogInfo(@"create group animations:%@",animationId);
 }
+// clang-format on
 
 // clang-format off
 HIPPY_EXPORT_METHOD(startAnimation:(NSNumber *__nonnull)animationId) {
-// clang-format on
     [_lock lock];
     HippyExtAnimation *ani = _animationById[animationId];
     if (ani.state == HippyExtAnimationStartedState) {
@@ -185,10 +184,10 @@ HIPPY_EXPORT_METHOD(startAnimation:(NSNumber *__nonnull)animationId) {
     }
     [_lock unlock];
 }
+// clang-format on
 
 // clang-format off
 HIPPY_EXPORT_METHOD(pauseAnimation:(NSNumber *__nonnull)animationId) {
-// clang-format on
     [_lock lock];
     NSArray <HippyExtAnimationViewParams *> *params = [_paramsByAnimationId[animationId] copy];
     [self.bridge.uiManager addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
@@ -201,10 +200,10 @@ HIPPY_EXPORT_METHOD(pauseAnimation:(NSNumber *__nonnull)animationId) {
     }];
     [_lock unlock];
 }
+// clang-format on
 
 // clang-format off
 HIPPY_EXPORT_METHOD(resumeAnimation:(NSNumber *__nonnull)animationId) {
-// clang-format on
     [_lock lock];
     NSArray <HippyExtAnimationViewParams *> *params = [_paramsByAnimationId[animationId] copy];
     [self.bridge.uiManager addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
@@ -220,6 +219,7 @@ HIPPY_EXPORT_METHOD(resumeAnimation:(NSNumber *__nonnull)animationId) {
     }];
     [_lock unlock];
 }
+// clang-format on
 
 - (void) paramForAnimationId:(NSNumber *)animationId {
     NSArray <HippyExtAnimationViewParams *> *params = _paramsByAnimationId[animationId];
@@ -268,7 +268,6 @@ HIPPY_EXPORT_METHOD(resumeAnimation:(NSNumber *__nonnull)animationId) {
 
 // clang-format off
 HIPPY_EXPORT_METHOD(updateAnimation:(NSNumber *__nonnull)animationId params:(NSDictionary *)params) {
-// clang-format on
     if (params == nil) {
         return;
     }
@@ -296,10 +295,10 @@ HIPPY_EXPORT_METHOD(updateAnimation:(NSNumber *__nonnull)animationId params:(NSD
     }];
     [_lock unlock];
 }
+// clang-format on
 
 // clang-format off
 HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
-// clang-format on
     [_lock lock];
     [_animationById removeObjectForKey: animationId];
     NSMutableArray <HippyExtAnimationViewParams *> *params = _paramsByAnimationId[animationId];
@@ -320,6 +319,7 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
     [_lock unlock];
     HippyLogInfo(@"animaiton destory:%@",animationId);
 }
+// clang-format on
 
 #pragma mark - CAAnimationDelegate
 - (void)animationDidStart:(CAAnimation *)anim

@@ -29,18 +29,17 @@ HIPPY_EXPORT_MODULE(ClipboardModule)
 // clang-format off
 HIPPY_EXPORT_METHOD(getString:(HippyPromiseResolveBlock)resolve
                   reject:(__unused HippyPromiseRejectBlock)reject) {
-// clang-format on
     UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
     NSString *paste = pasteboard.string == nil ? @"" : pasteboard.string;
     resolve(paste);
 }
+// clang-format on
 
 // clang-format off
 HIPPY_EXPORT_METHOD(setString:(NSString *)paste) {
-// clang-format on
     UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
     pasteboard.string = paste;
 }
-
+// clang-format on
 
 @end

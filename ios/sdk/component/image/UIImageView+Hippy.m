@@ -33,6 +33,7 @@ objc_setAssociatedObject(self, @selector(value), value, OBJC_ASSOCIATION_COPY_NO
 return objc_getAssociatedObject(self, _cmd); \
 }
 
+// clang-format off
 @implementation UIImageView (Hippy)
 
 HippyEventMethod(OnClick, onClick, HippyDirectEventBlock)
@@ -48,3 +49,4 @@ HippyEventMethod(OnAttachedToWindow, onAttachedToWindow, HippyDirectEventBlock)
 HippyEventMethod(OnDetachedFromWindow, onDetachedFromWindow, HippyDirectEventBlock)
 
 @end
+// clang-format on
