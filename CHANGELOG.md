@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.5.1](https://github.com/Tencent/Hippy/compare/2.5.0...2.5.1) (2021-03-02)
+
+
+### Bug Fixes
+
+* **android:** add gradle features setting, remove PRODUCT_FLAVORS ([6e0c501](https://github.com/Tencent/Hippy/commit/6e0c501f9b06125d688f4b0f417f6ea0dbb8c906))
+* **android:** fix TextNode width when do StaticLayout ([9942a2a](https://github.com/Tencent/Hippy/commit/9942a2a107fcc08f8dbc83c3534feb97d7e57dca))
+* **android:** fix ViewPager setScrollEnabled not works ([cf5514b](https://github.com/Tencent/Hippy/commit/cf5514b352874aee065110647d7ab22b103fe5ed))
+* **android:** resolve touch conflict for nested ViewPager ([aa4ac15](https://github.com/Tencent/Hippy/commit/aa4ac155f95e14fff814743ba88fdf5bb73967f7))
+* **hippy-vue:** fixed repeatCount error in animationSet ([c16f306](https://github.com/Tencent/Hippy/commit/c16f3069d1361d69d872acf9476f345c0f886364))
+* **ios:** invoke jscexecutor.invalide on js queue ([35262c4](https://github.com/Tencent/Hippy/commit/35262c4ff7e32df6e385e6fc824f1c9a456f5509))
+
+
+### Features
+
+* **android:** listview add props : overScrollEnabled ([3ed9418](https://github.com/Tencent/Hippy/commit/3ed9418b61e447365f0becdda6274c536a931c9d))
+
+
+
+
+
 # [2.5.0](https://github.com/Tencent/Hippy/compare/2.4.0...2.5.0) (2021-02-25)
 
 

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.5.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-native-components/compare/2.5.0...2.5.1) (2021-03-02)
+
+
+### Bug Fixes
+
+* **hippy-vue:** fixed repeatCount error in animationSet ([c16f306](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-native-components/commit/c16f3069d1361d69d872acf9476f345c0f886364))
+
+
+
+
+
 ## [2.1.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-native-components/compare/2.1.1...2.1.2) (2020-11-23)
 
 **Note:** Version bump only for package @hippy/vue-native-components
