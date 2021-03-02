@@ -1,7 +1,6 @@
 # 
 # Reference: https://releases.llvm.org/11.0.0/tools/clang/docs/ClangFormatStyleOptions.html
 # 
-# Created by eddiecmchen on 2020/02/07
 #
 
 BasedOnStyle: WebKit
