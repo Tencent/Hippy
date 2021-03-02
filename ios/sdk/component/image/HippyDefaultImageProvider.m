@@ -1,24 +1,24 @@
 /*!
-* iOS SDK
-*
-* Tencent is pleased to support the open source community by making
-* Hippy available.
-*
-* Copyright (C) 2019 THL A29 Limited, a Tencent company.
-* All rights reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*   http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * iOS SDK
+ *
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #import <UIKit/UIKit.h>
 #import "HippyDefaultImageProvider.h"
@@ -59,8 +59,7 @@ HIPPY_EXPORT_MODULE(defaultImageProvider)
     if (self) {
         if ([[self class] isAnimatedImage:data]) {
             _imageSourceRef = CGImageSourceCreateWithData((__bridge CFDataRef)data, NULL);
-        }
-        else {
+        } else {
             _data = data;
         }
     }
@@ -74,22 +73,28 @@ HIPPY_EXPORT_MODULE(defaultImageProvider)
             CGFloat view_height = _imageViewSize.height;
             if (_downSample && view_width > 0 && view_height > 0) {
                 CGFloat scale = [UIScreen mainScreen].scale;
-                NSDictionary *options = @{(NSString *)kCGImageSourceShouldCache: @(NO)};
+                NSDictionary *options = @{ (NSString *)kCGImageSourceShouldCache: @(NO) };
                 CGImageSourceRef ref = CGImageSourceCreateWithData((__bridge CFDataRef)_data, (__bridge CFDictionaryRef)options);
                 if (ref) {
                     NSInteger width = 0, height = 0;
                     CFDictionaryRef properties = CGImageSourceCopyPropertiesAtIndex(ref, 0, NULL);
-                    if(properties) {
+                    if (properties) {
                         CFTypeRef val = CFDictionaryGetValue(properties, kCGImagePropertyPixelHeight);
-                        if (val) CFNumberGetValue(val, kCFNumberLongType, &height);
+                        if (val)
+                            CFNumberGetValue(val, kCFNumberLongType, &height);
                         val = CFDictionaryGetValue(properties, kCGImagePropertyPixelWidth);
-                        if (val) CFNumberGetValue(val, kCFNumberLongType, &width);
+                        if (val)
+                            CFNumberGetValue(val, kCFNumberLongType, &width);
                         if (width > (view_width * scale) || height > (view_height * scale)) {
                             NSInteger maxDimensionInPixels = MAX(view_width, view_height) * scale;
-                            NSDictionary *downsampleOptions = @{(NSString *)kCGImageSourceCreateThumbnailFromImageAlways: @(YES), (NSString *)kCGImageSourceShouldCacheImmediately: @(YES),
-                                                         (NSString *)kCGImageSourceCreateThumbnailWithTransform: @(YES), (NSString *)kCGImageSourceThumbnailMaxPixelSize: @(maxDimensionInPixels)};
+                            NSDictionary *downsampleOptions = @{
+                                (NSString *)kCGImageSourceCreateThumbnailFromImageAlways: @(YES),
+                                (NSString *)kCGImageSourceShouldCacheImmediately: @(YES),
+                                (NSString *)kCGImageSourceCreateThumbnailWithTransform: @(YES),
+                                (NSString *)kCGImageSourceThumbnailMaxPixelSize: @(maxDimensionInPixels)
+                            };
                             CGImageRef downsampleImageRef = CGImageSourceCreateThumbnailAtIndex(ref, 0, (__bridge CFDictionaryRef)downsampleOptions);
-                            _image = [UIImage imageWithCGImage: downsampleImageRef];
+                            _image = [UIImage imageWithCGImage:downsampleImageRef];
                             CGImageRelease(downsampleImageRef);
                         }
                         CFRelease(properties);
@@ -97,8 +102,7 @@ HIPPY_EXPORT_MODULE(defaultImageProvider)
                     CFRelease(ref);
                 }
             }
-        }
-        else {
+        } else {
             _image = [self imageAtFrame:0];
         }
     }
@@ -114,8 +118,7 @@ HIPPY_EXPORT_MODULE(defaultImageProvider)
         UIImage *image = [UIImage imageWithCGImage:imageRef];
         CGImageRelease(imageRef);
         return image;
-    }
-    else if (_data) {
+    } else if (_data) {
         return [self image];
     }
     return nil;
@@ -143,8 +146,7 @@ HIPPY_EXPORT_MODULE(defaultImageProvider)
         if (loopCountObject) {
             NSUInteger loopCount = [loopCountObject unsignedIntegerValue];
             return 0 == loopCount ? NSUIntegerMax : loopCount;
-        }
-        else {
+        } else {
             return NSUIntegerMax;
         }
     }

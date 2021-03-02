@@ -24,7 +24,6 @@
 
 #import "HippyBridge.h"
 
-
 /**
  * The threshold at which text inputs will start warning that the JS thread
  * has fallen behind (resulting in poor input performance, missed keys, etc.)

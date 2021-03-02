@@ -36,13 +36,15 @@ HIPPY_ENUM_CONVERTER(UIScrollViewKeyboardDismissMode, (@{
     @"interactive": @(UIScrollViewKeyboardDismissModeInteractive),
     // Backwards compatibility
     @"onDrag": @(UIScrollViewKeyboardDismissModeOnDrag),
-                                                       }), UIScrollViewKeyboardDismissModeNone, integerValue)
+}),
+    UIScrollViewKeyboardDismissModeNone, integerValue)
 
 HIPPY_ENUM_CONVERTER(UIScrollViewIndicatorStyle, (@{
     @"default": @(UIScrollViewIndicatorStyleDefault),
     @"black": @(UIScrollViewIndicatorStyleBlack),
     @"white": @(UIScrollViewIndicatorStyleWhite),
-                                                  }), UIScrollViewIndicatorStyleDefault, integerValue)
+}),
+    UIScrollViewIndicatorStyleDefault, integerValue)
 
 @end
 
@@ -50,8 +52,7 @@ HIPPY_ENUM_CONVERTER(UIScrollViewIndicatorStyle, (@{
 
 HIPPY_EXPORT_MODULE(ScrollView)
 
-- (UIView *)view
-{
+- (UIView *)view {
     return [[HippyScrollView alloc] initWithEventDispatcher:self.bridge.eventDispatcher];
 }
 

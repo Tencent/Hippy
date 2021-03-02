@@ -68,30 +68,21 @@ class Scope;
  * method name and optional additional arguments on the JS thread and calls the
  * given callback with JSValue, containing the next queue, and JSContext.
  */
-- (void)callFunctionOnModule:(NSString *)module
-                      method:(NSString *)method
-                   arguments:(NSArray *)args
-                    callback:(HippyJavaScriptCallback)onComplete;
+- (void)callFunctionOnModule:(NSString *)module method:(NSString *)method arguments:(NSArray *)args callback:(HippyJavaScriptCallback)onComplete;
 
 /**
  * Executes BatchedBridge.invokeCallbackAndReturnFlushedQueue with the cbID,
  * and optional additional arguments on the JS thread and calls the
  * given callback with JSValue, containing the next queue, and JSContext.
  */
-- (void)invokeCallbackID:(NSNumber *)cbID
-               arguments:(NSArray *)args
-                callback:(HippyJavaScriptCallback)onComplete;
+- (void)invokeCallbackID:(NSNumber *)cbID arguments:(NSArray *)args callback:(HippyJavaScriptCallback)onComplete;
 
 /**
  * Runs an application script, and notifies of the script load being complete via `onComplete`.
  */
-- (void)executeApplicationScript:(NSData *)script
-                       sourceURL:(NSURL *)sourceURL
-                      onComplete:(HippyJavaScriptCompleteBlock)onComplete;
+- (void)executeApplicationScript:(NSData *)script sourceURL:(NSURL *)sourceURL onComplete:(HippyJavaScriptCompleteBlock)onComplete;
 
-- (void)injectJSONText:(NSString *)script
-   asGlobalObjectNamed:(NSString *)objectName
-              callback:(HippyJavaScriptCompleteBlock)onComplete;
+- (void)injectJSONText:(NSString *)script asGlobalObjectNamed:(NSString *)objectName callback:(HippyJavaScriptCompleteBlock)onComplete;
 
 /**
  * Enqueue a block to run in the executors JS thread. Fallback to `dispatch_async`

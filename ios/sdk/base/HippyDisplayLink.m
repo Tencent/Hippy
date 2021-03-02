@@ -30,37 +30,30 @@
 #import "HippyFrameUpdate.h"
 #import "HippyModuleData.h"
 
-#define HippyAssertRunLoop() \
-HippyAssert(_runLoop == [NSRunLoop currentRunLoop], \
-@"This method must be called on the CADisplayLink run loop")
+#define HippyAssertRunLoop() HippyAssert(_runLoop == [NSRunLoop currentRunLoop], @"This method must be called on the CADisplayLink run loop")
 
-@implementation HippyDisplayLink
-{
+@implementation HippyDisplayLink {
     CADisplayLink *_jsDisplayLink;
     NSMutableSet<HippyModuleData *> *_frameUpdateObservers;
     NSRunLoop *_runLoop;
 }
 
-- (instancetype)init
-{
+- (instancetype)init {
     if ((self = [super init])) {
         _frameUpdateObservers = [NSMutableSet new];
         _jsDisplayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(_jsThreadUpdate:)];
     }
-    
+
     return self;
 }
 
-- (void)registerModuleForFrameUpdates:(id<HippyBridgeModule>)module
-                       withModuleData:(HippyModuleData *)moduleData
-{
-    if (![moduleData.moduleClass conformsToProtocol:@protocol(HippyFrameUpdateObserver)] ||
-        [_frameUpdateObservers containsObject:moduleData]) {
+- (void)registerModuleForFrameUpdates:(id<HippyBridgeModule>)module withModuleData:(HippyModuleData *)moduleData {
+    if (![moduleData.moduleClass conformsToProtocol:@protocol(HippyFrameUpdateObserver)] || [_frameUpdateObservers containsObject:moduleData]) {
         return;
     }
-    
+
     [_frameUpdateObservers addObject:moduleData];
-    
+
     // Don't access the module instance via moduleData, as this will cause deadlock
     id<HippyFrameUpdateObserver> observer = (id<HippyFrameUpdateObserver>)module;
     __weak typeof(self) weakSelf = self;
@@ -69,12 +62,12 @@ HippyAssert(_runLoop == [NSRunLoop currentRunLoop], \
         if (!strongSelf) {
             return;
         }
-        
+
         CFRunLoopRef cfRunLoop = [strongSelf->_runLoop getCFRunLoop];
         if (!cfRunLoop) {
             return;
         }
-        
+
         if ([NSRunLoop currentRunLoop] == strongSelf->_runLoop) {
             [weakSelf updateJSDisplayLinkState];
         } else {
@@ -84,7 +77,7 @@ HippyAssert(_runLoop == [NSRunLoop currentRunLoop], \
             CFRunLoopWakeUp(cfRunLoop);
         }
     };
-    
+
     // Assuming we're paused right now, we only need to update the display link's state
     // when the new observer is not paused. If it not paused, the observer will immediately
     // start receiving updates anyway.
@@ -95,20 +88,16 @@ HippyAssert(_runLoop == [NSRunLoop currentRunLoop], \
     }
 }
 
-- (void)addToRunLoop:(NSRunLoop *)runLoop
-{
+- (void)addToRunLoop:(NSRunLoop *)runLoop {
     _runLoop = runLoop;
     [_jsDisplayLink addToRunLoop:runLoop forMode:NSRunLoopCommonModes];
 }
 
-- (void)invalidate
-{
+- (void)invalidate {
     [_jsDisplayLink invalidate];
 }
 
-- (void)dispatchBlock:(dispatch_block_t)block
-                queue:(dispatch_queue_t)queue
-{
+- (void)dispatchBlock:(dispatch_block_t)block queue:(dispatch_queue_t)queue {
     if (queue == HippyJSThread) {
         block();
     } else if (queue) {
@@ -116,28 +105,25 @@ HippyAssert(_runLoop == [NSRunLoop currentRunLoop], \
     }
 }
 
-- (void)_jsThreadUpdate:(CADisplayLink *)displayLink
-{
+- (void)_jsThreadUpdate:(CADisplayLink *)displayLink {
     HippyAssertRunLoop();
-    
+
     HippyFrameUpdate *frameUpdate = [[HippyFrameUpdate alloc] initWithDisplayLink:displayLink];
     for (HippyModuleData *moduleData in _frameUpdateObservers) {
         id<HippyFrameUpdateObserver> observer = (id<HippyFrameUpdateObserver>)moduleData.instance;
         if (!observer.paused) {
-            
             [self dispatchBlock:^{
                 [observer didUpdateFrame:frameUpdate];
             } queue:moduleData.methodQueue];
         }
     }
-    
+
     [self updateJSDisplayLinkState];
 }
 
-- (void)updateJSDisplayLinkState
-{
+- (void)updateJSDisplayLinkState {
     HippyAssertRunLoop();
-    
+
     BOOL pauseDisplayLink = YES;
     for (HippyModuleData *moduleData in _frameUpdateObservers) {
         id<HippyFrameUpdateObserver> observer = (id<HippyFrameUpdateObserver>)moduleData.instance;
@@ -146,7 +132,7 @@ HippyAssert(_runLoop == [NSRunLoop currentRunLoop], \
             break;
         }
     }
-    
+
     _jsDisplayLink.paused = pauseDisplayLink;
 }
 

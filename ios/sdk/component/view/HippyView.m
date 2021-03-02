@@ -31,7 +31,7 @@
 #import "HippyBackgroundImageCacheManager.h"
 
 static CGSize makeSizeConstrainWithType(CGSize originSize, CGSize constrainSize, NSString *resizeMode) {
-    //width / height
+    // width / height
     const CGFloat deviceHeight = originSize.width / originSize.height;
     if (resizeMode && NSOrderedSame == [resizeMode compare:@"contain" options:NSCaseInsensitiveSearch]) {
         CGSize result = originSize;
@@ -42,8 +42,7 @@ static CGSize makeSizeConstrainWithType(CGSize originSize, CGSize constrainSize,
             result.width = result.height * deviceHeight;
         }
         return result;
-    }
-    else if (resizeMode && NSOrderedSame == [resizeMode compare:@"cover" options:NSCaseInsensitiveSearch]) {
+    } else if (resizeMode && NSOrderedSame == [resizeMode compare:@"cover" options:NSCaseInsensitiveSearch]) {
         CGSize result = originSize;
         result.width = constrainSize.width;
         result.height = result.width / deviceHeight;
@@ -52,13 +51,11 @@ static CGSize makeSizeConstrainWithType(CGSize originSize, CGSize constrainSize,
             result.width = result.height * deviceHeight;
         }
         return result;
-
     }
     return originSize;
 }
 
-
-dispatch_queue_t global_hpview_queue(){
+dispatch_queue_t global_hpview_queue() {
     static dispatch_queue_t g_background_queue = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -69,40 +66,37 @@ dispatch_queue_t global_hpview_queue(){
 
 @implementation UIView (HippyViewUnmounting)
 
-- (void)hippy_remountAllSubviews
-{
+- (void)hippy_remountAllSubviews {
     // Normal views don't support unmounting, so all
     // this does is forward message to our subviews,
     // in case any of those do support it
-    
+
     for (UIView *subview in self.subviews) {
         [subview hippy_remountAllSubviews];
     }
 }
 
-- (void)hippy_updateClippedSubviewsWithClipRect:(CGRect)clipRect relativeToView:(UIView *)clipView
-{
+- (void)hippy_updateClippedSubviewsWithClipRect:(CGRect)clipRect relativeToView:(UIView *)clipView {
     // Even though we don't support subview unmounting
     // we do support clipsToBounds, so if that's enabled
     // we'll update the clipping
-    
+
     if (self.clipsToBounds && self.subviews.count > 0) {
         clipRect = [clipView convertRect:clipRect toView:self];
         clipRect = CGRectIntersection(clipRect, self.bounds);
         clipView = self;
     }
-    
+
     // Normal views don't support unmounting, so all
     // this does is forward message to our subviews,
     // in case any of those do support it
-    
+
     for (UIView *subview in self.subviews) {
         [subview hippy_updateClippedSubviewsWithClipRect:clipRect relativeToView:clipView];
     }
 }
 
-- (UIView *)hippy_findClipView
-{
+- (UIView *)hippy_findClipView {
     UIView *testView = self;
     UIView *clipView = nil;
     CGRect clipRect = self.bounds;
@@ -134,7 +128,7 @@ dispatch_queue_t global_hpview_queue(){
         NSArray<UIView *> *subviews = [superView subviews];
         NSUInteger index = [subviews indexOfObject:self];
         if (0 != index) {
-            for (NSInteger i = index - 1; i >= 0 ; i--) {
+            for (NSInteger i = index - 1; i >= 0; i--) {
                 UIView *siblingView = subviews[i];
                 CGPoint pointInsiblingView = [self convertPoint:point toView:siblingView];
                 BOOL pointInside = [siblingView pointInside:pointInsiblingView withEvent:nil];
@@ -150,8 +144,7 @@ dispatch_queue_t global_hpview_queue(){
 
 @end
 
-static NSString *HippyRecursiveAccessibilityLabel(UIView *view)
-{
+static NSString *HippyRecursiveAccessibilityLabel(UIView *view) {
     NSMutableString *str = [NSMutableString stringWithString:@""];
     for (UIView *subview in view.subviews) {
         NSString *label = subview.accessibilityLabel;
@@ -165,17 +158,15 @@ static NSString *HippyRecursiveAccessibilityLabel(UIView *view)
     return str;
 }
 
-@implementation HippyView
-{
+@implementation HippyView {
     UIColor *_backgroundColor;
-    
+
     HippyBackgroundImageCacheManager *_backgroundCachemanager;
 }
 
 @synthesize hippyZIndex = _hippyZIndex;
 
-- (instancetype)initWithFrame:(CGRect)frame
-{
+- (instancetype)initWithFrame:(CGRect)frame {
     if ((self = [super initWithFrame:frame])) {
         _borderWidth = -1;
         _borderTopWidth = -1;
@@ -191,22 +182,20 @@ static NSString *HippyRecursiveAccessibilityLabel(UIView *view)
         self.layer.shadowOffset = CGSizeZero;
         self.layer.shadowRadius = 0.f;
     }
-    
+
     return self;
 }
 
-HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:unused)
+HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : unused)
 
-- (NSString *)accessibilityLabel
-{
+- (NSString *)accessibilityLabel {
     if (super.accessibilityLabel) {
         return super.accessibilityLabel;
     }
     return HippyRecursiveAccessibilityLabel(self);
 }
 
-- (void)setPointerEvents:(HippyPointerEvents)pointerEvents
-{
+- (void)setPointerEvents:(HippyPointerEvents)pointerEvents {
     _pointerEvents = pointerEvents;
     self.userInteractionEnabled = (pointerEvents != HippyPointerEventsNone);
     if (pointerEvents == HippyPointerEventsBoxNone) {
@@ -214,13 +203,12 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:unused)
     }
 }
 
-- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
-{
+- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
     BOOL canReceiveTouchEvents = ([self isUserInteractionEnabled] && ![self isHidden]);
-    if(!canReceiveTouchEvents) {
+    if (!canReceiveTouchEvents) {
         return nil;
     }
-    
+
     // `hitSubview` is the topmost subview which was hit. The hit point can
     // be outside the bounds of `view` (e.g., if -clipsToBounds is NO).
     UIView *hitSubview = nil;
@@ -241,9 +229,9 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:unused)
             }
         }
     }
-    
+
     UIView *hitView = (isPointInside ? self : nil);
-    
+
     switch (_pointerEvents) {
         case HippyPointerEventsNone:
             return nil;
@@ -259,8 +247,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:unused)
     }
 }
 
-- (NSString *)description
-{
+- (NSString *)description {
     NSString *superDescription = super.description;
     NSRange semicolonRange = [superDescription rangeOfString:@";"];
     NSString *replacement = [NSString stringWithFormat:@"; hippyTag: %@;", self.hippyTag];
@@ -271,12 +258,11 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:unused)
 
 + (void)autoAdjustInsetsForView:(UIView<HippyAutoInsetsProtocol> *)parentView
                  withScrollView:(UIScrollView *)scrollView
-                   updateOffset:(BOOL)updateOffset
-{
+                   updateOffset:(BOOL)updateOffset {
     UIEdgeInsets baseInset = parentView.contentInset;
     CGFloat previousInsetTop = scrollView.contentInset.top;
     CGPoint contentOffset = scrollView.contentOffset;
-    
+
     if (parentView.automaticallyAdjustContentInsets) {
         UIEdgeInsets autoInset = [self contentInsetsForView:parentView];
         baseInset.top += autoInset.top;
@@ -286,7 +272,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:unused)
     }
     scrollView.contentInset = baseInset;
     scrollView.scrollIndicatorInsets = baseInset;
-    
+
     if (updateOffset) {
         // If we're adjusting the top inset, then let's also adjust the contentOffset so that the view
         // elements above the top guide do not cover the content.
@@ -300,15 +286,11 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:unused)
     }
 }
 
-+ (UIEdgeInsets)contentInsetsForView:(UIView *)view
-{
++ (UIEdgeInsets)contentInsetsForView:(UIView *)view {
     while (view) {
         UIViewController *controller = view.hippyViewController;
         if (controller) {
-            return (UIEdgeInsets){
-                controller.topLayoutGuide.length, 0,
-                controller.bottomLayoutGuide.length, 0
-            };
+            return (UIEdgeInsets) { controller.topLayoutGuide.length, 0, controller.bottomLayoutGuide.length, 0 };
         }
         view = view.superview;
     }
@@ -317,8 +299,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:unused)
 
 #pragma mark - View unmounting
 
-- (void)hippy_remountAllSubviews
-{
+- (void)hippy_remountAllSubviews {
     if (_removeClippedSubviews) {
         for (UIView *view in self.sortedHippySubviews) {
             if (view.superview != self) {
@@ -332,39 +313,37 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:unused)
     }
 }
 
-- (void)hippy_updateClippedSubviewsWithClipRect:(CGRect)clipRect relativeToView:(UIView *)clipView
-{
+- (void)hippy_updateClippedSubviewsWithClipRect:(CGRect)clipRect relativeToView:(UIView *)clipView {
     // TODO (#5906496): for scrollviews (the primary use-case) we could
     // optimize this by only doing a range check along the scroll axis,
     // instead of comparing the whole frame
-    
+
     if (!_removeClippedSubviews) {
         // Use default behavior if unmounting is disabled
         return [super hippy_updateClippedSubviewsWithClipRect:clipRect relativeToView:clipView];
     }
-    
+
     if (self.hippySubviews.count == 0) {
         // Do nothing if we have no subviews
         return;
     }
-    
+
     if (CGSizeEqualToSize(self.bounds.size, CGSizeZero)) {
         // Do nothing if layout hasn't happened yet
         return;
     }
-    
+
     // Convert clipping rect to local coordinates
     clipRect = [clipView convertRect:clipRect toView:self];
     clipRect = CGRectIntersection(clipRect, self.bounds);
     clipView = self;
-    
+
     // Mount / unmount views
     for (UIView *view in self.sortedHippySubviews) {
         if (!CGRectIsEmpty(CGRectIntersection(clipRect, view.frame))) {
-            
             // View is at least partially visible, so remount it if unmounted
             [self addSubview:view];
-            
+
             // Then test its subviews
             if (CGRectContainsRect(clipRect, view.frame)) {
                 // View is fully visible, so remount all subviews
@@ -373,25 +352,22 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:unused)
                 // View is partially visible, so update clipped subviews
                 [view hippy_updateClippedSubviewsWithClipRect:clipRect relativeToView:clipView];
             }
-            
+
         } else if (view.superview) {
-            
             // View is completely outside the clipRect, so unmount it
             [view removeFromSuperview];
         }
     }
 }
 
-- (void)setRemoveClippedSubviews:(BOOL)removeClippedSubviews
-{
+- (void)setRemoveClippedSubviews:(BOOL)removeClippedSubviews {
     if (!removeClippedSubviews && _removeClippedSubviews) {
         [self hippy_remountAllSubviews];
     }
     _removeClippedSubviews = removeClippedSubviews;
 }
 
-- (void)didUpdateHippySubviews
-{
+- (void)didUpdateHippySubviews {
     if (_removeClippedSubviews) {
         [self updateClippedSubviews];
     } else {
@@ -399,8 +375,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:unused)
     }
 }
 
-- (void)updateClippedSubviews
-{
+- (void)updateClippedSubviews {
     // Find a suitable view to use for clipping
     UIView *clipView = [self hippy_findClipView];
     if (clipView) {
@@ -408,15 +383,14 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:unused)
     }
 }
 
-- (void)layoutSubviews
-{
+- (void)layoutSubviews {
     // TODO (#5906496): this a nasty performance drain, but necessary
     // to prevent gaps appearing when the loading spinner disappears.
     // We might be able to fix this another way by triggering a call
     // to updateClippedSubviews manually after loading
-    
+
     [super layoutSubviews];
-    
+
     if (_removeClippedSubviews) {
         [self updateClippedSubviews];
     }
@@ -424,52 +398,47 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:unused)
 
 #pragma mark - Borders
 
-- (UIColor *)backgroundColor
-{
+- (UIColor *)backgroundColor {
     return _backgroundColor;
 }
 
-- (void)setBackgroundColor:(UIColor *)backgroundColor
-{
+- (void)setBackgroundColor:(UIColor *)backgroundColor {
     if ([_backgroundColor isEqual:backgroundColor]) {
         return;
     }
-    
+
     _backgroundColor = backgroundColor;
     [self.layer setNeedsDisplay];
 }
 
-
-- (UIEdgeInsets)bordersAsInsets
-{
+- (UIEdgeInsets)bordersAsInsets {
     const CGFloat borderWidth = MAX(0, _borderWidth);
-    
+
     return (UIEdgeInsets) {
         _borderTopWidth >= 0 ? _borderTopWidth : borderWidth,
         _borderLeftWidth >= 0 ? _borderLeftWidth : borderWidth,
         _borderBottomWidth >= 0 ? _borderBottomWidth : borderWidth,
-        _borderRightWidth  >= 0 ? _borderRightWidth : borderWidth,
+        _borderRightWidth >= 0 ? _borderRightWidth : borderWidth,
     };
 }
 
-- (HippyCornerRadii)cornerRadii
-{
+- (HippyCornerRadii)cornerRadii {
     // Get corner radii
     const CGFloat radius = MAX(0, _borderRadius);
     const CGFloat topLeftRadius = _borderTopLeftRadius >= 0 ? _borderTopLeftRadius : radius;
     const CGFloat topRightRadius = _borderTopRightRadius >= 0 ? _borderTopRightRadius : radius;
     const CGFloat bottomLeftRadius = _borderBottomLeftRadius >= 0 ? _borderBottomLeftRadius : radius;
     const CGFloat bottomRightRadius = _borderBottomRightRadius >= 0 ? _borderBottomRightRadius : radius;
-    
+
     // Get scale factors required to prevent radii from overlapping
     const CGSize size = self.bounds.size;
     const CGFloat topScaleFactor = HippyZeroIfNaN(MIN(1, size.width / (topLeftRadius + topRightRadius)));
     const CGFloat bottomScaleFactor = HippyZeroIfNaN(MIN(1, size.width / (bottomLeftRadius + bottomRightRadius)));
     const CGFloat rightScaleFactor = HippyZeroIfNaN(MIN(1, size.height / (topRightRadius + bottomRightRadius)));
     const CGFloat leftScaleFactor = HippyZeroIfNaN(MIN(1, size.height / (topLeftRadius + bottomLeftRadius)));
-    
+
     // Return scaled radii
-    return (HippyCornerRadii){
+    return (HippyCornerRadii) {
         topLeftRadius * MIN(topScaleFactor, leftScaleFactor),
         topRightRadius * MIN(topScaleFactor, rightScaleFactor),
         bottomLeftRadius * MIN(bottomScaleFactor, leftScaleFactor),
@@ -477,10 +446,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:unused)
     };
 }
 
-
-
-- (void)hippySetFrame:(CGRect)frame
-{
+- (void)hippySetFrame:(CGRect)frame {
     // If frame is zero, or below the threshold where the border radii can
     // be rendered as a stretchable image, we'll need to re-render.
     // TODO: detect up-front if re-rendering is necessary
@@ -491,9 +457,8 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:unused)
     }
 }
 
-- (HippyBorderColors)borderColors
-{
-    return (HippyBorderColors){
+- (HippyBorderColors)borderColors {
+    return (HippyBorderColors) {
         _borderTopColor ?: _borderColor,
         _borderLeftColor ?: _borderColor,
         _borderBottomColor ?: _borderColor,
@@ -501,42 +466,32 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:unused)
     };
 }
 
-void HippyBoarderColorsRetain(HippyBorderColors c)
-{
-    if(c.top)
-    {
+void HippyBoarderColorsRetain(HippyBorderColors c) {
+    if (c.top) {
         CGColorRetain(c.top);
     }
-    if(c.bottom)
-    {
+    if (c.bottom) {
         CGColorRetain(c.bottom);
     }
-    if(c.left)
-    {
+    if (c.left) {
         CGColorRetain(c.left);
     }
-    if(c.right)
-    {
+    if (c.right) {
         CGColorRetain(c.right);
     }
 }
 
-void HippyBoarderColorsRelease(HippyBorderColors c)
-{
-    if(c.top)
-    {
+void HippyBoarderColorsRelease(HippyBorderColors c) {
+    if (c.top) {
         CGColorRelease(c.top);
     }
-    if(c.bottom)
-    {
+    if (c.bottom) {
         CGColorRelease(c.bottom);
     }
-    if(c.left)
-    {
+    if (c.left) {
         CGColorRelease(c.left);
     }
-    if(c.right)
-    {
+    if (c.right) {
         CGColorRelease(c.right);
     }
 }
@@ -550,41 +505,35 @@ void HippyBoarderColorsRelease(HippyBorderColors c)
     }
 }
 
-- (void)displayLayer:(CALayer *)layer
-{
+- (void)displayLayer:(CALayer *)layer {
     if (CGSizeEqualToSize(layer.bounds.size, CGSizeZero)) {
         return;
     }
-    
+
     __weak CALayer *weakLayer = layer;
     [self drawShadowForLayer];
-    
+
     const HippyCornerRadii cornerRadii = [self cornerRadii];
     const UIEdgeInsets borderInsets = [self bordersAsInsets];
     const HippyBorderColors borderColors = [self borderColors];
     UIColor *backgroundColor = self.backgroundColor;
-    
-    BOOL useIOSBorderRendering =
-    !HippyRunningInTestEnvironment() &&
-    HippyCornerRadiiAreEqual(cornerRadii) &&
-    HippyBorderInsetsAreEqual(borderInsets) &&
-    HippyBorderColorsAreEqual(borderColors) &&
-    _borderStyle == HippyBorderStyleSolid &&
-    
-    // iOS draws borders in front of the content whereas CSS draws them behind
-    // the content. For this reason, only use iOS border drawing when clipping
-    // or when the border is hidden.
-    
-    (borderInsets.top == 0 || (borderColors.top && CGColorGetAlpha(borderColors.top) == 0) || self.clipsToBounds);
-    
+
+    BOOL useIOSBorderRendering = !HippyRunningInTestEnvironment() && HippyCornerRadiiAreEqual(cornerRadii) && HippyBorderInsetsAreEqual(borderInsets)
+                                 && HippyBorderColorsAreEqual(borderColors) && _borderStyle == HippyBorderStyleSolid &&
+
+                                 // iOS draws borders in front of the content whereas CSS draws them behind
+                                 // the content. For this reason, only use iOS border drawing when clipping
+                                 // or when the border is hidden.
+
+                                 (borderInsets.top == 0 || (borderColors.top && CGColorGetAlpha(borderColors.top) == 0) || self.clipsToBounds);
+
     // iOS clips to the outside of the border, but CSS clips to the inside. To
     // solve this, we'll need to add a container view inside the main view to
     // correctly clip the subviews.
-    
+
     if (useIOSBorderRendering && !_backgroundImageUrl) {
         layer.cornerRadius = cornerRadii.topLeft;
-        layer.borderColor =
-        borderColors.left;
+        layer.borderColor = borderColors.left;
         layer.borderWidth = borderInsets.left;
         layer.backgroundColor = backgroundColor.CGColor;
         layer.contents = nil;
@@ -592,28 +541,22 @@ void HippyBoarderColorsRelease(HippyBorderColors c)
         layer.mask = nil;
         return;
     }
-    
-    
+
     CGRect theFrame = self.frame;
     NSInteger clipToBounds = self.clipsToBounds;
     NSString *backgroundSize = self.backgroundSize;
     __weak typeof(self) weakSelf = self;
     HippyBoarderColorsRetain(borderColors);
     dispatch_async(global_hpview_queue(), ^{
-        UIImage *image = HippyGetBorderImage(weakSelf.borderStyle,
-                                             theFrame.size,
-                                             cornerRadii,
-                                             borderInsets,
-                                             borderColors,
-                                             backgroundColor.CGColor,
-                                             clipToBounds);
+        UIImage *image = HippyGetBorderImage(
+            weakSelf.borderStyle, theFrame.size, cornerRadii, borderInsets, borderColors, backgroundColor.CGColor, clipToBounds);
         HippyBoarderColorsRelease(borderColors);
         if (image == nil) {
             weakLayer.contents = nil;
             weakLayer.needsDisplayOnBoundsChange = NO;
             return;
         }
-        
+
         CGRect contentsCenter = ({
             CGSize size = image.size;
             UIEdgeInsets insets = image.capInsets;
@@ -621,30 +564,24 @@ void HippyBoarderColorsRelease(HippyBorderColors c)
                 HippyLogError(@"divided by zero in HippyView.m");
                 return;
             }
-            CGRectMake(
-                       insets.left / size.width,
-                       insets.top / size.height,
-                       1.0 / size.width,
-                       1.0 / size.height
-                       );
+            CGRectMake(insets.left / size.width, insets.top / size.height, 1.0 / size.width, 1.0 / size.height);
         });
-        
+
         void (^setImageBlock)(UIImage *) = ^(UIImage *resultingImage) {
             dispatch_sync(dispatch_get_main_queue(), ^{
                 weakLayer.contents = (id)resultingImage.CGImage;
-                
+
                 weakLayer.backgroundColor = NULL;
-                
+
                 //  weakLayer.contents = (id)image.CGImage;
                 weakLayer.contentsScale = image.scale;
                 weakLayer.needsDisplayOnBoundsChange = YES;
                 weakLayer.magnificationFilter = kCAFilterNearest;
-                
+
                 const BOOL isResizable = !UIEdgeInsetsEqualToEdgeInsets(image.capInsets, UIEdgeInsetsZero);
-                
-                
+
                 [self updateClippingForLayer:weakLayer];
-                
+
                 if (isResizable) {
                     weakLayer.contentsCenter = contentsCenter;
                 } else {
@@ -652,33 +589,30 @@ void HippyBoarderColorsRelease(HippyBorderColors c)
                 }
             });
         };
-        
+
         if (!weakSelf.backgroundImageUrl) {
             setImageBlock(image);
         } else {
             CGFloat backgroundPositionX = weakSelf.backgroundPositionX;
             CGFloat backgroundPositionY = weakSelf.backgroundPositionY;
-            HippyBackgroundImageCacheManager* weakBackgroundCacheManager = [weakSelf backgroundCachemanager];
+            HippyBackgroundImageCacheManager *weakBackgroundCacheManager = [weakSelf backgroundCachemanager];
             [weakBackgroundCacheManager imageWithUrl:weakSelf.backgroundImageUrl completionHandler:^(UIImage *decodedImage, NSError *error) {
                 if (error) {
                     HippyLogError(@"weakBackgroundCacheManagerLog %@", error);
                     return;
                 }
-                
+
                 UIGraphicsBeginImageContextWithOptions(theFrame.size, NO, image.scale);
                 CGSize size = theFrame.size;
-                
-                
-                [image drawInRect:(CGRect){CGPointZero, size}];
+
+                [image drawInRect:(CGRect) { CGPointZero, size }];
                 CGSize imageSize = decodedImage.size;
                 CGSize targetSize = UIEdgeInsetsInsetRect(theFrame, [weakSelf bordersAsInsets]).size;
-                
+
                 CGSize drawSize = makeSizeConstrainWithType(imageSize, targetSize, backgroundSize);
-                
-                [decodedImage drawInRect:CGRectMake(borderInsets.left + backgroundPositionX,
-                                                    borderInsets.top + backgroundPositionY,
-                                                    drawSize.width,
-                                                    drawSize.height)];
+
+                [decodedImage drawInRect:CGRectMake(borderInsets.left + backgroundPositionX, borderInsets.top + backgroundPositionY, drawSize.width,
+                                             drawSize.height)];
                 UIImage *resultingImage = UIGraphicsGetImageFromCurrentImageContext();
                 UIGraphicsEndImageContext();
                 setImageBlock(resultingImage);
@@ -694,33 +628,27 @@ void HippyBoarderColorsRelease(HippyBorderColors c)
     return _backgroundCachemanager;
 }
 
-static BOOL HippyLayerHasShadow(CALayer *layer)
-{
+static BOOL HippyLayerHasShadow(CALayer *layer) {
     return layer.shadowOpacity * CGColorGetAlpha(layer.shadowColor) > 0;
 }
 
-- (void)hippySetInheritedBackgroundColor:(UIColor *)inheritedBackgroundColor
-{
+- (void)hippySetInheritedBackgroundColor:(UIColor *)inheritedBackgroundColor {
     // Inherit background color if a shadow has been set, as an optimization
     if (HippyLayerHasShadow(self.layer)) {
         self.backgroundColor = inheritedBackgroundColor;
     }
 }
 
-- (void)updateClippingForLayer:(CALayer *)layer
-{
+- (void)updateClippingForLayer:(CALayer *)layer {
     CALayer *mask = nil;
     CGFloat cornerRadius = 0;
-    
+
     if (self.clipsToBounds) {
-        
         const HippyCornerRadii cornerRadii = [self cornerRadii];
         if (HippyCornerRadiiAreEqual(cornerRadii)) {
-            
             cornerRadius = cornerRadii.topLeft;
-            
+
         } else {
-            
             CAShapeLayer *shapeLayer = [CAShapeLayer layer];
             CGPathRef path = HippyPathCreateWithRoundedRect(self.bounds, HippyGetCornerInsets(cornerRadii, UIEdgeInsetsZero), NULL);
             shapeLayer.path = path;
@@ -728,82 +656,64 @@ static BOOL HippyLayerHasShadow(CALayer *layer)
             mask = shapeLayer;
         }
     }
-    
+
     layer.cornerRadius = cornerRadius;
     layer.mask = mask;
 }
 
 #pragma mark Border Color
 
-#define setBorderColor(side)                                \
-- (void)setBorder##side##Color:(CGColorRef)color          \
-{                                                         \
-if (CGColorEqualToColor(_border##side##Color, color)) { \
-return;                                               \
-}                                                       \
-CGColorRelease(_border##side##Color);                   \
-_border##side##Color = CGColorRetain(color);            \
-[self.layer setNeedsDisplay];                           \
-}
+#define setBorderColor(side)                                    \
+    -(void)setBorder##side##Color : (CGColorRef)color {         \
+        if (CGColorEqualToColor(_border##side##Color, color)) { \
+            return;                                             \
+        }                                                       \
+        CGColorRelease(_border##side##Color);                   \
+        _border##side##Color = CGColorRetain(color);            \
+        [self.layer setNeedsDisplay];                           \
+    }
 
-setBorderColor()
-setBorderColor(Top)
-setBorderColor(Right)
-setBorderColor(Bottom)
-setBorderColor(Left)
-
+setBorderColor() setBorderColor(Top) setBorderColor(Right) setBorderColor(Bottom) setBorderColor(Left)
 #pragma mark - Border Width
 
-#define setBorderWidth(side)                    \
-- (void)setBorder##side##Width:(CGFloat)width \
-{                                             \
-if (_border##side##Width == width) {        \
-return;                                   \
-}                                           \
-_border##side##Width = width;               \
-[self.layer setNeedsDisplay];               \
-}
+#define setBorderWidth(side)                         \
+    -(void)setBorder##side##Width : (CGFloat)width { \
+        if (_border##side##Width == width) {         \
+            return;                                  \
+        }                                            \
+        _border##side##Width = width;                \
+        [self.layer setNeedsDisplay];                \
+    }
 
-setBorderWidth()
-setBorderWidth(Top)
-setBorderWidth(Right)
-setBorderWidth(Bottom)
-setBorderWidth(Left)
+        setBorderWidth() setBorderWidth(Top) setBorderWidth(Right) setBorderWidth(Bottom) setBorderWidth(Left)
 
 #pragma mark - Border Radius
 
-#define setBorderRadius(side)                     \
-- (void)setBorder##side##Radius:(CGFloat)radius \
-{                                               \
-if (_border##side##Radius == radius) {        \
-return;                                     \
-}                                             \
-_border##side##Radius = radius;               \
-[self.layer setNeedsDisplay];                 \
-}
+#define setBorderRadius(side)                          \
+    -(void)setBorder##side##Radius : (CGFloat)radius { \
+        if (_border##side##Radius == radius) {         \
+            return;                                    \
+        }                                              \
+        _border##side##Radius = radius;                \
+        [self.layer setNeedsDisplay];                  \
+    }
 
-setBorderRadius()
-setBorderRadius(TopLeft)
-setBorderRadius(TopRight)
-setBorderRadius(BottomLeft)
-setBorderRadius(BottomRight)
+            setBorderRadius() setBorderRadius(TopLeft) setBorderRadius(TopRight) setBorderRadius(BottomLeft) setBorderRadius(BottomRight)
 
 #pragma mark - Border Style
 
-#define setBorderStyle(side)                           \
-- (void)setBorder##side##Style:(HippyBorderStyle)style \
-{                                                    \
-if (_border##side##Style == style) {               \
-return;                                          \
-}                                                  \
-_border##side##Style = style;                      \
-[self.layer setNeedsDisplay];                      \
-}
+#define setBorderStyle(side)                                  \
+    -(void)setBorder##side##Style : (HippyBorderStyle)style { \
+        if (_border##side##Style == style) {                  \
+            return;                                           \
+        }                                                     \
+        _border##side##Style = style;                         \
+        [self.layer setNeedsDisplay];                         \
+    }
 
-setBorderStyle()
+                setBorderStyle()
 
-- (void)dealloc
-{
+    - (void)dealloc {
     CGColorRelease(_borderColor);
     CGColorRelease(_borderTopColor);
     CGColorRelease(_borderRightColor);

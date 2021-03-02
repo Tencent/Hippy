@@ -31,9 +31,9 @@
 #import "HippyVirtualNode.h"
 
 typedef NS_ENUM(NSUInteger, HippyUpdateLifecycle) {
-  HippyUpdateLifecycleUninitialized = 0,
-  HippyUpdateLifecycleComputed,
-  HippyUpdateLifecycleDirtied,
+    HippyUpdateLifecycleUninitialized = 0,
+    HippyUpdateLifecycleComputed,
+    HippyUpdateLifecycleDirtied,
 };
 
 typedef void (^HippyApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegistry);
@@ -64,7 +64,7 @@ typedef void (^HippyApplierVirtualBlock)(NSDictionary<NSNumber *, HippyVirtualNo
 //@property (nonatomic, assign, readonly) CSSNodeRef cssNode;
 @property (nonatomic, assign, readonly) MTTNodeRef nodeRef;
 @property (nonatomic, copy) NSString *viewName;
-@property (nonatomic, strong) UIColor *backgroundColor; // Used to propagate to children
+@property (nonatomic, strong) UIColor *backgroundColor;  // Used to propagate to children
 @property (nonatomic, copy) HippyDirectEventBlock onLayout;
 @property (nonatomic, assign) BOOL isList;
 
@@ -176,25 +176,21 @@ typedef void (^HippyApplierVirtualBlock)(NSDictionary<NSNumber *, HippyVirtualNo
  */
 
 - (void)collectUpdatedProperties:(NSMutableSet<HippyApplierBlock> *)applierBlocks
-						virtualApplierBlocks:(NSMutableSet<HippyApplierVirtualBlock> *)virtualApplierBlocks
-								parentProperties:(NSDictionary<NSString *, id> *)parentProperties;
-
-- (void)collectUpdatedProperties:(NSMutableSet<HippyApplierBlock> *)applierBlocks
+            virtualApplierBlocks:(NSMutableSet<HippyApplierVirtualBlock> *)virtualApplierBlocks
                 parentProperties:(NSDictionary<NSString *, id> *)parentProperties;
 
-
+- (void)collectUpdatedProperties:(NSMutableSet<HippyApplierBlock> *)applierBlocks parentProperties:(NSDictionary<NSString *, id> *)parentProperties;
 
 /**
  * Process the updated properties and apply them to view. Shadow view classes
  * that add additional propagating properties should override this method.
  */
 - (NSDictionary<NSString *, id> *)processUpdatedProperties:(NSMutableSet<HippyApplierBlock> *)applierBlocks
-																			virtualApplierBlocks:(NSMutableSet<HippyApplierVirtualBlock> *)virtualApplierBlocks
-																					parentProperties:(NSDictionary<NSString *, id> *)parentProperties NS_REQUIRES_SUPER;
+                                      virtualApplierBlocks:(NSMutableSet<HippyApplierVirtualBlock> *)virtualApplierBlocks
+                                          parentProperties:(NSDictionary<NSString *, id> *)parentProperties NS_REQUIRES_SUPER;
 
 - (NSDictionary<NSString *, id> *)processUpdatedProperties:(NSMutableSet<HippyApplierBlock> *)applierBlocks
                                           parentProperties:(NSDictionary<NSString *, id> *)parentProperties NS_REQUIRES_SUPER;
-
 
 /**
  * Can be called by a parent on a child in order to calculate all views whose frame needs

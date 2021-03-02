@@ -31,7 +31,7 @@ static NSUInteger socketIndex = 0;
 
 #pragma mark - HippyWebSocketManager
 
-@interface HippyWebSocketManager()<HippySRWebSocketDelegate>
+@interface HippyWebSocketManager () <HippySRWebSocketDelegate>
 
 @property (nonatomic, strong) NSMutableDictionary<NSNumber *, HippySRWebSocket *> *sockets;
 @property (nonatomic, strong) dispatch_queue_t queue;
@@ -42,13 +42,11 @@ static NSUInteger socketIndex = 0;
 
 HIPPY_EXPORT_MODULE(websocket)
 
-- (dispatch_queue_t)methodQueue
-{
-  return _queue;
+- (dispatch_queue_t)methodQueue {
+    return _queue;
 }
 
-- (instancetype)init
-{
+- (instancetype)init {
     if ((self = [super init])) {
         _sockets = [NSMutableDictionary new];
         _queue = dispatch_queue_create("com.tencent.hippy.WebSocketManager", DISPATCH_QUEUE_SERIAL);
@@ -56,8 +54,7 @@ HIPPY_EXPORT_MODULE(websocket)
     return self;
 }
 
-- (void)invalidate
-{
+- (void)invalidate {
     for (HippySRWebSocket *socket in _sockets.allValues) {
         socket.delegate = nil;
         [socket close];
@@ -105,37 +102,36 @@ HIPPY_EXPORT_METHOD(send:(NSDictionary *)params) {
 
 - (void)webSocket:(HippySRWebSocket *)webSocket didReceiveMessage:(id)message {
     dispatch_async(_queue, ^{
-        [self sendEventType:@"onMessage" socket:webSocket data:@{@"type":@"text", @"data": message}];
+        [self sendEventType:@"onMessage" socket:webSocket data:@ { @"type": @"text", @"data": message }];
     });
 }
 
 - (void)webSocketDidOpen:(HippySRWebSocket *)webSocket {
     dispatch_async(_queue, ^{
-        [self sendEventType:@"onOpen" socket:webSocket data:@{}];
+        [self sendEventType:@"onOpen" socket:webSocket data:@ {}];
     });
 }
 
 - (void)webSocket:(HippySRWebSocket *)webSocket didFailWithError:(NSError *)error {
     NSString *errString = [error localizedFailureReason];
-    [self sendEventType:@"onError" socket:webSocket data:@{@"error": errString}];
+    [self sendEventType:@"onError" socket:webSocket data:@{ @"error": errString }];
     [_sockets removeObjectForKey:@(webSocket.socketID)];
 }
 
 - (void)webSocket:(HippySRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean {
-    NSDictionary *data = @{@"code": @(code), @"reason": reason};
+    NSDictionary *data = @{ @"code": @(code), @"reason": reason };
     [self sendEventType:@"onClose" socket:webSocket data:data];
     [_sockets removeObjectForKey:@(webSocket.socketID)];
 }
 
 - (void)webSocket:(HippySRWebSocket *)webSocket didReceivePong:(NSData *)pongPayload {
-    
 }
 
 - (void)sendEventType:(NSString *)type socket:(HippySRWebSocket *)socket data:(id)data {
     for (NSNumber *key in [_sockets allKeys]) {
         HippySRWebSocket *canSocket = [_sockets objectForKey:key];
         if (canSocket == socket) {
-            NSDictionary *params = @{@"id": key, @"type": type, @"data": data?:@{}};
+            NSDictionary *params = @{ @"id": key, @"type": type, @"data": data ?: @ {} };
             [self sendEvent:@"hippyWebsocketEvents" params:params];
             break;
         }

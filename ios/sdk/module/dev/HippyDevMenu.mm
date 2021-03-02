@@ -41,8 +41,7 @@ static NSString *const HippyDevMenuSettingsKey = @"HippyDevMenu";
 
 @implementation UIWindow (HippyDevMenu)
 
-- (void)hippy_motionEnded:(__unused UIEventSubtype)motion withEvent:(UIEvent *)event
-{
+- (void)hippy_motionEnded:(__unused UIEventSubtype)motion withEvent:(UIEvent *)event {
     if (event.subtype == UIEventSubtypeMotionShake) {
         [[NSNotificationCenter defaultCenter] postNotificationName:HippyShowDevMenuNotification object:nil];
     }
@@ -50,10 +49,7 @@ static NSString *const HippyDevMenuSettingsKey = @"HippyDevMenu";
 
 @end
 
-typedef NS_ENUM(NSInteger, HippyDevMenuType) {
-    HippyDevMenuTypeButton,
-    HippyDevMenuTypeToggle
-};
+typedef NS_ENUM(NSInteger, HippyDevMenuType) { HippyDevMenuTypeButton, HippyDevMenuTypeToggle };
 
 @interface HippyDevMenuItem ()
 
@@ -65,17 +61,15 @@ typedef NS_ENUM(NSInteger, HippyDevMenuType) {
 
 @end
 
-@implementation HippyDevMenuItem
-{
-    id _handler; // block
+@implementation HippyDevMenuItem {
+    id _handler;  // block
 }
 
 - (instancetype)initWithType:(HippyDevMenuType)type
                          key:(NSString *)key
                        title:(NSString *)title
                selectedTitle:(NSString *)selectedTitle
-                     handler:(id /* block */)handler
-{
+                     handler:(id /* block */)handler {
     if ((self = [super init])) {
         _type = type;
         _key = [key copy];
@@ -87,42 +81,30 @@ typedef NS_ENUM(NSInteger, HippyDevMenuType) {
     return self;
 }
 
-HIPPY_NOT_IMPLEMENTED(- (instancetype)init)
+HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 
-+ (instancetype)buttonItemWithTitle:(NSString *)title
-                            handler:(void (^)(void))handler
-{
-    return [[self alloc] initWithType:HippyDevMenuTypeButton
-                                  key:nil
-                                title:title
-                        selectedTitle:nil
-                              handler:handler];
++ (instancetype)buttonItemWithTitle:(NSString *)title handler:(void (^)(void))handler {
+    return [[self alloc] initWithType:HippyDevMenuTypeButton key:nil title:title selectedTitle:nil handler:handler];
 }
 
 + (instancetype)toggleItemWithKey:(NSString *)key
                             title:(NSString *)title
                     selectedTitle:(NSString *)selectedTitle
-                          handler:(void (^)(BOOL selected))handler
-{
-    return [[self alloc] initWithType:HippyDevMenuTypeToggle
-                                  key:key
-                                title:title
-                        selectedTitle:selectedTitle
-                              handler:handler];
+                          handler:(void (^)(BOOL selected))handler {
+    return [[self alloc] initWithType:HippyDevMenuTypeToggle key:key title:title selectedTitle:selectedTitle handler:handler];
 }
 
-- (void)callHandler
-{
+- (void)callHandler {
     switch (_type) {
         case HippyDevMenuTypeButton: {
             if (_handler) {
-                ((void(^)(void))_handler)();
+                ((void (^)(void))_handler)();
             }
             break;
         }
         case HippyDevMenuTypeToggle: {
             if (_handler) {
-                ((void(^)(BOOL selected))_handler)([_value boolValue]);
+                ((void (^)(BOOL selected))_handler)([_value boolValue]);
             }
             break;
         }
@@ -137,8 +119,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)init)
 
 @end
 
-@implementation HippyDevMenu
-{
+@implementation HippyDevMenu {
     __weak UIAlertController *_actionSheet;
     NSUserDefaults *_defaults;
 }
@@ -147,112 +128,91 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)init)
 
 HIPPY_EXPORT_MODULE()
 
-+ (void)initialize
-{
++ (void)initialize {
     // We're swizzling here because it's poor form to override methods in a category,
     // however UIWindow doesn't actually implement motionEnded:withEvent:, so there's
     // no need to call the original implementation.
     HippySwapInstanceMethods([UIWindow class], @selector(motionEnded:withEvent:), @selector(hippy_motionEnded:withEvent:));
 }
 
-- (instancetype)init
-{
+- (instancetype)init {
     if ((self = [super init])) {
-        
         NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
-        
-        [notificationCenter addObserver:self
-                               selector:@selector(showOnShake)
-                                   name:HippyShowDevMenuNotification
-                                 object:nil];
-        
+
+        [notificationCenter addObserver:self selector:@selector(showOnShake) name:HippyShowDevMenuNotification object:nil];
+
         _defaults = [NSUserDefaults standardUserDefaults];
         _shakeToShow = YES;
-        
     }
     return self;
 }
 
-- (void)setBridge:(HippyBridge *)bridge
-{
+- (void)setBridge:(HippyBridge *)bridge {
     _bridge = bridge;
-    
+
 #if TARGET_IPHONE_SIMULATOR
     if (bridge.debugMode) {
         __weak HippyDevMenu *weakSelf = self;
-        
+
         HippyKeyCommands *commands = [HippyKeyCommands sharedInstance];
-        
+
         // Toggle debug menu
-        [commands registerKeyCommandWithInput:@"d"
-                                modifierFlags:UIKeyModifierCommand
-                                       action:^(__unused UIKeyCommand *command) {
+        [commands registerKeyCommandWithInput:@"d" modifierFlags:UIKeyModifierCommand action:^(__unused UIKeyCommand *command) {
             [weakSelf toggle];
         }];
-        
+
         // Toggle debug menu
-        [commands registerKeyCommandWithInput:@"e"
-                                modifierFlags:UIKeyModifierCommand
-                                       action:^(__unused UIKeyCommand *command) {
+        [commands registerKeyCommandWithInput:@"e" modifierFlags:UIKeyModifierCommand action:^(__unused UIKeyCommand *command) {
             [weakSelf toggle];
         }];
-        
+
         // Toggle debug menu
-        [commands registerKeyCommandWithInput:@"b"
-                                modifierFlags:UIKeyModifierCommand
-                                       action:^(__unused UIKeyCommand *command) {
+        [commands registerKeyCommandWithInput:@"b" modifierFlags:UIKeyModifierCommand action:^(__unused UIKeyCommand *command) {
             [weakSelf toggle];
         }];
-        
+
         // Toggle debug menu
-        [commands registerKeyCommandWithInput:@"u"
-                                modifierFlags:UIKeyModifierCommand
-                                       action:^(__unused UIKeyCommand *command) {
+        [commands registerKeyCommandWithInput:@"u" modifierFlags:UIKeyModifierCommand action:^(__unused UIKeyCommand *command) {
             [weakSelf toggle];
         }];
-        
+
         // Toggle debug menu
-        [commands registerKeyCommandWithInput:@"g"
-                                modifierFlags:UIKeyModifierCommand
-                                       action:^(__unused UIKeyCommand *command) {
+        [commands registerKeyCommandWithInput:@"g" modifierFlags:UIKeyModifierCommand action:^(__unused UIKeyCommand *command) {
             [weakSelf toggle];
         }];
     }
 #endif
 }
 
-- (dispatch_queue_t)methodQueue
-{
+- (dispatch_queue_t)methodQueue {
     return dispatch_get_main_queue();
 }
 
-- (void)invalidate
-{
-    
-    [_actionSheet dismissViewControllerAnimated:YES completion:^(void){}];
+- (void)invalidate {
+    [_actionSheet dismissViewControllerAnimated:YES completion:^(void) {
+    }];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (void)showOnShake
-{
+- (void)showOnShake {
     if (_shakeToShow) {
         [self show];
     }
 }
 
-- (void)toggle
-{
-    if (!self.bridge.debugMode) return;
+- (void)toggle {
+    if (!self.bridge.debugMode)
+        return;
     if (_actionSheet) {
-        [_actionSheet dismissViewControllerAnimated:YES completion:^(void){}];
+        [_actionSheet dismissViewControllerAnimated:YES completion:^(void) {
+        }];
         _actionSheet = nil;
     } else {
         [self show];
     }
 }
 
-- (void)addItem:(NSString *)title handler:(void(^)(void))handler
-{
+- (void)addItem:(NSString *)title handler:(void (^)(void))handler {
     [self addItem:[HippyDevMenuItem buttonItemWithTitle:title handler:handler]];
 }
 
@@ -260,14 +220,13 @@ HIPPY_EXPORT_MODULE()
     HippyAssert(NO, @"[HippyDevMenu addItem:]方法没有实现，怎么没问题？");
 }
 
-- (NSArray<HippyDevMenuItem *> *)menuItems
-{
+- (NSArray<HippyDevMenuItem *> *)menuItems {
     NSMutableArray<HippyDevMenuItem *> *items = [NSMutableArray new];
-    
+
     // Add built-in items
-    
+
     __weak HippyDevMenu *weakSelf = self;
-    
+
     [items addObject:[HippyDevMenuItem buttonItemWithTitle:@"Reload" handler:^{
         [weakSelf reload];
     }]];
@@ -320,15 +279,13 @@ HIPPY_EXPORT_METHOD(show) {
 }
 // clang-format on
 
-- (void)setExecutorClass:(Class)executorClass
-{
+- (void)setExecutorClass:(Class)executorClass {
     if (_bridge.debugMode) {
         if (_executorClass != executorClass) {
             _executorClass = executorClass;
         }
-        
+
         if (_bridge.executorClass != executorClass) {
-            
             // TODO (6929129): we can remove this special case test once we have better
             // support for custom executors in the dev menu. But right now this is
             // needed to prevent overriding a custom executor with the default if a
@@ -341,23 +298,26 @@ HIPPY_EXPORT_METHOD(show) {
 
 @end
 
-#else // Unavailable when not in dev mode
+#else  // Unavailable when not in dev mode
 
 @implementation HippyDevMenu
 
-- (void)show {}
-- (void)reload {}
-- (void)addItem:(__unused NSString *)title handler:(__unused dispatch_block_t)handler {}
-- (void)addItem:(__unused HippyDevMenu *)item {}
+- (void)show {
+}
+- (void)reload {
+}
+- (void)addItem:(__unused NSString *)title handler:(__unused dispatch_block_t)handler {
+}
+- (void)addItem:(__unused HippyDevMenu *)item {
+}
 
 @end
 
 #endif
 
-@implementation  HippyBridge (HippyDevMenu)
+@implementation HippyBridge (HippyDevMenu)
 
-- (HippyDevMenu *)devMenu
-{
+- (HippyDevMenu *)devMenu {
 #if HIPPY_DEV
     return [self moduleForClass:[HippyDevMenu class]];
 #else

@@ -33,8 +33,7 @@
 static BOOL isEnabled = YES;
 static CGFloat const HippyDevMsgViewHeight = 22.f;
 
-@implementation HippyDevLoadingView
-{
+@implementation HippyDevLoadingView {
     UIWindow *_window;
     UILabel *_label;
     NSDate *_showDate;
@@ -44,36 +43,26 @@ static CGFloat const HippyDevMsgViewHeight = 22.f;
 
 HIPPY_EXPORT_MODULE()
 
-+ (void)setEnabled:(BOOL)enabled
-{
++ (void)setEnabled:(BOOL)enabled {
     isEnabled = enabled;
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (instancetype)init
-{
+- (instancetype)init {
     // We're only overriding this to ensure the module gets created at startup
     // TODO (t11106126): Remove once we have more declarative control over module setup.
     return [super init];
 }
 
-- (void)setBridge:(HippyBridge *)bridge
-{
+- (void)setBridge:(HippyBridge *)bridge {
     _bridge = bridge;
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(hide)
-                                                 name:HippyJavaScriptDidLoadNotification
-                                               object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(hide)
-                                                 name:HippyJavaScriptDidFailToLoadNotification
-                                               object:nil];
-    
+
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(hide) name:HippyJavaScriptDidLoadNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(hide) name:HippyJavaScriptDidFailToLoadNotification object:nil];
+
     if (bridge.loading) {
         [self showWithURL:bridge.bundleURL];
     }
@@ -142,8 +131,7 @@ HIPPY_EXPORT_METHOD(hide) {
 }
 // clang-format on
 
-- (void)showWithURL:(NSURL *)URL
-{
+- (void)showWithURL:(NSURL *)URL {
     UIColor *color;
     UIColor *backgroundColor;
     NSString *source;
@@ -153,17 +141,14 @@ HIPPY_EXPORT_METHOD(hide) {
         source = @"pre-bundled file";
     } else {
         color = [UIColor whiteColor];
-        backgroundColor = [UIColor colorWithHue:1./3 saturation:1 brightness:.35 alpha:1];
+        backgroundColor = [UIColor colorWithHue:1. / 3 saturation:1 brightness:.35 alpha:1];
         source = [NSString stringWithFormat:@"%@:%@", URL.host, URL.port];
     }
-    
-    [self showMessage:[NSString stringWithFormat:@"Loading from %@...", source]
-                color:color
-      backgroundColor:backgroundColor];
+
+    [self showMessage:[NSString stringWithFormat:@"Loading from %@...", source] color:color backgroundColor:backgroundColor];
 }
 
-- (void)updateProgress:(HippyLoadingProgress *)progress
-{
+- (void)updateProgress:(HippyLoadingProgress *)progress {
     if (!progress) {
         return;
     }
@@ -178,9 +163,13 @@ HIPPY_EXPORT_METHOD(hide) {
 
 @implementation HippyDevLoadingView
 
-+ (NSString *)moduleName { return nil; }
-+ (void)setEnabled:(__unused BOOL)enabled { }
-- (void)updateProgress:(__unused HippyLoadingProgress *)progress {}
++ (NSString *)moduleName {
+    return nil;
+}
++ (void)setEnabled:(__unused BOOL)enabled {
+}
+- (void)updateProgress:(__unused HippyLoadingProgress *)progress {
+}
 
 @end
 

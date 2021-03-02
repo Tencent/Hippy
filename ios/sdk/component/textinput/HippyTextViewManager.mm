@@ -31,31 +31,25 @@
 #import "HippyShadowTextView.h"
 #import "HippyFont.h"
 
-
 @implementation HippyTextViewManager
 
 HIPPY_EXPORT_MODULE(TextInput)
 
-- (UIView *)view
-{
-    //todo: 最佳实践？
+- (UIView *)view {
+    // todo: 最佳实践？
     NSNumber *mutiline = self.props[@"multiline"];
     HippyBaseTextInput *theView;
     if (mutiline != nil && !mutiline.boolValue) {
         HippyTextField *textField = [[HippyTextField alloc] init];
         if (self.props[@"onKeyboardWillShow"]) {
-            [[NSNotificationCenter defaultCenter] addObserver:textField
-                                                     selector:@selector(keyboardWillShow:)
-                                                         name:UIKeyboardWillShowNotification
+            [[NSNotificationCenter defaultCenter] addObserver:textField selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification
                                                        object:nil];
         }
         theView = textField;
     } else {
         HippyTextView *textView = [[HippyTextView alloc] init];
         if (self.props[@"onKeyboardWillShow"]) {
-            [[NSNotificationCenter defaultCenter] addObserver:textView
-                                                     selector:@selector(keyboardWillShow:)
-                                                         name:UIKeyboardWillShowNotification
+            [[NSNotificationCenter defaultCenter] addObserver:textView selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification
                                                        object:nil];
         }
         theView = textView;
@@ -64,11 +58,9 @@ HIPPY_EXPORT_MODULE(TextInput)
     return theView;
 }
 
-
-- (HippyShadowView *) shadowView {
+- (HippyShadowView *)shadowView {
     return [HippyShadowTextView new];
 }
-
 
 HIPPY_EXPORT_VIEW_PROPERTY(value, NSString)
 HIPPY_EXPORT_VIEW_PROPERTY(onChangeText, HippyDirectEventBlock)
@@ -180,7 +172,6 @@ HIPPY_EXPORT_VIEW_PROPERTY(selectTextOnFocus, BOOL)
 HIPPY_EXPORT_VIEW_PROPERTY(selection, HippyTextSelection)
 HIPPY_EXPORT_VIEW_PROPERTY(text, NSString)
 
-
 HIPPY_CUSTOM_SHADOW_PROPERTY(fontSize, NSNumber, HippyShadowTextView) {
     view.font = [HippyFont updateFont:view.font withSize:json];
 }
@@ -189,38 +180,31 @@ HIPPY_CUSTOM_SHADOW_PROPERTY(fontWeight, NSString, HippyShadowTextView) {
     view.font = [HippyFont updateFont:view.font withWeight:json];
 }
 
-HIPPY_CUSTOM_SHADOW_PROPERTY(fontStyle, NSString, HippyShadowTextView)
-{
-    view.font = [HippyFont updateFont:view.font withStyle:json]; // defaults to normal
+HIPPY_CUSTOM_SHADOW_PROPERTY(fontStyle, NSString, HippyShadowTextView) {
+    view.font = [HippyFont updateFont:view.font withStyle:json];  // defaults to normal
 }
 
-HIPPY_CUSTOM_SHADOW_PROPERTY(fontFamily, NSString, HippyShadowTextView)
-{
+HIPPY_CUSTOM_SHADOW_PROPERTY(fontFamily, NSString, HippyShadowTextView) {
     view.font = [HippyFont updateFont:view.font withFamily:json];
 }
 
-HIPPY_CUSTOM_VIEW_PROPERTY(fontSize, NSNumber, HippyBaseTextInput)
-{
+HIPPY_CUSTOM_VIEW_PROPERTY(fontSize, NSNumber, HippyBaseTextInput) {
     UIFont *theFont = [HippyFont updateFont:view.font withSize:json ?: @(defaultView.font.pointSize)];
     view.font = theFont;
 }
-HIPPY_CUSTOM_VIEW_PROPERTY(fontWeight, NSString, __unused HippyBaseTextInput)
-{
-    UIFont *theFont = [HippyFont updateFont:view.font withWeight:json]; // defaults to normal
+HIPPY_CUSTOM_VIEW_PROPERTY(fontWeight, NSString, __unused HippyBaseTextInput) {
+    UIFont *theFont = [HippyFont updateFont:view.font withWeight:json];  // defaults to normal
     view.font = theFont;
 }
-HIPPY_CUSTOM_VIEW_PROPERTY(fontStyle, NSString, __unused HippyBaseTextInput)
-{
+HIPPY_CUSTOM_VIEW_PROPERTY(fontStyle, NSString, __unused HippyBaseTextInput) {
     UIFont *theFont = [HippyFont updateFont:view.font withStyle:json];
-    view.font = theFont; // defaults to normal
+    view.font = theFont;  // defaults to normal
 }
-HIPPY_CUSTOM_VIEW_PROPERTY(fontFamily, NSString, HippyBaseTextInput)
-{
+HIPPY_CUSTOM_VIEW_PROPERTY(fontFamily, NSString, HippyBaseTextInput) {
     view.font = [HippyFont updateFont:view.font withFamily:json ?: defaultView.font.familyName];
 }
 
-- (HippyViewManagerUIBlock)uiBlockToAmendWithShadowView:(HippyShadowView *)shadowView
-{
+- (HippyViewManagerUIBlock)uiBlockToAmendWithShadowView:(HippyShadowView *)shadowView {
     NSNumber *hippyTag = shadowView.hippyTag;
     UIEdgeInsets padding = shadowView.paddingAsInsets;
     return ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, HippyBaseTextInput *> *viewRegistry) {
@@ -228,4 +212,3 @@ HIPPY_CUSTOM_VIEW_PROPERTY(fontFamily, NSString, HippyBaseTextInput)
     };
 }
 @end
-

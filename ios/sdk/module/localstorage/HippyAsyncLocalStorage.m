@@ -37,19 +37,17 @@ static const NSUInteger HippyInlineValueThreshold = 1024;
 
 #pragma mark - Static helper functions
 
-static NSDictionary *HippyErrorForKey(NSString *key)
-{
+static NSDictionary *HippyErrorForKey(NSString *key) {
     if (![key isKindOfClass:[NSString class]]) {
-        return HippyMakeAndLogError(@"Invalid key - must be a string.  Key: ", key, @{@"key": key});
+        return HippyMakeAndLogError(@"Invalid key - must be a string.  Key: ", key, @ { @"key": key });
     } else if (key.length < 1) {
-        return HippyMakeAndLogError(@"Invalid key - must be at least one character.  Key: ", key, @{@"key": key});
+        return HippyMakeAndLogError(@"Invalid key - must be at least one character.  Key: ", key, @ { @"key": key });
     } else {
         return nil;
     }
 }
 
-static void HippyAppendError(NSDictionary *error, NSMutableArray<NSDictionary *> **errors)
-{
+static void HippyAppendError(NSDictionary *error, NSMutableArray<NSDictionary *> **errors) {
     if (error && errors) {
         if (!*errors) {
             *errors = [NSMutableArray new];
@@ -58,16 +56,15 @@ static void HippyAppendError(NSDictionary *error, NSMutableArray<NSDictionary *>
     }
 }
 
-static NSString *HippyReadFile(NSString *filePath, NSString *key, NSDictionary **errorOut)
-{
+static NSString *HippyReadFile(NSString *filePath, NSString *key, NSDictionary **errorOut) {
     if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
         NSError *error;
         NSStringEncoding encoding;
         NSString *entryString = [NSString stringWithContentsOfFile:filePath usedEncoding:&encoding error:&error];
         if (error) {
-            *errorOut = HippyMakeError(@"Failed to read storage file.", error, @{@"key": key});
+            *errorOut = HippyMakeError(@"Failed to read storage file.", error, @ { @"key": key });
         } else if (encoding != NSUTF8StringEncoding) {
-            *errorOut = HippyMakeError(@"Incorrect encoding of storage file: ", @(encoding), @{@"key": key});
+            *errorOut = HippyMakeError(@"Incorrect encoding of storage file: ", @(encoding), @ { @"key": key });
         } else {
             return entryString;
         }
@@ -75,10 +72,8 @@ static NSString *HippyReadFile(NSString *filePath, NSString *key, NSDictionary *
     return nil;
 }
 
-
 // Only merges objects - all other types are just clobbered (including arrays)
-static BOOL HippyMergeRecursive(NSMutableDictionary *destination, NSDictionary *source)
-{
+static BOOL HippyMergeRecursive(NSMutableDictionary *destination, NSDictionary *source) {
     BOOL modified = NO;
     for (NSString *key in source) {
         id sourceValue = source[key];
@@ -104,8 +99,8 @@ static BOOL HippyMergeRecursive(NSMutableDictionary *destination, NSDictionary *
     return modified;
 }
 
-//get mutable dictionary from a key
-//dictionaries with same key share same memory
+// get mutable dictionary from a key
+// dictionaries with same key share same memory
 static NSMutableDictionary *mutableDictionaryForKey(NSString *key, BOOL *created) {
     static dispatch_once_t onceToken;
     static NSMapTable *mapTable = NULL;
@@ -118,8 +113,7 @@ static NSMutableDictionary *mutableDictionaryForKey(NSString *key, BOOL *created
             dic = [[NSMutableDictionary alloc] initWithCapacity:16];
             [mapTable setObject:dic forKey:key];
             *created = YES;
-        }
-        else {
+        } else {
             *created = NO;
         }
         return dic;
@@ -128,8 +122,7 @@ static NSMutableDictionary *mutableDictionaryForKey(NSString *key, BOOL *created
     return [[NSMutableDictionary alloc] initWithCapacity:16];
 }
 
-static dispatch_queue_t HippyGetMethodQueue()
-{
+static dispatch_queue_t HippyGetMethodQueue() {
     // We want all instances to share the same queue since they will be reading/writing the same files.
     static dispatch_queue_t queue;
     static dispatch_once_t onceToken;
@@ -139,27 +132,26 @@ static dispatch_queue_t HippyGetMethodQueue()
     return queue;
 }
 
-static NSCache *HippyGetCache()
-{
+static NSCache *HippyGetCache() {
     // We want all instances to share the same cache since they will be reading/writing the same files.
     static NSCache *cache;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         cache = [NSCache new];
-        cache.totalCostLimit = 2 * 1024 * 1024; // 2MB
-        
+        cache.totalCostLimit = 2 * 1024 * 1024;  // 2MB
+
         // Clear cache in the event of a memory warning
-        [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidReceiveMemoryWarningNotification object:nil queue:nil usingBlock:^(__unused NSNotification *note) {
-            [cache removeAllObjects];
-        }];
+        [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidReceiveMemoryWarningNotification object:nil queue:nil
+                                                      usingBlock:^(__unused NSNotification *note) {
+                                                          [cache removeAllObjects];
+                                                      }];
     });
     return cache;
 }
 
 #pragma mark - HippyAsyncLocalStorage
 
-@implementation HippyAsyncLocalStorage
-{
+@implementation HippyAsyncLocalStorage {
     BOOL _haveSetup;
     // The manifest is a dictionary of all keys with small values inlined.  Null values indicate values that are stored
     // in separate files (as opposed to nil values which don't exist).  The manifest is read off disk at startup, and
@@ -172,19 +164,17 @@ static NSCache *HippyGetCache()
 @synthesize bridge = _bridge;
 HIPPY_EXPORT_MODULE(AsyncStorage)
 
-- (dispatch_queue_t)methodQueue
-{
+- (dispatch_queue_t)methodQueue {
     return HippyGetMethodQueue();
 }
 
-+ (void)clearAllData
-{
++ (void)clearAllData {
     NSString *docDir = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject;
     NSString *storageDirectory = [docDir stringByAppendingPathComponent:HippyStorageDirectory];
-    //begin delete all files from 'storageDirectory'
+    // begin delete all files from 'storageDirectory'
     dispatch_async(HippyGetMethodQueue(), ^{
         NSError *error = nil;
-        NSArray <NSString *>*allFiles = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:storageDirectory error:&error];
+        NSArray<NSString *> *allFiles = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:storageDirectory error:&error];
         for (NSString *fileName in allFiles) {
             NSString *filePath = [storageDirectory stringByAppendingPathComponent:fileName];
             [[NSFileManager defaultManager] removeItemAtPath:filePath error:&error];
@@ -192,58 +182,49 @@ HIPPY_EXPORT_MODULE(AsyncStorage)
     });
 }
 
-- (NSDictionary *)HippyDeleteStorageDirectory
-{
+- (NSDictionary *)HippyDeleteStorageDirectory {
     NSError *error;
     [[NSFileManager defaultManager] removeItemAtPath:[self HippyGetStorageDirectory] error:&error];
     _HippyHasCreatedStorageDirectory = NO;
     return error ? HippyMakeError(@"Failed to delete storage directory.", error, nil) : nil;
 }
 
-- (NSString *) HippyGetManifestFilePath
-{
+- (NSString *)HippyGetManifestFilePath {
     if (_manifestFilePath == nil) {
         _manifestFilePath = [[self HippyGetStorageDirectory] stringByAppendingPathComponent:HippyManifestFileName];
     }
     return _manifestFilePath;
 }
 
-- (void)invalidate
-{
+- (void)invalidate {
     if (_clearOnInvalidate) {
         [HippyGetCache() removeAllObjects];
         [self HippyDeleteStorageDirectory];
     }
     _clearOnInvalidate = NO;
-//    [_manifest removeAllObjects];
+    //    [_manifest removeAllObjects];
     _haveSetup = NO;
 }
 
-- (BOOL)isValid
-{
+- (BOOL)isValid {
     return _haveSetup;
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     [self invalidate];
 }
 
-- (NSString *)_filePathForKey:(NSString *)key
-{
+- (NSString *)_filePathForKey:(NSString *)key {
     NSString *safeFileName = HippyMD5Hash(key);
     return [[self HippyGetStorageDirectory] stringByAppendingPathComponent:safeFileName];
 }
 
-- (NSDictionary *)_ensureSetup
-{
+- (NSDictionary *)_ensureSetup {
     HippyAssertThread(HippyGetMethodQueue(), @"Must be executed on storage thread");
 
     NSError *error = nil;
     if (!_HippyHasCreatedStorageDirectory) {
-        [[NSFileManager defaultManager] createDirectoryAtPath:[self HippyGetStorageDirectory]
-                                  withIntermediateDirectories:YES
-                                                   attributes:nil
+        [[NSFileManager defaultManager] createDirectoryAtPath:[self HippyGetStorageDirectory] withIntermediateDirectories:YES attributes:nil
                                                         error:&error];
         if (error) {
             return HippyMakeError(@"Failed to create storage directory.", error, nil);
@@ -268,8 +249,7 @@ HIPPY_EXPORT_MODULE(AsyncStorage)
     return nil;
 }
 
-- (NSDictionary *)_writeManifest:(NSMutableArray<NSDictionary *> **)errors
-{
+- (NSDictionary *)_writeManifest:(NSMutableArray<NSDictionary *> **)errors {
     NSError *error;
     NSString *serialized = HippyJSONStringify(_manifest, &error);
     [serialized writeToFile:[self HippyGetManifestFilePath] atomically:YES encoding:NSUTF8StringEncoding error:&error];
@@ -281,9 +261,8 @@ HIPPY_EXPORT_MODULE(AsyncStorage)
     return errorOut;
 }
 
-- (NSString *)_getValueForKey:(NSString *)key errorOut:(NSDictionary **)errorOut
-{
-    NSString *value = _manifest[key]; // nil means missing, null means there may be a data file, else: NSString
+- (NSString *)_getValueForKey:(NSString *)key errorOut:(NSDictionary **)errorOut {
+    NSString *value = _manifest[key];  // nil means missing, null means there may be a data file, else: NSString
     if (value == (id)kCFNull) {
         value = [HippyGetCache() objectForKey:key];
         if (!value) {
@@ -301,8 +280,7 @@ HIPPY_EXPORT_MODULE(AsyncStorage)
     return value;
 }
 
-- (NSDictionary *)_writeEntry:(NSArray<NSString *> *)entry changedManifest:(BOOL *)changedManifest
-{
+- (NSDictionary *)_writeEntry:(NSArray<NSString *> *)entry changedManifest:(BOOL *)changedManifest {
     if (entry.count != 2) {
         return HippyMakeAndLogError(@"Entries must be arrays of the form [key: string, value: string], got: ", entry, nil);
     }
@@ -327,7 +305,7 @@ HIPPY_EXPORT_MODULE(AsyncStorage)
     [value writeToFile:filePath atomically:YES encoding:NSUTF8StringEncoding error:&error];
     [HippyGetCache() setObject:value forKey:key cost:value.length];
     if (error) {
-        errorOut = HippyMakeError(@"Failed to write value.", error, @{@"key": key});
+        errorOut = HippyMakeError(@"Failed to write value.", error, @{ @"key": key });
     } else if (_manifest[key] != (id)kCFNull) {
         *changedManifest = YES;
         _manifest[key] = (id)kCFNull;
@@ -335,8 +313,7 @@ HIPPY_EXPORT_MODULE(AsyncStorage)
     return errorOut;
 }
 
-- (NSString *) HippyGetStorageDirectory
-{
+- (NSString *)HippyGetStorageDirectory {
     if (nil == _storageDirectory) {
         _storageDirectory = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject;
         /** HippyAsyncLocalStorage writes configuration into disk
@@ -345,7 +322,8 @@ HIPPY_EXPORT_MODULE(AsyncStorage)
          *  If not, HippyAsyncLocalStorage will write configuration into public file
          */
         HippyAssert([[self bridge] moduleName], @"HippyBridge.moduleName must not be null");
-        _storageDirectory = [[_storageDirectory stringByAppendingPathComponent:HippyStorageDirectory] stringByAppendingPathComponent:[self bridge].moduleName];
+        _storageDirectory =
+            [[_storageDirectory stringByAppendingPathComponent:HippyStorageDirectory] stringByAppendingPathComponent:[self bridge].moduleName];
     }
     return _storageDirectory;
 }
