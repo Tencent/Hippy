@@ -137,9 +137,10 @@ static void HippyReachabilityCallback(__unused SCNetworkReachabilityRef target, 
 }
 #pragma mark - Public API
 
+//clang-format off
 HIPPY_EXPORT_METHOD(getCurrentConnectivity:(HippyPromiseResolveBlock)resolve
-                  reject:(__unused HippyPromiseRejectBlock)reject)
-{
+                  reject:(__unused HippyPromiseRejectBlock)reject) {
+//clang-format on
     if (!resolve) {
         return;
     }

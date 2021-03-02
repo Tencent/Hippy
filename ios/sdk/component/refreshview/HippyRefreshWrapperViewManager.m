@@ -28,19 +28,24 @@
 HIPPY_EXPORT_MODULE(RefreshWrapper)
 
 HIPPY_EXPORT_VIEW_PROPERTY(onRefresh, HippyDirectEventBlock)
+
 HIPPY_EXPORT_VIEW_PROPERTY(bounceTime, CGFloat)
 - (UIView *)view {
     return [HippyRefreshWrapper new];
 }
 
+//clang-format off
 HIPPY_EXPORT_METHOD(refreshComplected:(NSNumber *__nonnull)hippyTag args:(id)arg) {
+//clang-format on
     [self.bridge.uiManager addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         HippyRefreshWrapper *wrapperView = viewRegistry[hippyTag];
         [wrapperView refreshCompleted];
     }];
 }
 
+//clang-format off
 HIPPY_EXPORT_METHOD(startRefresh:(NSNumber *__nonnull)hippyTag args:(id)arg) {
+//clang-format on
     [self.bridge.uiManager addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         HippyRefreshWrapper *wrapperView = viewRegistry[hippyTag];
         [wrapperView startRefresh];

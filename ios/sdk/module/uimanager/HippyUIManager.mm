@@ -638,8 +638,9 @@ dispatch_queue_t HippyGetUIManagerQueue(void)
  * A method to be called from JS, which takes a container ID and then releases
  * all subviews for that container upon receipt.
  */
-HIPPY_EXPORT_METHOD(removeSubviewsFromContainerWithID:(nonnull NSNumber *)containerID)
-{
+//clang-format off
+HIPPY_EXPORT_METHOD(removeSubviewsFromContainerWithID:(nonnull NSNumber *)containerID) {
+//clang-format on
     id<HippyComponent> container = _shadowViewRegistry[containerID];
     HippyAssert(container != nil, @"container view (for ID %@) not found", containerID);
     
@@ -702,8 +703,9 @@ HIPPY_EXPORT_METHOD(removeSubviewsFromContainerWithID:(nonnull NSNumber *)contai
     }
 }
 
-HIPPY_EXPORT_METHOD(removeRootView:(nonnull NSNumber *)rootHippyTag)
-{
+//clang-format off
+HIPPY_EXPORT_METHOD(removeRootView:(nonnull NSNumber *)rootHippyTag) {
+//clang-format on
     HippyShadowView *rootShadowView = _shadowViewRegistry[rootHippyTag];
     HippyAssert(rootShadowView.superview == nil, @"root view cannot have superview (ID %@)", rootHippyTag);
     [self _purgeChildren:(NSArray<id<HippyComponent>> *)rootShadowView.hippySubviews
@@ -733,9 +735,10 @@ HIPPY_EXPORT_METHOD(removeRootView:(nonnull NSNumber *)rootHippyTag)
     }];
 }
 
+//clang-format off
 HIPPY_EXPORT_METHOD(replaceExistingNonRootView:(nonnull NSNumber *)hippyTag
-                  withView:(nonnull NSNumber *)newHippyTag)
-{
+                  withView:(nonnull NSNumber *)newHippyTag) {
+//clang-format on
     HippyShadowView *shadowView = _shadowViewRegistry[hippyTag];
     HippyAssert(shadowView != nil, @"shadowView (for ID %@) not found", hippyTag);
     
@@ -754,9 +757,10 @@ HIPPY_EXPORT_METHOD(replaceExistingNonRootView:(nonnull NSNumber *)hippyTag
          removeAtIndices:removeAtIndices];
 }
 
+//clang-format off
 HIPPY_EXPORT_METHOD(setChildren:(nonnull NSNumber *)containerTag
-                  hippyTags:(NSArray<NSNumber *> *)hippyTags)
-{
+                  hippyTags:(NSArray<NSNumber *> *)hippyTags) {
+//clang-format on
     HippySetChildren(containerTag, hippyTags,
                    (NSDictionary<NSNumber *, id<HippyComponent>> *)_shadowViewRegistry);
     
@@ -802,22 +806,27 @@ static void HippySetChildren(NSNumber *containerTag,
     }
 }
 
+//clang-format off
 HIPPY_EXPORT_METHOD(startBatch:(__unused NSString *)batchID) {
+//clang-format on
 }
 
+//clang-format off
 HIPPY_EXPORT_METHOD(endBatch:(__unused NSString *)batchID) {
+//clang-format on
     if (_pendingUIBlocks.count) {
         [self batchDidComplete];
     }
 }
 
+//clang-format off
 HIPPY_EXPORT_METHOD(manageChildren:(nonnull NSNumber *)containerTag
                   moveFromIndices:(NSArray<NSNumber *> *)moveFromIndices
                   moveToIndices:(NSArray<NSNumber *> *)moveToIndices
                   addChildHippyTags:(NSArray<NSNumber *> *)addChildHippyTags
                   addAtIndices:(NSArray<NSNumber *> *)addAtIndices
-                  removeAtIndices:(NSArray<NSNumber *> *)removeAtIndices)
-{
+                  removeAtIndices:(NSArray<NSNumber *> *)removeAtIndices) {
+//clang-format on
     [self _manageChildren:containerTag
           moveFromIndices:moveFromIndices
             moveToIndices:moveToIndices
@@ -914,11 +923,12 @@ HIPPY_EXPORT_METHOD(manageChildren:(nonnull NSNumber *)containerTag
     }
 }
 
+//clang-format off
 HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
                   viewName:(NSString *)viewName
                   rootTag:(__unused NSNumber *)rootTag
-                  props:(NSDictionary *)props)
-{
+                  props:(NSDictionary *)props) {
+//clang-format on
     HippyComponentData *componentData = _componentDataByName[viewName];
     HippyShadowView *shadowView = [componentData createShadowViewWithTag:hippyTag];
     if (componentData == nil) {
@@ -1018,10 +1028,11 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
     }
 }
 
+//clang-format off
 HIPPY_EXPORT_METHOD(updateView:(nonnull NSNumber *)hippyTag
                   viewName:(NSString *)viewName // not always reliable, use shadowView.viewName if available
-                  props:(NSDictionary *)props)
-{
+                  props:(NSDictionary *)props) {
+//clang-format on
     HippyShadowView *shadowView = _shadowViewRegistry[hippyTag];
     HippyComponentData *componentData = _componentDataByName[shadowView.viewName ?: viewName];
     
@@ -1054,11 +1065,11 @@ HIPPY_EXPORT_METHOD(updateView:(nonnull NSNumber *)hippyTag
     }];
 }
 
-
+//clang-format off
 HIPPY_EXPORT_METHOD(dispatchViewManagerCommand:(nonnull NSNumber *)hippyTag
                   commandID:(NSInteger)commandID
-                  commandArgs:(NSArray<id> *)commandArgs)
-{
+                  commandArgs:(NSArray<id> *)commandArgs) {
+//clang-format on
     HippyShadowView *shadowView = _shadowViewRegistry[hippyTag];
     HippyComponentData *componentData = _componentDataByName[shadowView.viewName];
     Class managerClass = componentData.managerClass;
@@ -1267,10 +1278,10 @@ HIPPY_EXPORT_METHOD(dispatchViewManagerCommand:(nonnull NSNumber *)hippyTag
     }
 }
 
-
+//clang-format off
 HIPPY_EXPORT_METHOD(measure:(nonnull NSNumber *)hippyTag
-                  callback:(HippyResponseSenderBlock)callback)
-{
+                  callback:(HippyResponseSenderBlock)callback) {
+//clang-format on
     [self addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         UIView *view = viewRegistry[hippyTag];
         if (!view) {
@@ -1304,9 +1315,10 @@ HIPPY_EXPORT_METHOD(measure:(nonnull NSNumber *)hippyTag
     }];
 }
 
+//clang-format off
 HIPPY_EXPORT_METHOD(measureInWindow:(nonnull NSNumber *)hippyTag
-                  callback:(HippyResponseSenderBlock)callback)
-{
+                  callback:(HippyResponseSenderBlock)callback) {
+//clang-format on
     [self addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         UIView *view = viewRegistry[hippyTag];
         if (!view) {
@@ -1330,9 +1342,10 @@ HIPPY_EXPORT_METHOD(measureInWindow:(nonnull NSNumber *)hippyTag
     }];
 }
 
+//clang-format off
 HIPPY_EXPORT_METHOD(measureInAppWindow:(nonnull NSNumber *)hippyTag
-                callback:(HippyResponseSenderBlock)callback)
-{
+                callback:(HippyResponseSenderBlock)callback) {
+//clang-format on
     [self addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         UIView *view = viewRegistry[hippyTag];
         if (!view) {

@@ -37,7 +37,9 @@ HIPPY_EXPORT_VIEW_PROPERTY(autoPlay, BOOL)
 HIPPY_EXPORT_VIEW_PROPERTY(loop, BOOL)
 HIPPY_EXPORT_VIEW_PROPERTY(onLoad, HippyDirectEventBlock)
 
+//clang-format off
 HIPPY_EXPORT_METHOD(play:(nonnull NSNumber *)hippyTag) {
+//clang-format on
     [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[hippyTag];
         if (view == nil || ![view isKindOfClass:[HippyVideoPlayer class]]) {
@@ -49,7 +51,9 @@ HIPPY_EXPORT_METHOD(play:(nonnull NSNumber *)hippyTag) {
     }];
 }
 
+//clang-format off
 HIPPY_EXPORT_METHOD(pause:(nonnull NSNumber *)hippyTag) {
+//clang-format on
     [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[hippyTag];
         if (view == nil || ![view isKindOfClass:[HippyVideoPlayer class]]) {
@@ -61,9 +65,10 @@ HIPPY_EXPORT_METHOD(pause:(nonnull NSNumber *)hippyTag) {
     }];
 }
 
+//clang-format off
 HIPPY_EXPORT_METHOD(seek:(nonnull NSNumber *)hippyTag
-                  theTime:(__unused NSNumber *)theTime//毫秒单位
-                  ) {
+                  theTime:(__unused NSNumber *)theTime) {
+//clang-format on
     [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[hippyTag];
         if (view == nil || ![view isKindOfClass:[HippyVideoPlayer class]]) {

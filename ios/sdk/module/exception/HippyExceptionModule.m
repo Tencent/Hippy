@@ -29,8 +29,9 @@
 
 HIPPY_EXPORT_MODULE(ExceptionModule)
 
+//clang-format off
 HIPPY_EXPORT_METHOD(handleException:(NSString *)title detail:(NSString *)detail timeInterval:(nonnull NSNumber *)timeInterval resolver:(__unused HippyPromiseResolveBlock)resolve rejecter:(__unused HippyPromiseRejectBlock)reject) {
-	
+//clang-format on
 	NSArray *stack = [detail componentsSeparatedByString: @"\n"];
 	NSMutableArray *formatStacks = [[NSMutableArray alloc] initWithCapacity: stack.count];
 	for(NSString *record in stack) {

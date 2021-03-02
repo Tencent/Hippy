@@ -31,14 +31,18 @@ HIPPY_EXPORT_MODULE(PullHeaderView)
 HIPPY_EXPORT_VIEW_PROPERTY(onHeaderReleased, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onHeaderPulling, HippyDirectEventBlock)
 
+//clang-format off
 HIPPY_EXPORT_METHOD(expandPullHeader : (nonnull NSNumber *)reactTag) {
+//clang-format on
     [self.bridge.uiManager addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
         HippyRefresh *refreshView = viewRegistry[reactTag];
         [refreshView refresh];
     }];
 }
 
+//clang-format off
 HIPPY_EXPORT_METHOD(collapsePullHeader : (nonnull NSNumber *)reactTag) {
+//clang-format on
     [self.bridge.uiManager addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
         HippyRefresh *refreshView = viewRegistry[reactTag];
         [refreshView refreshFinish];

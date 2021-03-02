@@ -79,8 +79,9 @@ HIPPY_EXPORT_MODULE()
   }
 }
 
-HIPPY_EXPORT_METHOD(showMessage:(NSString *)message color:(UIColor *)color backgroundColor:(UIColor *)backgroundColor)
-{
+//clang-format off
+HIPPY_EXPORT_METHOD(showMessage:(NSString *)message color:(UIColor *)color backgroundColor:(UIColor *)backgroundColor) {
+//clang-format on
   if (!isEnabled) {
     return;
   }
@@ -116,8 +117,9 @@ HIPPY_EXPORT_METHOD(showMessage:(NSString *)message color:(UIColor *)color backg
   });
 }
 
-HIPPY_EXPORT_METHOD(hide)
-{
+//clang-format off
+HIPPY_EXPORT_METHOD(hide) {
+//clang-format on
   if (!isEnabled) {
     return;
   }

@@ -35,14 +35,18 @@ HIPPY_EXPORT_MODULE(Navigator)
     return hostView;
 }
 
+//clang-format off
 HIPPY_EXPORT_METHOD(push:(NSNumber *__nonnull)hippyTag parms:(NSDictionary *__nonnull)params) {
+//clang-format on
     [self.bridge.uiManager addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         HippyNavigatorHostView *navigatorHostView = viewRegistry[hippyTag];
         [navigatorHostView push:params];
     }];
 }
 
+//clang-format off
 HIPPY_EXPORT_METHOD(pop:(NSNumber *__nonnull)hippyTag parms:(NSDictionary *__nonnull)params) {
+//clang-format on
     [self.bridge.uiManager addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         HippyNavigatorHostView *navigatorHostView = viewRegistry[hippyTag];
         [navigatorHostView pop:params];

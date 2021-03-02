@@ -275,11 +275,12 @@ HIPPY_EXPORT_MODULE()
  * calculating the timer's target time. We calculate this by passing in
  * Date.now() from JS and then subtracting that from the current time here.
  */
+//clang-format off
 HIPPY_EXPORT_METHOD(createTimer:(nonnull NSNumber *)callbackID
                   duration:(NSTimeInterval)jsDuration
                   jsSchedulingTime:(NSDate *)jsSchedulingTime
-                  repeats:(BOOL)repeats)
-{
+                  repeats:(BOOL)repeats) {
+//clang-format on
   if (jsDuration == 0 && repeats == NO) {
     // For super fast, one-off timers, just enqueue them immediately rather than waiting a frame.
     [_bridge _immediatelyCallTimer:callbackID];
@@ -307,16 +308,18 @@ HIPPY_EXPORT_METHOD(createTimer:(nonnull NSNumber *)callbackID
   }
 }
 
-HIPPY_EXPORT_METHOD(deleteTimer:(nonnull NSNumber *)timerID)
-{
+//clang-format off
+HIPPY_EXPORT_METHOD(deleteTimer:(nonnull NSNumber *)timerID) {
+//clang-format on
   [_timers removeObjectForKey:timerID];
   if (![self hasPendingTimers]) {
     [self stopTimers];
   }
 }
 
-HIPPY_EXPORT_METHOD(setSendIdleEvents:(BOOL)sendIdleEvents)
-{
+//clang-format off
+HIPPY_EXPORT_METHOD(setSendIdleEvents:(BOOL)sendIdleEvents) {
+//clang-format on
   _sendIdleEvents = sendIdleEvents;
   if (sendIdleEvents) {
     [self startTimers];

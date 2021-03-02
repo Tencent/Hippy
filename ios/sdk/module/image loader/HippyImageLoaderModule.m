@@ -32,7 +32,9 @@ HIPPY_EXPORT_MODULE(ImageLoaderModule)
 
 @synthesize bridge = _bridge;
 
+//clang-format off
 HIPPY_EXPORT_METHOD(getSize:(NSString *)urlString resolver:(HippyPromiseResolveBlock)resolve rejecter:(HippyPromiseRejectBlock)reject) {
+//clang-format on
     UIImage *image = [[HippyImageCacheManager sharedInstance] loadImageFromCacheForURLString:urlString radius:0 isBlurredImage:nil];
     if (image) {
         NSDictionary *dic = @{@"width": @(image.size.width), @"height": @(image.size.height)};
@@ -81,7 +83,9 @@ HIPPY_EXPORT_METHOD(getSize:(NSString *)urlString resolver:(HippyPromiseResolveB
     }
 }
 
+//clang-format off
 HIPPY_EXPORT_METHOD(prefetch:(NSString *)urlString) {
+//clang-format on
     NSData *uriData = [urlString dataUsingEncoding:NSUTF8StringEncoding];
     if (nil == uriData) {
         return;

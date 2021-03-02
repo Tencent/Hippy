@@ -98,9 +98,10 @@ HIPPY_CUSTOM_SHADOW_PROPERTY(overflow, OverflowType, HippyShadowView) {
   view.overflow = OverflowScroll;
 }
 
+//clang-format off
 HIPPY_EXPORT_METHOD(getContentSize:(nonnull NSNumber *)hippyTag
-                  callback:(HippyResponseSenderBlock)callback)
-{
+                  callback:(HippyResponseSenderBlock)callback) {
+//clang-format on
   [self.bridge.uiManager addUIBlock:
    ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
 
@@ -121,11 +122,12 @@ HIPPY_EXPORT_METHOD(getContentSize:(nonnull NSNumber *)hippyTag
   }];
 }
 
+//clang-format off
 HIPPY_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)hippyTag
                   offsetX:(CGFloat)x
                   offsetY:(CGFloat)y
-                  animated:(BOOL)animated)
-{
+                  animated:(BOOL)animated) {
+//clang-format on
   [self.bridge.uiManager addUIBlock:
    ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
     UIView *view = viewRegistry[hippyTag];
@@ -139,9 +141,10 @@ HIPPY_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)hippyTag
   }];
 }
 
+//clang-format off
 HIPPY_EXPORT_METHOD(scrollToWithOptions:(nonnull NSNumber *)hippyTag
-                  options:(NSDictionary *)options)
-{
+                  options:(NSDictionary *)options) {
+//clang-format on
     [self.bridge.uiManager addUIBlock:
      ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
          UIView *view = viewRegistry[hippyTag];
@@ -168,22 +171,5 @@ HIPPY_EXPORT_METHOD(scrollToWithOptions:(nonnull NSNumber *)hippyTag
          }
      }];
 }
-
-//HIPPY_EXPORT_METHOD(zoomToRect:(nonnull NSNumber *)hippyTag
-//                  withRect:(CGRect)rect
-//                  animated:(BOOL)animated)
-//{
-//  [self.bridge.uiManager addUIBlock:
-//   ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
-//    UIView *view = viewRegistry[hippyTag];
-//    if (view == nil) return ;
-//    if ([view conformsToProtocol:@protocol(HippyScrollableProtocol)]) {
-//      [(id<HippyScrollableProtocol>)view zoomToRect:rect animated:animated];
-//    } else {
-//      HippyLogError(@"tried to zoomToRect: on non-HippyScrollableProtocol view %@ "
-//                  "with tag #%@", view, hippyTag);
-//    }
-//  }];
-//}
 
 @end

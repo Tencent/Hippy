@@ -441,8 +441,9 @@ HIPPY_EXPORT_MODULE()
     });
 }
 
-HIPPY_EXPORT_METHOD(dismiss)
-{
+//clang-format off
+HIPPY_EXPORT_METHOD(dismiss) {
+//clang-format on
     dispatch_async(dispatch_get_main_queue(), ^{
         [self->_window dismiss];
     });
