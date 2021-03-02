@@ -73,8 +73,7 @@
 /**
  * Deprecated. Use the `-addItem:` method instead.
  */
-- (void)addItem:(NSString *)title
-        handler:(void(^)(void))handler DEPRECATED_ATTRIBUTE;
+- (void)addItem:(NSString *)title handler:(void (^)(void))handler DEPRECATED_ATTRIBUTE;
 
 /**
  * Add custom item to the development menu. The handler will be called
@@ -93,8 +92,7 @@
  * This creates an item with a simple push-button interface, used to trigger an
  * action.
  */
-+ (instancetype)buttonItemWithTitle:(NSString *)title
-                            handler:(void(^)(void))handler;
++ (instancetype)buttonItemWithTitle:(NSString *)title handler:(void (^)(void))handler;
 
 /**
  * This creates an item with a toggle behavior. The key is used to store the
@@ -105,7 +103,7 @@
 + (instancetype)toggleItemWithKey:(NSString *)key
                             title:(NSString *)title
                     selectedTitle:(NSString *)selectedTitle
-                          handler:(void(^)(BOOL selected))handler;
+                          handler:(void (^)(BOOL selected))handler;
 @end
 
 /**

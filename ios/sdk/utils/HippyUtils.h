@@ -77,8 +77,10 @@ HIPPY_EXTERN BOOL HippyClassOverridesClassMethod(Class cls, SEL selector);
 HIPPY_EXTERN BOOL HippyClassOverridesInstanceMethod(Class cls, SEL selector);
 
 // Creates a standardized error object to return in callbacks
-HIPPY_EXTERN NSDictionary<NSString *, id> *HippyMakeError(NSString *message, id __nullable toStringify, NSDictionary<NSString *, id> *__nullable extraData);
-HIPPY_EXTERN NSDictionary<NSString *, id> *HippyMakeAndLogError(NSString *message, id __nullable toStringify, NSDictionary<NSString *, id> *__nullable extraData);
+HIPPY_EXTERN NSDictionary<NSString *, id> *HippyMakeError(
+    NSString *message, id __nullable toStringify, NSDictionary<NSString *, id> *__nullable extraData);
+HIPPY_EXTERN NSDictionary<NSString *, id> *HippyMakeAndLogError(
+    NSString *message, id __nullable toStringify, NSDictionary<NSString *, id> *__nullable extraData);
 HIPPY_EXTERN NSDictionary<NSString *, id> *HippyJSErrorFromNSError(NSError *error);
 HIPPY_EXTERN NSDictionary<NSString *, id> *HippyJSErrorFromCodeMessageAndNSError(NSString *code, NSString *message, NSError *__nullable error);
 

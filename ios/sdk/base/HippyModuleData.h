@@ -30,11 +30,9 @@
 
 @interface HippyModuleData : NSObject <HippyInvalidating>
 
-- (instancetype)initWithModuleClass:(Class)moduleClass
-                             bridge:(HippyBridge *)bridge NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithModuleClass:(Class)moduleClass bridge:(HippyBridge *)bridge NS_DESIGNATED_INITIALIZER;
 
-- (instancetype)initWithModuleInstance:(id<HippyBridgeModule>)instance
-                                bridge:(HippyBridge *)bridge NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithModuleInstance:(id<HippyBridgeModule>)instance bridge:(HippyBridge *)bridge NS_DESIGNATED_INITIALIZER;
 
 /**
  * Calls `constantsToExport` on the module and stores the result. Note that

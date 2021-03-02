@@ -23,8 +23,8 @@
 #import <Foundation/Foundation.h>
 
 typedef NS_ENUM(NSInteger, HippyTextDecorationLineType) {
-  HippyTextDecorationLineTypeNone = 0,
-  HippyTextDecorationLineTypeUnderline,
-  HippyTextDecorationLineTypeStrikethrough,
-  HippyTextDecorationLineTypeUnderlineStrikethrough,
+    HippyTextDecorationLineTypeNone = 0,
+    HippyTextDecorationLineTypeUnderline,
+    HippyTextDecorationLineTypeStrikethrough,
+    HippyTextDecorationLineTypeUnderlineStrikethrough,
 };

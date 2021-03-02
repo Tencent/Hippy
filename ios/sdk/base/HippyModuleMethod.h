@@ -41,7 +41,7 @@
 @property (nonatomic, readonly) SEL selector;
 
 - (instancetype)initWithMethodSignature:(NSString *)objCMethodName
-                          JSMethodName:(NSString *)JSMethodName
-                           moduleClass:(Class)moduleClass NS_DESIGNATED_INITIALIZER;
+                           JSMethodName:(NSString *)JSMethodName
+                            moduleClass:(Class)moduleClass NS_DESIGNATED_INITIALIZER;
 
 @end

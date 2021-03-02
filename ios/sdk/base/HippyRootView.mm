@@ -68,25 +68,22 @@ NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotif
 
 @end
 
-@implementation HippyRootView
-{
-  HippyBridge *_bridge;
-  NSString *_moduleName;
-  HippyRootContentView *_contentView;
+@implementation HippyRootView {
+    HippyBridge *_bridge;
+    NSString *_moduleName;
+    HippyRootContentView *_contentView;
 }
 
 - (instancetype)initWithBridge:(HippyBridge *)bridge
                     moduleName:(NSString *)moduleName
              initialProperties:(NSDictionary *)initialProperties
                   shareOptions:(NSDictionary *)shareOptions
-				      delegate:(id<HippyRootViewDelegate>)delegate
-{
+                      delegate:(id<HippyRootViewDelegate>)delegate {
     HippyAssertMainQueue();
     HippyAssert(bridge, @"A bridge instance is required to create an HippyRootView");
     HippyAssert(moduleName, @"A moduleName is required to create an HippyRootView");
 
     if ((self = [super initWithFrame:CGRectZero])) {
-
         self.backgroundColor = [UIColor clearColor];
 
         _bridge = bridge;
@@ -102,32 +99,24 @@ NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotif
         _delegate = delegate;
         self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(bridgeDidReload)
-                                                     name:HippyJavaScriptWillStartLoadingNotification
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(bridgeDidReload) name:HippyJavaScriptWillStartLoadingNotification
                                                    object:_bridge];
 
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(javaScriptDidLoad:)
-                                                     name:HippyJavaScriptDidLoadNotification
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(javaScriptDidLoad:) name:HippyJavaScriptDidLoadNotification
                                                    object:_bridge];
-	  
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(javaScriptDidFailToLoad:) name:HippyJavaScriptDidFailToLoadNotification
+
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(javaScriptDidFailToLoad:)
+                                                     name:HippyJavaScriptDidFailToLoadNotification
                                                    object:nil];
 
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(_contentDidAppear:)
-                                                     name:HippyContentDidAppearNotification
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_contentDidAppear:) name:HippyContentDidAppearNotification
                                                    object:self];
-	  
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(_secondaryBundleDidLoadSourceCode:)
+
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_secondaryBundleDidLoadSourceCode:)
                                                      name:HippySecondaryBundleDidLoadSourceCodeNotification
                                                    object:nil];
-	  
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(_secondayBundleDidFinishLoad:)
+
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_secondayBundleDidFinishLoad:)
                                                      name:HippySecondaryBundleDidLoadNotification
                                                    object:nil];
 
@@ -139,291 +128,253 @@ NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotif
 }
 
 - (instancetype)initWithBundleURL:(NSURL *)bundleURL
-					   moduleName:(NSString *)moduleName
-				initialProperties:(NSDictionary *)initialProperties
-					launchOptions:(NSDictionary *)launchOptions
-					 shareOptions:(NSDictionary *)shareOptions
-						debugMode:(BOOL)mode
-						 delegate:(id<HippyRootViewDelegate>)delegate
-	
+                       moduleName:(NSString *)moduleName
+                initialProperties:(NSDictionary *)initialProperties
+                    launchOptions:(NSDictionary *)launchOptions
+                     shareOptions:(NSDictionary *)shareOptions
+                        debugMode:(BOOL)mode
+                         delegate:(id<HippyRootViewDelegate>)delegate
+
 {
     NSMutableDictionary *extendsLaunchOptions = [NSMutableDictionary new];
-	[extendsLaunchOptions addEntriesFromDictionary: launchOptions];
-	[extendsLaunchOptions setObject: @(mode) forKey:@"DebugMode"];
-  	HippyBridge *bridge = [[HippyBridge alloc] initWithBundleURL:bundleURL
-                                                  moduleProvider:nil
-                                                   launchOptions:extendsLaunchOptions
+    [extendsLaunchOptions addEntriesFromDictionary:launchOptions];
+    [extendsLaunchOptions setObject:@(mode) forKey:@"DebugMode"];
+    HippyBridge *bridge = [[HippyBridge alloc] initWithBundleURL:bundleURL moduleProvider:nil launchOptions:extendsLaunchOptions
                                                      executorKey:moduleName];
-	return [self initWithBridge:bridge moduleName:moduleName initialProperties:initialProperties shareOptions:shareOptions delegate: delegate];
+    return [self initWithBridge:bridge moduleName:moduleName initialProperties:initialProperties shareOptions:shareOptions delegate:delegate];
 }
 
 - (instancetype)initWithBridge:(HippyBridge *)bridge
-				   businessURL:(NSURL *)businessURL
-					moduleName:(NSString *)moduleName
-			 initialProperties:(NSDictionary *)initialProperties
-				 launchOptions:(NSDictionary *)launchOptions
-				  shareOptions:(NSDictionary *)shareOptions
-					 debugMode:(BOOL)mode
-					  delegate:(id<HippyRootViewDelegate>)delegate
-{
-	if (mode) {
+                   businessURL:(NSURL *)businessURL
+                    moduleName:(NSString *)moduleName
+             initialProperties:(NSDictionary *)initialProperties
+                 launchOptions:(NSDictionary *)launchOptions
+                  shareOptions:(NSDictionary *)shareOptions
+                     debugMode:(BOOL)mode
+                      delegate:(id<HippyRootViewDelegate>)delegate {
+    if (mode) {
         NSString *localhost = [HippyBundleURLProvider sharedInstance].localhost ?: @"localhost:38989";
-        NSString *bundleStr = [NSString stringWithFormat:@"http://%@%@",localhost,[HippyBundleURLProvider sharedInstance].debugPathUrl];
+        NSString *bundleStr = [NSString stringWithFormat:@"http://%@%@", localhost, [HippyBundleURLProvider sharedInstance].debugPathUrl];
         NSURL *bundleUrl = [NSURL URLWithString:bundleStr];
-        
-        if (self = [self initWithBundleURL: bundleUrl moduleName: moduleName initialProperties: initialProperties launchOptions: launchOptions shareOptions: shareOptions debugMode: mode delegate: delegate]) {
+
+        if (self = [self initWithBundleURL:bundleUrl moduleName:moduleName initialProperties:initialProperties launchOptions:launchOptions
+                              shareOptions:shareOptions
+                                 debugMode:mode
+                                  delegate:delegate]) {
         }
         return self;
-	} else {
-		bridge.batchedBridge.useCommonBridge = YES;
-		if (self = [self initWithBridge: bridge moduleName: moduleName initialProperties: initialProperties shareOptions: shareOptions delegate: delegate]) {
-			if (!bridge.isLoading && !bridge.isValid) {
-				if (delegate && [delegate respondsToSelector: @selector(rootView:didLoadFinish:)]) {
-					[delegate rootView: self didLoadFinish: NO];
-				}
-			} else {
-				__weak __typeof__(self) weakSelf = self;
-				[bridge loadSecondary:businessURL loadBundleCompletion: nil enqueueScriptCompletion: nil completion:^(BOOL success) {
-					dispatch_async(dispatch_get_main_queue(), ^{
-						if (success) {
-							[weakSelf bundleFinishedLoading: bridge.batchedBridge];
-						}
-					});
-				}];
-			}
-		}
-		return self;
-	}
+    } else {
+        bridge.batchedBridge.useCommonBridge = YES;
+        if (self = [self initWithBridge:bridge moduleName:moduleName initialProperties:initialProperties shareOptions:shareOptions
+                               delegate:delegate]) {
+            if (!bridge.isLoading && !bridge.isValid) {
+                if (delegate && [delegate respondsToSelector:@selector(rootView:didLoadFinish:)]) {
+                    [delegate rootView:self didLoadFinish:NO];
+                }
+            } else {
+                __weak __typeof__(self) weakSelf = self;
+                [bridge loadSecondary:businessURL loadBundleCompletion:nil enqueueScriptCompletion:nil completion:^(BOOL success) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        if (success) {
+                            [weakSelf bundleFinishedLoading:bridge.batchedBridge];
+                        }
+                    });
+                }];
+            }
+        }
+        return self;
+    }
 }
 
-HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithFrame:(CGRect)frame)
-HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
+HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithFrame : (CGRect)frame)
+HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 
-- (void)setBackgroundColor:(UIColor *)backgroundColor
-{
+- (void)setBackgroundColor:(UIColor *)backgroundColor {
     super.backgroundColor = backgroundColor;
     _contentView.backgroundColor = backgroundColor;
 }
 
-- (UIViewController *)hippyViewController
-{
+- (UIViewController *)hippyViewController {
     return _hippyViewController ?: [super hippyViewController];
 }
 
-- (BOOL)canBecomeFirstResponder
-{
+- (BOOL)canBecomeFirstResponder {
     return YES;
 }
 
-- (void)setLoadingView:(UIView *)loadingView
-{
+- (void)setLoadingView:(UIView *)loadingView {
     _loadingView = loadingView;
     if (!_contentView.contentHasAppeared) {
         [self showLoadingView];
     }
 }
 
-- (void)showLoadingView
-{
+- (void)showLoadingView {
     if (_loadingView && !_contentView.contentHasAppeared) {
         _loadingView.hidden = NO;
         [self addSubview:_loadingView];
     }
 }
 
-- (void)_contentDidAppear:(NSNotification *)n
-{
+- (void)_contentDidAppear:(NSNotification *)n {
     if (_loadingView.superview == self && _contentView.contentHasAppeared) {
         if (_loadingViewFadeDuration > 0) {
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_loadingViewFadeDelay * NSEC_PER_SEC)),
-                           dispatch_get_main_queue(), ^{
-                               [UIView transitionWithView:self
-                                                 duration:self->_loadingViewFadeDuration
-                                                  options:UIViewAnimationOptionTransitionCrossDissolve
-                                               animations:^{
-                                                   self->_loadingView.hidden = YES;
-                                               } completion:^(__unused BOOL finished) {
-                                                   [self->_loadingView removeFromSuperview];
-                                               }];
-                           });
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_loadingViewFadeDelay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [UIView transitionWithView:self duration:self->_loadingViewFadeDuration options:UIViewAnimationOptionTransitionCrossDissolve
+                    animations:^{
+                        self->_loadingView.hidden = YES;
+                    }
+                    completion:^(__unused BOOL finished) {
+                        [self->_loadingView removeFromSuperview];
+                    }];
+            });
         } else {
             _loadingView.hidden = YES;
             [_loadingView removeFromSuperview];
         }
     }
-    [self contentDidAppear: [n.userInfo[@"cost"] longLongValue]];
+    [self contentDidAppear:[n.userInfo[@"cost"] longLongValue]];
 }
 
-- (NSNumber *)hippyTag
-{
+- (NSNumber *)hippyTag {
     HippyAssertMainQueue();
     if (!super.hippyTag) {
-    /**
-     * Every root view that is created must have a unique hippy tag.
-     * Numbering of these tags goes from 1, 11, 21, 31, etc
-     *
-     * NOTE: Since the bridge persists, the RootViews might be reused, so the
-     * hippy tag must be re-assigned every time a new UIManager is created.
-     */
+        /**
+         * Every root view that is created must have a unique hippy tag.
+         * Numbering of these tags goes from 1, 11, 21, 31, etc
+         *
+         * NOTE: Since the bridge persists, the RootViews might be reused, so the
+         * hippy tag must be re-assigned every time a new UIManager is created.
+         */
         self.hippyTag = [_bridge.uiManager allocateRootTag];
     }
     return super.hippyTag;
 }
 
-- (void)bridgeDidReload
-{
+- (void)bridgeDidReload {
     HippyAssertMainQueue();
     // Clear the hippyTag so it can be re-assigned
     self.hippyTag = nil;
 }
 
-- (void)javaScriptDidLoad:(NSNotification *)notification
-{
+- (void)javaScriptDidLoad:(NSNotification *)notification {
     HippyAssertMainQueue();
 
     // Use the (batched) bridge that's sent in the notification payload, so the
     // HippyRootContentView is scoped to the right bridge
     HippyBridge *bridge = notification.userInfo[@"bridge"];
-    if (!bridge.useCommonBridge && _bridge.batchedBridge == bridge)
-    {
+    if (!bridge.useCommonBridge && _bridge.batchedBridge == bridge) {
         [self bundleFinishedLoading:bridge];
     }
 }
 
-
-- (void)javaScriptDidFailToLoad:(NSNotification *)notification
-{
-	HippyBridge *bridge = notification.userInfo[@"bridge"];
-	NSError *error = notification.userInfo[@"error"];
-	if (bridge == self.bridge && error) {
+- (void)javaScriptDidFailToLoad:(NSNotification *)notification {
+    HippyBridge *bridge = notification.userInfo[@"bridge"];
+    NSError *error = notification.userInfo[@"error"];
+    if (bridge == self.bridge && error) {
         NSError *retError = HippyErrorFromErrorAndModuleName(error, self.bridge.moduleName);
-		HippyFatal(retError);
-	}
+        HippyFatal(retError);
+    }
 }
 
-- (void)_secondaryBundleDidLoadSourceCode:(NSNotification *)notification
-{
-	NSError *error = notification.userInfo[@"error"];
+- (void)_secondaryBundleDidLoadSourceCode:(NSNotification *)notification {
+    NSError *error = notification.userInfo[@"error"];
     if (nil == error) {
         return;
     }
-	HippyBridge *notiBridge = notification.userInfo[@"bridge"];
-	if (self.bridge == notiBridge) {
-		[self secondaryBundleDidLoadSourceCode: error];
-	}
+    HippyBridge *notiBridge = notification.userInfo[@"bridge"];
+    if (self.bridge == notiBridge) {
+        [self secondaryBundleDidLoadSourceCode:error];
+    }
 }
 
-- (void)_secondayBundleDidFinishLoad:(NSNotification *)notification
-{
-	NSError *error = notification.userInfo[@"error"];
-	HippyBridge *notiBridge = notification.userInfo[@"bridge"];
-	if (self.bridge == notiBridge) {
-		[self secondayBundleDidFinishLoad: error];
-	}
+- (void)_secondayBundleDidFinishLoad:(NSNotification *)notification {
+    NSError *error = notification.userInfo[@"error"];
+    HippyBridge *notiBridge = notification.userInfo[@"bridge"];
+    if (self.bridge == notiBridge) {
+        [self secondayBundleDidFinishLoad:error];
+    }
 }
 
-- (void)contentDidAppear:(__unused int64_t)cost
-{
-	
+- (void)contentDidAppear:(__unused int64_t)cost {
 }
 
-- (void)secondaryBundleDidLoadSourceCode:(NSError *)error
-{
-	if (error) {
+- (void)secondaryBundleDidLoadSourceCode:(NSError *)error {
+    if (error) {
         NSError *retError = HippyErrorFromErrorAndModuleName(error, self.bridge.moduleName);
-		HippyFatal(retError);
-	}
+        HippyFatal(retError);
+    }
 }
 
-- (void)secondayBundleDidFinishLoad:(NSError *)error
-{
-	if (error) {
+- (void)secondayBundleDidFinishLoad:(NSError *)error {
+    if (error) {
         NSError *retError = HippyErrorFromErrorAndModuleName(error, self.bridge.moduleName);
-		HippyFatal(retError);
-	}
+        HippyFatal(retError);
+    }
 }
 
-- (void)bundleFinishedLoading:(HippyBridge *)bridge
-{
-  if (!bridge.valid) {
-    return;
-  }
+- (void)bundleFinishedLoading:(HippyBridge *)bridge {
+    if (!bridge.valid) {
+        return;
+    }
 
-  [_contentView removeFromSuperview];
-  _contentView = [[HippyRootContentView alloc] initWithFrame:self.bounds
-                                                    bridge:bridge
-                                                  hippyTag:self.hippyTag
-                                            sizeFlexiblity:_sizeFlexibility];
+    [_contentView removeFromSuperview];
+    _contentView = [[HippyRootContentView alloc] initWithFrame:self.bounds bridge:bridge hippyTag:self.hippyTag sizeFlexiblity:_sizeFlexibility];
 
-  if (self.shareOptions) {
-		[bridge.shareOptions setObject:self.shareOptions ? : @{} forKey: self.hippyTag];
-  }
-	
-  [self runApplication:bridge];
+    if (self.shareOptions) {
+        [bridge.shareOptions setObject:self.shareOptions ?: @{} forKey:self.hippyTag];
+    }
 
-  _contentView.backgroundColor = self.backgroundColor;
-  [self insertSubview:_contentView atIndex:0];
+    [self runApplication:bridge];
 
-  if (_sizeFlexibility == HippyRootViewSizeFlexibilityNone) {
-    self.intrinsicSize = self.bounds.size;
-  }
+    _contentView.backgroundColor = self.backgroundColor;
+    [self insertSubview:_contentView atIndex:0];
+
+    if (_sizeFlexibility == HippyRootViewSizeFlexibilityNone) {
+        self.intrinsicSize = self.bounds.size;
+    }
 }
 
-
-- (void)runApplication:(HippyBridge *)bridge
-{
+- (void)runApplication:(HippyBridge *)bridge {
     if (_contentView == nil) {
-        assert(0); // 这里不正常了，走到这里联系下 pennyli
+        assert(0);  // 这里不正常了，走到这里联系下 pennyli
         return;
     }
     NSString *moduleName = _moduleName ?: @"";
-    NSDictionary *appParameters = @{
-                                    @"rootTag": _contentView.hippyTag,
-                                    @"initialProps": _appProperties ?: @{},
-                                    @"commonSDKVersion": _HippySDKVersion
-                                    };
-    
+    NSDictionary *appParameters =
+        @{ @"rootTag": _contentView.hippyTag, @"initialProps": _appProperties ?: @ {}, @"commonSDKVersion": _HippySDKVersion };
+
     HippyLogInfo(@"Running application %@ (%@)", moduleName, appParameters);
-    
-    [bridge enqueueJSCall:@"AppRegistry"
-                   method:@"runApplication"
-                     args:@[moduleName, appParameters]
-               completion:NULL];
+
+    [bridge enqueueJSCall:@"AppRegistry" method:@"runApplication" args:@[moduleName, appParameters] completion:NULL];
 }
 
-- (void)setSizeFlexibility:(HippyRootViewSizeFlexibility)sizeFlexibility
-{
-  _sizeFlexibility = sizeFlexibility;
-  [self setNeedsLayout];
+- (void)setSizeFlexibility:(HippyRootViewSizeFlexibility)sizeFlexibility {
+    _sizeFlexibility = sizeFlexibility;
+    [self setNeedsLayout];
 }
 
-- (void)layoutSubviews
-{
-  [super layoutSubviews];
-  _contentView.frame = self.bounds;
-  _loadingView.center = (CGPoint){
-    CGRectGetMidX(self.bounds),
-    CGRectGetMidY(self.bounds)
-  };
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    _contentView.frame = self.bounds;
+    _loadingView.center = (CGPoint) { CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds) };
 }
 
-- (void)setAppProperties:(NSDictionary *)appProperties
-{
-  HippyAssertMainQueue();
+- (void)setAppProperties:(NSDictionary *)appProperties {
+    HippyAssertMainQueue();
 
-  if ([_appProperties isEqualToDictionary:appProperties]) {
-    return;
-  }
+    if ([_appProperties isEqualToDictionary:appProperties]) {
+        return;
+    }
 
-  _appProperties = [appProperties copy];
+    _appProperties = [appProperties copy];
 
-  if (_contentView && _bridge.valid && !_bridge.loading) {
-    [self runApplication:_bridge];
-  }
+    if (_contentView && _bridge.valid && !_bridge.loading) {
+        [self runApplication:_bridge];
+    }
 }
 
-- (void)setIntrinsicSize:(CGSize)intrinsicSize
-{
+- (void)setIntrinsicSize:(CGSize)intrinsicSize {
     BOOL oldSizeHasAZeroDimension = _intrinsicSize.height == 0 || _intrinsicSize.width == 0;
     BOOL newSizeHasAZeroDimension = intrinsicSize.height == 0 || intrinsicSize.width == 0;
     BOOL bothSizesHaveAZeroDimension = oldSizeHasAZeroDimension && newSizeHasAZeroDimension;
@@ -434,122 +385,105 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 
     // Don't notify the delegate if the content remains invisible or its size has not changed
     if (bothSizesHaveAZeroDimension || sizesAreEqual) {
-    return;
+        return;
     }
     if ([_delegate respondsToSelector:@selector(rootViewDidChangeIntrinsicSize:)]) {
         [_delegate rootViewDidChangeIntrinsicSize:self];
     }
 }
 
-- (void)contentViewInvalidated
-{
-  [_contentView removeFromSuperview];
-  _contentView = nil;
-  [self showLoadingView];
+- (void)contentViewInvalidated {
+    [_contentView removeFromSuperview];
+    _contentView = nil;
+    [self showLoadingView];
 }
 
-- (void)dealloc
-{
-  [[NSNotificationCenter defaultCenter] removeObserver:self];
-  [_contentView invalidate];
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [_contentView invalidate];
 }
 
-- (void)cancelTouches
-{
-  [[_contentView touchHandler] cancelTouch];
+- (void)cancelTouches {
+    [[_contentView touchHandler] cancelTouch];
 }
 
 @end
 
 @implementation HippyUIManager (HippyRootView)
 
-- (NSNumber *)allocateRootTag
-{
-  NSNumber *rootTag = objc_getAssociatedObject(self, _cmd) ?: @10;
-  objc_setAssociatedObject(self, _cmd, @(rootTag.integerValue + 10), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-  return rootTag;
+- (NSNumber *)allocateRootTag {
+    NSNumber *rootTag = objc_getAssociatedObject(self, _cmd) ?: @10;
+    objc_setAssociatedObject(self, _cmd, @(rootTag.integerValue + 10), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    return rootTag;
 }
 
 @end
 
-@implementation HippyRootContentView
-{
-  __weak HippyBridge *_bridge;
-  UIColor *_backgroundColor;
+@implementation HippyRootContentView {
+    __weak HippyBridge *_bridge;
+    UIColor *_backgroundColor;
 }
 
 - (instancetype)initWithFrame:(CGRect)frame
                        bridge:(HippyBridge *)bridge
                      hippyTag:(NSNumber *)hippyTag
-               sizeFlexiblity:(HippyRootViewSizeFlexibility)sizeFlexibility
-{
-  if ((self = [super initWithFrame:frame])) {
-    _bridge = bridge;
-    self.hippyTag = hippyTag;
-      
-          _touchHandler = [[HippyTouchHandler alloc] initWithRootView: self bridge:bridge];
-    [self addGestureRecognizer:_touchHandler];
-    [_bridge.uiManager registerRootView:self withSizeFlexibility:sizeFlexibility];
-    self.layer.backgroundColor = NULL;
-    _startTimpStamp = CACurrentMediaTime() * 1000;
-  }
-  return self;
-}
+               sizeFlexiblity:(HippyRootViewSizeFlexibility)sizeFlexibility {
+    if ((self = [super initWithFrame:frame])) {
+        _bridge = bridge;
+        self.hippyTag = hippyTag;
 
-
-
-HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithFrame:(CGRect)frame)
-HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder:(nonnull NSCoder *)aDecoder)
-
-- (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex
-{
-  [super insertHippySubview:subview atIndex:atIndex];
-  [_bridge.performanceLogger markStopForTag:HippyPLTTI];
-	[_bridge.performanceLogger markStopForTag:HippyFeedsTimeCost];
-	
-  dispatch_async(dispatch_get_main_queue(), ^{
-    if (!self->_contentHasAppeared) {
-      self->_contentHasAppeared = YES;
-	  int64_t cost = [self->_bridge.performanceLogger durationForTag: HippyPLTTI];
-      [[NSNotificationCenter defaultCenter] postNotificationName:HippyContentDidAppearNotification
-                                                          object:self.superview
-														userInfo:@{@"cost" : @(cost)}];
-			
+        _touchHandler = [[HippyTouchHandler alloc] initWithRootView:self bridge:bridge];
+        [self addGestureRecognizer:_touchHandler];
+        [_bridge.uiManager registerRootView:self withSizeFlexibility:sizeFlexibility];
+        self.layer.backgroundColor = NULL;
+        _startTimpStamp = CACurrentMediaTime() * 1000;
     }
-  });
+    return self;
 }
 
-- (void)setFrame:(CGRect)frame
-{
-  super.frame = frame;
-  if (self.hippyTag && _bridge.isValid) {
-    [_bridge.uiManager setFrame:frame forView:self];
-  }
+HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithFrame : (CGRect)frame)
+HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (nonnull NSCoder *)aDecoder)
+
+- (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
+    [super insertHippySubview:subview atIndex:atIndex];
+    [_bridge.performanceLogger markStopForTag:HippyPLTTI];
+    [_bridge.performanceLogger markStopForTag:HippyFeedsTimeCost];
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (!self->_contentHasAppeared) {
+            self->_contentHasAppeared = YES;
+            int64_t cost = [self->_bridge.performanceLogger durationForTag:HippyPLTTI];
+            [[NSNotificationCenter defaultCenter] postNotificationName:HippyContentDidAppearNotification object:self.superview userInfo:@{
+                @"cost": @(cost)
+            }];
+        }
+    });
 }
 
-- (void)setBackgroundColor:(UIColor *)backgroundColor
-{
-  _backgroundColor = backgroundColor;
-  if (self.hippyTag && _bridge.isValid) {
-    [_bridge.uiManager setBackgroundColor:backgroundColor forView:self];
-  }
+- (void)setFrame:(CGRect)frame {
+    super.frame = frame;
+    if (self.hippyTag && _bridge.isValid) {
+        [_bridge.uiManager setFrame:frame forView:self];
+    }
 }
 
-- (UIColor *)backgroundColor
-{
-  return _backgroundColor;
+- (void)setBackgroundColor:(UIColor *)backgroundColor {
+    _backgroundColor = backgroundColor;
+    if (self.hippyTag && _bridge.isValid) {
+        [_bridge.uiManager setBackgroundColor:backgroundColor forView:self];
+    }
 }
 
-- (void)invalidate
-{
-  if (self.userInteractionEnabled) {
-    self.userInteractionEnabled = NO;
-    [(HippyRootView *)self.superview contentViewInvalidated];
-    [_bridge enqueueJSCall:@"AppRegistry"
-                    method:@"unmountApplicationComponentAtRootTag"
-                      args:@[self.hippyTag]
-                completion:NULL];
-  }
+- (UIColor *)backgroundColor {
+    return _backgroundColor;
+}
+
+- (void)invalidate {
+    if (self.userInteractionEnabled) {
+        self.userInteractionEnabled = NO;
+        [(HippyRootView *)self.superview contentViewInvalidated];
+        [_bridge enqueueJSCall:@"AppRegistry" method:@"unmountApplicationComponentAtRootTag" args:@[self.hippyTag] completion:NULL];
+    }
 }
 
 @end

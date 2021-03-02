@@ -32,8 +32,7 @@ static NSString *const HippyReachabilityStateNone = @"NONE";
 static NSString *const HippyReachabilityStateWifi = @"WIFI";
 static NSString *const HippyReachabilityStateCell = @"CELL";
 
-@implementation HippyNetInfo
-{
+@implementation HippyNetInfo {
     SCNetworkReachabilityRef _reachability;
     NSString *_networkType;
     NSString *_host;
@@ -43,14 +42,11 @@ HIPPY_EXPORT_MODULE()
 
 static NSString *hippyReachabilityTypeFromFlags(SCNetworkReachabilityFlags flags) {
     NSString *networkType = HippyReachabilityStateUnknown;
-    if ((flags & kSCNetworkReachabilityFlagsReachable) == 0 ||
-        (flags & kSCNetworkReachabilityFlagsConnectionRequired) != 0) {
+    if ((flags & kSCNetworkReachabilityFlagsReachable) == 0 || (flags & kSCNetworkReachabilityFlagsConnectionRequired) != 0) {
         networkType = HippyReachabilityStateNone;
-    }
-    else if ((flags & kSCNetworkReachabilityFlagsIsWWAN) != 0) {
+    } else if ((flags & kSCNetworkReachabilityFlagsIsWWAN) != 0) {
         networkType = HippyReachabilityStateCell;
-    }
-    else {
+    } else {
         networkType = HippyReachabilityStateWifi;
     }
     return networkType;
@@ -61,9 +57,8 @@ static NSString *currentReachabilityType(SCNetworkReachabilityRef reachabilityRe
     BOOL success = SCNetworkReachabilityGetFlags(reachabilityRef, &flags);
     if (success) {
         NSString *type = hippyReachabilityTypeFromFlags(flags);
-        return type?:HippyReachabilityStateUnknown;
-    }
-    else {
+        return type ?: HippyReachabilityStateUnknown;
+    } else {
         return HippyReachabilityStateUnknown;
     }
 }
@@ -82,7 +77,7 @@ static void HippyReachabilityCallback(__unused SCNetworkReachabilityRef target, 
     NSString *networkType = hippyReachabilityTypeFromFlags(flags);
     if (![networkType isEqualToString:self->_networkType]) {
         self->_networkType = networkType;
-        [self sendEvent:@"networkStatusDidChange" params:@{@"network_info": networkType}];
+        [self sendEvent:@"networkStatusDidChange" params:@ { @"network_info": networkType }];
     }
 }
 
@@ -91,39 +86,37 @@ static void HippyReachabilityCallback(__unused SCNetworkReachabilityRef target, 
 - (instancetype)initWithHost:(NSString *)host {
     HippyAssertParam(host);
     HippyAssert(![host hasPrefix:@"http"], @"Host value should just contain the domain, not the URL scheme.");
-    
+
     if ((self = [self init])) {
         _host = [host copy];
     }
     return self;
 }
 
-- (void) addEventObserverForName:(NSString *)eventName {
+- (void)addEventObserverForName:(NSString *)eventName {
     if ([eventName isEqualToString:@"networkStatusDidChange"]) {
         if (!_reachability) {
             _reachability = createReachabilityRefWithZeroAddress();
-            SCNetworkReachabilityContext context = { 0, ( __bridge void *)self, NULL, NULL, NULL };
+            SCNetworkReachabilityContext context = { 0, (__bridge void *)self, NULL, NULL, NULL };
             SCNetworkReachabilitySetCallback(_reachability, HippyReachabilityCallback, &context);
             SCNetworkReachabilityScheduleWithRunLoop(_reachability, CFRunLoopGetMain(), kCFRunLoopCommonModes);
         }
         _networkType = currentReachabilityType(_reachability);
-        [self sendEvent:@"networkStatusDidChange" params:@{@"network_info": _networkType}];
+        [self sendEvent:@"networkStatusDidChange" params:@{ @"network_info": _networkType }];
     }
 }
 
-- (void) removeEventObserverForName:(NSString *)eventName {
+- (void)removeEventObserverForName:(NSString *)eventName {
     if ([eventName isEqualToString:@"networkStatusDidChange"]) {
         [self releaseReachability];
     }
 }
 
-- (void)invalidate
-{
+- (void)invalidate {
     [self releaseReachability];
 }
 
-- (void)releaseReachability
-{
+- (void)releaseReachability {
     if (_reachability) {
         SCNetworkReachabilityUnscheduleFromRunLoop(_reachability, CFRunLoopGetMain(), kCFRunLoopCommonModes);
         CFRelease(_reachability);
@@ -131,15 +124,14 @@ static void HippyReachabilityCallback(__unused SCNetworkReachabilityRef target, 
     }
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     [self releaseReachability];
 }
 #pragma mark - Public API
 
+// clang-format off
 HIPPY_EXPORT_METHOD(getCurrentConnectivity:(HippyPromiseResolveBlock)resolve
-                  reject:(__unused HippyPromiseRejectBlock)reject)
-{
+                  reject:(__unused HippyPromiseRejectBlock)reject) {
     if (!resolve) {
         return;
     }
@@ -161,5 +153,6 @@ HIPPY_EXPORT_METHOD(getCurrentConnectivity:(HippyPromiseResolveBlock)resolve
         CFRelease(reachability);
     }
 }
+// clang-format on
 
 @end

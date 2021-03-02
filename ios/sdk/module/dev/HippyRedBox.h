@@ -28,7 +28,7 @@
 
 @interface HippyRedBox : NSObject <HippyBridgeModule>
 
-@property(nonatomic, assign)BOOL showEnabled;
+@property (nonatomic, assign) BOOL showEnabled;
 
 - (void)registerErrorCustomizer:(id<HippyErrorCustomizer>)errorCustomizer;
 - (void)showError:(NSError *)error;
