@@ -44,9 +44,9 @@ HippyFetchInfo *fetchInfoForSessionTask(NSURLSessionTask *task) {
 
 HIPPY_EXPORT_MODULE(network)
 
-//clang-format off
+// clang-format off
 HIPPY_EXPORT_METHOD(fetch:(NSDictionary *)params resolver:(__unused HippyPromiseResolveBlock)resolve rejecter:(__unused HippyPromiseRejectBlock)reject) {
-//clang-format on
+// clang-format on
     NSString *method = params[@"method"];
     NSString *url = params[@"url"];
     NSDictionary *header = params[@"headers"];
@@ -166,9 +166,9 @@ didCompleteWithError:(nullable NSError *)error {
     return nil;
 }
 
-//clang-format off
+// clang-format off
 HIPPY_EXPORT_METHOD(getCookie:(NSString *)urlString resolver:(HippyPromiseResolveBlock)resolve rejecter:(__unused HippyPromiseRejectBlock)reject) {
-//clang-format on
+// clang-format on
     NSData *uriData = [urlString dataUsingEncoding:NSUTF8StringEncoding];
     if (nil == uriData) {
         resolve(@"");
@@ -187,9 +187,9 @@ HIPPY_EXPORT_METHOD(getCookie:(NSString *)urlString resolver:(HippyPromiseResolv
     resolve(string);
 }
 
-//clang-format off
+// clang-format off
 HIPPY_EXPORT_METHOD(setCookie:(NSString *)urlString keyValue:(NSString *)keyValue expireString:(NSString *)expireString) {
-//clang-format on
+// clang-format on
     NSData *uriData = [urlString dataUsingEncoding:NSUTF8StringEncoding];
     if (nil == uriData) {
         return;

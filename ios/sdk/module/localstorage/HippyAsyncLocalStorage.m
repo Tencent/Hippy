@@ -352,10 +352,10 @@ HIPPY_EXPORT_MODULE(AsyncStorage)
 
 #pragma mark - Exported JS Functions
 
-//clang-format off
+// clang-format off
 HIPPY_EXPORT_METHOD(multiGet:(NSArray<NSString *> *)keys
                   callback:(HippyResponseSenderBlock)callback) {
-//clang-format on
+// clang-format on
     NSDictionary *errorOut = [self _ensureSetup];
     if (errorOut) {
         callback(@[@[errorOut], (id)kCFNull]);
@@ -372,10 +372,10 @@ HIPPY_EXPORT_METHOD(multiGet:(NSArray<NSString *> *)keys
     callback(@[HippyNullIfNil(errors), result]);
 }
 
-//clang-format off
+// clang-format off
 HIPPY_EXPORT_METHOD(multiSet:(NSArray<NSArray<NSString *> *> *)kvPairs
                   callback:(HippyResponseSenderBlock)callback) {
-//clang-format on
+// clang-format on
     NSDictionary *errorOut = [self _ensureSetup];
     if (errorOut) {
         callback(@[@[errorOut]]);
@@ -393,10 +393,10 @@ HIPPY_EXPORT_METHOD(multiSet:(NSArray<NSArray<NSString *> *> *)kvPairs
     callback(@[HippyNullIfNil(errors)]);
 }
 
-//clang-format off
+// clang-format off
 HIPPY_EXPORT_METHOD(multiMerge:(NSArray<NSArray<NSString *> *> *)kvPairs
                   callback:(HippyResponseSenderBlock)callback) {
-//clang-format on
+// clang-format on
     NSDictionary *errorOut = [self _ensureSetup];
     if (errorOut) {
         callback(@[@[errorOut]]);
@@ -430,10 +430,10 @@ HIPPY_EXPORT_METHOD(multiMerge:(NSArray<NSArray<NSString *> *> *)kvPairs
     callback(@[HippyNullIfNil(errors)]);
 }
 
-//clang-format off
+// clang-format off
 HIPPY_EXPORT_METHOD(multiRemove:(NSArray<NSString *> *)keys
                   callback:(HippyResponseSenderBlock)callback) {
-//clang-format on
+// clang-format on
     NSDictionary *errorOut = [self _ensureSetup];
     if (errorOut) {
         callback(@[@[errorOut]]);
@@ -464,18 +464,18 @@ HIPPY_EXPORT_METHOD(multiRemove:(NSArray<NSString *> *)keys
     callback(@[HippyNullIfNil(errors)]);
 }
 
-//clang-format off
+// clang-format off
 HIPPY_EXPORT_METHOD(clear:(HippyResponseSenderBlock)callback) {
-//clang-format on
+// clang-format on
     [_manifest removeAllObjects];
     [HippyGetCache() removeAllObjects];
     NSDictionary *error = [self HippyDeleteStorageDirectory];
     callback(@[HippyNullIfNil(error)]);
 }
 
-//clang-format off
+// clang-format off
 HIPPY_EXPORT_METHOD(getAllKeys:(HippyResponseSenderBlock)callback) {
-//clang-format on
+// clang-format on
     NSDictionary *errorOut = [self _ensureSetup];
     if (errorOut) {
         callback(@[errorOut, (id)kCFNull]);

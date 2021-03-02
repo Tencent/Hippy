@@ -64,9 +64,9 @@ HIPPY_EXPORT_MODULE(websocket)
     }
 }
 
-//clang-format off
+// clang-format off
 HIPPY_EXPORT_METHOD(connect:(NSDictionary *)params resolver:(HippyPromiseResolveBlock)resolve rejecter:(HippyPromiseRejectBlock)reject) {
-//clang-format on
+// clang-format on
     NSDictionary *headers = params[@"headers"];
     NSString *url = params[@"url"];
     NSString *protocols = headers[@"Sec-WebSocket-Protocol"];
@@ -80,9 +80,9 @@ HIPPY_EXPORT_METHOD(connect:(NSDictionary *)params resolver:(HippyPromiseResolve
     [socket open];
 }
 
-//clang-format off
+// clang-format off
 HIPPY_EXPORT_METHOD(close:(NSDictionary *)params) {
-//clang-format on
+// clang-format on
     NSNumber *socketId = params[@"id"];
     NSNumber *code = params[@"code"];
     NSString *reason = params[@"reason"];
@@ -92,9 +92,9 @@ HIPPY_EXPORT_METHOD(close:(NSDictionary *)params) {
     }
 }
 
-//clang-format off
+// clang-format off
 HIPPY_EXPORT_METHOD(send:(NSDictionary *)params) {
-//clang-format on
+// clang-format on
     NSNumber *socketId = params[@"id"];
     NSString *data = params[@"data"];
     HippySRWebSocket *socket = [_sockets objectForKey:socketId];

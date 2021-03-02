@@ -98,10 +98,10 @@ HIPPY_CUSTOM_SHADOW_PROPERTY(overflow, OverflowType, HippyShadowView) {
   view.overflow = OverflowScroll;
 }
 
-//clang-format off
+// clang-format off
 HIPPY_EXPORT_METHOD(getContentSize:(nonnull NSNumber *)hippyTag
                   callback:(HippyResponseSenderBlock)callback) {
-//clang-format on
+// clang-format on
   [self.bridge.uiManager addUIBlock:
    ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
 
@@ -122,12 +122,12 @@ HIPPY_EXPORT_METHOD(getContentSize:(nonnull NSNumber *)hippyTag
   }];
 }
 
-//clang-format off
+// clang-format off
 HIPPY_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)hippyTag
                   offsetX:(CGFloat)x
                   offsetY:(CGFloat)y
                   animated:(BOOL)animated) {
-//clang-format on
+// clang-format on
   [self.bridge.uiManager addUIBlock:
    ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
     UIView *view = viewRegistry[hippyTag];
@@ -141,10 +141,10 @@ HIPPY_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)hippyTag
   }];
 }
 
-//clang-format off
+// clang-format off
 HIPPY_EXPORT_METHOD(scrollToWithOptions:(nonnull NSNumber *)hippyTag
                   options:(NSDictionary *)options) {
-//clang-format on
+// clang-format on
     [self.bridge.uiManager addUIBlock:
      ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
          UIView *view = viewRegistry[hippyTag];

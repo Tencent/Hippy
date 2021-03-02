@@ -274,9 +274,9 @@ HIPPY_EXPORT_MODULE()
   return items;
 }
 
-//clang-format off
+// clang-format off
 HIPPY_EXPORT_METHOD(reload) {
-//clang-format on
+// clang-format on
     [_bridge requestReload];
 }
 

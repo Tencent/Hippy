@@ -368,9 +368,9 @@ static void installBasicSynchronousHooksOnContext(JSContext *context)
     return _executorkey?:[NSString stringWithFormat:@"%p", self];
 }
 
-//clang-format off
+// clang-format off
 HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
-//clang-format on
+// clang-format on
     [self executeBlockOnJavaScriptQueue:^{
         [[self JSContext] setName:contextName];
     }];
