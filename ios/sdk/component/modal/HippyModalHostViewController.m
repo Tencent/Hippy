@@ -25,40 +25,35 @@
 #import "HippyLog.h"
 #import "HippyModalHostView.h"
 
-@implementation HippyModalHostViewController
-{
+@implementation HippyModalHostViewController {
     CGRect _lastViewFrame;
     UIStatusBarStyle _preferredStatusBarStyle;
 }
 
-- (instancetype)init
-{
+- (instancetype)init {
     if (!(self = [super init])) {
         return nil;
     }
-    
+
     _preferredStatusBarStyle = [[UIApplication sharedApplication] statusBarStyle];
-    
+
     return self;
 }
 
-- (void)viewDidLayoutSubviews
-{
+- (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
-    
+
     if (self.boundsDidChangeBlock && !CGRectEqualToRect(_lastViewFrame, self.view.frame)) {
         self.boundsDidChangeBlock(self.view.bounds);
         _lastViewFrame = self.view.frame;
     }
 }
 
-- (UIStatusBarStyle)preferredStatusBarStyle
-{
+- (UIStatusBarStyle)preferredStatusBarStyle {
     return _preferredStatusBarStyle;
 }
 
-- (BOOL)prefersStatusBarHidden
-{
+- (BOOL)prefersStatusBarHidden {
     if (_hideStatusBar) {
         return [_hideStatusBar boolValue];
     }
@@ -67,22 +62,19 @@
 }
 
 #if HIPPY_DEV
-- (UIInterfaceOrientationMask)supportedInterfaceOrientations
-{
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
     UIWindow *keyWindow = HippyKeyWindow();
     UIInterfaceOrientationMask appSupportedOrientationsMask = [[UIApplication sharedApplication] supportedInterfaceOrientationsForWindow:keyWindow];
     if (!(_supportedInterfaceOrientations & appSupportedOrientationsMask)) {
         HippyLogError(@"Modal was presented with 0x%x orientations mask but the application only supports 0x%x."
                       @"Add more interface orientations to your app's Info.plist to fix this."
                       @"NOTE: This will crash in non-dev mode.",
-                      (unsigned)_supportedInterfaceOrientations,
-                      (unsigned)appSupportedOrientationsMask);
+            (unsigned)_supportedInterfaceOrientations, (unsigned)appSupportedOrientationsMask);
         return UIInterfaceOrientationMaskAll;
     }
-    
+
     return _supportedInterfaceOrientations;
 }
-#endif // HIPPY_DEV
-
+#endif  // HIPPY_DEV
 
 @end

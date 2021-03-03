@@ -23,8 +23,8 @@
 #import <Foundation/Foundation.h>
 
 typedef NS_ENUM(NSInteger, HippyPointerEvents) {
-  HippyPointerEventsUnspecified = 0, // Default
-  HippyPointerEventsNone,
-  HippyPointerEventsBoxNone,
-  HippyPointerEventsBoxOnly,
+    HippyPointerEventsUnspecified = 0,  // Default
+    HippyPointerEventsNone,
+    HippyPointerEventsBoxNone,
+    HippyPointerEventsBoxOnly,
 };

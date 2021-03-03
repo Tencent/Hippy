@@ -21,7 +21,7 @@
  */
 
 #if __OBJC__
-#  import <Foundation/Foundation.h>
+#import <Foundation/Foundation.h>
 #endif
 
 /**
@@ -63,8 +63,6 @@
 #define Hippy_IF_DEV(...)
 #endif
 
-
-
 #ifndef Hippy_PROFILE
 #define Hippy_PROFILE HIPPY_DEV
 #endif
@@ -81,16 +79,16 @@
  * Concat two literals. Supports macro expansions,
  * e.g. Hippy_CONCAT(foo, __FILE__).
  */
-#define Hippy_CONCAT2(A, B) A ## B
+#define Hippy_CONCAT2(A, B) A##B
 #define Hippy_CONCAT(A, B) Hippy_CONCAT2(A, B)
 
 /**
  * Throw an assertion for unimplemented methods.
  */
-#define HIPPY_NOT_IMPLEMENTED(method) \
-_Pragma("clang diagnostic push") \
-_Pragma("clang diagnostic ignored \"-Wmissing-method-return-type\"") \
-_Pragma("clang diagnostic ignored \"-Wunused-parameter\"") \
-HIPPY_EXTERN NSException *_HippyNotImplementedException(SEL, Class); \
-method NS_UNAVAILABLE { @throw _HippyNotImplementedException(_cmd, [self class]); } \
-_Pragma("clang diagnostic pop")
+#define HIPPY_NOT_IMPLEMENTED(method)                                                                                                   \
+    _Pragma("clang diagnostic push") _Pragma("clang diagnostic ignored \"-Wmissing-method-return-type\"")                               \
+        _Pragma("clang diagnostic ignored \"-Wunused-parameter\"") HIPPY_EXTERN NSException *_HippyNotImplementedException(SEL, Class); \
+    method NS_UNAVAILABLE {                                                                                                             \
+        @throw _HippyNotImplementedException(_cmd, [self class]);                                                                       \
+    }                                                                                                                                   \
+    _Pragma("clang diagnostic pop")

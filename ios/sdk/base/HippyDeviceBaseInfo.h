@@ -33,7 +33,7 @@ extern NSDictionary *hippyExportedDimensions(void);
 }
 #endif
 
-@interface HippyDeviceBaseInfo : NSObject<HippyBridgeModule>
+@interface HippyDeviceBaseInfo : NSObject <HippyBridgeModule>
 
 @end
 

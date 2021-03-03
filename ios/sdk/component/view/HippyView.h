@@ -28,8 +28,6 @@
 #import "HippyComponent.h"
 #import "HippyPointerEvents.h"
 
-
-
 @protocol HippyAutoInsetsProtocol;
 
 @class HippyView;
