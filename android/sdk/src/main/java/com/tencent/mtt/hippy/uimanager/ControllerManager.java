@@ -273,7 +273,7 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener
 		{
 			//			Toast.makeText(mControllerRegistry.getRootView(mControllerRegistry.getRootIDAt(0)).getContext(),"replaceID时候出异常了",Toast.LENGTH_LONG).show();
 			//			Debug.waitForDebugger();
-			Log.e("HippyListView", "error replaceID null oldId " + oldId);
+			LogUtils.d("HippyListView", "error replaceID null oldId " + oldId);
 			// throw new RuntimeException("replaceID error");
 			//			mContext.getGlobalConfigs().getLogAdapter().log(TAG, " replaceID null oldId " + oldId +" newID:"+newId);
 			//			mContext.getGlobalConfigs().getLogAdapter().upload(new HippyLogAdapter.callBack() {
