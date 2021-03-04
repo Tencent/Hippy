@@ -138,27 +138,34 @@ public class ControllerUpdateManger<T, G>
 		assert(g instanceof View);
 		assert(customPropsController instanceof HippyCustomPropsController);
 
-		if (customPropsController == null || !(g instanceof View)
-				|| !(customPropsController instanceof HippyCustomPropsController)) {
+		boolean hasCustomMethodHolder = false;
+
+		if(!(g instanceof View)) {
 			return;
 		}
 
-		Class cla = customPropsController.getClass();
-		Map<String, PropsMethodHolder> methodHolder = CLASS_PROPS_METHOD.get(cla);
-		if (methodHolder == null) {
-			methodHolder = findPropsMethod(cla);
-		}
-		PropsMethodHolder propsMethodHolder = methodHolder.get(prop);
-		try {
-			if (propsMethodHolder != null) {
-				invokePropMethod(customPropsController, g, hippyMap, prop, propsMethodHolder);
-			} else {
-				Object customProps = hippyMap.get(prop);
-				((HippyCustomPropsController)customPropsController).setCustomProps((View) g, prop, customProps);
+		Object customProps = hippyMap.get(prop);
+
+		if (customPropsController != null && customPropsController instanceof HippyCustomPropsController) {
+			Class cla = customPropsController.getClass();
+			Map<String, PropsMethodHolder> methodHolder = CLASS_PROPS_METHOD.get(cla);
+			if (methodHolder == null) {
+				methodHolder = findPropsMethod(cla);
 			}
-		} catch (Throwable e) {
-			LogUtils.e("ControllerUpdateManager", "customProps " + e.getMessage(), e);
-			e.printStackTrace();
+			PropsMethodHolder propsMethodHolder = methodHolder.get(prop);
+			try {
+				if (propsMethodHolder != null) {
+					invokePropMethod(customPropsController, g, hippyMap, prop, propsMethodHolder);
+					hasCustomMethodHolder = true;
+				}
+			} catch (Throwable e) {
+				LogUtils.e("ControllerUpdateManager", "customProps " + e.getMessage(), e);
+				e.printStackTrace();
+			}
+		}
+
+		if (!hasCustomMethodHolder && t instanceof HippyViewController) {
+			((HippyViewController)t).setCustomProp((View)g, prop, customProps);
 		}
 	}
 
