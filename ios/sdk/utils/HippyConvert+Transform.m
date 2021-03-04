@@ -136,6 +136,10 @@ static const NSUInteger kMatrixArrayLength = 4 * 4;
             CGFloat translate = [value floatValue];
             transform = CATransform3DTranslate(transform, 0, translate, 0);
 
+        } else if ([property isEqualToString:@"translateZ"]) {
+            CGFloat translate = [value floatValue];
+            transform = CATransform3DTranslate(transform, 0, 0, translate);
+
         } else if ([property isEqualToString:@"skewX"]) {
             CGFloat skew = [self convertToRadians:value];
             transform.m21 = tanf(skew);
