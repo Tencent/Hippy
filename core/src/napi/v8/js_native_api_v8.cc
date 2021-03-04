@@ -71,7 +71,7 @@ void JsCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info) {
 
   v8::Isolate* isolate = info.GetIsolate();
   if (!isolate) {
-    HIPPY_LOG(hippy::Error, "JsCallbackFunc isolate error");
+    HIPPY_LOG(hippy::Error, "JsCallbackFunc isolate_ error");
     return;
   }
 
@@ -274,8 +274,53 @@ std::shared_ptr<VM> CreateVM() {
   return std::make_shared<V8VM>();
 }
 
+std::shared_ptr<TryCatch> CreateTryCatchScope(bool enable,
+                                              std::shared_ptr<Ctx> ctx) {
+  return std::make_shared<V8TryCatch>(enable, ctx);
+}
+
 void DetachThread() {
   JNIEnvironment::DetachCurrentThread();
+}
+
+V8VM::V8VM() {
+  HIPPY_DLOG(hippy::Debug, "V8VM begin");
+  {
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (platform_ != nullptr) {
+      HIPPY_DLOG(hippy::Debug, "InitializePlatform");
+      v8::V8::InitializePlatform(platform_);
+    } else {
+      HIPPY_DLOG(hippy::Debug, "CreateDefaultPlatform");
+      platform_ = v8::platform::CreateDefaultPlatform();
+      v8::V8::SetFlagsFromString("--wasm-disable-structured-cloning",
+                                 strlen("--wasm-disable-structured-cloning"));
+      v8::V8::InitializePlatform(platform_, true);
+      HIPPY_DLOG(hippy::Debug, "Initialize");
+      v8::V8::Initialize();
+    }
+  }
+
+  create_params_.array_buffer_allocator =
+      v8::ArrayBuffer::Allocator::NewDefaultAllocator();
+  isolate_ = v8::Isolate::New(create_params_);
+  isolate_->Enter();
+  isolate_->SetCaptureStackTraceForUncaughtExceptions(true);
+  HIPPY_DLOG(hippy::Debug, "V8VM end");
+}
+
+V8VM::~V8VM() {
+  isolate_->Exit();
+  isolate_->Dispose();
+
+  delete create_params_.array_buffer_allocator;
+}
+
+void V8VM::PlatformDestroy() {
+  delete platform_;
+
+  v8::V8::Dispose();
+  v8::V8::ShutdownPlatform();
 }
 
 std::shared_ptr<Ctx> V8VM::CreateContext() {
@@ -283,9 +328,85 @@ std::shared_ptr<Ctx> V8VM::CreateContext() {
   return std::make_shared<V8Ctx>(isolate_);
 }
 
-void V8Ctx::GetMessageInfo(v8::Local<v8::Message> message,
-                           std::string& desc,
-                           std::string& stack) {
+V8TryCatch::V8TryCatch(bool enable, std::shared_ptr<Ctx> ctx)
+    : TryCatch(enable, ctx),
+      try_catch_(nullptr) {
+  if (enable) {
+    std::shared_ptr<V8Ctx> v8_ctx = std::static_pointer_cast<V8Ctx>(ctx);
+    if (v8_ctx) {
+      try_catch_ = std::make_shared<v8::TryCatch>(v8_ctx->isolate_);
+    }
+  }
+}
+
+V8TryCatch::~V8TryCatch() {}
+
+void V8TryCatch::ReThrow() {
+  if (try_catch_) {
+    try_catch_->ReThrow();
+  }
+}
+
+bool V8TryCatch::HasCaught() {
+  if (try_catch_) {
+    return try_catch_->HasCaught();
+  }
+  return false;
+}
+
+bool V8TryCatch::CanContinue() {
+  if (try_catch_) {
+    return try_catch_->CanContinue();
+  }
+  return true;
+}
+
+bool V8TryCatch::HasTerminated() {
+  if (try_catch_) {
+    return try_catch_->HasTerminated();
+  }
+  return false;
+}
+
+bool V8TryCatch::IsVerbose() {
+  if (try_catch_) {
+    return try_catch_->IsVerbose();
+  }
+  return true;
+}
+
+void V8TryCatch::SetVerbose(bool verbose) {
+  if (try_catch_) {
+    try_catch_->SetVerbose(verbose);
+  }
+}
+
+std::shared_ptr<CtxValue> V8TryCatch::Exception() {
+  if (try_catch_) {
+    v8::Local<v8::Value> exception = try_catch_->Exception();
+    std::shared_ptr<V8Ctx> v8_ctx = std::static_pointer_cast<V8Ctx>(ctx_);
+    return std::make_shared<V8CtxValue>(v8_ctx->isolate_, exception);
+  }
+  return nullptr;
+}
+
+std::string V8TryCatch::GetExceptionMsg() {
+  if (!try_catch_) {
+    return nullptr;
+  }
+
+  v8::Local<v8::Message> message = try_catch_->Message();
+  std::shared_ptr<V8Ctx> v8_ctx = std::static_pointer_cast<V8Ctx>(ctx_);
+  std::string desc = v8_ctx->GetMsgDesc(message);
+  std::string stack = v8_ctx->GetStackInfo(message);
+  return "{\"message\": \"" + desc + "\", \"stack\": \"" + stack + "\"}";
+}
+
+std::string V8Ctx::GetMsgDesc(v8::Local<v8::Message> message) {
+  if (message.IsEmpty()) {
+    return "";
+  }
+
   v8::HandleScope handle_scope(isolate_);
   v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
@@ -294,7 +415,7 @@ void V8Ctx::GetMessageInfo(v8::Local<v8::Message> message,
   v8::String::Utf8Value file_name(isolate_,
                                   message->GetScriptOrigin().ResourceName());
   const char* file_name_str =
-      *file_name ? *file_name : "<string conversion failed>";
+      *file_name ? *file_name : "<file name conversion failed>";
   int linenum = message->GetLineNumber(context).FromMaybe(-1);
   int start = message->GetStartColumn(context).FromMaybe(-1);
   int end = message->GetEndColumn(context).FromMaybe(-1);
@@ -304,12 +425,25 @@ void V8Ctx::GetMessageInfo(v8::Local<v8::Message> message,
   description << file_name_str << ": " << linenum << ": " << start << "-" << end
               << ": " << message_str;
 
-  desc = description.str();
+  std::string desc = description.str();
   HIPPY_DLOG(hippy::Debug, "description = %s", desc.c_str());
+  return desc;
+}
+
+std::string V8Ctx::GetStackInfo(v8::Local<v8::Message> message) {
+  if (message.IsEmpty()) {
+    return "";
+  }
+
   v8::Local<v8::StackTrace> trace = message->GetStackTrace();
   if (trace.IsEmpty()) {
-    return;
+    return "";
   }
+
+  v8::HandleScope handle_scope(isolate_);
+  v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+
   std::stringstream stack_stream;
   int len = trace->GetFrameCount();
   for (int i = 0; i < len; ++i) {
@@ -320,33 +454,13 @@ void V8Ctx::GetMessageInfo(v8::Local<v8::Message> message,
         *script_name ? *script_name : "<script name conversion failed>";
     std::string stack_function_name =
         *function_name ? *function_name : "<function name conversion failed>";
-    stack_stream << "\\n"
-                 << stack_script_name << ": " << frame->GetLineNumber() << ": "
-                 << frame->GetColumn() << ": " << stack_function_name;
+    stack_stream << " \\n "
+                 << stack_script_name << ":" << frame->GetLineNumber() << ":"
+                 << frame->GetColumn() << ":" << stack_function_name;
   }
-  stack = stack_stream.str();
+  std::string stack = stack_stream.str();
   HIPPY_DLOG(hippy::Debug, "stack = %s", stack.c_str());
-}
-
-std::string V8Ctx::GetException(const v8::TryCatch& try_catch) {
-  v8::HandleScope handle_scope(isolate_);
-  v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
-  v8::Context::Scope context_scope(context);
-  v8::Local<v8::Value> exception = try_catch.Exception();
-  if (exception.IsEmpty()) {
-    return "";
-  }
-  v8::String::Utf8Value ex(isolate_, exception);
-  const char* exception_str = *ex ? *ex : "<string conversion failed>";
-  HIPPY_DLOG(hippy::Debug, "exception_str = %s", exception_str);
-  v8::Handle<v8::Message> message = try_catch.Message();
-  if (message.IsEmpty()) {
-    return std::string(exception_str);
-  }
-
-  std::string desc, stack;
-  GetMessageInfo(message, desc, stack);
-  return "{\"message\": \"" + desc + "\", \"stack\": \"" + stack + "\"}";
+  return stack;
 }
 
 bool V8Ctx::RegisterGlobalInJs() {
@@ -363,8 +477,7 @@ bool V8Ctx::RegisterGlobalInJs() {
 }
 
 bool V8Ctx::SetGlobalJsonVar(const std::string& name,
-                             const char* json,
-                             std::string* exception) {
+                             const char* json) {
   HIPPY_DLOG(hippy::Debug, "SetGlobalJsonVar name = %s, json = %s",
              name.c_str(), json);
   v8::HandleScope handle_scope(isolate_);
@@ -382,8 +495,7 @@ bool V8Ctx::SetGlobalJsonVar(const std::string& name,
 }
 
 bool V8Ctx::SetGlobalStrVar(const std::string& name,
-                            const char* str,
-                            std::string* exception) {
+                            const char* str) {
   HIPPY_DLOG(hippy::Debug, "SetGlobalStrVar name = %s, str = %s", name.c_str(),
              str);
   v8::HandleScope handle_scope(isolate_);
@@ -400,8 +512,7 @@ bool V8Ctx::SetGlobalStrVar(const std::string& name,
 }
 
 bool V8Ctx::SetGlobalObjVar(const std::string& name,
-                            std::shared_ptr<CtxValue> obj,
-                            std::string* exception) {
+                            std::shared_ptr<CtxValue> obj) {
   HIPPY_DLOG(hippy::Debug, "SetGlobalObjVar name = %s", name.c_str());
   std::shared_ptr<V8CtxValue> ctx_value =
       std::static_pointer_cast<V8CtxValue>(obj);
@@ -421,8 +532,7 @@ bool V8Ctx::SetGlobalObjVar(const std::string& name,
 }
 
 std::shared_ptr<CtxValue> V8Ctx::GetGlobalStrVar(
-    const std::string& name,
-    std::string* exception) {
+    const std::string& name) {
   HIPPY_DLOG(hippy::Debug, "GetGlobalStrVar name = %s", name.c_str());
   v8::HandleScope handle_scope(isolate_);
   v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
@@ -435,16 +545,14 @@ std::shared_ptr<CtxValue> V8Ctx::GetGlobalStrVar(
   return std::make_shared<V8CtxValue>(isolate_, value);
 }
 
-std::shared_ptr<CtxValue> V8Ctx::GetGlobalObjVar(const std::string& name,
-                                                 std::string* exception) {
+std::shared_ptr<CtxValue> V8Ctx::GetGlobalObjVar(const std::string& name) {
   HIPPY_DLOG(hippy::Debug, "GetGlobalObjVar name = %s", name.c_str());
-  return GetGlobalStrVar(name, exception);
+  return GetGlobalStrVar(name);
 }
 
 std::shared_ptr<CtxValue> V8Ctx::GetProperty(
     const std::shared_ptr<CtxValue> object,
-    const std::string& name,
-    std::string* exception) {
+    const std::string& name) {
   return nullptr;
 }
 
@@ -534,20 +642,16 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const uint8_t* data,
                                            const std::string& file_name,
                                            bool is_use_code_cache,
                                            std::string* cache,
-                                           std::string* exception,
                                            Encoding encodeing) {
   HIPPY_DLOG(hippy::Debug,
              "V8Ctx::RunScript file_name = %s, len = %d, encodeing = %d, "
-             "is_use_code_cache = %d, cache = %d, exception = %d",
-             file_name.c_str(), len, is_use_code_cache, encodeing, cache,
-             exception);
+             "is_use_code_cache = %d, cache = %d",
+             file_name.c_str(), len, is_use_code_cache, encodeing, cache);
   v8::HandleScope handle_scope(isolate_);
   v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
   v8::Handle<v8::String> source;
 
-  v8::TryCatch try_catch(isolate_);
-  try_catch.SetVerbose(true);
   switch (encodeing) {
     case Encoding::ONE_BYTE_ENCODING: {
       ExternalOneByteStringResourceImpl* one_byte =
@@ -578,35 +682,26 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const uint8_t* data,
   if (source.IsEmpty()) {
     HIPPY_LOG(hippy::Warning, "v8_source empty, file_name = %s",
               file_name.c_str());
-    if (exception) {
-      *exception = GetException(try_catch);
-    } else {
-      try_catch.ReThrow();
-    }
     return nullptr;
   }
 
-  return InternalRunScript(context, source, file_name, is_use_code_cache, cache,
-                           exception);
+  return InternalRunScript(context, source, file_name, is_use_code_cache, cache);
 }
 
 std::shared_ptr<CtxValue> V8Ctx::RunScript(const std::string&& script,
                                            const std::string& file_name,
                                            bool is_use_code_cache,
                                            std::string* cache,
-                                           std::string* exception,
                                            Encoding encodeing) {
   HIPPY_DLOG(hippy::Debug,
              "V8Ctx::RunScript script_file_name = %s, encodeing = %d, "
-             "is_use_code_cache = %d, cache = %d, exception = %d",
-             file_name.c_str(), is_use_code_cache, encodeing, cache, exception);
+             "is_use_code_cache = %d, cache = %d",
+             file_name.c_str(), is_use_code_cache, encodeing, cache);
   v8::HandleScope handle_scope(isolate_);
   v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
   v8::Handle<v8::String> source;
 
-  v8::TryCatch try_catch(isolate_);
-  try_catch.SetVerbose(true);
   switch (encodeing) {
     case Encoding::ONE_BYTE_ENCODING: {
       ExternalOneByteStringResourceImpl* one_byte =
@@ -638,15 +733,9 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const std::string&& script,
   if (source.IsEmpty()) {
     HIPPY_LOG(hippy::Warning, "v8_source empty, file_name = %s",
               file_name.c_str());
-    if (exception) {
-      *exception = GetException(try_catch);
-    } else {
-      try_catch.ReThrow();
-    }
     return nullptr;
   }
-  return InternalRunScript(context, source, file_name, is_use_code_cache, cache,
-                           exception);
+  return InternalRunScript(context, source, file_name, is_use_code_cache, cache);
 }
 
 std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
@@ -654,10 +743,7 @@ std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
     v8::Handle<v8::String> source,
     const std::string& file_name,
     bool is_use_code_cache,
-    std::string* cache,
-    std::string* exception) {
-  v8::TryCatch try_catch(isolate_);
-  try_catch.SetVerbose(true);
+    std::string* cache) {
   v8::ScriptOrigin origin(v8::String::NewFromUtf8(isolate_, file_name.c_str(),
                                                   v8::NewStringType::kNormal)
                               .FromMaybe(v8::Local<v8::String>()));
@@ -671,11 +757,6 @@ std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
     script = v8::ScriptCompiler::Compile(context, &script_source,
                                          v8::ScriptCompiler::kConsumeCodeCache);
     if (script.IsEmpty()) {
-      if (exception) {
-        *exception = GetException(try_catch);
-      } else {
-        try_catch.ReThrow();
-      }
       return nullptr;
     }
   } else {
@@ -683,11 +764,6 @@ std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
       v8::ScriptCompiler::Source script_source(source, origin);
       script = v8::ScriptCompiler::Compile(context, &script_source);
       if (script.IsEmpty()) {
-        if (exception) {
-          *exception = GetException(try_catch);
-        } else {
-          try_catch.ReThrow();
-        }
         return nullptr;
       }
       const v8::ScriptCompiler::CachedData* cached_data =
@@ -700,30 +776,19 @@ std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
   }
 
   if (script.IsEmpty()) {
-    if (exception) {
-      *exception = GetException(try_catch);
-    } else {
-      try_catch.ReThrow();
-    }
     return nullptr;
   }
 
   v8::MaybeLocal<v8::Value> v8_maybe_value =
       script.FromMaybe(v8::Local<v8::Script>())->Run(context);
   if (v8_maybe_value.IsEmpty()) {
-    if (exception) {
-      *exception = GetException(try_catch);
-    } else {
-      try_catch.ReThrow();
-    }
     return nullptr;
   }
   v8::Handle<v8::Value> v8_value = v8_maybe_value.ToLocalChecked();
   return std::make_shared<V8CtxValue>(isolate_, v8_value);
 }
 
-std::shared_ptr<CtxValue> V8Ctx::GetJsFn(const std::string& name,
-                                         std::string* exception) {
+std::shared_ptr<CtxValue> V8Ctx::GetJsFn(const std::string& name) {
   HIPPY_DLOG(hippy::Debug, "GetJsFn name = %s", name.c_str());
   v8::HandleScope handle_scope(isolate_);
   v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
@@ -735,6 +800,57 @@ std::shared_ptr<CtxValue> V8Ctx::GetJsFn(const std::string& name,
   v8::Local<v8::Function> value = v8::Local<v8::Function>::Cast(
       context_persistent_.Get(isolate_)->Global()->Get(js_name));
   return std::make_shared<V8CtxValue>(isolate_, value);
+}
+
+std::shared_ptr<CtxValue> V8Ctx::CallFunction(
+    std::shared_ptr<CtxValue> function,
+    size_t argument_count,
+    const std::shared_ptr<CtxValue> arguments[]) {
+  HIPPY_DLOG(hippy::Debug, "V8Ctx CallFunction begin");
+
+  if (!function) {
+    HIPPY_DLOG(hippy::Error, "function is nullptr");
+    return nullptr;
+  }
+
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope contextScope(context);
+  if (context.IsEmpty() || context->Global().IsEmpty()) {
+    HIPPY_DLOG(hippy::Error, "CallFunction context error");
+    return nullptr;
+  }
+
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(function);
+  const v8::Persistent<v8::Value>& persistent_value =
+      ctx_value->persisent_value_;
+  v8::Handle<v8::Value> handle_value =
+      v8::Handle<v8::Value>::New(isolate_, persistent_value);
+  if (!handle_value->IsFunction()) {
+    HIPPY_LOG(hippy::Warning, "CallFunction handle_value is not a function");
+    return nullptr;
+  }
+
+  v8::Function* v8_fn = v8::Function::Cast(*handle_value);
+  v8::Handle<v8::Value> args[argument_count];
+  for (size_t i = 0; i < argument_count; i++) {
+    std::shared_ptr<V8CtxValue> argument =
+        std::static_pointer_cast<V8CtxValue>(arguments[i]);
+    const v8::Persistent<v8::Value>& persistent_value =
+        argument->persisent_value_;
+    args[i] = v8::Handle<v8::Value>::New(isolate_, persistent_value);
+  }
+
+  HIPPY_DLOG(hippy::Debug, "CallFunction call fn");
+  v8::MaybeLocal<v8::Value> maybe_result = v8_fn->Call(
+      context, context->Global(), static_cast<int>(argument_count), args);
+
+  if (maybe_result.IsEmpty()) {
+    HIPPY_DLOG(hippy::Debug, "maybe_result is empty");
+    return nullptr;
+  }
+  return std::make_shared<V8CtxValue>(isolate_, maybe_result.ToLocalChecked());
 }
 
 }  // namespace napi

@@ -56,6 +56,7 @@ static std::unordered_map<int64_t, std::pair<std::shared_ptr<Engine>, uint32_t>>
 static std::mutex engine_mutex;
 static const int64_t kDefaultEngineId = -1;
 static const int64_t kDebuggerEngineId = -9999;
+static const uint32_t kRuntimeKeyIndex = 0;
 
 static std::shared_ptr<V8InspectorClientImpl> global_inspector = nullptr;
 
@@ -215,16 +216,17 @@ bool RunScript(std::shared_ptr<Runtime> runtime,
 }
 
 void HandleUncaughtJsError(v8::Local<v8::Message> message,
-                           v8::Local<v8::Value> data) {
+                           v8::Local<v8::Value> error) {
   HIPPY_DLOG(hippy::Debug, "HandleUncaughtJsError begin");
 
-  if (data.As<v8::External>().IsEmpty()) {
-    HIPPY_LOG(hippy::Error, "HandleUncaughtJsError data_ is empty");
+  if (error.IsEmpty()) {
+    HIPPY_LOG(hippy::Error, "HandleUncaughtJsError error is empty");
     return;
   }
 
+  Isolate* isolate = message->GetIsolate();
   int64_t runtime_key =
-      *(reinterpret_cast<int64_t*>(data.As<v8::External>()->Value()));
+      *(reinterpret_cast<int64_t*>(isolate->GetData(kRuntimeKeyIndex)));
   std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_key);
   if (!runtime) {
     return;
@@ -233,33 +235,30 @@ void HandleUncaughtJsError(v8::Local<v8::Message> message,
   std::shared_ptr<hippy::napi::V8Ctx> ctx =
       std::static_pointer_cast<hippy::napi::V8Ctx>(
           runtime->GetScope()->GetContext());
-  std::string desc, stack;
-  ctx->GetMessageInfo(message, desc, stack);
-  ExceptionHandler::ReportJsException(runtime, desc, stack);
 
-  auto source_code = hippy::GetNativeSourceCode("ExceptionHandle.js");
-  HIPPY_DCHECK(source_code.data_ && source_code.length_);
-  std::shared_ptr<CtxValue> function = ctx->RunScript(
-      source_code.data_, source_code.length_, "ExceptionHandle.js");
-  bool is_func = ctx->IsFunction(function);
-  HIPPY_CHECK_WITH_MSG(
-      is_func == true,
-      "HandleUncaughtJsError ExceptionHandle.js don't return function!!!");
+  ExceptionHandler::ReportJsException(runtime, ctx->GetMsgDesc(message),
+                                      ctx->GetStackInfo(message));
+
+  std::string handler_name("HippyExceptionHandler");
+  std::shared_ptr<CtxValue>  exception_handler =
+      ctx->GetGlobalObjVar(handler_name);
+  if (!ctx->IsFunction(exception_handler)) {
+    auto source_code = hippy::GetNativeSourceCode("ExceptionHandle.js");
+    HIPPY_DCHECK(source_code.data_ && source_code.length_);
+    exception_handler = ctx->RunScript(
+        source_code.data_, source_code.length_, "ExceptionHandle.js");
+    bool is_func = ctx->IsFunction(exception_handler);
+    HIPPY_CHECK_WITH_MSG(
+        is_func == true,
+        "HandleUncaughtJsError ExceptionHandle.js don't return function!!!");
+    ctx->SetGlobalObjVar(handler_name, exception_handler);
+  }
 
   std::shared_ptr<CtxValue> args[2];
   args[0] = ctx->CreateString("uncaughtException");
-  std::string json_str =
-      "{\"message\":\"" + desc + "\",\"stack\":\"" + stack + std::string("\"}");
-  HIPPY_DLOG(hippy::Debug, "json_str = %s", json_str.c_str());
-  std::shared_ptr<CtxValue> js_obj = ctx->CreateObject(json_str.c_str());
-  if (!js_obj) {
-    HIPPY_LOG(hippy::Error,
-              "HandleUncaughtJsError parse json error, json_str = %s",
-              json_str.c_str());
-    return;
-  }
-  args[1] = js_obj;
-  std::shared_ptr<CtxValue> ret_value = ctx->CallFunction(function, 2, args);
+  args[1] = std::make_shared<V8CtxValue>(isolate, error);
+  std::shared_ptr<CtxValue> ret_value =
+      ctx->CallFunction(exception_handler, 2, args);
   HIPPY_DLOG(hippy::Debug, "HandleUncaughtJsError end");
 }
 
@@ -398,8 +397,8 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_initJSFramework(
     v8::Isolate* isolate = v8_vm->isolate_;
     v8::HandleScope handle_scope(isolate);
     isolate->AddMessageListener(
-        HandleUncaughtJsError,
-        v8::External::New(isolate, (void*)runtime_key.get()));
+        HandleUncaughtJsError);
+    isolate->SetData(0, runtime_key.get());
   };
 
   std::unique_ptr<RegisterMap> engine_cb_map = std::make_unique<RegisterMap>();

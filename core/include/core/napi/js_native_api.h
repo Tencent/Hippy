@@ -37,8 +37,10 @@ std::shared_ptr<CtxValue> GetInternalBindingFn(std::shared_ptr<Scope> scope);
 
 std::shared_ptr<VM> CreateVM();
 
+std::shared_ptr<TryCatch> CreateTryCatchScope(bool enable,
+                                              std::shared_ptr<Ctx> ctx);
+
 void DetachThread();
-// Create Value
 
 }  // namespace napi
 }  // namespace hippy

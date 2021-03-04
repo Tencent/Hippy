@@ -86,16 +86,7 @@ function emit(eventName, ...args) {
   if (!(eventListeners instanceof Set)) {
     if (eventName === 'uncaughtException' && typeof global.reportUncaughtException === 'function'
       && args[0]) {
-      let errStr = '';
-      if (args[0] instanceof Error) {
-        errStr = JSON.stringify({
-          message: args[0].message,
-          stack: args[0].stack
-        });
-      } else {
-        errStr = args[0].toString();
-      }
-      global.reportUncaughtException(errStr);
+      global.reportUncaughtException(args[0].toString());
     }
     return;
   }
@@ -104,17 +95,9 @@ function emit(eventName, ...args) {
   } catch (err) {
     /* eslint-disable-next-line no-console */
     console.error(err);
-    if (typeof global.reportUncaughtException === 'function') {
-      let errStr = '';
-      if (args[0] instanceof Error) {
-        errStr = JSON.stringify({
-          message: args[0].message,
-          stack: args[0].stack
-        });
-      } else {
-        errStr = args[0].toString();
-      }
-      global.reportUncaughtException(errStr);
+    if (eventName === 'uncaughtException' && typeof global.reportUncaughtException === 'function'
+      && args[0]) {
+      global.reportUncaughtException(args[0].toString());
     }
   }
 }
