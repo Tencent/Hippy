@@ -188,7 +188,7 @@ public class RenderManager
 		}
 		else
 		{
-			Log.e("RenderManager", "dispatchUIFunction Node Null");
+			LogUtils.d("RenderManager", "dispatchUIFunction Node Null");
 		}
 
 	}
