@@ -735,6 +735,10 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
     _needsUpdateBorderRadius = YES;
 }
 
+- (void)setBackgroundSize:(NSString *)backgroundSize {
+    //do nothing
+}
+
 - (BOOL)needsUpdateCornerRadius {
     return _needsUpdateBorderRadius;
 }
