@@ -19,6 +19,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
 
 import java.util.ArrayList;
@@ -109,7 +110,7 @@ public class ViewGroupDrawingOrderHelper
 		}
 		if (index >= mDrawingOrderIndices.length)
 		{
-			Log.e("VGDrawingOrderHelper", "WRONG, index out of mDrawingOrderIndices length");
+			LogUtils.d("VGDrawingOrderHelper", "WRONG, index out of mDrawingOrderIndices length");
 			return 0;
 		}
 		return mDrawingOrderIndices[index];
