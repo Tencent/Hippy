@@ -595,6 +595,12 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 		}
 	}
 
+	@HippyControllerProps(name = NodeProps.CUSTOM_PROP)
+	public void setCustomProp(T view, String methodName, Object props)
+	{
+
+	}
+
 	protected void setGestureType(T view, String type, boolean flag)
 	{
 		if (flag)

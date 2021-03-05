@@ -11,37 +11,34 @@
 #include <stdint.h>
 
 typedef struct {
-  MTTSize availableSize;
-  MTTSize resultSize;
-  MeasureMode widthMeasureMode;
-  MeasureMode heightMeasureMode;
-  FlexLayoutAction layoutAction;
+    MTTSize availableSize;
+    MTTSize resultSize;
+    MeasureMode widthMeasureMode;
+    MeasureMode heightMeasureMode;
+    FlexLayoutAction layoutAction;
 } MeasureResult;
 
 #define MAX_MEASURES_COUNT 6
 
 class MTTLayoutCache {
 public:
-	MTTLayoutCache();
-	virtual ~MTTLayoutCache();
-	void cacheResult(MTTSize availableSize, MTTSize resultSize,
-					 MTTSizeMode measureMode, FlexLayoutAction layoutAction);
-	MeasureResult* getCachedMeasureResult(MTTSize availableSize,MTTSizeMode measureMode,
-										  FlexLayoutAction layoutAction,
-										  bool isMeasureNode);
-	MeasureResult* getCachedLayout();
-	void clearCache();
-protected:
-	void initCache();
-	MeasureResult* useLayoutCacheIfPossible(MTTSize availableSize, MTTSizeMode measureMode);
+    MTTLayoutCache();
+    virtual ~MTTLayoutCache();
+    void cacheResult(MTTSize availableSize, MTTSize resultSize, MTTSizeMode measureMode, FlexLayoutAction layoutAction);
+    MeasureResult *getCachedMeasureResult(MTTSize availableSize, MTTSizeMode measureMode, FlexLayoutAction layoutAction, bool isMeasureNode);
+    MeasureResult *getCachedLayout();
+    void clearCache();
 
-	MeasureResult* useMeasureCacheIfPossible(MTTSize availableSize, MTTSizeMode measureMode,
-											 FlexLayoutAction layoutAction,
-											 bool isMeasureNode);
+protected:
+    void initCache();
+    MeasureResult *useLayoutCacheIfPossible(MTTSize availableSize, MTTSizeMode measureMode);
+
+    MeasureResult *useMeasureCacheIfPossible(MTTSize availableSize, MTTSizeMode measureMode, FlexLayoutAction layoutAction, bool isMeasureNode);
+
 private:
-	MeasureResult cachedLayout;
-	MeasureResult cachedMeasures[MAX_MEASURES_COUNT];
-	uint32_t nextMeasureIndex;
+    MeasureResult cachedLayout;
+    MeasureResult cachedMeasures[MAX_MEASURES_COUNT];
+    uint32_t nextMeasureIndex;
 };
 
 #endif /* MTTLAYOUTCACHE_H_ */

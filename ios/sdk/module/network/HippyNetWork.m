@@ -1,24 +1,24 @@
 /*!
-* iOS SDK
-*
-* Tencent is pleased to support the open source community by making
-* Hippy available.
-*
-* Copyright (C) 2019 THL A29 Limited, a Tencent company.
-* All rights reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*   http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * iOS SDK
+ *
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #import "HippyNetWork.h"
 #import "HippyAssert.h"
@@ -44,8 +44,8 @@ HippyFetchInfo *fetchInfoForSessionTask(NSURLSessionTask *task) {
 
 HIPPY_EXPORT_MODULE(network)
 
-HIPPY_EXPORT_METHOD(fetch:(NSDictionary *)params resolver:(__unused HippyPromiseResolveBlock)resolve rejecter:(__unused HippyPromiseRejectBlock)reject)
-{
+// clang-format off
+HIPPY_EXPORT_METHOD(fetch:(NSDictionary *)params resolver:(__unused HippyPromiseResolveBlock)resolve rejecter:(__unused HippyPromiseRejectBlock)reject) {
     NSString *method = params[@"method"];
     NSString *url = params[@"url"];
     NSDictionary *header = params[@"headers"];
@@ -97,33 +97,29 @@ HIPPY_EXPORT_METHOD(fetch:(NSDictionary *)params resolver:(__unused HippyPromise
     setFetchInfoForSessionTask(task, fetchInfo);
     [task resume];
 }
+// clang-format on
 
-- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task
-willPerformHTTPRedirection:(NSHTTPURLResponse *)response
-        newRequest:(NSURLRequest *)request
- completionHandler:(void (^)(NSURLRequest * _Nullable))completionHandler {
+- (void)URLSession:(NSURLSession *)session
+                          task:(NSURLSessionTask *)task
+    willPerformHTTPRedirection:(NSHTTPURLResponse *)response
+                    newRequest:(NSURLRequest *)request
+             completionHandler:(void (^)(NSURLRequest *_Nullable))completionHandler {
     HippyFetchInfo *fetchInfo = fetchInfoForSessionTask(task);
     if (fetchInfo.report302Status) {
         HippyPromiseResolveBlock resolver = fetchInfo.resolveBlock;
         if (resolver) {
-            NSDictionary *result = @{
-                                     @"statusCode": @(response.statusCode),
-                                     @"statusLine": @"",
-                                     @"respHeaders": response.allHeaderFields ? : @{},
-                                     @"respBody": @""
-                                     };
-            
+            NSDictionary *result =
+                @{ @"statusCode": @(response.statusCode), @"statusLine": @"", @"respHeaders": response.allHeaderFields ?: @ {}, @"respBody": @"" };
+
             resolver(result);
         }
         completionHandler(nil);
-    }
-    else {
+    } else {
         completionHandler(request);
     }
 }
 
-- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task
-didCompleteWithError:(nullable NSError *)error {
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(nullable NSError *)error {
     BOOL is302Response = ([task.response isKindOfClass:[NSHTTPURLResponse class]] && 302 == [(NSHTTPURLResponse *)task.response statusCode]);
     HippyFetchInfo *fetchInfo = fetchInfoForSessionTask(task);
     //如果是302并且禁止自动跳转，那说明已经将302结果发送给服务器，不需要再次发送
@@ -133,31 +129,25 @@ didCompleteWithError:(nullable NSError *)error {
     if (error) {
         HippyPromiseRejectBlock rejector = fetchInfo.rejectBlock;
         NSString *code = [NSString stringWithFormat:@"%ld", (long)error.code];
-        rejector(code,error.description, error);
-    }
-    else {
+        rejector(code, error.description, error);
+    } else {
         HippyPromiseResolveBlock resolver = fetchInfo.resolveBlock;
         NSData *data = fetchInfo.fetchData;
         NSString *dataStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-        NSHTTPURLResponse *resp = (NSHTTPURLResponse *) task.response;
-        NSDictionary *result = @{
-                                 @"statusCode": @(resp.statusCode),
-                                 @"statusLine": @"",
-                                 @"respHeaders": resp.allHeaderFields ? : @{},
-                                 @"respBody": dataStr ? : @""
-                                 };
-        
+        NSHTTPURLResponse *resp = (NSHTTPURLResponse *)task.response;
+        NSDictionary *result =
+            @{ @"statusCode": @(resp.statusCode), @"statusLine": @"", @"respHeaders": resp.allHeaderFields ?: @ {}, @"respBody": dataStr ?: @"" };
+
         resolver(result);
     }
 }
 
-- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask
-    didReceiveData:(NSData *)data {
+- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data {
     NSMutableData *fetchData = fetchInfoForSessionTask(dataTask).fetchData;
     [fetchData appendData:data];
 }
 
-- (NSArray<Class> *) protocolClasses {
+- (NSArray<Class> *)protocolClasses {
     return [NSArray array];
 }
 
@@ -165,6 +155,7 @@ didCompleteWithError:(nullable NSError *)error {
     return nil;
 }
 
+// clang-format off
 HIPPY_EXPORT_METHOD(getCookie:(NSString *)urlString resolver:(HippyPromiseResolveBlock)resolve rejecter:(__unused HippyPromiseRejectBlock)reject) {
     NSData *uriData = [urlString dataUsingEncoding:NSUTF8StringEncoding];
     if (nil == uriData) {
@@ -183,7 +174,9 @@ HIPPY_EXPORT_METHOD(getCookie:(NSString *)urlString resolver:(HippyPromiseResolv
     }
     resolve(string);
 }
+// clang-format on
 
+// clang-format off
 HIPPY_EXPORT_METHOD(setCookie:(NSString *)urlString keyValue:(NSString *)keyValue expireString:(NSString *)expireString) {
     NSData *uriData = [urlString dataUsingEncoding:NSUTF8StringEncoding];
     if (nil == uriData) {
@@ -209,7 +202,7 @@ HIPPY_EXPORT_METHOD(setCookie:(NSString *)urlString keyValue:(NSString *)keyValu
                 NSHTTPCookie *cookie = [NSHTTPCookie cookieWithProperties:dictionary];
                 if (cookie) {
                     [cookies addObject:cookie];
-                    //给ios11以上的系统设置WKCookie
+                    //set WKCookie for system version abover iOS11
                     if (@available(iOS 11.0, *)) {
                         WKWebsiteDataStore *ds = [WKWebsiteDataStore defaultDataStore];
                         [ds.httpCookieStore setCookie:cookie completionHandler:NULL];
@@ -220,5 +213,6 @@ HIPPY_EXPORT_METHOD(setCookie:(NSString *)urlString keyValue:(NSString *)keyValu
         [[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookies:cookies forURL:source_url mainDocumentURL:nil];
     });
 }
+// clang-format on
 
 @end

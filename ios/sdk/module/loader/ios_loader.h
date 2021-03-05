@@ -25,25 +25,23 @@
 
 #include "core/core.h"
 
-typedef std::string (*NormalizeFuncPtr)(const std::string& uri);
-typedef std::string (*LoadFuncPtr)(const std::string& uri);
+typedef std::string (*NormalizeFuncPtr)(const std::string &uri);
+typedef std::string (*LoadFuncPtr)(const std::string &uri);
 
 class IOSLoader : public hippy::base::UriLoader {
- public:
-  IOSLoader(NormalizeFuncPtr normalize, LoadFuncPtr load);
-  IOSLoader(const std::string& base);
+public:
+    IOSLoader(NormalizeFuncPtr normalize, LoadFuncPtr load);
+    IOSLoader(const std::string &base);
 
-  virtual ~IOSLoader(){};
+    virtual ~IOSLoader() {};
 
-  virtual std::string Normalize(const std::string& uri);
-  virtual std::string Load(const std::string& uri);
+    virtual std::string Normalize(const std::string &uri);
+    virtual std::string Load(const std::string &uri);
 
- protected:
-  std::string base_;
-  NormalizeFuncPtr normalize_;
-  LoadFuncPtr load_;
+protected:
+    std::string base_;
+    NormalizeFuncPtr normalize_;
+    LoadFuncPtr load_;
 };
 
 #endif  // HIPPY_MODULE_LOADER_IOS_LOADER_H_
-
-

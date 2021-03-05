@@ -55,12 +55,13 @@ function registerAnimation(Vue) {
       if (Array.isArray(actions[key])) {
         // Process AnimationSet from Array.
         const actionSet = actions[key];
+        const { repeatCount } = actionSet[actionSet.length - 1];
         const animationSetActions = actionSet.map((a) => {
+          Object.assign(a, { repeatCount: 0 });
           const action = createAnimation(a);
           action.follow = true;
           return action;
         });
-        const { repeatCount } = actionSet[actionSet.length - 1];
         const animationSetId = createAnimationSet(animationSetActions, repeatCount);
         style[key] = {
           animationId: animationSetId,

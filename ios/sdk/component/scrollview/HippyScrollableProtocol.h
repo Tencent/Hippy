@@ -22,12 +22,12 @@
 
 #import <UIKit/UIKit.h>
 
-#define RN_FORWARD_SCROLL_EVENT(call) \
-for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) { \
-  if ([scrollViewListener respondsToSelector:_cmd]) { \
-    [scrollViewListener call]; \
-  } \
-}
+#define RN_FORWARD_SCROLL_EVENT(call)                                                     \
+    for (NSObject<UIScrollViewDelegate> * scrollViewListener in [self scrollListeners]) { \
+        if ([scrollViewListener respondsToSelector:_cmd]) {                               \
+            [scrollViewListener call];                                                    \
+        }                                                                                 \
+    }
 
 @protocol HippyScrollableProtocol <UIScrollViewDelegate>
 

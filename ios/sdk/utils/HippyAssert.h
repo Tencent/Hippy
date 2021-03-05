@@ -35,21 +35,22 @@ HIPPY_EXTERN BOOL HippyIsMainQueue(void);
  * assert handler through `HippySetAssertFunction`.
  */
 #ifndef NS_BLOCK_ASSERTIONS
-#define HippyAssert(condition, ...) do { \
-  if ((condition) == 0) { \
-    _HippyAssertFormat(#condition, __FILE__, __LINE__, __func__, __VA_ARGS__); \
-    if (Hippy_NSASSERT) { \
-      [[NSAssertionHandler currentHandler] handleFailureInFunction:@(__func__) \
-        file:@(__FILE__) lineNumber:__LINE__ description:__VA_ARGS__]; \
-    } \
-  } \
-} while (false)
+#define HippyAssert(condition, ...)                                                                                           \
+    do {                                                                                                                      \
+        if ((condition) == 0) {                                                                                               \
+            _HippyAssertFormat(#condition, __FILE__, __LINE__, __func__, __VA_ARGS__);                                        \
+            if (Hippy_NSASSERT) {                                                                                             \
+                [[NSAssertionHandler currentHandler] handleFailureInFunction:@(__func__) file:@(__FILE__) lineNumber:__LINE__ \
+                                                                 description:__VA_ARGS__];                                    \
+            }                                                                                                                 \
+        }                                                                                                                     \
+    } while (false)
 #else
-#define HippyAssert(condition, ...) do {} while (false)
+#define HippyAssert(condition, ...) \
+    do {                            \
+    } while (false)
 #endif
-HIPPY_EXTERN void _HippyAssertFormat(
-  const char *, const char *, int, const char *, NSString *, ...
-) NS_FORMAT_FUNCTION(5,6);
+HIPPY_EXTERN void _HippyAssertFormat(const char *, const char *, int, const char *, NSString *, ...) NS_FORMAT_FUNCTION(5, 6);
 
 /**
  * Report a fatal condition when executing. These calls will _NOT_ be compiled out
@@ -58,7 +59,7 @@ HIPPY_EXTERN void _HippyAssertFormat(
  */
 HIPPY_EXTERN void HippyFatal(NSError *error);
 
-HIPPY_EXTERN void  MttHippyException(NSException *exception);
+HIPPY_EXTERN void MttHippyException(NSException *exception);
 
 /**
  * The default error domain to be used for Hippy errors.
@@ -88,11 +89,7 @@ HIPPY_EXTERN NSString *const HippyFatalModuleName;
 /**
  * A block signature to be used for custom assertion handling.
  */
-typedef void (^HippyAssertFunction)(NSString *condition,
-                                  NSString *fileName,
-                                  NSNumber *lineNumber,
-                                  NSString *function,
-                                  NSString *message);
+typedef void (^HippyAssertFunction)(NSString *condition, NSString *fileName, NSNumber *lineNumber, NSString *function, NSString *message);
 
 typedef void (^HippyFatalHandler)(NSError *error);
 
@@ -106,14 +103,12 @@ typedef void (^MttHippyExceptionHandler)(NSException *e);
 /**
  * Convenience macro for asserting that we're running on main queue.
  */
-#define HippyAssertMainQueue() HippyAssert(HippyIsMainQueue(), \
-  @"This function must be called on the main thread")
+#define HippyAssertMainQueue() HippyAssert(HippyIsMainQueue(), @"This function must be called on the main thread")
 
 /**
  * Convenience macro for asserting that we're running off the main queue.
  */
-#define HippyAssertNotMainQueue() HippyAssert(!HippyIsMainQueue(), \
-@"This function must not be called on the main thread")
+#define HippyAssertNotMainQueue() HippyAssert(!HippyIsMainQueue(), @"This function must not be called on the main thread")
 
 /**
  * Deprecated, do not use
@@ -159,7 +154,7 @@ HIPPY_EXTERN NSString *HippyCurrentThreadName(void);
 /**
  * Helper to get generate exception message from NSError
  */
-//HIPPY_EXTERN NSString *HippyFormatError(NSString *message, NSArray<NSDictionary<NSString *, id> *> *stacktrace, NSUInteger maxMessageLength);
+// HIPPY_EXTERN NSString *HippyFormatError(NSString *message, NSArray<NSDictionary<NSString *, id> *> *stacktrace, NSUInteger maxMessageLength);
 HIPPY_EXTERN NSString *HippyFormatError(NSString *message, NSArray<HippyJSStackFrame *> *stackTrace, NSUInteger maxMessageLength);
 
 /**
@@ -167,20 +162,18 @@ HIPPY_EXTERN NSString *HippyFormatError(NSString *message, NSArray<HippyJSStackF
  */
 #ifdef DEBUG
 
-#define HippyAssertThread(thread, format...) \
-_Pragma("clang diagnostic push") \
-_Pragma("clang diagnostic ignored \"-Wdeprecated-declarations\"") \
-HippyAssert( \
-  [(id)thread isKindOfClass:[NSString class]] ? \
-    [HippyCurrentThreadName() isEqualToString:(NSString *)thread] : \
-    [(id)thread isKindOfClass:[NSThread class]] ? \
-      [NSThread currentThread] ==  (NSThread *)thread : \
-      dispatch_get_current_queue() == (dispatch_queue_t)thread, \
-  format); \
-_Pragma("clang diagnostic pop")
+#define HippyAssertThread(thread, format...)                                                                                      \
+    _Pragma("clang diagnostic push") _Pragma("clang diagnostic ignored \"-Wdeprecated-declarations\"")                            \
+        HippyAssert([(id)thread isKindOfClass:[NSString class]]   ? [HippyCurrentThreadName() isEqualToString:(NSString *)thread] \
+                    : [(id)thread isKindOfClass:[NSThread class]] ? [NSThread currentThread] == (NSThread *)thread                \
+                                                                  : dispatch_get_current_queue() == (dispatch_queue_t)thread,     \
+            format);                                                                                                              \
+    _Pragma("clang diagnostic pop")
 
 #else
 
-#define HippyAssertThread(thread, format...) do { } while (0)
+#define HippyAssertThread(thread, format...) \
+    do {                                     \
+    } while (0)
 
 #endif

@@ -40,7 +40,6 @@ HIPPY_EXTERN NSString *const HippyJSCThreadName;
  */
 HIPPY_EXTERN NSString *const HippyJavaScriptContextCreatedNotification;
 
-
 /**
  * A Key to referenct to a HippyBridge class in HippyJavaScriptContextCreatedNotification.
  */

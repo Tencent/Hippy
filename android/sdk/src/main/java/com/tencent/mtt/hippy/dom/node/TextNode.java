@@ -645,7 +645,7 @@ public class TextNode extends StyleNode
 																						}
 																						catch (Throwable throwable)
 																						{
-																							Log.e("TextNode", "text createLayout", throwable);
+																							LogUtils.e("TextNode", "text createLayout", throwable);
 																							exception = true;
 																						}
 
@@ -703,7 +703,7 @@ public class TextNode extends StyleNode
 		}
 		else
 		{
-			layout = new StaticLayout(text, textPaint, (int) width, mTextAlign, 1.f, 0.f, true);
+			layout = new StaticLayout(text, textPaint, (int) Math.ceil(width), mTextAlign, 1.f, 0.f, true);
 		}
 		if (mNumberOfLines != UNSET && mNumberOfLines > 0)
 		{
@@ -810,7 +810,7 @@ public class TextNode extends StyleNode
 			try {
 				sb.setSpan(what, start, end, spanFlags);
 			} catch (Exception e) {
-				Log.e("TextNode", "setSpan exception msg: " + e.getMessage());
+				LogUtils.e("TextNode", "setSpan exception msg: " + e.getMessage());
 			}
 		}
 	}

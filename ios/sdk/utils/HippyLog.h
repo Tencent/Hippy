@@ -55,45 +55,30 @@
  * An enum representing the severity of the log message.
  */
 typedef NS_ENUM(NSInteger, HippyLogLevel) {
-  HippyLogLevelTrace = 0,
-  HippyLogLevelInfo = 1,
-  HippyLogLevelWarning = 2,
-  HippyLogLevelError = 3,
-  HippyLogLevelFatal = 4
+    HippyLogLevelTrace = 0,
+    HippyLogLevelInfo = 1,
+    HippyLogLevelWarning = 2,
+    HippyLogLevelError = 3,
+    HippyLogLevelFatal = 4
 };
 
 /**
  * An enum representing the source of a log message.
  */
-typedef NS_ENUM(NSInteger, HippyLogSource) {
-  HippyLogSourceNative = 1,
-  HippyLogSourceJavaScript = 2
-};
+typedef NS_ENUM(NSInteger, HippyLogSource) { HippyLogSourceNative = 1, HippyLogSourceJavaScript = 2 };
 
 /**
  * A block signature to be used for custom logging functions. In most cases you
  * will want to pass these arguments to the HippyFormatLog function in order to
  * generate a string.
  */
-typedef void (^HippyLogFunction)(
-  HippyLogLevel level,
-  HippyLogSource source,
-  NSString *fileName,
-  NSNumber *lineNumber,
-  NSString *message
-);
+typedef void (^HippyLogFunction)(HippyLogLevel level, HippyLogSource source, NSString *fileName, NSNumber *lineNumber, NSString *message);
 
 /**
  * A method to generate a string from a collection of log data. To omit any
  * particular data from the log, just pass nil or zero for the argument.
  */
-HIPPY_EXTERN NSString *HippyFormatLog(
-  NSDate *timestamp,
-  HippyLogLevel level,
-  NSString *fileName,
-  NSNumber *lineNumber,
-  NSString *message
-);
+HIPPY_EXTERN NSString *HippyFormatLog(NSDate *timestamp, HippyLogLevel level, NSString *fileName, NSNumber *lineNumber, NSString *message);
 
 /**
  * The default logging function used by HippyLogXX.
@@ -143,8 +128,10 @@ HIPPY_EXTERN void HippyPerformBlockWithLogPrefix(void (^block)(void), NSString *
 #if HippyLOG_ENABLED
 #define _HippyLog(lvl, ...) _HippyLogNativeInternal(lvl, __FILE__, __LINE__, __VA_ARGS__);
 #else
-#define _HippyLog(lvl, ...) do { } while (0)
+#define _HippyLog(lvl, ...) \
+    do {                    \
+    } while (0)
 #endif
 
-HIPPY_EXTERN void _HippyLogNativeInternal(HippyLogLevel, const char *, int, NSString *, ...) NS_FORMAT_FUNCTION(4,5);
+HIPPY_EXTERN void _HippyLogNativeInternal(HippyLogLevel, const char *, int, NSString *, ...) NS_FORMAT_FUNCTION(4, 5);
 HIPPY_EXTERN void _HippyLogJavaScriptInternal(HippyLogLevel, NSString *);

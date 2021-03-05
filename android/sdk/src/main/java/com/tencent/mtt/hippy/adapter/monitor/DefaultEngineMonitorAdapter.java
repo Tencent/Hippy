@@ -63,7 +63,7 @@ public class DefaultEngineMonitorAdapter implements HippyEngineMonitorAdapter
 	}
 
 	@Override
-	public void reportClickEvent(Object object) {
+	public void reportClickEvent(Object object, boolean isCustomEvent) {
 
 	}
 }

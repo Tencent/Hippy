@@ -31,21 +31,17 @@ import android.view.View;
 
 import java.io.File;
 
-/**
- * Created by leonardgong on 2017/12/4 0004.
- */
-
 @HippyController(name = HippyImageViewController.CLASS_NAME)
 public class HippyImageViewController extends HippyViewController<HippyImageView>
 {
 
 	public static final String	CLASS_NAME	= "Image";
-  
-  @Override
-  protected StyleNode createNode(boolean virtual)
-  {
-    return new ImageNode(virtual);
-  }
+
+	@Override
+	protected StyleNode createNode(boolean virtual)
+	{
+		return new ImageNode(virtual);
+	}
 	
 	@Override
 	protected View createViewImpl(Context context, HippyMap iniProps)
@@ -64,11 +60,11 @@ public class HippyImageViewController extends HippyViewController<HippyImageView
 		return new HippyImageView(context);
 	}
 
-  @HippyControllerProps(name = NodeProps.CUSTOM_PROP_IMAGE_TYPE, defaultType = HippyControllerProps.STRING, defaultString = "")
-  public void setImageType(HippyImageView hippyImageView, String type)
-  {
-    hippyImageView.setImageType(type);
-  }
+	@HippyControllerProps(name = NodeProps.CUSTOM_PROP_IMAGE_TYPE, defaultType = HippyControllerProps.STRING, defaultString = "")
+	public void setImageType(HippyImageView hippyImageView, String type)
+	{
+		hippyImageView.setImageType(type);
+	}
 
 	@HippyControllerProps(name = "src", defaultType = HippyControllerProps.STRING, defaultString = "")
 	public void setUrl(HippyImageView hippyImageView, String url)
