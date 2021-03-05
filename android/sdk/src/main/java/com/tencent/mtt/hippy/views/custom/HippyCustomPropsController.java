@@ -36,10 +36,6 @@ public class HippyCustomPropsController extends HippyViewController
 		return null;
 	}
 
-	public void setCustomProps(View view, String methodName, Object props) {
-
-	}
-
 	protected void onSetDTElementBizLeafIdentifier(View view) {
 		if (view == null) {
 			return;
