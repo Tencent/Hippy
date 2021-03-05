@@ -58,6 +58,8 @@ static const int64_t kDefaultEngineId = -1;
 static const int64_t kDebuggerEngineId = -9999;
 static const uint32_t kRuntimeKeyIndex = 0;
 
+static const std::string kHippyBridgeName = "hippyBridge";
+
 static std::shared_ptr<V8InspectorClientImpl> global_inspector = nullptr;
 
 namespace {
@@ -175,8 +177,8 @@ bool RunScript(std::shared_ptr<Runtime> runtime,
   }
 
   auto ret = std::static_pointer_cast<V8Ctx>(runtime->GetScope()->GetContext())
-                 ->RunScript(std::move(script_content), file_name, is_use_code_cache,
-                             &code_cache_content);
+                 ->RunScript(std::move(script_content), file_name,
+                             is_use_code_cache, &code_cache_content);
   if (is_use_code_cache) {
     if (code_cache_content.length() > 0) {
       std::unique_ptr<CommonTask> task = std::make_unique<CommonTask>();
@@ -238,27 +240,8 @@ void HandleUncaughtJsError(v8::Local<v8::Message> message,
 
   ExceptionHandler::ReportJsException(runtime, ctx->GetMsgDesc(message),
                                       ctx->GetStackInfo(message));
-
-  std::string handler_name("HippyExceptionHandler");
-  std::shared_ptr<CtxValue>  exception_handler =
-      ctx->GetGlobalObjVar(handler_name);
-  if (!ctx->IsFunction(exception_handler)) {
-    auto source_code = hippy::GetNativeSourceCode("ExceptionHandle.js");
-    HIPPY_DCHECK(source_code.data_ && source_code.length_);
-    exception_handler = ctx->RunScript(
-        source_code.data_, source_code.length_, "ExceptionHandle.js");
-    bool is_func = ctx->IsFunction(exception_handler);
-    HIPPY_CHECK_WITH_MSG(
-        is_func == true,
-        "HandleUncaughtJsError ExceptionHandle.js don't return function!!!");
-    ctx->SetGlobalObjVar(handler_name, exception_handler);
-  }
-
-  std::shared_ptr<CtxValue> args[2];
-  args[0] = ctx->CreateString("uncaughtException");
-  args[1] = std::make_shared<V8CtxValue>(isolate, error);
-  std::shared_ptr<CtxValue> ret_value =
-      ctx->CallFunction(exception_handler, 2, args);
+  ctx->ThrowExceptionToJS(std::make_shared<V8CtxValue>(isolate, error));
+  
   HIPPY_DLOG(hippy::Debug, "HandleUncaughtJsError end");
 }
 
@@ -396,9 +379,8 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_initJSFramework(
     V8VM* v8_vm = reinterpret_cast<V8VM*>(vm);
     v8::Isolate* isolate = v8_vm->isolate_;
     v8::HandleScope handle_scope(isolate);
-    isolate->AddMessageListener(
-        HandleUncaughtJsError);
-    isolate->SetData(0, runtime_key.get());
+    isolate->AddMessageListener(HandleUncaughtJsError);
+    isolate->SetData(kRuntimeKeyIndex, runtime_key.get());
   };
 
   std::unique_ptr<RegisterMap> engine_cb_map = std::make_unique<RegisterMap>();
@@ -556,7 +538,8 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromUri(
     std::shared_ptr<FileLoader> loader =
         std::make_shared<FileLoader>(base_path);
     runtime->GetScope()->SetUriLoader(loader);
-  } else if (uri_schema == "http" || uri_schema == "https" || uri_schema == "debug") {
+  } else if (uri_schema == "http" || uri_schema == "https" ||
+             uri_schema == "debug") {
     HIPPY_LOG(hippy::Debug, "HttpLoader");
     std::shared_ptr<HttpLoader> loader = std::make_shared<HttpLoader>();
     loader->SetBridge(runtime->GetBridge());
@@ -659,7 +642,8 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_callFunction(
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
   task->callback = [runtime, save_object_ = std::move(save_object), action_name,
                     hippy_params] {
-    HIPPY_DLOG(hippy::Debug, "js callFunction action_name = %s, hippy_params = %s",
+    HIPPY_DLOG(hippy::Debug,
+               "js callFunction action_name = %s, hippy_params = %s",
                action_name.c_str(), hippy_params.c_str());
     std::shared_ptr<Ctx> context = runtime->GetScope()->GetContext();
     if (runtime->IsDebug() && !action_name.compare("onWebsocketMsg")) {
@@ -667,7 +651,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_callFunction(
     } else {
       if (!runtime->GetBridgeFunc()) {
         HIPPY_DLOG(hippy::Debug, "bridge_func_ init");
-        std::string name("hippyBridge");
+        std::string name(kHippyBridgeName);
         std::shared_ptr<CtxValue> fn = context->GetJsFn(name);
         bool is_fn = context->IsFunction(fn);
         HIPPY_DLOG(hippy::Debug, "is_fn = %d", is_fn);
@@ -747,7 +731,6 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_destroy(
   runtime->GetEngine()->GetJSRunner()->PostTask(task);
   HIPPY_DLOG(hippy::Debug, "destroy, group = %lld", group);
   if (group == kDebuggerEngineId) {
-  
   } else if (group == kDefaultEngineId) {
     runtime->GetEngine()->TerminateRunner();
   } else {

@@ -71,7 +71,7 @@ void JsCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info) {
 
   v8::Isolate* isolate = info.GetIsolate();
   if (!isolate) {
-    HIPPY_LOG(hippy::Error, "JsCallbackFunc isolate_ error");
+    HIPPY_LOG(hippy::Error, "JsCallbackFunc isolate error");
     return;
   }
 
@@ -329,8 +329,7 @@ std::shared_ptr<Ctx> V8VM::CreateContext() {
 }
 
 V8TryCatch::V8TryCatch(bool enable, std::shared_ptr<Ctx> ctx)
-    : TryCatch(enable, ctx),
-      try_catch_(nullptr) {
+    : TryCatch(enable, ctx), try_catch_(nullptr) {
   if (enable) {
     std::shared_ptr<V8Ctx> v8_ctx = std::static_pointer_cast<V8Ctx>(ctx);
     if (v8_ctx) {
@@ -372,7 +371,7 @@ bool V8TryCatch::IsVerbose() {
   if (try_catch_) {
     return try_catch_->IsVerbose();
   }
-  return true;
+  return false;
 }
 
 void V8TryCatch::SetVerbose(bool verbose) {
@@ -399,7 +398,7 @@ std::string V8TryCatch::GetExceptionMsg() {
   std::shared_ptr<V8Ctx> v8_ctx = std::static_pointer_cast<V8Ctx>(ctx_);
   std::string desc = v8_ctx->GetMsgDesc(message);
   std::string stack = v8_ctx->GetStackInfo(message);
-  return "{\"message\": \"" + desc + "\", \"stack\": \"" + stack + "\"}";
+  return "message: " + desc + ", stack: " + stack;
 }
 
 std::string V8Ctx::GetMsgDesc(v8::Local<v8::Message> message) {
@@ -454,9 +453,9 @@ std::string V8Ctx::GetStackInfo(v8::Local<v8::Message> message) {
         *script_name ? *script_name : "<script name conversion failed>";
     std::string stack_function_name =
         *function_name ? *function_name : "<function name conversion failed>";
-    stack_stream << " \\n "
-                 << stack_script_name << ":" << frame->GetLineNumber() << ":"
-                 << frame->GetColumn() << ":" << stack_function_name;
+    stack_stream << " \\n " << stack_script_name << ":"
+                 << frame->GetLineNumber() << ":" << frame->GetColumn() << ":"
+                 << stack_function_name;
   }
   std::string stack = stack_stream.str();
   HIPPY_DLOG(hippy::Debug, "stack = %s", stack.c_str());
@@ -476,8 +475,7 @@ bool V8Ctx::RegisterGlobalInJs() {
       global);
 }
 
-bool V8Ctx::SetGlobalJsonVar(const std::string& name,
-                             const char* json) {
+bool V8Ctx::SetGlobalJsonVar(const std::string& name, const char* json) {
   HIPPY_DLOG(hippy::Debug, "SetGlobalJsonVar name = %s, json = %s",
              name.c_str(), json);
   v8::HandleScope handle_scope(isolate_);
@@ -494,8 +492,7 @@ bool V8Ctx::SetGlobalJsonVar(const std::string& name,
   return false;
 }
 
-bool V8Ctx::SetGlobalStrVar(const std::string& name,
-                            const char* str) {
+bool V8Ctx::SetGlobalStrVar(const std::string& name, const char* str) {
   HIPPY_DLOG(hippy::Debug, "SetGlobalStrVar name = %s, str = %s", name.c_str(),
              str);
   v8::HandleScope handle_scope(isolate_);
@@ -512,8 +509,10 @@ bool V8Ctx::SetGlobalStrVar(const std::string& name,
 }
 
 bool V8Ctx::SetGlobalObjVar(const std::string& name,
-                            std::shared_ptr<CtxValue> obj) {
-  HIPPY_DLOG(hippy::Debug, "SetGlobalObjVar name = %s", name.c_str());
+                            std::shared_ptr<CtxValue> obj,
+                            PropertyAttribute attr) {
+  HIPPY_DLOG(hippy::Debug, "SetGlobalStrVar name = %s, attr = %d", name.c_str(),
+             attr);
   std::shared_ptr<V8CtxValue> ctx_value =
       std::static_pointer_cast<V8CtxValue>(obj);
 
@@ -525,14 +524,17 @@ bool V8Ctx::SetGlobalObjVar(const std::string& name,
       ctx_value->persisent_value_;
   v8::Handle<v8::Value> handle_value =
       v8::Handle<v8::Value>::New(isolate_, persistent_value);
-  return global->Set(v8::String::NewFromUtf8(isolate_, name.c_str(),
-                                             v8::NewStringType::kNormal)
-                         .FromMaybe(v8::Local<v8::String>()),
-                     handle_value);
+  v8::PropertyAttribute v8_attr = v8::PropertyAttribute(attr);
+  return global
+      ->DefineOwnProperty(context,
+                          v8::String::NewFromUtf8(isolate_, name.c_str(),
+                                                  v8::NewStringType::kNormal)
+                              .FromMaybe(v8::Local<v8::String>()),
+                          handle_value, v8_attr)
+      .FromMaybe(false);
 }
 
-std::shared_ptr<CtxValue> V8Ctx::GetGlobalStrVar(
-    const std::string& name) {
+std::shared_ptr<CtxValue> V8Ctx::GetGlobalStrVar(const std::string& name) {
   HIPPY_DLOG(hippy::Debug, "GetGlobalStrVar name = %s", name.c_str());
   v8::HandleScope handle_scope(isolate_);
   v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
@@ -685,7 +687,8 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const uint8_t* data,
     return nullptr;
   }
 
-  return InternalRunScript(context, source, file_name, is_use_code_cache, cache);
+  return InternalRunScript(context, source, file_name, is_use_code_cache,
+                           cache);
 }
 
 std::shared_ptr<CtxValue> V8Ctx::RunScript(const std::string&& script,
@@ -735,7 +738,8 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const std::string&& script,
               file_name.c_str());
     return nullptr;
   }
-  return InternalRunScript(context, source, file_name, is_use_code_cache, cache);
+  return InternalRunScript(context, source, file_name, is_use_code_cache,
+                           cache);
 }
 
 std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
@@ -800,6 +804,39 @@ std::shared_ptr<CtxValue> V8Ctx::GetJsFn(const std::string& name) {
   v8::Local<v8::Function> value = v8::Local<v8::Function>::Cast(
       context_persistent_.Get(isolate_)->Global()->Get(js_name));
   return std::make_shared<V8CtxValue>(isolate_, value);
+}
+
+bool V8Ctx::ThrowExceptionToJS(std::shared_ptr<CtxValue> exception) {
+  std::shared_ptr<CtxValue> exception_handler =
+      GetGlobalObjVar(kHippyErrorHandlerName);
+
+  if (!IsFunction(exception_handler)) {
+    auto source_code = hippy::GetNativeSourceCode(kErrorHandlerJSName);
+    HIPPY_DCHECK(source_code.data_ && source_code.length_);
+    exception_handler =
+        RunScript(source_code.data_, source_code.length_, kErrorHandlerJSName);
+    bool is_func = IsFunction(exception_handler);
+    HIPPY_CHECK_WITH_MSG(
+        is_func == true,
+        "HandleUncaughtJsError ExceptionHandle.js don't return function!!!");
+    SetGlobalObjVar(kHippyErrorHandlerName, exception_handler,
+                    PropertyAttribute::ReadOnly);
+  }
+
+  std::shared_ptr<CtxValue> args[2];
+  args[0] = CreateString("uncaughtException");
+  args[1] = exception;
+
+  v8::TryCatch try_catch(isolate_);
+  std::shared_ptr<CtxValue> ret_value =
+      CallFunction(exception_handler, 2, args);
+  if (try_catch.HasCaught()) {
+    auto message = try_catch.Message();
+    HIPPY_DLOG(hippy::Error,
+               "HippyExceptionHandler error, desc = %s, stack = %s",
+               GetMsgDesc(message).c_str(), GetStackInfo(message).c_str());
+  }
+  return true;
 }
 
 std::shared_ptr<CtxValue> V8Ctx::CallFunction(

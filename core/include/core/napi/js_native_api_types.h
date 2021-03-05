@@ -36,6 +36,20 @@ class Scope;
 namespace hippy {
 namespace napi {
 
+static const std::string kErrorHandlerJSName = "ExceptionHandle.js";
+static const std::string kHippyErrorHandlerName = "HippyExceptionHandler";
+
+enum PropertyAttribute {
+  /** None. **/
+  None = 0,
+  /** ReadOnly, i.e., not writable. **/
+  ReadOnly = 1 << 0,
+  /** DontEnum, i.e., not enumerable. **/
+  DontEnum = 1 << 1,
+  /** DontDelete, i.e., not configurable. **/
+  DontDelete = 1 << 2
+};
+
 class CallbackInfo;
 using JsCallback = std::function<void(const CallbackInfo& info)>;
 
@@ -64,7 +78,8 @@ class Ctx {
   virtual bool SetGlobalJsonVar(const std::string& name, const char* json) = 0;
   virtual bool SetGlobalStrVar(const std::string& name, const char* str) = 0;
   virtual bool SetGlobalObjVar(const std::string& name,
-                               std::shared_ptr<CtxValue> obj) = 0;
+                               std::shared_ptr<CtxValue> obj,
+                               PropertyAttribute attr = None) = 0;
   virtual std::shared_ptr<CtxValue> GetGlobalStrVar(
       const std::string& name) = 0;
   virtual std::shared_ptr<CtxValue> GetGlobalObjVar(
@@ -135,6 +150,7 @@ class Ctx {
       std::string* cache = nullptr,
       Encoding encodeing = Encoding::UNKNOWN_ENCODING) = 0;
   virtual std::shared_ptr<CtxValue> GetJsFn(const std::string& name) = 0;
+  virtual bool ThrowExceptionToJS(std::shared_ptr<CtxValue> exception) = 0;
 };
 
 class VM {

@@ -61,11 +61,11 @@ void ContextifyModule::RunInThisContext(const hippy::napi::CallbackInfo& info) {
   HIPPY_DLOG(hippy::Debug, "RunInThisContext key = %s", key.c_str());
   auto source_code = hippy::GetNativeSourceCode(key.c_str());
   std::shared_ptr<TryCatch> try_catch = CreateTryCatchScope(true, context);
-  try_catch->SetVerbose(true);
-  std::shared_ptr<CtxValue> ret =
-      context->RunScript(source_code.data_, source_code.length_, key.c_str(), false, nullptr);
+  std::shared_ptr<CtxValue> ret = context->RunScript(
+      source_code.data_, source_code.length_, key.c_str(), false, nullptr);
   if (try_catch->HasCaught()) {
-    HIPPY_LOG(hippy::Error, "GetNativeSourceCode error = %s", try_catch->GetExceptionMsg().c_str());
+    HIPPY_LOG(hippy::Error, "GetNativeSourceCode error = %s",
+              try_catch->GetExceptionMsg().c_str());
     info.GetExceptionValue()->Set(try_catch->Exception());
   } else {
     info.GetReturnValue()->Set(ret);

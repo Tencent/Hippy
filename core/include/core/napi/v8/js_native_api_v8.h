@@ -114,7 +114,8 @@ struct V8Ctx : public Ctx {
   virtual bool SetGlobalJsonVar(const std::string &name, const char *json);
   virtual bool SetGlobalStrVar(const std::string &name, const char *str);
   virtual bool SetGlobalObjVar(const std::string &name,
-                               std::shared_ptr<CtxValue>);
+                               std::shared_ptr<CtxValue> obj,
+                               PropertyAttribute attr = None);
   virtual std::shared_ptr<CtxValue> GetGlobalStrVar(const std::string &name);
   virtual std::shared_ptr<CtxValue> GetGlobalObjVar(const std::string &name);
   virtual std::shared_ptr<CtxValue> GetProperty(
@@ -181,6 +182,7 @@ struct V8Ctx : public Ctx {
       Encoding encodeing = Encoding::UNKNOWN_ENCODING);
 
   virtual std::shared_ptr<CtxValue> GetJsFn(const std::string &name);
+  virtual bool ThrowExceptionToJS(std::shared_ptr<CtxValue> exception);
 
   std::string GetMsgDesc(v8::Local<v8::Message> message);
   std::string GetStackInfo(v8::Local<v8::Message> message);

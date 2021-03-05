@@ -34,7 +34,6 @@ const std::string kVMCreateCBKey = "VM_CREATED";
 const std::string kContextCreatedCBKey = "CONTEXT_CREATED";
 const std::string KScopeInitializedCBKey = "SCOPE_INITIALIEZED";
 const std::string kAsyncTaskEndKey = "ASYNC_TASK_END";
-const std::string kHandleExceptionKey = "HANDLE_EXCEPTION";
 
 using RegisterFunction = std::function<void(void*)>;
 using RegisterMap = std::unordered_map<std::string, RegisterFunction>;
