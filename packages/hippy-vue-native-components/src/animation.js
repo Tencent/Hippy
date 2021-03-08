@@ -1,3 +1,4 @@
+
 function registerAnimation(Vue) {
   // Constants for animations
   const MODULE_NAME = 'AnimationModule';
@@ -57,8 +58,7 @@ function registerAnimation(Vue) {
         const actionSet = actions[key];
         const { repeatCount } = actionSet[actionSet.length - 1];
         const animationSetActions = actionSet.map((a) => {
-          Object.assign(a, { repeatCount: 0 });
-          const action = createAnimation(a);
+          const action = createAnimation(Object.assign({}, a, { repeatCount: 0 }));
           action.follow = true;
           return action;
         });
@@ -70,8 +70,9 @@ function registerAnimation(Vue) {
         // Process standalone Animation.
         const action = actions[key];
         const animation = createAnimation(action);
+        const { animationId } = animation;
         style[key] = {
-          animationId: animation.animationId,
+          animationId,
         };
       }
     });
@@ -120,6 +121,29 @@ function registerAnimation(Vue) {
       },
       props: Object,
     },
+    data() {
+      return {
+        style: {},
+        animationIds: [],
+        animationEventMap: {},
+      };
+    },
+    created() {
+      let animationEventName = 'onAnimation';
+      // If running in Android, change it.
+      if (Vue.Native.Platform === 'android') {
+        animationEventName = 'onHippyAnimation';
+      }
+      this.animationEventMap = {
+        start: `${animationEventName}Start`,
+        end: `${animationEventName}End`,
+        repeat: `${animationEventName}Repeat`,
+        cancel: `${animationEventName}Cancel`,
+      };
+      if (Vue.getApp) {
+        this.app = Vue.getApp();
+      }
+    },
     beforeMount() {
       this.create();
     },
@@ -131,11 +155,6 @@ function registerAnimation(Vue) {
     },
     beforeDestroy() {
       this.destroy();
-    },
-    data() {
-      return {
-        style: {},
-      };
     },
     methods: {
       create() {
@@ -149,18 +168,51 @@ function registerAnimation(Vue) {
         }
         // Turn to be true at first startAnimation, and be false again when destroy.
         this.$alreadyStarted = false;
-
         // Generated style
         this.style = style;
       },
+      removeAnimationEvent() {
+        Object.keys(this.animationEventMap).forEach((key) => {
+          const eventName = this.animationEventMap[key];
+          if (eventName && this.app && this[`${eventName}`]) {
+            this.app.$off(eventName, this[`${eventName}`]);
+          }
+        });
+      },
+      addAnimationEvent() {
+        Object.keys(this.animationEventMap).forEach((key) => {
+          const eventName = this.animationEventMap[key];
+          if (eventName && this.app) {
+            this[`${eventName}`] = function eventHandler(animationId) {
+              if (this.animationIds.indexOf(animationId) >= 0) {
+                if (key !== 'repeat') {
+                  this.app.$off(eventName, this[`${eventName}`]);
+                }
+                this.$emit(key);
+              }
+            }.bind(this);
+            this.app.$on(eventName, this[`${eventName}`]);
+          }
+        });
+      },
+      reset() {
+        this.$alreadyStarted = false;
+      },
       start() {
-        const animationIds = getAnimationIds(this.style);
         if (!this.$alreadyStarted) {
+          const animationIds = getAnimationIds(this.style);
+          this.animationIds = animationIds;
           this.$alreadyStarted = true;
+          this.removeAnimationEvent();
+          this.addAnimationEvent();
           animationIds.forEach(animationId => Vue.Native.callNative(MODULE_NAME, 'startAnimation', animationId));
         } else {
-          animationIds.forEach(animationId => Vue.Native.callNative(MODULE_NAME, 'resumeAnimation', animationId));
+          this.resume();
         }
+      },
+      resume() {
+        const animationIds = getAnimationIds(this.style);
+        animationIds.forEach(animationId => Vue.Native.callNative(MODULE_NAME, 'resumeAnimation', animationId));
       },
       pause() {
         if (!this.$alreadyStarted) {
@@ -170,6 +222,7 @@ function registerAnimation(Vue) {
         animationIds.forEach(animationId => Vue.Native.callNative(MODULE_NAME, 'pauseAnimation', animationId));
       },
       destroy() {
+        this.removeAnimationEvent();
         this.$alreadyStarted = false;
         const animationIds = getAnimationIds(this.style);
         animationIds.forEach(animationId => Vue.Native.callNative(MODULE_NAME, 'destroyAnimation', animationId));
@@ -186,12 +239,8 @@ function registerAnimation(Vue) {
       actions() {
         // FIXME: Should diff the props and use updateAnimation method to update the animation.
         //        Hard restart the animation is no correct.
-        const { playing } = this.$props;
         this.destroy();
         this.create();
-        if (playing) {
-          this.$nextTick(() => this.start());
-        }
       },
     },
     template: `
