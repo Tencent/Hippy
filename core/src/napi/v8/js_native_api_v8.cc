@@ -832,7 +832,7 @@ bool V8Ctx::ThrowExceptionToJS(std::shared_ptr<CtxValue> exception) {
       CallFunction(exception_handler, 2, args);
   if (try_catch.HasCaught()) {
     auto message = try_catch.Message();
-    HIPPY_DLOG(hippy::Error,
+    HIPPY_LOG(hippy::Error,
                "HippyExceptionHandler error, desc = %s, stack = %s",
                GetMsgDesc(message).c_str(), GetStackInfo(message).c_str());
   }
