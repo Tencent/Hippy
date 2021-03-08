@@ -33,15 +33,18 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
-/**
- * Created by leonardgong on 2017/12/7 0007.
- */
-
 @HippyController(name = HippyListViewController.CLASS_NAME)
 public class HippyListViewController extends HippyViewController<HippyListView>
 {
-
 	public static final String CLASS_NAME = "ListView";
+
+	@Override
+	public void onViewDestroy(HippyListView hippyListView) {
+		super.onViewDestroy(hippyListView);
+		if (hippyListView != null && hippyListView.mListScrollListeners != null) {
+			hippyListView.mListScrollListeners.clear();
+		}
+	}
 
 	@Override
 	protected void addView(ViewGroup parentView, View view, int index)
@@ -173,11 +176,11 @@ public class HippyListViewController extends HippyViewController<HippyListView>
 		}
 	}
 
-  @HippyControllerProps(name = "overScrollEnabled", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = true)
-  public void setOverScrollEnabled(HippyListView view, boolean flag)
-  {
-    view.setOverScrollEnabled(flag);
-  }
+	@HippyControllerProps(name = "overScrollEnabled", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = true)
+	public void setOverScrollEnabled(HippyListView view, boolean flag)
+	{
+		view.setOverScrollEnabled(flag);
+	}
 
 	@Override
 	public void dispatchFunction(HippyListView view, String functionName, HippyArray dataArray)
@@ -205,11 +208,11 @@ public class HippyListViewController extends HippyViewController<HippyListView>
 				view.scrollToContentOffset(xOffset, yOffset, animated,duration);
 				break;
 			}
-      case "scrollToTop":
-      {
-        view.scrollToTop(null);
-        break;
-      }
+			case "scrollToTop":
+			{
+				view.scrollToTop(null);
+				break;
+			}
 		}
 	}
 }
