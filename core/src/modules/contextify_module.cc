@@ -43,6 +43,7 @@ REGISTER_MODULE(ContextifyModule, LoadUriContent)
 using Ctx = hippy::napi::Ctx;
 using CtxValue = hippy::napi::CtxValue;
 using CallbackInfo = hippy::napi::CallbackInfo;
+using TryCatch = hippy::napi::TryCatch;
 using UriLoader = hippy::base::UriLoader;
 
 void ContextifyModule::RunInThisContext(const hippy::napi::CallbackInfo& info) {
@@ -59,15 +60,16 @@ void ContextifyModule::RunInThisContext(const hippy::napi::CallbackInfo& info) {
 
   HIPPY_DLOG(hippy::Debug, "RunInThisContext key = %s", key.c_str());
   auto source_code = hippy::GetNativeSourceCode(key.c_str());
-  std::string exception;
-  std::shared_ptr<CtxValue> ret =
-      context->RunScript(source_code.data_, source_code.length_, key.c_str(), false, nullptr, &exception);
-    if (exception.length() > 0) {
-        info.GetExceptionValue()->Set(
-            context, exception.c_str());
-    } else {
-        info.GetReturnValue()->Set(ret);
-    }
+  std::shared_ptr<TryCatch> try_catch = CreateTryCatchScope(true, context);
+  std::shared_ptr<CtxValue> ret = context->RunScript(
+      source_code.data_, source_code.length_, key.c_str(), false, nullptr);
+  if (try_catch->HasCaught()) {
+    HIPPY_LOG(hippy::Error, "GetNativeSourceCode error = %s",
+              try_catch->GetExceptionMsg().c_str());
+    info.GetExceptionValue()->Set(try_catch->Exception());
+  } else {
+    info.GetReturnValue()->Set(ret);
+  }
 }
 
 void ContextifyModule::RemoveCBFunc(const std::string& uri) {
@@ -154,17 +156,19 @@ void ContextifyModule::LoadUriContent(const CallbackInfo& info) {
         HIPPY_DLOG(hippy::Debug, "__HIPPYCURDIR__ cur_dir = %s",
                    cur_dir.c_str());
         ctx->SetGlobalStrVar("__HIPPYCURDIR__", cur_dir.c_str());
-        std::string exception;
-        scope->RunJS(std::move(move_code), file_name, &exception, encode);
+        std::shared_ptr<TryCatch> try_catch =
+            CreateTryCatchScope(true, scope->GetContext());
+        try_catch->SetVerbose(true);
+        scope->RunJS(std::move(move_code), file_name, encode);
         ctx->SetGlobalObjVar("__HIPPYCURDIR__", last_dir_str_obj);
         std::string last_dir_str;
         ctx->GetValueString(last_dir_str_obj, &last_dir_str);
         HIPPY_DLOG(hippy::Debug, "restore __HIPPYCURDIR__ = %s",
                    last_dir_str.c_str());
-        if (exception.empty()) {
+        if (try_catch->HasCaught()) {
           error = ctx->CreateNull();
         } else {
-          error = ctx->CreateJsError(exception);
+          error = try_catch->Exception();
         }
       } else {
         error = ctx->CreateJsError(uri + " not found");

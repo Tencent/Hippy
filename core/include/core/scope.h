@@ -84,18 +84,15 @@ class Scope {
 
   void RunJS(const std::string&& js,
              const std::string& name,
-             std::string* exception = nullptr,
              Encoding encodeing = Encoding::UNKNOWN_ENCODING);
 
   void RunJS(const uint8_t* data,
              size_t len,
-             const std::string& name,
-             std::string* exception = nullptr);
+             const std::string& name);
 
   std::shared_ptr<CtxValue> RunJSSync(const uint8_t* data,
                                       size_t len,
-                                      const std::string& name,
-                                      std::string* exception = nullptr);
+                                      const std::string& name);
 
   inline std::shared_ptr<JavaScriptTaskRunner> GetTaskRunner() {
     return engine_->GetJSRunner();

@@ -36,6 +36,20 @@ class Scope;
 namespace hippy {
 namespace napi {
 
+static const std::string kErrorHandlerJSName = "ExceptionHandle.js";
+static const std::string kHippyErrorHandlerName = "HippyExceptionHandler";
+
+enum PropertyAttribute {
+  /** None. **/
+  None = 0,
+  /** ReadOnly, i.e., not writable. **/
+  ReadOnly = 1 << 0,
+  /** DontEnum, i.e., not enumerable. **/
+  DontEnum = 1 << 1,
+  /** DontDelete, i.e., not configurable. **/
+  DontDelete = 1 << 2
+};
+
 class CallbackInfo;
 using JsCallback = std::function<void(const CallbackInfo& info)>;
 
@@ -46,22 +60,6 @@ using ModuleClass = std::unordered_map<std::string, hippy::napi::JsCallback>;
 using ModuleClassMap = std::unordered_map<std::string, ModuleClass>;
 
 enum Encoding { UNKNOWN_ENCODING, TWO_BYTE_ENCODING, ONE_BYTE_ENCODING };
-
-enum napi_status {
-  napi_ok = 0,
-  napi_invalid_arg = -100,
-  napi_vm_exception = -101,
-  napi_context_exception = -102,
-  napi_object_exception = -103,
-  napi_string_exception = -104,
-  napi_name_exception = -105,
-  napi_function_exception = -106,
-  napi_number_exception = -107,
-  napi_boolean_exception = -108,
-  napi_array_exception = -109,
-  napi_system_error = -110,
-  napi_unknown = -1000,
-};
 
 class CtxValue {
  public:
@@ -77,25 +75,18 @@ class Ctx {
   virtual ~Ctx() { HIPPY_DLOG(hippy::Debug, "~Ctx"); };
 
   virtual bool RegisterGlobalInJs() = 0;
-  virtual bool SetGlobalJsonVar(const std::string& name,
-                                const char* json,
-                                std::string* exception = nullptr) = 0;
-  virtual bool SetGlobalStrVar(const std::string& name,
-                               const char* str,
-                               std::string* exception = nullptr) = 0;
+  virtual bool SetGlobalJsonVar(const std::string& name, const char* json) = 0;
+  virtual bool SetGlobalStrVar(const std::string& name, const char* str) = 0;
   virtual bool SetGlobalObjVar(const std::string& name,
                                std::shared_ptr<CtxValue> obj,
-                               std::string* exception = nullptr) = 0;
+                               PropertyAttribute attr = None) = 0;
   virtual std::shared_ptr<CtxValue> GetGlobalStrVar(
-      const std::string& name,
-      std::string* exception = nullptr) = 0;
+      const std::string& name) = 0;
   virtual std::shared_ptr<CtxValue> GetGlobalObjVar(
-      const std::string& name,
-      std::string* exception = nullptr) = 0;
+      const std::string& name) = 0;
   virtual std::shared_ptr<CtxValue> GetProperty(
       const std::shared_ptr<CtxValue> object,
-      const std::string& name,
-      std::string* exception = nullptr) = 0;
+      const std::string& name) = 0;
 
   virtual void RegisterGlobalModule(std::shared_ptr<Scope> scope,
                                     const ModuleClassMap& modules) = 0;
@@ -118,8 +109,7 @@ class Ctx {
   virtual std::shared_ptr<CtxValue> CallFunction(
       std::shared_ptr<CtxValue> function,
       size_t argument_count = 0,
-      const std::shared_ptr<CtxValue> argumets[] = nullptr,
-      std::string* exception = nullptr) = 0;
+      const std::shared_ptr<CtxValue> argumets[] = nullptr) = 0;
 
   virtual bool GetValueNumber(std::shared_ptr<CtxValue>, double* result) = 0;
   virtual bool GetValueNumber(std::shared_ptr<CtxValue>, int32_t* result) = 0;
@@ -151,7 +141,6 @@ class Ctx {
       const std::string& file_name,
       bool is_use_code_cache = false,
       std::string* cache = nullptr,
-      std::string* exception = nullptr,
       Encoding encodeing = Encoding::ONE_BYTE_ENCODING) = 0;
 
   virtual std::shared_ptr<CtxValue> RunScript(
@@ -159,11 +148,9 @@ class Ctx {
       const std::string& file_name,
       bool is_use_code_cache = false,
       std::string* cache = nullptr,
-      std::string* exception = nullptr,
       Encoding encodeing = Encoding::UNKNOWN_ENCODING) = 0;
-  virtual std::shared_ptr<CtxValue> GetJsFn(
-      const std::string& name,
-      std::string* exception = nullptr) = 0;
+  virtual std::shared_ptr<CtxValue> GetJsFn(const std::string& name) = 0;
+  virtual bool ThrowExceptionToJS(std::shared_ptr<CtxValue> exception) = 0;
 };
 
 class VM {
@@ -172,6 +159,25 @@ class VM {
   virtual ~VM() { HIPPY_DLOG(hippy::Debug, "~VM"); };
 
   virtual std::shared_ptr<Ctx> CreateContext() = 0;
+};
+
+class TryCatch {
+ public:
+  TryCatch(bool enable = false, std::shared_ptr<Ctx> ctx = nullptr)
+      : enable_(enable), ctx_(ctx){};
+  virtual ~TryCatch(){};
+  virtual void ReThrow() = 0;
+  virtual bool HasCaught() = 0;
+  virtual bool CanContinue() = 0;
+  virtual bool HasTerminated() = 0;
+  virtual bool IsVerbose() = 0;
+  virtual void SetVerbose(bool verbose) = 0;
+  virtual std::shared_ptr<CtxValue> Exception() = 0;
+  virtual std::string GetExceptionMsg() = 0;
+
+ protected:
+  bool enable_;
+  std::shared_ptr<Ctx> ctx_;
 };
 
 class BindingData {

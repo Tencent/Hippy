@@ -49,12 +49,15 @@ class JSCVM : public VM {
   virtual std::shared_ptr<Ctx> CreateContext();
 };
 
+class JSCCtxValue;
+
 class JSCCtx : public Ctx {
  public:
   explicit JSCCtx(JSContextGroupRef vm) {
     context_ = JSGlobalContextCreateInGroup(vm, nullptr);
 
-    error_ = napi_ok;
+    exception_ = nullptr;
+    is_exception_handled_ = false;
   }
 
   ~JSCCtx() {
@@ -63,27 +66,37 @@ class JSCCtx : public Ctx {
   }
 
   JSGlobalContextRef GetCtxRef() { return context_; }
-
+  
+  inline std::shared_ptr<JSCCtxValue> GetException() {
+    return exception_;
+  }
+  inline void SetException(std::shared_ptr<JSCCtxValue> exception) {
+    exception_ = exception;
+    if (exception) {
+      is_exception_handled_ = false;
+    }
+  }
+  inline bool IsExceptionHandled() {
+    return is_exception_handled_;
+  }
+  inline void SetExceptionHandled(bool is_exception_handled) {
+    is_exception_handled_ = is_exception_handled;
+  }
   virtual bool RegisterGlobalInJs();
   virtual bool SetGlobalJsonVar(const std::string& name,
-                                const char* json,
-                                std::string* exception = nullptr);
+                                const char* json);
   virtual bool SetGlobalStrVar(const std::string& name,
-                               const char* str,
-                               std::string* exception = nullptr);
+                               const char* str);
   virtual bool SetGlobalObjVar(const std::string& name,
                                std::shared_ptr<CtxValue> obj,
-                               std::string* exception = nullptr);
+                               PropertyAttribute attr = None);
   virtual std::shared_ptr<CtxValue> GetGlobalStrVar(
-      const std::string& name,
-      std::string* exception = nullptr);
+      const std::string& name);
   virtual std::shared_ptr<CtxValue> GetGlobalObjVar(
-      const std::string& name,
-      std::string* exception = nullptr);
+      const std::string& name);
   virtual std::shared_ptr<CtxValue> GetProperty(
       const std::shared_ptr<CtxValue> object,
-      const std::string& name,
-      std::string* exception = nullptr);
+      const std::string& name);
   virtual void RegisterGlobalModule(std::shared_ptr<Scope> scope,
                                     const ModuleClassMap& modules);
   virtual void RegisterNativeBinding(const std::string& name,
@@ -108,8 +121,7 @@ class JSCCtx : public Ctx {
   virtual std::shared_ptr<CtxValue> CallFunction(
       std::shared_ptr<CtxValue> function,
       size_t argument_count = 0,
-      const std::shared_ptr<CtxValue> argumets[] = nullptr,
-      std::string* exception = nullptr);
+      const std::shared_ptr<CtxValue> argumets[] = nullptr);
 
   virtual bool GetValueNumber(std::shared_ptr<CtxValue>, double* result);
   virtual bool GetValueNumber(std::shared_ptr<CtxValue>, int32_t* result);
@@ -133,8 +145,7 @@ class JSCCtx : public Ctx {
 
   virtual bool IsFunction(std::shared_ptr<CtxValue>);
   virtual std::string CopyFunctionName(std::shared_ptr<CtxValue>);
-  virtual std::shared_ptr<CtxValue> GetJsFn(const std::string& name,
-                                            std::string* exception = nullptr);
+  virtual std::shared_ptr<CtxValue> GetJsFn(const std::string& name);
 
   virtual std::shared_ptr<CtxValue> RunScript(
       const uint8_t* data,
@@ -142,7 +153,6 @@ class JSCCtx : public Ctx {
       const std::string& file_name,
       bool is_use_code_cache = false,
       std::string* cache = nullptr,
-      std::string* exception = nullptr,
       Encoding encodeing = Encoding::ONE_BYTE_ENCODING);
 
   virtual std::shared_ptr<CtxValue> RunScript(
@@ -150,13 +160,14 @@ class JSCCtx : public Ctx {
       const std::string& file_name,
       bool is_use_code_cache = false,
       std::string* cache = nullptr,
-      std::string* exception = nullptr,
       Encoding encodeing = Encoding::UNKNOWN_ENCODING);
 
-  bool HandleJsException(JSValueRef value, std::string& exception_str);
-
+  std::string GetExceptionMsg(std::shared_ptr<CtxValue> exception);
+  bool ThrowExceptionToJS(std::shared_ptr<CtxValue> exception);
+  
   JSGlobalContextRef context_;
-  napi_status error_;
+  std::shared_ptr<JSCCtxValue> exception_;
+  bool is_exception_handled_;
 };
 
 class JSCCtxValue : public CtxValue {
@@ -172,6 +183,26 @@ class JSCCtxValue : public CtxValue {
   JSValueRef value_;
 
   DISALLOW_COPY_AND_ASSIGN(JSCCtxValue);
+};
+
+class JSCTryCatch: public TryCatch {
+ public:
+  JSCTryCatch(bool enable,
+              std::shared_ptr<Ctx> ctx);
+  virtual ~JSCTryCatch();
+  virtual void ReThrow();
+  virtual bool HasCaught();
+  virtual bool CanContinue();
+  virtual bool HasTerminated();
+  virtual bool IsVerbose();
+  virtual void SetVerbose(bool verbose);
+  virtual std::shared_ptr<CtxValue> Exception();
+  virtual std::string GetExceptionMsg();
+  
+private:
+  std::shared_ptr<JSCCtxValue> exception_;
+  bool is_verbose_;
+  bool is_rethrow_;
 };
 
 }  // namespace napi
