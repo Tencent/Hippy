@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.5.2](https://github.com/Tencent/Hippy/compare/2.5.1...2.5.2) (2021-03-08)
+
+
+### Bug Fixes
+
+* **android:** add onPreload for preloadItemNumber ([9d94837](https://github.com/Tencent/Hippy/commit/9d94837ed51c1ca46fa5db8fe548be014f99f30d))
+* **android:** code style of HippyListAdapter ([66b4a39](https://github.com/Tencent/Hippy/commit/66b4a39e77b4f08fa25b120cfa47f030d5242585))
+* **android:** ignore ClassNotFoundException for add video controller ([664dd7a](https://github.com/Tencent/Hippy/commit/664dd7a1f6bb60e322e53bd3ed29e22e8020e7fd))
+* **android:** keep setCustomProp handle ([30d24b5](https://github.com/Tencent/Hippy/commit/30d24b5aa40eb871c16a2e2d31a19c914e3ec0da))
+* **android:** rdm exception bug reports ([afcfc0c](https://github.com/Tencent/Hippy/commit/afcfc0c1bb8b022fa32b604aa55ffb95474a6d0a))
+* **android:** some code style problem ([2246f53](https://github.com/Tencent/Hippy/commit/2246f5339c45297961f85d648de59ea91291bf23))
+* **android:** use LogUtils replace Log ([56135da](https://github.com/Tencent/Hippy/commit/56135da02d18cafbdb2c72c41368c4e46ec1bdca))
+* **ios:** fix support for translateZ ([6de05fa](https://github.com/Tencent/Hippy/commit/6de05fa5fd7eb4e1e3960f8e9f6ea4487d69ce23))
+* **ios:** implement backgroundSize setter for HippyImageView ([b7ff2b8](https://github.com/Tencent/Hippy/commit/b7ff2b89d758d3d3501fd724a8b486fed18043db))
+
+
+### Features
+
+* **hippy-vue:** add animation event & method ([4018df8](https://github.com/Tencent/Hippy/commit/4018df8d8873e5830182b7d567e837c9bc5a0ef1))
+
+
+
+
+
 ## [2.5.1](https://github.com/Tencent/Hippy/compare/2.5.0...2.5.1) (2021-03-02)
 
 

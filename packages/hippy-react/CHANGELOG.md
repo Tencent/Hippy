@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.5.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.5.1...2.5.2) (2021-03-08)
+
+**Note:** Version bump only for package @hippy/react
+
+
+
+
+
 ## [2.5.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.5.0...2.5.1) (2021-03-02)
 
 **Note:** Version bump only for package @hippy/react

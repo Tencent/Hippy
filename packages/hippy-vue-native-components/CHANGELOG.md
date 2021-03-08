@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.5.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-native-components/compare/2.5.1...2.5.2) (2021-03-08)
+
+
+### Features
+
+* **hippy-vue:** add animation event & method ([4018df8](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-native-components/commit/4018df8d8873e5830182b7d567e837c9bc5a0ef1))
+
+
+
+
+
 ## [2.5.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-native-components/compare/2.5.0...2.5.1) (2021-03-02)
 
 
