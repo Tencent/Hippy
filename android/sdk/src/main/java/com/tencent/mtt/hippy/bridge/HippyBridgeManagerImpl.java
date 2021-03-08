@@ -530,26 +530,30 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 
 		String packageName = "";
 		String versionName = "";
+		String pageUrl = "";
+
+		HippyMap extraDataMap = new HippyMap();
+		if (mThirdPartyAdapter != null) {
+			packageName = mThirdPartyAdapter.getPackageName();
+			versionName = mThirdPartyAdapter.getAppVersion();
+			pageUrl = mThirdPartyAdapter.getPageUrl();
+			JSONObject jObject = mThirdPartyAdapter.getExtraData();
+			extraDataMap.pushJSONObject(jObject);
+		}
+
 		try {
 			PackageManager packageManager = context.getPackageManager();
 			PackageInfo packageInfo = packageManager.getPackageInfo(
 					context.getPackageName(), 0);
-			packageName = packageInfo.packageName;
-			versionName = packageInfo.versionName;
+			if (TextUtils.isEmpty(packageName)) {
+				packageName = packageInfo.packageName;
+			}
+
+			if (TextUtils.isEmpty(versionName)) {
+				versionName = packageInfo.versionName;
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
-
-		String pageUrl = "";
-		String appName = "";
-		String appVersion = "";
-		HippyMap extraDataMap = new HippyMap();
-		if (mThirdPartyAdapter != null) {
-			appName = mThirdPartyAdapter.getPackageName();
-			appVersion = mThirdPartyAdapter.getAppVersion();
-			pageUrl = mThirdPartyAdapter.getPageUrl();
-			JSONObject jObject = mThirdPartyAdapter.getExtraData();
-			extraDataMap.pushJSONObject(jObject);
 		}
 
 		HippyMap platformParams = new HippyMap();
@@ -562,8 +566,8 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 
 		HippyMap tkd = new HippyMap();
 		tkd.pushString("url", (pageUrl == null) ? "" : pageUrl);
-		tkd.pushString("appName", (appName == null) ? "" : appName);
-		tkd.pushString("appVersion", (appVersion == null) ? "" : appVersion);
+		tkd.pushString("appName", (packageName == null) ? "" : packageName);
+		tkd.pushString("appVersion", (versionName == null) ? "" : versionName);
 		tkd.pushMap("extra", extraDataMap);
 		globalParams.pushMap("tkd", tkd);
 
