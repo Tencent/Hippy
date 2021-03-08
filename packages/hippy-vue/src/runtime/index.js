@@ -23,6 +23,7 @@ import {
   isUnknownElement,
 } from '../elements';
 import {
+  getApp,
   setApp,
   isFunction,
   trace,
@@ -239,6 +240,8 @@ Vue.extend = function hippyExtend(extendOptions) {
 
 // Binding Native Properties
 Vue.Native = Native;
+
+Vue.getApp = getApp;
 
 // Register the built-in elements
 Vue.use(registerBuiltinElements);
