@@ -178,6 +178,10 @@ NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotif
                         if (success) {
                             [weakSelf bundleFinishedLoading:bridge.batchedBridge];
                         }
+                        
+                        if ([delegate respondsToSelector:@selector(rootView:didLoadFinish:)]) {
+                            [delegate rootView:weakSelf didLoadFinish:success];
+                        }
                     });
                 }];
             }
