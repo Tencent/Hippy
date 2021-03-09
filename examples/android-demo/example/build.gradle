@@ -61,7 +61,7 @@ allprojects {
 
         MAVEN_USER = localProperties.getProperty('maven_username')
         MAVEN_PWD = localProperties.getProperty('maven_password')
-        MAVEN_URL = localProperties.getProperty('maven_url')
+        MAVEN_URL = localProperties.getProperty('qb_maven_url')
     }
     repositories {
         if (MAVEN_URL != null) {

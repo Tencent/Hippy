@@ -1,5 +1,6 @@
 apply plugin: 'com.android.library'
 apply from: './bintrayUpload.gradle'
+//apply from: './maven.gradle'
 
 ext {
   CMAKE_PATH = "$projectDir.absolutePath/src/main/jni/CMakeLists.txt"
@@ -29,7 +30,7 @@ allprojects {
 
     MAVEN_USER = localProperties.getProperty('maven_username')
     MAVEN_PWD = localProperties.getProperty('maven_password')
-    MAVEN_URL = localProperties.getProperty('maven_url')
+    MAVEN_URL = localProperties.getProperty('qb_maven_url')
 
     println("===============MAVEN_USER=" + MAVEN_USER + ", MAVEN_PWD=" + MAVEN_PWD)
   }
