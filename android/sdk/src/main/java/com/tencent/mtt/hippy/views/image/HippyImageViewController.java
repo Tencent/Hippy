@@ -48,7 +48,7 @@ public class HippyImageViewController extends HippyViewController<HippyImageView
 	{
 		HippyImageView imageView = new HippyImageView(context);
 		if (iniProps != null) {
-			imageView.setIniProps(iniProps);
+			imageView.setInitProps(iniProps);
 		}
 
 		return imageView;
