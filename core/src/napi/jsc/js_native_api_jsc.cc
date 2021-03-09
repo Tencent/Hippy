@@ -114,6 +114,77 @@ std::shared_ptr<VM> CreateVM() {
   return std::make_shared<JSCVM>();
 }
 
+std::shared_ptr<TryCatch> CreateTryCatchScope(bool enable,
+                             std::shared_ptr<Ctx> ctx) {
+  return std::make_shared<JSCTryCatch>(enable, ctx);
+}
+
+JSCTryCatch::JSCTryCatch(bool enable,
+                         std::shared_ptr<Ctx> ctx): TryCatch(enable, ctx) {
+  is_verbose_ = false;
+}
+
+JSCTryCatch::~JSCTryCatch() {
+  if (HasCaught()) {
+    if (is_rethrow_ || is_verbose_) {
+      std::shared_ptr<JSCCtx> ctx = std::static_pointer_cast<JSCCtx>(ctx_);
+      ctx->SetException(exception_);
+      if (is_rethrow_) {
+        ctx->SetExceptionHandled(false);
+      } else {
+        ctx->SetExceptionHandled(true);
+      }
+    }
+  }
+}
+
+void JSCTryCatch::ReThrow() {
+  is_rethrow_ = true;
+}
+
+bool JSCTryCatch::HasCaught() {
+  if (enable_) {
+    return !!exception_;
+  }
+  return false;
+}
+
+bool JSCTryCatch::CanContinue() {
+  if (enable_) {
+    return !exception_;
+  }
+  return true;
+}
+
+bool JSCTryCatch::HasTerminated() {
+  if (enable_) {
+    return !!exception_;
+  }
+  return false;
+}
+
+bool JSCTryCatch::IsVerbose() {
+  return is_verbose_;
+}
+
+void JSCTryCatch::SetVerbose(bool is_verbose) {
+  is_verbose_ = is_verbose;
+}
+
+std::shared_ptr<CtxValue> JSCTryCatch::Exception() {
+  return exception_;
+}
+
+std::string JSCTryCatch::GetExceptionMsg() {
+  if (enable_) {
+    std::shared_ptr<JSCCtx> ctx = std::static_pointer_cast<JSCCtx>(ctx_);
+    return ctx->GetExceptionMsg(exception_);
+  }
+  return "";
+}
+
+
+
 void DetachThread() {}
 
 void JSCVM::RegisterUncaughtExceptionCallback() {}
@@ -188,8 +259,7 @@ bool JSCCtx::RegisterGlobalInJs() {
 }
 
 bool JSCCtx::SetGlobalJsonVar(const std::string& name,
-                              const char* json,
-                              std::string* exception) {
+                              const char* json) {
   JSObjectRef global_obj = JSContextGetGlobalObject(context_);
   JSStringRef name_ref = JSStringCreateWithUTF8CString(name.c_str());
   JSStringRef json_ref = JSStringCreateWithUTF8CString(json);
@@ -199,16 +269,15 @@ bool JSCCtx::SetGlobalJsonVar(const std::string& name,
                       kJSPropertyAttributeNone, &js_error);
   JSStringRelease(name_ref);
   JSStringRelease(json_ref);
-  if (js_error && exception) {
-    HandleJsException(js_error, *exception);
+  if (js_error) {
+    SetException(std::make_shared<JSCCtxValue>(context_, js_error));
     return false;
   }
   return true;
 }
 
 bool JSCCtx::SetGlobalStrVar(const std::string& name,
-                             const char* str,
-                             std::string* exception) {
+                             const char* str) {
   JSObjectRef global_obj = JSContextGetGlobalObject(context_);
   JSStringRef name_ref = JSStringCreateWithUTF8CString(name.c_str());
   JSStringRef str_ref = JSStringCreateWithUTF8CString(str);
@@ -218,34 +287,54 @@ bool JSCCtx::SetGlobalStrVar(const std::string& name,
                       kJSPropertyAttributeNone, &js_error);
   JSStringRelease(name_ref);
   JSStringRelease(str_ref);
-  if (js_error && exception) {
-    HandleJsException(js_error, *exception);
+  if (js_error) {
+    SetException(std::make_shared<JSCCtxValue>(context_, js_error));
     return false;
   }
   return true;
 }
 
+JSPropertyAttributes ConvertPropertyAttribute(PropertyAttribute attr) {
+  switch (attr) {
+    case None:
+      return kJSPropertyAttributeNone;
+      break;
+    case ReadOnly:
+      return kJSPropertyAttributeReadOnly;
+      break;
+    case DontEnum:
+      return kJSPropertyAttributeDontEnum;
+      break;
+    case DontDelete:
+      return kJSPropertyAttributeDontDelete;
+      break;
+    default:
+      return kJSPropertyAttributeNone;
+      break;
+  }
+}
+
 bool JSCCtx::SetGlobalObjVar(const std::string& name,
                              std::shared_ptr<CtxValue> obj,
-                             std::string* exception) {
+                             PropertyAttribute attr) {
   JSObjectRef global_obj = JSContextGetGlobalObject(context_);
   JSStringRef name_ref = JSStringCreateWithUTF8CString(name.c_str());
   std::shared_ptr<JSCCtxValue> ctx_value =
       std::static_pointer_cast<JSCCtxValue>(obj);
   JSValueRef value_ref = ctx_value->value_;
+  JSPropertyAttributes jsc_attr = ConvertPropertyAttribute(attr);
   JSValueRef js_error = nullptr;
   JSObjectSetProperty(context_, global_obj, name_ref, value_ref,
-                      kJSPropertyAttributeNone, &js_error);
+                      jsc_attr, &js_error);
   JSStringRelease(name_ref);
-  if (js_error && exception) {
-    HandleJsException(js_error, *exception);
+  if (js_error) {
+    SetException(std::make_shared<JSCCtxValue>(context_, js_error));
     return false;
   }
   return true;
 }
 
-std::shared_ptr<CtxValue> JSCCtx::GetGlobalStrVar(const std::string& name,
-                                                  std::string* exception) {
+std::shared_ptr<CtxValue> JSCCtx::GetGlobalStrVar(const std::string& name) {
   JSObjectRef global_obj = JSContextGetGlobalObject(context_);
   JSStringRef name_ref = JSStringCreateWithUTF8CString(name.c_str());
   JSValueRef js_error = nullptr;
@@ -253,8 +342,8 @@ std::shared_ptr<CtxValue> JSCCtx::GetGlobalStrVar(const std::string& name,
       JSObjectGetProperty(context_, global_obj, name_ref, &js_error);
   bool is_str = JSValueIsString(context_, value_ref);
   JSStringRelease(name_ref);
-  if (js_error && exception) {
-    HandleJsException(js_error, *exception);
+  if (js_error) {
+    SetException(std::make_shared<JSCCtxValue>(context_, js_error));
   }
   if (is_str) {
     return std::make_shared<JSCCtxValue>(context_, value_ref);
@@ -262,8 +351,7 @@ std::shared_ptr<CtxValue> JSCCtx::GetGlobalStrVar(const std::string& name,
   return nullptr;
 }
 
-std::shared_ptr<CtxValue> JSCCtx::GetGlobalObjVar(const std::string& name,
-                                                  std::string* exception) {
+std::shared_ptr<CtxValue> JSCCtx::GetGlobalObjVar(const std::string& name) {
   JSObjectRef global_obj = JSContextGetGlobalObject(context_);
   JSStringRef name_ref = JSStringCreateWithUTF8CString(name.c_str());
   JSValueRef js_error = nullptr;
@@ -271,8 +359,8 @@ std::shared_ptr<CtxValue> JSCCtx::GetGlobalObjVar(const std::string& name,
       JSObjectGetProperty(context_, global_obj, name_ref, &js_error);
   bool is_undefined = JSValueIsUndefined(context_, value_ref);
   JSStringRelease(name_ref);
-  if (js_error && exception) {
-    HandleJsException(js_error, *exception);
+  if (js_error) {
+    SetException(std::make_shared<JSCCtxValue>(context_, js_error));
   }
   if (is_undefined) {
     return nullptr;
@@ -283,8 +371,7 @@ std::shared_ptr<CtxValue> JSCCtx::GetGlobalObjVar(const std::string& name,
 
 std::shared_ptr<CtxValue> JSCCtx::GetProperty(
     const std::shared_ptr<CtxValue> object,
-    const std::string& name,
-    std::string* exception) {
+    const std::string& name) {
   CtxValue* value = object.get();
   JSCCtxValue* jsc_value = static_cast<JSCCtxValue*>(value);
   if (JSValueIsObject(context_, jsc_value->value_)) {
@@ -295,8 +382,8 @@ std::shared_ptr<CtxValue> JSCCtx::GetProperty(
         JSObjectGetProperty(context_, obj_ref, name_ref, &js_error);
     bool is_undefined = JSValueIsUndefined(context_, value_ref);
     JSStringRelease(name_ref);
-    if (js_error && exception) {
-      HandleJsException(js_error, *exception);
+    if (js_error) {
+      SetException(std::make_shared<JSCCtxValue>(context_, js_error));
     }
     if (is_undefined) {
       return nullptr;
@@ -323,9 +410,8 @@ void JSCCtx::RegisterNativeBinding(const std::string& name,
   return;
 };
 
-std::shared_ptr<CtxValue> JSCCtx::GetJsFn(const std::string& name,
-                                          std::string* exception) {
-  return GetGlobalObjVar(name, exception);
+std::shared_ptr<CtxValue> JSCCtx::GetJsFn(const std::string& name) {
+  return GetGlobalObjVar(name);
 };
 
 std::shared_ptr<CtxValue> JSCCtx::RunScript(const uint8_t* data,
@@ -333,7 +419,6 @@ std::shared_ptr<CtxValue> JSCCtx::RunScript(const uint8_t* data,
                                             const std::string& file_name,
                                             bool is_use_code_cache,
                                             std::string* cache,
-                                            std::string* exception,
                                             Encoding encodeing) {
   if (!data || !len) {
     return nullptr;
@@ -354,7 +439,7 @@ std::shared_ptr<CtxValue> JSCCtx::RunScript(const uint8_t* data,
   JSStringRelease(js_string);
 
   if (js_error) {
-    HandleJsException(js_error, *exception);
+    SetException(std::make_shared<JSCCtxValue>(context_, js_error));
   }
 
   if (!value) {
@@ -368,10 +453,9 @@ std::shared_ptr<CtxValue> JSCCtx::RunScript(const std::string&& script,
                                             const std::string& file_name,
                                             bool is_use_code_cache,
                                             std::string* cache,
-                                            std::string* exception,
                                             Encoding encodeing) {
   return RunScript((const uint8_t*)script.c_str(), script.length(), file_name,
-                   is_use_code_cache, cache, exception, encodeing);
+                   is_use_code_cache, cache, encodeing);
 }
 
 }  // namespace napi
