@@ -37,6 +37,8 @@ import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
+import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.utils.UrlUtils;
 import com.tencent.mtt.hippy.views.common.CommonBackgroundDrawable;
@@ -55,7 +57,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 	public static final String IMAGE_TYPE_GIF   = "gif";
 	public static final String IMAGE_PROPS      = "props";
 
-	private HippyMap mIniProps = new HippyMap();
+	private HippyMap initProps = new HippyMap();
 	private boolean mHasSetTempBackgroundColor = false;
 	private boolean mUserHasSetBackgroudnColor = false;
 	private int 	mUserSetBackgroundColor = Color.TRANSPARENT;
@@ -123,59 +125,25 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 
 	protected NativeGestureDispatcher	mGestureDispatcher;
 
-	private OnLoadEvent					mOnLoadEvent;
-	private OnLoadEndEvent				mOnLoadEndEvent;
-	private OnErrorEvent				mOnErrorEvent;
-	private OnLoadStartEvent			mOnLoadStartEvent;
-	private boolean[]					mShouldSendImageEvent;
-	private Rect						mNinePatchRect;
+	private OnLoadEvent                 mOnLoadEvent;
+	private OnLoadEndEvent              mOnLoadEndEvent;
+	private OnErrorEvent                mOnErrorEvent;
+	private OnLoadStartEvent            mOnLoadStartEvent;
+	private boolean[]                   mShouldSendImageEvent;
+	private Rect                        mNinePatchRect;
+	private HippyEngineContext          hippyEngineContext;
 
-	public HippyImageView(Context context)
-	{
+	public HippyImageView(Context context) {
 		super(context);
 		mShouldSendImageEvent = new boolean[ImageEvent.values().length];
-		HippyEngineContext engineContext = ((HippyInstanceContext) context).getEngineContext();
-		if (engineContext != null)
-		{
-			setImageAdapter(engineContext.getGlobalConfigs().getImageLoaderAdapter());
+		hippyEngineContext = ((HippyInstanceContext)context).getEngineContext();
+		if (hippyEngineContext != null) {
+			setImageAdapter(hippyEngineContext.getGlobalConfigs().getImageLoaderAdapter());
 		}
 	}
 
-	public void setIniProps(HippyMap iniProps) {
-		int width = 0;
-		int height = 0;
-
-		mIniProps.clear();
-
-		if (iniProps.containsKey(NodeProps.STYLE)) {
-			HippyMap styles = iniProps.getMap(NodeProps.STYLE);
-			if (styles != null) {
-				if (styles.containsKey(NodeProps.WIDTH)) {
-					width = Math.round(PixelUtil.dp2px(styles.getDouble(NodeProps.WIDTH)));
-				}
-
-				if (styles.containsKey(NodeProps.HEIGHT)) {
-					height = Math.round(PixelUtil.dp2px(styles.getDouble(NodeProps.HEIGHT)));
-				}
-
-				if (styles.containsKey(NodeProps.RESIZE_MODE)) {
-					mIniProps.pushString(NodeProps.RESIZE_MODE, styles.getString(NodeProps.RESIZE_MODE));
-				}
-
-				if (styles.containsKey(NodeProps.GAUSSIAN_BLUR)) {
-					mIniProps.pushBoolean(NodeProps.GAUSSIAN_BLUR, styles.getBoolean(NodeProps.GAUSSIAN_BLUR));
-				}
-			}
-		}
-
-		if (iniProps.containsKey(NodeProps.CUSTOM_PROP_IMAGE_TYPE)) {
-			mIniProps.pushString(NodeProps.CUSTOM_PROP_IMAGE_TYPE, iniProps.getString(NodeProps.CUSTOM_PROP_IMAGE_TYPE));
-		}
-
-		mIniProps.pushInt(NodeProps.REPEAT_COUNT, iniProps.getInt(NodeProps.REPEAT_COUNT));
-		mIniProps.pushBoolean(NodeProps.CUSTOM_PROP_ISGIF, iniProps.getBoolean(NodeProps.CUSTOM_PROP_ISGIF));
-		mIniProps.pushInt(NodeProps.WIDTH, width);
-		mIniProps.pushInt(NodeProps.HEIGHT, height);
+	public void setInitProps(HippyMap props) {
+		initProps = props;
 	}
 
     /**
@@ -231,21 +199,24 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 	}
 
 	@Override
-	protected void doFetchImage(Object param, final int sourceType)
-	{
-		if (mImageAdapter != null)
-		{
-			if (param == null)
-			{
+	protected void doFetchImage(Object param, final int sourceType) {
+		if (mImageAdapter != null) {
+			if (param == null) {
 				param = new HashMap<String, Object>();
 			}
 
-			if (param instanceof Map)
-			{
-				try {
-					((Map) param).put(IMAGE_PROPS, mIniProps);
-				} catch (Exception e) {
+			if (param instanceof Map) {
+				if (hippyEngineContext != null) {
+					RenderNode node = hippyEngineContext.getRenderManager().getRenderNode(getId());
+					if (node != null) {
+						initProps = node.getProps();
+					}
+				}
 
+				try {
+					((Map)param).put(IMAGE_PROPS, initProps);
+				} catch (Exception ignore) {
+					LogUtils.d("HippyImageView", ignore.getMessage());
 				}
 			}
 
@@ -593,7 +564,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 			return true;
 		}
 
-		boolean isGif = mIniProps.getBoolean(NodeProps.CUSTOM_PROP_ISGIF);
+		boolean isGif = (initProps != null) ? initProps.getBoolean(NodeProps.CUSTOM_PROP_ISGIF) : false;
 		if (!isGif) {
 			isGif = !TextUtils.isEmpty(mImageType) && mImageType.equals(IMAGE_TYPE_GIF);
 		}
