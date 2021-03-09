@@ -26,7 +26,7 @@
       </button>
     </div>
     <div class="vote-face-container center">
-      <component :is="voteComponent" class="vote-icon" />
+      <component :is="voteComponent" class="vote-icon" :isChanged="isChanged"/>
     </div>
   </div>
 </template>
@@ -60,6 +60,7 @@ export default {
       playing: true,
       direction: 'horizon',
       voteComponent: VoteUp,
+      isChanged: true,
     };
   },
   components: {
@@ -71,6 +72,8 @@ export default {
     },
     voteDown() {
       this.voteComponent = VoteDown;
+      // toggle isChanged to change actions
+      this.isChanged = !this.isChanged;
     },
     togglePlaying() {
       this.playing = !this.playing;
@@ -95,7 +98,7 @@ export default {
   justify-content: center;
 }
 
-#animation-dmeo .vote-face-containe {
-  height: 200px;
+#animation-demo .vote-face-container {
+  height: 60px;
 }
 </style>

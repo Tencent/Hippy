@@ -83,19 +83,9 @@ function emit(eventName, ...args) {
     throw new TypeError('Hippy.emit() only accept a string as event name');
   }
   const eventListeners = __GLOBAL__.globalEventHandle[eventName];
-  if (!(eventListeners instanceof Set)) {
-    if (eventName === 'uncaughtException' && typeof global.reportUncaughtException === 'function'
-      && args[0]) {
-      let errStr = '';
-      if (args[0] instanceof Error) {
-        errStr = JSON.stringify({
-          message: args[0].message,
-          stack: args[0].stack
-        });
-      } else {
-        errStr = args[0].toString();
-      }
-      global.reportUncaughtException(errStr);
+  if (!eventListeners) {
+    if (eventName === 'uncaughtException' && args[0]) {
+      console.error(args[0].toString());
     }
     return;
   }
@@ -104,18 +94,6 @@ function emit(eventName, ...args) {
   } catch (err) {
     /* eslint-disable-next-line no-console */
     console.error(err);
-    if (typeof global.reportUncaughtException === 'function') {
-      let errStr = '';
-      if (args[0] instanceof Error) {
-        errStr = JSON.stringify({
-          message: args[0].message,
-          stack: args[0].stack
-        });
-      } else {
-        errStr = args[0].toString();
-      }
-      global.reportUncaughtException(errStr);
-    }
   }
 }
 
