@@ -42,7 +42,7 @@ public class HippySingleThreadEngineManager extends HippyEngineManagerImpl
 
 	@Override
 	public void onDestroy() {
-		super.destroyEngine();
+		super.onDestroy();
 		ThreadExecutorManager.getInstance().remove(this);
 		synchronized (mLock) {
 			mIsDestroyed = true;
