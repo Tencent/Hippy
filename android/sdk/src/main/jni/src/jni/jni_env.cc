@@ -49,6 +49,10 @@ void JNIEnvironment::init(JavaVM* vm, JNIEnv* env) {
   instance->wrapper_.get_uri_content_method_id = env->GetMethodID(
       hippy_bridge_cls, "fetchResourceWithUri", "(Ljava/lang/String;)[B");
   env->DeleteLocalRef(hippy_bridge_cls);
+
+  if (env->ExceptionCheck()) {
+    env->ExceptionClear();
+  }
 }
 
 JNIEnvironment* JNIEnvironment::GetInstance() {
