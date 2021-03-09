@@ -37,6 +37,7 @@ typedef NS_ENUM(NSUInteger, ImageDataError) {
     ImageDataUnavailable = 1001,
     ImageDataNotExist,
     ImageDataReceivedError,
+    ImageDataBlurredError,
 };
 
 typedef struct _BorderRadiusStruct {
@@ -66,7 +67,7 @@ static NSOperationQueue *animated_image_queue() {
     return _animatedImageOQ;
 }
 
-UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius) {
+UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius, NSError **error) {
     CGImageRef imageRef = inputImage.CGImage;
     CGFloat imageScale = inputImage.scale;
     UIImageOrientation imageOrientation = inputImage.imageOrientation;
@@ -86,48 +87,85 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius) {
     }
 
     vImage_Buffer buffer1, buffer2;
-    buffer1.width = buffer2.width = CGImageGetWidth(imageRef);
-    buffer1.height = buffer2.height = CGImageGetHeight(imageRef);
-    buffer1.rowBytes = buffer2.rowBytes = CGImageGetBytesPerRow(imageRef);
-    size_t bytes = buffer1.rowBytes * buffer1.height;
-    buffer1.data = malloc(bytes);
-    buffer2.data = malloc(bytes);
+    void *tempBuffer = NULL;
+    CFDataRef dataSource = NULL;
+    CGContextRef ctx = NULL;
+    CGImageRef blurredImageRef = NULL;
+    @try {
+        buffer1.width = buffer2.width = CGImageGetWidth(imageRef);
+        buffer1.height = buffer2.height = CGImageGetHeight(imageRef);
+        buffer1.rowBytes = buffer2.rowBytes = CGImageGetBytesPerRow(imageRef);
+        size_t bytes = buffer1.rowBytes * buffer1.height;
+        buffer1.data = malloc(bytes);
+        buffer2.data = malloc(bytes);
 
-    // A description of how to compute the box kernel width from the Gaussian
-    // radius (aka standard deviation) appears in the SVG spec:
-    // http://www.w3.org/TR/SVG/filters.html#feGaussianBlurElement
-    uint32_t boxSize = floor((radius * imageScale * 3 * sqrt(2 * M_PI) / 4 + 0.5) / 2);
-    boxSize |= 1;  // Ensure boxSize is odd
+        // A description of how to compute the box kernel width from the Gaussian
+        // radius (aka standard deviation) appears in the SVG spec:
+        // http://www.w3.org/TR/SVG/filters.html#feGaussianBlurElement
+        uint32_t boxSize = floor((radius * imageScale * 3 * sqrt(2 * M_PI) / 4 + 0.5) / 2);
+        boxSize |= 1;  // Ensure boxSize is odd
 
-    // create temp buffer
-    void *tempBuffer = malloc(
-        (size_t)vImageBoxConvolve_ARGB8888(&buffer1, &buffer2, NULL, 0, 0, boxSize, boxSize, NULL, kvImageEdgeExtend + kvImageGetTempBufferSize));
+        // create temp buffer
+        tempBuffer = malloc(
+            (size_t)vImageBoxConvolve_ARGB8888(&buffer1, &buffer2, NULL, 0, 0, boxSize, boxSize, NULL, kvImageEdgeExtend + kvImageGetTempBufferSize));
 
-    // copy image data
-    CFDataRef dataSource = CGDataProviderCopyData(CGImageGetDataProvider(imageRef));
-    memcpy(buffer1.data, CFDataGetBytePtr(dataSource), bytes);
-    CFRelease(dataSource);
+        // copy image data
+        dataSource = CGDataProviderCopyData(CGImageGetDataProvider(imageRef));
+        memcpy(buffer1.data, CFDataGetBytePtr(dataSource), bytes);
+        CFRelease(dataSource);
+        dataSource = NULL;
 
-    // perform blur
-    vImageBoxConvolve_ARGB8888(&buffer1, &buffer2, tempBuffer, 0, 0, boxSize, boxSize, NULL, kvImageEdgeExtend);
-    vImageBoxConvolve_ARGB8888(&buffer2, &buffer1, tempBuffer, 0, 0, boxSize, boxSize, NULL, kvImageEdgeExtend);
-    vImageBoxConvolve_ARGB8888(&buffer1, &buffer2, tempBuffer, 0, 0, boxSize, boxSize, NULL, kvImageEdgeExtend);
+        // perform blur
+        vImageBoxConvolve_ARGB8888(&buffer1, &buffer2, tempBuffer, 0, 0, boxSize, boxSize, NULL, kvImageEdgeExtend);
+        vImageBoxConvolve_ARGB8888(&buffer2, &buffer1, tempBuffer, 0, 0, boxSize, boxSize, NULL, kvImageEdgeExtend);
+        vImageBoxConvolve_ARGB8888(&buffer1, &buffer2, tempBuffer, 0, 0, boxSize, boxSize, NULL, kvImageEdgeExtend);
 
-    // free buffers
-    free(buffer2.data);
-    free(tempBuffer);
+        // free buffers
+        free(buffer2.data);
+        buffer2.data = NULL;
+        free(tempBuffer);
+        tempBuffer = NULL;
 
-    // create image context from buffer
-    CGContextRef ctx = CGBitmapContextCreate(
-        buffer1.data, buffer1.width, buffer1.height, 8, buffer1.rowBytes, CGImageGetColorSpace(imageRef), CGImageGetBitmapInfo(imageRef));
+        // create image context from buffer
+        ctx = CGBitmapContextCreate(
+            buffer1.data, buffer1.width, buffer1.height, 8, buffer1.rowBytes, CGImageGetColorSpace(imageRef), CGImageGetBitmapInfo(imageRef));
 
-    // create image from context
-    imageRef = CGBitmapContextCreateImage(ctx);
-    UIImage *outputImage = [UIImage imageWithCGImage:imageRef scale:imageScale orientation:imageOrientation];
-    CGImageRelease(imageRef);
-    CGContextRelease(ctx);
-    free(buffer1.data);
-    return outputImage;
+        // create image from context
+        blurredImageRef = CGBitmapContextCreateImage(ctx);
+        UIImage *outputImage = [UIImage imageWithCGImage:blurredImageRef scale:imageScale orientation:imageOrientation];
+        CGImageRelease(blurredImageRef);
+        blurredImageRef = NULL;
+        CGContextRelease(ctx);
+        ctx = NULL;
+        free(buffer1.data);
+        buffer1.data = NULL;
+        return outputImage;
+    } @catch (NSException *exception) {
+        if (buffer1.data) {
+            free(buffer1.data);
+        }
+        if (buffer2.data) {
+            free(buffer2.data);
+        }
+        if (tempBuffer) {
+            free(tempBuffer);
+        }
+        if (dataSource) {
+            CFRelease(dataSource);
+        }
+        if (blurredImageRef) {
+            CGImageRelease(blurredImageRef);
+        }
+        if (ctx) {
+            CGContextRelease(ctx);
+        }
+        if (error) {
+            NSArray<NSString *> *callStackSymbols = [exception callStackSymbols];
+            NSDictionary *useInfo = @{NSLocalizedDescriptionKey: exception.reason ?: @"", HippyJSStackTraceKey: callStackSymbols};
+            *error = [NSError errorWithDomain:HippyImageErrorDomain code:ImageDataBlurredError userInfo:useInfo];
+        }
+        return inputImage;
+    }
 }
 
 NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
@@ -584,7 +622,12 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
     if (_blurRadius > __FLT_EPSILON__ && needBlur) {
         // Blur on a background thread to avoid blocking interaction
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            UIImage *blurredImage = HippyBlurredImageWithRadiusv(image, br);
+            NSError *error = nil;
+            UIImage *blurredImage = HippyBlurredImageWithRadiusv(image, br, &error);
+            if (error) {
+                NSError *finalError = HippyErrorFromErrorAndModuleName(error, self.bridge.moduleName);
+                HippyFatal(finalError);
+            }
             if (needCache) {
                 [[HippyImageCacheManager sharedInstance] setImage:blurredImage forURLString:url blurRadius:br];
             }
