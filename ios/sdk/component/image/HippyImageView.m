@@ -85,8 +85,10 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius, NSErr
         imageRef = UIGraphicsGetImageFromCurrentImageContext().CGImage;
         UIGraphicsEndImageContext();
     }
-
+    
     vImage_Buffer buffer1, buffer2;
+    memset(&buffer1, 0, sizeof(vImage_Buffer));
+    memset(&buffer2, 0, sizeof(vImage_Buffer));
     void *tempBuffer = NULL;
     CFDataRef dataSource = NULL;
     CGContextRef ctx = NULL;
@@ -160,8 +162,7 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius, NSErr
             CGContextRelease(ctx);
         }
         if (error) {
-            NSArray<NSString *> *callStackSymbols = [exception callStackSymbols];
-            NSDictionary *useInfo = @{NSLocalizedDescriptionKey: exception.reason ?: @"", HippyJSStackTraceKey: callStackSymbols};
+            NSDictionary *useInfo = @{NSLocalizedDescriptionKey: exception.reason ?: @""};
             *error = [NSError errorWithDomain:HippyImageErrorDomain code:ImageDataBlurredError userInfo:useInfo];
         }
         return inputImage;
