@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.5.3](https://github.com/Tencent/Hippy/compare/2.5.2...2.5.3) (2021-03-10)
+
+
+### Bug Fixes
+
+* **android:** add maven publish ([f7c4552](https://github.com/Tencent/Hippy/commit/f7c4552c4725132947fdcc45be3e35227ed84d69))
+* **android:** call super.onDestroy() ([0f7e2d9](https://github.com/Tencent/Hippy/commit/0f7e2d945ce3b4688e6742ebb0ce4ee26179c31b))
+* **android:** get thirdParty packageName first ([3fb32f3](https://github.com/Tencent/Hippy/commit/3fb32f3b49256b7b78ad2d5abcd6115150d94ba8))
+* **android:** mListScrollListeners ConcurrentModificationException ([d8b2ab2](https://github.com/Tencent/Hippy/commit/d8b2ab2b846f30bf11f6423eb27eda286abf1df1))
+* **android:** should catch UnsatisfiedLinkError for runScriptFromUri ([28d0a02](https://github.com/Tencent/Hippy/commit/28d0a02df34c5eb497a0a4f7c38aece511848435))
+* **core:** fix DLOG macro ([9eb0bb8](https://github.com/Tencent/Hippy/commit/9eb0bb8ce066e34404a8629d5c411f63c920ce44))
+* **ios:** fix HippyRootView did load finish callback ([e646db5](https://github.com/Tencent/Hippy/commit/e646db5479031ac93f85ab04f78a23a09d67e406))
+* **ios:** try catch malloc exception when make image blurred ([#603](https://github.com/Tencent/Hippy/issues/603)) ([cc2521b](https://github.com/Tencent/Hippy/commit/cc2521bd6cff2a676c363f03e55ef5a9761063d0))
+
+
+### Features
+
+* **core:** avoid crash when the jni method does not exist ([05ae0cd](https://github.com/Tencent/Hippy/commit/05ae0cd4d02a8aae24f10f0c51da4c052966ce9f))
+
+
+
+
+
 ## [2.5.2](https://github.com/Tencent/Hippy/compare/2.5.1...2.5.2) (2021-03-08)
 
 
