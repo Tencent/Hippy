@@ -27,9 +27,9 @@
 class ADRLoader : public hippy::base::UriLoader {
  public:
   ADRLoader();
-  ADRLoader(const std::string& base);
+  explicit ADRLoader(const std::string& base);
 
-  virtual ~ADRLoader(){};
+  virtual ~ADRLoader() {}
 
   virtual std::string Normalize(const std::string& uri);
 

@@ -39,7 +39,7 @@ class Scope;
 
 class ScopeWrapper {
  public:
-  ScopeWrapper(std::shared_ptr<Scope> scope) : scope_(scope) {}
+  explicit ScopeWrapper(std::shared_ptr<Scope> scope) : scope_(scope) {}
 
  public:
   std::weak_ptr<Scope> scope_;
