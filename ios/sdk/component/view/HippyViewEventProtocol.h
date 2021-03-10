@@ -41,6 +41,7 @@
 @property (nonatomic, copy) HippyDirectEventBlock onDetachedFromWindow;
 
 @property (nonatomic, assign) BOOL onInterceptTouchEvent;
+@property (nonatomic, assign) BOOL onInterceptPullUpEvent;
 
 @end
 
