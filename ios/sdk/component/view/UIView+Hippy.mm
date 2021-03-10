@@ -71,6 +71,14 @@
     objc_setAssociatedObject(self, @selector(onInterceptTouchEvent), @(onInterceptTouchEvent), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
+- (BOOL)onInterceptPullUpEvent {
+    return [objc_getAssociatedObject(self, _cmd) boolValue];
+}
+
+- (void)setOnInterceptPullUpEvent:(BOOL)onInterceptPullUpEvent {
+    objc_setAssociatedObject(self, @selector(onInterceptPullUpEvent), @(onInterceptPullUpEvent), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
 - (NSDictionary *)props {
     return objc_getAssociatedObject(self, _cmd);
 }

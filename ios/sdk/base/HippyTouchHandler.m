@@ -74,6 +74,9 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
 
     CGPoint _startPoint;
     HippyBridge *_bridge;
+    
+    NSHashTable<UIView *> *_onInterceptTouchEventView;
+    NSHashTable<UIView *> *_onInterceptPullUpEventView;
 }
 
 - (instancetype)initWithRootView:(UIView *)view {
@@ -84,6 +87,8 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
         _rootView = view;
         self.delegate = self;
         self.cancelsTouchesInView = NO;
+        _onInterceptTouchEventView = [NSHashTable weakObjectsHashTable];
+        _onInterceptPullUpEventView = [NSHashTable weakObjectsHashTable];
     }
     return self;
 }
@@ -228,6 +233,8 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
     self.state = UIGestureRecognizerStateEnded;
     [_moveViews removeAllObjects];
     [_moveTouches removeAllObjects];
+    [_onInterceptTouchEventView removeAllObjects];
+    [_onInterceptPullUpEventView removeAllObjects];
 }
 
 - (void)touchesCancelled:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
@@ -277,6 +284,8 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
     self.state = UIGestureRecognizerStateCancelled;
     self.enabled = NO;
     self.enabled = YES;
+    [_onInterceptTouchEventView removeAllObjects];
+    [_onInterceptPullUpEventView removeAllObjects];
 }
 
 - (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
@@ -407,18 +416,27 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
 - (NSDictionary<NSString *, UIView *> *)nextResponseViewForAction:(NSArray *)actions inView:(UIView *)targetView atPoint:(CGPoint)point {
     NSMutableDictionary *result = [NSMutableDictionary new];
     NSMutableArray *findActions = [NSMutableArray arrayWithArray:actions];
-    BOOL onInterceptTouchEvent = NO;
     UIView *view = (UIView *)targetView;
     NSInteger index = 0;
     while (view) {
-        onInterceptTouchEvent = view.onInterceptTouchEvent;
-
+        BOOL onInterceptTouchEvent = view.onInterceptTouchEvent;
+        BOOL onInterceptPullUpEvent = view.onInterceptPullUpEvent;
         if (onInterceptTouchEvent) {
             findActions = [NSMutableArray arrayWithArray:actions];
             [result removeAllObjects];
+            [_onInterceptTouchEventView addObject:view];
         }
+        
+        if (onInterceptPullUpEvent) {
+            if (point.y < _startPoint.y) {
+                findActions = [NSMutableArray arrayWithArray:actions];
+                [result removeAllObjects];
+                [_onInterceptPullUpEventView addObject:view];
+            }
+        }
+        BOOL touchInterceptEvent = [_onInterceptTouchEventView count] || [_onInterceptTouchEventView count];
 
-        if ((onInterceptTouchEvent && findActions.count == 0) || [view isKindOfClass:NSClassFromString(@"HippyRootContentView")]) {
+        if ((touchInterceptEvent && findActions.count == 0) || [view isKindOfClass:NSClassFromString(@"HippyRootContentView")]) {
             break;
         } else {
             if ([findActions containsObject:@"onPressIn"] && view.onPressIn) {
@@ -434,7 +452,6 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
             }
 
             if ([findActions containsObject:@"onClick"] && view.onClick) {
-                // UIView可以实现这个协议决定是否由本Hander来分发touches事件，实现自定义UIView组件独占touches的处理
                 if (![view interceptTouchEvent]) {
                     [result setValue:@{ @"view": view, @"index": @(index) } forKey:@"onClick"];
                 }
@@ -465,7 +482,7 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
                 [findActions removeObject:@"onTouchEnd"];
             }
 
-            if (onInterceptTouchEvent)
+            if (touchInterceptEvent)
                 break;
             view = [view nextResponseViewAtPoint:point];
             index++;
@@ -548,6 +565,17 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
 }
 
 - (BOOL)canPreventGestureRecognizer:(__unused UIGestureRecognizer *)preventedGestureRecognizer {
+    UIView *gestureView = [preventedGestureRecognizer view];
+    for (UIView *view in _onInterceptTouchEventView) {
+        if ([gestureView isDescendantOfView:view] && gestureView != view && ![gestureView hippyTag]) {
+            return YES;
+        }
+    }
+    for (UIView *view in _onInterceptPullUpEventView) {
+        if ([gestureView isDescendantOfView:view] && gestureView != view && ![gestureView hippyTag]) {
+            return YES;
+        }
+    }
     return NO;
 }
 
