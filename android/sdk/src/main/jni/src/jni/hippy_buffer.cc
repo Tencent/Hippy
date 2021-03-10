@@ -312,7 +312,7 @@ static void xsonFuncCallback(v8::Isolate* isolate,
                              v8::Local<v8::Value> value,
                              v8::XSONValueType type,
                              void* data) {
-  HippyBuffer* buffer = (HippyBuffer*)data;
+  HippyBuffer* buffer = static_cast<HippyBuffer*>(data);
 
   if (type == v8::XSONValueType::kXSON_ARRAY_BEG) {
     writeArrayType(buffer);
