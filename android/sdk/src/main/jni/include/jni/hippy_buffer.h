@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef HIPPY_JNI_HIPPY_BUFFER_H_
-#define HIPPY_JNI_HIPPY_BUFFER_H_
+#pragma once
 
 #include <stdio.h>
 
@@ -46,5 +45,3 @@ void BuildBuffer(v8::Isolate* v8_isolate,
 #ifdef __cplusplus
 }
 #endif
-
-#endif  // HIPPY_JNI_HIPPY_BUFFER_H_

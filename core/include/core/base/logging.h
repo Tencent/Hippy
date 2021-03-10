@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef HIPPY_CORE_BASE_LOGGING_H_
-#define HIPPY_CORE_BASE_LOGGING_H_
+#pragma once
 
 #include <assert.h>
 
@@ -70,11 +69,10 @@ void Log(LoggingLevel level,
 #define HIPPY_DLOG(level, ...) (void(0))
 #endif  // DEBUG
 
-//#define HIPPY_LOG(level, ...) \
-//  hippy::internal::Log(hippy::Error, __FILE__, __LINE__, __VA_ARGS__)
-//#define HIPPY_DLOG(level, ...) HIPPY_LOG(level, __VA_ARGS__)
+// #define HIPPY_LOG(level, ...) \
+//   hippy::internal::Log(hippy::Error, __FILE__, __LINE__, __VA_ARGS__)
+// #define HIPPY_DLOG(level, ...) HIPPY_LOG(level, __VA_ARGS__)
 
-// TODO(botmanli): print current call stack and do data_ report
 #define HIPPY_CHECK_WITH_MSG(condition, message) \
   assert(condition);                             \
   if (!(condition))                              \
@@ -87,5 +85,3 @@ void Log(LoggingLevel level,
 
 #define HIPPY_CHECK(condition) HIPPY_CHECK_WITH_MSG(condition, #condition)
 #define HIPPY_DCHECK(condition) HIPPY_DCHECK_WITH_MSG(condition, #condition)
-
-#endif  // HIPPY_CORE_BASE_LOGGING_H_

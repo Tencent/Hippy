@@ -24,7 +24,7 @@
 
 #include <string>
 
-#include "jni/jni_env.h"  // NOLINT(build/include_subdir)
+#include "jni/jni_env.h"
 
 V8ChannelImpl::V8ChannelImpl(std::shared_ptr<JavaRef> bridge)
     : bridge_(bridge) {}

@@ -20,9 +20,7 @@
  *
  */
 
-#ifndef HIPPY_CORE_BASE_MACROS_H_
-#define HIPPY_CORE_BASE_MACROS_H_
-
+#pragma once
 #include <stddef.h>
 
 // Suppress UNUSED warnings
@@ -47,5 +45,3 @@ char (&ArraySizeHelper(T (&array)[N]))[N];
   Type(Type&&) noexcept = default;            \
   Type& operator=(Type&&) noexcept = default; \
   DISALLOW_COPY_AND_ASSIGN(Type)
-
-#endif  // HIPPY_CORE_BASE_MACROS_H_

@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef HIPPY_CORE_MODULES_MODULE_REGISTER_H_
-#define HIPPY_CORE_MODULES_MODULE_REGISTER_H_
+#pragma once
 
 #include <stdio.h>
 
@@ -107,5 +106,3 @@ class ModuleRegister {
 
   DISALLOW_COPY_AND_ASSIGN(ModuleRegister);
 };
-
-#endif  // HIPPY_CORE_MODULES_MODULE_REGISTER_H_

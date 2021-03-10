@@ -20,24 +20,20 @@
  *
  */
 
-#ifndef HIPPY_JNI_LOADER_HTTP_LOADER_H_
-#define HIPPY_JNI_LOADER_HTTP_LOADER_H_
+#pragma once
 
 #include "jni/scoped_java_ref.h"
-
 #include "loader/adr_loader.h"
 
 class HttpLoader : public ADRLoader {
  public:
   HttpLoader();
-  HttpLoader(const std::string& base);
-  virtual ~HttpLoader(){};
+  explicit HttpLoader(const std::string& base);
+  virtual ~HttpLoader() {}
 
-  inline void SetBridge(std::shared_ptr<JavaRef> bridge) { bridge_ = bridge; };
+  inline void SetBridge(std::shared_ptr<JavaRef> bridge) { bridge_ = bridge; }
   virtual std::string Load(const std::string& uri);
 
  private:
   std::shared_ptr<JavaRef> bridge_;
 };
-
-#endif  // HIPPY_JNI_LOADER_HTTP_LOADER_H_

@@ -20,7 +20,7 @@
  *
  */
 
-#include "jni/com_tencent_mtt_hippy_bridge_HippyBridgeImpl.h"  // NOLINT(build/include)
+#include "jni/com_tencent_mtt_hippy_bridge_HippyBridgeImpl.h"
 
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
@@ -33,11 +33,11 @@
 
 #include "core/core.h"
 #include "inspector/v8_inspector_client_impl.h"
-#include "jni/exception_handler.h"  // NOLINT(build/include_subdir)
-#include "jni/hippy_buffer.h"       // NOLINT(build/include_subdir)
-#include "jni/jni_env.h"            // NOLINT(build/include_subdir)
-#include "jni/jni_utils.h"          // NOLINT(build/include_subdir)
-#include "jni/runtime.h"            // NOLINT(build/include_subdir)
+#include "jni/exception_handler.h"
+#include "jni/hippy_buffer.h"     
+#include "jni/jni_env.h"   
+#include "jni/jni_utils.h"
+#include "jni/runtime.h"     
 #include "jni/scoped_java_ref.h"
 #include "jni/uri.h"
 #include "loader/asset_loader.h"
@@ -58,7 +58,7 @@ static const int64_t kDefaultEngineId = -1;
 static const int64_t kDebuggerEngineId = -9999;
 static const uint32_t kRuntimeKeyIndex = 0;
 
-static const std::string kHippyBridgeName = "hippyBridge";
+static const char kHippyBridgeName[] = "hippyBridge";
 
 static std::shared_ptr<V8InspectorClientImpl> global_inspector = nullptr;
 
@@ -241,7 +241,7 @@ void HandleUncaughtJsError(v8::Local<v8::Message> message,
   ExceptionHandler::ReportJsException(runtime, ctx->GetMsgDesc(message),
                                       ctx->GetStackInfo(message));
   ctx->ThrowExceptionToJS(std::make_shared<V8CtxValue>(isolate, error));
-  
+
   HIPPY_DLOG(hippy::Debug, "HandleUncaughtJsError end");
 }
 
@@ -418,7 +418,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_initJSFramework(
     std::shared_ptr<Ctx> ctx = scope->GetContext();
     ctx->RegisterGlobalInJs();
     ctx->RegisterNativeBinding("hippyCallNatives", CallNative,
-                               (void*)runtime_key.get());
+                               static_cast<void*>(runtime_key.get()));
     bool ret =
         ctx->SetGlobalJsonVar("__HIPPYNATIVEGLOBAL__", global_config.c_str());
     if (!ret) {
@@ -738,7 +738,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_destroy(
     auto it = ReUseEngine.find(group);
     if (it != ReUseEngine.end()) {
       auto engine = std::get<std::shared_ptr<Engine>>(it->second);
-      long cnt = std::get<uint32_t>(it->second);
+      uint32_t cnt = std::get<uint32_t>(it->second);
       HIPPY_DLOG(hippy::Debug, "ReUseEngine cnt = %d", cnt);
       if (cnt == 1) {
         ReUseEngine.erase(it);
@@ -757,7 +757,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_destroy(
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
   JNIEnv* env;
   jint onLoad_err = -1;
-  if ((vm)->GetEnv((void**)&env, JNI_VERSION_1_4) != JNI_OK) {
+  if ((vm)->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_4) != JNI_OK) {
     return onLoad_err;
   }
   if (env == nullptr) {

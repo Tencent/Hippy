@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef HIPPY_CORE_BASE_TASK_RUNNER_H_
-#define HIPPY_CORE_BASE_TASK_RUNNER_H_
+#pragma once
 
 #include <stdint.h>
 
@@ -78,5 +77,3 @@ class TaskRunner : public Thread {
 
 }  // namespace base
 }  // namespace hippy
-
-#endif  // HIPPY_CORE_BASE_TASK_RUNNER_H_

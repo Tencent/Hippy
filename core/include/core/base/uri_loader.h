@@ -20,26 +20,22 @@
  *
  */
 
-#ifndef HIPPY_CORE_BASE_URI_LOADER_H_
-#define HIPPY_CORE_BASE_URI_LOADER_H_
+#pragma once
 
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
 namespace hippy {
 namespace base {
 
 class UriLoader {
  public:
-  UriLoader() {};
-  virtual ~UriLoader(){};
+  UriLoader() {}
+  virtual ~UriLoader() {}
 
   virtual std::string Load(const std::string& uri) = 0;
   virtual std::string Normalize(const std::string& uri) = 0;
 };
 }  // namespace base
-} // namespace hippy
-
-
-#endif  // HIPPY_CORE_BASE_URI_LOADER_H_
+}  // namespace hippy

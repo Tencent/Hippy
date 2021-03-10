@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef HIPPY_CORE_MODULES_TIMER_MODULE_H_
-#define HIPPY_CORE_MODULES_TIMER_MODULE_H_
+#pragma once
 
 #include <memory>
 #include <unordered_map>
@@ -30,15 +29,15 @@
 #include "core/base/task.h"
 #include "core/modules/module_base.h"
 #include "core/napi/callback_info.h"
-#include "core/napi/js_native_api_types.h"
 #include "core/napi/js_native_api.h"
+#include "core/napi/js_native_api_types.h"
 
 class JavaScriptTask;
 class JavaScriptTaskRunner;
 
 class TimerModule : public ModuleBase {
  public:
-  explicit TimerModule();
+  TimerModule();
   ~TimerModule();
 
   void SetTimeout(const hippy::napi::CallbackInfo& info);
@@ -74,5 +73,3 @@ class TimerModule : public ModuleBase {
 
   static const int kTimerInvalidId = 0;
 };
-
-#endif  // HIPPY_CORE_MODULES_TIMER_MODULE_H_

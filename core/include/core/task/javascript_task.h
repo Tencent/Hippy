@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef HIPPY_CORE_TASK_JAVASCRIPT_TASK_H_
-#define HIPPY_CORE_TASK_JAVASCRIPT_TASK_H_
+#pragma once
 
 #include <functional>
 
@@ -35,5 +34,3 @@ class JavaScriptTask : public hippy::base::Task {
   using Function = std::function<void()>;
   Function callback = nullptr;
 };
-
-#endif  // HIPPY_CORE_TASK_JAVASCRIPT_TASK_H_

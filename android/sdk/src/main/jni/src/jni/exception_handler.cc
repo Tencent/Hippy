@@ -20,11 +20,11 @@
  *
  */
 
-#include "jni/exception_handler.h"  // NOLINT(build/include_subdir)
+#include "jni/exception_handler.h"
 
 #include "core/core.h"
-#include "jni/jni_env.h"    // NOLINT(build/include_subdir)
-#include "jni/jni_utils.h"  // NOLINT(build/include_subdir)
+#include "jni/jni_env.h"
+#include "jni/jni_utils.h"
 
 void ExceptionHandler::ReportJsException(std::shared_ptr<Runtime> runtime,
                                          const std::string desc,

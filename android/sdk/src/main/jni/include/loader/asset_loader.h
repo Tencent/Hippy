@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef HIPPY_JNI_LOADER_ASSET_LOADER_H_
-#define HIPPY_JNI_LOADER_ASSET_LOADER_H_
+#pragma once
 
 #include <android/asset_manager.h>
 
@@ -30,12 +29,11 @@
 class AssetLoader : public ADRLoader {
  public:
   AssetLoader(AAssetManager* asset_manager, const std::string& base);
-  virtual ~AssetLoader(){};
+  virtual ~AssetLoader(){}
 
-  static std::string ReadAssetFile(
-      AAssetManager* asset_manager,
-      const std::string& file_path,
-      bool is_auto_fill = false);
+  static std::string ReadAssetFile(AAssetManager* asset_manager,
+                                   const std::string& file_path,
+                                   bool is_auto_fill = false);
 
   virtual std::string Load(const std::string& uri);
 
@@ -43,5 +41,3 @@ class AssetLoader : public ADRLoader {
   bool CheckValid(const std::string& path);
   AAssetManager* asset_manager_;
 };
-
-#endif  // HIPPY_JNI_LOADER_ASSET_LOADER_H_

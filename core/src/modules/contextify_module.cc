@@ -96,7 +96,7 @@ void ContextifyModule::LoadUriContent(const CallbackInfo& info) {
   hippy::napi::Encoding encode = hippy::napi::UNKNOWN_ENCODING;
   double encode_num = 0;
   if (context->GetValueNumber(param, &encode_num)) {
-    encode = hippy::napi::Encoding((int)encode_num);
+    encode = hippy::napi::Encoding(static_cast<int>(encode_num));
     function = info[2];
   } else {
     function = info[1];
