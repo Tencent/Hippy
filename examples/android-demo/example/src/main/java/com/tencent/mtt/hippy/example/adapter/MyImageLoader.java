@@ -14,8 +14,13 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.adapter.image.HippyDrawable;
 import com.tencent.mtt.hippy.adapter.image.HippyImageLoader;
+import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 
+import com.tencent.mtt.hippy.utils.PixelUtil;
+import com.tencent.mtt.hippy.views.image.HippyImageView;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -38,8 +43,37 @@ public class MyImageLoader extends HippyImageLoader
 	
 	// 网络图片加载，异步加载
 	@Override
-	public void fetchImage(final String url, final Callback requestCallback, Object param)
+	public void fetchImage(final String url, final Callback requestCallback, Object paramsObj)
 	{
+		Object propsObj = null;
+		if (paramsObj != null && paramsObj instanceof Map) {
+			propsObj = ((Map)paramsObj).get(HippyImageView.IMAGE_PROPS);
+		} else {
+			propsObj = paramsObj;
+		}
+
+		HippyMap props = (propsObj != null && propsObj instanceof HippyMap) ? (HippyMap)propsObj : new HippyMap();
+
+		int width = 0;
+		int height = 0;
+		int repeatCount;
+		boolean isGif;
+		String resizeMode = "";
+		String imageType = "";
+
+		if (props.containsKey(NodeProps.STYLE)) {
+			HippyMap styles = props.getMap(NodeProps.STYLE);
+			if (styles != null) {
+				width = Math.round(PixelUtil.dp2px(styles.getDouble(NodeProps.WIDTH)));
+				height = Math.round(PixelUtil.dp2px(styles.getDouble(NodeProps.HEIGHT)));
+				resizeMode = styles.getString(NodeProps.RESIZE_MODE);
+			}
+		}
+
+		imageType = props.getString(NodeProps.CUSTOM_PROP_IMAGE_TYPE);
+		repeatCount = props.getInt(NodeProps.REPEAT_COUNT);
+		isGif = props.getBoolean(NodeProps.CUSTOM_PROP_ISGIF);
+
 		Glide.with(myContext).load(url).into(new SimpleTarget() {
 			@Override
 			public void onResourceReady(final Object object, GlideAnimation glideAnimation) {

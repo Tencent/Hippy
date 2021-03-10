@@ -206,14 +206,13 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 	@Override
 	public boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache, String codeCacheTag, NativeCallback callback)
 	{
-		if (!mInit)
-		{
+		if (!mInit) {
 			return false;
 		}
 
 		if (!TextUtils.isEmpty(codeCacheTag) && !TextUtils.isEmpty(mCodeCacheRootDir))
 		{
-			LogUtils.e("HippyEngineMonitor", "runScriptFromAssets ======core====== " + codeCacheTag + ", canUseCodeCache == " + canUseCodeCache);
+			LogUtils.d("HippyEngineMonitor", "runScriptFromAssets ======core====== " + codeCacheTag + ", canUseCodeCache == " + canUseCodeCache);
 			String codeCacheDir = mCodeCacheRootDir + codeCacheTag + File.separator;
 			File file = new File(codeCacheDir);
 			LogUtils.d("HippyEngineMonitor", "codeCacheDir file size : " + (file.listFiles() != null ? file.listFiles().length : 0));
@@ -221,8 +220,14 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 		}
 		else
 		{
-			LogUtils.e("HippyEngineMonitor", "runScriptFromAssets codeCacheTag is null");
-			return runScriptFromUri(uri, assetManager, false, "" + codeCacheTag + File.separator, mV8RuntimeId, callback);
+			boolean ret = false;
+			LogUtils.d("HippyEngineMonitor", "runScriptFromAssets codeCacheTag is null");
+			try {
+				ret = runScriptFromUri(uri, assetManager, false, "" + codeCacheTag + File.separator, mV8RuntimeId, callback);
+			} catch (Throwable e) {
+				LogUtils.e("HippyBridgeImpl", "runScriptFromUri:" + e.getMessage());
+			}
+			return ret;
 		}
 	}
 
