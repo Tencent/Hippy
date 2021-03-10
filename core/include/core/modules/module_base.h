@@ -20,13 +20,10 @@
  *
  */
 
-#ifndef HIPPY_CORE_MODULES_MODULE_BASE_H_
-#define HIPPY_CORE_MODULES_MODULE_BASE_H_
+#pragma once
 
 class ModuleBase {
  public:
   ModuleBase() = default;
   virtual ~ModuleBase() = default;
 };
-
-#endif  // HIPPY_CORE_MODULES_MODULE_BASE_H_

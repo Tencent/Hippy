@@ -408,11 +408,11 @@ void JSCCtx::RegisterNativeBinding(const std::string& name,
                                    hippy::base::RegisterFunction fn,
                                    void* data) {
   return;
-};
+}
 
 std::shared_ptr<CtxValue> JSCCtx::GetJsFn(const std::string& name) {
   return GetGlobalObjVar(name);
-};
+}
 
 std::shared_ptr<CtxValue> JSCCtx::RunScript(const uint8_t* data,
                                             size_t len,

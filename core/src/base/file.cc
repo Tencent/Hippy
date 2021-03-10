@@ -132,7 +132,7 @@ int HippyFile::CreateDir(const char* path, mode_t mode) {
 int HippyFile::CheckDir(const char* path, int mode) {
   HIPPY_DLOG(hippy::Debug, "CheckDir path = %s", path);
   return access(path, mode);
-};
+}
 
 uint64_t HippyFile::GetFileModifytime(const std::string& file_path) {
   HIPPY_LOG(hippy::Debug, "GetFileModifytime file_path = %s",

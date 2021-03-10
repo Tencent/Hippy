@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef HIPPY_CORE_NAPI_JS_NATIVE_API_H_
-#define HIPPY_CORE_NAPI_JS_NATIVE_API_H_
+#pragma once
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -44,5 +43,3 @@ void DetachThread();
 
 }  // namespace napi
 }  // namespace hippy
-
-#endif  // HIPPY_CORE_NAPI_JS_NATIVE_API_H_

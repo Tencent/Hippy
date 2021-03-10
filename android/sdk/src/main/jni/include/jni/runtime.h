@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef HIPYY_JNI_RUNTIME_H_
-#define HIPYY_JNI_RUNTIME_H_
+#pragma once
 
 #include <jni.h>
 #include <stdint.h>
@@ -38,7 +37,7 @@ class Runtime {
 
   inline bool IsParamJson() { return is_json_; }
   inline bool IsDebug() { return is_debug_; }
-  inline int64_t GetId() { return id_; };
+  inline int64_t GetId() { return id_; }
   inline int64_t GetGroupId() { return group_id_; }
   inline std::shared_ptr<JavaRef> GetBridge() { return bridge_; }
   inline std::shared_ptr<Engine> GetEngine() { return engine_; }
@@ -71,5 +70,3 @@ class Runtime {
   std::shared_ptr<hippy::napi::CtxValue> bridge_func_;
   int64_t id_;
 };
-
-#endif  // HIPYY_JNI_RUNTIME_H_

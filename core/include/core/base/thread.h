@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef HIPPY_CORE_BASE_THREAD_H_
-#define HIPPY_CORE_BASE_THREAD_H_
+#pragma once
 
 #include <pthread.h>
 
@@ -72,5 +71,3 @@ class Thread {
 
 }  // namespace base
 }  // namespace hippy
-
-#endif  // HIPPY_CORE_BASE_THREAD_H_
