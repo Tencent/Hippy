@@ -20,6 +20,8 @@
  *
  */
 
+#pragma once
+
 #include <jni.h>
 
 #include "core/core.h"

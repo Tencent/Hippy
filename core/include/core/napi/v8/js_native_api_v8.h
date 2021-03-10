@@ -78,7 +78,7 @@ class V8TryCatch : public TryCatch {
 class CBTuple {
  public:
   CBTuple(hippy::base::RegisterFunction fn, void *data)
-      : fn_(fn), data_(data){};
+      : fn_(fn), data_(data) {}
   hippy::base::RegisterFunction fn_;
   void *data_;
 };
@@ -87,7 +87,7 @@ class CBDataTuple {
  public:
   CBDataTuple(const CBTuple &cb_tuple,
               const v8::FunctionCallbackInfo<v8::Value> &info)
-      : cb_tuple_(cb_tuple), info_(info){};
+      : cb_tuple_(cb_tuple), info_(info) {}
   const CBTuple &cb_tuple_;
   const v8::FunctionCallbackInfo<v8::Value> &info_;
 };
