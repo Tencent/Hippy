@@ -28,7 +28,7 @@
 
 class Uri {
  public:
-  Uri(const std::string& uri);
+  explicit Uri(const std::string& uri);
   ~Uri();
   std::string GetPath();
   std::string GetScheme();
