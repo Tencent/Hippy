@@ -102,8 +102,7 @@ int HippyFile::RmFullPath(std::string dir_full_path) {
       continue;
     }
     if (S_ISDIR(st.st_mode)) {
-      if (RmFullPath(sub_path) == -1)  // 如果是目录文件，递归删除
-      {
+      if (RmFullPath(sub_path) == -1) {  // 如果是目录文件，递归删除
         return -1;
       }
       rmdir(sub_path.c_str());

@@ -254,7 +254,7 @@ class ExternalStringResourceImpl : public v8::String::ExternalStringResource {
     if (data_) {
       return data_;
     } else {
-      return (uint16_t*)str_data_.c_str();
+      return reinterpret_cast<const uint16_t*>(str_data_.c_str());
     }
   }
 
