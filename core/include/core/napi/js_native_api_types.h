@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef HIPPY_CORE_NAPI_JS_NATIVE_API_TYPES_H_
-#define HIPPY_CORE_NAPI_JS_NATIVE_API_TYPES_H_
+#pragma once
 
 #include <functional>
 #include <memory>
@@ -36,8 +35,8 @@ class Scope;
 namespace hippy {
 namespace napi {
 
-static const std::string kErrorHandlerJSName = "ExceptionHandle.js";
-static const std::string kHippyErrorHandlerName = "HippyExceptionHandler";
+static const char kErrorHandlerJSName[] = "ExceptionHandle.js";
+static const char kHippyErrorHandlerName[] = "HippyExceptionHandler";
 
 enum PropertyAttribute {
   /** None. **/
@@ -63,16 +62,14 @@ enum Encoding { UNKNOWN_ENCODING, TWO_BYTE_ENCODING, ONE_BYTE_ENCODING };
 
 class CtxValue {
  public:
-  CtxValue(){};
-  virtual ~CtxValue(){
-      // HIPPY_DLOG(hippy::Debug, "~CtxValue");
-  };
+  CtxValue() {}
+  virtual ~CtxValue() {}
 };
 
 class Ctx {
  public:
-  Ctx(){};
-  virtual ~Ctx() { HIPPY_DLOG(hippy::Debug, "~Ctx"); };
+  Ctx() {}
+  virtual ~Ctx() { HIPPY_DLOG(hippy::Debug, "~Ctx"); }
 
   virtual bool RegisterGlobalInJs() = 0;
   virtual bool SetGlobalJsonVar(const std::string& name, const char* json) = 0;
@@ -200,5 +197,3 @@ class FunctionData {
 
 }  // namespace napi
 }  // namespace hippy
-
-#endif  // HIPPY_CORE_NAPI_JS_NATIVE_API_TYPES_H_

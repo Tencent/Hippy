@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef HIPPY_CORE_SCOPE_H_
-#define HIPPY_CORE_SCOPE_H_
+#pragma once
 
 #include <string>
 #include <unordered_map>
@@ -86,9 +85,7 @@ class Scope {
              const std::string& name,
              Encoding encodeing = Encoding::UNKNOWN_ENCODING);
 
-  void RunJS(const uint8_t* data,
-             size_t len,
-             const std::string& name);
+  void RunJS(const uint8_t* data, size_t len, const std::string& name);
 
   std::shared_ptr<CtxValue> RunJSSync(const uint8_t* data,
                                       size_t len,
@@ -132,5 +129,3 @@ class Scope {
   std::unique_ptr<ScopeWrapper> wrapper_;
   std::shared_ptr<UriLoader> loader_;
 };
-
-#endif  // HIPPY_CORE_SCOPE_H_

@@ -20,10 +20,10 @@
  *
  */
 
-#ifndef HIPYY_JNI_URI_H_
-#define HIPYY_JNI_URI_H_
+#pragma once
 
 #include <jni.h>
+
 #include <string>
 
 class Uri {
@@ -39,5 +39,3 @@ class Uri {
  private:
   jobject j_obj_uri_;
 };
-
-#endif // HIPYY_JNI_URI_H_

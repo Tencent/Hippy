@@ -42,8 +42,8 @@ using BindingData = hippy::napi::BindingData;
 using CtxValue = hippy::napi::CtxValue;
 using TryCatch = hippy::napi::TryCatch;
 
-const std::string kdeallocFuncName = "HippyDealloc";
-const std::string kHippyBootstrapJSName = "bootstrap.js";
+const char kdeallocFuncName[] = "HippyDealloc";
+const char kHippyBootstrapJSName[] = "bootstrap.js";
 
 Scope::Scope(Engine* engine,
              const std::string& name,

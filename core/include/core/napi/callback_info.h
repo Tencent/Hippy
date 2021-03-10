@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef HIPPY_CORE_NAPI_CALLBACK_INFO_H_
-#define HIPPY_CORE_NAPI_CALLBACK_INFO_H_
+#pragma once
 
 #include <stdio.h>
 
@@ -86,5 +85,3 @@ class CallbackInfo {
 
 }  // namespace napi
 }  // namespace hippy
-
-#endif  // HIPPY_CORE_NAPI_CALLBACK_INFO_H_

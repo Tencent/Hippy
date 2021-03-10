@@ -20,13 +20,12 @@
  *
  */
 
-#ifndef HIPPY_CORE_NAPI_JSC_JS_NATIVE_API_JSC_H_
-#define HIPPY_CORE_NAPI_JSC_JS_NATIVE_API_JSC_H_
+#pragma once
 
 #include <JavaScriptCore/JavaScriptCore.h>
 #include <stdio.h>
 
-#include <mutex>  // NOLINT(build/c++11)
+#include <mutex>
 #include <vector>
 
 #include "core/base/macros.h"
@@ -66,34 +65,26 @@ class JSCCtx : public Ctx {
   }
 
   JSGlobalContextRef GetCtxRef() { return context_; }
-  
-  inline std::shared_ptr<JSCCtxValue> GetException() {
-    return exception_;
-  }
+
+  inline std::shared_ptr<JSCCtxValue> GetException() { return exception_; }
   inline void SetException(std::shared_ptr<JSCCtxValue> exception) {
     exception_ = exception;
     if (exception) {
       is_exception_handled_ = false;
     }
   }
-  inline bool IsExceptionHandled() {
-    return is_exception_handled_;
-  }
+  inline bool IsExceptionHandled() { return is_exception_handled_; }
   inline void SetExceptionHandled(bool is_exception_handled) {
     is_exception_handled_ = is_exception_handled;
   }
   virtual bool RegisterGlobalInJs();
-  virtual bool SetGlobalJsonVar(const std::string& name,
-                                const char* json);
-  virtual bool SetGlobalStrVar(const std::string& name,
-                               const char* str);
+  virtual bool SetGlobalJsonVar(const std::string& name, const char* json);
+  virtual bool SetGlobalStrVar(const std::string& name, const char* str);
   virtual bool SetGlobalObjVar(const std::string& name,
                                std::shared_ptr<CtxValue> obj,
                                PropertyAttribute attr = None);
-  virtual std::shared_ptr<CtxValue> GetGlobalStrVar(
-      const std::string& name);
-  virtual std::shared_ptr<CtxValue> GetGlobalObjVar(
-      const std::string& name);
+  virtual std::shared_ptr<CtxValue> GetGlobalStrVar(const std::string& name);
+  virtual std::shared_ptr<CtxValue> GetGlobalObjVar(const std::string& name);
   virtual std::shared_ptr<CtxValue> GetProperty(
       const std::shared_ptr<CtxValue> object,
       const std::string& name);
@@ -164,7 +155,7 @@ class JSCCtx : public Ctx {
 
   std::string GetExceptionMsg(std::shared_ptr<CtxValue> exception);
   bool ThrowExceptionToJS(std::shared_ptr<CtxValue> exception);
-  
+
   JSGlobalContextRef context_;
   std::shared_ptr<JSCCtxValue> exception_;
   bool is_exception_handled_;
@@ -185,10 +176,9 @@ class JSCCtxValue : public CtxValue {
   DISALLOW_COPY_AND_ASSIGN(JSCCtxValue);
 };
 
-class JSCTryCatch: public TryCatch {
+class JSCTryCatch : public TryCatch {
  public:
-  JSCTryCatch(bool enable,
-              std::shared_ptr<Ctx> ctx);
+  JSCTryCatch(bool enable, std::shared_ptr<Ctx> ctx);
   virtual ~JSCTryCatch();
   virtual void ReThrow();
   virtual bool HasCaught();
@@ -198,8 +188,8 @@ class JSCTryCatch: public TryCatch {
   virtual void SetVerbose(bool verbose);
   virtual std::shared_ptr<CtxValue> Exception();
   virtual std::string GetExceptionMsg();
-  
-private:
+
+ private:
   std::shared_ptr<JSCCtxValue> exception_;
   bool is_verbose_;
   bool is_rethrow_;
@@ -207,5 +197,3 @@ private:
 
 }  // namespace napi
 }  // namespace hippy
-
-#endif  // HIPPY_CORE_NAPI_JSC_JS_NATIVE_API_JSC_H_

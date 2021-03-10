@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef HIPPY_CORE_MODULES_CONSOLE_MODULE_H_
-#define HIPPY_CORE_MODULES_CONSOLE_MODULE_H_
+#pragma once
 
 #include "core/modules/module_base.h"
 #include "core/napi/callback_info.h"
@@ -31,8 +30,6 @@ class Scope;
 
 class ConsoleModule : public ModuleBase {
  public:
-  explicit ConsoleModule() {}
+  ConsoleModule() {}
   void Log(const hippy::napi::CallbackInfo& info);
 };
-
-#endif  // HIPPY_CORE_MODULES_CONSOLE_MODULE_H_

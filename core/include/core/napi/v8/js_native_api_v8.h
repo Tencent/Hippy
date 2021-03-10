@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef HIPPY_CORE_NAPI_V8_JS_NATIVE_API_V8_H_
-#define HIPPY_CORE_NAPI_V8_JS_NATIVE_API_V8_H_
+#pragma once
 
 #include <stdint.h>
 
@@ -216,5 +215,3 @@ struct V8CtxValue : public CtxValue {
 
 }  // namespace napi
 }  // namespace hippy
-
-#endif  // HIPPY_CORE_NAPI_V8_JS_NATIVE_API_V8_H_

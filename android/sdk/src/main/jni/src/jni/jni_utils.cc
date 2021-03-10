@@ -35,13 +35,12 @@ size_t SafeGetArrayLength(JNIEnv* env, const jbyteArray& jarray) {
   return static_cast<size_t>(std::max(0, length));
 }
 
-std::string JniUtils::AppendJavaByteArrayToString(
-    JNIEnv* env,
-    jbyteArray byte_array) {
+std::string JniUtils::AppendJavaByteArrayToString(JNIEnv* env,
+                                                  jbyteArray byte_array) {
   if (!byte_array) {
     return "";
   }
-  
+
   size_t len = SafeGetArrayLength(env, byte_array);
   if (!len) {
     return "";
@@ -75,12 +74,4 @@ HippyBuffer* JniUtils::WriteToBuffer(v8::Isolate* isolate,
 void JniUtils::printCurrentThreadID() {
 #define LOG_DEBUG(FORMAT, ...) \
   __android_log_print(ANDROID_LOG_DEBUG, "Debug", FORMAT, ##__VA_ARGS__);
-
-  /*auto myid = WorkerThread::getCurrentThreadId();
-  std::stringstream ss;
-  ss << myid;
-  std::string threadId = ss.str();
- // napi_print_log("threadId: ");
-  char* log = (char*)threadId.c_str();
-  LOG_DEBUG("current threadid: %s", log);*/
 }

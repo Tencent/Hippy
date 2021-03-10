@@ -25,8 +25,8 @@
 
 #include "core/core.h"
 
-
-IOSLoader::IOSLoader(NormalizeFuncPtr normalize, LoadFuncPtr load): normalize_(normalize), load_(load) {}
+IOSLoader::IOSLoader(NormalizeFuncPtr normalize, LoadFuncPtr load):
+  normalize_(normalize), load_(load) {}
 IOSLoader::IOSLoader(const std::string& base) : base_(base) {}
 
 std::string IOSLoader::Normalize(const std::string& uri) {

@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef HIPPY_CORE_BASE_FILE_H
-#define HIPPY_CORE_BASE_FILE_H
+#pragma once
 
 #include <sys/types.h>
 #include <unistd.h>
@@ -41,8 +40,7 @@ class HippyFile {
                        std::ios::openmode mode = std::ios::out |
                                                  std::ios::binary |
                                                  std::ios::trunc);
-  static std::string ReadFile(const char* file_path,
-                                                     bool is_auto_fill = false);
+  static std::string ReadFile(const char* file_path, bool is_auto_fill = false);
   static int RmFullPath(std::string dir_full_path);
   static int CreateDir(const char* path, mode_t mode);
   static int CheckDir(const char* path, int mode);
@@ -50,4 +48,3 @@ class HippyFile {
 };
 }  // namespace base
 }  // namespace hippy
-#endif  // HIPPY_CORE_BASE_FILE_H
