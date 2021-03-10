@@ -20,13 +20,12 @@
  *
  */
 
-#ifndef HIPPY_JNI_EXCEPTION_HANDLER_H_
-#define HIPPY_JNI_EXCEPTION_HANDLER_H_
+#pragma once
 
 #include <iostream>
 #include <sstream>
 
-#include "jni/runtime.h"  // NOLINT(build/include_subdir)
+#include "jni/runtime.h"
 
 class JNIEnvironment;
 
@@ -42,5 +41,3 @@ class ExceptionHandler {
 
   void JSONException(std::shared_ptr<Runtime> runtime, const char* jsonValue);
 };
-
-#endif  // HIPPY_JNI_EXCEPTION_HANDLER_H_

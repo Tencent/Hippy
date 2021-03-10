@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef HIPPY_JNI_SCOPED_JAVA_REF_H
-#define HIPPY_JNI_SCOPED_JAVA_REF_H
+#pragma once
 
 #include <jni.h>
 
@@ -38,5 +37,3 @@ class JavaRef {
 
   DISALLOW_COPY_AND_ASSIGN(JavaRef);
 };
-
-#endif  // HIPPY_JNI_SCOPED_JAVA_REF_H

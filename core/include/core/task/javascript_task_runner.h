@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef HIPPY_CORE_TASK_JAVASCRIPT_TASK_RUNNER_H_
-#define HIPPY_CORE_TASK_JAVASCRIPT_TASK_RUNNER_H_
+#pragma once
 
 #include "core/base/task_runner.h"
 
@@ -40,5 +39,3 @@ class JavaScriptTaskRunner : public hippy::base::TaskRunner {
  private:
   bool is_inspector_call_pause_ = false;
 };
-
-#endif  // HIPPY_CORE_TASK_JAVASCRIPT_TASK_RUNNER_H_
