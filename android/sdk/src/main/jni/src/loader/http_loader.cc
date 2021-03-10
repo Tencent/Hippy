@@ -22,8 +22,6 @@
 
 #include "loader/http_loader.h"
 
-#include "stdint.h"
-
 #include "core/core.h"
 #include "jni/jni_env.h"
 #include "jni/jni_utils.h"
@@ -31,14 +29,18 @@
 HttpLoader::HttpLoader() {}
 HttpLoader::HttpLoader(const std::string& base) : ADRLoader(base) {}
 
-std::string HttpLoader::Load(
-    const std::string& uri) {
+std::string HttpLoader::Load(const std::string& uri) {
   JNIEnv* env = JNIEnvironment::AttachCurrentThread();
-  jstring j_relative_path = env->NewStringUTF(uri.c_str());
-  jbyteArray j_rst = (jbyteArray)env->CallObjectMethod(
-      bridge_->GetObj(),
-      JNIEnvironment::GetInstance()->wrapper_.get_uri_content_method_id,
-      j_relative_path);
-  env->DeleteLocalRef(j_relative_path);
-  return JniUtils::AppendJavaByteArrayToString(env, j_rst);
+  JNIEnvironment* instance = JNIEnvironment::GetInstance();
+  if (instance->wrapper_.get_uri_content_method_id) {
+    jstring j_relative_path = env->NewStringUTF(uri.c_str());
+    jbyteArray j_rst = (jbyteArray)env->CallObjectMethod(
+        bridge_->GetObj(), instance->wrapper_.get_uri_content_method_id,
+        j_relative_path);
+    env->DeleteLocalRef(j_relative_path);
+    return JniUtils::AppendJavaByteArrayToString(env, j_rst);
+  }
+
+  HIPPY_LOG(hippy::Error, "jni get_uri_content_method_id error");
+  return "";
 }

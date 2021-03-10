@@ -8,6 +8,7 @@ import com.tencent.mtt.supportui.views.ScrollChecker;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.view.View;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by leonardgong on 2017/12/7 0007.
@@ -31,13 +32,13 @@ public class RecyclerView extends RecyclerViewBase implements RecyclerViewBase.O
 
 	}
 
-	public List<OnListScrollListener> mListScrollListeners = null;
+	public CopyOnWriteArrayList<OnListScrollListener> mListScrollListeners = null;
 
 	public void addOnListScrollListener(OnListScrollListener listener)
 	{
 		if (mListScrollListeners == null)
 		{
-			mListScrollListeners = new ArrayList<OnListScrollListener>();
+			mListScrollListeners = new CopyOnWriteArrayList<OnListScrollListener>();
 
 		}
 		if (!mListScrollListeners.contains(listener))
