@@ -40,11 +40,8 @@ public class MyImageLoader extends HippyImageLoader
 		mTimer = null;
 		myContext = null;
 	}
-	
-	// 网络图片加载，异步加载
-	@Override
-	public void fetchImage(final String url, final Callback requestCallback, Object paramsObj)
-	{
+
+	private void runFetchImageOnMianThread(final String url, final Callback requestCallback, final Object paramsObj) {
 		Object propsObj = null;
 		if (paramsObj != null && paramsObj instanceof Map) {
 			propsObj = ((Map)paramsObj).get(HippyImageView.IMAGE_PROPS);
@@ -119,5 +116,23 @@ public class MyImageLoader extends HippyImageLoader
 				requestCallback.onRequestFail(e, null);
 			}
 		});
+	}
+
+	// 网络图片加载，异步加载
+	@Override
+	public void fetchImage(final String url, final Callback requestCallback, final Object paramsObj) {
+		Looper looper = Looper.myLooper();
+		if (looper == Looper.getMainLooper()) {
+			runFetchImageOnMianThread(url, requestCallback, paramsObj);
+		} else {
+			Handler mainHandler = new Handler(Looper.getMainLooper());
+			Runnable task = new Runnable() {
+				@Override
+				public void run() {
+					runFetchImageOnMianThread(url, requestCallback, paramsObj);
+				}
+			};
+			mainHandler.post(task);
+		}
 	}
 }
