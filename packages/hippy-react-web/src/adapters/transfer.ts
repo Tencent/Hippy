@@ -20,7 +20,7 @@ function mapTransform(transform: any) {
   return `${type}(${value})`;
 }
 
-function resolveTransform(transformArray: any[]) {
+function resolveTransform(transformArray: any[]): any {
   let transform = '';
   if (Array.isArray(transformArray)) {
     if (transformArray.length > 1) {
@@ -83,6 +83,142 @@ function toPx(num: unknown) {
   return isNumeric(num) ? `${num}px` : num;
 }
 
+interface WebStyle {
+  borderStyle?: any,
+  marginHorizontal?: any
+  marginLeft?: any,
+  marginRight?: any,
+  marginTop?: any,
+  marginBottom?: any,
+  paddingLeft?: any,
+  paddingRight?: any,
+  paddingTop?: any,
+  paddingBottom?: any,
+  marginVertical?: any,
+  paddingHorizontal?: any,
+  paddingVertical?: any,
+  color?: any
+  colors?: any,
+  borderColor?: any,
+  borderColors?: any,
+  borderTopColor?: any,
+  borderTopColors?: any,
+  borderBottomColor?: any,
+  borderBottomColors?: any,
+  borderLeftColor?: any,
+  borderLeftColors?: any,
+  borderRightColor?: any,
+  borderRightColors?: any,
+  backgroundColor?: any,
+  backgroundColors?: any,
+}
+
+function handleBoxStyle(webStyle: WebStyle) {
+  // 处理普通border
+  borderPropsArray.every((borderProp) => {
+    if (hasOwnProperty(webStyle, borderProp)) {
+      // eslint-disable-next-line no-param-reassign
+      webStyle.borderStyle = 'solid';
+      return false;
+    }
+    return true;
+  });
+
+  // 处理marginHorizontal
+  if (hasOwnProperty(webStyle, 'marginHorizontal')) {
+    const val = toPx(webStyle.marginHorizontal);
+    /* eslint-disable no-param-reassign */
+    webStyle.marginLeft = val;
+    webStyle.marginRight = val;
+  }
+
+  // 处理marginVertical
+  if (hasOwnProperty(webStyle, 'marginVertical')) {
+    const val = toPx(webStyle.marginVertical);
+    webStyle.marginTop = val;
+    webStyle.marginBottom = val;
+  }
+  // 处理paddingHorizontal
+  if (hasOwnProperty(webStyle, 'paddingHorizontal')) {
+    const val = toPx(webStyle.paddingHorizontal);
+    webStyle.paddingLeft = val;
+    webStyle.paddingRight = val;
+  }
+  // 处理paddingVertical
+  if (hasOwnProperty(webStyle, 'paddingVertical')) {
+    const val = toPx(webStyle.paddingVertical);
+    webStyle.paddingTop = val;
+    webStyle.paddingBottom = val;
+  }
+}
+
+// 处理颜色数组（QQ浏览器专有）
+// TODO 剥离出来，不写在公用库
+function handleSpecialColor(webStyle: WebStyle) {
+  if (!webStyle.color && webStyle.colors && webStyle.colors.length > 0) {
+    [webStyle.color] = webStyle.colors;
+  }
+
+  if (!webStyle.borderColor && webStyle.borderColors && webStyle.borderColors.length > 0) {
+    [webStyle.borderColor] = webStyle.borderColors;
+  }
+
+  if (!webStyle.borderTopColor && webStyle.borderTopColors && webStyle.borderTopColors.length > 0) {
+    [webStyle.borderTopColor] = webStyle.borderTopColors;
+  }
+
+  if (!webStyle.borderBottomColor && webStyle.borderBottomColors
+      && webStyle.borderBottomColors.length > 0) {
+    [webStyle.borderBottomColor] = webStyle.borderBottomColors;
+  }
+
+  if (!webStyle.borderLeftColor && webStyle.borderLeftColors
+      && webStyle.borderLeftColors.length > 0) {
+    [webStyle.borderLeftColor] = webStyle.borderLeftColors;
+  }
+
+  if (!webStyle.borderRightColor && webStyle.borderRightColors
+      && webStyle.borderRightColors.length > 0) {
+    [webStyle.borderRightColor] = webStyle.borderRightColors;
+  }
+
+  if (!webStyle.backgroundColor && webStyle.backgroundColors
+      && webStyle.backgroundColors.length > 0) {
+    [webStyle.backgroundColor] = webStyle.backgroundColors;
+  }
+}
+
+function handle8BitHexColor(webStyle: WebStyle) {
+  // 处理八位16进制的颜色值为rgba颜色值
+  if (is8DigitHexColor(webStyle.backgroundColor)) {
+    webStyle.backgroundColor = transformHexToRgba(webStyle.backgroundColor);
+  }
+
+  if (is8DigitHexColor(webStyle.color)) {
+    webStyle.color = transformHexToRgba(webStyle.color);
+  }
+
+  if (is8DigitHexColor(webStyle.borderColor)) {
+    webStyle.borderColor = transformHexToRgba(webStyle.borderColor);
+  }
+
+  if (is8DigitHexColor(webStyle.borderTopColor)) {
+    webStyle.borderTopColor = transformHexToRgba(webStyle.borderTopColor);
+  }
+
+  if (is8DigitHexColor(webStyle.borderBottomColor)) {
+    webStyle.borderBottomColor = transformHexToRgba(webStyle.borderBottomColor);
+  }
+
+  if (is8DigitHexColor(webStyle.borderLeftColor)) {
+    webStyle.borderLeftColor = transformHexToRgba(webStyle.borderLeftColor);
+  }
+
+  if (is8DigitHexColor(webStyle.borderRightColor)) {
+    webStyle.borderRightColor = transformHexToRgba(webStyle.borderRightColor);
+  }
+}
+
 function hackWebStyle(webStyle_: any) {
   const webStyle = webStyle_;
   /*
@@ -120,108 +256,13 @@ function hackWebStyle(webStyle_: any) {
     }
   });
 
-  // 处理普通border
-  borderPropsArray.every((borderProp) => {
-    if (hasOwnProperty(webStyle, borderProp)) {
-      webStyle.borderStyle = 'solid';
-      return false;
-    }
-    return true;
-  });
-
-  // 处理marginHorizontal
-  if (hasOwnProperty(webStyle, 'marginHorizontal')) {
-    const val = toPx(webStyle.marginHorizontal);
-    webStyle.marginLeft = val;
-    webStyle.marginRight = val;
-  }
-
-  // 处理marginVertical
-  if (hasOwnProperty(webStyle, 'marginVertical')) {
-    const val = toPx(webStyle.marginVertical);
-    webStyle.marginTop = val;
-    webStyle.marginBottom = val;
-  }
-  // 处理paddingHorizontal
-  if (hasOwnProperty(webStyle, 'paddingHorizontal')) {
-    const val = toPx(webStyle.paddingHorizontal);
-    webStyle.paddingLeft = val;
-    webStyle.paddingRight = val;
-  }
-  // 处理paddingVertical
-  if (hasOwnProperty(webStyle, 'paddingVertical')) {
-    const val = toPx(webStyle.paddingVertical);
-    webStyle.paddingTop = val;
-    webStyle.paddingBottom = val;
-  }
-
+  handleBoxStyle(webStyle);
   if (webStyle.height && webStyle.height === 0.5) {
     webStyle.height = '1px';
   }
-
-  // 处理颜色数组（QQ浏览器专有）
-  // TODO 剥离出来，不写在公用库
-  if (!webStyle.color && webStyle.colors && webStyle.colors.length > 0) {
-    [webStyle.color] = webStyle.colors;
-  }
-
-  if (!webStyle.borderColor && webStyle.borderColors && webStyle.borderColors.length > 0) {
-    [webStyle.borderColor] = webStyle.borderColors;
-  }
-
-  if (!webStyle.borderTopColor && webStyle.borderTopColors && webStyle.borderTopColors.length > 0) {
-    [webStyle.borderTopColor] = webStyle.borderTopColors;
-  }
-
-  if (!webStyle.borderBottomColor && webStyle.borderBottomColors
-    && webStyle.borderBottomColors.length > 0) {
-    [webStyle.borderBottomColor] = webStyle.borderBottomColors;
-  }
-
-  if (!webStyle.borderLeftColor && webStyle.borderLeftColors
-    && webStyle.borderLeftColors.length > 0) {
-    [webStyle.borderLeftColor] = webStyle.borderLeftColors;
-  }
-
-  if (!webStyle.borderRightColor && webStyle.borderRightColors
-    && webStyle.borderRightColors.length > 0) {
-    [webStyle.borderRightColor] = webStyle.borderRightColors;
-  }
-
-  if (!webStyle.backgroundColor && webStyle.backgroundColors
-    && webStyle.backgroundColors.length > 0) {
-    [webStyle.backgroundColor] = webStyle.backgroundColors;
-  }
-
-
+  handleSpecialColor(webStyle);
   // 处理八位16进制的颜色值为rgba颜色值
-  if (is8DigitHexColor(webStyle.backgroundColor)) {
-    webStyle.backgroundColor = transformHexToRgba(webStyle.backgroundColor);
-  }
-
-  if (is8DigitHexColor(webStyle.color)) {
-    webStyle.color = transformHexToRgba(webStyle.color);
-  }
-
-  if (is8DigitHexColor(webStyle.borderColor)) {
-    webStyle.borderColor = transformHexToRgba(webStyle.borderColor);
-  }
-
-  if (is8DigitHexColor(webStyle.borderTopColor)) {
-    webStyle.borderTopColor = transformHexToRgba(webStyle.borderTopColor);
-  }
-
-  if (is8DigitHexColor(webStyle.borderBottomColor)) {
-    webStyle.borderBottomColor = transformHexToRgba(webStyle.borderBottomColor);
-  }
-
-  if (is8DigitHexColor(webStyle.borderLeftColor)) {
-    webStyle.borderLeftColor = transformHexToRgba(webStyle.borderLeftColor);
-  }
-
-  if (is8DigitHexColor(webStyle.borderRightColor)) {
-    webStyle.borderRightColor = transformHexToRgba(webStyle.borderRightColor);
-  }
+  handle8BitHexColor(webStyle);
 
   Object.keys(webStyle)
     .forEach((key) => {

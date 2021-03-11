@@ -1,17 +1,29 @@
 module.exports = {
   parser: '@typescript-eslint/parser',
   extends: [
-    'airbnb',
+    '@tencent/eslint-config-tencent',
+    'plugin:react/recommended',
     'plugin:import/errors',
     'plugin:import/warnings',
     'plugin:import/typescript',
   ],
   plugins: [
     '@typescript-eslint',
+    'jsx-a11y',
   ],
   env: {
     browser: true,
     node: true,
+    es6: true,
+  },
+  parserOptions: {
+    ecmaFeatures: {
+      jsx: true,
+      legacyDecorators: true,
+      experimentalObjectRestSpread: true,
+    },
+    ecmaVersion: 2018,
+    sourceType: 'module',
   },
   globals: {
     __PLATFORM__: true,
@@ -19,6 +31,14 @@ module.exports = {
     Hippy: true,
   },
   rules: {
+    quotes: [
+      'error',
+      'single',
+      {
+        allowTemplateLiterals: false,
+      },
+    ],
+    'react/no-deprecated': 0,
     // Ignore the dependency by each package
     'import/no-unresolved': 'off',
 
@@ -84,12 +104,6 @@ module.exports = {
     'import/resolver': {
       alias: {
         map: [
-          ['vue', 'vue/src/core/index'],
-          ['compiler', 'vue/src/compiler'],
-          ['web', 'vue/src/platforms/web'],
-          ['core', 'vue/src/core'],
-          ['shared', 'vue/src/shared'],
-          ['sfc', 'vue/src/sfc'],
           ['he', './packages/hippy-vue/util/entity-decoder'],
           ['@localTypes', './packages/types'],
           ['@vue', './packages/hippy-vue/src'],

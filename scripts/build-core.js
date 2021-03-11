@@ -124,7 +124,7 @@ function getAllRequiredFiles(platform) {
 
     rl.on('line', (line) => {
       if (line.split('//')[0].indexOf('require') > -1) {
-        const entry = line.split("('")[1].split("')")[0];
+        const entry = line.split('(\'')[1].split('\')')[0];
         filePaths.push(getAbsolutePath(`../core/js/entry/${platform}/${entry}`));
       }
     });

@@ -1,5 +1,6 @@
 import React from 'react';
 import { PullingEvent } from '@localTypes/event';
+import { Fiber } from 'react-reconciler';
 import { LayoutableProps } from '../types';
 import { callUIFunction } from '../modules/ui-manager-module';
 
@@ -19,20 +20,20 @@ interface PullHeaderProps extends LayoutableProps {
 }
 
 class PullHeader extends React.Component<PullHeaderProps, {}> {
-  private instance: HTMLDivElement | null = null;
+  private instance: HTMLDivElement | Fiber | null = null;
 
   /**
    * Expand the PullView and display the content
    */
   expandPullHeader() {
-    callUIFunction(this.instance, 'expandPullHeader', []);
+    callUIFunction(this.instance as Fiber, 'expandPullHeader', []);
   }
 
   /**
    * Collapse the PullView and hide the content
    */
   collapsePullHeader() {
-    callUIFunction(this.instance, 'collapsePullHeader', []);
+    callUIFunction(this.instance as Fiber, 'collapsePullHeader', []);
   }
 
   render() {
@@ -40,7 +41,9 @@ class PullHeader extends React.Component<PullHeaderProps, {}> {
     return (
       <div
         nativeName="PullHeaderView"
-        ref={(ref) => { this.instance = ref; }}
+        ref={(ref) => {
+          this.instance = ref;
+        }}
         {...nativeProps}
       >
         { children }

@@ -39,11 +39,15 @@ function install(Vue) {
   });
 
   Object.defineProperty(Vue.prototype, '$router', {
-    get() { return this._routerRoot._router; },
+    get() {
+      return this._routerRoot._router;
+    },
   });
 
   Object.defineProperty(Vue.prototype, '$route', {
-    get() { return this._routerRoot._route; },
+    get() {
+      return this._routerRoot._route;
+    },
   });
 
   Vue.component('RouterView', View);

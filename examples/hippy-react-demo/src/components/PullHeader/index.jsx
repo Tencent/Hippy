@@ -258,7 +258,9 @@ export default class PullHeaderExample extends React.Component {
     const { dataSource } = this.state;
     return (
       <ListView
-        ref={(ref) => { this.listView = ref; }}
+        ref={(ref) => {
+          this.listView = ref;
+        }}
         style={{ flex: 1, backgroundColor: '#ffffff' }}
         numberOfRows={dataSource.length}
         getRowType={this.getRowType}

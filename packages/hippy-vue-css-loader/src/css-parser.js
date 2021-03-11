@@ -37,7 +37,9 @@ function addParent(obj, parent) {
   Object.keys(obj).forEach((k) => {
     const value = obj[k];
     if (Array.isArray(value)) {
-      value.forEach((v) => { addParent(v, childParent); });
+      value.forEach((v) => {
+        addParent(v, childParent);
+      });
     } else if (value && typeof value === 'object') {
       addParent(value, childParent);
     }
@@ -299,7 +301,7 @@ function parseCSS(css, options) {
 
     // :
     if (!match(/^:\s*/)) {
-      return error("property missing ':'");
+      return error('property missing \':\'');
     }
 
     // val
@@ -343,7 +345,7 @@ function parseCSS(css, options) {
             transform[key] = v;
             value.push(transform);
           } else {
-            error("missing '('");
+            error('missing \'(\'');
           }
         });
         break;
@@ -396,7 +398,7 @@ function parseCSS(css, options) {
   function declarations() {
     let decls = [];
 
-    if (!open()) return error("missing '{'");
+    if (!open()) return error('missing \'{\'');
     comments(decls);
 
     // declarations
@@ -412,7 +414,7 @@ function parseCSS(css, options) {
       }
     }
 
-    if (!close()) return error("missing '}'");
+    if (!close()) return error('missing \'}\'');
     return decls;
   }
 
@@ -461,7 +463,7 @@ function parseCSS(css, options) {
     }
     const name = m[1];
 
-    if (!open()) return error("@keyframes missing '{'");
+    if (!open()) return error('@keyframes missing \'{\'');
 
     let frame;
     let frames = comments();
@@ -470,7 +472,7 @@ function parseCSS(css, options) {
       frames = frames.concat(comments());
     }
 
-    if (!close()) return error("@keyframes missing '}'");
+    if (!close()) return error('@keyframes missing \'}\'');
 
     return pos({
       type: 'keyframes',
@@ -493,11 +495,11 @@ function parseCSS(css, options) {
     }
     const supports = trim(m[1]);
 
-    if (!open()) return error("@supports missing '{'");
+    if (!open()) return error('@supports missing \'{\'');
 
     const style = comments().concat(rules());
 
-    if (!close()) return error("@supports missing '}'");
+    if (!close()) return error('@supports missing \'}\'');
 
     return pos({
       type: 'supports',
@@ -519,13 +521,13 @@ function parseCSS(css, options) {
     }
 
     if (!open()) {
-      return error("@host missing '{'");
+      return error('@host missing \'{\'');
     }
 
     const style = comments().concat(rules());
 
     if (!close()) {
-      return error("@host missing '}'");
+      return error('@host missing \'}\'');
     }
 
     return pos({
@@ -548,13 +550,13 @@ function parseCSS(css, options) {
     const media = trim(m[1]);
 
     if (!open()) {
-      return error("@media missing '{'");
+      return error('@media missing \'{\'');
     }
 
     const style = comments().concat(rules());
 
     if (!close()) {
-      return error("@media missing '}'");
+      return error('@media missing \'}\'');
     }
 
     return pos({
@@ -597,7 +599,7 @@ function parseCSS(css, options) {
     const sel = selector() || [];
 
     if (!open()) {
-      return error("@page missing '{'");
+      return error('@page missing \'{\'');
     }
     let decls = comments();
 
@@ -609,7 +611,7 @@ function parseCSS(css, options) {
     }
 
     if (!close()) {
-      return error("@page missing '}'");
+      return error('@page missing \'}\'');
     }
 
     return pos({
@@ -634,13 +636,13 @@ function parseCSS(css, options) {
     const doc = trim(m[2]);
 
     if (!open()) {
-      return error("@document missing '{'");
+      return error('@document missing \'{\'');
     }
 
     const style = comments().concat(rules());
 
     if (!close()) {
-      return error("@document missing '}'");
+      return error('@document missing \'}\'');
     }
 
     return pos({
@@ -663,7 +665,7 @@ function parseCSS(css, options) {
     }
 
     if (!open()) {
-      return error("@font-face missing '{'");
+      return error('@font-face missing \'{\'');
     }
     let decls = comments();
 
@@ -675,7 +677,7 @@ function parseCSS(css, options) {
     }
 
     if (!close()) {
-      return error("@font-face missing '}'");
+      return error('@font-face missing \'}\'');
     }
 
     return pos({
