@@ -102,8 +102,7 @@ int HippyFile::RmFullPath(std::string dir_full_path) {
       continue;
     }
     if (S_ISDIR(st.st_mode)) {
-      if (RmFullPath(sub_path) == -1)  // 如果是目录文件，递归删除
-      {
+      if (RmFullPath(sub_path) == -1) {  // 如果是目录文件，递归删除
         return -1;
       }
       rmdir(sub_path.c_str());
@@ -132,7 +131,7 @@ int HippyFile::CreateDir(const char* path, mode_t mode) {
 int HippyFile::CheckDir(const char* path, int mode) {
   HIPPY_DLOG(hippy::Debug, "CheckDir path = %s", path);
   return access(path, mode);
-};
+}
 
 uint64_t HippyFile::GetFileModifytime(const std::string& file_path) {
   HIPPY_LOG(hippy::Debug, "GetFileModifytime file_path = %s",

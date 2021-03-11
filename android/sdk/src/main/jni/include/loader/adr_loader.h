@@ -20,24 +20,19 @@
  *
  */
 
-#ifndef HIPPY_JNI_LOADER_ADR_LOADER_H_
-#define HIPPY_JNI_LOADER_ADR_LOADER_H_
+#pragma once
 
 #include "core/core.h"
 
 class ADRLoader : public hippy::base::UriLoader {
  public:
   ADRLoader();
-  ADRLoader(const std::string& base);
+  explicit ADRLoader(const std::string& base);
 
-  virtual ~ADRLoader(){};
+  virtual ~ADRLoader() {}
 
   virtual std::string Normalize(const std::string& uri);
 
  protected:
   std::string base_;
 };
-
-#endif  // HIPPY_JNI_LOADER_ADR_LOADER_H_
-
-

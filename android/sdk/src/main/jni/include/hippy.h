@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef HIPPY_HIPPY_H_
-#define HIPPY_HIPPY_H_
+#pragma once
 
 #include "inspector/v8_channel_impl.h"
 #include "inspector/v8_inspector_client_impl.h"
@@ -36,5 +35,3 @@
 #include "loader/file_loader.h"
 #include "loader/http_loader.h"
 #include "v8/v8.h"
-
-#endif  // HIPPY_HIPPY_H_

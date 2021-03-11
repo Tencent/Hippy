@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef HIPPY_CORE_NAPI_NATIVE_SOURCE_CODE_H_
-#define HIPPY_CORE_NAPI_NATIVE_SOURCE_CODE_H_
+#pragma once
 
 #include <stddef.h>
 #include <stdint.h>
@@ -32,11 +31,9 @@ namespace hippy {
 
 struct NativeSourceCode {
   const uint8_t* data_;
-  size_t length_;  // strlen(data_)
+  size_t length_;
 };
 
 const NativeSourceCode GetNativeSourceCode(const std::string& filename);
 
 }  // namespace hippy
-
-#endif  // HIPPY_CORE_NAPI_NATIVE_SOURCE_CODE_H_

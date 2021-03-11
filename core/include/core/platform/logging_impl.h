@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef HIPPY_CORE_PLATFORM_LOGGING_IMPL_H_
-#define HIPPY_CORE_PLATFORM_LOGGING_IMPL_H_
+#pragma once
 
 namespace hippy {
 namespace platform {
@@ -41,5 +40,3 @@ LOG_FUNCTION_NAME_PAIRS(VS)
 
 }  // namespace platform
 }  // namespace hippy
-
-#endif  // HIPPY_CORE_PLATFORM_LOGGING_IMPL_H_

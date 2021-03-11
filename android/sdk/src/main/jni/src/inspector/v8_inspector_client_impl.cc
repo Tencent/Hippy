@@ -63,8 +63,9 @@ void V8InspectorClientImpl::SendMessageToV8(const std::string& params) {
       session_ =
           inspector_->connect(1, channel_.get(), v8_inspector::StringView());
     } else {
-      v8_inspector::StringView message_view((uint8_t*)params.c_str(),
-                                            params.length());
+      v8_inspector::StringView message_view(
+          reinterpret_cast<uint8_t*>(const_cast<char*>(params.c_str())),
+          params.length());
       session_->dispatchProtocolMessage(message_view);
     }
   }

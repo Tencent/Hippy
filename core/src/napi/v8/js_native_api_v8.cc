@@ -23,7 +23,7 @@
 #include "core/napi/v8/js_native_api_v8.h"
 
 #include <iostream>
-#include <mutex>  // NOLINT(build/c++11)
+#include <mutex>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -124,7 +124,7 @@ void NativeCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info) {
   CBTuple* cb_tuple = reinterpret_cast<CBTuple*>(data->Value());
   CBDataTuple data_tuple(*cb_tuple, info);
   HIPPY_DLOG(hippy::Debug, "run native cb begin");
-  cb_tuple->fn_((void*)&data_tuple);
+  cb_tuple->fn_(static_cast<void*>(&data_tuple));
   HIPPY_DLOG(hippy::Debug, "run native cb end");
 }
 
@@ -195,7 +195,7 @@ void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& info) {
     v8::Handle<v8::FunctionTemplate> function_template =
         v8::FunctionTemplate::New(
             isolate, JsCallbackFunc,
-            v8::External::New(isolate, (void*)fn_data.get()));
+            v8::External::New(isolate, static_cast<void*>(fn_data.get())));
     scope->SaveFunctionData(std::move(fn_data));
     HIPPY_DLOG(hippy::Debug, "bind fn_name = %s", fn_name.c_str());
     constructor->Set(isolate, fn_name.c_str(), function_template);
@@ -215,7 +215,7 @@ class ExternalOneByteStringResourceImpl
   ExternalOneByteStringResourceImpl(const uint8_t* data, size_t length)
       : data_(data), str_data_(""), length_(length) {}
 
-  ExternalOneByteStringResourceImpl(const std::string&& data)
+  explicit ExternalOneByteStringResourceImpl(const std::string&& data)
       : data_(nullptr), str_data_(std::move(data)) {
     length_ = str_data_.length();
   }
@@ -244,7 +244,7 @@ class ExternalStringResourceImpl : public v8::String::ExternalStringResource {
   ExternalStringResourceImpl(const uint16_t* data, size_t length)
       : data_(data), str_data_(""), length_(length) {}
 
-  ExternalStringResourceImpl(const std::string&& data)
+  explicit ExternalStringResourceImpl(const std::string&& data)
       : data_(nullptr), str_data_(std::move(data)) {
     length_ = str_data_.length();
   }
@@ -254,9 +254,9 @@ class ExternalStringResourceImpl : public v8::String::ExternalStringResource {
     if (data_) {
       return data_;
     } else {
-      return (uint16_t*)str_data_.c_str();
+      return reinterpret_cast<const uint16_t*>(str_data_.c_str());
     }
-  };
+  }
 
   virtual size_t length() const { return length_ / 2; }
 
@@ -573,12 +573,13 @@ void V8Ctx::RegisterGlobalModule(std::shared_ptr<Scope> scope,
     for (const auto& fn : cls.second) {
       std::unique_ptr<FunctionData> data =
           std::make_unique<FunctionData>(scope, fn.second);
-      module_object->Set(v8::String::NewFromUtf8(isolate_, fn.first.c_str(),
-                                                 v8::NewStringType::kNormal)
-                             .FromMaybe(v8::Local<v8::String>()),
-                         v8::FunctionTemplate::New(
-                             isolate_, JsCallbackFunc,
-                             v8::External::New(isolate_, (void*)data.get())));
+      module_object->Set(
+          v8::String::NewFromUtf8(isolate_, fn.first.c_str(),
+                                  v8::NewStringType::kNormal)
+              .FromMaybe(v8::Local<v8::String>()),
+          v8::FunctionTemplate::New(
+              isolate_, JsCallbackFunc,
+              v8::External::New(isolate_, static_cast<void*>(data.get()))));
       scope->SaveFunctionData(std::move(data));
     }
 
@@ -607,7 +608,7 @@ void V8Ctx::RegisterNativeBinding(const std::string& name,
   data_tuple_ = std::make_unique<CBTuple>(fn, data);
   v8::Local<v8::FunctionTemplate> fn_template = v8::FunctionTemplate::New(
       isolate_, NativeCallbackFunc,
-      v8::External::New(isolate_, (void*)data_tuple_.get()));
+      v8::External::New(isolate_, static_cast<void*>(data_tuple_.get())));
   fn_template->RemovePrototype();
   context->Global()
       ->Set(context,
@@ -633,7 +634,8 @@ std::shared_ptr<CtxValue> GetInternalBindingFn(std::shared_ptr<Scope> scope) {
   v8::Handle<v8::Function> v8_function =
       v8::Function::New(
           v8_context, GetInternalBinding,
-          v8::External::New(isolate, (void*)scope->GetBindingData().get()))
+          v8::External::New(isolate,
+                            static_cast<void*>(scope->GetBindingData().get())))
           .ToLocalChecked();
 
   return std::make_shared<V8CtxValue>(isolate, v8_function);
@@ -667,16 +669,17 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const uint8_t* data,
         HIPPY_LOG(hippy::Error, "utf16 error, len = %d", len);
         return nullptr;
       }
-      ExternalStringResourceImpl* two_byte =
-          new ExternalStringResourceImpl((uint16_t*)data, len / 2);
+      ExternalStringResourceImpl* two_byte = new ExternalStringResourceImpl(
+          reinterpret_cast<uint16_t*>(const_cast<uint8_t*>(data)), len / 2);
       source = v8::String::NewExternalTwoByte(isolate_, two_byte)
                    .FromMaybe(v8::Local<v8::String>());
       break;
     }
     default: {
-      source = v8::String::NewFromUtf8(isolate_, (const char*)data,
-                                       v8::NewStringType::kNormal)
-                   .FromMaybe(v8::Local<v8::String>());
+      source =
+          v8::String::NewFromUtf8(isolate_, reinterpret_cast<const char*>(data),
+                                  v8::NewStringType::kNormal)
+              .FromMaybe(v8::Local<v8::String>());
       break;
     }
   }
@@ -773,7 +776,8 @@ std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
       const v8::ScriptCompiler::CachedData* cached_data =
           v8::ScriptCompiler::CreateCodeCache(
               script.ToLocalChecked()->GetUnboundScript());
-      *cache = std::string((char*)cached_data->data, cached_data->length);
+      *cache = std::string(reinterpret_cast<const char*>(cached_data->data),
+                           cached_data->length);
     } else {
       script = v8::Script::Compile(context, source, &origin);
     }
@@ -833,8 +837,8 @@ bool V8Ctx::ThrowExceptionToJS(std::shared_ptr<CtxValue> exception) {
   if (try_catch.HasCaught()) {
     auto message = try_catch.Message();
     HIPPY_LOG(hippy::Error,
-               "HippyExceptionHandler error, desc = %s, stack = %s",
-               GetMsgDesc(message).c_str(), GetStackInfo(message).c_str());
+              "HippyExceptionHandler error, desc = %s, stack = %s",
+              GetMsgDesc(message).c_str(), GetStackInfo(message).c_str());
   }
   return true;
 }

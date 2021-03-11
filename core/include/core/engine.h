@@ -20,11 +20,10 @@
  *
  */
 
-#ifndef HIPPY_CORE_ENGINE_H_
-#define HIPPY_CORE_ENGINE_H_
+#pragma once
 
 #include <memory>
-#include <mutex>  // NOLINT(build/c++11)
+#include <mutex>
 #include <vector>
 
 #include "core/base/common.h"
@@ -74,5 +73,3 @@ class Engine {
   std::mutex runner_mutex_;
   uint32_t scope_cnt_;
 };
-
-#endif  // HIPPY_CORE_ENGINE_H_
