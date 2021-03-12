@@ -1,9 +1,9 @@
 /**
-* Copyright (c) Facebook, Inc. and its affiliates.
-*
-* This source code is licensed under the MIT license found in the LICENSE
-* file in the root directory of this source tree.
-*/
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the LICENSE
+ * file in the root directory of this source tree.
+ */
 /* Tencent is pleased to support the open source community by making Hippy available.
  * Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights reserved.
  *
@@ -47,8 +47,8 @@
   __printBenchmarkResult(NAME, __start, __endTimes);
 
 static int __compareDoubles(const void* a, const void* b) {
-  double arg1 = *(const double*) a;
-  double arg2 = *(const double*) b;
+  double arg1 = *(const double*)a;
+  double arg2 = *(const double*)b;
 
   if (arg1 < arg2) {
     return -1;
@@ -61,15 +61,12 @@ static int __compareDoubles(const void* a, const void* b) {
   return 0;
 }
 
-static void __printBenchmarkResult(
-    char* name,
-    clock_t start,
-    clock_t* endTimes) {
+static void __printBenchmarkResult(char* name, clock_t start, clock_t* endTimes) {
   double timesInMs[NUM_REPETITIONS];
   double mean = 0;
   clock_t lastEnd = start;
   for (uint32_t i = 0; i < NUM_REPETITIONS; i++) {
-    timesInMs[i] = (endTimes[i] - lastEnd) / (double) CLOCKS_PER_SEC * 1000;
+    timesInMs[i] = (endTimes[i] - lastEnd) / static_cast<double>(CLOCKS_PER_SEC) * 1000;
     lastEnd = endTimes[i];
     mean += timesInMs[i];
   }
@@ -88,17 +85,15 @@ static void __printBenchmarkResult(
   printf("%s: median: %lf ms, stddev: %lf ms\n", name, median, stddev);
 }
 
-static HPSize _measure(
-    HPNodeRef node,
-    float width,
-    MeasureMode widthMode,
-    float height,
-    MeasureMode heightMode,
-    void * layoutContext) {
-  return (HPSize){
-      .width = widthMode == MeasureModeUndefined ? 10 : width,
-      .height = heightMode == MeasureModeUndefined ? 10 : width,
-  };
+static HPSize _measure(HPNodeRef node,
+                       float width,
+                       MeasureMode widthMode,
+                       float height,
+                       MeasureMode heightMode,
+                       void* layoutContext) {
+  HPSize size = {widthMode == MeasureModeUndefined ? 10 : width,
+                 heightMode == MeasureModeUndefined ? 10 : width};
+  return size;
 }
 
 HPBENCHMARKS({
@@ -179,8 +174,7 @@ HPBENCHMARKS({
 
           for (uint32_t iiii = 0; iiii < 10; iiii++) {
             const HPNodeRef grandGrandGrandChild = HPNodeNew();
-            HPNodeStyleSetFlexDirection(
-                grandGrandGrandChild, FLexDirectionRow);
+            HPNodeStyleSetFlexDirection(grandGrandGrandChild, FLexDirectionRow);
             HPNodeStyleSetFlexGrow(grandGrandGrandChild, 1);
             HPNodeStyleSetWidth(grandGrandGrandChild, 10);
             HPNodeStyleSetHeight(grandGrandGrandChild, 10);
@@ -194,36 +188,36 @@ HPBENCHMARKS({
     HPNodeFreeRecursive(root);
   });
 
-  //added by ianwang(honwsn@gmail.com) ,for no style test that will cost more time then the previous test case.
+  // added by ianwang(honwsn@gmail.com) ,for no style test that will cost more time then the
+  // previous test case.
   HPBENCHMARK("Huge nested layout, no style width & height", {
     const HPNodeRef root = HPNodeNew();
 
     for (uint32_t i = 0; i < 10; i++) {
       const HPNodeRef child = HPNodeNew();
       HPNodeStyleSetFlexGrow(child, 1);
-//      HPNodeStyleSetWidth(child, 10);
-//      HPNodeStyleSetHeight(child, 10);
+      //      HPNodeStyleSetWidth(child, 10);
+      //      HPNodeStyleSetHeight(child, 10);
       HPNodeInsertChild(root, child, 0);
 
       for (uint32_t ii = 0; ii < 10; ii++) {
         const HPNodeRef grandChild = HPNodeNew();
         HPNodeStyleSetFlexDirection(grandChild, FLexDirectionRow);
         HPNodeStyleSetFlexGrow(grandChild, 1);
-//        HPNodeStyleSetWidth(grandChild, 10);
-//        HPNodeStyleSetHeight(grandChild, 10);
+        //        HPNodeStyleSetWidth(grandChild, 10);
+        //        HPNodeStyleSetHeight(grandChild, 10);
         HPNodeInsertChild(child, grandChild, 0);
 
         for (uint32_t iii = 0; iii < 10; iii++) {
           const HPNodeRef grandGrandChild = HPNodeNew();
           HPNodeStyleSetFlexGrow(grandGrandChild, 1);
-//          HPNodeStyleSetWidth(grandGrandChild, 10);
-//          HPNodeStyleSetHeight(grandGrandChild, 10);
+          //          HPNodeStyleSetWidth(grandGrandChild, 10);
+          //          HPNodeStyleSetHeight(grandGrandChild, 10);
           HPNodeInsertChild(grandChild, grandGrandChild, 0);
 
           for (uint32_t iiii = 0; iiii < 10; iiii++) {
             const HPNodeRef grandGrandGrandChild = HPNodeNew();
-            HPNodeStyleSetFlexDirection(
-                grandGrandGrandChild, FLexDirectionRow);
+            HPNodeStyleSetFlexDirection(grandGrandGrandChild, FLexDirectionRow);
             HPNodeStyleSetFlexGrow(grandGrandGrandChild, 1);
             HPNodeStyleSetWidth(grandGrandGrandChild, 10);
             HPNodeStyleSetHeight(grandGrandGrandChild, 10);

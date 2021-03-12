@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-#include <gtest.h>
 #include <Hippy.h>
+#include <gtest.h>
 
 TEST(HippyTest, nested_overflowing_child) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 100);
   HPNodeStyleSetHeight(root, 100);
@@ -65,11 +64,9 @@ TEST(HippyTest, nested_overflowing_child) {
   ASSERT_FLOAT_EQ(200, HPNodeLayoutGetHeight(root_child0_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, nested_overflowing_child_in_constraint_parent) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 100);
   HPNodeStyleSetHeight(root, 100);
@@ -118,11 +115,9 @@ TEST(HippyTest, nested_overflowing_child_in_constraint_parent) {
   ASSERT_FLOAT_EQ(200, HPNodeLayoutGetHeight(root_child0_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, parent_wrap_child_size_overflowing_parent) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 100);
   HPNodeStyleSetHeight(root, 100);
@@ -170,5 +165,4 @@ TEST(HippyTest, parent_wrap_child_size_overflowing_parent) {
   ASSERT_FLOAT_EQ(200, HPNodeLayoutGetHeight(root_child0_child0));
 
   HPNodeFreeRecursive(root);
-
 }

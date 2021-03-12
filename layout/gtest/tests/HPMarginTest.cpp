@@ -14,14 +14,10 @@
  * limitations under the License.
  */
 
-#include <gtest.h>
 #include <Hippy.h>
-
 #include <gtest.h>
-#include <Hippy.h>
 
 TEST(HippyTest, margin_start) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetWidth(root, 100);
@@ -56,11 +52,9 @@ TEST(HippyTest, margin_start) {
   ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, margin_top) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 100);
   HPNodeStyleSetHeight(root, 100);
@@ -94,11 +88,9 @@ TEST(HippyTest, margin_top) {
   ASSERT_FLOAT_EQ(10, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, margin_end) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetJustifyContent(root, FlexAlignEnd);
@@ -134,11 +126,9 @@ TEST(HippyTest, margin_end) {
   ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, margin_bottom) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetJustifyContent(root, FlexAlignEnd);
   HPNodeStyleSetWidth(root, 100);
@@ -173,11 +163,9 @@ TEST(HippyTest, margin_bottom) {
   ASSERT_FLOAT_EQ(10, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, margin_and_flex_row) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetWidth(root, 100);
@@ -213,11 +201,9 @@ TEST(HippyTest, margin_and_flex_row) {
   ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, margin_and_flex_column) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 100);
   HPNodeStyleSetHeight(root, 100);
@@ -252,11 +238,9 @@ TEST(HippyTest, margin_and_flex_column) {
   ASSERT_FLOAT_EQ(80, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, margin_and_stretch_row) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetWidth(root, 100);
@@ -292,11 +276,9 @@ TEST(HippyTest, margin_and_stretch_row) {
   ASSERT_FLOAT_EQ(80, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, margin_and_stretch_column) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 100);
   HPNodeStyleSetHeight(root, 100);
@@ -331,11 +313,9 @@ TEST(HippyTest, margin_and_stretch_column) {
   ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, margin_with_sibling_row) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetWidth(root, 100);
@@ -384,11 +364,9 @@ TEST(HippyTest, margin_with_sibling_row) {
   ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, margin_with_sibling_column) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 100);
   HPNodeStyleSetHeight(root, 100);
@@ -436,11 +414,9 @@ TEST(HippyTest, margin_with_sibling_column) {
   ASSERT_FLOAT_EQ(45, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, margin_auto_bottom) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetAlignItems(root, FlexAlignCenter);
   HPNodeStyleSetWidth(root, 200);
@@ -491,11 +467,9 @@ TEST(HippyTest, margin_auto_bottom) {
   ASSERT_FLOAT_EQ(50, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, margin_auto_top) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetAlignItems(root, FlexAlignCenter);
   HPNodeStyleSetWidth(root, 200);
@@ -546,11 +520,9 @@ TEST(HippyTest, margin_auto_top) {
   ASSERT_FLOAT_EQ(50, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, margin_auto_bottom_and_top) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetAlignItems(root, FlexAlignCenter);
   HPNodeStyleSetWidth(root, 200);
@@ -602,11 +574,9 @@ TEST(HippyTest, margin_auto_bottom_and_top) {
   ASSERT_FLOAT_EQ(50, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, margin_auto_bottom_and_top_justify_center) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetJustifyContent(root, FlexAlignCenter);
   HPNodeStyleSetWidth(root, 200);
@@ -658,11 +628,9 @@ TEST(HippyTest, margin_auto_bottom_and_top_justify_center) {
   ASSERT_FLOAT_EQ(50, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, margin_auto_mutiple_children_column) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetAlignItems(root, FlexAlignCenter);
   HPNodeStyleSetWidth(root, 200);
@@ -729,11 +697,9 @@ TEST(HippyTest, margin_auto_mutiple_children_column) {
   ASSERT_FLOAT_EQ(50, HPNodeLayoutGetHeight(root_child2));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, margin_auto_mutiple_children_row) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetAlignItems(root, FlexAlignCenter);
@@ -801,11 +767,9 @@ TEST(HippyTest, margin_auto_mutiple_children_row) {
   ASSERT_FLOAT_EQ(50, HPNodeLayoutGetHeight(root_child2));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, margin_auto_left_and_right_column) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetAlignItems(root, FlexAlignCenter);
@@ -858,11 +822,9 @@ TEST(HippyTest, margin_auto_left_and_right_column) {
   ASSERT_FLOAT_EQ(50, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, margin_auto_left_and_right) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 200);
   HPNodeStyleSetHeight(root, 200);
@@ -913,11 +875,9 @@ TEST(HippyTest, margin_auto_left_and_right) {
   ASSERT_FLOAT_EQ(50, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, margin_auto_start_and_end_column) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetAlignItems(root, FlexAlignCenter);
@@ -970,11 +930,9 @@ TEST(HippyTest, margin_auto_start_and_end_column) {
   ASSERT_FLOAT_EQ(50, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, margin_auto_start_and_end) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 200);
   HPNodeStyleSetHeight(root, 200);
@@ -1025,11 +983,9 @@ TEST(HippyTest, margin_auto_start_and_end) {
   ASSERT_FLOAT_EQ(50, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, margin_auto_left_and_right_column_and_center) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetAlignItems(root, FlexAlignCenter);
   HPNodeStyleSetWidth(root, 200);
@@ -1081,11 +1037,9 @@ TEST(HippyTest, margin_auto_left_and_right_column_and_center) {
   ASSERT_FLOAT_EQ(50, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, margin_auto_left) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetAlignItems(root, FlexAlignCenter);
   HPNodeStyleSetWidth(root, 200);
@@ -1136,11 +1090,9 @@ TEST(HippyTest, margin_auto_left) {
   ASSERT_FLOAT_EQ(50, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, margin_auto_right) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetAlignItems(root, FlexAlignCenter);
   HPNodeStyleSetWidth(root, 200);
@@ -1191,11 +1143,9 @@ TEST(HippyTest, margin_auto_right) {
   ASSERT_FLOAT_EQ(50, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, margin_auto_left_and_right_strech) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetWidth(root, 200);
@@ -1247,11 +1197,9 @@ TEST(HippyTest, margin_auto_left_and_right_strech) {
   ASSERT_FLOAT_EQ(50, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, margin_auto_top_and_bottom_strech) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 200);
   HPNodeStyleSetHeight(root, 200);
@@ -1302,11 +1250,9 @@ TEST(HippyTest, margin_auto_top_and_bottom_strech) {
   ASSERT_FLOAT_EQ(50, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, margin_should_not_be_part_of_max_height) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 250);
   HPNodeStyleSetHeight(root, 250);
@@ -1342,11 +1288,9 @@ TEST(HippyTest, margin_should_not_be_part_of_max_height) {
   ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, margin_should_not_be_part_of_max_width) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 250);
   HPNodeStyleSetHeight(root, 250);
@@ -1382,11 +1326,9 @@ TEST(HippyTest, margin_should_not_be_part_of_max_width) {
   ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, margin_auto_left_right_child_bigger_than_parent) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetJustifyContent(root, FlexAlignCenter);
   HPNodeStyleSetWidth(root, 52);
@@ -1423,11 +1365,9 @@ TEST(HippyTest, margin_auto_left_right_child_bigger_than_parent) {
   ASSERT_FLOAT_EQ(72, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, margin_auto_left_child_bigger_than_parent) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetJustifyContent(root, FlexAlignCenter);
   HPNodeStyleSetWidth(root, 52);
@@ -1463,11 +1403,9 @@ TEST(HippyTest, margin_auto_left_child_bigger_than_parent) {
   ASSERT_FLOAT_EQ(72, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, margin_fix_left_auto_right_child_bigger_than_parent) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetJustifyContent(root, FlexAlignCenter);
   HPNodeStyleSetWidth(root, 52);
@@ -1504,11 +1442,9 @@ TEST(HippyTest, margin_fix_left_auto_right_child_bigger_than_parent) {
   ASSERT_FLOAT_EQ(72, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, margin_auto_left_fix_right_child_bigger_than_parent) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetJustifyContent(root, FlexAlignCenter);
   HPNodeStyleSetWidth(root, 52);
@@ -1545,11 +1481,9 @@ TEST(HippyTest, margin_auto_left_fix_right_child_bigger_than_parent) {
   ASSERT_FLOAT_EQ(72, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, margin_auto_top_stretching_child) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetAlignItems(root, FlexAlignCenter);
   HPNodeStyleSetWidth(root, 200);
@@ -1601,11 +1535,9 @@ TEST(HippyTest, margin_auto_top_stretching_child) {
   ASSERT_FLOAT_EQ(50, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, margin_auto_left_stretching_child) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetAlignItems(root, FlexAlignCenter);
   HPNodeStyleSetWidth(root, 200);
@@ -1657,5 +1589,4 @@ TEST(HippyTest, margin_auto_left_stretching_child) {
   ASSERT_FLOAT_EQ(50, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
