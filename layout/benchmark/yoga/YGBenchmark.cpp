@@ -4,13 +4,12 @@
  * This source code is licensed under the MIT license found in the LICENSE
  * file in the root directory of this source tree.
  */
+#include <Yoga.h>
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-
-#include <Yoga.h>
 
 #define NUM_REPETITIONS 1000
 
@@ -30,8 +29,8 @@
   __printBenchmarkResult(NAME, __start, __endTimes);
 
 static int __compareDoubles(const void* a, const void* b) {
-  double arg1 = *(const double*) a;
-  double arg2 = *(const double*) b;
+  double arg1 = *(const double*)a;
+  double arg2 = *(const double*)b;
 
   if (arg1 < arg2) {
     return -1;
@@ -44,15 +43,12 @@ static int __compareDoubles(const void* a, const void* b) {
   return 0;
 }
 
-static void __printBenchmarkResult(
-    char* name,
-    clock_t start,
-    clock_t* endTimes) {
+static void __printBenchmarkResult(char* name, clock_t start, clock_t* endTimes) {
   double timesInMs[NUM_REPETITIONS];
   double mean = 0;
   clock_t lastEnd = start;
   for (uint32_t i = 0; i < NUM_REPETITIONS; i++) {
-    timesInMs[i] = (endTimes[i] - lastEnd) / (double) CLOCKS_PER_SEC * 1000;
+    timesInMs[i] = (endTimes[i] - lastEnd) / static_cast<double>(CLOCKS_PER_SEC) * 1000;
     lastEnd = endTimes[i];
     mean += timesInMs[i];
   }
@@ -71,16 +67,14 @@ static void __printBenchmarkResult(
   printf("%s: median: %lf ms, stddev: %lf ms\n", name, median, stddev);
 }
 
-static YGSize _measure(
-    YGNodeRef node,
-    float width,
-    YGMeasureMode widthMode,
-    float height,
-    YGMeasureMode heightMode) {
-  return (YGSize){
-      .width = widthMode == YGMeasureModeUndefined ? 10 : width,
-      .height = heightMode == YGMeasureModeUndefined ? 10 : width,
-  };
+static YGSize _measure(YGNodeRef node,
+                       float width,
+                       YGMeasureMode widthMode,
+                       float height,
+                       YGMeasureMode heightMode) {
+  YGSize size = {widthMode == YGMeasureModeUndefined ? 10 : width,
+                 heightMode == YGMeasureModeUndefined ? 10 : width};
+  return size;
 }
 
 YGBENCHMARKS({
@@ -161,8 +155,7 @@ YGBENCHMARKS({
 
           for (uint32_t iiii = 0; iiii < 10; iiii++) {
             const YGNodeRef grandGrandGrandChild = YGNodeNew();
-            YGNodeStyleSetFlexDirection(
-                grandGrandGrandChild, YGFlexDirectionRow);
+            YGNodeStyleSetFlexDirection(grandGrandGrandChild, YGFlexDirectionRow);
             YGNodeStyleSetFlexGrow(grandGrandGrandChild, 1);
             YGNodeStyleSetWidth(grandGrandGrandChild, 10);
             YGNodeStyleSetHeight(grandGrandGrandChild, 10);
@@ -176,46 +169,46 @@ YGBENCHMARKS({
     YGNodeFreeRecursive(root);
   });
 
-  //added by ianwang(honwsn@gmail.com) ,for no style test that will cost more time then the previous test case.
+  // added by ianwang(honwsn@gmail.com) ,for no style test that will cost more time then the
+  // previous test case.
   YGBENCHMARK("Huge nested layout, no style width & height", {
-      const YGNodeRef root = YGNodeNew();
+    const YGNodeRef root = YGNodeNew();
 
-      for (uint32_t i = 0; i < 10; i++) {
-        const YGNodeRef child = YGNodeNew();
-        YGNodeStyleSetFlexGrow(child, 1);
-//        YGNodeStyleSetWidth(child, 10);
-//        YGNodeStyleSetHeight(child, 10);
-        YGNodeInsertChild(root, child, 0);
+    for (uint32_t i = 0; i < 10; i++) {
+      const YGNodeRef child = YGNodeNew();
+      YGNodeStyleSetFlexGrow(child, 1);
+      //        YGNodeStyleSetWidth(child, 10);
+      //        YGNodeStyleSetHeight(child, 10);
+      YGNodeInsertChild(root, child, 0);
 
-        for (uint32_t ii = 0; ii < 10; ii++) {
-          const YGNodeRef grandChild = YGNodeNew();
-          YGNodeStyleSetFlexDirection(grandChild, YGFlexDirectionRow);
-          YGNodeStyleSetFlexGrow(grandChild, 1);
-//          YGNodeStyleSetWidth(grandChild, 10);
-//          YGNodeStyleSetHeight(grandChild, 10);
-          YGNodeInsertChild(child, grandChild, 0);
+      for (uint32_t ii = 0; ii < 10; ii++) {
+        const YGNodeRef grandChild = YGNodeNew();
+        YGNodeStyleSetFlexDirection(grandChild, YGFlexDirectionRow);
+        YGNodeStyleSetFlexGrow(grandChild, 1);
+        //          YGNodeStyleSetWidth(grandChild, 10);
+        //          YGNodeStyleSetHeight(grandChild, 10);
+        YGNodeInsertChild(child, grandChild, 0);
 
-          for (uint32_t iii = 0; iii < 10; iii++) {
-            const YGNodeRef grandGrandChild = YGNodeNew();
-            YGNodeStyleSetFlexGrow(grandGrandChild, 1);
-//            YGNodeStyleSetWidth(grandGrandChild, 10);
-//            YGNodeStyleSetHeight(grandGrandChild, 10);
-            YGNodeInsertChild(grandChild, grandGrandChild, 0);
+        for (uint32_t iii = 0; iii < 10; iii++) {
+          const YGNodeRef grandGrandChild = YGNodeNew();
+          YGNodeStyleSetFlexGrow(grandGrandChild, 1);
+          //            YGNodeStyleSetWidth(grandGrandChild, 10);
+          //            YGNodeStyleSetHeight(grandGrandChild, 10);
+          YGNodeInsertChild(grandChild, grandGrandChild, 0);
 
-            for (uint32_t iiii = 0; iiii < 10; iiii++) {
-              const YGNodeRef grandGrandGrandChild = YGNodeNew();
-              YGNodeStyleSetFlexDirection(
-                  grandGrandGrandChild, YGFlexDirectionRow);
-              YGNodeStyleSetFlexGrow(grandGrandGrandChild, 1);
-              YGNodeStyleSetWidth(grandGrandGrandChild, 10);
-              YGNodeStyleSetHeight(grandGrandGrandChild, 10);
-              YGNodeInsertChild(grandGrandChild, grandGrandGrandChild, 0);
-            }
+          for (uint32_t iiii = 0; iiii < 10; iiii++) {
+            const YGNodeRef grandGrandGrandChild = YGNodeNew();
+            YGNodeStyleSetFlexDirection(grandGrandGrandChild, YGFlexDirectionRow);
+            YGNodeStyleSetFlexGrow(grandGrandGrandChild, 1);
+            YGNodeStyleSetWidth(grandGrandGrandChild, 10);
+            YGNodeStyleSetHeight(grandGrandGrandChild, 10);
+            YGNodeInsertChild(grandGrandChild, grandGrandGrandChild, 0);
           }
         }
       }
+    }
 
-      YGNodeCalculateLayout(root, YGUndefined, YGUndefined, YGDirectionLTR);
-      YGNodeFreeRecursive(root);
-    });
+    YGNodeCalculateLayout(root, YGUndefined, YGUndefined, YGDirectionLTR);
+    YGNodeFreeRecursive(root);
+  });
 });

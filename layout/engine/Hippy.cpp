@@ -1,5 +1,6 @@
-/* Tencent is pleased to support the open source community by making Hippy available.
- * Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights reserved.
+/* Tencent is pleased to support the open source community by making Hippy
+ * available. Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights
+ * reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +16,7 @@
  */
 
 #include "Hippy.h"
+
 #include "HPUtil.h"
 
 HPNodeRef HPNodeNew() {
@@ -24,7 +26,7 @@ HPNodeRef HPNodeNew() {
 void HPNodeFree(HPNodeRef node) {
   if (node == nullptr)
     return;
-  //free self
+  // free self
   delete node;
 }
 
@@ -191,7 +193,7 @@ void HPNodeStyleSetAlignContent(HPNodeRef node, FlexAlign align) {
 void HPNodeStyleSetAlignItems(HPNodeRef node, FlexAlign align) {
   if (node == nullptr || node->style.alignItems == align)
     return;
-  //FlexAlignStart == FlexAlignBaseline
+  // FlexAlignStart == FlexAlignBaseline
   node->style.alignItems = align;
   node->markAsDirty();
 }
@@ -299,7 +301,7 @@ void HPNodeSetNodeType(HPNodeRef node, NodeType nodeType) {
   if (node == nullptr || nodeType == node->style.nodeType)
     return;
   node->style.nodeType = nodeType;
-//	node->markAsDirty();
+  // node->markAsDirty();
 }
 
 void HPNodeStyleSetOverflow(HPNodeRef node, OverflowType overflowType) {
@@ -347,7 +349,11 @@ bool HPNodeIsDirty(HPNodeRef node) {
   return node->isDirty;
 }
 
-void HPNodeDoLayout(HPNodeRef node, float parentWidth, float parentHeight, HPDirection direction, void * layoutContext) {
+void HPNodeDoLayout(HPNodeRef node,
+                    float parentWidth,
+                    float parentHeight,
+                    HPDirection direction,
+                    void* layoutContext) {
   if (node == nullptr)
     return;
 

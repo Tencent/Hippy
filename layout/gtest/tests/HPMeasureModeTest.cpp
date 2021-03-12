@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include <gtest.h>
 #include <Hippy.h>
+#include <gtest.h>
 
 struct _MeasureConstraint {
   float width;
@@ -29,10 +29,14 @@ struct _MeasureConstraintList {
   struct _MeasureConstraint *constraints;
 };
 
-static HPSize _measure(HPNodeRef node, float width, MeasureMode widthMode,
-                       float height, MeasureMode heightMode, void * layoutContext) {
-  struct _MeasureConstraintList* constraintList =
-      (struct _MeasureConstraintList*) node->getContext();
+static HPSize _measure(HPNodeRef node,
+                       float width,
+                       MeasureMode widthMode,
+                       float height,
+                       MeasureMode heightMode,
+                       void *layoutContext) {
+  struct _MeasureConstraintList *constraintList =
+      (struct _MeasureConstraintList *)node->getContext();
   struct _MeasureConstraint *constraints = constraintList->constraints;
   uint32_t currentIndex = constraintList->length;
   (&constraints[currentIndex])->width = width;
@@ -41,8 +45,10 @@ static HPSize _measure(HPNodeRef node, float width, MeasureMode widthMode,
   (&constraints[currentIndex])->heightMode = heightMode;
   constraintList->length = currentIndex + 1;
 
-  return HPSize { .width = widthMode == MeasureModeUndefined ? 10 : width,
-      .height = heightMode == MeasureModeUndefined ? 10 : width, };
+  return HPSize{
+      .width = widthMode == MeasureModeUndefined ? 10 : width,
+      .height = heightMode == MeasureModeUndefined ? 10 : width,
+  };
 }
 
 /*TEST(HippyTest, exactly_measure_stretched_child_column) {
@@ -100,9 +106,10 @@ TEST(HippyTest, exactly_measure_stretched_child_row) {
 }*/
 
 TEST(HippyTest, at_most_main_axis_column) {
-  struct _MeasureConstraintList constraintList = _MeasureConstraintList {
-      .length = 0, .constraints = (struct _MeasureConstraint *) malloc(
-          10 * sizeof(struct _MeasureConstraint)), };
+  struct _MeasureConstraintList constraintList = _MeasureConstraintList{
+      .length = 0,
+      .constraints = (struct _MeasureConstraint *)malloc(10 * sizeof(struct _MeasureConstraint)),
+  };
 
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 100);
@@ -125,9 +132,10 @@ TEST(HippyTest, at_most_main_axis_column) {
 }
 
 TEST(HippyTest, at_most_cross_axis_column) {
-  struct _MeasureConstraintList constraintList = _MeasureConstraintList {
-      .length = 0, .constraints = (struct _MeasureConstraint *) malloc(
-          10 * sizeof(struct _MeasureConstraint)), };
+  struct _MeasureConstraintList constraintList = _MeasureConstraintList{
+      .length = 0,
+      .constraints = (struct _MeasureConstraint *)malloc(10 * sizeof(struct _MeasureConstraint)),
+  };
 
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetAlignItems(root, FlexAlignStart);
@@ -151,9 +159,10 @@ TEST(HippyTest, at_most_cross_axis_column) {
 }
 
 TEST(HippyTest, at_most_main_axis_row) {
-  struct _MeasureConstraintList constraintList = _MeasureConstraintList {
-      .length = 0, .constraints = (struct _MeasureConstraint *) malloc(
-          10 * sizeof(struct _MeasureConstraint)), };
+  struct _MeasureConstraintList constraintList = _MeasureConstraintList{
+      .length = 0,
+      .constraints = (struct _MeasureConstraint *)malloc(10 * sizeof(struct _MeasureConstraint)),
+  };
 
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
@@ -177,9 +186,10 @@ TEST(HippyTest, at_most_main_axis_row) {
 }
 
 TEST(HippyTest, at_most_cross_axis_row) {
-  struct _MeasureConstraintList constraintList = _MeasureConstraintList {
-      .length = 0, .constraints = (struct _MeasureConstraint *) malloc(
-          10 * sizeof(struct _MeasureConstraint)), };
+  struct _MeasureConstraintList constraintList = _MeasureConstraintList{
+      .length = 0,
+      .constraints = (struct _MeasureConstraint *)malloc(10 * sizeof(struct _MeasureConstraint)),
+  };
 
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
@@ -204,9 +214,10 @@ TEST(HippyTest, at_most_cross_axis_row) {
 }
 
 TEST(HippyTest, flex_child) {
-  struct _MeasureConstraintList constraintList = _MeasureConstraintList {
-      .length = 0, .constraints = (struct _MeasureConstraint *) malloc(
-          10 * sizeof(struct _MeasureConstraint)), };
+  struct _MeasureConstraintList constraintList = _MeasureConstraintList{
+      .length = 0,
+      .constraints = (struct _MeasureConstraint *)malloc(10 * sizeof(struct _MeasureConstraint)),
+  };
 
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetHeight(root, 100);
@@ -232,9 +243,10 @@ TEST(HippyTest, flex_child) {
 }
 
 TEST(HippyTest, flex_child_with_flex_basis) {
-  struct _MeasureConstraintList constraintList = _MeasureConstraintList {
-      .length = 0, .constraints = (struct _MeasureConstraint *) malloc(
-          10 * sizeof(struct _MeasureConstraint)), };
+  struct _MeasureConstraintList constraintList = _MeasureConstraintList{
+      .length = 0,
+      .constraints = (struct _MeasureConstraint *)malloc(10 * sizeof(struct _MeasureConstraint)),
+  };
 
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetHeight(root, 100);
@@ -258,9 +270,10 @@ TEST(HippyTest, flex_child_with_flex_basis) {
 }
 
 TEST(HippyTest, overflow_scroll_column) {
-  struct _MeasureConstraintList constraintList = _MeasureConstraintList {
-      .length = 0, .constraints = (struct _MeasureConstraint *) malloc(
-          10 * sizeof(struct _MeasureConstraint)), };
+  struct _MeasureConstraintList constraintList = _MeasureConstraintList{
+      .length = 0,
+      .constraints = (struct _MeasureConstraint *)malloc(10 * sizeof(struct _MeasureConstraint)),
+  };
 
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetAlignItems(root, FlexAlignStart);
@@ -288,9 +301,10 @@ TEST(HippyTest, overflow_scroll_column) {
 }
 
 TEST(HippyTest, overflow_scroll_row) {
-  struct _MeasureConstraintList constraintList = _MeasureConstraintList {
-      .length = 0, .constraints = (struct _MeasureConstraint *) malloc(
-          10 * sizeof(struct _MeasureConstraint)), };
+  struct _MeasureConstraintList constraintList = _MeasureConstraintList{
+      .length = 0,
+      .constraints = (struct _MeasureConstraint *)malloc(10 * sizeof(struct _MeasureConstraint)),
+  };
 
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetAlignItems(root, FlexAlignStart);
