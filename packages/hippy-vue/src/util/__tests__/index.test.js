@@ -83,7 +83,8 @@ test('unicodeToChar output test', (t) => {
 });
 
 test('arrayCount test', (t) => {
-  const arr = new Array(10).fill(0).map((a, index) => index);
+  const arr = new Array(10).fill(0)
+    .map((a, index) => index);
   t.is(util.arrayCount(arr, a => a === 1), 1);
   t.is(util.arrayCount(arr, a => a < 5), 5);
 });

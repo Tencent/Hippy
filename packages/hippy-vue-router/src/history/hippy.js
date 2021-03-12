@@ -216,7 +216,9 @@ class HippyHistory {
       // fire ready cbs once
       if (!this.ready) {
         this.ready = true;
-        this.readyCbs.forEach((cb) => { cb(route); });
+        this.readyCbs.forEach((cb) => {
+          cb(route);
+        });
       }
     }, (err) => {
       if (onAbort) {
@@ -224,7 +226,9 @@ class HippyHistory {
       }
       if (err && !this.ready) {
         this.ready = true;
-        this.readyErrorCbs.forEach((cb) => { cb(err); });
+        this.readyErrorCbs.forEach((cb) => {
+          cb(err);
+        });
       }
     });
   }
@@ -234,7 +238,9 @@ class HippyHistory {
     const abort = (err) => {
       if (isError(err)) {
         if (this.errorCbs.length) {
-          this.errorCbs.forEach((cb) => { cb(err); });
+          this.errorCbs.forEach((cb) => {
+            cb(err);
+          });
         } else {
           warn(false, 'uncaught error during route navigation:');
         }
@@ -320,7 +326,9 @@ class HippyHistory {
           return null;
         }
         return this.router.app.$nextTick(() => {
-          postEnterCbs.forEach((cb) => { cb(); });
+          postEnterCbs.forEach((cb) => {
+            cb();
+          });
         });
       });
     });

@@ -14,7 +14,7 @@
     "markdownlint": "markdownlint --config .markdownlintrc.json ./*.md ./docs/**/*.md",
     "coverage": "nyc ava",
     "codecov": "cat ./coverage/lcov.info | codecov",
-    "lint": "eslint \"packages/**/*.@(js|ts|tsx)\" \"examples/hippy-react-demo/**/*.@(js|jsx)\" ./scripts/*.js",
+    "lint": "eslint --fix \"packages/**/*.@(js|ts|tsx)\" \"examples/hippy-react-demo/**/*.@(js|jsx)\" ./scripts/*.js",
     "clean": "rimraf ./coverage ./nyc_output packages/*/dist",
     "test": "ava",
     "watch": "watch \"npm run build\" ./packages --ignoreDotFiles --ignoreUnreadable --ignoreDirectoryPattern '/dist/'",
@@ -22,6 +22,8 @@
     "doc": "docsify serve docs"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.13.8",
+    "@babel/plugin-proposal-optional-chaining": "^7.13.8",
     "@commitlint/cli": "^8.1.0",
     "@commitlint/config-conventional": "^8.1.0",
     "@commitlint/lint": "^8.1.0",
@@ -32,8 +34,8 @@
     "codecov": "^3.6.1",
     "csstype": "^2.6.7",
     "docsify-cli": "^4.4.0",
-    "eslint": "^6.1.0",
-    "eslint-config-airbnb": "^17.1.1",
+    "eslint": "^6.8.0",
+    "eslint-config-tencent": "^1.0.0",
     "eslint-import-resolver-alias": "^1.1.2",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-jsx-a11y": "^6.2.3",

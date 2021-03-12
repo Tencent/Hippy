@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import Swiper from 'swiper';
 import 'swiper/dist/css/swiper.min.css';
 
-
 /**
  * Container that allows to flip left and right between child views.
  * Each child view of the ViewPage will be treated as a separate page
@@ -54,7 +53,9 @@ export class ViewPager extends Component {
     };
     return (
       <div style={style}>
-        <div ref={(ref) => { this.containerRef = ref; }} className="swiper-container" style={style}>
+        <div ref={(ref) => {
+          this.containerRef = ref;
+        }} className="swiper-container" style={style}>
           <div className="swiper-wrapper">
             {renderViewPagerItem()}
           </div>

@@ -188,7 +188,9 @@ export default class AnimationExample extends React.Component {
         </View>
         <View style={styles.showArea}>
           <View
-            ref={(ref) => { this.horizonRef = ref; }}
+            ref={(ref) => {
+              this.horizonRef = ref;
+            }}
             style={[styles.square, {
               transform: [{
                 translateX: this.horizonAnimation,
@@ -200,26 +202,34 @@ export default class AnimationExample extends React.Component {
         <View style={styles.buttonContainer}>
           <View
             style={styles.button}
-            onClick={() => { this.verticalAnimation.start(); }}
+            onClick={() => {
+              this.verticalAnimation.start();
+            }}
           >
             <Text style={styles.buttonText}>开始</Text>
           </View>
           <View
             style={[styles.button]}
-            onClick={() => { this.verticalAnimation.pause(); }}
+            onClick={() => {
+              this.verticalAnimation.pause();
+            }}
           >
             <Text style={styles.buttonText}>暂停</Text>
           </View>
           <View
             style={styles.button}
-            onClick={() => { this.verticalAnimation.resume(); }}
+            onClick={() => {
+              this.verticalAnimation.resume();
+            }}
           >
             <Text style={styles.buttonText}>继续</Text>
           </View>
         </View>
         <View style={styles.showArea}>
           <View
-            ref={(ref) => { this.verticalRef = ref; }}
+            ref={(ref) => {
+              this.verticalRef = ref;
+            }}
             style={[styles.square, {
               height: this.verticalAnimation,
             }]}
@@ -229,26 +239,34 @@ export default class AnimationExample extends React.Component {
         <View style={styles.buttonContainer}>
           <View
             style={styles.button}
-            onClick={() => { this.scaleAnimationSet.start(); }}
+            onClick={() => {
+              this.scaleAnimationSet.start();
+            }}
           >
             <Text style={styles.buttonText}>开始</Text>
           </View>
           <View
             style={[styles.button]}
-            onClick={() => { this.scaleAnimationSet.pause(); }}
+            onClick={() => {
+              this.scaleAnimationSet.pause();
+            }}
           >
             <Text style={styles.buttonText}>暂停</Text>
           </View>
           <View
             style={styles.button}
-            onClick={() => { this.scaleAnimationSet.resume(); }}
+            onClick={() => {
+              this.scaleAnimationSet.resume();
+            }}
           >
             <Text style={styles.buttonText}>继续</Text>
           </View>
         </View>
         <View style={[styles.showArea, { marginVertical: 20 }]}>
           <View
-            ref={(ref) => { this.scaleRef = ref; }}
+            ref={(ref) => {
+              this.scaleRef = ref;
+            }}
             style={[styles.square, {
               transform: [{
                 scale: this.scaleAnimationSet,

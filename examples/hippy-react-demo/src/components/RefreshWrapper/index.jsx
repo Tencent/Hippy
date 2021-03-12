@@ -163,7 +163,9 @@ export default class RefreshWrapperExample extends React.Component {
     const { dataSource } = this.state;
     return (
       <RefreshWrapper
-        ref={(ref) => { this.refresh = ref; }}
+        ref={(ref) => {
+          this.refresh = ref;
+        }}
         style={{ flex: 1 }}
         onRefresh={this.onRefresh}
         bounceTime={100}

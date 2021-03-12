@@ -73,9 +73,7 @@ function createMatcher(routes, router) {
 
     if (!redirect || typeof redirect !== 'object') {
       if (process.env.NODE_ENV !== 'production') {
-        warn(
-          false, `invalid redirect option: ${JSON.stringify(redirect)}`,
-        );
+        warn(false, `invalid redirect option: ${JSON.stringify(redirect)}`);
       }
       return _createRoute(null, location);
     }

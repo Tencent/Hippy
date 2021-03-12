@@ -197,7 +197,9 @@ class ScrollView extends React.Component<ScrollViewProps, {}> {
     return (
       <div
         nativeName="ScrollView"
-        ref={(ref) => { this.instance = ref; }}
+        ref={(ref) => {
+          this.instance = ref;
+        }}
         {...this.props}
         style={newStyle}
       >
