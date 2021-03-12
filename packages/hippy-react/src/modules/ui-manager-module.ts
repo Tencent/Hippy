@@ -83,8 +83,7 @@ function getNodeIdByRef(ref: string | Fiber | Element): number {
  *
  * @param {ViewNode} ref - Element ref that have nodeId.
  * @param {string} funcName - function name.
- * @param {Array} option - fucntion options.
- * @param {function} callback - get result from callUIFunction.
+ * @param {Array} options - function options.
  */
 function callUIFunction(ref: Element | Fiber, funcName: string, ...options: any[]): void {
   let { nativeName: componentName, nodeId } = ref as Element;
