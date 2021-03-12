@@ -1,8 +1,8 @@
-const fs                = require('fs');
-const path              = require('path');
-const webpack           = require('webpack');
+const fs = require('fs');
+const path = require('path');
+const webpack = require('webpack');
 const HippyDynamicImportPlugin = require('@hippy/hippy-dynamic-import-plugin');
-const pkg               = require('../package.json');
+const pkg = require('../package.json');
 
 module.exports = {
   mode: 'development',

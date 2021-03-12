@@ -26,7 +26,7 @@ interface AnimationOptions {
   /**
    * Timeline mode of animation
    */
-  mode?: 'timing';  // TODO: fill more options
+  mode?: 'timing'; // TODO: fill more options
 
   /**
    * Delay starting time

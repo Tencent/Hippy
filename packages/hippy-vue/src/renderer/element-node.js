@@ -348,7 +348,7 @@ class ElementNode extends ViewNode {
   /**
    * Scroll children to specific position.
    */
-  scrollToPosition(x = 0, y = 0, duration = 1000)  {
+  scrollToPosition(x = 0, y = 0, duration = 1000) {
     if (typeof x !== 'number' || typeof y !== 'number') {
       return;
     }

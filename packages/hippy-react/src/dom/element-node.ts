@@ -337,7 +337,7 @@ class ElementNode extends ViewNode {
       return null;
     }
     text = unicodeToChar(text);
-    text = text.replace(/&nbsp;/g, ' ').replace(/Â/g, ' ');  // FIXME: Â is a template compiler error.
+    text = text.replace(/&nbsp;/g, ' ').replace(/Â/g, ' '); // FIXME: Â is a template compiler error.
     // Hacking for textarea, use value props to instance text props
     if (this.tagName === 'textarea') {
       return this.setAttribute('value', text);
