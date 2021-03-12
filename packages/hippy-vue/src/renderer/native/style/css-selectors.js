@@ -86,7 +86,9 @@ class UniversalSelector extends SimpleSelector {
     return `*${this.combinator}`;
   }
 
-  match() { return true; }
+  match() {
+    return true;
+  }
 }
 
 /**

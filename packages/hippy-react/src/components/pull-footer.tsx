@@ -52,7 +52,9 @@ class PullFooter extends React.Component<PullFooterProps, {}> {
     return (
       <div
         nativeName="PullFooterView"
-        ref={(ref) => { this.instance = ref; }}
+        ref={(ref) => {
+          this.instance = ref;
+        }}
         {...nativeProps}
       >
         { children }

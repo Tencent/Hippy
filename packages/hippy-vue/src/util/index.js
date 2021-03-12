@@ -48,9 +48,7 @@ function getBeforeLoadStyle() {
 }
 
 const infoTrace = once(() => {
-  console.log(
-    'Hippy-Vue has "Vue.config.silent" set to true, to see output logs set it to false.',
-  );
+  console.log('Hippy-Vue has "Vue.config.silent" set to true, to see output logs set it to false.');
 });
 
 function trace(...context) {
