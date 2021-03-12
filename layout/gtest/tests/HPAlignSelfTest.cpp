@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-#include <gtest.h>
 #include <Hippy.h>
+#include <gtest.h>
 
 TEST(HippyTest, align_self_center) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 100);
   HPNodeStyleSetHeight(root, 100);
@@ -53,11 +52,9 @@ TEST(HippyTest, align_self_center) {
   ASSERT_FLOAT_EQ(10, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, align_self_flex_end) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 100);
   HPNodeStyleSetHeight(root, 100);
@@ -92,11 +89,9 @@ TEST(HippyTest, align_self_flex_end) {
   ASSERT_FLOAT_EQ(10, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, align_self_flex_start) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 100);
   HPNodeStyleSetHeight(root, 100);
@@ -131,11 +126,9 @@ TEST(HippyTest, align_self_flex_start) {
   ASSERT_FLOAT_EQ(10, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, align_self_flex_end_override_flex_start) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetAlignItems(root, FlexAlignStart);
   HPNodeStyleSetWidth(root, 100);
@@ -171,10 +164,9 @@ TEST(HippyTest, align_self_flex_end_override_flex_start) {
   ASSERT_FLOAT_EQ(10, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
-//base line not support. TODO:: 2018.01.13.ianwang.
+// base line not support. TODO:: 2018.01.13.ianwang.
 /*
 TEST(HippyTest, align_self_baseline) {
 

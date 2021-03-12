@@ -1,5 +1,6 @@
-/* Tencent is pleased to support the open source community by making Hippy available.
- * Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights reserved.
+/* Tencent is pleased to support the open source community by making Hippy
+ * available. Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights
+ * reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +15,21 @@
  * limitations under the License.
  */
 
-#ifndef HPUTIL_H_
-#define HPUTIL_H_
+#pragma once
 
-#include "Flex.h"
 #include <assert.h>
 #include <math.h>
-#include <cmath>
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-//#define __DEBUG__
-//#define LAYOUT_TIME_ANALYZE
+#include <cmath>
+
+#include "Flex.h"
+
+// #define __DEBUG__
+// #define LAYOUT_TIME_ANALYZE
 #define ASSERT(e) (assert(e))
 #define nullptr (NULL)
 #define VALUE_AUTO (NAN)
@@ -48,7 +50,7 @@ typedef enum {
   LogLevelFatal,
 } LogLevel;
 
-#define HPLogd(...) HPLog(LogLevelDebug,  __VA_ARGS__)
+#define HPLogd(...) HPLog(LogLevelDebug, __VA_ARGS__)
 #define HPLogdStr(...) HPLog(LogLevelDebug, "%s", __VA_ARGS__)
 void HPLog(LogLevel level, const char *format, ...);
 
@@ -57,5 +59,3 @@ bool FloatIsEqualInScale(float a, float b, float scale);
 bool HPSizeIsEqual(HPSize a, HPSize b);
 bool HPSizeIsEqualInScale(HPSize a, HPSize b, float scale);
 float HPRoundValueToPixelGrid(float value, bool forceCeil, bool forceFloor);
-
-#endif
