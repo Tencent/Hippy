@@ -192,7 +192,7 @@ interface ListViewProps {
   /**
    * Called when a whole list item disappears
    */
-  onDisappear?:  (index: number) => void
+  onDisappear?: (index: number) => void
 
   /**
    * Called when a new list item will appear(1 px)

@@ -64,21 +64,21 @@ export default class AnimationExample extends React.Component {
 
   componentWillMount() {
     this.horizonAnimation = new Animation({
-      startValue: 150,            // 开始值
-      toValue: 20,                // 动画结束值
-      duration: 1000,             // 动画持续时长
-      delay: 500,                 // 至动画真正开始的延迟时间
-      mode: 'timing',             // 动画模式
-      timingFunction: 'ease-in',  // 动画缓动函数
+      startValue: 150, // 开始值
+      toValue: 20, // 动画结束值
+      duration: 1000, // 动画持续时长
+      delay: 500, // 至动画真正开始的延迟时间
+      mode: 'timing', // 动画模式
+      timingFunction: 'ease-in', // 动画缓动函数
       repeatCount: 'loop',
     });
     this.verticalAnimation = new Animation({
-      startValue: 80,             // 动画开始值
-      toValue: 40,                // 动画结束值
-      duration: 1000,             // 动画持续时长
-      delay: 0,                   // 至动画真正开始的延迟时间
-      mode: 'timing',             // 动画模式
-      timingFunction: 'linear',   // 动画缓动函数,
+      startValue: 80, // 动画开始值
+      toValue: 40, // 动画结束值
+      duration: 1000, // 动画持续时长
+      delay: 0, // 至动画真正开始的延迟时间
+      mode: 'timing', // 动画模式
+      timingFunction: 'linear', // 动画缓动函数,
       repeatCount: 'loop',
     });
 
@@ -93,7 +93,7 @@ export default class AnimationExample extends React.Component {
             mode: 'timing',
             timingFunction: 'linear',
           }),
-          follow: false,   // 配置子动画的执行是否跟随执行
+          follow: false, // 配置子动画的执行是否跟随执行
         },
         {
           animation: new Animation({
@@ -136,7 +136,7 @@ export default class AnimationExample extends React.Component {
     });
   }
 
-  componentWillUnmount() {  // 如果动画没有销毁，需要在此处保证销毁动画，以免动画后台运行耗电
+  componentWillUnmount() { // 如果动画没有销毁，需要在此处保证销毁动画，以免动画后台运行耗电
     if (this.scaleAnimationSet) {
       this.scaleAnimationSet.destroy();
     }

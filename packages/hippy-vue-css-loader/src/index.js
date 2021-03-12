@@ -5,7 +5,7 @@ import { GLOBAL_STYLE_NAME } from '@vue/runtime/constants';
 import parseCSS from './css-parser';
 import translateColor from './color-parser';
 
-let sourceId              = 0;
+let sourceId = 0;
 
 /**
  * Convert the CSS text to AST that able to parse by selector parser.

@@ -101,7 +101,7 @@ test('Element.addEventListener and removeEventListener test', (t) => {
 
 test('Element.dispatchEvent test', (t) => {
   const parentNode = new ElementNode('div');
-  const childNode =  new ElementNode('div');
+  const childNode = new ElementNode('div');
   const key = 'test';
   const event = DocumentNode.createEvent(key);
   parentNode.appendChild(childNode);

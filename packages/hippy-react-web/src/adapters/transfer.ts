@@ -111,6 +111,7 @@ interface WebStyle {
   borderRightColors?: any,
   backgroundColor?: any,
   backgroundColors?: any,
+  [props: string]: any
 }
 
 function handleBoxStyle(webStyle: WebStyle) {
@@ -153,39 +154,22 @@ function handleBoxStyle(webStyle: WebStyle) {
 }
 
 // 处理颜色数组（QQ浏览器专有）
-// TODO 剥离出来，不写在公用库
 function handleSpecialColor(webStyle: WebStyle) {
-  if (!webStyle.color && webStyle.colors && webStyle.colors.length > 0) {
-    [webStyle.color] = webStyle.colors;
-  }
-
-  if (!webStyle.borderColor && webStyle.borderColors && webStyle.borderColors.length > 0) {
-    [webStyle.borderColor] = webStyle.borderColors;
-  }
-
-  if (!webStyle.borderTopColor && webStyle.borderTopColors && webStyle.borderTopColors.length > 0) {
-    [webStyle.borderTopColor] = webStyle.borderTopColors;
-  }
-
-  if (!webStyle.borderBottomColor && webStyle.borderBottomColors
-      && webStyle.borderBottomColors.length > 0) {
-    [webStyle.borderBottomColor] = webStyle.borderBottomColors;
-  }
-
-  if (!webStyle.borderLeftColor && webStyle.borderLeftColors
-      && webStyle.borderLeftColors.length > 0) {
-    [webStyle.borderLeftColor] = webStyle.borderLeftColors;
-  }
-
-  if (!webStyle.borderRightColor && webStyle.borderRightColors
-      && webStyle.borderRightColors.length > 0) {
-    [webStyle.borderRightColor] = webStyle.borderRightColors;
-  }
-
-  if (!webStyle.backgroundColor && webStyle.backgroundColors
-      && webStyle.backgroundColors.length > 0) {
-    [webStyle.backgroundColor] = webStyle.backgroundColors;
-  }
+  const colorStyleArr = [
+    ['color', 'colors'],
+    ['borderColor', 'borderColors'],
+    ['borderTopColor', 'borderTopColors'],
+    ['borderBottomColor', 'borderBottomColors'],
+    ['borderLeftColor', 'borderLeftColors'],
+    ['borderRightColor', 'borderRightColors'],
+    ['backgroundColor', 'backgroundColors'],
+  ];
+  colorStyleArr.forEach((colorList) => {
+    const [color, colors] = colorList;
+    if (!webStyle[color] && webStyle[colors] && webStyle[colors].length > 0) {
+      [webStyle[color]] = webStyle[colors];
+    }
+  });
 }
 
 function handle8BitHexColor(webStyle: WebStyle) {
