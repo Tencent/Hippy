@@ -1,6 +1,6 @@
 /* eslint-disable import/prefer-default-export */
 
-const globalThis =  typeof window === 'object'
+const globalThis = typeof window === 'object'
   ? window
   : { innerHeight: 0, innerWidth: 0, screen: { height: 0, width: 0 } };
 

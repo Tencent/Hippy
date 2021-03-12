@@ -111,7 +111,7 @@ class Stack {
 class Navigator extends React.Component<NavigatorProps, {}> {
   private stack = new Stack();
 
-  private instance:  HTMLDivElement | null = null;
+  private instance: HTMLDivElement | null = null;
 
   private routeList: {
     [key: string]: boolean;

@@ -1,4 +1,4 @@
-import HippyEventListener  from '../events/listener';
+import HippyEventListener from '../events/listener';
 import { Bridge } from '../global';
 import { warn } from '../utils';
 

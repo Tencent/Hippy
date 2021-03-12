@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
 
-const path        = require('path');
-const { rollup }  = require('rollup');
+const path = require('path');
+const { rollup } = require('rollup');
 const reactBuilds = require('./react-configs').getAllBuilds();
-const vueBuilds   = require('./vue-configs').getAllBuilds();
+const vueBuilds = require('./vue-configs').getAllBuilds();
 
 let builds = [...reactBuilds, ...vueBuilds];
 

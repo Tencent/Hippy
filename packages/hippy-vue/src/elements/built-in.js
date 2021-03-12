@@ -9,11 +9,11 @@ function mapEvent(...args) {
   const map = {};
   if (Array.isArray(args[0])) {
     args[0].forEach(([vueEventName, nativeEventName]) => {
-      map[map[vueEventName] = nativeEventName]  = vueEventName;
+      map[map[vueEventName] = nativeEventName] = vueEventName;
     });
   } else {
     const [vueEventName, nativeEventName] = args;
-    map[map[vueEventName] = nativeEventName]  = vueEventName;
+    map[map[vueEventName] = nativeEventName] = vueEventName;
   }
   return map;
 }
@@ -124,7 +124,7 @@ const ul = {
   component: {
     name: NATIVE_COMPONENT_NAME_MAP[components.ListView],
     defaultNativeStyle: {
-      flex: 1,              // Necessary by iOS
+      flex: 1, // Necessary by iOS
     },
     defaultNativeProps: {
       numberOfRows(node) {
@@ -164,7 +164,7 @@ const span = {
       text: '',
     },
     defaultNativeStyle: {
-      color: 4278190080,      // Black color(#000), necessary for Android
+      color: 4278190080, // Black color(#000), necessary for Android
     },
   },
 };
@@ -177,7 +177,7 @@ const a = {
   component: {
     ...span.component,
     defaultNativeStyle: {
-      color: 4278190318,      // Blue color(rgb(0, 0, 238), necessary for android
+      color: 4278190318, // Blue color(rgb(0, 0, 238), necessary for android
     },
     attributeMaps: {
       href: {
@@ -224,11 +224,11 @@ const input = {
       multiline: false,
     },
     defaultNativeProps: {
-      underlineColorAndroid: 0,       // Remove the android underline
+      underlineColorAndroid: 0, // Remove the android underline
     },
     defaultNativeStyle: {
-      padding: 0,                     // Remove the android underline
-      color: 4278190080,              // Black color(#000), necessary for Android
+      padding: 0, // Remove the android underline
+      color: 4278190080, // Black color(#000), necessary for Android
     },
     eventNamesMap: mapEvent([
       ['change', 'onChangeText'],
