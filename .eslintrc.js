@@ -31,6 +31,8 @@ module.exports = {
     Hippy: true,
   },
   rules: {
+    indent: 2,
+    'no-multi-spaces': 2,
     'no-restricted-syntax': [
       'warn',
       {
@@ -95,9 +97,6 @@ module.exports = {
     'react/no-deprecated': 0,
     // Ignore the dependency by each package
     'import/no-unresolved': 'off',
-
-    // Allow comment or require align with space
-    'no-multi-spaces': 'off',
 
     // Allow import name different with file name
     'import/no-named-as-default': 'off',
@@ -195,4 +194,4 @@ module.exports = {
       },
     },
   ],
-}
+};

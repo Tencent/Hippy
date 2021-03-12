@@ -87,7 +87,7 @@ function unobserve(instance: LayoutElement) {
   }
 }
 
-function safeOverride(original: Function, next: Function)  {
+function safeOverride(original: Function, next: Function) {
   if (original) {
     return function prototypeOverride() {
       /* eslint-disable prefer-rest-params */

@@ -12,7 +12,7 @@ __GLOBAL__.nodeId = 0;
 __GLOBAL__.animationId = 0;
 __GLOBAL__.renderCount = 0;
 
-const  {
+const {
   asyncStorage: AsyncStorage,
   bridge: Bridge,
   device: Device,

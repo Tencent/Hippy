@@ -98,7 +98,7 @@ test('isFunction test', (t) => {
   t.false(util.isFunction(undefined));
   t.false(util.isFunction(null));
   t.false(util.isFunction({}));
-  t.false(util.isFunction(new Date()));       // Date is function
+  t.false(util.isFunction(new Date())); // Date is function
   t.false(util.isFunction(String('foobar'))); // String is function too
   t.false(util.isFunction(123));
   t.false(util.isFunction('abc'));

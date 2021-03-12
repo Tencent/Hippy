@@ -5,7 +5,7 @@ import { getVue } from '@vue/util/index';
 import { once } from 'shared/util';
 import { warn, isError } from './warn';
 
-const hasSymbol =  typeof Symbol === 'function'
+const hasSymbol = typeof Symbol === 'function'
   && typeof Symbol.toStringTag === 'symbol';
 
 function isESModule(obj) {
