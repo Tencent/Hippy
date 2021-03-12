@@ -7,6 +7,8 @@ import { Device } from '../native';
 import { colorParse, colorArrayParse } from '../color';
 import { warn } from '../utils';
 
+type Color = string | number;
+
 interface Size {
   width: number;
   height: number;
@@ -133,7 +135,7 @@ class Image extends React.Component<ImageProps, {}> {
   }
 
   static getSize(
-    url: string,
+    url: any,
     success: (width: number, height: number) => void,
     failure: (err: typeof Error) => void,
   ) {
@@ -153,6 +155,61 @@ class Image extends React.Component<ImageProps, {}> {
   }
 
   static prefetch = prefetch;
+
+  private getImageUrls({ src, srcs, source, sources }: {
+    src: string | any,
+    srcs: string[] | any,
+    source: string | any,
+    sources: string[] | any,
+  }) {
+    let imageUrls = [];
+    if (typeof src === 'string') {
+      imageUrls.push(src);
+    }
+    if (Array.isArray(srcs)) {
+      imageUrls = [...imageUrls, ...srcs];
+    }
+    if (source) {
+      if (typeof source === 'string') {
+        imageUrls.push(source);
+      } else if (typeof source === 'object' && source !== null) {
+        const { uri } = source as ImageSource;
+        if (uri) {
+          imageUrls.push(uri);
+        }
+      }
+    }
+    if (sources) {
+      if (Array.isArray(sources)) {
+        sources.forEach((imageSrc) => {
+          if (typeof imageSrc === 'string') {
+            imageUrls.push(imageSrc);
+          } else if (typeof imageSrc === 'object' && imageSrc !== null && imageSrc.uri) {
+            imageUrls.push(imageSrc.uri);
+          }
+        });
+      }
+    }
+
+    if (imageUrls.length) {
+      imageUrls = imageUrls.map((url: string) => handleImgUrl(url));
+    }
+    return imageUrls;
+  }
+
+  private handleTintColor(
+    nativeStyle: { tintColor: number, tintColors: number[] },
+    tintColor: Color, tintColors: Color[],
+  ) {
+    if (tintColor) {
+      // eslint-disable-next-line no-param-reassign
+      nativeStyle.tintColor = colorParse(tintColor) as number;
+    }
+    if (Array.isArray(tintColors)) {
+      // eslint-disable-next-line no-param-reassign
+      nativeStyle.tintColors = colorArrayParse(tintColors) as number[];
+    }
+  }
 
   /**
    * @ignore
@@ -177,39 +234,7 @@ class Image extends React.Component<ImageProps, {}> {
      */
 
     // Define the image source url array.
-    let imageUrls: string[] = [];
-    if (typeof src === 'string') {
-      imageUrls.push(src);
-    }
-    if (Array.isArray(srcs)) {
-      imageUrls = [...imageUrls, ...srcs];
-    }
-    if (source) {
-      if (typeof source === 'string') {
-        imageUrls.push(source);
-      } else if (typeof source === 'object' && source !== null) {
-        const { uri } = source as ImageSource;
-        if (uri) {
-          imageUrls.push(uri);
-        }
-      }
-    }
-
-    if (sources) {
-      if (Array.isArray(sources)) {
-        sources.forEach((imageSrc) => {
-          if (typeof imageSrc === 'string') {
-            imageUrls.push(imageSrc);
-          } else if (typeof imageSrc === 'object' && imageSrc !== null && imageSrc.uri) {
-            imageUrls.push(imageSrc.uri);
-          }
-        });
-      }
-    }
-
-    if (imageUrls.length) {
-      imageUrls = imageUrls.map(url => handleImgUrl(url));
-    }
+    const imageUrls: string[] = this.getImageUrls({ src, srcs, source, sources });
 
     // Set sources props by platform specification
     if (Device.platform.OS === 'ios') {
@@ -238,12 +263,7 @@ class Image extends React.Component<ImageProps, {}> {
      * tintColor(s)
      */
     const nativeStyle = { ...style };
-    if (tintColor) {
-      nativeStyle.tintColor = colorParse(tintColor);
-    }
-    if (Array.isArray(tintColors)) {
-      nativeStyle.tintColors = colorArrayParse(tintColors);
-    }
+    this.handleTintColor(nativeStyle, tintColor, tintColors);
     (nativeProps as ImageProps).style = nativeStyle;
 
     if (children) {

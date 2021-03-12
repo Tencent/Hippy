@@ -1,9 +1,9 @@
-const path              = require('path');
-const replace           = require('rollup-plugin-replace');
-const alias             = require('rollup-plugin-alias');
-const node              = require('rollup-plugin-node-resolve');
-const commonjs          = require('rollup-plugin-commonjs');
-const typescript        = require('@wessberg/rollup-plugin-ts');
+const path = require('path');
+const replace = require('rollup-plugin-replace');
+const alias = require('rollup-plugin-alias');
+const node = require('rollup-plugin-node-resolve');
+const commonjs = require('rollup-plugin-commonjs');
+const typescript = require('@wessberg/rollup-plugin-ts');
 
 const hippyReactPackage = require('../packages/hippy-react/package.json');
 const hippyReactWebPackage = require('../packages/hippy-react-web/package.json');

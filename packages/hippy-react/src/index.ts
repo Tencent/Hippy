@@ -32,7 +32,7 @@ import * as StyleSheet from './modules/stylesheet';
 
 global.WebSocket = WebSocket;
 
-const  {
+const {
   AsyncStorage,
   BackAndroid,
   Bridge,

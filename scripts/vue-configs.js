@@ -1,12 +1,12 @@
-const path        = require('path');
-const alias       = require('rollup-plugin-alias');
-const buble       = require('rollup-plugin-buble');
-const cjs         = require('rollup-plugin-commonjs');
-const replace     = require('rollup-plugin-replace');
-const node        = require('rollup-plugin-node-resolve');
-const flow        = require('rollup-plugin-flow-no-whitespace');
+const path = require('path');
+const alias = require('rollup-plugin-alias');
+const buble = require('rollup-plugin-buble');
+const cjs = require('rollup-plugin-commonjs');
+const replace = require('rollup-plugin-replace');
+const node = require('rollup-plugin-node-resolve');
+const flow = require('rollup-plugin-flow-no-whitespace');
 
-const VueVersion  = require('vue/package.json').version;
+const VueVersion = require('vue/package.json').version;
 const hippyVuePackage = require('../packages/hippy-vue/package.json');
 const cssLoaderPackage = require('../packages/hippy-vue-css-loader/package.json');
 const nativeComponentsPackage = require('../packages/hippy-vue-native-components/package.json');
@@ -53,7 +53,7 @@ function resolveVue(p) {
 }
 
 function resolvePackage(src, extra = 'src') {
-  return path.resolve(__dirname,  '../packages/', src, extra);
+  return path.resolve(__dirname, '../packages/', src, extra);
 }
 
 const aliases = {
