@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-#include <gtest.h>
 #include <Hippy.h>
+#include <gtest.h>
 
 TEST(HippyTest, rounding_flex_basis_flex_grow_row_width_of_100) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetWidth(root, 100);
@@ -80,11 +79,9 @@ TEST(HippyTest, rounding_flex_basis_flex_grow_row_width_of_100) {
   ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root_child2));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, rounding_flex_basis_flex_grow_row_prime_number_width) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetWidth(root, 113);
@@ -174,11 +171,9 @@ TEST(HippyTest, rounding_flex_basis_flex_grow_row_prime_number_width) {
   ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root_child4));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, rounding_flex_basis_flex_shrink_row) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetWidth(root, 101);
@@ -241,11 +236,9 @@ TEST(HippyTest, rounding_flex_basis_flex_shrink_row) {
   ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root_child2));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, rounding_flex_basis_overrides_main_size) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 100);
   HPNodeStyleSetHeight(root, 113);
@@ -310,11 +303,9 @@ TEST(HippyTest, rounding_flex_basis_overrides_main_size) {
   ASSERT_FLOAT_EQ(24, HPNodeLayoutGetHeight(root_child2));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, rounding_total_fractial) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 87.4f);
   HPNodeStyleSetHeight(root, 113.4f);
@@ -379,11 +370,9 @@ TEST(HippyTest, rounding_total_fractial) {
   ASSERT_FLOAT_EQ(24, HPNodeLayoutGetHeight(root_child2));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, rounding_total_fractial_nested) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 87.4f);
   HPNodeStyleSetHeight(root, 113.4f);
@@ -482,11 +471,9 @@ TEST(HippyTest, rounding_total_fractial_nested) {
   ASSERT_FLOAT_EQ(24, HPNodeLayoutGetHeight(root_child2));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, rounding_fractial_input_1) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 100);
   HPNodeStyleSetHeight(root, 113.4f);
@@ -551,11 +538,9 @@ TEST(HippyTest, rounding_fractial_input_1) {
   ASSERT_FLOAT_EQ(24, HPNodeLayoutGetHeight(root_child2));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, rounding_fractial_input_2) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 100);
   HPNodeStyleSetHeight(root, 113.6f);
@@ -620,11 +605,9 @@ TEST(HippyTest, rounding_fractial_input_2) {
   ASSERT_FLOAT_EQ(25, HPNodeLayoutGetHeight(root_child2));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, rounding_fractial_input_3) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetPosition(root, CSSTop, 0.3f);
   HPNodeStyleSetWidth(root, 100);
@@ -690,11 +673,9 @@ TEST(HippyTest, rounding_fractial_input_3) {
   ASSERT_FLOAT_EQ(25, HPNodeLayoutGetHeight(root_child2));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, rounding_fractial_input_4) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetPosition(root, CSSTop, 0.7f);
   HPNodeStyleSetWidth(root, 100);
@@ -760,11 +741,9 @@ TEST(HippyTest, rounding_fractial_input_4) {
   ASSERT_FLOAT_EQ(24, HPNodeLayoutGetHeight(root_child2));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, rounding_inner_node_controversy_horizontal) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetWidth(root, 320);
@@ -843,11 +822,9 @@ TEST(HippyTest, rounding_inner_node_controversy_horizontal) {
   ASSERT_FLOAT_EQ(10, HPNodeLayoutGetHeight(root_child2));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, rounding_inner_node_controversy_vertical) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetHeight(root, 320);
 
@@ -925,11 +902,10 @@ TEST(HippyTest, rounding_inner_node_controversy_vertical) {
   ASSERT_FLOAT_EQ(107, HPNodeLayoutGetHeight(root_child2));
 
   HPNodeFreeRecursive(root);
-
 }
 
-//TODO:: not support percent
-//TEST(HippyTest, rounding_inner_node_controversy_combined) {
+// TODO:: not support percent
+// TEST(HippyTest, rounding_inner_node_controversy_combined) {
 
 //  const HPNodeRef root = HPNodeNew();
 //  HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
