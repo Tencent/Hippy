@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include <gtest.h>
 #include <Hippy.h>
+#include <gtest.h>
 
 TEST(HippyTest, dirty_propagation) {
   const HPNodeRef root = HPNodeNew();
