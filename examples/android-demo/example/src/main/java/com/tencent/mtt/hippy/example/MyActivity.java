@@ -16,15 +16,6 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyright (C) 2005-2020 TENCENT Inc.All Rights Reserved.
- * FileName: MyActivity demo，只展示了常用能力的代码
- * 加载出Hippy的View分为三步：
- * 1. 用EngineInitParams参数create出HippyEngine；
- * 2. HippyEngine.initEngine异步初始化；
- * 3. 用ModuleLoadParams参数loadModule加载出hippy的jsbundle，得到Hippy的View。
- * Description：
- */
 public class MyActivity extends Activity
 {
 	private HippyEngine mHippyEngine;
@@ -131,8 +122,19 @@ public class MyActivity extends Activity
 	}
 
 	@Override
-	protected void onDestroy()
-	{
+	protected void onResume() {
+		super.onResume();
+		mHippyEngine.onEngineResume();
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		mHippyEngine.onEnginePause();
+	}
+
+	@Override
+	protected void onDestroy() {
 		// 3/3. 摧毁hippy前端模块，摧毁hippy引擎
 		mHippyEngine.destroyModule(mHippyView);
 		mHippyEngine.destroyEngine();
@@ -148,8 +150,10 @@ public class MyActivity extends Activity
 				MyActivity.this.doActivityBack();
 			}
 		});
-		if (!handled)
+
+		if (!handled) {
 			super.onBackPressed();
+		}
 	}
 
 	// 可选：让hippy前端能够监听并拦截back事件
