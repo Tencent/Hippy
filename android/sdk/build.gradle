@@ -53,7 +53,6 @@ allprojects {
 android {
   archivesBaseName = ARCHIVES_BASE_NAME
   compileSdkVersion COMPILE_SDK_VERSION as int
-  buildToolsVersion BUILD_TOOLS_VERSION
   defaultConfig {
     minSdkVersion MIN_SDK_VERSION as int
     targetSdkVersion TARGET_SDK_VERSION as int
