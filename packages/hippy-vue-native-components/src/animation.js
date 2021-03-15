@@ -50,7 +50,7 @@ function registerAnimation(Vue) {
   /**
    * Generate the styles from animation and animationSet Ids.
    */
-  function getStyle(actions) {
+  function getStyle(actions, childAnimationIdList = []) {
     const style = {};
     Object.keys(actions).forEach((key) => {
       if (Array.isArray(actions[key])) {
@@ -59,6 +59,7 @@ function registerAnimation(Vue) {
         const { repeatCount } = actionSet[actionSet.length - 1];
         const animationSetActions = actionSet.map((a) => {
           const action = createAnimation(Object.assign({}, a, { repeatCount: 0 }));
+          childAnimationIdList.push(action.animationId);
           action.follow = true;
           return action;
         });
@@ -126,6 +127,7 @@ function registerAnimation(Vue) {
         style: {},
         animationIds: [],
         animationEventMap: {},
+        childAnimationIdList: [],
       };
     },
     created() {
@@ -134,6 +136,7 @@ function registerAnimation(Vue) {
       if (Vue.Native.Platform === 'android') {
         animationEventName = 'onHippyAnimation';
       }
+      this.childAnimationIdList = [];
       this.animationEventMap = {
         start: `${animationEventName}Start`,
         end: `${animationEventName}End`,
@@ -159,9 +162,9 @@ function registerAnimation(Vue) {
     methods: {
       create() {
         const { actions: { transform, ...actions } } = this.$props;
-        const style = getStyle(actions);
+        const style = getStyle(actions, this.childAnimationIdList);
         if (transform) {
-          const transformAnimations = getStyle(transform);
+          const transformAnimations = getStyle(transform, this.childAnimationIdList);
           style.transform = Object.keys(transformAnimations).map(key => ({
             [key]: transformAnimations[key],
           }));
@@ -225,7 +228,10 @@ function registerAnimation(Vue) {
         this.removeAnimationEvent();
         this.$alreadyStarted = false;
         const animationIds = getAnimationIds(this.style);
+        this.childAnimationIdList.forEach(animationId => Number.isInteger(animationId)
+            && Vue.Native.callNative(MODULE_NAME, 'destroyAnimation', animationId));
         animationIds.forEach(animationId => Vue.Native.callNative(MODULE_NAME, 'destroyAnimation', animationId));
+        this.childAnimationIdList = [];
       },
     },
     watch: {
