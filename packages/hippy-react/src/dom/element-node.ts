@@ -71,6 +71,113 @@ class ElementNode extends ViewNode {
     return this.attributes[key];
   }
 
+  setStyleAttribute(value: any) {
+    // Clean old styles
+    this.style = {};
+    let styleArray = value;
+
+    // Convert style to array if it's a array like object
+    // Forward compatibility workaround.
+    if (!Array.isArray(styleArray) && Object.hasOwnProperty.call(styleArray, 0)) {
+      const tempStyle: any[] = [];
+      const tempObjStyle: {
+        [key: string]: any;
+      } = {};
+      Object.keys(styleArray).forEach((styleKey) => {
+        // Workaround for the array and object mixed style.
+        if (isNumber(styleKey)) {
+          tempStyle.push(styleArray[styleKey]);
+        } else {
+          tempObjStyle[styleKey] = styleArray[styleKey];
+        }
+      });
+      styleArray = [...tempStyle, tempObjStyle];
+    }
+
+    // Convert style to array if style is a standalone object
+    if (!Array.isArray(styleArray)) {
+      styleArray = [styleArray];
+    }
+
+    // Merge the styles if style is array
+    let mergedStyles: Hippy.Style = {};
+    styleArray.forEach((style: Hippy.Style) => {
+      if (Array.isArray(style)) {
+        style.forEach((subStyle) => {
+          mergedStyles = {
+            ...mergedStyles,
+            ...subStyle,
+          };
+        });
+      } else if (typeof style === 'object' && style) {
+        // TODO: Merge transform
+        mergedStyles = {
+          ...mergedStyles,
+          ...style,
+        };
+      }
+    });
+
+    // Apply the styles
+    Object.keys(mergedStyles).forEach((styleKey) => {
+      const styleValue = (mergedStyles as any)[styleKey];
+      // Convert the property to W3C standard.
+      if (Object.prototype.hasOwnProperty.call(PROPERTIES_MAP, styleKey)) {
+        styleKey = PROPERTIES_MAP[styleKey];
+      }
+      if (styleKey === 'transform') {
+        const transforms = {};
+        if (!Array.isArray(styleValue)) {
+          throw new TypeError('transform only support array args');
+        }
+
+        // Merge the transform styles
+        styleValue.forEach((transformSet: any) => {
+          Object.keys(transformSet).forEach((transform) => {
+            const transformValue = (transformSet as any)[transform];
+            if (transformValue instanceof Animation
+                || transformValue instanceof AnimationSet) {
+              (transforms as any)[transform] = {
+                animationId: transformValue.animationId,
+              };
+            } else if (transformValue === null) {
+              if ((transforms as any)[transform]) {
+                delete (transforms as any)[transform];
+              }
+            } else if (transformValue !== undefined) {
+              (transforms as any)[transform] = transformValue;
+            }
+          });
+        });
+
+        // Save the transform styles.
+        const transformsKeys = Object.keys(transforms);
+        if (transformsKeys.length) {
+          if (!Array.isArray(this.style.transform)) {
+            this.style.transform = [];
+          }
+          transformsKeys.forEach(transform => (this.style.transform as any[]).push({
+            [transform]: (transforms as any)[transform],
+          }));
+        }
+      } else if (styleValue === null && (this.style as any)[styleKey] !== undefined) {
+        delete (this.style as any)[styleKey];
+        // Convert to animationId if value is instanceOf Animation/AnimationSet
+      } else if (styleValue instanceof Animation || styleValue instanceof AnimationSet) {
+        (this.style as any)[styleKey] = {
+          animationId: styleValue.animationId,
+        };
+        // Translate color
+      } else if (styleKey.toLowerCase().indexOf('colors') > -1) {
+        (this.style as any)[styleKey] = colorArrayParse((styleValue as Color[]));
+      } else if (styleKey.toLowerCase().indexOf('color') > -1) {
+        (this.style as any)[styleKey] = colorParse((styleValue as Color));
+      } else {
+        (this.style as any)[styleKey] = styleValue;
+      }
+    });
+  }
+
   /* istanbul ignore next */
   setAttribute(key: string, value: any) {
     try {
@@ -120,110 +227,7 @@ class ElementNode extends ViewNode {
           if (typeof value !== 'object' || value === undefined || value === null) {
             return;
           }
-          // Clean old styles
-          this.style = {};
-          let styleArray = value;
-
-          // Convert style to array if it's a array like object
-          // Forward compatibility workaround.
-          if (!Array.isArray(styleArray) && Object.hasOwnProperty.call(styleArray, 0)) {
-            const tempStyle: any[] = [];
-            const tempObjStyle: {
-              [key: string]: any;
-            } = {};
-            Object.keys(styleArray).forEach((styleKey) => {
-              // Workaround for the array and object mixed style.
-              if (isNumber(styleKey)) {
-                tempStyle.push(styleArray[styleKey]);
-              } else {
-                tempObjStyle[styleKey] = styleArray[styleKey];
-              }
-            });
-            styleArray = [...tempStyle, tempObjStyle];
-          }
-
-          // Convert style to array if style is a standalone object
-          if (!Array.isArray(styleArray)) {
-            styleArray = [styleArray];
-          }
-
-          // Merge the styles if style is array
-          let mergedStyles: Hippy.Style = {};
-          styleArray.forEach((style: Hippy.Style) => {
-            if (Array.isArray(style)) {
-              style.forEach((subStyle) => {
-                mergedStyles = {
-                  ...mergedStyles,
-                  ...subStyle,
-                };
-              });
-            } else if (typeof style === 'object' && style) {
-              // TODO: Merge transform
-              mergedStyles = {
-                ...mergedStyles,
-                ...style,
-              };
-            }
-          });
-
-          // Apply the styles
-          Object.keys(mergedStyles).forEach((styleKey) => {
-            const styleValue = (mergedStyles as any)[styleKey];
-            // Convert the property to W3C standard.
-            if (Object.prototype.hasOwnProperty.call(PROPERTIES_MAP, styleKey)) {
-              styleKey = PROPERTIES_MAP[styleKey];
-            }
-            if (styleKey === 'transform') {
-              const transforms = {};
-              if (!Array.isArray(styleValue)) {
-                throw new TypeError('transform only support array args');
-              }
-
-              // Merge the transform styles
-              styleValue.forEach((transformSet: any) => {
-                Object.keys(transformSet).forEach((transform) => {
-                  const transformValue = (transformSet as any)[transform];
-                  if (transformValue instanceof Animation
-                    || transformValue instanceof AnimationSet) {
-                    (transforms as any)[transform] = {
-                      animationId: transformValue.animationId,
-                    };
-                  } else if (transformValue === null) {
-                    if ((transforms as any)[transform]) {
-                      delete (transforms as any)[transform];
-                    }
-                  } else if (transformValue !== undefined) {
-                    (transforms as any)[transform] = transformValue;
-                  }
-                });
-              });
-
-              // Save the transform styles.
-              const transformsKeys = Object.keys(transforms);
-              if (transformsKeys.length) {
-                if (!Array.isArray(this.style.transform)) {
-                  this.style.transform = [];
-                }
-                transformsKeys.forEach(transform => (this.style.transform as any[]).push({
-                  [transform]: (transforms as any)[transform],
-                }));
-              }
-            } else if (styleValue === null && (this.style as any)[styleKey] !== undefined) {
-              delete (this.style as any)[styleKey];
-            // Convert to animationId if value is instanceOf Animation/AnimationSet
-            } else if (styleValue instanceof Animation || styleValue instanceof AnimationSet) {
-              (this.style as any)[styleKey] = {
-                animationId: styleValue.animationId,
-              };
-            // Translate color
-            } else if (styleKey.toLowerCase().indexOf('colors') > -1) {
-              (this.style as any)[styleKey] = colorArrayParse((styleValue as Color[]));
-            } else if (styleKey.toLowerCase().indexOf('color') > -1) {
-              (this.style as any)[styleKey] = colorParse((styleValue as Color));
-            } else {
-              (this.style as any)[styleKey] = styleValue;
-            }
-          });
+          this.setStyleAttribute(value);
           break;
         }
         default:
