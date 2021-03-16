@@ -67,7 +67,7 @@ public class MyActivityDeprecated extends Activity implements HippyEngine.Engine
 	@Override
 	public void onBackPressed() {
 		if (!mEngineManager.onBackPress(this))
-			super.onBackPressed();;
+			super.onBackPressed();
 	}
 
 	@Override

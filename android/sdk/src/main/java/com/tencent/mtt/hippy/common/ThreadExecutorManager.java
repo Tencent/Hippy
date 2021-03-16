@@ -52,7 +52,7 @@ public class ThreadExecutorManager implements ThreadExecutor.UncaughtExceptionHa
                 LogUtils.e("Hippy", "add same engine twice");
             }
         } catch (Exception e) {
-
+            LogUtils.d("ThreadExecutorManager", "add: " + e.getMessage());
         }
     }
 
@@ -93,7 +93,7 @@ public class ThreadExecutorManager implements ThreadExecutor.UncaughtExceptionHa
                 destroyThreadExecutor(groupId);
             }
         } catch (Exception e) {
-
+            LogUtils.d("ThreadExecutorManager", "remove: " + e.getMessage());
         }
     }
 

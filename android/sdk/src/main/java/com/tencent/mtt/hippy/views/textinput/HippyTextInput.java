@@ -51,12 +51,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import java.lang.reflect.Field;
-/**
- * @Description: TODO
- * @author: edsheng
- * @date: 2017/12/19 20:05
- * @version: V1.0
- */
 
 public class HippyTextInput extends EditText implements HippyViewBase, CommonBorder, TextView.OnEditorActionListener, View.OnFocusChangeListener
 {
@@ -288,7 +282,7 @@ public class HippyTextInput extends EditText implements HippyViewBase, CommonBor
 		}
 		catch (SecurityException e)
 		{
-
+			LogUtils.d("HippyTextInput", "getScreenHeight: " + e.getMessage());
 		}
 		return -1;
 	}
@@ -749,16 +743,16 @@ public class HippyTextInput extends EditText implements HippyViewBase, CommonBor
 						break;
 					}
 				}
-				catch (Throwable ignored)
+				catch (Throwable e)
 				{
-					LogUtils.d("robinsli", ignored.getMessage());
+					LogUtils.d("HippyTextInput", "setCursorColor: " + e.getMessage());
 				}
 				editorClass = editorClass.getSuperclass(); //继续往上反射父亲
 			}
 		}
-		catch (Throwable ignored)
+		catch (Throwable e)
 		{
-			LogUtils.d("robinsli", ignored.getMessage());
+			LogUtils.d("HippyTextInput", "setCursorColor: " + e.getMessage());
 		}
 	}
 }

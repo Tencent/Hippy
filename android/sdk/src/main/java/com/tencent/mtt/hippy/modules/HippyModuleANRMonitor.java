@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy.modules;
 import android.os.SystemClock;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorAdapter;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.supportui.utils.struct.Pools;
 
 import java.util.Map;
@@ -152,7 +153,7 @@ public class HippyModuleANRMonitor
 			}
 			catch (Throwable e)
 			{
-
+				LogUtils.d("MonitorMessage", "onDispose: " + e.getMessage());
 			}
 		}
 	}

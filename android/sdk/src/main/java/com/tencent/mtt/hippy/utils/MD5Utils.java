@@ -15,9 +15,6 @@
  */
 package com.tencent.mtt.hippy.utils;
 
-/**
- * 1.0 xiandongluo on 2018/2/6
- */
 public class MD5Utils
 {
 	public static String getMD5(String string)
@@ -36,6 +33,7 @@ public class MD5Utils
 		}
 		catch (Exception e)
 		{
+			LogUtils.d("MD5Utils", "getMD5: " + e.getMessage());
 		}
 		return s;
 	}
@@ -50,6 +48,7 @@ public class MD5Utils
 		}
 		catch (Exception e)
 		{
+			LogUtils.d("MD5Utils", "getMD5: " + e.getMessage());
 		}
 		return null;
 	}

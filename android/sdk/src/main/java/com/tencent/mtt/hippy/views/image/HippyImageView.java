@@ -215,8 +215,8 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 
 				try {
 					((Map)param).put(IMAGE_PROPS, initProps);
-				} catch (Exception ignore) {
-					LogUtils.d("HippyImageView", ignore.getMessage());
+				} catch (Exception e) {
+					LogUtils.d("HippyImageView", "doFetchImage: " + e.getMessage());
 				}
 			}
 
@@ -512,9 +512,10 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 	 * @param canvas canvas of the image view
 	 * @return 播放完成返回true，未完成返回false。
 	 */
-	protected boolean drawGIF(Canvas canvas) {
-		if (mGifMovie == null)
-			return false;
+	protected void drawGIF(Canvas canvas) {
+		if (mGifMovie == null) {
+			return;
+		}
 
 		int duration = mGifMovie.duration();
 		if (duration == 0) {
@@ -523,21 +524,15 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 
 		long now = System.currentTimeMillis();
 
-		if (!isGifPaused)
-		{
-
-			if (mGifLastPlayTime != -1)
-			{
+		if (!isGifPaused) {
+			if (mGifLastPlayTime != -1) {
 				mGifProgress += now - mGifLastPlayTime;
 
-				if (mGifProgress > duration)
-				{
+				if (mGifProgress > duration) {
 					mGifProgress = 0;
 				}
 				mGifLastPlayTime = now;
-			}
-			else
-			{
+			} else {
 				mGifLastPlayTime = now;
 			}
 		}
@@ -549,12 +544,9 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 		mGifMovie.draw(canvas, mGifStartX, mGifStartY);
 		canvas.restore(); // 恢复变换矩阵
 
-		if (!isGifPaused)
-		{
+		if (!isGifPaused) {
 			postInvalidateDelayed(40);
 		}
-
-		return false;
 	}
 
 	protected boolean shouldFetchImage() {
