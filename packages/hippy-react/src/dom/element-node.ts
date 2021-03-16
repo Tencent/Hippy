@@ -191,52 +191,79 @@ class ElementNode extends ViewNode {
         return;
       }
 
-      switch (key) {
-        case 'id':
-          if (value === this.id) {
-            return;
-          }
-          this.id = value;
-          // update current node and child nodes
-          updateWithChildren(this);
-          return;
-        // Convert placeholder to char for interface.
-        case 'value':
-        case 'defaultValue':
-        case 'placeholder':
-          this.attributes[key] = unicodeToChar(value);
-          break;
-        // Text must be a text not a number.
-        case 'text':
-          this.attributes[key] = value;
-          break;
-        // FIXME: UpdateNode numberOfRows will makes Image flicker on Android.
-        //        So make it working on iOS only.
-        case 'numberOfRows':
-          this.attributes[key] = value;
-          if (Device.platform.OS !== 'ios') {
-            return;
-          }
-          break;
-        // There's no onPress event handler in Native
-        // Map to onClick event handler directly
-        case 'onPress':
-          this.attributes.onClick = true;
-          break;
-        case 'style': {
-          if (typeof value !== 'object' || value === undefined || value === null) {
-            return;
-          }
-          this.setStyleAttribute(value);
-          break;
-        }
-        default:
-          if (typeof value === 'function') {
-            this.attributes[key] = true;
-          } else {
+      const caseList = [
+        {
+          match: () => ['id'].indexOf(key) >= 0,
+          action: () => {
+            if (value === this.id) {
+              return true;
+            }
+            this.id = value;
+            // update current node and child nodes
+            updateWithChildren(this);
+            return true;
+          },
+        },
+        {
+          match: () => ['value', 'defaultValue', 'placeholder'].indexOf(key) >= 0,
+          action: () => {
+            this.attributes[key] = unicodeToChar(value);
+            return false;
+          },
+        },
+        {
+          match: () => ['text'].indexOf(key) >= 0,
+          action: () => {
             this.attributes[key] = value;
-          }
-      }
+            return false;
+          },
+        },
+        {
+          match: () => ['numberOfRows'].indexOf(key) >= 0,
+          action: () => {
+            this.attributes[key] = value;
+            return Device.platform.OS !== 'ios';
+          },
+        },
+        {
+          match: () => ['onPress'].indexOf(key) >= 0,
+          action: () => {
+            this.attributes.onClick = true;
+            return false;
+          },
+        },
+        {
+          match: () => ['style'].indexOf(key) >= 0,
+          action: () => {
+            if (typeof value !== 'object' || value === undefined || value === null) {
+              return true;
+            }
+            this.setStyleAttribute(value);
+            return false;
+          },
+        },
+        {
+          match: () => true,
+          action: () => {
+            if (typeof value === 'function') {
+              this.attributes[key] = true;
+            } else {
+              this.attributes[key] = value;
+            }
+            return false;
+          },
+        },
+      ];
+
+      let isNeedReturn = false;
+      caseList.some((conditionObj: { match: Function, action: Function }) => {
+        if (conditionObj.match()) {
+          isNeedReturn = conditionObj.action();
+          return true;
+        }
+        return false;
+      });
+      if (isNeedReturn) return;
 
       // Set useAnimation if animation exist in style
       let useAnimation = false;
