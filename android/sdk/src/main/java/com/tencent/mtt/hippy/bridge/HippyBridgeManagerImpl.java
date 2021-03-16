@@ -37,6 +37,7 @@ import com.tencent.mtt.hippy.modules.HippyModuleManager;
 import com.tencent.mtt.hippy.utils.ArgumentUtils;
 import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.GrowByteBuffer;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 
 import java.util.ArrayList;
@@ -327,6 +328,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 		}
 		catch (Throwable e)
 		{
+			LogUtils.d("HippyBridgeManagerImpl", "handleMessage: " + e.getMessage());
 		}
 		return false;
 	}
@@ -460,7 +462,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 
 	@Override
 	public void destroyBridge(Callback<Boolean> callback) {
-		mHandler = new Handler(mContext.getThreadExecutor().getJsThread().getLooper(), this);
+		assert (mHandler != null);
 		Message message = mHandler.obtainMessage(MSG_CODE_DESTROY_BRIDGE, callback);
 		mHandler.sendMessage(message);
 	}

@@ -23,12 +23,8 @@ import com.tencent.mtt.hippy.annotation.HippyMethod;
 import com.tencent.mtt.hippy.annotation.HippyNativeModule;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
+import com.tencent.mtt.hippy.utils.LogUtils;
 
-/**
- * FileName: UtilsModule
- * Description：harryguo 现在只有一个vibrate 震动
- * History：
- */
 @HippyNativeModule(name = "UtilsModule")
 public class UtilsModule extends HippyNativeModuleBase
 {
@@ -52,7 +48,9 @@ public class UtilsModule extends HippyNativeModuleBase
 					{
 						pattern[i] = (Integer) patternHippy.get(i);
 					}
-				} catch (Exception e) {}
+				} catch (Exception e) {
+					LogUtils.d("UtilsModule", "vibrate: " + e.getMessage());
+				}
 			}
 			// 默认一秒
 			if (pattern == null || pattern.length == 0)

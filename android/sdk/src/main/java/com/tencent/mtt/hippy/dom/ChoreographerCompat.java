@@ -28,7 +28,7 @@ import java.util.Map;
 public class ChoreographerCompat
 {
 
-	private static boolean				IS_JELLY_BEAN	= Build.VERSION.SDK_INT >= 16;
+	private final static boolean IS_JELLY_BEAN = Build.VERSION.SDK_INT >= 16;
 	private static ChoreographerCompat	sInstance;
 
 	private ChoreographerCompat()
@@ -45,7 +45,7 @@ public class ChoreographerCompat
 		return sInstance;
 	}
 
-	private Map<HippyChoreographer.FrameCallback, Choreographer.FrameCallback> mMapper = new HashMap<>();
+	private final Map<HippyChoreographer.FrameCallback, Choreographer.FrameCallback> mMapper = new HashMap<>();
 
 	public void postFrameCallback(final HippyChoreographer.FrameCallback callback)
 	{

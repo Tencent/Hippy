@@ -17,6 +17,7 @@
 
 package com.tencent.mtt.hippy.dom;
 
+import com.tencent.mtt.hippy.utils.LogUtils;
 import java.util.ArrayDeque;
 
 /**
@@ -74,7 +75,7 @@ public class HippyChoreographer
 				}
 				catch (Exception e)
 				{
-
+					LogUtils.d("HippyChoreographer", "postFrameCallback: " + e.getMessage());
 				}
 			}
 		}

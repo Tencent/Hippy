@@ -22,6 +22,7 @@ import com.tencent.mtt.hippy.adapter.http.HippyHttpRequest;
 import com.tencent.mtt.hippy.adapter.http.HippyHttpResponse;
 import com.tencent.mtt.hippy.modules.nativemodules.HippySettableFuture;
 
+import com.tencent.mtt.hippy.utils.LogUtils;
 import java.io.*;
 import java.util.Locale;
 
@@ -147,7 +148,7 @@ public class DevServerHelper
 					}
 					catch (Throwable e)
 					{
-						e.printStackTrace();
+						LogUtils.d("DevServerHelper", "fetchBundleFromURL: " + e.getMessage());
 					}
 					finally
 					{
@@ -159,6 +160,7 @@ public class DevServerHelper
 							}
 							catch (IOException e)
 							{
+								LogUtils.d("DevServerHelper", "fetchBundleFromURL: " + e.getMessage());
 							}
 						}
 					}
