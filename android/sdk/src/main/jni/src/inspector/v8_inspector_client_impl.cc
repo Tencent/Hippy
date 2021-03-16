@@ -82,6 +82,18 @@ void V8InspectorClientImpl::DestroyContext() {
   inspector_->contextDestroyed(context);
 }
 
+v8::Local<v8::Context> V8InspectorClientImpl::ensureDefaultContextInGroup(
+    int contextGroupId) {
+  std::shared_ptr<hippy::napi::V8Ctx> ctx =
+      std::static_pointer_cast<hippy::napi::V8Ctx>(scope_->GetContext());
+  v8::Isolate* isolate = ctx->isolate_;
+  v8::HandleScope handle_scope(isolate);
+  v8::Local<v8::Context> context =
+      v8::Local<v8::Context>::New(isolate, ctx->context_persistent_);
+  v8::Context::Scope context_scope(context);
+  return context;
+}
+
 void V8InspectorClientImpl::runMessageLoopOnPause(int contextGroupId) {
   scope_->GetTaskRunner()->PauseThreadForInspector();
 }
