@@ -28,17 +28,15 @@ public class LogUtils
         DEBUG_ENABLE = debuggable;
     }
 
-	public static int d(String tag, String msg) {
+	public static void d(String tag, String msg) {
 		if (DEBUG_ENABLE) {
-			return Log.d(tag, msg);
-		} else {
-			return 0;
+			Log.d(tag, msg);
 		}
 	}
 
-    public static int l(String tag, String msg) {
+    public static void l(String tag, String msg) {
         if (!DEBUG_ENABLE) {
-            return 0;
+            return;
         }
 
         int index = 0; // 当前位置
@@ -55,46 +53,37 @@ public class LogUtils
             index = max;
             max += 3800;
         }
-        return 0;
     }
 
-	public static int d(String tag,String msg,Throwable throwable) {
+	public static void d(String tag,String msg,Throwable throwable) {
         if (DEBUG_ENABLE) {
-            return Log.d(tag, msg,throwable);
-        } else {
-            return 0;
+            Log.d(tag, msg,throwable);
         }
     }
 
-    public static int w(String tag, String msg) {
+    public static void w(String tag, String msg) {
         if (DEBUG_ENABLE) {
-            return Log.w(tag, msg);
-        } else {
-            return 0;
+            Log.w(tag, msg);
         }
     }
 
-    public static int i(String tag, String msg) {
+    public static void i(String tag, String msg) {
         if (DEBUG_ENABLE) {
-            return Log.i(tag, msg);
-        } else {
-            return 0;
+            Log.i(tag, msg);
         }
     }
 
-    public static int v(String tag, String msg) {
+    public static void v(String tag, String msg) {
         if (DEBUG_ENABLE) {
-            return Log.v(tag, msg);
-        } else {
-            return 0;
+            Log.v(tag, msg);
         }
     }
 
-    public static int e(String tag, String msg) {
-        return Log.e(tag, msg);
+    public static void e(String tag, String msg) {
+        Log.e(tag, msg);
     }
 
-    public static int e(String tag, String msg, Throwable e) {
-        return Log.e(tag, msg,e);
+    public static void e(String tag, String msg, Throwable e) {
+        Log.e(tag, msg,e);
     }
 }

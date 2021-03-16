@@ -87,7 +87,7 @@ public class ArgumentUtils
 		}
 		catch (Throwable e)
 		{
-
+			LogUtils.d("ArgumentUtils", "fromJavaArgs: " + e.getMessage());
 		}
 		return array;
 	}

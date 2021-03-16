@@ -171,16 +171,15 @@ public class TypeFaceUtil
 			paint.setTypeface(Typeface.defaultFromStyle(want));
 		}
 	}
-	private static boolean deleteFontFile(String path) {
+	private static void deleteFontFile(String path) {
 		if (TextUtils.isEmpty(path)) {
-			return false;
+			return;
 		}
 		File file = new File(path);
 		boolean exists = file.exists();
 		if (exists) {
-			return file.delete();
+			file.delete();
 		}
-		return false;
 	}
 	private static void saveFontFile(String path, byte[] data) {
 		File file = new File(path);

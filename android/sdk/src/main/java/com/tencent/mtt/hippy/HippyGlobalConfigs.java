@@ -38,13 +38,8 @@ import com.tencent.mtt.hippy.adapter.soloader.DefaultSoLoaderAdapter;
 import com.tencent.mtt.hippy.adapter.soloader.HippySoLoaderAdapter;
 import com.tencent.mtt.hippy.adapter.storage.DefaultStorageAdapter;
 import com.tencent.mtt.hippy.adapter.storage.HippyStorageAdapter;
+import com.tencent.mtt.hippy.utils.LogUtils;
 
-/**
- * FileName: HippyGlobalConfigs
- * Description：
- * History：
- * 1.0 xiandongluo on 2017/11/13
- */
 public class HippyGlobalConfigs
 {
 	/**
@@ -163,7 +158,7 @@ public class HippyGlobalConfigs
 		}
 		catch (Throwable e)
 		{
-
+			LogUtils.d("HippyGlobalConfigs", "destroyIfNeed: " + e.getMessage());
 		}
 	}
 
