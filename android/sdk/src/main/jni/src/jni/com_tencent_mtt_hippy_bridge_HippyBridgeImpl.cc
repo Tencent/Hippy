@@ -34,10 +34,10 @@
 #include "core/core.h"
 #include "inspector/v8_inspector_client_impl.h"
 #include "jni/exception_handler.h"
-#include "jni/hippy_buffer.h"     
-#include "jni/jni_env.h"   
+#include "jni/hippy_buffer.h"
+#include "jni/jni_env.h"
 #include "jni/jni_utils.h"
-#include "jni/runtime.h"     
+#include "jni/runtime.h"
 #include "jni/scoped_java_ref.h"
 #include "jni/uri.h"
 #include "loader/asset_loader.h"
@@ -645,7 +645,12 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_callFunction(
     HIPPY_DLOG(hippy::Debug,
                "js callFunction action_name = %s, hippy_params = %s",
                action_name.c_str(), hippy_params.c_str());
-    std::shared_ptr<Ctx> context = runtime->GetScope()->GetContext();
+    std::shared_ptr<Scope> scope = runtime->GetScope();
+    if (!scope) {
+      HIPPY_LOG(hippy::Warning, "HippyBridgeImpl callFunction, scope invalid");
+      return;
+    }
+    std::shared_ptr<Ctx> context = scope->GetContext();
     if (runtime->IsDebug() && !action_name.compare("onWebsocketMsg")) {
       global_inspector->SendMessageToV8(hippy_params);
     } else {
