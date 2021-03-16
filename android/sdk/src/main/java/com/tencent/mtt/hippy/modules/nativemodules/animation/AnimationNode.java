@@ -20,25 +20,16 @@ import com.tencent.mtt.hippy.common.HippyMap;
 
 import java.util.ArrayList;
 
-/**
- * FileName: AnimationNode
- * Description：
- * History：
- */
 public class AnimationNode
 {
-	private int						mTagId;
+	private final int mTagId;
+	private final HippyRootView mRootView;
+	private final ArrayList<Animation> mAnimations;
+	private HippyMap mProps;
 
-	private HippyRootView			mRootView;
-
-	private HippyMap				mProps;
-
-	private ArrayList<Animation>	mAnimations;
-
-	public AnimationNode(int tagId, HippyRootView rootView)
-	{
-		this.mTagId = tagId;
-		this.mRootView = rootView;
+	public AnimationNode(int tagId, HippyRootView rootView) {
+		mTagId = tagId;
+		mRootView = rootView;
 		mAnimations = new ArrayList<>();
 	}
 

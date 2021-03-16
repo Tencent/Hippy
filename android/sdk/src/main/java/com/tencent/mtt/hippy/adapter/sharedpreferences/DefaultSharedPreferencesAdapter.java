@@ -18,15 +18,9 @@ package com.tencent.mtt.hippy.adapter.sharedpreferences;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-/**
- * FileName: DefaultSharedPreferencesAdapter
- * Description：
- * History：
- * 1.0 xiandongluo on 2017/11/13
- */
 public class DefaultSharedPreferencesAdapter implements HippySharedPreferencesAdapter {
 
-    private  Context mContext;
+    private final Context mContext;
     public DefaultSharedPreferencesAdapter(Context context){
         this.mContext = context;
     }

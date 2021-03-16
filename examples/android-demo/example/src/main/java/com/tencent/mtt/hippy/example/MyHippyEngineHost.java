@@ -27,7 +27,7 @@ import java.util.List;
 @Deprecated
 public class MyHippyEngineHost extends HippyEngineHost
 {
-	private Application	mApplication;
+	final private Application mApplication;
 
 	public MyHippyEngineHost(Application application)
 	{

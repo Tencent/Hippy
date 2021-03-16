@@ -27,18 +27,13 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/**
- * FileName: DefaultStorageAdapter
- * Description：
- * History：
- */
 public class DefaultStorageAdapter implements HippyStorageAdapter
 {
 
-	static final int			MAX_SQL_KEYS	= 999;
-	private IHippySQLiteHelper	mSQLiteHelper;
-	private Executor			mExecutor;
-	private ExecutorService 	mExecutorService;
+	static final int			     MAX_SQL_KEYS = 999;
+	private final IHippySQLiteHelper mSQLiteHelper;
+	private Executor			     mExecutor;
+	private ExecutorService 	     mExecutorService;
 
 	public DefaultStorageAdapter(Context context)
 	{

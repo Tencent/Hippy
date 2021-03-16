@@ -41,6 +41,7 @@ import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
 import com.tencent.mtt.hippy.utils.ContextHolder;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 
 import java.lang.reflect.Field;
@@ -450,21 +451,17 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 		}
 	}
 
-	private int getScreenHeight()
-	{
-		try
-		{
+	private int getScreenHeight() {
+		try {
 			Context context = ContextHolder.getAppContext();
 			android.view.WindowManager manager = (android.view.WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 			Display display = manager.getDefaultDisplay();
-			if (display != null)
-			{
+			if (display != null) {
 				int height = manager.getDefaultDisplay().getHeight();
 				return height;
 			}
-		}
-		catch (SecurityException e)
-		{
+		} catch (SecurityException e) {
+			LogUtils.d("HippyModalHostView", "getScreenHeight: " + e.getMessage());
 		}
 		return -1;
 	}

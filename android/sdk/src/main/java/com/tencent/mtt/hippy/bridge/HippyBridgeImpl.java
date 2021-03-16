@@ -271,9 +271,8 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 					if (mCodeCacheThreadExecutor != null) {
 						mCodeCacheThreadExecutor.shutdownNow();
 					}
-				}
-				catch (Throwable e) {
-
+				} catch (Throwable e) {
+					LogUtils.d("HippyBridgeImpl", "onDestroy: " + e.getMessage());
 				}
 				mCodeCacheThreadExecutor = null;
 			}
@@ -447,21 +446,15 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 		}
 	}
 
-	public void postCodeCacheRunnable(String codeCacheFile, long nativeRunnableId)
-	{
-		try
-		{
-			synchronized (sBridgeSyncLock)
-			{
-				if (mCodeCacheThreadExecutor != null)
-				{
+	public void postCodeCacheRunnable(String codeCacheFile, long nativeRunnableId) {
+		try {
+			synchronized (sBridgeSyncLock) {
+				if (mCodeCacheThreadExecutor != null) {
 					mCodeCacheThreadExecutor.execute(new CodeCacheRunnable(codeCacheFile, nativeRunnableId));
 				}
 			}
-		}
-		catch (Throwable e)
-		{
-
+		} catch (Throwable e) {
+			LogUtils.d("HippyBridgeImpl", "postCodeCacheRunnable: " + e.getMessage());
 		}
 	}
 

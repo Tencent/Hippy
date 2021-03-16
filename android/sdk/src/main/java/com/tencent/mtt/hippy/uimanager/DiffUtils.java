@@ -22,6 +22,7 @@ import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 
+import com.tencent.mtt.hippy.utils.LogUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -48,7 +49,7 @@ public class DiffUtils
 		}
 		catch (Throwable e)
 		{
-
+			LogUtils.d("DiffUtils", "diff: " + e.getMessage());
 		}
 
 		return patchTypes;

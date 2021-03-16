@@ -688,7 +688,7 @@ public class TextNode extends StyleNode
 		}
 		catch (Throwable e)
 		{
-
+			LogUtils.d("TextNode", "createLayout: " + e.getMessage());
 		}
 		float desiredWidth = boring == null ? Layout.getDesiredWidth(text, textPaint) : Float.NaN;
 

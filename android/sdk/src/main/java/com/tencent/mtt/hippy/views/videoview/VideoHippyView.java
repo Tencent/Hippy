@@ -1,5 +1,6 @@
 package com.tencent.mtt.hippy.views.videoview;
 
+import com.tencent.mtt.hippy.utils.LogUtils;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
@@ -907,6 +908,7 @@ public class VideoHippyView extends ScalableVideoView
 		}
 		catch (Exception e)
 		{
+			LogUtils.d("VideoHippyView", "selectTimedMetadataTrack: " + e.getMessage());
 		}
 	}
 }
