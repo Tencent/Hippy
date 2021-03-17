@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.5.4](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-native-components/compare/2.5.3...2.5.4) (2021-03-17)
+
+
+### Bug Fixes
+
+* **hippy-vue:** add child animation destroy logic ([e0404fa](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-native-components/commit/e0404fa8cb31612309c39c16d8fe8a967fac5300))
+
+
+
+
+
 ## [2.5.3](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-native-components/compare/2.5.2...2.5.3) (2021-03-10)
 
 **Note:** Version bump only for package @hippy/vue-native-components

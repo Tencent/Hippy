@@ -3,6 +3,32 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.5.4](https://github.com/Tencent/Hippy/compare/2.5.3...2.5.4) (2021-03-17)
+
+
+### Bug Fixes
+
+* **android:** add d8 setting for qq ([e001cdf](https://github.com/Tencent/Hippy/commit/e001cdfd1f5b9823da5bd6afa16958ba572a63c1))
+* **android:** as inspect code ([357aac2](https://github.com/Tencent/Hippy/commit/357aac29d74bf4d66c533ea2ef8e6a6efb7de849))
+* **android:** demo add onResume and onStop ([8435397](https://github.com/Tencent/Hippy/commit/8435397c7f85f0364e49b202da89f1642e60930e))
+* **android:** run fetch image on main thread ([bd3479e](https://github.com/Tencent/Hippy/commit/bd3479e29768c4ecdba6d0b54cf89cd3da222261))
+* **core:** add explicit ([22d3601](https://github.com/Tencent/Hippy/commit/22d360177162475bee7cc104aea4dc2ee1f11af3))
+* **core:** fix codecc ([f8212e4](https://github.com/Tencent/Hippy/commit/f8212e49ae7bac63590de6622447dfc50c9e9df4))
+* **core:** fix codecc warning ([#608](https://github.com/Tencent/Hippy/issues/608)) ([1077a79](https://github.com/Tencent/Hippy/commit/1077a7962a717f5151a8c3cc5da310d241560ce4))
+* **core:** fix scope nullptr bug ([3df0e8c](https://github.com/Tencent/Hippy/commit/3df0e8c229c0a2ef9abb442701e45993ba2f8671))
+* **hippy-vue:** add child animation destroy logic ([e0404fa](https://github.com/Tencent/Hippy/commit/e0404fa8cb31612309c39c16d8fe8a967fac5300))
+
+
+### Features
+
+* **core:** adapter 89 chrome dev tools ([#626](https://github.com/Tencent/Hippy/issues/626)) ([bab3d67](https://github.com/Tencent/Hippy/commit/bab3d67b632f867c4124396cac0c353d91e027db))
+* **ios:** add onInterceptPullUpEvent propery ([d46432f](https://github.com/Tencent/Hippy/commit/d46432f9e4a5c9ad4cc7ceb0193c55a7c9967e6d))
+* **layout:** format files ([5d18951](https://github.com/Tencent/Hippy/commit/5d18951a547efd1ea6d116f0704a863b5753fa0b))
+
+
+
+
+
 ## [2.5.3](https://github.com/Tencent/Hippy/compare/2.5.2...2.5.3) (2021-03-10)
 
 
