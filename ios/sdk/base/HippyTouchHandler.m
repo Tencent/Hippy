@@ -434,7 +434,7 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
                 [_onInterceptPullUpEventView addObject:view];
             }
         }
-        BOOL touchInterceptEvent = [_onInterceptTouchEventView count] || [_onInterceptTouchEventView count];
+        BOOL touchInterceptEvent = onInterceptTouchEvent || onInterceptPullUpEvent;
 
         if ((touchInterceptEvent && findActions.count == 0) || [view isKindOfClass:NSClassFromString(@"HippyRootContentView")]) {
             break;
