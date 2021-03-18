@@ -19,7 +19,7 @@ Hippy 2.2版本之前只支持加载单个js文件。随着业务越来越复杂
 
 ### 安装
 
-`npm install @tencent/hippy-dynamic-plugin`
+`npm install @hippy/hippy-dynamic-import-plugin`
 
 ### 使用
 
