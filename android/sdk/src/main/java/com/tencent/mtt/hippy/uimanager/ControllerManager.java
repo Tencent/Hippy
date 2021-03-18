@@ -173,12 +173,16 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener
 		return view;
 	}
 
-	public StyleNode createStyleNode(String className, boolean isVirtual)
-	{
-		return mControllerRegistry.getViewController(className).createNode(isVirtual);
-	}
+  public StyleNode createStyleNode(String className, boolean isVirtual, int rootId) {
+    StyleNode tempNode = mControllerRegistry.getViewController(className).createNode(isVirtual, rootId);
+    if (tempNode != null) {
+      return tempNode;
+    }
+    return mControllerRegistry.getViewController(className).createNode(isVirtual);
+  }
 
-	public void updateView(int id, String name, HippyMap newProps)
+
+  public void updateView(int id, String name, HippyMap newProps)
 	{
 		View view = mControllerRegistry.getView(id);
 		HippyViewController viewComponent = mControllerRegistry.getViewController(name);
