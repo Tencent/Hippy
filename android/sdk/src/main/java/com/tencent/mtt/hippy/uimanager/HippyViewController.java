@@ -44,7 +44,7 @@ import java.util.Map;
 public abstract class HippyViewController<T extends View & HippyViewBase> implements View.OnFocusChangeListener
 {
 	private static final String	TAG						     = "HippyViewController";
-	
+
 	private static MatrixUtil.MatrixDecompositionContext	sMatrixDecompositionContext		= new MatrixUtil.MatrixDecompositionContext();
 	private static double[]									sTransformDecompositionArray	= new double[16];
     private boolean bUserChageFocus = false;
@@ -137,6 +137,11 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 
 	}
 
+  protected StyleNode createNode(boolean isVirtual, int rootId)
+  {
+    return null;
+  }
+
 	protected StyleNode createNode(boolean isVirtual)
 	{
 		return new StyleNode();
@@ -170,7 +175,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 	/**
 	 * please use createViewImpl(Context context,HippyMap iniProps) instead ,it
 	 * will be removed no longer
-	 * 
+	 *
 	 * @param context
 	 * @return
 	 */
@@ -676,7 +681,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 
 	/***
 	 * batch complete
-	 * 
+	 *
 	 * @param view
 	 */
 	public void onBatchComplete(T view)
