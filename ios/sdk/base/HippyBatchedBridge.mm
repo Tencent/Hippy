@@ -1046,7 +1046,11 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     //    if (!_valid) {
     //        return nil;
     //    }
-
+    
+    if (moduleID >= [_moduleDataByID count]) {
+        HippyLogError(@"moduleID %lu exceed range of _moduleDataByID %lu, bridge is valid %ld", moduleID, [_moduleDataByID count], (long)_valid);
+        return nil;
+    }
     HippyModuleData *moduleData = _moduleDataByID[moduleID];
     if (HIPPY_DEBUG && !moduleData) {
         HippyLogError(@"No module found for id '%lu'", (unsigned long)moduleID);
@@ -1057,6 +1061,10 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
         if ([[moduleData name] isEqualToString:@"UIManager"]) {
             return nil;
         }
+    }
+    if (methodID >= [moduleData.methods count]) {
+        HippyLogError(@"methodID %lu exceed range of moduleData.methods %lu, bridge is valid %ld", moduleID, [moduleData.methods count], (long)_valid);
+        return nil;
     }
     id<HippyBridgeMethod> method = moduleData.methods[methodID];
     if (HIPPY_DEBUG && !method) {
