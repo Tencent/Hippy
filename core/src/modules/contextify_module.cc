@@ -166,9 +166,11 @@ void ContextifyModule::LoadUriContent(const CallbackInfo& info) {
         HIPPY_DLOG(hippy::Debug, "restore __HIPPYCURDIR__ = %s",
                    last_dir_str.c_str());
         if (try_catch->HasCaught()) {
-          error = ctx->CreateNull();
-        } else {
           error = try_catch->Exception();
+          HIPPY_LOG(hippy::Error, "LoadUriContent error = %s",
+                    try_catch->GetExceptionMsg().c_str());
+        } else {
+          error = ctx->CreateNull();
         }
       } else {
         error = ctx->CreateJsError(uri + " not found");
