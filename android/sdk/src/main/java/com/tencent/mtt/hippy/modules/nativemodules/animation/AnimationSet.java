@@ -34,7 +34,7 @@ public class AnimationSet extends Animation implements Animator.AnimatorListener
 	private static final int			ANIMATION_SET_STATUS_REPEATING	= 1;
 	private static final int			ANIMATION_SET_STATUS_END		= 2;
 
-	private AnimatorSet					mAnimatorSet;
+	private final AnimatorSet			mAnimatorSet;
 
 	private AnimatorSet.Builder			mLastBuilder;
 
@@ -51,7 +51,7 @@ public class AnimationSet extends Animation implements Animator.AnimatorListener
 	private int 						mCurrAnimationStatus			= ANIMATION_SET_STATUS_NONE;
 
 
-	private Animation.AnimationListener	mChildAnimationListener			= new AnimationListener()
+	private final Animation.AnimationListener mChildAnimationListener	= new AnimationListener()
 																		{
 																			@Override
 																			public void onAnimationStart(Animation animation)

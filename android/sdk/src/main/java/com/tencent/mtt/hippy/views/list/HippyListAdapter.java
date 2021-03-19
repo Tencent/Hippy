@@ -131,9 +131,9 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
 			{
 				toNode = mHippyContext.getRenderManager().getRenderNode(mParentRecyclerView.getId()).getChildAt(position);
 			}
-			catch (Throwable error)
+			catch (Throwable e)
 			{
-
+				LogUtils.d("HippyListAdapter", "onBindContentView: " + e.getMessage());
 			}
 			//保护下
 			if (toNode == null)

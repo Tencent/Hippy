@@ -36,11 +36,6 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-/**
- * FileName: AnimationModule
- * Description：
- * History：
- */
 @HippyNativeModule(name = "AnimationModule", thread = HippyNativeModule.Thread.DOM)
 public class AnimationModule extends HippyNativeModuleBase implements DomActionInterceptor, Animation.AnimationListener, Handler.Callback,
 		HippyEngineLifecycleEventListener
@@ -285,7 +280,7 @@ public class AnimationModule extends HippyNativeModuleBase implements DomActionI
 		}
 		catch (Throwable e)
 		{
-
+			LogUtils.d("AnimationModule", "createAnimationSet: " + e.getMessage());
 		}
 		mAnimations.append(animationId, animatorSet);
 	}
@@ -673,23 +668,18 @@ public class AnimationModule extends HippyNativeModuleBase implements DomActionI
 		}
 	}
 
-	private void updateAnimationNodeProps(AnimationNode node)
-	{
-		if (node == null)
-		{
+	private void updateAnimationNodeProps(AnimationNode node) {
+		if (node == null) {
 			return;
 		}
-		try
-		{
+		try {
 			HippyMap newProps = new HippyMap();
 			copyAndDealPropertys(node.getId(), node.getProps(), newProps, null);
 			newProps.pushBoolean(HANDLE_MESSAGE_BY_ANIMATION, true);
 
 			mContext.getDomManager().updateNode(node.getId(), newProps, node.getRootView());
-		}
-		catch (Throwable e)
-		{
-
+		} catch (Throwable e) {
+			LogUtils.d("AnimationModule", "updateAnimationNodeProps: " + e.getMessage());
 		}
 	}
 

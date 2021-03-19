@@ -39,6 +39,8 @@ class V8InspectorClientImpl : public v8_inspector::V8InspectorClient {
   void SendMessageToV8(const std::string& params);
   void CreateContext();
   void DestroyContext();
+  v8::Local<v8::Context> ensureDefaultContextInGroup(
+      int contextGroupId) override;
 
   void runMessageLoopOnPause(int contextGroupId) override;
   void quitMessageLoopOnPause() override;
@@ -59,10 +61,6 @@ class V8InspectorClientImpl : public v8_inspector::V8InspectorClient {
   }
   bool isInspectableHeapObject(v8::Local<v8::Object>) override { return true; }
 
-  v8::Local<v8::Context> ensureDefaultContextInGroup(
-      int contextGroupId) override {
-    return v8::Local<v8::Context>();
-  }
   void beginEnsureAllContextsInGroup(int contextGroupId) override {}
   void endEnsureAllContextsInGroup(int contextGroupId) override {}
 

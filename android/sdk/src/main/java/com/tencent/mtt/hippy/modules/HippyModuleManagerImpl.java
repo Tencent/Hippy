@@ -30,6 +30,7 @@ import com.tencent.mtt.hippy.modules.javascriptmodules.HippyJavaScriptModuleInvo
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleInfo;
 
+import com.tencent.mtt.hippy.utils.LogUtils;
 import java.lang.reflect.Proxy;
 import java.util.*;
 
@@ -344,6 +345,7 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
 				}
 				catch (Throwable e)
 				{
+					LogUtils.d("HippyModuleManagerImpl", "handleMessage: " + e.getMessage());
 				}
 				finally
 				{
@@ -367,7 +369,7 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
 				}
 				catch (Throwable e)
 				{
-
+					LogUtils.d("HippyModuleManagerImpl", "handleMessage: " + e.getMessage());
 				}
 				return true;
 			}
