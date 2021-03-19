@@ -175,7 +175,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 		catch (Throwable e)
 		{
 			mCurrentState = EngineState.INITERRORED;
-			notifyEngineInitialized(STATUS_INIT_EXCEPTION, e);
+			notifyEngineInitialized(EngineInitStatus.STATUS_INIT_EXCEPTION, e);
 		}
 	}
 
@@ -256,7 +256,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
 		if (mCurrentState == EngineState.DESTROYED)
 		{
-			notifyModuleLoaded(STATUS_WRONG_STATE, "load module error wrong state, Engine destroyed",view);
+			notifyModuleLoaded(ModuleLoadStatus.STATUS_ENGINE_UNINIT, "load module error wrong state, Engine destroyed", view);
 			return view;
 		}
 		if(onLoadCompleteListener != null)
@@ -269,16 +269,17 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 		view.attachEngineManager(this);
 		mInstances.add(view);
 		mDevSupportManager.attachToHost(view);
-		if (!mDevManagerInited && mDebugMode)
-		{
+		if (!mDevManagerInited && mDebugMode) {
 			mDevManagerInited = true;
 		}
 
 		LogUtils.d(TAG, "internalLoadInstance start...");
-		if (mCurrentState == EngineState.INITED)
+		if (mCurrentState == EngineState.INITED) {
 			internalLoadInstance(view);
-		else
-			notifyModuleLoaded(STATUS_WRONG_STATE, "error wrong state, Engine state not INITED, state:" + mCurrentState,view);
+		} else {
+			notifyModuleLoaded(ModuleLoadStatus.STATUS_ENGINE_UNINIT,
+					"error wrong state, Engine state not INITED, state:" + mCurrentState, view);
+		}
 
 		return view;
 	}
@@ -467,7 +468,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 	{
 		return mDebugMode;
 	}
-	private void notifyModuleLoaded(final int statusCode, final String msg,final HippyRootView hippyRootView)
+	private void notifyModuleLoaded(final ModuleLoadStatus statusCode, final String msg,final HippyRootView hippyRootView)
 	{
 		if (mModuleListener != null)
 		{
@@ -475,7 +476,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 			{
 			    if(mModuleListener != null)
 				{
-					mModuleListener.onInitialized(statusCode, msg,hippyRootView);
+					mModuleListener.onLoadCompleted(statusCode, msg,hippyRootView);
 					mModuleListener = null;
 				}
 			}
@@ -488,7 +489,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 					{
 						if(mModuleListener != null)
 						{
-							mModuleListener.onInitialized(statusCode, msg,hippyRootView);
+							mModuleListener.onLoadCompleted(statusCode, msg, hippyRootView);
 							mModuleListener = null;
 						}
 					}
@@ -497,7 +498,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 		}
 	}
 
-	void notifyEngineInitialized(int statusCode, Throwable e)
+	void notifyEngineInitialized(EngineInitStatus statusCode, Throwable e)
 	{
 		mHandler.removeMessages(MSG_ENGINE_INIT_TIMEOUT);
 		if (mPreloadBundleLoader != null)
@@ -519,7 +520,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 		}
 		else
 		{
-			final int code = statusCode;
+			final EngineInitStatus code = statusCode;
 			final Throwable error = e;
 			UIThreadUtils.runOnUiThread(new Runnable()
 			{
@@ -559,7 +560,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 		{
 			String errorMsg = "restartEngineInBackground... error STATUS_WRONG_STATE, state=" + mCurrentState;
 			LogUtils.e(TAG, errorMsg);
-			notifyEngineInitialized(STATUS_WRONG_STATE, new Throwable(errorMsg));
+			notifyEngineInitialized(EngineInitStatus.STATUS_WRONG_STATE, new Throwable(errorMsg));
 			return;
 		}
 		mStartTimeMonitor.begine();
@@ -579,7 +580,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 				if (mCurrentState != EngineState.INITING && mCurrentState != EngineState.ONRESTART)
 				{
 					LogUtils.e(TAG, "initBridge callback error STATUS_WRONG_STATE, state=" + mCurrentState);
-					notifyEngineInitialized(STATUS_WRONG_STATE, e);
+					notifyEngineInitialized(EngineInitStatus.STATUS_WRONG_STATE, e);
 					return;
 				}
 				mStartTimeMonitor.startEvent(HippyEngineMonitorEvent.ENGINE_LOAD_EVENT_NOTIFY_ENGINE_INITED);
@@ -592,12 +593,12 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 				mCurrentState = param ? EngineState.INITED : EngineState.INITERRORED;
 				if (state != EngineState.ONRESTART)
 				{
-					notifyEngineInitialized(param ? STATUS_OK : STATUS_ERR_BRIDGE, e);
+					notifyEngineInitialized(param ? EngineInitStatus.STATUS_OK : EngineInitStatus.STATUS_ERR_BRIDGE, e);
 				}
 				else
 				{
 					LogUtils.e(TAG, "initBridge callback error STATUS_WRONG_STATE, state=" + mCurrentState);
-					notifyEngineInitialized(STATUS_WRONG_STATE, e);
+					notifyEngineInitialized(EngineInitStatus.STATUS_WRONG_STATE, e);
 					mStartTimeMonitor.end();
 				}
 			}
@@ -614,9 +615,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
 	private void internalLoadInstance(HippyRootView instance)
 	{
-		if (mEngineContext == null || instance == null)
-		{
-			notifyModuleLoaded(STATUS_VARIABLE_UNINIT, "load module error. mEngineContext=" + mEngineContext + ", HippyRootView instance=" + instance,instance);
+		if (mEngineContext == null || instance == null) {
+			notifyModuleLoaded(ModuleLoadStatus.STATUS_VARIABLE_NULL, "load module error. mEngineContext=" + mEngineContext + ", HippyRootView instance=" + instance, instance);
 			return;
 		}
 		LogUtils.d(TAG, "in internalLoadInstance");
@@ -629,22 +629,19 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 		instance.attachToEngine(mEngineContext);
 		HippyMap launchParams = instance.getLaunchParams();
 		HippyBundleLoader loader = ((HippyInstanceContext) instance.getContext()).getBundleLoader();
-		if (!mDebugMode && loader != null)
-		{
+		if (!mDebugMode && loader != null) {
 			if (loader != null) {
 			    instance.getTimeMonitor().startEvent(HippyEngineMonitorEvent.MODULE_LOAD_EVENT_WAIT_LOAD_BUNDLE);
 				mEngineContext.getBridgeManager().runBundle(instance.getId(), loader, mModuleListener, instance);
-			}
-			else
-			{
-				notifyModuleLoaded(STATUS_VARIABLE_UNINIT, "load module error. loader null", instance);
+			} else {
+				notifyModuleLoaded(ModuleLoadStatus.STATUS_VARIABLE_NULL, "load module error. loader==null", instance);
 				return;
 			}
 		}
 		LogUtils.d(TAG, "in internalLoadInstance before loadInstance");
 		mEngineContext.getBridgeManager().loadInstance(instance.getName(), instance.getId(), launchParams);
 		if (mDebugMode)
-			notifyModuleLoaded(STATUS_OK, null, instance);
+			notifyModuleLoaded(ModuleLoadStatus.STATUS_OK, null, instance);
 	}
 
 	@Override
@@ -714,7 +711,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 	{
 		mCurrentState = EngineState.INITED;
 		mDevManagerInited = false;
-		notifyEngineInitialized(STATUS_ERR_DEVSERVER, e);
+		notifyEngineInitialized(EngineInitStatus.STATUS_ERR_DEVSERVER, e);
 	}
 
 	@Override
