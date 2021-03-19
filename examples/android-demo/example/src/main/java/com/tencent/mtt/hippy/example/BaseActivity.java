@@ -7,7 +7,9 @@ import android.os.Bundle;
 import android.view.Window;
 
 import com.tencent.mtt.hippy.HippyEngine;
+import com.tencent.mtt.hippy.HippyEngine.EngineInitStatus;
 import com.tencent.mtt.hippy.HippyEngine.EngineListener;
+import com.tencent.mtt.hippy.HippyEngine.ModuleLoadStatus;
 import com.tencent.mtt.hippy.HippyEngineManager;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.HippyRootViewParams;
@@ -36,7 +38,7 @@ public class BaseActivity extends Activity implements EngineListener, DeviceEven
 		getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 
 		mHost = new MyHippyEngineHost(BaseActivity.this.getApplication());
-    mEngineManager = mHost.createDebugHippyEngineManager("index.bundle");
+		mEngineManager = mHost.createDebugHippyEngineManager("index.bundle");
 		mEngineManager.addEngineEventListener(this);
 		mEngineManager.initEngineInBackground();
 
@@ -90,36 +92,36 @@ public class BaseActivity extends Activity implements EngineListener, DeviceEven
 
 
 	@Override
-	public void onInitialized(int i, String s) {
-    HippyRootViewParams.Builder builder = new HippyRootViewParams.Builder();
-    HippyMap params = new HippyMap();
-    HippyAssetBundleLoader hippyAssetBundleLoader = new HippyAssetBundleLoader(this,"index.android.js");
-    if(!mEngineManager.isDebugMode())
-    {
-      builder.setBundleLoader(hippyAssetBundleLoader);
-    }
-    builder.setActivity(BaseActivity.this).setName("Demo")
-      .setLaunchParams(params);
-    mInstance = mEngineManager.loadInstance(builder.build(), new HippyEngine.ModuleListener() {
+	public void onInitialized(EngineInitStatus i, String s) {
+		HippyRootViewParams.Builder builder = new HippyRootViewParams.Builder();
+		HippyMap params = new HippyMap();
+		HippyAssetBundleLoader hippyAssetBundleLoader = new HippyAssetBundleLoader(this,"index.android.js");
+		if(!mEngineManager.isDebugMode())
+		{
+			builder.setBundleLoader(hippyAssetBundleLoader);
+		}
+		builder.setActivity(BaseActivity.this).setName("Demo")
+				.setLaunchParams(params);
+		mInstance = mEngineManager.loadInstance(builder.build(), new HippyEngine.ModuleListener() {
 
-        // Hippy模块加载监听
-        /**
-         * @param  statusCode status code from initializing procedure
-         * @param  msg Message from initializing procedure
-         */
-        @Override
-        public void onInitialized(int statusCode, String msg,HippyRootView hippyRootView) {
-          if (statusCode == 0) {
+					// Hippy模块加载监听
+					/**
+					 * @param  statusCode status code from initializing procedure
+					 * @param  msg Message from initializing procedure
+					 */
+					@Override
+					public void onLoadCompleted(ModuleLoadStatus statusCode, String msg, HippyRootView hippyRootView) {
+						if (statusCode == ModuleLoadStatus.STATUS_OK) {
 
-          }
-        }
+						}
+					}
 
-        @Override
-        public boolean onJsException(HippyJsException exception) {
-          return true;
-        }
-      }
-    );
-    setContentView(mInstance);
+					@Override
+					public boolean onJsException(HippyJsException exception) {
+						return true;
+					}
+				}
+		);
+		setContentView(mInstance);
 	}
 }

@@ -6,6 +6,8 @@ import android.view.Window;
 
 import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyAPIProvider;
+import com.tencent.mtt.hippy.HippyEngine.EngineInitStatus;
+import com.tencent.mtt.hippy.HippyEngine.ModuleLoadStatus;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.adapter.exception.HippyExceptionHandlerAdapter;
 import com.tencent.mtt.hippy.common.HippyJsException;
@@ -80,8 +82,8 @@ public class MyActivity extends Activity
 				 *         Message from initializing procedure
 				 */
 				@Override
-				public void onInitialized(int statusCode, String msg) {
-					if (statusCode != 0)
+				public void onInitialized(EngineInitStatus statusCode, String msg) {
+					if (statusCode != EngineInitStatus.STATUS_OK)
 						LogUtils.e("MyActivity", "hippy engine init failed code:" + statusCode + ", msg=" + msg);
 					// else
 					{
@@ -112,7 +114,19 @@ public class MyActivity extends Activity
 						loadParams.jsParams = new HippyMap();
 						loadParams.jsParams.pushString("msgFromNative", "Hi js developer, I come from native code!");
 						// 加载Hippy前端模块
-						mHippyView = mHippyEngine.loadModule(loadParams);
+						mHippyView = mHippyEngine.loadModule(loadParams, new HippyEngine.ModuleListener() {
+							@Override
+							public void onLoadCompleted(ModuleLoadStatus statusCode, String msg, HippyRootView hippyRootView) {
+								if (statusCode != ModuleLoadStatus.STATUS_OK) {
+									LogUtils.e("MyActivity", "loadModule failed code:" + statusCode + ", msg=" + msg);
+								}
+							}
+
+							@Override
+							public boolean onJsException(HippyJsException exception) {
+								return true;
+							}
+						});
 
 						setContentView(mHippyView);
 					}
