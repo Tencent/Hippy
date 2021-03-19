@@ -717,7 +717,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_destroy(
 
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
   task->callback = [runtime, runtime_id] {
-    HIPPY_LOG(hippy::Debug, "js destroy");
+    HIPPY_LOG(hippy::Debug, "js destroy begin");
     if (runtime->IsDebug()) {
       global_inspector->DestroyContext();
       global_inspector->Reset(nullptr, runtime->GetBridge());
@@ -726,8 +726,10 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_destroy(
     }
 
     runtime->SetScope(nullptr);
+    HIPPY_LOG(hippy::Debug, "erase runtime");
     Runtime::Erase(runtime);
     Runtime::ReleaseKey(runtime_id);
+    HIPPY_LOG(hippy::Debug, "js destroy end");
   };
   int64_t group = runtime->GetGroupId();
   if (group == kDebuggerEngineId) {
