@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy.utils;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.content.res.Resources.NotFoundException;
 import android.os.Build;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -120,9 +121,11 @@ public class DimensionsUtil
 				? NAV_BAR_HEIGHT_RES_NAME : NAV_BAR_HEIGHT_LANDSCAPE_RES_NAME;
 
 		int result = 0;
-		int resourceId = context.getResources().getIdentifier(navBarHeightIdentifier,"dimen", "android");
-		if (resourceId > 0) {
+		try {
+			int resourceId = context.getResources().getIdentifier(navBarHeightIdentifier,"dimen", "android");
 			result = context.getResources().getDimensionPixelSize(resourceId);
+		} catch (NotFoundException e) {
+			LogUtils.d("DimensionsUtil", "getNavigationBarHeight: " + e.getMessage());
 		}
 		return result;
 	}
@@ -174,8 +177,12 @@ public class DimensionsUtil
 			}
 
 			if (STATUS_BAR_HEIGHT < 1) {
-				int statebarH_id = context.getResources().getIdentifier("statebar_height", "dimen", context.getPackageName());
-				STATUS_BAR_HEIGHT = Math.round(context.getResources().getDimension(statebarH_id));
+				try {
+					int statebarH_id = context.getResources().getIdentifier("statebar_height", "dimen", context.getPackageName());
+					STATUS_BAR_HEIGHT = Math.round(context.getResources().getDimension(statebarH_id));
+				} catch (NotFoundException e) {
+					LogUtils.d("DimensionsUtil", "getDimensions: " + e.getMessage());
+				}
 			}
 		}
 
