@@ -16,6 +16,7 @@
 package com.tencent.mtt.hippy.uimanager;
 
 import android.annotation.SuppressLint;
+import android.content.res.Resources.NotFoundException;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
@@ -443,11 +444,14 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener
 			e1.printStackTrace();
 		}
 
-		if (statusBarHeight < 1)
-		{
-			int statebarH_id = ContextHolder.getAppContext().getResources()
-					.getIdentifier("statebar_height", "dimen", ContextHolder.getAppContext().getPackageName());
-			statusBarHeight = Math.round(ContextHolder.getAppContext().getResources().getDimension(statebarH_id));
+		if (statusBarHeight < 1) {
+			try {
+				int statebarH_id = ContextHolder.getAppContext().getResources()
+						.getIdentifier("statebar_height", "dimen", ContextHolder.getAppContext().getPackageName());
+				statusBarHeight = Math.round(ContextHolder.getAppContext().getResources().getDimension(statebarH_id));
+			} catch (NotFoundException e) {
+				LogUtils.d("ControllerManager", "getStatusBarHeightFromSystem: " + e.getMessage());
+			}
 		}
 		return statusBarHeight;
 	}

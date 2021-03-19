@@ -23,6 +23,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
+import android.content.res.Resources.NotFoundException;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Build;
@@ -243,8 +244,7 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 
 	public static int getStatusBarHeightFromSystem()
 	{
-		if (statusBarHeight > 0)
-		{
+		if (statusBarHeight > 0) {
 			return statusBarHeight;
 		}
 
@@ -252,31 +252,25 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 		Object obj = null;
 		Field field = null;
 		int x = 0;
-		try
-		{
+		try {
 			c = Class.forName("com.android.internal.R$dimen");
 			obj = c.newInstance();
 			field = c.getField("status_bar_height");
 			x = Integer.parseInt(field.get(obj).toString());
 			statusBarHeight = ContextHolder.getAppContext().getResources().getDimensionPixelSize(x);
-		}
-		catch (Exception e1)
-		{
+		} catch (Exception e1) {
 			statusBarHeight = -1;
 			e1.printStackTrace();
 		}
-		if (statusBarHeight < 1)
-		{
-			try
-			{
+
+		if (statusBarHeight < 1) {
+			try {
 				int statebarH_id = ContextHolder.getAppContext().getResources().getIdentifier("statebar_height", "dimen",
 						ContextHolder.getAppContext().getPackageName());
 				statusBarHeight = Math.round(ContextHolder.getAppContext().getResources().getDimension(statebarH_id));
-			}
-			catch (Exception e)
-			{
-				statusBarHeight = -1;
-				e.printStackTrace();
+			} catch (NotFoundException e) {
+				LogUtils.d("HippyModalHostView", "getStatusBarHeightFromSystem: " + e.getMessage());
+				statusBarHeight = 0;
 			}
 		}
 		return statusBarHeight;
