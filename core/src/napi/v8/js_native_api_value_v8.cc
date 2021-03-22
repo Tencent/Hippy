@@ -34,7 +34,7 @@ namespace napi {
 std::shared_ptr<CtxValue> V8Ctx::CreateNumber(double number) {
   v8::HandleScope isolate_scope(isolate_);
 
-  v8::Handle<v8::Value> v8_number = v8::Number::New(isolate_, number);
+  v8::Local<v8::Value> v8_number = v8::Number::New(isolate_, number);
   if (v8_number.IsEmpty()) {
     return nullptr;
   }
@@ -44,7 +44,7 @@ std::shared_ptr<CtxValue> V8Ctx::CreateNumber(double number) {
 std::shared_ptr<CtxValue> V8Ctx::CreateBoolean(bool b) {
   v8::HandleScope isolate_scope(isolate_);
 
-  v8::Handle<v8::Boolean> v8_boolean = v8::Boolean::New(isolate_, b);
+  v8::Local<v8::Boolean> v8_boolean = v8::Boolean::New(isolate_, b);
   if (v8_boolean.IsEmpty()) {
     return nullptr;
   }
@@ -57,9 +57,9 @@ std::shared_ptr<CtxValue> V8Ctx::CreateString(const char *string) {
   }
   v8::HandleScope isolate_scope(isolate_);
 
-  v8::Handle<v8::String> v8_string =
-      v8::String::NewFromUtf8(isolate_, string, v8::NewStringType::kNormal)
-          .FromMaybe(v8::Local<v8::String>());
+  v8::Local<v8::String> v8_string = TO_LOCAL_UNCHECKED(
+      v8::String::NewFromUtf8(isolate_, string, v8::NewStringType::kNormal),
+      v8::String);
   if (v8_string.IsEmpty()) {
     return nullptr;
   }
@@ -69,7 +69,7 @@ std::shared_ptr<CtxValue> V8Ctx::CreateString(const char *string) {
 std::shared_ptr<CtxValue> V8Ctx::CreateUndefined() {
   v8::HandleScope isolate_scope(isolate_);
 
-  v8::Handle<v8::Value> undefined = v8::Undefined(isolate_);
+  v8::Local<v8::Value> undefined = v8::Undefined(isolate_);
   if (undefined.IsEmpty()) {
     return nullptr;
   }
@@ -79,32 +79,39 @@ std::shared_ptr<CtxValue> V8Ctx::CreateUndefined() {
 std::shared_ptr<CtxValue> V8Ctx::CreateNull() {
   v8::HandleScope isolate_scope(isolate_);
 
-  v8::Handle<v8::Value> v8Null = v8::Null(isolate_);
+  v8::Local<v8::Value> v8Null = v8::Null(isolate_);
   if (v8Null.IsEmpty()) {
     return nullptr;
   }
   return std::make_shared<V8CtxValue>(isolate_, v8Null);
 }
 
-v8::Handle<v8::Value> V8Ctx::ParseJson(const char *json) {
+v8::Local<v8::Value> V8Ctx::ParseJson(const char *json) {
   v8::HandleScope handle_scope(isolate_);
-  v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
 
-  v8::Handle<v8::Object> global = context->Global();
-  v8::Handle<v8::Value> json_cls = global->Get(
-      v8::String::NewFromUtf8(isolate_, "JSON", v8::NewStringType::kNormal)
-          .FromMaybe(v8::Local<v8::String>()));
-  v8::Handle<v8::Value> json_parse_func =
-      v8::Handle<v8::Object>::Cast(json_cls)->Get(
-          v8::String::NewFromUtf8(isolate_, "parse", v8::NewStringType::kNormal)
-              .FromMaybe(v8::Local<v8::String>()));
-  v8::Handle<v8::String> v8_str =
-      v8::String::NewFromUtf8(isolate_, json, v8::NewStringType::kNormal)
-          .FromMaybe(v8::Local<v8::String>());
-  v8::Handle<v8::Value> argv[1] = {v8_str};
-  return v8::Handle<v8::Function>::Cast(json_parse_func)
-      ->Call(json_cls, 1, argv);
+  v8::Local<v8::Object> global = context->Global();
+  v8::Local<v8::Value> json_cls = TO_LOCAL_UNCHECKED(
+      global->Get(context, TO_LOCAL_UNCHECKED(v8::String::NewFromUtf8(
+                                                  isolate_, "JSON",
+                                                  v8::NewStringType::kNormal),
+                                              v8::String)),
+      v8::Value);
+  v8::Local<v8::Value> json_parse_func = TO_LOCAL_UNCHECKED(
+      v8::Local<v8::Object>::Cast(json_cls)->Get(
+          context,
+          TO_LOCAL_UNCHECKED(v8::String::NewFromUtf8(
+                                 isolate_, "parse", v8::NewStringType::kNormal),
+                             v8::String)),
+      v8::Value);
+  v8::Local<v8::String> v8_str = TO_LOCAL_UNCHECKED(
+      v8::String::NewFromUtf8(isolate_, json, v8::NewStringType::kNormal),
+      v8::String);
+  v8::Local<v8::Value> argv[1] = {v8_str};
+  return TO_LOCAL_UNCHECKED(v8::Local<v8::Function>::Cast(json_parse_func)
+                                ->Call(context, json_cls, 1, argv),
+                            v8::Value);
 }
 
 std::shared_ptr<CtxValue> V8Ctx::CreateObject(const char *json) {
@@ -112,7 +119,7 @@ std::shared_ptr<CtxValue> V8Ctx::CreateObject(const char *json) {
     return nullptr;
   }
 
-  v8::Handle<v8::Value> object = ParseJson(json);
+  v8::Local<v8::Value> object = ParseJson(json);
   if (object.IsEmpty()) {
     return nullptr;
   }
@@ -127,17 +134,20 @@ std::shared_ptr<CtxValue> V8Ctx::CreateArray(
   }
   v8::HandleScope handle_scope(isolate_);
 
-  v8::Handle<v8::Array> array = v8::Array::New(isolate_, count);
+  v8::Local<v8::Array> array = v8::Array::New(isolate_, count);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
   for (size_t i = 0; i < count; i++) {
     std::shared_ptr<V8CtxValue> ctx_value =
         std::static_pointer_cast<V8CtxValue>(value[i]);
-    const v8::Persistent<v8::Value> &persistent_value =
-        ctx_value->persisent_value_;
-    v8::Handle<v8::Value> handle_value =
-        v8::Handle<v8::Value>::New(isolate_, persistent_value);
-    array->Set(i, handle_value);
+    const v8::Global<v8::Value> &global_value =
+        ctx_value->global_value_;
+    v8::Local<v8::Value> handle_value =
+        v8::Local<v8::Value>::New(isolate_, global_value);
+    if (!array->Set(context, i, handle_value).FromMaybe(false)) {
+      HIPPY_DLOG(hippy::Debug, "set array item failed");
+      return nullptr;
+    }
   }
   return std::make_shared<V8CtxValue>(isolate_, array);
 }
@@ -147,10 +157,10 @@ std::shared_ptr<CtxValue> V8Ctx::CreateJsError(const std::string &msg) {
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
-  v8::Handle<v8::Value> error = v8::Exception::Error(
+  v8::Local<v8::Value> error = v8::Exception::Error(TO_LOCAL_UNCHECKED(
       v8::String::NewFromUtf8(isolate_, msg.c_str(), v8::NewStringType::kNormal,
-                              msg.length())
-          .FromMaybe(v8::Local<v8::String>()));
+                              msg.length()),
+      v8::String));
   if (error.IsEmpty()) {
     HIPPY_DLOG(hippy::Debug, "error is empty");
     return nullptr;
@@ -170,10 +180,10 @@ bool V8Ctx::GetValueNumber(std::shared_ptr<CtxValue> value, double *result) {
   v8::Context::Scope context_scope(context);
   std::shared_ptr<V8CtxValue> ctx_value =
       std::static_pointer_cast<V8CtxValue>(value);
-  const v8::Persistent<v8::Value> &persistent_value =
-      ctx_value->persisent_value_;
-  v8::Handle<v8::Value> handle_value =
-      v8::Handle<v8::Value>::New(isolate_, persistent_value);
+  const v8::Global<v8::Value> &global_value =
+      ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, global_value);
 
   if (handle_value.IsEmpty() || !handle_value->IsNumber()) {
     return false;
@@ -198,10 +208,10 @@ bool V8Ctx::GetValueNumber(std::shared_ptr<CtxValue> value, int32_t *result) {
   v8::Context::Scope context_scope(context);
   std::shared_ptr<V8CtxValue> ctx_value =
       std::static_pointer_cast<V8CtxValue>(value);
-  const v8::Persistent<v8::Value> &persistent_value =
-      ctx_value->persisent_value_;
-  v8::Handle<v8::Value> handle_value =
-      v8::Handle<v8::Value>::New(isolate_, persistent_value);
+  const v8::Global<v8::Value> &global_value =
+      ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, global_value);
 
   if (handle_value.IsEmpty() || !handle_value->IsInt32()) {
     return false;
@@ -225,16 +235,16 @@ bool V8Ctx::GetValueBoolean(std::shared_ptr<CtxValue> value, bool *result) {
   v8::Context::Scope context_scope(context);
   std::shared_ptr<V8CtxValue> ctx_value =
       std::static_pointer_cast<V8CtxValue>(value);
-  const v8::Persistent<v8::Value> &persistent_value =
-      ctx_value->persisent_value_;
-  v8::Handle<v8::Value> handle_value =
-      v8::Handle<v8::Value>::New(isolate_, persistent_value);
+  const v8::Global<v8::Value> &global_value =
+      ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, global_value);
 
   if (handle_value.IsEmpty() || !handle_value->IsBoolean()) {
     return false;
   }
 
-  v8::Handle<v8::Boolean> boolean = handle_value->ToBoolean(isolate_);
+  v8::Local<v8::Boolean> boolean = handle_value->ToBoolean(isolate_);
   if (boolean.IsEmpty()) {
     return false;
   }
@@ -254,10 +264,10 @@ bool V8Ctx::GetValueString(std::shared_ptr<CtxValue> value,
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
-  const v8::Persistent<v8::Value> &persistent_value =
-      ctx_value->persisent_value_;
-  v8::Handle<v8::Value> handle_value =
-      v8::Handle<v8::Value>::New(isolate_, persistent_value);
+  const v8::Global<v8::Value> &global_value =
+      ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, global_value);
   if (handle_value.IsEmpty()) {
     return false;
   }
@@ -279,10 +289,10 @@ bool V8Ctx::GetValueJson(std::shared_ptr<CtxValue> value, std::string *result) {
   v8::Context::Scope context_scope(context);
   std::shared_ptr<V8CtxValue> ctx_value =
       std::static_pointer_cast<V8CtxValue>(value);
-  const v8::Persistent<v8::Value> &persistent_value =
-      ctx_value->persisent_value_;
-  v8::Handle<v8::Value> handle_value =
-      v8::Handle<v8::Value>::New(isolate_, persistent_value);
+  const v8::Global<v8::Value> &global_value =
+      ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, global_value);
   if (handle_value.IsEmpty() || !handle_value->IsObject()) {
     return false;
   }
@@ -293,7 +303,7 @@ bool V8Ctx::GetValueJson(std::shared_ptr<CtxValue> value, std::string *result) {
     return false;
   }
 
-  v8::Handle<v8::String> v8String = v8MaybeString.ToLocalChecked();
+  v8::Local<v8::String> v8String = v8MaybeString.ToLocalChecked();
   v8::String::Utf8Value utf8Value(isolate_, v8String);
   *result = *utf8Value;
   return true;
@@ -310,10 +320,10 @@ bool V8Ctx::IsArray(std::shared_ptr<CtxValue> value) {
   v8::Context::Scope context_scope(context);
   std::shared_ptr<V8CtxValue> ctx_value =
       std::static_pointer_cast<V8CtxValue>(value);
-  const v8::Persistent<v8::Value> &persistent_value =
-      ctx_value->persisent_value_;
-  v8::Handle<v8::Value> handle_value =
-      v8::Handle<v8::Value>::New(isolate_, persistent_value);
+  const v8::Global<v8::Value> &global_value =
+      ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, global_value);
 
   if (handle_value.IsEmpty()) {
     return false;
@@ -330,10 +340,10 @@ uint32_t V8Ctx::GetArrayLength(std::shared_ptr<CtxValue> value) {
   v8::Context::Scope context_scope(context);
   std::shared_ptr<V8CtxValue> ctx_value =
       std::static_pointer_cast<V8CtxValue>(value);
-  const v8::Persistent<v8::Value> &persistent_value =
-      ctx_value->persisent_value_;
-  v8::Handle<v8::Value> handle_value =
-      v8::Handle<v8::Value>::New(isolate_, persistent_value);
+  const v8::Global<v8::Value> &global_value =
+      ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, global_value);
 
   if (handle_value.IsEmpty()) {
     return 0;
@@ -358,10 +368,10 @@ std::shared_ptr<CtxValue> V8Ctx::CopyArrayElement(
   v8::Context::Scope context_scope(context);
   std::shared_ptr<V8CtxValue> ctx_value =
       std::static_pointer_cast<V8CtxValue>(value);
-  const v8::Persistent<v8::Value> &persistent_value =
-      ctx_value->persisent_value_;
-  v8::Handle<v8::Value> handle_value =
-      v8::Handle<v8::Value>::New(isolate_, persistent_value);
+  const v8::Global<v8::Value> &global_value =
+      ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, global_value);
 
   if (handle_value.IsEmpty()) {
     return nullptr;
@@ -391,10 +401,10 @@ bool V8Ctx::HasNamedProperty(std::shared_ptr<CtxValue> value,
   v8::Context::Scope context_scope(context);
   std::shared_ptr<V8CtxValue> ctx_value =
       std::static_pointer_cast<V8CtxValue>(value);
-  const v8::Persistent<v8::Value> &persistent_value =
-      ctx_value->persisent_value_;
-  v8::Handle<v8::Value> handle_value =
-      v8::Handle<v8::Value>::New(isolate_, persistent_value);
+  const v8::Global<v8::Value> &global_value =
+      ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, global_value);
 
   if (handle_value.IsEmpty()) {
     return false;
@@ -402,9 +412,9 @@ bool V8Ctx::HasNamedProperty(std::shared_ptr<CtxValue> value,
 
   if (handle_value->IsMap()) {
     v8::Map *map = v8::Map::Cast(*handle_value);
-    v8::Local<v8::String> key =
-        v8::String::NewFromUtf8(isolate_, utf8name, v8::NewStringType::kNormal)
-            .FromMaybe(v8::Local<v8::String>());
+    v8::Local<v8::String> key = TO_LOCAL_UNCHECKED(
+        v8::String::NewFromUtf8(isolate_, utf8name, v8::NewStringType::kNormal),
+        v8::String);
     if (key.IsEmpty()) {
       return false;
     }
@@ -426,10 +436,10 @@ std::shared_ptr<CtxValue> V8Ctx::CopyNamedProperty(
   v8::Context::Scope context_scope(context);
   std::shared_ptr<V8CtxValue> ctx_value =
       std::static_pointer_cast<V8CtxValue>(value);
-  const v8::Persistent<v8::Value> &persistent_value =
-      ctx_value->persisent_value_;
-  v8::Handle<v8::Value> handle_value =
-      v8::Handle<v8::Value>::New(isolate_, persistent_value);
+  const v8::Global<v8::Value> &global_value =
+      ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, global_value);
 
   if (handle_value.IsEmpty()) {
     return nullptr;
@@ -441,9 +451,9 @@ std::shared_ptr<CtxValue> V8Ctx::CopyNamedProperty(
       return nullptr;
     }
 
-    v8::Local<v8::String> key =
-        v8::String::NewFromUtf8(isolate_, utf8name, v8::NewStringType::kNormal)
-            .FromMaybe(v8::Local<v8::String>());
+    v8::Local<v8::String> key = TO_LOCAL_UNCHECKED(
+        v8::String::NewFromUtf8(isolate_, utf8name, v8::NewStringType::kNormal),
+        v8::String);
     if (key.IsEmpty()) {
       return nullptr;
     }
@@ -466,10 +476,10 @@ bool V8Ctx::IsFunction(std::shared_ptr<CtxValue> value) {
   v8::Context::Scope context_scope(context);
   std::shared_ptr<V8CtxValue> ctx_value =
       std::static_pointer_cast<V8CtxValue>(value);
-  const v8::Persistent<v8::Value> &persistent_value =
-      ctx_value->persisent_value_;
-  v8::Handle<v8::Value> handle_value =
-      v8::Handle<v8::Value>::New(isolate_, persistent_value);
+  const v8::Global<v8::Value> &global_value =
+      ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, global_value);
 
   if (handle_value.IsEmpty()) {
     return false;
@@ -487,10 +497,10 @@ std::string V8Ctx::CopyFunctionName(std::shared_ptr<CtxValue> function) {
   v8::Context::Scope context_scope(context);
   std::shared_ptr<V8CtxValue> ctx_value =
       std::static_pointer_cast<V8CtxValue>(function);
-  const v8::Persistent<v8::Value> &persistent_value =
-      ctx_value->persisent_value_;
-  v8::Handle<v8::Value> handle_value =
-      v8::Handle<v8::Value>::New(isolate_, persistent_value);
+  const v8::Global<v8::Value> &global_value =
+      ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, global_value);
 
   if (handle_value.IsEmpty()) {
     return nullptr;
