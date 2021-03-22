@@ -19,6 +19,7 @@ import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.devsupport.DevServerCallBack;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
+import com.tencent.mtt.hippy.utils.UrlUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -340,7 +341,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 	}
 
 	public byte[] fetchResourceWithUri(String uri) {
-		if (mContext == null || TextUtils.isEmpty(uri) || !uri.startsWith("http://")) {
+		if (mContext == null || TextUtils.isEmpty(uri) || !UrlUtils.isWebUrl(uri)) {
 			return null;
 		}
 
