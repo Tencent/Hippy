@@ -779,7 +779,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 		{
 			mModuleManager = new HippyModuleManagerImpl(this, mAPIProviders);
 			mBridgeManager = new HippyBridgeManagerImpl(this, mCoreBundleLoader, HippyEngineManagerImpl.this.getBridgeType(),
-					mEnableHippyBuffer, isDevModule, debugServerHost, mGroupId, mThirdPartyAdapter);
+					!mEnableHippyBuffer, isDevModule, debugServerHost, mGroupId, mThirdPartyAdapter);
 			mRenderManager = new RenderManager(this, mAPIProviders);
 			mDomManager = new DomManager(this);
 		}

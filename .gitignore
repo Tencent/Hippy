@@ -11,6 +11,7 @@ layout/cproject
 layout/.project
 layout/.settings
 examples/*/res/vendor-manifest.json
+android/sdk/src/main/jni/core/
 android/sdk/src/main/jni/.vs
 android/sdk/maven-auth.properties
 android/sdk/local.properties
@@ -22,6 +23,7 @@ examples/hippy-react-demo/package-lock.json
 examples/hippy-vue-demo/package-lock.json
 examples/android-demo/maven-auth.properties
 examples/android-demo/example/.cxx/
+packages/hippy-debug-server/package-lock.json
 
 # android
 *.iml

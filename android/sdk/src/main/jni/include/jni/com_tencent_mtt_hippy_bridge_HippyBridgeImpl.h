@@ -105,7 +105,7 @@ JNIEXPORT void JNICALL
 Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_callFunction(JNIEnv *,
                                                                jobject,
                                                                jstring,
-                                                               jbyteArray,
+                                                               jobject,
                                                                jint,
                                                                jint,
                                                                jlong,

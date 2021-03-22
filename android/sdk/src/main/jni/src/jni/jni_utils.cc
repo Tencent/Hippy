@@ -27,7 +27,6 @@
 #include <string.h>
 
 #include "core/core.h"
-#include "jni/hippy_buffer.h"  // NOLINT(build/include_subdir)
 
 size_t SafeGetArrayLength(JNIEnv* env, const jbyteArray& jarray) {
   HIPPY_DCHECK(jarray);
@@ -62,13 +61,6 @@ std::string JniUtils::CovertJavaStringToString(JNIEnv* env, jstring str) {
   std::string ret(c_str, len);
   env->ReleaseStringUTFChars(str, c_str);
   return ret;
-}
-
-HippyBuffer* JniUtils::WriteToBuffer(v8::Isolate* isolate,
-                                     v8::Local<v8::Object> value) {
-  HippyBuffer* buffer = NewBuffer();
-  BuildBuffer(isolate, value, buffer);
-  return buffer;
 }
 
 void JniUtils::printCurrentThreadID() {

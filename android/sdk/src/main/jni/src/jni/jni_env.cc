@@ -39,7 +39,7 @@ void JNIEnvironment::init(JavaVM* vm, JNIEnv* env) {
       env->FindClass("com/tencent/mtt/hippy/bridge/HippyBridgeImpl");
   instance->wrapper_.call_natives_method_id = env->GetMethodID(
       hippy_bridge_cls, "callNatives",
-      "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;[B)V");
+      "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/nio/ByteBuffer;)V");
   instance->wrapper_.report_exception_method_id =
       env->GetMethodID(hippy_bridge_cls, "reportException",
                        "(Ljava/lang/String;Ljava/lang/String;)V");

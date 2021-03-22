@@ -18,6 +18,9 @@ package com.tencent.mtt.hippy.bridge;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.devsupport.DevServerCallBack;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
+import com.tencent.mtt.hippy.serialization.compatible.Deserializer;
+import com.tencent.mtt.hippy.serialization.memory.string.InternalizedStringTable;
+import com.tencent.mtt.hippy.serialization.memory.string.StringTable;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.utils.UrlUtils;
 import java.io.ByteArrayOutputStream;
@@ -40,68 +43,58 @@ import com.tencent.mtt.hippy.devsupport.DevRemoteDebugProxy;
 import com.tencent.mtt.hippy.utils.ArgumentUtils;
 import com.tencent.mtt.hippy.utils.FileUtils;
 import com.tencent.mtt.hippy.utils.LogUtils;
-import com.tencent.mtt.hippy.utils.HippyBuffer;
 import java.nio.ByteOrder;
 
-public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnReceiveDataListener
-{
-	private static volatile ThreadPoolExecutor	mCodeCacheThreadExecutor	= null;
-	private static volatile int					sBridgeNum					= 0;
-	private static Object						sBridgeSyncLock;
-	private static int TIMEOUT = 3000;
+public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnReceiveDataListener {
+	private static volatile ThreadPoolExecutor mCodeCacheThreadExecutor	= null;
+	private static volatile int sBridgeNum = 0;
+	private static final Object sBridgeSyncLock;
 
-	static
-	{
+	static {
 		sBridgeSyncLock = new Object();
 	}
 
-	private static volatile String				mCodeCacheRootDir;
-	private long								mV8RuntimeId				= 0;
-	private BridgeCallback						mBridgeCallback;
-	private boolean								mInit						= false;
-	private boolean								mIsDevModule				= false;
-	private String                              mDebugServerHost;
-	private boolean								mSingleThreadMode			= false;
-	private boolean								mBridgeParamJson;
-	private HippyBuffer                         mHippyBuffer;
-	private DebugWebSocketClient				mDebugWebSocketClient;
-	private String                              mDebugGobalConfig;
-	private NativeCallback                      mDebugInitJSFrameworkCallback;
-	private HippyEngineContext                  mContext;
+	private static volatile String mCodeCacheRootDir;
+	private long mV8RuntimeId = 0;
+	private BridgeCallback mBridgeCallback;
+	private boolean mInit	= false;
+	private final boolean mIsDevModule;
+	private String mDebugServerHost;
+	private final boolean mSingleThreadMode;
+	private final boolean mBridgeParamJson;
+	private StringTable stringTable;
+	private DebugWebSocketClient mDebugWebSocketClient;
+	private String mDebugGlobalConfig;
+	private NativeCallback mDebugInitJSFrameworkCallback;
+	private final HippyEngineContext mContext;
 
-	public HippyBridgeImpl(HippyEngineContext engineContext, BridgeCallback callback, boolean singleThreadMode, boolean jsonBrige, boolean isDevModule, String debugServerHost)
-	{
+	public HippyBridgeImpl(HippyEngineContext engineContext, BridgeCallback callback, boolean singleThreadMode, boolean jsonBridge, boolean isDevModule, String debugServerHost) {
 		this.mBridgeCallback = callback;
 		this.mSingleThreadMode = singleThreadMode;
-		this.mBridgeParamJson = jsonBrige;
+		this.mBridgeParamJson = jsonBridge;
 		this.mIsDevModule = isDevModule;
 		this.mDebugServerHost = debugServerHost;
 		this.mContext = engineContext;
 
-		synchronized (sBridgeSyncLock)
-		{
+		synchronized (sBridgeSyncLock) {
 			++sBridgeNum;
 
-			if (mCodeCacheRootDir == null)
-			{
+			if (mCodeCacheRootDir == null) {
 				Context context = mContext.getGlobalConfigs().getContext();
 				File hippyFile = FileUtils.getHippyFile(context);
-				if (hippyFile != null)
-				{
-					this.mCodeCacheRootDir = hippyFile.getAbsolutePath() + File.separator + "codecache" + File.separator;
+				if (hippyFile != null) {
+					mCodeCacheRootDir = hippyFile.getAbsolutePath() + File.separator + "codecache" + File.separator;
 				}
 			}
 
-			if (mCodeCacheThreadExecutor == null)
-			{
-				this.mCodeCacheThreadExecutor = new ThreadPoolExecutor(1, 1, 120L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
-				this.mCodeCacheThreadExecutor.allowCoreThreadTimeOut(true);
+			if (mCodeCacheThreadExecutor == null) {
+				mCodeCacheThreadExecutor = new ThreadPoolExecutor(1, 1, 120L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+				mCodeCacheThreadExecutor.allowCoreThreadTimeOut(true);
 			}
 		}
 
-		if (!mBridgeParamJson)
-		{
-			mHippyBuffer = new HippyBuffer();
+		if (!mBridgeParamJson) {
+			stringTable = new InternalizedStringTable();
 		}
 	}
 
@@ -113,93 +106,76 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 	 * paulzeng: 这里只对调用initJSFramework代码块加锁即可
 	 */
 	@Override
-	public void initJSBridge(String gobalConfig, NativeCallback callback, final int groupId)
-	{
-		mDebugGobalConfig = gobalConfig;
+	public void initJSBridge(String globalConfig, NativeCallback callback, final int groupId) {
+		mDebugGlobalConfig = globalConfig;
 		mDebugInitJSFrameworkCallback = callback;
 
-		if(this.mIsDevModule)
-		{
+		if(this.mIsDevModule) {
 			mDebugWebSocketClient = new DebugWebSocketClient();
 			mDebugWebSocketClient.setOnReceiveDataCallback(this);
 			if (TextUtils.isEmpty(mDebugServerHost)) {
 				mDebugServerHost = "localhost:38989";
 			}
-			mDebugWebSocketClient.connect(String.format(Locale.US, "ws://%s/debugger-proxy?role=android_client", mDebugServerHost), new DebugWebSocketClient.JSDebuggerCallback()
-			{
+			mDebugWebSocketClient.connect(String.format(Locale.US, "ws://%s/debugger-proxy?role=android_client", mDebugServerHost), new DebugWebSocketClient.JSDebuggerCallback() {
 				@Override
-				public void onSuccess(String response)
-				{
+				public void onSuccess(String response) {
 					LogUtils.e("hippyCore", "js debug socket connect success");
 
 					initJSEngine(groupId);
 				}
 
 				@Override
-				public void onFailure(final Throwable cause)
-				{
+				public void onFailure(final Throwable cause) {
 					LogUtils.e("hippyCore", "js debug socket connect failed");
 
-                    initJSEngine(groupId);
+					initJSEngine(groupId);
 				}
 			});
-		}
-		else
-		{
+		} else {
 			initJSEngine(groupId);
 		}
 	}
 
-	private void initJSEngine(int groupId)
-	{
+	private void initJSEngine(int groupId) {
 		// harryguo: initJSFramework native函数须加锁。否则可能导致: C层的v8Platform变量在A线程中刚赋值（但尚未调用Initialize）时，就被B线程拿去使用了，导致crash
-        // paulzeng: 这里只对调用initJSFramework代码块加锁即可
+		// paulzeng: 这里只对调用initJSFramework代码块加锁即可
 		synchronized (HippyBridgeImpl.class) {
-			mV8RuntimeId = initJSFramework(mDebugGobalConfig.getBytes(), mSingleThreadMode, mBridgeParamJson, mIsDevModule, mDebugInitJSFrameworkCallback, groupId);
+			mV8RuntimeId = initJSFramework(mDebugGlobalConfig.getBytes(), mSingleThreadMode, mBridgeParamJson, mIsDevModule, mDebugInitJSFrameworkCallback, groupId);
 			mInit = true;
 		}
 	}
 
 	@Override
-	public boolean runScriptFromFile(String filePath, String scriptName, boolean canUseCodeCache, String codeCacheTag, NativeCallback callback)
-	{
-		if (!mInit)
-		{
+	public boolean runScriptFromFile(String filePath, String scriptName, boolean canUseCodeCache, String codeCacheTag, NativeCallback callback) {
+		if (!mInit) {
 			return false;
 		}
-		if (!TextUtils.isEmpty(codeCacheTag) && !TextUtils.isEmpty(mCodeCacheRootDir))
-		{
+
+		if (!TextUtils.isEmpty(codeCacheTag) && !TextUtils.isEmpty(mCodeCacheRootDir)) {
 			LogUtils.e("HippyEngineMonitor", "runScriptFromFile ======core====== " + codeCacheTag + ", canUseCodeCache == " + canUseCodeCache);
 			String codeCacheDir = mCodeCacheRootDir + codeCacheTag + File.separator;
 			File file = new File(codeCacheDir);
 			LogUtils.d("HippyEngineMonitor", "codeCacheDir file size : " + (file.listFiles() != null ? file.listFiles().length : 0));
 			return runScriptFromFile(filePath, scriptName, canUseCodeCache, codeCacheDir, mV8RuntimeId, callback);
-		}
-		else
-		{
+		} else {
 			LogUtils.e("HippyEngineMonitor", "runScriptFromFile codeCacheTag is null");
 			return runScriptFromFile(filePath, scriptName, false, "" + codeCacheTag + File.separator, mV8RuntimeId, callback);
 		}
 	}
 
 	@Override
-	public boolean runScriptFromAssets(String fileName, AssetManager assetManager, boolean canUseCodeCache, String codeCacheTag, NativeCallback callback)
-	{
-		if (!mInit)
-		{
+	public boolean runScriptFromAssets(String fileName, AssetManager assetManager, boolean canUseCodeCache, String codeCacheTag, NativeCallback callback) {
+		if (!mInit) {
 			return false;
 		}
 
-		if (!TextUtils.isEmpty(codeCacheTag) && !TextUtils.isEmpty(mCodeCacheRootDir))
-		{
+		if (!TextUtils.isEmpty(codeCacheTag) && !TextUtils.isEmpty(mCodeCacheRootDir)) {
 			LogUtils.e("HippyEngineMonitor", "runScriptFromAssets ======core====== " + codeCacheTag + ", canUseCodeCache == " + canUseCodeCache);
 			String codeCacheDir = mCodeCacheRootDir + codeCacheTag + File.separator;
 			File file = new File(codeCacheDir);
 			LogUtils.d("HippyEngineMonitor", "codeCacheDir file size : " + (file.listFiles() != null ? file.listFiles().length : 0));
 			return runScriptFromAssets(fileName, assetManager, canUseCodeCache, codeCacheDir, mV8RuntimeId, callback);
-		}
-		else
-		{
+		} else {
 			LogUtils.e("HippyEngineMonitor", "runScriptFromAssets codeCacheTag is null");
 			return runScriptFromAssets(fileName, assetManager, false, "" + codeCacheTag + File.separator, mV8RuntimeId, callback);
 		}
@@ -234,28 +210,24 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 	}
 
 	@Override
-	public void callFunction(String action, String params, NativeCallback callback)
-	{
-		if (!mInit || TextUtils.isEmpty(action) || TextUtils.isEmpty(params))
-		{
+	public void callFunction(String action, ByteBuffer buffer, NativeCallback callback)	{
+		if (!mInit || TextUtils.isEmpty(action) || buffer.limit() == 0) {
 			return;
 		}
-		final byte[] bytes = params.getBytes();
-		callFunction(action, bytes, 0, bytes.length , mV8RuntimeId, callback);
+
+		callFunction(action, buffer, 0, buffer.limit() , mV8RuntimeId, callback);
 	}
 
-    @Override
-    public void callFunction(String action, byte[] bytes, int offset, int length, NativeCallback callback)
-    {
-        if (!mInit || TextUtils.isEmpty(action) || bytes == null || bytes.length == 0 || offset < 0 || length < 0 || offset + length > bytes.length)
-        {
-            return;
-        }
-        callFunction(action, bytes, offset, length, mV8RuntimeId, callback);
-    }
+	@Override
+	public void callFunction(String action, ByteBuffer buffer, int offset, int length, NativeCallback callback) {
+		if (!mInit || TextUtils.isEmpty(action) || buffer == null || buffer.limit() == 0 || offset < 0 || length < 0 || offset + length > buffer.limit()) {
+			return;
+		}
+		callFunction(action, buffer, offset, length, mV8RuntimeId, callback);
+	}
 
 	@Override
-    public void onDestroy() {
+	public void onDestroy() {
 		if (mDebugWebSocketClient != null) {
 			mDebugWebSocketClient.closeQuietly();
 			mDebugWebSocketClient = null;
@@ -280,8 +252,8 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 			}
 		}
 
-		if (!mBridgeParamJson && mHippyBuffer != null) {
-			mHippyBuffer.release();
+		if (!mBridgeParamJson && stringTable != null) {
+			stringTable.release();
 		}
 
 		mV8RuntimeId = 0;
@@ -307,7 +279,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 
 	public native void destroy(long runtimeId, boolean useLowMemoryMode, NativeCallback callback);
 
-	public native void callFunction(String action, byte[] params, int offset, int length, long V8RuntimId, NativeCallback callback);
+	public native void callFunction(String action, ByteBuffer params, int offset, int length, long V8RuntimId, NativeCallback callback);
 
 	public native void runNativeRunnable(String codeCacheFile, long nativeRunnableId, long V8RuntimId, NativeCallback callback);
 
@@ -315,31 +287,20 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 
 	public native String getCrashMessage();
 
-	public void callNatives(String moduleName, String moduleFunc, String callId, byte[] params)
-	{
+	public void callNatives(String moduleName, String moduleFunc, String callId, ByteBuffer buffer) {
 		LogUtils.d("jni_callback", "callNatives [moduleName:" + moduleName + " , moduleFunc: " + moduleFunc + "]");
 
-		if (mBridgeCallback != null)
-		{
-			HippyArray hippyParam = bytesToArgument(params);
+		if (mBridgeCallback != null) {
+			HippyArray hippyParam = bytesToArgument(buffer);
 			mBridgeCallback.callNatives(moduleName, moduleFunc, callId, hippyParam);
 		}
 	}
 
-	public void InspectorChannel(byte[] params)
-	{
-		if (ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN) {
-			String msg = new String(params, Charset.forName("UTF-16BE"));
-			if (mDebugWebSocketClient != null)
-			{
-				mDebugWebSocketClient.sendMessage(msg);
-			}
-		} else {
-			String msg = new String(params, Charset.forName("UTF-16LE"));
-			if (mDebugWebSocketClient != null)
-			{
-				mDebugWebSocketClient.sendMessage(msg);
-			}
+	public void InspectorChannel(byte[] params) {
+		String encoding = ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN ? "UTF-16BE" : "UTF-16LE";
+		String msg = new String(params, Charset.forName(encoding));
+		if (mDebugWebSocketClient != null) {
+			mDebugWebSocketClient.sendMessage(msg);
 		}
 	}
 
@@ -366,7 +327,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 							ByteArrayOutputStream output = new ByteArrayOutputStream();
 
 							byte[] b = new byte[2048];
-							int size = 0;
+							int size;
 							while ((size = inputStream.read(b)) > 0) {
 								output.write(b, 0, size);
 							}
@@ -396,21 +357,27 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 		});
 	}
 
-	private HippyArray bytesToArgument(byte param[])
-	{
+	private HippyArray bytesToArgument(ByteBuffer buffer) {
 		HippyArray hippyParam = null;
-		if (mBridgeParamJson)
-		{
+		if (mBridgeParamJson) {
 			LogUtils.d("hippy_bridge", "bytesToArgument using JSON");
-			String strParam = param == null ? "" : new String(param);
-			hippyParam = ArgumentUtils.parseToArray(strParam);
-		}
-		else
-		{
-			LogUtils.d("hippy_bridge", "bytesToArgument using HippyBuffer");
-			Object paramObj = mHippyBuffer.parse(param);
-			if (paramObj instanceof HippyArray)
-			{
+			byte[] bytes = new byte[buffer.limit()];
+			buffer.order(ByteOrder.nativeOrder());
+			buffer.get(bytes);
+			hippyParam = ArgumentUtils.parseToArray(new String(bytes));
+		} else {
+			LogUtils.d("hippy_bridge", "bytesToArgument using Buffer");
+			Object paramObj;
+			try {
+				Deserializer deserializer = new Deserializer(buffer, stringTable);
+				deserializer.readHeader();
+				paramObj = deserializer.readValue();
+			} catch (Throwable e) {
+				e.printStackTrace();
+				LogUtils.e("compatible.Deserializer", "Error Parsing Buffer", e);
+				return new HippyArray();
+			}
+			if (paramObj instanceof HippyArray) {
 				hippyParam = (HippyArray) paramObj;
 			}
 		}
@@ -418,28 +385,24 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 		return hippyParam == null ? new HippyArray() : hippyParam;
 	}
 
-	public static void deleteCodeCache(String fileName)
-	{
+	public static boolean deleteCodeCache(String fileName) {
 		File codeCacheDir = new File(mCodeCacheRootDir);
-		String deleteFilesName[] = codeCacheDir.list(new CodeCacheFilter(fileName));
+		String[] deleteFilesName = codeCacheDir.list(new CodeCacheFilter(fileName));
 
-		if (deleteFilesName != null && deleteFilesName.length > 0)
-		{
+		if (deleteFilesName != null && deleteFilesName.length > 0) {
 			File file = new File(mCodeCacheRootDir + File.separator + deleteFilesName[0], fileName);
-			file.delete();
+			return file.delete();
 		}
+		return true;
 	}
 
-	public void reportException(String exception, String stackTrace)
-	{
+	public void reportException(String exception, String stackTrace) {
 		LogUtils.e("reportException", "!!!!!!!!!!!!!!!!!!!");
 
 		LogUtils.e("reportException",exception);
 		LogUtils.e("reportException",stackTrace);
 
-
-		if (mBridgeCallback != null)
-		{
+		if (mBridgeCallback != null) {
 			mBridgeCallback.reportException(exception, stackTrace);
 		}
 	}
@@ -456,58 +419,44 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 		}
 	}
 
-	static class CodeCacheFilter implements FilenameFilter
-	{
-		String	fileName;
+	static class CodeCacheFilter implements FilenameFilter {
+		String fileName;
 
-		public CodeCacheFilter(String fileName)
-		{
+		public CodeCacheFilter(String fileName) {
 			this.fileName = fileName;
 		}
 
 		@Override
-		public boolean accept(File dir, String name)
-		{
+		public boolean accept(File dir, String name) {
 			File file = new File(dir, name);
-			if (file.isDirectory())
-			{
-				String files[] = file.list();
-				if (files != null && files.length > 0)
-				{
+			if (file.isDirectory()) {
+				String[] files = file.list();
+				if (files != null && files.length > 0) {
 					return files[0].equals(fileName);
 				}
-				else
-				{
-					return false;
-				}
-			}
-			else
-			{
 				return false;
 			}
+			return false;
 		}
 	}
 
 	public class CodeCacheRunnable implements Runnable
 	{
-		private String	mPath;
-		private long	mNativeId;
+		private final String mPath;
+		private final long mNativeId;
 
-		public CodeCacheRunnable(String path, long nativeId)
-		{
+		public CodeCacheRunnable(String path, long nativeId) {
 			this.mPath = path;
 			this.mNativeId = nativeId;
 		}
 
 		@Override
-		public void run()
-		{
-			try
-			{
-				if (TextUtils.isEmpty(mPath))
-				{
+		public void run() {
+			try {
+				if (TextUtils.isEmpty(mPath)) {
 					return;
 				}
+
 				File dir = new File(mPath.substring(0, mPath.lastIndexOf(File.separator)));
 				deleteDirWithFile(dir);
 				dir.mkdirs();
@@ -515,26 +464,24 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 				file.createNewFile();
 
 				runNativeRunnable(mPath, mNativeId, mV8RuntimeId, null);
-			}
-			catch (Throwable e)
-			{
+			} catch (Throwable e) {
 				e.printStackTrace();
 			}
 		}
 
-		public void deleteDirWithFile(File dir)
-		{
-			if (dir == null || !dir.exists() || !dir.isDirectory())
+		public void deleteDirWithFile(File dir)	{
+			if (dir == null || !dir.exists() || !dir.isDirectory()) {
 				return;
+			}
+
 			File[] childs = dir.listFiles();
-			if (childs != null)
-			{
-				for (File file : childs)
-				{
-					if (file.isFile())
+			if (childs != null) {
+				for (File file : childs) {
+					if (file.isFile()) {
 						file.delete();
-					else if (file.isDirectory())
+					} else if (file.isDirectory()) {
 						deleteDirWithFile(file);
+					}
 				}
 			}
 			dir.delete();
@@ -542,12 +489,12 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 	}
 
 	@Override
-	public void onReceiveData(String msg)
-	{
-		if(this.mIsDevModule)
-		{
-			final byte[] bytes = msg.getBytes();
-			callFunction("onWebsocketMsg", bytes, 0, bytes.length , mV8RuntimeId, null);
+	public void onReceiveData(String msg) {
+		if (this.mIsDevModule) {
+		  final byte[] bytes = msg.getBytes();
+		  final ByteBuffer buffer = ByteBuffer.allocateDirect(bytes.length);
+		  buffer.put(bytes);
+		  callFunction("onWebsocketMsg", buffer, 0, buffer.limit(), mV8RuntimeId, null);
 		}
 	}
 }

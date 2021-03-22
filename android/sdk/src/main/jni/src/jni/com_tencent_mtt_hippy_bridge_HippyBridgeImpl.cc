@@ -33,11 +33,10 @@
 
 #include "core/core.h"
 #include "inspector/v8_inspector_client_impl.h"
-#include "jni/exception_handler.h"
-#include "jni/hippy_buffer.h"
-#include "jni/jni_env.h"
-#include "jni/jni_utils.h"
-#include "jni/runtime.h"
+#include "jni/exception_handler.h"  // NOLINT(build/include_subdir)
+#include "jni/jni_env.h"            // NOLINT(build/include_subdir)
+#include "jni/jni_utils.h"          // NOLINT(build/include_subdir)
+#include "jni/runtime.h"            // NOLINT(build/include_subdir)
 #include "jni/scoped_java_ref.h"
 #include "jni/uri.h"
 #include "loader/adr_loader.h"
@@ -301,18 +300,18 @@ static void CallNative(void* data) {
                JniUtils::ToCString(cb_id));
   }
 
-  jbyteArray j_params_str = nullptr;
-  HippyBuffer* hippy_buffer = nullptr;
+  jobject j_byte_buffer = nullptr;
+  uint8_t* byte_buffer = nullptr;
   if (info.Length() >= 4 && !info[3].IsEmpty() && info[3]->IsObject()) {
     if (!runtime->IsParamJson()) {
-      hippy_buffer = JniUtils::WriteToBuffer(
-          isolate, v8::Local<v8::Object>::Cast(info[3]));
-      if (hippy_buffer != nullptr && hippy_buffer->data != nullptr) {
-        j_params_str = JNIEnvironment::AttachCurrentThread()->NewByteArray(
-            hippy_buffer->position);
-        JNIEnvironment::AttachCurrentThread()->SetByteArrayRegion(
-            j_params_str, 0, hippy_buffer->position,
-            reinterpret_cast<const jbyte*>(hippy_buffer->data));
+      v8::ValueSerializer serializer(isolate);
+      serializer.WriteHeader();
+      if (serializer.WriteValue(context, v8::Local<v8::Object>::Cast(info[3]))
+              .FromMaybe(false)) {
+        std::pair<uint8_t*, size_t> ret = serializer.Release();
+        byte_buffer = ret.first;
+        j_byte_buffer = JNIEnvironment::AttachCurrentThread()->NewDirectByteBuffer(ret.first,
+                                                                   ret.second);
       }
     } else {
       v8::Local<v8::Object> global = context->Global();
@@ -336,21 +335,22 @@ static void CallNative(void* data) {
           v8::Value);
 
       v8::String::Utf8Value json(isolate, s);
-      HIPPY_DLOG(hippy::Debug, "CallNative json = %s",
-                 JniUtils::ToCString(json));
-      int str_len = strlen(JniUtils::ToCString(json));
-      j_params_str =
-          JNIEnvironment::AttachCurrentThread()->NewByteArray(str_len);
-      JNIEnvironment::AttachCurrentThread()->SetByteArrayRegion(
-          j_params_str, 0, str_len,
-          reinterpret_cast<const jbyte*>(JniUtils::ToCString(json)));
+      const char* str = JniUtils::ToCString(json);
+      int str_len = strlen(str);
+      byte_buffer = new uint8_t[strlen(str)];
+      strcpy(reinterpret_cast<char*>(byte_buffer), str);
+      HIPPY_DLOG(hippy::Debug, "CallNative json = %s, len = %d", byte_buffer,
+                 str_len);
+      j_byte_buffer =
+          JNIEnvironment::AttachCurrentThread()->NewDirectByteBuffer(
+              byte_buffer, str_len);
     }
   }
 
   JNIEnvironment::AttachCurrentThread()->CallVoidMethod(
       runtime->GetBridge()->GetObj(),
       JNIEnvironment::GetInstance()->wrapper_.call_natives_method_id,
-      j_module_name, j_module_func, j_cb_id, j_params_str);
+      j_module_name, j_module_func, j_cb_id, j_byte_buffer);
 
   JNIEnvironment::ClearJEnvException(JNIEnvironment::AttachCurrentThread());
 
@@ -358,11 +358,11 @@ static void CallNative(void* data) {
   JNIEnvironment::AttachCurrentThread()->DeleteLocalRef(j_module_name);
   JNIEnvironment::AttachCurrentThread()->DeleteLocalRef(j_module_func);
   JNIEnvironment::AttachCurrentThread()->DeleteLocalRef(j_cb_id);
-  JNIEnvironment::AttachCurrentThread()->DeleteLocalRef(j_params_str);
-  if (hippy_buffer != nullptr) {
-    ReleaseBuffer(hippy_buffer);
+  JNIEnvironment::AttachCurrentThread()->DeleteLocalRef(j_byte_buffer);
+  if (byte_buffer != nullptr) {
+    delete byte_buffer;
   }
-  hippy_buffer = nullptr;
+  byte_buffer = nullptr;
 }
 
 JNIEXPORT jlong JNICALL
@@ -613,7 +613,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_callFunction(
     JNIEnv* j_env,
     jobject j_obj,
     jstring j_action,
-    jbyteArray j_params,
+    jobject j_buffer,
     jint j_offset,
     jint j_length,
     jlong j_runtime_id,
@@ -621,6 +621,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_callFunction(
   HIPPY_DLOG(hippy::Debug, "HippyBridgeImpl callFunction j_runtime_id = %lld",
              j_runtime_id);
   std::shared_ptr<Runtime> runtime = Runtime::Find(j_runtime_id);
+
   if (!runtime) {
     HIPPY_LOG(hippy::Warning,
               "HippyBridgeImpl callFunction, j_runtime_id invalid");
@@ -633,28 +634,34 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_callFunction(
     HIPPY_LOG(hippy::Warning, "HippyBridgeImpl callFunction, runner invalid");
     return;
   }
-  std::string action_name = JniUtils::CovertJavaStringToString(j_env, j_action);
 
-  std::string hippy_params =
-      JniUtils::AppendJavaByteArrayToString(j_env, j_params);
-  HIPPY_DLOG(hippy::Debug, "callFunction action_name = %s, hippy_params = %s",
-             action_name.c_str(), hippy_params.c_str());
+  std::string action_name = JniUtils::CovertJavaStringToString(j_env, j_action);
+  HIPPY_DLOG(hippy::Debug, "callFunction action_name = %s",
+             action_name.c_str());
   std::shared_ptr<JavaRef> save_object =
       std::make_shared<JavaRef>(j_env, j_callback);
+  std::shared_ptr<JavaRef> params_object =
+      std::make_shared<JavaRef>(j_env, j_buffer);
+
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
   task->callback = [runtime, save_object_ = std::move(save_object), action_name,
-                    hippy_params] {
-    HIPPY_DLOG(hippy::Debug,
-               "js callFunction action_name = %s, hippy_params = %s",
-               action_name.c_str(), hippy_params.c_str());
+                     params_object_ = std::move(params_object), j_length] {
+
     std::shared_ptr<Scope> scope = runtime->GetScope();
     if (!scope) {
       HIPPY_LOG(hippy::Warning, "HippyBridgeImpl callFunction, scope invalid");
       return;
     }
     std::shared_ptr<Ctx> context = scope->GetContext();
+
+    void* hippy_params =
+        JNIEnvironment::AttachCurrentThread()->GetDirectBufferAddress(
+            params_object_->GetObj());
+    HIPPY_DCHECK(hippy_params != nullptr);
+
     if (runtime->IsDebug() && !action_name.compare("onWebsocketMsg")) {
-      global_inspector->SendMessageToV8(hippy_params);
+      std::string str(reinterpret_cast<char*>(hippy_params), j_length);
+      global_inspector->SendMessageToV8(str);
     } else {
       if (!runtime->GetBridgeFunc()) {
         HIPPY_DLOG(hippy::Debug, "bridge_func_ init");
@@ -669,11 +676,32 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_callFunction(
           runtime->SetBridgeFunc(fn);
         }
       }
-      // to do params_str invalid
+
       std::shared_ptr<CtxValue> action =
           context->CreateString(action_name.c_str());
-      std::shared_ptr<CtxValue> params =
-          context->CreateObject(hippy_params.c_str());
+      std::shared_ptr<CtxValue> params = nullptr;
+
+      if (runtime->IsParamJson()) {
+        params = context->CreateObject(reinterpret_cast<char*>(hippy_params),
+                                       j_length);
+      } else {
+        v8::Isolate* isolate =
+            std::static_pointer_cast<V8VM>(runtime->GetEngine()->GetVM())
+                ->isolate_;
+        v8::HandleScope handle_scope(isolate);
+        v8::Local<v8::Context> ctx =
+            std::static_pointer_cast<hippy::napi::V8Ctx>(
+                runtime->GetScope()->GetContext())
+                ->context_persistent_.Get(isolate);
+
+        v8::ValueDeserializer deserializer(isolate, reinterpret_cast<uint8_t*>(hippy_params), j_length);
+        HIPPY_CHECK(deserializer.ReadHeader(ctx).FromMaybe(false));
+        v8::MaybeLocal<v8::Value> ret = deserializer.ReadValue(ctx);
+        if (!ret.IsEmpty()) {
+          params = std::make_shared<V8CtxValue>(isolate, ret.ToLocalChecked());
+        }
+      }
+      
       std::shared_ptr<CtxValue> argv[] = {action, params};
       context->CallFunction(runtime->GetBridgeFunc(), 2, argv);
     }

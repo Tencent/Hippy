@@ -21,11 +21,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-/**
- * FileName: HippyArray
- * Description：
- * History：
- */
+@Deprecated
 public class HippyArray
 {
 
@@ -50,6 +46,11 @@ public class HippyArray
 	{
 		mDatas.add(obj);
 	}
+
+  public void setObject(int index, Object obj)
+  {
+    mDatas.set(index, obj);
+  }
 
 	public int getInt(int index)
 	{

@@ -23,18 +23,14 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * FileName: HippyMap
- * Description：
- * History：
- */
+@Deprecated
 public class HippyMap
 {
 
 	private final HashMap<String, Object>	mDatas;
 
 	@Override
-	public String toString() 
+	public String toString()
 	{
 		return mDatas == null ? "null" : mDatas.toString();
 	}
