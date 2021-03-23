@@ -99,10 +99,10 @@ std::string ADRLoader::RequestUntrustedContent(const std::string& uri) {
              uri_schema == "debug") {
     std::promise<std::string> promise;
     std::future<std::string> read_file_future = promise.get_future();
-    std::function<void(std::string)> cb =
-        hippy::base::MakeCopyable([p = std::move(promise)](std::string content) mutable {
+    std::function<void(std::string)> cb = hippy::base::MakeCopyable(
+        [p = std::move(promise)](std::string content) mutable {
           p.set_value(std::move(content));
-    });
+        });
     LoadByHttp(uri, cb);
     return read_file_future.get();
   } else if (uri_schema == "asset") {

@@ -367,12 +367,14 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_initJSFramework(
     jboolean j_is_dev_module,
     jobject j_callback,
     jlong j_group_id) {
-  HIPPY_DLOG(hippy::Debug,
-             "HippyBridgeImpl_initJSFramework begin, j_single_thread_mode = %d, "
-             "j_bridge_param_json = %d, j_is_dev_module = %d, j_group_id = %lld",
-             j_single_thread_mode, j_bridge_param_json, j_is_dev_module, j_group_id);
-  std::shared_ptr<Runtime> runtime = std::make_shared<Runtime>(
-      std::make_shared<JavaRef>(j_env, j_object), j_bridge_param_json, j_is_dev_module);
+  HIPPY_DLOG(
+      hippy::Debug,
+      "HippyBridgeImpl_initJSFramework begin, j_single_thread_mode = %d, "
+      "j_bridge_param_json = %d, j_is_dev_module = %d, j_group_id = %lld",
+      j_single_thread_mode, j_bridge_param_json, j_is_dev_module, j_group_id);
+  std::shared_ptr<Runtime> runtime =
+      std::make_shared<Runtime>(std::make_shared<JavaRef>(j_env, j_object),
+                                j_bridge_param_json, j_is_dev_module);
   int64_t runtime_id = runtime->GetId();
   Runtime::Insert(runtime);
   std::shared_ptr<int64_t> runtime_key = Runtime::GetKey(runtime);
@@ -545,7 +547,6 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromUri(
     loader->SetAAssetManager(aasset_manager);
   }
 
-
   std::shared_ptr<JavaRef> save_object = std::make_shared<JavaRef>(j_env, j_cb);
   task = std::make_shared<JavaScriptTask>();
   task->callback = [runtime, save_object_ = std::move(save_object), script_name,
@@ -626,7 +627,8 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_callFunction(
   }
   std::string action_name = JniUtils::CovertJavaStringToString(j_env, j_action);
 
-  std::string hippy_params = JniUtils::AppendJavaByteArrayToString(j_env, j_params);
+  std::string hippy_params =
+      JniUtils::AppendJavaByteArrayToString(j_env, j_params);
   HIPPY_DLOG(hippy::Debug, "callFunction action_name = %s, hippy_params = %s",
              action_name.c_str(), hippy_params.c_str());
   std::shared_ptr<JavaRef> save_object =
@@ -693,12 +695,14 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_getCrashMessage(
 }
 
 JNIEXPORT void JNICALL
-Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_onResourceReady(JNIEnv* env,
-  jobject j_object,
-  jbyteArray j_byte_array,
-  jlong j_runtime_id, 
-  jlong j_request_id) {
-  HIPPY_DLOG(hippy::Debug, "HippyBridgeImpl onResourceReady j_runtime_id = %lld",
+Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_onResourceReady(
+    JNIEnv* j_env,
+    jobject j_object,
+    jbyteArray j_byte_array,
+    jlong j_runtime_id,
+    jlong j_request_id) {
+  HIPPY_DLOG(hippy::Debug,
+             "HippyBridgeImpl onResourceReady j_runtime_id = %lld",
              j_runtime_id);
   std::shared_ptr<Runtime> runtime = Runtime::Find(j_runtime_id);
   if (!runtime) {
@@ -708,12 +712,12 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_onResourceReady(JNIEnv* env,
   }
   std::shared_ptr<Scope> scope = runtime->GetScope();
   if (!scope) {
-    HIPPY_LOG(hippy::Warning,
-              "HippyBridgeImpl onResourceReady, scope invalid");
+    HIPPY_LOG(hippy::Warning, "HippyBridgeImpl onResourceReady, scope invalid");
     return;
   }
 
-  std::shared_ptr<ADRLoader> loader = std::static_pointer_cast<ADRLoader>(scope->GetUriLoader());
+  std::shared_ptr<ADRLoader> loader =
+      std::static_pointer_cast<ADRLoader>(scope->GetUriLoader());
   int64_t request_id = j_request_id;
   HIPPY_DLOG(hippy::Debug, "request_id = %lld", request_id);
   auto cb = loader->GetRequestCB(request_id);
@@ -721,7 +725,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_onResourceReady(JNIEnv* env,
     HIPPY_LOG(hippy::Warning, "cb not found", request_id);
     return;
   }
-  std::string str = JniUtils::AppendJavaByteArrayToString(env, j_byte_array);
+  std::string str = JniUtils::AppendJavaByteArrayToString(j_env, j_byte_array);
   cb(std::move(str));
 }
 
