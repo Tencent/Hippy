@@ -24,13 +24,9 @@ buildscript {
 
 allprojects {
   ext {
-    Properties localProperties = new Properties()
-    InputStream inputStream = project.rootProject.file('local.properties').newDataInputStream()
-    localProperties.load(inputStream)
-
-    MAVEN_USER = localProperties.getProperty('maven_username')
-    MAVEN_PWD = localProperties.getProperty('maven_password')
-    MAVEN_URL = localProperties.getProperty('qb_maven_url')
+    MAVEN_USER = System.getenv('maven_username')
+    MAVEN_PWD = System.getenv('maven_password')
+    MAVEN_URL = System.getenv('maven_url')
 
     println("===============MAVEN_USER=" + MAVEN_USER + ", MAVEN_PWD=" + MAVEN_PWD)
   }
@@ -125,9 +121,11 @@ android {
     }
   }
 
-  externalNativeBuild {
-    cmake {
-      path CMAKE_PATH
+  if (SKIP_CMAKE_AND_NINJA.toBoolean() == false) {
+    externalNativeBuild {
+      cmake {
+        path CMAKE_PATH
+      }
     }
   }
 
@@ -158,8 +156,6 @@ dependencies {
 }
 
 task copyJNILibs() {
-  file("$JNI_LIBRARY_PATH").deleteDir()
-
   if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() || INCLUDE_ABI_ARMEABI.toBoolean()) {
     copy {
       from "$THIRD_PARTY_LIBRARY_PATH/$V8_VERSION/v8/armeabi-v7a/libmtt_shared.so",

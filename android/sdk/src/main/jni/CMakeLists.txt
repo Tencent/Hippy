@@ -100,7 +100,7 @@ include_directories(${CORE_SRC_DIR}/include)
 include_directories(${PROJECT_SOURCE_DIR}/third_party/${V8_VERSION})
 include_directories(${PROJECT_SOURCE_DIR})
 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../../libs/${ANDROID_ABI})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../../libs/${ANDROID_ABI}")
 
 add_library(libmttv8 SHARED IMPORTED)
 set_target_properties(libmttv8 PROPERTIES IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/third_party/${V8_VERSION}/v8/${ANDROID_ABI}/libmttv8.so)
