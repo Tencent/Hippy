@@ -14,7 +14,6 @@ examples/*/res/vendor-manifest.json
 android/sdk/src/main/jni/.vs
 android/sdk/maven-auth.properties
 android/sdk/local.properties
-android/sdk/libs/*
 android/sdk/.cxx/*
 examples/android-demo/example/src/main/assets/
 examples/ios-demo/HippyDemo.xcodeproj/project.xcworkspace/xcuserdata/*
