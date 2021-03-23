@@ -82,6 +82,8 @@ message("V8_VERSION: ${V8_VERSION}")
 
 message("JS_ENGINE:" ${JS_ENGINE})
 if (${JS_ENGINE} STREQUAL "V8")
+  add_definitions("-DV8_IMMINENT_DEPRECATION_WARNINGS")
+  add_definitions("-DV8_DEPRECATION_WARNINGS")
   file(GLOB_RECURSE JSC_SRC ${CORE_SRC_DIR}/src/napi/jsc/*)
   message("JSC_SRC: ${JSC_SRC}")
   list(REMOVE_ITEM CORE_SRC ${JSC_SRC})

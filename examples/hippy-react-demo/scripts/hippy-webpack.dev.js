@@ -19,6 +19,8 @@ module.exports = {
     strictModuleExceptionHandling: true,
     path: path.resolve('./dist/dev/'),
     globalObject: '(0, eval)("this")',
+    // CDN path can be configured to load children bundles from remote server
+    // publicPath: 'CDNPath',
   },
   plugins: [
     new webpack.DefinePlugin({

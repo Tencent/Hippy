@@ -17,7 +17,7 @@
 
 <script>
 import Vue from 'vue';
-import backButtonImg from './back-icon.png';
+import backButtonImg from '!!url-loader?modules!./back-icon.png';
 
 let DEBUG_SUBTITLE = '';
 if (Vue.Native) {
@@ -75,53 +75,11 @@ export default {
     width: 24px;
     margin: 18px;
   }
-
-  .row {
-    flex-direction: row;
-  }
-
-  .column {
-    flex-direction: column;
-  }
-
-  .center {
-    justify-content: center;
-    align-content: center;
-  }
-
-  .fullscreen {
-    flex: 1;
-  }
-
-
-  .toolbar {
-    display: flex;
-    height: 40px;
-    flex-direction: row;
-  }
-
-  .toolbar .toolbar-btn {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    justify-content: center;
-    margin: 3px;
-    border-style: solid;
-    border-color: blue;
-    border-width: 1px;
-  }
-
-
   .toolbar .toolbar-btn p,
   .toolbar .toolbar-btn span {
     justify-content: center;
     text-align: center;
   }
-
-  .toolbar .toolbar-text {
-    line-height: 40px;
-  }
-
   .title {
     font-size: 20px;
     line-height: 60px;
@@ -131,7 +89,6 @@ export default {
     background-color: #40b883;
     color: #ffffff;
   }
-
   .feature-content {
     background-color: #fff;
   }

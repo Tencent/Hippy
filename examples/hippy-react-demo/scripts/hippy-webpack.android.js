@@ -17,6 +17,8 @@ module.exports = {
     filename: `[name].${platform}.js`,
     path: path.resolve(`./dist/${platform}/`),
     globalObject: '(0, eval)("this")',
+    // CDN path can be configured to load children bundles from remote server
+    // publicPath: 'CDNPath',
   },
   plugins: [
     new webpack.NamedModulesPlugin(),
