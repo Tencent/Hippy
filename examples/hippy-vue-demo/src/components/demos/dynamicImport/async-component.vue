@@ -1,6 +1,6 @@
 <template>
   <div id="asynccomponent">
-    <label>我是异步组件</label>
+    <text class="async-txt">我是异步组件</text>
   </div>
 </template>
 
@@ -18,9 +18,14 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     position: relative;
-    height: 300;
-    width: 400;
-    background-color: #0055f0;
+    height: 200px;
+    width: 300px;
+    background-color: #5dabfb;
+    border-radius: 10px;
+  }
+  .async-txt{
+    color: black;
   }
 </style>

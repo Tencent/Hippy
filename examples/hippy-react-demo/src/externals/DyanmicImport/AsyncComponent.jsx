@@ -8,10 +8,12 @@ const styleObj = StyleSheet.create({
   asyncComponentDemo: {
     display: 'flex',
     alignItems: 'center',
+    justifyContent: 'center',
     position: 'relative',
-    height: 300,
-    width: 400,
-    backgroundColor: '#0055f0',
+    height: 200,
+    width: 300,
+    backgroundColor: '#5dabfb',
+    borderRadius: 10,
   },
 });
 
