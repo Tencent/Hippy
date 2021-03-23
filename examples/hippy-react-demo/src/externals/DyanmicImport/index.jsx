@@ -7,9 +7,12 @@ import {
 
 const styleObj = StyleSheet.create({
   dynamicImportDemo: {
+    marginTop: 20,
     display: 'flex',
+    flex: 1,
     alignItems: 'center',
     position: 'relative',
+    flexDirection: 'column',
   },
 });
 
@@ -32,7 +35,7 @@ export default class DynamicImportDemo extends React.Component {
     console.log('load async component');
     // 在已经支持动态加载的终端版本，可以加 /* webpackMode: "lazy" */ 注释也可以不加，默认就是lazy模式；
     // 在不支持动态加载的终端版本，可以添加 /* webpackMode: "eager" */ 不进行分包
-    import(/* webpackMode: "lazy" */ './AsyncComponent').then((component) => {
+    import('./AsyncComponent').then((component) => {
       this.setState({
         AsyncComponent: component.default ? component.default : component,
       });
@@ -43,10 +46,20 @@ export default class DynamicImportDemo extends React.Component {
     const { AsyncComponent } = this.state;
     return (
       <View style={styleObj.dynamicImportDemo}>
-        <Text onTouchDown={this.onAsyncComponentLoad}>
+        <Text style={{
+          width: 130,
+          height: 40,
+          textAlign: 'center',
+          backgroundColor: '#4c9afa',
+          borderRadius: 5,
+        }} onTouchDown={this.onAsyncComponentLoad}>
           点我异步加载
         </Text>
-        {AsyncComponent && <AsyncComponent />}
+        <View style={{
+          marginTop: 20,
+        }}>
+          {AsyncComponent && <AsyncComponent />}
+        </View>
       </View>
     );
   }
