@@ -15,21 +15,12 @@
  */
 package com.tencent.mtt.hippy.devsupport;
 
-import android.app.Activity;
-
 import com.tencent.mtt.hippy.HippyGlobalConfigs;
 import com.tencent.mtt.hippy.HippyRootView;
 
-/**
- * @author: edsheng
- * @date: 2017/11/14 18:39
- * @version: V1.0
- */
-
 public class DevSupportManager
 {
-
-	DevServerInterface	mDevImp	= null;
+	DevServerInterface	mDevImp;
 	boolean				mSupportDev;
 
 	public DevSupportManager(HippyGlobalConfigs configs, boolean enableDev, String serverHost, String bundleName)

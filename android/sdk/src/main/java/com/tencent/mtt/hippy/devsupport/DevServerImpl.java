@@ -35,18 +35,12 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Stack;
 
-/**
- * @author: edsheng
- * @date: 2017/11/15 10:01
- * @version: V1.0
- */
-
 public class DevServerImpl implements View.OnClickListener, DevServerInterface, DevExceptionDialog.OnReloadListener,
 		DevRemoteDebugManager.RemoteDebugExceptionHandler, LiveReloadController.LiveReloadCallback
 {
 	private static final String			TAG	= "DevServerImpl";
 
-	DevServerHelper						mFetchHelper;
+	DevServerHelper                     mFetchHelper;
 	DevServerCallBack					mServerCallBack;
 	ProgressDialog						mProgressDialog;
 	DevExceptionDialog					mExceptionDialog;
