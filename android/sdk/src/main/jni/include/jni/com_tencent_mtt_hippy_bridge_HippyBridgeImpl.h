@@ -132,7 +132,7 @@ JNIEXPORT void JNICALL
 Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_onResourceReady(JNIEnv *,
                                                                   jobject,
                                                                   jbyteArray,
-																  jlong,
+                                                                  jlong,
                                                                   jlong);
 
 #ifdef __cplusplus
