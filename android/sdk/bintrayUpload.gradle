@@ -1,13 +1,9 @@
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 
-Properties properties = new Properties()
-InputStream inputStream = project.rootProject.file('local.properties').newDataInputStream()
-properties.load(inputStream)
-
 bintray {
-    user = properties.getProperty('bintrayUser')
-    key = properties.getProperty('bintrayKey')
+    user = System.getenv('bintrayUser')
+    key = System.getenv('bintrayKey')
     println("===============bintray: user=" + user + ", key=" + key)
     publications = ['HippyPublication'] // 'HippyPublication'与下面的publishing闭包里的名称对应
     publish = true // 上传后立即发布到Bintray平台
