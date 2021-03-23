@@ -163,7 +163,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>../../../../../core/include/core/core.h</PrecompiledHeaderFile>
       <CppLanguageStandard>c++14</CppLanguageStandard>
-      <PreprocessorDefinitions>__ANDROID_API__=$(AndroidAPILevelNumber);OS_ANDROID;DEBUG;V8_IMMINENT_DEPRECATION_WARNINGS;V8_DEPRECATION_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>__ANDROID_API__=$(AndroidAPILevelNumber);OS_ANDROID;DEBUG</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\third_party\v8_72;.;.\include;..\..\..\..\..\core\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
