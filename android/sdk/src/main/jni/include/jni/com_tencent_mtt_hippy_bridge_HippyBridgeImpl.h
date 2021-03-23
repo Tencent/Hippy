@@ -128,6 +128,13 @@ JNIEXPORT jstring JNICALL
 Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_getCrashMessage(JNIEnv *,
                                                                   jobject);
 
+JNIEXPORT void JNICALL
+Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_onResourceReady(JNIEnv *,
+                                                                  jobject,
+                                                                  jbyteArray,
+																  jlong,
+                                                                  jlong);
+
 #ifdef __cplusplus
 }
 #endif
