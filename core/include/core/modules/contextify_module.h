@@ -34,7 +34,7 @@ class ContextifyModule : public ModuleBase {
  public:
   ContextifyModule() {}
   void RunInThisContext(const hippy::napi::CallbackInfo& info);
-  void LoadUriContent(const hippy::napi::CallbackInfo& info);
+  void LoadUntrustedContent(const hippy::napi::CallbackInfo& info);
   void RemoveCBFunc(const std::string& uri);
 
  private:

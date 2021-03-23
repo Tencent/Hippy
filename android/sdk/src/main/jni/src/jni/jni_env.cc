@@ -46,8 +46,9 @@ void JNIEnvironment::init(JavaVM* vm, JNIEnv* env) {
   instance->wrapper_.inspector_channel_method_id =
       env->GetMethodID(hippy_bridge_cls, "InspectorChannel", "([B)V");
 
-  instance->wrapper_.get_uri_content_method_id = env->GetMethodID(
-      hippy_bridge_cls, "fetchResourceWithUri", "(Ljava/lang/String;)[B");
+  instance->wrapper_.fetch_resource_method_id = env->GetMethodID(
+      hippy_bridge_cls, "fetchResourceWithUri", "(Ljava/lang/String;J)V");
+
   env->DeleteLocalRef(hippy_bridge_cls);
 
   if (env->ExceptionCheck()) {

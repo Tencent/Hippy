@@ -31,7 +31,4 @@
 #include "jni/runtime.h"
 #include "jni/scoped_java_ref.h"
 #include "loader/adr_loader.h"
-#include "loader/asset_loader.h"
-#include "loader/file_loader.h"
-#include "loader/http_loader.h"
 #include "v8/v8.h"

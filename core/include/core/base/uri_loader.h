@@ -34,8 +34,11 @@ class UriLoader {
   UriLoader() {}
   virtual ~UriLoader() {}
 
-  virtual std::string Load(const std::string& uri) = 0;
-  virtual std::string Normalize(const std::string& uri) = 0;
+  virtual bool RequestUntrustedContent(
+      const std::string& uri,
+      std::function<void(std::string)> cb) = 0;
+
+  virtual std::string RequestUntrustedContent(const std::string& uri) = 0;
 };
 }  // namespace base
 }  // namespace hippy
