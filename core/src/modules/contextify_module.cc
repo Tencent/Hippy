@@ -38,7 +38,7 @@
 #include "core/task/javascript_task.h"
 
 REGISTER_MODULE(ContextifyModule, RunInThisContext)
-REGISTER_MODULE(ContextifyModule, LoadUriContent)
+REGISTER_MODULE(ContextifyModule, LoadUntrustedContent)
 
 using Ctx = hippy::napi::Ctx;
 using CtxValue = hippy::napi::CtxValue;
@@ -76,20 +76,19 @@ void ContextifyModule::RemoveCBFunc(const std::string& uri) {
   cb_func_map_.erase(uri);
 }
 
-void ContextifyModule::LoadUriContent(const CallbackInfo& info) {
+void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
   std::shared_ptr<Scope> scope = info.GetScope();
   std::shared_ptr<hippy::napi::Ctx> context = scope->GetContext();
   HIPPY_CHECK(context);
 
-  std::string key;
-  if (!context->GetValueString(info[0], &key)) {
+  std::string uri;
+  if (!context->GetValueString(info[0], &uri)) {
     info.GetExceptionValue()->Set(
         context, "The first argument must be non-empty string.");
     return;
   }
 
   std::shared_ptr<UriLoader> loader = scope->GetUriLoader();
-  std::string uri = loader->Normalize(key);
 
   std::shared_ptr<hippy::napi::CtxValue> param = info[1];
   std::shared_ptr<hippy::napi::CtxValue> function;
@@ -108,7 +107,7 @@ void ContextifyModule::LoadUriContent(const CallbackInfo& info) {
     function = nullptr;
   }
 
-  HIPPY_DLOG(hippy::Debug, "Require key = %s", key.c_str());
+  HIPPY_DLOG(hippy::Debug, "Require uri = %s", uri.c_str());
   auto runner = scope->GetWorkerTaskRunner();
   std::unique_ptr<CommonTask> task = std::make_unique<CommonTask>();
 
@@ -131,7 +130,7 @@ void ContextifyModule::LoadUriContent(const CallbackInfo& info) {
       file_name = uri;
     }
     std::shared_ptr<UriLoader> loader = scope->GetUriLoader();
-    const std::string code = loader->Load(uri);
+    const std::string code = loader->LoadUntrustedContent(uri);
     if (code.empty()) {
       HIPPY_LOG(hippy::Warning, "Load uri = %s, code empty", uri.c_str());
     } else {
@@ -167,7 +166,7 @@ void ContextifyModule::LoadUriContent(const CallbackInfo& info) {
                    last_dir_str.c_str());
         if (try_catch->HasCaught()) {
           error = try_catch->Exception();
-          HIPPY_LOG(hippy::Error, "LoadUriContent error = %s",
+          HIPPY_LOG(hippy::Error, "LoadUntrustedContent error = %s",
                     try_catch->GetExceptionMsg().c_str());
         } else {
           error = ctx->CreateNull();

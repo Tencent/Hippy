@@ -40,9 +40,7 @@
 #include "jni/runtime.h"
 #include "jni/scoped_java_ref.h"
 #include "jni/uri.h"
-#include "loader/asset_loader.h"
-#include "loader/file_loader.h"
-#include "loader/http_loader.h"
+#include "loader/adr_loader.h"
 
 using namespace v8;
 using namespace hippy::napi;
@@ -162,10 +160,12 @@ bool RunScript(std::shared_ptr<Runtime> runtime,
     task_runner = engine->GetWorkerTaskRunner();
     task_runner->PostTask(std::move(task));
 
-    script_content = runtime->GetScope()->GetUriLoader()->Load(uri);
+    script_content =
+        runtime->GetScope()->GetUriLoader()->LoadUntrustedContent(uri);
     code_cache_content = read_file_future.get();
   } else {
-    script_content = runtime->GetScope()->GetUriLoader()->Load(uri);
+    script_content =
+        runtime->GetScope()->GetUriLoader()->LoadUntrustedContent(uri);
   }
 
   HIPPY_DLOG(hippy::Error, "uri = %s, len = %d, script content = %s",
@@ -368,7 +368,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_initJSFramework(
     jlong groupId) {
   HIPPY_DLOG(hippy::Debug,
              "HippyBridgeImpl_initJSFramework begin, singleThreadMode = %d, "
-             "bridgeParamJson = %d, isDevModule = %d, groupId = %lld, ",
+             "bridgeParamJson = %d, isDevModule = %d, groupId = %lld",
              singleThreadMode, bridgeParamJson, isDevModule, groupId);
   std::shared_ptr<Runtime> runtime = std::make_shared<Runtime>(
       std::make_shared<JavaRef>(env, object), bridgeParamJson, isDevModule);
@@ -480,7 +480,9 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_initJSFramework(
       runtime->GetEngine()->CreateScope("", std::move(scope_cb_map)));
   HIPPY_DLOG(hippy::Debug, "group = %lld", group);
   runtime->SetGroupId(group);
-  HIPPY_DLOG(hippy::Debug, "HippyBridgeImpl_initJSFramework end");
+  HIPPY_DLOG(hippy::Debug,
+             "HippyBridgeImpl_initJSFramework end, runtime_id = %lld",
+             runtime_id);
 
   return runtime_id;
 }
@@ -490,19 +492,20 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromUri(
     JNIEnv* env,
     jobject j_obj,
     jstring j_uri,
-    jobject j_asset_manager,
+    jobject j_aasset_manager,
     jboolean j_can_use_code_cache,
     jstring j_code_cache_dir,
     jlong j_runtime_id,
     jobject j_cb) {
+  HIPPY_DLOG(hippy::Debug, "runScriptFromUri begin, j_runtime_id = %lld",
+             j_runtime_id);
   std::shared_ptr<Runtime> runtime = Runtime::Find(j_runtime_id);
   if (!runtime) {
     HIPPY_LOG(hippy::Warning,
-              "HippyBridgeImpl runScriptFromUri, v8RuntimePtr invalid");
+              "HippyBridgeImpl runScriptFromUri, j_runtime_id invalid");
     return false;
   }
 
-  HIPPY_DLOG(hippy::Debug, "runScriptFromUri begin");
   auto time_begin = std::chrono::time_point_cast<std::chrono::microseconds>(
                         std::chrono::system_clock::now())
                         .time_since_epoch()
@@ -513,16 +516,15 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromUri(
       JniUtils::CovertJavaStringToString(env, j_code_cache_dir);
 
   std::shared_ptr<Uri> uri_obj = std::make_shared<Uri>(uri);
-  std::string uri_schema = uri_obj->GetScheme();
   std::string uri_path = uri_obj->GetPath();
   auto pos = uri.find_last_of('/');
   const std::string script_name = uri.substr(pos + 1);
   const std::string base_path = uri.substr(0, pos + 1);
   HIPPY_LOG(hippy::Debug,
-            "runScriptFromUri uri = %s,  uri_schema = %s, uri_path = %s, "
-            "script_name = %s, base_path = %s,  code_cache_dir = %s",
-            uri.c_str(), uri_schema.c_str(), uri_path.c_str(),
-            script_name.c_str(), base_path.c_str(), code_cache_dir.c_str());
+            "runScriptFromUri uri = %s, script_name = %s, base_path = %s, "
+            "code_cache_dir = %s",
+            uri.c_str(), script_name.c_str(), base_path.c_str(),
+            code_cache_dir.c_str());
 
   auto runner = runtime->GetEngine()->GetJSRunner();
   std::shared_ptr<Ctx> ctx = runtime->GetScope()->GetContext();
@@ -532,27 +534,13 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromUri(
   };
   runner->PostTask(task);
 
+  std::shared_ptr<ADRLoader> loader = std::make_shared<ADRLoader>();
+  loader->SetBridge(runtime->GetBridge());
+  runtime->GetScope()->SetUriLoader(loader);
   AAssetManager* aasset_manager = nullptr;
-  if (uri_schema == "file") {
-    HIPPY_LOG(hippy::Debug, "FileLoader");
-    std::shared_ptr<FileLoader> loader =
-        std::make_shared<FileLoader>(base_path);
-    runtime->GetScope()->SetUriLoader(loader);
-  } else if (uri_schema == "http" || uri_schema == "https" ||
-             uri_schema == "debug") {
-    HIPPY_LOG(hippy::Debug, "HttpLoader");
-    std::shared_ptr<HttpLoader> loader = std::make_shared<HttpLoader>();
-    loader->SetBridge(runtime->GetBridge());
-    runtime->GetScope()->SetUriLoader(loader);
-  } else if (uri_schema == "asset") {
-    HIPPY_LOG(hippy::Debug, "AssetLoader");
-    aasset_manager = AAssetManager_fromJava(env, j_asset_manager);
-    std::shared_ptr<AssetLoader> loader =
-        std::make_shared<AssetLoader>(aasset_manager, base_path);
-    runtime->GetScope()->SetUriLoader(loader);
-  } else {
-    HIPPY_LOG(hippy::Error, "schema error, schema = %s", uri_schema.c_str());
-    return false;
+  if (j_aasset_manager) {
+    aasset_manager = AAssetManager_fromJava(env, j_aasset_manager);
+    loader->SetAAssetManager(aasset_manager);
   }
 
   std::shared_ptr<JavaRef> save_object = std::make_shared<JavaRef>(env, j_cb);
@@ -571,7 +559,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromUri(
                         .time_since_epoch()
                         .count();
 
-    HIPPY_LOG(hippy::Debug, "pollytime runScriptFromUri = %lld, uri = %s",
+    HIPPY_LOG(hippy::Debug, "runScriptFromUri = %lld, uri = %s",
               (time_end - time_begin), uri.c_str());
 
     return flag;
@@ -622,7 +610,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_callFunction(
   std::shared_ptr<Runtime> runtime = Runtime::Find(v8RuntimePtr);
   if (!runtime) {
     HIPPY_LOG(hippy::Warning,
-              "HippyBridgeImpl callFunction, v8RuntimePtr invalid");
+              "HippyBridgeImpl callFunction, j_runtime_id invalid");
     return;
   }
 
@@ -704,14 +692,14 @@ JNIEXPORT void JNICALL
 Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_destroy(
     JNIEnv* env,
     jobject object,
-    jlong v8RuntimePtr,
+    jlong j_runtime_id,
     jboolean singleThreadMode,
     jobject jcallback) {
-  HIPPY_DLOG(hippy::Debug, "destroy begin");
-  int64_t runtime_id = v8RuntimePtr;
+  HIPPY_DLOG(hippy::Debug, "destroy begin, j_runtime_id = %lld", j_runtime_id);
+  int64_t runtime_id = j_runtime_id;
   std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
   if (!runtime) {
-    HIPPY_LOG(hippy::Warning, "HippyBridgeImpl destroy, v8RuntimePtr invalid");
+    HIPPY_LOG(hippy::Warning, "HippyBridgeImpl destroy, j_runtime_id invalid");
     return;
   }
 
@@ -728,6 +716,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_destroy(
     runtime->SetScope(nullptr);
     HIPPY_LOG(hippy::Debug, "erase runtime");
     Runtime::Erase(runtime);
+    HIPPY_LOG(hippy::Debug, "ReleaseKey");
     Runtime::ReleaseKey(runtime_id);
     HIPPY_LOG(hippy::Debug, "js destroy end");
   };

@@ -22,17 +22,32 @@
 
 #pragma once
 
+#include <android/asset_manager.h>
+
 #include "core/core.h"
+#include "jni/scoped_java_ref.h"
 
 class ADRLoader : public hippy::base::UriLoader {
  public:
   ADRLoader();
-  explicit ADRLoader(const std::string& base);
-
   virtual ~ADRLoader() {}
 
-  virtual std::string Normalize(const std::string& uri);
+  static std::string LoadByFile(const std::string& path);
+  static std::string LoadByAsset(const std::string& file_path,
+                                 AAssetManager* asset_manager,
+                                 bool is_auto_fill = false);
+  static std::string LoadByHttp(const std::string& uri,
+                                std::shared_ptr<JavaRef> bridge);
+
+  inline void SetBridge(std::shared_ptr<JavaRef> bridge) { bridge_ = bridge; }
+  inline void SetAAssetManager(AAssetManager* aasset_manager) {
+    aasset_manager_ = aasset_manager;
+  }
+
+  virtual std::string LoadUntrustedContent(const std::string& uri);
 
  protected:
   std::string base_;
+  std::shared_ptr<JavaRef> bridge_;
+  AAssetManager* aasset_manager_;
 };
