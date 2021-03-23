@@ -35,8 +35,6 @@
 #include "v8/libplatform/libplatform.h"
 #include "v8/v8.h"
 
-#define TO_LOCAL_UNCHECKED(maybe_local, T) maybe_local.FromMaybe(v8::Local<T>())
-
 namespace hippy {
 namespace napi {
 
@@ -55,7 +53,7 @@ class V8VM : public VM {
   v8::Isolate::CreateParams create_params_;
 
  public:
-  static std::unique_ptr<v8::Platform> platform_;
+  static v8::Platform *platform_;
   static std::mutex mutex_;
 };
 
@@ -99,7 +97,7 @@ struct V8Ctx : public Ctx {
     v8::HandleScope handle_scope(isolate);
 
     v8::Local<v8::ObjectTemplate> global = v8::ObjectTemplate::New(isolate);
-    v8::Local<v8::Context> context =
+    v8::Handle<v8::Context> context =
         v8::Context::New(isolate, nullptr, global);
 
     global_persistent_.Reset(isolate, global);
@@ -194,9 +192,9 @@ struct V8Ctx : public Ctx {
   std::unique_ptr<CBTuple> data_tuple_;
 
  private:
-  v8::Local<v8::Value> ParseJson(const char *json);
-  std::shared_ptr<CtxValue> InternalRunScript(v8::Local<v8::Context> context,
-                                              v8::Local<v8::String> source,
+  v8::Handle<v8::Value> ParseJson(const char *json);
+  std::shared_ptr<CtxValue> InternalRunScript(v8::Handle<v8::Context> context,
+                                              v8::Handle<v8::String> source,
                                               const std::string &file_name,
                                               bool is_use_code_cache,
                                               std::string *cache);
@@ -204,12 +202,12 @@ struct V8Ctx : public Ctx {
 
 struct V8CtxValue : public CtxValue {
   V8CtxValue(v8::Isolate *isolate, const v8::Local<v8::Value> &value)
-      : global_value_(isolate, value) {}
+      : persisent_value_(isolate, value) {}
   V8CtxValue(v8::Isolate *isolate, const v8::Persistent<v8::Value> &value)
-      : global_value_(isolate, value) {}
-  ~V8CtxValue() { global_value_.Reset(); }
+      : persisent_value_(isolate, value) {}
+  ~V8CtxValue() { persisent_value_.Reset(); }
 
-  v8::Global<v8::Value> global_value_;
+  v8::Persistent<v8::Value> persisent_value_;
   v8::Isolate *isolate_;
 
   DISALLOW_COPY_AND_ASSIGN(V8CtxValue);
