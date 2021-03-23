@@ -304,11 +304,13 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 
 	public native boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache, String codeCacheDir, long V8RuntimId, NativeCallback callback);
 
-	public native void destroy(long V8RuntimId, boolean useLowMemoryMode, NativeCallback callback);
+	public native void destroy(long runtimeId, boolean useLowMemoryMode, NativeCallback callback);
 
 	public native void callFunction(String action, byte[] params, int offset, int length, long V8RuntimId, NativeCallback callback);
 
 	public native void runNativeRunnable(String codeCacheFile, long nativeRunnableId, long V8RuntimId, NativeCallback callback);
+
+	public native void onResourceReady(byte[] output, long runtimeId, long resId);
 
 	public native String getCrashMessage();
 
@@ -340,24 +342,17 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 		}
 	}
 
-	public byte[] fetchResourceWithUri(String uri) {
-		if (mContext == null || TextUtils.isEmpty(uri) || !UrlUtils.isWebUrl(uri)) {
-			return null;
-		}
-
-		final String resUrl = uri;
-		final ByteArrayOutputStream output = new ByteArrayOutputStream();
-		final CountDownLatch countDownLatch = new CountDownLatch(1);
+	public void fetchResourceWithUri(final String uri, final long resId) {
 		UIThreadUtils.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				DevSupportManager devManager = mContext.getDevSupportManager();
-				if (devManager == null || !devManager.supportDev()) {
-					countDownLatch.countDown();
+				if (mContext == null || TextUtils.isEmpty(uri) || !UrlUtils.isWebUrl(uri) || devManager == null) {
+					LogUtils.e("HippyBridgeImpl", "fetchResourceWithUri: can not call loadRemoteResource with " + uri);
 					return;
 				}
 
-				devManager.loadRemoteResource(resUrl, new DevServerCallBack() {
+				devManager.loadRemoteResource(uri, new DevServerCallBack() {
 					@Override
 					public void onDevBundleLoadReady(File bundle) {}
 
@@ -367,36 +362,26 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 					@Override
 					public void onDevBundleLoadReady(InputStream inputStream) {
 						try {
+							ByteArrayOutputStream output = new ByteArrayOutputStream();
+
 							byte[] b = new byte[2048];
 							int size = 0;
 							while ((size = inputStream.read(b)) > 0) {
 								output.write(b, 0, size);
 							}
-						} catch (Exception e) {
-							LogUtils.e("hippy", "requireSubResource: " + e.getMessage());
-						} finally {
-							countDownLatch.countDown();
-						}
 
+						} catch (Throwable e) {
+							LogUtils.e("HippyBridgeImpl", "fetchResourceWithUri: load failed!!! " + e.getMessage());
+						}
 					}
 
 					@Override
 					public void onInitDevError(Throwable e) {
 						LogUtils.e("hippy", "requireSubResource: " + e.getMessage());
-						countDownLatch.countDown();
 					}
 				});
 			}
 		});
-
-		try {
-			//countDownLatch.await(TIMEOUT, TimeUnit.MILLISECONDS);
-			countDownLatch.await();
-		} catch (InterruptedException e) {
-			LogUtils.e("hippy", "requireSubResource: " + e.getMessage());
-		}
-
-		return output.toByteArray();
 	}
 
 	private HippyArray bytesToArgument(byte param[])

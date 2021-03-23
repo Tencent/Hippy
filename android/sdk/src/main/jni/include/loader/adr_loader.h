@@ -22,17 +22,42 @@
 
 #pragma once
 
+#include <android/asset_manager.h>
+
+#include <map>
+
 #include "core/core.h"
+#include "jni/scoped_java_ref.h"
 
 class ADRLoader : public hippy::base::UriLoader {
  public:
   ADRLoader();
-  explicit ADRLoader(const std::string& base);
-
   virtual ~ADRLoader() {}
 
-  virtual std::string Normalize(const std::string& uri);
+  virtual bool RequestUntrustedContent(const std::string& uri,
+                                       std::function<void(std::string)> cb);
+  virtual std::string RequestUntrustedContent(const std::string& uri);
 
- protected:
+  inline void SetBridge(std::shared_ptr<JavaRef> bridge) { bridge_ = bridge; }
+  inline void SetAAssetManager(AAssetManager* aasset_manager) {
+    aasset_manager_ = aasset_manager;
+  }
+  inline void SetWorkerTaskRunner(std::weak_ptr<WorkerTaskRunner> runner) {
+    runner_ = runner;
+  }
+  std::function<void(std::string)> GetRequestCB(int64_t request_id);
+  int64_t SetRequestCB(std::function<void(std::string)> cb);
+
+ private:
+  bool LoadByFile(const std::string& path, std::function<void(std::string)> cb);
+  bool LoadByAsset(const std::string& file_path,
+                   std::function<void(std::string)> cb,
+                   bool is_auto_fill = false);
+  bool LoadByHttp(const std::string& uri, std::function<void(std::string)> cb);
+
   std::string base_;
+  std::shared_ptr<JavaRef> bridge_;
+  AAssetManager* aasset_manager_;
+  std::weak_ptr<WorkerTaskRunner> runner_;
+  std::unordered_map<int64_t, std::function<void(std::string)>> request_map_;
 };

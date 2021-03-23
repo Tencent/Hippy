@@ -8,5 +8,5 @@ global.dynamicLoad = (path, encode, cb) => {
     console.log(`global.__HIPPYCURDIR__: ${global.__HIPPYCURDIR__}`);
   }
   console.log(`requestPath:${requestPath}|path = ${path}`);
-  ContextifyModule.LoadUriContent(requestPath, encode, cb);
+  ContextifyModule.LoadUntrustedContent(requestPath, encode, cb);
 };

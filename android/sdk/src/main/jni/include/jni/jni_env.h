@@ -33,13 +33,13 @@ class JNIEnvironment {
       call_natives_method_id = nullptr;
       report_exception_method_id = nullptr;
       inspector_channel_method_id = nullptr;
-      get_uri_content_method_id = nullptr;
+      fetch_resource_method_id = nullptr;
     }
 
     jmethodID call_natives_method_id;
     jmethodID report_exception_method_id;
     jmethodID inspector_channel_method_id;
-    jmethodID get_uri_content_method_id;
+    jmethodID fetch_resource_method_id;
   };
 
  public:
