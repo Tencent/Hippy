@@ -40,7 +40,7 @@
 namespace hippy {
 namespace napi {
 
-v8::Platform* V8VM::platform_ = nullptr;
+std::unique_ptr<v8::Platform> V8VM::platform_ = nullptr;
 std::mutex V8VM::mutex_;
 
 namespace {
@@ -93,10 +93,9 @@ void JsCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info) {
       callback_info.GetExceptionValue()->Get());
 
   if (exception) {
-    const v8::Persistent<v8::Value>& persistent_value =
-        exception->persisent_value_;
-    v8::Handle<v8::Value> handle_value =
-        v8::Handle<v8::Value>::New(isolate, persistent_value);
+    const v8::Global<v8::Value>& global_value = exception->global_value_;
+    v8::Local<v8::Value> handle_value =
+        v8::Local<v8::Value>::New(isolate, global_value);
     isolate->ThrowException(handle_value);
     info.GetReturnValue().SetUndefined();
     return;
@@ -109,7 +108,7 @@ void JsCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info) {
     return;
   }
 
-  info.GetReturnValue().Set(ret_value->persisent_value_);
+  info.GetReturnValue().Set(ret_value->global_value_);
 }
 
 void NativeCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info) {
@@ -165,7 +164,7 @@ void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& info) {
   v8::Isolate* isolate = info.GetIsolate();
   v8::HandleScope handle_scope(isolate);
 
-  v8::Handle<v8::Context> context = isolate->GetCurrentContext();
+  v8::Local<v8::Context> context = isolate->GetCurrentContext();
   v8::Context::Scope context_scope(context);
   std::string name = *module_name;
   HIPPY_DLOG(hippy::Debug, "module_name = %s", name.c_str());
@@ -173,8 +172,8 @@ void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& info) {
       std::static_pointer_cast<V8CtxValue>(scope->GetModuleValue(name));
   if (module_value) {
     HIPPY_DLOG(hippy::Debug, "use module cache, module = %s", name.c_str());
-    v8::Handle<v8::Value> function =
-        v8::Handle<v8::Value>::New(isolate, module_value->persisent_value_);
+    v8::Local<v8::Value> function =
+        v8::Local<v8::Value>::New(isolate, module_value->global_value_);
     info.GetReturnValue().Set(function);
     return;
   }
@@ -186,13 +185,13 @@ void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& info) {
     return;
   }
 
-  v8::Handle<v8::FunctionTemplate> constructor =
+  v8::Local<v8::FunctionTemplate> constructor =
       v8::FunctionTemplate::New(isolate);
   for (const auto& fn : module_class->second) {
     const std::string& fn_name = fn.first;
     std::unique_ptr<FunctionData> fn_data =
         std::make_unique<FunctionData>(scope, fn.second);
-    v8::Handle<v8::FunctionTemplate> function_template =
+    v8::Local<v8::FunctionTemplate> function_template =
         v8::FunctionTemplate::New(
             isolate, JsCallbackFunc,
             v8::External::New(isolate, static_cast<void*>(fn_data.get())));
@@ -289,13 +288,13 @@ V8VM::V8VM() {
     std::lock_guard<std::mutex> lock(mutex_);
     if (platform_ != nullptr) {
       HIPPY_DLOG(hippy::Debug, "InitializePlatform");
-      v8::V8::InitializePlatform(platform_);
+      v8::V8::InitializePlatform(platform_.get());
     } else {
-      HIPPY_DLOG(hippy::Debug, "CreateDefaultPlatform");
-      platform_ = v8::platform::CreateDefaultPlatform();
+      HIPPY_DLOG(hippy::Debug, "NewDefaultPlatform");
+      platform_ = v8::platform::NewDefaultPlatform();
       v8::V8::SetFlagsFromString("--wasm-disable-structured-cloning",
                                  strlen("--wasm-disable-structured-cloning"));
-      v8::V8::InitializePlatform(platform_, true);
+      v8::V8::InitializePlatform(platform_.get(), true);
       HIPPY_DLOG(hippy::Debug, "Initialize");
       v8::V8::Initialize();
     }
@@ -317,7 +316,7 @@ V8VM::~V8VM() {
 }
 
 void V8VM::PlatformDestroy() {
-  delete platform_;
+  platform_ = nullptr;
 
   v8::V8::Dispose();
   v8::V8::ShutdownPlatform();
@@ -407,7 +406,7 @@ std::string V8Ctx::GetMsgDesc(v8::Local<v8::Message> message) {
   }
 
   v8::HandleScope handle_scope(isolate_);
-  v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
 
   v8::String::Utf8Value msg_str(isolate_, message->Get());
@@ -440,7 +439,7 @@ std::string V8Ctx::GetStackInfo(v8::Local<v8::Message> message) {
   }
 
   v8::HandleScope handle_scope(isolate_);
-  v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
 
   std::stringstream stack_stream;
@@ -465,29 +464,37 @@ std::string V8Ctx::GetStackInfo(v8::Local<v8::Message> message) {
 bool V8Ctx::RegisterGlobalInJs() {
   HIPPY_DLOG(hippy::Debug, "RegisterGlobalInJs");
   v8::HandleScope handle_scope(isolate_);
-  v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
   v8::Local<v8::Object> global = context->Global();
 
-  return global->Set(
-      v8::String::NewFromUtf8(isolate_, "global", v8::NewStringType::kNormal)
-          .FromMaybe(v8::Local<v8::String>()),
-      global);
+  return global
+      ->Set(context,
+            TO_LOCAL_UNCHECKED(
+                v8::String::NewFromUtf8(isolate_, "global",
+                                        v8::NewStringType::kNormal),
+                v8::String),
+            global)
+      .FromMaybe(false);
 }
 
 bool V8Ctx::SetGlobalJsonVar(const std::string& name, const char* json) {
   HIPPY_DLOG(hippy::Debug, "SetGlobalJsonVar name = %s, json = %s",
              name.c_str(), json);
   v8::HandleScope handle_scope(isolate_);
-  v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
   v8::Local<v8::Object> global = context->Global();
-  v8::Handle<v8::Value> json_value = ParseJson(json);
+  v8::Local<v8::Value> json_value = ParseJson(json);
   if (!json_value.IsEmpty()) {
-    return global->Set(v8::String::NewFromUtf8(isolate_, name.c_str(),
-                                               v8::NewStringType::kNormal)
-                           .FromMaybe(v8::Local<v8::String>()),
-                       json_value);
+    return global
+        ->Set(context,
+              TO_LOCAL_UNCHECKED(
+                  v8::String::NewFromUtf8(isolate_, name.c_str(),
+                                          v8::NewStringType::kNormal),
+                  v8::String),
+              json_value)
+        .FromMaybe(false);
   }
   return false;
 }
@@ -496,16 +503,20 @@ bool V8Ctx::SetGlobalStrVar(const std::string& name, const char* str) {
   HIPPY_DLOG(hippy::Debug, "SetGlobalStrVar name = %s, str = %s", name.c_str(),
              str);
   v8::HandleScope handle_scope(isolate_);
-  v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
   v8::Local<v8::Object> global = context->Global();
-  v8::Handle<v8::String> v8_str =
-      v8::String::NewFromUtf8(isolate_, str, v8::NewStringType::kNormal)
-          .FromMaybe(v8::Local<v8::String>());
-  return global->Set(v8::String::NewFromUtf8(isolate_, name.c_str(),
-                                             v8::NewStringType::kNormal)
-                         .FromMaybe(v8::Local<v8::String>()),
-                     v8_str);
+  v8::Local<v8::String> v8_str = TO_LOCAL_UNCHECKED(
+      v8::String::NewFromUtf8(isolate_, str, v8::NewStringType::kNormal),
+      v8::String);
+  return global
+      ->Set(context,
+            TO_LOCAL_UNCHECKED(
+                v8::String::NewFromUtf8(isolate_, name.c_str(),
+                                        v8::NewStringType::kNormal),
+                v8::String),
+            v8_str)
+      .FromMaybe(false);
 }
 
 bool V8Ctx::SetGlobalObjVar(const std::string& name,
@@ -517,19 +528,19 @@ bool V8Ctx::SetGlobalObjVar(const std::string& name,
       std::static_pointer_cast<V8CtxValue>(obj);
 
   v8::HandleScope handle_scope(isolate_);
-  v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
   v8::Local<v8::Object> global = context->Global();
-  const v8::Persistent<v8::Value>& persistent_value =
-      ctx_value->persisent_value_;
-  v8::Handle<v8::Value> handle_value =
-      v8::Handle<v8::Value>::New(isolate_, persistent_value);
+  const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, global_value);
   v8::PropertyAttribute v8_attr = v8::PropertyAttribute(attr);
   return global
       ->DefineOwnProperty(context,
-                          v8::String::NewFromUtf8(isolate_, name.c_str(),
-                                                  v8::NewStringType::kNormal)
-                              .FromMaybe(v8::Local<v8::String>()),
+                          TO_LOCAL_UNCHECKED(v8::String::NewFromUtf8(
+                                                 isolate_, name.c_str(),
+                                                 v8::NewStringType::kNormal),
+                                             v8::String),
                           handle_value, v8_attr)
       .FromMaybe(false);
 }
@@ -537,13 +548,15 @@ bool V8Ctx::SetGlobalObjVar(const std::string& name,
 std::shared_ptr<CtxValue> V8Ctx::GetGlobalStrVar(const std::string& name) {
   HIPPY_DLOG(hippy::Debug, "GetGlobalStrVar name = %s", name.c_str());
   v8::HandleScope handle_scope(isolate_);
-  v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
   v8::Local<v8::Object> global = context->Global();
-  v8::Handle<v8::Value> value =
-      global->Get(v8::String::NewFromUtf8(isolate_, name.c_str(),
-                                          v8::NewStringType::kNormal)
-                      .FromMaybe(v8::Local<v8::String>()));
+  v8::Local<v8::Value> value = TO_LOCAL_UNCHECKED(
+      global->Get(context, TO_LOCAL_UNCHECKED(v8::String::NewFromUtf8(
+                                                  isolate_, name.c_str(),
+                                                  v8::NewStringType::kNormal),
+                                              v8::String)),
+      v8::Value);
   return std::make_shared<V8CtxValue>(isolate_, value);
 }
 
@@ -563,20 +576,21 @@ void V8Ctx::RegisterGlobalModule(std::shared_ptr<Scope> scope,
   HIPPY_DLOG(hippy::Debug, "RegisterGlobalModule");
   v8::HandleScope handle_scope(isolate_);
 
-  v8::Handle<v8::Context> v8_context = context_persistent_.Get(isolate_);
+  v8::Local<v8::Context> v8_context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(v8_context);
 
   for (const auto& cls : modules) {
-    v8::Handle<v8::FunctionTemplate> module_object =
+    v8::Local<v8::FunctionTemplate> module_object =
         v8::FunctionTemplate::New(isolate_);
 
     for (const auto& fn : cls.second) {
       std::unique_ptr<FunctionData> data =
           std::make_unique<FunctionData>(scope, fn.second);
       module_object->Set(
-          v8::String::NewFromUtf8(isolate_, fn.first.c_str(),
-                                  v8::NewStringType::kNormal)
-              .FromMaybe(v8::Local<v8::String>()),
+          TO_LOCAL_UNCHECKED(
+              v8::String::NewFromUtf8(isolate_, fn.first.c_str(),
+                                      v8::NewStringType::kNormal),
+              v8::String),
           v8::FunctionTemplate::New(
               isolate_, JsCallbackFunc,
               v8::External::New(isolate_, static_cast<void*>(data.get()))));
@@ -586,10 +600,10 @@ void V8Ctx::RegisterGlobalModule(std::shared_ptr<Scope> scope,
     v8::Local<v8::Function> function =
         module_object->GetFunction(v8_context).ToLocalChecked();
 
-    v8::Handle<v8::String> classNameKey =
-        v8::String::NewFromUtf8(isolate_, cls.first.c_str(),
-                                v8::NewStringType::kNormal)
-            .FromMaybe(v8::Local<v8::String>());
+    v8::Local<v8::String> classNameKey =
+        TO_LOCAL_UNCHECKED(v8::String::NewFromUtf8(isolate_, cls.first.c_str(),
+                                                   v8::NewStringType::kNormal),
+                           v8::String);
 
     v8::Maybe<bool> ret =
         v8_context->Global()->Set(v8_context, classNameKey, function);
@@ -603,7 +617,7 @@ void V8Ctx::RegisterNativeBinding(const std::string& name,
   HIPPY_DLOG(hippy::Debug, "RegisterNativeBinding name = %s", name.c_str());
 
   v8::HandleScope handle_scope(isolate_);
-  v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
   data_tuple_ = std::make_unique<CBTuple>(fn, data);
   v8::Local<v8::FunctionTemplate> fn_template = v8::FunctionTemplate::New(
@@ -612,10 +626,11 @@ void V8Ctx::RegisterNativeBinding(const std::string& name,
   fn_template->RemovePrototype();
   context->Global()
       ->Set(context,
-            v8::String::NewFromUtf8(isolate_, name.c_str(),
-                                    v8::NewStringType::kNormal)
-                .FromMaybe(v8::Local<v8::String>()),
-            fn_template->GetFunction())
+            TO_LOCAL_UNCHECKED(
+                v8::String::NewFromUtf8(isolate_, name.c_str(),
+                                        v8::NewStringType::kNormal),
+                v8::String),
+            TO_LOCAL_UNCHECKED(fn_template->GetFunction(context), v8::Function))
       .ToChecked();
 }
 
@@ -631,7 +646,7 @@ std::shared_ptr<CtxValue> GetInternalBindingFn(std::shared_ptr<Scope> scope) {
 
   // GetInternalBindingFn 是向 V8 注册 JS Function
   // GetInternalBinding 是 JS 调用 Function 的实际执行函数
-  v8::Handle<v8::Function> v8_function =
+  v8::Local<v8::Function> v8_function =
       v8::Function::New(
           v8_context, GetInternalBinding,
           v8::External::New(isolate,
@@ -652,16 +667,16 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const uint8_t* data,
              "is_use_code_cache = %d, cache = %d",
              file_name.c_str(), len, is_use_code_cache, encodeing, cache);
   v8::HandleScope handle_scope(isolate_);
-  v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
-  v8::Handle<v8::String> source;
+  v8::Local<v8::String> source;
 
   switch (encodeing) {
     case Encoding::ONE_BYTE_ENCODING: {
       ExternalOneByteStringResourceImpl* one_byte =
           new ExternalOneByteStringResourceImpl(data, len);
-      source = v8::String::NewExternalOneByte(isolate_, one_byte)
-                   .FromMaybe(v8::Local<v8::String>());
+      source = TO_LOCAL_UNCHECKED(
+          v8::String::NewExternalOneByte(isolate_, one_byte), v8::String);
       break;
     }
     case Encoding::TWO_BYTE_ENCODING: {
@@ -671,15 +686,15 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const uint8_t* data,
       }
       ExternalStringResourceImpl* two_byte = new ExternalStringResourceImpl(
           reinterpret_cast<uint16_t*>(const_cast<uint8_t*>(data)), len / 2);
-      source = v8::String::NewExternalTwoByte(isolate_, two_byte)
-                   .FromMaybe(v8::Local<v8::String>());
+      source = TO_LOCAL_UNCHECKED(
+          v8::String::NewExternalTwoByte(isolate_, two_byte), v8::String);
       break;
     }
     default: {
-      source =
+      source = TO_LOCAL_UNCHECKED(
           v8::String::NewFromUtf8(isolate_, reinterpret_cast<const char*>(data),
-                                  v8::NewStringType::kNormal)
-              .FromMaybe(v8::Local<v8::String>());
+                                  v8::NewStringType::kNormal),
+          v8::String);
       break;
     }
   }
@@ -704,16 +719,16 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const std::string&& script,
              "is_use_code_cache = %d, cache = %d",
              file_name.c_str(), is_use_code_cache, encodeing, cache);
   v8::HandleScope handle_scope(isolate_);
-  v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
-  v8::Handle<v8::String> source;
+  v8::Local<v8::String> source;
 
   switch (encodeing) {
     case Encoding::ONE_BYTE_ENCODING: {
       ExternalOneByteStringResourceImpl* one_byte =
           new ExternalOneByteStringResourceImpl(std::move(script));
-      source = v8::String::NewExternalOneByte(isolate_, one_byte)
-                   .FromMaybe(v8::Local<v8::String>());
+      source = TO_LOCAL_UNCHECKED(
+          v8::String::NewExternalOneByte(isolate_, one_byte), v8::String);
       break;
     }
     case Encoding::TWO_BYTE_ENCODING: {
@@ -725,14 +740,15 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const std::string&& script,
 
       ExternalStringResourceImpl* two_byte =
           new ExternalStringResourceImpl(std::move(script));
-      source = v8::String::NewExternalTwoByte(isolate_, two_byte)
-                   .FromMaybe(v8::Local<v8::String>());
+      source = TO_LOCAL_UNCHECKED(
+          v8::String::NewExternalTwoByte(isolate_, two_byte), v8::String);
       break;
     }
     default: {
-      source = v8::String::NewFromUtf8(isolate_, script.c_str(),
-                                       v8::NewStringType::kNormal)
-                   .FromMaybe(v8::Local<v8::String>());
+      source = TO_LOCAL_UNCHECKED(
+          v8::String::NewFromUtf8(isolate_, script.c_str(),
+                                  v8::NewStringType::kNormal),
+          v8::String);
       break;
     }
   }
@@ -746,14 +762,15 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const std::string&& script,
 }
 
 std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
-    v8::Handle<v8::Context> context,
-    v8::Handle<v8::String> source,
+    v8::Local<v8::Context> context,
+    v8::Local<v8::String> source,
     const std::string& file_name,
     bool is_use_code_cache,
     std::string* cache) {
-  v8::ScriptOrigin origin(v8::String::NewFromUtf8(isolate_, file_name.c_str(),
-                                                  v8::NewStringType::kNormal)
-                              .FromMaybe(v8::Local<v8::String>()));
+  v8::ScriptOrigin origin(
+      TO_LOCAL_UNCHECKED(v8::String::NewFromUtf8(isolate_, file_name.c_str(),
+                                                 v8::NewStringType::kNormal),
+                         v8::String));
   v8::MaybeLocal<v8::Script> script;
   if (cache) {
     v8::ScriptCompiler::CachedData* cached_data =
@@ -788,25 +805,27 @@ std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
   }
 
   v8::MaybeLocal<v8::Value> v8_maybe_value =
-      script.FromMaybe(v8::Local<v8::Script>())->Run(context);
+      TO_LOCAL_UNCHECKED(script, v8::Script)->Run(context);
   if (v8_maybe_value.IsEmpty()) {
     return nullptr;
   }
-  v8::Handle<v8::Value> v8_value = v8_maybe_value.ToLocalChecked();
+  v8::Local<v8::Value> v8_value = v8_maybe_value.ToLocalChecked();
   return std::make_shared<V8CtxValue>(isolate_, v8_value);
 }
 
 std::shared_ptr<CtxValue> V8Ctx::GetJsFn(const std::string& name) {
   HIPPY_DLOG(hippy::Debug, "GetJsFn name = %s", name.c_str());
   v8::HandleScope handle_scope(isolate_);
-  v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
   v8::Local<v8::String> js_name =
-      v8::String::NewFromUtf8(isolate_, name.c_str(),
-                              v8::NewStringType::kNormal)
-          .FromMaybe(v8::Local<v8::String>());
-  v8::Local<v8::Function> value = v8::Local<v8::Function>::Cast(
-      context_persistent_.Get(isolate_)->Global()->Get(js_name));
+      TO_LOCAL_UNCHECKED(v8::String::NewFromUtf8(isolate_, name.c_str(),
+                                                 v8::NewStringType::kNormal),
+                         v8::String);
+  v8::Local<v8::Function> value =
+      v8::Local<v8::Function>::Cast(TO_LOCAL_UNCHECKED(
+          context_persistent_.Get(isolate_)->Global()->Get(context, js_name),
+          v8::Value));
   return std::make_shared<V8CtxValue>(isolate_, value);
 }
 
@@ -864,23 +883,21 @@ std::shared_ptr<CtxValue> V8Ctx::CallFunction(
 
   std::shared_ptr<V8CtxValue> ctx_value =
       std::static_pointer_cast<V8CtxValue>(function);
-  const v8::Persistent<v8::Value>& persistent_value =
-      ctx_value->persisent_value_;
-  v8::Handle<v8::Value> handle_value =
-      v8::Handle<v8::Value>::New(isolate_, persistent_value);
+  const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, global_value);
   if (!handle_value->IsFunction()) {
     HIPPY_LOG(hippy::Warning, "CallFunction handle_value is not a function");
     return nullptr;
   }
 
   v8::Function* v8_fn = v8::Function::Cast(*handle_value);
-  v8::Handle<v8::Value> args[argument_count];
+  v8::Local<v8::Value> args[argument_count];
   for (size_t i = 0; i < argument_count; i++) {
     std::shared_ptr<V8CtxValue> argument =
         std::static_pointer_cast<V8CtxValue>(arguments[i]);
-    const v8::Persistent<v8::Value>& persistent_value =
-        argument->persisent_value_;
-    args[i] = v8::Handle<v8::Value>::New(isolate_, persistent_value);
+    const v8::Global<v8::Value>& global_value = argument->global_value_;
+    args[i] = v8::Local<v8::Value>::New(isolate_, global_value);
   }
 
   HIPPY_DLOG(hippy::Debug, "CallFunction call fn");
