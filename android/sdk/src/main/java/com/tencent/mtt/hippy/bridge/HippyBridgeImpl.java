@@ -370,6 +370,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 								output.write(b, 0, size);
 							}
 
+							onResourceReady(output.toByteArray(), mV8RuntimeId, resId);
 						} catch (Throwable e) {
 							LogUtils.e("HippyBridgeImpl", "fetchResourceWithUri: load failed!!! " + e.getMessage());
 						}
