@@ -42,9 +42,6 @@
 #include "jni/uri.h"
 #include "loader/adr_loader.h"
 
-using namespace v8;
-using namespace hippy::napi;
-
 using RegisterMap = hippy::base::RegisterMap;
 using RegisterFunction = hippy::base::RegisterFunction;
 using Ctx = hippy::napi::Ctx;
@@ -177,7 +174,8 @@ bool RunScript(std::shared_ptr<Runtime> runtime,
     return false;
   }
 
-  auto ret = std::static_pointer_cast<V8Ctx>(runtime->GetScope()->GetContext())
+  auto ret = std::static_pointer_cast<hippy::napi::V8Ctx>(
+                 runtime->GetScope()->GetContext())
                  ->RunScript(std::move(script_content), file_name,
                              is_use_code_cache, &code_cache_content);
   if (is_use_code_cache) {
@@ -227,7 +225,7 @@ void HandleUncaughtJsError(v8::Local<v8::Message> message,
     return;
   }
 
-  Isolate* isolate = message->GetIsolate();
+  v8::Isolate* isolate = message->GetIsolate();
   int64_t runtime_key =
       *(reinterpret_cast<int64_t*>(isolate->GetData(kRuntimeKeyIndex)));
   std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_key);
@@ -241,7 +239,8 @@ void HandleUncaughtJsError(v8::Local<v8::Message> message,
 
   ExceptionHandler::ReportJsException(runtime, ctx->GetMsgDesc(message),
                                       ctx->GetStackInfo(message));
-  ctx->ThrowExceptionToJS(std::make_shared<V8CtxValue>(isolate, error));
+  ctx->ThrowExceptionToJS(
+      std::make_shared<hippy::napi::V8CtxValue>(isolate, error));
 
   HIPPY_DLOG(hippy::Debug, "HandleUncaughtJsError end");
 }
@@ -249,7 +248,8 @@ void HandleUncaughtJsError(v8::Local<v8::Message> message,
 // Js to Native
 static void CallNative(void* data) {
   HIPPY_DLOG(hippy::Debug, "CallNative");
-  CBDataTuple* tuple = reinterpret_cast<CBDataTuple*>(data);
+  hippy::napi::CBDataTuple* tuple =
+      reinterpret_cast<hippy::napi::CBDataTuple*>(data);
   int64_t runtime_key = *(reinterpret_cast<int64_t*>(tuple->cb_tuple_.data_));
   std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_key);
   if (!runtime) {
@@ -315,17 +315,25 @@ static void CallNative(void* data) {
             reinterpret_cast<const jbyte*>(hippy_buffer->data));
       }
     } else {
-      v8::Handle<v8::Object> global = context->Global();
-      v8::Handle<v8::Value> JSON = global->Get(
-          v8::String::NewFromUtf8(isolate, "JSON", v8::NewStringType::kNormal)
-              .FromMaybe(v8::Local<v8::String>()));
-      v8::Handle<v8::Value> fun = v8::Handle<v8::Object>::Cast(JSON)->Get(
-          v8::String::NewFromUtf8(isolate, "stringify",
-                                  v8::NewStringType::kNormal)
-              .FromMaybe(v8::Local<v8::String>()));
-      v8::Handle<v8::Value> argv[1] = {info[3]};
-      v8::Handle<v8::Value> s =
-          v8::Handle<v8::Function>::Cast(fun)->Call(JSON, 1, argv);
+      v8::Local<v8::Object> global = context->Global();
+      v8::Local<v8::Value> JSON = TO_LOCAL_UNCHECKED(
+          global->Get(context,
+                      TO_LOCAL_UNCHECKED(
+                          v8::String::NewFromUtf8(isolate, "JSON",
+                                                  v8::NewStringType::kNormal),
+                          v8::String)),
+          v8::Value);
+      v8::Local<v8::Value> fun = TO_LOCAL_UNCHECKED(
+          v8::Local<v8::Object>::Cast(JSON)->Get(
+              context, TO_LOCAL_UNCHECKED(
+                           v8::String::NewFromUtf8(isolate, "stringify",
+                                                   v8::NewStringType::kNormal),
+                           v8::String)),
+          v8::Value);
+      v8::Local<v8::Value> argv[1] = {info[3]};
+      v8::Local<v8::Value> s = TO_LOCAL_UNCHECKED(
+          v8::Local<v8::Function>::Cast(fun)->Call(context, JSON, 1, argv),
+          v8::Value);
 
       v8::String::Utf8Value json(isolate, s);
       HIPPY_DLOG(hippy::Debug, "CallNative json = %s",
@@ -379,7 +387,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_initJSFramework(
   Runtime::Insert(runtime);
   std::shared_ptr<int64_t> runtime_key = Runtime::GetKey(runtime);
   RegisterFunction vm_cb = [runtime_key](void* vm) {
-    V8VM* v8_vm = reinterpret_cast<V8VM*>(vm);
+    hippy::napi::V8VM* v8_vm = reinterpret_cast<hippy::napi::V8VM*>(vm);
     v8::Isolate* isolate = v8_vm->isolate_;
     v8::HandleScope handle_scope(isolate);
     isolate->AddMessageListener(HandleUncaughtJsError);
