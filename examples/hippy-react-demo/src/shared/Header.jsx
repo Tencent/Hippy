@@ -9,7 +9,7 @@ import HippyReact, {
 } from '@hippy/react';
 
 
-import BACK_ICON from './back-icon.png';
+import BACK_ICON from '!!url-loader?modules!./back-icon.png';
 
 const SKIN_COLOR = {
   mainLight: '#4c9afa',
