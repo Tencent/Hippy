@@ -131,7 +131,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_getCrashMessage(JNIEnv *,
 JNIEXPORT void JNICALL
 Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_onResourceReady(JNIEnv *,
                                                                   jobject,
-                                                                  jbyteArray,
+                                                                  jobject,
                                                                   jlong,
                                                                   jlong);
 

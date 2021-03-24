@@ -733,6 +733,13 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_onResourceReady(
     return;
   }
   void* buff = (j_env)->GetDirectBufferAddress(j_byte_buffer);
+  int64_t len = (j_env)->GetDirectBufferCapacity(j_byte_buffer);
+    HIPPY_LOG(hippy::Error,
+    HIPPY_DLOG(hippy::Debug, "HippyBridgeImpl onResourceReady, buff null");
+    cb("");
+    return;
+  }
+  void* buff = (j_env)->GetDirectBufferAddress(j_byte_buffer);
   if (!buff) {
     HIPPY_DLOG(hippy::Debug, "HippyBridgeImpl onResourceReady, buff null");
     cb("");
