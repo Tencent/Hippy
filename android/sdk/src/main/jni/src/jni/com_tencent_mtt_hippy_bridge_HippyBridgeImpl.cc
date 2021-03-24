@@ -698,7 +698,7 @@ JNIEXPORT void JNICALL
 Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_onResourceReady(
     JNIEnv* j_env,
     jobject j_object,
-    jbyteArray j_byte_array,
+    jobject j_byte_buffer,
     jlong j_runtime_id,
     jlong j_request_id) {
   HIPPY_DLOG(hippy::Debug,
@@ -725,7 +725,21 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_onResourceReady(
     HIPPY_LOG(hippy::Warning, "cb not found", request_id);
     return;
   }
-  std::string str = JniUtils::AppendJavaByteArrayToString(j_env, j_byte_array);
+  int64_t len = (j_env)->GetDirectBufferCapacity(j_byte_buffer);
+  if (len == -1) {
+    HIPPY_LOG(hippy::Error,
+              "HippyBridgeImpl onResourceReady, BufferCapacity error");
+    cb("");
+    return;
+  }
+  void* buff = (j_env)->GetDirectBufferAddress(j_byte_buffer);
+  if (!buff) {
+    HIPPY_DLOG(hippy::Debug, "HippyBridgeImpl onResourceReady, buff null");
+    cb("");
+    return;
+  }
+
+  std::string str(reinterpret_cast<const char*>(buff), len);
   cb(std::move(str));
 }
 

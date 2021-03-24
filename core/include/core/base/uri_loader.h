@@ -34,9 +34,8 @@ class UriLoader {
   UriLoader() {}
   virtual ~UriLoader() {}
 
-  virtual bool RequestUntrustedContent(
-      const std::string& uri,
-      std::function<void(std::string)> cb) = 0;
+  virtual bool RequestUntrustedContent(const std::string& uri,
+                                       std::function<void(std::string)> cb) = 0;
 
   virtual std::string RequestUntrustedContent(const std::string& uri) = 0;
 };
