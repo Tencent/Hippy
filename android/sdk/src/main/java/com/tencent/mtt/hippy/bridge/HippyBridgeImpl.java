@@ -24,6 +24,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Locale;
 import java.util.concurrent.CountDownLatch;
@@ -310,7 +311,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 
 	public native void runNativeRunnable(String codeCacheFile, long nativeRunnableId, long V8RuntimId, NativeCallback callback);
 
-	public native void onResourceReady(byte[] output, long runtimeId, long resId);
+	public native void onResourceReady(ByteBuffer output, long runtimeId, long resId);
 
 	public native String getCrashMessage();
 
@@ -370,15 +371,25 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 								output.write(b, 0, size);
 							}
 
-							onResourceReady(output.toByteArray(), mV8RuntimeId, resId);
+							byte[] resBytes = output.toByteArray();
+							if (resBytes != null) {
+								final ByteBuffer buffer = ByteBuffer.allocateDirect(resBytes.length);
+								buffer.put(resBytes);
+								onResourceReady(buffer, mV8RuntimeId, resId);
+							} else {
+								LogUtils.e("HippyBridgeImpl", "fetchResourceWithUri: output buffer length==0!!!");
+								onResourceReady(null, mV8RuntimeId, resId);
+							}
 						} catch (Throwable e) {
 							LogUtils.e("HippyBridgeImpl", "fetchResourceWithUri: load failed!!! " + e.getMessage());
+							onResourceReady(null, mV8RuntimeId, resId);
 						}
 					}
 
 					@Override
 					public void onInitDevError(Throwable e) {
 						LogUtils.e("hippy", "requireSubResource: " + e.getMessage());
+						onResourceReady(null, mV8RuntimeId, resId);
 					}
 				});
 			}
