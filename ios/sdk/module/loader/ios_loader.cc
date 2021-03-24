@@ -25,8 +25,8 @@
 
 #include "core/core.h"
 
-IOSLoader::IOSLoader(RequestUntrustedContentPtr loader): loader_(loader) {}
+IOSLoader::IOSLoader(RequestUntrustedContentPtr loader, void *userData): loader_(loader), userData_(userData) {}
 
 bool IOSLoader::RequestUntrustedContent(const std::string& uri, std::function<void(std::string)> cb) {
-  return loader_(uri, cb);
+  return loader_(uri, cb, userData_);
 }
