@@ -76,26 +76,17 @@ struct RandomAccessBundleData {
         : bundle(nullptr, fclose) { }
 };
 
-static std::string normalizeFunc(const std::string &uri) {
-    if (uri.length()) {
-        NSString *path = [NSString stringWithUTF8String:uri.c_str()];
-        NSURL *url = [NSURL URLWithString:path];
-        NSURL *finalURL = [url standardizedURL];
-        const char *normalize = [[finalURL absoluteString] UTF8String];
-        return normalize;
-    }
-    return uri;
-}
-
-static std::string loadFunc(const std::string &uri) {
-    NSString *URIString = [NSString stringWithUTF8String:uri.c_str()];
-    NSURL *url = [NSURL URLWithString:URIString];
-    NSError *error = nil;
-    NSString *string = [NSString stringWithContentsOfURL:url encoding:NSUTF8StringEncoding error:&error];
-    if (error) {
-        HippyFatal(error);
-    }
-    return [string UTF8String] ?: "";
+static bool loadFunc(const std::string& uri, std::function<void(std::string)> cb) {
+  NSString *URIString = [NSString stringWithUTF8String:uri.c_str()];
+  NSURL *url = [NSURL URLWithString:URIString];
+  NSURLRequest *req = [NSURLRequest requestWithURL:url];
+  [NSURLConnection sendAsynchronousRequest:req queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response,
+                                                                                                      NSData *data, NSError *error) {
+    NSString *result = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    cb([result UTF8String] ?: "");
+      // etc
+  }];
+  return true;
 }
 
 @implementation HippyJSCExecutor {
@@ -140,7 +131,7 @@ HIPPY_EXPORT_MODULE()
 }
 
 - (void)initURILoader {
-    std::shared_ptr<IOSLoader> loader = std::make_shared<IOSLoader>(normalizeFunc, loadFunc);
+    std::shared_ptr<IOSLoader> loader = std::make_shared<IOSLoader>(loadFunc);
     self.pScope->SetUriLoader(loader);
 }
 
