@@ -25,14 +25,8 @@
 
 #include "core/core.h"
 
-IOSLoader::IOSLoader(NormalizeFuncPtr normalize, LoadFuncPtr load):
-  normalize_(normalize), load_(load) {}
-IOSLoader::IOSLoader(const std::string& base) : base_(base) {}
+IOSLoader::IOSLoader(RequestUntrustedContentPtr loader): loader_(loader) {}
 
-std::string IOSLoader::Normalize(const std::string& uri) {
-  return normalize_(uri);
-}
-
-std::string IOSLoader::Load(const std::string& uri) {
-  return load_(uri);
+bool IOSLoader::RequestUntrustedContent(const std::string& uri, std::function<void(std::string)> cb) {
+  return loader_(uri, cb);
 }
