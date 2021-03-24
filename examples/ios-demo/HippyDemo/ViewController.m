@@ -42,6 +42,12 @@
     NSString *businessBundlePath = [[NSBundle mainBundle] pathForResource:@"index.ios" ofType:@"js" inDirectory:@"res"];
     HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:self bundleURL:[NSURL fileURLWithPath:commonBundlePath] moduleProvider:nil launchOptions:nil executorKey:@"Demo"];
     HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:bridge businessURL:[NSURL fileURLWithPath:businessBundlePath] moduleName:@"Demo" initialProperties:  @{@"isSimulator": @(isSimulator)} launchOptions:nil shareOptions:nil debugMode:NO delegate:nil];
+    
+    
+//    HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:self bundleURL:[NSURL URLWithString:@"http://localhost:38989/index.bundle?platform=ios&dev=true&minify=false"] moduleProvider:nil launchOptions:nil executorKey:@"Demo"];
+//    HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:bridge moduleName:@"Demo" initialProperties:nil shareOptions:nil delegate:nil];;
+
+    
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     rootView.frame = self.view.bounds;
     [self.view addSubview:rootView];
@@ -54,6 +60,23 @@
             
     NSDictionary *ret = @{@"info1": dic1, @"info2": dic2, @"info3": dic3};
     return ret;
+}
+
+- (BOOL)dynamicLoad:(HippyBridge *)bridge URI:(NSString *)uri completion:(void (^)(NSString *))completion {
+//    NSURL *url = [NSURL URLWithString:uri];
+//    NSURLRequest *req = [NSURLRequest requestWithURL:url];
+//    [[NSURLSession sharedSession] dataTaskWithRequest:req completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+//        if (error) {
+//            NSLog(@"dynamic load error: %@", [error description]);
+//        }
+//        else {
+//            NSString *result = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+//            completion(result);
+//        }
+//    }];;
+    //简单处理，直接返回。
+    completion(@"var a = 1");
+    return true;
 }
 
 @end

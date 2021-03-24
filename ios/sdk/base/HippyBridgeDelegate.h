@@ -116,4 +116,6 @@
  */
 - (void)loadSourceForBridge:(HippyBridge *)bridge withBlock:(HippySourceLoadBlock)loadCallback;
 
+- (BOOL)dynamicLoad:(HippyBridge *)bridge URI:(NSString *)uri completion:(void (^)(NSString *))completion;
+
 @end
