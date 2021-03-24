@@ -75,8 +75,8 @@
 //        }
 //    }];;
     //简单处理，直接返回。
-    completion(@"var a = 1");
-    return true;
+//    completion(@"var a = 1");
+    return false;
 }
 
 @end

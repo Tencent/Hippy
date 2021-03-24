@@ -89,15 +89,15 @@ static bool defaultDynamicLoadAction(const std::string& uri, std::function<void(
     NSString *URIString = [NSString stringWithUTF8String:uri.c_str()];
     NSURL *url = HippyURLWithString(URIString, NULL);
     NSURLRequest *req = [NSURLRequest requestWithURL:url];
-    [[NSURLSession sharedSession] dataTaskWithRequest:req completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (error) {
-            HippyLogInfo(@"dynamic load error: %@", [error description]);
-        }
-        else {
-            NSString *result = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-            cb([result UTF8String]?:"");
-        }
-    }];;
+    [[[NSURLSession sharedSession] dataTaskWithRequest:req completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+            if (error) {
+                HippyLogInfo(@"dynamic load error: %@", [error description]);
+            }
+            else {
+                NSString *result = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                cb([result UTF8String]?:"");
+            }
+    }] resume];
     return true;
 }
 
