@@ -76,15 +76,6 @@ struct RandomAccessBundleData {
         : bundle(nullptr, fclose) { }
 };
 
-static NSHashTable<HippyBridge *> *weakBridgeHashTable() {
-    static dispatch_once_t onceToken;
-    static NSHashTable<HippyBridge *> *weakBridgeHashTable = nil;
-    dispatch_once(&onceToken, ^{
-        weakBridgeHashTable = [NSHashTable weakObjectsHashTable];
-    });
-    return weakBridgeHashTable;
-}
-
 static bool defaultDynamicLoadAction(const std::string& uri, std::function<void(std::string)> cb) {
     NSString *URIString = [NSString stringWithUTF8String:uri.c_str()];
     NSURL *url = HippyURLWithString(URIString, NULL);
@@ -101,16 +92,8 @@ static bool defaultDynamicLoadAction(const std::string& uri, std::function<void(
     return true;
 }
 
-static bool loadFunc(const std::string& uri, std::function<void(std::string)> cb, void *userData) {
-    HippyBridge *strongBridge = nil;
-    for (HippyBridge *bridge in weakBridgeHashTable()) {
-        void *bridgePointer = (__bridge void *)bridge;
-        if (bridgePointer == userData) {
-            strongBridge = bridge;
-            break;
-        }
-    }
-    
+static bool loadFunc(const std::string& uri, std::function<void(std::string)> cb, CFTypeRef userData) {
+    HippyBridge *strongBridge = (__bridge_transfer HippyBridge *)userData;
     if ([strongBridge.delegate respondsToSelector:@selector(dynamicLoad:URI:completion:)]) {
         NSString *URIString = [NSString stringWithUTF8String:uri.c_str()];
         BOOL delegateCallRet = [strongBridge.delegate dynamicLoad:strongBridge URI:URIString completion:^(NSString *retString) {
@@ -165,7 +148,6 @@ HIPPY_EXPORT_MODULE()
 }
 
 - (void)initURILoader {
-    [weakBridgeHashTable() addObject:_bridge];
     std::shared_ptr<IOSLoader> loader = std::make_shared<IOSLoader>(loadFunc, (__bridge void *)_bridge);
     self.pScope->SetUriLoader(loader);
 }

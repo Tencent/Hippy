@@ -24,13 +24,13 @@
 
 #include "core/core.h"
 
-typedef bool (*RequestUntrustedContentPtr)(const std::string& uri, std::function<void(std::string)> cb, void *userData);
+typedef bool (*RequestUntrustedContentPtr)(const std::string& uri, std::function<void(std::string)> cb, CFTypeRef userData);
 
 class IOSLoader : public hippy::base::UriLoader {
  public:
-  IOSLoader(RequestUntrustedContentPtr loader, void *userData);
+  IOSLoader(RequestUntrustedContentPtr loader, CFTypeRef userData);
 
-  virtual ~IOSLoader() {}
+  virtual ~IOSLoader();
 
   virtual bool RequestUntrustedContent(const std::string& uri, std::function<void(std::string)> cb);
 
@@ -40,5 +40,5 @@ class IOSLoader : public hippy::base::UriLoader {
 
  private:
   RequestUntrustedContentPtr loader_;
-  void *userData_;
+  CFTypeRef userData_;
 };
