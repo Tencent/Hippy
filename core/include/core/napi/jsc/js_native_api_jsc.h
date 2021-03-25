@@ -60,6 +60,8 @@ class JSCCtx : public Ctx {
   }
 
   ~JSCCtx() {
+    exception_ = nullptr;
+    
     JSGlobalContextRelease(context_);
     context_ = nullptr;
   }
@@ -104,9 +106,7 @@ class JSCCtx : public Ctx {
       size_t count,
       std::shared_ptr<CtxValue> value[]);
 
-  virtual std::shared_ptr<CtxValue> CreateJsError(const std::string& msg) {
-    return nullptr;
-  }
+  virtual std::shared_ptr<CtxValue> CreateJsError(const std::string& msg);
 
   // Get From Value
   virtual std::shared_ptr<CtxValue> CallFunction(
