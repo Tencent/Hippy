@@ -76,17 +76,34 @@ struct RandomAccessBundleData {
         : bundle(nullptr, fclose) { }
 };
 
-static bool loadFunc(const std::string& uri, std::function<void(std::string)> cb) {
-  NSString *URIString = [NSString stringWithUTF8String:uri.c_str()];
-  NSURL *url = [NSURL URLWithString:URIString];
-  NSURLRequest *req = [NSURLRequest requestWithURL:url];
-  [NSURLConnection sendAsynchronousRequest:req queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response,
-                                                                                                      NSData *data, NSError *error) {
-    NSString *result = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    cb([result UTF8String] ?: "");
-      // etc
-  }];
-  return true;
+static bool defaultDynamicLoadAction(const std::string& uri, std::function<void(std::string)> cb) {
+    NSString *URIString = [NSString stringWithUTF8String:uri.c_str()];
+    NSURL *url = HippyURLWithString(URIString, NULL);
+    NSURLRequest *req = [NSURLRequest requestWithURL:url];
+    [[[NSURLSession sharedSession] dataTaskWithRequest:req completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+            if (error) {
+                HippyLogInfo(@"dynamic load error: %@", [error description]);
+            }
+            else {
+                NSString *result = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                cb([result UTF8String]?:"");
+            }
+    }] resume];
+    return true;
+}
+
+static bool loadFunc(const std::string& uri, std::function<void(std::string)> cb, CFTypeRef userData) {
+    HippyBridge *strongBridge = (__bridge_transfer HippyBridge *)userData;
+    if ([strongBridge.delegate respondsToSelector:@selector(dynamicLoad:URI:completion:)]) {
+        NSString *URIString = [NSString stringWithUTF8String:uri.c_str()];
+        BOOL delegateCallRet = [strongBridge.delegate dynamicLoad:strongBridge URI:URIString completion:^(NSString *retString) {
+            cb([retString UTF8String]?:"");
+        }];
+        return delegateCallRet?:defaultDynamicLoadAction(uri, cb);
+    }
+    else {
+        return defaultDynamicLoadAction(uri, cb);
+    }
 }
 
 @implementation HippyJSCExecutor {
@@ -131,7 +148,7 @@ HIPPY_EXPORT_MODULE()
 }
 
 - (void)initURILoader {
-    std::shared_ptr<IOSLoader> loader = std::make_shared<IOSLoader>(loadFunc);
+    std::shared_ptr<IOSLoader> loader = std::make_shared<IOSLoader>(loadFunc, (__bridge void *)_bridge);
     self.pScope->SetUriLoader(loader);
 }
 

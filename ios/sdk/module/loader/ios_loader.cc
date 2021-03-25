@@ -25,8 +25,13 @@
 
 #include "core/core.h"
 
-IOSLoader::IOSLoader(RequestUntrustedContentPtr loader): loader_(loader) {}
+IOSLoader::IOSLoader(RequestUntrustedContentPtr loader, CFTypeRef userData): loader_(loader), userData_(CFRetain(userData)) {}
+
+IOSLoader::~IOSLoader() {
+  CFRelease(userData_);
+  userData_ = nullptr;
+}
 
 bool IOSLoader::RequestUntrustedContent(const std::string& uri, std::function<void(std::string)> cb) {
-  return loader_(uri, cb);
+  return loader_(uri, cb, userData_);
 }
