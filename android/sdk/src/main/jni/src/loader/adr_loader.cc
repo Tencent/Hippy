@@ -161,9 +161,9 @@ bool ADRLoader::LoadByHttp(const std::string& uri,
   if (instance->wrapper_.fetch_resource_method_id) {
     int64_t id = SetRequestCB(cb);
     jstring j_relative_path = env->NewStringUTF(uri.c_str());
-    env->CallObjectMethod(bridge_->GetObj(),
-                          instance->wrapper_.fetch_resource_method_id,
-                          j_relative_path, id);
+    env->CallVoidMethod(bridge_->GetObj(),
+                        instance->wrapper_.fetch_resource_method_id,
+                        j_relative_path, id);
     env->DeleteLocalRef(j_relative_path);
     return true;
   }
