@@ -34,6 +34,9 @@ namespace hippy {
 namespace napi {
 
 bool JSCCtx::GetValueNumber(std::shared_ptr<CtxValue> value, double* result) {
+  if (!value) {
+    return false;
+  }
   std::shared_ptr<JSCCtxValue> ctx_value =
       std::static_pointer_cast<JSCCtxValue>(value);
   JSValueRef value_ref = ctx_value->value_;
@@ -51,6 +54,9 @@ bool JSCCtx::GetValueNumber(std::shared_ptr<CtxValue> value, double* result) {
 }
 
 bool JSCCtx::GetValueNumber(std::shared_ptr<CtxValue> value, int32_t* result) {
+  if (!value) {
+    return false;
+  }
   std::shared_ptr<JSCCtxValue> ctx_value =
       std::static_pointer_cast<JSCCtxValue>(value);
   JSValueRef value_ref = ctx_value->value_;
@@ -68,6 +74,9 @@ bool JSCCtx::GetValueNumber(std::shared_ptr<CtxValue> value, int32_t* result) {
 }
 
 bool JSCCtx::GetValueBoolean(std::shared_ptr<CtxValue> value, bool* result) {
+  if (!value) {
+    return false;
+  }
   std::shared_ptr<JSCCtxValue> ctx_value =
       std::static_pointer_cast<JSCCtxValue>(value);
   JSValueRef value_ref = ctx_value->value_;
@@ -81,6 +90,9 @@ bool JSCCtx::GetValueBoolean(std::shared_ptr<CtxValue> value, bool* result) {
 
 bool JSCCtx::GetValueString(std::shared_ptr<CtxValue> value,
                             std::string* result) {
+  if (!value) {
+    return false;
+  }
   std::shared_ptr<JSCCtxValue> ctx_value =
       std::static_pointer_cast<JSCCtxValue>(value);
   JSValueRef value_ref = ctx_value->value_;
@@ -105,6 +117,9 @@ bool JSCCtx::GetValueString(std::shared_ptr<CtxValue> value,
 }
 
 bool JSCCtx::IsArray(std::shared_ptr<CtxValue> value) {
+  if (!value) {
+    return false;
+  }
   std::shared_ptr<JSCCtxValue> ctx_value =
       std::static_pointer_cast<JSCCtxValue>(value);
   JSValueRef value_ref = ctx_value->value_;
@@ -143,6 +158,9 @@ bool JSCCtx::IsArray(std::shared_ptr<CtxValue> value) {
 }
 
 uint32_t JSCCtx::GetArrayLength(std::shared_ptr<CtxValue> value) {
+  if (!value) {
+    return false;
+  }
   std::shared_ptr<JSCCtxValue> ctx_value =
       std::static_pointer_cast<JSCCtxValue>(value);
   JSValueRef value_ref = ctx_value->value_;
@@ -171,6 +189,9 @@ uint32_t JSCCtx::GetArrayLength(std::shared_ptr<CtxValue> value) {
 
 bool JSCCtx::GetValueJson(std::shared_ptr<CtxValue> value,
                           std::string* result) {
+  if (!value) {
+    return false;
+  }
   std::shared_ptr<JSCCtxValue> ctx_value =
       std::static_pointer_cast<JSCCtxValue>(value);
   JSValueRef value_ref = ctx_value->value_;
@@ -193,6 +214,9 @@ bool JSCCtx::GetValueJson(std::shared_ptr<CtxValue> value,
 
 bool JSCCtx::HasNamedProperty(std::shared_ptr<CtxValue> value,
                               const char* name) {
+  if (!value) {
+    return false;
+  }
   std::shared_ptr<JSCCtxValue> ctx_value =
       std::static_pointer_cast<JSCCtxValue>(value);
   JSValueRef value_ref = ctx_value->value_;
@@ -288,6 +312,15 @@ std::shared_ptr<CtxValue> JSCCtx::CreateArray(
     return nullptr;
   }
   return std::make_shared<JSCCtxValue>(context_, value_ref);
+}
+
+std::shared_ptr<CtxValue> JSCCtx::CreateJsError(const std::string& msg) {
+  JSStringRef str_ref = JSStringCreateWithUTF8CString(msg.c_str());
+  JSValueRef value = JSValueMakeString(context_, str_ref);
+  JSStringRelease(str_ref);
+  JSValueRef values[] = { value };
+  JSObjectRef error = JSObjectMakeError(context_, 1, values, nullptr);
+  return std::make_shared<JSCCtxValue>(context_, error);
 }
 
 std::shared_ptr<CtxValue> JSCCtx::CopyArrayElement(
