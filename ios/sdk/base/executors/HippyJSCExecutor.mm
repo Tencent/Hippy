@@ -79,8 +79,13 @@ struct RandomAccessBundleData {
 static bool defaultDynamicLoadAction(const std::string& uri, std::function<void(std::string)> cb) {
     NSString *URIString = [NSString stringWithUTF8String:uri.c_str()];
     NSURL *url = HippyURLWithString(URIString, NULL);
-    NSURLRequest *req = [NSURLRequest requestWithURL:url];
-    [[[NSURLSession sharedSession] dataTaskWithRequest:req completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+    if ([url isFileURL]) {
+        NSString *result = [NSString stringWithContentsOfURL:url encoding:NSUTF8StringEncoding error:nil];
+        cb([result UTF8String]?:"");
+    }
+    else {
+        NSURLRequest *req = [NSURLRequest requestWithURL:url];
+        [[[NSURLSession sharedSession] dataTaskWithRequest:req completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
             if (error) {
                 HippyLogInfo(@"dynamic load error: %@", [error description]);
             }
@@ -88,12 +93,13 @@ static bool defaultDynamicLoadAction(const std::string& uri, std::function<void(
                 NSString *result = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
                 cb([result UTF8String]?:"");
             }
-    }] resume];
+        }] resume];
+    }
     return true;
 }
 
 static bool loadFunc(const std::string& uri, std::function<void(std::string)> cb, CFTypeRef userData) {
-    HippyBridge *strongBridge = (__bridge_transfer HippyBridge *)userData;
+    HippyBridge *strongBridge = (__bridge HippyBridge *)userData;
     if ([strongBridge.delegate respondsToSelector:@selector(dynamicLoad:URI:completion:)]) {
         NSString *URIString = [NSString stringWithUTF8String:uri.c_str()];
         BOOL delegateCallRet = [strongBridge.delegate dynamicLoad:strongBridge URI:URIString completion:^(NSString *retString) {
