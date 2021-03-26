@@ -24,6 +24,7 @@
 #import "UIView+Hippy.h"
 #import "HippyLog.h"
 #import "float.h"
+#import "HippyViewPagerItem.h"
 
 @interface HippyViewPager ()
 @property (nonatomic, strong) NSMutableArray<UIView *> *viewPagerItems;
@@ -71,12 +72,37 @@
         HippyLogWarn(@"Error In HippyViewPager: addSubview —— out of bound of array");
         return;
     }
-
+    if (atIndex < [self.viewPagerItems count]) {
+        UIView *viewAtIndex = [self.viewPagerItems objectAtIndex:atIndex];
+        view.frame = viewAtIndex.frame;
+    }
     [super insertHippySubview:view atIndex:(NSInteger)atIndex];
     [self.viewPagerItems insertObject:view atIndex:atIndex];
+    
+    if ([view isKindOfClass:[HippyViewPagerItem class]]) {
+        HippyViewPagerItem *item = (HippyViewPagerItem *)view;
+        __weak HippyViewPager *weakPager = self;
+        item.frameSetBlock = ^CGRect(CGRect frame) {
+            NSInteger index = atIndex;
+            if (weakPager) {
+                HippyViewPager *strongPager = weakPager;
+                CGRect finalFrame = [strongPager frameForItemAtIndex:index];
+                return finalFrame;
+            }
+            return frame;
+        };
+    }
+    
+    self.needsLayoutItems = YES;
     if (_itemsChangedBlock) {
         _itemsChangedBlock([self.viewPagerItems count]);
     }
+}
+
+- (CGRect)frameForItemAtIndex:(NSInteger)index {
+    CGSize viewPagerSize = self.bounds.size;
+    CGFloat originX = viewPagerSize.width * index;
+    return CGRectMake(originX, 0, viewPagerSize.width, viewPagerSize.height);
 }
 
 - (void)removeHippySubview:(UIView *)subview {
