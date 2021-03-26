@@ -25,4 +25,12 @@
 
 @implementation HippyViewPagerItem
 
+- (void)setFrame:(CGRect)frame {
+    CGRect finalFrame = frame;
+    if (self.frameSetBlock) {
+        finalFrame = self.frameSetBlock(frame);
+    }
+    [super setFrame:finalFrame];
+}
+
 @end
