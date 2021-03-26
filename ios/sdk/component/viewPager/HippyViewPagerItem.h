@@ -23,5 +23,10 @@
 #import <Foundation/Foundation.h>
 #import "HippyView.h"
 
+typedef CGRect(^FrameSetBlock)(CGRect frame);
+
 @interface HippyViewPagerItem : HippyView
+
+@property (nonatomic, copy)FrameSetBlock frameSetBlock;
+
 @end
