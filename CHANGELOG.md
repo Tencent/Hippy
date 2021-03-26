@@ -3,6 +3,41 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.5.5](https://github.com/Tencent/Hippy/compare/2.5.4...2.5.5) (2021-03-26)
+
+
+### Bug Fixes
+
+* **android:** fetch resource with https:// ([c3dee7c](https://github.com/Tencent/Hippy/commit/c3dee7ca8bf7302f5aecc263b6e77624249073a6))
+* **android:** should catch resource NotFoundException ([6284a49](https://github.com/Tencent/Hippy/commit/6284a49d05582825cd158fb73f56f335ac9a5af8))
+* **android:** support engine status enum to int ([9708892](https://github.com/Tencent/Hippy/commit/970889220fa4eeb011c9e8c9cd443a125d025ad9))
+* **android:** use ByteBuffer for onResourceReady ([9863317](https://github.com/Tencent/Hippy/commit/9863317dd89a6cb3a4d3242564920a4da8af7f02))
+* **core:** fix conflict resolve error ([903650a](https://github.com/Tencent/Hippy/commit/903650a824a5b2fb14db3cfc47347bff50227469))
+* **core:** fix dynamic load crash ([f9138b2](https://github.com/Tencent/Hippy/commit/f9138b2fcb203b0af5820694ab1ca8a2b231e070))
+* **core:** fix iOS CreateJsError function error ([df8355c](https://github.com/Tencent/Hippy/commit/df8355cbc05914aba9b0c87146192809c92a8d0a))
+* **core:** fix jni crash ([#651](https://github.com/Tencent/Hippy/issues/651)) ([6ae32cf](https://github.com/Tencent/Hippy/commit/6ae32cf835fe8ebc218a897d34b8836e0e1151ec))
+* **core:** format ([618a40a](https://github.com/Tencent/Hippy/commit/618a40a1f4f667d8a1fd1f49358a38a876e5b270))
+* **core:** revert v8 refactor ([82b0b27](https://github.com/Tencent/Hippy/commit/82b0b272971f2832ea5d74b21c57b646a1fc1e06))
+* **core:** update so ([acd5bd1](https://github.com/Tencent/Hippy/commit/acd5bd1e124f63c1f4d8a4dd5ff9d295489e9722))
+* **docs:** fix dynamic import docs ([d4a553d](https://github.com/Tencent/Hippy/commit/d4a553d34666bd548723e3a26ab2cf233981bdfa))
+* **ios:** fix bug for touch handler ([15d0bb3](https://github.com/Tencent/Hippy/commit/15d0bb3a39cb44497069f8a7f1a58121fd65b6c5))
+* **ios:** fix dynamic load for local file ([130b9d5](https://github.com/Tencent/Hippy/commit/130b9d5c622797b02915f688f11684a4fc260ef4))
+* **ios:** fix index exceed range of array ([34591dd](https://github.com/Tencent/Hippy/commit/34591ddfb123490adac08f7c2d86f16be7219295))
+* **ios:** improve stability ([3dc0743](https://github.com/Tencent/Hippy/commit/3dc074388c03ef0068bf98c21b600f3200839e4f))
+
+
+### Features
+
+* **android:** adjust for wormhole ([09fb96b](https://github.com/Tencent/Hippy/commit/09fb96b4b532ba5ae3daa11ec1f9c220d4a5ff87))
+* **core:** daymiacLoad support http req ([#640](https://github.com/Tencent/Hippy/issues/640)) ([e7cd1f3](https://github.com/Tencent/Hippy/commit/e7cd1f3896c2fc287730ac24778732cd2704b976))
+* **core:** refactor dynamic jni ([2f627df](https://github.com/Tencent/Hippy/commit/2f627df6d1f92e0ca11c93d4924f401f970d3c32))
+* **core:** support multi scheme dynamic load ([932b51c](https://github.com/Tencent/Hippy/commit/932b51c952aca14150d153366a6695c078ef3a97))
+* **ios:** adapter dynamic load ([f53bdd1](https://github.com/Tencent/Hippy/commit/f53bdd1fc4b73635fd211f677bba8a1fecf0e2c8))
+
+
+
+
+
 ## [2.5.4](https://github.com/Tencent/Hippy/compare/2.5.3...2.5.4) (2021-03-17)
 
 
