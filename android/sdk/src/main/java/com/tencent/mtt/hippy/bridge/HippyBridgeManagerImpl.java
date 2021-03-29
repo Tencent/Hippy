@@ -185,21 +185,17 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 					}
 
 					if (!TextUtils.isEmpty(bundleUniKey)) {
+						if (mLoadedBundleInfo == null) {
+							mLoadedBundleInfo = new ArrayList<>();
+						}
+						mLoadedBundleInfo.add(bundleUniKey);
+
 						loader.load(mHippyBridge, new NativeCallback(mHandler) {
 							@Override
 							public void Call(long value, Message msg, String action) {
 								boolean success = value == 1 ? true : false;
 								if (success) {
-									if (mLoadedBundleInfo == null) {
-										mLoadedBundleInfo = new ArrayList<>();
-									}
-									mLoadedBundleInfo.add(bundleUniKey);
-									if(localRootView != null) {
-										notifyModuleLoaded(ModuleLoadStatus.STATUS_OK, null, localRootView);
-									} else {
-										notifyModuleLoaded(ModuleLoadStatus.STATUS_VARIABLE_NULL,
-												"load module error. rootView==null, success=" + success, null);
-									}
+									notifyModuleLoaded(ModuleLoadStatus.STATUS_OK, null, localRootView);
 								} else {
 									notifyModuleLoaded(ModuleLoadStatus.STATUS_ERR_RUN_BUNDLE, "load module error. loader.load failed. check the file.", null);
 								}
