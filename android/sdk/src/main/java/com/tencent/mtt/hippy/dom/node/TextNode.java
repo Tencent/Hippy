@@ -449,21 +449,17 @@ public class TextNode extends StyleNode
 	protected HippyImageLoader mImageAdapter;
 
 	@Override
-	public void layoutBefore(HippyEngineContext context)
-	{
+	public void layoutBefore(HippyEngineContext context) {
 		super.layoutBefore(context);
-		if (mFontScaleAdapter == null && mEnableScale)
-		{
+		if (mFontScaleAdapter == null) {
 			mFontScaleAdapter = context.getGlobalConfigs().getFontScaleAdapter();
 		}
 
-		if (mImageAdapter == null)
-		{
+		if (mImageAdapter == null) {
 			mImageAdapter = context.getGlobalConfigs().getImageLoaderAdapter();
 		}
 		
-		if (mIsVirtual)
-		{
+		if (mIsVirtual) {
 			return;
 		}
 
