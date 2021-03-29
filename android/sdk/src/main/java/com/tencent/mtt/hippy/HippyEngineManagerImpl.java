@@ -185,18 +185,15 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 			return;
 		}
 
-		final Handler handler = new Handler(Looper.myLooper());
 		mEngineContext.destroyBridge(new Callback<Boolean>() {
 			@Override
 			public void callback(Boolean param, Throwable e) {
-				Runnable task = new Runnable() {
+				UIThreadUtils.runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
 						onDestroy();
 					}
-				};
-
-				handler.post(task);
+				});
 			}
 		});
 	}
