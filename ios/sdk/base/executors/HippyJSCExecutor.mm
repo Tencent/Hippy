@@ -380,6 +380,11 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
     _randomAccessBundle.table.reset();
 }
 
+- (void)secondBundleLoadCompleted:(BOOL)success {
+    std::shared_ptr<hippy::napi::JSCCtx> context = std::static_pointer_cast<hippy::napi::JSCCtx>(self.pScope->GetContext());
+    context->SetGlobalStrVar("__HIPPYCURDIR__", [self.bridge.workFolder2 UTF8String]);
+}
+
 - (void)flushedQueue:(HippyJavaScriptCallback)onComplete {
     // TODO: Make this function handle first class instead of dynamically dispatching it. #9317773
     [self _executeJSCall:@"flushedQueue" arguments:@[] unwrapResult:YES callback:onComplete];
