@@ -55,13 +55,9 @@ buildscript {
 
 allprojects {
     ext {
-        Properties localProperties = new Properties()
-        InputStream inputStream = project.rootProject.file('local.properties').newDataInputStream()
-        localProperties.load(inputStream)
-
-        MAVEN_USER = localProperties.getProperty('maven_username')
-        MAVEN_PWD = localProperties.getProperty('maven_password')
-        MAVEN_URL = localProperties.getProperty('qb_maven_url')
+        MAVEN_USER = System.getenv('maven_username')
+        MAVEN_PWD = System.getenv('maven_password')
+        MAVEN_URL = System.getenv('maven_url')
     }
     repositories {
         if (MAVEN_URL != null) {
