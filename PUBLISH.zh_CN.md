@@ -42,8 +42,7 @@ iOS
 
 Android
 
-* [build.gradle](https://github.com/Tencent/Hippy/blob/master/android/sdk/bintrayUpload.gradle#L8)
-* 取消 `def artifactIdDefined = "hippy-release"` 的注释，同时注释掉 `def artifactIdDefined  = "hippy-snapshot"`
+* [gradle.properties](https://github.com/Tencent/Hippy/blob/master/android/sdk/gradle.properties#L25)
 
 ## 4. 更新内置包并校验功能正常
 
@@ -127,4 +126,5 @@ git push --tags # 提交 tag
   > 如果发布时参数检查失败，可以在`pod`命令前面加上 `COCOAPODS_VALIDATOR_SKIP_XCODEBUILD=1` 参数
 
 * Android 发布到 [bintray](https://bintray.com/beta/#/hippy/Hippy/hippy-release?tab=overview)
- 在 Android Studio 中打开 `examples/android-demo` 项目，在`local.properties`添加`bintrayUser=[user]`和`bintrayKey=[key]`，其中`[user]`和`[key]` 分别对应用户在bintray的 `账号名`和 `API key` ，添加完后，执行 Android Studio > `build` > `Clean Project`, 再在Gradle 面板中运行 `android-demo` > `android-sdk` > `Tasks` > `other` > `:android-sdk:assembleRelease` , 最后运行 `android-demo` > `android-sdk` > `Tasks` > `publishing` > `:android-sdk:bintrayUpload` 即可发布。
+ 在 Android Studio 中打开 `examples/android-demo` 项目，在 Android
+   Studio `Edit Configurations` 创建环境变量`bintrayUser=[user]`和`bintrayKey=[key]`，其中`[user]`和`[key]` 分别对应用户在bintray的 `账号名`和 `API key` ，添加完后，执行 Android Studio > `build` > `Clean Project`, 再在Gradle 面板中运行 `android-demo` > `android-sdk` > `Tasks` > `other` > `:android-sdk:assembleRelease` , 最后运行 `android-demo` > `android-sdk` > `Tasks` > `publishing` > `:android-sdk:bintrayUpload` 即可发布。
