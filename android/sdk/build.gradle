@@ -7,6 +7,7 @@ ext {
   OUTPUT_PATH = "$buildDir/outputs/aar"
   THIRD_PARTY_LIBRARY_PATH = "$projectDir.absolutePath/src/main/jni/third_party"
   JNI_LIBRARY_PATH = "$projectDir.absolutePath/libs"
+  skipCmakeAndNinja = System.getenv('skipCmakeAndNinja') != null
 }
 
 buildscript {
@@ -121,7 +122,7 @@ android {
     }
   }
 
-  if (SKIP_CMAKE_AND_NINJA.toBoolean() == false) {
+  if (SKIP_CMAKE_AND_NINJA.toBoolean() == false || !skipCmakeAndNinja) {
     externalNativeBuild {
       cmake {
         path CMAKE_PATH
