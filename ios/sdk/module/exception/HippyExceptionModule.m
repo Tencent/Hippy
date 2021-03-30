@@ -27,6 +27,8 @@
 
 @implementation HippyExceptionModule
 
+@synthesize bridge = _bridge;
+
 HIPPY_EXPORT_MODULE(ExceptionModule)
 
 // clang-format off
