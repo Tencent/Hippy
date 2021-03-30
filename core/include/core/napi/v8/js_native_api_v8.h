@@ -99,8 +99,7 @@ struct V8Ctx : public Ctx {
     v8::HandleScope handle_scope(isolate);
 
     v8::Local<v8::ObjectTemplate> global = v8::ObjectTemplate::New(isolate);
-    v8::Local<v8::Context> context =
-        v8::Context::New(isolate, nullptr, global);
+    v8::Local<v8::Context> context = v8::Context::New(isolate, nullptr, global);
 
     global_persistent_.Reset(isolate, global);
     context_persistent_.Reset(isolate, context);
