@@ -141,7 +141,7 @@
     UIView *theItem = self.viewPagerItems[pageNumber];
     self.targetContentOffsetX = CGRectGetMinX(theItem.frame);
     [self setContentOffset:theItem.frame.origin animated:animated];
-    if (self.onPageSelected && _lastPageIndex != pageNumber) {
+    if (self.onPageSelected) {
         self.onPageSelected(@{ @"position": @(pageNumber) });
         _lastPageIndex = pageNumber;
     }
