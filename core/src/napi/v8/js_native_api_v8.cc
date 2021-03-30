@@ -393,8 +393,12 @@ std::string V8TryCatch::GetExceptionMsg() {
     return nullptr;
   }
 
-  v8::Local<v8::Message> message = try_catch_->Message();
   std::shared_ptr<V8Ctx> v8_ctx = std::static_pointer_cast<V8Ctx>(ctx_);
+  v8::HandleScope handle_scope(v8_ctx->isolate_);
+  v8::Local<v8::Context> context = v8_ctx->context_persistent_.Get(v8_ctx->isolate_);
+  v8::Context::Scope context_scope(context);
+
+  v8::Local<v8::Message> message = try_catch_->Message();
   std::string desc = v8_ctx->GetMsgDesc(message);
   std::string stack = v8_ctx->GetStackInfo(message);
   return "message: " + desc + ", stack: " + stack;
@@ -433,14 +437,14 @@ std::string V8Ctx::GetStackInfo(v8::Local<v8::Message> message) {
     return "";
   }
 
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+
   v8::Local<v8::StackTrace> trace = message->GetStackTrace();
   if (trace.IsEmpty()) {
     return "";
   }
-
-  v8::HandleScope handle_scope(isolate_);
-  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
-  v8::Context::Scope context_scope(context);
 
   std::stringstream stack_stream;
   int len = trace->GetFrameCount();
@@ -481,6 +485,9 @@ bool V8Ctx::RegisterGlobalInJs() {
 bool V8Ctx::SetGlobalJsonVar(const std::string& name, const char* json) {
   HIPPY_DLOG(hippy::Debug, "SetGlobalJsonVar name = %s, json = %s",
              name.c_str(), json);
+  if (name.empty() || !json) {
+    return false;
+  }
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
@@ -502,6 +509,9 @@ bool V8Ctx::SetGlobalJsonVar(const std::string& name, const char* json) {
 bool V8Ctx::SetGlobalStrVar(const std::string& name, const char* str) {
   HIPPY_DLOG(hippy::Debug, "SetGlobalStrVar name = %s, str = %s", name.c_str(),
              str);
+  if (name.empty()) {
+    return false;
+  }
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
@@ -524,6 +534,9 @@ bool V8Ctx::SetGlobalObjVar(const std::string& name,
                             PropertyAttribute attr) {
   HIPPY_DLOG(hippy::Debug, "SetGlobalStrVar name = %s, attr = %d", name.c_str(),
              attr);
+  if (name.empty()) {
+    return false;
+  }
   std::shared_ptr<V8CtxValue> ctx_value =
       std::static_pointer_cast<V8CtxValue>(obj);
 
@@ -531,9 +544,13 @@ bool V8Ctx::SetGlobalObjVar(const std::string& name,
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
   v8::Local<v8::Object> global = context->Global();
-  const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
-  v8::Local<v8::Value> handle_value =
-      v8::Local<v8::Value>::New(isolate_, global_value);
+  v8::Local<v8::Value> handle_value;
+  if (ctx_value) {
+    const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
+    handle_value = v8::Local<v8::Value>::New(isolate_, global_value);
+  } else {
+    handle_value = v8::Null(isolate_);
+  }
   v8::PropertyAttribute v8_attr = v8::PropertyAttribute(attr);
   return global
       ->DefineOwnProperty(context,
@@ -547,6 +564,9 @@ bool V8Ctx::SetGlobalObjVar(const std::string& name,
 
 std::shared_ptr<CtxValue> V8Ctx::GetGlobalStrVar(const std::string& name) {
   HIPPY_DLOG(hippy::Debug, "GetGlobalStrVar name = %s", name.c_str());
+  if (name.empty()) {
+    return nullptr;
+  }
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
@@ -575,9 +595,8 @@ void V8Ctx::RegisterGlobalModule(std::shared_ptr<Scope> scope,
                                  const ModuleClassMap& modules) {
   HIPPY_DLOG(hippy::Debug, "RegisterGlobalModule");
   v8::HandleScope handle_scope(isolate_);
-
-  v8::Local<v8::Context> v8_context = context_persistent_.Get(isolate_);
-  v8::Context::Scope context_scope(v8_context);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
 
   for (const auto& cls : modules) {
     v8::Local<v8::FunctionTemplate> module_object =
@@ -598,7 +617,7 @@ void V8Ctx::RegisterGlobalModule(std::shared_ptr<Scope> scope,
     }
 
     v8::Local<v8::Function> function =
-        module_object->GetFunction(v8_context).ToLocalChecked();
+        module_object->GetFunction(context).ToLocalChecked();
 
     v8::Local<v8::String> classNameKey =
         TO_LOCAL_UNCHECKED(v8::String::NewFromUtf8(isolate_, cls.first.c_str(),
@@ -606,7 +625,7 @@ void V8Ctx::RegisterGlobalModule(std::shared_ptr<Scope> scope,
                            v8::String);
 
     v8::Maybe<bool> ret =
-        v8_context->Global()->Set(v8_context, classNameKey, function);
+        context->Global()->Set(context, classNameKey, function);
     ret.ToChecked();
   }
 }
@@ -721,8 +740,8 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const std::string&& script,
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
-  v8::Local<v8::String> source;
 
+  v8::Local<v8::String> source;
   switch (encodeing) {
     case Encoding::ONE_BYTE_ENCODING: {
       ExternalOneByteStringResourceImpl* one_byte =
@@ -815,9 +834,13 @@ std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
 
 std::shared_ptr<CtxValue> V8Ctx::GetJsFn(const std::string& name) {
   HIPPY_DLOG(hippy::Debug, "GetJsFn name = %s", name.c_str());
+  if (name.empty()) {
+    return nullptr;
+  }
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
+
   v8::Local<v8::String> js_name =
       TO_LOCAL_UNCHECKED(v8::String::NewFromUtf8(isolate_, name.c_str(),
                                                  v8::NewStringType::kNormal),
@@ -896,8 +919,12 @@ std::shared_ptr<CtxValue> V8Ctx::CallFunction(
   for (size_t i = 0; i < argument_count; i++) {
     std::shared_ptr<V8CtxValue> argument =
         std::static_pointer_cast<V8CtxValue>(arguments[i]);
-    const v8::Global<v8::Value>& global_value = argument->global_value_;
-    args[i] = v8::Local<v8::Value>::New(isolate_, global_value);
+    if (argument) {
+      const v8::Global<v8::Value>& global_value = argument->global_value_;
+      args[i] = v8::Local<v8::Value>::New(isolate_, global_value);
+    } else {
+      args[i] = v8::Null(isolate_);
+    }
   }
 
   HIPPY_DLOG(hippy::Debug, "CallFunction call fn");
