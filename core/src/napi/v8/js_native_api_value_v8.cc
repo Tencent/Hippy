@@ -79,15 +79,15 @@ std::shared_ptr<CtxValue> V8Ctx::CreateUndefined() {
 std::shared_ptr<CtxValue> V8Ctx::CreateNull() {
   v8::HandleScope isolate_scope(isolate_);
 
-  v8::Local<v8::Value> v8Null = v8::Null(isolate_);
-  if (v8Null.IsEmpty()) {
+  v8::Local<v8::Value> v8_null = v8::Null(isolate_);
+  if (v8_null.IsEmpty()) {
     return nullptr;
   }
-  return std::make_shared<V8CtxValue>(isolate_, v8Null);
+  return std::make_shared<V8CtxValue>(isolate_, v8_null);
 }
 
 v8::Local<v8::Value> V8Ctx::ParseJson(const char *json) {
-  v8::HandleScope handle_scope(isolate_);
+  v8::EscapableHandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
 
@@ -109,9 +109,10 @@ v8::Local<v8::Value> V8Ctx::ParseJson(const char *json) {
       v8::String::NewFromUtf8(isolate_, json, v8::NewStringType::kNormal),
       v8::String);
   v8::Local<v8::Value> argv[1] = {v8_str};
-  return TO_LOCAL_UNCHECKED(v8::Local<v8::Function>::Cast(json_parse_func)
-                                ->Call(context, json_cls, 1, argv),
-                            v8::Value);
+  return handle_scope.Escape(
+      TO_LOCAL_UNCHECKED(v8::Local<v8::Function>::Cast(json_parse_func)
+                             ->Call(context, json_cls, 1, argv),
+                         v8::Value));
 }
 
 std::shared_ptr<CtxValue> V8Ctx::CreateObject(const char *json) {
@@ -119,6 +120,9 @@ std::shared_ptr<CtxValue> V8Ctx::CreateObject(const char *json) {
     return nullptr;
   }
 
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
   v8::Local<v8::Value> object = ParseJson(json);
   if (object.IsEmpty()) {
     return nullptr;
@@ -133,17 +137,19 @@ std::shared_ptr<CtxValue> V8Ctx::CreateArray(
     return nullptr;
   }
   v8::HandleScope handle_scope(isolate_);
-
   v8::Local<v8::Array> array = v8::Array::New(isolate_, count);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
   for (size_t i = 0; i < count; i++) {
+    v8::Local<v8::Value> handle_value;
     std::shared_ptr<V8CtxValue> ctx_value =
         std::static_pointer_cast<V8CtxValue>(value[i]);
-    const v8::Global<v8::Value> &global_value =
-        ctx_value->global_value_;
-    v8::Local<v8::Value> handle_value =
-        v8::Local<v8::Value>::New(isolate_, global_value);
+    if (ctx_value) {
+      const v8::Global<v8::Value> &global_value = ctx_value->global_value_;
+      handle_value = v8::Local<v8::Value>::New(isolate_, global_value);
+    } else {
+      handle_value = v8::Null(isolate_);
+    }
     if (!array->Set(context, i, handle_value).FromMaybe(false)) {
       HIPPY_DLOG(hippy::Debug, "set array item failed");
       return nullptr;
@@ -175,13 +181,11 @@ bool V8Ctx::GetValueNumber(std::shared_ptr<CtxValue> value, double *result) {
     return false;
   }
   v8::HandleScope handle_scope(isolate_);
-
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
   std::shared_ptr<V8CtxValue> ctx_value =
       std::static_pointer_cast<V8CtxValue>(value);
-  const v8::Global<v8::Value> &global_value =
-      ctx_value->global_value_;
+  const v8::Global<v8::Value> &global_value = ctx_value->global_value_;
   v8::Local<v8::Value> handle_value =
       v8::Local<v8::Value>::New(isolate_, global_value);
 
@@ -208,8 +212,7 @@ bool V8Ctx::GetValueNumber(std::shared_ptr<CtxValue> value, int32_t *result) {
   v8::Context::Scope context_scope(context);
   std::shared_ptr<V8CtxValue> ctx_value =
       std::static_pointer_cast<V8CtxValue>(value);
-  const v8::Global<v8::Value> &global_value =
-      ctx_value->global_value_;
+  const v8::Global<v8::Value> &global_value = ctx_value->global_value_;
   v8::Local<v8::Value> handle_value =
       v8::Local<v8::Value>::New(isolate_, global_value);
 
@@ -235,8 +238,7 @@ bool V8Ctx::GetValueBoolean(std::shared_ptr<CtxValue> value, bool *result) {
   v8::Context::Scope context_scope(context);
   std::shared_ptr<V8CtxValue> ctx_value =
       std::static_pointer_cast<V8CtxValue>(value);
-  const v8::Global<v8::Value> &global_value =
-      ctx_value->global_value_;
+  const v8::Global<v8::Value> &global_value = ctx_value->global_value_;
   v8::Local<v8::Value> handle_value =
       v8::Local<v8::Value>::New(isolate_, global_value);
 
@@ -264,8 +266,7 @@ bool V8Ctx::GetValueString(std::shared_ptr<CtxValue> value,
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
-  const v8::Global<v8::Value> &global_value =
-      ctx_value->global_value_;
+  const v8::Global<v8::Value> &global_value = ctx_value->global_value_;
   v8::Local<v8::Value> handle_value =
       v8::Local<v8::Value>::New(isolate_, global_value);
   if (handle_value.IsEmpty()) {
@@ -289,8 +290,7 @@ bool V8Ctx::GetValueJson(std::shared_ptr<CtxValue> value, std::string *result) {
   v8::Context::Scope context_scope(context);
   std::shared_ptr<V8CtxValue> ctx_value =
       std::static_pointer_cast<V8CtxValue>(value);
-  const v8::Global<v8::Value> &global_value =
-      ctx_value->global_value_;
+  const v8::Global<v8::Value> &global_value = ctx_value->global_value_;
   v8::Local<v8::Value> handle_value =
       v8::Local<v8::Value>::New(isolate_, global_value);
   if (handle_value.IsEmpty() || !handle_value->IsObject()) {
@@ -320,8 +320,7 @@ bool V8Ctx::IsArray(std::shared_ptr<CtxValue> value) {
   v8::Context::Scope context_scope(context);
   std::shared_ptr<V8CtxValue> ctx_value =
       std::static_pointer_cast<V8CtxValue>(value);
-  const v8::Global<v8::Value> &global_value =
-      ctx_value->global_value_;
+  const v8::Global<v8::Value> &global_value = ctx_value->global_value_;
   v8::Local<v8::Value> handle_value =
       v8::Local<v8::Value>::New(isolate_, global_value);
 
@@ -340,8 +339,7 @@ uint32_t V8Ctx::GetArrayLength(std::shared_ptr<CtxValue> value) {
   v8::Context::Scope context_scope(context);
   std::shared_ptr<V8CtxValue> ctx_value =
       std::static_pointer_cast<V8CtxValue>(value);
-  const v8::Global<v8::Value> &global_value =
-      ctx_value->global_value_;
+  const v8::Global<v8::Value> &global_value = ctx_value->global_value_;
   v8::Local<v8::Value> handle_value =
       v8::Local<v8::Value>::New(isolate_, global_value);
 
@@ -368,8 +366,7 @@ std::shared_ptr<CtxValue> V8Ctx::CopyArrayElement(
   v8::Context::Scope context_scope(context);
   std::shared_ptr<V8CtxValue> ctx_value =
       std::static_pointer_cast<V8CtxValue>(value);
-  const v8::Global<v8::Value> &global_value =
-      ctx_value->global_value_;
+  const v8::Global<v8::Value> &global_value = ctx_value->global_value_;
   v8::Local<v8::Value> handle_value =
       v8::Local<v8::Value>::New(isolate_, global_value);
 
@@ -401,8 +398,7 @@ bool V8Ctx::HasNamedProperty(std::shared_ptr<CtxValue> value,
   v8::Context::Scope context_scope(context);
   std::shared_ptr<V8CtxValue> ctx_value =
       std::static_pointer_cast<V8CtxValue>(value);
-  const v8::Global<v8::Value> &global_value =
-      ctx_value->global_value_;
+  const v8::Global<v8::Value> &global_value = ctx_value->global_value_;
   v8::Local<v8::Value> handle_value =
       v8::Local<v8::Value>::New(isolate_, global_value);
 
@@ -436,8 +432,7 @@ std::shared_ptr<CtxValue> V8Ctx::CopyNamedProperty(
   v8::Context::Scope context_scope(context);
   std::shared_ptr<V8CtxValue> ctx_value =
       std::static_pointer_cast<V8CtxValue>(value);
-  const v8::Global<v8::Value> &global_value =
-      ctx_value->global_value_;
+  const v8::Global<v8::Value> &global_value = ctx_value->global_value_;
   v8::Local<v8::Value> handle_value =
       v8::Local<v8::Value>::New(isolate_, global_value);
 
@@ -476,8 +471,7 @@ bool V8Ctx::IsFunction(std::shared_ptr<CtxValue> value) {
   v8::Context::Scope context_scope(context);
   std::shared_ptr<V8CtxValue> ctx_value =
       std::static_pointer_cast<V8CtxValue>(value);
-  const v8::Global<v8::Value> &global_value =
-      ctx_value->global_value_;
+  const v8::Global<v8::Value> &global_value = ctx_value->global_value_;
   v8::Local<v8::Value> handle_value =
       v8::Local<v8::Value>::New(isolate_, global_value);
 
@@ -497,8 +491,7 @@ std::string V8Ctx::CopyFunctionName(std::shared_ptr<CtxValue> function) {
   v8::Context::Scope context_scope(context);
   std::shared_ptr<V8CtxValue> ctx_value =
       std::static_pointer_cast<V8CtxValue>(function);
-  const v8::Global<v8::Value> &global_value =
-      ctx_value->global_value_;
+  const v8::Global<v8::Value> &global_value = ctx_value->global_value_;
   v8::Local<v8::Value> handle_value =
       v8::Local<v8::Value>::New(isolate_, global_value);
 
