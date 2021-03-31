@@ -67,24 +67,83 @@ export default {
     background-color: #40b883;
     display: flex;
     flex-direction: row;
+    align-content: center;
     justify-content: space-between;
   }
-
   #back-btn {
     height: 24px;
     width: 24px;
     margin: 18px;
+  }
+  .row {
+    flex-direction: row;
+  }
+  .column {
+    flex-direction: column;
+  }
+  .center {
+    justify-content: center;
+    align-content: center;
+  }
+  .fullscreen {
+    flex: 1;
+  }
+  .toolbar {
+    display: flex;
+    height: 40px;
+    flex-direction: row;
+  }
+  .toolbar .toolbar-btn {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    justify-content: center;
+    margin: 3px;
+    border-style: solid;
+    border-color: blue;
+    border-width: 1px;
+  }
+  .row {
+    flex-direction: row;
+  }
+  .column {
+    flex-direction: column;
+  }
+  .center {
+    justify-content: center;
+    align-content: center;
+  }
+  .fullscreen {
+    flex: 1;
+  }
+  .toolbar {
+    display: flex;
+    height: 40px;
+    flex-direction: row;
+  }
+  .toolbar .toolbar-btn {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    justify-content: center;
+    margin: 3px;
+    border-style: solid;
+    border-color: blue;
+    border-width: 1px;
   }
   .toolbar .toolbar-btn p,
   .toolbar .toolbar-btn span {
     justify-content: center;
     text-align: center;
   }
+  .toolbar .toolbar-text {
+    line-height: 40px;
+  }
   .title {
     font-size: 20px;
     line-height: 60px;
-    margin-left: 20px;
-    margin-right: 20px;
+    margin-left: 5px;
+    margin-right: 10px;
     font-weight: bold;
     background-color: #40b883;
     color: #ffffff;
