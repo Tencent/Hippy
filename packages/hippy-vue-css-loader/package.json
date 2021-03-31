@@ -20,6 +20,7 @@
     "loader-utils": "^1.0.2"
   },
   "devDependencies": {
-    "ava": "^3.5.0"
+    "ava": "^3.5.0",
+    "y18n": "^4.0.1"
   }
 }

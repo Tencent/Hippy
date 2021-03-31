@@ -78,7 +78,7 @@
   }
 
   .div-demo-1-text {
-    margin-left: 40px;
+    margin-left: 70px;
   }
 
   /* flex-direction is necessary for horizontal scrolling for Native */
