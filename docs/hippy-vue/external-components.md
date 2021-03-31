@@ -25,6 +25,43 @@
 
 需要说明 hippy-vue 的动画参数有一些[默认值](https://github.com/Tencent/Hippy/blob/master/packages/hippy-vue-native-components/src/animation.js#L4)，只有差异部分才需要填写。
 
+actions更改时，会自动新建动画。
+
+## 事件
+
+> 最低支持版本 2.5.2
+
+| 参数          | 描述                                                         | 类型                                      | 支持平台 |
+| ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
+| start              | 动画开始时触发                                                            | `Function`                                                    | `ALL`    |
+| end         | 动画结束时触发                                                            | `Function`| `ALL`    |
+| repeat | 每次循环播放时触发                                                            | `Function` | `Android`    |
+| cancel    | 动画取消时触发                                         | `Function`                                                    | `ALL`    |
+
+## 方法
+
+> 最低支持版本 2.5.2
+
+### start
+
+`() => void` 手动触发动画开始（`playing`属性置为`true`会自动触发`start`函数调用）
+
+### pause
+
+`() => void` 手动触发动画暂停（`playing`属性置为`false`会自动触发`pause`函数调用）
+
+### resume
+
+`() => void` 手动触发动画继续（`playing`属性置为`false`后再置为`true`会自动触发`resume`函数调用）
+
+### create
+
+`() => void` 手动触发动画创建
+
+### reset
+
+`() => void` 重置已开始标记
+
 # dialog
 
 [[范例：demo-dialog.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-dialog.vue)
@@ -65,6 +102,7 @@
 | initialPage              | 指定一个数字，用于决定初始化后默认显示的页面index，默认不指定的时候是0 | `number`                                     | `ALL`    |
 | needAnimation            | 切换页面时是否需要动画。                        | `boolean`                                    | `ALL`    |
 | scrollEnabled            | 指定ViewPager是否可以滑动，默认为true                        | `boolean`                                    | `ALL`    |
+| direction            | 设置viewPager滚动方向，不设置默认横向滚动，设置 `vertical` 为竖向滚动                       | `boolean`                                    | `Android`    |
 
 ## 事件
 
@@ -100,8 +138,6 @@
 ### startRefresh
 
 `() => void` 手动告知终端开始刷新，下拉刷新栏。
-
-## 事件
 
 ## 事件
 

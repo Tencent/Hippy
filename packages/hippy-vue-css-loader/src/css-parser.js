@@ -9,6 +9,13 @@ import { tryConvertNumber } from '@vue/util/index';
 
 const PROPERTIES_MAP = {
   textDecoration: 'textDecorationLine',
+  boxShadowOffset: 'shadowOffset',
+  boxShadowOffsetX: 'shadowOffsetX',
+  boxShadowOffsetY: 'shadowOffsetY',
+  boxShadowOpacity: 'shadowOpacity',
+  boxShadowRadius: 'shadowRadius',
+  boxShadowSpread: 'shadowSpread',
+  boxShadowColor: 'shadowColor',
 };
 
 const commentRegexp = /\/\*[^*]*\*+([^/*][^*]*\*+)*\//g;
@@ -30,7 +37,9 @@ function addParent(obj, parent) {
   Object.keys(obj).forEach((k) => {
     const value = obj[k];
     if (Array.isArray(value)) {
-      value.forEach((v) => { addParent(v, childParent); });
+      value.forEach((v) => {
+        addParent(v, childParent);
+      });
     } else if (value && typeof value === 'object') {
       addParent(value, childParent);
     }
@@ -58,7 +67,7 @@ function convertPxUnitToPt(value) {
     return value;
   }
   // If value unit is px, change to use pt as 1:1.
-  if (value.indexOf('px') === value.length - 2) {
+  if (value.endsWith('px')) {
     const num = parseFloat(value.slice(0, value.indexOf('px')), 10);
     if (!Number.isNaN(num)) {
       value = num;
@@ -292,7 +301,7 @@ function parseCSS(css, options) {
 
     // :
     if (!match(/^:\s*/)) {
-      return error("property missing ':'");
+      return error('property missing \':\'');
     }
 
     // val
@@ -336,7 +345,7 @@ function parseCSS(css, options) {
             transform[key] = v;
             value.push(transform);
           } else {
-            error("missing '('");
+            error('missing \'(\'');
           }
         });
         break;
@@ -344,11 +353,27 @@ function parseCSS(css, options) {
       case 'fontWeight':
         // Keep string and going on.
         break;
+      case 'shadowOffset': {
+        const pos = value.split(' ')
+          .filter(v => v)
+          .map(v => convertPxUnitToPt(v));
+        const [x] = pos;
+        let [, y] = pos;
+        if (!y) {
+          y = x;
+        }
+        // FIXME: should not be width and height, should be x and y.
+        value = {
+          x,
+          y,
+        };
+        break;
+      }
       default: {
         value = tryConvertNumber(value);
         // Convert the px to pt for specific properties
-        const sizeProperties = ['top', 'left', 'right', 'bottom', 'height', 'width', 'size', 'padding', 'margin', 'ratio', 'radius'];
-        if (sizeProperties.findIndex(size => property.toLowerCase().indexOf(size) > -1) > -1) {
+        const sizeProperties = ['top', 'left', 'right', 'bottom', 'height', 'width', 'size', 'padding', 'margin', 'ratio', 'radius', 'offset', 'spread'];
+        if (sizeProperties.find(size => property.toLowerCase().indexOf(size) > -1)) {
           value = convertPxUnitToPt(value);
         }
       }
@@ -373,7 +398,7 @@ function parseCSS(css, options) {
   function declarations() {
     let decls = [];
 
-    if (!open()) return error("missing '{'");
+    if (!open()) return error('missing \'{\'');
     comments(decls);
 
     // declarations
@@ -389,7 +414,7 @@ function parseCSS(css, options) {
       }
     }
 
-    if (!close()) return error("missing '}'");
+    if (!close()) return error('missing \'}\'');
     return decls;
   }
 
@@ -438,7 +463,7 @@ function parseCSS(css, options) {
     }
     const name = m[1];
 
-    if (!open()) return error("@keyframes missing '{'");
+    if (!open()) return error('@keyframes missing \'{\'');
 
     let frame;
     let frames = comments();
@@ -447,7 +472,7 @@ function parseCSS(css, options) {
       frames = frames.concat(comments());
     }
 
-    if (!close()) return error("@keyframes missing '}'");
+    if (!close()) return error('@keyframes missing \'}\'');
 
     return pos({
       type: 'keyframes',
@@ -470,11 +495,11 @@ function parseCSS(css, options) {
     }
     const supports = trim(m[1]);
 
-    if (!open()) return error("@supports missing '{'");
+    if (!open()) return error('@supports missing \'{\'');
 
     const style = comments().concat(rules());
 
-    if (!close()) return error("@supports missing '}'");
+    if (!close()) return error('@supports missing \'}\'');
 
     return pos({
       type: 'supports',
@@ -496,13 +521,13 @@ function parseCSS(css, options) {
     }
 
     if (!open()) {
-      return error("@host missing '{'");
+      return error('@host missing \'{\'');
     }
 
     const style = comments().concat(rules());
 
     if (!close()) {
-      return error("@host missing '}'");
+      return error('@host missing \'}\'');
     }
 
     return pos({
@@ -525,13 +550,13 @@ function parseCSS(css, options) {
     const media = trim(m[1]);
 
     if (!open()) {
-      return error("@media missing '{'");
+      return error('@media missing \'{\'');
     }
 
     const style = comments().concat(rules());
 
     if (!close()) {
-      return error("@media missing '}'");
+      return error('@media missing \'}\'');
     }
 
     return pos({
@@ -574,7 +599,7 @@ function parseCSS(css, options) {
     const sel = selector() || [];
 
     if (!open()) {
-      return error("@page missing '{'");
+      return error('@page missing \'{\'');
     }
     let decls = comments();
 
@@ -586,7 +611,7 @@ function parseCSS(css, options) {
     }
 
     if (!close()) {
-      return error("@page missing '}'");
+      return error('@page missing \'}\'');
     }
 
     return pos({
@@ -611,13 +636,13 @@ function parseCSS(css, options) {
     const doc = trim(m[2]);
 
     if (!open()) {
-      return error("@document missing '{'");
+      return error('@document missing \'{\'');
     }
 
     const style = comments().concat(rules());
 
     if (!close()) {
-      return error("@document missing '}'");
+      return error('@document missing \'}\'');
     }
 
     return pos({
@@ -640,7 +665,7 @@ function parseCSS(css, options) {
     }
 
     if (!open()) {
-      return error("@font-face missing '{'");
+      return error('@font-face missing \'{\'');
     }
     let decls = comments();
 
@@ -652,7 +677,7 @@ function parseCSS(css, options) {
     }
 
     if (!close()) {
-      return error("@font-face missing '}'");
+      return error('@font-face missing \'}\'');
     }
 
     return pos({
@@ -742,3 +767,6 @@ function parseCSS(css, options) {
 }
 
 export default parseCSS;
+export {
+  PROPERTIES_MAP,
+};

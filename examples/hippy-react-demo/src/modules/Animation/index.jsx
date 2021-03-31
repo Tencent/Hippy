@@ -64,21 +64,21 @@ export default class AnimationExample extends React.Component {
 
   componentWillMount() {
     this.horizonAnimation = new Animation({
-      startValue: 150,            // 开始值
-      toValue: 20,                // 动画结束值
-      duration: 1000,             // 动画持续时长
-      delay: 500,                 // 至动画真正开始的延迟时间
-      mode: 'timing',             // 动画模式
-      timingFunction: 'ease-in',  // 动画缓动函数
+      startValue: 150, // 开始值
+      toValue: 20, // 动画结束值
+      duration: 1000, // 动画持续时长
+      delay: 500, // 至动画真正开始的延迟时间
+      mode: 'timing', // 动画模式
+      timingFunction: 'ease-in', // 动画缓动函数
       repeatCount: 'loop',
     });
     this.verticalAnimation = new Animation({
-      startValue: 80,             // 动画开始值
-      toValue: 40,                // 动画结束值
-      duration: 1000,             // 动画持续时长
-      delay: 0,                   // 至动画真正开始的延迟时间
-      mode: 'timing',             // 动画模式
-      timingFunction: 'linear',   // 动画缓动函数,
+      startValue: 80, // 动画开始值
+      toValue: 40, // 动画结束值
+      duration: 1000, // 动画持续时长
+      delay: 0, // 至动画真正开始的延迟时间
+      mode: 'timing', // 动画模式
+      timingFunction: 'linear', // 动画缓动函数,
       repeatCount: 'loop',
     });
 
@@ -93,7 +93,7 @@ export default class AnimationExample extends React.Component {
             mode: 'timing',
             timingFunction: 'linear',
           }),
-          follow: false,   // 配置子动画的执行是否跟随执行
+          follow: false, // 配置子动画的执行是否跟随执行
         },
         {
           animation: new Animation({
@@ -136,7 +136,7 @@ export default class AnimationExample extends React.Component {
     });
   }
 
-  componentWillUnmount() {  // 如果动画没有销毁，需要在此处保证销毁动画，以免动画后台运行耗电
+  componentWillUnmount() { // 如果动画没有销毁，需要在此处保证销毁动画，以免动画后台运行耗电
     if (this.scaleAnimationSet) {
       this.scaleAnimationSet.destroy();
     }
@@ -188,7 +188,9 @@ export default class AnimationExample extends React.Component {
         </View>
         <View style={styles.showArea}>
           <View
-            ref={(ref) => { this.horizonRef = ref; }}
+            ref={(ref) => {
+              this.horizonRef = ref;
+            }}
             style={[styles.square, {
               transform: [{
                 translateX: this.horizonAnimation,
@@ -200,26 +202,34 @@ export default class AnimationExample extends React.Component {
         <View style={styles.buttonContainer}>
           <View
             style={styles.button}
-            onClick={() => { this.verticalAnimation.start(); }}
+            onClick={() => {
+              this.verticalAnimation.start();
+            }}
           >
             <Text style={styles.buttonText}>开始</Text>
           </View>
           <View
             style={[styles.button]}
-            onClick={() => { this.verticalAnimation.pause(); }}
+            onClick={() => {
+              this.verticalAnimation.pause();
+            }}
           >
             <Text style={styles.buttonText}>暂停</Text>
           </View>
           <View
             style={styles.button}
-            onClick={() => { this.verticalAnimation.resume(); }}
+            onClick={() => {
+              this.verticalAnimation.resume();
+            }}
           >
             <Text style={styles.buttonText}>继续</Text>
           </View>
         </View>
         <View style={styles.showArea}>
           <View
-            ref={(ref) => { this.verticalRef = ref; }}
+            ref={(ref) => {
+              this.verticalRef = ref;
+            }}
             style={[styles.square, {
               height: this.verticalAnimation,
             }]}
@@ -229,26 +239,34 @@ export default class AnimationExample extends React.Component {
         <View style={styles.buttonContainer}>
           <View
             style={styles.button}
-            onClick={() => { this.scaleAnimationSet.start(); }}
+            onClick={() => {
+              this.scaleAnimationSet.start();
+            }}
           >
             <Text style={styles.buttonText}>开始</Text>
           </View>
           <View
             style={[styles.button]}
-            onClick={() => { this.scaleAnimationSet.pause(); }}
+            onClick={() => {
+              this.scaleAnimationSet.pause();
+            }}
           >
             <Text style={styles.buttonText}>暂停</Text>
           </View>
           <View
             style={styles.button}
-            onClick={() => { this.scaleAnimationSet.resume(); }}
+            onClick={() => {
+              this.scaleAnimationSet.resume();
+            }}
           >
             <Text style={styles.buttonText}>继续</Text>
           </View>
         </View>
         <View style={[styles.showArea, { marginVertical: 20 }]}>
           <View
-            ref={(ref) => { this.scaleRef = ref; }}
+            ref={(ref) => {
+              this.scaleRef = ref;
+            }}
             style={[styles.square, {
               transform: [{
                 scale: this.scaleAnimationSet,

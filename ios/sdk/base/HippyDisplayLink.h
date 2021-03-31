@@ -29,8 +29,7 @@
 
 - (instancetype)init;
 - (void)invalidate;
-- (void)registerModuleForFrameUpdates:(id<HippyBridgeModule>)module
-                       withModuleData:(HippyModuleData *)moduleData;
+- (void)registerModuleForFrameUpdates:(id<HippyBridgeModule>)module withModuleData:(HippyModuleData *)moduleData;
 - (void)addToRunLoop:(NSRunLoop *)runLoop;
 
 @end

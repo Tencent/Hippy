@@ -11,6 +11,9 @@ import {
 } from '../types';
 
 function appendChild(parent: Element, child: Element): void {
+  if (parent.childNodes.indexOf(child) >= 0) {
+    parent.removeChild(child);
+  }
   parent.appendChild(child);
 }
 

@@ -1,5 +1,6 @@
 package com.tencent.mtt.supportui.views.recyclerview;
 
+import com.tencent.mtt.supportui.views.recyclerview.BaseLayoutManager.SavedState;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,10 +31,6 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.animation.Interpolator;
-
-/**
- * Created by leonardgong on 2017/12/7 0007.
- */
 
 public abstract class RecyclerViewBase extends ViewGroup
 {
@@ -445,13 +442,13 @@ public abstract class RecyclerViewBase extends ViewGroup
 	}
 
 	@Override
-	protected void onRestoreInstanceState(Parcelable state)
-	{
-		mPendingSavedState = (SavedState) state;
-		super.onRestoreInstanceState(mPendingSavedState.getSuperState());
-		if (mLayout != null && mPendingSavedState.mLayoutState != null)
-		{
-			mLayout.onRestoreInstanceState(mPendingSavedState.mLayoutState);
+	protected void onRestoreInstanceState(Parcelable state) {
+		if (state != null && state instanceof BaseLayoutManager.SavedState) {
+			mPendingSavedState = (SavedState)state;
+			super.onRestoreInstanceState(mPendingSavedState.getSuperState());
+			if (mLayout != null && mPendingSavedState.mLayoutState != null) {
+				mLayout.onRestoreInstanceState(mPendingSavedState.mLayoutState);
+			}
 		}
 	}
 
@@ -1906,6 +1903,7 @@ public abstract class RecyclerViewBase extends ViewGroup
 							}
 						}
 					}
+					onTouchMove(x, y);
 				}
 				mLastTouchX = x;
 				mLastTouchY = y;

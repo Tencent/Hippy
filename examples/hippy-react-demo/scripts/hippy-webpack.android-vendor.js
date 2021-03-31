@@ -1,6 +1,6 @@
-const path                        = require('path');
-const webpack                     = require('webpack');
-const CaseSensitivePathsPlugin    = require('case-sensitive-paths-webpack-plugin');
+const path = require('path');
+const webpack = require('webpack');
+const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 
 const platform = 'android';
 
@@ -46,6 +46,9 @@ module.exports = {
                     },
                   },
                 ],
+              ],
+              plugins: [
+                ['@babel/plugin-proposal-class-properties'],
               ],
             },
           },

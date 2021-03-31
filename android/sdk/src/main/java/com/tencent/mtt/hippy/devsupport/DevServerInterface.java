@@ -15,19 +15,15 @@
  */
 package com.tencent.mtt.hippy.devsupport;
 
-import android.app.Activity;
-
 import com.tencent.mtt.hippy.HippyRootView;
-
-/**
- * @author: edsheng
- * @date: 2017/11/18 16:27
- * @version: V1.0
- */
 
 public interface DevServerInterface
 {
 	void reload(DevRemoteDebugProxy remoteDebugManager);
+
+	String createResourceUrl(String resName);
+
+	void loadRemoteResource(String url, DevServerCallBack serverCallBack);
 
 	void setDevServerCallback(DevServerCallBack devServerCallback);
 

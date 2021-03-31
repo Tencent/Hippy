@@ -1,0 +1,46 @@
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
+
+bintray {
+    user = System.getenv('bintrayUser')
+    key = System.getenv('bintrayKey')
+    println("===============bintray: user=" + user + ", key=" + key)
+    publications = ['HippyPublication'] // 'HippyPublication'与下面的publishing闭包里的名称对应
+    publish = true // 上传后立即发布到Bintray平台
+    pkg {
+        repo = BINTRAY_REPO
+        name = BINTRAY_ARTIFACT_ID
+        userOrg = BINTRAY_URSER_ORG
+        licenses = ["Apache-2.0"]
+        vcsUrl = BINTRAY_GIT_URL
+        version {
+            name = VERSION_NAME
+            desc = BINTRAY_VERSION_DESC
+        }
+    }
+}
+
+// 构件文件和POM信息配置
+publishing {
+    publications {
+        HippyPublication(MavenPublication) {
+            artifact("$buildDir/outputs/aar/android-sdk-release.aar")
+            groupId project.BINTRAY_GROUP_ID
+            artifactId project.BINTRAY_ARTIFACT_ID
+            version project.VERSION_NAME
+            pom.withXml {
+                def dependenciesNode = asNode().appendNode('dependencies')
+                // Iterate over the implementation dependencies (we don't want the test ones), adding a <dependency> node for each
+                configurations.implementation.allDependencies.each {
+                    // Ensure dependencies such as fileTree are not included in the pom.
+                    if (it.name != 'unspecified') {
+                        def dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', it.group)
+                        dependencyNode.appendNode('artifactId', it.name)
+                        dependencyNode.appendNode('version', it.version)
+                    }
+                }
+            }
+        }
+    }
+}

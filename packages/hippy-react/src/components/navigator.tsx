@@ -111,7 +111,7 @@ class Stack {
 class Navigator extends React.Component<NavigatorProps, {}> {
   private stack = new Stack();
 
-  private instance:  HTMLDivElement | null = null;
+  private instance: HTMLDivElement | null = null;
 
   private routeList: {
     [key: string]: boolean;
@@ -241,7 +241,9 @@ class Navigator extends React.Component<NavigatorProps, {}> {
     } = this.props;
     (nativeProps as NavigatorProps).initialRoute = otherInitialRoute;
     return (
-      <div nativeName="Navigator" ref={(ref) => { this.instance = ref; }} {...nativeProps} />
+      <div nativeName="Navigator" ref={(ref) => {
+        this.instance = ref;
+      }} {...nativeProps} />
     );
   }
 }

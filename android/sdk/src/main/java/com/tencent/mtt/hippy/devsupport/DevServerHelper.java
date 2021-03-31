@@ -22,14 +22,10 @@ import com.tencent.mtt.hippy.adapter.http.HippyHttpRequest;
 import com.tencent.mtt.hippy.adapter.http.HippyHttpResponse;
 import com.tencent.mtt.hippy.modules.nativemodules.HippySettableFuture;
 
+import com.tencent.mtt.hippy.utils.LogUtils;
 import java.io.*;
 import java.util.Locale;
 
-/**
- * @author: edsheng
- * @date: 2017/11/14 17:36
- * @version: V1.0
- */
 public class DevServerHelper
 {
 	private static final String	BUNDLE_URL_FORMAT						= "http://%s/%s?platform=android&dev=%s&hot=%s&minify=%s";
@@ -47,7 +43,7 @@ public class DevServerHelper
 		mServerHost = serverHost;
 	}
 
-	private static String createBundleURL(String host, String bundleName, boolean devMode, boolean hmr, boolean jsMinify)
+	public String createBundleURL(String host, String bundleName, boolean devMode, boolean hmr, boolean jsMinify)
 	{
 		return String.format(Locale.US, BUNDLE_URL_FORMAT, host, bundleName, devMode, hmr, jsMinify);
 	}
@@ -107,12 +103,10 @@ public class DevServerHelper
 		}
 	}
 
-	public void fetchBundleFromURL(final BundleFetchCallBack bundleFetchCallBack, boolean enableDebug, String serverHost, String bundleName, final File outputFile)
+	public void fetchBundleFromURL(final BundleFetchCallBack bundleFetchCallBack, final String url, final File outputFile)
 	{
-		final String bundleURL = createBundleURL(serverHost, bundleName, enableDebug, false, false);
-
 		HippyHttpRequest request = new HippyHttpRequest();
-		request.setUrl(bundleURL);
+		request.setUrl(url);
 		mGlobalConfigs.getHttpAdapter().sendRequest(request, new HippyHttpAdapter.HttpTaskCallback()
 		{
 			@Override
@@ -124,6 +118,11 @@ public class DevServerHelper
 				}
 				if (response.getStatusCode() == 200 && response.getInputStream() != null)
 				{
+					if (outputFile == null) {
+						bundleFetchCallBack.onSuccess(response.getInputStream());
+						return;
+					}
+
 					FileOutputStream fileOutputStream = null;
 					try
 					{
@@ -149,7 +148,7 @@ public class DevServerHelper
 					}
 					catch (Throwable e)
 					{
-						e.printStackTrace();
+						LogUtils.d("DevServerHelper", "fetchBundleFromURL: " + e.getMessage());
 					}
 					finally
 					{
@@ -161,6 +160,7 @@ public class DevServerHelper
 							}
 							catch (IOException e)
 							{
+								LogUtils.d("DevServerHelper", "fetchBundleFromURL: " + e.getMessage());
 							}
 						}
 					}
@@ -182,7 +182,7 @@ public class DevServerHelper
 					}
 					if (bundleFetchCallBack != null)
 					{
-						bundleFetchCallBack.onFail(new DevServerException("Could not connect to development server." + "URL: " + bundleURL.toString()
+						bundleFetchCallBack.onFail(new DevServerException("Could not connect to development server." + "URL: " + url
 								+ "  try to :adb reverse tcp:38989 tcp:38989 , message : " + message));
 					}
 				}
@@ -193,7 +193,7 @@ public class DevServerHelper
 			{
 				if (bundleFetchCallBack != null)
 				{
-					bundleFetchCallBack.onFail(new DevServerException("Could not connect to development server." + "URL: " + bundleURL.toString()
+					bundleFetchCallBack.onFail(new DevServerException("Could not connect to development server." + "URL: " + url
 							+ "  try to :adb reverse tcp:38989 tcp:38989 , message : " + error.getMessage()));
 				}
 			}

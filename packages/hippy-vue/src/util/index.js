@@ -48,9 +48,7 @@ function getBeforeLoadStyle() {
 }
 
 const infoTrace = once(() => {
-  console.log(
-    'Hippy-Vue has "Vue.config.silent" set to true, to see output logs set it to false.',
-  );
+  console.log('Hippy-Vue has "Vue.config.silent" set to true, to see output logs set it to false.');
 });
 
 function trace(...context) {
@@ -86,7 +84,7 @@ function capitalizeFirstLetter(str) {
 /**
  * Convert string to number as possible
  */
-const numberRegEx = new RegExp('^[+-]?\\d+(\\.\\d+)?$');
+const numberRegEx = new RegExp('^(?=.+)[+-]?\\d*\\.?\\d*([Ee][+-]?\\d+)?$');
 function tryConvertNumber(str) {
   if (typeof str === 'number') {
     return str;

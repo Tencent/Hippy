@@ -17,6 +17,7 @@ package com.tencent.mtt.hippy.bridge;
 
 import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyRootView;
+import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
 import com.tencent.mtt.hippy.common.Callback;
 import com.tencent.mtt.hippy.common.HippyJsException;
@@ -46,8 +47,11 @@ public interface HippyBridgeManager
 
 	void execCallback(Object params);
 
+	void destroyBridge(Callback<Boolean> callback);
+
 	void destroy();
 
 	void callJavaScriptModule(String mName, String name, Object params);
 
+	HippyThirdPartyAdapter getThirdPartyAdapter();
 }

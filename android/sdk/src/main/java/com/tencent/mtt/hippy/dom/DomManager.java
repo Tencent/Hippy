@@ -338,7 +338,7 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 				isVirtual = true;
 			}
 
-			DomNode node = mContext.getRenderManager().createStyleNode(className, isVirtual, id);
+      DomNode node = mContext.getRenderManager().createStyleNode(className, isVirtual, id, hippyRootView.getId());
 
 			node.setLazy(parentNode.isLazy() || mContext.getRenderManager().getControllerManager().isControllerLazy(className));
 			node.setProps(map);
@@ -346,7 +346,7 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 
 			//		boolean isLayoutOnly=false;
 			boolean isLayoutOnly = (NodeProps.VIEW_CLASS_NAME.equals(node.getViewClass())) && jsJustLayout((HippyMap) props.get(NodeProps.STYLE))
-					&& !isTouchEvent(props) && HippyTag.jsJustLayout(props);
+					&& !isTouchEvent(props);
 			LogUtils.d(TAG, "dom create node id: " + id + " mClassName " + className + " pid " + pid + " mIndex:" + index + " isJustLayout :"
 					+ isLayoutOnly + " isVirtual " + isVirtual);
 			//			mContext.getGlobalConfigs().getLogAdapter().log(TAG,"dom create node id: " + id + " mClassName " + className + " pid " + pid + " mIndex:" + index + " isJustLayout :"
@@ -360,7 +360,7 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 			if (realIndex > parentNode.getChildCount())
 			{
 				realIndex = parentNode.getChildCount();
-				Log.e("DomManager", "createNode  addChild  error index > parent.size");
+				LogUtils.d("DomManager", "createNode  addChild  error index > parent.size");
 				//				mContext.getGlobalConfigs().getLogAdapter().log(TAG,"createNode  addChild  error index > parent.size");
 			}
 			parentNode.addChildAt(node, realIndex);
@@ -406,7 +406,7 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 		}
 		else
 		{
-			Log.e("DomManager", "Create Node DomManager Parent IS Null");
+			LogUtils.d("DomManager", "Create Node DomManager Parent IS Null");
 		}
 
 	}
@@ -551,7 +551,7 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 		}
 		else
 		{
-			Log.e(TAG, "update error node is null id " + id);
+			LogUtils.d(TAG, "update error node is null id " + id);
 
 			mContext.getGlobalConfigs().getLogAdapter().log(TAG, "update error node is null id " + id);
 		}

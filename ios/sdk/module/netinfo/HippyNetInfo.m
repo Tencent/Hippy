@@ -25,101 +25,134 @@
 #import "HippyAssert.h"
 #import "HippyBridge.h"
 #import "HippyEventDispatcher.h"
+#import "netinet/in.h"
 
 static NSString *const HippyReachabilityStateUnknown = @"UNKNOWN";
 static NSString *const HippyReachabilityStateNone = @"NONE";
 static NSString *const HippyReachabilityStateWifi = @"WIFI";
 static NSString *const HippyReachabilityStateCell = @"CELL";
 
-@implementation HippyNetInfo
-{
-  SCNetworkReachabilityRef _reachability;
-  NSString *_status;
-  NSString *_host;
+@implementation HippyNetInfo {
+    SCNetworkReachabilityRef _reachability;
+    NSString *_networkType;
+    NSString *_host;
 }
 
 HIPPY_EXPORT_MODULE()
 
-static void HippyReachabilityCallback(__unused SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void *info)
-{
-  HippyNetInfo *self = (__bridge id)info;
-  NSString *status = HippyReachabilityStateUnknown;
-  if ((flags & kSCNetworkReachabilityFlagsReachable) == 0 ||
-      (flags & kSCNetworkReachabilityFlagsConnectionRequired) != 0) {
-    status = HippyReachabilityStateNone;
-  }
+static NSString *hippyReachabilityTypeFromFlags(SCNetworkReachabilityFlags flags) {
+    NSString *networkType = HippyReachabilityStateUnknown;
+    if ((flags & kSCNetworkReachabilityFlagsReachable) == 0 || (flags & kSCNetworkReachabilityFlagsConnectionRequired) != 0) {
+        networkType = HippyReachabilityStateNone;
+    } else if ((flags & kSCNetworkReachabilityFlagsIsWWAN) != 0) {
+        networkType = HippyReachabilityStateCell;
+    } else {
+        networkType = HippyReachabilityStateWifi;
+    }
+    return networkType;
+}
 
-#if TARGET_OS_IPHONE
+static NSString *currentReachabilityType(SCNetworkReachabilityRef reachabilityRef) {
+    SCNetworkReachabilityFlags flags;
+    BOOL success = SCNetworkReachabilityGetFlags(reachabilityRef, &flags);
+    if (success) {
+        NSString *type = hippyReachabilityTypeFromFlags(flags);
+        return type ?: HippyReachabilityStateUnknown;
+    } else {
+        return HippyReachabilityStateUnknown;
+    }
+}
 
-  else if ((flags & kSCNetworkReachabilityFlagsIsWWAN) != 0) {
-    status = HippyReachabilityStateCell;
-  }
+static SCNetworkReachabilityRef createReachabilityRefWithZeroAddress() {
+    struct sockaddr_in zeroAddress;
+    bzero(&zeroAddress, sizeof(zeroAddress));
+    zeroAddress.sin_len = sizeof(zeroAddress);
+    zeroAddress.sin_family = AF_INET;
+    SCNetworkReachabilityRef reachability = SCNetworkReachabilityCreateWithAddress(kCFAllocatorDefault, (struct sockaddr *)&zeroAddress);
+    return reachability;
+}
 
-#endif
-
-  else {
-    status = HippyReachabilityStateWifi;
-  }
-
-  if (![status isEqualToString:self->_status]) {
-    self->_status = status;
-    [self sendEvent:@"networkStatusDidChange" params:@{@"network_info": status}];
-  }
+static void HippyReachabilityCallback(__unused SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void *info) {
+    HippyNetInfo *self = (__bridge id)info;
+    NSString *networkType = hippyReachabilityTypeFromFlags(flags);
+    if (![networkType isEqualToString:self->_networkType]) {
+        self->_networkType = networkType;
+        [self sendEvent:@"networkStatusDidChange" params:@ { @"network_info": networkType }];
+    }
 }
 
 #pragma mark - Lifecycle
 
-- (instancetype)initWithHost:(NSString *)host
-{
-  HippyAssertParam(host);
-  HippyAssert(![host hasPrefix:@"http"], @"Host value should just contain the domain, not the URL scheme.");
+- (instancetype)initWithHost:(NSString *)host {
+    HippyAssertParam(host);
+    HippyAssert(![host hasPrefix:@"http"], @"Host value should just contain the domain, not the URL scheme.");
 
-  if ((self = [self init])) {
-    _host = [host copy];
-  }
-  return self;
+    if ((self = [self init])) {
+        _host = [host copy];
+    }
+    return self;
 }
 
-- (void) addEventObserverForName:(NSString *)eventName {
-  if ([eventName isEqualToString:@"networkStatusDidChange"]) {
-    _status = HippyReachabilityStateUnknown;
-    _reachability = SCNetworkReachabilityCreateWithName(kCFAllocatorDefault, _host.UTF8String ?: "apple.com");
-    SCNetworkReachabilityContext context = { 0, ( __bridge void *)self, NULL, NULL, NULL };
-    SCNetworkReachabilitySetCallback(_reachability, HippyReachabilityCallback, &context);
-    SCNetworkReachabilityScheduleWithRunLoop(_reachability, CFRunLoopGetMain(), kCFRunLoopCommonModes);
-  }
+- (void)addEventObserverForName:(NSString *)eventName {
+    if ([eventName isEqualToString:@"networkStatusDidChange"]) {
+        if (!_reachability) {
+            _reachability = createReachabilityRefWithZeroAddress();
+            SCNetworkReachabilityContext context = { 0, (__bridge void *)self, NULL, NULL, NULL };
+            SCNetworkReachabilitySetCallback(_reachability, HippyReachabilityCallback, &context);
+            SCNetworkReachabilityScheduleWithRunLoop(_reachability, CFRunLoopGetMain(), kCFRunLoopCommonModes);
+        }
+        _networkType = currentReachabilityType(_reachability);
+        [self sendEvent:@"networkStatusDidChange" params:@{ @"network_info": _networkType }];
+    }
 }
 
-- (void) removeEventObserverForName:(NSString *)eventName {
-  if ([eventName isEqualToString:@"networkStatusDidChange"]) {
-		[self releaseReachability];
-  }
+- (void)removeEventObserverForName:(NSString *)eventName {
+    if ([eventName isEqualToString:@"networkStatusDidChange"]) {
+        [self releaseReachability];
+    }
 }
 
-- (void)invalidate
-{
-	[self releaseReachability];
+- (void)invalidate {
+    [self releaseReachability];
 }
 
-- (void)releaseReachability
-{
-	if (_reachability) {
-		SCNetworkReachabilityUnscheduleFromRunLoop(_reachability, CFRunLoopGetMain(), kCFRunLoopCommonModes);
-		CFRelease(_reachability);
-		_reachability = NULL;
-	}
+- (void)releaseReachability {
+    if (_reachability) {
+        SCNetworkReachabilityUnscheduleFromRunLoop(_reachability, CFRunLoopGetMain(), kCFRunLoopCommonModes);
+        CFRelease(_reachability);
+        _reachability = NULL;
+    }
 }
 
-- (void)dealloc
-{
-	[self releaseReachability];
+- (void)dealloc {
+    [self releaseReachability];
 }
 #pragma mark - Public API
 
+// clang-format off
 HIPPY_EXPORT_METHOD(getCurrentConnectivity:(HippyPromiseResolveBlock)resolve
-                  reject:(__unused HippyPromiseRejectBlock)reject)
-{
-  resolve(@{@"network_info": _status ?: HippyReachabilityStateUnknown});
+                  reject:(__unused HippyPromiseRejectBlock)reject) {
+    if (!resolve) {
+        return;
+    }
+    //return network type if it was set and not unknown type
+    if (_networkType) {
+        resolve(@{@"network_info": _networkType});
+    }
+    //else try to get network type
+    else {
+        SCNetworkReachabilityRef reachability = NULL;
+        if (_reachability) {
+            reachability = CFRetain(_reachability);
+        }
+        else {
+            reachability = createReachabilityRefWithZeroAddress();
+        }
+        NSString *type = currentReachabilityType(reachability);
+        resolve(@{@"network_info": type});
+        CFRelease(reachability);
+    }
 }
+// clang-format on
 
 @end

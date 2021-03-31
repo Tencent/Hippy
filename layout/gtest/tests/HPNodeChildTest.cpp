@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include <gtest.h>
 #include <Hippy.h>
+#include <gtest.h>
 
 TEST(HippyTest, reset_layout_when_child_removed) {
   const HPNodeRef root = HPNodeNew();

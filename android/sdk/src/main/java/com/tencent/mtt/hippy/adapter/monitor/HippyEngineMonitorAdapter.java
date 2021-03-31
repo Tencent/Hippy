@@ -19,12 +19,6 @@ import com.tencent.mtt.hippy.HippyRootView;
 
 import java.util.List;
 
-/**
- * FileName: HippyEngineMonitorAdapter
- * Description：
- * History：
- * 1.0 xiandongluo on 2018/1/23
- */
 public interface HippyEngineMonitorAdapter
 {
 
@@ -42,4 +36,9 @@ public interface HippyEngineMonitorAdapter
 
 	void reportBridgeANR(String message);
 
+	void reportDoCallNatives(String moduleName, String moduleFunc);
+
+	void reportGestureEventCallStack(String funcName, String msg);
+
+	void reportClickEvent(Object object, boolean isCustomEvent);
 }

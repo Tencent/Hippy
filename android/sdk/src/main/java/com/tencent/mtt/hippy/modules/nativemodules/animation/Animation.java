@@ -100,6 +100,16 @@ public abstract class Animation implements ValueAnimator.AnimatorUpdateListener,
 	}
 
 	@Override
+	public void onAnimationStart(Animator animation, boolean isReverse) {
+		onAnimationStart(animation);
+	}
+
+	@Override
+	public void onAnimationEnd(Animator animation, boolean isReverse) {
+		onAnimationEnd(animation);
+	}
+	
+	@Override
 	public void onAnimationStart(Animator animation)
 	{
 		if(mAnimationListeners == null)

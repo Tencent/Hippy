@@ -31,28 +31,22 @@ import android.view.SurfaceHolder;
 
 import java.lang.ref.WeakReference;
 
-/**
- * @Description: TODO
- * @author: robinsli
- * @date: 2019/6/11 11:18
- * @version: V1.0
- */
 public class AudioPlayManager
 {
-    private static final String					TAG						= "AudioPlayManager";
-    private MediaPlayer							mSysMediaPlayer;													//系统播放器
-    private String								mCurrentPlayUrl;													//当前播放音频的url
-    private int									mCurrentPlayID;														//当前播放的ID
-    private SparseArray<AudioManagerListener>	mPlayCallbackListener	= new SparseArray();						//支持多个audio播放，但是如何释放
-    private SparseArray<String>					mAudioPlayUrlList		= new SparseArray();
-    private SparseArray<Integer>				mAudioPlayPositionList	= new SparseArray();
-    private HandlerThread						mHandlerThread			= new HandlerThread("HippyAudioPlayThread");
-    private Handler								mHandler;
-    private Runnable							mRunnable;
-    public static final long					PROGRESS_UPDATE_TIME	= 1000L;									//更新播放进度的时间间隔
-    public static final int						AUDIO_STREAM_TYPE		= 3;
-    public static final int						PALY_START_POS			= 0;
-    public static int							gUniqPlayId				= 0;
+    private static final String					    TAG						= "AudioPlayManager";
+    private MediaPlayer							    mSysMediaPlayer;													//系统播放器
+    private String								    mCurrentPlayUrl;													//当前播放音频的url
+    private int									    mCurrentPlayID;														//当前播放的ID
+    private final SparseArray<AudioManagerListener>	mPlayCallbackListener	= new SparseArray();						//支持多个audio播放，但是如何释放
+    private final SparseArray<String>				mAudioPlayUrlList		= new SparseArray();
+    private final SparseArray<Integer>				mAudioPlayPositionList	= new SparseArray();
+    private final HandlerThread						mHandlerThread			= new HandlerThread("HippyAudioPlayThread");
+    private final Handler							mHandler;
+    private final Runnable							mRunnable;
+    public static final long					    PROGRESS_UPDATE_TIME	= 1000L;									//更新播放进度的时间间隔
+    public static final int						    AUDIO_STREAM_TYPE		= 3;
+    public static final int						    PALY_START_POS			= 0;
+    public static int							    gUniqPlayId				= 0;
 
     public static int globalUiqPlayId()
     {
@@ -384,8 +378,8 @@ public class AudioPlayManager
     }
 
     private static Object		afChangeListener;
-    private static AudioManager	audioManager				= (AudioManager) ContextHolder.getAppContext().getSystemService(Context.AUDIO_SERVICE);
-    private static int			AUDIOFOCUS_LOSS_TRANSIENT	= -2;
+    private final static AudioManager	audioManager	= (AudioManager) ContextHolder.getAppContext().getSystemService(Context.AUDIO_SERVICE);
+    private final static int AUDIOFOCUS_LOSS_TRANSIENT	= -2;
 
     public static int requestAudioFocus(OnAudioStateChange onAudioStateChange)
     {
@@ -442,17 +436,13 @@ public class AudioPlayManager
      * 释放声音播放焦点
      *
      */
-    public static void abandonAudioFocus()
-    {
-        try
-        {
-            if (audioManager != null)
-            {
+    public static void abandonAudioFocus() {
+        try {
+            if (audioManager != null) {
                 audioManager.abandonAudioFocus((AudioManager.OnAudioFocusChangeListener) afChangeListener);
             }
-        }
-        catch (Throwable e)
-        {
+        } catch (Throwable e) {
+            LogUtils.d("AudioPlayManager", "abandonAudioFocus: " + e.getMessage());
         }
     }
 

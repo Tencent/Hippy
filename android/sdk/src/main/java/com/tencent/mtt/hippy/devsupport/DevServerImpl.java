@@ -31,21 +31,16 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Stack;
-
-/**
- * @author: edsheng
- * @date: 2017/11/15 10:01
- * @version: V1.0
- */
 
 public class DevServerImpl implements View.OnClickListener, DevServerInterface, DevExceptionDialog.OnReloadListener,
 		DevRemoteDebugManager.RemoteDebugExceptionHandler, LiveReloadController.LiveReloadCallback
 {
 	private static final String			TAG	= "DevServerImpl";
 
-	DevServerHelper						mFetchHelper;
+	DevServerHelper                     mFetchHelper;
 	DevServerCallBack					mServerCallBack;
 	ProgressDialog						mProgressDialog;
 	DevExceptionDialog					mExceptionDialog;
@@ -62,6 +57,8 @@ public class DevServerImpl implements View.OnClickListener, DevServerInterface, 
 		mDebugButtonStack = new Stack<>();
 		mHostButtonMap = new HashMap<>();
 		mLiveReloadController = new LiveReloadController(mFetchHelper);
+
+		showProgressDialog();
 	}
 
 	private void showProgressDialog()
@@ -132,38 +129,52 @@ public class DevServerImpl implements View.OnClickListener, DevServerInterface, 
 	}
 
 	@Override
-	public void reload(DevRemoteDebugProxy remoteDebugManager)
-	{
-		showProgressDialog();
+	public String createResourceUrl(String resName) {
+		String resUrl = mFetchHelper.createBundleURL(mServerConfig.getServerHost(), resName, mServerConfig.enableRemoteDebug(), false, false);
+		return resUrl;
+	}
+
+	@Override
+	public void loadRemoteResource(String url, final DevServerCallBack serverCallBack) {
 		mFetchHelper.fetchBundleFromURL(new BundleFetchCallBack()
 		{
 			@Override
-			public void onSuccess(File file)
-			{
-				if (mProgressDialog != null)
-				{
+			public void onSuccess(InputStream inputStream) {
+				if (mProgressDialog != null) {
 					mProgressDialog.dismiss();
 				}
 
-				if (mServerCallBack != null)
-				{
-					mServerCallBack.onDevBundleLoadReady(file);
+				if (serverCallBack != null) {
+					serverCallBack.onDevBundleLoadReady(inputStream);
 				}
 			}
 
 			@Override
-			public void onFail(Exception exception)
+			public void onSuccess(File file)
 			{
-				if(mDebugButtonStack.isEmpty())
-				{
-					mServerCallBack.onInitDevError(exception);
+			}
+
+			@Override
+			public void onFail(Exception exception) {
+				if (serverCallBack != null) {
+					serverCallBack.onInitDevError(exception);
 				}
-				else
-				{
+
+				if(mDebugButtonStack.isEmpty()) {
+					mServerCallBack.onInitDevError(exception);
+				} else {
 					handleException(exception);
 				}
 			}
-		}, mServerConfig.enableRemoteDebug(), mServerConfig.getServerHost(), mServerConfig.getBundleName(), mServerConfig.getJSBundleTempFile());
+		}, url, null);
+	}
+
+	@Override
+	public void reload(DevRemoteDebugProxy remoteDebugManager)
+	{
+		if (mServerCallBack != null) {
+			mServerCallBack.onDevBundleReLoad();
+		}
 	}
 
 	@Override

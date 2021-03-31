@@ -1,24 +1,24 @@
 /*!
-* iOS SDK
-*
-* Tencent is pleased to support the open source community by making
-* Hippy available.
-*
-* Copyright (C) 2019 THL A29 Limited, a Tencent company.
-* All rights reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*   http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * iOS SDK
+ *
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #import "HippyBridge+LocalFileSource.h"
 #import "objc/runtime.h"
@@ -26,17 +26,30 @@ static const void *HippyWorkerFolderKey = &HippyWorkerFolderKey;
 NSErrorDomain const HippyLocalFileReadErrorDomain = @"HippyLocalFileReadErrorDomain";
 NSInteger HippyLocalFileNOFilExist = 100;
 @implementation HippyBridge (LocalFileSource)
-- (void) setWorkFolder:(NSString *)workFolder {
+- (void)setWorkFolder:(NSString *)workFolder {
     objc_setAssociatedObject(self, HippyWorkerFolderKey, workFolder, OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
 
-- (NSString *) workFolder {
+- (NSString *)workFolder {
     NSString *string = objc_getAssociatedObject(self, HippyWorkerFolderKey);
+    if (!string) {
+        string = [[self bundleURL] absoluteString];
+    }
     return string;
 }
 
-+ (NSString *) defaultHippyLocalFileScheme {
-    //hpfile://
+- (NSString *)workFolder2 {
+    NSString *workFolder = [self workFolder];
+    if (workFolder) {
+        NSRange range = [workFolder rangeOfString:@"/" options:NSBackwardsSearch];
+        NSString *noIndex = [workFolder substringToIndex:range.location + 1];
+        return noIndex;
+    }
+    return @"";
+}
+
++ (NSString *)defaultHippyLocalFileScheme {
+    // hpfile://
     static dispatch_once_t onceToken;
     static NSString *defaultScheme = nil;
     static NSString *pFile = @"pfile";
@@ -46,7 +59,7 @@ NSInteger HippyLocalFileNOFilExist = 100;
     return defaultScheme;
 }
 
-+ (BOOL) isHippyLocalFileURLString:(NSString *)string {
++ (BOOL)isHippyLocalFileURLString:(NSString *)string {
     return [string hasPrefix:[HippyBridge defaultHippyLocalFileScheme]];
 }
 

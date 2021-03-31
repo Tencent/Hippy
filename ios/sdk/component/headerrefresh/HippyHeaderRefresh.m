@@ -1,24 +1,24 @@
 /*!
-* iOS SDK
-*
-* Tencent is pleased to support the open source community by making
-* Hippy available.
-*
-* Copyright (C) 2019 THL A29 Limited, a Tencent company.
-* All rights reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*   http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * iOS SDK
+ *
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #import "HippyHeaderRefresh.h"
 
@@ -36,11 +36,11 @@
 
 - (void)scrollViewDidScroll {
     if (_scrollView) {
-        if (self.onHeaderPulling &&
-            HippyRefreshStatusStartLoading != [self status] &&
-            HippyRefreshStatusFinishLoading != [self status]) {
+        if (self.onHeaderPulling && HippyRefreshStatusStartLoading != [self status] && HippyRefreshStatusFinishLoading != [self status]) {
             CGFloat offset = _scrollView.contentOffset.y;
-            self.onHeaderPulling(@{@"contentOffset": @(-offset)});
+            if (offset <= 0) {
+                self.onHeaderPulling(@{ @"contentOffset": @(-offset) });
+            }
         }
     }
 }
@@ -57,27 +57,23 @@
     }
     switch (status) {
         case HippyRefreshStatusIdle: {
-            [UIView animateWithDuration:.2f
-                             animations:^{
-                                UIEdgeInsets insets = self.scrollView.contentInset;
-                                self.scrollView.contentInset = UIEdgeInsetsMake(0, insets.left, insets.bottom, insets.right);
-                             }
-                             completion:^(BOOL finished) {
-                             }];
+            [UIView animateWithDuration:.2f animations:^{
+                UIEdgeInsets insets = self.scrollView.contentInset;
+                self.scrollView.contentInset = UIEdgeInsetsMake(0, insets.left, insets.bottom, insets.right);
+            } completion:^(BOOL finished) {
+            }];
         } break;
         case HippyRefreshStatusStartLoading: {
             CGFloat height = CGRectGetHeight(self.bounds);
-            [UIView animateWithDuration:.2f
-                animations:^{
-                    UIEdgeInsets insets = self.scrollView.contentInset;
-                    self.scrollView.contentInset = UIEdgeInsetsMake(height, insets.left, insets.bottom, insets.right);
+            [UIView animateWithDuration:.2f animations:^{
+                UIEdgeInsets insets = self.scrollView.contentInset;
+                self.scrollView.contentInset = UIEdgeInsetsMake(height, insets.left, insets.bottom, insets.right);
+            } completion:^(BOOL finished) {
+                if (self.onHeaderReleased) {
+                    CGFloat offset = self.scrollView.contentOffset.y;
+                    self.onHeaderReleased(@{@"contentOffset": @(offset)});
                 }
-                completion:^(BOOL finished) {
-                    if (self.onHeaderReleased) {
-                        CGFloat offset = self.scrollView.contentOffset.y;
-                        self.onHeaderReleased(@{@"contentOffset": @(offset)});
-                    }
-                }];
+            }];
         } break;
         default:
             break;
@@ -86,10 +82,6 @@
     if ([_delegate respondsToSelector:@selector(refreshView:statusChanged:)]) {
         [_delegate refreshView:self statusChanged:_status];
     }
-}
-
-- (void)refresh {
-    self.status = HippyRefreshStatusStartLoading;
 }
 
 - (void)refreshFinish {

@@ -1,8 +1,9 @@
-const path                        = require('path');
-const webpack                     = require('webpack');
-const CaseSensitivePathsPlugin    = require('case-sensitive-paths-webpack-plugin');
-const pkg                         = require('../package.json');
-const manifest                    = require('../dist/android/vendor-manifest.json');
+const path = require('path');
+const webpack = require('webpack');
+const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
+const HippyDynamicImportPlugin = require('@hippy/hippy-dynamic-import-plugin');
+const pkg = require('../package.json');
+const manifest = require('../dist/android/vendor-manifest.json');
 
 const platform = 'android';
 
@@ -16,6 +17,8 @@ module.exports = {
     filename: `[name].${platform}.js`,
     path: path.resolve(`./dist/${platform}/`),
     globalObject: '(0, eval)("this")',
+    // CDN path can be configured to load children bundles from remote server
+    // publicPath: 'CDNPath',
   },
   plugins: [
     new webpack.NamedModulesPlugin(),
@@ -28,6 +31,12 @@ module.exports = {
       context: path.resolve(__dirname, '..'),
       manifest,
     }),
+    new HippyDynamicImportPlugin(),
+    // LimitChunkCountPlugin can control dynamic import ability
+    // Using 1 will prevent any additional chunks from being added
+    // new webpack.optimize.LimitChunkCountPlugin({
+    //   maxChunks: 1,
+    // }),
   ],
   module: {
     rules: [
@@ -37,6 +46,7 @@ module.exports = {
           {
             loader: 'babel-loader',
             options: {
+              sourceType: 'unambiguous',
               presets: [
                 '@babel/preset-react',
                 [
@@ -49,7 +59,9 @@ module.exports = {
                 ],
               ],
               plugins: [
-                '@babel/plugin-proposal-class-properties',
+                ['@babel/plugin-proposal-class-properties'],
+                ['@babel/plugin-proposal-decorators', { legacy: true }],
+                ['@babel/plugin-transform-runtime', { regenerator: true }],
               ],
             },
           },

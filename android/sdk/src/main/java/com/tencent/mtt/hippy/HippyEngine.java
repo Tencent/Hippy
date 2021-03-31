@@ -41,6 +41,7 @@ import com.tencent.mtt.hippy.adapter.storage.DefaultStorageAdapter;
 import com.tencent.mtt.hippy.adapter.storage.HippyStorageAdapter;
 import com.tencent.mtt.hippy.bridge.HippyCoreAPI;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
+import com.tencent.mtt.hippy.bridge.libraryloader.LibraryLoader;
 import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.utils.ContextHolder;
@@ -60,13 +61,18 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public abstract class HippyEngine
 {
-	private static final AtomicInteger		sIdCounter			= new AtomicInteger();
-
-	final CopyOnWriteArrayList<EngineListener>	mEventListeners	= new CopyOnWriteArrayList();
-	ModuleListener								mModuleListener;
-	volatile EngineState					mCurrentState 		= EngineState.UNINIT;
+	private static final AtomicInteger		    sIdCounter			= new AtomicInteger();
+	final CopyOnWriteArrayList<EngineListener>	mEventListeners	    = new CopyOnWriteArrayList();
+	volatile EngineState					    mCurrentState 		= EngineState.UNINIT;
 	// Engine的ID，唯一
-	private int								mID 				= sIdCounter.getAndIncrement();
+	private int								    mID 				= sIdCounter.getAndIncrement();
+	// Engine所属的分组ID，同一个组共享线程和isolate，不同context
+	protected int							    mGroupId;
+	ModuleListener								mModuleListener;
+
+	static {
+		LibraryLoader.loadLibraryIfNeed();
+	}
 
 	HippyEngine()
 	{
@@ -84,15 +90,12 @@ public abstract class HippyEngine
 		ContextHolder.initAppContext(params.context);
 
 		HippyEngine hippyEngine = null;
-		switch (params.engineMode)
-		{
-			case NORMAL:
-				hippyEngine = new HippyNormalEngineManager(params, null);
-				break;
-			case SINGLE_THREAD:
-				hippyEngine = new HippySingleThreadEngineManager(params, null);
-				break;
+		if (params.groupId == -1) {
+			hippyEngine = new HippyNormalEngineManager(params, null);
+		} else {
+			hippyEngine = new HippySingleThreadEngineManager(params, null);
 		}
+
 		return hippyEngine;
 	}
 
@@ -128,9 +131,9 @@ public abstract class HippyEngine
 		// 1. 若mCurrentState是结束态，无论成功还是失败，要直接通知结果并返回。
 		// 2. 若mCurrentState是初始化过程中的状态，则把listener添加到mEventListeners后返回
 		if (mCurrentState == EngineState.INITED)
-			listener.onInitialized(STATUS_OK, null);
+			listener.onInitialized(EngineInitStatus.STATUS_OK, null);
 		else if (mCurrentState == EngineState.INITERRORED || mCurrentState == EngineState.DESTROYED)
-			listener.onInitialized(STATUS_WRONG_STATE, "engine state=" + mCurrentState);
+			listener.onInitialized(EngineInitStatus.STATUS_WRONG_STATE, "engine state=" + mCurrentState);
 		else // 说明mCurrentState是初始化过程中的状态
 			mEventListeners.add(listener);
 	}
@@ -141,6 +144,14 @@ public abstract class HippyEngine
 	public EngineState getEngineState()
 	{
 		return mCurrentState;
+	}
+
+	/**
+	 * get group id
+	 */
+	public int getGroupId()
+	{
+		return mGroupId;
 	}
 
 	/**
@@ -198,7 +209,7 @@ public abstract class HippyEngine
 
 	/**
 	 * send event
-	 * 
+	 *
 	 * @param event
 	 * @param params
 	 */
@@ -230,17 +241,6 @@ public abstract class HippyEngine
 	}
 
 	/**
-	 * Hippy engine mode
-	 * normal ---  正常模式,具有最好的隔离已经运行速度
-	 * low_memory --- 内存极简模式
-	 */
-	public enum EngineMode
-	{
-		NORMAL,
-		SINGLE_THREAD
-	}
-
-	/**
 	 * Hippy engine Type
 	 */
 	public enum EngineType
@@ -268,8 +268,6 @@ public abstract class HippyEngine
 		// 可选参数 指定需要预加载的业务模块bundle 文件路径
 		public HippyBundleLoader jsPreloadFilePath;
 		public boolean debugMode = false;
-		// 可选参数 引擎模式 默认为NORMAL
-		public EngineMode engineMode = EngineMode.NORMAL;
 		// 可选参数 是否开启调试模式，默认为false，不开启
 		// 可选参数 Hippy Server的jsbundle名字，默认为"index.bundle"。debugMode = true时有效
 		public String debugBundleName = "index.bundle";
@@ -398,25 +396,47 @@ public abstract class HippyEngine
 	/**
 	 *  引擎初始化过程中的错误码，对于hippy sdk开发者调查hippy sdk的使用者在使用过程中遇到的问题，很必须。
 	 */
-	// 初始化过程，一切正常
-	public static final int STATUS_OK				= 0;
-	// 初始化过程，initBridge错误
-	public static final int STATUS_ERR_BRIDGE		= -50;
-	// 初始化过程，devServer错误
-	public static final int STATUS_ERR_DEVSERVER 	= -100;
-	// 状态错误。调用init函数时，引擎不在未初始化的状态
-	public static final int STATUS_WRONG_STATE		= -150;
-	// 监听时状态已经错误，未知原因
-	public static final int STATUS_WRONG_STATE_LISTEN	= -151;
-	// 初始化过程，抛出了未知的异常，详情需要查看传回的Throwable
-	public static final int STATUS_INIT_EXCEPTION	= -200;
 
-	public static final int STATUS_VARIABLE_UNINIT	= -500;
+	public enum EngineInitStatus {
+		STATUS_OK(0),                     // 初始化成功
+		STATUS_ERR_BRIDGE(-101),          // 初始化过程，initBridge错误
+		STATUS_ERR_DEVSERVER(-102),       // 初始化过程，devServer错误
+		STATUS_WRONG_STATE(-103),         // 状态错误。调用init函数时，引擎不在未初始化的状态
+		STATUS_INIT_EXCEPTION(-104);      // 初始化过程，抛出了未知的异常，详情需要查看传回的Throwable
+
+		private int iValue;
+
+		EngineInitStatus(int value) {
+			iValue = value;
+		}
+
+		public int value() {
+			return iValue;
+		}
+	}
+
+	public enum ModuleLoadStatus {
+		STATUS_OK(0),                     // 加载正常
+		STATUS_ENGINE_UNINIT(-201),       // 引擎未完成初始化就加载JSBundle
+		STATUS_VARIABLE_NULL(-202),       // check变量(bundleUniKey, loader, rootView)引用为空
+		STATUS_ERR_RUN_BUNDLE(-203),      // 业务JSBundle执行错误
+		STATUS_REPEAT_LOAD(-204);         // 重复加载同一JSBundle
+
+		private int iValue;
+
+		ModuleLoadStatus(int value) {
+			iValue = value;
+		}
+
+		public int value() {
+			return iValue;
+		}
+	}
+
 	/**
 	 * Hippy引擎初始化结果listener
 	 */
-	public interface EngineListener
-	{
+	public interface EngineListener {
 		/**
 		 * callback after initialization
 		 * @param  statusCode
@@ -424,12 +444,11 @@ public abstract class HippyEngine
 		 * @param  msg
 		 *         Message from initializing procedure
 		 */
-		public void onInitialized(int statusCode, String msg);
+		void onInitialized(EngineInitStatus statusCode, String msg);
 	}
 
-	public interface ModuleListener
-	{
-		public void onInitialized(int statusCode, String msg,HippyRootView hippyRootView);
+	public interface ModuleListener {
+		void onLoadCompleted(ModuleLoadStatus statusCode, String msg, HippyRootView hippyRootView);
 
 		boolean onJsException(HippyJsException exception);
 	}

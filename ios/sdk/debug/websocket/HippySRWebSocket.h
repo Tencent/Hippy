@@ -18,10 +18,10 @@
 #import <Security/SecCertificate.h>
 
 typedef NS_ENUM(unsigned int, HippySRReadyState) {
-    HippySR_CONNECTING   = 0,
-    HippySR_OPEN         = 1,
-    HippySR_CLOSING      = 2,
-    HippySR_CLOSED       = 3,
+    HippySR_CONNECTING = 0,
+    HippySR_OPEN = 1,
+    HippySR_CLOSING = 2,
+    HippySR_CLOSED = 3,
 };
 
 typedef NS_ENUM(NSInteger, HippySRStatusCode) {

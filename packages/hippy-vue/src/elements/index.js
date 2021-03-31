@@ -10,11 +10,11 @@ const isReservedTag = makeMap(
 const elementMap = new Map();
 
 const defaultViewMeta = {
-  skipAddToDom: false,      // The tag will not add to native DOM.
-  isUnaryTag: false,        // Single tag, such as img, input...
-  tagNamespace: '',         // Tag space, such as svg or math, not in using so far.
-  canBeLeftOpenTag: false,  // Able to no close.
-  mustUseProp: false,       // Tag must have attribute, such as src with img.
+  skipAddToDom: false, // The tag will not add to native DOM.
+  isUnaryTag: false, // Single tag, such as img, input...
+  tagNamespace: '', // Tag space, such as svg or math, not in using so far.
+  canBeLeftOpenTag: false, // Able to no close.
+  mustUseProp: false, // Tag must have attribute, such as src with img.
   model: null,
   component: null,
 };

@@ -20,7 +20,9 @@ export default class MyViewDemo extends React.Component {
     const text = '你好，我是MyView';
     return (
       <MyView
-        ref={(ref) => { this.myview = ref; }}
+        ref={(ref) => {
+          this.myview = ref;
+        }}
         text={text}
         style={{ width: 250, height: 100, color: 'black' }}
       >

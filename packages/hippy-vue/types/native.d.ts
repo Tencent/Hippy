@@ -1,4 +1,4 @@
-/*!
+/* !
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
@@ -220,6 +220,7 @@ interface Dimensions {
     scale: number;
     fontScale: number;
     statusBarHeight: number;
+    navigatorBarHeight: number;
   };
   screen: {
     width: number;
@@ -227,6 +228,7 @@ interface Dimensions {
     scale: number;
     fontScale: number;
     statusBarHeight: number;
+    navigatorBarHeight: number;
   };
 }
 

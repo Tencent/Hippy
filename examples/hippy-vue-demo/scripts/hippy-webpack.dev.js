@@ -1,11 +1,24 @@
-const fs                = require('fs');
-const path              = require('path');
-const webpack           = require('webpack');
-const VueLoaderPlugin   = require('vue-loader/lib/plugin');
-const pkg               = require('../package.json');
+const fs = require('fs');
+const path = require('path');
+const webpack = require('webpack');
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const HippyDynamicImportPlugin = require('@hippy/hippy-dynamic-import-plugin');
+const pkg = require('../package.json');
+
+let cssLoader = '@hippy/vue-css-loader';
+const hippyVueCssLoaderPath = path.resolve(__dirname, '../../../packages/hippy-vue-css-loader/dist/index.js');
+if (fs.existsSync(hippyVueCssLoaderPath)) {
+  /* eslint-disable-next-line no-console */
+  console.warn(`* Using the @hippy/vue-css-loader in ${hippyVueCssLoaderPath}`);
+  cssLoader = hippyVueCssLoaderPath;
+} else {
+  /* eslint-disable-next-line no-console */
+  console.warn('* Using the @hippy/vue-css-loader defined in package.json');
+}
 
 module.exports = {
   mode: 'development',
+  devtool: 'eval-source-map',
   watch: true,
   watchOptions: {
     aggregateTimeout: 1500,
@@ -17,6 +30,9 @@ module.exports = {
     filename: 'index.bundle',
     strictModuleExceptionHandling: true,
     path: path.resolve('./dist/dev/'),
+    globalObject: '(0, eval)("this")',
+    // CDN path can be configured to load children bundles from remote server
+    // publicPath: 'CDNPath',
   },
   plugins: [
     new VueLoaderPlugin(),
@@ -28,6 +44,7 @@ module.exports = {
       },
       __PLATFORM__: null,
     }),
+    new HippyDynamicImportPlugin(),
   ],
   module: {
     rules: [
@@ -35,6 +52,7 @@ module.exports = {
         test: /\.vue$/,
         use: [
           'vue-loader',
+          'scope-loader',
           'unicode-loader',
         ],
       },
@@ -44,6 +62,7 @@ module.exports = {
           {
             loader: 'babel-loader',
             options: {
+              sourceType: 'unambiguous',
               presets: [[
                 '@babel/preset-env',
                 {
@@ -54,7 +73,9 @@ module.exports = {
                 },
               ]],
               plugins: [
-                '@babel/plugin-proposal-class-properties',
+                ['@babel/plugin-proposal-class-properties'],
+                ['@babel/plugin-proposal-decorators', { legacy: true }],
+                ['@babel/plugin-transform-runtime', { regenerator: true }],
               ],
             },
           },
@@ -64,7 +85,14 @@ module.exports = {
       {
         test: /\.css$/,
         use: [
-          '@hippy/vue-css-loader',
+          cssLoader,
+        ],
+      },
+      {
+        test: /\.less$/,
+        use: [
+          cssLoader,
+          'less-loader',
         ],
       },
       {

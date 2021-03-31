@@ -33,3 +33,28 @@ export default {
 ```jsx
 app.$off('rotate', this.listener);
 ```
+
+# 实例销毁事件
+
+`最低支持版本 2.3.4`
+
+当hippy js引擎或者context被销毁时会调用该事件，hippy业务可以通过监听 `destroyInstance` 事件做一些离开时的操作，但回调函数不能使用 `async`
+
+```jsx
+Hippy.on('destroyInstance', () => {
+    // do something
+});
+```
+
+# 容器大小转变事件
+
+`只有 Android 支持`
+
+当容器大小改变时，如屏幕旋转、折叠屏切换等，会触发该事件
+
+```jsx
+app.$on('onSizeChanged', ({ oldWidth, oldHeight, width, height }) => {
+    // oldWidth: 旧的宽度；oldHeight: 旧的高度；width: 新的宽度; height: 新的高度
+    console.log('size', oldWidth, oldHeight, width, height);
+});
+```

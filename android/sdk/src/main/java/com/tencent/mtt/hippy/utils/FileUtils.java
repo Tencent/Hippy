@@ -22,12 +22,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 
-/**
- * @Description: TODO
- * @author: edsheng
- * @date: 2017/11/18 17:23
- * @version: V1.0
- */
 
 public class FileUtils
 {
@@ -115,7 +109,7 @@ public class FileUtils
 				}
 				catch (Throwable e)
 				{
-
+					LogUtils.d("FileUtils", "readFileToByteArray: " + e.getMessage());
 				}
 
 				fileReader.close();

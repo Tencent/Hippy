@@ -3,6 +3,84 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.2.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/compare/2.2.0...2.2.1) (2020-12-28)
+
+
+### Bug Fixes
+
+* **hippy-react-web:** fixed image onLoadEnd undefined ([#470](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/issues/470)) ([6e312b6](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/commit/6e312b6b623d3e53ff12e725003dc28a10a7e61f))
+
+
+
+
+
+# [2.2.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/compare/2.1.6...2.2.0) (2020-12-25)
+
+
+### Bug Fixes
+
+* **hippy-react-web:** fixed api to web issues and some warnings ([#456](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/issues/456)) ([80efec7](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/commit/80efec7aca16cd5a16575bac6696c7f12cf04626))
+
+
+
+
+
+## [2.1.6](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/compare/2.1.5...2.1.6) (2020-12-23)
+
+**Note:** Version bump only for package @hippy/react-web
+
+
+
+
+
+## [2.1.5](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/compare/2.1.4...2.1.5) (2020-12-10)
+
+**Note:** Version bump only for package @hippy/react-web
+
+
+
+
+
+## [2.1.4](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/compare/2.1.3...2.1.4) (2020-12-03)
+
+
+### Bug Fixes
+
+* **hippy-react-web:** suppress childContextTypes warning ([#431](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/issues/431)) ([4a7ba66](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/commit/4a7ba66fc7ada2ba0f4010ab49b4e24d1886bca2))
+
+
+### Features
+
+* **hippy-vue,hippy-react:** perf setNativeProps ([5cd1291](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/commit/5cd12910262ad3bb15d07c2dc974a829958a2b86))
+* support isomorphic rendering ([#415](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/issues/415)) ([c131734](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/commit/c1317348bab9d38990decf7d39f0631d807ab9a5))
+
+
+
+
+
+## [2.1.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/compare/2.1.1...2.1.2) (2020-11-23)
+
+**Note:** Version bump only for package @hippy/react-web
+
+
+
+
+
+## [2.1.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/compare/2.0.3...2.1.1) (2020-11-11)
+
+**Note:** Version bump only for package @hippy/react-web
+
+
+
+
+
+# [2.1.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/compare/2.0.3...2.1.0) (2020-10-29)
+
+**Note:** Version bump only for package @hippy/react-web
+
+
+
+
 ## [2.0.3](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/compare/2.0.2...2.0.3) (2020-04-23)
 
 

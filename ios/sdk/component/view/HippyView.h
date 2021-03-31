@@ -28,8 +28,6 @@
 #import "HippyComponent.h"
 #import "HippyPointerEvents.h"
 
-
-
 @protocol HippyAutoInsetsProtocol;
 
 @class HippyView;
@@ -107,7 +105,11 @@
  */
 @property (nonatomic, assign) HippyBorderStyle borderStyle;
 
+/**
+ * BackgroundImage styles.
+ */
 @property (nonatomic, strong) NSString *backgroundImageUrl;
+@property (nonatomic, strong) NSString *backgroundSize;
 @property (nonatomic, assign) CGFloat backgroundPositionX;
 @property (nonatomic, assign) CGFloat backgroundPositionY;
 

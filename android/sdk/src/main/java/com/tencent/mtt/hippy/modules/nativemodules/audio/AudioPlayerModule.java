@@ -22,7 +22,7 @@ public class AudioPlayerModule extends HippyNativeModuleBase
 	private static final String		PLAYING		= "PLAYING";
 	private static final String		STOPPED		= "STOPPED";
 
-	private HippyEngineContext		mHippyEngineContext;
+	private final HippyEngineContext mHippyEngineContext;
 	private MediaPlayerStateWrapper	mMediaPlayer;
 
 	private int						mDuration	= 0;

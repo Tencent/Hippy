@@ -133,6 +133,7 @@ class ViewPager extends React.Component<ViewPagerProps, {}> {
         if (typeof (child as ReactElement).key === 'string') {
           viewPageItemProps.key = `viewPager_${(child as ReactElement).key}`;
         }
+        // eslint-disable-next-line react/jsx-key
         return (<ViewPagerItem {...viewPageItemProps}>{child}</ViewPagerItem>);
       });
     } else {
@@ -150,7 +151,9 @@ class ViewPager extends React.Component<ViewPagerProps, {}> {
     return (
       <div
         nativeName="ViewPager"
-        ref={(ref) => { this.instance = ref; }}
+        ref={(ref) => {
+          this.instance = ref;
+        }}
         {...nativeProps}
       >
         {mappedChildren}

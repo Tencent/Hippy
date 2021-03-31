@@ -68,7 +68,6 @@ export default {
 <style scope>
 .feature-list {
   overflow: scroll;
-  margin-top: 10px;
 }
 
 .feature-item {

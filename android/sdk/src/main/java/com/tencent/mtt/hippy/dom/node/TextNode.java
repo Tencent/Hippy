@@ -37,12 +37,6 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author: edsheng
- * @date: 2017/11/28 15:40
- * @version: V1.0
- */
-
 public class TextNode extends StyleNode
 {
 
@@ -85,16 +79,16 @@ public class TextNode extends StyleNode
 	public static final String		PROP_SHADOW_OFFSET_HEIGHT		= "height";
 	public static final String		PROP_SHADOW_RADIUS				= "textShadowRadius";
 	public static final String		PROP_SHADOW_COLOR				= "textShadowColor";
-  
-  public static final String		IMAGE_SPAN_TEXT				= "[img]";
+
+	public static final String		IMAGE_SPAN_TEXT				= "[img]";
 
 	final TextPaint					sTextPaintInstance				= new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
 
 	private final boolean			mIsVirtual;
 
 	protected boolean				mEnableScale					= false;
-  
-  private WeakReference<HippyTextView> mTextViewWeakRefrence = null;
+
+	private WeakReference<HippyTextView> mTextViewWeakRefrence = null;
 
 
 	public TextNode(boolean mIsVirtual)
@@ -105,8 +99,8 @@ public class TextNode extends StyleNode
 	}
 
 	public void setTextView(HippyTextView view) {
-    mTextViewWeakRefrence = new WeakReference<HippyTextView>(view);
-  }
+		mTextViewWeakRefrence = new WeakReference<HippyTextView>(view);
+	}
 	
   public void postInvalidateDelayed(long delayMilliseconds) {
 	  if (mTextViewWeakRefrence != null && mTextViewWeakRefrence.get() != null) {
@@ -170,7 +164,7 @@ public class TextNode extends StyleNode
 	public void fontSize(float fontSize)
 	{
 		this.mFontSize = (int) Math.ceil(PixelUtil.dp2px(fontSize));
-    markUpdated();
+		markUpdated();
 	}
 
 	@HippyControllerProps(name = NodeProps.FONT_FAMILY)
@@ -455,21 +449,17 @@ public class TextNode extends StyleNode
 	protected HippyImageLoader mImageAdapter;
 
 	@Override
-	public void layoutBefore(HippyEngineContext context)
-	{
+	public void layoutBefore(HippyEngineContext context) {
 		super.layoutBefore(context);
-		if (mFontScaleAdapter == null)
-		{
+		if (mFontScaleAdapter == null) {
 			mFontScaleAdapter = context.getGlobalConfigs().getFontScaleAdapter();
 		}
-    
-    if (mImageAdapter == null)
-    {
-      mImageAdapter = context.getGlobalConfigs().getImageLoaderAdapter();
-    }
+
+		if (mImageAdapter == null) {
+			mImageAdapter = context.getGlobalConfigs().getImageLoaderAdapter();
+		}
 		
-		if (mIsVirtual)
-		{
+		if (mIsVirtual) {
 			return;
 		}
 
@@ -509,37 +499,37 @@ public class TextNode extends StyleNode
 		}
 		return new SpannableStringBuilder("");
 	}
-	
-	private void createImageSpanOperation(List<SpanOperation> ops, SpannableStringBuilder sb, ImageNode imageNode) {
-    String url = null;
-    HippyMap props = imageNode.getTotalProps();
-    if (props != null && props.containsKey("src")) {
-      url = props.getString("src");
-    }
-    
-	  if (TextUtils.isEmpty(url)) {
-      return;
-    }
-	  
-    Drawable drawable = new ColorDrawable(Color.parseColor("#00000000"));
-    int width = Math.round(imageNode.getStyleWidth());
-    int height = Math.round(imageNode.getStyleHeight());
-    drawable.setBounds(0, 0, width, height);
-    
-    HippyImageSpan imageSpan = new HippyImageSpan(drawable, url, imageNode, mImageAdapter);
-    imageNode.setImageSpan(imageSpan);
 
-    int start = sb.length();
-    sb.append(IMAGE_SPAN_TEXT);
-    int end = start + IMAGE_SPAN_TEXT.length();
-    ops.add(new SpanOperation(start, end, imageSpan));
-    
-    if (imageNode.getGestureTypes() != null && imageNode.getGestureTypes().size() > 0) {
-      HippyNativeGestureSpan span = new HippyNativeGestureSpan(imageNode.getId(), true);
-      span.addGestureTypes(imageNode.getGestureTypes());
-      ops.add(new SpanOperation(start, end, span));
-    }
-  }
+	private void createImageSpanOperation(List<SpanOperation> ops, SpannableStringBuilder sb, ImageNode imageNode) {
+		String url = null;
+		HippyMap props = imageNode.getTotalProps();
+		if (props != null && props.containsKey("src")) {
+			url = props.getString("src");
+		}
+
+		if (TextUtils.isEmpty(url)) {
+			return;
+		}
+
+		Drawable drawable = new ColorDrawable(Color.parseColor("#00000000"));
+		int width = Math.round(imageNode.getStyleWidth());
+		int height = Math.round(imageNode.getStyleHeight());
+		drawable.setBounds(0, 0, width, height);
+
+		HippyImageSpan imageSpan = new HippyImageSpan(drawable, url, imageNode, mImageAdapter);
+		imageNode.setImageSpan(imageSpan);
+
+		int start = sb.length();
+		sb.append(IMAGE_SPAN_TEXT);
+		int end = start + IMAGE_SPAN_TEXT.length();
+		ops.add(new SpanOperation(start, end, imageSpan));
+
+		if (imageNode.getGestureTypes() != null && imageNode.getGestureTypes().size() > 0) {
+			HippyNativeGestureSpan span = new HippyNativeGestureSpan(imageNode.getId(), true);
+			span.addGestureTypes(imageNode.getGestureTypes());
+			ops.add(new SpanOperation(start, end, span));
+		}
+	}
   
 	private void createSpanOperations(List<SpanOperation> ops, SpannableStringBuilder sb, TextNode textNode, CharSequence text, boolean useChild)
 	{
@@ -608,15 +598,22 @@ public class TextNode extends StyleNode
 			}
 		}
 
-
 		if (useChild) {
 			for (int i = 0; i < textNode.getChildCount(); i++) {
 				DomNode domNode = textNode.getChildAt(i);
 				if (domNode instanceof TextNode) {
-					createSpanOperations(ops, sb, (TextNode) domNode, ((TextNode) domNode).mText, useChild);
+					TextNode tempNode = (TextNode)domNode;
+					CharSequence tempText = tempNode.mText;
+					if (mFontScaleAdapter != null && !TextUtils.isEmpty(tempText)) {
+						CharSequence s = mFontScaleAdapter.getEmoticonText(tempText, tempNode.mFontSize);
+						if (s != null) {
+							tempText = s;
+						}
+					}
+					createSpanOperations(ops, sb, tempNode, tempText, useChild);
 				} else if (domNode instanceof ImageNode) {
-          createImageSpanOperation(ops, sb, (ImageNode)domNode);
-        } else {
+					createImageSpanOperation(ops, sb, (ImageNode)domNode);
+				} else {
 					throw new RuntimeException(domNode.getViewClass() + "is not support in Text");
 				}
 
@@ -644,7 +641,7 @@ public class TextNode extends StyleNode
 																						}
 																						catch (Throwable throwable)
 																						{
-																							Log.e("TextNode", "text createLayout", throwable);
+																							LogUtils.e("TextNode", "text createLayout", throwable);
 																							exception = true;
 																						}
 
@@ -687,7 +684,7 @@ public class TextNode extends StyleNode
 		}
 		catch (Throwable e)
 		{
-
+			LogUtils.d("TextNode", "createLayout: " + e.getMessage());
 		}
 		float desiredWidth = boring == null ? Layout.getDesiredWidth(text, textPaint) : Float.NaN;
 
@@ -702,7 +699,7 @@ public class TextNode extends StyleNode
 		}
 		else
 		{
-			layout = new StaticLayout(text, textPaint, (int) width, mTextAlign, 1.f, 0.f, true);
+			layout = new StaticLayout(text, textPaint, (int) Math.ceil(width), mTextAlign, 1.f, 0.f, true);
 		}
 		if (mNumberOfLines != UNSET && mNumberOfLines > 0)
 		{
@@ -729,8 +726,9 @@ public class TextNode extends StyleNode
 		}
 		String text = mSpanned.toString();
 		SpannableStringBuilder temp = (SpannableStringBuilder) mSpanned.subSequence(0, text.length());
+		String ellipsizeStr = (String)TextUtils.ellipsize(text.substring(lastLineStart), sTextPaintInstance, width, TextUtils.TruncateAt.END);
 		String newString = text.subSequence(0, lastLineStart).toString()
-				+ truncate(text.substring(lastLineStart, lastLineEnd), sTextPaintInstance, width, mTruncateAt);
+				+ truncate(ellipsizeStr, sTextPaintInstance, width, mTruncateAt);
 
 		int start = newString.length() - 1 >= 0 ? newString.length() - 1 : 0;
 		CharacterStyle hippyStyleSpans[] = temp.getSpans(start, text.length(), CharacterStyle.class);
@@ -804,12 +802,12 @@ public class TextNode extends StyleNode
 			{
 				spanFlags = Spannable.SPAN_INCLUSIVE_INCLUSIVE;
 			}
-			
+
 			try {
-        sb.setSpan(what, start, end, spanFlags);
-      } catch (Exception e) {
-			  Log.e("TextNode", "setSpan exception msg: " + e.getMessage());
-      }
+				sb.setSpan(what, start, end, spanFlags);
+			} catch (Exception e) {
+				LogUtils.e("TextNode", "setSpan exception msg: " + e.getMessage());
+			}
 		}
 	}
 }

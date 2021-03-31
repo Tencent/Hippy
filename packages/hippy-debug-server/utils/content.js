@@ -27,14 +27,14 @@ function content(ctx, fullStaticPath) {
   let returns = '';
 
   if (!exist) {
-    returns = `${reqPath} is not found.`;
+    returns = null;
   } else {
     const stat = fs.statSync(reqPath);
 
     if (stat.isDirectory()) {
       returns = dir(ctx.url, reqPath);
     } else {
-      returns = fs.readFileSync(reqPath, 'binary');
+      returns = fs.readFileSync(reqPath);
     }
   }
 

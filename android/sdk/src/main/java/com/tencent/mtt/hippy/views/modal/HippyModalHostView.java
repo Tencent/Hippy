@@ -17,10 +17,13 @@ package com.tencent.mtt.hippy.views.modal;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Resources;
+import android.content.res.Resources.NotFoundException;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Build;
@@ -38,8 +41,8 @@ import android.widget.FrameLayout;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
-import com.tencent.mtt.hippy.R;
 import com.tencent.mtt.hippy.utils.ContextHolder;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 
 import java.lang.reflect.Field;
@@ -52,27 +55,27 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 	@Override
 	public void onInstanceLoad(int instanceId)
 	{
-        showOrUpdate();
+		showOrUpdate();
 	}
 
 	@Override
 	public void onInstanceResume(int instanceId)
 	{
-			showOrUpdate();
+		showOrUpdate();
 	}
 
 	@Override
 	public void onInstancePause(int instanceId)
 	{
-			dismiss();
+		dismiss();
 	}
 
 	@Override
 	public void onInstanceDestroy(int instanceId)
 	{
-			HippyInstanceContext hippyInstanceContext = (HippyInstanceContext) getContext();
-			hippyInstanceContext.getEngineContext().removeInstanceLifecycleEventListener(this);
-			dismiss();
+		HippyInstanceContext hippyInstanceContext = (HippyInstanceContext) getContext();
+		hippyInstanceContext.getEngineContext().removeInstanceLifecycleEventListener(this);
+		dismiss();
 	}
 
 	public interface OnRequestCloseListener
@@ -80,26 +83,28 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 		void onRequestClose(DialogInterface dialog);
 	}
 
+	private final int STYLE_THEME_FULL_SCREEN_DIALOG          = 0;
+	private final int STYLE_THEME_ANIMATED_FADE_DIALOG        = 1;
+	private final int STYLE_THEME_ANIMATED_SLIDE_DIALOG       = 2;
+	private final int STYLE_THEME_ANIMATED_SLIDE_FADE_DIALOG  = 3;
+
 	private DialogRootViewGroup				mHostView;
 	private Dialog							mDialog;
 	private View							mContentView;
 	private boolean							mTransparent	= true;
-	private String							mAnimationType;
 	private boolean							mPropertyRequiresNewDialog;
 	private DialogInterface.OnShowListener	mOnShowListener;
 	OnRequestCloseListener					mOnRequestCloseListener;
-	private int mAniType ;
+	private int                             mAniType;
 	private boolean							mEnterImmersionStatusBar = false;
 	private boolean	 						mStatusBarTextDarkColor = false;
 
 	public HippyModalHostView(Context context)
 	{
 		super(context);
-
+		mAniType = STYLE_THEME_FULL_SCREEN_DIALOG;
 		HippyInstanceContext hippyInstanceContext = (HippyInstanceContext) context;
 		hippyInstanceContext.getEngineContext().addInstanceLifecycleEventListener(this);
-
-
 		mHostView = new DialogRootViewGroup(context);
 	}
 
@@ -151,9 +156,12 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 		return false;
 	}
 
-
 	private void dismiss()
 	{
+		if (isActivityFinishing()) {
+			return;
+		}
+
 		if (mDialog != null)
 		{
 			mDialog.dismiss();
@@ -163,7 +171,7 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 		}
 	}
 
-	protected void setOnRequestCloseListener(OnRequestCloseListener listener)
+	public void setOnRequestCloseListener(OnRequestCloseListener listener)
 	{
 		mOnRequestCloseListener = listener;
 	}
@@ -176,7 +184,7 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 		}
 	}
 
-	protected void setOnShowListener(DialogInterface.OnShowListener listener)
+	public void setOnShowListener(DialogInterface.OnShowListener listener)
 	{
 		mOnShowListener = listener;
 	}
@@ -186,9 +194,23 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 		mTransparent = transparent;
 	}
 
-	protected void setAnimationType(String animationType)
-	{
-		mAnimationType = animationType;
+	protected void setAnimationType(String animationType) {
+		if (!TextUtils.isEmpty(animationType)) {
+			switch (animationType) {
+				case "fade":
+					mAniType = STYLE_THEME_ANIMATED_FADE_DIALOG;
+					break;
+				case "slide":
+					mAniType = STYLE_THEME_ANIMATED_SLIDE_DIALOG;
+					break;
+				case "slide_fade":
+					mAniType = STYLE_THEME_ANIMATED_SLIDE_FADE_DIALOG;
+					break;
+				default:
+					mAniType = STYLE_THEME_FULL_SCREEN_DIALOG;
+			}
+		}
+
 		mPropertyRequiresNewDialog = true;
 	}
 
@@ -222,8 +244,7 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 
 	public static int getStatusBarHeightFromSystem()
 	{
-		if (statusBarHeight > 0)
-		{
+		if (statusBarHeight > 0) {
 			return statusBarHeight;
 		}
 
@@ -231,35 +252,30 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 		Object obj = null;
 		Field field = null;
 		int x = 0;
-		try
-		{
+		try {
 			c = Class.forName("com.android.internal.R$dimen");
 			obj = c.newInstance();
 			field = c.getField("status_bar_height");
 			x = Integer.parseInt(field.get(obj).toString());
 			statusBarHeight = ContextHolder.getAppContext().getResources().getDimensionPixelSize(x);
-		}
-		catch (Exception e1)
-		{
+		} catch (Exception e1) {
 			statusBarHeight = -1;
 			e1.printStackTrace();
 		}
-		if (statusBarHeight < 1)
-		{
-			try
-			{
+
+		if (statusBarHeight < 1) {
+			try {
 				int statebarH_id = ContextHolder.getAppContext().getResources().getIdentifier("statebar_height", "dimen",
 						ContextHolder.getAppContext().getPackageName());
 				statusBarHeight = Math.round(ContextHolder.getAppContext().getResources().getDimension(statebarH_id));
-			}
-			catch (Exception e)
-			{
-				statusBarHeight = -1;
-				e.printStackTrace();
+			} catch (NotFoundException e) {
+				LogUtils.d("HippyModalHostView", "getStatusBarHeightFromSystem: " + e.getMessage());
+				statusBarHeight = 0;
 			}
 		}
 		return statusBarHeight;
 	}
+
 	public void setDialogBar( boolean isDarkIcon)
 	{
 		try
@@ -296,8 +312,31 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 			throwable.printStackTrace();
 		}
 	}
+
+	private boolean isActivityFinishing() {
+		HippyInstanceContext hippyInstanceContext = (HippyInstanceContext)getContext();
+		if (hippyInstanceContext == null){
+			return true;
+		}
+
+		Context context = hippyInstanceContext.getBaseContext();
+		if (context == null || !(context instanceof Activity)) {
+			return true;
+		}
+
+		Activity currentActivity = (Activity)context;
+		if (currentActivity.isFinishing()) {
+			return true;
+		}
+
+		return false;
+	}
+
 	protected void showOrUpdate()
 	{
+		if (isActivityFinishing()) {
+			return;
+		}
 
 		if (mDialog != null)
 		{
@@ -313,19 +352,8 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 		}
 
 		mPropertyRequiresNewDialog = false;
-		mAniType = R.style.Theme_FullScreenDialog;
-		if (!TextUtils.isEmpty(mAnimationType) && mAnimationType.equals("fade"))
-		{
-			mAniType = R.style.Theme_FullScreenDialogAnimatedFade;
-		}
-		else if (!TextUtils.isEmpty(mAnimationType) && mAnimationType.equals("slide"))
-		{
-			mAniType = R.style.Theme_FullScreenDialogAnimatedSlide;
-		}
 		Context currentContext = getContext();
-
-		mDialog = createDialog(currentContext, mAniType);
-
+		mDialog = createDialog(currentContext);
 		mContentView = createContentView(mHostView);
 		mDialog.setContentView(mContentView);
 		updateProperties();
@@ -338,17 +366,25 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 			@Override
 			public void onShow(DialogInterface dialogInterface) {
 				mOnShowListener.onShow(dialogInterface);
-				if(mAniType == R.style.Theme_FullScreenDialogAnimatedFade)
-				{
-					ObjectAnimator mAlphaAnimation = ObjectAnimator.ofFloat(mContentView, "alpha", 0.0f, 1.0f);
-					mAlphaAnimation.setDuration(200);
-					mAlphaAnimation.start();
+				ObjectAnimator alphaAnimation = null;
+				switch (mAniType) {
+					case STYLE_THEME_ANIMATED_FADE_DIALOG:
+						alphaAnimation = ObjectAnimator.ofFloat(mContentView, "alpha", 0.0f, 1.0f);
+						break;
+					case STYLE_THEME_ANIMATED_SLIDE_DIALOG:
+						alphaAnimation = ObjectAnimator.ofFloat(mContentView, "translationY", 0);
+						break;
+					case STYLE_THEME_ANIMATED_SLIDE_FADE_DIALOG:
+						PropertyValuesHolder fadeValuesHolder = PropertyValuesHolder.ofFloat("alpha", 0.0f, 1.0f);
+						PropertyValuesHolder slideValuesHolder = PropertyValuesHolder.ofFloat("translationY", 0);
+						alphaAnimation = ObjectAnimator.ofPropertyValuesHolder(mContentView, fadeValuesHolder, slideValuesHolder);
+						break;
+					default:
 				}
-				else if(mAniType == R.style.Theme_FullScreenDialogAnimatedSlide)
-				{
-					ObjectAnimator mAlphaAnimation = ObjectAnimator.ofFloat(mContentView, "translationY", 0);
-					mAlphaAnimation.setDuration(200);
-					mAlphaAnimation.start();
+
+				if (alphaAnimation != null) {
+					alphaAnimation.setDuration(200);
+					alphaAnimation.start();
 				}
 			}
 		});
@@ -365,7 +401,7 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 				if (event.getAction() == KeyEvent.ACTION_UP)
 				{
 
- 					if (keyCode == KeyEvent.KEYCODE_BACK)
+					if (keyCode == KeyEvent.KEYCODE_BACK)
 					{
 						mOnRequestCloseListener.onRequestClose(dialog);
 						return true;
@@ -388,46 +424,63 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 
 		mDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 		mDialog.show();
-		if(mAniType == R.style.Theme_FullScreenDialogAnimatedFade)
-		{
-			mContentView.setAlpha(0);
-		}
-		else if(mAniType == R.style.Theme_FullScreenDialogAnimatedSlide)
-		{
-			int nScreenHeight = getScreenHeight();
-			if (nScreenHeight != -1)
-				mContentView.setTranslationY(nScreenHeight);
+
+		int nScreenHeight = getScreenHeight();
+		switch (mAniType) {
+			case STYLE_THEME_ANIMATED_FADE_DIALOG:
+				mContentView.setAlpha(0);
+				break;
+			case STYLE_THEME_ANIMATED_SLIDE_DIALOG:
+				if (nScreenHeight != -1) {
+					mContentView.setTranslationY(nScreenHeight);
+				}
+				break;
+			case STYLE_THEME_ANIMATED_SLIDE_FADE_DIALOG:
+				mContentView.setAlpha(0);
+				if (nScreenHeight != -1) {
+					mContentView.setTranslationY(nScreenHeight);
+				}
+				break;
+			default:
 		}
 	}
-	private int getScreenHeight()
-	{
-		try
-		{
+
+	private int getScreenHeight() {
+		try {
 			Context context = ContextHolder.getAppContext();
 			android.view.WindowManager manager = (android.view.WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 			Display display = manager.getDefaultDisplay();
-			if (display != null)
-			{
+			if (display != null) {
 				int height = manager.getDefaultDisplay().getHeight();
 				return height;
 			}
-		}
-		catch (SecurityException e)
-		{
+		} catch (SecurityException e) {
+			LogUtils.d("HippyModalHostView", "getScreenHeight: " + e.getMessage());
 		}
 		return -1;
 	}
 
-	protected Dialog createDialog(Context context, int theme)
+	protected Dialog createDialog(Context context)
 	{
-		return new Dialog(context, theme);
-	}
+		int theme = 0;
+		if (context != null) {
+			Resources res = context.getResources();
+			theme = res.getIdentifier("HippyFullScreenDialog", "style", context.getPackageName());
+		}
 
-	protected String getAnimationType()
-	{
-		return mAnimationType;
-	}
+		Dialog dialog = new Dialog(context, theme);
+		if (theme == 0) {
+			Window window = dialog.getWindow();
+			if (window != null) {
+				window.requestFeature(Window.FEATURE_NO_TITLE);
+				window.setBackgroundDrawableResource(android.R.color.transparent);
+				window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams
+						.MATCH_PARENT);
+			}
+		}
 
+		return dialog;
+	}
 
 	protected View createContentView(View hostView)
 	{
@@ -452,7 +505,7 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 		}
 		else
 		{
-		frameLayout.addView(hostView);
+			frameLayout.addView(hostView);
 		}
 		frameLayout.setFitsSystemWindows(false);
 		return frameLayout;
@@ -460,14 +513,6 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 
 	private void updateProperties()
 	{
-    HippyInstanceContext hippyInstanceContext = (HippyInstanceContext)getContext();
-    if (hippyInstanceContext != null && (hippyInstanceContext.getBaseContext() instanceof Activity)){
-      Activity currentActivity = (Activity)(hippyInstanceContext.getBaseContext());
-      if (currentActivity != null && currentActivity.isFinishing()) {
-        return;
-      }
-    }
-
 		if (mTransparent)
 		{
 			mDialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
@@ -531,7 +576,5 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 		{
 
 		}
-
-
 	}
 }

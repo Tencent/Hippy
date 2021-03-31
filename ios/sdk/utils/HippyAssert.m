@@ -27,6 +27,7 @@ NSString *const HippyErrorDomain = @"HippyErrorDomain";
 NSString *const HippyJSStackTraceKey = @"HippyJSStackTraceKey";
 NSString *const HippyJSRawStackTraceKey = @"HippyJSRawStackTraceKey";
 NSString *const HippyFatalExceptionName = @"HippyFatalException";
+NSString *const HippyFatalModuleName = @"HippyFatalModuleName";
 
 static NSString *const HippyAssertFunctionStack = @"HippyAssertFunctionStack";
 
@@ -35,34 +36,25 @@ HippyFatalHandler HippyCurrentFatalHandler = nil;
 MttHippyExceptionHandler MttHippyCurrentExceptionHandler = nil;
 
 NSException *_HippyNotImplementedException(SEL, Class);
-NSException *_HippyNotImplementedException(SEL cmd, Class cls)
-{
+NSException *_HippyNotImplementedException(SEL cmd, Class cls) {
     NSString *msg = [NSString stringWithFormat:@"%s is not implemented "
-                     "for the class %@", sel_getName(cmd), cls];
-    return [NSException exceptionWithName:@"HippyNotDesignatedInitializerException"
-                                   reason:msg userInfo:nil];
+                                                "for the class %@",
+                              sel_getName(cmd), cls];
+    return [NSException exceptionWithName:@"HippyNotDesignatedInitializerException" reason:msg userInfo:nil];
 }
 
-void HippySetAssertFunction(HippyAssertFunction assertFunction)
-{
+void HippySetAssertFunction(HippyAssertFunction assertFunction) {
     HippyCurrentAssertFunction = assertFunction;
 }
 
-HippyAssertFunction HippyGetAssertFunction(void)
-{
+HippyAssertFunction HippyGetAssertFunction(void) {
     return HippyCurrentAssertFunction;
 }
 
-void HippyAddAssertFunction(HippyAssertFunction assertFunction)
-{
+void HippyAddAssertFunction(HippyAssertFunction assertFunction) {
     HippyAssertFunction existing = HippyCurrentAssertFunction;
     if (existing) {
-        HippyCurrentAssertFunction = ^(NSString *condition,
-                                     NSString *fileName,
-                                     NSNumber *lineNumber,
-                                     NSString *function,
-                                     NSString *message) {
-            
+        HippyCurrentAssertFunction = ^(NSString *condition, NSString *fileName, NSNumber *lineNumber, NSString *function, NSString *message) {
             existing(condition, fileName, lineNumber, function, message);
             assertFunction(condition, fileName, lineNumber, function, message);
         };
@@ -75,8 +67,7 @@ void HippyAddAssertFunction(HippyAssertFunction assertFunction)
  * returns the topmost stacked assert function for the current thread, which
  * may not be the same as the current value of HippyCurrentAssertFunction.
  */
-static HippyAssertFunction HippyGetLocalAssertFunction()
-{
+static HippyAssertFunction HippyGetLocalAssertFunction() {
     NSMutableDictionary *threadDictionary = [NSThread currentThread].threadDictionary;
     NSArray<HippyAssertFunction> *functionStack = threadDictionary[HippyAssertFunctionStack];
     HippyAssertFunction assertFunction = functionStack.lastObject;
@@ -86,8 +77,7 @@ static HippyAssertFunction HippyGetLocalAssertFunction()
     return HippyCurrentAssertFunction;
 }
 
-void HippyPerformBlockWithAssertFunction(void (^block)(void), HippyAssertFunction assertFunction)
-{
+void HippyPerformBlockWithAssertFunction(void (^block)(void), HippyAssertFunction assertFunction) {
     NSMutableDictionary *threadDictionary = [NSThread currentThread].threadDictionary;
     NSMutableArray<HippyAssertFunction> *functionStack = threadDictionary[HippyAssertFunctionStack];
     if (!functionStack) {
@@ -99,8 +89,7 @@ void HippyPerformBlockWithAssertFunction(void (^block)(void), HippyAssertFunctio
     [functionStack removeLastObject];
 }
 
-NSString *HippyCurrentThreadName(void)
-{
+NSString *HippyCurrentThreadName(void) {
     NSThread *thread = [NSThread currentThread];
     NSString *threadName = HippyIsMainQueue() || thread.isMainThread ? @"main" : thread.name;
     if (threadName.length == 0) {
@@ -114,56 +103,47 @@ NSString *HippyCurrentThreadName(void)
     return threadName;
 }
 
-void _HippyAssertFormat(
-                      const char *condition,
-                      const char *fileName,
-                      int lineNumber,
-                      const char *function,
-                      NSString *format, ...)
-{
+void _HippyAssertFormat(const char *condition, const char *fileName, int lineNumber, const char *function, NSString *format, ...) {
     HippyAssertFunction assertFunction = HippyGetLocalAssertFunction();
     if (assertFunction) {
         va_list args;
         va_start(args, format);
         NSString *message = [[NSString alloc] initWithFormat:format arguments:args];
         va_end(args);
-        
+
         assertFunction(@(condition), @(fileName), @(lineNumber), @(function), message);
     }
 }
 
-void HippyFatal(NSError *error)
-{
+void HippyFatal(NSError *error) {
     NSString *failReason = error.localizedFailureReason;
     if (failReason && failReason.length >= 100) {
         failReason = [[failReason substringToIndex:100] stringByAppendingString:@"(...Description Too Long)"];
     }
+    NSString *fatalMessage = nil;
+    NSString *moduleDescription = [NSString stringWithFormat:@"Module:%@", error.userInfo[HippyFatalModuleName] ?: @"unknown"];
     if (failReason) {
-        _HippyLogNativeInternal(HippyLogLevelFatal, NULL, 0, @"%@[Reason]: %@", error.localizedDescription, failReason);
+        fatalMessage = [NSString stringWithFormat:@"%@,%@[Reason]: %@", moduleDescription, error.localizedDescription, failReason];
     } else {
-        _HippyLogNativeInternal(HippyLogLevelFatal, NULL, 0, @"%@", error.localizedDescription);
+        fatalMessage = [NSString stringWithFormat:@"%@,%@", moduleDescription, error.localizedDescription];
     }
-    
-    
+    _HippyLogNativeInternal(HippyLogLevelFatal, NULL, 0, @"%@", fatalMessage);
+
     HippyFatalHandler fatalHandler = HippyGetFatalHandler();
     if (fatalHandler) {
         fatalHandler(error);
     } else {
-#if DEBUG
+#ifdef DEBUG
         @try {
-#endif
-            
             NSString *name = [NSString stringWithFormat:@"%@: %@", HippyFatalExceptionName, error.localizedDescription];
             NSString *message = HippyFormatError(error.localizedDescription, error.userInfo[HippyJSStackTraceKey], 75);
-            
             if (failReason) {
                 name = [NSString stringWithFormat:@"%@: %@[Reason]: %@", HippyFatalExceptionName, error.localizedDescription, failReason];
             }
-            
             [NSException raise:name format:@"%@", message];
-#if DEBUG
-        } @catch (NSException *e) {}
-#endif
+        } @catch (NSException *e) {
+        }
+#endif  //#ifdef DEBUG
     }
 }
 
@@ -175,39 +155,33 @@ void MttHippyException(NSException *exception) {
     }
 }
 
-void HippySetFatalHandler(HippyFatalHandler fatalhandler)
-{
+void HippySetFatalHandler(HippyFatalHandler fatalhandler) {
     HippyCurrentFatalHandler = fatalhandler;
 }
 
-HippyFatalHandler HippyGetFatalHandler(void)
-{
+HippyFatalHandler HippyGetFatalHandler(void) {
     return HippyCurrentFatalHandler;
 }
 
-void MttHippySetExceptionHandler(MttHippyExceptionHandler exceptionhandler)
-{
+void MttHippySetExceptionHandler(MttHippyExceptionHandler exceptionhandler) {
     MttHippyCurrentExceptionHandler = exceptionhandler;
 }
 
-MttHippyExceptionHandler MttHippyGetExceptionHandler(void)
-{
+MttHippyExceptionHandler MttHippyGetExceptionHandler(void) {
     return MttHippyCurrentExceptionHandler;
 }
 
-//NSString *HippyFormatError(NSString *message, NSArray<NSDictionary<NSString *, id> *> *stackTrace, NSUInteger maxMessageLength)
-HIPPY_EXTERN NSString *HippyFormatError(NSString *message, NSArray<HippyJSStackFrame *> *stackTrace, NSUInteger maxMessageLength)
-{
+// NSString *HippyFormatError(NSString *message, NSArray<NSDictionary<NSString *, id> *> *stackTrace, NSUInteger maxMessageLength)
+HIPPY_EXTERN NSString *HippyFormatError(NSString *message, NSArray<HippyJSStackFrame *> *stackTrace, NSUInteger maxMessageLength) {
     if (maxMessageLength > 0 && message.length > maxMessageLength) {
         message = [[message substringToIndex:maxMessageLength] stringByAppendingString:@"..."];
     }
-    
+
     NSMutableString *prettyStack = [NSMutableString string];
     if (stackTrace) {
         [prettyStack appendString:@", stack:\n"];
-        
-        NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"^(\\d+\\.js)$"
-                                                                               options:NSRegularExpressionCaseInsensitive
+
+        NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"^(\\d+\\.js)$" options:NSRegularExpressionCaseInsensitive
                                                                                  error:NULL];
         for (HippyJSStackFrame *frame in stackTrace) {
             NSString *fileName = frame.file;
@@ -219,6 +193,6 @@ HIPPY_EXTERN NSString *HippyFormatError(NSString *message, NSArray<HippyJSStackF
             [prettyStack appendFormat:@"%@@%@%ld:%ld\n", frame.methodName, fileName, (long)frame.lineNumber, (long)frame.column];
         }
     }
-    
+
     return [NSString stringWithFormat:@"%@%@", message, prettyStack];
 }

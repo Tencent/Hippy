@@ -3,6 +3,103 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.2.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.2.0...2.2.1) (2020-12-28)
+
+**Note:** Version bump only for package @hippy/vue
+
+
+
+
+
+# [2.2.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.1.6...2.2.0) (2020-12-25)
+
+**Note:** Version bump only for package @hippy/vue
+
+
+
+
+
+## [2.1.6](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.1.5...2.1.6) (2020-12-23)
+
+
+### Bug Fixes
+
+* **hippy-vue,hippy-react:** compatible loadMore and endReached event ([#429](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/issues/429)) ([d992cbe](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/d992cbefbd9a0f76bee70bf604df7d377a08e97c))
+
+
+### Features
+
+* **hippy-react:** added hippy-react boxShadow attr and demo ([#458](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/issues/458)) ([6fd6a34](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/6fd6a342f7c0b7b6aa742eeee5c585e9e5a1d31b))
+* **hippy-vue:** vue css selectors support dynamic import ([#440](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/issues/440)) ([3baa571](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/3baa57105df8f4e7a46d52d4334a88ee921c388d))
+
+
+
+
+
+## [2.1.5](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.1.4...2.1.5) (2020-12-10)
+
+**Note:** Version bump only for package @hippy/vue
+
+
+
+
+
+## [2.1.4](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.1.3...2.1.4) (2020-12-03)
+
+
+### Features
+
+* **hippy-vue,hippy-react:** added setNativeProps on element ([#430](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/issues/430)) ([d1f7e21](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/d1f7e216b5fef46ace0cf50803ad2940b429a0d6))
+* **hippy-vue,hippy-react:** perf setNativeProps ([5cd1291](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/5cd12910262ad3bb15d07c2dc974a829958a2b86))
+
+
+
+
+
+## [2.1.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.1.1...2.1.2) (2020-11-23)
+
+
+### Features
+
+* **hippy-vue:** added iOS12 statusBarHeight ([d33e993](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/d33e993b72b3627e3fd73e5f5e08d8c34d4ee23d))
+* **hippy-vue, hippy-react:** changeTryConvertNumberCompatibility ([714faaf](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/714faaf11988659b450a3276342597b7ed095a17))
+
+
+
+
+
+## [2.1.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.1.0...2.1.1) (2020-11-11)
+
+
+### Bug Fixes
+
+* **hippy-vue:** fixed focus event support for div ([#387](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/issues/387)) ([21d8b58](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/21d8b58946f546bc2313c163818f525b0da8ef9a))
+* **hippy-vue:** fixed tryConvertNumber bug & some compatible issue ([ba8836d](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/ba8836d9b3c3461f013d325c0e86c84233e3ede6))
+
+
+
+
+
+# [2.1.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.0.3...2.1.0) (2020-10-29)
+
+
+### Bug Fixes
+
+* **hippy-vue:** fix hippy-vue transform multi-animation not working ([84bd58b](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/84bd58be840ea3f5ddd9d387e92b5a084387e9d1))
+* **vue:** fixed remove style issue ([#329](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/issues/329)) ([33f2f7d](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/33f2f7d3a1518e70471a060b930b3372d6b49c99))
+
+
+### Features
+
+* **hippy-vue:** add new method measureInAppWindow ([e6348a2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/e6348a2fa31ea61fcfda66151c15830871f47ab6))
+* **hippy-vue:** added the callback execution before $mount in $start ([1a1cc3f](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/1a1cc3fb5ee92a3dd704765bc628530f9f146c8b))
+* **hippy-vue:** box-shadow style support ([0604461](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/06044610f85f891d52d28439b3a48554c8db6487))
+* **hippy-vue:** export parseColor api for HippyVue ([a354c94](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/a354c94ede4542bb9111c030e088a70f617ca0c7))
+
+
+
+
+
 ## [2.0.3](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.0.2...2.0.3) (2020-04-23)
 
 

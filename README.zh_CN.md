@@ -8,7 +8,7 @@
 
 Hippy 是一个新生的跨端开发框架，目标是使开发者可以只写一套代码就直接运行于三个平台（iOS、Android 和 Web）。Hippy 的设计是面向传统 Web 开发者的，特别是之前有过 React Native 和 Vue 的开发者用起来会更为顺手，Hippy 致力于让前端开发跨端 App 更加容易。
 
-到目前为止，[腾讯](http://www.tencent.com/)内已经有了18款流行 App 在使用 Hippy 框架，每日触达数亿用户。
+到目前为止，[腾讯](http://www.tencent.com/)内已经有了27款流行 App 在使用 Hippy 框架，包括手机QQ、手机QQ浏览器、腾讯视频App，QQ音乐App等，每日触达数亿用户。
 
 ## 特征
 
@@ -72,10 +72,14 @@ Windows 用户需要以下软件:
 
 我们推荐 iOS 开发者使用模拟器来进行开发和调试工作，当然如果你是一个 iOS 开发高手，也可以通过修改配置将 Hippy app 安装到手机上。
 
-1. 安装前端依赖，运行命令：`npm install`。
-2. 编译前端 SDK 包，运行命令： `npm run build`。
-3. 选择一个前端范例项目来进行编译：`npm run buildexample -- [hippy-react-demo|hippy-vue-demo]`。
-4. 启动 Xcode 并且开始编译终端 App：`open examples/ios-demo/HippyDemo.xcodeproj`。
+1. 安装前端依赖，根目录运行命令：`npm install`。
+2. 通过 lerna 安装前端每一个package依赖: `lerna bootstrap`。
+3. 编译前端 SDK 包，根目录运行命令： `npm run build`。
+4. 选择一个前端范例项目来进行编译：`npm run buildexample -- [hippy-react-demo|hippy-vue-demo]`。
+5. 启动 Xcode 并且开始编译终端 App：`open examples/ios-demo/HippyDemo.xcodeproj`。
+6. cd 到 hippy-react-demo 或者 hippy-vue-demo 目录，分别执行 `npm run hippy:dev` 和 `npm run hippy:debug`, 即开启实时 Debug 模式。
+
+在 example 调试模式下，@hippy/react、@hippy/vue等的npm模块会直接链接到 `packages` > `[different package]` >`dist` 下面，所以如果你修改了package下的源代码并且想让其在example中生效，请重新在根目录执行 `npm run build`。
 
 ### 启动 Android App 来测试 hippy-react 或者 hippy-vue 范例
 
@@ -84,11 +88,15 @@ Windows 用户需要以下软件:
 在开始前请确认好 SDK 和 NDK 都安装了范例的指定版本，并且**请勿**更新编译工具链。
 
 1. 安装前端依赖，运行命令：`npm install`。
-2. 编译前端 SDK 包，运行命令： `npm run build`。
-3. 打开一个命令行程序，并选择 hippy-react 范例项目进行编译：`npm run buildexample hippy-react-demo`，或者编译 hippy-vue 范例项目 `npm run buildexample hippy-vue-demo`。
-4. 用 Android Studio 来打开终端范例工程 `examples/android-demo`。
-5. 用 USB 数据线插上你的 Android 手机，需要确认手机打开 USB 调试模式和 USB 安装。
-6. 运行工程，并安装 apk。
+2. 通过 lerna 安装前端每一个 package 依赖: `lerna bootstrap`。
+3. 编译前端 SDK 包，根目录运行命令： `npm run build`。
+4. 打开一个命令行程序，并选择 hippy-react 范例项目进行编译：`npm run buildexample hippy-react-demo`，或者编译 hippy-vue 范例项目 `npm run buildexample hippy-vue-demo`。
+5. 用 Android Studio 来打开终端范例工程 `examples/android-demo`。
+6. 用 USB 数据线插上你的 Android 手机，需要确认手机打开 USB 调试模式和 USB 安装。
+7. 运行工程，并安装 apk。
+8. cd 到 hippy-react-demo 或者 hippy-vue-demo 目录，分别执行 `npm run hippy:dev` 和 `npm run hippy:debug`, 即开启实时 Debug 模式。
+
+在 example 调试模式下，@hippy/react、@hippy/vue等的npm模块会直接链接到 `packages` > `[different package]` >`dist` 下面，所以如果你修改了package下的源代码并且想让其在example中生效，请重新在根目录执行 `npm run build`。
 
 > 如果 Android Studio 报了这个错误 `No toolchains found in the NDK toolchains folder for ABI with prefix: mips64el-linux-android`，这里有[解决办法](https://github.com/google/filament/issues/15#issuecomment-415423557)。
 

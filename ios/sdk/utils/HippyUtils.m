@@ -38,12 +38,11 @@
 
 NSString *const HippyErrorUnspecified = @"EUNSPECIFIED";
 
-static NSString *__nullable _HippyJSONStringifyNoRetry(id __nullable jsonObject, NSError **error)
-{
+static NSString *__nullable _HippyJSONStringifyNoRetry(id __nullable jsonObject, NSError **error) {
     if (!jsonObject) {
         return nil;
     }
-    
+
     static SEL JSONKitSelector = NULL;
     static NSSet<Class> *collectionTypes;
     static dispatch_once_t onceToken;
@@ -51,48 +50,37 @@ static NSString *__nullable _HippyJSONStringifyNoRetry(id __nullable jsonObject,
         SEL selector = NSSelectorFromString(@"JSONStringWithOptions:error:");
         if ([NSDictionary instancesRespondToSelector:selector]) {
             JSONKitSelector = selector;
-            collectionTypes = [NSSet setWithObjects:
-                               [NSArray class], [NSMutableArray class],
-                               [NSDictionary class], [NSMutableDictionary class], nil];
+            collectionTypes = [NSSet setWithObjects:[NSArray class], [NSMutableArray class], [NSDictionary class], [NSMutableDictionary class], nil];
         }
     });
-    
+
     @try {
-        
         // Use JSONKit if available and object is not a fragment
         if (JSONKitSelector && [collectionTypes containsObject:[jsonObject classForCoder]]) {
-            return ((NSString *(*)(id, SEL, int, NSError **))objc_msgSend)(jsonObject, JSONKitSelector, 0, error);
+            return ((NSString * (*)(id, SEL, int, NSError **)) objc_msgSend)(jsonObject, JSONKitSelector, 0, error);
         }
-        
+
         // Use Foundation JSON method
-        NSData *jsonData = [NSJSONSerialization
-                            dataWithJSONObject:jsonObject options:(NSJSONWritingOptions)NSJSONReadingAllowFragments
-                            error:error];
-        
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject options:(NSJSONWritingOptions)NSJSONReadingAllowFragments error:error];
+
         return jsonData ? [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding] : nil;
-    }
-    @catch (NSException *exception) {
-        
+    } @catch (NSException *exception) {
         // Convert exception to error
         if (error) {
-            *error = [NSError errorWithDomain:HippyErrorDomain code:0 userInfo:@{
-                                                                               NSLocalizedDescriptionKey: exception.description ?: @""
-                                                                               }];
+            *error = [NSError errorWithDomain:HippyErrorDomain code:0 userInfo:@ { NSLocalizedDescriptionKey: exception.description ?: @"" }];
         }
         return nil;
     }
 }
 
-NSString *__nullable HippyJSONStringify(id __nullable jsonObject, NSError **error)
-{
+NSString *__nullable HippyJSONStringify(id __nullable jsonObject, NSError **error) {
     if (error) {
         return _HippyJSONStringifyNoRetry(jsonObject, error);
     } else {
         NSError *localError;
         NSString *json = _HippyJSONStringifyNoRetry(jsonObject, &localError);
         if (localError) {
-            HippyLogError(@"HippyJSONStringify() encountered the following error: %@",
-                        localError.localizedDescription);
+            HippyLogError(@"HippyJSONStringify() encountered the following error: %@", localError.localizedDescription);
             // Sanitize the data, then retry. This is slow, but it prevents uncaught
             // data issues from crashing in production
             return _HippyJSONStringifyNoRetry(HippyJSONClean(jsonObject), NULL);
@@ -101,8 +89,7 @@ NSString *__nullable HippyJSONStringify(id __nullable jsonObject, NSError **erro
     }
 }
 
-static id __nullable _HippyJSONParse(NSString *__nullable jsonString, BOOL mutable, NSError **error)
-{
+static id __nullable _HippyJSONParse(NSString *__nullable jsonString, BOOL mutable, NSError **error) {
     static SEL JSONKitSelector = NULL;
     static SEL JSONKitMutableSelector = NULL;
     static dispatch_once_t onceToken;
@@ -113,32 +100,32 @@ static id __nullable _HippyJSONParse(NSString *__nullable jsonString, BOOL mutab
             JSONKitMutableSelector = NSSelectorFromString(@"mutableObjectFromJSONStringWithParseOptions:error:");
         }
     });
-    
+
     if (jsonString) {
-        
         // Use JSONKit if available and string is not a fragment
         if (JSONKitSelector) {
             NSInteger length = jsonString.length;
             for (NSInteger i = 0; i < length; i++) {
                 unichar c = [jsonString characterAtIndex:i];
                 if (strchr("{[", c)) {
-                    static const int options = (1 << 2); // loose unicode
+                    static const int options = (1 << 2);  // loose unicode
                     SEL selector = mutable ? JSONKitMutableSelector : JSONKitSelector;
-                    return ((id (*)(id, SEL, int, NSError **))objc_msgSend)(jsonString, selector, options, error);
+                    return ((id(*)(id, SEL, int, NSError **))objc_msgSend)(jsonString, selector, options, error);
                 }
                 if (!strchr(" \r\n\t", c)) {
                     break;
                 }
             }
         }
-        
+
         // Use Foundation JSON method
         NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
         if (!jsonData) {
             jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:YES];
             if (jsonData) {
                 HippyLogWarn(@"HippyJSONParse received the following string, which could "
-                           "not be losslessly converted to UTF8 data: '%@'", jsonString);
+                              "not be losslessly converted to UTF8 data: '%@'",
+                    jsonString);
             } else {
                 NSString *errorMessage = @"HippyJSONParse received invalid UTF8 data";
                 if (error) {
@@ -153,36 +140,31 @@ static id __nullable _HippyJSONParse(NSString *__nullable jsonString, BOOL mutab
         if (mutable) {
             options |= NSJSONReadingMutableContainers;
         }
-        return [NSJSONSerialization JSONObjectWithData:jsonData
-                                               options:options
-                                                 error:error];
+        return [NSJSONSerialization JSONObjectWithData:jsonData options:options error:error];
     }
     return nil;
 }
 
-id __nullable HippyJSONParse(NSString *__nullable jsonString, NSError **error)
-{
+id __nullable HippyJSONParse(NSString *__nullable jsonString, NSError **error) {
     return _HippyJSONParse(jsonString, NO, error);
 }
 
-id __nullable HippyJSONParseMutable(NSString *__nullable jsonString, NSError **error)
-{
+id __nullable HippyJSONParseMutable(NSString *__nullable jsonString, NSError **error) {
     return _HippyJSONParse(jsonString, YES, error);
 }
 
-id HippyJSONClean(id object)
-{
+id HippyJSONClean(id object) {
     static dispatch_once_t onceToken;
     static NSSet<Class> *validLeafTypes;
     dispatch_once(&onceToken, ^{
         validLeafTypes = [[NSSet alloc] initWithArray:@[
-                                                        [NSString class],
-                                                        [NSMutableString class],
-                                                        [NSNumber class],
-                                                        [NSNull class],
-                                                        ]];
+            [NSString class],
+            [NSMutableString class],
+            [NSNumber class],
+            [NSNull class],
+        ]];
     });
-    
+
     if ([validLeafTypes containsObject:[object classForCoder]]) {
         if ([object isKindOfClass:[NSNumber class]]) {
             return @(HippyZeroIfNaN([object doubleValue]));
@@ -194,7 +176,7 @@ id HippyJSONClean(id object)
         }
         return object;
     }
-    
+
     if ([object isKindOfClass:[NSDictionary class]]) {
         __block BOOL copy = NO;
         NSMutableDictionary<NSString *, id> *values = [[NSMutableDictionary alloc] initWithCapacity:[object count]];
@@ -205,7 +187,7 @@ id HippyJSONClean(id object)
         }];
         return copy ? values : object;
     }
-    
+
     if ([object isKindOfClass:[NSArray class]]) {
         __block BOOL copy = NO;
         __block NSArray *values = object;
@@ -225,37 +207,30 @@ id HippyJSONClean(id object)
         }];
         return values;
     }
-    
+
     return (id)kCFNull;
 }
 
-NSString *HippyMD5Hash(NSString *string)
-{
+NSString *HippyMD5Hash(NSString *string) {
     const char *str = string.UTF8String;
     unsigned char result[CC_MD5_DIGEST_LENGTH];
     CC_MD5(str, (CC_LONG)strlen(str), result);
-    
-    return [NSString stringWithFormat:@"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
-            result[0], result[1], result[2], result[3],
-            result[4], result[5], result[6], result[7],
-            result[8], result[9], result[10], result[11],
-            result[12], result[13], result[14], result[15]
-            ];
+
+    return [NSString stringWithFormat:@"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x", result[0], result[1], result[2], result[3],
+                     result[4], result[5], result[6], result[7], result[8], result[9], result[10], result[11], result[12], result[13], result[14],
+                     result[15]];
 }
 
-BOOL HippyIsMainQueue()
-{
+BOOL HippyIsMainQueue() {
     static void *mainQueueKey = &mainQueueKey;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        dispatch_queue_set_specific(dispatch_get_main_queue(),
-                                    mainQueueKey, mainQueueKey, NULL);
+        dispatch_queue_set_specific(dispatch_get_main_queue(), mainQueueKey, mainQueueKey, NULL);
     });
     return dispatch_get_specific(mainQueueKey) == mainQueueKey;
 }
 
-void HippyExecuteOnMainQueue(dispatch_block_t block)
-{
+void HippyExecuteOnMainQueue(dispatch_block_t block) {
     if (HippyIsMainQueue()) {
         block();
     } else {
@@ -263,8 +238,7 @@ void HippyExecuteOnMainQueue(dispatch_block_t block)
     }
 }
 
-void HippyExecuteOnMainThread(dispatch_block_t block, BOOL sync)
-{
+void HippyExecuteOnMainThread(dispatch_block_t block, BOOL sync) {
     if (HippyIsMainQueue()) {
         block();
     } else if (sync) {
@@ -274,72 +248,67 @@ void HippyExecuteOnMainThread(dispatch_block_t block, BOOL sync)
     }
 }
 
-CGFloat HippyScreenScale()
-{
-    static CGFloat scale;
+CGFloat HippyScreenScale() {
+    static CGFloat scale = CGFLOAT_MAX;
     static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        HippyExecuteOnMainThread(^{
-            scale = [UIScreen mainScreen].scale;
-        }, YES);
-    });
-    
+    if (CGFLOAT_MAX == scale) {
+        HippyExecuteOnMainThread(
+            ^{
+                dispatch_once(&onceToken, ^{
+                    scale = [UIScreen mainScreen].scale;
+                });
+            }, YES);
+    }
+
     return scale;
 }
 
-CGSize HippyScreenSize()
-{
-    // FIXME: this caches the bounds at app start, whatever those were, and then
-    // doesn't update when the device is rotated. We need to find another thread-
-    // safe way to get the screen size.
-    
-    static CGSize size;
+CGSize HippyScreenSize() {
+    static CGSize size = { 0, 0 };
     static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        HippyExecuteOnMainThread(^{
-            size = [UIScreen mainScreen].bounds.size;
-        }, YES);
-    });
-    
+    if (CGSizeEqualToSize(CGSizeZero, size)) {
+        HippyExecuteOnMainThread(
+            ^{
+                dispatch_once(&onceToken, ^{
+                    size = [UIScreen mainScreen].bounds.size;
+                });
+            }, YES);
+    }
+
     return size;
 }
 
-CGFloat HippyRoundPixelValue(CGFloat value)
-{
+CGFloat HippyRoundPixelValue(CGFloat value) {
     CGFloat scale = HippyScreenScale();
     return round(value * scale) / scale;
 }
 
-CGFloat HippyCeilPixelValue(CGFloat value)
-{
+CGFloat HippyCeilPixelValue(CGFloat value) {
     CGFloat scale = HippyScreenScale();
     return ceil(value * scale) / scale;
 }
 
-CGFloat HippyFloorPixelValue(CGFloat value)
-{
+CGFloat HippyFloorPixelValue(CGFloat value) {
     CGFloat scale = HippyScreenScale();
     return floor(value * scale) / scale;
 }
 
-CGSize HippySizeInPixels(CGSize pointSize, CGFloat scale)
-{
-    return (CGSize){
+CGSize HippySizeInPixels(CGSize pointSize, CGFloat scale) {
+    return (CGSize) {
         ceil(pointSize.width * scale),
         ceil(pointSize.height * scale),
     };
 }
 
-void HippySwapClassMethods(Class cls, SEL original, SEL replacement)
-{
+void HippySwapClassMethods(Class cls, SEL original, SEL replacement) {
     Method originalMethod = class_getClassMethod(cls, original);
     IMP originalImplementation = method_getImplementation(originalMethod);
     const char *originalArgTypes = method_getTypeEncoding(originalMethod);
-    
+
     Method replacementMethod = class_getClassMethod(cls, replacement);
     IMP replacementImplementation = method_getImplementation(replacementMethod);
     const char *replacementArgTypes = method_getTypeEncoding(replacementMethod);
-    
+
     if (class_addMethod(cls, original, replacementImplementation, replacementArgTypes)) {
         class_replaceMethod(cls, replacement, originalImplementation, originalArgTypes);
     } else {
@@ -347,16 +316,15 @@ void HippySwapClassMethods(Class cls, SEL original, SEL replacement)
     }
 }
 
-void HippySwapInstanceMethods(Class cls, SEL original, SEL replacement)
-{
+void HippySwapInstanceMethods(Class cls, SEL original, SEL replacement) {
     Method originalMethod = class_getInstanceMethod(cls, original);
     IMP originalImplementation = method_getImplementation(originalMethod);
     const char *originalArgTypes = method_getTypeEncoding(originalMethod);
-    
+
     Method replacementMethod = class_getInstanceMethod(cls, replacement);
     IMP replacementImplementation = method_getImplementation(replacementMethod);
     const char *replacementArgTypes = method_getTypeEncoding(replacementMethod);
-    
+
     if (class_addMethod(cls, original, replacementImplementation, replacementArgTypes)) {
         class_replaceMethod(cls, replacement, originalImplementation, originalArgTypes);
     } else {
@@ -364,13 +332,11 @@ void HippySwapInstanceMethods(Class cls, SEL original, SEL replacement)
     }
 }
 
-BOOL HippyClassOverridesClassMethod(Class cls, SEL selector)
-{
+BOOL HippyClassOverridesClassMethod(Class cls, SEL selector) {
     return HippyClassOverridesInstanceMethod(object_getClass(cls), selector);
 }
 
-BOOL HippyClassOverridesInstanceMethod(Class cls, SEL selector)
-{
+BOOL HippyClassOverridesInstanceMethod(Class cls, SEL selector) {
     unsigned int numberOfMethods;
     Method *methods = class_copyMethodList(cls, &numberOfMethods);
     for (unsigned int i = 0; i < numberOfMethods; i++) {
@@ -383,46 +349,33 @@ BOOL HippyClassOverridesInstanceMethod(Class cls, SEL selector)
     return NO;
 }
 
-NSDictionary<NSString *, id> *HippyMakeError(NSString *message,
-                                           id __nullable toStringify,
-                                           NSDictionary<NSString *, id> *__nullable extraData)
-{
+NSDictionary<NSString *, id> *HippyMakeError(NSString *message, id __nullable toStringify, NSDictionary<NSString *, id> *__nullable extraData) {
     if (toStringify) {
         message = [message stringByAppendingString:[toStringify description]];
     }
-    
+
     NSMutableDictionary<NSString *, id> *error = [extraData mutableCopy] ?: [NSMutableDictionary new];
     error[@"message"] = message;
     return error;
 }
 
-NSDictionary<NSString *, id> *HippyMakeAndLogError(NSString *message,
-                                                 id __nullable toStringify,
-                                                 NSDictionary<NSString *, id> *__nullable extraData)
-{
+NSDictionary<NSString *, id> *HippyMakeAndLogError(NSString *message, id __nullable toStringify, NSDictionary<NSString *, id> *__nullable extraData) {
     NSDictionary<NSString *, id> *error = HippyMakeError(message, toStringify, extraData);
     HippyLogError(@"\nError: %@", error);
     return error;
 }
 
-NSDictionary<NSString *, id> *HippyJSErrorFromNSError(NSError *error)
-{
+NSDictionary<NSString *, id> *HippyJSErrorFromNSError(NSError *error) {
     NSString *codeWithDomain = [NSString stringWithFormat:@"E%@%ld", error.domain.uppercaseString, (long)error.code];
-    return HippyJSErrorFromCodeMessageAndNSError(codeWithDomain,
-                                               error.localizedDescription,
-                                               error);
+    return HippyJSErrorFromCodeMessageAndNSError(codeWithDomain, error.localizedDescription, error);
 }
 
 // TODO: Can we just replace HippyMakeError with this function instead?
-NSDictionary<NSString *, id> *HippyJSErrorFromCodeMessageAndNSError(NSString *code,
-                                                                  NSString *message,
-                                                                  NSError *__nullable error)
-{
+NSDictionary<NSString *, id> *HippyJSErrorFromCodeMessageAndNSError(NSString *code, NSString *message, NSError *__nullable error) {
     NSString *errorMessage;
     NSArray<NSString *> *stackTrace = [NSThread callStackSymbols];
-    NSMutableDictionary<NSString *, id> *errorInfo =
-    [NSMutableDictionary dictionaryWithObject:stackTrace forKey:@"nativeStackIOS"];
-    
+    NSMutableDictionary<NSString *, id> *errorInfo = [NSMutableDictionary dictionaryWithObject:stackTrace forKey:@"nativeStackIOS"];
+
     if (error) {
         errorMessage = error.localizedDescription ?: @"Unknown error from a native module";
         errorInfo[@"domain"] = error.domain ?: HippyErrorDomain;
@@ -432,15 +385,14 @@ NSDictionary<NSString *, id> *HippyJSErrorFromCodeMessageAndNSError(NSString *co
     }
     errorInfo[@"code"] = code ?: HippyErrorUnspecified;
     errorInfo[@"userInfo"] = HippyNullIfNil(error.userInfo);
-    
+
     // Allow for explicit overriding of the error message
     errorMessage = message ?: errorMessage;
-    
+
     return HippyMakeError(errorMessage, nil, errorInfo);
 }
 
-BOOL HippyRunningInTestEnvironment(void)
-{
+BOOL HippyRunningInTestEnvironment(void) {
     static BOOL isTestEnvironment = NO;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -449,53 +401,45 @@ BOOL HippyRunningInTestEnvironment(void)
     return isTestEnvironment;
 }
 
-BOOL HippyRunningInAppExtension(void)
-{
+BOOL HippyRunningInAppExtension(void) {
     return [[[[NSBundle mainBundle] bundlePath] pathExtension] isEqualToString:@"appex"];
 }
 
-UIApplication *__nullable HippySharedApplication(void)
-{
+UIApplication *__nullable HippySharedApplication(void) {
     if (HippyRunningInAppExtension()) {
         return nil;
     }
     return [[UIApplication class] performSelector:@selector(sharedApplication)];
 }
 
-UIWindow *__nullable HippyKeyWindow(void)
-{
+UIWindow *__nullable HippyKeyWindow(void) {
     if (HippyRunningInAppExtension()) {
         return nil;
     }
-    
-    // TODO: replace with a more robust solution
     return HippySharedApplication().keyWindow;
 }
 
-UIViewController *__nullable HippyPresentedViewController(void)
-{
+UIViewController *__nullable HippyPresentedViewController(void) {
     if (HippyRunningInAppExtension()) {
         return nil;
     }
-    
+
     UIViewController *controller = HippyKeyWindow().rootViewController;
-    
+
     while (controller.presentedViewController) {
         controller = controller.presentedViewController;
     }
-    
+
     return controller;
 }
 
-BOOL HippyForceTouchAvailable(void)
-{
+BOOL HippyForceTouchAvailable(void) {
     static BOOL forceSupported;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        forceSupported = [UITraitCollection class] &&
-        [UITraitCollection instancesRespondToSelector:@selector(forceTouchCapability)];
+        forceSupported = [UITraitCollection class] && [UITraitCollection instancesRespondToSelector:@selector(forceTouchCapability)];
     });
-    
+
     BOOL forceTouchCapability = NO;
     if (@available(iOS 9.0, *)) {
         forceTouchCapability = (HippyKeyWindow() ?: [UIView new]).traitCollection.forceTouchCapability == UIForceTouchCapabilityAvailable;
@@ -503,33 +447,45 @@ BOOL HippyForceTouchAvailable(void)
     return forceSupported && forceTouchCapability;
 }
 
-NSError *HippyErrorWithMessage(NSString *message)
-{
-    NSDictionary<NSString *, id> *errorInfo = @{NSLocalizedDescriptionKey: message};
+NSError *HippyErrorWithMessage(NSString *message) {
+    NSDictionary<NSString *, id> *errorInfo = @ { NSLocalizedDescriptionKey: message };
     return [[NSError alloc] initWithDomain:HippyErrorDomain code:0 userInfo:errorInfo];
 }
 
-double HippyZeroIfNaN(double value)
-{
+NSError *HippyErrorWithMessageAndModuleName(NSString *message, NSString *moduleName) {
+    NSDictionary<NSString *, id> *errorInfo = @ { NSLocalizedDescriptionKey: message, HippyFatalModuleName: moduleName ?: @"unknown" };
+    return [[NSError alloc] initWithDomain:HippyErrorDomain code:0 userInfo:errorInfo];
+}
+
+NSError *HippyErrorFromErrorAndModuleName(NSError *error, NSString *moduleName) {
+    NSDictionary *userInfo = [error userInfo];
+    if (userInfo) {
+        NSMutableDictionary *ui = [NSMutableDictionary dictionaryWithDictionary:userInfo];
+        [ui setObject:moduleName ?: @"unknown" forKey:HippyFatalModuleName];
+        userInfo = [NSDictionary dictionaryWithDictionary:ui];
+    } else {
+        userInfo = @ { HippyFatalModuleName: moduleName ?: @"unknown" };
+    }
+    NSError *retError = [NSError errorWithDomain:error.domain code:error.code userInfo:userInfo];
+    return retError;
+}
+
+double HippyZeroIfNaN(double value) {
     return isnan(value) || isinf(value) ? 0 : value;
 }
 
-NSURL *HippyDataURL(NSString *mimeType, NSData *data)
-{
-    return [NSURL URLWithString:
-            [NSString stringWithFormat:@"data:%@;base64,%@", mimeType,
-             [data base64EncodedStringWithOptions:(NSDataBase64EncodingOptions)0]]];
+NSURL *HippyDataURL(NSString *mimeType, NSData *data) {
+    return [NSURL URLWithString:[NSString stringWithFormat:@"data:%@;base64,%@", mimeType,
+                                          [data base64EncodedStringWithOptions:(NSDataBase64EncodingOptions)0]]];
 }
 
-BOOL HippyIsGzippedData(NSData *__nullable); // exposed for unit testing purposes
-BOOL HippyIsGzippedData(NSData *__nullable data)
-{
+BOOL HippyIsGzippedData(NSData *__nullable);  // exposed for unit testing purposes
+BOOL HippyIsGzippedData(NSData *__nullable data) {
     UInt8 *bytes = (UInt8 *)data.bytes;
     return (data.length >= 2 && bytes[0] == 0x1f && bytes[1] == 0x8b);
 }
 
-NSString *__nullable HippyBundlePathForURL(NSURL *__nullable URL)
-{
+NSString *__nullable HippyBundlePathForURL(NSURL *__nullable URL) {
     if (!URL.fileURL) {
         // Not a file path
         return nil;
@@ -547,19 +503,17 @@ NSString *__nullable HippyBundlePathForURL(NSURL *__nullable URL)
     return path;
 }
 
-BOOL HippyIsLocalAssetURL(NSURL *__nullable imageURL)
-{
+BOOL HippyIsLocalAssetURL(NSURL *__nullable imageURL) {
     NSString *name = HippyBundlePathForURL(imageURL);
     if (!name) {
         return NO;
     }
-    
+
     NSString *extension = [name pathExtension];
     return [extension isEqualToString:@"png"] || [extension isEqualToString:@"jpg"];
 }
 
-HIPPY_EXTERN NSString *__nullable HippyTempFilePath(NSString *extension, NSError **error)
-{
+HIPPY_EXTERN NSString *__nullable HippyTempFilePath(NSString *extension, NSError **error) {
     static NSError *setupError = nil;
     static NSString *directory;
     static dispatch_once_t onceToken;
@@ -576,10 +530,7 @@ HIPPY_EXTERN NSString *__nullable HippyTempFilePath(NSString *extension, NSError
         }
         if (![fileManager fileExistsAtPath:directory]) {
             NSError *localError = nil;
-            if (![fileManager createDirectoryAtPath:directory
-                        withIntermediateDirectories:YES
-                                         attributes:nil
-                                              error:&localError]) {
+            if (![fileManager createDirectoryAtPath:directory withIntermediateDirectories:YES attributes:nil error:&localError]) {
                 // This is bad
                 HippyLogError(@"Failed to create temporary directory: %@", localError);
                 setupError = localError;
@@ -587,14 +538,14 @@ HIPPY_EXTERN NSString *__nullable HippyTempFilePath(NSString *extension, NSError
             }
         }
     });
-    
+
     if (!directory || setupError) {
         if (error) {
             *error = setupError;
         }
         return nil;
     }
-    
+
     // Append a unique filename
     NSString *filename = [NSUUID new].UUIDString;
     if (extension) {
@@ -603,22 +554,18 @@ HIPPY_EXTERN NSString *__nullable HippyTempFilePath(NSString *extension, NSError
     return [directory stringByAppendingPathComponent:filename];
 }
 
-static void HippyGetRGBAColorComponents(CGColorRef color, CGFloat rgba[4])
-{
+static void HippyGetRGBAColorComponents(CGColorRef color, CGFloat rgba[4]) {
     CGColorSpaceModel model = CGColorSpaceGetModel(CGColorGetColorSpace(color));
     const CGFloat *components = CGColorGetComponents(color);
-    switch (model)
-    {
-        case kCGColorSpaceModelMonochrome:
-        {
+    switch (model) {
+        case kCGColorSpaceModelMonochrome: {
             rgba[0] = components[0];
             rgba[1] = components[0];
             rgba[2] = components[0];
             rgba[3] = components[1];
             break;
         }
-        case kCGColorSpaceModelRGB:
-        {
+        case kCGColorSpaceModelRGB: {
             rgba[0] = components[0];
             rgba[1] = components[1];
             rgba[2] = components[2];
@@ -630,14 +577,12 @@ static void HippyGetRGBAColorComponents(CGColorRef color, CGFloat rgba[4])
         case kCGColorSpaceModelIndexed:
         case kCGColorSpaceModelLab:
         case kCGColorSpaceModelPattern:
-        case kCGColorSpaceModelUnknown:
-        {
-            
+        case kCGColorSpaceModelUnknown: {
 #ifdef HIPPY_DEBUG
-            //unsupported format
+            // unsupported format
             HippyLogError(@"Unsupported color model: %i", model);
 #endif
-            
+
             rgba[0] = 0.0;
             rgba[1] = 0.0;
             rgba[2] = 0.0;
@@ -645,19 +590,18 @@ static void HippyGetRGBAColorComponents(CGColorRef color, CGFloat rgba[4])
             break;
         }
         default:
-            
+
             break;
     }
 }
 
-NSString *HippyColorToHexString(CGColorRef color)
-{
+NSString *HippyColorToHexString(CGColorRef color) {
     CGFloat rgba[4];
     HippyGetRGBAColorComponents(color, rgba);
-    uint8_t r = rgba[0]*255;
-    uint8_t g = rgba[1]*255;
-    uint8_t b = rgba[2]*255;
-    uint8_t a = rgba[3]*255;
+    uint8_t r = rgba[0] * 255;
+    uint8_t g = rgba[1] * 255;
+    uint8_t b = rgba[2] * 255;
+    uint8_t a = rgba[3] * 255;
     if (a < 255) {
         return [NSString stringWithFormat:@"#%02x%02x%02x%02x", r, g, b, a];
     } else {
@@ -666,57 +610,50 @@ NSString *HippyColorToHexString(CGColorRef color)
 }
 
 // (https://github.com/0xced/XCDFormInputAccessoryView/blob/master/XCDFormInputAccessoryView/XCDFormInputAccessoryView.m#L10-L14)
-NSString *HippyUIKitLocalizedString(NSString *string)
-{
+NSString *HippyUIKitLocalizedString(NSString *string) {
     NSBundle *UIKitBundle = [NSBundle bundleForClass:[UIApplication class]];
     return UIKitBundle ? [UIKitBundle localizedStringForKey:string value:string table:nil] : string;
 }
 
-NSString *__nullable HippyGetURLQueryParam(NSURL *__nullable URL, NSString *param)
-{
+NSString *__nullable HippyGetURLQueryParam(NSURL *__nullable URL, NSString *param) {
     HippyAssertParam(param);
     if (!URL) {
         return nil;
     }
-    
-    NSURLComponents *components = [NSURLComponents componentsWithURL:URL
-                                             resolvingAgainstBaseURL:YES];
+
+    NSURLComponents *components = [NSURLComponents componentsWithURL:URL resolvingAgainstBaseURL:YES];
     for (NSURLQueryItem *queryItem in [components.queryItems reverseObjectEnumerator]) {
         if ([queryItem.name isEqualToString:param]) {
             return queryItem.value;
         }
     }
-    
+
     return nil;
 }
 
-NSURL *__nullable HippyURLByReplacingQueryParam(NSURL *__nullable URL, NSString *param, NSString *__nullable value)
-{
+NSURL *__nullable HippyURLByReplacingQueryParam(NSURL *__nullable URL, NSString *param, NSString *__nullable value) {
     HippyAssertParam(param);
     if (!URL) {
         return nil;
     }
-    
-    NSURLComponents *components = [NSURLComponents componentsWithURL:URL
-                                             resolvingAgainstBaseURL:YES];
-    
+
+    NSURLComponents *components = [NSURLComponents componentsWithURL:URL resolvingAgainstBaseURL:YES];
+
     __block NSInteger paramIndex = NSNotFound;
     NSMutableArray<NSURLQueryItem *> *queryItems = [components.queryItems mutableCopy];
-    [queryItems enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:
-     ^(NSURLQueryItem *item, NSUInteger i, BOOL *stop) {
-         if ([item.name isEqualToString:param]) {
-             paramIndex = i;
-             *stop = YES;
-         }
-     }];
-    
+    [queryItems enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(NSURLQueryItem *item, NSUInteger i, BOOL *stop) {
+        if ([item.name isEqualToString:param]) {
+            paramIndex = i;
+            *stop = YES;
+        }
+    }];
+
     if (!value) {
         if (paramIndex != NSNotFound) {
             [queryItems removeObjectAtIndex:paramIndex];
         }
     } else {
-        NSURLQueryItem *newItem  = [NSURLQueryItem queryItemWithName:param
-                                                               value:value];
+        NSURLQueryItem *newItem = [NSURLQueryItem queryItemWithName:param value:value];
         if (paramIndex == NSNotFound) {
             [queryItems addObject:newItem];
         } else {

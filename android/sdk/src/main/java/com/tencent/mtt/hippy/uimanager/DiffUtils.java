@@ -17,19 +17,18 @@ package com.tencent.mtt.hippy.uimanager;
 
 import android.text.TextUtils;
 
+import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 
+import com.tencent.mtt.hippy.utils.LogUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-/**
- * @author: edsheng
- * @date: 2017/12/7 15:01
- * @version: V1.0
- */
+import static com.tencent.mtt.hippy.views.custom.HippyCustomPropsController.DT_EBLID;
+
 
 public class DiffUtils
 {
@@ -50,7 +49,7 @@ public class DiffUtils
 		}
 		catch (Throwable e)
 		{
-
+			LogUtils.d("DiffUtils", "diff: " + e.getMessage());
 		}
 
 		return patchTypes;
@@ -179,6 +178,10 @@ public class DiffUtils
 		Set<String> fromKeys = from.keySet();
 		for (String fromKey : fromKeys)
 		{
+			if (fromKey.equals(DT_EBLID)) {
+				continue;
+			}
+
 			Object fromValue = from.get(fromKey);
 			Object toValue = to.get(fromKey);
 			if (fromValue instanceof Boolean)
@@ -224,10 +227,10 @@ public class DiffUtils
 				if (toValue != null && (toValue instanceof HippyArray))
 				{
 					HippyArray diffResult = diffArray((HippyArray) fromValue, (HippyArray) toValue, diffLevel + 1);
-          //tintColor复用的时候必须要强制更新
-          if (fromKey.equals("tintColors") || fromKey.equals("tintColor")) {
-            diffResult = (HippyArray)toValue;
-          }
+					//tintColor复用的时候必须要强制更新
+					if (fromKey.equals("tintColors") || fromKey.equals("tintColor")) {
+						diffResult = (HippyArray)toValue;
+					}
 					//这里diffResult == null标识属性没有更新
 					if (diffResult != null /* && diffResult.size() > 0*/)
 					{
@@ -278,7 +281,7 @@ public class DiffUtils
 		for (String toKey : tos)
 		{
 
-			if (from.get(toKey) != null)
+			if (from.get(toKey) != null || toKey.equals(DT_EBLID))
 			{
 				continue;
 			}
@@ -563,12 +566,27 @@ public class DiffUtils
 
 	public static void doPatch(ControllerManager controllerManager, List<PatchType> patches)
 	{
+		HippyEngineContext hippyContext = controllerManager.mContext;
+
 		for (PatchType pt : patches)
 		{
 			if (pt.mType == Patch.TYPE_PROPS)
 			{
 				PropsPatch propsPatch = (PropsPatch) pt.mPatch;
-				controllerManager.updateView(propsPatch.mId, propsPatch.mClassName, propsPatch.mPropsToUpdate);
+				HippyMap propsToUpdate = propsPatch.mPropsToUpdate;
+				RenderNode node = hippyContext.getRenderManager().getRenderNode(propsPatch.mId);
+				if (node != null) {
+					HippyMap props = node.getProps();
+					if (node.mHasSetDteblId) {
+						if (propsToUpdate.containsKey(DT_EBLID)) {
+							propsToUpdate.remove(DT_EBLID);
+						}
+					} else if (props != null && props.containsKey(DT_EBLID)) {
+						propsToUpdate.pushString(DT_EBLID, props.getString(DT_EBLID));
+					}
+				}
+
+				controllerManager.updateView(propsPatch.mId, propsPatch.mClassName, propsToUpdate);
 			}
 			else if (pt.mType == Patch.TYPE_LAYOUT)
 			{

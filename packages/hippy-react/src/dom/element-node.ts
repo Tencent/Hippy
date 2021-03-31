@@ -20,6 +20,25 @@ interface Attributes {
   [key: string]: string | number | true;
 }
 
+interface NativePropsStyle {
+  [key: string]: string | object | number | Transform
+}
+
+interface PropertiesMap {
+  [propName: string]: string;
+}
+
+const PROPERTIES_MAP: PropertiesMap = {
+  textDecoration: 'textDecorationLine',
+  boxShadowOffset: 'shadowOffset',
+  boxShadowOffsetX: 'shadowOffsetX',
+  boxShadowOffsetY: 'shadowOffsetY',
+  boxShadowOpacity: 'shadowOpacity',
+  boxShadowRadius: 'shadowRadius',
+  boxShadowSpread: 'shadowSpread',
+  boxShadowColor: 'shadowColor',
+};
+
 class ElementNode extends ViewNode {
   tagName: string;
 
@@ -52,6 +71,113 @@ class ElementNode extends ViewNode {
     return this.attributes[key];
   }
 
+  setStyleAttribute(value: any) {
+    // Clean old styles
+    this.style = {};
+    let styleArray = value;
+
+    // Convert style to array if it's a array like object
+    // Forward compatibility workaround.
+    if (!Array.isArray(styleArray) && Object.hasOwnProperty.call(styleArray, 0)) {
+      const tempStyle: any[] = [];
+      const tempObjStyle: {
+        [key: string]: any;
+      } = {};
+      Object.keys(styleArray).forEach((styleKey) => {
+        // Workaround for the array and object mixed style.
+        if (isNumber(styleKey)) {
+          tempStyle.push(styleArray[styleKey]);
+        } else {
+          tempObjStyle[styleKey] = styleArray[styleKey];
+        }
+      });
+      styleArray = [...tempStyle, tempObjStyle];
+    }
+
+    // Convert style to array if style is a standalone object
+    if (!Array.isArray(styleArray)) {
+      styleArray = [styleArray];
+    }
+
+    // Merge the styles if style is array
+    let mergedStyles: Hippy.Style = {};
+    styleArray.forEach((style: Hippy.Style) => {
+      if (Array.isArray(style)) {
+        style.forEach((subStyle) => {
+          mergedStyles = {
+            ...mergedStyles,
+            ...subStyle,
+          };
+        });
+      } else if (typeof style === 'object' && style) {
+        // TODO: Merge transform
+        mergedStyles = {
+          ...mergedStyles,
+          ...style,
+        };
+      }
+    });
+
+    // Apply the styles
+    Object.keys(mergedStyles).forEach((styleKey) => {
+      const styleValue = (mergedStyles as any)[styleKey];
+      // Convert the property to W3C standard.
+      if (Object.prototype.hasOwnProperty.call(PROPERTIES_MAP, styleKey)) {
+        styleKey = PROPERTIES_MAP[styleKey];
+      }
+      if (styleKey === 'transform') {
+        const transforms = {};
+        if (!Array.isArray(styleValue)) {
+          throw new TypeError('transform only support array args');
+        }
+
+        // Merge the transform styles
+        styleValue.forEach((transformSet: any) => {
+          Object.keys(transformSet).forEach((transform) => {
+            const transformValue = (transformSet as any)[transform];
+            if (transformValue instanceof Animation
+                || transformValue instanceof AnimationSet) {
+              (transforms as any)[transform] = {
+                animationId: transformValue.animationId,
+              };
+            } else if (transformValue === null) {
+              if ((transforms as any)[transform]) {
+                delete (transforms as any)[transform];
+              }
+            } else if (transformValue !== undefined) {
+              (transforms as any)[transform] = transformValue;
+            }
+          });
+        });
+
+        // Save the transform styles.
+        const transformsKeys = Object.keys(transforms);
+        if (transformsKeys.length) {
+          if (!Array.isArray(this.style.transform)) {
+            this.style.transform = [];
+          }
+          transformsKeys.forEach(transform => (this.style.transform as any[]).push({
+            [transform]: (transforms as any)[transform],
+          }));
+        }
+      } else if (styleValue === null && (this.style as any)[styleKey] !== undefined) {
+        delete (this.style as any)[styleKey];
+        // Convert to animationId if value is instanceOf Animation/AnimationSet
+      } else if (styleValue instanceof Animation || styleValue instanceof AnimationSet) {
+        (this.style as any)[styleKey] = {
+          animationId: styleValue.animationId,
+        };
+        // Translate color
+      } else if (styleKey.toLowerCase().indexOf('colors') > -1) {
+        (this.style as any)[styleKey] = colorArrayParse((styleValue as Color[]));
+      } else if (styleKey.toLowerCase().indexOf('color') > -1) {
+        (this.style as any)[styleKey] = colorParse((styleValue as Color));
+      } else {
+        (this.style as any)[styleKey] = styleValue;
+      }
+    });
+  }
+
   /* istanbul ignore next */
   setAttribute(key: string, value: any) {
     try {
@@ -65,151 +191,79 @@ class ElementNode extends ViewNode {
         return;
       }
 
-      switch (key) {
-        case 'id':
-          if (value === this.id) {
-            return;
-          }
-          this.id = value;
-          // update current node and child nodes
-          updateWithChildren(this);
-          return;
-        // Convert placeholder to char for interface.
-        case 'value':
-        case 'defaultValue':
-        case 'placeholder':
-          this.attributes[key] = unicodeToChar(value);
-          break;
-        // Text must be a text not a number.
-        case 'text':
-          this.attributes[key] = value;
-          break;
-        // FIXME: UpdateNode numberOfRows will makes Image flicker on Android.
-        //        So make it working on iOS only.
-        case 'numberOfRows':
-          this.attributes[key] = value;
-          if (Device.platform.OS !== 'ios') {
-            return;
-          }
-          break;
-        // There's no onPress event handler in Native
-        // Map to onClick event handler directly
-        case 'onPress':
-          this.attributes.onClick = true;
-          break;
-        case 'style': {
-          if (typeof value !== 'object' || value === undefined || value === null) {
-            return;
-          }
-          // Clean old styles
-          this.style = {};
-          let styleArray = value;
-
-          // Convert style to array if it's a array like object
-          // Forward compatibility workaround.
-          if (!Array.isArray(styleArray) && Object.hasOwnProperty.call(styleArray, 0)) {
-            const tempStyle: any[] = [];
-            const tempObjStyle: {
-              [key: string]: any;
-            } = {};
-            Object.keys(styleArray).forEach((styleKey) => {
-              // Workaround for the array and object mixed style.
-              if (isNumber(styleKey)) {
-                tempStyle.push(styleArray[styleKey]);
-              } else {
-                tempObjStyle[styleKey] = styleArray[styleKey];
-              }
-            });
-            styleArray = [...tempStyle, tempObjStyle];
-          }
-
-          // Convert style to array if style is a standalone object
-          if (!Array.isArray(styleArray)) {
-            styleArray = [styleArray];
-          }
-
-          // Merge the styles if style is array
-          let mergedStyles: Hippy.Style = {};
-          styleArray.forEach((style: Hippy.Style) => {
-            if (Array.isArray(style)) {
-              style.forEach((subStyle) => {
-                mergedStyles = {
-                  ...mergedStyles,
-                  ...subStyle,
-                };
-              });
-            } else if (typeof style === 'object' && style) {
-              // TODO: Merge transform
-              mergedStyles = {
-                ...mergedStyles,
-                ...style,
-              };
+      const caseList = [
+        {
+          match: () => ['id'].indexOf(key) >= 0,
+          action: () => {
+            if (value === this.id) {
+              return true;
             }
-          });
-
-          // Apply the styles
-          Object.keys(mergedStyles).forEach((styleKey) => {
-            const styleValue = (mergedStyles as any)[styleKey];
-            if (styleKey === 'transform') {
-              const transforms = {};
-              if (!Array.isArray(styleValue)) {
-                throw new TypeError('transform only support array args');
-              }
-
-              // Merge the transform styles
-              styleValue.forEach((transformSet: any) => {
-                Object.keys(transformSet).forEach((transform) => {
-                  const transformValue = (transformSet as any)[transform];
-                  if (transformValue instanceof Animation
-                    || transformValue instanceof AnimationSet) {
-                    (transforms as any)[transform] = {
-                      animationId: transformValue.animationId,
-                    };
-                  } else if (transformValue === null) {
-                    if ((transforms as any)[transform]) {
-                      delete (transforms as any)[transform];
-                    }
-                  } else if (transformValue !== undefined) {
-                    (transforms as any)[transform] = transformValue;
-                  }
-                });
-              });
-
-              // Save the transform styles.
-              const transformsKeys = Object.keys(transforms);
-              if (transformsKeys.length) {
-                if (!Array.isArray(this.style.transform)) {
-                  this.style.transform = [];
-                }
-                transformsKeys.forEach(transform => (this.style.transform as any[]).push({
-                  [transform]: (transforms as any)[transform],
-                }));
-              }
-            } else if (styleValue === null && (this.style as any)[styleKey] !== undefined) {
-              delete (this.style as any)[styleKey];
-            // Convert to animationId if value is instanceOf Animation/AnimationSet
-            } else if (styleValue instanceof Animation || styleValue instanceof AnimationSet) {
-              (this.style as any)[styleKey] = {
-                animationId: styleValue.animationId,
-              };
-            // Translate color
-            } else if (styleKey.toLowerCase().indexOf('colors') > -1) {
-              (this.style as any)[styleKey] = colorArrayParse((styleValue as Color[]));
-            } else if (styleKey.toLowerCase().indexOf('color') > -1) {
-              (this.style as any)[styleKey] = colorParse((styleValue as Color));
-            } else {
-              (this.style as any)[styleKey] = styleValue;
-            }
-          });
-          break;
-        }
-        default:
-          if (typeof value === 'function') {
-            this.attributes[key] = true;
-          } else {
+            this.id = value;
+            // update current node and child nodes
+            updateWithChildren(this);
+            return true;
+          },
+        },
+        {
+          match: () => ['value', 'defaultValue', 'placeholder'].indexOf(key) >= 0,
+          action: () => {
+            this.attributes[key] = unicodeToChar(value);
+            return false;
+          },
+        },
+        {
+          match: () => ['text'].indexOf(key) >= 0,
+          action: () => {
             this.attributes[key] = value;
-          }
-      }
+            return false;
+          },
+        },
+        {
+          match: () => ['numberOfRows'].indexOf(key) >= 0,
+          action: () => {
+            this.attributes[key] = value;
+            return Device.platform.OS !== 'ios';
+          },
+        },
+        {
+          match: () => ['onPress'].indexOf(key) >= 0,
+          action: () => {
+            this.attributes.onClick = true;
+            return false;
+          },
+        },
+        {
+          match: () => ['style'].indexOf(key) >= 0,
+          action: () => {
+            if (typeof value !== 'object' || value === undefined || value === null) {
+              return true;
+            }
+            this.setStyleAttribute(value);
+            return false;
+          },
+        },
+        {
+          match: () => true,
+          action: () => {
+            if (typeof value === 'function') {
+              this.attributes[key] = true;
+            } else {
+              this.attributes[key] = value;
+            }
+            return false;
+          },
+        },
+      ];
+
+      let isNeedReturn = false;
+      caseList.some((conditionObj: { match: Function, action: Function }) => {
+        if (conditionObj.match()) {
+          isNeedReturn = conditionObj.action();
+          return true;
+        }
+        return false;
+      });
+      if (isNeedReturn) return;
 
       // Set useAnimation if animation exist in style
       let useAnimation = false;
@@ -255,27 +309,50 @@ class ElementNode extends ViewNode {
   }
 
   /* istanbul ignore next */
-  setStyle(property: string, value: string | number |Transform) {
+  setStyle(property: string, value: string | number | Transform, isBatchUpdate: boolean = false) {
     if (value === null) {
       delete (this.style as any)[property];
       return;
     }
     let v = value;
+    let p = property;
+    // Convert the property to W3C standard.
+    if (Object.prototype.hasOwnProperty.call(PROPERTIES_MAP, property)) {
+      p = PROPERTIES_MAP[property];
+    }
     if (typeof v === 'string') {
       v = (value as string).trim();
-      if (property.toLowerCase().indexOf('colors') > -1) {
+      if (p.toLowerCase().indexOf('colors') > -1) {
         (v as any) = colorArrayParse(v as any);
-      } else if (property.toLowerCase().indexOf('color') > -1) {
+      } else if (p.toLowerCase().indexOf('color') > -1) {
         v = colorParse(v);
       } else {
         v = tryConvertNumber(v);
       }
     }
-    if (v === undefined || v === null || (this.style as any)[property] === v) {
+    if (v === undefined || v === null || (this.style as any)[p] === v) {
       return;
     }
-    (this.style as any)[property] = v;
-    updateChild(this);
+    (this.style as any)[p] = v;
+    if (!isBatchUpdate) {
+      updateChild(this);
+    }
+  }
+
+  /**
+   * set native style props
+   */
+  setNativeProps(nativeProps: NativePropsStyle) {
+    if (nativeProps) {
+      const { style } = nativeProps;
+      if (style) {
+        const styleProps = (style as NativePropsStyle);
+        Object.keys(styleProps).forEach((key) => {
+          this.setStyle(key, styleProps[key], true);
+        });
+        updateChild(this);
+      }
+    }
   }
 
   setText(text: string) {
@@ -291,7 +368,7 @@ class ElementNode extends ViewNode {
       return null;
     }
     text = unicodeToChar(text);
-    text = text.replace(/&nbsp;/g, ' ').replace(/Â/g, ' ');  // FIXME: Â is a template compiler error.
+    text = text.replace(/&nbsp;/g, ' ').replace(/Â/g, ' '); // FIXME: Â is a template compiler error.
     // Hacking for textarea, use value props to instance text props
     if (this.tagName === 'textarea') {
       return this.setAttribute('value', text);

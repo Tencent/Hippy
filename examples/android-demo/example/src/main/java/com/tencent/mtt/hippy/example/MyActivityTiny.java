@@ -9,6 +9,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.tencent.mtt.hippy.HippyEngine;
+import com.tencent.mtt.hippy.HippyEngine.EngineInitStatus;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.adapter.image.HippyDrawable;
 import com.tencent.mtt.hippy.adapter.image.HippyImageLoader;
@@ -49,7 +50,7 @@ public class MyActivityTiny extends Activity
 				@Override
 				public void fetchImage(final String url, final Callback requestCallback, Object param)
 				{
-					Glide.with(ContextHolder.getAppContext()).load(url).asBitmap().into(new SimpleTarget() {
+					Glide.with(MyActivityTiny.this).load(url).asBitmap().into(new SimpleTarget() {
 						@Override
 						public void onResourceReady(Object object, GlideAnimation glideAnimation) {
 							HippyDrawable hippyTarget = new HippyDrawable();
@@ -74,8 +75,8 @@ public class MyActivityTiny extends Activity
 				 * @param  msg Message from initializing procedure
 				 */
 				@Override
-				public void onInitialized(int statusCode, String msg) {
-					if (statusCode != 0)
+				public void onInitialized(EngineInitStatus statusCode, String msg) {
+					if (statusCode != EngineInitStatus.STATUS_OK)
 						LogUtils.e("MyActivity", "hippy engine init failed code:" + statusCode + ", msg=" + msg);
 					// else
 					{

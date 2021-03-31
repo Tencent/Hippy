@@ -46,13 +46,13 @@ public class BackgroundDrawable extends BaseDrawable
 	private DashPathEffect mDashPathEffect = null;
 	private DashPathEffect mDotPathEffect = new DashPathEffect(new float[] { 2, 2}, 0);
 	private Path	mPathWithBorder;
-	private Paint	mPaint;
+	private final Paint	mPaint;
 	private int		mBackgroundColor;
 	private RectF	mTempRectForBorderRadius;
 	private Path	mPathForBorderRadius;
 	private boolean	mNeedUpdateBorderPath	= false;
 
-	private Paint mShadowPaint;
+	private final Paint mShadowPaint;
 	protected float mShadowOpacity = 0.8f;
 	protected int mShadowColor = Color.GRAY;
 	protected RectF mShadowRect;
@@ -193,12 +193,21 @@ public class BackgroundDrawable extends BaseDrawable
 
 	  int opacity = (mShadowOpacity >= 1) ? 255 : Math.round(255 * mShadowOpacity);
 
+	  float borderRadius = 0.0f;
+	  if (mBorderRadiusArray != null && mBorderRadiusArray.length > 0) {
+		  for (int i = 0; i < mBorderRadiusArray.length; i++) {
+			  if (mBorderRadiusArray[i] > borderRadius) {
+				  borderRadius = mBorderRadiusArray[i];
+			  }
+		  }
+	  }
+
 	  mShadowPaint.setColor(Color.TRANSPARENT);
 	  mShadowPaint.setAntiAlias(true);
 	  mShadowPaint.setAlpha(opacity);
 	  mShadowPaint.setShadowLayer(mShadowRadius, mShadowOffsetX, mShadowOffsetY, mShadowColor);
 	  mShadowPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_ATOP));
-	  canvas.drawRect(mShadowRect, mShadowPaint);
+	  canvas.drawRoundRect(mShadowRect, borderRadius, borderRadius, mShadowPaint);
   }
 	
 	private void drawBGWithRadius(Canvas canvas)

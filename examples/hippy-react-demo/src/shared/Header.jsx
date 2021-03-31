@@ -9,7 +9,7 @@ import HippyReact, {
 } from '@hippy/react';
 
 
-import BACK_ICON from './back-icon.png';
+import BACK_ICON from '!!url-loader?modules!./back-icon.png';
 
 const SKIN_COLOR = {
   mainLight: '#4c9afa',
@@ -47,7 +47,7 @@ const Header = ({ history, route }) => {
   if (history.index === 0) {
     return (
       <View style={[styles.container]}>
-        <View style={{ backgroundColor: styles.title.backgroundColor, marginLeft: 12  }}>
+        <View style={{ backgroundColor: styles.title.backgroundColor, marginLeft: 12 }}>
           <Text numberOfLines={1} style={[styles.title, { fontWeight: 'bold' }]}>
             {route.name}
           </Text>

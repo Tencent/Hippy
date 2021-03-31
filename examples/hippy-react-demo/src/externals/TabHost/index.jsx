@@ -126,13 +126,15 @@ export default class TabHostExample extends React.Component {
           style={navStyles.scroll}
           horizontal
           showsHorizontalScrollIndicator={false}
-          ref={(sv) => { this.navScrollView = sv; }}
+          ref={(sv) => {
+            this.navScrollView = sv;
+          }}
         >
           {
             navList.map((v, idx) => (
               <View
                 style={navStyles.navItem}
-                key={`nav_${v.id}_${v.idx}`}
+                key={`nav_${v}`}
                 activeOpacity={0.5}
                 onClick={() => this.pressNavItem(idx)}
               >

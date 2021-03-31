@@ -36,14 +36,14 @@
 
 @interface HippyUITextField : UITextField
 @property (nonatomic, assign) BOOL textWasPasted;
-@property (nonatomic, weak) id <HippyUITextFieldResponseDelegate> responderDelegate;
+@property (nonatomic, weak) id<HippyUITextFieldResponseDelegate> responderDelegate;
 
 @property (nonatomic, copy) HippyDirectEventBlock onBlur;
 @property (nonatomic, copy) HippyDirectEventBlock onFocus;
 @property (nonatomic, assign) BOOL editable;
 @end
 
-@interface HippyTextField : HippyBaseTextInput<UITextFieldDelegate>
+@interface HippyTextField : HippyBaseTextInput <UITextFieldDelegate>
 @property (nonatomic, copy) HippyDirectEventBlock onKeyPress;
 @property (nonatomic, assign) BOOL autoCorrect;
 //@property (nonatomic, assign) UIEdgeInsets contentInset;
@@ -58,7 +58,7 @@
 
 @property (nonatomic, copy) HippyDirectEventBlock onChangeText;
 
-//focus/blur
+// focus/blur
 - (void)focus;
 - (void)blur;
 - (void)keyboardWillShow:(NSNotification *)aNotification;
@@ -68,9 +68,9 @@
 @property (nonatomic, copy) HippyDirectEventBlock onEndEditing;
 @property (nonatomic, copy) HippyDirectEventBlock onKeyboardWillShow;
 
-@property (nonatomic, copy)   NSString* value;
-@property (nonatomic, strong) NSNumber* fontSize;
-@property (nonatomic, strong) NSString* defaultValue;
+@property (nonatomic, copy) NSString *value;
+@property (nonatomic, strong) NSNumber *fontSize;
+@property (nonatomic, strong) NSString *defaultValue;
 @property (nonatomic, copy) NSString *text;
 @property (nonatomic, strong) UIColor *textColor;
 - (void)clearText;

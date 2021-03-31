@@ -19,12 +19,6 @@ import com.tencent.mtt.hippy.HippyRootView;
 
 import java.util.List;
 
-/**
- * FileName: DefaultEngineMonitorAdapter
- * Description：
- * History：
- * 1.0 xiandongluo on 2018/1/23
- */
 public class DefaultEngineMonitorAdapter implements HippyEngineMonitorAdapter
 {
 
@@ -55,6 +49,21 @@ public class DefaultEngineMonitorAdapter implements HippyEngineMonitorAdapter
 	@Override
 	public void reportBridgeANR(String message)
 	{
+
+	}
+
+	@Override
+	public void reportDoCallNatives(String moduleName, String moduleFunc) {
+
+	}
+
+	@Override
+	public void reportGestureEventCallStack(String funcName, String msg) {
+
+	}
+
+	@Override
+	public void reportClickEvent(Object object, boolean isCustomEvent) {
 
 	}
 }

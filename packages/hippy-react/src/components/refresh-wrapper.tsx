@@ -14,6 +14,8 @@ interface RefreshWrapperItemViewProps {
 
 /**
  * Simply to implement the drag down to refresh feature.
+ *
+ * @deprecated
  * @noInheritDoc
  */
 class RefreshWrapper extends React.Component<RefreshWrapperProps, {}> {
@@ -55,7 +57,9 @@ class RefreshWrapper extends React.Component<RefreshWrapperProps, {}> {
   public render() {
     const { children, ...nativeProps } = this.props;
     return (
-      <div nativeName="RefreshWrapper" ref={(ref) => { this.instance = ref; }} {...nativeProps}>
+      <div nativeName="RefreshWrapper" ref={(ref) => {
+        this.instance = ref;
+      }} {...nativeProps}>
         <div nativeName="RefreshWrapperItemView" style={[{ left: 0, right: 0, position: 'absolute' }]}>
           { this.getRefresh() }
         </div>

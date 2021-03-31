@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.view.Window;
 
 import com.tencent.mtt.hippy.HippyEngine;
+import com.tencent.mtt.hippy.HippyEngine.EngineInitStatus;
+import com.tencent.mtt.hippy.HippyEngine.EngineListener;
 import com.tencent.mtt.hippy.HippyEngineManager;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.HippyRootViewParams;
@@ -67,11 +69,11 @@ public class MyActivityDeprecated extends Activity implements HippyEngine.Engine
 	@Override
 	public void onBackPressed() {
 		if (!mEngineManager.onBackPress(this))
-			super.onBackPressed();;
+			super.onBackPressed();
 	}
 
 	@Override
-	public void onInitialized(int statusCode, String msg)
+	public void onInitialized(EngineInitStatus statusCode, String msg)
 	{
 		HippyRootViewParams.Builder builder = new HippyRootViewParams.Builder();
 		HippyMap params = new HippyMap();

@@ -109,23 +109,13 @@ public class LayoutHelper
 		return maxWidth;
 	}
 
-	private boolean warmUpLayout(Layout layout)
-	{
-		boolean result;
-		try
-		{
+	private void warmUpLayout(Layout layout) {
+		try {
 			Canvas canvas = mPicture.beginRecording(getWidth(layout), getHeight(layout));
 			layout.draw(canvas);
 			mPicture.endRecording();
-			result = true;
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			LogUtils.e("TextNode", "warmUpTextLayoutCache error", e);
-			result = false;
 		}
-		return result;
 	}
-
-
 }

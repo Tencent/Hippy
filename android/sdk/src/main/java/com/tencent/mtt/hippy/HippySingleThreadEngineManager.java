@@ -15,60 +15,60 @@
  */
 package com.tencent.mtt.hippy;
 
+import android.os.Handler;
+import android.os.Looper;
 import com.tencent.mtt.hippy.bridge.HippyBridgeManagerImpl;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
+import com.tencent.mtt.hippy.common.Callback;
 import com.tencent.mtt.hippy.common.ThreadExecutor;
+import com.tencent.mtt.hippy.common.ThreadExecutorManager;
+import com.tencent.mtt.hippy.utils.LogUtils;
 
-/**
- * FileName: HippyNormalEngineManager
- * Description：
- */
 public class HippySingleThreadEngineManager extends HippyEngineManagerImpl
 {
+	private Object mLock = new Object();
+	private ThreadExecutor mThreadExecutor = null;
+	private boolean mIsDestroyed = false;
 
-	private static volatile int				sEngineNum		= 0;
-	private static Object					sLock			= new Object();
-	private static volatile ThreadExecutor	sThreadExecutor	= null;
-
-	HippySingleThreadEngineManager(EngineInitParams params, HippyBundleLoader preloadBundleLoader)
-	{
+	HippySingleThreadEngineManager(EngineInitParams params, HippyBundleLoader preloadBundleLoader) {
 		super(params, preloadBundleLoader);
-		synchronized (sLock)
-		{
-			++sEngineNum;
-		}
+		ThreadExecutorManager.getInstance().add(this);
 	}
 
 	@Override
-	public void destroyEngine()
-	{
+	public void destroyEngine() {
 		super.destroyEngine();
-		synchronized (sLock)
-		{
-			--sEngineNum;
-			if (sEngineNum == 0)
-			{
-				if (sThreadExecutor != null)
-				{
-					sThreadExecutor.destroy();
-					sThreadExecutor = null;
-				}
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		ThreadExecutorManager.getInstance().remove(this);
+		synchronized (mLock) {
+			mIsDestroyed = true;
+			if (mThreadExecutor != null) {
+				mThreadExecutor.destroy();
+				mThreadExecutor = null;
 			}
 		}
 	}
 
 	@Override
-	public ThreadExecutor getThreadExecutor()
-	{
-		synchronized (sLock)
-		{
+	public ThreadExecutor getThreadExecutor() {
+		ThreadExecutor threadExecutor = ThreadExecutorManager.getInstance().getThreadExecutor(mGroupId);
+		if (threadExecutor == null) {
+			synchronized (mLock) {
+				LogUtils.e("Hippy", "SingleThreadEngineManager group threadExecutor == null, isDestroyed=" + mIsDestroyed);
+				if (mThreadExecutor == null) {
+					mThreadExecutor = new ThreadExecutor(-1);
+					mThreadExecutor.setUncaughtExceptionHandler(this);
+				}
 
-			if (sThreadExecutor == null)
-			{
-				sThreadExecutor = new ThreadExecutor();
+				return mThreadExecutor;
 			}
-			return sThreadExecutor;
 		}
+
+		return threadExecutor;
 	}
 
 	@Override
@@ -78,17 +78,13 @@ public class HippySingleThreadEngineManager extends HippyEngineManagerImpl
 	}
 
 	@Override
-	public void handleThreadUncaughtException(Thread t, Throwable e)
-	{
-		super.handleThreadUncaughtException(t, e);
-		if (mDebugMode && mDevSupportManager != null)
-		{
-			synchronized (sLock)
-			{
-				if (sThreadExecutor != null)
-				{
-					sThreadExecutor.destroy();
-					sThreadExecutor = null;
+	public void handleThreadUncaughtException(Thread t, Throwable e, Integer groupId) {
+		super.handleThreadUncaughtException(t, e, groupId);
+		if (mDebugMode && mDevSupportManager != null) {
+			synchronized (mLock) {
+				if (mThreadExecutor != null) {
+					mThreadExecutor.destroy();
+					mThreadExecutor = null;
 				}
 			}
 		}
