@@ -106,16 +106,21 @@
     return object.parent;
 }
 
-HippyEventMethod(OnClick, onClick, HippyDirectEventBlock) HippyEventMethod(OnPressIn, onPressIn, HippyDirectEventBlock)
-        HippyEventMethod(OnPressOut, onPressOut, HippyDirectEventBlock) HippyEventMethod(OnLongClick, onLongClick, HippyDirectEventBlock)
-
-            HippyEventMethod(OnTouchDown, onTouchDown, HippyDirectEventBlock) HippyEventMethod(OnTouchMove, onTouchMove, HippyDirectEventBlock)
-                HippyEventMethod(OnTouchCancel, onTouchCancel, HippyDirectEventBlock) HippyEventMethod(OnTouchEnd, onTouchEnd, HippyDirectEventBlock)
-                    HippyEventMethod(OnAttachedToWindow, onAttachedToWindow, HippyDirectEventBlock)
-                        HippyEventMethod(OnDetachedFromWindow, onDetachedFromWindow, HippyDirectEventBlock)
+// clang-format off
+HippyEventMethod(OnClick, onClick, HippyDirectEventBlock)
+HippyEventMethod(OnPressIn, onPressIn, HippyDirectEventBlock)
+HippyEventMethod(OnPressOut, onPressOut, HippyDirectEventBlock)
+HippyEventMethod(OnLongClick, onLongClick, HippyDirectEventBlock)
+HippyEventMethod(OnTouchDown, onTouchDown, HippyDirectEventBlock)
+HippyEventMethod(OnTouchMove, onTouchMove, HippyDirectEventBlock)
+HippyEventMethod(OnTouchCancel, onTouchCancel, HippyDirectEventBlock)
+HippyEventMethod(OnTouchEnd, onTouchEnd, HippyDirectEventBlock)
+HippyEventMethod(OnAttachedToWindow, onAttachedToWindow, HippyDirectEventBlock)
+HippyEventMethod(OnDetachedFromWindow, onDetachedFromWindow, HippyDirectEventBlock)
+// clang-format on
 #if HIPPY_DEV
 
-    - (HippyShadowView *)_DEBUG_hippyShadowView {
+- (HippyShadowView *)_DEBUG_hippyShadowView {
     return objc_getAssociatedObject(self, _cmd);
 }
 
