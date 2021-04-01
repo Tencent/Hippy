@@ -247,6 +247,19 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : unused)
     }
 }
 
+- (BOOL)pointInside:(CGPoint)point withEvent:(UIEvent *)event {
+    //require clickable when animating.
+    //we check presentationLayer frame.
+    //point inside presentationLayer means point inside view
+    if ([[self.layer animationKeys] count] > 0) {
+        CGRect presentationLayerFrame = self.layer.presentationLayer.frame;
+        CGRect convertPresentationLayerFrame = [self.superview convertRect:presentationLayerFrame toView:self];
+        return CGRectContainsPoint(convertPresentationLayerFrame, point);
+    }
+    BOOL pointInside = [super pointInside:point withEvent:event];
+    return pointInside;
+}
+
 - (NSString *)description {
     NSString *superDescription = super.description;
     NSRange semicolonRange = [superDescription rangeOfString:@";"];
