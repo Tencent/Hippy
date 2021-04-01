@@ -25,6 +25,10 @@
 
 @protocol HippyImageViewCustomLoader <HippyBridgeModule>
 
+@optional
+
+- (BOOL)canHandleImageURL:(NSURL *)url;
+
 @required
 
 - (void)imageView:(HippyImageView *)imageView

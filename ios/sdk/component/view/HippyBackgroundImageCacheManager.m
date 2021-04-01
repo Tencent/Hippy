@@ -32,6 +32,18 @@
 
 @implementation HippyBackgroundImageCacheManager
 
+- (BOOL)canHandleImageURL:(NSString *)URLString {
+    id<HippyImageViewCustomLoader> imageLoader = self.bridge.imageLoader;
+    if (imageLoader && [imageLoader respondsToSelector:@selector(canHandleImageURL:)]) {
+        return [imageLoader canHandleImageURL:HippyURLWithString(URLString, nil)];
+    } else {
+        if ([URLString hasPrefix:@"http://"] || [URLString hasPrefix:@"https://"] || [URLString hasPrefix:@"data:image/"]) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
 - (void)imageWithUrl:(NSString *)uri completionHandler:(HippyBackgroundImageCompletionHandler)completionHandler {
     if (!completionHandler) {
         return;
@@ -58,6 +70,9 @@
             [self loadHTTPURL:imageURL completionHandler:completionHandler];
         } else if ([uri hasPrefix:@"data:image/"]) {
             [self loadBase64URL:imageURL completionHandler:completionHandler];
+        }
+        else {
+            completionHandler(nil, nil);
         }
     }
 }

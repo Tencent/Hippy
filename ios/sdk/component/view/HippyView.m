@@ -411,6 +411,13 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : unused)
     [self.layer setNeedsDisplay];
 }
 
+- (void)setBackgroundImageUrl:(NSString *)backgroundImageUrl {
+    if (![_backgroundImageUrl isEqualToString:backgroundImageUrl]) {
+        _backgroundImageUrl = [backgroundImageUrl copy];
+        [self.layer setNeedsDisplay];
+    }
+}
+
 - (UIEdgeInsets)bordersAsInsets {
     const CGFloat borderWidth = MAX(0, _borderWidth);
 
@@ -531,7 +538,8 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
     // solve this, we'll need to add a container view inside the main view to
     // correctly clip the subviews.
 
-    if (useIOSBorderRendering && !_backgroundImageUrl) {
+    BOOL canHandleBackgroundImageURL = [[self backgroundCachemanager] canHandleImageURL:_backgroundImageUrl];
+    if (useIOSBorderRendering && !canHandleBackgroundImageURL) {
         layer.cornerRadius = cornerRadii.topLeft;
         layer.borderColor = borderColors.left;
         layer.borderWidth = borderInsets.left;
@@ -600,6 +608,9 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
                 if (error) {
                     HippyLogError(@"weakBackgroundCacheManagerLog %@", error);
                     return;
+                }
+                if (!decodedImage) {
+                    setImageBlock(nil);
                 }
 
                 UIGraphicsBeginImageContextWithOptions(theFrame.size, NO, image.scale);
