@@ -24,7 +24,6 @@
   <ItemGroup>
     <ClCompile Include="src\inspector\v8_channel_impl.cc" />
     <ClCompile Include="src\inspector\v8_inspector_client_impl.cc" />
-    <ClCompile Include="src\jni\com_tencent_mtt_hippy_bridge_HippyBridgeImpl.cc" />
     <ClCompile Include="src\jni\exception_handler.cc" />
     <ClCompile Include="src\jni\hippy_buffer.cc" />
     <ClCompile Include="src\jni\jni_env.cc" />
@@ -41,7 +40,6 @@
     <ClInclude Include="include\hippy.h" />
     <ClInclude Include="include\inspector\v8_channel_impl.h" />
     <ClInclude Include="include\inspector\v8_inspector_client_impl.h" />
-    <ClInclude Include="include\jni\com_tencent_mtt_hippy_bridge_HippyBridgeImpl.h" />
     <ClInclude Include="include\jni\exception_handler.h" />
     <ClInclude Include="include\jni\hippy_buffer.h" />
     <ClInclude Include="include\jni\jni_env.h" />
