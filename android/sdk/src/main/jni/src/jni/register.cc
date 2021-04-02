@@ -20,7 +20,7 @@
  *
  */
 
-#include "jni/com_tencent_mtt_hippy_bridge_HippyBridgeImpl.h"
+#include "jni/register.h"
 
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
@@ -93,7 +93,6 @@ void CallJavaMethod(jobject obj, jlong value) {
   }
   HIPPY_DLOG(hippy::Debug, "CallJavaMethod end");
 }
-}  // namespace
 
 bool RunScript(std::shared_ptr<Runtime> runtime,
                const std::string& file_name,
@@ -246,7 +245,7 @@ void HandleUncaughtJsError(v8::Local<v8::Message> message,
 }
 
 // Js to Native
-static void CallNative(void* data) {
+void CallNative(void* data) {
   HIPPY_DLOG(hippy::Debug, "CallNative");
   hippy::napi::CBDataTuple* tuple =
       reinterpret_cast<hippy::napi::CBDataTuple*>(data);
@@ -365,16 +364,14 @@ static void CallNative(void* data) {
   hippy_buffer = nullptr;
 }
 
-JNIEXPORT jlong JNICALL
-Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_initJSFramework(
-    JNIEnv* j_env,
-    jobject j_object,
-    jbyteArray j_global_config,
-    jboolean j_single_thread_mode,
-    jboolean j_bridge_param_json,
-    jboolean j_is_dev_module,
-    jobject j_callback,
-    jlong j_group_id) {
+jlong InitJSFramework(JNIEnv* j_env,
+                      jobject j_object,
+                      jbyteArray j_global_config,
+                      jboolean j_single_thread_mode,
+                      jboolean j_bridge_param_json,
+                      jboolean j_is_dev_module,
+                      jobject j_callback,
+                      jlong j_group_id) {
   HIPPY_DLOG(
       hippy::Debug,
       "HippyBridgeImpl_initJSFramework begin, j_single_thread_mode = %d, "
@@ -498,16 +495,14 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_initJSFramework(
   return runtime_id;
 }
 
-JNIEXPORT jboolean JNICALL
-Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromUri(
-    JNIEnv* j_env,
-    jobject j_obj,
-    jstring j_uri,
-    jobject j_aasset_manager,
-    jboolean j_can_use_code_cache,
-    jstring j_code_cache_dir,
-    jlong j_runtime_id,
-    jobject j_cb) {
+jboolean RunScriptFromUri(JNIEnv* j_env,
+                          jobject j_obj,
+                          jstring j_uri,
+                          jobject j_aasset_manager,
+                          jboolean j_can_use_code_cache,
+                          jstring j_code_cache_dir,
+                          jlong j_runtime_id,
+                          jobject j_cb) {
   HIPPY_DLOG(hippy::Debug, "runScriptFromUri begin, j_runtime_id = %lld",
              j_runtime_id);
   std::shared_ptr<Runtime> runtime = Runtime::Find(j_runtime_id);
@@ -582,42 +577,14 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromUri(
   return true;
 }
 
-JNIEXPORT jboolean JNICALL
-Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromFile(
-    JNIEnv* j_env,
-    jobject j_obj,
-    jstring j_file_path,
-    jstring j_script_name,
-    jboolean j_can_use_code_cache,
-    jstring j_code_cache_dir,
-    jlong j_runtime_id,
-    jobject j_callback) {
-  return false;
-}
-
-JNIEXPORT jboolean JNICALL
-Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromAssets(
-    JNIEnv* j_env,
-    jobject j_obj,
-    jstring j_asset_name,
-    jobject j_asset_manager,
-    jboolean j_can_use_code_cache,
-    jstring j_code_cache_dir,
-    jlong j_runtime_id,
-    jobject j_callback) {
-  return false;
-}
-
-JNIEXPORT void JNICALL
-Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_callFunction(
-    JNIEnv* j_env,
-    jobject j_obj,
-    jstring j_action,
-    jbyteArray j_params,
-    jint j_offset,
-    jint j_length,
-    jlong j_runtime_id,
-    jobject j_callback) {
+void CallFunction(JNIEnv* j_env,
+                  jobject j_obj,
+                  jstring j_action,
+                  jbyteArray j_params,
+                  jint j_offset,
+                  jint j_length,
+                  jlong j_runtime_id,
+                  jobject j_callback) {
   HIPPY_DLOG(hippy::Debug, "HippyBridgeImpl callFunction j_runtime_id = %lld",
              j_runtime_id);
   std::shared_ptr<Runtime> runtime = Runtime::Find(j_runtime_id);
@@ -684,31 +651,11 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_callFunction(
   runner->PostTask(task);
 }
 
-JNIEXPORT void JNICALL
-Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runNativeRunnable(
-    JNIEnv* j_env,
-    jobject j_obj,
-    jstring j_code_cache_path,
-    jlong j_runnableId,
-    jlong j_runtime_id,
-    jobject j_callback) {
-  HIPPY_DLOG(hippy::Debug, "runNativeRunnable start");
-}
-
-JNIEXPORT jstring JNICALL
-Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_getCrashMessage(
-    JNIEnv* j_env,
-    jobject j_obj) {
-  return j_env->NewStringUTF("crash report");
-}
-
-JNIEXPORT void JNICALL
-Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_onResourceReady(
-    JNIEnv* j_env,
-    jobject j_object,
-    jobject j_byte_buffer,
-    jlong j_runtime_id,
-    jlong j_request_id) {
+void OnResourceReady(JNIEnv* j_env,
+                     jobject j_object,
+                     jobject j_byte_buffer,
+                     jlong j_runtime_id,
+                     jlong j_request_id) {
   HIPPY_DLOG(hippy::Debug,
              "HippyBridgeImpl onResourceReady j_runtime_id = %lld",
              j_runtime_id);
@@ -756,13 +703,11 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_onResourceReady(
   cb(std::move(str));
 }
 
-JNIEXPORT void JNICALL
-Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_destroy(
-    JNIEnv* j_env,
-    jobject j_object,
-    jlong j_runtime_id,
-    jboolean j_single_thread_mode,
-    jobject j_callback) {
+void Destroy(JNIEnv* j_env,
+             jobject j_object,
+             jlong j_runtime_id,
+             jboolean j_single_thread_mode,
+             jobject j_callback) {
   HIPPY_DLOG(hippy::Debug, "destroy begin, j_runtime_id = %lld", j_runtime_id);
   int64_t runtime_id = j_runtime_id;
   std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
@@ -818,13 +763,73 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_destroy(
   HIPPY_DLOG(hippy::Debug, "destroy end");
 }
 
-JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
+const JNINativeMethod methods[] = {
+    JNI_NATIVE_METHOD("initJSFramework",
+                      "([BZZZLcom/tencent/mtt/hippy/bridge/NativeCallback;J)J",
+                      &InitJSFramework),
+    JNI_NATIVE_METHOD(
+        "runScriptFromUri",
+        "(Ljava/lang/String;Landroid/content/res/AssetManager;ZLjava/lang/"
+        "String;JLcom/tencent/mtt/hippy/bridge/NativeCallback;)Z",
+        &RunScriptFromUri),
+    JNI_NATIVE_METHOD("callFunction",
+                      "(Ljava/lang/String;[BIIJLcom/tencent/mtt/hippy/bridge/"
+                      "NativeCallback;)V",
+                      &CallFunction),
+    JNI_NATIVE_METHOD("onResourceReady",
+                      "(Ljava/nio/ByteBuffer;JJ)V",
+                      &OnResourceReady),
+    JNI_NATIVE_METHOD("destroy",
+                      "(JZLcom/tencent/mtt/hippy/bridge/NativeCallback;)V",
+                      &Destroy),
+};
+
+const int32_t JNI_METHODS_COUNT = sizeof(methods) / sizeof(*methods);
+
+bool RegisterMethods(JNIEnv* j_env, jclass j_class) {
+  if (!j_class) {
+    HIPPY_LOG(hippy::Error, "NativeAccess class not found");
+    return false;
+  }
+
+  for (int i = 0; i < JNI_METHODS_COUNT; i++) {
+    JNINativeMethod method = methods[i];
+    jmethodID id = j_env->GetMethodID(j_class, method.name, method.signature);
+    if (!id) {
+      if (j_env->ExceptionCheck()) {
+        j_env->ExceptionDescribe();
+      }
+      HIPPY_LOG(hippy::Error, "Cannot find method %s%s of NativeAccess",
+                method.name, method.signature);
+      return false;
+    }
+  }
+
+  j_env->RegisterNatives(j_class, methods, JNI_METHODS_COUNT);
+
+  return true;
+}
+
+}  // namespace
+
+jint JNI_OnLoad(JavaVM* vm, void* reserved) {
   JNIEnv* env;
   jint onLoad_err = -1;
   if ((vm)->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_4) != JNI_OK) {
     return onLoad_err;
   }
-  if (env == nullptr) {
+  if (!env) {
+    return onLoad_err;
+  }
+
+  jclass clazz;
+  clazz = env->FindClass("com/tencent/mtt/hippy/bridge/HippyBridgeImpl");
+  if (!clazz) {
+    return onLoad_err;
+  }
+
+  bool ret = RegisterMethods(env, clazz);
+  if (!ret) {
     return onLoad_err;
   }
 
