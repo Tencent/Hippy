@@ -69,7 +69,6 @@ public class HippyFileBundleLoader implements HippyBundleLoader
 
 		String uri = (!mFilePath.startsWith(URI_SCHEME_FILE)) ? (URI_SCHEME_FILE + mFilePath) : mFilePath;
 		return bridge.runScriptFromUri(uri, null, mCanUseCodeCache, mCodeCacheTag, callback);
-		//return bridge.runScriptFromFile(mFilePath, mFilePath,mCanUseCodeCache,mCodeCacheTag, callback);
 	}
 
 	@Override
