@@ -64,17 +64,9 @@ android {
     buildConfigField("boolean", "INCLUDE_VIDEO_COMPONENT", INCLUDE_VIDEO_COMPONENT)
 
     packagingOptions {
-      pickFirst 'lib/armeabi-v7a/libmtt_shared.so'
-      pickFirst 'lib/armeabi-v7a/libmttv8.so'
       pickFirst 'lib/armeabi-v7a/libhippybridge.so'
-      pickFirst 'lib/arm64-v8a/libmtt_shared.so'
-      pickFirst 'lib/arm64-v8a/libmttv8.so'
       pickFirst 'lib/arm64-v8a/libhippybridge.so'
-      pickFirst 'lib/x86/libmtt_shared.so'
-      pickFirst 'lib/x86/libmttv8.so'
       pickFirst 'lib/x86/libhippybridge.so'
-      pickFirst 'lib/x86_64/libmtt_shared.so'
-      pickFirst 'lib/x86_64/libmttv8.so'
       pickFirst 'lib/x86_64/libhippybridge.so'
     }
   }
@@ -156,41 +148,6 @@ dependencies {
   }
 }
 
-task copyJNILibs() {
-  if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() || INCLUDE_ABI_ARMEABI.toBoolean()) {
-    copy {
-      from "$THIRD_PARTY_LIBRARY_PATH/$V8_VERSION/v8/armeabi-v7a/libmtt_shared.so",
-              "$THIRD_PARTY_LIBRARY_PATH/$V8_VERSION/v8/armeabi-v7a/libmttv8.so",
-              "$THIRD_PARTY_LIBRARY_PATH/layout/armeabi-v7a/libflexbox.so"
-      into "$JNI_LIBRARY_PATH/armeabi-v7a/"
-    }
-  }
-  if (INCLUDE_ABI_ARM64_V8A.toBoolean()) {
-    copy {
-      from "$THIRD_PARTY_LIBRARY_PATH/$V8_VERSION/v8/arm64-v8a/libmtt_shared.so",
-              "$THIRD_PARTY_LIBRARY_PATH/$V8_VERSION/v8/arm64-v8a/libmttv8.so",
-              "$THIRD_PARTY_LIBRARY_PATH/layout/arm64-v8a/libflexbox.so"
-      into "$JNI_LIBRARY_PATH/arm64-v8a/"
-    }
-  }
-  if (INCLUDE_ABI_X86.toBoolean()) {
-    copy {
-      from "$THIRD_PARTY_LIBRARY_PATH/$V8_VERSION/v8/x86/libmtt_shared.so",
-              "$THIRD_PARTY_LIBRARY_PATH/$V8_VERSION/v8/x86/libmttv8.so",
-              "$THIRD_PARTY_LIBRARY_PATH/layout/x86/libflexbox.so"
-      into "$JNI_LIBRARY_PATH/x86/"
-    }
-  }
-  if (INCLUDE_ABI_X86_64.toBoolean()) {
-    copy {
-      from "$THIRD_PARTY_LIBRARY_PATH/$V8_VERSION/v8/x86_64/libmtt_shared.so",
-              "$THIRD_PARTY_LIBRARY_PATH/$V8_VERSION/v8/x86_64/libmttv8.so",
-              "$THIRD_PARTY_LIBRARY_PATH/layout/x86_64/libflexbox.so"
-      into "$JNI_LIBRARY_PATH/x86_64/"
-    }
-  }
-}
-
 project.tasks.whenTaskAdded { task ->
   if (task.name.equals('assembleRelease')) {
     task.finalizedBy dealAfterAssembleRelease
@@ -200,10 +157,6 @@ project.tasks.whenTaskAdded { task ->
     task.finalizedBy dealAfterAssembleDebug
   }
 
-}
-
-afterEvaluate {
-  copyJNILibs
 }
 
 task dealAfterAssembleDebug() {
@@ -246,21 +199,31 @@ task unzipAar() {
   }
 }
 
-task addArmeabiIfNeeded(dependsOn: unzipAar) {
+task removeUnnecessaryAbi(dependsOn: unzipAar) {
   doLast {
     if (INCLUDE_ABI_ARMEABI.toBoolean()) {
       copy {
         from "$OUTPUT_PATH/release/jni/armeabi-v7a"
         into "$OUTPUT_PATH/release/jni/armeabi"
       }
-      if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() == false) {
-        file("$OUTPUT_PATH/release/jni/armeabi-v7a").deleteDir()
-      }
+    }
+
+    if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() == false) {
+      file("$OUTPUT_PATH/release/jni/armeabi-v7a").deleteDir()
+    }
+    if (INCLUDE_ABI_ARM64_V8A.toBoolean() == false) {
+      file("$OUTPUT_PATH/release/jni/arm64-v8a").deleteDir()
+    }
+    if (INCLUDE_ABI_X86.toBoolean() == false) {
+      file("$OUTPUT_PATH/release/jni/x86").deleteDir()
+    }
+    if (INCLUDE_ABI_X86_64.toBoolean() == false) {
+      file("$OUTPUT_PATH/release/jni/x86_64").deleteDir()
     }
   }
 }
 
-task excludeV8Libs(dependsOn: addArmeabiIfNeeded) {
+task excludeV8Libs(dependsOn: removeUnnecessaryAbi) {
   doLast {
     if (EXCLUDE_V8.toBoolean()) {
       if (INCLUDE_ABI_ARMEABI.toBoolean()) {
@@ -289,18 +252,16 @@ task excludeV8Libs(dependsOn: addArmeabiIfNeeded) {
 
 task generateReleaseAar(dependsOn: excludeV8Libs) {
   doLast {
-    if (INCLUDE_ABI_ARMEABI.toBoolean() || EXCLUDE_V8.toBoolean()) {
-      file("$OUTPUT_PATH/$releaseOutputFileName").delete()
-      exec {
-        def arguments = new ArrayList<?>()
-        arguments.add("a")
-        arguments.add("-tzip")
-        arguments.add("-mx=9")
-        arguments.add("$OUTPUT_PATH/$releaseOutputFileName")
-        arguments.add("$OUTPUT_PATH/release/*")
-        executable "7z"
-        args arguments
-      }
+    file("$OUTPUT_PATH/$releaseOutputFileName").delete()
+    exec {
+      def arguments = new ArrayList<?>()
+      arguments.add("a")
+      arguments.add("-tzip")
+      arguments.add("-mx=9")
+      arguments.add("$OUTPUT_PATH/$releaseOutputFileName")
+      arguments.add("$OUTPUT_PATH/release/*")
+      executable "7z"
+      args arguments
     }
   }
 }
