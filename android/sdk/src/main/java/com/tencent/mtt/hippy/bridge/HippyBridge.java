@@ -26,10 +26,6 @@ public interface HippyBridge
 
 	public void initJSBridge(String gobalConfig, NativeCallback callback, int groupId);
 
-	public boolean runScriptFromFile(String filePath, String scriptName, boolean canUseCodeCache, String codeCacheTag, NativeCallback callback);
-
-	public boolean runScriptFromAssets(String fileName, AssetManager assetManager, boolean canUseCodeCache, String codeCacheTag, NativeCallback callback);
-
 	public boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache, String codeCacheTag, NativeCallback callback);
 
 	void onDestroy();

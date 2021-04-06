@@ -45,10 +45,7 @@ import java.nio.ByteOrder;
 
 public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnReceiveDataListener
 {
-	private static volatile ThreadPoolExecutor	mCodeCacheThreadExecutor	= null;
-	private static volatile int					sBridgeNum					= 0;
 	private static Object						sBridgeSyncLock;
-	private static int TIMEOUT = 3000;
 
 	static
 	{
@@ -80,8 +77,6 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 
 		synchronized (sBridgeSyncLock)
 		{
-			++sBridgeNum;
-
 			if (mCodeCacheRootDir == null)
 			{
 				Context context = mContext.getGlobalConfigs().getContext();
@@ -90,12 +85,6 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 				{
 					this.mCodeCacheRootDir = hippyFile.getAbsolutePath() + File.separator + "codecache" + File.separator;
 				}
-			}
-
-			if (mCodeCacheThreadExecutor == null)
-			{
-				this.mCodeCacheThreadExecutor = new ThreadPoolExecutor(1, 1, 120L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
-				this.mCodeCacheThreadExecutor.allowCoreThreadTimeOut(true);
 			}
 		}
 
@@ -161,51 +150,6 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 	}
 
 	@Override
-	public boolean runScriptFromFile(String filePath, String scriptName, boolean canUseCodeCache, String codeCacheTag, NativeCallback callback)
-	{
-		if (!mInit)
-		{
-			return false;
-		}
-		if (!TextUtils.isEmpty(codeCacheTag) && !TextUtils.isEmpty(mCodeCacheRootDir))
-		{
-			LogUtils.e("HippyEngineMonitor", "runScriptFromFile ======core====== " + codeCacheTag + ", canUseCodeCache == " + canUseCodeCache);
-			String codeCacheDir = mCodeCacheRootDir + codeCacheTag + File.separator;
-			File file = new File(codeCacheDir);
-			LogUtils.d("HippyEngineMonitor", "codeCacheDir file size : " + (file.listFiles() != null ? file.listFiles().length : 0));
-			return runScriptFromFile(filePath, scriptName, canUseCodeCache, codeCacheDir, mV8RuntimeId, callback);
-		}
-		else
-		{
-			LogUtils.e("HippyEngineMonitor", "runScriptFromFile codeCacheTag is null");
-			return runScriptFromFile(filePath, scriptName, false, "" + codeCacheTag + File.separator, mV8RuntimeId, callback);
-		}
-	}
-
-	@Override
-	public boolean runScriptFromAssets(String fileName, AssetManager assetManager, boolean canUseCodeCache, String codeCacheTag, NativeCallback callback)
-	{
-		if (!mInit)
-		{
-			return false;
-		}
-
-		if (!TextUtils.isEmpty(codeCacheTag) && !TextUtils.isEmpty(mCodeCacheRootDir))
-		{
-			LogUtils.e("HippyEngineMonitor", "runScriptFromAssets ======core====== " + codeCacheTag + ", canUseCodeCache == " + canUseCodeCache);
-			String codeCacheDir = mCodeCacheRootDir + codeCacheTag + File.separator;
-			File file = new File(codeCacheDir);
-			LogUtils.d("HippyEngineMonitor", "codeCacheDir file size : " + (file.listFiles() != null ? file.listFiles().length : 0));
-			return runScriptFromAssets(fileName, assetManager, canUseCodeCache, codeCacheDir, mV8RuntimeId, callback);
-		}
-		else
-		{
-			LogUtils.e("HippyEngineMonitor", "runScriptFromAssets codeCacheTag is null");
-			return runScriptFromAssets(fileName, assetManager, false, "" + codeCacheTag + File.separator, mV8RuntimeId, callback);
-		}
-	}
-
-	@Override
 	public boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache, String codeCacheTag, NativeCallback callback)
 	{
 		if (!mInit) {
@@ -266,20 +210,6 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 		}
 
 		mInit = false;
-		synchronized (sBridgeSyncLock) {
-			--sBridgeNum;
-			if (sBridgeNum == 0) {
-				try {
-					if (mCodeCacheThreadExecutor != null) {
-						mCodeCacheThreadExecutor.shutdownNow();
-					}
-				} catch (Throwable e) {
-					LogUtils.d("HippyBridgeImpl", "onDestroy: " + e.getMessage());
-				}
-				mCodeCacheThreadExecutor = null;
-			}
-		}
-
 		if (!mBridgeParamJson && mHippyBuffer != null) {
 			mHippyBuffer.release();
 		}
@@ -299,21 +229,13 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 	 */
 	public native long initJSFramework(byte[] gobalConfig, boolean useLowMemoryMode, boolean useBrigeParamJson, boolean isDevModule, NativeCallback callback, long groupId);
 
-	public native boolean runScriptFromFile(String filePath, String scriptName, boolean canUseCodeCache, String codeCacheDir, long V8RuntimId, NativeCallback callback);
-
-	public native boolean runScriptFromAssets(String fileName, AssetManager assetManager, boolean canUseCodeCache, String codeCacheDir, long V8RuntimId, NativeCallback callback);
-
 	public native boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache, String codeCacheDir, long V8RuntimId, NativeCallback callback);
 
 	public native void destroy(long runtimeId, boolean useLowMemoryMode, NativeCallback callback);
 
 	public native void callFunction(String action, byte[] params, int offset, int length, long V8RuntimId, NativeCallback callback);
 
-	public native void runNativeRunnable(String codeCacheFile, long nativeRunnableId, long V8RuntimId, NativeCallback callback);
-
 	public native void onResourceReady(ByteBuffer output, long runtimeId, long resId);
-
-	public native String getCrashMessage();
 
 	public void callNatives(String moduleName, String moduleFunc, String callId, byte[] params)
 	{
@@ -444,18 +366,6 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 		}
 	}
 
-	public void postCodeCacheRunnable(String codeCacheFile, long nativeRunnableId) {
-		try {
-			synchronized (sBridgeSyncLock) {
-				if (mCodeCacheThreadExecutor != null) {
-					mCodeCacheThreadExecutor.execute(new CodeCacheRunnable(codeCacheFile, nativeRunnableId));
-				}
-			}
-		} catch (Throwable e) {
-			LogUtils.d("HippyBridgeImpl", "postCodeCacheRunnable: " + e.getMessage());
-		}
-	}
-
 	static class CodeCacheFilter implements FilenameFilter
 	{
 		String	fileName;
@@ -485,59 +395,6 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 			{
 				return false;
 			}
-		}
-	}
-
-	public class CodeCacheRunnable implements Runnable
-	{
-		private String	mPath;
-		private long	mNativeId;
-
-		public CodeCacheRunnable(String path, long nativeId)
-		{
-			this.mPath = path;
-			this.mNativeId = nativeId;
-		}
-
-		@Override
-		public void run()
-		{
-			try
-			{
-				if (TextUtils.isEmpty(mPath))
-				{
-					return;
-				}
-				File dir = new File(mPath.substring(0, mPath.lastIndexOf(File.separator)));
-				deleteDirWithFile(dir);
-				dir.mkdirs();
-				File file = new File(mPath);
-				file.createNewFile();
-
-				runNativeRunnable(mPath, mNativeId, mV8RuntimeId, null);
-			}
-			catch (Throwable e)
-			{
-				e.printStackTrace();
-			}
-		}
-
-		public void deleteDirWithFile(File dir)
-		{
-			if (dir == null || !dir.exists() || !dir.isDirectory())
-				return;
-			File[] childs = dir.listFiles();
-			if (childs != null)
-			{
-				for (File file : childs)
-				{
-					if (file.isFile())
-						file.delete();
-					else if (file.isDirectory())
-						deleteDirWithFile(file);
-				}
-			}
-			dir.delete();
 		}
 	}
 
