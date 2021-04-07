@@ -41,7 +41,7 @@ const measureInWindowByMethod = function measureInWindowByMethod(el, method) {
     height: -1,
   };
   if (!el.isMounted || !el.nodeId) {
-    return empty;
+    return Promise.resolve(empty);
   }
   const { nodeId } = el;
   // FIXME: callNativeWithPromise was broken in iOS, it response
