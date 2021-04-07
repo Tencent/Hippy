@@ -42,7 +42,7 @@
     "@babel/preset-env": "^7.12.0",
     "@babel/preset-react": "^7.9.4",
     "@hippy/debug-server": "^2.1.2",
-    "@hippy/hippy-dynamic-import-plugin": "^1.0.0",
+    "@hippy/hippy-dynamic-import-plugin": "^2.0.0",
     "babel-loader": "^8.1.0",
     "bezier-easing": "^2.1.0",
     "case-sensitive-paths-webpack-plugin": "^2.2.0",

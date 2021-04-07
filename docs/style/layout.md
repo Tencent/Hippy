@@ -165,6 +165,8 @@ Hippy 的样式排版使用了 Flex 布局。值得注意的是，尚不兼容�
 
 [[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/flex-shrink )
 
+`注意：Hippy 中 flexShrink 默认值为 0，与Web标准有差异`
+
 `flexBasis` 属性指定了 flex 元素的收缩规则。flex 元素仅在默认宽度之和大于容器的时候才会发生收缩，其收缩的大小是依据 flex-shrink 的值。
 
 | 类型   | 必需 |
