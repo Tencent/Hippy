@@ -76,7 +76,7 @@ plugins: [
 
 ## 支持同时配置本地/网络加载分包
 
-`网络加载 hippy 最低支持版本 2.5.4`
+`网络加载 hippy sdk 最低支持版本 2.5.5`
 
 `网络加载 @hippy/hippy-dynamic-import-plugin 最低支持版本 2.0.0`
 
@@ -99,7 +99,7 @@ plugins: [
 
 ```
 
-+ 在业务代码引用分包的入口配置 `magic comment`的 `webpackChunkName`（必须） 和 `customChunkPath`（可选），如果没有配置`customChunkPath`，会默使用用全局 `publicPath`；
++ 在业务代码引用分包的入口配置 `magic comment`的 `webpackChunkName`（必须） 和 `customChunkPath`（可选），如果没有配置`customChunkPath`，会默认使用全局 `publicPath`；
 以 Hippy-Vue 为例：
 
 ```javascript
