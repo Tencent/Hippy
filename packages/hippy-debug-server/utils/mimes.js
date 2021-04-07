@@ -1,33 +1,32 @@
 const path = require('path');
+const mime = require('mime');
 
-const mimeTypes = {
-  unknown: 'application/octet-stream',
-  css: 'text/css',
-  less: 'text/css',
-  gif: 'image/gif',
-  html: 'text/html',
-  ico: 'image/x-icon',
-  jpeg: 'image/jpeg',
-  jpg: 'image/jpeg',
-  js: 'text/javascript',
-  json: 'application/json',
-  pdf: 'application/pdf',
-  png: 'image/png',
-  svg: 'image/svg+xml',
-  swf: 'application/x-shockwave-flash',
-  tiff: 'image/tiff',
-  txt: 'text/plain',
-  wav: 'audio/x-wav',
-  wma: 'audio/x-ms-wma',
-  wmv: 'video/x-ms-wmv',
-  xml: 'text/xml',
-  bundle: 'application/javascript',
-};
+mime.define({
+  'application/javascript': ['bundle'],
+  'application/octet-stream': ['unknown'],
+  'text/css': ['css'],
+  'image/gif': ['gif'],
+  'text/html': ['html'],
+  'image/x-icon': ['ico'],
+  'image/jpeg': ['jpeg', 'jpg'],
+  'text/javascript': ['js'],
+  'application/json': ['json'],
+  'application/pdf': ['pdf'],
+  'image/png': ['png'],
+  'image/svg+xml': ['svg'],
+  'application/x-shockwave-flash': ['swf'],
+  'image/tiff': ['tiff'],
+  'text/plain': ['txt'],
+  'audio/x-wav': ['wav'],
+  'audio/x-ms-wma': ['wma'],
+  'video/x-ms-wmv': ['wmv'],
+  'text/xml': ['xml'],
+}, true);
 
 function parseMimeType(pathName) {
   let extName = path.extname(pathName);
   extName = extName ? extName.slice(1) : 'unknown';
-  return mimeTypes[extName];
+  return mime.getType(extName) || extName;
 }
 
 module.exports = parseMimeType;
