@@ -19,7 +19,7 @@ module.exports = {
     path: path.resolve(`./dist/${platform}/`),
     globalObject: '(0, eval)("this")',
     // CDN path can be configured to load children bundles from remote server
-    // publicPath: 'CDNPath',
+    // publicPath: 'https://static.res.qq.com/hippy/hippyReactDemo/',
   },
   plugins: [
     new webpack.NamedModulesPlugin(),

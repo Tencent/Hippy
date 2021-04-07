@@ -61,6 +61,7 @@ export default {
 <style scoped>
   #root {
     flex: 1;
+    background-color: white;
   }
   #header {
     height: 60px;
