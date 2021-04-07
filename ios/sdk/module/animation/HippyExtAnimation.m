@@ -230,7 +230,9 @@
         animation.byValue = self.byValue;
     }
     animation.duration = _duration;
-    animation.beginTime = CACurrentMediaTime() + _delay;
+    if (fabs(_delay) > CGFLOAT_MIN) {
+        animation.beginTime = CACurrentMediaTime() + _delay;
+    }
     animation.timingFunction = [CAMediaTimingFunction functionWithName:_timingFunction];
     animation.repeatCount = _repeatCount;
     animation.removedOnCompletion = NO;
