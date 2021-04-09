@@ -29,38 +29,38 @@
 #include "core/core.h"
 #include "jni/hippy_buffer.h"  // NOLINT(build/include_subdir)
 
-size_t SafeGetArrayLength(JNIEnv* env, const jbyteArray& jarray) {
-  HIPPY_DCHECK(jarray);
-  jsize length = env->GetArrayLength(jarray);
+size_t SafeGetArrayLength(JNIEnv* j_env, const jbyteArray& j_array) {
+  HIPPY_DCHECK(j_array);
+  jsize length = j_env->GetArrayLength(j_array);
   return static_cast<size_t>(std::max(0, length));
 }
 
-std::string JniUtils::AppendJavaByteArrayToString(JNIEnv* env,
-                                                  jbyteArray byte_array) {
-  if (!byte_array) {
+std::string JniUtils::AppendJavaByteArrayToString(JNIEnv* j_env,
+                                                  jbyteArray j_byte_array) {
+  if (!j_byte_array) {
     return "";
   }
 
-  size_t len = SafeGetArrayLength(env, byte_array);
+  size_t len = SafeGetArrayLength(j_env, j_byte_array);
   if (!len) {
     return "";
   }
   std::string ret;
   ret.resize(len);
-  env->GetByteArrayRegion(byte_array, 0, len,
+  j_env->GetByteArrayRegion(j_byte_array, 0, len,
                           reinterpret_cast<int8_t*>(&ret[0]));
   return ret;
 }
 
 // todo
 // 暂时只有简单字符，没有中文等的场景，为效率和包大小考虑，不进行utf16到utf8的转换
-std::string JniUtils::CovertJavaStringToString(JNIEnv* env, jstring str) {
-  HIPPY_DCHECK(str);
+std::string JniUtils::CovertJavaStringToString(JNIEnv* j_env, jstring j_str) {
+  HIPPY_DCHECK(j_str);
 
-  const char* c_str = env->GetStringUTFChars(str, NULL);
-  const int len = env->GetStringLength(str);
+  const char* c_str = j_env->GetStringUTFChars(j_str, NULL);
+  const int len = j_env->GetStringLength(j_str);
   std::string ret(c_str, len);
-  env->ReleaseStringUTFChars(str, c_str);
+  j_env->ReleaseStringUTFChars(j_str, c_str);
   return ret;
 }
 

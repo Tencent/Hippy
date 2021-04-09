@@ -24,6 +24,9 @@
 
 #include "core/core.h"
 
+namespace hippy {
+namespace inspector {
+
 V8InspectorClientImpl::V8InspectorClientImpl(std::shared_ptr<Scope> scope)
     : scope_(scope) {
   std::shared_ptr<hippy::napi::V8Ctx> ctx =
@@ -112,3 +115,6 @@ void V8InspectorClientImpl::quitMessageLoopOnPause() {
 void V8InspectorClientImpl::runIfWaitingForDebugger(int contextGroupId) {
   scope_->GetTaskRunner()->ResumeThreadForInspector();
 }
+
+}  // namespace inspector
+}  // namespace hippy
