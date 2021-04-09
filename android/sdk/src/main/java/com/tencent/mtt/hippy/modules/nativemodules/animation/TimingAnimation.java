@@ -16,9 +16,11 @@
 package com.tencent.mtt.hippy.modules.nativemodules.animation;
 
 import android.animation.Animator;
+import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.os.Build;
 import android.text.TextUtils;
+import android.view.TextureView;
 import android.view.animation.*;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
@@ -34,6 +36,7 @@ public class TimingAnimation extends Animation implements ValueAnimator.Animator
 
 	private static final String	VALUE_TYPE_RAD				= "rad";
 	private static final String	VALUE_TYPE_DEG				= "deg";
+	private static final String	VALUE_TYPE_COLOR			= "color";
 	private static final String	TIMING_FUNCTION_LINEAR		= "linear";
 	private static final String	TIMING_FUNCTION_EASE_IN		= "ease-in";
 	private static final String	TIMING_FUNCTION_EASE_OUT	= "ease-out";
@@ -147,6 +150,11 @@ public class TimingAnimation extends Animation implements ValueAnimator.Animator
 
 	public void parseFromData(HippyMap param)
 	{
+		if (param.containsKey("valueType"))
+		{
+			mValueType = param.getString("valueType");
+		}
+
 		if (param.containsKey("delay"))
 		{
 			mDelay = param.getInt("delay");
@@ -166,11 +174,6 @@ public class TimingAnimation extends Animation implements ValueAnimator.Animator
 		if (param.containsKey("duration"))
 		{
 			mDuration = param.getInt("duration");
-		}
-
-		if (param.containsKey("valueType"))
-		{
-			mValueType = param.getString("valueType");
 		}
 
 		if (param.containsKey("timingFunction"))
@@ -203,7 +206,13 @@ public class TimingAnimation extends Animation implements ValueAnimator.Animator
 			}
 		}
 
-		mAnimator.setFloatValues(mStartValue, mToValue);
+		if (!TextUtils.isEmpty(mValueType) && mValueType.equals(VALUE_TYPE_COLOR)) {
+			mAnimator.setIntValues((int)mStartValue, (int)mToValue);
+			mAnimator.setEvaluator(new ArgbEvaluator());
+		} else {
+			mAnimator.setFloatValues(mStartValue, mToValue);
+		}
+
 		mAnimator.setDuration(mDuration);
 		if (TextUtils.equals(TIMING_FUNCTION_EASE_IN, mTimingFunction))
 		{
