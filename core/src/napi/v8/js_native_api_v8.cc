@@ -279,7 +279,7 @@ std::shared_ptr<TryCatch> CreateTryCatchScope(bool enable,
 }
 
 void DetachThread() {
-  JNIEnvironment::DetachCurrentThread();
+  JNIEnvironment::GetInstance()->DetachCurrentThread();
 }
 
 V8VM::V8VM() {
