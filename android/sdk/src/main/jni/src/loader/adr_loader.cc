@@ -24,8 +24,10 @@
 
 #include <future>
 
+#include "bridge/runtime.h"
 #include "core/core.h"
 #include "jni/jni_env.h"
+#include "jni/jni_register.h"
 #include "jni/jni_utils.h"
 #include "jni/uri.h"
 
@@ -156,13 +158,14 @@ bool ADRLoader::LoadByAsset(const std::string& file_path,
 
 bool ADRLoader::LoadByHttp(const std::string& uri,
                            std::function<void(std::string)> cb) {
-  JNIEnv* env = JNIEnvironment::AttachCurrentThread();
-  JNIEnvironment* instance = JNIEnvironment::GetInstance();
-  if (instance->wrapper_.fetch_resource_method_id) {
+  std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
+  JNIEnv* env = instance->AttachCurrentThread();
+
+  if (instance->GetMethods().fetch_resource_method_id) {
     int64_t id = SetRequestCB(cb);
     jstring j_relative_path = env->NewStringUTF(uri.c_str());
     env->CallVoidMethod(bridge_->GetObj(),
-                        instance->wrapper_.fetch_resource_method_id,
+                        instance->GetMethods().fetch_resource_method_id,
                         j_relative_path, id);
     env->DeleteLocalRef(j_relative_path);
     return true;
@@ -171,6 +174,63 @@ bool ADRLoader::LoadByHttp(const std::string& uri,
   HIPPY_LOG(hippy::Error, "jni fetch_resource_method_id error");
   return false;
 }
+
+void OnResourceReady(JNIEnv* j_env,
+                     jobject j_object,
+                     jobject j_byte_buffer,
+                     jlong j_runtime_id,
+                     jlong j_request_id) {
+  HIPPY_DLOG(hippy::Debug,
+             "HippyBridgeImpl onResourceReady j_runtime_id = %lld",
+             j_runtime_id);
+  std::shared_ptr<Runtime> runtime = Runtime::Find(j_runtime_id);
+  if (!runtime) {
+    HIPPY_LOG(hippy::Warning,
+              "HippyBridgeImpl onResourceReady, j_runtime_id invalid");
+    return;
+  }
+  std::shared_ptr<Scope> scope = runtime->GetScope();
+  if (!scope) {
+    HIPPY_LOG(hippy::Warning, "HippyBridgeImpl onResourceReady, scope invalid");
+    return;
+  }
+
+  std::shared_ptr<ADRLoader> loader =
+      std::static_pointer_cast<ADRLoader>(scope->GetUriLoader());
+  int64_t request_id = j_request_id;
+  HIPPY_DLOG(hippy::Debug, "request_id = %lld", request_id);
+  auto cb = loader->GetRequestCB(request_id);
+  if (!cb) {
+    HIPPY_LOG(hippy::Warning, "cb not found", request_id);
+    return;
+  }
+  if (!j_byte_buffer) {
+    HIPPY_DLOG(hippy::Debug, "HippyBridgeImpl onResourceReady, buff null");
+    cb("");
+    return;
+  }
+  int64_t len = (j_env)->GetDirectBufferCapacity(j_byte_buffer);
+  if (len == -1) {
+    HIPPY_LOG(hippy::Error,
+              "HippyBridgeImpl onResourceReady, BufferCapacity error");
+    cb("");
+    return;
+  }
+  void* buff = (j_env)->GetDirectBufferAddress(j_byte_buffer);
+  if (!buff) {
+    HIPPY_DLOG(hippy::Debug, "HippyBridgeImpl onResourceReady, buff null");
+    cb("");
+    return;
+  }
+
+  std::string str(reinterpret_cast<const char*>(buff), len);
+  cb(std::move(str));
+}
+
+REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
+             "onResourceReady",
+             "(Ljava/nio/ByteBuffer;JJ)V",
+             OnResourceReady)
 
 std::function<void(std::string)> ADRLoader::GetRequestCB(int64_t request_id) {
   auto it = request_map_.find(request_id);

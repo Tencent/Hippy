@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />
+    <None Include="cpp.hint" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\inspector\v8_channel_impl.cc" />
@@ -28,6 +29,7 @@
     <ClCompile Include="src\jni\hippy_buffer.cc" />
     <ClCompile Include="src\jni\jni_env.cc" />
     <ClCompile Include="src\jni\jni_utils.cc" />
+    <ClCompile Include="src\jni\jni_register.cc" />
     <ClCompile Include="src\jni\runtime.cc" />
     <ClCompile Include="src\jni\scoped_java_ref.cc" />
     <ClCompile Include="src\jni\uri.cc" />
@@ -44,6 +46,7 @@
     <ClInclude Include="include\jni\hippy_buffer.h" />
     <ClInclude Include="include\jni\jni_env.h" />
     <ClInclude Include="include\jni\jni_utils.h" />
+    <ClInclude Include="include\jni\jni_register.h" />
     <ClInclude Include="include\jni\runtime.h" />
     <ClInclude Include="include\jni\scoped_java_ref.h" />
     <ClInclude Include="include\jni\uri.h" />
