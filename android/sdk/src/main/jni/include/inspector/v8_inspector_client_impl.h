@@ -28,6 +28,9 @@
 #include "jni/scoped_java_ref.h"
 #include "v8_channel_impl.h"
 
+namespace hippy {
+namespace inspector {
+
 class V8InspectorClientImpl : public v8_inspector::V8InspectorClient {
  public:
   explicit V8InspectorClientImpl(std::shared_ptr<Scope> scope);
@@ -100,3 +103,6 @@ class V8InspectorClientImpl : public v8_inspector::V8InspectorClient {
   std::unique_ptr<V8ChannelImpl> channel_;
   std::unique_ptr<v8_inspector::V8InspectorSession> session_;
 };
+
+}  // namespace inspector
+}  // namespace hippy

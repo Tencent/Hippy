@@ -31,21 +31,21 @@ void ExceptionHandler::ReportJsException(std::shared_ptr<Runtime> runtime,
                                          const std::string stack) {
   HIPPY_DLOG(hippy::Debug, "ReportJsException begin");
 
-  JNIEnv* env = JNIEnvironment::AttachCurrentThread();
+  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
 
-  jstring jException = env->NewStringUTF(desc.c_str());
-  jstring jStackTrace = env->NewStringUTF(stack.c_str());
+  jstring j_exception = j_env->NewStringUTF(desc.c_str());
+  jstring j_stack_trace = j_env->NewStringUTF(stack.c_str());
 
   if (runtime->GetBridge()) {
-    env->CallVoidMethod(
+    j_env->CallVoidMethod(
         runtime->GetBridge()->GetObj(),
-        JNIEnvironment::GetInstance()->wrapper_.report_exception_method_id,
-        jException, jStackTrace);
+        JNIEnvironment::GetInstance()->GetMethods().report_exception_method_id,
+        j_exception, j_stack_trace);
   }
 
   // delete local ref
-  env->DeleteLocalRef(jException);
-  env->DeleteLocalRef(jStackTrace);
+  j_env->DeleteLocalRef(j_exception);
+  j_env->DeleteLocalRef(j_stack_trace);
 
   HIPPY_DLOG(hippy::Debug, "ReportJsException end");
 }
@@ -60,20 +60,20 @@ void ExceptionHandler::JSONException(std::shared_ptr<Runtime> runtime,
     return;
   }
 
-  JNIEnv* env = JNIEnvironment::AttachCurrentThread();
+  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
 
-  jstring jException = env->NewStringUTF("Hippy Bridge parse json error");
-  jstring jStackTrace = env->NewStringUTF(jsonValue);
+  jstring j_exception = j_env->NewStringUTF("Hippy Bridge parse json error");
+  jstring j_stack_trace = j_env->NewStringUTF(jsonValue);
 
   // call function
   if (runtime->GetBridge()) {
-    env->CallVoidMethod(
+    j_env->CallVoidMethod(
         runtime->GetBridge()->GetObj(),
-        JNIEnvironment::GetInstance()->wrapper_.report_exception_method_id,
-        jException, jStackTrace);
+        JNIEnvironment::GetInstance()->GetMethods().report_exception_method_id,
+        j_exception, j_stack_trace);
   }
 
   // delete local ref
-  env->DeleteLocalRef(jException);
-  env->DeleteLocalRef(jStackTrace);
+  j_env->DeleteLocalRef(j_exception);
+  j_env->DeleteLocalRef(j_stack_trace);
 }

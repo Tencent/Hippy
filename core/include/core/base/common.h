@@ -37,6 +37,12 @@ const char kAsyncTaskEndKey[] = "ASYNC_TASK_END";
 using RegisterFunction = std::function<void(void*)>;
 using RegisterMap = std::unordered_map<std::string, RegisterFunction>;
 
+#define TO_REGISTER_FUNCTION(fn, T)    \
+  [](void* p) {                        \
+    T* data = reinterpret_cast<T*>(p); \
+    fn(data);                          \
+  };
+
 template <class F>
 auto MakeCopyable(F&& f) {
   auto s = std::make_shared<std::decay_t<F>>(std::forward<F>(f));

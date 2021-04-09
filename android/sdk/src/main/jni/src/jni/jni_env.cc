@@ -26,57 +26,53 @@
 
 #include "core/core.h"
 
-namespace {
-JNIEnvironment* instance = nullptr;
-}  // namespace
+std::shared_ptr<JNIEnvironment> JNIEnvironment::instance_ = nullptr;
+std::mutex JNIEnvironment::mutex_;
 
-void JNIEnvironment::init(JavaVM* vm, JNIEnv* env) {
-  JNIEnvironment::GetInstance()->jvm_ = vm;
-
-  JNIEnvironment* instance = JNIEnvironment::GetInstance();
+void JNIEnvironment::init(JavaVM* j_vm, JNIEnv* j_env) {
+  j_vm_ = j_vm;
 
   jclass hippy_bridge_cls =
-      env->FindClass("com/tencent/mtt/hippy/bridge/HippyBridgeImpl");
-  instance->wrapper_.call_natives_method_id = env->GetMethodID(
+      j_env->FindClass("com/tencent/mtt/hippy/bridge/HippyBridgeImpl");
+  wrapper_.call_natives_method_id = j_env->GetMethodID(
       hippy_bridge_cls, "callNatives",
       "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;[B)V");
-  instance->wrapper_.report_exception_method_id =
-      env->GetMethodID(hippy_bridge_cls, "reportException",
-                       "(Ljava/lang/String;Ljava/lang/String;)V");
-  instance->wrapper_.inspector_channel_method_id =
-      env->GetMethodID(hippy_bridge_cls, "InspectorChannel", "([B)V");
+  wrapper_.report_exception_method_id =
+      j_env->GetMethodID(hippy_bridge_cls, "reportException",
+                         "(Ljava/lang/String;Ljava/lang/String;)V");
+  wrapper_.inspector_channel_method_id =
+      j_env->GetMethodID(hippy_bridge_cls, "InspectorChannel", "([B)V");
 
-  instance->wrapper_.fetch_resource_method_id = env->GetMethodID(
+  wrapper_.fetch_resource_method_id = j_env->GetMethodID(
       hippy_bridge_cls, "fetchResourceWithUri", "(Ljava/lang/String;J)V");
 
-  env->DeleteLocalRef(hippy_bridge_cls);
+  j_env->DeleteLocalRef(hippy_bridge_cls);
 
-  if (env->ExceptionCheck()) {
-    env->ExceptionClear();
+  if (j_env->ExceptionCheck()) {
+    j_env->ExceptionClear();
   }
 }
 
-JNIEnvironment* JNIEnvironment::GetInstance() {
-  if (instance == nullptr) {
-    instance = new JNIEnvironment();
+std::shared_ptr<JNIEnvironment> JNIEnvironment::GetInstance() {
+  std::lock_guard<std::mutex> lock(mutex_);
+  if (!instance_) {
+    instance_ = std::make_shared<JNIEnvironment>();
   }
 
-  return instance;
+  return instance_;
 }
 
 void JNIEnvironment::DestroyInstance() {
-  if (instance) {
-    delete instance;
-    instance = nullptr;
-  }
+  std::lock_guard<std::mutex> lock(mutex_);
+  instance_ = nullptr;
 }
 
-bool JNIEnvironment::ClearJEnvException(JNIEnv* env) {
-  jthrowable exc = env->ExceptionOccurred();
+bool JNIEnvironment::ClearJEnvException(JNIEnv* j_env) {
+  jthrowable j_exc = j_env->ExceptionOccurred();
 
-  if (exc) {
-    env->ExceptionDescribe();
-    env->ExceptionClear();
+  if (j_exc) {
+    j_env->ExceptionDescribe();
+    j_env->ExceptionClear();
 
     return true;
   }
@@ -85,12 +81,11 @@ bool JNIEnvironment::ClearJEnvException(JNIEnv* env) {
 }
 
 JNIEnv* JNIEnvironment::AttachCurrentThread() {
-  JavaVM* jvm_ = JNIEnvironment::GetInstance()->jvm_;
-  HIPPY_CHECK(jvm_);
+  HIPPY_CHECK(j_vm_);
 
-  JNIEnv* env = nullptr;
-  jint ret = jvm_->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_4);
-  if (ret == JNI_EDETACHED || !env) {
+  JNIEnv* j_env = nullptr;
+  jint ret = j_vm_->GetEnv(reinterpret_cast<void**>(&j_env), JNI_VERSION_1_4);
+  if (ret == JNI_EDETACHED || !j_env) {
     JavaVMAttachArgs args;
     args.version = JNI_VERSION_1_4;
     args.group = nullptr;
@@ -105,18 +100,17 @@ JNIEnv* JNIEnvironment::AttachCurrentThread() {
       args.name = thread_name;
     }
 
-    ret = jvm_->AttachCurrentThread(&env, &args);
+    ret = j_vm_->AttachCurrentThread(&j_env, &args);
     HIPPY_DCHECK(JNI_OK == ret);
   }
 
-  return env;
+  return j_env;
 }
 
 void JNIEnvironment::DetachCurrentThread() {
-  JavaVM* jvm_ = JNIEnvironment::GetInstance()->jvm_;
-  HIPPY_CHECK(jvm_);
+  HIPPY_CHECK(j_vm_);
 
-  if (jvm_) {
-    jvm_->DetachCurrentThread();
+  if (j_vm_) {
+    j_vm_->DetachCurrentThread();
   }
 }
