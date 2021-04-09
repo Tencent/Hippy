@@ -564,7 +564,7 @@ public class TextNode extends StyleNode
 
 			if (textNode.mFontStyle != UNSET || textNode.mFontWeight != UNSET || textNode.mFontFamily != null)
 			{
-				ops.add(new SpanOperation(start, end, new HippyStyleSpan(textNode.mFontStyle, textNode.mFontWeight, textNode.mFontFamily)));
+				ops.add(new SpanOperation(start, end, new HippyStyleSpan(textNode.mFontStyle, textNode.mFontWeight, textNode.mFontFamily, mFontScaleAdapter)));
 			}
 			if (textNode.mIsUnderlineTextDecorationSet)
 			{

@@ -21,6 +21,7 @@ import android.graphics.Typeface;
 import android.text.TextUtils;
 import android.util.Base64;
 
+import com.tencent.mtt.hippy.adapter.font.HippyFontScaleAdapter;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
@@ -32,12 +33,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @author: edsheng
- * @date: 2017/11/30 14:42
- * @version: V1.0
- */
-
 public class TypeFaceUtil
 {
 	final static private String TAG = "TypeFaceUtil";
@@ -47,39 +42,48 @@ public class TypeFaceUtil
 
 	private static Map<String, Typeface>	mFontCache		= new HashMap<>();
 
-	public static Typeface getTypeface(String fontFamilyName, int style)
-	{
+	public static Typeface getTypeface(String fontFamilyName, int style, HippyFontScaleAdapter fontAdapter) {
 		String cache = fontFamilyName + style;
 		Typeface typeface = mFontCache.get(cache);
-		if (typeface == null)
-		{
-			typeface = createTypeface(fontFamilyName, style);
-			if (typeface != null)
-			{
-				mFontCache.put(cache, typeface);
-			}
+		if (typeface == null) {
+			typeface = createTypeface(fontFamilyName, style, fontAdapter);
+		}
+
+		if (typeface != null) {
+			mFontCache.put(cache, typeface);
 		}
 
 		return typeface;
 	}
 
-	private static Typeface createTypeface(String fontFamilyName, int style)
-	{
+	private static Typeface createTypeface(String fontFamilyName, int style, HippyFontScaleAdapter fontAdapter) {
+		Typeface typeface = null;
 		String extension = EXTENSIONS[style];
-		for (String fileExtension : FONT_EXTENSIONS)
-		{
+		for (String fileExtension : FONT_EXTENSIONS) {
 			String fileName = new StringBuilder().append(FONTS_PATH).append(fontFamilyName).append(extension).append(fileExtension).toString();
-			try
-			{
-				return Typeface.createFromAsset(ContextHolder.getAppContext().getAssets(), fileName);
-			}
-			catch (RuntimeException e)
-			{
-				e.printStackTrace();
+			try {
+				typeface = Typeface.createFromAsset(ContextHolder.getAppContext().getAssets(), fileName);
+			} catch (Exception e) {
+				LogUtils.e("TypeFaceUtil", "createTypeface: " + e.getMessage());
 			}
 		}
 
-		return Typeface.create(fontFamilyName, style);
+		if (typeface == null && fontAdapter != null) {
+			String filePath = fontAdapter.getCustomFontFilePath(fontFamilyName, style);
+			if (!TextUtils.isEmpty(filePath)) {
+				try {
+					typeface = Typeface.createFromFile(filePath);
+				} catch (Exception e) {
+					LogUtils.e("TypeFaceUtil", "createTypeface: " + e.getMessage());
+				}
+			}
+		}
+
+		if (typeface == null) {
+			typeface = Typeface.create(fontFamilyName, style);
+		}
+
+		return typeface;
 	}
 	public static boolean checkFontExist(String fontFamilyName, int style)
 	{
@@ -129,7 +133,7 @@ public class TypeFaceUtil
 		return typeface;
 	}
 
-	public static void apply(Paint paint, int style, int weight, String family)
+	public static void apply(Paint paint, int style, int weight, String family, HippyFontScaleAdapter fontAdapter)
 	{
 		int oldStyle;
 		Typeface typeface = paint.getTypeface();
@@ -155,7 +159,7 @@ public class TypeFaceUtil
 
 		if (family != null)
 		{
-			typeface = TypeFaceUtil.getTypeface(family, want);
+			typeface = TypeFaceUtil.getTypeface(family, want, fontAdapter);
 		}
 		else if (typeface != null)
 		{
