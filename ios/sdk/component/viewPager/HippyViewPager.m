@@ -31,6 +31,7 @@
 @property (nonatomic, assign) BOOL isScrolling;
 @property (nonatomic, assign) BOOL loadOnce;
 @property (nonatomic, assign) NSInteger pageOfBeginDragging;
+@property (nonatomic, assign) CGFloat lastOffsetX;
 
 @property (nonatomic, assign) CGRect previousFrame;
 @property (nonatomic, assign) CGSize previousSize;
@@ -58,6 +59,7 @@
         self.scrollViewListener = [NSHashTable weakObjectsHashTable];
         self.lastPageIndex = NSUIntegerMax;
         self.targetContentOffsetX = CGFLOAT_MAX;
+        self.lastOffsetX = CGFLOAT_MAX;
         if (@available(iOS 11.0, *)) {
             self.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
         }
@@ -158,21 +160,32 @@
     }
     NSInteger beforePage = self.pageOfBeginDragging;
     CGFloat commonPagerWidth = [self commonPagerWidth];
-    CGFloat beforeOffsetX = beforePage * commonPagerWidth;
+    CGFloat beforePageX = beforePage * commonPagerWidth; // 前一页x值
+    CGFloat beforeOffsetX = self.lastOffsetX != CGFLOAT_MAX ? self.lastOffsetX : beforePage * commonPagerWidth;
     CGFloat nowContentOffsetX = self.contentOffset.x;
-    CGFloat betweenOffset = nowContentOffsetX - beforeOffsetX;
-    CGFloat offsetRate = betweenOffset / commonPagerWidth;
+    CGFloat betweenOffset = nowContentOffsetX - beforePageX;
+    self.lastOffsetX = nowContentOffsetX; // 记录上一次位置，用于计算下一次位移方向
+    NSInteger direct = 0; // inner direct,用于判断是否与outer direct方向是否一致进行具体目标和offset计算
+    if (nowContentOffsetX - beforeOffsetX > 0) {
+        direct = 1;
+    } else if (nowContentOffsetX - beforeOffsetX < 0) {
+        direct = -1;
+    }
+    CGFloat offsetRate = betweenOffset / commonPagerWidth; // outer direct
     if (offsetRate != 0) {
         NSInteger nowPage = 0;
-        if (CGFLOAT_MAX == self.targetContentOffsetX) {
-            nowPage = offsetRate < 0 ? beforePage - 1 : beforePage + 1;  //-1 for left slide，1 for right;
-            if (nowPage == -1) {
-                nowPage = 0;
-            }
-            if (nowPage == self.viewPagerItems.count) {
-                nowPage = self.viewPagerItems.count - 1;
-            }
-        } else {
+        if (offsetRate > 0 && direct > 0) { // 正向非回弹
+            nowPage = beforePage + 1;
+        } else if (offsetRate > 0 && direct < 0) { // 正向回弹
+            nowPage = beforePage;
+            offsetRate = -(1 - offsetRate);
+        } else if (offsetRate < 0 && direct < 0) { // 反向非回弹
+            nowPage = beforePage - 1;
+        } else if (offsetRate < 0 && direct > 0) { // 反向回弹
+            nowPage = beforePage;
+            offsetRate = 1 + offsetRate;
+        }
+        if (CGFLOAT_MAX != self.targetContentOffsetX) {
             nowPage = [self targetPageIndexFromTargetContentOffsetX:self.targetContentOffsetX];
         }
         if (self.onPageScroll) {

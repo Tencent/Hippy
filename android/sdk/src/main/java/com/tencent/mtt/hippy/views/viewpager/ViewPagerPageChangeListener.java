@@ -53,6 +53,7 @@ public class ViewPagerPageChangeListener implements ViewPager.OnPageChangeListen
 	@Override
 	public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels)
 	{
+    Log.e("ViewPager", "onPageScrolled:======= pos:"+position+";positionOffset= "+positionOffset+";positionOffsetPixels:"+positionOffsetPixels );
 		mPageScrollEmitter.send(position, positionOffset);
 	}
 
