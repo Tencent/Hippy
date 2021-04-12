@@ -250,3 +250,9 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 - (void)bindKeys;
 
 @end
+
+@interface UIView(Bridge)
+
+@property(nonatomic, weak) HippyBridge *bridge;
+
+@end

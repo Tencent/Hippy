@@ -12,6 +12,7 @@
 		06082A7924AB222000AF85BC /* HippyRefresh.m in Sources */ = {isa = PBXBuildFile; fileRef = 06082A7124AB222000AF85BC /* HippyRefresh.m */; };
 		06082A7A24AB222000AF85BC /* HippyFooterRefreshManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 06082A7324AB222000AF85BC /* HippyFooterRefreshManager.m */; };
 		06082A7B24AB222000AF85BC /* HippyFooterRefresh.m in Sources */ = {isa = PBXBuildFile; fileRef = 06082A7424AB222000AF85BC /* HippyFooterRefresh.m */; };
+		060F6F6D25F1DE0C0038F8F9 /* HippyVirtualList.m in Sources */ = {isa = PBXBuildFile; fileRef = 060F6F6B25F1DE0C0038F8F9 /* HippyVirtualList.m */; };
 		0612F02323A8BE320079E622 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 0612F02223A8BE320079E622 /* AppDelegate.m */; };
 		0612F02923A8BE320079E622 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0612F02823A8BE320079E622 /* ViewController.m */; };
 		0612F03423A8BE330079E622 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 0612F03323A8BE330079E622 /* main.m */; };
@@ -177,6 +178,8 @@
 		06082A7424AB222000AF85BC /* HippyFooterRefresh.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyFooterRefresh.m; sourceTree = "<group>"; };
 		06082A7524AB222000AF85BC /* HippyFooterRefreshManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyFooterRefreshManager.h; sourceTree = "<group>"; };
 		06082A7624AB222000AF85BC /* HippyFooterRefresh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyFooterRefresh.h; sourceTree = "<group>"; };
+		060F6F6B25F1DE0C0038F8F9 /* HippyVirtualList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyVirtualList.m; sourceTree = "<group>"; };
+		060F6F6C25F1DE0C0038F8F9 /* HippyVirtualList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyVirtualList.h; sourceTree = "<group>"; };
 		0612F01E23A8BE320079E622 /* HippyDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HippyDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0612F02123A8BE320079E622 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		0612F02223A8BE320079E622 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -1105,6 +1108,8 @@
 		064C59A623AB1A51001E80DD /* virtualNode */ = {
 			isa = PBXGroup;
 			children = (
+				060F6F6C25F1DE0C0038F8F9 /* HippyVirtualList.h */,
+				060F6F6B25F1DE0C0038F8F9 /* HippyVirtualList.m */,
 				064C59A723AB1A51001E80DD /* HippyVirtualNode.m */,
 				064C59A823AB1A51001E80DD /* HippyVirtualNode.h */,
 			);
@@ -1571,6 +1576,7 @@
 				064C5A3E23AB1A51001E80DD /* HippyAssert.m in Sources */,
 				064C5A4323AB1A51001E80DD /* NSDictionary+HippyDictionaryDeepCopy.m in Sources */,
 				064C59F323AB1A51001E80DD /* HippyFetchInfo.m in Sources */,
+				060F6F6D25F1DE0C0038F8F9 /* HippyVirtualList.m in Sources */,
 				064C5A4C23AB1A51001E80DD /* HippyBundleURLProvider.m in Sources */,
 				064C5A1D23AB1A51001E80DD /* HippyAnimatedImage.m in Sources */,
 				067AB96F23B5EEF4009D5EE2 /* TestModule.m in Sources */,

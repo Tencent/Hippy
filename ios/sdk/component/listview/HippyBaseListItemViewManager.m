@@ -23,6 +23,7 @@
 #import "HippyBaseListItemViewManager.h"
 #import "HippyBaseListItemView.h"
 #import "HippyVirtualNode.h"
+#import "HippyVirtualList.h"
 
 @implementation HippyBaseListItemViewManager
 HIPPY_EXPORT_MODULE(ListViewItem)

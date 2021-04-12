@@ -21,7 +21,7 @@
  */
 
 #import "HippyEventDispatcher.h"
-
+#import "UIView+Hippy.h"
 #import "HippyAssert.h"
 #import "HippyUtils.h"
 
@@ -94,3 +94,15 @@ HIPPY_EXPORT_MODULE()
 }
 
 @end
+
+void viewEventSend(UIView *view, NSDictionary *eventObject) {
+    if (view) {
+        HippyBridge *bridge = [view bridge];
+        NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithCapacity:4];
+        [dic setObject:[view hippyTag] forKey:@"id"];
+        [dic setObject:[view hippyTag] forKey:@"target"];
+        [dic setObject:@"onCustomEvent" forKey:@"eventName"];
+        [dic setObject:eventObject forKey:@"extra"];
+        [bridge.eventDispatcher dispatchEvent:@"EventDispatcher" methodName:@"receiveUIComponentEvent" args:dic];
+    }
+}

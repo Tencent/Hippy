@@ -21,6 +21,7 @@
  */
 
 #import "HippyBaseListViewDataSource.h"
+#import "HippyVirtualList.h"
 
 @implementation HippyBaseListViewDataSource {
     NSMutableArray *_sections;

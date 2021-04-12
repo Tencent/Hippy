@@ -84,6 +84,11 @@ HIPPY_EXTERN NSString *const HippyUIManagerRootViewKey;
 - (UIView *)viewForHippyTag:(NSNumber *)hippyTag;
 
 /**
+ * Gets the node associated with a hippyTag.
+ */
+- (HippyVirtualNode *)nodeForHippyTag:(NSNumber *)hippyTag;
+
+/**
  * Update the frame of a view. This might be in response to a screen rotation
  * or some other layout event outside of the Hippy-managed view hierarchy.
  */
@@ -148,6 +153,7 @@ HIPPY_EXTERN NSString *const HippyUIManagerRootViewKey;
 - (void)removeNativeNode:(HippyVirtualNode *)node;
 - (void)removeNativeNodeView:(UIView *)nodeView;
 - (void)updateViewsFromParams:(NSArray<HippyExtAnimationViewParams *> *)params completion:(HippyViewUpdateCompletedBlock)block;
+- (void)updateViewWithHippyTag:(NSNumber *)hippyTag props:(NSDictionary *)pros;
 @end
 
 /**
