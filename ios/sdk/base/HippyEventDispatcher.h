@@ -52,3 +52,13 @@ HIPPY_EXTERN NSString *HippyNormalizeInputEventName(NSString *eventName);
 - (HippyEventDispatcher *)eventDispatcher;
 
 @end
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void viewEventSend(UIView *, NSDictionary *);
+
+#ifdef __cplusplus
+}
+#endif

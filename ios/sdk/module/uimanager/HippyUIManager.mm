@@ -50,6 +50,7 @@
 #import "HippyBaseListViewProtocol.h"
 #import "HippyMemoryOpt.h"
 #import "HippyDeviceBaseInfo.h"
+#import "HippyVirtualList.h"
 
 @protocol HippyBaseListViewProtocol;
 
@@ -301,7 +302,14 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     return _viewRegistry[hippyTag];
 }
 
-- (void)setFrame:(CGRect)frame forView:(UIView *)view {
+- (HippyVirtualNode *)nodeForHippyTag:(NSNumber *)hippyTag
+{
+    HippyAssertMainQueue();
+    return _nodeRegistry[hippyTag];
+}
+
+- (void)setFrame:(CGRect)frame forView:(UIView *)view
+{
     HippyAssertMainQueue();
 
     // The following variable has no meaning if the view is not a hippy root view
@@ -890,9 +898,10 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
     // Register shadow view
     if (shadowView) {
         shadowView.hippyTag = hippyTag;
-        shadowView.viewName = viewName;
-        shadowView.props = props;
         shadowView.rootTag = rootTag;
+        shadowView.bridge = self.bridge;
+        shadowView.viewName = viewName;
+        shadowView.props = newProps;
         [componentData setProps:newProps forShadowView:shadowView];
         _shadowViewRegistry[hippyTag] = shadowView;
     }
@@ -908,8 +917,13 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
         
         HippyVirtualNode *node = uiManager->_nodeRegistry[hippyTag];
         
-        if ([node isListSubNode] && [node cellNode] && !viewRegistry[[[node cellNode] hippyTag]]) {
-            return ;
+        if ([node createViewLazily]) {
+            HippyVirtualNode *firstLazilyLoadTypeParentNode = [node firstLazilyLoadTypeParentNode];
+            NSNumber *tag = [firstLazilyLoadTypeParentNode hippyTag];
+            UIView *view = viewRegistry[tag];
+            if (nil == view) {
+                return;
+            }
         }
         [uiManager createViewByComponentData:componentData hippyVirtualNode:node hippyTag:hippyTag properties:newProps viewName:viewName];
     }];
@@ -918,6 +932,7 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
         HippyVirtualNode *node = [componentData createVirtualNode: hippyTag props: newProps];
         if(node) {
             node.rootTag = rootTag;
+            node.bridge = [uiManager bridge];
             uiManager->_nodeRegistry[hippyTag] = node;
         }
     }];
@@ -971,6 +986,10 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
     for (NSNumber *rootTag in rootTags) {
         [self _layoutAndMount:rootTag];
     }
+}
+
+- (void)updateViewWithHippyTag:(NSNumber *)hippyTag props:(NSDictionary *)pros {
+    [self updateView:hippyTag viewName:nil props:pros];
 }
 
 // clang-format off
@@ -1183,10 +1202,10 @@ HIPPY_EXPORT_METHOD(dispatchViewManagerCommand:(nonnull NSNumber *)hippyTag
     if (_listTags.count != 0) {
         [_listTags enumerateObjectsUsingBlock:^(NSNumber *_Nonnull tag, __unused NSUInteger idx, __unused BOOL *stop) {
             HippyVirtualList *listNode = (HippyVirtualList *)self->_nodeRegistry[tag];
-            if (listNode.needFlush) {
-                id<HippyBaseListViewProtocol> listView = (id<HippyBaseListViewProtocol>)self->_viewRegistry[tag];
-                if ([listView flush]) {
-                    listNode.needFlush = NO;
+            if (listNode.isDirty) {
+                id <HippyBaseListViewProtocol> listView = (id <HippyBaseListViewProtocol>)self->_viewRegistry[tag];
+                if([listView flush]) {
+                    listNode.isDirty = NO;
                 }
             }
         }];
