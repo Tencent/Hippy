@@ -13,4 +13,3 @@ export { default as View } from './View';
 export { default as ViewPager } from './ViewPager';
 export { default as WebView } from './WebView';
 export { default as BoxShadow } from './BoxShadow';
-export { default as WormholeDemo } from './Feeds';
