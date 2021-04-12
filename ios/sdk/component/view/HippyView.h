@@ -74,6 +74,12 @@
 - (void)updateClippedSubviews;
 
 /**
+ * get content for layer
+ * return YES if getting content synchronized,else return NO
+ */
+- (BOOL)layerContent:(void (^)(UIImage *))contentBlock;
+
+/**
  * Border radii.
  */
 @property (nonatomic, assign) CGFloat borderRadius;
