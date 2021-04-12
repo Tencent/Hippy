@@ -398,3 +398,23 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 }
 
 @end
+
+@implementation UIView(Bridge)
+
+#define kBridgeKey @"bridgeKey"
+
+- (void)setBridge:(HippyBridge *)bridge {
+    if (bridge) {
+        NSMapTable *mapTable = [NSMapTable strongToWeakObjectsMapTable];
+        [mapTable setObject:bridge forKey:kBridgeKey];
+        objc_setAssociatedObject(self, @selector(bridge), mapTable, OBJC_ASSOCIATION_RETAIN);
+    }
+}
+
+- (HippyBridge *)bridge {
+    NSMapTable *mapTable = objc_getAssociatedObject(self, _cmd);
+    HippyBridge *bridge = [mapTable objectForKey:kBridgeKey];
+    return bridge;
+}
+
+@end
