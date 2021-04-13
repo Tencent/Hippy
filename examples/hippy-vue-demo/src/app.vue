@@ -17,6 +17,7 @@
 
 <script>
 import Vue from 'vue';
+/* eslint import/no-webpack-loader-syntax: off */
 import backButtonImg from '!!url-loader?modules!./back-icon.png';
 
 let DEBUG_SUBTITLE = '';
