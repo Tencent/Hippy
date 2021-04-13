@@ -59,7 +59,7 @@ module.exports = {
         ['==', '!=', '===', '!=='],
         ['&&', '||'],
       ],
-      allowSamePrecedence: false
+      allowSamePrecedence: false,
     }],
     'func-call-spacing': 'off',
     'new-cap': [
@@ -70,11 +70,12 @@ module.exports = {
         capIsNew: false,
         capIsNewExceptions: ['Immutable.Map', 'Immutable.Set', 'Immutable.List'],
         properties: false,
-      }
+      },
     ],
     'prefer-destructuring': [
       'warn',
-      {   VariableDeclarator: {
+      {
+        VariableDeclarator: {
           array: false,
           object: true,
         },
@@ -117,20 +118,19 @@ module.exports = {
         allowComputed: true,
       },
     ],
-
     // Allow import from devDependencies
     'import/no-extraneous-dependencies': [
       'error',
       {
         devDependencies: [
           'scripts/*.js',
-          'packages/**/types/*.d.ts', // FIXME: seems not working
+          // FIXME: seems not working
+          'packages/**/types/*.d.ts',
           'packages/**/__tests__/*.test.js',
           'examples/**/scripts/*.js',
         ],
       },
     ],
-
     // Allow tsx as the jsx file
     'react/jsx-filename-extension': [
       'error',
