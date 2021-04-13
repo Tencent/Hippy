@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-apply from: './bintrayUpload.gradle'
+apply from: './mavencentral.gradle'
 //apply from: './maven.gradle'
 
 ext {
@@ -17,7 +17,6 @@ buildscript {
   }
   dependencies {
     classpath 'com.android.tools.build:gradle:4.1.0+'
-    classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+'
     // NOTE: Do not place your application dependencies here; they belong
     // in the individual module build.gradle files
   }
@@ -29,7 +28,7 @@ allprojects {
     MAVEN_PWD = System.getenv('maven_password')
     MAVEN_URL = System.getenv('maven_url')
 
-    println("===============MAVEN_USER=" + MAVEN_USER + ", MAVEN_PWD=" + MAVEN_PWD)
+    println("MAVEN_USER=" + MAVEN_USER + ", MAVEN_PWD=" + MAVEN_PWD)
   }
 
   repositories {
