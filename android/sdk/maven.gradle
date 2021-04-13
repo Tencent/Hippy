@@ -6,7 +6,7 @@ ext {
     MAVEN_URL = System.getenv('maven_thirdparty')
 
     OUTPUT_JAR_PATH = "$buildDir/outputs/aar/hippy.jar"
-    println("===============MAVEN_URL=" + MAVEN_URL)
+    println("MAVEN_URL=" + MAVEN_URL)
 }
 
 publishing {
