@@ -563,7 +563,7 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
     }
     
     __weak typeof(self) weakSelf = self;
-    [self layerContent:^(UIImage *contentImage) {
+    [self getLayerContentForColor:nil completionBlock:^(UIImage *contentImage) {
         dispatch_async(dispatch_get_main_queue(), ^{
             typeof(weakSelf) strongSelf = weakSelf;
             CALayer *strongLayer = strongSelf.layer;
@@ -595,11 +595,11 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
     }];
 }
 
-- (BOOL)layerContent:(void (^)(UIImage *))contentBlock {
+- (BOOL)getLayerContentForColor:(UIColor *)color completionBlock:(void (^)(UIImage *))contentBlock {
     const HippyCornerRadii cornerRadii = [self cornerRadii];
     const UIEdgeInsets borderInsets = [self bordersAsInsets];
     const HippyBorderColors borderColors = [self borderColors];
-    UIColor *backgroundColor = self.backgroundColor;
+    UIColor *backgroundColor = color?:self.backgroundColor;
     
     CGRect theFrame = self.frame;
     NSInteger clipToBounds = self.clipsToBounds;

@@ -77,7 +77,7 @@
  * get content for layer
  * return YES if getting content synchronized,else return NO
  */
-- (BOOL)layerContent:(void (^)(UIImage *))contentBlock;
+- (BOOL)getLayerContentForColor:(UIColor *)color completionBlock:(void (^)(UIImage *))contentBlock;
 
 /**
  * Border radii.
