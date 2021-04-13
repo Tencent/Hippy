@@ -1,0 +1,66 @@
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+ext["signing.keyId"] = System.getenv('SIGNING_KEY_ID')
+ext["signing.password"] = System.getenv('SIGNING_PASSWORD')
+ext["signing.secretKeyRingFile"] = System.getenv('SIGNING_SECRET_KEY_RING_FILE')
+ext["ossrhUsername"] = System.getenv('OSSRH_USERNAME')
+ext["ossrhPassword"] = System.getenv('OSSRH_PASSWORD')
+
+println("signing.keyId=" + ext["signing.keyId"])
+println("signing.password=" + ext["signing.password"])
+println("signing.secretKeyRingFile=" + ext["signing.secretKeyRingFile"])
+println("ossrhUsername=" + ossrhUsername)
+println("ossrhPassword=" + ossrhPassword)
+
+publishing {
+    publications {
+        mavenAar(MavenPublication) {
+            artifact("$buildDir/outputs/aar/android-sdk-release.aar")
+            groupId PUBLISH_GROUP_ID
+            artifactId PUBLISH_ARTIFACT_ID
+            version VERSION_NAME
+            pom {
+                name = PUBLISH_ARTIFACT_ID
+                description = PUBLISH_VERSION_DESC
+                url = PUBLISH_GIT_URL
+                licenses {
+                    license {
+                        name = 'The Apache Software License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = PUBLISH_ARTIFACT_ID
+                        name = 'Tencent Hippy'
+                        email = 'maxli@tencent.com'
+                    }
+                }
+                scm {
+                    connection = "scm:git@github.com:Tencent/Hippy.git"
+                    developerConnection = "scm:git@github.com:Tencent/Hippy.git"
+                    url = PUBLISH_GIT_URL
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+            def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots"
+            url = VERSION_NAME.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+
+            credentials {
+                username ossrhUsername
+                password ossrhPassword
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenAar
+}
+
+

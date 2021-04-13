@@ -12,12 +12,14 @@ if (propFile.exists()) {
 
 android {
     compileSdkVersion 29
-    buildToolsVersion '30.0.3'
     defaultConfig {
         applicationId "com.tencent.mtt.hippy.example"
         minSdkVersion 14
         // noinspection ExpiredTargetSdkVersion
         targetSdkVersion 29
+        ndk  {
+            abiFilters 'arm64-v8a'
+        }
     }
 
     signingConfigs {
