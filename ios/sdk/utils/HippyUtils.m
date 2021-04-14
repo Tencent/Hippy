@@ -674,3 +674,13 @@ NSURL *__nullable HippyURLWithString(NSString *URLString, NSString *baseURLStrin
     }
     return nil;
 }
+
+HIPPY_EXTERN NSStringEncoding HippyGetStringEncodingFromURLResponse(NSURLResponse *response) {
+    NSString *textEncoding = [response textEncodingName];
+    if (!textEncoding) {
+        return NSUTF8StringEncoding;
+    }
+    CFStringEncoding encoding = CFStringConvertIANACharSetNameToEncoding((CFStringRef)textEncoding);
+    NSStringEncoding dataEncoding = CFStringConvertEncodingToNSStringEncoding(encoding);
+    return dataEncoding;
+}
