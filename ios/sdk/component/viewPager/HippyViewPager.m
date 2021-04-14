@@ -38,8 +38,8 @@
 @property (nonatomic, assign) NSUInteger lastPageIndex;
 @property (nonatomic, assign) CGFloat targetContentOffsetX;
 @property (nonatomic, assign) BOOL didFirstTimeLayout;
-@property (nonatomic, assign) BOOL invokeOnPageSelected;
 @property (nonatomic, assign) BOOL needsLayoutItems;
+@property (nonatomic, assign) BOOL needsResetPageIndex;
 
 @end
 
@@ -115,14 +115,13 @@
 
 - (void)hippySetFrame:(CGRect)frame {
     [super hippySetFrame:frame];
-    self.invokeOnPageSelected = YES;
     self.needsLayoutItems = YES;
+    self.needsResetPageIndex = YES;
     [self setNeedsLayout];
 }
 
 - (void)didUpdateHippySubviews {
     [super didUpdateHippySubviews];
-    self.invokeOnPageSelected = NO;
     self.needsLayoutItems = YES;
     [self setNeedsLayout];
 }
@@ -138,12 +137,12 @@
         return;
     }
 
+    _lastPageIndex = pageNumber;
     UIView *theItem = self.viewPagerItems[pageNumber];
     self.targetContentOffsetX = CGRectGetMinX(theItem.frame);
     [self setContentOffset:theItem.frame.origin animated:animated];
     if (self.onPageSelected) {
         self.onPageSelected(@{ @"position": @(pageNumber) });
-        _lastPageIndex = pageNumber;
     }
     if (self.onPageScrollStateChanged) {
         self.onPageScrollStateChanged(@{ @"pageScrollState": @"idle" });
@@ -323,7 +322,6 @@
     if (!isContentSizeEqual || !isFrameEqual) {
         self.previousFrame = self.frame;
         self.previousSize = self.contentSize;
-        self.invokeOnPageSelected = YES;
         self.needsLayoutItems = YES;
         [self setNeedsLayout];
     }
@@ -334,14 +332,20 @@
     if (!self.needsLayoutItems) {
         return;
     }
-    if (!self.viewPagerItems.count)
+    self.needsLayoutItems = NO;
+    if (!self.viewPagerItems.count) {
         return;
+    }
     for (int i = 1; i < self.viewPagerItems.count; ++i) {
         UIView *lastViewPagerItem = self.viewPagerItems[i - 1];
         UIView *theViewPagerItemItem = self.viewPagerItems[i];
         CGPoint lastViewPagerItemRightPoint = [self rightPointOfView:lastViewPagerItem];
-        CGRect theFrame = CGRectMake(lastViewPagerItemRightPoint.x, lastViewPagerItemRightPoint.y, theViewPagerItemItem.frame.size.width,
-            theViewPagerItemItem.frame.size.height);
+        CGRect theFrame = CGRectMake(
+                                     lastViewPagerItemRightPoint.x,
+                                     lastViewPagerItemRightPoint.y,
+                                     theViewPagerItemItem.frame.size.width,
+                                     theViewPagerItemItem.frame.size.height
+                                     );
         theViewPagerItemItem.frame = theFrame;
     }
 
@@ -353,8 +357,7 @@
 
     //如果是第一次加载，那么走initialPage的逻辑
     if (!_didFirstTimeLayout) {
-        UIView *theItem = self.viewPagerItems[self.initialPage];
-        self.contentOffset = theItem.frame.origin;
+        [self setPage:self.initialPage animated:NO];
         _didFirstTimeLayout = YES;
     }
     if (self.contentOffset.x > self.contentSize.width && 0 != self.contentSize.width) {
@@ -368,17 +371,14 @@
         return;
     }
 
-    self.contentSize = CGSizeMake(lastViewPagerItem.frame.origin.x + lastViewPagerItem.frame.size.width,
-        lastViewPagerItem.frame.origin.y + lastViewPagerItem.frame.size.height);
-    if (self.onPageSelected && NO == CGSizeEqualToSize(CGSizeZero, self.contentSize) && _invokeOnPageSelected) {
-        NSUInteger currentPageIndex = self.contentOffset.x / CGRectGetWidth(self.bounds);
-        if (currentPageIndex != _lastPageIndex) {
-            _lastPageIndex = currentPageIndex;
-            self.onPageSelected(@{ @"position": @(currentPageIndex) });
-        }
+    self.contentSize = CGSizeMake(
+                                  lastViewPagerItem.frame.origin.x + lastViewPagerItem.frame.size.width,
+                                  lastViewPagerItem.frame.origin.y + lastViewPagerItem.frame.size.height
+                                  );
+    if (self.needsResetPageIndex) {
+        [self setPage:_lastPageIndex animated:YES];
+        self.needsResetPageIndex= NO;
     }
-    [self setPage:_lastPageIndex animated:YES];
-    self.needsLayoutItems = NO;
 }
 
 - (NSUInteger)nowPage {
