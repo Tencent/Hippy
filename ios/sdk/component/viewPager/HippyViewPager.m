@@ -355,15 +355,6 @@
         return;
     }
 
-    //如果是第一次加载，那么走initialPage的逻辑
-    if (!_didFirstTimeLayout) {
-        [self setPage:self.initialPage animated:NO];
-        _didFirstTimeLayout = YES;
-    }
-    if (self.contentOffset.x > self.contentSize.width && 0 != self.contentSize.width) {
-        self.contentOffset = CGPointMake(0, self.contentSize.width);
-    }
-
     UIView *lastViewPagerItem = self.viewPagerItems.lastObject;
     if (!lastViewPagerItem) {
         HippyLogWarn(@"Error In HippyViewPager: addSubview");
@@ -375,9 +366,16 @@
                                   lastViewPagerItem.frame.origin.x + lastViewPagerItem.frame.size.width,
                                   lastViewPagerItem.frame.origin.y + lastViewPagerItem.frame.size.height
                                   );
-    if (self.needsResetPageIndex) {
-        [self setPage:_lastPageIndex animated:YES];
+    if (!_didFirstTimeLayout) {
+        [self setPage:self.initialPage animated:NO];
+        _didFirstTimeLayout = YES;
         self.needsResetPageIndex= NO;
+    }
+    else {
+        if (self.needsResetPageIndex) {
+            [self setPage:_lastPageIndex animated:YES];
+            self.needsResetPageIndex= NO;
+        }
     }
 }
 
