@@ -37,7 +37,7 @@
             BOOL sync = [self getLayerContentForColor:toColor completionBlock:^(UIImage *image) {
                 toValue = (id)image.CGImage;
             }];
-            if (sync) {
+            if (sync && toValue) {
                 keyPath = @"contents";
             }
             else {
