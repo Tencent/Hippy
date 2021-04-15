@@ -93,7 +93,6 @@ public class TimeMonitor
 		}
 
 		mTotalTime = (int) (SystemClock.elapsedRealtime() - mStartTime);
-		LogUtils.d("hippy", "hippy endEvent: " + mCurrentEvent.eventName);
 	}
 
 	public int getTotalTime()
