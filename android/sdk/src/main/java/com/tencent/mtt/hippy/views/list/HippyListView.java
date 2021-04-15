@@ -315,14 +315,17 @@ public class HippyListView extends RecyclerView implements HippyViewBase
         }
     }
 
-    private boolean shouldStopReleaseGlowsForHorizontal() {
+    private boolean shouldStopReleaseGlowsForHorizontal(boolean fromTouch) {
         int totalHeight = mAdapter.getTotalHeight();
         if (mOffsetX <= 0 || getWidth() > (totalHeight - mState.mCustomHeaderWidth)) {
-            if (mHeaderRefreshState == REFRESH_STATE_IDLE) {
+            if (mHeaderRefreshState == REFRESH_STATE_IDLE && fromTouch) {
                 sendPullHeaderEvent(EVENT_TYPE_HEADER_RELEASED, new HippyMap());
                 mHeaderRefreshState = REFRESH_STATE_LOADING;
             }
-            smoothScrollBy(-mOffsetX, 0, false, true);
+
+            if(mOffsetX < 0) {
+                smoothScrollBy(-mOffsetX, 0, false, true);
+            }
             return true;
         } else {
             int refreshEnableOffsetX = totalHeight - getWidth() + mState.mCustomFooterWidth;
@@ -346,14 +349,16 @@ public class HippyListView extends RecyclerView implements HippyViewBase
         return false;
     }
 
-    private boolean shouldStopReleaseGlowsForVertical() {
+    private boolean shouldStopReleaseGlowsForVertical(boolean fromTouch) {
         int totalHeight = mAdapter.getTotalHeight();
         if (getOffsetY() <= 0 || getHeight() > (totalHeight - mState.mCustomHeaderHeight)) {
-            if (mHeaderRefreshState == REFRESH_STATE_IDLE) {
+            if (mHeaderRefreshState == REFRESH_STATE_IDLE && fromTouch) {
                 sendPullHeaderEvent(EVENT_TYPE_HEADER_RELEASED, new HippyMap());
                 mHeaderRefreshState = REFRESH_STATE_LOADING;
             }
-            smoothScrollBy(0, -mOffsetY, false, true);
+            if (getOffsetY() < 0) {
+                smoothScrollBy(0, -mOffsetY, false, true);
+            }
             return true;
         } else {
             int refreshEnableOffsetY = totalHeight - getHeight() + mState.mCustomFooterHeight;
@@ -391,9 +396,9 @@ public class HippyListView extends RecyclerView implements HippyViewBase
             }
 
             if (mLayout.canScrollHorizontally()) {
-                return shouldStopReleaseGlowsForHorizontal();
+                return shouldStopReleaseGlowsForHorizontal(fromTouch);
             } else {
-                return shouldStopReleaseGlowsForVertical();
+                return shouldStopReleaseGlowsForVertical(fromTouch);
             }
         }
 
