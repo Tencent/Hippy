@@ -28,7 +28,8 @@
 typedef NS_ENUM(NSInteger, HippyExtAnimationValueType) {
     HippyExtAnimationValueTypeNone,
     HippyExtAnimationValueTypeRad,
-    HippyExtAnimationValueTypeDeg
+    HippyExtAnimationValueTypeDeg,
+    HippyExtAnimationValueTypeColor,
 };
 
 typedef NS_ENUM(NSInteger, HippyExtAnimationDirection) {
