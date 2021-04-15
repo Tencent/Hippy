@@ -72,10 +72,10 @@ export default {
         console.log('changed to face1');
         this.animations.face = face1;
       }
-      // actions切换后，手动启动动画，由于创建动画需要与终端通信，延迟200ms保证动画已创建
+      // actions切换后，手动启动动画，由于创建动画需要与终端通信，延迟10ms保证动画已创建
       setTimeout(() => {
         this.animationRef.start();
-      }, 200);
+      }, 10);
     },
   },
   data() {
