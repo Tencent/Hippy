@@ -29,7 +29,7 @@
 void ExceptionHandler::ReportJsException(std::shared_ptr<Runtime> runtime,
                                          const std::string desc,
                                          const std::string stack) {
-  HIPPY_DLOG(hippy::Debug, "ReportJsException begin");
+  TDF_BASE_DLOG(INFO) << "ReportJsException begin";
 
   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
 
@@ -39,7 +39,7 @@ void ExceptionHandler::ReportJsException(std::shared_ptr<Runtime> runtime,
   if (runtime->GetBridge()) {
     j_env->CallVoidMethod(
         runtime->GetBridge()->GetObj(),
-        JNIEnvironment::GetInstance()->GetMethods().report_exception_method_id,
+        JNIEnvironment::GetInstance()->GetMethods().j_report_exception_method_id,
         j_exception, j_stack_trace);
   }
 
@@ -47,7 +47,7 @@ void ExceptionHandler::ReportJsException(std::shared_ptr<Runtime> runtime,
   j_env->DeleteLocalRef(j_exception);
   j_env->DeleteLocalRef(j_stack_trace);
 
-  HIPPY_DLOG(hippy::Debug, "ReportJsException end");
+  TDF_BASE_DLOG(INFO) << "ReportJsException end";
 }
 
 void ExceptionHandler::JSONException(std::shared_ptr<Runtime> runtime,
@@ -69,7 +69,7 @@ void ExceptionHandler::JSONException(std::shared_ptr<Runtime> runtime,
   if (runtime->GetBridge()) {
     j_env->CallVoidMethod(
         runtime->GetBridge()->GetObj(),
-        JNIEnvironment::GetInstance()->GetMethods().report_exception_method_id,
+        JNIEnvironment::GetInstance()->GetMethods().j_report_exception_method_id,
         j_exception, j_stack_trace);
   }
 

@@ -27,8 +27,8 @@
 #include <string>
 #include <unordered_map>
 
+#include "base/logging.h"
 #include "core/base/common.h"
-#include "core/base/logging.h"
 
 class Scope;
 
@@ -69,7 +69,7 @@ class CtxValue {
 class Ctx {
  public:
   Ctx() {}
-  virtual ~Ctx() { HIPPY_DLOG(hippy::Debug, "~Ctx"); }
+  virtual ~Ctx() { TDF_BASE_DLOG(INFO) << "~Ctx"; }
 
   virtual bool RegisterGlobalInJs() = 0;
   virtual bool SetGlobalJsonVar(const std::string& name, const char* json) = 0;
@@ -153,7 +153,7 @@ class Ctx {
 class VM {
  public:
   VM(){};
-  virtual ~VM() { HIPPY_DLOG(hippy::Debug, "~VM"); };
+  virtual ~VM() { TDF_BASE_DLOG(INFO) << "~VM"; };
 
   virtual std::shared_ptr<Ctx> CreateContext() = 0;
 };

@@ -61,7 +61,7 @@ class JSCCtx : public Ctx {
 
   ~JSCCtx() {
     exception_ = nullptr;
-    
+
     JSGlobalContextRelease(context_);
     context_ = nullptr;
   }

@@ -66,6 +66,8 @@ else()
 endif()
 message("ABI_COMPILE_OPTIONS: ${ABI_COMPILE_OPTIONS}")
 
+add_definitions("-DANDROID")
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../../../../core/third_party/base out)
 
 add_definitions("-DOS_ANDROID")
 add_compile_options(${ABI_COMPILE_OPTIONS})
@@ -101,6 +103,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${CORE_SRC_DIR}/include)
 include_directories(${PROJECT_SOURCE_DIR}/third_party/${V8_VERSION})
 include_directories(${PROJECT_SOURCE_DIR})
+include_directories(${CORE_SRC_DIR}/third_party/base/include)
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../../libs/${ANDROID_ABI}")
 
@@ -113,7 +116,7 @@ set_target_properties(libmtt_shared PROPERTIES IMPORTED_LOCATION ${PROJECT_SOURC
 set(HIPPY_TARGET_NAME "hippybridge")
 
 add_library(${HIPPY_TARGET_NAME} SHARED ${CORE_SRC} ${URL_PARSER_SRC} ${JNI_SRC})
-target_link_libraries(${HIPPY_TARGET_NAME} android log libmttv8 libmtt_shared)
+target_link_libraries(${HIPPY_TARGET_NAME} android log libmttv8 libmtt_shared tdf_base)
 
 #add_custom_command(TARGET ${HIPPY_TARGET_NAME} POST_BUILD
 #            COMMAND "${CMAKE_STRIP}" -g -S -d --strip-debug --verbose

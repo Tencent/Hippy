@@ -182,8 +182,8 @@ inline void writeV8Property(v8::Isolate* isolate,
     uint32_t length = localStr->Utf8Length(isolate);
     writeUnsignedInt(buffer, length);
     ENSURE_BUFFER_SIZE(length);
-    localStr->WriteUtf8(isolate, static_cast<char*>(buffer->data) + buffer->position,
-                        length);
+    localStr->WriteUtf8(
+        isolate, static_cast<char*>(buffer->data) + buffer->position, length);
     buffer->position += length;
   }
 }
@@ -221,8 +221,8 @@ inline bool hasNext(HippyBuffer* buffer) {
 }
 
 inline int8_t readType(HippyBuffer* buffer) {
-  int8_t* ptr = reinterpret_cast<int8_t*>(
-      static_cast<uint8_t*>(buffer->data) + buffer->position);
+  int8_t* ptr = reinterpret_cast<int8_t*>(static_cast<uint8_t*>(buffer->data) +
+                                          buffer->position);
   buffer->position += sizeof(int8_t);
   return *ptr;
 }

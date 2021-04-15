@@ -43,7 +43,7 @@ bool JNIRegister::RegisterMethods(JNIEnv* j_env) {
     jclass j_class;
     j_class = j_env->FindClass(it->first.c_str());
     if (!j_class) {
-      HIPPY_LOG(hippy::Error, "NativeAccess class not found");
+      TDF_BASE_DLOG(ERROR) << "NativeAccess class not found";
       return false;
     }
     std::vector<JNIRegisterData> datas = it->second;
@@ -54,8 +54,9 @@ bool JNIRegister::RegisterMethods(JNIEnv* j_env) {
         if (j_env->ExceptionCheck()) {
           j_env->ExceptionDescribe();
         }
-        HIPPY_LOG(hippy::Error, "Cannot find method %s%s of NativeAccess",
-                  method.name, method.signature);
+        TDF_BASE_DLOG(ERROR)
+            << "Cannot find method name = " << method.name
+            << " signature = " << method.signature << " of NativeAccess";
         return false;
       }
       methods.push_back(method);

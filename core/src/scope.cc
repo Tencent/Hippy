@@ -27,8 +27,8 @@
 #include <string>
 #include <vector>
 
+#include "base/logging.h"
 #include "core/base/common.h"
-#include "core/base/logging.h"
 #include "core/engine.h"
 #include "core/modules/module_register.h"
 #include "core/napi/native_source_code.h"
@@ -51,18 +51,18 @@ Scope::Scope(Engine* engine,
     : engine_(engine), context_(nullptr), name_(name), map_(std::move(map)) {}
 
 Scope::~Scope() {
-  HIPPY_DLOG(hippy::Debug, "~Scope");
+  TDF_BASE_DLOG(INFO) << "~Scope";
   engine_->Exit();
 }
 
 void Scope::WillExit() {
-  HIPPY_DLOG(hippy::Debug, "WillExit begin");
+  TDF_BASE_DLOG(INFO) << "WillExit begin";
   std::promise<std::shared_ptr<CtxValue>> promise;
   std::future<std::shared_ptr<CtxValue>> future = promise.get_future();
   std::weak_ptr<Ctx> weak_context = context_;
   JavaScriptTask::Function cb = hippy::base::MakeCopyable(
       [weak_context, p = std::move(promise)]() mutable {
-        HIPPY_DLOG(hippy::Debug, "run js WillExit begin");
+        TDF_BASE_DLOG(INFO) << "run js WillExit begin";
         std::shared_ptr<CtxValue> rst = nullptr;
         std::shared_ptr<Ctx> context = weak_context.lock();
         if (context) {
@@ -84,7 +84,7 @@ void Scope::WillExit() {
   }
 
   future.get();
-  HIPPY_DLOG(hippy::Debug, "ExitCtx end");
+  TDF_BASE_DLOG(INFO) << "ExitCtx end";
 }
 
 bool Scope::LoadModules() {
@@ -92,16 +92,16 @@ bool Scope::LoadModules() {
 }
 
 void Scope::Initialized() {
-  HIPPY_DLOG(hippy::Debug, "Scope Initialized");
+  TDF_BASE_DLOG(INFO) << "Scope Initialized";
   engine_->Enter();
   context_ = engine_->GetVM()->CreateContext();
   if (context_ == nullptr) {
-    HIPPY_LOG(hippy::Error, "CreateContext return nullptr");
+    TDF_BASE_DLOG(ERROR) << "CreateContext return nullptr";
     return;
   }
   std::shared_ptr<Scope> self = wrapper_->scope_.lock();
   if (!self) {
-    HIPPY_LOG(hippy::Error, "Scope wrapper_ error_");
+    TDF_BASE_DLOG(ERROR) << "Scope wrapper_ error_";
     return;
   }
   RegisterMap::const_iterator it =
@@ -109,32 +109,31 @@ void Scope::Initialized() {
   if (it != map_->end()) {
     RegisterFunction f = it->second;
     if (f) {
-      HIPPY_DLOG(hippy::Debug, "run ContextCreatedCB begin");
+      TDF_BASE_DLOG(INFO) << "run ContextCreatedCB begin";
       f(wrapper_.get());
-      HIPPY_DLOG(hippy::Debug, "run ContextCreatedCB end");
+      TDF_BASE_DLOG(INFO) << "run ContextCreatedCB end";
       map_->erase(it);
     }
   }
-  HIPPY_DLOG(hippy::Debug, "Scope RegisterGlobalInJs");
+  TDF_BASE_DLOG(INFO) << "Scope RegisterGlobalInJs";
   context_->RegisterGlobalModule(self,
                                  ModuleRegister::instance()->GetGlobalList());
   ModuleClassMap map(ModuleRegister::instance()->GetInternalList());
   binding_data_ = std::make_unique<BindingData>(self, map);
 
   auto source_code = hippy::GetNativeSourceCode(kHippyBootstrapJSName);
-  HIPPY_DCHECK(source_code.data_ && source_code.length_);
+  TDF_BASE_DCHECK(source_code.data_ && source_code.length_);
 
   std::shared_ptr<CtxValue> function =
       context_->RunScript(source_code.data_, source_code.length_,
                           kHippyBootstrapJSName, false, nullptr);
 
   bool is_func = context_->IsFunction(function);
-  HIPPY_CHECK_WITH_MSG(is_func == true,
-                       "bootstrap return not function, register fail!!!");
+  TDF_BASE_CHECK(is_func) << "bootstrap return not function, register fail!!!";
   if (!is_func) {
     const char* js = reinterpret_cast<const char*>(source_code.data_);
-    HIPPY_LOG(hippy::Error, "bootstrap return not function, js = %s, len = %d",
-              js, source_code.length_);
+    TDF_BASE_DLOG(ERROR) << "bootstrap return not function, js = " << js
+                         << ", len = " << source_code.length_;
     return;
   }
 
@@ -147,9 +146,9 @@ void Scope::Initialized() {
   if (it != map_->end()) {
     RegisterFunction f = it->second;
     if (f) {
-      HIPPY_DLOG(hippy::Debug, "run SCOPE_INITIALIEZED begin");
+      TDF_BASE_DLOG(INFO) << "run SCOPE_INITIALIEZED begin";
       f(wrapper_.get());
-      HIPPY_DLOG(hippy::Debug, "run SCOPE_INITIALIEZED end");
+      TDF_BASE_DLOG(INFO) << "run SCOPE_INITIALIEZED end";
       map_->erase(it);
     }
   }

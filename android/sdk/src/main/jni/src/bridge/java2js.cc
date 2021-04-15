@@ -65,7 +65,7 @@ void CallFunction(JNIEnv* j_env,
   std::shared_ptr<JavaScriptTaskRunner> runner =
       runtime->GetEngine()->GetJSRunner();
   if (!runner) {
-    HIPPY_LOG(hippy::Warning, "CallFunction runner invalid");
+    TDF_BASE_DLOG(WARNING) << "CallFunction runner invalid";
     return;
   }
   std::string action_name = JniUtils::CovertJavaStringToString(j_env, j_action);
@@ -76,7 +76,7 @@ void CallFunction(JNIEnv* j_env,
                     buffer_owner_ = std::move(buffer_owner)] {
     std::shared_ptr<Scope> scope = runtime->GetScope();
     if (!scope) {
-      HIPPY_LOG(hippy::Warning, "CallFunction scope invalid");
+      TDF_BASE_DLOG(WARNING) << "CallFunction scope invalid";
       return;
     }
     std::shared_ptr<Ctx> context = scope->GetContext();
@@ -84,11 +84,11 @@ void CallFunction(JNIEnv* j_env,
       global_inspector->SendMessageToV8(buffer_data_);
     } else {
       if (!runtime->GetBridgeFunc()) {
-        HIPPY_DLOG(hippy::Debug, "bridge_func_ init");
+        TDF_BASE_DLOG(INFO) << "bridge_func_ init";
         std::string name(kHippyBridgeName);
         std::shared_ptr<CtxValue> fn = context->GetJsFn(name);
         bool is_fn = context->IsFunction(fn);
-        HIPPY_DLOG(hippy::Debug, "is_fn = %d", is_fn);
+        TDF_BASE_DLOG(INFO) << "is_fn = " << is_fn;
         if (!is_fn) {
           CallJavaMethod(cb_->GetObj(), 0);
           return;

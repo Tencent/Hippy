@@ -144,9 +144,13 @@
 		06FF8BD62511BC0400C03900 /* HippyImageProviderProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 06FF8BD52511BC0400C03900 /* HippyImageProviderProtocol.m */; };
 		06FF8EEC2511C10B00C03900 /* HippyDefaultImageProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 06FF8EEB2511C10B00C03900 /* HippyDefaultImageProvider.m */; };
 		06FF8EEF2511C20900C03900 /* NSData+DataType.m in Sources */ = {isa = PBXBuildFile; fileRef = 06FF8EEE2511C20900C03900 /* NSData+DataType.m */; };
+		854FC5DC262F0D88002EAD41 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 854FC5CC262F0D88002EAD41 /* .gitignore */; };
+		854FC5DD262F0D88002EAD41 /* .clang-format in Resources */ = {isa = PBXBuildFile; fileRef = 854FC5CD262F0D88002EAD41 /* .clang-format */; };
+		854FC5E2262F0D88002EAD41 /* logging.cc in Sources */ = {isa = PBXBuildFile; fileRef = 854FC5D6262F0D88002EAD41 /* logging.cc */; };
+		854FC5E3262F0D88002EAD41 /* log_settings_state.cc in Sources */ = {isa = PBXBuildFile; fileRef = 854FC5D8262F0D88002EAD41 /* log_settings_state.cc */; };
+		854FC5E5262F0D88002EAD41 /* log_settings.cc in Sources */ = {isa = PBXBuildFile; fileRef = 854FC5DA262F0D88002EAD41 /* log_settings.cc */; };
 		85BCD4572578C58000638DB4 /* scope.cc in Sources */ = {isa = PBXBuildFile; fileRef = 85BCD4152578C58000638DB4 /* scope.cc */; };
 		85BCD4582578C58000638DB4 /* engine.cc in Sources */ = {isa = PBXBuildFile; fileRef = 85BCD4162578C58000638DB4 /* engine.cc */; };
-		85BCD4592578C58000638DB4 /* logging_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 85BCD4182578C58000638DB4 /* logging_impl.cc */; };
 		85BCD45A2578C58000638DB4 /* javascript_task_runner.cc in Sources */ = {isa = PBXBuildFile; fileRef = 85BCD41A2578C58000638DB4 /* javascript_task_runner.cc */; };
 		85BCD45B2578C58000638DB4 /* javascript_task.cc in Sources */ = {isa = PBXBuildFile; fileRef = 85BCD41B2578C58000638DB4 /* javascript_task.cc */; };
 		85BCD45C2578C58000638DB4 /* worker_task_runner.cc in Sources */ = {isa = PBXBuildFile; fileRef = 85BCD41C2578C58000638DB4 /* worker_task_runner.cc */; };
@@ -159,7 +163,6 @@
 		85BCD4632578C58000638DB4 /* thread_id.cc in Sources */ = {isa = PBXBuildFile; fileRef = 85BCD4252578C58000638DB4 /* thread_id.cc */; };
 		85BCD4642578C58000638DB4 /* task_runner.cc in Sources */ = {isa = PBXBuildFile; fileRef = 85BCD4262578C58000638DB4 /* task_runner.cc */; };
 		85BCD4652578C58000638DB4 /* task.cc in Sources */ = {isa = PBXBuildFile; fileRef = 85BCD4272578C58000638DB4 /* task.cc */; };
-		85BCD4662578C58000638DB4 /* logging.cc in Sources */ = {isa = PBXBuildFile; fileRef = 85BCD4282578C58000638DB4 /* logging.cc */; };
 		85BCD4672578C58000638DB4 /* thread.cc in Sources */ = {isa = PBXBuildFile; fileRef = 85BCD4292578C58000638DB4 /* thread.cc */; };
 		85BCD46B2578C58000638DB4 /* callback_info.cc in Sources */ = {isa = PBXBuildFile; fileRef = 85BCD42F2578C58000638DB4 /* callback_info.cc */; };
 		85BCD46C2578C58000638DB4 /* js_native_jsc_helper.cc in Sources */ = {isa = PBXBuildFile; fileRef = 85BCD4312578C58000638DB4 /* js_native_jsc_helper.cc */; };
@@ -475,6 +478,15 @@
 		06FF8EEB2511C10B00C03900 /* HippyDefaultImageProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyDefaultImageProvider.m; sourceTree = "<group>"; };
 		06FF8EED2511C20900C03900 /* NSData+DataType.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSData+DataType.h"; sourceTree = "<group>"; };
 		06FF8EEE2511C20900C03900 /* NSData+DataType.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSData+DataType.m"; sourceTree = "<group>"; };
+		854FC5C8262F0D88002EAD41 /* logging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = logging.h; sourceTree = "<group>"; };
+		854FC5C9262F0D88002EAD41 /* log_level.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_level.h; sourceTree = "<group>"; };
+		854FC5CA262F0D88002EAD41 /* macros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = macros.h; sourceTree = "<group>"; };
+		854FC5CB262F0D88002EAD41 /* log_settings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_settings.h; sourceTree = "<group>"; };
+		854FC5CC262F0D88002EAD41 /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		854FC5CD262F0D88002EAD41 /* .clang-format */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ".clang-format"; sourceTree = "<group>"; };
+		854FC5D6262F0D88002EAD41 /* logging.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = logging.cc; sourceTree = "<group>"; };
+		854FC5D8262F0D88002EAD41 /* log_settings_state.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log_settings_state.cc; sourceTree = "<group>"; };
+		854FC5DA262F0D88002EAD41 /* log_settings.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log_settings.cc; sourceTree = "<group>"; };
 		85BCD3EC2578C57F00638DB4 /* engine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = engine.h; sourceTree = "<group>"; };
 		85BCD3ED2578C57F00638DB4 /* core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = core.h; sourceTree = "<group>"; };
 		85BCD3EF2578C57F00638DB4 /* logging_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = logging_impl.h; sourceTree = "<group>"; };
@@ -506,7 +518,6 @@
 		85BCD4102578C58000638DB4 /* js_native_api_jsc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_native_api_jsc.h; sourceTree = "<group>"; };
 		85BCD4152578C58000638DB4 /* scope.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scope.cc; sourceTree = "<group>"; };
 		85BCD4162578C58000638DB4 /* engine.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = engine.cc; sourceTree = "<group>"; };
-		85BCD4182578C58000638DB4 /* logging_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = logging_impl.cc; sourceTree = "<group>"; };
 		85BCD41A2578C58000638DB4 /* javascript_task_runner.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = javascript_task_runner.cc; sourceTree = "<group>"; };
 		85BCD41B2578C58000638DB4 /* javascript_task.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = javascript_task.cc; sourceTree = "<group>"; };
 		85BCD41C2578C58000638DB4 /* worker_task_runner.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = worker_task_runner.cc; sourceTree = "<group>"; };
@@ -519,7 +530,6 @@
 		85BCD4252578C58000638DB4 /* thread_id.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = thread_id.cc; sourceTree = "<group>"; };
 		85BCD4262578C58000638DB4 /* task_runner.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = task_runner.cc; sourceTree = "<group>"; };
 		85BCD4272578C58000638DB4 /* task.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = task.cc; sourceTree = "<group>"; };
-		85BCD4282578C58000638DB4 /* logging.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = logging.cc; sourceTree = "<group>"; };
 		85BCD4292578C58000638DB4 /* thread.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = thread.cc; sourceTree = "<group>"; };
 		85BCD42F2578C58000638DB4 /* callback_info.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = callback_info.cc; sourceTree = "<group>"; };
 		85BCD4312578C58000638DB4 /* js_native_jsc_helper.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_native_jsc_helper.cc; sourceTree = "<group>"; };
@@ -1176,9 +1186,90 @@
 			path = myview;
 			sourceTree = "<group>";
 		};
+		854FC5C3262F0D88002EAD41 /* third_party */ = {
+			isa = PBXGroup;
+			children = (
+				854FC5C4262F0D88002EAD41 /* base */,
+			);
+			path = third_party;
+			sourceTree = "<group>";
+		};
+		854FC5C4262F0D88002EAD41 /* base */ = {
+			isa = PBXGroup;
+			children = (
+				854FC5C6262F0D88002EAD41 /* include */,
+				854FC5CC262F0D88002EAD41 /* .gitignore */,
+				854FC5CD262F0D88002EAD41 /* .clang-format */,
+				854FC5CE262F0D88002EAD41 /* src */,
+			);
+			path = base;
+			sourceTree = "<group>";
+		};
+		854FC5C6262F0D88002EAD41 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				854FC5C7262F0D88002EAD41 /* base */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		854FC5C7262F0D88002EAD41 /* base */ = {
+			isa = PBXGroup;
+			children = (
+				854FC5C8262F0D88002EAD41 /* logging.h */,
+				854FC5C9262F0D88002EAD41 /* log_level.h */,
+				854FC5CA262F0D88002EAD41 /* macros.h */,
+				854FC5CB262F0D88002EAD41 /* log_settings.h */,
+			);
+			path = base;
+			sourceTree = "<group>";
+		};
+		854FC5CE262F0D88002EAD41 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				854FC5D0262F0D88002EAD41 /* platform */,
+				854FC5D7262F0D88002EAD41 /* base */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		854FC5D0262F0D88002EAD41 /* platform */ = {
+			isa = PBXGroup;
+			children = (
+				854FC5D1262F0D88002EAD41 /* adr */,
+				854FC5D4262F0D88002EAD41 /* ios */,
+			);
+			path = platform;
+			sourceTree = "<group>";
+		};
+		854FC5D1262F0D88002EAD41 /* adr */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = adr;
+			sourceTree = "<group>";
+		};
+		854FC5D4262F0D88002EAD41 /* ios */ = {
+			isa = PBXGroup;
+			children = (
+				854FC5D6262F0D88002EAD41 /* logging.cc */,
+			);
+			path = ios;
+			sourceTree = "<group>";
+		};
+		854FC5D7262F0D88002EAD41 /* base */ = {
+			isa = PBXGroup;
+			children = (
+				854FC5D8262F0D88002EAD41 /* log_settings_state.cc */,
+				854FC5DA262F0D88002EAD41 /* log_settings.cc */,
+			);
+			path = base;
+			sourceTree = "<group>";
+		};
 		85BCD3BC2578C57F00638DB4 /* core */ = {
 			isa = PBXGroup;
 			children = (
+				854FC5C3262F0D88002EAD41 /* third_party */,
 				85BCD3EA2578C57F00638DB4 /* include */,
 				85BCD4142578C58000638DB4 /* src */,
 			);
@@ -1295,7 +1386,6 @@
 		85BCD4172578C58000638DB4 /* platform */ = {
 			isa = PBXGroup;
 			children = (
-				85BCD4182578C58000638DB4 /* logging_impl.cc */,
 			);
 			path = platform;
 			sourceTree = "<group>";
@@ -1329,7 +1419,6 @@
 				85BCD4252578C58000638DB4 /* thread_id.cc */,
 				85BCD4262578C58000638DB4 /* task_runner.cc */,
 				85BCD4272578C58000638DB4 /* task.cc */,
-				85BCD4282578C58000638DB4 /* logging.cc */,
 				85BCD4292578C58000638DB4 /* thread.cc */,
 			);
 			path = base;
@@ -1429,6 +1518,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				854FC5DC262F0D88002EAD41 /* .gitignore in Resources */,
+				854FC5DD262F0D88002EAD41 /* .clang-format in Resources */,
 				AC63515623F92C99007FABA5 /* TTTGB-Medium.otf in Resources */,
 				064C5AF023AB1A70001E80DD /* res in Resources */,
 			);
@@ -1502,7 +1593,6 @@
 				064C5A1E23AB1A51001E80DD /* HippyAnimatedImageView.m in Sources */,
 				067AB97523B5F309009D5EE2 /* MyViewManager.m in Sources */,
 				064C5A5223AB1A51001E80DD /* HippyKeyCommands.m in Sources */,
-				85BCD4592578C58000638DB4 /* logging_impl.cc in Sources */,
 				064C5A4123AB1A51001E80DD /* HippyErrorInfo.m in Sources */,
 				064C5A1223AB1A51001E80DD /* HippyTextView.mm in Sources */,
 				064C5A1623AB1A51001E80DD /* HippyTextSelection.m in Sources */,
@@ -1534,7 +1624,6 @@
 				064C5A0E23AB1A51001E80DD /* HippyViewPager.m in Sources */,
 				064C5A2223AB1A51001E80DD /* HippyBaseListViewDataSource.m in Sources */,
 				064C5A1C23AB1A51001E80DD /* HippyImageView.m in Sources */,
-				85BCD4662578C58000638DB4 /* logging.cc in Sources */,
 				0657F5F3254836F70076F5C5 /* HippyModalTransitioningDelegate.mm in Sources */,
 				85BCD4672578C58000638DB4 /* thread.cc in Sources */,
 				064C5A2923AB1A51001E80DD /* HippyBorderDrawing.m in Sources */,
@@ -1551,6 +1640,7 @@
 				064C5A0823AB1A51001E80DD /* HippyRefreshWrapperItemView.m in Sources */,
 				064C5A3723AB1A51001E80DD /* HippyModalHostViewController.m in Sources */,
 				064C59F223AB1A51001E80DD /* HippyNetWork.m in Sources */,
+				854FC5E3262F0D88002EAD41 /* log_settings_state.cc in Sources */,
 				064C5A0523AB1A51001E80DD /* HippyClipboardModule.m in Sources */,
 				064C5A2A23AB1A51001E80DD /* HippyBackgroundImageCacheManager.m in Sources */,
 				064C5A2123AB1A51001E80DD /* HippyBaseListItemViewManager.m in Sources */,
@@ -1559,6 +1649,7 @@
 				064C5A3223AB1A51001E80DD /* HippyText.mm in Sources */,
 				064C5A0B23AB1A51001E80DD /* HippyRefreshWrapperItemViewManager.m in Sources */,
 				064C5A1323AB1A51001E80DD /* HippyTextViewManager.mm in Sources */,
+				854FC5E5262F0D88002EAD41 /* log_settings.cc in Sources */,
 				0612F03423A8BE330079E622 /* main.m in Sources */,
 				064C5A5623AB1A51001E80DD /* HippyModuleData.mm in Sources */,
 				064C5A4723AB1A51001E80DD /* HippyTouchHandler.m in Sources */,
@@ -1566,6 +1657,7 @@
 				0640D25824AC75DD00F122A0 /* UIView+AppearEvent.m in Sources */,
 				066EF46E26243E5A00F56F35 /* UIView+HippyAnimationProtocol.m in Sources */,
 				064C5A3023AB1A51001E80DD /* HippyNavigatorViewManager.m in Sources */,
+				854FC5E2262F0D88002EAD41 /* logging.cc in Sources */,
 				064C5A3F23AB1A51001E80DD /* NSNumber+HippyNumberDeepCopy.m in Sources */,
 				064C59F723AB1A51001E80DD /* HippyExtAnimationGroup.m in Sources */,
 				064C5A2323AB1A51001E80DD /* HippyBaseListItemView.m in Sources */,
@@ -1721,7 +1813,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../../core/include\"";
+				HEADER_SEARCH_PATHS = (
+					"\"$(SRCROOT)/../../core/include\"",
+					"\"$(SRCROOT)/../../core/third_party/base/include\"",
+				);
 				INFOPLIST_FILE = HippyDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1739,7 +1834,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../../core/include\"";
+				HEADER_SEARCH_PATHS = (
+					"\"$(SRCROOT)/../../core/include\"",
+					"\"$(SRCROOT)/../../core/third_party/base/include\"",
+				);
 				INFOPLIST_FILE = HippyDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
