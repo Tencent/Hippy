@@ -33,7 +33,7 @@ namespace hippy {
 namespace bridge {
 
 void CallJava(hippy::napi::CBDataTuple* data) {
-  HIPPY_DLOG(hippy::Debug, "CallJava");
+  TDF_BASE_DLOG(INFO) << "CallJava";
   int64_t runtime_key = *(reinterpret_cast<int64_t*>(data->cb_tuple_.data_));
   std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_key);
   if (!runtime) {
@@ -43,7 +43,7 @@ void CallJava(hippy::napi::CBDataTuple* data) {
   const v8::FunctionCallbackInfo<v8::Value>& info = data->info_;
   v8::Isolate* isolate = info.GetIsolate();
   if (!isolate) {
-    HIPPY_LOG(hippy::Error, "CallJava isolate error");
+    TDF_BASE_DLOG(ERROR) << "CallJava isolate error";
     return;
   }
 
@@ -54,7 +54,7 @@ void CallJava(hippy::napi::CBDataTuple* data) {
   v8::Local<v8::Context> context = ctx->context_persistent_.Get(isolate);
   v8::Context::Scope context_scope(context);
   if (context.IsEmpty()) {
-    HIPPY_LOG(hippy::Error, "CallJava context empty");
+    TDF_BASE_DLOG(ERROR) << "CallJava context empty";
     return;
   }
 
@@ -64,23 +64,23 @@ void CallJava(hippy::napi::CBDataTuple* data) {
   if (info.Length() >= 1 && !info[0].IsEmpty()) {
     v8::String::Utf8Value module_name(isolate, info[0]);
     j_module_name = j_env->NewStringUTF(JniUtils::ToCString(module_name));
-    HIPPY_DLOG(hippy::Debug, "CallJava module_name = %s",
-               JniUtils::ToCString(module_name));
+    TDF_BASE_DLOG(INFO) << "CallJava module_name = "
+                        << JniUtils::ToCString(module_name);
   }
 
   jstring j_module_func = nullptr;
   if (info.Length() >= 2 && !info[1].IsEmpty()) {
     v8::String::Utf8Value module_func(isolate, info[1]);
     j_module_func = j_env->NewStringUTF(JniUtils::ToCString(module_func));
-    HIPPY_DLOG(hippy::Debug, "CallJava module_func = %s",
-               JniUtils::ToCString(module_func));
+    TDF_BASE_DLOG(INFO) << "CallJava module_func = "
+                        << JniUtils::ToCString(module_func);
   }
 
   jstring j_cb_id = nullptr;
   if (info.Length() >= 3 && !info[2].IsEmpty()) {
     v8::String::Utf8Value cb_id(isolate, info[2]);
     j_cb_id = j_env->NewStringUTF(JniUtils::ToCString(cb_id));
-    HIPPY_DLOG(hippy::Debug, "CallJava cb_id = %s", JniUtils::ToCString(cb_id));
+    TDF_BASE_DLOG(INFO) << "CallJava cb_id = " << JniUtils::ToCString(cb_id);
   }
 
   jbyteArray j_params_str = nullptr;
@@ -115,7 +115,7 @@ void CallJava(hippy::napi::CBDataTuple* data) {
           v8::Value);
 
       v8::String::Utf8Value json(isolate, s);
-      HIPPY_DLOG(hippy::Debug, "CallJava json = %s", JniUtils::ToCString(json));
+      TDF_BASE_DLOG(INFO) << "CallJava json = " << JniUtils::ToCString(json);
       int str_len = strlen(JniUtils::ToCString(json));
       j_params_str = j_env->NewByteArray(str_len);
       j_env->SetByteArrayRegion(
@@ -159,35 +159,35 @@ void CallJava(hippy::napi::CBDataTuple* data) {
 }
 
 void CallJavaMethod(jobject j_obj, jlong j_value) {
-  HIPPY_DLOG(hippy::Debug, "CallJavaMethod begin");
+  TDF_BASE_DLOG(INFO) << "CallJavaMethod begin";
   jclass j_class = nullptr;
 
   if (!j_obj) {
-    HIPPY_DLOG(hippy::Debug, "CallJavaMethod j_obj is nullptr");
+    TDF_BASE_DLOG(INFO) << "CallJavaMethod j_obj is nullptr";
     return;
   }
 
   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   j_class = j_env->GetObjectClass(j_obj);
   if (!j_class) {
-    HIPPY_LOG(hippy::Error, "CallJavaMethod j_class error");
+    TDF_BASE_DLOG(ERROR) << "CallJavaMethod j_class error";
     return;
   }
 
   jmethodID j_cb_id = j_env->GetMethodID(j_class, "Callback", "(J)V");
   if (!j_cb_id) {
-    HIPPY_LOG(hippy::Error, "CallJavaMethod j_cb_id error");
+    TDF_BASE_DLOG(ERROR) << "CallJavaMethod j_cb_id error";
     return;
   }
 
-  HIPPY_DLOG(hippy::Debug, "CallJavaMethod call method");
+  TDF_BASE_DLOG(INFO) << "CallJavaMethod call method";
   j_env->CallVoidMethod(j_obj, j_cb_id, j_value);
   JNIEnvironment::ClearJEnvException(j_env);
 
   if (j_class) {
     j_env->DeleteLocalRef(j_class);
   }
-  HIPPY_DLOG(hippy::Debug, "CallJavaMethod end");
+  TDF_BASE_DLOG(INFO) << "CallJavaMethod end";
 }
 
 }  // namespace bridge

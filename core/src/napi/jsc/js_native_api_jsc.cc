@@ -26,7 +26,7 @@
 #include <mutex>  // NOLINT(build/c++11)
 #include <string>
 
-#include "core/base/logging.h"
+#include "base/logging.h"
 #include "core/napi/callback_info.h"
 #include "core/napi/js_native_api.h"
 #include "core/napi/jsc/js_native_jsc_helper.h"
@@ -115,12 +115,12 @@ std::shared_ptr<VM> CreateVM() {
 }
 
 std::shared_ptr<TryCatch> CreateTryCatchScope(bool enable,
-                             std::shared_ptr<Ctx> ctx) {
+                                              std::shared_ptr<Ctx> ctx) {
   return std::make_shared<JSCTryCatch>(enable, ctx);
 }
 
-JSCTryCatch::JSCTryCatch(bool enable,
-                         std::shared_ptr<Ctx> ctx): TryCatch(enable, ctx) {
+JSCTryCatch::JSCTryCatch(bool enable, std::shared_ptr<Ctx> ctx)
+    : TryCatch(enable, ctx) {
   is_verbose_ = false;
 }
 
@@ -182,8 +182,6 @@ std::string JSCTryCatch::GetExceptionMsg() {
   }
   return "";
 }
-
-
 
 void DetachThread() {}
 
@@ -258,8 +256,7 @@ bool JSCCtx::RegisterGlobalInJs() {
   return true;
 }
 
-bool JSCCtx::SetGlobalJsonVar(const std::string& name,
-                              const char* json) {
+bool JSCCtx::SetGlobalJsonVar(const std::string& name, const char* json) {
   JSObjectRef global_obj = JSContextGetGlobalObject(context_);
   JSStringRef name_ref = JSStringCreateWithUTF8CString(name.c_str());
   JSStringRef json_ref = JSStringCreateWithUTF8CString(json);
@@ -276,8 +273,7 @@ bool JSCCtx::SetGlobalJsonVar(const std::string& name,
   return true;
 }
 
-bool JSCCtx::SetGlobalStrVar(const std::string& name,
-                             const char* str) {
+bool JSCCtx::SetGlobalStrVar(const std::string& name, const char* str) {
   JSObjectRef global_obj = JSContextGetGlobalObject(context_);
   JSStringRef name_ref = JSStringCreateWithUTF8CString(name.c_str());
   JSStringRef str_ref = JSStringCreateWithUTF8CString(str);
@@ -324,8 +320,8 @@ bool JSCCtx::SetGlobalObjVar(const std::string& name,
   JSValueRef value_ref = ctx_value->value_;
   JSPropertyAttributes jsc_attr = ConvertPropertyAttribute(attr);
   JSValueRef js_error = nullptr;
-  JSObjectSetProperty(context_, global_obj, name_ref, value_ref,
-                      jsc_attr, &js_error);
+  JSObjectSetProperty(context_, global_obj, name_ref, value_ref, jsc_attr,
+                      &js_error);
   JSStringRelease(name_ref);
   if (js_error) {
     SetException(std::make_shared<JSCCtxValue>(context_, js_error));
