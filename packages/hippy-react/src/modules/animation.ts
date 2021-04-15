@@ -2,8 +2,9 @@ import { HippyEventEmitter, HippyEventRevoker } from '../events';
 import { Bridge, Device } from '../native';
 import { warn } from '../utils';
 import { repeatCountDict } from '../utils/animation';
+import { colorParse } from '../color';
 
-type AnimationValue = number | { animationId: number};
+type AnimationValue = number | { animationId: number} | string;
 type AnimationCallback = () => void;
 type AnimationDirection = 'left' | 'right' | 'top' | 'bottom' | 'center';
 
@@ -34,8 +35,8 @@ interface AnimationOptions {
   delay?: number;
 
   /**
-   * Value type, leavel it blank in most case, except use rotate related
-   * animation, set it to be 'deg'.
+   * Value type, leave it blank in most case, except use rotate/color related
+   * animation, set it to be 'deg' or 'color'.
    */
   valueType?: 'deg'; // TODO: fill more options
 
@@ -50,7 +51,7 @@ interface AnimationOptions {
   timingFunction?: 'linear' | 'ease' | 'bezier' | 'in' | 'ease-in' | 'out' | 'ease-out' | 'inOut' | 'ease-in-out';
 
   /**
-   * Animation repeat times, use 'loop' to be alway repeating.
+   * Animation repeat times, use 'loop' to be always repeating.
    */
   repeatCount?: number;
 
@@ -83,6 +84,19 @@ interface Animation extends AnimationOptions {
 const AnimationEventEmitter = new HippyEventEmitter();
 
 /**
+ * parse value of special value type
+ * @param valueType
+ * @param originalValue
+ */
+function parseValue(valueType: string | undefined, originalValue: number | string) {
+  if (valueType === 'color' && ['number', 'string'].indexOf(typeof originalValue) >= 0) {
+    return colorParse(originalValue);
+  }
+  return originalValue;
+}
+
+
+/**
  * Better performance of Animation solution.
  *
  * It pushes the animation scheme to native at once.
@@ -93,14 +107,14 @@ class Animation implements Animation {
     if (config.startValue && config.startValue.constructor && config.startValue.constructor.name === 'Animation') {
       startValue = { animationId: (config.startValue as Animation).animationId };
     } else {
-      ({ startValue } = config);
+      const { startValue: tempStartValue } = config;
+      startValue = parseValue(config.valueType, tempStartValue as number|string);
     }
-
+    const toValue = parseValue(config.valueType, config.toValue as number|string);
     this.mode = config.mode || 'timing';
-
     this.delay = config.delay || 0;
     this.startValue = startValue || 0;
-    this.toValue = config.toValue || 0;
+    this.toValue = toValue || 0;
     this.valueType = config.valueType || undefined;
     this.duration = config.duration || 0;
     this.direction = config.direction || 'center';
@@ -258,7 +272,8 @@ class Animation implements Animation {
         if (newConfig.startValue instanceof Animation) {
           startValue = { animationId: newConfig.startValue.animationId };
         } else {
-          ({ startValue } = newConfig);
+          const { startValue: tempStartValue } = newConfig;
+          startValue = parseValue(this.valueType, tempStartValue as number|string);
         }
         this.startValue = startValue || 0;
       } else if (prop === 'repeatCount') {
@@ -273,7 +288,7 @@ class Animation implements Animation {
     Bridge.callNative('AnimationModule', 'updateAnimation', this.animationId, Object.assign({
       delay: this.delay,
       startValue: this.startValue,
-      toValue: this.toValue,
+      toValue: parseValue(this.valueType, this.toValue as number|string),
       duration: this.duration,
       direction: this.direction,
       timingFunction: this.timingFunction,

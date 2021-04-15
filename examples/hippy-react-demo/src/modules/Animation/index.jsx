@@ -46,6 +46,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     textAlignVertical: 'center',
   },
+  colorText: {
+    fontSize: 14,
+    color: 'white',
+    textAlign: 'center',
+    textAlignVertical: 'center',
+  },
   buttonContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -109,6 +115,65 @@ export default class AnimationExample extends React.Component {
       ],
       repeatCount: 'loop',
     });
+    this.bgColorAnimationSet = new AnimationSet({
+      children: [
+        {
+          animation: new Animation({
+            startValue: 'red',
+            toValue: 'yellow',
+            valueType: 'color', // 颜色动画需显式指定color单位
+            duration: 1000,
+            delay: 0,
+            mode: 'timing',
+            timingFunction: 'linear',
+          }),
+          follow: false, // 配置子动画的执行是否跟随执行
+        },
+        {
+          animation: new Animation({
+            startValue: 'yellow',
+            toValue: 'blue',
+            duration: 1000,
+            valueType: 'color',
+            delay: 0,
+            mode: 'timing',
+            timingFunction: 'linear',
+          }),
+          follow: true,
+        },
+      ],
+      repeatCount: 'loop',
+    });
+    // TODO iOS暂不支持文字颜色渐变动画
+    this.txtColorAnimationSet = new AnimationSet({
+      children: [
+        {
+          animation: new Animation({
+            startValue: 'white',
+            toValue: 'yellow',
+            valueType: 'color', // 颜色动画需显式指定color单位
+            duration: 1000,
+            delay: 0,
+            mode: 'timing',
+            timingFunction: 'linear',
+          }),
+          follow: false, // 配置子动画的执行是否跟随执行
+        },
+        {
+          animation: new Animation({
+            startValue: 'yellow',
+            toValue: 'white',
+            duration: 1000,
+            valueType: 'color',
+            delay: 0,
+            mode: 'timing',
+            timingFunction: 'linear',
+          }),
+          follow: true,
+        },
+      ],
+      repeatCount: 'loop',
+    });
   }
 
   componentDidMount() {
@@ -117,6 +182,8 @@ export default class AnimationExample extends React.Component {
       this.verticalAnimation.setRef(this.verticalRef);
       this.horizonAnimation.setRef(this.horizonRef);
       this.scaleAnimationSet.setRef(this.scaleRef);
+      this.bgColorAnimationSet.setRef(this.bgColorRef);
+      this.txtColorAnimationSet.setRef(this.textColorRef);
     }
     this.horizonAnimation.onHippyAnimationStart(() => {
       /* eslint-disable-next-line no-console */
@@ -198,7 +265,7 @@ export default class AnimationExample extends React.Component {
             }]}
           />
         </View>
-        <Text style={styles.title}>垂直位移动画</Text>
+        <Text style={styles.title}>高度形变动画</Text>
         <View style={styles.buttonContainer}>
           <View
             style={styles.button}
@@ -273,6 +340,56 @@ export default class AnimationExample extends React.Component {
               }],
             }]}
           />
+        </View>
+        <Text style={styles.title}>颜色渐变动画（文字渐变仅Android支持）</Text>
+        <View style={styles.buttonContainer}>
+          <View
+              style={styles.button}
+              onClick={() => {
+                this.bgColorAnimationSet.start();
+                this.txtColorAnimationSet.start();
+              }}
+          >
+            <Text style={styles.buttonText}>开始</Text>
+          </View>
+          <View
+              style={[styles.button]}
+              onClick={() => {
+                this.bgColorAnimationSet.pause();
+                this.txtColorAnimationSet.pause();
+              }}
+          >
+            <Text style={styles.buttonText}>暂停</Text>
+          </View>
+          <View
+              style={styles.button}
+              onClick={() => {
+                this.bgColorAnimationSet.resume();
+                this.txtColorAnimationSet.resume();
+              }}
+          >
+            <Text style={styles.buttonText}>继续</Text>
+          </View>
+        </View>
+        <View style={[styles.showArea, { marginVertical: 20 }]}>
+          <View
+              ref={(ref) => {
+                this.bgColorRef = ref;
+              }}
+              style={[styles.square, {
+                justifyContent: 'center',
+                alignItems: 'center',
+              },
+              {
+                backgroundColor: this.bgColorAnimationSet,
+              }]}
+
+          ><Text ref={(ref) => {
+            this.textColorRef = ref;
+          }} style={[styles.colorText, {
+            // TODO iOS暂不支持文字颜色渐变动画
+            color: this.txtColorAnimationSet,
+          }]}>颜色渐变背景和文字</Text></View>
         </View>
       </ScrollView>
     );
