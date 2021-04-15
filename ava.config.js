@@ -19,9 +19,9 @@ export default {
     'packages/**/*.js',
   ],
   require: [
-    'esm',                          // Use ES modules in NodeJS.
-    'module-alias/register',        // Use _moduleDirectories defined package.json
-    './scripts/flow-remove-types',  // Remove flow definition from Vue.
-    './scripts/mock-global',        // Define the global
+    'esm', // Use ES modules in NodeJS.
+    'module-alias/register', // Use _moduleDirectories defined package.json
+    './scripts/flow-remove-types', // Remove flow definition from Vue.
+    './scripts/mock-global', // Define the global
   ],
 };
