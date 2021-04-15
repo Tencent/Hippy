@@ -24,12 +24,12 @@
 
 #include <memory>
 
+#include "base/logging.h"
 #include "core/base/common.h"
-#include "core/base/logging.h"
 #include "core/modules/module_register.h"
 #include "core/napi/callback_info.h"
-#include "core/task/javascript_task_runner.h"
 #include "core/task/javascript_task.h"
+#include "core/task/javascript_task_runner.h"
 
 REGISTER_MODULE(TimerModule, SetTimeout)
 REGISTER_MODULE(TimerModule, ClearTimeout)
@@ -61,7 +61,7 @@ void TimerModule::SetInterval(const napi::CallbackInfo& info) {
 void TimerModule::ClearInterval(const napi::CallbackInfo& info) {
   std::shared_ptr<Scope> scope = info.GetScope();
   std::shared_ptr<Ctx> context = scope->GetContext();
-  HIPPY_CHECK(context);
+  TDF_BASE_CHECK(context);
 
   int32_t argument1 = 0;
   if (!context->GetValueNumber(info[0], &argument1)) {
@@ -79,7 +79,7 @@ std::shared_ptr<hippy::napi::CtxValue> TimerModule::Start(
     bool repeat) {
   std::shared_ptr<Scope> scope = info.GetScope();
   std::shared_ptr<Ctx> context = scope->GetContext();
-  HIPPY_CHECK(context);
+  TDF_BASE_CHECK(context);
 
   std::shared_ptr<CtxValue> function = info[0];
   if (!context->IsFunction(function)) {

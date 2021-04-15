@@ -37,3 +37,4 @@ build/
 
 # core
 core/ARM
+.vs/

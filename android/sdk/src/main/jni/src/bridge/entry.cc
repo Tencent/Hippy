@@ -44,6 +44,11 @@ namespace hippy {
 namespace bridge {
 
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
+             "initLogger",
+             "(Lcom/tencent/mtt/hippy/bridge/HippyLogger;)V",
+             InitLogger)
+
+REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
              "initJSFramework",
              "([BZZZLcom/tencent/mtt/hippy/bridge/NativeCallback;J)J",
              InitInstance)
@@ -74,17 +79,45 @@ static const uint32_t kRuntimeKeyIndex = 0;
 
 std::shared_ptr<V8InspectorClientImpl> global_inspector = nullptr;
 
+void InitLogger(JNIEnv* j_env, jobject j_object, jobject j_logger) {
+  if (!j_logger) {
+    return;
+  }
+
+  jclass j_cls = j_env->GetObjectClass(j_logger);
+  if (!j_cls) {
+    return;
+  }
+
+  jmethodID j_method =
+      j_env->GetMethodID(j_cls, "Call", "(Ljava/lang/String;)V");
+  if (!j_method) {
+    return;
+  }
+  std::shared_ptr<JavaRef> logger = std::make_shared<JavaRef>(j_env, j_logger);
+  tdf::base::LogMessage::SetDefaultDelegate(
+      [logger, j_method](const std::ostringstream& stream) {
+        std::shared_ptr<JNIEnvironment> instance =
+            JNIEnvironment::GetInstance();
+        JNIEnv* j_env = instance->AttachCurrentThread();
+        std::string str = stream.str();
+        jstring j_logger_str = j_env->NewStringUTF(str.c_str());
+        j_env->CallVoidMethod(logger->GetObj(), j_method, j_logger_str);
+        j_env->DeleteLocalRef(j_logger_str);
+      });
+}
+
 bool RunScript(std::shared_ptr<Runtime> runtime,
                const std::string& file_name,
                bool is_use_code_cache,
                const std::string& code_cache_dir,
                const std::string& uri,
                AAssetManager* asset_manager) {
-  HIPPY_LOG(hippy::Info,
-            "RunScript begin, file_name = %s, is_use_code_cache = %d, "
-            "code_cache_dir = %s, uri = %s, asset_manager = %d",
-            file_name.c_str(), is_use_code_cache, code_cache_dir.c_str(),
-            uri.c_str(), asset_manager);
+  TDF_BASE_DLOG(INFO) << "RunScript begin, file_name = " << file_name
+                      << ", is_use_code_cache = " << is_use_code_cache
+                      << ", code_cache_dir = " << code_cache_dir
+                      << ", uri = " << uri
+                      << ", asset_manager = " << asset_manager;
   std::string script_content;
   std::string code_cache_content;
   uint64_t modify_time = 0;
@@ -106,8 +139,8 @@ bool RunScript(std::shared_ptr<Runtime> runtime,
                        .time_since_epoch()
                        .count();
 
-      HIPPY_LOG(hippy::Debug, "GetFileModifytime cost %lld microseconds",
-                time2 - time1);
+      TDF_BASE_DLOG(INFO) << "GetFileModifytime cost %lld microseconds"
+                          << time2 - time1;
     }
     code_cache_path =
         code_cache_dir + file_name + "_" + std::to_string(modify_time);
@@ -121,14 +154,14 @@ bool RunScript(std::shared_ptr<Runtime> runtime,
       const std::string content =
           hippy::base::HippyFile::ReadFile(code_cache_path.c_str(), true);
       if (content.empty()) {
-        HIPPY_DLOG(hippy::Debug, "Read code cache failed ");
+        TDF_BASE_DLOG(INFO) << "Read code cache failed";
         int ret =
             hippy::base::HippyFile::RmFullPath(code_cache_dir_path.c_str());
 
-        HIPPY_DLOG(hippy::Debug, "RmFullPath ret = %d", ret);
+        TDF_BASE_DLOG(INFO) << "RmFullPath ret = " << ret;
         HIPPY_USE(ret);
       } else {
-        HIPPY_DLOG(hippy::Debug, "Read code cache succ");
+        TDF_BASE_DLOG(INFO) << "Read code cache succ";
       }
       p.set_value(std::move(content));
     });
@@ -145,11 +178,12 @@ bool RunScript(std::shared_ptr<Runtime> runtime,
         runtime->GetScope()->GetUriLoader()->RequestUntrustedContent(uri);
   }
 
-  HIPPY_DLOG(hippy::Error, "uri = %s, len = %d, script content = %s",
-             uri.c_str(), script_content.length(), script_content.c_str());
+  TDF_BASE_DLOG(ERROR) << "uri = " << uri
+                       << ", len = " << script_content.length()
+                       << ", script content = " << script_content;
 
   if (script_content.empty()) {
-    HIPPY_LOG(hippy::Error, "script content empty, uri = %s", uri.c_str());
+    TDF_BASE_DLOG(ERROR) << "script content empty, uri = " << uri;
     return false;
   }
 
@@ -163,19 +197,19 @@ bool RunScript(std::shared_ptr<Runtime> runtime,
       task->func_ = [code_cache_path, code_cache_dir_path, code_cache_content] {
         std::string parent_dir = code_cache_dir_path.substr(
             0, code_cache_dir_path.find_last_of('/'));
-        HIPPY_DLOG(hippy::Debug, "parent_dir = %s", parent_dir.c_str());
+        TDF_BASE_DLOG(INFO) << "parent_dir = " << parent_dir;
 
         int check_parent_dir_ret =
             hippy::base::HippyFile::CheckDir(parent_dir.c_str(), F_OK);
-        HIPPY_DLOG(hippy::Debug, "check_parent_dir_ret = %d",
-                   check_parent_dir_ret);
+        TDF_BASE_DLOG(INFO)
+            << "check_parent_dir_ret = " << check_parent_dir_ret;
         if (check_parent_dir_ret) {
           hippy::base::HippyFile::CreateDir(parent_dir.c_str(), S_IRWXU);
         }
 
         int check_dir_ret =
             hippy::base::HippyFile::CheckDir(code_cache_dir_path.c_str(), F_OK);
-        HIPPY_DLOG(hippy::Debug, "check_dir_ret = %d", check_dir_ret);
+        TDF_BASE_DLOG(INFO) << "check_dir_ret = " << check_dir_ret;
         if (check_dir_ret) {
           hippy::base::HippyFile::CreateDir(code_cache_dir_path.c_str(),
                                             S_IRWXU);
@@ -183,7 +217,7 @@ bool RunScript(std::shared_ptr<Runtime> runtime,
 
         bool save_file_ret = hippy::base::HippyFile::SaveFile(
             code_cache_path.c_str(), code_cache_content);
-        HIPPY_DLOG(hippy::Debug, "save_file_ret = %d", save_file_ret);
+        TDF_BASE_DLOG(INFO) << "save_file_ret = " << save_file_ret;
         HIPPY_USE(save_file_ret);
       };
       task_runner->PostTask(std::move(task));
@@ -191,7 +225,7 @@ bool RunScript(std::shared_ptr<Runtime> runtime,
   }
 
   bool flag = !!ret;
-  HIPPY_DLOG(hippy::Debug, "runScript end, flag = %d", flag);
+  TDF_BASE_DLOG(INFO) << "runScript end, flag = " << flag;
   return flag;
 }
 
@@ -203,12 +237,12 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
                           jstring j_code_cache_dir,
                           jlong j_runtime_id,
                           jobject j_cb) {
-  HIPPY_DLOG(hippy::Debug, "runScriptFromUri begin, j_runtime_id = %lld",
-             j_runtime_id);
+  TDF_BASE_DLOG(INFO) << "runScriptFromUri begin, j_runtime_id = "
+                      << j_runtime_id;
   std::shared_ptr<Runtime> runtime = Runtime::Find(j_runtime_id);
   if (!runtime) {
-    HIPPY_LOG(hippy::Warning,
-              "HippyBridgeImpl runScriptFromUri, j_runtime_id invalid");
+    TDF_BASE_DLOG(WARNING)
+        << "HippyBridgeImpl runScriptFromUri, j_runtime_id invalid";
     return false;
   }
 
@@ -226,11 +260,10 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
   auto pos = uri.find_last_of('/');
   const std::string script_name = uri.substr(pos + 1);
   const std::string base_path = uri.substr(0, pos + 1);
-  HIPPY_LOG(hippy::Debug,
-            "runScriptFromUri uri = %s, script_name = %s, base_path = %s, "
-            "code_cache_dir = %s",
-            uri.c_str(), script_name.c_str(), base_path.c_str(),
-            code_cache_dir.c_str());
+  TDF_BASE_DLOG(INFO) << "runScriptFromUri uri = " << uri
+                      << ", script_name = " << script_name
+                      << ", base_path = " << base_path
+                      << ", code_cache_dir = " << code_cache_dir;
 
   auto runner = runtime->GetEngine()->GetJSRunner();
   std::shared_ptr<Ctx> ctx = runtime->GetScope()->GetContext();
@@ -255,7 +288,7 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
   task->callback = [runtime, save_object_ = std::move(save_object), script_name,
                     j_can_use_code_cache, code_cache_dir, uri, aasset_manager,
                     time_begin] {
-    HIPPY_DLOG(hippy::Debug, "runScriptFromUri enter tast");
+    TDF_BASE_DLOG(INFO) << "runScriptFromUri enter tast";
     bool flag = RunScript(runtime, script_name, j_can_use_code_cache,
                           code_cache_dir, uri, aasset_manager);
     jlong value = flag == false ? 0 : 1;
@@ -266,8 +299,8 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
                         .time_since_epoch()
                         .count();
 
-    HIPPY_LOG(hippy::Debug, "runScriptFromUri = %lld, uri = %s",
-              (time_end - time_begin), uri.c_str());
+    TDF_BASE_DLOG(INFO) << "runScriptFromUri = " << (time_end - time_begin)
+                        << ", uri = " << uri;
 
     return flag;
   };
@@ -279,10 +312,10 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
 
 void HandleUncaughtJsError(v8::Local<v8::Message> message,
                            v8::Local<v8::Value> error) {
-  HIPPY_DLOG(hippy::Debug, "HandleUncaughtJsError begin");
+  TDF_BASE_DLOG(INFO) << "HandleUncaughtJsError begin";
 
   if (error.IsEmpty()) {
-    HIPPY_LOG(hippy::Error, "HandleUncaughtJsError error is empty");
+    TDF_BASE_DLOG(ERROR) << "HandleUncaughtJsError error is empty";
     return;
   }
 
@@ -303,7 +336,7 @@ void HandleUncaughtJsError(v8::Local<v8::Message> message,
   ctx->ThrowExceptionToJS(
       std::make_shared<hippy::napi::V8CtxValue>(isolate, error));
 
-  HIPPY_DLOG(hippy::Debug, "HandleUncaughtJsError end");
+  TDF_BASE_DLOG(INFO) << "HandleUncaughtJsError end";
 }
 
 jlong InitInstance(JNIEnv* j_env,
@@ -314,11 +347,11 @@ jlong InitInstance(JNIEnv* j_env,
                    jboolean j_is_dev_module,
                    jobject j_callback,
                    jlong j_group_id) {
-  HIPPY_DLOG(
-      hippy::Debug,
-      "InitInstance begin, j_single_thread_mode = %d, "
-      "j_bridge_param_json = %d, j_is_dev_module = %d, j_group_id = %lld",
-      j_single_thread_mode, j_bridge_param_json, j_is_dev_module, j_group_id);
+  TDF_BASE_DLOG(INFO) << "InitInstance begin, j_single_thread_mode = "
+                      << j_single_thread_mode
+                      << ", j_bridge_param_json = " << j_bridge_param_json
+                      << ", j_is_dev_module = " << j_is_dev_module
+                      << ", j_group_id = " << j_group_id;
   std::shared_ptr<Runtime> runtime =
       std::make_shared<Runtime>(std::make_shared<JavaRef>(j_env, j_object),
                                 j_bridge_param_json, j_is_dev_module);
@@ -344,13 +377,13 @@ jlong InitInstance(JNIEnv* j_env,
 
   RegisterFunction context_cb = [runtime, global_config,
                                  runtime_key](void* scopeWrapper) {
-    HIPPY_DLOG(hippy::Debug, "InitInstance register hippyCallNatives");
-    HIPPY_DCHECK_WITH_MSG(scopeWrapper, "scopeWrapper is nullptr");
+    TDF_BASE_DLOG(INFO) << "InitInstance register hippyCallNatives";
+    TDF_BASE_DCHECK(scopeWrapper);
     ScopeWrapper* wrapper = reinterpret_cast<ScopeWrapper*>(scopeWrapper);
-    HIPPY_DCHECK_WITH_MSG(wrapper, "wrapper is nullptr");
+    TDF_BASE_DCHECK(wrapper);
     std::shared_ptr<Scope> scope = wrapper->scope_.lock();
     if (!scope) {
-      HIPPY_LOG(hippy::Error, "register hippyCallNatives, scope error");
+      TDF_BASE_DLOG(ERROR) << "register hippyCallNatives, scope error";
       return;
     }
 
@@ -373,7 +406,7 @@ jlong InitInstance(JNIEnv* j_env,
     bool ret =
         ctx->SetGlobalJsonVar("__HIPPYNATIVEGLOBAL__", global_config.c_str());
     if (!ret) {
-      HIPPY_LOG(hippy::Error, "register __HIPPYNATIVEGLOBAL__ failed");
+      TDF_BASE_DLOG(ERROR) << "register __HIPPYNATIVEGLOBAL__ failed";
       ExceptionHandler exception;
       exception.JSONException(runtime, global_config.c_str());
     }
@@ -384,7 +417,7 @@ jlong InitInstance(JNIEnv* j_env,
 
   RegisterFunction scope_cb = [save_object_ = std::move(save_object),
                                runtime_id](void*) {
-    HIPPY_DLOG(hippy::Debug, "run scope cb");
+    TDF_BASE_DLOG(INFO) << "run scope cb";
     hippy::bridge::CallJavaMethod(save_object_->GetObj(), runtime_id);
   };
   scope_cb_map->insert(
@@ -394,7 +427,7 @@ jlong InitInstance(JNIEnv* j_env,
   std::shared_ptr<Engine> engine;
   if (j_is_dev_module) {
     std::lock_guard<std::mutex> lock(engine_mutex);
-    HIPPY_DLOG(hippy::Debug, "debug mode");
+    TDF_BASE_DLOG(INFO) << "debug mode";
     group = kDebuggerEngineId;
     auto it = reuse_engine_map.find(group);
 
@@ -410,28 +443,28 @@ jlong InitInstance(JNIEnv* j_env,
     std::lock_guard<std::mutex> lock(engine_mutex);
     auto it = reuse_engine_map.find(group);
     if (it != reuse_engine_map.end()) {
-      HIPPY_DLOG(hippy::Debug, "engine reuse");
+      TDF_BASE_DLOG(INFO) << "engine reuse";
       engine = std::get<std::shared_ptr<Engine>>(it->second);
       runtime->SetEngine(engine);
       std::get<uint32_t>(it->second) += 1;
-      HIPPY_DLOG(hippy::Debug, "engine cnt = %d, use_count = %d",
-                 std::get<uint32_t>(it->second), engine.use_count());
+      TDF_BASE_DLOG(INFO) << "engine cnt = " << std::get<uint32_t>(it->second)
+                          << ", use_count = " << engine.use_count();
     } else {
-      HIPPY_DLOG(hippy::Debug, "engine create");
+      TDF_BASE_DLOG(INFO) << "engine create";
       engine = std::make_shared<Engine>(std::move(engine_cb_map));
       runtime->SetEngine(engine);
       reuse_engine_map[group] = std::make_pair(engine, 1);
     }
   } else {  // kDefaultEngineId
-    HIPPY_DLOG(hippy::Debug, "default create engine");
+    TDF_BASE_DLOG(INFO) << "default create engine";
     engine = std::make_shared<Engine>(std::move(engine_cb_map));
     runtime->SetEngine(engine);
   }
   runtime->SetScope(
       runtime->GetEngine()->CreateScope("", std::move(scope_cb_map)));
-  HIPPY_DLOG(hippy::Debug, "group = %lld", group);
+  TDF_BASE_DLOG(INFO) << "group = " << group;
   runtime->SetGroupId(group);
-  HIPPY_LOG(hippy::Debug, "InitInstance end, runtime_id = %lld", runtime_id);
+  TDF_BASE_DLOG(INFO) << "InitInstance end, runtime_id = " << runtime_id;
 
   return runtime_id;
 }
@@ -441,18 +474,18 @@ void DestroyInstance(JNIEnv* j_env,
                      jlong j_runtime_id,
                      jboolean j_single_thread_mode,
                      jobject j_callback) {
-  HIPPY_LOG(hippy::Debug, "DestroyInstance begin, j_runtime_id = %lld",
-            j_runtime_id);
+  TDF_BASE_DLOG(INFO) << "DestroyInstance begin, j_runtime_id = "
+                      << j_runtime_id;
   int64_t runtime_id = j_runtime_id;
   std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
   if (!runtime) {
-    HIPPY_LOG(hippy::Warning, "HippyBridgeImpl destroy, j_runtime_id invalid");
+    TDF_BASE_DLOG(WARNING) << "HippyBridgeImpl destroy, j_runtime_id invalid";
     return;
   }
 
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
   task->callback = [runtime, runtime_id] {
-    HIPPY_LOG(hippy::Debug, "js destroy begin");
+    TDF_BASE_DLOG(INFO) << "js destroy begin";
     if (runtime->IsDebug()) {
       global_inspector->DestroyContext();
       global_inspector->Reset(nullptr, runtime->GetBridge());
@@ -460,19 +493,20 @@ void DestroyInstance(JNIEnv* j_env,
       runtime->GetScope()->WillExit();
     }
 
+    TDF_BASE_LOG(INFO) << "SetScope nullptr";
     runtime->SetScope(nullptr);
-    HIPPY_LOG(hippy::Debug, "erase runtime");
+    TDF_BASE_LOG(INFO) << "erase runtime";
     Runtime::Erase(runtime);
-    HIPPY_LOG(hippy::Debug, "ReleaseKey");
+    TDF_BASE_LOG(INFO) << "ReleaseKey";
     Runtime::ReleaseKey(runtime_id);
-    HIPPY_LOG(hippy::Debug, "js destroy end");
+    TDF_BASE_LOG(INFO) << "js destroy end";
   };
   int64_t group = runtime->GetGroupId();
   if (group == kDebuggerEngineId) {
     runtime->GetScope()->WillExit();
   }
   runtime->GetEngine()->GetJSRunner()->PostTask(task);
-  HIPPY_DLOG(hippy::Debug, "destroy, group = %lld", group);
+  TDF_BASE_DLOG(INFO) << "destroy, group = " << group;
   if (group == kDebuggerEngineId) {
   } else if (group == kDefaultEngineId) {
     runtime->GetEngine()->TerminateRunner();
@@ -482,7 +516,7 @@ void DestroyInstance(JNIEnv* j_env,
     if (it != reuse_engine_map.end()) {
       auto engine = std::get<std::shared_ptr<Engine>>(it->second);
       uint32_t cnt = std::get<uint32_t>(it->second);
-      HIPPY_DLOG(hippy::Debug, "reuse_engine_map cnt = %d", cnt);
+      TDF_BASE_DLOG(INFO) << "reuse_engine_map cnt = " << cnt;
       if (cnt == 1) {
         reuse_engine_map.erase(it);
         engine->TerminateRunner();
@@ -490,11 +524,11 @@ void DestroyInstance(JNIEnv* j_env,
         std::get<uint32_t>(it->second) = cnt - 1;
       }
     } else {
-      HIPPY_LOG(hippy::Fatal, "engine not find");
+      TDF_BASE_DLOG(FATAL) << "engine not find";
     }
   }
   hippy::bridge::CallJavaMethod(j_callback, 1);
-  HIPPY_DLOG(hippy::Debug, "destroy end");
+  TDF_BASE_DLOG(INFO) << "destroy end";
 }
 
 }  // namespace bridge

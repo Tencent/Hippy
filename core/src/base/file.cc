@@ -29,7 +29,7 @@
 #include <iostream>
 #include <vector>
 
-#include "core/base/logging.h"
+#include "base/logging.h"
 
 namespace hippy {
 namespace base {
@@ -37,7 +37,7 @@ namespace base {
 bool HippyFile::SaveFile(const char* file_path,
                          const std::string& content,
                          std::ios::openmode mode) {
-  HIPPY_LOG(hippy::Debug, "SaveFile file_path = %s", file_path);
+  TDF_BASE_DLOG(INFO) << "SaveFile file_path = " << file_path;
   std::ofstream file(file_path, mode);
   if (file.is_open()) {
     file.write(content.c_str(), content.length());
@@ -63,41 +63,39 @@ std::string HippyFile::ReadFile(const char* file_path, bool is_auto_fill) {
     ret.resize(data_size);
     long read_size = file.read(&ret[0], size).gcount();
     if (size != read_size) {
-      HIPPY_LOG(hippy::Warning,
-                "ReadFile file_path = %s, size = %d, read_size = %d", file_path,
-                size, read_size);
+      TDF_BASE_DLOG(WARNING)
+          << "ReadFile file_path = " << file_path << ", size = " << size
+          << ", read_size = " << read_size;
     }
     if (is_auto_fill) {
       ret.back() = '\0';
     }
     file.close();
-    HIPPY_DLOG(hippy::Debug,
-               "ReadFile succ, file_path = %s, size = %d, read_size = %d",
-               file_path, size, read_size);
+    TDF_BASE_DLOG(INFO) << "ReadFile succ, file_path = " << file_path
+                        << ", size = " << size << ", read_size = " << read_size;
   } else {
-    HIPPY_DLOG(hippy::Debug, "ReadFile fail, file_path = %s", file_path);
+    TDF_BASE_DLOG(INFO) << "ReadFile fail, file_path = " << file_path;
   }
 
   return ret;
 }
 
 int HippyFile::RmFullPath(std::string dir_full_path) {
-  HIPPY_DLOG(hippy::Debug, "RmFullPath dir_full_path = %s",
-             dir_full_path.c_str());
+  TDF_BASE_DLOG(INFO) << "RmFullPath dir_full_path = " << dir_full_path;
   DIR* dir_parent = opendir(dir_full_path.c_str());
   if (!dir_parent) {
-    HIPPY_DLOG(hippy::Debug, "RmFullPath dir_parent null");
+    TDF_BASE_DLOG(INFO) << "RmFullPath dir_parent null";
     return -1;
   }
   struct dirent* dir;
   struct stat st;
   while ((dir = readdir(dir_parent)) != nullptr) {
-    HIPPY_DLOG(hippy::Debug, "RmFullPath dir %d", dir);
+    TDF_BASE_DLOG(INFO) << "RmFullPath dir = " << dir;
     if (strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0) {
       continue;
     }
     std::string sub_path = dir_full_path + '/' + dir->d_name;
-    HIPPY_LOG(hippy::Debug, "RmFullPath sub_path %s", sub_path.c_str());
+    TDF_BASE_DLOG(INFO) << "RmFullPath sub_path = " << sub_path;
     if (lstat(sub_path.c_str(), &st) == -1) {
       continue;
     }
@@ -113,29 +111,28 @@ int HippyFile::RmFullPath(std::string dir_full_path) {
     }
   }
   if (rmdir(dir_full_path.c_str()) == -1) {
-    HIPPY_LOG(hippy::Debug, "RmFullPath delete dir_full_path fail %s",
-              dir_full_path.c_str());
+    TDF_BASE_DLOG(INFO) << "RmFullPath delete dir_full_path fail, path = "
+                        << dir_full_path;
     closedir(dir_parent);
     return -1;
   }
   closedir(dir_parent);
-  HIPPY_DLOG(hippy::Debug, "RmFullPath succ");
+  TDF_BASE_DLOG(INFO) << "RmFullPath succ";
   return 0;
 }
 
 int HippyFile::CreateDir(const char* path, mode_t mode) {
-  HIPPY_DLOG(hippy::Debug, "CreateDir path = %s", path);
+  TDF_BASE_DLOG(INFO) << "CreateDir path = " << path;
   return mkdir(path, mode);
 }
 
 int HippyFile::CheckDir(const char* path, int mode) {
-  HIPPY_DLOG(hippy::Debug, "CheckDir path = %s", path);
+  TDF_BASE_DLOG(INFO) << "CheckDir path = " << path;
   return access(path, mode);
 }
 
 uint64_t HippyFile::GetFileModifytime(const std::string& file_path) {
-  HIPPY_LOG(hippy::Debug, "GetFileModifytime file_path = %s",
-            file_path.c_str());
+  TDF_BASE_DLOG(INFO) << "GetFileModifytime file_path = " << file_path;
   struct stat statInfo;
 
   FILE* fp = fopen(file_path.c_str(), "r");
@@ -147,7 +144,7 @@ uint64_t HippyFile::GetFileModifytime(const std::string& file_path) {
     return 0;
   }
   uint64_t modify_time = statInfo.st_mtime;
-  HIPPY_LOG(hippy::Debug, "modify_time = %d", modify_time);
+  TDF_BASE_DLOG(INFO) << "modify_time = " << modify_time;
   fclose(fp);
   return modify_time;
 }
