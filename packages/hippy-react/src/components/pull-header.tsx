@@ -3,6 +3,12 @@ import { PullingEvent } from '@localTypes/event';
 import { Fiber } from 'react-reconciler';
 import { LayoutableProps } from '../types';
 import { callUIFunction } from '../modules/ui-manager-module';
+import { Device } from '../native';
+
+interface CollapsePullHeaderOptions {
+  // time left when PullHeader collapses, unit is ms
+  time?: number,
+}
 
 interface PullHeaderProps extends LayoutableProps {
   /**
@@ -31,9 +37,18 @@ class PullHeader extends React.Component<PullHeaderProps, {}> {
 
   /**
    * Collapse the PullView and hide the content
+   * @param options
    */
-  collapsePullHeader() {
-    callUIFunction(this.instance as Fiber, 'collapsePullHeader', []);
+  collapsePullHeader(options: CollapsePullHeaderOptions) {
+    if (Device.platform.OS === 'android') {
+      callUIFunction(this.instance as Fiber, 'collapsePullHeader', [options]);
+    } else {
+      if (typeof options !== 'undefined') {
+        callUIFunction(this.instance as Fiber, 'collapsePullHeaderWithOptions', [options]);
+      } else {
+        callUIFunction(this.instance as Fiber, 'collapsePullHeader', []);
+      }
+    }
   }
 
   render() {

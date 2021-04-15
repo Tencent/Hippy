@@ -1,3 +1,4 @@
+
 const PULLING_EVENT = 'pulling';
 const IDLE_EVENT = 'idle';
 
@@ -46,8 +47,21 @@ function registerPull(Vue) {
         /**
          * Collapse the PullView and hide the content
          */
-        [`collapsePull${capitalCase}`]() {
-          callUIFunction(this.$refs.instance, `collapsePull${capitalCase}`);
+        [`collapsePull${capitalCase}`](options) {
+          if (capitalCase === 'Header') {
+            // options: { time }
+            if (Vue.Native.Platform === 'android') {
+              callUIFunction(this.$refs.instance, `collapsePull${capitalCase}`, [options]);
+            } else {
+              if (typeof options !== 'undefined') {
+                callUIFunction(this.$refs.instance, `collapsePull${capitalCase}WithOptions`, [options]);
+              } else {
+                callUIFunction(this.$refs.instance, `collapsePull${capitalCase}`);
+              }
+            }
+          } else {
+            callUIFunction(this.$refs.instance, `collapsePull${capitalCase}`);
+          }
         },
         /**
          * Get the refresh height by @layout event
