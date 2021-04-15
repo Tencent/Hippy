@@ -32,25 +32,24 @@ std::mutex JNIEnvironment::mutex_;
 void JNIEnvironment::init(JavaVM* j_vm, JNIEnv* j_env) {
   j_vm_ = j_vm;
 
-  jclass hippy_bridge_cls =
+  jclass j_hippy_bridge_cls =
       j_env->FindClass("com/tencent/mtt/hippy/bridge/HippyBridgeImpl");
   wrapper_.call_natives_direct_method_id =
       j_env->GetMethodID(hippy_bridge_cls, "callNatives",
                          "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/"
                          "String;Ljava/nio/ByteBuffer;)V");
-  wrapper_.call_natives_method_id = j_env->GetMethodID(
-      hippy_bridge_cls, "callNatives",
+  wrapper_.j_call_natives_method_id = j_env->GetMethodID(
+      j_hippy_bridge_cls, "callNatives",
       "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;[B)V");
-  wrapper_.report_exception_method_id =
-      j_env->GetMethodID(hippy_bridge_cls, "reportException",
+  wrapper_.j_report_exception_method_id =
+      j_env->GetMethodID(j_hippy_bridge_cls, "reportException",
                          "(Ljava/lang/String;Ljava/lang/String;)V");
-  wrapper_.inspector_channel_method_id =
-      j_env->GetMethodID(hippy_bridge_cls, "InspectorChannel", "([B)V");
+  wrapper_.j_inspector_channel_method_id =
+      j_env->GetMethodID(j_hippy_bridge_cls, "InspectorChannel", "([B)V");
 
-  wrapper_.fetch_resource_method_id = j_env->GetMethodID(
-      hippy_bridge_cls, "fetchResourceWithUri", "(Ljava/lang/String;J)V");
-
-  j_env->DeleteLocalRef(hippy_bridge_cls);
+  wrapper_.j_fetch_resource_method_id = j_env->GetMethodID(
+      j_hippy_bridge_cls, "fetchResourceWithUri", "(Ljava/lang/String;J)V");
+  j_env->DeleteLocalRef(j_hippy_bridge_cls);
 
   if (j_env->ExceptionCheck()) {
     j_env->ExceptionClear();
@@ -85,7 +84,7 @@ bool JNIEnvironment::ClearJEnvException(JNIEnv* j_env) {
 }
 
 JNIEnv* JNIEnvironment::AttachCurrentThread() {
-  HIPPY_CHECK(j_vm_);
+  TDF_BASE_CHECK(j_vm_);
 
   JNIEnv* j_env = nullptr;
   jint ret = j_vm_->GetEnv(reinterpret_cast<void**>(&j_env), JNI_VERSION_1_4);
@@ -98,21 +97,21 @@ JNIEnv* JNIEnvironment::AttachCurrentThread() {
     char thread_name[16];
     int err = prctl(PR_GET_NAME, thread_name);
     if (err < 0) {
-      HIPPY_LOG(hippy::Error, "prctl(PR_GET_NAME) Error = %i", err);
+      TDF_BASE_DLOG(ERROR) << "prctl(PR_GET_NAME) Error = " << err;
       args.name = nullptr;
     } else {
       args.name = thread_name;
     }
 
     ret = j_vm_->AttachCurrentThread(&j_env, &args);
-    HIPPY_DCHECK(JNI_OK == ret);
+    TDF_BASE_DCHECK(JNI_OK == ret);
   }
 
   return j_env;
 }
 
 void JNIEnvironment::DetachCurrentThread() {
-  HIPPY_CHECK(j_vm_);
+  TDF_BASE_CHECK(j_vm_);
 
   if (j_vm_) {
     j_vm_->DetachCurrentThread();

@@ -26,7 +26,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "core/base/logging.h"
+#include "base/logging.h"
 #include "core/base/macros.h"
 
 namespace hippy {
@@ -68,7 +68,7 @@ void Thread::Start() {
 
 void Thread::Join() {
   int ret = pthread_join(thread_, nullptr);
-  HIPPY_LOG(hippy::Debug, "Thread::Join ret = %d", ret);
+  TDF_BASE_DLOG(INFO) << "Thread::Join ret = " << ret;
 }
 
 void Thread::SetName(const char* name) {

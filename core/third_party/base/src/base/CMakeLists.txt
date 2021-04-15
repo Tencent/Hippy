@@ -1,0 +1,8 @@
+set(LIB_NAME "tdf_base_common")
+
+include_directories(${CMAKE_SOURCE_DIR})
+file(GLOB_RECURSE SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*)
+
+set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib/base)
+add_library(${LIB_NAME} STATIC ${SRC_FILES})
+set_property(TARGET ${LIB_NAME} PROPERTY CXX_STANDARD 17)
