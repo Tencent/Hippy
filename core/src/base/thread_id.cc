@@ -22,7 +22,7 @@
 
 #include "core/base/thread_id.h"
 
-#include "core/base/logging.h"
+#include "base/logging.h"
 
 namespace hippy {
 namespace base {
@@ -36,7 +36,7 @@ void ThreadId::InitId(pthread_t id) {
     return;
   }
 
-  HIPPY_CHECK(id != (pthread_t)(0));
+  TDF_BASE_CHECK(id != (pthread_t)(0));
   id_ = id;
 }
 

@@ -28,44 +28,44 @@
 
 #include "core/core.h"
 
-jsize SafeGetArrayLength(JNIEnv* env, const jbyteArray& jarray) {
-  HIPPY_DCHECK(jarray);
-  jsize length = env->GetArrayLength(jarray);
-  return std::max(0, length);
+jsize SafeGetArrayLength(JNIEnv* j_env, const jbyteArray& j_byte_array) {
+  TDF_BASE_DCHECK(j_byte_array);
+  jsize j_size = env->GetArrayLength(j_byte_array);
+  return std::max(0, j_size);
 }
 
-std::string JniUtils::AppendJavaByteArrayToString(JNIEnv* env,
-                                                  jbyteArray byte_array,
+std::string JniUtils::AppendJavaByteArrayToString(JNIEnv* j_env,
+                                                  jbyteArray j_byte_array,
                                                   jsize j_offset) {
-  if (!byte_array) {
+  if (!j_byte_array) {
     return "";
   }
 
-  auto j_length = SafeGetArrayLength(env, byte_array);
+  auto j_length = SafeGetArrayLength(j_env, j_byte_array);
   if (!j_length) {
     return "";
   }
 
-  return AppendJavaByteArrayToString(env, byte_array, j_offset, j_length);
+  return AppendJavaByteArrayToString(j_env, j_byte_array, j_offset, j_length);
 }
 
-std::string JniUtils::AppendJavaByteArrayToString(JNIEnv* env,
-                                                  jbyteArray byte_array,
+std::string JniUtils::AppendJavaByteArrayToString(JNIEnv* j_env,
+                                                  jbyteArray j_byte_array,
                                                   jsize j_offset,
                                                   jsize j_length) {
-  if (!byte_array) {
+  if (!j_byte_array) {
     return "";
   }
 
   std::string ret;
   ret.resize(j_length);
-  env->GetByteArrayRegion(byte_array, j_offset, j_length,
+  env->GetByteArrayRegion(j_byte_array, j_offset, j_length,
                           reinterpret_cast<int8_t*>(&ret[0]));
   return ret;
 }
 
 std::string JniUtils::CovertJavaStringToString(JNIEnv* j_env, jstring j_str) {
-  HIPPY_DCHECK(j_str);
+  TDF_BASE_DCHECK(j_str);
 
   const char* c_str = j_env->GetStringUTFChars(j_str, NULL);
   const int len = j_env->GetStringLength(j_str);

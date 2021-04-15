@@ -48,9 +48,9 @@ void V8ChannelImpl::sendResponse(
       msg, 0, len * sizeof(*source),
       reinterpret_cast<const jbyte*>(reinterpret_cast<const char*>(source)));
 
-  if (instance->GetMethods().inspector_channel_method_id && bridge_) {
+  if (instance->GetMethods().j_inspector_channel_method_id && bridge_) {
     j_env->CallVoidMethod(bridge_->GetObj(),
-                          instance->GetMethods().inspector_channel_method_id,
+                          instance->GetMethods().j_inspector_channel_method_id,
                           msg);
   }
 
@@ -72,9 +72,9 @@ void V8ChannelImpl::sendNotification(
       msg, 0, len * sizeof(*source),
       reinterpret_cast<const jbyte*>(reinterpret_cast<const char*>(source)));
 
-  if (instance->GetMethods().inspector_channel_method_id && bridge_) {
+  if (instance->GetMethods().j_inspector_channel_method_id && bridge_) {
     j_env->CallVoidMethod(bridge_->GetObj(),
-                          instance->GetMethods().inspector_channel_method_id,
+                          instance->GetMethods().j_inspector_channel_method_id,
                           msg);
   }
 
