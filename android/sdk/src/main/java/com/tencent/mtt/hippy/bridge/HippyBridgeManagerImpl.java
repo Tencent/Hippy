@@ -466,6 +466,10 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 	@Override
 	public void destroyBridge(Callback<Boolean> callback) {
 		assert (mHandler != null);
+		if (mHandler == null) {
+			return;
+		}
+
 		Message message = mHandler.obtainMessage(MSG_CODE_DESTROY_BRIDGE, callback);
 		mHandler.sendMessage(message);
 	}
