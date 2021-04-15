@@ -16,12 +16,26 @@ function registerAnimation(Vue) {
   };
 
   /**
+   * parse value of special value type
+   * @param valueType
+   * @param originalValue
+   */
+  function parseValue(valueType, originalValue) {
+    if (valueType === 'color' && ['number', 'string'].indexOf(typeof originalValue) >= 0) {
+      return Vue.Native.parseColor(originalValue);
+    }
+    return originalValue;
+  }
+
+  /**
    * Create the standalone animation
    */
   function createAnimation(option) {
     const {
       mode = 'timing',
       valueType,
+      startValue,
+      toValue,
       ...others
     } = option;
     const fullOption = {
@@ -31,6 +45,8 @@ function registerAnimation(Vue) {
     if (valueType !== undefined) {
       fullOption.valueType = option.valueType;
     }
+    fullOption.startValue = parseValue(fullOption.valueType, startValue);
+    fullOption.toValue = parseValue(fullOption.valueType, toValue);
     const animationId = Vue.Native.callNativeWithCallbackId(MODULE_NAME, 'createAnimation', true, mode, fullOption);
     return {
       animationId,
