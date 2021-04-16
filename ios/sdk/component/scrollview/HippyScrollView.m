@@ -207,6 +207,9 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 }
 
 - (void)insertHippySubview:(UIView *)view atIndex:(NSInteger)atIndex {
+    if (view == _contentView && 0 == atIndex) {
+        return;
+    }
     [super insertHippySubview:view atIndex:atIndex];
     HippyAssert(_contentView == nil, @"HippyScrollView may only contain a single subview");
     _contentView = view;
