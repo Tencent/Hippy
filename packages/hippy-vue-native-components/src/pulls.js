@@ -46,6 +46,8 @@ function registerPull(Vue) {
         },
         /**
          * Collapse the PullView and hide the content
+         * @param {Object} [options] additional config for pull header
+         * @param {number} [options.time] time left to hide pullHeader after collapsePullHeader() called, unit is ms
          */
         [`collapsePull${capitalCase}`](options) {
           if (capitalCase === 'Header') {

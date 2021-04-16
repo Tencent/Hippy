@@ -10,10 +10,10 @@ Hippy中运行的JS代码可以来源于本地文件(local file)，或者远程�
 
 # 项目初始化
 
-1. 安装前端依赖，根目录运行命令：`npm install`。
-2. 通过 lerna 安装前端每一个package依赖: `lerna bootstrap`。
-3. 编译前端 SDK 包，根目录运行命令： `npm run build`。
-4. 选择一个前端范例项目来进行编译：`npm run buildexample -- [hippy-react-demo|hippy-vue-demo]`。
+1. 项目根目录运行命令 `npm install` 安装前端依赖。
+2. 项目根目录运行命令 `lerna bootstrap` 安装前端每一个 package 依赖。（Hippy 采用 [Lerna](https://lerna.js.org/) 管理多JS仓库，如果出现 `lerna command is not found`, 先执行 `npm install lerna -g`）
+3. 项目根目录运行命令 `npm run build` 编译前端 SDK 包。
+4. 选择一个前端范例项目来进行编译，项目根目录运行 `npm run buildexample -- [hippy-react-demo|hippy-vue-demo]`。
 
 # 终端环境准备
 
@@ -37,7 +37,7 @@ Hippy中运行的JS代码可以来源于本地文件(local file)，或者远程�
 
 1. 点击 [Xcode on Mac AppStore](//apps.apple.com/cn/app/xcode/id497799835?l=en&mt=12) 下载安装 Xcode。
 2. 使用 Xcode 打开[Hippy iOS 范例工程](//github.com/Tencent/Hippy/tree/master/examples/ios-demo) 中的 `HippyDemo.xcodeproj` 工程文件，并点击运行，正常情况下应该可以启动模拟器，并运行之前内置的 Hippy 前端代码。
-3. 打开前端范例工程 [hippy-react-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) 或者 [hippy-vue-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo)，通过 `npm i` 安装完依赖之后，使用 `npm run hippy:dev` 启动编译，并另开一个终端窗口，运行 `npm run hippy:debug` 启动调试服务。
+3. 打开 `examples` 下的前端范例工程 [hippy-react-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) 或者 [hippy-vue-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo)，通过 `npm i` 安装完依赖之后，使用 `npm run hippy:dev` 启动编译，并另开一个终端窗口，运行 `npm run hippy:debug` 启动调试服务。
 4. 回到模拟器，点击前端工程中的调试按钮，即可进入调试状态。hippy-react 有一个单独的页面，hippy-vue 在右上角。以 hippy-react 为例：
 
     ![iOS 模拟器](//puui.qpic.cn/vupload/0/1577796352672_tmjp70r3bma.png/0)
