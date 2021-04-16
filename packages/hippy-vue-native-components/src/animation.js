@@ -17,8 +17,8 @@ function registerAnimation(Vue) {
 
   /**
    * parse value of special value type
-   * @param valueType
-   * @param originalValue
+   * @param {string} valueType
+   * @param {*} originalValue
    */
   function parseValue(valueType, originalValue) {
     if (valueType === 'color' && ['number', 'string'].indexOf(typeof originalValue) >= 0) {
