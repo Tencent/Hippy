@@ -42,6 +42,15 @@ HIPPY_EXPORT_METHOD(collapsePullFooter : (nonnull NSNumber *)reactTag) {
 // clang-format on
 
 // clang-format off
+HIPPY_EXPORT_METHOD(collapsePullFooterWithOptions : (nonnull NSNumber *)reactTag options:(NSDictionary *)options) {
+    [self.bridge.uiManager addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
+        HippyRefresh *refreshView = viewRegistry[reactTag];
+        [refreshView refreshFinishWithOption:options];
+    }];
+}
+// clang-format on
+
+// clang-format off
 HIPPY_EXPORT_METHOD(expandPullFooter : (nonnull NSNumber *)reactTag) {
     [self.bridge.uiManager addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
         HippyRefresh *refreshView = viewRegistry[reactTag];
