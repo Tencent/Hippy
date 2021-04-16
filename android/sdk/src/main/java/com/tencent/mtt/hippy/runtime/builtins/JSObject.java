@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy.runtime.builtins;
 
+import android.support.annotation.NonNull;
 import android.util.Pair;
 
 import org.json.JSONException;
@@ -158,6 +159,7 @@ public class JSObject extends JSValue {
   }
   // endregion
 
+  @NonNull
   @Override
   public JSObject clone() throws CloneNotSupportedException {
     JSObject clonedObject = (JSObject) super.clone();

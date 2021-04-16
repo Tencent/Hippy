@@ -17,7 +17,7 @@ package com.tencent.mtt.hippy.runtime.builtins.array;
 
 import com.tencent.mtt.hippy.runtime.builtins.JSObject;
 
-public abstract class JSAbstractArray extends JSObject {
+public abstract class JSAbstractArray extends JSObject implements Iterable<Object> {
   // region static utils
   public static final long MAX_JS_ARRAY_LENGTH = 4294967295L;
   private static final long INVALID_ARRAY_INDEX = -1;
@@ -71,7 +71,6 @@ public abstract class JSAbstractArray extends JSObject {
   // endregion
 
   // region op
-  public abstract void add(int index, Object value);
   public abstract void push(Object value);
   // endregion
 

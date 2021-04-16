@@ -15,6 +15,8 @@
  */
 package com.tencent.mtt.hippy.runtime.builtins;
 
+import android.support.annotation.NonNull;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -29,7 +31,7 @@ public class JSDataView<T extends JSArrayBuffer> extends JSObject {
     UINT32_ARRAY, // kUint32Array
     FLOAT32_ARRAY, // kFloat32Array
     FLOAT64_ARRAY, // kFloat64Array
-    DATA_VIEW; // kDataView
+    DATA_VIEW // kDataView
   }
 
   private T bufferObject;
@@ -64,10 +66,11 @@ public class JSDataView<T extends JSArrayBuffer> extends JSObject {
     return (int) value;
   }
 
+  @NonNull
   @Override
   @SuppressWarnings("unchecked")
   public JSDataView<T> clone() throws CloneNotSupportedException {
-    JSDataView<T> dest = (JSDataView<T>) super.clone();;
+    JSDataView<T> dest = (JSDataView<T>) super.clone();
     dest.kind = kind;
     dest.bufferObject = (T) bufferObject.clone();
     return dest;

@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include "bridge/codec.h"
 #include "inspector/v8_channel_impl.h"
 #include "inspector/v8_inspector_client_impl.h"
 #include "jni/com_tencent_mtt_hippy_bridge_HippyBridgeImpl.h"

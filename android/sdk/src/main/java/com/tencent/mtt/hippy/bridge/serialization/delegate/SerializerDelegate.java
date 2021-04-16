@@ -25,8 +25,8 @@ public class SerializerDelegate implements Serializer.Delegate, SerializerDelega
   }
 
   @Override
-  public void writeHostObject(Serializer serializer, Object object) {
-    throw new DataCloneException(object);
+  public boolean writeHostObject(Serializer serializer, Object object) {
+    return false;
   }
 
   // region set & set

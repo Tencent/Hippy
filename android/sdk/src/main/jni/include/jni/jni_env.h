@@ -31,12 +31,14 @@ class JNIEnvironment {
   struct JemthodID_Wrapper {
     JemthodID_Wrapper() {
       call_natives_method_id = nullptr;
+      call_natives_direct_method_id = nullptr;
       report_exception_method_id = nullptr;
       inspector_channel_method_id = nullptr;
       fetch_resource_method_id = nullptr;
     }
 
     jmethodID call_natives_method_id;
+    jmethodID call_natives_direct_method_id;
     jmethodID report_exception_method_id;
     jmethodID inspector_channel_method_id;
     jmethodID fetch_resource_method_id;

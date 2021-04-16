@@ -20,28 +20,21 @@ import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.serialization.PrimitiveValueSerializer;
 import com.tencent.mtt.hippy.serialization.SerializationTag;
-import com.tencent.mtt.hippy.serialization.memory.buffer.Allocator;
+import com.tencent.mtt.hippy.serialization.nio.writer.BinaryWriter;
 
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 /**
  * Implementation of {@code v8::(internal::)ValueSerializer}.
  */
 @SuppressWarnings("deprecation")
 public class Serializer extends PrimitiveValueSerializer {
-  /** Maps a transferred object to its transfer ID. */
-  private final Map<Object, Integer> transferMap = new IdentityHashMap<>();
-
   public Serializer() {
     super(null);
   }
 
-  public Serializer(Allocator<ByteBuffer> allocator) {
-    super(allocator);
+  public Serializer(BinaryWriter writer) {
+    super(writer);
   }
 
   @Override
@@ -60,41 +53,42 @@ public class Serializer extends PrimitiveValueSerializer {
   }
 
   @Override
-  protected void writeCustomObjectValue(Object object) {
+  public boolean writeValue(Object object) {
+    if (super.writeValue(object)) {
+      return true;
+    }
     if (object instanceof HippyArray) {
+      assignId(object);
       writeJSArray((HippyArray) object);
     } else if (object instanceof HippyMap) {
+      assignId(object);
       writeJSObject((HippyMap) object);
     } else {
-      writeJSObject(new HippyMap());
+      return false;
     }
+    return true;
   }
 
   private void writeJSObject(HippyMap value) {
     writeTag(SerializationTag.BEGIN_JS_OBJECT);
-    List<String> names = new ArrayList<>(value.keySet());
-    writeJSObjectProperties(value, names);
-    writeTag(SerializationTag.END_JS_OBJECT);
-    writeVarint(names.size());
-  }
-
-  private void writeJSObjectProperties(HippyMap object, List<String> keys) {
+    Set<String> keys = value.keySet();
     for (String key : keys) {
       writeString(key);
-      Object value = object.get(key);
-      writeValue(value);
+      writeValue(value.get(key));
     }
+    writeTag(SerializationTag.END_JS_OBJECT);
+    writer.putVarint(keys.size());
   }
 
   private void writeJSArray(HippyArray value) {
     long length = value.size();
     writeTag(SerializationTag.BEGIN_DENSE_JS_ARRAY);
-    writeVarint(length);
+    writer.putVarint(length);
     for (int i = 0; i < value.size(); i++) {
       writeValue(value.get(i));
     }
     writeTag(SerializationTag.END_DENSE_JS_ARRAY);
-    writeVarint(0);
-    writeVarint(length);
+    writer.putVarint(0);
+    writer.putVarint(length);
   }
 }

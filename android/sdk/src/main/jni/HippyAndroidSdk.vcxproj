@@ -22,6 +22,7 @@
     <None Include=".clang-format" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\bridge\codec.cc" />
     <ClCompile Include="src\inspector\v8_channel_impl.cc" />
     <ClCompile Include="src\inspector\v8_inspector_client_impl.cc" />
     <ClCompile Include="src\jni\com_tencent_mtt_hippy_bridge_HippyBridgeImpl.cc" />
@@ -38,6 +39,7 @@
     <ClCompile Include="src\loader\http_loader.cc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\bridge\codec.h" />
     <ClInclude Include="include\hippy.h" />
     <ClInclude Include="include\inspector\v8_channel_impl.h" />
     <ClInclude Include="include\inspector\v8_inspector_client_impl.h" />
@@ -163,7 +165,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>../../../../../core/include/core/core.h</PrecompiledHeaderFile>
       <CppLanguageStandard>c++14</CppLanguageStandard>
-      <PreprocessorDefinitions>__ANDROID_API__=$(AndroidAPILevelNumber);OS_ANDROID;DEBUG;V8_IMMINENT_DEPRECATION_WARNINGS;V8_DEPRECATION_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>__ANDROID_API__=$(AndroidAPILevelNumber);OS_ANDROID;DEBUG</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\third_party\v8_72;.;.\include;..\..\..\..\..\core\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>

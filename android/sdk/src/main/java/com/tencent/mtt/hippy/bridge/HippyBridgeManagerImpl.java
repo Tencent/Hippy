@@ -24,7 +24,6 @@ import android.os.Message;
 import android.text.TextUtils;
 
 import com.tencent.mtt.hippy.HippyEngine;
-import com.tencent.mtt.hippy.HippyEngine.EngineInitStatus;
 import com.tencent.mtt.hippy.HippyEngine.ModuleLoadStatus;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyRootView;
@@ -35,15 +34,17 @@ import com.tencent.mtt.hippy.common.Callback;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.exception.UnreachableCodeException;
 import com.tencent.mtt.hippy.modules.HippyModuleManager;
 import com.tencent.mtt.hippy.serialization.compatible.Serializer;
+import com.tencent.mtt.hippy.serialization.nio.writer.SafeDirectWriter;
+import com.tencent.mtt.hippy.serialization.nio.writer.SafeHeapWriter;
 import com.tencent.mtt.hippy.utils.ArgumentUtils;
 import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.ArrayList;
 import org.json.JSONObject;
 
@@ -63,6 +64,9 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 	public static final int	BRIDGE_TYPE_SINGLE_THREAD = 2;
 	public static final int	BRIDGE_TYPE_NORMAL = 1;
 
+  public static final int BRIDGE_TRANSFER_TYPE_NORMAL = 0;
+	public static final int BRIDGE_TRANSFER_TYPE_NIO = 1;
+
 	HippyEngineContext mContext;
 	HippyBundleLoader mCoreBundleLoader;
 	HippyBridge mHippyBridge;
@@ -71,11 +75,15 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 	int mBridgeType;
 	boolean mBridgeParamJson;
 	ArrayList<String>	mLoadedBundleInfo = null;
-	private final StringBuilder mStringBuilder;
 	private final boolean mIsDevModule;
 	private final String mDebugServerHost;
 	private final int mGroupId;
 	private final HippyThirdPartyAdapter mThirdPartyAdapter;
+  private StringBuilder mStringBuilder;
+	private SafeHeapWriter safeHeapWriter;
+	private SafeDirectWriter safeDirectWriter;
+  private Serializer serializer;
+
 	HippyEngine.ModuleListener mLoadModuleListener;
 
 	public HippyBridgeManagerImpl(HippyEngineContext context, HippyBundleLoader coreBundleLoader, int bridgeType,
@@ -88,7 +96,12 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 		mDebugServerHost = debugServerHost;
 		mGroupId = groupId;
 		mThirdPartyAdapter = thirdPartyAdapter;
-		mStringBuilder = new StringBuilder(1024);
+
+		if (mBridgeParamJson) {
+			mStringBuilder = new StringBuilder(1024);
+		} else {
+			serializer = new Serializer();
+		}
 	}
 
 	@Override
@@ -228,41 +241,68 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 						}
 					}
 
-					ByteBuffer buffer;
-					if (mBridgeParamJson) {
-						mStringBuilder.setLength(0);
-						byte[] json = ArgumentUtils.objectToJsonOpt(msg.obj, mStringBuilder).getBytes();
-						buffer = ByteBuffer.allocateDirect(json.length).order(ByteOrder.nativeOrder());
-						buffer.put(json);
-					} else {
-						try {
-							Serializer serializer = new Serializer();
-							serializer.writeHeader();
-							serializer.writeValue(msg.obj);
-							buffer = serializer.release();
-						} catch (Throwable e) {
-							e.printStackTrace();
-							LogUtils.e("compatible.Serializer", "Error Stringify Buffer", e);
-							return true;
-						}
-					}
+          NativeCallback callback = null;
+          if (TextUtils.equals(action, "loadInstance")) {
+            callback = new NativeCallback(mHandler, Message.obtain(msg), action) {
+              @Override
+              public void Call(long value, Message msg, String action) {
+                if (msg.obj instanceof HippyMap) {
+                  int instanceId = ((HippyMap) msg.obj).getInt("id");
+                  HippyRootView rootView = mContext.getInstance(instanceId);
+                  if (rootView != null && rootView.getTimeMonitor() != null) {
+                    rootView.getTimeMonitor().startEvent(HippyEngineMonitorEvent.MODULE_LOAD_EVENT_CREATE_VIEW);
+                  }
+                }
+              }
+            };
+          }
 
-					if (TextUtils.equals(action, "loadInstance")) {
-						mHippyBridge.callFunction(action, buffer, new NativeCallback(mHandler, Message.obtain(msg), action) {
-							@Override
-							public void Call(long value, Message msg, String action) {
-								if (msg.obj instanceof HippyMap) {
-									int instanceId = ((HippyMap) msg.obj).getInt("id");
-									HippyRootView rootView = mContext.getInstance(instanceId);
-									if (rootView != null && rootView.getTimeMonitor() != null) {
-										rootView.getTimeMonitor().startEvent(HippyEngineMonitorEvent.MODULE_LOAD_EVENT_CREATE_VIEW);
-									}
-								}
-							}
-						});
-					} else {
-						mHippyBridge.callFunction(action, buffer, null);
-					}
+					switch (msg.arg1) {
+            case BRIDGE_TRANSFER_TYPE_NIO: {
+              ByteBuffer buffer;
+              if (mBridgeParamJson) {
+                mStringBuilder.setLength(0);
+                byte[] bytes = ArgumentUtils.objectToJsonOpt((HippyMap) msg.obj, mStringBuilder).getBytes();
+                buffer = ByteBuffer.allocateDirect(bytes.length);
+                buffer.put(bytes);
+              } else {
+                if (safeDirectWriter == null) {
+                  safeDirectWriter = new SafeDirectWriter(SafeDirectWriter.INITIAL_CAPACITY, 0);
+                }
+                serializer.setWriter(safeDirectWriter);
+                serializer.reset();
+                serializer.writeHeader();
+                serializer.writeValue((HippyMap) msg.obj);
+                buffer = serializer.getWriter().chunked();
+              }
+
+              mHippyBridge.callFunction(action, callback, buffer);
+              break;
+            }
+            case BRIDGE_TRANSFER_TYPE_NORMAL: { // default case
+              if (mBridgeParamJson) {
+                mStringBuilder.setLength(0);
+                byte[] bytes = ArgumentUtils.objectToJsonOpt((HippyMap) msg.obj, mStringBuilder).getBytes();
+                mHippyBridge.callFunction(action, callback, bytes);
+              } else {
+                if (safeHeapWriter == null) {
+                  safeHeapWriter = new SafeHeapWriter();
+                }
+                serializer.setWriter(safeHeapWriter);
+                serializer.reset();
+                serializer.writeHeader();
+                serializer.writeValue((HippyMap) msg.obj);
+                ByteBuffer buffer = serializer.getWriter().chunked();
+                int offset = buffer.arrayOffset() + buffer.position();
+                int length = buffer.limit() - buffer.position();
+                mHippyBridge.callFunction(action, callback, buffer.array(), offset, length);
+              }
+              break;
+            }
+            default: {
+              throw new UnreachableCodeException();
+            }
+          }
 
 					return true;
 				}

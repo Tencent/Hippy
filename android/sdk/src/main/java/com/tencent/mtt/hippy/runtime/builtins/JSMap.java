@@ -15,11 +15,12 @@
  */
 package com.tencent.mtt.hippy.runtime.builtins;
 
+import android.support.annotation.NonNull;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 public class JSMap extends JSValue {
@@ -32,6 +33,7 @@ public class JSMap extends JSValue {
     return internalMap;
   }
 
+  @NonNull
   @Override
   public JSMap clone() throws CloneNotSupportedException {
     JSMap clonedObject = (JSMap) super.clone();

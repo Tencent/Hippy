@@ -141,7 +141,7 @@ public abstract class JSValue implements Cloneable, JSONDump {
     return value instanceof JSValue ? ((JSValue) value).dump() : value;
   }
 
-  public static Object load(Object value) throws JSONException {
+  public static Object load(Object value) {
     if (value instanceof JSONObject) {
       return JSObject.load(value);
     } else if (value instanceof JSONArray) {

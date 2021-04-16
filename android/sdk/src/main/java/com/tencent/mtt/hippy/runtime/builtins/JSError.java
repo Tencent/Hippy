@@ -15,6 +15,8 @@
  */
 package com.tencent.mtt.hippy.runtime.builtins;
 
+import android.support.annotation.NonNull;
+
 import com.tencent.mtt.hippy.runtime.StackTrace;
 
 public class JSError extends JSObject {
@@ -54,7 +56,7 @@ public class JSError extends JSObject {
      */
     URIError,
 
-    AggregateError;
+    AggregateError
   }
 
   private StackTrace stack;
@@ -93,6 +95,7 @@ public class JSError extends JSObject {
     return stack;
   }
 
+  @NonNull
   @Override
   public JSError clone() throws CloneNotSupportedException {
     JSError clonedObject = (JSError) super.clone();

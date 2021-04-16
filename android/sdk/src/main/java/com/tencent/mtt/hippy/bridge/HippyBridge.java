@@ -35,9 +35,10 @@ public interface HippyBridge {
 
 	public void destroy(NativeCallback callback);
 
-	public void callFunction(String action, ByteBuffer buffer, NativeCallback callback);
+	public void callFunction(String action, NativeCallback callback, ByteBuffer buffer);
 
-	public void callFunction(String action, ByteBuffer buffer, int offset, int length, NativeCallback callback);
+  public void callFunction(String action, NativeCallback callback, byte[] buffer);
+	public void callFunction(String action, NativeCallback callback, byte[] buffer, int offset, int length);
 
 	public static interface BridgeCallback {
 		public void callNatives(String moduleName, String moduleFunc, String callId, HippyArray params);

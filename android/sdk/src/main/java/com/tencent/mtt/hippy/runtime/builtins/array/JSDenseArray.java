@@ -15,9 +15,9 @@
  */
 package com.tencent.mtt.hippy.runtime.builtins.array;
 
+import android.support.annotation.NonNull;
 import android.util.Pair;
 
-import com.tencent.mtt.hippy.runtime.builtins.JSObject;
 import com.tencent.mtt.hippy.runtime.builtins.JSValue;
 
 import org.json.JSONArray;
@@ -44,7 +44,7 @@ public class JSDenseArray extends JSAbstractArray {
     this(10);
   }
   public JSDenseArray(int initialSize) {
-    this.elements = new ArrayList<Object>(initialSize);
+    elements = new ArrayList<>(initialSize);
   }
 
   // region op
@@ -62,14 +62,6 @@ public class JSDenseArray extends JSAbstractArray {
   }
   public static void push(JSDenseArray array, Object value) {
     array.elements.add(value);
-  }
-
-  @Override
-  public void add(int index, Object value) {
-    elements.add(index, value);
-  }
-  public static void add(JSDenseArray array, int index, Object value) {
-    array.elements.add(index, value);
   }
 
   @Override
@@ -96,8 +88,23 @@ public class JSDenseArray extends JSAbstractArray {
     return array.elements.size();
   }
 
+  public void add(int index, Object value) {
+    elements.add(index, value);
+  }
+  public static void add(JSDenseArray array, int index, Object value) {
+    array.elements.add(index, value);
+  }
+
   private int fieldCount() {
     return size() + super.size();
+  }
+  // endregion
+
+  // region foreach
+  @NonNull
+  @Override
+  public Iterator<Object> iterator() {
+    return elements.iterator();
   }
   // endregion
 
@@ -113,7 +120,7 @@ public class JSDenseArray extends JSAbstractArray {
     private final Iterator<String> objectIterator;
 
     KeyIterator() {
-      this.objectIterator = JSDenseArray.super.keys().iterator();
+      objectIterator = JSDenseArray.super.keys().iterator();
     }
 
     @Override
@@ -138,7 +145,7 @@ public class JSDenseArray extends JSAbstractArray {
 
     @Override
     public final int size() {
-      return JSDenseArray.this.fieldCount();
+      return fieldCount();
     }
   }
   // endregion
@@ -183,7 +190,7 @@ public class JSDenseArray extends JSAbstractArray {
 
     @Override
     public final int size() {
-      return JSDenseArray.this.fieldCount();
+      return fieldCount();
     }
   }
   // endregion
@@ -200,7 +207,7 @@ public class JSDenseArray extends JSAbstractArray {
     private int currentIndex = 0;
 
     EntryIterator() {
-      this.objectIterator = JSDenseArray.super.entries().iterator();
+      objectIterator = JSDenseArray.super.entries().iterator();
     }
 
     @Override
@@ -227,7 +234,7 @@ public class JSDenseArray extends JSAbstractArray {
 
     @Override
     public int size() {
-      return JSDenseArray.this.fieldCount();
+      return fieldCount();
     }
   }
   // endregion
@@ -258,6 +265,7 @@ public class JSDenseArray extends JSAbstractArray {
   }
   // endregion
 
+  @NonNull
   @Override
   public JSDenseArray clone() throws CloneNotSupportedException {
     JSDenseArray clonedObject = (JSDenseArray) super.clone();

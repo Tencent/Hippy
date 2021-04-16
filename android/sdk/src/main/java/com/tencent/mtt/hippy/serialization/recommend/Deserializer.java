@@ -43,7 +43,8 @@ import com.tencent.mtt.hippy.runtime.builtins.objects.JSNumberObject;
 import com.tencent.mtt.hippy.runtime.builtins.objects.JSStringObject;
 import com.tencent.mtt.hippy.serialization.StringLocation;
 import com.tencent.mtt.hippy.serialization.exception.DataCloneException;
-import com.tencent.mtt.hippy.serialization.memory.string.StringTable;
+import com.tencent.mtt.hippy.serialization.nio.reader.BinaryReader;
+import com.tencent.mtt.hippy.serialization.string.StringTable;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -92,20 +93,20 @@ public class Deserializer extends PrimitiveValueDeserializer {
   /** Maps transfer ID to the transferred {@link JSArrayBuffer}s. */
   private Map<Integer, Object> arrayBufferTransferMap;
 
-  public Deserializer(ByteBuffer buffer) {
-    this(buffer, null, null);
+  public Deserializer(BinaryReader reader) {
+    this(reader, null, null);
   }
 
-  public Deserializer(ByteBuffer buffer, StringTable stringTable) {
-    this(buffer, stringTable, null);
+  public Deserializer(BinaryReader reader, StringTable stringTable) {
+    this(reader, stringTable, null);
   }
 
-  public Deserializer(ByteBuffer buffer, Delegate delegate) {
-    this(buffer, null, delegate);
+  public Deserializer(BinaryReader reader, Delegate delegate) {
+    this(reader, null, delegate);
   }
 
-  public Deserializer(ByteBuffer buffer, StringTable stringTable, Delegate delegate) {
-    super(buffer, stringTable);
+  public Deserializer(BinaryReader reader, StringTable stringTable, Delegate delegate) {
+    super(reader, stringTable);
     this.delegate = delegate;
   }
 
@@ -131,7 +132,7 @@ public class Deserializer extends PrimitiveValueDeserializer {
 
   @Override
   protected JSNumberObject readJSNumber() {
-    double value = readDouble();
+    double value = reader.getDouble();
     return assignId(new JSNumberObject(value));
   }
 
@@ -149,15 +150,13 @@ public class Deserializer extends PrimitiveValueDeserializer {
 
   @Override
   protected Object readJSArrayBuffer() {
-    int byteLength = (int) readVarint();
+    int byteLength = (int) reader.getVarint();
     if (byteLength < 0) {
       throw new DataCloneOutOfRangeException(byteLength);
     }
-    JSArrayBuffer arrayBufferObject = JSArrayBuffer.allocateDirect(byteLength);
+    JSArrayBuffer arrayBufferObject = JSArrayBuffer.allocate(byteLength);
     ByteBuffer arrayBuffer = arrayBufferObject.getBuffer();
-    for (int i = 0; i < byteLength; i++) {
-      arrayBuffer.put(i, buffer.get());
-    }
+    arrayBuffer.put(reader.getBytes(byteLength));
     assignId(arrayBufferObject);
     return (peekTag() == SerializationTag.ARRAY_BUFFER_VIEW) ? readJSArrayBufferView(arrayBufferObject) : arrayBuffer;
   }
@@ -165,7 +164,7 @@ public class Deserializer extends PrimitiveValueDeserializer {
   @Override
   protected JSRegExp readJSRegExp() {
     String pattern = readString(StringLocation.REGEXP, null);
-    int flags = (int) readVarint();
+    int flags = (int) reader.getVarint();
     if (flags < 0) {
       throw new DataCloneOutOfValueException(flags);
     }
@@ -177,7 +176,7 @@ public class Deserializer extends PrimitiveValueDeserializer {
     JSObject object = new JSObject();
     assignId(object);
     int read = readJSProperties(object, SerializationTag.END_JS_OBJECT);
-    int expected = (int) readVarint();
+    int expected = (int) reader.getVarint();
     if (read != expected) {
       throw new UnexpectedException("unexpected number of properties");
     }
@@ -242,7 +241,7 @@ public class Deserializer extends PrimitiveValueDeserializer {
       Object value = readValue(StringLocation.MAP_VALUE, key);
       internalMap.put(key, value);
     }
-    int expected = (int) readVarint();
+    int expected = (int) reader.getVarint();
     if (2 * read != expected) {
       throw new UnexpectedException("unexpected number of entries");
     }
@@ -261,7 +260,7 @@ public class Deserializer extends PrimitiveValueDeserializer {
       Object value = readValue(tag, StringLocation.SET_ITEM, null);
       internalSet.add(value);
     }
-    int expected = (int) readVarint();
+    int expected = (int) reader.getVarint();
     if (read != expected) {
       throw new UnexpectedException("unexpected number of values");
     }
@@ -270,7 +269,7 @@ public class Deserializer extends PrimitiveValueDeserializer {
 
   @Override
   protected JSDenseArray readDenseArray() {
-    int length = (int) readVarint();
+    int length = (int) reader.getVarint();
     if (length < 0) {
       throw new DataCloneOutOfRangeException(length);
     }
@@ -282,11 +281,11 @@ public class Deserializer extends PrimitiveValueDeserializer {
     }
 
     int read = readJSProperties(array, SerializationTag.END_DENSE_JS_ARRAY);
-    int expected = (int) readVarint();
+    int expected = (int) reader.getVarint();
     if (read != expected) {
       throw new UnexpectedException("unexpected number of properties");
     }
-    int length2 = (int) readVarint();
+    int length2 = (int) reader.getVarint();
     if (length != length2) {
       throw new AssertionError("length ambiguity");
     }
@@ -295,15 +294,15 @@ public class Deserializer extends PrimitiveValueDeserializer {
 
   @Override
   protected JSSparseArray readSparseArray() {
-    long length = readVarint();
+    long length = reader.getVarint();
     JSSparseArray array = new JSSparseArray();
     assignId(array);
     int read = readJSProperties(array, SerializationTag.END_SPARSE_JS_ARRAY);
-    int expected = (int) readVarint();
+    int expected = (int) reader.getVarint();
     if (read != expected) {
       throw new UnexpectedException("unexpected number of properties");
     }
-    long length2 = readVarint();
+    long length2 = reader.getVarint();
     if (length != length2) {
       throw new AssertionError("length ambiguity");
     }
@@ -315,11 +314,11 @@ public class Deserializer extends PrimitiveValueDeserializer {
     if (arrayBufferViewTag != SerializationTag.ARRAY_BUFFER_VIEW) {
       throw new AssertionError("ArrayBufferViewTag: " + arrayBufferViewTag);
     }
-    int offset = (int) readVarint();
+    int offset = (int) reader.getVarint();
     if (offset < 0) {
       throw new DataCloneOutOfValueException(offset);
     }
-    int byteLength = (int) readVarint();
+    int byteLength = (int) reader.getVarint();
     if (byteLength < 0) {
       throw new DataCloneOutOfValueException(byteLength);
     }
@@ -386,36 +385,45 @@ public class Deserializer extends PrimitiveValueDeserializer {
         break;
       }
       switch (tag) {
-        case EVAL_ERROR:
+        case EVAL_ERROR: {
           errorType = JSError.ErrorType.EvalError;
           break;
-        case RANGE_ERROR:
+        }
+        case RANGE_ERROR: {
           errorType = JSError.ErrorType.RangeError;
           break;
-        case REFERENCE_ERROR:
+        }
+        case REFERENCE_ERROR: {
           errorType = JSError.ErrorType.ReferenceError;
           break;
-        case SYNTAX_ERROR:
+        }
+        case SYNTAX_ERROR: {
           errorType = JSError.ErrorType.SyntaxError;
           break;
-        case TYPE_ERROR:
+        }
+        case TYPE_ERROR: {
           errorType = JSError.ErrorType.TypeError;
           break;
-        case URI_ERROR:
+        }
+        case URI_ERROR: {
           errorType = JSError.ErrorType.URIError;
           break;
-        case MESSAGE:
+        }
+        case MESSAGE: {
           message = readString(StringLocation.ERROR_MESSAGE, null);
           break;
-        case STACK:
+        }
+        case STACK: {
           stack = readString(StringLocation.ERROR_STACK, null);
           break;
-        default:
+        }
+        default: {
           if (!(tag == ErrorTag.END)) {
             throw new AssertionError("ErrorTag: " + tag);
           }
           done = true;
           break;
+        }
       }
     }
 
@@ -448,7 +456,7 @@ public class Deserializer extends PrimitiveValueDeserializer {
 
   @Override
   protected Object readTransferredJSArrayBuffer() {
-    int id = (int) readVarint();
+    int id = (int) reader.getVarint();
     if (id < 0) {
       throw new DataCloneOutOfValueException(id);
     }
@@ -468,7 +476,7 @@ public class Deserializer extends PrimitiveValueDeserializer {
     if (delegate == null) {
       throw new DataCloneDeserializationException();
     }
-    int id = (int) readVarint();
+    int id = (int) reader.getVarint();
     if (id < 0) {
       throw new DataCloneOutOfValueException(id);
     }
@@ -482,7 +490,7 @@ public class Deserializer extends PrimitiveValueDeserializer {
     if (delegate == null) {
       throw new DataCloneDeserializationException();
     }
-    int id = (int) readVarint();
+    int id = (int) reader.getVarint();
     if (id < 0) {
       throw new DataCloneOutOfValueException(id);
     }
@@ -492,7 +500,7 @@ public class Deserializer extends PrimitiveValueDeserializer {
 
   @Override
   protected Object readTransferredWasmMemory() {
-    long maximumPages = readVarint();
+    long maximumPages = reader.getVarint();
     JSValue memory = (JSValue) readSharedArrayBuffer();
     if (!memory.isSharedArrayBuffer()) {
       throw new UnexpectedException("expected SharedArrayBuffer");

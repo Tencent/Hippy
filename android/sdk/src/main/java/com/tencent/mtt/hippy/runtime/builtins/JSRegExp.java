@@ -15,7 +15,7 @@
  */
 package com.tencent.mtt.hippy.runtime.builtins;
 
-import org.json.JSONException;
+import android.support.annotation.NonNull;
 
 import java.util.regex.Pattern;
 
@@ -96,6 +96,7 @@ public class JSRegExp extends JSObject {
     return pattern;
   }
 
+  @NonNull
   @Override
   public JSRegExp clone() throws CloneNotSupportedException {
     JSRegExp clonedObject = (JSRegExp) super.clone();

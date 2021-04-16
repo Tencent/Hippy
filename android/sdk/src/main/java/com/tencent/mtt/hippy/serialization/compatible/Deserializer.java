@@ -15,7 +15,6 @@
  */
 package com.tencent.mtt.hippy.serialization.compatible;
 
-import com.tencent.mtt.hippy.annotation.HippyMethod;
 import com.tencent.mtt.hippy.common.ConstantValue;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
@@ -26,22 +25,22 @@ import com.tencent.mtt.hippy.serialization.PrimitiveValueDeserializer;
 import com.tencent.mtt.hippy.serialization.SerializationTag;
 import com.tencent.mtt.hippy.serialization.StringLocation;
 import com.tencent.mtt.hippy.serialization.exception.DataCloneOutOfRangeException;
-import com.tencent.mtt.hippy.serialization.memory.string.StringTable;
+import com.tencent.mtt.hippy.serialization.nio.reader.BinaryReader;
+import com.tencent.mtt.hippy.serialization.string.StringTable;
 
 import java.math.BigInteger;
-import java.nio.ByteBuffer;
 
 /**
  * Compatible with {@code com.tencent.mtt.hippy.common.HippyMap}
  */
 @SuppressWarnings("deprecation")
 public class Deserializer extends PrimitiveValueDeserializer {
-  public Deserializer(ByteBuffer buffer) {
-    this(buffer, null);
+  public Deserializer(BinaryReader reader) {
+    this(reader, null);
   }
 
-  public Deserializer(ByteBuffer buffer, StringTable stringTable) {
-    super(buffer, stringTable);
+  public Deserializer(BinaryReader reader, StringTable stringTable) {
+    super(reader, stringTable);
   }
 
   @Override
@@ -66,7 +65,7 @@ public class Deserializer extends PrimitiveValueDeserializer {
 
   @Override
   protected Number readJSNumber() {
-    return assignId(readDouble());
+    return assignId(reader.getDouble());
   }
 
   @Override
@@ -81,11 +80,11 @@ public class Deserializer extends PrimitiveValueDeserializer {
 
   @Override
   protected Object readJSArrayBuffer() {
-    int byteLength = (int) readVarint();
+    int byteLength = (int) reader.getVarint();
     if (byteLength < 0) {
       throw new DataCloneOutOfRangeException(byteLength);
     }
-    buffer.position(buffer.position() + byteLength);
+    reader.position(reader.position() + byteLength);
 
     assignId(Undefined);
     if (peekTag() == SerializationTag.ARRAY_BUFFER_VIEW) {
@@ -98,7 +97,7 @@ public class Deserializer extends PrimitiveValueDeserializer {
   @Override
   protected Object readJSRegExp() {
     readString(StringLocation.VOID, null);
-    readVarint();
+    reader.getVarint();
     return assignId(Undefined);
   }
 
@@ -107,7 +106,7 @@ public class Deserializer extends PrimitiveValueDeserializer {
     HippyMap object = new HippyMap();
     assignId(object);
     int read = readJSProperties(object, SerializationTag.END_JS_OBJECT);
-    int expected = (int) readVarint();
+    int expected = (int) reader.getVarint();
     if (read != expected) {
       throw new UnexpectedException("unexpected number of properties");
     }
@@ -161,7 +160,7 @@ public class Deserializer extends PrimitiveValueDeserializer {
         object.pushObject((String) key, value);
       }
     }
-    int expected = (int) readVarint();
+    int expected = (int) reader.getVarint();
     if (2 * read != expected) {
       throw new UnexpectedException("unexpected number of entries");
     }
@@ -179,7 +178,7 @@ public class Deserializer extends PrimitiveValueDeserializer {
       Object value = readValue(tag, StringLocation.SET_ITEM, null);
       array.pushObject(value);
     }
-    int expected = (int) readVarint();
+    int expected = (int) reader.getVarint();
     if (read != expected) {
       throw new UnexpectedException("unexpected number of values");
     }
@@ -188,7 +187,7 @@ public class Deserializer extends PrimitiveValueDeserializer {
 
   @Override
   protected HippyArray readDenseArray() {
-    int length = (int) readVarint();
+    int length = (int) reader.getVarint();
     if (length < 0) {
       throw new DataCloneOutOfRangeException(length);
     }
@@ -202,11 +201,11 @@ public class Deserializer extends PrimitiveValueDeserializer {
     }
 
     int read = readJSProperties(null, SerializationTag.END_DENSE_JS_ARRAY);
-    int expected = (int) readVarint();
+    int expected = (int) reader.getVarint();
     if (read != expected) {
       throw new UnexpectedException("unexpected number of properties");
     }
-    int length2 = (int) readVarint();
+    int length2 = (int) reader.getVarint();
     if (length != length2) {
       throw new AssertionError("length ambiguity");
     }
@@ -228,7 +227,7 @@ public class Deserializer extends PrimitiveValueDeserializer {
    */
   @Override
   protected HippyArray readSparseArray() {
-    long length = readVarint();
+    long length = reader.getVarint();
     HippyArray array = new HippyArray();
     assignId(array);
 
@@ -263,11 +262,11 @@ public class Deserializer extends PrimitiveValueDeserializer {
       }
     }
 
-    int expected = (int) readVarint();
+    int expected = (int) reader.getVarint();
     if (read != expected) {
       throw new UnexpectedException("unexpected number of properties");
     }
-    long length2 = readVarint();
+    long length2 = reader.getVarint();
     if (length != length2) {
       throw new AssertionError("length ambiguity");
     }
@@ -279,8 +278,8 @@ public class Deserializer extends PrimitiveValueDeserializer {
     if (arrayBufferViewTag != SerializationTag.ARRAY_BUFFER_VIEW) {
       throw new AssertionError("ArrayBufferViewTag: " + arrayBufferViewTag);
     }
-    readVarint();
-    readVarint();
+    reader.getVarint();
+    reader.getVarint();
     readArrayBufferViewTag();
 
     assignId(Undefined);
@@ -346,7 +345,7 @@ public class Deserializer extends PrimitiveValueDeserializer {
 
   @Override
   public Object readTransferredJSArrayBuffer() {
-    readVarint();
+    reader.getVarint();
     assignId(Undefined);
     if (peekTag() == SerializationTag.ARRAY_BUFFER_VIEW) {
       readJSArrayBufferView();
@@ -356,7 +355,7 @@ public class Deserializer extends PrimitiveValueDeserializer {
 
   @Override
   public Object readSharedArrayBuffer() {
-    readVarint();
+    reader.getVarint();
     assignId(Undefined);
     if (peekTag() == SerializationTag.ARRAY_BUFFER_VIEW) {
       readJSArrayBufferView();
@@ -366,14 +365,14 @@ public class Deserializer extends PrimitiveValueDeserializer {
 
   @Override
   protected Object readTransferredWasmModule() {
-    readVarint();
+    reader.getVarint();
     assignId(Undefined);
     return null;
   }
 
   @Override
   protected Object readTransferredWasmMemory() {
-    readVarint();
+    reader.getVarint();
     readSharedArrayBuffer();
     assignId(Undefined);
     return null;

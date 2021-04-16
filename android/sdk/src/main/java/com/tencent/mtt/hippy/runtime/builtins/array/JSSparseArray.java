@@ -15,9 +15,11 @@
  */
 package com.tencent.mtt.hippy.runtime.builtins.array;
 
+import android.support.annotation.NonNull;
 import android.util.Pair;
 import android.util.SparseArray;
 
+import com.tencent.mtt.hippy.runtime.builtins.JSOddball;
 import com.tencent.mtt.hippy.runtime.builtins.JSValue;
 
 import org.json.JSONArray;
@@ -42,34 +44,38 @@ public class JSSparseArray extends JSAbstractArray {
     this(10);
   }
   public JSSparseArray(int initialSize) {
-    this.elements = new SparseArray<>(initialSize);
+    elements = new SparseArray<>(initialSize);
   }
 
   // region op
   @Override
   public Object get(int index) {
-    return elements.get(index);
+    int size = size();
+    if (index >= size) {
+      throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
+    }
+
+    return elements.get(index, JSOddball.Hole);
   }
 
   @Override
   public void push(Object value) {
-    elements.append(elements.size(), value);
-  }
-
-  @Override
-  public void add(int index, Object value) {
-    elements.put(index, value);
+    elements.append(size(), value);
   }
 
   @Override
   public Object set(int index, Object value) {
-    add(index, value);
+    int size = size();
+    if (index >= size) {
+      throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
+    }
+    elements.put(index, value);
     return value;
   }
 
   @Override
   public Object delete(int index) {
-    Object value = get(index);
+    Object value = get(index); // checked boundary
     elements.delete(index);
     return value;
   }
@@ -81,6 +87,36 @@ public class JSSparseArray extends JSAbstractArray {
 
   private int fieldCount() {
     return elements.size() + super.size();
+  }
+  // endregion
+
+  // region foreach
+  @NonNull
+  @Override
+  public Iterator<Object> iterator() {
+    return new ListIterator();
+  }
+
+  private final class ListIterator implements Iterator<Object> {
+    private int currentIndex = 0;
+    private int currentItemIndex = 0;
+
+    @Override
+    public boolean hasNext() {
+      return currentItemIndex < elements.size();
+    }
+
+    @Override
+    public Object next() {
+      if (currentItemIndex < elements.size()) {
+        if (elements.keyAt(currentItemIndex) == currentIndex++) {
+          return elements.valueAt(currentItemIndex++);
+        } else {
+          return JSOddball.Hole;
+        }
+      }
+      throw new NoSuchElementException();
+    }
   }
   // endregion
 
@@ -96,7 +132,7 @@ public class JSSparseArray extends JSAbstractArray {
     private final Iterator<String> objectIterator;
 
     KeyIterator() {
-      this.objectIterator = JSSparseArray.super.keys().iterator();
+      objectIterator = JSSparseArray.super.keys().iterator();
     }
 
     @Override
@@ -121,7 +157,7 @@ public class JSSparseArray extends JSAbstractArray {
 
     @Override
     public final int size() {
-      return JSSparseArray.this.fieldCount();
+      return fieldCount();
     }
   }
   // endregion
@@ -165,7 +201,7 @@ public class JSSparseArray extends JSAbstractArray {
 
     @Override
     public final int size() {
-      return JSSparseArray.this.fieldCount();
+      return fieldCount();
     }
   }
   // endregion
@@ -182,7 +218,7 @@ public class JSSparseArray extends JSAbstractArray {
     private int currentIndex = 0;
 
     EntryIterator() {
-      this.objectIterator = JSSparseArray.super.entries().iterator();
+      objectIterator = JSSparseArray.super.entries().iterator();
     }
 
     @Override
@@ -209,7 +245,7 @@ public class JSSparseArray extends JSAbstractArray {
 
     @Override
     public int size() {
-      return JSSparseArray.this.fieldCount();
+      return fieldCount();
     }
   }
   // endregion
@@ -229,7 +265,7 @@ public class JSSparseArray extends JSAbstractArray {
 
     @Override
     public Pair<Integer, Object> next() {
-      if (currentIndex < size()) {
+      if (currentIndex < elements.size()) {
         Pair<Integer, Object> pair = new Pair<>(elements.keyAt(currentIndex), elements.valueAt(currentIndex));
         currentIndex++;
         return pair;
@@ -246,7 +282,7 @@ public class JSSparseArray extends JSAbstractArray {
 
     @Override
     public int size() {
-      return JSSparseArray.this.elements.size();
+      return elements.size();
     }
   }
   // endregion
@@ -270,6 +306,15 @@ public class JSSparseArray extends JSAbstractArray {
   }
   // endregion
 
+  public JSDenseArray flatten() {
+    JSDenseArray array = new JSDenseArray();
+    for (Object item: this) {
+      array.push(item);
+    }
+    return array;
+  }
+
+  @NonNull
   @Override
   public JSSparseArray clone() throws CloneNotSupportedException {
     JSSparseArray clonedObject = (JSSparseArray) super.clone();

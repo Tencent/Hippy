@@ -15,6 +15,8 @@
  */
 package com.tencent.mtt.hippy.runtime.builtins;
 
+import android.support.annotation.NonNull;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -31,6 +33,7 @@ public class JSSet extends JSValue {
     return internalSet;
   }
 
+  @NonNull
   @Override
   public JSSet clone() throws CloneNotSupportedException {
     JSSet clonedObject = (JSSet) super.clone();
