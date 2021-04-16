@@ -35,7 +35,8 @@ Hippy
 │   ├── hippy-vue                     # Vue binding for Hippy.
 │   ├── hippy-vue-css-loader          # Webpack loader for convert CSS text to JS AST.
 │   ├── hippy-vue-native-components   # Native components extensions for hippy-vue.
-│   └── hippy-vue-router              # Vue router for hippy-vue.
+│   ├── hippy-vue-router              # Vue router for hippy-vue.
+│   └── types                         # Global type definition.
 ├── ios
 │   └── sdk                           # iOS SDK
 ├── android
@@ -44,7 +45,6 @@ Hippy
 ├── core                              # JS modules implemented by C++, binding to JS engine.
 ├── layout                            # Hippy layout engine.
 ├── scripts                           # Project build script.
-└── types                             # Global type definition.
 ```
 
 ## Getting started
@@ -72,14 +72,15 @@ For Windows developers:
 
 For iOS we recommend to use iOS simulator when first try, however, you may change the Xcode configuration to install the app to iPhone if you are an iOS expert.
 
-1. Install the dependencies with `npm install`.
-2. Install dependencies of each npm package with `lerna bootstrap`.
+1. Install the dependencies at root directory with `npm install`.
+2. Install dependencies of each npm package at root directory with `lerna bootstrap`.
+   （Hippy uses [Lerna](https://lerna.js.org/) to manage multi js packages, if `lerna` command is not found, execute `npm install lerna -g` first.）
 3. Build the front-end sdk packages at root directory with `npm run build`.
-4. Choose a demo to build with `npm run buildexample -- [hippy-react-demo|hippy-vue-demo]`.
+4. Choose a demo to build with `npm run buildexample -- [hippy-react-demo|hippy-vue-demo]` at root directory.
 5. Start the Xcode and build the iOS app with `open examples/ios-demo/HippyDemo.xcodeproj`.
-6. `cd` to `examples` hippy-react-demo or hippy-vue-demo, run `npm run hippy:dev` and `npm run hippy:debug` respectively to start the live debug mode
+6. `cd` to `examples` hippy-react-demo or hippy-vue-demo, run `npm install` to install demo js dependencies, then run `npm run hippy:dev` and `npm run hippy:debug` respectively to start the live debug mode
 
-On example debug mode, npm packages such as @hippy/react, @hippy/vue are linked to `packages` > `[different package]` >`dist`, so if you have changed package source code and make it take effect in examples, please call `npm run build` at root directory again.
+On example debug mode, npm packages such as @hippy/react, @hippy/vue are linked to `packages` > `[different package]` >`dist`, so if you have changed package source code and want to make it take effect in examples, please call `npm run build` at root directory again.
 
 ### Start the android app with hippy-react or hippy-vue demo
 
@@ -87,16 +88,17 @@ For Android we recommend to use the real cellphone for better experience, becaus
 
 Before build the android app, please make sure the SDK and NDK is installed, And *DO NOT* update the build toolchain.
 
-1. Install the dependencies with `npm install`.
-2. Install dependencies of each npm package with `lerna bootstrap`.
+1. Install the dependencies at root directory with `npm install`.
+2. Install dependencies of each npm package at root directory with `lerna bootstrap`.
+   （Hippy uses [Lerna](https://lerna.js.org/) to manage multi js packages, if `lerna` command is not found, execute `npm install lerna -g` first.）
 3. Build the front-end sdk packages at root directory with `npm run build`.
-4. Open a terminal, then build the hippy-react demo with `npm run buildexample -- hippy-react-demo`, or build the hippy-vue demo with `npm run buildexample -- hippy-vue-demo` .
+4. Choose a demo to build with `npm run buildexample -- [hippy-react-demo|hippy-vue-demo]` at root directory.
 5. Open the `examples/android-demo` with Android Studio.
-6. Connect android phone with USB cable and make sure USB debugging mode and USB installation are enabled.
+6. Connect Android phone with USB cable and make sure USB debugging mode and USB installation are enabled.
 7. Open the project with Android Studio, run and install the apk.
-8. `cd` to hippy-react-demo or hippy-vue-demo, run `npm run hippy:dev` and `npm run hippy:debug` respectively to start the live debug mode.
+8. `cd` to `examples` hippy-react-demo or hippy-vue-demo, run `npm install` to install demo js dependencies, then run `npm run hippy:dev` and `npm run hippy:debug` respectively to start the live debug mode.
 
-On example debug mode, npm packages such as @hippy/react, @hippy/vue are linked to `packages` > `[different package]` >`dist`, so if you have changed package source code and make it take effect in examples, please call `npm run build` at root directory again.
+On example debug mode, npm packages such as @hippy/react, @hippy/vue are linked to `packages` > `[different package]` >`dist`, so if you have changed package source code and want to make it take effect in examples, please call `npm run build` at root directory again.
 
 > If you encounter the issue of `No toolchains found in the NDK toolchains folder for ABI with prefix: mips64el-linux-android`, here is the [solution](https://github.com/google/filament/issues/15#issuecomment-415423557).
 

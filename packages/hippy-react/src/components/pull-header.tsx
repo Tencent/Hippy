@@ -6,7 +6,7 @@ import { callUIFunction } from '../modules/ui-manager-module';
 import { Device } from '../native';
 
 interface CollapsePullHeaderOptions {
-  // time left when PullHeader collapses, unit is ms
+  // time left to hide pullHeader after collapsePullHeader() is called, unit is ms
   time?: number,
 }
 
@@ -37,12 +37,13 @@ class PullHeader extends React.Component<PullHeaderProps, {}> {
 
   /**
    * Collapse the PullView and hide the content
-   * @param options
+   * @param {CollapsePullHeaderOptions} [options] - additional config for pull header
    */
   collapsePullHeader(options: CollapsePullHeaderOptions) {
     if (Device.platform.OS === 'android') {
       callUIFunction(this.instance as Fiber, 'collapsePullHeader', [options]);
     } else {
+      // iOS is not supported if param invalid, so create a new function name for compatibility
       if (typeof options !== 'undefined') {
         callUIFunction(this.instance as Fiber, 'collapsePullHeaderWithOptions', [options]);
       } else {
