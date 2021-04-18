@@ -25,6 +25,7 @@ import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorEvent;
 import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
 import com.tencent.mtt.hippy.bridge.HippyBridgeManager;
 import com.tencent.mtt.hippy.bridge.HippyBridgeManagerImpl;
+import com.tencent.mtt.hippy.bridge.HippyBridgeManagerImpl.BridgeTransferType;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyAssetBundleLoader;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyFileBundleLoader;

@@ -19,6 +19,7 @@ import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyEngine.BridgeTransferType;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
+import com.tencent.mtt.hippy.bridge.HippyBridgeManagerImpl.BridgeTransferType;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
 import com.tencent.mtt.hippy.common.Callback;
 import com.tencent.mtt.hippy.common.HippyJsException;
