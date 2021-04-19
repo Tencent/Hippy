@@ -1,16 +1,16 @@
 <template>
   <div id="shadow-demo">
       <div v-if="Platform==='android'" class="no-offset-shadow-demo-cube-android">
-        <div class="no-offset-shadow-demo-content-android">没有偏移阴影样式</div>
+        <p class="no-offset-shadow-demo-content-android">没有偏移阴影样式</p>
       </div>
       <div v-if="Platform==='ios'" class="no-offset-shadow-demo-cube-ios">
-        <div class="no-offset-shadow-demo-content-ios">没有偏移阴影样式</div>
+        <p class="no-offset-shadow-demo-content-ios">没有偏移阴影样式</p>
       </div>
       <div v-if="Platform==='android'" class="offset-shadow-demo-cube-android">
-        <div class="offset-shadow-demo-content-android">偏移阴影样式</div>
+        <p class="offset-shadow-demo-content-android">偏移阴影样式</p>
       </div>
       <div v-if="Platform==='ios'" class="offset-shadow-demo-cube-ios">
-        <div class="offset-shadow-demo-content-ios">偏移阴影样式</div>
+        <p class="offset-shadow-demo-content-ios">偏移阴影样式</p>
       </div>
   </div>
 </template>
@@ -77,8 +77,11 @@ export default {
     top: 5px;
     width: 160px;
     height: 160px;
-    background-color: red;
+    background-color: grey;
     border-radius: 5px;
+    line-height: 160px;
+    text-align: center;
+    color: white;
   }
 
   #shadow-demo .no-offset-shadow-demo-cube-ios {
@@ -101,9 +104,11 @@ export default {
   #shadow-demo .no-offset-shadow-demo-content-ios {
     width: 160px;
     height: 160px;
-    background-color: red;
+    background-color: grey;
     text-align: center;
     border-radius: 5px;
+    line-height: 160px;
+    color: white;
   }
 
   /**
@@ -134,7 +139,10 @@ export default {
   #shadow-demo .offset-shadow-demo-content-android {
     width: 160px;
     height: 160px;
-    background-color: red;
+    background-color: grey;
+    line-height: 160px;
+    text-align: center;
+    color: white;
   }
 
   #shadow-demo .offset-shadow-demo-cube-ios {
@@ -155,7 +163,9 @@ export default {
   #shadow-demo .offset-shadow-demo-content-ios {
     width: 160px;
     height: 160px;
-    background-color: red;
+    line-height: 160px;
+    background-color: grey;
     text-align: center;
+    color: white;
   }
 </style>
