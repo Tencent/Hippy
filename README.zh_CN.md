@@ -104,6 +104,10 @@ Windows 用户需要以下软件:
 
 欢迎开发人员为腾讯的开源做出贡献，我们将持续激励他们并感谢他们。我们提供了腾讯对开源贡献的说明，每个项目的具体贡献规则由项目团队制定。开发人员可以选择适当的项目并根据相应的规则参与。腾讯项目管理委员会将定期汇报合格的贡献者，奖项将由官方联络人颁发。
 
+## 追星数
+
+[![Stargazers over time](https://starchart.cc/Tencent/Hippy.svg)](https://starchart.cc/Tencent/Hippy)
+
 ## 许可协议
 
 Hippy 遵守 [Apache-2.0 licensed](./LICENSE) 协议。
