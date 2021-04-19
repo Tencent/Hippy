@@ -417,12 +417,15 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 	}
 
 	@Override
-	public void sendEvent(String event, Object params)
-	{
-		if (mEngineContext != null && mEngineContext.getModuleManager() != null)
-		{
-			mEngineContext.getModuleManager().getJavaScriptModule(EventDispatcher.class).receiveNativeEvent(event, params);
+	public void sendEvent(String event, Object params, BridgeTransferType transferType) {
+		if (mEngineContext != null && mEngineContext.getModuleManager() != null) {
+			mEngineContext.getModuleManager().getJavaScriptModule(EventDispatcher.class).receiveNativeEvent(event, params, transferType);
 		}
+	}
+
+	@Override
+	public void sendEvent(String event, Object params) {
+		sendEvent(event, params, BridgeTransferType.BRIDGE_TRANSFER_TYPE_NORMAL);
 	}
 
 	@Override

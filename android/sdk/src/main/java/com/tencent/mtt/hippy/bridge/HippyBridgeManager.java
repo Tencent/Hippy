@@ -16,6 +16,7 @@
 package com.tencent.mtt.hippy.bridge;
 
 import com.tencent.mtt.hippy.HippyEngine;
+import com.tencent.mtt.hippy.HippyEngine.BridgeTransferType;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
@@ -45,13 +46,13 @@ public interface HippyBridgeManager
 
 	void destroyInstance(int id);
 
-	void execCallback(Object params);
+	void execCallback(Object params, BridgeTransferType transferType);
 
 	void destroyBridge(Callback<Boolean> callback);
 
 	void destroy();
 
-	void callJavaScriptModule(String mName, String name, Object params);
+	void callJavaScriptModule(String mName, String name, Object params, BridgeTransferType transferType);
 
 	HippyThirdPartyAdapter getThirdPartyAdapter();
 }

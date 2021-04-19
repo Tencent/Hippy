@@ -24,6 +24,7 @@ import android.os.Message;
 import android.text.TextUtils;
 
 import com.tencent.mtt.hippy.HippyEngine;
+import com.tencent.mtt.hippy.HippyEngine.BridgeTransferType;
 import com.tencent.mtt.hippy.HippyEngine.ModuleLoadStatus;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyRootView;
@@ -64,9 +65,6 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 	public static final int	BRIDGE_TYPE_SINGLE_THREAD = 2;
 	public static final int	BRIDGE_TYPE_NORMAL = 1;
 
-  public static final int BRIDGE_TRANSFER_TYPE_NORMAL = 0;
-	public static final int BRIDGE_TRANSFER_TYPE_NIO = 1;
-
 	HippyEngineContext mContext;
 	HippyBundleLoader mCoreBundleLoader;
 	HippyBridge mHippyBridge;
@@ -79,10 +77,10 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 	private final String mDebugServerHost;
 	private final int mGroupId;
 	private final HippyThirdPartyAdapter mThirdPartyAdapter;
-  private StringBuilder mStringBuilder;
+	private StringBuilder mStringBuilder;
 	private SafeHeapWriter safeHeapWriter;
 	private SafeDirectWriter safeDirectWriter;
-  private Serializer serializer;
+	private Serializer serializer;
 
 	HippyEngine.ModuleListener mLoadModuleListener;
 
@@ -101,6 +99,98 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 			mStringBuilder = new StringBuilder(1024);
 		} else {
 			serializer = new Serializer();
+		}
+	}
+
+	private void handleCallFunction(Message msg) {
+		String action = null;
+		switch (msg.arg2) {
+			case FUNCTION_ACTION_LOAD_INSTANCE: {
+				if (msg.obj instanceof HippyMap) {
+					int instanceId = ((HippyMap) msg.obj).getInt("id");
+					HippyRootView rootView = mContext.getInstance(instanceId);
+					if (rootView != null && rootView.getTimeMonitor() != null) {
+						rootView.getTimeMonitor().startEvent(HippyEngineMonitorEvent.MODULE_LOAD_EVENT_RUN_BUNDLE);
+					}
+				}
+				action = "loadInstance";
+				break;
+			}
+			case FUNCTION_ACTION_RESUME_INSTANCE: {
+				action = "resumeInstance";
+				break;
+			}
+			case FUNCTION_ACTION_PAUSE_INSTANCE: {
+				action = "pauseInstance";
+				break;
+			}
+			case FUNCTION_ACTION_DESTROY_INSTANCE: {
+				action = "destroyInstance";
+				break;
+			}
+			case FUNCTION_ACTION_CALLBACK: {
+				action = "callBack";
+				break;
+			}
+			case FUNCTION_ACTION_CALL_JSMODULE: {
+				action = "callJsModule";
+				break;
+			}
+		}
+
+		NativeCallback callback = null;
+		if (TextUtils.equals(action, "loadInstance")) {
+			callback = new NativeCallback(mHandler, Message.obtain(msg), action) {
+				@Override
+				public void Call(long value, Message msg, String action) {
+					if (msg.obj instanceof HippyMap) {
+						int instanceId = ((HippyMap) msg.obj).getInt("id");
+						HippyRootView rootView = mContext.getInstance(instanceId);
+						if (rootView != null && rootView.getTimeMonitor() != null) {
+							rootView.getTimeMonitor().startEvent(HippyEngineMonitorEvent.MODULE_LOAD_EVENT_CREATE_VIEW);
+						}
+					}
+				}
+			};
+		}
+
+		if (msg.arg1 == BridgeTransferType.BRIDGE_TRANSFER_TYPE_NIO.value()) {
+			ByteBuffer buffer;
+			if (mBridgeParamJson) {
+				mStringBuilder.setLength(0);
+				byte[] bytes = ArgumentUtils.objectToJsonOpt((HippyMap) msg.obj, mStringBuilder).getBytes();
+				buffer = ByteBuffer.allocateDirect(bytes.length);
+				buffer.put(bytes);
+			} else {
+				if (safeDirectWriter == null) {
+					safeDirectWriter = new SafeDirectWriter(SafeDirectWriter.INITIAL_CAPACITY, 0);
+				}
+				serializer.setWriter(safeDirectWriter);
+				serializer.reset();
+				serializer.writeHeader();
+				serializer.writeValue((HippyMap) msg.obj);
+				buffer = serializer.getWriter().chunked();
+			}
+
+			mHippyBridge.callFunction(action, callback, buffer);
+		} else {
+			if (mBridgeParamJson) {
+				mStringBuilder.setLength(0);
+				byte[] bytes = ArgumentUtils.objectToJsonOpt((HippyMap) msg.obj, mStringBuilder).getBytes();
+				mHippyBridge.callFunction(action, callback, bytes);
+			} else {
+				if (safeHeapWriter == null) {
+					safeHeapWriter = new SafeHeapWriter();
+				}
+				serializer.setWriter(safeHeapWriter);
+				serializer.reset();
+				serializer.writeHeader();
+				serializer.writeValue((HippyMap) msg.obj);
+				ByteBuffer buffer = serializer.getWriter().chunked();
+				int offset = buffer.arrayOffset() + buffer.position();
+				int length = buffer.limit() - buffer.position();
+				mHippyBridge.callFunction(action, callback, buffer.array(), offset, length);
+			}
 		}
 	}
 
@@ -201,108 +291,9 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 					return true;
 				}
 				case MSG_CODE_CALL_FUNCTION: {
-					String action = null;
-
-					if (!mIsInit) {
-						return true;
+					if (mIsInit) {
+						handleCallFunction(msg);
 					}
-
-					switch (msg.arg2) {
-						case FUNCTION_ACTION_LOAD_INSTANCE: {
-							if (msg.obj instanceof HippyMap) {
-								int instanceId = ((HippyMap) msg.obj).getInt("id");
-								HippyRootView rootView = mContext.getInstance(instanceId);
-								if (rootView != null && rootView.getTimeMonitor() != null) {
-									rootView.getTimeMonitor().startEvent(HippyEngineMonitorEvent.MODULE_LOAD_EVENT_RUN_BUNDLE);
-								}
-							}
-							action = "loadInstance";
-							break;
-						}
-						case FUNCTION_ACTION_RESUME_INSTANCE: {
-							action = "resumeInstance";
-							break;
-						}
-						case FUNCTION_ACTION_PAUSE_INSTANCE: {
-							action = "pauseInstance";
-							break;
-						}
-						case FUNCTION_ACTION_DESTROY_INSTANCE: {
-							action = "destroyInstance";
-							break;
-						}
-						case FUNCTION_ACTION_CALLBACK: {
-							action = "callBack";
-							break;
-						}
-						case FUNCTION_ACTION_CALL_JSMODULE: {
-							action = "callJsModule";
-							break;
-						}
-					}
-
-          NativeCallback callback = null;
-          if (TextUtils.equals(action, "loadInstance")) {
-            callback = new NativeCallback(mHandler, Message.obtain(msg), action) {
-              @Override
-              public void Call(long value, Message msg, String action) {
-                if (msg.obj instanceof HippyMap) {
-                  int instanceId = ((HippyMap) msg.obj).getInt("id");
-                  HippyRootView rootView = mContext.getInstance(instanceId);
-                  if (rootView != null && rootView.getTimeMonitor() != null) {
-                    rootView.getTimeMonitor().startEvent(HippyEngineMonitorEvent.MODULE_LOAD_EVENT_CREATE_VIEW);
-                  }
-                }
-              }
-            };
-          }
-
-					switch (msg.arg1) {
-            case BRIDGE_TRANSFER_TYPE_NIO: {
-              ByteBuffer buffer;
-              if (mBridgeParamJson) {
-                mStringBuilder.setLength(0);
-                byte[] bytes = ArgumentUtils.objectToJsonOpt((HippyMap) msg.obj, mStringBuilder).getBytes();
-                buffer = ByteBuffer.allocateDirect(bytes.length);
-                buffer.put(bytes);
-              } else {
-                if (safeDirectWriter == null) {
-                  safeDirectWriter = new SafeDirectWriter(SafeDirectWriter.INITIAL_CAPACITY, 0);
-                }
-                serializer.setWriter(safeDirectWriter);
-                serializer.reset();
-                serializer.writeHeader();
-                serializer.writeValue((HippyMap) msg.obj);
-                buffer = serializer.getWriter().chunked();
-              }
-
-              mHippyBridge.callFunction(action, callback, buffer);
-              break;
-            }
-            case BRIDGE_TRANSFER_TYPE_NORMAL: { // default case
-              if (mBridgeParamJson) {
-                mStringBuilder.setLength(0);
-                byte[] bytes = ArgumentUtils.objectToJsonOpt((HippyMap) msg.obj, mStringBuilder).getBytes();
-                mHippyBridge.callFunction(action, callback, bytes);
-              } else {
-                if (safeHeapWriter == null) {
-                  safeHeapWriter = new SafeHeapWriter();
-                }
-                serializer.setWriter(safeHeapWriter);
-                serializer.reset();
-                serializer.writeHeader();
-                serializer.writeValue((HippyMap) msg.obj);
-                ByteBuffer buffer = serializer.getWriter().chunked();
-                int offset = buffer.arrayOffset() + buffer.position();
-                int length = buffer.limit() - buffer.position();
-                mHippyBridge.callFunction(action, callback, buffer.array(), offset, length);
-              }
-              break;
-            }
-            default: {
-              throw new UnreachableCodeException();
-            }
-          }
 
 					return true;
 				}
@@ -439,12 +430,12 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 	}
 
 	@Override
-	public void execCallback(Object params) {
+	public void execCallback(Object params, BridgeTransferType transferType) {
 		if (!mIsInit) {
 			return;
 		}
 
-		Message message = mHandler.obtainMessage(MSG_CODE_CALL_FUNCTION, 0, FUNCTION_ACTION_CALLBACK, params);
+		Message message = mHandler.obtainMessage(MSG_CODE_CALL_FUNCTION, transferType.value(), FUNCTION_ACTION_CALLBACK, params);
 		mHandler.sendMessage(message);
 	}
 
@@ -467,7 +458,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 	}
 
 	@Override
-	public void callJavaScriptModule(String moduleName, String methodName, Object param) {
+	public void callJavaScriptModule(String moduleName, String methodName, Object param, BridgeTransferType transferType) {
 		if (!mIsInit) {
 			return;
 		}
@@ -477,7 +468,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 		map.pushString("methodName", methodName);
 		map.pushObject("params", param);
 
-		Message message = mHandler.obtainMessage(MSG_CODE_CALL_FUNCTION, 0, FUNCTION_ACTION_CALL_JSMODULE, map);
+		Message message = mHandler.obtainMessage(MSG_CODE_CALL_FUNCTION, transferType.value(), FUNCTION_ACTION_CALL_JSMODULE, map);
 		mHandler.sendMessage(message);
 	}
 

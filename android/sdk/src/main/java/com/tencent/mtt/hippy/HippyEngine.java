@@ -215,6 +215,8 @@ public abstract class HippyEngine
 	 */
 	public abstract void sendEvent(String event, Object params);
 
+	public abstract void sendEvent(String event, Object params, BridgeTransferType transferType);
+
 	/**
 	 * 预加载业务模块
 	 * @param loader
@@ -425,6 +427,21 @@ public abstract class HippyEngine
 		private int iValue;
 
 		ModuleLoadStatus(int value) {
+			iValue = value;
+		}
+
+		public int value() {
+			return iValue;
+		}
+	}
+
+	public enum BridgeTransferType {
+		BRIDGE_TRANSFER_TYPE_NORMAL(0),
+		BRIDGE_TRANSFER_TYPE_NIO(1);
+
+		private final int iValue;
+
+		BridgeTransferType(int value) {
 			iValue = value;
 		}
 

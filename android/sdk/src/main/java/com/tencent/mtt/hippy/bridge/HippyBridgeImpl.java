@@ -68,9 +68,9 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 	private String mDebugGlobalConfig;
 	private NativeCallback mDebugInitJSFrameworkCallback;
 	private final HippyEngineContext mContext;
-  private Deserializer deserializer;
-  private BinaryReader safeHeapReader;
-  private BinaryReader safeDirectReader;
+	private Deserializer deserializer;
+	private BinaryReader safeHeapReader;
+	private BinaryReader safeDirectReader;
 
 	public HippyBridgeImpl(HippyEngineContext engineContext, BridgeCallback callback, boolean singleThreadMode, boolean jsonBridge, boolean isDevModule, String debugServerHost) {
 		this.mBridgeCallback = callback;
@@ -98,7 +98,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 		}
 
 		if (!mBridgeParamJson) {
-		  deserializer = new Deserializer(null, new InternalizedStringTable());
+			deserializer = new Deserializer(null, new InternalizedStringTable());
 		}
 	}
 
@@ -219,15 +219,29 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 			return;
 		}
 
-		int offset = buffer.arrayOffset() + buffer.position();
+		/*
+		 * In Android's DirectByteBuffer implementation.
+		 *
+		 * {@link DirectByteBuffer#hb backing array} will be used to store buffer data,
+		 * {@link DirectByteBuffer#offset} will be used to handle the alignment,
+		 * it's already add to {@link DirectByteBuffer#address},
+		 * so the {@link DirectByteBuffer} has backing array and offset.
+		 *
+		 * In the other side, JNI method |void* GetDirectBufferAddress(JNIEnv*, jobject)|
+		 * will be directly return {@link DirectByteBuffer#address} as the starting buffer address.
+		 *
+		 * So in this situation if, and only if, buffer is direct,
+		 * {@link ByteBuffer#arrayOffset} will be ignored, treated as 0.
+		 */
+		int offset = (buffer.isDirect() ? 0 : buffer.arrayOffset()) + buffer.position();
 		int length = buffer.limit() - buffer.position();
 		callFunction(action, mV8RuntimeId, callback, buffer, offset, length);
 	}
 
 	@Override
-  public void callFunction(String action, NativeCallback callback, byte[] buffer) {
-    callFunction(action, callback, buffer, 0, buffer.length);
-  }
+	public void callFunction(String action, NativeCallback callback, byte[] buffer) {
+		callFunction(action, callback, buffer, 0, buffer.length);
+	}
 
 	@Override
 	public void callFunction(String action, NativeCallback callback, byte[] buffer, int offset, int length) {
@@ -265,7 +279,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 		}
 
 		if (!mBridgeParamJson) {
-      deserializer.getStringTable().release();
+			deserializer.getStringTable().release();
 		}
 
 		mV8RuntimeId = 0;
@@ -292,7 +306,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 	public native void destroy(long runtimeId, boolean useLowMemoryMode, NativeCallback callback);
 
 	public native void callFunction(String action, long V8RuntimId, NativeCallback callback, ByteBuffer buffer, int offset, int length);
-  public native void callFunction(String action, long V8RuntimId, NativeCallback callback, byte[] buffer, int offset, int length);
+	public native void callFunction(String action, long V8RuntimId, NativeCallback callback, byte[] buffer, int offset, int length);
 
 	public native void runNativeRunnable(String codeCacheFile, long nativeRunnableId, long V8RuntimId, NativeCallback callback);
 
@@ -300,9 +314,9 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 
 	public native String getCrashMessage();
 
-  public void callNatives(String moduleName, String moduleFunc, String callId, byte[] buffer) {
-    callNatives(moduleName, moduleFunc, callId, ByteBuffer.wrap(buffer));
-  }
+	public void callNatives(String moduleName, String moduleFunc, String callId, byte[] buffer) {
+		callNatives(moduleName, moduleFunc, callId, ByteBuffer.wrap(buffer));
+	}
 
 	public void callNatives(String moduleName, String moduleFunc, String callId, ByteBuffer buffer) {
 		LogUtils.d("jni_callback", "callNatives [moduleName:" + moduleName + " , moduleFunc: " + moduleFunc + "]");
@@ -374,38 +388,38 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 		});
 	}
 
-  private HippyArray bytesToArgument(ByteBuffer buffer) {
+	private HippyArray bytesToArgument(ByteBuffer buffer) {
 		HippyArray hippyParam = null;
 		if (mBridgeParamJson) {
 			LogUtils.d("hippy_bridge", "bytesToArgument using JSON");
-      byte[] bytes;
+			byte[] bytes;
 			if (buffer.isDirect()) {
-        bytes = new byte[buffer.limit()];
-        buffer.get(bytes);
-      } else {
-			  bytes = buffer.array();
-      }
+				bytes = new byte[buffer.limit()];
+				buffer.get(bytes);
+			} else {
+				bytes = buffer.array();
+			}
 			hippyParam = ArgumentUtils.parseToArray(new String(bytes));
 		} else {
 			LogUtils.d("hippy_bridge", "bytesToArgument using Buffer");
 			Object paramObj;
 			try {
-        final BinaryReader binaryReader;
-			  if (buffer.isDirect()) {
-			    if (safeDirectReader == null) {
-            safeDirectReader = new SafeDirectReader();
-          }
-			    binaryReader = safeDirectReader;
-        } else {
-			    if (safeHeapReader == null) {
-			      safeHeapReader = new SafeHeapReader();
-          }
-			    binaryReader = safeHeapReader;
-        }
-			  binaryReader.reset(buffer);
-			  deserializer.setReader(binaryReader);
-        deserializer.reset();
-        deserializer.readHeader();
+				final BinaryReader binaryReader;
+				if (buffer.isDirect()) {
+					if (safeDirectReader == null) {
+						safeDirectReader = new SafeDirectReader();
+					}
+					binaryReader = safeDirectReader;
+				} else {
+					if (safeHeapReader == null) {
+						safeHeapReader = new SafeHeapReader();
+					}
+					binaryReader = safeHeapReader;
+				}
+				binaryReader.reset(buffer);
+				deserializer.setReader(binaryReader);
+				deserializer.reset();
+				deserializer.readHeader();
 				paramObj = deserializer.readValue();
 			} catch (Throwable e) {
 				e.printStackTrace();
@@ -526,7 +540,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 	@Override
 	public void onReceiveData(String msg) {
 		if (this.mIsDevModule) {
-		  callFunction("onWebsocketMsg", null, msg.getBytes());
+			callFunction("onWebsocketMsg", null, msg.getBytes());
 		}
 	}
 }

@@ -36,8 +36,8 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
   private char[] stringWriteBuffer;
   /** Unsigned int max value. */
   private static final long MAX_UINT32_VALUE = 4294967295L;
-  /** Threshold of string length using {@link String#getChars(int, int, char[], int)} method. */
-  private static final int STRING_USE_GET_CHARS_GATE = 32;
+  /** Small string max length, used for SSO(Short / Small String Optimization). */
+  private static final int SSO_SMALL_STRING_MAX_LENGTH = 32;
 
   protected PrimitiveValueSerializer(BinaryWriter writer) {
     super();
@@ -190,9 +190,12 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
    * <p></p>
    *
    * <h2>Research</h2>
+   *
+   * <h3>Background / Overview</h3>
    * <p>According to the following benchmark tests and real world scenarios,
-   * this method will choose different iterator based on the length of the string for more efficiency.</p>
-   * <p>If string length small than {@link #STRING_USE_GET_CHARS_GATE}, will use {@link String#charAt(int)}
+   * this method will choose different iterator based on the length of the string for more efficiency,
+   * called <strong>SSO</strong>(Short / Small String Optimization).</p>
+   * <p>If string length small than {@link #SSO_SMALL_STRING_MAX_LENGTH}, will use {@link String#charAt(int)}
    * to iterate, otherwise will use {@link String#getChars(int, int, char[], int)}</p>
    * <p></p>
    *
@@ -259,7 +262,7 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
    * </pre>
    * <p>Obviously we can discover two facts,
    * {@link String#toCharArray()} performance is lower than other methods at any time,
-   * and there is a dividing line when the string has 32({@link #STRING_USE_GET_CHARS_GATE}) characters.</p>
+   * and there is a dividing line when the string has 32({@link #SSO_SMALL_STRING_MAX_LENGTH}) characters.</p>
    *
    *
    * @see <a href="https://stackoverflow.com/questions/8894258/fastest-way-to-iterate-over-all-the-chars-in-a-string">Fastest way to iterate over all the chars in a String</a>
@@ -268,7 +271,7 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
    */
   protected void writeString(String value) {
     int length = value.length();
-    if (length > STRING_USE_GET_CHARS_GATE) {
+    if (length > SSO_SMALL_STRING_MAX_LENGTH) {
       if (stringWriteBuffer == null || stringWriteBuffer.length < length) {
         stringWriteBuffer = new char[length];
       }
@@ -281,7 +284,7 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
     int i = 0;
     // Designed to take advantage of
     // https://wiki.openjdk.java.net/display/HotSpot/RangeCheckElimination
-    if (length > STRING_USE_GET_CHARS_GATE) {
+    if (length > SSO_SMALL_STRING_MAX_LENGTH) {
      for (char c; i < length && (c = stringWriteBuffer[i]) < 0x80; i++) {
        writer.putByte((byte) c);
      }
@@ -299,7 +302,7 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
     // region two byte string, universal path
     writeTag(SerializationTag.TWO_BYTE_STRING);
     writer.putVarint(length * 2);
-    if (length > STRING_USE_GET_CHARS_GATE) {
+    if (length > SSO_SMALL_STRING_MAX_LENGTH) {
       for (i = 0; i < length; i++) {
         char c = stringWriteBuffer[i];
         writer.putChar(c);

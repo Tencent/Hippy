@@ -15,8 +15,11 @@
  */
 package com.tencent.mtt.hippy.modules.javascriptmodules;
 
+import static com.tencent.mtt.hippy.HippyEngine.BridgeTransferType.BRIDGE_TRANSFER_TYPE_NORMAL;
 
+import com.tencent.mtt.hippy.HippyEngine.BridgeTransferType;
 import com.tencent.mtt.hippy.HippyEngineContext;
+import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.utils.ArgumentUtils;
 
 import java.lang.reflect.InvocationHandler;
@@ -39,23 +42,33 @@ public class HippyJavaScriptModuleInvocationHandler implements InvocationHandler
 	}
 
 	@Override
-	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
-	{
-		if (proxy instanceof HippyJavaScriptModule)
-		{
-			Object params = null;
-			if (args != null && args.length == 1)
-			{
-				params = args[0];
-			}
-			else
-			{
-				params = ArgumentUtils.fromJavaArgs(args);
+	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+		if (proxy instanceof HippyJavaScriptModule) {
+			BridgeTransferType transferType = BRIDGE_TRANSFER_TYPE_NORMAL;
+			Object params;
+
+			if(args == null || args.length <= 0) {
+				params = new HippyArray();
+			} else {
+				if (args.length == 1) {
+					params = args[0];
+				} else {
+					Object[] newArgs = args;
+					Object lastObject = args[args.length - 1];
+					if (lastObject instanceof BridgeTransferType) {
+						transferType = (BridgeTransferType)lastObject;
+						newArgs = new Object[args.length - 1];
+						for(int i = 0; i < args.length - 1; i++){
+							newArgs[i] = args[i];
+						}
+					}
+
+					params = ArgumentUtils.fromJavaArgs(newArgs);
+				}
 			}
 
-			if (mHippyContext != null && mHippyContext.getBridgeManager() != null)
-			{
-				mHippyContext.getBridgeManager().callJavaScriptModule(mName, method.getName(), params);
+			if (mHippyContext != null && mHippyContext.getBridgeManager() != null) {
+				mHippyContext.getBridgeManager().callJavaScriptModule(mName, method.getName(), params, transferType);
 			}
 		}
 		return null;
