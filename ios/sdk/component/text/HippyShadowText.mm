@@ -503,11 +503,12 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         NSMutableParagraphStyle *paragraphStyle = [NSMutableParagraphStyle new];
         paragraphStyle.alignment = _textAlign;
         CGFloat lineHeight = round(_lineHeight * fontSizeMultiplier);
+        CGFloat maxHeight = lineHeight;
         if (heightOfTallestSubview > lineHeight) {
-            lineHeight = ceilf(heightOfTallestSubview);
+            maxHeight = ceilf(heightOfTallestSubview);
         }
         paragraphStyle.minimumLineHeight = lineHeight;
-        paragraphStyle.maximumLineHeight = lineHeight;
+        paragraphStyle.maximumLineHeight = maxHeight;
         [attributedString addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:(NSRange) { 0, attributedString.length }];
 
         if (lineHeight > fontLineHeight) {
