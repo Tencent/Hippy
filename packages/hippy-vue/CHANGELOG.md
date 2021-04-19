@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.6.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.5.5...2.6.0) (2021-04-19)
+
+
+### Bug Fixes
+
+* **hippy-vue:** fix measureInWindowByMethod return value ([f5ca629](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/f5ca6294227330db7855305ac61a09928f06fd40))
+* **hippy-vue:** update y18n to safe ver ([9708117](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/9708117a459345893f433a11a0f214be56443a09))
+
+
+
+
+
 ## [2.5.5](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.5.4...2.5.5) (2021-03-26)
 
 **Note:** Version bump only for package @hippy/vue

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.6.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-debug-server/compare/2.5.5...2.6.0) (2021-04-19)
+
+
+### Features
+
+* **hippy-debug-server:** extend MIME ([4f1fe7d](https://github.com/Tencent/Hippy/tree/master/packages/hippy-debug-server/commit/4f1fe7d6f4a1476b9cd3ccf95412d2e36e54a5a2))
+
+
+
+
+
 ## [2.5.5](https://github.com/Tencent/Hippy/tree/master/packages/hippy-debug-server/compare/2.5.4...2.5.5) (2021-03-26)
 
 **Note:** Version bump only for package @hippy/debug-server

@@ -3,6 +3,55 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.6.0](https://github.com/Tencent/Hippy/compare/2.5.5...2.6.0) (2021-04-19)
+
+
+### Bug Fixes
+
+* **android:** add skipCmakeAndNinja ([8e87ec2](https://github.com/Tencent/Hippy/commit/8e87ec2f00df68d45a1ba2e115035d9ee8aa440b))
+* **android:** call onDestroy in main thread ([c6563f8](https://github.com/Tencent/Hippy/commit/c6563f80fe6b7918831a787f1d9e00296eef7d9a))
+* **android:** crash from RDM ([ceccb6d](https://github.com/Tencent/Hippy/commit/ceccb6df22685510a92abc7a567735a4fb139222))
+* **android:** load module error ([45238bc](https://github.com/Tencent/Hippy/commit/45238bc9bc82c7c592d4466425fc3ca9d6f85d4a))
+* **android:** pull header problem ([3cd6de6](https://github.com/Tencent/Hippy/commit/3cd6de6c526258ec8242a1e470266973a4964ed0))
+* **android:** remove deprecated JNI ([38cede0](https://github.com/Tencent/Hippy/commit/38cede07390c7e84a2e11dfed85abcfa4396cabc))
+* **android:** remove local properties in example gradle ([6771016](https://github.com/Tencent/Hippy/commit/6771016d6a9d21139633ab97b2f60fa92bc62ca5))
+* **android:** remove so copy task from gradle ([5955c08](https://github.com/Tencent/Hippy/commit/5955c081e2bc0490c3017f0688b9f39398029b43))
+* **android:** update integration.md ([d4ed351](https://github.com/Tencent/Hippy/commit/d4ed35192e507c762bdd4611b40fb0a608041a17))
+* **core:** fix inspector crash ([05c6bc1](https://github.com/Tencent/Hippy/commit/05c6bc1d9e272d58a31489e08ccc061d62ef69eb))
+* **core:** fix v8 scope bug ([62ddc7d](https://github.com/Tencent/Hippy/commit/62ddc7df753215773fc7f43f4331200fb074b8dc))
+* **core:** use internal promise for iOS ([d63cf60](https://github.com/Tencent/Hippy/commit/d63cf60ca98c32ce390c3b68e6b41cdc00ddae2d))
+* **hippy-react:** demo rm ios color anim ([80905f9](https://github.com/Tencent/Hippy/commit/80905f997954d59cd0d7a30d00504234c736e81d))
+* **hippy-vue:** fix measureInWindowByMethod return value ([f5ca629](https://github.com/Tencent/Hippy/commit/f5ca6294227330db7855305ac61a09928f06fd40))
+* **hippy-vue:** update y18n to safe ver ([9708117](https://github.com/Tencent/Hippy/commit/9708117a459345893f433a11a0f214be56443a09))
+* **ios:** add synthesize for bridge in HippyExceptionModule ([3ea2419](https://github.com/Tencent/Hippy/commit/3ea2419927b4e42d6e0010e31aeb61b3c0f569b1))
+* **ios:** check response charactset ([af073f5](https://github.com/Tencent/Hippy/commit/af073f5d3a399150987d62e604461ea814037b56))
+* **ios:** fix animation pause & resume error ([b3ea1b7](https://github.com/Tencent/Hippy/commit/b3ea1b7ec8954d5be1fb59223ebb89a2ee6ab647))
+* **ios:** fix backgroundimage update error ([2101edd](https://github.com/Tencent/Hippy/commit/2101edd531a3262282ee03835f1766a1c3f86638))
+* **ios:** fix dynamic load error ([52bbdcd](https://github.com/Tencent/Hippy/commit/52bbdcddc5493e13a7274d73dc6225a004b31608))
+* **ios:** fix scroll view error when same subview inserted ([97de391](https://github.com/Tencent/Hippy/commit/97de3918b8de95fd5adf9f3a2bea4072a66916e0))
+* **ios:** fix view pager item frame error ([5a2a228](https://github.com/Tencent/Hippy/commit/5a2a2288b89f7e82f1d301582f387b0d62e55a1d))
+* **ios:** fix view pager item frame error ([022a8f7](https://github.com/Tencent/Hippy/commit/022a8f717fb449150ca3c44f47dd9fa61ff42e24))
+* **ios:** no setting CAAnimation.beginTime as far as possible ([b389e10](https://github.com/Tencent/Hippy/commit/b389e103cb3701666d30adddd3a9a2914ed32ce1))
+* **ios:** optimizing hippy view creation ([0e06597](https://github.com/Tencent/Hippy/commit/0e0659765c0aaacebdfc964dc66592acdd50846b))
+
+
+### Features
+
+* **android:** support color animation ([70b3a0d](https://github.com/Tencent/Hippy/commit/70b3a0d2884ece7b3e3d34cdaedf5046d854a3a2))
+* **android:** support create font from custom file path ([84bb5b8](https://github.com/Tencent/Hippy/commit/84bb5b8b428d8ae32934539e198e8a6af61c51c1))
+* **core:** add dynamic jni ([ceeee74](https://github.com/Tencent/Hippy/commit/ceeee745827e39e287972964b375c4317d9835b7))
+* **hippy-debug-server:** extend MIME ([4f1fe7d](https://github.com/Tencent/Hippy/commit/4f1fe7d6f4a1476b9cd3ccf95412d2e36e54a5a2))
+* **hippy-react:** perf pullHeader example ([3d01ae4](https://github.com/Tencent/Hippy/commit/3d01ae40dc24fdd0e4941d18a543e438dc766ac3))
+* **hippy-react,hippy-vue:** support color animation ([6c191a0](https://github.com/Tencent/Hippy/commit/6c191a08e203f45e8dd28e8e2e2f492bee20de8d))
+* **hippy-vue,hippy-react:** add http dynamic import demo ([5d63f0a](https://github.com/Tencent/Hippy/commit/5d63f0a01b1dce3000890220186485898c7bda19))
+* **ios:** animating view can trigger touch event ([375df39](https://github.com/Tencent/Hippy/commit/375df39f25e4f2e9ce9e671d3040f8e674290829))
+* **ios:** pull header feature to set refresh time ([#695](https://github.com/Tencent/Hippy/issues/695)) ([2bec86a](https://github.com/Tencent/Hippy/commit/2bec86ad90010f91780fbb460c227f08c417afdb))
+* **ios:** support background animation ([#686](https://github.com/Tencent/Hippy/issues/686)) ([6ed48b1](https://github.com/Tencent/Hippy/commit/6ed48b14d1ed25b38e759f3f9038d41375e0249c))
+
+
+
+
+
 ## [2.5.5](https://github.com/Tencent/Hippy/compare/2.5.4...2.5.5) (2021-03-26)
 
 

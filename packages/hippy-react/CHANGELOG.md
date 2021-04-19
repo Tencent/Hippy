@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.6.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.5.5...2.6.0) (2021-04-19)
+
+
+### Features
+
+* **hippy-react:** perf pullHeader example ([3d01ae4](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/3d01ae40dc24fdd0e4941d18a543e438dc766ac3))
+* **hippy-react,hippy-vue:** support color animation ([6c191a0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/6c191a08e203f45e8dd28e8e2e2f492bee20de8d))
+
+
+
+
+
 ## [2.5.5](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.5.4...2.5.5) (2021-03-26)
 
 **Note:** Version bump only for package @hippy/react
