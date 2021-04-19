@@ -57,6 +57,7 @@ export default {
   background-color: #40b883;
   width: 200px;
   height: 80px;
+  margin-left: 5px;
 }
 
 .color-white {
