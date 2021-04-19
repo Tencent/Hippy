@@ -388,7 +388,7 @@ export default class AnimationExample extends React.Component {
             this.textColorRef = ref;
           }} style={[styles.colorText, {
             // TODO iOS暂不支持文字颜色渐变动画
-            color: this.txtColorAnimationSet,
+            color: Platform.OS === 'android' ? this.txtColorAnimationSet : 'white',
           }]}>颜色渐变背景和文字</Text></View>
         </View>
       </ScrollView>
