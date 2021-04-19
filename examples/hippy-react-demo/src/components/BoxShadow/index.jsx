@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Text,
   View,
   StyleSheet,
   Platform,
@@ -41,7 +42,7 @@ const stylesNoOffset = StyleSheet.create({
     height: 170,
     boxShadowOpacity: 0.6,
     boxShadowRadius: 5,
-    boxShadowColor: '#098a29',
+    boxShadowColor: '#4c9afa',
     // container & content should both set radius
     // 容器和内容都要设置radius
     borderRadius: 5,
@@ -54,8 +55,11 @@ const stylesNoOffset = StyleSheet.create({
     top: 5,
     width: 160,
     height: 160,
-    backgroundColor: 'red',
+    backgroundColor: 'grey',
     borderRadius: 5,
+    color: 'white',
+    lineHeight: 160,
+    textAlign: 'center',
   },
   // ios boxShadow style
   shadowDemoCubeIos: {
@@ -69,15 +73,17 @@ const stylesNoOffset = StyleSheet.create({
     // spread attr is only supported on iOS
     // spread 属性仅适用于iOS
     boxShadowSpread: 1,
-    boxShadowColor: '#098a29',
+    boxShadowColor: '#4c9afa',
     borderRadius: 5,
   },
   shadowDemoContentIos: {
     width: 160,
     height: 160,
-    textAlign: 'center',
-    backgroundColor: 'red',
+    backgroundColor: 'grey',
     borderRadius: 5,
+    color: 'white',
+    lineHeight: 160,
+    textAlign: 'center',
   },
 });
 
@@ -104,12 +110,15 @@ const stylesOffset = StyleSheet.create({
     boxShadowRadius: 5,
     boxShadowOffsetX: 15,
     boxShadowOffsetY: 15,
-    boxShadowColor: '#098a29',
+    boxShadowColor: '#4c9afa',
   },
   shadowDemoContentAndroid: {
     width: 160,
     height: 160,
-    backgroundColor: 'red',
+    lineHeight: 160,
+    textAlign: 'center',
+    backgroundColor: 'grey',
+    color: 'white',
   },
   // ios boxShadow style
   shadowDemoCubeIos: {
@@ -125,13 +134,15 @@ const stylesOffset = StyleSheet.create({
     // spread attr is only supported on iOS
     // spread 属性仅适用于iOS
     boxShadowSpread: 1,
-    boxShadowColor: '#098a29',
+    boxShadowColor: '#4c9afa',
   },
   shadowDemoContentIos: {
     width: 160,
     height: 160,
     textAlign: 'center',
-    backgroundColor: 'red',
+    backgroundColor: 'grey',
+    color: 'white',
+    lineHeight: 160,
   },
 });
 
@@ -140,20 +151,20 @@ export default function BoxShadowExpo() {
     <View style={stylesNoOffset.shadowDemo}>
       {Platform.OS === 'android' ? (
         <View style={stylesNoOffset.shadowDemoCubeAndroid}>
-          <View style={stylesNoOffset.shadowDemoContentAndroid}>没有偏移阴影样式</View>
+          <Text style={stylesNoOffset.shadowDemoContentAndroid}>没有偏移阴影样式</Text>
         </View>
       ) : (
         <View style={stylesNoOffset.shadowDemoCubeIos}>
-          <View style={stylesNoOffset.shadowDemoContentIos}>没有偏移阴影样式</View>
+          <Text style={stylesNoOffset.shadowDemoContentIos}>没有偏移阴影样式</Text>
         </View>
       )}
       {Platform.OS === 'android' ? (
         <View style={stylesOffset.shadowDemoCubeAndroid}>
-          <View style={stylesOffset.shadowDemoContentAndroid}>偏移阴影样式</View>
+          <Text style={stylesOffset.shadowDemoContentAndroid}>偏移阴影样式</Text>
         </View>
       ) : (
         <View style={stylesOffset.shadowDemoCubeIos}>
-          <View style={stylesOffset.shadowDemoContentIos}>偏移阴影样式</View>
+          <Text style={stylesOffset.shadowDemoContentIos}>偏移阴影样式</Text>
         </View>
       )}
     </View>

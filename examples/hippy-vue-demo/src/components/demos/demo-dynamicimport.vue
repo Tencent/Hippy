@@ -42,7 +42,7 @@ export default {
      *  customChunkPath 会在运行时替换全局配置的publicPath
      *  import 出错时需在catch里做对应的降级方案
      */
-    AsyncComponentFromHttp: () => import(/* webpackMode: "lazy",customChunkPath: "https://static.res.qq.com/hippy/hippyVueDemo/", webpackChunkName: "asyncComponentFromHttp" */'./dynamicImport/async-component-http.vue').then(res => res).catch(err => console.error('import async remote component error', err)),
+    AsyncComponentFromHttp: () => import(/* webpackMode: "lazy",customChunkPath: "https://static.res.qq.com/hippy/hippyVueDemo/relativePath/", webpackChunkName: "asyncComponentFromHttp" */'./dynamicImport/async-component-http.vue').then(res => res).catch(err => console.error('import async remote component error', err)),
   },
 };
 </script>
