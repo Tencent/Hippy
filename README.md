@@ -106,6 +106,10 @@ On example debug mode, npm packages such as @hippy/react, @hippy/vue are linked 
 
 Developers are welcome to contribute to Tencent's open source, and we will also give them incentives to acknowledge and thank them. Here we provide an official description of Tencent's open source contribution. Specific contribution rules for each project are formulated by the project team. Developers can choose the appropriate project and participate according to the corresponding rules. The Tencent Project Management Committee will report regularly to qualified contributors and awards will be issued by the official contact.
 
+## Stargazers over time
+
+[![Stargazers over time](https://starchart.cc/Tencent/Hippy.svg)](https://starchart.cc/Tencent/Hippy)
+
 ## License
 
 Hippy is [Apache-2.0 licensed](./LICENSE).
