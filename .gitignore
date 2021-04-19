@@ -15,6 +15,8 @@ android/sdk/src/main/jni/.vs
 android/sdk/maven-auth.properties
 android/sdk/local.properties
 android/sdk/.cxx/*
+android/sdk/.classpath
+android/sdk/.settings
 examples/android-demo/example/src/main/assets/
 examples/ios-demo/HippyDemo.xcodeproj/project.xcworkspace/xcuserdata/*
 examples/ios-demo/HippyDemo.xcodeproj/xcuserdata/*
@@ -22,6 +24,9 @@ examples/hippy-react-demo/package-lock.json
 examples/hippy-vue-demo/package-lock.json
 examples/android-demo/maven-auth.properties
 examples/android-demo/example/.cxx/
+examples/android-demo/.settings/
+examples/android-demo/example/.classpath
+examples/android-demo/example/.settings/
 
 # android
 *.iml
