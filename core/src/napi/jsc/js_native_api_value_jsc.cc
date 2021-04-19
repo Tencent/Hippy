@@ -203,9 +203,9 @@ bool JSCCtx::GetValueJson(std::shared_ptr<CtxValue> value,
     return false;
   }
   size_t max_size = JSStringGetMaximumUTF8CStringSize(str_ref);
-  JSStringRelease(str_ref);
   char* buf = new char[max_size];
   JSStringGetUTF8CString(str_ref, buf, max_size);
+  JSStringRelease(str_ref);
   std::string js_str(buf);
   delete[] buf;
   *result = js_str;
