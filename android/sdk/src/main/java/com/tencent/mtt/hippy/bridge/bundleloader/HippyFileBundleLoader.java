@@ -20,24 +20,19 @@ import static com.tencent.mtt.hippy.bridge.HippyBridge.URI_SCHEME_FILE;
 import android.text.TextUtils;
 import com.tencent.mtt.hippy.bridge.HippyBridge;
 import com.tencent.mtt.hippy.bridge.NativeCallback;
+import com.tencent.mtt.hippy.utils.LogUtils;
 
-/**
- * FileName: HippyFileBundleLoader
- * Description：
- * History：
- */
 public class HippyFileBundleLoader implements HippyBundleLoader
 {
 	private static final String FILE_STR = "file://";
 
-	String			mFilePath;
-
-	boolean         mIsDebugMode = false;
+	final String	mFilePath;
 
 	private boolean	mCanUseCodeCache;
 
 	private String	mCodeCacheTag;
 
+	@SuppressWarnings("unused")
 	public HippyFileBundleLoader(String filePath)
 	{
 		this(filePath, false, "");
@@ -56,19 +51,15 @@ public class HippyFileBundleLoader implements HippyBundleLoader
 		this.mCodeCacheTag = codeCacheTag;
 	}
 
-	public void setIsDebugMode(boolean debugMode) {
-		mIsDebugMode = debugMode;
-	}
-
 	@Override
-	public boolean load(HippyBridge bridge, NativeCallback callback)
-	{
+	public void load(HippyBridge bridge, NativeCallback callback) {
 		if (TextUtils.isEmpty(mFilePath)) {
-			return false;
+			return;
 		}
 
 		String uri = (!mFilePath.startsWith(URI_SCHEME_FILE)) ? (URI_SCHEME_FILE + mFilePath) : mFilePath;
-		return bridge.runScriptFromUri(uri, null, mCanUseCodeCache, mCodeCacheTag, callback);
+		boolean ret = bridge.runScriptFromUri(uri, null, mCanUseCodeCache, mCodeCacheTag, callback);
+		LogUtils.d("HippyFileBundleLoader", "load: ret" + ret);
 	}
 
 	@Override

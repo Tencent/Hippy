@@ -24,9 +24,9 @@ import com.tencent.mtt.hippy.common.HippyMap;
  */
 public interface EventDispatcher extends HippyJavaScriptModule
 {
-	public void receiveNativeGesture(HippyMap param);
+	void receiveNativeGesture(HippyMap param);
 
-	public void receiveUIComponentEvent(int tagId, String eventName, Object param);
+	void receiveUIComponentEvent(int tagId, String eventName, Object param);
 
-	public void receiveNativeEvent(String eventName, Object param);
+	void receiveNativeEvent(String eventName, Object param);
 }

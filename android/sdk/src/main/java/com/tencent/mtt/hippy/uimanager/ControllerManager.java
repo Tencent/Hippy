@@ -18,7 +18,6 @@ package com.tencent.mtt.hippy.uimanager;
 import android.annotation.SuppressLint;
 import android.content.res.Resources.NotFoundException;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,12 +46,10 @@ import java.util.List;
 public class ControllerManager implements HippyInstanceLifecycleEventListener
 {
 
-	HippyEngineContext									mContext;
-	ControllerRegistry									mControllerRegistry;
-	ControllerUpdateManger<HippyViewController, View>	mControllerUpdateManger;
-	SparseArray<View>									mPreCacheView	= new SparseArray<>();
-
-	private static final String							TAG				= "ControllerManager";
+	final HippyEngineContext								mContext;
+	final ControllerRegistry								mControllerRegistry;
+	final ControllerUpdateManger<HippyViewController, View>	mControllerUpdateManger;
+	final SparseArray<View>									mPreCacheView	= new SparseArray<>();
 
 	public ControllerManager(HippyEngineContext context, List<HippyAPIProvider> hippyPackages)
 	{
@@ -339,13 +336,12 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener
 			return;
 		}
 		HippyViewController hippyChildViewController = null;
-		Object childTagString = HippyTag.getClassName(child);
+		String childTagString = HippyTag.getClassName(child);
 		if (childTagString instanceof String)
 		{
-			String childClassName = (String)childTagString;
-			if (!TextUtils.isEmpty(childClassName))
+			if (!TextUtils.isEmpty(childTagString))
 			{
-				hippyChildViewController = mControllerRegistry.getViewController(childClassName);
+				hippyChildViewController = mControllerRegistry.getViewController(childTagString);
 				if (hippyChildViewController != null)
 				{
 					hippyChildViewController.onViewDestroy(child);
@@ -377,14 +373,14 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener
 			return;
 		}
 
-		Object parentTagString = HippyTag.getClassName(viewParent);
+		String parentTagString = HippyTag.getClassName(viewParent);
 		if (parentTagString instanceof String)
 		{
-			String className = (String)parentTagString;
 			//remove component Like listView there is a RecycleItemView is not js UI
-			if (mControllerRegistry.getControllerHolder(className) != null)
+			if (mControllerRegistry.getControllerHolder(parentTagString) != null)
 			{
-				HippyViewController hippyViewController = mControllerRegistry.getViewController(className);
+				HippyViewController hippyViewController = mControllerRegistry.getViewController(
+						parentTagString);
 				hippyViewController.deleteChild(viewParent, child, childIndex);
 				//				LogUtils.d("HippyListView", "delete " + child.getId());
 			}
@@ -426,10 +422,10 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener
 			return statusBarHeight;
 		}
 
-		Class<?> c = null;
-		Object obj = null;
-		Field field = null;
-		int x = 0;
+		Class<?> c;
+		Object obj;
+		Field field;
+		int x;
 		try
 		{
 			c = Class.forName("com.android.internal.R$dimen");
@@ -466,8 +462,8 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener
 		}
 		else
 		{
-			int outputBuffer[] = new int[4];
-			int statusBarHeight = 0;
+			int[] outputBuffer = new int[4];
+			int statusBarHeight;
 			try
 			{
 				v.getLocationOnScreen(outputBuffer);

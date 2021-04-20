@@ -29,8 +29,8 @@ import java.lang.reflect.Method;
  */
 public class HippyJavaScriptModuleInvocationHandler implements InvocationHandler
 {
-	private HippyEngineContext	mHippyContext;
-	private String				mName;
+	private final HippyEngineContext	mHippyContext;
+	private final String				mName;
 
 	public HippyJavaScriptModuleInvocationHandler(HippyEngineContext context, String name)
 	{
@@ -39,11 +39,10 @@ public class HippyJavaScriptModuleInvocationHandler implements InvocationHandler
 	}
 
 	@Override
-	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
-	{
+	public Object invoke(Object proxy, Method method, Object[] args) {
 		if (proxy instanceof HippyJavaScriptModule)
 		{
-			Object params = null;
+			Object params;
 			if (args != null && args.length == 1)
 			{
 				params = args[0];

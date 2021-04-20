@@ -32,7 +32,7 @@ import java.util.Map;
 public class HippyHttpResponse
 {
 
-	public static final Integer			UNKNOWN_STATUS	= new Integer(-1);
+	public static final Integer			UNKNOWN_STATUS	= -1;
 
 	private Integer						mStatusCode		= UNKNOWN_STATUS;
 

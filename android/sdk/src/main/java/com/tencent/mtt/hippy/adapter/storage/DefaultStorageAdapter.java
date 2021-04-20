@@ -35,6 +35,7 @@ public class DefaultStorageAdapter implements HippyStorageAdapter
 	private Executor			     mExecutor;
 	private ExecutorService 	     mExecutorService;
 
+	@SuppressWarnings("unused")
 	public DefaultStorageAdapter(Context context)
 	{
 		mSQLiteHelper = new SQLiteHelper(context);
@@ -46,6 +47,7 @@ public class DefaultStorageAdapter implements HippyStorageAdapter
 		mExecutor = executor;
 	}
 
+	@SuppressWarnings("unused")
 	public DefaultStorageAdapter(Executor executor, IHippySQLiteHelper sqLiteHelper)
 	{
 		mSQLiteHelper = sqLiteHelper;

@@ -15,19 +15,13 @@
  */
 package com.tencent.mtt.hippy.common;
 
-/**
- * @author: edsheng
- * @date: 2017/11/23 15:21
- * @version: V1.0
- */
-
 public class ThreadExecutor implements Thread.UncaughtExceptionHandler
 {
-	HippyHandlerThread			mJsThread;
-	HippyHandlerThread			mJsBridgeThread;
-	HippyHandlerThread			mDomThread;
+	final HippyHandlerThread	mJsThread;
+	final HippyHandlerThread	mJsBridgeThread;
+	final HippyHandlerThread	mDomThread;
 	UncaughtExceptionHandler	mUncaughtExceptionHandler;
-	private int				    mGroupId = -1;
+	private int				    mGroupId;
 
 	public ThreadExecutor(int groupId)
 	{
@@ -147,6 +141,6 @@ public class ThreadExecutor implements Thread.UncaughtExceptionHandler
 
 	public interface UncaughtExceptionHandler
 	{
-		public void handleThreadUncaughtException(Thread t, Throwable e, Integer groupId);
+		void handleThreadUncaughtException(Thread t, Throwable e, Integer groupId);
 	}
 }

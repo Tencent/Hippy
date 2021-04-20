@@ -33,7 +33,7 @@ import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 @HippyNativeModule(name = "ImageLoaderModule")
 public class ImageLoaderModule extends HippyNativeModuleBase
 {
-	HippyImageLoader mImageAdapter;
+	final HippyImageLoader mImageAdapter;
 
 	public ImageLoaderModule(HippyEngineContext context)
 	{

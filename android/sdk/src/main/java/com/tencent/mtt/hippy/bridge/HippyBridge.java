@@ -21,25 +21,26 @@ import com.tencent.mtt.hippy.common.HippyArray;
 
 public interface HippyBridge
 {
-	static final String URI_SCHEME_ASSETS = "asset:";
-	static final String URI_SCHEME_FILE   = "file:";
+	String URI_SCHEME_ASSETS = "asset:";
+	String URI_SCHEME_FILE   = "file:";
 
-	public void initJSBridge(String gobalConfig, NativeCallback callback, int groupId);
+	void initJSBridge(String gobalConfig, NativeCallback callback, int groupId);
 
-	public boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache, String codeCacheTag, NativeCallback callback);
+	boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache,
+			String codeCacheTag, NativeCallback callback);
 
 	void onDestroy();
 
-	public void destroy(NativeCallback callback);
+	void destroy(NativeCallback callback);
 
-	public void callFunction(String action, String params, NativeCallback callback);
+	void callFunction(String action, String params, NativeCallback callback);
 
-    public void callFunction(String action, byte[] bytes, int offset, int length, NativeCallback callback);
+    void callFunction(String action, byte[] bytes, int offset, int length, NativeCallback callback);
 
-	public static interface BridgeCallback
+	interface BridgeCallback
 	{
-		public void callNatives(String moduleName, String moduleFunc, String callId, HippyArray params);
+		void callNatives(String moduleName, String moduleFunc, String callId, HippyArray params);
 
-		public void reportException(String exception, String stackTrace);
+		void reportException(String exception, String stackTrace);
 	}
 }

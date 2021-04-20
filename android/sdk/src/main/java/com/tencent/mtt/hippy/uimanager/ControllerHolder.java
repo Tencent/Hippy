@@ -15,16 +15,10 @@
  */
 package com.tencent.mtt.hippy.uimanager;
 
-/**
- * @author: edsheng
- * @date: 2017/12/7 10:43
- * @version: V1.0
- */
-
 public class ControllerHolder
 {
-	public HippyViewController	hippyViewController;
-	public boolean				isLazy;
+	public final HippyViewController hippyViewController;
+	public final boolean isLazy;
 	public ControllerHolder(HippyViewController hippyViewController, boolean isLazy) {
 		this.hippyViewController = hippyViewController;
 		this.isLazy = isLazy;

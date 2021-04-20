@@ -14,6 +14,7 @@
 * limitations under the License.
 */
 package com.tencent.smtt.flexbox;
+@SuppressWarnings("unused")
 public class FlexValue {
 	
 	 public enum Unit {

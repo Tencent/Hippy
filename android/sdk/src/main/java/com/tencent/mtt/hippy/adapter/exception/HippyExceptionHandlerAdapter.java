@@ -17,12 +17,6 @@ package com.tencent.mtt.hippy.adapter.exception;
 
 import com.tencent.mtt.hippy.common.HippyJsException;
 
-/**
- * @author: edsheng
- * @date: 2017/11/20 21:16
- * @version: V1.0
- */
-
 public interface HippyExceptionHandlerAdapter
 {
 	void handleJsException(HippyJsException exception);

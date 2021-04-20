@@ -20,17 +20,11 @@ import android.os.Build;
 import android.text.TextPaint;
 import android.text.style.MetricAffectingSpan;
 
-/**
- * @Description: TODO
- * @author: edsheng
- * @date: 2018/8/7 10:07
- * @version: V1.0
- */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class HippyLetterSpacingSpan extends MetricAffectingSpan
 {
 
-	float	mSpace;
+	final float	mSpace;
 
 	public HippyLetterSpacingSpan(float mSpace)
 	{

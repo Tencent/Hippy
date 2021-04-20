@@ -7,8 +7,8 @@ import java.util.HashMap;
 
 public class ThreadExecutorManager implements ThreadExecutor.UncaughtExceptionHandler{
     private static ThreadExecutorManager sInstance;
-    private HashMap<Integer, ThreadExecutor> mThreadExecutorMap = new HashMap<Integer, ThreadExecutor>();
-    private HashMap<Integer, ArrayList<Integer>> mEngineMap = new HashMap<Integer, ArrayList<Integer>>();
+    private final HashMap<Integer, ThreadExecutor> mThreadExecutorMap = new HashMap<Integer, ThreadExecutor>();
+    private final HashMap<Integer, ArrayList<Integer>> mEngineMap = new HashMap<Integer, ArrayList<Integer>>();
 
     private ThreadExecutorManager() {
 
@@ -57,8 +57,7 @@ public class ThreadExecutorManager implements ThreadExecutor.UncaughtExceptionHa
     }
 
     public synchronized ThreadExecutor getThreadExecutor(int groupId) {
-        ThreadExecutor threadExecutor = mThreadExecutorMap.get(groupId);
-        return threadExecutor;
+        return mThreadExecutorMap.get(groupId);
     }
 
     private void destroyThreadExecutor(Integer groupId) {
@@ -84,9 +83,7 @@ public class ThreadExecutorManager implements ThreadExecutor.UncaughtExceptionHa
             }
 
             Integer engineId = engine.getId();
-            if (engineList.contains(engineId)) {
-                engineList.remove(engineId);
-            }
+            engineList.remove(engineId);
 
             if (engineList.size() <= 0) {
                 mEngineMap.remove(groupId);
@@ -103,9 +100,7 @@ public class ThreadExecutorManager implements ThreadExecutor.UncaughtExceptionHa
         }
 
         destroyThreadExecutor(groupId);
-        if (mEngineMap.containsKey(groupId)) {
-            mEngineMap.remove(groupId);
-        }
+        mEngineMap.remove(groupId);
     }
 
     @Override

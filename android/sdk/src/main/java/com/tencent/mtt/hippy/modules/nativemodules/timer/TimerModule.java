@@ -40,7 +40,7 @@ public class TimerModule extends HippyNativeModuleBase implements Handler.Callba
 
 	private static final int		MSG_TIME_CALLBACK	= 100;
 	private boolean					mEnginePaused		= false;
-	private HashMap<String, Timer>	mTimerInfo			= new HashMap<>();
+	private final HashMap<String, Timer> mTimerInfo		= new HashMap<>();
 	private Handler					mHandler;
 	private long					mNextTime			= 0;
 
@@ -213,11 +213,8 @@ public class TimerModule extends HippyNativeModuleBase implements Handler.Callba
 	@Override
 	public boolean handleMessage(Message message)
 	{
-		switch (message.what)
-		{
-			case MSG_TIME_CALLBACK:
-				doFrame();
-				break;
+		if (message.what == MSG_TIME_CALLBACK) {
+			doFrame();
 		}
 		return false;
 	}
@@ -229,7 +226,7 @@ public class TimerModule extends HippyNativeModuleBase implements Handler.Callba
 		final boolean	mRepeat;
 		final int		mInterval;
 		long			mTargetTime;
-		Promise			mPromise;
+		final Promise	mPromise;
 
 		Timer(String callbackID, long initialTargetTime, int duration, boolean repeat, Promise promise)
 		{

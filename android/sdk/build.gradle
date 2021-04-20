@@ -16,7 +16,7 @@ buildscript {
     jcenter()
   }
   dependencies {
-    classpath 'com.android.tools.build:gradle:4.1.0+'
+    classpath 'com.android.tools.build:gradle:4.1.3'
     // NOTE: Do not place your application dependencies here; they belong
     // in the individual module build.gradle files
   }
@@ -113,7 +113,7 @@ android {
     }
   }
 
-  if (SKIP_CMAKE_AND_NINJA.toBoolean() == false || !skipCmakeAndNinja) {
+  if (!SKIP_CMAKE_AND_NINJA.toBoolean() || !skipCmakeAndNinja) {
     externalNativeBuild {
       cmake {
         path CMAKE_PATH
@@ -142,17 +142,17 @@ android {
 dependencies {
   api fileTree(dir: 'libs', include: ['*.jar'])
   implementation 'com.android.support:support-annotations:28.0.0'
-  if (INCLUDE_SUPPORT_UI.toBoolean() == false) {
+  if (!INCLUDE_SUPPORT_UI.toBoolean()) {
     compileOnly('com.tencent.mtt:support-ui:99.1.0')
   }
 }
 
 project.tasks.whenTaskAdded { task ->
-  if (task.name.equals('assembleRelease')) {
+  if (task.name == 'assembleRelease') {
     task.finalizedBy dealAfterAssembleRelease
   }
 
-  if (task.name.equals('assembleDebug')) {
+  if (task.name == 'assembleDebug') {
     task.finalizedBy dealAfterAssembleDebug
   }
 
@@ -207,16 +207,16 @@ task removeUnnecessaryAbi(dependsOn: unzipAar) {
       }
     }
 
-    if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() == false) {
+    if (!INCLUDE_ABI_ARMEABI_V7A.toBoolean()) {
       file("$OUTPUT_PATH/release/jni/armeabi-v7a").deleteDir()
     }
-    if (INCLUDE_ABI_ARM64_V8A.toBoolean() == false) {
+    if (!INCLUDE_ABI_ARM64_V8A.toBoolean()) {
       file("$OUTPUT_PATH/release/jni/arm64-v8a").deleteDir()
     }
-    if (INCLUDE_ABI_X86.toBoolean() == false) {
+    if (!INCLUDE_ABI_X86.toBoolean()) {
       file("$OUTPUT_PATH/release/jni/x86").deleteDir()
     }
-    if (INCLUDE_ABI_X86_64.toBoolean() == false) {
+    if (!INCLUDE_ABI_X86_64.toBoolean()) {
       file("$OUTPUT_PATH/release/jni/x86_64").deleteDir()
     }
   }

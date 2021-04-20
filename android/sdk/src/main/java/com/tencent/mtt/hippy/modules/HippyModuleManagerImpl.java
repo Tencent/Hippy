@@ -45,15 +45,15 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
 	private static final int														MSG_CODE_CALL_NATIVES	= 1;
 	private static final int														MSG_CODE_DESTROY_MODULE	= 2;
 	//Only multi-threaded read
-	private HashMap<String, HippyNativeModuleInfo>									mNativeModuleInfo;
+	private final HashMap<String, HippyNativeModuleInfo>							mNativeModuleInfo;
 	//Only multi-threaded read
-	private HashMap<Class<? extends HippyJavaScriptModule>, HippyJavaScriptModule>	mJsModules;
-	private HippyEngineContext														mContext;
+	private final HashMap<Class<? extends HippyJavaScriptModule>, HippyJavaScriptModule> mJsModules;
+	private final HippyEngineContext												mContext;
 	private boolean																	isDestroyed				= false;
 	private volatile Handler														mUIThreadHandler;
 	private volatile Handler														mBridgeThreadHandler;
 	private volatile Handler														mDomThreadHandler;
-	private HippyModuleANRMonitor													mANRMonitor;
+	private final HippyModuleANRMonitor												mANRMonitor;
 
 	public HippyModuleManagerImpl(HippyEngineContext context, List<HippyAPIProvider> packages)
 	{
@@ -229,7 +229,7 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
 	@Override
 	public synchronized <T extends HippyNativeModuleBase> T getNativeModule(Class<T> cls)
 	{
-		HippyNativeModule annotation = (HippyNativeModule) cls.getAnnotation(HippyNativeModule.class);
+		HippyNativeModule annotation = cls.getAnnotation(HippyNativeModule.class);
 		if (annotation != null)
 		{
 			String name = annotation.name();

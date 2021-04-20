@@ -25,18 +25,12 @@ import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 
-/**
- * @Description: WebView控件共js业务使用
- * @author: harryguo
- * @date: 2019/1/8
- */
-
 @HippyController(name = HippyWebViewController.CLASS_NAME)
 public class HippyWebViewController extends HippyViewController<HippyWebView>
 {
 	public static final String CLASS_NAME = "WebView";
 
-	@HippyControllerProps(name = "url", defaultType = HippyControllerProps.STRING, defaultString = "")
+	@HippyControllerProps(name = "url", defaultType = HippyControllerProps.STRING)
 	public void loadUrl(HippyWebView view, String url)
 	{
 		if (!TextUtils.isEmpty(url))
@@ -47,15 +41,11 @@ public class HippyWebViewController extends HippyViewController<HippyWebView>
 	public void dispatchFunction(HippyWebView view, String functionName, HippyArray var)
 	{
 		super.dispatchFunction(view, functionName, var);
-		switch (functionName)
-		{
-			case "loadUrl":
-				if (var != null)
-				{
-					String url = var.getString(0);
-					loadUrl(view, url);
-				}
-				break;
+		if ("loadUrl".equals(functionName)) {
+			if (var != null) {
+				String url = var.getString(0);
+				loadUrl(view, url);
+			}
 		}
 	}
 

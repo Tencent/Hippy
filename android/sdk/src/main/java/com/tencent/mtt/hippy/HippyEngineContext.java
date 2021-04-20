@@ -23,104 +23,34 @@ import com.tencent.mtt.hippy.modules.HippyModuleManager;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
 
-/**
- * FileName: HippyEngineContext
- * Description：
- * History：
- */
+@SuppressWarnings("unused")
 public interface HippyEngineContext
 {
-	/**
-	 * Get global configs
-	 *
-	 * @return
-	 */
-	public HippyGlobalConfigs getGlobalConfigs();
+	HippyGlobalConfigs getGlobalConfigs();
 
-	/**
-	 * Get module manager
-	 *
-	 * @return
-	 */
-	public HippyModuleManager getModuleManager();
+	HippyModuleManager getModuleManager();
 
-	/**
-	 * Get java and js bridge manager
-	 *
-	 * @return
-	 */
-	public HippyBridgeManager getBridgeManager();
+	HippyBridgeManager getBridgeManager();
 
-	/**
-	 * Get development mode support manager
-	 *
-	 * @return
-	 */
-	public DevSupportManager getDevSupportManager();
+	DevSupportManager getDevSupportManager();
 
-	/**
-	 * Get thread excutor
-	 *
-	 * @return
-	 */
-	public ThreadExecutor getThreadExecutor();
+	ThreadExecutor getThreadExecutor();
 
-	/**
-	 * Get dom nodes manager
-	 *
-	 * @return
-	 */
-	public DomManager getDomManager();
+	DomManager getDomManager();
 
-	/**
-	 * Get ui views manager
-	 *
-	 * @return
-	 */
-	public RenderManager getRenderManager();
+	RenderManager getRenderManager();
 
-	/**
-	 * Get business instance ID
-	 *
-	 * @param id
-	 * @return
-	 */
-	public HippyRootView getInstance(int id);
+	HippyRootView getInstance(int id);
 
-	/**
-	 * Add business instance status change listener
-	 *
-	 * @param listener
-	 */
-	public void addInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);
+	void addInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);
 
-	/**
-	 * Remove business instance status change listener
-	 *
-	 * @param listener
-	 */
-	public void removeInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);
+	void removeInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);
 
-	/**
-	 * Add engine lifecycle event listener
-	 *
-	 * @param listener
-	 */
-	public void addEngineLifecycleEventListener(HippyEngineLifecycleEventListener listener);
+	void addEngineLifecycleEventListener(HippyEngineLifecycleEventListener listener);
 
-	/**
-	 * Remove engine lifecycle event listener
-	 *
-	 * @param listener
-	 */
-	public void removeEngineLifecycleEventListener(HippyEngineLifecycleEventListener listener);
+	void removeEngineLifecycleEventListener(HippyEngineLifecycleEventListener listener);
 
-	/**
-	 * Handle exception information
-	 *
-	 * @param throwable
-	 */
-	public void handleException(Throwable throwable);
+	void handleException(Throwable throwable);
 
 	TimeMonitor getStartTimeMonitor();
 

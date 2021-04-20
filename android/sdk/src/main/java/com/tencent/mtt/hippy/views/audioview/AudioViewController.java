@@ -21,22 +21,11 @@ import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.uimanager.HippyGroupController;
-import com.tencent.mtt.hippy.uimanager.HippyViewController;
-import com.tencent.mtt.hippy.views.refresh.RefreshWrapper;
-import com.tencent.mtt.hippy.views.textinput.HippyTextInput;
-import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
 
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.View;
 
-
-/**
- * @Description: TODO
- * @author: robinsli
- * @date: 2019/6/11 11:18
- * @version: V1.0
- */
 @HippyController(name = "AudioView")
 public class AudioViewController extends HippyGroupController<AudioView>
 {
@@ -47,54 +36,63 @@ public class AudioViewController extends HippyGroupController<AudioView>
     public static final String	ACATION_STOP	= "stop";
     public static final String	ACATION_RELEASE	= "release"; //TODO AudioView准备AudioManager持有，如何释放
 
+    @SuppressWarnings("unused")
     @Override
     protected View createViewImpl(Context context)
     {
         return new AudioView(context);
     }
 
-    @HippyControllerProps(name = "src", defaultType = HippyControllerProps.STRING, defaultString = "")
+    @SuppressWarnings("unused")
+    @HippyControllerProps(name = "src", defaultType = HippyControllerProps.STRING)
     public void setUrl(AudioView hippyAudioView, String url)
     {
         hippyAudioView.setAudioPlayUrl(url);
     }
 
-    @HippyControllerProps(name = "autoPlay", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+    @SuppressWarnings("unused")
+    @HippyControllerProps(name = "autoPlay", defaultType = HippyControllerProps.BOOLEAN)
     public void setAutoPlay(AudioView hippyAudioView, boolean autoPlay)
     {
         hippyAudioView.setAudioAutoPlay(autoPlay);
     }
 
+    @SuppressWarnings("unused")
     @HippyControllerProps(name = "onPlayStart", defaultType = "boolean")
     public void setOnPlayStart(AudioView hippyAudioView, boolean change)
     {
         hippyAudioView.setOnPlayStart(change);
     }
 
+    @SuppressWarnings("unused")
     @HippyControllerProps(name = "onPlayProgress", defaultType = "boolean")
     public void setOnPlayProgress(AudioView hippyAudioView, boolean change)
     {
         hippyAudioView.setOnPlayProgress(change);
     }
 
+    @SuppressWarnings("unused")
     @HippyControllerProps(name = "onPlayPause", defaultType = "boolean")
     public void setOnPlayPause(AudioView hippyAudioView, boolean change)
     {
         hippyAudioView.setOnPlayPause(change);
     }
 
+    @SuppressWarnings("unused")
     @HippyControllerProps(name = "onPlayResume", defaultType = "boolean")
     public void setOnPlayResume(AudioView hippyAudioView, boolean change)
     {
         hippyAudioView.setOnPlayResume(change);
     }
 
+    @SuppressWarnings("unused")
     @HippyControllerProps(name = "onPlayComplete", defaultType = "boolean")
     public void setOnPlayComplete(AudioView hippyAudioView, boolean change)
     {
         hippyAudioView.setOnPlayComplete(change);
     }
 
+    @SuppressWarnings("unused")
     @HippyControllerProps(name = "setOnPlayError", defaultType = "boolean")
     public void setOnPlayError(AudioView hippyAudioView, boolean change)
     {

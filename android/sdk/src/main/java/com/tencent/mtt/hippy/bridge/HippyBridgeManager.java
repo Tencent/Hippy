@@ -53,5 +53,6 @@ public interface HippyBridgeManager
 
 	void callJavaScriptModule(String mName, String name, Object params);
 
+	@SuppressWarnings("unused")
 	HippyThirdPartyAdapter getThirdPartyAdapter();
 }

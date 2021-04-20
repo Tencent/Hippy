@@ -15,7 +15,6 @@
 package com.tencent.mtt.hippy.utils;
 
 
-import android.util.Log;
 import android.util.LruCache;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -71,7 +70,8 @@ public class HippyBuffer
     private int   mCacheHitCount;
     private int   mTotalCount;
 
-	private static final Charset loadOneByteStrCharset()
+	@SuppressWarnings("CharsetObjectCanBeUsed")
+	private static Charset loadOneByteStrCharset()
 	{
 		Charset defaultCharset = null;
 		try
@@ -111,7 +111,7 @@ public class HippyBuffer
 		}
 		try
 		{
-			Object object = null;
+			Object object;
 			Parser parser = new Parser(data);
 			object = parser.parse();
 			parser.release();
@@ -140,7 +140,7 @@ public class HippyBuffer
 			return null;
 		}
 
-		byte hippyBuffer[] = null;
+		byte[] hippyBuffer;
 		try
 		{
 			Builder builder = new Builder();
@@ -192,13 +192,13 @@ public class HippyBuffer
 			}
 		}
 
-		private final Object parse()
+		private Object parse()
 		{
 			Object value = readObject();
 			return value == VALUE_UNDEFINED ? null : value;
 		}
 
-		private final void release()
+		private void release()
 		{
 			mPosition = 0;
 			mBuffer = null;
@@ -209,13 +209,13 @@ public class HippyBuffer
 			mPropsCharBuffer = null;
 		}
 
-		private final Object readObject()
+		private Object readObject()
 		{
 			return readObject(null);
 		}
 
 
-		private final Object readObject(String key)
+		private Object readObject(String key)
 		{
 			byte type = readDataType();
 			switch (type)
@@ -245,7 +245,7 @@ public class HippyBuffer
 			}
 		}
 
-		private final HippyMap readMap()
+		private HippyMap readMap()
 		{
 			int size = readUnsignedInt();
 			HippyMap ret = new HippyMap();
@@ -262,7 +262,7 @@ public class HippyBuffer
 			return ret;
 		}
 
-		private final HippyArray readArray()
+		private HippyArray readArray()
 		{
 			int length = readUnsignedInt();
 			HippyArray ret = new HippyArray();
@@ -274,17 +274,17 @@ public class HippyBuffer
 			return ret;
 		}
 
-		private final byte readDataType()
+		private byte readDataType()
 		{
 			byte type = mBuffer[mPosition];
 			mPosition++;
 			return type;
 		}
 
-		private final String readProperty()
+		private String readProperty()
 		{
 			final int length = readUnsignedInt();
-			String cache = null;
+			String cache;
 			if (length > MAX_CHAR_BUFFER_SIZE)
 			{
 				cache = new String(mBuffer, mPosition, length);
@@ -404,7 +404,7 @@ public class HippyBuffer
 			return ret;
 		}
 
-		private final int hashCodeOfBuffer(byte[] buffer, int offset, int length)
+		private int hashCodeOfBuffer(byte[] buffer, int offset, int length)
 		{
 			int h = 0;
 			for (int i = 0; i < length; i++)
@@ -415,14 +415,14 @@ public class HippyBuffer
 		}
 
 
-		private final int readInteger()
+		private int readInteger()
 		{
 			int raw = readUnsignedInt();
 			int num = (((raw << 31) >> 31) ^ raw) >> 1;
 			return num ^ (raw & (1 << 31));
 		}
 
-		private final int readUnsignedInt()
+		private int readUnsignedInt()
 		{
 			int value = 0;
 			int i = 0;
@@ -442,7 +442,7 @@ public class HippyBuffer
 			return value | (b << i);
 		}
 
-		private final long readLong()
+		private long readLong()
 		{
 			long number = (((mBuffer[mPosition + 7] & 0xFFL)) + ((mBuffer[mPosition + 6] & 0xFFL) << 8) + ((mBuffer[mPosition + 5] & 0xFFL) << 16)
 					+ ((mBuffer[mPosition + 4] & 0xFFL) << 24) + ((mBuffer[mPosition + 3] & 0xFFL) << 32) + ((mBuffer[mPosition + 2] & 0xFFL) << 40)
@@ -451,14 +451,13 @@ public class HippyBuffer
 			return number;
 		}
 
-		private final Object readDouble()
+		private Object readDouble()
 		{
 			double number = Double.longBitsToDouble(readLong());
 			if (number > Integer.MAX_VALUE)
 			{
 				long numberLong = (long) number;
-				double doubleLong = (numberLong);
-				if (number - doubleLong < Double.MIN_NORMAL)
+				if (number - (double) (numberLong) < Double.MIN_NORMAL)
 				{
 					return numberLong;
 				}
@@ -502,7 +501,7 @@ public class HippyBuffer
 		}
 
 
-		private final byte[] build(Object object)
+		private byte[] build(Object object)
 		{
 			writeObject(object);
 			byte[] hippyBuffer = new byte[mPosition];
@@ -510,7 +509,7 @@ public class HippyBuffer
 			return hippyBuffer;
 		}
 
-		private final void release()
+		private void release()
 		{
 			if (mBuffer.length <= 1024 * 16)
 			{
@@ -529,7 +528,7 @@ public class HippyBuffer
 			mPosition = 0;
 		}
 
-		private final void writeObject(Object object) throws RuntimeException
+		private void writeObject(Object object) throws RuntimeException
 		{
 			if (object instanceof String)
 			{
@@ -593,7 +592,7 @@ public class HippyBuffer
 			}
 		}
 
-		private final void writeNumber(Number number)
+		private void writeNumber(Number number)
 		{
 			ensureBufferSize(12);
 			if (number instanceof Integer || number instanceof Short || number instanceof Byte)
@@ -608,7 +607,7 @@ public class HippyBuffer
 			}
 		}
 
-		private final void writeMap(HippyMap map)
+		private void writeMap(HippyMap map)
 		{
 			ensureBufferSize(8);
 			writeDataType(TYPE_MAP);
@@ -621,13 +620,13 @@ public class HippyBuffer
 			}
 		}
 
-		private final void writeDataType(byte dataType)
+		private void writeDataType(byte dataType)
 		{
 			mBuffer[mPosition] = dataType;
 			mPosition++;
 		}
 
-		private final void writeProperty(String value)
+		private void writeProperty(String value)
 		{
 			ensureBufferSize(2);
 			mBuffer[mPosition] = (byte) 0xF0;
@@ -636,9 +635,9 @@ public class HippyBuffer
 			writeString(value);
 		}
 
-		private final void writeString(String value)
+		private void writeString(String value)
 		{
-			byte strBytes[] = value.getBytes();
+			byte[] strBytes = value.getBytes();
 			int length = strBytes == null ? 0 : strBytes.length;
 			ensureBufferSize(length + 8);
 			writeUnsignedInt(length);
@@ -649,12 +648,12 @@ public class HippyBuffer
 			}
 		}
 
-		private final void writeDouble(double value)
+		private void writeDouble(double value)
 		{
 			writeLong(Double.doubleToLongBits(value));
 		}
 
-		private final void writeFloat(float value)
+		private void writeFloat(float value)
 		{
 			int val = Float.floatToIntBits(value);
 			mBuffer[mPosition + 3] = (byte) (val);
@@ -664,7 +663,7 @@ public class HippyBuffer
 			mPosition += 4;
 		}
 
-		private final void writeLong(long val)
+		private void writeLong(long val)
 		{
 			mBuffer[mPosition + 7] = (byte) (val);
 			mBuffer[mPosition + 6] = (byte) (val >>> 8);
@@ -677,12 +676,12 @@ public class HippyBuffer
 			mPosition += 8;
 		}
 
-		private final void writeInteger(int value)
+		private void writeInteger(int value)
 		{
 			writeUnsignedInt((value << 1) ^ (value >> 31));
 		}
 
-		private final void writeUnsignedInt(int value)
+		private void writeUnsignedInt(int value)
 		{
 			while ((value & 0xFFFFFF80) != 0)
 			{
@@ -695,7 +694,7 @@ public class HippyBuffer
 		}
 
 
-		private final void ensureBufferSize(int minCapacity)
+		private void ensureBufferSize(int minCapacity)
 		{
 			minCapacity += mPosition;
 

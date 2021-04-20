@@ -19,7 +19,6 @@ import android.content.res.AssetFileDescriptor;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -117,7 +116,7 @@ public class ZipResourceFile {
 
         public long mOffset = -1;
 
-        public void setOffsetFromFile(RandomAccessFile f, ByteBuffer buf) throws IOException {
+        public void setOffsetFromFile(RandomAccessFile f, ByteBuffer buf) {
             long localHdrOffset = mLocalHdrOffset;
             try {
                 f.seek(localHdrOffset);
@@ -179,10 +178,10 @@ public class ZipResourceFile {
 
     }
 
-    private HashMap<String, ZipEntryRO> mHashMap = new HashMap<String, ZipEntryRO>();
+    private final HashMap<String, ZipEntryRO> mHashMap = new HashMap<String, ZipEntryRO>();
 
     /* for reading compressed files */
-    public HashMap<File, ZipFile> mZipFiles = new HashMap<File, ZipFile>();
+    public final HashMap<File, ZipFile> mZipFiles = new HashMap<File, ZipFile>();
 
     public ZipResourceFile(String zipFileName) throws IOException {
         addPatchFile(zipFileName);
@@ -210,17 +209,6 @@ public class ZipResourceFile {
         return values.toArray(new ZipEntryRO[values.size()]);
     }
 
-    /**
-     * getAssetFileDescriptor allows for ZipResourceFile to directly feed
-     * Android API's that want an fd, offset, and length such as the
-     * MediaPlayer. It also allows for the class to be used in a content
-     * provider that can feed video players. The file must be stored
-     * (non-compressed) in the Zip file for this to work.
-     * 
-     * @param assetPath
-     * @return the asset file descriptor for the file, or null if the file isn't
-     *         present or is stored compressed
-     */
     public AssetFileDescriptor getAssetFileDescriptor(String assetPath) {
         ZipEntryRO entry = mHashMap.get(assetPath);
         if (null != entry) {
@@ -229,15 +217,6 @@ public class ZipResourceFile {
         return null;
     }
 
-    /**
-     * getInputStream returns an AssetFileDescriptor.AutoCloseInputStream
-     * associated with the asset that is contained in the Zip file, or a
-     * standard ZipInputStream if necessary to uncompress the file
-     * 
-     * @param assetPath
-     * @return an input stream for the named asset path, or null if not found
-     * @throws IOException
-     */
     public InputStream getInputStream(String assetPath) throws IOException {
         ZipEntryRO entry = mHashMap.get(assetPath);
         if (null != entry) {
@@ -245,7 +224,6 @@ public class ZipResourceFile {
                 return entry.getAssetFileDescriptor().createInputStream();
             } else {
                 ZipFile zf = mZipFiles.get(entry.getZipFile());
-                /** read compressed files **/
                 if (null == zf) {
                     zf = new ZipFile(entry.getZipFile(), ZipFile.OPEN_READ);
                     mZipFiles.put(entry.getZipFile(), zf);
@@ -260,7 +238,7 @@ public class ZipResourceFile {
 
     ByteBuffer mLEByteBuffer = ByteBuffer.allocate(4);
 
-    static private int read4LE(RandomAccessFile f) throws EOFException, IOException {
+    static private int read4LE(RandomAccessFile f) throws IOException {
         return swapEndian(f.readInt());
     }
     

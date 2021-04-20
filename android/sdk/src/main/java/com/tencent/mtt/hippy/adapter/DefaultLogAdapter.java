@@ -15,11 +15,6 @@
  */
 package com.tencent.mtt.hippy.adapter;
 
-/**
- * @author: edsheng
- * @date: 2018/7/9 10:36
- * @version: V1.0
- */
 public class DefaultLogAdapter implements HippyLogAdapter
 {
 

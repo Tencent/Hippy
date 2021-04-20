@@ -218,7 +218,7 @@ public class HippyMap
 		}
 		else if (obj instanceof Byte)
 		{
-			Integer iObj = ((Byte) obj).intValue();
+			int iObj = ((Byte) obj).intValue();
 			pushInt(key, iObj);
 		}
 		else

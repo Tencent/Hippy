@@ -26,8 +26,8 @@ import com.tencent.mtt.hippy.common.HippyArray;
 public class ValueTransformer
 {
 
-	protected HippyArray	mInputRange;
-	protected HippyArray	mOutputRange;
+	protected final HippyArray	mInputRange;
+	protected final HippyArray	mOutputRange;
 
 	public ValueTransformer(HippyArray input, HippyArray output)
 	{
@@ -60,11 +60,11 @@ public class ValueTransformer
 		Object obj;
 		double rangeValue;
 		double transformValue = value.doubleValue();
-		double spacing = 0;
+		double spacing;
 		for (int i = 0; i < size; i++)
 		{
 			obj = mInputRange.get(i);
-			if (obj == null || !(obj instanceof Number))
+			if (!(obj instanceof Number))
 			{
 				return null;
 			}

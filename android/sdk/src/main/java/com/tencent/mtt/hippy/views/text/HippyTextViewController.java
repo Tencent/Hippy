@@ -26,13 +26,6 @@ import com.tencent.mtt.hippy.dom.node.TextExtra;
 import com.tencent.mtt.hippy.dom.node.TextNode;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 
-/**
- * @Description: TODO
- * @author: edsheng
- * @date: 2018/2/28 19:45
- * @version: V1.0
- */
-
 @HippyController(name = HippyTextViewController.CLASS_NAME)
 public class HippyTextViewController extends HippyViewController<HippyTextView>
 {
@@ -57,14 +50,7 @@ public class HippyTextViewController extends HippyViewController<HippyTextView>
 			{
 				Spannable spannable = (Spannable) textSequence;
 				HippyNativeGestureSpan[] spans = spannable.getSpans(0, spannable.length(), HippyNativeGestureSpan.class);
-				if (spans != null && spans.length > 0)
-				{
-					hippyTextView.setNativeGestureEnable(true);
-				}
-				else
-				{
-					hippyTextView.setNativeGestureEnable(false);
-				}
+				hippyTextView.setNativeGestureEnable(spans != null && spans.length > 0);
 			}
 			hippyTextView.setPadding((int) Math.floor(textExtra.mLeftPadding), (int) Math.floor(textExtra.mTopPadding),
 					(int) Math.floor(textExtra.mRightPadding), (int) Math.floor(textExtra.mBottomPadding));

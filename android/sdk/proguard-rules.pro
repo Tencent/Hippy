@@ -30,6 +30,7 @@
 -verbose
 -dontskipnonpubliclibraryclasses
 -dontskipnonpubliclibraryclassmembers
+#noinspection ShrinkerUnresolvedReference
 #-overloadaggressively
 
 -dontwarn **HoneycombMR2
@@ -93,14 +94,6 @@
 #<!--------------------  下方是共性的排除项目         ------------------>
 # <!--方法名中含有“JNI”字符的，认定是Java Native Interface方法，自动排除-->
 # <!--方法名中含有“JRI”字符的，认定是Java Reflection Interface方法，自动排除-->
-
--keepclasseswithmembers class * {
-    ... *JNI*(...);
-}
-
--keepclasseswithmembernames class * {
-	... *JRI*(...);
-}
 
 -keep class **JNI* {*;}
 
@@ -167,7 +160,6 @@ public void forceUpdateNode(int);
 -keep class * extends com.tencent.mtt.hippy.dom.node.DomNode {*;}
 
 -keep class com.tencent.mtt.hippy.views.** {*;}
--keep class com.tencent.mtt.tkd.views.** {*;}
 -keep interface com.tencent.mtt.hippy.bridge.HippyBridge {*;}
 
 -keep class com.tencent.mtt.supportui.views.** {*;}
