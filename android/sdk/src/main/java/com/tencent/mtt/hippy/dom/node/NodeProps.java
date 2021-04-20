@@ -22,12 +22,6 @@ import com.tencent.mtt.hippy.common.HippyMap;
 
 import android.graphics.Color;
 
-/**
- * @author: edsheng
- * @date: 2017/11/24 16:03
- * @version: V1.0
- */
-
 public class NodeProps
 {
 
@@ -214,6 +208,7 @@ public class NodeProps
 				{
 					return false;
 				}
+				//noinspection RedundantIfStatement
 				if (map.containsKey(BORDER_WIDTH) && !map.isNull(BORDER_WIDTH) && map.getDouble(BORDER_WIDTH) != 0d)
 				{
 					return false;

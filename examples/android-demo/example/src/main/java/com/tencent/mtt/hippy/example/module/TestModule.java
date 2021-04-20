@@ -12,14 +12,6 @@ import com.tencent.mtt.hippy.example.BaseActivity;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 
-/**
- * @Description: the extend module
- * @author: edsheng
- * @date: 2018/3/22 10:51
- * @version: V1.0
- * 展示自定义module
- */
-
 @HippyNativeModule(name = TestModule.CLASSNAME, names = {"TestModuleA", "TestModuleB"})
 public class TestModule extends HippyNativeModuleBase {
     final static String CLASSNAME = "TestModule";
@@ -48,11 +40,6 @@ public class TestModule extends HippyNativeModuleBase {
         Log.d("TestModule", log);
     }
 
-    /**
-     * 展示前端回来的是一个对象
-     *
-     * @param hippyMap
-     */
     @HippyMethod(name = "helloNative")
     public void helloNative(HippyMap hippyMap) {
         //这里回来的参数可以为java的基础类型，和hippymap与hippyarry,但是前端调用的时候必须对应上
@@ -60,11 +47,6 @@ public class TestModule extends HippyNativeModuleBase {
         Log.d("TestModule", hello);
     }
 
-    /**
-     * 展示终端需要给前端回调参数
-     *
-     * @param hippyMap
-     */
     @HippyMethod(name = "helloNativeWithPromise")
     public void helloNativeWithPromise(HippyMap hippyMap, Promise promise) {
         //这里回来的参数可以为java的基础类型，和hippymap与hippyarry,但是前端调用的时候必须对应上

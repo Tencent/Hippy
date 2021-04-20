@@ -19,7 +19,7 @@ import com.tencent.mtt.hippy.HippyRootView;
 
 public interface DevServerInterface
 {
-	void reload(DevRemoteDebugProxy remoteDebugManager);
+	void reload();
 
 	String createResourceUrl(String resName);
 

@@ -22,7 +22,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.text.*;
 import android.text.style.*;
-import android.util.Log;
+
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.adapter.font.HippyFontScaleAdapter;
 import com.tencent.mtt.hippy.adapter.image.HippyImageLoader;
@@ -51,14 +51,14 @@ public class TextNode extends StyleNode
 	private float					mLetterSpacing					= UNSET;
 
 	private int						mColor							= Color.BLACK;
-	private boolean					mIsBackgroundColorSet			= false;
+	private final boolean			mIsBackgroundColorSet			= false;
 	private int						mBackgroundColor;
 	private String					mFontFamily						= null;
 
 	public static final int			DEFAULT_TEXT_SHADOW_COLOR		= 0x55000000;
 	protected Layout.Alignment		mTextAlign						= Layout.Alignment.ALIGN_NORMAL;
 
-	protected TextUtils.TruncateAt	mTruncateAt						= TextUtils.TruncateAt.END;
+	protected final TextUtils.TruncateAt	mTruncateAt				= TextUtils.TruncateAt.END;
 
 	private float					mTextShadowOffsetDx				= 0;
 	private float					mTextShadowOffsetDy				= 0;
@@ -316,7 +316,7 @@ public class TextNode extends StyleNode
 		markUpdated();
 	}
 
-	@HippyControllerProps(name = NodeProps.ON_CLICK, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@HippyControllerProps(name = NodeProps.ON_CLICK, defaultType = HippyControllerProps.BOOLEAN)
 	public void clickEnable(boolean flag)
 	{
 		if (flag)
@@ -329,7 +329,7 @@ public class TextNode extends StyleNode
 		}
 	}
 
-	@HippyControllerProps(name = NodeProps.ON_LONG_CLICK, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@HippyControllerProps(name = NodeProps.ON_LONG_CLICK, defaultType = HippyControllerProps.BOOLEAN)
 	public void longClickEnable(boolean flag)
 	{
 		if (flag)
@@ -342,7 +342,7 @@ public class TextNode extends StyleNode
 		}
 	}
 
-	@HippyControllerProps(name = NodeProps.ON_PRESS_IN, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@HippyControllerProps(name = NodeProps.ON_PRESS_IN, defaultType = HippyControllerProps.BOOLEAN)
 	public void pressInEnable(boolean flag)
 	{
 		if (flag)
@@ -368,7 +368,7 @@ public class TextNode extends StyleNode
 		}
 	}
 
-	@HippyControllerProps(name = NodeProps.ON_TOUCH_DOWN, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@HippyControllerProps(name = NodeProps.ON_TOUCH_DOWN, defaultType = HippyControllerProps.BOOLEAN)
 	public void touchDownEnable(boolean flag)
 	{
 		if (flag)
@@ -381,7 +381,7 @@ public class TextNode extends StyleNode
 		}
 	}
 
-	@HippyControllerProps(name = NodeProps.ON_TOUCH_MOVE, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@HippyControllerProps(name = NodeProps.ON_TOUCH_MOVE, defaultType = HippyControllerProps.BOOLEAN)
 	public void touchUpEnable(boolean flag)
 	{
 		if (flag)
@@ -394,7 +394,7 @@ public class TextNode extends StyleNode
 		}
 	}
 
-	@HippyControllerProps(name = NodeProps.ON_TOUCH_END, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@HippyControllerProps(name = NodeProps.ON_TOUCH_END, defaultType = HippyControllerProps.BOOLEAN)
 	public void touchEndEnable(boolean flag)
 	{
 		if (flag)
@@ -407,7 +407,7 @@ public class TextNode extends StyleNode
 		}
 	}
 
-	@HippyControllerProps(name = NodeProps.ON_TOUCH_CANCEL, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@HippyControllerProps(name = NodeProps.ON_TOUCH_CANCEL, defaultType = HippyControllerProps.BOOLEAN)
 	public void touchCancelable(boolean flag)
 	{
 		if (flag)
@@ -420,7 +420,7 @@ public class TextNode extends StyleNode
 		}
 	}
 
-	@HippyControllerProps(name = "enableScale", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@HippyControllerProps(name = "enableScale", defaultType = HippyControllerProps.BOOLEAN)
 	public void enableScale(boolean flag)
 	{
 		this.mEnableScale = flag;
@@ -473,8 +473,8 @@ public class TextNode extends StyleNode
 		mSpanned = createSpan(mText, true);
 	}
 
-	protected void createCustomSpan(CharSequence text, Spannable spannableText)
-	{
+	@SuppressWarnings("EmptyMethod")
+	protected void createCustomSpan(CharSequence text, Spannable spannableText) {
 
 	}
 
@@ -730,8 +730,8 @@ public class TextNode extends StyleNode
 		String newString = text.subSequence(0, lastLineStart).toString()
 				+ truncate(ellipsizeStr, sTextPaintInstance, width, mTruncateAt);
 
-		int start = newString.length() - 1 >= 0 ? newString.length() - 1 : 0;
-		CharacterStyle hippyStyleSpans[] = temp.getSpans(start, text.length(), CharacterStyle.class);
+		int start = Math.max(newString.length() - 1, 0);
+		CharacterStyle[] hippyStyleSpans = temp.getSpans(start, text.length(), CharacterStyle.class);
 		if (hippyStyleSpans != null && hippyStyleSpans.length > 0)
 		{
 			for (CharacterStyle hippyStyleSpan : hippyStyleSpans)
@@ -743,12 +743,8 @@ public class TextNode extends StyleNode
 			}
 		}
 
-		StaticLayout staticLayout = new StaticLayout(temp.replace(start, text.length(), ELLIPSIS), sTextPaintInstance, width, mTextAlign, 1.f, 0.f,
+		return new StaticLayout(temp.replace(start, text.length(), ELLIPSIS), sTextPaintInstance, width, mTextAlign, 1.f, 0.f,
 				true);
-
-
-
-		return staticLayout;
 	}
 
 	private static final String	ELLIPSIS	= "\u2026";
@@ -785,8 +781,9 @@ public class TextNode extends StyleNode
 
 	private static class SpanOperation
 	{
-		protected int		start, end;
-		protected Object	what;
+		protected final int		start;
+		protected final int end;
+		protected final Object	what;
 
 		SpanOperation(int start, int end, Object what)
 		{

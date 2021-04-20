@@ -49,7 +49,7 @@ public class HippyPullHeaderViewController extends HippyViewController<HippyPull
   {
     super.dispatchFunction(view, functionName, dataArray);
     View parent = view.getParentView();
-    if (parent != null && parent instanceof HippyListView) {
+    if (parent instanceof HippyListView) {
       switch (functionName)
       {
         case "collapsePullHeader":

@@ -21,7 +21,7 @@ import android.os.Looper;
 public class UIThreadUtils
 {
 
-	private static Handler sMainHandler = new Handler(Looper.getMainLooper());;
+	private static final Handler sMainHandler = new Handler(Looper.getMainLooper());
 
 	public static void assertOnUiThread()
 	{

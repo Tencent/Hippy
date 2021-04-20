@@ -24,7 +24,7 @@ public class HippyStyleSpan extends MetricAffectingSpan
 	private final int			mStyle;
 	private final int			mWeight;
 	private final String		mFontFamily;
-	private HippyFontScaleAdapter fontAdapter;
+	private final HippyFontScaleAdapter fontAdapter;
 
 	public HippyStyleSpan(int fontStyle, int fontWeight, String fontFamily, HippyFontScaleAdapter adapter)
 	{

@@ -15,11 +15,6 @@
  */
 package com.tencent.mtt.hippy.adapter.soloader;
 
-/**
- * @author: edsheng
- * @date: 2018/6/13 20:59
- * @version: V1.0
- */
 public class DefaultSoLoaderAdapter implements HippySoLoaderAdapter {
     @Override
     public String loadSoPath(String soName) {

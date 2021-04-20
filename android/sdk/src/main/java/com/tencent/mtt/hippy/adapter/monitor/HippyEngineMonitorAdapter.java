@@ -19,6 +19,7 @@ import com.tencent.mtt.hippy.HippyRootView;
 
 import java.util.List;
 
+@SuppressWarnings("EmptyMethod")
 public interface HippyEngineMonitorAdapter
 {
 

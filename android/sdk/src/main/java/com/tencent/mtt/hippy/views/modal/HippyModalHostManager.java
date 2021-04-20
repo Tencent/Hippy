@@ -77,12 +77,12 @@ public class HippyModalHostManager extends HippyGroupController<HippyModalHostVi
 	{
 		view.setAnimationType(animationType);
 	}
-    @HippyControllerProps(name = "immersionStatusBar", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+    @HippyControllerProps(name = "immersionStatusBar", defaultType = HippyControllerProps.BOOLEAN)
     public void setEnterImmersionStatusBar(HippyModalHostView view, boolean fullScreen)
     {
         view.setEnterImmersionStatusBar(fullScreen);
     }
-	@HippyControllerProps(name = "darkStatusBarText", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@HippyControllerProps(name = "darkStatusBarText", defaultType = HippyControllerProps.BOOLEAN)
 	public void setImmersionStatusBarTextDarkColor(HippyModalHostView view, boolean fullScreen)
 	{
 		view.setImmersionStatusBarTextDarkColor(fullScreen);

@@ -48,13 +48,6 @@ import com.tencent.mtt.hippy.utils.PixelUtil;
 
 import java.util.LinkedList;
 
-/**
- * @Description: TODO
- * @author: edsheng
- * @date: 2017/12/19 20:31
- * @version: V1.0
- */
-
 @HippyController(name = HippyTextInputController.CLASS_NAME)
 public class HippyTextInputController extends HippyViewController<HippyTextInput>
 {
@@ -80,8 +73,7 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
 	@Override
 	protected View createViewImpl(Context context)
 	{
-		HippyTextInput hippyTextInput = new HippyTextInput(context);
-		return hippyTextInput;
+		return new HippyTextInput(context);
 	}
 
 	@Override
@@ -110,7 +102,7 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
 		hippyTextInput.setTextSize(TypedValue.COMPLEX_UNIT_PX, (int) Math.ceil(PixelUtil.dp2px(fontSize)));
 	}
 
-	@HippyControllerProps(name = "defaultValue", defaultType = HippyControllerProps.STRING, defaultString = "")
+	@HippyControllerProps(name = "defaultValue", defaultType = HippyControllerProps.STRING)
 	public void setDefaultValue(HippyTextInput hippyTextInput, String defaultValue)
 	{
 		String strOld = hippyTextInput.getText().toString();
@@ -121,7 +113,7 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
 			hippyTextInput.setSelection(defaultValue.length());
 		}
 	}
-	@HippyControllerProps(name = "validator", defaultType = HippyControllerProps.STRING, defaultString = "")
+	@HippyControllerProps(name = "validator", defaultType = HippyControllerProps.STRING)
 	public void setValidator(HippyTextInput hippyTextInput, String strValidator)
 	{
 		hippyTextInput.setValidator(strValidator);
@@ -203,7 +195,7 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
 		view.setImeOptions(returnKeyFlag | EditorInfo.IME_FLAG_NO_FULLSCREEN);
 	}
 
-	@HippyControllerProps(name = "keyboardType", defaultType = HippyControllerProps.STRING, defaultString = "")
+	@HippyControllerProps(name = "keyboardType", defaultType = HippyControllerProps.STRING)
 	public void setKeyboardType(HippyTextInput hippyTextInput, String keyboardType)
 	{
 		int flagsToSet = InputType.TYPE_CLASS_TEXT;
@@ -325,7 +317,7 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
 				}
 				if (!list.isEmpty())
 				{
-					newFilters = (InputFilter[]) list.toArray(new InputFilter[list.size()]);
+					newFilters = list.toArray(new InputFilter[list.size()]);
 				}
 			}
 		}
@@ -375,7 +367,7 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
 		}
 	}
 
-	@HippyControllerProps(name = "value", defaultType = HippyControllerProps.STRING, defaultString = "")
+	@HippyControllerProps(name = "value", defaultType = HippyControllerProps.STRING)
 	public void value(HippyTextInput view, String value)
 	{
 		int selectionStart = view.getSelectionStart();
@@ -473,7 +465,7 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
 		hippyTextInput.setBlurOrOnFocus(change);
 	}
 
-	@HippyControllerProps(name = "onContentSizeChange", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@HippyControllerProps(name = "onContentSizeChange", defaultType = HippyControllerProps.BOOLEAN)
 	public void setOnContentSizeChange(HippyTextInput hippyTextInput, boolean contentSizeChange)
 	{
 		hippyTextInput.setOnContentSizeChange(contentSizeChange);
@@ -536,15 +528,12 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
   @Override
   public void dispatchFunction(final HippyTextInput view, String functionName, HippyArray params, Promise promise)
   {
-    switch (functionName)
-    {
-      case COMMAND_getValue:
-        if (promise != null) {
-          HippyMap resultMap = view.jsGetValue();
-          promise.resolve(resultMap);
-        }
-        break;
-    }
+	  if (COMMAND_getValue.equals(functionName)) {
+		  if (promise != null) {
+			  HippyMap resultMap = view.jsGetValue();
+			  promise.resolve(resultMap);
+		  }
+	  }
   }
 
 	@Override
@@ -566,6 +555,7 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
 				break;
 			case COMMAND_FOCUS:
 				view.setFocusableInTouchMode(true);
+				//noinspection AccessStaticViaInstance
 				Looper.getMainLooper().myQueue().addIdleHandler(new MessageQueue.IdleHandler()
 				{
 					@Override
@@ -578,7 +568,7 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
 							result = view.requestFocus();
 							LogUtils.d("InputText", "requestFocus result:" + result);
 						}
-						if(var.getObject(0) == null || var.getBoolean(0) == true)
+						if(var.getObject(0) == null || var.getBoolean(0))
 						{
 						view.showInputMethodManager();
 						}
@@ -591,15 +581,8 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
 					break;
 			case COMMAND_BLUR:
 				// view.setFocusableInTouchMode(false);
-				/**
-				 * This view will block any of its descendants from getting focus, even
-				 * if they are focusable.
-				 * public static final int FOCUS_BLOCK_DESCENDANTS = 0x60000;
-				 * 
-				 * 为了避免在clearFoucus过后,不要让HippyRootView的其他View获得焦点,先把HippyRootView的焦点屏蔽掉.
-				 */
 
-				//find the HippyRootView
+                //find the HippyRootView
 				ViewParent viewParent = view.getParent();
 				while (viewParent != null)
 				{
@@ -608,14 +591,14 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
 					viewParent = viewParent.getParent();
 				}
 				int oldFoucusAbaility = 0;
-				if (viewParent != null && viewParent instanceof HippyRootView)
+				if (viewParent instanceof HippyRootView)
 				{
 					oldFoucusAbaility = ((ViewGroup) viewParent).getDescendantFocusability(); //Get the current value
 					((ViewGroup) viewParent).setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);//Block the fouse.
 				}
 				view.hideInputMethod();
 				view.clearFocus();
-				if (viewParent != null && viewParent instanceof HippyRootView)
+				if (viewParent instanceof HippyRootView)
 				{
 					((ViewGroup) viewParent).setDescendantFocusability(oldFoucusAbaility);
 				}

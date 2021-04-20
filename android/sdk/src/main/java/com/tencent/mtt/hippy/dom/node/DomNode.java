@@ -19,13 +19,6 @@ import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.smtt.flexbox.FlexNode;
 
-
-/**
- * @Description: TODO
- * @author: edsheng
- * @version: V1.0
- */
-
 public class DomNode extends FlexNode
 {
 
@@ -130,6 +123,7 @@ public class DomNode extends FlexNode
 		}
 	}
 
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public boolean isVirtual()
 	{
 		return false;
@@ -247,6 +241,7 @@ public class DomNode extends FlexNode
 
 	boolean	mShouldNotifyOnlayout	= false;
 
+	@SuppressWarnings("unused")
 	public void setShouldNotifyOnLayout(boolean shouldNotifyOnLayout)
 	{
 		this.mShouldNotifyOnlayout = shouldNotifyOnLayout;

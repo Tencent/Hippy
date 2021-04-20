@@ -13,18 +13,12 @@ import android.graphics.Movie;
 import android.graphics.drawable.Drawable;
 import android.util.Base64;
 
-
-
-/**
- * Created by harryguo.
- */
-
 public class HippyDrawable implements IDrawableTarget
 {
 	// 原始数据的来源：base64 / assets / file
 	protected String mSource;
 
-  protected Drawable mDrawable;
+	protected Drawable mDrawable;
 
 	// GIF动画
 	private Movie mGifMovie;
@@ -32,10 +26,10 @@ public class HippyDrawable implements IDrawableTarget
 	// 静态图片
 	private Bitmap mBitmap;
 
-  public void setDrawable(Drawable drawable)
-  {
-    mDrawable = drawable;
-  }
+	public void setDrawable(Drawable drawable)
+	{
+		mDrawable = drawable;
+	}
 
 	/**
 	 * 设置原始数据。预期这个原始数据是GIF，或Bitmap的原始数据
@@ -55,15 +49,6 @@ public class HippyDrawable implements IDrawableTarget
 			e.printStackTrace();
 		}
 	}
-
-	/**
-	 * 设置原始数据。预期这个原始数据是GIF，或Bitmap的原始数据
-	 * @param rawData ByteBuffer buffered array raw data
-	 */
-//	public void setData(ByteBuffer rawData)
-//	{
-//		setData(new ByteBufferInputStream(rawData));
-//	}
 
 	/**
 	 * 设置原始数据的文件地址。预期这个原始数据是GIF，或Bitmap的原始数据
@@ -156,15 +141,15 @@ public class HippyDrawable implements IDrawableTarget
 		if (mSource.startsWith("data:"))
 		{
 			try {
-			// base64 image
-			int base64Index = mSource.indexOf(";base64,");
-			if (base64Index >= 0)
-			{
-				base64Index += ";base64,".length();
-				String base64String = mSource.substring(base64Index);
-				byte[] decode = Base64.decode(base64String, Base64.DEFAULT);
-				if (decode != null)
-					setData(decode);
+				// base64 image
+				int base64Index = mSource.indexOf(";base64,");
+				if (base64Index >= 0)
+				{
+					base64Index += ";base64,".length();
+					String base64String = mSource.substring(base64Index);
+					byte[] decode = Base64.decode(base64String, Base64.DEFAULT);
+					if (decode != null)
+						setData(decode);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -248,11 +233,11 @@ public class HippyDrawable implements IDrawableTarget
 		return mSource;
 	}
 
-  @Override
-  public Drawable getDrawable()
-  {
-    return mDrawable;
-  }
+	@Override
+	public Drawable getDrawable()
+	{
+		return mDrawable;
+	}
 
 	@Override
 	public Object getExtraData()

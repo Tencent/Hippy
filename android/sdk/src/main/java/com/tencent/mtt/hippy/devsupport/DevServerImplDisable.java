@@ -17,19 +17,18 @@ package com.tencent.mtt.hippy.devsupport;
 
 import com.tencent.mtt.hippy.HippyGlobalConfigs;
 import com.tencent.mtt.hippy.HippyRootView;
-import java.io.File;
 import java.io.InputStream;
 
 public class DevServerImplDisable implements DevServerInterface
 {
-	DevServerHelper mFetchHelper;
+	final DevServerHelper mFetchHelper;
 
 	DevServerImplDisable(HippyGlobalConfigs configs, String serverHost) {
 		mFetchHelper = new DevServerHelper(configs, serverHost);
 	}
 
 	@Override
-	public void reload(DevRemoteDebugProxy proxy) {
+	public void reload() {
 
 	}
 
@@ -47,16 +46,12 @@ public class DevServerImplDisable implements DevServerInterface
 			}
 
 			@Override
-			public void onSuccess(File file) {
-			}
-
-			@Override
 			public void onFail(Exception exception) {
 				if (serverCallBack != null) {
 					serverCallBack.onInitDevError(exception);
 				}
 			}
-		}, url, null);
+		}, url);
 	}
 
     @Override

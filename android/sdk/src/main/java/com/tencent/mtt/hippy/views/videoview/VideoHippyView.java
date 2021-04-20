@@ -111,13 +111,13 @@ public class VideoHippyView extends ScalableVideoView
 	public static final String	EVENT_PROP_EXTRA				= "extra";
 
 	private HippyEngineContext	mHippyContext;
-	private Context				mAppContext;
-	private EventDispatcher		mEventEmitter;
+	private final Context mAppContext;
+	private final EventDispatcher mEventEmitter;
 
-	private Handler				mProgressUpdateHandler			= new Handler();
-	private Runnable			mProgressUpdateRunnable			= null;
-	private Handler				videoControlHandler				= new Handler();
-	private MediaController		mediaController;
+	private final Handler mProgressUpdateHandler = new Handler();
+	private Runnable mProgressUpdateRunnable = null;
+	private final Handler videoControlHandler = new Handler();
+	private MediaController mediaController;
 
 	private String				mSrcUriString					= null;
 	private String				mSrcType						= "mp4";
@@ -134,8 +134,9 @@ public class VideoHippyView extends ScalableVideoView
 	private float				mRate							= 1.0f;
 	private float				mActiveRate						= 1.0f;
 	private long				mSeekTime						= 0;
+	@SuppressWarnings("FieldCanBeLocal")
 	private boolean				mPlayInBackground				= false;
-	private boolean				mBackgroundPaused				= false;
+	private final boolean				mBackgroundPaused				= false;
 	private boolean				mIsFullscreen					= false;
 
 	private int					mMainVer						= 0;
@@ -344,7 +345,7 @@ public class VideoHippyView extends ScalableVideoView
 			}
 			else
 			{
-				ZipResourceFile expansionFile = null;
+				ZipResourceFile expansionFile;
 				AssetFileDescriptor fd = null;
 				if (mMainVer > 0)
 				{
@@ -614,7 +615,6 @@ public class VideoHippyView extends ScalableVideoView
 
 	public void setPlayInBackground(final boolean playInBackground)
 	{
-
 		mPlayInBackground = playInBackground;
 	}
 
@@ -789,6 +789,7 @@ public class VideoHippyView extends ScalableVideoView
 	@TargetApi(23) // 6.0
 	public class TimedMetaDataAvailableListener implements MediaPlayer.OnTimedMetaDataAvailableListener
 	{
+		@SuppressWarnings("CharsetObjectCanBeUsed")
 		public void onTimedMetaDataAvailable(MediaPlayer mp, TimedMetaData data)
 		{
 			HippyMap event = new HippyMap();

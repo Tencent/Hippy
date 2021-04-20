@@ -25,12 +25,12 @@ public class MatrixUtil
 
 	public static class MatrixDecompositionContext
 	{
-		double[]	perspective		= new double[4];
-		double[]	quaternion		= new double[4];
-		double[]	scale			= new double[3];
-		double[]	skew			= new double[3];
-		double[]	translation		= new double[3];
-		double[]	rotationDegrees	= new double[3];
+		final double[]	perspective		= new double[4];
+		final double[]	quaternion		= new double[4];
+		final double[]	scale			= new double[3];
+		final double[]	skew			= new double[3];
+		final double[]	translation		= new double[3];
+		final double[]	rotationDegrees	= new double[3];
 
 		public void reset()
 		{

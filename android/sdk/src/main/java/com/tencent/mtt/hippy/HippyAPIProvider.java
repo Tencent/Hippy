@@ -31,9 +31,10 @@ import java.util.Map;
  */
 public interface HippyAPIProvider
 {
-    public Map<Class<? extends HippyNativeModuleBase>, Provider<? extends HippyNativeModuleBase>> getNativeModules(HippyEngineContext context);
+    Map<Class<? extends HippyNativeModuleBase>, Provider<? extends HippyNativeModuleBase>> getNativeModules(
+            HippyEngineContext context);
 
-    public List<Class<? extends HippyJavaScriptModule>>  getJavaScriptModules();
+    List<Class<? extends HippyJavaScriptModule>>  getJavaScriptModules();
 
-    public List<Class<? extends HippyViewController>> getControllers();
+    List<Class<? extends HippyViewController>> getControllers();
 }

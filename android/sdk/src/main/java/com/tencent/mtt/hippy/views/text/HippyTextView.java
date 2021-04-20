@@ -84,11 +84,11 @@ public class HippyTextView extends View implements CommonBorder, HippyViewBase, 
 		super.setId(id);
 
 		Context context = getContext();
-		if (context != null && context instanceof HippyInstanceContext) {
+		if (context instanceof HippyInstanceContext) {
 			HippyEngineContext engineContext = ((HippyInstanceContext) context).getEngineContext();
 			if (engineContext != null) {
 				DomNode node = engineContext.getDomManager().getNode(id);
-				if (node != null && node instanceof TextNode) {
+				if (node instanceof TextNode) {
 					((TextNode)node).setTextView(this);
 				}
 			}
@@ -146,7 +146,7 @@ public class HippyTextView extends View implements CommonBorder, HippyViewBase, 
 					case ALIGN_CENTER:
 						int totalHeight = getHeight() + getPaddingTop() + getPaddingBottom() - mLayout.getHeight();
 						int width = (getWidth() - mLayout.getWidth()) / 2;
-						canvas.translate(width, totalHeight / 2);
+						canvas.translate((float) width, totalHeight/2.0f);
 						break;
 					case ALIGN_OPPOSITE:
 						int x = getWidth() - getPaddingRight() - mLayout.getWidth();
@@ -388,10 +388,10 @@ public class HippyTextView extends View implements CommonBorder, HippyViewBase, 
 		if (span == null && charSequence instanceof Spanned)
 		{
 			Spanned spanned = (Spanned) charSequence;
-			HippyNativeGestureSpan spans[] = spanned.getSpans(0, spanned.length(), HippyNativeGestureSpan.class);
+			HippyNativeGestureSpan[] spans = spanned.getSpans(0, spanned.length(), HippyNativeGestureSpan.class);
 			if (spans.length == 1) //only support one text node
 			{
-				AbsoluteSizeSpan absoluteSizeSpan[] = spanned.getSpans(0, spanned.length(), AbsoluteSizeSpan.class);
+				AbsoluteSizeSpan[] absoluteSizeSpan = spanned.getSpans(0, spanned.length(), AbsoluteSizeSpan.class);
 				if (!spans[0].isVirtual() && absoluteSizeSpan.length == 1)
 				{
 					span = spans[0];

@@ -27,7 +27,7 @@ import java.lang.ref.WeakReference;
 
 public abstract class HippyImageLoader implements IImageLoaderAdapter<HippyImageLoader.Callback>
 {
-	private SparseArray<WeakReference<HippyDrawable>> mWeakImageCache = new SparseArray<>();
+	private final SparseArray<WeakReference<HippyDrawable>> mWeakImageCache = new SparseArray<>();
 	// 本地图片加载，同步获取
 	@Override
 	public HippyDrawable getImage(String source, Object param)
@@ -58,11 +58,8 @@ public abstract class HippyImageLoader implements IImageLoaderAdapter<HippyImage
 
 	public void destroyIfNeed(){
     }
-	/**
-	 * Created by leonardgong on 2017/12/4 0004.
-	 */
 
-	public static interface Callback extends IImageRequestListener<HippyDrawable>
+	public interface Callback extends IImageRequestListener<HippyDrawable>
 	{
 	}
 }

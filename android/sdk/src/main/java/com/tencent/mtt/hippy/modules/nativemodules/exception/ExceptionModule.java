@@ -21,11 +21,6 @@ import com.tencent.mtt.hippy.annotation.HippyNativeModule;
 import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 
-/**
- * @author: edsheng
- * @date: 2017/11/20 21:35
- * @version: V1.0
- */
 @HippyNativeModule(name= ExceptionModule.HIPPY_CLASS)
 public class ExceptionModule extends HippyNativeModuleBase
 {
@@ -35,8 +30,9 @@ public class ExceptionModule extends HippyNativeModuleBase
 		super(context);
 	}
 
+	@SuppressWarnings("unused")
 	@HippyMethod(name="handleException")
-	public void handleException(String title, String details, int exceptionId)
+	public void handleException(String title, String details)
 	{
 		if (mContext != null )
 		{
@@ -44,6 +40,7 @@ public class ExceptionModule extends HippyNativeModuleBase
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@HippyMethod(name="handleBackgroundTracing")
 	public void handleBackgroundTracing(String details)
 	{

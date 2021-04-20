@@ -37,24 +37,28 @@ public class ConsoleModule extends HippyNativeModuleBase
 		super(context);
 	}
 
+    @SuppressWarnings("unused")
     @HippyMethod(name="log")
 	public void log(String message)
     {
         Log.d("hippy_console",message);
     }
 
+    @SuppressWarnings("unused")
     @HippyMethod(name="warn")
     public void warn(String message)
     {
 		Log.w("hippy_console",message);
     }
 
+    @SuppressWarnings("unused")
     @HippyMethod(name="info")
     public void info(String message)
     {
 		Log.i("hippy_console",message);
     }
 
+    @SuppressWarnings("unused")
     @HippyMethod(name="error")
     public void error(String message)
     {

@@ -28,7 +28,7 @@ public class HippyPageScrollEvent extends HippyViewEvent
 {
 	public static final String EVENT_NAME	= "onPageScroll";
 
-	private View mTarget;
+	private final View mTarget;
 
 	public HippyPageScrollEvent(View target)
 	{

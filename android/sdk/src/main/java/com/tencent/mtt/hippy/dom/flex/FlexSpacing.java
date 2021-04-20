@@ -17,7 +17,7 @@ package com.tencent.mtt.hippy.dom.flex;
 
 import java.util.Arrays;
 
-
+@SuppressWarnings("unused")
 public class FlexSpacing {
 
   public static final int LEFT = 0;
@@ -52,7 +52,7 @@ public class FlexSpacing {
 
   private final float[] mSpacing = newFullSpacingArray();
   private int mValueFlags = 0;
-  private float mDefaultValue;
+  private final float mDefaultValue;
   private boolean mHasAliasesSet;
 
   public FlexSpacing() {

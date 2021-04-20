@@ -35,7 +35,7 @@ public class HippyModuleANRMonitor
 	static final int							ANR_TIME				= 100;
 	static final int							MONITOR_ID_NAN			= 0;
 	static int									MONITOR_ID				= 0;
-	HippyEngineContext							mContext;
+	final HippyEngineContext					mContext;
 	boolean										mNeedReportBridgeANR	= false;
 	HippyEngineMonitorAdapter					mEngineMonitorAdapter;
 	ConcurrentHashMap<Integer, MonitorMessage>	mMonitorMessages;

@@ -32,19 +32,15 @@ public class HippyViewPagerAdapter extends ViewPagerAdapter
 {
 	private static final String		TAG				= "HippyViewPagerAdapter";
 
-	protected List<View>			mViews			= new ArrayList<View>();
+	protected final List<View>		mViews			= new ArrayList<View>();
 
 	private int						mChildSize		= 0;
 
 	private int						mInitPageIndex	= 0;
-	private HippyInstanceContext	mEngineContext;
 
-	protected HippyViewPager		mViewPager;
+	protected final HippyViewPager	mViewPager;
 
-
-	public HippyViewPagerAdapter(HippyInstanceContext context, HippyViewPager viewPager)
-	{
-		mEngineContext = context;
+	public HippyViewPagerAdapter(HippyInstanceContext context, HippyViewPager viewPager) {
 		mViewPager = viewPager;
 	}
 

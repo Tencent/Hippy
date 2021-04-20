@@ -36,7 +36,7 @@ import java.util.List;
 public class StorageModule extends HippyNativeModuleBase
 {
 
-	private HippyStorageAdapter	mStorageAdapter;
+	private final HippyStorageAdapter mStorageAdapter;
 
 	public StorageModule(HippyEngineContext context)
 	{

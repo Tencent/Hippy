@@ -16,7 +16,6 @@
 package com.tencent.mtt.hippy.uimanager;
 
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.SparseArray;
 
 import com.tencent.mtt.hippy.HippyAPIProvider;
@@ -32,26 +31,20 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author: edsheng
- * @date: 2017/12/6 14:33
- * @version: V1.0
- */
-
 public class RenderManager
 {
 
 	private static final String	TAG					= "RenderManager";
-	SparseArray<RenderNode>		mNodes				= new SparseArray<>();
+	final SparseArray<RenderNode>	mNodes				= new SparseArray<>();
 
-	SparseArray<Boolean>		mPreIsLazy			= new SparseArray<>();
+	final SparseArray<Boolean>		mPreIsLazy			= new SparseArray<>();
 
-	ArrayList<RenderNode>		mUIUpdateNodes		= new ArrayList<>();
-	ArrayList<RenderNode>		mNullUIUpdateNodes	= new ArrayList<>();
+	final ArrayList<RenderNode>		mUIUpdateNodes		= new ArrayList<>();
+	final ArrayList<RenderNode>		mNullUIUpdateNodes	= new ArrayList<>();
 
-	HippyEngineContext			mContext;
+	final HippyEngineContext		mContext;
 
-	ControllerManager			mControllerManager;
+	final ControllerManager			mControllerManager;
 
 	public RenderManager(HippyEngineContext hippyContext, List<HippyAPIProvider> packages)
 	{

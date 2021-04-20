@@ -22,15 +22,11 @@ import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.utils.UrlUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Locale;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.text.TextUtils;
@@ -43,9 +39,10 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.HippyBuffer;
 import java.nio.ByteOrder;
 
+@SuppressWarnings("JavaJniMissingFunction")
 public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnReceiveDataListener
 {
-	private static Object						sBridgeSyncLock;
+	private static final Object sBridgeSyncLock;
 
 	static
 	{
@@ -56,15 +53,15 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 	private long								mV8RuntimeId				= 0;
 	private BridgeCallback						mBridgeCallback;
 	private boolean								mInit						= false;
-	private boolean								mIsDevModule				= false;
+	private boolean								mIsDevModule;
 	private String                              mDebugServerHost;
-	private boolean								mSingleThreadMode			= false;
-	private boolean								mBridgeParamJson;
+	private boolean								mSingleThreadMode;
+	private final boolean						mBridgeParamJson;
 	private HippyBuffer                         mHippyBuffer;
 	private DebugWebSocketClient				mDebugWebSocketClient;
 	private String                              mDebugGobalConfig;
 	private NativeCallback                      mDebugInitJSFrameworkCallback;
-	private HippyEngineContext                  mContext;
+	private final HippyEngineContext            mContext;
 
 	public HippyBridgeImpl(HippyEngineContext engineContext, BridgeCallback callback, boolean singleThreadMode, boolean jsonBrige, boolean isDevModule, String debugServerHost)
 	{
@@ -83,7 +80,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 				File hippyFile = FileUtils.getHippyFile(context);
 				if (hippyFile != null)
 				{
-					this.mCodeCacheRootDir = hippyFile.getAbsolutePath() + File.separator + "codecache" + File.separator;
+					mCodeCacheRootDir = hippyFile.getAbsolutePath() + File.separator + "codecache" + File.separator;
 				}
 			}
 		}
@@ -116,6 +113,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 			}
 			mDebugWebSocketClient.connect(String.format(Locale.US, "ws://%s/debugger-proxy?role=android_client", mDebugServerHost), new DebugWebSocketClient.JSDebuggerCallback()
 			{
+				@SuppressWarnings("unused")
 				@Override
 				public void onSuccess(String response)
 				{
@@ -124,6 +122,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 					initJSEngine(groupId);
 				}
 
+				@SuppressWarnings("unused")
 				@Override
 				public void onFailure(final Throwable cause)
 				{
@@ -251,13 +250,13 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 	public void InspectorChannel(byte[] params)
 	{
 		if (ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN) {
-			String msg = new String(params, Charset.forName("UTF-16BE"));
+			@SuppressWarnings("CharsetObjectCanBeUsed") String msg = new String(params, Charset.forName("UTF-16BE"));
 			if (mDebugWebSocketClient != null)
 			{
 				mDebugWebSocketClient.sendMessage(msg);
 			}
 		} else {
-			String msg = new String(params, Charset.forName("UTF-16LE"));
+			@SuppressWarnings("CharsetObjectCanBeUsed") String msg = new String(params, Charset.forName("UTF-16LE"));
 			if (mDebugWebSocketClient != null)
 			{
 				mDebugWebSocketClient.sendMessage(msg);
@@ -277,9 +276,6 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 
 				devManager.loadRemoteResource(uri, new DevServerCallBack() {
 					@Override
-					public void onDevBundleLoadReady(File bundle) {}
-
-					@Override
 					public void onDevBundleReLoad() {}
 
 					@Override
@@ -288,7 +284,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 							ByteArrayOutputStream output = new ByteArrayOutputStream();
 
 							byte[] b = new byte[2048];
-							int size = 0;
+							int size;
 							while ((size = inputStream.read(b)) > 0) {
 								output.write(b, 0, size);
 							}
@@ -318,7 +314,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 		});
 	}
 
-	private HippyArray bytesToArgument(byte param[])
+	private HippyArray bytesToArgument(byte[] param)
 	{
 		HippyArray hippyParam = null;
 		if (mBridgeParamJson)
@@ -340,18 +336,6 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 		return hippyParam == null ? new HippyArray() : hippyParam;
 	}
 
-	public static void deleteCodeCache(String fileName)
-	{
-		File codeCacheDir = new File(mCodeCacheRootDir);
-		String deleteFilesName[] = codeCacheDir.list(new CodeCacheFilter(fileName));
-
-		if (deleteFilesName != null && deleteFilesName.length > 0)
-		{
-			File file = new File(mCodeCacheRootDir + File.separator + deleteFilesName[0], fileName);
-			file.delete();
-		}
-	}
-
 	public void reportException(String exception, String stackTrace)
 	{
 		LogUtils.e("reportException", "!!!!!!!!!!!!!!!!!!!");
@@ -363,38 +347,6 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 		if (mBridgeCallback != null)
 		{
 			mBridgeCallback.reportException(exception, stackTrace);
-		}
-	}
-
-	static class CodeCacheFilter implements FilenameFilter
-	{
-		String	fileName;
-
-		public CodeCacheFilter(String fileName)
-		{
-			this.fileName = fileName;
-		}
-
-		@Override
-		public boolean accept(File dir, String name)
-		{
-			File file = new File(dir, name);
-			if (file.isDirectory())
-			{
-				String files[] = file.list();
-				if (files != null && files.length > 0)
-				{
-					return files[0].equals(fileName);
-				}
-				else
-				{
-					return false;
-				}
-			}
-			else
-			{
-				return false;
-			}
 		}
 	}
 

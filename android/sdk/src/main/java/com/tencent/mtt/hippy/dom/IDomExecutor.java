@@ -15,12 +15,7 @@
  */
 package com.tencent.mtt.hippy.dom;
 
-/**
- * @author: edsheng
- * @date: 2017/11/24 14:28
- * @version: V1.0
- */
 
 public interface IDomExecutor {
-    public void exec();
+    void exec();
 }

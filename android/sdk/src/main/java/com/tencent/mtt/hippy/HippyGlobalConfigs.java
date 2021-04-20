@@ -45,57 +45,57 @@ public class HippyGlobalConfigs
 	/**
 	 * SharedPreferences
 	 */
-	private HippySharedPreferencesAdapter	mSharedPreferencesAdapter;
+	private final HippySharedPreferencesAdapter	mSharedPreferencesAdapter;
 
-	private Context						mContext;
+	private final Context						mContext;
 
 	/**
 	 * Crash Handler
 	 */
-	private HippyExceptionHandlerAdapter	mExceptionHandler;
+	private final HippyExceptionHandlerAdapter	mExceptionHandler;
 
 	/**
 	 * Http request adapter
 	 */
-	private HippyHttpAdapter				mHttpAdapter;
+	private final HippyHttpAdapter				mHttpAdapter;
 
 	/**
 	 * Image loader adapter
 	 */
-	private HippyImageLoader mImageLoaderAdapter;
+	private final HippyImageLoader              mImageLoaderAdapter;
 
 	/**
 	 * Storage adapter
 	 */
-	private HippyStorageAdapter				mStorageAdapter;
+	private final HippyStorageAdapter           mStorageAdapter;
 
 	/**
 	 * Executor Supplier adapter
 	 */
-	private HippyExecutorSupplierAdapter	mExecutorSupplierAdapter;
+	private final HippyExecutorSupplierAdapter	mExecutorSupplierAdapter;
 
 	/**
 	 * Engine Monitor adapter
 	 */
-	private HippyEngineMonitorAdapter		mEngineMonitorAdapter;
+	private final HippyEngineMonitorAdapter		mEngineMonitorAdapter;
 
 
 	/**
 	 * font scale adapter
 	 */
-	private HippyFontScaleAdapter			mFontScaleAdapter;
+	private final HippyFontScaleAdapter			mFontScaleAdapter;
 
 
-	private HippySoLoaderAdapter			mSoLoaderAdapter;
+	private final HippySoLoaderAdapter			mSoLoaderAdapter;
 
 	/**
 	 * device adapter
 	 */
-	private HippyDeviceAdapter				mDeviceAdapter;
+	private final HippyDeviceAdapter            mDeviceAdapter;
 
 
 
-	private HippyLogAdapter					mLogAdapter;
+	private final HippyLogAdapter               mLogAdapter;
 
 	public HippyGlobalConfigs(HippyEngine.EngineInitParams params)
 	{
@@ -399,7 +399,7 @@ public class HippyGlobalConfigs
 				throw new IllegalArgumentException("HippyGlobalConfigs ImageLoaderAdapter must is not null!");
 			}
 
-			HippyGlobalConfigs configs = new HippyGlobalConfigs(mContext,  mSharedPreferencesAdapter, mExceptionHandler,
+			@SuppressWarnings("UnnecessaryLocalVariable") HippyGlobalConfigs configs = new HippyGlobalConfigs(mContext,  mSharedPreferencesAdapter, mExceptionHandler,
 					mHttpAdapter, mImageLoaderAdapter, mExecutorSupplierAdapter, mStorageAdapter, mEngineMonitorAdapter, mFontScaleAdapter,
 					mSoLoaderAdapter, mDeviceAdapter, mLogAdapter);
 			return configs;

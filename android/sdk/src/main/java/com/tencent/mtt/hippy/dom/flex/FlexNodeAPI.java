@@ -17,6 +17,7 @@ package com.tencent.mtt.hippy.dom.flex;
 
 import com.tencent.smtt.flexbox.FlexNodeStyle;
 
+@SuppressWarnings("unused")
 public interface FlexNodeAPI<FlexNodeType extends FlexNodeAPI> {
 
   interface MeasureFunction {

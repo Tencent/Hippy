@@ -27,31 +27,17 @@ import java.util.List;
 public interface HippyStorageAdapter
 {
 
-    /**
-     * Query value of the database
-     * @param keys
-     * @param callback
-     */
-    public void multiGet(HippyArray keys, Callback<List<HippyStorageKeyValue>> callback);
+    void multiGet(HippyArray keys, Callback<List<HippyStorageKeyValue>> callback);
 
-    /**
-     * Insert value into the database
-     * @param keyValues
-     * @param callback
-     */
-    public void multiSet(List<HippyStorageKeyValue> keyValues, Callback<Void> callback);
+    void multiSet(List<HippyStorageKeyValue> keyValues, Callback<Void> callback);
 
-    /**
-     * Remove value from the database
-     * @param keys
-     * @param callback
-     */
-    public void multiRemove(HippyArray keys,Callback<Void> callback);
+    void multiRemove(HippyArray keys, Callback<Void> callback);
 
-    public void getAllKeys(Callback<HippyArray> callback);
+    void getAllKeys(Callback<HippyArray> callback);
 
     void destroyIfNeed();
 
+    @SuppressWarnings("TypeParameterExplicitlyExtendsObject")
     interface Callback<T extends Object>
 	{
 		void onSuccess(T data);
