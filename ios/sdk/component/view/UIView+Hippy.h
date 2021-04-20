@@ -33,8 +33,8 @@
 /**
  * HippyComponent interface.
  */
-- (NSArray<UIView *> *)hippySubviews NS_REQUIRES_SUPER;
-- (UIView *)hippySuperview NS_REQUIRES_SUPER;
+- (NSArray<UIView *> *)hippySubviews;
+- (UIView *)hippySuperview;
 - (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex;
 - (void)removeHippySubview:(UIView *)subview;
 
