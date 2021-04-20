@@ -20,6 +20,9 @@ import com.tencent.mtt.hippy.serialization.StringLocation;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 
+/**
+ * Non-reusable string pool implement, it will not store string objects.
+ */
 public class DirectStringTable implements StringTable {
   @Override
   public String lookup(ByteBuffer byteBuffer, String encoding, StringLocation location, Object relatedKey) throws UnsupportedEncodingException {

@@ -24,6 +24,9 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 
+/**
+ * Internalized string pool implement, it will store string objects.
+ */
 public class InternalizedStringTable extends DirectStringTable {
   // region key
   private static final int MAX_KEY_CALC_LENGTH	= 32;
