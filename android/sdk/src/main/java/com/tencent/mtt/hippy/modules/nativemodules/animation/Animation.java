@@ -28,7 +28,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public abstract class Animation implements ValueAnimator.AnimatorUpdateListener, Animator.AnimatorListener
 {
-	protected int							mId;
+	protected final int							mId;
 
 	protected CopyOnWriteArrayList<Integer>	mAnimationNodes;
 
@@ -176,14 +176,14 @@ public abstract class Animation implements ValueAnimator.AnimatorUpdateListener,
 
 	public interface AnimationListener
 	{
-		public void onAnimationStart(Animation animation);
+		void onAnimationStart(Animation animation);
 
-		public void onAnimationEnd(Animation animation);
+		void onAnimationEnd(Animation animation);
 
-		public void onAnimationCancel(Animation animation);
+		void onAnimationCancel(Animation animation);
 
-		public void onAnimationRepeat(Animation animation);
+		void onAnimationRepeat(Animation animation);
 
-		public void onAnimationUpdate(Animation animation);
+		void onAnimationUpdate(Animation animation);
 	}
 }

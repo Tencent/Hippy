@@ -7,8 +7,8 @@ import android.graphics.Matrix;
  */
 public class ScaleManager {
 
-    private Size mViewSize;
-    private Size mVideoSize;
+    private final Size mViewSize;
+    private final Size mVideoSize;
 
     public ScaleManager(Size viewSize, Size videoSize) {
         mViewSize = viewSize;

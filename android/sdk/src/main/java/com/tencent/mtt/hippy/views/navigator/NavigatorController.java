@@ -23,20 +23,12 @@ import android.view.ViewGroup;
 import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.HippyRootView;
-import com.tencent.mtt.hippy.HippyRootViewParams;
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
-import com.tencent.mtt.hippy.bridge.bundleloader.HippyAssetBundleLoader;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyGroupController;
 
-/**
- * @Description: TODO
- * @author: edsheng
- * @date: 2018/9/26 15:54
- * @version: V1.0
- */
 @HippyController(name = NavigatorController.CLASS)
 public class NavigatorController extends HippyGroupController<Navigator>
 {

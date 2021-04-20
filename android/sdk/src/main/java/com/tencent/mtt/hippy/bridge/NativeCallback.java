@@ -12,7 +12,8 @@ public abstract class NativeCallback {
         mHandler = handler;
         mMsg = msg;
         mAction = action;
-    };
+    }
+
     public void Callback(long value) {
 
         String msg = value + "";
@@ -26,15 +27,15 @@ public abstract class NativeCallback {
 
     public abstract void Call(long value, Message msg, String action);
 
-    private Handler mHandler;
+    private final Handler mHandler;
     private Message mMsg = null;
     private String mAction = null;
 
     public static class NativeRunnable implements Runnable {
-        private long mValue;
-        private NativeCallback mCallback;
-        private Message inMsg = null;
-        private String inAction = null;
+        private final long mValue;
+        private final NativeCallback mCallback;
+        private Message inMsg;
+        private String inAction;
 
         public NativeRunnable(NativeCallback callback, long value, Message msg, String action) {
             mValue = value;

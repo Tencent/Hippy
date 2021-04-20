@@ -24,9 +24,7 @@ import java.util.List;
 public class HybiParser {
     private static final String TAG = "HybiParser";
 
-    private WebSocketClient mClient;
-
-    private boolean mMasking = true;
+    private final WebSocketClient mClient;
 
     private int     mStage;
 
@@ -42,7 +40,7 @@ public class HybiParser {
 
     private boolean mClosed = false;
 
-    private ByteArrayOutputStream mBuffer = new ByteArrayOutputStream();
+    private final ByteArrayOutputStream mBuffer = new ByteArrayOutputStream();
 
     private static final int BYTE   = 255;
     private static final int FIN    = 128;
@@ -90,8 +88,7 @@ public class HybiParser {
     }
 
     public void start(HappyDataInputStream stream) throws IOException {
-        while (true) {
-            if (stream.available() == -1) break;
+        while (stream.available() != -1) {
             switch (mStage) {
                 case 0:
                     parseOpcode(stream.readByte());
@@ -166,6 +163,7 @@ public class HybiParser {
         return frame(data, OP_BINARY, -1);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private byte[] frame(byte[] data, int opcode, int errorCode)  {
         return frame((Object)data, opcode, errorCode);
     }
@@ -183,6 +181,7 @@ public class HybiParser {
         int insert = (errorCode > 0) ? 2 : 0;
         int length = buffer.length + insert;
         int header = (length <= 125) ? 2 : (length <= 65535 ? 4 : 10);
+        boolean mMasking = true;
         int offset = header + (mMasking ? 4 : 0);
         int masked = mMasking ? MASK : 0;
         byte[] frame = new byte[length + offset];
@@ -193,7 +192,7 @@ public class HybiParser {
             frame[1] = (byte) (masked | length);
         } else if (length <= 65535) {
             frame[1] = (byte) (masked | 126);
-            frame[2] = (byte) Math.floor(length / 256);
+            frame[2] = (byte) Math.floor(length/256.0f);
             frame[3] = (byte) (length & BYTE);
         } else {
             frame[1] = (byte) (masked | 127);
@@ -208,7 +207,7 @@ public class HybiParser {
         }
 
         if (errorCode > 0) {
-            frame[offset] = (byte) (((int) Math.floor(errorCode / 256)) & BYTE);
+            frame[offset] = (byte) (((int) Math.floor(errorCode/256.0f)) & BYTE);
             frame[offset+1] = (byte) (errorCode & BYTE);
         }
         System.arraycopy(buffer, 0, frame, offset + insert, buffer.length);
@@ -296,12 +295,14 @@ public class HybiParser {
 
     private String encode(byte[] buffer) {
         try {
+            //noinspection CharsetObjectCanBeUsed
             return new String(buffer, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
     }
 
+    @SuppressWarnings("CharsetObjectCanBeUsed")
     private byte[] decode(String string) {
         try {
             return (string).getBytes("UTF-8");
@@ -334,6 +335,7 @@ public class HybiParser {
         return result;
     }
 
+    @SuppressWarnings("SameParameterValue")
     private byte[] slice(byte[] array, int start) {
         return copyOfRange(array, start, array.length);
     }
@@ -344,7 +346,7 @@ public class HybiParser {
         }
     }
 
-    private static long byteArrayToLong(byte[] b, int offset, int length) {
+    private static long byteArrayToLong(byte[] b, @SuppressWarnings("SameParameterValue") int offset, int length) {
         if (b.length < length)
             throw new IllegalArgumentException("length must be less than or equal to b.length");
 

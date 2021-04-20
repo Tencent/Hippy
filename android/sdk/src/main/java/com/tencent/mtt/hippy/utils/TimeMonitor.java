@@ -31,7 +31,7 @@ public class TimeMonitor
 
 	long								mStartTime;
 	int									mTotalTime;
-	boolean								mEnable;
+	final boolean						mEnable;
 	HippyEngineMonitorEvent				mCurrentEvent;
 	List<HippyEngineMonitorEvent>		mEvents;
 

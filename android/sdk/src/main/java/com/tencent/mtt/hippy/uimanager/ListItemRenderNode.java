@@ -19,12 +19,6 @@ import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.views.list.IRecycleItemTypeChange;
 
-/**
- * @author: edsheng
- * @date: 2017/12/9 17:44
- * @version: V1.0
- */
-
 public class ListItemRenderNode extends RenderNode
 {
 	public static final String		ITEM_VIEW_TYPE	= "type";

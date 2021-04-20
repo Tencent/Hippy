@@ -35,7 +35,7 @@ public class HippyHttpRequest
 	private static String		USER_AGENT					= null;
 	private int					mConnectTimeout				= DEFAULT_TIMEOUT_MS;
 	private int					mReadTimeout				= DEFAULT_TIMEOUT_MS;
-	private Map<String, Object>	mHeaderMap;
+	private final Map<String, Object> mHeaderMap;
 	private String				mUrl;
 	private boolean				mUseCaches					= true;
 	private String				mMethod						= "GET";

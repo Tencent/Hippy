@@ -18,13 +18,6 @@ package com.tencent.mtt.hippy.uimanager;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.common.HippyMap;
 
-/**
- * @Description: TODO
- * @author: edsheng
- * @date: 2018/1/4 11:02
- * @version: V1.0
- */
-
 public class ListViewRenderNode extends RenderNode
 {
 	public ListViewRenderNode(int mId, HippyMap mPropsToUpdate, String className, HippyRootView mRootView, ControllerManager componentManager,

@@ -126,14 +126,8 @@ public class NetworkModule extends HippyNativeModuleBase
 		httpRequest.setConnectTimeout(10 * 1000);
 		httpRequest.setReadTimeout(10 * 1000);
 		String redirect = request.getString("redirect");
-		if (!TextUtils.isEmpty(redirect) && TextUtils.equals("follow", redirect))
-		{
-			httpRequest.setInstanceFollowRedirects(true);
-		}
-		else
-		{
-			httpRequest.setInstanceFollowRedirects(false);
-		}
+		httpRequest.setInstanceFollowRedirects(
+				!TextUtils.isEmpty(redirect) && TextUtils.equals("follow", redirect));
 		httpRequest.setUseCaches(false);
 		httpRequest.setMethod(method);
 		httpRequest.setUrl(url);
@@ -162,11 +156,6 @@ public class NetworkModule extends HippyNativeModuleBase
 		}
 	}
 
-	/**
-	 * 获取指定url下的所有cookie
-	 * @param url 指定url，其实也就是指定作用域，如：http://3g.qq.com
-	 * @return 指定url下的所有cookie，如：eqid=deleted;bd_traffictrace=012146;BDSVRTM=418
-	 */
 	@HippyMethod(name = "getCookie")
 	public void getCookie(String url, Promise promise)
 	{
@@ -237,14 +226,14 @@ public class NetworkModule extends HippyNativeModuleBase
 
 	private static class HttpTaskCallbackImpl implements HippyHttpAdapter.HttpTaskCallback
 	{
-
-		private Promise	mPromise;
+		private final Promise	mPromise;
 
 		public HttpTaskCallbackImpl(Promise promise)
 		{
 			mPromise = promise;
 		}
 
+		@SuppressWarnings("CharsetObjectCanBeUsed")
 		@Override
 		public void onTaskSuccess(HippyHttpRequest request, HippyHttpResponse response) throws Exception
 		{

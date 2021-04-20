@@ -18,14 +18,10 @@ package com.tencent.mtt.hippy.uimanager;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 
-/**
- * Created by leonardgong on 2017/12/12 0012.
- */
-
 public class TransformUtil
 {
 
-	private static ThreadLocal<double[]> sHelperMatrix = new ThreadLocal<double[]>()
+	private static final ThreadLocal<double[]> sHelperMatrix = new ThreadLocal<double[]>()
 	{
 		@Override
 		protected double[] initialValue()

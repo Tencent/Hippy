@@ -20,12 +20,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import com.tencent.mtt.hippy.utils.LogUtils;
 
-/**
- * FileName: SQLiteHelper
- * Description：
- * History：
- */
 public class SQLiteHelper extends SQLiteOpenHelper implements IHippySQLiteHelper
 {
 
@@ -33,11 +29,11 @@ public class SQLiteHelper extends SQLiteOpenHelper implements IHippySQLiteHelper
 	private static final int	SLEEP_TIME_MS			= 30;
 	private static final String	DATABASE_NAME			= "HippyStorage";
 	private static final int	DATABASE_VERSION		= 1;
+	@SuppressWarnings("SyntaxError")
 	private static final String	STATEMENT_CREATE_TABLE	= "CREATE TABLE IF NOT EXISTS " + TABLE_STORAGE + " (" + COLUMN_KEY + " TEXT PRIMARY KEY,"
 																+ COLUMN_VALUE + " TEXT NOT NULL)";
-	private long				mMaximumDatabaseSize	= 50L * 1024L * 1024L;
 	private SQLiteDatabase		mDb;
-	private Context				mContext;
+	private final Context		mContext;
 
 	public SQLiteHelper(Context context)
 	{
@@ -52,11 +48,10 @@ public class SQLiteHelper extends SQLiteOpenHelper implements IHippySQLiteHelper
 	}
 
 	@Override
-	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
-	{
-		if (oldVersion != newVersion)
-		{
-			deleteDatabase();
+	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+		if (oldVersion != newVersion) {
+			boolean ret = deleteDatabase();
+			LogUtils.d("SQLiteHelper", "onUpgrade: deleteDatabase ret=" + ret);
 			onCreate(db);
 		}
 	}
@@ -89,11 +84,10 @@ public class SQLiteHelper extends SQLiteOpenHelper implements IHippySQLiteHelper
 		SQLiteException lastSQLiteException = null;
 		for (int tries = 0; tries < 2; tries++)
 		{
-			try
-			{
-				if (tries > 0)
-				{
-					deleteDatabase();
+			try {
+				if (tries > 0) {
+					boolean ret = deleteDatabase();
+					LogUtils.d("SQLiteHelper", "ensureDatabase: deleteDatabase ret=" + ret);
 				}
 				mDb = getWritableDatabase();
 				break;
@@ -116,6 +110,7 @@ public class SQLiteHelper extends SQLiteOpenHelper implements IHippySQLiteHelper
 			throw lastSQLiteException;
 		}
 		createTableIfNotExists(mDb);
+		long mMaximumDatabaseSize = 50L * 1024L * 1024L;
 		mDb.setMaximumSize(mMaximumDatabaseSize);
 	}
 

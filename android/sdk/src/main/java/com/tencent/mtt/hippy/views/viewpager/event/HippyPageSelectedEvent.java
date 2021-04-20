@@ -28,7 +28,7 @@ public class HippyPageSelectedEvent extends HippyViewEvent
 {
 	public static final String EVENT_NAME	= "onPageSelected";
 
-	private View mTarget;
+	private final View mTarget;
 
 	public HippyPageSelectedEvent(View target)
 	{

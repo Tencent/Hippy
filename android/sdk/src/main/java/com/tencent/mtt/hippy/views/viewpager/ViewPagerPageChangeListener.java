@@ -15,12 +15,10 @@
  */
 package com.tencent.mtt.hippy.views.viewpager;
 
-import android.util.Log;
 import android.view.View;
 
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.modules.Promise;
-import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 import com.tencent.mtt.hippy.views.viewpager.event.HippyPageItemExposureEvent;
 import com.tencent.mtt.hippy.views.viewpager.event.HippyPageScrollEvent;
 import com.tencent.mtt.hippy.views.viewpager.event.HippyPageScrollStateChangedEvent;
@@ -33,12 +31,12 @@ import com.tencent.mtt.supportui.views.viewpager.ViewPager;
 
 public class ViewPagerPageChangeListener implements ViewPager.OnPageChangeListener
 {
-	private HippyPageScrollEvent mPageScrollEmitter;
-	private HippyPageScrollStateChangedEvent mPageScrollStateChangeEmitter;
-	private HippyPageSelectedEvent mPageSelectedEmitter;
+	private final HippyPageScrollEvent mPageScrollEmitter;
+	private final HippyPageScrollStateChangedEvent mPageScrollStateChangeEmitter;
+	private final HippyPageSelectedEvent mPageSelectedEmitter;
 	private int mLastPageIndex;
 	private int mCurrPageIndex;
-	private HippyViewPager mPager;
+	private final HippyViewPager mPager;
 
 	public ViewPagerPageChangeListener(HippyViewPager pager)
 	{

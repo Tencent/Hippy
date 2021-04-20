@@ -23,23 +23,19 @@ import org.json.JSONObject;
 
 import java.net.URI;
 
-/**
- * Created by ceasoncai on 2017/12/25.
- */
-
 public class LiveReloadController implements WebSocketClient.WebSocketListener
 {
 	private WebSocketClient		mLiveReloadSocket;
 
-	private DevServerHelper		mServerHelper;
+	private final DevServerHelper mServerHelper;
 
 	private LiveReloadCallback	mCallback;
 
 	private boolean				mEnabled;
 
-	private Handler				mHandler;
+	private final Handler		mHandler;
 
-	private Runnable			mReconnectRunnable	= new Runnable()
+	private final Runnable		mReconnectRunnable	= new Runnable()
 													{
 														@Override
 														public void run()
@@ -181,7 +177,7 @@ public class LiveReloadController implements WebSocketClient.WebSocketListener
 		reconnect();
 	}
 
-	public static interface LiveReloadCallback
+	public interface LiveReloadCallback
 	{
 		void onCompileSuccess();
 

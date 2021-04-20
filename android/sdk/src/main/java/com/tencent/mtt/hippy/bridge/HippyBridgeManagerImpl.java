@@ -24,7 +24,6 @@ import android.os.Message;
 import android.text.TextUtils;
 
 import com.tencent.mtt.hippy.HippyEngine;
-import com.tencent.mtt.hippy.HippyEngine.EngineInitStatus;
 import com.tencent.mtt.hippy.HippyEngine.ModuleLoadStatus;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyRootView;
@@ -60,24 +59,23 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 	static final int		FUNCTION_ACTION_CALL_JSMODULE		= 6;
 	public static final int	BRIDGE_TYPE_SINGLE_THREAD			= 2;
 	public static final int	BRIDGE_TYPE_NORMAL					= 1;
-	public static final int	BRIDGE_TYPE_REMOTE_DEBUG			= 0;
 
 	private static final boolean	USE_NEW_COMM_TYPE			= false;
 
-	HippyEngineContext		mContext;
-	HippyBundleLoader		mCoreBundleLoader;
+	final HippyEngineContext	mContext;
+	final HippyBundleLoader		mCoreBundleLoader;
 	HippyBridge				mHippyBridge;
 	volatile boolean		mIsInit								= false;
 	Handler					mHandler;
-	int						mBridgeType							= BRIDGE_TYPE_NORMAL;
-	boolean					mEnableHippyBuffer					= false;
+	int						mBridgeType;
+	boolean					mEnableHippyBuffer;
 	ArrayList<String>		mLoadedBundleInfo					= null;
 	private GrowByteBuffer  mGrowByteBuffer;
-	private StringBuilder   mStringBuilder;
-	private boolean         mIsDevModule                        = false;
-	private String          mDebugServerHost;
-	private int				mGroupId;
-	private HippyThirdPartyAdapter mThirdPartyAdapter;
+	private final StringBuilder mStringBuilder;
+	private final boolean             mIsDevModule;
+	private final String        mDebugServerHost;
+	private final int			mGroupId;
+	private final HippyThirdPartyAdapter mThirdPartyAdapter;
 	HippyEngine.ModuleListener mLoadModuleListener;
 
 	public HippyBridgeManagerImpl(HippyEngineContext context, HippyBundleLoader coreBundleLoader, int bridgeType,
@@ -121,14 +119,11 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 						mHippyBridge.initJSBridge(getGlobalConfigs(), new NativeCallback(mHandler) {
 							@Override
 							public void Call(long value, Message msg, String action) {
-
 								if (mThirdPartyAdapter != null) {
                   					mThirdPartyAdapter.onRuntimeInit(value);
 								}
 								mContext.getStartTimeMonitor().startEvent(HippyEngineMonitorEvent.ENGINE_LOAD_EVENT_LOAD_COMMONJS);
-								boolean flag = true;
 								if (mCoreBundleLoader != null) {
-
 									mCoreBundleLoader.load(mHippyBridge, new NativeCallback(mHandler) {
 										@Override
 										public void Call(long value, Message msg, String action) {
@@ -141,8 +136,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 										}
 									});
 								} else {
-									flag = true;
-									mIsInit = flag;
+									mIsInit = true;
 									callback.callback(mIsInit, null);
 								}
 							}
@@ -193,8 +187,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 						loader.load(mHippyBridge, new NativeCallback(mHandler) {
 							@Override
 							public void Call(long value, Message msg, String action) {
-								boolean success = value == 1 ? true : false;
-								if (success) {
+								if (value == 1) {
 									notifyModuleLoaded(ModuleLoadStatus.STATUS_OK, null, localRootView);
 								} else {
 									notifyModuleLoaded(ModuleLoadStatus.STATUS_ERR_RUN_BUNDLE, "load module error. loader.load failed. check the file.", null);
@@ -314,7 +307,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 					mHippyBridge.destroy(new NativeCallback(mHandler) {
 						@Override
 						public void Call(long value, Message msg, String action) {
-							Boolean success = value == 1 ? true : false;
+							boolean success = value == 1;
 							mHippyBridge.onDestroy();
 							if (destroyCallback != null) {
 								RuntimeException exception = null;

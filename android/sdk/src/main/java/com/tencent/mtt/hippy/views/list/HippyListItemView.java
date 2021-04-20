@@ -74,8 +74,8 @@ public class HippyListItemView extends HippyViewGroup
 			int selfLevel = calculateSelfLevel();
 			int hippyLevel = calculateHippyLevel();
 			int childLevel = calculateChildLevel(this);
-			canvas.drawText("总：" + (selfLevel + childLevel) + " , HP：" + (hippyLevel + childLevel) + " , 子：" + childLevel, getWidth() / 2,
-					getHeight() / 2, mPaint);
+			canvas.drawText("总：" + (selfLevel + childLevel) + " , HP：" + (hippyLevel + childLevel) + " , 子：" + childLevel, getWidth()/2.0f,
+					getHeight()/2.0f, mPaint);
 			canvas.restore();
 		}
 	}

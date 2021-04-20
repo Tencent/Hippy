@@ -26,7 +26,6 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 
 import android.content.Context;
-import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -51,8 +50,7 @@ public class HippyViewPagerController extends HippyViewController<HippyViewPager
 	@Override
 	protected View createViewImpl(Context context)
 	{
-		HippyViewPager viewPager = new HippyViewPager(context);
-		return viewPager;
+		return new HippyViewPager(context);
 	}
 
   @Override
@@ -175,8 +173,7 @@ public class HippyViewPagerController extends HippyViewController<HippyViewPager
           HippyMap paramsMap = var.getMap(0);
           if (paramsMap != null && paramsMap.size() > 0 && paramsMap.containsKey("index")) {
             int index  = paramsMap.getInt("index");
-            boolean animated = paramsMap.containsKey("animated") ?
-              paramsMap.getBoolean("animated") : true;
+            boolean animated = !paramsMap.containsKey("animated") || paramsMap.getBoolean("animated");
             view.switchToPage(index, animated);
           }
         }
@@ -197,6 +194,7 @@ public class HippyViewPagerController extends HippyViewController<HippyViewPager
 		}
 	}
 
+  @SuppressWarnings("SwitchStatementWithTooFewBranches")
   @Override
   public void dispatchFunction(HippyViewPager view, String functionName, HippyArray params, Promise promise)
   {
@@ -211,8 +209,7 @@ public class HippyViewPagerController extends HippyViewController<HippyViewPager
           HippyMap paramsMap = params.getMap(0);
           if (paramsMap != null && paramsMap.size() > 0 && paramsMap.containsKey("index")) {
             int index  = paramsMap.getInt("index");
-            boolean animated = paramsMap.containsKey("animated") ?
-              paramsMap.getBoolean("animated") : true;
+            boolean animated = !paramsMap.containsKey("animated") || paramsMap.getBoolean("animated");
             view.setCallBackPromise(promise);
             view.switchToPage(index, animated);
             return;

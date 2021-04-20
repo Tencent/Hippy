@@ -20,14 +20,9 @@ import com.tencent.mtt.hippy.annotation.HippyMethod;
 
 import java.util.HashMap;
 
-/**
- * FileName: HippyNativeModuleBase
- * Description：
- * History：
- */
 public class HippyNativeModuleBase
 {
-	protected HippyEngineContext		mContext;
+	protected final HippyEngineContext	mContext;
 
 	private HashMap<String, Integer>	mEventMaps;
 

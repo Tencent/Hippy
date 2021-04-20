@@ -44,12 +44,12 @@ import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
-import java.io.File;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+@SuppressWarnings("deprecation")
 public abstract class HippyEngineManagerImpl extends HippyEngineManager implements DevServerCallBack, HippyRootView.OnSizeChangedListener,
 		HippyRootView.OnResumeAndPauseListener, ThreadExecutor.UncaughtExceptionHandler
 {
@@ -63,7 +63,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 	/**
 	 * global configuration
 	 */
-	HippyGlobalConfigs							mGlobalConfigs;
+	final HippyGlobalConfigs					mGlobalConfigs;
 	/**
 	 * core bundle loader
 	 */
@@ -71,42 +71,40 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 	/**
 	 * preload bundle loader
 	 */
-	HippyBundleLoader							mPreloadBundleLoader;
+	final HippyBundleLoader						mPreloadBundleLoader;
 	/**
 	 * providers
 	 */
-	List<HippyAPIProvider>						mAPIProviders;
+	final List<HippyAPIProvider>				mAPIProviders;
 	/**
 	 * Dev support manager
 	 */
 	DevSupportManager							mDevSupportManager;
 	HippyEngineContextImpl						mEngineContext;
 	// 从网络上加载jsbundle
-	boolean									mDebugMode;
+	final boolean								mDebugMode;
 	// Hippy Server的jsbundle名字，调试模式下有效
-	String											mServerBundleName;
+	final String								mServerBundleName;
 	// Hippy Server的host，调试模式下有效
-	private String									mServerHost;
+	private final String						mServerHost;
 
-	boolean										mEnableHippyBuffer			= false;
+	boolean										mEnableHippyBuffer;
 
 	boolean             						mDevManagerInited 			= false;
-	TimeMonitor									mStartTimeMonitor;
+	final TimeMonitor									mStartTimeMonitor;
 	boolean										mHasReportEngineLoadResult	= false;
-	private HippyThirdPartyAdapter	mThirdPartyAdapter;
+	private final HippyThirdPartyAdapter	    mThirdPartyAdapter;
 
-	Handler										mHandler					= new Handler(Looper.getMainLooper())
+	final Handler								mHandler					= new Handler(Looper.getMainLooper())
 																			{
 																				@Override
 																				public void handleMessage(Message msg)
 																				{
-																					switch (msg.what)
-																					{
-																						case MSG_ENGINE_INIT_TIMEOUT:
-																							reportEngineLoadResult(
-																									HippyEngineMonitorAdapter.ENGINE_LOAD_RESULE_TIMEOUT,
-																									null);
-																							break;
+																					if (msg.what
+																							== MSG_ENGINE_INIT_TIMEOUT) {
+																						reportEngineLoadResult(
+																								HippyEngineMonitorAdapter.ENGINE_LOAD_RESULE_TIMEOUT,
+																								null);
 																					}
 																					super.handleMessage(msg);
 																				}
@@ -123,8 +121,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 		else if (!TextUtils.isEmpty(params.coreJSFilePath))
 			coreBundleLoader = new HippyFileBundleLoader(params.coreJSFilePath, !TextUtils.isEmpty(params.codeCacheTag), params.codeCacheTag);
 
-		HippyGlobalConfigs configs = new HippyGlobalConfigs(params);
-		this.mGlobalConfigs = configs;
+		this.mGlobalConfigs = new HippyGlobalConfigs(params);
 		this.mCoreBundleLoader = coreBundleLoader;
 		this.mPreloadBundleLoader = preloadBundleLoader;
 		this.mAPIProviders = params.providers;
@@ -163,7 +160,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 			mDevSupportManager.setDevCallback(this);
 
 			if(mDebugMode) {
-				mDevSupportManager.init(null);
 				String url = mDevSupportManager.createResourceUrl(mServerBundleName);
 				mCoreBundleLoader = new HippyRemoteBundleLoader(url);
 				((HippyRemoteBundleLoader)mCoreBundleLoader).setIsDebugMode(true);
@@ -696,14 +692,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 	}
 
 	@Override
-	public void onDevBundleLoadReady(File bundle)
-	{
-		mCoreBundleLoader = new HippyFileBundleLoader(bundle.getAbsolutePath());
-		((HippyFileBundleLoader)mCoreBundleLoader).setIsDebugMode(true);
-		restartEngineInBackground();
-	}
-
-	@Override
 	public void onInitDevError(Throwable e)
 	{
 		mCurrentState = EngineState.INITED;
@@ -750,7 +738,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 		/**
 		 * UI Manager
 		 */
-		RenderManager														mRenderManager;
+		final RenderManager														mRenderManager;
 
 		volatile CopyOnWriteArrayList<HippyEngineLifecycleEventListener>	mEngineLifecycleEventListeners;
 
@@ -765,15 +753,15 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 		/**
 		 * Module Manager
 		 */
-		private HippyModuleManager											mModuleManager;
+		private final HippyModuleManager											mModuleManager;
 		/**
 		 * Bridge Manager
 		 */
-		private HippyBridgeManager											mBridgeManager;
+		private final HippyBridgeManager											mBridgeManager;
 		/**
 		 * Dom Manager
 		 */
-		private DomManager													mDomManager;
+		private final DomManager													mDomManager;
 
 		public HippyEngineContextImpl(boolean isDevModule, String debugServerHost)
 		{

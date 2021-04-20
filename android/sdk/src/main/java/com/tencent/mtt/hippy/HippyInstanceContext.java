@@ -27,17 +27,12 @@ import com.tencent.mtt.supportui.utils.struct.WeakEventHub;
 
 import java.util.Map;
 
-/**
- * FileName: HippyInstanceContext
- * Description：
- * History：
- */
 public final class HippyInstanceContext extends ContextWrapper
 {
 	private static final String						TAG	= "HippyInstanceContext";
 
 	private HippyEngineContext						mEngineContext;
-	private WeakEventHub<InstanceDestroyListener> mDestroyListeners;
+	private WeakEventHub<InstanceDestroyListener>   mDestroyListeners;
 	HippyEngine.ModuleLoadParams					mModuleParams;
 	private HippyBundleLoader						mBundleLoader;
 

@@ -15,18 +15,9 @@
  */
 package com.tencent.mtt.hippy.devsupport;
 
-import java.io.File;
 import java.io.InputStream;
 
-/**
- * @author: edsheng
- * @date: 2017/11/14 17:27
- * @version: V1.0
- */
-
 public interface BundleFetchCallBack {
-    void onSuccess(File file);
-
     void onSuccess(InputStream inputStream);
 
     void onFail(Exception exception);

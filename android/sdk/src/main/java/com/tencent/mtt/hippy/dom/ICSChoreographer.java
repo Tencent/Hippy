@@ -55,7 +55,7 @@ import android.view.View;
  * drawn in
  * sync with display frame rendering, do nothing. This already happens
  * automatically.
- * {@link View#onDraw} will be called at the appropriate time.</li>
+ *  will be called at the appropriate time.</li>
  * </ul>
  * <p>
  * However, there are a few cases where you might want to use the functions of
@@ -84,9 +84,6 @@ public final class ICSChoreographer
 	private static final boolean						DEBUG						= false;
 
 	private static final long							DEFAULT_FRAME_DELAY			= 10;
-
-	// The number of milliseconds between animation frames.
-	private static volatile long						sFrameDelay					= DEFAULT_FRAME_DELAY;
 
 	// Thread local storage for the choreographer.
 	private static final ThreadLocal<ICSChoreographer>	sThreadInstance				= new ThreadLocal<ICSChoreographer>()
@@ -145,30 +142,13 @@ public final class ICSChoreographer
 	private final CallbackQueue[]						mCallbackQueues;
 
 	private boolean										mFrameScheduled;
-	private boolean										mCallbacksRunning;
 	private long										mLastFrameTimeNanos;
-	private long										mFrameIntervalNanos;
+	private final long									mFrameIntervalNanos;
 
-	/**
-	 * Callback type: Input callback. Runs first.
-	 *
-	 * @hide
-	 */
 	public static final int								CALLBACK_INPUT				= 0;
 
-	/**
-	 * Callback type: Animation callback. Runs before traversals.
-	 * 
-	 * @hide
-	 */
 	public static final int								CALLBACK_ANIMATION			= 1;
 
-	/**
-	 * Callback type: Traversal callback. Handles layout and draw. Runs last
-	 * after all other asynchronous messages have been handled.
-	 * 
-	 * @hide
-	 */
 	public static final int								CALLBACK_TRAVERSAL			= 2;
 
 	private static final int							CALLBACK_LAST				= CALLBACK_TRAVERSAL;
@@ -206,6 +186,7 @@ public final class ICSChoreographer
 		return sThreadInstance.get();
 	}
 
+	@SuppressWarnings("SameParameterValue")
 	private void postCallbackDelayedInternal(int callbackType, Object action, Object token, long delayMillis)
 	{
 		if (DEBUG)
@@ -233,6 +214,7 @@ public final class ICSChoreographer
 		}
 	}
 
+	@SuppressWarnings("SameParameterValue")
 	private void removeCallbacksInternal(int callbackType, Object action, Object token)
 	{
 		if (DEBUG)
@@ -307,26 +289,6 @@ public final class ICSChoreographer
 		removeCallbacksInternal(CALLBACK_ANIMATION, callback, FRAME_CALLBACK_TOKEN);
 	}
 
-//	/**
-//	 * Same as {@link #getFrameTime()} but with nanosecond precision.
-//	 *
-//	 * @return The frame start time, in the {@link System#nanoTime()} time base.
-//	 *
-//	 * @throws IllegalStateException if no frame is in progress.
-//	 * @hide
-//	 */
-//	public long getFrameTimeNanos()
-//	{
-//		synchronized (mLock)
-//		{
-//			if (!mCallbacksRunning)
-//			{
-//				throw new IllegalStateException("This method must only be called as " + "part of a callback while a frame is in progress.");
-//			}
-//			return USE_FRAME_TIME ? mLastFrameTimeNanos : System.nanoTime();
-//		}
-//	}
-
 	private void scheduleFrameLocked(long now)
 	{
 		if (!mFrameScheduled)
@@ -357,7 +319,7 @@ public final class ICSChoreographer
 			}
 			else
 			{
-				final long nextFrameTime = Math.max(mLastFrameTimeNanos / NANOS_PER_MS + sFrameDelay, now);
+				final long nextFrameTime = Math.max(mLastFrameTimeNanos / NANOS_PER_MS + DEFAULT_FRAME_DELAY, now);
 				if (DEBUG)
 				{
 					Log.d(TAG, "Scheduling next frame in " + (nextFrameTime - now) + " ms.");
@@ -442,7 +404,6 @@ public final class ICSChoreographer
 			{
 				return;
 			}
-			mCallbacksRunning = true;
 		}
 		try
 		{
@@ -460,7 +421,6 @@ public final class ICSChoreographer
 		{
 			synchronized (mLock)
 			{
-				mCallbacksRunning = false;
 				do
 				{
 					final CallbackRecord next = callbacks.next;
@@ -570,7 +530,7 @@ public final class ICSChoreographer
 		private boolean	mHavePendingVsync;
 		private long	mTimestampNanos;
 		private int		mFrame;
-		private Handler	mHandler;
+		private final Handler mHandler;
 
 		public FrameDisplayEventReceiver(Looper looper)
 		{

@@ -32,7 +32,7 @@ import java.util.Set;
 
 public class ControllerUpdateManger<T, G>
 {
-	static Map<Class, Map<String, PropsMethodHolder>>	CLASS_PROPS_METHOD	= new HashMap<>();
+	static final Map<Class, Map<String, PropsMethodHolder>>	CLASS_PROPS_METHOD	= new HashMap<>();
 
 	public static class PropsMethodHolder
 	{
@@ -63,7 +63,7 @@ public class ControllerUpdateManger<T, G>
 		if (methodHolder == null)
 		{
 
-			Method methods[] = cls.getMethods();
+			Method[] methods = cls.getMethods();
 			for (Method method : methods)
 			{
 				HippyControllerProps controllerProps = method.getAnnotation(HippyControllerProps.class);

@@ -16,19 +16,21 @@
 package com.tencent.mtt.hippy.dom.flex;
 
 public enum FlexJustify {
-  FLEX_START,
-  CENTER,
-  FLEX_END,
-  SPACE_BETWEEN,
-  SPACE_AROUND;
-  public static FlexJustify fromInt(int value) {
-	    switch (value) {
-	      case 0: return FLEX_START;
-	      case 1: return CENTER;
-	      case 2: return FLEX_END;
-	      case 3: return SPACE_BETWEEN;
-	      case 4: return SPACE_AROUND;
-	      default: throw new IllegalArgumentException("Unknown enum value: " + value);
-	    }
-	  }
+	FLEX_START,
+	CENTER,
+	FLEX_END,
+	SPACE_BETWEEN,
+	SPACE_AROUND;
+
+	@SuppressWarnings("unused")
+	public static FlexJustify fromInt(int value) {
+		switch (value) {
+			case 0: return FLEX_START;
+			case 1: return CENTER;
+			case 2: return FLEX_END;
+			case 3: return SPACE_BETWEEN;
+			case 4: return SPACE_AROUND;
+			default: throw new IllegalArgumentException("Unknown enum value: " + value);
+		}
+	}
 }

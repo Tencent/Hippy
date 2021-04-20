@@ -21,16 +21,10 @@ import android.util.SparseBooleanArray;
 
 import com.tencent.mtt.hippy.dom.node.DomNode;
 
-/**
- * @author: edsheng
- * @date: 2017/11/22 11:17
- * @version: V1.0
- */
-
 public class DomNodeRegistry
 {
 	private final SparseArray<DomNode>	mNodeTags;
-	private SparseBooleanArray		mRootTags;
+	private final SparseBooleanArray	mRootTags;
 
 	public DomNodeRegistry()
 	{
@@ -60,6 +54,7 @@ public class DomNodeRegistry
         return mNodeTags.get(tag);
     }
 
+    @SuppressWarnings("unused")
     public synchronized boolean isRootNode(int tag) {
         return mRootTags.get(tag);
     }

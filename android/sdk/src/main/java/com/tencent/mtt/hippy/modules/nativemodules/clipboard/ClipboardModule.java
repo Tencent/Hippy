@@ -18,7 +18,7 @@ import android.content.ClipboardManager;
 @HippyNativeModule(name = "ClipboardModule")
 public class ClipboardModule extends HippyNativeModuleBase
 {
-    private ClipboardManager mClipboardManager= null;
+    private ClipboardManager mClipboardManager;
     public ClipboardModule(HippyEngineContext context)
     {
         super(context);
@@ -30,6 +30,7 @@ public class ClipboardModule extends HippyNativeModuleBase
        return   mClipboardManager;
     }
 
+    @SuppressWarnings("unused")
     @HippyMethod(name = "getString")
     public void getString(Promise promise) {
         try {
@@ -46,6 +47,7 @@ public class ClipboardModule extends HippyNativeModuleBase
         }
     }
 
+    @SuppressWarnings("unused")
     @HippyMethod(name = "setString")
     public void setString(String text) {
         ClipData clipdata = ClipData.newPlainText(null, text);

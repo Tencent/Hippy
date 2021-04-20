@@ -50,22 +50,19 @@ import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * FileName: HippyEngine 从HippyEngineManager重构而来
- */
+@SuppressWarnings("unused")
 public abstract class HippyEngine
 {
 	private static final AtomicInteger		    sIdCounter			= new AtomicInteger();
 	final CopyOnWriteArrayList<EngineListener>	mEventListeners	    = new CopyOnWriteArrayList();
 	volatile EngineState					    mCurrentState 		= EngineState.UNINIT;
 	// Engine的ID，唯一
-	private int								    mID 				= sIdCounter.getAndIncrement();
+	private final int							mID 				= sIdCounter.getAndIncrement();
 	// Engine所属的分组ID，同一个组共享线程和isolate，不同context
 	protected int							    mGroupId;
 	ModuleListener								mModuleListener;
@@ -89,7 +86,7 @@ public abstract class HippyEngine
 		LogUtils.enableDebugLog(params.enableLog);
 		ContextHolder.initAppContext(params.context);
 
-		HippyEngine hippyEngine = null;
+		HippyEngine hippyEngine;
 		if (params.groupId == -1) {
 			hippyEngine = new HippyNormalEngineManager(params, null);
 		} else {
@@ -138,9 +135,7 @@ public abstract class HippyEngine
 			mEventListeners.add(listener);
 	}
 
-	/**
-	 * get engine state
-	 */
+	@SuppressWarnings("unused")
 	public EngineState getEngineState()
 	{
 		return mCurrentState;
@@ -165,6 +160,7 @@ public abstract class HippyEngine
 	public abstract void initEngine(EngineListener listener);
 
 	// 是否调试模式
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public abstract boolean isDebugMode();
 
 	/**
@@ -176,25 +172,13 @@ public abstract class HippyEngine
 	/**
 	 * 加载hippy业务模块 ,函数组
 	 * @param loadParams 								加载hippy业务模块时需要的参数
-	 * @param ModuleListener 							加载模块结果的异步回调,主线程异步回调(Jsbundle初始化成功)
-	 * @param HippyRootView.OnLoadCompleteListener 		加载模块的HippyRootView 准备好的回调(回调时机onViewAdded第一个孩子add回调)
-	 *
-	 * 返回
-	 *    1.同步返回. HippyRootView 同步调用返回,这个时候拿到的HippyRootView只是空的RootView,业务可以用来尽早挂载到Activity上
-	 *    2.异步返回. 如果成功,异步回调的时机是在jsbundle加载成功之后.回调时机比同步返回会稍晚.(jsbundle加载成功和HippyRootView的孩子是否准备好可见不是同意概念)
-	 *               [为了对齐同步返回的HippyRootView,异步回调在状态码失败的情况下也会把rootview返回]
-	 *
-	 *  注:HippyRootView的第一个孩子上屏,会通过HippyRootView.onnLoadCompleteListener回调通知出来
-	 *
+     *
 	 */
 	public abstract HippyRootView loadModule(ModuleLoadParams loadParams);
 	public abstract HippyRootView loadModule(ModuleLoadParams loadParams, ModuleListener listener);
+	@SuppressWarnings("unused")
 	public abstract HippyRootView loadModule(ModuleLoadParams loadParams, ModuleListener listener, HippyRootView.OnLoadCompleteListener onLoadCompleteListener);
 
-	/**
-	 * 摧毁一个hippy业务模块
-	 * @param moduleView
-	 */
 	public abstract void destroyModule(HippyRootView moduleView);
 
 	/**
@@ -207,18 +191,8 @@ public abstract class HippyEngine
 	 */
 	public abstract void onEnginePause();
 
-	/**
-	 * send event
-	 *
-	 * @param event
-	 * @param params
-	 */
 	public abstract void sendEvent(String event, Object params);
 
-	/**
-	 * 预加载业务模块
-	 * @param loader
-	 */
 	public abstract void preloadModule(HippyBundleLoader loader);
 
 	public abstract boolean onBackPressed(BackPressHandler handler);
@@ -240,16 +214,6 @@ public abstract class HippyEngine
 		DESTROYED
 	}
 
-	/**
-	 * Hippy engine Type
-	 */
-	public enum EngineType
-	{
-		RN,
-		VUE
-	}
-
-
 	// Hippy 引擎初始化时的参数设置
 	public static class EngineInitParams
 	{
@@ -258,7 +222,6 @@ public abstract class HippyEngine
 		// 必须 图片加载器：需要实现异步的图片加载接口fetchImage()，和同步的图片加载接口getImage()。
 		public HippyImageLoader imageLoader;
 
-		public EngineType iEngineType = EngineType.RN ;
 		// 可选参数 核心的jsbundle的assets路径（assets路径和文件路径二选一，优先使用assets路径），debugMode = false时有效
 		public String coreJSAssetsPath;
 		// 可选参数 核心的jsbundle的文件路径（assets路径和文件路径二选一，优先使用assets路径）,debugMode = false时有效
@@ -270,7 +233,7 @@ public abstract class HippyEngine
 		public boolean debugMode = false;
 		// 可选参数 是否开启调试模式，默认为false，不开启
 		// 可选参数 Hippy Server的jsbundle名字，默认为"index.bundle"。debugMode = true时有效
-		public String debugBundleName = "index.bundle";
+		public final String debugBundleName = "index.bundle";
 		// 可选参数 Hippy Server的Host。默认为"localhost:38989"。debugMode = true时有效
 		public String debugServerHost = "localhost:38989";
 		// 可选参数 自定义的，用来提供Native modules、JavaScript modules、View controllers的管理器。1个或多个
@@ -306,6 +269,7 @@ public abstract class HippyEngine
 		// 设置Hippy引擎的组，同一组的HippyEngine，会共享C层的v8 引擎实例。 默认值为-1（无效组，即不属于任何group组）
 		public int groupId = -1;
 		// 可选参数 日志输出
+		@SuppressWarnings("DeprecatedIsStillUsed")
 		@Deprecated
 		public HippyLogAdapter logAdapter;
 
@@ -373,6 +337,7 @@ public abstract class HippyEngine
 		// 可选参数 Bundle加载器，老式用法，不建议使用（若一定要使用，则会覆盖jsAssetsPath，jsFilePath的值）。参见jsAssetsPath，jsFilePath
 		// 可选参数 code cache的名字，如果设置为空，则不启用code cache，默认为 ""
 		public String codeCacheTag = "";
+		@SuppressWarnings("DeprecatedIsStillUsed")
 		@Deprecated
 		public HippyBundleLoader bundleLoader;
 
@@ -404,12 +369,13 @@ public abstract class HippyEngine
 		STATUS_WRONG_STATE(-103),         // 状态错误。调用init函数时，引擎不在未初始化的状态
 		STATUS_INIT_EXCEPTION(-104);      // 初始化过程，抛出了未知的异常，详情需要查看传回的Throwable
 
-		private int iValue;
+		private final int iValue;
 
 		EngineInitStatus(int value) {
 			iValue = value;
 		}
 
+		@SuppressWarnings("unused")
 		public int value() {
 			return iValue;
 		}
@@ -422,12 +388,13 @@ public abstract class HippyEngine
 		STATUS_ERR_RUN_BUNDLE(-203),      // 业务JSBundle执行错误
 		STATUS_REPEAT_LOAD(-204);         // 重复加载同一JSBundle
 
-		private int iValue;
+		private final int iValue;
 
 		ModuleLoadStatus(int value) {
 			iValue = value;
 		}
 
+		@SuppressWarnings("unused")
 		public int value() {
 			return iValue;
 		}
@@ -447,6 +414,7 @@ public abstract class HippyEngine
 		void onInitialized(EngineInitStatus statusCode, String msg);
 	}
 
+	@SuppressWarnings("unused")
 	public interface ModuleListener {
 		void onLoadCompleted(ModuleLoadStatus statusCode, String msg, HippyRootView hippyRootView);
 

@@ -20,11 +20,6 @@ import android.view.KeyEvent;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
-/**
- * @Description: WebView控件
- * @author: harryguo
- * @date: 2019/5/6
- */
 class HippyWebViewInner extends WebView {
 	public HippyWebViewInner(Context context)
 	{
