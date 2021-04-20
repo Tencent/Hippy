@@ -212,7 +212,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     }
     HippyAssert(0 == atIndex, @"HippyScrollView only contain one subview at index 0");
     if (_contentView) {
-        [_contentView removeObserver:self forKeyPath:@"frame" context:nil];
+        [self removeHippySubview:_contentView];
     }
     _contentView = view;
     [_contentView addObserver:self forKeyPath:@"frame" options:NSKeyValueObservingOptionNew context:nil];
@@ -221,7 +221,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 }
 
 - (NSArray<UIView *> *)hippySubviews {
-    return _contentView ? @[_contentView] : nil;
+    return _contentView ? [NSMutableArray arrayWithObject:_contentView] : nil;
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath
