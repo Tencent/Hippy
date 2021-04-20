@@ -23,18 +23,14 @@ import android.text.TextUtils;
 
 import com.tencent.mtt.hippy.bridge.HippyBridge;
 import com.tencent.mtt.hippy.bridge.NativeCallback;
+import com.tencent.mtt.hippy.utils.LogUtils;
 
-/**
- * FileName: HippyAssetBundleLoader
- * Description：
- * History：
- */
 public class HippyAssetBundleLoader implements HippyBundleLoader
 {
 	private static final String ASSETS_STR = "assets://";
-	private Context	mContext;
+	private final Context mContext;
 
-	private String mAssetPath;
+	private final String mAssetPath;
 
 	private boolean	mCanUseCodeCache;
 
@@ -53,6 +49,7 @@ public class HippyAssetBundleLoader implements HippyBundleLoader
 		this.mCodeCacheTag = codeCacheTag;
 	}
 
+	@SuppressWarnings("unused")
 	public void setCodeCache(boolean canUseCodeCache, String codeCacheTag)
 	{
 		this.mCanUseCodeCache = canUseCodeCache;
@@ -60,10 +57,9 @@ public class HippyAssetBundleLoader implements HippyBundleLoader
 	}
 
 	@Override
-	public boolean load(HippyBridge bridge, NativeCallback callback)
-	{
+	public void load(HippyBridge bridge, NativeCallback callback) {
 		if (TextUtils.isEmpty(mAssetPath)) {
-			return false;
+			return;
 		}
 
 		AssetManager assetManager = mContext.getAssets();
@@ -76,8 +72,8 @@ public class HippyAssetBundleLoader implements HippyBundleLoader
 			}
 		}
 
-		return bridge.runScriptFromUri(uri, assetManager, mCanUseCodeCache, mCodeCacheTag, callback);
-		//return bridge.runScriptFromAssets(mAssetPath, assetManager,mCanUseCodeCache,mCodeCacheTag, callback);
+		boolean ret = bridge.runScriptFromUri(uri, assetManager, mCanUseCodeCache, mCodeCacheTag, callback);
+		LogUtils.d("HippyAssetBundleLoader", "load: ret" + ret);
 	}
 
 	@Override

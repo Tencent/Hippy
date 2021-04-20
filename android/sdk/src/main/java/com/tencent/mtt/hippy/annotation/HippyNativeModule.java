@@ -30,7 +30,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(TYPE)
 public @interface HippyNativeModule
 {
-	public enum Thread
+	enum Thread
 	{
 		BRIDGE,
 		MAIN,

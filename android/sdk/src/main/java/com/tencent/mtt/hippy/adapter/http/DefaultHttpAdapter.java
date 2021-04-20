@@ -54,12 +54,10 @@ public class DefaultHttpAdapter implements HippyHttpAdapter
 				int idx = url.indexOf('?');
 				if (idx != -1)
 				{
-					StringBuilder sb = new StringBuilder();
-					sb.append(url.substring(0, idx));
-					sb.append('/');
-					sb.append(url.substring(idx));
-
-					_URL = new URL(sb.toString());
+					String sb = url.substring(0, idx)
+							+ '/'
+							+ url.substring(idx);
+					_URL = new URL(sb);
 
 					// System.out.println("toURL : " + _URL.toString());
 				}
@@ -69,11 +67,9 @@ public class DefaultHttpAdapter implements HippyHttpAdapter
 			// http://m.cnbeta.com(注意：后面没有/)
 			if (_URL.getFile() == null || "".equals(_URL.getFile()))
 			{
-				StringBuilder sb = new StringBuilder();
-				sb.append(url);
-				sb.append("/");
-
-				_URL = new URL(sb.toString());
+				String sb = url
+						+ "/";
+				_URL = new URL(sb);
 			}
 
 		}

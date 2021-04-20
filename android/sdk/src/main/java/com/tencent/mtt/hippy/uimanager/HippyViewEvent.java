@@ -30,7 +30,7 @@ import com.tencent.mtt.hippy.modules.javascriptmodules.EventDispatcher;
 public class HippyViewEvent
 {
 
-	private String	mEventName;
+	private final String mEventName;
 
 	public HippyViewEvent(String eventName)
 	{

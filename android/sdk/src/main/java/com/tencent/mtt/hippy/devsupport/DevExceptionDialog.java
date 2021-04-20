@@ -74,11 +74,7 @@ public class DevExceptionDialog extends Dialog implements View.OnClickListener
 		//创建状态管理器
 		StateListDrawable drawable = new StateListDrawable();
 
-		/**
-		 * 注意StateListDrawable的构造方法我们这里使用的
-		 * 是第一参数它是一个float的数组保存的是圆角的半径，它是按照top-left顺时针保存的八个值
-		 */
-		//创建圆弧形状
+        //创建圆弧形状
 		//创建drawable
 		ColorDrawable pressedDrawable = new ColorDrawable(mBgFocusedColor);
 		//添加到状态管理里面
@@ -223,6 +219,6 @@ public class DevExceptionDialog extends Dialog implements View.OnClickListener
 
 	public interface OnReloadListener
 	{
-		public void onReload();
+		void onReload();
 	}
 }

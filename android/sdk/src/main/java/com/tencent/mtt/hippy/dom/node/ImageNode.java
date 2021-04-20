@@ -18,7 +18,6 @@ package com.tencent.mtt.hippy.dom.node;
 
 import android.text.style.ImageSpan;
 
-import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 
 import java.util.ArrayList;
@@ -27,7 +26,7 @@ public class ImageNode extends StyleNode
 {
   public static final String PROP_VERTICAL_ALIGNMENT = "verticalAlignment";
   
-	private boolean	mIsVirtual;
+	private final boolean mIsVirtual;
 	private HippyImageSpan mImageSpan = null;
 	private int mVerticalAlignment = ImageSpan.ALIGN_BASELINE;
   
@@ -54,7 +53,7 @@ public class ImageNode extends StyleNode
 	  return mGestureTypes;
   }
   
-  @HippyControllerProps(name = NodeProps.ON_CLICK, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+  @HippyControllerProps(name = NodeProps.ON_CLICK, defaultType = HippyControllerProps.BOOLEAN)
   public void clickEnable(boolean flag)
   {
     if (flag)
@@ -67,7 +66,7 @@ public class ImageNode extends StyleNode
     }
   }
   
-  @HippyControllerProps(name = NodeProps.ON_LONG_CLICK, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+  @HippyControllerProps(name = NodeProps.ON_LONG_CLICK, defaultType = HippyControllerProps.BOOLEAN)
   public void longClickEnable(boolean flag)
   {
     if (flag)
@@ -80,7 +79,7 @@ public class ImageNode extends StyleNode
     }
   }
   
-  @HippyControllerProps(name = NodeProps.ON_PRESS_IN, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+  @HippyControllerProps(name = NodeProps.ON_PRESS_IN, defaultType = HippyControllerProps.BOOLEAN)
   public void pressInEnable(boolean flag)
   {
     if (flag)
@@ -106,7 +105,7 @@ public class ImageNode extends StyleNode
     }
   }
   
-  @HippyControllerProps(name = NodeProps.ON_TOUCH_DOWN, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+  @HippyControllerProps(name = NodeProps.ON_TOUCH_DOWN, defaultType = HippyControllerProps.BOOLEAN)
   public void touchDownEnable(boolean flag)
   {
     if (flag)
@@ -119,7 +118,7 @@ public class ImageNode extends StyleNode
     }
   }
   
-  @HippyControllerProps(name = NodeProps.ON_TOUCH_MOVE, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+  @HippyControllerProps(name = NodeProps.ON_TOUCH_MOVE, defaultType = HippyControllerProps.BOOLEAN)
   public void touchUpEnable(boolean flag)
   {
     if (flag)
@@ -132,7 +131,7 @@ public class ImageNode extends StyleNode
     }
   }
   
-  @HippyControllerProps(name = NodeProps.ON_TOUCH_END, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+  @HippyControllerProps(name = NodeProps.ON_TOUCH_END, defaultType = HippyControllerProps.BOOLEAN)
   public void touchEndEnable(boolean flag)
   {
     if (flag)
@@ -145,7 +144,7 @@ public class ImageNode extends StyleNode
     }
   }
   
-  @HippyControllerProps(name = NodeProps.ON_TOUCH_CANCEL, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+  @HippyControllerProps(name = NodeProps.ON_TOUCH_CANCEL, defaultType = HippyControllerProps.BOOLEAN)
   public void touchCancelable(boolean flag)
   {
     if (flag)
@@ -164,7 +163,7 @@ public class ImageNode extends StyleNode
     mVerticalAlignment = verticalAlignment;
   }
   
-  @HippyControllerProps(name = "src", defaultType = HippyControllerProps.STRING, defaultString = "")
+  @HippyControllerProps(name = "src", defaultType = HippyControllerProps.STRING)
   public void setUrl(String url)
   {
     if (mImageSpan != null) {

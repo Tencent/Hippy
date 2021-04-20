@@ -10,13 +10,6 @@ import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
-/**
- * @Description: the extend module
- * @author: edsheng
- * @date: 2018/3/22 10:51
- * @version: V1.0
- */
-
 @HippyNativeModule(name = MyModule.CLASSNAME)
 public class MyModule extends HippyNativeModuleBase
 {

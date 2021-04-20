@@ -18,15 +18,9 @@ package com.tencent.mtt.hippy.dom.node;
 import android.graphics.Paint;
 import android.text.style.LineHeightSpan;
 
-/**
- * @author: edsheng
- * @date: 2017/11/30 15:20
- * @version: V1.0
- */
-
 public class HippyLineHeightSpan implements LineHeightSpan {
 
-    private int mHeight;
+    private final int mHeight;
     public HippyLineHeightSpan(float lineHeight){
         this.mHeight= (int) Math.ceil(lineHeight);
     }

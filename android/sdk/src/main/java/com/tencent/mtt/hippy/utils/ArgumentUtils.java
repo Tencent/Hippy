@@ -18,7 +18,6 @@ package com.tencent.mtt.hippy.utils;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
@@ -92,31 +91,6 @@ public class ArgumentUtils
 		return array;
 	}
 
-	public static HippyMap parseToMap(String json)
-	{
-		HippyMap map = new HippyMap();
-		if (TextUtils.isEmpty(json))
-		{
-			return map;
-		}
-		try
-		{
-
-			JSONObject jsonObj = new JSONObject(json);
-			Iterator<String> keys = jsonObj.keys();
-			while (keys.hasNext())
-			{
-				String key = keys.next();
-				parseObjectGotoMap(map, key, jsonObj.get(key));
-			}
-			return map;
-		}
-		catch (Throwable e)
-		{
-			return map;
-		}
-	}
-
 	private static void parseObjectGotoArray(HippyArray array, Object obj) throws JSONException
 	{
 		if (obj == null || obj == JSONObject.NULL)
@@ -124,6 +98,7 @@ public class ArgumentUtils
 			array.pushNull();
 			return;
 		}
+		//noinspection rawtypes
 		Class cls = obj.getClass();
 		if (obj instanceof String)
 		{
@@ -186,6 +161,7 @@ public class ArgumentUtils
 			return;
 		}
 
+		//noinspection rawtypes
 		Class cls = obj.getClass();
 		if (obj instanceof String)
 		{
@@ -245,15 +221,15 @@ public class ArgumentUtils
 		return buider.toString();
 	}
 
-    public static String objectToJsonOpt(Object obj, StringBuilder builder)
-    {
-        if (obj == null)
-        {
-            return "";
-        }
-        objectToJson(builder, obj);
-        return builder.toString();
-    }
+	public static String objectToJsonOpt(Object obj, StringBuilder builder)
+	{
+		if (obj == null)
+		{
+			return "";
+		}
+		objectToJson(builder, obj);
+		return builder.toString();
+	}
 
 	public static void covertObject2JsonByte(GrowByteBuffer byteBuffer, Object object)
 	{
@@ -266,7 +242,7 @@ public class ArgumentUtils
 
 	private static void objectToJson(GrowByteBuffer byteBuffer, Object obj)
 	{
-	    if (obj == null)
+		if (obj == null)
 		{
 			byteBuffer.putByteArray(EMPTY_OBJ_BYTES);
 			return;
@@ -332,11 +308,11 @@ public class ArgumentUtils
 			final int size = keys.size();
 			int index = 0;
 
-            //Log.d("GrowByteBuffer", "key size = [" + size + "]");
+			//Log.d("GrowByteBuffer", "key size = [" + size + "]");
 
 			for (String key : keys)
 			{
-                //Log.d("GrowByteBuffer", "keys = [" + key + "]");
+				//Log.d("GrowByteBuffer", "keys = [" + key + "]");
 				byteBuffer.putByte((byte) '"');
 				if (TextUtils.isEmpty(key))
 				{
@@ -556,7 +532,7 @@ public class ArgumentUtils
 		int index;
 		if (array instanceof String[])
 		{
-			String[] strs = (String[]) ((String[]) array);
+			String[] strs = (String[]) array;
 			length = strs.length;
 
 			for (index = 0; index < length; ++index)
@@ -567,7 +543,7 @@ public class ArgumentUtils
 		}
 		else if (array instanceof Parcelable[])
 		{
-      Parcelable[] parcelables = (Parcelable[]) ((Parcelable[]) array);
+			Parcelable[] parcelables = (Parcelable[]) array;
 			length = parcelables.length;
 
 			for (index = 0; index < length; ++index)
@@ -575,13 +551,13 @@ public class ArgumentUtils
 				Parcelable parcelable = parcelables[index];
 				if (parcelable instanceof Bundle)
 				{
-          catalystArray.pushMap(fromBundle((Bundle) parcelable));
-        }
+					catalystArray.pushMap(fromBundle((Bundle) parcelable));
+				}
 			}
 		}
 		else if (array instanceof int[])
 		{
-			int[] ints = (int[]) ((int[]) array);
+			int[] ints = (int[]) array;
 			length = ints.length;
 
 			for (index = 0; index < length; ++index)
@@ -592,18 +568,18 @@ public class ArgumentUtils
 		}
 		else if (array instanceof float[])
 		{
-			float[] values = (float[]) ((float[]) array);
+			float[] values = (float[]) array;
 			length = values.length;
 
 			for (index = 0; index < length; ++index)
 			{
 				float value = values[index];
-				catalystArray.pushDouble((double) value);
+				catalystArray.pushDouble(value);
 			}
 		}
 		else if (array instanceof double[])
 		{
-			double[] values = (double[]) ((double[]) array);
+			double[] values = (double[]) array;
 			length = values.length;
 
 			for (index = 0; index < length; ++index)
@@ -619,7 +595,7 @@ public class ArgumentUtils
 				throw new IllegalArgumentException("Unknown array type " + array.getClass());
 			}
 
-			boolean[] values = (boolean[]) ((boolean[]) array);
+			boolean[] values = (boolean[]) array;
 			length = values.length;
 
 			for (index = 0; index < length; ++index)
@@ -635,6 +611,7 @@ public class ArgumentUtils
 	public static HippyMap fromBundle(Bundle bundle)
 	{
 		HippyMap map = new HippyMap();
+		//noinspection rawtypes
 		Iterator iterator = bundle.keySet().iterator();
 
 		while (iterator.hasNext())
@@ -682,61 +659,11 @@ public class ArgumentUtils
 		return map;
 	}
 
-	public static Bundle toBundle(HippyMap hippyMap)
-	{
-		Bundle b = new Bundle(9);
-		if (hippyMap != null)
-		{
-			for (String key : hippyMap.keySet())
-			{
-				Object value = hippyMap.get(key);
-				if (value == null)
-				{
-					b.putString(key, null);
-				}
-				else if (value instanceof String)
-				{
-					b.putString(key, (String) value);
-				}
-				else if (value.getClass().isAssignableFrom(int.class) || value instanceof Integer)
-				{
-					b.putInt(key, (Integer) value);
-				}
-				else if (value.getClass().isAssignableFrom(long.class) || value instanceof Long)
-				{
-					b.putLong(key, (Long) value);
-				}
-				else if (value.getClass().isAssignableFrom(double.class) || value instanceof Double)
-				{
-					b.putDouble(key, (Double) value);
-				}
-				else if (value.getClass().isAssignableFrom(boolean.class) || value instanceof Boolean)
-				{
-					b.putBoolean(key, (Boolean) value);
-				}
-				else if (value instanceof HippyMap)
-				{
-					b.putBundle(key, toBundle((HippyMap) value));
-				}
-				else if (value instanceof HippyArray)
-				{
-					throw new UnsupportedOperationException("Arrays aren't supported yet.");
-				}
-				else
-				{
-					throw new IllegalArgumentException("Could not convert object with key: " + key + ".");
-				}
-			}
-		}
-		return b;
-	}
-
-
 	private static void stringFormat(String value, GrowByteBuffer buffer)
 	{
-	    StringBuilder stringBuilder = buffer.getStringBuilderCache();
-	    stringFormat(value, stringBuilder);
-	    buffer.putString(stringBuilder.toString());
+		StringBuilder stringBuilder = buffer.getStringBuilderCache();
+		stringFormat(value, stringBuilder);
+		buffer.putString(stringBuilder.toString());
 	}
 
 	private static void stringFormat(String value, StringBuilder builder)

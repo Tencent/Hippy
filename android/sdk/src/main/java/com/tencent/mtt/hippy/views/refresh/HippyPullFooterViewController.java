@@ -45,7 +45,7 @@ public class HippyPullFooterViewController extends HippyViewController<HippyPull
 		return new PullFooterRenderNode(id,  props, className, hippyRootView, controllerManager, lazy);
 	}
 
-  @HippyControllerProps(name = "sticky", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+  @HippyControllerProps(name = "sticky", defaultType = HippyControllerProps.BOOLEAN)
   public void setStickEnabled(HippyPullFooterView view, boolean flag)
   {
     view.setStickEnabled(flag);
@@ -56,15 +56,10 @@ public class HippyPullFooterViewController extends HippyViewController<HippyPull
   {
     super.dispatchFunction(view, functionName, dataArray);
     View parent = view.getParentView();
-    if (parent != null && parent instanceof HippyListView) {
-      switch (functionName)
-      {
-        case "collapsePullFooter":
-        {
-          ((HippyListView)parent).onFooterRefreshFinish();
-          break;
+    if (parent instanceof HippyListView) {
+        if ("collapsePullFooter".equals(functionName)) {
+            ((HippyListView) parent).onFooterRefreshFinish();
         }
-      }
     }
   }
 }

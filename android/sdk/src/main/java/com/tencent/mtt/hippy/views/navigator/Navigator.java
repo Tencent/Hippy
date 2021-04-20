@@ -22,12 +22,6 @@ import android.view.View;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 
-/**
- * @Description: TODO
- * @author: edsheng
- * @date: 2018/9/25 15:41
- * @version: V1.0
- */
 public class Navigator extends HippyViewGroup
 {
 	private final static String	DIRECTION_LEFT	= "left";
@@ -47,7 +41,7 @@ public class Navigator extends HippyViewGroup
 
 		if (animated)
 		{
-			Animator animator = null;
+			Animator animator;
 			switch (fromDirection == null ? "" : fromDirection)
 			{
 				case DIRECTION_TOP:
@@ -114,7 +108,7 @@ public class Navigator extends HippyViewGroup
 		final View childView = getChildAt(getChildCount() - 1);
 		if (animated)
 		{
-			Animator animator = null;
+			Animator animator;
 			switch (toDirection == null ? "" : toDirection)
 			{
 				case DIRECTION_TOP:
@@ -129,8 +123,8 @@ public class Navigator extends HippyViewGroup
 				case DIRECTION_RIGHT:
 				default:
 					// 默认值就是"right"
-					animator = ObjectAnimator.ofFloat(childView, "translationX", 0, getWidth());;
-					break;
+					animator = ObjectAnimator.ofFloat(childView, "translationX", 0, getWidth());
+                    break;
 			}
 			if (animator != null)
 			{

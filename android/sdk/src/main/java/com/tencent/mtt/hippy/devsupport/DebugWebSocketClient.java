@@ -15,25 +15,17 @@
  */
 package com.tencent.mtt.hippy.devsupport;
 
-import android.text.TextUtils;
-
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.websocket.WebSocketClient;
-import org.json.JSONObject;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A wrapper around WebSocketClient that recognizes debugging message format.
  */
 public class DebugWebSocketClient implements WebSocketClient.WebSocketListener
 {
-
-	private static final String										TAG			= "JSDebuggerWebSocketClient";
-	private final AtomicInteger										mRequestID	= new AtomicInteger();
 	private final ConcurrentHashMap<Integer, JSDebuggerCallback>	mCallbacks	= new ConcurrentHashMap<>();
 	WebSocketClient													mWebSocket;
 	private JSDebuggerCallback										mConnectCallback;
@@ -50,28 +42,6 @@ public class DebugWebSocketClient implements WebSocketClient.WebSocketListener
 	public void setOnReceiveDataCallback(DevRemoteDebugProxy.OnReceiveDataListener l)
 	{
 		mReceiveDataListener = l;
-	}
-
-	/**
-	 * Creates the next JSON message to send to remote JS executor, with request
-	 * ID pre-filled in.
-	 */
-	private JSONObject startMessageObject(int requestID) throws Exception
-	{
-		JSONObject object = new JSONObject();
-		object.put("id", requestID);
-		return object;
-	}
-
-	/**
-	 * Takes in a JsonGenerator created by {@link #startMessageObject} and
-	 * returns the stringified
-	 * JSON
-	 */
-	private String endMessageObject(JSONObject object) throws IOException
-	{
-		String message = object.toString();
-		return message;
 	}
 
 	public void closeQuietly()
@@ -112,65 +82,10 @@ public class DebugWebSocketClient implements WebSocketClient.WebSocketListener
 		}
 	}
 
-	private void onJsCallNative(JSONObject object)
-	{
-		if(mReceiveDataListener == null)
-		{
-			throw new RuntimeException("No Reciever Set for Debugger Message");
-		}
-
-		String moduleName = object.optString("moduleName");
-		String moduleFunc = object.optString("methodFun");
-		String params = object.optString("params");
-		String callId = object.optString("callbackId");
-
-		//mReceiveDataListener.onReceiveData( moduleName, moduleFunc, callId, params);
-	}
-
-	private void onReplyMessage(JSONObject reply)
-	{
-		Integer replyID = null;
-
-		try
-		{
-			String result = null;
-			if (reply.has("replyID"))
-			{
-				replyID = reply.getInt("replyID");
-			}
-			if (reply.has("result"))
-			{
-				result = reply.getString("result");
-			}
-			if (reply.has("error"))
-			{
-				String error = reply.getString("error");
-				abort(error, new JavascriptException(error));
-			}
-
-			if (replyID != null)
-			{
-				triggerRequestSuccess(replyID, result);
-			}
-		}
-		catch (Exception e)
-		{
-			if (replyID != null)
-			{
-				triggerRequestFailure(replyID, e);
-			}
-			else
-			{
-				abort("Parsing response message from websocket failed", e);
-			}
-		}
-	}
-
 	@Override
 	public void onMessage(String message)
 	{
 		mReceiveDataListener.onReceiveData(message);
-		return;
 	}
 
 	@Override
@@ -180,9 +95,8 @@ public class DebugWebSocketClient implements WebSocketClient.WebSocketListener
 	}
 
 	@Override
-	public void onError(Exception e)
-	{
-		abort("Websocket exception", e);
+	public void onError(Exception e) {
+		abort(e);
 	}
 
 	@Override
@@ -201,7 +115,7 @@ public class DebugWebSocketClient implements WebSocketClient.WebSocketListener
 		mWebSocket = null;
 	}
 
-	private void abort(String message, Throwable cause)
+	private void abort(Throwable cause)
 	{
 		closeQuietly();
 
@@ -220,8 +134,10 @@ public class DebugWebSocketClient implements WebSocketClient.WebSocketListener
 
 	public interface JSDebuggerCallback
 	{
+		@SuppressWarnings("unused")
 		void onSuccess(String response);
 
+		@SuppressWarnings("unused")
 		void onFailure(Throwable cause);
 	}
 }

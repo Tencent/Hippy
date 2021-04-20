@@ -18,13 +18,6 @@ package com.tencent.mtt.hippy.dom.node;
 import android.text.TextPaint;
 import android.text.style.CharacterStyle;
 
-/**
- * @Description: TODO
- * @author: edsheng
- * @date: 2017/11/30 15:16
- * @version: V1.0
- */
-
 public class HippyShadowSpan extends CharacterStyle
 {
 	private final float	mDx, mDy, mRadius;

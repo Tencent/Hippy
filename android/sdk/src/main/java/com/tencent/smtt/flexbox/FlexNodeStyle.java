@@ -24,6 +24,7 @@ import com.tencent.mtt.hippy.dom.flex.FlexOverflow;
 import com.tencent.mtt.hippy.dom.flex.FlexPositionType;
 import com.tencent.mtt.hippy.dom.flex.FlexWrap;
 
+@SuppressWarnings("all")
 public class FlexNodeStyle
 {
 	private long	mNativePointer	= 0;
@@ -173,12 +174,7 @@ public class FlexNodeStyle
 		int order = justifyContent.ordinal();
 		mJustifyContent = justifyContent;
 		switch (order)
-		{
-			case 0:
-			{ //FLEX_START
-				order = 1;
-				break;
-			}
+		{//FLEX_START
 			case 1:
 			{//CENTER;
 				order = 2;
@@ -199,6 +195,7 @@ public class FlexNodeStyle
 				order = 7;
 				break;
 			}
+			case 0:
 			default:
 			{
 				order = 1;//default FLEX_START
@@ -466,10 +463,10 @@ public class FlexNodeStyle
 		}
 	}
 
-	private float	mMargin[]	= new float[Edge.EDGE_ALL.ordinal() + 1];
-	private float	mPadding[]	= new float[Edge.EDGE_ALL.ordinal() + 1];
-	private float	mBorder[]	= new float[Edge.EDGE_ALL.ordinal() + 1];
-	private float	mPosition[]	= new float[Edge.EDGE_ALL.ordinal() + 1];
+	private final float[] mMargin = new float[Edge.EDGE_ALL.ordinal() + 1];
+	private final float[] mPadding = new float[Edge.EDGE_ALL.ordinal() + 1];
+	private final float[] mBorder = new float[Edge.EDGE_ALL.ordinal() + 1];
+	private final float[] mPosition = new float[Edge.EDGE_ALL.ordinal() + 1];
 
 	private native Object nativeFlexNodeStyleGetMargin(long nativeFlexNodeStyle, int edge);
 

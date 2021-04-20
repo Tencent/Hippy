@@ -21,8 +21,6 @@ public class ContextHolder
 {
 	private static Context appContext;
 
-	public ContextHolder() { }
-
 	public static void initAppContext(Context context) {
 		if (context != null && appContext == null) {
 			appContext = context.getApplicationContext();

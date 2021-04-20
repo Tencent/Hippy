@@ -15,9 +15,9 @@
  */
 package com.tencent.mtt.hippy.common;
 
-import android.text.TextUtils;
 import android.view.View;
 
+@SuppressWarnings("SameParameterValue")
 public class HippyTag
 {
   private final static String TAG_CLASS_NAME                  = "className";
@@ -32,7 +32,7 @@ public class HippyTag
   private static int getIntValue(View view, String key) {
     if (view != null && key != null) {
       Object tagObj = view.getTag();
-      if (tagObj != null && tagObj instanceof HippyMap) {
+      if (tagObj instanceof HippyMap) {
         HippyMap tagMap = (HippyMap)tagObj;
         if (tagMap.containsKey(key)) {
           return tagMap.getInt(key);
@@ -46,7 +46,7 @@ public class HippyTag
   private static void setIntValue(View view, String key, int value) {
     if (view != null && key != null) {
       Object tagObj = view.getTag();
-      if (tagObj != null && tagObj instanceof HippyMap) {
+      if (tagObj instanceof HippyMap) {
         HippyMap tagMap = (HippyMap)tagObj;
         tagMap.pushInt(key, value);
       }
@@ -56,7 +56,7 @@ public class HippyTag
   private static String getStringValue(View view, String key) {
     if (view != null && key != null) {
       Object tagObj = view.getTag();
-      if (tagObj != null && tagObj instanceof HippyMap) {
+      if (tagObj instanceof HippyMap) {
         HippyMap tagMap = (HippyMap)tagObj;
         if (tagMap.containsKey(key)) {
           return tagMap.getString(key);
@@ -70,7 +70,7 @@ public class HippyTag
   private static void setStringValue(View view, String key, String value) {
     if (view != null && key != null) {
       Object tagObj = view.getTag();
-      if (tagObj != null && tagObj instanceof HippyMap) {
+      if (tagObj instanceof HippyMap) {
         HippyMap tagMap = (HippyMap)tagObj;
         tagMap.pushString(key, (value == null ? "" : value));
       }

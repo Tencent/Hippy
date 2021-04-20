@@ -27,12 +27,6 @@ import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.list.HippyListView;
 import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 
-/**
- * @Description: TODO
- * @author: edsheng
- * @date: 2018/9/13 11:05
- * @version: V1.0
- */
 public class RefreshWrapper extends HippyViewGroup
 {
 	RefreshWrapperItemView	mRefreshWrapperItemView;
@@ -124,9 +118,6 @@ public class RefreshWrapper extends HippyViewGroup
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent event)
 	{
-		/**
-		 * 如果一个页面用RefreshWrapper包含ViewPager，横向滑动很容易触发下拉刷新。
-		 */
         float nowMoveY = event.getRawY();
         float nowMoveX = event.getRawX();
 		if (mContentView != null && mRefreshWrapperItemView != null)

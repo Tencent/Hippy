@@ -40,7 +40,7 @@ public class TypeFaceUtil
 	private static final String[]			FONT_EXTENSIONS	= { ".ttf", ".otf" };
 	private static final String				FONTS_PATH		= "fonts/";
 
-	private static Map<String, Typeface>	mFontCache		= new HashMap<>();
+	private static final Map<String, Typeface> mFontCache	= new HashMap<>();
 
 	public static Typeface getTypeface(String fontFamilyName, int style, HippyFontScaleAdapter fontAdapter) {
 		String cache = fontFamilyName + style;
@@ -60,7 +60,7 @@ public class TypeFaceUtil
 		Typeface typeface = null;
 		String extension = EXTENSIONS[style];
 		for (String fileExtension : FONT_EXTENSIONS) {
-			String fileName = new StringBuilder().append(FONTS_PATH).append(fontFamilyName).append(extension).append(fileExtension).toString();
+			String fileName = FONTS_PATH + fontFamilyName + extension + fileExtension;
 			try {
 				typeface = Typeface.createFromAsset(ContextHolder.getAppContext().getAssets(), fileName);
 			} catch (Exception e) {
@@ -89,11 +89,7 @@ public class TypeFaceUtil
 	{
 		String cache = fontFamilyName + style;
 		Typeface typeface = mFontCache.get(cache);
-		if (typeface == null)
-		{
-			return false;
-		}
-		return true;
+		return typeface != null;
 	}
 	public static Typeface addTypeface(String fontFamilyName, String fontPath, int style)
 	{
@@ -182,6 +178,7 @@ public class TypeFaceUtil
 		File file = new File(path);
 		boolean exists = file.exists();
 		if (exists) {
+			//noinspection ResultOfMethodCallIgnored
 			file.delete();
 		}
 	}

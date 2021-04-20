@@ -48,10 +48,9 @@ public class HippyViewPager extends ViewPager implements HippyViewBase
 
 	private NativeGestureDispatcher		mGestureDispatcher;
 	private boolean						mFirstUpdateChild	= true;
-	private boolean 					mReNotifyOnAttach = false;
+	private final boolean 				mReNotifyOnAttach = false;
 	private ViewPagerPageChangeListener	mPageListener;
-	private String								mOverflow;
-	private Handler						mHandler			= new Handler(Looper.getMainLooper());
+	private final Handler						mHandler			= new Handler(Looper.getMainLooper());
   private Promise           mCallBackPromise;
 
 	private void init(Context context) {
@@ -264,11 +263,9 @@ public class HippyViewPager extends ViewPager implements HippyViewBase
 	}
 	public void setOverflow(String overflow)
 	{
-		mOverflow = overflow;
-		//robinsli Android 支持 overflow: visible，超出容器之外的属性节点也可以正常显示
-		if(!TextUtils.isEmpty(mOverflow))
+		if(!TextUtils.isEmpty(overflow))
 		{
-			switch (mOverflow)
+			switch (overflow)
 			{
 				case "visible":
 					setClipChildren(false); //可以超出父亲区域

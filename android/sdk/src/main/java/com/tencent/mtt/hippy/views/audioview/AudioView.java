@@ -21,32 +21,26 @@ import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.modules.javascriptmodules.EventDispatcher;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 
 import android.content.Context;
 import android.text.TextUtils;
 
-/**
- * @Description: TODO
- * @author: robinsli
- * @date: 2019/6/11 11:18
- * @version: V1.0
- */
 public class AudioView extends HippyViewGroup implements AudioPlayManager.AudioManagerListener,HippyViewBase
 {
-    private AudioPlayManager	mAudioPlayerManager		= null;
-    private int					mUniqPlayId				= 0;
+    private AudioPlayManager	mAudioPlayerManager;
+    private int					mUniqPlayId;
     private boolean				mOnPlayStartCallBack	= false;
     private boolean				mOnPlayProgressCallBack	= false;
     private boolean				mOnPlayResumeCallBack	= false;
     private boolean				mOnPlayPauseCallBack	= false;
     private boolean				mOnPlayCompleteCallBack		= false;
     private boolean				mOnPlayErrorCallBack		= false;
-    private boolean				mAutoPlay		= false;
     private String				mCurrentPlayAudio		= "";
 
 
-    HippyEngineContext mHippyContext;
+    final HippyEngineContext mHippyContext;
 
 
 
@@ -61,43 +55,35 @@ public class AudioView extends HippyViewGroup implements AudioPlayManager.AudioM
 
 
     //播放地址
-    public boolean setAudioPlayUrl(String sAudioUrl)
-    {
+    public void setAudioPlayUrl(String sAudioUrl) {
         mCurrentPlayAudio = sAudioUrl;
-        return  mAudioPlayerManager.setAudioPlayUrl(mUniqPlayId, sAudioUrl, this); //TODO 这个view被mAudioPlayerManager持有了
+        mAudioPlayerManager.setAudioPlayUrl(mUniqPlayId, sAudioUrl, this); //TODO 这个view被mAudioPlayerManager持有了
     }
     //自动播放
-    public boolean setAudioAutoPlay(boolean autoPlay)
-    {
-        mAutoPlay = autoPlay;//mAudioPlayerManager.setAudioPlayUrl(mUniqPlayId, sAudioUrl, this);
-        if (mAutoPlay && !TextUtils.isEmpty(mCurrentPlayAudio))
+    public void setAudioAutoPlay(boolean autoPlay) {
+        if (autoPlay && !TextUtils.isEmpty(mCurrentPlayAudio)) {
             mAudioPlayerManager.playAudio(mUniqPlayId);
-        return true;
+        }
     }
     //播放
-    public boolean playAudio()
-    {
-        return mAudioPlayerManager.playAudio(mUniqPlayId);
+    public void playAudio() {
+        mAudioPlayerManager.playAudio(mUniqPlayId);
     }
     //seekTo
-    public boolean seekTo(int seekToPos)
-    {
-        return mAudioPlayerManager.seekTo(mUniqPlayId,seekToPos);
+    public void seekTo(int seekToPos) {
+        mAudioPlayerManager.seekTo(mUniqPlayId,seekToPos);
     }
     //pause
-    public boolean pauseAudio()
-    {
-        return mAudioPlayerManager.pauseAudio(mUniqPlayId);
-    }
-    //TODO is this need
-    public boolean stopAudio()
-    {
-        return mAudioPlayerManager.stopAudio(mUniqPlayId);
+    public void pauseAudio() {
+        mAudioPlayerManager.pauseAudio(mUniqPlayId);
     }
 
-    public boolean releaseAudio()
-    {
-        return mAudioPlayerManager.releaseAudio(mUniqPlayId);
+    public void stopAudio() {
+        mAudioPlayerManager.stopAudio(mUniqPlayId);
+    }
+
+    public void releaseAudio() {
+        mAudioPlayerManager.releaseAudio(mUniqPlayId);
     }
     //播放状态回调
     public void setOnPlayStart(boolean onPlayStartCallBack)
@@ -204,9 +190,8 @@ public class AudioView extends HippyViewGroup implements AudioPlayManager.AudioM
     }
 
     @Override
-    public void onPlayBuffering(String playAudioUrl)
-    {
-
+    public void onPlayBuffering(String playAudioUrl) {
+        LogUtils.d("AudioView", "onPlayBuffering");
     }
 
     @Override

@@ -30,14 +30,8 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * FileName: HippyNativeModuleInfo
- * Description：
- * History：
- */
 public final class HippyNativeModuleInfo
 {
-
 	private final String									mName;
 
 	private final String []									mNames;
@@ -85,7 +79,7 @@ public final class HippyNativeModuleInfo
 	}
 
 	public boolean shouldDestroy() {
-		return mIsDestroyed ? false : true;
+		return !mIsDestroyed;
 	}
 
 	public void onDestroy() {
@@ -111,8 +105,7 @@ public final class HippyNativeModuleInfo
 		return mThread;
 	}
 
-	public void initialize() throws Throwable
-	{
+	public void initialize() {
 		if (mInit)
 		{
 			return;
@@ -163,9 +156,9 @@ public final class HippyNativeModuleInfo
 
 	public class HippyNativeMethod
 	{
-		private Method	mMethod;
+		private final Method mMethod;
 
-		private Type[]	mParamTypes;
+		private final Type[] mParamTypes;
 
 		public HippyNativeMethod(Method method)
 		{
@@ -183,8 +176,7 @@ public final class HippyNativeModuleInfo
 			}
 		}
 
-		private Object[] prepareArguments(HippyEngineContext context, Type[] paramClss, HippyArray args, PromiseImpl promise) throws Exception
-		{
+		private Object[] prepareArguments(HippyEngineContext context, Type[] paramClss, HippyArray args, PromiseImpl promise) {
 			if (paramClss == null || paramClss.length <= 0)
 			{
 				return new Object[0];

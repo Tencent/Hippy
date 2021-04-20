@@ -230,6 +230,7 @@ public class HippyCoreAPI implements HippyAPIProvider
 		return components;
 	}
 
+	@SuppressWarnings("SameParameterValue")
 	private void addControllerWithClassName(String className, List<Class<? extends HippyViewController>> components) {
 		try {
 			Class videoControllerClass = Class.forName(className);

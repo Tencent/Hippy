@@ -20,7 +20,8 @@ package com.tencent.mtt.hippy.common;
  * Description：
  * History：
  */
+@SuppressWarnings("TypeParameterExplicitlyExtendsObject")
 public interface Callback <T extends Object>
 {
-    public void callback(T param,Throwable e);
+    void callback(T param, Throwable e);
 }

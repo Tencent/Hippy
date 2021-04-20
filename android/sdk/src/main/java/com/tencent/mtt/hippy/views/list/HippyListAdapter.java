@@ -35,7 +35,7 @@ import java.util.ArrayList;
 public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTypeChange
 {
 
-	protected HippyEngineContext		mHippyContext;
+	protected final HippyEngineContext	mHippyContext;
 	private RecyclerViewBase.Recycler	mRecycler;
 	private OnEndReachedEvent			mOnEndReachedEvent;
 	private static final String			TAG	= "HippyListAdapter";
@@ -72,10 +72,10 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
 		contentViewRenderNode.setLazy(false);
 		View view = contentViewRenderNode.createViewRecursive();
 		contentHolder.mContentView = view;
-		if (view != null && view instanceof HippyPullHeaderView) {
+		if (view instanceof HippyPullHeaderView) {
 			((HippyPullHeaderView)view).setParentView(mParentRecyclerView);
 		}
-		if (view != null && view instanceof HippyPullFooterView) {
+		if (view instanceof HippyPullFooterView) {
 			((HippyPullFooterView)view).setParentView(mParentRecyclerView);
 		}
 		contentHolder.mBindNode = contentViewRenderNode;
@@ -163,7 +163,7 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
 			//LogUtils.d("HippyListView", " replaceIds  position: " + position);
 //			mHippyContext.getGlobalConfigs().getLogAdapter().log(TAG, " replaceIds  position: " + position);
 			//step:4 create view is do not  reUse
-			DiffUtils.createView(mHippyContext.getRenderManager().getControllerManager(), patchTypes);
+			DiffUtils.createView(patchTypes);
 			//LogUtils.d("HippyListView", " createView  position: " + position);
 //			mHippyContext.getGlobalConfigs().getLogAdapter().log(TAG, " createView  position: " + position);
 			//step:5 patch the dif result
@@ -415,7 +415,7 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
 		RenderNode listNode = mHippyContext.getRenderManager().getRenderNode(mParentRecyclerView.getId());
 		if (listNode != null && listNode.getChildCount() > 0) {
 			RenderNode listItemNode = listNode.getChildAt(0);
-			if (listItemNode != null && listItemNode instanceof PullHeaderRenderNode) {
+			if (listItemNode instanceof PullHeaderRenderNode) {
 				return listItemNode.getWidth();
 			}
 		}
@@ -429,7 +429,7 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
 		RenderNode listNode = mHippyContext.getRenderManager().getRenderNode(mParentRecyclerView.getId());
 		if (listNode != null && listNode.getChildCount() > 0) {
 			RenderNode listItemNode = listNode.getChildAt(listNode.getChildCount() - 1);
-			if (listItemNode != null && listItemNode instanceof PullFooterRenderNode) {
+			if (listItemNode instanceof PullFooterRenderNode) {
 				return listItemNode.getWidth();
 			}
 		}
@@ -443,7 +443,7 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
 		RenderNode listNode = mHippyContext.getRenderManager().getRenderNode(mParentRecyclerView.getId());
 		if (listNode != null && listNode.getChildCount() > 0) {
 			RenderNode listItemNode = listNode.getChildAt(0);
-			if (listItemNode != null && listItemNode instanceof PullHeaderRenderNode) {
+			if (listItemNode instanceof PullHeaderRenderNode) {
 				return listItemNode.getHeight();
 			}
 		}
@@ -457,7 +457,7 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
 		RenderNode listNode = mHippyContext.getRenderManager().getRenderNode(mParentRecyclerView.getId());
 		if (listNode != null && listNode.getChildCount() > 0) {
 			RenderNode listItemNode = listNode.getChildAt(listNode.getChildCount() - 1);
-			if (listItemNode != null && listItemNode instanceof PullFooterRenderNode) {
+			if (listItemNode instanceof PullFooterRenderNode) {
 				return listItemNode.getHeight();
 			}
 		}

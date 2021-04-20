@@ -15,19 +15,13 @@
  */
 package com.tencent.mtt.hippy.dom.node;
 
-/**
- * @author: edsheng
- * @date: 2017/12/12 14:19
- * @version: V1.0
- */
-
 public class TextExtra
 {
-	public Object	mExtra;
-	public float	mLeftPadding;
-	public float	mRightPadding;
-	public float	mBottomPadding;
-	public float	mTopPadding;
+	public final Object	mExtra;
+	public final float	mLeftPadding;
+	public final float	mRightPadding;
+	public final float	mBottomPadding;
+	public final float	mTopPadding;
 
 	public TextExtra(Object extra, float mLeftPadding, float mRightPadding, float mBottomPadding, float mTopPadding)
 	{

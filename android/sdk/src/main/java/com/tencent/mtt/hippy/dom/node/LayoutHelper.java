@@ -25,17 +25,10 @@ import com.tencent.mtt.hippy.common.HippyHandlerThread;
 import com.tencent.mtt.hippy.common.HippyThreadRunnable;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
-/**
- * @Description: TODO
- * @author: edsheng
- * @date: 2017/12/12 18:00
- * @version: V1.0
- */
-
 public class LayoutHelper
 {
 	private HippyHandlerThread	mHandlerThread;
-	private Picture				mPicture	= new Picture();
+	private final Picture mPicture = new Picture();
 
 	public  LayoutHelper()
 	{

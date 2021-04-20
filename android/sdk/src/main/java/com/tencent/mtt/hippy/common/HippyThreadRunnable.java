@@ -15,12 +15,9 @@
  */
 package com.tencent.mtt.hippy.common;
 
+import com.tencent.mtt.hippy.utils.LogUtils;
 
-/**
- * FileName: HippyThreadRunnable
- * Description：
- * History：
- */
+@SuppressWarnings("TypeParameterExplicitlyExtendsObject")
 public abstract class HippyThreadRunnable<T extends Object> implements Runnable
 {
 	private T	mParam;
@@ -36,15 +33,11 @@ public abstract class HippyThreadRunnable<T extends Object> implements Runnable
 	}
 
 	@Override
-	public void run()
-	{
-		try
-		{
+	public void run() {
+		try {
 			run(mParam);
-		}
-		catch (Throwable e)
-		{
-			throw  e;
+		} catch (Throwable e) {
+			LogUtils.e("HippyThreadRunnable", "run: ", e);
 		}
 	}
 

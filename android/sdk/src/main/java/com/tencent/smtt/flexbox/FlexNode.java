@@ -31,12 +31,13 @@ import com.tencent.smtt.flexbox.FlexNodeStyle.Edge;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings({"JavaJniMissingFunction", "unused"})
 public class FlexNode implements FlexNodeAPI<FlexNode> {
     private FlexNode mParent;
     private List<FlexNode> mChildren;
-    private long mNativeFlexNode;
-    protected FlexNodeStyle mFlexNodeStyle = null;
-    private boolean mDirty = true;
+    private final long mNativeFlexNode;
+    protected FlexNodeStyle mFlexNodeStyle;
+    private final boolean mDirty = true;
 
     private final static int MARGIN = 1;
     private final static int PADDING = 2;

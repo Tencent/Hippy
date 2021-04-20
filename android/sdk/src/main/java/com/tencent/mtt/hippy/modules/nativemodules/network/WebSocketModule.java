@@ -34,9 +34,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * Created by ceasoncai on 2018/7/12.
- */
 @HippyNativeModule(name = "websocket")
 public class WebSocketModule extends HippyNativeModuleBase
 {
@@ -52,9 +49,9 @@ public class WebSocketModule extends HippyNativeModuleBase
 	private static final String				PARAM_KEY_TYPE			= "type";
 	private static final String				PARAM_KEY_DATA			= "data";
 
-	private static AtomicInteger			sWebSocketIds			= new AtomicInteger(0);
+	private static final AtomicInteger		sWebSocketIds			= new AtomicInteger(0);
 
-	private SparseArray<WebSocketClient>	mWebSocketConnections;
+	private final SparseArray<WebSocketClient>	mWebSocketConnections;
 
 	public WebSocketModule(HippyEngineContext context)
 	{
@@ -247,9 +244,9 @@ public class WebSocketModule extends HippyNativeModuleBase
 		private static final String	EVENT_TYPE_ON_MESSAGE	= "onMessage";
 
 
-		private int					mWebSocketId;
-		private HippyEngineContext	mContext;
-		private WebSocketModule		mWebSocketModule;
+		private final int					mWebSocketId;
+		private final HippyEngineContext	mContext;
+		private final WebSocketModule		mWebSocketModule;
 		private boolean				mDisconnected;
 
 		public HippyWebSocketListener(int websocketID, HippyEngineContext context, WebSocketModule socketModule)
