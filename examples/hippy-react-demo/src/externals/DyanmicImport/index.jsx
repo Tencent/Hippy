@@ -59,7 +59,7 @@ export default class DynamicImportDemo extends React.Component {
      *  customChunkPath 会在运行时替换全局配置的publicPath
      *  import 出错时需在catch里做对应的降级方案
      */
-    import(/* webpackMode: "lazy",customChunkPath: "https://static.res.qq.com/hippy/hippyReactDemo/", webpackChunkName: "asyncComponentFromHttp" */'./AsyncComponentHttp')
+    import(/* webpackMode: "lazy",customChunkPath: "https://static.res.qq.com/hippy/hippyReactDemo/relativePath/", webpackChunkName: "asyncComponentFromHttp" */'./AsyncComponentHttp')
       .then((component) => {
         this.setState({
           AsyncComponentFromHttp: component.default || component,
