@@ -242,6 +242,11 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     _contentView = nil;
 }
 
+- (void)didUpdateHippySubviews
+{
+    // Do nothing, as subviews are managed by `insertHippySubview:atIndex:`
+}
+
 - (BOOL)centerContent {
     return _scrollView.centerContent;
 }
