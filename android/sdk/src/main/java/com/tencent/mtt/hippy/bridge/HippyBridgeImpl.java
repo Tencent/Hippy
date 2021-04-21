@@ -91,57 +91,39 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 		}
 	}
 
-	/*
-	 * 有一个数量较多的libmttv8.so的crash可能是这里没加锁导致
-	 * according to ccyongwang: 应该是多线程时序的问题。你加个锁， 在initJSFramework
-	 * harryguo: initJSFramework native函数须加锁。否则可能导致:
-	 * C层的v8Platform变量在A线程中刚赋值（但尚未调用Initialize）时，就被B线程拿去使用了，导致crash
-	 * paulzeng: 这里只对调用initJSFramework代码块加锁即可
-	 */
 	@Override
-	public void initJSBridge(String gobalConfig, NativeCallback callback, final int groupId)
-	{
+	public void initJSBridge(String gobalConfig, NativeCallback callback, final int groupId) {
 		mDebugGobalConfig = gobalConfig;
 		mDebugInitJSFrameworkCallback = callback;
 
-		if(this.mIsDevModule)
-		{
+		if(this.mIsDevModule) {
 			mDebugWebSocketClient = new DebugWebSocketClient();
 			mDebugWebSocketClient.setOnReceiveDataCallback(this);
 			if (TextUtils.isEmpty(mDebugServerHost)) {
 				mDebugServerHost = "localhost:38989";
 			}
-			mDebugWebSocketClient.connect(String.format(Locale.US, "ws://%s/debugger-proxy?role=android_client", mDebugServerHost), new DebugWebSocketClient.JSDebuggerCallback()
-			{
+			mDebugWebSocketClient.connect(String.format(Locale.US, "ws://%s/debugger-proxy?role=android_client", mDebugServerHost),
+					new DebugWebSocketClient.JSDebuggerCallback() {
 				@SuppressWarnings("unused")
 				@Override
-				public void onSuccess(String response)
-				{
-					LogUtils.e("hippyCore", "js debug socket connect success");
-
+				public void onSuccess(String response) {
+					LogUtils.d("hippyCore", "js debug socket connect success");
 					initJSEngine(groupId);
 				}
 
 				@SuppressWarnings("unused")
 				@Override
-				public void onFailure(final Throwable cause)
-				{
+				public void onFailure(final Throwable cause) {
 					LogUtils.e("hippyCore", "js debug socket connect failed");
-
                     initJSEngine(groupId);
 				}
 			});
-		}
-		else
-		{
+		} else {
 			initJSEngine(groupId);
 		}
 	}
 
-	private void initJSEngine(int groupId)
-	{
-		// harryguo: initJSFramework native函数须加锁。否则可能导致: C层的v8Platform变量在A线程中刚赋值（但尚未调用Initialize）时，就被B线程拿去使用了，导致crash
-        // paulzeng: 这里只对调用initJSFramework代码块加锁即可
+	private void initJSEngine(int groupId) {
 		synchronized (HippyBridgeImpl.class) {
 			mV8RuntimeId = initJSFramework(mDebugGobalConfig.getBytes(), mSingleThreadMode, mBridgeParamJson, mIsDevModule, mDebugInitJSFrameworkCallback, groupId);
 			mInit = true;
@@ -149,22 +131,16 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 	}
 
 	@Override
-	public boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache, String codeCacheTag, NativeCallback callback)
-	{
+	public boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache,
+			String codeCacheTag, NativeCallback callback) {
 		if (!mInit) {
 			return false;
 		}
 
-		if (!TextUtils.isEmpty(codeCacheTag) && !TextUtils.isEmpty(mCodeCacheRootDir))
-		{
-			LogUtils.d("HippyEngineMonitor", "runScriptFromAssets ======core====== " + codeCacheTag + ", canUseCodeCache == " + canUseCodeCache);
+		if (!TextUtils.isEmpty(codeCacheTag) && !TextUtils.isEmpty(mCodeCacheRootDir)) {
 			String codeCacheDir = mCodeCacheRootDir + codeCacheTag + File.separator;
-			File file = new File(codeCacheDir);
-			LogUtils.d("HippyEngineMonitor", "codeCacheDir file size : " + (file.listFiles() != null ? file.listFiles().length : 0));
 			return runScriptFromUri(uri, assetManager, canUseCodeCache, codeCacheDir, mV8RuntimeId, callback);
-		}
-		else
-		{
+		} else {
 			boolean ret = false;
 			LogUtils.d("HippyEngineMonitor", "runScriptFromAssets codeCacheTag is null");
 			try {
