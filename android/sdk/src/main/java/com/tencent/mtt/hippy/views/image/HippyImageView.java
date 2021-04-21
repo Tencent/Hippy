@@ -57,6 +57,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 	public static final String IMAGE_TYPE_APNG  = "apng";
 	public static final String IMAGE_TYPE_GIF   = "gif";
 	public static final String IMAGE_PROPS      = "props";
+	public static final String IMAGE_VIEW_OBJ   = "viewobj";
 
 	private HippyMap initProps = new HippyMap();
 	private boolean mHasSetTempBackgroundColor = false;
@@ -199,8 +200,9 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 
 				try {
 					((Map)param).put(IMAGE_PROPS, initProps);
+					((Map)param).put(IMAGE_VIEW_OBJ, this);
 				} catch (Exception e) {
-					LogUtils.d("HippyImageView", "doFetchImage: " + e.getMessage());
+					LogUtils.d("HippyImageView", "doFetchImage: " + e);
 				}
 			}
 
@@ -313,9 +315,9 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 	protected void updateContentDrawableProperty()
 	{
 		super.updateContentDrawableProperty();
-    if (mContentDrawable instanceof HippyContentDrawable) {
-      ((HippyContentDrawable) mContentDrawable).setNinePatchCoordinate(mNinePatchRect);
-    }
+		if (mContentDrawable instanceof HippyContentDrawable) {
+			((HippyContentDrawable) mContentDrawable).setNinePatchCoordinate(mNinePatchRect);
+		}
 	}
 
 	@Override
