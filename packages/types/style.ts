@@ -72,6 +72,7 @@ interface BaseStyle {
   tintColors?: string[] | number[] | null;
   underlineColorAndroid?: string;
   transform?: Transform[];
+  collapse?: boolean,
 }
 
 interface Style extends BaseStyle {}
