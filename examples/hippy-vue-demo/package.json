@@ -51,6 +51,7 @@
     "less-loader": "^7.1.0",
     "scope-loader": "^1.0.3",
     "unicode-loader": "^1.0.7",
+    "url-loader": "^4.0.0",
     "vue-loader": "^15.9.6",
     "vue-template-compiler": "^2.6.10",
     "webpack": "^4.43.0",

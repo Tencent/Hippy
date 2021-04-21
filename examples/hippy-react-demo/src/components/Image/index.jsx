@@ -7,8 +7,7 @@ import {
 } from '@hippy/react';
 
 // Import the image to base64 for defaultSource props.
-/* eslint-disable-next-line import/no-webpack-loader-syntax */
-import defaultSource from '!!url-loader?modules!./defaultSource.jpg';
+import defaultSource from './defaultSource.jpg';
 
 const imageUrl = 'https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png';
 

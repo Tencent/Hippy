@@ -6,6 +6,8 @@ import {
   StyleSheet,
 } from '@hippy/react';
 
+import imageUrl from './defaultSource.jpg';
+
 const styles = StyleSheet.create({
   itemTitle: {
     alignItems: 'flex-start',
@@ -48,6 +50,13 @@ export default function ViewExpo() {
     <ScrollView style={{ padding: 10 }}>
       {renderTitle('backgroundColor')}
       <View style={[styles.rectangle, { backgroundColor: '#4c9afa' }]} />
+      {renderTitle('backgroundImage')}
+      <View style={[styles.rectangle, {
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 20,
+        backgroundImage: imageUrl,
+      }]} ><Text style={{ color: 'white' }}>背景图</Text></View>
       {renderTitle('border props')}
       <View style={[styles.rectangle, { borderColor: '#242424', borderRadius: 4, borderWidth: 1 }]} />
       {renderTitle('flex props')}
