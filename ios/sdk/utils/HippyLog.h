@@ -135,3 +135,6 @@ HIPPY_EXTERN void HippyPerformBlockWithLogPrefix(void (^block)(void), NSString *
 
 HIPPY_EXTERN void _HippyLogNativeInternal(HippyLogLevel, const char *, int, NSString *, ...) NS_FORMAT_FUNCTION(4, 5);
 HIPPY_EXTERN void _HippyLogJavaScriptInternal(HippyLogLevel, NSString *);
+
+typedef void(^logHandler)(const char *message);
+HIPPY_EXTERN void HippyLogSetHandler(logHandler handler);
