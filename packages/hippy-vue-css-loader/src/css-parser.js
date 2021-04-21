@@ -321,7 +321,7 @@ function parseCSS(css, options) {
       case 'backgroundImage': {
         const regexp = /(?:\(['"]?)(.*?)(?:['"]?\))/;
         const executed = regexp.exec(value);
-        if (executed.length > 1) {
+        if (executed && executed.length > 1) {
           [, value] = executed;
         }
         break;

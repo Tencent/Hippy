@@ -2,7 +2,7 @@
   <div id="div-demo">
     <div>
       <label>背景图效果:</label>
-      <div class="div-demo-1">
+      <div :style="demo1Style">
         <p class="div-demo-1-text">Hippy 背景图展示</p>
       </div>
       <label>Transform</label>
@@ -34,6 +34,36 @@
     </div>
   </div>
 </template>
+
+<script>
+import defaultImage from '../../assets/defaultSource.jpg';
+
+export default {
+  data() {
+    /**
+     * demo1 needs to use variable base64 DefaultImage，so inline style mode is a must.
+     * if image path is remote address, declaration style class .div-demo-1 can be used.
+     */
+    return {
+      demo1Style: {
+        display: 'flex',
+        height: '40px',
+        width: '200px',
+        /**
+         *  inline style 'background-image': `url(${DefaultImage})` only supported above 2.6.1.
+         *  declaration css style only supports 'background-image': `url('https://xxxx')` format.
+         */
+        'background-image': `${defaultImage}`,
+        'background-repeat': 'no-repeat',
+        'justify-content': 'center',
+        'align-items': 'center',
+        'margin-top': '10px',
+        'margin-bottom': '10px',
+      },
+    };
+  },
+};
+</script>
 
 <style scope>
 
@@ -69,7 +99,7 @@
     text-align: center;
   }
 
-  /* Specfic styles */
+  /* background-image path is remote address */
   .div-demo-1 {
     display: flex;
     height: 40px;
@@ -78,7 +108,8 @@
   }
 
   .div-demo-1-text {
-    margin-left: 80px;
+    color: white;
+    margin-left: 10px;
   }
 
   /* flex-direction is necessary for horizontal scrolling for Native */
