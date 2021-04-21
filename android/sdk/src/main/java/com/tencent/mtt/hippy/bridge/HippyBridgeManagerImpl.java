@@ -65,8 +65,8 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 	public static final int	BRIDGE_TYPE_SINGLE_THREAD = 2;
 	public static final int	BRIDGE_TYPE_NORMAL = 1;
 
-	HippyEngineContext mContext;
-	HippyBundleLoader mCoreBundleLoader;
+	final HippyEngineContext mContext;
+	final HippyBundleLoader mCoreBundleLoader;
 	HippyBridge mHippyBridge;
 	volatile boolean mIsInit = false;
 	Handler mHandler;
@@ -213,7 +213,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 									mThirdPartyAdapter.onRuntimeInit(value);
 								}
 								mContext.getStartTimeMonitor().startEvent(HippyEngineMonitorEvent.ENGINE_LOAD_EVENT_LOAD_COMMONJS);
-								boolean flag;
+
 								if (mCoreBundleLoader != null) {
 									mCoreBundleLoader.load(mHippyBridge, new NativeCallback(mHandler) {
 										@Override
@@ -227,8 +227,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 										}
 									});
 								} else {
-									flag = true;
-									mIsInit = flag;
+									mIsInit = true;
 									callback.callback(mIsInit, null);
 								}
 							}
@@ -276,8 +275,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 						loader.load(mHippyBridge, new NativeCallback(mHandler) {
 							@Override
 							public void Call(long value, Message msg, String action) {
-								boolean success = value == 1;
-								if (success) {
+								if (value == 1) {
 									notifyModuleLoaded(ModuleLoadStatus.STATUS_OK, null, localRootView);
 								} else {
 									notifyModuleLoaded(ModuleLoadStatus.STATUS_ERR_RUN_BUNDLE, "load module error. loader.load failed. check the file.", null);
@@ -306,7 +304,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 					mHippyBridge.destroy(new NativeCallback(mHandler) {
 						@Override
 						public void Call(long value, Message msg, String action) {
-							Boolean success = value == 1 ? true : false;
+							boolean success = value == 1;
 							mHippyBridge.onDestroy();
 							if (destroyCallback != null) {
 								RuntimeException exception = null;
@@ -442,6 +440,10 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 	@Override
 	public void destroyBridge(Callback<Boolean> callback) {
 		assert (mHandler != null);
+		if (mHandler == null) {
+			return;
+		}
+
 		Message message = mHandler.obtainMessage(MSG_CODE_DESTROY_BRIDGE, callback);
 		mHandler.sendMessage(message);
 	}

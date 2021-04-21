@@ -39,7 +39,6 @@ import com.tencent.mtt.hippy.adapter.soloader.DefaultSoLoaderAdapter;
 import com.tencent.mtt.hippy.adapter.soloader.HippySoLoaderAdapter;
 import com.tencent.mtt.hippy.adapter.storage.DefaultStorageAdapter;
 import com.tencent.mtt.hippy.adapter.storage.HippyStorageAdapter;
-import com.tencent.mtt.hippy.bridge.HippyBridgeManagerImpl.BridgeTransferType;
 import com.tencent.mtt.hippy.bridge.HippyCoreAPI;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
 import com.tencent.mtt.hippy.bridge.libraryloader.LibraryLoader;

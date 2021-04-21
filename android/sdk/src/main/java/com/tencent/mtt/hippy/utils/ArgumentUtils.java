@@ -185,14 +185,14 @@ public class ArgumentUtils {
 		return buider.toString();
 	}
 
-  public static String objectToJsonOpt(Object obj, StringBuilder builder) {
-    if (obj == null) {
-      return "";
-    }
+	public static String objectToJsonOpt(Object obj, StringBuilder builder) {
+		if (obj == null) {
+			return "";
+		}
 
-    objectToJson(builder, obj);
-    return builder.toString();
-  }
+		objectToJson(builder, obj);
+		return builder.toString();
+	}
 
 	private static void objectToJson(StringBuilder builder, Object obj) {
 		if (obj == null) {
@@ -318,7 +318,7 @@ public class ArgumentUtils {
 			return map.getMap(key);
 		}
 
-    throw new IllegalArgumentException("parseArgument exception");
+		throw new IllegalArgumentException("parseArgument exception");
 	}
 
 	public static Object parseArgument(Type paramCls, Object value) {
@@ -346,13 +346,14 @@ public class ArgumentUtils {
 			return value;
 		}
 
-    throw new IllegalArgumentException("parseArgument exception");
+		throw new IllegalArgumentException("parseArgument exception");
 	}
 
 	public static HippyArray fromArray(Object array) {
 		HippyArray catalystArray = new HippyArray();
 		int length;
 		int index;
+
 		if (array instanceof String[]) {
 			String[] strs = (String[]) ((String[]) array);
 			length = strs.length;
@@ -361,17 +362,17 @@ public class ArgumentUtils {
 				String str = strs[index];
 				catalystArray.pushString(str);
 			}
-		}	else if (array instanceof Parcelable[]) {
-      Parcelable[] parcelables = (Parcelable[]) ((Parcelable[]) array);
+		} else if (array instanceof Parcelable[]) {
+			Parcelable[] parcelables = (Parcelable[]) ((Parcelable[]) array);
 			length = parcelables.length;
 
 			for (index = 0; index < length; ++index) {
 				Parcelable parcelable = parcelables[index];
 				if (parcelable instanceof Bundle) {
-          catalystArray.pushMap(fromBundle((Bundle) parcelable));
-        }
+					catalystArray.pushMap(fromBundle((Bundle) parcelable));
+				}
 			}
-		}	else if (array instanceof int[]) {
+		} else if (array instanceof int[]) {
 			int[] ints = (int[]) ((int[]) array);
 			length = ints.length;
 
@@ -379,7 +380,7 @@ public class ArgumentUtils {
 				int value = ints[index];
 				catalystArray.pushInt(value);
 			}
-		}	else if (array instanceof float[]) {
+		} else if (array instanceof float[]) {
 			float[] values = (float[]) ((float[]) array);
 			length = values.length;
 
@@ -387,7 +388,7 @@ public class ArgumentUtils {
 				float value = values[index];
 				catalystArray.pushDouble((double) value);
 			}
-		}	else if (array instanceof double[]) {
+		} else if (array instanceof double[]) {
 			double[] values = (double[]) ((double[]) array);
 			length = values.length;
 
@@ -395,7 +396,7 @@ public class ArgumentUtils {
 				double value = values[index];
 				catalystArray.pushDouble(value);
 			}
-		}	else {
+		} else {
 			if (!(array instanceof boolean[])) {
 				throw new IllegalArgumentException("Unknown array type " + array.getClass());
 			}
@@ -415,30 +416,30 @@ public class ArgumentUtils {
 	public static HippyMap fromBundle(Bundle bundle) {
 		HippyMap map = new HippyMap();
 
-    for (String key : bundle.keySet()) {
-      Object value = bundle.get(key);
-      if (value == null) {
-        map.pushNull(key);
-      } else if (value.getClass().isArray()) {
-        map.pushArray(key, fromArray(value));
-      } else if (value instanceof String) {
-        map.pushString(key, (String) value);
-      } else if (value instanceof Number) {
-        if (value instanceof Integer) {
-          map.pushInt(key, (Integer) value);
-        } else {
-          map.pushDouble(key, ((Number) value).doubleValue());
-        }
-      } else if (value instanceof Boolean) {
-        map.pushBoolean(key, (Boolean) value);
-      } else {
-        if (!(value instanceof Bundle)) {
-          throw new IllegalArgumentException("Could not convert " + value.getClass());
-        }
+		for (String key : bundle.keySet()) {
+			Object value = bundle.get(key);
+			if (value == null) {
+				map.pushNull(key);
+			} else if (value.getClass().isArray()) {
+				map.pushArray(key, fromArray(value));
+			} else if (value instanceof String) {
+				map.pushString(key, (String) value);
+			} else if (value instanceof Number) {
+				if (value instanceof Integer) {
+					map.pushInt(key, (Integer) value);
+				} else {
+					map.pushDouble(key, ((Number) value).doubleValue());
+				}
+			} else if (value instanceof Boolean) {
+				map.pushBoolean(key, (Boolean) value);
+			} else {
+				if (!(value instanceof Bundle)) {
+					throw new IllegalArgumentException("Could not convert " + value.getClass());
+				}
 
-        map.pushMap(key, fromBundle((Bundle) value));
-      }
-    }
+				map.pushMap(key, fromBundle((Bundle) value));
+			}
+		}
 
 		return map;
 	}
@@ -481,37 +482,37 @@ public class ArgumentUtils {
 				case '"':
 				case '\\':
 				case '/': {
-          builder.append('\\').append(c);
-          break;
-        }
+					builder.append('\\').append(c);
+					break;
+				}
 				case '\t': {
-          builder.append("\\t");
-          break;
-        }
+					builder.append("\\t");
+					break;
+				}
 				case '\b': {
-          builder.append("\\b");
-          break;
-        }
+					builder.append("\\b");
+					break;
+				}
 				case '\n': {
-          builder.append("\\n");
-          break;
-        }
+					builder.append("\\n");
+					break;
+				}
 				case '\r': {
-          builder.append("\\r");
-          break;
-        }
+					builder.append("\\r");
+					break;
+				}
 				case '\f': {
-          builder.append("\\f");
-          break;
-        }
+					builder.append("\\f");
+					break;
+				}
 				default: {
-          if (c <= 0x1F) {
-            builder.append(String.format("\\u%04x", (int) c));
-          } else {
-            builder.append(c);
-          }
-          break;
-        }
+					if (c <= 0x1F) {
+						builder.append(String.format("\\u%04x", (int) c));
+					} else {
+						builder.append(c);
+					}
+					break;
+				}
 			}
 		}
 		builder.append("\"");
