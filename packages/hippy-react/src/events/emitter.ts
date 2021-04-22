@@ -6,7 +6,7 @@ interface EventListeners {
   [eventName: string]: HippyEventListener;
 }
 
-function getNameForEvent(event: string) {
+function getNameForEvent(event: string | undefined) {
   if (typeof event !== 'string') {
     throw new TypeError('Invalid arguments');
   }
