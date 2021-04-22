@@ -61,12 +61,11 @@ class EventEmitter {
             list.splice(index, 1);
           }
           if (list.length === 0) {
-            delete this._observers[eventName];
+            this._observers[eventName] = undefined;
           }
         }
       } else {
         this._observers[eventName] = undefined;
-        delete this._observers[eventName];
       }
     }
     return this._observers;

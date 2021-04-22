@@ -8,7 +8,7 @@ interface HippyEventHub {
       id: number;
       eventHandler: Function;
       context: any;
-    }
+    } | undefined
   }
 }
 
@@ -37,7 +37,7 @@ class HippyEventHub implements HippyEventHub {
     return currId;
   }
 
-  public removeEventHandler(handlerId: number) {
+  public removeEventHandler(handlerId: number | undefined) {
     if (typeof handlerId !== 'number') {
       throw new TypeError('Invalid arguments');
     }

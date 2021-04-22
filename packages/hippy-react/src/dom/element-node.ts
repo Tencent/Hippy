@@ -17,7 +17,7 @@ import {
 import '@localTypes/global';
 
 interface Attributes {
-  [key: string]: string | number | true;
+  [key: string]: string | number | true | undefined;
 }
 
 interface NativePropsStyle {
@@ -161,7 +161,7 @@ class ElementNode extends ViewNode {
           }));
         }
       } else if (styleValue === null && (this.style as any)[styleKey] !== undefined) {
-        delete (this.style as any)[styleKey];
+        (this.style as any)[styleKey] = undefined;
         // Convert to animationId if value is instanceOf Animation/AnimationSet
       } else if (styleValue instanceof Animation || styleValue instanceof AnimationSet) {
         (this.style as any)[styleKey] = {
@@ -295,7 +295,7 @@ class ElementNode extends ViewNode {
       if (useAnimation) {
         this.attributes.useAnimation = true;
       } else if (typeof this.attributes.useAnimation === 'boolean') {
-        delete this.attributes.useAnimation;
+        this.attributes.useAnimation = undefined;
       }
 
       updateChild(this);
@@ -355,7 +355,7 @@ class ElementNode extends ViewNode {
     }
   }
 
-  setText(text: string) {
+  setText(text: string | undefined) {
     if (typeof text !== 'string') {
       try {
         text = (text as any).toString();
@@ -363,7 +363,7 @@ class ElementNode extends ViewNode {
         throw new Error('Only string type is acceptable for setText');
       }
     }
-    text = text.trim();
+    text = (text as string).trim();
     if (!text && !this.getAttribute('text')) {
       return null;
     }
