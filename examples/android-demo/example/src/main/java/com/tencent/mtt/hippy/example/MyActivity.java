@@ -2,8 +2,10 @@ package com.tencent.mtt.hippy.example;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Window;
 
+import com.tencent.mtt.hippy.HippyCLogHandler;
 import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyAPIProvider;
 import com.tencent.mtt.hippy.HippyEngine.EngineInitStatus;
@@ -28,6 +30,13 @@ public class MyActivity extends Activity
 	{
 		super.onCreate(savedInstanceState);
 		getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+
+		HippyEngine.setCLogHandler(new HippyCLogHandler() {
+			@Override
+			public void onReceiveLogMessage(String msg) {
+				Log.e("HippyCLogHandler", "onReceiveLogMessage: " + msg);
+			}
+		});
 
 		// 1/3. 初始化hippy引擎
 		{
