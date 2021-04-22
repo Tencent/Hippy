@@ -18,9 +18,9 @@ package com.tencent.mtt.hippy.bridge;
 import android.content.res.AssetManager;
 
 import com.tencent.mtt.hippy.common.HippyArray;
+import java.nio.ByteBuffer;
 
-public interface HippyBridge
-{
+public interface HippyBridge {
 	String URI_SCHEME_ASSETS = "asset:";
 	String URI_SCHEME_FILE   = "file:";
 
@@ -33,12 +33,12 @@ public interface HippyBridge
 
 	void destroy(NativeCallback callback);
 
-	void callFunction(String action, String params, NativeCallback callback);
+	void callFunction(String action, NativeCallback callback, ByteBuffer buffer);
 
-    void callFunction(String action, byte[] bytes, int offset, int length, NativeCallback callback);
+	void callFunction(String action, NativeCallback callback, byte[] buffer);
+	void callFunction(String action, NativeCallback callback, byte[] buffer, int offset, int length);
 
-	interface BridgeCallback
-	{
+	interface BridgeCallback {
 		void callNatives(String moduleName, String moduleFunc, String callId, HippyArray params);
 
 		void reportException(String exception, String stackTrace);

@@ -395,7 +395,8 @@ std::string V8TryCatch::GetExceptionMsg() {
 
   std::shared_ptr<V8Ctx> v8_ctx = std::static_pointer_cast<V8Ctx>(ctx_);
   v8::HandleScope handle_scope(v8_ctx->isolate_);
-  v8::Local<v8::Context> context = v8_ctx->context_persistent_.Get(v8_ctx->isolate_);
+  v8::Local<v8::Context> context =
+      v8_ctx->context_persistent_.Get(v8_ctx->isolate_);
   v8::Context::Scope context_scope(context);
 
   v8::Local<v8::Message> message = try_catch_->Message();

@@ -18,6 +18,11 @@ package com.tencent.mtt.hippy.bridge;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.devsupport.DevServerCallBack;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
+import com.tencent.mtt.hippy.serialization.compatible.Deserializer;
+import com.tencent.mtt.hippy.serialization.nio.reader.BinaryReader;
+import com.tencent.mtt.hippy.serialization.nio.reader.SafeDirectReader;
+import com.tencent.mtt.hippy.serialization.nio.reader.SafeHeapReader;
+import com.tencent.mtt.hippy.serialization.string.InternalizedStringTable;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.utils.UrlUtils;
 import java.io.ByteArrayOutputStream;
@@ -36,7 +41,6 @@ import com.tencent.mtt.hippy.devsupport.DevRemoteDebugProxy;
 import com.tencent.mtt.hippy.utils.ArgumentUtils;
 import com.tencent.mtt.hippy.utils.FileUtils;
 import com.tencent.mtt.hippy.utils.LogUtils;
-import com.tencent.mtt.hippy.utils.HippyBuffer;
 import java.nio.ByteOrder;
 
 @SuppressWarnings("JavaJniMissingFunction")
@@ -44,56 +48,53 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 {
 	private static final Object sBridgeSyncLock;
 
-	static
-	{
+	static {
 		sBridgeSyncLock = new Object();
 	}
 
-	private static volatile String				mCodeCacheRootDir;
-	private long								mV8RuntimeId				= 0;
-	private BridgeCallback						mBridgeCallback;
-	private boolean								mInit						= false;
-	private boolean								mIsDevModule;
-	private String                              mDebugServerHost;
-	private boolean								mSingleThreadMode;
-	private final boolean						mBridgeParamJson;
-	private HippyBuffer                         mHippyBuffer;
-	private DebugWebSocketClient				mDebugWebSocketClient;
-	private String                              mDebugGobalConfig;
-	private NativeCallback                      mDebugInitJSFrameworkCallback;
-	private final HippyEngineContext            mContext;
+	private static volatile String mCodeCacheRootDir;
+	private long mV8RuntimeId = 0;
+	private BridgeCallback mBridgeCallback;
+	private boolean mInit	= false;
+	private final boolean mIsDevModule;
+	private String mDebugServerHost;
+	private final boolean mSingleThreadMode;
+	private final boolean mBridgeParamJson;
+	private DebugWebSocketClient mDebugWebSocketClient;
+	private String mDebugGlobalConfig;
+	private NativeCallback mDebugInitJSFrameworkCallback;
+	private final HippyEngineContext mContext;
+	private Deserializer deserializer;
+	private BinaryReader safeHeapReader;
+	private BinaryReader safeDirectReader;
 
-	public HippyBridgeImpl(HippyEngineContext engineContext, BridgeCallback callback, boolean singleThreadMode, boolean jsonBrige, boolean isDevModule, String debugServerHost)
-	{
+	public HippyBridgeImpl(HippyEngineContext engineContext, BridgeCallback callback, boolean singleThreadMode,
+			boolean jsonBridge, boolean isDevModule, String debugServerHost) {
 		this.mBridgeCallback = callback;
 		this.mSingleThreadMode = singleThreadMode;
-		this.mBridgeParamJson = jsonBrige;
+		this.mBridgeParamJson = jsonBridge;
 		this.mIsDevModule = isDevModule;
 		this.mDebugServerHost = debugServerHost;
 		this.mContext = engineContext;
 
-		synchronized (sBridgeSyncLock)
-		{
-			if (mCodeCacheRootDir == null)
-			{
+		synchronized (sBridgeSyncLock) {
+			if (mCodeCacheRootDir == null) {
 				Context context = mContext.getGlobalConfigs().getContext();
 				File hippyFile = FileUtils.getHippyFile(context);
-				if (hippyFile != null)
-				{
+				if (hippyFile != null) {
 					mCodeCacheRootDir = hippyFile.getAbsolutePath() + File.separator + "codecache" + File.separator;
 				}
 			}
 		}
 
-		if (!mBridgeParamJson)
-		{
-			mHippyBuffer = new HippyBuffer();
+		if (!mBridgeParamJson) {
+			deserializer = new Deserializer(null, new InternalizedStringTable());
 		}
 	}
 
 	@Override
-	public void initJSBridge(String gobalConfig, NativeCallback callback, final int groupId) {
-		mDebugGobalConfig = gobalConfig;
+	public void initJSBridge(String globalConfig, NativeCallback callback, final int groupId) {
+		mDebugGlobalConfig = globalConfig;
 		mDebugInitJSFrameworkCallback = callback;
 
 		if(this.mIsDevModule) {
@@ -102,8 +103,9 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 			if (TextUtils.isEmpty(mDebugServerHost)) {
 				mDebugServerHost = "localhost:38989";
 			}
-			mDebugWebSocketClient.connect(String.format(Locale.US, "ws://%s/debugger-proxy?role=android_client", mDebugServerHost),
-					new DebugWebSocketClient.JSDebuggerCallback() {
+
+			mDebugWebSocketClient.connect(String.format(Locale.US, "ws://%s/debugger-proxy?role=android_client", mDebugServerHost), new DebugWebSocketClient.JSDebuggerCallback()
+			{
 				@SuppressWarnings("unused")
 				@Override
 				public void onSuccess(String response) {
@@ -115,7 +117,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 				@Override
 				public void onFailure(final Throwable cause) {
 					LogUtils.e("hippyCore", "js debug socket connect failed");
-                    initJSEngine(groupId);
+					initJSEngine(groupId);
 				}
 			});
 		} else {
@@ -125,14 +127,14 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 
 	private void initJSEngine(int groupId) {
 		synchronized (HippyBridgeImpl.class) {
-			mV8RuntimeId = initJSFramework(mDebugGobalConfig.getBytes(), mSingleThreadMode, mBridgeParamJson, mIsDevModule, mDebugInitJSFrameworkCallback, groupId);
+			mV8RuntimeId = initJSFramework(mDebugGlobalConfig.getBytes(), mSingleThreadMode, mBridgeParamJson, mIsDevModule, mDebugInitJSFrameworkCallback, groupId);
 			mInit = true;
 		}
 	}
 
 	@Override
-	public boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache,
-			String codeCacheTag, NativeCallback callback) {
+	public boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache, String codeCacheTag, NativeCallback callback)
+	{
 		if (!mInit) {
 			return false;
 		}
@@ -153,28 +155,46 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 	}
 
 	@Override
-	public void callFunction(String action, String params, NativeCallback callback)
-	{
-		if (!mInit || TextUtils.isEmpty(action) || TextUtils.isEmpty(params))
-		{
+	public void callFunction(String action, NativeCallback callback, ByteBuffer buffer)	{
+		if (!mInit || TextUtils.isEmpty(action) || buffer == null || buffer.limit() == 0) {
 			return;
 		}
-		final byte[] bytes = params.getBytes();
-		callFunction(action, bytes, 0, bytes.length , mV8RuntimeId, callback);
+
+		/*
+		 * In Android's DirectByteBuffer implementation.
+		 *
+		 * {@link DirectByteBuffer#hb backing array} will be used to store buffer data,
+		 * {@link DirectByteBuffer#offset} will be used to handle the alignment,
+		 * it's already add to {@link DirectByteBuffer#address},
+		 * so the {@link DirectByteBuffer} has backing array and offset.
+		 *
+		 * In the other side, JNI method |void* GetDirectBufferAddress(JNIEnv*, jobject)|
+		 * will be directly return {@link DirectByteBuffer#address} as the starting buffer address.
+		 *
+		 * So in this situation if, and only if, buffer is direct,
+		 * {@link ByteBuffer#arrayOffset} will be ignored, treated as 0.
+		 */
+		int offset = (buffer.isDirect() ? 0 : buffer.arrayOffset()) + buffer.position();
+		int length = buffer.limit() - buffer.position();
+		callFunction(action, mV8RuntimeId, callback, buffer, offset, length);
 	}
 
-    @Override
-    public void callFunction(String action, byte[] bytes, int offset, int length, NativeCallback callback)
-    {
-        if (!mInit || TextUtils.isEmpty(action) || bytes == null || bytes.length == 0 || offset < 0 || length < 0 || offset + length > bytes.length)
-        {
-            return;
-        }
-        callFunction(action, bytes, offset, length, mV8RuntimeId, callback);
-    }
+	@Override
+	public void callFunction(String action, NativeCallback callback, byte[] buffer) {
+		callFunction(action, callback, buffer, 0, buffer.length);
+	}
 
 	@Override
-    public void onDestroy() {
+	public void callFunction(String action, NativeCallback callback, byte[] buffer, int offset, int length) {
+		if (!mInit || TextUtils.isEmpty(action) || buffer == null || offset < 0 || length < 0 || offset + length > buffer.length) {
+			return;
+		}
+
+		callFunction(action,  mV8RuntimeId, callback, buffer, offset, length);
+	}
+
+	@Override
+	public void onDestroy() {
 		if (mDebugWebSocketClient != null) {
 			mDebugWebSocketClient.closeQuietly();
 			mDebugWebSocketClient = null;
@@ -185,8 +205,8 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 		}
 
 		mInit = false;
-		if (!mBridgeParamJson && mHippyBuffer != null) {
-			mHippyBuffer.release();
+		if (!mBridgeParamJson) {
+			deserializer.getStringTable().release();
 		}
 
 		mV8RuntimeId = 0;
@@ -198,45 +218,35 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 		destroy(mV8RuntimeId, mSingleThreadMode, callback);
 	}
 
-	/**
-	 * 创建C层的v8引擎
-	 * @param groupId 对于同一个组内的HippyEngine的多个实例，它们会共用C层的同一个v8实例，全局变量共享；groupId的默认值为-1（无效组，即不属于任何group组）
-	 */
 	public native long initJSFramework(byte[] gobalConfig, boolean useLowMemoryMode, boolean useBrigeParamJson, boolean isDevModule, NativeCallback callback, long groupId);
 
 	public native boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache, String codeCacheDir, long V8RuntimId, NativeCallback callback);
 
 	public native void destroy(long runtimeId, boolean useLowMemoryMode, NativeCallback callback);
 
-	public native void callFunction(String action, byte[] params, int offset, int length, long V8RuntimId, NativeCallback callback);
+	public native void callFunction(String action, long V8RuntimId, NativeCallback callback, ByteBuffer buffer, int offset, int length);
+	public native void callFunction(String action, long V8RuntimId, NativeCallback callback, byte[] buffer, int offset, int length);
 
 	public native void onResourceReady(ByteBuffer output, long runtimeId, long resId);
 
-	public void callNatives(String moduleName, String moduleFunc, String callId, byte[] params)
-	{
+	public void callNatives(String moduleName, String moduleFunc, String callId, byte[] buffer) {
+		callNatives(moduleName, moduleFunc, callId, ByteBuffer.wrap(buffer));
+	}
+
+	public void callNatives(String moduleName, String moduleFunc, String callId, ByteBuffer buffer) {
 		LogUtils.d("jni_callback", "callNatives [moduleName:" + moduleName + " , moduleFunc: " + moduleFunc + "]");
 
-		if (mBridgeCallback != null)
-		{
-			HippyArray hippyParam = bytesToArgument(params);
+		if (mBridgeCallback != null) {
+			HippyArray hippyParam = bytesToArgument(buffer);
 			mBridgeCallback.callNatives(moduleName, moduleFunc, callId, hippyParam);
 		}
 	}
 
-	public void InspectorChannel(byte[] params)
-	{
-		if (ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN) {
-			@SuppressWarnings("CharsetObjectCanBeUsed") String msg = new String(params, Charset.forName("UTF-16BE"));
-			if (mDebugWebSocketClient != null)
-			{
-				mDebugWebSocketClient.sendMessage(msg);
-			}
-		} else {
-			@SuppressWarnings("CharsetObjectCanBeUsed") String msg = new String(params, Charset.forName("UTF-16LE"));
-			if (mDebugWebSocketClient != null)
-			{
-				mDebugWebSocketClient.sendMessage(msg);
-			}
+	public void InspectorChannel(byte[] params) {
+		String encoding = ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN ? "UTF-16BE" : "UTF-16LE";
+		String msg = new String(params, Charset.forName(encoding));
+		if (mDebugWebSocketClient != null) {
+			mDebugWebSocketClient.sendMessage(msg);
 		}
 	}
 
@@ -290,21 +300,45 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 		});
 	}
 
-	private HippyArray bytesToArgument(byte[] param)
-	{
+	private HippyArray bytesToArgument(ByteBuffer buffer) {
 		HippyArray hippyParam = null;
-		if (mBridgeParamJson)
-		{
+		if (mBridgeParamJson) {
 			LogUtils.d("hippy_bridge", "bytesToArgument using JSON");
-			String strParam = param == null ? "" : new String(param);
-			hippyParam = ArgumentUtils.parseToArray(strParam);
-		}
-		else
-		{
-			LogUtils.d("hippy_bridge", "bytesToArgument using HippyBuffer");
-			Object paramObj = mHippyBuffer.parse(param);
-			if (paramObj instanceof HippyArray)
-			{
+			byte[] bytes;
+			if (buffer.isDirect()) {
+				bytes = new byte[buffer.limit()];
+				buffer.get(bytes);
+			} else {
+				bytes = buffer.array();
+			}
+			hippyParam = ArgumentUtils.parseToArray(new String(bytes));
+		} else {
+			LogUtils.d("hippy_bridge", "bytesToArgument using Buffer");
+			Object paramObj;
+			try {
+				final BinaryReader binaryReader;
+				if (buffer.isDirect()) {
+					if (safeDirectReader == null) {
+						safeDirectReader = new SafeDirectReader();
+					}
+					binaryReader = safeDirectReader;
+				} else {
+					if (safeHeapReader == null) {
+						safeHeapReader = new SafeHeapReader();
+					}
+					binaryReader = safeHeapReader;
+				}
+				binaryReader.reset(buffer);
+				deserializer.setReader(binaryReader);
+				deserializer.reset();
+				deserializer.readHeader();
+				paramObj = deserializer.readValue();
+			} catch (Throwable e) {
+				e.printStackTrace();
+				LogUtils.e("compatible.Deserializer", "Error Parsing Buffer", e);
+				return new HippyArray();
+			}
+			if (paramObj instanceof HippyArray) {
 				hippyParam = (HippyArray) paramObj;
 			}
 		}
@@ -319,20 +353,15 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 		LogUtils.e("reportException",exception);
 		LogUtils.e("reportException",stackTrace);
 
-
-		if (mBridgeCallback != null)
-		{
+		if (mBridgeCallback != null) {
 			mBridgeCallback.reportException(exception, stackTrace);
 		}
 	}
 
 	@Override
-	public void onReceiveData(String msg)
-	{
-		if(this.mIsDevModule)
-		{
-			final byte[] bytes = msg.getBytes();
-			callFunction("onWebsocketMsg", bytes, 0, bytes.length , mV8RuntimeId, null);
+	public void onReceiveData(String msg) {
+		if (this.mIsDevModule) {
+			callFunction("onWebsocketMsg", null, msg.getBytes());
 		}
 	}
 }

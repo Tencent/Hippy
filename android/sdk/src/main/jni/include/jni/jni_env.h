@@ -30,6 +30,7 @@
 class JNIEnvironment {
  public:
   struct JemthodID_Wrapper {
+    jmethodID call_natives_direct_method_id = nullptr;
     jmethodID call_natives_method_id = nullptr;
     jmethodID report_exception_method_id = nullptr;
     jmethodID inspector_channel_method_id = nullptr;

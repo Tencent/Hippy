@@ -23,11 +23,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * FileName: HippyMap
- * Description：
- * History：
- */
+@Deprecated
 public class HippyMap
 {
 
