@@ -121,7 +121,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 		else if (!TextUtils.isEmpty(params.coreJSFilePath))
 			coreBundleLoader = new HippyFileBundleLoader(params.coreJSFilePath, !TextUtils.isEmpty(params.codeCacheTag), params.codeCacheTag);
 
-		this.mGlobalConfigs = new HippyGlobalConfigs(params);
+		HippyGlobalConfigs configs = new HippyGlobalConfigs(params);
+		this.mGlobalConfigs = configs;
 		this.mCoreBundleLoader = coreBundleLoader;
 		this.mPreloadBundleLoader = preloadBundleLoader;
 		this.mAPIProviders = params.providers;
@@ -413,12 +414,15 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 	}
 
 	@Override
-	public void sendEvent(String event, Object params)
-	{
-		if (mEngineContext != null && mEngineContext.getModuleManager() != null)
-		{
-			mEngineContext.getModuleManager().getJavaScriptModule(EventDispatcher.class).receiveNativeEvent(event, params);
+	public void sendEvent(String event, Object params, BridgeTransferType transferType) {
+		if (mEngineContext != null && mEngineContext.getModuleManager() != null) {
+			mEngineContext.getModuleManager().getJavaScriptModule(EventDispatcher.class).receiveNativeEvent(event, params, transferType);
 		}
+	}
+
+	@Override
+	public void sendEvent(String event, Object params) {
+		sendEvent(event, params, BridgeTransferType.BRIDGE_TRANSFER_TYPE_NORMAL);
 	}
 
 	@Override
@@ -767,7 +771,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 		{
 			mModuleManager = new HippyModuleManagerImpl(this, mAPIProviders);
 			mBridgeManager = new HippyBridgeManagerImpl(this, mCoreBundleLoader, HippyEngineManagerImpl.this.getBridgeType(),
-					mEnableHippyBuffer, isDevModule, debugServerHost, mGroupId, mThirdPartyAdapter);
+					!mEnableHippyBuffer, isDevModule, debugServerHost, mGroupId, mThirdPartyAdapter);
 			mRenderManager = new RenderManager(this, mAPIProviders);
 			mDomManager = new DomManager(this);
 		}
