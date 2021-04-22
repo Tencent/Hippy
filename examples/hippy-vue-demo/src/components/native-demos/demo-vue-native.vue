@@ -79,6 +79,13 @@
         <p>{{ Vue.Native.Dimensions.screen.statusBarHeight }}</p>
       </div>
 
+      <!-- 一个像素的 pt 值 -->
+      <div v-if="Vue.Native.Platform === 'android'
+       && Vue.Native.Dimensions.screen.navigatorBarHeight !== undefined" class="native-block">
+        <label class="vue-native-title">Vue.Native.Dimensions.screen.navigatorBarHeight</label>
+        <p>{{ Vue.Native.Dimensions.screen.navigatorBarHeight }}</p>
+      </div>
+
       <!-- 终端传递过来的启动参数 superProps -->
       <div v-if="app" class="native-block">
         <label class="vue-native-title">App.$options.$superProps</label>
