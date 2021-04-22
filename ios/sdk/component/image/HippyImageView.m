@@ -34,7 +34,7 @@
 NSString *const HippyImageErrorDomain = @"HippyImageErrorDomain";
 
 typedef NS_ENUM(NSUInteger, ImageDataError) {
-    ImageDataUnavailable = 1001,
+    ImageDataUnavailable = 10001,
     ImageDataNotExist,
     ImageDataReceivedError,
     ImageDataBlurredError,
@@ -601,7 +601,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
 - (void)loadImage:(UIImage *)image url:(NSString *)url error:(NSError *)error needBlur:(BOOL)needBlur needCache:(BOOL)needCache {
     if (error) {
         if (_onError && error.code != NSURLErrorCancelled) {
-            _onError(@{ @"error": error.localizedDescription });
+            _onError(@{ @"error": error.localizedDescription, @"errorCode": @(error.code) });
         }
         if (_onLoadEnd) {
             _onLoadEnd(nil);
