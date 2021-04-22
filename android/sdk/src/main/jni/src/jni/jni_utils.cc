@@ -27,33 +27,43 @@
 #include <string.h>
 
 #include "core/core.h"
-#include "jni/hippy_buffer.h"  // NOLINT(build/include_subdir)
 
-size_t SafeGetArrayLength(JNIEnv* j_env, const jbyteArray& j_array) {
-  HIPPY_DCHECK(j_array);
-  jsize length = j_env->GetArrayLength(j_array);
-  return static_cast<size_t>(std::max(0, length));
+jsize SafeGetArrayLength(JNIEnv* env, const jbyteArray& jarray) {
+  HIPPY_DCHECK(jarray);
+  jsize length = env->GetArrayLength(jarray);
+  return std::max(0, length);
 }
 
-std::string JniUtils::AppendJavaByteArrayToString(JNIEnv* j_env,
-                                                  jbyteArray j_byte_array) {
-  if (!j_byte_array) {
+std::string JniUtils::AppendJavaByteArrayToString(JNIEnv* env,
+                                                  jbyteArray byte_array,
+                                                  jsize j_offset) {
+  if (!byte_array) {
     return "";
   }
 
-  size_t len = SafeGetArrayLength(j_env, j_byte_array);
-  if (!len) {
+  auto j_length = SafeGetArrayLength(env, byte_array);
+  if (!j_length) {
     return "";
   }
+
+  return AppendJavaByteArrayToString(env, byte_array, j_offset, j_length);
+}
+
+std::string JniUtils::AppendJavaByteArrayToString(JNIEnv* env,
+                                                  jbyteArray byte_array,
+                                                  jsize j_offset,
+                                                  jsize j_length) {
+  if (!byte_array) {
+    return "";
+  }
+
   std::string ret;
-  ret.resize(len);
-  j_env->GetByteArrayRegion(j_byte_array, 0, len,
+  ret.resize(j_length);
+  env->GetByteArrayRegion(byte_array, j_offset, j_length,
                           reinterpret_cast<int8_t*>(&ret[0]));
   return ret;
 }
 
-// todo
-// 暂时只有简单字符，没有中文等的场景，为效率和包大小考虑，不进行utf16到utf8的转换
 std::string JniUtils::CovertJavaStringToString(JNIEnv* j_env, jstring j_str) {
   HIPPY_DCHECK(j_str);
 
@@ -62,13 +72,6 @@ std::string JniUtils::CovertJavaStringToString(JNIEnv* j_env, jstring j_str) {
   std::string ret(c_str, len);
   j_env->ReleaseStringUTFChars(j_str, c_str);
   return ret;
-}
-
-HippyBuffer* JniUtils::WriteToBuffer(v8::Isolate* isolate,
-                                     v8::Local<v8::Object> value) {
-  HippyBuffer* buffer = NewBuffer();
-  BuildBuffer(isolate, value, buffer);
-  return buffer;
 }
 
 void JniUtils::printCurrentThreadID() {

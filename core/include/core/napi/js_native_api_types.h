@@ -96,7 +96,7 @@ class Ctx {
   virtual std::shared_ptr<CtxValue> CreateString(const char* string) = 0;
   virtual std::shared_ptr<CtxValue> CreateUndefined() = 0;
   virtual std::shared_ptr<CtxValue> CreateNull() = 0;
-  virtual std::shared_ptr<CtxValue> CreateObject(const char* json) = 0;
+  virtual std::shared_ptr<CtxValue> CreateObject(const char* json, int length = -1) = 0;
   virtual std::shared_ptr<CtxValue> CreateArray(
       size_t count,
       std::shared_ptr<CtxValue> value[]) = 0;

@@ -35,7 +35,12 @@ class JniUtils {
 
  public:
   static std::string AppendJavaByteArrayToString(JNIEnv* env,
-                                                 jbyteArray byte_array);
+                                                 jbyteArray byte_array,
+                                                 jsize j_offset = 0);
+  static std::string AppendJavaByteArrayToString(JNIEnv* env,
+                                                 jbyteArray byte_array,
+                                                 jsize j_offset,
+                                                 jsize j_length);
   static std::string CovertJavaStringToString(JNIEnv* env, jstring str);
   static HippyBuffer* WriteToBuffer(v8::Isolate* isolate,
                                     v8::Local<v8::Object> value);
