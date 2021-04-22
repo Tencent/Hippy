@@ -115,7 +115,7 @@ v8::Local<v8::Value> V8Ctx::ParseJson(const char *json) {
                          v8::Value));
 }
 
-std::shared_ptr<CtxValue> V8Ctx::CreateObject(const char *json) {
+std::shared_ptr<CtxValue> V8Ctx::CreateObject(const char *json, int length) {
   if (!json) {
     return nullptr;
   }
@@ -124,6 +124,7 @@ std::shared_ptr<CtxValue> V8Ctx::CreateObject(const char *json) {
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
   v8::Local<v8::Value> object = ParseJson(json);
+
   if (object.IsEmpty()) {
     return nullptr;
   }

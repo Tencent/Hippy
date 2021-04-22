@@ -132,7 +132,7 @@ struct V8Ctx : public Ctx {
   virtual std::shared_ptr<CtxValue> CreateString(const char *string);
   virtual std::shared_ptr<CtxValue> CreateUndefined();
   virtual std::shared_ptr<CtxValue> CreateNull();
-  virtual std::shared_ptr<CtxValue> CreateObject(const char *json);
+  virtual std::shared_ptr<CtxValue> CreateObject(const char *json, int length = -1);
   virtual std::shared_ptr<CtxValue> CreateArray(
       size_t count,
       std::shared_ptr<CtxValue> value[]);

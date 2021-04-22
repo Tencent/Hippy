@@ -356,8 +356,7 @@ jlong InitInstance(JNIEnv* j_env,
 
     if (runtime->IsDebug()) {
       if (!global_inspector) {
-        global_inspector =
-            std::make_shared<V8InspectorClientImpl>(scope);
+        global_inspector = std::make_shared<V8InspectorClientImpl>(scope);
         global_inspector->Connect(runtime->GetBridge());
       } else {
         global_inspector->Reset(scope, runtime->GetBridge());
