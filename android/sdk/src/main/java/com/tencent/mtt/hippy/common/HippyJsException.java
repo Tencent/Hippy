@@ -15,10 +15,7 @@
  */
 package com.tencent.mtt.hippy.common;
 
-/**
- * Created by leonardgong on 2017/11/17 0017.
- */
-
+@Deprecated
 public class HippyJsException extends Exception
 {
 	private final String	mStack;
