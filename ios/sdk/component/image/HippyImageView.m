@@ -302,6 +302,9 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
         } else {
             self.contentMode = (UIViewContentMode)resizeMode;
         }
+        if (self.image) {
+            [self updateImage:self.image];
+        }
     }
 }
 
