@@ -73,10 +73,10 @@ public abstract class HippyEngine
 
 	public static void setCLogHandler(HippyCLogHandler handler) {
 		if (handler != null) {
-			InitLogger(handler);
+			initLogger(handler);
 		}
 	}
-	private static native void InitLogger(HippyCLogHandler handler);
+	private static native void initLogger(HippyCLogHandler handler);
 
 	/**
 	 * @param params 创建实例需要的参数

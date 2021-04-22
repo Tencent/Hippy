@@ -43,10 +43,10 @@
 namespace hippy {
 namespace bridge {
 
-REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
-             "initLogger",
-             "(Lcom/tencent/mtt/hippy/bridge/HippyLogger;)V",
-             InitLogger)
+REGISTER_STATIC_JNI("com/tencent/mtt/hippy/HippyEngine",
+                    "initLogger",
+                    "(Lcom/tencent/mtt/hippy/HippyCLogHandler;)V",
+                    InitLogger)
 
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
              "initJSFramework",
@@ -90,7 +90,7 @@ void InitLogger(JNIEnv* j_env, jobject j_object, jobject j_logger) {
   }
 
   jmethodID j_method =
-      j_env->GetMethodID(j_cls, "Call", "(Ljava/lang/String;)V");
+      j_env->GetMethodID(j_cls, "onReceiveLogMessage", "(Ljava/lang/String;)V");
   if (!j_method) {
     return;
   }
@@ -534,29 +534,30 @@ void DestroyInstance(JNIEnv* j_env,
 }  // namespace bridge
 }  // namespace hippy
 
-jint JNI_OnLoad(JavaVM* vm, void* reserved) {
-  JNIEnv* env;
+jint JNI_OnLoad(JavaVM* j_vm, void* reserved) {
+  JNIEnv* j_env;
   jint onLoad_err = -1;
-  if ((vm)->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_4) != JNI_OK) {
+  if ((j_vm)->GetEnv(reinterpret_cast<void**>(&j_env), JNI_VERSION_1_4) !=
+      JNI_OK) {
     return onLoad_err;
   }
-  if (!env) {
+  if (!j_env) {
     return onLoad_err;
   }
 
-  bool ret = JNIRegister::RegisterMethods(env);
+  bool ret = JNIRegister::RegisterMethods(j_env);
   if (!ret) {
     return onLoad_err;
   }
 
-  JNIEnvironment::GetInstance()->init(vm, env);
+  JNIEnvironment::GetInstance()->init(j_vm, j_env);
 
   Uri::Init();
 
   return JNI_VERSION_1_4;
 }
 
-void JNI_OnUnload(JavaVM* vm, void* reserved) {
+void JNI_OnUnload(JavaVM* j_vm, void* reserved) {
   hippy::napi::V8VM::PlatformDestroy();
 
   Uri::Destory();
