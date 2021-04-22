@@ -34,8 +34,8 @@ void JNIEnvironment::init(JavaVM* j_vm, JNIEnv* j_env) {
 
   jclass j_hippy_bridge_cls =
       j_env->FindClass("com/tencent/mtt/hippy/bridge/HippyBridgeImpl");
-  wrapper_.call_natives_direct_method_id =
-      j_env->GetMethodID(hippy_bridge_cls, "callNatives",
+  wrapper_.j_call_natives_direct_method_id =
+      j_env->GetMethodID(j_hippy_bridge_cls, "callNatives",
                          "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/"
                          "String;Ljava/nio/ByteBuffer;)V");
   wrapper_.j_call_natives_method_id = j_env->GetMethodID(

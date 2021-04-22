@@ -30,7 +30,7 @@
 
 jsize SafeGetArrayLength(JNIEnv* j_env, const jbyteArray& j_byte_array) {
   TDF_BASE_DCHECK(j_byte_array);
-  jsize j_size = env->GetArrayLength(j_byte_array);
+  jsize j_size = j_env->GetArrayLength(j_byte_array);
   return std::max(0, j_size);
 }
 
@@ -59,7 +59,7 @@ std::string JniUtils::AppendJavaByteArrayToString(JNIEnv* j_env,
 
   std::string ret;
   ret.resize(j_length);
-  env->GetByteArrayRegion(j_byte_array, j_offset, j_length,
+  j_env->GetByteArrayRegion(j_byte_array, j_offset, j_length,
                           reinterpret_cast<int8_t*>(&ret[0]));
   return ret;
 }
