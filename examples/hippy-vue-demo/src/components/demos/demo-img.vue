@@ -2,17 +2,27 @@
   <div id="demo-img">
     <div id="demo-img-container">
       <label>Contain:</label>
-      <img src="http://zxpic.imtt.qq.com/zxpic_imtt/2018/06/08/2000/originalimage/200721_3738332814_3_540_364.jpg" class="image contain" />
+      <img :defaultSource="defaultImage" src="https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png" class="image contain" />
       <label>Cover:</label>
-      <img src="http://zxpic.imtt.qq.com/zxpic_imtt/2018/06/08/2000/originalimage/200721_3738332814_3_540_364.jpg" class="image cover" />
+      <img :defaultSource="defaultImage" src="https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png" class="image cover" />
       <label>Center:</label>
-      <img src="http://zxpic.imtt.qq.com/zxpic_imtt/2018/06/08/2000/originalimage/200721_3738332814_3_540_364.jpg" class="image center" />
+      <img :defaultSource="defaultImage" src="https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png" class="image center" />
       <label>Gif:</label>
-      <img src="http://img.qdaily.com/article/article_show/20180226115511QR0IMWjcBZmo8FaV.gif" class="image cover" />
+      <img :defaultSource="defaultImage" src="http://img.qdaily.com/article/article_show/20180226115511QR0IMWjcBZmo8FaV.gif" class="image cover" />
     </div>
   </div>
 </template>
+<script>
+import defaultImage from '../../assets/defaultSource.jpg';
 
+export default {
+  data() {
+    return {
+      defaultImage,
+    };
+  },
+};
+</script>
 <style scope>
 #demo-img {
   overflow-y: scroll;

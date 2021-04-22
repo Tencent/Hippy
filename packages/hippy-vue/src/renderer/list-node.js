@@ -26,7 +26,7 @@ class ListNode extends ElementNode {
   }
 
   /**
-   * Poly fill native event
+   * Polyfill native event
    */
   polyFillNativeEvents(method, eventNames, callback, options) {
     const eventHandlerMap = {

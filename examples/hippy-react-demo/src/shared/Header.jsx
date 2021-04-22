@@ -8,8 +8,7 @@ import HippyReact, {
   View,
 } from '@hippy/react';
 
-/* eslint import/no-webpack-loader-syntax: off */
-import BACK_ICON from '!!url-loader?modules!./back-icon.png';
+import BACK_ICON from './back-icon.png';
 
 const SKIN_COLOR = {
   mainLight: '#4c9afa',

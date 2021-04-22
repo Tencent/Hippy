@@ -25,7 +25,7 @@ this.call.remove()
 
 `最低支持版本 2.3.4`
 
-当hippy js引擎或者context被销毁时会调用该事件，hippy业务可以通过监听 `destroyInstance` 事件做一些离开时的操作，但回调函数不能使用 `async`
+当 hippy js 引擎或者 context 被销毁时会触发该事件，hippy业务可以通过监听 `destroyInstance` 事件做一些离开时的操作，但回调函数不能使用 `async`
 
 ```jsx
 Hippy.on('destroyInstance', () => {
@@ -33,7 +33,7 @@ Hippy.on('destroyInstance', () => {
 });
 ```
 
-# 容器大小转变事件
+# 容器大小改变事件
 
 `只有 Android 支持`
 

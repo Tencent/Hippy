@@ -1,6 +1,8 @@
 import React, { ReactElement } from 'react';
+import { Fiber } from 'react-reconciler';
 import Style from '@localTypes/style';
 import { callUIFunction } from '../modules/ui-manager-module';
+import Element from '../dom/element-node';
 
 interface RefreshWrapperProps {
   bounceTime?: number;
@@ -19,7 +21,7 @@ interface RefreshWrapperItemViewProps {
  * @noInheritDoc
  */
 class RefreshWrapper extends React.Component<RefreshWrapperProps, {}> {
-  private instance: HTMLDivElement | null = null;
+  private instance: Element | Fiber | HTMLDivElement | null = null;
 
   public refreshComplected: () => void;
 
@@ -41,14 +43,14 @@ class RefreshWrapper extends React.Component<RefreshWrapperProps, {}> {
    * Call native for start refresh.
    */
   public startRefresh() {
-    callUIFunction(this.instance, 'startRefresh', null);
+    callUIFunction(this.instance as Element, 'startRefresh', null);
   }
 
   /**
    * Call native that data is refreshed
    */
   public refreshCompleted() {
-    callUIFunction(this.instance, 'refreshComplected', null);
+    callUIFunction(this.instance as Element, 'refreshComplected', null);
   }
 
   /**
