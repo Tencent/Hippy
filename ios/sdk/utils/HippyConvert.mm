@@ -654,7 +654,7 @@ HIPPY_ENUM_CONVERTER(FlexAlign, (@{
 
 HIPPY_ENUM_CONVERTER(PositionType, (@{ @"absolute": @(PositionTypeAbsolute), @"relative": @(PositionTypeRelative) }), PositionTypeRelative, intValue)
 
-HIPPY_ENUM_CONVERTER(FlexWrapMode, (@{ @"wrap": @(FlexWrap), @"nowrap": @(FlexNoWrap) }), FlexNoWrap, intValue)
+HIPPY_ENUM_CONVERTER(FlexWrapMode, (@{ @"wrap": @(FlexWrap), @"nowrap": @(FlexNoWrap), @"wrap-reverse": @(FlexWrapReverse) }), FlexNoWrap, intValue)
 
 HIPPY_ENUM_CONVERTER(
     DisplayType, (@{ @"flex": @(DisplayTypeFlex), @"block": @(DisplayTypeFlex), @"none": @(DisplayTypeNone) }), DisplayTypeFlex, intValue)
