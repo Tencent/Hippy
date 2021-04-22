@@ -15,6 +15,8 @@
  */
 package com.tencent.mtt.hippy.modules;
 
+import com.tencent.mtt.hippy.HippyEngine.BridgeTransferType;
+
 /**
  * FileName: Promise
  * Description：
@@ -29,4 +31,6 @@ public interface Promise
 	boolean isCallback();
 
 	String getCallId();
+
+    void setTransferType(BridgeTransferType type);
 }
