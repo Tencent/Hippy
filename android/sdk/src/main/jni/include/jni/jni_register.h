@@ -30,13 +30,18 @@
 
 class JNIRegisterData {
  public:
-  JNIRegisterData(const char *name, const char *sign, void *pointer);
+  JNIRegisterData(const char *name,
+                  const char *sign,
+                  void *pointer,
+                  bool is_static = false);
   JNINativeMethod ToJNINativeMethod();
+  inline bool IsStaticMethod() { return is_static_; }
 
  private:
   std::string name_;
   std::string sign_;
   void *pointer_;
+  bool is_static_;
 };
 
 class JNIRegister {
@@ -48,12 +53,13 @@ class JNIRegister {
   bool RegisterJNIModule(const char *module,
                          const char *name,
                          const char *signature,
-                         void *pointer) {
+                         void *pointer,
+                         bool is_static = false) {
     auto it = jni_modules_.find(module);
     if (it != jni_modules_.end()) {
-      jni_modules_[module].push_back({name, signature, pointer});
+      jni_modules_[module].push_back({name, signature, pointer, is_static});
     } else {
-      jni_modules_[module] = {{name, signature, pointer}};
+      jni_modules_[module] = {{name, signature, pointer, is_static}};
     }
     return true;
   }
@@ -69,15 +75,19 @@ class JNIRegister {
   DISALLOW_COPY_AND_ASSIGN(JNIRegister);
 };
 
-#define REGISTER_JNI_INTERNAL(clazz, name, signature, pointer, key) \
-  auto __REGISTER_JNI_##key = []() {                                \
-    JNIRegister::GetInstance()->RegisterJNIModule(                  \
-        clazz, name, signature, reinterpret_cast<void *>(pointer)); \
-    return 0;                                                       \
+#define REGISTER_JNI_INTERNAL(clazz, name, signature, pointer, is_static, key) \
+  auto __REGISTER_JNI_##key = []() {                                           \
+    JNIRegister::GetInstance()->RegisterJNIModule(                             \
+        clazz, name, signature, reinterpret_cast<void *>(pointer), is_static); \
+    return 0;                                                                  \
   }();
 
-#define REGISTER_JNI_TEMP(clazz, name, signature, pointer, key) \
-  REGISTER_JNI_INTERNAL(clazz, name, signature, pointer, pointer##key)
+#define REGISTER_JNI_TEMP(clazz, name, signature, pointer, is_static, key) \
+  REGISTER_JNI_INTERNAL(clazz, name, signature, pointer, is_static,        \
+                        pointer##key)
 
 #define REGISTER_JNI(clazz, name, signature, pointer) \
-  REGISTER_JNI_TEMP(clazz, name, signature, pointer, __COUNTER__)
+  REGISTER_JNI_TEMP(clazz, name, signature, pointer, false, __COUNTER__)
+
+#define REGISTER_STATIC_JNI(clazz, name, signature, pointer) \
+  REGISTER_JNI_TEMP(clazz, name, signature, pointer, true, __COUNTER__)
