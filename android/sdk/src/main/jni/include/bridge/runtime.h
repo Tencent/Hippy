@@ -45,6 +45,7 @@ class Runtime {
   inline std::shared_ptr<hippy::napi::CtxValue> GetBridgeFunc() {
     return bridge_func_;
   }
+  inline std::string& GetBuffer() { return serializer_reused_buffer_; }
 
   inline void SetGroupId(int64_t id) { group_id_ = id; }
   inline void SetBridgeFunc(std::shared_ptr<hippy::napi::CtxValue> func) {
@@ -65,6 +66,7 @@ class Runtime {
   bool is_debug_;
   int64_t group_id_;
   std::shared_ptr<JavaRef> bridge_;
+  std::string serializer_reused_buffer_;
   std::shared_ptr<Engine> engine_;
   std::shared_ptr<Scope> scope_;
   std::shared_ptr<hippy::napi::CtxValue> bridge_func_;

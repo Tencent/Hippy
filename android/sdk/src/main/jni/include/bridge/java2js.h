@@ -27,14 +27,23 @@
 namespace hippy {
 namespace bridge {
 
-void CallFunction(JNIEnv* j_env,
-                  jobject j_obj,
-                  jstring j_action,
-                  jbyteArray j_params,
-                  jint j_offset,
-                  jint j_length,
-                  jlong j_runtime_id,
-                  jobject j_callback);
+void CallFunctionByByteArray(JNIEnv* j_env,
+                             jobject j_obj,
+                             jstring j_action,
+                             jlong j_runtime_id,
+                             jobject j_callback,
+                             jbyteArray j_byte_array,
+                             jint j_offset,
+                             jint j_length);
+
+void CallFunctionByBuffer(JNIEnv* j_env,
+                          jobject j_obj,
+                          jstring j_action,
+                          jlong j_runtime_id,
+                          jobject j_callback,
+                          jobject j_buffer,
+                          jint j_offset,
+                          jint j_length);
 
 }  // namespace bridge
 }  // namespace hippy

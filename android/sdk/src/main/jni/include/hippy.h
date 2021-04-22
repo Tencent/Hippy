@@ -26,6 +26,7 @@
 #include "bridge/java2js.h"
 #include "bridge/js2java.h"
 #include "bridge/runtime.h"
+#include "bridge/serializer.h"
 #include "inspector/v8_channel_impl.h"
 #include "inspector/v8_inspector_client_impl.h"
 #include "jni/exception_handler.h"

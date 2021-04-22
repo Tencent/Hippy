@@ -283,7 +283,7 @@ std::shared_ptr<CtxValue> JSCCtx::CreateNull() {
   return std::make_shared<JSCCtxValue>(context_, value);
 }
 
-std::shared_ptr<CtxValue> JSCCtx::CreateObject(const char* json) {
+std::shared_ptr<CtxValue> JSCCtx::CreateObject(const char* json, int length) {
   JSStringRef str_ref = JSStringCreateWithUTF8CString(json);
   JSValueRef value = JSValueMakeFromJSONString(context_, str_ref);
   JSStringRelease(str_ref);

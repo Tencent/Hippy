@@ -25,6 +25,7 @@
 #include <memory>
 
 #include "bridge/runtime.h"
+#include "bridge/serializer.h"
 #include "jni/hippy_buffer.h"
 #include "jni/jni_env.h"
 
@@ -58,7 +59,8 @@ void CallJava(hippy::napi::CBDataTuple* data) {
   }
 
   jstring j_module_name = nullptr;
-  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+  std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
+  JNIEnv* j_env = instance->AttachCurrentThread();
   if (info.Length() >= 1 && !info[0].IsEmpty()) {
     v8::String::Utf8Value module_name(isolate, info[0]);
     j_module_name = j_env->NewStringUTF(JniUtils::ToCString(module_name));
@@ -82,17 +84,15 @@ void CallJava(hippy::napi::CBDataTuple* data) {
   }
 
   jbyteArray j_params_str = nullptr;
-  HippyBuffer* hippy_buffer = nullptr;
+  std::string buffer_data;
   if (info.Length() >= 4 && !info[3].IsEmpty() && info[3]->IsObject()) {
     if (!runtime->IsParamJson()) {
-      hippy_buffer = JniUtils::WriteToBuffer(
-          isolate, v8::Local<v8::Object>::Cast(info[3]));
-      if (hippy_buffer != nullptr && hippy_buffer->data != nullptr) {
-        j_params_str = j_env->NewByteArray(hippy_buffer->position);
-        j_env->SetByteArrayRegion(
-            j_params_str, 0, hippy_buffer->position,
-            reinterpret_cast<const jbyte*>(hippy_buffer->data));
-      }
+      Serializer serializer(isolate, context, runtime->GetBuffer());
+      serializer.WriteHeader();
+      serializer.WriteValue(info[3]);
+      std::pair<uint8_t*, size_t> pair = serializer.Release();
+      buffer_data =
+          std::string(reinterpret_cast<const char*>(pair.first), pair.second);
     } else {
       v8::Local<v8::Object> global = context->Global();
       v8::Local<v8::Value> JSON = TO_LOCAL_UNCHECKED(
@@ -124,10 +124,30 @@ void CallJava(hippy::napi::CBDataTuple* data) {
     }
   }
 
-  j_env->CallVoidMethod(
-      runtime->GetBridge()->GetObj(),
-      JNIEnvironment::GetInstance()->GetMethods().call_natives_method_id,
-      j_module_name, j_module_func, j_cb_id, j_params_str);
+  uint8_t transfer_type = 0;
+  if (info.Length() >= 5 && !info[4].IsEmpty() && info[4]->IsNumber()) {
+    transfer_type =
+        static_cast<uint8_t>(info[4]->NumberValue(context).FromMaybe(0));
+  }
+  HIPPY_DLOG(hippy::Debug, "CallNative transfer_type = %d", transfer_type);
+
+  jobject j_buffer = nullptr;
+  jmethodID j_method = nullptr;
+  if (transfer_type == 1) {  // Direct
+    j_buffer = j_env->NewDirectByteBuffer(
+        const_cast<void*>(reinterpret_cast<const void*>(buffer_data.c_str())),
+        buffer_data.length());
+    j_method = instance->GetMethods().call_natives_direct_method_id;
+  } else {  // Default
+    j_buffer = j_env->NewByteArray(buffer_data.length());
+    j_env->SetByteArrayRegion(
+        reinterpret_cast<jbyteArray>(j_buffer), 0, buffer_data.length(),
+        reinterpret_cast<const jbyte*>(buffer_data.c_str()));
+    j_method = instance->GetMethods().call_natives_method_id;
+  }
+
+  j_env->CallVoidMethod(runtime->GetBridge()->GetObj(), j_method, j_module_name,
+                        j_module_func, j_cb_id, j_buffer);
 
   JNIEnvironment::ClearJEnvException(j_env);
 
@@ -136,10 +156,6 @@ void CallJava(hippy::napi::CBDataTuple* data) {
   j_env->DeleteLocalRef(j_module_func);
   j_env->DeleteLocalRef(j_cb_id);
   j_env->DeleteLocalRef(j_params_str);
-  if (hippy_buffer != nullptr) {
-    ReleaseBuffer(hippy_buffer);
-  }
-  hippy_buffer = nullptr;
 }
 
 void CallJavaMethod(jobject j_obj, jlong j_value) {
