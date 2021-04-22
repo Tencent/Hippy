@@ -88,7 +88,14 @@ console.log(Vue.Native.PixelRatio); // 3
 
 ## measureInWindow
 
-测量窗口可视范围内某个组件的尺寸和位置，如果出错会都是 -1。
+> * Deprecated.
+> * iOS 仅可以获取 Hippy 容器的布局, 所以建议统一采用 measureInAppWindow 方法
+
+测量可视范围内某个组件的尺寸和位置，如果出错会都是 -1。
+
+## measureInAppWindow
+
+测量在 App 可视范围内某个组件的尺寸和位置，如果出错 callback 参数可能为字符串或者 -1
 
 ## Cookie
 
