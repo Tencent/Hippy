@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.6.1](https://github.com/Tencent/Hippy/compare/2.6.0...2.6.1) (2021-04-22)
+
+
+### Bug Fixes
+
+* **android:** remove some unused code from HippyBridgeImpl ([57ace32](https://github.com/Tencent/Hippy/commit/57ace3273897df3e16832ee52ed0d8e6779a6159))
+* **ios:** fix resize mode center error ([#708](https://github.com/Tencent/Hippy/issues/708)) ([9670940](https://github.com/Tencent/Hippy/commit/9670940d4b2238bd7799cc2b4ab4d6e21a05d897))
+* **ios:** fix text-image mixed content layout error ([04a7d6c](https://github.com/Tencent/Hippy/commit/04a7d6c4a4197fb8c524d4f108f7dd342d5f32be))
+* **ios:** jsc stringRef bad access ([df73c0d](https://github.com/Tencent/Hippy/commit/df73c0d93c816b2d96d472310b41093dea55b4a8))
+* **ios:** optimize process when reset scrollview's subview ([61cf1e7](https://github.com/Tencent/Hippy/commit/61cf1e796dd7097755c9d3ee5c77e1ba665f5a70))
+* **ios:** optimize process when reset scrollview's subview ([cf71b8c](https://github.com/Tencent/Hippy/commit/cf71b8c29cb6963d79041ab0256cf78f5fca122f))
+* **ios:** optimize process when reset scrollview's subview ([c9ab5e4](https://github.com/Tencent/Hippy/commit/c9ab5e49ca0e3047bfaf8f962e6d58d60f807dc4))
+
+
+### Features
+
+* **android:** add navigation bar height  to global dimension ([5e85304](https://github.com/Tencent/Hippy/commit/5e853046964e31126dc61a4353cd10e5d6dd09c7))
+* **hippy-react,hippy-vue:** support to load local img ([4331fd5](https://github.com/Tencent/Hippy/commit/4331fd5c3a0ae0ae6700973e3399d520cf3d1d00))
+
+
+
+
+
 # [2.6.0](https://github.com/Tencent/Hippy/compare/2.5.5...2.6.0) (2021-04-19)
 
 

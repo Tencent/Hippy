@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.6.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-router/compare/2.6.0...2.6.1) (2021-04-22)
+
+**Note:** Version bump only for package @hippy/vue-router
+
+
+
+
+
 # [2.6.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-router/compare/2.5.5...2.6.0) (2021-04-19)
 
 **Note:** Version bump only for package @hippy/vue-router

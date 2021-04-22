@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.6.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.6.0...2.6.1) (2021-04-22)
+
+
+### Features
+
+* **hippy-react,hippy-vue:** support to load local img ([4331fd5](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/4331fd5c3a0ae0ae6700973e3399d520cf3d1d00))
+
+
+
+
+
 # [2.6.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.5.5...2.6.0) (2021-04-19)
 
 
