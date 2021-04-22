@@ -24,6 +24,7 @@
 
 #include <memory>
 
+#include "base/logging.h"
 #include "bridge/runtime.h"
 #include "bridge/serializer.h"
 #include "jni/hippy_buffer.h"
@@ -129,7 +130,7 @@ void CallJava(hippy::napi::CBDataTuple* data) {
     transfer_type =
         static_cast<uint8_t>(info[4]->NumberValue(context).FromMaybe(0));
   }
-  HIPPY_DLOG(hippy::Debug, "CallNative transfer_type = %d", transfer_type);
+  TDF_BASE_DLOG(INFO) << "CallNative transfer_type = " << transfer_type;
 
   jobject j_buffer = nullptr;
   jmethodID j_method = nullptr;
@@ -137,13 +138,13 @@ void CallJava(hippy::napi::CBDataTuple* data) {
     j_buffer = j_env->NewDirectByteBuffer(
         const_cast<void*>(reinterpret_cast<const void*>(buffer_data.c_str())),
         buffer_data.length());
-    j_method = instance->GetMethods().call_natives_direct_method_id;
+    j_method = instance->GetMethods().j_call_natives_direct_method_id;
   } else {  // Default
     j_buffer = j_env->NewByteArray(buffer_data.length());
     j_env->SetByteArrayRegion(
         reinterpret_cast<jbyteArray>(j_buffer), 0, buffer_data.length(),
         reinterpret_cast<const jbyte*>(buffer_data.c_str()));
-    j_method = instance->GetMethods().call_natives_method_id;
+    j_method = instance->GetMethods().j_call_natives_method_id;
   }
 
   j_env->CallVoidMethod(runtime->GetBridge()->GetObj(), j_method, j_module_name,

@@ -55,10 +55,10 @@ void CallFunction(JNIEnv* j_env,
                   jobject j_callback,
                   std::string buffer_data,
                   std::shared_ptr<JavaRef> buffer_owner) {
-  HIPPY_DLOG(hippy::Debug, "CallFunction j_runtime_id = %lld", j_runtime_id);
+  TDF_BASE_DLOG(INFO) << "CallFunction j_runtime_id = " << j_runtime_id;
   std::shared_ptr<Runtime> runtime = Runtime::Find(j_runtime_id);
   if (!runtime) {
-    HIPPY_LOG(hippy::Warning, "CallFunction j_runtime_id invalid");
+    TDF_BASE_DLOG(WARNING) << "CallFunction j_runtime_id invalid";
     return;
   }
 
@@ -116,7 +116,7 @@ void CallFunction(JNIEnv* j_env,
         v8::ValueDeserializer deserializer(
             isolate, reinterpret_cast<const uint8_t*>(buffer_data_.c_str()),
             buffer_data_.length());
-        HIPPY_CHECK(deserializer.ReadHeader(ctx).FromMaybe(false));
+        TDF_BASE_CHECK(deserializer.ReadHeader(ctx).FromMaybe(false));
         v8::MaybeLocal<v8::Value> ret = deserializer.ReadValue(ctx);
         if (!ret.IsEmpty()) {
           params = std::make_shared<hippy::napi::V8CtxValue>(
@@ -158,7 +158,7 @@ void CallFunctionByBuffer(JNIEnv* j_env,
                           jint j_length) {
   char* buffer_address =
       static_cast<char*>(j_env->GetDirectBufferAddress(j_buffer));
-  HIPPY_DCHECK(buffer_address != nullptr);
+  TDF_BASE_DCHECK(buffer_address != nullptr);
   CallFunction(j_env, j_obj, j_action, j_runtime_id, j_callback,
                std::string(buffer_address + j_offset, j_length),
                std::make_shared<JavaRef>(j_env, j_buffer));
