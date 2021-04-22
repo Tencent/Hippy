@@ -71,9 +71,12 @@ public abstract class HippyEngine
 		LibraryLoader.loadLibraryIfNeed();
 	}
 
-	HippyEngine()
-	{
+	public static void setCLogHandler(HippyCLogHandler handler) {
+		if (handler != null) {
+			InitLogger(handler);
+		}
 	}
+	private static native void InitLogger(HippyCLogHandler handler);
 
 	/**
 	 * @param params 创建实例需要的参数
