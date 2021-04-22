@@ -38,8 +38,8 @@ bool JNIRegister::RegisterMethods(JNIEnv* j_env) {
   const std::unordered_map<std::string, std::vector<JNIRegisterData>>&
       jni_modules = JNIRegister::GetInstance()->GetJniModules();
 
-  std::vector<JNINativeMethod> methods;
   for (auto it = jni_modules.begin(); it != jni_modules.end(); ++it) {
+    std::vector<JNINativeMethod> methods;
     jclass j_class;
     j_class = j_env->FindClass(it->first.c_str());
     if (!j_class) {
