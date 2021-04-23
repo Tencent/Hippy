@@ -180,7 +180,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 	}
 
 	public void setHippyViewDefaultSource(String defaultSourceUrl) {
-		setDefaultSource(defaultSourceUrl); //这一句还是要,不要,如果用户没有设置source就没有图
+		setDefaultSource(defaultSourceUrl);
 	}
 
 	@Override
@@ -250,42 +250,41 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 			}, param);
 		}
 	}
-	//用户设置了,Js属性设置背景色
-	public void setBackgroundColor(int backgroundColor)
-	{
+
+	public void setBackgroundColor(int backgroundColor) {
 		mUserHasSetBackgroudnColor = true;
 		mUserSetBackgroundColor = backgroundColor;
 		super.setBackgroundColor(backgroundColor);
 	}
+
 	@Override
-	protected void onFetchImage(String url)
-	{
+	protected void onFetchImage(String url) {
+		if (mContentDrawable instanceof ContentDrawable &&
+				((ContentDrawable)mContentDrawable).getSourceType() == SOURCE_TYPE_DEFAULT_SRC) {
+			return;
+		}
+
 		Drawable oldBGDrawable = getBackground();
 		resetContent();
-		if (url != null && (UrlUtils.isWebUrl(url) || UrlUtils.isFileUrl(url)))
-		{
+
+		if (url != null && (UrlUtils.isWebUrl(url) || UrlUtils.isFileUrl(url))) {
 			int defaultBackgroundColor = Color.LTGRAY;
-			//如果用户设置了背景颜色,用用户设置的背景色,
-            //Fix bug 如果图片过大,拉取事件过长,
-			// 会出现ImageView: 灰色背景->父亲背景[restoreBackgroundColorAfterSetContent设置成透明把父亲背景透传上来了]->图 的三个变化
-			if(mUserHasSetBackgroudnColor)
-			{
+			if(mUserHasSetBackgroudnColor) {
 				defaultBackgroundColor = mUserSetBackgroundColor;
 			}
-			if (oldBGDrawable instanceof CommonBackgroundDrawable)
-			{
-				((CommonBackgroundDrawable) oldBGDrawable).setBackgroundColor(defaultBackgroundColor);
-				setCustomBackgroundDrawable((CommonBackgroundDrawable) oldBGDrawable);
-			}
-			else if (oldBGDrawable instanceof LayerDrawable)
-			{
-				if (((LayerDrawable) oldBGDrawable).getNumberOfLayers() > 0)
-				{
-					Drawable lastBgDrawable = ((LayerDrawable) oldBGDrawable).getDrawable(0);
-					if (lastBgDrawable instanceof CommonBackgroundDrawable)
-					{
-						((CommonBackgroundDrawable) lastBgDrawable).setBackgroundColor(defaultBackgroundColor);
-						setCustomBackgroundDrawable((CommonBackgroundDrawable) lastBgDrawable);
+
+			if (oldBGDrawable instanceof CommonBackgroundDrawable) {
+				((CommonBackgroundDrawable)oldBGDrawable).setBackgroundColor(defaultBackgroundColor);
+				setCustomBackgroundDrawable((CommonBackgroundDrawable)oldBGDrawable);
+			} else if (oldBGDrawable instanceof LayerDrawable) {
+				LayerDrawable layerDrawable = (LayerDrawable)oldBGDrawable;
+				int numberOfLayers = layerDrawable.getNumberOfLayers();
+
+				if (numberOfLayers > 0) {
+					Drawable bgDrawable = layerDrawable.getDrawable(0);
+					if (bgDrawable instanceof CommonBackgroundDrawable) {
+						((CommonBackgroundDrawable)bgDrawable).setBackgroundColor(defaultBackgroundColor);
+						setCustomBackgroundDrawable((CommonBackgroundDrawable)bgDrawable);
 					}
 				}
 			}
@@ -312,10 +311,9 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 	}
 
 	@Override
-	protected void updateContentDrawableProperty()
-	{
-		super.updateContentDrawableProperty();
-		if (mContentDrawable instanceof HippyContentDrawable) {
+	protected void updateContentDrawableProperty(int sourceType) {
+		super.updateContentDrawableProperty(sourceType);
+		if (mContentDrawable instanceof HippyContentDrawable && sourceType == SOURCE_TYPE_SRC) {
 			((HippyContentDrawable) mContentDrawable).setNinePatchCoordinate(mNinePatchRect);
 		}
 	}

@@ -44,8 +44,8 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 	public final static int         IMAGE_LOADING           = 1;
 	public final static int         IMAGE_LOADED            = 2;
 
-	protected static int			SOURCE_TYPE_SRC			= 1;
-	protected static int			SOURCE_TYPE_DEFAULT_SRC	= 2;
+	protected final static int		SOURCE_TYPE_SRC			= 1;
+	protected final static int		SOURCE_TYPE_DEFAULT_SRC	= 2;
 	protected IDrawableTarget		mSourceDrawable;
 	private IDrawableTarget			mDefaultSourceDrawable;
 
@@ -453,18 +453,10 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 			{
 				return;
 			}
+
 			onSetContent(mUrl);
-			if (sourceType == SOURCE_TYPE_SRC && mSourceDrawable != null)
-			{
-				updateContentDrawableProperty();
-			}
-			else if (sourceType == SOURCE_TYPE_DEFAULT_SRC && mDefaultSourceDrawable != null)
-			{
-				if (mContentDrawable instanceof ContentDrawable && (mUrlFetchState != IMAGE_LOADED || mSourceDrawable == null))
-				{
-					((ContentDrawable) mContentDrawable).setBitmap(mDefaultSourceDrawable.getBitmap());
-				}
-			}
+			updateContentDrawableProperty(sourceType);
+
 			if (mBGDrawable != null)
 			{
 				if (mContentDrawable instanceof ContentDrawable)
@@ -484,11 +476,28 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 		}
 	}
 
-	protected void updateContentDrawableProperty()
-	{
-		if (mContentDrawable instanceof ContentDrawable)
-		{
-			((ContentDrawable) mContentDrawable).setBitmap(getBitmap());
+	protected void updateContentDrawableProperty(int sourceType) {
+		if (!(mContentDrawable instanceof ContentDrawable)) {
+			return;
+		}
+
+		Bitmap bitmap = null;
+		switch (sourceType) {
+			case SOURCE_TYPE_SRC:
+				if (mSourceDrawable != null){
+					bitmap = mSourceDrawable.getBitmap();
+				}
+				break;
+			case SOURCE_TYPE_DEFAULT_SRC:
+				if (mDefaultSourceDrawable != null && (mUrlFetchState != IMAGE_LOADED || mSourceDrawable == null)) {
+					bitmap = mDefaultSourceDrawable.getBitmap();
+				}
+				break;
+		}
+
+		if (bitmap != null) {
+			((ContentDrawable) mContentDrawable).setSourceType(sourceType);
+			((ContentDrawable) mContentDrawable).setBitmap(bitmap);
 			((ContentDrawable) mContentDrawable).setTintColor(getTintColor());
 			((ContentDrawable) mContentDrawable).setScaleType(mScaleType);
 			((ContentDrawable) mContentDrawable).setImagePositionX(mImagePositionX);

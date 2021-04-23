@@ -14,6 +14,8 @@
  */
 package com.tencent.mtt.supportui.views.asyncimage;
 
+import static com.tencent.mtt.supportui.views.asyncimage.AsyncImageView.SOURCE_TYPE_SRC;
+
 import com.tencent.mtt.supportui.utils.CommonTool;
 
 import android.graphics.Bitmap;
@@ -32,6 +34,7 @@ import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import com.tencent.mtt.supportui.views.asyncimage.AsyncImageView.ScaleType;
 
 /**
  * Created by leonardgong on 2017/12/5 0005.
@@ -58,6 +61,8 @@ public class ContentDrawable extends BaseDrawable
 	private int							mImagePositionX;
 	private int							mImagePositionY;
 	public Path						    mSelfClipPath =  null;//自定义裁剪路径,这里按理应该设置位private,通过接口修改.鉴于981的改动风险,直接位public
+	private int                         sourceType = SOURCE_TYPE_SRC;
+
 	public ContentDrawable()
 	{
 		mScaleType = AsyncImageView.ScaleType.FIT_XY;
@@ -70,7 +75,15 @@ public class ContentDrawable extends BaseDrawable
 		super.setBounds(left, top, right, bottom);
 		updateContentRegion();
 	}
-	
+
+	public void setSourceType(int type) {
+		sourceType = type;
+	}
+
+	public int getSourceType() {
+		return sourceType;
+	}
+
 	public void setBitmap(Bitmap contentBitmap)
 	{
 		mContentBitmap = contentBitmap;
@@ -128,8 +141,13 @@ public class ContentDrawable extends BaseDrawable
 			float xScale = boundWidth / bitmapWidth;
 			float yScale = boundHeight / bitmapHeight;
 
+			ScaleType scaleType = mScaleType;
+			if (scaleType == ScaleType.CENTER && (bitmapWidth > boundWidth || bitmapHeight > boundHeight)) {
+				scaleType = ScaleType.CENTER_INSIDE;
+			}
+
 			// border rect
-			switch (mScaleType)
+			switch (scaleType)
 			{
 				case REPEAT:
 					// DO Nothing
@@ -265,8 +283,13 @@ public class ContentDrawable extends BaseDrawable
 			float xScale = boundWidth / bitmapWidth;
 			float yScale = boundHeight / bitmapHeight;
 
+			ScaleType scaleType = mScaleType;
+			if (scaleType == ScaleType.CENTER && (bitmapWidth > boundWidth || bitmapHeight > boundHeight)) {
+				scaleType = ScaleType.CENTER_INSIDE;
+			}
+
 			// bitmap scale rect
-			switch (mScaleType)
+			switch (scaleType)
 			{
 				case REPEAT:
 					//DO Nothing 使用Sharder的Repeat来实现
