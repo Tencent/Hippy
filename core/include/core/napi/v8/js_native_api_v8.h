@@ -28,8 +28,8 @@
 #include <string>
 #include <vector>
 
+#include "base/logging.h"
 #include "core/base/common.h"
-#include "core/base/logging.h"
 #include "core/base/macros.h"
 #include "core/napi/js_native_api.h"
 #include "v8/libplatform/libplatform.h"
@@ -132,7 +132,7 @@ struct V8Ctx : public Ctx {
   virtual std::shared_ptr<CtxValue> CreateString(const char *string);
   virtual std::shared_ptr<CtxValue> CreateUndefined();
   virtual std::shared_ptr<CtxValue> CreateNull();
-  virtual std::shared_ptr<CtxValue> CreateObject(const char *json);
+  virtual std::shared_ptr<CtxValue> CreateObject(const char *json, int length = -1);
   virtual std::shared_ptr<CtxValue> CreateArray(
       size_t count,
       std::shared_ptr<CtxValue> value[]);

@@ -131,7 +131,7 @@ function getCssMap() {
   } else {
     __cssMap = new SelectorsMap(cssRules);
   }
-  delete global[GLOBAL_STYLE_NAME];
+  global[GLOBAL_STYLE_NAME] = undefined;
   return __cssMap;
 }
 
@@ -204,7 +204,7 @@ function getNativeProps(node) {
     props.source = [{
       uri: props.src,
     }];
-    delete props.src;
+    props.src = undefined;
   }
 
   return props;

@@ -24,7 +24,9 @@
 
 #include <memory>
 
+#include "base/logging.h"
 #include "bridge/runtime.h"
+#include "bridge/serializer.h"
 #include "jni/hippy_buffer.h"
 #include "jni/jni_env.h"
 
@@ -32,7 +34,7 @@ namespace hippy {
 namespace bridge {
 
 void CallJava(hippy::napi::CBDataTuple* data) {
-  HIPPY_DLOG(hippy::Debug, "CallJava");
+  TDF_BASE_DLOG(INFO) << "CallJava";
   int64_t runtime_key = *(reinterpret_cast<int64_t*>(data->cb_tuple_.data_));
   std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_key);
   if (!runtime) {
@@ -42,7 +44,7 @@ void CallJava(hippy::napi::CBDataTuple* data) {
   const v8::FunctionCallbackInfo<v8::Value>& info = data->info_;
   v8::Isolate* isolate = info.GetIsolate();
   if (!isolate) {
-    HIPPY_LOG(hippy::Error, "CallJava isolate error");
+    TDF_BASE_DLOG(ERROR) << "CallJava isolate error";
     return;
   }
 
@@ -53,46 +55,45 @@ void CallJava(hippy::napi::CBDataTuple* data) {
   v8::Local<v8::Context> context = ctx->context_persistent_.Get(isolate);
   v8::Context::Scope context_scope(context);
   if (context.IsEmpty()) {
-    HIPPY_LOG(hippy::Error, "CallJava context empty");
+    TDF_BASE_DLOG(ERROR) << "CallJava context empty";
     return;
   }
 
   jstring j_module_name = nullptr;
-  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+  std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
+  JNIEnv* j_env = instance->AttachCurrentThread();
   if (info.Length() >= 1 && !info[0].IsEmpty()) {
     v8::String::Utf8Value module_name(isolate, info[0]);
     j_module_name = j_env->NewStringUTF(JniUtils::ToCString(module_name));
-    HIPPY_DLOG(hippy::Debug, "CallJava module_name = %s",
-               JniUtils::ToCString(module_name));
+    TDF_BASE_DLOG(INFO) << "CallJava module_name = "
+                        << JniUtils::ToCString(module_name);
   }
 
   jstring j_module_func = nullptr;
   if (info.Length() >= 2 && !info[1].IsEmpty()) {
     v8::String::Utf8Value module_func(isolate, info[1]);
     j_module_func = j_env->NewStringUTF(JniUtils::ToCString(module_func));
-    HIPPY_DLOG(hippy::Debug, "CallJava module_func = %s",
-               JniUtils::ToCString(module_func));
+    TDF_BASE_DLOG(INFO) << "CallJava module_func = "
+                        << JniUtils::ToCString(module_func);
   }
 
   jstring j_cb_id = nullptr;
   if (info.Length() >= 3 && !info[2].IsEmpty()) {
     v8::String::Utf8Value cb_id(isolate, info[2]);
     j_cb_id = j_env->NewStringUTF(JniUtils::ToCString(cb_id));
-    HIPPY_DLOG(hippy::Debug, "CallJava cb_id = %s", JniUtils::ToCString(cb_id));
+    TDF_BASE_DLOG(INFO) << "CallJava cb_id = " << JniUtils::ToCString(cb_id);
   }
 
   jbyteArray j_params_str = nullptr;
-  HippyBuffer* hippy_buffer = nullptr;
+  std::string buffer_data;
   if (info.Length() >= 4 && !info[3].IsEmpty() && info[3]->IsObject()) {
     if (!runtime->IsParamJson()) {
-      hippy_buffer = JniUtils::WriteToBuffer(
-          isolate, v8::Local<v8::Object>::Cast(info[3]));
-      if (hippy_buffer != nullptr && hippy_buffer->data != nullptr) {
-        j_params_str = j_env->NewByteArray(hippy_buffer->position);
-        j_env->SetByteArrayRegion(
-            j_params_str, 0, hippy_buffer->position,
-            reinterpret_cast<const jbyte*>(hippy_buffer->data));
-      }
+      Serializer serializer(isolate, context, runtime->GetBuffer());
+      serializer.WriteHeader();
+      serializer.WriteValue(info[3]);
+      std::pair<uint8_t*, size_t> pair = serializer.Release();
+      buffer_data =
+          std::string(reinterpret_cast<const char*>(pair.first), pair.second);
     } else {
       v8::Local<v8::Object> global = context->Global();
       v8::Local<v8::Value> JSON = TO_LOCAL_UNCHECKED(
@@ -115,7 +116,7 @@ void CallJava(hippy::napi::CBDataTuple* data) {
           v8::Value);
 
       v8::String::Utf8Value json(isolate, s);
-      HIPPY_DLOG(hippy::Debug, "CallJava json = %s", JniUtils::ToCString(json));
+      TDF_BASE_DLOG(INFO) << "CallJava json = " << JniUtils::ToCString(json);
       int str_len = strlen(JniUtils::ToCString(json));
       j_params_str = j_env->NewByteArray(str_len);
       j_env->SetByteArrayRegion(
@@ -124,10 +125,30 @@ void CallJava(hippy::napi::CBDataTuple* data) {
     }
   }
 
-  j_env->CallVoidMethod(
-      runtime->GetBridge()->GetObj(),
-      JNIEnvironment::GetInstance()->GetMethods().call_natives_method_id,
-      j_module_name, j_module_func, j_cb_id, j_params_str);
+  uint8_t transfer_type = 0;
+  if (info.Length() >= 5 && !info[4].IsEmpty() && info[4]->IsNumber()) {
+    transfer_type =
+        static_cast<uint8_t>(info[4]->NumberValue(context).FromMaybe(0));
+  }
+  TDF_BASE_DLOG(INFO) << "CallNative transfer_type = " << transfer_type;
+
+  jobject j_buffer = nullptr;
+  jmethodID j_method = nullptr;
+  if (transfer_type == 1) {  // Direct
+    j_buffer = j_env->NewDirectByteBuffer(
+        const_cast<void*>(reinterpret_cast<const void*>(buffer_data.c_str())),
+        buffer_data.length());
+    j_method = instance->GetMethods().j_call_natives_direct_method_id;
+  } else {  // Default
+    j_buffer = j_env->NewByteArray(buffer_data.length());
+    j_env->SetByteArrayRegion(
+        reinterpret_cast<jbyteArray>(j_buffer), 0, buffer_data.length(),
+        reinterpret_cast<const jbyte*>(buffer_data.c_str()));
+    j_method = instance->GetMethods().j_call_natives_method_id;
+  }
+
+  j_env->CallVoidMethod(runtime->GetBridge()->GetObj(), j_method, j_module_name,
+                        j_module_func, j_cb_id, j_buffer);
 
   JNIEnvironment::ClearJEnvException(j_env);
 
@@ -136,42 +157,38 @@ void CallJava(hippy::napi::CBDataTuple* data) {
   j_env->DeleteLocalRef(j_module_func);
   j_env->DeleteLocalRef(j_cb_id);
   j_env->DeleteLocalRef(j_params_str);
-  if (hippy_buffer != nullptr) {
-    ReleaseBuffer(hippy_buffer);
-  }
-  hippy_buffer = nullptr;
 }
 
 void CallJavaMethod(jobject j_obj, jlong j_value) {
-  HIPPY_DLOG(hippy::Debug, "CallJavaMethod begin");
+  TDF_BASE_DLOG(INFO) << "CallJavaMethod begin";
   jclass j_class = nullptr;
 
   if (!j_obj) {
-    HIPPY_DLOG(hippy::Debug, "CallJavaMethod j_obj is nullptr");
+    TDF_BASE_DLOG(INFO) << "CallJavaMethod j_obj is nullptr";
     return;
   }
 
   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   j_class = j_env->GetObjectClass(j_obj);
   if (!j_class) {
-    HIPPY_LOG(hippy::Error, "CallJavaMethod j_class error");
+    TDF_BASE_DLOG(ERROR) << "CallJavaMethod j_class error";
     return;
   }
 
   jmethodID j_cb_id = j_env->GetMethodID(j_class, "Callback", "(J)V");
   if (!j_cb_id) {
-    HIPPY_LOG(hippy::Error, "CallJavaMethod j_cb_id error");
+    TDF_BASE_DLOG(ERROR) << "CallJavaMethod j_cb_id error";
     return;
   }
 
-  HIPPY_DLOG(hippy::Debug, "CallJavaMethod call method");
+  TDF_BASE_DLOG(INFO) << "CallJavaMethod call method";
   j_env->CallVoidMethod(j_obj, j_cb_id, j_value);
   JNIEnvironment::ClearJEnvException(j_env);
 
   if (j_class) {
     j_env->DeleteLocalRef(j_class);
   }
-  HIPPY_DLOG(hippy::Debug, "CallJavaMethod end");
+  TDF_BASE_DLOG(INFO) << "CallJavaMethod end";
 }
 
 }  // namespace bridge

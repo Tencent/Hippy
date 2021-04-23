@@ -71,9 +71,12 @@ public abstract class HippyEngine
 		LibraryLoader.loadLibraryIfNeed();
 	}
 
-	HippyEngine()
-	{
+	public static void setCLogHandler(HippyCLogHandler handler) {
+		if (handler != null) {
+			initLogger(handler);
+		}
 	}
+	private static native void initLogger(HippyCLogHandler handler);
 
 	/**
 	 * @param params 创建实例需要的参数
@@ -193,6 +196,12 @@ public abstract class HippyEngine
 
 	public abstract void sendEvent(String event, Object params);
 
+	public abstract void sendEvent(String event, Object params, BridgeTransferType transferType);
+
+	/**
+	 * 预加载业务模块
+	 * @param loader
+	 */
 	public abstract void preloadModule(HippyBundleLoader loader);
 
 	public abstract boolean onBackPressed(BackPressHandler handler);
@@ -395,6 +404,21 @@ public abstract class HippyEngine
 		}
 
 		@SuppressWarnings("unused")
+		public int value() {
+			return iValue;
+		}
+	}
+
+	public enum BridgeTransferType {
+		BRIDGE_TRANSFER_TYPE_NORMAL(0),
+		BRIDGE_TRANSFER_TYPE_NIO(1);
+
+		private final int iValue;
+
+		BridgeTransferType(int value) {
+			iValue = value;
+		}
+
 		public int value() {
 			return iValue;
 		}

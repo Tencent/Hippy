@@ -22,8 +22,7 @@
 
 #include "core/task/worker_task_runner.h"
 
-
-#include "core/base/logging.h"
+#include "base/logging.h"
 #include "core/napi/js_native_api.h"
 
 const uint32_t WorkerTaskRunner::kDefaultTaskPriority = 10000;
@@ -61,7 +60,7 @@ std::unique_ptr<CommonTask> WorkerTaskRunner::GetNext() {
     if (terminated_) {
       hippy::napi::DetachThread();
       cv_.notify_all();
-      HIPPY_DLOG(hippy::Debug, "WorkerTaskRunner Terminate");
+      TDF_BASE_DLOG(INFO) << "WorkerTaskRunner Terminate";
       return nullptr;
     }
 
@@ -70,31 +69,31 @@ std::unique_ptr<CommonTask> WorkerTaskRunner::GetNext() {
 }
 
 void WorkerTaskRunner::Terminate() {
-  HIPPY_DLOG(hippy::Debug, "WorkerTaskRunner::Terminate begin");
+  TDF_BASE_DLOG(INFO) << "WorkerTaskRunner::Terminate begin";
   {
     std::lock_guard<std::mutex> lock(mutex_);
     terminated_ = true;
   }
   cv_.notify_all();
   thread_pool_.clear();
-  HIPPY_DLOG(hippy::Debug, "WorkerTaskRunner::Terminate end");
+  TDF_BASE_DLOG(INFO) << "WorkerTaskRunner::Terminate end";
 }
 
 WorkerTaskRunner::WorkerThread::WorkerThread(WorkerTaskRunner* runner)
     : Thread(Options("Hippy WorkerTaskRunner WorkerThread")), runner_(runner) {
-  HIPPY_DLOG(hippy::Debug, "WorkerThread create");
+  TDF_BASE_DLOG(INFO) << "WorkerThread create";
   Start();
 }
 
 WorkerTaskRunner::WorkerThread::~WorkerThread() {
-  HIPPY_DLOG(hippy::Debug, "WorkerThread Join begin");
+  TDF_BASE_DLOG(INFO) << "WorkerThread Join begin";
   Join();
-  HIPPY_DLOG(hippy::Debug, "WorkerThread Join end");
+  TDF_BASE_DLOG(INFO) << "WorkerThread Join end";
 }
 
 void WorkerTaskRunner::WorkerThread::Run() {
   while (std::unique_ptr<CommonTask> task = runner_->GetNext()) {
     task->Run();
   }
-  HIPPY_DLOG(hippy::Debug, "WorkerThread Run Terminate");
+  TDF_BASE_DLOG(INFO) << "WorkerThread Run Terminate";
 }

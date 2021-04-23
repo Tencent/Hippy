@@ -41,21 +41,31 @@ bool JNIRegister::RegisterMethods(JNIEnv* j_env) {
   for (auto it = jni_modules.begin(); it != jni_modules.end(); ++it) {
     std::vector<JNINativeMethod> methods;
     jclass j_class;
-    j_class = j_env->FindClass(it->first.c_str());
+    const char* class_name = it->first.c_str();
+    j_class = j_env->FindClass(class_name);
     if (!j_class) {
-      HIPPY_LOG(hippy::Error, "NativeAccess class not found");
+      TDF_BASE_DLOG(ERROR) << "NativeAccess class " << class_name
+                           << "not found";
       return false;
     }
     std::vector<JNIRegisterData> datas = it->second;
     for (auto data_it = datas.begin(); data_it != datas.end(); ++data_it) {
       JNINativeMethod method = data_it->ToJNINativeMethod();
-      jmethodID id = j_env->GetMethodID(j_class, method.name, method.signature);
+      jmethodID id;
+      bool is_static = data_it->IsStaticMethod();
+      if (is_static) {
+        id = j_env->GetStaticMethodID(j_class, method.name, method.signature);
+      } else {
+        id = j_env->GetMethodID(j_class, method.name, method.signature);
+      }
       if (!id) {
         if (j_env->ExceptionCheck()) {
           j_env->ExceptionDescribe();
         }
-        HIPPY_LOG(hippy::Error, "Cannot find method %s%s of NativeAccess",
-                  method.name, method.signature);
+        TDF_BASE_DLOG(ERROR)
+            << "Cannot find method name = " << method.name
+            << " signature = " << method.signature
+            << " is_static = " << is_static << " of NativeAccess";
         return false;
       }
       methods.push_back(method);
@@ -68,8 +78,9 @@ bool JNIRegister::RegisterMethods(JNIEnv* j_env) {
 
 JNIRegisterData::JNIRegisterData(const char* name,
                                  const char* sign,
-                                 void* pointer)
-    : name_(name), sign_(sign), pointer_(pointer) {}
+                                 void* pointer,
+                                 bool is_static)
+    : name_(name), sign_(sign), pointer_(pointer), is_static_(is_static) {}
 
 JNINativeMethod JNIRegisterData::ToJNINativeMethod() {
   return {name_.c_str(), sign_.c_str(), pointer_};

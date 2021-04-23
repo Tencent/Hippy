@@ -28,8 +28,8 @@
 #include <string>
 #include <vector>
 
+#include "base/logging.h"
 #include "core/base/common.h"
-#include "core/base/logging.h"
 #include "core/base/macros.h"
 #include "core/modules/module_base.h"
 #include "core/napi/callback_info.h"
@@ -46,7 +46,7 @@ std::mutex V8VM::mutex_;
 namespace {
 
 void JsCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info) {
-  HIPPY_DLOG(hippy::Debug, "JsCallbackFunc begin");
+  TDF_BASE_DLOG(INFO) << "JsCallbackFunc begin";
 
   auto data = info.Data().As<v8::External>();
   if (data.IsEmpty()) {
@@ -63,7 +63,7 @@ void JsCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info) {
   JsCallback callback = fn_data->callback_;
   std::shared_ptr<Scope> scope = fn_data->scope_.lock();
   if (!scope) {
-    HIPPY_LOG(hippy::Fatal, "JsCallbackFunc scope error");
+    TDF_BASE_DLOG(FATAL) << "JsCallbackFunc scope error";
     info.GetReturnValue().SetUndefined();
     return;
   }
@@ -71,19 +71,19 @@ void JsCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info) {
 
   v8::Isolate* isolate = info.GetIsolate();
   if (!isolate) {
-    HIPPY_LOG(hippy::Error, "JsCallbackFunc isolate error");
+    TDF_BASE_DLOG(ERROR) << "JsCallbackFunc isolate error";
     return;
   }
 
   v8::HandleScope handle_scope(isolate);
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
   if (context.IsEmpty()) {
-    HIPPY_LOG(hippy::Error, "JsCallbackFunc context empty");
+    TDF_BASE_DLOG(ERROR) << "JsCallbackFunc context empty";
     return;
   }
 
   v8::Context::Scope context_scope(context);
-  HIPPY_DLOG(hippy::Debug, "callback_info info.length = %d", info.Length());
+  TDF_BASE_DLOG(INFO) << "callback_info info.length = " << info.Length();
   for (int i = 0; i < info.Length(); i++) {
     callback_info.AddValue(std::make_shared<V8CtxValue>(isolate, info[i]));
   }
@@ -112,23 +112,23 @@ void JsCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info) {
 }
 
 void NativeCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info) {
-  HIPPY_DLOG(hippy::Debug, "NativeCallbackFunc");
+  TDF_BASE_DLOG(INFO) << "NativeCallbackFunc";
   auto data = info.Data().As<v8::External>();
   if (data.IsEmpty()) {
-    HIPPY_LOG(hippy::Error, "NativeCallbackFunc data is empty");
+    TDF_BASE_DLOG(ERROR) << "NativeCallbackFunc data is empty";
     info.GetReturnValue().SetUndefined();
     return;
   }
 
   CBTuple* cb_tuple = reinterpret_cast<CBTuple*>(data->Value());
   CBDataTuple data_tuple(*cb_tuple, info);
-  HIPPY_DLOG(hippy::Debug, "run native cb begin");
+  TDF_BASE_DLOG(INFO) << "run native cb begin";
   cb_tuple->fn_(static_cast<void*>(&data_tuple));
-  HIPPY_DLOG(hippy::Debug, "run native cb end");
+  TDF_BASE_DLOG(INFO) << "run native cb end";
 }
 
 void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& info) {
-  HIPPY_DLOG(hippy::Debug, "v8 GetInternalBinding begin");
+  TDF_BASE_DLOG(INFO) << "v8 GetInternalBinding begin";
 
   auto data = info.Data().As<v8::External>();
   if (data.IsEmpty()) {
@@ -156,7 +156,7 @@ void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& info) {
 
   std::shared_ptr<Scope> scope = binding_data->scope_.lock();
   if (!scope) {
-    HIPPY_LOG(hippy::Fatal, "GetInternalBinding scope error");
+    TDF_BASE_DLOG(FATAL) << "GetInternalBinding scope error";
     info.GetReturnValue().SetUndefined();
     return;
   }
@@ -167,11 +167,11 @@ void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& info) {
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
   v8::Context::Scope context_scope(context);
   std::string name = *module_name;
-  HIPPY_DLOG(hippy::Debug, "module_name = %s", name.c_str());
+  TDF_BASE_DLOG(INFO) << "module_name = " << name.c_str();
   std::shared_ptr<V8CtxValue> module_value =
       std::static_pointer_cast<V8CtxValue>(scope->GetModuleValue(name));
   if (module_value) {
-    HIPPY_DLOG(hippy::Debug, "use module cache, module = %s", name.c_str());
+    TDF_BASE_DLOG(INFO) << "use module cache, module = %s", name.c_str();
     v8::Local<v8::Value> function =
         v8::Local<v8::Value>::New(isolate, module_value->global_value_);
     info.GetReturnValue().Set(function);
@@ -180,7 +180,7 @@ void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& info) {
 
   auto module_class = binding_data->map_.find(name);
   if (module_class == binding_data->map_.end()) {
-    HIPPY_DLOG(hippy::Warning, "can not find module %s", name.c_str());
+    TDF_BASE_DLOG(WARNING) << "can not find module " << name;
     info.GetReturnValue().SetUndefined();
     return;
   }
@@ -196,7 +196,7 @@ void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& info) {
             isolate, JsCallbackFunc,
             v8::External::New(isolate, static_cast<void*>(fn_data.get())));
     scope->SaveFunctionData(std::move(fn_data));
-    HIPPY_DLOG(hippy::Debug, "bind fn_name = %s", fn_name.c_str());
+    TDF_BASE_DLOG(INFO) << "bind fn_name = " << fn_name;
     constructor->Set(isolate, fn_name.c_str(), function_template);
   }
 
@@ -205,7 +205,7 @@ void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& info) {
   scope->AddModuleValue(name, std::make_shared<V8CtxValue>(isolate, function));
   info.GetReturnValue().Set(function);
 
-  HIPPY_DLOG(hippy::Debug, "v8 GetInternalBinding end");
+  TDF_BASE_DLOG(INFO) << "v8 GetInternalBinding end";
 }
 
 class ExternalOneByteStringResourceImpl
@@ -283,19 +283,19 @@ void DetachThread() {
 }
 
 V8VM::V8VM() {
-  HIPPY_DLOG(hippy::Debug, "V8VM begin");
+  TDF_BASE_DLOG(INFO) << "V8VM begin";
   {
     std::lock_guard<std::mutex> lock(mutex_);
     if (platform_ != nullptr) {
-      HIPPY_DLOG(hippy::Debug, "InitializePlatform");
+      TDF_BASE_DLOG(INFO) << "InitializePlatform";
       v8::V8::InitializePlatform(platform_.get());
     } else {
-      HIPPY_DLOG(hippy::Debug, "NewDefaultPlatform");
+      TDF_BASE_DLOG(INFO) << "NewDefaultPlatform";
       platform_ = v8::platform::NewDefaultPlatform();
       v8::V8::SetFlagsFromString("--wasm-disable-structured-cloning",
                                  strlen("--wasm-disable-structured-cloning"));
       v8::V8::InitializePlatform(platform_.get(), true);
-      HIPPY_DLOG(hippy::Debug, "Initialize");
+      TDF_BASE_DLOG(INFO) << "Initialize";
       v8::V8::Initialize();
     }
   }
@@ -305,7 +305,7 @@ V8VM::V8VM() {
   isolate_ = v8::Isolate::New(create_params_);
   isolate_->Enter();
   isolate_->SetCaptureStackTraceForUncaughtExceptions(true);
-  HIPPY_DLOG(hippy::Debug, "V8VM end");
+  TDF_BASE_DLOG(INFO) << "V8VM end";
 }
 
 V8VM::~V8VM() {
@@ -323,7 +323,7 @@ void V8VM::PlatformDestroy() {
 }
 
 std::shared_ptr<Ctx> V8VM::CreateContext() {
-  HIPPY_DLOG(hippy::Debug, "CreateContext");
+  TDF_BASE_DLOG(INFO) << "CreateContext";
   return std::make_shared<V8Ctx>(isolate_);
 }
 
@@ -395,7 +395,8 @@ std::string V8TryCatch::GetExceptionMsg() {
 
   std::shared_ptr<V8Ctx> v8_ctx = std::static_pointer_cast<V8Ctx>(ctx_);
   v8::HandleScope handle_scope(v8_ctx->isolate_);
-  v8::Local<v8::Context> context = v8_ctx->context_persistent_.Get(v8_ctx->isolate_);
+  v8::Local<v8::Context> context =
+      v8_ctx->context_persistent_.Get(v8_ctx->isolate_);
   v8::Context::Scope context_scope(context);
 
   v8::Local<v8::Message> message = try_catch_->Message();
@@ -428,7 +429,7 @@ std::string V8Ctx::GetMsgDesc(v8::Local<v8::Message> message) {
               << ": " << message_str;
 
   std::string desc = description.str();
-  HIPPY_DLOG(hippy::Debug, "description = %s", desc.c_str());
+  TDF_BASE_DLOG(INFO) << "description = " << desc;
   return desc;
 }
 
@@ -461,12 +462,12 @@ std::string V8Ctx::GetStackInfo(v8::Local<v8::Message> message) {
                  << stack_function_name;
   }
   std::string stack = stack_stream.str();
-  HIPPY_DLOG(hippy::Debug, "stack = %s", stack.c_str());
+  TDF_BASE_DLOG(INFO) << "stack = " << stack;
   return stack;
 }
 
 bool V8Ctx::RegisterGlobalInJs() {
-  HIPPY_DLOG(hippy::Debug, "RegisterGlobalInJs");
+  TDF_BASE_DLOG(INFO) << "RegisterGlobalInJs";
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
@@ -483,8 +484,8 @@ bool V8Ctx::RegisterGlobalInJs() {
 }
 
 bool V8Ctx::SetGlobalJsonVar(const std::string& name, const char* json) {
-  HIPPY_DLOG(hippy::Debug, "SetGlobalJsonVar name = %s, json = %s",
-             name.c_str(), json);
+  TDF_BASE_DLOG(INFO) << "SetGlobalJsonVar name = " << name
+                      << ", json = " << json;
   if (name.empty() || !json) {
     return false;
   }
@@ -507,8 +508,7 @@ bool V8Ctx::SetGlobalJsonVar(const std::string& name, const char* json) {
 }
 
 bool V8Ctx::SetGlobalStrVar(const std::string& name, const char* str) {
-  HIPPY_DLOG(hippy::Debug, "SetGlobalStrVar name = %s, str = %s", name.c_str(),
-             str);
+  TDF_BASE_DLOG(INFO) << "SetGlobalStrVar name = " << name << ", str = " << str;
   if (name.empty()) {
     return false;
   }
@@ -532,8 +532,8 @@ bool V8Ctx::SetGlobalStrVar(const std::string& name, const char* str) {
 bool V8Ctx::SetGlobalObjVar(const std::string& name,
                             std::shared_ptr<CtxValue> obj,
                             PropertyAttribute attr) {
-  HIPPY_DLOG(hippy::Debug, "SetGlobalStrVar name = %s, attr = %d", name.c_str(),
-             attr);
+  TDF_BASE_DLOG(INFO) << "SetGlobalStrVar name = " << name
+                      << ", attr = " << attr;
   if (name.empty()) {
     return false;
   }
@@ -563,7 +563,7 @@ bool V8Ctx::SetGlobalObjVar(const std::string& name,
 }
 
 std::shared_ptr<CtxValue> V8Ctx::GetGlobalStrVar(const std::string& name) {
-  HIPPY_DLOG(hippy::Debug, "GetGlobalStrVar name = %s", name.c_str());
+  TDF_BASE_DLOG(INFO) << "GetGlobalStrVar name = " << name;
   if (name.empty()) {
     return nullptr;
   }
@@ -581,7 +581,7 @@ std::shared_ptr<CtxValue> V8Ctx::GetGlobalStrVar(const std::string& name) {
 }
 
 std::shared_ptr<CtxValue> V8Ctx::GetGlobalObjVar(const std::string& name) {
-  HIPPY_DLOG(hippy::Debug, "GetGlobalObjVar name = %s", name.c_str());
+  TDF_BASE_DLOG(INFO) << "GetGlobalObjVar name = " << name;
   return GetGlobalStrVar(name);
 }
 
@@ -593,7 +593,7 @@ std::shared_ptr<CtxValue> V8Ctx::GetProperty(
 
 void V8Ctx::RegisterGlobalModule(std::shared_ptr<Scope> scope,
                                  const ModuleClassMap& modules) {
-  HIPPY_DLOG(hippy::Debug, "RegisterGlobalModule");
+  TDF_BASE_DLOG(INFO) << "RegisterGlobalModule";
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
@@ -633,7 +633,7 @@ void V8Ctx::RegisterGlobalModule(std::shared_ptr<Scope> scope,
 void V8Ctx::RegisterNativeBinding(const std::string& name,
                                   hippy::base::RegisterFunction fn,
                                   void* data) {
-  HIPPY_DLOG(hippy::Debug, "RegisterNativeBinding name = %s", name.c_str());
+  TDF_BASE_DLOG(INFO) << "RegisterNativeBinding name = " << name;
 
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
@@ -654,7 +654,7 @@ void V8Ctx::RegisterNativeBinding(const std::string& name,
 }
 
 std::shared_ptr<CtxValue> GetInternalBindingFn(std::shared_ptr<Scope> scope) {
-  HIPPY_DLOG(hippy::Debug, "GetInternalBindingFn");
+  TDF_BASE_DLOG(INFO) << "GetInternalBindingFn";
 
   std::shared_ptr<V8Ctx> ctx =
       std::static_pointer_cast<V8Ctx>(scope->GetContext());
@@ -681,10 +681,10 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const uint8_t* data,
                                            bool is_use_code_cache,
                                            std::string* cache,
                                            Encoding encodeing) {
-  HIPPY_DLOG(hippy::Debug,
-             "V8Ctx::RunScript file_name = %s, len = %d, encodeing = %d, "
-             "is_use_code_cache = %d, cache = %d",
-             file_name.c_str(), len, is_use_code_cache, encodeing, cache);
+  TDF_BASE_DLOG(INFO) << "V8Ctx::RunScript file_name = " << file_name
+                      << ", len = " << len << ", encodeing = " << encodeing
+                      << ", is_use_code_cache = " << is_use_code_cache
+                      << ", cache = " << cache;
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
@@ -700,7 +700,7 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const uint8_t* data,
     }
     case Encoding::TWO_BYTE_ENCODING: {
       if (len % 2 != 0) {
-        HIPPY_LOG(hippy::Error, "utf16 error, len = %d", len);
+        TDF_BASE_DLOG(ERROR) << "utf16 error, len = " << len;
         return nullptr;
       }
       ExternalStringResourceImpl* two_byte = new ExternalStringResourceImpl(
@@ -719,8 +719,7 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const uint8_t* data,
   }
 
   if (source.IsEmpty()) {
-    HIPPY_LOG(hippy::Warning, "v8_source empty, file_name = %s",
-              file_name.c_str());
+    TDF_BASE_DLOG(WARNING) << "v8_source empty, file_name = " << file_name;
     return nullptr;
   }
 
@@ -733,10 +732,10 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const std::string&& script,
                                            bool is_use_code_cache,
                                            std::string* cache,
                                            Encoding encodeing) {
-  HIPPY_DLOG(hippy::Debug,
-             "V8Ctx::RunScript script_file_name = %s, encodeing = %d, "
-             "is_use_code_cache = %d, cache = %d",
-             file_name.c_str(), is_use_code_cache, encodeing, cache);
+  TDF_BASE_DLOG(INFO) << "V8Ctx::RunScript script_file_name = " << file_name
+                      << ", encodeing = " << encodeing
+                      << ", is_use_code_cache = " << is_use_code_cache
+                      << ", cache = " << cache;
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
@@ -753,7 +752,7 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const std::string&& script,
     case Encoding::TWO_BYTE_ENCODING: {
       int len = script.length();
       if (len % 2 != 0) {
-        HIPPY_LOG(hippy::Error, "utf16 error, len = %d", len);
+        TDF_BASE_DLOG(ERROR) << "utf16 error, len = " << len;
         return nullptr;
       }
 
@@ -772,8 +771,7 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const std::string&& script,
     }
   }
   if (source.IsEmpty()) {
-    HIPPY_LOG(hippy::Warning, "v8_source empty, file_name = %s",
-              file_name.c_str());
+    TDF_BASE_DLOG(WARNING) << "v8_source empty, file_name = " << file_name;
     return nullptr;
   }
   return InternalRunScript(context, source, file_name, is_use_code_cache,
@@ -833,7 +831,7 @@ std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
 }
 
 std::shared_ptr<CtxValue> V8Ctx::GetJsFn(const std::string& name) {
-  HIPPY_DLOG(hippy::Debug, "GetJsFn name = %s", name.c_str());
+  TDF_BASE_DLOG(INFO) << "GetJsFn name = " << name;
   if (name.empty()) {
     return nullptr;
   }
@@ -858,13 +856,11 @@ bool V8Ctx::ThrowExceptionToJS(std::shared_ptr<CtxValue> exception) {
 
   if (!IsFunction(exception_handler)) {
     auto source_code = hippy::GetNativeSourceCode(kErrorHandlerJSName);
-    HIPPY_DCHECK(source_code.data_ && source_code.length_);
+    TDF_BASE_DCHECK(source_code.data_ && source_code.length_);
     exception_handler =
         RunScript(source_code.data_, source_code.length_, kErrorHandlerJSName);
     bool is_func = IsFunction(exception_handler);
-    HIPPY_CHECK_WITH_MSG(
-        is_func == true,
-        "HandleUncaughtJsError ExceptionHandle.js don't return function!!!");
+    TDF_BASE_DCHECK(is_func);
     SetGlobalObjVar(kHippyErrorHandlerName, exception_handler,
                     PropertyAttribute::ReadOnly);
   }
@@ -878,9 +874,9 @@ bool V8Ctx::ThrowExceptionToJS(std::shared_ptr<CtxValue> exception) {
       CallFunction(exception_handler, 2, args);
   if (try_catch.HasCaught()) {
     auto message = try_catch.Message();
-    HIPPY_LOG(hippy::Error,
-              "HippyExceptionHandler error, desc = %s, stack = %s",
-              GetMsgDesc(message).c_str(), GetStackInfo(message).c_str());
+    TDF_BASE_DLOG(ERROR) << "HippyExceptionHandler error, desc = "
+                         << GetMsgDesc(message)
+                         << ", stack = " << GetStackInfo(message);
   }
   return true;
 }
@@ -889,10 +885,10 @@ std::shared_ptr<CtxValue> V8Ctx::CallFunction(
     std::shared_ptr<CtxValue> function,
     size_t argument_count,
     const std::shared_ptr<CtxValue> arguments[]) {
-  HIPPY_DLOG(hippy::Debug, "V8Ctx CallFunction begin");
+  TDF_BASE_DLOG(INFO) << "V8Ctx CallFunction begin";
 
   if (!function) {
-    HIPPY_DLOG(hippy::Error, "function is nullptr");
+    TDF_BASE_DLOG(ERROR) << "function is nullptr";
     return nullptr;
   }
 
@@ -900,7 +896,7 @@ std::shared_ptr<CtxValue> V8Ctx::CallFunction(
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope contextScope(context);
   if (context.IsEmpty() || context->Global().IsEmpty()) {
-    HIPPY_DLOG(hippy::Error, "CallFunction context error");
+    TDF_BASE_DLOG(ERROR) << "CallFunction context error";
     return nullptr;
   }
 
@@ -910,7 +906,7 @@ std::shared_ptr<CtxValue> V8Ctx::CallFunction(
   v8::Local<v8::Value> handle_value =
       v8::Local<v8::Value>::New(isolate_, global_value);
   if (!handle_value->IsFunction()) {
-    HIPPY_LOG(hippy::Warning, "CallFunction handle_value is not a function");
+    TDF_BASE_DLOG(WARNING) << "CallFunction handle_value is not a function";
     return nullptr;
   }
 
@@ -927,12 +923,12 @@ std::shared_ptr<CtxValue> V8Ctx::CallFunction(
     }
   }
 
-  HIPPY_DLOG(hippy::Debug, "CallFunction call fn");
+  TDF_BASE_DLOG(INFO) << "CallFunction call fn";
   v8::MaybeLocal<v8::Value> maybe_result = v8_fn->Call(
       context, context->Global(), static_cast<int>(argument_count), args);
 
   if (maybe_result.IsEmpty()) {
-    HIPPY_DLOG(hippy::Debug, "maybe_result is empty");
+    TDF_BASE_DLOG(INFO) << "maybe_result is empty";
     return nullptr;
   }
   return std::make_shared<V8CtxValue>(isolate_, maybe_result.ToLocalChecked());

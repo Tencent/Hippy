@@ -22,7 +22,7 @@
 
 #include <string>
 
-#include "core/base/logging.h"
+#include "base/logging.h"
 #include "core/napi/js_native_api.h"
 #include "core/napi/v8/js_native_api_v8.h"
 
@@ -115,7 +115,7 @@ v8::Local<v8::Value> V8Ctx::ParseJson(const char *json) {
                          v8::Value));
 }
 
-std::shared_ptr<CtxValue> V8Ctx::CreateObject(const char *json) {
+std::shared_ptr<CtxValue> V8Ctx::CreateObject(const char *json, int length) {
   if (!json) {
     return nullptr;
   }
@@ -124,6 +124,7 @@ std::shared_ptr<CtxValue> V8Ctx::CreateObject(const char *json) {
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
   v8::Local<v8::Value> object = ParseJson(json);
+
   if (object.IsEmpty()) {
     return nullptr;
   }
@@ -151,7 +152,7 @@ std::shared_ptr<CtxValue> V8Ctx::CreateArray(
       handle_value = v8::Null(isolate_);
     }
     if (!array->Set(context, i, handle_value).FromMaybe(false)) {
-      HIPPY_DLOG(hippy::Debug, "set array item failed");
+      TDF_BASE_DLOG(INFO) << "set array item failed";
       return nullptr;
     }
   }
@@ -159,7 +160,7 @@ std::shared_ptr<CtxValue> V8Ctx::CreateArray(
 }
 
 std::shared_ptr<CtxValue> V8Ctx::CreateJsError(const std::string &msg) {
-  HIPPY_DLOG(hippy::Debug, "V8Ctx::CreateJsError msg = %s", msg.c_str());
+  TDF_BASE_DLOG(INFO) << "V8Ctx::CreateJsError msg = " << msg;
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
@@ -168,7 +169,7 @@ std::shared_ptr<CtxValue> V8Ctx::CreateJsError(const std::string &msg) {
                               msg.length()),
       v8::String));
   if (error.IsEmpty()) {
-    HIPPY_DLOG(hippy::Debug, "error is empty");
+    TDF_BASE_DLOG(INFO) << "error is empty";
     return nullptr;
   }
   return std::make_shared<V8CtxValue>(isolate_, error);
@@ -257,7 +258,7 @@ bool V8Ctx::GetValueBoolean(std::shared_ptr<CtxValue> value, bool *result) {
 
 bool V8Ctx::GetValueString(std::shared_ptr<CtxValue> value,
                            std::string *result) {
-  HIPPY_DLOG(hippy::Debug, "V8Ctx::GetValueString");
+  TDF_BASE_DLOG(INFO) << "V8Ctx::GetValueString";
   if (!value || !result) {
     return false;
   }
