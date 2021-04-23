@@ -31,9 +31,10 @@ TODO: Add long description of the pod here.
 
   s.subspec 'core' do |cores|
     cores.source_files = 'core/**/*.{h,cc}'
-    cores.exclude_files = ['core/include/core/napi/v8','core/src/napi/v8','core/js']
+    cores.exclude_files = ['core/include/core/napi/v8','core/src/napi/v8','core/js','core/third_party/base/src/platform/adr']
     cores.libraries = 'c++'
     cores.header_mappings_dir = 'core/include/'
+    cores.pod_target_xcconfig = {'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/core/third_party/base/include/'}
   end 
 
   if ENV['hippy_use_frameworks']
