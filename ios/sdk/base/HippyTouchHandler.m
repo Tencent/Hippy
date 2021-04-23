@@ -492,6 +492,16 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
 }
 
 - (BOOL)gestureRecognizer:(__unused UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
+    UIView *touchView = [touch view];
+    while (touchView && ![touchView hippyTag]) {
+        NSArray<UIGestureRecognizer *> *touchGestureRegs = [touchView gestureRecognizers];
+        for (UIGestureRecognizer *touchGes in touchGestureRegs) {
+            if (![self canPreventGestureRecognizer:touchGes]) {
+                return NO;
+            }
+        }
+        touchView = [touchView superview];
+    }
     if ([self isYYTextView:touch.view]) {
         return NO;
     }
