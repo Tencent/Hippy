@@ -33,12 +33,12 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    
-    logHandler handler = ^(const char *message) {
-        NSLog(@"hippy core says:%s", message);
-    };
-    HippyLogSetHandler(handler);
 
+    HippySetLogFunction(^(HippyLogLevel level, HippyLogSource source, NSString *fileName, NSNumber *lineNumber, NSString *message) {
+        NSLog(@"hippy says:%@ in file %@ at line %@", message, fileName, lineNumber);
+    });
+
+    
     BOOL isSimulator = NO;
     #if TARGET_IPHONE_SIMULATOR
         isSimulator = YES;
