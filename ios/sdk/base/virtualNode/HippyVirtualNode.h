@@ -39,7 +39,6 @@
 
 @property (nonatomic, retain) NSMutableArray<HippyVirtualNode *> *subNodes;
 
-@property (nonatomic, weak) HippyVirtualList *listNode;
 @property (nonatomic, copy) NSNumber *rootTag;
 @property (nonatomic, weak) HippyBridge *bridge;
 
