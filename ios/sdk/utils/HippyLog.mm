@@ -51,6 +51,46 @@ HippyLogLevel HippyDefaultLogThreshold = HippyLogLevelError;
 static HippyLogFunction HippyCurrentLogFunction;
 static HippyLogLevel HippyCurrentLogThreshold = HippyDefaultLogThreshold;
 
+static BOOL getFileNameAndLineNumberFromLogMessage(NSString *message, NSString **fileName, int *lineNumber);
+static void registerTDFLogHandler() {
+    static std::once_flag flag;
+    std::call_once(flag, [](){
+        std::function<void (const std::ostringstream &)> logFunction = [](const std::ostringstream &stream) {
+            std::string string = stream.str();
+            if (string.length()) {
+                NSString *message = [NSString stringWithUTF8String:string.c_str()];
+                NSString *fileName = nil;
+                int lineNumber = 0;
+                if (getFileNameAndLineNumberFromLogMessage(message, &fileName, &lineNumber)) {
+                    _HippyLogNativeInternal(HippyLogLevelInfo, [fileName UTF8String], lineNumber, @"%@", message);
+                }
+            }
+        };
+        tdf::base::LogMessage::SetDefaultDelegate(logFunction);
+    });
+}
+
+static BOOL getFileNameAndLineNumberFromLogMessage(NSString *message, NSString **fileName, int *lineNumber) {
+    //[VERBOSE0:worker_task_runner.cc(84)] WorkerThread create
+    static NSString *prefixString = @"[VERBOSE0:";
+    @try {
+        if ([message hasPrefix:prefixString] && fileName && lineNumber) {
+            NSUInteger messageLength = [message length];
+            NSUInteger fileNameStartLocation = [prefixString length];
+            NSUInteger firstParenthesisPosition = [message rangeOfString:@"(" options:(0) range:NSMakeRange(fileNameStartLocation, messageLength - fileNameStartLocation)].location;
+            NSUInteger secondParenthesisPosition = [message rangeOfString:@")" options:(0) range:NSMakeRange(fileNameStartLocation, messageLength - fileNameStartLocation)].location;
+            NSString *name = [message substringWithRange:NSMakeRange(fileNameStartLocation, firstParenthesisPosition - fileNameStartLocation)];
+            NSString *line = [message substringWithRange:NSMakeRange(firstParenthesisPosition + 1, secondParenthesisPosition - firstParenthesisPosition - 1)];
+            *fileName = [name copy];
+            *lineNumber = [line intValue];
+            return YES;
+        }
+    } @catch (NSException *exception) {
+        return NO;
+    }
+    return NO;
+}
+
 HippyLogLevel HippyGetLogThreshold() {
     return HippyCurrentLogThreshold;
 }
@@ -88,6 +128,7 @@ HippyLogFunction HippyDefaultLogFunction
 
 void HippySetLogFunction(HippyLogFunction logFunction) {
     HippyCurrentLogFunction = logFunction;
+    registerTDFLogHandler();
 }
 
 HippyLogFunction HippyGetLogFunction() {
@@ -217,12 +258,6 @@ void _HippyLogNativeInternal(HippyLogLevel level, const char *fileName, int line
                 [[HippyBridge currentBridge].redBox showErrorMessage:message withStack:stack];
             });
         }
-
-        if (!HippyRunningInTestEnvironment()) {
-            // Log to JS executor
-            [[HippyBridge currentBridge] logMessage:message level:level ? @(HippyLogLevels[level]) : @"info"];
-        }
-
 #endif
     }
 }
@@ -235,11 +270,4 @@ void _HippyLogJavaScriptInternal(HippyLogLevel level, NSString *message) {
             logFunction(level, HippyLogSourceJavaScript, nil, nil, message);
         }
     }
-}
-
-void HippyLogSetHandler(logHandler handler) {
-    std::function<void (const std::ostringstream &)> logFunction = [handler](const std::ostringstream &stream) {
-        handler(stream.str().c_str());
-    };
-    tdf::base::LogMessage::SetDefaultDelegate(logFunction);
 }
