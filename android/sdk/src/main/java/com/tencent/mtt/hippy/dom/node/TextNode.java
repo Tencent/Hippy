@@ -15,8 +15,10 @@
  */
 package com.tencent.mtt.hippy.dom.node;
 
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -25,6 +27,7 @@ import android.text.style.*;
 
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.adapter.font.HippyFontScaleAdapter;
+import com.tencent.mtt.hippy.adapter.image.HippyDrawable;
 import com.tencent.mtt.hippy.adapter.image.HippyImageLoader;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyMap;
@@ -52,7 +55,7 @@ public class TextNode extends StyleNode
 
 	private int						mColor							= Color.BLACK;
 	private final boolean			mIsBackgroundColorSet			= false;
-	private int						mBackgroundColor;
+	private int                     mBackgroundColor;
 	private String					mFontFamily						= null;
 
 	public static final int			DEFAULT_TEXT_SHADOW_COLOR		= 0x55000000;
@@ -502,16 +505,26 @@ public class TextNode extends StyleNode
 
 	private void createImageSpanOperation(List<SpanOperation> ops, SpannableStringBuilder sb, ImageNode imageNode) {
 		String url = null;
+		String defaultSource = null;
 		HippyMap props = imageNode.getTotalProps();
-		if (props != null && props.containsKey("src")) {
+		if (props != null) {
 			url = props.getString("src");
+			defaultSource = props.getString("defaultSource");
 		}
 
-		if (TextUtils.isEmpty(url)) {
-			return;
+		Drawable drawable = null;
+		if (!TextUtils.isEmpty(defaultSource) && mImageAdapter != null) {
+			HippyDrawable hippyDrawable = mImageAdapter.getImage(defaultSource, null);
+			Bitmap bitmap = hippyDrawable.getBitmap();
+			if (bitmap != null) {
+				drawable = new BitmapDrawable(bitmap);
+			}
 		}
 
-		Drawable drawable = new ColorDrawable(Color.parseColor("#00000000"));
+		if (drawable == null) {
+			drawable = new ColorDrawable(Color.parseColor("#00000000"));
+		}
+
 		int width = Math.round(imageNode.getStyleWidth());
 		int height = Math.round(imageNode.getStyleHeight());
 		drawable.setBounds(0, 0, width, height);
