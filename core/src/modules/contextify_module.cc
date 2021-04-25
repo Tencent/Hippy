@@ -161,8 +161,8 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
         TDF_BASE_DLOG(INFO) << "restore __HIPPYCURDIR__ = " << last_dir_str;
         if (try_catch->HasCaught()) {
           error = try_catch->Exception();
-          TDF_BASE_DLOG(ERROR) << "RequestUntrustedContent error = ",
-              try_catch->GetExceptionMsg();
+          TDF_BASE_DLOG(ERROR) << "RequestUntrustedContent error = "
+                               << try_catch->GetExceptionMsg();
         } else {
           error = ctx->CreateNull();
         }
