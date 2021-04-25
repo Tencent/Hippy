@@ -1,7 +1,12 @@
 <template>
   <div class="p-demo">
-    <label>不带样式：</label>
-    <p class="p-demo-content">这是最普通的一行文字</p>
+    <label >不带样式：</label>
+    <p @touchstart="onTouchTextStart"
+       @touchmove="onTouchTextMove"
+       @touchend="onTouchTextEnd"
+       class="p-demo-content">
+      这是最普通的一行文字 - 当前 touch 状态: {{labelTouchStatus}}
+    </p>
     <label>颜色：</label>
     <p class="p-demo-1 p-demo-content">这行文字改变了颜色</p>
     <label>尺寸：</label>
@@ -47,3 +52,36 @@
   font-size: 32px;
 }
 </style>
+<script>
+export default {
+  methods: {
+    // text/span/label/p/a element touch event is supported after hippy-vue 2.6.2
+    onTouchTextStart(evt) {
+      this.labelTouchStatus = 'touch start';
+      console.log('onTextTouchDown', evt);
+      evt.stopPropagation();
+    },
+    // text/span/label/p/a element touch event is supported after hippy-vue 2.6.2
+    onTouchTextMove(evt) {
+      this.labelTouchStatus = 'touch move';
+      console.log('onTextTouchMove', evt);
+      evt.stopPropagation();
+      console.log(evt);
+    },
+    // text/span/label/p/a element touch event is supported after hippy-vue 2.6.2
+    onTouchTextEnd(evt) {
+      this.labelTouchStatus = 'touch end';
+      console.log('onTextTouchEnd', evt);
+      evt.stopPropagation();
+      console.log(evt);
+    },
+  },
+  data() {
+    return {
+      isClicked: false,
+      isPressing: false,
+      labelTouchStatus: '',
+    };
+  },
+};
+</script>
