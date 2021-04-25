@@ -62,7 +62,7 @@ void Scope::WillExit() {
   std::weak_ptr<Ctx> weak_context = context_;
   JavaScriptTask::Function cb = hippy::base::MakeCopyable(
       [weak_context, p = std::move(promise)]() mutable {
-        TDF_BASE_DLOG(INFO) << "run js WillExit begin";
+        TDF_BASE_LOG(INFO) << "run js WillExit begin";
         std::shared_ptr<CtxValue> rst = nullptr;
         std::shared_ptr<Ctx> context = weak_context.lock();
         if (context) {
