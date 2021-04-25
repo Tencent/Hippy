@@ -681,10 +681,10 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const uint8_t* data,
                                            bool is_use_code_cache,
                                            std::string* cache,
                                            Encoding encodeing) {
-  TDF_BASE_DLOG(INFO) << "V8Ctx::RunScript file_name = " << file_name
-                      << ", len = " << len << ", encodeing = " << encodeing
+  TDF_BASE_DLOG(INFO) << "V8Ctx::RunScript  len = " << len
+                      << ", file_name = " << file_name
                       << ", is_use_code_cache = " << is_use_code_cache
-                      << ", cache = " << cache;
+                      << ", cache = " << cache << ", encodeing = " << encodeing;
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
@@ -732,10 +732,9 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const std::string&& script,
                                            bool is_use_code_cache,
                                            std::string* cache,
                                            Encoding encodeing) {
-  TDF_BASE_DLOG(INFO) << "V8Ctx::RunScript script_file_name = " << file_name
-                      << ", encodeing = " << encodeing
-                      << ", is_use_code_cache = " << is_use_code_cache
-                      << ", cache = " << cache;
+  TDF_BASE_LOG(INFO) << "V8Ctx::RunScript script_file_name = " << file_name
+                     << ", is_use_code_cache = " << is_use_code_cache
+                     << ", cache = " << cache << ", encodeing = " << encodeing;
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
@@ -789,7 +788,7 @@ std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
                                                  v8::NewStringType::kNormal),
                          v8::String));
   v8::MaybeLocal<v8::Script> script;
-  if (cache) {
+  if (is_use_code_cache && cache) {
     v8::ScriptCompiler::CachedData* cached_data =
         new v8::ScriptCompiler::CachedData(
             reinterpret_cast<const uint8_t*>(cache), (*cache).length(),
@@ -874,9 +873,9 @@ bool V8Ctx::ThrowExceptionToJS(std::shared_ptr<CtxValue> exception) {
       CallFunction(exception_handler, 2, args);
   if (try_catch.HasCaught()) {
     auto message = try_catch.Message();
-    TDF_BASE_DLOG(ERROR) << "HippyExceptionHandler error, desc = "
-                         << GetMsgDesc(message)
-                         << ", stack = " << GetStackInfo(message);
+    TDF_BASE_LOG(WARNING) << "HippyExceptionHandler error, desc = "
+                          << GetMsgDesc(message)
+                          << ", stack = " << GetStackInfo(message);
   }
   return true;
 }
