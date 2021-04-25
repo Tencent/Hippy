@@ -148,6 +148,7 @@ HIPPY_EXPORT_MODULE()
         std::shared_ptr<Scope> scope = engine->CreateScope(pName, std::move(map));
         self.pScope = scope;
         [self initURILoader];
+        HippyLogInfo(@"HippyJSCExecutor %p init", self);
     }
 
     return self;
