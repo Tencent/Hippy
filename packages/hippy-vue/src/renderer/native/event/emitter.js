@@ -29,7 +29,7 @@ class EventEmitter {
       const eventName = events[i].trim();
       if (process.env.NODE_ENV !== 'production') {
         if (['touchStart', 'touchMove', 'touchEnd', 'touchCancel'].indexOf(eventName) !== -1) {
-          warn(`@${eventName} is deprecated because it's not compatible with browser standard, please use @${eventName.toLowerCase()} to instead as soon, supported after hippy-vue 1.3.3`);
+          warn(`@${eventName} is deprecated because it's not compatible with browser standard, please use @${eventName.toLowerCase()} to instead as soon.`);
         }
       }
       const list = this._getEventList(eventName, true);

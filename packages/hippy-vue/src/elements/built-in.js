@@ -25,16 +25,6 @@ const INPUT_VALUE_MAP = {
 };
 
 // View area
-const button = {
-  symbol: components.View,
-  component: {
-    name: NATIVE_COMPONENT_NAME_MAP[components.View],
-    defaultNativeStyle: {
-      // TODO: Fill border style.
-    },
-  },
-};
-
 const div = {
   symbol: components.View,
   component: {
@@ -74,6 +64,17 @@ const div = {
   },
 };
 
+const button = {
+  symbol: components.View,
+  component: {
+    ...div.component,
+    name: NATIVE_COMPONENT_NAME_MAP[components.View],
+    defaultNativeStyle: {
+      // TODO: Fill border style.
+    },
+  },
+};
+
 const form = {
   symbol: components.View,
   component: {
@@ -85,6 +86,7 @@ const form = {
 const img = {
   symbol: components.Image,
   component: {
+    ...div.component,
     name: NATIVE_COMPONENT_NAME_MAP[components.Image],
     defaultNativeStyle: {
       backgroundColor: 0,
@@ -100,9 +102,11 @@ const img = {
           return value;
         },
       },
-      // For Anroid, will use src property
-      // For iOS, will convert to use source property
-      // At line: hippy-vuv/renderer/native/index.js line 196.
+      /**
+       * For Android, will use src property
+       * For iOS, will convert to use source property
+       * At line: hippy-vuv/renderer/native/index.js line 196.
+       */
       src(value) {
         let url = value;
         if (/^assets/.test(url)) {
@@ -159,6 +163,7 @@ const li = {
 const span = {
   symbol: components.View, // IMPORTANT: Can't be Text.
   component: {
+    ...div.component,
     name: NATIVE_COMPONENT_NAME_MAP[components.Text],
     defaultNativeProps: {
       text: '',
