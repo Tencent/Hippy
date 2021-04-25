@@ -24,8 +24,6 @@ jobs:
       - name: coverage
         if: matrix.node == '10.x'
         uses: codecov/codecov-action@v1
-        with:
-          token: 783d2587-ef59-48ec-8e21-68d5abbd42b4
       - name: build
         run: npm run build
   commitlint:
