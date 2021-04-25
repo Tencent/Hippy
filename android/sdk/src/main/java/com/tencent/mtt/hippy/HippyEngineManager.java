@@ -89,7 +89,7 @@ public abstract class HippyEngineManager extends HippyEngine
 		private HippyGlobalConfigs			mGlobalConfigs;
 		private HippyBundleLoader			mCoreBundleLoader;
 		private HippyBundleLoader			mPreloadBundleLoader;
-		private List<HippyAPIProvider>			mPackages;
+		private List<HippyAPIProvider>      mPackages;
 		private boolean						mSupportDev	= false;
 		private String						mDebugJs;
 		private boolean 					mBridgeHippyBuffer = false;
@@ -141,6 +141,11 @@ public abstract class HippyEngineManager extends HippyEngine
 			return this;
 		}
 
+		Builder setGroupId(int groupId) {
+			mGroupId = groupId;
+			return this;
+		}
+
 		HippyEngineManager build()
 		{
 			if (mCoreBundleLoader == null && !mSupportDev)
@@ -180,10 +185,6 @@ public abstract class HippyEngineManager extends HippyEngine
 			}
 
 			return hippyEngineManager;
-		}
-
-		public void setGroupId(int groupId) {
-			mGroupId = groupId;
 		}
 	}
 }
