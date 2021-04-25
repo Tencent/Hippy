@@ -25,34 +25,34 @@ import java.util.ArrayList;
 public class ImageNode extends StyleNode
 {
   public static final String PROP_VERTICAL_ALIGNMENT = "verticalAlignment";
-  
-	private final boolean mIsVirtual;
-	private HippyImageSpan mImageSpan = null;
-	private int mVerticalAlignment = ImageSpan.ALIGN_BASELINE;
-  
-  private ArrayList<String>	mGestureTypes	= null;
-	
-	public ImageNode(boolean mIsVirtual) {
-		this.mIsVirtual = mIsVirtual;
-	}
 
-	public void setImageSpan(HippyImageSpan imageSpan) {
+  private final boolean mIsVirtual;
+  private HippyImageSpan mImageSpan = null;
+  private int mVerticalAlignment = ImageSpan.ALIGN_BASELINE;
+
+  private ArrayList<String>	mGestureTypes	= null;
+
+  public ImageNode(boolean mIsVirtual) {
+    this.mIsVirtual = mIsVirtual;
+  }
+
+  public void setImageSpan(HippyImageSpan imageSpan) {
     mImageSpan = imageSpan;
   }
-	
-	public int getVerticalAlignment() {
-	  return mVerticalAlignment;
+
+  public int getVerticalAlignment() {
+    return mVerticalAlignment;
   }
-	
-	public boolean isVirtual()
-	{
-		return mIsVirtual;
-	}
-	
-	public ArrayList<String> getGestureTypes() {
-	  return mGestureTypes;
+
+  public boolean isVirtual()
+  {
+    return mIsVirtual;
   }
-  
+
+  public ArrayList<String> getGestureTypes() {
+    return mGestureTypes;
+  }
+
   @HippyControllerProps(name = NodeProps.ON_CLICK, defaultType = HippyControllerProps.BOOLEAN)
   public void clickEnable(boolean flag)
   {
@@ -65,7 +65,7 @@ public class ImageNode extends StyleNode
       mGestureTypes.add(NodeProps.ON_CLICK);
     }
   }
-  
+
   @HippyControllerProps(name = NodeProps.ON_LONG_CLICK, defaultType = HippyControllerProps.BOOLEAN)
   public void longClickEnable(boolean flag)
   {
@@ -78,7 +78,7 @@ public class ImageNode extends StyleNode
       mGestureTypes.add(NodeProps.ON_LONG_CLICK);
     }
   }
-  
+
   @HippyControllerProps(name = NodeProps.ON_PRESS_IN, defaultType = HippyControllerProps.BOOLEAN)
   public void pressInEnable(boolean flag)
   {
@@ -91,7 +91,7 @@ public class ImageNode extends StyleNode
       mGestureTypes.add(NodeProps.ON_PRESS_IN);
     }
   }
-  
+
   @HippyControllerProps(name = NodeProps.ON_PRESS_OUT)
   public void pressOutEnable(boolean flag)
   {
@@ -104,7 +104,7 @@ public class ImageNode extends StyleNode
       mGestureTypes.add(NodeProps.ON_PRESS_OUT);
     }
   }
-  
+
   @HippyControllerProps(name = NodeProps.ON_TOUCH_DOWN, defaultType = HippyControllerProps.BOOLEAN)
   public void touchDownEnable(boolean flag)
   {
@@ -117,7 +117,7 @@ public class ImageNode extends StyleNode
       mGestureTypes.add(NodeProps.ON_TOUCH_DOWN);
     }
   }
-  
+
   @HippyControllerProps(name = NodeProps.ON_TOUCH_MOVE, defaultType = HippyControllerProps.BOOLEAN)
   public void touchUpEnable(boolean flag)
   {
@@ -130,7 +130,7 @@ public class ImageNode extends StyleNode
       mGestureTypes.add(NodeProps.ON_TOUCH_MOVE);
     }
   }
-  
+
   @HippyControllerProps(name = NodeProps.ON_TOUCH_END, defaultType = HippyControllerProps.BOOLEAN)
   public void touchEndEnable(boolean flag)
   {
@@ -143,7 +143,7 @@ public class ImageNode extends StyleNode
       mGestureTypes.add(NodeProps.ON_TOUCH_END);
     }
   }
-  
+
   @HippyControllerProps(name = NodeProps.ON_TOUCH_CANCEL, defaultType = HippyControllerProps.BOOLEAN)
   public void touchCancelable(boolean flag)
   {
@@ -156,13 +156,13 @@ public class ImageNode extends StyleNode
       mGestureTypes.add(NodeProps.ON_TOUCH_CANCEL);
     }
   }
-  
+
   @HippyControllerProps(name = PROP_VERTICAL_ALIGNMENT, defaultType = HippyControllerProps.NUMBER, defaultNumber = ImageSpan.ALIGN_BASELINE)
   public void setVerticalAlignment(int verticalAlignment)
   {
     mVerticalAlignment = verticalAlignment;
   }
-  
+
   @HippyControllerProps(name = "src", defaultType = HippyControllerProps.STRING)
   public void setUrl(String url)
   {
