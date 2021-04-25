@@ -183,7 +183,7 @@ bool RunScript(std::shared_ptr<Runtime> runtime,
                        << ", script content = " << script_content;
 
   if (script_content.empty()) {
-    TDF_BASE_DLOG(ERROR) << "script content empty, uri = " << uri;
+    TDF_BASE_LOG(WARNING) << "script content empty, uri = " << uri;
     return false;
   }
 
@@ -217,7 +217,7 @@ bool RunScript(std::shared_ptr<Runtime> runtime,
 
         bool save_file_ret = hippy::base::HippyFile::SaveFile(
             code_cache_path.c_str(), code_cache_content);
-        TDF_BASE_DLOG(INFO) << "save_file_ret = " << save_file_ret;
+        TDF_BASE_LOG(INFO) << "code cache save_file_ret = " << save_file_ret;
         HIPPY_USE(save_file_ret);
       };
       task_runner->PostTask(std::move(task));
@@ -225,7 +225,7 @@ bool RunScript(std::shared_ptr<Runtime> runtime,
   }
 
   bool flag = !!ret;
-  TDF_BASE_DLOG(INFO) << "runScript end, flag = " << flag;
+  TDF_BASE_LOG(INFO) << "runScript end, flag = " << flag;
   return flag;
 }
 
@@ -330,7 +330,9 @@ void HandleUncaughtJsError(v8::Local<v8::Message> message,
   std::shared_ptr<hippy::napi::V8Ctx> ctx =
       std::static_pointer_cast<hippy::napi::V8Ctx>(
           runtime->GetScope()->GetContext());
-
+  TDF_BASE_LOG(ERROR) << "HandleUncaughtJsError error desc = "
+                      << ctx->GetMsgDesc(message)
+                      << ", stack = " << ctx->GetStackInfo(message);
   ExceptionHandler::ReportJsException(runtime, ctx->GetMsgDesc(message),
                                       ctx->GetStackInfo(message));
   ctx->ThrowExceptionToJS(
@@ -347,11 +349,13 @@ jlong InitInstance(JNIEnv* j_env,
                    jboolean j_is_dev_module,
                    jobject j_callback,
                    jlong j_group_id) {
-  TDF_BASE_DLOG(INFO) << "InitInstance begin, j_single_thread_mode = "
-                      << j_single_thread_mode
-                      << ", j_bridge_param_json = " << j_bridge_param_json
-                      << ", j_is_dev_module = " << j_is_dev_module
-                      << ", j_group_id = " << j_group_id;
+  TDF_BASE_LOG(INFO) << "InitInstance begin, j_single_thread_mode = "
+                     << static_cast<uint32_t>(j_single_thread_mode)
+                     << ", j_bridge_param_json = "
+                     << static_cast<uint32_t>(j_bridge_param_json)
+                     << ", j_is_dev_module = "
+                     << static_cast<uint32_t>(j_is_dev_module)
+                     << ", j_group_id = " << j_group_id;
   std::shared_ptr<Runtime> runtime =
       std::make_shared<Runtime>(std::make_shared<JavaRef>(j_env, j_object),
                                 j_bridge_param_json, j_is_dev_module);
@@ -375,49 +379,51 @@ jlong InitInstance(JNIEnv* j_env,
   std::shared_ptr<JavaRef> save_object =
       std::make_shared<JavaRef>(j_env, j_callback);
 
-  RegisterFunction context_cb = [runtime, global_config,
-                                 runtime_key](void* scopeWrapper) {
-    TDF_BASE_DLOG(INFO) << "InitInstance register hippyCallNatives";
-    TDF_BASE_DCHECK(scopeWrapper);
-    ScopeWrapper* wrapper = reinterpret_cast<ScopeWrapper*>(scopeWrapper);
-    TDF_BASE_DCHECK(wrapper);
-    std::shared_ptr<Scope> scope = wrapper->scope_.lock();
-    if (!scope) {
-      TDF_BASE_DLOG(ERROR) << "register hippyCallNatives, scope error";
-      return;
-    }
+  RegisterFunction context_cb =
+      [runtime, global_config, runtime_key](void* scopeWrapper) {
+        TDF_BASE_LOG(INFO)
+            << "InitInstance register hippyCallNatives, runtime_key = "
+            << *runtime_key;
+        TDF_BASE_DCHECK(scopeWrapper);
+        ScopeWrapper* wrapper = reinterpret_cast<ScopeWrapper*>(scopeWrapper);
+        TDF_BASE_DCHECK(wrapper);
+        std::shared_ptr<Scope> scope = wrapper->scope_.lock();
+        if (!scope) {
+          TDF_BASE_DLOG(ERROR) << "register hippyCallNatives, scope error";
+          return;
+        }
 
-    if (runtime->IsDebug()) {
-      if (!global_inspector) {
-        global_inspector = std::make_shared<V8InspectorClientImpl>(scope);
-        global_inspector->Connect(runtime->GetBridge());
-      } else {
-        global_inspector->Reset(scope, runtime->GetBridge());
-      }
-      global_inspector->CreateContext();
-    }
+        if (runtime->IsDebug()) {
+          if (!global_inspector) {
+            global_inspector = std::make_shared<V8InspectorClientImpl>(scope);
+            global_inspector->Connect(runtime->GetBridge());
+          } else {
+            global_inspector->Reset(scope, runtime->GetBridge());
+          }
+          global_inspector->CreateContext();
+        }
 
-    std::shared_ptr<Ctx> ctx = scope->GetContext();
-    ctx->RegisterGlobalInJs();
-    hippy::base::RegisterFunction fn =
-        TO_REGISTER_FUNCTION(hippy::bridge::CallJava, hippy::napi::CBDataTuple);
-    ctx->RegisterNativeBinding("hippyCallNatives", fn,
-                               static_cast<void*>(runtime_key.get()));
-    bool ret =
-        ctx->SetGlobalJsonVar("__HIPPYNATIVEGLOBAL__", global_config.c_str());
-    if (!ret) {
-      TDF_BASE_DLOG(ERROR) << "register __HIPPYNATIVEGLOBAL__ failed";
-      ExceptionHandler exception;
-      exception.JSONException(runtime, global_config.c_str());
-    }
-  };
+        std::shared_ptr<Ctx> ctx = scope->GetContext();
+        ctx->RegisterGlobalInJs();
+        hippy::base::RegisterFunction fn = TO_REGISTER_FUNCTION(
+            hippy::bridge::CallJava, hippy::napi::CBDataTuple);
+        ctx->RegisterNativeBinding("hippyCallNatives", fn,
+                                   static_cast<void*>(runtime_key.get()));
+        bool ret = ctx->SetGlobalJsonVar("__HIPPYNATIVEGLOBAL__",
+                                         global_config.c_str());
+        if (!ret) {
+          TDF_BASE_DLOG(ERROR) << "register __HIPPYNATIVEGLOBAL__ failed";
+          ExceptionHandler exception;
+          exception.JSONException(runtime, global_config.c_str());
+        }
+      };
   std::unique_ptr<RegisterMap> scope_cb_map = std::make_unique<RegisterMap>();
   scope_cb_map->insert(
       std::make_pair(hippy::base::kContextCreatedCBKey, context_cb));
 
   RegisterFunction scope_cb = [save_object_ = std::move(save_object),
                                runtime_id](void*) {
-    TDF_BASE_DLOG(INFO) << "run scope cb";
+    TDF_BASE_LOG(INFO) << "run scope cb, runtime_id = " << runtime_id;
     hippy::bridge::CallJavaMethod(save_object_->GetObj(), runtime_id);
   };
   scope_cb_map->insert(
@@ -464,7 +470,7 @@ jlong InitInstance(JNIEnv* j_env,
       runtime->GetEngine()->CreateScope("", std::move(scope_cb_map)));
   TDF_BASE_DLOG(INFO) << "group = " << group;
   runtime->SetGroupId(group);
-  TDF_BASE_DLOG(INFO) << "InitInstance end, runtime_id = " << runtime_id;
+  TDF_BASE_LOG(INFO) << "InitInstance end, runtime_id = " << runtime_id;
 
   return runtime_id;
 }
@@ -485,7 +491,7 @@ void DestroyInstance(JNIEnv* j_env,
 
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
   task->callback = [runtime, runtime_id] {
-    TDF_BASE_DLOG(INFO) << "js destroy begin";
+    TDF_BASE_LOG(INFO) << "js destroy begin, runtime_id " << runtime_id;
     if (runtime->IsDebug()) {
       global_inspector->DestroyContext();
       global_inspector->Reset(nullptr, runtime->GetBridge());
