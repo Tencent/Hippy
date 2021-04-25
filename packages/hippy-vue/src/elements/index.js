@@ -1,5 +1,6 @@
-import { makeMap } from 'shared/util';
+import { makeMap, camelize } from 'shared/util';
 import * as BUILT_IN_ELEMENTS from './built-in';
+import { capitalizeFirstLetter } from '../util';
 
 const isReservedTag = makeMap(
   'template,script,style,element,content,slot,'
@@ -36,6 +37,9 @@ function normalizeElementName(elementName) {
 }
 
 function registerElement(elementName, oldMeta) {
+  if (!elementName) {
+    throw new Error('RegisterElement cannot set empty name');
+  }
   const normalizedName = normalizeElementName(elementName);
 
   const meta = { ...defaultViewMeta, ...oldMeta };
@@ -48,6 +52,10 @@ function registerElement(elementName, oldMeta) {
     ...getDefaultComponent(elementName, meta, normalizedName),
     ...meta.component,
   };
+
+  if (meta.component.name && meta.component.name === capitalizeFirstLetter(camelize(elementName))) {
+    throw new Error(`Cannot registerElement with kebab-case name ${elementName}, which converted to camelCase is the same with component.name ${meta.component.name}, please make them different`);
+  }
 
   const entry = {
     meta,
