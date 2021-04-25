@@ -2,7 +2,8 @@
   <div id="demo-img">
     <div id="demo-img-container">
       <label>Contain:</label>
-      <img :defaultSource="defaultImage" src="https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png" class="image contain" />
+      <img @touchstart="onTouchStart" @touchmove="onTouchMove" @touchend="onTouchEnd"
+           :defaultSource="defaultImage" src="https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png" class="image contain" />
       <label>Cover:</label>
       <img :defaultSource="defaultImage" src="https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png" class="image cover" />
       <label>Center:</label>
@@ -20,6 +21,25 @@ export default {
     return {
       defaultImage,
     };
+  },
+  methods: {
+    // img touch event is supported after hippy-vue 2.6.2
+    onTouchStart(evt) {
+      console.log('onTouchDown', evt);
+      evt.stopPropagation();
+    },
+    // img touch event is supported after hippy-vue 2.6.2
+    onTouchMove(evt) {
+      console.log('onTouchMove', evt);
+      evt.stopPropagation();
+      console.log(evt);
+    },
+    // img touch event is supported after hippy-vue 2.6.2
+    onTouchEnd(evt) {
+      console.log('onTouchEnd', evt);
+      evt.stopPropagation();
+      console.log(evt);
+    },
   },
 };
 </script>
