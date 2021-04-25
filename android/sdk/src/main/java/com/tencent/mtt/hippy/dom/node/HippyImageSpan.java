@@ -36,18 +36,13 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 
 public class HippyImageSpan extends ImageSpan {
-
-    public final static int STATE_UNLOAD = 0;
-    public final static int STATE_LOADING = 1;
-    public final static int STATE_LOADED = 2;
-
     private int mLeft;
     private int mTop;
     private int mWidth;
     private int mHeight;
     private String mUrl;
     private final WeakReference<ImageNode> mImageNodeWeakRefrence;
-    private int mImageLoadState = 0;
+    //private int mImageLoadState = 0;
     private int mVerticalAlignment;
     private final HippyImageLoader mImageAdapter;
 
@@ -62,7 +57,9 @@ public class HippyImageSpan extends ImageSpan {
         mImageNodeWeakRefrence = new WeakReference<ImageNode>(node);
         mImageAdapter = imageAdapter;
 
-        setUrl(source);
+        if(!TextUtils.isEmpty(source)) {
+            setUrl(source);
+        }
     }
 
     private void updateBoundsAttribute() {
@@ -90,24 +87,22 @@ public class HippyImageSpan extends ImageSpan {
     }
 
     private void loadImageWithUrl(String url) {
-        if (TextUtils.isEmpty(mUrl) || !mUrl.equals(url)) {
-            mUrl = url;
-            mImageLoadState = STATE_UNLOAD;
+        mUrl = url;
+        //mImageLoadState = STATE_UNLOAD;
 
-            updateBoundsAttribute();
+        updateBoundsAttribute();
 
-            if (mImageAdapter != null) {
-                if (shouldUseFetchImageMode(mUrl)) {
-                    final HippyMap props = new HippyMap();
-                    props.pushBoolean(NodeProps.CUSTOM_PROP_ISGIF, false);
-                    props.pushInt(NodeProps.WIDTH, mWidth);
-                    props.pushInt(NodeProps.HEIGHT, mHeight);
+        if (mImageAdapter != null) {
+            if (shouldUseFetchImageMode(mUrl)) {
+                final HippyMap props = new HippyMap();
+                props.pushBoolean(NodeProps.CUSTOM_PROP_ISGIF, false);
+                props.pushInt(NodeProps.WIDTH, mWidth);
+                props.pushInt(NodeProps.HEIGHT, mHeight);
 
-                    doFetchImage(mUrl, props, mImageAdapter);
-                } else {
-                    HippyDrawable hippyDrawable = mImageAdapter.getImage(mUrl, null);
-                    shouldReplaceDrawable(hippyDrawable);
-                }
+                doFetchImage(mUrl, props, mImageAdapter);
+            } else {
+                HippyDrawable hippyDrawable = mImageAdapter.getImage(mUrl, null);
+                shouldReplaceDrawable(hippyDrawable);
             }
         }
     }
@@ -229,12 +224,12 @@ public class HippyImageSpan extends ImageSpan {
             }
 
             postInvalidateDelayed(0);
-            mImageLoadState = STATE_LOADED;
+            //mImageLoadState = STATE_LOADED;
         }
     }
 
     private void doFetchImage(String url, HippyMap props, HippyImageLoader imageAdapter) {
-        mImageLoadState = STATE_LOADING;
+        //mImageLoadState = STATE_LOADING;
 
         imageAdapter.fetchImage(url, new HippyImageLoader.Callback() {
             @Override
@@ -248,7 +243,7 @@ public class HippyImageSpan extends ImageSpan {
 
             @Override
             public void onRequestFail(Throwable throwable, String source) {
-                mImageLoadState = STATE_UNLOAD;
+                //mImageLoadState = STATE_UNLOAD;
             }
         }, props);
     }
