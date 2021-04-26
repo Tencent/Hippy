@@ -22,6 +22,7 @@
 
 #import "HippyJSEnginesMapper.h"
 #import "HippyJavaScriptExecutor.h"
+#import "HippyLog.h"
 
 using EngineRef = std::pair<std::shared_ptr<Engine>, NSUInteger>;
 using EngineMapper = std::unordered_map<std::string, EngineRef>;
@@ -86,6 +87,7 @@ using EngineMapper = std::unordered_map<std::string, EngineRef>;
         EngineRef &ref = it->second;
         ref.second--;
         if (0 == ref.second) {
+            HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor destroy engine %@", key);
             std::shared_ptr<Engine> engine = ref.first;
             engine->TerminateRunner();
             _engineMapper.erase(it);
