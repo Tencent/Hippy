@@ -331,9 +331,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
             if (isRootView) {
                 assert(0);  // todo: 走到这个逻辑不正常，请联系pennyli
             }
-            HippyLogInfo(@"Could not locate shadow view with tag #%@, this is probably caused by a temporary inconsistency between native views and "
-                         @"shadow views.",
-                hippyTag);
             return;
         }
 
