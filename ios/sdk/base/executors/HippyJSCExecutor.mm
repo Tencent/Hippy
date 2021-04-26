@@ -77,6 +77,7 @@ struct RandomAccessBundleData {
 };
 
 static bool defaultDynamicLoadAction(const std::string& uri, std::function<void(std::string)> cb) {
+    HippyLogInfo(@"[Hippy_OC_Log][Dynamic_Load], to default dynamic load action:%s", uri.c_str());
     NSString *URIString = [NSString stringWithUTF8String:uri.c_str()];
     NSURL *url = HippyURLWithString(URIString, NULL);
     if ([url isFileURL]) {
@@ -87,7 +88,7 @@ static bool defaultDynamicLoadAction(const std::string& uri, std::function<void(
         NSURLRequest *req = [NSURLRequest requestWithURL:url];
         [[[NSURLSession sharedSession] dataTaskWithRequest:req completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
             if (error) {
-                HippyLogInfo(@"dynamic load error: %@", [error description]);
+                HippyLogInfo(@"[Hippy_OC_Log][Dynamic_Load], error:%@", [error description]);
             }
             else {
                 NSString *result = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
@@ -99,6 +100,7 @@ static bool defaultDynamicLoadAction(const std::string& uri, std::function<void(
 }
 
 static bool loadFunc(const std::string& uri, std::function<void(std::string)> cb, CFTypeRef userData) {
+    HippyLogInfo(@"[Hippy_OC_Log][Dynamic_Load], start load function:%s", uri.c_str());
     HippyBridge *strongBridge = (__bridge HippyBridge *)userData;
     if ([strongBridge.delegate respondsToSelector:@selector(dynamicLoad:URI:completion:)]) {
         NSString *URIString = [NSString stringWithUTF8String:uri.c_str()];
@@ -148,7 +150,7 @@ HIPPY_EXPORT_MODULE()
         std::shared_ptr<Scope> scope = engine->CreateScope(pName, std::move(map));
         self.pScope = scope;
         [self initURILoader];
-        HippyLogInfo(@"HippyJSCExecutor %p init", self);
+        HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor Init %p, execurotkey:%@", self, execurotkey);
     }
 
     return self;
@@ -348,6 +350,7 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
     if (!self.isValid) {
         return;
     }
+    HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor invalide %p", self);
     _valid = NO;
     self.pScope->WillExit();
     self.pScope = nullptr;
@@ -355,6 +358,7 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
     _JSContext = nil;
     _JSGlobalContextRef = NULL;
     dispatch_async(dispatch_get_main_queue(), ^{
+        HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor remove engine %@", [self executorkey]);
         [[HippyJSEnginesMapper defaultInstance] removeEngineForKey:[self executorkey]];
     });
 }
@@ -376,6 +380,7 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
 // clang-format on
 
 - (void)dealloc {
+    HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor dealloc %p", self);
     [self invalidate];
     _randomAccessBundle.bundle.reset();
     _randomAccessBundle.table.reset();

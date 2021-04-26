@@ -26,13 +26,6 @@
 #import "HippyExtAnimation+Group.h"
 #import "HippyExtAnimation+Value.h"
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wmacro-redefined"
-#define HippyLogInfo(...) \
-    do {                  \
-    } while (0)
-#pragma clang diagnostic pop
-
 @implementation HippyExtAnimationGroup
 
 - (void)setAnimations:(NSArray<HippyExtAnimation *> *)animations {
@@ -74,14 +67,13 @@
     }];
 
     self.duration = duration;
-    HippyLogInfo(@"animationGroup:%@ duration:%@", self.animationId, @(duration));
+    HippyLogInfo(@"[Hippy_OC_Log][Animation],Setup_Animation:%@", animations);
     _animations = animations;
 }
 
 - (CAAnimation *)animationOfView:(UIView *)view forProp:(NSString *)prop {
     NSMutableArray *ca_animations = [NSMutableArray arrayWithCapacity:_animations.count];
     __block HippyExtAnimation *firstAnimaiton = nil;
-    HippyLogInfo(@"--------animaiton start [%@]--------", prop);
     [_animations enumerateObjectsUsingBlock:^(HippyExtAnimation *ani, __unused NSUInteger idx, __unused BOOL *_Nonnull stop) {
         CABasicAnimation *ca_ani = (CABasicAnimation *)[ani animationOfView:view forProp:prop];
         if (ca_ani) {
@@ -110,12 +102,8 @@
             if (firstAnimaiton == nil) {
                 firstAnimaiton = ani;
             }
-            HippyLogInfo(@"--------startValue:%@ tovalue:%@ beginTime:%@ duration:%@", ca_ani.fromValue, ca_ani.toValue, @(ca_ani.beginTime),
-                @(ca_ani.duration));
         }
     }];
-    HippyLogInfo(@"--------animation duration:%@", @(self.duration));
-    HippyLogInfo(@"--------animaiton end [%@]--------", prop);
     CAAnimationGroup *group = [CAAnimationGroup animation];
     group.animations = ca_animations;
     group.repeatCount = self.repeatCount;

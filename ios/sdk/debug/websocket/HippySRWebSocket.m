@@ -545,7 +545,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 
 #ifdef DEBUG
         [SSLOptions setValue:@NO forKey:(__bridge id)kCFStreamSSLValidatesCertificateChain];
-        HippyLogInfo(@"SocketRocket: In debug mode.  Allowing connection to any root cert");
 #endif
 
         [_outputStream setProperty:SSLOptions forKey:(__bridge id)kCFStreamPropertySSLSettings];

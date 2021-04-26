@@ -93,9 +93,6 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
             }, YES);
         _parentBridge = bridge;
         _performanceLogger = [bridge performanceLogger];
-
-        HippyLogInfo(@"Initializing %@ (parent: %@, executor: %@)", self, bridge, [self executorClass]);
-
         /**
          * Set Initial State
          */
@@ -105,7 +102,7 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
         _displayLink = [HippyDisplayLink new];
 
         [HippyBridge setCurrentBridge:self];
-        HippyLogInfo(@"HippyBatchedBridge init %p", self);
+        HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyBatchedBridge Init %p", self);
     }
     return self;
 }
@@ -117,7 +114,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
                       : (NSDictionary *)launchOptions)
 
 - (void)start {
-    HippyLogInfo(@"HippyBatchedBridge start %p", self);
+    HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyBatchedBridge start %p", self);
 
     self.semaphore = dispatch_semaphore_create(0);
     self.moduleSemaphore = dispatch_semaphore_create(1);
