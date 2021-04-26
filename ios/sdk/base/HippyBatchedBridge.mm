@@ -105,7 +105,6 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
         _displayLink = [HippyDisplayLink new];
 
         [HippyBridge setCurrentBridge:self];
-        HippyLogInfo(@"HippyBatchedBridge init %p", self);
     }
     return self;
 }
@@ -117,8 +116,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
                       : (NSDictionary *)launchOptions)
 
 - (void)start {
-    HippyLogInfo(@"HippyBatchedBridge start %p", self);
-
     self.semaphore = dispatch_semaphore_create(0);
     self.moduleSemaphore = dispatch_semaphore_create(1);
     [[NSNotificationCenter defaultCenter] postNotificationName:HippyJavaScriptWillStartLoadingNotification object:_parentBridge
@@ -773,6 +770,12 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
             }
         }];
     });
+}
+
+- (void)logMessage:(NSString *)message level:(NSString *)level {
+    if (HIPPY_DEBUG && [_javaScriptExecutor isValid]) {
+        [self enqueueJSCall:@"HippyLog" method:@"logIfNoNativeHook" args:@[level, message] completion:NULL];
+    }
 }
 
 #pragma mark - HippyBridge methods

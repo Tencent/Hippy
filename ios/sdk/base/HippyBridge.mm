@@ -194,7 +194,6 @@ static HippyBridge *HippyCurrentBridgeInstance = nil;
         HippyExecuteOnMainQueue(^{
             [self bindKeys];
         });
-        HippyLogInfo(@"%@ Init %p", NSStringFromClass([self class]), self);
     }
     return self;
 }
@@ -206,7 +205,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
      * This runs only on the main thread, but crashes the subclass
      * HippyAssertMainQueue();
      */
-    HippyLogInfo(@"%@ dealloc %p", NSStringFromClass([self class]), self);
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [self invalidate];
 }
@@ -315,7 +313,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 }
 
 - (void)setUp {
-    HippyLogInfo(@"%@ set up %p", NSStringFromClass([self class]), self);
     _performanceLogger = [HippyPerformanceLogger new];
     [_performanceLogger markStartForTag:HippyPLBridgeStartup];
     //  [_performanceLogger markStartForTag:HippyPLTTI];
@@ -364,7 +361,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 }
 
 - (void)invalidate {
-    HippyLogInfo(@"%@ %p invalide", NSStringFromClass([self class]), self);
     HippyBridge *batchedBridge = self.batchedBridge;
     self.batchedBridge = nil;
 

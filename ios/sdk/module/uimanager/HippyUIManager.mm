@@ -1433,6 +1433,7 @@ static UIView *_jsResponder;
                 HippyVirtualNode *oldSubNode = self->_nodeRegistry[update[subTag]];
                 subview = self->_viewRegistry[oldSubNode.hippyTag];
                 if (subview == nil) {
+                    HippyLogInfo(@"update node error");
                     NSString *viewName = subNode.viewName;
                     NSNumber *tag = subNode.hippyTag;
                     NSDictionary *props = subNode.props;
@@ -1458,6 +1459,7 @@ static UIView *_jsResponder;
                 NSNumber *oldSubTag = tags[subTag];
                 subview = self->_viewRegistry[oldSubTag];
                 if (subview == nil) {
+                    HippyLogInfo(@"update node tag error");
                     NSString *viewName = subNode.viewName;
                     NSNumber *tag = subNode.hippyTag;
                     NSDictionary *props = subNode.props;
