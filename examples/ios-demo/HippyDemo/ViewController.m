@@ -22,7 +22,6 @@
 
 #import "ViewController.h"
 #import "HippyRootView.h"
-#import "HippyLog.h"
 
 @interface ViewController ()<HippyBridgeDelegate>
 
@@ -33,11 +32,6 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    
-    logHandler handler = ^(const char *message) {
-        NSLog(@"hippy core says:%s", message);
-    };
-    HippyLogSetHandler(handler);
 
     BOOL isSimulator = NO;
     #if TARGET_IPHONE_SIMULATOR
@@ -57,7 +51,6 @@
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     rootView.frame = self.view.bounds;
     [self.view addSubview:rootView];
-    
 }
 
 - (NSDictionary *)objectsBeforeExecuteCode {

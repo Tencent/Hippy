@@ -30,7 +30,6 @@
 #import "HippyDefines.h"
 #import "HippyRedBox.h"
 #import "HippyUtils.h"
-#import "logging.h"
 
 static NSString *const HippyLogFunctionStack = @"HippyLogFunctionStack";
 
@@ -235,11 +234,4 @@ void _HippyLogJavaScriptInternal(HippyLogLevel level, NSString *message) {
             logFunction(level, HippyLogSourceJavaScript, nil, nil, message);
         }
     }
-}
-
-void HippyLogSetHandler(logHandler handler) {
-    std::function<void (const std::ostringstream &)> logFunction = [handler](const std::ostringstream &stream) {
-        handler(stream.str().c_str());
-    };
-    tdf::base::LogMessage::SetDefaultDelegate(logFunction);
 }
