@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.6.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.6.1...2.6.2) (2021-04-26)
+
+
+### Bug Fixes
+
+* **hippy-vue:** fix registerElement elem name and comp name problem ([abec3bd](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/abec3bdef337bf2b238fd7fef4159194a313abba))
+
+
+### Features
+
+* **hippy-vue:** add txt/span/img/a/label/p touch event ([391bafd](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/391bafd21f2a0fd0c0f8ec3c514fed8f08a2f531))
+
+
+
+
+
 ## [2.6.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.6.0...2.6.1) (2021-04-22)
 
 

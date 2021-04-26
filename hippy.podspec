@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'hippy'
-  s.version          = '2.6.1'
+  s.version          = '2.6.2'
   s.summary          = 'hippy lib for ios'
 
 # This description is used to generate tags and improve search results.

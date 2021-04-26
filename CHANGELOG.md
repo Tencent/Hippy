@@ -3,6 +3,35 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.6.2](https://github.com/Tencent/Hippy/compare/2.6.1...2.6.2) (2021-04-26)
+
+
+### Bug Fixes
+
+* **android:**  some image view default source display issues ([0dd696e](https://github.com/Tencent/Hippy/commit/0dd696e01234305a00f263ad83ccb4c3a7473ce1))
+* **core:** fix jni dynamic register crash ([0d639b1](https://github.com/Tencent/Hippy/commit/0d639b18c4a8ca09bd4f26c47de5f30fff44a7bc))
+* **hippy-vue:** fix registerElement elem name and comp name problem ([abec3bd](https://github.com/Tencent/Hippy/commit/abec3bdef337bf2b238fd7fef4159194a313abba))
+* **ios:** fix a bug about touch handler ([d96dcf3](https://github.com/Tencent/Hippy/commit/d96dcf3fb803e4cb817420ecbae3e4bcf585899a))
+* **ios:** fix resize mode center error ([0483a3f](https://github.com/Tencent/Hippy/commit/0483a3f1036a657f5f0ebda25a8a37c3d7c90a11))
+* **ios:** fix wrap-reverse layout ([e5c2ab9](https://github.com/Tencent/Hippy/commit/e5c2ab9ea8ce7d77ea298db4a3360ac37c127eef))
+
+
+### Features
+
+* **android:** support use default source in image span ([218b4dd](https://github.com/Tencent/Hippy/commit/218b4dd0eac0125d1ea7a251aae31d85602efec6))
+* **hippy-vue:** add txt/span/img/a/label/p touch event ([391bafd](https://github.com/Tencent/Hippy/commit/391bafd21f2a0fd0c0f8ec3c514fed8f08a2f531))
+* **ios:** sdk will send error code if image load failure ([7b40ec6](https://github.com/Tencent/Hippy/commit/7b40ec6a80648b0ab9fb8162bfc2602a2cad3b87))
+
+
+### Reverts
+
+* Revert "feat(ios): add log handler" ([0499d7b](https://github.com/Tencent/Hippy/commit/0499d7bb5a96525c7632a6a11d2e4d951969c92e))
+* Revert "fix(ios): add header search path config" ([b9b294d](https://github.com/Tencent/Hippy/commit/b9b294dee3cdaa04278d157bc4853d42414f419e))
+
+
+
+
+
 ## [2.6.1](https://github.com/Tencent/Hippy/compare/2.6.0...2.6.1) (2021-04-22)
 
 
