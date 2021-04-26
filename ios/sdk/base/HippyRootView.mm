@@ -122,7 +122,7 @@ NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotif
 
         [self showLoadingView];
         [_bridge.performanceLogger markStartForTag:HippyPLTTI];
-        HippyLogInfo(@"Hippy Root View Init %p", self);
+        HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyRootView Init %p", self);
     }
 
     return self;
@@ -349,8 +349,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     NSDictionary *appParameters =
         @{ @"rootTag": _contentView.hippyTag, @"initialProps": _appProperties ?: @ {}, @"commonSDKVersion": _HippySDKVersion };
 
-    HippyLogInfo(@"Running application %@ (%@)", moduleName, appParameters);
-
+    HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],Running application %@ (%@)", moduleName, appParameters);
     [bridge enqueueJSCall:@"AppRegistry" method:@"runApplication" args:@[moduleName, appParameters] completion:NULL];
 }
 
@@ -410,7 +409,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     if ([_delegate respondsToSelector:@selector(rootViewWillBePurged:)]) {
         [_delegate rootViewWillBePurged:self];
     }
-    HippyLogInfo(@"Hippy Root View dealloc %p", self);
+    HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyRootView dealloc %p", self);
 }
 
 - (void)cancelTouches {
