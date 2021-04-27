@@ -1,6 +1,6 @@
 const timer = internalBinding('TimerModule');
 
-global.setTimeout = (cb, sleepTime) => timer.SetTimeout(cb, sleepTime);
+global.setTimeout = (cb, sleepTime, ...args) => timer.SetTimeout(() => cb(...args), sleepTime);
 
 global.clearTimeout = (timerId) => {
   if (Number.isInteger(timerId) && timerId > 0) {
@@ -8,7 +8,7 @@ global.clearTimeout = (timerId) => {
   }
 };
 
-global.setInterval = (cb, intervalTime) => timer.SetInterval(cb, intervalTime);
+global.setInterval = (cb, intervalTime, ...args) => timer.SetInterval(() => cb(...args), intervalTime);
 
 global.clearInterval = (timerId) => {
   if (Number.isInteger(timerId) && timerId > 0) {
