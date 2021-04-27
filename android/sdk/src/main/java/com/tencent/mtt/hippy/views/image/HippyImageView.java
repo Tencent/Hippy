@@ -100,7 +100,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 		mTintColor = 0;
 	}
 
-	enum ImageEvent
+	public enum ImageEvent
 	{
 		ONLOAD,
 		ONLOAD_START,
