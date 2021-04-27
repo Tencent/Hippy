@@ -448,12 +448,14 @@ public class TextNode extends StyleNode
 	}
 
 	protected HippyFontScaleAdapter	mFontScaleAdapter;
-	
+	protected HippyEngineContext engineContext;
 	protected HippyImageLoader mImageAdapter;
 
 	@Override
 	public void layoutBefore(HippyEngineContext context) {
 		super.layoutBefore(context);
+
+		engineContext = context;
 		if (mFontScaleAdapter == null) {
 			mFontScaleAdapter = context.getGlobalConfigs().getFontScaleAdapter();
 		}
@@ -529,7 +531,7 @@ public class TextNode extends StyleNode
 		int height = Math.round(imageNode.getStyleHeight());
 		drawable.setBounds(0, 0, width, height);
 
-		HippyImageSpan imageSpan = new HippyImageSpan(drawable, url, imageNode, mImageAdapter);
+		HippyImageSpan imageSpan = new HippyImageSpan(drawable, url, imageNode, mImageAdapter, engineContext);
 		imageNode.setImageSpan(imageSpan);
 
 		int start = sb.length();
