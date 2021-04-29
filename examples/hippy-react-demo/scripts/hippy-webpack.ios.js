@@ -76,6 +76,11 @@ module.exports = {
           loader: 'url-loader',
           options: {
             limit: true,
+            // TODO local path not supported on defaultSource/backgroundImage
+            // limit: 8192,
+            // fallback: 'file-loader',
+            // name: '[name].[ext]',
+            // outputPath: 'assets/',
           },
         }],
       },
