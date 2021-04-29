@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 
-import { arrayCount, warn } from '../util';
-import { HIPPY_STATIC_PROTOCOL, HIPPY_DEBUG_ADDRESS } from '../runtime/constants';
+import { arrayCount, warn, convertImageLocalPath } from '../util';
+import { HIPPY_DEBUG_ADDRESS } from '../runtime/constants';
 import NATIVE_COMPONENT_NAME_MAP, * as components from '../renderer/native/components';
 import Native from '../runtime/native';
 
@@ -96,27 +96,22 @@ const img = {
       placeholder: {
         name: 'defaultSource',
         propsValue(value) {
-          if (value.slice(0, 11) !== 'data:image/') {
-            warn(`img placeholder should be a base64 image, recommend to use \`import image from '!!url-loader?modules!./image.png'\` to import placeholder then use: ${value}`);
+          const url = convertImageLocalPath(value);
+          if (url
+              && url.indexOf(HIPPY_DEBUG_ADDRESS) < 0
+              && ['https://', 'http://'].some(schema => url.indexOf(schema) === 0)) {
+            warn(`img placeholder ${url} recommend to use base64 image or local path image`);
           }
-          return value;
+          return url;
         },
       },
       /**
        * For Android, will use src property
        * For iOS, will convert to use source property
-       * At line: hippy-vuv/renderer/native/index.js line 196.
+       * At line: hippy-vue/renderer/native/index.js line 196.
        */
       src(value) {
-        let url = value;
-        if (/^assets/.test(url)) {
-          if (process.env.NODE_ENV !== 'production') {
-            url = `${HIPPY_DEBUG_ADDRESS}${url}`;
-          } else {
-            url = `${HIPPY_STATIC_PROTOCOL}./${url}`;
-          }
-        }
-        return url;
+        return convertImageLocalPath(value);
       },
     },
   },
