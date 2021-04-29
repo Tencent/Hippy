@@ -51,7 +51,7 @@ export default {
         width: '200px',
         /**
          *  inline style 'background-image': `url(${DefaultImage})` only supported above 2.6.1.
-         *  declaration css style only supports 'background-image': `url('https://xxxx')` format.
+         *  declaration css style supports 'background-image': `url('https://xxxx')` format and remote address only.
          */
         'background-image': `${defaultImage}`,
         'background-repeat': 'no-repeat',
@@ -99,7 +99,7 @@ export default {
     text-align: center;
   }
 
-  /* background-image path is remote address */
+  /* background-image path is remote address only */
   .div-demo-1 {
     display: flex;
     height: 40px;

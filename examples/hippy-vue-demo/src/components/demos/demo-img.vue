@@ -3,13 +3,14 @@
     <div id="demo-img-container">
       <label>Contain:</label>
       <img @touchstart="onTouchStart" @touchmove="onTouchMove" @touchend="onTouchEnd"
-           :defaultSource="defaultImage" src="https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png" class="image contain" />
+           src="https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png"
+           :placeholder="defaultImage" class="image contain" />
       <label>Cover:</label>
-      <img :defaultSource="defaultImage" src="https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png" class="image cover" />
+      <img :placeholder="defaultImage" src="https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png" class="image cover" />
       <label>Center:</label>
-      <img :defaultSource="defaultImage" src="https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png" class="image center" />
+      <img :placeholder="defaultImage" src="https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png" class="image center" />
       <label>Gif:</label>
-      <img :defaultSource="defaultImage" src="http://img.qdaily.com/article/article_show/20180226115511QR0IMWjcBZmo8FaV.gif" class="image cover" />
+      <img :placeholder="defaultImage" src="http://img.qdaily.com/article/article_show/20180226115511QR0IMWjcBZmo8FaV.gif" class="image cover" />
     </div>
   </div>
 </template>
