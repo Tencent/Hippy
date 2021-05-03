@@ -345,20 +345,20 @@ jlong InitInstance(JNIEnv* j_env,
                    jobject j_object,
                    jbyteArray j_global_config,
                    jboolean j_single_thread_mode,
-                   jboolean j_bridge_param_json,
+                   jboolean j_enable_v8_serialization,
                    jboolean j_is_dev_module,
                    jobject j_callback,
                    jlong j_group_id) {
   TDF_BASE_LOG(INFO) << "InitInstance begin, j_single_thread_mode = "
                      << static_cast<uint32_t>(j_single_thread_mode)
                      << ", j_bridge_param_json = "
-                     << static_cast<uint32_t>(j_bridge_param_json)
+                     << static_cast<uint32_t>(j_enable_v8_serialization)
                      << ", j_is_dev_module = "
                      << static_cast<uint32_t>(j_is_dev_module)
                      << ", j_group_id = " << j_group_id;
   std::shared_ptr<Runtime> runtime =
       std::make_shared<Runtime>(std::make_shared<JavaRef>(j_env, j_object),
-                                j_bridge_param_json, j_is_dev_module);
+                                j_enable_v8_serialization, j_is_dev_module);
   int64_t runtime_id = runtime->GetId();
   Runtime::Insert(runtime);
   std::shared_ptr<int64_t> runtime_key = Runtime::GetKey(runtime);

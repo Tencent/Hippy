@@ -247,8 +247,8 @@ public abstract class HippyEngine
 		public String debugServerHost = "localhost:38989";
 		// 可选参数 自定义的，用来提供Native modules、JavaScript modules、View controllers的管理器。1个或多个
 		public List<HippyAPIProvider> providers;
-		// 可选参数 是否允许Hippy启用底层buffer。默认为true
-		public boolean enableBuffer = true;
+		//Optional  is use V8 serialization or json
+		public boolean enableV8Serialization = true;
 		// 可选参数 是否打印引擎的完整的log。默认为false
 		public boolean enableLog = false;
 		// 可选参数 code cache的名字，如果设置为空，则不启用code cache，默认为 ""
