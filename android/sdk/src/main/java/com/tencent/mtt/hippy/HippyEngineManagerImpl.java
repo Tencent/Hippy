@@ -88,7 +88,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 	// Hippy Server的host，调试模式下有效
 	private final String						mServerHost;
 
-	boolean										mEnableHippyBuffer;
+	boolean										enableV8Serialization;
 
 	boolean             						mDevManagerInited 			= false;
 	final TimeMonitor									mStartTimeMonitor;
@@ -129,7 +129,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 		this.mDebugMode = params.debugMode;
 		this.mServerBundleName = params.debugMode ? params.debugBundleName : "";
 		this.mStartTimeMonitor = new TimeMonitor(!params.debugMode);
-		this.mEnableHippyBuffer = params.enableBuffer;
+		this.enableV8Serialization = params.enableV8Serialization;
 		this.mServerHost = params.debugServerHost;
 		this.mGroupId = params.groupId;
 		this.mThirdPartyAdapter = params.thirdPartyAdapter;
@@ -771,7 +771,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 		{
 			mModuleManager = new HippyModuleManagerImpl(this, mAPIProviders);
 			mBridgeManager = new HippyBridgeManagerImpl(this, mCoreBundleLoader, HippyEngineManagerImpl.this.getBridgeType(),
-					!mEnableHippyBuffer, isDevModule, debugServerHost, mGroupId, mThirdPartyAdapter);
+					enableV8Serialization, isDevModule, debugServerHost, mGroupId, mThirdPartyAdapter);
 			mRenderManager = new RenderManager(this, mAPIProviders);
 			mDomManager = new DomManager(this);
 		}

@@ -33,9 +33,9 @@
 
 class Runtime {
  public:
-  Runtime(std::shared_ptr<JavaRef> bridge, bool is_json, bool is_dev);
+  Runtime(std::shared_ptr<JavaRef> bridge, bool enable_v8_serialization, bool is_dev);
 
-  inline bool IsParamJson() { return is_json_; }
+  inline bool IsEnableV8Serialization() { return enable_v8_serialization_; }
   inline bool IsDebug() { return is_debug_; }
   inline int64_t GetId() { return id_; }
   inline int64_t GetGroupId() { return group_id_; }
@@ -62,7 +62,7 @@ class Runtime {
   static bool ReleaseKey(int64_t id);
 
  private:
-  bool is_json_;
+  bool enable_v8_serialization_;
   bool is_debug_;
   int64_t group_id_;
   std::shared_ptr<JavaRef> bridge_;
