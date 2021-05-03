@@ -40,7 +40,7 @@ public abstract class HippyEngineHost
 	{
 		HippyEngineManager.Builder builder = new HippyEngineManager.Builder();
 		builder.setHippyGlobalConfigs(getHippyGlobalConfigs()).setCoreBundleLoader(null).setPackages(getPackages()).setSupportDev(true)
-				.setDebugJs(debugJs).setGroupId(getGroupId()).setEnableHippyBuffer(true);
+				.setDebugJs(debugJs).setGroupId(getGroupId());
 
 		return builder.build();
 	}

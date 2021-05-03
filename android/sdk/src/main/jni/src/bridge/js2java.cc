@@ -84,10 +84,9 @@ void CallJava(hippy::napi::CBDataTuple* data) {
     TDF_BASE_DLOG(INFO) << "CallJava cb_id = " << JniUtils::ToCString(cb_id);
   }
 
-  jbyteArray j_params_str = nullptr;
   std::string buffer_data;
   if (info.Length() >= 4 && !info[3].IsEmpty() && info[3]->IsObject()) {
-    if (!runtime->IsParamJson()) {
+    if (runtime->IsEnableV8Serialization()) {
       Serializer serializer(isolate, context, runtime->GetBuffer());
       serializer.WriteHeader();
       serializer.WriteValue(info[3]);
@@ -117,11 +116,8 @@ void CallJava(hippy::napi::CBDataTuple* data) {
 
       v8::String::Utf8Value json(isolate, s);
       TDF_BASE_DLOG(INFO) << "CallJava json = " << JniUtils::ToCString(json);
-      int str_len = strlen(JniUtils::ToCString(json));
-      j_params_str = j_env->NewByteArray(str_len);
-      j_env->SetByteArrayRegion(
-          j_params_str, 0, str_len,
-          reinterpret_cast<const jbyte*>(JniUtils::ToCString(json)));
+
+      buffer_data = std::string(JniUtils::ToCString(json));
     }
   }
 
@@ -156,7 +152,7 @@ void CallJava(hippy::napi::CBDataTuple* data) {
   j_env->DeleteLocalRef(j_module_name);
   j_env->DeleteLocalRef(j_module_func);
   j_env->DeleteLocalRef(j_cb_id);
-  j_env->DeleteLocalRef(j_params_str);
+  j_env->DeleteLocalRef(j_buffer);
 }
 
 void CallJavaMethod(jobject j_obj, jlong j_value) {
