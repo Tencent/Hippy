@@ -92,7 +92,7 @@ public abstract class HippyEngineManager extends HippyEngine
 		private List<HippyAPIProvider>      mPackages;
 		private boolean						mSupportDev	= false;
 		private String						mDebugJs;
-		private boolean 					mBridgeHippyBuffer = false;
+		private boolean 					enableV8Serialization = true;
 		private int 						mGroupId = -1;
 
 		Builder()
@@ -135,9 +135,9 @@ public abstract class HippyEngineManager extends HippyEngine
 			return this;
 		}
 
-		Builder setEnableHippyBuffer(boolean enable)
+		Builder setEnableV8Serialization(boolean enable)
 		{
-			this.mBridgeHippyBuffer = enable;
+			this.enableV8Serialization = enable;
 			return this;
 		}
 
@@ -171,7 +171,7 @@ public abstract class HippyEngineManager extends HippyEngine
 			else if (mCoreBundleLoader != null)
 				throw new RuntimeException("Hippy: CoreBundleLoader is neither a HippyAssetBundleLoader nor a HippyFileBundleLoader!");
 			params.providers = mPackages;
-			params.enableBuffer = mBridgeHippyBuffer;
+			params.enableV8Serialization = enableV8Serialization;
 			if (mCoreBundleLoader != null)
 				params.codeCacheTag = mCoreBundleLoader.getCodeCacheTag();
 			params.groupId = mGroupId;
