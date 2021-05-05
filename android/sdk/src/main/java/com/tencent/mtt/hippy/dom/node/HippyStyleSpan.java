@@ -19,6 +19,7 @@ import android.text.TextPaint;
 import android.text.style.MetricAffectingSpan;
 import com.tencent.mtt.hippy.adapter.font.HippyFontScaleAdapter;
 
+@SuppressWarnings({"unused"})
 public class HippyStyleSpan extends MetricAffectingSpan
 {
 	private final int			mStyle;

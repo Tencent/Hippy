@@ -28,6 +28,7 @@ import com.tencent.mtt.hippy.uimanager.PullHeaderRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.views.list.HippyListView;
 
+@SuppressWarnings({"deprecation","unused"})
 @HippyController(name = HippyPullHeaderViewController.CLASS_NAME, isLazyLoad = true)
 public class HippyPullHeaderViewController extends HippyViewController<HippyPullHeaderView>
 {

@@ -29,7 +29,7 @@ import android.text.TextUtils;
 import android.view.MotionEvent;
 import android.view.View;
 
-
+@SuppressWarnings({"unused"})
 public class HippyViewPager extends ViewPager implements HippyViewBase
 {
 	private static final String			TAG					= "HippyViewPager";
@@ -214,8 +214,7 @@ public class HippyViewPager extends ViewPager implements HippyViewBase
 		LogUtils.d(TAG, "switchToPage: " + hashCode() + ", item=" + item + ", animated=" + animated);
 		if (getAdapter().getCount() == 0) // viewpager的children没有初始化好的时候，直接设置mInitialPageIndex
 		{
-			//			mInitialPageIndex = item;
-			//			getAdapter().setInitPageIndex(item);
+			LogUtils.d(TAG, "switchToPage: getAdapter().getCount() == 0");
 		}
 		else
 		{

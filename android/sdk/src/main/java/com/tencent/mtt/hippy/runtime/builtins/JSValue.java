@@ -30,6 +30,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+@SuppressWarnings({"unused"})
 public abstract class JSValue implements Cloneable, JSONDump {
   // region is-op
   public static boolean is(Object value) {

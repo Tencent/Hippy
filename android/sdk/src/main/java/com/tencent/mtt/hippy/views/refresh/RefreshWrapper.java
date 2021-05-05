@@ -27,6 +27,7 @@ import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.list.HippyListView;
 import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 
+@SuppressWarnings({"deprecation", "unused"})
 public class RefreshWrapper extends HippyViewGroup
 {
 	RefreshWrapperItemView	mRefreshWrapperItemView;

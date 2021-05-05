@@ -99,6 +99,7 @@ public class HippyChoreographer
 		}
 	}
 
+	@SuppressWarnings({"unused"})
 	private class HippyChoreographerDispatcher implements FrameCallback
 	{
 

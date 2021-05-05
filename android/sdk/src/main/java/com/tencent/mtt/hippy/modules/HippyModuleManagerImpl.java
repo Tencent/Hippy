@@ -34,11 +34,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import java.lang.reflect.Proxy;
 import java.util.*;
 
-/**
- * FileName: HippyModuleManagerImpl
- * Description：
- * History：
- */
+@SuppressWarnings({"unchecked", "unused", "rawtypes"})
 public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callback
 {
 
@@ -72,8 +68,7 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
 					HippyNativeModuleInfo moduleInfo = new HippyNativeModuleInfo(cls, nativeModules.get(cls));
 					String[] names = moduleInfo.getNames();
 					if (names != null && names.length > 0) {
-						for (int i = 0; i < names.length; i++) {
-							String name = names[i];
+						for (String name : names) {
 							if (!mNativeModuleInfo.containsKey(name)) {
 								mNativeModuleInfo.put(name, moduleInfo);
 							}
@@ -95,6 +90,7 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
 				for (Class cls : jsModules)
 				{
 					String name = getJavaScriptModuleName(cls);
+					//noinspection SuspiciousMethodCalls
 					if (mJsModules.containsKey(name))
 					{
 						throw new RuntimeException("There is already a javascript module named : " + name);

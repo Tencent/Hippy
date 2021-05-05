@@ -25,6 +25,7 @@ import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
+@SuppressWarnings({"unused"})
 @HippyNativeModule(name = "UtilsModule")
 public class UtilsModule extends HippyNativeModuleBase
 {

@@ -39,6 +39,7 @@ import com.tencent.mtt.hippy.views.common.CommonBackgroundDrawable;
 import com.tencent.mtt.hippy.views.common.CommonBorder;
 import com.tencent.mtt.hippy.views.list.HippyRecycler;
 
+@SuppressWarnings({"deprecation","unused"})
 public class HippyTextView extends View implements CommonBorder, HippyViewBase, HippyRecycler
 {
 	private CommonBackgroundDrawable	mBGDrawable;
@@ -331,7 +332,7 @@ public class HippyTextView extends View implements CommonBorder, HippyViewBase, 
 		HippyNativeGestureSpan span = null;
 		if (mLayout == null)
 		{
-			return span;
+			return null;
 		}
 
 		int x = (int) event.getX();
@@ -372,13 +373,11 @@ public class HippyTextView extends View implements CommonBorder, HippyViewBase, 
 			if (spans != null && spans.length > 0)
 			{
 				int targetSpanTextLength = charSequence.length();
-				for (int i = 0; i < spans.length; i++)
-				{
-					int spanStart = spannedText.getSpanStart(spans[i]);
-					int spanEnd = spannedText.getSpanEnd(spans[i]);
-					if (spanEnd > index && (spanEnd - spanStart) <= targetSpanTextLength)
-					{
-						span = spans[i];
+				for (HippyNativeGestureSpan hippyNativeGestureSpan : spans) {
+					int spanStart = spannedText.getSpanStart(hippyNativeGestureSpan);
+					int spanEnd = spannedText.getSpanEnd(hippyNativeGestureSpan);
+					if (spanEnd > index && (spanEnd - spanStart) <= targetSpanTextLength) {
+						span = hippyNativeGestureSpan;
 						targetSpanTextLength = (spanEnd - spanStart);
 					}
 				}

@@ -6,6 +6,7 @@ import java.nio.ByteBuffer;
  * A serialization writer that write primitive value in their binary form.
  * in little-endian order, because Android is always little-endian order.
  */
+@SuppressWarnings({"unused", "UnusedReturnValue"})
 public interface BinaryWriter {
   /**
    * Writes the given byte.

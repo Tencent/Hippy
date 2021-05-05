@@ -17,6 +17,7 @@ package com.tencent.mtt.hippy.devsupport;
 
 import com.tencent.mtt.hippy.HippyRootView;
 
+@SuppressWarnings("unused")
 public interface DevServerInterface
 {
 	void reload();

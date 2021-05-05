@@ -59,6 +59,7 @@ public class MyAPIProvider implements HippyAPIProvider
 	/**
 	 * 接口：用来构造各种JavaScript需要的自定义的View组件
 	 */
+	@SuppressWarnings("rawtypes")
 	@Override
 	public List<Class<? extends HippyViewController>> getControllers()
 	{

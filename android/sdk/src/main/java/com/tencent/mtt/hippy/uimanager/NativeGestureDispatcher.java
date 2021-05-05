@@ -30,6 +30,7 @@ import com.tencent.mtt.hippy.utils.PixelUtil;
 
 import java.util.HashSet;
 
+@SuppressWarnings({"deprecation", "unused"})
 public class NativeGestureDispatcher implements NativeGestureProcessor.Callback
 {
 	private static final String				TAG						= "NativeGestureDispatcher";
@@ -314,7 +315,7 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback
 	{
 		if (mGestureTypes == null)
 		{
-			mGestureTypes = new HashSet<String>();
+			mGestureTypes = new HashSet<>();
 		}
 		mGestureTypes.add(type);
 	}

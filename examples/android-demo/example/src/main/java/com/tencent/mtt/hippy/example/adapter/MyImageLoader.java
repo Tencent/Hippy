@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+@SuppressWarnings({"unused", "deprecation"})
 public class MyImageLoader extends HippyImageLoader
 {
 	private Timer mTimer = new Timer("MyImageLoader", true);
@@ -38,10 +39,11 @@ public class MyImageLoader extends HippyImageLoader
 		myContext = null;
 	}
 
-	@SuppressWarnings("UnusedAssignment")
+	@SuppressWarnings({"UnusedAssignment", "rawtypes"})
 	private void runFetchImageOnMianThread(final String url, final Callback requestCallback, final Object paramsObj) {
 		Object propsObj;
 		if (paramsObj instanceof Map) {
+			//noinspection rawtypes
 			propsObj = ((Map)paramsObj).get(HippyImageView.IMAGE_PROPS);
 		} else {
 			propsObj = paramsObj;
@@ -69,6 +71,7 @@ public class MyImageLoader extends HippyImageLoader
 		repeatCount = props.getInt(NodeProps.REPEAT_COUNT);
 		isGif = props.getBoolean(NodeProps.CUSTOM_PROP_ISGIF);
 
+		//noinspection unchecked
 		Glide.with(myContext).load(url).into(new SimpleTarget() {
 			@Override
 			public void onResourceReady(final Object object, GlideAnimation glideAnimation) {

@@ -51,6 +51,7 @@ public class ControllerRegistry
 		return mControllers.get(className);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public HippyViewController getViewController(String className)
 	{
 		try

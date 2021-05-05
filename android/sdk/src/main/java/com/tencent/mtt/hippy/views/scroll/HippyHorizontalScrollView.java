@@ -27,6 +27,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.supportui.views.ScrollChecker;
 
+@SuppressWarnings("deprecation")
 public class HippyHorizontalScrollView extends HorizontalScrollView implements HippyViewBase,HippyScrollView,ScrollChecker.IScrollCheck
 {
 	private NativeGestureDispatcher	mGestureDispatcher;

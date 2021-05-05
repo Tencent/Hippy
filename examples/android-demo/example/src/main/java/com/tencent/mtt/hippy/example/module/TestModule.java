@@ -1,6 +1,7 @@
 package com.tencent.mtt.hippy.example.module;
 
 import android.content.Intent;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.tencent.mtt.hippy.HippyEngineContext;
@@ -12,6 +13,7 @@ import com.tencent.mtt.hippy.example.BaseActivity;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 
+@SuppressWarnings({"unused", "deprecation"})
 @HippyNativeModule(name = TestModule.CLASSNAME, names = {"TestModuleA", "TestModuleB"})
 public class TestModule extends HippyNativeModuleBase {
     final static String CLASSNAME = "TestModule";
@@ -53,7 +55,7 @@ public class TestModule extends HippyNativeModuleBase {
         String hello = hippyMap.getString("hello");
         Log.d("TestModule", hello);
 
-        if (true) {
+        if (!TextUtils.isEmpty(hello)) {
             //TODO： 如果模块这里处理成功回调resolve
             HippyMap hippyMap1 = new HippyMap();
             hippyMap1.pushInt("code", 1);

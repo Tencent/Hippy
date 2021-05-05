@@ -15,19 +15,13 @@
  */
 package com.tencent.mtt.hippy.websocket;
 
-
-/**
- * FileName: Header
- * Description：
- * History：
- * 1.0 xiandongluo on 2017/11/30
- */
 public class Header
 {
     private final String name;
 
     private final String value;
 
+    @SuppressWarnings("unused")
     public Header(String name, String value)
     {
         this.name  = name;

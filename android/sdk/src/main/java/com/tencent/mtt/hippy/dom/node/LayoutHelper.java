@@ -25,6 +25,7 @@ import com.tencent.mtt.hippy.common.HippyHandlerThread;
 import com.tencent.mtt.hippy.common.HippyThreadRunnable;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
+@SuppressWarnings({"unused"})
 public class LayoutHelper
 {
 	private HippyHandlerThread	mHandlerThread;

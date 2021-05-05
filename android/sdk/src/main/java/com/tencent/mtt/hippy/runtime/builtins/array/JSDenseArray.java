@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+@SuppressWarnings({"unused"})
 public class JSDenseArray extends JSAbstractArray {
   private Set<String> keySet;
   private Collection<Object> valueCollection;

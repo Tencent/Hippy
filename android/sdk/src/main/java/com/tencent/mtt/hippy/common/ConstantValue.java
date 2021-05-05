@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy.common;
 
+@SuppressWarnings("DeprecatedIsStillUsed")
 @Deprecated
 public class ConstantValue {
   private ConstantValue() {

@@ -32,6 +32,7 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 
+@SuppressWarnings({"deprecation","unused"})
 @HippyController(name = HippyListViewController.CLASS_NAME)
 public class HippyListViewController extends HippyViewController<HippyListView>
 {
@@ -168,7 +169,7 @@ public class HippyListViewController extends HippyViewController<HippyListView>
 	@HippyControllerProps(name = "preloadItemNumber")
 	public void setPreloadItemNumber(HippyListView view, int preloadItemNumber)
 	{
-		RecyclerViewBase.Adapter adapter = view.getAdapter();
+		RecyclerViewBase.Adapter<?> adapter = view.getAdapter();
 		if (adapter instanceof HippyListAdapter)
 		{
 			((HippyListAdapter)adapter).setPreloadItemNumber(preloadItemNumber);

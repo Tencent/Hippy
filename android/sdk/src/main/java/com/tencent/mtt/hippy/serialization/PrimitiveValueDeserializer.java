@@ -31,6 +31,7 @@ import java.util.Map;
 /**
  * Implementation of {@code v8::(internal::)ValueDeserializer}.
  */
+@SuppressWarnings({"unused"})
 public abstract class PrimitiveValueDeserializer extends SharedSerialization {
   /** StingTable used for byte[] to String */
   private final StringTable stringTable;

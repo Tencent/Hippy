@@ -17,6 +17,7 @@ package com.tencent.mtt.hippy.runtime.builtins;
 
 import org.json.JSONException;
 
+@SuppressWarnings({"unused"})
 interface JSONDump {
   Object dump() throws JSONException;
 }

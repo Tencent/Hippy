@@ -28,7 +28,7 @@ public class DomNodeRegistry
 
 	public DomNodeRegistry()
 	{
-		mNodeTags = new SparseArray<DomNode>();
+		mNodeTags = new SparseArray<>();
 		mRootTags = new SparseBooleanArray();
 	}
 

@@ -175,10 +175,7 @@ public class MatrixUtil
 		}
 
 		// translation is simple
-		for (int i = 0; i < 3; i++)
-		{
-			translation[i] = matrix[3][i];
-		}
+		System.arraycopy(matrix[3], 0, translation, 0, 3);
 
 		// Now get scale and shear.
 		// 'row' is a 3 element array of 3 component vectors

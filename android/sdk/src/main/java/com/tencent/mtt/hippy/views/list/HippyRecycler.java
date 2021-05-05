@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy.views.list;
 
+@SuppressWarnings({"unused"})
 public interface HippyRecycler
 {
 	//恢复默认的时候使用

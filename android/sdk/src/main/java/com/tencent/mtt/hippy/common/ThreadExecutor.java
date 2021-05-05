@@ -21,8 +21,9 @@ public class ThreadExecutor implements Thread.UncaughtExceptionHandler
 	final HippyHandlerThread	mJsBridgeThread;
 	final HippyHandlerThread	mDomThread;
 	UncaughtExceptionHandler	mUncaughtExceptionHandler;
-	private int				    mGroupId;
+	private final int			mGroupId;
 
+	@SuppressWarnings("unused")
 	public ThreadExecutor(int groupId)
 	{
 		mGroupId = groupId;
@@ -66,16 +67,19 @@ public class ThreadExecutor implements Thread.UncaughtExceptionHandler
 		mUncaughtExceptionHandler = null;
 	}
 
+	@SuppressWarnings("unused")
 	public void postDelayOnJsThread(int delay, Runnable runnable)
 	{
 		mJsThread.getHandler().postDelayed(runnable, delay);
 	}
 
+	@SuppressWarnings("unused")
 	public void postOnJsThread(Runnable runnable)
 	{
 		mJsBridgeThread.runOnQueue(runnable);
 	}
 
+	@SuppressWarnings("unused")
 	public void postOnJsBridgeThread(Runnable runnable)
 	{
 		mJsThread.runOnQueue(runnable);
@@ -86,6 +90,7 @@ public class ThreadExecutor implements Thread.UncaughtExceptionHandler
 		mDomThread.runOnQueue(runnable);
 	}
 
+	@SuppressWarnings("unused")
 	public void assertOnJsBridge()
 	{
 		if (Thread.currentThread().getId() != mJsBridgeThread.getId())
@@ -94,6 +99,7 @@ public class ThreadExecutor implements Thread.UncaughtExceptionHandler
 		}
 	}
 
+	@SuppressWarnings("unused")
 	public void assertOnJsThread()
 	{
 		if (Thread.currentThread().getId() != mJsThread.getId())
@@ -102,6 +108,7 @@ public class ThreadExecutor implements Thread.UncaughtExceptionHandler
 		}
 	}
 
+	@SuppressWarnings("unused")
 	public void assertOnDomThread()
 	{
 		if (Thread.currentThread().getId() != mDomThread.getId())
@@ -126,7 +133,7 @@ public class ThreadExecutor implements Thread.UncaughtExceptionHandler
 	}
 
 	@Override
-	public void uncaughtException(Thread t, Throwable e)
+	public void uncaughtException(@SuppressWarnings("NullableProblems") Thread t, @SuppressWarnings("NullableProblems") Throwable e)
 	{
 		if (mUncaughtExceptionHandler != null)
 		{

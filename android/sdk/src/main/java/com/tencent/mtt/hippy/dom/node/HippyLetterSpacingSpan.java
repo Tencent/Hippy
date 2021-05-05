@@ -20,6 +20,7 @@ import android.os.Build;
 import android.text.TextPaint;
 import android.text.style.MetricAffectingSpan;
 
+@SuppressWarnings({"unused"})
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class HippyLetterSpacingSpan extends MetricAffectingSpan
 {

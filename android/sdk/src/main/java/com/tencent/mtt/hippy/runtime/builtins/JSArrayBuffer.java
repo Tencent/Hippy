@@ -18,10 +18,10 @@ package com.tencent.mtt.hippy.runtime.builtins;
 import android.support.annotation.NonNull;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 
 import java.nio.ByteBuffer;
 
+@SuppressWarnings({"unused"})
 public class JSArrayBuffer extends JSValue {
   static final short MAX_DUMP_LENGTH = 1024;
 

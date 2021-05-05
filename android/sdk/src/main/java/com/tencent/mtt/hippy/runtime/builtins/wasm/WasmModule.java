@@ -21,6 +21,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+@SuppressWarnings({"unused"})
 public class WasmModule extends JSValue {
   static final short MAX_DUMP_LENGTH = 1024;
 

@@ -19,6 +19,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 
+@SuppressWarnings({"unused"})
 public class HippyHandlerThread extends HandlerThread
 {
 	final Handler mHandler;

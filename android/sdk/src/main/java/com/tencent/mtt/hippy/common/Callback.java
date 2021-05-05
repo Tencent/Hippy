@@ -20,7 +20,7 @@ package com.tencent.mtt.hippy.common;
  * Description：
  * History：
  */
-@SuppressWarnings("TypeParameterExplicitlyExtendsObject")
+@SuppressWarnings({"TypeParameterExplicitlyExtendsObject", "UnusedReturnValue"})
 public interface Callback <T extends Object>
 {
     void callback(T param, Throwable e);

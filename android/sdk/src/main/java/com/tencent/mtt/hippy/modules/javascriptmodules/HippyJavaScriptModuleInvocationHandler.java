@@ -53,9 +53,7 @@ public class HippyJavaScriptModuleInvocationHandler implements InvocationHandler
 					if (lastObject instanceof BridgeTransferType) {
 						transferType = (BridgeTransferType)lastObject;
 						newArgs = new Object[args.length - 1];
-						for(int i = 0; i < args.length - 1; i++){
-							newArgs[i] = args[i];
-						}
+						System.arraycopy(args, 0, newArgs, 0, args.length - 1);
 					}
 
 					params = ArgumentUtils.fromJavaArgs(newArgs);

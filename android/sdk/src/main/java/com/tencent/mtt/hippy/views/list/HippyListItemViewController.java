@@ -26,10 +26,7 @@ import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 
-/**
- * Created by leonardgong on 2017/12/7 0007.
- */
-
+@SuppressWarnings({"deprecation","unused"})
 @HippyController(name = HippyListItemViewController.CLASS_NAME, isLazyLoad = true)
 public class HippyListItemViewController extends HippyViewController<HippyListItemView>
 {

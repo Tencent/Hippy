@@ -19,6 +19,7 @@ import com.tencent.mtt.hippy.bridge.HippyBridgeManagerImpl;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
 import com.tencent.mtt.hippy.common.ThreadExecutor;
 
+@SuppressWarnings({"unused"})
 public final class HippyNormalEngineManager extends HippyEngineManagerImpl
 {
 	private volatile ThreadExecutor mThreadExecutor;

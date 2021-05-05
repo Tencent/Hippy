@@ -21,6 +21,7 @@ import com.tencent.mtt.hippy.common.ThreadExecutor;
 import com.tencent.mtt.hippy.common.ThreadExecutorManager;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
+@SuppressWarnings({"unused"})
 public class HippySingleThreadEngineManager extends HippyEngineManagerImpl
 {
 	private final Object mLock = new Object();

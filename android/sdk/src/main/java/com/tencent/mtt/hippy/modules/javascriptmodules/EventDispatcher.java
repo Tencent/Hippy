@@ -18,7 +18,7 @@ package com.tencent.mtt.hippy.modules.javascriptmodules;
 import com.tencent.mtt.hippy.HippyEngine.BridgeTransferType;
 import com.tencent.mtt.hippy.common.HippyMap;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "deprecation"})
 public interface EventDispatcher extends HippyJavaScriptModule
 {
 	void receiveNativeGesture(HippyMap param);

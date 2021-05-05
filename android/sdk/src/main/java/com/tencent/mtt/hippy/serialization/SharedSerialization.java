@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy.serialization;
 /**
  * Implementation of {@code v8::(internal::)ValueSerializer}.
  */
+@SuppressWarnings({"unused"})
 public abstract class SharedSerialization {
   static protected final byte LATEST_VERSION = (byte) 13; // kLatestVersion
 

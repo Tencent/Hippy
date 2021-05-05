@@ -30,6 +30,7 @@ import java.util.Set;
 import static com.tencent.mtt.hippy.views.custom.HippyCustomPropsController.DT_EBLID;
 
 
+@SuppressWarnings("deprecation")
 public class DiffUtils
 {
 
@@ -189,6 +190,7 @@ public class DiffUtils
 				boolean fromBool = (boolean) fromValue;
 				if (toValue != null && fromBool == (boolean) toValue)
 				{
+					LogUtils.d("DiffUtils", "don't do anything for bool value");
 				}
 				else
 				{
@@ -214,6 +216,7 @@ public class DiffUtils
 			{
 				if (toValue != null && TextUtils.equals( fromValue.toString(), toValue.toString()))
 				{
+					LogUtils.d("DiffUtils", "don't do anything for same value");
 				}
 				else
 				{
@@ -438,6 +441,7 @@ public class DiffUtils
 		final Object	mText;
 	}
 
+	@SuppressWarnings("unused")
 	public static class DeletePatch extends Patch
 	{
 		final int		mId;
@@ -460,6 +464,7 @@ public class DiffUtils
 		}
 	}
 
+	@SuppressWarnings("unused")
 	public static class LayoutPatch extends Patch
 	{
 		final int		mX;
@@ -492,7 +497,7 @@ public class DiffUtils
 
 	public static class PatchType
 	{
-		public int		mType;
+		public final int	mType;
 		public final Patch	mPatch;
 
 		public PatchType(int type, Patch p)

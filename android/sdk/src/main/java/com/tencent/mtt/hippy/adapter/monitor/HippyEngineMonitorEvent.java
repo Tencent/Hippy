@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy.adapter.monitor;
 
+@SuppressWarnings("unused")
 public class HippyEngineMonitorEvent
 {
 	public static final String	ENGINE_LOAD_EVENT_INIT_INSTANCE			= "initInstance";

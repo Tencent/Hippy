@@ -17,6 +17,7 @@ import java.io.FileDescriptor;
 import java.io.IOException;
 import java.util.Map;
 
+@SuppressWarnings({"unused"})
 public class ScalableVideoView extends TextureView implements TextureView.SurfaceTextureListener,
         MediaPlayer.OnVideoSizeChangedListener {
 
@@ -39,9 +40,6 @@ public class ScalableVideoView extends TextureView implements TextureView.Surfac
         }
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.scaleStyle, 0, 0);
-        if (a == null) {
-            return;
-        }
 
         int scaleType = a.getInt(R.styleable.scaleStyle_scalableType, ScalableType.NONE.ordinal());
         a.recycle();
