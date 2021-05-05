@@ -27,12 +27,12 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+@SuppressWarnings({"unused"})
 public class TypeFaceUtil
 {
 	final static private String TAG = "TypeFaceUtil";
@@ -189,8 +189,6 @@ public class TypeFaceUtil
 			outStream = new BufferedOutputStream(new FileOutputStream(file));
 			outStream.write(data);
 			outStream.flush();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {

@@ -30,9 +30,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 
-/**
- * Created by ceasoncai on 2017/12/15.
- */
+@SuppressWarnings({"deprecation","unused"})
 @HippyController(name = HippyViewPagerController.CLASS_NAME)
 public class HippyViewPagerController extends HippyViewController<HippyViewPager>
 {

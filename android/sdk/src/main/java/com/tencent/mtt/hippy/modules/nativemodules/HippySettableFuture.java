@@ -21,11 +21,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-/**
- * FileName: HippySettableFuture
- * Description：
- * History：
- */
+@SuppressWarnings({"unused"})
 public class HippySettableFuture<T> implements Future<T>
 {
 

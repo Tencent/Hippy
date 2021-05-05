@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy.runtime;
 
+@SuppressWarnings({"unused"})
 public final class StackTrace implements Cloneable {
   private StackFrame[] frames;
 

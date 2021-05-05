@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy.dom.node;
 import android.graphics.Paint;
 import android.text.style.LineHeightSpan;
 
+@SuppressWarnings({"unused"})
 public class HippyLineHeightSpan implements LineHeightSpan {
 
     private final int mHeight;

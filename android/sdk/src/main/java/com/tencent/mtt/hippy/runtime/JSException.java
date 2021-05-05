@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy.runtime;
 
+@SuppressWarnings({"unused"})
 public final class JSException implements Cloneable {
   public enum ErrorLevel {
     Log,

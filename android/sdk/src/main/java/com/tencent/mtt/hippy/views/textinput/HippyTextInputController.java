@@ -48,6 +48,7 @@ import com.tencent.mtt.hippy.utils.PixelUtil;
 
 import java.util.LinkedList;
 
+@SuppressWarnings({"deprecation","unused"})
 @HippyController(name = HippyTextInputController.CLASS_NAME)
 public class HippyTextInputController extends HippyViewController<HippyTextInput>
 {
@@ -66,9 +67,9 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
 	private static final String	CLEAR_FUNCTION					= "clear";
 	public static final String	COMMAND_FOCUS					= "focusTextInput";
 	public static final String	COMMAND_BLUR					= "blurTextInput";
-	public static final String	COMMAND_getValue					= "getValue";
-	public static final String	COMMAND_setValue					= "setValue";
-	public static final String	COMMAND_KEYBOARD_DISMISS					= "dissmiss";
+	public static final String	COMMAND_getValue				= "getValue";
+	public static final String	COMMAND_setValue				= "setValue";
+	public static final String	COMMAND_KEYBOARD_DISMISS		= "dissmiss";
 
 	@Override
 	protected View createViewImpl(Context context)
@@ -264,7 +265,8 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
 		{
 			fontWeight = Typeface.BOLD;
 		}
-		else if ("normal".equals(fontWeightString) || (fontWeightNumeric != -1 && fontWeightNumeric < 500))
+		else //noinspection ConstantConditions
+			if ("normal".equals(fontWeightString) || (fontWeightNumeric != -1 && fontWeightNumeric < 500))
 		{
 			fontWeight = Typeface.NORMAL;
 		}
@@ -308,15 +310,14 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
 			if (currentFilters.length > 0)
 			{
 				LinkedList<InputFilter> list = new LinkedList<>();
-				for (int i = 0; i < currentFilters.length; i++)
-				{
-					if (!(currentFilters[i] instanceof InputFilter.LengthFilter))
-					{
-						list.add(currentFilters[i]);
+				for (InputFilter currentFilter : currentFilters) {
+					if (!(currentFilter instanceof InputFilter.LengthFilter)) {
+						list.add(currentFilter);
 					}
 				}
 				if (!list.isEmpty())
 				{
+					//noinspection ToArrayCallWithZeroLengthArrayArgument
 					newFilters = list.toArray(new InputFilter[list.size()]);
 				}
 			}
@@ -339,7 +340,7 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
 				{
 					newFilters = new InputFilter[currentFilters.length + 1];
 					System.arraycopy(currentFilters, 0, newFilters, 0, currentFilters.length);
-					currentFilters[currentFilters.length] = new InputFilter.LengthFilter(maxLength);
+					newFilters[currentFilters.length] = new InputFilter.LengthFilter(maxLength);
 				}
 			}
 			else
@@ -591,6 +592,7 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
 					viewParent = viewParent.getParent();
 				}
 				int oldFoucusAbaility = 0;
+				//noinspection ConstantConditions
 				if (viewParent instanceof HippyRootView)
 				{
 					oldFoucusAbaility = ((ViewGroup) viewParent).getDescendantFocusability(); //Get the current value
@@ -598,6 +600,7 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
 				}
 				view.hideInputMethod();
 				view.clearFocus();
+				//noinspection ConstantConditions
 				if (viewParent instanceof HippyRootView)
 				{
 					((ViewGroup) viewParent).setDescendantFocusability(oldFoucusAbaility);

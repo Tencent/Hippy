@@ -21,9 +21,7 @@ import com.tencent.mtt.hippy.websocket.WebSocketClient;
 import java.net.URI;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * A wrapper around WebSocketClient that recognizes debugging message format.
- */
+@SuppressWarnings("unused")
 public class DebugWebSocketClient implements WebSocketClient.WebSocketListener
 {
 	private final ConcurrentHashMap<Integer, JSDebuggerCallback>	mCallbacks	= new ConcurrentHashMap<>();
@@ -60,26 +58,6 @@ public class DebugWebSocketClient implements WebSocketClient.WebSocketListener
 			return;
 		}
 		mWebSocket.send(message);
-	}
-
-	private void triggerRequestFailure(int requestID, Throwable cause)
-	{
-		JSDebuggerCallback callback = mCallbacks.get(requestID);
-		if (callback != null)
-		{
-			mCallbacks.remove(requestID);
-			callback.onFailure(cause);
-		}
-	}
-
-	private void triggerRequestSuccess(int requestID, String response)
-	{
-		JSDebuggerCallback callback = mCallbacks.get(requestID);
-		if (callback != null)
-		{
-			mCallbacks.remove(requestID);
-			callback.onSuccess(response);
-		}
 	}
 
 	@Override

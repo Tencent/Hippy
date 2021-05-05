@@ -19,6 +19,7 @@ import android.support.annotation.NonNull;
 
 import java.util.regex.Pattern;
 
+@SuppressWarnings({"unused"})
 public class JSRegExp extends JSObject {
   // region JS RegExp Flags
   public static final int JS_GLOBAL = 1; // kGlobal - NOT supported in Java

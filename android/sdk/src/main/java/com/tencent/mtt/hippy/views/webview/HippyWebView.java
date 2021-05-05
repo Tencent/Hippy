@@ -33,6 +33,7 @@ import com.tencent.mtt.hippy.utils.UrlUtils;
 
 import java.net.URLDecoder;
 
+@SuppressWarnings("ALL")
 public class HippyWebView extends FrameLayout implements HippyViewBase {
 	protected final HippyWebViewInner mWebView;
 	private HippyViewEvent mEventOnMessage = null;

@@ -20,13 +20,8 @@ import android.animation.AnimatorSet;
 import android.os.Build;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
-/**
- * FileName: AnimationSet
- * Description：
- * History：
- */
+@SuppressWarnings({"unused"})
 public class AnimationSet extends Animation implements Animator.AnimatorListener
 {
 	private static final int			ANIMATION_SET_STATUS_NONE		= -1;
@@ -85,14 +80,14 @@ public class AnimationSet extends Animation implements Animator.AnimatorListener
 																				{
 																					return;
 																				}
-																				Iterator<AnimationListener> it = mAnimationListeners.iterator();
-																				while (it.hasNext())
-																				{
-																					it.next().onAnimationUpdate(AnimationSet.this);
-																				}
+                                                                                for (AnimationListener mAnimationListener : mAnimationListeners) {
+                                                                                    mAnimationListener
+                                                                                            .onAnimationUpdate(
+                                                                                                    AnimationSet.this);
+                                                                                }
 																			}
 																		};
-
+	@SuppressWarnings("unused")
 	public AnimationSet(int id)
 	{
 		super(id);

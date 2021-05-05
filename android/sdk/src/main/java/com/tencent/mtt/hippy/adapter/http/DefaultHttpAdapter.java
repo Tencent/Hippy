@@ -212,8 +212,8 @@ public class DefaultHttpAdapter implements HippyHttpAdapter
 				}
 				else if (obj instanceof List)
 				{
-					List<String> requestProperties = (List<String>) obj;
-					if (requestProperties != null && !requestProperties.isEmpty())
+					@SuppressWarnings("unchecked") List<String> requestProperties = (List<String>) obj;
+					if (!requestProperties.isEmpty())
 					{
 						for (String oneReqProp : requestProperties)
 						{

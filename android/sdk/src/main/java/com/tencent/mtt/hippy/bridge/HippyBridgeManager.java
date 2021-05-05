@@ -24,12 +24,7 @@ import com.tencent.mtt.hippy.common.Callback;
 import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
 
-
-/**
- * FileName: HippyBridgeManager
- * Description：
- * History：
- */
+@SuppressWarnings({"deprecation","unused"})
 public interface HippyBridgeManager
 {
 	void initBridge(Callback<Boolean> callback);
@@ -54,6 +49,5 @@ public interface HippyBridgeManager
 
 	void callJavaScriptModule(String mName, String name, Object params, BridgeTransferType transferType);
 
-	@SuppressWarnings("unused")
 	HippyThirdPartyAdapter getThirdPartyAdapter();
 }

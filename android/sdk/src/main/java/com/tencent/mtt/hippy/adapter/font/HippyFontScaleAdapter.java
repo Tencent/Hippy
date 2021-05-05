@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy.adapter.font;
 
+@SuppressWarnings("SameReturnValue")
 public interface HippyFontScaleAdapter
 {
 	float getFontScale();

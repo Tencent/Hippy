@@ -21,7 +21,7 @@ import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.smtt.flexbox.FlexNodeStyle;
 
 import java.util.Locale;
-
+@SuppressWarnings("unused")
 public class StyleNode extends DomNode
 {
 	@HippyControllerProps(name = NodeProps.WIDTH, defaultType = HippyControllerProps.NUMBER, defaultNumber = FlexConstants.UNDEFINED)

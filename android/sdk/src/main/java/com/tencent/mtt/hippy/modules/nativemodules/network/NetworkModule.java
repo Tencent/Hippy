@@ -43,9 +43,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
-/**
- * Created by ceasoncai on 2018/1/8.
- */
+@SuppressWarnings({"deprecation","unused"})
 @HippyNativeModule(name = "network")
 public class NetworkModule extends HippyNativeModuleBase
 {
@@ -71,7 +69,7 @@ public class NetworkModule extends HippyNativeModuleBase
 			if (valueObj instanceof HippyArray)
 			{
 				HippyArray oneHeaderArray = (HippyArray) valueObj;
-				List<String> headerValueArray = new ArrayList<String>();
+				List<String> headerValueArray = new ArrayList<>();
 				for (int i = 0; i < oneHeaderArray.size(); i++)
 				{
 					Object oneHeaderValue = oneHeaderArray.get(i);
@@ -319,6 +317,7 @@ public class NetworkModule extends HippyNativeModuleBase
 				if (key != null && key.equalsIgnoreCase(HttpHeader.REQ.ACCEPT_ENCODING)) {
 					Object value = header.getValue();
 					if (value instanceof ArrayList) {
+						//noinspection unchecked
 						for (String valueItem : (ArrayList<String>)value) {
 							if (valueItem.equalsIgnoreCase("gzip") || valueItem.equalsIgnoreCase("deflate"))
 								return true;

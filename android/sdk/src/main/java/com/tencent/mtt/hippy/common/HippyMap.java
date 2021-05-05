@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+@SuppressWarnings({"deprecation","unused"})
 @Deprecated
 public class HippyMap
 {
@@ -32,7 +33,7 @@ public class HippyMap
 	@Override
 	public String toString() 
 	{
-		return mDatas == null ? "null" : mDatas.toString();
+		return mDatas.toString();
 	}
 
 	public HippyMap()
@@ -222,14 +223,17 @@ public class HippyMap
 			Class<?> clazz = obj.getClass();
 			if(clazz.isAssignableFrom(int.class))
 			{
+				//noinspection ConstantConditions
 				pushInt(key, (Integer) obj);
 			}
 			else if (clazz.isAssignableFrom(boolean.class))
 			{
+				//noinspection ConstantConditions
 				pushBoolean(key, (Boolean) obj);
 			}
 			else if (clazz.isAssignableFrom(double.class))
 			{
+				//noinspection ConstantConditions
 				pushDouble(key, (Double) obj);
 			}
 			else if(clazz.isAssignableFrom(float.class))
@@ -238,6 +242,7 @@ public class HippyMap
 			}
 			else if (clazz.isAssignableFrom(long.class))
 			{
+				//noinspection ConstantConditions
 				pushLong(key, (Long) obj);
 			}
 			else
@@ -316,10 +321,10 @@ public class HippyMap
 			return jObject;
 		}
 
-		Iterator var2 = entrySet().iterator();
+		Iterator<?> var2 = entrySet().iterator();
 		try {
 			while (var2.hasNext()) {
-				Map.Entry<String, Object> entry = (Map.Entry)var2.next();
+				@SuppressWarnings({"unchecked", "rawtypes"}) Map.Entry<String, Object> entry = (Map.Entry)var2.next();
 				String key = entry.getKey();
 				if (entry.getValue() instanceof HippyMap) {
 					JSONObject jObjectMap = ((HippyMap)entry.getValue()).toJSONObject();

@@ -45,9 +45,9 @@ import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Objects;
 
-
-
+@SuppressWarnings({"deprecation", "unused"})
 public class HippyModalHostView extends HippyViewGroup implements HippyInstanceLifecycleEventListener
 {
 	@Override
@@ -254,7 +254,7 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 			c = Class.forName("com.android.internal.R$dimen");
 			obj = c.newInstance();
 			field = c.getField("status_bar_height");
-			x = Integer.parseInt(field.get(obj).toString());
+			x = Integer.parseInt(Objects.requireNonNull(field.get(obj)).toString());
 			statusBarHeight = ContextHolder.getAppContext().getResources().getDimensionPixelSize(x);
 		} catch (Exception e1) {
 			statusBarHeight = -1;
@@ -356,6 +356,7 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 			setDialogBar(mStatusBarTextDarkColor);
 		}
 
+		assert mDialog != null;
 		mDialog.setOnShowListener(new DialogInterface.OnShowListener() {
 			@Override
 			public void onShow(DialogInterface dialogInterface) {
@@ -549,7 +550,7 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 							@Override
 							public void run()
 							{
-								if (engineContext != null && engineContext.getDomManager() != null)
+								if (engineContext.getDomManager() != null)
 								{
 									engineContext.getDomManager().updateNodeSize(id, w, h);
 								}

@@ -22,13 +22,14 @@ import java.util.Vector;
 import android.content.Context;
 import android.os.Environment;
 
+@SuppressWarnings("deprecation")
 public class APKExpansionSupport {
 	// The shared path to all app expansion files
 	private final static String EXP_PATH = "/Android/obb/";
 
 	static String[] getAPKExpansionFiles(Context ctx, int mainVersion, int patchVersion) {
 		String packageName = ctx.getPackageName();
-		Vector<String> ret = new Vector<String>();
+		Vector<String> ret = new Vector<>();
 		if (Environment.getExternalStorageState().equals(
 				Environment.MEDIA_MOUNTED)) {
 			// Build the full path to the app's expansion files

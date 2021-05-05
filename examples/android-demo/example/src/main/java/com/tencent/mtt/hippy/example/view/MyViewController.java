@@ -10,6 +10,7 @@ import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
+@SuppressWarnings({"unused"})
 @HippyController(name = "MyView")
 public class MyViewController extends HippyViewController<MyView>
 {

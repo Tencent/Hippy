@@ -13,6 +13,7 @@ import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 
+@SuppressWarnings("deprecation")
 public class MyView extends FrameLayout implements HippyViewBase
 {
 

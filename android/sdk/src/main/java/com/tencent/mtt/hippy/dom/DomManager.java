@@ -40,6 +40,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+@SuppressWarnings({"deprecation", "unused", "UnusedReturnValue", "rawtypes"})
 public class DomManager implements HippyInstanceLifecycleEventListener, HippyEngineLifecycleEventListener
 {
 	private static final String							TAG						= "DomManager";
@@ -52,10 +53,10 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 	final ArrayList<IDomExecutor>						mPaddingNulUITasks;
 	final ArrayList<IDomExecutor>						mDispatchRunnable		= new ArrayList<>();
 	final Object										mDispatchLock			= new Object();
-	final DomUpdateManager								mDomStyleUpdateManager	= new DomUpdateManager();
-	RenderManager										mRenderManager;
+	final DomUpdateManager							    mDomStyleUpdateManager	= new DomUpdateManager();
+	final RenderManager									mRenderManager;
 	volatile CopyOnWriteArrayList<DomActionInterceptor>	mActionInterceptors;
-	LayoutHelper										mLayoutHelper;
+	final LayoutHelper									mLayoutHelper;
 	private final HippyEngineContext					mContext;
 	private volatile boolean							mIsDestroyed			= false;
 	private volatile boolean							mEnginePaused			= false;
@@ -66,6 +67,7 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 		mNodeRegistry = new DomNodeRegistry();
 
 		mUITasks = new ArrayList<>();
+		//noinspection unchecked
 		mPaddingNulUITasks = new ArrayList();
 
 		mRenderManager = context.getRenderManager();
@@ -336,6 +338,7 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 			//					+ isLayoutOnly + " isVirtual " + isVirtual);
 			//updateProps
 			node.updateProps(props);
+			//noinspection unchecked
 			mDomStyleUpdateManager.updateStyle(node, props);
 
 			//add to parent
@@ -366,7 +369,6 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 				{
 					synchronized (mDispatchLock)
 					{
-						//noinspection unused
 						addDispatchTask(new IDomExecutor()
 						{
 							@Override
@@ -377,7 +379,7 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 						});
 					}
 				}
-				//noinspection unused
+
 				addUITask(new IDomExecutor()
 				{
 					@Override
@@ -508,6 +510,7 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 
 			node.setProps(props);
 
+			//noinspection unchecked
 			mDomStyleUpdateManager.updateStyle(node, hippyMap);
 
 
@@ -646,7 +649,6 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 			{
 				if (!node.isVirtual())
 				{
-					//noinspection unused
 					addUITask(new IDomExecutor()
 					{
 						@Override
@@ -688,7 +690,6 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 			{
 				if (!childNode.isVirtual())
 				{
-					//noinspection unused
 					addUITask(new IDomExecutor()
 					{
 						@Override
@@ -1009,7 +1010,6 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 
 	public void dispatchUIFunction(final int id, final String functionName, final HippyArray array, final Promise promise)
 	{
-		//noinspection unused
 		addNulUITask(new IDomExecutor()
 		{
 			@Override
@@ -1022,7 +1022,6 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 
 	public void measureInWindow(final int id, final Promise promise)
 	{
-		//noinspection unused
 		addNulUITask(new IDomExecutor()
 		{
 			@Override
@@ -1033,7 +1032,7 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 		});
 	}
 
-	class ViewIndex
+	static class ViewIndex
 	{
 		public final boolean	mResult;
 		public final int		mIndex;
@@ -1045,9 +1044,9 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private class DispatchUIFrameCallback implements HippyChoreographer.FrameCallback
 	{
-		@SuppressWarnings("unused")
 		@Override
 		public void doFrame(long frameTimeNanos)
 		{

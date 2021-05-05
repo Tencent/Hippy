@@ -28,6 +28,7 @@ import com.tencent.mtt.hippy.runtime.builtins.objects.JSPrimitiveWrapper;
 
 import java.util.Map;
 
+@SuppressWarnings({"deprecation","unused"})
 public final class ValueConverter {
   private ValueConverter() {
 

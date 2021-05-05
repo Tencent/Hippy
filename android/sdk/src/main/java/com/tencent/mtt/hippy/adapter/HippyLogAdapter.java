@@ -15,7 +15,7 @@
  */
 package com.tencent.mtt.hippy.adapter;
 
-@SuppressWarnings("EmptyMethod")
+@SuppressWarnings({"EmptyMethod", "unused"})
 public interface HippyLogAdapter
 {
 	void log(String tag, String msg);

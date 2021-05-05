@@ -20,6 +20,7 @@ import com.tencent.mtt.hippy.bridge.HippyBridge;
 import com.tencent.mtt.hippy.bridge.NativeCallback;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
+@SuppressWarnings("unused")
 public class HippyRemoteBundleLoader implements HippyBundleLoader
 {
 	final String	mUrl;

@@ -52,6 +52,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+@SuppressWarnings({"deprecation","unused"})
 public class HippyImageView extends AsyncImageView implements CommonBorder, HippyViewBase, HippyRecycler
 {
 	public static final String IMAGE_TYPE_APNG  = "apng";
@@ -199,7 +200,9 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 				}
 
 				try {
+					//noinspection unchecked,rawtypes
 					((Map)param).put(IMAGE_PROPS, initProps);
+					//noinspection unchecked,rawtypes
 					((Map)param).put(IMAGE_VIEW_OBJ, this);
 				} catch (Exception e) {
 					LogUtils.d("HippyImageView", "doFetchImage: " + e);
@@ -208,6 +211,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 
 			// 这里不判断下是取背景图片还是取当前图片怎么行？
 			final String url = sourceType == SOURCE_TYPE_SRC ? mUrl : mDefaultSourceUrl;
+			//noinspection unchecked
 			mImageAdapter.fetchImage(url, new HippyImageLoader.Callback()
 			{
 				@Override
@@ -642,7 +646,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 	}
 
 	/** event to js **/
-	class OnLoadEvent extends HippyViewEvent
+	static class OnLoadEvent extends HippyViewEvent
 	{
 		OnLoadEvent()
 		{
@@ -650,7 +654,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 		}
 	}
 
-	class OnLoadEndEvent extends HippyViewEvent
+	static class OnLoadEndEvent extends HippyViewEvent
 	{
 		OnLoadEndEvent()
 		{
@@ -658,7 +662,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 		}
 	}
 
-	class OnLoadStartEvent extends HippyViewEvent
+	static class OnLoadStartEvent extends HippyViewEvent
 	{
 		OnLoadStartEvent()
 		{
@@ -666,7 +670,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 		}
 	}
 
-	class OnErrorEvent extends HippyViewEvent
+	static class OnErrorEvent extends HippyViewEvent
 	{
 		OnErrorEvent()
 		{

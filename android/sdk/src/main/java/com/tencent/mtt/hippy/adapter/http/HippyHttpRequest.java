@@ -22,12 +22,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-/**
- * Copyright (C) 2005-2020 TENCENT Inc.All Rights Reserved.
- * FileName: HippyHttpRequest
- * Description：
- * History：
- */
+@SuppressWarnings({"unused"})
 public class HippyHttpRequest
 {
 	public static final int		DEFAULT_TIMEOUT_MS			= 3000;
@@ -44,6 +39,7 @@ public class HippyHttpRequest
 
 	public HippyHttpRequest()
 	{
+		//noinspection unchecked,rawtypes
 		mHeaderMap = new HashMap();
 		initUserAgent();
 
@@ -157,21 +153,10 @@ public class HippyHttpRequest
 			}
 			buffer.append("; ");
 			final String language = locale.getLanguage();
-			if (language != null)
-			{
-				buffer.append(language.toLowerCase());
-				final String country = locale.getCountry();
-				if (country != null)
-				{
-					buffer.append("-");
-					buffer.append(country.toLowerCase());
-				}
-			}
-			else
-			{
-				// default to "en"
-				buffer.append("en");
-			}
+			buffer.append(language.toLowerCase());
+			final String country = locale.getCountry();
+			buffer.append("-");
+			buffer.append(country.toLowerCase());
 			// add the model for the release build
 			if (android.os.Build.VERSION.SDK_INT > 3 && "REL".equals(Build.VERSION.CODENAME))
 			{

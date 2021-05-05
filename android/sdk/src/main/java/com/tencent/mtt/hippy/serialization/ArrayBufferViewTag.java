@@ -29,6 +29,7 @@ public enum ArrayBufferViewTag {
 
   private final byte tag;
 
+  @SuppressWarnings("unused")
   ArrayBufferViewTag(char tag) {
     this.tag = (byte) tag;
   }

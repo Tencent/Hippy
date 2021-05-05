@@ -25,6 +25,7 @@ import java.util.Map;
 /**
  * Implementation of {@code v8::(internal::)ValueSerializer}.
  */
+@SuppressWarnings({"unused"})
 public abstract class PrimitiveValueSerializer extends SharedSerialization {
   /** Writer used for write buffer. */
   protected BinaryWriter writer;

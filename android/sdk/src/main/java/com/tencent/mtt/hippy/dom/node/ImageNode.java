@@ -20,10 +20,10 @@ import android.text.style.ImageSpan;
 
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 
-import com.tencent.mtt.hippy.views.image.HippyImageView;
 import com.tencent.mtt.hippy.views.image.HippyImageView.ImageEvent;
 import java.util.ArrayList;
 
+@SuppressWarnings({"unused"})
 public class ImageNode extends StyleNode {
 
     public static final String PROP_VERTICAL_ALIGNMENT = "verticalAlignment";

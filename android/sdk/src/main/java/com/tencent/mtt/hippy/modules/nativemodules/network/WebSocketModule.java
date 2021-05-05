@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@SuppressWarnings({"deprecation","unused"})
 @HippyNativeModule(name = "websocket")
 public class WebSocketModule extends HippyNativeModuleBase
 {
@@ -56,7 +57,7 @@ public class WebSocketModule extends HippyNativeModuleBase
 	public WebSocketModule(HippyEngineContext context)
 	{
 		super(context);
-		mWebSocketConnections = new SparseArray<WebSocketClient>();
+		mWebSocketConnections = new SparseArray<>();
 	}
 
 	@HippyMethod(name = "connect")
@@ -180,7 +181,7 @@ public class WebSocketModule extends HippyNativeModuleBase
 		}
 
 		Set<String> keys = map.keySet();
-		List<Header> extraHeaders = new ArrayList<Header>();
+		List<Header> extraHeaders = new ArrayList<>();
 		for (String oneKey : keys)
 		{
 			Object oneHeaderValue = map.get(oneKey);
@@ -236,7 +237,8 @@ public class WebSocketModule extends HippyNativeModuleBase
 		mWebSocketConnections.remove(socketId);
 	}
 
-	private static class HippyWebSocketListener implements WebSocketClient.WebSocketListener
+	@SuppressWarnings("deprecation")
+    private static class HippyWebSocketListener implements WebSocketClient.WebSocketListener
 	{
 		private static final String	EVENT_TYPE_ON_OPEN		= "onOpen";
 		private static final String	EVENT_TYPE_ON_CLOSE		= "onClose";

@@ -23,6 +23,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+@SuppressWarnings({"unused"})
 public class JSMap extends JSValue {
   private final HashMap<Object, Object> internalMap;
   public JSMap() {

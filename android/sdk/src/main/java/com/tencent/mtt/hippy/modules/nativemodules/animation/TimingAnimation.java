@@ -25,11 +25,7 @@ import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 
-/**
- * FileName: TimingAnimation
- * Description：
- * History：
- */
+@SuppressWarnings({"deprecation","unused"})
 public class TimingAnimation extends Animation implements ValueAnimator.AnimatorUpdateListener, Animator.AnimatorListener
 {
 

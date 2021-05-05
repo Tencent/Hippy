@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.os.Message;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
+@SuppressWarnings({"unused"})
 public abstract class NativeCallback {
     public NativeCallback(Handler handler) {
         mHandler = handler;
@@ -34,8 +35,8 @@ public abstract class NativeCallback {
     public static class NativeRunnable implements Runnable {
         private final long mValue;
         private final NativeCallback mCallback;
-        private Message inMsg;
-        private String inAction;
+        private final Message inMsg;
+        private final String inAction;
 
         public NativeRunnable(NativeCallback callback, long value, Message msg, String action) {
             mValue = value;

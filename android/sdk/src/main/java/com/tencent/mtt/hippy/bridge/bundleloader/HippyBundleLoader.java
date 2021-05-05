@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy.bridge.bundleloader;
 import com.tencent.mtt.hippy.bridge.HippyBridge;
 import com.tencent.mtt.hippy.bridge.NativeCallback;
 
+@SuppressWarnings({"unused"})
 public interface HippyBundleLoader
 {
     void load(HippyBridge bridge, NativeCallback callback);

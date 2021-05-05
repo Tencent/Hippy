@@ -22,6 +22,7 @@ import com.tencent.mtt.hippy.common.HippyMap;
 
 import android.graphics.Color;
 
+@SuppressWarnings({"deprecation","unused"})
 public class NodeProps
 {
 

@@ -23,6 +23,7 @@ import org.json.JSONObject;
 
 import java.net.URI;
 
+@SuppressWarnings({"unused"})
 public class LiveReloadController implements WebSocketClient.WebSocketListener
 {
 	private WebSocketClient		mLiveReloadSocket;

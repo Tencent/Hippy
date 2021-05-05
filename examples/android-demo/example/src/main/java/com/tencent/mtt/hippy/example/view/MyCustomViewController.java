@@ -6,6 +6,7 @@ import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.views.custom.HippyCustomPropsController;
 
+@SuppressWarnings({"unused"})
 @HippyController(name = HippyCustomPropsController.CLASS_NAME)
 public class MyCustomViewController extends HippyCustomPropsController
 {

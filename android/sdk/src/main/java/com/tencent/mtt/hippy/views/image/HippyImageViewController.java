@@ -30,6 +30,7 @@ import android.view.View;
 
 import java.io.File;
 
+@SuppressWarnings({"deprecation","unused"})
 @HippyController(name = HippyImageViewController.CLASS_NAME)
 public class HippyImageViewController extends HippyViewController<HippyImageView>
 {

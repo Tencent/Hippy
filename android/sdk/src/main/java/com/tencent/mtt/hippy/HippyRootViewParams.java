@@ -22,14 +22,7 @@ import com.tencent.mtt.hippy.common.HippyMap;
 
 import java.util.Map;
 
-/**
- * FileName: HippyRootViewParams
- * Description：
- * History：
- * 2019/3/26 harryguo注释：
- * 老的代码示例。将被废弃
- * 请参见{@link com.tencent.mtt.hippy.HippyEngine.ModuleLoadParams}
- */
+@SuppressWarnings({"deprecation", "unused", "rawtypes"})
 @Deprecated
 public class HippyRootViewParams
 {

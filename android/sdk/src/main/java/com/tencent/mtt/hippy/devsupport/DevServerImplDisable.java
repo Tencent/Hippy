@@ -19,6 +19,7 @@ import com.tencent.mtt.hippy.HippyGlobalConfigs;
 import com.tencent.mtt.hippy.HippyRootView;
 import java.io.InputStream;
 
+@SuppressWarnings("unused")
 public class DevServerImplDisable implements DevServerInterface
 {
 	final DevServerHelper mFetchHelper;
