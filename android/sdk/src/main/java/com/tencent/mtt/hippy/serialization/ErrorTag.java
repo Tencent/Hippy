@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy.serialization;
 /**
  * Error-related serialization tags.
  */
+@SuppressWarnings({"unused"})
 public enum ErrorTag {
   EVAL_ERROR('E'), // kEvalErrorPrototype
   RANGE_ERROR('R'), // kRangeErrorPrototype

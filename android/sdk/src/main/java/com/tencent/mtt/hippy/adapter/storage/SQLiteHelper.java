@@ -22,6 +22,8 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
+import java.util.Objects;
+
 public class SQLiteHelper extends SQLiteOpenHelper implements IHippySQLiteHelper
 {
 
@@ -107,7 +109,7 @@ public class SQLiteHelper extends SQLiteOpenHelper implements IHippySQLiteHelper
 		}
 		if (mDb == null)
 		{
-			throw lastSQLiteException;
+			throw Objects.requireNonNull(lastSQLiteException);
 		}
 		createTableIfNotExists(mDb);
 		long mMaximumDatabaseSize = 50L * 1024L * 1024L;
@@ -131,26 +133,15 @@ public class SQLiteHelper extends SQLiteOpenHelper implements IHippySQLiteHelper
 
 	private void createTableIfNotExists(SQLiteDatabase db)
 	{
-		Cursor cursor = null;
-		try
-		{
-			cursor = db.rawQuery("SELECT DISTINCT tbl_name FROM sqlite_master WHERE tbl_name = '" + TABLE_STORAGE + "'", null);
-			if (cursor != null && cursor.getCount() > 0)
-			{
+		try (Cursor cursor = db.rawQuery(
+				"SELECT DISTINCT tbl_name FROM sqlite_master WHERE tbl_name = '" + TABLE_STORAGE
+						+ "'", null)) {
+			if (cursor != null && cursor.getCount() > 0) {
 				return;
 			}
 			db.execSQL(STATEMENT_CREATE_TABLE);
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		finally
-		{
-			if (cursor != null)
-			{
-				cursor.close();
-			}
 		}
 	}
 }

@@ -89,7 +89,7 @@ public class FileUtils
 		File file = new File(filePath);
 		if (!file.exists())
 		{
-			return data;
+			return null;
 		}
 		else
 		{

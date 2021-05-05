@@ -17,6 +17,7 @@ package com.tencent.mtt.hippy.runtime.builtins;
 
 import java.nio.ByteBuffer;
 
+@SuppressWarnings({"unused"})
 public class JSSharedArrayBuffer extends JSArrayBuffer {
   public static JSSharedArrayBuffer allocateDirect(int capacity) {
     return new JSSharedArrayBuffer(ByteBuffer.allocateDirect(capacity));

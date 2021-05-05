@@ -25,10 +25,7 @@ import com.tencent.mtt.hippy.views.viewpager.event.HippyPageScrollStateChangedEv
 import com.tencent.mtt.hippy.views.viewpager.event.HippyPageSelectedEvent;
 import com.tencent.mtt.supportui.views.viewpager.ViewPager;
 
-/**
- * Created by ceasoncai on 2017/12/18.
- */
-
+@SuppressWarnings({"deprecation", "unused"})
 public class ViewPagerPageChangeListener implements ViewPager.OnPageChangeListener
 {
 	private final HippyPageScrollEvent mPageScrollEmitter;

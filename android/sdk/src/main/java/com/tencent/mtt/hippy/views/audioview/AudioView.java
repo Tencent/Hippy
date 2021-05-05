@@ -27,17 +27,18 @@ import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 import android.content.Context;
 import android.text.TextUtils;
 
+@SuppressWarnings("deprecation")
 public class AudioView extends HippyViewGroup implements AudioPlayManager.AudioManagerListener,HippyViewBase
 {
-    private AudioPlayManager	mAudioPlayerManager;
-    private int					mUniqPlayId;
-    private boolean				mOnPlayStartCallBack	= false;
-    private boolean				mOnPlayProgressCallBack	= false;
-    private boolean				mOnPlayResumeCallBack	= false;
-    private boolean				mOnPlayPauseCallBack	= false;
-    private boolean				mOnPlayCompleteCallBack		= false;
-    private boolean				mOnPlayErrorCallBack		= false;
-    private String				mCurrentPlayAudio		= "";
+    private final AudioPlayManager	mAudioPlayerManager;
+    private final int				mUniqPlayId;
+    private boolean				    mOnPlayStartCallBack	= false;
+    private boolean				    mOnPlayProgressCallBack	= false;
+    private boolean				    mOnPlayResumeCallBack	= false;
+    private boolean				    mOnPlayPauseCallBack	= false;
+    private boolean				    mOnPlayCompleteCallBack	= false;
+    private boolean				    mOnPlayErrorCallBack	= false;
+    private String				    mCurrentPlayAudio		= "";
 
 
     final HippyEngineContext mHippyContext;

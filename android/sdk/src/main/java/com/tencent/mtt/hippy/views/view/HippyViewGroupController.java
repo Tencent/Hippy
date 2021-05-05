@@ -27,6 +27,7 @@ import com.tencent.mtt.hippy.views.image.HippyImageView;
 
 import java.util.WeakHashMap;
 
+@SuppressWarnings({"unused"})
 @HippyController(name = HippyViewGroupController.CLASS_NAME)
 public class HippyViewGroupController extends HippyGroupController<HippyViewGroup>
 {

@@ -17,6 +17,7 @@ package com.tencent.mtt.hippy.serialization.nio.writer;
 
 import java.nio.ByteBuffer;
 
+@SuppressWarnings({"unused"})
 public final class SafeHeapWriter extends AbstractBinaryWriter {
   public static final int INITIAL_CAPACITY = 64;
   public static final int MAX_CAPACITY = 1024 * 16; // 16k

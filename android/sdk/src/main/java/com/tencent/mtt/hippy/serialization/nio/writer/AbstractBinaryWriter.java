@@ -17,6 +17,7 @@ package com.tencent.mtt.hippy.serialization.nio.writer;
 
 import java.nio.ByteBuffer;
 
+@SuppressWarnings("unused")
 public abstract class AbstractBinaryWriter implements BinaryWriter {
   protected final int initialCapacity;
   protected final int maxCapacity;

@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy.websocket;
 import java.io.IOException;
 import java.net.ProtocolException;
 
+@SuppressWarnings({"unused"})
 public final class StatusLine
 {
 

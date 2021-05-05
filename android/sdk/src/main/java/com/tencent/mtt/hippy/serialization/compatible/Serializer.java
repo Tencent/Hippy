@@ -27,7 +27,7 @@ import java.util.Set;
 /**
  * Implementation of {@code v8::(internal::)ValueSerializer}.
  */
-@SuppressWarnings("deprecation")
+@SuppressWarnings({"deprecation","unused"})
 public class Serializer extends PrimitiveValueSerializer {
   public Serializer() {
     super(null);

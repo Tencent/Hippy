@@ -25,6 +25,7 @@ import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 
+@SuppressWarnings("deprecation")
 public class HippyVerticalScrollView extends ScrollView implements HippyViewBase,HippyScrollView
 {
 

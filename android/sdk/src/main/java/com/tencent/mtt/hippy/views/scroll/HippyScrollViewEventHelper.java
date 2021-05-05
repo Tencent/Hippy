@@ -23,6 +23,7 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.modules.javascriptmodules.EventDispatcher;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 
+@SuppressWarnings({"deprecation","unused"})
 public class HippyScrollViewEventHelper
 {
     public static final long MOMENTUM_DELAY = 20;
@@ -88,7 +89,7 @@ public class HippyScrollViewEventHelper
 		event.pushMap("contentSize", contentSize);
 		event.pushMap("layoutMeasurement", layoutMeasurement);
 
-		if (view != null && view.getContext() instanceof HippyInstanceContext)
+		if (view.getContext() instanceof HippyInstanceContext)
 		{
 			HippyEngineContext context = ((HippyInstanceContext) view.getContext()).getEngineContext();
 			context.getModuleManager().getJavaScriptModule(EventDispatcher.class).receiveUIComponentEvent(view.getId(), scrollEventType, event);

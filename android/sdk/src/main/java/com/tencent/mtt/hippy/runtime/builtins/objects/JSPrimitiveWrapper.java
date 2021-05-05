@@ -17,8 +17,7 @@ package com.tencent.mtt.hippy.runtime.builtins.objects;
 
 import com.tencent.mtt.hippy.runtime.builtins.JSValue;
 
-import org.json.JSONException;
-
+@SuppressWarnings({"unused"})
 public abstract class JSPrimitiveWrapper<T> extends JSValue {
   private final T value;
 
@@ -31,7 +30,7 @@ public abstract class JSPrimitiveWrapper<T> extends JSValue {
   }
 
   @Override
-  public final Object dump() throws JSONException {
+  public final Object dump() {
     return value;
   }
 }

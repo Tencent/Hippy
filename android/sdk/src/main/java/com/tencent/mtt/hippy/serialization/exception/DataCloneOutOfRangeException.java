@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy.serialization.exception;
 
+@SuppressWarnings("unused")
 public class DataCloneOutOfRangeException extends DataCloneOutOfValueException {
   public DataCloneOutOfRangeException(int excepted) {
     super(excepted);

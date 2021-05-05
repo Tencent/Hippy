@@ -22,6 +22,6 @@ import com.tencent.mtt.hippy.common.HippyMap;
 @SuppressWarnings("unused")
 public interface HippyDeviceAdapter
 {
-	@SuppressWarnings("EmptyMethod")
+	@SuppressWarnings({"EmptyMethod", "deprecation"})
 	void reviseDimensionIfNeed(Context context, HippyMap dimensionMap, boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged);
 }

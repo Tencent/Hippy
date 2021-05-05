@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+@SuppressWarnings({"unused"})
 public class JSSparseArray extends JSAbstractArray {
   private Set<String> keySet;
   private Collection<Object> valueCollection;

@@ -17,7 +17,6 @@ package com.tencent.mtt.hippy.dom.node;
 
 import static com.tencent.mtt.hippy.views.image.HippyImageView.ImageEvent.ONERROR;
 import static com.tencent.mtt.hippy.views.image.HippyImageView.ImageEvent.ONLOAD;
-import static com.tencent.mtt.hippy.views.image.HippyImageView.ImageEvent.ONLOAD_END;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -42,6 +41,7 @@ import com.tencent.mtt.hippy.views.image.HippyImageView.ImageEvent;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 
+@SuppressWarnings("deprecation")
 public class HippyImageSpan extends ImageSpan {
     public final static int STATE_UNLOAD = 0;
     public final static int STATE_LOADING = 1;
@@ -230,9 +230,7 @@ public class HippyImageSpan extends ImageSpan {
                     mDrawableRefField = DynamicDrawableSpan.class.getDeclaredField("mDrawableRef");
                     mDrawableRefField.setAccessible(true);
                     mDrawableRefField.set(HippyImageSpan.this, null);
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                } catch (NoSuchFieldException e) {
+                } catch (IllegalAccessException | NoSuchFieldException e) {
                     e.printStackTrace();
                 }
 

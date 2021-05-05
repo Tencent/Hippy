@@ -229,11 +229,13 @@ public class MediaPlayerStateWrapper
 		LogUtils.d("MediaPlayerStateWrapper", "onBufferingUpdate");
 	}
 
+	@SuppressWarnings({"SameReturnValue", "UnusedReturnValue"})
 	boolean onError(MediaPlayer mp, int what, int extra)
 	{
 		return false;
 	}
 
+	@SuppressWarnings("SameReturnValue")
 	public boolean onInfo(MediaPlayer mp, int what, int extra)
 	{
 		return false;

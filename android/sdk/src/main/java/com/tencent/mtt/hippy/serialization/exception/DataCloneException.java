@@ -16,6 +16,7 @@
 package com.tencent.mtt.hippy.serialization.exception;
 
 public class DataCloneException extends RuntimeException {
+  @SuppressWarnings("unused")
   public DataCloneException(Object received) {
     super(String.format("[%s] could not be cloned", received.toString()));
   }

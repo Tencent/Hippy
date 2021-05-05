@@ -10,6 +10,7 @@ import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
+@SuppressWarnings({"unused", "deprecation"})
 @HippyNativeModule(name = MyModule.CLASSNAME)
 public class MyModule extends HippyNativeModuleBase
 {

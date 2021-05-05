@@ -4,6 +4,7 @@ import com.tencent.mtt.hippy.runtime.builtins.JSSharedArrayBuffer;
 import com.tencent.mtt.hippy.runtime.builtins.wasm.WasmModule;
 import com.tencent.mtt.hippy.serialization.recommend.Serializer;
 
+@SuppressWarnings({"unused"})
 public interface SerializerDelegateHost {
   /**
    * Get a {@link JSSharedArrayBuffer} given a clone_id previously provided by {@link SerializerDelegate#getSharedArrayBufferId(Serializer, JSSharedArrayBuffer)}

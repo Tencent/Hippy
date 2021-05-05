@@ -25,6 +25,7 @@ import com.tencent.mtt.hippy.bridge.HippyBridge;
 import com.tencent.mtt.hippy.bridge.NativeCallback;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
+@SuppressWarnings({"unused"})
 public class HippyAssetBundleLoader implements HippyBundleLoader
 {
 	private static final String ASSETS_STR = "assets://";

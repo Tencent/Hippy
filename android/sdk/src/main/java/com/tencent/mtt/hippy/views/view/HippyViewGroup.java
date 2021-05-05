@@ -30,6 +30,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 
+@SuppressWarnings({"deprecation", "unused"})
 public class HippyViewGroup extends HippyImageView implements IHippyZIndexViewGroup
 {
 

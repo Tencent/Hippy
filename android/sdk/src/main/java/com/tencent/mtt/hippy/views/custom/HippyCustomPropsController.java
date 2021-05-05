@@ -24,6 +24,7 @@ import com.tencent.mtt.hippy.uimanager.RenderNode;
 import android.content.Context;
 import android.view.View;
 
+@SuppressWarnings("rawtypes")
 @HippyController(name = HippyCustomPropsController.CLASS_NAME)
 public class HippyCustomPropsController extends HippyViewController
 {
@@ -47,6 +48,7 @@ public class HippyCustomPropsController extends HippyViewController
 		if (context instanceof HippyInstanceContext) {
 			HippyEngineContext engineContext = ((HippyInstanceContext)context).getEngineContext();
 			assert (engineContext != null);
+			//noinspection ConstantConditions
 			if (engineContext == null) {
 				return;
 			}

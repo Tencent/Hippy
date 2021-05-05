@@ -43,7 +43,7 @@ import com.tencent.mtt.hippy.utils.FileUtils;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import java.nio.ByteOrder;
 
-@SuppressWarnings("JavaJniMissingFunction")
+@SuppressWarnings({"JavaJniMissingFunction", "unused"})
 public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnReceiveDataListener
 {
 	private static final Object sBridgeSyncLock;
@@ -250,12 +250,13 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 		}
 	}
 
+	@SuppressWarnings("unused")
 	public void fetchResourceWithUri(final String uri, final long resId) {
 		UIThreadUtils.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				DevSupportManager devManager = mContext.getDevSupportManager();
-				if (mContext == null || TextUtils.isEmpty(uri) || !UrlUtils.isWebUrl(uri) || devManager == null) {
+				if (TextUtils.isEmpty(uri) || !UrlUtils.isWebUrl(uri) || devManager == null) {
 					LogUtils.e("HippyBridgeImpl", "fetchResourceWithUri: can not call loadRemoteResource with " + uri);
 					return;
 				}
@@ -276,14 +277,9 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 							}
 
 							byte[] resBytes = output.toByteArray();
-							if (resBytes != null) {
-								final ByteBuffer buffer = ByteBuffer.allocateDirect(resBytes.length);
-								buffer.put(resBytes);
-								onResourceReady(buffer, mV8RuntimeId, resId);
-							} else {
-								LogUtils.e("HippyBridgeImpl", "fetchResourceWithUri: output buffer length==0!!!");
-								onResourceReady(null, mV8RuntimeId, resId);
-							}
+							final ByteBuffer buffer = ByteBuffer.allocateDirect(resBytes.length);
+							buffer.put(resBytes);
+							onResourceReady(buffer, mV8RuntimeId, resId);
 						} catch (Throwable e) {
 							LogUtils.e("HippyBridgeImpl", "fetchResourceWithUri: load failed!!! " + e.getMessage());
 							onResourceReady(null, mV8RuntimeId, resId);

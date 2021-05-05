@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy.uimanager;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.common.HippyMap;
 
+@SuppressWarnings({"deprecation", "unused"})
 public class PullHeaderRenderNode extends ListItemRenderNode
 {
 	public PullHeaderRenderNode(int mId, HippyMap mPropsToUpdate, String className, HippyRootView mRootView, ControllerManager componentManager,

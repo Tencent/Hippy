@@ -21,6 +21,7 @@ import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 
+@SuppressWarnings({"unused"})
 public class HybiParser {
     private static final String TAG = "HybiParser";
 
@@ -142,7 +143,7 @@ public class HybiParser {
         mMasked = (data & MASK) == MASK;
         mLength = (data & LENGTH);
 
-        if (mLength >= 0 && mLength <= 125) {
+        if (mLength <= 125) {
             mStage = mMasked ? 3 : 4;
         } else {
             mLengthSize = (mLength == 126) ? 2 : 8;
@@ -172,6 +173,7 @@ public class HybiParser {
         return frame((Object)data, opcode, errorCode);
     }
 
+    @SuppressWarnings("ConstantConditions")
     private byte[] frame(Object data, int opcode, int errorCode) {
         if (mClosed) return null;
 

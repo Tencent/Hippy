@@ -50,6 +50,7 @@ import android.widget.TextView;
 
 import java.lang.reflect.Field;
 
+@SuppressWarnings({"deprecation", "unused"})
 public class HippyTextInput extends EditText implements HippyViewBase, CommonBorder, TextView.OnEditorActionListener, View.OnFocusChangeListener
 {
 
@@ -524,6 +525,7 @@ public class HippyTextInput extends EditText implements HippyViewBase, CommonBor
 		if (color == Color.TRANSPARENT && mReactBackgroundDrawable == null)
 		{
 			// don't do anything, no need to allocate ReactBackgroundDrawable for transparent background
+			LogUtils.d("HippyTextInput", "don't do anything, no need to allocate ReactBackgroundDrawable for transparent background");
 		}
 		else
 		{
@@ -711,7 +713,8 @@ public class HippyTextInput extends EditText implements HippyViewBase, CommonBor
 			if(drawable == null)
 				return;
 			drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
-			Class  editorClass = editor.getClass(); //有的ROM自己复写了，Editor类，所以之类里面没有mDrawableForCursor，这里需要遍历
+			assert editor != null;
+			Class<?>  editorClass = editor.getClass(); //有的ROM自己复写了，Editor类，所以之类里面没有mDrawableForCursor，这里需要遍历
 			while (editorClass != null)
 			{
 				try {

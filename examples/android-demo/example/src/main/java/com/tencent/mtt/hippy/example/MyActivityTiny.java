@@ -48,6 +48,7 @@ public class MyActivityTiny extends Activity
 				@Override
 				public void fetchImage(final String url, final Callback requestCallback, Object param)
 				{
+					//noinspection unchecked,rawtypes
 					Glide.with(MyActivityTiny.this).load(url).asBitmap().into(new SimpleTarget() {
 						@Override
 						public void onResourceReady(Object object, GlideAnimation glideAnimation) {

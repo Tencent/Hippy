@@ -40,6 +40,7 @@ import com.tencent.mtt.supportui.views.IShadow;
 
 import java.util.Map;
 
+@SuppressWarnings({"deprecation","unused"})
 public abstract class HippyViewController<T extends View & HippyViewBase> implements View.OnFocusChangeListener
 {
 	private static final String	TAG						     = "HippyViewController";
@@ -58,7 +59,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 			Context rootViewContext = rootView.getContext();
 			if (rootViewContext instanceof HippyInstanceContext)
 			{
-				Map nativeParam = ((HippyInstanceContext) rootViewContext).getNativeParams();
+				@SuppressWarnings("rawtypes") Map nativeParam = ((HippyInstanceContext) rootViewContext).getNativeParams();
 				if (nativeParam != null)
 				{
 					Object object = nativeParam.get(HippyCustomViewCreator.HIPPY_CUSTOM_VIEW_CREATOR);
@@ -137,6 +138,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 
 	}
 
+  @SuppressWarnings("SameReturnValue")
   protected StyleNode createNode(boolean isVirtual, int rootId)
   {
     return null;

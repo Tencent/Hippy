@@ -1,5 +1,6 @@
 package com.tencent.mtt.hippy.exception;
 
+@SuppressWarnings({"unused"})
 public class UnexpectedTypeException extends UnexpectedException {
   private static String getClassName(Object object) {
     return (object instanceof Class ? (Class<?>) object : object.getClass()).getName();

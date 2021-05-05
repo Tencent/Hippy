@@ -27,6 +27,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 
 import java.util.*;
 
+@SuppressWarnings({"deprecation","unused"})
 public class RenderNode
 {
 	final int mId;
@@ -92,7 +93,7 @@ public class RenderNode
 
 	void printChild(RenderNode renderNode, StringBuilder stringBuilder)
 	{
-		stringBuilder.append(" [Id:" + renderNode.getId() + renderNode.mClassName);
+		stringBuilder.append(" [Id:").append(renderNode.getId()).append(renderNode.mClassName);
 		for (RenderNode child : renderNode.mChildren)
 		{
 			printChild(child, stringBuilder);
@@ -442,7 +443,7 @@ public class RenderNode
 	}
 
 
-	class MoveHolder
+	static class MoveHolder
 	{
 
 		public MoveHolder(List<RenderNode> moveRenders, int mMove2Id)
@@ -500,7 +501,7 @@ public class RenderNode
 		}
 	}
 
-	class UIFunction
+	static class UIFunction
 	{
 		public UIFunction(String functionName, HippyArray parameter, Promise promise)
 		{

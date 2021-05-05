@@ -26,6 +26,7 @@ import com.tencent.mtt.hippy.dom.node.TextExtra;
 import com.tencent.mtt.hippy.dom.node.TextNode;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 
+@SuppressWarnings({"unused"})
 @HippyController(name = HippyTextViewController.CLASS_NAME)
 public class HippyTextViewController extends HippyViewController<HippyTextView>
 {

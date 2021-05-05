@@ -17,7 +17,7 @@ package com.tencent.mtt.hippy.common;
 
 import android.view.View;
 
-@SuppressWarnings("SameParameterValue")
+@SuppressWarnings({"SameParameterValue", "deprecation", "unused"})
 public class HippyTag
 {
   private final static String TAG_CLASS_NAME                  = "className";

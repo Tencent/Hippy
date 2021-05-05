@@ -26,6 +26,7 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.view.View;
 
+@SuppressWarnings("unused")
 @HippyController(name = "AudioView")
 public class AudioViewController extends HippyGroupController<AudioView>
 {
@@ -99,6 +100,7 @@ public class AudioViewController extends HippyGroupController<AudioView>
         hippyAudioView.setOnPlayError(change);
     }
 
+    @SuppressWarnings("unused")
     @Override
     public void dispatchFunction(final AudioView hippyAudioView, String functionName, final HippyArray var, Promise promise)
     {

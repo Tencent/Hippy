@@ -17,11 +17,7 @@ package com.tencent.mtt.hippy.modules;
 
 import com.tencent.mtt.hippy.HippyEngine.BridgeTransferType;
 
-/**
- * FileName: Promise
- * Description：
- * History：
- */
+@SuppressWarnings({"unused"})
 public interface Promise
 {
     void resolve(Object value);

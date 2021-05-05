@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,7 +34,7 @@ import android.view.Window;
 import android.webkit.CookieManager;
 import android.widget.MediaController;
 
-
+@SuppressWarnings({"deprecation","unused"})
 public class VideoHippyView extends ScalableVideoView
 		implements HippyViewBase, MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnBufferingUpdateListener,
 		MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnInfoListener, MediaController.MediaPlayerControl
@@ -311,7 +310,7 @@ public class VideoHippyView extends ScalableVideoView
 
 				String cookie = cookieManager.getCookie(builtUrl.build().toString());
 
-				Map<String, String> headers = new HashMap<String, String>();
+				Map<String, String> headers = new HashMap<>();
 
 				if (cookie != null)
 				{
@@ -354,11 +353,7 @@ public class VideoHippyView extends ScalableVideoView
 						expansionFile = APKExpansionSupport.getAPKExpansionZipFile(mAppContext, mMainVer, mPatchVer);
 						fd = expansionFile.getAssetFileDescriptor(uriString.replace(".mp4", "") + ".mp4");
 					}
-					catch (IOException e)
-					{
-						e.printStackTrace();
-					}
-					catch (NullPointerException e)
+					catch (IOException | NullPointerException e)
 					{
 						e.printStackTrace();
 					}
@@ -572,7 +567,7 @@ public class VideoHippyView extends ScalableVideoView
 		mIsFullscreen = isFullscreen;
 
 
-		if (!(mAppContext   instanceof Activity ) || mAppContext == null )
+		if (!(mAppContext instanceof Activity ))
 		{
 			return;
 		}
@@ -879,10 +874,7 @@ public class VideoHippyView extends ScalableVideoView
 		if (readableMap == null)
 			return result;
 		Set<String> keySet = readableMap.keySet();
-		Iterator<String> iterator = keySet.iterator();
-		while (iterator.hasNext())
-		{
-			String key = iterator.next();
+		for (String key : keySet) {
 			result.put(key, readableMap.getString(key));
 		}
 		return result;

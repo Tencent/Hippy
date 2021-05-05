@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+@SuppressWarnings({"unused"})
 public class JSObject extends JSValue {
   private final HashMap<String, Object> props;
   private Set<Pair<String, Object>> entrySet;

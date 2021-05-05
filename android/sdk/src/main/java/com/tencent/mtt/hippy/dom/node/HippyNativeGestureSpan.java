@@ -29,12 +29,7 @@ import com.tencent.mtt.hippy.uimanager.NativeGestureProcessor;
 
 import java.util.ArrayList;
 
-/**
- * Copyright (C) 2005-2020 TENCENT Inc.All Rights Reserved.
- * FileName: HippyNativeGestureSpan
- * Description：
- * History：
- */
+@SuppressWarnings({"deprecation", "unused"})
 public class HippyNativeGestureSpan implements NativeGestureProcessor.Callback
 {
 	static final int				LONG_CLICK			= 3;
@@ -65,7 +60,7 @@ public class HippyNativeGestureSpan implements NativeGestureProcessor.Callback
 		return mIsVirtual;
 	}
 
-	public void addGestureTypes(ArrayList types)
+	public void addGestureTypes(ArrayList<String> types)
 	{
 		mGestureTypes = types;
 	}
