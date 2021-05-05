@@ -15,7 +15,6 @@
  */
 package com.tencent.mtt.hippy.adapter.font;
 
-import android.util.Log;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
 public class DefaultFontScaleAdapter implements HippyFontScaleAdapter {

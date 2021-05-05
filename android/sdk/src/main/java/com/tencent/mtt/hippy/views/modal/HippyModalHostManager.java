@@ -24,6 +24,7 @@ import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.dom.node.StyleNode;
 import com.tencent.mtt.hippy.uimanager.HippyGroupController;
 
+@SuppressWarnings("unused")
 @HippyController(name = HippyModalHostManager.HIPPY_CLASS)
 public class HippyModalHostManager extends HippyGroupController<HippyModalHostView>
 {

@@ -19,6 +19,7 @@ import android.util.Log;
 
 import com.tencent.mtt.hippy.BuildConfig;
 
+@SuppressWarnings({"unused"})
 public class LogUtils
 {
 	private static boolean DEBUG_ENABLE = BuildConfig.DEBUG;

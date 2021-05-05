@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy.uimanager;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 
+@SuppressWarnings({"deprecation","unused"})
 public class TransformUtil
 {
 
@@ -37,15 +38,14 @@ public class TransformUtil
 		if (transformMap.get(key) instanceof String)
 		{
 			String stringValue = (String) transformMap.get(key);
-			if (stringValue.endsWith("rad"))
-			{
+			if (stringValue.endsWith("rad") || stringValue.endsWith("deg")) {
 				stringValue = stringValue.substring(0, stringValue.length() - 3);
 			}
-			else if (stringValue.endsWith("deg"))
-			{
+
+			if (stringValue.endsWith("deg")) {
 				inRadians = false;
-				stringValue = stringValue.substring(0, stringValue.length() - 3);
 			}
+
 			value = Float.parseFloat(stringValue);
 		}
 		else if (transformMap.get(key) instanceof Number)

@@ -17,6 +17,7 @@ package com.tencent.mtt.hippy.serialization.nio.reader;
 
 import java.nio.ByteBuffer;
 
+@SuppressWarnings({"unused"})
 public final class SafeHeapReader implements BinaryReader {
   private byte[] buffer;
   private int pos; // Relative to base

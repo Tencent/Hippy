@@ -23,6 +23,7 @@ import com.tencent.mtt.hippy.common.HippyMap;
  * Description：
  * History：
  */
+@SuppressWarnings("deprecation")
 public interface DomActionInterceptor
 {
 

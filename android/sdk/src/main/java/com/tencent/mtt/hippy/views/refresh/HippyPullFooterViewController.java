@@ -29,6 +29,7 @@ import com.tencent.mtt.hippy.uimanager.PullFooterRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.views.list.HippyListView;
 
+@SuppressWarnings({"deprecation", "unused"})
 @HippyController(name = HippyPullFooterViewController.CLASS_NAME, isLazyLoad = true)
 public class HippyPullFooterViewController extends HippyViewController<HippyPullFooterView>
 {

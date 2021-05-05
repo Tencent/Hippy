@@ -20,10 +20,7 @@ import android.view.ViewGroup;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 
-/**
- * Created by leonardgong on 2017/11/29 0029.
- */
-
+@SuppressWarnings({"unused"})
 public abstract class HippyGroupController<T extends ViewGroup & HippyViewBase> extends HippyViewController<T>
 {
 	/** touch/click intercept **/

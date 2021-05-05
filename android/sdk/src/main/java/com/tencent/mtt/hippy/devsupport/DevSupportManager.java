@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy.devsupport;
 import com.tencent.mtt.hippy.HippyGlobalConfigs;
 import com.tencent.mtt.hippy.HippyRootView;
 
+@SuppressWarnings({"unused"})
 public class DevSupportManager
 {
 	final DevServerInterface	mDevImp;

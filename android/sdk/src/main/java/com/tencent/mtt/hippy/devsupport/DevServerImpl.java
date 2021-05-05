@@ -249,6 +249,7 @@ public class DevServerImpl implements View.OnClickListener, DevServerInterface, 
 		reload();
 	}
 
+	@SuppressWarnings("unused")
 	@Override
 	public void onHandleRemoteDebugException(Throwable t)
 	{

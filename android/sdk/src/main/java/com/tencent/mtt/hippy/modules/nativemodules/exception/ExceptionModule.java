@@ -21,6 +21,7 @@ import com.tencent.mtt.hippy.annotation.HippyNativeModule;
 import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 
+@SuppressWarnings("deprecation")
 @HippyNativeModule(name= ExceptionModule.HIPPY_CLASS)
 public class ExceptionModule extends HippyNativeModuleBase
 {

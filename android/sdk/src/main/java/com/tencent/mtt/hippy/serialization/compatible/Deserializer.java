@@ -35,10 +35,11 @@ import java.math.BigInteger;
  */
 @SuppressWarnings("deprecation")
 public class Deserializer extends PrimitiveValueDeserializer {
+  @SuppressWarnings("unused")
   public Deserializer(BinaryReader reader) {
     this(reader, null);
   }
-
+  @SuppressWarnings("unused")
   public Deserializer(BinaryReader reader, StringTable stringTable) {
     super(reader, stringTable);
   }

@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy.utils;
 import android.os.Handler;
 import android.os.Looper;
 
+@SuppressWarnings({"unused"})
 public class UIThreadUtils
 {
 

@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy.runtime;
 
+@SuppressWarnings({"unused"})
 public final class StackFrame implements Cloneable {
   private final int lineNumber;
   private final int column;

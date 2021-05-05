@@ -28,5 +28,6 @@ public interface HippyCustomViewCreator
 {
     String HIPPY_CUSTOM_VIEW_CREATOR = "CustomViewCreator";
 
+    @SuppressWarnings("deprecation")
     View createCustomView(String className, Context context, HippyMap initialProps);
 }

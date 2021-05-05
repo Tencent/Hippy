@@ -44,6 +44,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static android.content.res.Configuration.ORIENTATION_UNDEFINED;
 
+@SuppressWarnings({"deprecation","unused"})
 public class HippyRootView extends FrameLayout
 {
 	private static final int			ROOT_VIEW_TAG_INCREMENT	= 10;

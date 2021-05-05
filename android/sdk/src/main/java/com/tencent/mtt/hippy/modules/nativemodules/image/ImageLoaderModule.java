@@ -26,10 +26,7 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 
-/**
- * Created by leonardgong on 2018/1/4 0004.
- */
-
+@SuppressWarnings({"deprecation","unused"})
 @HippyNativeModule(name = "ImageLoaderModule")
 public class ImageLoaderModule extends HippyNativeModuleBase
 {

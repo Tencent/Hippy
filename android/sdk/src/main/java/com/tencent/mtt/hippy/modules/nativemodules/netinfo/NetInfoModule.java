@@ -30,6 +30,7 @@ import com.tencent.mtt.hippy.modules.javascriptmodules.EventDispatcher;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
+@SuppressWarnings({"deprecation","unused"})
 @HippyNativeModule(name = "NetInfo")
 public class NetInfoModule extends HippyNativeModuleBase
 {

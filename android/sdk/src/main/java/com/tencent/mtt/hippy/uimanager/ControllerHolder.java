@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy.uimanager;
 
+@SuppressWarnings("rawtypes")
 public class ControllerHolder
 {
 	public final HippyViewController hippyViewController;

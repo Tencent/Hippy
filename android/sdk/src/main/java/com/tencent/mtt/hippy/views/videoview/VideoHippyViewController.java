@@ -10,6 +10,7 @@ import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import android.content.Context;
 import android.view.View;
 
+@SuppressWarnings({"deprecation","unused"})
 @HippyController(name = VideoHippyViewController.CLASS_NAME)
 public class VideoHippyViewController extends HippyViewController<VideoHippyView> {
 
@@ -60,8 +61,6 @@ public class VideoHippyViewController extends HippyViewController<VideoHippyView
     public void setSrc(final VideoHippyView videoView,  String source) {
         int mainVer = 0;
         int patchVer = 0;
-        if(mainVer<0) { mainVer = 0; }
-        if(patchVer<0) { patchVer = 0; }
         videoView.setSrc(
                 source,
                 "mp4",

@@ -12,6 +12,7 @@ import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
+@SuppressWarnings("deprecation")
 @HippyNativeModule(name = "AudioPlayerModule")
 public class AudioPlayerModule extends HippyNativeModuleBase
 {

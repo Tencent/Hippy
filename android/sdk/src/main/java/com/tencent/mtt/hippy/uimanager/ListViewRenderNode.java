@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy.uimanager;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.common.HippyMap;
 
+@SuppressWarnings({"deprecation","unused"})
 public class ListViewRenderNode extends RenderNode
 {
 	public ListViewRenderNode(int mId, HippyMap mPropsToUpdate, String className, HippyRootView mRootView, ControllerManager componentManager,

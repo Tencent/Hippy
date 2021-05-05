@@ -37,6 +37,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 
+@SuppressWarnings({"deprecation","unused"})
 public class HippyListView extends RecyclerView implements HippyViewBase
 {
     public final static int	REFRESH_STATE_IDLE                  = 0;
@@ -677,12 +678,13 @@ public class HippyListView extends RecyclerView implements HippyViewBase
     {
         if (mOnScrollDragStartedEvent == null)
         {
-            mOnScrollDragStartedEvent = new OnScrollDragStartedEvent(HippyScrollViewEventHelper.EVENT_TYPE_BEGIN_DRAG);
+            mOnScrollDragStartedEvent = new OnScrollDragStartedEvent(
+                    HippyScrollViewEventHelper.EVENT_TYPE_BEGIN_DRAG);
         }
         return mOnScrollDragStartedEvent;
     }
 
-    protected class OnScrollDragStartedEvent extends HippyViewEvent
+    protected static class OnScrollDragStartedEvent extends HippyViewEvent
     {
         public OnScrollDragStartedEvent(String eventName)
         {
@@ -695,12 +697,13 @@ public class HippyListView extends RecyclerView implements HippyViewBase
     {
         if (mOnScrollDragEndedEvent == null)
         {
-            mOnScrollDragEndedEvent = new OnScrollDragEndedEvent(HippyScrollViewEventHelper.EVENT_TYPE_END_DRAG);
+            mOnScrollDragEndedEvent = new OnScrollDragEndedEvent(
+                    HippyScrollViewEventHelper.EVENT_TYPE_END_DRAG);
         }
         return mOnScrollDragEndedEvent;
     }
 
-    protected class OnScrollDragEndedEvent extends HippyViewEvent
+    protected static class OnScrollDragEndedEvent extends HippyViewEvent
     {
         public OnScrollDragEndedEvent(String eventName)
         {
@@ -713,12 +716,13 @@ public class HippyListView extends RecyclerView implements HippyViewBase
     {
         if (mOnScrollFlingStartedEvent == null)
         {
-            mOnScrollFlingStartedEvent = new OnScrollFlingStartedEvent(HippyScrollViewEventHelper.EVENT_TYPE_MOMENTUM_BEGIN);
+            mOnScrollFlingStartedEvent = new OnScrollFlingStartedEvent(
+                    HippyScrollViewEventHelper.EVENT_TYPE_MOMENTUM_BEGIN);
         }
         return mOnScrollFlingStartedEvent;
     }
 
-    protected class OnScrollFlingStartedEvent extends HippyViewEvent
+    protected static class OnScrollFlingStartedEvent extends HippyViewEvent
     {
         public OnScrollFlingStartedEvent(String eventName)
         {
@@ -731,12 +735,13 @@ public class HippyListView extends RecyclerView implements HippyViewBase
     {
         if (mOnScrollFlingEndedEvent == null)
         {
-            mOnScrollFlingEndedEvent = new OnScrollFlingEndedEvent(HippyScrollViewEventHelper.EVENT_TYPE_MOMENTUM_END);
+            mOnScrollFlingEndedEvent = new OnScrollFlingEndedEvent(
+                    HippyScrollViewEventHelper.EVENT_TYPE_MOMENTUM_END);
         }
         return mOnScrollFlingEndedEvent;
     }
 
-    protected class OnScrollFlingEndedEvent extends HippyViewEvent
+    protected static class OnScrollFlingEndedEvent extends HippyViewEvent
     {
         public OnScrollFlingEndedEvent(String eventName)
         {
@@ -754,7 +759,7 @@ public class HippyListView extends RecyclerView implements HippyViewBase
         return mOnScrollEvent;
     }
 
-    protected class OnScrollEvent extends HippyViewEvent
+    protected static class OnScrollEvent extends HippyViewEvent
     {
         public OnScrollEvent(String eventName)
         {
@@ -771,7 +776,7 @@ public class HippyListView extends RecyclerView implements HippyViewBase
         return mOnInitialListReadyEvent;
     }
 
-    private class OnInitialListReadyEvent extends HippyViewEvent
+    private static class OnInitialListReadyEvent extends HippyViewEvent
     {
         public OnInitialListReadyEvent(String eventName)
         {
@@ -785,7 +790,7 @@ public class HippyListView extends RecyclerView implements HippyViewBase
 
     }
 
-    protected class PullElementEvent extends HippyViewEvent
+    protected static class PullElementEvent extends HippyViewEvent
     {
         public PullElementEvent(String eventName) {
             super(eventName);

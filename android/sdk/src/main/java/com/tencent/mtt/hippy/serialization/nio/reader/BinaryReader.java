@@ -21,6 +21,7 @@ import java.nio.ByteBuffer;
  * A serialization reader that read primitive value in their binary form.
  * in little-endian order, because Android is always little-endian order.
  */
+@SuppressWarnings({"unused", "UnusedReturnValue"})
 public interface BinaryReader {
   /**
    * Reads the byte at this reader's current position

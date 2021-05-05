@@ -40,6 +40,7 @@ import android.widget.RelativeLayout;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
+@SuppressWarnings({"deprecation"})
 public class DevFloatButton extends ImageView implements ValueAnimator.AnimatorUpdateListener, ViewTreeObserver.OnGlobalLayoutListener
 {
 
@@ -52,7 +53,7 @@ public class DevFloatButton extends ImageView implements ValueAnimator.AnimatorU
 	int			mLastTop		= 0;
 	int			mLastBottom		= 0;
 
-	int			mWidth;
+	final int	mWidth;
 	final int	SIZE			= 30;
 	final int	TOUCH_SLOP		= ViewConfiguration.getTouchSlop();
 

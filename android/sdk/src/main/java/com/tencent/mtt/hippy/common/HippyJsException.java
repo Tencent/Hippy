@@ -15,11 +15,11 @@
  */
 package com.tencent.mtt.hippy.common;
 
+@SuppressWarnings("DeprecatedIsStillUsed")
 @Deprecated
 public class HippyJsException extends Exception
 {
 	private final String	mStack;
-	private String[]		mStackTrace;
 
 	public HippyJsException(String message, String stack)
 	{

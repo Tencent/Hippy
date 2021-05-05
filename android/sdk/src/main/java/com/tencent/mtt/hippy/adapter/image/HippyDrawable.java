@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import com.tencent.mtt.hippy.utils.ContextHolder;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.supportui.adapters.image.IDrawableTarget;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,6 +14,7 @@ import android.graphics.Movie;
 import android.graphics.drawable.Drawable;
 import android.util.Base64;
 
+@SuppressWarnings({"unused"})
 public class HippyDrawable implements IDrawableTarget
 {
 	// 原始数据的来源：base64 / assets / file
@@ -43,9 +45,7 @@ public class HippyDrawable implements IDrawableTarget
 				mBitmap = BitmapFactory.decodeByteArray(rawData, 0, rawData.length);
 			else
 				mBitmap = null;
-		} catch (OutOfMemoryError e) {
-			e.printStackTrace();
-		} catch (Exception e) {
+		} catch (OutOfMemoryError | Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -60,7 +60,8 @@ public class HippyDrawable implements IDrawableTarget
 		try {
 			is = new FileInputStream(path);
 			byte[] rawData = new byte[is.available()];
-			is.read(rawData);
+			int total = is.read(rawData);
+			LogUtils.d("HippyDrawable", "setData path: read total=" + total);
 			setData(rawData);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -88,12 +89,9 @@ public class HippyDrawable implements IDrawableTarget
 				mBitmap = BitmapFactory.decodeStream(is);
 				mGifMovie = null;
 			}
-		} catch (OutOfMemoryError e) {
+		} catch (OutOfMemoryError | Exception e) {
 			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		finally {
+		} finally {
 			if (is != null) {
 				try {
 					is.close();
@@ -106,7 +104,7 @@ public class HippyDrawable implements IDrawableTarget
 
 	public void setDataForTarge28Assets(String assetsFile)
 	{
-		ImageDecoder.Source source = null;
+		ImageDecoder.Source source;
 		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P)
 		{
 			try
@@ -172,7 +170,8 @@ public class HippyDrawable implements IDrawableTarget
 				{
 					is = ContextHolder.getAppContext().getAssets().open(mSource.substring("assets://".length()));
 					byte[] rawData = new byte[is.available()];
-					is.read(rawData);
+					int total = is.read(rawData);
+					LogUtils.d("HippyDrawable", "setData source: read total=" + total);
 					setData(rawData);
 				}
 			} catch (Exception e) {

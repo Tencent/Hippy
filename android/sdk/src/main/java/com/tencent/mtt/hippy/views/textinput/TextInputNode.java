@@ -31,6 +31,7 @@ import com.tencent.mtt.hippy.dom.node.TextNode;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 
+@SuppressWarnings({"deprecation","unused"})
 public class TextInputNode extends TextNode implements FlexNodeAPI.MeasureFunction
 {
 	private EditText	mEditText;
@@ -98,6 +99,8 @@ public class TextInputNode extends TextNode implements FlexNodeAPI.MeasureFuncti
 		};
 		markUpdated();
 	}
+
+	@SuppressWarnings("rawtypes")
 	@Override
 	public long measure(FlexNodeAPI node, float width, FlexMeasureMode widthMode, float height, FlexMeasureMode heightMode)
 	{

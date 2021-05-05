@@ -18,7 +18,6 @@ package com.tencent.mtt.hippy.modules.nativemodules.animation;
 import android.animation.Animator;
 import android.animation.ValueAnimator;
 
-import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -35,6 +34,7 @@ public abstract class Animation implements ValueAnimator.AnimatorUpdateListener,
 	protected CopyOnWriteArrayList<AnimationListener> mAnimationListeners;
 
 
+	@SuppressWarnings("unused")
 	public Animation(int id)
 	{
 		this.mId = id;
@@ -80,7 +80,7 @@ public abstract class Animation implements ValueAnimator.AnimatorUpdateListener,
 	{
 		if(mAnimationListeners == null)
 		{
-			mAnimationListeners = new CopyOnWriteArrayList<AnimationListener>();
+			mAnimationListeners = new CopyOnWriteArrayList<>();
 		}
 		mAnimationListeners.add(listener);
 	}
@@ -92,10 +92,8 @@ public abstract class Animation implements ValueAnimator.AnimatorUpdateListener,
 		{
 			return;
 		}
-		Iterator<AnimationListener> it = mAnimationListeners.iterator();
-		while (it.hasNext())
-		{
-			it.next().onAnimationUpdate(this);
+		for (AnimationListener mAnimationListener : mAnimationListeners) {
+			mAnimationListener.onAnimationUpdate(this);
 		}
 	}
 
@@ -116,10 +114,8 @@ public abstract class Animation implements ValueAnimator.AnimatorUpdateListener,
 		{
 			return;
 		}
-		Iterator<AnimationListener> it = mAnimationListeners.iterator();
-		while (it.hasNext())
-		{
-			it.next().onAnimationStart(this);
+		for (AnimationListener mAnimationListener : mAnimationListeners) {
+			mAnimationListener.onAnimationStart(this);
 		}
 	}
 
@@ -130,10 +126,8 @@ public abstract class Animation implements ValueAnimator.AnimatorUpdateListener,
 		{
 			return;
 		}
-		Iterator<AnimationListener> it = mAnimationListeners.iterator();
-		while (it.hasNext())
-		{
-			it.next().onAnimationEnd(this);
+		for (AnimationListener mAnimationListener : mAnimationListeners) {
+			mAnimationListener.onAnimationEnd(this);
 		}
 
 	}
@@ -145,10 +139,8 @@ public abstract class Animation implements ValueAnimator.AnimatorUpdateListener,
 		{
 			return;
 		}
-		Iterator<AnimationListener> it = mAnimationListeners.iterator();
-		while (it.hasNext())
-		{
-			it.next().onAnimationCancel(this);
+		for (AnimationListener mAnimationListener : mAnimationListeners) {
+			mAnimationListener.onAnimationCancel(this);
 		}
 	}
 
@@ -159,10 +151,8 @@ public abstract class Animation implements ValueAnimator.AnimatorUpdateListener,
 		{
 			return;
 		}
-		Iterator<AnimationListener> it = mAnimationListeners.iterator();
-		while (it.hasNext())
-		{
-			it.next().onAnimationRepeat(this);
+		for (AnimationListener mAnimationListener : mAnimationListeners) {
+			mAnimationListener.onAnimationRepeat(this);
 		}
 	}
 

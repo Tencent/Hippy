@@ -30,10 +30,12 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.Vector;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+@SuppressWarnings({"unused"})
 public class ZipResourceFile {
 
     //
@@ -128,10 +130,8 @@ public class ZipResourceFile {
                 int nameLen = buf.getShort(kLFHNameLen) & 0xFFFF;
                 int extraLen = buf.getShort(kLFHExtraLen) & 0xFFFF;
                 mOffset = localHdrOffset + kLFHLen + nameLen + extraLen;
-            } catch (FileNotFoundException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
             }
         }
 
@@ -178,17 +178,17 @@ public class ZipResourceFile {
 
     }
 
-    private final HashMap<String, ZipEntryRO> mHashMap = new HashMap<String, ZipEntryRO>();
+    private final HashMap<String, ZipEntryRO> mHashMap = new HashMap<>();
 
     /* for reading compressed files */
-    public final HashMap<File, ZipFile> mZipFiles = new HashMap<File, ZipFile>();
+    public final HashMap<File, ZipFile> mZipFiles = new HashMap<>();
 
     public ZipResourceFile(String zipFileName) throws IOException {
         addPatchFile(zipFileName);
     }
 
     ZipEntryRO[] getEntriesAt(String path) {
-        Vector<ZipEntryRO> zev = new Vector<ZipEntryRO>();
+        Vector<ZipEntryRO> zev = new Vector<>();
         Collection<ZipEntryRO> values = mHashMap.values();
         if (null == path)
             path = "";
@@ -206,6 +206,7 @@ public class ZipResourceFile {
 
     public ZipEntryRO[] getAllEntries() {
         Collection<ZipEntryRO> values = mHashMap.values();
+        //noinspection ToArrayCallWithZeroLengthArrayArgument
         return values.toArray(new ZipEntryRO[values.size()]);
     }
 
@@ -221,7 +222,7 @@ public class ZipResourceFile {
         ZipEntryRO entry = mHashMap.get(assetPath);
         if (null != entry) {
             if (entry.isUncompressed()) {
-                return entry.getAssetFileDescriptor().createInputStream();
+                return Objects.requireNonNull(entry.getAssetFileDescriptor()).createInputStream();
             } else {
                 ZipFile zf = mZipFiles.get(entry.getZipFile());
                 if (null == zf) {

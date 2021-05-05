@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy.serialization;
 /**
  * A tag that determines the type of the serialized value.
  */
+@SuppressWarnings({"unused"})
 public enum SerializationTag {
   VERSION((char) 0xFF),
   TRUE('T'), // kTrue

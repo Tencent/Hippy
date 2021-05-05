@@ -17,6 +17,7 @@ package com.tencent.mtt.hippy.serialization.nio.reader;
 
 import java.nio.ByteBuffer;
 
+@SuppressWarnings({"unused"})
 public final class SafeDirectReader implements BinaryReader {
   public ByteBuffer buffer;
 

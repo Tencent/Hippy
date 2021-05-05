@@ -19,7 +19,7 @@ import com.tencent.mtt.hippy.HippyRootView;
 
 import java.util.List;
 
-@SuppressWarnings("EmptyMethod")
+@SuppressWarnings({"EmptyMethod","unused"})
 public interface HippyEngineMonitorAdapter
 {
 
@@ -33,6 +33,7 @@ public interface HippyEngineMonitorAdapter
 
 	void reportModuleLoadComplete(HippyRootView rootView, int loadTime, List<HippyEngineMonitorEvent> loadEvents);
 
+	@SuppressWarnings("SameReturnValue")
 	boolean needReportBridgeANR();
 
 	void reportBridgeANR(String message);

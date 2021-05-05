@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+@SuppressWarnings({"deprecation", "unused", "rawtypes"})
 public class DomUpdateManager<T>
 {
 
@@ -72,6 +73,7 @@ public class DomUpdateManager<T>
 									break;
 								default:
 									Object o = null;
+									//noinspection ConstantConditions
 									styleMethodHolder.mMethod.invoke(t, o);
 									break;
 							}
@@ -126,7 +128,7 @@ public class DomUpdateManager<T>
 				}
 			}
 			// put to CLASS_PROPS_METHOD
-			CLASS_STYLE_METHOD.put(cls, new HashMap<String, StyleMethod>(hashMap));
+			CLASS_STYLE_METHOD.put(cls, new HashMap<>(hashMap));
 		}
 		else
 		{

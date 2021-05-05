@@ -18,7 +18,7 @@ import android.content.ClipboardManager;
 @HippyNativeModule(name = "ClipboardModule")
 public class ClipboardModule extends HippyNativeModuleBase
 {
-    private ClipboardManager mClipboardManager;
+    private final ClipboardManager mClipboardManager;
     public ClipboardModule(HippyEngineContext context)
     {
         super(context);

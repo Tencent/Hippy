@@ -22,6 +22,7 @@ import com.tencent.mtt.hippy.common.HippyJsException;
  * Description：
  * History：
  */
+@SuppressWarnings("deprecation")
 public class DefaultExceptionHandler implements HippyExceptionHandlerAdapter
 {
 	@Override

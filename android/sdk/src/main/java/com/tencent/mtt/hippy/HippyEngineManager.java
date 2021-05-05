@@ -29,8 +29,10 @@ import java.util.List;
 @Deprecated
 public abstract class HippyEngineManager extends HippyEngine
 {
+	@SuppressWarnings("rawtypes")
 	final HashMap mExtendDatas		= new HashMap();
 
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public abstract boolean onBackPress(DeviceEventModule.InvokeDefaultBackPress invokeImp);
 
 	public void addEngineEventListener(EngineListener listener)
@@ -71,6 +73,7 @@ public abstract class HippyEngineManager extends HippyEngine
 
 	public void putExtendData(String key, Object value)
 	{
+		//noinspection unchecked
 		mExtendDatas.put(key, value);
 	}
 
@@ -99,6 +102,7 @@ public abstract class HippyEngineManager extends HippyEngine
 		{
 		}
 
+		@SuppressWarnings("SameParameterValue")
 		Builder setSupportDev(boolean supportDev)
 		{
 			this.mSupportDev = supportDev;
@@ -111,6 +115,7 @@ public abstract class HippyEngineManager extends HippyEngine
 			return this;
 		}
 
+		@SuppressWarnings("SameParameterValue")
 		Builder setCoreBundleLoader(HippyBundleLoader coreBundleLoader)
 		{
 			this.mCoreBundleLoader = coreBundleLoader;
@@ -141,6 +146,7 @@ public abstract class HippyEngineManager extends HippyEngine
 			return this;
 		}
 
+		@SuppressWarnings("UnusedReturnValue")
 		Builder setGroupId(int groupId) {
 			mGroupId = groupId;
 			return this;

@@ -78,6 +78,7 @@ import android.view.View;
  * to which the choreographer belongs.
  * </p>
  */
+@SuppressWarnings({"unused"})
 public final class ICSChoreographer
 {
 	private static final String							TAG							= "Choreographer";
@@ -169,6 +170,7 @@ public final class ICSChoreographer
 		}
 	}
 
+	@SuppressWarnings("SameReturnValue")
 	private static float getRefreshRate()
 	{
 		return 60;

@@ -29,15 +29,18 @@ import android.util.SparseArray;
 
 import java.lang.ref.WeakReference;
 
-@SuppressWarnings("FieldCanBeLocal")
+@SuppressWarnings({"FieldCanBeLocal", "rawtypes"})
 public class AudioPlayManager
 {
     private static final String					    TAG						= "AudioPlayManager";
     private MediaPlayer							    mSysMediaPlayer;													//系统播放器
     private String								    mCurrentPlayUrl;													//当前播放音频的url
     private int									    mCurrentPlayID;														//当前播放的ID
+    @SuppressWarnings("unchecked")
     private final SparseArray<AudioManagerListener>	mPlayCallbackListener	= new SparseArray();						//支持多个audio播放，但是如何释放
+    @SuppressWarnings("unchecked")
     private final SparseArray<String>				mAudioPlayUrlList		= new SparseArray();
+    @SuppressWarnings("unchecked")
     private final SparseArray<Integer>				mAudioPlayPositionList	= new SparseArray();
     private final HandlerThread						mHandlerThread			= new HandlerThread("HippyAudioPlayThread");
     private final Handler							mHandler;
@@ -73,8 +76,10 @@ public class AudioPlayManager
 
         void onPlayComplete(String playAudioUrl); //播放完成
 
+        @SuppressWarnings("unused")
         void onPlayBuffering(String playAudioUrl); //音频在缓冲中
 
+        @SuppressWarnings("unused")
         void onPlayProgress(String playAudioUrl, int currentPlayTimeMs, int audioPlayTotalTimeMs);
     }
 
@@ -365,7 +370,7 @@ public class AudioPlayManager
     public static int requestAudioFocus(OnAudioStateChange onAudioStateChange)
     {
         int result = 0;
-        final WeakReference<OnAudioStateChange> reference = new WeakReference<OnAudioStateChange>(onAudioStateChange);
+        final WeakReference<OnAudioStateChange> reference = new WeakReference<>(onAudioStateChange);
         try
         {
             // 创建监听器
@@ -388,15 +393,12 @@ public class AudioPlayManager
                         audioManager.abandonAudioFocus((AudioManager.OnAudioFocusChangeListener) afChangeListener);
                         // 停止播放
                     }
-                    if (reference != null)
+                    OnAudioStateChange callback = reference.get();
+                    if (callback != null)
                     {
-                        OnAudioStateChange callback = reference.get();
-                        if (callback != null)
-                        {
-                            callback.onChange(focusChange);
-                        }
-
+                        callback.onChange(focusChange);
                     }
+
                 }
             };
             // 请求播放的音频焦点

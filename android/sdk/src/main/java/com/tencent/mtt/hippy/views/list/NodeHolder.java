@@ -32,7 +32,7 @@ public class NodeHolder extends ContentHolder
 	public void inTraversals(int traversalPurpose, int position, RecyclerViewBase recyclerView)
 	{
 		super.inTraversals(traversalPurpose, position, recyclerView);
-		if (recyclerView instanceof RecyclerViewBase)
+		if (recyclerView != null)
 		{
 			recyclerView.handleInTraversal(traversalPurpose, position, mContentView);
 		}

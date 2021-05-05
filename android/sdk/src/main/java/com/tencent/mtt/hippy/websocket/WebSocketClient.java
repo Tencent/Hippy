@@ -38,8 +38,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
-
-@SuppressWarnings("FieldCanBeLocal")
+@SuppressWarnings({"unused","FieldCanBeLocal"})
 public class WebSocketClient
 {
 	private static final String		TAG						= "WebSocketClient";
@@ -141,6 +140,7 @@ public class WebSocketClient
 					String line;
 					while (!TextUtils.isEmpty(line = readLine(stream)))
 					{
+						assert line != null;
 						Header header = parseHeader(line);
 						if (header.getName().equals("Sec-WebSocket-Accept"))
 						{

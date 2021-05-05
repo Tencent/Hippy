@@ -40,6 +40,7 @@ import com.tencent.mtt.hippy.adapter.storage.DefaultStorageAdapter;
 import com.tencent.mtt.hippy.adapter.storage.HippyStorageAdapter;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
+@SuppressWarnings({"deprecation", "unused"})
 public class HippyGlobalConfigs
 {
 	/**
@@ -239,6 +240,7 @@ public class HippyGlobalConfigs
 		params.logAdapter = mLogAdapter;
 	}
 
+	@SuppressWarnings({"unused"})
 	public static class Builder
 	{
 		private HippySharedPreferencesAdapter	mSharedPreferencesAdapter;

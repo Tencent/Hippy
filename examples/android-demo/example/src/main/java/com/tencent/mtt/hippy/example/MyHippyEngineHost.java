@@ -24,7 +24,7 @@ import java.util.List;
  * 请参见{@link MyActivity}
  * 和{@link MyActivityTiny}
  */
-@SuppressWarnings("DeprecatedIsStillUsed")
+@SuppressWarnings({"DeprecatedIsStillUsed", "deprecation"})
 @Deprecated
 public class MyHippyEngineHost extends HippyEngineHost
 {

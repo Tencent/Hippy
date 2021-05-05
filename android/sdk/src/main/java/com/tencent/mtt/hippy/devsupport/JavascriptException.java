@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy.devsupport;
 
+@SuppressWarnings({"unused"})
 class JavascriptException extends RuntimeException {
     public JavascriptException(String error) {
         super(error);

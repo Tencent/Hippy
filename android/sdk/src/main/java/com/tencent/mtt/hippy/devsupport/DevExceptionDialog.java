@@ -35,6 +35,7 @@ import com.tencent.mtt.hippy.utils.PixelUtil;
  * Description：
  * History：
  */
+@SuppressWarnings("deprecation")
 public class DevExceptionDialog extends Dialog implements View.OnClickListener
 {
 
@@ -44,6 +45,7 @@ public class DevExceptionDialog extends Dialog implements View.OnClickListener
 	private TextView			mCancelTv;
 	private OnReloadListener	mOnReloadListener;
 
+	@SuppressWarnings("unused")
 	public DevExceptionDialog(Context context)
 	{
 		super(context);
@@ -183,16 +185,13 @@ public class DevExceptionDialog extends Dialog implements View.OnClickListener
 		{
 			StackTraceElement[] elements = exception.getStackTrace();
 			StringBuilder builder = new StringBuilder();
-			if (elements != null)
+			for (StackTraceElement element : elements)
 			{
-				for (StackTraceElement element : elements)
-				{
-					builder.append(element.toString()).append("\n").append("\n");
-				}
-				for (StackTraceElement element : elements)
-				{
-					builder.append(element.toString()).append("\n").append("\n");
-				}
+				builder.append(element.toString()).append("\n").append("\n");
+			}
+			for (StackTraceElement element : elements)
+			{
+				builder.append(element.toString()).append("\n").append("\n");
 			}
 			mContentTv.setText(builder.toString());
 			exception.printStackTrace();

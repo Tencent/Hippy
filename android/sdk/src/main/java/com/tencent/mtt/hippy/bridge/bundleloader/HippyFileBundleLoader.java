@@ -45,6 +45,7 @@ public class HippyFileBundleLoader implements HippyBundleLoader
 		this.mCodeCacheTag = codeCacheTag;
 	}
 
+	@SuppressWarnings("unused")
 	public void setCodeCache(boolean canUseCodeCache, String codeCacheTag)
 	{
 		this.mCanUseCodeCache = canUseCodeCache;

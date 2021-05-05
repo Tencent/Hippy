@@ -55,6 +55,7 @@ import java.util.Map;
 /**
  * Implementation of {@code v8::(internal::)ValueDeserializer}.
  */
+@SuppressWarnings("unused")
 public class Deserializer extends PrimitiveValueDeserializer {
   public interface Delegate {
     /**
