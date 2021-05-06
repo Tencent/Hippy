@@ -385,14 +385,14 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
 		if (selectionStart == selectionEnd && value.length() > oldValue.length() && value.startsWith(sub1) && value.endsWith(sub2))
 		{
 			// 未选中状态 && insert
-			String insertStr = value.substring(selectionStart, value.length() - sub2.length());
+			@SuppressWarnings("DuplicateExpressions") String insertStr = value.substring(selectionStart, value.length() - sub2.length());
 			LogUtils.d(TAG, String.format("setText: InsertStr: [%s]", insertStr));
 			editText.insert(selectionStart, insertStr);
 		}
 		else if (selectionStart < selectionEnd && value.startsWith(sub1) && value.endsWith(sub2))
 		{
 			// 选中状态 && replace选中部分
-			String replaceStr = value.substring(selectionStart, value.length() - sub2.length());
+			@SuppressWarnings("DuplicateExpressions") String replaceStr = value.substring(selectionStart, value.length() - sub2.length());
 			LogUtils.d(TAG, String.format("setText: ReplaceStr: [%s]", replaceStr));
 			editText.replace(selectionStart, selectionEnd, replaceStr);
 		}

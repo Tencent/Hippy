@@ -24,6 +24,7 @@ import com.tencent.mtt.hippy.adapter.http.HippyHttpResponse;
 import java.io.*;
 import java.util.Locale;
 
+@SuppressWarnings({"unused"})
 public class DevServerHelper
 {
 	private static final String	BUNDLE_URL_FORMAT						= "http://%s/%s?platform=android&dev=%s&hot=%s&minify=%s";

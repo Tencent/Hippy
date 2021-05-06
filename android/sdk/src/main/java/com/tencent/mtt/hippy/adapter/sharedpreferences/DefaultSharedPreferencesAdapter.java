@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy.adapter.sharedpreferences;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+@SuppressWarnings({"unused"})
 public class DefaultSharedPreferencesAdapter implements HippySharedPreferencesAdapter {
 
     private final Context mContext;

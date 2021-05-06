@@ -15,15 +15,7 @@ import com.tencent.mtt.hippy.adapter.image.HippyDrawable;
 import com.tencent.mtt.hippy.adapter.image.HippyImageLoader;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
-/**
- * Copyright (C) 2005-2020 TENCENT Inc.All Rights Reserved.
- * FileName: MyActivityTiny 最简洁的demo，只展示了必须的代码
- * 加载出Hippy的View分为三步：
- * 1. 用EngineInitParams参数create出HippyEngine；
- * 2. HippyEngine.initEngine异步初始化；
- * 3. 用ModuleLoadParams参数loadModule加载出hippy的jsbundle，得到Hippy的View。
- * Description：
- */
+@SuppressWarnings({"unused"})
 public class MyActivityTiny extends Activity
 {
 	private HippyEngine mHippyEngine;

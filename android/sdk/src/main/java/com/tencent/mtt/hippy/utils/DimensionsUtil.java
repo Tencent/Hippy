@@ -31,7 +31,6 @@ import com.tencent.mtt.hippy.common.HippyMap;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Objects;
 
 @SuppressWarnings("deprecation")
 public class DimensionsUtil
@@ -167,7 +166,8 @@ public class DimensionsUtil
 				c = Class.forName("com.android.internal.R$dimen");
 				obj = c.newInstance();
 				field = c.getField("status_bar_height");
-				x = Integer.parseInt(Objects.requireNonNull(field.get(obj)).toString());
+				//noinspection ConstantConditions
+				x = Integer.parseInt(field.get(obj).toString());
 				STATUS_BAR_HEIGHT = context.getResources().getDimensionPixelSize(x);
 			} catch (Exception e) {
 				STATUS_BAR_HEIGHT = -1;

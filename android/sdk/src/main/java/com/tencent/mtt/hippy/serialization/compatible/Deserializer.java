@@ -33,13 +33,13 @@ import java.math.BigInteger;
 /**
  * Compatible with {@code com.tencent.mtt.hippy.common.HippyMap}
  */
-@SuppressWarnings("deprecation")
+@SuppressWarnings({"unused", "deprecation"})
 public class Deserializer extends PrimitiveValueDeserializer {
-  @SuppressWarnings("unused")
+
   public Deserializer(BinaryReader reader) {
     this(reader, null);
   }
-  @SuppressWarnings("unused")
+
   public Deserializer(BinaryReader reader, StringTable stringTable) {
     super(reader, stringTable);
   }

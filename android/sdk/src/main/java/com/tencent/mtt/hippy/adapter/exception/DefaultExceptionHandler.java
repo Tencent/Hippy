@@ -17,12 +17,7 @@ package com.tencent.mtt.hippy.adapter.exception;
 
 import com.tencent.mtt.hippy.common.HippyJsException;
 
-/**
- * FileName: DefaultExceptionHandler
- * Description：
- * History：
- */
-@SuppressWarnings("deprecation")
+@SuppressWarnings({"unused", "deprecation"})
 public class DefaultExceptionHandler implements HippyExceptionHandlerAdapter
 {
 	@Override

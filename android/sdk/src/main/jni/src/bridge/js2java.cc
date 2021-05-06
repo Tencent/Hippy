@@ -115,9 +115,8 @@ void CallJava(hippy::napi::CBDataTuple* data) {
           v8::Value);
 
       v8::String::Utf8Value json(isolate, s);
-      TDF_BASE_DLOG(INFO) << "CallJava json = " << JniUtils::ToCString(json);
-
       buffer_data = std::string(JniUtils::ToCString(json));
+      TDF_BASE_DLOG(INFO) << "CallJava json = " << buffer_data;
     }
   }
 

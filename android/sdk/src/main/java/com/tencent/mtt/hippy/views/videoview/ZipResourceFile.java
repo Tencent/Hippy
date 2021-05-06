@@ -30,7 +30,6 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Objects;
 import java.util.Vector;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -221,8 +220,8 @@ public class ZipResourceFile {
     public InputStream getInputStream(String assetPath) throws IOException {
         ZipEntryRO entry = mHashMap.get(assetPath);
         if (null != entry) {
-            if (entry.isUncompressed()) {
-                return Objects.requireNonNull(entry.getAssetFileDescriptor()).createInputStream();
+            if (entry.isUncompressed() && entry.getAssetFileDescriptor() != null) {
+                return entry.getAssetFileDescriptor().createInputStream();
             } else {
                 ZipFile zf = mZipFiles.get(entry.getZipFile());
                 if (null == zf) {
