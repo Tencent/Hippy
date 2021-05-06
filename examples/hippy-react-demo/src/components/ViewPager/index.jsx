@@ -6,6 +6,7 @@ import {
   ViewPager,
 } from '@hippy/react';
 import { CirclePagerView, SquarePagerView, TrianglePagerView } from '../../shared/PagerItemView';
+import Tab from "./tab";
 
 const DEFAULT_DOT_RADIUS = 6;
 const PAGE_COUNT = 3;
@@ -59,6 +60,8 @@ const styles = StyleSheet.create({
 export default class PagerExample extends React.Component {
     state = {
       selectedIndex: 0,
+      offset: 0,
+      position: 0
     };
 
     constructor(props) {
@@ -76,15 +79,20 @@ export default class PagerExample extends React.Component {
     }
 
     // eslint-disable-next-line class-methods-use-this
-    onPageScroll({ offset, position, ...others }) {
+    onPageScroll = ({ offset, position, ...others }) => {
       // eslint-disable-next-line no-console
       console.log('onPageScroll====》', offset, position, others);
+      this.setState({
+        offset,
+        position
+      });
     }
 
     render() {
-      const { selectedIndex } = this.state;
+      const { selectedIndex, offset, position } = this.state;
       return (
         <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
+          <Tab tabs={["第1页", "第2页", "第3页"]} offset={offset} position={position} />
           <View style={styles.buttonContainer}>
             <View
               style={styles.button}
