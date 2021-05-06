@@ -20,6 +20,7 @@ public interface HippyFontScaleAdapter
 {
 	float getFontScale();
 
+	@SuppressWarnings("unused")
 	CharSequence getEmoticonText(CharSequence text, int fontSize);
 
 	String getCustomFontFilePath(String fontFamilyName, int style);

@@ -14,7 +14,7 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.modules.nativemodules.deviceevent.DeviceEventModule;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
-@SuppressWarnings("deprecation")
+@SuppressWarnings({"unused", "deprecation"})
 @Deprecated
 public class MyActivityDeprecated extends Activity implements HippyEngine.EngineListener, DeviceEventModule.InvokeDefaultBackPress
 {

@@ -45,7 +45,6 @@ import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Objects;
 
 @SuppressWarnings({"deprecation", "unused"})
 public class HippyModalHostView extends HippyViewGroup implements HippyInstanceLifecycleEventListener
@@ -254,7 +253,8 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 			c = Class.forName("com.android.internal.R$dimen");
 			obj = c.newInstance();
 			field = c.getField("status_bar_height");
-			x = Integer.parseInt(Objects.requireNonNull(field.get(obj)).toString());
+			//noinspection ConstantConditions
+			x = Integer.parseInt(field.get(obj).toString());
 			statusBarHeight = ContextHolder.getAppContext().getResources().getDimensionPixelSize(x);
 		} catch (Exception e1) {
 			statusBarHeight = -1;

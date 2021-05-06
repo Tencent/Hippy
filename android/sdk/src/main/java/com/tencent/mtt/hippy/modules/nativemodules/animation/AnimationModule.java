@@ -36,7 +36,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-@SuppressWarnings("deprecation")
+@SuppressWarnings({"deprecation", "unused"})
 @HippyNativeModule(name = "AnimationModule", thread = HippyNativeModule.Thread.DOM)
 public class AnimationModule extends HippyNativeModuleBase implements DomActionInterceptor, Animation.AnimationListener, Handler.Callback,
 		HippyEngineLifecycleEventListener

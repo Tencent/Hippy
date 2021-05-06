@@ -60,7 +60,7 @@ public class ByteBufferInputStream extends InputStream {
 		if (!this.byteBuffer.hasRemaining()) {
 			return -1L;
 		} else {
-			long toSkip = Math.min(byteCount, (long)this.available());
+			long toSkip = Math.min(byteCount, this.available());
 			this.byteBuffer.position((int)((long)this.byteBuffer.position() + toSkip));
 			return toSkip;
 		}
