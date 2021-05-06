@@ -572,7 +572,7 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
                 UIEdgeInsets insets = contentImage.capInsets;
                 CGRectMake(insets.left / size.width, insets.top / size.height, 1.0 / size.width, 1.0 / size.height);
             });
-
+            BOOL needsDisplay = [strongLayer needsDisplay];
             strongLayer.contents = (id)contentImage.CGImage;
 
             strongLayer.backgroundColor = NULL;
@@ -590,6 +590,9 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
                 strongLayer.contentsCenter = contentsCenter;
             } else {
                 strongLayer.contentsCenter = CGRectMake(0.0, 0.0, 1.0, 1.0);
+            }
+            if (needsDisplay) {
+                [strongLayer setNeedsDisplay];
             }
         });
     }];
