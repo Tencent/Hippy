@@ -94,6 +94,7 @@ public class ThreadExecutorManager implements ThreadExecutor.UncaughtExceptionHa
         }
     }
 
+    @SuppressWarnings("unused")
     private synchronized void handleExceptionImpl(Thread t, Throwable e, Integer groupId) {
         if (groupId < 0) {
             return;

@@ -48,7 +48,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import org.json.JSONObject;
 
-@SuppressWarnings("deprecation")
+@SuppressWarnings({"unused", "deprecation"})
 public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.BridgeCallback, Handler.Callback {
 	static final int MSG_CODE_INIT_BRIDGE = 10;
 	static final int MSG_CODE_RUN_BUNDLE = 11;
@@ -163,11 +163,11 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 				serializer.setWriter(safeDirectWriter);
 				serializer.reset();
 				serializer.writeHeader();
-				serializer.writeValue((HippyMap) msg.obj);
+				serializer.writeValue(msg.obj);
 				buffer = serializer.getWriter().chunked();
 			} else {
 				mStringBuilder.setLength(0);
-				byte[] bytes = ArgumentUtils.objectToJsonOpt((HippyMap) msg.obj, mStringBuilder).getBytes();
+				byte[] bytes = ArgumentUtils.objectToJsonOpt(msg.obj, mStringBuilder).getBytes();
 				buffer = ByteBuffer.allocateDirect(bytes.length);
 				buffer.put(bytes);
 			}
@@ -181,14 +181,14 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 				serializer.setWriter(safeHeapWriter);
 				serializer.reset();
 				serializer.writeHeader();
-				serializer.writeValue((HippyMap) msg.obj);
+				serializer.writeValue(msg.obj);
 				ByteBuffer buffer = serializer.getWriter().chunked();
 				int offset = buffer.arrayOffset() + buffer.position();
 				int length = buffer.limit() - buffer.position();
 				mHippyBridge.callFunction(action, callback, buffer.array(), offset, length);
 			} else {
 				mStringBuilder.setLength(0);
-				byte[] bytes = ArgumentUtils.objectToJsonOpt((HippyMap) msg.obj, mStringBuilder).getBytes();
+				byte[] bytes = ArgumentUtils.objectToJsonOpt(msg.obj, mStringBuilder).getBytes();
 				mHippyBridge.callFunction(action, callback, bytes);
 			}
 		}

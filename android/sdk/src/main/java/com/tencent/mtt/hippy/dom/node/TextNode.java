@@ -39,7 +39,6 @@ import com.tencent.mtt.hippy.views.text.HippyTextView;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @SuppressWarnings({"deprecation","unused"})
 public class TextNode extends StyleNode
@@ -687,6 +686,7 @@ public class TextNode extends StyleNode
 																							exception = true;
 																						}
 
+																						//noinspection ConstantConditions
 																						if (exception || layout == null)
 																						{
 																							return FlexOutput.make(width, height);
@@ -755,8 +755,9 @@ public class TextNode extends StyleNode
 				}
 			}
 		}
-		
-		Objects.requireNonNull(layout).getPaint().setTextSize(mFontSize);
+
+		assert layout != null;
+		layout.getPaint().setTextSize(mFontSize);
 		return layout;
 	}
 
