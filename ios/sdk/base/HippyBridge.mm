@@ -315,7 +315,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 }
 
 - (void)setUp {
-    HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],$@ setUp %p", NSStringFromClass([self class]), self);
+    HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ setUp %p", NSStringFromClass([self class]), self);
     _performanceLogger = [HippyPerformanceLogger new];
     [_performanceLogger markStartForTag:HippyPLBridgeStartup];
     //  [_performanceLogger markStartForTag:HippyPLTTI];
