@@ -188,6 +188,9 @@
         if (CGFLOAT_MAX != self.targetContentOffsetX) {
             nowPage = [self targetPageIndexFromTargetContentOffsetX:self.targetContentOffsetX];
         }
+        if (roundf(offsetRate) == offsetRate) {
+            offsetRate = 0;
+        }
         if (self.onPageScroll) {
             self.onPageScroll(@{
                 @"position": @(nowPage),
