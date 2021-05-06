@@ -17,6 +17,7 @@ package com.tencent.mtt.hippy.adapter.font;
 
 import com.tencent.mtt.hippy.utils.LogUtils;
 
+@SuppressWarnings({"unused"})
 public class DefaultFontScaleAdapter implements HippyFontScaleAdapter {
     @Override
     public float getFontScale() {

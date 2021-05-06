@@ -42,9 +42,8 @@ import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
 
 import java.lang.reflect.Field;
 import java.util.List;
-import java.util.Objects;
 
-@SuppressWarnings({"deprecation", "unchecked", "rawtypes"})
+@SuppressWarnings({"deprecation", "unchecked", "rawtypes", "unused"})
 public class ControllerManager implements HippyInstanceLifecycleEventListener
 {
 
@@ -427,7 +426,8 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener
 			c = Class.forName("com.android.internal.R$dimen");
 			obj = c.newInstance();
 			field = c.getField("status_bar_height");
-			x = Integer.parseInt(Objects.requireNonNull(field.get(obj)).toString());
+			//noinspection ConstantConditions
+			x = Integer.parseInt(field.get(obj).toString());
 			statusBarHeight = ContextHolder.getAppContext().getResources().getDimensionPixelSize(x);
 		}
 		catch (Exception e1)

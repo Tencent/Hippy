@@ -53,7 +53,7 @@ public final class HippyNativeModuleInfo
 
 	public HippyNativeModuleInfo(Class<?> cls, Provider<? extends HippyNativeModuleBase> provider)
 	{
-		HippyNativeModule annotation = (HippyNativeModule) cls.getAnnotation(HippyNativeModule.class);
+		HippyNativeModule annotation = cls.getAnnotation(HippyNativeModule.class);
 		assert annotation != null;
 		this.mName = annotation.name();
 		this.mNames = annotation.names();

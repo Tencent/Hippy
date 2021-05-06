@@ -34,6 +34,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Stack;
 
+@SuppressWarnings({"unused"})
 public class DevServerImpl implements View.OnClickListener, DevServerInterface, DevExceptionDialog.OnReloadListener,
 		DevRemoteDebugManager.RemoteDebugExceptionHandler, LiveReloadController.LiveReloadCallback
 {

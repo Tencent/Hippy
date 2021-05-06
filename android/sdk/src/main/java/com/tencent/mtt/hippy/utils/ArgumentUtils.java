@@ -355,7 +355,7 @@ public class ArgumentUtils {
 		int index;
 
 		if (array instanceof String[]) {
-			String[] strs = (String[]) ((String[]) array);
+			String[] strs = (String[]) array;
 			length = strs.length;
 
 			for (index = 0; index < length; ++index) {
@@ -363,7 +363,7 @@ public class ArgumentUtils {
 				catalystArray.pushString(str);
 			}
 		} else if (array instanceof Parcelable[]) {
-			Parcelable[] parcelables = (Parcelable[]) ((Parcelable[]) array);
+			Parcelable[] parcelables = (Parcelable[]) array;
 			length = parcelables.length;
 
 			for (index = 0; index < length; ++index) {
@@ -373,7 +373,7 @@ public class ArgumentUtils {
 				}
 			}
 		} else if (array instanceof int[]) {
-			int[] ints = (int[]) ((int[]) array);
+			int[] ints = (int[]) array;
 			length = ints.length;
 
 			for (index = 0; index < length; ++index) {
@@ -381,15 +381,15 @@ public class ArgumentUtils {
 				catalystArray.pushInt(value);
 			}
 		} else if (array instanceof float[]) {
-			float[] values = (float[]) ((float[]) array);
+			float[] values = (float[]) array;
 			length = values.length;
 
 			for (index = 0; index < length; ++index) {
 				float value = values[index];
-				catalystArray.pushDouble((double) value);
+				catalystArray.pushDouble(value);
 			}
 		} else if (array instanceof double[]) {
-			double[] values = (double[]) ((double[]) array);
+			double[] values = (double[]) array;
 			length = values.length;
 
 			for (index = 0; index < length; ++index) {
@@ -401,7 +401,7 @@ public class ArgumentUtils {
 				throw new IllegalArgumentException("Unknown array type " + array.getClass());
 			}
 
-			boolean[] values = (boolean[]) ((boolean[]) array);
+			boolean[] values = (boolean[]) array;
 			length = values.length;
 
 			for (index = 0; index < length; ++index) {

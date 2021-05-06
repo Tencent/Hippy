@@ -14,7 +14,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.tencent.mtt.hippy.example"
-        minSdkVersion 19
+        minSdkVersion 17
         // noinspection ExpiredTargetSdkVersion
         //noinspection OldTargetApi
         targetSdkVersion 28

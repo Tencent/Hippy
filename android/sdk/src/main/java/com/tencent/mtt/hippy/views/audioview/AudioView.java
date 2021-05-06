@@ -27,7 +27,7 @@ import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 import android.content.Context;
 import android.text.TextUtils;
 
-@SuppressWarnings("deprecation")
+@SuppressWarnings({"unused", "deprecation"})
 public class AudioView extends HippyViewGroup implements AudioPlayManager.AudioManagerListener,HippyViewBase
 {
     private final AudioPlayManager	mAudioPlayerManager;

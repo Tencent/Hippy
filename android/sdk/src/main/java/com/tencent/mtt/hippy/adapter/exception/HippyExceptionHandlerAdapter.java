@@ -22,6 +22,7 @@ public interface HippyExceptionHandlerAdapter
 {
 	void handleJsException(HippyJsException exception);
 
+	@SuppressWarnings("unused")
 	void handleNativeException(Exception exception,boolean haveCaught);
 
 	void handleBackgroundTracing(String details);
