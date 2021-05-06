@@ -29,11 +29,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-/**
- * FileName: HippyTimerModule
- * Description：
- * History：
- */
+@SuppressWarnings({"unused"})
 @HippyNativeModule(name = "TimerModule")
 public class TimerModule extends HippyNativeModuleBase implements Handler.Callback, HippyEngineLifecycleEventListener
 {

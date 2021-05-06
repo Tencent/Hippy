@@ -23,6 +23,7 @@ import com.tencent.mtt.hippy.modules.javascriptmodules.EventDispatcher;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 
+@SuppressWarnings({"unused"})
 @HippyNativeModule(name = "DeviceEventModule",init = true)
 public class DeviceEventModule extends HippyNativeModuleBase
 {

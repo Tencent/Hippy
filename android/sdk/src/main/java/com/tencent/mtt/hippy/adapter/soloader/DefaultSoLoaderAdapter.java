@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy.adapter.soloader;
 
+@SuppressWarnings({"unused"})
 public class DefaultSoLoaderAdapter implements HippySoLoaderAdapter {
     @Override
     public String loadSoPath(String soName) {

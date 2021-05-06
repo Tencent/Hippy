@@ -24,6 +24,7 @@ public interface HippyHttpAdapter
     interface HttpTaskCallback {
 		void onTaskSuccess(HippyHttpRequest request, HippyHttpResponse response) throws Exception;
 
+		@SuppressWarnings("unused")
 		void onTaskFailed(HippyHttpRequest request, Throwable error);
 	}
 }

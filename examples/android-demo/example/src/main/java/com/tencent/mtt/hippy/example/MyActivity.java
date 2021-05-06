@@ -20,7 +20,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("deprecation")
+@SuppressWarnings({"unused", "deprecation"})
 public class MyActivity extends Activity
 {
 	private HippyEngine mHippyEngine;

@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy.adapter;
 
+@SuppressWarnings({"unused"})
 public class DefaultLogAdapter implements HippyLogAdapter
 {
 
