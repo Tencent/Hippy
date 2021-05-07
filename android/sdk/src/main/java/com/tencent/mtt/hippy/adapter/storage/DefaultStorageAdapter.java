@@ -27,6 +27,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@SuppressWarnings("unused")
 public class DefaultStorageAdapter implements HippyStorageAdapter
 {
 
@@ -35,7 +36,6 @@ public class DefaultStorageAdapter implements HippyStorageAdapter
 	private Executor			     mExecutor;
 	private ExecutorService 	     mExecutorService;
 
-	@SuppressWarnings("unused")
 	public DefaultStorageAdapter(Context context)
 	{
 		mSQLiteHelper = new SQLiteHelper(context);
@@ -47,7 +47,6 @@ public class DefaultStorageAdapter implements HippyStorageAdapter
 		mExecutor = executor;
 	}
 
-	@SuppressWarnings("unused")
 	public DefaultStorageAdapter(Executor executor, IHippySQLiteHelper sqLiteHelper)
 	{
 		mSQLiteHelper = sqLiteHelper;
@@ -76,6 +75,7 @@ public class DefaultStorageAdapter implements HippyStorageAdapter
 	{
 		execute(new Runnable()
 		{
+			@SuppressWarnings("TryFinallyCanBeTryWithResources")
 			@Override
 			public void run()
 			{
@@ -95,19 +95,22 @@ public class DefaultStorageAdapter implements HippyStorageAdapter
 					for (int keyStart = 0; keyStart < keys.size(); keyStart += MAX_SQL_KEYS)
 					{
 						int keyCount = Math.min(keys.size() - keyStart, MAX_SQL_KEYS);
-						try (Cursor cursor = database.query(mSQLiteHelper.getTableName(), columns,
-								buildKeySelection(keyCount),
-								buildKeySelectionArgs(keys, keyStart, keyCount), null, null,
-								null)) {
-							keysRemaining.clear();
-							if (cursor.getCount() != keys.size()) {
-								for (int keyIndex = keyStart; keyIndex < keyStart + keyCount;
-										keyIndex++) {
+						Cursor cursor = database.query(mSQLiteHelper.getTableName(), columns, buildKeySelection(keyCount),
+								buildKeySelectionArgs(keys, keyStart, keyCount), null, null, null);
+						keysRemaining.clear();
+						try
+						{
+							if (cursor.getCount() != keys.size())
+							{
+								for (int keyIndex = keyStart; keyIndex < keyStart + keyCount; keyIndex++)
+								{
 									keysRemaining.add(keys.getString(keyIndex));
 								}
 							}
-							if (cursor.moveToFirst()) {
-								do {
+							if (cursor.moveToFirst())
+							{
+								do
+								{
 									HippyStorageKeyValue item = new HippyStorageKeyValue();
 									item.key = cursor.getString(0);
 									item.value = cursor.getString(1);
@@ -116,9 +119,15 @@ public class DefaultStorageAdapter implements HippyStorageAdapter
 								}
 								while (cursor.moveToNext());
 							}
-						} catch (Throwable e) {
+						}
+						catch (Throwable e)
+						{
 							callback.onError(e.getMessage());
 							return;
+						}
+						finally
+						{
+							cursor.close();
 						}
 
 						for (String key : keysRemaining)
@@ -136,8 +145,8 @@ public class DefaultStorageAdapter implements HippyStorageAdapter
 					for (index = 0; index < size; index++)
 					{
 						key = keys.getString(index);
-                        //noinspection unchecked
-                        finalData.add(data.get(key));
+						//noinspection unchecked
+						finalData.add(data.get(key));
 					}
 					data.clear();
 
@@ -250,6 +259,7 @@ public class DefaultStorageAdapter implements HippyStorageAdapter
 	{
 		execute(new Runnable()
 		{
+			@SuppressWarnings("TryFinallyCanBeTryWithResources")
 			@Override
 			public void run()
 			{
@@ -264,18 +274,26 @@ public class DefaultStorageAdapter implements HippyStorageAdapter
 
 					HippyArray data = new HippyArray();
 					String[] columns = { IHippySQLiteHelper.COLUMN_KEY };
-					try (Cursor cursor = database
-							.query(mSQLiteHelper.getTableName(), columns, null, null, null, null,
-									null)) {
-						if (cursor.moveToFirst()) {
-							do {
+					Cursor cursor = database.query(mSQLiteHelper.getTableName(), columns, null, null, null, null, null);
+					try
+					{
+						if (cursor.moveToFirst())
+						{
+							do
+							{
 								data.pushString(cursor.getString(0));
 							}
 							while (cursor.moveToNext());
 						}
-					} catch (Exception e) {
+					}
+					catch (Exception e)
+					{
 						callback.onError(e.getMessage());
 						return;
+					}
+					finally
+					{
+						cursor.close();
 					}
 					callback.onSuccess(data);
 				}
@@ -304,7 +322,7 @@ public class DefaultStorageAdapter implements HippyStorageAdapter
 		}
 	}
 
-    public void destroyIfNeed()
+	public void destroyIfNeed()
 	{
 		if(mExecutorService != null && !mExecutorService.isShutdown())
 		{
@@ -315,5 +333,5 @@ public class DefaultStorageAdapter implements HippyStorageAdapter
 		if (mSQLiteHelper != null) {
 			mSQLiteHelper.onDestroy();
 		}
-    }
+	}
 }
