@@ -21,6 +21,8 @@
   },
   "devDependencies": {
     "ava": "^3.5.0",
+    "hosted-git-info": "~3.0.8",
+    "lodash": "~4.17.21",
     "y18n": "^4.0.1"
   }
 }
