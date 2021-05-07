@@ -1,5 +1,6 @@
 package com.tencent.mtt.supportui.views.viewpager;
 
+import com.tencent.mtt.hippy.utils.LogUtils;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -127,6 +128,7 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 
 	/* private */ ViewPagerAdapter						mAdapter;
 	/* private */ int									mCurItem;
+	/* private */ int									mLastItem                       = INVALID_SCREEN;
 	// Index
 	// of
 	// currently
@@ -559,6 +561,11 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 			mMinPage = Integer.MIN_VALUE;
 			mMaxPage = Integer.MAX_VALUE;
 		}
+
+		if (newState == SCROLL_STATE_IDLE) {
+			mLastItem = mCurItem;
+		}
+
 		mScrollState = newState;
 	}
 
@@ -843,7 +850,9 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 			{
 				scrollTo(dest, 0);
 			}
-			pageScrolled(dest);
+
+			int direction = (item > mLastItem) ? 1 : -1;
+			pageScrolled(dest, direction);
 		}
 		if (mSelectedListener != null && touching)
 		{
@@ -2355,7 +2364,12 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 			if (oldX != x || oldY != y)
 			{
 				scrollTo(x, y);
-				if (!pageScrolled(mIsVertical ? y : x) && !isGallery())
+				int direction = x - oldX > 0 ? 1 : -1;
+				if (mIsVertical) {
+					direction = y - oldY > 0 ? 1 : -1;
+				}
+
+				if (!pageScrolled(mIsVertical ? y : x, direction) && !isGallery())
 				{
 					mScroller.abortAnimation();
 					if (mIsVertical)
@@ -2409,12 +2423,13 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 		mNextScreen = INVALID_SCREEN;
 	}
 
-	protected boolean pageScrolled(int pos)
+	protected boolean pageScrolled(int pos, int direction)
 	{
 		final int size = getClientSize();
 		final int sizeWithMargin = size + mPageMargin;
 		float pageOffset = 0;
 		int offsetPixels = 0;
+
 		if (mItems != null && mItems.size() == 0)
 		{
 			mCalledSuper = false;
@@ -2429,10 +2444,34 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 		}
 		final ItemInfo ii = infoForCurrentScrollPosition();
 		final float marginOffset = (float) mPageMargin / size;
-		final int currentPage = ii.position;
-		pageOffset = (((float) pos / size) - ii.offset) / (ii.sizeFactor + marginOffset);
+		int targetPage = ii.position;
+		final float offsetBaseRight = (((float) pos / size) - (ii.offset + ii.sizeFactor)) / (ii.sizeFactor + marginOffset);
+		final float offsetBaseLeft = (((float) pos / size) - ii.offset) / (ii.sizeFactor + marginOffset);
+
+		if (mLastItem == INVALID_SCREEN) {
+			mLastItem = mCurItem;
+		}
+
+		if (offsetBaseLeft == 0) {
+			if (targetPage == mLastItem) {
+				pageOffset = 0;
+			} else {
+				pageOffset = (targetPage < mLastItem) ? -1.0f : 1.0f;
+			}
+		} else {
+			targetPage = (direction < 0) ? ii.position : ii.position + 1;
+			if ((direction < 0 && targetPage == mLastItem) || (direction > 0 && targetPage > mLastItem)) {
+				pageOffset = offsetBaseLeft;
+			} else if ((direction < 0 && targetPage < mLastItem) || (direction > 0 && targetPage == mLastItem)) {
+				pageOffset = offsetBaseRight;
+			}
+
+			pageOffset = (float)(Math.round(pageOffset*1000))/1000;
+		}
+
 		mCalledSuper = false;
-		onPageScrolled(currentPage, pageOffset, offsetPixels);
+		LogUtils.d(TAG, "pageScrolled: targetPage=" + targetPage + ", pageOffset=" + pageOffset);
+		onPageScrolled(targetPage, pageOffset, offsetPixels);
 		if (!mCalledSuper)
 		{
 			throw new IllegalStateException("onPageScrolled did not call superclass implementation");
@@ -3544,7 +3583,7 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 			// Don't lose the rounded component
 			mLastMotionX += scrollX - (int) scrollX;
 			scrollTo((int) scrollX, getScrollY());
-			pageScrolled((int) scrollX);
+			pageScrolled((int) scrollX, deltaX > 0 ? 1 : -1);
 			return needsInvalidate;
 		}
 		else
@@ -3636,7 +3675,7 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 			// Don't lose the rounded component
 			mLastMotionY += scrollY - (int) scrollY;
 			scrollTo(getScrollX(), (int) scrollY);
-			pageScrolled((int) scrollY);
+			pageScrolled((int) scrollY, deltaY > 0 ? 1 : -1);
 			return needsInvalidate;
 		}
 	}
@@ -4006,7 +4045,7 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 		// Don't lose the rounded component
 		mLastMotionX += scrollX - (int) scrollX;
 		scrollTo((int) scrollX, getScrollY());
-		pageScrolled((int) scrollX);
+		pageScrolled((int) scrollX, xOffset > 0 ? 1 : -1);
 
 		// Synthesize an event for the VelocityTracker.
 		final long time = SystemClock.uptimeMillis();
