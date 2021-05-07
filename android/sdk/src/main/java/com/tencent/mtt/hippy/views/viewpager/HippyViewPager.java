@@ -172,7 +172,12 @@ public class HippyViewPager extends ViewPager implements HippyViewBase
 			return false;
 		}
 
-		return super.onTouchEvent(ev);
+		boolean result = super.onTouchEvent(ev);
+		if (mGestureDispatcher != null)
+		{
+			result |= mGestureDispatcher.handleTouchEvent(ev);
+		}
+		return result;
 	}
 
 	@Override
