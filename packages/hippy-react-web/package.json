@@ -23,7 +23,8 @@
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
     "rmc-list-view": "^0.11.5",
-    "swiper": "^4.5.0"
+    "swiper": "^4.5.0",
+    "ua-parser-js": "~0.7.28"
   },
   "devDependencies": {
     "@types/core-js": "^2.5.3",
