@@ -151,7 +151,14 @@ public class HippyListView extends RecyclerView implements HippyViewBase
     {
         LogUtils.d("hippylistview", "setListData");
         mListAdapter.notifyDataSetChanged();
+
+        int beforeCount = getChildCount();
         dispatchLayout();
+        int afterCount = getChildCount();
+
+        if (beforeCount == 0 && (afterCount > beforeCount) && mExposureEventEnable) {
+            dispatchExposureEvent();
+        }
     }
 
     public void setScrollBeginDragEventEnable(boolean enable)

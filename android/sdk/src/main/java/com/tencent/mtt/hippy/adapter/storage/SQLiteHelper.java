@@ -129,17 +129,29 @@ public class SQLiteHelper extends SQLiteOpenHelper implements IHippySQLiteHelper
 		}
 	}
 
+	@SuppressWarnings("TryFinallyCanBeTryWithResources")
 	private void createTableIfNotExists(SQLiteDatabase db)
 	{
-		try (Cursor cursor = db.rawQuery(
-				"SELECT DISTINCT tbl_name FROM sqlite_master WHERE tbl_name = '" + TABLE_STORAGE
-						+ "'", null)) {
-			if (cursor != null && cursor.getCount() > 0) {
+		Cursor cursor = null;
+		try
+		{
+			cursor = db.rawQuery("SELECT DISTINCT tbl_name FROM sqlite_master WHERE tbl_name = '" + TABLE_STORAGE + "'", null);
+			if (cursor != null && cursor.getCount() > 0)
+			{
 				return;
 			}
 			db.execSQL(STATEMENT_CREATE_TABLE);
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			e.printStackTrace();
+		}
+		finally
+		{
+			if (cursor != null)
+			{
+				cursor.close();
+			}
 		}
 	}
 }
