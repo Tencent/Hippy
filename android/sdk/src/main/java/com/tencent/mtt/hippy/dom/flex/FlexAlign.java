@@ -22,7 +22,8 @@ public enum FlexAlign {
 	STRETCH,
 	BASELINE,
 	SPACE_BETWEEN,
-	SPACE_AROUND,;
+	SPACE_AROUND,
+  SPACE_EVENLY;
 	@SuppressWarnings("unused")
 	public static FlexAlign fromInt(int value) {
 		switch (value) {
@@ -34,6 +35,7 @@ public enum FlexAlign {
 			case 5: return BASELINE;
 			case 6: return SPACE_BETWEEN;
 			case 7: return SPACE_AROUND;
+			case 8: return SPACE_EVENLY;
 			default: throw new IllegalArgumentException("Unknown enum value: " + value);
 		}
 	}

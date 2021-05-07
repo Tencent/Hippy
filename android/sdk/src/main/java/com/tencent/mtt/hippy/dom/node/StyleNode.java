@@ -94,7 +94,7 @@ public class StyleNode extends DomNode
 	@HippyControllerProps(name = NodeProps.FLEX_WRAP)
 	public void setFlexWrap(String flexWrap)
 	{
-		setWrap(flexWrap == null ? FlexWrap.NOWRAP : FlexWrap.valueOf(flexWrap.toUpperCase(Locale.US)));
+		setWrap(flexWrap == null ? FlexWrap.NOWRAP : FlexWrap.valueOf(flexWrap.toUpperCase(Locale.US).replace("-", "_")));
 	}
 
 	@HippyControllerProps(name = NodeProps.ALIGN_SELF)

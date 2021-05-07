@@ -195,6 +195,11 @@ public class FlexNodeStyle
 				order = 7;
 				break;
 			}
+			case 5:
+			{//SPACE_EVENLY;
+				order = 8;
+				break;
+			}
 			case 0:
 			default:
 			{
