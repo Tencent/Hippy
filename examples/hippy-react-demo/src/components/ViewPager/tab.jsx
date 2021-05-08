@@ -78,22 +78,36 @@ export default class Tab extends Component {
     }
     let endPosition = position;
     let endOffset = 1 - Math.abs(offset); // 与opacity反比
-    let opacities = this.state.opacities;
+    let opacities = Object.assign([], this.state.opacities);
+    console.info("[[]]]][[][][][]startPosition:", startPosition, "offset:", offset, "endPosition:", endPosition, "endOffset:", endOffset);
     let deltaOpacity = opacityMax - opacityMin;
     opacities[startPosition] = opacityMax - Math.abs(offset) * deltaOpacity;
     opacities[endPosition] = opacityMax - endOffset * deltaOpacity;
     if (offset === 0) {
       opacities[startPosition] = opacityMax;
+      this.notSelectedTabsCompat(startPosition, opacities);
     }
+    console.info("[[]]]][[][][][]opacities:", opacities);
     this.setState({
       opacities
     });
   }
+
+  notSelectedTabsCompat(objPosition, opacities) {
+    const { tabs } = this.props;
+    for (let i = 0; i < tabs.length; i++) {
+      if (i === objPosition) {
+        continue;
+      }
+      opacities[i] = opacityMin;
+    }
+  }
+
   getLeftOffset() {
-    if (this.layOuts.length < 3) {
+    if (this.layOuts.length < 3 && !this.isLayOutsInited()) {
       return 0;
     }
-    const { offset, position } = this.props;
+    let { offset, position, tabs } = this.props;
     let startPosition = 0;
     // 根据方向换算成坐标轴数据
     if (offset > 0) { // 正向
@@ -105,6 +119,7 @@ export default class Tab extends Component {
     }
     let _offset = startPosition + offset; // x坐标轴方向偏移
     let _pos = Math.ceil(_offset); // 
+    console.info("{}{}{}{}{}{}{}{}",offset, startPosition, _offset, _pos);
     let leftRes = this.layOuts[0].slideWidth + (wrapperPaddingLeft - this.slidebarWidth / 2); // 最左侧（起始位置）
     for (let i = _pos - 1; i >= 1; i--) {
       leftRes += this.layOuts[i].slideWidth;
@@ -116,15 +131,35 @@ export default class Tab extends Component {
     }
     return leftRes;
   }
-  onLayout(e, i) {
-    // 动态获取每个tab按钮尺寸，用于计算滑块位置
-    if (!this.layOuts[i]) {
-      this.layOuts[i] = e.layout;
-      if (i === 0) {
-        this.layOuts[0].slideWidth = this.layOuts[0].width / 2;
-      } else {
-        this.layOuts[i].slideWidth = this.layOuts[i].x + this.layOuts[i].width / 2 - (this.layOuts[i - 1].x + this.layOuts[i - 1].width / 2);
+  // onLayout有延时，可能不会按顺序执行导致this.layOuts不按顺序初始化
+  isLayOutsInited() {
+    if (this.layOuts.length === this.props.tabs.length) {
+      for (let i = 0; i < this.layOuts.length; i++) {
+        let item = this.layOuts[i];
+        if (!item) {
+          return false;
+        }
       }
+      return true;
+    }
+    return false;
+  }
+  onLayout(e, ind) {
+    // 动态获取每个tab按钮尺寸，用于计算滑块位置
+    if (!this.layOuts[ind]) {
+      this.layOuts[ind] = e.layout;
+    }
+    if (this.isLayOutsInited()) {
+      console.error("(((((())))))))))", this.layOuts)
+      this.layOuts.forEach((item, i) => {
+        if (i === 0) {
+          item.slideWidth = item.width / 2;
+        } else if(this.layOuts[i - 1]) {
+          this.layOuts[i].slideWidth = this.layOuts[i].x + this.layOuts[i].width / 2 - (this.layOuts[i - 1].x + this.layOuts[i - 1].width / 2);
+        }
+      });
+      this.layOuts[this.layOuts.length] = { slideWidth: this.layOuts[this.layOuts.length - 1].slideWidth };
+      this.layOuts[-1] = { slideWidth: this.layOuts[0].slideWidth };
     }
   }
   // eslint-disable-next-line complexity

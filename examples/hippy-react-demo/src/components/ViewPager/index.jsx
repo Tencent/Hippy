@@ -10,6 +10,7 @@ import Tab from "./tab";
 
 const DEFAULT_DOT_RADIUS = 6;
 const PAGE_COUNT = 3;
+const tabs = ["第1页", "第2页", "第3页"];
 
 const styles = StyleSheet.create({
   dotContainer: {
@@ -81,7 +82,7 @@ export default class PagerExample extends React.Component {
     // eslint-disable-next-line class-methods-use-this
     onPageScroll = ({ offset, position, ...others }) => {
       // eslint-disable-next-line no-console
-      console.log('onPageScroll====》', offset, position, others);
+      console.log('onPageScroll====》', offset, position, others.nowContentOffsetX, others.direct, others.beforePage, others.originOffsetRate);
       this.setState({
         offset,
         position
@@ -92,7 +93,7 @@ export default class PagerExample extends React.Component {
       const { selectedIndex, offset, position } = this.state;
       return (
         <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
-          <Tab tabs={["第1页", "第2页", "第3页"]} offset={offset} position={position} />
+          <Tab tabs={tabs} offset={offset} position={position} />
           <View style={styles.buttonContainer}>
             <View
               style={styles.button}
