@@ -2421,7 +2421,7 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 		mNextScreen = INVALID_SCREEN;
 	}
 
-	protected boolean pageScrolled(int pos, int direct)
+	protected boolean pageScrolled(int pos, int direction)
 	{
 		final int size = getClientSize();
 		final int sizeWithMargin = size + mPageMargin;
@@ -2446,7 +2446,7 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 		int currentPage = ii.position;
 		int targetPage = currentPage;
 		final float rightBound = ii.offset + ii.sizeFactor;
-		if (direct > 0) {
+		if (direction > 0) {
       pageOffset = (((float) pos / size) - ii.offset) / (ii.sizeFactor + marginOffset);
       if (pageOffset > 0) {
         targetPage = Math.min(currentPage + 1, (int) rightBound);

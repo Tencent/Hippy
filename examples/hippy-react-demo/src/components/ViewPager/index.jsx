@@ -82,7 +82,7 @@ export default class PagerExample extends React.Component {
     // eslint-disable-next-line class-methods-use-this
     onPageScroll = ({ offset, position, ...others }) => {
       // eslint-disable-next-line no-console
-      console.log('onPageScroll====》', offset, position, others.nowContentOffsetX, others.direct, others.beforePage, others.originOffsetRate);
+      console.log('onPageScroll====》', offset, position);
       this.setState({
         offset,
         position
