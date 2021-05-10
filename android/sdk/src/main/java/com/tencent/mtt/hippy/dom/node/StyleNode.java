@@ -21,13 +21,7 @@ import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.smtt.flexbox.FlexNodeStyle;
 
 import java.util.Locale;
-
-/**
- * @author: edsheng
- * @date: 2017/11/24 15:50
- * @version: V1.0
- */
-
+@SuppressWarnings("unused")
 public class StyleNode extends DomNode
 {
 	@HippyControllerProps(name = NodeProps.WIDTH, defaultType = HippyControllerProps.NUMBER, defaultNumber = FlexConstants.UNDEFINED)
@@ -128,6 +122,7 @@ public class StyleNode extends DomNode
 		setOverflow(overflow == null ? FlexOverflow.VISIBLE : FlexOverflow.valueOf(overflow.toUpperCase(Locale.US).replace("-", "_")));
 	}
 
+	@SuppressWarnings("SwitchStatementWithTooFewBranches")
 	@HippyControllerProps(name = NodeProps.DISPLAY)
 	public void setDisplay(String display)
 	{

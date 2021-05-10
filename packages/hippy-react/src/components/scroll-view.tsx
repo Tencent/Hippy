@@ -5,6 +5,7 @@ import Style from '@localTypes/style';
 import View from './view';
 import * as StyleSheet from '../modules/stylesheet';
 import { callUIFunction } from '../modules/ui-manager-module';
+import Element from '../dom/element-node';
 import { warn } from '../utils';
 
 interface ScrollViewProps {
@@ -137,7 +138,7 @@ const styles = StyleSheet.create({
  * @noInheritDoc
  */
 class ScrollView extends React.Component<ScrollViewProps, {}> {
-  private instance: HTMLDivElement | null = null;
+  private instance: Element | HTMLDivElement | null = null;
 
   /**
    * Scrolls to a given x, y offset, either immediately, with a smooth animation.
@@ -162,7 +163,7 @@ class ScrollView extends React.Component<ScrollViewProps, {}> {
     x_ = x_ || 0;
     y_ = y_ || 0;
     animated_ = !!animated_;
-    callUIFunction(this.instance, 'scrollTo', [x_, y_, animated_]);
+    callUIFunction(this.instance as Element, 'scrollTo', [x_, y_, animated_]);
   }
 
   /**
@@ -174,7 +175,7 @@ class ScrollView extends React.Component<ScrollViewProps, {}> {
    *                            By default is 1000ms.
    */
   public scrollToWithDuration(x = 0, y = 0, duration = 1000) {
-    callUIFunction(this.instance, 'scrollToWithOptions', [{ x, y, duration }]);
+    callUIFunction(this.instance as Element, 'scrollToWithOptions', [{ x, y, duration }]);
   }
 
   /**

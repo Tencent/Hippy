@@ -21,12 +21,7 @@ import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.uimanager.ControllerRegistry;
 import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
 
-/**
- * @Description: TODO
- * @author: edsheng
- * @date: 2018/9/13 11:14
- * @version: V1.0
- */
+@SuppressWarnings({"unused"})
 @HippyController(name = "RefreshWrapperItemView")
 public class RefreshWrapperItemController extends HippyViewGroupController {
     @Override

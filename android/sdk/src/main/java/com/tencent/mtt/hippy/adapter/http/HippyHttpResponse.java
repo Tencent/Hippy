@@ -22,17 +22,11 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Copyright (C) 2005-2020 TENCENT Inc.All Rights Reserved.
- * FileName: HippyHttpResponse
- * Description：
- * History：
- * 1.0 xiandongluo on 2018/1/24
- */
+@SuppressWarnings({"unused"})
 public class HippyHttpResponse
 {
 
-	public static final Integer			UNKNOWN_STATUS	= new Integer(-1);
+	public static final Integer			UNKNOWN_STATUS	= -1;
 
 	private Integer						mStatusCode		= UNKNOWN_STATUS;
 

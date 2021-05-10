@@ -31,12 +31,13 @@ import com.tencent.smtt.flexbox.FlexNodeStyle.Edge;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings({"JavaJniMissingFunction", "unused"})
 public class FlexNode implements FlexNodeAPI<FlexNode> {
     private FlexNode mParent;
     private List<FlexNode> mChildren;
-    private long mNativeFlexNode;
-    protected FlexNodeStyle mFlexNodeStyle = null;
-    private boolean mDirty = true;
+    private final long mNativeFlexNode;
+    protected FlexNodeStyle mFlexNodeStyle;
+    private final boolean mDirty = true;
 
     private final static int MARGIN = 1;
     private final static int PADDING = 2;
@@ -102,7 +103,7 @@ public class FlexNode implements FlexNodeAPI<FlexNode> {
             getChildAt(i).toStringWithIndentation(result, level + 1);
             result.append("\n");
         }
-        result.append(indentation + "]");
+        result.append(indentation).append("]");
     }
 
     private native void nativeFlexNodeNodeSetHasBaselineFunc(long nativeFlexNode, boolean hasMeasureFunc);
@@ -187,7 +188,7 @@ public class FlexNode implements FlexNodeAPI<FlexNode> {
         }
 
         if (mChildren == null) {
-            mChildren = new ArrayList<FlexNode>(4);
+            mChildren = new ArrayList<>(4);
         }
         mChildren.add(i, child);
         child.mParent = this;
@@ -228,6 +229,7 @@ public class FlexNode implements FlexNodeAPI<FlexNode> {
                 n.addAll(children);
             }
         }
+        //noinspection ToArrayCallWithZeroLengthArrayArgument
         nodes = n.toArray(new FlexNode[n.size()]);
         nativeNodes = new long[nodes.length];
         for (int i = 0; i < nodes.length; ++i) {

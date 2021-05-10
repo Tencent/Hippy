@@ -28,11 +28,12 @@ module.exports = {
   },
   output: {
     filename: 'index.bundle',
+    // chunkFilename: '[name].[chunkhash].js',
     strictModuleExceptionHandling: true,
     path: path.resolve('./dist/dev/'),
     globalObject: '(0, eval)("this")',
     // CDN path can be configured to load children bundles from remote server
-    // publicPath: 'CDNPath',
+    // publicPath: 'https://static.res.qq.com/hippy/hippyVueDemo/',
   },
   plugins: [
     new VueLoaderPlugin(),
@@ -45,6 +46,11 @@ module.exports = {
       __PLATFORM__: null,
     }),
     new HippyDynamicImportPlugin(),
+    // LimitChunkCountPlugin can control dynamic import ability
+    // Using 1 will prevent any additional chunks from being added
+    // new webpack.optimize.LimitChunkCountPlugin({
+    //   maxChunks: 1,
+    // }),
   ],
   module: {
     rules: [
@@ -96,12 +102,16 @@ module.exports = {
         ],
       },
       {
-        test: /\.(png|jpg|gif)$/,
+        test: /\.(png|jpe?g|gif)$/i,
         use: [{
-          loader: 'file-loader',
+          loader: 'url-loader',
           options: {
-            name: '[name].[ext]',
-            outputPath: 'assets/',
+            limit: true,
+            // TODO local path not supported on defaultSource/backgroundImage
+            // limit: 8192,
+            // fallback: 'file-loader',
+            // name: '[name].[ext]',
+            // outputPath: 'assets/',
           },
         }],
       },

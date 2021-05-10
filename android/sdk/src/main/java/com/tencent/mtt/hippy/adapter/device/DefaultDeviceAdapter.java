@@ -19,14 +19,10 @@ import android.content.Context;
 
 import com.tencent.mtt.hippy.common.HippyMap;
 
-/**
- * @author: leonardgong
- * @date: 2018/6/20
- * @version: V1.0
- */
-
+@SuppressWarnings("deprecation")
 public class DefaultDeviceAdapter implements HippyDeviceAdapter
 {
+	@SuppressWarnings("unused")
 	@Override
 	public void reviseDimensionIfNeed(Context context, HippyMap dimensionMap, boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged)
 	{

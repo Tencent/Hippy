@@ -324,9 +324,9 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
   /**
    * Collapse the PullHeaderView and hide the content
    */
-  collapsePullHeader() {
+  collapsePullHeader(options: object) {
     if (this.pullHeader) {
-      this.pullHeader.collapsePullHeader();
+      this.pullHeader.collapsePullHeader(options);
     }
   }
 

@@ -22,12 +22,7 @@ import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.uimanager.HippyGroupController;
 
-/**
- * @Description: TODO
- * @author: edsheng
- * @date: 2018/9/13 11:14
- * @version: V1.0
- */
+@SuppressWarnings({"unused"})
 @HippyController(name = "RefreshWrapper")
 public class RefreshWrapperController extends HippyGroupController<RefreshWrapper>
 {
@@ -46,7 +41,7 @@ public class RefreshWrapperController extends HippyGroupController<RefreshWrappe
 		wrapper.setTime(time);
 	}
 
-	@HippyControllerProps(name = "onScrollEnable", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@HippyControllerProps(name = "onScrollEnable", defaultType = HippyControllerProps.BOOLEAN)
 	public void setOnScrollEventEnable(RefreshWrapper wrapper, boolean flag)
 	{
 		wrapper.setOnScrollEventEnable(flag);

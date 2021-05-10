@@ -40,12 +40,7 @@ import android.widget.RelativeLayout;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
-/**
- * @author: edsheng
- * @date: 2017/11/14 20:20
- * @version: V1.0
- */
-
+@SuppressWarnings({"deprecation"})
 public class DevFloatButton extends ImageView implements ValueAnimator.AnimatorUpdateListener, ViewTreeObserver.OnGlobalLayoutListener
 {
 
@@ -58,7 +53,7 @@ public class DevFloatButton extends ImageView implements ValueAnimator.AnimatorU
 	int			mLastTop		= 0;
 	int			mLastBottom		= 0;
 
-	int			mWidth			= 0;
+	final int	mWidth;
 	final int	SIZE			= 30;
 	final int	TOUCH_SLOP		= ViewConfiguration.getTouchSlop();
 
@@ -78,14 +73,10 @@ public class DevFloatButton extends ImageView implements ValueAnimator.AnimatorU
 		//创建状态管理器
 		StateListDrawable drawable = new StateListDrawable();
 		int radius = mWidth / 2;
-		float outRect[] = new float[] { radius, radius, radius, radius, radius, radius, radius, radius };
+		float[] outRect = new float[] { radius, radius, radius, radius, radius, radius, radius, radius };
 		RoundRectShape rectShape = new RoundRectShape(outRect, null, null);
 
-		/**
-		 * 注意StateListDrawable的构造方法我们这里使用的
-		 * 是第一参数它是一个float的数组保存的是圆角的半径，它是按照top-left顺时针保存的八个值
-		 */
-		//创建圆弧形状
+        //创建圆弧形状
 		//创建drawable
 		ShapeDrawable pressedDrawable = new ShapeDrawable(rectShape);
 		//设置我们按钮背景的颜色
@@ -100,6 +91,7 @@ public class DevFloatButton extends ImageView implements ValueAnimator.AnimatorU
 		//设置我们的背景，就是xml里面的selector
 		setBackgroundDrawable(drawable);
 
+		//noinspection AccessStaticViaInstance
 		Looper.getMainLooper().myQueue().addIdleHandler(new MessageQueue.IdleHandler()
 		{
 			@Override
@@ -117,16 +109,16 @@ public class DevFloatButton extends ImageView implements ValueAnimator.AnimatorU
 		});
 	}
 
-	float dip2px(Context context, int dip)
+	float dip2px(Context context)
 	{
 		DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-		return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dip, displayMetrics);
+		return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, SIZE, displayMetrics);
 	}
 
 	public DevFloatButton(Context context)
 	{
 		super(context);
-		mWidth = (int) dip2px(context, SIZE);
+		mWidth = (int) dip2px(context);
 		buildBackground();
 
 		setFocusable(true);
@@ -248,6 +240,7 @@ public class DevFloatButton extends ImageView implements ValueAnimator.AnimatorU
 	}
 
 
+	@SuppressWarnings("SuspiciousNameCombination")
 	private ViewGroup.MarginLayoutParams getMarginLayoutParams()
 	{
 		if (getParent() != null)
@@ -291,7 +284,7 @@ public class DevFloatButton extends ImageView implements ValueAnimator.AnimatorU
 	{
 		Object valueObject = animation.getAnimatedValue();
 
-		if (valueObject != null && valueObject instanceof Number)
+		if (valueObject instanceof Number)
 		{
 			int value = ((Number) valueObject).intValue();
 			this.layout(value, getTop(), value + getWidth(), getBottom());

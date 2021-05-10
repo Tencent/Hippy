@@ -18,7 +18,6 @@ package com.tencent.mtt.hippy.views.image;
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
-import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.ImageNode;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
@@ -31,6 +30,7 @@ import android.view.View;
 
 import java.io.File;
 
+@SuppressWarnings({"deprecation","unused"})
 @HippyController(name = HippyImageViewController.CLASS_NAME)
 public class HippyImageViewController extends HippyViewController<HippyImageView>
 {
@@ -54,19 +54,22 @@ public class HippyImageViewController extends HippyViewController<HippyImageView
 		return imageView;
 	}
 
+	@SuppressWarnings("unused")
 	@Override
 	protected View createViewImpl(Context context)
 	{
 		return new HippyImageView(context);
 	}
 
-	@HippyControllerProps(name = NodeProps.CUSTOM_PROP_IMAGE_TYPE, defaultType = HippyControllerProps.STRING, defaultString = "")
+	@SuppressWarnings("unused")
+	@HippyControllerProps(name = NodeProps.CUSTOM_PROP_IMAGE_TYPE, defaultType = HippyControllerProps.STRING)
 	public void setImageType(HippyImageView hippyImageView, String type)
 	{
 		hippyImageView.setImageType(type);
 	}
 
-	@HippyControllerProps(name = "src", defaultType = HippyControllerProps.STRING, defaultString = "")
+	@SuppressWarnings("unused")
+	@HippyControllerProps(name = "src", defaultType = HippyControllerProps.STRING)
 	public void setUrl(HippyImageView hippyImageView, String url)
 	{
 		hippyImageView.setUrl(getInnerPath((HippyInstanceContext) hippyImageView.getContext(), url));
@@ -89,17 +92,14 @@ public class HippyImageViewController extends HippyViewController<HippyImageView
 		return path;
 	}
 
+	@SuppressWarnings("unused")
 	@HippyControllerProps(name = "tintColor", defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.TRANSPARENT)
 	public void setTintColor(HippyImageView hippyImageView, int tintColor)
 	{
 		hippyImageView.setTintColor(tintColor);
 	}
-	@HippyControllerProps(name = NodeProps.REPEAT_COUNT, defaultType = HippyControllerProps.NUMBER, defaultNumber = -1)
-	public void setRepeatCount(HippyImageView hippyImageView, int repeatCount)
-	{
-		hippyImageView.setRepeatCount(repeatCount);
-	}
 
+	@SuppressWarnings("unused")
 	@HippyControllerProps(name = NodeProps.RESIZE_MODE, defaultType = HippyControllerProps.STRING, defaultString = "fitXY")
 	public void setResizeMode(HippyImageView hippyImageView, String resizeModeValue)
 	{
@@ -137,18 +137,21 @@ public class HippyImageViewController extends HippyViewController<HippyImageView
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@HippyControllerProps(name = NodeProps.BACKGROUND_COLOR, defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.TRANSPARENT)
 	public void setBackgroundColor(HippyImageView view, int backgroundColor)
 	{
 		view.setBackgroundColor(backgroundColor);
 	}
 
-	@HippyControllerProps(name = "defaultSource", defaultType = HippyControllerProps.STRING, defaultString = "")
+	@SuppressWarnings("unused")
+	@HippyControllerProps(name = "defaultSource", defaultType = HippyControllerProps.STRING)
 	public void setDefaultSource(HippyImageView hippyImageView, String defaultSource)
 	{
 		hippyImageView.setHippyViewDefaultSource(getInnerPath((HippyInstanceContext) hippyImageView.getContext(), defaultSource));
 	}
 
+	@SuppressWarnings("unused")
 	@HippyControllerProps(name = "capInsets", defaultType = HippyControllerProps.MAP)
 	public void setCapInsets(HippyImageView hippyImageView, HippyMap capInsetsMap)
 	{
@@ -166,25 +169,29 @@ public class HippyImageViewController extends HippyViewController<HippyImageView
 		}
 	}
 
-	@HippyControllerProps(name = "onLoad", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@SuppressWarnings("unused")
+	@HippyControllerProps(name = "onLoad", defaultType = HippyControllerProps.BOOLEAN)
 	public void setOnLoad(HippyImageView hippyImageView, boolean enable)
 	{
 		hippyImageView.setImageEventEnable(HippyImageView.ImageEvent.ONLOAD.ordinal(), enable);
 	}
 
-	@HippyControllerProps(name = "onLoadEnd", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@SuppressWarnings("unused")
+	@HippyControllerProps(name = "onLoadEnd", defaultType = HippyControllerProps.BOOLEAN)
 	public void setOnLoadEnd(HippyImageView hippyImageView, boolean enable)
 	{
 		hippyImageView.setImageEventEnable(HippyImageView.ImageEvent.ONLOAD_END.ordinal(), enable);
 	}
 
-	@HippyControllerProps(name = "onLoadStart", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@SuppressWarnings("unused")
+	@HippyControllerProps(name = "onLoadStart", defaultType = HippyControllerProps.BOOLEAN)
 	public void setOnLoadStart(HippyImageView hippyImageView, boolean enable)
 	{
 		hippyImageView.setImageEventEnable(HippyImageView.ImageEvent.ONLOAD_START.ordinal(), enable);
 	}
 
-	@HippyControllerProps(name = "onError", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@SuppressWarnings("unused")
+	@HippyControllerProps(name = "onError", defaultType = HippyControllerProps.BOOLEAN)
 	public void setOnError(HippyImageView hippyImageView, boolean enable)
 	{
 		hippyImageView.setImageEventEnable(HippyImageView.ImageEvent.ONERROR.ordinal(), enable);

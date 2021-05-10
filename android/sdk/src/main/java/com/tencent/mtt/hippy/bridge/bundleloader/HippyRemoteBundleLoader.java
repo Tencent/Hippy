@@ -18,10 +18,12 @@ package com.tencent.mtt.hippy.bridge.bundleloader;
 import android.text.TextUtils;
 import com.tencent.mtt.hippy.bridge.HippyBridge;
 import com.tencent.mtt.hippy.bridge.NativeCallback;
+import com.tencent.mtt.hippy.utils.LogUtils;
 
+@SuppressWarnings("unused")
 public class HippyRemoteBundleLoader implements HippyBundleLoader
 {
-	String			mUrl;
+	final String	mUrl;
 
 	boolean         mIsDebugMode = false;
 
@@ -50,13 +52,13 @@ public class HippyRemoteBundleLoader implements HippyBundleLoader
 	}
 
 	@Override
-	public boolean load(HippyBridge bridge, NativeCallback callback)
-	{
+	public void load(HippyBridge bridge, NativeCallback callback) {
 		if (TextUtils.isEmpty(mUrl)) {
-			return false;
+			return;
 		}
 
-		return bridge.runScriptFromUri(mUrl, null, mCanUseCodeCache, mCodeCacheTag, callback);
+		boolean ret = bridge.runScriptFromUri(mUrl, null, mCanUseCodeCache, mCodeCacheTag, callback);
+		LogUtils.d("HippyRemoteBundleLoader", "load: ret" + ret);
 	}
 
 	@Override

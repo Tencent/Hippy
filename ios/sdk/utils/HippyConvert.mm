@@ -32,15 +32,17 @@
 
 @implementation HippyConvert
 
+// clang-format off
+
 Hippy_CONVERTER(id, id, self)
-
-    Hippy_CONVERTER(BOOL, BOOL, boolValue) Hippy_NUMBER_CONVERTER(double, doubleValue) Hippy_NUMBER_CONVERTER(float, floatValue)
-        Hippy_NUMBER_CONVERTER(int, intValue)
-
-            Hippy_NUMBER_CONVERTER(int64_t, longLongValue);
-Hippy_NUMBER_CONVERTER(uint64_t, unsignedLongLongValue);
-
-Hippy_NUMBER_CONVERTER(NSInteger, integerValue) Hippy_NUMBER_CONVERTER(NSUInteger, unsignedIntegerValue)
+Hippy_CONVERTER(BOOL, BOOL, boolValue)
+Hippy_NUMBER_CONVERTER(double, doubleValue)
+Hippy_NUMBER_CONVERTER(float, floatValue)
+Hippy_NUMBER_CONVERTER(int, intValue)
+Hippy_NUMBER_CONVERTER(int64_t, longLongValue)
+Hippy_NUMBER_CONVERTER(uint64_t, unsignedLongLongValue)
+Hippy_NUMBER_CONVERTER(NSInteger, integerValue)
+Hippy_NUMBER_CONVERTER(NSUInteger, unsignedIntegerValue)
 /**
  * This macro is used for creating converter functions for directly
  * representable json values that require no conversion.
@@ -62,12 +64,15 @@ Hippy_NUMBER_CONVERTER(NSInteger, integerValue) Hippy_NUMBER_CONVERTER(NSUIntege
     }
 #endif
 
-        Hippy_JSON_CONVERTER(NSArray) Hippy_JSON_CONVERTER(NSDictionary) Hippy_JSON_CONVERTER(NSString) Hippy_JSON_CONVERTER(NSNumber)
+Hippy_JSON_CONVERTER(NSArray)
+Hippy_JSON_CONVERTER(NSDictionary)
+Hippy_JSON_CONVERTER(NSString)
+Hippy_JSON_CONVERTER(NSNumber)
+            
+Hippy_CUSTOM_CONVERTER(NSSet *, NSSet, [NSSet setWithArray:json])
+Hippy_CUSTOM_CONVERTER(NSData *, NSData, [json dataUsingEncoding:NSUTF8StringEncoding])
 
-            Hippy_CUSTOM_CONVERTER(NSSet *, NSSet, [NSSet setWithArray:json])
-                Hippy_CUSTOM_CONVERTER(NSData *, NSData, [json dataUsingEncoding:NSUTF8StringEncoding])
-
-    + (NSIndexSet *)NSIndexSet : (id)json {
++ (NSIndexSet *)NSIndexSet : (id)json {
     json = [self NSNumberArray:json];
     NSMutableIndexSet *indexSet = [NSMutableIndexSet new];
     for (NSNumber *number in json) {
@@ -224,10 +229,10 @@ Hippy_NUMBER_CONVERTER(NSInteger, integerValue) Hippy_NUMBER_CONVERTER(NSUIntege
 // JS Standard for time is milliseconds
 Hippy_CUSTOM_CONVERTER(NSTimeInterval, NSTimeInterval, [self double:json] / 1000.0)
 
-    // JS standard for time zones is minutes.
-    Hippy_CUSTOM_CONVERTER(NSTimeZone *, NSTimeZone, [NSTimeZone timeZoneForSecondsFromGMT:[self double:json] * 60.0])
+// JS standard for time zones is minutes.
+Hippy_CUSTOM_CONVERTER(NSTimeZone *, NSTimeZone, [NSTimeZone timeZoneForSecondsFromGMT:[self double:json] * 60.0])
 
-        NSNumber *HippyConvertEnumValue(__unused const char *typeName, NSDictionary *mapping, NSNumber *defaultValue, id json) {
+NSNumber *HippyConvertEnumValue(__unused const char *typeName, NSDictionary *mapping, NSNumber *defaultValue, id json) {
     if (!json) {
         return defaultValue;
     }
@@ -272,7 +277,7 @@ HIPPY_ENUM_CONVERTER(NSLineBreakMode, (@{
     @"middle": @(NSLineBreakByTruncatingMiddle),
     @"wordWrapping": @(NSLineBreakByWordWrapping),
 }),
-    NSLineBreakByTruncatingTail, integerValue)
+NSLineBreakByTruncatingTail, integerValue)
 
 HIPPY_ENUM_CONVERTER(NSTextAlignment, (@{
     @"auto": @(NSTextAlignmentNatural),
@@ -281,7 +286,7 @@ HIPPY_ENUM_CONVERTER(NSTextAlignment, (@{
     @"right": @(NSTextAlignmentRight),
     @"justify": @(NSTextAlignmentJustified),
 }),
-    NSTextAlignmentNatural, integerValue)
+NSTextAlignmentNatural, integerValue)
 
 HIPPY_ENUM_CONVERTER(NSUnderlineStyle, (@{
     @"solid": @(NSUnderlineStyleSingle),
@@ -289,14 +294,14 @@ HIPPY_ENUM_CONVERTER(NSUnderlineStyle, (@{
     @"dotted": @(NSUnderlinePatternDot | NSUnderlineStyleSingle),
     @"dashed": @(NSUnderlinePatternDash | NSUnderlineStyleSingle),
 }),
-    NSUnderlineStyleSingle, integerValue)
+NSUnderlineStyleSingle, integerValue)
 
 HIPPY_ENUM_CONVERTER(HippyBorderStyle, (@{
     @"solid": @(HippyBorderStyleSolid),
     @"dotted": @(HippyBorderStyleDotted),
     @"dashed": @(HippyBorderStyleDashed),
 }),
-    HippyBorderStyleSolid, integerValue)
+HippyBorderStyleSolid, integerValue)
 
 HIPPY_ENUM_CONVERTER(HippyTextDecorationLineType, (@{
     @"none": @(HippyTextDecorationLineTypeNone),
@@ -304,14 +309,14 @@ HIPPY_ENUM_CONVERTER(HippyTextDecorationLineType, (@{
     @"line-through": @(HippyTextDecorationLineTypeStrikethrough),
     @"underline line-through": @(HippyTextDecorationLineTypeUnderlineStrikethrough),
 }),
-    HippyTextDecorationLineTypeNone, integerValue)
+HippyTextDecorationLineTypeNone, integerValue)
 
 HIPPY_ENUM_CONVERTER(NSWritingDirection, (@{
     @"auto": @(NSWritingDirectionNatural),
     @"ltr": @(NSWritingDirectionLeftToRight),
     @"rtl": @(NSWritingDirectionRightToLeft),
 }),
-    NSWritingDirectionNatural, integerValue)
+NSWritingDirectionNatural, integerValue)
 
 HIPPY_ENUM_CONVERTER(UITextAutocapitalizationType, (@{
     @"none": @(UITextAutocapitalizationTypeNone),
@@ -319,7 +324,7 @@ HIPPY_ENUM_CONVERTER(UITextAutocapitalizationType, (@{
     @"sentences": @(UITextAutocapitalizationTypeSentences),
     @"characters": @(UITextAutocapitalizationTypeAllCharacters)
 }),
-    UITextAutocapitalizationTypeSentences, integerValue)
+UITextAutocapitalizationTypeSentences, integerValue)
 
 HIPPY_ENUM_CONVERTER(UITextFieldViewMode, (@{
     @"never": @(UITextFieldViewModeNever),
@@ -327,7 +332,7 @@ HIPPY_ENUM_CONVERTER(UITextFieldViewMode, (@{
     @"unless-editing": @(UITextFieldViewModeUnlessEditing),
     @"always": @(UITextFieldViewModeAlways),
 }),
-    UITextFieldViewModeNever, integerValue)
+UITextFieldViewModeNever, integerValue)
 
 HIPPY_ENUM_CONVERTER(UIKeyboardType, (@{
     @"default": @(UIKeyboardTypeDefault),
@@ -347,7 +352,7 @@ HIPPY_ENUM_CONVERTER(UIKeyboardType, (@{
     @"web-search": @(UIKeyboardTypeWebSearch),
 
 }),
-    UIKeyboardTypeDefault, integerValue)
+UIKeyboardTypeDefault, integerValue)
 
 Hippy_MULTI_ENUM_CONVERTER(UIDataDetectorTypes, (@{
     @"phoneNumber": @(UIDataDetectorTypePhoneNumber),
@@ -357,59 +362,59 @@ Hippy_MULTI_ENUM_CONVERTER(UIDataDetectorTypes, (@{
     @"none": @(UIDataDetectorTypeNone),
     @"all": @(UIDataDetectorTypeAll),
 }),
-    UIDataDetectorTypePhoneNumber, unsignedIntegerValue)
+UIDataDetectorTypePhoneNumber, unsignedIntegerValue)
 
-    HIPPY_ENUM_CONVERTER(UIKeyboardAppearance, (@{
-        @"default": @(UIKeyboardAppearanceDefault),
-        @"light": @(UIKeyboardAppearanceLight),
-        @"dark": @(UIKeyboardAppearanceDark),
-    }),
-        UIKeyboardAppearanceDefault, integerValue)
+HIPPY_ENUM_CONVERTER(UIKeyboardAppearance, (@{
+    @"default": @(UIKeyboardAppearanceDefault),
+    @"light": @(UIKeyboardAppearanceLight),
+    @"dark": @(UIKeyboardAppearanceDark),
+}),
+UIKeyboardAppearanceDefault, integerValue)
 
-        HIPPY_ENUM_CONVERTER(UIReturnKeyType, (@{
-            @"default": @(UIReturnKeyDefault),
-            @"go": @(UIReturnKeyGo),
-            @"google": @(UIReturnKeyGoogle),
-            @"join": @(UIReturnKeyJoin),
-            @"next": @(UIReturnKeyNext),
-            @"route": @(UIReturnKeyRoute),
-            @"search": @(UIReturnKeySearch),
-            @"send": @(UIReturnKeySend),
-            @"yahoo": @(UIReturnKeyYahoo),
-            @"done": @(UIReturnKeyDone),
-            @"emergency-call": @(UIReturnKeyEmergencyCall)
-        }),
-            UIReturnKeyDefault, integerValue)
+HIPPY_ENUM_CONVERTER(UIReturnKeyType, (@{
+    @"default": @(UIReturnKeyDefault),
+    @"go": @(UIReturnKeyGo),
+    @"google": @(UIReturnKeyGoogle),
+    @"join": @(UIReturnKeyJoin),
+    @"next": @(UIReturnKeyNext),
+    @"route": @(UIReturnKeyRoute),
+    @"search": @(UIReturnKeySearch),
+    @"send": @(UIReturnKeySend),
+    @"yahoo": @(UIReturnKeyYahoo),
+    @"done": @(UIReturnKeyDone),
+    @"emergency-call": @(UIReturnKeyEmergencyCall)
+}),
+UIReturnKeyDefault, integerValue)
 
-            HIPPY_ENUM_CONVERTER(UIViewContentMode, (@{
-                @"scale-to-fill": @(UIViewContentModeScaleToFill),
-                @"scale-aspect-fit": @(UIViewContentModeScaleAspectFit),
-                @"scale-aspect-fill": @(UIViewContentModeScaleAspectFill),
-                @"redraw": @(UIViewContentModeRedraw),
-                @"center": @(UIViewContentModeCenter),
-                @"top": @(UIViewContentModeTop),
-                @"bottom": @(UIViewContentModeBottom),
-                @"left": @(UIViewContentModeLeft),
-                @"right": @(UIViewContentModeRight),
-                @"top-left": @(UIViewContentModeTopLeft),
-                @"top-right": @(UIViewContentModeTopRight),
-                @"bottom-left": @(UIViewContentModeBottomLeft),
-                @"bottom-right": @(UIViewContentModeBottomRight),
-                // Cross-platform values
-                @"cover": @(UIViewContentModeScaleAspectFill),
-                @"contain": @(UIViewContentModeScaleAspectFit),
-                @"stretch": @(UIViewContentModeScaleToFill),
-            }),
-                UIViewContentModeScaleAspectFill, integerValue)
+HIPPY_ENUM_CONVERTER(UIViewContentMode, (@{
+    @"scale-to-fill": @(UIViewContentModeScaleToFill),
+    @"scale-aspect-fit": @(UIViewContentModeScaleAspectFit),
+    @"scale-aspect-fill": @(UIViewContentModeScaleAspectFill),
+    @"redraw": @(UIViewContentModeRedraw),
+    @"center": @(UIViewContentModeCenter),
+    @"top": @(UIViewContentModeTop),
+    @"bottom": @(UIViewContentModeBottom),
+    @"left": @(UIViewContentModeLeft),
+    @"right": @(UIViewContentModeRight),
+    @"top-left": @(UIViewContentModeTopLeft),
+    @"top-right": @(UIViewContentModeTopRight),
+    @"bottom-left": @(UIViewContentModeBottomLeft),
+    @"bottom-right": @(UIViewContentModeBottomRight),
+    // Cross-platform values
+    @"cover": @(UIViewContentModeScaleAspectFill),
+    @"contain": @(UIViewContentModeScaleAspectFit),
+    @"stretch": @(UIViewContentModeScaleToFill),
+}),
+UIViewContentModeScaleAspectFill, integerValue)
 
-                HIPPY_ENUM_CONVERTER(UIBarStyle, (@{
-                    @"default": @(UIBarStyleDefault),
-                    @"black": @(UIBarStyleBlack),
-                }),
-                    UIBarStyleDefault, integerValue)
+HIPPY_ENUM_CONVERTER(UIBarStyle, (@{
+    @"default": @(UIBarStyleDefault),
+    @"black": @(UIBarStyleBlack),
+}),
+UIBarStyleDefault, integerValue)
 
-    // TODO: normalise the use of w/width so we can do away with the alias values (#6566645)
-    static void HippyConvertCGStructValue(__unused const char *type, NSArray *fields, NSDictionary *aliases, CGFloat *result, id json) {
+// TODO: normalise the use of w/width so we can do away with the alias values (#6566645)
+static void HippyConvertCGStructValue(__unused const char *type, NSArray *fields, NSDictionary *aliases, CGFloat *result, id json) {
     NSUInteger count = fields.count;
     if ([json isKindOfClass:[NSArray class]]) {
         if (HIPPY_DEBUG && [json count] != count) {
@@ -455,24 +460,24 @@ Hippy_MULTI_ENUM_CONVERTER(UIDataDetectorTypes, (@{
         return result;                                                               \
     }
 
-Hippy_CUSTOM_CONVERTER(CGFloat, CGFloat, [self double:json]) Hippy_CGSTRUCT_CONVERTER(CGPoint, (@[@"x", @"y"]), (@{ @"l": @"x", @"t": @"y" }))
-        Hippy_CGSTRUCT_CONVERTER(CGSize, (@[@"width", @"height"]), (@{ @"w": @"width", @"h": @"height" }))
-            Hippy_CGSTRUCT_CONVERTER(CGRect, (@[@"x", @"y", @"width", @"height"]), (@{ @"l": @"x", @"t": @"y", @"w": @"width", @"h": @"height" }))
-                Hippy_CGSTRUCT_CONVERTER(UIEdgeInsets, (@[@"top", @"left", @"bottom", @"right"]), nil)
+Hippy_CUSTOM_CONVERTER(CGFloat, CGFloat, [self double:json])
+Hippy_CGSTRUCT_CONVERTER(CGPoint, (@[@"x", @"y"]), (@{ @"l": @"x", @"t": @"y" }))
+Hippy_CGSTRUCT_CONVERTER(CGSize, (@[@"width", @"height"]), (@{ @"w": @"width", @"h": @"height" }))
+Hippy_CGSTRUCT_CONVERTER(CGRect, (@[@"x", @"y", @"width", @"height"]), (@{ @"l": @"x", @"t": @"y", @"w": @"width", @"h": @"height" }))
+Hippy_CGSTRUCT_CONVERTER(UIEdgeInsets, (@[@"top", @"left", @"bottom", @"right"]), nil)
+HIPPY_ENUM_CONVERTER(CGLineJoin, (@{
+    @"miter": @(kCGLineJoinMiter),
+    @"round": @(kCGLineJoinRound),
+    @"bevel": @(kCGLineJoinBevel),
+}),
+kCGLineJoinMiter, intValue)
 
-                    HIPPY_ENUM_CONVERTER(CGLineJoin, (@{
-                        @"miter": @(kCGLineJoinMiter),
-                        @"round": @(kCGLineJoinRound),
-                        @"bevel": @(kCGLineJoinBevel),
-                    }),
-                        kCGLineJoinMiter, intValue)
-
-                        HIPPY_ENUM_CONVERTER(CGLineCap, (@{
-                            @"butt": @(kCGLineCapButt),
-                            @"round": @(kCGLineCapRound),
-                            @"square": @(kCGLineCapSquare),
-                        }),
-                            kCGLineCapButt, intValue)
+HIPPY_ENUM_CONVERTER(CGLineCap, (@{
+    @"butt": @(kCGLineCapButt),
+    @"round": @(kCGLineCapRound),
+    @"square": @(kCGLineCapSquare),
+    }),
+kCGLineCapButt, intValue)
 
     // Hippy_CGSTRUCT_CONVERTER(CATransform3D, (@[
     //  @"m11", @"m12", @"m13", @"m14",
@@ -481,9 +486,9 @@ Hippy_CUSTOM_CONVERTER(CGFloat, CGFloat, [self double:json]) Hippy_CGSTRUCT_CONV
     //  @"m41", @"m42", @"m43", @"m44"
     //]), nil)
 
-    Hippy_CGSTRUCT_CONVERTER(CGAffineTransform, (@[@"a", @"b", @"c", @"d", @"tx", @"ty"]), nil)
+Hippy_CGSTRUCT_CONVERTER(CGAffineTransform, (@[@"a", @"b", @"c", @"d", @"tx", @"ty"]), nil)
 
-    + (UIColor *)UIColor : (id)json {
++ (UIColor *)UIColor : (id)json {
     if (!json) {
         return nil;
     }
@@ -555,15 +560,17 @@ Hippy_ARRAY_CONVERTER(NSURL) Hippy_ARRAY_CONVERTER(HippyFileURL) Hippy_ARRAY_CON
     }
 #endif
 
-        Hippy_JSON_ARRAY_CONVERTER(NSArray) Hippy_JSON_ARRAY_CONVERTER(NSString)
-    // Hippy_JSON_ARRAY_CONVERTER(NSStringArray)
-    + (NSArray<NSArray<NSString *> *> *)NSStringArrayArray : (id)json {
+Hippy_JSON_ARRAY_CONVERTER(NSArray)
+Hippy_JSON_ARRAY_CONVERTER(NSString)
+// Hippy_JSON_ARRAY_CONVERTER(NSStringArray)
++ (NSArray<NSArray<NSString *> *> *)NSStringArrayArray : (id)json {
     return HippyConvertArrayValue(@selector(NSStringArray:), json);
 }
-Hippy_JSON_ARRAY_CONVERTER(NSDictionary) Hippy_JSON_ARRAY_CONVERTER(NSNumber)
+Hippy_JSON_ARRAY_CONVERTER(NSDictionary)
+Hippy_JSON_ARRAY_CONVERTER(NSNumber)
 
-    // Can't use Hippy_ARRAY_CONVERTER due to bridged cast
-    + (NSArray *)CGColorArray : (id)json {
+// Can't use Hippy_ARRAY_CONVERTER due to bridged cast
++ (NSArray *)CGColorArray : (id)json {
     NSMutableArray *colors = [NSMutableArray new];
     for (id value in [self NSArray:json]) {
         [colors addObject:(__bridge id)[self CGColor:value]];
@@ -629,7 +636,7 @@ HIPPY_ENUM_CONVERTER(OverflowType, (@{
     @"visible": @(OverflowVisible),
     @"scroll": @(OverflowScroll),
 }),
-    OverflowVisible, intValue)
+OverflowVisible, intValue)
 
 HIPPY_ENUM_CONVERTER(FlexDirection, (@{
     @"row": @(FLexDirectionRow),
@@ -637,7 +644,7 @@ HIPPY_ENUM_CONVERTER(FlexDirection, (@{
     @"column": @(FLexDirectionColumn),
     @"column-reverse": @(FLexDirectionColumnReverse)
 }),
-    FLexDirectionColumn, intValue)
+FLexDirectionColumn, intValue)
 
 HIPPY_ENUM_CONVERTER(FlexAlign, (@{
     @"auto": @(FlexAlignAuto),
@@ -650,11 +657,11 @@ HIPPY_ENUM_CONVERTER(FlexAlign, (@{
     @"space-around": @(FlexAlignSpaceAround),
     @"space-evenly": @(FlexAlignSpaceEvenly)
 }),
-    FlexAlignAuto, intValue)
+FlexAlignAuto, intValue)
 
 HIPPY_ENUM_CONVERTER(PositionType, (@{ @"absolute": @(PositionTypeAbsolute), @"relative": @(PositionTypeRelative) }), PositionTypeRelative, intValue)
 
-HIPPY_ENUM_CONVERTER(FlexWrapMode, (@{ @"wrap": @(FlexWrap), @"nowrap": @(FlexNoWrap) }), FlexNoWrap, intValue)
+HIPPY_ENUM_CONVERTER(FlexWrapMode, (@{ @"wrap": @(FlexWrap), @"nowrap": @(FlexNoWrap), @"wrap-reverse": @(FlexWrapReverse) }), FlexNoWrap, intValue)
 
 HIPPY_ENUM_CONVERTER(
     DisplayType, (@{ @"flex": @(DisplayTypeFlex), @"block": @(DisplayTypeFlex), @"none": @(DisplayTypeNone) }), DisplayTypeFlex, intValue)
@@ -665,7 +672,7 @@ HIPPY_ENUM_CONVERTER(HippyPointerEvents, (@{
     @"box-none": @(HippyPointerEventsBoxNone),
     @"auto": @(HippyPointerEventsUnspecified)
 }),
-    HippyPointerEventsUnspecified, integerValue)
+HippyPointerEventsUnspecified, integerValue)
 
 HIPPY_ENUM_CONVERTER(HippyAnimationType, (@{
     @"spring": @(HippyAnimationTypeSpring),
@@ -675,7 +682,7 @@ HIPPY_ENUM_CONVERTER(HippyAnimationType, (@{
     @"easeInEaseOut": @(HippyAnimationTypeEaseInEaseOut),
     @"keyboard": @(HippyAnimationTypeKeyboard),
 }),
-    HippyAnimationTypeEaseInEaseOut, integerValue)
+HippyAnimationTypeEaseInEaseOut, integerValue)
 
 @end
 
@@ -731,5 +738,5 @@ HIPPY_ENUM_CONVERTER(HippyAnimationType, (@{
 + (CGImageRef)CGImage:(id)json {
     return [self UIImage:json].CGImage;
 }
-
+// clang-format on
 @end

@@ -19,15 +19,10 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 
-/**
- * @author: edsheng
- * @date: 2017/11/21 20:56
- * @version: V1.0
- */
-
+@SuppressWarnings({"unused"})
 public class HippyHandlerThread extends HandlerThread
 {
-	Handler	mHandler;
+	final Handler mHandler;
 
 	public HippyHandlerThread(String name)
 	{

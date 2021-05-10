@@ -15,15 +15,12 @@
  */
 package com.tencent.mtt.hippy.views.list;
 
-import android.util.Log;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.common.HippyMap;
-import com.tencent.mtt.hippy.common.HippyTag;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
-import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
@@ -34,14 +31,13 @@ import com.tencent.mtt.supportui.views.recyclerview.BaseLayoutManager;
 import com.tencent.mtt.supportui.views.recyclerview.LinearLayoutManager;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerView;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewItem;
-import com.tencent.mtt.supportui.views.recyclerview.Scroller;
 
 import android.content.Context;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
+@SuppressWarnings({"deprecation","unused"})
 public class HippyListView extends RecyclerView implements HippyViewBase
 {
     public final static int	REFRESH_STATE_IDLE                  = 0;
@@ -55,11 +51,9 @@ public class HippyListView extends RecyclerView implements HippyViewBase
 
     protected int mHeaderRefreshState                           = REFRESH_STATE_IDLE;
     protected int mFooterRefreshState                           = REFRESH_STATE_IDLE;
-    protected boolean mEnableRefresh                            = true;
+    protected final boolean mEnableRefresh                      = true;
 
     private HippyListAdapter					mListAdapter;
-
-    private Context								mContext;
 
     private HippyEngineContext					mHippyContext;
 
@@ -98,7 +92,6 @@ public class HippyListView extends RecyclerView implements HippyViewBase
     private void init(Context context, int orientation) {
         mHippyContext = ((HippyInstanceContext) context).getEngineContext();
         this.setLayoutManager(new LinearLayoutManager(context, orientation, false));
-        mContext = context;
         setRepeatableSuspensionMode(false);
         mListAdapter = createAdapter(this, mHippyContext);
         setAdapter(mListAdapter);
@@ -158,7 +151,14 @@ public class HippyListView extends RecyclerView implements HippyViewBase
     {
         LogUtils.d("hippylistview", "setListData");
         mListAdapter.notifyDataSetChanged();
+
+        int beforeCount = getChildCount();
         dispatchLayout();
+        int afterCount = getChildCount();
+
+        if (beforeCount == 0 && (afterCount > beforeCount) && mExposureEventEnable) {
+            dispatchExposureEvent();
+        }
     }
 
     public void setScrollBeginDragEventEnable(boolean enable)
@@ -315,14 +315,17 @@ public class HippyListView extends RecyclerView implements HippyViewBase
         }
     }
 
-    private boolean shouldStopReleaseGlowsForHorizontal() {
+    private boolean shouldStopReleaseGlowsForHorizontal(boolean fromTouch) {
         int totalHeight = mAdapter.getTotalHeight();
         if (mOffsetX <= 0 || getWidth() > (totalHeight - mState.mCustomHeaderWidth)) {
-            if (mHeaderRefreshState == REFRESH_STATE_IDLE) {
+            if (mHeaderRefreshState == REFRESH_STATE_IDLE && fromTouch) {
                 sendPullHeaderEvent(EVENT_TYPE_HEADER_RELEASED, new HippyMap());
                 mHeaderRefreshState = REFRESH_STATE_LOADING;
             }
-            smoothScrollBy(-mOffsetX, 0, false, true);
+
+            if(mOffsetX < 0) {
+                smoothScrollBy(-mOffsetX, 0, false, true);
+            }
             return true;
         } else {
             int refreshEnableOffsetX = totalHeight - getWidth() + mState.mCustomFooterWidth;
@@ -333,7 +336,7 @@ public class HippyListView extends RecyclerView implements HippyViewBase
                 }
 
                 View footerView = getCustomFooterView();
-                if (footerView != null && footerView instanceof HippyPullFooterView) {
+                if (footerView instanceof HippyPullFooterView) {
                     boolean stickEnabled = ((HippyPullFooterView) footerView).getStickEnabled();
                     if (stickEnabled) {
                         smoothScrollBy(refreshEnableOffsetX - mOffsetX, 0, false, true);
@@ -346,14 +349,16 @@ public class HippyListView extends RecyclerView implements HippyViewBase
         return false;
     }
 
-    private boolean shouldStopReleaseGlowsForVertical() {
+    private boolean shouldStopReleaseGlowsForVertical(boolean fromTouch) {
         int totalHeight = mAdapter.getTotalHeight();
         if (getOffsetY() <= 0 || getHeight() > (totalHeight - mState.mCustomHeaderHeight)) {
-            if (mHeaderRefreshState == REFRESH_STATE_IDLE) {
+            if (mHeaderRefreshState == REFRESH_STATE_IDLE && fromTouch) {
                 sendPullHeaderEvent(EVENT_TYPE_HEADER_RELEASED, new HippyMap());
                 mHeaderRefreshState = REFRESH_STATE_LOADING;
             }
-            smoothScrollBy(0, -mOffsetY, false, true);
+            if (getOffsetY() < 0) {
+                smoothScrollBy(0, -mOffsetY, false, true);
+            }
             return true;
         } else {
             int refreshEnableOffsetY = totalHeight - getHeight() + mState.mCustomFooterHeight;
@@ -364,7 +369,7 @@ public class HippyListView extends RecyclerView implements HippyViewBase
                 }
 
                 View footerView = getCustomFooterView();
-                if (footerView != null && footerView instanceof HippyPullFooterView) {
+                if (footerView instanceof HippyPullFooterView) {
                     boolean stickEnabled = ((HippyPullFooterView)footerView).getStickEnabled();
                     if (stickEnabled) {
                         smoothScrollBy(0, refreshEnableOffsetY - mOffsetY, false, true);
@@ -391,9 +396,9 @@ public class HippyListView extends RecyclerView implements HippyViewBase
             }
 
             if (mLayout.canScrollHorizontally()) {
-                return shouldStopReleaseGlowsForHorizontal();
+                return shouldStopReleaseGlowsForHorizontal(fromTouch);
             } else {
-                return shouldStopReleaseGlowsForVertical();
+                return shouldStopReleaseGlowsForVertical(fromTouch);
             }
         }
 
@@ -473,7 +478,7 @@ public class HippyListView extends RecyclerView implements HippyViewBase
     }
 
     protected void checkExposureView(View view, int visibleStart, int visibleEnd, int parentStart, int parentEnd) {
-        if (view == null || !(view instanceof HippyListItemView)) {
+        if (!(view instanceof HippyListItemView)) {
             return;
         }
 
@@ -680,12 +685,13 @@ public class HippyListView extends RecyclerView implements HippyViewBase
     {
         if (mOnScrollDragStartedEvent == null)
         {
-            mOnScrollDragStartedEvent = new OnScrollDragStartedEvent(HippyScrollViewEventHelper.EVENT_TYPE_BEGIN_DRAG);
+            mOnScrollDragStartedEvent = new OnScrollDragStartedEvent(
+                    HippyScrollViewEventHelper.EVENT_TYPE_BEGIN_DRAG);
         }
         return mOnScrollDragStartedEvent;
     }
 
-    protected class OnScrollDragStartedEvent extends HippyViewEvent
+    protected static class OnScrollDragStartedEvent extends HippyViewEvent
     {
         public OnScrollDragStartedEvent(String eventName)
         {
@@ -698,12 +704,13 @@ public class HippyListView extends RecyclerView implements HippyViewBase
     {
         if (mOnScrollDragEndedEvent == null)
         {
-            mOnScrollDragEndedEvent = new OnScrollDragEndedEvent(HippyScrollViewEventHelper.EVENT_TYPE_END_DRAG);
+            mOnScrollDragEndedEvent = new OnScrollDragEndedEvent(
+                    HippyScrollViewEventHelper.EVENT_TYPE_END_DRAG);
         }
         return mOnScrollDragEndedEvent;
     }
 
-    protected class OnScrollDragEndedEvent extends HippyViewEvent
+    protected static class OnScrollDragEndedEvent extends HippyViewEvent
     {
         public OnScrollDragEndedEvent(String eventName)
         {
@@ -716,12 +723,13 @@ public class HippyListView extends RecyclerView implements HippyViewBase
     {
         if (mOnScrollFlingStartedEvent == null)
         {
-            mOnScrollFlingStartedEvent = new OnScrollFlingStartedEvent(HippyScrollViewEventHelper.EVENT_TYPE_MOMENTUM_BEGIN);
+            mOnScrollFlingStartedEvent = new OnScrollFlingStartedEvent(
+                    HippyScrollViewEventHelper.EVENT_TYPE_MOMENTUM_BEGIN);
         }
         return mOnScrollFlingStartedEvent;
     }
 
-    protected class OnScrollFlingStartedEvent extends HippyViewEvent
+    protected static class OnScrollFlingStartedEvent extends HippyViewEvent
     {
         public OnScrollFlingStartedEvent(String eventName)
         {
@@ -734,12 +742,13 @@ public class HippyListView extends RecyclerView implements HippyViewBase
     {
         if (mOnScrollFlingEndedEvent == null)
         {
-            mOnScrollFlingEndedEvent = new OnScrollFlingEndedEvent(HippyScrollViewEventHelper.EVENT_TYPE_MOMENTUM_END);
+            mOnScrollFlingEndedEvent = new OnScrollFlingEndedEvent(
+                    HippyScrollViewEventHelper.EVENT_TYPE_MOMENTUM_END);
         }
         return mOnScrollFlingEndedEvent;
     }
 
-    protected class OnScrollFlingEndedEvent extends HippyViewEvent
+    protected static class OnScrollFlingEndedEvent extends HippyViewEvent
     {
         public OnScrollFlingEndedEvent(String eventName)
         {
@@ -757,7 +766,7 @@ public class HippyListView extends RecyclerView implements HippyViewBase
         return mOnScrollEvent;
     }
 
-    protected class OnScrollEvent extends HippyViewEvent
+    protected static class OnScrollEvent extends HippyViewEvent
     {
         public OnScrollEvent(String eventName)
         {
@@ -774,7 +783,7 @@ public class HippyListView extends RecyclerView implements HippyViewBase
         return mOnInitialListReadyEvent;
     }
 
-    private class OnInitialListReadyEvent extends HippyViewEvent
+    private static class OnInitialListReadyEvent extends HippyViewEvent
     {
         public OnInitialListReadyEvent(String eventName)
         {
@@ -782,12 +791,13 @@ public class HippyListView extends RecyclerView implements HippyViewBase
         }
     }
 
+    @SuppressWarnings("EmptyMethod")
     protected void onInitialListReady()
     {
 
     }
 
-    protected class PullElementEvent extends HippyViewEvent
+    protected static class PullElementEvent extends HippyViewEvent
     {
         public PullElementEvent(String eventName) {
             super(eventName);
@@ -798,7 +808,7 @@ public class HippyListView extends RecyclerView implements HippyViewBase
     {
         PullElementEvent event = new PullElementEvent(eventName);
         View headerView = getCustomHeaderView();
-        if (headerView != null && headerView instanceof HippyPullHeaderView) {
+        if (headerView instanceof HippyPullHeaderView) {
             event.send(headerView, param);
         }
     }
@@ -807,7 +817,7 @@ public class HippyListView extends RecyclerView implements HippyViewBase
     {
         PullElementEvent event = new PullElementEvent(eventName);
         View footerView = getCustomFooterView();
-        if (footerView != null && footerView instanceof HippyPullFooterView) {
+        if (footerView instanceof HippyPullFooterView) {
             event.send(footerView, param);
         }
     }

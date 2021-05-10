@@ -34,8 +34,10 @@ const styles = StyleSheet.create({
   pullContainer: {
     height: 60,
     backgroundColor: 'green',
+
   },
   pullContent: {
+    lineHeight: 60,
     color: 'white',
     height: 60,
     textAlign: 'center',
@@ -86,18 +88,23 @@ export default class PullHeaderExample extends React.Component {
   async onEndReached() {
     const { dataSource } = this.state;
     // ensure that only one fetching task would be running
-    if (this.fetchingDataFlag) {
+    if (this.loadMoreDataFlag) {
       return;
     }
+    this.loadMoreDataFlag = true;
     this.setState({
       dataSource: dataSource.concat([{ style: STYLE_LOADING }]),
     });
-    const newData = await this.mockFetchData();
+    let newData = [];
+    try {
+      newData = await this.mockFetchData();
+    } catch (err) {}
     const lastLineItem = dataSource[dataSource.length - 1];
     if (lastLineItem && lastLineItem.style === STYLE_LOADING) {
       dataSource.pop();
     }
     const newDataSource = dataSource.concat(newData);
+    this.loadMoreDataFlag = false;
     this.setState({ dataSource: newDataSource });
   }
 
@@ -108,13 +115,19 @@ export default class PullHeaderExample extends React.Component {
     if (this.fetchingDataFlag) {
       return;
     }
+    this.fetchingDataFlag = true;
     // eslint-disable-next-line no-console
     console.log('onHeaderReleased');
     this.setState({
-      pullingText: '刷新数据中，请稍等，3秒后自动收起',
+      pullingText: '刷新数据中，请稍等，2秒后自动收起',
     });
-    const dataSource = await this.mockFetchData();
+    let dataSource = [];
+    try {
+      dataSource = await this.mockFetchData();
+    } catch (err) {}
+    this.fetchingDataFlag = false;
     this.setState({ dataSource }, () => {
+      // 要主动调用collapsePullHeader关闭pullHeader，否则可能会导致onHeaderReleased事件不能再次触发
       this.listView.collapsePullHeader();
       this.fetchTimes = 0;
     });
@@ -186,16 +199,14 @@ export default class PullHeaderExample extends React.Component {
    */
   mockFetchData() {
     return new Promise((resolve) => {
-      this.fetchingDataFlag = true;
       setTimeout(() => {
         this.fetchTimes += 1;
         let data = [];
         if (this.fetchTimes < MAX_FETCH_TIMES) {
           data = mockData;
         }
-        this.fetchingDataFlag = false;
         return resolve(data);
-      }, 3000);
+      }, 2000);
     });
   }
 

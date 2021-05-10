@@ -147,4 +147,7 @@ HIPPY_EXTERN NSString *__nullable HippyGetURLQueryParam(NSURL *__nullable URL, N
 HIPPY_EXTERN NSURL *__nullable HippyURLByReplacingQueryParam(NSURL *__nullable URL, NSString *param, NSString *__nullable value);
 HIPPY_EXTERN NSURL *__nullable HippyURLWithString(NSString *__nonnull URLString, NSString *__nullable baseURLString);
 
+//Get String Encoding From HTTP URL Response
+HIPPY_EXTERN NSStringEncoding HippyGetStringEncodingFromURLResponse(NSURLResponse *response);
+
 NS_ASSUME_NONNULL_END

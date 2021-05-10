@@ -26,6 +26,7 @@ import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
+@SuppressWarnings({"deprecation","unused"})
 @HippyNativeModule(name = UIManagerModule.CLASS_NAME, thread = HippyNativeModule.Thread.DOM)
 public class UIManagerModule extends HippyNativeModuleBase
 {

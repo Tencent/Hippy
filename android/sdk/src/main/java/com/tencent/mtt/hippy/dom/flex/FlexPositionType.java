@@ -16,13 +16,15 @@
 package com.tencent.mtt.hippy.dom.flex;
 
 public enum FlexPositionType {
-  RELATIVE,
-  ABSOLUTE;
-  public static FlexPositionType fromInt(int value) {
-	    switch (value) {
-	      case 0: return RELATIVE;
-	      case 1: return ABSOLUTE;
-	      default: throw new IllegalArgumentException("Unknown enum value: " + value);
-	    }
-	  }
+	RELATIVE,
+	ABSOLUTE;
+
+	@SuppressWarnings("unused")
+	public static FlexPositionType fromInt(int value) {
+		switch (value) {
+			case 0: return RELATIVE;
+			case 1: return ABSOLUTE;
+			default: throw new IllegalArgumentException("Unknown enum value: " + value);
+		}
+	}
 }

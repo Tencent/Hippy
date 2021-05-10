@@ -18,32 +18,29 @@ package com.tencent.mtt.hippy.bridge;
 import android.content.res.AssetManager;
 
 import com.tencent.mtt.hippy.common.HippyArray;
+import java.nio.ByteBuffer;
 
-public interface HippyBridge
-{
-	static final String URI_SCHEME_ASSETS = "asset:";
-	static final String URI_SCHEME_FILE   = "file:";
+public interface HippyBridge {
+	String URI_SCHEME_ASSETS = "asset:";
+	String URI_SCHEME_FILE   = "file:";
 
-	public void initJSBridge(String gobalConfig, NativeCallback callback, int groupId);
+	void initJSBridge(String gobalConfig, NativeCallback callback, int groupId);
 
-	public boolean runScriptFromFile(String filePath, String scriptName, boolean canUseCodeCache, String codeCacheTag, NativeCallback callback);
-
-	public boolean runScriptFromAssets(String fileName, AssetManager assetManager, boolean canUseCodeCache, String codeCacheTag, NativeCallback callback);
-
-	public boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache, String codeCacheTag, NativeCallback callback);
+	boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache,
+			String codeCacheTag, NativeCallback callback);
 
 	void onDestroy();
 
-	public void destroy(NativeCallback callback);
+	void destroy(NativeCallback callback);
 
-	public void callFunction(String action, String params, NativeCallback callback);
+	void callFunction(String action, NativeCallback callback, ByteBuffer buffer);
 
-    public void callFunction(String action, byte[] bytes, int offset, int length, NativeCallback callback);
+	void callFunction(String action, NativeCallback callback, byte[] buffer);
+	void callFunction(String action, NativeCallback callback, byte[] buffer, int offset, int length);
 
-	public static interface BridgeCallback
-	{
-		public void callNatives(String moduleName, String moduleFunc, String callId, HippyArray params);
+	interface BridgeCallback {
+		void callNatives(String moduleName, String moduleFunc, String callId, HippyArray params);
 
-		public void reportException(String exception, String stackTrace);
+		void reportException(String exception, String stackTrace);
 	}
 }

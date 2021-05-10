@@ -25,10 +25,9 @@
 #include <memory>
 #include <mutex>  // NOLINT(build/c++11)
 
-#include "core/base/logging.h"
 #include "core/scope.h"
-#include "core/task/javascript_task_runner.h"
 #include "core/task/javascript_task.h"
+#include "core/task/javascript_task_runner.h"
 
 const uint32_t Engine::kDefaultWorkerPoolSize = 1;
 
@@ -42,13 +41,13 @@ Engine::Engine(std::unique_ptr<RegisterMap> map)
 }
 
 Engine::~Engine() {
-  HIPPY_DLOG(hippy::Debug, "~Engine");
+  TDF_BASE_DLOG(INFO) << "~Engine";
   std::lock_guard<std::mutex> lock(cnt_mutex_);
-  HIPPY_CHECK_WITH_MSG(scope_cnt_ == 0, "this engine is in use");
+  TDF_BASE_DCHECK(scope_cnt_ == 0) << "this engine is in use";
 }
 
 void Engine::TerminateRunner() {
-  HIPPY_DLOG(hippy::Debug, "~TerminateRunner");
+  TDF_BASE_DLOG(INFO) << "~TerminateRunner";
   std::lock_guard<std::mutex> lock(runner_mutex_);
   if (js_runner_) {
     js_runner_->Terminate();
@@ -62,7 +61,7 @@ void Engine::TerminateRunner() {
 
 std::shared_ptr<Scope> Engine::CreateScope(const std::string& name,
                                            std::unique_ptr<RegisterMap> map) {
-  HIPPY_DLOG(hippy::Debug, "Engine CreateScope");
+  TDF_BASE_DLOG(INFO) << "Engine CreateScope";
   std::shared_ptr<Scope> scope =
       std::make_shared<Scope>(this, name, std::move(map));
   scope->wrapper_ = std::make_unique<ScopeWrapper>(scope);
@@ -80,7 +79,7 @@ std::shared_ptr<Scope> Engine::CreateScope(const std::string& name,
 }
 
 void Engine::SetupThreads() {
-  HIPPY_DLOG(hippy::Debug, "Engine SetupThreads");
+  TDF_BASE_DLOG(INFO) << "Engine SetupThreads";
   js_runner_ = std::make_shared<JavaScriptTaskRunner>();
   js_runner_->Start();
 
@@ -93,29 +92,29 @@ void Engine::SetupThreads() {
 }
 
 void Engine::CreateVM() {
-  HIPPY_DLOG(hippy::Debug, "Engine CreateVM");
+  TDF_BASE_DLOG(INFO) << "Engine CreateVM";
   vm_ = hippy::napi::CreateVM();
 
   RegisterMap::const_iterator it = map_->find(hippy::base::kVMCreateCBKey);
   if (it != map_->end()) {
     RegisterFunction f = it->second;
     if (f) {
-      HIPPY_DLOG(hippy::Debug, "run VMCreatedCB begin");
+      TDF_BASE_DLOG(INFO) << "run VMCreatedCB begin";
       f(vm_.get());
-      HIPPY_DLOG(hippy::Debug, "run VMCreatedCB end");
+      TDF_BASE_DLOG(INFO) << "run VMCreatedCB end";
       map_->erase(it);
     }
   }
 }
 
 void Engine::Enter() {
-  HIPPY_DLOG(hippy::Debug, "Engine Enter");
+  TDF_BASE_DLOG(INFO) << "Engine Enter";
   std::lock_guard<std::mutex> lock(cnt_mutex_);
   ++scope_cnt_;
 }
 
 void Engine::Exit() {
-  HIPPY_DLOG(hippy::Debug, "Engine Exit");
+  TDF_BASE_DLOG(INFO) << "Engine Exit";
   std::lock_guard<std::mutex> lock(cnt_mutex_);
   --scope_cnt_;
 }

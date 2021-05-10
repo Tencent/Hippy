@@ -29,10 +29,10 @@ import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewBase;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewItem;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
+@SuppressWarnings({"deprecation","unused"})
 @HippyController(name = HippyListViewController.CLASS_NAME)
 public class HippyListViewController extends HippyViewController<HippyListView>
 {
@@ -118,37 +118,37 @@ public class HippyListViewController extends HippyViewController<HippyListView>
 		view.setHasSuspentedItem(enable);
 	}
 
-	@HippyControllerProps(name = "onScrollBeginDrag", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@HippyControllerProps(name = "onScrollBeginDrag", defaultType = HippyControllerProps.BOOLEAN)
 	public void setScrollBeginDragEventEnable(HippyListView view, boolean flag)
 	{
 		view.setScrollBeginDragEventEnable(flag);
 	}
 
-	@HippyControllerProps(name = "onScrollEndDrag", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@HippyControllerProps(name = "onScrollEndDrag", defaultType = HippyControllerProps.BOOLEAN)
 	public void setScrollEndDragEventEnable(HippyListView view, boolean flag)
 	{
 		view.setScrollEndDragEventEnable(flag);
 	}
 
-	@HippyControllerProps(name = "onMomentumScrollBegin", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@HippyControllerProps(name = "onMomentumScrollBegin", defaultType = HippyControllerProps.BOOLEAN)
 	public void setMomentumScrollBeginEventEnable(HippyListView view, boolean flag)
 	{
 		view.setMomentumScrollBeginEventEnable(flag);
 	}
 
-	@HippyControllerProps(name = "onMomentumScrollEnd", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@HippyControllerProps(name = "onMomentumScrollEnd", defaultType = HippyControllerProps.BOOLEAN)
 	public void setMomentumScrollEndEventEnable(HippyListView view, boolean flag)
 	{
 		view.setMomentumScrollEndEventEnable(flag);
 	}
 
-	@HippyControllerProps(name = "onScrollEnable", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@HippyControllerProps(name = "onScrollEnable", defaultType = HippyControllerProps.BOOLEAN)
 	public void setOnScrollEventEnable(HippyListView view, boolean flag)
 	{
 		view.setOnScrollEventEnable(flag);
 	}
 
-	@HippyControllerProps(name = "exposureEventEnabled", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@HippyControllerProps(name = "exposureEventEnabled", defaultType = HippyControllerProps.BOOLEAN)
 	public void setExposureEventEnable(HippyListView view, boolean flag)
 	{
 		view.setExposureEventEnable(flag);
@@ -169,7 +169,7 @@ public class HippyListViewController extends HippyViewController<HippyListView>
 	@HippyControllerProps(name = "preloadItemNumber")
 	public void setPreloadItemNumber(HippyListView view, int preloadItemNumber)
 	{
-		RecyclerViewBase.Adapter adapter = view.getAdapter();
+		RecyclerViewBase.Adapter<?> adapter = view.getAdapter();
 		if (adapter instanceof HippyListAdapter)
 		{
 			((HippyListAdapter)adapter).setPreloadItemNumber(preloadItemNumber);

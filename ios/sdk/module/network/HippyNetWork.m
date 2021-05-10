@@ -28,6 +28,7 @@
 #import "HippyUtils.h"
 #import "HippyFetchInfo.h"
 #import "objc/runtime.h"
+#import "HippyUtils.h"
 
 static char fetchInfoKey;
 
@@ -122,7 +123,6 @@ HIPPY_EXPORT_METHOD(fetch:(NSDictionary *)params resolver:(__unused HippyPromise
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(nullable NSError *)error {
     BOOL is302Response = ([task.response isKindOfClass:[NSHTTPURLResponse class]] && 302 == [(NSHTTPURLResponse *)task.response statusCode]);
     HippyFetchInfo *fetchInfo = fetchInfoForSessionTask(task);
-    //如果是302并且禁止自动跳转，那说明已经将302结果发送给服务器，不需要再次发送
     if (is302Response && fetchInfo.report302Status) {
         return;
     }
@@ -133,7 +133,8 @@ HIPPY_EXPORT_METHOD(fetch:(NSDictionary *)params resolver:(__unused HippyPromise
     } else {
         HippyPromiseResolveBlock resolver = fetchInfo.resolveBlock;
         NSData *data = fetchInfo.fetchData;
-        NSString *dataStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        NSStringEncoding dataEncoding = HippyGetStringEncodingFromURLResponse(task.response);
+        NSString *dataStr = [[NSString alloc] initWithData:data encoding:dataEncoding];
         NSHTTPURLResponse *resp = (NSHTTPURLResponse *)task.response;
         NSDictionary *result =
             @{ @"statusCode": @(resp.statusCode), @"statusLine": @"", @"respHeaders": resp.allHeaderFields ?: @ {}, @"respBody": dataStr ?: @"" };

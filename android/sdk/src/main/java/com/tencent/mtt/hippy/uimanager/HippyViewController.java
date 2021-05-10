@@ -19,7 +19,6 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Looper;
 import android.os.MessageQueue;
-import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -41,15 +40,17 @@ import com.tencent.mtt.supportui.views.IShadow;
 
 import java.util.Map;
 
+@SuppressWarnings({"deprecation","unused"})
 public abstract class HippyViewController<T extends View & HippyViewBase> implements View.OnFocusChangeListener
 {
 	private static final String	TAG						     = "HippyViewController";
 
-	private static MatrixUtil.MatrixDecompositionContext	sMatrixDecompositionContext		= new MatrixUtil.MatrixDecompositionContext();
-	private static double[]									sTransformDecompositionArray	= new double[16];
+	private static final MatrixUtil.MatrixDecompositionContext	sMatrixDecompositionContext		= new MatrixUtil.MatrixDecompositionContext();
+	private static final double[]								sTransformDecompositionArray	= new double[16];
     private boolean bUserChageFocus = false;
 
-	public View createView(HippyRootView rootView, int id, HippyEngineContext hippyEngineContext, String className,
+	@SuppressWarnings("deprecation")
+    public View createView(HippyRootView rootView, int id, HippyEngineContext hippyEngineContext, String className,
 			HippyMap initialProps) {
 		View view = null;
 
@@ -58,7 +59,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 			Context rootViewContext = rootView.getContext();
 			if (rootViewContext instanceof HippyInstanceContext)
 			{
-				Map nativeParam = ((HippyInstanceContext) rootViewContext).getNativeParams();
+				@SuppressWarnings("rawtypes") Map nativeParam = ((HippyInstanceContext) rootViewContext).getNativeParams();
 				if (nativeParam != null)
 				{
 					Object object = nativeParam.get(HippyCustomViewCreator.HIPPY_CUSTOM_VIEW_CREATOR);
@@ -137,6 +138,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 
 	}
 
+  @SuppressWarnings("SameReturnValue")
   protected StyleNode createNode(boolean isVirtual, int rootId)
   {
     return null;
@@ -166,19 +168,12 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 		return false;
 	}
 
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	protected boolean handleGestureBySelf()
 	{
 		return false;
 	}
 
-
-	/**
-	 * please use createViewImpl(Context context,HippyMap iniProps) instead ,it
-	 * will be removed no longer
-	 *
-	 * @param context
-	 * @return
-	 */
 	@Deprecated
 	protected abstract View createViewImpl(Context context);
 
@@ -329,6 +324,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 	{
 		if (request)
 		{
+			//noinspection AccessStaticViaInstance
 			Looper.getMainLooper().myQueue().addIdleHandler(new MessageQueue.IdleHandler()
 			{
 				@Override
@@ -538,7 +534,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 		}
 	}
 
-	@HippyControllerProps(name = NodeProps.ON_TOUCH_DOWN, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@HippyControllerProps(name = NodeProps.ON_TOUCH_DOWN, defaultType = HippyControllerProps.BOOLEAN)
 	public void setTouchDownHandle(T view, boolean flag)
 	{
 		if (!handleGestureBySelf())
@@ -547,7 +543,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 		}
 	}
 
-	@HippyControllerProps(name = NodeProps.ON_TOUCH_MOVE, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@HippyControllerProps(name = NodeProps.ON_TOUCH_MOVE, defaultType = HippyControllerProps.BOOLEAN)
 	public void setTouchMoveHandle(T view, boolean flag)
 	{
 		if (!handleGestureBySelf())
@@ -556,7 +552,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 		}
 	}
 
-	@HippyControllerProps(name = NodeProps.ON_TOUCH_END, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@HippyControllerProps(name = NodeProps.ON_TOUCH_END, defaultType = HippyControllerProps.BOOLEAN)
 	public void setTouchEndHandle(T view, boolean flag)
 	{
 		if (!handleGestureBySelf())
@@ -565,7 +561,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 		}
 	}
 
-	@HippyControllerProps(name = NodeProps.ON_TOUCH_CANCEL, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@HippyControllerProps(name = NodeProps.ON_TOUCH_CANCEL, defaultType = HippyControllerProps.BOOLEAN)
 	public void setTouchCancelHandle(T view, boolean flag)
 	{
 		if (!handleGestureBySelf())
@@ -574,7 +570,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 		}
 	}
 
-	@HippyControllerProps(name = NodeProps.ON_ATTACHED_TO_WINDOW, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@HippyControllerProps(name = NodeProps.ON_ATTACHED_TO_WINDOW, defaultType = HippyControllerProps.BOOLEAN)
 	public void setAttachedToWindowHandle(T view, boolean flag)
 	{
 		if (flag)
@@ -587,7 +583,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 		}
 	}
 
-	@HippyControllerProps(name = NodeProps.ON_DETACHED_FROM_WINDOW, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@HippyControllerProps(name = NodeProps.ON_DETACHED_FROM_WINDOW, defaultType = HippyControllerProps.BOOLEAN)
 	public void setDetachedFromWindowHandle(T view, boolean flag)
 	{
 		if (flag)
@@ -600,6 +596,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 		}
 	}
 
+	@SuppressWarnings("EmptyMethod")
 	@HippyControllerProps(name = NodeProps.CUSTOM_PROP)
 	public void setCustomProp(T view, String methodName, Object props)
 	{
@@ -656,34 +653,14 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 		view.setScaleY(1);
 	}
 
-	/***
-	 * dispatch the js call UI Function.
-	 * @see #dispatchFunction(View, String, HippyArray, Promise)
-	 * @param view
-	 * @param functionName
-	 * @param var
-	 */
 	public void dispatchFunction(T view, String functionName, HippyArray var)
 	{
 	}
 
-	/***
-	 * dispatch the js call UI Function with Promise to call back.
-	 *
-	 * @param view view实例
-	 * @param functionName 函数名
-	 * @param params 函数参数
-	 * @param promise 回调
-	 */
 	public void dispatchFunction(T view, String functionName, HippyArray params, Promise promise)
 	{
 	}
 
-	/***
-	 * batch complete
-	 *
-	 * @param view
-	 */
 	public void onBatchComplete(T view)
 	{
 

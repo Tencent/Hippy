@@ -23,11 +23,7 @@ import com.tencent.mtt.hippy.modules.javascriptmodules.EventDispatcher;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 
-/**
- * @author: edsheng
- * @date: 2018/6/19 11:04
- * @version: V1.0
- */
+@SuppressWarnings({"unused"})
 @HippyNativeModule(name = "DeviceEventModule",init = true)
 public class DeviceEventModule extends HippyNativeModuleBase
 {
@@ -61,12 +57,14 @@ public class DeviceEventModule extends HippyNativeModuleBase
 	 * 前端JS告知SDK：我要监听back事件（如果没有告知，则SDK不用把back事件抛给前端，这样可以加快back的处理速度，毕竟大部分hippy业务是无需监听back事件的）
 	 * @param listen 是否监听？
 	 */
+	@SuppressWarnings("unused")
 	@HippyMethod(name = "setListenBackPress")
 	public void setListenBackPress(boolean listen)
 	{
 		mIsListening = listen;
 	}
 
+	@SuppressWarnings("unused")
 	@HippyMethod(name = "invokeDefaultBackPressHandler")
 	public void invokeDefaultBackPressHandler()
 	{
@@ -91,6 +89,7 @@ public class DeviceEventModule extends HippyNativeModuleBase
 		mBackPressHandler = null;
 	}
 
+	@SuppressWarnings("DeprecatedIsStillUsed")
 	@Deprecated
 	public interface InvokeDefaultBackPress
 	{

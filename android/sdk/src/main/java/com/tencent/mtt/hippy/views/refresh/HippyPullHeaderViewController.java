@@ -28,6 +28,7 @@ import com.tencent.mtt.hippy.uimanager.PullHeaderRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.views.list.HippyListView;
 
+@SuppressWarnings({"deprecation","unused"})
 @HippyController(name = HippyPullHeaderViewController.CLASS_NAME, isLazyLoad = true)
 public class HippyPullHeaderViewController extends HippyViewController<HippyPullHeaderView>
 {
@@ -49,7 +50,7 @@ public class HippyPullHeaderViewController extends HippyViewController<HippyPull
   {
     super.dispatchFunction(view, functionName, dataArray);
     View parent = view.getParentView();
-    if (parent != null && parent instanceof HippyListView) {
+    if (parent instanceof HippyListView) {
       switch (functionName)
       {
         case "collapsePullHeader":

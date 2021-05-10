@@ -54,5 +54,6 @@ typedef NS_ENUM(NSUInteger, HippyRefreshStatus) {
 
 - (void)refresh;
 - (void)refreshFinish;
+- (void)refreshFinishWithOption:(NSDictionary *)options;
 
 @end

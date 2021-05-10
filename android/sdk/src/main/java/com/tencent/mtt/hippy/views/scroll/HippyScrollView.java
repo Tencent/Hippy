@@ -2,12 +2,7 @@ package com.tencent.mtt.hippy.views.scroll;
 
 import com.tencent.mtt.hippy.common.HippyMap;
 
-/**
- * @Description: TODO
- * @author: edsheng
- * @date: 2018/8/24 19:28
- * @version: V1.0
- */
+@SuppressWarnings("deprecation")
 public interface HippyScrollView
 {
 	void setScrollEnabled(boolean enabled);
@@ -23,8 +18,6 @@ public interface HippyScrollView
 	void setMomentumScrollBeginEventEnable(boolean enable);
 
 	void setMomentumScrollEndEventEnable(boolean enable);
-
-	void setScrollAnimationEndEventEnable(boolean enable);
 
 	void setFlingEnabled(boolean flag);
 

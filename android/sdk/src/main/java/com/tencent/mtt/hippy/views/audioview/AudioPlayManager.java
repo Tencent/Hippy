@@ -18,7 +18,6 @@ package com.tencent.mtt.hippy.views.audioview;
 
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.LogUtils;
-import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 
 import android.content.Context;
 import android.media.AudioManager;
@@ -27,18 +26,21 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.text.TextUtils;
 import android.util.SparseArray;
-import android.view.SurfaceHolder;
 
 import java.lang.ref.WeakReference;
 
+@SuppressWarnings({"FieldCanBeLocal", "rawtypes"})
 public class AudioPlayManager
 {
     private static final String					    TAG						= "AudioPlayManager";
     private MediaPlayer							    mSysMediaPlayer;													//系统播放器
     private String								    mCurrentPlayUrl;													//当前播放音频的url
     private int									    mCurrentPlayID;														//当前播放的ID
+    @SuppressWarnings("unchecked")
     private final SparseArray<AudioManagerListener>	mPlayCallbackListener	= new SparseArray();						//支持多个audio播放，但是如何释放
+    @SuppressWarnings("unchecked")
     private final SparseArray<String>				mAudioPlayUrlList		= new SparseArray();
+    @SuppressWarnings("unchecked")
     private final SparseArray<Integer>				mAudioPlayPositionList	= new SparseArray();
     private final HandlerThread						mHandlerThread			= new HandlerThread("HippyAudioPlayThread");
     private final Handler							mHandler;
@@ -74,17 +76,16 @@ public class AudioPlayManager
 
         void onPlayComplete(String playAudioUrl); //播放完成
 
+        @SuppressWarnings("unused")
         void onPlayBuffering(String playAudioUrl); //音频在缓冲中
 
+        @SuppressWarnings("unused")
         void onPlayProgress(String playAudioUrl, int currentPlayTimeMs, int audioPlayTotalTimeMs);
-    };
+    }
 
 
     public AudioPlayManager()
     {
-        /**
-         * 初始化音頻播放器
-         */
         mSysMediaPlayer = new MediaPlayer();
         mSysMediaPlayer.setAudioStreamType(AUDIO_STREAM_TYPE);
         mSysMediaPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener()
@@ -172,51 +173,43 @@ public class AudioPlayManager
      *
      * 返回 true成功
      */
-    public boolean setAudioPlayUrl(int nUiqId, String sAudioUrl, AudioManagerListener playCallback)
-    {
-        if (TextUtils.isEmpty(sAudioUrl)) //参数检查
-        {
-            return false;
+    public void setAudioPlayUrl(int nUiqId, String sAudioUrl, AudioManagerListener playCallback) {
+        if (TextUtils.isEmpty(sAudioUrl)) {
+            return;
         }
-
 
         mAudioPlayUrlList.put(nUiqId, sAudioUrl);//记录播放的url
 
-
-        if (playCallback != null) //记录播放的回调
-        {
+        if (playCallback != null) {
             mPlayCallbackListener.put(nUiqId, playCallback);
         }
-        return true;
-
     }
 
-    public boolean seekTo(int nUniqId, int seekToPos)
-    {
+    public void seekTo(int nUniqId, int seekToPos) {
         //获取播放地址
         String sAudioUrl = mAudioPlayUrlList.get(nUniqId);
-        if (TextUtils.isEmpty(sAudioUrl))
-            return false;
+        if (TextUtils.isEmpty(sAudioUrl)) {
+            return;
+        }
 
         if (mCurrentPlayID == nUniqId && sAudioUrl.equals(mCurrentPlayUrl)) //如果请求播放的音频和当前播放的音频是一样的
         {
             mSysMediaPlayer.seekTo(seekToPos);
         }
-        return true;
     }
 
     /**
      * 播放音频
      */
-    public boolean playAudio(int nUniqId)
-    {
-        try
-        {
+    public void playAudio(int nUniqId) {
+        try {
             //获取播放地址
             String sAudioUrl = mAudioPlayUrlList.get(nUniqId);
-            if (TextUtils.isEmpty(sAudioUrl))
-                return false;
-            AudioManagerListener currentPlayCallback = null;
+            if (TextUtils.isEmpty(sAudioUrl)) {
+                return;
+            }
+
+            AudioManagerListener currentPlayCallback;
 
             if (mCurrentPlayID == nUniqId && sAudioUrl.equals(mCurrentPlayUrl)) //如果请求播放的音频和当前播放的音频是一样的
             {
@@ -268,20 +261,17 @@ public class AudioPlayManager
             mCurrentPlayUrl = null;
             mCurrentPlayID = -1;
             LogUtils.d(TAG, "play audio exception" + exception.getMessage());
-            return false;
         }
-        return true;
     }
 
     /**
      * 释放音频播放
      */
-    public boolean releaseAudio(int nUniqId)
-    {
+    public void releaseAudio(int nUniqId) {
         String sAudioUrl = mAudioPlayUrlList.get(nUniqId);
 
-        if (!TextUtils.isEmpty(mCurrentPlayUrl)  && mCurrentPlayUrl.equals(sAudioUrl) && nUniqId == mCurrentPlayID )
-        {
+        if (!TextUtils.isEmpty(mCurrentPlayUrl) && mCurrentPlayUrl.equals(sAudioUrl)
+                && nUniqId == mCurrentPlayID ) {
             mSysMediaPlayer.stop();
             mSysMediaPlayer.reset();
             mCurrentPlayID = -1;
@@ -290,18 +280,17 @@ public class AudioPlayManager
         mAudioPlayUrlList.delete(nUniqId);
         mPlayCallbackListener.delete(nUniqId);
         mAudioPlayPositionList.delete(nUniqId);
-
-        return true;
     }
 
     /**
      * 暂停音频播放
      */
-    public boolean pauseAudio(int nUniqId)
-    {
+    public void pauseAudio(int nUniqId) {
         String sAudioUrl = mAudioPlayUrlList.get(nUniqId);
-        if (TextUtils.isEmpty(mCurrentPlayUrl) || !mCurrentPlayUrl.equals(sAudioUrl) || nUniqId != mCurrentPlayID || !mSysMediaPlayer.isPlaying())
-            return false;
+        if (TextUtils.isEmpty(mCurrentPlayUrl) || !mCurrentPlayUrl.equals(sAudioUrl)
+                || nUniqId != mCurrentPlayID || !mSysMediaPlayer.isPlaying()) {
+            return;
+        }
         mSysMediaPlayer.pause();
         mAudioPlayPositionList.put(mCurrentPlayID, mSysMediaPlayer.getCurrentPosition());
         AudioManagerListener currentPlayCallback = mPlayCallbackListener.get(mCurrentPlayID);
@@ -309,17 +298,17 @@ public class AudioPlayManager
         {
             currentPlayCallback.onPlayPause(mCurrentPlayUrl);
         }
-        return true;
     }
 
     /**
      * 暂停音频播放
      */
-    public boolean stopAudio(int nUniqId)
-    {
+    public void stopAudio(int nUniqId) {
         String sAudioUrl = mAudioPlayUrlList.get(nUniqId);
-        if (TextUtils.isEmpty(mCurrentPlayUrl) || !mCurrentPlayUrl.equals(sAudioUrl) || nUniqId != mCurrentPlayID || !mSysMediaPlayer.isPlaying())
-            return false;
+        if (TextUtils.isEmpty(mCurrentPlayUrl) || !mCurrentPlayUrl.equals(sAudioUrl)
+                || nUniqId != mCurrentPlayID || !mSysMediaPlayer.isPlaying()) {
+            return;
+        }
         mSysMediaPlayer.stop();
         mAudioPlayPositionList.put(mCurrentPlayID, mSysMediaPlayer.getCurrentPosition());
         AudioManagerListener currentPlayCallback = mPlayCallbackListener.get(mCurrentPlayID);
@@ -327,7 +316,6 @@ public class AudioPlayManager
         {
             currentPlayCallback.onPlayPause(mCurrentPlayUrl);
         }
-        return true;
     }
 
     public int currentPlayAudioPosition()
@@ -340,7 +328,7 @@ public class AudioPlayManager
         return mSysMediaPlayer.getDuration();
     }
 
-
+    @SuppressWarnings("unused")
     public void release()
     {
         if (mSysMediaPlayer != null)
@@ -364,9 +352,7 @@ public class AudioPlayManager
         mHandler.post(mRunnable);
     }
 
-    /**
-     * 获取声音播放焦点
-     */
+    @SuppressWarnings("unused")
     public static int requestAudioFocus()
     {
         return requestAudioFocus(null);
@@ -374,7 +360,7 @@ public class AudioPlayManager
 
     public interface OnAudioStateChange
     {
-        public void onChange(int state);
+        void onChange(int state);
     }
 
     private static Object		afChangeListener;
@@ -384,7 +370,7 @@ public class AudioPlayManager
     public static int requestAudioFocus(OnAudioStateChange onAudioStateChange)
     {
         int result = 0;
-        final WeakReference<OnAudioStateChange> reference = new WeakReference<OnAudioStateChange>(onAudioStateChange);
+        final WeakReference<OnAudioStateChange> reference = new WeakReference<>(onAudioStateChange);
         try
         {
             // 创建监听器
@@ -397,7 +383,8 @@ public class AudioPlayManager
                         audioManager.abandonAudioFocus((AudioManager.OnAudioFocusChangeListener) afChangeListener);
                         // 停止播放
                     }
-                    else if (focusChange == AudioManager.AUDIOFOCUS_GAIN)
+                    else //noinspection StatementWithEmptyBody
+                        if (focusChange == AudioManager.AUDIOFOCUS_GAIN)
                     {
                         // 恢复播放
                     }
@@ -406,15 +393,12 @@ public class AudioPlayManager
                         audioManager.abandonAudioFocus((AudioManager.OnAudioFocusChangeListener) afChangeListener);
                         // 停止播放
                     }
-                    if (reference != null)
+                    OnAudioStateChange callback = reference.get();
+                    if (callback != null)
                     {
-                        OnAudioStateChange callback = reference.get();
-                        if (callback != null)
-                        {
-                            callback.onChange(focusChange);
-                        }
-
+                        callback.onChange(focusChange);
                     }
+
                 }
             };
             // 请求播放的音频焦点
@@ -432,10 +416,7 @@ public class AudioPlayManager
         return result;
     }
 
-    /**
-     * 释放声音播放焦点
-     *
-     */
+    @SuppressWarnings("unused")
     public static void abandonAudioFocus() {
         try {
             if (audioManager != null) {

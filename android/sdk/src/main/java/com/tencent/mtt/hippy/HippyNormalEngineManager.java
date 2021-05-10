@@ -15,19 +15,16 @@
  */
 package com.tencent.mtt.hippy;
 
-import android.os.Handler;
-import android.os.Looper;
 import com.tencent.mtt.hippy.bridge.HippyBridgeManagerImpl;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
-import com.tencent.mtt.hippy.common.Callback;
 import com.tencent.mtt.hippy.common.ThreadExecutor;
-import com.tencent.mtt.hippy.utils.LogUtils;
 
+@SuppressWarnings({"unused"})
 public final class HippyNormalEngineManager extends HippyEngineManagerImpl
 {
 	private volatile ThreadExecutor mThreadExecutor;
 
-	private Object					mLock	= new Object();
+	private final Object mLock = new Object();
 
 	HippyNormalEngineManager(EngineInitParams params, HippyBundleLoader preloadBundleLoader)
 	{
@@ -43,11 +40,6 @@ public final class HippyNormalEngineManager extends HippyEngineManagerImpl
 				mThreadExecutor = null;
 			}
 		}
-	}
-
-	@Override
-	public void destroyEngine() {
-		super.destroyEngine();
 	}
 
 	@Override

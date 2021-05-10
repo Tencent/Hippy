@@ -131,11 +131,6 @@ HIPPY_EXTERN void HippyVerifyAllModulesExported(NSArray *extraModules);
 - (NSArray *)configForModuleName:(NSString *)moduleName;
 
 /**
- * Hook exposed for HippyLog to send logs to JavaScript when not running in JSC
- */
-- (void)logMessage:(NSString *)message level:(NSString *)level;
-
-/**
  * Allow super fast, one time, timers to skip the queue and be directly executed
  */
 - (void)_immediatelyCallTimer:(NSNumber *)timer;

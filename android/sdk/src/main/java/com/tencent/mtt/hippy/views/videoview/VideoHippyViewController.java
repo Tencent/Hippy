@@ -10,6 +10,7 @@ import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import android.content.Context;
 import android.view.View;
 
+@SuppressWarnings({"deprecation","unused"})
 @HippyController(name = VideoHippyViewController.CLASS_NAME)
 public class VideoHippyViewController extends HippyViewController<VideoHippyView> {
 
@@ -60,8 +61,6 @@ public class VideoHippyViewController extends HippyViewController<VideoHippyView
     public void setSrc(final VideoHippyView videoView,  String source) {
         int mainVer = 0;
         int patchVer = 0;
-        if(mainVer<0) { mainVer = 0; }
-        if(patchVer<0) { patchVer = 0; }
         videoView.setSrc(
                 source,
                 "mp4",
@@ -78,17 +77,17 @@ public class VideoHippyViewController extends HippyViewController<VideoHippyView
         videoView.setResizeModeModifier(ScalableType.values()[Integer.parseInt(resizeModeOrdinalString)]);
     }
 
-    @HippyControllerProps(name = PROP_REPEAT,defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+    @HippyControllerProps(name = PROP_REPEAT,defaultType = HippyControllerProps.BOOLEAN)
     public void setRepeat(final VideoHippyView videoView, final boolean repeat) {
         videoView.setRepeatModifier(repeat);
     }
 
-    @HippyControllerProps(name = PROP_PAUSED,defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+    @HippyControllerProps(name = PROP_PAUSED,defaultType = HippyControllerProps.BOOLEAN)
     public void setPaused(final VideoHippyView videoView, final boolean paused) {
         videoView.setPausedModifier(paused);
     }
 
-    @HippyControllerProps(name = PROP_MUTED,defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+    @HippyControllerProps(name = PROP_MUTED,defaultType = HippyControllerProps.BOOLEAN)
     public void setMuted(final VideoHippyView videoView, final boolean muted) {
         videoView.setMutedModifier(muted);
     }
@@ -118,23 +117,17 @@ public class VideoHippyViewController extends HippyViewController<VideoHippyView
         videoView.setRateModifier(rate);
     }
 
-    @HippyControllerProps(name = PROP_FULLSCREEN,defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+    @HippyControllerProps(name = PROP_FULLSCREEN,defaultType = HippyControllerProps.BOOLEAN)
     public void setFullscreen(final VideoHippyView videoView, final boolean fullscreen) {
         videoView.setFullscreen(fullscreen);
     }
 
-    @HippyControllerProps(name = PROP_PLAY_IN_BACKGROUND,defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+    @HippyControllerProps(name = PROP_PLAY_IN_BACKGROUND,defaultType = HippyControllerProps.BOOLEAN)
     public void setPlayInBackground(final VideoHippyView videoView, final boolean playInBackground) {
         videoView.setPlayInBackground(playInBackground);
     }
 
-    @HippyControllerProps(name = PROP_CONTROLS,defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
-    public void setControls(final VideoHippyView videoView, final boolean controls) {
-        // NOT SUPPORT Yet
-        // videoView.setControls(controls);
-    }
-
-    @HippyControllerProps(name = PROP_AUTOPLAY,defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+    @HippyControllerProps(name = PROP_AUTOPLAY,defaultType = HippyControllerProps.BOOLEAN)
     public void setAutoPlay(final VideoHippyView videoView, final boolean autoPlay) {
          videoView.setAutoPlay(autoPlay);
     }

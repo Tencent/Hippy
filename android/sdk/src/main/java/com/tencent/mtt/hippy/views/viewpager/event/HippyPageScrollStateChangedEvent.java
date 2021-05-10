@@ -24,11 +24,12 @@ import android.view.View;
  * Created by huskyzhyu on 2017/12/15.
  */
 
+@SuppressWarnings("deprecation")
 public class HippyPageScrollStateChangedEvent extends HippyViewEvent
 {
 	public static final String EVENT_NAME	= "onPageScrollStateChanged";
 
-	private View mTarget;
+	private final View mTarget;
 
 	public HippyPageScrollStateChangedEvent(View target)
 	{

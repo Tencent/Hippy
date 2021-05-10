@@ -17,13 +17,8 @@ package com.tencent.mtt.hippy.adapter.sharedpreferences;
 
 import android.content.SharedPreferences;
 
-/**
- * FileName: HippySharedPreferencesAdapter
- * Description：
- * History：
- * 1.0 xiandongluo on 2017/11/13
- */
+@SuppressWarnings({"unused"})
 public interface HippySharedPreferencesAdapter
 {
-    public SharedPreferences getSharedPreferences();
+    SharedPreferences getSharedPreferences();
 }

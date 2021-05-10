@@ -30,25 +30,25 @@ import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 
-import java.io.File;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Stack;
 
+@SuppressWarnings({"unused"})
 public class DevServerImpl implements View.OnClickListener, DevServerInterface, DevExceptionDialog.OnReloadListener,
 		DevRemoteDebugManager.RemoteDebugExceptionHandler, LiveReloadController.LiveReloadCallback
 {
 	private static final String			TAG	= "DevServerImpl";
 
-	DevServerHelper                     mFetchHelper;
+	final DevServerHelper               mFetchHelper;
 	DevServerCallBack					mServerCallBack;
 	ProgressDialog						mProgressDialog;
 	DevExceptionDialog					mExceptionDialog;
-	private DevServerConfig				mServerConfig;
-	private HashMap<Context, DevFloatButton> mHostButtonMap;
+	private final DevServerConfig				mServerConfig;
+	private final HashMap<Context, DevFloatButton> mHostButtonMap;
 	// 一个 DevServerImpl 实例可管理多个 HippyRootView 的调试，对应多个DebugButton
-	private Stack<DevFloatButton>		mDebugButtonStack;
-	private LiveReloadController		mLiveReloadController;
+	private final Stack<DevFloatButton>		mDebugButtonStack;
+	private final LiveReloadController		mLiveReloadController;
 
 	DevServerImpl(HippyGlobalConfigs configs, String serverHost, String bundleName)
 	{
@@ -79,11 +79,6 @@ public class DevServerImpl implements View.OnClickListener, DevServerInterface, 
 			mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 		}
 		mProgressDialog.show();
-	}
-
-	public void reload()
-	{
-		reload(null);
 	}
 
 	@Override
@@ -130,8 +125,7 @@ public class DevServerImpl implements View.OnClickListener, DevServerInterface, 
 
 	@Override
 	public String createResourceUrl(String resName) {
-		String resUrl = mFetchHelper.createBundleURL(mServerConfig.getServerHost(), resName, mServerConfig.enableRemoteDebug(), false, false);
-		return resUrl;
+		return mFetchHelper.createBundleURL(mServerConfig.getServerHost(), resName, mServerConfig.enableRemoteDebug(), false, false);
 	}
 
 	@Override
@@ -150,11 +144,6 @@ public class DevServerImpl implements View.OnClickListener, DevServerInterface, 
 			}
 
 			@Override
-			public void onSuccess(File file)
-			{
-			}
-
-			@Override
 			public void onFail(Exception exception) {
 				if (serverCallBack != null) {
 					serverCallBack.onInitDevError(exception);
@@ -166,11 +155,11 @@ public class DevServerImpl implements View.OnClickListener, DevServerInterface, 
 					handleException(exception);
 				}
 			}
-		}, url, null);
+		}, url);
 	}
 
 	@Override
-	public void reload(DevRemoteDebugProxy remoteDebugManager)
+	public void reload()
 	{
 		if (mServerCallBack != null) {
 			mServerCallBack.onDevBundleReLoad();
@@ -261,6 +250,7 @@ public class DevServerImpl implements View.OnClickListener, DevServerInterface, 
 		reload();
 	}
 
+	@SuppressWarnings("unused")
 	@Override
 	public void onHandleRemoteDebugException(Throwable t)
 	{

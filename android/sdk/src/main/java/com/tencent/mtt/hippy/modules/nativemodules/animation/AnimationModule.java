@@ -36,6 +36,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+@SuppressWarnings({"deprecation", "unused"})
 @HippyNativeModule(name = "AnimationModule", thread = HippyNativeModule.Thread.DOM)
 public class AnimationModule extends HippyNativeModuleBase implements DomActionInterceptor, Animation.AnimationListener, Handler.Callback,
 		HippyEngineLifecycleEventListener
@@ -58,13 +59,14 @@ public class AnimationModule extends HippyNativeModuleBase implements DomActionI
 	private SparseArray<AnimationNode>	mAnimationNodes;
 	private Handler						mHandler;
 	private long						mLastUpdateTime;
-	private Set<Integer>				mNeedUpdateAnimationNodes;
+	private final Set<Integer>			mNeedUpdateAnimationNodes;
 	private Set<AnimationNode>			mWaitUpdateAnimationNodes;
 
 
 	public AnimationModule(HippyEngineContext context)
 	{
 		super(context);
+		mNeedUpdateAnimationNodes = Collections.synchronizedSet(new HashSet<Integer>());
 	}
 
 	@Override
@@ -103,7 +105,6 @@ public class AnimationModule extends HippyNativeModuleBase implements DomActionI
 	public void initialize()
 	{
 		super.initialize();
-		mNeedUpdateAnimationNodes = Collections.synchronizedSet(new HashSet<Integer>());
 		mContext.addEngineLifecycleEventListener(this);
 		mHandler = new Handler(mContext.getThreadExecutor().getDomThread().getLooper(), this);
 		mAnimations = new SparseArray<>();
@@ -163,10 +164,7 @@ public class AnimationModule extends HippyNativeModuleBase implements DomActionI
 			return;
 		}
 
-		for (int nodeId : nodeIds)
-		{
-			mNeedUpdateAnimationNodes.add(nodeId);
-		}
+		mNeedUpdateAnimationNodes.addAll(nodeIds);
 
 		if (!mHandler.hasMessages(MSG_CHANGE_ANIMATION_STATUS))
 		{
@@ -174,6 +172,7 @@ public class AnimationModule extends HippyNativeModuleBase implements DomActionI
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@HippyMethod(name = "createAnimation")
 	public void createAnimation(int animationId, String mode, HippyMap params)
 	{
@@ -221,6 +220,7 @@ public class AnimationModule extends HippyNativeModuleBase implements DomActionI
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@HippyMethod(name = "updateAnimation")
 	public void updateAnimation(int animationId, HippyMap params)
 	{
@@ -241,6 +241,7 @@ public class AnimationModule extends HippyNativeModuleBase implements DomActionI
 
 	}
 
+	@SuppressWarnings("unused")
 	@HippyMethod(name = "createAnimationSet")
 	public void createAnimationSet(int animationId, HippyMap mapParams)
 	{
@@ -260,7 +261,7 @@ public class AnimationModule extends HippyNativeModuleBase implements DomActionI
 
 				int size = params.size();
 				HippyMap map;
-				int childId = 0;
+				int childId;
 				boolean follow = false;
 				for (int i = 0; i < size; i++)
 				{
@@ -285,6 +286,7 @@ public class AnimationModule extends HippyNativeModuleBase implements DomActionI
 		mAnimations.append(animationId, animatorSet);
 	}
 
+	@SuppressWarnings("unused")
 	@HippyMethod(name = "startAnimation")
 	public void startAnimation(int animationId)
 	{
@@ -305,7 +307,7 @@ public class AnimationModule extends HippyNativeModuleBase implements DomActionI
 		}
 	}
 
-	// 暂停动画，xqkuang需求
+	@SuppressWarnings("unused")
 	@HippyMethod(name = "pauseAnimation")
 	public void pauseAnimation(int animationId)
 	{
@@ -316,7 +318,7 @@ public class AnimationModule extends HippyNativeModuleBase implements DomActionI
 		}
 	}
 
-	// 继续动画，xqkuang需求
+	@SuppressWarnings("unused")
 	@HippyMethod(name = "resumeAnimation")
 	public void resumeAnimation(int animationId)
 	{
@@ -327,12 +329,13 @@ public class AnimationModule extends HippyNativeModuleBase implements DomActionI
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@HippyMethod(name = "destroyAnimation")
 	public void destroyAnimation(int animationId)
 	{
 		stopAnimation(animationId);
 		Animation animation = mAnimations.get(animationId);
-		if (animation != null && animation instanceof AnimationSet)
+		if (animation instanceof AnimationSet)
 		{
 			ArrayList<Integer> childIds = ((AnimationSet) animation).getChildAnimationIds();
 			if (childIds != null)
@@ -423,7 +426,7 @@ public class AnimationModule extends HippyNativeModuleBase implements DomActionI
 		//		LogUtils.d("AnimationModule","dom  updateNode node id : "+tagId+" onUpdateAnimationProperty width:" +props.get("width"));
 		if (props == null)
 		{
-			return props;
+			return null;
 		}
 		if (props.containsKey(HANDLE_MESSAGE_BY_ANIMATION) && props.getBoolean(HANDLE_MESSAGE_BY_ANIMATION))
 		{
@@ -603,11 +606,7 @@ public class AnimationModule extends HippyNativeModuleBase implements DomActionI
 		{
 			return false;
 		}
-		if (props.containsKey(ANIMATION_ID) && props.size() == 1)
-		{
-			return true;
-		}
-		return false;
+		return props.containsKey(ANIMATION_ID) && props.size() == 1;
 	}
 
 	private Object findAnimationValue(int tagId, int animationId)

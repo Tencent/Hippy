@@ -27,48 +27,51 @@
 #include <string.h>
 
 #include "core/core.h"
-#include "jni/hippy_buffer.h"  // NOLINT(build/include_subdir)
 
-size_t SafeGetArrayLength(JNIEnv* env, const jbyteArray& jarray) {
-  HIPPY_DCHECK(jarray);
-  jsize length = env->GetArrayLength(jarray);
-  return static_cast<size_t>(std::max(0, length));
+jsize SafeGetArrayLength(JNIEnv* j_env, const jbyteArray& j_byte_array) {
+  TDF_BASE_DCHECK(j_byte_array);
+  jsize j_size = j_env->GetArrayLength(j_byte_array);
+  return std::max(0, j_size);
 }
 
-std::string JniUtils::AppendJavaByteArrayToString(JNIEnv* env,
-                                                  jbyteArray byte_array) {
-  if (!byte_array) {
+std::string JniUtils::AppendJavaByteArrayToString(JNIEnv* j_env,
+                                                  jbyteArray j_byte_array,
+                                                  jsize j_offset) {
+  if (!j_byte_array) {
     return "";
   }
 
-  size_t len = SafeGetArrayLength(env, byte_array);
-  if (!len) {
+  auto j_length = SafeGetArrayLength(j_env, j_byte_array);
+  if (!j_length) {
     return "";
   }
+
+  return AppendJavaByteArrayToString(j_env, j_byte_array, j_offset, j_length);
+}
+
+std::string JniUtils::AppendJavaByteArrayToString(JNIEnv* j_env,
+                                                  jbyteArray j_byte_array,
+                                                  jsize j_offset,
+                                                  jsize j_length) {
+  if (!j_byte_array) {
+    return "";
+  }
+
   std::string ret;
-  ret.resize(len);
-  env->GetByteArrayRegion(byte_array, 0, len,
+  ret.resize(j_length);
+  j_env->GetByteArrayRegion(j_byte_array, j_offset, j_length,
                           reinterpret_cast<int8_t*>(&ret[0]));
   return ret;
 }
 
-// todo
-// 暂时只有简单字符，没有中文等的场景，为效率和包大小考虑，不进行utf16到utf8的转换
-std::string JniUtils::CovertJavaStringToString(JNIEnv* env, jstring str) {
-  HIPPY_DCHECK(str);
+std::string JniUtils::CovertJavaStringToString(JNIEnv* j_env, jstring j_str) {
+  TDF_BASE_DCHECK(j_str);
 
-  const char* c_str = env->GetStringUTFChars(str, NULL);
-  const int len = env->GetStringLength(str);
+  const char* c_str = j_env->GetStringUTFChars(j_str, NULL);
+  const int len = j_env->GetStringLength(j_str);
   std::string ret(c_str, len);
-  env->ReleaseStringUTFChars(str, c_str);
+  j_env->ReleaseStringUTFChars(j_str, c_str);
   return ret;
-}
-
-HippyBuffer* JniUtils::WriteToBuffer(v8::Isolate* isolate,
-                                     v8::Local<v8::Object> value) {
-  HippyBuffer* buffer = NewBuffer();
-  BuildBuffer(isolate, value, buffer);
-  return buffer;
 }
 
 void JniUtils::printCurrentThreadID() {

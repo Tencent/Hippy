@@ -63,6 +63,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings({"unused", "rawtypes"})
 public class HippyCoreAPI implements HippyAPIProvider
 {
 	public final static String VIDEO_CONTROLLER_CLASS_NAME = "com.tencent.mtt.hippy.views.videoview.VideoHippyViewController";
@@ -230,9 +231,11 @@ public class HippyCoreAPI implements HippyAPIProvider
 		return components;
 	}
 
+	@SuppressWarnings("SameParameterValue")
 	private void addControllerWithClassName(String className, List<Class<? extends HippyViewController>> components) {
 		try {
 			Class videoControllerClass = Class.forName(className);
+			//noinspection unchecked
 			components.add(videoControllerClass);
 		} catch (ClassNotFoundException ignore) {
 			LogUtils.d("HippyCoreAPI", "not contain video component, make sure current project config!");

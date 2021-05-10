@@ -18,13 +18,7 @@ package com.tencent.mtt.hippy.utils;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 
-/**
- * @Description: TODO
- * @author: edsheng
- * @date: 2017/11/24 15:54
- * @version: V1.0
- */
-
+@SuppressWarnings({"unused"})
 public class PixelUtil
 {
 	static DisplayMetrics sMetrics = null;

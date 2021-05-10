@@ -15,13 +15,7 @@
  */
 package com.tencent.mtt.hippy.views.list;
 
-/**
- * @Description: TODO
- * @author: edsheng
- * @date: 2018/2/28 19:45
- * @version: V1.0
- */
-
+@SuppressWarnings({"unused"})
 public interface HippyRecycler
 {
 	//恢复默认的时候使用

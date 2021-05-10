@@ -22,13 +22,17 @@
 
 #pragma once
 
+#include "bridge/entry.h"
+#include "bridge/java2js.h"
+#include "bridge/js2java.h"
+#include "bridge/runtime.h"
+#include "bridge/serializer.h"
 #include "inspector/v8_channel_impl.h"
 #include "inspector/v8_inspector_client_impl.h"
-#include "jni/com_tencent_mtt_hippy_bridge_HippyBridgeImpl.h"
 #include "jni/exception_handler.h"
 #include "jni/jni_env.h"
+#include "jni/jni_register.h"
 #include "jni/jni_utils.h"
-#include "jni/runtime.h"
 #include "jni/scoped_java_ref.h"
 #include "loader/adr_loader.h"
 #include "v8/v8.h"

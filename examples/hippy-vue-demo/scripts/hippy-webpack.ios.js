@@ -1,3 +1,4 @@
+const fs                          = require('fs');
 const path                        = require('path');
 const webpack                     = require('webpack');
 const VueLoaderPlugin             = require('vue-loader/lib/plugin');
@@ -19,7 +20,7 @@ module.exports = {
     path: path.resolve(`./dist/${platform}/`),
     globalObject: '(0, eval)("this")',
     // CDN path can be configured to load children bundles from remote server
-    // publicPath: 'CDNPath',
+    // publicPath: 'https://static.res.qq.com/hippy/hippyVueDemo/',
   },
   plugins: [
     new webpack.NamedModulesPlugin(),
@@ -83,12 +84,16 @@ module.exports = {
         ],
       },
       {
-        test: /\.(png|jpg|gif)$/,
+        test: /\.(png|jpe?g|gif)$/i,
         use: [{
-          loader: 'file-loader',
+          loader: 'url-loader',
           options: {
-            name: '[name].[ext]',
-            outputPath: 'assets/',
+            limit: true,
+            // TODO local path not supported on defaultSource/backgroundImage
+            // limit: 8192,
+            // fallback: 'file-loader',
+            // name: '[name].[ext]',
+            // outputPath: 'assets/',
           },
         }],
       },
@@ -96,10 +101,53 @@ module.exports = {
   },
   resolve: {
     extensions: ['.js', '.vue', '.json'],
-    alias: {
-      vue: '@hippy/vue',
-      '@': path.resolve('./src'),
-      'vue-router': '@hippy/vue-router',
-    },
+    // if node_modules path listed below is not your repo directory, change it.
+    modules: [path.resolve(__dirname, '../node_modules')],
+    alias: (() => {
+      const aliases = {
+        vue: '@hippy/vue',
+        '@': path.resolve('./src'),
+        'vue-router': '@hippy/vue-router',
+      };
+
+      // If hippy-vue was built exist then make a alias
+      // Remove the section if you don't use it
+      const hippyVuePath = path.resolve(__dirname, '../../../packages/hippy-vue');
+      if (fs.existsSync(path.resolve(hippyVuePath, 'dist/index.js'))) {
+        /* eslint-disable-next-line no-console */
+        console.warn(`* Using the @hippy/vue in ${hippyVuePath} as vue alias`);
+        aliases.vue = hippyVuePath;
+        aliases['@hippy/vue'] = hippyVuePath;
+      } else {
+        /* eslint-disable-next-line no-console */
+        console.warn('* Using the @hippy/vue defined in package.json');
+      }
+
+      // If hippy-vue-router was built exist then make a alias
+      // Remove the section if you don't use it
+      const hippyVueRouterPath = path.resolve(__dirname, '../../../packages/hippy-vue-router');
+      if (fs.existsSync(path.resolve(hippyVueRouterPath, 'dist/index.js'))) {
+        /* eslint-disable-next-line no-console */
+        console.warn(`* Using the @hippy/vue-router in ${hippyVueRouterPath} as vue-router alias`);
+        aliases['vue-router'] = hippyVueRouterPath;
+      } else {
+        /* eslint-disable-next-line no-console */
+        console.warn('* Using the @hippy/vue-router defined in package.json');
+      }
+
+      // If hippy-vue-router was built exist then make a alias
+      // Remove the section if you don't use it
+      const hippyVueNativeComponentsPath = path.resolve(__dirname, '../../../packages/hippy-vue-native-components');
+      if (fs.existsSync(path.resolve(hippyVueNativeComponentsPath, 'dist/index.js'))) {
+        /* eslint-disable-next-line no-console */
+        console.warn(`* Using the @hippy/vue-native-components in ${hippyVueNativeComponentsPath}`);
+        aliases['@hippy/vue-native-components'] = hippyVueNativeComponentsPath;
+      } else {
+        /* eslint-disable-next-line no-console */
+        console.warn('* Using the @hippy/vue-native-components defined in package.json');
+      }
+
+      return aliases;
+    })(),
   },
 };

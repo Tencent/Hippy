@@ -1,8 +1,8 @@
 package com.tencent.mtt.hippy.views.videoview;
 public class Size {
 
-    private int mWidth;
-    private int mHeight;
+    private final int mWidth;
+    private final int mHeight;
 
     public Size(int width, int height) {
         mWidth = width;

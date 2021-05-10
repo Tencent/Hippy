@@ -20,22 +20,21 @@ import com.tencent.mtt.hippy.HippyGlobalConfigs;
 import com.tencent.mtt.hippy.adapter.http.HippyHttpAdapter;
 import com.tencent.mtt.hippy.adapter.http.HippyHttpRequest;
 import com.tencent.mtt.hippy.adapter.http.HippyHttpResponse;
-import com.tencent.mtt.hippy.modules.nativemodules.HippySettableFuture;
 
-import com.tencent.mtt.hippy.utils.LogUtils;
 import java.io.*;
 import java.util.Locale;
 
+@SuppressWarnings({"unused"})
 public class DevServerHelper
 {
 	private static final String	BUNDLE_URL_FORMAT						= "http://%s/%s?platform=android&dev=%s&hot=%s&minify=%s";
-	private static final String	LAUNCH_JS_DEVTOOLS_COMMAND_URL_FORMAT	= "http://%s/launch-js-devtools";
-	private static final String	WEBSOCKET_PROXY_URL_FORMAT				= "ws://%s/debugger-proxy?role=client";
+	// --Commented out by Inspection (2021/5/4 20:09):private static final String	LAUNCH_JS_DEVTOOLS_COMMAND_URL_FORMAT	= "http://%s/launch-js-devtools";
+	// --Commented out by Inspection (2021/5/4 20:10):private static final String	WEBSOCKET_PROXY_URL_FORMAT				= "ws://%s/debugger-proxy?role=client";
 	private static final String	WEBSOCKET_LIVERELOAD_URL_FORMAT			= "ws://%s/debugger-live-reload";
-	private static final String	ONCHANGE_ENDPOINT_URL_FORMAT			= "http://%s/onchange";
+	// --Commented out by Inspection (2021/5/4 20:10):private static final String	ONCHANGE_ENDPOINT_URL_FORMAT			= "http://%s/onchange";
 
-	private HippyGlobalConfigs	mGlobalConfigs;
-	private String				mServerHost;
+	private final HippyGlobalConfigs	mGlobalConfigs;
+	private final String				mServerHost;
 
 	public DevServerHelper(HippyGlobalConfigs configs, String serverHost)
 	{
@@ -48,62 +47,12 @@ public class DevServerHelper
 		return String.format(Locale.US, BUNDLE_URL_FORMAT, host, bundleName, devMode, hmr, jsMinify);
 	}
 
-	private String createOnChangeEndpointUrl()
-	{
-		return String.format(Locale.US, ONCHANGE_ENDPOINT_URL_FORMAT, mServerHost);
-	}
-
-	public String getWebSocketProxyURL()
-	{
-		return String.format(Locale.US, WEBSOCKET_PROXY_URL_FORMAT, mServerHost);
-	}
-
 	public String getLiveReloadURL()
 	{
 		return String.format(Locale.US, WEBSOCKET_LIVERELOAD_URL_FORMAT, mServerHost);
 	}
 
-	private String createLaunchJSDevToolsCommandUrl()
-	{
-		return String.format(Locale.US, LAUNCH_JS_DEVTOOLS_COMMAND_URL_FORMAT, mServerHost);
-	}
-
-	public String getJSBundleURLForRemoteDebugging(String serverHost, String bundleName, boolean devmode)
-	{
-		return createBundleURL(serverHost, bundleName, devmode, false, false);
-	}
-
-	public boolean launchDebugTools()
-	{
-		final HippySettableFuture<Boolean> future = new HippySettableFuture();
-		HippyHttpRequest request = new HippyHttpRequest();
-		request.setUrl(createLaunchJSDevToolsCommandUrl());
-		mGlobalConfigs.getHttpAdapter().sendRequest(request, new HippyHttpAdapter.HttpTaskCallback()
-		{
-			@Override
-			public void onTaskSuccess(HippyHttpRequest request, HippyHttpResponse response) throws Exception
-			{
-				future.set(response.getStatusCode() == 200);
-			}
-
-			@Override
-			public void onTaskFailed(HippyHttpRequest request, Throwable error)
-			{
-				future.set(false);
-			}
-		});
-
-		try
-		{
-			return future.get();
-		}
-		catch (Throwable e)
-		{
-			return false;
-		}
-	}
-
-	public void fetchBundleFromURL(final BundleFetchCallBack bundleFetchCallBack, final String url, final File outputFile)
+	public void fetchBundleFromURL(final BundleFetchCallBack bundleFetchCallBack, final String url)
 	{
 		HippyHttpRequest request = new HippyHttpRequest();
 		request.setUrl(url);
@@ -112,66 +61,18 @@ public class DevServerHelper
 			@Override
 			public void onTaskSuccess(HippyHttpRequest request, HippyHttpResponse response) throws Exception
 			{
-				if (bundleFetchCallBack == null)
-				{
+				if (bundleFetchCallBack == null) {
 					return;
 				}
-				if (response.getStatusCode() == 200 && response.getInputStream() != null)
-				{
-					if (outputFile == null) {
-						bundleFetchCallBack.onSuccess(response.getInputStream());
-						return;
-					}
-
-					FileOutputStream fileOutputStream = null;
-					try
-					{
-						if (outputFile.exists())
-						{
-							outputFile.delete();
-						}
-						outputFile.createNewFile();
-
-						fileOutputStream = new FileOutputStream(outputFile);
-
-						byte[] b = new byte[2048];
-						int size = 0;
-						while ((size = response.getInputStream().read(b)) > 0)
-						{
-							fileOutputStream.write(b, 0, size);
-						}
-						fileOutputStream.flush();
-						if (bundleFetchCallBack != null)
-						{
-							bundleFetchCallBack.onSuccess(outputFile);
-						}
-					}
-					catch (Throwable e)
-					{
-						LogUtils.d("DevServerHelper", "fetchBundleFromURL: " + e.getMessage());
-					}
-					finally
-					{
-						if (fileOutputStream != null)
-						{
-							try
-							{
-								fileOutputStream.close();
-							}
-							catch (IOException e)
-							{
-								LogUtils.d("DevServerHelper", "fetchBundleFromURL: " + e.getMessage());
-							}
-						}
-					}
-				}
-				else
-				{
+				if (response.getStatusCode() == 200 && response.getInputStream() != null) {
+					bundleFetchCallBack.onSuccess(response.getInputStream());
+				} else {
 					String message = "unknown";
 					if (response.getErrorStream() != null)
 					{
-						StringBuffer sb = new StringBuffer();
-						String readLine = null;
+						StringBuilder sb = new StringBuilder();
+						String readLine;
+						//noinspection CharsetObjectCanBeUsed
 						BufferedReader bfReader = new BufferedReader(new InputStreamReader(response.getErrorStream(), "UTF-8"));
 						while ((readLine = bfReader.readLine()) != null)
 						{
@@ -180,11 +81,8 @@ public class DevServerHelper
 						}
 						message = sb.toString();
 					}
-					if (bundleFetchCallBack != null)
-					{
-						bundleFetchCallBack.onFail(new DevServerException("Could not connect to development server." + "URL: " + url
-								+ "  try to :adb reverse tcp:38989 tcp:38989 , message : " + message));
-					}
+					bundleFetchCallBack.onFail(new DevServerException("Could not connect to development server." + "URL: " + url
+							+ "  try to :adb reverse tcp:38989 tcp:38989 , message : " + message));
 				}
 			}
 

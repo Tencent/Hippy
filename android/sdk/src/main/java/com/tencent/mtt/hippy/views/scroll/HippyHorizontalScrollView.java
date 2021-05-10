@@ -27,6 +27,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.supportui.views.ScrollChecker;
 
+@SuppressWarnings("deprecation")
 public class HippyHorizontalScrollView extends HorizontalScrollView implements HippyViewBase,HippyScrollView,ScrollChecker.IScrollCheck
 {
 	private NativeGestureDispatcher	mGestureDispatcher;
@@ -37,7 +38,7 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
 
 	private boolean					mDragging;
 
-	private HippyOnScrollHelper		mHippyOnScrollHelper;
+	private final HippyOnScrollHelper mHippyOnScrollHelper;
 
 	private boolean					mScrollEventEnable				= true;
 
@@ -48,8 +49,6 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
 	private boolean					mMomentumScrollBeginEventEnable	= false;
 
 	private boolean					mMomentumScrollEndEventEnable	= false;
-
-	private boolean					mScrollAnimationEndEventEnable	= false;
 
 	private boolean					mFlingEnabled					= true;
 
@@ -148,7 +147,7 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
 			setParentScrollableIfNeed(true);
 		}
 
-		boolean result = mScrollEnabled ? super.onTouchEvent(event) : false;
+		boolean result = mScrollEnabled && super.onTouchEvent(event);
 		if (mGestureDispatcher != null)
 		{
 			result |= mGestureDispatcher.handleTouchEvent(event);
@@ -319,12 +318,6 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
 		smoothScrollTo(page * width, getScrollY());
 	}
 
-	@Override
-	public void computeScroll()
-	{
-		super.computeScroll();
-	}
-
 	public void setScrollEventEnable(boolean enable)
 	{
 		this.mScrollEventEnable = enable;
@@ -348,11 +341,6 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
 	public void setMomentumScrollEndEventEnable(boolean enable)
 	{
 		this.mMomentumScrollEndEventEnable = enable;
-	}
-
-	public void setScrollAnimationEndEventEnable(boolean enable)
-	{
-		this.mScrollAnimationEndEventEnable = enable;
 	}
 
 	public void setFlingEnabled(boolean flag)

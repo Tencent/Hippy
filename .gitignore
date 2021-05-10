@@ -17,6 +17,10 @@ android/sdk/local.properties
 android/sdk/.cxx/*
 android/sdk/.classpath
 android/sdk/.settings
+android/sdk/libs/armeabi-v7a/libhippybridge.so
+android/sdk/libs/arm64-v8a/libhippybridge.so
+android/sdk/libs/x86/libhippybridge.so
+android/sdk/libs/x86_64/libhippybridge.so
 examples/android-demo/example/src/main/assets/
 examples/ios-demo/HippyDemo.xcodeproj/project.xcworkspace/xcuserdata/*
 examples/ios-demo/HippyDemo.xcodeproj/xcuserdata/*
@@ -38,3 +42,4 @@ build/
 
 # core
 core/ARM
+.vs/

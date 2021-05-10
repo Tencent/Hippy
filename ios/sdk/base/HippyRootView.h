@@ -119,6 +119,8 @@ extern NSString *const HippyContentDidAppearNotification;
  */
 @property (readonly, nonatomic, assign) CGSize intrinsicSize;
 
+@property (readonly, nonatomic) NSNumber *hippyTag;
+
 /**
  * The delegate that handles intrinsic size updates.
  */

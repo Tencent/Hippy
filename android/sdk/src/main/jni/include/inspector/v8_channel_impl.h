@@ -24,11 +24,13 @@
 
 #include <memory>
 
+#include "jni/jni_env.h"
 #include "jni/jni_utils.h"
 #include "jni/scoped_java_ref.h"
 #include "v8/v8-inspector.h"
 
-class JNIEnvironment;
+namespace hippy {
+namespace inspector {
 
 class V8ChannelImpl : public v8_inspector::V8Inspector::Channel {
  public:
@@ -54,3 +56,6 @@ class V8ChannelImpl : public v8_inspector::V8Inspector::Channel {
   friend class V8InspectorClientImpl;
   std::shared_ptr<JavaRef> bridge_;
 };
+
+}  // namespace inspector
+}  // namespace hippy

@@ -33,7 +33,7 @@ static jmethodID j_get_scheme_method_id;
 static jmethodID j_get_path_method_id;
 
 bool Uri::Init() {
-  JNIEnv* env = JNIEnvironment::AttachCurrentThread();
+  JNIEnv* env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   jclass j_local_clazz = env->FindClass("java/net/URI");
   j_clazz = (jclass)env->NewGlobalRef(j_local_clazz);
   j_create_method_id = env->GetStaticMethodID(
@@ -50,7 +50,7 @@ bool Uri::Init() {
 }
 
 bool Uri::Destory() {
-  JNIEnv* env = JNIEnvironment::AttachCurrentThread();
+  JNIEnv* env = JNIEnvironment::GetInstance()->AttachCurrentThread();
 
   j_get_path_method_id = nullptr;
   j_get_scheme_method_id = nullptr;
@@ -64,7 +64,7 @@ bool Uri::Destory() {
 }
 
 Uri::Uri(const std::string& uri) {
-  JNIEnv* env = JNIEnvironment::AttachCurrentThread();
+  JNIEnv* env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   jstring j_str_uri = env->NewStringUTF(uri.c_str());
   j_obj_uri_ =
       env->CallStaticObjectMethod(j_clazz, j_create_method_id, j_str_uri);
@@ -74,7 +74,7 @@ Uri::Uri(const std::string& uri) {
 Uri::~Uri() {}
 
 std::string Uri::Normalize() {
-  JNIEnv* env = JNIEnvironment::AttachCurrentThread();
+  JNIEnv* env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   jobject j_normalize_uri =
       (jstring)env->CallObjectMethod(j_obj_uri_, j_normalize_method_id);
   jstring j_parsed_uri =
@@ -83,7 +83,7 @@ std::string Uri::Normalize() {
 }
 
 std::string Uri::GetScheme() {
-  JNIEnv* env = JNIEnvironment::AttachCurrentThread();
+  JNIEnv* env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   jstring j_scheme =
       (jstring)env->CallObjectMethod(j_obj_uri_, j_get_scheme_method_id);
 
@@ -91,7 +91,7 @@ std::string Uri::GetScheme() {
 }
 
 std::string Uri::GetPath() {
-  JNIEnv* env = JNIEnvironment::AttachCurrentThread();
+  JNIEnv* env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   jstring j_path =
       (jstring)env->CallObjectMethod(j_obj_uri_, j_get_path_method_id);
 

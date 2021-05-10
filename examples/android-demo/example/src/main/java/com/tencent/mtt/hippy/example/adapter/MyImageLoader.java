@@ -1,6 +1,5 @@
 package com.tencent.mtt.hippy.example.adapter;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -11,12 +10,10 @@ import com.bumptech.glide.load.resource.bitmap.GlideBitmapDrawable;
 import com.bumptech.glide.load.resource.gif.GifDrawable;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
-import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.adapter.image.HippyDrawable;
 import com.tencent.mtt.hippy.adapter.image.HippyImageLoader;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
-import com.tencent.mtt.hippy.utils.ContextHolder;
 
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.image.HippyImageView;
@@ -24,6 +21,7 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+@SuppressWarnings({"unused", "deprecation"})
 public class MyImageLoader extends HippyImageLoader
 {
 	private Timer mTimer = new Timer("MyImageLoader", true);
@@ -41,15 +39,17 @@ public class MyImageLoader extends HippyImageLoader
 		myContext = null;
 	}
 
+	@SuppressWarnings({"UnusedAssignment", "rawtypes"})
 	private void runFetchImageOnMianThread(final String url, final Callback requestCallback, final Object paramsObj) {
-		Object propsObj = null;
-		if (paramsObj != null && paramsObj instanceof Map) {
+		Object propsObj;
+		if (paramsObj instanceof Map) {
+			//noinspection rawtypes
 			propsObj = ((Map)paramsObj).get(HippyImageView.IMAGE_PROPS);
 		} else {
 			propsObj = paramsObj;
 		}
 
-		HippyMap props = (propsObj != null && propsObj instanceof HippyMap) ? (HippyMap)propsObj : new HippyMap();
+		HippyMap props = (propsObj instanceof HippyMap) ? (HippyMap)propsObj : new HippyMap();
 
 		int width = 0;
 		int height = 0;
@@ -71,6 +71,7 @@ public class MyImageLoader extends HippyImageLoader
 		repeatCount = props.getInt(NodeProps.REPEAT_COUNT);
 		isGif = props.getBoolean(NodeProps.CUSTOM_PROP_ISGIF);
 
+		//noinspection unchecked
 		Glide.with(myContext).load(url).into(new SimpleTarget() {
 			@Override
 			public void onResourceReady(final Object object, GlideAnimation glideAnimation) {

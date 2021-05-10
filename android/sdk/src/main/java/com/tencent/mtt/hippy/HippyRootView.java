@@ -34,6 +34,7 @@ import com.tencent.mtt.hippy.modules.HippyModuleManager;
 import com.tencent.mtt.hippy.modules.javascriptmodules.Dimensions;
 import com.tencent.mtt.hippy.modules.javascriptmodules.EventDispatcher;
 import com.tencent.mtt.hippy.utils.DimensionsUtil;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
 
@@ -43,22 +44,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static android.content.res.Configuration.ORIENTATION_UNDEFINED;
 
-/**
- * FileName: HippyRootView
- * Description：
- * History：
- */
+@SuppressWarnings({"deprecation","unused"})
 public class HippyRootView extends FrameLayout
 {
 	private static final int			ROOT_VIEW_TAG_INCREMENT	= 10;
 
-	private static AtomicInteger		ID_COUNTER				= new AtomicInteger(0);
+	private static final AtomicInteger	ID_COUNTER = new AtomicInteger(0);
 
 	OnSizeChangedListener				mSizeChangListener;
 
-	private int							mInstanceId				= 0;
+	private final int					mInstanceId;
 
-	private HippyEngine.ModuleLoadParams	mLoadParams;
+	private final HippyEngine.ModuleLoadParams mLoadParams;
 
 	private HippyEngineContext			mEngineContext;
 
@@ -299,6 +296,7 @@ public class HippyRootView extends FrameLayout
 
 		private int	mOrientation	= ORIENTATION_UNDEFINED;
 
+		@SuppressWarnings("RedundantIfStatement")
 		@Override
 		public void onSystemUiVisibilityChange(int visibility)
 		{
@@ -327,9 +325,8 @@ public class HippyRootView extends FrameLayout
 			}
 		}
 
-		private void sendOrientationChangeEvent(int orientation)
-		{
-			// TODO should send orienation change here
+		private void sendOrientationChangeEvent(int orientation) {
+			LogUtils.d("HippyRootView", "sendOrientationChangeEvent: orientation=" + orientation);
 		}
 
 		private void checkUpdateDimension(boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged)
@@ -337,6 +334,7 @@ public class HippyRootView extends FrameLayout
 			checkUpdateDimension(-1, -1, false, false);
 		}
 
+		@SuppressWarnings("SameParameterValue")
 		private void checkUpdateDimension(int windowWidth, int windowHeight, boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged)
 		{
 			if (mEngineContext == null)
@@ -356,7 +354,9 @@ public class HippyRootView extends FrameLayout
 				}
 				else
 				{
+					//noinspection JavaReflectionMemberAccess
 					Method mGetRawH = Display.class.getMethod("getRawHeight");
+					//noinspection JavaReflectionMemberAccess
 					Method mGetRawW = Display.class.getMethod("getRawWidth");
 
 					Object width = mGetRawW.invoke(defaultDisplay);

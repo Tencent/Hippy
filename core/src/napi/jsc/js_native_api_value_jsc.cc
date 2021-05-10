@@ -24,7 +24,7 @@
 
 #include <iostream>
 
-#include "core/base/logging.h"
+#include "base/logging.h"
 #include "core/napi/js_native_api.h"
 #include "core/napi/jsc/js_native_api_jsc.h"
 #include "core/napi/jsc/js_native_jsc_helper.h"
@@ -98,8 +98,7 @@ bool JSCCtx::GetValueString(std::shared_ptr<CtxValue> value,
   JSValueRef value_ref = ctx_value->value_;
   if (JSValueIsString(context_, value_ref)) {
     JSValueRef exception = nullptr;
-    JSStringRef str_ref =
-        JSValueToStringCopy(context_, value_ref, &exception);
+    JSStringRef str_ref = JSValueToStringCopy(context_, value_ref, &exception);
     if (exception) {
       SetException(std::make_shared<JSCCtxValue>(context_, exception));
       return false;
@@ -203,9 +202,9 @@ bool JSCCtx::GetValueJson(std::shared_ptr<CtxValue> value,
     return false;
   }
   size_t max_size = JSStringGetMaximumUTF8CStringSize(str_ref);
-  JSStringRelease(str_ref);
   char* buf = new char[max_size];
   JSStringGetUTF8CString(str_ref, buf, max_size);
+  JSStringRelease(str_ref);
   std::string js_str(buf);
   delete[] buf;
   *result = js_str;
@@ -283,7 +282,7 @@ std::shared_ptr<CtxValue> JSCCtx::CreateNull() {
   return std::make_shared<JSCCtxValue>(context_, value);
 }
 
-std::shared_ptr<CtxValue> JSCCtx::CreateObject(const char* json) {
+std::shared_ptr<CtxValue> JSCCtx::CreateObject(const char* json, int length) {
   JSStringRef str_ref = JSStringCreateWithUTF8CString(json);
   JSValueRef value = JSValueMakeFromJSONString(context_, str_ref);
   JSStringRelease(str_ref);
@@ -305,8 +304,7 @@ std::shared_ptr<CtxValue> JSCCtx::CreateArray(
   }
 
   JSValueRef exception = nullptr;
-  JSValueRef value_ref =
-      JSObjectMakeArray(context_, count, values, &exception);
+  JSValueRef value_ref = JSObjectMakeArray(context_, count, values, &exception);
   if (exception) {
     SetException(std::make_shared<JSCCtxValue>(context_, exception));
     return nullptr;
@@ -318,7 +316,7 @@ std::shared_ptr<CtxValue> JSCCtx::CreateJsError(const std::string& msg) {
   JSStringRef str_ref = JSStringCreateWithUTF8CString(msg.c_str());
   JSValueRef value = JSValueMakeString(context_, str_ref);
   JSStringRelease(str_ref);
-  JSValueRef values[] = { value };
+  JSValueRef values[] = {value};
   JSObjectRef error = JSObjectMakeError(context_, 1, values, nullptr);
   return std::make_shared<JSCCtxValue>(context_, error);
 }
@@ -425,12 +423,10 @@ std::string JSCCtx::GetExceptionMsg(std::shared_ptr<CtxValue> exception) {
     return "";
   }
 
-  std::shared_ptr<CtxValue> msg_obj =
-      CopyNamedProperty(exception, "message");
+  std::shared_ptr<CtxValue> msg_obj = CopyNamedProperty(exception, "message");
   std::string msg_str;
   GetValueString(msg_obj, &msg_str);
-  std::shared_ptr<CtxValue> stack_obj =
-      CopyNamedProperty(exception, "stack");
+  std::shared_ptr<CtxValue> stack_obj = CopyNamedProperty(exception, "stack");
   std::string stack_str;
   GetValueString(stack_obj, &stack_str);
   return "message:" + msg_str + ", stack:" + stack_str;
@@ -440,17 +436,16 @@ bool JSCCtx::ThrowExceptionToJS(std::shared_ptr<CtxValue> exception) {
   if (!exception) {
     return false;
   }
-  
-  std::shared_ptr<CtxValue> exception_handler = GetGlobalObjVar(kHippyErrorHandlerName);
+
+  std::shared_ptr<CtxValue> exception_handler =
+      GetGlobalObjVar(kHippyErrorHandlerName);
   if (!IsFunction(exception_handler)) {
     auto source_code = hippy::GetNativeSourceCode(kErrorHandlerJSName);
-    HIPPY_DCHECK(source_code.data_ && source_code.length_);
+    TDF_BASE_DCHECK(source_code.data_ && source_code.length_);
     exception_handler =
         RunScript(source_code.data_, source_code.length_, kErrorHandlerJSName);
     bool is_func = IsFunction(exception_handler);
-    HIPPY_CHECK_WITH_MSG(
-        is_func == true,
-        "HandleUncaughtJsError ExceptionHandle.js don't return function!!!");
+    TDF_BASE_CHECK(is_func) << "HandleUncaughtJsError ExceptionHandle.js don't return function!!!";
     SetGlobalObjVar(kHippyErrorHandlerName, exception_handler,
                     PropertyAttribute::ReadOnly);
   }

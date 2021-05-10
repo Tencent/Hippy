@@ -27,15 +27,20 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 
 import java.util.*;
 
+@SuppressWarnings({"deprecation","unused"})
 public class RenderNode
 {
-	int					mId, mX, mY, mWidth, mHeight;
+	final int mId;
+	int mX;
+	int mY;
+	int mWidth;
+	int mHeight;
 
 	boolean				mHasUpdateLayout		= false;
 	HippyMap			mProps					= null;
 	HippyMap			mPropsToUpdate;
-	String				mClassName;
-	List<RenderNode>	mChildren				= new ArrayList<>();
+	final String				mClassName;
+	final List<RenderNode>	mChildren				= new ArrayList<>();
 
 	List<MoveHolder>	mMoveHolders			= null;
 
@@ -47,7 +52,7 @@ public class RenderNode
 
 	HippyRootView		mRootView;
 
-	ControllerManager	mComponentManager;
+	final ControllerManager	mComponentManager;
 
 
 	RenderNode			mParent					= null;
@@ -88,7 +93,7 @@ public class RenderNode
 
 	void printChild(RenderNode renderNode, StringBuilder stringBuilder)
 	{
-		stringBuilder.append(" [Id:" + renderNode.getId() + renderNode.mClassName);
+		stringBuilder.append(" [Id:").append(renderNode.getId()).append(renderNode.mClassName);
 		for (RenderNode child : renderNode.mChildren)
 		{
 			printChild(child, stringBuilder);
@@ -281,7 +286,7 @@ public class RenderNode
 		return mHeight;
 	}
 
-	List<RenderNode>	mChildPendingList	= new ArrayList<>();
+	final List<RenderNode>	mChildPendingList	= new ArrayList<>();
 
 	public View createView()
 	{
@@ -290,7 +295,7 @@ public class RenderNode
 		{
 			for (int i = 0; i < mDeletedIdIndexMap.size(); i++) {
 				int key = mDeletedIdIndexMap.keyAt(i);
-				mComponentManager.deleteChild(mId, (int) mDeletedIdIndexMap.keyAt(i), mDeletedIdIndexMap.get(key));
+				mComponentManager.deleteChild(mId, mDeletedIdIndexMap.keyAt(i), mDeletedIdIndexMap.get(key));
 			}
 			mDeletedIdIndexMap.clear();
 			mNotifyManageChildren = true;
@@ -438,7 +443,7 @@ public class RenderNode
 	}
 
 
-	class MoveHolder
+	static class MoveHolder
 	{
 
 		public MoveHolder(List<RenderNode> moveRenders, int mMove2Id)
@@ -447,8 +452,8 @@ public class RenderNode
 			this.mMove2Id = mMove2Id;
 		}
 
-		List<RenderNode>	mMoveIds;
-		int					mMove2Id;
+		final List<RenderNode>	mMoveIds;
+		final int					mMove2Id;
 	}
 
 	public void move(List<RenderNode> moveIds, int move2Id)
@@ -496,7 +501,7 @@ public class RenderNode
 		}
 	}
 
-	class UIFunction
+	static class UIFunction
 	{
 		public UIFunction(String functionName, HippyArray parameter, Promise promise)
 		{
@@ -505,9 +510,9 @@ public class RenderNode
 			this.mPromise = promise;
 		}
 
-		String		mFunctionName;
-		HippyArray	mParameter;
-		Promise 	mPromise;
+		final String		mFunctionName;
+		final HippyArray	mParameter;
+		final Promise 	mPromise;
 	}
 
 

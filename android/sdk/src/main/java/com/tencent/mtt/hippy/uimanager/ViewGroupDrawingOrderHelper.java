@@ -15,7 +15,6 @@
  */
 package com.tencent.mtt.hippy.uimanager;
 
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 

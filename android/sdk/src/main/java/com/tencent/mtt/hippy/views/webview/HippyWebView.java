@@ -17,7 +17,6 @@ package com.tencent.mtt.hippy.views.webview;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.os.Build;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceError;
@@ -34,13 +33,9 @@ import com.tencent.mtt.hippy.utils.UrlUtils;
 
 import java.net.URLDecoder;
 
-/**
- * @Description: WebView控件供hippy JavaScript业务使用
- * @author: harryguo
- * @date: 2019/1/8
- */
+@SuppressWarnings("ALL")
 public class HippyWebView extends FrameLayout implements HippyViewBase {
-	protected HippyWebViewInner mWebView;
+	protected final HippyWebViewInner mWebView;
 	private HippyViewEvent mEventOnMessage = null;
 
 	public HippyWebView(Context context)
@@ -54,11 +49,11 @@ public class HippyWebView extends FrameLayout implements HippyViewBase {
 	private void initWebView()
 	{
 		mWebView.setWebViewClient(new WebViewClient() {
-			HippyViewEvent mEventOnError = new HippyViewEvent("onError");
-			HippyViewEvent mEventonLoad = new HippyViewEvent("onLoad");
-			HippyViewEvent mEventonLoadEnd = new HippyViewEvent("onLoadEnd");
-			HippyViewEvent mEventonLoadStart = new HippyViewEvent("onLoadStart");
-			String mMessageUrlPre = "hippy://postMessage?data=";
+			final HippyViewEvent mEventOnError = new HippyViewEvent("onError");
+			final HippyViewEvent mEventonLoad = new HippyViewEvent("onLoad");
+			final HippyViewEvent mEventonLoadEnd = new HippyViewEvent("onLoadEnd");
+			final HippyViewEvent mEventonLoadStart = new HippyViewEvent("onLoadStart");
+			final String mMessageUrlPre = "hippy://postMessage?data=";
 
 			@Override
 			public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {

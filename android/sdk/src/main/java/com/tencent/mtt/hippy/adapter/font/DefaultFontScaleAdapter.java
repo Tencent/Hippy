@@ -15,12 +15,9 @@
  */
 package com.tencent.mtt.hippy.adapter.font;
 
-/**
- * @author: edsheng
- * @date: 2018/4/2 10:50
- * @version: V1.0
- */
+import com.tencent.mtt.hippy.utils.LogUtils;
 
+@SuppressWarnings({"unused"})
 public class DefaultFontScaleAdapter implements HippyFontScaleAdapter {
     @Override
     public float getFontScale() {
@@ -30,5 +27,11 @@ public class DefaultFontScaleAdapter implements HippyFontScaleAdapter {
     @Override
     public CharSequence getEmoticonText(CharSequence text, int fontSize) {
         return text;
+    }
+
+    @Override
+    public String getCustomFontFilePath(String fontFamilyName, int style) {
+        LogUtils.d("DefaultFontScaleAdapter", "getCustomFontFilePath fontFamilyName=" + fontFamilyName + ", style=" + style);
+        return null;
     }
 }

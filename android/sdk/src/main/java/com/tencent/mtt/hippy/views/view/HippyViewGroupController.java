@@ -27,17 +27,14 @@ import com.tencent.mtt.hippy.views.image.HippyImageView;
 
 import java.util.WeakHashMap;
 
-/**
- * Created by leonardgong on 2017/11/29 0029.
- */
-
+@SuppressWarnings({"unused"})
 @HippyController(name = HippyViewGroupController.CLASS_NAME)
 public class HippyViewGroupController extends HippyGroupController<HippyViewGroup>
 {
 
 	public static final String					CLASS_NAME		= "View";
 
-	public static WeakHashMap<View, Integer>	mZIndexHash		= new WeakHashMap<>();
+	public static final WeakHashMap<View, Integer> mZIndexHash	= new WeakHashMap<>();
 
 
 	public static void setViewZIndex(View view, int zIndex)
@@ -67,7 +64,7 @@ public class HippyViewGroupController extends HippyGroupController<HippyViewGrou
 		hippyViewGroup.setOverflow(overflow);
 	}
 
-	@HippyControllerProps(name = NodeProps.BACKGROUND_IMAGE, defaultType = HippyControllerProps.STRING, defaultString = "")
+	@HippyControllerProps(name = NodeProps.BACKGROUND_IMAGE, defaultType = HippyControllerProps.STRING)
 	public void setBackgroundImage(HippyViewGroup hippyViewGroup, String url)
 	{
 		hippyViewGroup.setUrl(url);
@@ -106,13 +103,13 @@ public class HippyViewGroupController extends HippyGroupController<HippyViewGrou
 		}
 	}
 
-	@HippyControllerProps(name = NodeProps.BACKGROUND_POSITION_X, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0.0D)
+	@HippyControllerProps(name = NodeProps.BACKGROUND_POSITION_X, defaultType = HippyControllerProps.NUMBER)
 	public void setBackgroundImagePositionX(HippyViewGroup hippyViewGroup, int positionX)
 	{
 		hippyViewGroup.setImagePositionX((int) PixelUtil.dp2px(positionX));
 	}
 
-	@HippyControllerProps(name = NodeProps.BACKGROUND_POSITION_Y, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0.0D)
+	@HippyControllerProps(name = NodeProps.BACKGROUND_POSITION_Y, defaultType = HippyControllerProps.NUMBER)
 	public void setBackgroundImagePositionY(HippyViewGroup hippyViewGroup, int positionY)
 	{
 		hippyViewGroup.setImagePositionY((int) PixelUtil.dp2px(positionY));

@@ -19,13 +19,7 @@ import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.smtt.flexbox.FlexNode;
 
-
-/**
- * @Description: TODO
- * @author: edsheng
- * @version: V1.0
- */
-
+@SuppressWarnings("deprecation")
 public class DomNode extends FlexNode
 {
 
@@ -79,8 +73,8 @@ public class DomNode extends FlexNode
 		}
 
 		result.append(indentation.toString());
-		result.append("id:" + getId());
-		result.append(" className:" + getViewClass() + " ");
+		result.append("id:").append(getId());
+		result.append(" className:").append(getViewClass()).append(" ");
 		//		result.append(mFlexNodeStyle.toString());
 		result.append(resultToString());
 
@@ -95,7 +89,7 @@ public class DomNode extends FlexNode
 			getChildAt(i).toStringWithIndentation(result, level + 1);
 			result.append("\n");
 		}
-		result.append(indentation + "]");
+		result.append(indentation).append("]");
 	}
 
 	public String toString()
@@ -130,6 +124,7 @@ public class DomNode extends FlexNode
 		}
 	}
 
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public boolean isVirtual()
 	{
 		return false;
@@ -140,12 +135,6 @@ public class DomNode extends FlexNode
 	{
 		return (DomNode) super.getChildAt(i);
 	}
-
-	public DomNode()
-	{
-	}
-
-
 
 	public final String getViewClass()
 	{
@@ -247,6 +236,7 @@ public class DomNode extends FlexNode
 
 	boolean	mShouldNotifyOnlayout	= false;
 
+	@SuppressWarnings("unused")
 	public void setShouldNotifyOnLayout(boolean shouldNotifyOnLayout)
 	{
 		this.mShouldNotifyOnlayout = shouldNotifyOnLayout;

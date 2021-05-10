@@ -30,10 +30,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 
-/**
- * Created by leonardgong on 2017/11/29 0029.
- */
-
+@SuppressWarnings({"deprecation", "unused"})
 public class HippyViewGroup extends HippyImageView implements IHippyZIndexViewGroup
 {
 
@@ -70,6 +67,7 @@ public class HippyViewGroup extends HippyImageView implements IHippyZIndexViewGr
 	//		//super.requestLayout();
 	//	}
 
+	@SuppressWarnings("SuspiciousNameCombination")
 	@Override
 	protected void dispatchDraw(Canvas canvas)
 	{
@@ -85,16 +83,13 @@ public class HippyViewGroup extends HippyImageView implements IHippyZIndexViewGr
 					restoreLayerType();
 					break;
 				case "hidden":
-					/**
-					 * 这一部分是做的截断,也就是这个viewgroup的孩子都超过view的部分都截断不可见
-					 * */
-					if (mBGDrawable != null)
+                    if (mBGDrawable != null)
 					{
 						float left = 0f;
 						float top = 0f;
 						float right = getWidth();
 						float bottom = getHeight();
-						float borderWidth = 0f;
+						float borderWidth;
 						if (mBGDrawable.getBorderWidthArray() != null && mBGDrawable.getBorderWidthArray()[0] != 0f)
 						{
 							borderWidth = mBGDrawable.getBorderWidthArray()[0];
@@ -257,6 +252,7 @@ public class HippyViewGroup extends HippyImageView implements IHippyZIndexViewGr
 
 		if (!result && mGestureDispatcher != null && mGestureDispatcher.needHandle(NodeProps.ON_INTERCEPT_PULL_UP_EVENT))
 		{
+			//noinspection SwitchStatementWithTooFewBranches
 			switch (action)
 			{
 				case MotionEvent.ACTION_MOVE:

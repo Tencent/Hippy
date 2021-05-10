@@ -23,12 +23,7 @@ import android.view.ViewConfiguration;
 
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 
-
-/**
- * FileName: NativeGestureProcessor
- * Description：
- * History：
- */
+@SuppressWarnings({"deprecation", "unused"})
 public class NativeGestureProcessor
 {
 
@@ -38,7 +33,7 @@ public class NativeGestureProcessor
 	private static final int	TOUCH_SLOP		= ViewConfiguration.getTouchSlop();
 
 	boolean						mNoPressIn		= false;
-	Callback					mCallback;
+	final Callback				mCallback;
 	private Handler				mHandler;
 
 	private float				mLastPressInX	= 0;
@@ -188,11 +183,6 @@ public class NativeGestureProcessor
 		return handle;
 	}
 
-	private void setNoPressIn(boolean noPressIn)
-	{
-		mNoPressIn = noPressIn;
-	}
-
 	public interface Callback
 	{
 		boolean needHandle(String type);
@@ -202,8 +192,8 @@ public class NativeGestureProcessor
 
 	private static class GestureHandler extends android.os.Handler
 	{
-		private NativeGestureProcessor	mDispatcher;
-		private NativeGestureProcessor.Callback mCallback;
+		private final NativeGestureProcessor mDispatcher;
+		private final NativeGestureProcessor.Callback mCallback;
 
 		public GestureHandler(NativeGestureProcessor dispatcher)
 		{
@@ -220,7 +210,7 @@ public class NativeGestureProcessor
 				case PRESS_IN:
 				{
 					mCallback.handle(NodeProps.ON_PRESS_IN, -1, -1);
-					mDispatcher.setNoPressIn(true);
+					mDispatcher.mNoPressIn = true;
 					break;
 				}
 				case PRESS_OUT:

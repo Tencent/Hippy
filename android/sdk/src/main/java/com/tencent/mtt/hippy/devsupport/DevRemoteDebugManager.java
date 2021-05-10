@@ -16,9 +16,6 @@
 package com.tencent.mtt.hippy.devsupport;
 
 import android.app.ProgressDialog;
-import android.content.Context;
-
-import com.tencent.mtt.hippy.modules.nativemodules.HippySettableFuture;
 
 /**
  * Copyright (C) 2005-2020 TENCENT Inc.All Rights Reserved.
@@ -26,39 +23,16 @@ import com.tencent.mtt.hippy.modules.nativemodules.HippySettableFuture;
  * Description：
  * History：
  */
+@SuppressWarnings("unused")
 public class DevRemoteDebugManager implements DevRemoteDebugProxy
 {
+	ProgressDialog				        mProgressDialog;
 
-	DevServerHelper				mFetchHelper;
+	final RemoteDebugExceptionHandler	mRemoteDebugExceptionHandler;
 
-	ProgressDialog				mProgressDialog;
-
-	RemoteDebugExceptionHandler	mRemoteDebugExceptionHandler;
-
-	Context						mContext;
-
-	public DevRemoteDebugManager(Context context, DevServerHelper fetchHelper, RemoteDebugExceptionHandler handler)
+	public DevRemoteDebugManager(RemoteDebugExceptionHandler handler)
 	{
-		this.mContext = context;
-		this.mFetchHelper = fetchHelper;
 		this.mRemoteDebugExceptionHandler = handler;
-	}
-
-
-	private void showProgressDialog(Context context)
-	{
-		if(context == null)
-		{
-			return;
-		}
-
-		if (mProgressDialog == null)
-		{
-			mProgressDialog = new ProgressDialog(context);
-			mProgressDialog.setCancelable(true);
-			mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-		}
-		mProgressDialog.show();
 	}
 
 	@Override
@@ -80,6 +54,6 @@ public class DevRemoteDebugManager implements DevRemoteDebugProxy
 
 	public interface RemoteDebugExceptionHandler
 	{
-		public void onHandleRemoteDebugException(Throwable t);
+		void onHandleRemoteDebugException(Throwable t);
 	}
 }

@@ -27,7 +27,7 @@
 #include <memory>
 #include <string>
 
-#include "core/base/logging.h"
+#include "base/logging.h"
 #include "core/base/uri_loader.h"
 #include "core/modules/module_register.h"
 #include "core/napi/callback_info.h"
@@ -49,7 +49,7 @@ using UriLoader = hippy::base::UriLoader;
 void ContextifyModule::RunInThisContext(const hippy::napi::CallbackInfo& info) {
   std::shared_ptr<Scope> scope = info.GetScope();
   std::shared_ptr<Ctx> context = scope->GetContext();
-  HIPPY_CHECK(context);
+  TDF_BASE_CHECK(context);
 
   std::string key;
   if (!context->GetValueString(info[0], &key)) {
@@ -58,14 +58,14 @@ void ContextifyModule::RunInThisContext(const hippy::napi::CallbackInfo& info) {
     return;
   }
 
-  HIPPY_DLOG(hippy::Debug, "RunInThisContext key = %s", key.c_str());
+  TDF_BASE_DLOG(INFO) << "RunInThisContext key = " << key;
   auto source_code = hippy::GetNativeSourceCode(key.c_str());
   std::shared_ptr<TryCatch> try_catch = CreateTryCatchScope(true, context);
   std::shared_ptr<CtxValue> ret = context->RunScript(
       source_code.data_, source_code.length_, key.c_str(), false, nullptr);
   if (try_catch->HasCaught()) {
-    HIPPY_LOG(hippy::Error, "GetNativeSourceCode error = %s",
-              try_catch->GetExceptionMsg().c_str());
+    TDF_BASE_DLOG(ERROR) << "GetNativeSourceCode error = ",
+        try_catch->GetExceptionMsg();
     info.GetExceptionValue()->Set(try_catch->Exception());
   } else {
     info.GetReturnValue()->Set(ret);
@@ -79,7 +79,7 @@ void ContextifyModule::RemoveCBFunc(const std::string& uri) {
 void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
   std::shared_ptr<Scope> scope = info.GetScope();
   std::shared_ptr<hippy::napi::Ctx> context = scope->GetContext();
-  HIPPY_CHECK(context);
+  TDF_BASE_CHECK(context);
 
   std::string uri;
   if (!context->GetValueString(info[0], &uri)) {
@@ -103,11 +103,11 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
   if (context->IsFunction(function)) {
     cb_func_map_[uri] = function;
   } else {
-    HIPPY_DLOG(hippy::Debug, "cb is not function");
+    TDF_BASE_DLOG(INFO) << "cb is not function";
     function = nullptr;
   }
 
-  HIPPY_DLOG(hippy::Debug, "RequestUntrustedContent uri = %s", uri.c_str());
+  TDF_BASE_DLOG(INFO) << "RequestUntrustedContent uri = " << uri;
 
   std::weak_ptr<Scope> weak_scope = scope;
   std::weak_ptr<hippy::napi::CtxValue> weak_function = function;
@@ -130,11 +130,10 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
     }
 
     if (code.empty()) {
-      HIPPY_LOG(hippy::Warning, "Load uri = %s, code empty", uri.c_str());
+      TDF_BASE_DLOG(WARNING) << "Load uri = " << uri << ", code empty";
     } else {
-      HIPPY_DLOG(hippy::Debug,
-                 "Load uri = %s, len = %d, encode = %d, code = %s", uri.c_str(),
-                 code.length(), encode, code.c_str());
+      TDF_BASE_DLOG(INFO) << "Load uri = " << uri << ", len = " << code.length()
+                          << ", encode = " << encode << ", code = " << code;
     }
     std::shared_ptr<JavaScriptTask> js_task =
         std::make_shared<JavaScriptTask>();
@@ -150,8 +149,7 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
       std::shared_ptr<CtxValue> error;
       if (!move_code.empty()) {
         auto last_dir_str_obj = ctx->GetGlobalStrVar("__HIPPYCURDIR__");
-        HIPPY_DLOG(hippy::Debug, "__HIPPYCURDIR__ cur_dir = %s",
-                   cur_dir.c_str());
+        TDF_BASE_DLOG(INFO) << "__HIPPYCURDIR__ cur_dir = " << cur_dir;
         ctx->SetGlobalStrVar("__HIPPYCURDIR__", cur_dir.c_str());
         std::shared_ptr<TryCatch> try_catch =
             CreateTryCatchScope(true, scope->GetContext());
@@ -160,12 +158,11 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
         ctx->SetGlobalObjVar("__HIPPYCURDIR__", last_dir_str_obj);
         std::string last_dir_str;
         ctx->GetValueString(last_dir_str_obj, &last_dir_str);
-        HIPPY_DLOG(hippy::Debug, "restore __HIPPYCURDIR__ = %s",
-                   last_dir_str.c_str());
+        TDF_BASE_DLOG(INFO) << "restore __HIPPYCURDIR__ = " << last_dir_str;
         if (try_catch->HasCaught()) {
           error = try_catch->Exception();
-          HIPPY_LOG(hippy::Error, "RequestUntrustedContent error = %s",
-                    try_catch->GetExceptionMsg().c_str());
+          TDF_BASE_DLOG(ERROR) << "RequestUntrustedContent error = "
+                               << try_catch->GetExceptionMsg();
         } else {
           error = ctx->CreateNull();
         }
@@ -175,7 +172,7 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
 
       std::shared_ptr<CtxValue> function = weak_function.lock();
       if (function) {
-        HIPPY_DLOG(hippy::Debug, "run js cb");
+        TDF_BASE_DLOG(INFO) << "run js cb";
         std::shared_ptr<CtxValue> argv[] = {error};
         ctx->CallFunction(function, 1, argv);
         RemoveCBFunc(uri);

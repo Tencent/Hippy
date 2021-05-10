@@ -15,11 +15,9 @@
  */
 package com.tencent.mtt.hippy.modules;
 
-/**
- * FileName: Promise
- * Description：
- * History：
- */
+import com.tencent.mtt.hippy.HippyEngine.BridgeTransferType;
+
+@SuppressWarnings({"unused"})
 public interface Promise
 {
     void resolve(Object value);
@@ -29,4 +27,6 @@ public interface Promise
 	boolean isCallback();
 
 	String getCallId();
+
+    void setTransferType(BridgeTransferType type);
 }

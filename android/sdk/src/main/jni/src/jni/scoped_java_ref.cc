@@ -26,11 +26,12 @@
 #include "jni/jni_env.h"
 
 JavaRef::JavaRef(JNIEnv* env, jobject obj) : obj_(nullptr) {
-  // HIPPY_DLOG(hippy::Debug, "JavaRef create");
+  // TDF_BASE_DLOG(INFO, nullptr) <<  "JavaRef create");
   if (!env) {
-    env = JNIEnvironment::AttachCurrentThread();
+    env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   } else {
-    HIPPY_DCHECK(env == JNIEnvironment::AttachCurrentThread());
+    TDF_BASE_DCHECK(env ==
+                    JNIEnvironment::GetInstance()->AttachCurrentThread());
   }
 
   if (obj) {
@@ -39,8 +40,8 @@ JavaRef::JavaRef(JNIEnv* env, jobject obj) : obj_(nullptr) {
 }
 
 JavaRef::~JavaRef() {
-  // HIPPY_DLOG(hippy::Debug, "~JavaRef release");
+  // TDF_BASE_DLOG(INFO, nullptr) <<  "~JavaRef release");
   if (obj_) {
-    JNIEnvironment::AttachCurrentThread()->DeleteGlobalRef(obj_);
+    JNIEnvironment::GetInstance()->AttachCurrentThread()->DeleteGlobalRef(obj_);
   }
 }

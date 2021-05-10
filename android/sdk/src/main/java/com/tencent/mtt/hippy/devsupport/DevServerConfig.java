@@ -18,7 +18,6 @@ package com.tencent.mtt.hippy.devsupport;
 import android.content.Context;
 import android.content.SharedPreferences;
 import com.tencent.mtt.hippy.utils.ContextHolder;
-import java.io.File;
 
 public class DevServerConfig
 {
@@ -26,34 +25,18 @@ public class DevServerConfig
 
 	private static final String	HIPPYDEBUGPREF		= "hippydebugpref";
 
-	public static final String	JS_BUNDLE_FILE_NAME	= "HippyDevBundle.js";
-
 	boolean						mLiveDebug			= false;
 
-	SharedPreferences			sharedPreferences;
-
-	private File				mJSBundleTempFile;
+	final SharedPreferences sharedPreferences;
 
 	// Hippy Server JsBundle名字
-	private String				mServerBundleName;
-	private String				mServerHost;
+	private final String				mServerHost;
 
+	@SuppressWarnings("unused")
 	public DevServerConfig(String serverHost, String bundleName)
 	{
 		sharedPreferences = ContextHolder.getAppContext().getSharedPreferences(HIPPYDEBUGPREF, Context.MODE_PRIVATE);
-		mJSBundleTempFile = new File(ContextHolder.getAppContext().getFilesDir(), JS_BUNDLE_FILE_NAME);
-		mServerBundleName = bundleName;
 		mServerHost = serverHost;
-	}
-
-	public File getJSBundleTempFile()
-	{
-		return mJSBundleTempFile;
-	}
-
-	public String getBundleName()
-	{
-		return mServerBundleName;
 	}
 
 	public String getServerHost()

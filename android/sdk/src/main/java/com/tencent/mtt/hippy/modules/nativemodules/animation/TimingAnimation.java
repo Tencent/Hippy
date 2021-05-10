@@ -16,6 +16,7 @@
 package com.tencent.mtt.hippy.modules.nativemodules.animation;
 
 import android.animation.Animator;
+import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.os.Build;
 import android.text.TextUtils;
@@ -24,16 +25,13 @@ import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 
-/**
- * FileName: TimingAnimation
- * Description：
- * History：
- */
+@SuppressWarnings({"deprecation","unused"})
 public class TimingAnimation extends Animation implements ValueAnimator.AnimatorUpdateListener, Animator.AnimatorListener
 {
 
 	private static final String	VALUE_TYPE_RAD				= "rad";
 	private static final String	VALUE_TYPE_DEG				= "deg";
+	private static final String	VALUE_TYPE_COLOR			= "color";
 	private static final String	TIMING_FUNCTION_LINEAR		= "linear";
 	private static final String	TIMING_FUNCTION_EASE_IN		= "ease-in";
 	private static final String	TIMING_FUNCTION_EASE_OUT	= "ease-out";
@@ -43,7 +41,7 @@ public class TimingAnimation extends Animation implements ValueAnimator.Animator
 	protected float				mToValue;
 	protected int				mDuration;
 	protected String			mTimingFunction;
-	protected ValueAnimator		mAnimator;
+	protected final ValueAnimator mAnimator;
 	protected String			mValueType;
 	protected int				mRepeatCount				= 0;
 	protected ValueTransformer	mValueTransformer;
@@ -147,6 +145,11 @@ public class TimingAnimation extends Animation implements ValueAnimator.Animator
 
 	public void parseFromData(HippyMap param)
 	{
+		if (param.containsKey("valueType"))
+		{
+			mValueType = param.getString("valueType");
+		}
+
 		if (param.containsKey("delay"))
 		{
 			mDelay = param.getInt("delay");
@@ -168,11 +171,6 @@ public class TimingAnimation extends Animation implements ValueAnimator.Animator
 			mDuration = param.getInt("duration");
 		}
 
-		if (param.containsKey("valueType"))
-		{
-			mValueType = param.getString("valueType");
-		}
-
 		if (param.containsKey("timingFunction"))
 		{
 			mTimingFunction = param.getString("timingFunction");
@@ -181,13 +179,7 @@ public class TimingAnimation extends Animation implements ValueAnimator.Animator
 		if (param.containsKey(NodeProps.REPEAT_COUNT))
 		{
 			mRepeatCount = param.getInt(NodeProps.REPEAT_COUNT);
-			/**
-			 * 前端repeatCount的含义
-			 * 小于0 		无限次
-			 * 0 			1次 = (0+1)次
-			 * n  			是n次
-			 * */
-			if(mRepeatCount > 0 )
+            if(mRepeatCount > 0 )
 				mRepeatCount = mRepeatCount - 1;
 			mAnimator.setRepeatCount(mRepeatCount);
 			mAnimator.setRepeatMode(ValueAnimator.RESTART);
@@ -203,7 +195,13 @@ public class TimingAnimation extends Animation implements ValueAnimator.Animator
 			}
 		}
 
-		mAnimator.setFloatValues(mStartValue, mToValue);
+		if (!TextUtils.isEmpty(mValueType) && mValueType.equals(VALUE_TYPE_COLOR)) {
+			mAnimator.setIntValues((int)mStartValue, (int)mToValue);
+			mAnimator.setEvaluator(new ArgbEvaluator());
+		} else {
+			mAnimator.setFloatValues(mStartValue, mToValue);
+		}
+
 		mAnimator.setDuration(mDuration);
 		if (TextUtils.equals(TIMING_FUNCTION_EASE_IN, mTimingFunction))
 		{

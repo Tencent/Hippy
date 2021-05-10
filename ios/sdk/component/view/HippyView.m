@@ -247,6 +247,19 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : unused)
     }
 }
 
+- (BOOL)pointInside:(CGPoint)point withEvent:(UIEvent *)event {
+    //require clickable when animating.
+    //we check presentationLayer frame.
+    //point inside presentationLayer means point inside view
+    if ([[self.layer animationKeys] count] > 0) {
+        CGRect presentationLayerFrame = self.layer.presentationLayer.frame;
+        CGRect convertPresentationLayerFrame = [self.superview convertRect:presentationLayerFrame toView:self];
+        return CGRectContainsPoint(convertPresentationLayerFrame, point);
+    }
+    BOOL pointInside = [super pointInside:point withEvent:event];
+    return pointInside;
+}
+
 - (NSString *)description {
     NSString *superDescription = super.description;
     NSRange semicolonRange = [superDescription rangeOfString:@";"];
@@ -411,6 +424,13 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : unused)
     [self.layer setNeedsDisplay];
 }
 
+- (void)setBackgroundImageUrl:(NSString *)backgroundImageUrl {
+    if (![_backgroundImageUrl isEqualToString:backgroundImageUrl]) {
+        _backgroundImageUrl = [backgroundImageUrl copy];
+        [self.layer setNeedsDisplay];
+    }
+}
+
 - (UIEdgeInsets)bordersAsInsets {
     const CGFloat borderWidth = MAX(0, _borderWidth);
 
@@ -510,7 +530,6 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
         return;
     }
 
-    __weak CALayer *weakLayer = layer;
     [self drawShadowForLayer];
 
     const HippyCornerRadii cornerRadii = [self cornerRadii];
@@ -531,7 +550,8 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
     // solve this, we'll need to add a container view inside the main view to
     // correctly clip the subviews.
 
-    if (useIOSBorderRendering && !_backgroundImageUrl) {
+    BOOL canHandleBackgroundImageURL = [[self backgroundCachemanager] canHandleImageURL:_backgroundImageUrl];
+    if (useIOSBorderRendering && !canHandleBackgroundImageURL) {
         layer.cornerRadius = cornerRadii.topLeft;
         layer.borderColor = borderColors.left;
         layer.borderWidth = borderInsets.left;
@@ -541,84 +561,92 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
         layer.mask = nil;
         return;
     }
+    
+    __weak typeof(self) weakSelf = self;
+    [self getLayerContentForColor:nil completionBlock:^(UIImage *contentImage) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            typeof(weakSelf) strongSelf = weakSelf;
+            CALayer *strongLayer = strongSelf.layer;
+            CGRect contentsCenter = ({
+                CGSize size = contentImage.size;
+                UIEdgeInsets insets = contentImage.capInsets;
+                CGRectMake(insets.left / size.width, insets.top / size.height, 1.0 / size.width, 1.0 / size.height);
+            });
+            BOOL needsDisplay = [strongLayer needsDisplay];
+            strongLayer.contents = (id)contentImage.CGImage;
 
+            strongLayer.backgroundColor = NULL;
+
+            //  weakLayer.contents = (id)image.CGImage;
+            strongLayer.contentsScale = contentImage.scale;
+            strongLayer.needsDisplayOnBoundsChange = YES;
+            strongLayer.magnificationFilter = kCAFilterNearest;
+
+            const BOOL isResizable = !UIEdgeInsetsEqualToEdgeInsets(contentImage.capInsets, UIEdgeInsetsZero);
+
+            [strongSelf updateClippingForLayer:strongLayer];
+
+            if (isResizable) {
+                strongLayer.contentsCenter = contentsCenter;
+            } else {
+                strongLayer.contentsCenter = CGRectMake(0.0, 0.0, 1.0, 1.0);
+            }
+            if (needsDisplay) {
+                [strongLayer setNeedsDisplay];
+            }
+        });
+    }];
+}
+
+- (BOOL)getLayerContentForColor:(UIColor *)color completionBlock:(void (^)(UIImage *))contentBlock {
+    const HippyCornerRadii cornerRadii = [self cornerRadii];
+    const UIEdgeInsets borderInsets = [self bordersAsInsets];
+    const HippyBorderColors borderColors = [self borderColors];
+    UIColor *backgroundColor = color?:self.backgroundColor;
+    
     CGRect theFrame = self.frame;
     NSInteger clipToBounds = self.clipsToBounds;
     NSString *backgroundSize = self.backgroundSize;
-    __weak typeof(self) weakSelf = self;
-    HippyBoarderColorsRetain(borderColors);
-    dispatch_async(global_hpview_queue(), ^{
-        UIImage *image = HippyGetBorderImage(
-            weakSelf.borderStyle, theFrame.size, cornerRadii, borderInsets, borderColors, backgroundColor.CGColor, clipToBounds);
-        HippyBoarderColorsRelease(borderColors);
-        if (image == nil) {
-            weakLayer.contents = nil;
-            weakLayer.needsDisplayOnBoundsChange = NO;
-            return;
-        }
+    UIImage *image = HippyGetBorderImage(
+        self.borderStyle, theFrame.size, cornerRadii, borderInsets, borderColors, backgroundColor.CGColor, clipToBounds);
+    if (image == nil) {
+        contentBlock(nil);
+        return YES;
+    }
 
-        CGRect contentsCenter = ({
-            CGSize size = image.size;
-            UIEdgeInsets insets = image.capInsets;
-            if (size.width == 0 || size.height == 0) {
-                HippyLogError(@"divided by zero in HippyView.m");
+    if (!self.backgroundImageUrl) {
+        contentBlock(image);
+        return YES;
+    } else {
+        CGFloat backgroundPositionX = self.backgroundPositionX;
+        CGFloat backgroundPositionY = self.backgroundPositionY;
+        HippyBackgroundImageCacheManager *weakBackgroundCacheManager = [self backgroundCachemanager];
+        [weakBackgroundCacheManager imageWithUrl:self.backgroundImageUrl completionHandler:^(UIImage *decodedImage, NSError *error) {
+            if (error) {
+                HippyLogError(@"weakBackgroundCacheManagerLog %@", error);
                 return;
             }
-            CGRectMake(insets.left / size.width, insets.top / size.height, 1.0 / size.width, 1.0 / size.height);
-        });
+            if (!decodedImage) {
+                contentBlock(nil);
+            }
 
-        void (^setImageBlock)(UIImage *) = ^(UIImage *resultingImage) {
-            dispatch_sync(dispatch_get_main_queue(), ^{
-                weakLayer.contents = (id)resultingImage.CGImage;
+            UIGraphicsBeginImageContextWithOptions(theFrame.size, NO, image.scale);
+            CGSize size = theFrame.size;
 
-                weakLayer.backgroundColor = NULL;
+            [image drawInRect:(CGRect) { CGPointZero, size }];
+            CGSize imageSize = decodedImage.size;
+            CGSize targetSize = UIEdgeInsetsInsetRect(theFrame, [self bordersAsInsets]).size;
 
-                //  weakLayer.contents = (id)image.CGImage;
-                weakLayer.contentsScale = image.scale;
-                weakLayer.needsDisplayOnBoundsChange = YES;
-                weakLayer.magnificationFilter = kCAFilterNearest;
+            CGSize drawSize = makeSizeConstrainWithType(imageSize, targetSize, backgroundSize);
 
-                const BOOL isResizable = !UIEdgeInsetsEqualToEdgeInsets(image.capInsets, UIEdgeInsetsZero);
-
-                [self updateClippingForLayer:weakLayer];
-
-                if (isResizable) {
-                    weakLayer.contentsCenter = contentsCenter;
-                } else {
-                    weakLayer.contentsCenter = CGRectMake(0.0, 0.0, 1.0, 1.0);
-                }
-            });
-        };
-
-        if (!weakSelf.backgroundImageUrl) {
-            setImageBlock(image);
-        } else {
-            CGFloat backgroundPositionX = weakSelf.backgroundPositionX;
-            CGFloat backgroundPositionY = weakSelf.backgroundPositionY;
-            HippyBackgroundImageCacheManager *weakBackgroundCacheManager = [weakSelf backgroundCachemanager];
-            [weakBackgroundCacheManager imageWithUrl:weakSelf.backgroundImageUrl completionHandler:^(UIImage *decodedImage, NSError *error) {
-                if (error) {
-                    HippyLogError(@"weakBackgroundCacheManagerLog %@", error);
-                    return;
-                }
-
-                UIGraphicsBeginImageContextWithOptions(theFrame.size, NO, image.scale);
-                CGSize size = theFrame.size;
-
-                [image drawInRect:(CGRect) { CGPointZero, size }];
-                CGSize imageSize = decodedImage.size;
-                CGSize targetSize = UIEdgeInsetsInsetRect(theFrame, [weakSelf bordersAsInsets]).size;
-
-                CGSize drawSize = makeSizeConstrainWithType(imageSize, targetSize, backgroundSize);
-
-                [decodedImage drawInRect:CGRectMake(borderInsets.left + backgroundPositionX, borderInsets.top + backgroundPositionY, drawSize.width,
-                                             drawSize.height)];
-                UIImage *resultingImage = UIGraphicsGetImageFromCurrentImageContext();
-                UIGraphicsEndImageContext();
-                setImageBlock(resultingImage);
-            }];
-        }
-    });
+            [decodedImage drawInRect:CGRectMake(borderInsets.left + backgroundPositionX, borderInsets.top + backgroundPositionY, drawSize.width,
+                                         drawSize.height)];
+            UIImage *resultingImage = UIGraphicsGetImageFromCurrentImageContext();
+            UIGraphicsEndImageContext();
+            contentBlock(resultingImage);
+        }];
+        return NO;
+    }
 }
 
 - (HippyBackgroundImageCacheManager *)backgroundCachemanager {

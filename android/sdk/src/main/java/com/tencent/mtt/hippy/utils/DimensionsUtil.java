@@ -27,12 +27,12 @@ import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.WindowManager;
 
-import com.tencent.mtt.hippy.HippyGlobalConfigs;
 import com.tencent.mtt.hippy.common.HippyMap;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+@SuppressWarnings("deprecation")
 public class DimensionsUtil
 {
 	private static final String NAV_BAR_HEIGHT_RES_NAME = "navigation_bar_height";
@@ -41,11 +41,6 @@ public class DimensionsUtil
 	private static int hasNavigationBar = -1;
 	private static int STATUS_BAR_HEIGHT = -1;
 
-	/**
-	 * 获取设备信息（目前支持几大主流的全面屏手机，先适配华为、小米、oppo、魅族、vivo几个机型）
-	 *
-	 * @return
-	 */
 	private static String getNavigationBarIsMinKeyName() {
 		String brand = Build.BRAND;
 		if(TextUtils.isEmpty(brand)) return "navigationbar_is_min";
@@ -65,7 +60,7 @@ public class DimensionsUtil
 
 	private static boolean checkNavigationBarShow(@NonNull Context context) {
 		if (hasNavigationBar != -1) {
-			return (hasNavigationBar == 1) ? true : false;
+			return hasNavigationBar == 1;
 		}
 
 		boolean checkResult = false;
@@ -75,11 +70,11 @@ public class DimensionsUtil
 			checkResult = rs.getBoolean(id);
 		}
 		try {
-			Class systemPropertiesClass = Class.forName("android.os.SystemProperties");
-			Method m = systemPropertiesClass.getMethod("get", String.class);
+			@SuppressWarnings("rawtypes") Class systemPropertiesClass = Class.forName("android.os.SystemProperties");
+			@SuppressWarnings("unchecked") Method m = systemPropertiesClass.getMethod("get", String.class);
 			String navBarOverride = (String) m.invoke(systemPropertiesClass, "qemu.hw.mainkeys");
 			//判断是否隐藏了底部虚拟导航
-			int navigationBarIsMin = 0;
+			int navigationBarIsMin;
 			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
 				navigationBarIsMin = Settings.System.getInt(context.getContentResolver(),
 						getNavigationBarIsMinKeyName(), 0);
@@ -113,6 +108,7 @@ public class DimensionsUtil
 	public static int getNavigationBarHeight(Context context) {
 		assert(context != null);
 
+		//noinspection ConstantConditions
 		if(context == null || !checkNavigationBarShow(context)){
 			return 0;
 		}
@@ -145,8 +141,8 @@ public class DimensionsUtil
 			defaultDisplay.getRealMetrics(screenDisplayMetrics);
 		} else {
 			try {
-				Method mGetRawH = Display.class.getMethod("getRawHeight");
-				Method mGetRawW = Display.class.getMethod("getRawWidth");
+				@SuppressWarnings("JavaReflectionMemberAccess") Method mGetRawH = Display.class.getMethod("getRawHeight");
+				@SuppressWarnings("JavaReflectionMemberAccess") Method mGetRawW = Display.class.getMethod("getRawWidth");
 
 				Object width = mGetRawW.invoke(defaultDisplay);
 				screenDisplayMetrics.widthPixels = width!=null? (Integer) width:0;
@@ -161,14 +157,15 @@ public class DimensionsUtil
 		// construct param
 		HippyMap dimensionMap = new HippyMap();
 		if (STATUS_BAR_HEIGHT < 0) {
-			Class<?> c = null;
-			Object obj = null;
-			Field field = null;
-			int x = 0;
+			Class<?> c;
+			Object obj;
+			Field field;
+			int x;
 			try {
 				c = Class.forName("com.android.internal.R$dimen");
 				obj = c.newInstance();
 				field = c.getField("status_bar_height");
+				//noinspection ConstantConditions
 				x = Integer.parseInt(field.get(obj).toString());
 				STATUS_BAR_HEIGHT = context.getResources().getDimensionPixelSize(x);
 			} catch (Exception e) {
@@ -188,27 +185,24 @@ public class DimensionsUtil
 
 		int navigationBarHeight = getNavigationBarHeight(context);
 		HippyMap windowDisplayMetricsMap = new HippyMap();
+
 		if (shouldUseScreenDisplay) {
 			windowDisplayMetricsMap.pushInt("width", windowWidth >= 0 ? windowWidth : screenDisplayMetrics.widthPixels);
 			windowDisplayMetricsMap.pushInt("height", windowHeight >= 0 ? windowHeight : screenDisplayMetrics.heightPixels);
 			windowDisplayMetricsMap.pushDouble("scale", screenDisplayMetrics.density);
 			windowDisplayMetricsMap.pushDouble("fontScale", screenDisplayMetrics.scaledDensity);
 			windowDisplayMetricsMap.pushDouble("densityDpi", screenDisplayMetrics.densityDpi);
-			windowDisplayMetricsMap.pushDouble("statusBarHeight", STATUS_BAR_HEIGHT);
-			windowDisplayMetricsMap.pushDouble("navigationBarHeight", navigationBarHeight);
-
-			dimensionMap.pushMap("windowPhysicalPixels", windowDisplayMetricsMap);
 		} else {
 			windowDisplayMetricsMap.pushInt("width", windowWidth >= 0 ? windowWidth : windowDisplayMetrics.widthPixels);
 			windowDisplayMetricsMap.pushInt("height", windowHeight >= 0 ? windowHeight : windowDisplayMetrics.heightPixels);
 			windowDisplayMetricsMap.pushDouble("scale", windowDisplayMetrics.density);
 			windowDisplayMetricsMap.pushDouble("fontScale", windowDisplayMetrics.scaledDensity);
 			windowDisplayMetricsMap.pushDouble("densityDpi", windowDisplayMetrics.densityDpi);
-			windowDisplayMetricsMap.pushDouble("statusBarHeight", STATUS_BAR_HEIGHT);
-			windowDisplayMetricsMap.pushDouble("navigationBarHeight", navigationBarHeight);
-
-			dimensionMap.pushMap("windowPhysicalPixels", windowDisplayMetricsMap);
 		}
+		windowDisplayMetricsMap.pushDouble("statusBarHeight", STATUS_BAR_HEIGHT);
+		windowDisplayMetricsMap.pushDouble("navigationBarHeight", navigationBarHeight);
+		dimensionMap.pushMap("windowPhysicalPixels", windowDisplayMetricsMap);
+
 		HippyMap screenDisplayMetricsMap = new HippyMap();
 		screenDisplayMetricsMap.pushInt("width", screenDisplayMetrics.widthPixels);
 		screenDisplayMetricsMap.pushInt("height", screenDisplayMetrics.heightPixels);

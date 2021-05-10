@@ -15,15 +15,13 @@
  */
 package com.tencent.mtt.hippy.adapter.font;
 
-/**
- * @author: edsheng
- * @date: 2018/4/2 10:48
- * @version: V1.0
- */
-
+@SuppressWarnings("SameReturnValue")
 public interface HippyFontScaleAdapter
 {
 	float getFontScale();
 
+	@SuppressWarnings("unused")
 	CharSequence getEmoticonText(CharSequence text, int fontSize);
+
+	String getCustomFontFilePath(String fontFamilyName, int style);
 }

@@ -16,23 +16,20 @@ package com.tencent.mtt.hippy.views.videoview;
  * limitations under the License.
  */
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import android.content.Context;
 import android.os.Environment;
-import android.util.Log;
 
+@SuppressWarnings("deprecation")
 public class APKExpansionSupport {
 	// The shared path to all app expansion files
 	private final static String EXP_PATH = "/Android/obb/";
 
 	static String[] getAPKExpansionFiles(Context ctx, int mainVersion, int patchVersion) {
 		String packageName = ctx.getPackageName();
-		Vector<String> ret = new Vector<String>();
+		Vector<String> ret = new Vector<>();
 		if (Environment.getExternalStorageState().equals(
 				Environment.MEDIA_MOUNTED)) {
 			// Build the full path to the app's expansion files

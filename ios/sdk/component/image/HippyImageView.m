@@ -34,7 +34,7 @@
 NSString *const HippyImageErrorDomain = @"HippyImageErrorDomain";
 
 typedef NS_ENUM(NSUInteger, ImageDataError) {
-    ImageDataUnavailable = 1001,
+    ImageDataUnavailable = 10001,
     ImageDataNotExist,
     ImageDataReceivedError,
     ImageDataBlurredError,
@@ -65,6 +65,14 @@ static NSOperationQueue *animated_image_queue() {
         _animatedImageOQ.maxConcurrentOperationCount = 1;
     });
     return _animatedImageOQ;
+}
+
+static BOOL HippyImageNeedsShrinkForSize(UIImage *inputImage, CGSize size) {
+    CGSize inputImageSize = inputImage.size;
+    if (inputImageSize.width > size.width || inputImageSize.height > size.height) {
+        return YES;
+    }
+    return NO;
 }
 
 UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius, NSError **error) {
@@ -293,6 +301,9 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
             self.contentMode = UIViewContentModeScaleToFill;
         } else {
             self.contentMode = (UIViewContentMode)resizeMode;
+        }
+        if (self.image) {
+            [self updateImage:self.image];
         }
     }
 }
@@ -590,7 +601,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
 - (void)loadImage:(UIImage *)image url:(NSString *)url error:(NSError *)error needBlur:(BOOL)needBlur needCache:(BOOL)needCache {
     if (error) {
         if (_onError && error.code != NSURLErrorCancelled) {
-            _onError(@{ @"error": error.localizedDescription });
+            _onError(@{ @"error": error.localizedDescription, @"errorCode": @(error.code) });
         }
         if (_onLoadEnd) {
             _onLoadEnd(nil);
@@ -658,9 +669,15 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
         image = [image imageWithRenderingMode:_renderingMode];
     }
 
-    if (_resizeMode == HippyResizeModeRepeat) {
+    if (HippyResizeModeRepeat == _resizeMode) {
         image = [image resizableImageWithCapInsets:_capInsets resizingMode:UIImageResizingModeTile];
-    } else if (!UIEdgeInsetsEqualToEdgeInsets(UIEdgeInsetsZero, _capInsets)) {
+    }
+    else if (HippyResizeModeCenter == _resizeMode) {
+        if (HippyImageNeedsShrinkForSize(image, self.bounds.size)) {
+            self.contentMode = UIViewContentModeScaleAspectFit;
+        }
+    }
+    else if (!UIEdgeInsetsEqualToEdgeInsets(UIEdgeInsetsZero, _capInsets)) {
         // Applying capInsets of 0 will switch the "resizingMode" of the image to "tile" which is undesired
         image = [image resizableImageWithCapInsets:_capInsets resizingMode:UIImageResizingModeStretch];
     }

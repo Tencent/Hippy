@@ -29,16 +29,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * @author: edsheng
- * @date: 2017/11/24 15:10
- * @version: V1.0
- */
-
+@SuppressWarnings({"deprecation", "unused", "rawtypes"})
 public class DomUpdateManager<T>
 {
 
-	static Map<Class, Map<String, StyleMethod>>	CLASS_STYLE_METHOD	= new HashMap<>();
+	static final Map<Class, Map<String, StyleMethod>>	CLASS_STYLE_METHOD	= new HashMap<>();
 
 	public void updateStyle(T t, HippyMap hippyMap)
 	{
@@ -78,6 +73,7 @@ public class DomUpdateManager<T>
 									break;
 								default:
 									Object o = null;
+									//noinspection ConstantConditions
 									styleMethodHolder.mMethod.invoke(t, o);
 									break;
 							}
@@ -114,7 +110,7 @@ public class DomUpdateManager<T>
 		Map<String, StyleMethod> methodHolder = CLASS_STYLE_METHOD.get(cls);
 		if (methodHolder == null)
 		{
-			Method methods[] = cls.getDeclaredMethods();
+			Method[] methods = cls.getDeclaredMethods();
 			for (Method method : methods)
 			{
 				HippyControllerProps controllerProps = method.getAnnotation(HippyControllerProps.class);
@@ -132,7 +128,7 @@ public class DomUpdateManager<T>
 				}
 			}
 			// put to CLASS_PROPS_METHOD
-			CLASS_STYLE_METHOD.put(cls, new HashMap<String, StyleMethod>(hashMap));
+			CLASS_STYLE_METHOD.put(cls, new HashMap<>(hashMap));
 		}
 		else
 		{

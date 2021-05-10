@@ -1,5 +1,6 @@
 package com.tencent.mtt.supportui.views.viewpager;
 
+import com.tencent.mtt.hippy.utils.LogUtils;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -127,6 +128,7 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 
 	/* private */ ViewPagerAdapter						mAdapter;
 	/* private */ int									mCurItem;
+	/* private */ int									mLastItem                       = INVALID_SCREEN;
 	// Index
 	// of
 	// currently
@@ -559,6 +561,11 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 			mMinPage = Integer.MIN_VALUE;
 			mMaxPage = Integer.MAX_VALUE;
 		}
+
+		if (newState == SCROLL_STATE_IDLE) {
+			mLastItem = mCurItem;
+		}
+
 		mScrollState = newState;
 	}
 
@@ -2355,7 +2362,12 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 			if (oldX != x || oldY != y)
 			{
 				scrollTo(x, y);
-				if (!pageScrolled(mIsVertical ? y : x, x-oldX > 0 ? 1 : -1) && !isGallery())
+				int direction = x - oldX > 0 ? 1 : -1;
+				if (mIsVertical) {
+					direction = y - oldY > 0 ? 1 : -1;
+				}
+
+				if (!pageScrolled(mIsVertical ? y : x, direction) && !isGallery())
 				{
 					mScroller.abortAnimation();
 					if (mIsVertical)
@@ -2415,6 +2427,7 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 		final int sizeWithMargin = size + mPageMargin;
 		float pageOffset = 0;
 		int offsetPixels = 0;
+
 		if (mItems != null && mItems.size() == 0)
 		{
 			mCalledSuper = false;
@@ -2431,11 +2444,12 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 		final ItemInfo ii = infoForCurrentScrollPosition();
 		final float marginOffset = (float) mPageMargin / size;
 		int currentPage = ii.position;
+		int targetPage = currentPage;
 		final float rightBound = ii.offset + ii.sizeFactor;
 		if (direct > 0) {
       pageOffset = (((float) pos / size) - ii.offset) / (ii.sizeFactor + marginOffset);
       if (pageOffset > 0) {
-        currentPage = Math.min(currentPage + 1, (int) rightBound);
+        targetPage = Math.min(currentPage + 1, (int) rightBound);
       }
     } else {
       pageOffset = (((float) pos / size) - rightBound) / (ii.sizeFactor + marginOffset);
@@ -2444,7 +2458,8 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
       }
     }
 		mCalledSuper = false;
-		onPageScrolled(currentPage, pageOffset, offsetPixels);
+		LogUtils.d(TAG, "pageScrolled: targetPage=" + targetPage + ", pageOffset=" + pageOffset);
+		onPageScrolled(targetPage, pageOffset, offsetPixels);
 		if (!mCalledSuper)
 		{
 			throw new IllegalStateException("onPageScrolled did not call superclass implementation");

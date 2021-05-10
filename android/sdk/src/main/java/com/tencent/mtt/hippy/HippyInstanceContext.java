@@ -27,17 +27,13 @@ import com.tencent.mtt.supportui.utils.struct.WeakEventHub;
 
 import java.util.Map;
 
-/**
- * FileName: HippyInstanceContext
- * Description：
- * History：
- */
+@SuppressWarnings({"deprecation","unused"})
 public final class HippyInstanceContext extends ContextWrapper
 {
 	private static final String						TAG	= "HippyInstanceContext";
 
 	private HippyEngineContext						mEngineContext;
-	private WeakEventHub<InstanceDestroyListener> mDestroyListeners;
+	private WeakEventHub<InstanceDestroyListener>   mDestroyListeners;
 	HippyEngine.ModuleLoadParams					mModuleParams;
 	private HippyBundleLoader						mBundleLoader;
 
@@ -76,6 +72,7 @@ public final class HippyInstanceContext extends ContextWrapper
 			mBundleLoader = mModuleParams.bundleLoader;
 		else
 		{
+			assert params != null;
 			if (!TextUtils.isEmpty(params.jsAssetsPath))
 				mBundleLoader = new HippyAssetBundleLoader(params.context, params.jsAssetsPath, !TextUtils.isEmpty(params.codeCacheTag), params.codeCacheTag);
 			else if (!TextUtils.isEmpty(params.jsFilePath))
@@ -88,6 +85,7 @@ public final class HippyInstanceContext extends ContextWrapper
 		return mEngineContext;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Map getNativeParams()
 	{
 		return mModuleParams != null ? mModuleParams.nativeParams : null;
@@ -113,7 +111,7 @@ public final class HippyInstanceContext extends ContextWrapper
 	{
 		if (mModuleParams != null)
 		{
-			Map map = mModuleParams.nativeParams;
+			@SuppressWarnings("rawtypes") Map map = mModuleParams.nativeParams;
 			if (map != null)
 				map.clear();
 		}
@@ -130,7 +128,7 @@ public final class HippyInstanceContext extends ContextWrapper
 					}
 					catch (Exception e)
 					{
-						LogUtils.e(TAG, e.getCause().toString());
+						LogUtils.e(TAG, "notifyInstanceDestroy: " + e);
 					}
 				}
 			}

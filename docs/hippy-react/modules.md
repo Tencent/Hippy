@@ -5,7 +5,7 @@
 
 # Animation
 
-[[Animation 范例]](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/modules/Animation)
+[[Animation 范例]](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/modules/Animation/index.jsx)
 
 `Animation` 是 Hippy 提供的动画组件，可以支持传入动画配置，以及手动控制开始与结束。在 Hippy 上实现一个动画分为三个步骤：
 
@@ -21,9 +21,9 @@
 | -------------- | -------------------- | ---- | ------ | ------------------------------------------------------------ |
 | mode           | `string`             | 是   | timing | 动画时间轴模式                                               |
 | delay          | `number`             | 是   | -      | 动画延迟开始的时间，单位为毫秒，默认为 0，即动画start之后立即执行；指定列表的行数，一般直接传入数据源条数 `length` 即可 |
-| startValue     | `number`, `Animation` | 是   | -      | 动画开始时的值，可为 Number 类型或一个 Animation 的对象，如果指定为一个 Animation 时，代表本动画的初始值为其指定的动画结束或中途 cancel 后的所处的动画值（这种场景通常用于 AnimationSet 中实现多个连续变化的动画）； |
-| toValue        | `number`             | 是   | -      | 动画结束时候的值                                             |
-| valueType*      | `number`, `string`    | 否   | null   | 动画的开始和结束值的单位类型，默认为空，代表动画起止的单位是普通Number，单位pt。 PS: Web平台此接口只支持number类型传参 |
+| startValue     | `number`, `Animation`, `string` | 是   | -      | 动画开始时的值，可为 Number 类型 String 类型，或一个 Animation 的对象，如果指定为一个 Animation 时，代表本动画的初始值为其指定的动画结束或中途 cancel 后的所处的动画值（这种场景通常用于 AnimationSet 中实现多个连续变化的动画）；如果为颜色值参考 [color](style/color.md)  |
+| toValue        | `number`, `string`             | 是   | -      | 动画结束时候的值；如果为颜色值参考 [color](style/color.md)                                             |
+| valueType*      | `number`, `string`    | 否   | null   | 动画的开始和结束值的类型，默认为空，代表动画起止的单位是普通Number。 PS: Web平台此接口只支持number类型传参 |
 | duration       | `number`             | 否   | -      | 动画时长，单位为毫秒(ms)                                     |
 | timingFunction* | `string`             | 否   | linear | 动画插值器类型                                               |
 | repeatCount    | `number`, `loop`             | 否   | -      | 动画的重复次数，默认为0，即只播放一次，为"loop"时代表无限循环播放； repeatCount 设为 n 时，则动画会播放 n 次 |
@@ -31,6 +31,7 @@
 * valueType 的参数选项：
   * `rad`：代表动画参数的起止值为弧度；
   * `deg`：代表动画参数的起止值为度数；
+  * `color`：代表动画参数的起止值为颜色值，可修饰背景色 `backgroundColor` 和文字颜色 `color`(仅Android支持)，参考 [例子](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/modules/Animation/index.jsx) `最低支持版本2.6.0`
 
 * timingFunction 的参数选项：
   * `linear`：使用线性插值器，动画将匀速进行；
@@ -240,10 +241,8 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 `(target: 'window' | 'screen') => { height: number, width: number, scale: number, statusBarHeight, navigatorBarHeight }` Hippy Root View 尺寸或者屏幕尺寸。
 
 > * target: 'window' | 'screen' - 指定丈量 Hippy Root View 或者屏幕尺寸。
-
-> Anrdoid 特别说明：因为历史遗留问题，screen 下的 statusBarHeight 是按实际像素算的，window 下经过修正已经是 dp 单位。
-
-> navigatorBarHeight 最低支持版本 2.3.4
+> * Android 特别说明：因为历史遗留问题，screen 下的 statusBarHeight 是按实际像素算的，window 下经过修正已经是 dp 单位。
+> * navigatorBarHeight: Android 底部 navigatorBar 高度；最低支持版本 2.3.4
 
 # ImageLoaderModule
 
@@ -384,3 +383,17 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 `(styleObj: Object) => styleObj`
 
 > * styleObj: Object - 样式对象
+
+# UIManagerModule
+
+提供了操作 UI 相关的能力。
+
+## 方法
+
+### UIManagerModule.measureInAppWindow
+
+测量在 App 可视范围内某个组件的尺寸和位置，如果出错 callback 参数可能为字符串或者 -1
+
+`(ref, callback: Function) => Promise`
+
+> * callback: ({ x, y, width, height } | string | -1) => void - 回调函数, 参数可以获取到引用组件在 App 可视范围内的坐标值和宽高，如果出错可能返回 -1 或者 `this view is null` 字符串

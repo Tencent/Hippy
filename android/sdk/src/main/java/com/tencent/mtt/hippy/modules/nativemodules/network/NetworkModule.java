@@ -43,9 +43,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
-/**
- * Created by ceasoncai on 2018/1/8.
- */
+@SuppressWarnings({"deprecation","unused"})
 @HippyNativeModule(name = "network")
 public class NetworkModule extends HippyNativeModuleBase
 {
@@ -71,7 +69,7 @@ public class NetworkModule extends HippyNativeModuleBase
 			if (valueObj instanceof HippyArray)
 			{
 				HippyArray oneHeaderArray = (HippyArray) valueObj;
-				List<String> headerValueArray = new ArrayList<String>();
+				List<String> headerValueArray = new ArrayList<>();
 				for (int i = 0; i < oneHeaderArray.size(); i++)
 				{
 					Object oneHeaderValue = oneHeaderArray.get(i);
@@ -126,14 +124,8 @@ public class NetworkModule extends HippyNativeModuleBase
 		httpRequest.setConnectTimeout(10 * 1000);
 		httpRequest.setReadTimeout(10 * 1000);
 		String redirect = request.getString("redirect");
-		if (!TextUtils.isEmpty(redirect) && TextUtils.equals("follow", redirect))
-		{
-			httpRequest.setInstanceFollowRedirects(true);
-		}
-		else
-		{
-			httpRequest.setInstanceFollowRedirects(false);
-		}
+		httpRequest.setInstanceFollowRedirects(
+				!TextUtils.isEmpty(redirect) && TextUtils.equals("follow", redirect));
 		httpRequest.setUseCaches(false);
 		httpRequest.setMethod(method);
 		httpRequest.setUrl(url);
@@ -162,11 +154,6 @@ public class NetworkModule extends HippyNativeModuleBase
 		}
 	}
 
-	/**
-	 * 获取指定url下的所有cookie
-	 * @param url 指定url，其实也就是指定作用域，如：http://3g.qq.com
-	 * @return 指定url下的所有cookie，如：eqid=deleted;bd_traffictrace=012146;BDSVRTM=418
-	 */
 	@HippyMethod(name = "getCookie")
 	public void getCookie(String url, Promise promise)
 	{
@@ -237,14 +224,14 @@ public class NetworkModule extends HippyNativeModuleBase
 
 	private static class HttpTaskCallbackImpl implements HippyHttpAdapter.HttpTaskCallback
 	{
-
-		private Promise	mPromise;
+		private final Promise	mPromise;
 
 		public HttpTaskCallbackImpl(Promise promise)
 		{
 			mPromise = promise;
 		}
 
+		@SuppressWarnings("CharsetObjectCanBeUsed")
 		@Override
 		public void onTaskSuccess(HippyHttpRequest request, HippyHttpResponse response) throws Exception
 		{
@@ -330,6 +317,7 @@ public class NetworkModule extends HippyNativeModuleBase
 				if (key != null && key.equalsIgnoreCase(HttpHeader.REQ.ACCEPT_ENCODING)) {
 					Object value = header.getValue();
 					if (value instanceof ArrayList) {
+						//noinspection unchecked
 						for (String valueItem : (ArrayList<String>)value) {
 							if (valueItem.equalsIgnoreCase("gzip") || valueItem.equalsIgnoreCase("deflate"))
 								return true;

@@ -9,6 +9,7 @@ import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
 import android.util.Log;
 
+import com.tencent.mtt.hippy.utils.LogUtils;
 import java.io.IOException;
 import java.util.EnumSet;
 
@@ -25,13 +26,13 @@ import java.util.EnumSet;
 @SuppressWarnings({ "WeakerAccess", "unused", "FieldCanBeLocal" })
 public class MediaPlayerStateWrapper
 {
-	private static String				tag							= "MediaPlayerWrapper";
-	private MediaPlayer					mPlayer;
-	private State						currentState;
-	private MediaPlayerStateWrapper		mWrapper;
+	private static final String				tag							= "MediaPlayerWrapper";
+	private final MediaPlayer				mPlayer;
+	private State						    currentState;
+	private final MediaPlayerStateWrapper	mWrapper;
 
 	/* INTERNAL LISTENERS */
-	private OnPreparedListener			mOnPreparedListener			= new OnPreparedListener()
+	private final OnPreparedListener		mOnPreparedListener			= new OnPreparedListener()
 																	{
 																		@Override
 																		public void onPrepared(MediaPlayer mp)
@@ -44,7 +45,7 @@ public class MediaPlayerStateWrapper
 																		}
 																	};
 
-	private OnCompletionListener		mOnCompletionListener		= new OnCompletionListener()
+	private final OnCompletionListener		mOnCompletionListener		= new OnCompletionListener()
 																	{
 																		@Override
 																		public void onCompletion(MediaPlayer mp)
@@ -55,7 +56,7 @@ public class MediaPlayerStateWrapper
 																		}
 																	};
 
-	private OnBufferingUpdateListener	mOnBufferingUpdateListener	= new OnBufferingUpdateListener()
+	private final OnBufferingUpdateListener	mOnBufferingUpdateListener	= new OnBufferingUpdateListener()
 																	{
 																		@Override
 																		public void onBufferingUpdate(MediaPlayer mp, int percent)
@@ -65,7 +66,7 @@ public class MediaPlayerStateWrapper
 																		}
 																	};
 
-	private OnErrorListener				mOnErrorListener			= new OnErrorListener()
+	private final OnErrorListener				mOnErrorListener			= new OnErrorListener()
 																	{
 																		@Override
 																		public boolean onError(MediaPlayer mp, int what, int extra)
@@ -106,8 +107,7 @@ public class MediaPlayerStateWrapper
 			throw new RuntimeException();
 	}
 
-	public void setDataSource(Context context, Uri uri) throws IOException
-	{
+	public void setDataSource(Context context, Uri uri) {
 		if (currentState == State.IDLE)
 		{
 			try
@@ -217,23 +217,25 @@ public class MediaPlayerStateWrapper
 	}
 
 	/* EXTERNAL STUBS TO OVERRIDE */
-	public void onPrepared(MediaPlayer mp)
-	{
+	public void onPrepared(MediaPlayer mp) {
+		LogUtils.d("MediaPlayerStateWrapper", "onPrepared");
 	}
 
-	public void onCompletion(MediaPlayer mp)
-	{
+	public void onCompletion(MediaPlayer mp) {
+		LogUtils.d("MediaPlayerStateWrapper", "onCompletion");
 	}
 
-	public void onBufferingUpdate(MediaPlayer mp, int percent)
-	{
+	public void onBufferingUpdate(MediaPlayer mp, int percent) {
+		LogUtils.d("MediaPlayerStateWrapper", "onBufferingUpdate");
 	}
 
+	@SuppressWarnings({"SameReturnValue", "UnusedReturnValue"})
 	boolean onError(MediaPlayer mp, int what, int extra)
 	{
 		return false;
 	}
 
+	@SuppressWarnings("SameReturnValue")
 	public boolean onInfo(MediaPlayer mp, int what, int extra)
 	{
 		return false;

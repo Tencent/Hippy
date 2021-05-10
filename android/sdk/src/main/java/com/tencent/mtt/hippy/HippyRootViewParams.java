@@ -22,31 +22,24 @@ import com.tencent.mtt.hippy.common.HippyMap;
 
 import java.util.Map;
 
-/**
- * FileName: HippyRootViewParams
- * Description：
- * History：
- * 2019/3/26 harryguo注释：
- * 老的代码示例。将被废弃
- * 请参见{@link com.tencent.mtt.hippy.HippyEngine.ModuleLoadParams}
- */
+@SuppressWarnings({"deprecation", "unused", "rawtypes"})
 @Deprecated
 public class HippyRootViewParams
 {
 
-	private HippyBundleLoader		mBundleLoader;
+	private final HippyBundleLoader		mBundleLoader;
 
-	private Activity				mActivity;
+	private final Activity				mActivity;
 
-	private String					mName;
+	private final String				mName;
 
 	// 带上参数，传递给前端的rootview：比如：Hippy.entryPage: class App extends Component
-	private HippyMap				mLaunchParams;
+	private final HippyMap				mLaunchParams;
 
 	// 目前只有一个用处：映射："CustomViewCreator" <==> 宿主自定义的一个HippyCustomViewCreator(这个creator还得通过ModuleParams.Builder.setCustomViewCreator来指定才行)
-	private Map						mNativeParams;
+	private final Map					mNativeParams;
 
-	private HippyInstanceContext	mHippyInstanceContext;
+	private HippyInstanceContext	    mHippyInstanceContext;
 
 
 	private HippyRootViewParams(String name, HippyBundleLoader bundleLoader, Activity activity, HippyMap launchParams, Map nativeParams,
@@ -116,6 +109,7 @@ public class HippyRootViewParams
 			return this;
 		}
 
+		@SuppressWarnings("UnusedReturnValue")
 		public HippyRootViewParams.Builder setBundleLoader(HippyBundleLoader loader)
 		{
 			this.mBundleLoader = loader;
@@ -134,6 +128,7 @@ public class HippyRootViewParams
 			return this;
 		}
 
+		@SuppressWarnings("UnusedReturnValue")
 		public HippyRootViewParams.Builder setLaunchParams(HippyMap params)
 		{
 			this.mLaunchParams = params;
@@ -166,10 +161,8 @@ public class HippyRootViewParams
 				mLaunchParams.pushString("sourcePath", mBundleLoader.getPath());
 			}
 
-			HippyRootViewParams hippyRootViewParams = new HippyRootViewParams(mName, mBundleLoader, mActivity, mLaunchParams, mNativeParams,
+			return new HippyRootViewParams(mName, mBundleLoader, mActivity, mLaunchParams, mNativeParams,
 					mHippyInstanceContext);
-
-			return hippyRootViewParams;
 		}
 	}
 }

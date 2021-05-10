@@ -15,12 +15,7 @@
  */
 package com.tencent.mtt.hippy.devsupport;
 
-/**
- * @author: edsheng
- * @date: 2017/11/15 15:36
- * @version: V1.0
- */
-
+@SuppressWarnings({"unused"})
 class JavascriptException extends RuntimeException {
     public JavascriptException(String error) {
         super(error);

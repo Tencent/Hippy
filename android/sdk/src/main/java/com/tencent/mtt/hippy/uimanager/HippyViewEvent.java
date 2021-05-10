@@ -22,35 +22,29 @@ import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.modules.HippyModuleManager;
 import com.tencent.mtt.hippy.modules.javascriptmodules.EventDispatcher;
 
-/**
- * FileName: HippyViewEvent
- * Description：
- * History：
- */
-public class HippyViewEvent
-{
+public class HippyViewEvent {
 
-	private String	mEventName;
+    private final String mEventName;
 
-	public HippyViewEvent(String eventName)
-	{
-		this.mEventName = eventName;
-	}
+    public HippyViewEvent(String eventName) {
+        this.mEventName = eventName;
+    }
 
-	public void send(View view, Object param)
-	{
-		if (view != null && view.getContext() instanceof HippyInstanceContext)
-		{
-			HippyEngineContext context = ((HippyInstanceContext) view.getContext()).getEngineContext();
-			if (context == null)
-			{
-				return;
-			}
-			HippyModuleManager hmm = context.getModuleManager();
-			if (hmm != null)
-			{
-				hmm.getJavaScriptModule(EventDispatcher.class).receiveUIComponentEvent(view.getId(), mEventName, param);
-			}
+    public void send(View view, Object param) {
+        if (view != null && view.getContext() instanceof HippyInstanceContext) {
+            HippyEngineContext context = ((HippyInstanceContext)view.getContext()).getEngineContext();
+            send(view.getId(), context, param);
+        }
+    }
+
+    public void send(int id, HippyEngineContext context, Object param) {
+		if (context == null) {
+			return;
+		}
+
+		HippyModuleManager hmm = context.getModuleManager();
+		if (hmm != null) {
+			hmm.getJavaScriptModule(EventDispatcher.class).receiveUIComponentEvent(id, mEventName, param);
 		}
 	}
 }

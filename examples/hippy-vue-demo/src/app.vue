@@ -17,7 +17,7 @@
 
 <script>
 import Vue from 'vue';
-import backButtonImg from '!!url-loader?modules!./back-icon.png';
+import backButtonImg from './back-icon.png';
 
 let DEBUG_SUBTITLE = '';
 if (Vue.Native) {
@@ -61,6 +61,7 @@ export default {
 <style scoped>
   #root {
     flex: 1;
+    background-color: white;
   }
   #header {
     height: 60px;

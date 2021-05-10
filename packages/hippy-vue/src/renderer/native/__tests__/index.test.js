@@ -10,6 +10,7 @@ import {
   removeChild,
 } from '../index';
 import { setApp } from '../../../util';
+import {HIPPY_DEBUG_ADDRESS} from '../../../runtime/constants';
 
 const ROOT_VIEW_ID = 10;
 
@@ -397,6 +398,41 @@ test('Image.setStyle(background-color) test', (t) => {
     props: {
       style: {
         backgroundColor: 4289449455,
+      },
+    },
+  });
+});
+
+test('div with backgroundImage local path test', (t) => {
+  const node = DocumentNode.createElement('div');
+  const originalPath = 'assets/DefaultSource.png';
+  node.setStyle('backgroundImage', originalPath);
+  // production mode
+  process.env.NODE_ENV = 'production';
+  const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeLanguage, {
+    id: 34,
+    index: 0,
+    name: 'View',
+    pId: ROOT_VIEW_ID,
+    props: {
+      style: {
+        backgroundImage: `hpfile://./${originalPath}`,
+      },
+    },
+  });
+  // debug mode
+  process.env.NODE_ENV = 'test';
+  const nativeLanguage2 = renderToNative(ROOT_VIEW_ID, node);
+  console.log('nativeLanguage', nativeLanguage);
+  t.deepEqual(nativeLanguage2, {
+    id: 34,
+    index: 0,
+    name: 'View',
+    pId: ROOT_VIEW_ID,
+    props: {
+      style: {
+        backgroundImage: `${HIPPY_DEBUG_ADDRESS}${originalPath}`,
       },
     },
   });

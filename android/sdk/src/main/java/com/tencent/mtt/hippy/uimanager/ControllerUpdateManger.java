@@ -30,9 +30,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+@SuppressWarnings({"deprecation", "unused", "rawtypes"})
 public class ControllerUpdateManger<T, G>
 {
-	static Map<Class, Map<String, PropsMethodHolder>>	CLASS_PROPS_METHOD	= new HashMap<>();
+	static final Map<Class, Map<String, PropsMethodHolder>>	CLASS_PROPS_METHOD	= new HashMap<>();
 
 	public static class PropsMethodHolder
 	{
@@ -63,7 +64,7 @@ public class ControllerUpdateManger<T, G>
 		if (methodHolder == null)
 		{
 
-			Method methods[] = cls.getMethods();
+			Method[] methods = cls.getMethods();
 			for (Method method : methods)
 			{
 				HippyControllerProps controllerProps = method.getAnnotation(HippyControllerProps.class);
@@ -80,7 +81,7 @@ public class ControllerUpdateManger<T, G>
 				}
 			}
 			// put to CLASS_PROPS_METHOD
-			CLASS_PROPS_METHOD.put(cls, new HashMap<String, PropsMethodHolder>(hashMap));
+			CLASS_PROPS_METHOD.put(cls, new HashMap<>(hashMap));
 		}
 		else
 		{
@@ -113,8 +114,7 @@ public class ControllerUpdateManger<T, G>
 						propsMethodHolder.mMethod.invoke(t, g, propsMethodHolder.mDefaultString);
 						break;
 					default:
-						Object o = null;
-						propsMethodHolder.mMethod.invoke(t, g, o);
+						propsMethodHolder.mMethod.invoke(t, g, null);
 						break;
 				}
 			} else {
@@ -140,6 +140,7 @@ public class ControllerUpdateManger<T, G>
 
 		boolean hasCustomMethodHolder = false;
 
+		//noinspection ConstantConditions
 		if(!(g instanceof View)) {
 			return;
 		}
@@ -165,6 +166,7 @@ public class ControllerUpdateManger<T, G>
 		}
 
 		if (!hasCustomMethodHolder && t instanceof HippyViewController) {
+			//noinspection unchecked
 			((HippyViewController)t).setCustomProp((View)g, prop, customProps);
 		}
 	}
@@ -172,6 +174,7 @@ public class ControllerUpdateManger<T, G>
 	public void updateProps(T t, G g, HippyMap hippyMap) {
 		assert (hippyMap != null);
 
+		//noinspection ConstantConditions
 		if (hippyMap == null) {
 			return;
 		}

@@ -194,6 +194,7 @@ static HippyBridge *HippyCurrentBridgeInstance = nil;
         HippyExecuteOnMainQueue(^{
             [self bindKeys];
         });
+        HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ Init %p", NSStringFromClass([self class]), self);
     }
     return self;
 }
@@ -205,6 +206,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
      * This runs only on the main thread, but crashes the subclass
      * HippyAssertMainQueue();
      */
+    HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ dealloc %p", NSStringFromClass([self class]), self);
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [self invalidate];
 }
@@ -313,6 +315,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 }
 
 - (void)setUp {
+    HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ setUp %p", NSStringFromClass([self class]), self);
     _performanceLogger = [HippyPerformanceLogger new];
     [_performanceLogger markStartForTag:HippyPLBridgeStartup];
     //  [_performanceLogger markStartForTag:HippyPLTTI];
@@ -361,6 +364,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 }
 
 - (void)invalidate {
+    HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ invalide %p", NSStringFromClass([self class]), self);
     HippyBridge *batchedBridge = self.batchedBridge;
     self.batchedBridge = nil;
 
@@ -395,6 +399,26 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     HippyRedBox *redBox = [self redBox];
     redBox.showEnabled = enabled;
 #endif  // HIPPY_DEBUG
+}
+
+@end
+
+@implementation UIView(Bridge)
+
+#define kBridgeKey @"bridgeKey"
+
+- (void)setBridge:(HippyBridge *)bridge {
+    if (bridge) {
+        NSMapTable *mapTable = [NSMapTable strongToWeakObjectsMapTable];
+        [mapTable setObject:bridge forKey:kBridgeKey];
+        objc_setAssociatedObject(self, @selector(bridge), mapTable, OBJC_ASSOCIATION_RETAIN);
+    }
+}
+
+- (HippyBridge *)bridge {
+    NSMapTable *mapTable = objc_getAssociatedObject(self, _cmd);
+    HippyBridge *bridge = [mapTable objectForKey:kBridgeKey];
+    return bridge;
 }
 
 @end

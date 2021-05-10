@@ -29,18 +29,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-/**
- * FileName: HippyTimerModule
- * Description：
- * History：
- */
+@SuppressWarnings({"unused"})
 @HippyNativeModule(name = "TimerModule")
 public class TimerModule extends HippyNativeModuleBase implements Handler.Callback, HippyEngineLifecycleEventListener
 {
 
 	private static final int		MSG_TIME_CALLBACK	= 100;
 	private boolean					mEnginePaused		= false;
-	private HashMap<String, Timer>	mTimerInfo			= new HashMap<>();
+	private final HashMap<String, Timer> mTimerInfo		= new HashMap<>();
 	private Handler					mHandler;
 	private long					mNextTime			= 0;
 
@@ -65,6 +61,7 @@ public class TimerModule extends HippyNativeModuleBase implements Handler.Callba
 		super.destroy();
 	}
 
+	@SuppressWarnings("unused")
 	@HippyMethod(name = "setTimeout")
 	public void setTimeout(int timeOut, String callId, Promise promise)
 	{
@@ -73,6 +70,7 @@ public class TimerModule extends HippyNativeModuleBase implements Handler.Callba
 		checkHandlerCallback(timer);
 	}
 
+	@SuppressWarnings("unused")
 	@HippyMethod(name = "clearTimeout")
 	public void clearTimeout(String callId)
 	{
@@ -80,6 +78,7 @@ public class TimerModule extends HippyNativeModuleBase implements Handler.Callba
 		checkHandlerCallback(null);
 	}
 
+	@SuppressWarnings("unused")
 	@HippyMethod(name = "setInterval")
 	public void setInterval(int interval, String callId, Promise promise)
 	{
@@ -88,6 +87,7 @@ public class TimerModule extends HippyNativeModuleBase implements Handler.Callba
 		checkHandlerCallback(timer);
 	}
 
+	@SuppressWarnings("unused")
 	@HippyMethod(name = "clearInterval")
 	public void clearInterval(String callId)
 	{
@@ -213,15 +213,13 @@ public class TimerModule extends HippyNativeModuleBase implements Handler.Callba
 	@Override
 	public boolean handleMessage(Message message)
 	{
-		switch (message.what)
-		{
-			case MSG_TIME_CALLBACK:
-				doFrame();
-				break;
+		if (message.what == MSG_TIME_CALLBACK) {
+			doFrame();
 		}
 		return false;
 	}
 
+	@SuppressWarnings("unused")
 	private static class Timer
 	{
 
@@ -229,7 +227,7 @@ public class TimerModule extends HippyNativeModuleBase implements Handler.Callba
 		final boolean	mRepeat;
 		final int		mInterval;
 		long			mTargetTime;
-		Promise			mPromise;
+		final Promise	mPromise;
 
 		Timer(String callbackID, long initialTargetTime, int duration, boolean repeat, Promise promise)
 		{

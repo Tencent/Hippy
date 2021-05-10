@@ -24,6 +24,8 @@
 #import "HippyExtAnimation+Group.h"
 #import "HippyExtAnimation+Value.h"
 #import "HippyAssert.h"
+#import "UIView+HippyAnimationProtocol.h"
+
 @implementation HippyExtAnimation
 
 + (NSDictionary *)animationKeyMap {
@@ -165,6 +167,10 @@
 }
 
 - (CAAnimation *)animationOfView:(UIView *)view forProp:(NSString *)prop {
+    CAAnimation *ani = [view animation:self keyPath:prop];
+    if (ani) {
+        return ani;
+    }
     NSString *animationKey = nil;
     NSDictionary *animationKeyMap = [[self class] animationKeyMap];
     for (NSString *key in animationKeyMap) {
@@ -230,7 +236,9 @@
         animation.byValue = self.byValue;
     }
     animation.duration = _duration;
-    animation.beginTime = CACurrentMediaTime() + _delay;
+    if (fabs(_delay) > CGFLOAT_MIN) {
+        animation.beginTime = CACurrentMediaTime() + _delay;
+    }
     animation.timingFunction = [CAMediaTimingFunction functionWithName:_timingFunction];
     animation.repeatCount = _repeatCount;
     animation.removedOnCompletion = NO;

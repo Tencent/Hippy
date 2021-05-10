@@ -32,28 +32,27 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.ConnectException;
 import java.net.Socket;
-import java.net.SocketException;
 import java.net.URI;
 import java.security.KeyManagementException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
-
+@SuppressWarnings({"unused","FieldCanBeLocal"})
 public class WebSocketClient
 {
 	private static final String		TAG						= "WebSocketClient";
 	private static final int		SC_SWITCHING_PROTOCOLS	= 101;
 	private static TrustManager[]	sTrustManagers;
 	private final Object			mSendLock				= new Object();
-	private URI						mURI;
-	private WebSocketListener		mListener;
+	private final URI				mURI;
+	private final WebSocketListener mListener;
 	private Socket					mSocket;
 	private Thread					mThread;
-	private HandlerThread			mHandlerThread;
-	private Handler					mHandler;
-	private List<Header>			mExtraHeaders;
-	private HybiParser				mParser;
+	private final HandlerThread		mHandlerThread;
+	private final Handler			mHandler;
+	private final List<Header>		mExtraHeaders;
+	private final HybiParser		mParser;
 	private boolean					mConnected;
 
 	public WebSocketClient(URI uri, WebSocketListener listener, List<Header> extraHeaders)
@@ -141,6 +140,7 @@ public class WebSocketClient
 					String line;
 					while (!TextUtils.isEmpty(line = readLine(stream)))
 					{
+						assert line != null;
 						Header header = parseHeader(line);
 						if (header.getName().equals("Sec-WebSocket-Accept"))
 						{
@@ -183,7 +183,7 @@ public class WebSocketClient
 				}
 				finally
 				{
-					if (mConnected == false && mSocket != null)
+					if (!mConnected && mSocket != null)
 					{
 						try
 						{
@@ -278,7 +278,7 @@ public class WebSocketClient
 		{
 			return null;
 		}
-		StringBuilder string = new StringBuilder("");
+		StringBuilder string = new StringBuilder();
 		while (readChar != '\n')
 		{
 			if (readChar != '\r')
@@ -360,14 +360,15 @@ public class WebSocketClient
 
     public interface WebSocketListener
 	{
-		public void onConnect();
+		void onConnect();
 
-		public void onMessage(String message);
+		void onMessage(String message);
 
-		public void onMessage(byte[] data);
+		@SuppressWarnings("EmptyMethod")
+		void onMessage(byte[] data);
 
-		public void onDisconnect(int code, String reason);
+		void onDisconnect(int code, String reason);
 
-		public void onError(Exception error);
+		void onError(Exception error);
 	}
 }

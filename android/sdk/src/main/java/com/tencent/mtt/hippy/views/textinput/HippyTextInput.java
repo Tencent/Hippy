@@ -17,7 +17,6 @@ package com.tencent.mtt.hippy.views.textinput;
 
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyInstanceContext;
-import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.modules.javascriptmodules.EventDispatcher;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
@@ -28,7 +27,6 @@ import com.tencent.mtt.hippy.views.common.CommonBackgroundDrawable;
 import com.tencent.mtt.hippy.views.common.CommonBorder;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
@@ -52,21 +50,21 @@ import android.widget.TextView;
 
 import java.lang.reflect.Field;
 
+@SuppressWarnings({"deprecation", "unused"})
 public class HippyTextInput extends EditText implements HippyViewBase, CommonBorder, TextView.OnEditorActionListener, View.OnFocusChangeListener
 {
 
 	private CommonBackgroundDrawable	mReactBackgroundDrawable;
-	HippyEngineContext					mHippyContext;
+	final HippyEngineContext			mHippyContext;
 	boolean								mHasAddWatcher			= false;
 	private String						mPreviousText;
 	TextWatcher							mTextWatcher				= null;
 	boolean								mHasSetOnSelectListener	= false;
 
-	private int							mDefaultGravityHorizontal;
-	private int							mDefaultGravityVertical;
+	private final int					mDefaultGravityHorizontal;
+	private final int					mDefaultGravityVertical;
 	//输入法键盘的相关方法
-	private Rect						mRect						= new Rect();	//获取当前RootView的大小位置信息
-	private Rect						mLastRect					= new Rect();	//当前RootView的上一次大小位置信息
+	private final Rect					mRect						= new Rect();	//获取当前RootView的大小位置信息
 	private int							mLastRootViewVisibleHeight	= -1;			//当前RootView的上一次大小
 	private boolean						mIsKeyBoardShow				= false;		//键盘是否在显示
 	private ReactContentSizeWatcher 	mReactContentSizeWatcher =  null;
@@ -180,8 +178,8 @@ public class HippyTextInput extends EditText implements HippyViewBase, CommonBor
 	}
 
 	public class ReactContentSizeWatcher  {
-		private EditText mEditText;
-		HippyEngineContext					mHippyContext;
+		private final EditText mEditText;
+		final HippyEngineContext mHippyContext;
 		private int mPreviousContentWidth = 0;
 		private int mPreviousContentHeight = 0;
 
@@ -219,7 +217,7 @@ public class HippyTextInput extends EditText implements HippyViewBase, CommonBor
 
 	public void setOnContentSizeChange(boolean contentSizeChange)
 	{
-		if(contentSizeChange == true)
+		if(contentSizeChange)
 		{
 			mReactContentSizeWatcher = new ReactContentSizeWatcher(this,mHippyContext);
 		}
@@ -231,15 +229,14 @@ public class HippyTextInput extends EditText implements HippyViewBase, CommonBor
 	@Override
 	public boolean onTouchEvent(MotionEvent event)
 	{
-		boolean handleTouch = super.onTouchEvent(event);
-//		if (handleTouch)
+		//		if (handleTouch)
 //		{
 //			if (getParent() != null)
 //			{
 //				getParent().requestDisallowInterceptTouchEvent(true);
 //			}
 //		}
-		return handleTouch;
+		return super.onTouchEvent(event);
 	}
 	public InputMethodManager getInputMethodManager()
 	{
@@ -318,7 +315,7 @@ public class HippyTextInput extends EditText implements HippyViewBase, CommonBor
 	}
 
 	//监听RootView布局变化的listener
-	ViewTreeObserver.OnGlobalLayoutListener globaListener = new ViewTreeObserver.OnGlobalLayoutListener()
+	final ViewTreeObserver.OnGlobalLayoutListener globaListener = new ViewTreeObserver.OnGlobalLayoutListener()
 	{
 		@Override
 		public void onGlobalLayout()
@@ -328,7 +325,6 @@ public class HippyTextInput extends EditText implements HippyViewBase, CommonBor
 			if (rootViewVisibleHeight == -1 || screenHeight == -1) //如果有失败直接返回 //TODO...仔细检查下这里的逻辑
 			{
 				mLastRootViewVisibleHeight = rootViewVisibleHeight;
-				mLastRect = mRect;
 				return;
 			}
 			if (mLastRootViewVisibleHeight == -1) // 首次
@@ -341,7 +337,7 @@ public class HippyTextInput extends EditText implements HippyViewBase, CommonBor
 				}
 				else
 				{
-					if (mIsKeyBoardShow == false)
+					if (!mIsKeyBoardShow)
 					{
 						HippyMap hippyMap = new HippyMap();
 						hippyMap.pushInt("keyboardHeight", Math.abs(screenHeight - rootViewVisibleHeight) ); //TODO 首次输入这里需要减去一个statusbar的高度,但是又要当心全屏模式
@@ -357,7 +353,7 @@ public class HippyTextInput extends EditText implements HippyViewBase, CommonBor
 				//假设输入键盘的高度位屏幕高度20%
 				if (rootViewVisibleHeight > screenHeight * 0.8f)
 				{
-					if (mIsKeyBoardShow == true)
+					if (mIsKeyBoardShow)
 					{
 						HippyMap hippyMap = new HippyMap();
 						mHippyContext.getModuleManager().getJavaScriptModule(EventDispatcher.class).receiveUIComponentEvent(getId(),
@@ -367,7 +363,7 @@ public class HippyTextInput extends EditText implements HippyViewBase, CommonBor
 				}
 				else
 				{
-					if (mIsKeyBoardShow == false)
+					if (!mIsKeyBoardShow)
 					{
 						HippyMap hippyMap = new HippyMap();
 						hippyMap.pushInt("keyboardHeight", Math.abs(mLastRootViewVisibleHeight - rootViewVisibleHeight) );
@@ -379,7 +375,6 @@ public class HippyTextInput extends EditText implements HippyViewBase, CommonBor
 			}
 
 			mLastRootViewVisibleHeight = rootViewVisibleHeight;
-			mLastRect = mRect;
 		}
 	};
 
@@ -530,6 +525,7 @@ public class HippyTextInput extends EditText implements HippyViewBase, CommonBor
 		if (color == Color.TRANSPARENT && mReactBackgroundDrawable == null)
 		{
 			// don't do anything, no need to allocate ReactBackgroundDrawable for transparent background
+			LogUtils.d("HippyTextInput", "don't do anything, no need to allocate ReactBackgroundDrawable for transparent background");
 		}
 		else
 		{
@@ -693,13 +689,7 @@ public class HippyTextInput extends EditText implements HippyViewBase, CommonBor
 		mHasSetOnSelectListener = change;
 	}
 
-	public void setReturnKeyType(String returnKeyType)
-	{
-	}
-
-	/**
-	 * Robinsli设置输入框光标颜色
-	 * */
+	@SuppressWarnings("JavaReflectionMemberAccess")
 	public void setCursorColor(int color)
 	{
 		try
@@ -723,7 +713,8 @@ public class HippyTextInput extends EditText implements HippyViewBase, CommonBor
 			if(drawable == null)
 				return;
 			drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
-			Class  editorClass = editor.getClass(); //有的ROM自己复写了，Editor类，所以之类里面没有mDrawableForCursor，这里需要遍历
+			assert editor != null;
+			Class<?>  editorClass = editor.getClass(); //有的ROM自己复写了，Editor类，所以之类里面没有mDrawableForCursor，这里需要遍历
 			while (editorClass != null)
 			{
 				try {
@@ -732,7 +723,6 @@ public class HippyTextInput extends EditText implements HippyViewBase, CommonBor
 						field = editorClass.getDeclaredField("mDrawableForCursor");//mCursorDrawable
 						field.setAccessible(true);
 						field.set(editor, drawable);
-						break;
 					}
 					else
 					{
@@ -740,8 +730,8 @@ public class HippyTextInput extends EditText implements HippyViewBase, CommonBor
 						field = editorClass.getDeclaredField("mCursorDrawable");//mCursorDrawable
 						field.setAccessible(true);
 						field.set(editor, drawables);
-						break;
 					}
+					break;
 				}
 				catch (Throwable e)
 				{

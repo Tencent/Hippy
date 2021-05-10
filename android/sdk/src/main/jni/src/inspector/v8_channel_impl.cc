@@ -26,6 +26,9 @@
 
 #include "jni/jni_env.h"
 
+namespace hippy {
+namespace inspector {
+
 V8ChannelImpl::V8ChannelImpl(std::shared_ptr<JavaRef> bridge)
     : bridge_(bridge) {}
 
@@ -38,21 +41,20 @@ void V8ChannelImpl::sendResponse(
 
   const uint16_t* source = message->string().characters16();
   int len = message->string().length();
-  jbyteArray msg = JNIEnvironment::AttachCurrentThread()->NewByteArray(
-      len * sizeof(*source));
-  JNIEnvironment::AttachCurrentThread()->SetByteArrayRegion(
+  std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
+  JNIEnv* j_env = instance->AttachCurrentThread();
+  jbyteArray msg = j_env->NewByteArray(len * sizeof(*source));
+  j_env->SetByteArrayRegion(
       msg, 0, len * sizeof(*source),
       reinterpret_cast<const jbyte*>(reinterpret_cast<const char*>(source)));
 
-  if (JNIEnvironment::GetInstance()->wrapper_.inspector_channel_method_id &&
-      bridge_) {
-    JNIEnvironment::AttachCurrentThread()->CallVoidMethod(
-        bridge_->GetObj(),
-        JNIEnvironment::GetInstance()->wrapper_.inspector_channel_method_id,
-        msg);
+  if (instance->GetMethods().j_inspector_channel_method_id && bridge_) {
+    j_env->CallVoidMethod(bridge_->GetObj(),
+                          instance->GetMethods().j_inspector_channel_method_id,
+                          msg);
   }
 
-  JNIEnvironment::AttachCurrentThread()->DeleteLocalRef(msg);
+  j_env->DeleteLocalRef(msg);
 }
 
 void V8ChannelImpl::sendNotification(
@@ -63,19 +65,21 @@ void V8ChannelImpl::sendNotification(
 
   const uint16_t* source = message->string().characters16();
   int len = message->string().length();
-  jbyteArray msg = JNIEnvironment::AttachCurrentThread()->NewByteArray(
-      len * sizeof(*source));
-  JNIEnvironment::AttachCurrentThread()->SetByteArrayRegion(
+  std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
+  JNIEnv* j_env = instance->AttachCurrentThread();
+  jbyteArray msg = j_env->NewByteArray(len * sizeof(*source));
+  j_env->SetByteArrayRegion(
       msg, 0, len * sizeof(*source),
       reinterpret_cast<const jbyte*>(reinterpret_cast<const char*>(source)));
 
-  if (JNIEnvironment::GetInstance()->wrapper_.inspector_channel_method_id &&
-      bridge_) {
-    JNIEnvironment::AttachCurrentThread()->CallVoidMethod(
-        bridge_->GetObj(),
-        JNIEnvironment::GetInstance()->wrapper_.inspector_channel_method_id,
-        msg);
+  if (instance->GetMethods().j_inspector_channel_method_id && bridge_) {
+    j_env->CallVoidMethod(bridge_->GetObj(),
+                          instance->GetMethods().j_inspector_channel_method_id,
+                          msg);
   }
 
-  JNIEnvironment::AttachCurrentThread()->DeleteLocalRef(msg);
+  j_env->DeleteLocalRef(msg);
 }
+
+}  // namespace inspector
+}  // namespace hippy

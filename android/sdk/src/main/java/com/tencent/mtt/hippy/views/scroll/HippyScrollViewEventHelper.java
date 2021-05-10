@@ -23,6 +23,7 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.modules.javascriptmodules.EventDispatcher;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 
+@SuppressWarnings({"deprecation","unused"})
 public class HippyScrollViewEventHelper
 {
     public static final long MOMENTUM_DELAY = 20;
@@ -32,7 +33,6 @@ public class HippyScrollViewEventHelper
 	public static final String	EVENT_TYPE_MOMENTUM_BEGIN	= "onMomentumScrollBegin";
 	public static final String	EVENT_TYPE_MOMENTUM_END		= "onMomentumScrollEnd";
 	public static final String	EVENT_TYPE_ANIMATION_END	= "onScrollAnimationEnd";
-  public static final String	EVENT_TYPE_REFRESH	      = "onRefresh";
 
 	public static void emitScrollEvent(ViewGroup view)
 	{
@@ -58,11 +58,6 @@ public class HippyScrollViewEventHelper
 	{
 		emitScrollEvent(view, EVENT_TYPE_MOMENTUM_END);
 	}
-
-    public static void emitScrollAnimationEndEvent(ViewGroup view)
-    {
-        emitScrollEvent(view, EVENT_TYPE_ANIMATION_END);
-    }
 
 	protected static void emitScrollEvent(ViewGroup view, String scrollEventType)
 	{
@@ -94,7 +89,7 @@ public class HippyScrollViewEventHelper
 		event.pushMap("contentSize", contentSize);
 		event.pushMap("layoutMeasurement", layoutMeasurement);
 
-		if (view != null && view.getContext() instanceof HippyInstanceContext)
+		if (view.getContext() instanceof HippyInstanceContext)
 		{
 			HippyEngineContext context = ((HippyInstanceContext) view.getContext()).getEngineContext();
 			context.getModuleManager().getJavaScriptModule(EventDispatcher.class).receiveUIComponentEvent(view.getId(), scrollEventType, event);

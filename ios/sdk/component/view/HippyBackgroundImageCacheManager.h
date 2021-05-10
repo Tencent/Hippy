@@ -32,4 +32,6 @@ typedef void (^HippyBackgroundImageCompletionHandler)(UIImage *decodedImage, NSE
 
 - (void)imageWithUrl:(NSString *)uri completionHandler:(HippyBackgroundImageCompletionHandler)completionHandler;
 
+- (BOOL)canHandleImageURL:(NSString *)URLString;
+
 @end

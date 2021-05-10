@@ -23,6 +23,7 @@
 #import "HippyBaseListViewManager.h"
 #import "HippyBaseListView.h"
 #import "HippyVirtualNode.h"
+#import "HippyVirtualList.h"
 
 @implementation HippyBaseListViewManager
 

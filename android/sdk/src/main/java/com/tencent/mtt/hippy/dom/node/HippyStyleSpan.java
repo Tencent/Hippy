@@ -17,37 +17,34 @@ package com.tencent.mtt.hippy.dom.node;
 
 import android.text.TextPaint;
 import android.text.style.MetricAffectingSpan;
+import com.tencent.mtt.hippy.adapter.font.HippyFontScaleAdapter;
 
-/**
- * @author: edsheng
- * @date: 2017/11/30 14:39
- * @version: V1.0
- */
-
+@SuppressWarnings({"unused"})
 public class HippyStyleSpan extends MetricAffectingSpan
 {
-
 	private final int			mStyle;
 	private final int			mWeight;
 	private final String		mFontFamily;
+	private final HippyFontScaleAdapter fontAdapter;
 
-	public HippyStyleSpan(int fontStyle, int fontWeight, String fontFamily)
+	public HippyStyleSpan(int fontStyle, int fontWeight, String fontFamily, HippyFontScaleAdapter adapter)
 	{
 		mStyle = fontStyle;
 		mWeight = fontWeight;
 		mFontFamily = fontFamily;
+		fontAdapter = adapter;
 	}
 
 	@Override
 	public void updateDrawState(TextPaint ds)
 	{
-		TypeFaceUtil.apply(ds, mStyle, mWeight, mFontFamily);
+		TypeFaceUtil.apply(ds, mStyle, mWeight, mFontFamily, fontAdapter);
 	}
 
 	@Override
 	public void updateMeasureState(TextPaint paint)
 	{
-		TypeFaceUtil.apply(paint, mStyle, mWeight, mFontFamily);
+		TypeFaceUtil.apply(paint, mStyle, mWeight, mFontFamily, fontAdapter);
 	}
 
 	public int getStyle()

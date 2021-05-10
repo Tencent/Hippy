@@ -15,11 +15,7 @@
  */
 package com.tencent.mtt.hippy.adapter;
 
-/**
- * @author: edsheng
- * @date: 2018/7/9 10:32
- * @version: V1.0
- */
+@SuppressWarnings({"EmptyMethod", "unused"})
 public interface HippyLogAdapter
 {
 	void log(String tag, String msg);
@@ -28,7 +24,7 @@ public interface HippyLogAdapter
 
 	void upload(callBack callBack);
 
-	public interface callBack
+	interface callBack
 	{
 		void onSuccess();
 	}

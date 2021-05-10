@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-apply from: './bintrayUpload.gradle'
+apply from: './mavencentral.gradle'
 //apply from: './maven.gradle'
 
 ext {
@@ -16,8 +16,7 @@ buildscript {
     jcenter()
   }
   dependencies {
-    classpath 'com.android.tools.build:gradle:4.1.0+'
-    classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+'
+    classpath 'com.android.tools.build:gradle:4.1.3'
     // NOTE: Do not place your application dependencies here; they belong
     // in the individual module build.gradle files
   }
@@ -29,7 +28,7 @@ allprojects {
     MAVEN_PWD = System.getenv('maven_password')
     MAVEN_URL = System.getenv('maven_url')
 
-    println("===============MAVEN_USER=" + MAVEN_USER + ", MAVEN_PWD=" + MAVEN_PWD)
+    println("MAVEN_USER=" + MAVEN_USER + ", MAVEN_PWD=" + MAVEN_PWD)
   }
 
   repositories {
@@ -64,17 +63,9 @@ android {
     buildConfigField("boolean", "INCLUDE_VIDEO_COMPONENT", INCLUDE_VIDEO_COMPONENT)
 
     packagingOptions {
-      pickFirst 'lib/armeabi-v7a/libmtt_shared.so'
-      pickFirst 'lib/armeabi-v7a/libmttv8.so'
       pickFirst 'lib/armeabi-v7a/libhippybridge.so'
-      pickFirst 'lib/arm64-v8a/libmtt_shared.so'
-      pickFirst 'lib/arm64-v8a/libmttv8.so'
       pickFirst 'lib/arm64-v8a/libhippybridge.so'
-      pickFirst 'lib/x86/libmtt_shared.so'
-      pickFirst 'lib/x86/libmttv8.so'
       pickFirst 'lib/x86/libhippybridge.so'
-      pickFirst 'lib/x86_64/libmtt_shared.so'
-      pickFirst 'lib/x86_64/libmttv8.so'
       pickFirst 'lib/x86_64/libhippybridge.so'
     }
   }
@@ -122,7 +113,7 @@ android {
     }
   }
 
-  if (SKIP_CMAKE_AND_NINJA.toBoolean() == false || !skipCmakeAndNinja) {
+  if (!SKIP_CMAKE_AND_NINJA.toBoolean() || !skipCmakeAndNinja) {
     externalNativeBuild {
       cmake {
         path CMAKE_PATH
@@ -151,59 +142,20 @@ android {
 dependencies {
   api fileTree(dir: 'libs', include: ['*.jar'])
   implementation 'com.android.support:support-annotations:28.0.0'
-  if (INCLUDE_SUPPORT_UI.toBoolean() == false) {
+  if (!INCLUDE_SUPPORT_UI.toBoolean()) {
     compileOnly('com.tencent.mtt:support-ui:99.1.0')
   }
 }
 
-task copyJNILibs() {
-  if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() || INCLUDE_ABI_ARMEABI.toBoolean()) {
-    copy {
-      from "$THIRD_PARTY_LIBRARY_PATH/$V8_VERSION/v8/armeabi-v7a/libmtt_shared.so",
-              "$THIRD_PARTY_LIBRARY_PATH/$V8_VERSION/v8/armeabi-v7a/libmttv8.so",
-              "$THIRD_PARTY_LIBRARY_PATH/layout/armeabi-v7a/libflexbox.so"
-      into "$JNI_LIBRARY_PATH/armeabi-v7a/"
-    }
-  }
-  if (INCLUDE_ABI_ARM64_V8A.toBoolean()) {
-    copy {
-      from "$THIRD_PARTY_LIBRARY_PATH/$V8_VERSION/v8/arm64-v8a/libmtt_shared.so",
-              "$THIRD_PARTY_LIBRARY_PATH/$V8_VERSION/v8/arm64-v8a/libmttv8.so",
-              "$THIRD_PARTY_LIBRARY_PATH/layout/arm64-v8a/libflexbox.so"
-      into "$JNI_LIBRARY_PATH/arm64-v8a/"
-    }
-  }
-  if (INCLUDE_ABI_X86.toBoolean()) {
-    copy {
-      from "$THIRD_PARTY_LIBRARY_PATH/$V8_VERSION/v8/x86/libmtt_shared.so",
-              "$THIRD_PARTY_LIBRARY_PATH/$V8_VERSION/v8/x86/libmttv8.so",
-              "$THIRD_PARTY_LIBRARY_PATH/layout/x86/libflexbox.so"
-      into "$JNI_LIBRARY_PATH/x86/"
-    }
-  }
-  if (INCLUDE_ABI_X86_64.toBoolean()) {
-    copy {
-      from "$THIRD_PARTY_LIBRARY_PATH/$V8_VERSION/v8/x86_64/libmtt_shared.so",
-              "$THIRD_PARTY_LIBRARY_PATH/$V8_VERSION/v8/x86_64/libmttv8.so",
-              "$THIRD_PARTY_LIBRARY_PATH/layout/x86_64/libflexbox.so"
-      into "$JNI_LIBRARY_PATH/x86_64/"
-    }
-  }
-}
-
 project.tasks.whenTaskAdded { task ->
-  if (task.name.equals('assembleRelease')) {
+  if (task.name == 'assembleRelease') {
     task.finalizedBy dealAfterAssembleRelease
   }
 
-  if (task.name.equals('assembleDebug')) {
+  if (task.name == 'assembleDebug') {
     task.finalizedBy dealAfterAssembleDebug
   }
 
-}
-
-afterEvaluate {
-  copyJNILibs
 }
 
 task dealAfterAssembleDebug() {
@@ -246,21 +198,31 @@ task unzipAar() {
   }
 }
 
-task addArmeabiIfNeeded(dependsOn: unzipAar) {
+task removeUnnecessaryAbi(dependsOn: unzipAar) {
   doLast {
     if (INCLUDE_ABI_ARMEABI.toBoolean()) {
       copy {
         from "$OUTPUT_PATH/release/jni/armeabi-v7a"
         into "$OUTPUT_PATH/release/jni/armeabi"
       }
-      if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() == false) {
-        file("$OUTPUT_PATH/release/jni/armeabi-v7a").deleteDir()
-      }
+    }
+
+    if (!INCLUDE_ABI_ARMEABI_V7A.toBoolean()) {
+      file("$OUTPUT_PATH/release/jni/armeabi-v7a").deleteDir()
+    }
+    if (!INCLUDE_ABI_ARM64_V8A.toBoolean()) {
+      file("$OUTPUT_PATH/release/jni/arm64-v8a").deleteDir()
+    }
+    if (!INCLUDE_ABI_X86.toBoolean()) {
+      file("$OUTPUT_PATH/release/jni/x86").deleteDir()
+    }
+    if (!INCLUDE_ABI_X86_64.toBoolean()) {
+      file("$OUTPUT_PATH/release/jni/x86_64").deleteDir()
     }
   }
 }
 
-task excludeV8Libs(dependsOn: addArmeabiIfNeeded) {
+task excludeV8Libs(dependsOn: removeUnnecessaryAbi) {
   doLast {
     if (EXCLUDE_V8.toBoolean()) {
       if (INCLUDE_ABI_ARMEABI.toBoolean()) {
@@ -289,18 +251,16 @@ task excludeV8Libs(dependsOn: addArmeabiIfNeeded) {
 
 task generateReleaseAar(dependsOn: excludeV8Libs) {
   doLast {
-    if (INCLUDE_ABI_ARMEABI.toBoolean() || EXCLUDE_V8.toBoolean()) {
-      file("$OUTPUT_PATH/$releaseOutputFileName").delete()
-      exec {
-        def arguments = new ArrayList<?>()
-        arguments.add("a")
-        arguments.add("-tzip")
-        arguments.add("-mx=9")
-        arguments.add("$OUTPUT_PATH/$releaseOutputFileName")
-        arguments.add("$OUTPUT_PATH/release/*")
-        executable "7z"
-        args arguments
-      }
+    file("$OUTPUT_PATH/$releaseOutputFileName").delete()
+    exec {
+      def arguments = new ArrayList<?>()
+      arguments.add("a")
+      arguments.add("-tzip")
+      arguments.add("-mx=9")
+      arguments.add("$OUTPUT_PATH/$releaseOutputFileName")
+      arguments.add("$OUTPUT_PATH/release/*")
+      executable "7z"
+      args arguments
     }
   }
 }

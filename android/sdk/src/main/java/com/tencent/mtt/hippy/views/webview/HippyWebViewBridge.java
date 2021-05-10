@@ -2,8 +2,9 @@ package com.tencent.mtt.hippy.views.webview;
 
 import android.webkit.JavascriptInterface;
 
+@SuppressWarnings({"unused"})
 class HippyWebViewBridge {
-	private HippyWebView hippyView;
+	private final HippyWebView hippyView;
 
 	public HippyWebViewBridge(HippyWebView webView) {
 		hippyView = webView;

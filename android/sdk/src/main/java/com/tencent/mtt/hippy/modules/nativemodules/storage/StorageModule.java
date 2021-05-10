@@ -27,16 +27,12 @@ import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * FileName: StorageModule
- * Description：
- * History：
- */
+@SuppressWarnings({"unused"})
 @HippyNativeModule(name = "StorageModule")
 public class StorageModule extends HippyNativeModuleBase
 {
 
-	private HippyStorageAdapter	mStorageAdapter;
+	private final HippyStorageAdapter mStorageAdapter;
 
 	public StorageModule(HippyEngineContext context)
 	{

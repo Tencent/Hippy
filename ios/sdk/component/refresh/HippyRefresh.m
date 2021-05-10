@@ -54,8 +54,13 @@
 }
 
 - (void)refreshFinish {
+    [self refreshFinishWithOption:@{@"time": @(2000)}];
+}
+
+- (void)refreshFinishWithOption:(NSDictionary *)options {
     self.status = HippyRefreshStatusFinishLoading;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    CGFloat time = [options[@"time"] doubleValue] / 1000.f;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(time * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         self.status = HippyRefreshStatusIdle;
     });
 }

@@ -31,9 +31,11 @@ public class AnimationFrameModule extends HippyNativeModuleBase
 		super(context);
 	}
 
+	@SuppressWarnings("unused")
 	@HippyMethod(name = "requestAnimationFrame")
 	public void requestAnimationFrame(final Promise promise) {
 		ICSChoreographer.getInstance().postFrameCallback(new HippyChoreographer.FrameCallback() {
+			@SuppressWarnings("unused")
 			@Override
 			public void doFrame(long frameTimeNanos) {
 				if (promise != null) {

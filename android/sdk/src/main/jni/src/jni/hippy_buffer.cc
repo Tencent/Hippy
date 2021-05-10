@@ -141,7 +141,7 @@ inline void writeDoubleType(HippyBuffer* buffer, double num) {
 
 inline void writeV8StringType(v8::Isolate* isolate,
                               HippyBuffer* buffer,
-                              v8::Handle<v8::String> localStr) {
+                              v8::Local<v8::String> localStr) {
   bool isOneByteString = localStr->IsOneByte();
   ENSURE_BUFFER_SIZE(sizeof(uint8_t));
   uint8_t* data = static_cast<uint8_t*>(buffer->data) + buffer->position;
@@ -169,7 +169,7 @@ inline void writeV8StringType(v8::Isolate* isolate,
 
 inline void writeV8Property(v8::Isolate* isolate,
                             HippyBuffer* buffer,
-                            v8::Handle<v8::String> localStr) {
+                            v8::Local<v8::String> localStr) {
   if (localStr->IsOneByte()) {
     uint32_t length = localStr->Length();
     writeUnsignedInt(buffer, length);
@@ -182,8 +182,8 @@ inline void writeV8Property(v8::Isolate* isolate,
     uint32_t length = localStr->Utf8Length(isolate);
     writeUnsignedInt(buffer, length);
     ENSURE_BUFFER_SIZE(length);
-    localStr->WriteUtf8(isolate, static_cast<char*>(buffer->data) + buffer->position,
-                        length);
+    localStr->WriteUtf8(
+        isolate, static_cast<char*>(buffer->data) + buffer->position, length);
     buffer->position += length;
   }
 }
@@ -221,8 +221,8 @@ inline bool hasNext(HippyBuffer* buffer) {
 }
 
 inline int8_t readType(HippyBuffer* buffer) {
-  int8_t* ptr = reinterpret_cast<int8_t*>(
-      static_cast<uint8_t*>(buffer->data) + buffer->position);
+  int8_t* ptr = reinterpret_cast<int8_t*>(static_cast<uint8_t*>(buffer->data) +
+                                          buffer->position);
   buffer->position += sizeof(int8_t);
   return *ptr;
 }
@@ -317,22 +317,22 @@ static void xsonFuncCallback(v8::Isolate* isolate,
   if (type == v8::XSONValueType::kXSON_ARRAY_BEG) {
     writeArrayType(buffer);
   } else if (type == v8::XSONValueType::kXSON_ARRAY_LEN) {
-    v8::Handle<v8::Int32> size = v8::Handle<v8::Int32>::Cast(value);
+    v8::Local<v8::Int32> size = v8::Local<v8::Int32>::Cast(value);
     writeUnsignedInt(buffer, size->Value());
   } else if (type == v8::XSONValueType::kXSON_OBJ_LEN) {
-    v8::Handle<v8::Int32> size = v8::Handle<v8::Int32>::Cast(value);
+    v8::Local<v8::Int32> size = v8::Local<v8::Int32>::Cast(value);
     writeUnsignedInt(buffer, size->Value());
   } else if (type == v8::XSONValueType::kXSON_OBJ_BEG) {
     writeMapType(buffer);
   } else if (type == v8::XSONValueType::kXSON_PROPERTY) {
-    writeV8Property(isolate, buffer, v8::Handle<v8::String>::Cast(value));
+    writeV8Property(isolate, buffer, v8::Local<v8::String>::Cast(value));
   } else if (type == v8::XSONValueType::kXSON_STRING) {
-    writeV8StringType(isolate, buffer, v8::Handle<v8::String>::Cast(value));
+    writeV8StringType(isolate, buffer, v8::Local<v8::String>::Cast(value));
   } else if (type == v8::XSONValueType::kXSON_INT) {
-    v8::Handle<v8::Int32> int32Value = v8::Handle<v8::Int32>::Cast(value);
+    v8::Local<v8::Int32> int32Value = v8::Local<v8::Int32>::Cast(value);
     writeIntegerType(buffer, int32Value->Value());
   } else if (type == v8::XSONValueType::kXSON_DOUBLE) {
-    v8::Handle<v8::Number> numberValue = v8::Handle<v8::Number>::Cast(value);
+    v8::Local<v8::Number> numberValue = v8::Local<v8::Number>::Cast(value);
     writeDoubleType(buffer, numberValue->Value());
   } else if (type == v8::XSONValueType::kXSON_BOOL_TRUE) {
     writeBooleanType(buffer, 1);

@@ -18,25 +18,23 @@ package com.tencent.mtt.hippy.modules;
 
 import android.text.TextUtils;
 
+import com.tencent.mtt.hippy.HippyEngine.BridgeTransferType;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.common.HippyMap;
 
-/**
- * FileName: PromiseImpl
- * Description：
- * History：
- */
+@SuppressWarnings({"deprecation","unused"})
 public class PromiseImpl implements Promise
 {
 	public static final int		PROMISE_CODE_SUCCESS		= 0;
 	public static final int		PROMISE_CODE_NORMAN_ERROR	= 1;
 	public static final int		PROMISE_CODE_OTHER_ERROR	= 2;
 	private static final String	CALL_ID_NO_CALLBACK			= "-1";
-	private HippyEngineContext	mContext;
-	private String				mModuleName;
-	private String				mModuleFunc;
-	private String				mCallId;
+	private final HippyEngineContext	mContext;
+	private final String				mModuleName;
+	private final String				mModuleFunc;
+	private final String				mCallId;
 	private boolean             mNeedResolveBySelf = true;
+	private BridgeTransferType  transferType = BridgeTransferType.BRIDGE_TRANSFER_TYPE_NORMAL;
 
 	public PromiseImpl(HippyEngineContext context, String moduleName, String moduleFunc, String callId)
 	{
@@ -53,6 +51,11 @@ public class PromiseImpl implements Promise
 	public boolean isCallback()
 	{
 		return !TextUtils.equals(mCallId, CALL_ID_NO_CALLBACK);
+	}
+
+	@Override
+	public void setTransferType(BridgeTransferType type) {
+		transferType = type;
 	}
 
 	@Override
@@ -89,6 +92,6 @@ public class PromiseImpl implements Promise
 		map.pushString("moduleFunc", mModuleFunc);
 		map.pushString("callId", mCallId);
 		map.pushObject("params", obj);
-		mContext.getBridgeManager().execCallback(map);
+		mContext.getBridgeManager().execCallback(map, transferType);
 	}
 }

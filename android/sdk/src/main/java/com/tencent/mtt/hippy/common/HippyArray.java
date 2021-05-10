@@ -21,11 +21,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-/**
- * FileName: HippyArray
- * Description：
- * History：
- */
+@SuppressWarnings({"deprecation", "unchecked", "rawtypes"})
 public class HippyArray
 {
 
@@ -49,6 +45,11 @@ public class HippyArray
 	public void pushObject(Object obj)
 	{
 		mDatas.add(obj);
+	}
+
+	public void setObject(int index, Object obj)
+	{
+		mDatas.set(index, obj);
 	}
 
 	public int getInt(int index)
@@ -167,6 +168,7 @@ public class HippyArray
 		mDatas.add(null);
 	}
 
+	@SuppressWarnings("unused")
 	public void clear()
 	{
 		mDatas.clear();
@@ -200,7 +202,7 @@ public class HippyArray
 	@Override
 	public String toString()
 	{
-		return mDatas == null ? "null" : mDatas.toString();
+		return mDatas.toString();
 	}
 
 	public void pushJSONArray(JSONArray jArray) {

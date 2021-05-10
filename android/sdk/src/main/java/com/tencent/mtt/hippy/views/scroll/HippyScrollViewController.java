@@ -11,12 +11,7 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyGroupController;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 
-/**
- * @Description: TODO
- * @author: edsheng
- * @date: 2018/8/27 9:55
- * @version: V1.0
- */
+@SuppressWarnings({"deprecation", "unused", "rawtypes"})
 @HippyController(name = HippyScrollViewController.CLASS_NAME)
 public class HippyScrollViewController<T extends ViewGroup & HippyScrollView> extends HippyGroupController
 {
@@ -55,46 +50,40 @@ public class HippyScrollViewController<T extends ViewGroup & HippyScrollView> ex
 		view.setScrollEnabled(flag);
 	}
 
-	@HippyControllerProps(name = "showScrollIndicator", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@HippyControllerProps(name = "showScrollIndicator", defaultType = HippyControllerProps.BOOLEAN)
 	public void setShowScrollIndicator(HippyScrollView view, boolean flag)
 	{
 		view.showScrollIndicator(flag);
 	}
 
-	@HippyControllerProps(name = "onScrollEnable", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@HippyControllerProps(name = "onScrollEnable", defaultType = HippyControllerProps.BOOLEAN)
 	public void setScrollEventEnable(HippyScrollView view, boolean flag)
 	{
 		view.setScrollEventEnable(flag);
 	}
 
-	@HippyControllerProps(name = "onScrollBeginDrag", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@HippyControllerProps(name = "onScrollBeginDrag", defaultType = HippyControllerProps.BOOLEAN)
 	public void setScrollBeginDragEventEnable(HippyScrollView view, boolean flag)
 	{
 		view.setScrollBeginDragEventEnable(flag);
 	}
 
-	@HippyControllerProps(name = "onScrollEndDrag", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@HippyControllerProps(name = "onScrollEndDrag", defaultType = HippyControllerProps.BOOLEAN)
 	public void setScrollEndDragEventEnable(HippyScrollView view, boolean flag)
 	{
 		view.setScrollEndDragEventEnable(flag);
 	}
 
-	@HippyControllerProps(name = "onMomentumScrollBegin", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@HippyControllerProps(name = "onMomentumScrollBegin", defaultType = HippyControllerProps.BOOLEAN)
 	public void setMomentumScrollBeginEventEnable(HippyScrollView view, boolean flag)
 	{
 		view.setMomentumScrollBeginEventEnable(flag);
 	}
 
-	@HippyControllerProps(name = "onMomentumScrollEnd", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@HippyControllerProps(name = "onMomentumScrollEnd", defaultType = HippyControllerProps.BOOLEAN)
 	public void setMomentumScrollEndEventEnable(HippyScrollView view, boolean flag)
 	{
 		view.setMomentumScrollEndEventEnable(flag);
-	}
-
-	@HippyControllerProps(name = "onScrollAnimationEnd", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
-	public void setScrollAnimationEndEventEnable(HippyScrollView view, boolean flag)
-	{
-		view.setScrollAnimationEndEventEnable(flag);
 	}
 
 	@HippyControllerProps(name = "flingEnabled", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = true)
@@ -109,7 +98,7 @@ public class HippyScrollViewController<T extends ViewGroup & HippyScrollView> ex
 		view.setContentOffset4Reuse(offsetMap);
 	}
 
-	@HippyControllerProps(name = "pagingEnabled", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@HippyControllerProps(name = "pagingEnabled", defaultType = HippyControllerProps.BOOLEAN)
 	public void setPagingEnabled(HippyScrollView view, boolean pagingEnabled)
 	{
 		view.setPagingEnabled(pagingEnabled);
@@ -129,7 +118,8 @@ public class HippyScrollViewController<T extends ViewGroup & HippyScrollView> ex
 
 	@Override
 	public void dispatchFunction(View view, String functionName, HippyArray args) {
-		super.dispatchFunction(view, functionName, args);
+        //noinspection unchecked
+        super.dispatchFunction(view, functionName, args);
 		if(view instanceof  HippyScrollView)
 		{
 

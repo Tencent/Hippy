@@ -207,12 +207,21 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 }
 
 - (void)insertHippySubview:(UIView *)view atIndex:(NSInteger)atIndex {
-    [super insertHippySubview:view atIndex:atIndex];
-    HippyAssert(_contentView == nil, @"HippyScrollView may only contain a single subview");
+    if (view == _contentView && 0 == atIndex) {
+        return;
+    }
+    HippyAssert(0 == atIndex, @"HippyScrollView only contain one subview at index 0");
+    if (_contentView) {
+        [self removeHippySubview:_contentView];
+    }
     _contentView = view;
     [_contentView addObserver:self forKeyPath:@"frame" options:NSKeyValueObservingOptionNew context:nil];
     [view onAttachedToWindow];
     [_scrollView addSubview:view];
+}
+
+- (NSArray<UIView *> *)hippySubviews {
+    return _contentView ? [NSMutableArray arrayWithObject:_contentView] : nil;
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath
@@ -233,7 +242,8 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     _contentView = nil;
 }
 
-- (void)didUpdateHippySubviews {
+- (void)didUpdateHippySubviews
+{
     // Do nothing, as subviews are managed by `insertHippySubview:atIndex:`
 }
 

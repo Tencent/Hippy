@@ -31,7 +31,7 @@ public class TimeMonitor
 
 	long								mStartTime;
 	int									mTotalTime;
-	boolean								mEnable;
+	final boolean						mEnable;
 	HippyEngineMonitorEvent				mCurrentEvent;
 	List<HippyEngineMonitorEvent>		mEvents;
 
@@ -93,7 +93,6 @@ public class TimeMonitor
 		}
 
 		mTotalTime = (int) (SystemClock.elapsedRealtime() - mStartTime);
-		LogUtils.d("hippy", "hippy endEvent: " + mCurrentEvent.eventName);
 	}
 
 	public int getTotalTime()

@@ -15,7 +15,6 @@
  */
 package com.tencent.mtt.hippy.views.modal;
 
-import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.app.Activity;
@@ -27,7 +26,6 @@ import android.content.res.Resources.NotFoundException;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Build;
-import android.os.Looper;
 import android.text.TextUtils;
 import android.view.Display;
 import android.view.KeyEvent;
@@ -48,8 +46,7 @@ import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
-
-
+@SuppressWarnings({"deprecation", "unused"})
 public class HippyModalHostView extends HippyViewGroup implements HippyInstanceLifecycleEventListener
 {
 	@Override
@@ -88,7 +85,7 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 	private final int STYLE_THEME_ANIMATED_SLIDE_DIALOG       = 2;
 	private final int STYLE_THEME_ANIMATED_SLIDE_FADE_DIALOG  = 3;
 
-	private DialogRootViewGroup				mHostView;
+	private final DialogRootViewGroup		mHostView;
 	private Dialog							mDialog;
 	private View							mContentView;
 	private boolean							mTransparent	= true;
@@ -248,14 +245,15 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 			return statusBarHeight;
 		}
 
-		Class<?> c = null;
-		Object obj = null;
-		Field field = null;
-		int x = 0;
+		Class<?> c;
+		Object obj;
+		Field field;
+		int x;
 		try {
 			c = Class.forName("com.android.internal.R$dimen");
 			obj = c.newInstance();
 			field = c.getField("status_bar_height");
+			//noinspection ConstantConditions
 			x = Integer.parseInt(field.get(obj).toString());
 			statusBarHeight = ContextHolder.getAppContext().getResources().getDimensionPixelSize(x);
 		} catch (Exception e1) {
@@ -284,7 +282,7 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 			int sysUI = window.getDecorView().getSystemUiVisibility();
 			sysUI = sysUI & ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
 			sysUI = sysUI & ~View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
-			int extra = View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+			int extra;
 			if (isDarkIcon)
 			{
 				extra = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
@@ -320,16 +318,12 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 		}
 
 		Context context = hippyInstanceContext.getBaseContext();
-		if (context == null || !(context instanceof Activity)) {
+		if (!(context instanceof Activity)) {
 			return true;
 		}
 
 		Activity currentActivity = (Activity)context;
-		if (currentActivity.isFinishing()) {
-			return true;
-		}
-
-		return false;
+		return currentActivity.isFinishing();
 	}
 
 	protected void showOrUpdate()
@@ -362,6 +356,7 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 			setDialogBar(mStatusBarTextDarkColor);
 		}
 
+		assert mDialog != null;
 		mDialog.setOnShowListener(new DialogInterface.OnShowListener() {
 			@Override
 			public void onShow(DialogInterface dialogInterface) {
@@ -451,8 +446,7 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 			android.view.WindowManager manager = (android.view.WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 			Display display = manager.getDefaultDisplay();
 			if (display != null) {
-				int height = manager.getDefaultDisplay().getHeight();
-				return height;
+				return manager.getDefaultDisplay().getHeight();
 			}
 		} catch (SecurityException e) {
 			LogUtils.d("HippyModalHostView", "getScreenHeight: " + e.getMessage());
@@ -551,16 +545,14 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 					if(engineContext.getThreadExecutor() != null)
 					{
 						final int id = getChildAt(0).getId();
-						final int width = w;
-						final int height = h;
 						engineContext.getThreadExecutor().postOnDomThread(new Runnable()
 						{
 							@Override
 							public void run()
 							{
-								if (engineContext != null && engineContext.getDomManager() != null)
+								if (engineContext.getDomManager() != null)
 								{
-									engineContext.getDomManager().updateNodeSize(id, width, height);
+									engineContext.getDomManager().updateNodeSize(id, w, h);
 								}
 							}
 						});

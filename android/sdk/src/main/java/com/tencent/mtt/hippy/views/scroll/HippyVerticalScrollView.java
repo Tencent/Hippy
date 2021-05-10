@@ -25,6 +25,7 @@ import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 
+@SuppressWarnings("deprecation")
 public class HippyVerticalScrollView extends ScrollView implements HippyViewBase,HippyScrollView
 {
 
@@ -36,7 +37,7 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
 
 	private boolean					mDragging;
 
-	private HippyOnScrollHelper		mHippyOnScrollHelper;
+	private final HippyOnScrollHelper mHippyOnScrollHelper;
 
 	private boolean					mScrollEventEnable				= true;
 
@@ -47,8 +48,6 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
 	private boolean					mMomentumScrollBeginEventEnable	= false;
 
 	private boolean					mMomentumScrollEndEventEnable	= false;
-
-	private boolean					mScrollAnimationEndEventEnable	= false;
 
 	private boolean					mFlingEnabled					= true;
 
@@ -144,7 +143,7 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
 			mDragging = false;
 		}
 
-		boolean result = mScrollEnabled ? super.onTouchEvent(event) : false;
+		boolean result = mScrollEnabled && super.onTouchEvent(event);
 		if (mGestureDispatcher != null)
 		{
 			result |= mGestureDispatcher.handleTouchEvent(event);
@@ -299,12 +298,6 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
 		smoothScrollTo(getScrollX(), page * height);
 	}
 
-	@Override
-	public void computeScroll()
-	{
-		super.computeScroll();
-	}
-
 	public void setScrollEventEnable(boolean enable)
 	{
 		this.mScrollEventEnable = enable;
@@ -328,11 +321,6 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
 	public void setMomentumScrollEndEventEnable(boolean enable)
 	{
 		this.mMomentumScrollEndEventEnable = enable;
-	}
-
-	public void setScrollAnimationEndEventEnable(boolean enable)
-	{
-		this.mScrollAnimationEndEventEnable = enable;
 	}
 
 	public void setFlingEnabled(boolean flag)

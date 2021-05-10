@@ -18,7 +18,6 @@ package com.tencent.mtt.hippy.dom;
 
 import android.text.Layout;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.SparseBooleanArray;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyEngineLifecycleEventListener;
@@ -26,7 +25,6 @@ import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
-import com.tencent.mtt.hippy.common.HippyTag;
 import com.tencent.mtt.hippy.dom.flex.FlexSpacing;
 import com.tencent.mtt.hippy.dom.node.*;
 import com.tencent.mtt.hippy.modules.Promise;
@@ -42,11 +40,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-/**
- * @author: edsheng
- * @date: 2017/11/22 11:17
- * @version: V1.0
- */
+@SuppressWarnings({"deprecation", "unused", "UnusedReturnValue", "rawtypes"})
 public class DomManager implements HippyInstanceLifecycleEventListener, HippyEngineLifecycleEventListener
 {
 	private static final String							TAG						= "DomManager";
@@ -54,16 +48,16 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 	private final SparseBooleanArray					mTagsWithLayoutVisited	= new SparseBooleanArray();
 	protected volatile boolean							mIsDispatchUIFrameCallbackEnqueued;
 	protected boolean									mRenderBatchStarted		= false;
-	DomNodeRegistry										mNodeRegistry;
-	ArrayList<IDomExecutor>								mUITasks;
-	ArrayList<IDomExecutor>								mPaddingNulUITasks;
-	ArrayList<IDomExecutor>								mDispatchRunnable		= new ArrayList<>();
-	Object												mDispatchLock			= new Object();
-	DomUpdateManager									mDomStyleUpdateManager	= new DomUpdateManager();
-	RenderManager										mRenderManager			= null;
+	final DomNodeRegistry								mNodeRegistry;
+	final ArrayList<IDomExecutor>						mUITasks;
+	final ArrayList<IDomExecutor>						mPaddingNulUITasks;
+	final ArrayList<IDomExecutor>						mDispatchRunnable		= new ArrayList<>();
+	final Object										mDispatchLock			= new Object();
+	final DomUpdateManager							    mDomStyleUpdateManager	= new DomUpdateManager();
+	final RenderManager									mRenderManager;
 	volatile CopyOnWriteArrayList<DomActionInterceptor>	mActionInterceptors;
-	LayoutHelper										mLayoutHelper			= null;
-	private HippyEngineContext							mContext;
+	final LayoutHelper									mLayoutHelper;
+	private final HippyEngineContext					mContext;
 	private volatile boolean							mIsDestroyed			= false;
 	private volatile boolean							mEnginePaused			= false;
 
@@ -73,6 +67,7 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 		mNodeRegistry = new DomNodeRegistry();
 
 		mUITasks = new ArrayList<>();
+		//noinspection unchecked
 		mPaddingNulUITasks = new ArrayList();
 
 		mRenderManager = context.getRenderManager();
@@ -91,7 +86,8 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 			return true;
 		}
 
-		if (props.get(NodeProps.COLLAPSABLE) != null && (Boolean) props.get(NodeProps.COLLAPSABLE) == false)
+		if (props.get(NodeProps.COLLAPSABLE) != null && !((Boolean) props
+				.get(NodeProps.COLLAPSABLE)))
 		{
 			return false;
 		}
@@ -129,11 +125,6 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 		{
 			mActionInterceptors.remove(interceptor);
 		}
-	}
-
-	public CopyOnWriteArrayList<DomActionInterceptor> getActionInterceptors()
-	{
-		return mActionInterceptors;
 	}
 
 	public void createRootNode(int instanceId)
@@ -186,11 +177,6 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 	public void onInstanceDestroy(int instanceId)
 	{
 
-	}
-
-	public boolean hasRenderBatchStart()
-	{
-		return mRenderBatchStarted;
 	}
 
 	void clearDestroy()
@@ -310,8 +296,7 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 	}
 
 	public DomNode getNode(final int id) {
-    DomNode node = mNodeRegistry.getNode(id);
-    return node;
+		return mNodeRegistry.getNode(id);
   }
 
 	public void createNode(final HippyRootView hippyRootView, final int id, int pid, int index, final String className, HippyMap map)
@@ -353,6 +338,7 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 			//					+ isLayoutOnly + " isVirtual " + isVirtual);
 			//updateProps
 			node.updateProps(props);
+			//noinspection unchecked
 			mDomStyleUpdateManager.updateStyle(node, props);
 
 			//add to parent
@@ -489,11 +475,13 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 		return nativeParent;
 	}
 
+	@SuppressWarnings("unused")
 	public void removeRootNode(int tag)
 	{
 		mNodeRegistry.removeRootNode(tag);
 	}
 
+	@SuppressWarnings("unused")
 	public boolean existNode(int tag)
 	{
 		return mNodeRegistry.getNode(tag) != null;
@@ -522,6 +510,7 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 
 			node.setProps(props);
 
+			//noinspection unchecked
 			mDomStyleUpdateManager.updateStyle(node, hippyMap);
 
 
@@ -567,15 +556,13 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 
 		if (!node.isVirtual())
 		{
-			//			final HippyMap newProps = hippyMap.copy();
-
-			final HippyMap newProps = hippyMap;
 			addUITask(new IDomExecutor()
 			{
 				@Override
 				public void exec()
 				{
-					mRenderManager.createNode(hippyRootView, node.getId(), reallyParent.getId(), viewIndex.mIndex, node.getViewClass(), newProps);
+					mRenderManager.createNode(hippyRootView, node.getId(), reallyParent.getId(), viewIndex.mIndex, node.getViewClass(),
+							hippyMap);
 				}
 			});
 		}
@@ -1045,10 +1032,10 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 		});
 	}
 
-	class ViewIndex
+	static class ViewIndex
 	{
-		public boolean	mResult;
-		public int		mIndex;
+		public final boolean	mResult;
+		public final int		mIndex;
 
 		public ViewIndex(boolean mResult, int mIndex)
 		{
@@ -1057,9 +1044,9 @@ public class DomManager implements HippyInstanceLifecycleEventListener, HippyEng
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private class DispatchUIFrameCallback implements HippyChoreographer.FrameCallback
 	{
-
 		@Override
 		public void doFrame(long frameTimeNanos)
 		{

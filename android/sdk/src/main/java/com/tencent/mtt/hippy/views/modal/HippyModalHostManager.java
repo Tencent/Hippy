@@ -24,6 +24,7 @@ import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.dom.node.StyleNode;
 import com.tencent.mtt.hippy.uimanager.HippyGroupController;
 
+@SuppressWarnings("unused")
 @HippyController(name = HippyModalHostManager.HIPPY_CLASS)
 public class HippyModalHostManager extends HippyGroupController<HippyModalHostView>
 {
@@ -77,12 +78,12 @@ public class HippyModalHostManager extends HippyGroupController<HippyModalHostVi
 	{
 		view.setAnimationType(animationType);
 	}
-    @HippyControllerProps(name = "immersionStatusBar", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+    @HippyControllerProps(name = "immersionStatusBar", defaultType = HippyControllerProps.BOOLEAN)
     public void setEnterImmersionStatusBar(HippyModalHostView view, boolean fullScreen)
     {
         view.setEnterImmersionStatusBar(fullScreen);
     }
-	@HippyControllerProps(name = "darkStatusBarText", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+	@HippyControllerProps(name = "darkStatusBarText", defaultType = HippyControllerProps.BOOLEAN)
 	public void setImmersionStatusBarTextDarkColor(HippyModalHostView view, boolean fullScreen)
 	{
 		view.setImmersionStatusBarTextDarkColor(fullScreen);

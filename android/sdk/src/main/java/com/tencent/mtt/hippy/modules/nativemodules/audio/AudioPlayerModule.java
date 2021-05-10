@@ -9,9 +9,10 @@ import com.tencent.mtt.hippy.annotation.HippyMethod;
 import com.tencent.mtt.hippy.annotation.HippyNativeModule;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.modules.Promise;
-import com.tencent.mtt.hippy.modules.javascriptmodules.EventDispatcher;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
+import com.tencent.mtt.hippy.utils.LogUtils;
 
+@SuppressWarnings("deprecation")
 @HippyNativeModule(name = "AudioPlayerModule")
 public class AudioPlayerModule extends HippyNativeModuleBase
 {
@@ -24,10 +25,7 @@ public class AudioPlayerModule extends HippyNativeModuleBase
 
 	private final HippyEngineContext mHippyEngineContext;
 	private MediaPlayerStateWrapper	mMediaPlayer;
-
-	private int						mDuration	= 0;
-	private int						mProgress	= 0;
-	private String					mState		= STOPPED;
+	private String mState = STOPPED;
 
 	public AudioPlayerModule(HippyEngineContext hippyEngineContext)
 	{
@@ -35,11 +33,6 @@ public class AudioPlayerModule extends HippyNativeModuleBase
 
 		this.mHippyEngineContext = hippyEngineContext;
 		this.mMediaPlayer = new MediaPlayerStateWrapper();
-	}
-
-	private void sendEvent(String eventName, HippyMap params)
-	{
-		this.mHippyEngineContext.getModuleManager().getJavaScriptModule(EventDispatcher.class).receiveNativeEvent(eventName, params);
 	}
 
 	private String getState()
@@ -83,6 +76,7 @@ public class AudioPlayerModule extends HippyNativeModuleBase
 		return null;
 	}
 
+	@SuppressWarnings("unused")
 	@HippyMethod(name = "play")
 	public void play(String streamingURL, Promise callback)
 	{
@@ -100,6 +94,7 @@ public class AudioPlayerModule extends HippyNativeModuleBase
 							AudioPlayerModule.this.resume();
 						}
 					});
+			assert this.mMediaPlayer != null;
 			this.mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener()
 			{
 				@Override
@@ -118,6 +113,7 @@ public class AudioPlayerModule extends HippyNativeModuleBase
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@HippyMethod(name = "goBack")
 	public void goBack(Float seconds)
 	{
@@ -139,6 +135,7 @@ public class AudioPlayerModule extends HippyNativeModuleBase
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@HippyMethod(name = "goForward")
 	public void goForward(Float seconds)
 	{
@@ -147,9 +144,10 @@ public class AudioPlayerModule extends HippyNativeModuleBase
 			int milliseconds = Math.round(seconds) * 1000;
 			int newPosition = this.mMediaPlayer.getCurrentPosition() + milliseconds;
 
-			if (newPosition > this.mDuration)
+            int mDuration = 0;
+            if (newPosition > mDuration)
 			{
-				newPosition = this.mDuration;
+				newPosition = mDuration;
 			}
 
 			this.seekTo(newPosition);
@@ -180,6 +178,7 @@ public class AudioPlayerModule extends HippyNativeModuleBase
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@HippyMethod(name = "pause")
 	public void pause()
 	{
@@ -241,11 +240,13 @@ public class AudioPlayerModule extends HippyNativeModuleBase
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@HippyMethod(name = "destroyNotification")
-	public void destroyNotification()
-	{
+	public void destroyNotification() {
+		LogUtils.d("AudioPlayerModule", "destroyNotification");
 	}
 
+	@SuppressWarnings("unused")
 	@HippyMethod(name = "getStatus")
 	public void getStatus(Promise callback)
 	{

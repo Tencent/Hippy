@@ -24,8 +24,10 @@
 
 #include <future>
 
+#include "bridge/runtime.h"
 #include "core/core.h"
 #include "jni/jni_env.h"
+#include "jni/jni_register.h"
 #include "jni/jni_utils.h"
 #include "jni/uri.h"
 
@@ -38,7 +40,7 @@ static std::string ReadAsset(const std::string& file_path,
   if (path.length() > 0 && path[0] == '/') {
     path = path.substr(1);
   }
-  HIPPY_LOG(hippy::Debug, "path = %s", path.c_str());
+  TDF_BASE_DLOG(INFO) << "path = " << path;
   auto asset =
       AAssetManager_open(aasset_manager, path.c_str(), AASSET_MODE_STREAMING);
   std::string file_data;
@@ -59,8 +61,9 @@ static std::string ReadAsset(const std::string& file_path,
     }
     AAsset_close(asset);
   }
-  HIPPY_DLOG(hippy::Debug, "file_path = %s, len = %d,  file_data = %s",
-             file_path.c_str(), file_data.length(), file_data.c_str());
+  TDF_BASE_DLOG(INFO) << "file_path = " << file_path
+                      << ", len = " << file_data.length()
+                      << ", file_data = " << file_data;
   return file_data;
 }
 
@@ -81,10 +84,10 @@ bool ADRLoader::RequestUntrustedContent(const std::string& uri,
       return LoadByAsset(path, cb, false);
     }
 
-    HIPPY_LOG(hippy::Error, "aasset_manager error, uri = %s", uri.c_str());
+    TDF_BASE_DLOG(ERROR) << "aasset_manager error, uri = " << uri;
     return false;
   } else {
-    HIPPY_LOG(hippy::Error, "schema error, schema = %s", uri_schema.c_str());
+    TDF_BASE_DLOG(ERROR) << "schema error, schema = %s" << uri_schema;
     return false;
   }
 }
@@ -110,10 +113,10 @@ std::string ADRLoader::RequestUntrustedContent(const std::string& uri) {
       return ReadAsset(path, aasset_manager_, false);
     }
 
-    HIPPY_LOG(hippy::Error, "aasset_manager error, uri = %s", uri.c_str());
+    TDF_BASE_DLOG(ERROR) << "aasset_manager error, uri = " << uri;
     return "";
   } else {
-    HIPPY_LOG(hippy::Error, "schema error, schema = %s", uri_schema.c_str());
+    TDF_BASE_DLOG(ERROR) << "schema error, schema = " << uri_schema;
     return "";
   }
 }
@@ -137,8 +140,7 @@ bool ADRLoader::LoadByFile(const std::string& path,
 bool ADRLoader::LoadByAsset(const std::string& file_path,
                             std::function<void(std::string)> cb,
                             bool is_auto_fill) {
-  HIPPY_LOG(hippy::Debug, "ReadAssetFile file_path = %s", file_path.c_str());
-
+  TDF_BASE_DLOG(INFO) << "ReadAssetFile file_path = " << file_path;
   std::shared_ptr<WorkerTaskRunner> runner = runner_.lock();
   if (!runner) {
     return false;
@@ -156,21 +158,78 @@ bool ADRLoader::LoadByAsset(const std::string& file_path,
 
 bool ADRLoader::LoadByHttp(const std::string& uri,
                            std::function<void(std::string)> cb) {
-  JNIEnv* env = JNIEnvironment::AttachCurrentThread();
-  JNIEnvironment* instance = JNIEnvironment::GetInstance();
-  if (instance->wrapper_.fetch_resource_method_id) {
+  std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
+  JNIEnv* env = instance->AttachCurrentThread();
+
+  if (instance->GetMethods().j_fetch_resource_method_id) {
     int64_t id = SetRequestCB(cb);
     jstring j_relative_path = env->NewStringUTF(uri.c_str());
     env->CallVoidMethod(bridge_->GetObj(),
-                        instance->wrapper_.fetch_resource_method_id,
+                        instance->GetMethods().j_fetch_resource_method_id,
                         j_relative_path, id);
     env->DeleteLocalRef(j_relative_path);
     return true;
   }
 
-  HIPPY_LOG(hippy::Error, "jni fetch_resource_method_id error");
+  TDF_BASE_DLOG(ERROR) << "jni fetch_resource_method_id error";
   return false;
 }
+
+void OnResourceReady(JNIEnv* j_env,
+                     jobject j_object,
+                     jobject j_byte_buffer,
+                     jlong j_runtime_id,
+                     jlong j_request_id) {
+  TDF_BASE_DLOG(INFO) << "HippyBridgeImpl onResourceReady j_runtime_id = "
+                      << j_runtime_id;
+  std::shared_ptr<Runtime> runtime = Runtime::Find(j_runtime_id);
+  if (!runtime) {
+    TDF_BASE_DLOG(WARNING)
+        << "HippyBridgeImpl onResourceReady, j_runtime_id invalid";
+    return;
+  }
+  std::shared_ptr<Scope> scope = runtime->GetScope();
+  if (!scope) {
+    TDF_BASE_DLOG(WARNING) << "HippyBridgeImpl onResourceReady, scope invalid";
+    return;
+  }
+
+  std::shared_ptr<ADRLoader> loader =
+      std::static_pointer_cast<ADRLoader>(scope->GetUriLoader());
+  int64_t request_id = j_request_id;
+  TDF_BASE_DLOG(INFO) << "request_id = " << request_id;
+  auto cb = loader->GetRequestCB(request_id);
+  if (!cb) {
+    TDF_BASE_DLOG(WARNING) << "cb not found" << request_id;
+    return;
+  }
+  if (!j_byte_buffer) {
+    TDF_BASE_DLOG(INFO) << "HippyBridgeImpl onResourceReady, buff null";
+    cb("");
+    return;
+  }
+  int64_t len = (j_env)->GetDirectBufferCapacity(j_byte_buffer);
+  if (len == -1) {
+    TDF_BASE_DLOG(ERROR)
+        << "HippyBridgeImpl onResourceReady, BufferCapacity error";
+    cb("");
+    return;
+  }
+  void* buff = (j_env)->GetDirectBufferAddress(j_byte_buffer);
+  if (!buff) {
+    TDF_BASE_DLOG(INFO) << "HippyBridgeImpl onResourceReady, buff null";
+    cb("");
+    return;
+  }
+
+  std::string str(reinterpret_cast<const char*>(buff), len);
+  cb(std::move(str));
+}
+
+REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
+             "onResourceReady",
+             "(Ljava/nio/ByteBuffer;JJ)V",
+             OnResourceReady)
 
 std::function<void(std::string)> ADRLoader::GetRequestCB(int64_t request_id) {
   auto it = request_map_.find(request_id);

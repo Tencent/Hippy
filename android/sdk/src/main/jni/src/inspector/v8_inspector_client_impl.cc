@@ -24,6 +24,9 @@
 
 #include "core/core.h"
 
+namespace hippy {
+namespace inspector {
+
 V8InspectorClientImpl::V8InspectorClientImpl(std::shared_ptr<Scope> scope)
     : scope_(scope) {
   std::shared_ptr<hippy::napi::V8Ctx> ctx =
@@ -72,11 +75,11 @@ void V8InspectorClientImpl::SendMessageToV8(const std::string& params) {
 }
 
 void V8InspectorClientImpl::DestroyContext() {
-  HIPPY_DLOG(hippy::Debug, "V8InspectorClientImpl DestroyContext");
+  TDF_BASE_DLOG(INFO) << "V8InspectorClientImpl DestroyContext";
   std::shared_ptr<hippy::napi::V8Ctx> ctx =
       std::static_pointer_cast<hippy::napi::V8Ctx>(scope_->GetContext());
   if (!ctx) {
-    HIPPY_LOG(hippy::Error, "V8InspectorClientImpl ctx error");
+    TDF_BASE_DLOG(ERROR) << "V8InspectorClientImpl ctx error";
     return;
   }
   v8::Isolate* isolate = ctx->isolate_;
@@ -84,9 +87,9 @@ void V8InspectorClientImpl::DestroyContext() {
   v8::Local<v8::Context> context =
       v8::Local<v8::Context>::New(isolate, ctx->context_persistent_);
   v8::Context::Scope context_scope(context);
-  HIPPY_DLOG(hippy::Debug, "inspector contextDestroyed begin");
+  TDF_BASE_DLOG(INFO) << "inspector contextDestroyed begin";
   inspector_->contextDestroyed(context);
-  HIPPY_DLOG(hippy::Debug, "inspector contextDestroyed end");
+  TDF_BASE_DLOG(INFO) << "inspector contextDestroyed end";
 }
 
 v8::Local<v8::Context> V8InspectorClientImpl::ensureDefaultContextInGroup(
@@ -112,3 +115,6 @@ void V8InspectorClientImpl::quitMessageLoopOnPause() {
 void V8InspectorClientImpl::runIfWaitingForDebugger(int contextGroupId) {
   scope_->GetTaskRunner()->ResumeThreadForInspector();
 }
+
+}  // namespace inspector
+}  // namespace hippy

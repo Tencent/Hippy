@@ -17,27 +17,23 @@ import com.tencent.mtt.hippy.bridge.bundleloader.HippyAssetBundleLoader;
 import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.modules.nativemodules.deviceevent.DeviceEventModule;
+import com.tencent.mtt.hippy.utils.LogUtils;
 
-
-/**
- * Copyright (C) 2005-2020 TENCENT Inc.All Rights Reserved.
- * FileName: TestActivity
- * Description：
- */
-
+@SuppressWarnings({"deprecation", "unused"})
 public class BaseActivity extends Activity implements EngineListener, DeviceEventModule.InvokeDefaultBackPress
 {
-	private MyHippyEngineHost	mHost;
-	private HippyEngineManager		mEngineManager;
+
+    private HippyEngineManager		mEngineManager;
 	private HippyRootView			mInstance;
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 
-		mHost = new MyHippyEngineHost(BaseActivity.this.getApplication());
+        MyHippyEngineHost mHost = new MyHippyEngineHost(BaseActivity.this.getApplication());
 		mEngineManager = mHost.createDebugHippyEngineManager("index.bundle");
 		mEngineManager.addEngineEventListener(this);
 		mEngineManager.initEngineInBackground();
@@ -70,14 +66,8 @@ public class BaseActivity extends Activity implements EngineListener, DeviceEven
 	}
 
 	@Override
-	public void onBackPressed()
-	{
-		if (mEngineManager.onBackPress(this))
-		{
-			return;
-		}
-		else
-		{
+	public void onBackPressed() {
+		if (!mEngineManager.onBackPress(this)) {
 			super.onBackPressed();
 		}
 	}
@@ -112,7 +102,7 @@ public class BaseActivity extends Activity implements EngineListener, DeviceEven
 					@Override
 					public void onLoadCompleted(ModuleLoadStatus statusCode, String msg, HippyRootView hippyRootView) {
 						if (statusCode == ModuleLoadStatus.STATUS_OK) {
-
+							LogUtils.d("BaseActivity", "onLoadCompleted: statusCode=ModuleLoadStatus.STATUS_OK");
 						}
 					}
 

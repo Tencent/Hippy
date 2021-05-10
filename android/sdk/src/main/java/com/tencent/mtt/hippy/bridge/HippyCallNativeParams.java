@@ -18,11 +18,7 @@ package com.tencent.mtt.hippy.bridge;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.supportui.utils.struct.Pools;
 
-/**
- * FileName: HippyCallNativeParams
- * Description：
- * History：
- */
+@SuppressWarnings({"unused"})
 public class HippyCallNativeParams
 {
 

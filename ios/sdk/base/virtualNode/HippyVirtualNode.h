@@ -39,11 +39,24 @@
 
 @property (nonatomic, retain) NSMutableArray<HippyVirtualNode *> *subNodes;
 
-@property (nonatomic, weak) HippyVirtualList *listNode;
-@property (nonatomic, weak) HippyVirtualCell *cellNode;
 @property (nonatomic, copy) NSNumber *rootTag;
+@property (nonatomic, weak) HippyBridge *bridge;
 
-- (BOOL)isListSubNode;
+/**
+ * check if it is layzily-load type
+ */
+- (BOOL)isLazilyLoadType;
+
+//判断当前node是否使用懒加载，和上面方法不同在于，如果parent node需要懒加载，当前node同样也懒加载。
+/**
+ * check if its ancestor is layzily-load type
+ */
+- (BOOL)createViewLazily;
+
+/**
+ * get first layzily-load type ancestor node
+ */
+- (HippyVirtualNode *)firstLazilyLoadTypeParentNode;
 
 typedef UIView * (^HippyCreateViewForShadow)(HippyVirtualNode *node);
 typedef UIView * (^HippyUpdateViewForShadow)(HippyVirtualNode *newNode, HippyVirtualNode *oldNode);
@@ -56,16 +69,6 @@ typedef void (^HippyVirtualNodeManagerUIBlock)(HippyUIManager *uiManager, NSDict
 
 - (void)removeView:(HippyRemoveViewForShadow)removeBlock;
 
-@end
-
-@interface HippyVirtualCell : HippyVirtualNode
-@property (nonatomic, copy) NSString *itemViewType;
-@property (nonatomic, assign) BOOL sticky;
-@property (nonatomic, weak) UIView *cell;
-@end
-
-@interface HippyVirtualList : HippyVirtualNode
-@property (nonatomic, assign) BOOL needFlush;
 @end
 
 @interface UIView (HippyRemoveNode)

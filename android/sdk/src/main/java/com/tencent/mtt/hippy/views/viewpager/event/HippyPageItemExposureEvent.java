@@ -24,6 +24,7 @@ import android.view.View;
  * Created by huskyzhyu on 2017/12/15.
  */
 
+@SuppressWarnings("deprecation")
 public class HippyPageItemExposureEvent extends HippyViewEvent
 {
   public static final String EVENT_PAGER_ITEM_WILL_APPEAR	       = "onWillAppear";
