@@ -32,6 +32,8 @@
 @property (nonatomic, assign) BOOL loadOnce;
 @property (nonatomic, assign) NSInteger pageOfBeginDragging;
 @property (nonatomic, assign) CGFloat lastOffsetX;
+@property (nonatomic, assign) NSInteger lastNowPage;
+@property (nonatomic, assign) NSInteger selectedPage;
 
 @property (nonatomic, assign) CGRect previousFrame;
 @property (nonatomic, assign) CGSize previousSize;
@@ -163,6 +165,7 @@
     CGFloat beforePageX = beforePage * commonPagerWidth; // 前一页x值
     CGFloat beforeOffsetX = self.lastOffsetX != CGFLOAT_MAX ? self.lastOffsetX : beforePage * commonPagerWidth;
     CGFloat nowContentOffsetX = self.contentOffset.x;
+//    CGFloat betweenOffset = nowContentOffsetX - beforePageX;
     CGFloat betweenOffset = nowContentOffsetX - beforePageX;
     self.lastOffsetX = nowContentOffsetX; // 记录上一次位置，用于计算下一次位移方向
     NSInteger direct = 0; // inner direct,用于判断是否与outer direct方向是否一致进行具体目标和offset计算
@@ -172,21 +175,30 @@
         direct = -1;
     }
     CGFloat offsetRate = betweenOffset / commonPagerWidth; // outer direct
-    if (offsetRate != 0) {
-        NSInteger nowPage = 0;
-        if (offsetRate > 0 && direct > 0) { // 正向非回弹
+    CGFloat originOffsetRate = offsetRate;
+//    if (fabs(offsetRate) > 1) {
+//        return;
+//    }
+    NSInteger nowPage = 0;
+    if (offsetRate != 0 && fabs(offsetRate) <= 1) {
+        // uiscrollview手指滑动默认最大滑动一屏，当前滚动计算可能会超出一屏，导致position与实际停留pageIndex不一致，需要限制在一屏内，加上fabs(offsetRate) <= 1判断条件将超出一屏的滚动不计入
+//        offsetRate = (offsetRate / fabs(offsetRate)) * MIN(fabs(offsetRate), 1); // 范围[-1, 1]
+        if (offsetRate > 0 && (direct > 0 || fabs(offsetRate) == 1)) { // 正向非回弹
             nowPage = beforePage + 1;
         } else if (offsetRate > 0 && direct < 0) { // 正向回弹
             nowPage = beforePage;
             offsetRate = -(1 - offsetRate);
-        } else if (offsetRate < 0 && direct < 0) { // 反向非回弹
+        } else if (offsetRate < 0 && (direct < 0 || fabs(offsetRate) == 1)) { // 反向非回弹
             nowPage = beforePage - 1;
         } else if (offsetRate < 0 && direct > 0) { // 反向回弹
             nowPage = beforePage;
             offsetRate = 1 + offsetRate;
         }
-        if (CGFLOAT_MAX != self.targetContentOffsetX) {
-            nowPage = [self targetPageIndexFromTargetContentOffsetX:self.targetContentOffsetX];
+//        if (CGFLOAT_MAX != self.targetContentOffsetX) {
+//            nowPage = [self targetPageIndexFromTargetContentOffsetX:self.targetContentOffsetX];
+//        }
+        if (roundf(offsetRate) == offsetRate) {
+            offsetRate = 0;
         }
         if (roundf(offsetRate) == offsetRate) {
             offsetRate = 0;
@@ -195,6 +207,26 @@
             self.onPageScroll(@{
                 @"position": @(nowPage),
                 @"offset": @(offsetRate),
+                @"direct": @(direct),
+                @"beforePage": @(beforePage),
+                @"nowContentOffsetX": @(nowContentOffsetX),
+                @"originOffsetRate": @(originOffsetRate)
+            });
+        }
+        _lastNowPage = nowPage;
+    } else if (roundf(offsetRate) == offsetRate && CGFLOAT_MAX != self.targetContentOffsetX) {
+        nowPage = [self targetPageIndexFromTargetContentOffsetX:self.targetContentOffsetX];
+        if (roundf(offsetRate) == offsetRate) {
+            offsetRate = 0;
+        }
+        if (self.onPageScroll) {
+            self.onPageScroll(@{
+                @"position": @(nowPage),
+                @"offset": @(offsetRate),
+                @"direct": @(direct),
+                @"beforePage": @(beforePage),
+                @"nowContentOffsetX": @(nowContentOffsetX),
+                @"originOffsetRate": @(originOffsetRate)
             });
         }
     }
@@ -207,6 +239,7 @@
 
 //用户拖拽的开始，也是整个滚动流程的开始
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
+    NSLog(@"debug11111 scrollViewWillBeginDragging");
     self.pageOfBeginDragging = self.nowPage;
     self.isScrolling = YES;
     self.targetContentOffsetX = CGFLOAT_MAX;
@@ -218,10 +251,12 @@
 }
 
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset {
+    NSLog(@"debug11111 scrollViewWillEndDragging");
     self.targetContentOffsetX = targetContentOffset->x;
     NSUInteger page = [self targetPageIndexFromTargetContentOffsetX:self.targetContentOffsetX];
     if (self.onPageSelected) {
         self.onPageSelected(@{ @"position": @(page) });
+        _selectedPage = page;
     }
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollViewListener) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewWillEndDragging:withVelocity:targetContentOffset:)]) {
@@ -327,9 +362,13 @@
 
 - (CGFloat)commonPagerWidth {
     if ([self.viewPagerItems count] == 0) {
+        NSLog(@"%@", [NSString stringWithFormat:@"commonPagerWidth11111111:%f", (self.frame.size.width)]);
         return self.frame.size.width;
     }
-    return self.viewPagerItems[0].frame.size.width;
+    CGRect frame = self.viewPagerItems[0].frame;
+    CGSize size = frame.size;
+    NSLog(@"%@", [NSString stringWithFormat:@"commonPagerWidth2222222:%f", (self.viewPagerItems[0].frame.size.width)]);
+    return size.width;
 }
 
 - (void)hippyBridgeDidFinishTransaction {
