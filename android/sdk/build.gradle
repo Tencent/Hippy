@@ -143,7 +143,7 @@ dependencies {
   api fileTree(dir: 'libs', include: ['*.jar'])
   implementation 'com.android.support:support-annotations:28.0.0'
   if (!INCLUDE_SUPPORT_UI.toBoolean()) {
-    compileOnly('com.tencent.mtt:support-ui:99.1.0')
+    compileOnly('com.tencent.mtt:support-ui:99.2.3')
   }
 }
 

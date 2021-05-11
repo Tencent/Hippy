@@ -92,6 +92,7 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 	private boolean							mPropertyRequiresNewDialog;
 	private DialogInterface.OnShowListener	mOnShowListener;
 	OnRequestCloseListener					mOnRequestCloseListener;
+	private String							mAnimationType;
 	private int                             mAniType;
 	private boolean							mEnterImmersionStatusBar = false;
 	private boolean	 						mStatusBarTextDarkColor = false;
@@ -208,7 +209,13 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 			}
 		}
 
+		mAnimationType = animationType;
 		mPropertyRequiresNewDialog = true;
+	}
+
+	protected String getAnimationType()
+	{
+		return mAnimationType;
 	}
 
 	protected void setEnterImmersionStatusBar(boolean fullScreen)
@@ -454,16 +461,20 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 		return -1;
 	}
 
+	protected int getThemeResId() {
+		return 0;
+	}
+
 	protected Dialog createDialog(Context context)
 	{
-		int theme = 0;
+		int themeResId = getThemeResId();
 		if (context != null) {
 			Resources res = context.getResources();
-			theme = res.getIdentifier("HippyFullScreenDialog", "style", context.getPackageName());
+			themeResId = res.getIdentifier("HippyFullScreenDialog", "style", context.getPackageName());
 		}
 
-		Dialog dialog = new Dialog(context, theme);
-		if (theme == 0) {
+		Dialog dialog = new Dialog(context, themeResId);
+		if (themeResId == 0) {
 			Window window = dialog.getWindow();
 			if (window != null) {
 				window.requestFeature(Window.FEATURE_NO_TITLE);
