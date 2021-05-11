@@ -851,8 +851,7 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 				scrollTo(dest, 0);
 			}
 
-			int direction = (item > mLastItem) ? 1 : -1;
-			pageScrolled(dest, direction);
+			pageScrolled(dest);
 		}
 		if (mSelectedListener != null && touching)
 		{
@@ -2364,12 +2363,8 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 			if (oldX != x || oldY != y)
 			{
 				scrollTo(x, y);
-				int direction = x - oldX > 0 ? 1 : -1;
-				if (mIsVertical) {
-					direction = y - oldY > 0 ? 1 : -1;
-				}
 
-				if (!pageScrolled(mIsVertical ? y : x, direction) && !isGallery())
+				if (!pageScrolled(mIsVertical ? y : x) && !isGallery())
 				{
 					mScroller.abortAnimation();
 					if (mIsVertical)
@@ -2423,7 +2418,7 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 		mNextScreen = INVALID_SCREEN;
 	}
 
-	protected boolean pageScrolled(int pos, int direction)
+	protected boolean pageScrolled(int pos)
 	{
 		final int size = getClientSize();
 		final int sizeWithMargin = size + mPageMargin;
@@ -2459,17 +2454,16 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 				pageOffset = (targetPage < mLastItem) ? -1.0f : 1.0f;
 			}
 		} else {
-			targetPage = (direction < 0) ? ii.position : ii.position + 1;
-			if ((direction < 0 && targetPage == mLastItem) || (direction > 0 && targetPage > mLastItem)) {
+			if (targetPage >= mLastItem) {
 				pageOffset = offsetBaseLeft;
-			} else if ((direction < 0 && targetPage < mLastItem) || (direction > 0 && targetPage == mLastItem)) {
+				targetPage = ii.position + 1;
+			} else {
 				pageOffset = offsetBaseRight;
 			}
-
-			pageOffset = (float)(Math.round(pageOffset*1000))/1000;
 		}
 
 		mCalledSuper = false;
+		pageOffset = (float)(Math.round(pageOffset*1000))/1000;
 		LogUtils.d(TAG, "pageScrolled: targetPage=" + targetPage + ", pageOffset=" + pageOffset);
 		onPageScrolled(targetPage, pageOffset, offsetPixels);
 		if (!mCalledSuper)
@@ -3583,7 +3577,7 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 			// Don't lose the rounded component
 			mLastMotionX += scrollX - (int) scrollX;
 			scrollTo((int) scrollX, getScrollY());
-			pageScrolled((int) scrollX, deltaX > 0 ? 1 : -1);
+			pageScrolled((int) scrollX);
 			return needsInvalidate;
 		}
 		else
@@ -3675,7 +3669,7 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 			// Don't lose the rounded component
 			mLastMotionY += scrollY - (int) scrollY;
 			scrollTo(getScrollX(), (int) scrollY);
-			pageScrolled((int) scrollY, deltaY > 0 ? 1 : -1);
+			pageScrolled((int) scrollY);
 			return needsInvalidate;
 		}
 	}
@@ -4045,7 +4039,7 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 		// Don't lose the rounded component
 		mLastMotionX += scrollX - (int) scrollX;
 		scrollTo((int) scrollX, getScrollY());
-		pageScrolled((int) scrollX, xOffset > 0 ? 1 : -1);
+		pageScrolled((int) scrollX);
 
 		// Synthesize an event for the VelocityTracker.
 		final long time = SystemClock.uptimeMillis();
