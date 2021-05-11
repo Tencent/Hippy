@@ -25,7 +25,6 @@ import com.tencent.mtt.hippy.utils.PixelUtil;
 
 @SuppressWarnings({"deprecation", "unused"})
 public class HippyScrollViewEventHelper {
-
   public static final long MOMENTUM_DELAY = 20;
   public static final String EVENT_TYPE_BEGIN_DRAG = "onScrollBeginDrag";
   public static final String EVENT_TYPE_END_DRAG = "onScrollEndDrag";
