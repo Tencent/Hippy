@@ -498,9 +498,9 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 		}
 	}
 
-	protected void drawGIF(Canvas canvas) {
+	protected boolean drawGIF(Canvas canvas) {
 		if (mGifMovie == null) {
-			return;
+			return false;
 		}
 
 		int duration = mGifMovie.duration();
@@ -531,6 +531,8 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 		if (!isGifPaused) {
 			postInvalidateDelayed(40);
 		}
+
+		return true;
 	}
 
 	protected boolean shouldFetchImage() {
