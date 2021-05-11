@@ -336,17 +336,9 @@
     if (!self.viewPagerItems.count) {
         return;
     }
-    for (int i = 1; i < self.viewPagerItems.count; ++i) {
-        UIView *lastViewPagerItem = self.viewPagerItems[i - 1];
-        UIView *theViewPagerItemItem = self.viewPagerItems[i];
-        CGPoint lastViewPagerItemRightPoint = [self rightPointOfView:lastViewPagerItem];
-        CGRect theFrame = CGRectMake(
-                                     lastViewPagerItemRightPoint.x,
-                                     lastViewPagerItemRightPoint.y,
-                                     theViewPagerItemItem.frame.size.width,
-                                     theViewPagerItemItem.frame.size.height
-                                     );
-        theViewPagerItemItem.frame = theFrame;
+    for (int i = 0; i < self.viewPagerItems.count; i++) {
+        UIView *item = [self.viewPagerItems objectAtIndex:i];
+        item.frame = [self frameForItemAtIndex:i];
     }
 
     if (self.initialPage >= self.viewPagerItems.count) {
