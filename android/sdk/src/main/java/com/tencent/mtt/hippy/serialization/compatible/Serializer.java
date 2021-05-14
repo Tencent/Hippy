@@ -73,7 +73,11 @@ public class Serializer extends PrimitiveValueSerializer {
     writeTag(SerializationTag.BEGIN_JS_OBJECT);
     Set<String> keys = value.keySet();
     for (String key : keys) {
-      writeString(key);
+      if (key == Null) {
+        writeString("null");
+      } else {
+        writeString(key);
+      }
       writeValue(value.get(key));
     }
     writeTag(SerializationTag.END_JS_OBJECT);
