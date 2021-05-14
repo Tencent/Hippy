@@ -39,7 +39,6 @@ import com.tencent.mtt.hippy.modules.nativemodules.uimanager.UIManagerModule;
 import com.tencent.mtt.hippy.modules.nativemodules.utils.UtilsModule;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.utils.LogUtils;
-import com.tencent.mtt.hippy.views.audioview.AudioViewController;
 import com.tencent.mtt.hippy.views.custom.HippyCustomPropsController;
 import com.tencent.mtt.hippy.views.image.HippyImageViewController;
 import com.tencent.mtt.hippy.views.list.HippyListItemViewController;
@@ -66,8 +65,6 @@ import java.util.Map;
 @SuppressWarnings({"unused", "rawtypes"})
 public class HippyCoreAPI implements HippyAPIProvider
 {
-	public final static String VIDEO_CONTROLLER_CLASS_NAME = "com.tencent.mtt.hippy.views.videoview.VideoHippyViewController";
-
 	@Override
 	public Map<Class<? extends HippyNativeModuleBase>, Provider<? extends HippyNativeModuleBase>> getNativeModules(final HippyEngineContext context)
 	{
@@ -224,10 +221,8 @@ public class HippyCoreAPI implements HippyAPIProvider
 		components.add(HippyPullFooterViewController.class);
 		components.add(NavigatorController.class);
 		components.add(HippyWebViewController.class);
-		components.add(AudioViewController.class);
 		components.add(HippyCustomPropsController.class);
 
-		addControllerWithClassName(VIDEO_CONTROLLER_CLASS_NAME, components);
 		return components;
 	}
 
