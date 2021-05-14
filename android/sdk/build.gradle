@@ -60,7 +60,6 @@ android {
 
     buildConfigField("boolean", "ENABLE_SO_DOWNLOAD", ENABLE_SO_DOWNLOAD)
     buildConfigField("boolean", "INCLUDE_SUPPORT_UI", INCLUDE_SUPPORT_UI)
-    buildConfigField("boolean", "INCLUDE_VIDEO_COMPONENT", INCLUDE_VIDEO_COMPONENT)
 
     packagingOptions {
       pickFirst 'lib/armeabi-v7a/libhippybridge.so'
@@ -130,10 +129,7 @@ android {
       if (INCLUDE_SUPPORT_UI.toBoolean() == false) {
         java.exclude("com/tencent/mtt/supportui/**")
       }
-      if (INCLUDE_VIDEO_COMPONENT.toBoolean() == false) {
-        java.exclude("com/tencent/mtt/hippy/views/videoview/**")
-      }
-
+      
       jniLibs.srcDirs = ['libs']
     }
   }
