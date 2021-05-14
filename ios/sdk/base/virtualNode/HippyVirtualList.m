@@ -35,6 +35,13 @@
     self.isDirty = YES;
     [super removeHippySubview: subview];
 }
+
+- (UIView *)createView:(HippyCreateViewForShadow)createBlock insertChildrens:(HippyInsertViewForShadow)insertChildrens {
+    UIView *view = [super createView:createBlock insertChildrens:insertChildrens];
+    self.isDirty = YES;
+    return view;
+}
+
 @end
 
 @implementation HippyVirtualCell
