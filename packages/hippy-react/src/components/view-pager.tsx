@@ -19,7 +19,7 @@ interface PageScrollStateEvent {
 
 interface ViewPagerProps {
   /**
-   * Specifc initial page after rendering.
+   * Specific initial page after rendering.
    *
    * Default: 0
    */
@@ -54,7 +54,7 @@ interface ViewPagerProps {
   /**
    * Called when the page scroll state changed.
    *
-   * @param {string} str - Page scroll state event data
+   * @param {string} evt - Page scroll state event data
    * This can be one of the following values:
    *
    * * idle
@@ -107,14 +107,14 @@ class ViewPager extends React.Component<ViewPagerProps, {}> {
     }
   }
 
-  public setPage(selectedPage: number) {
+  public setPage(selectedPage: number | undefined) {
     if (typeof selectedPage !== 'number') {
       return;
     }
     callUIFunction(this.instance, 'setPage', [selectedPage]);
   }
 
-  public setPageWithoutAnimation(selectedPage: number) {
+  public setPageWithoutAnimation(selectedPage: number | undefined) {
     if (typeof selectedPage !== 'number') {
       return;
     }
