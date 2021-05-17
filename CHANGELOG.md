@@ -3,6 +3,45 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.6.3](https://github.com/Tencent/Hippy/compare/2.6.2...2.6.3) (2021-05-17)
+
+
+### Bug Fixes
+
+* **android:** correct view pager onPageScroll event params ([5c00cc2](https://github.com/Tencent/Hippy/commit/5c00cc25f8c8b319d67371f844e15657c65fead6))
+* **android:** reset another enable buffer setting in HippyEngineManager ([8b5f4a9](https://github.com/Tencent/Hippy/commit/8b5f4a99bf994672c41b12c18bb3b3a782fc4292))
+* **android:** send exposure event when listview first show ([d8c9ab7](https://github.com/Tencent/Hippy/commit/d8c9ab7ad72a241322a45e71d56a080fc672d6b3))
+* **android:** support null key in v8 serialization ([df49900](https://github.com/Tencent/Hippy/commit/df49900bd742d29bcbe661598a255dcce54b1026))
+* **core:** fix log bug ([8e60e23](https://github.com/Tencent/Hippy/commit/8e60e23ba0443a959cfca6f2a92a5a1972ff08df))
+* **core:** merge master ([dcd7123](https://github.com/Tencent/Hippy/commit/dcd71239f14b8459dad2f2f97d3972832789b802))
+* **core:** setTimeout and setInterval of TimerModule support ...args ([#733](https://github.com/Tencent/Hippy/issues/733)) ([655aa15](https://github.com/Tencent/Hippy/commit/655aa152bf9872a3fcf6ef53492ae71e6b1afdd3))
+* **core:** update 77 v8 ([24fc1b0](https://github.com/Tencent/Hippy/commit/24fc1b0322974df51a2c556dce5c6181841351c3))
+* **hippy-react-demo:** perf tabhost demo ([ea33076](https://github.com/Tencent/Hippy/commit/ea330765b61b7b7a7b70e225d3affd8a779a6ce6))
+* **ios:** add header search path config ([2f8d419](https://github.com/Tencent/Hippy/commit/2f8d419d6135261ebefb0bcd573dd5694b188a0b))
+* **ios:** fix animation timing function type error ([1a98153](https://github.com/Tencent/Hippy/commit/1a98153639cbafff3a844a267257c56cde3a2f16))
+* **ios:** fix synax error ([47612e9](https://github.com/Tencent/Hippy/commit/47612e9f3856ffd708f541fa1086bd93448fad44))
+* **ios:** fix viewpageritem frame set error ([9b8d51b](https://github.com/Tencent/Hippy/commit/9b8d51b69f08d13d43326b7547071dfb0319494f))
+* **ios:** list node should set dirty when loads lazily ([3ad5c10](https://github.com/Tencent/Hippy/commit/3ad5c1070442345a2ba70d8c9f384ef8e8311dcc))
+* **ios:** make sure calayer.setneedsdisplay will trigger displaylayer ([16a5802](https://github.com/Tencent/Hippy/commit/16a580245acfc6fca36cab5bf03ef49b3fe98ccd))
+
+
+### Features
+
+* **android:** image span support onLoad event ([389acfc](https://github.com/Tencent/Hippy/commit/389acfc6650e9b62f4ded1b839516f18e2cc885b))
+* **android:** support set custom C log handler ([b06479d](https://github.com/Tencent/Hippy/commit/b06479d31f2c4601d10c0c4a454b5e7faa7669aa))
+* **android:** support v8 serialization ([6cca7ca](https://github.com/Tencent/Hippy/commit/6cca7ca5123f6ca3b17e9c0bd7092814aad569e1))
+* **core:** adapter new Serializer ([da12e1c](https://github.com/Tencent/Hippy/commit/da12e1c0775a3bc05a106e24e638d737e9db2af9))
+* **core:** add jni static method register macro ([aaff868](https://github.com/Tencent/Hippy/commit/aaff868046a6e93cdadbb646ccae3c2c5b31dbb7))
+* **core:** refactor logger ([d3a6f0d](https://github.com/Tencent/Hippy/commit/d3a6f0df0fe353b0fad87e73e6aa5f6bde422652))
+* **hippy-vue:** add local path support for placeholder & bgImg ([f0c56e6](https://github.com/Tencent/Hippy/commit/f0c56e61e22bb14ec6b0f100c03b93ec8491fae5))
+* **ios:** add hippy log handler ([044e0a2](https://github.com/Tencent/Hippy/commit/044e0a21c16790a79ae162d74b3f802aceda3b68))
+* **ios:** add log handler ([9afc682](https://github.com/Tencent/Hippy/commit/9afc682a5b0c698c4c1bda8d05ffff825bb8dc11))
+* **ios:** delete video compnent ([2ba451c](https://github.com/Tencent/Hippy/commit/2ba451cb4c31aeca9a321dcbfd5f093d6c99197c))
+
+
+
+
+
 ## [2.6.2](https://github.com/Tencent/Hippy/compare/2.6.1...2.6.2) (2021-04-26)
 
 

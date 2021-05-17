@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.6.3](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.6.2...2.6.3) (2021-05-17)
+
+
+### Bug Fixes
+
+* **hippy-react-demo:** perf tabhost demo ([ea33076](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/ea330765b61b7b7a7b70e225d3affd8a779a6ce6))
+
+
+
+
+
 ## [2.6.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.6.1...2.6.2) (2021-04-26)
 
 **Note:** Version bump only for package @hippy/react

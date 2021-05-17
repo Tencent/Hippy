@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.6.3](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.6.2...2.6.3) (2021-05-17)
+
+
+### Features
+
+* **hippy-vue:** add local path support for placeholder & bgImg ([f0c56e6](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/f0c56e61e22bb14ec6b0f100c03b93ec8491fae5))
+
+
+
+
+
 ## [2.6.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.6.1...2.6.2) (2021-04-26)
 
 
