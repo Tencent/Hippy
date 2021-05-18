@@ -21,48 +21,46 @@ import com.tencent.mtt.hippy.utils.ContextHolder;
 
 import java.util.List;
 
-@SuppressWarnings({"deprecation","unused"})
+@SuppressWarnings({"deprecation", "unused"})
 @Deprecated
-public abstract class HippyEngineHost
-{
-	/**
-	 * Application
-	 */
-	private final Application	mApplication;
+public abstract class HippyEngineHost {
+
+  /**
+   * Application
+   */
+  private final Application mApplication;
 
 
-	public HippyEngineHost(Application application)
-	{
-		mApplication = application;
-		ContextHolder.initAppContext(mApplication);
-	}
+  public HippyEngineHost(Application application) {
+    mApplication = application;
+    ContextHolder.initAppContext(mApplication);
+  }
 
-	public HippyEngineManager createDebugHippyEngineManager(String debugJs)
-	{
-		HippyEngineManager.Builder builder = new HippyEngineManager.Builder();
-		builder.setHippyGlobalConfigs(getHippyGlobalConfigs()).setCoreBundleLoader(null).setPackages(getPackages()).setSupportDev(true)
-				.setDebugJs(debugJs).setGroupId(getGroupId());
+  public HippyEngineManager createDebugHippyEngineManager(String debugJs) {
+    HippyEngineManager.Builder builder = new HippyEngineManager.Builder();
+    builder.setHippyGlobalConfigs(getHippyGlobalConfigs()).setCoreBundleLoader(null)
+        .setPackages(getPackages()).setSupportDev(true)
+        .setDebugJs(debugJs).setGroupId(getGroupId());
 
-		return builder.build();
-	}
+    return builder.build();
+  }
 
-	public HippyGlobalConfigs getHippyGlobalConfigs()
-	{
-		return new HippyGlobalConfigs.Builder().setContext(mApplication).build();
-	}
+  public HippyGlobalConfigs getHippyGlobalConfigs() {
+    return new HippyGlobalConfigs.Builder().setContext(mApplication).build();
+  }
 
-	protected abstract List<HippyAPIProvider> getPackages();
+  protected abstract List<HippyAPIProvider> getPackages();
 
-	protected HippyBundleLoader getCoreBundleLoader()
-	{
-		return null;
-	}
+  protected HippyBundleLoader getCoreBundleLoader() {
+    return null;
+  }
 
-	protected boolean enableHippyBufferBridge()
-	{
-		return false;
-	}
+  protected boolean enableHippyBufferBridge() {
+    return false;
+  }
 
-	protected  int getGroupId() { return -1; }
+  protected int getGroupId() {
+    return -1;
+  }
 
 }

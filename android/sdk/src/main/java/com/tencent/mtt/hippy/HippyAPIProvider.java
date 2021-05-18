@@ -24,12 +24,12 @@ import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("rawtypes")
-public interface HippyAPIProvider
-{
-    Map<Class<? extends HippyNativeModuleBase>, Provider<? extends HippyNativeModuleBase>> getNativeModules(
-            HippyEngineContext context);
+public interface HippyAPIProvider {
 
-    List<Class<? extends HippyJavaScriptModule>>  getJavaScriptModules();
+  Map<Class<? extends HippyNativeModuleBase>, Provider<? extends HippyNativeModuleBase>> getNativeModules(
+      HippyEngineContext context);
 
-    List<Class<? extends HippyViewController>> getControllers();
+  List<Class<? extends HippyJavaScriptModule>> getJavaScriptModules();
+
+  List<Class<? extends HippyViewController>> getControllers();
 }

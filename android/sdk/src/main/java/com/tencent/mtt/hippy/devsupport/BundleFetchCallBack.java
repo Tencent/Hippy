@@ -18,7 +18,8 @@ package com.tencent.mtt.hippy.devsupport;
 import java.io.InputStream;
 
 public interface BundleFetchCallBack {
-    void onSuccess(InputStream inputStream);
 
-    void onFail(Exception exception);
+  void onSuccess(InputStream inputStream);
+
+  void onFail(Exception exception);
 }

@@ -29,91 +29,85 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
 import android.graphics.drawable.NinePatchDrawable;
 
-class HippyContentDrawable extends ContentDrawable
-{
-	private Rect				mNinePatchRect;
-	private NinePatchDrawable	mNinePatchDrawable;
+class HippyContentDrawable extends ContentDrawable {
 
-	HippyContentDrawable()
-	{
-		super();
-	}
+  private Rect mNinePatchRect;
+  private NinePatchDrawable mNinePatchDrawable;
 
-	void setNinePatchCoordinate(Rect rect)
-	{
-		mNinePatchRect = rect;
-		mNinePatchDrawable = null;
-	}
+  HippyContentDrawable() {
+    super();
+  }
 
-	@Override
-	public void draw(Canvas canvas)
-	{
-		// 处理.9Patch的形式，不支持缩放、圆角
-		if (mNinePatchRect != null && mContentBitmap != null)
-		{
-			if (mNinePatchDrawable == null)
-			{
-				mNinePatchDrawable = new NinePatchDrawable(ContextHolder.getAppContext().getResources(), mContentBitmap,
-						createNinePatchTrunk(mContentBitmap, mNinePatchRect), null, null);
-			}
-			mNinePatchDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-			mNinePatchDrawable.setAlpha(mAlpha);
-			if (mTintColor != Color.TRANSPARENT)
-			{
-				mNinePatchDrawable.setColorFilter(new PorterDuffColorFilter(mTintColor, PorterDuff.Mode.SRC_ATOP));
-			}
-			mNinePatchDrawable.draw(canvas);
-			return;
-		}
-		super.draw(canvas);
-	}
+  void setNinePatchCoordinate(Rect rect) {
+    mNinePatchRect = rect;
+    mNinePatchDrawable = null;
+  }
 
-	private byte[] createNinePatchTrunk(Bitmap bitmap, Rect ninePatchRect)
-	{
-		int[] xRegions = new int[] { ninePatchRect.left, bitmap.getWidth() -ninePatchRect.right };
-		int[] yRegions = new int[] { ninePatchRect.top, bitmap.getHeight()- ninePatchRect.bottom };
-		int NO_COLOR = 0x00000001;
-		int colorSize = 9;
-		int bufferSize = xRegions.length * 4 + yRegions.length * 4 + colorSize * 4 + 32;
+  @Override
+  public void draw(Canvas canvas) {
+    // 处理.9Patch的形式，不支持缩放、圆角
+    if (mNinePatchRect != null && mContentBitmap != null) {
+      if (mNinePatchDrawable == null) {
+        mNinePatchDrawable = new NinePatchDrawable(ContextHolder.getAppContext().getResources(),
+            mContentBitmap,
+            createNinePatchTrunk(mContentBitmap, mNinePatchRect), null, null);
+      }
+      mNinePatchDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+      mNinePatchDrawable.setAlpha(mAlpha);
+      if (mTintColor != Color.TRANSPARENT) {
+        mNinePatchDrawable
+            .setColorFilter(new PorterDuffColorFilter(mTintColor, PorterDuff.Mode.SRC_ATOP));
+      }
+      mNinePatchDrawable.draw(canvas);
+      return;
+    }
+    super.draw(canvas);
+  }
 
-		ByteBuffer byteBuffer = ByteBuffer.allocate(bufferSize).order(ByteOrder.nativeOrder());
-		// 第一个byte，要不等于0
-		byteBuffer.put((byte) 1);
+  private byte[] createNinePatchTrunk(Bitmap bitmap, Rect ninePatchRect) {
+    int[] xRegions = new int[]{ninePatchRect.left, bitmap.getWidth() - ninePatchRect.right};
+    int[] yRegions = new int[]{ninePatchRect.top, bitmap.getHeight() - ninePatchRect.bottom};
+    int NO_COLOR = 0x00000001;
+    int colorSize = 9;
+    int bufferSize = xRegions.length * 4 + yRegions.length * 4 + colorSize * 4 + 32;
 
-		//mDivX length
-		byteBuffer.put((byte) 2);
-		//mDivY length
-		byteBuffer.put((byte) 2);
-		//mColors length
-		byteBuffer.put((byte) colorSize);
+    ByteBuffer byteBuffer = ByteBuffer.allocate(bufferSize).order(ByteOrder.nativeOrder());
+    // 第一个byte，要不等于0
+    byteBuffer.put((byte) 1);
 
-		//skip
-		byteBuffer.putInt(0);
-		byteBuffer.putInt(0);
+    //mDivX length
+    byteBuffer.put((byte) 2);
+    //mDivY length
+    byteBuffer.put((byte) 2);
+    //mColors length
+    byteBuffer.put((byte) colorSize);
 
-		//padding 先设为0
-		byteBuffer.putInt(0);
-		byteBuffer.putInt(0);
-		byteBuffer.putInt(0);
-		byteBuffer.putInt(0);
+    //skip
+    byteBuffer.putInt(0);
+    byteBuffer.putInt(0);
 
-		//skip
-		byteBuffer.putInt(0);
+    //padding 先设为0
+    byteBuffer.putInt(0);
+    byteBuffer.putInt(0);
+    byteBuffer.putInt(0);
+    byteBuffer.putInt(0);
 
-		// mDivX
-		byteBuffer.putInt(xRegions[0]);
-		byteBuffer.putInt(xRegions[1]);
+    //skip
+    byteBuffer.putInt(0);
 
-		// mDivY
-		byteBuffer.putInt(yRegions[0]);
-		byteBuffer.putInt(yRegions[1]);
+    // mDivX
+    byteBuffer.putInt(xRegions[0]);
+    byteBuffer.putInt(xRegions[1]);
 
-		// mColors
-		for (int i = 0; i < colorSize; i++)
-		{
-			byteBuffer.putInt(NO_COLOR);
-		}
+    // mDivY
+    byteBuffer.putInt(yRegions[0]);
+    byteBuffer.putInt(yRegions[1]);
 
-		return byteBuffer.array();
-	}
+    // mColors
+    for (int i = 0; i < colorSize; i++) {
+      byteBuffer.putInt(NO_COLOR);
+    }
+
+    return byteBuffer.array();
+  }
 }

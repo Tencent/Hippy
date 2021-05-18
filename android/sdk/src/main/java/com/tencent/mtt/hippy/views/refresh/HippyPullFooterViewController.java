@@ -31,36 +31,35 @@ import com.tencent.mtt.hippy.views.list.HippyListView;
 
 @SuppressWarnings({"deprecation", "unused"})
 @HippyController(name = HippyPullFooterViewController.CLASS_NAME, isLazyLoad = true)
-public class HippyPullFooterViewController extends HippyViewController<HippyPullFooterView>
-{
-	public static final String CLASS_NAME = "PullFooterView";
+public class HippyPullFooterViewController extends HippyViewController<HippyPullFooterView> {
 
-	@Override
-	protected View createViewImpl(Context context)
-	{
-		return new HippyPullFooterView(context);
-	}
+  public static final String CLASS_NAME = "PullFooterView";
 
-	@Override
-	public RenderNode createRenderNode(int id,  HippyMap props, String className, HippyRootView hippyRootView, ControllerManager controllerManager, boolean lazy) {
-		return new PullFooterRenderNode(id,  props, className, hippyRootView, controllerManager, lazy);
-	}
+  @Override
+  protected View createViewImpl(Context context) {
+    return new HippyPullFooterView(context);
+  }
+
+  @Override
+  public RenderNode createRenderNode(int id, HippyMap props, String className,
+      HippyRootView hippyRootView, ControllerManager controllerManager, boolean lazy) {
+    return new PullFooterRenderNode(id, props, className, hippyRootView, controllerManager, lazy);
+  }
 
   @HippyControllerProps(name = "sticky", defaultType = HippyControllerProps.BOOLEAN)
-  public void setStickEnabled(HippyPullFooterView view, boolean flag)
-  {
+  public void setStickEnabled(HippyPullFooterView view, boolean flag) {
     view.setStickEnabled(flag);
   }
 
   @Override
-  public void dispatchFunction(HippyPullFooterView view, String functionName, HippyArray dataArray)
-  {
+  public void dispatchFunction(HippyPullFooterView view, String functionName,
+      HippyArray dataArray) {
     super.dispatchFunction(view, functionName, dataArray);
     View parent = view.getParentView();
     if (parent instanceof HippyListView) {
-        if ("collapsePullFooter".equals(functionName)) {
-            ((HippyListView) parent).onFooterRefreshFinish();
-        }
+      if ("collapsePullFooter".equals(functionName)) {
+        ((HippyListView) parent).onFooterRefreshFinish();
+      }
     }
   }
 }

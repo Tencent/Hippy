@@ -39,15 +39,15 @@ public class FlexSpacing {
   public static final int ALL = 8;
 
   private static final int[] sFlagsMap = {
-    1, /*LEFT*/
-    2, /*TOP*/
-    4, /*RIGHT*/
-    8, /*BOTTOM*/
-    16, /*START*/
-    32, /*END*/
-    64, /*HORIZONTAL*/
-    128, /*VERTICAL*/
-    256, /*ALL*/
+      1, /*LEFT*/
+      2, /*TOP*/
+      4, /*RIGHT*/
+      8, /*BOTTOM*/
+      16, /*START*/
+      32, /*END*/
+      64, /*HORIZONTAL*/
+      128, /*VERTICAL*/
+      256, /*ALL*/
   };
 
   private final float[] mSpacing = newFullSpacingArray();
@@ -76,8 +76,8 @@ public class FlexSpacing {
 
       mHasAliasesSet =
           (mValueFlags & sFlagsMap[ALL]) != 0 ||
-          (mValueFlags & sFlagsMap[VERTICAL]) != 0 ||
-          (mValueFlags & sFlagsMap[HORIZONTAL]) != 0;
+              (mValueFlags & sFlagsMap[VERTICAL]) != 0 ||
+              (mValueFlags & sFlagsMap[HORIZONTAL]) != 0;
 
       return true;
     }
@@ -131,7 +131,7 @@ public class FlexSpacing {
   }
 
   private static float[] newFullSpacingArray() {
-    return new float[] {
+    return new float[]{
         FlexConstants.UNDEFINED,
         FlexConstants.UNDEFINED,
         FlexConstants.UNDEFINED,

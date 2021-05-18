@@ -25,74 +25,72 @@ import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 
-@SuppressWarnings({"deprecation","unused"})
+@SuppressWarnings({"deprecation", "unused"})
 @HippyController(name = HippyWebViewController.CLASS_NAME)
-public class HippyWebViewController extends HippyViewController<HippyWebView>
-{
-	public static final String CLASS_NAME = "WebView";
+public class HippyWebViewController extends HippyViewController<HippyWebView> {
 
-	@HippyControllerProps(name = "url", defaultType = HippyControllerProps.STRING)
-	public void loadUrl(HippyWebView view, String url)
-	{
-		if (!TextUtils.isEmpty(url))
-			view.mWebView.loadUrl(url);
-	}
+  public static final String CLASS_NAME = "WebView";
 
-	@Override
-	public void dispatchFunction(HippyWebView view, String functionName, HippyArray var)
-	{
-		super.dispatchFunction(view, functionName, var);
-		if ("loadUrl".equals(functionName)) {
-			if (var != null) {
-				String url = var.getString(0);
-				loadUrl(view, url);
-			}
-		}
-	}
+  @HippyControllerProps(name = "url", defaultType = HippyControllerProps.STRING)
+  public void loadUrl(HippyWebView view, String url) {
+    if (!TextUtils.isEmpty(url)) {
+      view.mWebView.loadUrl(url);
+    }
+  }
 
-	@Override
-	protected View createViewImpl(Context context)
-	{
-		return new HippyWebView(context);
-	}
+  @Override
+  public void dispatchFunction(HippyWebView view, String functionName, HippyArray var) {
+    super.dispatchFunction(view, functionName, var);
+    if ("loadUrl".equals(functionName)) {
+      if (var != null) {
+        String url = var.getString(0);
+        loadUrl(view, url);
+      }
+    }
+  }
 
-	@HippyControllerProps(name = "source", defaultType = HippyControllerProps.MAP)
-	public void source(HippyWebView webView, HippyMap info)
-	{
-		if (info != null) {
-			String userAgent = info.getString("userAgent");
-			if (!TextUtils.isEmpty(userAgent))
-				webView.mWebView.getSettings().setUserAgentString(userAgent);
-			String uri = info.getString("uri");
-			if (!TextUtils.isEmpty(uri)) {
-				String method = info.getString("method");
-				if ("POST".equalsIgnoreCase(method)) {
-					String body = info.getString("body");
-					webView.mWebView.postUrl(uri, body == null ? null : body.getBytes());
-				} else {
-					webView.mWebView.loadUrl(uri);
-				}
-			} else {
-				String html = info.getString("html");
-				if (!TextUtils.isEmpty(html)) {
-					String baseUrl = info.getString("baseUrl");
-					if (!TextUtils.isEmpty(baseUrl))
-						webView.mWebView.loadDataWithBaseURL(baseUrl, html, "text/html; charset=utf-8", "UTF-8", null);
-					else
-						webView.mWebView.loadData(html, "text/html; charset=utf-8", "UTF-8");
-				}
-			}
-		}
-	}
+  @Override
+  protected View createViewImpl(Context context) {
+    return new HippyWebView(context);
+  }
 
-	public void onViewDestroy(HippyWebView webView)
-	{
-		webView.mWebView.destroy();
-	}
+  @HippyControllerProps(name = "source", defaultType = HippyControllerProps.MAP)
+  public void source(HippyWebView webView, HippyMap info) {
+    if (info != null) {
+      String userAgent = info.getString("userAgent");
+      if (!TextUtils.isEmpty(userAgent)) {
+        webView.mWebView.getSettings().setUserAgentString(userAgent);
+      }
+      String uri = info.getString("uri");
+      if (!TextUtils.isEmpty(uri)) {
+        String method = info.getString("method");
+        if ("POST".equalsIgnoreCase(method)) {
+          String body = info.getString("body");
+          webView.mWebView.postUrl(uri, body == null ? null : body.getBytes());
+        } else {
+          webView.mWebView.loadUrl(uri);
+        }
+      } else {
+        String html = info.getString("html");
+        if (!TextUtils.isEmpty(html)) {
+          String baseUrl = info.getString("baseUrl");
+          if (!TextUtils.isEmpty(baseUrl)) {
+            webView.mWebView
+                .loadDataWithBaseURL(baseUrl, html, "text/html; charset=utf-8", "UTF-8", null);
+          } else {
+            webView.mWebView.loadData(html, "text/html; charset=utf-8", "UTF-8");
+          }
+        }
+      }
+    }
+  }
 
-	@Override
-	protected boolean handleGestureBySelf()
-	{
-		return true;
-	}
+  public void onViewDestroy(HippyWebView webView) {
+    webView.mWebView.destroy();
+  }
+
+  @Override
+  protected boolean handleGestureBySelf() {
+    return true;
+  }
 }

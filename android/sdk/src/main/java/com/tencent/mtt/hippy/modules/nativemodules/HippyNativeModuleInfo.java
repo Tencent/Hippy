@@ -31,189 +31,163 @@ import java.util.HashMap;
 import java.util.Map;
 
 @SuppressWarnings({"unused"})
-public final class HippyNativeModuleInfo
-{
-	private final String									mName;
+public final class HippyNativeModuleInfo {
 
-	private final String []									mNames;
+  private final String mName;
 
-	private final HippyNativeModule.Thread					mThread;
+  private final String[] mNames;
 
-	private final Provider<? extends HippyNativeModuleBase>	mProvider;
+  private final HippyNativeModule.Thread mThread;
 
-	private final Class<?>									mClass;
+  private final Provider<? extends HippyNativeModuleBase> mProvider;
 
-	private Map<String, HippyNativeMethod>					mMethods;
+  private final Class<?> mClass;
 
-	private HippyNativeModuleBase							mInstance;
+  private Map<String, HippyNativeMethod> mMethods;
 
-	private boolean											mInit	= false;
+  private HippyNativeModuleBase mInstance;
 
-	private boolean                                         mIsDestroyed = false;
+  private boolean mInit = false;
 
-	public HippyNativeModuleInfo(Class<?> cls, Provider<? extends HippyNativeModuleBase> provider)
-	{
-		HippyNativeModule annotation = cls.getAnnotation(HippyNativeModule.class);
-		assert annotation != null;
-		this.mName = annotation.name();
-		this.mNames = annotation.names();
-		this.mClass = cls;
-		this.mThread = annotation.thread();
-		mProvider = provider;
-		initImmediately(annotation);
+  private boolean mIsDestroyed = false;
 
-	}
+  public HippyNativeModuleInfo(Class<?> cls, Provider<? extends HippyNativeModuleBase> provider) {
+    HippyNativeModule annotation = cls.getAnnotation(HippyNativeModule.class);
+    assert annotation != null;
+    this.mName = annotation.name();
+    this.mNames = annotation.names();
+    this.mClass = cls;
+    this.mThread = annotation.thread();
+    mProvider = provider;
+    initImmediately(annotation);
 
-	private void initImmediately(HippyNativeModule annotation)
-	{
-		if (annotation.init())
-		{
-			try
-			{
-				initialize();
-			}
-			catch (Throwable e)
-			{
-				e.printStackTrace();
-			}
+  }
 
-		}
-	}
+  private void initImmediately(HippyNativeModule annotation) {
+    if (annotation.init()) {
+      try {
+        initialize();
+      } catch (Throwable e) {
+        e.printStackTrace();
+      }
 
-	public boolean shouldDestroy() {
-		return !mIsDestroyed;
-	}
+    }
+  }
 
-	public void onDestroy() {
-		mIsDestroyed = true;
-	}
+  public boolean shouldDestroy() {
+    return !mIsDestroyed;
+  }
 
-	public String getName()
-	{
-		return mName;
-	}
+  public void onDestroy() {
+    mIsDestroyed = true;
+  }
 
-	public String[] getNames () {
-		return mNames;
-	}
+  public String getName() {
+    return mName;
+  }
 
-	public HippyNativeModuleBase getInstance()
-	{
-		return mInstance;
-	}
+  public String[] getNames() {
+    return mNames;
+  }
 
-	public HippyNativeModule.Thread getThread()
-	{
-		return mThread;
-	}
+  public HippyNativeModuleBase getInstance() {
+    return mInstance;
+  }
 
-	public void initialize() {
-		if (mInit)
-		{
-			return;
-		}
-		mMethods = new HashMap<>();
-		Method[] targetMethods = mClass.getMethods();
-		for (Method targetMethod : targetMethods)
-		{
-			HippyMethod hippyMethod = targetMethod.getAnnotation(HippyMethod.class);
-			if (hippyMethod != null)
-			{
-				String methodName = hippyMethod.name();
-				if (TextUtils.isEmpty(methodName))
-				{
-					methodName = targetMethod.getName();
-				}
-				if (mMethods.containsKey(methodName))
-				{
-					throw new RuntimeException("Java Module " + mName + " method name already registered: " + methodName);
-				}
-				mMethods.put(methodName, new HippyNativeMethod(targetMethod));
-			}
-		}
+  public HippyNativeModule.Thread getThread() {
+    return mThread;
+  }
 
-		mInstance = mProvider.get();
-		mInstance.initialize();
-		mInit = true;
-	}
+  public void initialize() {
+    if (mInit) {
+      return;
+    }
+    mMethods = new HashMap<>();
+    Method[] targetMethods = mClass.getMethods();
+    for (Method targetMethod : targetMethods) {
+      HippyMethod hippyMethod = targetMethod.getAnnotation(HippyMethod.class);
+      if (hippyMethod != null) {
+        String methodName = hippyMethod.name();
+        if (TextUtils.isEmpty(methodName)) {
+          methodName = targetMethod.getName();
+        }
+        if (mMethods.containsKey(methodName)) {
+          throw new RuntimeException(
+              "Java Module " + mName + " method name already registered: " + methodName);
+        }
+        mMethods.put(methodName, new HippyNativeMethod(targetMethod));
+      }
+    }
 
-	public void destroy()
-	{
-		if (mInstance != null)
-		{
-			mInstance.destroy();
-		}
-	}
+    mInstance = mProvider.get();
+    mInstance.initialize();
+    mInit = true;
+  }
 
-	public HippyNativeMethod findMethod(String moduleFunc)
-	{
-		if (mMethods == null)
-		{
-			return null;
-		}
-		return mMethods.get(moduleFunc);
-	}
+  public void destroy() {
+    if (mInstance != null) {
+      mInstance.destroy();
+    }
+  }
+
+  public HippyNativeMethod findMethod(String moduleFunc) {
+    if (mMethods == null) {
+      return null;
+    }
+    return mMethods.get(moduleFunc);
+  }
 
 
+  public static class HippyNativeMethod {
 
-	public static class HippyNativeMethod
-	{
-		private final Method mMethod;
+    private final Method mMethod;
 
-		private final Type[] mParamTypes;
+    private final Type[] mParamTypes;
 
-		public HippyNativeMethod(Method method)
-		{
-			this.mMethod = method;
-			this.mParamTypes = method.getGenericParameterTypes();
-		}
+    public HippyNativeMethod(Method method) {
+      this.mMethod = method;
+      this.mParamTypes = method.getGenericParameterTypes();
+    }
 
-		public void invoke(HippyEngineContext context, Object receiver, HippyArray args, PromiseImpl promise) throws Exception
-		{
-			Object[] params = prepareArguments(context, mParamTypes, args, promise);
-			mMethod.invoke(receiver, params);
-			if (promise.needResolveBySelf())
-			{
-				promise.resolve("");
-			}
-		}
+    public void invoke(HippyEngineContext context, Object receiver, HippyArray args,
+        PromiseImpl promise) throws Exception {
+      Object[] params = prepareArguments(context, mParamTypes, args, promise);
+      mMethod.invoke(receiver, params);
+      if (promise.needResolveBySelf()) {
+        promise.resolve("");
+      }
+    }
 
-		private Object[] prepareArguments(HippyEngineContext context, Type[] paramClss, HippyArray args, PromiseImpl promise) {
-			if (paramClss == null || paramClss.length <= 0)
-			{
-				return new Object[0];
-			}
-			Object[] params = new Object[paramClss.length];
-			if (args == null)
-			{
-				throw new RuntimeException("method argument list not match");
-			}
-			Type paramCls;
-			int index = 0;
+    private Object[] prepareArguments(HippyEngineContext context, Type[] paramClss, HippyArray args,
+        PromiseImpl promise) {
+      if (paramClss == null || paramClss.length <= 0) {
+        return new Object[0];
+      }
+      Object[] params = new Object[paramClss.length];
+      if (args == null) {
+        throw new RuntimeException("method argument list not match");
+      }
+      Type paramCls;
+      int index = 0;
 
-			for (int i = 0; i < paramClss.length; i++)
-			{
-				paramCls = paramClss[i];
-				if (paramCls == Promise.class)
-				{
-					params[i] = promise;
-					promise.setNeedResolveBySelf(false);
-				}
-				else
-				{
-					if (args.size() <= index)
-					{
-						throw new RuntimeException("method argument list not match");
-					}
-					params[i] = ArgumentUtils.parseArgument(paramCls, args, index);
-					index++;
-				}
+      for (int i = 0; i < paramClss.length; i++) {
+        paramCls = paramClss[i];
+        if (paramCls == Promise.class) {
+          params[i] = promise;
+          promise.setNeedResolveBySelf(false);
+        } else {
+          if (args.size() <= index) {
+            throw new RuntimeException("method argument list not match");
+          }
+          params[i] = ArgumentUtils.parseArgument(paramCls, args, index);
+          index++;
+        }
 
-			}
-			return params;
-		}
+      }
+      return params;
+    }
 
 
-	}
+  }
 
 }

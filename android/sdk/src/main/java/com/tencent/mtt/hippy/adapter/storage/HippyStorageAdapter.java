@@ -20,28 +20,25 @@ import com.tencent.mtt.hippy.common.HippyArray;
 import java.util.List;
 
 /**
- * FileName: HippyStorageAdapter
- * Description：
- * History：
+ * FileName: HippyStorageAdapter Description： History：
  */
-public interface HippyStorageAdapter
-{
+public interface HippyStorageAdapter {
 
-    void multiGet(HippyArray keys, Callback<List<HippyStorageKeyValue>> callback);
+  void multiGet(HippyArray keys, Callback<List<HippyStorageKeyValue>> callback);
 
-    void multiSet(List<HippyStorageKeyValue> keyValues, Callback<Void> callback);
+  void multiSet(List<HippyStorageKeyValue> keyValues, Callback<Void> callback);
 
-    void multiRemove(HippyArray keys, Callback<Void> callback);
+  void multiRemove(HippyArray keys, Callback<Void> callback);
 
-    void getAllKeys(Callback<HippyArray> callback);
+  void getAllKeys(Callback<HippyArray> callback);
 
-    void destroyIfNeed();
+  void destroyIfNeed();
 
-    @SuppressWarnings("TypeParameterExplicitlyExtendsObject")
-    interface Callback<T extends Object>
-	{
-		void onSuccess(T data);
+  @SuppressWarnings("TypeParameterExplicitlyExtendsObject")
+  interface Callback<T extends Object> {
 
-		void onError(String mseeage);
-	}
+    void onSuccess(T data);
+
+    void onError(String mseeage);
+  }
 }

@@ -26,88 +26,83 @@ import com.tencent.mtt.hippy.bridge.NativeCallback;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
 @SuppressWarnings({"unused"})
-public class HippyAssetBundleLoader implements HippyBundleLoader
-{
-	private static final String ASSETS_STR = "assets://";
-	private final Context mContext;
+public class HippyAssetBundleLoader implements HippyBundleLoader {
 
-	private final String mAssetPath;
+  private static final String ASSETS_STR = "assets://";
+  private final Context mContext;
 
-	private boolean	mCanUseCodeCache;
+  private final String mAssetPath;
 
-	private String	mCodeCacheTag;
+  private boolean mCanUseCodeCache;
 
-	public HippyAssetBundleLoader(Context context, String assetName)
-	{
-		this(context, assetName, false, "");
-	}
+  private String mCodeCacheTag;
 
-	public HippyAssetBundleLoader(Context context, String assetName, boolean canUseCodeCache, String codeCacheTag)
-	{
-		this.mContext = context;
-		this.mAssetPath = assetName;
-		this.mCanUseCodeCache = canUseCodeCache;
-		this.mCodeCacheTag = codeCacheTag;
-	}
+  public HippyAssetBundleLoader(Context context, String assetName) {
+    this(context, assetName, false, "");
+  }
 
-	@SuppressWarnings("unused")
-	public void setCodeCache(boolean canUseCodeCache, String codeCacheTag)
-	{
-		this.mCanUseCodeCache = canUseCodeCache;
-		this.mCodeCacheTag = codeCacheTag;
-	}
+  public HippyAssetBundleLoader(Context context, String assetName, boolean canUseCodeCache,
+      String codeCacheTag) {
+    this.mContext = context;
+    this.mAssetPath = assetName;
+    this.mCanUseCodeCache = canUseCodeCache;
+    this.mCodeCacheTag = codeCacheTag;
+  }
 
-	@Override
-	public void load(HippyBridge bridge, NativeCallback callback) {
-		if (TextUtils.isEmpty(mAssetPath)) {
-			return;
-		}
+  @SuppressWarnings("unused")
+  public void setCodeCache(boolean canUseCodeCache, String codeCacheTag) {
+    this.mCanUseCodeCache = canUseCodeCache;
+    this.mCodeCacheTag = codeCacheTag;
+  }
 
-		AssetManager assetManager = mContext.getAssets();
-		String uri = mAssetPath;
-		if (!mAssetPath.startsWith(URI_SCHEME_ASSETS)) {
-			if (mAssetPath.startsWith("/")) {
-				uri = URI_SCHEME_ASSETS + mAssetPath;
-			} else {
-				uri = URI_SCHEME_ASSETS + "/" + mAssetPath;
-			}
-		}
+  @Override
+  public void load(HippyBridge bridge, NativeCallback callback) {
+    if (TextUtils.isEmpty(mAssetPath)) {
+      return;
+    }
 
-		boolean ret = bridge.runScriptFromUri(uri, assetManager, mCanUseCodeCache, mCodeCacheTag, callback);
-		LogUtils.d("HippyAssetBundleLoader", "load: ret" + ret);
-	}
+    AssetManager assetManager = mContext.getAssets();
+    String uri = mAssetPath;
+    if (!mAssetPath.startsWith(URI_SCHEME_ASSETS)) {
+      if (mAssetPath.startsWith("/")) {
+        uri = URI_SCHEME_ASSETS + mAssetPath;
+      } else {
+        uri = URI_SCHEME_ASSETS + "/" + mAssetPath;
+      }
+    }
 
-	@Override
-	public String getPath()
-	{
-		if (mAssetPath != null && !mAssetPath.startsWith(ASSETS_STR))
-			return ASSETS_STR + mAssetPath;
-		else
-			return mAssetPath;
-	}
+    boolean ret = bridge
+        .runScriptFromUri(uri, assetManager, mCanUseCodeCache, mCodeCacheTag, callback);
+    LogUtils.d("HippyAssetBundleLoader", "load: ret" + ret);
+  }
 
-	@Override
-	public String getRawPath()
-	{
-		return mAssetPath;
-	}
+  @Override
+  public String getPath() {
+    if (mAssetPath != null && !mAssetPath.startsWith(ASSETS_STR)) {
+      return ASSETS_STR + mAssetPath;
+    } else {
+      return mAssetPath;
+    }
+  }
 
-	@Override
-	public String getBundleUniKey()
-	{
-		return getPath();
-	}
+  @Override
+  public String getRawPath() {
+    return mAssetPath;
+  }
 
-	@Override
-	public boolean canUseCodeCache()
-	{
-		return mCanUseCodeCache;
-	}
+  @Override
+  public String getBundleUniKey() {
+    return getPath();
+  }
 
-	@Override
-	public String getCodeCacheTag()
-	{
-		return mCodeCacheTag;
-	}
+  @Override
+  public boolean canUseCodeCache() {
+    return mCanUseCodeCache;
+  }
+
+  @Override
+  public String getCodeCacheTag() {
+    return mCodeCacheTag;
+  }
 
 }

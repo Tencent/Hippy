@@ -22,26 +22,23 @@ import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * FileName: HippyNativeModule
- * Description：
- * History：
+ * FileName: HippyNativeModule Description： History：
  */
 @Retention(RUNTIME)
 @Target(TYPE)
-public @interface HippyNativeModule
-{
-	enum Thread
-	{
-		BRIDGE,
-		MAIN,
-		DOM
-	}
+public @interface HippyNativeModule {
 
-	String name();
+  enum Thread {
+    BRIDGE,
+    MAIN,
+    DOM
+  }
 
-	String [] names() default {};
+  String name();
 
-	Thread thread() default Thread.BRIDGE;
+  String[] names() default {};
 
-	boolean init() default false;
+  Thread thread() default Thread.BRIDGE;
+
+  boolean init() default false;
 }
