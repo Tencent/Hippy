@@ -580,12 +580,12 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     [_scheduledRunloops removeObject:@[aRunLoop, mode]];
 }
 
-- (void)close;
-{ [self closeWithCode:HippySRStatusCodeNormal reason:nil]; }
+- (void)close {
+    [self closeWithCode:HippySRStatusCodeNormal reason:nil];
+}
 
 - (void)closeWithCode:(NSInteger)code reason:(NSString *)reason;
 {
-    assert(code);
     dispatch_async(_workQueue, ^{
         if (self.readyState == HippySR_CLOSING || self.readyState == HippySR_CLOSED) {
             return;
