@@ -26,6 +26,14 @@ examples/hippy-react-demo/package-lock.json
 examples/hippy-vue-demo/package-lock.json
 examples/android-demo/maven-auth.properties
 examples/android-demo/example/.cxx/
+android/sdk/.classpath
+android/sdk/.project
+android/sdk/.settings/
+examples/android-demo/.project
+examples/android-demo/.settings/
+examples/android-demo/example/.classpath
+examples/android-demo/example/.project
+examples/android-demo/example/.settings/
 
 # android
 *.iml
