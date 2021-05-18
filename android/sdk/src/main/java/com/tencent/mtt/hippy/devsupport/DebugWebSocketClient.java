@@ -22,100 +22,86 @@ import java.net.URI;
 import java.util.concurrent.ConcurrentHashMap;
 
 @SuppressWarnings("unused")
-public class DebugWebSocketClient implements WebSocketClient.WebSocketListener
-{
-	private final ConcurrentHashMap<Integer, JSDebuggerCallback>	mCallbacks	= new ConcurrentHashMap<>();
-	WebSocketClient													mWebSocket;
-	private JSDebuggerCallback										mConnectCallback;
+public class DebugWebSocketClient implements WebSocketClient.WebSocketListener {
 
-	private DevRemoteDebugProxy.OnReceiveDataListener				mReceiveDataListener;
+  private final ConcurrentHashMap<Integer, JSDebuggerCallback> mCallbacks = new ConcurrentHashMap<>();
+  WebSocketClient mWebSocket;
+  private JSDebuggerCallback mConnectCallback;
 
-	public void connect(String url, JSDebuggerCallback callback)
-	{
-		mConnectCallback = callback;
-		mWebSocket = new WebSocketClient(URI.create(url), this, null);
-		mWebSocket.connect();
-	}
+  private DevRemoteDebugProxy.OnReceiveDataListener mReceiveDataListener;
 
-	public void setOnReceiveDataCallback(DevRemoteDebugProxy.OnReceiveDataListener l)
-	{
-		mReceiveDataListener = l;
-	}
+  public void connect(String url, JSDebuggerCallback callback) {
+    mConnectCallback = callback;
+    mWebSocket = new WebSocketClient(URI.create(url), this, null);
+    mWebSocket.connect();
+  }
 
-	public void closeQuietly()
-	{
-		if (mWebSocket != null)
-		{
-			mWebSocket.disconnect();
-		}
-	}
+  public void setOnReceiveDataCallback(DevRemoteDebugProxy.OnReceiveDataListener l) {
+    mReceiveDataListener = l;
+  }
 
-	public void sendMessage(String message)
-	{
-		if (mWebSocket == null)
-		{
-			LogUtils.e("sendMessage", "mWebSocket is null");
-			return;
-		}
-		mWebSocket.send(message);
-	}
+  public void closeQuietly() {
+    if (mWebSocket != null) {
+      mWebSocket.disconnect();
+    }
+  }
 
-	@Override
-	public void onMessage(String message)
-	{
-		mReceiveDataListener.onReceiveData(message);
-	}
+  public void sendMessage(String message) {
+    if (mWebSocket == null) {
+      LogUtils.e("sendMessage", "mWebSocket is null");
+      return;
+    }
+    mWebSocket.send(message);
+  }
 
-	@Override
-	public void onMessage(byte[] data)
-	{
+  @Override
+  public void onMessage(String message) {
+    mReceiveDataListener.onReceiveData(message);
+  }
 
-	}
+  @Override
+  public void onMessage(byte[] data) {
 
-	@Override
-	public void onError(Exception e) {
-		abort(e);
-	}
+  }
 
-	@Override
-	public void onConnect()
-	{
-		if (mConnectCallback != null)
-		{
-			mConnectCallback.onSuccess(null);
-		}
-		mConnectCallback = null;
-	}
+  @Override
+  public void onError(Exception e) {
+    abort(e);
+  }
 
-	@Override
-	public void onDisconnect(int code, String reason)
-	{
-		mWebSocket = null;
-	}
+  @Override
+  public void onConnect() {
+    if (mConnectCallback != null) {
+      mConnectCallback.onSuccess(null);
+    }
+    mConnectCallback = null;
+  }
 
-	private void abort(Throwable cause)
-	{
-		closeQuietly();
+  @Override
+  public void onDisconnect(int code, String reason) {
+    mWebSocket = null;
+  }
 
-		// Trigger failure callbacks
-		if (mConnectCallback != null)
-		{
-			mConnectCallback.onFailure(cause);
-			mConnectCallback = null;
-		}
-		for (JSDebuggerCallback callback : mCallbacks.values())
-		{
-			callback.onFailure(cause);
-		}
-		mCallbacks.clear();
-	}
+  private void abort(Throwable cause) {
+    closeQuietly();
 
-	public interface JSDebuggerCallback
-	{
-		@SuppressWarnings("unused")
-		void onSuccess(String response);
+    // Trigger failure callbacks
+    if (mConnectCallback != null) {
+      mConnectCallback.onFailure(cause);
+      mConnectCallback = null;
+    }
+    for (JSDebuggerCallback callback : mCallbacks.values()) {
+      callback.onFailure(cause);
+    }
+    mCallbacks.clear();
+  }
 
-		@SuppressWarnings("unused")
-		void onFailure(Throwable cause);
-	}
+  public interface JSDebuggerCallback {
+
+    @SuppressWarnings("unused")
+    void onSuccess(String response);
+
+    @SuppressWarnings("unused")
+    void onFailure(Throwable cause);
+  }
 }

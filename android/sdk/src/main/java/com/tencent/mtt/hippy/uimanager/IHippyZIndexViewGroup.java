@@ -16,9 +16,9 @@
 package com.tencent.mtt.hippy.uimanager;
 
 @SuppressWarnings({"unused"})
-public interface IHippyZIndexViewGroup
-{
-    int getZIndexMappedChildIndex(int index);
+public interface IHippyZIndexViewGroup {
 
-    void updateDrawingOrder();
+  int getZIndexMappedChildIndex(int index);
+
+  void updateDrawingOrder();
 }

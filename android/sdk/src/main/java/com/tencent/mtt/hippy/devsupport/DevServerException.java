@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 package com.tencent.mtt.hippy.devsupport;
+
 @SuppressWarnings("unused")
 public class DevServerException extends RuntimeException {
-    public DevServerException(String message) {
-        super(message);
-    }
+
+  public DevServerException(String message) {
+    super(message);
+  }
 }

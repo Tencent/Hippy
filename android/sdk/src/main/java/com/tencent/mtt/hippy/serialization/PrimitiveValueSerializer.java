@@ -27,17 +27,30 @@ import java.util.Map;
  */
 @SuppressWarnings({"unused"})
 public abstract class PrimitiveValueSerializer extends SharedSerialization {
-  /** Writer used for write buffer. */
+
+  /**
+   * Writer used for write buffer.
+   */
   protected BinaryWriter writer;
-  /** ID of the next serialized object. **/
+  /**
+   * ID of the next serialized object.
+   **/
   private int nextId;
-  /** Maps a serialized object to its ID. */
+  /**
+   * Maps a serialized object to its ID.
+   */
   private final Map<Object, Integer> objectMap = new IdentityHashMap<>();
-  /** Temporary char buffer for string writing. */
+  /**
+   * Temporary char buffer for string writing.
+   */
   private char[] stringWriteBuffer;
-  /** Unsigned int max value. */
+  /**
+   * Unsigned int max value.
+   */
   private static final long MAX_UINT32_VALUE = 4294967295L;
-  /** Small string max length, used for SSO(Short / Small String Optimization). */
+  /**
+   * Small string max length, used for SSO(Short / Small String Optimization).
+   */
   private static final int SSO_SMALL_STRING_MAX_LENGTH = 32;
 
   protected PrimitiveValueSerializer(BinaryWriter writer) {
@@ -95,6 +108,7 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
 
   /**
    * Serializes a JavaScript delegate object into the buffer.
+   *
    * @param value JavaScript delegate object
    */
   public boolean writeValue(Object value) {
@@ -169,8 +183,8 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
   /**
    * Write {@code byte[]} to the buffer.
    *
-   * @param bytes source
-   * @param start start position in source
+   * @param bytes  source
+   * @param start  start position in source
    * @param length length in source
    */
   public void writeBytes(byte[] bytes, int start, int length) {
@@ -194,9 +208,10 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
    *
    * <h3>Background / Overview</h3>
    * <p>According to the following benchmark tests and real world scenarios,
-   * this method will choose different iterator based on the length of the string for more efficiency,
-   * called <strong>SSO</strong>(Short / Small String Optimization).</p>
-   * <p>If string length small than {@link #SSO_SMALL_STRING_MAX_LENGTH}, will use {@link String#charAt(int)}
+   * this method will choose different iterator based on the length of the string for more
+   * efficiency, called <strong>SSO</strong>(Short / Small String Optimization).</p>
+   * <p>If string length small than {@link #SSO_SMALL_STRING_MAX_LENGTH}, will use {@link
+   * String#charAt(int)}
    * to iterate, otherwise will use {@link String#getChars(int, int, char[], int)}</p>
    * <p></p>
    *
@@ -262,13 +277,15 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
    *  Rate in nanoseconds per character inspected
    * </pre>
    * <p>Obviously we can discover two facts,
-   * {@link String#toCharArray()} performance is lower than other methods at any time,
-   * and there is a dividing line when the string has 32({@link #SSO_SMALL_STRING_MAX_LENGTH}) characters.</p>
+   * {@link String#toCharArray()} performance is lower than other methods at any time, and there is
+   * a dividing line when the string has 32({@link #SSO_SMALL_STRING_MAX_LENGTH}) characters.</p>
    *
-   *
-   * @see <a href="https://stackoverflow.com/questions/8894258/fastest-way-to-iterate-over-all-the-chars-in-a-string">Fastest way to iterate over all the chars in a String</a>
-   * @see <a href="https://stackoverflow.com/questions/196830/what-is-the-easiest-best-most-correct-way-to-iterate-through-the-characters-of-a">What is the easiest/best/most correct way to iterate through the characters of a string in Java?</a>
    * @param value data
+   * @see <a href="https://stackoverflow.com/questions/8894258/fastest-way-to-iterate-over-all-the-chars-in-a-string">Fastest
+   * way to iterate over all the chars in a String</a>
+   * @see <a href="https://stackoverflow.com/questions/196830/what-is-the-easiest-best-most-correct-way-to-iterate-through-the-characters-of-a">What
+   * is the easiest/best/most correct way to iterate through the characters of a string in
+   * Java?</a>
    */
   protected void writeString(String value) {
     int length = value.length();
@@ -286,9 +303,9 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
     // Designed to take advantage of
     // https://wiki.openjdk.java.net/display/HotSpot/RangeCheckElimination
     if (length > SSO_SMALL_STRING_MAX_LENGTH) {
-     for (char c; i < length && (c = stringWriteBuffer[i]) < 0x80; i++) {
-       writer.putByte((byte) c);
-     }
+      for (char c; i < length && (c = stringWriteBuffer[i]) < 0x80; i++) {
+        writer.putByte((byte) c);
+      }
     } else {
       for (char c; i < length && (c = value.charAt(i)) < 0x80; i++) {
         writer.putByte((byte) c);

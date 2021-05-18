@@ -18,19 +18,19 @@ package com.tencent.mtt.hippy.devsupport;
 import com.tencent.mtt.hippy.HippyRootView;
 
 @SuppressWarnings("unused")
-public interface DevServerInterface
-{
-	void reload();
+public interface DevServerInterface {
 
-	String createResourceUrl(String resName);
+  void reload();
 
-	void loadRemoteResource(String url, DevServerCallBack serverCallBack);
+  String createResourceUrl(String resName);
 
-	void setDevServerCallback(DevServerCallBack devServerCallback);
+  void loadRemoteResource(String url, DevServerCallBack serverCallBack);
 
-	void attachToHost(HippyRootView view);
+  void setDevServerCallback(DevServerCallBack devServerCallback);
 
-	void detachFromHost(HippyRootView view);
+  void attachToHost(HippyRootView view);
 
-	void handleException(Throwable throwable);
+  void detachFromHost(HippyRootView view);
+
+  void handleException(Throwable throwable);
 }

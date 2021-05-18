@@ -26,37 +26,36 @@ import android.view.View;
 
 @SuppressWarnings("rawtypes")
 @HippyController(name = HippyCustomPropsController.CLASS_NAME)
-public class HippyCustomPropsController extends HippyViewController
-{
-	public static final String CLASS_NAME = "CustomProps";
-	public static final String DT_EBLID = "dt_elementBizLeafIdentifier";
+public class HippyCustomPropsController extends HippyViewController {
 
-	@SuppressWarnings("unused")
-	@Override
-	protected View createViewImpl(Context context)
-	{
-		return null;
-	}
+  public static final String CLASS_NAME = "CustomProps";
+  public static final String DT_EBLID = "dt_elementBizLeafIdentifier";
 
-	@SuppressWarnings("unused")
-	protected void onSetDTElementBizLeafIdentifier(View view) {
-		if (view == null) {
-			return;
-		}
+  @SuppressWarnings("unused")
+  @Override
+  protected View createViewImpl(Context context) {
+    return null;
+  }
 
-		Context context = view.getContext();
-		if (context instanceof HippyInstanceContext) {
-			HippyEngineContext engineContext = ((HippyInstanceContext)context).getEngineContext();
-			assert (engineContext != null);
-			//noinspection ConstantConditions
-			if (engineContext == null) {
-				return;
-			}
+  @SuppressWarnings("unused")
+  protected void onSetDTElementBizLeafIdentifier(View view) {
+    if (view == null) {
+      return;
+    }
 
-			RenderNode node = engineContext.getRenderManager().getRenderNode(view.getId());
-			if (node != null) {
-				node.mHasSetDteblId = true;
-			}
-		}
-	}
+    Context context = view.getContext();
+    if (context instanceof HippyInstanceContext) {
+      HippyEngineContext engineContext = ((HippyInstanceContext) context).getEngineContext();
+      assert (engineContext != null);
+      //noinspection ConstantConditions
+      if (engineContext == null) {
+        return;
+      }
+
+      RenderNode node = engineContext.getRenderManager().getRenderNode(view.getId());
+      if (node != null) {
+        node.mHasSetDteblId = true;
+      }
+    }
+  }
 }

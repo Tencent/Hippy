@@ -19,19 +19,21 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 
 @SuppressWarnings({"unused"})
 public class DefaultFontScaleAdapter implements HippyFontScaleAdapter {
-    @Override
-    public float getFontScale() {
-        return 1;
-    }
 
-    @Override
-    public CharSequence getEmoticonText(CharSequence text, int fontSize) {
-        return text;
-    }
+  @Override
+  public float getFontScale() {
+    return 1;
+  }
 
-    @Override
-    public String getCustomFontFilePath(String fontFamilyName, int style) {
-        LogUtils.d("DefaultFontScaleAdapter", "getCustomFontFilePath fontFamilyName=" + fontFamilyName + ", style=" + style);
-        return null;
-    }
+  @Override
+  public CharSequence getEmoticonText(CharSequence text, int fontSize) {
+    return text;
+  }
+
+  @Override
+  public String getCustomFontFilePath(String fontFamilyName, int style) {
+    LogUtils.d("DefaultFontScaleAdapter",
+        "getCustomFontFilePath fontFamilyName=" + fontFamilyName + ", style=" + style);
+    return null;
+  }
 }

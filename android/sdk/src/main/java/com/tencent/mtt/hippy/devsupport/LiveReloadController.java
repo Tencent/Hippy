@@ -24,164 +24,136 @@ import org.json.JSONObject;
 import java.net.URI;
 
 @SuppressWarnings({"unused"})
-public class LiveReloadController implements WebSocketClient.WebSocketListener
-{
-	private WebSocketClient		mLiveReloadSocket;
+public class LiveReloadController implements WebSocketClient.WebSocketListener {
 
-	private final DevServerHelper mServerHelper;
+  private WebSocketClient mLiveReloadSocket;
 
-	private LiveReloadCallback	mCallback;
+  private final DevServerHelper mServerHelper;
 
-	private boolean				mEnabled;
+  private LiveReloadCallback mCallback;
 
-	private final Handler		mHandler;
+  private boolean mEnabled;
 
-	private final Runnable		mReconnectRunnable	= new Runnable()
-													{
-														@Override
-														public void run()
-														{
-															if (!mEnabled)
-															{
-																return;
-															}
+  private final Handler mHandler;
 
-															if (mLiveReloadSocket != null && mLiveReloadSocket.isConnected())
-															{
-																return;
-															}
+  private final Runnable mReconnectRunnable = new Runnable() {
+    @Override
+    public void run() {
+      if (!mEnabled) {
+        return;
+      }
 
-															connect();
-														}
-													};
+      if (mLiveReloadSocket != null && mLiveReloadSocket.isConnected()) {
+        return;
+      }
 
-	public LiveReloadController(DevServerHelper helper)
-	{
-		mServerHelper = helper;
-		mEnabled = false;
-		mHandler = new Handler(Looper.getMainLooper());
-	}
+      connect();
+    }
+  };
 
-	public void startLiveReload(LiveReloadCallback callback)
-	{
-		if (mLiveReloadSocket == null || !mLiveReloadSocket.isConnected())
-		{
-			connect();
-		}
+  public LiveReloadController(DevServerHelper helper) {
+    mServerHelper = helper;
+    mEnabled = false;
+    mHandler = new Handler(Looper.getMainLooper());
+  }
 
-		mCallback = callback;
-		mEnabled = true;
-	}
+  public void startLiveReload(LiveReloadCallback callback) {
+    if (mLiveReloadSocket == null || !mLiveReloadSocket.isConnected()) {
+      connect();
+    }
 
-	private void connect()
-	{
-		mLiveReloadSocket = new WebSocketClient(URI.create(mServerHelper.getLiveReloadURL()), this, null);
-		mLiveReloadSocket.connect();
-	}
+    mCallback = callback;
+    mEnabled = true;
+  }
 
-	public void stopLiveReload()
-	{
-		if (mLiveReloadSocket != null)
-		{
-			mLiveReloadSocket.disconnect();
-		}
+  private void connect() {
+    mLiveReloadSocket = new WebSocketClient(URI.create(mServerHelper.getLiveReloadURL()), this,
+        null);
+    mLiveReloadSocket.connect();
+  }
 
-		mCallback = null;
-		mEnabled = false;
-	}
+  public void stopLiveReload() {
+    if (mLiveReloadSocket != null) {
+      mLiveReloadSocket.disconnect();
+    }
+
+    mCallback = null;
+    mEnabled = false;
+  }
 
 
-	@Override
-	public void onConnect()
-	{
-		mHandler.post(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				if (mCallback != null)
-				{
-					mCallback.onLiveReloadReady();
-				}
-			}
-		});
-	}
+  @Override
+  public void onConnect() {
+    mHandler.post(new Runnable() {
+      @Override
+      public void run() {
+        if (mCallback != null) {
+          mCallback.onLiveReloadReady();
+        }
+      }
+    });
+  }
 
-	@Override
-	public void onMessage(String message)
-	{
-		JSONObject object;
-		String actionName;
-		try
-		{
-			object = new JSONObject(message);
-			actionName = object.optString("action");
-		}
-		catch (Exception e)
-		{
-			LogUtils.e("hippy_console", "revceive invalid live reload msg");
-			return;
-		}
+  @Override
+  public void onMessage(String message) {
+    JSONObject object;
+    String actionName;
+    try {
+      object = new JSONObject(message);
+      actionName = object.optString("action");
+    } catch (Exception e) {
+      LogUtils.e("hippy_console", "revceive invalid live reload msg");
+      return;
+    }
 
-		if (mCallback == null)
-		{
-			return;
-		}
+    if (mCallback == null) {
+      return;
+    }
 
-		if (actionName.equals("compileSuccess"))
-		{
-			mHandler.post(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					if(mCallback != null)
-					{
-						mCallback.onCompileSuccess();
-					}
-				}
-			});
-		}
-	}
+    if (actionName.equals("compileSuccess")) {
+      mHandler.post(new Runnable() {
+        @Override
+        public void run() {
+          if (mCallback != null) {
+            mCallback.onCompileSuccess();
+          }
+        }
+      });
+    }
+  }
 
-	@Override
-	public void onMessage(byte[] data)
-	{
+  @Override
+  public void onMessage(byte[] data) {
 
-	}
+  }
 
-	private void reconnect()
-	{
-		mHandler.removeCallbacks(mReconnectRunnable);
-		mHandler.postDelayed(mReconnectRunnable, 2000);
-	}
+  private void reconnect() {
+    mHandler.removeCallbacks(mReconnectRunnable);
+    mHandler.postDelayed(mReconnectRunnable, 2000);
+  }
 
-	@Override
-	public void onDisconnect(int code, String reason)
-	{
-		if (!mEnabled)
-		{
-			return;
-		}
+  @Override
+  public void onDisconnect(int code, String reason) {
+    if (!mEnabled) {
+      return;
+    }
 
-		reconnect();
-	}
+    reconnect();
+  }
 
-	@Override
-	public void onError(Exception error)
-	{
-		if (!mEnabled)
-		{
-			return;
-		}
+  @Override
+  public void onError(Exception error) {
+    if (!mEnabled) {
+      return;
+    }
 
-		reconnect();
-	}
+    reconnect();
+  }
 
-	public interface LiveReloadCallback
-	{
-		void onCompileSuccess();
+  public interface LiveReloadCallback {
 
-		void onLiveReloadReady();
-	}
+    void onCompileSuccess();
+
+    void onLiveReloadReady();
+  }
 }

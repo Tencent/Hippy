@@ -18,8 +18,9 @@ package com.tencent.mtt.hippy.views.refresh;
 import android.content.Context;
 import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 
-public class RefreshWrapperItemView  extends HippyViewGroup {
-    public RefreshWrapperItemView(Context context) {
-        super(context);
-    }
+public class RefreshWrapperItemView extends HippyViewGroup {
+
+  public RefreshWrapperItemView(Context context) {
+    super(context);
+  }
 }

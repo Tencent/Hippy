@@ -19,39 +19,36 @@ import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.supportui.utils.struct.Pools;
 
 @SuppressWarnings({"unused"})
-public class HippyCallNativeParams
-{
+public class HippyCallNativeParams {
 
-	private static final int											POOL_SIZE		= 20;
-	private static final Pools.SynchronizedPool<HippyCallNativeParams>	INSTANCE_POOL	= new Pools.SynchronizedPool<>(POOL_SIZE);
+  private static final int POOL_SIZE = 20;
+  private static final Pools.SynchronizedPool<HippyCallNativeParams> INSTANCE_POOL = new Pools.SynchronizedPool<>(
+      POOL_SIZE);
 
-	public String														mModuleName;
-	public String														mModuleFunc;
-	public String														mCallId;
-	public HippyArray													mParams;
+  public String mModuleName;
+  public String mModuleFunc;
+  public String mCallId;
+  public HippyArray mParams;
 
-	public static HippyCallNativeParams obtain(String moduleName, String moduleFunc, String callId, HippyArray params)
-	{
-		HippyCallNativeParams instance = INSTANCE_POOL.acquire();
-		if (instance == null)
-		{
-			instance = new HippyCallNativeParams();
-		}
-		instance.init(moduleName, moduleFunc, callId, params);
-		return instance;
-	}
+  public static HippyCallNativeParams obtain(String moduleName, String moduleFunc, String callId,
+      HippyArray params) {
+    HippyCallNativeParams instance = INSTANCE_POOL.acquire();
+    if (instance == null) {
+      instance = new HippyCallNativeParams();
+    }
+    instance.init(moduleName, moduleFunc, callId, params);
+    return instance;
+  }
 
-	private void init(String moduleName, String moduleFunc, String callId, HippyArray params)
-	{
-		this.mModuleName = moduleName;
-		this.mModuleFunc = moduleFunc;
-		this.mCallId = callId;
-		this.mParams = params;
-	}
+  private void init(String moduleName, String moduleFunc, String callId, HippyArray params) {
+    this.mModuleName = moduleName;
+    this.mModuleFunc = moduleFunc;
+    this.mCallId = callId;
+    this.mParams = params;
+  }
 
-	public void onDispose()
-	{
-		mParams = null;
-		INSTANCE_POOL.release(this);
-	}
+  public void onDispose() {
+    mParams = null;
+    INSTANCE_POOL.release(this);
+  }
 }

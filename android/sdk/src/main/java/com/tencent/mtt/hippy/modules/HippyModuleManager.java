@@ -21,17 +21,15 @@ import com.tencent.mtt.hippy.modules.javascriptmodules.HippyJavaScriptModule;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 
 /**
- * FileName: HippyModuleManager
- * Description：
- * History：
+ * FileName: HippyModuleManager Description： History：
  */
-public interface HippyModuleManager
-{
-	 void callNatives(HippyCallNativeParams params);
+public interface HippyModuleManager {
 
-	 void destroy();
+  void callNatives(HippyCallNativeParams params);
 
-	 <T extends HippyJavaScriptModule> T getJavaScriptModule(Class<T> cls);
+  void destroy();
 
-	 <T extends HippyNativeModuleBase> T getNativeModule(Class<T> cls);
+  <T extends HippyJavaScriptModule> T getJavaScriptModule(Class<T> cls);
+
+  <T extends HippyNativeModuleBase> T getNativeModule(Class<T> cls);
 }

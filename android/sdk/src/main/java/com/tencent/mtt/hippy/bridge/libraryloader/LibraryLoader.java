@@ -20,23 +20,23 @@ import com.tencent.mtt.hippy.BuildConfig;
 
 public class LibraryLoader {
 
-    private static boolean hasLoaded = false;
-    private final static String[] SO_NAME_LIST = new String[] {
-            "mtt_shared", "mttv8", "hippybridge", "flexbox"
-    };
+  private static boolean hasLoaded = false;
+  private final static String[] SO_NAME_LIST = new String[]{
+      "mtt_shared", "mttv8", "hippybridge", "flexbox"
+  };
 
-    public static synchronized void loadLibraryIfNeed() {
-        if (hasLoaded || BuildConfig.ENABLE_SO_DOWNLOAD) {
-            return;
-        }
-
-        try {
-            for (String name : SO_NAME_LIST) {
-                System.loadLibrary(name);
-            }
-            hasLoaded = true;
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
+  public static synchronized void loadLibraryIfNeed() {
+    if (hasLoaded || BuildConfig.ENABLE_SO_DOWNLOAD) {
+      return;
     }
+
+    try {
+      for (String name : SO_NAME_LIST) {
+        System.loadLibrary(name);
+      }
+      hasLoaded = true;
+    } catch (Throwable e) {
+      e.printStackTrace();
+    }
+  }
 }

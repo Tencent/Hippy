@@ -16,16 +16,16 @@
 package com.tencent.mtt.hippy.adapter;
 
 @SuppressWarnings({"EmptyMethod", "unused"})
-public interface HippyLogAdapter
-{
-	void log(String tag, String msg);
+public interface HippyLogAdapter {
 
-	void init(int rootId, String module);
+  void log(String tag, String msg);
 
-	void upload(callBack callBack);
+  void init(int rootId, String module);
 
-	interface callBack
-	{
-		void onSuccess();
-	}
+  void upload(callBack callBack);
+
+  interface callBack {
+
+    void onSuccess();
+  }
 }

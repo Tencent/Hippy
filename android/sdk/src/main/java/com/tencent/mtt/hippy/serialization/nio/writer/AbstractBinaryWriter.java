@@ -19,6 +19,7 @@ import java.nio.ByteBuffer;
 
 @SuppressWarnings("unused")
 public abstract class AbstractBinaryWriter implements BinaryWriter {
+
   protected final int initialCapacity;
   protected final int maxCapacity;
 
@@ -35,7 +36,7 @@ public abstract class AbstractBinaryWriter implements BinaryWriter {
    * Reusable binary writer
    *
    * @param initialCapacity The writer initial capacity
-   * @param maxCapacity The max cache capacity
+   * @param maxCapacity     The max cache capacity
    */
   AbstractBinaryWriter(int initialCapacity, int maxCapacity) {
     if (initialCapacity < 0 || maxCapacity < 0) {
