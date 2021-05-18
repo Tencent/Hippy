@@ -15,16 +15,17 @@
  */
 package com.tencent.mtt.hippy.adapter.http;
 
-public interface HippyHttpAdapter
-{
-	void sendRequest(HippyHttpRequest request, HttpTaskCallback callback);
+public interface HippyHttpAdapter {
 
-    void destroyIfNeed();
+  void sendRequest(HippyHttpRequest request, HttpTaskCallback callback);
 
-    interface HttpTaskCallback {
-		void onTaskSuccess(HippyHttpRequest request, HippyHttpResponse response) throws Exception;
+  void destroyIfNeed();
 
-		@SuppressWarnings("unused")
-		void onTaskFailed(HippyHttpRequest request, Throwable error);
-	}
+  interface HttpTaskCallback {
+
+    void onTaskSuccess(HippyHttpRequest request, HippyHttpResponse response) throws Exception;
+
+    @SuppressWarnings("unused")
+    void onTaskFailed(HippyHttpRequest request, Throwable error);
+  }
 }

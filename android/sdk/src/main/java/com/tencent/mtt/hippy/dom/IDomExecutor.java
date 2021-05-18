@@ -17,6 +17,7 @@ package com.tencent.mtt.hippy.dom;
 
 
 public interface IDomExecutor {
-    @SuppressWarnings("UnusedReturnValue")
-    void exec();
+
+  @SuppressWarnings("UnusedReturnValue")
+  void exec();
 }

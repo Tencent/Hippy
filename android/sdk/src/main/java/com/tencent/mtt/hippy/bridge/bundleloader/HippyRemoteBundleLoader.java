@@ -21,71 +21,68 @@ import com.tencent.mtt.hippy.bridge.NativeCallback;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
 @SuppressWarnings("unused")
-public class HippyRemoteBundleLoader implements HippyBundleLoader
-{
-	final String	mUrl;
+public class HippyRemoteBundleLoader implements HippyBundleLoader {
 
-	boolean         mIsDebugMode = false;
+  final String mUrl;
 
-	private boolean	mCanUseCodeCache;
+  boolean mIsDebugMode = false;
 
-	private String	mCodeCacheTag;
+  private boolean mCanUseCodeCache;
 
-	public HippyRemoteBundleLoader(String url)
-	{
-		this(url, false, "");
-	}
+  private String mCodeCacheTag;
 
-	public HippyRemoteBundleLoader(String url, boolean canUseCodeCache, String codeCacheTag) {
-		this.mUrl = url;
-		this.mCanUseCodeCache = canUseCodeCache;
-		this.mCodeCacheTag = codeCacheTag;
-	}
+  public HippyRemoteBundleLoader(String url) {
+    this(url, false, "");
+  }
 
-	public void setCodeCache(boolean canUseCodeCache, String codeCacheTag) {
-		this.mCanUseCodeCache = canUseCodeCache;
-		this.mCodeCacheTag = codeCacheTag;
-	}
+  public HippyRemoteBundleLoader(String url, boolean canUseCodeCache, String codeCacheTag) {
+    this.mUrl = url;
+    this.mCanUseCodeCache = canUseCodeCache;
+    this.mCodeCacheTag = codeCacheTag;
+  }
 
-	public void setIsDebugMode(boolean debugMode) {
-		mIsDebugMode = debugMode;
-	}
+  public void setCodeCache(boolean canUseCodeCache, String codeCacheTag) {
+    this.mCanUseCodeCache = canUseCodeCache;
+    this.mCodeCacheTag = codeCacheTag;
+  }
 
-	@Override
-	public void load(HippyBridge bridge, NativeCallback callback) {
-		if (TextUtils.isEmpty(mUrl)) {
-			return;
-		}
+  public void setIsDebugMode(boolean debugMode) {
+    mIsDebugMode = debugMode;
+  }
 
-		boolean ret = bridge.runScriptFromUri(mUrl, null, mCanUseCodeCache, mCodeCacheTag, callback);
-		LogUtils.d("HippyRemoteBundleLoader", "load: ret" + ret);
-	}
+  @Override
+  public void load(HippyBridge bridge, NativeCallback callback) {
+    if (TextUtils.isEmpty(mUrl)) {
+      return;
+    }
 
-	@Override
-	public String getPath() { return mUrl; }
+    boolean ret = bridge.runScriptFromUri(mUrl, null, mCanUseCodeCache, mCodeCacheTag, callback);
+    LogUtils.d("HippyRemoteBundleLoader", "load: ret" + ret);
+  }
 
-	@Override
-	public String getRawPath()
-	{
-		return mUrl;
-	}
+  @Override
+  public String getPath() {
+    return mUrl;
+  }
 
-	@Override
-	public String getBundleUniKey()
-	{
-		return getPath();
-	}
+  @Override
+  public String getRawPath() {
+    return mUrl;
+  }
 
-	@Override
-	public boolean canUseCodeCache()
-	{
-		return mCanUseCodeCache;
-	}
+  @Override
+  public String getBundleUniKey() {
+    return getPath();
+  }
 
-	@Override
-	public String getCodeCacheTag()
-	{
-		return mCodeCacheTag;
-	}
+  @Override
+  public boolean canUseCodeCache() {
+    return mCanUseCodeCache;
+  }
+
+  @Override
+  public String getCodeCacheTag() {
+    return mCodeCacheTag;
+  }
 
 }

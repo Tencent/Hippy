@@ -19,17 +19,18 @@ import com.tencent.mtt.hippy.HippyEngine.BridgeTransferType;
 import com.tencent.mtt.hippy.common.HippyMap;
 
 @SuppressWarnings({"unused", "deprecation"})
-public interface EventDispatcher extends HippyJavaScriptModule
-{
-	void receiveNativeGesture(HippyMap param);
+public interface EventDispatcher extends HippyJavaScriptModule {
 
-	void receiveUIComponentEvent(int tagId, String eventName, Object param);
+  void receiveNativeGesture(HippyMap param);
 
-	void receiveNativeEvent(String eventName, Object param);
+  void receiveUIComponentEvent(int tagId, String eventName, Object param);
 
-	void receiveNativeGesture(HippyMap param, BridgeTransferType transferType);
+  void receiveNativeEvent(String eventName, Object param);
 
-	void receiveUIComponentEvent(int tagId, String eventName, Object param, BridgeTransferType transferType);
+  void receiveNativeGesture(HippyMap param, BridgeTransferType transferType);
 
-	void receiveNativeEvent(String eventName, Object param, BridgeTransferType transferType);
+  void receiveUIComponentEvent(int tagId, String eventName, Object param,
+      BridgeTransferType transferType);
+
+  void receiveNativeEvent(String eventName, Object param, BridgeTransferType transferType);
 }

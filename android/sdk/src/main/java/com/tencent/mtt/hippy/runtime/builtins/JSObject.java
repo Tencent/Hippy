@@ -30,6 +30,7 @@ import java.util.Set;
 
 @SuppressWarnings({"unused"})
 public class JSObject extends JSValue {
+
   private final HashMap<String, Object> props;
   private Set<Pair<String, Object>> entrySet;
 
@@ -41,6 +42,7 @@ public class JSObject extends JSValue {
   public Object get(String key) {
     return props.get(key);
   }
+
   public static Object get(JSObject object, String key) {
     return object.props.get(key);
   }
@@ -48,6 +50,7 @@ public class JSObject extends JSValue {
   public Object set(String key, Object value) {
     return props.put(key, value);
   }
+
   public static Object set(JSObject object, String key, Object value) {
     return object.props.put(key, value);
   }
@@ -55,6 +58,7 @@ public class JSObject extends JSValue {
   public boolean has(String key) {
     return props.containsKey(key);
   }
+
   public static boolean has(JSObject object, String key) {
     return object.props.containsKey(key);
   }
@@ -62,6 +66,7 @@ public class JSObject extends JSValue {
   public int size() {
     return props.size();
   }
+
   public static int size(JSObject object) {
     return object.props.size();
   }
@@ -69,6 +74,7 @@ public class JSObject extends JSValue {
   public Object delete(String key) {
     return props.remove(key);
   }
+
   public static Object delete(JSObject object, String key) {
     return object.props.remove(key);
   }
@@ -78,6 +84,7 @@ public class JSObject extends JSValue {
   public Set<String> keys() {
     return props.keySet();
   }
+
   public static Set<String> keys(JSObject object) {
     return object.props.keySet();
   }
@@ -87,6 +94,7 @@ public class JSObject extends JSValue {
   public Collection<Object> values() {
     return props.values();
   }
+
   public static Collection<Object> values(JSObject object) {
     return object.props.values();
   }
@@ -97,11 +105,13 @@ public class JSObject extends JSValue {
     Set<Pair<String, Object>> es;
     return (es = entrySet) == null ? (entrySet = new EntrySet(this)) : es;
   }
+
   public static Set<Pair<String, Object>> entries(JSObject object) {
     return new EntrySet(object);
   }
 
   private final static class EntryIterator implements Iterator<Pair<String, Object>> {
+
     private final Iterator<Map.Entry<String, Object>> iterator;
 
     EntryIterator(Iterator<Map.Entry<String, Object>> iterator) {
@@ -121,10 +131,11 @@ public class JSObject extends JSValue {
   }
 
   private final static class EntrySet extends AbstractSet<Pair<String, Object>> {
+
     private final JSObject object;
 
     EntrySet(JSObject object) {
-        this.object = object;
+      this.object = object;
     }
 
     @Override
@@ -160,6 +171,7 @@ public class JSObject extends JSValue {
   }
   // endregion
 
+  @SuppressWarnings("NullableProblems")
   @NonNull
   @Override
   public JSObject clone() throws CloneNotSupportedException {

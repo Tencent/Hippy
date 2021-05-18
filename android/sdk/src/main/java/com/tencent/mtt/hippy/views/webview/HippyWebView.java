@@ -35,113 +35,112 @@ import java.net.URLDecoder;
 
 @SuppressWarnings("ALL")
 public class HippyWebView extends FrameLayout implements HippyViewBase {
-	protected final HippyWebViewInner mWebView;
-	private HippyViewEvent mEventOnMessage = null;
 
-	public HippyWebView(Context context)
-	{
-		super(context);
-		mWebView = new HippyWebViewInner(context);
-		addView(mWebView);
-		initWebView();
-	}
+  protected final HippyWebViewInner mWebView;
+  private HippyViewEvent mEventOnMessage = null;
 
-	private void initWebView()
-	{
-		mWebView.setWebViewClient(new WebViewClient() {
-			final HippyViewEvent mEventOnError = new HippyViewEvent("onError");
-			final HippyViewEvent mEventonLoad = new HippyViewEvent("onLoad");
-			final HippyViewEvent mEventonLoadEnd = new HippyViewEvent("onLoadEnd");
-			final HippyViewEvent mEventonLoadStart = new HippyViewEvent("onLoadStart");
-			final String mMessageUrlPre = "hippy://postMessage?data=";
+  public HippyWebView(Context context) {
+    super(context);
+    mWebView = new HippyWebViewInner(context);
+    addView(mWebView);
+    initWebView();
+  }
 
-			@Override
-			public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
-				HippyMap event = new HippyMap();
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-					event.pushString("error", (String) error.getDescription());
-					event.pushInt("errorCode", error.getErrorCode());
-				}
-				else {
-					event.pushString("error", "unknown error");
-					event.pushInt("errorCode", Integer.MAX_VALUE);
-				}
-				mEventOnError.send(HippyWebView.this, event);
-				super.onReceivedError(view, request, error);
-			}
+  private void initWebView() {
+    mWebView.setWebViewClient(new WebViewClient() {
+      final HippyViewEvent mEventOnError = new HippyViewEvent("onError");
+      final HippyViewEvent mEventonLoad = new HippyViewEvent("onLoad");
+      final HippyViewEvent mEventonLoadEnd = new HippyViewEvent("onLoadEnd");
+      final HippyViewEvent mEventonLoadStart = new HippyViewEvent("onLoadStart");
+      final String mMessageUrlPre = "hippy://postMessage?data=";
 
-			@Override
-			public boolean shouldOverrideUrlLoading(WebView view, String url) {
-				if (url != null)
-				{
-					if (url.startsWith(mMessageUrlPre)) {
-						postMessage(URLDecoder.decode(url.substring(mMessageUrlPre.length())));
-						return true;
-					}
-					else if (UrlUtils.isWebUrl(url) || UrlUtils.isFileUrl(url)) {
-						view.loadUrl(url);
-						return true;
-					}
-				}
-				return super.shouldOverrideUrlLoading(view, url);
-			}
+      @Override
+      public void onReceivedError(WebView view, WebResourceRequest request,
+          WebResourceError error) {
+        HippyMap event = new HippyMap();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+          event.pushString("error", (String) error.getDescription());
+          event.pushInt("errorCode", error.getErrorCode());
+        } else {
+          event.pushString("error", "unknown error");
+          event.pushInt("errorCode", Integer.MAX_VALUE);
+        }
+        mEventOnError.send(HippyWebView.this, event);
+        super.onReceivedError(view, request, error);
+      }
 
-			public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-					return shouldOverrideUrlLoading(view, request.getUrl().toString());
-				}
-				return super.shouldOverrideUrlLoading(view, request);
-			}
+      @Override
+      public boolean shouldOverrideUrlLoading(WebView view, String url) {
+        if (url != null) {
+          if (url.startsWith(mMessageUrlPre)) {
+            postMessage(URLDecoder.decode(url.substring(mMessageUrlPre.length())));
+            return true;
+          } else if (UrlUtils.isWebUrl(url) || UrlUtils.isFileUrl(url)) {
+            view.loadUrl(url);
+            return true;
+          }
+        }
+        return super.shouldOverrideUrlLoading(view, url);
+      }
 
-			@Override
-			public void onPageFinished(WebView view, String url) {
-				// android 4.2以下，使用注入js的方式来实现hippy.onMessage。4.2及以上使用addJavaScriptInterface实现
-				if (Build.VERSION.SDK_INT < 17)
-					view.loadUrl("javascript:hippy={};hippy.onMessage=function(data){location.href='hippy://postMessage?data='+encodeURIComponent(data)}");
-				HippyMap event = new HippyMap();
-				event.pushString("url", url);
-				mEventonLoad.send(HippyWebView.this, event);
-				mEventonLoadEnd.send(HippyWebView.this, event);
-				super.onPageFinished(view, url);
-			}
+      public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+          return shouldOverrideUrlLoading(view, request.getUrl().toString());
+        }
+        return super.shouldOverrideUrlLoading(view, request);
+      }
 
-			@Override
-			public void onPageStarted(WebView view, String url, Bitmap favicon) {
-				HippyMap event = new HippyMap();
-				event.pushString("url", url);
-				mEventonLoadStart.send(HippyWebView.this, event);
-				super.onPageStarted(view, url, favicon);
-			}
-		});
-		mWebView.setWebChromeClient(new WebChromeClient());
-		// 避免安全隐患
-		if (Build.VERSION.SDK_INT >= 17) {
-			// 为了让网页端可以通过：hippy.postMessage("hello");的方式发送数据给hippy前端
-			mWebView.addJavascriptInterface(new HippyWebViewBridge(this), "hippy");
-		}
-		if (Build.VERSION.SDK_INT < 19)
-		{
-			mWebView.removeJavascriptInterface("searchBoxJavaBridge_");
-			mWebView.removeJavascriptInterface("accessibility");
-			mWebView.removeJavascriptInterface("accessibilityTraversal");
-		}
-	}
+      @Override
+      public void onPageFinished(WebView view, String url) {
+        // android 4.2以下，使用注入js的方式来实现hippy.onMessage。4.2及以上使用addJavaScriptInterface实现
+        if (Build.VERSION.SDK_INT < 17) {
+          view.loadUrl(
+              "javascript:hippy={};hippy.onMessage=function(data){location.href='hippy://postMessage?data='+encodeURIComponent(data)}");
+        }
+        HippyMap event = new HippyMap();
+        event.pushString("url", url);
+        mEventonLoad.send(HippyWebView.this, event);
+        mEventonLoadEnd.send(HippyWebView.this, event);
+        super.onPageFinished(view, url);
+      }
 
-	public void postMessage(String msg) {
-		if (mEventOnMessage == null)
-			mEventOnMessage = new HippyViewEvent("onMessage");
+      @Override
+      public void onPageStarted(WebView view, String url, Bitmap favicon) {
+        HippyMap event = new HippyMap();
+        event.pushString("url", url);
+        mEventonLoadStart.send(HippyWebView.this, event);
+        super.onPageStarted(view, url, favicon);
+      }
+    });
+    mWebView.setWebChromeClient(new WebChromeClient());
+    // 避免安全隐患
+    if (Build.VERSION.SDK_INT >= 17) {
+      // 为了让网页端可以通过：hippy.postMessage("hello");的方式发送数据给hippy前端
+      mWebView.addJavascriptInterface(new HippyWebViewBridge(this), "hippy");
+    }
+    if (Build.VERSION.SDK_INT < 19) {
+      mWebView.removeJavascriptInterface("searchBoxJavaBridge_");
+      mWebView.removeJavascriptInterface("accessibility");
+      mWebView.removeJavascriptInterface("accessibilityTraversal");
+    }
+  }
 
-		HippyMap event = new HippyMap();
-		event.pushString("data", msg);
-		mEventOnMessage.send(this, event);
-	}
+  public void postMessage(String msg) {
+    if (mEventOnMessage == null) {
+      mEventOnMessage = new HippyViewEvent("onMessage");
+    }
 
-	@Override
-	public NativeGestureDispatcher getGestureDispatcher() {
-		return null;
-	}
+    HippyMap event = new HippyMap();
+    event.pushString("data", msg);
+    mEventOnMessage.send(this, event);
+  }
 
-	@Override
-	public void setGestureDispatcher(NativeGestureDispatcher dispatcher) {
-	}
+  @Override
+  public NativeGestureDispatcher getGestureDispatcher() {
+    return null;
+  }
+
+  @Override
+  public void setGestureDispatcher(NativeGestureDispatcher dispatcher) {
+  }
 }

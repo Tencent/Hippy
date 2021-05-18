@@ -19,6 +19,7 @@ import java.nio.ByteBuffer;
 
 @SuppressWarnings({"unused"})
 public final class SafeDirectReader implements BinaryReader {
+
   public ByteBuffer buffer;
 
   private int base;

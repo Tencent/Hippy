@@ -57,11 +57,12 @@ import java.util.Map;
  */
 @SuppressWarnings("unused")
 public class Deserializer extends PrimitiveValueDeserializer {
+
   public interface Delegate {
+
     /**
-     * Implement this method to read some kind of host object,
-     * if possible. If not,
-     * a {@link DataCloneException} exception should be thrown.
+     * Implement this method to read some kind of host object, if possible. If not, a {@link
+     * DataCloneException} exception should be thrown.
      *
      * @param deserializer current deserializer
      * @return host object
@@ -73,7 +74,7 @@ public class Deserializer extends PrimitiveValueDeserializer {
      * Serializer.Delegate#getSharedArrayBufferId
      *
      * @param deserializer current deserializer
-     * @param clone_id clone id
+     * @param clone_id     clone id
      * @return JSSharedArrayBuffer
      */
     JSSharedArrayBuffer getSharedArrayBufferFromId(Deserializer deserializer, int clone_id);
@@ -83,15 +84,19 @@ public class Deserializer extends PrimitiveValueDeserializer {
      * erializer.Delegate#getWasmModuleTransferId
      *
      * @param deserializer current deserializer
-     * @param transfer_id transfer id
+     * @param transfer_id  transfer id
      * @return WebAssembly Module
      */
     WasmModule getWasmModuleFromId(Deserializer deserializer, int transfer_id);
   }
 
-  /** Implement for Delegate interface */
+  /**
+   * Implement for Delegate interface
+   */
   private final Delegate delegate;
-  /** Maps transfer ID to the transferred {@link JSArrayBuffer}s. */
+  /**
+   * Maps transfer ID to the transferred {@link JSArrayBuffer}s.
+   */
   private Map<Integer, Object> arrayBufferTransferMap;
 
   public Deserializer(BinaryReader reader) {
@@ -159,7 +164,8 @@ public class Deserializer extends PrimitiveValueDeserializer {
     ByteBuffer arrayBuffer = arrayBufferObject.getBuffer();
     arrayBuffer.put(reader.getBytes(byteLength));
     assignId(arrayBufferObject);
-    return (peekTag() == SerializationTag.ARRAY_BUFFER_VIEW) ? readJSArrayBufferView(arrayBufferObject) : arrayBuffer;
+    return (peekTag() == SerializationTag.ARRAY_BUFFER_VIEW) ? readJSArrayBufferView(
+        arrayBufferObject) : arrayBuffer;
   }
 
   @Override
@@ -442,10 +448,10 @@ public class Deserializer extends PrimitiveValueDeserializer {
   }
 
   /**
-   * Accepts the {@link JSArrayBuffer} corresponding to the one passed previously to
-   * {@link Serializer#transferArrayBuffer(int, JSArrayBuffer)}
+   * Accepts the {@link JSArrayBuffer} corresponding to the one passed previously to {@link
+   * Serializer#transferArrayBuffer(int, JSArrayBuffer)}
    *
-   * @param transferId transfer id
+   * @param transferId  transfer id
    * @param arrayBuffer JSArrayBuffer
    */
   public void transferArrayBuffer(int transferId, JSArrayBuffer arrayBuffer) {
@@ -469,7 +475,8 @@ public class Deserializer extends PrimitiveValueDeserializer {
       throw new AssertionError("Invalid transfer id " + id);
     }
     assignId(arrayBuffer);
-    return (peekTag() == SerializationTag.ARRAY_BUFFER_VIEW) ? readJSArrayBufferView(arrayBuffer) : arrayBuffer;
+    return (peekTag() == SerializationTag.ARRAY_BUFFER_VIEW) ? readJSArrayBufferView(arrayBuffer)
+        : arrayBuffer;
   }
 
   @Override
@@ -483,7 +490,8 @@ public class Deserializer extends PrimitiveValueDeserializer {
     }
     JSSharedArrayBuffer sharedArrayBuffer = delegate.getSharedArrayBufferFromId(this, id);
     assignId(sharedArrayBuffer);
-    return (peekTag() == SerializationTag.ARRAY_BUFFER_VIEW) ? readJSArrayBufferView(sharedArrayBuffer) : sharedArrayBuffer;
+    return (peekTag() == SerializationTag.ARRAY_BUFFER_VIEW) ? readJSArrayBufferView(
+        sharedArrayBuffer) : sharedArrayBuffer;
   }
 
   @Override

@@ -33,15 +33,26 @@ import java.util.Map;
  */
 @SuppressWarnings({"unused"})
 public abstract class PrimitiveValueDeserializer extends SharedSerialization {
-  /** StingTable used for byte[] to String */
+
+  /**
+   * StingTable used for byte[] to String
+   */
   private final StringTable stringTable;
-  /** Reader used for read buffer. */
+  /**
+   * Reader used for read buffer.
+   */
   protected BinaryReader reader;
-  /** Version of the data format used during serialization. */
+  /**
+   * Version of the data format used during serialization.
+   */
   private int version;
-  /** ID of the next deserialized object. */
+  /**
+   * ID of the next deserialized object.
+   */
   private int nextId;
-  /** Maps ID of a deserialized object to the object itself. */
+  /**
+   * Maps ID of a deserialized object to the object itself.
+   */
   private final Map<Integer, Object> objectMap = new HashMap<>();
 
   protected PrimitiveValueDeserializer(BinaryReader reader, StringTable stringTable) {
@@ -56,21 +67,37 @@ public abstract class PrimitiveValueDeserializer extends SharedSerialization {
   }
 
   protected abstract Object readJSBoolean(boolean value);
+
   protected abstract Object readJSNumber();
+
   protected abstract Object readJSBigInt();
+
   protected abstract Object readJSString(StringLocation location, Object relatedKey);
+
   protected abstract Object readJSArrayBuffer();
+
   protected abstract Object readJSRegExp();
+
   protected abstract Object readJSObject();
+
   protected abstract Object readJSMap();
+
   protected abstract Object readJSSet();
+
   protected abstract Object readDenseArray();
+
   protected abstract Object readSparseArray();
+
   protected abstract Object readJSError();
+
   protected abstract Object readHostObject();
+
   protected abstract Object readTransferredJSArrayBuffer();
+
   protected abstract Object readSharedArrayBuffer();
+
   protected abstract Object readTransferredWasmModule();
+
   protected abstract Object readTransferredWasmMemory();
 
   /**
@@ -109,20 +136,22 @@ public abstract class PrimitiveValueDeserializer extends SharedSerialization {
   }
 
   /**
-   * Reads and validates a header (including the format version).
-   * Throw an {@link UnsupportedOperationException} exception on unsupported wire format.
+   * Reads and validates a header (including the format version). Throw an {@link
+   * UnsupportedOperationException} exception on unsupported wire format.
    */
   public void readHeader() {
     if (readTag() == SerializationTag.VERSION) {
       version = (int) reader.getVarint();
       if (version > LATEST_VERSION) {
-        throw new UnsupportedOperationException("Unable to deserialize cloned data due to invalid or unsupported version.");
+        throw new UnsupportedOperationException(
+            "Unable to deserialize cloned data due to invalid or unsupported version.");
       }
     }
   }
 
   /**
    * Deserializes a JavaScript delegate object from the buffer.
+   *
    * @return JavaScript delegate object
    */
   public Object readValue() {
@@ -266,16 +295,16 @@ public abstract class PrimitiveValueDeserializer extends SharedSerialization {
   /**
    * Reads {@code double} or {@code int} data from the buffer.
    * <p>
-   * If {@code double} can be representable as {@code long},
-   * it will be automatically converted to {@code long} type.
+   * If {@code double} can be representable as {@code long}, it will be automatically converted to
+   * {@code long} type.
    * <p/>
    * <h2>Background</h2>
-   * Since the ECMAScript standard does not define the storage (expression) of the <a href="https://262.ecma-international.org/#sec-ecmascript-language-types-number-type">number</a> type in the VM,
-   * different implementations may have different storage implementations of the same value.
-   * <br/>
-   * e.g. <br/>
-   * v8 store js number as Smi or Heap Number(out of Smi payload or it's double value),
-   * if number store in heap, v8 regardless of the original type, treated as {@code double}.
+   * Since the ECMAScript standard does not define the storage (expression) of the <a
+   * href="https://262.ecma-international.org/#sec-ecmascript-language-types-number-type">number</a>
+   * type in the VM, different implementations may have different storage implementations of the
+   * same value. <br/> e.g. <br/> v8 store js number as Smi or Heap Number(out of Smi payload or
+   * it's double value), if number store in heap, v8 regardless of the original type, treated as
+   * {@code double}.
    *
    * @return Number data
    */
@@ -392,8 +421,8 @@ public abstract class PrimitiveValueDeserializer extends SharedSerialization {
   }
 
   /**
-   * Reads the underlying wire format version.
-   * Likely mostly to be useful to legacy code reading old wire format versions.
+   * Reads the underlying wire format version. Likely mostly to be useful to legacy code reading old
+   * wire format versions.
    *
    * @return wire format version
    */

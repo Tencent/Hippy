@@ -25,24 +25,22 @@ import android.view.View;
  */
 
 @SuppressWarnings("deprecation")
-public class HippyPageSelectedEvent extends HippyViewEvent
-{
-	public static final String EVENT_NAME	= "onPageSelected";
+public class HippyPageSelectedEvent extends HippyViewEvent {
 
-	private final View mTarget;
+  public static final String EVENT_NAME = "onPageSelected";
 
-	public HippyPageSelectedEvent(View target)
-	{
-		super(EVENT_NAME);
-		mTarget = target;
-	}
+  private final View mTarget;
 
-	public void send(int position)
-	{
-		HippyMap map = new HippyMap();
-		map.pushInt("position", position);
-		super.send(mTarget, map);
-	}
+  public HippyPageSelectedEvent(View target) {
+    super(EVENT_NAME);
+    mTarget = target;
+  }
+
+  public void send(int position) {
+    HippyMap map = new HippyMap();
+    map.pushInt("position", position);
+    super.send(mTarget, map);
+  }
 
 
 }

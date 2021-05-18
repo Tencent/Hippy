@@ -26,90 +26,77 @@ import com.tencent.mtt.hippy.common.HippyThreadRunnable;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
 @SuppressWarnings({"unused"})
-public class LayoutHelper
-{
-	private HippyHandlerThread	mHandlerThread;
-	private final Picture mPicture = new Picture();
+public class LayoutHelper {
 
-	public  LayoutHelper()
-	{
-		mHandlerThread = new HippyHandlerThread("text-warm-thread");
-	}
+  private HippyHandlerThread mHandlerThread;
+  private final Picture mPicture = new Picture();
 
-	public void release()
-	{
-		if (mHandlerThread != null)
-		{
-			mHandlerThread.quit();
-		}
-		mHandlerThread = null;
-	}
+  public LayoutHelper() {
+    mHandlerThread = new HippyHandlerThread("text-warm-thread");
+  }
 
-	public void postWarmLayout(Layout layout)
-	{
-		if (mHandlerThread != null && mHandlerThread.isThreadAlive())
-			mHandlerThread.runOnQueue(new HippyThreadRunnable<Layout>(layout)
-			{
-				@Override
-				public void run(Layout param)
-				{
-					warmUpLayout(param);
-				}
-			});
-	}
+  public void release() {
+    if (mHandlerThread != null) {
+      mHandlerThread.quit();
+    }
+    mHandlerThread = null;
+  }
 
-	private int getHeight(Layout layout)
-	{
-		if (layout == null)
-		{
-			return 0;
-		}
+  public void postWarmLayout(Layout layout) {
+    if (mHandlerThread != null && mHandlerThread.isThreadAlive()) {
+      mHandlerThread.runOnQueue(new HippyThreadRunnable<Layout>(layout) {
+        @Override
+        public void run(Layout param) {
+          warmUpLayout(param);
+        }
+      });
+    }
+  }
 
-		int extra = 0;
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT_WATCH && layout instanceof StaticLayout)
-		{
-			int above = layout.getLineAscent(layout.getLineCount() - 1);
-			int below = layout.getLineDescent(layout.getLineCount() - 1);
-			float originalSize = (below - above - layout.getSpacingAdd()) / layout.getSpacingMultiplier();
-			float ex = below - above - originalSize;
-			if (ex >= 0)
-			{
-				extra = (int) (ex + 0.5);
-			}
-			else
-			{
-				extra = -(int) (-ex + 0.5);
-			}
-		}
-		return layout.getHeight() - extra;
-	}
+  private int getHeight(Layout layout) {
+    if (layout == null) {
+      return 0;
+    }
 
-	private int getWidth(Layout layout)
-	{
-		if (layout == null)
-		{
-			return 0;
-		}
+    int extra = 0;
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT_WATCH
+        && layout instanceof StaticLayout) {
+      int above = layout.getLineAscent(layout.getLineCount() - 1);
+      int below = layout.getLineDescent(layout.getLineCount() - 1);
+      float originalSize = (below - above - layout.getSpacingAdd()) / layout.getSpacingMultiplier();
+      float ex = below - above - originalSize;
+      if (ex >= 0) {
+        extra = (int) (ex + 0.5);
+      } else {
+        extra = -(int) (-ex + 0.5);
+      }
+    }
+    return layout.getHeight() - extra;
+  }
 
-		// Supplying VERY_WIDE will make layout.getWidth() return a very large value.
-		int count = layout.getLineCount();
-		int maxWidth = 0;
+  private int getWidth(Layout layout) {
+    if (layout == null) {
+      return 0;
+    }
 
-		for (int i = 0; i < count; i++)
-		{
-			maxWidth = Math.max(maxWidth, (int) layout.getLineRight(i));
-		}
+    // Supplying VERY_WIDE will make layout.getWidth() return a very large value.
+    int count = layout.getLineCount();
+    int maxWidth = 0;
 
-		return maxWidth;
-	}
+    for (int i = 0; i < count; i++) {
+      maxWidth = Math.max(maxWidth, (int) layout.getLineRight(i));
+    }
 
-	private void warmUpLayout(Layout layout) {
-		try {
-			Canvas canvas = mPicture.beginRecording(getWidth(layout), getHeight(layout));
-			layout.draw(canvas);
-			mPicture.endRecording();
-		} catch (Exception e) {
-			LogUtils.e("TextNode", "warmUpTextLayoutCache error", e);
-		}
-	}
+    return maxWidth;
+  }
+
+  private void warmUpLayout(Layout layout) {
+    try {
+      Canvas canvas = mPicture.beginRecording(getWidth(layout), getHeight(layout));
+      layout.draw(canvas);
+      mPicture.endRecording();
+    } catch (Exception e) {
+      LogUtils.e("TextNode", "warmUpTextLayoutCache error", e);
+    }
+  }
 }

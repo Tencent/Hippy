@@ -17,6 +17,7 @@ package com.tencent.mtt.hippy.runtime.builtins.objects;
 
 @SuppressWarnings({"unused"})
 public class JSNumberObject extends JSPrimitiveWrapper<Number> {
+
   public JSNumberObject(Number value) {
     super(value);
   }
