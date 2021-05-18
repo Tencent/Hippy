@@ -100,13 +100,10 @@ void CallFunction(JNIEnv* j_env,
       std::shared_ptr<CtxValue> action =
           context->CreateString(action_name.c_str());
       std::shared_ptr<CtxValue> params = nullptr;
-      if (runtime->IsParamJson()) {
-        params =
-            context->CreateObject(buffer_data_.c_str(), buffer_data_.length());
-      } else {
+      if (runtime->IsEnableV8Serialization()) {
         v8::Isolate* isolate = std::static_pointer_cast<hippy::napi::V8VM>(
-                                   runtime->GetEngine()->GetVM())
-                                   ->isolate_;
+            runtime->GetEngine()->GetVM())
+            ->isolate_;
         v8::HandleScope handle_scope(isolate);
         v8::Local<v8::Context> ctx =
             std::static_pointer_cast<hippy::napi::V8Ctx>(
@@ -122,6 +119,9 @@ void CallFunction(JNIEnv* j_env,
           params = std::make_shared<hippy::napi::V8CtxValue>(
               isolate, ret.ToLocalChecked());
         }
+      } else {
+        params =
+            context->CreateObject(buffer_data_.c_str(), buffer_data_.length());
       }
 
       std::shared_ptr<CtxValue> argv[] = {action, params};

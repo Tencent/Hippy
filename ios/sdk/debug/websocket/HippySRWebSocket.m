@@ -545,7 +545,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 
 #ifdef DEBUG
         [SSLOptions setValue:@NO forKey:(__bridge id)kCFStreamSSLValidatesCertificateChain];
-        HippyLogInfo(@"SocketRocket: In debug mode.  Allowing connection to any root cert");
 #endif
 
         [_outputStream setProperty:SSLOptions forKey:(__bridge id)kCFStreamPropertySSLSettings];
@@ -581,12 +580,12 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     [_scheduledRunloops removeObject:@[aRunLoop, mode]];
 }
 
-- (void)close;
-{ [self closeWithCode:HippySRStatusCodeNormal reason:nil]; }
+- (void)close {
+    [self closeWithCode:HippySRStatusCodeNormal reason:nil];
+}
 
 - (void)closeWithCode:(NSInteger)code reason:(NSString *)reason;
 {
-    assert(code);
     dispatch_async(_workQueue, ^{
         if (self.readyState == HippySR_CLOSING || self.readyState == HippySR_CLOSED) {
             return;

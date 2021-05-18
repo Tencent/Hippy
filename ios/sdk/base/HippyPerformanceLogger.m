@@ -72,7 +72,7 @@
     if (_data[tag][0] != 0 && _data[tag][1] == 0) {
         _data[tag][1] = CACurrentMediaTime() * 1000;
     } else {
-        HippyLogInfo(@"Unbalanced calls start/end for tag %li", (unsigned long)tag);
+        HippyLogInfo(@"[Hippy_OC_Log][Performance],Unbalanced calls start/end for tag %li", (unsigned long)tag);
     }
 }
 
@@ -95,7 +95,7 @@
         _data[tag][1] += CACurrentMediaTime() * 1000 - _data[tag][0];
         _data[tag][0] = 0;
     } else {
-        HippyLogInfo(@"Unbalanced calls start/end for tag %li", (unsigned long)tag);
+        HippyLogInfo(@"[Hippy_OC_Log][Performance],Unbalanced calls start/end for tag %li", (unsigned long)tag);
     }
 }
 

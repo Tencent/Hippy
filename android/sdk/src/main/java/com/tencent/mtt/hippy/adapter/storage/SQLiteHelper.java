@@ -105,7 +105,7 @@ public class SQLiteHelper extends SQLiteOpenHelper implements IHippySQLiteHelper
 				Thread.currentThread().interrupt();
 			}
 		}
-		if (mDb == null)
+		if (mDb == null && lastSQLiteException != null)
 		{
 			throw lastSQLiteException;
 		}
@@ -129,6 +129,7 @@ public class SQLiteHelper extends SQLiteOpenHelper implements IHippySQLiteHelper
 		}
 	}
 
+	@SuppressWarnings("TryFinallyCanBeTryWithResources")
 	private void createTableIfNotExists(SQLiteDatabase db)
 	{
 		Cursor cursor = null;

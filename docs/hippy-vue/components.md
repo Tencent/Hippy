@@ -6,9 +6,16 @@
 
 # a
 
-该组件目前映射到 Text，目前主要用于在 hippy-vue-router 中进行页面跳转。
+该组件目前映射到 Text，目前主要用于在 hippy-vue-router 中进行页面跳转。 一切同 [p](hippy-vue/components.md?id=p)。
 
-一切同 [p](hippy-vue/components.md?id=p)。
+## 事件
+
+| 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
+| ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
+| touchstart  | 触屏开始事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
+| touchmove   | 触屏移动事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
+| touchend    | 触屏结束事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
+| touchcancel | 触屏取消事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
 
 # button
 
@@ -22,6 +29,10 @@
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | click       | 当按钮被点击以后调用此回调函数。  例如， `@click="clickHandler"` | `Function`                                | `ALL`    |
 | longClick   | 当按钮被长按以后调用此回调函数。  例如， `@longClick="longClickHandler"}` | `Function`                                | `ALL`    |
+| touchstart  | 触屏开始事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
+| touchmove   | 触屏移动事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
+| touchend    | 触屏结束事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
+| touchcancel | 触屏取消事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
 
 # div
 
@@ -48,14 +59,16 @@
 | layout           | 这个事件会在布局计算完成后立即调用一次，不过收到此事件时新的布局可能还没有在屏幕上呈现，尤其是一个布局动画正在进行中的时候。 | `Function`                           | `ALL`     |
 | attachedToWindow   | 这个事件会在节点已经渲染并且添加到容器组件中触发，因为 Hippy 的渲染是异步的，这是很稳妥的执行后续操作的事件。 | `Function`                           | `ALL`     |
 | focus            | 该事件在 `focusable` 置为 true 时触发，通过遥控方向键可以移动活动组件位置，事件回调带有 `isFocused` 参数用于标记激活和非激活状态 | `Function`  | `Android` |
+| touchstart  | 触屏开始事件，最低支持版本 1.3.3 | `Function`                                | `ALL`    |
+| touchmove   | 触屏移动事件，最低支持版本 1.3.3 | `Function`                                | `ALL`    |
+| touchend    | 触屏结束事件，最低支持版本 1.3.3 | `Function`                                | `ALL`    |
+| touchcancel | 触屏取消事件，最低支持版本 1.3.3 | `Function`                                | `ALL`    |
 
 # form
 
 [[范例：demo-div.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue)
 
-别的组件容器。
-
-一切同 [div](hippy-vue/components.md?id=div)。
+别的组件容器。 一切同 [div](hippy-vue/components.md?id=div)。
 
 # iframe
 
@@ -81,9 +94,8 @@
 
 图片组件，和浏览器的一样。
 
-> **注意：** 必须指定样式中的宽度和高度，否则无法工作。
-
-> **注意：** Android 端默认会带上灰底色用于图片占位，可以加上 `background-color: transparent` 样式改为透明背景。
+> * 注意: 必须指定样式中的宽度和高度，否则无法工作。
+> * 注意: Android 端默认会带上灰底色用于图片占位，可以加上 `background-color: transparent` 样式改为透明背景。
 
 ## 参数
 
@@ -101,6 +113,10 @@
 | loadEnd     | 加载结束后，不论成功还是失败，调用此回调函数。               | `Function`                                                   | `ALL`    |
 | error       | 当加载错误的时候调用此回调函数。| `Function`                                                   | `ALL`    |
 | progress       | 当加载错误的时候调用此回调函数。 | `Function`                                                   | `ALL`    |
+| touchstart  | 触屏开始事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
+| touchmove   | 触屏移动事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
+| touchend    | 触屏结束事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
+| touchcancel | 触屏取消事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
 
 # input
 
@@ -213,9 +229,16 @@
 
 [[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-p.vue)
 
-显示文本。
+显示文本。 一切同 [p](hippy-vue/components.md?id=p)。
 
-一切同 [p](hippy-vue/components.md?id=p)。
+## 事件
+
+| 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
+| ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
+| touchstart  | 触屏开始事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
+| touchmove   | 触屏移动事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
+| touchend    | 触屏结束事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
+| touchcancel | 触屏取消事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
 
 # ul
 
@@ -289,13 +312,21 @@ ul 的子节点，终端层节点回收和复用的最小颗粒度。
 
 显示文本，不过因为 Hippy 下没有 `display: inline` 的显示模式，默认全部都是 flex 的。
 
+## 事件
+
+| 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
+| ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
+| touchstart  | 触屏开始事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
+| touchmove   | 触屏移动事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
+| touchend    | 触屏结束事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
+| touchcancel | 触屏取消事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
+
 ## 参数
 
 | 参数          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | numberOfLines | 用来当文本过长的时候裁剪文本。包括折叠产生的换行在内，总的行数不会超过这个属性的限制。 | `number`                                  | `ALL`    |
 | opacity       | 配置 `View` 的透明度，同时会影响子节点的透明度。             | `number`                                  | `ALL`    |
-| onClick       | 当文本被点击以后调用此回调函数。  例如， `onClick={() => console.log('onClick') }` | `Function`                                | `ALL`    |
 | ellipsizeMode* | 当设定了 `numberOfLines` 值后，这个参数指定了字符串如何被截断。所以在使用 `ellipsizeMode` 时，必须得同时指定 `numberOfLines` 数值。 | `enum`(head, middle, tail, clip)| `Android 仅支持 tail 属性，iOS 全支持`    |
 
 * ellipsizeMode 的参数含义：
@@ -308,14 +339,19 @@ ul 的子节点，终端层节点回收和复用的最小颗粒度。
 
 [[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-p.vue)
 
-显示文本。
+显示文本。 一切同 [p](hippy-vue/components.md?id=p)。
 
-一切同 [p](hippy-vue/components.md?id=p)。
+## 事件
+
+| 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
+| ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
+| touchstart  | 触屏开始事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
+| touchmove   | 触屏移动事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
+| touchend    | 触屏结束事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
+| touchcancel | 触屏取消事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
 
 # textarea
 
 [[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-textarea.vue)
 
-多行文本输入框。
-
-一切同 [input](hippy-vue/components.md?id=input)。
+多行文本输入框。 一切同 [input](hippy-vue/components.md?id=input)。

@@ -20,6 +20,7 @@ import com.tencent.mtt.hippy.annotation.HippyMethod;
 
 import java.util.HashMap;
 
+@SuppressWarnings({"unused"})
 public class HippyNativeModuleBase
 {
 	protected final HippyEngineContext	mContext;
@@ -41,6 +42,7 @@ public class HippyNativeModuleBase
 		int count = 0;
 		if (mEventMaps.containsKey(name))
 		{
+			//noinspection ConstantConditions
 			count = mEventMaps.get(name);
 		}
 		count++;
@@ -60,7 +62,7 @@ public class HippyNativeModuleBase
 		{
 			return;
 		}
-		int count = mEventMaps.get(name);
+		@SuppressWarnings("ConstantConditions") int count = mEventMaps.get(name);
 		if (count == 1)
 		{
 			handleRemoveListener(name);

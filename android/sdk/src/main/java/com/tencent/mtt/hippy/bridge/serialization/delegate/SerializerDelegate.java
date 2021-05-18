@@ -4,13 +4,13 @@ import com.tencent.mtt.hippy.exception.UnexpectedTypeException;
 import com.tencent.mtt.hippy.runtime.builtins.JSSharedArrayBuffer;
 import com.tencent.mtt.hippy.runtime.builtins.JSValue;
 import com.tencent.mtt.hippy.runtime.builtins.wasm.WasmModule;
-import com.tencent.mtt.hippy.serialization.exception.DataCloneException;
 import com.tencent.mtt.hippy.serialization.recommend.Serializer;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@SuppressWarnings({"unused"})
 public class SerializerDelegate implements Serializer.Delegate, SerializerDelegateHost {
   private static final Map<Integer, Object> objectMap = new ConcurrentHashMap<>();
   private static final AtomicInteger nextId = new AtomicInteger(0);

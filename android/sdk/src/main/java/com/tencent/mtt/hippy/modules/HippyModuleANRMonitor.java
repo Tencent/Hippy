@@ -49,6 +49,7 @@ public class HippyModuleANRMonitor
 			this.mNeedReportBridgeANR = mEngineMonitorAdapter.needReportBridgeANR();
 			if (mNeedReportBridgeANR)
 			{
+				//noinspection unchecked,rawtypes
 				mMonitorMessages = new ConcurrentHashMap();
 			}
 		}
@@ -118,6 +119,7 @@ public class HippyModuleANRMonitor
 		}
 	}
 
+	@SuppressWarnings({"unused"})
 	static class MonitorMessage
 	{
 		private static final int									POOL_SIZE		= 20;

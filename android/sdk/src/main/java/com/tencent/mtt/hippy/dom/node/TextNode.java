@@ -40,6 +40,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings({"deprecation","unused"})
 public class TextNode extends StyleNode
 {
 
@@ -102,7 +103,7 @@ public class TextNode extends StyleNode
 	}
 
 	public void setTextView(HippyTextView view) {
-		mTextViewWeakRefrence = new WeakReference<HippyTextView>(view);
+		mTextViewWeakRefrence = new WeakReference<>(view);
 	}
 	
   public void postInvalidateDelayed(long delayMilliseconds) {
@@ -135,6 +136,7 @@ public class TextNode extends StyleNode
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@HippyControllerProps(name = NodeProps.LETTER_SPACING, defaultType = HippyControllerProps.NUMBER, defaultNumber = UNSET)
 	public void letterSpacing(float letterSpace)
 	{
@@ -145,6 +147,7 @@ public class TextNode extends StyleNode
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@HippyControllerProps(name = NodeProps.COLOR, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
 	public void color(Integer color)
 	{
@@ -157,12 +160,13 @@ public class TextNode extends StyleNode
 		return mEnableScale;
 	}
 
-
+	@SuppressWarnings("unused")
 	public Spannable getSpan()
 	{
 		return mSpanned;
 	}
 
+	@SuppressWarnings("unused")
 	@HippyControllerProps(name = NodeProps.FONT_SIZE, defaultType = HippyControllerProps.NUMBER, defaultNumber = NodeProps.FONT_SIZE_SP)
 	public void fontSize(float fontSize)
 	{
@@ -170,6 +174,7 @@ public class TextNode extends StyleNode
 		markUpdated();
 	}
 
+	@SuppressWarnings("unused")
 	@HippyControllerProps(name = NodeProps.FONT_FAMILY)
 	public void fontFamily(String fontFamily)
 	{
@@ -193,6 +198,7 @@ public class TextNode extends StyleNode
 		return wight.length() == 3 && wight.endsWith("00") && wight.charAt(0) <= '9' && wight.charAt(0) >= '1' ? 100 * (wight.charAt(0) - '0') : -1;
 	}
 
+	@SuppressWarnings("unused")
 	@HippyControllerProps(name = NodeProps.FONT_WEIGHT)
 	public void fontWeight(String wight)
 	{
@@ -202,7 +208,7 @@ public class TextNode extends StyleNode
 		{
 			fontWeight = Typeface.BOLD;
 		}
-		else if ("normal".equals(wight) || (fontWeightNumeric != -1 && fontWeightNumeric < 500))
+		else if ("normal".equals(wight) || fontWeightNumeric != -1)
 		{
 			fontWeight = Typeface.NORMAL;
 		}
@@ -213,6 +219,7 @@ public class TextNode extends StyleNode
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@HippyControllerProps(name = NodeProps.TEXT_DECORATION_LINE)
 	public void textDecorationLine(String textDecorationLineString)
 	{
@@ -235,6 +242,7 @@ public class TextNode extends StyleNode
 		markUpdated();
 	}
 
+	@SuppressWarnings("unused")
 	@HippyControllerProps(name = PROP_SHADOW_OFFSET)
 	public void textShadowOffset(HippyMap offsetMap)
 	{
@@ -255,6 +263,7 @@ public class TextNode extends StyleNode
 		markUpdated();
 	}
 
+	@SuppressWarnings("unused")
 	@HippyControllerProps(name = PROP_SHADOW_RADIUS, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
 	public void textShadowRadius(float textShadowRadius)
 	{
@@ -265,6 +274,7 @@ public class TextNode extends StyleNode
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@HippyControllerProps(name = PROP_SHADOW_COLOR, defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.TRANSPARENT)
 	public void setTextShadowColor(int textShadowColor)
 	{
@@ -275,6 +285,7 @@ public class TextNode extends StyleNode
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@HippyControllerProps(name = NodeProps.LINE_HEIGHT, defaultType = HippyControllerProps.NUMBER, defaultNumber = UNSET)
 	public void lineHeight(int lineHeight)
 	{
@@ -282,6 +293,7 @@ public class TextNode extends StyleNode
 		markUpdated();
 	}
 
+	@SuppressWarnings("unused")
 	@HippyControllerProps(name = NodeProps.TEXT_ALIGN, defaultType = HippyControllerProps.STRING, defaultString = "left")
 	public void setTextAlign(String textAlign)
 	{
@@ -312,6 +324,7 @@ public class TextNode extends StyleNode
 		markUpdated();
 	}
 
+	@SuppressWarnings("unused")
 	@HippyControllerProps(name = "text")
 	public void text(String text)
 	{
@@ -319,6 +332,7 @@ public class TextNode extends StyleNode
 		markUpdated();
 	}
 
+	@SuppressWarnings("unused")
 	@HippyControllerProps(name = NodeProps.ON_CLICK, defaultType = HippyControllerProps.BOOLEAN)
 	public void clickEnable(boolean flag)
 	{
@@ -332,6 +346,7 @@ public class TextNode extends StyleNode
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@HippyControllerProps(name = NodeProps.ON_LONG_CLICK, defaultType = HippyControllerProps.BOOLEAN)
 	public void longClickEnable(boolean flag)
 	{
@@ -345,6 +360,7 @@ public class TextNode extends StyleNode
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@HippyControllerProps(name = NodeProps.ON_PRESS_IN, defaultType = HippyControllerProps.BOOLEAN)
 	public void pressInEnable(boolean flag)
 	{
@@ -358,6 +374,7 @@ public class TextNode extends StyleNode
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@HippyControllerProps(name = NodeProps.ON_PRESS_OUT)
 	public void pressOutEnable(boolean flag)
 	{
@@ -371,6 +388,7 @@ public class TextNode extends StyleNode
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@HippyControllerProps(name = NodeProps.ON_TOUCH_DOWN, defaultType = HippyControllerProps.BOOLEAN)
 	public void touchDownEnable(boolean flag)
 	{
@@ -384,6 +402,7 @@ public class TextNode extends StyleNode
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@HippyControllerProps(name = NodeProps.ON_TOUCH_MOVE, defaultType = HippyControllerProps.BOOLEAN)
 	public void touchUpEnable(boolean flag)
 	{
@@ -397,6 +416,7 @@ public class TextNode extends StyleNode
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@HippyControllerProps(name = NodeProps.ON_TOUCH_END, defaultType = HippyControllerProps.BOOLEAN)
 	public void touchEndEnable(boolean flag)
 	{
@@ -410,6 +430,7 @@ public class TextNode extends StyleNode
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@HippyControllerProps(name = NodeProps.ON_TOUCH_CANCEL, defaultType = HippyControllerProps.BOOLEAN)
 	public void touchCancelable(boolean flag)
 	{
@@ -423,6 +444,7 @@ public class TextNode extends StyleNode
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@HippyControllerProps(name = "enableScale", defaultType = HippyControllerProps.BOOLEAN)
 	public void enableScale(boolean flag)
 	{
@@ -440,6 +462,7 @@ public class TextNode extends StyleNode
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@HippyControllerProps(name = NodeProps.NUMBER_OF_LINES, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
 	public void setNumberOfLines(int numberOfLines)
 	{
@@ -448,12 +471,14 @@ public class TextNode extends StyleNode
 	}
 
 	protected HippyFontScaleAdapter	mFontScaleAdapter;
-	
+	protected HippyEngineContext engineContext;
 	protected HippyImageLoader mImageAdapter;
 
 	@Override
 	public void layoutBefore(HippyEngineContext context) {
 		super.layoutBefore(context);
+
+		engineContext = context;
 		if (mFontScaleAdapter == null) {
 			mFontScaleAdapter = context.getGlobalConfigs().getFontScaleAdapter();
 		}
@@ -476,7 +501,7 @@ public class TextNode extends StyleNode
 		mSpanned = createSpan(mText, true);
 	}
 
-	@SuppressWarnings("EmptyMethod")
+	@SuppressWarnings({"EmptyMethod", "unused"})
 	protected void createCustomSpan(CharSequence text, Spannable spannableText) {
 
 	}
@@ -514,6 +539,7 @@ public class TextNode extends StyleNode
 
 		Drawable drawable = null;
 		if (!TextUtils.isEmpty(defaultSource) && mImageAdapter != null) {
+			assert defaultSource != null;
 			HippyDrawable hippyDrawable = mImageAdapter.getImage(defaultSource, null);
 			Bitmap bitmap = hippyDrawable.getBitmap();
 			if (bitmap != null) {
@@ -529,7 +555,7 @@ public class TextNode extends StyleNode
 		int height = Math.round(imageNode.getStyleHeight());
 		drawable.setBounds(0, 0, width, height);
 
-		HippyImageSpan imageSpan = new HippyImageSpan(drawable, url, imageNode, mImageAdapter);
+		HippyImageSpan imageSpan = new HippyImageSpan(drawable, url, imageNode, mImageAdapter, engineContext);
 		imageNode.setImageSpan(imageSpan);
 
 		int start = sb.length();
@@ -623,6 +649,7 @@ public class TextNode extends StyleNode
 							tempText = s;
 						}
 					}
+					//noinspection ConstantConditions
 					createSpanOperations(ops, sb, tempNode, tempText, useChild);
 				} else if (domNode instanceof ImageNode) {
 					createImageSpanOperation(ops, sb, (ImageNode)domNode);
@@ -637,6 +664,7 @@ public class TextNode extends StyleNode
 
 	private static final FlexNodeAPI.MeasureFunction	TEXT_MEASURE_FUNCTION	= new FlexNodeAPI.MeasureFunction()
 																				{
+																					@SuppressWarnings("rawtypes")
 																					@Override
 																					public long measure(FlexNodeAPI node, float width,
 																							FlexMeasureMode widthMode, float height,
@@ -658,6 +686,7 @@ public class TextNode extends StyleNode
 																							exception = true;
 																						}
 
+																						//noinspection ConstantConditions
 																						if (exception || layout == null)
 																						{
 																							return FlexOutput.make(width, height);
@@ -722,16 +751,17 @@ public class TextNode extends StyleNode
 				int lastLineEnd = layout.getLineEnd(mNumberOfLines - 1);
 				if (lastLineStart < lastLineEnd)
 				{
-					layout = createLayoutWithNumberOfLine(lastLineStart, lastLineEnd, layout.getWidth());
+					layout = createLayoutWithNumberOfLine(lastLineStart, layout.getWidth());
 				}
 			}
 		}
-		
+
+		assert layout != null;
 		layout.getPaint().setTextSize(mFontSize);
 		return layout;
 	}
 
-	private StaticLayout createLayoutWithNumberOfLine(int lastLineStart, int lastLineEnd, int width)
+	private StaticLayout createLayoutWithNumberOfLine(int lastLineStart, int width)
 	{
 		if (mSpanned == null)
 		{
@@ -798,6 +828,7 @@ public class TextNode extends StyleNode
 		protected final int end;
 		protected final Object	what;
 
+		@SuppressWarnings("unused")
 		SpanOperation(int start, int end, Object what)
 		{
 			this.start = start;

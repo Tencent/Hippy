@@ -21,6 +21,7 @@ import com.tencent.mtt.hippy.common.HippyMap;
  * Created by leonardgong on 2017/12/16 0016.
  */
 
+@SuppressWarnings("deprecation")
 public interface Dimensions extends HippyJavaScriptModule
 {
     void set(HippyMap dimension);

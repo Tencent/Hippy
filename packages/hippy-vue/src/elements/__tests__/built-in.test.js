@@ -33,6 +33,12 @@ test('img placeholder for base64 image', (t) => {
   t.is(url, 'base64:image/jpeg?xxxx');
 });
 
+test('img placeholder for local path image', (t) => {
+  const url = elements.img.component.attributeMaps.placeholder.propsValue('./assets/defaultImage.png');
+  // Should not be popup a warning.
+  t.is(url, './assets/defaultImage.png');
+});
+
 test('input disabled test', (t) => {
   const disabled = elements.input.component.attributeMaps.disabled.propsValue(false);
   // Should not be popup a warning.

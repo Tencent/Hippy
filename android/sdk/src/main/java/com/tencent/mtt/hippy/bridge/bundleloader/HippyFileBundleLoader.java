@@ -22,6 +22,7 @@ import com.tencent.mtt.hippy.bridge.HippyBridge;
 import com.tencent.mtt.hippy.bridge.NativeCallback;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
+@SuppressWarnings({"unused"})
 public class HippyFileBundleLoader implements HippyBundleLoader
 {
 	private static final String FILE_STR = "file://";
@@ -45,6 +46,7 @@ public class HippyFileBundleLoader implements HippyBundleLoader
 		this.mCodeCacheTag = codeCacheTag;
 	}
 
+	@SuppressWarnings("unused")
 	public void setCodeCache(boolean canUseCodeCache, String codeCacheTag)
 	{
 		this.mCanUseCodeCache = canUseCodeCache;

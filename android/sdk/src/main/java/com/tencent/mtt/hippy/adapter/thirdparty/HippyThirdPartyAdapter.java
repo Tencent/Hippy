@@ -2,6 +2,7 @@ package com.tencent.mtt.hippy.adapter.thirdparty;
 
 import org.json.JSONObject;
 
+@SuppressWarnings({"unused"})
 public abstract class HippyThirdPartyAdapter
 {
     public abstract void onRuntimeInit(long runtimeId);

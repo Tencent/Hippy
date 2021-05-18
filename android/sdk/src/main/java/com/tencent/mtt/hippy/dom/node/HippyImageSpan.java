@@ -15,6 +15,9 @@
  */
 package com.tencent.mtt.hippy.dom.node;
 
+import static com.tencent.mtt.hippy.views.image.HippyImageView.ImageEvent.ONERROR;
+import static com.tencent.mtt.hippy.views.image.HippyImageView.ImageEvent.ONLOAD;
+
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Movie;
@@ -25,41 +28,46 @@ import android.text.TextUtils;
 import android.text.style.DynamicDrawableSpan;
 import android.text.style.ImageSpan;
 
+import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.adapter.image.HippyDrawable;
 import com.tencent.mtt.hippy.adapter.image.HippyImageLoader;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.flex.FlexSpacing;
+import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.utils.UrlUtils;
 
+import com.tencent.mtt.hippy.views.image.HippyImageView.ImageEvent;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 
+@SuppressWarnings("deprecation")
 public class HippyImageSpan extends ImageSpan {
+    public final static int STATE_UNLOAD = 0;
+    public final static int STATE_LOADING = 1;
+    public final static int STATE_LOADED = 2;
+
     private int mLeft;
     private int mTop;
     private int mWidth;
     private int mHeight;
     private String mUrl;
     private final WeakReference<ImageNode> mImageNodeWeakRefrence;
-    //private int mImageLoadState = 0;
+    private int mImageLoadState = STATE_UNLOAD;
     private int mVerticalAlignment;
     private final HippyImageLoader mImageAdapter;
-
+    private final HippyEngineContext engineContext;
     private Movie mGifMovie = null;
     private int mGifProgress = 0;
     private long mGifLastPlayTime = -1;
 
     public HippyImageSpan(Drawable d, String source, ImageNode node,
-            HippyImageLoader imageAdapter) {
+            HippyImageLoader imageAdapter, HippyEngineContext context) {
         super(d, source, node.getVerticalAlignment());
-
-        mImageNodeWeakRefrence = new WeakReference<ImageNode>(node);
+        engineContext = context;
+        mImageNodeWeakRefrence = new WeakReference<>(node);
         mImageAdapter = imageAdapter;
-
-        if(!TextUtils.isEmpty(source)) {
-            setUrl(source);
-        }
+        setUrl(source);
     }
 
     private void updateBoundsAttribute() {
@@ -87,8 +95,12 @@ public class HippyImageSpan extends ImageSpan {
     }
 
     private void loadImageWithUrl(String url) {
+        if (!TextUtils.isEmpty(mUrl) && mUrl.equals(url) && mImageLoadState != STATE_UNLOAD) {
+            return;
+        }
+
         mUrl = url;
-        //mImageLoadState = STATE_UNLOAD;
+        mImageLoadState = STATE_UNLOAD;
 
         updateBoundsAttribute();
 
@@ -108,6 +120,10 @@ public class HippyImageSpan extends ImageSpan {
     }
 
     public void setUrl(final String url) {
+        if (TextUtils.isEmpty(url)) {
+            return;
+        }
+
         if (UIThreadUtils.isOnUiThread()) {
             loadImageWithUrl(url);
         } else {
@@ -214,22 +230,48 @@ public class HippyImageSpan extends ImageSpan {
                     mDrawableRefField = DynamicDrawableSpan.class.getDeclaredField("mDrawableRef");
                     mDrawableRefField.setAccessible(true);
                     mDrawableRefField.set(HippyImageSpan.this, null);
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                } catch (NoSuchFieldException e) {
+                } catch (IllegalAccessException | NoSuchFieldException e) {
                     e.printStackTrace();
                 }
+
+                mImageLoadState = STATE_LOADED;
             } else if (hippyDrawable.isAnimated()) {
                 mGifMovie = hippyDrawable.getGIF();
+                mImageLoadState = STATE_LOADED;
+            } else {
+                mImageLoadState = STATE_UNLOAD;
             }
-
             postInvalidateDelayed(0);
-            //mImageLoadState = STATE_LOADED;
+        } else {
+            mImageLoadState = STATE_UNLOAD;
+        }
+    }
+
+    private void sendImageLoadEvent(ImageEvent eventType) {
+        if (mImageNodeWeakRefrence == null) {
+            return;
+        }
+
+        ImageNode node = mImageNodeWeakRefrence.get();
+        if (node == null) {
+            return;
+        }
+
+        String eventName = null;
+        if (eventType == ONLOAD) {
+            eventName = "onLoad";
+        } else if (eventType == ONERROR) {
+            eventName = "onError";
+        }
+
+        if (!TextUtils.isEmpty(eventName) && node.isEnableImageEvent(eventType)) {
+            HippyViewEvent event = new HippyViewEvent(eventName);
+            event.send(node.getId(), engineContext, null);
         }
     }
 
     private void doFetchImage(String url, HippyMap props, HippyImageLoader imageAdapter) {
-        //mImageLoadState = STATE_LOADING;
+        mImageLoadState = STATE_LOADING;
 
         imageAdapter.fetchImage(url, new HippyImageLoader.Callback() {
             @Override
@@ -239,11 +281,13 @@ public class HippyImageSpan extends ImageSpan {
             @Override
             public void onRequestSuccess(HippyDrawable hippyDrawable) {
                 shouldReplaceDrawable(hippyDrawable);
+                sendImageLoadEvent(ONLOAD);
             }
 
             @Override
             public void onRequestFail(Throwable throwable, String source) {
-                //mImageLoadState = STATE_UNLOAD;
+                mImageLoadState = STATE_UNLOAD;
+                sendImageLoadEvent(ONERROR);
             }
         }, props);
     }

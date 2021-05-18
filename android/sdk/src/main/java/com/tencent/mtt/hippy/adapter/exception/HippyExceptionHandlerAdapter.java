@@ -17,10 +17,12 @@ package com.tencent.mtt.hippy.adapter.exception;
 
 import com.tencent.mtt.hippy.common.HippyJsException;
 
+@SuppressWarnings("deprecation")
 public interface HippyExceptionHandlerAdapter
 {
 	void handleJsException(HippyJsException exception);
 
+	@SuppressWarnings("unused")
 	void handleNativeException(Exception exception,boolean haveCaught);
 
 	void handleBackgroundTracing(String details);

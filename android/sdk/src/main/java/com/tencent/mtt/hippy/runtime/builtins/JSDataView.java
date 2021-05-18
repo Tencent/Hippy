@@ -20,6 +20,7 @@ import android.support.annotation.NonNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+@SuppressWarnings({"unused"})
 public class JSDataView<T extends JSArrayBuffer> extends JSObject {
   public enum DataViewKind {
     INT8_ARRAY, // kInt8Array

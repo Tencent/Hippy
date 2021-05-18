@@ -21,9 +21,7 @@ import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import android.content.Context;
 import android.view.View;
 
-/**
- * Created by ceasoncai on 2017/12/15.
- */
+@SuppressWarnings({"unused"})
 @HippyController(name = HippyViewPagerItemController.CLASS_NAME)
 public class HippyViewPagerItemController extends HippyViewController<HippyViewPagerItem>
 {

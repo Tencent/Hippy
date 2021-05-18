@@ -55,10 +55,11 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"deprecation", "unused", "rawtypes"})
 public abstract class HippyEngine
 {
 	private static final AtomicInteger		    sIdCounter			= new AtomicInteger();
+	@SuppressWarnings("unchecked")
 	final CopyOnWriteArrayList<EngineListener>	mEventListeners	    = new CopyOnWriteArrayList();
 	volatile EngineState					    mCurrentState 		= EngineState.UNINIT;
 	// Engine的ID，唯一
@@ -76,6 +77,7 @@ public abstract class HippyEngine
 			initLogger(handler);
 		}
 	}
+	@SuppressWarnings("JavaJniMissingFunction")
 	private static native void initLogger(HippyCLogHandler handler);
 
 	/**
@@ -170,6 +172,7 @@ public abstract class HippyEngine
 	 * destroy the hippy engine
 	 * All hippy instance will be destroyed
 	 */
+	@SuppressWarnings("EmptyMethod")
 	public abstract void destroyEngine();
 
 	/**
@@ -198,10 +201,6 @@ public abstract class HippyEngine
 
 	public abstract void sendEvent(String event, Object params, BridgeTransferType transferType);
 
-	/**
-	 * 预加载业务模块
-	 * @param loader
-	 */
 	public abstract void preloadModule(HippyBundleLoader loader);
 
 	public abstract boolean onBackPressed(BackPressHandler handler);
@@ -224,7 +223,8 @@ public abstract class HippyEngine
 	}
 
 	// Hippy 引擎初始化时的参数设置
-	public static class EngineInitParams
+	@SuppressWarnings("deprecation")
+    public static class EngineInitParams
 	{
 		// 必须 宿主（Hippy的使用者）的Context
 		public Context context;
@@ -247,8 +247,8 @@ public abstract class HippyEngine
 		public String debugServerHost = "localhost:38989";
 		// 可选参数 自定义的，用来提供Native modules、JavaScript modules、View controllers的管理器。1个或多个
 		public List<HippyAPIProvider> providers;
-		// 可选参数 是否允许Hippy启用底层buffer。默认为true
-		public boolean enableBuffer = true;
+		//Optional  is use V8 serialization or json
+		public boolean enableV8Serialization = true;
 		// 可选参数 是否打印引擎的完整的log。默认为false
 		public boolean enableLog = false;
 		// 可选参数 code cache的名字，如果设置为空，则不启用code cache，默认为 ""
@@ -320,7 +320,8 @@ public abstract class HippyEngine
 	}
 
 	// Hippy 业务模块jsbundle加载时的参数设置
-	public static class ModuleLoadParams
+	@SuppressWarnings("deprecation")
+    public static class ModuleLoadParams
 	{
 		// 必须参数 挂载HippyRootView的Activity or Dialog的Context。注意，只有Context为当前Activity时，调试模式才能使用
 		public Context context;
@@ -442,6 +443,7 @@ public abstract class HippyEngine
 	public interface ModuleListener {
 		void onLoadCompleted(ModuleLoadStatus statusCode, String msg, HippyRootView hippyRootView);
 
+		@SuppressWarnings("SameReturnValue")
 		boolean onJsException(HippyJsException exception);
 	}
 }

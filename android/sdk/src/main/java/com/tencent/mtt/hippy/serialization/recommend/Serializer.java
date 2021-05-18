@@ -53,6 +53,7 @@ import java.util.Set;
 /**
  * Implementation of {@code v8::(internal::)ValueSerializer}.
  */
+@SuppressWarnings({"unused"})
 public class Serializer extends PrimitiveValueSerializer {
   public interface Delegate {
     /**
@@ -63,6 +64,7 @@ public class Serializer extends PrimitiveValueSerializer {
      * @param object host object
      * @return whether the serialization is successful
      */
+    @SuppressWarnings("SameReturnValue")
     boolean writeHostObject(Serializer serializer, Object object);
 
     /**

@@ -4,7 +4,7 @@ import android.util.Log;
 import com.tencent.mtt.hippy.adapter.exception.HippyExceptionHandlerAdapter;
 import com.tencent.mtt.hippy.common.HippyJsException;
 
-@SuppressWarnings("DeprecatedIsStillUsed")
+@SuppressWarnings({"DeprecatedIsStillUsed", "deprecation", "unused"})
 @Deprecated
 public class MyExceptionHandler implements HippyExceptionHandlerAdapter {
     @Override

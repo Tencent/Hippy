@@ -20,6 +20,7 @@ import android.view.KeyEvent;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
+@SuppressWarnings({"unused"})
 class HippyWebViewInner extends WebView {
 	public HippyWebViewInner(Context context)
 	{

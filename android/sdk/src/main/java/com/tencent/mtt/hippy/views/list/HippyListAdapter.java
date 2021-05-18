@@ -32,13 +32,15 @@ import com.tencent.mtt.supportui.views.recyclerview.*;
 
 import java.util.ArrayList;
 
+@SuppressWarnings("deprecation")
 public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTypeChange
 {
 
 	protected final HippyEngineContext	mHippyContext;
 	private RecyclerViewBase.Recycler	mRecycler;
-	private OnEndReachedEvent			mOnEndReachedEvent;
-	private static final String			TAG	= "HippyListAdapter";
+	private HippyViewEvent			    onEndReachedEvent;
+	private HippyViewEvent			    onLoadMoreEvent;
+	// --Commented out by Inspection (2021/5/4 20:54):private static final String			TAG	= "HippyListAdapter";
 	// harryguo: 给hippy sdk提供API：设置提前预加载的条目数量，默认为0
 	private int						mPreloadItemNum = 0;
 
@@ -597,10 +599,9 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
 	}
 
 	@Override
-	public void notifyEndReached()
-	{
-		// send onEndReached message here
+	public void notifyEndReached() {
 		getOnEndReachedEvent().send(mParentRecyclerView, null);
+		getOnLoadMoreEvent().send(mParentRecyclerView, null);
 	}
 
 	@Override
@@ -612,6 +613,7 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
 	@Override
 	public void onPreload() {
 		getOnEndReachedEvent().send(mParentRecyclerView, null);
+		getOnLoadMoreEvent().send(mParentRecyclerView, null);
 	}
 
 	protected void setPreloadItemNumber(int preloadItemNum)
@@ -619,20 +621,17 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
 		mPreloadItemNum = preloadItemNum;
 	}
 
-	protected OnEndReachedEvent getOnEndReachedEvent()
-	{
-		if (mOnEndReachedEvent == null)
-		{
-			mOnEndReachedEvent = new OnEndReachedEvent("onLoadMore");
+	protected HippyViewEvent getOnEndReachedEvent() {
+		if (onEndReachedEvent == null) {
+			onEndReachedEvent = new HippyViewEvent("onEndReached");
 		}
-		return mOnEndReachedEvent;
+		return onEndReachedEvent;
 	}
 
-	protected class OnEndReachedEvent extends HippyViewEvent
-	{
-		public OnEndReachedEvent(String eventName)
-		{
-			super(eventName);
+	protected HippyViewEvent getOnLoadMoreEvent() {
+		if (onLoadMoreEvent == null) {
+			onLoadMoreEvent = new HippyViewEvent("onLoadMore");
 		}
+		return onLoadMoreEvent;
 	}
 }

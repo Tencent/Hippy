@@ -30,6 +30,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+@SuppressWarnings({"unused"})
 public abstract class JSValue implements Cloneable, JSONDump {
   // region is-op
   public static boolean is(Object value) {
@@ -40,14 +41,17 @@ public abstract class JSValue implements Cloneable, JSONDump {
     return this instanceof JSOddball;
   }
 
+  @SuppressWarnings("RedundantCast")
   public boolean isUndefined() {
     return isOddball() && ((JSOddball) this).isUndefined();
   }
 
+  @SuppressWarnings("RedundantCast")
   public boolean isNull() {
     return isOddball() && ((JSOddball) this).isNull();
   }
 
+  @SuppressWarnings("RedundantCast")
   public boolean isHole() {
     return isOddball() && ((JSOddball) this).isHole();
   }

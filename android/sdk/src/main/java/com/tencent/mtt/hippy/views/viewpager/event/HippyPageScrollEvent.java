@@ -20,10 +20,7 @@ import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 
 import android.view.View;
 
-/**
- * Created by huskyzhyu on 2017/12/15.
- */
-
+@SuppressWarnings("deprecation")
 public class HippyPageScrollEvent extends HippyViewEvent
 {
 	public static final String EVENT_NAME	= "onPageScroll";

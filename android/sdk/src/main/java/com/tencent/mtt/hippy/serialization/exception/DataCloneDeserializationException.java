@@ -16,6 +16,7 @@
 package com.tencent.mtt.hippy.serialization.exception;
 
 public class DataCloneDeserializationException extends RuntimeException {
+  @SuppressWarnings("unused")
   public DataCloneDeserializationException() {
     super("Unable to deserialize cloned data");
   }

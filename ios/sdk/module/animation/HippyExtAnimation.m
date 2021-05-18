@@ -152,11 +152,11 @@
     // timing function
     if (config[@"timingFunction"]) {
         NSString *timingFunction = config[@"timingFunction"];
-        if ([timingFunction isEqualToString:@"easeIn"]) {
+        if ([timingFunction isEqualToString:@"ease-in"]) {
             _timingFunction = kCAMediaTimingFunctionEaseIn;
-        } else if ([timingFunction isEqualToString:@"easeOut"]) {
+        } else if ([timingFunction isEqualToString:@"ease-out"]) {
             _timingFunction = kCAMediaTimingFunctionEaseOut;
-        } else if ([timingFunction isEqualToString:@"easeInOut"]) {
+        } else if ([timingFunction isEqualToString:@"ease-in-out"]) {
             _timingFunction = kCAMediaTimingFunctionEaseInEaseOut;
         } else if ([timingFunction isEqualToString:@"linear"]) {
             _timingFunction = kCAMediaTimingFunctionLinear;

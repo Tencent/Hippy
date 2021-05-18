@@ -32,6 +32,7 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+@SuppressWarnings("deprecation")
 public class DimensionsUtil
 {
 	private static final String NAV_BAR_HEIGHT_RES_NAME = "navigation_bar_height";
@@ -69,8 +70,8 @@ public class DimensionsUtil
 			checkResult = rs.getBoolean(id);
 		}
 		try {
-			Class systemPropertiesClass = Class.forName("android.os.SystemProperties");
-			Method m = systemPropertiesClass.getMethod("get", String.class);
+			@SuppressWarnings("rawtypes") Class systemPropertiesClass = Class.forName("android.os.SystemProperties");
+			@SuppressWarnings("unchecked") Method m = systemPropertiesClass.getMethod("get", String.class);
 			String navBarOverride = (String) m.invoke(systemPropertiesClass, "qemu.hw.mainkeys");
 			//判断是否隐藏了底部虚拟导航
 			int navigationBarIsMin;
@@ -107,6 +108,7 @@ public class DimensionsUtil
 	public static int getNavigationBarHeight(Context context) {
 		assert(context != null);
 
+		//noinspection ConstantConditions
 		if(context == null || !checkNavigationBarShow(context)){
 			return 0;
 		}
@@ -163,6 +165,7 @@ public class DimensionsUtil
 				c = Class.forName("com.android.internal.R$dimen");
 				obj = c.newInstance();
 				field = c.getField("status_bar_height");
+				//noinspection ConstantConditions
 				x = Integer.parseInt(field.get(obj).toString());
 				STATUS_BAR_HEIGHT = context.getResources().getDimensionPixelSize(x);
 			} catch (Exception e) {

@@ -27,7 +27,7 @@ import java.util.Set;
 /**
  * Implementation of {@code v8::(internal::)ValueSerializer}.
  */
-@SuppressWarnings("deprecation")
+@SuppressWarnings({"deprecation","unused"})
 public class Serializer extends PrimitiveValueSerializer {
   public Serializer() {
     super(null);
@@ -73,7 +73,11 @@ public class Serializer extends PrimitiveValueSerializer {
     writeTag(SerializationTag.BEGIN_JS_OBJECT);
     Set<String> keys = value.keySet();
     for (String key : keys) {
-      writeString(key);
+      if (key == Null) {
+        writeString("null");
+      } else {
+        writeString(key);
+      }
       writeValue(value.get(key));
     }
     writeTag(SerializationTag.END_JS_OBJECT);

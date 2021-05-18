@@ -16,6 +16,7 @@ public class ByteBufferInputStream extends InputStream {
 	private final ByteBuffer byteBuffer;
 	private int markPos = -1;
 
+	@SuppressWarnings("unused")
 	ByteBufferInputStream(ByteBuffer byteBuffer) {
 		this.byteBuffer = byteBuffer;
 		byteBuffer.flip();
@@ -37,7 +38,7 @@ public class ByteBufferInputStream extends InputStream {
 		return true;
 	}
 
-	public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
+	public int read(byte[] buffer, int byteOffset, int byteCount) {
 		if (!this.byteBuffer.hasRemaining()) {
 			return -1;
 		} else {
@@ -55,11 +56,11 @@ public class ByteBufferInputStream extends InputStream {
 		}
 	}
 
-	public long skip(long byteCount) throws IOException {
+	public long skip(long byteCount) {
 		if (!this.byteBuffer.hasRemaining()) {
 			return -1L;
 		} else {
-			long toSkip = Math.min(byteCount, (long)this.available());
+			long toSkip = Math.min(byteCount, this.available());
 			this.byteBuffer.position((int)((long)this.byteBuffer.position() + toSkip));
 			return toSkip;
 		}

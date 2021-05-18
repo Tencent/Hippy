@@ -36,6 +36,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+@SuppressWarnings({"deprecation", "unused"})
 @HippyNativeModule(name = "AnimationModule", thread = HippyNativeModule.Thread.DOM)
 public class AnimationModule extends HippyNativeModuleBase implements DomActionInterceptor, Animation.AnimationListener, Handler.Callback,
 		HippyEngineLifecycleEventListener
@@ -163,10 +164,7 @@ public class AnimationModule extends HippyNativeModuleBase implements DomActionI
 			return;
 		}
 
-		for (int nodeId : nodeIds)
-		{
-			mNeedUpdateAnimationNodes.add(nodeId);
-		}
+		mNeedUpdateAnimationNodes.addAll(nodeIds);
 
 		if (!mHandler.hasMessages(MSG_CHANGE_ANIMATION_STATUS))
 		{

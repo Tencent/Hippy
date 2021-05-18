@@ -25,6 +25,7 @@ import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 
+@SuppressWarnings({"deprecation","unused"})
 @HippyController(name = HippyWebViewController.CLASS_NAME)
 public class HippyWebViewController extends HippyViewController<HippyWebView>
 {

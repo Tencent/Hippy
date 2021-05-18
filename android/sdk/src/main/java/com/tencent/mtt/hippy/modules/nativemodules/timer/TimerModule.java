@@ -29,11 +29,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-/**
- * FileName: HippyTimerModule
- * Description：
- * History：
- */
+@SuppressWarnings({"unused"})
 @HippyNativeModule(name = "TimerModule")
 public class TimerModule extends HippyNativeModuleBase implements Handler.Callback, HippyEngineLifecycleEventListener
 {
@@ -65,6 +61,7 @@ public class TimerModule extends HippyNativeModuleBase implements Handler.Callba
 		super.destroy();
 	}
 
+	@SuppressWarnings("unused")
 	@HippyMethod(name = "setTimeout")
 	public void setTimeout(int timeOut, String callId, Promise promise)
 	{
@@ -73,6 +70,7 @@ public class TimerModule extends HippyNativeModuleBase implements Handler.Callba
 		checkHandlerCallback(timer);
 	}
 
+	@SuppressWarnings("unused")
 	@HippyMethod(name = "clearTimeout")
 	public void clearTimeout(String callId)
 	{
@@ -80,6 +78,7 @@ public class TimerModule extends HippyNativeModuleBase implements Handler.Callba
 		checkHandlerCallback(null);
 	}
 
+	@SuppressWarnings("unused")
 	@HippyMethod(name = "setInterval")
 	public void setInterval(int interval, String callId, Promise promise)
 	{
@@ -88,6 +87,7 @@ public class TimerModule extends HippyNativeModuleBase implements Handler.Callba
 		checkHandlerCallback(timer);
 	}
 
+	@SuppressWarnings("unused")
 	@HippyMethod(name = "clearInterval")
 	public void clearInterval(String callId)
 	{
@@ -219,6 +219,7 @@ public class TimerModule extends HippyNativeModuleBase implements Handler.Callba
 		return false;
 	}
 
+	@SuppressWarnings("unused")
 	private static class Timer
 	{
 

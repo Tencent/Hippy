@@ -39,7 +39,6 @@ import com.tencent.mtt.hippy.modules.nativemodules.uimanager.UIManagerModule;
 import com.tencent.mtt.hippy.modules.nativemodules.utils.UtilsModule;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.utils.LogUtils;
-import com.tencent.mtt.hippy.views.audioview.AudioViewController;
 import com.tencent.mtt.hippy.views.custom.HippyCustomPropsController;
 import com.tencent.mtt.hippy.views.image.HippyImageViewController;
 import com.tencent.mtt.hippy.views.list.HippyListItemViewController;
@@ -63,10 +62,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings({"unused", "rawtypes"})
 public class HippyCoreAPI implements HippyAPIProvider
 {
-	public final static String VIDEO_CONTROLLER_CLASS_NAME = "com.tencent.mtt.hippy.views.videoview.VideoHippyViewController";
-
 	@Override
 	public Map<Class<? extends HippyNativeModuleBase>, Provider<? extends HippyNativeModuleBase>> getNativeModules(final HippyEngineContext context)
 	{
@@ -223,10 +221,8 @@ public class HippyCoreAPI implements HippyAPIProvider
 		components.add(HippyPullFooterViewController.class);
 		components.add(NavigatorController.class);
 		components.add(HippyWebViewController.class);
-		components.add(AudioViewController.class);
 		components.add(HippyCustomPropsController.class);
 
-		addControllerWithClassName(VIDEO_CONTROLLER_CLASS_NAME, components);
 		return components;
 	}
 
@@ -234,6 +230,7 @@ public class HippyCoreAPI implements HippyAPIProvider
 	private void addControllerWithClassName(String className, List<Class<? extends HippyViewController>> components) {
 		try {
 			Class videoControllerClass = Class.forName(className);
+			//noinspection unchecked
 			components.add(videoControllerClass);
 		} catch (ClassNotFoundException ignore) {
 			LogUtils.d("HippyCoreAPI", "not contain video component, make sure current project config!");

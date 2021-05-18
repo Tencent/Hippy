@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy.dom.node;
 
+@SuppressWarnings({"unused"})
 public class TextExtra
 {
 	public final Object	mExtra;

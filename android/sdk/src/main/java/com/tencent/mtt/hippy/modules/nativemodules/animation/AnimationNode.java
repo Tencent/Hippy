@@ -20,6 +20,7 @@ import com.tencent.mtt.hippy.common.HippyMap;
 
 import java.util.ArrayList;
 
+@SuppressWarnings("deprecation")
 public class AnimationNode
 {
 	private final int mTagId;

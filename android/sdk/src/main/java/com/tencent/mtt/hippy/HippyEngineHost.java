@@ -21,6 +21,7 @@ import com.tencent.mtt.hippy.utils.ContextHolder;
 
 import java.util.List;
 
+@SuppressWarnings({"deprecation","unused"})
 @Deprecated
 public abstract class HippyEngineHost
 {

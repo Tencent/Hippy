@@ -21,6 +21,7 @@ import com.tencent.mtt.hippy.runtime.builtins.JSValue;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+@SuppressWarnings({"unused"})
 public class WasmMemory extends JSValue {
   private final JSSharedArrayBuffer buffer;
   private final long maximumPages;

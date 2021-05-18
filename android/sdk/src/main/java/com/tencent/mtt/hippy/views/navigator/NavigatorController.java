@@ -29,6 +29,7 @@ import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyGroupController;
 
+@SuppressWarnings({"deprecation","unused"})
 @HippyController(name = NavigatorController.CLASS)
 public class NavigatorController extends HippyGroupController<Navigator>
 {

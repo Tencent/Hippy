@@ -2,6 +2,7 @@ package com.tencent.mtt.hippy.views.scroll;
 
 import com.tencent.mtt.hippy.common.HippyMap;
 
+@SuppressWarnings("deprecation")
 public interface HippyScrollView
 {
 	void setScrollEnabled(boolean enabled);

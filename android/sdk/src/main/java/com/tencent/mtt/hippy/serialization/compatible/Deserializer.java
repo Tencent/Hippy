@@ -33,8 +33,9 @@ import java.math.BigInteger;
 /**
  * Compatible with {@code com.tencent.mtt.hippy.common.HippyMap}
  */
-@SuppressWarnings("deprecation")
+@SuppressWarnings({"unused", "deprecation"})
 public class Deserializer extends PrimitiveValueDeserializer {
+
   public Deserializer(BinaryReader reader) {
     this(reader, null);
   }
@@ -136,9 +137,13 @@ public class Deserializer extends PrimitiveValueDeserializer {
         if (key instanceof Number) {
           object.pushObject(String.valueOf(key), value);
         } else if (key instanceof String) {
-          object.pushObject((String) key, value);
+          if (key == "null") {
+            object.pushObject(null, value);
+          } else {
+            object.pushObject((String) key, value);
+          }
         } else {
-          throw new AssertionError("Object key is not of String nor Number type");
+          throw new AssertionError("Object key is not of String(null) nor Number type");
         }
       }
     }
@@ -157,7 +162,11 @@ public class Deserializer extends PrimitiveValueDeserializer {
       key = key.toString();
       Object value = readValue(StringLocation.MAP_VALUE, key);
       if (value != Undefined) {
-        object.pushObject((String) key, value);
+        if (key == "null") {
+          object.pushObject(null, value);
+        } else {
+          object.pushObject((String) key, value);
+        }
       }
     }
     int expected = (int) reader.getVarint();

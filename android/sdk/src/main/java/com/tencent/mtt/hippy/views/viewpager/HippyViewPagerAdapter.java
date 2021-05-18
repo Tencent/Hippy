@@ -24,15 +24,12 @@ import com.tencent.mtt.supportui.views.viewpager.ViewPagerAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by ceasoncai on 2017/12/15.
- */
-
+@SuppressWarnings({"unused"})
 public class HippyViewPagerAdapter extends ViewPagerAdapter
 {
 	private static final String		TAG				= "HippyViewPagerAdapter";
 
-	protected final List<View>		mViews			= new ArrayList<View>();
+	protected final List<View>		mViews			= new ArrayList<>();
 
 	private int						mChildSize		= 0;
 
@@ -99,7 +96,7 @@ public class HippyViewPagerAdapter extends ViewPagerAdapter
 
 	protected View getViewAt(int index)
 	{
-		if (mViews == null || index < 0 || index >= mViews.size())
+		if (index < 0 || index >= mViews.size())
 		{
 			return null;
 		}
@@ -108,7 +105,7 @@ public class HippyViewPagerAdapter extends ViewPagerAdapter
 
 	protected int getItemViewSize()
 	{
-		return mViews == null ? 0 : mViews.size();
+		return mViews.size();
 	}
 
 	@Override
@@ -120,11 +117,11 @@ public class HippyViewPagerAdapter extends ViewPagerAdapter
 	@Override
 	public int getItemPosition(Object object)
 	{
-		if (mViews == null || mViews.isEmpty())
+		if (mViews.isEmpty())
 		{
 			return POSITION_NONE;
 		}
-		int index = mViews.indexOf(object);
+		@SuppressWarnings("SuspiciousMethodCalls") int index = mViews.indexOf(object);
 		if (index < 0)
 		{
 			return POSITION_NONE;
@@ -136,7 +133,7 @@ public class HippyViewPagerAdapter extends ViewPagerAdapter
 	public Object instantiateItem(ViewGroup container, int position)
 	{
 		View viewWrapper = null;
-		if (mViews != null && position < mViews.size())
+		if (position < mViews.size())
 		{
 			viewWrapper = mViews.get(position);
 		}
@@ -166,11 +163,8 @@ public class HippyViewPagerAdapter extends ViewPagerAdapter
 		if (object instanceof View)
 		{
 			View view = (View) object;
-			if (view != null)
-			{
-				view.layout(0, 0, 0, 0);
-				container.removeView(view);
-			}
+			view.layout(0, 0, 0, 0);
+			container.removeView(view);
 		}
 
 	}

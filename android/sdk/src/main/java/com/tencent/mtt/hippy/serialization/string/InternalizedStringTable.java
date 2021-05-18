@@ -27,6 +27,7 @@ import java.util.HashMap;
 /**
  * Internalized string pool implement, it will store string objects.
  */
+@SuppressWarnings({"unused"})
 public class InternalizedStringTable extends DirectStringTable {
   // region key
   private static final int MAX_KEY_CALC_LENGTH	= 32;

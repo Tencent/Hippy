@@ -15,11 +15,7 @@
  */
 package com.tencent.mtt.hippy.adapter.http;
 
-/**
- * FileName: HttpHeader
- * Description：
- * History：
- */
+@SuppressWarnings({"unused"})
 public class HttpHeader
 {
 

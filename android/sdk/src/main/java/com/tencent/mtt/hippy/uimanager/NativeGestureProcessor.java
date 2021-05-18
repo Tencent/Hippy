@@ -23,6 +23,7 @@ import android.view.ViewConfiguration;
 
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 
+@SuppressWarnings({"deprecation", "unused"})
 public class NativeGestureProcessor
 {
 

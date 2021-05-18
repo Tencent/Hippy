@@ -43,6 +43,7 @@ import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
 import java.lang.reflect.Field;
 import java.util.List;
 
+@SuppressWarnings({"deprecation", "unchecked", "rawtypes", "unused"})
 public class ControllerManager implements HippyInstanceLifecycleEventListener
 {
 
@@ -72,6 +73,7 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener
 				for (Class hippyComponent : components)
 				{
 					HippyController hippyNativeModule = (HippyController) hippyComponent.getAnnotation(HippyController.class);
+					assert hippyNativeModule != null;
 					String name = hippyNativeModule.name();
 					String[] names = hippyNativeModule.names();
 					boolean lazy = hippyNativeModule.isLazyLoad();
@@ -79,17 +81,13 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener
 					{
 						ControllerHolder holder = new ControllerHolder((HippyViewController) hippyComponent.newInstance(), lazy);
 						mControllerRegistry.addControllerHolder(name, holder);
-						if (names != null && names.length > 0) {
-							for (int i = 0; i < names.length; i++) {
-								mControllerRegistry.addControllerHolder(names[i], holder);
+						if (names.length > 0) {
+							for (String s : names) {
+								mControllerRegistry.addControllerHolder(s, holder);
 							}
 						}
 					}
-					catch (InstantiationException e)
-					{
-						e.printStackTrace();
-					}
-					catch (IllegalAccessException e)
+					catch (InstantiationException | IllegalAccessException e)
 					{
 						e.printStackTrace();
 					}
@@ -337,15 +335,12 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener
 		}
 		HippyViewController hippyChildViewController = null;
 		String childTagString = HippyTag.getClassName(child);
-		if (childTagString instanceof String)
+		if (!TextUtils.isEmpty(childTagString))
 		{
-			if (!TextUtils.isEmpty(childTagString))
+			hippyChildViewController = mControllerRegistry.getViewController(childTagString);
+			if (hippyChildViewController != null)
 			{
-				hippyChildViewController = mControllerRegistry.getViewController(childTagString);
-				if (hippyChildViewController != null)
-				{
-					hippyChildViewController.onViewDestroy(child);
-				}
+				hippyChildViewController.onViewDestroy(child);
 			}
 		}
 
@@ -374,7 +369,7 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener
 		}
 
 		String parentTagString = HippyTag.getClassName(viewParent);
-		if (parentTagString instanceof String)
+		if (parentTagString != null)
 		{
 			//remove component Like listView there is a RecycleItemView is not js UI
 			if (mControllerRegistry.getControllerHolder(parentTagString) != null)
@@ -431,6 +426,7 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener
 			c = Class.forName("com.android.internal.R$dimen");
 			obj = c.newInstance();
 			field = c.getField("status_bar_height");
+			//noinspection ConstantConditions
 			x = Integer.parseInt(field.get(obj).toString());
 			statusBarHeight = ContextHolder.getAppContext().getResources().getDimensionPixelSize(x);
 		}

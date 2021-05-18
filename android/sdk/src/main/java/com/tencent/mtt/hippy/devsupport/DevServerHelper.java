@@ -24,13 +24,14 @@ import com.tencent.mtt.hippy.adapter.http.HippyHttpResponse;
 import java.io.*;
 import java.util.Locale;
 
+@SuppressWarnings({"unused"})
 public class DevServerHelper
 {
 	private static final String	BUNDLE_URL_FORMAT						= "http://%s/%s?platform=android&dev=%s&hot=%s&minify=%s";
-	private static final String	LAUNCH_JS_DEVTOOLS_COMMAND_URL_FORMAT	= "http://%s/launch-js-devtools";
-	private static final String	WEBSOCKET_PROXY_URL_FORMAT				= "ws://%s/debugger-proxy?role=client";
+	// --Commented out by Inspection (2021/5/4 20:09):private static final String	LAUNCH_JS_DEVTOOLS_COMMAND_URL_FORMAT	= "http://%s/launch-js-devtools";
+	// --Commented out by Inspection (2021/5/4 20:10):private static final String	WEBSOCKET_PROXY_URL_FORMAT				= "ws://%s/debugger-proxy?role=client";
 	private static final String	WEBSOCKET_LIVERELOAD_URL_FORMAT			= "ws://%s/debugger-live-reload";
-	private static final String	ONCHANGE_ENDPOINT_URL_FORMAT			= "http://%s/onchange";
+	// --Commented out by Inspection (2021/5/4 20:10):private static final String	ONCHANGE_ENDPOINT_URL_FORMAT			= "http://%s/onchange";
 
 	private final HippyGlobalConfigs	mGlobalConfigs;
 	private final String				mServerHost;
@@ -69,7 +70,7 @@ public class DevServerHelper
 					String message = "unknown";
 					if (response.getErrorStream() != null)
 					{
-						StringBuffer sb = new StringBuffer();
+						StringBuilder sb = new StringBuilder();
 						String readLine;
 						//noinspection CharsetObjectCanBeUsed
 						BufferedReader bfReader = new BufferedReader(new InputStreamReader(response.getErrorStream(), "UTF-8"));
@@ -80,11 +81,8 @@ public class DevServerHelper
 						}
 						message = sb.toString();
 					}
-					if (bundleFetchCallBack != null)
-					{
-						bundleFetchCallBack.onFail(new DevServerException("Could not connect to development server." + "URL: " + url
-								+ "  try to :adb reverse tcp:38989 tcp:38989 , message : " + message));
-					}
+					bundleFetchCallBack.onFail(new DevServerException("Could not connect to development server." + "URL: " + url
+							+ "  try to :adb reverse tcp:38989 tcp:38989 , message : " + message));
 				}
 			}
 

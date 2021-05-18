@@ -11,6 +11,7 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyGroupController;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 
+@SuppressWarnings({"deprecation", "unused", "rawtypes"})
 @HippyController(name = HippyScrollViewController.CLASS_NAME)
 public class HippyScrollViewController<T extends ViewGroup & HippyScrollView> extends HippyGroupController
 {
@@ -117,7 +118,8 @@ public class HippyScrollViewController<T extends ViewGroup & HippyScrollView> ex
 
 	@Override
 	public void dispatchFunction(View view, String functionName, HippyArray args) {
-		super.dispatchFunction(view, functionName, args);
+        //noinspection unchecked
+        super.dispatchFunction(view, functionName, args);
 		if(view instanceof  HippyScrollView)
 		{
 

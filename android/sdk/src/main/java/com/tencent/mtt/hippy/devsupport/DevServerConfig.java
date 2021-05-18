@@ -32,6 +32,7 @@ public class DevServerConfig
 	// Hippy Server JsBundle名字
 	private final String				mServerHost;
 
+	@SuppressWarnings("unused")
 	public DevServerConfig(String serverHost, String bundleName)
 	{
 		sharedPreferences = ContextHolder.getAppContext().getSharedPreferences(HIPPYDEBUGPREF, Context.MODE_PRIVATE);

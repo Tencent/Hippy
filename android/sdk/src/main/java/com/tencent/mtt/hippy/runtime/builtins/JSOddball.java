@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy.runtime.builtins;
 
+@SuppressWarnings({"unused"})
 public final class JSOddball extends JSValue {
   @Override
   public final Object dump() {

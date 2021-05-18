@@ -21,6 +21,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+@SuppressWarnings({"deprecation", "unchecked", "rawtypes"})
 public class HippyArray
 {
 
@@ -167,6 +168,7 @@ public class HippyArray
 		mDatas.add(null);
 	}
 
+	@SuppressWarnings("unused")
 	public void clear()
 	{
 		mDatas.clear();
@@ -200,7 +202,7 @@ public class HippyArray
 	@Override
 	public String toString()
 	{
-		return mDatas == null ? "null" : mDatas.toString();
+		return mDatas.toString();
 	}
 
 	public void pushJSONArray(JSONArray jArray) {

@@ -29,6 +29,7 @@ import java.lang.reflect.Type;
 import java.util.Iterator;
 import java.util.Set;
 
+@SuppressWarnings("deprecation")
 public class ArgumentUtils {
 	public static HippyArray parseToArray(String json) {
 		HippyArray array = new HippyArray();
@@ -59,12 +60,8 @@ public class ArgumentUtils {
 
 		try
 		{
-			int length = args.length;
-			for (int i = 0; i < length; i++)
-			{
-				Object argument = args[i];
-				if (argument == null)
-				{
+			for (Object argument : args) {
+				if (argument == null) {
 					array.pushNull();
 					continue;
 				}
@@ -78,6 +75,7 @@ public class ArgumentUtils {
 		return array;
 	}
 
+	@SuppressWarnings("unused")
 	public static HippyMap parseToMap(String json) {
 		HippyMap map = new HippyMap();
 		if (TextUtils.isEmpty(json)) {
@@ -97,6 +95,7 @@ public class ArgumentUtils {
 		}
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	private static void parseObjectGotoArray(HippyArray array, Object obj) throws JSONException {
 		if (obj == null || obj == JSONObject.NULL) {
 			array.pushNull();
@@ -138,6 +137,7 @@ public class ArgumentUtils {
 		}
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	private static void parseObjectGotoMap(HippyMap map, String key, Object obj) throws JSONException {
 		if (obj == null || obj == JSONObject.NULL) {
 			map.pushNull(key);
@@ -355,7 +355,7 @@ public class ArgumentUtils {
 		int index;
 
 		if (array instanceof String[]) {
-			String[] strs = (String[]) ((String[]) array);
+			String[] strs = (String[]) array;
 			length = strs.length;
 
 			for (index = 0; index < length; ++index) {
@@ -363,7 +363,7 @@ public class ArgumentUtils {
 				catalystArray.pushString(str);
 			}
 		} else if (array instanceof Parcelable[]) {
-			Parcelable[] parcelables = (Parcelable[]) ((Parcelable[]) array);
+			Parcelable[] parcelables = (Parcelable[]) array;
 			length = parcelables.length;
 
 			for (index = 0; index < length; ++index) {
@@ -373,7 +373,7 @@ public class ArgumentUtils {
 				}
 			}
 		} else if (array instanceof int[]) {
-			int[] ints = (int[]) ((int[]) array);
+			int[] ints = (int[]) array;
 			length = ints.length;
 
 			for (index = 0; index < length; ++index) {
@@ -381,15 +381,15 @@ public class ArgumentUtils {
 				catalystArray.pushInt(value);
 			}
 		} else if (array instanceof float[]) {
-			float[] values = (float[]) ((float[]) array);
+			float[] values = (float[]) array;
 			length = values.length;
 
 			for (index = 0; index < length; ++index) {
 				float value = values[index];
-				catalystArray.pushDouble((double) value);
+				catalystArray.pushDouble(value);
 			}
 		} else if (array instanceof double[]) {
-			double[] values = (double[]) ((double[]) array);
+			double[] values = (double[]) array;
 			length = values.length;
 
 			for (index = 0; index < length; ++index) {
@@ -401,7 +401,7 @@ public class ArgumentUtils {
 				throw new IllegalArgumentException("Unknown array type " + array.getClass());
 			}
 
-			boolean[] values = (boolean[]) ((boolean[]) array);
+			boolean[] values = (boolean[]) array;
 			length = values.length;
 
 			for (index = 0; index < length; ++index) {
@@ -413,6 +413,7 @@ public class ArgumentUtils {
 		return catalystArray;
 	}
 
+	@SuppressWarnings("unused")
 	public static HippyMap fromBundle(Bundle bundle) {
 		HippyMap map = new HippyMap();
 
@@ -444,6 +445,7 @@ public class ArgumentUtils {
 		return map;
 	}
 
+	@SuppressWarnings("unused")
 	public static Bundle toBundle(HippyMap hippyMap) {
 		Bundle b = new Bundle(9);
 		if (hippyMap != null)	{

@@ -46,8 +46,7 @@ import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
-
-
+@SuppressWarnings({"deprecation", "unused"})
 public class HippyModalHostView extends HippyViewGroup implements HippyInstanceLifecycleEventListener
 {
 	@Override
@@ -93,6 +92,7 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 	private boolean							mPropertyRequiresNewDialog;
 	private DialogInterface.OnShowListener	mOnShowListener;
 	OnRequestCloseListener					mOnRequestCloseListener;
+	private String							mAnimationType;
 	private int                             mAniType;
 	private boolean							mEnterImmersionStatusBar = false;
 	private boolean	 						mStatusBarTextDarkColor = false;
@@ -209,7 +209,13 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 			}
 		}
 
+		mAnimationType = animationType;
 		mPropertyRequiresNewDialog = true;
+	}
+
+	protected String getAnimationType()
+	{
+		return mAnimationType;
 	}
 
 	protected void setEnterImmersionStatusBar(boolean fullScreen)
@@ -254,6 +260,7 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 			c = Class.forName("com.android.internal.R$dimen");
 			obj = c.newInstance();
 			field = c.getField("status_bar_height");
+			//noinspection ConstantConditions
 			x = Integer.parseInt(field.get(obj).toString());
 			statusBarHeight = ContextHolder.getAppContext().getResources().getDimensionPixelSize(x);
 		} catch (Exception e1) {
@@ -356,6 +363,7 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 			setDialogBar(mStatusBarTextDarkColor);
 		}
 
+		assert mDialog != null;
 		mDialog.setOnShowListener(new DialogInterface.OnShowListener() {
 			@Override
 			public void onShow(DialogInterface dialogInterface) {
@@ -453,16 +461,20 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 		return -1;
 	}
 
+	protected int getThemeResId() {
+		return 0;
+	}
+
 	protected Dialog createDialog(Context context)
 	{
-		int theme = 0;
+		int themeResId = getThemeResId();
 		if (context != null) {
 			Resources res = context.getResources();
-			theme = res.getIdentifier("HippyFullScreenDialog", "style", context.getPackageName());
+			themeResId = res.getIdentifier("HippyFullScreenDialog", "style", context.getPackageName());
 		}
 
-		Dialog dialog = new Dialog(context, theme);
-		if (theme == 0) {
+		Dialog dialog = new Dialog(context, themeResId);
+		if (themeResId == 0) {
 			Window window = dialog.getWindow();
 			if (window != null) {
 				window.requestFeature(Window.FEATURE_NO_TITLE);
@@ -549,7 +561,7 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 							@Override
 							public void run()
 							{
-								if (engineContext != null && engineContext.getDomManager() != null)
+								if (engineContext.getDomManager() != null)
 								{
 									engineContext.getDomManager().updateNodeSize(id, w, h);
 								}

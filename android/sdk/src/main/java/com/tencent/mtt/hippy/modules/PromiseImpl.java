@@ -22,11 +22,7 @@ import com.tencent.mtt.hippy.HippyEngine.BridgeTransferType;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.common.HippyMap;
 
-/**
- * FileName: PromiseImpl
- * Description：
- * History：
- */
+@SuppressWarnings({"deprecation","unused"})
 public class PromiseImpl implements Promise
 {
 	public static final int		PROMISE_CODE_SUCCESS		= 0;

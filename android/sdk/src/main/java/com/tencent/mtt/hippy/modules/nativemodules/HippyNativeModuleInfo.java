@@ -30,6 +30,7 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
+@SuppressWarnings({"unused"})
 public final class HippyNativeModuleInfo
 {
 	private final String									mName;
@@ -40,7 +41,7 @@ public final class HippyNativeModuleInfo
 
 	private final Provider<? extends HippyNativeModuleBase>	mProvider;
 
-	private final Class										mClass;
+	private final Class<?>									mClass;
 
 	private Map<String, HippyNativeMethod>					mMethods;
 
@@ -50,9 +51,10 @@ public final class HippyNativeModuleInfo
 
 	private boolean                                         mIsDestroyed = false;
 
-	public HippyNativeModuleInfo(Class cls, Provider<? extends HippyNativeModuleBase> provider)
+	public HippyNativeModuleInfo(Class<?> cls, Provider<? extends HippyNativeModuleBase> provider)
 	{
-		HippyNativeModule annotation = (HippyNativeModule) cls.getAnnotation(HippyNativeModule.class);
+		HippyNativeModule annotation = cls.getAnnotation(HippyNativeModule.class);
+		assert annotation != null;
 		this.mName = annotation.name();
 		this.mNames = annotation.names();
 		this.mClass = cls;
@@ -154,7 +156,7 @@ public final class HippyNativeModuleInfo
 
 
 
-	public class HippyNativeMethod
+	public static class HippyNativeMethod
 	{
 		private final Method mMethod;
 
