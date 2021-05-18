@@ -159,13 +159,13 @@
     CGFloat currentContentOffset = self.contentOffset.x;
     CGFloat offset = currentContentOffset - self.previousStopOffset;
     CGFloat offsetRatio = offset / CGRectGetWidth(self.bounds);
-
+    
     if (offsetRatio > 1) {
         offsetRatio -= 1;
     }
     
     NSUInteger currentPageIndex = [self currentPageIndex];
-    NSInteger nextPageIndex = currentPageIndex + ceil(offsetRatio);
+    NSInteger nextPageIndex = ceil(offsetRatio) == offsetRatio ? currentPageIndex : currentPageIndex + ceil(offsetRatio);
     if (nextPageIndex < 0) {
         nextPageIndex = 0;
     }
