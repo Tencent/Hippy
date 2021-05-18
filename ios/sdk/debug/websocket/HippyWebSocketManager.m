@@ -84,7 +84,12 @@ HIPPY_EXPORT_METHOD(close:(NSDictionary *)params) {
     NSString *reason = params[@"reason"];
     HippySRWebSocket *socket = [_sockets objectForKey:socketId];
     if (socket) {
-        [socket closeWithCode:[code integerValue] reason:reason];
+        if (code) {
+            [socket closeWithCode:[code integerValue] reason:reason];
+        }
+        else {
+            [socket close];
+        }
     }
 }
 // clang-format on
