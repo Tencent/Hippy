@@ -14,23 +14,21 @@ function hippyVueCSSLoader(source) {
   const options = getOptions(this);
   const parsed = parseCSS(source, { source: sourceId });
   sourceId += 1;
-  const rulesAst = parsed.stylesheet.rules.filter(n => n.type === 'rule').map((n) => {
-    return {
-      selectors: n.selectors,
-      declarations: n.declarations.map((dec) => {
-        let { value } = dec;
-        // FIXME: Should have a strict property with colors map.
-        if (dec.property && dec.property.toLowerCase().indexOf('color') > -1) {
-          value = translateColor(value, options);
-        }
-        return {
-          type: dec.type,
-          property: dec.property,
-          value,
-        };
-      }),
-    };
-  });
+  const rulesAst = parsed.stylesheet.rules.filter(n => n.type === 'rule').map(n => ({
+    selectors: n.selectors,
+    declarations: n.declarations.map((dec) => {
+      let { value } = dec;
+      // FIXME: Should have a strict property with colors map.
+      if (dec.property && dec.property.toLowerCase().indexOf('color') > -1) {
+        value = translateColor(value, options);
+      }
+      return {
+        type: dec.type,
+        property: dec.property,
+        value,
+      };
+    }),
+  }));
   const code = `(function() {
     if (!global['${GLOBAL_STYLE_NAME}']) {
       global['${GLOBAL_STYLE_NAME}'] = [];
