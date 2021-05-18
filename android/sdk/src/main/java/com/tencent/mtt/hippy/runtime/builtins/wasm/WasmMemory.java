@@ -23,6 +23,7 @@ import org.json.JSONObject;
 
 @SuppressWarnings({"unused"})
 public class WasmMemory extends JSValue {
+
   private final JSSharedArrayBuffer buffer;
   private final long maximumPages;
 

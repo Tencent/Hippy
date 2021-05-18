@@ -40,261 +40,224 @@ import android.widget.RelativeLayout;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
-@SuppressWarnings({"deprecation"})
-public class DevFloatButton extends ImageView implements ValueAnimator.AnimatorUpdateListener, ViewTreeObserver.OnGlobalLayoutListener
-{
+public class DevFloatButton extends ImageView implements ValueAnimator.AnimatorUpdateListener,
+    ViewTreeObserver.OnGlobalLayoutListener {
 
-	private int	mParentWidth	= -1;
-	private int	mParentHeight	= -1;
-	int			mStartX;
-	int			mStartY;
-	int			mLastLeft		= 0;
-	int			mLastRight		= 0;
-	int			mLastTop		= 0;
-	int			mLastBottom		= 0;
+  private int mParentWidth = -1;
+  private int mParentHeight = -1;
+  int mStartX;
+  int mStartY;
+  int mLastLeft = 0;
+  int mLastRight = 0;
+  int mLastTop = 0;
+  int mLastBottom = 0;
 
-	final int	mWidth;
-	final int	SIZE			= 30;
-	final int	TOUCH_SLOP		= ViewConfiguration.getTouchSlop();
-
-
-	/**
-	 * 构建背景Drawble
-	 */
-	private void buildDrawableState()
-	{
-
-		int[] mNormalState = new int[] {};
-		int[] mFocusedSate = new int[] { android.R.attr.state_focused, android.R.attr.state_enabled };
-
-		//默认文字和背景颜色
-		int mBgNormalColor = Color.parseColor("#ddd9d9");
-		int mBgFocusedColor = Color.GREEN;
-		//创建状态管理器
-		StateListDrawable drawable = new StateListDrawable();
-		int radius = mWidth / 2;
-		float[] outRect = new float[] { radius, radius, radius, radius, radius, radius, radius, radius };
-		RoundRectShape rectShape = new RoundRectShape(outRect, null, null);
-
-        //创建圆弧形状
-		//创建drawable
-		ShapeDrawable pressedDrawable = new ShapeDrawable(rectShape);
-		//设置我们按钮背景的颜色
-		pressedDrawable.getPaint().setColor(mBgFocusedColor);
-		//添加到状态管理里面
-		drawable.addState(mFocusedSate, pressedDrawable);
+  final int mWidth;
+  final int SIZE = 30;
+  @SuppressWarnings("deprecation")
+  final int TOUCH_SLOP = ViewConfiguration.getTouchSlop();
 
 
-		ShapeDrawable normalDrawable = new ShapeDrawable(rectShape);
-		normalDrawable.getPaint().setColor(mBgNormalColor);
-		drawable.addState(mNormalState, normalDrawable);
-		//设置我们的背景，就是xml里面的selector
-		setBackgroundDrawable(drawable);
+  /**
+   * 构建背景Drawble
+   */
+  @SuppressWarnings("deprecation")
+  private void buildDrawableState() {
 
-		//noinspection AccessStaticViaInstance
-		Looper.getMainLooper().myQueue().addIdleHandler(new MessageQueue.IdleHandler()
-		{
-			@Override
-			public boolean queueIdle()
-			{
-				boolean result = requestFocusFromTouch();
-				LogUtils.d("requestFocus", "requestFocusFromTouch result:" + result);
-				if (!result)
-				{
-					result = requestFocus();
-					LogUtils.d("requestFocus", "requestFocus result:" + result);
-				}
-				return false;
-			}
-		});
-	}
+    int[] mNormalState = new int[]{};
+    int[] mFocusedSate = new int[]{android.R.attr.state_focused, android.R.attr.state_enabled};
 
-	float dip2px(Context context)
-	{
-		DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-		return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, SIZE, displayMetrics);
-	}
+    //默认文字和背景颜色
+    int mBgNormalColor = Color.parseColor("#ddd9d9");
+    int mBgFocusedColor = Color.GREEN;
+    //创建状态管理器
+    StateListDrawable drawable = new StateListDrawable();
+    int radius = mWidth / 2;
+    float[] outRect = new float[]{radius, radius, radius, radius, radius, radius, radius, radius};
+    RoundRectShape rectShape = new RoundRectShape(outRect, null, null);
 
-	public DevFloatButton(Context context)
-	{
-		super(context);
-		mWidth = (int) dip2px(context);
-		buildBackground();
+    //创建圆弧形状
+    //创建drawable
+    ShapeDrawable pressedDrawable = new ShapeDrawable(rectShape);
+    //设置我们按钮背景的颜色
+    pressedDrawable.getPaint().setColor(mBgFocusedColor);
+    //添加到状态管理里面
+    drawable.addState(mFocusedSate, pressedDrawable);
 
-		setFocusable(true);
-	}
+    ShapeDrawable normalDrawable = new ShapeDrawable(rectShape);
+    normalDrawable.getPaint().setColor(mBgNormalColor);
+    drawable.addState(mNormalState, normalDrawable);
+    //设置我们的背景，就是xml里面的selector
+    setBackgroundDrawable(drawable);
 
-	private void buildBackground()
-	{
-		buildDrawableState();
-	}
+    //noinspection AccessStaticViaInstance
+    Looper.getMainLooper().myQueue().addIdleHandler(new MessageQueue.IdleHandler() {
+      @Override
+      public boolean queueIdle() {
+        boolean result = requestFocusFromTouch();
+        LogUtils.d("requestFocus", "requestFocusFromTouch result:" + result);
+        if (!result) {
+          result = requestFocus();
+          LogUtils.d("requestFocus", "requestFocus result:" + result);
+        }
+        return false;
+      }
+    });
+  }
 
-	@Override
-	protected void onDetachedFromWindow()
-	{
-		super.onDetachedFromWindow();
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-		{
-			getViewTreeObserver().removeOnGlobalLayoutListener(this);
-		}
-		else
-		{
-			getViewTreeObserver().removeGlobalOnLayoutListener(this);
-		}
-	}
+  float dip2px(Context context) {
+    DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+    return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, SIZE, displayMetrics);
+  }
 
-	@Override
-	protected void onAttachedToWindow()
-	{
-		setLayoutParams(getMarginLayoutParams());
-		getViewTreeObserver().addOnGlobalLayoutListener(this);
-		super.onAttachedToWindow();
+  public DevFloatButton(Context context) {
+    super(context);
+    mWidth = (int) dip2px(context);
+    buildBackground();
 
-		ViewParent parent = getParent();
-		// 如果本button是临时add到HippyRootView上的，那么就要摘到RootView上去
-		if (parent instanceof HippyRootView)
-		{
-			ViewGroup rootView = (ViewGroup) getRootView();
-			// 如果HippyRootView已经是RootView了，那就不改变了
-			if (rootView != parent)
-			{
-				((HippyRootView) parent).removeView(this);
-				rootView.addView(this);
-			}
-		}
-	}
+    setFocusable(true);
+  }
 
-	@Override
-	public boolean onTouchEvent(MotionEvent event)
-	{
-		int action = event.getAction();
-		switch (action)
-		{
-			case MotionEvent.ACTION_DOWN:
-				getParent().requestDisallowInterceptTouchEvent(true);
-				mStartX = (int) event.getRawX();
-				mStartY = (int) event.getRawY();
-				mLastLeft = getLeft();
-				mLastRight = getRight();
-				mLastTop = getTop();
-				mLastBottom = getBottom();
-				break;
-			case MotionEvent.ACTION_MOVE:
-				int dx = (int) event.getRawX() - mStartX;
-				int dy = (int) event.getRawY() - mStartY;
+  private void buildBackground() {
+    buildDrawableState();
+  }
 
-				int left = mLastLeft + dx;
-				int top = mLastTop + dy;
-				int right = mLastRight + dx;
-				int bottom = mLastBottom + dy;
-				if (left < 0)
-				{
-					left = 0;
-					right = left + this.getWidth();
-				}
-				if (right > mParentWidth)
-				{
-					right = mParentWidth;
-					left = right - this.getWidth();
-				}
-				if (top < 0)
-				{
-					top = 0;
-					bottom = top + this.getHeight();
-				}
-				if (bottom > mParentHeight)
-				{
-					bottom = mParentHeight;
-					top = bottom - this.getHeight();
-				}
-				this.layout(left, top, right, bottom);
-				break;
-			case MotionEvent.ACTION_UP:
-			case MotionEvent.ACTION_CANCEL:
-				getParent().requestDisallowInterceptTouchEvent(false);
-				if (getLeft() > mParentWidth / 2)
-				{
-					//往右边靠
-					ValueAnimator objectAnimator = ObjectAnimator.ofInt(getLeft(), mParentWidth - getWidth());
-					objectAnimator.addUpdateListener(this);
-					objectAnimator.start();
-				}
-				else
-				{
-					ValueAnimator objectAnimator = ObjectAnimator.ofInt(getLeft(), 0);
-					objectAnimator.addUpdateListener(this);
-					objectAnimator.start();
-					//往 左边靠
-				}
-				int endX = (int) event.getRawX();
-				int endY = (int) event.getRawY();
-				if (Math.abs(mStartX - endX) > TOUCH_SLOP || Math.abs(mStartY - endY) > TOUCH_SLOP)
-				{
-					//click
-					return true;
-				}
+  @SuppressWarnings("deprecation")
+  @Override
+  protected void onDetachedFromWindow() {
+    super.onDetachedFromWindow();
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+      getViewTreeObserver().removeOnGlobalLayoutListener(this);
+    } else {
+      getViewTreeObserver().removeGlobalOnLayoutListener(this);
+    }
+  }
 
-				break;
-		}
-		return super.onTouchEvent(event);
-	}
+  @Override
+  protected void onAttachedToWindow() {
+    setLayoutParams(getMarginLayoutParams());
+    getViewTreeObserver().addOnGlobalLayoutListener(this);
+    super.onAttachedToWindow();
+
+    ViewParent parent = getParent();
+    // 如果本button是临时add到HippyRootView上的，那么就要摘到RootView上去
+    if (parent instanceof HippyRootView) {
+      ViewGroup rootView = (ViewGroup) getRootView();
+      // 如果HippyRootView已经是RootView了，那就不改变了
+      if (rootView != parent) {
+        ((HippyRootView) parent).removeView(this);
+        rootView.addView(this);
+      }
+    }
+  }
+
+  @Override
+  public boolean onTouchEvent(MotionEvent event) {
+    int action = event.getAction();
+    switch (action) {
+      case MotionEvent.ACTION_DOWN:
+        getParent().requestDisallowInterceptTouchEvent(true);
+        mStartX = (int) event.getRawX();
+        mStartY = (int) event.getRawY();
+        mLastLeft = getLeft();
+        mLastRight = getRight();
+        mLastTop = getTop();
+        mLastBottom = getBottom();
+        break;
+      case MotionEvent.ACTION_MOVE:
+        int dx = (int) event.getRawX() - mStartX;
+        int dy = (int) event.getRawY() - mStartY;
+
+        int left = mLastLeft + dx;
+        int top = mLastTop + dy;
+        int right = mLastRight + dx;
+        int bottom = mLastBottom + dy;
+        if (left < 0) {
+          left = 0;
+          right = left + this.getWidth();
+        }
+        if (right > mParentWidth) {
+          right = mParentWidth;
+          left = right - this.getWidth();
+        }
+        if (top < 0) {
+          top = 0;
+          bottom = top + this.getHeight();
+        }
+        if (bottom > mParentHeight) {
+          bottom = mParentHeight;
+          top = bottom - this.getHeight();
+        }
+        this.layout(left, top, right, bottom);
+        break;
+      case MotionEvent.ACTION_UP:
+      case MotionEvent.ACTION_CANCEL:
+        getParent().requestDisallowInterceptTouchEvent(false);
+        if (getLeft() > mParentWidth / 2) {
+          //往右边靠
+          ValueAnimator objectAnimator = ObjectAnimator.ofInt(getLeft(), mParentWidth - getWidth());
+          objectAnimator.addUpdateListener(this);
+          objectAnimator.start();
+        } else {
+          ValueAnimator objectAnimator = ObjectAnimator.ofInt(getLeft(), 0);
+          objectAnimator.addUpdateListener(this);
+          objectAnimator.start();
+          //往 左边靠
+        }
+        int endX = (int) event.getRawX();
+        int endY = (int) event.getRawY();
+        if (Math.abs(mStartX - endX) > TOUCH_SLOP || Math.abs(mStartY - endY) > TOUCH_SLOP) {
+          //click
+          return true;
+        }
+
+        break;
+    }
+    return super.onTouchEvent(event);
+  }
 
 
-	@SuppressWarnings("SuspiciousNameCombination")
-	private ViewGroup.MarginLayoutParams getMarginLayoutParams()
-	{
-		if (getParent() != null)
-		{
-			ViewGroup.LayoutParams layoutParams = getLayoutParams();
-			if (layoutParams instanceof FrameLayout.LayoutParams)
-			{
-				FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(mWidth, mWidth);
-				params.topMargin = mWidth;
-				return params;
-			}
-			else if (layoutParams instanceof LinearLayout.LayoutParams)
-			{
-				LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(mWidth, mWidth);
-				params.topMargin = mWidth;
-				return params;
-			}
-			else if (layoutParams instanceof RelativeLayout.LayoutParams)
-			{
-				RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(mWidth, mWidth);
-				params.topMargin = mWidth;
-				return params;
-			}
-			else
-			{
-				ViewGroup.MarginLayoutParams params = new ViewGroup.MarginLayoutParams(mWidth, mWidth);
-				params.topMargin = mWidth;
-				return params;
-			}
-		}
-		else
-		{
-			ViewGroup.MarginLayoutParams params = new ViewGroup.MarginLayoutParams(mWidth, mWidth);
-			params.topMargin = mWidth;
-			return params;
-		}
-	}
+  @SuppressWarnings("SuspiciousNameCombination")
+  private ViewGroup.MarginLayoutParams getMarginLayoutParams() {
+    if (getParent() != null) {
+      ViewGroup.LayoutParams layoutParams = getLayoutParams();
+      if (layoutParams instanceof FrameLayout.LayoutParams) {
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(mWidth, mWidth);
+        params.topMargin = mWidth;
+        return params;
+      } else if (layoutParams instanceof LinearLayout.LayoutParams) {
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(mWidth, mWidth);
+        params.topMargin = mWidth;
+        return params;
+      } else if (layoutParams instanceof RelativeLayout.LayoutParams) {
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(mWidth, mWidth);
+        params.topMargin = mWidth;
+        return params;
+      } else {
+        ViewGroup.MarginLayoutParams params = new ViewGroup.MarginLayoutParams(mWidth, mWidth);
+        params.topMargin = mWidth;
+        return params;
+      }
+    } else {
+      ViewGroup.MarginLayoutParams params = new ViewGroup.MarginLayoutParams(mWidth, mWidth);
+      params.topMargin = mWidth;
+      return params;
+    }
+  }
 
-	@Override
-	public void onAnimationUpdate(ValueAnimator animation)
-	{
-		Object valueObject = animation.getAnimatedValue();
+  @Override
+  public void onAnimationUpdate(ValueAnimator animation) {
+    Object valueObject = animation.getAnimatedValue();
 
-		if (valueObject instanceof Number)
-		{
-			int value = ((Number) valueObject).intValue();
-			this.layout(value, getTop(), value + getWidth(), getBottom());
-		}
-	}
+    if (valueObject instanceof Number) {
+      int value = ((Number) valueObject).intValue();
+      this.layout(value, getTop(), value + getWidth(), getBottom());
+    }
+  }
 
-	@Override
-	public void onGlobalLayout()
-	{
-		mParentWidth = ((ViewGroup) getParent()).getWidth();
-		mParentHeight = ((ViewGroup) getParent()).getHeight();
-	}
+  @Override
+  public void onGlobalLayout() {
+    mParentWidth = ((ViewGroup) getParent()).getWidth();
+    mParentHeight = ((ViewGroup) getParent()).getHeight();
+  }
 }

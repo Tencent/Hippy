@@ -29,8 +29,9 @@ import java.util.HashMap;
  */
 @SuppressWarnings({"unused"})
 public class InternalizedStringTable extends DirectStringTable {
+
   // region key
-  private static final int MAX_KEY_CALC_LENGTH	= 32;
+  private static final int MAX_KEY_CALC_LENGTH = 32;
   private static final int KEY_TABLE_SIZE = 2 * 1024;
   private final String[] keyTable = new String[KEY_TABLE_SIZE];
   // endregion
@@ -40,8 +41,11 @@ public class InternalizedStringTable extends DirectStringTable {
   private final LruCache<Integer, String> valueCache = new LruCache<>(VALUE_CACHE_SIZE);
   // endregion
 
-  /** byte of "data:image/" URI string */
-  private final static char[] DATA_IMAGE_URI = new char[] { 'd', 'a', 't', 'a', ':', 'i', 'm', 'a', 'g', 'e', '/' };
+  /**
+   * byte of "data:image/" URI string
+   */
+  private final static char[] DATA_IMAGE_URI = new char[]{'d', 'a', 't', 'a', ':', 'i', 'm', 'a',
+      'g', 'e', '/'};
   private final HashMap<String, char[]> cacheablesProperty = new HashMap<String, char[]>() {{
     put("uri", DATA_IMAGE_URI);
     put("src", DATA_IMAGE_URI);
@@ -53,11 +57,11 @@ public class InternalizedStringTable extends DirectStringTable {
   }
 
   // region algorithm
+
   /**
-   * This algorithm implements the DJB hash function
-   * developed by <i>Daniel J. Bernstein</i>.
+   * This algorithm implements the DJB hash function developed by <i>Daniel J. Bernstein</i>.
    *
-   * @param value The bytes to be calculated
+   * @param value  The bytes to be calculated
    * @param offset The offset
    * @param length The length
    * @return a hash code value for this bytes
@@ -75,7 +79,7 @@ public class InternalizedStringTable extends DirectStringTable {
   /**
    * The algorithm forked from the {@link String#hashCode()}.
    *
-   * @param value The bytes to be calculated
+   * @param value  The bytes to be calculated
    * @param offset The offset
    * @param length The length
    * @return a hash code value for this bytes
@@ -91,14 +95,14 @@ public class InternalizedStringTable extends DirectStringTable {
   }
 
   /**
-   * Fast compares {@link String} and {@link Byte[]} is equal
-   * Basic performance considerations, <strong>only support {@link String} as one or two byte encoding</strong>
+   * Fast compares {@link String} and {@link Byte[]} is equal Basic performance considerations,
+   * <strong>only support {@link String} as one or two byte encoding</strong>
    *
    * @param sequence byte sequence
-   * @param offset The offset
-   * @param length The length
+   * @param offset   The offset
+   * @param length   The length
    * @param encoding The name of a supported charset
-   * @param string an string
+   * @param string   an string
    * @return {@code true} if it's equal, {@code false} otherwise
    */
   private boolean equals(byte[] sequence, int offset, int length, String encoding, String string) {
@@ -113,7 +117,8 @@ public class InternalizedStringTable extends DirectStringTable {
       // MAX_KEY_CALC_LENGTH set to 32, use charAt method to iterate the chars in a String has more efficient
       char c = string.charAt(i);
       // Android is always little-endian
-      if (sequence[offset + i] != (byte) c || (bytesPerCharacter == 2 && sequence[offset + i + 1] != (byte)(c >> 8))) {
+      if (sequence[offset + i] != (byte) c || (bytesPerCharacter == 2
+          && sequence[offset + i + 1] != (byte) (c >> 8))) {
         return false;
       }
     }
@@ -123,7 +128,8 @@ public class InternalizedStringTable extends DirectStringTable {
   // endregion
 
   // region lookup
-  private String lookupKey(byte[] sequence, int offset, int length, String encoding) throws UnsupportedEncodingException {
+  private String lookupKey(byte[] sequence, int offset, int length, String encoding)
+      throws UnsupportedEncodingException {
     // only calculate one or two byte encoding
     if (length >= MAX_KEY_CALC_LENGTH || encoding.equals("UTF-8")) {
       return new String(sequence, offset, length, encoding);
@@ -140,7 +146,8 @@ public class InternalizedStringTable extends DirectStringTable {
     return internalized;
   }
 
-  private String lookupValue(byte[] sequence, int offset, int length, String encoding, Object relatedKey) throws UnsupportedEncodingException {
+  private String lookupValue(byte[] sequence, int offset, int length, String encoding,
+      Object relatedKey) throws UnsupportedEncodingException {
     if (relatedKey instanceof String) {
       char[] valuePrefix = cacheablesProperty.get(relatedKey);
       if (valuePrefix != null) {
@@ -173,7 +180,8 @@ public class InternalizedStringTable extends DirectStringTable {
   }
 
   @Override
-  public String lookup(ByteBuffer byteBuffer, String encoding, StringLocation location, Object relatedKey) throws UnsupportedEncodingException {
+  public String lookup(ByteBuffer byteBuffer, String encoding, StringLocation location,
+      Object relatedKey) throws UnsupportedEncodingException {
     final byte[] sequence = byteBuffer.array();
     final int offset = byteBuffer.arrayOffset() + byteBuffer.position();
     final int length = byteBuffer.limit() - byteBuffer.position();

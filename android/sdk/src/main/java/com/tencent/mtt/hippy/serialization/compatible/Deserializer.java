@@ -225,12 +225,10 @@ public class Deserializer extends PrimitiveValueDeserializer {
    * Reads Spare Array from buffer.
    *
    * <h2>Note</h2>
-   * Sparse arrays will be serialized as an object-like manner.
-   * Normally, it should be representable as {@link HippyMap},
-   * but in order to be compatible with the previous serialization implement,
-   * we use {@link HippyArray} to express sparse arrays.
-   * <br/>
-   * When a hole is encountered, {@link ConstantValue#Null} is used to fill it.
+   * Sparse arrays will be serialized as an object-like manner. Normally, it should be representable
+   * as {@link HippyMap}, but in order to be compatible with the previous serialization implement,
+   * we use {@link HippyArray} to express sparse arrays. <br/> When a hole is encountered, {@link
+   * ConstantValue#Null} is used to fill it.
    *
    * @return array
    */
@@ -260,7 +258,8 @@ public class Deserializer extends PrimitiveValueDeserializer {
 
       if (index >= 0) {
         int spaceNeeded = (index + 1) - array.size();
-        if (spaceNeeded == 1) { // Fast path, item are ordered in general ECMAScript(VM) implementation
+        if (spaceNeeded
+            == 1) { // Fast path, item are ordered in general ECMAScript(VM) implementation
           array.pushObject(value);
         } else {  // Slow path, universal
           for (int i = 0; i < spaceNeeded; i++) {

@@ -19,6 +19,7 @@ import java.nio.ByteBuffer;
 
 @SuppressWarnings({"unused"})
 public final class SafeHeapReader implements BinaryReader {
+
   private byte[] buffer;
   private int pos; // Relative to base
   private int count; // Relative to base
@@ -102,13 +103,13 @@ public final class SafeHeapReader implements BinaryReader {
     pos += 8;
     final byte[] buffer = this.buffer;
     return (((buffer[p] & 0xffL))
-      | ((buffer[p + 1] & 0xffL) << 8)
-      | ((buffer[p + 2] & 0xffL) << 16)
-      | ((buffer[p + 3] & 0xffL) << 24)
-      | ((buffer[p + 4] & 0xffL) << 32)
-      | ((buffer[p + 5] & 0xffL) << 40)
-      | ((buffer[p + 6] & 0xffL) << 48)
-      | ((buffer[p + 7] & 0xffL) << 56));
+        | ((buffer[p + 1] & 0xffL) << 8)
+        | ((buffer[p + 2] & 0xffL) << 16)
+        | ((buffer[p + 3] & 0xffL) << 24)
+        | ((buffer[p + 4] & 0xffL) << 32)
+        | ((buffer[p + 5] & 0xffL) << 40)
+        | ((buffer[p + 6] & 0xffL) << 48)
+        | ((buffer[p + 7] & 0xffL) << 56));
   }
 
   @Override

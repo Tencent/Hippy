@@ -55,13 +55,15 @@ import java.util.Set;
  */
 @SuppressWarnings({"unused"})
 public class Serializer extends PrimitiveValueSerializer {
+
   public interface Delegate {
+
     /**
-     * Implement this method to write some kind of host object,
-     * if possible. If not, return value will be false.
+     * Implement this method to write some kind of host object, if possible. If not, return value
+     * will be false.
      *
      * @param serializer current serializer
-     * @param object host object
+     * @param object     host object
      * @return whether the serialization is successful
      */
     @SuppressWarnings("SameReturnValue")
@@ -69,40 +71,43 @@ public class Serializer extends PrimitiveValueSerializer {
 
     /**
      * Called when the Serializer is going to serialize a {@link JSSharedArrayBuffer} object.
-     * Implement must return an ID for the object,
-     * using the same ID if this {@link JSSharedArrayBuffer} has already been serialized in this buffer.
-     * <br/>
-     * When deserializing, this ID will be passed to Deserializer.Delegate#getSharedArrayBufferFromId as |clone_id|.
-     * <br/>
-     * If the object cannot be serialized, an exception {@link DataCloneException} should be thrown.
+     * Implement must return an ID for the object, using the same ID if this {@link
+     * JSSharedArrayBuffer} has already been serialized in this buffer. <br/> When deserializing,
+     * this ID will be passed to Deserializer.Delegate#getSharedArrayBufferFromId as |clone_id|.
+     * <br/> If the object cannot be serialized, an exception {@link DataCloneException} should be
+     * thrown.
      *
-     * @param serializer current serializer
+     * @param serializer        current serializer
      * @param sharedArrayBuffer SharedArrayBuffer
      * @return ID
      */
     int getSharedArrayBufferId(Serializer serializer, JSSharedArrayBuffer sharedArrayBuffer);
 
     /**
-     * Called when the Serializer is going to serialize a {@link WasmModule} object.
-     * Implement must return an ID for the object,
-     * using the same ID if this {@link WasmModule} has already been serialized in this buffer.
-     * <br/>
-     * When deserializing, this ID will be passed to Deserializer.Delegate#getWasmModuleFromId as |transfer_id|.
-     * <br/>
-     * If the object cannot be serialized, an exception {@link DataCloneException} should be thrown.
+     * Called when the Serializer is going to serialize a {@link WasmModule} object. Implement must
+     * return an ID for the object, using the same ID if this {@link WasmModule} has already been
+     * serialized in this buffer. <br/> When deserializing, this ID will be passed to
+     * Deserializer.Delegate#getWasmModuleFromId as |transfer_id|. <br/> If the object cannot be
+     * serialized, an exception {@link DataCloneException} should be thrown.
      *
      * @param serializer current serializer
-     * @param module WebAssembly Module
+     * @param module     WebAssembly Module
      * @return ID
      */
     int getWasmModuleTransferId(Serializer serializer, WasmModule module);
   }
 
-  /** Implement for Delegate interface */
+  /**
+   * Implement for Delegate interface
+   */
   private final Delegate delegate;
-  /** Maps a transferred {@link JSArrayBuffer} to its transfer ID. */
+  /**
+   * Maps a transferred {@link JSArrayBuffer} to its transfer ID.
+   */
   private Map<JSArrayBuffer, Integer> arrayBufferTransferMap;
-  /** Determines whether {@link JSArrayBuffer}s should be serialized as host objects. */
+  /**
+   * Determines whether {@link JSArrayBuffer}s should be serialized as host objects.
+   */
   private boolean treatArrayBufferViewsAsHostObjects;
 
   public Serializer() {
@@ -123,10 +128,9 @@ public class Serializer extends PrimitiveValueSerializer {
   }
 
   /**
-   * Indicate whether to treat {@link JSDataView} objects as host objects,
-   * i.e. pass them to Delegate#WriteHostObject. This should not be called when no Delegate was passed.
-   * <br/>
-   * The default is not to treat ArrayBufferViews as host objects.
+   * Indicate whether to treat {@link JSDataView} objects as host objects, i.e. pass them to
+   * Delegate#WriteHostObject. This should not be called when no Delegate was passed. <br/> The
+   * default is not to treat ArrayBufferViews as host objects.
    *
    * @param mode treat mode
    */
@@ -155,7 +159,8 @@ public class Serializer extends PrimitiveValueSerializer {
       return true;
     }
 
-    if (!treatArrayBufferViewsAsHostObjects && JSValue.is(object) && ((JSValue) object).isDataView()) {
+    if (!treatArrayBufferViewsAsHostObjects && JSValue.is(object) && ((JSValue) object)
+        .isDataView()) {
       JSDataView<?> view = (JSDataView<?>) object;
       assignId(view);
       if (view.getBufferObject() instanceof JSArrayBuffer) {
@@ -277,7 +282,7 @@ public class Serializer extends PrimitiveValueSerializer {
     writer.putVarint(value.size());
   }
 
-  private void writeJSObjectProperties (Set<Pair<String, Object>> props) {
+  private void writeJSObjectProperties(Set<Pair<String, Object>> props) {
     for (Pair<String, Object> prop : props) {
       writeString(prop.first);
       writeValue(prop.second);
@@ -323,7 +328,7 @@ public class Serializer extends PrimitiveValueSerializer {
     } else if (value.isSparseArray()) {
       writeTag(SerializationTag.BEGIN_SPARSE_JS_ARRAY);
       writer.putVarint(length);
-      for (Pair<Integer, Object> item: ((JSSparseArray) value).items()) {
+      for (Pair<Integer, Object> item : ((JSSparseArray) value).items()) {
         writer.putVarint(item.first);
         writeValue(item.second);
       }
@@ -457,10 +462,11 @@ public class Serializer extends PrimitiveValueSerializer {
   }
 
   /**
-   * Marks an {@link JSArrayBuffer} as having its contents transferred out of band.
-   * Pass the corresponding {@link JSArrayBuffer} in the deserializing context to {@link Deserializer#transferArrayBuffer(int, JSArrayBuffer)}.
+   * Marks an {@link JSArrayBuffer} as having its contents transferred out of band. Pass the
+   * corresponding {@link JSArrayBuffer} in the deserializing context to {@link
+   * Deserializer#transferArrayBuffer(int, JSArrayBuffer)}.
    *
-   * @param transferId transfer id
+   * @param transferId  transfer id
    * @param arrayBuffer JSArrayBuffer
    */
   public void transferArrayBuffer(int transferId, JSArrayBuffer arrayBuffer) {
