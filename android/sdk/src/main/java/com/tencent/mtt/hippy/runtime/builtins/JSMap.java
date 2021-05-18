@@ -25,7 +25,9 @@ import java.util.Map;
 
 @SuppressWarnings({"unused"})
 public class JSMap extends JSValue {
+
   private final HashMap<Object, Object> internalMap;
+
   public JSMap() {
     internalMap = new HashMap<>();
   }

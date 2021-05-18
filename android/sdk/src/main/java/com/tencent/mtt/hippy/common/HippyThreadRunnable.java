@@ -18,23 +18,22 @@ package com.tencent.mtt.hippy.common;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
 @SuppressWarnings({"TypeParameterExplicitlyExtendsObject", "unused"})
-public abstract class HippyThreadRunnable<T extends Object> implements Runnable
-{
-	private final T	mParam;
+public abstract class HippyThreadRunnable<T extends Object> implements Runnable {
 
-	public HippyThreadRunnable(T param)
-	{
-		mParam = param;
-	}
+  private final T mParam;
 
-	@Override
-	public void run() {
-		try {
-			run(mParam);
-		} catch (Throwable e) {
-			LogUtils.e("HippyThreadRunnable", "run: ", e);
-		}
-	}
+  public HippyThreadRunnable(T param) {
+    mParam = param;
+  }
 
-	public abstract void run(T param);
+  @Override
+  public void run() {
+    try {
+      run(mParam);
+    } catch (Throwable e) {
+      LogUtils.e("HippyThreadRunnable", "run: ", e);
+    }
+  }
+
+  public abstract void run(T param);
 }

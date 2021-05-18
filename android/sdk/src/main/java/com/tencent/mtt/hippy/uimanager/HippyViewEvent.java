@@ -24,27 +24,27 @@ import com.tencent.mtt.hippy.modules.javascriptmodules.EventDispatcher;
 
 public class HippyViewEvent {
 
-    private final String mEventName;
+  private final String mEventName;
 
-    public HippyViewEvent(String eventName) {
-        this.mEventName = eventName;
+  public HippyViewEvent(String eventName) {
+    this.mEventName = eventName;
+  }
+
+  public void send(View view, Object param) {
+    if (view != null && view.getContext() instanceof HippyInstanceContext) {
+      HippyEngineContext context = ((HippyInstanceContext) view.getContext()).getEngineContext();
+      send(view.getId(), context, param);
+    }
+  }
+
+  public void send(int id, HippyEngineContext context, Object param) {
+    if (context == null) {
+      return;
     }
 
-    public void send(View view, Object param) {
-        if (view != null && view.getContext() instanceof HippyInstanceContext) {
-            HippyEngineContext context = ((HippyInstanceContext)view.getContext()).getEngineContext();
-            send(view.getId(), context, param);
-        }
+    HippyModuleManager hmm = context.getModuleManager();
+    if (hmm != null) {
+      hmm.getJavaScriptModule(EventDispatcher.class).receiveUIComponentEvent(id, mEventName, param);
     }
-
-    public void send(int id, HippyEngineContext context, Object param) {
-		if (context == null) {
-			return;
-		}
-
-		HippyModuleManager hmm = context.getModuleManager();
-		if (hmm != null) {
-			hmm.getJavaScriptModule(EventDispatcher.class).receiveUIComponentEvent(id, mEventName, param);
-		}
-	}
+  }
 }

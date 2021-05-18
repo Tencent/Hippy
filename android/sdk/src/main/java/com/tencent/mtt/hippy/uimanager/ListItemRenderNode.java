@@ -20,63 +20,56 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.views.list.IRecycleItemTypeChange;
 
 @SuppressWarnings({"deprecation", "unused"})
-public class ListItemRenderNode extends RenderNode
-{
-	public static final String		ITEM_VIEW_TYPE	= "type";
-	public static final String		ITEM_STICKY		= "sticky";
+public class ListItemRenderNode extends RenderNode {
 
-	private boolean					mShouldSticky;
-	private IRecycleItemTypeChange	mRecycleItemTypeChangeListener;
+  public static final String ITEM_VIEW_TYPE = "type";
+  public static final String ITEM_STICKY = "sticky";
 
-	public ListItemRenderNode(int mId, HippyMap mPropsToUpdate, String className, HippyRootView mRootView, ControllerManager componentManager,
-			boolean isLazyLoad)
-	{
-		super(mId, mPropsToUpdate, className, mRootView, componentManager, isLazyLoad);
-		if (mProps.get(ITEM_STICKY) != null)
-		{
-			mShouldSticky = mProps.getBoolean(ITEM_STICKY);
-		}
-	}
+  private boolean mShouldSticky;
+  private IRecycleItemTypeChange mRecycleItemTypeChangeListener;
+
+  public ListItemRenderNode(int mId, HippyMap mPropsToUpdate, String className,
+      HippyRootView mRootView, ControllerManager componentManager,
+      boolean isLazyLoad) {
+    super(mId, mPropsToUpdate, className, mRootView, componentManager, isLazyLoad);
+    if (mProps.get(ITEM_STICKY) != null) {
+      mShouldSticky = mProps.getBoolean(ITEM_STICKY);
+    }
+  }
 
 
-	@Override
-	public void updateLayout(int x, int y, int w, int h)
-	{
-		super.updateLayout(x, y, w, h);
-		this.mY = 0;
-		if (getParent() != null && mComponentManager != null && mComponentManager.mContext != null)
-		{ // 若屏幕内node更新引起了item整体变化，需要通知ListView发起dispatchLayout重排版
-			RenderManager renderManager = mComponentManager.mContext.getRenderManager();
-			if (renderManager != null)
-			{
-				renderManager.addUpdateNodeIfNeeded(getParent());
-			}
-		}
-	}
+  @Override
+  public void updateLayout(int x, int y, int w, int h) {
+    super.updateLayout(x, y, w, h);
+    this.mY = 0;
+    if (getParent() != null && mComponentManager != null && mComponentManager.mContext
+        != null) { // 若屏幕内node更新引起了item整体变化，需要通知ListView发起dispatchLayout重排版
+      RenderManager renderManager = mComponentManager.mContext.getRenderManager();
+      if (renderManager != null) {
+        renderManager.addUpdateNodeIfNeeded(getParent());
+      }
+    }
+  }
 
-	@Override
-	public void updateNode(HippyMap map)
-	{
-		int oldType = mProps.getInt(ITEM_VIEW_TYPE);
-		int newType = map.getInt(ITEM_VIEW_TYPE);
-		if (mRecycleItemTypeChangeListener != null && oldType != newType)
-		{
-			mRecycleItemTypeChangeListener.onRecycleItemTypeChanged(oldType, newType, this);
-		}
-		super.updateNode(map);
-		if (mProps.get(ITEM_STICKY) != null)
-		{
-			mShouldSticky = mProps.getBoolean(ITEM_STICKY);
-		}
-	}
+  @Override
+  public void updateNode(HippyMap map) {
+    int oldType = mProps.getInt(ITEM_VIEW_TYPE);
+    int newType = map.getInt(ITEM_VIEW_TYPE);
+    if (mRecycleItemTypeChangeListener != null && oldType != newType) {
+      mRecycleItemTypeChangeListener.onRecycleItemTypeChanged(oldType, newType, this);
+    }
+    super.updateNode(map);
+    if (mProps.get(ITEM_STICKY) != null) {
+      mShouldSticky = mProps.getBoolean(ITEM_STICKY);
+    }
+  }
 
-	public void setRecycleItemTypeChangeListener(IRecycleItemTypeChange recycleItemTypeChangeListener)
-	{
-		mRecycleItemTypeChangeListener = recycleItemTypeChangeListener;
-	}
+  public void setRecycleItemTypeChangeListener(
+      IRecycleItemTypeChange recycleItemTypeChangeListener) {
+    mRecycleItemTypeChangeListener = recycleItemTypeChangeListener;
+  }
 
-	public boolean shouldSticky()
-	{
-		return mShouldSticky;
-	}
+  public boolean shouldSticky() {
+    return mShouldSticky;
+  }
 }

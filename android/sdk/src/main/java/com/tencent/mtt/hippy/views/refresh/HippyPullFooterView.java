@@ -20,17 +20,16 @@ import android.view.View;
 
 import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 
-public class HippyPullFooterView extends HippyViewGroup
-{
+public class HippyPullFooterView extends HippyViewGroup {
+
   private View mParentView;
   private boolean mStickEnabled = false;
 
-	public HippyPullFooterView(Context context)
-	{
-		super(context);
-	}
+  public HippyPullFooterView(Context context) {
+    super(context);
+  }
 
-	public void setParentView(View parentView) {
+  public void setParentView(View parentView) {
     mParentView = parentView;
   }
 
@@ -43,6 +42,6 @@ public class HippyPullFooterView extends HippyViewGroup
   }
 
   public boolean getStickEnabled() {
-	  return mStickEnabled;
+    return mStickEnabled;
   }
 }

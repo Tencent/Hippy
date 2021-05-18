@@ -15,204 +15,188 @@ import android.graphics.drawable.Drawable;
 import android.util.Base64;
 
 @SuppressWarnings({"unused"})
-public class HippyDrawable implements IDrawableTarget
-{
-	// 原始数据的来源：base64 / assets / file
-	protected String mSource;
+public class HippyDrawable implements IDrawableTarget {
 
-	protected Drawable mDrawable;
+  // 原始数据的来源：base64 / assets / file
+  protected String mSource;
 
-	// GIF动画
-	private Movie mGifMovie;
+  protected Drawable mDrawable;
 
-	// 静态图片
-	private Bitmap mBitmap;
+  // GIF动画
+  private Movie mGifMovie;
 
-	public void setDrawable(Drawable drawable)
-	{
-		mDrawable = drawable;
-	}
+  // 静态图片
+  private Bitmap mBitmap;
 
-	/**
-	 * 设置原始数据。预期这个原始数据是GIF，或Bitmap的原始数据
-	 * @param rawData byte array raw data
-	 */
-	public void setData(byte[] rawData)
-	{
-		try {
-			mGifMovie = Movie.decodeByteArray(rawData, 0, rawData.length);
-			if (mGifMovie == null)
-				mBitmap = BitmapFactory.decodeByteArray(rawData, 0, rawData.length);
-			else
-				mBitmap = null;
-		} catch (OutOfMemoryError | Exception e) {
-			e.printStackTrace();
-		}
-	}
+  public void setDrawable(Drawable drawable) {
+    mDrawable = drawable;
+  }
 
-	/**
-	 * 设置原始数据的文件地址。预期这个原始数据是GIF，或Bitmap的原始数据
-	 * @param path file path of the image
-	 */
-	public void setData(File path)
-	{
-		FileInputStream is = null;
-		try {
-			is = new FileInputStream(path);
-			byte[] rawData = new byte[is.available()];
-			int total = is.read(rawData);
-			LogUtils.d("HippyDrawable", "setData path: read total=" + total);
-			setData(rawData);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		finally {
-			if (is != null) {
-				try {
-					is.close();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
+  /**
+   * 设置原始数据。预期这个原始数据是GIF，或Bitmap的原始数据
+   *
+   * @param rawData byte array raw data
+   */
+  public void setData(byte[] rawData) {
+    try {
+      mGifMovie = Movie.decodeByteArray(rawData, 0, rawData.length);
+      if (mGifMovie == null) {
+        mBitmap = BitmapFactory.decodeByteArray(rawData, 0, rawData.length);
+      } else {
+        mBitmap = null;
+      }
+    } catch (OutOfMemoryError | Exception e) {
+      e.printStackTrace();
+    }
+  }
 
-	public void setData(File path, boolean isGif)
-	{
-		FileInputStream is = null;
-		try {
-			is = new FileInputStream(path);
-			if (isGif) {
-				mGifMovie = Movie.decodeStream(is);
-				mBitmap = null;
-			} else {
-				mBitmap = BitmapFactory.decodeStream(is);
-				mGifMovie = null;
-			}
-		} catch (OutOfMemoryError | Exception e) {
-			e.printStackTrace();
-		} finally {
-			if (is != null) {
-				try {
-					is.close();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
+  /**
+   * 设置原始数据的文件地址。预期这个原始数据是GIF，或Bitmap的原始数据
+   *
+   * @param path file path of the image
+   */
+  public void setData(File path) {
+    FileInputStream is = null;
+    try {
+      is = new FileInputStream(path);
+      byte[] rawData = new byte[is.available()];
+      int total = is.read(rawData);
+      LogUtils.d("HippyDrawable", "setData path: read total=" + total);
+      setData(rawData);
+    } catch (Exception e) {
+      e.printStackTrace();
+    } finally {
+      if (is != null) {
+        try {
+          is.close();
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
+    }
+  }
 
-	public void setDataForTarge28Assets(String assetsFile)
-	{
-		ImageDecoder.Source source;
-		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P)
-		{
-			try
-			{
-				source = ImageDecoder.createSource(ContextHolder.getAppContext().getAssets(), assetsFile.substring("assets://".length()));
-				mBitmap = ImageDecoder.decodeBitmap(source);
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
-		}
-	}
+  public void setData(File path, boolean isGif) {
+    FileInputStream is = null;
+    try {
+      is = new FileInputStream(path);
+      if (isGif) {
+        mGifMovie = Movie.decodeStream(is);
+        mBitmap = null;
+      } else {
+        mBitmap = BitmapFactory.decodeStream(is);
+        mGifMovie = null;
+      }
+    } catch (OutOfMemoryError | Exception e) {
+      e.printStackTrace();
+    } finally {
+      if (is != null) {
+        try {
+          is.close();
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
+    }
+  }
 
-	/**
-	 * 设置图片数据。Bitmap
-	 * @param bmp Bitmap
-	 */
-	public void setData(Bitmap bmp)
-	{
-		mBitmap = bmp;
-		mGifMovie = null;
-	}
+  public void setDataForTarge28Assets(String assetsFile) {
+    ImageDecoder.Source source;
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+      try {
+        source = ImageDecoder.createSource(ContextHolder.getAppContext().getAssets(),
+            assetsFile.substring("assets://".length()));
+        mBitmap = ImageDecoder.decodeBitmap(source);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+  }
 
-	/**
-	 * 设置原始数据来源。
-	 * @param source 不是原始数据，而是原始数据的来源：base64 / assets / file
-	 */
-	public void setData(String source)
-	{
-		mSource = source;
-		if (mSource.startsWith("data:"))
-		{
-			try {
-				// base64 image
-				int base64Index = mSource.indexOf(";base64,");
-				if (base64Index >= 0)
-				{
-					base64Index += ";base64,".length();
-					String base64String = mSource.substring(base64Index);
-					byte[] decode = Base64.decode(base64String, Base64.DEFAULT);
-					if (decode != null)
-						setData(decode);
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		else if (mSource.startsWith("file://"))
-		{
-			// local file image
-			String filePath = mSource.substring("file://".length());
-			setData(new File(filePath));
-		}
-		else if (mSource.startsWith("assets://"))
-		{
-			InputStream is = null;
-			try {
-				if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
-					setDataForTarge28Assets(mSource);
-				}
-				else
-				{
-					is = ContextHolder.getAppContext().getAssets().open(mSource.substring("assets://".length()));
-					byte[] rawData = new byte[is.available()];
-					int total = is.read(rawData);
-					LogUtils.d("HippyDrawable", "setData source: read total=" + total);
-					setData(rawData);
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			finally {
-				if (is != null) {
-					try {
-						is.close();
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		}
-	}
+  /**
+   * 设置图片数据。Bitmap
+   *
+   * @param bmp Bitmap
+   */
+  public void setData(Bitmap bmp) {
+    mBitmap = bmp;
+    mGifMovie = null;
+  }
 
-	/**
-	 * 获取GIF数据
-	 */
-	public Movie getGIF()
-	{
-		return mGifMovie;
-	}
+  /**
+   * 设置原始数据来源。
+   *
+   * @param source 不是原始数据，而是原始数据的来源：base64 / assets / file
+   */
+  public void setData(String source) {
+    mSource = source;
+    if (mSource.startsWith("data:")) {
+      try {
+        // base64 image
+        int base64Index = mSource.indexOf(";base64,");
+        if (base64Index >= 0) {
+          base64Index += ";base64,".length();
+          String base64String = mSource.substring(base64Index);
+          byte[] decode = Base64.decode(base64String, Base64.DEFAULT);
+          if (decode != null) {
+            setData(decode);
+          }
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    } else if (mSource.startsWith("file://")) {
+      // local file image
+      String filePath = mSource.substring("file://".length());
+      setData(new File(filePath));
+    } else if (mSource.startsWith("assets://")) {
+      InputStream is = null;
+      try {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+          setDataForTarge28Assets(mSource);
+        } else {
+          is = ContextHolder.getAppContext().getAssets()
+              .open(mSource.substring("assets://".length()));
+          byte[] rawData = new byte[is.available()];
+          int total = is.read(rawData);
+          LogUtils.d("HippyDrawable", "setData source: read total=" + total);
+          setData(rawData);
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      } finally {
+        if (is != null) {
+          try {
+            is.close();
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
+        }
+      }
+    }
+  }
 
-	/**
-	 * 是否是动画图片
-	 */
-	public boolean isAnimated()
-	{
-		return mGifMovie != null;
-	}
+  /**
+   * 获取GIF数据
+   */
+  public Movie getGIF() {
+    return mGifMovie;
+  }
 
-	/**
-	 * 获取Bitmap
-	 */
-	@Override
-	public Bitmap getBitmap()
-	{
-		return mBitmap;
-	}
+  /**
+   * 是否是动画图片
+   */
+  public boolean isAnimated() {
+    return mGifMovie != null;
+  }
+
+  /**
+   * 获取Bitmap
+   */
+  @Override
+  public Bitmap getBitmap() {
+    return mBitmap;
+  }
 
 //	public void draw(Canvas canvas)
 //	{
@@ -223,34 +207,29 @@ public class HippyDrawable implements IDrawableTarget
 //		return false;
 //	}
 
-	/**
-	 * 实现空的interface 获取数据源
-	 */
-	@Override
-	public String getSource()
-	{
-		return mSource;
-	}
+  /**
+   * 实现空的interface 获取数据源
+   */
+  @Override
+  public String getSource() {
+    return mSource;
+  }
 
-	@Override
-	public Drawable getDrawable()
-	{
-		return mDrawable;
-	}
+  @Override
+  public Drawable getDrawable() {
+    return mDrawable;
+  }
 
-	@Override
-	public Object getExtraData()
-	{
-		return null;
-	}
+  @Override
+  public Object getExtraData() {
+    return null;
+  }
 
-	@Override
-	public void onDrawableAttached()
-	{
-	}
+  @Override
+  public void onDrawableAttached() {
+  }
 
-	@Override
-	public void onDrawableDetached()
-	{
-	}
+  @Override
+  public void onDrawableDetached() {
+  }
 }

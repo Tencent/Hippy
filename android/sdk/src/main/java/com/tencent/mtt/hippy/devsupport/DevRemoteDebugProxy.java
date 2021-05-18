@@ -16,12 +16,12 @@
 package com.tencent.mtt.hippy.devsupport;
 
 @SuppressWarnings("unused")
-public interface DevRemoteDebugProxy
-{
-	void destroy();
+public interface DevRemoteDebugProxy {
 
-	interface OnReceiveDataListener
-	{
-		void onReceiveData(String mesg);
-	}
+  void destroy();
+
+  interface OnReceiveDataListener {
+
+    void onReceiveData(String mesg);
+  }
 }

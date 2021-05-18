@@ -23,40 +23,36 @@ import com.tencent.mtt.supportui.views.asyncimage.BackgroundDrawable;
  * Created by leonardgong on 2017/11/30 0030.
  */
 
-public class CommonBackgroundDrawable extends BackgroundDrawable
-{
-	public void setBorderRadius(float radius, int position)
-	{
-		if (!FlexConstants.isUndefined(radius))
-		{
-			radius = PixelUtil.dp2px(radius);
-			super.setBorderRadius(radius, position);
-		}
-	}
+public class CommonBackgroundDrawable extends BackgroundDrawable {
 
-	public void setBorderWidth(float width, int position)
-	{
-		if (!FlexConstants.isUndefined(width))
-		{
-			width = PixelUtil.dp2px(width);
-			super.setBorderWidth(width, position);
-		}
-	}
-  
+  public void setBorderRadius(float radius, int position) {
+    if (!FlexConstants.isUndefined(radius)) {
+      radius = PixelUtil.dp2px(radius);
+      super.setBorderRadius(radius, position);
+    }
+  }
+
+  public void setBorderWidth(float width, int position) {
+    if (!FlexConstants.isUndefined(width)) {
+      width = PixelUtil.dp2px(width);
+      super.setBorderWidth(width, position);
+    }
+  }
+
   public void setShadowOffsetX(float x) {
     if (!FlexConstants.isUndefined(x)) {
       x = PixelUtil.dp2px(x);
       super.setShadowOffsetX(x);
     }
   }
-  
+
   public void setShadowOffsetY(float y) {
     if (!FlexConstants.isUndefined(y)) {
       y = PixelUtil.dp2px(y);
       super.setShadowOffsetY(y);
     }
   }
-  
+
   public void setShadowRadius(float radius) {
     if (!FlexConstants.isUndefined(radius)) {
       radius = PixelUtil.dp2px(radius);

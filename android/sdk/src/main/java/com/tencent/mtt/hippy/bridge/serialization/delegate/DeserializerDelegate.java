@@ -5,8 +5,10 @@ import com.tencent.mtt.hippy.runtime.builtins.JSSharedArrayBuffer;
 import com.tencent.mtt.hippy.runtime.builtins.wasm.WasmModule;
 import com.tencent.mtt.hippy.serialization.exception.DataCloneDeserializationException;
 import com.tencent.mtt.hippy.serialization.recommend.Deserializer;
+
 @SuppressWarnings("unused")
 public class DeserializerDelegate implements Deserializer.Delegate {
+
   private static final DeserializerDelegate instance = new DeserializerDelegate();
 
   public static DeserializerDelegate getInstance() {

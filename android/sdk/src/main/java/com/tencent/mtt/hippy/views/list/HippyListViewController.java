@@ -32,187 +32,159 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 
-@SuppressWarnings({"deprecation","unused"})
+@SuppressWarnings({"deprecation", "unused"})
 @HippyController(name = HippyListViewController.CLASS_NAME)
-public class HippyListViewController extends HippyViewController<HippyListView>
-{
-	public static final String CLASS_NAME = "ListView";
+public class HippyListViewController extends HippyViewController<HippyListView> {
 
-	@Override
-	public void onViewDestroy(HippyListView hippyListView) {
-		super.onViewDestroy(hippyListView);
-		if (hippyListView != null && hippyListView.mListScrollListeners != null) {
-			hippyListView.mListScrollListeners.clear();
-		}
-	}
+  public static final String CLASS_NAME = "ListView";
 
-	@Override
-	protected void addView(ViewGroup parentView, View view, int index)
-	{
-		//		super.addView(parentView, view, index);
-	}
+  @Override
+  public void onViewDestroy(HippyListView hippyListView) {
+    super.onViewDestroy(hippyListView);
+    if (hippyListView != null && hippyListView.mListScrollListeners != null) {
+      hippyListView.mListScrollListeners.clear();
+    }
+  }
 
-	@Override
-	protected void deleteChild(ViewGroup parentView, View childView, int childIndex)
-	{
-		// List的childView是RecyclerViewItem类型，不是由Hippy构建的，所以这里需要提前删除RecyclerViewItem的child
-		if (childView instanceof RecyclerViewItem)
-		{
-			((RecyclerViewItem) childView).removeAllViews();
-		}
-		// list里，删掉某个条目后，它后面的条目的位置都要减1
-		if (childIndex >= 0 && parentView instanceof HippyListView)
-		{
-			HippyListView listView = (HippyListView) parentView;
-			listView.getRecycler().updateHolderPositionWhenDelete(childIndex);
-		}
-	}
+  @Override
+  protected void addView(ViewGroup parentView, View view, int index) {
+    //		super.addView(parentView, view, index);
+  }
 
-	@Override
-	public int getChildCount(HippyListView viewGroup)
-	{
-		return ((HippyListAdapter) viewGroup.getAdapter()).getRecyclerItemCount();
-	}
+  @Override
+  protected void deleteChild(ViewGroup parentView, View childView, int childIndex) {
+    // List的childView是RecyclerViewItem类型，不是由Hippy构建的，所以这里需要提前删除RecyclerViewItem的child
+    if (childView instanceof RecyclerViewItem) {
+      ((RecyclerViewItem) childView).removeAllViews();
+    }
+    // list里，删掉某个条目后，它后面的条目的位置都要减1
+    if (childIndex >= 0 && parentView instanceof HippyListView) {
+      HippyListView listView = (HippyListView) parentView;
+      listView.getRecycler().updateHolderPositionWhenDelete(childIndex);
+    }
+  }
 
-	@Override
-	public View getChildAt(HippyListView viewGroup, int i)
-	{
-		return ((HippyListAdapter) viewGroup.getAdapter()).getRecyclerItemView(i);
-	}
+  @Override
+  public int getChildCount(HippyListView viewGroup) {
+    return ((HippyListAdapter) viewGroup.getAdapter()).getRecyclerItemCount();
+  }
 
-	@Override
-	public void onBatchComplete(HippyListView view)
-	{
-		super.onBatchComplete(view);
-		view.setListData();
-	}
+  @Override
+  public View getChildAt(HippyListView viewGroup, int i) {
+    return ((HippyListAdapter) viewGroup.getAdapter()).getRecyclerItemView(i);
+  }
 
-	@Override
-	protected View createViewImpl(Context context) {
-		return new HippyListView(context, BaseLayoutManager.VERTICAL);
-	}
+  @Override
+  public void onBatchComplete(HippyListView view) {
+    super.onBatchComplete(view);
+    view.setListData();
+  }
 
-	@Override
-	protected View createViewImpl(Context context, HippyMap iniProps)
-	{
-		if (iniProps != null && iniProps.containsKey("horizontal"))
-		{
-			return new HippyListView(context, BaseLayoutManager.HORIZONTAL);
-		}
-		else
-		{
-			return new HippyListView(context, BaseLayoutManager.VERTICAL);
-		}
-	}
+  @Override
+  protected View createViewImpl(Context context) {
+    return new HippyListView(context, BaseLayoutManager.VERTICAL);
+  }
 
-	@Override
-	public RenderNode createRenderNode(int id, HippyMap props, String className, HippyRootView hippyRootView, ControllerManager controllerManager,
-			boolean lazy)
-	{
-		return new ListViewRenderNode(id, props, className, hippyRootView, controllerManager, lazy);
-	}
+  @Override
+  protected View createViewImpl(Context context, HippyMap iniProps) {
+    if (iniProps != null && iniProps.containsKey("horizontal")) {
+      return new HippyListView(context, BaseLayoutManager.HORIZONTAL);
+    } else {
+      return new HippyListView(context, BaseLayoutManager.VERTICAL);
+    }
+  }
 
-	@HippyControllerProps(name = "rowShouldSticky")
-	public void setRowShouldSticky(HippyListView view, boolean enable)
-	{
-		view.setHasSuspentedItem(enable);
-	}
+  @Override
+  public RenderNode createRenderNode(int id, HippyMap props, String className,
+      HippyRootView hippyRootView, ControllerManager controllerManager,
+      boolean lazy) {
+    return new ListViewRenderNode(id, props, className, hippyRootView, controllerManager, lazy);
+  }
 
-	@HippyControllerProps(name = "onScrollBeginDrag", defaultType = HippyControllerProps.BOOLEAN)
-	public void setScrollBeginDragEventEnable(HippyListView view, boolean flag)
-	{
-		view.setScrollBeginDragEventEnable(flag);
-	}
+  @HippyControllerProps(name = "rowShouldSticky")
+  public void setRowShouldSticky(HippyListView view, boolean enable) {
+    view.setHasSuspentedItem(enable);
+  }
 
-	@HippyControllerProps(name = "onScrollEndDrag", defaultType = HippyControllerProps.BOOLEAN)
-	public void setScrollEndDragEventEnable(HippyListView view, boolean flag)
-	{
-		view.setScrollEndDragEventEnable(flag);
-	}
+  @HippyControllerProps(name = "onScrollBeginDrag", defaultType = HippyControllerProps.BOOLEAN)
+  public void setScrollBeginDragEventEnable(HippyListView view, boolean flag) {
+    view.setScrollBeginDragEventEnable(flag);
+  }
 
-	@HippyControllerProps(name = "onMomentumScrollBegin", defaultType = HippyControllerProps.BOOLEAN)
-	public void setMomentumScrollBeginEventEnable(HippyListView view, boolean flag)
-	{
-		view.setMomentumScrollBeginEventEnable(flag);
-	}
+  @HippyControllerProps(name = "onScrollEndDrag", defaultType = HippyControllerProps.BOOLEAN)
+  public void setScrollEndDragEventEnable(HippyListView view, boolean flag) {
+    view.setScrollEndDragEventEnable(flag);
+  }
 
-	@HippyControllerProps(name = "onMomentumScrollEnd", defaultType = HippyControllerProps.BOOLEAN)
-	public void setMomentumScrollEndEventEnable(HippyListView view, boolean flag)
-	{
-		view.setMomentumScrollEndEventEnable(flag);
-	}
+  @HippyControllerProps(name = "onMomentumScrollBegin", defaultType = HippyControllerProps.BOOLEAN)
+  public void setMomentumScrollBeginEventEnable(HippyListView view, boolean flag) {
+    view.setMomentumScrollBeginEventEnable(flag);
+  }
 
-	@HippyControllerProps(name = "onScrollEnable", defaultType = HippyControllerProps.BOOLEAN)
-	public void setOnScrollEventEnable(HippyListView view, boolean flag)
-	{
-		view.setOnScrollEventEnable(flag);
-	}
+  @HippyControllerProps(name = "onMomentumScrollEnd", defaultType = HippyControllerProps.BOOLEAN)
+  public void setMomentumScrollEndEventEnable(HippyListView view, boolean flag) {
+    view.setMomentumScrollEndEventEnable(flag);
+  }
 
-	@HippyControllerProps(name = "exposureEventEnabled", defaultType = HippyControllerProps.BOOLEAN)
-	public void setExposureEventEnable(HippyListView view, boolean flag)
-	{
-		view.setExposureEventEnable(flag);
-	}
+  @HippyControllerProps(name = "onScrollEnable", defaultType = HippyControllerProps.BOOLEAN)
+  public void setOnScrollEventEnable(HippyListView view, boolean flag) {
+    view.setOnScrollEventEnable(flag);
+  }
 
-	@HippyControllerProps(name = "scrollEnabled", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = true)
-	public void setScrollEnable(HippyListView view, boolean flag)
-	{
-		view.setScrollEnable(flag);
-	}
+  @HippyControllerProps(name = "exposureEventEnabled", defaultType = HippyControllerProps.BOOLEAN)
+  public void setExposureEventEnable(HippyListView view, boolean flag) {
+    view.setExposureEventEnable(flag);
+  }
 
-	@HippyControllerProps(name = "scrollEventThrottle", defaultType = HippyControllerProps.NUMBER, defaultNumber = 30.0D)
-	public void setscrollEventThrottle(HippyListView view, int scrollEventThrottle)
-	{
-		view.setScrollEventThrottle(scrollEventThrottle);
-	}
+  @HippyControllerProps(name = "scrollEnabled", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = true)
+  public void setScrollEnable(HippyListView view, boolean flag) {
+    view.setScrollEnable(flag);
+  }
 
-	@HippyControllerProps(name = "preloadItemNumber")
-	public void setPreloadItemNumber(HippyListView view, int preloadItemNumber)
-	{
-		RecyclerViewBase.Adapter<?> adapter = view.getAdapter();
-		if (adapter instanceof HippyListAdapter)
-		{
-			((HippyListAdapter)adapter).setPreloadItemNumber(preloadItemNumber);
-		}
-	}
+  @HippyControllerProps(name = "scrollEventThrottle", defaultType = HippyControllerProps.NUMBER, defaultNumber = 30.0D)
+  public void setscrollEventThrottle(HippyListView view, int scrollEventThrottle) {
+    view.setScrollEventThrottle(scrollEventThrottle);
+  }
 
-	@HippyControllerProps(name = "overScrollEnabled", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = true)
-	public void setOverScrollEnabled(HippyListView view, boolean flag)
-	{
-		view.setOverScrollEnabled(flag);
-	}
+  @HippyControllerProps(name = "preloadItemNumber")
+  public void setPreloadItemNumber(HippyListView view, int preloadItemNumber) {
+    RecyclerViewBase.Adapter<?> adapter = view.getAdapter();
+    if (adapter instanceof HippyListAdapter) {
+      ((HippyListAdapter) adapter).setPreloadItemNumber(preloadItemNumber);
+    }
+  }
 
-	@Override
-	public void dispatchFunction(HippyListView view, String functionName, HippyArray dataArray)
-	{
-		super.dispatchFunction(view, functionName, dataArray);
-		switch (functionName)
-		{
-			case "scrollToIndex":
-			{
-				// list滑动到某个item
-				int xIndex = dataArray.getInt(0);
-				int yIndex = dataArray.getInt(1);
-				boolean animated = dataArray.getBoolean(2);
-				int duration = dataArray.getInt(3); //1.2.7 增加滚动时间 ms,animated==true时生效
-				view.scrollToIndex(xIndex, yIndex, animated,duration);
-				break;
-			}
-			case "scrollToContentOffset":
-			{
-				// list滑动到某个距离
-				double xOffset = dataArray.getDouble(0);
-				double yOffset = dataArray.getDouble(1);
-				boolean animated = dataArray.getBoolean(2);
-				int duration = dataArray.getInt(3);  //1.2.7 增加滚动时间 ms,animated==true时生效
-				view.scrollToContentOffset(xOffset, yOffset, animated,duration);
-				break;
-			}
-			case "scrollToTop":
-			{
-				view.scrollToTop(null);
-				break;
-			}
-		}
-	}
+  @HippyControllerProps(name = "overScrollEnabled", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = true)
+  public void setOverScrollEnabled(HippyListView view, boolean flag) {
+    view.setOverScrollEnabled(flag);
+  }
+
+  @Override
+  public void dispatchFunction(HippyListView view, String functionName, HippyArray dataArray) {
+    super.dispatchFunction(view, functionName, dataArray);
+    switch (functionName) {
+      case "scrollToIndex": {
+        // list滑动到某个item
+        int xIndex = dataArray.getInt(0);
+        int yIndex = dataArray.getInt(1);
+        boolean animated = dataArray.getBoolean(2);
+        int duration = dataArray.getInt(3); //1.2.7 增加滚动时间 ms,animated==true时生效
+        view.scrollToIndex(xIndex, yIndex, animated, duration);
+        break;
+      }
+      case "scrollToContentOffset": {
+        // list滑动到某个距离
+        double xOffset = dataArray.getDouble(0);
+        double yOffset = dataArray.getDouble(1);
+        boolean animated = dataArray.getBoolean(2);
+        int duration = dataArray.getInt(3);  //1.2.7 增加滚动时间 ms,animated==true时生效
+        view.scrollToContentOffset(xOffset, yOffset, animated, duration);
+        break;
+      }
+      case "scrollToTop": {
+        view.scrollToTop(null);
+        break;
+      }
+    }
+  }
 }

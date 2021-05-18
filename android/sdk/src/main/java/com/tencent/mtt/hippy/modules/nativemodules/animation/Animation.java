@@ -21,159 +21,138 @@ import android.animation.ValueAnimator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * FileName: Animation
- * Description：
- * History：
+ * FileName: Animation Description： History：
  */
-public abstract class Animation implements ValueAnimator.AnimatorUpdateListener, Animator.AnimatorListener
-{
-	protected final int							mId;
+public abstract class Animation implements ValueAnimator.AnimatorUpdateListener,
+    Animator.AnimatorListener {
 
-	protected CopyOnWriteArrayList<Integer>	mAnimationNodes;
+  protected final int mId;
 
-	protected CopyOnWriteArrayList<AnimationListener> mAnimationListeners;
+  protected CopyOnWriteArrayList<Integer> mAnimationNodes;
+
+  protected CopyOnWriteArrayList<AnimationListener> mAnimationListeners;
 
 
-	@SuppressWarnings("unused")
-	public Animation(int id)
-	{
-		this.mId = id;
-	}
+  @SuppressWarnings("unused")
+  public Animation(int id) {
+    this.mId = id;
+  }
 
-	public abstract Animator getAnimator();
+  public abstract Animator getAnimator();
 
-	public abstract void start();
+  public abstract void start();
 
-	public abstract void stop();
+  public abstract void stop();
 
-	public int getId()
-	{
-		return mId;
-	}
+  public int getId() {
+    return mId;
+  }
 
-	public void addAnimationNode(int tagId)
-	{
-		if (mAnimationNodes == null)
-		{
-			mAnimationNodes = new CopyOnWriteArrayList<>();
-		}
-		if (!mAnimationNodes.contains(tagId))
-		{
-			mAnimationNodes.add(tagId);
-		}
-	}
+  public void addAnimationNode(int tagId) {
+    if (mAnimationNodes == null) {
+      mAnimationNodes = new CopyOnWriteArrayList<>();
+    }
+    if (!mAnimationNodes.contains(tagId)) {
+      mAnimationNodes.add(tagId);
+    }
+  }
 
-	public void removeAnimationNode(int tagId)
-	{
-		if (mAnimationNodes != null)
-		{
-			mAnimationNodes.remove(Integer.valueOf(tagId));
-		}
-	}
+  public void removeAnimationNode(int tagId) {
+    if (mAnimationNodes != null) {
+      mAnimationNodes.remove(Integer.valueOf(tagId));
+    }
+  }
 
-	public CopyOnWriteArrayList<Integer> getAnimationNodes()
-	{
-		return mAnimationNodes;
-	}
+  public CopyOnWriteArrayList<Integer> getAnimationNodes() {
+    return mAnimationNodes;
+  }
 
-	public void addAnimationListener(AnimationListener listener)
-	{
-		if(mAnimationListeners == null)
-		{
-			mAnimationListeners = new CopyOnWriteArrayList<>();
-		}
-		mAnimationListeners.add(listener);
-	}
+  public void addAnimationListener(AnimationListener listener) {
+    if (mAnimationListeners == null) {
+      mAnimationListeners = new CopyOnWriteArrayList<>();
+    }
+    mAnimationListeners.add(listener);
+  }
 
-	@Override
-	public void onAnimationUpdate(ValueAnimator animation)
-	{
-		if(mAnimationListeners == null)
-		{
-			return;
-		}
-		for (AnimationListener mAnimationListener : mAnimationListeners) {
-			mAnimationListener.onAnimationUpdate(this);
-		}
-	}
+  @Override
+  public void onAnimationUpdate(ValueAnimator animation) {
+    if (mAnimationListeners == null) {
+      return;
+    }
+    for (AnimationListener mAnimationListener : mAnimationListeners) {
+      mAnimationListener.onAnimationUpdate(this);
+    }
+  }
 
-	@Override
-	public void onAnimationStart(Animator animation, boolean isReverse) {
-		onAnimationStart(animation);
-	}
+  @Override
+  public void onAnimationStart(Animator animation, boolean isReverse) {
+    onAnimationStart(animation);
+  }
 
-	@Override
-	public void onAnimationEnd(Animator animation, boolean isReverse) {
-		onAnimationEnd(animation);
-	}
-	
-	@Override
-	public void onAnimationStart(Animator animation)
-	{
-		if(mAnimationListeners == null)
-		{
-			return;
-		}
-		for (AnimationListener mAnimationListener : mAnimationListeners) {
-			mAnimationListener.onAnimationStart(this);
-		}
-	}
+  @Override
+  public void onAnimationEnd(Animator animation, boolean isReverse) {
+    onAnimationEnd(animation);
+  }
 
-	@Override
-	public void onAnimationEnd(Animator animation)
-	{
-		if(mAnimationListeners == null)
-		{
-			return;
-		}
-		for (AnimationListener mAnimationListener : mAnimationListeners) {
-			mAnimationListener.onAnimationEnd(this);
-		}
+  @Override
+  public void onAnimationStart(Animator animation) {
+    if (mAnimationListeners == null) {
+      return;
+    }
+    for (AnimationListener mAnimationListener : mAnimationListeners) {
+      mAnimationListener.onAnimationStart(this);
+    }
+  }
 
-	}
+  @Override
+  public void onAnimationEnd(Animator animation) {
+    if (mAnimationListeners == null) {
+      return;
+    }
+    for (AnimationListener mAnimationListener : mAnimationListeners) {
+      mAnimationListener.onAnimationEnd(this);
+    }
 
-	@Override
-	public void onAnimationCancel(Animator animation)
-	{
-		if(mAnimationListeners == null)
-		{
-			return;
-		}
-		for (AnimationListener mAnimationListener : mAnimationListeners) {
-			mAnimationListener.onAnimationCancel(this);
-		}
-	}
+  }
 
-	@Override
-	public void onAnimationRepeat(Animator animation)
-	{
-		if(mAnimationListeners == null)
-		{
-			return;
-		}
-		for (AnimationListener mAnimationListener : mAnimationListeners) {
-			mAnimationListener.onAnimationRepeat(this);
-		}
-	}
+  @Override
+  public void onAnimationCancel(Animator animation) {
+    if (mAnimationListeners == null) {
+      return;
+    }
+    for (AnimationListener mAnimationListener : mAnimationListeners) {
+      mAnimationListener.onAnimationCancel(this);
+    }
+  }
 
-	public abstract Object getAnimationValue();
+  @Override
+  public void onAnimationRepeat(Animator animation) {
+    if (mAnimationListeners == null) {
+      return;
+    }
+    for (AnimationListener mAnimationListener : mAnimationListeners) {
+      mAnimationListener.onAnimationRepeat(this);
+    }
+  }
 
-	public abstract Object getAnimationSimpleValue();
+  public abstract Object getAnimationValue();
 
-	public abstract void resume();
+  public abstract Object getAnimationSimpleValue();
 
-	public abstract void pause();
+  public abstract void resume();
 
-	public interface AnimationListener
-	{
-		void onAnimationStart(Animation animation);
+  public abstract void pause();
 
-		void onAnimationEnd(Animation animation);
+  public interface AnimationListener {
 
-		void onAnimationCancel(Animation animation);
+    void onAnimationStart(Animation animation);
 
-		void onAnimationRepeat(Animation animation);
+    void onAnimationEnd(Animation animation);
 
-		void onAnimationUpdate(Animation animation);
-	}
+    void onAnimationCancel(Animation animation);
+
+    void onAnimationRepeat(Animation animation);
+
+    void onAnimationUpdate(Animation animation);
+  }
 }

@@ -17,18 +17,16 @@ package com.tencent.mtt.hippy.common;
 
 @SuppressWarnings("DeprecatedIsStillUsed")
 @Deprecated
-public class HippyJsException extends Exception
-{
-	private final String	mStack;
+public class HippyJsException extends Exception {
 
-	public HippyJsException(String message, String stack)
-	{
-		super(message);
-		mStack = stack;
-	}
+  private final String mStack;
 
-	public String getStack()
-	{
-		return mStack;
-	}
+  public HippyJsException(String message, String stack) {
+    super(message);
+    mStack = stack;
+  }
+
+  public String getStack() {
+    return mStack;
+  }
 }
