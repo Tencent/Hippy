@@ -38,6 +38,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(loop, BOOL)
 HIPPY_EXPORT_VIEW_PROPERTY(onPageSelected, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onPageScroll, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onPageScrollStateChanged, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(bounces, BOOL)
 
 // clang-format off
 HIPPY_EXPORT_METHOD(setPage:(nonnull NSNumber *)hippyTag
