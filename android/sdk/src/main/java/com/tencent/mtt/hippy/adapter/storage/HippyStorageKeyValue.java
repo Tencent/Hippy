@@ -16,8 +16,8 @@
 package com.tencent.mtt.hippy.adapter.storage;
 
 @SuppressWarnings({"unused"})
-public class HippyStorageKeyValue
-{
-	public String	key;
-	public String	value;
+public class HippyStorageKeyValue {
+
+  public String key;
+  public String value;
 }

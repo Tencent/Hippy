@@ -21,29 +21,32 @@ import android.text.style.LineHeightSpan;
 @SuppressWarnings({"unused"})
 public class HippyLineHeightSpan implements LineHeightSpan {
 
-    private final int mHeight;
-    public HippyLineHeightSpan(float lineHeight){
-        this.mHeight= (int) Math.ceil(lineHeight);
+  private final int mHeight;
+
+  public HippyLineHeightSpan(float lineHeight) {
+    this.mHeight = (int) Math.ceil(lineHeight);
+  }
+
+  @Override
+  public void chooseHeight(CharSequence text, int start, int end, int spanstartv, int v,
+      Paint.FontMetricsInt fm) {
+    if (fm.descent > mHeight) {
+      fm.bottom = fm.descent = Math.min(mHeight, fm.descent);
+      fm.top = fm.ascent = 0;
+    } else if (-fm.ascent + fm.descent > mHeight) {
+      fm.bottom = fm.descent;
+      fm.top = fm.ascent = -mHeight + fm.descent;
+    } else if (-fm.ascent + fm.bottom > mHeight) {
+      fm.top = fm.ascent;
+      fm.bottom = fm.ascent + mHeight;
+    } else if (-fm.top + fm.bottom > mHeight) {
+      fm.top = fm.bottom - mHeight;
+    } else {
+      final int additional = mHeight - (-fm.top + fm.bottom);
+      fm.top -= Math.ceil(additional / 2.0f);
+      fm.bottom += Math.floor(additional / 2.0f);
+      fm.ascent = fm.top;
+      fm.descent = fm.bottom;
     }
-    @Override
-    public void chooseHeight(CharSequence text, int start, int end, int spanstartv, int v, Paint.FontMetricsInt fm) {
-        if (fm.descent > mHeight) {
-            fm.bottom = fm.descent = Math.min(mHeight, fm.descent);
-            fm.top = fm.ascent = 0;
-        } else if (-fm.ascent + fm.descent > mHeight) {
-            fm.bottom = fm.descent;
-            fm.top = fm.ascent = -mHeight + fm.descent;
-        } else if (-fm.ascent + fm.bottom > mHeight) {
-            fm.top = fm.ascent;
-            fm.bottom = fm.ascent + mHeight;
-        } else if (-fm.top + fm.bottom > mHeight) {
-            fm.top = fm.bottom - mHeight;
-        } else {
-            final int additional = mHeight - (-fm.top + fm.bottom);
-            fm.top -= Math.ceil(additional / 2.0f);
-            fm.bottom += Math.floor(additional / 2.0f);
-            fm.ascent = fm.top;
-            fm.descent = fm.bottom;
-        }
-    }
+  }
 }

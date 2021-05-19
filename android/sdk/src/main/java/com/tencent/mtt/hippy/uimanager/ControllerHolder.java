@@ -16,14 +16,15 @@
 package com.tencent.mtt.hippy.uimanager;
 
 @SuppressWarnings("rawtypes")
-public class ControllerHolder
-{
-	public final HippyViewController hippyViewController;
-	public final boolean isLazy;
-	public ControllerHolder(HippyViewController hippyViewController, boolean isLazy) {
-		this.hippyViewController = hippyViewController;
-		this.isLazy = isLazy;
-	}
+public class ControllerHolder {
+
+  public final HippyViewController hippyViewController;
+  public final boolean isLazy;
+
+  public ControllerHolder(HippyViewController hippyViewController, boolean isLazy) {
+    this.hippyViewController = hippyViewController;
+    this.isLazy = isLazy;
+  }
 
 
 }

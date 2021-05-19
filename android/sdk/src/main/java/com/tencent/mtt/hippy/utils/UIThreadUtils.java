@@ -19,26 +19,21 @@ import android.os.Handler;
 import android.os.Looper;
 
 @SuppressWarnings({"unused"})
-public class UIThreadUtils
-{
+public class UIThreadUtils {
 
-	private static final Handler sMainHandler = new Handler(Looper.getMainLooper());
+  private static final Handler sMainHandler = new Handler(Looper.getMainLooper());
 
-	public static void assertOnUiThread()
-	{
-		if (Looper.getMainLooper().getThread() != Thread.currentThread())
-		{
-			throw new RuntimeException("must run on ui thread!");
-		}
-	}
+  public static void assertOnUiThread() {
+    if (Looper.getMainLooper().getThread() != Thread.currentThread()) {
+      throw new RuntimeException("must run on ui thread!");
+    }
+  }
 
-	public static boolean isOnUiThread()
-	{
-		return Looper.getMainLooper().getThread() == Thread.currentThread();
-	}
+  public static boolean isOnUiThread() {
+    return Looper.getMainLooper().getThread() == Thread.currentThread();
+  }
 
-	public static void runOnUiThread(Runnable runnable)
-	{
-		sMainHandler.post(runnable);
-	}
+  public static void runOnUiThread(Runnable runnable) {
+    sMainHandler.post(runnable);
+  }
 }

@@ -18,42 +18,35 @@ package com.tencent.mtt.hippy.devsupport;
 import android.app.ProgressDialog;
 
 /**
- * Copyright (C) 2005-2020 TENCENT Inc.All Rights Reserved.
- * FileName: DevRemoteDebugManager
- * Description：
- * History：
+ * Copyright (C) 2005-2020 TENCENT Inc.All Rights Reserved. FileName: DevRemoteDebugManager
+ * Description： History：
  */
 @SuppressWarnings("unused")
-public class DevRemoteDebugManager implements DevRemoteDebugProxy
-{
-	ProgressDialog				        mProgressDialog;
+public class DevRemoteDebugManager implements DevRemoteDebugProxy {
 
-	final RemoteDebugExceptionHandler	mRemoteDebugExceptionHandler;
+  ProgressDialog mProgressDialog;
 
-	public DevRemoteDebugManager(RemoteDebugExceptionHandler handler)
-	{
-		this.mRemoteDebugExceptionHandler = handler;
-	}
+  final RemoteDebugExceptionHandler mRemoteDebugExceptionHandler;
 
-	@Override
-	public void destroy()
-	{
-		if (mProgressDialog != null)
-		{
-			mProgressDialog.dismiss();
-		}
-	}
+  public DevRemoteDebugManager(RemoteDebugExceptionHandler handler) {
+    this.mRemoteDebugExceptionHandler = handler;
+  }
 
-	public void handleException(Throwable t)
-	{
-		if (mRemoteDebugExceptionHandler != null)
-		{
-			mRemoteDebugExceptionHandler.onHandleRemoteDebugException(t);
-		}
-	}
+  @Override
+  public void destroy() {
+    if (mProgressDialog != null) {
+      mProgressDialog.dismiss();
+    }
+  }
 
-	public interface RemoteDebugExceptionHandler
-	{
-		void onHandleRemoteDebugException(Throwable t);
-	}
+  public void handleException(Throwable t) {
+    if (mRemoteDebugExceptionHandler != null) {
+      mRemoteDebugExceptionHandler.onHandleRemoteDebugException(t);
+    }
+  }
+
+  public interface RemoteDebugExceptionHandler {
+
+    void onHandleRemoteDebugException(Throwable t);
+  }
 }

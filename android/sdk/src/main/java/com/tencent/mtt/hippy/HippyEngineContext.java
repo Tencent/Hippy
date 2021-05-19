@@ -24,35 +24,35 @@ import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
 
 @SuppressWarnings("unused")
-public interface HippyEngineContext
-{
-	HippyGlobalConfigs getGlobalConfigs();
+public interface HippyEngineContext {
 
-	HippyModuleManager getModuleManager();
+  HippyGlobalConfigs getGlobalConfigs();
 
-	HippyBridgeManager getBridgeManager();
+  HippyModuleManager getModuleManager();
 
-	DevSupportManager getDevSupportManager();
+  HippyBridgeManager getBridgeManager();
 
-	ThreadExecutor getThreadExecutor();
+  DevSupportManager getDevSupportManager();
 
-	DomManager getDomManager();
+  ThreadExecutor getThreadExecutor();
 
-	RenderManager getRenderManager();
+  DomManager getDomManager();
 
-	HippyRootView getInstance(int id);
+  RenderManager getRenderManager();
 
-	void addInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);
+  HippyRootView getInstance(int id);
 
-	void removeInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);
+  void addInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);
 
-	void addEngineLifecycleEventListener(HippyEngineLifecycleEventListener listener);
+  void removeInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);
 
-	void removeEngineLifecycleEventListener(HippyEngineLifecycleEventListener listener);
+  void addEngineLifecycleEventListener(HippyEngineLifecycleEventListener listener);
 
-	void handleException(Throwable throwable);
+  void removeEngineLifecycleEventListener(HippyEngineLifecycleEventListener listener);
 
-	TimeMonitor getStartTimeMonitor();
+  void handleException(Throwable throwable);
 
-	int getEngineId();
+  TimeMonitor getStartTimeMonitor();
+
+  int getEngineId();
 }

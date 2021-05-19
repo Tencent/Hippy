@@ -21,50 +21,43 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import java.util.ArrayList;
 
 @SuppressWarnings("deprecation")
-public class AnimationNode
-{
-	private final int mTagId;
-	private final HippyRootView mRootView;
-	private final ArrayList<Animation> mAnimations;
-	private HippyMap mProps;
+public class AnimationNode {
 
-	public AnimationNode(int tagId, HippyRootView rootView) {
-		mTagId = tagId;
-		mRootView = rootView;
-		mAnimations = new ArrayList<>();
-	}
+  private final int mTagId;
+  private final HippyRootView mRootView;
+  private final ArrayList<Animation> mAnimations;
+  private HippyMap mProps;
 
-	public int getId()
-	{
-		return mTagId;
-	}
+  public AnimationNode(int tagId, HippyRootView rootView) {
+    mTagId = tagId;
+    mRootView = rootView;
+    mAnimations = new ArrayList<>();
+  }
 
-	public HippyRootView getRootView()
-	{
-		return mRootView;
-	}
+  public int getId() {
+    return mTagId;
+  }
 
-	public HippyMap getProps()
-	{
-		return mProps;
-	}
+  public HippyRootView getRootView() {
+    return mRootView;
+  }
 
-	public void setProps(HippyMap props)
-	{
-		this.mProps = props;
-	}
+  public HippyMap getProps() {
+    return mProps;
+  }
 
-	public void addAnimation(Animation animation)
-	{
-		if (!mAnimations.contains(animation))
-		{
-			mAnimations.add(animation);
-		}
-	}
+  public void setProps(HippyMap props) {
+    this.mProps = props;
+  }
 
-	public ArrayList<Animation> getAnimations()
-	{
-		return mAnimations;
-	}
+  public void addAnimation(Animation animation) {
+    if (!mAnimations.contains(animation)) {
+      mAnimations.add(animation);
+    }
+  }
+
+  public ArrayList<Animation> getAnimations() {
+    return mAnimations;
+  }
 
 }

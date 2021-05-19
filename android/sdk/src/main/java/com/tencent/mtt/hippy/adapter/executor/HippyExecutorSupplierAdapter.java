@@ -18,16 +18,13 @@ package com.tencent.mtt.hippy.adapter.executor;
 import java.util.concurrent.Executor;
 
 /**
- * FileName: HippyExecutorSupplierAdapter
- * Description：
- * History：
+ * FileName: HippyExecutorSupplierAdapter Description： History：
  */
-public interface HippyExecutorSupplierAdapter
-{
+public interface HippyExecutorSupplierAdapter {
 
-	Executor getDBExecutor();
+  Executor getDBExecutor();
 
-	Executor getBackgroundTaskExecutor();
+  Executor getBackgroundTaskExecutor();
 
-    void destroyIfNeed();
+  void destroyIfNeed();
 }

@@ -15,139 +15,117 @@
  */
 package com.tencent.mtt.hippy.common;
 
-public class ThreadExecutor implements Thread.UncaughtExceptionHandler
-{
-	final HippyHandlerThread	mJsThread;
-	final HippyHandlerThread	mJsBridgeThread;
-	final HippyHandlerThread	mDomThread;
-	UncaughtExceptionHandler	mUncaughtExceptionHandler;
-	private final int			mGroupId;
+public class ThreadExecutor implements Thread.UncaughtExceptionHandler {
 
-	@SuppressWarnings("unused")
-	public ThreadExecutor(int groupId)
-	{
-		mGroupId = groupId;
-		mJsThread = new HippyHandlerThread("hippy-js-Thread");
-		mJsThread.setUncaughtExceptionHandler(this);
+  final HippyHandlerThread mJsThread;
+  final HippyHandlerThread mJsBridgeThread;
+  final HippyHandlerThread mDomThread;
+  UncaughtExceptionHandler mUncaughtExceptionHandler;
+  private final int mGroupId;
 
-		mJsBridgeThread = new HippyHandlerThread("hippy-jsBridge-Thread");
-		mJsBridgeThread.setUncaughtExceptionHandler(this);
-		mDomThread = new HippyHandlerThread("hippy-DomThread");
-		mDomThread.setUncaughtExceptionHandler(this);
-	}
+  @SuppressWarnings("unused")
+  public ThreadExecutor(int groupId) {
+    mGroupId = groupId;
+    mJsThread = new HippyHandlerThread("hippy-js-Thread");
+    mJsThread.setUncaughtExceptionHandler(this);
 
-	public void setUncaughtExceptionHandler(UncaughtExceptionHandler exceptionHandler)
-	{
-		mUncaughtExceptionHandler = exceptionHandler;
-	}
+    mJsBridgeThread = new HippyHandlerThread("hippy-jsBridge-Thread");
+    mJsBridgeThread.setUncaughtExceptionHandler(this);
+    mDomThread = new HippyHandlerThread("hippy-DomThread");
+    mDomThread.setUncaughtExceptionHandler(this);
+  }
 
-	public void destroy()
-	{
-		if (mDomThread != null && mDomThread.isThreadAlive())
-		{
-			mDomThread.quit();
-		
-			mDomThread.setUncaughtExceptionHandler(null);
-		}
+  public void setUncaughtExceptionHandler(UncaughtExceptionHandler exceptionHandler) {
+    mUncaughtExceptionHandler = exceptionHandler;
+  }
 
-		if (mJsBridgeThread != null && mJsBridgeThread.isThreadAlive())
-		{
-			mJsBridgeThread.quit();
-			
-			mJsBridgeThread.setUncaughtExceptionHandler(null);
-		}
+  public void destroy() {
+    if (mDomThread != null && mDomThread.isThreadAlive()) {
+      mDomThread.quit();
 
-		if (mJsThread != null && mJsThread.isThreadAlive())
-		{
-			mJsThread.quit();
-			
-			mJsThread.setUncaughtExceptionHandler(null);
-		}
+      mDomThread.setUncaughtExceptionHandler(null);
+    }
 
-		mUncaughtExceptionHandler = null;
-	}
+    if (mJsBridgeThread != null && mJsBridgeThread.isThreadAlive()) {
+      mJsBridgeThread.quit();
 
-	@SuppressWarnings("unused")
-	public void postDelayOnJsThread(int delay, Runnable runnable)
-	{
-		mJsThread.getHandler().postDelayed(runnable, delay);
-	}
+      mJsBridgeThread.setUncaughtExceptionHandler(null);
+    }
 
-	@SuppressWarnings("unused")
-	public void postOnJsThread(Runnable runnable)
-	{
-		mJsBridgeThread.runOnQueue(runnable);
-	}
+    if (mJsThread != null && mJsThread.isThreadAlive()) {
+      mJsThread.quit();
 
-	@SuppressWarnings("unused")
-	public void postOnJsBridgeThread(Runnable runnable)
-	{
-		mJsThread.runOnQueue(runnable);
-	}
+      mJsThread.setUncaughtExceptionHandler(null);
+    }
 
-	public void postOnDomThread(Runnable runnable)
-	{
-		mDomThread.runOnQueue(runnable);
-	}
+    mUncaughtExceptionHandler = null;
+  }
 
-	@SuppressWarnings("unused")
-	public void assertOnJsBridge()
-	{
-		if (Thread.currentThread().getId() != mJsBridgeThread.getId())
-		{
-			throw new RuntimeException("call is not on Js-bridge-thread");
-		}
-	}
+  @SuppressWarnings("unused")
+  public void postDelayOnJsThread(int delay, Runnable runnable) {
+    mJsThread.getHandler().postDelayed(runnable, delay);
+  }
 
-	@SuppressWarnings("unused")
-	public void assertOnJsThread()
-	{
-		if (Thread.currentThread().getId() != mJsThread.getId())
-		{
-			throw new RuntimeException("call is not on Js-thread");
-		}
-	}
+  @SuppressWarnings("unused")
+  public void postOnJsThread(Runnable runnable) {
+    mJsBridgeThread.runOnQueue(runnable);
+  }
 
-	@SuppressWarnings("unused")
-	public void assertOnDomThread()
-	{
-		if (Thread.currentThread().getId() != mDomThread.getId())
-		{
-			throw new RuntimeException("call is not on dom-thread");
-		}
-	}
+  @SuppressWarnings("unused")
+  public void postOnJsBridgeThread(Runnable runnable) {
+    mJsThread.runOnQueue(runnable);
+  }
 
-	public HippyHandlerThread getJsBridgeThread()
-	{
-		return mJsBridgeThread;
-	}
+  public void postOnDomThread(Runnable runnable) {
+    mDomThread.runOnQueue(runnable);
+  }
 
-	public HippyHandlerThread getJsThread()
-	{
-		return mJsThread;
-	}
+  @SuppressWarnings("unused")
+  public void assertOnJsBridge() {
+    if (Thread.currentThread().getId() != mJsBridgeThread.getId()) {
+      throw new RuntimeException("call is not on Js-bridge-thread");
+    }
+  }
 
-	public HippyHandlerThread getDomThread()
-	{
-		return mDomThread;
-	}
+  @SuppressWarnings("unused")
+  public void assertOnJsThread() {
+    if (Thread.currentThread().getId() != mJsThread.getId()) {
+      throw new RuntimeException("call is not on Js-thread");
+    }
+  }
 
-	@Override
-	public void uncaughtException(@SuppressWarnings("NullableProblems") Thread t, @SuppressWarnings("NullableProblems") Throwable e)
-	{
-		if (mUncaughtExceptionHandler != null)
-		{
-			mUncaughtExceptionHandler.handleThreadUncaughtException(t, e, mGroupId);
-		}
-		else
-		{
-			throw new RuntimeException(e);
-		}
+  @SuppressWarnings("unused")
+  public void assertOnDomThread() {
+    if (Thread.currentThread().getId() != mDomThread.getId()) {
+      throw new RuntimeException("call is not on dom-thread");
+    }
+  }
 
-	}
+  public HippyHandlerThread getJsBridgeThread() {
+    return mJsBridgeThread;
+  }
 
-	public interface UncaughtExceptionHandler
-	{
-		void handleThreadUncaughtException(Thread t, Throwable e, Integer groupId);
-	}
+  public HippyHandlerThread getJsThread() {
+    return mJsThread;
+  }
+
+  public HippyHandlerThread getDomThread() {
+    return mDomThread;
+  }
+
+  @Override
+  public void uncaughtException(Thread t,
+      Throwable e) {
+    if (mUncaughtExceptionHandler != null) {
+      mUncaughtExceptionHandler.handleThreadUncaughtException(t, e, mGroupId);
+    } else {
+      throw new RuntimeException(e);
+    }
+
+  }
+
+  public interface UncaughtExceptionHandler {
+
+    void handleThreadUncaughtException(Thread t, Throwable e, Integer groupId);
+  }
 }

@@ -16,22 +16,22 @@
 package com.tencent.mtt.hippy.dom.node;
 
 @SuppressWarnings({"unused"})
-public class TextExtra
-{
-	public final Object	mExtra;
-	public final float	mLeftPadding;
-	public final float	mRightPadding;
-	public final float	mBottomPadding;
-	public final float	mTopPadding;
+public class TextExtra {
 
-	public TextExtra(Object extra, float mLeftPadding, float mRightPadding, float mBottomPadding, float mTopPadding)
-	{
-		this.mExtra = extra;
-		this.mLeftPadding = mLeftPadding;
-		this.mRightPadding = mRightPadding;
-		this.mBottomPadding = mBottomPadding;
-		this.mTopPadding = mTopPadding;
-	}
+  public final Object mExtra;
+  public final float mLeftPadding;
+  public final float mRightPadding;
+  public final float mBottomPadding;
+  public final float mTopPadding;
+
+  public TextExtra(Object extra, float mLeftPadding, float mRightPadding, float mBottomPadding,
+      float mTopPadding) {
+    this.mExtra = extra;
+    this.mLeftPadding = mLeftPadding;
+    this.mRightPadding = mRightPadding;
+    this.mBottomPadding = mBottomPadding;
+    this.mTopPadding = mTopPadding;
+  }
 
 
 }

@@ -25,76 +25,71 @@ import java.io.*;
 import java.util.Locale;
 
 @SuppressWarnings({"unused"})
-public class DevServerHelper
-{
-	private static final String	BUNDLE_URL_FORMAT						= "http://%s/%s?platform=android&dev=%s&hot=%s&minify=%s";
-	// --Commented out by Inspection (2021/5/4 20:09):private static final String	LAUNCH_JS_DEVTOOLS_COMMAND_URL_FORMAT	= "http://%s/launch-js-devtools";
-	// --Commented out by Inspection (2021/5/4 20:10):private static final String	WEBSOCKET_PROXY_URL_FORMAT				= "ws://%s/debugger-proxy?role=client";
-	private static final String	WEBSOCKET_LIVERELOAD_URL_FORMAT			= "ws://%s/debugger-live-reload";
-	// --Commented out by Inspection (2021/5/4 20:10):private static final String	ONCHANGE_ENDPOINT_URL_FORMAT			= "http://%s/onchange";
+public class DevServerHelper {
 
-	private final HippyGlobalConfigs	mGlobalConfigs;
-	private final String				mServerHost;
+  private static final String BUNDLE_URL_FORMAT = "http://%s/%s?platform=android&dev=%s&hot=%s&minify=%s";
+  // --Commented out by Inspection (2021/5/4 20:09):private static final String	LAUNCH_JS_DEVTOOLS_COMMAND_URL_FORMAT	= "http://%s/launch-js-devtools";
+  // --Commented out by Inspection (2021/5/4 20:10):private static final String	WEBSOCKET_PROXY_URL_FORMAT				= "ws://%s/debugger-proxy?role=client";
+  private static final String WEBSOCKET_LIVERELOAD_URL_FORMAT = "ws://%s/debugger-live-reload";
+  // --Commented out by Inspection (2021/5/4 20:10):private static final String	ONCHANGE_ENDPOINT_URL_FORMAT			= "http://%s/onchange";
 
-	public DevServerHelper(HippyGlobalConfigs configs, String serverHost)
-	{
-		mGlobalConfigs = configs;
-		mServerHost = serverHost;
-	}
+  private final HippyGlobalConfigs mGlobalConfigs;
+  private final String mServerHost;
 
-	public String createBundleURL(String host, String bundleName, boolean devMode, boolean hmr, boolean jsMinify)
-	{
-		return String.format(Locale.US, BUNDLE_URL_FORMAT, host, bundleName, devMode, hmr, jsMinify);
-	}
+  public DevServerHelper(HippyGlobalConfigs configs, String serverHost) {
+    mGlobalConfigs = configs;
+    mServerHost = serverHost;
+  }
 
-	public String getLiveReloadURL()
-	{
-		return String.format(Locale.US, WEBSOCKET_LIVERELOAD_URL_FORMAT, mServerHost);
-	}
+  public String createBundleURL(String host, String bundleName, boolean devMode, boolean hmr,
+      boolean jsMinify) {
+    return String.format(Locale.US, BUNDLE_URL_FORMAT, host, bundleName, devMode, hmr, jsMinify);
+  }
 
-	public void fetchBundleFromURL(final BundleFetchCallBack bundleFetchCallBack, final String url)
-	{
-		HippyHttpRequest request = new HippyHttpRequest();
-		request.setUrl(url);
-		mGlobalConfigs.getHttpAdapter().sendRequest(request, new HippyHttpAdapter.HttpTaskCallback()
-		{
-			@Override
-			public void onTaskSuccess(HippyHttpRequest request, HippyHttpResponse response) throws Exception
-			{
-				if (bundleFetchCallBack == null) {
-					return;
-				}
-				if (response.getStatusCode() == 200 && response.getInputStream() != null) {
-					bundleFetchCallBack.onSuccess(response.getInputStream());
-				} else {
-					String message = "unknown";
-					if (response.getErrorStream() != null)
-					{
-						StringBuilder sb = new StringBuilder();
-						String readLine;
-						//noinspection CharsetObjectCanBeUsed
-						BufferedReader bfReader = new BufferedReader(new InputStreamReader(response.getErrorStream(), "UTF-8"));
-						while ((readLine = bfReader.readLine()) != null)
-						{
-							sb.append(readLine);
-							sb.append("\r\n");
-						}
-						message = sb.toString();
-					}
-					bundleFetchCallBack.onFail(new DevServerException("Could not connect to development server." + "URL: " + url
-							+ "  try to :adb reverse tcp:38989 tcp:38989 , message : " + message));
-				}
-			}
+  public String getLiveReloadURL() {
+    return String.format(Locale.US, WEBSOCKET_LIVERELOAD_URL_FORMAT, mServerHost);
+  }
 
-			@Override
-			public void onTaskFailed(HippyHttpRequest request, Throwable error)
-			{
-				if (bundleFetchCallBack != null)
-				{
-					bundleFetchCallBack.onFail(new DevServerException("Could not connect to development server." + "URL: " + url
-							+ "  try to :adb reverse tcp:38989 tcp:38989 , message : " + error.getMessage()));
-				}
-			}
-		});
-	}
+  public void fetchBundleFromURL(final BundleFetchCallBack bundleFetchCallBack, final String url) {
+    HippyHttpRequest request = new HippyHttpRequest();
+    request.setUrl(url);
+    mGlobalConfigs.getHttpAdapter().sendRequest(request, new HippyHttpAdapter.HttpTaskCallback() {
+      @Override
+      public void onTaskSuccess(HippyHttpRequest request, HippyHttpResponse response)
+          throws Exception {
+        if (bundleFetchCallBack == null) {
+          return;
+        }
+        if (response.getStatusCode() == 200 && response.getInputStream() != null) {
+          bundleFetchCallBack.onSuccess(response.getInputStream());
+        } else {
+          String message = "unknown";
+          if (response.getErrorStream() != null) {
+            StringBuilder sb = new StringBuilder();
+            String readLine;
+            //noinspection CharsetObjectCanBeUsed
+            BufferedReader bfReader = new BufferedReader(
+                new InputStreamReader(response.getErrorStream(), "UTF-8"));
+            while ((readLine = bfReader.readLine()) != null) {
+              sb.append(readLine);
+              sb.append("\r\n");
+            }
+            message = sb.toString();
+          }
+          bundleFetchCallBack.onFail(
+              new DevServerException("Could not connect to development server." + "URL: " + url
+                  + "  try to :adb reverse tcp:38989 tcp:38989 , message : " + message));
+        }
+      }
+
+      @Override
+      public void onTaskFailed(HippyHttpRequest request, Throwable error) {
+        if (bundleFetchCallBack != null) {
+          bundleFetchCallBack.onFail(
+              new DevServerException("Could not connect to development server." + "URL: " + url
+                  + "  try to :adb reverse tcp:38989 tcp:38989 , message : " + error.getMessage()));
+        }
+      }
+    });
+  }
 }

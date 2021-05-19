@@ -15,8 +15,8 @@
  */
 package com.tencent.mtt.hippy.adapter.soloader;
 
-@SuppressWarnings({"unused","SameReturnValue"})
+@SuppressWarnings({"unused", "SameReturnValue"})
 public interface HippySoLoaderAdapter {
 
-     String loadSoPath(String soName);
+  String loadSoPath(String soName);
 }

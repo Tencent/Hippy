@@ -25,5 +25,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.CLASS)
 public @interface CalledByNative {
 
-    @SuppressWarnings("unused") String value() default "";
+  @SuppressWarnings("unused") String value() default "";
 }

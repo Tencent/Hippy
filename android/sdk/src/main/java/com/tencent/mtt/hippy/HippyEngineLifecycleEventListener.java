@@ -16,14 +16,11 @@
 package com.tencent.mtt.hippy;
 
 /**
- * FileName: HippyEngineLifecycleEventListener
- * Description：
- * History：
+ * FileName: HippyEngineLifecycleEventListener Description： History：
  */
-public interface HippyEngineLifecycleEventListener
-{
+public interface HippyEngineLifecycleEventListener {
 
-	void onEngineResume();
+  void onEngineResume();
 
-	void onEnginePause();
+  void onEnginePause();
 }

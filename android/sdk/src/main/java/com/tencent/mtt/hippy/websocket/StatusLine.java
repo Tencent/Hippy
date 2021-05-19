@@ -19,68 +19,52 @@ import java.io.IOException;
 import java.net.ProtocolException;
 
 @SuppressWarnings({"unused"})
-public final class StatusLine
-{
+public final class StatusLine {
 
-	public final int	code;
-	public final String	message;
+  public final int code;
+  public final String message;
 
-	public StatusLine(int code, String message)
-	{
-		this.code = code;
-		this.message = message;
-	}
+  public StatusLine(int code, String message) {
+    this.code = code;
+    this.message = message;
+  }
 
-	public static StatusLine parse(String statusLine) throws IOException
-	{
+  public static StatusLine parse(String statusLine) throws IOException {
 
-		int codeStart;
-		if (statusLine.startsWith("HTTP/1."))
-		{
-			if (statusLine.length() < 9 || statusLine.charAt(8) != ' ')
-			{
-				throw new ProtocolException("Unexpected status line: " + statusLine);
-			}
-			int httpMinorVersion = statusLine.charAt(7) - '0';
-			codeStart = 9;
-			if (httpMinorVersion != 0 && httpMinorVersion != 1)
-			{
-                throw new ProtocolException("Unexpected status line: " + statusLine);
-			}
-		}
-		else if (statusLine.startsWith("ICY "))
-		{
-			codeStart = 4;
-		}
-		else
-		{
-			throw new ProtocolException("Unexpected status line: " + statusLine);
-		}
+    int codeStart;
+    if (statusLine.startsWith("HTTP/1.")) {
+      if (statusLine.length() < 9 || statusLine.charAt(8) != ' ') {
+        throw new ProtocolException("Unexpected status line: " + statusLine);
+      }
+      int httpMinorVersion = statusLine.charAt(7) - '0';
+      codeStart = 9;
+      if (httpMinorVersion != 0 && httpMinorVersion != 1) {
+        throw new ProtocolException("Unexpected status line: " + statusLine);
+      }
+    } else if (statusLine.startsWith("ICY ")) {
+      codeStart = 4;
+    } else {
+      throw new ProtocolException("Unexpected status line: " + statusLine);
+    }
 
-		if (statusLine.length() < codeStart + 3)
-		{
-			throw new ProtocolException("Unexpected status line: " + statusLine);
-		}
-		int code;
-		try
-		{
-			code = Integer.parseInt(statusLine.substring(codeStart, codeStart + 3));
-		}
-		catch (NumberFormatException e)
-		{
-			throw new ProtocolException("Unexpected status line: " + statusLine);
-		}
+    if (statusLine.length() < codeStart + 3) {
+      throw new ProtocolException("Unexpected status line: " + statusLine);
+    }
+    int code;
+    try {
+      code = Integer.parseInt(statusLine.substring(codeStart, codeStart + 3));
+    } catch (NumberFormatException e) {
+      throw new ProtocolException("Unexpected status line: " + statusLine);
+    }
 
-		String message = "";
-		if (statusLine.length() > codeStart + 3)
-		{
-			if (statusLine.charAt(codeStart + 3) != ' ')
-			{
-				throw new ProtocolException("Unexpected status line: " + statusLine);
-			}
-			message = statusLine.substring(codeStart + 4);
-		}
+    String message = "";
+    if (statusLine.length() > codeStart + 3) {
+      if (statusLine.charAt(codeStart + 3) != ' ') {
+        throw new ProtocolException("Unexpected status line: " + statusLine);
+      }
+      message = statusLine.substring(codeStart + 4);
+    }
 
-		return new StatusLine(code, message);
-	}
+    return new StatusLine(code, message);
+  }
 }

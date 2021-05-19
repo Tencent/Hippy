@@ -24,145 +24,126 @@ import java.util.Map;
 
 @SuppressWarnings({"deprecation", "unused", "rawtypes"})
 @Deprecated
-public class HippyRootViewParams
-{
+public class HippyRootViewParams {
 
-	private final HippyBundleLoader		mBundleLoader;
+  private final HippyBundleLoader mBundleLoader;
 
-	private final Activity				mActivity;
+  private final Activity mActivity;
 
-	private final String				mName;
+  private final String mName;
 
-	// 带上参数，传递给前端的rootview：比如：Hippy.entryPage: class App extends Component
-	private final HippyMap				mLaunchParams;
+  // 带上参数，传递给前端的rootview：比如：Hippy.entryPage: class App extends Component
+  private final HippyMap mLaunchParams;
 
-	// 目前只有一个用处：映射："CustomViewCreator" <==> 宿主自定义的一个HippyCustomViewCreator(这个creator还得通过ModuleParams.Builder.setCustomViewCreator来指定才行)
-	private final Map					mNativeParams;
+  // 目前只有一个用处：映射："CustomViewCreator" <==> 宿主自定义的一个HippyCustomViewCreator(这个creator还得通过ModuleParams.Builder.setCustomViewCreator来指定才行)
+  private final Map mNativeParams;
 
-	private HippyInstanceContext	    mHippyInstanceContext;
+  private HippyInstanceContext mHippyInstanceContext;
 
 
-	private HippyRootViewParams(String name, HippyBundleLoader bundleLoader, Activity activity, HippyMap launchParams, Map nativeParams,
-			HippyInstanceContext hippyInstanceContext)
-	{
-		this.mName = name;
-		this.mBundleLoader = bundleLoader;
-		this.mActivity = activity;
-		this.mLaunchParams = launchParams;
-		this.mNativeParams = nativeParams;
-		this.mHippyInstanceContext = hippyInstanceContext;
-	}
+  private HippyRootViewParams(String name, HippyBundleLoader bundleLoader, Activity activity,
+      HippyMap launchParams, Map nativeParams,
+      HippyInstanceContext hippyInstanceContext) {
+    this.mName = name;
+    this.mBundleLoader = bundleLoader;
+    this.mActivity = activity;
+    this.mLaunchParams = launchParams;
+    this.mNativeParams = nativeParams;
+    this.mHippyInstanceContext = hippyInstanceContext;
+  }
 
-	HippyInstanceContext getInstanceContext()
-	{
-		return mHippyInstanceContext;
-	}
+  HippyInstanceContext getInstanceContext() {
+    return mHippyInstanceContext;
+  }
 
-	public void clearHippyInstanceContext()
-	{
-		mHippyInstanceContext = null;
-	}
+  public void clearHippyInstanceContext() {
+    mHippyInstanceContext = null;
+  }
 
-	public HippyBundleLoader getBundleLoader()
-	{
-		return mBundleLoader;
-	}
+  public HippyBundleLoader getBundleLoader() {
+    return mBundleLoader;
+  }
 
-	public String getName()
-	{
-		return mName;
-	}
+  public String getName() {
+    return mName;
+  }
 
-	public HippyMap getLaunchParams()
-	{
-		return mLaunchParams;
-	}
+  public HippyMap getLaunchParams() {
+    return mLaunchParams;
+  }
 
-	public Map getNativeParams()
-	{
-		return mNativeParams;
-	}
+  public Map getNativeParams() {
+    return mNativeParams;
+  }
 
-	public Activity getActivity()
-	{
-		return mActivity;
-	}
+  public Activity getActivity() {
+    return mActivity;
+  }
 
-	public static class Builder
-	{
+  public static class Builder {
 
-		private HippyBundleLoader		mBundleLoader;
+    private HippyBundleLoader mBundleLoader;
 
-		private Activity				mActivity;
+    private Activity mActivity;
 
-		private String					mName;
+    private String mName;
 
-		private HippyMap				mLaunchParams;
+    private HippyMap mLaunchParams;
 
-		private Map						mNativeParams;
+    private Map mNativeParams;
 
-		private HippyInstanceContext	mHippyInstanceContext;
+    private HippyInstanceContext mHippyInstanceContext;
 
-		public HippyRootViewParams.Builder setInstanceContext(HippyInstanceContext hippyInstanceContext)
-		{
-			this.mHippyInstanceContext = hippyInstanceContext;
-			return this;
-		}
+    public HippyRootViewParams.Builder setInstanceContext(
+        HippyInstanceContext hippyInstanceContext) {
+      this.mHippyInstanceContext = hippyInstanceContext;
+      return this;
+    }
 
-		@SuppressWarnings("UnusedReturnValue")
-		public HippyRootViewParams.Builder setBundleLoader(HippyBundleLoader loader)
-		{
-			this.mBundleLoader = loader;
-			return this;
-		}
+    @SuppressWarnings("UnusedReturnValue")
+    public HippyRootViewParams.Builder setBundleLoader(HippyBundleLoader loader) {
+      this.mBundleLoader = loader;
+      return this;
+    }
 
-		public HippyRootViewParams.Builder setActivity(Activity activity)
-		{
-			this.mActivity = activity;
-			return this;
-		}
+    public HippyRootViewParams.Builder setActivity(Activity activity) {
+      this.mActivity = activity;
+      return this;
+    }
 
-		public HippyRootViewParams.Builder setName(String name)
-		{
-			this.mName = name;
-			return this;
-		}
+    public HippyRootViewParams.Builder setName(String name) {
+      this.mName = name;
+      return this;
+    }
 
-		@SuppressWarnings("UnusedReturnValue")
-		public HippyRootViewParams.Builder setLaunchParams(HippyMap params)
-		{
-			this.mLaunchParams = params;
-			return this;
-		}
+    @SuppressWarnings("UnusedReturnValue")
+    public HippyRootViewParams.Builder setLaunchParams(HippyMap params) {
+      this.mLaunchParams = params;
+      return this;
+    }
 
-		public HippyRootViewParams.Builder setNativeParams(Map params)
-		{
-			this.mNativeParams = params;
-			return this;
-		}
+    public HippyRootViewParams.Builder setNativeParams(Map params) {
+      this.mNativeParams = params;
+      return this;
+    }
 
-		public HippyRootViewParams build()
-		{
-			if (mActivity == null)
-			{
-				throw new IllegalArgumentException("HippyInstance must set activity!");
-			}
-			if (TextUtils.isEmpty(mName))
-			{
-				throw new IllegalArgumentException("HippyInstance must set name!");
-			}
-			if (mLaunchParams == null)
-			{
-				mLaunchParams = new HippyMap();
-			}
+    public HippyRootViewParams build() {
+      if (mActivity == null) {
+        throw new IllegalArgumentException("HippyInstance must set activity!");
+      }
+      if (TextUtils.isEmpty(mName)) {
+        throw new IllegalArgumentException("HippyInstance must set name!");
+      }
+      if (mLaunchParams == null) {
+        mLaunchParams = new HippyMap();
+      }
 
-			if (mBundleLoader != null)
-			{
-				mLaunchParams.pushString("sourcePath", mBundleLoader.getPath());
-			}
+      if (mBundleLoader != null) {
+        mLaunchParams.pushString("sourcePath", mBundleLoader.getPath());
+      }
 
-			return new HippyRootViewParams(mName, mBundleLoader, mActivity, mLaunchParams, mNativeParams,
-					mHippyInstanceContext);
-		}
-	}
+      return new HippyRootViewParams(mName, mBundleLoader, mActivity, mLaunchParams, mNativeParams,
+          mHippyInstanceContext);
+    }
+  }
 }

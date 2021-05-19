@@ -44,22 +44,26 @@ public enum StringLocation {
   DENSE_ARRAY_KEY,
 
   /**
-   * Related Property key is associated with {@link com.tencent.mtt.hippy.runtime.builtins.JSObject}, and its type is {@link java.lang.String}
+   * Related Property key is associated with {@link com.tencent.mtt.hippy.runtime.builtins.JSObject},
+   * and its type is {@link java.lang.String}
    */
   OBJECT_VALUE,
 
   /**
-   * Related Property key is associated with {@link com.tencent.mtt.hippy.runtime.builtins.JSMap}, and its type is {@link java.lang.Object}
+   * Related Property key is associated with {@link com.tencent.mtt.hippy.runtime.builtins.JSMap},
+   * and its type is {@link java.lang.Object}
    */
   MAP_VALUE,
 
   /**
-   * Related Property key is associated with {@link com.tencent.mtt.hippy.runtime.builtins.array.JSSparseArray}, and its type is {@link java.lang.Integer} if properties, {@link java.lang.String} if elements
+   * Related Property key is associated with {@link com.tencent.mtt.hippy.runtime.builtins.array.JSSparseArray},
+   * and its type is {@link java.lang.Integer} if properties, {@link java.lang.String} if elements
    */
   SPARSE_ARRAY_ITEM,
 
   /**
-   * Related Property key is associated with {@link com.tencent.mtt.hippy.runtime.builtins.array.JSDenseArray}, and its type is {@link java.lang.Integer} if properties, {@link java.lang.String} if elements
+   * Related Property key is associated with {@link com.tencent.mtt.hippy.runtime.builtins.array.JSDenseArray},
+   * and its type is {@link java.lang.Integer} if properties, {@link java.lang.String} if elements
    */
   DENSE_ARRAY_ITEM,
 
