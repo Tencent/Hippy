@@ -17,6 +17,7 @@ package com.tencent.mtt.hippy.runtime.builtins.objects;
 
 @SuppressWarnings({"unused"})
 public class JSBooleanObject extends JSPrimitiveWrapper<Boolean> {
+
   public static final JSBooleanObject True = new JSBooleanObject(true);
   public static final JSBooleanObject False = new JSBooleanObject(false);
 

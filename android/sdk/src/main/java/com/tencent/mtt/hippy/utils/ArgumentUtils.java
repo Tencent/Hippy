@@ -31,492 +31,492 @@ import java.util.Set;
 
 @SuppressWarnings("deprecation")
 public class ArgumentUtils {
-	public static HippyArray parseToArray(String json) {
-		HippyArray array = new HippyArray();
-		if (TextUtils.isEmpty(json)) {
-			return array;
-		}
 
-		try {
-			JSONArray jsonArray = new JSONArray(json);
-			int length = jsonArray.length();
-			Object obj;
-			for (int i = 0; i < length; i++) {
-				obj = jsonArray.get(i);
-				parseObjectGotoArray(array, obj);
-			}
+  public static HippyArray parseToArray(String json) {
+    HippyArray array = new HippyArray();
+    if (TextUtils.isEmpty(json)) {
+      return array;
+    }
 
-			return array;
-		}	catch (Throwable e) {
-			return array;
-		}
-	}
+    try {
+      JSONArray jsonArray = new JSONArray(json);
+      int length = jsonArray.length();
+      Object obj;
+      for (int i = 0; i < length; i++) {
+        obj = jsonArray.get(i);
+        parseObjectGotoArray(array, obj);
+      }
 
-	public static HippyArray fromJavaArgs(Object[] args) {
-		HippyArray array = new HippyArray();
-		if (args == null || args.length <= 0) {
-			return array;
-		}
+      return array;
+    } catch (Throwable e) {
+      return array;
+    }
+  }
 
-		try
-		{
-			for (Object argument : args) {
-				if (argument == null) {
-					array.pushNull();
-					continue;
-				}
-				parseObjectGotoArray(array, argument);
-			}
-		}
-		catch (Throwable e)
-		{
-			LogUtils.d("ArgumentUtils", "fromJavaArgs: " + e.getMessage());
-		}
-		return array;
-	}
+  public static HippyArray fromJavaArgs(Object[] args) {
+    HippyArray array = new HippyArray();
+    if (args == null || args.length <= 0) {
+      return array;
+    }
 
-	@SuppressWarnings("unused")
-	public static HippyMap parseToMap(String json) {
-		HippyMap map = new HippyMap();
-		if (TextUtils.isEmpty(json)) {
-			return map;
-		}
+    try {
+      for (Object argument : args) {
+        if (argument == null) {
+          array.pushNull();
+          continue;
+        }
+        parseObjectGotoArray(array, argument);
+      }
+    } catch (Throwable e) {
+      LogUtils.d("ArgumentUtils", "fromJavaArgs: " + e.getMessage());
+    }
+    return array;
+  }
 
-		try {
-			JSONObject jsonObj = new JSONObject(json);
-			Iterator<String> keys = jsonObj.keys();
-			while (keys.hasNext()) {
-				String key = keys.next();
-				parseObjectGotoMap(map, key, jsonObj.get(key));
-			}
-			return map;
-		} catch (Throwable e) {
-			return map;
-		}
-	}
+  @SuppressWarnings("unused")
+  public static HippyMap parseToMap(String json) {
+    HippyMap map = new HippyMap();
+    if (TextUtils.isEmpty(json)) {
+      return map;
+    }
 
-	@SuppressWarnings("ConstantConditions")
-	private static void parseObjectGotoArray(HippyArray array, Object obj) throws JSONException {
-		if (obj == null || obj == JSONObject.NULL) {
-			array.pushNull();
-			return;
-		}
+    try {
+      JSONObject jsonObj = new JSONObject(json);
+      Iterator<String> keys = jsonObj.keys();
+      while (keys.hasNext()) {
+        String key = keys.next();
+        parseObjectGotoMap(map, key, jsonObj.get(key));
+      }
+      return map;
+    } catch (Throwable e) {
+      return map;
+    }
+  }
 
-		Class<?> cls = obj.getClass();
-		if (obj instanceof String) {
-			array.pushString((String) obj);
-		} else if (cls == int.class || cls == Integer.class) {
-			array.pushInt((Integer) obj);
-		} else if (cls == double.class || cls == Double.class) {
-			array.pushDouble((Double) obj);
-		}	else if (cls == long.class || cls == Long.class) {
-			array.pushLong((Long) obj);
-		} else if (cls == boolean.class || cls == Boolean.class) {
-			array.pushBoolean((Boolean) obj);
-		} else if (cls == HippyArray.class) {
-			array.pushArray((HippyArray) obj);
-		} else if (cls == HippyMap.class) {
-			array.pushMap((HippyMap) obj);
-		} else if (cls == JSONArray.class) {
-			HippyArray arr = new HippyArray();
-			JSONArray jsonArr = (JSONArray) obj;
-			int length = jsonArr.length();
-			for (int i = 0; i < length; i++) {
-				parseObjectGotoArray(arr, jsonArr.get(i));
-			}
-			array.pushArray(arr);
-		}	else if (cls == JSONObject.class) {
-			HippyMap map = new HippyMap();
-			JSONObject jsonObj = (JSONObject) obj;
-			Iterator<String> keys = jsonObj.keys();
-			while (keys.hasNext()) {
-				String key = keys.next();
-				parseObjectGotoMap(map, key, jsonObj.get(key));
-			}
-			array.pushMap(map);
-		}
-	}
+  @SuppressWarnings("ConstantConditions")
+  private static void parseObjectGotoArray(HippyArray array, Object obj) throws JSONException {
+    if (obj == null || obj == JSONObject.NULL) {
+      array.pushNull();
+      return;
+    }
 
-	@SuppressWarnings("ConstantConditions")
-	private static void parseObjectGotoMap(HippyMap map, String key, Object obj) throws JSONException {
-		if (obj == null || obj == JSONObject.NULL) {
-			map.pushNull(key);
-			return;
-		}
+    Class<?> cls = obj.getClass();
+    if (obj instanceof String) {
+      array.pushString((String) obj);
+    } else if (cls == int.class || cls == Integer.class) {
+      array.pushInt((Integer) obj);
+    } else if (cls == double.class || cls == Double.class) {
+      array.pushDouble((Double) obj);
+    } else if (cls == long.class || cls == Long.class) {
+      array.pushLong((Long) obj);
+    } else if (cls == boolean.class || cls == Boolean.class) {
+      array.pushBoolean((Boolean) obj);
+    } else if (cls == HippyArray.class) {
+      array.pushArray((HippyArray) obj);
+    } else if (cls == HippyMap.class) {
+      array.pushMap((HippyMap) obj);
+    } else if (cls == JSONArray.class) {
+      HippyArray arr = new HippyArray();
+      JSONArray jsonArr = (JSONArray) obj;
+      int length = jsonArr.length();
+      for (int i = 0; i < length; i++) {
+        parseObjectGotoArray(arr, jsonArr.get(i));
+      }
+      array.pushArray(arr);
+    } else if (cls == JSONObject.class) {
+      HippyMap map = new HippyMap();
+      JSONObject jsonObj = (JSONObject) obj;
+      Iterator<String> keys = jsonObj.keys();
+      while (keys.hasNext()) {
+        String key = keys.next();
+        parseObjectGotoMap(map, key, jsonObj.get(key));
+      }
+      array.pushMap(map);
+    }
+  }
 
-		Class<?> cls = obj.getClass();
-		if (obj instanceof String) {
-			map.pushString(key, (String) obj);
-		}	else if (cls == int.class || cls == Integer.class) {
-			map.pushInt(key, (Integer) obj);
-		}	else if (cls == double.class || cls == Double.class) {
-			map.pushDouble(key, (Double) obj);
-		}	else if (cls == long.class || cls == Long.class) {
-			map.pushLong(key, (Long) obj);
-		}	else if (cls == boolean.class || cls == Boolean.class) {
-			map.pushBoolean(key, (Boolean) obj);
-		}	else if (cls == JSONArray.class) {
-			HippyArray arr = new HippyArray();
-			map.pushArray(key, arr);
-			JSONArray jsonArr = (JSONArray) obj;
-			int length = jsonArr.length();
-			for (int i = 0; i < length; i++) {
-				parseObjectGotoArray(arr, jsonArr.get(i));
-			}
-		}	else if (cls == JSONObject.class) {
-			HippyMap hippyMap = new HippyMap();
-			map.pushMap(key, hippyMap);
-			JSONObject jsonObj = (JSONObject) obj;
-			Iterator<String> keys = jsonObj.keys();
-			while (keys.hasNext()) {
-				String keyStr = keys.next();
-				parseObjectGotoMap(hippyMap, keyStr, jsonObj.get(keyStr));
-			}
-		}
-	}
+  @SuppressWarnings("ConstantConditions")
+  private static void parseObjectGotoMap(HippyMap map, String key, Object obj)
+      throws JSONException {
+    if (obj == null || obj == JSONObject.NULL) {
+      map.pushNull(key);
+      return;
+    }
 
-	public static String objectToJson(Object obj)	{
-		if (obj == null) {
-			return "";
-		}
+    Class<?> cls = obj.getClass();
+    if (obj instanceof String) {
+      map.pushString(key, (String) obj);
+    } else if (cls == int.class || cls == Integer.class) {
+      map.pushInt(key, (Integer) obj);
+    } else if (cls == double.class || cls == Double.class) {
+      map.pushDouble(key, (Double) obj);
+    } else if (cls == long.class || cls == Long.class) {
+      map.pushLong(key, (Long) obj);
+    } else if (cls == boolean.class || cls == Boolean.class) {
+      map.pushBoolean(key, (Boolean) obj);
+    } else if (cls == JSONArray.class) {
+      HippyArray arr = new HippyArray();
+      map.pushArray(key, arr);
+      JSONArray jsonArr = (JSONArray) obj;
+      int length = jsonArr.length();
+      for (int i = 0; i < length; i++) {
+        parseObjectGotoArray(arr, jsonArr.get(i));
+      }
+    } else if (cls == JSONObject.class) {
+      HippyMap hippyMap = new HippyMap();
+      map.pushMap(key, hippyMap);
+      JSONObject jsonObj = (JSONObject) obj;
+      Iterator<String> keys = jsonObj.keys();
+      while (keys.hasNext()) {
+        String keyStr = keys.next();
+        parseObjectGotoMap(hippyMap, keyStr, jsonObj.get(keyStr));
+      }
+    }
+  }
 
-		StringBuilder buider = new StringBuilder();
-		objectToJson(buider, obj);
-		return buider.toString();
-	}
+  public static String objectToJson(Object obj) {
+    if (obj == null) {
+      return "";
+    }
 
-	public static String objectToJsonOpt(Object obj, StringBuilder builder) {
-		if (obj == null) {
-			return "";
-		}
+    StringBuilder buider = new StringBuilder();
+    objectToJson(buider, obj);
+    return buider.toString();
+  }
 
-		objectToJson(builder, obj);
-		return builder.toString();
-	}
+  public static String objectToJsonOpt(Object obj, StringBuilder builder) {
+    if (obj == null) {
+      return "";
+    }
 
-	private static void objectToJson(StringBuilder builder, Object obj) {
-		if (obj == null) {
-			builder.append("\"\"");
-			return;
-		}
+    objectToJson(builder, obj);
+    return builder.toString();
+  }
 
-		if (obj instanceof String) {
-			String str = (String) obj;
-			if (TextUtils.isEmpty(str)) {
-				builder.append("\"\"");
-			}	else {
-				stringFormat(str, builder);
-			}
-		}	else if (obj.getClass().isAssignableFrom(int.class) || obj instanceof Integer) {
-			builder.append(obj);
-		}	else if (obj.getClass().isAssignableFrom(long.class) || obj instanceof Long) {
-			builder.append(obj);
-		}	else if (obj.getClass().isAssignableFrom(double.class) || obj instanceof Double) {
-			builder.append(Double.isNaN((double) obj) ? 0 : obj);
-		}	else if (obj.getClass().isAssignableFrom(boolean.class) || obj instanceof Boolean) {
-			builder.append(obj);
-		}	else if (obj.getClass().isAssignableFrom(float.class) || obj instanceof Float) {
-			builder.append(Float.isNaN((float) obj) ? 0 : obj);
-		}	else if (obj instanceof HippyArray)	{
-			builder.append("[");
-			HippyArray array = (HippyArray) obj;
-			int length = array.size();
-			for (int i = 0; i < length; i++) {
-				objectToJson(builder, array.getObject(i));
-				if (i != length - 1) {
-					builder.append(",");
-				}
-			}
-			builder.append("]");
-		}	else if (obj instanceof HippyMap) {
-			builder.append("{");
-			HippyMap map = (HippyMap) obj;
-			Set<String> keys = map.keySet();
-			boolean hasComma = false;
-			for (String key : keys) {
-				builder.append("\"");
-				builder.append(key);
-				builder.append("\"");
-				builder.append(":");
-				objectToJson(builder, map.get(key));
-				builder.append(",");
-				hasComma = true;
-			}
-			if (hasComma) {
-				builder.deleteCharAt(builder.length() -1);
-			}
-			builder.append("}");
-		}
-	}
+  private static void objectToJson(StringBuilder builder, Object obj) {
+    if (obj == null) {
+      builder.append("\"\"");
+      return;
+    }
 
-	public static Object parseArgument(Type paramCls, HippyArray array, int index) {
-		if (paramCls == String.class)	{
-			return array.getString(index);
-		}
+    if (obj instanceof String) {
+      String str = (String) obj;
+      if (TextUtils.isEmpty(str)) {
+        builder.append("\"\"");
+      } else {
+        stringFormat(str, builder);
+      }
+    } else if (obj.getClass().isAssignableFrom(int.class) || obj instanceof Integer) {
+      builder.append(obj);
+    } else if (obj.getClass().isAssignableFrom(long.class) || obj instanceof Long) {
+      builder.append(obj);
+    } else if (obj.getClass().isAssignableFrom(double.class) || obj instanceof Double) {
+      builder.append(Double.isNaN((double) obj) ? 0 : obj);
+    } else if (obj.getClass().isAssignableFrom(boolean.class) || obj instanceof Boolean) {
+      builder.append(obj);
+    } else if (obj.getClass().isAssignableFrom(float.class) || obj instanceof Float) {
+      builder.append(Float.isNaN((float) obj) ? 0 : obj);
+    } else if (obj instanceof HippyArray) {
+      builder.append("[");
+      HippyArray array = (HippyArray) obj;
+      int length = array.size();
+      for (int i = 0; i < length; i++) {
+        objectToJson(builder, array.getObject(i));
+        if (i != length - 1) {
+          builder.append(",");
+        }
+      }
+      builder.append("]");
+    } else if (obj instanceof HippyMap) {
+      builder.append("{");
+      HippyMap map = (HippyMap) obj;
+      Set<String> keys = map.keySet();
+      boolean hasComma = false;
+      for (String key : keys) {
+        builder.append("\"");
+        builder.append(key);
+        builder.append("\"");
+        builder.append(":");
+        objectToJson(builder, map.get(key));
+        builder.append(",");
+        hasComma = true;
+      }
+      if (hasComma) {
+        builder.deleteCharAt(builder.length() - 1);
+      }
+      builder.append("}");
+    }
+  }
 
-		if (paramCls == int.class || paramCls == Integer.class) {
-			return array.getInt(index);
-		}
+  public static Object parseArgument(Type paramCls, HippyArray array, int index) {
+    if (paramCls == String.class) {
+      return array.getString(index);
+    }
 
-		if (paramCls == long.class || paramCls == Long.class) {
-			return array.getLong(index);
-		}
+    if (paramCls == int.class || paramCls == Integer.class) {
+      return array.getInt(index);
+    }
 
-		if (paramCls == double.class || paramCls == Double.class) {
-			return array.getDouble(index);
-		}
+    if (paramCls == long.class || paramCls == Long.class) {
+      return array.getLong(index);
+    }
 
-		if (paramCls == boolean.class || paramCls == Boolean.class) {
-			return array.getBoolean(index);
-		}
+    if (paramCls == double.class || paramCls == Double.class) {
+      return array.getDouble(index);
+    }
 
-		if (paramCls == float.class || paramCls == Float.class) {
-			return (float) array.getDouble(index);
-		}
+    if (paramCls == boolean.class || paramCls == Boolean.class) {
+      return array.getBoolean(index);
+    }
 
-		if (paramCls == HippyArray.class) {
-			return array.getArray(index);
-		}
+    if (paramCls == float.class || paramCls == Float.class) {
+      return (float) array.getDouble(index);
+    }
 
-		if (paramCls == HippyMap.class) {
-			return array.getMap(index);
-		}
+    if (paramCls == HippyArray.class) {
+      return array.getArray(index);
+    }
 
-		throw new IllegalArgumentException("parseArgument exception");
-	}
+    if (paramCls == HippyMap.class) {
+      return array.getMap(index);
+    }
 
-	public static Object parseArgument(Type paramCls, HippyMap map, String key)	{
-		if (paramCls == String.class) {
-			return map.getString(key);
-		}
+    throw new IllegalArgumentException("parseArgument exception");
+  }
 
-		if (paramCls == int.class || paramCls == Integer.class) {
-			return map.getInt(key);
-		}
+  public static Object parseArgument(Type paramCls, HippyMap map, String key) {
+    if (paramCls == String.class) {
+      return map.getString(key);
+    }
 
-		if (paramCls == long.class || paramCls == Long.class) {
-			return map.getLong(key);
-		}
+    if (paramCls == int.class || paramCls == Integer.class) {
+      return map.getInt(key);
+    }
 
-		if (paramCls == double.class || paramCls == Double.class) {
-			return map.getDouble(key);
-		}
+    if (paramCls == long.class || paramCls == Long.class) {
+      return map.getLong(key);
+    }
 
-		if (paramCls == float.class || paramCls == Float.class) {
-			return (float) map.getDouble(key);
-		}
+    if (paramCls == double.class || paramCls == Double.class) {
+      return map.getDouble(key);
+    }
 
-		if (paramCls == boolean.class || paramCls == Boolean.class) {
-			return map.getBoolean(key);
-		}
+    if (paramCls == float.class || paramCls == Float.class) {
+      return (float) map.getDouble(key);
+    }
 
-		if (paramCls == HippyArray.class) {
-			return map.getArray(key);
-		}
+    if (paramCls == boolean.class || paramCls == Boolean.class) {
+      return map.getBoolean(key);
+    }
 
-		if (paramCls == HippyMap.class) {
-			return map.getMap(key);
-		}
+    if (paramCls == HippyArray.class) {
+      return map.getArray(key);
+    }
 
-		throw new IllegalArgumentException("parseArgument exception");
-	}
+    if (paramCls == HippyMap.class) {
+      return map.getMap(key);
+    }
 
-	public static Object parseArgument(Type paramCls, Object value) {
-		if (paramCls == String.class) {
-			return String.valueOf(value);
-		}
+    throw new IllegalArgumentException("parseArgument exception");
+  }
 
-		if (paramCls == int.class || paramCls == Integer.class) {
-			return ((Number) value).intValue();
-		}
+  public static Object parseArgument(Type paramCls, Object value) {
+    if (paramCls == String.class) {
+      return String.valueOf(value);
+    }
 
-		if (paramCls == long.class || paramCls == Long.class) {
-			return ((Number) value).longValue();
-		}
+    if (paramCls == int.class || paramCls == Integer.class) {
+      return ((Number) value).intValue();
+    }
 
-		if (paramCls == double.class || paramCls == Double.class) {
-			return ((Number) value).doubleValue();
-		}
+    if (paramCls == long.class || paramCls == Long.class) {
+      return ((Number) value).longValue();
+    }
 
-		if (paramCls == float.class || paramCls == Float.class) {
-			return ((Number) value).floatValue();
-		}
+    if (paramCls == double.class || paramCls == Double.class) {
+      return ((Number) value).doubleValue();
+    }
 
-		if (paramCls == boolean.class || paramCls == Boolean.class || paramCls == HippyArray.class || paramCls == HippyMap.class) {
-			return value;
-		}
+    if (paramCls == float.class || paramCls == Float.class) {
+      return ((Number) value).floatValue();
+    }
 
-		throw new IllegalArgumentException("parseArgument exception");
-	}
+    if (paramCls == boolean.class || paramCls == Boolean.class || paramCls == HippyArray.class
+        || paramCls == HippyMap.class) {
+      return value;
+    }
 
-	public static HippyArray fromArray(Object array) {
-		HippyArray catalystArray = new HippyArray();
-		int length;
-		int index;
+    throw new IllegalArgumentException("parseArgument exception");
+  }
 
-		if (array instanceof String[]) {
-			String[] strs = (String[]) array;
-			length = strs.length;
+  public static HippyArray fromArray(Object array) {
+    HippyArray catalystArray = new HippyArray();
+    int length;
+    int index;
 
-			for (index = 0; index < length; ++index) {
-				String str = strs[index];
-				catalystArray.pushString(str);
-			}
-		} else if (array instanceof Parcelable[]) {
-			Parcelable[] parcelables = (Parcelable[]) array;
-			length = parcelables.length;
+    if (array instanceof String[]) {
+      String[] strs = (String[]) array;
+      length = strs.length;
 
-			for (index = 0; index < length; ++index) {
-				Parcelable parcelable = parcelables[index];
-				if (parcelable instanceof Bundle) {
-					catalystArray.pushMap(fromBundle((Bundle) parcelable));
-				}
-			}
-		} else if (array instanceof int[]) {
-			int[] ints = (int[]) array;
-			length = ints.length;
+      for (index = 0; index < length; ++index) {
+        String str = strs[index];
+        catalystArray.pushString(str);
+      }
+    } else if (array instanceof Parcelable[]) {
+      Parcelable[] parcelables = (Parcelable[]) array;
+      length = parcelables.length;
 
-			for (index = 0; index < length; ++index) {
-				int value = ints[index];
-				catalystArray.pushInt(value);
-			}
-		} else if (array instanceof float[]) {
-			float[] values = (float[]) array;
-			length = values.length;
+      for (index = 0; index < length; ++index) {
+        Parcelable parcelable = parcelables[index];
+        if (parcelable instanceof Bundle) {
+          catalystArray.pushMap(fromBundle((Bundle) parcelable));
+        }
+      }
+    } else if (array instanceof int[]) {
+      int[] ints = (int[]) array;
+      length = ints.length;
 
-			for (index = 0; index < length; ++index) {
-				float value = values[index];
-				catalystArray.pushDouble(value);
-			}
-		} else if (array instanceof double[]) {
-			double[] values = (double[]) array;
-			length = values.length;
+      for (index = 0; index < length; ++index) {
+        int value = ints[index];
+        catalystArray.pushInt(value);
+      }
+    } else if (array instanceof float[]) {
+      float[] values = (float[]) array;
+      length = values.length;
 
-			for (index = 0; index < length; ++index) {
-				double value = values[index];
-				catalystArray.pushDouble(value);
-			}
-		} else {
-			if (!(array instanceof boolean[])) {
-				throw new IllegalArgumentException("Unknown array type " + array.getClass());
-			}
+      for (index = 0; index < length; ++index) {
+        float value = values[index];
+        catalystArray.pushDouble(value);
+      }
+    } else if (array instanceof double[]) {
+      double[] values = (double[]) array;
+      length = values.length;
 
-			boolean[] values = (boolean[]) array;
-			length = values.length;
+      for (index = 0; index < length; ++index) {
+        double value = values[index];
+        catalystArray.pushDouble(value);
+      }
+    } else {
+      if (!(array instanceof boolean[])) {
+        throw new IllegalArgumentException("Unknown array type " + array.getClass());
+      }
 
-			for (index = 0; index < length; ++index) {
-				boolean value = values[index];
-				catalystArray.pushBoolean(value);
-			}
-		}
+      boolean[] values = (boolean[]) array;
+      length = values.length;
 
-		return catalystArray;
-	}
+      for (index = 0; index < length; ++index) {
+        boolean value = values[index];
+        catalystArray.pushBoolean(value);
+      }
+    }
 
-	@SuppressWarnings("unused")
-	public static HippyMap fromBundle(Bundle bundle) {
-		HippyMap map = new HippyMap();
+    return catalystArray;
+  }
 
-		for (String key : bundle.keySet()) {
-			Object value = bundle.get(key);
-			if (value == null) {
-				map.pushNull(key);
-			} else if (value.getClass().isArray()) {
-				map.pushArray(key, fromArray(value));
-			} else if (value instanceof String) {
-				map.pushString(key, (String) value);
-			} else if (value instanceof Number) {
-				if (value instanceof Integer) {
-					map.pushInt(key, (Integer) value);
-				} else {
-					map.pushDouble(key, ((Number) value).doubleValue());
-				}
-			} else if (value instanceof Boolean) {
-				map.pushBoolean(key, (Boolean) value);
-			} else {
-				if (!(value instanceof Bundle)) {
-					throw new IllegalArgumentException("Could not convert " + value.getClass());
-				}
+  @SuppressWarnings("unused")
+  public static HippyMap fromBundle(Bundle bundle) {
+    HippyMap map = new HippyMap();
 
-				map.pushMap(key, fromBundle((Bundle) value));
-			}
-		}
+    for (String key : bundle.keySet()) {
+      Object value = bundle.get(key);
+      if (value == null) {
+        map.pushNull(key);
+      } else if (value.getClass().isArray()) {
+        map.pushArray(key, fromArray(value));
+      } else if (value instanceof String) {
+        map.pushString(key, (String) value);
+      } else if (value instanceof Number) {
+        if (value instanceof Integer) {
+          map.pushInt(key, (Integer) value);
+        } else {
+          map.pushDouble(key, ((Number) value).doubleValue());
+        }
+      } else if (value instanceof Boolean) {
+        map.pushBoolean(key, (Boolean) value);
+      } else {
+        if (!(value instanceof Bundle)) {
+          throw new IllegalArgumentException("Could not convert " + value.getClass());
+        }
 
-		return map;
-	}
+        map.pushMap(key, fromBundle((Bundle) value));
+      }
+    }
 
-	@SuppressWarnings("unused")
-	public static Bundle toBundle(HippyMap hippyMap) {
-		Bundle b = new Bundle(9);
-		if (hippyMap != null)	{
-			for (String key : hippyMap.keySet()) {
-				Object value = hippyMap.get(key);
-				if (value == null) {
-					b.putString(key, null);
-				}	else if (value instanceof String) {
-					b.putString(key, (String) value);
-				}	else if (value.getClass().isAssignableFrom(int.class) || value instanceof Integer) {
-					b.putInt(key, (Integer) value);
-				}	else if (value.getClass().isAssignableFrom(long.class) || value instanceof Long) {
-					b.putLong(key, (Long) value);
-				}	else if (value.getClass().isAssignableFrom(double.class) || value instanceof Double) {
-					b.putDouble(key, (Double) value);
-				}	else if (value.getClass().isAssignableFrom(boolean.class) || value instanceof Boolean) {
-					b.putBoolean(key, (Boolean) value);
-				}	else if (value instanceof HippyMap) {
-					b.putBundle(key, toBundle((HippyMap) value));
-				}	else if (value instanceof HippyArray) {
-					throw new UnsupportedOperationException("Arrays aren't supported yet.");
-				}	else {
-					throw new IllegalArgumentException("Could not convert object with key: " + key + ".");
-				}
-			}
-		}
-		return b;
-	}
+    return map;
+  }
 
-	private static void stringFormat(String value, StringBuilder builder) {
-		builder.append("\"");
-		for (int i = 0, length = value.length(); i < length; i++)	{
-			char c = value.charAt(i);
+  @SuppressWarnings("unused")
+  public static Bundle toBundle(HippyMap hippyMap) {
+    Bundle b = new Bundle(9);
+    if (hippyMap != null) {
+      for (String key : hippyMap.keySet()) {
+        Object value = hippyMap.get(key);
+        if (value == null) {
+          b.putString(key, null);
+        } else if (value instanceof String) {
+          b.putString(key, (String) value);
+        } else if (value.getClass().isAssignableFrom(int.class) || value instanceof Integer) {
+          b.putInt(key, (Integer) value);
+        } else if (value.getClass().isAssignableFrom(long.class) || value instanceof Long) {
+          b.putLong(key, (Long) value);
+        } else if (value.getClass().isAssignableFrom(double.class) || value instanceof Double) {
+          b.putDouble(key, (Double) value);
+        } else if (value.getClass().isAssignableFrom(boolean.class) || value instanceof Boolean) {
+          b.putBoolean(key, (Boolean) value);
+        } else if (value instanceof HippyMap) {
+          b.putBundle(key, toBundle((HippyMap) value));
+        } else if (value instanceof HippyArray) {
+          throw new UnsupportedOperationException("Arrays aren't supported yet.");
+        } else {
+          throw new IllegalArgumentException("Could not convert object with key: " + key + ".");
+        }
+      }
+    }
+    return b;
+  }
 
-			switch (c) {
-				case '"':
-				case '\\':
-				case '/': {
-					builder.append('\\').append(c);
-					break;
-				}
-				case '\t': {
-					builder.append("\\t");
-					break;
-				}
-				case '\b': {
-					builder.append("\\b");
-					break;
-				}
-				case '\n': {
-					builder.append("\\n");
-					break;
-				}
-				case '\r': {
-					builder.append("\\r");
-					break;
-				}
-				case '\f': {
-					builder.append("\\f");
-					break;
-				}
-				default: {
-					if (c <= 0x1F) {
-						builder.append(String.format("\\u%04x", (int) c));
-					} else {
-						builder.append(c);
-					}
-					break;
-				}
-			}
-		}
-		builder.append("\"");
-	}
+  private static void stringFormat(String value, StringBuilder builder) {
+    builder.append("\"");
+    for (int i = 0, length = value.length(); i < length; i++) {
+      char c = value.charAt(i);
+
+      switch (c) {
+        case '"':
+        case '\\':
+        case '/': {
+          builder.append('\\').append(c);
+          break;
+        }
+        case '\t': {
+          builder.append("\\t");
+          break;
+        }
+        case '\b': {
+          builder.append("\\b");
+          break;
+        }
+        case '\n': {
+          builder.append("\\n");
+          break;
+        }
+        case '\r': {
+          builder.append("\\r");
+          break;
+        }
+        case '\f': {
+          builder.append("\\f");
+          break;
+        }
+        default: {
+          if (c <= 0x1F) {
+            builder.append(String.format("\\u%04x", (int) c));
+          } else {
+            builder.append(c);
+          }
+          break;
+        }
+      }
+    }
+    builder.append("\"");
+  }
 }

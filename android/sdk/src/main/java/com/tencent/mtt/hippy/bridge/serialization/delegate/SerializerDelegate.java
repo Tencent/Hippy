@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @SuppressWarnings({"unused"})
 public class SerializerDelegate implements Serializer.Delegate, SerializerDelegateHost {
+
   private static final Map<Integer, Object> objectMap = new ConcurrentHashMap<>();
   private static final AtomicInteger nextId = new AtomicInteger(0);
   private static final SerializerDelegate instance = new SerializerDelegate();

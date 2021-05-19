@@ -24,6 +24,7 @@ import java.util.HashSet;
 
 @SuppressWarnings({"unused"})
 public class JSSet extends JSValue {
+
   private final HashSet<Object> internalSet;
 
   public JSSet() {

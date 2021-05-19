@@ -22,6 +22,7 @@ import org.json.JSONObject;
 
 @SuppressWarnings({"unused"})
 public class JSDataView<T extends JSArrayBuffer> extends JSObject {
+
   public enum DataViewKind {
     INT8_ARRAY, // kInt8Array
     UINT8_ARRAY, // kUint8Array
@@ -57,13 +58,13 @@ public class JSDataView<T extends JSArrayBuffer> extends JSObject {
 
   public int getByteOffset() {
     Object value = get(BYTE_OFFSET);
-    assert(value != null);
+    assert (value != null);
     return (int) value;
   }
 
   public int getByteLength() {
     Object value = get(BYTE_LENGTH);
-    assert(value != null);
+    assert (value != null);
     return (int) value;
   }
 

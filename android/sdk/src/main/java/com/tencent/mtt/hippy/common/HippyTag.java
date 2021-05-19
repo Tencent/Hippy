@@ -18,9 +18,9 @@ package com.tencent.mtt.hippy.common;
 import android.view.View;
 
 @SuppressWarnings({"SameParameterValue", "deprecation", "unused"})
-public class HippyTag
-{
-  private final static String TAG_CLASS_NAME                  = "className";
+public class HippyTag {
+
+  private final static String TAG_CLASS_NAME = "className";
 
   public static HippyMap createTagMap(String className, HippyMap iniProps) {
     HippyMap tagMap = new HippyMap();
@@ -33,7 +33,7 @@ public class HippyTag
     if (view != null && key != null) {
       Object tagObj = view.getTag();
       if (tagObj instanceof HippyMap) {
-        HippyMap tagMap = (HippyMap)tagObj;
+        HippyMap tagMap = (HippyMap) tagObj;
         if (tagMap.containsKey(key)) {
           return tagMap.getInt(key);
         }
@@ -47,7 +47,7 @@ public class HippyTag
     if (view != null && key != null) {
       Object tagObj = view.getTag();
       if (tagObj instanceof HippyMap) {
-        HippyMap tagMap = (HippyMap)tagObj;
+        HippyMap tagMap = (HippyMap) tagObj;
         tagMap.pushInt(key, value);
       }
     }
@@ -57,7 +57,7 @@ public class HippyTag
     if (view != null && key != null) {
       Object tagObj = view.getTag();
       if (tagObj instanceof HippyMap) {
-        HippyMap tagMap = (HippyMap)tagObj;
+        HippyMap tagMap = (HippyMap) tagObj;
         if (tagMap.containsKey(key)) {
           return tagMap.getString(key);
         }
@@ -71,7 +71,7 @@ public class HippyTag
     if (view != null && key != null) {
       Object tagObj = view.getTag();
       if (tagObj instanceof HippyMap) {
-        HippyMap tagMap = (HippyMap)tagObj;
+        HippyMap tagMap = (HippyMap) tagObj;
         tagMap.pushString(key, (value == null ? "" : value));
       }
     }

@@ -29,104 +29,92 @@ import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyGroupController;
 
-@SuppressWarnings({"deprecation","unused"})
+@SuppressWarnings({"deprecation", "unused"})
 @HippyController(name = NavigatorController.CLASS)
-public class NavigatorController extends HippyGroupController<Navigator>
-{
-	public static final String	CLASS	= "Navigator";
+public class NavigatorController extends HippyGroupController<Navigator> {
 
-	private final static String	PUSH	= "push";
-	private final static String	POP		= "pop";
+  public static final String CLASS = "Navigator";
 
-	@Override
-	protected View createViewImpl(Context context)
-	{
-		return new Navigator(context);
-	}
+  private final static String PUSH = "push";
+  private final static String POP = "pop";
 
-	@Override
-	protected void addView(ViewGroup parentView, View view, int index)
-	{
-		//		super.addView(parentView, view, index);
-		Log.d(CLASS, "addView");
-	}
+  @Override
+  protected View createViewImpl(Context context) {
+    return new Navigator(context);
+  }
 
-	@Override
-	public void dispatchFunction(Navigator view, String functionName, HippyArray var)
-	{
-		super.dispatchFunction(view, functionName, var);
+  @Override
+  protected void addView(ViewGroup parentView, View view, int index) {
+    //		super.addView(parentView, view, index);
+    Log.d(CLASS, "addView");
+  }
 
-		switch (functionName)
-		{
-			case POP:
-				boolean animated = false;
-				String toDirection = null;
-				if (var != null)
-				{
-					HippyMap hippyMap = var.getMap(0);
-					if (hippyMap != null)
-					{
-						animated = hippyMap.getBoolean("animated");
-						toDirection = hippyMap.getString("toDirection");
-					}
-				}
-				view.pop(animated, toDirection);
-				break;
-			case PUSH:
-				if (var != null)
-				{
-					HippyMap hippyMap = var.getMap(0);
-					if (hippyMap != null)
-					{
-						String component = hippyMap.getString("routeName");
-						HippyMap initProps = hippyMap.getMap("initProps");
-						animated = hippyMap.getBoolean("animated");
-						String fromDirection = hippyMap.getString("fromDirection");
-						HippyRootView hippyRootView = loadNavPage(view, component, initProps);
-						view.push(hippyRootView, animated, fromDirection);
-					}
-				}
-				break;
-		}
-	}
+  @Override
+  public void dispatchFunction(Navigator view, String functionName, HippyArray var) {
+    super.dispatchFunction(view, functionName, var);
 
-	private HippyRootView loadNavPage(Navigator view, String component, HippyMap initProps)
-	{
-		HippyInstanceContext hippyInstanceContext = (HippyInstanceContext) view.getContext();
-		HippyEngine.ModuleLoadParams moduleParams = new HippyEngine.ModuleLoadParams(hippyInstanceContext.getModuleParams());
-		moduleParams.componentName = component;
-		moduleParams.jsParams = initProps;
-		return hippyInstanceContext.getEngineManager().loadModule(moduleParams);
-	}
+    switch (functionName) {
+      case POP:
+        boolean animated = false;
+        String toDirection = null;
+        if (var != null) {
+          HippyMap hippyMap = var.getMap(0);
+          if (hippyMap != null) {
+            animated = hippyMap.getBoolean("animated");
+            toDirection = hippyMap.getString("toDirection");
+          }
+        }
+        view.pop(animated, toDirection);
+        break;
+      case PUSH:
+        if (var != null) {
+          HippyMap hippyMap = var.getMap(0);
+          if (hippyMap != null) {
+            String component = hippyMap.getString("routeName");
+            HippyMap initProps = hippyMap.getMap("initProps");
+            animated = hippyMap.getBoolean("animated");
+            String fromDirection = hippyMap.getString("fromDirection");
+            HippyRootView hippyRootView = loadNavPage(view, component, initProps);
+            view.push(hippyRootView, animated, fromDirection);
+          }
+        }
+        break;
+    }
+  }
 
-	@HippyControllerProps(name = "initialRoute", defaultType = HippyControllerProps.MAP)
-	public void initPage(Navigator navigator, HippyMap hippyMap)
-	{
-		String component = hippyMap.getString("routeName");
-		HippyMap initProps = hippyMap.getMap("initProps");
+  private HippyRootView loadNavPage(Navigator view, String component, HippyMap initProps) {
+    HippyInstanceContext hippyInstanceContext = (HippyInstanceContext) view.getContext();
+    HippyEngine.ModuleLoadParams moduleParams = new HippyEngine.ModuleLoadParams(
+        hippyInstanceContext.getModuleParams());
+    moduleParams.componentName = component;
+    moduleParams.jsParams = initProps;
+    return hippyInstanceContext.getEngineManager().loadModule(moduleParams);
+  }
 
-		HippyRootView hippyRootView = loadNavPage(navigator, component, initProps);
+  @HippyControllerProps(name = "initialRoute", defaultType = HippyControllerProps.MAP)
+  public void initPage(Navigator navigator, HippyMap hippyMap) {
+    String component = hippyMap.getString("routeName");
+    HippyMap initProps = hippyMap.getMap("initProps");
 
-		navigator.init(hippyRootView);
-	}
+    HippyRootView hippyRootView = loadNavPage(navigator, component, initProps);
 
-	public static void destroyInstance(View view)
-	{
-		if (view instanceof HippyRootView)
-		{
-			HippyInstanceContext hippyInstanceContext = (HippyInstanceContext) view.getContext();
-			HippyRootView hippyRootView = (HippyRootView) view;
-			hippyInstanceContext.getEngineManager().destroyModule(hippyRootView);
-		}
-	}
+    navigator.init(hippyRootView);
+  }
 
-	@Override
-	protected void deleteChild(ViewGroup parentView, View childView)
-	{
-		//		super.deleteChild(parentView, childView);
+  public static void destroyInstance(View view) {
+    if (view instanceof HippyRootView) {
+      HippyInstanceContext hippyInstanceContext = (HippyInstanceContext) view.getContext();
+      HippyRootView hippyRootView = (HippyRootView) view;
+      hippyInstanceContext.getEngineManager().destroyModule(hippyRootView);
+    }
+  }
 
-		destroyInstance(childView);
+  @Override
+  protected void deleteChild(ViewGroup parentView, View childView) {
+    //		super.deleteChild(parentView, childView);
 
-		Log.d(CLASS, "deleteChild");
-	}
+    destroyInstance(childView);
+
+    Log.d(CLASS, "deleteChild");
+  }
 }

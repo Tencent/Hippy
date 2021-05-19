@@ -28,8 +28,9 @@ import com.tencent.mtt.hippy.runtime.builtins.objects.JSPrimitiveWrapper;
 
 import java.util.Map;
 
-@SuppressWarnings({"deprecation","unused"})
+@SuppressWarnings({"deprecation", "unused"})
 public final class ValueConverter {
+
   private ValueConverter() {
 
   }
@@ -42,7 +43,7 @@ public final class ValueConverter {
       }
       if (jsValue.isSet()) {
         HippyArray array = new HippyArray();
-        for (Object o: ((JSSet) value).getInternalSet()) {
+        for (Object o : ((JSSet) value).getInternalSet()) {
           array.pushObject(toHippyValue(o));
         }
         return array;

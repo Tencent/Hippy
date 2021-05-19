@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy.views.modal;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 
 /**
+ *
  */
 public class ShowEvent extends HippyViewEvent {
 

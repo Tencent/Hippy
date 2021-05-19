@@ -17,6 +17,7 @@ package com.tencent.mtt.hippy.runtime;
 
 @SuppressWarnings({"unused"})
 public final class JSException implements Cloneable {
+
   public enum ErrorLevel {
     Log,
     Debug,
@@ -37,7 +38,9 @@ public final class JSException implements Cloneable {
   private final boolean opaque;
   private StackTrace stack;
 
-  public JSException(String message, ErrorLevel errorLevel, StackTrace stack, int startPosition, int endPosition, int startColumn, int endColumn, int wasmFunctionIndex, boolean sharedCrossOrigin, boolean opaque) {
+  public JSException(String message, ErrorLevel errorLevel, StackTrace stack, int startPosition,
+      int endPosition, int startColumn, int endColumn, int wasmFunctionIndex,
+      boolean sharedCrossOrigin, boolean opaque) {
     this.message = message;
     this.errorLevel = errorLevel;
     this.stack = stack;

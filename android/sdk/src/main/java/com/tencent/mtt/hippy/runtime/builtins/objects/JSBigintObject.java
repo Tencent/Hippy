@@ -19,6 +19,7 @@ import java.math.BigInteger;
 
 @SuppressWarnings({"unused"})
 public class JSBigintObject extends JSPrimitiveWrapper<BigInteger> {
+
   public JSBigintObject(BigInteger value) {
     super(value);
   }

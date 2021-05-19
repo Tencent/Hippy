@@ -17,6 +17,7 @@ package com.tencent.mtt.hippy.runtime.builtins;
 
 @SuppressWarnings({"unused"})
 public final class JSOddball extends JSValue {
+
   @Override
   public final Object dump() {
     return null;
@@ -33,6 +34,7 @@ public final class JSOddball extends JSValue {
     Undefined,
     Null
   }
+
   public static final JSOddball Hole = new JSOddball(kindType.Hole);
   public static final JSOddball Undefined = new JSOddball(kindType.Undefined);
   public static final JSOddball Null = new JSOddball(kindType.Null);

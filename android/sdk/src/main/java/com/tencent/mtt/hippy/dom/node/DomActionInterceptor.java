@@ -19,17 +19,14 @@ import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.common.HippyMap;
 
 /**
- * FileName: DomActionInterceptor
- * Description：
- * History：
+ * FileName: DomActionInterceptor Description： History：
  */
 @SuppressWarnings("deprecation")
-public interface DomActionInterceptor
-{
+public interface DomActionInterceptor {
 
-	HippyMap onCreateNode(int tagId, HippyRootView rootView, HippyMap props);
+  HippyMap onCreateNode(int tagId, HippyRootView rootView, HippyMap props);
 
-	HippyMap onUpdateNode(int tagId, HippyRootView rootView, HippyMap props);
+  HippyMap onUpdateNode(int tagId, HippyRootView rootView, HippyMap props);
 
-	void onDeleteNode(int tagId);
+  void onDeleteNode(int tagId);
 }

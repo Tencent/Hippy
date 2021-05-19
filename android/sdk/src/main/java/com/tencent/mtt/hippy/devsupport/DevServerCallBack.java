@@ -18,9 +18,10 @@ package com.tencent.mtt.hippy.devsupport;
 import java.io.InputStream;
 
 public interface DevServerCallBack {
-    void onDevBundleLoadReady(InputStream inputStream);
 
-    void onInitDevError(Throwable e);
+  void onDevBundleLoadReady(InputStream inputStream);
 
-    void onDevBundleReLoad();
+  void onInitDevError(Throwable e);
+
+  void onDevBundleReLoad();
 }

@@ -21,25 +21,23 @@ import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 import android.view.View;
 
 @SuppressWarnings("deprecation")
-public class HippyPageScrollEvent extends HippyViewEvent
-{
-	public static final String EVENT_NAME	= "onPageScroll";
+public class HippyPageScrollEvent extends HippyViewEvent {
 
-	private final View mTarget;
+  public static final String EVENT_NAME = "onPageScroll";
 
-	public HippyPageScrollEvent(View target)
-	{
-		super(EVENT_NAME);
-		mTarget = target;
-	}
+  private final View mTarget;
 
-	public void send(int position, float offset)
-	{
-		HippyMap map = new HippyMap();
-		map.pushInt("position", position);
-		map.pushDouble("offset", offset);
-		super.send(mTarget, map);
-	}
+  public HippyPageScrollEvent(View target) {
+    super(EVENT_NAME);
+    mTarget = target;
+  }
+
+  public void send(int position, float offset) {
+    HippyMap map = new HippyMap();
+    map.pushInt("position", position);
+    map.pushDouble("offset", offset);
+    super.send(mTarget, map);
+  }
 
 
 }

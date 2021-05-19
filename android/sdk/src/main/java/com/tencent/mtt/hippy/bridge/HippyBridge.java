@@ -21,26 +21,29 @@ import com.tencent.mtt.hippy.common.HippyArray;
 import java.nio.ByteBuffer;
 
 public interface HippyBridge {
-	String URI_SCHEME_ASSETS = "asset:";
-	String URI_SCHEME_FILE   = "file:";
 
-	void initJSBridge(String gobalConfig, NativeCallback callback, int groupId);
+  String URI_SCHEME_ASSETS = "asset:";
+  String URI_SCHEME_FILE = "file:";
 
-	boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache,
-			String codeCacheTag, NativeCallback callback);
+  void initJSBridge(String gobalConfig, NativeCallback callback, int groupId);
 
-	void onDestroy();
+  boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache,
+      String codeCacheTag, NativeCallback callback);
 
-	void destroy(NativeCallback callback);
+  void onDestroy();
 
-	void callFunction(String action, NativeCallback callback, ByteBuffer buffer);
+  void destroy(NativeCallback callback);
 
-	void callFunction(String action, NativeCallback callback, byte[] buffer);
-	void callFunction(String action, NativeCallback callback, byte[] buffer, int offset, int length);
+  void callFunction(String action, NativeCallback callback, ByteBuffer buffer);
 
-	interface BridgeCallback {
-		void callNatives(String moduleName, String moduleFunc, String callId, HippyArray params);
+  void callFunction(String action, NativeCallback callback, byte[] buffer);
 
-		void reportException(String exception, String stackTrace);
-	}
+  void callFunction(String action, NativeCallback callback, byte[] buffer, int offset, int length);
+
+  interface BridgeCallback {
+
+    void callNatives(String moduleName, String moduleFunc, String callId, HippyArray params);
+
+    void reportException(String exception, String stackTrace);
+  }
 }

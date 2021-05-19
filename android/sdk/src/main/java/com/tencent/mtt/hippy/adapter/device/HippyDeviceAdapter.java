@@ -20,8 +20,9 @@ import android.content.Context;
 import com.tencent.mtt.hippy.common.HippyMap;
 
 @SuppressWarnings("unused")
-public interface HippyDeviceAdapter
-{
-	@SuppressWarnings({"EmptyMethod", "deprecation"})
-	void reviseDimensionIfNeed(Context context, HippyMap dimensionMap, boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged);
+public interface HippyDeviceAdapter {
+
+  @SuppressWarnings({"EmptyMethod", "deprecation"})
+  void reviseDimensionIfNeed(Context context, HippyMap dimensionMap, boolean shouldUseScreenDisplay,
+      boolean systemUiVisibilityChanged);
 }

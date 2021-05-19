@@ -19,44 +19,40 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 
-public class DevServerConfig
-{
-	private static final String	JS_REMOTE_DEBUG		= "js_remote_debug";
+public class DevServerConfig {
 
-	private static final String	HIPPYDEBUGPREF		= "hippydebugpref";
+  private static final String JS_REMOTE_DEBUG = "js_remote_debug";
 
-	boolean						mLiveDebug			= false;
+  private static final String HIPPYDEBUGPREF = "hippydebugpref";
 
-	final SharedPreferences sharedPreferences;
+  boolean mLiveDebug = false;
 
-	// Hippy Server JsBundle名字
-	private final String				mServerHost;
+  final SharedPreferences sharedPreferences;
 
-	@SuppressWarnings("unused")
-	public DevServerConfig(String serverHost, String bundleName)
-	{
-		sharedPreferences = ContextHolder.getAppContext().getSharedPreferences(HIPPYDEBUGPREF, Context.MODE_PRIVATE);
-		mServerHost = serverHost;
-	}
+  // Hippy Server JsBundle名字
+  private final String mServerHost;
 
-	public String getServerHost()
-	{
-		return mServerHost;
-	}
+  @SuppressWarnings("unused")
+  public DevServerConfig(String serverHost, String bundleName) {
+    sharedPreferences = ContextHolder.getAppContext()
+        .getSharedPreferences(HIPPYDEBUGPREF, Context.MODE_PRIVATE);
+    mServerHost = serverHost;
+  }
 
-	public boolean enableRemoteDebug()
-	{
-		return sharedPreferences.getBoolean(JS_REMOTE_DEBUG, false);
-	}
+  public String getServerHost() {
+    return mServerHost;
+  }
 
-	public boolean enableLiveDebug()
-	{
-		return mLiveDebug;
-	}
+  public boolean enableRemoteDebug() {
+    return sharedPreferences.getBoolean(JS_REMOTE_DEBUG, false);
+  }
 
-	public void setEnableLiveDebug(boolean enableLiveDebug)
-	{
-		mLiveDebug = enableLiveDebug;
-	}
+  public boolean enableLiveDebug() {
+    return mLiveDebug;
+  }
+
+  public void setEnableLiveDebug(boolean enableLiveDebug) {
+    mLiveDebug = enableLiveDebug;
+  }
 
 }
