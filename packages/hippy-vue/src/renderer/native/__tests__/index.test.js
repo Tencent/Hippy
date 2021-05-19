@@ -10,7 +10,7 @@ import {
   removeChild,
 } from '../index';
 import { setApp } from '../../../util';
-import {HIPPY_DEBUG_ADDRESS} from '../../../runtime/constants';
+import { HIPPY_DEBUG_ADDRESS } from '../../../runtime/constants';
 
 const ROOT_VIEW_ID = 10;
 
