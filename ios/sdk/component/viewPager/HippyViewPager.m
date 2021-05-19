@@ -161,7 +161,10 @@
     CGFloat offsetRatio = offset / CGRectGetWidth(self.bounds);
     
     if (offsetRatio > 1) {
-        offsetRatio -= 1;
+        offsetRatio -= floor(offsetRatio);
+    }
+    if (offsetRatio < -1) {
+        offsetRatio -= ceil(offsetRatio);
     }
     
     NSUInteger currentPageIndex = [self currentPageIndex];
