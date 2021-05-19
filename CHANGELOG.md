@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.6.4](https://github.com/Tencent/Hippy/compare/2.6.3...2.6.4) (2021-05-19)
+
+
+### Bug Fixes
+
+* **ios:** fix viewpager onpagescroll and onpageselected event ([#761](https://github.com/Tencent/Hippy/issues/761)) ([1a50294](https://github.com/Tencent/Hippy/commit/1a502942767d5c4860479f5e090f17030d64e462))
+* **ios:** fix websocket params error and remove assert ([56794a0](https://github.com/Tencent/Hippy/commit/56794a08bfb659b187865064a5a79b1ac101eea1))
+
+
+### Features
+
+* **android:** keep some classes for wormhole ([d6eb008](https://github.com/Tencent/Hippy/commit/d6eb008a24c7c69a7a802b63bd8ef3a55d28ad12))
+* **hippy-core:** add original console api ([c3da871](https://github.com/Tencent/Hippy/commit/c3da87108f9034b31130c48a72520dae45eba6c9))
+
+
+
+
+
 ## [2.6.3](https://github.com/Tencent/Hippy/compare/2.6.2...2.6.3) (2021-05-17)
 
 
