@@ -22,7 +22,7 @@ import com.tencent.mtt.hippy.common.HippyMap;
  */
 
 @SuppressWarnings("deprecation")
-public interface Dimensions extends HippyJavaScriptModule
-{
-    void set(HippyMap dimension);
+public interface Dimensions extends HippyJavaScriptModule {
+
+  void set(HippyMap dimension);
 }

@@ -20,16 +20,15 @@ import android.view.View;
 
 import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 
-public class HippyPullHeaderView extends HippyViewGroup
-{
+public class HippyPullHeaderView extends HippyViewGroup {
+
   private View mParentView;
 
-	public HippyPullHeaderView(Context context)
-	{
-		super(context);
-	}
+  public HippyPullHeaderView(Context context) {
+    super(context);
+  }
 
-	public void setParentView(View parentView) {
+  public void setParentView(View parentView) {
     mParentView = parentView;
   }
 

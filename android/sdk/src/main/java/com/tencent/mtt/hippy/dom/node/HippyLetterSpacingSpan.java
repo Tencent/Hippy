@@ -22,33 +22,26 @@ import android.text.style.MetricAffectingSpan;
 
 @SuppressWarnings({"unused"})
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-public class HippyLetterSpacingSpan extends MetricAffectingSpan
-{
+public class HippyLetterSpacingSpan extends MetricAffectingSpan {
 
-	final float	mSpace;
+  final float mSpace;
 
-	public HippyLetterSpacingSpan(float mSpace)
-	{
-		this.mSpace = mSpace;
-	}
+  public HippyLetterSpacingSpan(float mSpace) {
+    this.mSpace = mSpace;
+  }
 
-	@Override
-	public void updateMeasureState(TextPaint p)
-	{
-		if (!Float.isNaN(mSpace))
-		{
-				p.setLetterSpacing(mSpace / p.getTextSize());
-		}
-	}
+  @Override
+  public void updateMeasureState(TextPaint p) {
+    if (!Float.isNaN(mSpace)) {
+      p.setLetterSpacing(mSpace / p.getTextSize());
+    }
+  }
 
 
-
-	@Override
-	public void updateDrawState(TextPaint tp)
-	{
-		if (!Float.isNaN(mSpace))
-		{
-			tp.setLetterSpacing(mSpace / tp.getTextSize());
-		}
-	}
+  @Override
+  public void updateDrawState(TextPaint tp) {
+    if (!Float.isNaN(mSpace)) {
+      tp.setLetterSpacing(mSpace / tp.getTextSize());
+    }
+  }
 }

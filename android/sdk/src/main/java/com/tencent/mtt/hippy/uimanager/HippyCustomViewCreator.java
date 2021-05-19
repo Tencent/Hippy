@@ -24,10 +24,10 @@ import com.tencent.mtt.hippy.common.HippyMap;
  * Created by leonardgong on 2017/12/14 0014.
  */
 
-public interface HippyCustomViewCreator
-{
-    String HIPPY_CUSTOM_VIEW_CREATOR = "CustomViewCreator";
+public interface HippyCustomViewCreator {
 
-    @SuppressWarnings("deprecation")
-    View createCustomView(String className, Context context, HippyMap initialProps);
+  String HIPPY_CUSTOM_VIEW_CREATOR = "CustomViewCreator";
+
+  @SuppressWarnings("deprecation")
+  View createCustomView(String className, Context context, HippyMap initialProps);
 }

@@ -17,6 +17,7 @@ package com.tencent.mtt.hippy.runtime;
 
 @SuppressWarnings({"unused"})
 public final class StackFrame implements Cloneable {
+
   private final int lineNumber;
   private final int column;
   private final int scriptId;
@@ -27,7 +28,9 @@ public final class StackFrame implements Cloneable {
   private final boolean wasm;
   private final boolean userJavascript;
 
-  public StackFrame(int lineNumber, int column, int scriptId, String scriptNameOrUrl, String functionName, boolean eval, boolean constructor, boolean wasm, boolean userJavascript) {
+  public StackFrame(int lineNumber, int column, int scriptId, String scriptNameOrUrl,
+      String functionName, boolean eval, boolean constructor, boolean wasm,
+      boolean userJavascript) {
     this.lineNumber = lineNumber;
     this.column = column;
     this.scriptId = scriptId;

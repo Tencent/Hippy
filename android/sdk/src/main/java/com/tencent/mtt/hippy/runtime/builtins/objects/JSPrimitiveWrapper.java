@@ -19,6 +19,7 @@ import com.tencent.mtt.hippy.runtime.builtins.JSValue;
 
 @SuppressWarnings({"unused"})
 public abstract class JSPrimitiveWrapper<T> extends JSValue {
+
   private final T value;
 
   public JSPrimitiveWrapper(T value) {

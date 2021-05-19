@@ -17,6 +17,7 @@ package com.tencent.mtt.hippy.dom.flex;
 
 @SuppressWarnings("all")
 public class FlexOutput {
+
   public static long make(float width, float height) {
     return make((int) width, (int) height);
   }

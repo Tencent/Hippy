@@ -23,6 +23,7 @@ import java.nio.ByteBuffer;
 
 @SuppressWarnings({"unused"})
 public class JSArrayBuffer extends JSValue {
+
   static final short MAX_DUMP_LENGTH = 1024;
 
   private ByteBuffer buffer;
@@ -30,6 +31,7 @@ public class JSArrayBuffer extends JSValue {
   public static JSArrayBuffer allocate(int capacity) {
     return new JSArrayBuffer(ByteBuffer.allocate(capacity));
   }
+
   public JSArrayBuffer(ByteBuffer buffer) {
     this.buffer = buffer;
   }

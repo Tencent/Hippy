@@ -25,8 +25,10 @@ import java.nio.ByteBuffer;
  */
 @SuppressWarnings({"unused"})
 public class DirectStringTable implements StringTable {
+
   @Override
-  public String lookup(ByteBuffer byteBuffer, String encoding, StringLocation location, Object relatedKey) throws UnsupportedEncodingException {
+  public String lookup(ByteBuffer byteBuffer, String encoding, StringLocation location,
+      Object relatedKey) throws UnsupportedEncodingException {
     if (location == StringLocation.VOID) {
       return "";
     }

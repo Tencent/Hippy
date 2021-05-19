@@ -16,12 +16,12 @@
 package com.tencent.mtt.hippy.adapter.font;
 
 @SuppressWarnings("SameReturnValue")
-public interface HippyFontScaleAdapter
-{
-	float getFontScale();
+public interface HippyFontScaleAdapter {
 
-	@SuppressWarnings("unused")
-	CharSequence getEmoticonText(CharSequence text, int fontSize);
+  float getFontScale();
 
-	String getCustomFontFilePath(String fontFamilyName, int style);
+  @SuppressWarnings("unused")
+  CharSequence getEmoticonText(CharSequence text, int fontSize);
+
+  String getCustomFontFilePath(String fontFamilyName, int style);
 }
