@@ -4,6 +4,8 @@
 
 hippy-react 的组件接近终端，语法上接近 React Native。
 
+---
+
 # Image
 
 [[Image 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/Image)
@@ -74,6 +76,8 @@ import icon from './qb_icon_new.png';
 
 > * `uri`: string - 图片的地址
 
+---
+
 # ListView
 
 [[ListView 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/ListView)
@@ -131,6 +135,8 @@ import icon from './qb_icon_new.png';
 
 `() => void` 收起刷新条 PullHeader。当设置了`renderPullHeader`后，每当下拉刷新结束需要主动调用该方法收回 PullHeader。
 
+---
+
 # Modal
 
 [[Modal 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/Modal)
@@ -153,6 +159,8 @@ import icon from './qb_icon_new.png';
 | onDismiss             | -                                                            | `Function`                                                   | `iOS`    |
 | transparent           | 背景是否是透明的                      | `boolean`                                                    | `ALL`    |
 | visible               | 是否显示                                                       | `boolean`                                                    | `ALL`    |
+
+---
 
 # Navigator
 
@@ -197,6 +205,8 @@ import icon from './qb_icon_new.png';
 >   * initProps: Object - 初始化参数
 >   * toDirection: left | right | top | bottom - 自定义页面pop 的方向
 
+---
+
 # RefreshWrapper
 
 [[RefreshWrapper 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/RefreshWrapper)
@@ -222,6 +232,8 @@ import icon from './qb_icon_new.png';
 ### startRefresh
 
 `() => void` 调用此方法，手工告知 RefreshWrapper 开始刷新，展开刷新栏。
+
+---
 
 # ScrollView
 
@@ -269,6 +281,8 @@ import icon from './qb_icon_new.png';
 > * x: number - X 偏移值
 > * y: number - Y 偏移值
 > * duration: number - 毫秒为单位的滚动时间
+
+---
 
 # TextInput
 
@@ -375,6 +389,8 @@ import icon from './qb_icon_new.png';
 
 `() => void` 显示软键盘。
 
+---
+
 # Text
 
 [[Text 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/Text)
@@ -413,6 +429,8 @@ import icon from './qb_icon_new.png';
   * `middle` - "文字将会从中间开始截断，保证字符串的最后与最前的文字可以正常显示在Text组件的响应位置，而中间给截断的文字，将以 “...” 代替，例如 “ab...yz”；（仅iOS支持）
   * `tail` - 文字将会从最后开始截断，保证字符串的最前的文字可以正常显示在 Text 组件的最前，而从最后给截断的文字，将以 “...” 代替，例如 “abcd...”；
 
+---
+
 # View
 
 [[View 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/View)
@@ -431,6 +449,8 @@ import icon from './qb_icon_new.png';
 | overflow           | 指定当子节点内容溢出其父级 `View` 容器时, 是否剪辑内容       | `enum`(visible, hidden)         | `ALL`     |
 | onLayout           | 这个事件会在布局计算完成后立即调用一次，不过收到此事件时新的布局可能还没有在屏幕上呈现，尤其是一个布局动画正在进行中的时候。 | `Function`                           | `ALL`     |
 | onAttachedToWindow           | 这个事件会在节点已经渲染并且添加到容器组件中触发，因为 Hippy 的渲染是异步的，这是很稳妥的执行后续操作的事件。 | `Function`                           | `ALL`     |
+
+---
 
 # ViewPager
 

@@ -3,6 +3,8 @@
 
 # 模块
 
+---
+
 # Animation
 
 [[Animation 范例]](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/modules/Animation/index.jsx)
@@ -80,6 +82,8 @@
 
 > * options: Object: 实例化参数
 
+---
+
 # AnimationSet
 
 [[AnimationSet 范例]](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/modules/Animation)
@@ -135,6 +139,8 @@
 
 `(options: Object) => void` 修改动画的配置参数，只需要填入需要修改的配置项即可，不需要重复填入所有的动画参数
 
+---
+
 # AsyncStorage
 
 [[AsyncStorage 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/modules/AsyncStorage)
@@ -186,6 +192,8 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 > * key: string - 需要获取值的目标 key
 > * value: string - 需要获取值的目标值
 
+---
+
 # BackAndroid
 
 [[BackAndroid 范例]](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/pages/gallery.jsx#L171)
@@ -212,6 +220,8 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 * handler: Function - 建议使用 `addListener` 返回的 `remove` 对象，也可以是之前 BackAndroid 的回调函数。
 
+---
+
 # Clipboard
 
 [[Clipboard 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/modules/Clipboard)
@@ -230,6 +240,8 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 > * value: string - 需要设置到剪贴板中的内容。
 
+---
+
 # Dimensions
 
 用于获取当前设备的宽高。
@@ -243,6 +255,8 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 > * target: 'window' | 'screen' - 指定丈量 Hippy Root View 或者屏幕尺寸。
 > * Android 特别说明：因为历史遗留问题，screen 下的 statusBarHeight 是按实际像素算的，window 下经过修正已经是 dp 单位。
 > * navigatorBarHeight: Android 底部 navigatorBar 高度；最低支持版本 2.3.4
+
+---
 
 # ImageLoaderModule
 
@@ -261,6 +275,8 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 `(url: string) => void` 用于预加载图片。
 
 > * url - 图片地址
+
+---
 
 # NetInfo
 
@@ -325,6 +341,8 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 > * keyValue: string - 需要设置的键值对
 > * expires?: string - 设置 Cookie 的超市时间
 
+---
+
 # PixelRatio
 
 用于获取当前设备的像素密度(pixel density)。
@@ -356,6 +374,8 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
   * Pixel XL, Pixel 2 XL
   * [xxxhdpi Android 设备](//material.io/tools/devices/)
 
+---
+
 # Platform
 
 用于书写平台区分代码的一个组件。开发者使用时，根据 `Platform.OS` 输出值开发分平台业务逻辑分支。
@@ -365,6 +385,8 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 | 参数          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | OS | 用来判断是在 iOS 或者 Android 下 | string                                  | `ALL`    |
+
+---
 
 # Stylesheet
 
@@ -383,6 +405,8 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 `(styleObj: Object) => styleObj`
 
 > * styleObj: Object - 样式对象
+
+---
 
 # UIManagerModule
 
