@@ -4,6 +4,8 @@
 
 核心组件的定义是跟浏览器、Vue 中保持一致，如果只使用这些组件的话，可以直接跨浏览器。
 
+---
+
 # a
 
 该组件目前映射到 Text，目前主要用于在 hippy-vue-router 中进行页面跳转。 一切同 [p](hippy-vue/components.md?id=p)。
@@ -16,6 +18,8 @@
 | touchmove   | 触屏移动事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
 | touchend    | 触屏结束事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
 | touchcancel | 触屏取消事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
+
+---
 
 # button
 
@@ -33,6 +37,8 @@
 | touchmove   | 触屏移动事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
 | touchend    | 触屏结束事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
 | touchcancel | 触屏取消事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
+
+---
 
 # div
 
@@ -64,11 +70,15 @@
 | touchend    | 触屏结束事件，最低支持版本 1.3.3 | `Function`                                | `ALL`    |
 | touchcancel | 触屏取消事件，最低支持版本 1.3.3 | `Function`                                | `ALL`    |
 
+---
+
 # form
 
 [[范例：demo-div.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue)
 
 别的组件容器。 一切同 [div](hippy-vue/components.md?id=div)。
+
+---
 
 # iframe
 
@@ -87,6 +97,8 @@
 | 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | load           | 网页加载成功后会触发 | `Function`                           | `ALL`     |
+
+---
 
 # img
 
@@ -117,6 +129,8 @@
 | touchmove   | 触屏移动事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
 | touchend    | 触屏结束事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
 | touchcancel | 触屏取消事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
+
+---
 
 # input
 
@@ -225,6 +239,8 @@
 
 `() => void` 显示软键盘。
 
+---
+
 # label
 
 [[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-p.vue)
@@ -239,6 +255,8 @@
 | touchmove   | 触屏移动事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
 | touchend    | 触屏结束事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
 | touchcancel | 触屏取消事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
+
+---
 
 # ul
 
@@ -288,6 +306,8 @@ Hippy 的重点功能，高性能的可复用列表组件。里面第一层只�
 > * `yIndex`: number - 滑动到 Y 方向的 yIndex 个 item
 > * `animated`: boolean - 滑动过程是否使用动画
 
+---
+
 # li
 
 ul 的子节点，终端层节点回收和复用的最小颗粒度。
@@ -305,6 +325,8 @@ ul 的子节点，终端层节点回收和复用的最小颗粒度。
 | disappear       | 当有`li`节点滑动离开屏幕时触发，入参返回离开的`li`节点对应索引值。 | `(index) => any` | `ALL` |
 | willAppear       | 当有`li`节点至少一个像素滑动进入屏幕时（曝光）触发，入参返回曝光的`li`节点对应索引值。`最低支持版本2.3.0` | `(index) => any` | `ALL` |
 | willDisappear       | 当有`li`节点至少一个像素滑动离开屏幕时触发，入参返回离开的`li`节点对应索引值。`最低支持版本2.3.0` | `(index) => any` | `ALL` |
+
+---
 
 # p
 
@@ -335,6 +357,8 @@ ul 的子节点，终端层节点回收和复用的最小颗粒度。
   * `middle` - "文字将会从中间开始截断，保证字符串的最后与最前的文字可以正常显示在Text组件的响应位置，而中间给截断的文字，将以 “...” 代替，例如 “ab...yz”；（仅iOS支持）
   * `tail` - 文字将会从最后开始截断，保证字符串的最前的文字可以正常显示在 Text 组件的最前，而从最后给截断的文字，将以 “...” 代替，例如 “abcd...”；
 
+---
+
 # span
 
 [[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-p.vue)
@@ -349,6 +373,8 @@ ul 的子节点，终端层节点回收和复用的最小颗粒度。
 | touchmove   | 触屏移动事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
 | touchend    | 触屏结束事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
 | touchcancel | 触屏取消事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
+
+---
 
 # textarea
 
