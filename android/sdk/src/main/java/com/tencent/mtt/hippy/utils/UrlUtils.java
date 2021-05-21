@@ -15,10 +15,6 @@
  */
 package com.tencent.mtt.hippy.utils;
 
-/**
- * Created by leonardgong on 2018/3/5 0005.
- */
-
 public class UrlUtils {
 
   /**

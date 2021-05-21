@@ -20,10 +20,6 @@ import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 
 import android.view.View;
 
-/**
- * Created by huskyzhyu on 2017/12/15.
- */
-
 @SuppressWarnings("deprecation")
 public class HippyPageSelectedEvent extends HippyViewEvent {
 

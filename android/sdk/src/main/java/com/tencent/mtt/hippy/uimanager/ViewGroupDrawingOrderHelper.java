@@ -25,10 +25,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-/**
- * Created by leonardgong on 2018/1/9 0009.
- */
-
 public class ViewGroupDrawingOrderHelper {
 
   private final ViewGroup mViewGroup;

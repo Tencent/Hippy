@@ -17,10 +17,6 @@ package com.tencent.mtt.hippy.views.common;
 
 import com.tencent.mtt.supportui.views.IBorder;
 
-/**
- * Created by leonardgong on 2017/12/1 0001.
- */
-
 public interface CommonBorder extends IBorder {
 
   enum BorderRadiusDirection {
