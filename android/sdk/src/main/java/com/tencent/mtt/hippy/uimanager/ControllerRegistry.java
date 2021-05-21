@@ -24,10 +24,6 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by leonardgong on 2017/11/29 0029.
- */
-
 public class ControllerRegistry {
 
   private final SparseArray<View> mViews;    // store all views here
