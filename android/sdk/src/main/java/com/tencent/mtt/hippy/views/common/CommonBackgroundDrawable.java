@@ -19,10 +19,6 @@ import com.tencent.mtt.hippy.dom.flex.FlexConstants;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.supportui.views.asyncimage.BackgroundDrawable;
 
-/**
- * Created by leonardgong on 2017/11/30 0030.
- */
-
 public class CommonBackgroundDrawable extends BackgroundDrawable {
 
   public void setBorderRadius(float radius, int position) {
