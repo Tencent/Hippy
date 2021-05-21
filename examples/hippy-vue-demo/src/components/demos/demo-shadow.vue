@@ -1,16 +1,16 @@
 <template>
   <div id="shadow-demo">
       <div v-if="Platform==='android'" class="no-offset-shadow-demo-cube-android">
-        <p class="no-offset-shadow-demo-content-android">没有偏移阴影样式</p>
+        <div class="no-offset-shadow-demo-content-android"><p>没有偏移阴影样式</p></div>
       </div>
       <div v-if="Platform==='ios'" class="no-offset-shadow-demo-cube-ios">
-        <p class="no-offset-shadow-demo-content-ios">没有偏移阴影样式</p>
+        <div class="no-offset-shadow-demo-content-ios"><p>没有偏移阴影样式</p></div>
       </div>
       <div v-if="Platform==='android'" class="offset-shadow-demo-cube-android">
-        <p class="offset-shadow-demo-content-android">偏移阴影样式</p>
+        <div class="offset-shadow-demo-content-android"><p>偏移阴影样式</p></div>
       </div>
       <div v-if="Platform==='ios'" class="offset-shadow-demo-cube-ios">
-        <p class="offset-shadow-demo-content-ios">偏移阴影样式</p>
+        <div class="offset-shadow-demo-content-ios"><p>偏移阴影样式</p></div>
       </div>
   </div>
 </template>
@@ -79,8 +79,11 @@ export default {
     height: 160px;
     background-color: grey;
     border-radius: 5px;
-    line-height: 160px;
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  #shadow-demo .no-offset-shadow-demo-content-android p {
     color: white;
   }
 
@@ -105,9 +108,14 @@ export default {
     width: 160px;
     height: 160px;
     background-color: grey;
-    text-align: center;
     border-radius: 5px;
-    line-height: 160px;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  #shadow-demo .no-offset-shadow-demo-content-ios p {
     color: white;
   }
 
@@ -140,9 +148,13 @@ export default {
     width: 160px;
     height: 160px;
     background-color: grey;
-    line-height: 160px;
-    text-align: center;
-    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  #shadow-demo .offset-shadow-demo-content-android p {
+    color: white
   }
 
   #shadow-demo .offset-shadow-demo-cube-ios {
@@ -163,9 +175,12 @@ export default {
   #shadow-demo .offset-shadow-demo-content-ios {
     width: 160px;
     height: 160px;
-    line-height: 160px;
     background-color: grey;
-    text-align: center;
+    justify-content: center;
+    align-items: center;
+  }
+
+  #shadow-demo .offset-shadow-demo-content-ios p {
     color: white;
   }
 </style>
