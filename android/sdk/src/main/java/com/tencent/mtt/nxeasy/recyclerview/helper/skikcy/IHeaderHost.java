@@ -21,9 +21,9 @@ import android.widget.FrameLayout.LayoutParams;
 
 public interface IHeaderHost {
 
-    void attachHeader(View headerView, LayoutParams layoutParams);
+  void attachHeader(View headerView, LayoutParams layoutParams);
 
-    void addOnLayoutListener(OnGlobalLayoutListener listener);
+  void addOnLayoutListener(OnGlobalLayoutListener listener);
 
-    void removeOnLayoutListener(OnGlobalLayoutListener listener);
+  void removeOnLayoutListener(OnGlobalLayoutListener listener);
 }

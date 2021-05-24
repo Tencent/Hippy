@@ -18,5 +18,5 @@ package com.tencent.mtt.nxeasy.recyclerview.helper.header;
 
 public interface IHeaderStatusListener {
 
-    void onHeaderStatusChanged(int oldStatus, int newStatus);
+  void onHeaderStatusChanged(int oldStatus, int newStatus);
 }

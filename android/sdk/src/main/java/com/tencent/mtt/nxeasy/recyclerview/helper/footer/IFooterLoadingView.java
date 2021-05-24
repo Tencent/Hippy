@@ -20,14 +20,14 @@ import android.view.View;
 
 public interface IFooterLoadingView {
 
-    int LOAD_STATUS_NONE = 0;
-    int LOAD_STATUS_LOADING = 1;
-    int LOAD_STATUS_FAILED = 2;
-    int LOAD_STATUS_END = 3;
+  int LOAD_STATUS_NONE = 0;
+  int LOAD_STATUS_LOADING = 1;
+  int LOAD_STATUS_FAILED = 2;
+  int LOAD_STATUS_END = 3;
 
-    View getView();
+  View getView();
 
-    int getHeight();
+  int getHeight();
 
-    void setLoadingStatus(int loadingStatus);
+  void setLoadingStatus(int loadingStatus);
 }
