@@ -46,7 +46,7 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
   private final HippyEngineContext mContext;
   private boolean isDestroyed = false;
   private volatile Handler mUIThreadHandler;
-  private volatile Handler mBridgeThreadHandler;
+  private volatile Handler mModuleThreadHandler;
   private volatile Handler mDomThreadHandler;
   private final HippyModuleANRMonitor mANRMonitor;
 
@@ -95,8 +95,8 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
 
   @Override
   public void destroy() {
-    if (mBridgeThreadHandler != null) {
-      mBridgeThreadHandler.removeMessages(MSG_CODE_CALL_NATIVES);
+    if (mModuleThreadHandler != null) {
+      mModuleThreadHandler.removeMessages(MSG_CODE_CALL_NATIVES);
     }
     if (mDomThreadHandler != null) {
       mDomThreadHandler.removeMessages(MSG_CODE_CALL_NATIVES);
@@ -132,9 +132,9 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
               mUIThreadHandler.sendMessage(msg);
             }
           } else {
-            if (mBridgeThreadHandler != null) {
-              Message msg = mBridgeThreadHandler.obtainMessage(MSG_CODE_DESTROY_MODULE, moduleInfo);
-              mBridgeThreadHandler.sendMessage(msg);
+            if (mModuleThreadHandler != null) {
+              Message msg = mModuleThreadHandler.obtainMessage(MSG_CODE_DESTROY_MODULE, moduleInfo);
+              mModuleThreadHandler.sendMessage(msg);
             }
           }
         }
@@ -165,7 +165,7 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
       Message msg = handler.obtainMessage(MSG_CODE_CALL_NATIVES, params);
       handler.sendMessage(msg);
     } else {
-      Handler handler = getBridgeThreadHandler();
+      Handler handler = getModuleThreadHandler();
       Message msg = handler.obtainMessage(MSG_CODE_CALL_NATIVES, params);
       handler.sendMessage(msg);
     }
@@ -256,16 +256,16 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
     return mUIThreadHandler;
   }
 
-  private Handler getBridgeThreadHandler() {
-    if (mBridgeThreadHandler == null) {
+  private Handler getModuleThreadHandler() {
+    if (mModuleThreadHandler == null) {
       synchronized (HippyModuleManagerImpl.class) {
-        if (mBridgeThreadHandler == null) {
-          mBridgeThreadHandler = new Handler(
-              mContext.getThreadExecutor().getJsBridgeThread().getLooper(), this);
+        if (mModuleThreadHandler == null) {
+          mModuleThreadHandler = new Handler(
+              mContext.getThreadExecutor().getModuleThread().getLooper(), this);
         }
       }
     }
-    return mBridgeThreadHandler;
+    return mModuleThreadHandler;
   }
 
   @Override

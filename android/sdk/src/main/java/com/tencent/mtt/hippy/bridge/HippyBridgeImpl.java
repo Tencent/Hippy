@@ -30,10 +30,13 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.Locale;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.os.Handler;
+import android.os.Message;
 import android.text.TextUtils;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.devsupport.DebugWebSocketClient;
@@ -43,8 +46,11 @@ import com.tencent.mtt.hippy.utils.FileUtils;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import java.nio.ByteOrder;
 
+import static com.tencent.mtt.hippy.bridge.HippyBridgeManagerImpl.MSG_CODE_CALL_NATIVES;
+
 @SuppressWarnings({"unused", "JavaJniMissingFunction"})
-public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnReceiveDataListener {
+public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnReceiveDataListener,
+        Handler.Callback {
 
   private static final Object sBridgeSyncLock;
 
@@ -67,6 +73,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
   private Deserializer deserializer;
   private BinaryReader safeHeapReader;
   private BinaryReader safeDirectReader;
+  private Handler bridgeHandler;
 
   public HippyBridgeImpl(HippyEngineContext engineContext, BridgeCallback callback,
       boolean singleThreadMode,
@@ -250,10 +257,45 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
     LogUtils.d("jni_callback",
         "callNatives [moduleName:" + moduleName + " , moduleFunc: " + moduleFunc + "]");
 
-    if (mBridgeCallback != null) {
-      HippyArray hippyParam = bytesToArgument(buffer);
-      mBridgeCallback.callNatives(moduleName, moduleFunc, callId, hippyParam);
+    if (bridgeHandler == null) {
+      bridgeHandler = new Handler(mContext.getThreadExecutor().getBridgeThread().getLooper(), this);
     }
+
+    HashMap<String, Object> params = new HashMap<>();
+    params.put("moduleName", moduleName);
+    params.put("moduleFunc", moduleFunc);
+    params.put("callId", callId);
+    params.put("buffer", buffer);
+
+    Message message = bridgeHandler.obtainMessage(MSG_CODE_CALL_NATIVES, params);
+    bridgeHandler.sendMessage(message);
+  }
+
+  @Override
+  public boolean handleMessage(@SuppressWarnings("NullableProblems") Message msg) {
+    switch (msg.what) {
+      case MSG_CODE_CALL_NATIVES: {
+        HashMap<String, Object> params = (HashMap) msg.obj;
+        assert (params != null);
+
+        if (mBridgeCallback != null && params !=null) {
+          String moduleName = (String)params.get("moduleName");
+          String moduleFunc = (String)params.get("moduleFunc");
+          String callId = (String)params.get("callId");
+          ByteBuffer buffer = (ByteBuffer)params.get("buffer");
+
+          HippyArray hippyParam = bytesToArgument(buffer);
+          mBridgeCallback.callNatives(moduleName, moduleFunc, callId, hippyParam);
+        }
+        return true;
+      }
+
+      default: {
+        LogUtils.d("HippyBridgeImpl", "handleMessage: " + "unknown message code!!");
+      }
+    }
+
+    return false;
   }
 
   public void InspectorChannel(byte[] params) {
@@ -314,6 +356,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
   }
 
   private HippyArray bytesToArgument(ByteBuffer buffer) {
+    assert (buffer != null);
     HippyArray hippyParam = null;
     if (enableV8Serialization) {
       LogUtils.d("hippy_bridge", "bytesToArgument using Buffer");

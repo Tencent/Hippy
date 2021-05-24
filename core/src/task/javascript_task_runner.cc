@@ -27,7 +27,7 @@
 #include "core/base/task.h"
 
 JavaScriptTaskRunner::JavaScriptTaskRunner() {
-  SetName("hippy.js");
+  SetName("hippy-js");
 }
 
 bool JavaScriptTaskRunner::IsJsThread() {

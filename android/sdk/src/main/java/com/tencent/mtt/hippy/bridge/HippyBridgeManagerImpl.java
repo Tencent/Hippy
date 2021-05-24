@@ -56,6 +56,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
   static final int MSG_CODE_RUN_BUNDLE = 11;
   static final int MSG_CODE_CALL_FUNCTION = 12;
   static final int MSG_CODE_DESTROY_BRIDGE = 13;
+  static final int MSG_CODE_CALL_NATIVES = 14;
 
   static final int FUNCTION_ACTION_LOAD_INSTANCE = 1;
   static final int FUNCTION_ACTION_RESUME_INSTANCE = 2;
@@ -343,7 +344,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 
   @Override
   public void initBridge(Callback<Boolean> callback) {
-    mHandler = new Handler(mContext.getThreadExecutor().getJsThread().getLooper(), this);
+    mHandler = new Handler(mContext.getThreadExecutor().getBridgeThread().getLooper(), this);
     Message message = mHandler.obtainMessage(MSG_CODE_INIT_BRIDGE, callback);
     mHandler.sendMessage(message);
   }
