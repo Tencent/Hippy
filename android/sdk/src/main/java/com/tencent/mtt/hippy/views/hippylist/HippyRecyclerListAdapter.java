@@ -33,6 +33,7 @@ import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
 import com.tencent.mtt.hippy.uimanager.PullHeaderRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.views.list.IRecycleItemTypeChange;
+import com.tencent.mtt.hippy.views.refresh.HippyPullHeaderView;
 import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.IStickyItemsProvider;
 import java.util.ArrayList;
 
@@ -68,6 +69,7 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends
     boolean needsDelete = renderNode.needDeleteExistRenderView();
     View renderView = createRenderView(renderNode);
     if (isPullHeader(positionToCreateHolder)) {
+      ((HippyPullHeaderView) renderView).setParentView(hippyRecyclerView);
       initPullHeadEventHelper((PullHeaderRenderNode) renderNode, renderView);
       return new HippyRecyclerViewHolder(headerEventHelper.getView(), renderNode);
     } else if (isStickyPosition(positionToCreateHolder)) {
@@ -214,8 +216,8 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends
    */
   protected void setLayoutParams(View itemView, int position) {
     LayoutParams childLp = getLayoutParams(itemView);
-    RenderNode childNode = getChildNodeByAdapterPosition(position);
-    childLp.height = childNode.getHeight();
+    ListItemRenderNode childNode = getChildNodeByAdapterPosition(position);
+    childLp.height = getRenderNodeHeight(position);
     childLp.width = childNode.getWidth();
     itemView.setLayoutParams(childLp);
   }
@@ -303,16 +305,15 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends
   }
 
   public int getItemHeight(int position) {
-    Integer itemHeight = getRenderNodeHeight(position);
-    if (itemHeight != null) {
-      return itemHeight;
-    }
-    return 0;
+    return getRenderNodeHeight(position);
   }
 
   public int getRenderNodeHeight(int position) {
     ListItemRenderNode childNode = getChildNode(position);
     if (childNode != null) {
+      if (childNode.isPullHeader()) {
+        return 0;
+      }
       return childNode.getHeight();
     }
     return 0;
@@ -393,10 +394,6 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends
     if (lp == null) {
       return;
     }
-    if (isPullHeader(position)) {
-      lp.height = 0;
-    } else {
-      lp.height = getItemHeight(position);
-    }
+    lp.height = getRenderNodeHeight(position);
   }
 }

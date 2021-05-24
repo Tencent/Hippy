@@ -29,7 +29,7 @@ import com.tencent.mtt.nxeasy.recyclerview.helper.header.IHeaderRefreshListener;
 import com.tencent.mtt.nxeasy.recyclerview.helper.header.IHeaderRefreshView;
 import com.tencent.mtt.nxeasy.recyclerview.helper.header.ILayoutRequester;
 
-class PullHeaderEventHelper implements IHeaderRefreshListener, IHeaderRefreshView,
+public class PullHeaderEventHelper implements IHeaderRefreshListener, IHeaderRefreshView,
     ILayoutRequester {
 
   public static final String EVENT_TYPE_HEADER_PULLING = "onHeaderPulling";
