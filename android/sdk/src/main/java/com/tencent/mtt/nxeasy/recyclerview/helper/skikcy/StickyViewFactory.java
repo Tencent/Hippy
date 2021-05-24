@@ -21,29 +21,27 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 public final class StickyViewFactory implements IHeaderViewFactory {
 
-    private final EasyRecyclerView recyclerView;
+  private final EasyRecyclerView recyclerView;
 
-    public StickyViewFactory(EasyRecyclerView recyclerView) {
-        this.recyclerView = recyclerView;
-    }
+  public StickyViewFactory(EasyRecyclerView recyclerView) {
+    this.recyclerView = recyclerView;
+  }
 
-    /**
-     * 根据position的位置，获取到一个实体到ViewHolder
-     * 1、先在已经上屏的view中，找到一个ViewHolder
-     * 2、第一步没有找到，就重新通过recyclerView去获取一个，这种获取的viewHolder可能是cache里面的，也可能
-     * 是新创建的，不用再次进行bindViewHolder的操作
-     *
-     * @param position 指定要获取到ViewHolder到位置
-     * @return 返回对应到ViewHolder，不会返回Null
-     */
-    public ViewHolder getHeaderForPosition(int position) {
-        if (position < 0) {
-            return null;
-        }
-        ViewHolder viewHolder = recyclerView.findViewHolderForAdapterPosition(position);
-        if (viewHolder == null) {
-            viewHolder = recyclerView.getViewHolderForPosition(position);
-        }
-        return viewHolder;
+  /**
+   * 根据position的位置，获取到一个实体到ViewHolder 1、先在已经上屏的view中，找到一个ViewHolder 2、第一步没有找到，就重新通过recyclerView去获取一个，这种获取的viewHolder可能是cache里面的，也可能
+   * 是新创建的，不用再次进行bindViewHolder的操作
+   *
+   * @param position 指定要获取到ViewHolder到位置
+   * @return 返回对应到ViewHolder，不会返回Null
+   */
+  public ViewHolder getHeaderForPosition(int position) {
+    if (position < 0) {
+      return null;
     }
+    ViewHolder viewHolder = recyclerView.findViewHolderForAdapterPosition(position);
+    if (viewHolder == null) {
+      viewHolder = recyclerView.getViewHolderForPosition(position);
+    }
+    return viewHolder;
+  }
 }

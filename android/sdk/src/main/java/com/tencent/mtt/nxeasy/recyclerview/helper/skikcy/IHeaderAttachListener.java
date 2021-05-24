@@ -20,12 +20,12 @@ import android.view.View;
 
 public interface IHeaderAttachListener {
 
-    /**
-     * header被摘下来，需要对header进行还原或者回收对处理
-     *
-     * @param aboundHeader HeaderView对应的Holder
-     * @param currentHeaderView headerView的实体内容
-     */
-    void onHeaderDetached(ViewHolder aboundHeader, View currentHeaderView);
+  /**
+   * header被摘下来，需要对header进行还原或者回收对处理
+   *
+   * @param aboundHeader      HeaderView对应的Holder
+   * @param currentHeaderView headerView的实体内容
+   */
+  void onHeaderDetached(ViewHolder aboundHeader, View currentHeaderView);
 
 }

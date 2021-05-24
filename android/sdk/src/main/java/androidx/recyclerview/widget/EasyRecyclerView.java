@@ -31,203 +31,203 @@ import java.util.ArrayList;
 
 public class EasyRecyclerView extends RecyclerView {
 
-    protected OverPullHelper overPullHelper;
-    protected OverPullListener overPullListener;
-    protected VelocityTracker velocityTracker;
+  protected OverPullHelper overPullHelper;
+  protected OverPullListener overPullListener;
+  protected VelocityTracker velocityTracker;
 
-    public EasyRecyclerView(@NonNull Context context) {
-        super(context);
-        init();
+  public EasyRecyclerView(@NonNull Context context) {
+    super(context);
+    init();
+  }
+
+  public EasyRecyclerView(@NonNull Context context, @Nullable AttributeSet attrs) {
+    super(context, attrs);
+    init();
+  }
+
+  public EasyRecyclerView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
+    super(context, attrs, defStyle);
+    init();
+  }
+
+  protected void init() {
+  }
+
+  public int getOverPullState() {
+    if (overPullHelper != null) {
+      return overPullHelper.getOverPullState();
     }
+    return OverPullHelper.OVER_PULL_NONE;
+  }
 
-    public EasyRecyclerView(@NonNull Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
-        init();
+  public boolean isOverPulling() {
+    int pullState = getOverPullState();
+    return pullState == OverPullHelper.OVER_PULL_DOWN_ING
+        || pullState == OverPullHelper.OVER_PULL_UP_ING
+        || pullState == OverPullHelper.OVER_PULL_SETTLING;
+  }
+
+  /**
+   * 下拉的时候，返回值<0,表示顶部被下拉了一部分距离,顶部有空白
+   */
+  public int getOverPullUpOffset() {
+    if (overPullHelper != null) {
+      return overPullHelper.getOverPullUpOffset();
     }
+    return 0;
+  }
 
-    public EasyRecyclerView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-        init();
+  /**
+   * 上拉的时候，返回值>0,表示底部被上拉了一部分距离，底部有空白
+   */
+  public int getOverPullDownOffset() {
+    if (overPullHelper != null) {
+      return overPullHelper.getOverPullDownOffset();
     }
+    return 0;
+  }
 
-    protected void init() {
+  public void setOverPullListener(OverPullListener listener) {
+    overPullListener = listener;
+    if (overPullHelper != null) {
+      overPullHelper.setOverPullListener(listener);
     }
+  }
 
-    public int getOverPullState() {
-        if (overPullHelper != null) {
-            return overPullHelper.getOverPullState();
-        }
-        return OverPullHelper.OVER_PULL_NONE;
+  public void setEnableOverPull(boolean enableOverDrag) {
+    if (enableOverDrag) {
+      if (overPullHelper == null) {
+        overPullHelper = new OverPullHelper(this);
+      }
+      overPullHelper.setOverPullListener(overPullListener);
+    } else {
+      overPullHelper = null;
     }
+  }
 
-    public boolean isOverPulling() {
-        int pullState = getOverPullState();
-        return pullState == OverPullHelper.OVER_PULL_DOWN_ING || pullState == OverPullHelper.OVER_PULL_UP_ING
-                || pullState == OverPullHelper.OVER_PULL_SETTLING;
+  @Override
+  public boolean onTouchEvent(MotionEvent event) {
+    if (overPullHelper != null && overPullHelper.onTouchEvent(event)) {
+      return true;
     }
-
-    /**
-     * 下拉的时候，返回值<0,表示顶部被下拉了一部分距离,顶部有空白
-     */
-    public int getOverPullUpOffset() {
-        if (overPullHelper != null) {
-            return overPullHelper.getOverPullUpOffset();
-        }
-        return 0;
+    boolean handled = super.onTouchEvent(event);
+    if (overPullHelper != null) {
+      overPullHelper.handleEventUp(event);
     }
+    return handled;
+  }
 
-    /**
-     * 上拉的时候，返回值>0,表示底部被上拉了一部分距离，底部有空白
-     */
-    public int getOverPullDownOffset() {
-        if (overPullHelper != null) {
-            return overPullHelper.getOverPullDownOffset();
-        }
-        return 0;
+  @Override
+  public void requestLayout() {
+    super.requestLayout();
+  }
+
+  public void recycleAndClearCachedViews() {
+    mRecycler.recycleAndClearCachedViews();
+  }
+
+  public int getChildCountWithCaches() {
+    return getCachedViewHolderCount() + getChildCount();
+  }
+
+  public View getChildAtWithCaches(int index) {
+    ArrayList<ViewHolder> viewHolders = getCachedViewHolders();
+    if (index < viewHolders.size()) {
+      return viewHolders.get(index).itemView;
+    } else {
+      return getChildAt(index - viewHolders.size());
     }
+  }
 
-    public void setOverPullListener(OverPullListener listener) {
-        overPullListener = listener;
-        if (overPullHelper != null) {
-            overPullHelper.setOverPullListener(listener);
-        }
+  private int getCachedViewHolderCount() {
+    int count = mRecycler.mAttachedScrap.size() + mRecycler.mCachedViews.size();
+    for (int i = 0; i < mRecycler.getRecycledViewPool().mScrap.size(); i++) {
+      ScrapData scrapData = mRecycler.getRecycledViewPool().mScrap.valueAt(i);
+      count += scrapData.mScrapHeap.size();
     }
+    return count;
+  }
 
-    public void setEnableOverPull(boolean enableOverDrag) {
-        if (enableOverDrag) {
-            if (overPullHelper == null) {
-                overPullHelper = new OverPullHelper(this);
-            }
-            overPullHelper.setOverPullListener(overPullListener);
-        } else {
-            overPullHelper = null;
-        }
+  public ArrayList<ViewHolder> getCachedViewHolders() {
+    ArrayList<ViewHolder> listViewHolder = new ArrayList<>();
+    listViewHolder.addAll(mRecycler.mAttachedScrap);
+    listViewHolder.addAll(mRecycler.mCachedViews);
+    for (int i = 0; i < mRecycler.getRecycledViewPool().mScrap.size(); i++) {
+      ScrapData scrapData = mRecycler.getRecycledViewPool().mScrap.valueAt(i);
+      listViewHolder.addAll(scrapData.mScrapHeap);
     }
+    return listViewHolder;
+  }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        if (overPullHelper != null && overPullHelper.onTouchEvent(event)) {
-            return true;
-        }
-        boolean handled = super.onTouchEvent(event);
-        if (overPullHelper != null) {
-            overPullHelper.handleEventUp(event);
-        }
-        return handled;
+  public boolean didStructureChange() {
+    return mState.didStructureChange();
+  }
+
+
+  public int getFirstChildPosition() {
+    return getChildLayoutPosition(getChildCount() > 0 ? getChildAt(0) : null);
+  }
+
+  public int getLashChildPosition() {
+    return getChildLayoutPosition(getChildCount() > 0 ? getChildAt(getChildCount() - 1) : null);
+  }
+
+  /**
+   * 通过位置获取一个ViewHolder，目前暂时提供给header使用
+   */
+  public ViewHolder getViewHolderForPosition(int position) {
+    View view = mRecycler.getViewForPosition(position);
+    if (view.getLayoutParams() instanceof LayoutParams) {
+      return ((LayoutParams) view.getLayoutParams()).mViewHolder;
     }
+    return null;
+  }
 
-    @Override
-    public void requestLayout() {
-        super.requestLayout();
+  public ViewHolder getFistChildViewHolder() {
+    View view = getChildAt(0);
+    if (view != null && view.getLayoutParams() instanceof LayoutParams) {
+      return ((LayoutParams) view.getLayoutParams()).mViewHolder;
     }
+    return null;
+  }
 
-    public void recycleAndClearCachedViews() {
-        mRecycler.recycleAndClearCachedViews();
+  /**
+   * 改成public接口，主要用于hippy业务的特殊需求
+   */
+  @Override
+  public void dispatchLayout() {
+    super.dispatchLayout();
+  }
+
+  @Override
+  public void invalidateGlows() {
+    super.invalidateGlows();
+  }
+
+  /**
+   * 反射获取滚动的VelocityTracker
+   */
+  public VelocityTracker getVelocityTracker() {
+    if (velocityTracker == null) {
+      try {
+        Field velocityTrackerField = RecyclerView.class.getDeclaredField("mVelocityTracker");
+        velocityTrackerField.setAccessible(true);
+        velocityTracker = (VelocityTracker) velocityTrackerField.get(this);
+      } catch (NoSuchFieldException e) {
+        e.printStackTrace();
+      } catch (IllegalAccessException e) {
+        e.printStackTrace();
+      }
     }
+    return velocityTracker;
+  }
 
-    public int getChildCountWithCaches() {
-        return getCachedViewHolderCount() + getChildCount();
-    }
-
-    public View getChildAtWithCaches(int index) {
-        ArrayList<ViewHolder> viewHolders = getCachedViewHolders();
-        if (index < viewHolders.size()) {
-            return viewHolders.get(index).itemView;
-        } else {
-            return getChildAt(index - viewHolders.size());
-        }
-    }
-
-    private int getCachedViewHolderCount() {
-        int count = mRecycler.mAttachedScrap.size() + mRecycler.mCachedViews.size();
-        for (int i = 0; i < mRecycler.getRecycledViewPool().mScrap.size(); i++) {
-            ScrapData scrapData = mRecycler.getRecycledViewPool().mScrap.valueAt(i);
-            count += scrapData.mScrapHeap.size();
-        }
-        return count;
-    }
-
-    public ArrayList<ViewHolder> getCachedViewHolders() {
-        ArrayList<ViewHolder> listViewHolder = new ArrayList<>();
-        listViewHolder.addAll(mRecycler.mAttachedScrap);
-        listViewHolder.addAll(mRecycler.mCachedViews);
-        for (int i = 0; i < mRecycler.getRecycledViewPool().mScrap.size(); i++) {
-            ScrapData scrapData = mRecycler.getRecycledViewPool().mScrap.valueAt(i);
-            listViewHolder.addAll(scrapData.mScrapHeap);
-        }
-        return listViewHolder;
-    }
-
-    public boolean didStructureChange() {
-        return mState.didStructureChange();
-    }
-
-
-    public int getFirstChildPosition() {
-        return getChildLayoutPosition(getChildCount() > 0 ? getChildAt(0) : null);
-    }
-
-    public int getLashChildPosition() {
-        return getChildLayoutPosition(getChildCount() > 0 ? getChildAt(getChildCount() - 1) : null);
-    }
-
-    /**
-     * 通过位置获取一个ViewHolder，目前暂时提供给header使用
-     */
-    public ViewHolder getViewHolderForPosition(int position) {
-        View view = mRecycler.getViewForPosition(position);
-        if (view.getLayoutParams() instanceof LayoutParams) {
-            return ((LayoutParams) view.getLayoutParams()).mViewHolder;
-        }
-        return null;
-    }
-
-    public ViewHolder getFistChildViewHolder() {
-        View view = getChildAt(0);
-        if (view != null && view.getLayoutParams() instanceof LayoutParams) {
-            return ((LayoutParams) view.getLayoutParams()).mViewHolder;
-        }
-        return null;
-    }
-
-    /**
-     * 改成public接口，主要用于hippy业务的特殊需求
-     */
-    @Override
-    public void dispatchLayout() {
-        super.dispatchLayout();
-    }
-
-    @Override
-    public void invalidateGlows() {
-        super.invalidateGlows();
-    }
-
-    /**
-     * 反射获取滚动的VelocityTracker
-     */
-    public VelocityTracker getVelocityTracker() {
-        if (velocityTracker == null) {
-            try {
-                Field velocityTrackerField = RecyclerView.class.getDeclaredField("mVelocityTracker");
-                velocityTrackerField.setAccessible(true);
-                velocityTracker = (VelocityTracker) velocityTrackerField.get(this);
-            } catch (NoSuchFieldException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        }
-        return velocityTracker;
-    }
-
-    /**
-     * recyclerView的adapter状态已经变化，但是没有进行notify，导致state和adapter
-     * 的itemCount对不齐，比如hippy场景，直接把recyclerView的renderNode删除了，adapter的itemCount直接变为0，
-     * 由于没有notifyDatSetChange，state的itemCount不为0，这样就会出现validateViewHolderForOffsetPosition报
-     * IndexOutOfBoundsException
-     */
-    public boolean isDataChangedWithoutNotify() {
-        return getAdapter().getItemCount() != mState.getItemCount();
-    }
+  /**
+   * recyclerView的adapter状态已经变化，但是没有进行notify，导致state和adapter 的itemCount对不齐，比如hippy场景，直接把recyclerView的renderNode删除了，adapter的itemCount直接变为0，
+   * 由于没有notifyDatSetChange，state的itemCount不为0，这样就会出现validateViewHolderForOffsetPosition报
+   * IndexOutOfBoundsException
+   */
+  public boolean isDataChangedWithoutNotify() {
+    return getAdapter().getItemCount() != mState.getItemCount();
+  }
 }

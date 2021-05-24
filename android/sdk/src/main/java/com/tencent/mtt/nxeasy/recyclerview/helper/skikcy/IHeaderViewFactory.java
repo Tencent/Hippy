@@ -20,5 +20,5 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 public interface IHeaderViewFactory {
 
-    ViewHolder getHeaderForPosition(int position);
+  ViewHolder getHeaderForPosition(int position);
 }
