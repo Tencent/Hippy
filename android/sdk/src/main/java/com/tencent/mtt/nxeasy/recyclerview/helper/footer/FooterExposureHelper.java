@@ -22,101 +22,102 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 import android.view.View.OnAttachStateChangeListener;
 
-public class FooterExposureHelper extends RecyclerView.OnScrollListener implements OnAttachStateChangeListener {
+public class FooterExposureHelper extends RecyclerView.OnScrollListener implements
+    OnAttachStateChangeListener {
 
-    private View exposureView;
-    private IFooterLoadMoreListener footerListener;
-    private boolean isViewVisible = false;
-    private float visibleRate = 0.3f;
-    private Runnable checkVisibleRunnable;
+  private View exposureView;
+  private IFooterLoadMoreListener footerListener;
+  private boolean isViewVisible = false;
+  private float visibleRate = 0.3f;
+  private Runnable checkVisibleRunnable;
 
-    public FooterExposureHelper() {
-        checkVisibleRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (isViewChangeToVisible(exposureView)) {
-                    notifyFooterAppeared();
-                }
-            }
-        };
-    }
-
-    /**
-     * 设置显示view的面积伐值，超过比例就回调显示
-     *
-     * @param visibleRate (0,1] 1: 100%显示
-     */
-    public void setVisibleRate(float visibleRate) {
-        if (visibleRate > 0) {
-            this.visibleRate = Math.min(visibleRate, 1);
+  public FooterExposureHelper() {
+    checkVisibleRunnable = new Runnable() {
+      @Override
+      public void run() {
+        if (isViewChangeToVisible(exposureView)) {
+          notifyFooterAppeared();
         }
+      }
+    };
+  }
+
+  /**
+   * 设置显示view的面积伐值，超过比例就回调显示
+   *
+   * @param visibleRate (0,1] 1: 100%显示
+   */
+  public void setVisibleRate(float visibleRate) {
+    if (visibleRate > 0) {
+      this.visibleRate = Math.min(visibleRate, 1);
     }
+  }
 
-    /**
-     * @param exposureView 设置需要监控曝光的View
-     */
-    public void setExposureView(View exposureView) {
-        if (this.exposureView != null) {
-            this.exposureView.removeCallbacks(checkVisibleRunnable);
-            this.exposureView.removeOnAttachStateChangeListener(this);
-        }
-        isViewVisible = false;
-        this.exposureView = exposureView;
-        if (this.exposureView != null) {
-            this.exposureView.addOnAttachStateChangeListener(this);
-        }
+  /**
+   * @param exposureView 设置需要监控曝光的View
+   */
+  public void setExposureView(View exposureView) {
+    if (this.exposureView != null) {
+      this.exposureView.removeCallbacks(checkVisibleRunnable);
+      this.exposureView.removeOnAttachStateChangeListener(this);
     }
-
-    public void setFooterListener(IFooterLoadMoreListener footerListener) {
-        this.footerListener = footerListener;
+    isViewVisible = false;
+    this.exposureView = exposureView;
+    if (this.exposureView != null) {
+      this.exposureView.addOnAttachStateChangeListener(this);
     }
+  }
 
-    /**
-     * 判断一个view在屏幕上是否可见
-     */
-    public boolean isViewChangeToVisible(View view) {
-        if (isViewVisible) {
-            return false;
-        }
-        if (!view.isShown()) {
-            isViewVisible = false;
-            return false;
-        }
-        Rect bounds = new Rect();
-        boolean ret = view.getGlobalVisibleRect(bounds);
-        int totalArea = view.getWidth() * view.getHeight();
+  public void setFooterListener(IFooterLoadMoreListener footerListener) {
+    this.footerListener = footerListener;
+  }
 
-        if (!ret || totalArea == 0) {
-            isViewVisible = false;
-            return false;
-        }
-        int viewedArea = bounds.width() * bounds.height();
-        isViewVisible = viewedArea * 1f / totalArea > visibleRate;
-        return isViewVisible;
+  /**
+   * 判断一个view在屏幕上是否可见
+   */
+  public boolean isViewChangeToVisible(View view) {
+    if (isViewVisible) {
+      return false;
     }
-
-    void notifyFooterAppeared() {
-        if (footerListener != null) {
-            footerListener.onFooterLoadMore();
-        }
+    if (!view.isShown()) {
+      isViewVisible = false;
+      return false;
     }
+    Rect bounds = new Rect();
+    boolean ret = view.getGlobalVisibleRect(bounds);
+    int totalArea = view.getWidth() * view.getHeight();
 
-    @Override
-    public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-        //onLayout排版的时候会调用过来，这里不能在排版的时候去请求数据，需要post一下
-        if (exposureView != null) {
-            exposureView.removeCallbacks(checkVisibleRunnable);
-            exposureView.post(checkVisibleRunnable);
-        }
+    if (!ret || totalArea == 0) {
+      isViewVisible = false;
+      return false;
     }
+    int viewedArea = bounds.width() * bounds.height();
+    isViewVisible = viewedArea * 1f / totalArea > visibleRate;
+    return isViewVisible;
+  }
 
-    @Override
-    public void onViewDetachedFromWindow(View v) {
-        isViewVisible = false;
+  void notifyFooterAppeared() {
+    if (footerListener != null) {
+      footerListener.onFooterLoadMore();
     }
+  }
 
-    @Override
-    public void onViewAttachedToWindow(View v) {
-
+  @Override
+  public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+    //onLayout排版的时候会调用过来，这里不能在排版的时候去请求数据，需要post一下
+    if (exposureView != null) {
+      exposureView.removeCallbacks(checkVisibleRunnable);
+      exposureView.post(checkVisibleRunnable);
     }
+  }
+
+  @Override
+  public void onViewDetachedFromWindow(View v) {
+    isViewVisible = false;
+  }
+
+  @Override
+  public void onViewAttachedToWindow(View v) {
+
+  }
 }

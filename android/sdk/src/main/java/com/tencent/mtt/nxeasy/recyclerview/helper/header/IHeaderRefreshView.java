@@ -20,31 +20,29 @@ import android.view.View;
 
 public interface IHeaderRefreshView {
 
-    /**
-     * 状态机：
-     * 1:HEADER_STATUS_FOLDED -> HEADER_STATUS_DRAGGING
-     * 2:HEADER_STATUS_DRAGGING-> HEADER_STATUS_TO_REFRESH ，或者HEADER_STATUS_DRAGGING-> HEADER_STATUS_TO_FOLD
-     * 3:HEADER_STATUS_DRAG_TO_REFRESH -> HEADER_STATUS_REFRESHING
-     * 4:HEADER_STATUS_CLICK_TO_REFRESH -> HEADER_STATUS_REFRESHING
-     * 5:HEADER_STATUS_REFRESHING -> HEADER_STATUS_TO_FOLD
-     * 6:HEADER_STATUS_TO_FOLD -> HEADER_STATUS_FOLDED
-     */
-    int HEADER_STATUS_FOLDED = 0;//收起状态
-    int HEADER_STATUS_DRAGGING = 1;//拖动状态
-    int HEADER_STATUS_DRAG_TO_REFRESH = 2;//下拉拖动触发刷新
-    int HEADER_STATUS_CLICK_TO_REFRESH = 3;//外部点击触发刷新
-    int HEADER_STATUS_REFRESHING = 4;//正在刷新
-    int HEADER_STATUS_TO_FOLD = 5;//去向收起
+  /**
+   * 状态机： 1:HEADER_STATUS_FOLDED -> HEADER_STATUS_DRAGGING 2:HEADER_STATUS_DRAGGING->
+   * HEADER_STATUS_TO_REFRESH ，或者HEADER_STATUS_DRAGGING-> HEADER_STATUS_TO_FOLD
+   * 3:HEADER_STATUS_DRAG_TO_REFRESH -> HEADER_STATUS_REFRESHING 4:HEADER_STATUS_CLICK_TO_REFRESH ->
+   * HEADER_STATUS_REFRESHING 5:HEADER_STATUS_REFRESHING -> HEADER_STATUS_TO_FOLD
+   * 6:HEADER_STATUS_TO_FOLD -> HEADER_STATUS_FOLDED
+   */
+  int HEADER_STATUS_FOLDED = 0;//收起状态
+  int HEADER_STATUS_DRAGGING = 1;//拖动状态
+  int HEADER_STATUS_DRAG_TO_REFRESH = 2;//下拉拖动触发刷新
+  int HEADER_STATUS_CLICK_TO_REFRESH = 3;//外部点击触发刷新
+  int HEADER_STATUS_REFRESHING = 4;//正在刷新
+  int HEADER_STATUS_TO_FOLD = 5;//去向收起
 
-    View getView();
+  View getView();
 
-    void onStartDrag();
+  void onStartDrag();
 
-    void onHeaderHeightChanged(int sumOffset);
+  void onHeaderHeightChanged(int sumOffset);
 
-    void onRefreshing();
+  void onRefreshing();
 
-    int getContentHeight();
+  int getContentHeight();
 
-    void onFolded();
+  void onFolded();
 }

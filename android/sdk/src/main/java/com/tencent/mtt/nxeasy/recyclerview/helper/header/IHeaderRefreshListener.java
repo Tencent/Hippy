@@ -18,10 +18,9 @@ package com.tencent.mtt.nxeasy.recyclerview.helper.header;
 
 public interface IHeaderRefreshListener {
 
-    /**
-     * @param refreshWay 刷新触发的方式，目前只要两种方式
-     *         {@link IHeaderRefreshView#HEADER_STATUS_CLICK_TO_REFRESH}
-     *         {@link IHeaderRefreshView#HEADER_STATUS_DRAG_TO_REFRESH}
-     */
-    void onHeaderRefreshing(int refreshWay);
+  /**
+   * @param refreshWay 刷新触发的方式，目前只要两种方式 {@link IHeaderRefreshView#HEADER_STATUS_CLICK_TO_REFRESH}
+   *                   {@link IHeaderRefreshView#HEADER_STATUS_DRAG_TO_REFRESH}
+   */
+  void onHeaderRefreshing(int refreshWay);
 }

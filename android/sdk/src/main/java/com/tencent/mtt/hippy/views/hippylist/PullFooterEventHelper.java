@@ -23,39 +23,39 @@ import com.tencent.mtt.nxeasy.recyclerview.helper.footer.IFooterLoadMoreListener
 
 class PullFooterEventHelper implements IFooterLoadMoreListener {
 
-    public static final String EVENT_ON_END_REACHED = "onLoadMore";
-    private final HippyRecyclerView recyclerView;
-    private FooterExposureHelper footerExposureHelper;
-    private HippyViewEvent onEndReachedEvent;
+  public static final String EVENT_ON_END_REACHED = "onLoadMore";
+  private final HippyRecyclerView recyclerView;
+  private FooterExposureHelper footerExposureHelper;
+  private HippyViewEvent onEndReachedEvent;
 
-    PullFooterEventHelper(HippyRecyclerView recyclerView) {
-        this.recyclerView = recyclerView;
-    }
+  PullFooterEventHelper(HippyRecyclerView recyclerView) {
+    this.recyclerView = recyclerView;
+  }
 
-    public void enableFooter(View itemView) {
-        disableFooter();
-        footerExposureHelper = new FooterExposureHelper();
-        footerExposureHelper.setFooterListener(this);
-        footerExposureHelper.setExposureView(itemView);
-        recyclerView.addOnScrollListener(footerExposureHelper);
-    }
+  public void enableFooter(View itemView) {
+    disableFooter();
+    footerExposureHelper = new FooterExposureHelper();
+    footerExposureHelper.setFooterListener(this);
+    footerExposureHelper.setExposureView(itemView);
+    recyclerView.addOnScrollListener(footerExposureHelper);
+  }
 
-    public void disableFooter() {
-        if (footerExposureHelper != null) {
-            recyclerView.removeOnScrollListener(footerExposureHelper);
-            footerExposureHelper = null;
-        }
+  public void disableFooter() {
+    if (footerExposureHelper != null) {
+      recyclerView.removeOnScrollListener(footerExposureHelper);
+      footerExposureHelper = null;
     }
+  }
 
-    protected HippyViewEvent getOnEndReachedEvent() {
-        if (onEndReachedEvent == null) {
-            onEndReachedEvent = new HippyViewEvent(EVENT_ON_END_REACHED);
-        }
-        return onEndReachedEvent;
+  protected HippyViewEvent getOnEndReachedEvent() {
+    if (onEndReachedEvent == null) {
+      onEndReachedEvent = new HippyViewEvent(EVENT_ON_END_REACHED);
     }
+    return onEndReachedEvent;
+  }
 
-    @Override
-    public void onFooterLoadMore() {
-        getOnEndReachedEvent().send((View) recyclerView.getParent(), null);
-    }
+  @Override
+  public void onFooterLoadMore() {
+    getOnEndReachedEvent().send((View) recyclerView.getParent(), null);
+  }
 }

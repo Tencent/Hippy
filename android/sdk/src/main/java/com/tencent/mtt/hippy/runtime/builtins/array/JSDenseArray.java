@@ -15,7 +15,7 @@
  */
 package com.tencent.mtt.hippy.runtime.builtins.array;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Pair;
 
 import com.tencent.mtt.hippy.runtime.builtins.JSValue;
