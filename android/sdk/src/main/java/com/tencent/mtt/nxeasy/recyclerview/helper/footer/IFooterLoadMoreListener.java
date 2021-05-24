@@ -18,5 +18,5 @@ package com.tencent.mtt.nxeasy.recyclerview.helper.footer;
 
 public interface IFooterLoadMoreListener {
 
-    void onFooterLoadMore();
+  void onFooterLoadMore();
 }

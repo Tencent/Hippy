@@ -18,5 +18,5 @@ package com.tencent.mtt.nxeasy.recyclerview.helper.header;
 
 public interface ILayoutRequester {
 
-    void requestLayout();
+  void requestLayout();
 }

@@ -28,86 +28,88 @@ import java.util.ArrayList;
 
 public class HippyRecyclerExtension extends RecyclerView.ViewCacheExtension {
 
-    private final HippyEngineContext hpContext;
-    private final NodePositionHelper nodePositionHelper;
-    private HippyRecyclerViewBase recyclerView;
-    private int currentPosition;
+  private final HippyEngineContext hpContext;
+  private final NodePositionHelper nodePositionHelper;
+  private HippyRecyclerViewBase recyclerView;
+  private int currentPosition;
 
-    public HippyRecyclerExtension(HippyRecyclerViewBase recyclerView, HippyEngineContext hpContext,
-            NodePositionHelper nodePositionHelper) {
-        this.nodePositionHelper = nodePositionHelper;
-        this.recyclerView = recyclerView;
-        this.hpContext = hpContext;
-    }
+  public HippyRecyclerExtension(HippyRecyclerViewBase recyclerView, HippyEngineContext hpContext,
+      NodePositionHelper nodePositionHelper) {
+    this.nodePositionHelper = nodePositionHelper;
+    this.recyclerView = recyclerView;
+    this.hpContext = hpContext;
+  }
 
-    public int getCurrentPosition() {
-        return currentPosition;
-    }
+  public int getCurrentPosition() {
+    return currentPosition;
+  }
 
-    @Override
-    public View getViewForPositionAndType(Recycler recycler, int position, int type) {
-        currentPosition = position;
-        View bestView = findInAttachedScrap(recycler, position, type);
-        if (bestView == null) {
-            bestView = findInCachedScrap(recycler, position, type);
-        }
-        return bestView;
+  @Override
+  public View getViewForPositionAndType(Recycler recycler, int position, int type) {
+    currentPosition = position;
+    View bestView = findInAttachedScrap(recycler, position, type);
+    if (bestView == null) {
+      bestView = findInCachedScrap(recycler, position, type);
     }
+    return bestView;
+  }
 
-    private View findInCachedScrap(Recycler recycler, int position, int type) {
-        ViewHolder bestHolder = findBestHolder(recycler.mCachedViews, position, type);
-        if (bestHolder != null) {
-            recycler.mCachedViews.remove(bestHolder);
-            return bestHolder.itemView;
-        }
-        return null;
+  private View findInCachedScrap(Recycler recycler, int position, int type) {
+    ViewHolder bestHolder = findBestHolder(recycler.mCachedViews, position, type);
+    if (bestHolder != null) {
+      recycler.mCachedViews.remove(bestHolder);
+      return bestHolder.itemView;
     }
+    return null;
+  }
 
-    protected View findInAttachedScrap(Recycler recycler, int position, int type) {
-        ViewHolder bestHolder = findBestHolder(recycler.mAttachedScrap, position, type);
-        if (bestHolder != null) {
-            bestHolder.unScrap();
-            return bestHolder.itemView;
-        }
-        return null;
+  protected View findInAttachedScrap(Recycler recycler, int position, int type) {
+    ViewHolder bestHolder = findBestHolder(recycler.mAttachedScrap, position, type);
+    if (bestHolder != null) {
+      bestHolder.unScrap();
+      return bestHolder.itemView;
     }
+    return null;
+  }
 
-    private ViewHolder findBestHolder(ArrayList<ViewHolder> viewHolders, int position,
-            int type) {
-        int scrapCount = viewHolders.size();
-        for (int i = 0; i < scrapCount; i++) {
-            final ViewHolder holder = viewHolders.get(i);
-            if (isTheBestHolder(position, type, holder)) {
-                return holder;
-            }
-        }
-        return null;
+  private ViewHolder findBestHolder(ArrayList<ViewHolder> viewHolders, int position,
+      int type) {
+    int scrapCount = viewHolders.size();
+    for (int i = 0; i < scrapCount; i++) {
+      final ViewHolder holder = viewHolders.get(i);
+      if (isTheBestHolder(position, type, holder)) {
+        return holder;
+      }
     }
+    return null;
+  }
 
-    /**
-     * 找到对应的bindNode，比对缓存池的holder是否正好是当前position位置对应的Holder
-     *
-     * @param position 要获取Holder的position
-     * @param type 节点类型
-     * @param scrapHolder 缓存池的Holder
-     * @return
-     */
-    protected boolean isTheBestHolder(int position, int type, ViewHolder scrapHolder) {
-        if (scrapHolder.getAdapterPosition() != position || scrapHolder.isInvalid() || scrapHolder.isRemoved()) {
-            return false;
-        }
-        if (scrapHolder.getItemViewType() == type && scrapHolder instanceof HippyRecyclerViewHolder) {
-            RenderNode nodeOfPosition = hpContext.getRenderManager().getRenderNode(recyclerView.getId())
-                    .getChildAt(nodePositionHelper.getRenderNodePosition(position));
-            return isNodeEquals(((HippyRecyclerViewHolder) scrapHolder).bindNode, (ListItemRenderNode) nodeOfPosition);
-        }
-        return false;
+  /**
+   * 找到对应的bindNode，比对缓存池的holder是否正好是当前position位置对应的Holder
+   *
+   * @param position    要获取Holder的position
+   * @param type        节点类型
+   * @param scrapHolder 缓存池的Holder
+   * @return
+   */
+  protected boolean isTheBestHolder(int position, int type, ViewHolder scrapHolder) {
+    if (scrapHolder.getAdapterPosition() != position || scrapHolder.isInvalid() || scrapHolder
+        .isRemoved()) {
+      return false;
     }
+    if (scrapHolder.getItemViewType() == type && scrapHolder instanceof HippyRecyclerViewHolder) {
+      RenderNode nodeOfPosition = hpContext.getRenderManager().getRenderNode(recyclerView.getId())
+          .getChildAt(nodePositionHelper.getRenderNodePosition(position));
+      return isNodeEquals(((HippyRecyclerViewHolder) scrapHolder).bindNode,
+          (ListItemRenderNode) nodeOfPosition);
+    }
+    return false;
+  }
 
-    public static boolean isNodeEquals(ListItemRenderNode node1, ListItemRenderNode node2) {
-        if (node1 == null || node2 == null) {
-            return false;
-        }
-        return node1.equals(node2);
+  public static boolean isNodeEquals(ListItemRenderNode node1, ListItemRenderNode node2) {
+    if (node1 == null || node2 == null) {
+      return false;
     }
+    return node1.equals(node2);
+  }
 }

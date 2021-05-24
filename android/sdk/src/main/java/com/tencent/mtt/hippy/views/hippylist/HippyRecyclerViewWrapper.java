@@ -31,102 +31,104 @@ import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.IHeaderHost;
 
-public class HippyRecyclerViewWrapper<HRCV extends HippyRecyclerView> extends FrameLayout implements HippyViewBase,
-        IHeaderHost {
+public class HippyRecyclerViewWrapper<HRCV extends HippyRecyclerView> extends FrameLayout implements
+    HippyViewBase,
+    IHeaderHost {
 
-    protected final HippyEngineContext hpContext;
-    protected HRCV recyclerView;
-    private NativeGestureDispatcher nativeGestureDispatcher;
+  protected final HippyEngineContext hpContext;
+  protected HRCV recyclerView;
+  private NativeGestureDispatcher nativeGestureDispatcher;
 
-    public HippyRecyclerViewWrapper(@NonNull Context context, HRCV recyclerView) {
-        super(context);
-        this.recyclerView = recyclerView;
-        addView(recyclerView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-        hpContext = ((HippyInstanceContext) context).getEngineContext();
-        HippyRecyclerExtension cacheExtension = new HippyRecyclerExtension(recyclerView, hpContext,
-                recyclerView.getNodePositionHelper());
-        recyclerView.setViewCacheExtension(cacheExtension);
-        recyclerView.setHeaderHost(this);
-        HippyRecyclerPool pool = new HippyRecyclerPool(hpContext, this, cacheExtension,
-                recyclerView.getNodePositionHelper());
-        pool.setViewAboundListener(recyclerView);
-        recyclerView.setRecycledViewPool(pool);
+  public HippyRecyclerViewWrapper(@NonNull Context context, HRCV recyclerView) {
+    super(context);
+    this.recyclerView = recyclerView;
+    addView(recyclerView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+    hpContext = ((HippyInstanceContext) context).getEngineContext();
+    HippyRecyclerExtension cacheExtension = new HippyRecyclerExtension(recyclerView, hpContext,
+        recyclerView.getNodePositionHelper());
+    recyclerView.setViewCacheExtension(cacheExtension);
+    recyclerView.setHeaderHost(this);
+    HippyRecyclerPool pool = new HippyRecyclerPool(hpContext, this, cacheExtension,
+        recyclerView.getNodePositionHelper());
+    pool.setViewAboundListener(recyclerView);
+    recyclerView.setRecycledViewPool(pool);
 
-    }
+  }
 
-    @Override
-    public int computeVerticalScrollOffset() {
-        return recyclerView.computeVerticalScrollOffset();
-    }
+  @Override
+  public int computeVerticalScrollOffset() {
+    return recyclerView.computeVerticalScrollOffset();
+  }
 
-    @Override
-    public NativeGestureDispatcher getGestureDispatcher() {
-        return nativeGestureDispatcher;
-    }
+  @Override
+  public NativeGestureDispatcher getGestureDispatcher() {
+    return nativeGestureDispatcher;
+  }
 
-    @Override
-    public void setGestureDispatcher(NativeGestureDispatcher dispatcher) {
-        nativeGestureDispatcher = dispatcher;
-    }
+  @Override
+  public void setGestureDispatcher(NativeGestureDispatcher dispatcher) {
+    nativeGestureDispatcher = dispatcher;
+  }
 
-    public int getChildCountWithCaches() {
-        return recyclerView.getChildCountWithCaches();
-    }
+  public int getChildCountWithCaches() {
+    return recyclerView.getChildCountWithCaches();
+  }
 
-    public View getChildAtWithCaches(int index) {
-        return recyclerView.getChildAtWithCaches(index);
-    }
+  public View getChildAtWithCaches(int index) {
+    return recyclerView.getChildAtWithCaches(index);
+  }
 
-    public void setListData() {
-        recyclerView.setListData();
-    }
+  public void setListData() {
+    recyclerView.setListData();
+  }
 
-    public RecyclerViewEventHelper getRecyclerViewEventHelper() {
-        return recyclerView.getRecyclerViewEventHelper();
-    }
+  public RecyclerViewEventHelper getRecyclerViewEventHelper() {
+    return recyclerView.getRecyclerViewEventHelper();
+  }
 
-    public void setScrollEnable(boolean flag) {
-        recyclerView.setScrollEnable(flag);
-    }
+  public void setScrollEnable(boolean flag) {
+    recyclerView.setScrollEnable(flag);
+  }
 
-    public void scrollToIndex(int xIndex, int yIndex, boolean animated, int duration) {
-        recyclerView.scrollToIndex(xIndex, yIndex, animated, duration);
-    }
+  public void scrollToIndex(int xIndex, int yIndex, boolean animated, int duration) {
+    recyclerView.scrollToIndex(xIndex, yIndex, animated, duration);
+  }
 
-    public void scrollToContentOffset(double xOffset, double yOffset, boolean animated, int duration) {
-        recyclerView.scrollToContentOffset(xOffset, yOffset, animated, duration);
-    }
+  public void scrollToContentOffset(double xOffset, double yOffset, boolean animated,
+      int duration) {
+    recyclerView.scrollToContentOffset(xOffset, yOffset, animated, duration);
+  }
 
-    public void scrollToTop() {
-        recyclerView.scrollToTop();
-    }
+  public void scrollToTop() {
+    recyclerView.scrollToTop();
+  }
 
-    public void setRowShouldSticky(boolean enable) {
-        recyclerView.setRowShouldSticky(enable);
-    }
+  public void setRowShouldSticky(boolean enable) {
+    recyclerView.setRowShouldSticky(enable);
+  }
 
-    public HRCV getRecyclerView() {
-        return recyclerView;
-    }
+  public HRCV getRecyclerView() {
+    return recyclerView;
+  }
 
-    /**
-     * 将HeaderView放到RecyclerView到父亲View上面
-     */
-    @Override
-    public void attachHeader(View headerView, LayoutParams layoutParams) {
-        addView(headerView, layoutParams);
-        layout(getLeft(), getTop(), getRight(), getBottom());
-        getViewTreeObserver().dispatchOnGlobalLayout();
-    }
+  /**
+   * 将HeaderView放到RecyclerView到父亲View上面
+   */
+  @Override
+  public void attachHeader(View headerView, LayoutParams layoutParams) {
+    addView(headerView, layoutParams);
+    layout(getLeft(), getTop(), getRight(), getBottom());
+    getViewTreeObserver().dispatchOnGlobalLayout();
+  }
 
-    @Override
-    public void addOnLayoutListener(OnGlobalLayoutListener listener) {
-        getViewTreeObserver().addOnGlobalLayoutListener(listener);
-    }
+  @Override
+  public void addOnLayoutListener(OnGlobalLayoutListener listener) {
+    getViewTreeObserver().addOnGlobalLayoutListener(listener);
+  }
 
-    @RequiresApi(api = VERSION_CODES.JELLY_BEAN)
-    @Override
-    public void removeOnLayoutListener(OnGlobalLayoutListener listener) {
-        getViewTreeObserver().removeOnGlobalLayoutListener(listener);
-    }
+  @RequiresApi(api = VERSION_CODES.JELLY_BEAN)
+  @Override
+  public void removeOnLayoutListener(OnGlobalLayoutListener listener) {
+    getViewTreeObserver().removeOnGlobalLayoutListener(listener);
+  }
 }

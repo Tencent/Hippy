@@ -23,17 +23,17 @@ import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
 
 public class HippyRecyclerViewHolder extends ViewHolder {
 
-    public ListItemRenderNode bindNode;
+  public ListItemRenderNode bindNode;
 
-    public HippyRecyclerViewHolder(@NonNull View itemView, ListItemRenderNode renderNode) {
-        super(itemView);
-        bindNode = renderNode;
-    }
+  public HippyRecyclerViewHolder(@NonNull View itemView, ListItemRenderNode renderNode) {
+    super(itemView);
+    bindNode = renderNode;
+  }
 
-    public boolean isRenderDeleted() {
-        if (bindNode != null) {
-            return bindNode.isDelete();
-        }
-        return false;
+  public boolean isRenderDeleted() {
+    if (bindNode != null) {
+      return bindNode.isDelete();
     }
+    return false;
+  }
 }

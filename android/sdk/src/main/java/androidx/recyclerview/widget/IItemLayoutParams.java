@@ -4,5 +4,5 @@ import androidx.recyclerview.widget.RecyclerView.LayoutParams;
 
 public interface IItemLayoutParams {
 
-    void getItemLayoutParams(int position, LayoutParams lp);
+  void getItemLayoutParams(int position, LayoutParams lp);
 }
