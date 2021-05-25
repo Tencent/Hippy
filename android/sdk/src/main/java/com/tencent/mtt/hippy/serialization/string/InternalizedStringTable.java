@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy.serialization.string;
 
+import androidx.annotation.NonNull;;
 import android.util.LruCache;
 
 import com.tencent.mtt.hippy.exception.UnreachableCodeException;
@@ -105,7 +106,7 @@ public class InternalizedStringTable extends DirectStringTable {
    * @param string   an string
    * @return {@code true} if it's equal, {@code false} otherwise
    */
-  private boolean equals(byte[] sequence, int offset, int length, String encoding, String string) {
+  private boolean equals(byte[] sequence, int offset, int length, @NonNull String encoding, @NonNull String string) {
     final int bytesPerCharacter = encoding.equals("UTF-16LE") ? 2 : 1;
     final int count = string.length();
     // fast negative check
@@ -128,7 +129,7 @@ public class InternalizedStringTable extends DirectStringTable {
   // endregion
 
   // region lookup
-  private String lookupKey(byte[] sequence, int offset, int length, String encoding)
+  private String lookupKey(byte[] sequence, int offset, int length, @NonNull String encoding)
       throws UnsupportedEncodingException {
     // only calculate one or two byte encoding
     if (length >= MAX_KEY_CALC_LENGTH || encoding.equals("UTF-8")) {
@@ -146,7 +147,7 @@ public class InternalizedStringTable extends DirectStringTable {
     return internalized;
   }
 
-  private String lookupValue(byte[] sequence, int offset, int length, String encoding,
+  private String lookupValue(byte[] sequence, int offset, int length, @NonNull String encoding,
       Object relatedKey) throws UnsupportedEncodingException {
     if (relatedKey instanceof String) {
       char[] valuePrefix = cacheablesProperty.get(relatedKey);
@@ -180,7 +181,7 @@ public class InternalizedStringTable extends DirectStringTable {
   }
 
   @Override
-  public String lookup(ByteBuffer byteBuffer, String encoding, StringLocation location,
+  public String lookup(@NonNull ByteBuffer byteBuffer, @NonNull String encoding, StringLocation location,
       Object relatedKey) throws UnsupportedEncodingException {
     final byte[] sequence = byteBuffer.array();
     final int offset = byteBuffer.arrayOffset() + byteBuffer.position();

@@ -15,6 +15,8 @@
  */
 package com.tencent.mtt.hippy.serialization.nio.reader;
 
+import androidx.annotation.NonNull;
+
 import java.nio.ByteBuffer;
 
 @SuppressWarnings({"unused"})
@@ -80,6 +82,7 @@ public final class SafeHeapReader implements BinaryReader {
     return Double.longBitsToDouble(readInt64());
   }
 
+  @SuppressWarnings("SpellCheckingInspection")
   @Override
   public long getVarint() {
     long value = 0;
@@ -113,7 +116,7 @@ public final class SafeHeapReader implements BinaryReader {
   }
 
   @Override
-  public SafeHeapReader reset(ByteBuffer byteBuffer) {
+  public SafeHeapReader reset(@NonNull ByteBuffer byteBuffer) {
     buffer = byteBuffer.array();
     base = byteBuffer.arrayOffset() + byteBuffer.position();
     count = byteBuffer.limit() - byteBuffer.position();

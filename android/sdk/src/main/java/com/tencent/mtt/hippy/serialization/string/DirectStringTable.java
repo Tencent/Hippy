@@ -15,6 +15,8 @@
  */
 package com.tencent.mtt.hippy.serialization.string;
 
+import androidx.annotation.NonNull;
+
 import com.tencent.mtt.hippy.serialization.StringLocation;
 
 import java.io.UnsupportedEncodingException;
@@ -27,8 +29,8 @@ import java.nio.ByteBuffer;
 public class DirectStringTable implements StringTable {
 
   @Override
-  public String lookup(ByteBuffer byteBuffer, String encoding, StringLocation location,
-      Object relatedKey) throws UnsupportedEncodingException {
+  public String lookup(ByteBuffer byteBuffer, @NonNull String encoding, StringLocation location,
+                       Object relatedKey) throws UnsupportedEncodingException {
     if (location == StringLocation.VOID) {
       return "";
     }
