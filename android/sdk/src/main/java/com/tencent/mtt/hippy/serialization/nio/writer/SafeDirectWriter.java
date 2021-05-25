@@ -65,6 +65,7 @@ public final class SafeDirectWriter extends AbstractBinaryWriter {
     value.putDouble(d);
   }
 
+  @SuppressWarnings("SpellCheckingInspection")
   @Override
   public int putVarint(long l) {
     if (value.position() + 10 > value.capacity()) {

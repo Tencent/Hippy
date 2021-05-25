@@ -15,6 +15,8 @@
  */
 package com.tencent.mtt.hippy.serialization;
 
+import androidx.annotation.NonNull;
+
 import com.tencent.mtt.hippy.serialization.utils.IntegerPolyfill;
 import com.tencent.mtt.hippy.serialization.nio.writer.BinaryWriter;
 
@@ -287,7 +289,7 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
    * is the easiest/best/most correct way to iterate through the characters of a string in
    * Java?</a>
    */
-  protected void writeString(String value) {
+  protected void writeString(@NonNull String value) {
     int length = value.length();
     if (length > SSO_SMALL_STRING_MAX_LENGTH) {
       if (stringWriteBuffer == null || stringWriteBuffer.length < length) {
@@ -334,7 +336,7 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
     // endregion
   }
 
-  protected void writeBigIntContents(BigInteger bigInteger) {
+  protected void writeBigIntContents(@NonNull BigInteger bigInteger) {
     boolean negative = bigInteger.signum() == -1;
     if (negative) {
       bigInteger = bigInteger.negate();
