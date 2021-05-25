@@ -27,7 +27,6 @@
 #include "base/logging.h"
 #include "bridge/runtime.h"
 #include "bridge/serializer.h"
-#include "jni/hippy_buffer.h"
 #include "jni/jni_env.h"
 
 namespace hippy {
