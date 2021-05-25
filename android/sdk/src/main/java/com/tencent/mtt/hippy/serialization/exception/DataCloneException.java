@@ -19,6 +19,6 @@ public class DataCloneException extends RuntimeException {
 
   @SuppressWarnings("unused")
   public DataCloneException(Object received) {
-    super(String.format("[%s] could not be cloned", received.toString()));
+    super(String.format("[%s] could not be cloned", received != null ? received.toString() : "null"));
   }
 }
