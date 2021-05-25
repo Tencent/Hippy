@@ -15,6 +15,8 @@
  */
 package com.tencent.mtt.hippy.serialization.nio.reader;
 
+import androidx.annotation.NonNull;
+
 import java.nio.ByteBuffer;
 
 @SuppressWarnings({"unused"})
@@ -93,7 +95,7 @@ public final class SafeDirectReader implements BinaryReader {
   }
 
   @Override
-  public SafeDirectReader reset(ByteBuffer byteBuffer) {
+  public SafeDirectReader reset(@NonNull ByteBuffer byteBuffer) {
     buffer = byteBuffer;
     base = byteBuffer.position();
     count = byteBuffer.limit() - byteBuffer.position();
