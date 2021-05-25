@@ -5,7 +5,7 @@ export default Vue.component('style-five', {
   props: ['itemBean'],
   template: `
   <div class="list-view-item style-five">
-    <p numberOfLines="2" enableScale="true" class="article-title">
+    <p :numberOfLines="2" :enableScale="true" class="article-title">
         {{ itemBean.title }}
     </p>
     <div class="style-five-image-container">
