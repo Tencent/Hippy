@@ -178,3 +178,35 @@
 ### collapsePullFooter
 
 `() => void` 收起底部刷新条 `<pull-footer>`。
+
+# waterfall
+
+[[范例：demo-waterfall]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-waterfall.vue)
+
+瀑布流组件，子元素必须是 `waterfall-item` ,瀑布流组件下拉刷新需在最外层用`ul-refresh-wrapper`, 可在`waterfall`内用`pull-footer`展示上拉加载文案
+
+## 参数
+
+| 参数              | 描述                                                  | 类型       | 支持平台 |
+| ----------------- | ----------------------------------------------------- | ---------- | -------- |
+| columnSpacing     | item间竖向间距                                        | `number`   | `ALL`    |
+| interItemSpacing  | item间横向间距                                        | `number`   | `ALL`    |
+| contentInset      | 内容缩进{top:0, left:0,bottom:0,right:0}              | `Object`   | `ALL`    |
+| containBannerView | 是否包含`bannerView`，只能有一个bannerView,安卓暂不支持  | `boolean`  | `iOS`    |
+| numberOfColumns   | 列数量                                                | `number`   | `ALL`    |
+| preloadItemNumber | 预加载item数量                                        | `number`   | `ALL`    |
+| containPullHeader | 是否包含`pull-header`, 预留                           | `boolean`  | `iOS`    |
+| containPullFooter | 是否包含 `pull-footer`                                | `boolean`  | `iOS`    |
+| onEndReached      | 拖动时触发                                            | `Function` | `ALL`    |
+| onScroll          | 滚动时触发                                            | `Function` | `iOS`    |
+
+## 事件
+
+| 事件名称              | 描述           | `类型`     | 支持平台 |
+| --------------------- | -------------- | ---------- | -------- |
+| scrollToIndex         | 滚动到指定索引 | `Function` | `ALL`    |
+| scrollToContentOffset | 滚动到指定位置 | `Function` | `ALL`    |
+
+# waterfall-item
+
+瀑布流组件Cell容器，瀑布流子元素
