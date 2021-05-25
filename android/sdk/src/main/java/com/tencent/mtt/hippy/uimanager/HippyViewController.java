@@ -35,7 +35,6 @@ import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.common.CommonBorder;
-import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
 import com.tencent.mtt.supportui.views.IShadow;
 
@@ -556,7 +555,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
   }
 
   @HippyControllerProps(name = "renderToHardwareTextureAndroid", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
-  public void setRenderToHardwareTexture(HippyViewGroup view, boolean useHWTexture) {
+  public void setRenderToHardwareTexture(T view, boolean useHWTexture) {
     view.setLayerType(useHWTexture ? View.LAYER_TYPE_HARDWARE : View.LAYER_TYPE_NONE, null);
   }
 
