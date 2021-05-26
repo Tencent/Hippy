@@ -554,6 +554,11 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
     }
   }
 
+  @HippyControllerProps(name = "renderToHardwareTextureAndroid", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+  public void setRenderToHardwareTexture(T view, boolean useHWTexture) {
+    view.setLayerType(useHWTexture ? View.LAYER_TYPE_HARDWARE : View.LAYER_TYPE_NONE, null);
+  }
+
   @SuppressWarnings("EmptyMethod")
   @HippyControllerProps(name = NodeProps.CUSTOM_PROP)
   public void setCustomProp(T view, String methodName, Object props) {
