@@ -21,10 +21,6 @@ import android.view.Choreographer;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by timothygong on 2016/11/23.
- */
-
 public class ChoreographerCompat {
 
   private final static boolean IS_JELLY_BEAN = Build.VERSION.SDK_INT >= 16;

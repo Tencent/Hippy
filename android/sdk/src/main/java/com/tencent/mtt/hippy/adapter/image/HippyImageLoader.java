@@ -21,10 +21,6 @@ import com.tencent.mtt.supportui.adapters.image.IImageRequestListener;
 
 import java.lang.ref.WeakReference;
 
-/**
- * Created by leonardgong on 2017/12/4 0004. modified by harryguo 2019/3/27
- */
-
 public abstract class HippyImageLoader implements IImageLoaderAdapter<HippyImageLoader.Callback> {
 
   private final SparseArray<WeakReference<HippyDrawable>> mWeakImageCache = new SparseArray<>();

@@ -15,8 +15,7 @@
  */
 package com.tencent.mtt.hippy.runtime.builtins;
 
-import android.support.annotation.NonNull;
-
+import androidx.annotation.NonNull;
 import java.util.regex.Pattern;
 
 @SuppressWarnings({"unused"})

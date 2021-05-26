@@ -19,10 +19,6 @@ import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.supportui.views.recyclerview.ContentHolder;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewBase;
 
-/**
- * Created by leonardgong on 2017/12/15 0015.
- */
-
 public class NodeHolder extends ContentHolder {
 
   public RenderNode mBindNode;

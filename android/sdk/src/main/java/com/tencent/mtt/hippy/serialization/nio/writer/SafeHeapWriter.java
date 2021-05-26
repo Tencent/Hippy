@@ -72,6 +72,7 @@ public final class SafeHeapWriter extends AbstractBinaryWriter {
     putInt64(Double.doubleToRawLongBits(d));
   }
 
+  @SuppressWarnings("SpellCheckingInspection")
   @Override
   public int putVarint(long l) {
     if (count + 10 > value.length) {

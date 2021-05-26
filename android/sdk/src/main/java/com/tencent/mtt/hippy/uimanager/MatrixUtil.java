@@ -15,10 +15,6 @@
  */
 package com.tencent.mtt.hippy.uimanager;
 
-/**
- * Created by leonardgong on 2017/12/12 0012.
- */
-
 public class MatrixUtil {
 
   private static final double EPSILON = .00001d;

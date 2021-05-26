@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.uimanager;
 
 import com.tencent.mtt.hippy.HippyRootView;
@@ -25,5 +26,18 @@ public class PullHeaderRenderNode extends ListItemRenderNode {
       HippyRootView mRootView, ControllerManager componentManager,
       boolean isLazyLoad) {
     super(mId, mPropsToUpdate, className, mRootView, componentManager, isLazyLoad);
+  }
+
+  /**
+   * 通过类名的hashCode来定义type，计算出来是一个很大的值，几乎不会和前端类型重复
+   */
+  @Override
+  public int getItemViewType() {
+    return this.getClassName().hashCode();
+  }
+
+  @Override
+  public boolean isPullHeader() {
+    return true;
   }
 }

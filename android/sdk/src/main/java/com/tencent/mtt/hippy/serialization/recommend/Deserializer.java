@@ -15,6 +15,8 @@
  */
 package com.tencent.mtt.hippy.serialization.recommend;
 
+import androidx.annotation.NonNull;
+
 import com.tencent.mtt.hippy.serialization.exception.DataCloneOutOfRangeException;
 import com.tencent.mtt.hippy.serialization.exception.DataCloneOutOfValueException;
 import com.tencent.mtt.hippy.exception.UnexpectedException;
@@ -190,7 +192,7 @@ public class Deserializer extends PrimitiveValueDeserializer {
     return object;
   }
 
-  private int readJSProperties(JSObject object, SerializationTag endTag) {
+  private int readJSProperties(@NonNull JSObject object, SerializationTag endTag) {
     final StringLocation keyLocation, valueLocation;
     switch (endTag) {
       case END_DENSE_JS_ARRAY: {
@@ -454,7 +456,7 @@ public class Deserializer extends PrimitiveValueDeserializer {
    * @param transferId  transfer id
    * @param arrayBuffer JSArrayBuffer
    */
-  public void transferArrayBuffer(int transferId, JSArrayBuffer arrayBuffer) {
+  public void transferArrayBuffer(int transferId, @NonNull JSArrayBuffer arrayBuffer) {
     if (arrayBufferTransferMap == null) {
       arrayBufferTransferMap = new HashMap<>();
     }

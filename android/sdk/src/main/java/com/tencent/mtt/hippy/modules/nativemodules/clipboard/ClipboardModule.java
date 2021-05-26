@@ -10,10 +10,6 @@ import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 import android.content.ClipboardManager;
 
-/**
- * Clipboard Service. Created by robinsli on 2019/5/31 0004.
- */
-
 @HippyNativeModule(name = "ClipboardModule")
 public class ClipboardModule extends HippyNativeModuleBase {
 

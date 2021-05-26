@@ -17,6 +17,8 @@ package com.tencent.mtt.hippy.serialization.recommend;
 
 import android.util.Pair;
 
+import androidx.annotation.NonNull;
+
 import com.tencent.mtt.hippy.exception.UnreachableCodeException;
 import com.tencent.mtt.hippy.runtime.builtins.JSRegExp;
 import com.tencent.mtt.hippy.runtime.builtins.JSValue;
@@ -218,35 +220,35 @@ public class Serializer extends PrimitiveValueSerializer {
     return true;
   }
 
-  private void writeDate(Date date) {
+  private void writeDate(@NonNull Date date) {
     writer.putDouble(date.getTime());
   }
 
-  private void writeJSBoolean(JSBooleanObject value) {
+  private void writeJSBoolean(@NonNull JSBooleanObject value) {
     writeTag(value.isTrue() ? SerializationTag.TRUE_OBJECT : SerializationTag.FALSE_OBJECT);
   }
 
-  private void writeJSBigIntContents(JSBigintObject value) {
+  private void writeJSBigIntContents(@NonNull JSBigintObject value) {
     writeBigIntContents(value.getValue());
   }
 
-  private void writeJSNumber(JSNumberObject value) {
+  private void writeJSNumber(@NonNull JSNumberObject value) {
     writeTag(SerializationTag.NUMBER_OBJECT);
     writeDouble(value.getValue().doubleValue());
   }
 
-  private void writeJSString(JSStringObject value) {
+  private void writeJSString(@NonNull JSStringObject value) {
     writeTag(SerializationTag.STRING_OBJECT);
     writeString(value.getValue().toString());
   }
 
-  private void writeJSRegExp(JSRegExp value) {
+  private void writeJSRegExp(@NonNull JSRegExp value) {
     writeTag(SerializationTag.REGEXP);
     writeString(value.getSource());
     writer.putVarint(value.getFlags());
   }
 
-  private void writeJSArrayBuffer(JSArrayBuffer value) {
+  private void writeJSArrayBuffer(@NonNull JSArrayBuffer value) {
     if (arrayBufferTransferMap == null) {
       arrayBufferTransferMap = new IdentityHashMap<>();
     }
@@ -266,7 +268,7 @@ public class Serializer extends PrimitiveValueSerializer {
     }
   }
 
-  private void writeJSSharedArrayBuffer(JSSharedArrayBuffer value) {
+  private void writeJSSharedArrayBuffer(@NonNull JSSharedArrayBuffer value) {
     if (delegate == null) {
       throw new DataCloneException(value);
     }
@@ -282,14 +284,14 @@ public class Serializer extends PrimitiveValueSerializer {
     writer.putVarint(value.size());
   }
 
-  private void writeJSObjectProperties(Set<Pair<String, Object>> props) {
+  private void writeJSObjectProperties(@NonNull Set<Pair<String, Object>> props) {
     for (Pair<String, Object> prop : props) {
       writeString(prop.first);
       writeValue(prop.second);
     }
   }
 
-  private void writeJSMap(JSMap value) {
+  private void writeJSMap(@NonNull JSMap value) {
     writeTag(SerializationTag.BEGIN_JS_MAP);
     Iterator<Map.Entry<Object, Object>> entries = value.getInternalMap().entrySet().iterator();
     int count = 0;
@@ -303,7 +305,7 @@ public class Serializer extends PrimitiveValueSerializer {
     writer.putVarint(2 * count);
   }
 
-  private void writeJSSet(JSSet value) {
+  private void writeJSSet(@NonNull JSSet value) {
     writeTag(SerializationTag.BEGIN_JS_SET);
     Iterator<Object> entries = value.getInternalSet().iterator();
     int count = 0;
@@ -315,7 +317,7 @@ public class Serializer extends PrimitiveValueSerializer {
     writer.putVarint(count);
   }
 
-  private void writeJSArray(JSAbstractArray value) {
+  private void writeJSArray(@NonNull JSAbstractArray value) {
     int length = value.size();
     if (value.isDenseArray()) {
       writeTag(SerializationTag.BEGIN_DENSE_JS_ARRAY);
@@ -341,7 +343,7 @@ public class Serializer extends PrimitiveValueSerializer {
     writer.putVarint(length);
   }
 
-  private void writeJSArrayBufferView(JSDataView<?> value) {
+  private void writeJSArrayBufferView(@NonNull JSDataView<?> value) {
     if (treatArrayBufferViewsAsHostObjects) {
       if (!writeHostObject(value)) {
         throw new DataCloneException(value);
@@ -400,7 +402,7 @@ public class Serializer extends PrimitiveValueSerializer {
     }
   }
 
-  private void writeJSError(JSError error) {
+  private void writeJSError(@NonNull JSError error) {
     writeTag(SerializationTag.ERROR);
     writeErrorTypeTag(error);
 
@@ -419,7 +421,7 @@ public class Serializer extends PrimitiveValueSerializer {
     writeTag(ErrorTag.END);
   }
 
-  private void writeErrorTypeTag(JSError error) {
+  private void writeErrorTypeTag(@NonNull JSError error) {
     JSError.ErrorType errorType = error.getType();
     ErrorTag tag;
     switch (errorType) {
@@ -469,7 +471,7 @@ public class Serializer extends PrimitiveValueSerializer {
    * @param transferId  transfer id
    * @param arrayBuffer JSArrayBuffer
    */
-  public void transferArrayBuffer(int transferId, JSArrayBuffer arrayBuffer) {
+  public void transferArrayBuffer(int transferId, @NonNull JSArrayBuffer arrayBuffer) {
     if (arrayBufferTransferMap == null) {
       arrayBufferTransferMap = new IdentityHashMap<>();
     }
