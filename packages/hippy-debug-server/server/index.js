@@ -4,7 +4,6 @@ const path = require('path');
 const devSupportWsServer = require('./websocketProxy');
 const liveReloadWsServer = require('./hippy-livereload');
 const {
-  getFrameworkVersion,
   logger,
   exec,
   content,
@@ -20,9 +19,6 @@ async function startDevServer(args) {
     verbose,
   } = args;
 
-  if (!getFrameworkVersion()) {
-    throw new Error('The current folder is not containing Hippy project.');
-  }
 
   const versionReturn = '{"Browser": "Hippy/v1.0.0","Protocol-Version": "1.1"}';
   const jsonReturn = JSON.stringify([{

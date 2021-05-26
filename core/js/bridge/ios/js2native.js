@@ -27,50 +27,6 @@ const getComponentName = (originComponentName) => {
       && __GLOBAL__.NativeModules.TextInput) {
     return originComponentName;
   }
-
-  // FIXME: should remove soon.
-  switch (originComponentName) {
-    case 'ListView':
-    case 'QBListView':
-      return 'QBNativeListView';
-    case 'ListViewItem':
-      return 'QBNativeNode';
-    case 'Image':
-      return 'RCTImageView';
-    case 'ScrollViewIOS':
-    case 'ScrollView':
-      return 'RCTScrollView';
-    case 'Modal':
-      return 'RCTModalHostView';
-    case 'QBVRImageView':
-      return 'QBRNVRImage';
-    case 'QBTabHost':
-      return 'RCTQBTabHost';
-    case 'QBTabView':
-      return 'RCTQBTabView';
-    case 'QBWebView':
-      return 'RCTWebView';
-    case 'QBWaterfallView':
-      return 'QBRNWaterfallView';
-    case 'QBWaterfallViewItem':
-      return 'QBRNWaterfallItemView';
-    case 'QBLoopScrollImage':
-      return 'MttRNLoopScrollImageView';
-    case 'QBViewListPager':
-      return 'QBRNListPager';
-    case 'QBKeyboardAccessoryItem':
-      return 'QBRNKeyBoardAccessoryItemView';
-    case 'QBKeyboardAccessoryView':
-      return 'QBRNKeyBoardAccessoryView';
-    case 'TextInput':
-      return 'RCTTextView';
-    default: {
-      if (originComponentName.indexOf('QB') > -1) {
-        return `QBRN${originComponentName.split('QB')[1]}`;
-      }
-      return `RCT${originComponentName}`;
-    }
-  }
 };
 
 const getParam = (moduleName, methodName, originParam) => {
@@ -121,7 +77,6 @@ const needReject = (moduleName, methodName) => {
   if (moduleName === 'StorageModule' || methodName === 'multiGet') {
     return false;
   }
-
   return true;
 };
 
@@ -295,8 +250,7 @@ Hippy.bridge.callNativeWithPromise = (...callArguments) => {
     }
 
     if (callModuleMethod.type === 'promise') {
-      return callModuleMethod.apply(NativeModule,
-        getParam(callArguments[0], callArguments[1], param));
+      return callModuleMethod.apply(NativeModule, getParam(callArguments[0], callArguments[1], param));
     }
 
     return new Promise((resolve, reject) => {
@@ -307,8 +261,7 @@ Hippy.bridge.callNativeWithPromise = (...callArguments) => {
         param.push(resolve);
       }
 
-      callModuleMethod.apply(NativeModule,
-        getParam(callArguments[0], callArguments[1], param));
+      callModuleMethod.apply(NativeModule, getParam(callArguments[0], callArguments[1], param));
     });
   }
 
