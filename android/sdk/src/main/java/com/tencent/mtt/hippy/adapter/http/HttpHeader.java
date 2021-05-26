@@ -31,19 +31,6 @@ public class HttpHeader {
     public static final String RANGE = "Range";
     public static final String CONNECTION = "Connection";
     public static final String COOKIE = "Cookie";
-    public static final String QCOOKIE = "QCookie";
-    public static final String QUA = "Q-UA";
-    public static final String QGUID = "Q-GUID";
-    public static final String QAUTH = "Q-Auth";
-    public static final String X_ONLINE_HOST = "X-Online-Host";
-    public static final String QUA2 = "Q-UA2";
-
-    public static final String QENCRYPT = "QQ-S-Encrypt";
-    public static final String QSZIP = "QQ-S-ZIP";
-    public static final String QEXTINFO = "Q-EXT-INF";
-
-    public static final String Content_Encrypt_KEY = "qbkey";
-    public static final String Q_TOKEN = "Q-Token";
   }
 
   public static final class RSP {
@@ -67,11 +54,5 @@ public class HttpHeader {
     public static final String CONTENT_DISPOSITION = "Content-Disposition";
     public static final String ETAG = "ETag";
     public static final String RETRY_AFTER = "Retry-After";
-
-    public static final String QENCRYPT = "QQ-S-Encrypt";
-    public static final String QSZIP = "QQ-S-ZIP";
-    public static final String QTOKEN = "tk";
-    public static final String TOKEN_EXPIRE_SPAN = "maxage";
-    public static final String WUP_ENV = "env";
   }
 }
