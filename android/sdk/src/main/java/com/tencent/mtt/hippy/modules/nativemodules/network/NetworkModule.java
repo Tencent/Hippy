@@ -140,13 +140,6 @@ public class NetworkModule extends HippyNativeModuleBase {
     promise.resolve(cookie);
   }
 
-  /**
-   * 设置指定url下的Cookie
-   *
-   * @param url      指定url，其实也就是指定作用域，如：http://3g.qq.com
-   * @param keyValue cookie key-value键值对集合，多个以分号";"隔开，如：name=harryguo。或者：name=harryguo;gender:male
-   * @param expires  默认为空，过期时间，格式与http协议头response里的Set-Cookie相同，如：Thu, 08-Jan-2020 00:00:00 GMT
-   */
   @HippyMethod(name = "setCookie")
   public void setCookie(String url, String keyValue, String expires) {
     if (!TextUtils.isEmpty(url) && !TextUtils.isEmpty(keyValue)) {

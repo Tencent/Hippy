@@ -139,7 +139,6 @@ public class HippyMap {
     mDatas.put(key, map);
   }
 
-  // 批量加入。QB里有用到
   public void pushAll(HippyMap map) {
     if (null != map) {
       mDatas.putAll(map.mDatas);

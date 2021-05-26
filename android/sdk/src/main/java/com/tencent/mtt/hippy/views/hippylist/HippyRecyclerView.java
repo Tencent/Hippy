@@ -253,7 +253,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
   /**
    * renderNodeCount是在setListData的时候更新，必须调用setListData后，确保renderNodeCount和
    * getAdapter().getRenderNodeCount()的值相等，才能进行滚动，否则scrollBy会出现IndexOutOfBoundsException
-   * 的问题，主要原因就是RecyclerView的内部状态没有通过setListData进行刷新，还是老的数据， 这个比现的场景来自于QQ浏览器的搜索tab的切换。
+   * 的问题，主要原因就是RecyclerView的内部状态没有通过setListData进行刷新，还是老的数据
    * RenderManager的batch方法应该把dispatchUIFunction放到batchComplete后面，但是这样改动太大
    *
    * @return
