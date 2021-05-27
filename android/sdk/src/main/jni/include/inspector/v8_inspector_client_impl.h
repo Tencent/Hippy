@@ -24,6 +24,7 @@
 #include <memory>
 #include <string>
 
+#include "base/unicode_string_view.h"
 #include "core/core.h"
 #include "jni/scoped_java_ref.h"
 #include "v8_channel_impl.h"
@@ -33,13 +34,15 @@ namespace inspector {
 
 class V8InspectorClientImpl : public v8_inspector::V8InspectorClient {
  public:
+  using unicode_string_view = tdf::base::unicode_string_view;
+
   explicit V8InspectorClientImpl(std::shared_ptr<Scope> scope);
   ~V8InspectorClientImpl() = default;
 
   void Reset(std::shared_ptr<Scope> scope, std::shared_ptr<JavaRef> bridge);
   void Connect(std::shared_ptr<JavaRef> bridge);
 
-  void SendMessageToV8(const std::string& params);
+  void SendMessageToV8(const unicode_string_view& params);
   void CreateContext();
   void DestroyContext();
   v8::Local<v8::Context> ensureDefaultContextInGroup(

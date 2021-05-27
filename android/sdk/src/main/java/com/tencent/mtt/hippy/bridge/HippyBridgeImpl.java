@@ -28,6 +28,7 @@ import com.tencent.mtt.hippy.utils.UrlUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Locale;
@@ -130,11 +131,16 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 
   private void initJSEngine(int groupId) {
     synchronized (HippyBridgeImpl.class) {
-      mV8RuntimeId = initJSFramework(mDebugGlobalConfig.getBytes(), mSingleThreadMode,
-          enableV8Serialization, mIsDevModule, mDebugInitJSFrameworkCallback, groupId);
-      mInit = true;
-    }
-  }
+      byte[] globalConfig = new byte[0];
+      try {
+        globalConfig = mDebugGlobalConfig.getBytes("UTF-16LE");
+      } catch (UnsupportedEncodingException e) {
+        e.printStackTrace();
+      }
+      mV8RuntimeId = initJSFramework(globalConfig, mSingleThreadMode, enableV8Serialization, mIsDevModule, mDebugInitJSFrameworkCallback, groupId);
+			mInit = true;
+		}
+	}
 
   @Override
   public boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache,
@@ -373,7 +379,11 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
   @Override
   public void onReceiveData(String msg) {
     if (this.mIsDevModule) {
-      callFunction("onWebsocketMsg", null, msg.getBytes());
+      try {
+        callFunction("onWebsocketMsg", null, msg.getBytes("UTF-16LE"));
+      } catch (UnsupportedEncodingException e) {
+        e.printStackTrace();
+      }
     }
   }
 }

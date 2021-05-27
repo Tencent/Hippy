@@ -22,6 +22,8 @@
 
 #include "jni/uri.h"
 
+#include "base/unicode_string_view.h"
+#include "core/base/string_view_utils.h"
 #include "jni/jni_env.h"
 #include "jni/jni_utils.h"
 
@@ -31,6 +33,8 @@ static jmethodID j_normalize_method_id;
 static jmethodID j_to_string_method_id;
 static jmethodID j_get_scheme_method_id;
 static jmethodID j_get_path_method_id;
+
+using StringViewUtils = hippy::base::StringViewUtils;
 
 bool Uri::Init() {
   JNIEnv* env = JNIEnvironment::GetInstance()->AttachCurrentThread();
@@ -63,37 +67,45 @@ bool Uri::Destory() {
   return true;
 }
 
-Uri::Uri(const std::string& uri) {
-  JNIEnv* env = JNIEnvironment::GetInstance()->AttachCurrentThread();
-  jstring j_str_uri = env->NewStringUTF(uri.c_str());
+Uri::Uri(const unicode_string_view& uri) {
+  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+  jstring j_str_uri = JniUtils::StrViewToJString(j_env, uri);
   j_obj_uri_ =
-      env->CallStaticObjectMethod(j_clazz, j_create_method_id, j_str_uri);
-  env->DeleteLocalRef(j_str_uri);
+      j_env->CallStaticObjectMethod(j_clazz, j_create_method_id, j_str_uri);
+  j_env->DeleteLocalRef(j_str_uri);
 }
 
-Uri::~Uri() {}
+Uri::~Uri() {
+  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+  j_env->DeleteLocalRef(j_obj_uri_);
+}
 
-std::string Uri::Normalize() {
-  JNIEnv* env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+unicode_string_view Uri::Normalize() {
+  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   jobject j_normalize_uri =
-      (jstring)env->CallObjectMethod(j_obj_uri_, j_normalize_method_id);
+      (jstring)j_env->CallObjectMethod(j_obj_uri_, j_normalize_method_id);
   jstring j_parsed_uri =
-      (jstring)env->CallObjectMethod(j_normalize_uri, j_to_string_method_id);
-  return JniUtils::CovertJavaStringToString(env, j_parsed_uri);
+      (jstring)j_env->CallObjectMethod(j_normalize_uri, j_to_string_method_id);
+  unicode_string_view ret = JniUtils::ToStrView(j_env, j_parsed_uri);
+  j_env->DeleteLocalRef(j_parsed_uri);
+  j_env->DeleteLocalRef(j_normalize_uri);
+  return ret;
 }
 
-std::string Uri::GetScheme() {
-  JNIEnv* env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+unicode_string_view Uri::GetScheme() {
+  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   jstring j_scheme =
-      (jstring)env->CallObjectMethod(j_obj_uri_, j_get_scheme_method_id);
-
-  return JniUtils::CovertJavaStringToString(env, j_scheme);
+      (jstring)j_env->CallObjectMethod(j_obj_uri_, j_get_scheme_method_id);
+  unicode_string_view ret = JniUtils::ToStrView(j_env, j_scheme);
+  j_env->DeleteLocalRef(j_scheme);
+  return ret;
 }
 
-std::string Uri::GetPath() {
-  JNIEnv* env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+unicode_string_view Uri::GetPath() {
+  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   jstring j_path =
-      (jstring)env->CallObjectMethod(j_obj_uri_, j_get_path_method_id);
-
-  return JniUtils::CovertJavaStringToString(env, j_path);
+      (jstring)j_env->CallObjectMethod(j_obj_uri_, j_get_path_method_id);
+  unicode_string_view ret = JniUtils::ToStrView(j_env, j_path);
+  j_env->DeleteLocalRef(j_path);
+  return ret;
 }

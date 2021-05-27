@@ -22,7 +22,6 @@
     <ClInclude Include="include\base\base-time.h" />
     <ClInclude Include="include\base\common.h" />
     <ClInclude Include="include\base\file.h" />
-    <ClInclude Include="include\base\logging.h" />
     <ClInclude Include="include\base\macros.h" />
     <ClInclude Include="include\base\task-runner.h" />
     <ClInclude Include="include\base\task.h" />
@@ -31,8 +30,11 @@
     <ClInclude Include="include\core\base\base_time.h" />
     <ClInclude Include="include\core\base\common.h" />
     <ClInclude Include="include\core\base\file.h" />
+    <ClInclude Include="include\core\base\hash.h" />
+    <ClInclude Include="include\core\base\js_value_wrapper.h" />
     <ClInclude Include="include\core\base\logging.h" />
     <ClInclude Include="include\core\base\macros.h" />
+    <ClInclude Include="include\core\base\string_view_utils.h" />
     <ClInclude Include="include\core\base\task_runner.h" />
     <ClInclude Include="include\core\base\task.h" />
     <ClInclude Include="include\core\base\thread_id.h" />
@@ -57,8 +59,6 @@
     <ClInclude Include="include\core\task\javascript_task.h" />
     <ClInclude Include="include\core\task\worker_task_runner.h" />
     <ClInclude Include="include\engine.h" />
-    <ClInclude Include="include\modules\console-module.h" />
-    <ClInclude Include="include\modules\contextify-module.h" />
     <ClInclude Include="include\modules\module-base.h" />
     <ClInclude Include="include\modules\module-register.h" />
     <ClInclude Include="include\modules\timer-module.h" />
@@ -75,10 +75,15 @@
     <ClInclude Include="include\task\javascript-task-runner.h" />
     <ClInclude Include="include\task\javascript-task.h" />
     <ClInclude Include="include\task\worker-task-runner.h" />
+    <ClInclude Include="third_party\base\include\base\logging.h" />
+    <ClInclude Include="third_party\base\include\base\log_level.h" />
+    <ClInclude Include="third_party\base\include\base\log_settings.h" />
+    <ClInclude Include="third_party\base\include\base\macros.h" />
+    <ClInclude Include="third_party\base\include\base\unicode_string_view.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\base\file.cc" />
-    <ClCompile Include="src\base\logging.cc" />
+    <ClCompile Include="src\base\js_value_wrapper.cc" />
     <ClCompile Include="src\base\task_runner.cc" />
     <ClCompile Include="src\base\task.cc" />
     <ClCompile Include="src\base\thread_id.cc" />
@@ -98,6 +103,10 @@
     <ClCompile Include="src\task\javascript_task_runner.cc" />
     <ClCompile Include="src\task\javascript_task.cc" />
     <ClCompile Include="src\task\worker_task_runner.cc" />
+    <ClCompile Include="third_party\base\src\base\log_settings.cc" />
+    <ClCompile Include="third_party\base\src\base\log_settings_state.cc" />
+    <ClCompile Include="third_party\base\src\base\unicode_string_view.cc" />
+    <ClCompile Include="third_party\base\src\platform\adr\logging.cc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{33620009-97b0-440a-88c7-af0afd05dad8}</ProjectGuid>
@@ -160,7 +169,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\android\sdk\src\main\jni\third_party\v8_72;.\include;..\android\sdk\src\main\jni;..\android\sdk\src\main\jni\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\android\sdk\src\main\jni\third_party\v8_72;.\include;..\android\sdk\src\main\jni;..\android\sdk\src\main\jni\include;.\third_party\base\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CppLanguageStandard>c++14</CppLanguageStandard>
       <PreprocessorDefinitions>OS_ANDROID;V8_IMMINENT_DEPRECATION_WARNINGS;V8_DEPRECATION_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>

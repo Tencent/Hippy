@@ -22,8 +22,13 @@
 
 #include "jni/jni_register.h"
 
+#include "base/unicode_string_view.h"
+#include "core/base/string_view_utils.h"
 #include "jni/jni_env.h"
 #include "jni/uri.h"
+
+using unicode_string_view = tdf::base::unicode_string_view;
+using StringViewUtils = hippy::base::StringViewUtils;
 
 std::unique_ptr<JNIRegister>& JNIRegister::GetInstance() {
   static std::unique_ptr<JNIRegister> instance = nullptr;
@@ -44,8 +49,10 @@ bool JNIRegister::RegisterMethods(JNIEnv* j_env) {
     const char* class_name = it->first.c_str();
     j_class = j_env->FindClass(class_name);
     if (!j_class) {
-      TDF_BASE_DLOG(ERROR) << "NativeAccess class " << class_name
-                           << "not found";
+      TDF_BASE_DLOG(ERROR)
+          << "NativeAccess class "
+          << class_name
+          << "not found";
       return false;
     }
     std::vector<JNIRegisterData> datas = it->second;
@@ -63,8 +70,10 @@ bool JNIRegister::RegisterMethods(JNIEnv* j_env) {
           j_env->ExceptionDescribe();
         }
         TDF_BASE_DLOG(ERROR)
-            << "Cannot find method name = " << method.name
-            << " signature = " << method.signature
+            << "Cannot find method name = "
+            << method.name
+            << " signature = "
+            << method.signature
             << " is_static = " << is_static << " of NativeAccess";
         return false;
       }
