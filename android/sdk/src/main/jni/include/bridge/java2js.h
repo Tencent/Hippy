@@ -27,7 +27,7 @@
 namespace hippy {
 namespace bridge {
 
-void CallFunctionByByteArray(JNIEnv* j_env,
+void CallFunctionByHeapBuffer(JNIEnv* j_env,
                              jobject j_obj,
                              jstring j_action,
                              jlong j_runtime_id,
@@ -36,7 +36,7 @@ void CallFunctionByByteArray(JNIEnv* j_env,
                              jint j_offset,
                              jint j_length);
 
-void CallFunctionByBuffer(JNIEnv* j_env,
+void CallFunctionByDirectBuffer(JNIEnv* j_env,
                           jobject j_obj,
                           jstring j_action,
                           jlong j_runtime_id,

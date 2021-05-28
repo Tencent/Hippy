@@ -33,13 +33,13 @@ REGISTER_JNI(
     "com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
     "callFunction",
     "(Ljava/lang/String;JLcom/tencent/mtt/hippy/bridge/NativeCallback;[BII)V",
-    CallFunctionByByteArray)
+    CallFunctionByHeapBuffer)
 
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
              "callFunction",
              "(Ljava/lang/String;JLcom/tencent/mtt/hippy/bridge/"
              "NativeCallback;Ljava/nio/ByteBuffer;II)V",
-             CallFunctionByBuffer)
+             CallFunctionByDirectBuffer)
 
 using Ctx = hippy::napi::Ctx;
 using V8InspectorClientImpl = hippy::inspector::V8InspectorClientImpl;
@@ -134,7 +134,7 @@ void CallFunction(JNIEnv* j_env,
   runner->PostTask(task);
 }
 
-void CallFunctionByByteArray(JNIEnv* j_env,
+void CallFunctionByHeapBuffer(JNIEnv* j_env,
                              jobject j_obj,
                              jstring j_action,
                              jlong j_runtime_id,
@@ -148,7 +148,7 @@ void CallFunctionByByteArray(JNIEnv* j_env,
                nullptr);
 }
 
-void CallFunctionByBuffer(JNIEnv* j_env,
+void CallFunctionByDirectBuffer(JNIEnv* j_env,
                           jobject j_obj,
                           jstring j_action,
                           jlong j_runtime_id,
@@ -158,7 +158,7 @@ void CallFunctionByBuffer(JNIEnv* j_env,
                           jint j_length) {
   char* buffer_address =
       static_cast<char*>(j_env->GetDirectBufferAddress(j_buffer));
-  TDF_BASE_DCHECK(buffer_address != nullptr);
+  TDF_BASE_CHECK(buffer_address != nullptr);
   CallFunction(j_env, j_obj, j_action, j_runtime_id, j_callback,
                std::string(buffer_address + j_offset, j_length),
                std::make_shared<JavaRef>(j_env, j_buffer));
