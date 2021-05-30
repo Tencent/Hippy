@@ -48,7 +48,7 @@ interface AnimationOptions {
   /**
    * Animation interpolation type
    */
-  timingFunction?: 'linear' | 'ease' | 'bezier' | 'in' | 'ease-in' | 'out' | 'ease-out' | 'inOut' | 'ease-in-out';
+  timingFunction?: 'linear' | 'ease' | 'bezier' | 'in' | 'ease-in' | 'out' | 'ease-out' | 'inOut' | 'ease-in-out' | (string & {});
 
   /**
    * Animation repeat times, use 'loop' to be always repeating.
