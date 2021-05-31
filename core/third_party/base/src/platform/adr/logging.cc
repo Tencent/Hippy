@@ -37,7 +37,31 @@ const char* StripPath(const char* path) {
 
 }  // namespace
 
-std::function<void(const std::ostringstream&)> LogMessage::delegate_ = nullptr;
+std::function<void(const std::ostringstream&, LogSeverity severity)> LogMessage::delegate_ =
+    [](const std::ostringstream& stream, LogSeverity severity) {
+      android_LogPriority priority = (severity < 0) ? ANDROID_LOG_VERBOSE : ANDROID_LOG_UNKNOWN;
+      switch (severity) {
+        case TDF_LOG_INFO:
+          priority = ANDROID_LOG_INFO;
+          break;
+        case TDF_LOG_WARNING:
+          priority = ANDROID_LOG_WARN;
+          break;
+        case TDF_LOG_ERROR:
+          priority = ANDROID_LOG_ERROR;
+          break;
+        case TDF_LOG_FATAL:
+          priority = ANDROID_LOG_FATAL;
+          break;
+        default:
+          break;
+      }
+      __android_log_write(priority, "tdf", stream.str().c_str());
+
+      if (severity >= TDF_LOG_FATAL) {
+        abort();
+      }
+    };
 
 LogMessage::LogMessage(LogSeverity severity, const char* file, int line, const char* condition)
     : severity_(severity), file_(file), line_(line) {
@@ -56,29 +80,7 @@ LogMessage::~LogMessage() {
   stream_ << std::endl;
 
   if (delegate_) {
-    delegate_(stream_);
-    return;
-  }
-
-  android_LogPriority priority = (severity_ < 0) ? ANDROID_LOG_VERBOSE : ANDROID_LOG_UNKNOWN;
-  switch (severity_) {
-    case TDF_LOG_INFO:
-      priority = ANDROID_LOG_INFO;
-      break;
-    case TDF_LOG_WARNING:
-      priority = ANDROID_LOG_WARN;
-      break;
-    case TDF_LOG_ERROR:
-      priority = ANDROID_LOG_ERROR;
-      break;
-    case TDF_LOG_FATAL:
-      priority = ANDROID_LOG_FATAL;
-      break;
-  }
-  __android_log_write(priority, "tdf", stream_.str().c_str());
-
-  if (severity_ >= TDF_LOG_FATAL) {
-    abort();
+    delegate_(stream_, severity_);
   }
 }
 

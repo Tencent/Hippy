@@ -26,13 +26,19 @@
 
 #include <string>
 
+#include "base/unicode_string_view.h"
+
+namespace {
+   using unicode_string_view = tdf::base::unicode_string_view;
+}
+
 class Uri {
  public:
-  explicit Uri(const std::string& uri);
+  explicit Uri(const unicode_string_view& uri);
   ~Uri();
-  std::string GetPath();
-  std::string GetScheme();
-  std::string Normalize();
+  unicode_string_view GetPath();
+  unicode_string_view GetScheme();
+  unicode_string_view Normalize();
   static bool Init();
   static bool Destory();
 

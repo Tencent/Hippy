@@ -26,17 +26,19 @@
 #include "core/napi/callback_info.h"
 #include "core/napi/js_native_api_types.h"
 
-using CtxValue = hippy::napi::CtxValue;
-
 class Scope;
 
 class ContextifyModule : public ModuleBase {
  public:
+  using unicode_string_view = tdf::base::unicode_string_view;
+  using CtxValue = hippy::napi::CtxValue;
+
   ContextifyModule() {}
   void RunInThisContext(const hippy::napi::CallbackInfo& info);
   void LoadUntrustedContent(const hippy::napi::CallbackInfo& info);
-  void RemoveCBFunc(const std::string& uri);
+  void RemoveCBFunc(const unicode_string_view& uri);
 
  private:
-  std::unordered_map<std::string, std::shared_ptr<CtxValue>> cb_func_map_;
+  std::unordered_map<unicode_string_view, std::shared_ptr<CtxValue>>
+      cb_func_map_;
 };

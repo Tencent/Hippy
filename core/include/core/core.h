@@ -23,6 +23,7 @@
 #pragma once
 
 #include "base/logging.h"
+#include "base/unicode_string_view.h"
 #include "core/base/base_time.h"
 #include "core/base/common.h"
 #include "core/base/file.h"

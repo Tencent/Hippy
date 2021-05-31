@@ -32,8 +32,8 @@
 // Calculate size of array
 #define arraysize(array) (sizeof(ArraySizeHelper(array)))
 
-template <typename T, size_t N>
-char (&ArraySizeHelper(T (&array)[N]))[N];
+template <typename CharType, size_t N>
+char (&ArraySizeHelper(CharType (&array)[N]))[N];
 
 // Suppress copy
 #define DISALLOW_COPY_AND_ASSIGN(Type) \
