@@ -27,6 +27,7 @@
 #include <memory>
 #include <vector>
 
+#include "base/unicode_string_view.h"
 #include "core/base/macros.h"
 #include "core/napi/js_native_api_types.h"
 #include "core/scope.h"
@@ -50,10 +51,12 @@ class ReturnValue {
 
 class ExceptionValue {
  public:
+  using unicode_string_view = tdf::base::unicode_string_view;
+
   ExceptionValue() = default;
 
   void Set(std::shared_ptr<CtxValue> value) { value_ = value; }
-  void Set(std::shared_ptr<Ctx> context, const char* value);
+  void Set(std::shared_ptr<Ctx> context, const unicode_string_view& str);
   std::shared_ptr<CtxValue> Get() const { return value_; }
 
  private:

@@ -5,14 +5,23 @@
 namespace tdf {
 namespace base {
 
-typedef int LogSeverity;
+// typedef int LogSeverity;
 
 // Default log levels. Negative values can be used for verbose log levels.
-constexpr LogSeverity TDF_LOG_INFO = 0;
-constexpr LogSeverity TDF_LOG_WARNING = 1;
-constexpr LogSeverity TDF_LOG_ERROR = 2;
-constexpr LogSeverity TDF_LOG_FATAL = 3;
-constexpr LogSeverity TDF_LOG_NUM_SEVERITIES = 4;
+//constexpr LogSeverity TDF_LOG_INFO = 0;
+//constexpr LogSeverity TDF_LOG_WARNING = 1;
+//constexpr LogSeverity TDF_LOG_ERROR = 2;
+//constexpr LogSeverity TDF_LOG_FATAL = 3;
+//constexpr LogSeverity TDF_LOG_NUM_SEVERITIES = 4;
+
+enum LogSeverity {
+  TDF_LOG_DEBUG,
+  TDF_LOG_INFO = 0,
+  TDF_LOG_WARNING,
+  TDF_LOG_ERROR,
+  TDF_LOG_FATAL,
+  TDF_LOG_NUM_SEVERITIES
+};
 
 // One of the Windows headers defines ERROR to 0. This makes the token
 // concatenation in BASE_LOG(ERROR) to resolve to LOG_0. We define this back to

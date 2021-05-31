@@ -4,14 +4,11 @@
     <ClInclude Include="include\base\base-time.h" />
     <ClInclude Include="include\base\common.h" />
     <ClInclude Include="include\base\file.h" />
-    <ClInclude Include="include\base\logging.h" />
     <ClInclude Include="include\base\macros.h" />
     <ClInclude Include="include\base\task.h" />
     <ClInclude Include="include\base\task-runner.h" />
     <ClInclude Include="include\base\thread.h" />
     <ClInclude Include="include\base\thread-id.h" />
-    <ClInclude Include="include\modules\console-module.h" />
-    <ClInclude Include="include\modules\contextify-module.h" />
     <ClInclude Include="include\modules\module-base.h" />
     <ClInclude Include="include\modules\module-register.h" />
     <ClInclude Include="include\modules\timer-module.h" />
@@ -57,10 +54,17 @@
     <ClInclude Include="include\core\task\javascript_task.h" />
     <ClInclude Include="include\core\task\javascript_task_runner.h" />
     <ClInclude Include="include\core\task\worker_task_runner.h" />
+    <ClInclude Include="third_party\base\include\base\log_level.h" />
+    <ClInclude Include="third_party\base\include\base\log_settings.h" />
+    <ClInclude Include="third_party\base\include\base\logging.h" />
+    <ClInclude Include="third_party\base\include\base\macros.h" />
+    <ClInclude Include="third_party\base\include\base\unicode_string_view.h" />
+    <ClInclude Include="include\core\base\string_view_utils.h" />
+    <ClInclude Include="include\core\base\js_value_wrapper.h" />
+    <ClInclude Include="include\core\base\hash.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\base\file.cc" />
-    <ClCompile Include="src\base\logging.cc" />
     <ClCompile Include="src\base\task.cc" />
     <ClCompile Include="src\base\thread.cc" />
     <ClCompile Include="src\engine.cc" />
@@ -80,5 +84,10 @@
     <ClCompile Include="src\task\javascript_task.cc" />
     <ClCompile Include="src\task\javascript_task_runner.cc" />
     <ClCompile Include="src\task\worker_task_runner.cc" />
+    <ClCompile Include="third_party\base\src\base\log_settings.cc" />
+    <ClCompile Include="third_party\base\src\base\log_settings_state.cc" />
+    <ClCompile Include="third_party\base\src\base\unicode_string_view.cc" />
+    <ClCompile Include="src\base\js_value_wrapper.cc" />
+    <ClCompile Include="third_party\base\src\platform\adr\logging.cc" />
   </ItemGroup>
 </Project>
