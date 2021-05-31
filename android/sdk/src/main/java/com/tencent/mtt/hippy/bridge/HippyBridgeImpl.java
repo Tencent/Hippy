@@ -172,23 +172,28 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
       return;
     }
 
-    /*
-     * In Android's DirectByteBuffer implementation.
-     *
-     * {@link DirectByteBuffer#hb backing array} will be used to store buffer data,
-     * {@link DirectByteBuffer#offset} will be used to handle the alignment,
-     * it's already add to {@link DirectByteBuffer#address},
-     * so the {@link DirectByteBuffer} has backing array and offset.
-     *
-     * In the other side, JNI method |void* GetDirectBufferAddress(JNIEnv*, jobject)|
-     * will be directly return {@link DirectByteBuffer#address} as the starting buffer address.
-     *
-     * So in this situation if, and only if, buffer is direct,
-     * {@link ByteBuffer#arrayOffset} will be ignored, treated as 0.
-     */
-    int offset = (buffer.isDirect() ? 0 : buffer.arrayOffset()) + buffer.position();
+    int offset = buffer.position();
     int length = buffer.limit() - buffer.position();
-    callFunction(action, mV8RuntimeId, callback, buffer, offset, length);
+    if (buffer.isDirect()) {
+      callFunction(action, mV8RuntimeId, callback, buffer, offset, length);
+    } else {
+      /*
+       * In Android's DirectByteBuffer implementation.
+       *
+       * {@link DirectByteBuffer#hb backing array} will be used to store buffer data,
+       * {@link DirectByteBuffer#offset} will be used to handle the alignment,
+       * it's already add to {@link DirectByteBuffer#address},
+       * so the {@link DirectByteBuffer} has backing array and offset.
+       *
+       * In the other side, JNI method |void* GetDirectBufferAddress(JNIEnv*, jobject)|
+       * will be directly return {@link DirectByteBuffer#address} as the starting buffer address.
+       *
+       * So in this situation if, and only if, buffer is direct,
+       * {@link ByteBuffer#arrayOffset} will be ignored, treated as 0.
+       */
+      offset += buffer.arrayOffset();
+      callFunction(action, mV8RuntimeId, callback, buffer.array(), offset, length);
+    }
   }
 
   @Override
