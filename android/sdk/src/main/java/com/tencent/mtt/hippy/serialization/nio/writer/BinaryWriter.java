@@ -75,10 +75,17 @@ public interface BinaryWriter {
   int length(int length);
 
   /**
-   * Chunked the write operation and returns a wrapped {@link ByteBuffer} object. After calling this
-   * method, writer will be reset and write from the beginning.
+   * Chunked the write operation and returns a wrapped {@link ByteBuffer} object.
+   * After calling this method, writer will be reset and write from the beginning.
    *
    * @return wrapped byte buffer
    */
   ByteBuffer chunked();
+
+  /**
+   * After calling this method, writer will be reset and write from the beginning.
+   *
+   * @return This writer
+   */
+  BinaryWriter reset();
 }

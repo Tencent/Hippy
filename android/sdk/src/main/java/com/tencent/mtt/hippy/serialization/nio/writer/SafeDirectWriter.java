@@ -122,13 +122,16 @@ public final class SafeDirectWriter extends AbstractBinaryWriter {
   @Override
   public ByteBuffer chunked() {
     value.flip();
-    ByteBuffer chunked;
-    if (value.limit() < maxCapacity) {
-      chunked = value.duplicate();
-    } else {
-      chunked = value;
+    ByteBuffer chunked = value.duplicate();
+    reset();
+    return chunked;
+  }
+
+  @Override
+  public BinaryWriter reset() {
+    if (value.capacity() >= maxCapacity) {
       value = ByteBuffer.allocateDirect(initialCapacity);
     }
-    return chunked;
+    return this;
   }
 }

@@ -143,10 +143,16 @@ public final class SafeHeapWriter extends AbstractBinaryWriter {
   @Override
   public final ByteBuffer chunked() {
     ByteBuffer chunked = ByteBuffer.wrap(value, 0, count);
+    reset();
+    return chunked;
+  }
+
+  @Override
+  public BinaryWriter reset() {
     if (count >= maxCapacity) {
       value = new byte[initialCapacity];
     }
     count = 0;
-    return chunked;
+    return this;
   }
 }
