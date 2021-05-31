@@ -37,10 +37,6 @@ class V8ChannelImpl : public v8_inspector::V8Inspector::Channel {
   explicit V8ChannelImpl(std::shared_ptr<JavaRef> bridge);
   ~V8ChannelImpl() override = default;
 
-  inline const char* ToCString(const v8::String::Utf8Value& value) {
-    return JniUtils::ToCString(value);
-  }
-
   inline std::shared_ptr<JavaRef> GetBridge() { return bridge_; }
 
   inline void SetBridge(std::shared_ptr<JavaRef> bridge) { bridge_ = bridge; }

@@ -27,12 +27,18 @@
 
 #include <fstream>
 #include <iostream>
+#include <string>
 #include <vector>
 
 #include "base/logging.h"
+#include "base/unicode_string_view.h"
+#include "core/base/string_view_utils.h"
 
 namespace hippy {
 namespace base {
+
+using unicode_string_view = tdf::base::unicode_string_view;
+using StringViewUtils = hippy::base::StringViewUtils;
 
 bool HippyFile::SaveFile(const char* file_path,
                          const std::string& content,
@@ -48,38 +54,6 @@ bool HippyFile::SaveFile(const char* file_path,
   }
 }
 
-std::string HippyFile::ReadFile(const char* file_path, bool is_auto_fill) {
-  std::ifstream file(file_path);
-  std::string ret;
-  if (!file.fail()) {
-    file.ignore(std::numeric_limits<std::streamsize>::max());
-    std::streamsize size = file.gcount();
-    file.clear();
-    file.seekg(0, std::ios_base::beg);
-    long data_size = size;
-    if (is_auto_fill) {
-      data_size += 1;
-    }
-    ret.resize(data_size);
-    long read_size = file.read(&ret[0], size).gcount();
-    if (size != read_size) {
-      TDF_BASE_DLOG(WARNING)
-          << "ReadFile file_path = " << file_path << ", size = " << size
-          << ", read_size = " << read_size;
-    }
-    if (is_auto_fill) {
-      ret.back() = '\0';
-    }
-    file.close();
-    TDF_BASE_DLOG(INFO) << "ReadFile succ, file_path = " << file_path
-                        << ", size = " << size << ", read_size = " << read_size;
-  } else {
-    TDF_BASE_DLOG(INFO) << "ReadFile fail, file_path = " << file_path;
-  }
-
-  return ret;
-}
-
 int HippyFile::RmFullPath(std::string dir_full_path) {
   TDF_BASE_DLOG(INFO) << "RmFullPath dir_full_path = " << dir_full_path;
   DIR* dir_parent = opendir(dir_full_path.c_str());
@@ -90,7 +64,6 @@ int HippyFile::RmFullPath(std::string dir_full_path) {
   struct dirent* dir;
   struct stat st;
   while ((dir = readdir(dir_parent)) != nullptr) {
-    TDF_BASE_DLOG(INFO) << "RmFullPath dir = " << dir;
     if (strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0) {
       continue;
     }
@@ -131,11 +104,11 @@ int HippyFile::CheckDir(const char* path, int mode) {
   return access(path, mode);
 }
 
-uint64_t HippyFile::GetFileModifytime(const std::string& file_path) {
+uint64_t HippyFile::GetFileModifytime(const char* file_path) {
   TDF_BASE_DLOG(INFO) << "GetFileModifytime file_path = " << file_path;
   struct stat statInfo;
 
-  FILE* fp = fopen(file_path.c_str(), "r");
+  FILE* fp = fopen(file_path, "r");
   if (fp == nullptr) {
     return 0;
   }

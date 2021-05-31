@@ -26,18 +26,25 @@
 #include <string>
 #include <vector>
 
+#include "base/unicode_string_view.h"
+
 namespace hippy {
 namespace base {
 
 class UriLoader {
  public:
+  using unicode_string_view = tdf::base::unicode_string_view;
+  using u8string = unicode_string_view::u8string;
+
   UriLoader() {}
   virtual ~UriLoader() {}
 
-  virtual bool RequestUntrustedContent(const std::string& uri,
-                                       std::function<void(std::string)> cb) = 0;
+  virtual bool RequestUntrustedContent(const unicode_string_view& uri,
+                                       std::function<void(u8string)> cb) = 0;
 
-  virtual std::string RequestUntrustedContent(const std::string& uri) = 0;
+  virtual bool RequestUntrustedContent(
+      const unicode_string_view& uri,
+      u8string& content) = 0;
 };
 }  // namespace base
 }  // namespace hippy
