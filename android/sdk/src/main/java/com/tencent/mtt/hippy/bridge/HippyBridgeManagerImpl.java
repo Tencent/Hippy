@@ -166,12 +166,14 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
       if (enableV8Serialization) {
         if (safeDirectWriter == null) {
           safeDirectWriter = new SafeDirectWriter(SafeDirectWriter.INITIAL_CAPACITY, 0);
+        } else {
+          safeDirectWriter.reset();
         }
         serializer.setWriter(safeDirectWriter);
         serializer.reset();
         serializer.writeHeader();
         serializer.writeValue(msg.obj);
-        buffer = serializer.getWriter().chunked();
+        buffer = safeDirectWriter.chunked();
       } else {
         mStringBuilder.setLength(0);
         byte[] bytes = new byte[0];
@@ -189,12 +191,14 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
       if (enableV8Serialization) {
         if (safeHeapWriter == null) {
           safeHeapWriter = new SafeHeapWriter();
+        } else {
+          safeHeapWriter.reset();
         }
         serializer.setWriter(safeHeapWriter);
         serializer.reset();
         serializer.writeHeader();
         serializer.writeValue(msg.obj);
-        ByteBuffer buffer = serializer.getWriter().chunked();
+        ByteBuffer buffer = safeHeapWriter.chunked();
         int offset = buffer.arrayOffset() + buffer.position();
         int length = buffer.limit() - buffer.position();
         mHippyBridge.callFunction(action, callback, buffer.array(), offset, length);
