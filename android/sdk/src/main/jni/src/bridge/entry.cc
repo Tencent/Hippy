@@ -137,8 +137,7 @@ bool RunScript(std::shared_ptr<Runtime> runtime,
                        std::chrono::system_clock::now())
                        .time_since_epoch()
                        .count();
-      modify_time =
-          HippyFile::GetFileModifytime(StringViewUtils::ToConstCharPointer(uri));
+      modify_time = HippyFile::GetFileModifytime(uri);
       auto time2 = std::chrono::time_point_cast<std::chrono::microseconds>(
                        std::chrono::system_clock::now())
                        .time_since_epoch()
@@ -154,23 +153,21 @@ bool RunScript(std::shared_ptr<Runtime> runtime,
     std::promise<u8string> read_file_promise;
     std::future<u8string> read_file_future = read_file_promise.get_future();
     std::unique_ptr<CommonTask> task = std::make_unique<CommonTask>();
-    task->func_ = hippy::base::MakeCopyable([p = std::move(read_file_promise),
-                                             code_cache_path,
-                                             code_cache_dir]() mutable {
-      u8string content;
-      HippyFile::ReadFile(StringViewUtils::ToConstCharPointer(code_cache_path),
-                          content, true);
-      if (content.empty()) {
-        TDF_BASE_DLOG(INFO) << "Read code cache failed";
-        int ret =
-            HippyFile::RmFullPath(StringViewUtils::ToConstCharPointer(code_cache_dir));
-        TDF_BASE_DLOG(INFO) << "RmFullPath ret = " << ret;
-        HIPPY_USE(ret);
-      } else {
-        TDF_BASE_DLOG(INFO) << "Read code cache succ";
-      }
-      p.set_value(std::move(content));
-    });
+    task->func_ =
+        hippy::base::MakeCopyable([p = std::move(read_file_promise),
+                                   code_cache_path, code_cache_dir]() mutable {
+          u8string content;
+          HippyFile::ReadFile(code_cache_path, content, true);
+          if (content.empty()) {
+            TDF_BASE_DLOG(INFO) << "Read code cache failed";
+            int ret = HippyFile::RmFullPath(code_cache_dir);
+            TDF_BASE_DLOG(INFO) << "RmFullPath ret = " << ret;
+            HIPPY_USE(ret);
+          } else {
+            TDF_BASE_DLOG(INFO) << "Read code cache succ";
+          }
+          p.set_value(std::move(content));
+        });
 
     std::shared_ptr<Engine> engine = runtime->GetEngine();
     task_runner = engine->GetWorkerTaskRunner();
@@ -201,33 +198,28 @@ bool RunScript(std::shared_ptr<Runtime> runtime,
     if (!StringViewUtils::IsEmpty(code_cache_content)) {
       std::unique_ptr<CommonTask> task = std::make_unique<CommonTask>();
       task->func_ = [code_cache_path, code_cache_dir, code_cache_content] {
-        const char* p_code_cache_dir =
-            StringViewUtils::ToConstCharPointer(code_cache_dir);
-        int check_dir_ret = HippyFile::CheckDir(p_code_cache_dir, F_OK);
+        int check_dir_ret = HippyFile::CheckDir(code_cache_dir, F_OK);
         TDF_BASE_DLOG(INFO) << "check_parent_dir_ret = " << check_dir_ret;
         if (check_dir_ret) {
-          HippyFile::CreateDir(p_code_cache_dir, S_IRWXU);
+          HippyFile::CreateDir(code_cache_dir, S_IRWXU);
         }
 
         size_t pos =
             StringViewUtils::FindLastOf(code_cache_path, EXTEND_LITERAL('/'));
         unicode_string_view code_cache_parent_dir =
             StringViewUtils::SubStr(code_cache_path, 0, pos);
-        const char* p_code_cache_parent_dir =
-            StringViewUtils::ToConstCharPointer(code_cache_parent_dir);
         int check_parent_dir_ret =
-            HippyFile::CheckDir(p_code_cache_parent_dir, F_OK);
+            HippyFile::CheckDir(code_cache_parent_dir, F_OK);
         TDF_BASE_DLOG(INFO)
             << "check_parent_dir_ret = " << check_parent_dir_ret;
         if (check_parent_dir_ret) {
-          HippyFile::CreateDir(p_code_cache_parent_dir, S_IRWXU);
+          HippyFile::CreateDir(code_cache_parent_dir, S_IRWXU);
         }
 
         std::string u8_code_cache_content =
             StringViewUtils::ToU8StdStr(code_cache_content);
         bool save_file_ret =
-            HippyFile::SaveFile(StringViewUtils::ToConstCharPointer(code_cache_path),
-                                u8_code_cache_content);
+            HippyFile::SaveFile(code_cache_path, u8_code_cache_content);
         TDF_BASE_LOG(INFO) << "code cache save_file_ret = " << save_file_ret;
         HIPPY_USE(save_file_ret);
       };
@@ -404,15 +396,15 @@ jlong InitInstance(JNIEnv* j_env,
       return;
     }
 
-        if (runtime->IsDebug()) {
-          if (!global_inspector) {
-            global_inspector = std::make_shared<V8InspectorClientImpl>(scope);
-            global_inspector->Connect(runtime->GetBridge());
-          } else {
-            global_inspector->Reset(scope, runtime->GetBridge());
-          }
-          global_inspector->CreateContext();
-        }
+    if (runtime->IsDebug()) {
+      if (!global_inspector) {
+        global_inspector = std::make_shared<V8InspectorClientImpl>(scope);
+        global_inspector->Connect(runtime->GetBridge());
+      } else {
+        global_inspector->Reset(scope, runtime->GetBridge());
+      }
+      global_inspector->CreateContext();
+    }
 
     std::shared_ptr<Ctx> ctx = scope->GetContext();
     ctx->RegisterGlobalInJs();
