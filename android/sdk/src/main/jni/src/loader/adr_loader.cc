@@ -71,8 +71,7 @@ bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
   unicode_string_view path = uri_obj->GetPath();
   TDF_BASE_DCHECK(schema.encoding() == unicode_string_view::Encoding::Utf16);
   if (schema.utf16_value() == u"file") {
-    return HippyFile::ReadFile(StringViewUtils::ToConstCharPointer(path), content,
-                               false);
+    return HippyFile::ReadFile(path, content, false);
   } else if (schema == u"http" || schema == u"https" || schema == u"debug") {
     std::promise<u8string> promise;
     std::future<u8string> read_file_future = promise.get_future();
@@ -85,8 +84,7 @@ bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
     return ret;
   } else if (schema == u"asset") {
     if (aasset_manager_) {
-      return ReadAsset(StringViewUtils::ToConstCharPointer(path), aasset_manager_, content,
-                       false);
+      return ReadAsset(path, aasset_manager_, content, false);
     }
 
     TDF_BASE_DLOG(ERROR) << "aasset_manager error, uri = " << uri;
@@ -106,7 +104,7 @@ bool ADRLoader::LoadByFile(const unicode_string_view& path,
   std::unique_ptr<CommonTask> task = std::make_unique<CommonTask>();
   task->func_ = [path, cb] {
     u8string ret;
-    HippyFile::ReadFile(StringViewUtils::ToConstCharPointer(path), ret, false);
+    HippyFile::ReadFile(path, ret, false);
     cb(std::move(ret));
   };
   runner->PostTask(std::move(task));
@@ -125,8 +123,7 @@ bool ADRLoader::LoadByAsset(const unicode_string_view& path,
   std::unique_ptr<CommonTask> task = std::make_unique<CommonTask>();
   task->func_ = [path, aasset_manager = aasset_manager_, is_auto_fill, cb] {
     u8string ret;
-    ReadAsset(StringViewUtils::ToConstCharPointer(path), aasset_manager, ret,
-              is_auto_fill);
+    ReadAsset(path, aasset_manager, ret, is_auto_fill);
     cb(std::move(ret));
   };
   runner->PostTask(std::move(task));

@@ -31,27 +31,32 @@
 #include <vector>
 
 #include "base/logging.h"
+#include "base/unicode_string_view.h"
+#include "core/base/string_view_utils.h"
 
 namespace hippy {
 namespace base {
 
 class HippyFile {
  public:
-  static bool SaveFile(const char* file_name,
+  using unicode_string_view = tdf::base::unicode_string_view;
+  static bool SaveFile(const unicode_string_view& file_name,
                        const std::string& content,
                        std::ios::openmode mode = std::ios::out |
                                                  std::ios::binary |
                                                  std::ios::trunc);
-  static int RmFullPath(std::string dir_full_path);
-  static int CreateDir(const char* path, mode_t mode);
-  static int CheckDir(const char* path, int mode);
-  static uint64_t GetFileModifytime(const char* file_path);
+  static int RmFullPath(const unicode_string_view& dir_full_path);
+  static int CreateDir(const unicode_string_view& path, mode_t mode);
+  static int CheckDir(const unicode_string_view& path, int mode);
+  static uint64_t GetFileModifytime(const unicode_string_view& file_path);
 
   template <typename CharType>
-  static bool ReadFile(const char* file_path,
+  static bool ReadFile(const unicode_string_view& file_path,
                        std::basic_string<CharType>& bytes,
                        bool is_auto_fill) {
-    std::ifstream file(file_path);
+    unicode_string_view owner(""_u8s);
+    const char* path = StringViewUtils::ToConstCharPointer(file_path, owner);
+    std::ifstream file(path);
     if (!file.fail()) {
       file.ignore(std::numeric_limits<std::streamsize>::max());
       std::streamsize size = file.gcount();
