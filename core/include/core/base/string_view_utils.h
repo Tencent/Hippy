@@ -175,11 +175,31 @@ class StringViewUtils {
   }
 
   inline static const char* ToConstCharPointer(
-      const unicode_string_view& str_view) {
-    return U8ToConstCharPointer(
-        Convert(str_view, unicode_string_view::Encoding::Utf8)
-            .utf8_value()
-            .c_str());
+      const unicode_string_view& str_view,
+      unicode_string_view& view_owner) {
+    TDF_BASE_DCHECK(view_owner.encoding() == unicode_string_view::Encoding::Utf8);
+    unicode_string_view::Encoding encoding = str_view.encoding();
+    switch (encoding) {
+      case unicode_string_view::Encoding::Latin1: {
+        return str_view.latin1_value().c_str();
+      }
+      case unicode_string_view::Encoding::Utf8: {
+        return U8ToConstCharPointer(str_view.utf8_value().c_str());
+      }
+      case unicode_string_view::Encoding::Utf16:
+      case unicode_string_view::Encoding::Utf32: {
+        unicode_string_view::u8string& ref = view_owner.utf8_value();
+        ref =
+            Convert(str_view, unicode_string_view::Encoding::Utf8).utf8_value();
+        return U8ToConstCharPointer(ref.c_str());
+      }
+      default: {
+        TDF_BASE_NOTREACHED();
+        break;
+      }
+    }
+    TDF_BASE_NOTREACHED();
+    return nullptr;
   }
 
   inline static unicode_string_view ConstCharPointerToStrView(const char* p,
