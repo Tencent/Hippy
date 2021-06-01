@@ -127,15 +127,14 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
           writer.putVarint(longValue);
         } else {
           writeTag(SerializationTag.DOUBLE);
-          writer.putDouble((double) value);
+          writer.putDouble(((Number) value).doubleValue());
         }
       } else if (value instanceof BigInteger) {
         writeTag(SerializationTag.BIG_INT);
         writeBigIntContents((BigInteger) value);
       } else {
-        double doubleValue = ((Number) value).doubleValue();
         writeTag(SerializationTag.DOUBLE);
-        writer.putDouble(doubleValue);
+        writer.putDouble(((Number) value).doubleValue());
       }
     } else if (value == Boolean.TRUE) {
       writeTag(SerializationTag.TRUE);
