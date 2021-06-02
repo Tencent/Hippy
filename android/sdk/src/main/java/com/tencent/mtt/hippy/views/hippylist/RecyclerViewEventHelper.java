@@ -42,6 +42,8 @@ import com.tencent.mtt.hippy.views.scroll.HippyScrollViewEventHelper;
 public class RecyclerViewEventHelper extends OnScrollListener implements OnLayoutChangeListener,
     OnAttachStateChangeListener, OverPullListener {
 
+  public static final String EVENT_ON_END_REACHED = "onEndReached";
+  public static final String EVENT_ON_TOP_REACHED = "onTopReached";
   public static final String INITIAL_LIST_READY = "initialListReady";
   protected final HippyRecyclerView hippyRecyclerView;
   private boolean scrollBeginDragEventEnable;
@@ -177,16 +179,27 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
 
   @Override
   public void onScrolled(@NonNull final RecyclerView recyclerView, int dx, int dy) {
-    checkSendOnScrollEvent();
+    if (dx != 0 || dy != 0) {
+      checkSendOnScrollEvent();
+    }
+
     checkSendExposureEvent();
+
     if (!recyclerView.canScrollVertically(1)) {
-      sendOnReachedEvent();
+      sendOnEndReachedEvent();
+    }
+
+    if (!recyclerView.canScrollVertically(-1)) {
+      sendOnTopReachedEvent();
     }
   }
 
-  protected void sendOnReachedEvent() {
-    HippyViewEvent onEndReachedEvent = new HippyViewEvent("onEndReached");
-    onEndReachedEvent.send(getParentView(), null);
+  protected void sendOnEndReachedEvent() {
+    new HippyViewEvent(EVENT_ON_END_REACHED).send(getParentView(), null);
+  }
+
+  protected void sendOnTopReachedEvent() {
+    new HippyViewEvent(EVENT_ON_TOP_REACHED).send(getParentView(), null);
   }
 
   private void checkSendOnScrollEvent() {
@@ -256,8 +269,20 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
 
   public final HippyMap generateScrollEvent() {
     HippyMap contentOffset = new HippyMap();
-    contentOffset.pushDouble("x", PixelUtil.px2dp(0));
-    contentOffset.pushDouble("y", PixelUtil.px2dp(hippyRecyclerView.getContentOffsetY()));
+
+    float offsetX = hippyRecyclerView.getContentOffsetX();
+    float offsetY = hippyRecyclerView.getContentOffsetY();
+
+    if (offsetX != 0) {
+      offsetX = PixelUtil.px2dp(offsetX);
+    }
+
+    if (offsetY != 0) {
+      offsetY = PixelUtil.px2dp(offsetY);
+    }
+
+    contentOffset.pushDouble("x", offsetX);
+    contentOffset.pushDouble("y", offsetY);
     HippyMap event = new HippyMap();
     event.pushMap("contentOffset", contentOffset);
     return event;
@@ -350,7 +375,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
   public void onOverPullStateChanged(int oldState, int newState, int offset) {
     LogUtils.d("QBRecyclerViewEventHelper", "oldState:" + oldState + ",newState:" + newState);
     if (oldState == OverPullHelper.OVER_PULL_NONE && isOverPulling(newState)) {
-      sendOnReachedEvent();
+      sendOnEndReachedEvent();
       getOnScrollDragStartedEvent().send(getParentView(), generateScrollEvent());
     }
     if (isOverPulling(oldState) && isOverPulling(newState)) {
