@@ -48,17 +48,10 @@ public class ImageLoaderModule extends HippyNativeModuleBase {
         @Override
         public void onRequestSuccess(HippyDrawable hippyDrawable) {
           if (hippyDrawable != null) {
-            Bitmap bitmap = hippyDrawable.getBitmap();
-            if (bitmap != null) {
-              int width = bitmap.getWidth();
-              int height = bitmap.getHeight();
-              HippyMap resultMap = new HippyMap();
-              resultMap.pushInt("width", width);
-              resultMap.pushInt("height", height);
-              promise.resolve(resultMap);
-            } else {
-              promise.reject("bitmap is null " + hippyDrawable.getSource());
-            }
+            HippyMap resultMap = new HippyMap();
+            resultMap.pushInt("width", hippyDrawable.getWidth());
+            resultMap.pushInt("height", hippyDrawable.getHeight());
+            promise.resolve(resultMap);
             hippyDrawable.onDrawableDetached();
           } else {
             promise.reject("fetch image fail " + url);

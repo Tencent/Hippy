@@ -190,6 +190,22 @@ public class HippyDrawable implements IDrawableTarget {
     return mGifMovie != null;
   }
 
+  public int getWidth() {
+    if (mBitmap != null) {
+      return mBitmap.getWidth();
+    }
+
+    return 0;
+  }
+
+  public int getHeight() {
+    if (mBitmap != null) {
+      return mBitmap.getHeight();
+    }
+
+    return 0;
+  }
+
   /**
    * 获取Bitmap
    */
@@ -197,15 +213,6 @@ public class HippyDrawable implements IDrawableTarget {
   public Bitmap getBitmap() {
     return mBitmap;
   }
-
-//	public void draw(Canvas canvas)
-//	{
-//	}
-
-//	public boolean isSelfDraw()
-//	{
-//		return false;
-//	}
 
   /**
    * 实现空的interface 获取数据源
