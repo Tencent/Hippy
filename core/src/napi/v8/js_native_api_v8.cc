@@ -490,9 +490,8 @@ unicode_string_view V8Ctx::GetStackInfo(v8::Local<v8::Message> message) {
     unicode_string_view script_name = ToStringView(frame->GetScriptName());
     unicode_string_view function_name = ToStringView(frame->GetFunctionName());
     stack_stream << std::endl
-                 << script_name << ":"
-                 << frame->GetLineNumber() << ":" << frame->GetColumn() << ":"
-                 << function_name;
+                 << script_name << ":" << frame->GetLineNumber() << ":"
+                 << frame->GetColumn() << ":" << function_name;
   }
   std::string u8_str = stack_stream.str();
   unicode_string_view stack_str(
@@ -611,7 +610,20 @@ std::shared_ptr<CtxValue> V8Ctx::GetGlobalObjVar(
 std::shared_ptr<CtxValue> V8Ctx::GetProperty(
     const std::shared_ptr<CtxValue> object,
     const unicode_string_view& name) {
-  return nullptr;
+  TDF_BASE_DLOG(INFO)<< "GetGlobalStrVar name =" << name;
+  std::shared_ptr<V8CtxValue> ctx_value =
+          std::static_pointer_cast<V8CtxValue>(object);
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  const v8::Global<v8::Value>& persistent_value =
+          ctx_value->global_value_;
+  v8::Local<v8::Value> str = CreateV8String(name);
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, persistent_value);
+  v8::Local<v8::Value> value =
+      v8::Local<v8::Object>::Cast(handle_value)->Get(context, str).ToLocalChecked();
+  return std::make_shared<V8CtxValue>(isolate_, value);
 }
 
 void V8Ctx::RegisterGlobalModule(std::shared_ptr<Scope> scope,
@@ -715,7 +727,6 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const unicode_string_view& str_view,
       break;
     }
     case unicode_string_view::Encoding::Utf32: {
-      // TDF_BASE_DCHECK(is_copy) << "utf32 must copy";
       const std::u32string& str = str_view.utf32_value();
       std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> convert;
       std::string bytes = convert.to_bytes(str);
@@ -729,7 +740,6 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const unicode_string_view& str_view,
       break;
     }
     case unicode_string_view::Encoding::Utf8: {
-      // TDF_BASE_DCHECK(is_copy) << "Utf8 must copy";
       const unicode_string_view::u8string& str = str_view.utf8_value();
       source = TO_LOCAL_UNCHECKED(
           v8::String::NewFromUtf8(isolate_,
@@ -762,7 +772,7 @@ std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
   v8::Local<v8::String> v8_file_name = CreateV8String(file_name);
   v8::ScriptOrigin origin(v8_file_name);
   v8::MaybeLocal<v8::Script> script;
-  if (is_use_code_cache && cache) {
+  if (is_use_code_cache && cache && !StringViewUtils::IsEmpty(*cache)) {
     unicode_string_view::Encoding encoding = cache->encoding();
     switch (encoding) {
       case unicode_string_view::Encoding::Utf8: {
@@ -771,7 +781,7 @@ std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
             new v8::ScriptCompiler::CachedData(
                 str.c_str(), str.length(),
                 v8::ScriptCompiler::CachedData::
-                    BufferNotOwned);  // todo Ownedship and cache error
+                    BufferNotOwned);
         v8::ScriptCompiler::Source script_source(source, origin, cached_data);
         script = v8::ScriptCompiler::Compile(
             context, &script_source, v8::ScriptCompiler::kConsumeCodeCache);
@@ -783,7 +793,7 @@ std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
     }
 
   } else {
-    if (is_use_code_cache) {
+    if (is_use_code_cache && cache) {
       v8::ScriptCompiler::Source script_source(source, origin);
       script = v8::ScriptCompiler::Compile(context, &script_source);
       if (script.IsEmpty()) {
@@ -1020,9 +1030,8 @@ std::shared_ptr<JSValueWrapper> V8Ctx::ToJsValueWrapper(
     bool v8_value = handle_value->ToBoolean(isolate_)->Value();
     return std::make_shared<JSValueWrapper>(v8_value);
   } else if (handle_value->IsString()) {
-    v8::Local<v8::String> v8_value =
-        handle_value->ToString(context).ToLocalChecked();
-    return std::make_shared<JSValueWrapper>(ToStringView(v8_value));
+    return std::make_shared<JSValueWrapper>(
+        *v8::String::Utf8Value(isolate_, handle_value));
   } else if (handle_value->IsNumber()) {
     double v8_value = handle_value->ToNumber(context).ToLocalChecked()->Value();
     return std::make_shared<JSValueWrapper>(v8_value);
@@ -1045,7 +1054,7 @@ std::shared_ptr<JSValueWrapper> V8Ctx::ToJsValueWrapper(
       v8::Local<v8::Value> element = v8_value->Get(context, i).ToLocalChecked();
       std::shared_ptr<JSValueWrapper> value_obj =
           ToJsValueWrapper(std::make_shared<V8CtxValue>(isolate_, element));
-      ret[i] = *value_obj;
+      ret.push_back(*value_obj);
     }
     return std::make_shared<JSValueWrapper>(std::move(ret));
   } else if (handle_value->IsObject()) {
@@ -1062,20 +1071,10 @@ std::shared_ptr<JSValueWrapper> V8Ctx::ToJsValueWrapper(
         v8::Local<v8::Value> props_value =
             v8_value->Get(context, props_key).ToLocalChecked();
 
-        unicode_string_view key_obj;
+        std::string key_obj;
         if (props_key->IsString()) {
-          v8::Local<v8::String> props_key_str =
-              props_key->ToString(context).ToLocalChecked();
-          key_obj = ToStringView(props_key_str);
-        }
-        /*else if (props_key->IsNull()) {
-          key_obj =
-              std::make_shared<JSValueWrapper>(JSValueWrapper::Null());
-        } else if (props_key->IsUndefined()) {
-          key_obj =
-              std::make_shared<JSValueWrapper>(JSValueWrapper::Undefined());
-        } */
-        else {
+          key_obj = *v8::String::Utf8Value(isolate_, props_key);
+        } else {
           TDF_BASE_LOG(ERROR)
               << "ToJsValueWrapper parse v8::Object err, props_key illegal";
           return nullptr;
@@ -1100,7 +1099,10 @@ std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
   } else if (wrapper->IsNull()) {
     return CreateNull();
   } else if (wrapper->IsString()) {
-    return CreateString(wrapper->StringValue());
+    std::string str = wrapper->StringValue();
+    unicode_string_view str_view(StringViewUtils::ToU8Pointer(str.c_str()),
+                                 str.length());
+    return CreateString(str_view);
   } else if (wrapper->IsInt32()) {
     return CreateNumber(wrapper->Int32Value());
   } else if (wrapper->IsDouble()) {
@@ -1126,7 +1128,9 @@ std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
     for (const auto& p : obj) {
       auto obj_key = p.first;
       auto obj_value = p.second;
-      v8::Local<v8::String> key = CreateV8String(obj_key);
+      unicode_string_view obj_key_view(
+          StringViewUtils::ToU8Pointer(obj_key.c_str()), obj_key.length());
+      v8::Local<v8::String> key = CreateV8String(obj_key_view);
       std::shared_ptr<V8CtxValue> ctx_value =
           std::static_pointer_cast<V8CtxValue>(
               CreateCtxValue(std::make_shared<JSValueWrapper>(obj_value)));

@@ -1,18 +1,15 @@
 #pragma once
-#include <unordered_map>
 #include <cstdlib>
+#include <string>
+#include <unordered_map>
 #include <vector>
-#include "base/unicode_string_view.h"
-
 
 namespace hippy {
 namespace base {
 
 class JSValueWrapper final {
  public:
-  using unicode_string_view = tdf::base::unicode_string_view;
-  using JSObjectType =
-      typename std::unordered_map<unicode_string_view, JSValueWrapper>;
+  using JSObjectType = typename std::unordered_map<std::string, JSValueWrapper>;
   using JSArrayType = typename std::vector<JSValueWrapper>;
   enum class Type {
     Undefined,
@@ -33,7 +30,7 @@ class JSValueWrapper final {
  public:
   JSValueWrapper() {}
   JSValueWrapper(const JSValueWrapper& source);
-  
+
   JSValueWrapper(int32_t int32_value)
       : type_(Type::Int32), int32_value_(int32_value) {}
   JSValueWrapper(uint32_t uint32_value)
@@ -42,35 +39,16 @@ class JSValueWrapper final {
       : type_(Type::Double), double_value_(double_value) {}
   JSValueWrapper(bool bool_value)
       : type_(Type::Boolean), bool_value_(bool_value) {}
-  explicit JSValueWrapper(unicode_string_view&& string_value)
+  explicit JSValueWrapper(std::string&& string_value)
       : type_(Type::String), string_value_(std::move(string_value)) {}
-  explicit JSValueWrapper(const unicode_string_view& string_value)
+  explicit JSValueWrapper(const std::string& string_value)
       : type_(Type::String), string_value_(string_value) {}
   JSValueWrapper(const char* string_value)
       : type_(Type::String),
-        string_value_(std::move(unicode_string_view(string_value))) {}
+        string_value_(std::string(string_value)) {}
   JSValueWrapper(const char* string_value, size_t length)
       : type_(Type::String),
-        string_value_(std::move(unicode_string_view(string_value, length))) {}
-  JSValueWrapper(const unicode_string_view::char8_t_* string_value)
-      : type_(Type::String),
-        string_value_(std::move(unicode_string_view(string_value))) {}
-  JSValueWrapper(const unicode_string_view::char8_t_* string_value,
-                 size_t length)
-      : type_(Type::String),
-        string_value_(std::move(unicode_string_view(string_value, length))) {}
-  JSValueWrapper(const char16_t* string_value)
-      : type_(Type::String),
-        string_value_(std::move(unicode_string_view(string_value))) {}
-  JSValueWrapper(const char16_t* string_value, size_t length)
-      : type_(Type::String),
-        string_value_(std::move(unicode_string_view(string_value, length))) {}
-  JSValueWrapper(const char32_t* string_value)
-      : type_(Type::String),
-        string_value_(std::move(unicode_string_view(string_value))) {}
-  JSValueWrapper(const char32_t* string_value, size_t length)
-      : type_(Type::String),
-        string_value_(std::move(unicode_string_view(string_value, length))) {}
+        string_value_(std::string(string_value, length)) {}
   explicit JSValueWrapper(JSObjectType&& object_value)
       : type_(Type::Object), object_value_(std::move(object_value)) {}
   explicit JSValueWrapper(const JSObjectType& object_value)
@@ -87,7 +65,7 @@ class JSValueWrapper final {
   JSValueWrapper& operator=(const uint32_t rhs) noexcept;
   JSValueWrapper& operator=(const double rhs) noexcept;
   JSValueWrapper& operator=(const bool rhs) noexcept;
-  JSValueWrapper& operator=(const unicode_string_view& rhs) noexcept;
+  JSValueWrapper& operator=(const std::string& rhs) noexcept;
   JSValueWrapper& operator=(const char* rhs) noexcept;
   JSValueWrapper& operator=(const char16_t* rhs) noexcept;
   JSValueWrapper& operator=(const JSObjectType& rhs) noexcept;
@@ -127,8 +105,8 @@ class JSValueWrapper final {
   double DoubleValue() const;
   bool BooleanValue();
   bool BooleanValue() const;
-  unicode_string_view& StringValue();
-  const unicode_string_view& StringValue() const;
+  std::string& StringValue();
+  const std::string& StringValue() const;
   JSObjectType& ObjectValue();
   const JSObjectType& ObjectValue() const;
   JSArrayType& ArrayValue();
@@ -144,7 +122,7 @@ class JSValueWrapper final {
     int32_t int32_value_;
     double double_value_;
     bool bool_value_;
-    unicode_string_view string_value_;
+    std::string string_value_;
     JSObjectType object_value_;
     JSArrayType array_value_;
   };
@@ -153,13 +131,14 @@ class JSValueWrapper final {
 };
 
 }  // namespace base
-} // namespce hippy
+}  // namespace hippy
 
 template <>
 struct std::hash<hippy::base::JSValueWrapper> {
-    std::size_t operator()(const hippy::base::JSValueWrapper& value) const noexcept;
+  std::size_t operator()(
+      const hippy::base::JSValueWrapper& value) const noexcept;
 
-private:
-    const static size_t UndefinedHashValue = 0x79476983;
-    const static size_t NullHashValue = 0x7a695478;
+ private:
+  const static size_t UndefinedHashValue = 0x79476983;
+  const static size_t NullHashValue = 0x7a695478;
 };
