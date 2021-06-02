@@ -1,9 +1,6 @@
-
-#include "base/unicode_string_view.h"
 #include "core/base/hash.h"
 #include "core/base/js_value_wrapper.h"
 
-using unicode_string_view = tdf::base::unicode_string_view;
 using JSValueWrapper = hippy::base::JSValueWrapper;
 
 std::size_t std::hash<JSValueWrapper>::operator()(
@@ -22,7 +19,7 @@ std::size_t std::hash<JSValueWrapper>::operator()(
     case JSValueWrapper::Type::Double:
       return std::hash<double>{}(value.double_value_);
     case JSValueWrapper::Type::String:
-      return std::hash<unicode_string_view>{}(value.string_value_);
+      return std::hash<std::string>{}(value.string_value_);
     case JSValueWrapper::Type::Array:
       return std::hash<JSValueWrapper::JSArrayType>{}(value.array_value_);
     case JSValueWrapper::Type::Object:
@@ -93,7 +90,7 @@ JSValueWrapper& JSValueWrapper::operator=(const JSValueWrapper& rhs) noexcept {
     case Type::String:
       if (type_ != Type::String) {
         deallocate();
-        new (&string_value_) unicode_string_view(rhs.string_value_);
+        new (&string_value_) std::string(rhs.string_value_);
       } else {
         string_value_ = rhs.string_value_;
       }
@@ -129,10 +126,10 @@ JSValueWrapper& JSValueWrapper::operator=(const bool rhs) noexcept {
   return *this;
 }
 JSValueWrapper& JSValueWrapper::operator=(
-    const unicode_string_view& rhs) noexcept {
+    const std::string& rhs) noexcept {
   if (type_ != Type::String) {
     deallocate();
-    new (&string_value_) unicode_string_view(rhs);
+    new (&string_value_) std::string(rhs);
   } else {
     string_value_ = rhs;
   }
@@ -142,23 +139,14 @@ JSValueWrapper& JSValueWrapper::operator=(
 JSValueWrapper& JSValueWrapper::operator=(const char* rhs) noexcept {
   if (type_ != Type::String) {
     deallocate();
-    new (&string_value_) unicode_string_view(rhs);
+    new (&string_value_) std::string(rhs);
   } else {
     string_value_ = rhs;
   }
   type_ = Type::String;
   return *this;
 }
-JSValueWrapper& JSValueWrapper::operator=(const char16_t* rhs) noexcept {
-  if (type_ != Type::String) {
-    deallocate();
-    new (&string_value_) unicode_string_view(rhs);
-  } else {
-    string_value_ = rhs;
-  }
-  type_ = Type::String;
-  return *this;
-}
+
 JSValueWrapper& JSValueWrapper::operator=(const JSObjectType& rhs) noexcept {
   if (type_ != Type::Object) {
     deallocate();
@@ -240,7 +228,7 @@ JSValueWrapper::JSValueWrapper(const JSValueWrapper& source)
       bool_value_ = source.bool_value_;
       break;
     case Type::String:
-      new (&string_value_) unicode_string_view(source.string_value_);
+      new (&string_value_) std::string(source.string_value_);
       break;
     case Type::Object:
       new (&object_value_) JSObjectType(source.object_value_);
@@ -256,7 +244,7 @@ JSValueWrapper::JSValueWrapper(const JSValueWrapper& source)
 inline void JSValueWrapper::deallocate() {
   switch (type_) {
     case Type::String:
-      string_value_.~unicode_string_view();
+      string_value_.~basic_string();
       break;
     case Type::Array:
       array_value_.~vector();
@@ -330,10 +318,10 @@ bool JSValueWrapper::BooleanValue() {
 bool JSValueWrapper::BooleanValue() const {
   return bool_value_;
 }
-unicode_string_view& JSValueWrapper::StringValue() {
+std::string& JSValueWrapper::StringValue() {
   return string_value_;
 }
-const unicode_string_view& JSValueWrapper::StringValue() const {
+const std::string& JSValueWrapper::StringValue() const {
   return string_value_;
 }
 JSValueWrapper::JSObjectType& JSValueWrapper::ObjectValue() {
