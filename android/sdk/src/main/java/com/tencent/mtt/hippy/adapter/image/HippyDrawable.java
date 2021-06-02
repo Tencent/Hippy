@@ -261,4 +261,12 @@ public class HippyDrawable implements IDrawableTarget
 	public void onDrawableDetached()
 	{
 	}
+
+    public int getWidth() {
+        return 0;
+    }
+
+    public int getHeight() {
+        return 0;
+    }
 }
