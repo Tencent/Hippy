@@ -76,7 +76,7 @@ class V8TryCatch : public TryCatch {
  public:
   using unicode_string_view = tdf::base::unicode_string_view;
 
-  V8TryCatch(bool enable = false, std::shared_ptr<Ctx> ctx = nullptr);
+  explicit V8TryCatch(bool enable = false, std::shared_ptr<Ctx> ctx = nullptr);
   virtual ~V8TryCatch();
 
   virtual void ReThrow();

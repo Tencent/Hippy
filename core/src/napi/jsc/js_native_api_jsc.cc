@@ -36,7 +36,9 @@
 namespace hippy {
 namespace napi {
 
+using unicode_string_view = tdf::base::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
+using JSValueWrapper = hippy::base::JSValueWrapper;
 
 const char16_t kGlobalStr[] = u"global";
 

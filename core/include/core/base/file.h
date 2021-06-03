@@ -62,12 +62,12 @@ class HippyFile {
       std::streamsize size = file.gcount();
       file.clear();
       file.seekg(0, std::ios_base::beg);
-      long data_size = size;
+      std::streamsize data_size = size;
       if (is_auto_fill) {
         data_size += 1;
       }
       bytes.resize(data_size);
-      long read_size =
+      std::streamsize read_size =
           file.read(reinterpret_cast<char*>(&bytes[0]), size).gcount();
       if (size != read_size) {
         TDF_BASE_DLOG(WARNING)

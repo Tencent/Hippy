@@ -31,24 +31,22 @@ class JSValueWrapper final {
   JSValueWrapper() {}
   JSValueWrapper(const JSValueWrapper& source);
 
-  JSValueWrapper(int32_t int32_value)
+  JSValueWrapper(int32_t int32_value)  // NOLINT
       : type_(Type::Int32), int32_value_(int32_value) {}
-  JSValueWrapper(uint32_t uint32_value)
+  JSValueWrapper(uint32_t uint32_value)  // NOLINT
       : type_(Type::Uint32), uint32_value_(uint32_value) {}
-  JSValueWrapper(double double_value)
+  JSValueWrapper(double double_value)  // NOLINT
       : type_(Type::Double), double_value_(double_value) {}
-  JSValueWrapper(bool bool_value)
+  JSValueWrapper(bool bool_value)  // NOLINT
       : type_(Type::Boolean), bool_value_(bool_value) {}
   explicit JSValueWrapper(std::string&& string_value)
       : type_(Type::String), string_value_(std::move(string_value)) {}
   explicit JSValueWrapper(const std::string& string_value)
       : type_(Type::String), string_value_(string_value) {}
-  JSValueWrapper(const char* string_value)
-      : type_(Type::String),
-        string_value_(std::string(string_value)) {}
+  JSValueWrapper(const char* string_value)  // NOLINT
+      : type_(Type::String), string_value_(std::string(string_value)) {}
   JSValueWrapper(const char* string_value, size_t length)
-      : type_(Type::String),
-        string_value_(std::string(string_value, length)) {}
+      : type_(Type::String), string_value_(std::string(string_value, length)) {}
   explicit JSValueWrapper(JSObjectType&& object_value)
       : type_(Type::Object), object_value_(std::move(object_value)) {}
   explicit JSValueWrapper(const JSObjectType& object_value)

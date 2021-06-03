@@ -5,15 +5,6 @@
 namespace tdf {
 namespace base {
 
-// typedef int LogSeverity;
-
-// Default log levels. Negative values can be used for verbose log levels.
-//constexpr LogSeverity TDF_LOG_INFO = 0;
-//constexpr LogSeverity TDF_LOG_WARNING = 1;
-//constexpr LogSeverity TDF_LOG_ERROR = 2;
-//constexpr LogSeverity TDF_LOG_FATAL = 3;
-//constexpr LogSeverity TDF_LOG_NUM_SEVERITIES = 4;
-
 enum LogSeverity {
   TDF_LOG_DEBUG,
   TDF_LOG_INFO = 0,

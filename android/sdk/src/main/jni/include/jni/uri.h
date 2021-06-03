@@ -28,12 +28,10 @@
 
 #include "base/unicode_string_view.h"
 
-namespace {
-   using unicode_string_view = tdf::base::unicode_string_view;
-}
-
 class Uri {
  public:
+  using unicode_string_view = tdf::base::unicode_string_view;
+
   explicit Uri(const unicode_string_view& uri);
   ~Uri();
   unicode_string_view GetPath();

@@ -36,10 +36,6 @@ class Scope;
 namespace hippy {
 namespace napi {
 
-namespace {
-using JSValueWrapper = hippy::base::JSValueWrapper;
-};
-
 static const char kErrorHandlerJSName[] = "ExceptionHandle.js";
 static const char kHippyErrorHandlerName[] = "HippyExceptionHandler";
 
@@ -80,6 +76,7 @@ class CtxValue {
 
 class Ctx {
  public:
+  using JSValueWrapper = hippy::base::JSValueWrapper;
   using unicode_string_view = tdf::base::unicode_string_view;
 
   Ctx() {}
@@ -167,10 +164,11 @@ class Ctx {
   virtual std::shared_ptr<CtxValue> GetJsFn(
       const unicode_string_view& name) = 0;
   virtual bool ThrowExceptionToJS(std::shared_ptr<CtxValue> exception) = 0;
-  
+
   virtual std::shared_ptr<JSValueWrapper> ToJsValueWrapper(
       std::shared_ptr<CtxValue> value) = 0;
-  virtual std::shared_ptr<CtxValue> CreateCtxValue(std::shared_ptr<JSValueWrapper> wrapper) = 0;
+  virtual std::shared_ptr<CtxValue> CreateCtxValue(
+      std::shared_ptr<JSValueWrapper> wrapper) = 0;
 };
 
 class VM {
@@ -183,9 +181,9 @@ class VM {
 
 class TryCatch {
  public:
-  TryCatch(bool enable = false, std::shared_ptr<Ctx> ctx = nullptr)
-      : enable_(enable), ctx_(ctx){};
-  virtual ~TryCatch(){};
+  explicit TryCatch(bool enable = false, std::shared_ptr<Ctx> ctx = nullptr)
+      : enable_(enable), ctx_(ctx) {}
+  virtual ~TryCatch() {}
   virtual void ReThrow() = 0;
   virtual bool HasCaught() = 0;
   virtual bool CanContinue() = 0;
