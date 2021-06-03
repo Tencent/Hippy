@@ -32,18 +32,14 @@
 
 #define EXTEND_LITERAL(ch) ch, ch, u##ch, U##ch
 
-namespace {
-using unicode_string_view = tdf::base::unicode_string_view;
-using u8string = unicode_string_view::u8string;
-using char8_t_ = unicode_string_view::char8_t_;
-}  // namespace
-
 namespace hippy {
 namespace base {
 
 class StringViewUtils {
  public:
   using unicode_string_view = tdf::base::unicode_string_view;
+  using u8string = unicode_string_view::u8string;
+  using char8_t_ = unicode_string_view::char8_t_;
 
   inline static bool IsEmpty(const unicode_string_view& str_view) {
     unicode_string_view::Encoding encoding = str_view.encoding();
@@ -71,96 +67,123 @@ class StringViewUtils {
     return true;
   }
 
-  static unicode_string_view Convert(
+  static unicode_string_view CovertToLatin(
       const unicode_string_view& str_view,
-      unicode_string_view::Encoding dst_encoding) {
-    unicode_string_view::Encoding src_encoding = str_view.encoding();
-    switch (dst_encoding) {
+      unicode_string_view::Encoding src_encoding) {
+    switch (src_encoding) {
       case unicode_string_view::Encoding::Latin1: {
-        switch (src_encoding) {
-          case unicode_string_view::Encoding::Latin1: {
-            return unicode_string_view(str_view.latin1_value());
-          }
-          case unicode_string_view::Encoding::Utf16:
-          case unicode_string_view::Encoding::Utf32:
-          case unicode_string_view::Encoding::Utf8:
-          default: {
-            TDF_BASE_NOTREACHED();
-            break;
-          }
-        }
+        return unicode_string_view(str_view.latin1_value());
+      }
+      case unicode_string_view::Encoding::Utf16:
+      case unicode_string_view::Encoding::Utf32:
+      case unicode_string_view::Encoding::Utf8:
+      default: {
+        TDF_BASE_NOTREACHED();
+        break;
+      }
+    }
+    return unicode_string_view();
+  }
+
+  static unicode_string_view CovertToUtf16(
+      const unicode_string_view& str_view,
+      unicode_string_view::Encoding src_encoding) {
+    switch (src_encoding) {
+      case unicode_string_view::Encoding::Latin1: {
+        return unicode_string_view(
+            CopyChars<char, char16_t>(str_view.latin1_value()));
       }
       case unicode_string_view::Encoding::Utf16: {
-        switch (src_encoding) {
-          case unicode_string_view::Encoding::Latin1: {
-            return unicode_string_view(
-                CopyChars<char, char16_t>(str_view.latin1_value()));
-          }
-          case unicode_string_view::Encoding::Utf16: {
-            return unicode_string_view(str_view.utf16_value());
-          }
-          case unicode_string_view::Encoding::Utf32: {
-            return unicode_string_view(U32ToU16(str_view.utf32_value()));
-          }
-          case unicode_string_view::Encoding::Utf8: {
-            return unicode_string_view(U8ToU16(str_view.utf8_value()));
-          }
-          default: {
-            TDF_BASE_NOTREACHED();
-            break;
-          }
-        }
+        return unicode_string_view(str_view.utf16_value());
       }
       case unicode_string_view::Encoding::Utf32: {
-        switch (src_encoding) {
-          case unicode_string_view::Encoding::Latin1: {
-            return unicode_string_view(
-                CopyChars<char, char32_t>(str_view.latin1_value()));
-          }
-          case unicode_string_view::Encoding::Utf16: {
-            return unicode_string_view(U16ToU32(str_view.utf16_value()));
-          }
-          case unicode_string_view::Encoding::Utf32: {
-            return unicode_string_view(str_view.utf32_value());
-          }
-          case unicode_string_view::Encoding::Utf8: {
-            return unicode_string_view(U8ToU32(str_view.utf8_value()));
-          }
-          default: {
-            TDF_BASE_NOTREACHED();
-            break;
-          }
-        }
+        return unicode_string_view(U32ToU16(str_view.utf32_value()));
       }
       case unicode_string_view::Encoding::Utf8: {
-        switch (src_encoding) {
-          case unicode_string_view::Encoding::Latin1: {
-            const auto& str = str_view.latin1_value();
-            auto ptr = reinterpret_cast<const unicode_string_view::char8_t_*>(
-                str.c_str());
-            return unicode_string_view(ptr, str.length());
-          }
-          case unicode_string_view::Encoding::Utf16: {
-            return unicode_string_view(U16ToU8(str_view.utf16_value()));
-          }
-          case unicode_string_view::Encoding::Utf32: {
-            return unicode_string_view(U32ToU8(str_view.utf32_value()));
-          }
-          case unicode_string_view::Encoding::Utf8: {
-            return unicode_string_view(str_view.utf8_value());
-          }
-          default: {
-            TDF_BASE_NOTREACHED();
-            break;
-          }
-        }
+        return unicode_string_view(U8ToU16(str_view.utf8_value()));
       }
       default: {
         TDF_BASE_NOTREACHED();
         break;
       }
     }
+    return unicode_string_view();
+  }
 
+  static unicode_string_view CovertToUtf32(
+      const unicode_string_view& str_view,
+      unicode_string_view::Encoding src_encoding) {
+    switch (src_encoding) {
+      case unicode_string_view::Encoding::Latin1: {
+        return unicode_string_view(
+            CopyChars<char, char32_t>(str_view.latin1_value()));
+      }
+      case unicode_string_view::Encoding::Utf16: {
+        return unicode_string_view(U16ToU32(str_view.utf16_value()));
+      }
+      case unicode_string_view::Encoding::Utf32: {
+        return unicode_string_view(str_view.utf32_value());
+      }
+      case unicode_string_view::Encoding::Utf8: {
+        return unicode_string_view(U8ToU32(str_view.utf8_value()));
+      }
+      default: {
+        TDF_BASE_NOTREACHED();
+        break;
+      }
+    }
+    return unicode_string_view();
+  }
+
+  static unicode_string_view CovertToUtf8(
+      const unicode_string_view& str_view,
+      unicode_string_view::Encoding src_encoding) {
+    switch (src_encoding) {
+      case unicode_string_view::Encoding::Latin1: {
+        const auto& str = str_view.latin1_value();
+        auto ptr =
+            reinterpret_cast<const unicode_string_view::char8_t_*>(str.c_str());
+        return unicode_string_view(ptr, str.length());
+      }
+      case unicode_string_view::Encoding::Utf16: {
+        return unicode_string_view(U16ToU8(str_view.utf16_value()));
+      }
+      case unicode_string_view::Encoding::Utf32: {
+        return unicode_string_view(U32ToU8(str_view.utf32_value()));
+      }
+      case unicode_string_view::Encoding::Utf8: {
+        return unicode_string_view(str_view.utf8_value());
+      }
+      default: {
+        TDF_BASE_NOTREACHED();
+        break;
+      }
+    }
+    return unicode_string_view();
+  }
+
+  static unicode_string_view Convert(
+      const unicode_string_view& str_view,
+      unicode_string_view::Encoding dst_encoding) {
+    unicode_string_view::Encoding src_encoding = str_view.encoding();
+    switch (dst_encoding) {
+      case unicode_string_view::Encoding::Latin1: {
+        return CovertToLatin(str_view, src_encoding);
+      }
+      case unicode_string_view::Encoding::Utf16: {
+        return CovertToUtf16(str_view, src_encoding);
+      }
+      case unicode_string_view::Encoding::Utf32: {
+        return CovertToUtf32(str_view, src_encoding);
+      }
+      case unicode_string_view::Encoding::Utf8: {
+        return CovertToUtf8(str_view, src_encoding);
+      }
+      default: {
+        TDF_BASE_NOTREACHED();
+        break;
+      }
+    }
     return unicode_string_view();
   }
 
@@ -177,7 +200,8 @@ class StringViewUtils {
   inline static const char* ToConstCharPointer(
       const unicode_string_view& str_view,
       unicode_string_view& view_owner) {
-    TDF_BASE_DCHECK(view_owner.encoding() == unicode_string_view::Encoding::Utf8);
+    TDF_BASE_DCHECK(view_owner.encoding() ==
+                    unicode_string_view::Encoding::Utf8);
     unicode_string_view::Encoding encoding = str_view.encoding();
     switch (encoding) {
       case unicode_string_view::Encoding::Latin1: {

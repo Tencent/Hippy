@@ -42,6 +42,7 @@ REGISTER_MODULE(ContextifyModule, RunInThisContext)
 REGISTER_MODULE(ContextifyModule, LoadUntrustedContent)
 
 using unicode_string_view = tdf::base::unicode_string_view;
+using u8string = unicode_string_view::u8string;
 using Ctx = hippy::napi::Ctx;
 using CtxValue = hippy::napi::CtxValue;
 using CallbackInfo = hippy::napi::CallbackInfo;
@@ -69,8 +70,8 @@ void ContextifyModule::RunInThisContext(const hippy::napi::CallbackInfo& info) {
   std::shared_ptr<CtxValue> ret =
       context->RunScript(str_view, key, false, nullptr, false);
   if (try_catch->HasCaught()) {
-    TDF_BASE_DLOG(ERROR) << "GetNativeSourceCode error = " << 
-        try_catch->GetExceptionMsg();
+    TDF_BASE_DLOG(ERROR) << "GetNativeSourceCode error = "
+                         << try_catch->GetExceptionMsg();
     info.GetExceptionValue()->Set(try_catch->Exception());
   } else {
     info.GetReturnValue()->Set(ret);
@@ -116,81 +117,79 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
   std::weak_ptr<Scope> weak_scope = scope;
   std::weak_ptr<hippy::napi::CtxValue> weak_function = function;
 
-  std::function<void(u8string)> cb =
-      [this, weak_scope, weak_function, encode,
-       uri](u8string code) {
-        std::shared_ptr<Scope> scope = weak_scope.lock();
-        if (!scope) {
-          return;
-        }
+  std::function<void(u8string)> cb = [this, weak_scope, weak_function, encode,
+                                      uri](u8string code) {
+    std::shared_ptr<Scope> scope = weak_scope.lock();
+    if (!scope) {
+      return;
+    }
 
-        unicode_string_view cur_dir;
-        unicode_string_view file_name;
-        size_t pos = StringViewUtils::FindLastOf(uri, '/', '/', u'/', U'/');
-        if (pos != -1) {
-          cur_dir = StringViewUtils::SubStr(uri, 0, pos + 1);
-          size_t len = StringViewUtils::GetLength(uri);
-          file_name = StringViewUtils::SubStr(uri, pos + 1, len);
+    unicode_string_view cur_dir;
+    unicode_string_view file_name;
+    size_t pos = StringViewUtils::FindLastOf(uri, '/', '/', u'/', U'/');
+    if (pos != -1) {
+      cur_dir = StringViewUtils::SubStr(uri, 0, pos + 1);
+      size_t len = StringViewUtils::GetLength(uri);
+      file_name = StringViewUtils::SubStr(uri, pos + 1, len);
+    } else {
+      file_name = uri;
+    }
+
+    if (code.empty()) {
+      TDF_BASE_DLOG(WARNING) << "Load uri = " << uri << ", code empty";
+    } else {
+      TDF_BASE_DLOG(INFO) << "Load uri = " << uri << ", len = " << code.length()
+                          << ", encode = " << encode
+                          << ", code = " << unicode_string_view(code);
+    }
+    std::shared_ptr<JavaScriptTask> js_task =
+        std::make_shared<JavaScriptTask>();
+    js_task->callback = [this, weak_scope, weak_function,
+                         move_code = std::move(code), cur_dir, file_name,
+                         uri]() {
+      std::shared_ptr<Scope> scope = weak_scope.lock();
+      if (!scope) {
+        return;
+      }
+
+      std::shared_ptr<Ctx> ctx = scope->GetContext();
+      std::shared_ptr<CtxValue> error;
+      if (!move_code.empty()) {
+        auto last_dir_str_obj = ctx->GetGlobalStrVar("__HIPPYCURDIR__");
+        TDF_BASE_DLOG(INFO) << "__HIPPYCURDIR__ cur_dir = " << cur_dir;
+        ctx->SetGlobalStrVar("__HIPPYCURDIR__", cur_dir);
+        std::shared_ptr<TryCatch> try_catch =
+            CreateTryCatchScope(true, scope->GetContext());
+        try_catch->SetVerbose(true);
+        unicode_string_view view_code(std::move(move_code));
+        scope->RunJS(view_code, file_name);
+        ctx->SetGlobalObjVar("__HIPPYCURDIR__", last_dir_str_obj);
+        unicode_string_view view_last_dir_str;
+        ctx->GetValueString(last_dir_str_obj, &view_last_dir_str);
+        TDF_BASE_DLOG(INFO)
+            << "restore __HIPPYCURDIR__ = " << view_last_dir_str;
+        if (try_catch->HasCaught()) {
+          error = try_catch->Exception();
+          TDF_BASE_DLOG(ERROR) << "RequestUntrustedContent error = "
+                               << try_catch->GetExceptionMsg();
         } else {
-          file_name = uri;
+          error = ctx->CreateNull();
         }
+      } else {
+        unicode_string_view err_msg = uri + " not found";
+        error = ctx->CreateJsError(unicode_string_view(err_msg));
+      }
 
-        if (code.empty()) {
-          TDF_BASE_DLOG(WARNING) << "Load uri = " << uri << ", code empty";
-        } else {
-          TDF_BASE_DLOG(INFO)
-              << "Load uri = " << uri << ", len = " << code.length()
-              << ", encode = " << encode
-              << ", code = " << unicode_string_view(code);
-        }
-        std::shared_ptr<JavaScriptTask> js_task =
-            std::make_shared<JavaScriptTask>();
-        js_task->callback = [this, weak_scope, weak_function,
-                             move_code = std::move(code), cur_dir, file_name,
-                             uri]() {
-          std::shared_ptr<Scope> scope = weak_scope.lock();
-          if (!scope) {
-            return;
-          }
-
-          std::shared_ptr<Ctx> ctx = scope->GetContext();
-          std::shared_ptr<CtxValue> error;
-          if (!move_code.empty()) {
-            auto last_dir_str_obj = ctx->GetGlobalStrVar("__HIPPYCURDIR__");
-            TDF_BASE_DLOG(INFO) << "__HIPPYCURDIR__ cur_dir = " << cur_dir;
-            ctx->SetGlobalStrVar("__HIPPYCURDIR__", cur_dir);
-            std::shared_ptr<TryCatch> try_catch =
-                CreateTryCatchScope(true, scope->GetContext());
-            try_catch->SetVerbose(true);
-            unicode_string_view view_code(std::move(move_code));
-            scope->RunJS(view_code, file_name);
-            ctx->SetGlobalObjVar("__HIPPYCURDIR__", last_dir_str_obj);
-            unicode_string_view view_last_dir_str;
-            ctx->GetValueString(last_dir_str_obj, &view_last_dir_str);
-            TDF_BASE_DLOG(INFO)
-                << "restore __HIPPYCURDIR__ = " << view_last_dir_str;
-            if (try_catch->HasCaught()) {
-              error = try_catch->Exception();
-              TDF_BASE_DLOG(ERROR) << "RequestUntrustedContent error = "
-                                   << try_catch->GetExceptionMsg();
-            } else {
-              error = ctx->CreateNull();
-            }
-          } else {
-            unicode_string_view err_msg = uri + " not found";
-            error = ctx->CreateJsError(unicode_string_view(err_msg));
-          }
-
-          std::shared_ptr<CtxValue> function = weak_function.lock();
-          if (function) {
-            TDF_BASE_DLOG(INFO) << "run js cb";
-            std::shared_ptr<CtxValue> argv[] = {error};
-            ctx->CallFunction(function, 1, argv);
-            RemoveCBFunc(uri);
-          }
-        };
-        scope->GetTaskRunner()->PostTask(js_task);
-      };
+      std::shared_ptr<CtxValue> function = weak_function.lock();
+      if (function) {
+        TDF_BASE_DLOG(INFO) << "run js cb";
+        std::shared_ptr<CtxValue> argv[] = {error};
+        ctx->CallFunction(function, 1, argv);
+        RemoveCBFunc(uri);
+      }
+    };
+    scope->GetTaskRunner()->PostTask(js_task);
+  };
   loader->RequestUntrustedContent(uri, cb);
   info.GetReturnValue()->SetUndefined();
 }
