@@ -22,16 +22,14 @@
 
 #include "core/modules/console_module.h"
 
-#include <string.h>
-
 #include <string>
 
 #include "base/logging.h"
+#include "core/base/string_view_utils.h"
 #include "core/modules/module_register.h"
 #include "core/napi/callback_info.h"
 #include "core/napi/js_native_api.h"
 #include "core/scope.h"
-#include "core/base/string_view_utils.h"
 
 using unicode_string_view = tdf::base::unicode_string_view;
 using Ctx = hippy::napi::Ctx;
@@ -41,7 +39,6 @@ REGISTER_MODULE(ConsoleModule, Log)
 
 namespace {
 
-//to do 重载 replace 和 compare
 unicode_string_view EscapeMessage(const unicode_string_view& str_view) {
   std::string u8_str = StringViewUtils::ToU8StdStr(str_view);
   size_t len = u8_str.length();

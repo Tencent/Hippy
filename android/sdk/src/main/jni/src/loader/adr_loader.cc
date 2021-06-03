@@ -36,6 +36,7 @@ using unicode_string_view = tdf::base::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
 using HippyFile = hippy::base::HippyFile;
 using u8string = unicode_string_view::u8string;
+using char8_t_ = unicode_string_view::char8_t_;
 
 static std::atomic<int64_t> global_request_id{0};
 
@@ -44,14 +45,16 @@ ADRLoader::ADRLoader() : aasset_manager_(nullptr) {}
 bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
                                         std::function<void(u8string)> cb) {
   std::shared_ptr<Uri> uri_obj = std::make_shared<Uri>(uri);
-  unicode_string_view uri_schema = uri_obj->GetScheme();
+  unicode_string_view schema = uri_obj->GetScheme();
   unicode_string_view path = uri_obj->GetPath();
-  if (uri_schema == u"file") {
+  TDF_BASE_DCHECK(schema.encoding() == unicode_string_view::Encoding::Utf16);
+  std::u16string schema_str = schema.utf16_value();
+  if (schema_str == u"file") {
     return LoadByFile(path, cb);
-  } else if (uri_schema == u"http" || uri_schema == u"https" ||
-             uri_schema == u"debug") {
+  } else if (schema_str == u"http" || schema_str == u"https" ||
+             schema_str == u"debug") {
     return LoadByHttp(uri, cb);
-  } else if (uri_schema == u"asset") {
+  } else if (schema_str == u"asset") {
     if (aasset_manager_) {
       return LoadByAsset(path, cb, false);
     }
@@ -59,7 +62,7 @@ bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
     TDF_BASE_DLOG(ERROR) << "aasset_manager error, uri = " << uri;
     return false;
   } else {
-    TDF_BASE_DLOG(ERROR) << "schema error, schema = %s" << uri_schema;
+    TDF_BASE_DLOG(ERROR) << "schema error, schema = %s" << schema;
     return false;
   }
 }
@@ -70,9 +73,11 @@ bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
   unicode_string_view schema = uri_obj->GetScheme();
   unicode_string_view path = uri_obj->GetPath();
   TDF_BASE_DCHECK(schema.encoding() == unicode_string_view::Encoding::Utf16);
-  if (schema.utf16_value() == u"file") {
+  std::u16string schema_str = schema.utf16_value();
+  if (schema_str == u"file") {
     return HippyFile::ReadFile(path, content, false);
-  } else if (schema == u"http" || schema == u"https" || schema == u"debug") {
+  } else if (schema_str == u"http" || schema_str == u"https" ||
+             schema_str == u"debug") {
     std::promise<u8string> promise;
     std::future<u8string> read_file_future = promise.get_future();
     std::function<void(u8string)> cb = hippy::base::MakeCopyable(
@@ -82,7 +87,7 @@ bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
     bool ret = LoadByHttp(uri, cb);
     content = read_file_future.get();
     return ret;
-  } else if (schema == u"asset") {
+  } else if (schema_str == u"asset") {
     if (aasset_manager_) {
       return ReadAsset(path, aasset_manager_, content, false);
     }

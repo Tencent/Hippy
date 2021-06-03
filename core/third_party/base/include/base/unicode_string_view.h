@@ -36,9 +36,9 @@ class unicode_string_view final {
     return unicode_string_view(reinterpret_cast<const char8_t_*>(utf8_string));
   }
   unicode_string_view() {}
-  unicode_string_view(const unicode_string_view& source);
+  unicode_string_view(const unicode_string_view& source); // NOLINT
 #pragma region Latin - 1
-  unicode_string_view(const char* latin1_string)
+  unicode_string_view(const char* latin1_string)  // NOLINT
       : encoding_(Encoding::Latin1), latin1_string_(string(latin1_string)) {}
   unicode_string_view(const char* latin1_string, size_t length)
       : encoding_(Encoding::Latin1), latin1_string_(string(latin1_string, length)) {}
@@ -48,7 +48,7 @@ class unicode_string_view final {
       : encoding_(Encoding::Latin1), latin1_string_(std::move(latin1_string)) {}
 #pragma endregion
 #pragma region UTF - 8
-  unicode_string_view(const char8_t_* utf8_string)
+  unicode_string_view(const char8_t_* utf8_string)  // NOLINT
       : encoding_(Encoding::Utf8), u8_string_(u8string(utf8_string)) {}
   unicode_string_view(const char8_t_* utf8_string, size_t length)
       : encoding_(Encoding::Utf8), u8_string_(u8string(utf8_string, length)) {}
@@ -58,7 +58,7 @@ class unicode_string_view final {
       : encoding_(Encoding::Utf8), u8_string_(std::move(utf8_string)) {}
 #pragma endregion
 #pragma region UTF - 16
-  unicode_string_view(const char16_t* utf16_string)
+  unicode_string_view(const char16_t* utf16_string)  // NOLINT
       : encoding_(Encoding::Utf16), u16_string_(u16string(utf16_string)) {}
   unicode_string_view(const char16_t* utf16_string, size_t length)
       : encoding_(Encoding::Utf16), u16_string_(u16string(utf16_string, length)) {}
@@ -68,7 +68,7 @@ class unicode_string_view final {
       : encoding_(Encoding::Utf16), u16_string_(std::move(utf16_string)) {}
 #pragma endregion
 #pragma region UTF - 32
-  unicode_string_view(const char32_t* utf32_string)
+  unicode_string_view(const char32_t* utf32_string)  // NOLINT
       : encoding_(Encoding::Utf32), u32_string_(u32string(utf32_string)) {}
   unicode_string_view(const char32_t* utf32_string, size_t length)
       : encoding_(Encoding::Utf32), u32_string_(u32string(utf32_string, length)) {}

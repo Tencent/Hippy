@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include "core/base/string_view_utils.h"
 #include "core/modules/module_base.h"
 #include "core/napi/callback_info.h"
 #include "core/napi/js_native_api_types.h"

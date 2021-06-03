@@ -292,7 +292,7 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
     TDF_BASE_DLOG(INFO) << "runScriptFromUri enter tast";
     bool flag = RunScript(runtime, script_name, j_can_use_code_cache,
                           code_cache_dir, uri, aasset_manager);
-    jlong value = flag == false ? 0 : 1;
+    jlong value = !flag ? 0 : 1;
     hippy::bridge::CallJavaMethod(save_object_->GetObj(), value);
 
     auto time_end = std::chrono::time_point_cast<std::chrono::microseconds>(

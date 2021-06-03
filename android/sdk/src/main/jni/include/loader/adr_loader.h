@@ -30,11 +30,11 @@
 #include "jni/scoped_java_ref.h"
 
 template <typename CharType>
-bool ReadAsset(const unicode_string_view& path,
+bool ReadAsset(const tdf::base::unicode_string_view& path,
                AAssetManager* aasset_manager,
                std::basic_string<CharType>& bytes,
                bool is_auto_fill) {
-  unicode_string_view owner(""_u8s);
+  tdf::base::unicode_string_view owner(""_u8s);
   const char* asset_path = StringViewUtils::ToConstCharPointer(path, owner);
   std::string file_path = std::string(asset_path);
   if (file_path.length() > 0 && file_path[0] == '/') {

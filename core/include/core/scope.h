@@ -48,7 +48,7 @@ class ScopeWrapper {
 
 class Scope {
  public:
-  using unicode_string_view = tdf::base::unicode_string_view; 
+  using unicode_string_view = tdf::base::unicode_string_view;
   using RegisterMap = hippy::base::RegisterMap;
   using CtxValue = hippy::napi::CtxValue;
   using Ctx = hippy::napi::Ctx;
@@ -70,8 +70,10 @@ class Scope {
   ModuleBase* GetModuleClass(const unicode_string_view& moduleName);
   void AddModuleClass(const unicode_string_view& name,
                       std::unique_ptr<ModuleBase> module);
-  std::shared_ptr<CtxValue> GetModuleValue(const unicode_string_view& moduleName);
-  void AddModuleValue(const unicode_string_view& name, std::shared_ptr<CtxValue> value);
+  std::shared_ptr<CtxValue> GetModuleValue(
+      const unicode_string_view& moduleName);
+  void AddModuleValue(const unicode_string_view& name,
+                      std::shared_ptr<CtxValue> value);
 
   void SaveFunctionData(std::unique_ptr<FunctionData> data);
 

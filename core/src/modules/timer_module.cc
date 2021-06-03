@@ -26,6 +26,7 @@
 
 #include "base/logging.h"
 #include "core/base/common.h"
+#include "core/base/string_view_utils.h"
 #include "core/modules/module_register.h"
 #include "core/napi/callback_info.h"
 #include "core/task/javascript_task.h"
@@ -38,10 +39,12 @@ REGISTER_MODULE(TimerModule, ClearInterval)
 
 namespace napi = ::hippy::napi;
 
+using unicode_string_view = tdf::base::unicode_string_view;
 using Ctx = hippy::napi::Ctx;
 using CtxValue = hippy::napi::CtxValue;
 using RegisterFunction = hippy::base::RegisterFunction;
 using RegisterMap = hippy::base::RegisterMap;
+
 TimerModule::TimerModule() {}
 
 TimerModule::~TimerModule() {}
