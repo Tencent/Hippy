@@ -45,10 +45,10 @@ class JSValueWrapper final {
       : type_(Type::String), string_value_(string_value) {}
   JSValueWrapper(const char* string_value)
       : type_(Type::String),
-        string_value_(std::move(std::string(string_value))) {}
+        string_value_(std::string(string_value)) {}
   JSValueWrapper(const char* string_value, size_t length)
       : type_(Type::String),
-        string_value_(std::move(std::string(string_value, length))) {}
+        string_value_(std::string(string_value, length)) {}
   explicit JSValueWrapper(JSObjectType&& object_value)
       : type_(Type::Object), object_value_(std::move(object_value)) {}
   explicit JSValueWrapper(const JSObjectType& object_value)

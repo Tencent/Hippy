@@ -622,7 +622,7 @@ std::shared_ptr<CtxValue> V8Ctx::GetProperty(
   v8::Local<v8::Value> handle_value =
       v8::Local<v8::Value>::New(isolate_, persistent_value);
   v8::Local<v8::Value> value =
-      v8::Local<v8::Object>::Cast(handle_value)->Get(str);
+      v8::Local<v8::Object>::Cast(handle_value)->Get(context, str).ToLocalChecked();
   return std::make_shared<V8CtxValue>(isolate_, value);
 }
 
@@ -727,7 +727,6 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const unicode_string_view& str_view,
       break;
     }
     case unicode_string_view::Encoding::Utf32: {
-      // TDF_BASE_DCHECK(is_copy) << "utf32 must copy";
       const std::u32string& str = str_view.utf32_value();
       std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> convert;
       std::string bytes = convert.to_bytes(str);
@@ -741,7 +740,6 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const unicode_string_view& str_view,
       break;
     }
     case unicode_string_view::Encoding::Utf8: {
-      // TDF_BASE_DCHECK(is_copy) << "Utf8 must copy";
       const unicode_string_view::u8string& str = str_view.utf8_value();
       source = TO_LOCAL_UNCHECKED(
           v8::String::NewFromUtf8(isolate_,
@@ -774,7 +772,7 @@ std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
   v8::Local<v8::String> v8_file_name = CreateV8String(file_name);
   v8::ScriptOrigin origin(v8_file_name);
   v8::MaybeLocal<v8::Script> script;
-  if (is_use_code_cache && cache) {
+  if (is_use_code_cache && cache && !StringViewUtils::IsEmpty(*cache)) {
     unicode_string_view::Encoding encoding = cache->encoding();
     switch (encoding) {
       case unicode_string_view::Encoding::Utf8: {
@@ -783,7 +781,7 @@ std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
             new v8::ScriptCompiler::CachedData(
                 str.c_str(), str.length(),
                 v8::ScriptCompiler::CachedData::
-                    BufferNotOwned);  // todo Ownedship and cache error
+                    BufferNotOwned);
         v8::ScriptCompiler::Source script_source(source, origin, cached_data);
         script = v8::ScriptCompiler::Compile(
             context, &script_source, v8::ScriptCompiler::kConsumeCodeCache);
@@ -795,7 +793,7 @@ std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
     }
 
   } else {
-    if (is_use_code_cache) {
+    if (is_use_code_cache && cache) {
       v8::ScriptCompiler::Source script_source(source, origin);
       script = v8::ScriptCompiler::Compile(context, &script_source);
       if (script.IsEmpty()) {
@@ -1075,8 +1073,6 @@ std::shared_ptr<JSValueWrapper> V8Ctx::ToJsValueWrapper(
 
         std::string key_obj;
         if (props_key->IsString()) {
-          v8::Local<v8::String> props_key_str =
-              props_key->ToString(context).ToLocalChecked();
           key_obj = *v8::String::Utf8Value(isolate_, props_key);
         } else {
           TDF_BASE_LOG(ERROR)
