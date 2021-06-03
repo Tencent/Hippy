@@ -28,8 +28,8 @@
 #include <mutex>
 #include <vector>
 
-#include "base/unicode_string_view.h"
 #include "base/logging.h"
+#include "base/unicode_string_view.h"
 #include "core/base/macros.h"
 #include "core/napi/js_native_api_types.h"
 
@@ -44,11 +44,6 @@ namespace napi {
 const char16_t kLengthStr[] = u"length";
 const char16_t kMessageStr[] = u"message";
 const char16_t kStackStr[] = u"stack";
-
-namespace {
-using unicode_string_view = tdf::base::unicode_string_view;
-using JSValueWrapper = hippy::base::JSValueWrapper;
-};
 
 class JSCVM : public VM {
  public:
@@ -68,6 +63,9 @@ class JSCCtxValue;
 
 class JSCCtx : public Ctx {
  public:
+  using unicode_string_view = tdf::base::unicode_string_view;
+  using JSValueWrapper = hippy::base::JSValueWrapper;
+
   explicit JSCCtx(JSContextGroupRef vm) {
     context_ = JSGlobalContextCreateInGroup(vm, nullptr);
 
@@ -140,12 +138,9 @@ class JSCCtx : public Ctx {
       size_t argument_count = 0,
       const std::shared_ptr<CtxValue> argumets[] = nullptr);
 
-  virtual bool GetValueNumber(std::shared_ptr<CtxValue> value,
-                              double* result);
-  virtual bool GetValueNumber(std::shared_ptr<CtxValue> value,
-                              int32_t* result);
-  virtual bool GetValueBoolean(std::shared_ptr<CtxValue> value,
-                               bool* result);
+  virtual bool GetValueNumber(std::shared_ptr<CtxValue> value, double* result);
+  virtual bool GetValueNumber(std::shared_ptr<CtxValue> value, int32_t* result);
+  virtual bool GetValueBoolean(std::shared_ptr<CtxValue> value, bool* result);
   virtual bool GetValueString(std::shared_ptr<CtxValue> value,
                               unicode_string_view* result);
   virtual bool GetValueJson(std::shared_ptr<CtxValue> value,
@@ -168,8 +163,7 @@ class JSCCtx : public Ctx {
   // Function Helpers
 
   virtual bool IsFunction(std::shared_ptr<CtxValue> value);
-  virtual unicode_string_view CopyFunctionName(
-      std::shared_ptr<CtxValue> value);
+  virtual unicode_string_view CopyFunctionName(std::shared_ptr<CtxValue> value);
 
   virtual std::shared_ptr<CtxValue> RunScript(
       const unicode_string_view& data,
@@ -177,13 +171,13 @@ class JSCCtx : public Ctx {
       bool is_use_code_cache = false,
       unicode_string_view* cache = nullptr,
       bool is_copy = true);
-  virtual std::shared_ptr<CtxValue> GetJsFn(
-      const unicode_string_view& name);
+  virtual std::shared_ptr<CtxValue> GetJsFn(const unicode_string_view& name);
   virtual bool ThrowExceptionToJS(std::shared_ptr<CtxValue> exception);
-  
+
   virtual std::shared_ptr<JSValueWrapper> ToJsValueWrapper(
       std::shared_ptr<CtxValue> value);
-  virtual std::shared_ptr<CtxValue> CreateCtxValue(std::shared_ptr<JSValueWrapper> wrapper);
+  virtual std::shared_ptr<CtxValue> CreateCtxValue(
+      std::shared_ptr<JSValueWrapper> wrapper);
 
   unicode_string_view GetExceptionMsg(std::shared_ptr<CtxValue> exception);
   JSStringRef CreateJSCString(const unicode_string_view& str_view);
@@ -193,8 +187,10 @@ class JSCCtx : public Ctx {
   bool is_exception_handled_;
 };
 
-inline unicode_string_view ToStrView(JSStringRef str) {
-  return unicode_string_view(reinterpret_cast<const char16_t*>(JSStringGetCharactersPtr(str)), JSStringGetLength(str));
+inline tdf::base::unicode_string_view ToStrView(JSStringRef str) {
+  return tdf::base::unicode_string_view(
+      reinterpret_cast<const char16_t*>(JSStringGetCharactersPtr(str)),
+      JSStringGetLength(str));
 }
 
 class JSCCtxValue : public CtxValue {

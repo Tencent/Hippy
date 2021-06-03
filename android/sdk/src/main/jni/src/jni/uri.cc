@@ -34,6 +34,7 @@ static jmethodID j_to_string_method_id;
 static jmethodID j_get_scheme_method_id;
 static jmethodID j_get_path_method_id;
 
+using unicode_string_view = tdf::base::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
 
 bool Uri::Init() {

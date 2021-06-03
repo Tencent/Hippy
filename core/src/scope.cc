@@ -44,7 +44,6 @@ using BindingData = hippy::napi::BindingData;
 using CtxValue = hippy::napi::CtxValue;
 using TryCatch = hippy::napi::TryCatch;
 
-
 const char kdeallocFuncName[] = "HippyDealloc";
 const char kHippyBootstrapJSName[] = "bootstrap.js";
 
@@ -126,14 +125,12 @@ void Scope::Initialized() {
 
   auto source_code = hippy::GetNativeSourceCode(kHippyBootstrapJSName);
   TDF_BASE_DCHECK(source_code.data_ && source_code.length_);
-   unicode_string_view str_view(source_code.data_, source_code.length_);
-  std::shared_ptr<CtxValue> function =
-       context_->RunScript(str_view, kHippyBootstrapJSName, false, nullptr, true);
-  //to do
+  unicode_string_view str_view(source_code.data_, source_code.length_);
+  std::shared_ptr<CtxValue> function = context_->RunScript(
+      str_view, kHippyBootstrapJSName, false, nullptr, true);
 
   bool is_func = context_->IsFunction(function);
-  TDF_BASE_CHECK(is_func)
-     << "bootstrap return not function, register fail!!!";
+  TDF_BASE_CHECK(is_func) << "bootstrap return not function, register fail!!!";
   if (!is_func) {
     TDF_BASE_DLOG(ERROR) << "bootstrap return not function, js = " << str_view
                          << ", len = " << source_code.length_;
@@ -182,7 +179,9 @@ void Scope::SaveFunctionData(std::unique_ptr<hippy::napi::FunctionData> data) {
   function_data_.push_back(std::move(data));
 }
 
-void Scope::RunJS(const unicode_string_view& data, const unicode_string_view& name, bool is_copy) {
+void Scope::RunJS(const unicode_string_view& data,
+                  const unicode_string_view& name,
+                  bool is_copy) {
   std::weak_ptr<Ctx> weak_context = context_;
   JavaScriptTask::Function callback = [data, name, is_copy, weak_context] {
     std::shared_ptr<Ctx> context = weak_context.lock();

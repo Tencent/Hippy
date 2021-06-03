@@ -34,6 +34,7 @@
 namespace hippy {
 namespace napi {
 
+using unicode_string_view = tdf::base::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
 
 bool JSCCtx::GetValueNumber(std::shared_ptr<CtxValue> value, double* result) {
@@ -106,7 +107,9 @@ bool JSCCtx::GetValueString(std::shared_ptr<CtxValue> value,
       SetException(std::make_shared<JSCCtxValue>(context_, exception));
       return false;
     }
-    *result = unicode_string_view(reinterpret_cast<const char16_t*>(JSStringGetCharactersPtr(str_ref)), JSStringGetLength(str_ref));
+    *result = unicode_string_view(
+        reinterpret_cast<const char16_t*>(JSStringGetCharactersPtr(str_ref)),
+        JSStringGetLength(str_ref));
     return true;
   }
 
@@ -136,8 +139,9 @@ uint32_t JSCCtx::GetArrayLength(std::shared_ptr<CtxValue> value) {
     SetException(std::make_shared<JSCCtxValue>(context_, exception));
     return 0;
   }
-  //to do
-  JSStringRef prop_name = JSStringCreateWithCharacters(reinterpret_cast<const JSChar*>(kLengthStr), arraysize(kLengthStr) - 1);
+  // to do
+  JSStringRef prop_name = JSStringCreateWithCharacters(
+      reinterpret_cast<const JSChar*>(kLengthStr), arraysize(kLengthStr) - 1);
   exception = nullptr;
   JSValueRef val = JSObjectGetProperty(context_, array, prop_name, &exception);
   if (exception) {
@@ -169,7 +173,9 @@ bool JSCCtx::GetValueJson(std::shared_ptr<CtxValue> value,
     SetException(std::make_shared<JSCCtxValue>(context_, exception));
     return false;
   }
-  *result = unicode_string_view(reinterpret_cast<const char16_t*>(JSStringGetCharactersPtr(str_ref)), JSStringGetLength(str_ref));
+  *result = unicode_string_view(
+      reinterpret_cast<const char16_t*>(JSStringGetCharactersPtr(str_ref)),
+      JSStringGetLength(str_ref));
   JSStringRelease(str_ref);
   return true;
 }
@@ -214,7 +220,8 @@ bool JSCCtx::IsFunction(std::shared_ptr<CtxValue> value) {
   return JSObjectIsFunction(context_, object);
 }
 
-unicode_string_view JSCCtx::CopyFunctionName(std::shared_ptr<CtxValue> function) {
+unicode_string_view JSCCtx::CopyFunctionName(
+    std::shared_ptr<CtxValue> function) {
   TDF_BASE_NOTIMPLEMENTED();
   return "";
 }
@@ -229,7 +236,8 @@ std::shared_ptr<CtxValue> JSCCtx::CreateBoolean(bool b) {
   return std::make_shared<JSCCtxValue>(context_, value);
 }
 
-std::shared_ptr<CtxValue> JSCCtx::CreateString(const unicode_string_view& str_view) {
+std::shared_ptr<CtxValue> JSCCtx::CreateString(
+    const unicode_string_view& str_view) {
   JSStringRef str_ref = CreateJSCString(str_view);
   JSValueRef value = JSValueMakeString(context_, str_ref);
   JSStringRelease(str_ref);
@@ -246,7 +254,8 @@ std::shared_ptr<CtxValue> JSCCtx::CreateNull() {
   return std::make_shared<JSCCtxValue>(context_, value);
 }
 
-std::shared_ptr<CtxValue> JSCCtx::CreateObject(const unicode_string_view& json) {
+std::shared_ptr<CtxValue> JSCCtx::CreateObject(
+    const unicode_string_view& json) {
   JSStringRef str_ref = CreateJSCString(json);
   JSValueRef value = JSValueMakeFromJSONString(context_, str_ref);
   JSStringRelease(str_ref);
@@ -276,7 +285,8 @@ std::shared_ptr<CtxValue> JSCCtx::CreateArray(
   return std::make_shared<JSCCtxValue>(context_, value_ref);
 }
 
-std::shared_ptr<CtxValue> JSCCtx::CreateJsError(const unicode_string_view& msg) {
+std::shared_ptr<CtxValue> JSCCtx::CreateJsError(
+    const unicode_string_view& msg) {
   JSStringRef str_ref = CreateJSCString(msg);
   JSValueRef value = JSValueMakeString(context_, str_ref);
   JSStringRelease(str_ref);
@@ -385,27 +395,28 @@ std::shared_ptr<CtxValue> JSCCtx::CallFunction(
   return std::make_shared<JSCCtxValue>(context_, ret_value_ref);
 }
 
-unicode_string_view JSCCtx::GetExceptionMsg(std::shared_ptr<CtxValue> exception) {
+unicode_string_view JSCCtx::GetExceptionMsg(
+    std::shared_ptr<CtxValue> exception) {
   if (!exception) {
     return unicode_string_view();
   }
-  
-  
-  std::shared_ptr<CtxValue> msg_obj = CopyNamedProperty(exception, unicode_string_view(kMessageStr, arraysize(kMessageStr) - 1));
+
+  std::shared_ptr<CtxValue> msg_obj = CopyNamedProperty(
+      exception, unicode_string_view(kMessageStr, arraysize(kMessageStr) - 1));
   unicode_string_view msg_view;
   GetValueString(msg_obj, &msg_view);
   std::u16string u16_msg;
   if (!StringViewUtils::IsEmpty(msg_view)) {
     u16_msg = msg_view.utf16_value();
   }
-  std::shared_ptr<CtxValue> stack_obj = CopyNamedProperty(exception, unicode_string_view(kStackStr, arraysize(kStackStr) - 1));
+  std::shared_ptr<CtxValue> stack_obj = CopyNamedProperty(
+      exception, unicode_string_view(kStackStr, arraysize(kStackStr) - 1));
   unicode_string_view stack_view;
   GetValueString(stack_obj, &stack_view);
   std::u16string u16_stack;
   if (!StringViewUtils::IsEmpty(stack_view)) {
     u16_stack = stack_view.utf16_value();
   }
-  // to do
   std::u16string str = u"message: " + u16_msg + u", stack: " + u16_stack;
   unicode_string_view ret(str.c_str(), str.length());
   TDF_BASE_DLOG(ERROR) << "GetExceptionMsg msg = " << ret;
@@ -423,10 +434,10 @@ bool JSCCtx::ThrowExceptionToJS(std::shared_ptr<CtxValue> exception) {
     const auto& source_code = hippy::GetNativeSourceCode(kErrorHandlerJSName);
     TDF_BASE_DCHECK(source_code.data_ && source_code.length_);
     unicode_string_view content(source_code.data_, source_code.length_);
-    exception_handler =
-        RunScript(content, kErrorHandlerJSName);
+    exception_handler = RunScript(content, kErrorHandlerJSName);
     bool is_func = IsFunction(exception_handler);
-    TDF_BASE_CHECK(is_func) << "HandleUncaughtJsError ExceptionHandle.js don't return function!!!";
+    TDF_BASE_CHECK(is_func)
+        << "HandleUncaughtJsError ExceptionHandle.js don't return function!!!";
     SetGlobalObjVar(kHippyErrorHandlerName, exception_handler,
                     PropertyAttribute::ReadOnly);
   }
@@ -452,18 +463,25 @@ JSStringRef JSCCtx::CreateJSCString(const unicode_string_view& str_view) {
       break;
     }
     case unicode_string_view::Encoding::Utf8: {
-      std::string aaa(reinterpret_cast<const char*>(str_view.utf8_value().c_str()), str_view.utf8_value().length());
+      std::string aaa(
+          reinterpret_cast<const char*>(str_view.utf8_value().c_str()),
+          str_view.utf8_value().length());
       ret = JSStringCreateWithUTF8CString(aaa.c_str());
       break;
     }
     case unicode_string_view::Encoding::Utf16: {
       std::u16string u16_str = str_view.utf16_value();
-      ret = JSStringCreateWithCharacters(reinterpret_cast<const JSChar*>(u16_str.c_str()), u16_str.length());
+      ret = JSStringCreateWithCharacters(
+          reinterpret_cast<const JSChar*>(u16_str.c_str()), u16_str.length());
       break;
     }
     case unicode_string_view::Encoding::Utf32: {
-      std::u16string u16_str = StringViewUtils::Convert(str_view, unicode_string_view::Encoding::Utf16).utf16_value();
-      ret = JSStringCreateWithCharacters(reinterpret_cast<const JSChar*>(u16_str.c_str()), u16_str.length());
+      std::u16string u16_str =
+          StringViewUtils::Convert(str_view,
+                                   unicode_string_view::Encoding::Utf16)
+              .utf16_value();
+      ret = JSStringCreateWithCharacters(
+          reinterpret_cast<const JSChar*>(u16_str.c_str()), u16_str.length());
       break;
     }
     default:

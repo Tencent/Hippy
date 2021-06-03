@@ -481,7 +481,6 @@ unicode_string_view V8Ctx::GetStackInfo(v8::Local<v8::Message> message) {
     return "";
   }
 
-  // to do
   std::basic_stringstream<char> stack_stream;
   int len = trace->GetFrameCount();
   for (int i = 0; i < len; ++i) {
@@ -610,19 +609,19 @@ std::shared_ptr<CtxValue> V8Ctx::GetGlobalObjVar(
 std::shared_ptr<CtxValue> V8Ctx::GetProperty(
     const std::shared_ptr<CtxValue> object,
     const unicode_string_view& name) {
-  TDF_BASE_DLOG(INFO)<< "GetGlobalStrVar name =" << name;
+  TDF_BASE_DLOG(INFO) << "GetGlobalStrVar name =" << name;
   std::shared_ptr<V8CtxValue> ctx_value =
-          std::static_pointer_cast<V8CtxValue>(object);
+      std::static_pointer_cast<V8CtxValue>(object);
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
-  const v8::Global<v8::Value>& persistent_value =
-          ctx_value->global_value_;
+  const v8::Global<v8::Value>& persistent_value = ctx_value->global_value_;
   v8::Local<v8::Value> str = CreateV8String(name);
   v8::Local<v8::Value> handle_value =
       v8::Local<v8::Value>::New(isolate_, persistent_value);
-  v8::Local<v8::Value> value =
-      v8::Local<v8::Object>::Cast(handle_value)->Get(context, str).ToLocalChecked();
+  v8::Local<v8::Value> value = v8::Local<v8::Object>::Cast(handle_value)
+                                   ->Get(context, str)
+                                   .ToLocalChecked();
   return std::make_shared<V8CtxValue>(isolate_, value);
 }
 
@@ -780,8 +779,7 @@ std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
         v8::ScriptCompiler::CachedData* cached_data =
             new v8::ScriptCompiler::CachedData(
                 str.c_str(), str.length(),
-                v8::ScriptCompiler::CachedData::
-                    BufferNotOwned);
+                v8::ScriptCompiler::CachedData::BufferNotOwned);
         v8::ScriptCompiler::Source script_source(source, origin, cached_data);
         script = v8::ScriptCompiler::Compile(
             context, &script_source, v8::ScriptCompiler::kConsumeCodeCache);
@@ -839,18 +837,17 @@ std::shared_ptr<CtxValue> V8Ctx::GetJsFn(const unicode_string_view& name) {
 }
 
 bool V8Ctx::ThrowExceptionToJS(std::shared_ptr<CtxValue> exception) {
+  unicode_string_view error_handle_name(kHippyErrorHandlerName);
   std::shared_ptr<CtxValue> exception_handler =
-      GetGlobalObjVar(kHippyErrorHandlerName);
+      GetGlobalObjVar(error_handle_name);
 
   if (!IsFunction(exception_handler)) {
     const auto& source_code = hippy::GetNativeSourceCode(kErrorHandlerJSName);
     TDF_BASE_DCHECK(source_code.data_ && source_code.length_);
     unicode_string_view str_view(source_code.data_, source_code.length_);
     exception_handler =
-        RunScript(str_view, kErrorHandlerJSName, false, nullptr, false);
-    // bool is_func = IsFunction(exception_handler);
-    // TDF_BASE_DCHECK(is_func);
-    SetGlobalObjVar(kHippyErrorHandlerName, exception_handler,
+        RunScript(str_view, error_handle_name, false, nullptr, false);
+    SetGlobalObjVar(error_handle_name, exception_handler,
                     PropertyAttribute::ReadOnly);
   }
 

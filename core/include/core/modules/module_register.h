@@ -27,6 +27,7 @@
 #include <memory>
 #include <string>
 
+#include "base/unicode_string_view.h"
 #include "core/base/macros.h"
 #include "core/modules/module_base.h"
 #include "core/napi/callback_info.h"
