@@ -17,10 +17,9 @@ public abstract class NativeCallback {
     mAction = action;
   }
 
-  public void Callback(long value) {
+  public void Callback(long value, String msg) {
 
-    String msg = value + "";
-    LogUtils.e("Callback OK", msg);
+    LogUtils.e("Callback OK", value + msg);
 
     if (mHandler != null) {
       NativeRunnable runnable = new NativeRunnable(this, value, mMsg, mAction);

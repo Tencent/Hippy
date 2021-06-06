@@ -30,7 +30,6 @@ namespace hippy {
 namespace bridge {
 
 void CallJava(hippy::napi::CBDataTuple* data);
-void CallJavaMethod(jobject obj, jlong value);
 
 }  // namespace bridge
 }  // namespace hippy
