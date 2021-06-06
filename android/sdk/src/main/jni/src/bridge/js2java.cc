@@ -146,37 +146,5 @@ void CallJava(hippy::napi::CBDataTuple* data) {
   j_env->DeleteLocalRef(j_buffer);
 }
 
-void CallJavaMethod(jobject j_obj, jlong j_value) {
-  TDF_BASE_DLOG(INFO) << "CallJavaMethod begin";
-  jclass j_class = nullptr;
-
-  if (!j_obj) {
-    TDF_BASE_DLOG(INFO) << "CallJavaMethod j_obj is nullptr";
-    return;
-  }
-
-  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
-  j_class = j_env->GetObjectClass(j_obj);
-  if (!j_class) {
-    TDF_BASE_DLOG(ERROR) << "CallJavaMethod j_class error";
-    return;
-  }
-
-  jmethodID j_cb_id = j_env->GetMethodID(j_class, "Callback", "(J)V");
-  if (!j_cb_id) {
-    TDF_BASE_DLOG(ERROR) << "CallJavaMethod j_cb_id error";
-    return;
-  }
-
-  TDF_BASE_DLOG(INFO) << "CallJavaMethod call method";
-  j_env->CallVoidMethod(j_obj, j_cb_id, j_value);
-  JNIEnvironment::ClearJEnvException(j_env);
-
-  if (j_class) {
-    j_env->DeleteLocalRef(j_class);
-  }
-  TDF_BASE_DLOG(INFO) << "CallJavaMethod end";
-}
-
 }  // namespace bridge
 }  // namespace hippy
