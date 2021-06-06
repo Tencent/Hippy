@@ -32,6 +32,7 @@
 #include <string>
 #include <unordered_map>
 
+#include "bridge/java2js.h"
 #include "bridge/js2java.h"
 #include "bridge/runtime.h"
 #include "core/base/string_view_utils.h"
@@ -82,6 +83,11 @@ static std::mutex engine_mutex;
 static const int64_t kDefaultEngineId = -1;
 static const int64_t kDebuggerEngineId = -9999;
 static const uint32_t kRuntimeKeyIndex = 0;
+
+enum INIT_CB_STATE {
+  RUN_SCRIPT_ERROR = -1,
+  SUCCESS = 0,
+};
 
 std::shared_ptr<V8InspectorClientImpl> global_inspector = nullptr;
 
@@ -292,9 +298,6 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
     TDF_BASE_DLOG(INFO) << "runScriptFromUri enter tast";
     bool flag = RunScript(runtime, script_name, j_can_use_code_cache,
                           code_cache_dir, uri, aasset_manager);
-    jlong value = !flag ? 0 : 1;
-    hippy::bridge::CallJavaMethod(save_object_->GetObj(), value);
-
     auto time_end = std::chrono::time_point_cast<std::chrono::microseconds>(
                         std::chrono::system_clock::now())
                         .time_since_epoch()
@@ -303,6 +306,14 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
     TDF_BASE_DLOG(INFO) << "runScriptFromUri = " << (time_end - time_begin)
                         << ", uri = " << uri;
 
+    if (flag) {
+      hippy::bridge::CallJavaMethod(save_object_->GetObj(),
+                                    INIT_CB_STATE::SUCCESS);
+    } else {
+      JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+      CallJavaMethod(save_object_->GetObj(), INIT_CB_STATE::RUN_SCRIPT_ERROR,
+                     JniUtils::StrViewToJString(j_env, u"run script error"));
+    }
     return flag;
   };
 
@@ -535,7 +546,7 @@ void DestroyInstance(JNIEnv* j_env,
       TDF_BASE_DLOG(FATAL) << "engine not find";
     }
   }
-  hippy::bridge::CallJavaMethod(j_callback, 1);
+  hippy::bridge::CallJavaMethod(j_callback, INIT_CB_STATE::SUCCESS);
   TDF_BASE_DLOG(INFO) << "destroy end";
 }
 
