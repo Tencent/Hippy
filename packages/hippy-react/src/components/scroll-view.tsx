@@ -202,9 +202,12 @@ class ScrollView extends React.Component<ScrollViewProps, {}> {
           this.instance = ref;
         }}
         {...this.props}
+        // @ts-ignore
         style={newStyle}
       >
-        <View style={contentContainerStyle_}>
+        <View
+          // @ts-ignore
+          style={contentContainerStyle_}>
           {children}
         </View>
       </div>

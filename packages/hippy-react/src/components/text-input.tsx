@@ -311,6 +311,7 @@ class TextInput extends React.Component<TextInputProps, {}> {
         ref={(ref) => {
           this.instance = ref;
         }}
+        // @ts-ignore
         onChangeText={this._onChangeText}
         onKeyboardWillShow={this._onKeyboardWillShow}
       />

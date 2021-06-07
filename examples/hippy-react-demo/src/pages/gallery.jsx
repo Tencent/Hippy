@@ -56,6 +56,7 @@ export class Gallery extends Component {
     const { history } = this.props;
     if (Platform.OS === 'android') {
       BackAndroid.addListener(() => {
+        console.log('BackAndroid');
         if (history.index === 0) {
           history.goBack();
           return true;

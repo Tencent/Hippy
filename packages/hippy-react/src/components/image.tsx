@@ -263,6 +263,7 @@ class Image extends React.Component<ImageProps, {}> {
      * tintColor(s)
      */
     const nativeStyle = { ...style };
+    // @ts-ignore
     this.handleTintColor(nativeStyle, tintColor, tintColors);
     (nativeProps as ImageProps).style = nativeStyle;
 
@@ -273,7 +274,9 @@ class Image extends React.Component<ImageProps, {}> {
             {...nativeProps}
             nativeName="Image"
             alt=""
+            // @ts-ignore
             ref={imageRef}
+            // @ts-ignore
             style={[{
               position: 'absolute',
               left: 0,
@@ -293,6 +296,7 @@ class Image extends React.Component<ImageProps, {}> {
         {...nativeProps}
         nativeName="Image"
         alt=""
+        // @ts-ignore
         ref={imageRef}
       />
     );

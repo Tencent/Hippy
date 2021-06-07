@@ -43,15 +43,18 @@ const mockDataArray = [
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#fff',
+    // backgroundColor: '#fff',
     collapsable: false,
+    width: 50,
+    height: 50,
+    backgroundColor: 'red',
   },
   itemContainer: {
-    padding: 12,
+    // padding: 12,
   },
   separatorLine: {
-    marginLeft: 12,
-    marginRight: 12,
+    // marginLeft: 12,
+    // marginRight: 12,
     height: 0.5,
     backgroundColor: '#e5e5e5',
   },
@@ -100,6 +103,7 @@ export default class ListExample extends React.Component {
     this.onEndReached = this.onEndReached.bind(this);
     this.getRowType = this.getRowType.bind(this);
     this.getRowKey = this.getRowKey.bind(this);
+    this.getRowStyle = this.getRowStyle.bind(this);
   }
 
   async onEndReached() {
@@ -153,6 +157,13 @@ export default class ListExample extends React.Component {
     const self = this;
     const item = self.state.dataSource[index];
     return item.style;
+  }
+  // configure listItem style if horizontal listview is set
+  getRowStyle() {
+    return {
+      width: 100,
+      height: 50,
+    };
   }
 
   /* eslint-disable-next-line class-methods-use-this */
@@ -210,11 +221,13 @@ export default class ListExample extends React.Component {
     const { dataSource } = this.state;
     return (
       <ListView
-        style={{ flex: 1, backgroundColor: '#ffffff' }}
+        horizontal={undefined} // horizontal ListView  flag（only Android support）
+        style={{ height: 100, backgroundColor: '#ffffff' }}
         numberOfRows={dataSource.length}
         renderRow={this.getRenderRow}
         onEndReached={this.onEndReached}
         getRowType={this.getRowType}
+        // getRowStyle={this.getRowStyle}
         getRowKey={this.getRowKey}
         initialListSize={15}
         rowShouldSticky={index => index === 2}

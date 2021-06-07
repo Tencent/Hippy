@@ -36,7 +36,8 @@ export default function ImageExpo() {
     <ScrollView style={styles.container_style}>
       <Text style={styles.info_style}>Contain:</Text>
       <Image
-        style={[styles.image_style, { resizeMode: 'contain' }]}
+        style={[styles.image_style]}
+        resizeMode={Image.resizeMode.contain}
         defaultSource={defaultSource}
         source={{ uri: imageUrl }}
         onLoadStart={() => {
@@ -58,19 +59,22 @@ export default function ImageExpo() {
       />
       <Text style={styles.info_style}>Cover:</Text>
       <Image
-        style={[styles.image_style, { resizeMode: 'cover' }]}
+        style={[styles.image_style]}
         defaultSource={defaultSource}
         source={{ uri: imageUrl }}
+        resizeMode={Image.resizeMode.cover}
       />
       <Text style={styles.info_style}>Center:</Text>
       <Image
-        style={[styles.image_style, { resizeMode: 'center' }]}
+        style={[styles.image_style]}
         defaultSource={defaultSource}
         source={{ uri: imageUrl }}
+        resizeMode={Image.resizeMode.center}
       />
       <Text style={styles.info_style}>Cover GIF:</Text>
       <Image
-        style={[styles.image_style, { resizeMode: 'cover' }]}
+        style={[styles.image_style]}
+        resizeMode={Image.resizeMode.cover}
         defaultSource={defaultSource}
         source={{ uri: 'http://img.qdaily.com/article/article_show/20180226115511QR0IMWjcBZmo8FaV.gif' }}
         onLoadEnd={() => {

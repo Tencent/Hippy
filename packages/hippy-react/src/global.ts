@@ -1,11 +1,13 @@
 /* eslint-disable no-underscore-dangle */
 
 import '@localTypes/global';
-
+// @ts-ignore
 if (!global.__GLOBAL__) {
+  // @ts-ignore
   global.__GLOBAL__ = {};
 }
 
+// @ts-ignore
 const { __GLOBAL__ } = global;
 
 __GLOBAL__.nodeId = 0;
@@ -21,6 +23,7 @@ const {
   on: addEventListener,
   off: removeEventListener,
   emit: dispatchEvent,
+  // @ts-ignore
 } = global.Hippy;
 
 export {

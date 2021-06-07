@@ -143,7 +143,7 @@
 
 # AsyncStorage
 
-[[AsyncStorage 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/modules/AsyncStorage)
+[[AsyncStorage 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/modules/AsyncStorage/index.jsx)
 
 AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系统，它对于 App 来说是全局性的。
 
@@ -200,13 +200,13 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 可以监听 Android 实体键的回退，在退出前做操作或拦截实体键的回退。
 
-> 注意：该方法需要终端拦截实体返回按钮的事件，可以参考 [android-demo 的 onBackPressed 方法](//github.com/Tencent/Hippy/blob/master/examples/android-demo/example/src/main/java/com/tencent/mtt/hippy/example/MyActivity.java#L141)
+> 注意：该方法需要终端拦截实体返回按钮的事件，可以参考 [android-demo 的 onBackPressed 方法](//github.com/Tencent/Hippy/blob/master/examples/android-demo/example/src/main/java/com/tencent/mtt/hippy/example/MyActivity.java)
 
 ## 方法
 
 ### BackAndroid.addListener
 
-`(handler: () => boolean) => { remove: Function }` 监听Android实体健回退，触发时执行 handler 回调函数。回调函数返回 true 时，拦截终端的回退操作。回调函数返回 false 时, 就不会拦截回退。
+`(handler: () => boolean) => { remove: Function }` 监听Android实体健回退，触发时执行 handler 回调函数。回调函数返回 true 时，拦截终端的回退操作。回调函数返回 false 时, 就不会拦截回退。该函数返回包含 `remove()` 方法的对象，可通过调用 `remove()` 方法移除监听，同 `BackAndroid.removeListener`。
 
 > * handler: Function - 实体键回退时触发的回调函数
 
@@ -218,7 +218,7 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 `(handler: () => boolean) => void` 移除 BackAndroid 关于Android实体健回退事件的监听器。
 
-* handler: Function - 建议使用 `addListener` 返回的 `remove` 对象，也可以是之前 BackAndroid 的回调函数。
+* handler: Function - 建议使用 `addListener` 返回的包含 `remove()` 方法的对象，也可以是之前 BackAndroid 的回调函数。
 
 ---
 
@@ -306,7 +306,7 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 `(eventName: string, handler: Function) => NetInfoRevoker` 添加一个网络变化监听器。
 
 > * eventName: 'change' - 事件名称
-> * handler: Function - 网络发生变化时触发的回调函数
+> * handler: ({ network_info:string }) => any - 网络发生变化时触发的回调函数
 
 ### NetInfo.fetch
 
