@@ -12,7 +12,7 @@ const demos = {};
 if (Vue.Native) {
   Object.assign(demos, {
     demoVueNative: {
-      name: 'Vue.Native 属性',
+      name: 'Vue.Native 能力',
       component: demoVueNative,
     },
     demoAnimation: {

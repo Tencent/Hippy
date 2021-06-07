@@ -285,10 +285,10 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
   }
 
   /**
-   * Scrolls to a given index of itme, either immediately, with a smooth animation.
+   * Scrolls to a given index of item, either immediately, with a smooth animation.
    *
    * @param {number} xIndex - Scroll to horizon index X.
-   * @param {number} yIndex - Scroll To veritical index Y.
+   * @param {number} yIndex - Scroll To vertical index Y.
    * @param {boolean} animated - With smooth animation.By default is true.
    */
   public scrollToIndex(xIndex: number | undefined, yIndex: number | undefined, animated: boolean | undefined) {
@@ -302,10 +302,14 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
    * Scrolls to a given x, y offset, either immediately, with a smooth animation.
    *
    * @param {number} xOffset - Scroll to horizon offset X.
-   * @param {number} yOffset - Scroll To veritical offset Y.
+   * @param {number} yOffset - Scroll To vertical offset Y.
    * @param {boolean} animated - With smooth animation.By default is true.
    */
-  public scrollToContentOffset(xOffset: number, yOffset: number, animated: boolean) {
+  public scrollToContentOffset(
+    xOffset: number | undefined,
+    yOffset: number | undefined,
+    animated: boolean | undefined,
+  ) {
     if (typeof xOffset !== 'number' || typeof yOffset !== 'number' || typeof animated !== 'boolean') {
       return;
     }
@@ -538,6 +542,7 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
     }
 
     return (
+      // @ts-ignore
       <ul
         ref={(ref) => {
           this.instance = ref;
