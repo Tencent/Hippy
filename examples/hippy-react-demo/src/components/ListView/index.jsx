@@ -43,18 +43,15 @@ const mockDataArray = [
 
 const styles = StyleSheet.create({
   container: {
-    // backgroundColor: '#fff',
+    backgroundColor: '#fff',
     collapsable: false,
-    width: 50,
-    height: 50,
-    backgroundColor: 'red',
   },
   itemContainer: {
-    // padding: 12,
+    padding: 12,
   },
   separatorLine: {
-    // marginLeft: 12,
-    // marginRight: 12,
+    marginLeft: 12,
+    marginRight: 12,
     height: 0.5,
     backgroundColor: '#e5e5e5',
   },
@@ -222,7 +219,7 @@ export default class ListExample extends React.Component {
     return (
       <ListView
         horizontal={undefined} // horizontal ListView  flag（only Android support）
-        style={{ height: 100, backgroundColor: '#ffffff' }}
+        style={{ flex: 1, backgroundColor: '#ffffff' }}
         numberOfRows={dataSource.length}
         renderRow={this.getRenderRow}
         onEndReached={this.onEndReached}
