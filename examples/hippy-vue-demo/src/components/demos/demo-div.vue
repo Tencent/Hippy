@@ -10,7 +10,16 @@
         <p class="div-demo-transform-text">Transform</p>
       </div>
       <label>水平滚动:</label>
-      <div class="div-demo-2">
+      <div class="div-demo-2" ref='demo-2'
+           @scroll="onScroll"
+           @momentumScrollBegin="onMomentumScrollBegin"
+           @momentumScrollEnd="onMomentumScrollEnd"
+           @scrollBeginDrag="onScrollBeginDrag"
+           @scrollEndDrag="onScrollEndDrag"
+           :scrollEnabled="true"
+           :pagingEnabled="false"
+           :showsHorizontalScrollIndicator="false"
+      >
         <!-- div 带着 overflow 属性的，只能有一个子节点，否则终端会崩溃 -->
         <div class="display-flex flex-row div-demo-2-container">
           <p class="text-block">A</p>
@@ -21,7 +30,9 @@
         </div>
       </div>
       <label>垂直滚动:</label>
-      <div class="div-demo-3">
+      <div class="div-demo-3"
+           :showsVerticalScrollIndicator="false"
+      >
         <!-- div 带着 overflow 属性的，只能有一个子节点，否则终端会崩溃 -->
         <div class="display-flex flex-column">
           <p class="text-block">A</p>
@@ -37,6 +48,7 @@
 
 <script>
 import defaultImage from '../../assets/defaultSource.jpg';
+import Vue from 'vue';
 
 export default {
   data() {
@@ -61,6 +73,29 @@ export default {
         'margin-bottom': '10px',
       },
     };
+  },
+  methods: {
+    onScroll(e) {
+      console.log('onScroll', e)
+    },
+    onMomentumScrollBegin(e) {
+      console.log('onMomentumScrollBegin', e)
+    },
+    onMomentumScrollEnd(e) {
+      console.log('onMomentumScrollEnd', e)
+    },
+    onScrollBeginDrag(e) {
+      console.log('onScrollBeginDrag', e)
+    },
+    onScrollEndDrag(e) {
+      console.log('onScrollEndDrag', e)
+    }
+  },
+  mounted() {
+    this.demon2 = this.$refs['demo-2'];
+    setTimeout(() => {
+      this.demon2.scrollTo(50, 0, 1000)
+    }, 1000)
   },
 };
 </script>
@@ -99,7 +134,7 @@ export default {
     text-align: center;
   }
 
-  /* background-image path is remote address only */
+  /* background-image path can only use remote address */
   .div-demo-1 {
     display: flex;
     height: 40px;

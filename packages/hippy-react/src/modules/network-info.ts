@@ -74,7 +74,7 @@ function removeEventListener(eventName: string, listener?: NetInfoRevoker | Netw
   }
 
   let event = eventName;
-  if (eventName && eventName === 'change') {
+  if (eventName === 'change') {
     event = DEVICE_CONNECTIVITY_EVENT;
   }
   const count = NetInfoEventEmitter.listenerSize(event);
