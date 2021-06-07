@@ -30,6 +30,7 @@ import PullFooter from './components/pull-footer';
 import * as Native from './native';
 import * as StyleSheet from './modules/stylesheet';
 
+// @ts-ignore
 global.WebSocket = WebSocket;
 
 const {

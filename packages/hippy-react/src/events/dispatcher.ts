@@ -100,8 +100,10 @@ function receiveNativeGesture(nativeEvent: NativeEvent) {
     }
 
     if (eventHandled === false) {
+      // @ts-ignore
       nextNodeItem = nextNodeItem.return;
       while (nextNodeItem && nextNodeItem.tag !== 5) {
+        // @ts-ignore
         nextNodeItem = nextNodeItem.return;
       }
     }
@@ -137,7 +139,9 @@ const EventDispatcher = {
   receiveUIComponentEvent,
 };
 
+// @ts-ignore
 if (global.__GLOBAL__) {
+  // @ts-ignore
   global.__GLOBAL__.jsModuleList.EventDispatcher = EventDispatcher;
 }
 
