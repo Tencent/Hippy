@@ -42,9 +42,9 @@
 
 # div
 
-[[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue)
+[[范例：demo-div.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue)
 
-别的组件容器，默认不可以滚动。可以通过增加样式参数 `overflow-y: scroll` 切换为可以纵向滚动容器，或者增加样式参数 `overflow-x: scroll` 切换为水平滚动容器。
+> div 组件容器，默认不可以滚动。可以通过增加样式参数 `overflow-y: scroll` 切换为可以纵向滚动容器，或者增加样式参数 `overflow-x: scroll` 切换为水平滚动容器。在终端侧会被映射成 [ScrollView](hippy-react/components.md?id=ScrollView)，因此具备 [ScrollView](hippy-react/components.md?id=ScrollView) 通用的能力。
 
 ## 参数
 
@@ -53,10 +53,22 @@
 | accessibilityLabel | 设置当用户与此元素交互时，“读屏器”（对视力障碍人士的辅助功能）阅读的文字。默认情况下，这个文字会通过遍历所有的子元素并累加所有的文本标签来构建。 | `node`                               | `ALL`     |
 | accessible         | 当此属性为 `true` 时，表示此视图时一个启用了无障碍功能的元素。默认情况下，所有可触摸操作的元素都是无障碍功能元素。 | `boolean`                            | `ALL`     |
 | style              | -                                                            | [`View Styles`](style/layout.md) | `ALL`     |
-| collapsable        | 如果一个 `View` 只用于布局它的子组件，则它可能会为了优化而从原生布局树中移除。 把此属性设为 `false` 可以禁用这个优化，以确保对应视图在原生结构中存在。 | `boolean`                            | `Android` |
 | opacity            | 配置 `View` 的透明度，同时会影响子节点的透明度               | `number`                             | `ALL`     |
 | overflow           | 指定当子节点内容溢出其父级 `View` 容器时, 是否剪辑内容       | `enum`(visible, hidden)         | `ALL`     |
 | focusable          | 允许使用遥控器触发 View 的激活状态，改为 true 后使用遥控器将能触发 div 的 `@focus` 事件，需要通过 `nextFocusDownId`、`nextFocusUpId`、`nextFocusLeftId`、`nextFocusRightId` 参数指明四个方向键将移动到的的节点 ID       | `boolean`         | `Android`     |
+| scrollEventThrottle            | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onScroll` 回调事件。（仅在 overflow-y/x: scroll 时适用） | `number`                                                     | `ALL`    |
+| pagingEnabled                  | 当值为 `true` 时，滚动条会停在滚动视图的尺寸的整数倍位置。这个可以用在水平分页上。`default: false`（仅在 overflow-y/x: scroll 时适用） | `boolean`                                                    | `ALL`    |
+| scrollEnabled                  | 当值为 `false` 的时候，内容不能滚动。`default: true` （仅在 overflow-y/x: scroll 时适用） | `boolean`                                                    | `ALL`    |
+| showsHorizontalScrollIndicator | 当此值设为 `false` 的时候，`ScrollView` 会隐藏水平的滚动条。`default: true` （仅在 overflow-y/x: scroll 时适用）| `boolean`                                                    | `iOS`    |
+| showsVerticalScrollIndicator   | 当此值设为 `false` 的时候，`ScrollView` 会隐藏垂直的滚动条。 `default: true` （仅在 overflow-y/x: scroll 时适用）| `boolean`
+
+## 样式内特殊属性
+
+| 参数               | 描述                                                         | 类型                                 | 支持平台  |
+| ------------------ | ------------------------------------------------------------ | ------------------------------------ | --------- |
+| collapsable        | 如果一个 `div` 只用于布局它的子组件，则它可能会为了优化而从原生布局树中移除，因此该节点 DOM 的引用会丢失。。 把此属性设为 `false` 可以禁用这个优化，以确保对应视图在原生结构中存在。 | `boolean`                            | `Android` |
+
+---
 
 ## 事件
 
@@ -65,10 +77,27 @@
 | layout           | 这个事件会在布局计算完成后立即调用一次，不过收到此事件时新的布局可能还没有在屏幕上呈现，尤其是一个布局动画正在进行中的时候。 | `Function`                           | `ALL`     |
 | attachedToWindow   | 这个事件会在节点已经渲染并且添加到容器组件中触发，因为 Hippy 的渲染是异步的，这是很稳妥的执行后续操作的事件。 | `Function`                           | `ALL`     |
 | focus            | 该事件在 `focusable` 置为 true 时触发，通过遥控方向键可以移动活动组件位置，事件回调带有 `isFocused` 参数用于标记激活和非激活状态 | `Function`  | `Android` |
+| momentumScrollBegin  | 在 ScrollView 滑动开始的时候调起。（仅在 overflow-y/x: scroll 时适用） | `Function`                                | `ALL`    |
+| momentumScrollEnd  | 在 ScrollView 滑动结束的时候调起。（仅在 overflow-y/x: scroll 时适用） | `Function`                                | `ALL`    |
+| scroll  | 在滚动的过程中，每帧最多调用一次此回调函数。（仅在 overflow-y/x: scroll 时适用） | `Function`                                | `ALL`    |
+| scrollBeginDrag  | 当用户开始拖拽 ScrollView 时调用。（仅在 overflow-y/x: scroll 时适用） | `Function`                                | `ALL`    |
+| scrollEndDrag  | 当用户停止拖拽 ScrollView 时调用。（仅在 overflow-y/x: scroll 时适用） | `Function`                                | `ALL`    |
 | touchstart  | 触屏开始事件，最低支持版本 1.3.3 | `Function`                                | `ALL`    |
 | touchmove   | 触屏移动事件，最低支持版本 1.3.3 | `Function`                                | `ALL`    |
 | touchend    | 触屏结束事件，最低支持版本 1.3.3 | `Function`                                | `ALL`    |
 | touchcancel | 触屏取消事件，最低支持版本 1.3.3 | `Function`                                | `ALL`    |
+
+## 方法
+
+### scrollTo
+
+> 仅在 overflow-y/x: scroll 时适用
+
+`(x: number, y: number, duration: boolean) => void` 滚动到指定的 X，Y 偏移值，第三个参数为是否启用平滑滚动动画。
+
+> * x: number - X 偏移值
+> * y: number - Y 偏移值
+> * duration: number | boolean - 毫秒为单位的滚动时间, 默认 1000ms，false 等同 0ms
 
 ---
 
@@ -114,6 +143,12 @@
 | 参数          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | src        | 图片地址 | string                                | `ALL`    |
+
+## 样式内特殊属性
+
+| 参数               | 描述                                                         | 类型                                 | 支持平台  |
+| ------------------ | ------------------------------------------------------------ | ------------------------------------ | --------- |
+| resize-mode        |  决定当组件尺寸和图片尺寸不成比例的时候如何调整图片的大小。   |  `string`(cover, contain, stretch, repeat, center) | `ALL`    |
 
 ## 事件
 
@@ -268,8 +303,10 @@ Hippy 的重点功能，高性能的可复用列表组件。里面第一层只�
 
 | 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
 | --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
+| horizontal       | 指定 `ul` 是否采用横向布局。`default: undefined` | `any`   | `Android`    |
 | numberOfRows          | 指定列表的行数，一般直接传入数据源条数 `length` 即可。       | `number`                                                    | `ALL`    |
 | initialContentOffset  | 初始位移值 -- 在列表初始化时即可指定滚动距离，避免初始化后再通过 scrollTo 系列方法产生的闪动。 | `number`                                                    | `ALL`
+| rowShouldSticky  | 设置 `ul` 是否需要开启悬停效果能力，与 `li` 的 `sticky` 配合使用   | `boolean`                                                    | `ALL`
 | scrollEventThrottle   | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onScroll` 回调事件，默认 200ms | `number`                                                    | `ALL`    |
 | showScrollIndicator   | 是否显示垂直滚动条。 因为目前 ListView 其实仅有垂直滚动一种方向，水平滚动会导致 `onEndReached` 等一堆问题暂不建议使用，所以 `showScrollIndicator` 也仅用来控制是否显示垂直滚动条。 | `boolean`                                                   | `ALL`    |
 | preloadItemNumber     | 指定当列表滚动至倒数第几行时触发 `onEndReached` 回调。 | `number` | `ALL` |
@@ -315,6 +352,8 @@ ul 的子节点，终端层节点回收和复用的最小颗粒度。
 [[范例：demo-list.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-list.vue)
 
 ## 参数
+
+> 当设置`ul` 的 `:horizontal=true` 启用横向无限列表时，需显式设置 `li` 样式宽度
 
 | 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
 | --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
