@@ -56,12 +56,27 @@ function startBatch() {
   }
 }
 
+/**
+ * Hippy applies batched rendering,
+ * but iOS JSCore Promise.resolve task executed too fast,
+ * resulting in segmented rendering,
+ * so use polyfill to handle it on different platforms.
+ */
+function taskPolyfill(handler: Function) {
+  // @ts-ignore
+  if (__PLATFORM__ === 'ios' || Device.platform.OS === 'ios') {
+    setTimeout(handler, 0);
+  } else {
+    Promise.resolve().then(handler as ((value: void) => void | Promise<void>));
+  }
+}
+
 function endBatch(rootViewId: number) {
   if (!__batchIdle) {
     return;
   }
   __batchIdle = false;
-  Promise.resolve().then(() => {
+  taskPolyfill(() => {
     const chunks = chunkNodes(__batchNodes);
     chunks.forEach((chunk) => {
       switch (chunk.type) {
