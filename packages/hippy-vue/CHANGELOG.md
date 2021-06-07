@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.7.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.6.4...2.7.0) (2021-06-07)
+
+
+### Bug Fixes
+
+* **hippy-vue,hippy-react:** add task polyfill for batch render ([7cdf026](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/7cdf026e345a187202a0f7ae91171c2804cb4562))
+
+
+### Features
+
+* **hippy-vue:** add some native modules ([e960c01](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/e960c01d98aa09db5ea443b14c16e427d7023fcd))
+
+
+
+
+
 ## [2.6.4](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.6.3...2.6.4) (2021-05-19)
 
 **Note:** Version bump only for package @hippy/vue

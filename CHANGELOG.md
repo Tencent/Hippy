@@ -3,6 +3,39 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.7.0](https://github.com/Tencent/Hippy/compare/2.6.4...2.7.0) (2021-06-07)
+
+
+### Bug Fixes
+
+* **android:** `Serializer` call `reset` first to reset the writer ([e915135](https://github.com/Tencent/Hippy/commit/e9151359c840e595a001007a80ae2bf85515cf4c))
+* **android:** fix `java.lang.Long` cast to `java.lang.Double` exception ([33abebf](https://github.com/Tencent/Hippy/commit/33abebfc20a3a7ff523934b5eaf9a4c9c78623fe))
+* **android:** fix setRenderToHardwareTexture ([815409e](https://github.com/Tencent/Hippy/commit/815409ee9f21afaa48755d1b67c10f8d37aa0e00))
+* **android:** recyclerview pullheader without collapsePullHeader ([eb791f7](https://github.com/Tencent/Hippy/commit/eb791f7cfe31392f8cf2f33fc9aed27bd6ea8ac6))
+* **core:** fix code cache bug ([5247700](https://github.com/Tencent/Hippy/commit/52477008c7a940ac837133a0e566cdcffe5c1d7a))
+* **core:** fix codecc warning ([d91e4b0](https://github.com/Tencent/Hippy/commit/d91e4b0f00c1d6c59542001125ecfb5402ff0db9))
+* **core:** fix unicode_string_view null pointer bug ([#787](https://github.com/Tencent/Hippy/issues/787)) ([0734460](https://github.com/Tencent/Hippy/commit/073446043008305845e5ebea8d47c8705cf51b2c))
+* **core:** fixed nativeFlushQueueImmediate callID issue ([ea77912](https://github.com/Tencent/Hippy/commit/ea779126d19f31b70d5ff7371f301432df226671))
+* **hippy-react:** fix react demo listview style ([15d0961](https://github.com/Tencent/Hippy/commit/15d0961b2e73f775987c98e3236f88d369bfc440))
+* **hippy-vue,hippy-react:** add task polyfill for batch render ([7cdf026](https://github.com/Tencent/Hippy/commit/7cdf026e345a187202a0f7ae91171c2804cb4562))
+* **ios:** check if null pointer before setting __hippycurdir__ ([d8f6748](https://github.com/Tencent/Hippy/commit/d8f6748e62f17fb564d8eeed58f95b865d5c70b6))
+
+
+### Features
+
+* **android:** add `@NonNull` annotation to serialization package method ([ae2c588](https://github.com/Tencent/Hippy/commit/ae2c588c4c934e61ebe24182e7be8f3de70a0c8f))
+* **android:** add HippyRecyclerView extends from androidx recyclerview ([3071092](https://github.com/Tencent/Hippy/commit/3071092e0dbd5c24e655665200d69460c2c86d90))
+* **android:** add onTopReached event for RecyclerView ([06e07db](https://github.com/Tencent/Hippy/commit/06e07db88a0813a6e284b51884a24b7100a9e042))
+* **android:** interface `BinaryWriter` add `reset` method ([08823cb](https://github.com/Tencent/Hippy/commit/08823cb3b4571647d87736f69d929ff7be887cc0))
+* **android:** support renderToHardwareTextureAndroid ([809f55e](https://github.com/Tencent/Hippy/commit/809f55e4cf7536ce0d772876ff89116f8c376c8b))
+* **core:** add unicode_string_view and js_value_wrapper ([#782](https://github.com/Tencent/Hippy/issues/782)) ([34a1f4e](https://github.com/Tencent/Hippy/commit/34a1f4e020768a4b87dee55a50f17398cd9f662b))
+* **hippy-react,hippy-vue:** perf shadow demo ([0f37fd2](https://github.com/Tencent/Hippy/commit/0f37fd2a67778f6b28707eb5f50e530f5e788f8b))
+* **hippy-vue:** add some native modules ([e960c01](https://github.com/Tencent/Hippy/commit/e960c01d98aa09db5ea443b14c16e427d7023fcd))
+
+
+
+
+
 ## [2.6.4](https://github.com/Tencent/Hippy/compare/2.6.3...2.6.4) (2021-05-19)
 
 
