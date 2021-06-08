@@ -23,9 +23,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * 1.0 xiandongluo on 2018/1/16
- */
 public class TimeMonitor {
 
   long mStartTime;
