@@ -434,11 +434,11 @@ jlong InitInstance(JNIEnv* j_env,
   scope_cb_map->insert(
       std::make_pair(hippy::base::kContextCreatedCBKey, context_cb));
 
-  RegisterFunction scope_cb = [save_object_ = std::move(save_object),
-                               runtime_id](void*) {
-    TDF_BASE_LOG(INFO) << "run scope cb, runtime_id = " << runtime_id;
-    hippy::bridge::CallJavaMethod(save_object_->GetObj(), runtime_id);
+  RegisterFunction scope_cb = [save_object_ = std::move(save_object)](void*) {
+    TDF_BASE_LOG(INFO) << "run scope cb";
+    hippy::bridge::CallJavaMethod(save_object_->GetObj(), INIT_CB_STATE::SUCCESS);
   };
+
   scope_cb_map->insert(
       std::make_pair(hippy::base::KScopeInitializedCBKey, scope_cb));
 

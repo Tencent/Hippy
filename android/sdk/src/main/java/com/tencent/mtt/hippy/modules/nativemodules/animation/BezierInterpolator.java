@@ -19,9 +19,6 @@ import android.graphics.Path;
 import android.graphics.PathMeasure;
 import android.view.animation.Interpolator;
 
-/**
- * FileName: BezierInterpolator Description： History： 1.0 xiandongluo on 2018/1/2
- */
 class BezierInterpolator implements Interpolator {
 
   private static final float PRECISION = 0.002f;
