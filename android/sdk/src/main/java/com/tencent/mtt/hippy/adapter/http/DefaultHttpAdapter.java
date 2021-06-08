@@ -30,9 +30,6 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/**
- * FileName: DefaultHttpAdapter Description： History： 1.0 xiandongluo on 2018/1/24
- */
 public class DefaultHttpAdapter implements HippyHttpAdapter {
 
   private ExecutorService mExecutorService;
