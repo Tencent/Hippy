@@ -20,58 +20,60 @@ import com.tencent.mtt.hippy.HippyRootView;
 import java.io.InputStream;
 
 @SuppressWarnings("unused")
-public class DevServerImplDisable implements DevServerInterface
-{
-	final DevServerHelper mFetchHelper;
+public class DevServerImplDisable implements DevServerInterface {
 
-	DevServerImplDisable(HippyGlobalConfigs configs, String serverHost) {
-		mFetchHelper = new DevServerHelper(configs, serverHost);
-	}
+  final DevServerHelper mFetchHelper;
 
-	@Override
-	public void reload() {
+  DevServerImplDisable(HippyGlobalConfigs configs, String serverHost) {
+    mFetchHelper = new DevServerHelper(configs, serverHost);
+  }
 
-	}
+  @Override
+  public void reload() {
 
-	@Override
-	public String createResourceUrl(String resName) {return null;}
+  }
 
-	@Override
-	public void loadRemoteResource(String url, final DevServerCallBack serverCallBack) {
-		mFetchHelper.fetchBundleFromURL(new BundleFetchCallBack() {
-			@Override
-			public void onSuccess(InputStream inputStream) {
-				if (serverCallBack != null) {
-					serverCallBack.onDevBundleLoadReady(inputStream);
-				}
-			}
+  @Override
+  public String createResourceUrl(String resName) {
+    return null;
+  }
 
-			@Override
-			public void onFail(Exception exception) {
-				if (serverCallBack != null) {
-					serverCallBack.onInitDevError(exception);
-				}
-			}
-		}, url);
-	}
+  @Override
+  public void loadRemoteResource(String url, final DevServerCallBack serverCallBack) {
+    mFetchHelper.fetchBundleFromURL(new BundleFetchCallBack() {
+      @Override
+      public void onSuccess(InputStream inputStream) {
+        if (serverCallBack != null) {
+          serverCallBack.onDevBundleLoadReady(inputStream);
+        }
+      }
 
-    @Override
-	public void setDevServerCallback(DevServerCallBack devServerCallback) {
+      @Override
+      public void onFail(Exception exception) {
+        if (serverCallBack != null) {
+          serverCallBack.onInitDevError(exception);
+        }
+      }
+    }, url);
+  }
 
-	}
+  @Override
+  public void setDevServerCallback(DevServerCallBack devServerCallback) {
 
-	@Override
-	public void attachToHost(HippyRootView view) {
+  }
 
-	}
+  @Override
+  public void attachToHost(HippyRootView view) {
 
-	@Override
-	public void detachFromHost(HippyRootView view) {
+  }
 
-	}
+  @Override
+  public void detachFromHost(HippyRootView view) {
 
-	@Override
-	public void handleException(Throwable exception) {
+  }
 
-	}
+  @Override
+  public void handleException(Throwable exception) {
+
+  }
 }

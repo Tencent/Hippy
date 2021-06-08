@@ -23,6 +23,11 @@
     <None Include="cpp.hint" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\bridge\entry.cc" />
+    <ClCompile Include="src\bridge\java2js.cc" />
+    <ClCompile Include="src\bridge\js2java.cc" />
+    <ClCompile Include="src\bridge\runtime.cc" />
+    <ClCompile Include="src\bridge\serializer.cc" />
     <ClCompile Include="src\inspector\v8_channel_impl.cc" />
     <ClCompile Include="src\inspector\v8_inspector_client_impl.cc" />
     <ClCompile Include="src\jni\exception_handler.cc" />
@@ -39,6 +44,11 @@
     <ClCompile Include="src\loader\http_loader.cc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\bridge\entry.h" />
+    <ClInclude Include="include\bridge\java2js.h" />
+    <ClInclude Include="include\bridge\js2java.h" />
+    <ClInclude Include="include\bridge\runtime.h" />
+    <ClInclude Include="include\bridge\serializer.h" />
     <ClInclude Include="include\hippy.h" />
     <ClInclude Include="include\inspector\v8_channel_impl.h" />
     <ClInclude Include="include\inspector\v8_inspector_client_impl.h" />
@@ -165,7 +175,7 @@
       <PrecompiledHeaderFile>../../../../../core/include/core/core.h</PrecompiledHeaderFile>
       <CppLanguageStandard>c++14</CppLanguageStandard>
       <PreprocessorDefinitions>__ANDROID_API__=$(AndroidAPILevelNumber);OS_ANDROID;DEBUG;V8_IMMINENT_DEPRECATION_WARNINGS;V8_DEPRECATION_WARNINGS</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\third_party\v8_72;.;.\include;..\..\..\..\..\core\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\third_party\v8_72;.;.\include;..\..\..\..\..\core\include;..\..\..\..\..\core\third_party\base\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>third_party\v8_72\v8\armeabi-v7a\libmtt_shared.so;third_party\v8_72\v8\armeabi-v7a\libmttv8.so</AdditionalDependencies>

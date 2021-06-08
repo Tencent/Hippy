@@ -1,8 +1,8 @@
-const fs                          = require('fs');
-const path                        = require('path');
-const webpack                     = require('webpack');
-const VueLoaderPlugin             = require('vue-loader/lib/plugin');
-const CaseSensitivePathsPlugin    = require('case-sensitive-paths-webpack-plugin');
+const fs = require('fs');
+const path = require('path');
+const webpack = require('webpack');
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 
 const platform = 'android';
 
@@ -103,7 +103,7 @@ module.exports = {
         console.warn('* Using the @hippy/vue-router defined in package.json');
       }
 
-      // If hippy-vue-router was built exist then make a alias
+      // If hippy-vue-native-components was built exist then make a alias
       // Remove the section if you don't use it
       const hippyVueNativeComponentsPath = path.resolve(__dirname, '../../../packages/hippy-vue-native-components');
       if (fs.existsSync(path.resolve(hippyVueNativeComponentsPath, 'dist/index.js'))) {

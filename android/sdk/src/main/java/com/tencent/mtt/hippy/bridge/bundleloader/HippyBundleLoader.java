@@ -19,17 +19,17 @@ import com.tencent.mtt.hippy.bridge.HippyBridge;
 import com.tencent.mtt.hippy.bridge.NativeCallback;
 
 @SuppressWarnings({"unused"})
-public interface HippyBundleLoader
-{
-    void load(HippyBridge bridge, NativeCallback callback);
+public interface HippyBundleLoader {
 
-    String getPath();
+  void load(HippyBridge bridge, NativeCallback callback);
 
-    String getRawPath();
+  String getPath();
 
-    String getBundleUniKey();
+  String getRawPath();
 
-    boolean canUseCodeCache();
+  String getBundleUniKey();
 
-    String  getCodeCacheTag();
+  boolean canUseCodeCache();
+
+  String getCodeCacheTag();
 }

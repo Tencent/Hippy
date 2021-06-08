@@ -3,6 +3,8 @@
 
 # 模块
 
+---
+
 # Animation
 
 [[Animation 范例]](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/modules/Animation/index.jsx)
@@ -80,6 +82,8 @@
 
 > * options: Object: 实例化参数
 
+---
+
 # AnimationSet
 
 [[AnimationSet 范例]](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/modules/Animation)
@@ -135,9 +139,11 @@
 
 `(options: Object) => void` 修改动画的配置参数，只需要填入需要修改的配置项即可，不需要重复填入所有的动画参数
 
+---
+
 # AsyncStorage
 
-[[AsyncStorage 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/modules/AsyncStorage)
+[[AsyncStorage 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/modules/AsyncStorage/index.jsx)
 
 AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系统，它对于 App 来说是全局性的。
 
@@ -186,19 +192,21 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 > * key: string - 需要获取值的目标 key
 > * value: string - 需要获取值的目标值
 
+---
+
 # BackAndroid
 
 [[BackAndroid 范例]](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/pages/gallery.jsx#L171)
 
 可以监听 Android 实体键的回退，在退出前做操作或拦截实体键的回退。
 
-> 注意：该方法需要终端拦截实体返回按钮的事件，可以参考 [android-demo 的 onBackPressed 方法](//github.com/Tencent/Hippy/blob/master/examples/android-demo/example/src/main/java/com/tencent/mtt/hippy/example/MyActivity.java#L141)
+> 注意：该方法需要终端拦截实体返回按钮的事件，可以参考 [android-demo 的 onBackPressed 方法](//github.com/Tencent/Hippy/blob/master/examples/android-demo/example/src/main/java/com/tencent/mtt/hippy/example/MyActivity.java)
 
 ## 方法
 
 ### BackAndroid.addListener
 
-`(handler: () => boolean) => { remove: Function }` 监听Android实体健回退，触发时执行 handler 回调函数。回调函数返回 true 时，拦截终端的回退操作。回调函数返回 false 时, 就不会拦截回退。
+`(handler: () => boolean) => { remove: Function }` 监听Android实体健回退，触发时执行 handler 回调函数。回调函数返回 true 时，拦截终端的回退操作。回调函数返回 false 时, 就不会拦截回退。该函数返回包含 `remove()` 方法的对象，可通过调用 `remove()` 方法移除监听，同 `BackAndroid.removeListener`。
 
 > * handler: Function - 实体键回退时触发的回调函数
 
@@ -210,7 +218,9 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 `(handler: () => boolean) => void` 移除 BackAndroid 关于Android实体健回退事件的监听器。
 
-* handler: Function - 建议使用 `addListener` 返回的 `remove` 对象，也可以是之前 BackAndroid 的回调函数。
+* handler: Function - 建议使用 `addListener` 返回的包含 `remove()` 方法的对象，也可以是之前 BackAndroid 的回调函数。
+
+---
 
 # Clipboard
 
@@ -230,6 +240,8 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 > * value: string - 需要设置到剪贴板中的内容。
 
+---
+
 # Dimensions
 
 用于获取当前设备的宽高。
@@ -243,6 +255,8 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 > * target: 'window' | 'screen' - 指定丈量 Hippy Root View 或者屏幕尺寸。
 > * Android 特别说明：因为历史遗留问题，screen 下的 statusBarHeight 是按实际像素算的，window 下经过修正已经是 dp 单位。
 > * navigatorBarHeight: Android 底部 navigatorBar 高度；最低支持版本 2.3.4
+
+---
 
 # ImageLoaderModule
 
@@ -261,6 +275,8 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 `(url: string) => void` 用于预加载图片。
 
 > * url - 图片地址
+
+---
 
 # NetInfo
 
@@ -290,7 +306,7 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 `(eventName: string, handler: Function) => NetInfoRevoker` 添加一个网络变化监听器。
 
 > * eventName: 'change' - 事件名称
-> * handler: Function - 网络发生变化时触发的回调函数
+> * handler: ({ network_info:string }) => any - 网络发生变化时触发的回调函数
 
 ### NetInfo.fetch
 
@@ -325,6 +341,8 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 > * keyValue: string - 需要设置的键值对
 > * expires?: string - 设置 Cookie 的超市时间
 
+---
+
 # PixelRatio
 
 用于获取当前设备的像素密度(pixel density)。
@@ -356,6 +374,8 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
   * Pixel XL, Pixel 2 XL
   * [xxxhdpi Android 设备](//material.io/tools/devices/)
 
+---
+
 # Platform
 
 用于书写平台区分代码的一个组件。开发者使用时，根据 `Platform.OS` 输出值开发分平台业务逻辑分支。
@@ -365,6 +385,8 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 | 参数          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | OS | 用来判断是在 iOS 或者 Android 下 | string                                  | `ALL`    |
+
+---
 
 # Stylesheet
 
@@ -383,6 +405,8 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 `(styleObj: Object) => styleObj`
 
 > * styleObj: Object - 样式对象
+
+---
 
 # UIManagerModule
 

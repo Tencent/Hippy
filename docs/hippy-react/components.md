@@ -4,6 +4,8 @@
 
 hippy-react 的组件接近终端，语法上接近 React Native。
 
+---
+
 # Image
 
 [[Image 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/Image)
@@ -74,6 +76,8 @@ import icon from './qb_icon_new.png';
 
 > * `uri`: string - 图片的地址
 
+---
+
 # ListView
 
 [[ListView 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/ListView)
@@ -84,11 +88,12 @@ import icon from './qb_icon_new.png';
 
 | 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
 | --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
+| horizontal       | 指定 `ListView` 是否采用横向布局。`default: undefined` | `any`   | `Android`    |
 | initialListSize       | 指定在组件刚挂载的时候渲染多少行数据。用这个属性来确保首屏显示合适数量的数据，而不是花费太多帧时间逐步显示出来。 | `number`                                                    | `ALL`    |
 | numberOfRows          | 指定列表的行数，一般直接传入数据源条数 `length` 即可。       | `number`                                                    | `ALL`    |
 | initialContentOffset  | 初始位移值 -- 在列表初始化时即可指定滚动距离，避免初始化后再通过 scrollTo 系列方法产生的闪动。 | `number`                                                    | `ALL`    |
 | renderRow             | 这里的入参是当前row 的index，在这里可以凭借index 获取到具体这一行单元格的数据，从而决定如何渲染这个单元格。 | `(index: number) => Node`                                   | `ALL`    |
-| getRowStyle           | -                                                            | `(index: number) => any`                                    | `ALL`    |
+| getRowStyle           | 设置`ListViewItem`容器的样式。当设置了 `horizontal=true` 启用横向 `ListView` 时，需显式设置 `ListViewItem` 宽度              | `(index: number) => styleObject`                                    | `ALL`    |
 | getRowType            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升list 性能。 | `(index: number) => number`                                    | `ALL`    |
 | getRowKey             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [React 官文](//reactjs.org/docs/lists-and-keys.html) | `(index: number) => any`                                    | `ALL`    |
 | preloadItemNumber     | 指定当列表滚动至倒数第几行时触发 `onEndReached` 回调。 | `number` | `ALL` |
@@ -131,6 +136,8 @@ import icon from './qb_icon_new.png';
 
 `() => void` 收起刷新条 PullHeader。当设置了`renderPullHeader`后，每当下拉刷新结束需要主动调用该方法收回 PullHeader。
 
+---
+
 # Modal
 
 [[Modal 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/Modal)
@@ -153,6 +160,8 @@ import icon from './qb_icon_new.png';
 | onDismiss             | -                                                            | `Function`                                                   | `iOS`    |
 | transparent           | 背景是否是透明的                      | `boolean`                                                    | `ALL`    |
 | visible               | 是否显示                                                       | `boolean`                                                    | `ALL`    |
+
+---
 
 # Navigator
 
@@ -197,6 +206,8 @@ import icon from './qb_icon_new.png';
 >   * initProps: Object - 初始化参数
 >   * toDirection: left | right | top | bottom - 自定义页面pop 的方向
 
+---
+
 # RefreshWrapper
 
 [[RefreshWrapper 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/RefreshWrapper)
@@ -223,6 +234,8 @@ import icon from './qb_icon_new.png';
 
 `() => void` 调用此方法，手工告知 RefreshWrapper 开始刷新，展开刷新栏。
 
+---
+
 # ScrollView
 
 [[Scroll 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/ScrollView)
@@ -246,11 +259,11 @@ import icon from './qb_icon_new.png';
 | onScrollEndDrag                | 当用户停止拖拽 `ScrollView` 或者放手让 `ScrollView` 开始滑动的时候调用。 | `Function`                                                   | `ALL`    |
 | scrollEventThrottle            | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onScroll` 回调事件。 | `number`                                                     | `ALL`    |
 | scrollIndicatorInsets          | 决定滚动条距离视图边缘的坐标。这个值应该和contentInset一样。 | `{ top: number, left: number, bottom: number, right: number }` | `ALL`    |
-| pagingEnabled                  | 当值为 `true` 时，滚动条会停在滚动视图的尺寸的整数倍位置。这个可以用在水平分页上。 | `boolean`                                                    | `ALL`    |
-| scrollEnabled                  | 当值为 `false` 的时候，内容不能滚动。                        | `boolean`                                                    | `ALL`    |
+| pagingEnabled                  | 当值为 `true` 时，滚动条会停在滚动视图的尺寸的整数倍位置。这个可以用在水平分页上。`default: false` | `boolean`                                                    | `ALL`    |
+| scrollEnabled                  | 当值为 `false` 的时候，内容不能滚动。`default: true`                        | `boolean`                                                    | `ALL`    |
 | horizontal                     | 当此属性为 `true` 的时候，所有的子视图会在水平方向上排成一行，而不是默认的在垂直方向上排成一列 | `boolean`                                                    | `ALL`    |
-| showsHorizontalScrollIndicator | 当此值设为 `true` 的时候，`ScrollView` 会显示一个水平的滚动条。 | `boolean`                                                    | `ALL`    |
-| showsVerticalScrollIndicator   | 当此值设为 `true` 的时候，`ScrollView` 会显示一个垂直的滚动条。 | `boolean`                                                    | `ALL`    |
+| showsHorizontalScrollIndicator | 当此值设为 `false` 的时候，`ScrollView` 会隐藏水平的滚动条。`default: true` | `boolean`                                                    | `iOS`    |
+| showsVerticalScrollIndicator   | 当此值设为 `false` 的时候，`ScrollView` 会隐藏垂直的滚动条。 `default: true` | `boolean`                                                    | `iOS`    |
 
 ## 方法
 
@@ -269,6 +282,8 @@ import icon from './qb_icon_new.png';
 > * x: number - X 偏移值
 > * y: number - Y 偏移值
 > * duration: number - 毫秒为单位的滚动时间
+
+---
 
 # TextInput
 
@@ -375,6 +390,8 @@ import icon from './qb_icon_new.png';
 
 `() => void` 显示软键盘。
 
+---
+
 # Text
 
 [[Text 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/Text)
@@ -413,6 +430,8 @@ import icon from './qb_icon_new.png';
   * `middle` - "文字将会从中间开始截断，保证字符串的最后与最前的文字可以正常显示在Text组件的响应位置，而中间给截断的文字，将以 “...” 代替，例如 “ab...yz”；（仅iOS支持）
   * `tail` - 文字将会从最后开始截断，保证字符串的最前的文字可以正常显示在 Text 组件的最前，而从最后给截断的文字，将以 “...” 代替，例如 “abcd...”；
 
+---
+
 # View
 
 [[View 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/View)
@@ -426,11 +445,18 @@ import icon from './qb_icon_new.png';
 | accessibilityLabel | 设置当用户与此元素交互时，“读屏器”（对视力障碍人士的辅助功能）阅读的文字。默认情况下，这个文字会通过遍历所有的子元素并累加所有的文本标签来构建。 | `node`                               | `ALL`     |
 | accessible         | 当此属性为 `true` 时，表示此视图时一个启用了无障碍功能的元素。默认情况下，所有可触摸操作的元素都是无障碍功能元素。 | `boolean`                            | `ALL`     |
 | style              | -                                                            | [`View Styles`](style/layout.md) | `ALL`     |
-| collapsable        | 如果一个 `View` 只用于布局它的子组件，则它可能会为了优化而从原生布局树中移除。 把此属性设为 `false` 可以禁用这个优化，以确保对应视图在原生结构中存在。 | `boolean`                            | `Android` |
 | opacity            | 配置 `View` 的透明度，同时会影响子节点的透明度               | `number`                             | `ALL`     |
 | overflow           | 指定当子节点内容溢出其父级 `View` 容器时, 是否剪辑内容       | `enum`(visible, hidden)         | `ALL`     |
 | onLayout           | 这个事件会在布局计算完成后立即调用一次，不过收到此事件时新的布局可能还没有在屏幕上呈现，尤其是一个布局动画正在进行中的时候。 | `Function`                           | `ALL`     |
 | onAttachedToWindow           | 这个事件会在节点已经渲染并且添加到容器组件中触发，因为 Hippy 的渲染是异步的，这是很稳妥的执行后续操作的事件。 | `Function`                           | `ALL`     |
+
+## 样式内特殊属性
+
+| 参数               | 描述                                                         | 类型                                 | 支持平台  |
+| ------------------ | ------------------------------------------------------------ | ------------------------------------ | --------- |
+| collapsable        | Android 里如果一个 `View` 只用于布局它的子组件，则它可能会为了优化而从原生布局树中移除，因此该节点 DOM 的引用会丢失。 把此属性设为 `false` 可以禁用这个优化，以确保对应视图在原生结构中存在。 | `boolean`                            | `Android` |
+
+---
 
 # ViewPager
 

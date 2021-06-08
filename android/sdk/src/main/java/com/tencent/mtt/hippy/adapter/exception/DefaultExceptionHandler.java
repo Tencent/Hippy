@@ -18,24 +18,20 @@ package com.tencent.mtt.hippy.adapter.exception;
 import com.tencent.mtt.hippy.common.HippyJsException;
 
 @SuppressWarnings({"unused", "deprecation"})
-public class DefaultExceptionHandler implements HippyExceptionHandlerAdapter
-{
-	@Override
-	public void handleJsException(HippyJsException exception)
-	{
-	}
+public class DefaultExceptionHandler implements HippyExceptionHandlerAdapter {
 
-	@Override
-	public void handleNativeException(Exception exception, boolean haveCaught)
-	{
-		if (exception != null)
-		{
-			exception.printStackTrace();
-		}
-	}
+  @Override
+  public void handleJsException(HippyJsException exception) {
+  }
 
-	@Override
-	public void handleBackgroundTracing(String details)
-	{
-	}
+  @Override
+  public void handleNativeException(Exception exception, boolean haveCaught) {
+    if (exception != null) {
+      exception.printStackTrace();
+    }
+  }
+
+  @Override
+  public void handleBackgroundTracing(String details) {
+  }
 }

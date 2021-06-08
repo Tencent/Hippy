@@ -4,6 +4,8 @@
 
 扩展组件是终端提供了一些很方便的组件，在 hippy-vue 中由 [@hippy/vue-native-components](//www.npmjs.com/package/@hippy/vue-native-components) 提供，但因为暂时还没有 `@hippy/vue-web-components` 所以暂时无法在浏览器中使用。
 
+---
+
 # animation
 
 [[范例：demo-animation.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-animation.vue)
@@ -67,6 +69,8 @@
 
 `() => void` 重置开始标记
 
+---
+
 # dialog
 
 [[范例：demo-dialog.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-dialog.vue)
@@ -91,11 +95,13 @@
 | orientationChange   | 屏幕旋转方向改变                                           | `Function`                                                   | `ALL`    |
 | requestClose        | 在`Modal`请求关闭时会执行此回调函数，一般时在 Android 系统里按下硬件返回按钮时触发，一般要在里面处理关闭弹窗。 | `Function`                                                   | `Android`    |
 
+---
+
 # swiper
 
 [[范例：demo-swiper.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-swiper.vue)
 
-轮播组件，里面只能包含 `<swiper-slide>` 组件。
+轮播组件，对应终端 `ViewPager`组件， 里面只能包含 `<swiper-slide>` 组件。
 
 > **注意事项：**如果在 ul 里嵌套 swiper，因为 ul 自带复用能力，swiper 滚出屏幕后不可在对其进行任何操作（例如通过代码更改 current 值），否则很可能导致终端出错。
 
@@ -122,40 +128,54 @@
   * dragging 拖拽中
   * settling 松手后触发，然后马上回到 idle
 
+---
+
 # swiper-slide
 
 [[范例：demo-swiper.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-swiper.vue)
 
 轮播组件页容器。
 
-# ul-refresh-wrapper
+---
 
-[[范例：demo-list-refresh.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-list-refresh.vue)
+# pull-header
 
-列表下拉刷新组件，里面只能包裹 `<ul-refresh>` 和 `<ul>` 组件。
+[[范例：demo-pull-header.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-pull-header.vue)
 
-## 方法
-
-### refreshCompleted
-
-`() => void` 告知终端内容刷新已经结束，收起刷新栏。
-
-### startRefresh
-
-`() => void` 手动告知终端开始刷新，下拉刷新栏。
+下拉刷新组件，嵌套在 `ul` 中作为第一个子元素使用
 
 ## 事件
 
 | 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| refresh                | 下拉刷新回弹后触发刷新回掉函数的事件。*                            | `Function`                                                   | `ALL`    |
+| idle                | 滑动距离在 pull-header 区域内触发一次，参数 contentOffset                            | `Function`                                                   | `ALL`    |
+| pulling   | 滑动距离超出 pull-header 后触发一次，参数 contentOffset                                                        | `Function`   | `ALL`    |
+| refresh   | 滑动超出距离，松手后触发一次          | `Function`   | `ALL`    |
 
-* 刷新事件回调的特别说明
+## 方法
 
-下拉刷新，加载数据完成后需要用 [refreshCompleted()](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-list-refresh.vue#L105) 告知终端刷新已经结束，可以弹回去了。
+### collapsePullHeader
 
-# ul-refresh
+`() => void` 收起顶部刷新条 `<pull-header>`。
 
-[[范例：demo-list-refresh.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-list-refresh.vue)
+---
 
-列表下拉刷新时，刷新内容的容器组件。
+# pull-footer
+
+[[范例：demo-pull-footer.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-pull-footer.vue)
+
+上拉刷新组件，嵌套在 `ul` 中作为最后一个子元素使用
+
+## 事件
+
+| 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
+| ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
+| idle                | 滑动距离在 pull-footer 区域内触发一次，参数 contentOffset                            | `Function`                                                   | `ALL`    |
+| pulling   | 滑动距离超出 pull-footer 后触发一次，参数 contentOffset      | `Function`   | `ALL`    |
+| refresh   | 滑动超出距离，松手后触发一次          | `Function`   | `ALL`    |
+
+## 方法
+
+### collapsePullFooter
+
+`() => void` 收起底部刷新条 `<pull-footer>`。

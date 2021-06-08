@@ -19,6 +19,7 @@ import java.nio.ByteBuffer;
 
 @SuppressWarnings({"unused"})
 public final class SafeHeapWriter extends AbstractBinaryWriter {
+
   public static final int INITIAL_CAPACITY = 64;
   public static final int MAX_CAPACITY = 1024 * 16; // 16k
 
@@ -36,7 +37,8 @@ public final class SafeHeapWriter extends AbstractBinaryWriter {
 
   private void enlargeBuffer(int min) {
     int twice = (value.length << 1) + 2;
-    @SuppressWarnings("ManualMinMaxCalculation") byte[] newData = new byte[min > twice ? min : twice];
+    @SuppressWarnings("ManualMinMaxCalculation") byte[] newData = new byte[min > twice ? min
+        : twice];
     System.arraycopy(value, 0, newData, 0, count);
     value = newData;
   }
@@ -70,6 +72,7 @@ public final class SafeHeapWriter extends AbstractBinaryWriter {
     putInt64(Double.doubleToRawLongBits(d));
   }
 
+  @SuppressWarnings("SpellCheckingInspection")
   @Override
   public int putVarint(long l) {
     if (count + 10 > value.length) {
@@ -113,7 +116,7 @@ public final class SafeHeapWriter extends AbstractBinaryWriter {
     }
 
     value[count++] = ((byte) c);
-    value[count++] = ((byte)(c >> 8));
+    value[count++] = ((byte) (c >> 8));
   }
 
   @Override
@@ -139,11 +142,17 @@ public final class SafeHeapWriter extends AbstractBinaryWriter {
 
   @Override
   public final ByteBuffer chunked() {
-    ByteBuffer chunked =  ByteBuffer.wrap(value, 0, count);
+    ByteBuffer chunked = ByteBuffer.wrap(value, 0, count);
+    reset();
+    return chunked;
+  }
+
+  @Override
+  public BinaryWriter reset() {
     if (count >= maxCapacity) {
       value = new byte[initialCapacity];
     }
     count = 0;
-    return chunked;
+    return this;
   }
 }

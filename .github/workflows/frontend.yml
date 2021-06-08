@@ -9,7 +9,7 @@ jobs:
       matrix:
         node: [ 10.x, 13.x ]
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: setup-node
         uses: actions/setup-node@master
         with:
@@ -33,12 +33,10 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: wagoid/commitlint-github-action@v1
-        with:
-          configFile: .commitlintrc.js
   markdownlint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: markdownlint
         uses: nosborn/github-action-markdown-cli@v1.1.1
         with:

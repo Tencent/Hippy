@@ -56,12 +56,27 @@ function startBatch() {
   }
 }
 
-function endBatch(rootViewId) {
+/**
+ * Hippy applies batched rendering,
+ * but iOS JSCore Promise.resolve task executed too fast,
+ * resulting in segmented rendering,
+ * so use polyfill to handle it on different platforms.
+ */
+function taskPolyfill(handler: Function) {
+  // @ts-ignore
+  if (__PLATFORM__ === 'ios' || Device.platform.OS === 'ios') {
+    setTimeout(handler, 0);
+  } else {
+    Promise.resolve().then(handler as ((value: void) => void | Promise<void>));
+  }
+}
+
+function endBatch(rootViewId: number) {
   if (!__batchIdle) {
     return;
   }
   __batchIdle = false;
-  Promise.resolve().then(() => {
+  taskPolyfill(() => {
     const chunks = chunkNodes(__batchNodes);
     chunks.forEach((chunk) => {
       switch (chunk.type) {
@@ -71,7 +86,8 @@ function endBatch(rootViewId) {
           break;
         case NODE_OPERATION_TYPES.updateNode:
           trace(...componentName, 'updateNode', chunk.nodes);
-          // FIXME: iOS should be able to update mutiple nodes at once.
+          // FIXME: iOS should be able to update multiple nodes at once.
+          // @ts-ignore
           if (__PLATFORM__ === 'ios' || Device.platform.OS === 'ios') {
             chunk.nodes.forEach(node => (
               UIManagerModule.updateNode(rootViewId, [node])
@@ -83,6 +99,7 @@ function endBatch(rootViewId) {
         case NODE_OPERATION_TYPES.deleteNode:
           trace(...componentName, 'deleteNode', chunk.nodes);
           // FIXME: iOS should be able to delete mutiple nodes at once.
+          // @ts-ignore
           if (__PLATFORM__ === 'ios' || Device.platform.OS === 'ios') {
             chunk.nodes.forEach(node => (
               UIManagerModule.deleteNode(rootViewId, [node])
@@ -127,6 +144,7 @@ function renderToNative(rootViewId: number, targetNode: Element): Hippy.NativeNo
   }
 
   // Translate to native node
+  // @ts-ignore
   return {
     id: targetNode.nodeId,
     pId: (targetNode.parentNode && targetNode.parentNode.nodeId) || rootViewId,

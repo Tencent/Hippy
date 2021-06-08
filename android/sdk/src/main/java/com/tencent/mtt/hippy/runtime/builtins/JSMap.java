@@ -15,8 +15,7 @@
  */
 package com.tencent.mtt.hippy.runtime.builtins;
 
-import android.support.annotation.NonNull;
-
+import androidx.annotation.NonNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -25,7 +24,9 @@ import java.util.Map;
 
 @SuppressWarnings({"unused"})
 public class JSMap extends JSValue {
+
   private final HashMap<Object, Object> internalMap;
+
   public JSMap() {
     internalMap = new HashMap<>();
   }

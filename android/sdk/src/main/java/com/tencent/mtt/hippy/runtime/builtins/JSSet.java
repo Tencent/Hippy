@@ -15,8 +15,7 @@
  */
 package com.tencent.mtt.hippy.runtime.builtins;
 
-import android.support.annotation.NonNull;
-
+import androidx.annotation.NonNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -24,6 +23,7 @@ import java.util.HashSet;
 
 @SuppressWarnings({"unused"})
 public class JSSet extends JSValue {
+
   private final HashSet<Object> internalSet;
 
   public JSSet() {

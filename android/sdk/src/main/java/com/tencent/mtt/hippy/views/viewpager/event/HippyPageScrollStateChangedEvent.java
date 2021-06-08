@@ -20,29 +20,23 @@ import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 
 import android.view.View;
 
-/**
- * Created by huskyzhyu on 2017/12/15.
- */
-
 @SuppressWarnings("deprecation")
-public class HippyPageScrollStateChangedEvent extends HippyViewEvent
-{
-	public static final String EVENT_NAME	= "onPageScrollStateChanged";
+public class HippyPageScrollStateChangedEvent extends HippyViewEvent {
 
-	private final View mTarget;
+  public static final String EVENT_NAME = "onPageScrollStateChanged";
 
-	public HippyPageScrollStateChangedEvent(View target)
-	{
-		super(EVENT_NAME);
-		mTarget = target;
-	}
+  private final View mTarget;
 
-	public void send(String pageScrollState)
-	{
-		HippyMap map = new HippyMap();
-		map.pushString("pageScrollState", pageScrollState);
-		super.send(mTarget, map);
-	}
+  public HippyPageScrollStateChangedEvent(View target) {
+    super(EVENT_NAME);
+    mTarget = target;
+  }
+
+  public void send(String pageScrollState) {
+    HippyMap map = new HippyMap();
+    map.pushString("pageScrollState", pageScrollState);
+    super.send(mTarget, map);
+  }
 
 
 }

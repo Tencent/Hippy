@@ -1,11 +1,11 @@
-const fs                          = require('fs');
-const path                        = require('path');
-const webpack                     = require('webpack');
-const VueLoaderPlugin             = require('vue-loader/lib/plugin');
-const CaseSensitivePathsPlugin    = require('case-sensitive-paths-webpack-plugin');
-const HippyDynamicImportPlugin    = require('@hippy/hippy-dynamic-import-plugin');
-const pkg                         = require('../package.json');
-const manifest                    = require('../dist/android/vendor-manifest.json');
+const fs = require('fs');
+const path = require('path');
+const webpack = require('webpack');
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
+const HippyDynamicImportPlugin = require('@hippy/hippy-dynamic-import-plugin');
+const pkg = require('../package.json');
+const manifest = require('../dist/android/vendor-manifest.json');
 
 const platform = 'android';
 
@@ -110,7 +110,7 @@ module.exports = {
         'vue-router': '@hippy/vue-router',
       };
 
-      // If hippy-vue was built exist then make a alias
+      // If hippy-vue was built exist in packages directory then make a alias
       // Remove the section if you don't use it
       const hippyVuePath = path.resolve(__dirname, '../../../packages/hippy-vue');
       if (fs.existsSync(path.resolve(hippyVuePath, 'dist/index.js'))) {
@@ -123,7 +123,7 @@ module.exports = {
         console.warn('* Using the @hippy/vue defined in package.json');
       }
 
-      // If hippy-vue-router was built exist then make a alias
+      // If hippy-vue-router was built exist in packages directory then make a alias
       // Remove the section if you don't use it
       const hippyVueRouterPath = path.resolve(__dirname, '../../../packages/hippy-vue-router');
       if (fs.existsSync(path.resolve(hippyVueRouterPath, 'dist/index.js'))) {
@@ -135,7 +135,7 @@ module.exports = {
         console.warn('* Using the @hippy/vue-router defined in package.json');
       }
 
-      // If hippy-vue-router was built exist then make a alias
+      // If hippy-vue-native-components was built in packages directory exist then make a alias
       // Remove the section if you don't use it
       const hippyVueNativeComponentsPath = path.resolve(__dirname, '../../../packages/hippy-vue-native-components');
       if (fs.existsSync(path.resolve(hippyVueNativeComponentsPath, 'dist/index.js'))) {

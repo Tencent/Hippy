@@ -119,12 +119,22 @@ global.console = {
   },
 };
 
-['log', 'info', 'warn', 'error', 'debug'].forEach((api) => {
+const supportApiList = ['log', 'info', 'warn', 'error', 'debug'];
+
+supportApiList.forEach((api) => {
   global.console[api] = (...args) => {
-    const log = args.map(arg => inspect(arg)).join(' ');
-    consoleModule.Log(log);
     if (vmConsole) {
       vmConsole[api](...args);
     }
+    const log = args.map(arg => inspect(arg)).join(' ');
+    consoleModule.Log(log);
   };
 });
+
+if (vmConsole) {
+  Object.keys(vmConsole).forEach((api) => {
+    if (supportApiList.indexOf(api) < 0) {
+      global.console[api] = vmConsole[api];
+    }
+  });
+}

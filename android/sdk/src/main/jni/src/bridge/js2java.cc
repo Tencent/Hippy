@@ -25,10 +25,14 @@
 #include <memory>
 
 #include "base/logging.h"
+#include "base/unicode_string_view.h"
 #include "bridge/runtime.h"
 #include "bridge/serializer.h"
-#include "jni/hippy_buffer.h"
+#include "core/base/string_view_utils.h"
 #include "jni/jni_env.h"
+
+using unicode_string_view = tdf::base::unicode_string_view;
+using StringViewUtils = hippy::base::StringViewUtils;
 
 namespace hippy {
 namespace bridge {
@@ -49,10 +53,10 @@ void CallJava(hippy::napi::CBDataTuple* data) {
   }
 
   v8::HandleScope handle_scope(isolate);
-  std::shared_ptr<hippy::napi::V8Ctx> ctx =
+  std::shared_ptr<hippy::napi::V8Ctx> v8_ctx =
       std::static_pointer_cast<hippy::napi::V8Ctx>(
           runtime->GetScope()->GetContext());
-  v8::Local<v8::Context> context = ctx->context_persistent_.Get(isolate);
+  v8::Local<v8::Context> context = v8_ctx->context_persistent_.Get(isolate);
   v8::Context::Scope context_scope(context);
   if (context.IsEmpty()) {
     TDF_BASE_DLOG(ERROR) << "CallJava context empty";
@@ -63,25 +67,29 @@ void CallJava(hippy::napi::CBDataTuple* data) {
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
   JNIEnv* j_env = instance->AttachCurrentThread();
   if (info.Length() >= 1 && !info[0].IsEmpty()) {
-    v8::String::Utf8Value module_name(isolate, info[0]);
-    j_module_name = j_env->NewStringUTF(JniUtils::ToCString(module_name));
-    TDF_BASE_DLOG(INFO) << "CallJava module_name = "
-                        << JniUtils::ToCString(module_name);
+    v8::Local<v8::String> v8_str =
+        TO_LOCAL_UNCHECKED(info[0]->ToString(context), v8::String);
+    unicode_string_view module_name = v8_ctx->ToStringView(v8_str);
+    j_module_name = JniUtils::StrViewToJString(j_env, module_name);
+    TDF_BASE_DLOG(INFO) << "CallJava module_name = " << module_name;
   }
 
   jstring j_module_func = nullptr;
   if (info.Length() >= 2 && !info[1].IsEmpty()) {
-    v8::String::Utf8Value module_func(isolate, info[1]);
-    j_module_func = j_env->NewStringUTF(JniUtils::ToCString(module_func));
-    TDF_BASE_DLOG(INFO) << "CallJava module_func = "
-                        << JniUtils::ToCString(module_func);
+    v8::Local<v8::String> v8_str =
+        TO_LOCAL_UNCHECKED(info[1]->ToString(context), v8::String);
+    unicode_string_view module_func = v8_ctx->ToStringView(v8_str);
+    j_module_func = JniUtils::StrViewToJString(j_env, module_func);
+    TDF_BASE_DLOG(INFO) << "CallJava module_func = " << module_func;
   }
 
   jstring j_cb_id = nullptr;
   if (info.Length() >= 3 && !info[2].IsEmpty()) {
-    v8::String::Utf8Value cb_id(isolate, info[2]);
-    j_cb_id = j_env->NewStringUTF(JniUtils::ToCString(cb_id));
-    TDF_BASE_DLOG(INFO) << "CallJava cb_id = " << JniUtils::ToCString(cb_id);
+    v8::Local<v8::String> v8_str =
+        TO_LOCAL_UNCHECKED(info[2]->ToString(context), v8::String);
+    unicode_string_view cb_id = v8_ctx->ToStringView(v8_str);
+    j_cb_id = JniUtils::StrViewToJString(j_env, cb_id);
+    TDF_BASE_DLOG(INFO) << "CallJava cb_id = " << cb_id;
   }
 
   std::string buffer_data;
@@ -94,29 +102,13 @@ void CallJava(hippy::napi::CBDataTuple* data) {
       buffer_data =
           std::string(reinterpret_cast<const char*>(pair.first), pair.second);
     } else {
-      v8::Local<v8::Object> global = context->Global();
-      v8::Local<v8::Value> JSON = TO_LOCAL_UNCHECKED(
-          global->Get(context,
-                      TO_LOCAL_UNCHECKED(
-                          v8::String::NewFromUtf8(isolate, "JSON",
-                                                  v8::NewStringType::kNormal),
-                          v8::String)),
-          v8::Value);
-      v8::Local<v8::Value> fun = TO_LOCAL_UNCHECKED(
-          v8::Local<v8::Object>::Cast(JSON)->Get(
-              context, TO_LOCAL_UNCHECKED(
-                           v8::String::NewFromUtf8(isolate, "stringify",
-                                                   v8::NewStringType::kNormal),
-                           v8::String)),
-          v8::Value);
-      v8::Local<v8::Value> argv[1] = {info[3]};
-      v8::Local<v8::Value> s = TO_LOCAL_UNCHECKED(
-          v8::Local<v8::Function>::Cast(fun)->Call(context, JSON, 1, argv),
-          v8::Value);
+      std::shared_ptr<hippy::napi::V8CtxValue> obj =
+          std::make_shared<hippy::napi::V8CtxValue>(isolate, info[3]);
+      unicode_string_view json;
+      TDF_BASE_DCHECK(v8_ctx->GetValueJson(obj, &json));
+      TDF_BASE_DLOG(INFO) << "CallJava json = " << json;
 
-      v8::String::Utf8Value json(isolate, s);
-      buffer_data = std::string(JniUtils::ToCString(json));
-      TDF_BASE_DLOG(INFO) << "CallJava json = " << buffer_data;
+      buffer_data = StringViewUtils::ToU8StdStr(json);
     }
   }
 

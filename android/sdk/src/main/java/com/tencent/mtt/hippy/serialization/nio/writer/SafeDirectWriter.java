@@ -19,6 +19,7 @@ import java.nio.ByteBuffer;
 
 @SuppressWarnings({"unused"})
 public final class SafeDirectWriter extends AbstractBinaryWriter {
+
   public static final int INITIAL_CAPACITY = 1024;
   public static final int MAX_CAPACITY = 1024 * 16; // 16k
 
@@ -35,7 +36,8 @@ public final class SafeDirectWriter extends AbstractBinaryWriter {
 
   private void enlargeBuffer(int min) {
     int twice = (value.position() << 1) + 2;
-    @SuppressWarnings("ManualMinMaxCalculation") ByteBuffer newData = ByteBuffer.allocateDirect(min > twice ? min : twice);
+    @SuppressWarnings("ManualMinMaxCalculation") ByteBuffer newData = ByteBuffer
+        .allocateDirect(min > twice ? min : twice);
     value.flip();
     newData.put(value);
     value = newData;
@@ -63,6 +65,7 @@ public final class SafeDirectWriter extends AbstractBinaryWriter {
     value.putDouble(d);
   }
 
+  @SuppressWarnings("SpellCheckingInspection")
   @Override
   public int putVarint(long l) {
     if (value.position() + 10 > value.capacity()) {
@@ -119,13 +122,16 @@ public final class SafeDirectWriter extends AbstractBinaryWriter {
   @Override
   public ByteBuffer chunked() {
     value.flip();
-    ByteBuffer chunked;
-    if (value.limit() < maxCapacity) {
-      chunked = value.duplicate();
-    } else {
-      chunked = value;
+    ByteBuffer chunked = value.duplicate();
+    reset();
+    return chunked;
+  }
+
+  @Override
+  public BinaryWriter reset() {
+    if (value.capacity() >= maxCapacity) {
       value = ByteBuffer.allocateDirect(initialCapacity);
     }
-    return chunked;
+    return this;
   }
 }

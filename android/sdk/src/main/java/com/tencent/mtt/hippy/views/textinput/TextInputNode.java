@@ -31,90 +31,85 @@ import com.tencent.mtt.hippy.dom.node.TextNode;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 
-@SuppressWarnings({"deprecation","unused"})
-public class TextInputNode extends TextNode implements FlexNodeAPI.MeasureFunction
-{
-	private EditText	mEditText;
-	private float[]		mComputedPadding;
+@SuppressWarnings({"deprecation", "unused"})
+public class TextInputNode extends TextNode implements FlexNodeAPI.MeasureFunction {
+
+  private EditText mEditText;
+  private float[] mComputedPadding;
 
 
-	public TextInputNode(boolean isvurtla)
-	{
-		super(isvurtla);
-		setMeasureFunction(this);
-	}
+  public TextInputNode(boolean isvurtla) {
+    super(isvurtla);
+    setMeasureFunction(this);
+  }
 
-	@Override
-	public void updateProps(HippyMap props)
-	{
+  @Override
+  public void updateProps(HippyMap props) {
 
-	}
+  }
 
-	@Override
-	public void layoutBefore(HippyEngineContext context)
-	{
+  @Override
+  public void layoutBefore(HippyEngineContext context) {
 
-		if (mEditText == null)
-		{
-			mEditText = new EditText(ContextHolder.getAppContext());
-			mEditText.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+    if (mEditText == null) {
+      mEditText = new EditText(ContextHolder.getAppContext());
+      mEditText.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+          ViewGroup.LayoutParams.WRAP_CONTENT));
 
-			setDefaultPadding(FlexSpacing.START, mEditText.getPaddingLeft());
-			setDefaultPadding(FlexSpacing.TOP, mEditText.getPaddingTop());
-			setDefaultPadding(FlexSpacing.END, mEditText.getPaddingRight());
-			setDefaultPadding(FlexSpacing.BOTTOM, mEditText.getPaddingBottom());
-			mComputedPadding = new float[] { getPadding(FlexSpacing.START), getPadding(FlexSpacing.TOP), getPadding(FlexSpacing.END), getPadding(FlexSpacing.BOTTOM), };
-		}
-	}
+      setDefaultPadding(FlexSpacing.START, mEditText.getPaddingLeft());
+      setDefaultPadding(FlexSpacing.TOP, mEditText.getPaddingTop());
+      setDefaultPadding(FlexSpacing.END, mEditText.getPaddingRight());
+      setDefaultPadding(FlexSpacing.BOTTOM, mEditText.getPaddingBottom());
+      mComputedPadding = new float[]{getPadding(FlexSpacing.START), getPadding(FlexSpacing.TOP),
+          getPadding(FlexSpacing.END), getPadding(FlexSpacing.BOTTOM),};
+    }
+  }
 
-	@Override
-	public void layoutAfter(HippyEngineContext context)
-	{
-		// 不能删
-	}
+  @Override
+  public void layoutAfter(HippyEngineContext context) {
+    // 不能删
+  }
 
-	private int getMeasureSpec(float size, FlexMeasureMode mode)
-	{
-		if (mode == FlexMeasureMode.EXACTLY)
-		{
-			return View.MeasureSpec.makeMeasureSpec((int) size, View.MeasureSpec.EXACTLY);
-		}
-		else if (mode == FlexMeasureMode.AT_MOST)
-		{
-			return View.MeasureSpec.makeMeasureSpec((int) size, View.MeasureSpec.AT_MOST);
-		}
-		else
-		{
-			return View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-		}
-	}
-	@Override
-	public void setPadding(int spacingType, float padding) {
-		super.setPadding(spacingType, padding);
-		mComputedPadding = new float[] {
-				getPadding(FlexSpacing.START),
-				getPadding(FlexSpacing.TOP),
-				getPadding(FlexSpacing.END),
-				getPadding(FlexSpacing.BOTTOM),
-		};
-		markUpdated();
-	}
+  private int getMeasureSpec(float size, FlexMeasureMode mode) {
+    if (mode == FlexMeasureMode.EXACTLY) {
+      return View.MeasureSpec.makeMeasureSpec((int) size, View.MeasureSpec.EXACTLY);
+    } else if (mode == FlexMeasureMode.AT_MOST) {
+      return View.MeasureSpec.makeMeasureSpec((int) size, View.MeasureSpec.AT_MOST);
+    } else {
+      return View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+    }
+  }
 
-	@SuppressWarnings("rawtypes")
-	@Override
-	public long measure(FlexNodeAPI node, float width, FlexMeasureMode widthMode, float height, FlexMeasureMode heightMode)
-	{
-		mEditText.setTextSize(TypedValue.COMPLEX_UNIT_PX, mFontSize == UNSET ? (int) Math.ceil(PixelUtil.dp2px(NodeProps.FONT_SIZE_SP)) : mFontSize);
-		mComputedPadding = new float[] { getPadding(FlexSpacing.START), getPadding(FlexSpacing.TOP), getPadding(FlexSpacing.END), getPadding(FlexSpacing.BOTTOM), };
-		mEditText.setPadding((int) Math.floor(getPadding(FlexSpacing.START)), (int) Math.floor(getPadding(FlexSpacing.TOP)),
-				(int) Math.floor(getPadding(FlexSpacing.END)), (int) Math.floor(getPadding(FlexSpacing.BOTTOM)));
+  @Override
+  public void setPadding(int spacingType, float padding) {
+    super.setPadding(spacingType, padding);
+    mComputedPadding = new float[]{
+        getPadding(FlexSpacing.START),
+        getPadding(FlexSpacing.TOP),
+        getPadding(FlexSpacing.END),
+        getPadding(FlexSpacing.BOTTOM),
+    };
+    markUpdated();
+  }
 
-		if (mNumberOfLines != UNSET)
-		{
-			mEditText.setLines(mNumberOfLines);
-		}
-		mEditText.measure(getMeasureSpec(width, widthMode), getMeasureSpec(height, heightMode));
+  @SuppressWarnings("rawtypes")
+  @Override
+  public long measure(FlexNodeAPI node, float width, FlexMeasureMode widthMode, float height,
+      FlexMeasureMode heightMode) {
+    mEditText.setTextSize(TypedValue.COMPLEX_UNIT_PX,
+        mFontSize == UNSET ? (int) Math.ceil(PixelUtil.dp2px(NodeProps.FONT_SIZE_SP)) : mFontSize);
+    mComputedPadding = new float[]{getPadding(FlexSpacing.START), getPadding(FlexSpacing.TOP),
+        getPadding(FlexSpacing.END), getPadding(FlexSpacing.BOTTOM),};
+    mEditText.setPadding((int) Math.floor(getPadding(FlexSpacing.START)),
+        (int) Math.floor(getPadding(FlexSpacing.TOP)),
+        (int) Math.floor(getPadding(FlexSpacing.END)),
+        (int) Math.floor(getPadding(FlexSpacing.BOTTOM)));
 
-		return FlexOutput.make(mEditText.getMeasuredWidth(), mEditText.getMeasuredHeight());
-	}
+    if (mNumberOfLines != UNSET) {
+      mEditText.setLines(mNumberOfLines);
+    }
+    mEditText.measure(getMeasureSpec(width, widthMode), getMeasureSpec(height, heightMode));
+
+    return FlexOutput.make(mEditText.getMeasuredWidth(), mEditText.getMeasuredHeight());
+  }
 }

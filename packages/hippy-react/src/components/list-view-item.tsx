@@ -13,6 +13,7 @@ interface ListViewItemProps {
 
 function ListViewItem(props: ListViewItemProps) {
   return (
+    // @ts-ignore
     <li nativeName="ListViewItem" {...props} />
   );
 }

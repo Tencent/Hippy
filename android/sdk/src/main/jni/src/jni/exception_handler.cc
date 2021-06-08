@@ -22,58 +22,32 @@
 
 #include "jni/exception_handler.h"
 
+#include "core/base/string_view_utils.h"
 #include "core/core.h"
 #include "jni/jni_env.h"
 #include "jni/jni_utils.h"
 
+using StringViewUtils = hippy::base::StringViewUtils;
+
 void ExceptionHandler::ReportJsException(std::shared_ptr<Runtime> runtime,
-                                         const std::string desc,
-                                         const std::string stack) {
+                                         const unicode_string_view& desc,
+                                         const unicode_string_view& stack) {
   TDF_BASE_DLOG(INFO) << "ReportJsException begin";
 
   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
-
-  jstring j_exception = j_env->NewStringUTF(desc.c_str());
-  jstring j_stack_trace = j_env->NewStringUTF(stack.c_str());
+  jstring j_exception = JniUtils::StrViewToJString(j_env, desc);
+  jstring j_stack_trace = JniUtils::StrViewToJString(j_env, stack);
 
   if (runtime->GetBridge()) {
-    j_env->CallVoidMethod(
-        runtime->GetBridge()->GetObj(),
-        JNIEnvironment::GetInstance()->GetMethods().j_report_exception_method_id,
-        j_exception, j_stack_trace);
+    j_env->CallVoidMethod(runtime->GetBridge()->GetObj(),
+                          JNIEnvironment::GetInstance()
+                              ->GetMethods()
+                              .j_report_exception_method_id,
+                          j_exception, j_stack_trace);
   }
 
-  // delete local ref
   j_env->DeleteLocalRef(j_exception);
   j_env->DeleteLocalRef(j_stack_trace);
 
   TDF_BASE_DLOG(INFO) << "ReportJsException end";
-}
-
-void ExceptionHandler::JSONException(std::shared_ptr<Runtime> runtime,
-                                     const char* jsonValue) {
-  if (!runtime) {  // nullptr
-    return;
-  }
-
-  if (!jsonValue) {  // nullptr
-    return;
-  }
-
-  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
-
-  jstring j_exception = j_env->NewStringUTF("Hippy Bridge parse json error");
-  jstring j_stack_trace = j_env->NewStringUTF(jsonValue);
-
-  // call function
-  if (runtime->GetBridge()) {
-    j_env->CallVoidMethod(
-        runtime->GetBridge()->GetObj(),
-        JNIEnvironment::GetInstance()->GetMethods().j_report_exception_method_id,
-        j_exception, j_stack_trace);
-  }
-
-  // delete local ref
-  j_env->DeleteLocalRef(j_exception);
-  j_env->DeleteLocalRef(j_stack_trace);
 }

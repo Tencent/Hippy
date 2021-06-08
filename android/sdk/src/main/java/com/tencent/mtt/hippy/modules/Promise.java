@@ -18,15 +18,15 @@ package com.tencent.mtt.hippy.modules;
 import com.tencent.mtt.hippy.HippyEngine.BridgeTransferType;
 
 @SuppressWarnings({"unused"})
-public interface Promise
-{
-    void resolve(Object value);
+public interface Promise {
 
-    void reject(Object error);
-    
-	boolean isCallback();
+  void resolve(Object value);
 
-	String getCallId();
+  void reject(Object error);
 
-    void setTransferType(BridgeTransferType type);
+  boolean isCallback();
+
+  String getCallId();
+
+  void setTransferType(BridgeTransferType type);
 }

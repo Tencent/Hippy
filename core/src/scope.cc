@@ -35,6 +35,8 @@
 #include "core/task/javascript_task.h"
 #include "core/task/javascript_task_runner.h"
 
+using unicode_string_view = tdf::base::unicode_string_view;
+
 using RegisterMap = hippy::base::RegisterMap;
 using RegisterFunction = hippy::base::RegisterFunction;
 using ModuleClassMap = hippy::napi::ModuleClassMap;
@@ -123,16 +125,14 @@ void Scope::Initialized() {
 
   auto source_code = hippy::GetNativeSourceCode(kHippyBootstrapJSName);
   TDF_BASE_DCHECK(source_code.data_ && source_code.length_);
-
-  std::shared_ptr<CtxValue> function =
-      context_->RunScript(source_code.data_, source_code.length_,
-                          kHippyBootstrapJSName, false, nullptr);
+  unicode_string_view str_view(source_code.data_, source_code.length_);
+  std::shared_ptr<CtxValue> function = context_->RunScript(
+      str_view, kHippyBootstrapJSName, false, nullptr, true);
 
   bool is_func = context_->IsFunction(function);
   TDF_BASE_CHECK(is_func) << "bootstrap return not function, register fail!!!";
   if (!is_func) {
-    const char* js = reinterpret_cast<const char*>(source_code.data_);
-    TDF_BASE_DLOG(ERROR) << "bootstrap return not function, js = " << js
+    TDF_BASE_DLOG(ERROR) << "bootstrap return not function, js = " << str_view
                          << ", len = " << source_code.length_;
     return;
   }
@@ -154,23 +154,23 @@ void Scope::Initialized() {
   }
 }
 
-ModuleBase* Scope::GetModuleClass(const std::string& moduleName) {
+ModuleBase* Scope::GetModuleClass(const unicode_string_view& moduleName) {
   auto it = module_class_map_.find(moduleName);
   return it != module_class_map_.end() ? it->second.get() : nullptr;
 }
 
-void Scope::AddModuleClass(const std::string& name,
+void Scope::AddModuleClass(const unicode_string_view& name,
                            std::unique_ptr<ModuleBase> module) {
   module_class_map_.insert({name, std::move(module)});
 }
 
 std::shared_ptr<hippy::napi::CtxValue> Scope::GetModuleValue(
-    const std::string& moduleName) {
+    const unicode_string_view& moduleName) {
   auto it = module_value_map_.find(moduleName);
   return it != module_value_map_.end() ? it->second : nullptr;
 }
 
-void Scope::AddModuleValue(const std::string& name,
+void Scope::AddModuleValue(const unicode_string_view& name,
                            std::shared_ptr<CtxValue> value) {
   module_value_map_.insert({name, value});
 }
@@ -179,16 +179,16 @@ void Scope::SaveFunctionData(std::unique_ptr<hippy::napi::FunctionData> data) {
   function_data_.push_back(std::move(data));
 }
 
-void Scope::RunJS(const std::string&& js,
-                  const std::string& name,
-                  Encoding encodeing) {
+void Scope::RunJS(const unicode_string_view& data,
+                  const unicode_string_view& name,
+                  bool is_copy) {
   std::weak_ptr<Ctx> weak_context = context_;
-  JavaScriptTask::Function callback = [js, name, encodeing, weak_context] {
+  JavaScriptTask::Function callback = [data, name, is_copy, weak_context] {
     std::shared_ptr<Ctx> context = weak_context.lock();
     if (!context) {
       return;
     }
-    context->RunScript(std::move(js), name, false, nullptr, encodeing);
+    context->RunScript(data, name, false, nullptr, is_copy);
   };
 
   std::shared_ptr<JavaScriptTaskRunner> runner = engine_->GetJSRunner();
@@ -201,40 +201,18 @@ void Scope::RunJS(const std::string&& js,
   }
 }
 
-void Scope::RunJS(const uint8_t* data, size_t len, const std::string& name) {
-  std::weak_ptr<Ctx> weak_context = context_;
-  JavaScriptTask::Function callback = [data, len, name, weak_context] {
-    std::shared_ptr<Ctx> context = weak_context.lock();
-    if (!context) {
-      return;
-    }
-    context->RunScript(data, len, name, false, nullptr,
-                       hippy::napi::ONE_BYTE_ENCODING);
-  };
-
-  std::shared_ptr<JavaScriptTaskRunner> runner = engine_->GetJSRunner();
-  if (runner->IsJsThread()) {
-    callback();
-  } else {
-    std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-    task->callback = callback;
-    runner->PostTask(task);
-  }
-}
-
-std::shared_ptr<CtxValue> Scope::RunJSSync(const uint8_t* data,
-                                           size_t len,
-                                           const std::string& name) {
+std::shared_ptr<CtxValue> Scope::RunJSSync(const unicode_string_view& data,
+                                           const unicode_string_view& name,
+                                           bool is_copy) {
   std::promise<std::shared_ptr<CtxValue>> promise;
   std::future<std::shared_ptr<CtxValue>> future = promise.get_future();
   std::weak_ptr<Ctx> weak_context = context_;
   JavaScriptTask::Function cb = hippy::base::MakeCopyable(
-      [data, len, name, weak_context, p = std::move(promise)]() mutable {
+      [data, name, is_copy, weak_context, p = std::move(promise)]() mutable {
         std::shared_ptr<CtxValue> rst = nullptr;
         std::shared_ptr<Ctx> context = weak_context.lock();
         if (context) {
-          rst = context->RunScript(data, len, name, false, nullptr,
-                                   hippy::napi::ONE_BYTE_ENCODING);
+          rst = context->RunScript(data, name, false, nullptr, is_copy);
         }
         p.set_value(rst);
       });

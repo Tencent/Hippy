@@ -17,10 +17,6 @@ package com.tencent.mtt.supportui.adapters.image;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 
-/**
- * Created by leonardgong on 2017/12/4 0004.
- */
-
 public interface IDrawableTarget
 {
 	Drawable getDrawable();

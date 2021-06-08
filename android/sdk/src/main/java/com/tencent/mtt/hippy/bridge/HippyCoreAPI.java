@@ -39,8 +39,8 @@ import com.tencent.mtt.hippy.modules.nativemodules.uimanager.UIManagerModule;
 import com.tencent.mtt.hippy.modules.nativemodules.utils.UtilsModule;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.utils.LogUtils;
-import com.tencent.mtt.hippy.views.audioview.AudioViewController;
 import com.tencent.mtt.hippy.views.custom.HippyCustomPropsController;
+import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewController;
 import com.tencent.mtt.hippy.views.image.HippyImageViewController;
 import com.tencent.mtt.hippy.views.list.HippyListItemViewController;
 import com.tencent.mtt.hippy.views.list.HippyListViewController;
@@ -64,181 +64,147 @@ import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings({"unused", "rawtypes"})
-public class HippyCoreAPI implements HippyAPIProvider
-{
-	public final static String VIDEO_CONTROLLER_CLASS_NAME = "com.tencent.mtt.hippy.views.videoview.VideoHippyViewController";
+public class HippyCoreAPI implements HippyAPIProvider {
 
-	@Override
-	public Map<Class<? extends HippyNativeModuleBase>, Provider<? extends HippyNativeModuleBase>> getNativeModules(final HippyEngineContext context)
-	{
-		Map<Class<? extends HippyNativeModuleBase>, Provider<? extends HippyNativeModuleBase>> modules = new HashMap<>();
-		modules.put(TimerModule.class, new Provider<TimerModule>()
-		{
-			@Override
-			public TimerModule get()
-			{
-				return new TimerModule(context);
-			}
-		});
-		modules.put(ConsoleModule.class, new Provider<ConsoleModule>()
-		{
-			@Override
-			public ConsoleModule get()
-			{
-				return new ConsoleModule(context);
-			}
-		});
-		modules.put(ExceptionModule.class, new Provider<HippyNativeModuleBase>()
-		{
-			@Override
-			public HippyNativeModuleBase get()
-			{
-				return new ExceptionModule(context);
-			}
-		});
-		modules.put(UIManagerModule.class, new Provider<HippyNativeModuleBase>()
-		{
-			@Override
-			public HippyNativeModuleBase get()
-			{
-				return new UIManagerModule(context);
-			}
-		});
-		modules.put(AnimationModule.class, new Provider<HippyNativeModuleBase>()
-		{
-			@Override
-			public HippyNativeModuleBase get()
-			{
-				return new AnimationModule(context);
-			}
-		});
-		modules.put(StorageModule.class, new Provider<HippyNativeModuleBase>()
-		{
-			@Override
-			public HippyNativeModuleBase get()
-			{
-				return new StorageModule(context);
-			}
-		});
-		modules.put(NetInfoModule.class, new Provider<HippyNativeModuleBase>()
-		{
-			@Override
-			public HippyNativeModuleBase get()
-			{
-				return new NetInfoModule(context);
-			}
-		});
-		modules.put(AnimationFrameModule.class, new Provider<HippyNativeModuleBase>()
-		{
-			@Override
-			public HippyNativeModuleBase get()
-			{
-				return new AnimationFrameModule(context);
-			}
-		});
-		modules.put(ImageLoaderModule.class, new Provider<HippyNativeModuleBase>()
-		{
-			@Override
-			public HippyNativeModuleBase get()
-			{
-				return new ImageLoaderModule(context);
-			}
-		});
-		modules.put(NetworkModule.class, new Provider<HippyNativeModuleBase>()
-		{
-			@Override
-			public HippyNativeModuleBase get()
-			{
-				return new NetworkModule(context);
-			}
-		});
-		modules.put(DeviceEventModule.class, new Provider<HippyNativeModuleBase>()
-		{
-			@Override
-			public HippyNativeModuleBase get()
-			{
-				return new DeviceEventModule(context);
-			}
-		});
-		modules.put(WebSocketModule.class, new Provider<HippyNativeModuleBase>()
-		{
-			@Override
-			public HippyNativeModuleBase get()
-			{
-				return new WebSocketModule(context);
-			}
-		});
-		modules.put(UtilsModule.class, new Provider<HippyNativeModuleBase>()
-		{
-			@Override
-			public HippyNativeModuleBase get()
-			{
-				return new UtilsModule(context);
-			}
-		});
-		modules.put(ClipboardModule.class, new Provider<HippyNativeModuleBase>()
-		{
-			@Override
-			public HippyNativeModuleBase get()
-			{
-				return new ClipboardModule(context);
-			}
-		});
-		modules.put(AudioPlayerModule.class, new Provider<HippyNativeModuleBase>()
-		{
-        	@Override
-			public HippyNativeModuleBase get()
-			{
-                return new AudioPlayerModule(context);
-            }
-        });
-		return modules;
-	}
+  @Override
+  public Map<Class<? extends HippyNativeModuleBase>, Provider<? extends HippyNativeModuleBase>> getNativeModules(
+      final HippyEngineContext context) {
+    Map<Class<? extends HippyNativeModuleBase>, Provider<? extends HippyNativeModuleBase>> modules = new HashMap<>();
+    modules.put(TimerModule.class, new Provider<TimerModule>() {
+      @Override
+      public TimerModule get() {
+        return new TimerModule(context);
+      }
+    });
+    modules.put(ConsoleModule.class, new Provider<ConsoleModule>() {
+      @Override
+      public ConsoleModule get() {
+        return new ConsoleModule(context);
+      }
+    });
+    modules.put(ExceptionModule.class, new Provider<HippyNativeModuleBase>() {
+      @Override
+      public HippyNativeModuleBase get() {
+        return new ExceptionModule(context);
+      }
+    });
+    modules.put(UIManagerModule.class, new Provider<HippyNativeModuleBase>() {
+      @Override
+      public HippyNativeModuleBase get() {
+        return new UIManagerModule(context);
+      }
+    });
+    modules.put(AnimationModule.class, new Provider<HippyNativeModuleBase>() {
+      @Override
+      public HippyNativeModuleBase get() {
+        return new AnimationModule(context);
+      }
+    });
+    modules.put(StorageModule.class, new Provider<HippyNativeModuleBase>() {
+      @Override
+      public HippyNativeModuleBase get() {
+        return new StorageModule(context);
+      }
+    });
+    modules.put(NetInfoModule.class, new Provider<HippyNativeModuleBase>() {
+      @Override
+      public HippyNativeModuleBase get() {
+        return new NetInfoModule(context);
+      }
+    });
+    modules.put(AnimationFrameModule.class, new Provider<HippyNativeModuleBase>() {
+      @Override
+      public HippyNativeModuleBase get() {
+        return new AnimationFrameModule(context);
+      }
+    });
+    modules.put(ImageLoaderModule.class, new Provider<HippyNativeModuleBase>() {
+      @Override
+      public HippyNativeModuleBase get() {
+        return new ImageLoaderModule(context);
+      }
+    });
+    modules.put(NetworkModule.class, new Provider<HippyNativeModuleBase>() {
+      @Override
+      public HippyNativeModuleBase get() {
+        return new NetworkModule(context);
+      }
+    });
+    modules.put(DeviceEventModule.class, new Provider<HippyNativeModuleBase>() {
+      @Override
+      public HippyNativeModuleBase get() {
+        return new DeviceEventModule(context);
+      }
+    });
+    modules.put(WebSocketModule.class, new Provider<HippyNativeModuleBase>() {
+      @Override
+      public HippyNativeModuleBase get() {
+        return new WebSocketModule(context);
+      }
+    });
+    modules.put(UtilsModule.class, new Provider<HippyNativeModuleBase>() {
+      @Override
+      public HippyNativeModuleBase get() {
+        return new UtilsModule(context);
+      }
+    });
+    modules.put(ClipboardModule.class, new Provider<HippyNativeModuleBase>() {
+      @Override
+      public HippyNativeModuleBase get() {
+        return new ClipboardModule(context);
+      }
+    });
+    modules.put(AudioPlayerModule.class, new Provider<HippyNativeModuleBase>() {
+      @Override
+      public HippyNativeModuleBase get() {
+        return new AudioPlayerModule(context);
+      }
+    });
+    return modules;
+  }
 
-	@Override
-	public List<Class<? extends HippyJavaScriptModule>> getJavaScriptModules()
-	{
-		List<Class<? extends HippyJavaScriptModule>> jsModules = new ArrayList<>();
-		jsModules.add(EventDispatcher.class);
-		jsModules.add(Dimensions.class);
-		return jsModules;
-	}
+  @Override
+  public List<Class<? extends HippyJavaScriptModule>> getJavaScriptModules() {
+    List<Class<? extends HippyJavaScriptModule>> jsModules = new ArrayList<>();
+    jsModules.add(EventDispatcher.class);
+    jsModules.add(Dimensions.class);
+    return jsModules;
+  }
 
-	@Override
-	public List<Class<? extends HippyViewController>> getControllers()
-	{
-		List<Class<? extends HippyViewController>> components = new ArrayList<>();
-		components.add(HippyTextViewController.class);
-		components.add(HippyViewGroupController.class);
-		components.add(HippyImageViewController.class);
-		components.add(HippyListViewController.class);
-		components.add(HippyListItemViewController.class);
-		components.add(HippyTextInputController.class);
-		components.add(HippyScrollViewController.class);
-		components.add(HippyViewPagerController.class);
-		components.add(HippyViewPagerItemController.class);
-		components.add(HippyModalHostManager.class);
-		components.add(RefreshWrapperController.class);
-		components.add(RefreshWrapperItemController.class);
-		components.add(HippyPullHeaderViewController.class);
-		components.add(HippyPullFooterViewController.class);
-		components.add(NavigatorController.class);
-		components.add(HippyWebViewController.class);
-		components.add(AudioViewController.class);
-		components.add(HippyCustomPropsController.class);
+  @Override
+  public List<Class<? extends HippyViewController>> getControllers() {
+    List<Class<? extends HippyViewController>> components = new ArrayList<>();
+    components.add(HippyTextViewController.class);
+    components.add(HippyViewGroupController.class);
+    components.add(HippyImageViewController.class);
+    components.add(HippyListViewController.class);
+    components.add(HippyRecyclerViewController.class);
+    components.add(HippyListItemViewController.class);
+    components.add(HippyTextInputController.class);
+    components.add(HippyScrollViewController.class);
+    components.add(HippyViewPagerController.class);
+    components.add(HippyViewPagerItemController.class);
+    components.add(HippyModalHostManager.class);
+    components.add(RefreshWrapperController.class);
+    components.add(RefreshWrapperItemController.class);
+    components.add(HippyPullHeaderViewController.class);
+    components.add(HippyPullFooterViewController.class);
+    components.add(NavigatorController.class);
+    components.add(HippyWebViewController.class);
+    components.add(HippyCustomPropsController.class);
 
-		addControllerWithClassName(VIDEO_CONTROLLER_CLASS_NAME, components);
-		return components;
-	}
+    return components;
+  }
 
-	@SuppressWarnings("SameParameterValue")
-	private void addControllerWithClassName(String className, List<Class<? extends HippyViewController>> components) {
-		try {
-			Class videoControllerClass = Class.forName(className);
-			//noinspection unchecked
-			components.add(videoControllerClass);
-		} catch (ClassNotFoundException ignore) {
-			LogUtils.d("HippyCoreAPI", "not contain video component, make sure current project config!");
-		}
-	}
+  @SuppressWarnings("SameParameterValue")
+  private void addControllerWithClassName(String className,
+      List<Class<? extends HippyViewController>> components) {
+    try {
+      Class videoControllerClass = Class.forName(className);
+      //noinspection unchecked
+      components.add(videoControllerClass);
+    } catch (ClassNotFoundException ignore) {
+      LogUtils.d("HippyCoreAPI", "not contain video component, make sure current project config!");
+    }
+  }
 }

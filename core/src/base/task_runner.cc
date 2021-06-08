@@ -65,8 +65,8 @@ void TaskRunner::Run() {
 void TaskRunner::Terminate() {
   {
     std::unique_lock<std::mutex> lock(mutex_);
-    TDF_BASE_DLOG(INFO) << "TaskRunner::Terminate task_queue_ size = "
-                        << task_queue_.size();
+    TDF_BASE_DLOG(INFO)
+        << "TaskRunner::Terminate task_queue_ size = " << task_queue_.size();
     if (is_terminated_) {
       TDF_BASE_DLOG(INFO) << "TaskRunner has been terminated";
       return;

@@ -7,6 +7,9 @@ import {
   isFunction,
 } from '../util';
 
+import BackAndroid from './backAndroid';
+import * as NetInfo from './netInfo';
+
 const {
   on,
   off,
@@ -354,12 +357,46 @@ const Native = {
   parseColor(color, options = { platform: Native.Platform }) {
     const cache = CACHE.COLOR_PARSER || (CACHE.COLOR_PARSER = Object.create(null));
     if (!cache[color]) {
-      const int32Color = colorParser(color, options);
       // cache the calculation result
-      cache[color] = int32Color;
+      cache[color] = colorParser(color, options);
     }
     return cache[color];
   },
+
+  /**
+   * Key-Value storage system
+   */
+  AsyncStorage: global.localStorage,
+  /**
+   * Android hardware back button event listener.
+   */
+  BackAndroid,
+  /**
+   * operations for img
+   */
+  ImageLoader: {
+    /**
+     * Get the image size before rendering.
+     *
+     * @param {string} url - Get image url.
+     */
+    getSize(url) {
+      return callNativeWithPromise('ImageLoaderModule', 'getSize', url);
+    },
+
+    /**
+     * Prefetch image, to make rendering in next more faster.
+     *
+     * @param {string} url - Prefetch image url.
+     */
+    prefetch(url) {
+      callNative('ImageLoaderModule', 'prefetch', url);
+    },
+  },
+  /**
+   * Network operations
+   */
+  NetInfo,
 };
 
 // Public export

@@ -28,11 +28,22 @@
 #include <mutex>
 #include <vector>
 
+#include "base/logging.h"
+#include "base/unicode_string_view.h"
 #include "core/base/macros.h"
 #include "core/napi/js_native_api_types.h"
 
+template <std::size_t N>
+constexpr JSStringRef CreateWithCharacters(const char16_t (&u16)[N]) noexcept {
+  return JSStringCreateWithCharacters((const JSChar*)u16, N - 1);
+}
+
 namespace hippy {
 namespace napi {
+
+const char16_t kLengthStr[] = u"length";
+const char16_t kMessageStr[] = u"message";
+const char16_t kStackStr[] = u"stack";
 
 class JSCVM : public VM {
  public:
@@ -52,6 +63,9 @@ class JSCCtxValue;
 
 class JSCCtx : public Ctx {
  public:
+  using unicode_string_view = tdf::base::unicode_string_view;
+  using JSValueWrapper = hippy::base::JSValueWrapper;
+
   explicit JSCCtx(JSContextGroupRef vm) {
     context_ = JSGlobalContextCreateInGroup(vm, nullptr);
 
@@ -70,6 +84,9 @@ class JSCCtx : public Ctx {
 
   inline std::shared_ptr<JSCCtxValue> GetException() { return exception_; }
   inline void SetException(std::shared_ptr<JSCCtxValue> exception) {
+    if (is_exception_handled_) {
+      return;
+    }
     exception_ = exception;
     if (exception) {
       is_exception_handled_ = false;
@@ -80,33 +97,40 @@ class JSCCtx : public Ctx {
     is_exception_handled_ = is_exception_handled;
   }
   virtual bool RegisterGlobalInJs();
-  virtual bool SetGlobalJsonVar(const std::string& name, const char* json);
-  virtual bool SetGlobalStrVar(const std::string& name, const char* str);
-  virtual bool SetGlobalObjVar(const std::string& name,
+  virtual bool SetGlobalJsonVar(const unicode_string_view& name,
+                                const unicode_string_view& json);
+  virtual bool SetGlobalStrVar(const unicode_string_view& name,
+                               const unicode_string_view& str);
+  virtual bool SetGlobalObjVar(const unicode_string_view& name,
                                std::shared_ptr<CtxValue> obj,
                                PropertyAttribute attr = None);
-  virtual std::shared_ptr<CtxValue> GetGlobalStrVar(const std::string& name);
-  virtual std::shared_ptr<CtxValue> GetGlobalObjVar(const std::string& name);
+  virtual std::shared_ptr<CtxValue> GetGlobalStrVar(
+      const unicode_string_view& name);
+  virtual std::shared_ptr<CtxValue> GetGlobalObjVar(
+      const unicode_string_view& name);
   virtual std::shared_ptr<CtxValue> GetProperty(
       const std::shared_ptr<CtxValue> object,
-      const std::string& name);
+      const unicode_string_view& name);
+
   virtual void RegisterGlobalModule(std::shared_ptr<Scope> scope,
                                     const ModuleClassMap& modules);
-  virtual void RegisterNativeBinding(const std::string& name,
+  virtual void RegisterNativeBinding(const unicode_string_view& name,
                                      hippy::base::RegisterFunction fn,
                                      void* data);
 
   virtual std::shared_ptr<CtxValue> CreateNumber(double number);
   virtual std::shared_ptr<CtxValue> CreateBoolean(bool b);
-  virtual std::shared_ptr<CtxValue> CreateString(const char* string);
+  virtual std::shared_ptr<CtxValue> CreateString(
+      const unicode_string_view& string);
   virtual std::shared_ptr<CtxValue> CreateUndefined();
   virtual std::shared_ptr<CtxValue> CreateNull();
-  virtual std::shared_ptr<CtxValue> CreateObject(const char* json, int length = -1);
+  virtual std::shared_ptr<CtxValue> CreateObject(
+      const unicode_string_view& json);
   virtual std::shared_ptr<CtxValue> CreateArray(
       size_t count,
       std::shared_ptr<CtxValue> value[]);
-
-  virtual std::shared_ptr<CtxValue> CreateJsError(const std::string& msg);
+  virtual std::shared_ptr<CtxValue> CreateJsError(
+      const unicode_string_view& msg);
 
   // Get From Value
   virtual std::shared_ptr<CtxValue> CallFunction(
@@ -114,52 +138,60 @@ class JSCCtx : public Ctx {
       size_t argument_count = 0,
       const std::shared_ptr<CtxValue> argumets[] = nullptr);
 
-  virtual bool GetValueNumber(std::shared_ptr<CtxValue>, double* result);
-  virtual bool GetValueNumber(std::shared_ptr<CtxValue>, int32_t* result);
-  virtual bool GetValueBoolean(std::shared_ptr<CtxValue>, bool* result);
-  virtual bool GetValueString(std::shared_ptr<CtxValue>, std::string* result);
-  virtual bool GetValueJson(std::shared_ptr<CtxValue>, std::string* result);
+  virtual bool GetValueNumber(std::shared_ptr<CtxValue> value, double* result);
+  virtual bool GetValueNumber(std::shared_ptr<CtxValue> value, int32_t* result);
+  virtual bool GetValueBoolean(std::shared_ptr<CtxValue> value, bool* result);
+  virtual bool GetValueString(std::shared_ptr<CtxValue> value,
+                              unicode_string_view* result);
+  virtual bool GetValueJson(std::shared_ptr<CtxValue> value,
+                            unicode_string_view* result);
 
   // Array Helpers
 
-  virtual bool IsArray(std::shared_ptr<CtxValue>);
-  virtual uint32_t GetArrayLength(std::shared_ptr<CtxValue>);
+  virtual bool IsArray(std::shared_ptr<CtxValue> value);
+  virtual uint32_t GetArrayLength(std::shared_ptr<CtxValue> value);
   virtual std::shared_ptr<CtxValue> CopyArrayElement(std::shared_ptr<CtxValue>,
                                                      uint32_t index);
 
   // Object Helpers
 
-  virtual bool HasNamedProperty(std::shared_ptr<CtxValue>, const char* name);
-  virtual std::shared_ptr<CtxValue> CopyNamedProperty(std::shared_ptr<CtxValue>,
-                                                      const char* name);
+  virtual bool HasNamedProperty(std::shared_ptr<CtxValue> value,
+                                const unicode_string_view& name);
+  virtual std::shared_ptr<CtxValue> CopyNamedProperty(
+      std::shared_ptr<CtxValue> value,
+      const unicode_string_view& name);
   // Function Helpers
 
-  virtual bool IsFunction(std::shared_ptr<CtxValue>);
-  virtual std::string CopyFunctionName(std::shared_ptr<CtxValue>);
-  virtual std::shared_ptr<CtxValue> GetJsFn(const std::string& name);
+  virtual bool IsFunction(std::shared_ptr<CtxValue> value);
+  virtual unicode_string_view CopyFunctionName(std::shared_ptr<CtxValue> value);
 
   virtual std::shared_ptr<CtxValue> RunScript(
-      const uint8_t* data,
-      size_t len,
-      const std::string& file_name,
+      const unicode_string_view& data,
+      const unicode_string_view& file_name,
       bool is_use_code_cache = false,
-      std::string* cache = nullptr,
-      Encoding encodeing = Encoding::ONE_BYTE_ENCODING);
+      unicode_string_view* cache = nullptr,
+      bool is_copy = true);
+  virtual std::shared_ptr<CtxValue> GetJsFn(const unicode_string_view& name);
+  virtual bool ThrowExceptionToJS(std::shared_ptr<CtxValue> exception);
 
-  virtual std::shared_ptr<CtxValue> RunScript(
-      const std::string&& script,
-      const std::string& file_name,
-      bool is_use_code_cache = false,
-      std::string* cache = nullptr,
-      Encoding encodeing = Encoding::UNKNOWN_ENCODING);
+  virtual std::shared_ptr<JSValueWrapper> ToJsValueWrapper(
+      std::shared_ptr<CtxValue> value);
+  virtual std::shared_ptr<CtxValue> CreateCtxValue(
+      std::shared_ptr<JSValueWrapper> wrapper);
 
-  std::string GetExceptionMsg(std::shared_ptr<CtxValue> exception);
-  bool ThrowExceptionToJS(std::shared_ptr<CtxValue> exception);
+  unicode_string_view GetExceptionMsg(std::shared_ptr<CtxValue> exception);
+  JSStringRef CreateJSCString(const unicode_string_view& str_view);
 
   JSGlobalContextRef context_;
   std::shared_ptr<JSCCtxValue> exception_;
   bool is_exception_handled_;
 };
+
+inline tdf::base::unicode_string_view ToStrView(JSStringRef str) {
+  return tdf::base::unicode_string_view(
+      reinterpret_cast<const char16_t*>(JSStringGetCharactersPtr(str)),
+      JSStringGetLength(str));
+}
 
 class JSCCtxValue : public CtxValue {
  public:
@@ -187,7 +219,7 @@ class JSCTryCatch : public TryCatch {
   virtual bool IsVerbose();
   virtual void SetVerbose(bool verbose);
   virtual std::shared_ptr<CtxValue> Exception();
-  virtual std::string GetExceptionMsg();
+  virtual tdf::base::unicode_string_view GetExceptionMsg();
 
  private:
   std::shared_ptr<JSCCtxValue> exception_;

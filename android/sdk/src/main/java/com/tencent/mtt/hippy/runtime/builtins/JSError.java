@@ -15,12 +15,12 @@
  */
 package com.tencent.mtt.hippy.runtime.builtins;
 
-import android.support.annotation.NonNull;
-
+import androidx.annotation.NonNull;
 import com.tencent.mtt.hippy.runtime.StackTrace;
 
 @SuppressWarnings({"unused"})
 public class JSError extends JSObject {
+
   public enum ErrorType {
     Error,
 

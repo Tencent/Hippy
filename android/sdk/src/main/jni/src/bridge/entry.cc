@@ -29,10 +29,12 @@
 #include <future>
 #include <memory>
 #include <mutex>
+#include <string>
 #include <unordered_map>
 
 #include "bridge/js2java.h"
 #include "bridge/runtime.h"
+#include "core/base/string_view_utils.h"
 #include "core/core.h"
 #include "jni/exception_handler.h"
 #include "jni/jni_env.h"
@@ -64,10 +66,14 @@ REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
              "(JZLcom/tencent/mtt/hippy/bridge/NativeCallback;)V",
              DestroyInstance)
 
+using unicode_string_view = tdf::base::unicode_string_view;
+using u8string = unicode_string_view::u8string;
 using RegisterMap = hippy::base::RegisterMap;
 using RegisterFunction = hippy::base::RegisterFunction;
 using Ctx = hippy::napi::Ctx;
 using V8InspectorClientImpl = hippy::inspector::V8InspectorClientImpl;
+using StringViewUtils = hippy::base::StringViewUtils;
+using HippyFile = hippy::base::HippyFile;
 
 static std::unordered_map<int64_t, std::pair<std::shared_ptr<Engine>, uint32_t>>
     reuse_engine_map;
@@ -95,45 +101,43 @@ void InitLogger(JNIEnv* j_env, jobject j_object, jobject j_logger) {
     return;
   }
   std::shared_ptr<JavaRef> logger = std::make_shared<JavaRef>(j_env, j_logger);
-  tdf::base::LogMessage::SetDefaultDelegate(
-      [logger, j_method](const std::ostringstream& stream) {
-        std::shared_ptr<JNIEnvironment> instance =
-            JNIEnvironment::GetInstance();
-        JNIEnv* j_env = instance->AttachCurrentThread();
-        std::string str = stream.str();
-        jstring j_logger_str = j_env->NewStringUTF(str.c_str());
-        j_env->CallVoidMethod(logger->GetObj(), j_method, j_logger_str);
-        j_env->DeleteLocalRef(j_logger_str);
-      });
+  tdf::base::LogMessage::SetDelegate([logger, j_method](
+                                         const std::ostringstream& stream,
+                                         tdf::base::LogSeverity severity) {
+    std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
+    JNIEnv* j_env = instance->AttachCurrentThread();
+
+    std::string str = stream.str();
+    jstring j_logger_str = j_env->NewStringUTF((str.c_str()));
+    j_env->CallVoidMethod(logger->GetObj(), j_method, j_logger_str);
+    j_env->DeleteLocalRef(j_logger_str);
+  });
 }
 
 bool RunScript(std::shared_ptr<Runtime> runtime,
-               const std::string& file_name,
+               const unicode_string_view& file_name,
                bool is_use_code_cache,
-               const std::string& code_cache_dir,
-               const std::string& uri,
+               const unicode_string_view& code_cache_dir,
+               const unicode_string_view& uri,
                AAssetManager* asset_manager) {
   TDF_BASE_DLOG(INFO) << "RunScript begin, file_name = " << file_name
                       << ", is_use_code_cache = " << is_use_code_cache
                       << ", code_cache_dir = " << code_cache_dir
                       << ", uri = " << uri
                       << ", asset_manager = " << asset_manager;
-  std::string script_content;
-  std::string code_cache_content;
+  unicode_string_view script_content;
+  unicode_string_view code_cache_content;
   uint64_t modify_time = 0;
-  std::string code_cache_path;
-  std::string code_cache_dir_path;
+
   std::shared_ptr<WorkerTaskRunner> task_runner;
+  unicode_string_view code_cache_path;
   if (is_use_code_cache) {
     if (!asset_manager) {
-      const std::string& full_path = code_cache_dir + file_name;
-
       auto time1 = std::chrono::time_point_cast<std::chrono::microseconds>(
                        std::chrono::system_clock::now())
                        .time_since_epoch()
                        .count();
-      modify_time = hippy::base::HippyFile::GetFileModifytime(full_path);
-
+      modify_time = HippyFile::GetFileModifytime(uri);
       auto time2 = std::chrono::time_point_cast<std::chrono::microseconds>(
                        std::chrono::system_clock::now())
                        .time_since_epoch()
@@ -142,81 +146,80 @@ bool RunScript(std::shared_ptr<Runtime> runtime,
       TDF_BASE_DLOG(INFO) << "GetFileModifytime cost %lld microseconds"
                           << time2 - time1;
     }
-    code_cache_path =
-        code_cache_dir + file_name + "_" + std::to_string(modify_time);
-    code_cache_dir_path = code_cache_dir.substr(0, code_cache_dir.length() - 1);
-    std::promise<std::string> read_file_promise;
-    std::future<std::string> read_file_future = read_file_promise.get_future();
-    std::unique_ptr<CommonTask> task = std::make_unique<CommonTask>();
-    task->func_ = hippy::base::MakeCopyable([p = std::move(read_file_promise),
-                                             code_cache_path,
-                                             code_cache_dir_path]() mutable {
-      const std::string content =
-          hippy::base::HippyFile::ReadFile(code_cache_path.c_str(), true);
-      if (content.empty()) {
-        TDF_BASE_DLOG(INFO) << "Read code cache failed";
-        int ret =
-            hippy::base::HippyFile::RmFullPath(code_cache_dir_path.c_str());
 
-        TDF_BASE_DLOG(INFO) << "RmFullPath ret = " << ret;
-        HIPPY_USE(ret);
-      } else {
-        TDF_BASE_DLOG(INFO) << "Read code cache succ";
-      }
-      p.set_value(std::move(content));
-    });
+    code_cache_path = code_cache_dir + file_name + unicode_string_view("_") +
+                      unicode_string_view(std::to_string(modify_time));
+
+    std::promise<u8string> read_file_promise;
+    std::future<u8string> read_file_future = read_file_promise.get_future();
+    std::unique_ptr<CommonTask> task = std::make_unique<CommonTask>();
+    task->func_ =
+        hippy::base::MakeCopyable([p = std::move(read_file_promise),
+                                   code_cache_path, code_cache_dir]() mutable {
+          u8string content;
+          HippyFile::ReadFile(code_cache_path, content, true);
+          if (content.empty()) {
+            TDF_BASE_DLOG(INFO) << "Read code cache failed";
+            int ret = HippyFile::RmFullPath(code_cache_dir);
+            TDF_BASE_DLOG(INFO) << "RmFullPath ret = " << ret;
+            HIPPY_USE(ret);
+          } else {
+            TDF_BASE_DLOG(INFO) << "Read code cache succ";
+          }
+          p.set_value(std::move(content));
+        });
 
     std::shared_ptr<Engine> engine = runtime->GetEngine();
     task_runner = engine->GetWorkerTaskRunner();
     task_runner->PostTask(std::move(task));
-
-    script_content =
-        runtime->GetScope()->GetUriLoader()->RequestUntrustedContent(uri);
+    u8string content;
+    runtime->GetScope()->GetUriLoader()->RequestUntrustedContent(uri, content);
+    script_content = unicode_string_view(std::move(content));
     code_cache_content = read_file_future.get();
   } else {
-    script_content =
-        runtime->GetScope()->GetUriLoader()->RequestUntrustedContent(uri);
+    u8string content;
+    runtime->GetScope()->GetUriLoader()->RequestUntrustedContent(uri, content);
+    script_content = unicode_string_view(std::move(content));
   }
 
-  TDF_BASE_DLOG(ERROR) << "uri = " << uri
-                       << ", len = " << script_content.length()
-                       << ", script content = " << script_content;
+  TDF_BASE_DLOG(INFO) << "uri = " << uri
+                      << ", script content = " << script_content;
 
-  if (script_content.empty()) {
+  if (StringViewUtils::IsEmpty(script_content)) {
     TDF_BASE_LOG(WARNING) << "script content empty, uri = " << uri;
     return false;
   }
 
   auto ret = std::static_pointer_cast<hippy::napi::V8Ctx>(
                  runtime->GetScope()->GetContext())
-                 ->RunScript(std::move(script_content), file_name,
-                             is_use_code_cache, &code_cache_content);
+                 ->RunScript(script_content, file_name, is_use_code_cache,
+                             &code_cache_content);
   if (is_use_code_cache) {
-    if (code_cache_content.length() > 0) {
+    if (!StringViewUtils::IsEmpty(code_cache_content)) {
       std::unique_ptr<CommonTask> task = std::make_unique<CommonTask>();
-      task->func_ = [code_cache_path, code_cache_dir_path, code_cache_content] {
-        std::string parent_dir = code_cache_dir_path.substr(
-            0, code_cache_dir_path.find_last_of('/'));
-        TDF_BASE_DLOG(INFO) << "parent_dir = " << parent_dir;
+      task->func_ = [code_cache_path, code_cache_dir, code_cache_content] {
+        int check_dir_ret = HippyFile::CheckDir(code_cache_dir, F_OK);
+        TDF_BASE_DLOG(INFO) << "check_parent_dir_ret = " << check_dir_ret;
+        if (check_dir_ret) {
+          HippyFile::CreateDir(code_cache_dir, S_IRWXU);
+        }
 
+        size_t pos =
+            StringViewUtils::FindLastOf(code_cache_path, EXTEND_LITERAL('/'));
+        unicode_string_view code_cache_parent_dir =
+            StringViewUtils::SubStr(code_cache_path, 0, pos);
         int check_parent_dir_ret =
-            hippy::base::HippyFile::CheckDir(parent_dir.c_str(), F_OK);
+            HippyFile::CheckDir(code_cache_parent_dir, F_OK);
         TDF_BASE_DLOG(INFO)
             << "check_parent_dir_ret = " << check_parent_dir_ret;
         if (check_parent_dir_ret) {
-          hippy::base::HippyFile::CreateDir(parent_dir.c_str(), S_IRWXU);
+          HippyFile::CreateDir(code_cache_parent_dir, S_IRWXU);
         }
 
-        int check_dir_ret =
-            hippy::base::HippyFile::CheckDir(code_cache_dir_path.c_str(), F_OK);
-        TDF_BASE_DLOG(INFO) << "check_dir_ret = " << check_dir_ret;
-        if (check_dir_ret) {
-          hippy::base::HippyFile::CreateDir(code_cache_dir_path.c_str(),
-                                            S_IRWXU);
-        }
-
-        bool save_file_ret = hippy::base::HippyFile::SaveFile(
-            code_cache_path.c_str(), code_cache_content);
+        std::string u8_code_cache_content =
+            StringViewUtils::ToU8StdStr(code_cache_content);
+        bool save_file_ret =
+            HippyFile::SaveFile(code_cache_path, u8_code_cache_content);
         TDF_BASE_LOG(INFO) << "code cache save_file_ret = " << save_file_ret;
         HIPPY_USE(save_file_ret);
       };
@@ -251,15 +254,13 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
                         .time_since_epoch()
                         .count();
 
-  const std::string uri = JniUtils::CovertJavaStringToString(j_env, j_uri);
-  const std::string code_cache_dir =
-      JniUtils::CovertJavaStringToString(j_env, j_code_cache_dir);
-
-  std::shared_ptr<Uri> uri_obj = std::make_shared<Uri>(uri);
-  std::string uri_path = uri_obj->GetPath();
-  auto pos = uri.find_last_of('/');
-  const std::string script_name = uri.substr(pos + 1);
-  const std::string base_path = uri.substr(0, pos + 1);
+  const unicode_string_view uri = JniUtils::ToStrView(j_env, j_uri);
+  const unicode_string_view code_cache_dir =
+      JniUtils::ToStrView(j_env, j_code_cache_dir);
+  auto pos = StringViewUtils::FindLastOf(uri, EXTEND_LITERAL('/'));
+  size_t len = StringViewUtils::GetLength(uri);
+  unicode_string_view script_name = StringViewUtils::SubStr(uri, pos + 1, len);
+  unicode_string_view base_path = StringViewUtils::SubStr(uri, 0, pos + 1);
   TDF_BASE_DLOG(INFO) << "runScriptFromUri uri = " << uri
                       << ", script_name = " << script_name
                       << ", base_path = " << base_path
@@ -269,7 +270,7 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
   std::shared_ptr<Ctx> ctx = runtime->GetScope()->GetContext();
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
   task->callback = [ctx, base_path] {
-    ctx->SetGlobalStrVar("__HIPPYCURDIR__", base_path.c_str());
+    ctx->SetGlobalStrVar("__HIPPYCURDIR__", base_path);
   };
   runner->PostTask(task);
 
@@ -291,7 +292,7 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
     TDF_BASE_DLOG(INFO) << "runScriptFromUri enter tast";
     bool flag = RunScript(runtime, script_name, j_can_use_code_cache,
                           code_cache_dir, uri, aasset_manager);
-    jlong value = flag == false ? 0 : 1;
+    jlong value = !flag ? 0 : 1;
     hippy::bridge::CallJavaMethod(save_object_->GetObj(), value);
 
     auto time_end = std::chrono::time_point_cast<std::chrono::microseconds>(
@@ -373,50 +374,51 @@ jlong InitInstance(JNIEnv* j_env,
   std::unique_ptr<RegisterMap> engine_cb_map = std::make_unique<RegisterMap>();
   engine_cb_map->insert(std::make_pair(hippy::base::kVMCreateCBKey, vm_cb));
 
-  std::string global_config =
-      JniUtils::AppendJavaByteArrayToString(j_env, j_global_config);
+  unicode_string_view global_config =
+      JniUtils::JByteArrayToStrView(j_env, j_global_config);
+
+  TDF_BASE_LOG(INFO) << "global_config = " << global_config;
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
   std::shared_ptr<JavaRef> save_object =
       std::make_shared<JavaRef>(j_env, j_callback);
 
-  RegisterFunction context_cb =
-      [runtime, global_config, runtime_key](void* scopeWrapper) {
-        TDF_BASE_LOG(INFO)
-            << "InitInstance register hippyCallNatives, runtime_key = "
-            << *runtime_key;
-        TDF_BASE_DCHECK(scopeWrapper);
-        ScopeWrapper* wrapper = reinterpret_cast<ScopeWrapper*>(scopeWrapper);
-        TDF_BASE_DCHECK(wrapper);
-        std::shared_ptr<Scope> scope = wrapper->scope_.lock();
-        if (!scope) {
-          TDF_BASE_DLOG(ERROR) << "register hippyCallNatives, scope error";
-          return;
-        }
+  RegisterFunction context_cb = [runtime, global_config,
+                                 runtime_key](void* scopeWrapper) {
+    TDF_BASE_LOG(INFO)
+        << "InitInstance register hippyCallNatives, runtime_key = "
+        << *runtime_key;
+    TDF_BASE_DCHECK(scopeWrapper);
+    ScopeWrapper* wrapper = reinterpret_cast<ScopeWrapper*>(scopeWrapper);
+    TDF_BASE_DCHECK(wrapper);
+    std::shared_ptr<Scope> scope = wrapper->scope_.lock();
+    if (!scope) {
+      TDF_BASE_DLOG(ERROR) << "register hippyCallNatives, scope error";
+      return;
+    }
 
-        if (runtime->IsDebug()) {
-          if (!global_inspector) {
-            global_inspector = std::make_shared<V8InspectorClientImpl>(scope);
-            global_inspector->Connect(runtime->GetBridge());
-          } else {
-            global_inspector->Reset(scope, runtime->GetBridge());
-          }
-          global_inspector->CreateContext();
-        }
+    if (runtime->IsDebug()) {
+      if (!global_inspector) {
+        global_inspector = std::make_shared<V8InspectorClientImpl>(scope);
+        global_inspector->Connect(runtime->GetBridge());
+      } else {
+        global_inspector->Reset(scope, runtime->GetBridge());
+      }
+      global_inspector->CreateContext();
+    }
 
-        std::shared_ptr<Ctx> ctx = scope->GetContext();
-        ctx->RegisterGlobalInJs();
-        hippy::base::RegisterFunction fn = TO_REGISTER_FUNCTION(
-            hippy::bridge::CallJava, hippy::napi::CBDataTuple);
-        ctx->RegisterNativeBinding("hippyCallNatives", fn,
-                                   static_cast<void*>(runtime_key.get()));
-        bool ret = ctx->SetGlobalJsonVar("__HIPPYNATIVEGLOBAL__",
-                                         global_config.c_str());
-        if (!ret) {
-          TDF_BASE_DLOG(ERROR) << "register __HIPPYNATIVEGLOBAL__ failed";
-          ExceptionHandler exception;
-          exception.JSONException(runtime, global_config.c_str());
-        }
-      };
+    std::shared_ptr<Ctx> ctx = scope->GetContext();
+    ctx->RegisterGlobalInJs();
+    hippy::base::RegisterFunction fn =
+        TO_REGISTER_FUNCTION(hippy::bridge::CallJava, hippy::napi::CBDataTuple);
+    ctx->RegisterNativeBinding("hippyCallNatives", fn,
+                               static_cast<void*>(runtime_key.get()));
+    bool ret = ctx->SetGlobalJsonVar("__HIPPYNATIVEGLOBAL__", global_config);
+    if (!ret) {
+      TDF_BASE_DLOG(ERROR) << "register __HIPPYNATIVEGLOBAL__ failed";
+      ExceptionHandler::ReportJsException(runtime, u"global_config parse error",
+                                          global_config);
+    }
+  };
   std::unique_ptr<RegisterMap> scope_cb_map = std::make_unique<RegisterMap>();
   scope_cb_map->insert(
       std::make_pair(hippy::base::kContextCreatedCBKey, context_cb));

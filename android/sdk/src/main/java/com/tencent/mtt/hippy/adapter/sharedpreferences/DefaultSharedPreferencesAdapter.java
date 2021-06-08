@@ -21,14 +21,15 @@ import android.content.SharedPreferences;
 @SuppressWarnings({"unused"})
 public class DefaultSharedPreferencesAdapter implements HippySharedPreferencesAdapter {
 
-    private final Context mContext;
-    public DefaultSharedPreferencesAdapter(Context context){
-        this.mContext = context;
-    }
+  private final Context mContext;
 
-    @Override
-    public SharedPreferences getSharedPreferences() {
-        return mContext.getSharedPreferences("hippy_sdk_configs",Context.MODE_PRIVATE);
-    }
+  public DefaultSharedPreferencesAdapter(Context context) {
+    this.mContext = context;
+  }
+
+  @Override
+  public SharedPreferences getSharedPreferences() {
+    return mContext.getSharedPreferences("hippy_sdk_configs", Context.MODE_PRIVATE);
+  }
 
 }

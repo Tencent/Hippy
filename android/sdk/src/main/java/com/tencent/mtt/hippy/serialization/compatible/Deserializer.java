@@ -137,9 +137,13 @@ public class Deserializer extends PrimitiveValueDeserializer {
         if (key instanceof Number) {
           object.pushObject(String.valueOf(key), value);
         } else if (key instanceof String) {
-          object.pushObject((String) key, value);
+          if (key == "null") {
+            object.pushObject(null, value);
+          } else {
+            object.pushObject((String) key, value);
+          }
         } else {
-          throw new AssertionError("Object key is not of String nor Number type");
+          throw new AssertionError("Object key is not of String(null) nor Number type");
         }
       }
     }
@@ -158,7 +162,11 @@ public class Deserializer extends PrimitiveValueDeserializer {
       key = key.toString();
       Object value = readValue(StringLocation.MAP_VALUE, key);
       if (value != Undefined) {
-        object.pushObject((String) key, value);
+        if (key == "null") {
+          object.pushObject(null, value);
+        } else {
+          object.pushObject((String) key, value);
+        }
       }
     }
     int expected = (int) reader.getVarint();
@@ -217,12 +225,10 @@ public class Deserializer extends PrimitiveValueDeserializer {
    * Reads Spare Array from buffer.
    *
    * <h2>Note</h2>
-   * Sparse arrays will be serialized as an object-like manner.
-   * Normally, it should be representable as {@link HippyMap},
-   * but in order to be compatible with the previous serialization implement,
-   * we use {@link HippyArray} to express sparse arrays.
-   * <br/>
-   * When a hole is encountered, {@link ConstantValue#Null} is used to fill it.
+   * Sparse arrays will be serialized as an object-like manner. Normally, it should be representable
+   * as {@link HippyMap}, but in order to be compatible with the previous serialization implement,
+   * we use {@link HippyArray} to express sparse arrays. <br/> When a hole is encountered, {@link
+   * ConstantValue#Null} is used to fill it.
    *
    * @return array
    */
@@ -252,7 +258,8 @@ public class Deserializer extends PrimitiveValueDeserializer {
 
       if (index >= 0) {
         int spaceNeeded = (index + 1) - array.size();
-        if (spaceNeeded == 1) { // Fast path, item are ordered in general ECMAScript(VM) implementation
+        if (spaceNeeded
+            == 1) { // Fast path, item are ordered in general ECMAScript(VM) implementation
           array.pushObject(value);
         } else {  // Slow path, universal
           for (int i = 0; i < spaceNeeded; i++) {

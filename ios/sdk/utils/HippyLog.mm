@@ -55,7 +55,7 @@ static BOOL getFileNameAndLineNumberFromLogMessage(NSString *message, NSString *
 static void registerTDFLogHandler() {
     static std::once_flag flag;
     std::call_once(flag, [](){
-        std::function<void (const std::ostringstream &)> logFunction = [](const std::ostringstream &stream) {
+        std::function<void (const std::ostringstream &, tdf::base::LogSeverity)> logFunction = [](const std::ostringstream &stream, tdf::base::LogSeverity serverity) {
             std::string string = stream.str();
             if (string.length()) {
                 NSString *message = [NSString stringWithUTF8String:string.c_str()];
@@ -66,7 +66,7 @@ static void registerTDFLogHandler() {
                 }
             }
         };
-        tdf::base::LogMessage::SetDefaultDelegate(logFunction);
+        tdf::base::LogMessage::SetDelegate(logFunction);
     });
 }
 

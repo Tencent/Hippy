@@ -20,29 +20,23 @@ import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 
 import android.view.View;
 
-/**
- * Created by huskyzhyu on 2017/12/15.
- */
-
 @SuppressWarnings("deprecation")
-public class HippyPageSelectedEvent extends HippyViewEvent
-{
-	public static final String EVENT_NAME	= "onPageSelected";
+public class HippyPageSelectedEvent extends HippyViewEvent {
 
-	private final View mTarget;
+  public static final String EVENT_NAME = "onPageSelected";
 
-	public HippyPageSelectedEvent(View target)
-	{
-		super(EVENT_NAME);
-		mTarget = target;
-	}
+  private final View mTarget;
 
-	public void send(int position)
-	{
-		HippyMap map = new HippyMap();
-		map.pushInt("position", position);
-		super.send(mTarget, map);
-	}
+  public HippyPageSelectedEvent(View target) {
+    super(EVENT_NAME);
+    mTarget = target;
+  }
+
+  public void send(int position) {
+    HippyMap map = new HippyMap();
+    map.pushInt("position", position);
+    super.send(mTarget, map);
+  }
 
 
 }

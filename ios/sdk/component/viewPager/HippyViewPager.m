@@ -30,7 +30,6 @@
 @property (nonatomic, strong) NSMutableArray<UIView *> *viewPagerItems;
 @property (nonatomic, assign) BOOL isScrolling;
 @property (nonatomic, assign) BOOL loadOnce;
-@property (nonatomic, assign) NSInteger pageOfBeginDragging;
 
 @property (nonatomic, assign) CGRect previousFrame;
 @property (nonatomic, assign) CGSize previousSize;
@@ -40,6 +39,9 @@
 @property (nonatomic, assign) BOOL didFirstTimeLayout;
 @property (nonatomic, assign) BOOL needsLayoutItems;
 @property (nonatomic, assign) BOOL needsResetPageIndex;
+
+@property (nonatomic, assign) CGFloat previousStopOffset;
+@property (nonatomic, assign) NSUInteger lastPageSelectedCallbackIndex;
 
 @end
 
@@ -141,9 +143,7 @@
     UIView *theItem = self.viewPagerItems[pageNumber];
     self.targetContentOffsetX = CGRectGetMinX(theItem.frame);
     [self setContentOffset:theItem.frame.origin animated:animated];
-    if (self.onPageSelected) {
-        self.onPageSelected(@{ @"position": @(pageNumber) });
-    }
+    [self invokePageSelected:pageNumber];
     if (self.onPageScrollStateChanged) {
         self.onPageScrollStateChanged(@{ @"pageScrollState": @"idle" });
     }
@@ -155,32 +155,34 @@
         NSString *state = scrollView.isDragging ? @"dragging" : @"settling";
         self.onPageScrollStateChanged(@{ @"pageScrollState": state });
     }
-    NSInteger beforePage = self.pageOfBeginDragging;
-    CGFloat commonPagerWidth = [self commonPagerWidth];
-    CGFloat beforeOffsetX = beforePage * commonPagerWidth;
-    CGFloat nowContentOffsetX = self.contentOffset.x;
-    CGFloat betweenOffset = nowContentOffsetX - beforeOffsetX;
-    CGFloat offsetRate = betweenOffset / commonPagerWidth;
-    if (offsetRate != 0) {
-        NSInteger nowPage = 0;
-        if (CGFLOAT_MAX == self.targetContentOffsetX) {
-            nowPage = offsetRate < 0 ? beforePage - 1 : beforePage + 1;  //-1 for left slide，1 for right;
-            if (nowPage == -1) {
-                nowPage = 0;
-            }
-            if (nowPage == self.viewPagerItems.count) {
-                nowPage = self.viewPagerItems.count - 1;
-            }
-        } else {
-            nowPage = [self targetPageIndexFromTargetContentOffsetX:self.targetContentOffsetX];
-        }
-        if (self.onPageScroll) {
-            self.onPageScroll(@{
-                @"position": @(nowPage),
-                @"offset": @(offsetRate),
-            });
-        }
+
+    CGFloat currentContentOffset = self.contentOffset.x;
+    CGFloat offset = currentContentOffset - self.previousStopOffset;
+    CGFloat offsetRatio = offset / CGRectGetWidth(self.bounds);
+    
+    if (offsetRatio > 1) {
+        offsetRatio -= floor(offsetRatio);
     }
+    if (offsetRatio < -1) {
+        offsetRatio -= ceil(offsetRatio);
+    }
+    
+    NSUInteger currentPageIndex = [self currentPageIndex];
+    NSInteger nextPageIndex = ceil(offsetRatio) == offsetRatio ? currentPageIndex : currentPageIndex + ceil(offsetRatio);
+    if (nextPageIndex < 0) {
+        nextPageIndex = 0;
+    }
+    if (nextPageIndex >= [self.viewPagerItems count]) {
+        nextPageIndex = [self.viewPagerItems count] - 1;
+    }
+    
+    if (self.onPageScroll) {
+        self.onPageScroll(@{
+            @"position": @(nextPageIndex),
+            @"offset": @(offsetRatio),
+        });
+    }
+    
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollViewListener) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewDidScroll:)]) {
             [scrollViewListener scrollViewDidScroll:scrollView];
@@ -190,7 +192,6 @@
 
 //用户拖拽的开始，也是整个滚动流程的开始
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
-    self.pageOfBeginDragging = self.nowPage;
     self.isScrolling = YES;
     self.targetContentOffsetX = CGFLOAT_MAX;
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollViewListener) {
@@ -203,9 +204,7 @@
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset {
     self.targetContentOffsetX = targetContentOffset->x;
     NSUInteger page = [self targetPageIndexFromTargetContentOffsetX:self.targetContentOffsetX];
-    if (self.onPageSelected) {
-        self.onPageSelected(@{ @"position": @(page) });
-    }
+    [self invokePageSelected:page];
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollViewListener) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewWillEndDragging:withVelocity:targetContentOffset:)]) {
             [scrollViewListener scrollViewWillEndDragging:scrollView withVelocity:velocity targetContentOffset:targetContentOffset];
@@ -218,6 +217,9 @@
         if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndDragging:willDecelerate:)]) {
             [scrollViewListener scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
         }
+    }
+    if (!decelerate) {
+        self.isScrolling = NO;
     }
 }
 
@@ -257,6 +259,10 @@
     }
 }
 
+- (void)scrollViewDidEndScrolling {
+    self.previousStopOffset = [self contentOffset].x;
+}
+
 #pragma mark scrollview listener methods
 - (void)addScrollListener:(id<UIScrollViewDelegate>)scrollListener {
     [_scrollViewListener addObject:scrollListener];
@@ -267,6 +273,32 @@
 }
 
 #pragma mark other methods
+- (NSUInteger)currentPageIndex {
+    return [self pageIndexForContentOffset:self.contentOffset.x];
+}
+
+- (NSUInteger)pageIndexForContentOffset:(CGFloat)offset {
+    CGFloat pageWidth = CGRectGetWidth(self.bounds);
+    NSUInteger page = floor(offset / pageWidth);
+    return page;
+}
+
+- (void)setIsScrolling:(BOOL)isScrolling {
+    if (!isScrolling) {
+        [self scrollViewDidEndScrolling];
+    }
+    _isScrolling = isScrolling;
+}
+
+- (void)invokePageSelected:(NSUInteger)index {
+    if (self.onPageSelected &&
+        self.lastPageSelectedCallbackIndex != index &&
+        index < [[self viewPagerItems] count]) {
+        self.lastPageSelectedCallbackIndex = index;
+        self.onPageSelected(@{ @"position": @(index)});
+    }
+}
+
 - (NSUInteger)targetPageIndexFromTargetContentOffsetX:(CGFloat)targetContentOffsetX {
     NSInteger thePage = -1;
     if (fabs(targetContentOffsetX) < FLT_EPSILON) {
@@ -308,13 +340,6 @@
     [super setContentOffset:contentOffset animated:animated];
 }
 
-- (CGFloat)commonPagerWidth {
-    if ([self.viewPagerItems count] == 0) {
-        return self.frame.size.width;
-    }
-    return self.viewPagerItems[0].frame.size.width;
-}
-
 - (void)hippyBridgeDidFinishTransaction {
     BOOL isFrameEqual = CGRectEqualToRect(self.frame, self.previousFrame);
     BOOL isContentSizeEqual = CGSizeEqualToSize(self.contentSize, self.previousSize);
@@ -336,17 +361,9 @@
     if (!self.viewPagerItems.count) {
         return;
     }
-    for (int i = 1; i < self.viewPagerItems.count; ++i) {
-        UIView *lastViewPagerItem = self.viewPagerItems[i - 1];
-        UIView *theViewPagerItemItem = self.viewPagerItems[i];
-        CGPoint lastViewPagerItemRightPoint = [self rightPointOfView:lastViewPagerItem];
-        CGRect theFrame = CGRectMake(
-                                     lastViewPagerItemRightPoint.x,
-                                     lastViewPagerItemRightPoint.y,
-                                     theViewPagerItemItem.frame.size.width,
-                                     theViewPagerItemItem.frame.size.height
-                                     );
-        theViewPagerItemItem.frame = theFrame;
+    for (int i = 0; i < self.viewPagerItems.count; i++) {
+        UIView *item = [self.viewPagerItems objectAtIndex:i];
+        item.frame = [self frameForItemAtIndex:i];
     }
 
     if (self.initialPage >= self.viewPagerItems.count) {

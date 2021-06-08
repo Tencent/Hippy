@@ -30,34 +30,33 @@ import android.view.View;
 import android.view.ViewGroup;
 
 
-@SuppressWarnings({"deprecation","unused"})
+@SuppressWarnings({"deprecation", "unused"})
 @HippyController(name = HippyViewPagerController.CLASS_NAME)
-public class HippyViewPagerController extends HippyViewController<HippyViewPager>
-{
-	public static final String CLASS_NAME					= "ViewPager";
+public class HippyViewPagerController extends HippyViewController<HippyViewPager> {
 
-	private static final String TAG							= "HippyViewPagerController";
+  public static final String CLASS_NAME = "ViewPager";
 
-	private static final String FUNC_SET_PAGE				= "setPage";
-	private static final String FUNC_SET_PAGE_WITHOUT_ANIM	= "setPageWithoutAnimation";
+  private static final String TAG = "HippyViewPagerController";
 
-  private static final String FUNC_SET_INDEX				= "setIndex";
-  private static final String FUNC_NEXT_PAGE				= "next";
-  private static final String FUNC_PREV_PAGE				= "prev";
+  private static final String FUNC_SET_PAGE = "setPage";
+  private static final String FUNC_SET_PAGE_WITHOUT_ANIM = "setPageWithoutAnimation";
 
-	@Override
-	protected View createViewImpl(Context context)
-	{
-		return new HippyViewPager(context);
-	}
+  private static final String FUNC_SET_INDEX = "setIndex";
+  private static final String FUNC_NEXT_PAGE = "next";
+  private static final String FUNC_PREV_PAGE = "prev";
 
   @Override
-  protected View createViewImpl(Context context, HippyMap iniProps)
-  {
+  protected View createViewImpl(Context context) {
+    return new HippyViewPager(context);
+  }
+
+  @Override
+  protected View createViewImpl(Context context, HippyMap iniProps) {
     boolean isVertical = false;
     if (iniProps != null) {
-      if ((iniProps.containsKey("direction") && iniProps.getString("direction").equals("vertical"))
-      || iniProps.containsKey("vertical")) {
+      if ((iniProps.containsKey("direction") && iniProps.getString("direction")
+          .equals("vertical"))
+          || iniProps.containsKey("vertical")) {
         isVertical = true;
       }
     }
@@ -65,113 +64,95 @@ public class HippyViewPagerController extends HippyViewController<HippyViewPager
     return new HippyViewPager(context, isVertical);
   }
 
-	@Override
-	public View getChildAt(HippyViewPager hippyViewPager, int i)
-	{
-		return hippyViewPager.getViewFromAdapter(i);
-	}
+  @Override
+  public View getChildAt(HippyViewPager hippyViewPager, int i) {
+    return hippyViewPager.getViewFromAdapter(i);
+  }
 
-	@Override
-	public int getChildCount(HippyViewPager hippyViewPager)
-	{
-		return hippyViewPager.getAdapter().getCount();
-	}
+  @Override
+  public int getChildCount(HippyViewPager hippyViewPager) {
+    return hippyViewPager.getAdapter().getCount();
+  }
 
-	@Override
-	protected void addView(ViewGroup parentView, View view, int index)
-	{
-		LogUtils.d(TAG, "addView: " + parentView.hashCode() + ", index=" + index);
-		if (parentView instanceof HippyViewPager && view instanceof HippyViewPagerItem)
-		{
-			HippyViewPager hippyViewPager = (HippyViewPager) parentView;
-			hippyViewPager.addViewToAdapter((HippyViewPagerItem) view, index);
-		}
-		else
-		{
-			LogUtils.e(TAG, "add view got invalid params");
-		}
-	}
+  @Override
+  protected void addView(ViewGroup parentView, View view, int index) {
+    LogUtils.d(TAG, "addView: " + parentView.hashCode() + ", index=" + index);
+    if (parentView instanceof HippyViewPager && view instanceof HippyViewPagerItem) {
+      HippyViewPager hippyViewPager = (HippyViewPager) parentView;
+      hippyViewPager.addViewToAdapter((HippyViewPagerItem) view, index);
+    } else {
+      LogUtils.e(TAG, "add view got invalid params");
+    }
+  }
 
-	@Override
-	protected void deleteChild(ViewGroup parentView, View childView)
-	{
-		LogUtils.d(TAG, "deleteChild: " + parentView.hashCode());
-		if (parentView instanceof HippyViewPager && childView instanceof HippyViewPagerItem)
-		{
-			((HippyViewPager) parentView).removeViewFromAdapter((HippyViewPagerItem) childView);
-		}
-		else
-		{
-			LogUtils.e(TAG, "delete view got invalid params");
-		}
-	}
+  @Override
+  protected void deleteChild(ViewGroup parentView, View childView) {
+    LogUtils.d(TAG, "deleteChild: " + parentView.hashCode());
+    if (parentView instanceof HippyViewPager && childView instanceof HippyViewPagerItem) {
+      ((HippyViewPager) parentView).removeViewFromAdapter((HippyViewPagerItem) childView);
+    } else {
+      LogUtils.e(TAG, "delete view got invalid params");
+    }
+  }
 
-	@Override
-	protected void onManageChildComplete(HippyViewPager viewPager)
-	{
-		viewPager.setChildCountAndUpdate(viewPager.getAdapter().getItemViewSize());
-	}
+  @Override
+  protected void onManageChildComplete(HippyViewPager viewPager) {
+    viewPager.setChildCountAndUpdate(viewPager.getAdapter().getItemViewSize());
+  }
 
-	@HippyControllerProps(name = "initialPage", defaultNumber = 0, defaultType = HippyControllerProps.NUMBER)
-	public void setInitialPage(HippyViewPager parent, int initialPage)
-	{
-		parent.setInitialPageIndex(initialPage);
-	}
+  @HippyControllerProps(name = "initialPage", defaultNumber = 0, defaultType = HippyControllerProps.NUMBER)
+  public void setInitialPage(HippyViewPager parent, int initialPage) {
+    parent.setInitialPageIndex(initialPage);
+  }
 
-	@HippyControllerProps(name = "scrollEnabled", defaultBoolean = true, defaultType = HippyControllerProps.BOOLEAN)
-	public void setScrollEnabled(HippyViewPager viewPager, boolean value)
-	{
-		viewPager.setScrollEnabled(value);
-	}
+  @HippyControllerProps(name = "scrollEnabled", defaultBoolean = true, defaultType = HippyControllerProps.BOOLEAN)
+  public void setScrollEnabled(HippyViewPager viewPager, boolean value) {
+    viewPager.setScrollEnabled(value);
+  }
 
-	@HippyControllerProps(name = "pageMargin", defaultNumber = 0, defaultType = HippyControllerProps.NUMBER)
-	public void setPageMargin(HippyViewPager pager, float margin)
-	{
-		pager.setPageMargin((int) PixelUtil.dp2px(margin));
-	}
-	@HippyControllerProps(name = NodeProps.OVERFLOW, defaultType = HippyControllerProps.STRING, defaultString = "visible")
-	public void setOverflow(HippyViewPager pager, String overflow)
-	{
-		pager.setOverflow(overflow);
-	}
-	@Override
-	public void dispatchFunction(HippyViewPager view, String functionName, HippyArray var)
-	{
-		if (view == null)
-		{
-			return;
-		}
+  @HippyControllerProps(name = "pageMargin", defaultNumber = 0, defaultType = HippyControllerProps.NUMBER)
+  public void setPageMargin(HippyViewPager pager, float margin) {
+    pager.setPageMargin((int) PixelUtil.dp2px(margin));
+  }
+
+  @HippyControllerProps(name = NodeProps.OVERFLOW, defaultType = HippyControllerProps.STRING, defaultString = "visible")
+  public void setOverflow(HippyViewPager pager, String overflow) {
+    pager.setOverflow(overflow);
+  }
+
+  @Override
+  public void dispatchFunction(HippyViewPager view, String functionName, HippyArray var) {
+    if (view == null) {
+      return;
+    }
 
     int curr = view.getCurrentItem();
 
-		switch (functionName)
-		{
-			case FUNC_SET_PAGE:
-				if (var != null)
-				{
-					Object selected = var.get(0);
-					if (selected instanceof Integer)
-					{
-						view.switchToPage((int) selected, true);
-					}
-				}
-				break;
-			case FUNC_SET_PAGE_WITHOUT_ANIM:
-				if (var != null)
-				{
-					Object selected = var.get(0);
-					if (selected instanceof Integer)
-					{
-						view.switchToPage((int) selected, false);
-					}
-				}
-				break;
+    switch (functionName) {
+      case FUNC_SET_PAGE:
+        if (var != null) {
+          Object selected = var.get(0);
+          if (selected instanceof Integer) {
+            view.switchToPage((int) selected, true);
+          }
+        }
+        break;
+      case FUNC_SET_PAGE_WITHOUT_ANIM:
+        if (var != null) {
+          Object selected = var.get(0);
+          if (selected instanceof Integer) {
+            view.switchToPage((int) selected, false);
+          }
+        }
+        break;
       case FUNC_SET_INDEX:
         if (var != null && var.size() > 0) {
           HippyMap paramsMap = var.getMap(0);
-          if (paramsMap != null && paramsMap.size() > 0 && paramsMap.containsKey("index")) {
-            int index  = paramsMap.getInt("index");
-            boolean animated = !paramsMap.containsKey("animated") || paramsMap.getBoolean("animated");
+          if (paramsMap != null && paramsMap.size() > 0 && paramsMap
+              .containsKey("index")) {
+            int index = paramsMap.getInt("index");
+            boolean animated = !paramsMap.containsKey("animated") || paramsMap
+                .getBoolean("animated");
             view.switchToPage(index, animated);
           }
         }
@@ -187,27 +168,28 @@ public class HippyViewPagerController extends HippyViewController<HippyViewPager
           view.switchToPage(curr - 1, true);
         }
         break;
-			default:
-				break;
-		}
-	}
+      default:
+        break;
+    }
+  }
 
   @SuppressWarnings("SwitchStatementWithTooFewBranches")
   @Override
-  public void dispatchFunction(HippyViewPager view, String functionName, HippyArray params, Promise promise)
-  {
+  public void dispatchFunction(HippyViewPager view, String functionName, HippyArray params,
+      Promise promise) {
     if (view == null) {
       return;
     }
 
-    switch (functionName)
-    {
+    switch (functionName) {
       case FUNC_SET_INDEX:
         if (params != null && params.size() > 0) {
           HippyMap paramsMap = params.getMap(0);
-          if (paramsMap != null && paramsMap.size() > 0 && paramsMap.containsKey("index")) {
-            int index  = paramsMap.getInt("index");
-            boolean animated = !paramsMap.containsKey("animated") || paramsMap.getBoolean("animated");
+          if (paramsMap != null && paramsMap.size() > 0 && paramsMap
+              .containsKey("index")) {
+            int index = paramsMap.getInt("index");
+            boolean animated = !paramsMap.containsKey("animated") || paramsMap
+                .getBoolean("animated");
             view.setCallBackPromise(promise);
             view.switchToPage(index, animated);
             return;

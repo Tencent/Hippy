@@ -15,10 +15,13 @@
  */
 package com.tencent.mtt.hippy.serialization.nio.reader;
 
+import androidx.annotation.NonNull;
+
 import java.nio.ByteBuffer;
 
 @SuppressWarnings({"unused"})
 public final class SafeHeapReader implements BinaryReader {
+
   private byte[] buffer;
   private int pos; // Relative to base
   private int count; // Relative to base
@@ -79,6 +82,7 @@ public final class SafeHeapReader implements BinaryReader {
     return Double.longBitsToDouble(readInt64());
   }
 
+  @SuppressWarnings("SpellCheckingInspection")
   @Override
   public long getVarint() {
     long value = 0;
@@ -102,17 +106,17 @@ public final class SafeHeapReader implements BinaryReader {
     pos += 8;
     final byte[] buffer = this.buffer;
     return (((buffer[p] & 0xffL))
-      | ((buffer[p + 1] & 0xffL) << 8)
-      | ((buffer[p + 2] & 0xffL) << 16)
-      | ((buffer[p + 3] & 0xffL) << 24)
-      | ((buffer[p + 4] & 0xffL) << 32)
-      | ((buffer[p + 5] & 0xffL) << 40)
-      | ((buffer[p + 6] & 0xffL) << 48)
-      | ((buffer[p + 7] & 0xffL) << 56));
+        | ((buffer[p + 1] & 0xffL) << 8)
+        | ((buffer[p + 2] & 0xffL) << 16)
+        | ((buffer[p + 3] & 0xffL) << 24)
+        | ((buffer[p + 4] & 0xffL) << 32)
+        | ((buffer[p + 5] & 0xffL) << 40)
+        | ((buffer[p + 6] & 0xffL) << 48)
+        | ((buffer[p + 7] & 0xffL) << 56));
   }
 
   @Override
-  public SafeHeapReader reset(ByteBuffer byteBuffer) {
+  public SafeHeapReader reset(@NonNull ByteBuffer byteBuffer) {
     buffer = byteBuffer.array();
     base = byteBuffer.arrayOffset() + byteBuffer.position();
     count = byteBuffer.limit() - byteBuffer.position();

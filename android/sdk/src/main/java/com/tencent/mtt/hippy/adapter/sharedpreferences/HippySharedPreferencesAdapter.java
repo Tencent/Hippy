@@ -18,7 +18,7 @@ package com.tencent.mtt.hippy.adapter.sharedpreferences;
 import android.content.SharedPreferences;
 
 @SuppressWarnings({"unused"})
-public interface HippySharedPreferencesAdapter
-{
-    SharedPreferences getSharedPreferences();
+public interface HippySharedPreferencesAdapter {
+
+  SharedPreferences getSharedPreferences();
 }

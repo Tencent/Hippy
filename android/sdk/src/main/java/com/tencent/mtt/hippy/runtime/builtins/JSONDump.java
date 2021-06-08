@@ -19,5 +19,6 @@ import org.json.JSONException;
 
 @SuppressWarnings({"unused"})
 interface JSONDump {
+
   Object dump() throws JSONException;
 }

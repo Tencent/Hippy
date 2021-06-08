@@ -142,6 +142,8 @@ public void deleteChild(int ,int );
 -keepclasseswithmembers class com.tencent.mtt.hippy.dom.DomManager {
 public void updateNodeSize(int,int,int);
 public void forceUpdateNode(int);
+public void addActionInterceptor(com.tencent.mtt.hippy.dom.node.DomActionInterceptor);
+public void removeActionInterceptor(com.tencent.mtt.hippy.dom.node.DomActionInterceptor);
 
 }
 -keepclasseswithmembers class com.tencent.mtt.hippy.bridge.HippyBridgeImpl {
@@ -166,6 +168,7 @@ public void forceUpdateNode(int);
 -keep class com.tencent.mtt.hippy.utils.** {*;}
 -keep class com.tencent.mtt.hippy.dom.node.TypeFaceUtil {*;}
 -keep class com.tencent.mtt.hippy.adapter.image.HippyImageLoader {*;}
+-keep class com.tencent.mtt.hippy.dom.node.DomActionInterceptor {*;}
 
 -keepclasseswithmembers class com.tencent.mtt.supportui.** {
 public <methods>;
@@ -180,6 +183,22 @@ public <fields>;
 }
 
 -keepclasseswithmembers class com.tencent.mtt.supportui.** {
+protected <fields>;
+}
+
+-keepclasseswithmembers class androidx.recyclerview.widget.** {
+public <methods>;
+}
+
+-keepclasseswithmembers class androidx.recyclerview.widget.** {
+protected <methods>;
+}
+
+-keepclasseswithmembers class androidx.recyclerview.widget.** {
+public <fields>;
+}
+
+-keepclasseswithmembers class androidx.recyclerview.widget.** {
 protected <fields>;
 }
 

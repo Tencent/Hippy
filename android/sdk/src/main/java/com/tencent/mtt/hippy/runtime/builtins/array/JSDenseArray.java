@@ -15,7 +15,7 @@
  */
 package com.tencent.mtt.hippy.runtime.builtins.array;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Pair;
 
 import com.tencent.mtt.hippy.runtime.builtins.JSValue;
@@ -35,6 +35,7 @@ import java.util.Set;
 
 @SuppressWarnings({"unused"})
 public class JSDenseArray extends JSAbstractArray {
+
   private Set<String> keySet;
   private Collection<Object> valueCollection;
   private List<Object> readonlyList;
@@ -44,6 +45,7 @@ public class JSDenseArray extends JSAbstractArray {
   public JSDenseArray() {
     this(10);
   }
+
   public JSDenseArray(int initialSize) {
     elements = new ArrayList<>(initialSize);
   }
@@ -53,6 +55,7 @@ public class JSDenseArray extends JSAbstractArray {
   public Object get(int index) {
     return elements.get(index);
   }
+
   public static Object get(JSDenseArray array, int index) {
     return array.elements.get(index);
   }
@@ -61,6 +64,7 @@ public class JSDenseArray extends JSAbstractArray {
   public void push(Object value) {
     elements.add(value);
   }
+
   public static void push(JSDenseArray array, Object value) {
     array.elements.add(value);
   }
@@ -69,6 +73,7 @@ public class JSDenseArray extends JSAbstractArray {
   public Object set(int index, Object value) {
     return elements.set(index, value);
   }
+
   public static Object set(JSDenseArray array, int index, Object value) {
     return array.elements.set(index, value);
   }
@@ -77,6 +82,7 @@ public class JSDenseArray extends JSAbstractArray {
   public Object delete(int index) {
     return elements.remove(index);
   }
+
   public static Object delete(JSDenseArray array, int index) {
     return array.elements.remove(index);
   }
@@ -85,6 +91,7 @@ public class JSDenseArray extends JSAbstractArray {
   public int size() {
     return elements.size();
   }
+
   public static int size(JSDenseArray array) {
     return array.elements.size();
   }
@@ -92,6 +99,7 @@ public class JSDenseArray extends JSAbstractArray {
   public void add(int index, Object value) {
     elements.add(index, value);
   }
+
   public static void add(JSDenseArray array, int index, Object value) {
     array.elements.add(index, value);
   }
@@ -102,7 +110,6 @@ public class JSDenseArray extends JSAbstractArray {
   // endregion
 
   // region foreach
-  @NonNull
   @Override
   public Iterator<Object> iterator() {
     return elements.iterator();
@@ -117,6 +124,7 @@ public class JSDenseArray extends JSAbstractArray {
   }
 
   private final class KeyIterator implements Iterator<String> {
+
     private int currentIndex = 0;
     private final Iterator<String> objectIterator;
 
@@ -139,9 +147,10 @@ public class JSDenseArray extends JSAbstractArray {
   }
 
   private final class KeySet extends AbstractSet<String> {
+
     @Override
     public final Iterator<String> iterator() {
-     return new KeyIterator();
+      return new KeyIterator();
     }
 
     @Override
@@ -159,6 +168,7 @@ public class JSDenseArray extends JSAbstractArray {
   }
 
   private final class ValueIterator implements Iterator<Object> {
+
     private final Iterator<Object> objectIterator;
     private final Iterator<Object> elementIterator;
 
@@ -184,6 +194,7 @@ public class JSDenseArray extends JSAbstractArray {
   }
 
   private final class ValueCollection extends AbstractCollection<Object> {
+
     @Override
     public final Iterator<Object> iterator() {
       return new ValueIterator();
@@ -204,6 +215,7 @@ public class JSDenseArray extends JSAbstractArray {
   }
 
   private final class EntryIterator implements Iterator<Pair<String, Object>> {
+
     private final Iterator<Pair<String, Object>> objectIterator;
     private int currentIndex = 0;
 
@@ -228,6 +240,7 @@ public class JSDenseArray extends JSAbstractArray {
   }
 
   private final class EntrySet extends AbstractSet<Pair<String, Object>> {
+
     @Override
     public Iterator<Pair<String, Object>> iterator() {
       return new EntryIterator();
@@ -250,7 +263,7 @@ public class JSDenseArray extends JSAbstractArray {
   // region json
   public static JSDenseArray load(JSONArray json) throws JSONException {
     JSDenseArray array = new JSDenseArray(json.length());
-    for (int i = 0; i < json.length(); i ++) {
+    for (int i = 0; i < json.length(); i++) {
       array.push(JSValue.load(json.get(i)));
     }
     return array;
@@ -259,7 +272,7 @@ public class JSDenseArray extends JSAbstractArray {
   @Override
   public Object dump() throws JSONException {
     JSONArray json = new JSONArray();
-    for (Object o: elements) {
+    for (Object o : elements) {
       json.put(JSValue.dump(o));
     }
     return json;

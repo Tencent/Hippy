@@ -19,22 +19,16 @@ import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.supportui.views.recyclerview.ContentHolder;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewBase;
 
-/**
- * Created by leonardgong on 2017/12/15 0015.
- */
+public class NodeHolder extends ContentHolder {
 
-public class NodeHolder extends ContentHolder
-{
-	public RenderNode	mBindNode;
-	public boolean		isCreated	= true;
+  public RenderNode mBindNode;
+  public boolean isCreated = true;
 
-	@Override
-	public void inTraversals(int traversalPurpose, int position, RecyclerViewBase recyclerView)
-	{
-		super.inTraversals(traversalPurpose, position, recyclerView);
-		if (recyclerView != null)
-		{
-			recyclerView.handleInTraversal(traversalPurpose, position, mContentView);
-		}
-	}
+  @Override
+  public void inTraversals(int traversalPurpose, int position, RecyclerViewBase recyclerView) {
+    super.inTraversals(traversalPurpose, position, recyclerView);
+    if (recyclerView != null) {
+      recyclerView.handleInTraversal(traversalPurpose, position, mContentView);
+    }
+  }
 }

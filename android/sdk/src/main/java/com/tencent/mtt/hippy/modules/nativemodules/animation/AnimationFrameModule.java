@@ -24,24 +24,23 @@ import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 
 @HippyNativeModule(name = "AnimationFrameModule", thread = HippyNativeModule.Thread.MAIN)
-public class AnimationFrameModule extends HippyNativeModuleBase
-{
-	public AnimationFrameModule(HippyEngineContext context)
-	{
-		super(context);
-	}
+public class AnimationFrameModule extends HippyNativeModuleBase {
 
-	@SuppressWarnings("unused")
-	@HippyMethod(name = "requestAnimationFrame")
-	public void requestAnimationFrame(final Promise promise) {
-		ICSChoreographer.getInstance().postFrameCallback(new HippyChoreographer.FrameCallback() {
-			@SuppressWarnings("unused")
-			@Override
-			public void doFrame(long frameTimeNanos) {
-				if (promise != null) {
-					promise.resolve(null);
-				}
-			}
-		});
-	}
+  public AnimationFrameModule(HippyEngineContext context) {
+    super(context);
+  }
+
+  @SuppressWarnings("unused")
+  @HippyMethod(name = "requestAnimationFrame")
+  public void requestAnimationFrame(final Promise promise) {
+    ICSChoreographer.getInstance().postFrameCallback(new HippyChoreographer.FrameCallback() {
+      @SuppressWarnings("unused")
+      @Override
+      public void doFrame(long frameTimeNanos) {
+        if (promise != null) {
+          promise.resolve(null);
+        }
+      }
+    });
+  }
 }

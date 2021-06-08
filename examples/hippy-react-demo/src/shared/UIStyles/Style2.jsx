@@ -33,7 +33,6 @@ const styles = StyleSheet.create({
   image: {
     width: IMAGE_WIDTH,
     height: IMAGE_HEIGHT,
-    resizeMode: 'cover',
   },
   title: {
     fontSize: Platform.OS === 'android' ? 17 : 18,
@@ -81,7 +80,7 @@ export default function Style2(props) {
         }
       </View>
       <View style={styles.imageContainer}>
-        <Image style={styles.image} source={{ uri: picUrl }} />
+        <Image resizeMode={Image.resizeMode.cover} style={styles.image} source={{ uri: picUrl }} />
       </View>
     </View>
   );

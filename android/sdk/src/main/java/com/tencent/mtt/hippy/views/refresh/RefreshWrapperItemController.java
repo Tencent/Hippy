@@ -24,15 +24,16 @@ import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
 @SuppressWarnings({"unused"})
 @HippyController(name = "RefreshWrapperItemView")
 public class RefreshWrapperItemController extends HippyViewGroupController {
-    @Override
-    protected View createViewImpl(Context context) {
-        return new RefreshWrapperItemView(context);
-    }
 
-    @Override
-    public void updateLayout(int id, int x, int y, int width, int height, ControllerRegistry componentHolder)
-    {
-        y = y -height;
-        super.updateLayout(id, x, y, width, height, componentHolder);
-    }
+  @Override
+  protected View createViewImpl(Context context) {
+    return new RefreshWrapperItemView(context);
+  }
+
+  @Override
+  public void updateLayout(int id, int x, int y, int width, int height,
+      ControllerRegistry componentHolder) {
+    y = y - height;
+    super.updateLayout(id, x, y, width, height, componentHolder);
+  }
 }

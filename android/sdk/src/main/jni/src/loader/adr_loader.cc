@@ -25,61 +25,36 @@
 #include <future>
 
 #include "bridge/runtime.h"
+#include "core/base/string_view_utils.h"
 #include "core/core.h"
 #include "jni/jni_env.h"
 #include "jni/jni_register.h"
 #include "jni/jni_utils.h"
 #include "jni/uri.h"
 
-static std::atomic<int64_t> global_request_id{0};
+using unicode_string_view = tdf::base::unicode_string_view;
+using StringViewUtils = hippy::base::StringViewUtils;
+using HippyFile = hippy::base::HippyFile;
+using u8string = unicode_string_view::u8string;
+using char8_t_ = unicode_string_view::char8_t_;
 
-static std::string ReadAsset(const std::string& file_path,
-                             AAssetManager* aasset_manager,
-                             bool is_auto_fill) {
-  std::string path(file_path);
-  if (path.length() > 0 && path[0] == '/') {
-    path = path.substr(1);
-  }
-  TDF_BASE_DLOG(INFO) << "path = " << path;
-  auto asset =
-      AAssetManager_open(aasset_manager, path.c_str(), AASSET_MODE_STREAMING);
-  std::string file_data;
-  if (asset) {
-    int size = AAsset_getLength(asset);
-    if (is_auto_fill) {
-      size += 1;
-    }
-    file_data.resize(size);
-    int offset = 0;
-    int readbytes;
-    while ((readbytes = AAsset_read(asset, &file_data[0] + offset,
-                                    file_data.size() - offset)) > 0) {
-      offset += readbytes;
-    }
-    if (is_auto_fill) {
-      file_data.back() = '\0';
-    }
-    AAsset_close(asset);
-  }
-  TDF_BASE_DLOG(INFO) << "file_path = " << file_path
-                      << ", len = " << file_data.length()
-                      << ", file_data = " << file_data;
-  return file_data;
-}
+static std::atomic<int64_t> global_request_id{0};
 
 ADRLoader::ADRLoader() : aasset_manager_(nullptr) {}
 
-bool ADRLoader::RequestUntrustedContent(const std::string& uri,
-                                        std::function<void(std::string)> cb) {
+bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
+                                        std::function<void(u8string)> cb) {
   std::shared_ptr<Uri> uri_obj = std::make_shared<Uri>(uri);
-  std::string uri_schema = uri_obj->GetScheme();
-  std::string path = uri_obj->GetPath();
-  if (uri_schema == "file") {
+  unicode_string_view schema = uri_obj->GetScheme();
+  unicode_string_view path = uri_obj->GetPath();
+  TDF_BASE_DCHECK(schema.encoding() == unicode_string_view::Encoding::Utf16);
+  std::u16string schema_str = schema.utf16_value();
+  if (schema_str == u"file") {
     return LoadByFile(path, cb);
-  } else if (uri_schema == "http" || uri_schema == "https" ||
-             uri_schema == "debug") {
+  } else if (schema_str == u"http" || schema_str == u"https" ||
+             schema_str == u"debug") {
     return LoadByHttp(uri, cb);
-  } else if (uri_schema == "asset") {
+  } else if (schema_str == u"asset") {
     if (aasset_manager_) {
       return LoadByAsset(path, cb, false);
     }
@@ -87,49 +62,54 @@ bool ADRLoader::RequestUntrustedContent(const std::string& uri,
     TDF_BASE_DLOG(ERROR) << "aasset_manager error, uri = " << uri;
     return false;
   } else {
-    TDF_BASE_DLOG(ERROR) << "schema error, schema = %s" << uri_schema;
+    TDF_BASE_DLOG(ERROR) << "schema error, schema = %s" << schema;
     return false;
   }
 }
 
-std::string ADRLoader::RequestUntrustedContent(const std::string& uri) {
+bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
+                                        u8string& content) {
   std::shared_ptr<Uri> uri_obj = std::make_shared<Uri>(uri);
-  std::string uri_schema = uri_obj->GetScheme();
-  std::string path = uri_obj->GetPath();
-  if (uri_schema == "file") {
-    return hippy::base::HippyFile::ReadFile(path.c_str(), false);
-  } else if (uri_schema == "http" || uri_schema == "https" ||
-             uri_schema == "debug") {
-    std::promise<std::string> promise;
-    std::future<std::string> read_file_future = promise.get_future();
-    std::function<void(std::string)> cb = hippy::base::MakeCopyable(
-        [p = std::move(promise)](std::string content) mutable {
-          p.set_value(std::move(content));
+  unicode_string_view schema = uri_obj->GetScheme();
+  unicode_string_view path = uri_obj->GetPath();
+  TDF_BASE_DCHECK(schema.encoding() == unicode_string_view::Encoding::Utf16);
+  std::u16string schema_str = schema.utf16_value();
+  if (schema_str == u"file") {
+    return HippyFile::ReadFile(path, content, false);
+  } else if (schema_str == u"http" || schema_str == u"https" ||
+             schema_str == u"debug") {
+    std::promise<u8string> promise;
+    std::future<u8string> read_file_future = promise.get_future();
+    std::function<void(u8string)> cb = hippy::base::MakeCopyable(
+        [p = std::move(promise)](u8string bytes) mutable {
+          p.set_value(std::move(bytes));
         });
-    LoadByHttp(uri, cb);
-    return read_file_future.get();
-  } else if (uri_schema == "asset") {
+    bool ret = LoadByHttp(uri, cb);
+    content = read_file_future.get();
+    return ret;
+  } else if (schema_str == u"asset") {
     if (aasset_manager_) {
-      return ReadAsset(path, aasset_manager_, false);
+      return ReadAsset(path, aasset_manager_, content, false);
     }
 
     TDF_BASE_DLOG(ERROR) << "aasset_manager error, uri = " << uri;
     return "";
   } else {
-    TDF_BASE_DLOG(ERROR) << "schema error, schema = " << uri_schema;
+    TDF_BASE_DLOG(ERROR) << "schema error, schema = " << schema;
     return "";
   }
 }
 
-bool ADRLoader::LoadByFile(const std::string& path,
-                           std::function<void(std::string)> cb) {
+bool ADRLoader::LoadByFile(const unicode_string_view& path,
+                           std::function<void(u8string)> cb) {
   std::shared_ptr<WorkerTaskRunner> runner = runner_.lock();
   if (!runner) {
     return false;
   }
   std::unique_ptr<CommonTask> task = std::make_unique<CommonTask>();
   task->func_ = [path, cb] {
-    std::string ret = hippy::base::HippyFile::ReadFile(path.c_str(), false);
+    u8string ret;
+    HippyFile::ReadFile(path, ret, false);
     cb(std::move(ret));
   };
   runner->PostTask(std::move(task));
@@ -137,18 +117,18 @@ bool ADRLoader::LoadByFile(const std::string& path,
   return true;
 }
 
-bool ADRLoader::LoadByAsset(const std::string& file_path,
-                            std::function<void(std::string)> cb,
+bool ADRLoader::LoadByAsset(const unicode_string_view& path,
+                            std::function<void(u8string)> cb,
                             bool is_auto_fill) {
-  TDF_BASE_DLOG(INFO) << "ReadAssetFile file_path = " << file_path;
+  TDF_BASE_DLOG(INFO) << "ReadAssetFile file_path = " << path;
   std::shared_ptr<WorkerTaskRunner> runner = runner_.lock();
   if (!runner) {
     return false;
   }
   std::unique_ptr<CommonTask> task = std::make_unique<CommonTask>();
-  task->func_ = [file_path, aasset_manager = aasset_manager_, is_auto_fill,
-                 cb] {
-    std::string ret = ReadAsset(file_path, aasset_manager, is_auto_fill);
+  task->func_ = [path, aasset_manager = aasset_manager_, is_auto_fill, cb] {
+    u8string ret;
+    ReadAsset(path, aasset_manager, ret, is_auto_fill);
     cb(std::move(ret));
   };
   runner->PostTask(std::move(task));
@@ -156,18 +136,18 @@ bool ADRLoader::LoadByAsset(const std::string& file_path,
   return true;
 }
 
-bool ADRLoader::LoadByHttp(const std::string& uri,
-                           std::function<void(std::string)> cb) {
+bool ADRLoader::LoadByHttp(const unicode_string_view& uri,
+                           std::function<void(u8string)> cb) {
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
-  JNIEnv* env = instance->AttachCurrentThread();
+  JNIEnv* j_env = instance->AttachCurrentThread();
 
   if (instance->GetMethods().j_fetch_resource_method_id) {
     int64_t id = SetRequestCB(cb);
-    jstring j_relative_path = env->NewStringUTF(uri.c_str());
-    env->CallVoidMethod(bridge_->GetObj(),
-                        instance->GetMethods().j_fetch_resource_method_id,
-                        j_relative_path, id);
-    env->DeleteLocalRef(j_relative_path);
+    jstring j_relative_path = JniUtils::StrViewToJString(j_env, uri);
+    j_env->CallVoidMethod(bridge_->GetObj(),
+                          instance->GetMethods().j_fetch_resource_method_id,
+                          j_relative_path, id);
+    j_env->DeleteLocalRef(j_relative_path);
     return true;
   }
 
@@ -205,24 +185,25 @@ void OnResourceReady(JNIEnv* j_env,
   }
   if (!j_byte_buffer) {
     TDF_BASE_DLOG(INFO) << "HippyBridgeImpl onResourceReady, buff null";
-    cb("");
+    cb(u8string());
     return;
   }
   int64_t len = (j_env)->GetDirectBufferCapacity(j_byte_buffer);
+  TDF_BASE_DLOG(INFO) << "len = " << len;
   if (len == -1) {
     TDF_BASE_DLOG(ERROR)
         << "HippyBridgeImpl onResourceReady, BufferCapacity error";
-    cb("");
+    cb(u8string());
     return;
   }
   void* buff = (j_env)->GetDirectBufferAddress(j_byte_buffer);
   if (!buff) {
     TDF_BASE_DLOG(INFO) << "HippyBridgeImpl onResourceReady, buff null";
-    cb("");
+    cb(u8string());
     return;
   }
 
-  std::string str(reinterpret_cast<const char*>(buff), len);
+  u8string str(reinterpret_cast<const char8_t_*>(buff), len);
   cb(std::move(str));
 }
 
@@ -231,12 +212,12 @@ REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
              "(Ljava/nio/ByteBuffer;JJ)V",
              OnResourceReady)
 
-std::function<void(std::string)> ADRLoader::GetRequestCB(int64_t request_id) {
+std::function<void(u8string)> ADRLoader::GetRequestCB(int64_t request_id) {
   auto it = request_map_.find(request_id);
   return it != request_map_.end() ? it->second : nullptr;
 }
 
-int64_t ADRLoader::SetRequestCB(std::function<void(std::string)> cb) {
+int64_t ADRLoader::SetRequestCB(std::function<void(u8string)> cb) {
   int64_t id = global_request_id.fetch_add(1);
   request_map_.insert({id, cb});
   return id;

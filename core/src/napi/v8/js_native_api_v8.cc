@@ -31,19 +31,23 @@
 #include "base/logging.h"
 #include "core/base/common.h"
 #include "core/base/macros.h"
+#include "core/base/string_view_utils.h"
 #include "core/modules/module_base.h"
 #include "core/napi/callback_info.h"
 #include "core/napi/native_source_code.h"
 #include "core/scope.h"
 #include "hippy.h"
+#include "v8/libplatform/libplatform.h"
 
 namespace hippy {
 namespace napi {
 
+using unicode_string_view = tdf::base::unicode_string_view;
+using StringViewUtils = hippy::base::StringViewUtils;
+using JSValueWrapper = hippy::base::JSValueWrapper;
+
 std::unique_ptr<v8::Platform> V8VM::platform_ = nullptr;
 std::mutex V8VM::mutex_;
-
-namespace {
 
 void JsCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info) {
   TDF_BASE_DLOG(INFO) << "JsCallbackFunc begin";
@@ -63,7 +67,7 @@ void JsCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info) {
   JsCallback callback = fn_data->callback_;
   std::shared_ptr<Scope> scope = fn_data->scope_.lock();
   if (!scope) {
-    TDF_BASE_DLOG(FATAL) << "JsCallbackFunc scope error";
+    TDF_BASE_LOG(FATAL) << "JsCallbackFunc scope error";
     info.GetReturnValue().SetUndefined();
     return;
   }
@@ -71,14 +75,14 @@ void JsCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info) {
 
   v8::Isolate* isolate = info.GetIsolate();
   if (!isolate) {
-    TDF_BASE_DLOG(ERROR) << "JsCallbackFunc isolate error";
+    TDF_BASE_LOG(ERROR) << "JsCallbackFunc isolate error";
     return;
   }
 
   v8::HandleScope handle_scope(isolate);
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
   if (context.IsEmpty()) {
-    TDF_BASE_DLOG(ERROR) << "JsCallbackFunc context empty";
+    TDF_BASE_LOG(ERROR) << "JsCallbackFunc context empty";
     return;
   }
 
@@ -115,7 +119,7 @@ void NativeCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info) {
   TDF_BASE_DLOG(INFO) << "NativeCallbackFunc";
   auto data = info.Data().As<v8::External>();
   if (data.IsEmpty()) {
-    TDF_BASE_DLOG(ERROR) << "NativeCallbackFunc data is empty";
+    TDF_BASE_LOG(ERROR) << "NativeCallbackFunc data is empty";
     info.GetReturnValue().SetUndefined();
     return;
   }
@@ -142,12 +146,6 @@ void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& info) {
     return;
   }
 
-  v8::String::Utf8Value module_name(info.GetIsolate(), info[0]);
-  if (module_name.length() <= 0) {
-    info.GetReturnValue().SetUndefined();
-    return;
-  }
-
   BindingData* binding_data = reinterpret_cast<BindingData*>(data->Value());
   if (!binding_data) {
     info.GetReturnValue().SetUndefined();
@@ -156,31 +154,43 @@ void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& info) {
 
   std::shared_ptr<Scope> scope = binding_data->scope_.lock();
   if (!scope) {
-    TDF_BASE_DLOG(FATAL) << "GetInternalBinding scope error";
+    TDF_BASE_LOG(ERROR) << "GetInternalBinding scope error";
     info.GetReturnValue().SetUndefined();
     return;
   }
 
+  std::shared_ptr<V8Ctx> v8_ctx =
+      std::static_pointer_cast<V8Ctx>(scope->GetContext());
+
   v8::Isolate* isolate = info.GetIsolate();
   v8::HandleScope handle_scope(isolate);
 
-  v8::Local<v8::Context> context = isolate->GetCurrentContext();
+  v8::Local<v8::Context> context =
+      v8_ctx->context_persistent_.Get(v8_ctx->isolate_);
   v8::Context::Scope context_scope(context);
-  std::string name = *module_name;
-  TDF_BASE_DLOG(INFO) << "module_name = " << name.c_str();
+
+  v8::Local<v8::String> v8_str =
+      TO_LOCAL_UNCHECKED(info[0]->ToString(context), v8::String);
+  unicode_string_view module_name = v8_ctx->ToStringView(v8_str);
+  if (StringViewUtils::IsEmpty(module_name)) {
+    info.GetReturnValue().SetUndefined();
+    return;
+  }
+
+  TDF_BASE_LOG(INFO) << "module_name = " << module_name;
   std::shared_ptr<V8CtxValue> module_value =
-      std::static_pointer_cast<V8CtxValue>(scope->GetModuleValue(name));
+      std::static_pointer_cast<V8CtxValue>(scope->GetModuleValue(module_name));
   if (module_value) {
-    TDF_BASE_DLOG(INFO) << "use module cache, module = %s", name.c_str();
+    TDF_BASE_DLOG(INFO) << "use module cache, module = " << module_name;
     v8::Local<v8::Value> function =
         v8::Local<v8::Value>::New(isolate, module_value->global_value_);
     info.GetReturnValue().Set(function);
     return;
   }
 
-  auto module_class = binding_data->map_.find(name);
+  auto module_class = binding_data->map_.find(module_name);
   if (module_class == binding_data->map_.end()) {
-    TDF_BASE_DLOG(WARNING) << "can not find module " << name;
+    TDF_BASE_LOG(WARNING) << "can not find module " << module_name;
     info.GetReturnValue().SetUndefined();
     return;
   }
@@ -188,7 +198,7 @@ void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& info) {
   v8::Local<v8::FunctionTemplate> constructor =
       v8::FunctionTemplate::New(isolate);
   for (const auto& fn : module_class->second) {
-    const std::string& fn_name = fn.first;
+    const unicode_string_view& fn_name = fn.first;
     std::unique_ptr<FunctionData> fn_data =
         std::make_unique<FunctionData>(scope, fn.second);
     v8::Local<v8::FunctionTemplate> function_template =
@@ -196,78 +206,19 @@ void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& info) {
             isolate, JsCallbackFunc,
             v8::External::New(isolate, static_cast<void*>(fn_data.get())));
     scope->SaveFunctionData(std::move(fn_data));
-    TDF_BASE_DLOG(INFO) << "bind fn_name = " << fn_name;
-    constructor->Set(isolate, fn_name.c_str(), function_template);
+    TDF_BASE_LOG(INFO) << "bind fn_name = " << fn_name;
+    v8::Local<v8::String> name = v8_ctx->CreateV8String(fn_name);
+    constructor->Set(name, function_template, v8::PropertyAttribute::ReadOnly);
   }
 
   v8::Local<v8::Function> function =
       constructor->GetFunction(context).ToLocalChecked();
-  scope->AddModuleValue(name, std::make_shared<V8CtxValue>(isolate, function));
+  scope->AddModuleValue(module_name,
+                        std::make_shared<V8CtxValue>(isolate, function));
   info.GetReturnValue().Set(function);
 
-  TDF_BASE_DLOG(INFO) << "v8 GetInternalBinding end";
+  TDF_BASE_LOG(INFO) << "v8 GetInternalBinding end";
 }
-
-class ExternalOneByteStringResourceImpl
-    : public v8::String::ExternalOneByteStringResource {
- public:
-  ExternalOneByteStringResourceImpl(const uint8_t* data, size_t length)
-      : data_(data), str_data_(""), length_(length) {}
-
-  explicit ExternalOneByteStringResourceImpl(const std::string&& data)
-      : data_(nullptr), str_data_(std::move(data)) {
-    length_ = str_data_.length();
-  }
-
-  ~ExternalOneByteStringResourceImpl() override = default;
-
-  const char* data() const override {
-    if (data_) {
-      return (const char*)data_;
-    } else {
-      return str_data_.c_str();
-    }
-  }
-  size_t length() const override { return length_; }
-
- private:
-  const uint8_t* data_;
-  std::string str_data_;
-  size_t length_;
-
-  DISALLOW_COPY_AND_ASSIGN(ExternalOneByteStringResourceImpl);
-};
-
-class ExternalStringResourceImpl : public v8::String::ExternalStringResource {
- public:
-  ExternalStringResourceImpl(const uint16_t* data, size_t length)
-      : data_(data), str_data_(""), length_(length) {}
-
-  explicit ExternalStringResourceImpl(const std::string&& data)
-      : data_(nullptr), str_data_(std::move(data)) {
-    length_ = str_data_.length();
-  }
-
-  ~ExternalStringResourceImpl() = default;
-  virtual const uint16_t* data() const {
-    if (data_) {
-      return data_;
-    } else {
-      return reinterpret_cast<const uint16_t*>(str_data_.c_str());
-    }
-  }
-
-  virtual size_t length() const { return length_ / 2; }
-
- private:
-  const uint16_t* data_;
-  const std::string str_data_;
-  size_t length_;
-
-  DISALLOW_COPY_AND_ASSIGN(ExternalStringResourceImpl);
-};
-
-}  // namespace
 
 std::shared_ptr<VM> CreateVM() {
   return std::make_shared<V8VM>();
@@ -388,9 +339,9 @@ std::shared_ptr<CtxValue> V8TryCatch::Exception() {
   return nullptr;
 }
 
-std::string V8TryCatch::GetExceptionMsg() {
+unicode_string_view V8TryCatch::GetExceptionMsg() {
   if (!try_catch_) {
-    return nullptr;
+    return unicode_string_view();
   }
 
   std::shared_ptr<V8Ctx> v8_ctx = std::static_pointer_cast<V8Ctx>(ctx_);
@@ -400,12 +351,96 @@ std::string V8TryCatch::GetExceptionMsg() {
   v8::Context::Scope context_scope(context);
 
   v8::Local<v8::Message> message = try_catch_->Message();
-  std::string desc = v8_ctx->GetMsgDesc(message);
-  std::string stack = v8_ctx->GetStackInfo(message);
-  return "message: " + desc + ", stack: " + stack;
+  unicode_string_view desc = v8_ctx->GetMsgDesc(message);
+  unicode_string_view stack = v8_ctx->GetStackInfo(message);
+
+  unicode_string_view ret = unicode_string_view("message: ") + desc +
+                            unicode_string_view(", stack: ") + stack;
+  return ret;
 }
 
-std::string V8Ctx::GetMsgDesc(v8::Local<v8::Message> message) {
+std::shared_ptr<CtxValue> GetInternalBindingFn(std::shared_ptr<Scope> scope) {
+  TDF_BASE_LOG(INFO) << "GetInternalBindingFn";
+
+  std::shared_ptr<V8Ctx> ctx =
+      std::static_pointer_cast<V8Ctx>(scope->GetContext());
+  v8::Isolate* isolate = ctx->isolate_;
+  v8::HandleScope handle_scope(isolate);
+  v8::Local<v8::Context> v8_context = ctx->context_persistent_.Get(isolate);
+  v8::Context::Scope context_scope(v8_context);
+
+  v8::Local<v8::Function> v8_function =
+      v8::Function::New(
+          v8_context, GetInternalBinding,
+          v8::External::New(isolate,
+                            static_cast<void*>(scope->GetBindingData().get())))
+          .ToLocalChecked();
+
+  return std::make_shared<V8CtxValue>(isolate, v8_function);
+}
+
+class ExternalOneByteStringResourceImpl
+    : public v8::String::ExternalOneByteStringResource {
+ public:
+  ExternalOneByteStringResourceImpl(const uint8_t* data, size_t length)
+      : data_(data), str_data_(""), length_(length) {}
+
+  explicit ExternalOneByteStringResourceImpl(const std::string&& data)
+      : data_(nullptr), str_data_(std::move(data)) {
+    length_ = str_data_.length();
+  }
+
+  ~ExternalOneByteStringResourceImpl() override = default;
+
+  const char* data() const override {
+    if (data_) {
+      return (const char*)data_;
+    } else {
+      return str_data_.c_str();
+    }
+  }
+  size_t length() const override { return length_; }
+
+ private:
+  const uint8_t* data_;
+  std::string str_data_;
+  size_t length_;
+
+  DISALLOW_COPY_AND_ASSIGN(ExternalOneByteStringResourceImpl);
+};
+
+class ExternalStringResourceImpl : public v8::String::ExternalStringResource {
+ public:
+  ExternalStringResourceImpl(const uint16_t* data, size_t length)
+      : data_(data), str_data_(""), length_(length) {}
+
+  explicit ExternalStringResourceImpl(const std::string&& data)
+      : data_(nullptr), str_data_(std::move(data)) {
+    length_ = str_data_.length();
+  }
+
+  ~ExternalStringResourceImpl() = default;
+  virtual const uint16_t* data() const {
+    if (data_) {
+      return data_;
+    } else {
+      return reinterpret_cast<const uint16_t*>(str_data_.c_str());
+    }
+  }
+
+  virtual size_t length() const { return length_ / 2; }
+
+ private:
+  const uint16_t* data_;
+  const std::string str_data_;
+  size_t length_;
+
+  DISALLOW_COPY_AND_ASSIGN(ExternalStringResourceImpl);
+};
+
+// to do
+
+unicode_string_view V8Ctx::GetMsgDesc(v8::Local<v8::Message> message) {
   if (message.IsEmpty()) {
     return "";
   }
@@ -414,26 +449,25 @@ std::string V8Ctx::GetMsgDesc(v8::Local<v8::Message> message) {
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
 
-  v8::String::Utf8Value msg_str(isolate_, message->Get());
-  v8::String::Utf8Value file_name(isolate_,
-                                  message->GetScriptOrigin().ResourceName());
-  const char* file_name_str =
-      *file_name ? *file_name : "<file name conversion failed>";
-  int linenum = message->GetLineNumber(context).FromMaybe(-1);
+  unicode_string_view msg = ToStringView(message->Get());
+  unicode_string_view file_name = ToStringView(TO_LOCAL_UNCHECKED(
+      message->GetScriptOrigin().ResourceName()->ToString(context),
+      v8::String));
+  int line = message->GetLineNumber(context).FromMaybe(-1);
   int start = message->GetStartColumn(context).FromMaybe(-1);
   int end = message->GetEndColumn(context).FromMaybe(-1);
 
-  std::string message_str = *msg_str ? *msg_str : "<message conversion failed>";
-  std::stringstream description;
-  description << file_name_str << ": " << linenum << ": " << start << "-" << end
-              << ": " << message_str;
-
-  std::string desc = description.str();
+  // to do
+  std::basic_stringstream<char> description;
+  description << file_name << ": " << line << ": " << start << "-" << end
+              << ": " << msg;
+  std::string u8_str = description.str();
+  unicode_string_view desc(reinterpret_cast<const uint8_t*>(u8_str.c_str()));
   TDF_BASE_DLOG(INFO) << "description = " << desc;
   return desc;
 }
 
-std::string V8Ctx::GetStackInfo(v8::Local<v8::Message> message) {
+unicode_string_view V8Ctx::GetStackInfo(v8::Local<v8::Message> message) {
   if (message.IsEmpty()) {
     return "";
   }
@@ -447,23 +481,22 @@ std::string V8Ctx::GetStackInfo(v8::Local<v8::Message> message) {
     return "";
   }
 
-  std::stringstream stack_stream;
+  std::basic_stringstream<char> stack_stream;
   int len = trace->GetFrameCount();
   for (int i = 0; i < len; ++i) {
     v8::Local<v8::StackFrame> frame = trace->GetFrame(isolate_, i);
-    v8::String::Utf8Value script_name(isolate_, frame->GetScriptName());
-    v8::String::Utf8Value function_name(isolate_, frame->GetFunctionName());
-    std::string stack_script_name =
-        *script_name ? *script_name : "<script name conversion failed>";
-    std::string stack_function_name =
-        *function_name ? *function_name : "<function name conversion failed>";
-    stack_stream << " \\n " << stack_script_name << ":"
-                 << frame->GetLineNumber() << ":" << frame->GetColumn() << ":"
-                 << stack_function_name;
+
+    unicode_string_view script_name = ToStringView(frame->GetScriptName());
+    unicode_string_view function_name = ToStringView(frame->GetFunctionName());
+    stack_stream << std::endl
+                 << script_name << ":" << frame->GetLineNumber() << ":"
+                 << frame->GetColumn() << ":" << function_name;
   }
-  std::string stack = stack_stream.str();
-  TDF_BASE_DLOG(INFO) << "stack = " << stack;
-  return stack;
+  std::string u8_str = stack_stream.str();
+  unicode_string_view stack_str(
+      reinterpret_cast<const uint8_t*>(u8_str.c_str()));
+  TDF_BASE_DLOG(INFO) << "stack = " << stack_str;
+  return unicode_string_view(stack_str);
 }
 
 bool V8Ctx::RegisterGlobalInJs() {
@@ -476,65 +509,59 @@ bool V8Ctx::RegisterGlobalInJs() {
   return global
       ->Set(context,
             TO_LOCAL_UNCHECKED(
-                v8::String::NewFromUtf8(isolate_, "global",
-                                        v8::NewStringType::kNormal),
+                v8::String::NewFromOneByte(
+                    isolate_, reinterpret_cast<const u_int8_t*>("global"),
+                    v8::NewStringType::kNormal),
                 v8::String),
             global)
       .FromMaybe(false);
 }
 
-bool V8Ctx::SetGlobalJsonVar(const std::string& name, const char* json) {
+bool V8Ctx::SetGlobalJsonVar(const unicode_string_view& name,
+                             const unicode_string_view& json) {
   TDF_BASE_DLOG(INFO) << "SetGlobalJsonVar name = " << name
                       << ", json = " << json;
-  if (name.empty() || !json) {
+
+  if (StringViewUtils::IsEmpty(name) || StringViewUtils::IsEmpty(json)) {
     return false;
   }
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
   v8::Local<v8::Object> global = context->Global();
-  v8::Local<v8::Value> json_value = ParseJson(json);
-  if (!json_value.IsEmpty()) {
-    return global
-        ->Set(context,
-              TO_LOCAL_UNCHECKED(
-                  v8::String::NewFromUtf8(isolate_, name.c_str(),
-                                          v8::NewStringType::kNormal),
-                  v8::String),
-              json_value)
-        .FromMaybe(false);
+
+  v8::Local<v8::String> v8_str = CreateV8String(json);
+  v8::Local<v8::String> v8_name = CreateV8String(name);
+  v8::Local<v8::Value> json_obj =
+      TO_LOCAL_UNCHECKED(v8::JSON::Parse(context, v8_str), v8::Value);
+
+  if (!json_obj.IsEmpty()) {
+    return global->Set(context, v8_name, json_obj).FromMaybe(false);
   }
   return false;
 }
 
-bool V8Ctx::SetGlobalStrVar(const std::string& name, const char* str) {
+bool V8Ctx::SetGlobalStrVar(const unicode_string_view& name,
+                            const unicode_string_view& str) {
   TDF_BASE_DLOG(INFO) << "SetGlobalStrVar name = " << name << ", str = " << str;
-  if (name.empty()) {
+  if (StringViewUtils::IsEmpty(name)) {
     return false;
   }
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
   v8::Local<v8::Object> global = context->Global();
-  v8::Local<v8::String> v8_str = TO_LOCAL_UNCHECKED(
-      v8::String::NewFromUtf8(isolate_, str, v8::NewStringType::kNormal),
-      v8::String);
-  return global
-      ->Set(context,
-            TO_LOCAL_UNCHECKED(
-                v8::String::NewFromUtf8(isolate_, name.c_str(),
-                                        v8::NewStringType::kNormal),
-                v8::String),
-            v8_str)
-      .FromMaybe(false);
+  v8::Local<v8::String> v8_str = CreateV8String(str);
+  v8::Local<v8::String> v8_name = CreateV8String(name);
+  return global->Set(context, v8_name, v8_str).FromMaybe(false);
 }
 
-bool V8Ctx::SetGlobalObjVar(const std::string& name,
+bool V8Ctx::SetGlobalObjVar(const unicode_string_view& name,
                             std::shared_ptr<CtxValue> obj,
                             PropertyAttribute attr) {
   TDF_BASE_DLOG(INFO) << "SetGlobalStrVar name = " << name
                       << ", attr = " << attr;
-  if (name.empty()) {
+  if (StringViewUtils::IsEmpty(name)) {
     return false;
   }
   std::shared_ptr<V8CtxValue> ctx_value =
@@ -552,43 +579,50 @@ bool V8Ctx::SetGlobalObjVar(const std::string& name,
     handle_value = v8::Null(isolate_);
   }
   v8::PropertyAttribute v8_attr = v8::PropertyAttribute(attr);
-  return global
-      ->DefineOwnProperty(context,
-                          TO_LOCAL_UNCHECKED(v8::String::NewFromUtf8(
-                                                 isolate_, name.c_str(),
-                                                 v8::NewStringType::kNormal),
-                                             v8::String),
-                          handle_value, v8_attr)
+  v8::Local<v8::String> v8_name = CreateV8String(name);
+  return global->DefineOwnProperty(context, v8_name, handle_value, v8_attr)
       .FromMaybe(false);
 }
 
-std::shared_ptr<CtxValue> V8Ctx::GetGlobalStrVar(const std::string& name) {
+std::shared_ptr<CtxValue> V8Ctx::GetGlobalStrVar(
+    const unicode_string_view& name) {
   TDF_BASE_DLOG(INFO) << "GetGlobalStrVar name = " << name;
-  if (name.empty()) {
+  if (StringViewUtils::IsEmpty(name)) {
     return nullptr;
   }
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
   v8::Local<v8::Object> global = context->Global();
-  v8::Local<v8::Value> value = TO_LOCAL_UNCHECKED(
-      global->Get(context, TO_LOCAL_UNCHECKED(v8::String::NewFromUtf8(
-                                                  isolate_, name.c_str(),
-                                                  v8::NewStringType::kNormal),
-                                              v8::String)),
-      v8::Value);
+  v8::Local<v8::String> v8_name = CreateV8String(name);
+  v8::Local<v8::Value> value =
+      TO_LOCAL_UNCHECKED(global->Get(context, v8_name), v8::Value);
   return std::make_shared<V8CtxValue>(isolate_, value);
 }
 
-std::shared_ptr<CtxValue> V8Ctx::GetGlobalObjVar(const std::string& name) {
+std::shared_ptr<CtxValue> V8Ctx::GetGlobalObjVar(
+    const unicode_string_view& name) {
   TDF_BASE_DLOG(INFO) << "GetGlobalObjVar name = " << name;
   return GetGlobalStrVar(name);
 }
 
 std::shared_ptr<CtxValue> V8Ctx::GetProperty(
     const std::shared_ptr<CtxValue> object,
-    const std::string& name) {
-  return nullptr;
+    const unicode_string_view& name) {
+  TDF_BASE_DLOG(INFO) << "GetGlobalStrVar name =" << name;
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(object);
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  const v8::Global<v8::Value>& persistent_value = ctx_value->global_value_;
+  v8::Local<v8::Value> str = CreateV8String(name);
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, persistent_value);
+  v8::Local<v8::Value> value = v8::Local<v8::Object>::Cast(handle_value)
+                                   ->Get(context, str)
+                                   .ToLocalChecked();
+  return std::make_shared<V8CtxValue>(isolate_, value);
 }
 
 void V8Ctx::RegisterGlobalModule(std::shared_ptr<Scope> scope,
@@ -606,10 +640,7 @@ void V8Ctx::RegisterGlobalModule(std::shared_ptr<Scope> scope,
       std::unique_ptr<FunctionData> data =
           std::make_unique<FunctionData>(scope, fn.second);
       module_object->Set(
-          TO_LOCAL_UNCHECKED(
-              v8::String::NewFromUtf8(isolate_, fn.first.c_str(),
-                                      v8::NewStringType::kNormal),
-              v8::String),
+          CreateV8String(fn.first),
           v8::FunctionTemplate::New(
               isolate_, JsCallbackFunc,
               v8::External::New(isolate_, static_cast<void*>(data.get()))));
@@ -619,18 +650,14 @@ void V8Ctx::RegisterGlobalModule(std::shared_ptr<Scope> scope,
     v8::Local<v8::Function> function =
         module_object->GetFunction(context).ToLocalChecked();
 
-    v8::Local<v8::String> classNameKey =
-        TO_LOCAL_UNCHECKED(v8::String::NewFromUtf8(isolate_, cls.first.c_str(),
-                                                   v8::NewStringType::kNormal),
-                           v8::String);
-
+    v8::Local<v8::String> classNameKey = CreateV8String(cls.first);
     v8::Maybe<bool> ret =
         context->Global()->Set(context, classNameKey, function);
     ret.ToChecked();
   }
 }
 
-void V8Ctx::RegisterNativeBinding(const std::string& name,
+void V8Ctx::RegisterNativeBinding(const unicode_string_view& name,
                                   hippy::base::RegisterFunction fn,
                                   void* data) {
   TDF_BASE_DLOG(INFO) << "RegisterNativeBinding name = " << name;
@@ -643,77 +670,85 @@ void V8Ctx::RegisterNativeBinding(const std::string& name,
       isolate_, NativeCallbackFunc,
       v8::External::New(isolate_, static_cast<void*>(data_tuple_.get())));
   fn_template->RemovePrototype();
+  v8::Local<v8::String> v8_name = CreateV8String(name);
   context->Global()
-      ->Set(context,
-            TO_LOCAL_UNCHECKED(
-                v8::String::NewFromUtf8(isolate_, name.c_str(),
-                                        v8::NewStringType::kNormal),
-                v8::String),
+      ->Set(context, v8_name,
             TO_LOCAL_UNCHECKED(fn_template->GetFunction(context), v8::Function))
       .ToChecked();
 }
 
-std::shared_ptr<CtxValue> GetInternalBindingFn(std::shared_ptr<Scope> scope) {
-  TDF_BASE_DLOG(INFO) << "GetInternalBindingFn";
-
-  std::shared_ptr<V8Ctx> ctx =
-      std::static_pointer_cast<V8Ctx>(scope->GetContext());
-  v8::Isolate* isolate = ctx->isolate_;
-  v8::HandleScope handle_scope(isolate);
-  v8::Local<v8::Context> v8_context = ctx->context_persistent_.Get(isolate);
-  v8::Context::Scope context_scope(v8_context);
-
-  // GetInternalBindingFn 是向 V8 注册 JS Function
-  // GetInternalBinding 是 JS 调用 Function 的实际执行函数
-  v8::Local<v8::Function> v8_function =
-      v8::Function::New(
-          v8_context, GetInternalBinding,
-          v8::External::New(isolate,
-                            static_cast<void*>(scope->GetBindingData().get())))
-          .ToLocalChecked();
-
-  return std::make_shared<V8CtxValue>(isolate, v8_function);
-}
-
-std::shared_ptr<CtxValue> V8Ctx::RunScript(const uint8_t* data,
-                                           size_t len,
-                                           const std::string& file_name,
+std::shared_ptr<CtxValue> V8Ctx::RunScript(const unicode_string_view& str_view,
+                                           const unicode_string_view& file_name,
                                            bool is_use_code_cache,
-                                           std::string* cache,
-                                           Encoding encodeing) {
-  TDF_BASE_DLOG(INFO) << "V8Ctx::RunScript  len = " << len
-                      << ", file_name = " << file_name
+                                           unicode_string_view* cache,
+                                           bool is_copy) {
+  TDF_BASE_DLOG(INFO) << "V8Ctx::RunScript file_name = " << file_name
                       << ", is_use_code_cache = " << is_use_code_cache
-                      << ", cache = " << cache << ", encodeing = " << encodeing;
+                      << ", cache = " << cache << ", is_copy = " << is_copy;
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
   v8::Local<v8::String> source;
 
-  switch (encodeing) {
-    case Encoding::ONE_BYTE_ENCODING: {
-      ExternalOneByteStringResourceImpl* one_byte =
-          new ExternalOneByteStringResourceImpl(data, len);
-      source = TO_LOCAL_UNCHECKED(
-          v8::String::NewExternalOneByte(isolate_, one_byte), v8::String);
+  unicode_string_view::Encoding encoding = str_view.encoding();
+  switch (encoding) {
+    case unicode_string_view::Encoding::Latin1: {
+      const std::string& str = str_view.latin1_value();
+      if (is_copy) {
+        source = TO_LOCAL_UNCHECKED(
+            v8::String::NewFromOneByte(
+                isolate_, reinterpret_cast<const uint8_t*>(str.c_str()),
+                v8::NewStringType::kInternalized, str.length()),
+            v8::String);
+      } else {
+        ExternalOneByteStringResourceImpl* one_byte =
+            new ExternalOneByteStringResourceImpl(
+                reinterpret_cast<const uint8_t*>(str.c_str()), str.length());
+        source = TO_LOCAL_UNCHECKED(
+            v8::String::NewExternalOneByte(isolate_, one_byte), v8::String);
+      }
       break;
     }
-    case Encoding::TWO_BYTE_ENCODING: {
-      if (len % 2 != 0) {
-        TDF_BASE_DLOG(ERROR) << "utf16 error, len = " << len;
-        return nullptr;
+    case unicode_string_view::Encoding::Utf16: {
+      const std::u16string& str = str_view.utf16_value();
+      if (is_copy) {
+        source = TO_LOCAL_UNCHECKED(
+            v8::String::NewFromTwoByte(
+                isolate_, reinterpret_cast<const uint16_t*>(str.c_str()),
+                v8::NewStringType::kNormal, str.length()),
+            v8::String);
+      } else {
+        ExternalStringResourceImpl* two_byte = new ExternalStringResourceImpl(
+            reinterpret_cast<const uint16_t*>(str.c_str()), str.length());
+        source = TO_LOCAL_UNCHECKED(
+            v8::String::NewExternalTwoByte(isolate_, two_byte), v8::String);
       }
-      ExternalStringResourceImpl* two_byte = new ExternalStringResourceImpl(
-          reinterpret_cast<uint16_t*>(const_cast<uint8_t*>(data)), len / 2);
+      break;
+    }
+    case unicode_string_view::Encoding::Utf32: {
+      const std::u32string& str = str_view.utf32_value();
+      std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> convert;
+      std::string bytes = convert.to_bytes(str);
+      std::u16string two_byte(reinterpret_cast<const char16_t*>(bytes.c_str()),
+                              bytes.length() / sizeof(char16_t));
       source = TO_LOCAL_UNCHECKED(
-          v8::String::NewExternalTwoByte(isolate_, two_byte), v8::String);
+          v8::String::NewFromTwoByte(
+              isolate_, reinterpret_cast<const uint16_t*>(str.c_str()),
+              v8::NewStringType::kNormal, str.length()),
+          v8::String);
+      break;
+    }
+    case unicode_string_view::Encoding::Utf8: {
+      const unicode_string_view::u8string& str = str_view.utf8_value();
+      source = TO_LOCAL_UNCHECKED(
+          v8::String::NewFromUtf8(isolate_,
+                                  reinterpret_cast<const char*>(str.c_str()),
+                                  v8::NewStringType::kNormal),
+          v8::String);
       break;
     }
     default: {
-      source = TO_LOCAL_UNCHECKED(
-          v8::String::NewFromUtf8(isolate_, reinterpret_cast<const char*>(data),
-                                  v8::NewStringType::kNormal),
-          v8::String);
+      TDF_BASE_NOTREACHED();
       break;
     }
   }
@@ -723,56 +758,6 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const uint8_t* data,
     return nullptr;
   }
 
-  return InternalRunScript(context, source, file_name, is_use_code_cache,
-                           cache);
-}
-
-std::shared_ptr<CtxValue> V8Ctx::RunScript(const std::string&& script,
-                                           const std::string& file_name,
-                                           bool is_use_code_cache,
-                                           std::string* cache,
-                                           Encoding encodeing) {
-  TDF_BASE_LOG(INFO) << "V8Ctx::RunScript script_file_name = " << file_name
-                     << ", is_use_code_cache = " << is_use_code_cache
-                     << ", cache = " << cache << ", encodeing = " << encodeing;
-  v8::HandleScope handle_scope(isolate_);
-  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
-  v8::Context::Scope context_scope(context);
-
-  v8::Local<v8::String> source;
-  switch (encodeing) {
-    case Encoding::ONE_BYTE_ENCODING: {
-      ExternalOneByteStringResourceImpl* one_byte =
-          new ExternalOneByteStringResourceImpl(std::move(script));
-      source = TO_LOCAL_UNCHECKED(
-          v8::String::NewExternalOneByte(isolate_, one_byte), v8::String);
-      break;
-    }
-    case Encoding::TWO_BYTE_ENCODING: {
-      int len = script.length();
-      if (len % 2 != 0) {
-        TDF_BASE_DLOG(ERROR) << "utf16 error, len = " << len;
-        return nullptr;
-      }
-
-      ExternalStringResourceImpl* two_byte =
-          new ExternalStringResourceImpl(std::move(script));
-      source = TO_LOCAL_UNCHECKED(
-          v8::String::NewExternalTwoByte(isolate_, two_byte), v8::String);
-      break;
-    }
-    default: {
-      source = TO_LOCAL_UNCHECKED(
-          v8::String::NewFromUtf8(isolate_, script.c_str(),
-                                  v8::NewStringType::kNormal),
-          v8::String);
-      break;
-    }
-  }
-  if (source.IsEmpty()) {
-    TDF_BASE_DLOG(WARNING) << "v8_source empty, file_name = " << file_name;
-    return nullptr;
-  }
   return InternalRunScript(context, source, file_name, is_use_code_cache,
                            cache);
 }
@@ -780,27 +765,33 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const std::string&& script,
 std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
     v8::Local<v8::Context> context,
     v8::Local<v8::String> source,
-    const std::string& file_name,
+    const unicode_string_view& file_name,
     bool is_use_code_cache,
-    std::string* cache) {
-  v8::ScriptOrigin origin(
-      TO_LOCAL_UNCHECKED(v8::String::NewFromUtf8(isolate_, file_name.c_str(),
-                                                 v8::NewStringType::kNormal),
-                         v8::String));
+    unicode_string_view* cache) {
+  v8::Local<v8::String> v8_file_name = CreateV8String(file_name);
+  v8::ScriptOrigin origin(v8_file_name);
   v8::MaybeLocal<v8::Script> script;
-  if (is_use_code_cache && cache) {
-    v8::ScriptCompiler::CachedData* cached_data =
-        new v8::ScriptCompiler::CachedData(
-            reinterpret_cast<const uint8_t*>(cache), (*cache).length(),
-            v8::ScriptCompiler::CachedData::BufferNotOwned);
-    v8::ScriptCompiler::Source script_source(source, origin, cached_data);
-    script = v8::ScriptCompiler::Compile(context, &script_source,
-                                         v8::ScriptCompiler::kConsumeCodeCache);
-    if (script.IsEmpty()) {
-      return nullptr;
+  if (is_use_code_cache && cache && !StringViewUtils::IsEmpty(*cache)) {
+    unicode_string_view::Encoding encoding = cache->encoding();
+    switch (encoding) {
+      case unicode_string_view::Encoding::Utf8: {
+        const unicode_string_view::u8string& str = cache->utf8_value();
+        v8::ScriptCompiler::CachedData* cached_data =
+            new v8::ScriptCompiler::CachedData(
+                str.c_str(), str.length(),
+                v8::ScriptCompiler::CachedData::BufferNotOwned);
+        v8::ScriptCompiler::Source script_source(source, origin, cached_data);
+        script = v8::ScriptCompiler::Compile(
+            context, &script_source, v8::ScriptCompiler::kConsumeCodeCache);
+      }
+      default: {
+        TDF_BASE_NOTREACHED();
+        break;
+      }
     }
+
   } else {
-    if (is_use_code_cache) {
+    if (is_use_code_cache && cache) {
       v8::ScriptCompiler::Source script_source(source, origin);
       script = v8::ScriptCompiler::Compile(context, &script_source);
       if (script.IsEmpty()) {
@@ -809,8 +800,7 @@ std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
       const v8::ScriptCompiler::CachedData* cached_data =
           v8::ScriptCompiler::CreateCodeCache(
               script.ToLocalChecked()->GetUnboundScript());
-      *cache = std::string(reinterpret_cast<const char*>(cached_data->data),
-                           cached_data->length);
+      *cache = unicode_string_view(cached_data->data, cached_data->length);
     } else {
       script = v8::Script::Compile(context, source, &origin);
     }
@@ -829,19 +819,16 @@ std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
   return std::make_shared<V8CtxValue>(isolate_, v8_value);
 }
 
-std::shared_ptr<CtxValue> V8Ctx::GetJsFn(const std::string& name) {
+std::shared_ptr<CtxValue> V8Ctx::GetJsFn(const unicode_string_view& name) {
   TDF_BASE_DLOG(INFO) << "GetJsFn name = " << name;
-  if (name.empty()) {
+  if (StringViewUtils::IsEmpty(name)) {
     return nullptr;
   }
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
 
-  v8::Local<v8::String> js_name =
-      TO_LOCAL_UNCHECKED(v8::String::NewFromUtf8(isolate_, name.c_str(),
-                                                 v8::NewStringType::kNormal),
-                         v8::String);
+  v8::Local<v8::String> js_name = CreateV8String(name);
   v8::Local<v8::Function> value =
       v8::Local<v8::Function>::Cast(TO_LOCAL_UNCHECKED(
           context_persistent_.Get(isolate_)->Global()->Get(context, js_name),
@@ -850,17 +837,17 @@ std::shared_ptr<CtxValue> V8Ctx::GetJsFn(const std::string& name) {
 }
 
 bool V8Ctx::ThrowExceptionToJS(std::shared_ptr<CtxValue> exception) {
+  unicode_string_view error_handle_name(kHippyErrorHandlerName);
   std::shared_ptr<CtxValue> exception_handler =
-      GetGlobalObjVar(kHippyErrorHandlerName);
+      GetGlobalObjVar(error_handle_name);
 
   if (!IsFunction(exception_handler)) {
-    auto source_code = hippy::GetNativeSourceCode(kErrorHandlerJSName);
+    const auto& source_code = hippy::GetNativeSourceCode(kErrorHandlerJSName);
     TDF_BASE_DCHECK(source_code.data_ && source_code.length_);
+    unicode_string_view str_view(source_code.data_, source_code.length_);
     exception_handler =
-        RunScript(source_code.data_, source_code.length_, kErrorHandlerJSName);
-    bool is_func = IsFunction(exception_handler);
-    TDF_BASE_DCHECK(is_func);
-    SetGlobalObjVar(kHippyErrorHandlerName, exception_handler,
+        RunScript(str_view, error_handle_name, false, nullptr, false);
+    SetGlobalObjVar(error_handle_name, exception_handler,
                     PropertyAttribute::ReadOnly);
   }
 
@@ -931,6 +918,625 @@ std::shared_ptr<CtxValue> V8Ctx::CallFunction(
     return nullptr;
   }
   return std::make_shared<V8CtxValue>(isolate_, maybe_result.ToLocalChecked());
+}
+
+std::shared_ptr<CtxValue> V8Ctx::CreateNumber(double number) {
+  v8::HandleScope isolate_scope(isolate_);
+
+  v8::Local<v8::Value> v8_number = v8::Number::New(isolate_, number);
+  if (v8_number.IsEmpty()) {
+    return nullptr;
+  }
+  return std::make_shared<V8CtxValue>(isolate_, v8_number);
+}
+
+std::shared_ptr<CtxValue> V8Ctx::CreateBoolean(bool b) {
+  v8::HandleScope isolate_scope(isolate_);
+
+  v8::Local<v8::Boolean> v8_boolean = v8::Boolean::New(isolate_, b);
+  if (v8_boolean.IsEmpty()) {
+    return nullptr;
+  }
+  return std::make_shared<V8CtxValue>(isolate_, v8_boolean);
+}
+
+std::shared_ptr<CtxValue> V8Ctx::CreateString(
+    const unicode_string_view& str_view) {
+  if (StringViewUtils::IsEmpty(str_view)) {
+    return nullptr;
+  }
+  v8::HandleScope isolate_scope(isolate_);
+
+  v8::Local<v8::String> v8_string = CreateV8String(str_view);
+  return std::make_shared<V8CtxValue>(isolate_, v8_string);
+}
+
+std::shared_ptr<CtxValue> V8Ctx::CreateUndefined() {
+  v8::HandleScope isolate_scope(isolate_);
+
+  v8::Local<v8::Value> undefined = v8::Undefined(isolate_);
+  if (undefined.IsEmpty()) {
+    return nullptr;
+  }
+  return std::make_shared<V8CtxValue>(isolate_, undefined);
+}
+
+std::shared_ptr<CtxValue> V8Ctx::CreateNull() {
+  v8::HandleScope isolate_scope(isolate_);
+
+  v8::Local<v8::Value> v8_null = v8::Null(isolate_);
+  if (v8_null.IsEmpty()) {
+    return nullptr;
+  }
+  return std::make_shared<V8CtxValue>(isolate_, v8_null);
+}
+
+v8::Local<v8::String> V8Ctx::CreateV8String(
+    const unicode_string_view& str_view) {
+  unicode_string_view::Encoding encoding = str_view.encoding();
+  switch (encoding) {
+    case unicode_string_view::Encoding::Latin1: {
+      std::string one_byte_str = str_view.latin1_value();
+      return TO_LOCAL_UNCHECKED(
+          v8::String::NewFromOneByte(
+              isolate_, reinterpret_cast<const uint8_t*>(one_byte_str.c_str()),
+              v8::NewStringType::kNormal),
+          v8::String);
+      break;
+    }
+    case unicode_string_view::Encoding::Utf8: {
+      unicode_string_view::u8string utf8_str = str_view.utf8_value();
+      return TO_LOCAL_UNCHECKED(
+          v8::String::NewFromUtf8(
+              isolate_, reinterpret_cast<const char*>(utf8_str.c_str()),
+              v8::NewStringType::kNormal),
+          v8::String);
+      break;
+    }
+    case unicode_string_view::Encoding::Utf16: {
+      std::u16string two_byte_str = str_view.utf16_value();
+      return TO_LOCAL_UNCHECKED(
+          v8::String::NewFromTwoByte(
+              isolate_, reinterpret_cast<const uint16_t*>(two_byte_str.c_str()),
+              v8::NewStringType::kNormal),
+          v8::String);
+      break;
+    }
+    default:
+      break;
+  }
+  TDF_BASE_NOTREACHED();
+  return v8::Local<v8::String>();
+}
+
+std::shared_ptr<JSValueWrapper> V8Ctx::ToJsValueWrapper(
+    std::shared_ptr<CtxValue> value) {
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(value);
+  const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, global_value);
+  if (handle_value->IsUndefined()) {
+    return std::make_shared<JSValueWrapper>(JSValueWrapper::Undefined());
+  } else if (handle_value->IsNull()) {
+    return std::make_shared<JSValueWrapper>(JSValueWrapper::Null());
+  } else if (handle_value->IsBoolean()) {
+    bool v8_value = handle_value->ToBoolean(isolate_)->Value();
+    return std::make_shared<JSValueWrapper>(v8_value);
+  } else if (handle_value->IsString()) {
+    return std::make_shared<JSValueWrapper>(
+        *v8::String::Utf8Value(isolate_, handle_value));
+  } else if (handle_value->IsNumber()) {
+    double v8_value = handle_value->ToNumber(context).ToLocalChecked()->Value();
+    return std::make_shared<JSValueWrapper>(v8_value);
+  } else if (handle_value->IsArray()) {
+    v8::Local<v8::Object> v8_value =
+        handle_value->ToObject(context).ToLocalChecked();
+    // v8::NewStringType::kInternaliz
+    v8::Local<v8::Array>::Cast(handle_value);
+    v8::Local<v8::String> len_str =
+        v8::String::NewFromOneByte(isolate_,
+                                   reinterpret_cast<const uint8_t*>("length"),
+                                   v8::NewStringType::kInternalized)
+            .ToLocalChecked();
+    uint32_t len = v8_value->Get(context, len_str)
+                       .ToLocalChecked()
+                       ->Uint32Value(context)
+                       .FromMaybe(0);
+    JSValueWrapper::JSArrayType ret;
+    for (uint32_t i = 0; i < len; i++) {
+      v8::Local<v8::Value> element = v8_value->Get(context, i).ToLocalChecked();
+      std::shared_ptr<JSValueWrapper> value_obj =
+          ToJsValueWrapper(std::make_shared<V8CtxValue>(isolate_, element));
+      ret.push_back(*value_obj);
+    }
+    return std::make_shared<JSValueWrapper>(std::move(ret));
+  } else if (handle_value->IsObject()) {
+    v8::Local<v8::Object> v8_value =
+        handle_value->ToObject(context).ToLocalChecked();
+    JSValueWrapper::JSObjectType ret;
+    v8::MaybeLocal<v8::Array> maybe_props =
+        v8_value->GetOwnPropertyNames(context);
+    if (!maybe_props.IsEmpty()) {
+      v8::Local<v8::Array> props = maybe_props.ToLocalChecked();
+      for (uint32_t i = 0; i < props->Length(); i++) {
+        v8::Local<v8::Value> props_key =
+            props->Get(context, i).ToLocalChecked();
+        v8::Local<v8::Value> props_value =
+            v8_value->Get(context, props_key).ToLocalChecked();
+
+        std::string key_obj;
+        if (props_key->IsString()) {
+          key_obj = *v8::String::Utf8Value(isolate_, props_key);
+        } else {
+          TDF_BASE_LOG(ERROR)
+              << "ToJsValueWrapper parse v8::Object err, props_key illegal";
+          return nullptr;
+        }
+
+        std::shared_ptr<JSValueWrapper> value_obj = ToJsValueWrapper(
+            std::make_shared<V8CtxValue>(isolate_, props_value));
+        ret[key_obj] = *value_obj;
+      }
+    }
+    return std::make_shared<JSValueWrapper>(std::move(ret));
+  }
+
+  // TDF_BASE_NOTIMPLEMENTED();
+  return nullptr;
+}
+
+std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
+    std::shared_ptr<JSValueWrapper> wrapper) {
+  if (wrapper->IsUndefined()) {
+    return CreateUndefined();
+  } else if (wrapper->IsNull()) {
+    return CreateNull();
+  } else if (wrapper->IsString()) {
+    std::string str = wrapper->StringValue();
+    unicode_string_view str_view(StringViewUtils::ToU8Pointer(str.c_str()),
+                                 str.length());
+    return CreateString(str_view);
+  } else if (wrapper->IsInt32()) {
+    return CreateNumber(wrapper->Int32Value());
+  } else if (wrapper->IsDouble()) {
+    return CreateNumber(wrapper->DoubleValue());
+  } else if (wrapper->IsBoolean()) {
+    return CreateBoolean(wrapper->DoubleValue());
+  } else if (wrapper->IsArray()) {
+    auto arr = wrapper->ArrayValue();
+    std::shared_ptr<CtxValue> args[arr.size()];
+    for (auto i = 0; i < arr.size(); ++i) {
+      args[i] = CreateCtxValue(std::make_shared<JSValueWrapper>(arr[i]));
+    }
+    return CreateArray(arr.size(), args);
+  } else if (wrapper->IsObject()) {
+    auto obj = wrapper->ObjectValue();
+
+    v8::HandleScope handle_scope(isolate_);
+    v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+    v8::Context::Scope context_scope(context);
+
+    v8::Local<v8::ObjectTemplate> constructor =
+        v8::ObjectTemplate::New(isolate_);
+    for (const auto& p : obj) {
+      auto obj_key = p.first;
+      auto obj_value = p.second;
+      unicode_string_view obj_key_view(
+          StringViewUtils::ToU8Pointer(obj_key.c_str()), obj_key.length());
+      v8::Local<v8::String> key = CreateV8String(obj_key_view);
+      std::shared_ptr<V8CtxValue> ctx_value =
+          std::static_pointer_cast<V8CtxValue>(
+              CreateCtxValue(std::make_shared<JSValueWrapper>(obj_value)));
+      const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
+      v8::Local<v8::Value> handle_value =
+          v8::Local<v8::Value>::New(isolate_, global_value);
+      constructor->Set(key, handle_value, v8::PropertyAttribute::None);
+    }
+    v8::Local<v8::Object> v8_obj =
+        constructor->NewInstance(context).ToLocalChecked();
+    return std::make_shared<V8CtxValue>(isolate_, v8_obj);
+  }
+  // TDF_BASE_NOTIMPLEMENTED();
+  return nullptr;
+}
+
+unicode_string_view V8Ctx::ToStringView(v8::Local<v8::String> str) {
+  v8::String* v8_string = v8::String::Cast(*str);
+  int32_t len = v8_string->Length();
+  if (v8_string->IsOneByte()) {
+    std::string one_byte_string;
+    one_byte_string.resize(len);
+    v8_string->WriteOneByte(isolate_,
+                            reinterpret_cast<uint8_t*>(&one_byte_string[0]));
+    return unicode_string_view(one_byte_string);
+  }
+  std::u16string two_byte_string;
+  two_byte_string.resize(len);
+  v8_string->Write(isolate_, reinterpret_cast<uint16_t*>(&two_byte_string[0]));
+  return unicode_string_view(two_byte_string);
+}
+
+std::shared_ptr<CtxValue> V8Ctx::CreateObject(const unicode_string_view& json) {
+  if (StringViewUtils::IsEmpty(json)) {
+    return nullptr;
+  }
+
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+
+  v8::Local<v8::String> v8_string = CreateV8String(json);
+  v8::Local<v8::Value> object =
+      TO_LOCAL_UNCHECKED(v8::JSON::Parse(context, v8_string), v8::Value);
+  if (object.IsEmpty()) {
+    return nullptr;
+  }
+  return std::make_shared<V8CtxValue>(isolate_, object);
+}
+
+std::shared_ptr<CtxValue> V8Ctx::CreateArray(
+    size_t count,
+    std::shared_ptr<CtxValue> value[]) {
+  if (!count) {
+    return nullptr;
+  }
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Array> array = v8::Array::New(isolate_, count);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  for (size_t i = 0; i < count; i++) {
+    v8::Local<v8::Value> handle_value;
+    std::shared_ptr<V8CtxValue> ctx_value =
+        std::static_pointer_cast<V8CtxValue>(value[i]);
+    if (ctx_value) {
+      const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
+      handle_value = v8::Local<v8::Value>::New(isolate_, global_value);
+    } else {
+      handle_value = v8::Null(isolate_);
+    }
+    if (!array->Set(context, i, handle_value).FromMaybe(false)) {
+      TDF_BASE_DLOG(INFO) << "set array item failed";
+      return nullptr;
+    }
+  }
+  return std::make_shared<V8CtxValue>(isolate_, array);
+}
+
+std::shared_ptr<CtxValue> V8Ctx::CreateJsError(const unicode_string_view& msg) {
+  TDF_BASE_DLOG(INFO) << "V8Ctx::CreateJsError msg = " << msg;
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+
+  v8::Local<v8::Value> error = v8::Exception::Error(CreateV8String(msg));
+  if (error.IsEmpty()) {
+    TDF_BASE_DLOG(INFO) << "error is empty";
+    return nullptr;
+  }
+  return std::make_shared<V8CtxValue>(isolate_, error);
+}
+
+bool V8Ctx::GetValueNumber(std::shared_ptr<CtxValue> value, double* result) {
+  if (!value || !result) {
+    return false;
+  }
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(value);
+  const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, global_value);
+
+  if (handle_value.IsEmpty() || !handle_value->IsNumber()) {
+    return false;
+  }
+
+  v8::Local<v8::Number> number =
+      handle_value->ToNumber(context).ToLocalChecked();
+  if (number.IsEmpty()) {
+    return false;
+  }
+
+  *result = number->Value();
+  return true;
+}
+
+bool V8Ctx::GetValueNumber(std::shared_ptr<CtxValue> value, int32_t* result) {
+  if (!value || !result) {
+    return false;
+  }
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(value);
+  const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, global_value);
+
+  if (handle_value.IsEmpty() || !handle_value->IsInt32()) {
+    return false;
+  }
+
+  v8::Local<v8::Int32> number = handle_value->ToInt32(context).ToLocalChecked();
+  *result = number->Value();
+  return true;
+}
+
+bool V8Ctx::GetValueBoolean(std::shared_ptr<CtxValue> value, bool* result) {
+  if (!value || !result) {
+    return false;
+  }
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(value);
+  const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, global_value);
+
+  if (handle_value.IsEmpty() || !handle_value->IsBoolean()) {
+    return false;
+  }
+
+  v8::Local<v8::Boolean> boolean = handle_value->ToBoolean(isolate_);
+  *result = boolean->Value();
+  return true;
+}
+
+bool V8Ctx::GetValueString(std::shared_ptr<CtxValue> value,
+                           unicode_string_view* result) {
+  TDF_BASE_DLOG(INFO) << "V8Ctx::GetValueString";
+  if (!value || !result) {
+    return false;
+  }
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(value);
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, global_value);
+  if (handle_value.IsEmpty()) {
+    return false;
+  }
+
+  if (handle_value->IsString() || handle_value->IsStringObject()) {
+    v8::Local<v8::String> v8_str =
+        TO_LOCAL_UNCHECKED(handle_value->ToString(context), v8::String);
+    *result = ToStringView(v8_str);
+    return true;
+  }
+  return false;
+}
+
+bool V8Ctx::GetValueJson(std::shared_ptr<CtxValue> value,
+                         unicode_string_view* result) {
+  if (!value || !result) {
+    return false;
+  }
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(value);
+  const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, global_value);
+  if (handle_value.IsEmpty() || !handle_value->IsObject()) {
+    return false;
+  }
+
+  v8::MaybeLocal<v8::String> v8_maybe_string =
+      v8::JSON::Stringify(context, handle_value);
+  if (v8_maybe_string.IsEmpty()) {
+    return false;
+  }
+
+  v8::Local<v8::String> v8_string = v8_maybe_string.ToLocalChecked();
+  *result = ToStringView(v8_string);
+  return true;
+}
+
+// Array Helpers
+
+bool V8Ctx::IsArray(std::shared_ptr<CtxValue> value) {
+  if (!value) {
+    return false;
+  }
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(value);
+  const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, global_value);
+
+  if (handle_value.IsEmpty()) {
+    return false;
+  }
+  return handle_value->IsArray();
+}
+
+uint32_t V8Ctx::GetArrayLength(std::shared_ptr<CtxValue> value) {
+  if (value == nullptr) {
+    return 0;
+  }
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(value);
+  const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, global_value);
+
+  if (handle_value.IsEmpty()) {
+    return 0;
+  }
+
+  if (handle_value->IsArray()) {
+    v8::Array* array = v8::Array::Cast(*handle_value);
+    return array->Length();
+  }
+
+  return 0;
+}
+
+std::shared_ptr<CtxValue> V8Ctx::CopyArrayElement(
+    std::shared_ptr<CtxValue> value,
+    uint32_t index) {
+  if (!value) {
+    return nullptr;
+  }
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(value);
+  const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, global_value);
+
+  if (handle_value.IsEmpty()) {
+    return nullptr;
+  }
+
+  if (handle_value->IsArray()) {
+    v8::Array* array = v8::Array::Cast(*handle_value);
+    v8::Local<v8::Value> ret = array->Get(context, index).ToLocalChecked();
+    if (ret.IsEmpty()) {
+      return nullptr;
+    }
+
+    return std::make_shared<V8CtxValue>(isolate_, ret);
+  }
+  return nullptr;
+}
+
+// Object Helpers
+
+bool V8Ctx::HasNamedProperty(std::shared_ptr<CtxValue> value,
+                             const unicode_string_view& name) {
+  if (!value || StringViewUtils::IsEmpty(name)) {
+    return false;
+  }
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(value);
+  const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, global_value);
+
+  if (handle_value.IsEmpty()) {
+    return false;
+  }
+
+  if (handle_value->IsMap()) {
+    v8::Map* map = v8::Map::Cast(*handle_value);
+    v8::Local<v8::String> key = CreateV8String(name);
+    if (key.IsEmpty()) {
+      return false;
+    }
+
+    v8::Maybe<bool> ret = map->Has(context, key);
+    return ret.ToChecked();
+  }
+  return false;
+}
+
+std::shared_ptr<CtxValue> V8Ctx::CopyNamedProperty(
+    std::shared_ptr<CtxValue> value,
+    const unicode_string_view& name) {
+  if (!value || StringViewUtils::IsEmpty(name)) {
+    return nullptr;
+  }
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(value);
+  const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, global_value);
+
+  if (handle_value.IsEmpty()) {
+    return nullptr;
+  }
+
+  if (handle_value->IsMap()) {
+    v8::Map* map = v8::Map::Cast(*handle_value);
+    if (map == nullptr) {
+      return nullptr;
+    }
+
+    v8::Local<v8::String> key = CreateV8String(name);
+    if (key.IsEmpty()) {
+      return nullptr;
+    }
+
+    return std::make_shared<V8CtxValue>(
+        isolate_, map->Get(context, key).ToLocalChecked());
+  }
+
+  return nullptr;
+}
+
+// Function Helpers
+
+bool V8Ctx::IsFunction(std::shared_ptr<CtxValue> value) {
+  if (!value) {
+    return false;
+  }
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(value);
+  const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, global_value);
+
+  if (handle_value.IsEmpty()) {
+    return false;
+  }
+
+  return handle_value->IsFunction();
+}
+
+unicode_string_view V8Ctx::CopyFunctionName(
+    std::shared_ptr<CtxValue> function) {
+  if (!function) {
+    return unicode_string_view();
+  }
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(function);
+  const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, global_value);
+
+  unicode_string_view result;
+  if (handle_value->IsFunction()) {
+    v8::Local<v8::String> v8_str =
+        TO_LOCAL_UNCHECKED(handle_value->ToString(context), v8::String);
+    result = ToStringView(v8_str);
+  }
+
+  return result;
 }
 
 }  // namespace napi

@@ -60,17 +60,39 @@ void V8InspectorClientImpl::CreateContext() {
       context, 1, v8_inspector::StringView(name_uint8, arraysize(name_uint8))));
 }
 
-void V8InspectorClientImpl::SendMessageToV8(const std::string& params) {
+void V8InspectorClientImpl::SendMessageToV8(const unicode_string_view& params) {
   if (channel_) {
-    if (!params.compare("chrome_socket_closed")) {
-      session_ =
-          inspector_->connect(1, channel_.get(), v8_inspector::StringView());
-    } else {
-      v8_inspector::StringView message_view(
-          reinterpret_cast<uint8_t*>(const_cast<char*>(params.c_str())),
-          params.length());
-      session_->dispatchProtocolMessage(message_view);
+    unicode_string_view::Encoding encoding = params.encoding();
+    v8_inspector::StringView message_view;
+    switch (encoding) {
+      case unicode_string_view::Encoding::Latin1: {
+        std::string str = params.latin1_value();
+        if (!str.compare("chrome_socket_closed")) {
+          session_ = inspector_->connect(1, channel_.get(),
+                                         v8_inspector::StringView());
+          return;
+        }
+        message_view = v8_inspector::StringView(
+            reinterpret_cast<const uint8_t*>(str.c_str()), str.length());
+        break;
+      }
+      case unicode_string_view::Encoding::Utf16: {
+        std::u16string str = params.utf16_value();
+        if (!str.compare(u"chrome_socket_closed")) {
+          session_ = inspector_->connect(1, channel_.get(),
+                                         v8_inspector::StringView());
+          return;
+        }
+        message_view = v8_inspector::StringView(
+            reinterpret_cast<const uint16_t*>(str.c_str()), str.length());
+        break;
+      }
+      default:
+        TDF_BASE_DLOG(INFO) << "encoding = " << static_cast<int>(encoding);
+        TDF_BASE_NOTREACHED();
+        break;
     }
+    session_->dispatchProtocolMessage(message_view);
   }
 }
 

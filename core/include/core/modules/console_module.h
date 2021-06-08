@@ -24,7 +24,6 @@
 
 #include "core/modules/module_base.h"
 #include "core/napi/callback_info.h"
-#include "core/napi/js_native_api_types.h"
 
 class Scope;
 

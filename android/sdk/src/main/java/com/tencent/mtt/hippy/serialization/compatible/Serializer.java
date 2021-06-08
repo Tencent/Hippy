@@ -15,6 +15,8 @@
  */
 package com.tencent.mtt.hippy.serialization.compatible;
 
+import androidx.annotation.NonNull;
+
 import com.tencent.mtt.hippy.common.ConstantValue;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
@@ -27,8 +29,9 @@ import java.util.Set;
 /**
  * Implementation of {@code v8::(internal::)ValueSerializer}.
  */
-@SuppressWarnings({"deprecation","unused"})
+@SuppressWarnings({"deprecation", "unused"})
 public class Serializer extends PrimitiveValueSerializer {
+
   public Serializer() {
     super(null);
   }
@@ -69,18 +72,22 @@ public class Serializer extends PrimitiveValueSerializer {
     return true;
   }
 
-  private void writeJSObject(HippyMap value) {
+  private void writeJSObject(@NonNull HippyMap value) {
     writeTag(SerializationTag.BEGIN_JS_OBJECT);
     Set<String> keys = value.keySet();
     for (String key : keys) {
-      writeString(key);
+      if (key == Null) {
+        writeString("null");
+      } else {
+        writeString(key);
+      }
       writeValue(value.get(key));
     }
     writeTag(SerializationTag.END_JS_OBJECT);
     writer.putVarint(keys.size());
   }
 
-  private void writeJSArray(HippyArray value) {
+  private void writeJSArray(@NonNull HippyArray value) {
     long length = value.size();
     writeTag(SerializationTag.BEGIN_DENSE_JS_ARRAY);
     writer.putVarint(length);
