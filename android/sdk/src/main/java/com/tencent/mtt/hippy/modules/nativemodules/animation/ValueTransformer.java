@@ -17,9 +17,6 @@ package com.tencent.mtt.hippy.modules.nativemodules.animation;
 
 import com.tencent.mtt.hippy.common.HippyArray;
 
-/**
- * FileName: ValueTransformer Description： History： 1.0 xiandongluo on 2018/2/11
- */
 public class ValueTransformer {
 
   protected final HippyArray mInputRange;
