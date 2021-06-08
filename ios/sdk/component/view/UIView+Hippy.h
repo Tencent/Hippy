@@ -37,6 +37,7 @@
 - (UIView *)hippySuperview;
 - (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex;
 - (void)removeHippySubview:(UIView *)subview;
+- (void)resetHippySubviews;
 
 /**
  * HippyViewTouchHandlerProtocol interface.
