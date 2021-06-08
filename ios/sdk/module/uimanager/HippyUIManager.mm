@@ -942,7 +942,14 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
                            properties:(NSDictionary *)props
                              viewName:(NSString *)viewName {
     UIView *view = [self viewForHippyTag:hippyTag];
-    if (!view) {
+    /**
+     * subviews & hippySubviews should be removed from the view which we get from cache(_viewRegistry).
+     * otherwise hippySubviews will be inserted multiple times.
+     */
+    if (view) {
+        [view resetHippySubviews];
+    }
+    else {
         view = [componentData createViewWithTag:hippyTag initProps:props];
     }
     if (view) {
