@@ -101,7 +101,7 @@
 
 [[范例：demo-swiper.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-swiper.vue)
 
-轮播组件，里面只能包含 `<swiper-slide>` 组件。
+轮播组件，对应终端 `ViewPager`组件， 里面只能包含 `<swiper-slide>` 组件。
 
 > **注意事项：**如果在 ul 里嵌套 swiper，因为 ul 自带复用能力，swiper 滚出屏幕后不可在对其进行任何操作（例如通过代码更改 current 值），否则很可能导致终端出错。
 

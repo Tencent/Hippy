@@ -54,6 +54,7 @@ interface WebViewProps {
  */
 function WebView(props: WebViewProps) {
   return (
+    // @ts-ignore
     <iframe title="hippy" nativeName="WebView" {...props} />
   );
 }
