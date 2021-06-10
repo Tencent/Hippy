@@ -311,8 +311,10 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
                                     INIT_CB_STATE::SUCCESS);
     } else {
       JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+      jstring j_msg = JniUtils::StrViewToJString(j_env, u"run script error");
       CallJavaMethod(save_object_->GetObj(), INIT_CB_STATE::RUN_SCRIPT_ERROR,
-                     JniUtils::StrViewToJString(j_env, u"run script error"));
+                     j_msg);
+      j_env->DeleteLocalRef(j_msg);
     }
     return flag;
   };
@@ -436,7 +438,8 @@ jlong InitInstance(JNIEnv* j_env,
 
   RegisterFunction scope_cb = [save_object_ = std::move(save_object)](void*) {
     TDF_BASE_LOG(INFO) << "run scope cb";
-    hippy::bridge::CallJavaMethod(save_object_->GetObj(), INIT_CB_STATE::SUCCESS);
+    hippy::bridge::CallJavaMethod(save_object_->GetObj(),
+                                  INIT_CB_STATE::SUCCESS);
   };
 
   scope_cb_map->insert(
