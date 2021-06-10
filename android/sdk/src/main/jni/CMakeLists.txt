@@ -62,7 +62,7 @@ elseif (${CMAKE_ANDROID_ARCH_ABI} STREQUAL "x86_64")
 	  -msse4.2
     )
 else()
-  message("${CMAKE_ANDROID_ARCH_ABI} is not supported")
+  message(FATAL_ERROR "${CMAKE_ANDROID_ARCH_ABI} is not supported")
 endif()
 message("ABI_COMPILE_OPTIONS: ${ABI_COMPILE_OPTIONS}")
 
@@ -80,43 +80,59 @@ file(GLOB_RECURSE JNI_SRC ${PROJECT_SOURCE_DIR}/src/*.cc)
 message("PROJECT_SOURCE_DIR: ${PROJECT_SOURCE_DIR}")
 message("CORE_SRC_DIR: ${CORE_SRC_DIR}")
 message("JNI_SRC: ${JNI_SRC}")
-message("V8_VERSION: ${V8_VERSION}")
+
+add_library(libjsvm SHARED IMPORTED)
 
 message("JS_ENGINE:" ${JS_ENGINE})
 if (${JS_ENGINE} STREQUAL "V8")
+  message("V8_TAG: ${V8_TAG}")
+  message("V8_RELEASE: ${V8_RELEASE}")
   add_definitions("-DV8_IMMINENT_DEPRECATION_WARNINGS")
   add_definitions("-DV8_DEPRECATION_WARNINGS")
+  # region remove jsc code
   file(GLOB_RECURSE JSC_SRC ${CORE_SRC_DIR}/src/napi/jsc/*)
   message("JSC_SRC: ${JSC_SRC}")
   list(REMOVE_ITEM CORE_SRC ${JSC_SRC})
+  # endregion
+  # region determine v8 library
+  if ((${V8_TAG} STREQUAL "latest") AND (${V8_RELEASE} STREQUAL "x5-lite"))
+    message(FATAL_ERROR "x5-lite release package not available in latest tag")
+  endif()
+  if (${V8_RELEASE} STREQUAL "x5-lite")
+    set(V8_SO "libmttv8.so")
+  elseif (${V8_RELEASE} STREQUAL "official-release")
+    set(V8_SO "libv8.cr.so")
+  else()
+    message(FATAL_ERROR "${V8_RELEASE} is not supported")
+  endif()
+  # endregion
+  # region library & include
+  set_target_properties(libjsvm PROPERTIES IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/third_party/v8/${V8_TAG}/${V8_RELEASE}/libs/${ANDROID_ABI}/${V8_SO})
+  include_directories(${PROJECT_SOURCE_DIR}/third_party/v8/${V8_TAG}/${V8_RELEASE}/include)
+  # endregion
 elseif (${JS_ENGINE} STREQUAL "JSC")
+  # region remove v8 code
   file(GLOB_RECURSE V8_SRC ${CORE_SRC_DIR}/src/napi/v8/*)
   message("V8_SRC: ${V8_SRC}")
   list(REMOVE_ITEM CORE_SRC ${V8_SRC})
+  # endregion
 else()
-  message("${JS_ENGINE} is not supported")
+  message(FATAL_ERROR "${JS_ENGINE} is not supported")
 endif()
 message("CORE_SRC: ${CORE_SRC}")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${CORE_SRC_DIR}/include)
-include_directories(${PROJECT_SOURCE_DIR}/third_party/${V8_VERSION})
 include_directories(${PROJECT_SOURCE_DIR})
 include_directories(${CORE_SRC_DIR}/third_party/base/include)
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../../libs/${ANDROID_ABI}")
 
-add_library(libmttv8 SHARED IMPORTED)
-set_target_properties(libmttv8 PROPERTIES IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/third_party/${V8_VERSION}/v8/${ANDROID_ABI}/libmttv8.so)
-
-add_library(libmtt_shared SHARED IMPORTED)
-set_target_properties(libmtt_shared PROPERTIES IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/third_party/${V8_VERSION}/v8/${ANDROID_ABI}/libmtt_shared.so)
-
 set(HIPPY_TARGET_NAME "hippybridge")
 
 add_library(${HIPPY_TARGET_NAME} SHARED ${CORE_SRC} ${URL_PARSER_SRC} ${JNI_SRC})
-target_link_libraries(${HIPPY_TARGET_NAME} android log libmttv8 libmtt_shared tdf_base)
+target_link_libraries(${HIPPY_TARGET_NAME} android log libjsvm tdf_base)
 
 #add_custom_command(TARGET ${HIPPY_TARGET_NAME} POST_BUILD
 #            COMMAND "${CMAKE_STRIP}" -g -S -d --strip-debug --verbose
