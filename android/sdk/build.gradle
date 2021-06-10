@@ -79,7 +79,8 @@ android {
                   "-DANDROID_CPP_FEATURES=rtti exceptions",
                   "-DANDROID_PLATFORM=android-21",
                   "-DCMAKE_BUILD_TYPE=Release",
-                  "-DV8_VERSION=$V8_VERSION"
+                  "-DV8_TAG=$V8_TAG",
+                  "-DV8_MODE=$V8_MODE"
 
           if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() || INCLUDE_ABI_ARMEABI.toBoolean()) {
             abiFilters 'armeabi-v7a'
@@ -104,7 +105,8 @@ android {
                   "-DANDROID_CPP_FEATURES=rtti exceptions",
                   "-DANDROID_PLATFORM=android-21",
                   "-DCMAKE_BUILD_TYPE=Debug",
-                  "-DV8_VERSION=$V8_VERSION"
+                  "-DV8_TAG=$V8_TAG",
+                  "-DV8_MODE=$V8_MODE"
 
           abiFilters 'arm64-v8a'
         }
