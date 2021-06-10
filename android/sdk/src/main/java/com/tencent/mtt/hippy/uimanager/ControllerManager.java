@@ -38,6 +38,7 @@ import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.views.custom.HippyCustomPropsController;
 import com.tencent.mtt.hippy.views.list.HippyRecycler;
+import com.tencent.mtt.hippy.views.scroll.HippyHorizontalScrollView;
 import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
 
 import java.lang.reflect.Field;
@@ -81,7 +82,7 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
                 mControllerRegistry.addControllerHolder(s, holder);
               }
             }
-          } catch (InstantiationException | IllegalAccessException e) {
+          } catch (Exception e) {
             e.printStackTrace();
           }
         }
@@ -104,8 +105,6 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
         }
       }
     });
-
-
   }
 
   public View findView(int id) {
@@ -232,8 +231,6 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
   }
 
   public void replaceID(int oldId, int newId) {
-
-    //		LogUtils.d("HippyListView", " old id " + oldId + " new id " + newId);
     View view = mControllerRegistry.getView(oldId);
     mControllerRegistry.removeView(oldId);
 
@@ -241,21 +238,16 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
       //			Toast.makeText(mControllerRegistry.getRootView(mControllerRegistry.getRootIDAt(0)).getContext(),"replaceID时候出异常了",Toast.LENGTH_LONG).show();
       //			Debug.waitForDebugger();
       LogUtils.d("HippyListView", "error replaceID null oldId " + oldId);
-      // throw new RuntimeException("replaceID error");
-      //			mContext.getGlobalConfigs().getLogAdapter().log(TAG, " replaceID null oldId " + oldId +" newID:"+newId);
-      //			mContext.getGlobalConfigs().getLogAdapter().upload(new HippyLogAdapter.callBack() {
-      //				@Override
-      //				public void onSuccess() {
-      //					throw new RuntimeException("replaceID error");
-      //				}
-      //			});
-
     } else {
       if (view instanceof HippyRecycler) {
         ((HippyRecycler) view).clear();
       }
 
       view.setId(newId);
+
+      if (view instanceof HippyHorizontalScrollView) {
+        ((HippyHorizontalScrollView)view).setContentOffset4Reuse();
+      }
 
       mControllerRegistry.addView(view);
     }
