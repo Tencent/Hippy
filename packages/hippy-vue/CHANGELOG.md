@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.7.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.7.0...2.7.1) (2021-06-10)
+
+
+### Bug Fixes
+
+* **hippy-vue:** update package to safe version ([0cb5d94](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/0cb5d944788eac1b576a36366fcdbada991dd80d))
+
+
+
+
+
 # [2.7.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.6.4...2.7.0) (2021-06-07)
 
 

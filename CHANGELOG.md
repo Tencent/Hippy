@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.7.1](https://github.com/Tencent/Hippy/compare/2.7.0...2.7.1) (2021-06-10)
+
+
+### Bug Fixes
+
+* **hippy-vue:** update package to safe version ([0cb5d94](https://github.com/Tencent/Hippy/commit/0cb5d944788eac1b576a36366fcdbada991dd80d))
+* **ios:** hippysubviews should be removed when reuse ([6ee4573](https://github.com/Tencent/Hippy/commit/6ee45739dedbab058b9161bb1bc5ed67161f2b4f))
+
+
+### Features
+
+* **core:** throw jni exception to java ([3158369](https://github.com/Tencent/Hippy/commit/3158369600cccb43ae60c035ef38f0534ea6de75))
+
+
+
+
+
 # [2.7.0](https://github.com/Tencent/Hippy/compare/2.6.4...2.7.0) (2021-06-07)
 
 
