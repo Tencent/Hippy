@@ -37,6 +37,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.views.list.HippyRecycler;
+import com.tencent.mtt.hippy.views.scroll.HippyHorizontalScrollView;
 import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
 import com.tencent.mtt.hippy.views.wormhole.HippyWormholeManager;
 
@@ -298,6 +299,10 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener
 			}
 
 			view.setId(newId);
+
+			if (view instanceof HippyHorizontalScrollView) {
+				((HippyHorizontalScrollView)view).setContentOffset4Reuse();
+			}
 
 			mControllerRegistry.addView(view);
 		}

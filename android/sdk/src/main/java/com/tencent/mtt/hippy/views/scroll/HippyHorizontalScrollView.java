@@ -18,14 +18,17 @@ package com.tencent.mtt.hippy.views.scroll;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.os.Build;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.HorizontalScrollView;
 import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleInfo;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.supportui.views.ScrollChecker;
+import java.util.HashMap;
 
 public class HippyHorizontalScrollView extends HorizontalScrollView implements HippyViewBase,HippyScrollView,ScrollChecker.IScrollCheck
 {
@@ -60,6 +63,8 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
 
 	protected int					mScrollMinOffset			    = 0;
 	private int					    mLastX				            = 0;
+
+	private HashMap<Integer, Integer> scrollOffsetForReuse = new HashMap<>();
 
 	public HippyHorizontalScrollView(Context context)
 	{
@@ -199,6 +204,11 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
 	protected void onScrollChanged(int x, int y, int oldX, int oldY)
 	{
 		super.onScrollChanged(x, y, oldX, oldY);
+
+		Integer id = getId();
+		Integer scrollX = getScrollX();
+		scrollOffsetForReuse.put(id, scrollX);
+
 		if (mHippyOnScrollHelper.onScrollChanged(x, y))
 		{
 			if (mScrollEventEnable)
@@ -217,7 +227,6 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
 			}
 			mDoneFlinging = false;
 		}
-
 	}
 
 	@Override
@@ -364,6 +373,15 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
 	public void setContentOffset4Reuse(HippyMap offsetMap) {
 		double offset =  offsetMap.getDouble("x");
 		scrollTo((int) PixelUtil.dp2px(offset), 0);
+	}
+
+	public void setContentOffset4Reuse() {
+		Integer offset = scrollOffsetForReuse.get(getId());
+		if (offset != null) {
+			scrollTo(offset, 0);
+		} else {
+			scrollTo(0, 0);
+		}
 	}
 
 	public void setPagingEnabled(boolean pagingEnabled)
