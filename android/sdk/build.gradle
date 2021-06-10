@@ -79,7 +79,8 @@ android {
                   "-DANDROID_CPP_FEATURES=rtti exceptions",
                   "-DANDROID_PLATFORM=android-21",
                   "-DCMAKE_BUILD_TYPE=Release",
-                  "-DV8_VERSION=$V8_VERSION"
+                  "-DV8_TAG=$V8_TAG",
+                  "-DV8_RELEASE=$V8_RELEASE"
 
           if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() || INCLUDE_ABI_ARMEABI.toBoolean()) {
             abiFilters 'armeabi-v7a'
@@ -104,7 +105,8 @@ android {
                   "-DANDROID_CPP_FEATURES=rtti exceptions",
                   "-DANDROID_PLATFORM=android-21",
                   "-DCMAKE_BUILD_TYPE=Debug",
-                  "-DV8_VERSION=$V8_VERSION"
+                  "-DV8_TAG=$V8_TAG",
+                  "-DV8_RELEASE=$V8_RELEASE"
 
           abiFilters 'arm64-v8a'
         }
@@ -129,7 +131,7 @@ android {
       if (INCLUDE_SUPPORT_UI.toBoolean() == false) {
         java.exclude("com/tencent/mtt/supportui/**")
       }
-      
+
       jniLibs.srcDirs = ['libs']
     }
   }
