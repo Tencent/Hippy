@@ -2,8 +2,6 @@ import test from 'ava';
 import * as elements from '../index';
 
 const EMPTY_TAG_NAME = 'test';
-const CUSTOM_ELEM = 'custom-comp';
-const CUSTOM_COMP = 'CustomComp';
 
 test.before(() => {
   elements.registerElement(EMPTY_TAG_NAME, {
@@ -98,17 +96,6 @@ test('registerElement with mustUseProp', (t) => {
   t.is(viewMeta.component.name, 'Test');
   t.true(viewMeta.mustUseProp('testAttr'));
   t.false(viewMeta.mustUseProp());
-});
-
-test('register element with mustUseProp, and element name after camelCase-converted is the same with component name ', (t) => {
-  const err = t.throws(() => {
-    elements.registerElement(CUSTOM_ELEM, {
-      component: {
-        name: CUSTOM_COMP,
-      },
-    });
-  }, Error);
-  t.is(err.message, `Cannot registerElement with kebab-case name ${CUSTOM_ELEM}, which converted to camelCase is the same with component.name ${CUSTOM_COMP}, please make them different`);
 });
 
 test('register element with empty name', (t) => {
