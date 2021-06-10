@@ -26,6 +26,7 @@ import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.supportui.views.ScrollChecker;
+import java.util.HashMap;
 
 @SuppressWarnings("deprecation")
 public class HippyHorizontalScrollView extends HorizontalScrollView implements HippyViewBase,
@@ -60,6 +61,8 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
 
   protected int mScrollMinOffset = 0;
   private int mLastX = 0;
+
+  private HashMap<Integer, Integer> scrollOffsetForReuse = new HashMap<>();
 
   public HippyHorizontalScrollView(Context context) {
     super(context);
@@ -177,6 +180,11 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
   @Override
   protected void onScrollChanged(int x, int y, int oldX, int oldY) {
     super.onScrollChanged(x, y, oldX, oldY);
+
+    Integer id = getId();
+    Integer scrollX = getScrollX();
+    scrollOffsetForReuse.put(id, scrollX);
+
     if (mHippyOnScrollHelper.onScrollChanged(x, y)) {
       if (mScrollEventEnable) {
         long currTime = System.currentTimeMillis();
@@ -298,6 +306,15 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
   public void setContentOffset4Reuse(HippyMap offsetMap) {
     double offset = offsetMap.getDouble("x");
     scrollTo((int) PixelUtil.dp2px(offset), 0);
+  }
+
+  public void setContentOffset4Reuse() {
+    Integer offset = scrollOffsetForReuse.get(getId());
+    if (offset != null) {
+      scrollTo(offset, 0);
+    } else {
+      scrollTo(0, 0);
+    }
   }
 
   public void setPagingEnabled(boolean pagingEnabled) {
