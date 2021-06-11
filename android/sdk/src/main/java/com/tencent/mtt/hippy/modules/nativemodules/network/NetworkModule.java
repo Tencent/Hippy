@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy.modules.nativemodules.network;
 
+import android.os.Build;
 import android.text.TextUtils;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
@@ -152,7 +153,7 @@ public class NetworkModule extends HippyNativeModuleBase {
         saveCookie2Manager(url, keyValue);
       }
 
-      mCookieSyncManager.sync();
+      syncCookie();
     }
   }
 
@@ -183,9 +184,16 @@ public class NetworkModule extends HippyNativeModuleBase {
 
       CookieManager cookieManager = CookieManager.getInstance();
       cookieManager.setAcceptCookie(true);
-      cookieManager.removeSessionCookie();
     }
     return CookieManager.getInstance();
+  }
+
+  private static void syncCookie() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+      CookieManager.getInstance().flush();
+    } else if (mCookieSyncManager != null) {
+      mCookieSyncManager.sync();
+    }
   }
 
   private static class HttpTaskCallbackImpl implements HippyHttpAdapter.HttpTaskCallback {
@@ -236,7 +244,7 @@ public class NetworkModule extends HippyNativeModuleBase {
               }
             }
             if (hasSetCookie) {
-              mCookieSyncManager.sync();
+              syncCookie();
             }
           }
 
