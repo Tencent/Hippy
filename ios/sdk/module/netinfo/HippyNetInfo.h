@@ -27,6 +27,4 @@
 
 @interface HippyNetInfo : HippyEventObserverModule <HippyInvalidating>
 
-- (instancetype)initWithHost:(NSString *)host;
-
 @end
