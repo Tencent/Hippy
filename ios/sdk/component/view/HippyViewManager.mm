@@ -34,6 +34,7 @@
 #import "UIView+Hippy.h"
 #import "HippyVirtualNode.h"
 #import "HippyConvert+Transform.h"
+#import "HippyGradientObject.h"
 
 @implementation HippyViewManager
 
@@ -74,8 +75,6 @@ HIPPY_EXPORT_VIEW_PROPERTY(shadowSpread, CGFloat)
 HIPPY_REMAP_VIEW_PROPERTY(accessible, isAccessibilityElement, BOOL)
 HIPPY_REMAP_VIEW_PROPERTY(opacity, alpha, CGFloat)
 
-HIPPY_REMAP_VIEW_PROPERTY(backgroundImage, backgroundImageUrl, NSString)
-
 HIPPY_REMAP_VIEW_PROPERTY(shadowOpacity, layer.shadowOpacity, float)
 HIPPY_REMAP_VIEW_PROPERTY(shadowRadius, layer.shadowRadius, CGFloat)
 
@@ -83,6 +82,22 @@ HIPPY_EXPORT_VIEW_PROPERTY(backgroundPositionX, CGFloat)
 HIPPY_EXPORT_VIEW_PROPERTY(backgroundPositionY, CGFloat)
 HIPPY_EXPORT_VIEW_PROPERTY(onInterceptTouchEvent, BOOL)
 HIPPY_EXPORT_VIEW_PROPERTY(onInterceptPullUpEvent, BOOL)
+
+HIPPY_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, HippyView) {
+    if (json) {
+//        NSString *backgroundImage = [HippyConvert NSString:json];
+//        if ([backgroundImage hasPrefix:@"http"] ||
+//            [backgroundImage hasPrefix:@"data:image/"]) {
+//            view.backgroundImageUrl = backgroundImage;
+//        }
+//        else {
+            //Test Code
+        view.gradientObject = GradientToRight();
+//            [GradientTo165Degree(view.bounds.size) drawInGradientLayer:(CAGradientLayer *)view.layer];
+        
+//        }
+    }
+}
 
 HIPPY_CUSTOM_VIEW_PROPERTY(backgroundSize, NSString, HippyView) {
     NSString *bgSize = @"auto";

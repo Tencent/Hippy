@@ -29,6 +29,7 @@
 #import "HippyUtils.h"
 #import "UIView+Hippy.h"
 #import "HippyBackgroundImageCacheManager.h"
+#import "HippyGradientObject.h"
 
 static CGSize makeSizeConstrainWithType(CGSize originSize, CGSize constrainSize, NSString *resizeMode) {
     // width / height
@@ -184,6 +185,10 @@ static NSString *HippyRecursiveAccessibilityLabel(UIView *view) {
     }
 
     return self;
+}
+
++ (Class)layerClass {
+    return [CAGradientLayer class];
 }
 
 HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : unused)
@@ -474,6 +479,10 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : unused)
     [super hippySetFrame:frame];
     if (!CGSizeEqualToSize(self.bounds.size, oldSize)) {
         [self.layer setNeedsDisplay];
+    }
+    //Test Code
+    if (self.gradientObject) {
+        [GradientTo165Degree(frame.size) drawInGradientLayer:(CAGradientLayer *)self.layer];
     }
 }
 
