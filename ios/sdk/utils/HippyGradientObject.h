@@ -50,11 +50,10 @@ typedef NS_ENUM(NSUInteger, HippyGradientType) {
 HIPPY_EXTERN void HippyDrawLinearGradientInContext(HippyGradientObject *object, CGContextRef context);
 HIPPY_EXTERN void HippyDrawRadialGradientInContext(HippyGradientObject *object, CGContextRef context);
 
-//Test Code, delete when release
-
-HIPPY_EXTERN HippyGradientObject *GradientToRight(void);
-HIPPY_EXTERN HippyGradientObject *GradientTo165Degree(CGSize size);
-
-//Test Code End here
+/**
+ * pase linear gradient string to HippyGradientObject
+ * 'linear-gradient(to topright, 4278190335 0, 16711935 0.5, 65535 1)'
+ */
+HIPPY_EXTERN HippyGradientObject* HippyParseLinearGradientString(NSString *string);
 
 NS_ASSUME_NONNULL_END

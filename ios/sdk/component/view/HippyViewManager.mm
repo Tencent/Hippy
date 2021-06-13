@@ -85,17 +85,17 @@ HIPPY_EXPORT_VIEW_PROPERTY(onInterceptPullUpEvent, BOOL)
 
 HIPPY_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, HippyView) {
     if (json) {
-//        NSString *backgroundImage = [HippyConvert NSString:json];
-//        if ([backgroundImage hasPrefix:@"http"] ||
-//            [backgroundImage hasPrefix:@"data:image/"]) {
-//            view.backgroundImageUrl = backgroundImage;
-//        }
-//        else {
-            //Test Code
-        view.gradientObject = GradientToRight();
-//            [GradientTo165Degree(view.bounds.size) drawInGradientLayer:(CAGradientLayer *)view.layer];
-        
-//        }
+        NSString *backgroundImage = [HippyConvert NSString:json];
+        if ([backgroundImage hasPrefix:@"http"] ||
+            [backgroundImage hasPrefix:@"data:image/"]) {
+            view.backgroundImageUrl = backgroundImage;
+        }
+        else {
+            HippyGradientObject *object = HippyParseLinearGradientString(backgroundImage);
+            if (object) {
+                [object drawInGradientLayer:(CAGradientLayer *)view.layer];
+            }
+        }
     }
 }
 

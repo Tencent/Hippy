@@ -84,30 +84,86 @@ HIPPY_EXTERN void HippyDrawRadialGradientInContext(HippyGradientObject *object, 
     HippyAssert(NO, @"HippyDrawRadialGradientInContext not implemented");
 }
 
-HIPPY_EXTERN HippyGradientObject *GradientToRight(void) {
-    HippyGradientObject *obj = [[HippyGradientObject alloc] init];
-    obj.colors = @[[UIColor redColor], [UIColor greenColor], [UIColor blueColor]];
-    obj.locations = @[@(0), @(0.5f), @(1)];
-    obj.startPoint = CGPointMake(0, 0.5f);
-    obj.endPoint = CGPointMake(1, 0.5f);
-    return obj;
+static UIColor *colorFromHexString(NSString *colorString) {
+    NSInteger hex = [colorString integerValue];
+    NSInteger r = (hex >> 24) & 0xFF;
+    NSInteger g = (hex >> 16) & 0xFF;
+    NSInteger b = (hex >> 8) & 0xFF;
+    NSInteger a = hex & 0xFF;
+    return [UIColor colorWithRed:r / 255.0f
+                         green:g / 255.0f
+                          blue:b / 255.0f
+                         alpha:a];
 }
 
-HIPPY_EXTERN HippyGradientObject *GradientTo165Degree(CGSize size) {
-    HippyGradientObject *obj = [[HippyGradientObject alloc] init];
-    obj.colors = @[[UIColor redColor], [UIColor greenColor], [UIColor blueColor]];
-    obj.locations = @[@(0), @(0.5f), @(1)];
+static void parseDirection(HippyGradientObject *object, NSString *direction) {
+    if (object) {
+        if ([direction isEqualToString:@"to top"]) {
+            object.startPoint = CGPointMake(0.5, 1);
+            object.endPoint = CGPointMake(0.5, 0);
+        }
+        else if ([direction isEqualToString:@"to left"]) {
+            object.startPoint = CGPointMake(1, 0.5);
+            object.endPoint = CGPointMake(0, 0.5);
+        }
+        else if ([direction isEqualToString:@"to bottom"]) {
+            object.startPoint = CGPointMake(0.5, 0);
+            object.endPoint = CGPointMake(0.5, 1);
+        }
+        else if ([direction isEqualToString:@"to right"]) {
+            object.startPoint = CGPointMake(0, 0.5);
+            object.endPoint = CGPointMake(1, 0.5);
+        }
+        else if ([direction isEqualToString:@"to topleft"]) {
+            object.startPoint = CGPointMake(1, 1);
+            object.endPoint = CGPointMake(0, 0);
+        }
+        else if ([direction isEqualToString:@"to bottomleft"]) {
+            object.startPoint = CGPointMake(1, 0);
+            object.endPoint = CGPointMake(0, 1);
+        }
+        else if ([direction isEqualToString:@"to bottomright"]) {
+            object.startPoint = CGPointMake(0, 0);
+            object.endPoint = CGPointMake(1, 1);
+        }
+        else if ([direction isEqualToString:@"to topright"]) {
+            object.startPoint = CGPointMake(0, 1);
+            object.endPoint = CGPointMake(1, 0);
+        }
+    }
+}
+
+HIPPY_EXTERN HippyGradientObject* HippyParseLinearGradientString(NSString *string) {
+    if (![string length]) {
+        return nil;
+    }
+    static NSString *linearGradientStringPrefix = @"linear-gradient";
+    if (![string hasPrefix:linearGradientStringPrefix]) {
+        return nil;
+    }
+    NSMutableString *linearGradientString = [string mutableCopy];
+    [linearGradientString replaceOccurrencesOfString:@"linear-gradient(" withString:@"" options:NSCaseInsensitiveSearch range:NSMakeRange(0, 16)];
+    [linearGradientString replaceOccurrencesOfString:@")" withString:@"" options:NSCaseInsensitiveSearch range:NSMakeRange([linearGradientString length] - 1, 1)];
+    NSArray<NSString *> *description = [linearGradientString componentsSeparatedByString:@","];
     
-    const CGFloat angle = 0;
-    CGFloat degree = angle * M_PI / 180;
-    CGFloat width = 1;
-    CGFloat height = 1;
-    CGPoint center = CGPointMake(width/2, height/2);
-    CGPoint startPoint = CGPointMake(center.x - cos (degree) * width/2, center.y - sin(degree) * height/2);
-    CGPoint endPoint = CGPointMake(center.x + cos (degree) * width/2, center.y + sin(degree) * height/2);
+    NSString *direction = [description firstObject];
     
+    NSArray<NSString *> *colorsAndLocations = [description subarrayWithRange:NSMakeRange(1, [description count] - 1)];
     
-    obj.startPoint = startPoint;
-    obj.endPoint = endPoint;
-    return obj;
+    HippyGradientObject *object = [[HippyGradientObject alloc] init];
+    parseDirection(object, direction);
+    
+    NSMutableArray *colors = [NSMutableArray arrayWithCapacity:[colorsAndLocations count]];
+    NSMutableArray *locations = [NSMutableArray arrayWithCapacity:[colorsAndLocations count]];
+    for (NSString *colorAndLocation in colorsAndLocations) {
+        NSString *filterColorAndLocation = [colorAndLocation stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        NSArray<NSString *> *infos = [filterColorAndLocation componentsSeparatedByString:@" "];
+        UIColor *color = colorFromHexString([infos firstObject]);
+        NSNumber *location = @([[infos objectAtIndex:1] floatValue]);
+        [colors addObject:color];
+        [locations addObject:location];
+    }
+    object.colors = colors;
+    object.locations = locations;
+    return object;
 }

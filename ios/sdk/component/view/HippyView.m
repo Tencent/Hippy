@@ -480,10 +480,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : unused)
     if (!CGSizeEqualToSize(self.bounds.size, oldSize)) {
         [self.layer setNeedsDisplay];
     }
-    //Test Code
-    if (self.gradientObject) {
-        [GradientTo165Degree(frame.size) drawInGradientLayer:(CAGradientLayer *)self.layer];
-    }
 }
 
 - (HippyBorderColors)borderColors {
