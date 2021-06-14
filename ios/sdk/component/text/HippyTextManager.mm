@@ -91,6 +91,7 @@ HIPPY_EXPORT_SHADOW_PROPERTY(adjustsFontSizeToFit, BOOL)
 HIPPY_EXPORT_SHADOW_PROPERTY(minimumFontScale, CGFloat)
 HIPPY_EXPORT_SHADOW_PROPERTY(text, NSString)
 HIPPY_EXPORT_SHADOW_PROPERTY(autoLetterSpacing, BOOL)
+HIPPY_EXPORT_SHADOW_PROPERTY(fontFace, NSDictionary)
 
 - (HippyViewManagerUIBlock)uiBlockToAmendWithShadowViewRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)shadowViewRegistry {
     for (HippyShadowView *rootView in shadowViewRegistry.allValues) {

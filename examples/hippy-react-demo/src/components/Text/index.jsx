@@ -54,6 +54,13 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontFamily: 'TTTGB',
   },
+  fontFaceStyle:{
+    fontFace:{
+      fontName: 'DINEngschriftStd',
+      src:'https://qzonestyle.gtimg.cn/qzone/qzact/act/external/qid-card/VipPayDin.ttf',
+      fontSize:28,
+    },
+  },
 });
 
 export default class TextExpo extends React.Component {
@@ -145,6 +152,10 @@ export default class TextExpo extends React.Component {
         {renderTitle('Custom font')}
         <View style={styles.itemContent}>
           <Text numberOfLines={1} style={styles.customFont}>Hippy 跨端框架</Text>
+        </View> */}
+        {renderTitle('font-face font')}
+        <View style={styles.itemContent}>
+          <Text numberOfLines={1} style={styles.fontFaceStyle}>Font_Face Text</Text>
         </View>
         {renderTitle('Text Nested')}
         <View style={styles.itemContent}>

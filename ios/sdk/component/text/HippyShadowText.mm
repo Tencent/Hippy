@@ -31,6 +31,7 @@
 #import "HippyUIManager.h"
 #import "HippyUtils.h"
 #import "HippyVirtualTextNode.h"
+#import "HippyFontFaceTextController.h"
 
 NSString *const HippyShadowViewAttributeName = @"HippyShadowViewAttributeName";
 NSString *const HippyIsHighlightedAttributeName = @"IsHighlightedAttributeName";
@@ -359,8 +360,8 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
     _effectiveLetterSpacing = letterSpacing.doubleValue;
 
-    UIFont *f = nil;
-    if (fontFamily) {
+    UIFont *f = _fontFaceFont;
+    if (!f && fontFamily) {
         f = [UIFont fontWithName:fontFamily size:[fontSize floatValue]];
     }
 
@@ -715,6 +716,21 @@ HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
     if (_text != text && ![_text isEqualToString:text]) {
         _text = [text copy];
         [self dirtyText];
+    }
+}
+
+- (void)setFontFace:(NSDictionary *)fontFace {
+    if (![_fontFace isEqualToDictionary:fontFace]) {
+        _fontFace = fontFace;
+        NSString *fontName = fontFace[@"fontName"];
+        CGFloat fontSize = [fontFace[@"fontSize"] doubleValue];
+        NSString *URLString = fontFace[@"src"];
+        NSURL *url = HippyURLWithString(URLString, nil);
+        HippyFontFaceTextController *fontFaceController = [self.bridge moduleForName:@"FontFaceController"];
+        [fontFaceController fontName:fontName fontSize:fontSize URL:url completion:^(UIFont * _Nonnull font, NSError * _Nonnull error) {
+            self.fontFaceFont = font;
+            [self dirtyText];
+        }];
     }
 }
 
