@@ -152,7 +152,7 @@ export default class TextExpo extends React.Component {
         {renderTitle('Custom font')}
         <View style={styles.itemContent}>
           <Text numberOfLines={1} style={styles.customFont}>Hippy 跨端框架</Text>
-        </View> */}
+        </View>
         {renderTitle('font-face font')}
         <View style={styles.itemContent}>
           <Text numberOfLines={1} style={styles.fontFaceStyle}>Font_Face Text</Text>
