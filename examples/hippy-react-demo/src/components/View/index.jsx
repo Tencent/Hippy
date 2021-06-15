@@ -57,16 +57,20 @@ export default function ViewExpo() {
         marginTop: 20,
         backgroundImage: imageUrl,
       }]} ><Text style={{ color: 'white' }}>背景图</Text></View>
-      {renderTitle('linear gradient image')}
+      {renderTitle('linear gradient image1')}
       <View style={[styles.rectangle, {
         alignItems: 'center',
         justifyContent: 'center',
         marginTop: 20,
-        //only 'to top','to left','to bottom','to right'
-        //'to topleft','to bottomleft','to bottomright','to topright' supported
-        backgroundImage: 'linear-gradient(to topright, 4278190335 0, 16711935 0.5, 65535 1)',
+        backgroundImage: 'linear-gradient(200 deg, #ff0000 0, #00ff00ff 0.5, blue 1)',
       }]} ></View>
-
+      {renderTitle('linear gradient image2')}
+      <View style={[styles.rectangle, {
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 20,
+        backgroundImage: 'linear-gradient(to bottom left, #ff0000, #00ff00ff, blue)',
+      }]} ></View>
       {renderTitle('border props')}
       <View style={[styles.rectangle, { borderColor: '#242424', borderRadius: 4, borderWidth: 1 }]} />
       {renderTitle('flex props')}

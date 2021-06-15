@@ -21,6 +21,7 @@
  */
 
 #import "HippyGradientObject.h"
+#import "HippyUtils.h"
 
 @implementation HippyGradientObject
 
@@ -84,18 +85,6 @@ HIPPY_EXTERN void HippyDrawRadialGradientInContext(HippyGradientObject *object, 
     HippyAssert(NO, @"HippyDrawRadialGradientInContext not implemented");
 }
 
-static UIColor *colorFromHexString(NSString *colorString) {
-    NSInteger hex = [colorString integerValue];
-    NSInteger r = (hex >> 24) & 0xFF;
-    NSInteger g = (hex >> 16) & 0xFF;
-    NSInteger b = (hex >> 8) & 0xFF;
-    NSInteger a = hex & 0xFF;
-    return [UIColor colorWithRed:r / 255.0f
-                         green:g / 255.0f
-                          blue:b / 255.0f
-                         alpha:a];
-}
-
 static void parseDirection(HippyGradientObject *object, NSString *direction) {
     if (object) {
         if ([direction isEqualToString:@"to top"]) {
@@ -114,56 +103,105 @@ static void parseDirection(HippyGradientObject *object, NSString *direction) {
             object.startPoint = CGPointMake(0, 0.5);
             object.endPoint = CGPointMake(1, 0.5);
         }
-        else if ([direction isEqualToString:@"to topleft"]) {
+        else if ([direction isEqualToString:@"to top left"]) {
             object.startPoint = CGPointMake(1, 1);
             object.endPoint = CGPointMake(0, 0);
         }
-        else if ([direction isEqualToString:@"to bottomleft"]) {
+        else if ([direction isEqualToString:@"to bottom left"]) {
             object.startPoint = CGPointMake(1, 0);
             object.endPoint = CGPointMake(0, 1);
         }
-        else if ([direction isEqualToString:@"to bottomright"]) {
+        else if ([direction isEqualToString:@"to bottom right"]) {
             object.startPoint = CGPointMake(0, 0);
             object.endPoint = CGPointMake(1, 1);
         }
-        else if ([direction isEqualToString:@"to topright"]) {
+        else if ([direction isEqualToString:@"to top right"]) {
             object.startPoint = CGPointMake(0, 1);
             object.endPoint = CGPointMake(1, 0);
         }
     }
 }
 
+/**
+ * convert angle to startpoint & endpoint.
+ * angle must be degree.
+ */
+static void parseDegree(HippyGradientObject *object, CGFloat angle) {
+    CGFloat x = angle / 360.f;
+    float a = powf(sinf((2 * M_PI * ((x + 0.75) / 2))), 2);
+    float b = powf(sinf((2 * M_PI * ((x + 0.0) / 2))), 2);
+    float c = powf(sinf((2 * M_PI * ((x + 0.25) / 2))), 2);
+    float d = powf(sinf((2 * M_PI *((x + 0.5) / 2))), 2);
+    [object setStartPoint:CGPointMake(a, 1- b)];
+    [object setEndPoint:CGPointMake(c, 1 - d)];
+}
+
 HIPPY_EXTERN HippyGradientObject* HippyParseLinearGradientString(NSString *string) {
-    if (![string length]) {
-        return nil;
+#if HIPPY_DEBUG
+    @try {
+#endif //#if HIPPY_DEBUG
+        if (![string length]) {
+            return nil;
+        }
+        static NSString *linearGradientStringPrefix = @"linear-gradient";
+        if (![string hasPrefix:linearGradientStringPrefix]) {
+            return nil;
+        }
+        NSMutableString *linearGradientString = [string mutableCopy];
+        [linearGradientString replaceOccurrencesOfString:@"linear-gradient(" withString:@"" options:NSCaseInsensitiveSearch range:NSMakeRange(0, 16)];
+        [linearGradientString replaceOccurrencesOfString:@")" withString:@"" options:NSCaseInsensitiveSearch range:NSMakeRange([linearGradientString length] - 1, 1)];
+        NSArray<NSString *> *description = [linearGradientString componentsSeparatedByString:@","];
+        
+        NSString *direction = [description firstObject];
+        
+        NSArray<NSString *> *colorsAndLocations = [description subarrayWithRange:NSMakeRange(1, [description count] - 1)];
+        
+        HippyGradientObject *object = [[HippyGradientObject alloc] init];
+        if ([direction hasSuffix:@"deg"]) {
+            direction = [direction stringByReplacingOccurrencesOfString:@"deg" withString:@""];
+            CGFloat degree = [direction doubleValue];
+            parseDegree(object, degree);
+        }
+        else if ([direction hasSuffix:@"rad"]) {
+            direction = [direction stringByReplacingOccurrencesOfString:@"rad" withString:@""];
+            CGFloat radius = [direction doubleValue];
+            parseDegree(object, radius * 180.f / M_PI);
+        }
+        else {
+            parseDirection(object, direction);
+        }
+        NSMutableArray *colors = [NSMutableArray arrayWithCapacity:[colorsAndLocations count]];
+        NSMutableArray *locations = nil;
+        for (NSString *colorAndLocation in colorsAndLocations) {
+            NSString *filterColorAndLocation = [colorAndLocation stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+            NSArray<NSString *> *infos = [filterColorAndLocation componentsSeparatedByString:@" "];
+            HippyAssert([infos count], @"color and location empty");
+            UIColor *color = HippyConvertStringToColor([infos firstObject]);
+            [colors addObject:color];
+
+            if ([infos count] > 1) {
+                if (!locations) {
+                    locations = [NSMutableArray arrayWithCapacity:[colorsAndLocations count]];
+                }
+                //it could be @"0.3" or @"30%"
+                NSString *location = [infos objectAtIndex:1];
+                CGFloat fLocation = 0;
+                if ([location hasSuffix:@"%"]) {
+                    location = [location stringByReplacingOccurrencesOfString:@"%" withString:@""];
+                    fLocation = [location doubleValue] / 100.f;
+                }
+                else {
+                    fLocation = [location doubleValue];
+                }
+                [locations addObject:@(fLocation)];
+            }
+        }
+        object.colors = colors;
+        object.locations = locations;
+        return object;
+#if HIPPY_DEBUG
+    } @catch (NSException *exception) {
     }
-    static NSString *linearGradientStringPrefix = @"linear-gradient";
-    if (![string hasPrefix:linearGradientStringPrefix]) {
-        return nil;
-    }
-    NSMutableString *linearGradientString = [string mutableCopy];
-    [linearGradientString replaceOccurrencesOfString:@"linear-gradient(" withString:@"" options:NSCaseInsensitiveSearch range:NSMakeRange(0, 16)];
-    [linearGradientString replaceOccurrencesOfString:@")" withString:@"" options:NSCaseInsensitiveSearch range:NSMakeRange([linearGradientString length] - 1, 1)];
-    NSArray<NSString *> *description = [linearGradientString componentsSeparatedByString:@","];
-    
-    NSString *direction = [description firstObject];
-    
-    NSArray<NSString *> *colorsAndLocations = [description subarrayWithRange:NSMakeRange(1, [description count] - 1)];
-    
-    HippyGradientObject *object = [[HippyGradientObject alloc] init];
-    parseDirection(object, direction);
-    
-    NSMutableArray *colors = [NSMutableArray arrayWithCapacity:[colorsAndLocations count]];
-    NSMutableArray *locations = [NSMutableArray arrayWithCapacity:[colorsAndLocations count]];
-    for (NSString *colorAndLocation in colorsAndLocations) {
-        NSString *filterColorAndLocation = [colorAndLocation stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-        NSArray<NSString *> *infos = [filterColorAndLocation componentsSeparatedByString:@" "];
-        UIColor *color = colorFromHexString([infos firstObject]);
-        NSNumber *location = @([[infos objectAtIndex:1] floatValue]);
-        [colors addObject:color];
-        [locations addObject:location];
-    }
-    object.colors = colors;
-    object.locations = locations;
-    return object;
+    return nil;
+#endif //#if HIPPY_DEBUG
 }
