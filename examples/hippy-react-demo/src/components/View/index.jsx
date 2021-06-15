@@ -62,6 +62,7 @@ export default function ViewExpo() {
         alignItems: 'center',
         justifyContent: 'center',
         marginTop: 20,
+        //only 'to top','to left','to bottom','to right','to topleft','to bottomleft','to bottomright','to topright' supported
         backgroundImage: 'linear-gradient(to topright, 4278190335 0, 16711935 0.5, 65535 1)',
       }]} ></View>
 
