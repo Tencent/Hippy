@@ -893,7 +893,7 @@ HIPPY_ENUM_CONVERTER(HippyResizeMode, (@{
             dispatch_async(dispatch_get_main_queue(), ^{
                 HippyImageView *sIV = wIV;
                 NSString *sURL = wURL;
-                [sIV loadImage:animatedImage.posterImage url:sURL error:nil needBlur:NO needCache:NO];
+                [sIV loadImage:animatedImage.posterImage url:sURL error:nil needBlur:YES needCache:NO];
                 sIV.animatedImage = animatedImage;
             });
         }
