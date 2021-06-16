@@ -177,7 +177,7 @@ void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& info) {
     return;
   }
 
-  TDF_BASE_LOG(INFO) << "module_name = " << module_name;
+  TDF_BASE_DLOG(INFO) << "module_name = " << module_name;
   std::shared_ptr<V8CtxValue> module_value =
       std::static_pointer_cast<V8CtxValue>(scope->GetModuleValue(module_name));
   if (module_value) {
@@ -206,7 +206,7 @@ void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& info) {
             isolate, JsCallbackFunc,
             v8::External::New(isolate, static_cast<void*>(fn_data.get())));
     scope->SaveFunctionData(std::move(fn_data));
-    TDF_BASE_LOG(INFO) << "bind fn_name = " << fn_name;
+    TDF_BASE_DLOG(INFO) << "bind fn_name = " << fn_name;
     v8::Local<v8::String> name = v8_ctx->CreateV8String(fn_name);
     constructor->Set(name, function_template, v8::PropertyAttribute::ReadOnly);
   }
@@ -217,7 +217,7 @@ void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& info) {
                         std::make_shared<V8CtxValue>(isolate, function));
   info.GetReturnValue().Set(function);
 
-  TDF_BASE_LOG(INFO) << "v8 GetInternalBinding end";
+  TDF_BASE_DLOG(INFO) << "v8 GetInternalBinding end";
 }
 
 std::shared_ptr<VM> CreateVM() {
@@ -360,7 +360,7 @@ unicode_string_view V8TryCatch::GetExceptionMsg() {
 }
 
 std::shared_ptr<CtxValue> GetInternalBindingFn(std::shared_ptr<Scope> scope) {
-  TDF_BASE_LOG(INFO) << "GetInternalBindingFn";
+  TDF_BASE_DLOG(INFO) << "GetInternalBindingFn";
 
   std::shared_ptr<V8Ctx> ctx =
       std::static_pointer_cast<V8Ctx>(scope->GetContext());
@@ -682,7 +682,7 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const unicode_string_view& str_view,
                                            bool is_use_code_cache,
                                            unicode_string_view* cache,
                                            bool is_copy) {
-  TDF_BASE_DLOG(INFO) << "V8Ctx::RunScript file_name = " << file_name
+  TDF_BASE_LOG(INFO) << "V8Ctx::RunScript file_name = " << file_name
                       << ", is_use_code_cache = " << is_use_code_cache
                       << ", cache = " << cache << ", is_copy = " << is_copy;
   v8::HandleScope handle_scope(isolate_);
@@ -783,6 +783,7 @@ std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
         v8::ScriptCompiler::Source script_source(source, origin, cached_data);
         script = v8::ScriptCompiler::Compile(
             context, &script_source, v8::ScriptCompiler::kConsumeCodeCache);
+        break;
       }
       default: {
         TDF_BASE_NOTREACHED();
