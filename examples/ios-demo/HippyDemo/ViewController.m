@@ -69,6 +69,14 @@
     return ret;
 }
 
+- (NSDictionary *)objectsBeforeExecuteSecondaryCode {
+    return @{@"secKey":@"value",
+             @"secNum":@(12),
+             @"secDic": @{@"key1":@"value", @"number": @(2)},
+             @"thrAry":@[@"value1", @"value2", @(3), @[@"vv1", @"vv2"], @{@"k1": @"v1", @"k2": @"v2"}]
+    };
+}
+
 - (BOOL)dynamicLoad:(HippyBridge *)bridge URI:(NSString *)uri completion:(void (^)(NSString *))completion {
 //    NSURL *url = [NSURL URLWithString:uri];
 //    NSURLRequest *req = [NSURLRequest requestWithURL:url];
