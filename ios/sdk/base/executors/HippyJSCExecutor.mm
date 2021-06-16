@@ -432,6 +432,36 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
     }
 }
 
+- (void)updateGlobalObjectBeforeExcuteSecondary{
+    if(![self.bridge.delegate respondsToSelector:@selector(objectsBeforeExecuteSecondaryCode)]){
+        return;
+    }
+    NSDictionary *secondaryGlobal = [self.bridge.delegate objectsBeforeExecuteSecondaryCode];
+    if(0 == secondaryGlobal.count){
+        return;
+    }
+    __weak HippyJSCExecutor *weakSelf = self;
+    [self executeBlockOnJavaScriptQueue:^{
+        HippyJSCExecutor *strongSelf = weakSelf;
+        if (!strongSelf || !strongSelf.isValid || nullptr == strongSelf.pScope) {
+            return;
+        }
+        [strongSelf addInfoToGlobalObject:[secondaryGlobal copy]];
+    }];
+}
+
+-(void)addInfoToGlobalObject:(NSDictionary*)addInfoDict{
+    JSContext *context = [self JSContext];
+    if (context) {
+        JSValue *value = context[@"__HIPPYNATIVEGLOBAL__"];
+        if (value) {
+            for (NSString *key in addInfoDict) {
+                value[key] = addInfoDict[key];
+            }
+        }
+    }
+}
+
 - (void)flushedQueue:(HippyJavaScriptCallback)onComplete {
     // TODO: Make this function handle first class instead of dynamically dispatching it. #9317773
     [self _executeJSCall:@"flushedQueue" arguments:@[] unwrapResult:YES callback:onComplete];
