@@ -62,10 +62,21 @@ android {
     buildConfigField("boolean", "INCLUDE_SUPPORT_UI", INCLUDE_SUPPORT_UI)
 
     packagingOptions {
-      pickFirst 'lib/armeabi-v7a/libhippybridge.so'
-      pickFirst 'lib/arm64-v8a/libhippybridge.so'
-      pickFirst 'lib/x86/libhippybridge.so'
-      pickFirst 'lib/x86_64/libhippybridge.so'
+      if (!INCLUDE_ABI_ARMEABI.toBoolean()) {
+        exclude 'lib/armeabi/*'
+      }
+      if (!INCLUDE_ABI_ARMEABI_V7A.toBoolean()) {
+        exclude 'lib/armeabi-v7a/*'
+      }
+      if (!INCLUDE_ABI_ARM64_V8A.toBoolean()) {
+        exclude 'lib/arm64-v8a/*'
+      }
+      if (!INCLUDE_ABI_X86.toBoolean()) {
+        exclude 'lib/x86/*'
+      }
+      if (!INCLUDE_ABI_X86_64.toBoolean()) {
+        exclude 'lib/x86_64/*'
+      }
     }
   }
 
@@ -80,7 +91,8 @@ android {
                   "-DANDROID_PLATFORM=android-21",
                   "-DCMAKE_BUILD_TYPE=Release",
                   "-DV8_TAG=$V8_TAG",
-                  "-DV8_RELEASE=$V8_RELEASE"
+                  "-DV8_RELEASE=$V8_RELEASE",
+                  "-DEXT_JS_ENGINE_LIB=$EXT_JS_ENGINE_LIB"
 
           if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() || INCLUDE_ABI_ARMEABI.toBoolean()) {
             abiFilters 'armeabi-v7a'
@@ -106,7 +118,8 @@ android {
                   "-DANDROID_PLATFORM=android-21",
                   "-DCMAKE_BUILD_TYPE=Debug",
                   "-DV8_TAG=$V8_TAG",
-                  "-DV8_RELEASE=$V8_RELEASE"
+                  "-DV8_RELEASE=$V8_RELEASE",
+                  "-DEXT_JS_ENGINE_LIB=$EXT_JS_ENGINE_LIB"
 
           abiFilters 'arm64-v8a'
         }
@@ -155,6 +168,34 @@ project.tasks.whenTaskAdded { task ->
     task.finalizedBy dealAfterAssembleDebug
   }
 
+  if (task.name == 'mergeReleaseNativeLibs') {
+    task.finalizedBy dealAfterMergeReleaseNativeLibs
+  }
+
+  if (task.name == 'mergeDebugNativeLibs') {
+    task.finalizedBy dealAfterMergeDebugNativeLibs
+  }
+}
+
+def MERGED_NATIVE_LIBS_PATH = "$buildDir/intermediates/merged_native_libs"
+task dealAfterMergeReleaseNativeLibs() {
+  doLast {
+    def MERGED_NATIVE_LIBS = "$MERGED_NATIVE_LIBS_PATH/release/out/lib"
+    copy {
+      from "$MERGED_NATIVE_LIBS/armeabi-v7a"
+      into "$MERGED_NATIVE_LIBS/armeabi"
+    }
+  }
+}
+
+task dealAfterMergeDebugNativeLibs() {
+  doLast {
+    def MERGED_NATIVE_LIBS = "$MERGED_NATIVE_LIBS_PATH/debug/out/lib"
+    copy {
+      from "$MERGED_NATIVE_LIBS/armeabi-v7a"
+      into "$MERGED_NATIVE_LIBS/armeabi"
+    }
+  }
 }
 
 task dealAfterAssembleDebug() {
@@ -178,96 +219,10 @@ task dealAfterAssembleDebug() {
   }
 }
 
-def releaseOutputFileName = "$ARCHIVES_BASE_NAME-release.aar"
-
-task unzipAar() {
-  doLast {
-    file("$OUTPUT_PATH/release").deleteDir()
-
-    copy {
-      from zipTree("$OUTPUT_PATH/$releaseOutputFileName")
-      into "$OUTPUT_PATH/release"
-    }
-    copy {
-      from "$OUTPUT_PATH/release"
-      into OUTPUT_PATH
-      include 'classes.jar'
-      rename 'classes.jar', 'hippy.jar'
-    }
-  }
-}
-
-task removeUnnecessaryAbi(dependsOn: unzipAar) {
-  doLast {
-    if (INCLUDE_ABI_ARMEABI.toBoolean()) {
-      copy {
-        from "$OUTPUT_PATH/release/jni/armeabi-v7a"
-        into "$OUTPUT_PATH/release/jni/armeabi"
-      }
-    }
-
-    if (!INCLUDE_ABI_ARMEABI_V7A.toBoolean()) {
-      file("$OUTPUT_PATH/release/jni/armeabi-v7a").deleteDir()
-    }
-    if (!INCLUDE_ABI_ARM64_V8A.toBoolean()) {
-      file("$OUTPUT_PATH/release/jni/arm64-v8a").deleteDir()
-    }
-    if (!INCLUDE_ABI_X86.toBoolean()) {
-      file("$OUTPUT_PATH/release/jni/x86").deleteDir()
-    }
-    if (!INCLUDE_ABI_X86_64.toBoolean()) {
-      file("$OUTPUT_PATH/release/jni/x86_64").deleteDir()
-    }
-  }
-}
-
-task excludeV8Libs(dependsOn: removeUnnecessaryAbi) {
-  doLast {
-    if (EXCLUDE_V8.toBoolean()) {
-      if (INCLUDE_ABI_ARMEABI.toBoolean()) {
-        file("$OUTPUT_PATH/release/jni/armeabi/libmttv8.so").delete()
-        file("$OUTPUT_PATH/release/jni/armeabi/libmtt_shared.so").delete()
-      }
-      if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() || INCLUDE_ABI_ARMEABI.toBoolean()) {
-        file("$OUTPUT_PATH/release/jni/armeabi-v7a/libmttv8.so").delete()
-        file("$OUTPUT_PATH/release/jni/armeabi-v7a/libmtt_shared.so").delete()
-      }
-      if (INCLUDE_ABI_ARM64_V8A.toBoolean()) {
-        file("$OUTPUT_PATH/release/jni/arm64-v8a/libmttv8.so").delete()
-        file("$OUTPUT_PATH/release/jni/arm64-v8a/libmtt_shared.so").delete()
-      }
-      if (INCLUDE_ABI_X86.toBoolean()) {
-        file("$OUTPUT_PATH/release/jni/x86/libmttv8.so").delete()
-        file("$OUTPUT_PATH/release/jni/x86/libmtt_shared.so").delete()
-      }
-      if (INCLUDE_ABI_X86_64.toBoolean()) {
-        file("$OUTPUT_PATH/release/jni/x86_64/libmttv8.so").delete()
-        file("$OUTPUT_PATH/release/jni/x86_64/libmtt_shared.so").delete()
-      }
-    }
-  }
-}
-
-task generateReleaseAar(dependsOn: excludeV8Libs) {
-  doLast {
-    file("$OUTPUT_PATH/$releaseOutputFileName").delete()
-    exec {
-      def arguments = new ArrayList<?>()
-      arguments.add("a")
-      arguments.add("-tzip")
-      arguments.add("-mx=9")
-      arguments.add("$OUTPUT_PATH/$releaseOutputFileName")
-      arguments.add("$OUTPUT_PATH/release/*")
-      executable "7z"
-      args arguments
-    }
-  }
-}
-
-task dealAfterAssembleRelease(dependsOn: generateReleaseAar) {
+task dealAfterAssembleRelease() {
   doLast {
     copy {
-      from "$OUTPUT_PATH/$releaseOutputFileName"
+      from "$OUTPUT_PATH/$ARCHIVES_BASE_NAME-release.aar"
       into "$projectDir.absolutePath/../../examples/android-demo/example/libs"
     }
   }
