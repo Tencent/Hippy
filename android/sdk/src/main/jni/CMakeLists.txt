@@ -127,13 +127,22 @@ include_directories(${CORE_SRC_DIR}/include)
 include_directories(${PROJECT_SOURCE_DIR})
 include_directories(${CORE_SRC_DIR}/third_party/base/include)
 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../../libs/${ANDROID_ABI}")
-
 set(HIPPY_TARGET_NAME "hippybridge")
 
 add_library(${HIPPY_TARGET_NAME} SHARED ${CORE_SRC} ${URL_PARSER_SRC} ${JNI_SRC})
 target_link_libraries(${HIPPY_TARGET_NAME} android log libjsvm tdf_base)
-
+if (${JS_ENGINE} STREQUAL "V8")
+  if (${EXT_JS_ENGINE_LIB} STREQUAL "true" OR ${EXT_JS_ENGINE_LIB} STREQUAL "1")
+    add_custom_command(
+            TARGET ${HIPPY_TARGET_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E remove $<TARGET_FILE_DIR:${HIPPY_TARGET_NAME}>/${V8_SO})
+  else()
+    add_custom_command(
+            TARGET ${HIPPY_TARGET_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/third_party/v8/${V8_TAG}/${V8_RELEASE}/libs/${ANDROID_ABI} $<TARGET_FILE_DIR:${HIPPY_TARGET_NAME}>
+            COMMAND ${CMAKE_COMMAND} -E remove_directory $<TARGET_FILE_DIR:${HIPPY_TARGET_NAME}>/lib.unstripped)
+  endif()
+endif()
 #add_custom_command(TARGET ${HIPPY_TARGET_NAME} POST_BUILD
 #            COMMAND "${CMAKE_STRIP}" -g -S -d --strip-debug --verbose
 #            ../../../build/outputs/${CMAKE_ANDROID_ARCH_ABI}/lib${HIPPY_TARGET_NAME}.so
