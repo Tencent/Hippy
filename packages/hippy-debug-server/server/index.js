@@ -2,7 +2,7 @@ const fs = require('fs');
 const Koa = require('koa');
 const path = require('path');
 const devSupportWsServer = require('./websocketProxy');
-const liveReloadWsServer = require('./hippy-livereload');
+// const liveReloadWsServer = require('./hippy-livereload');
 const {
   logger,
   exec,
@@ -94,7 +94,7 @@ async function startDevServer(args) {
         }
       });
     devSupportWsServer.startWebsocketProxyServer(serverInstance, '/debugger-proxy');
-    liveReloadWsServer.startLiveReloadServer(serverInstance, '/debugger-live-reload');
+    // liveReloadWsServer.startLiveReloadServer(serverInstance, '/debugger-live-reload');
     logger.info('Hippy debug server is started at', `${host}:${port}`, 'for', entry);
     logger.info('Please open "chrome://inspect" in Chrome to debug your android Hippy app, or use Safari to debug iOS app');
   });
