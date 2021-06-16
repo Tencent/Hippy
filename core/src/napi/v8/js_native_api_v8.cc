@@ -1121,8 +1121,7 @@ std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
     v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
     v8::Context::Scope context_scope(context);
 
-    v8::Local<v8::ObjectTemplate> constructor =
-        v8::ObjectTemplate::New(isolate_);
+    v8::Local<v8::Object> v8_obj = v8::Object::New(isolate_);
     for (const auto& p : obj) {
       auto obj_key = p.first;
       auto obj_value = p.second;
@@ -1135,13 +1134,12 @@ std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
       const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
       v8::Local<v8::Value> handle_value =
           v8::Local<v8::Value>::New(isolate_, global_value);
-      constructor->Set(key, handle_value, v8::PropertyAttribute::None);
+      v8_obj->Set(context, key, handle_value).ToChecked();
     }
-    v8::Local<v8::Object> v8_obj =
-        constructor->NewInstance(context).ToLocalChecked();
     return std::make_shared<V8CtxValue>(isolate_, v8_obj);
   }
-  // TDF_BASE_NOTIMPLEMENTED();
+
+  TDF_BASE_NOTIMPLEMENTED();
   return nullptr;
 }
 
