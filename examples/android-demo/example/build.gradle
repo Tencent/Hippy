@@ -6,7 +6,7 @@ android {
     defaultConfig {
         applicationId "com.tencent.mtt.hippy.example"
         minSdkVersion 14
-        targetSdkVersion 21
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
         ndk {
@@ -43,6 +43,5 @@ android {
 dependencies {
     api project(path:':android-sdk')
     api 'com.github.bumptech.glide:glide:3.6.1'
-    api 'com.android.support:support-v4:26.1.0'
-    api 'com.tencent.mtt:support-ui:2.3.2'
+    api 'com.tencent.mtt:support-ui:2.3.3'
 }

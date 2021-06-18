@@ -1,5 +1,8 @@
 include 'android-sdk'
 project(':android-sdk').projectDir = new File('../../android/sdk')
 
+include 'android-res'
+project(':android-res').projectDir = new File('../../android/res')
+
 include 'example'
 project(':example').projectDir = new File('example')

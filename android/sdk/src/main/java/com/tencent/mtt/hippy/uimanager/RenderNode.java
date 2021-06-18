@@ -526,4 +526,8 @@ public class RenderNode
 		}
 		mUIFunction.add(new UIFunction(functionName, parameter, promise));
 	}
+
+	public boolean isIsLazyLoad() {
+		return mIsLazyLoad;
+	}
 }

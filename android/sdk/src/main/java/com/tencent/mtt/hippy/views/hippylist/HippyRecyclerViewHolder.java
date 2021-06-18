@@ -14,32 +14,29 @@
  * limitations under the License.
  */
 
-package com.tencent.mtt.hippy.uimanager;
+package com.tencent.mtt.hippy.views.hippylist;
 
-import com.tencent.mtt.hippy.HippyRootView;
-import com.tencent.mtt.hippy.common.HippyMap;
+import android.support.annotation.NonNull;
+import android.support.v7.widget.RecyclerView.ViewHolder;
+import android.view.View;
+import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
 
-public class PullFooterRenderNode extends ListItemRenderNode
-{
+/**
+ * Created by niuniuyang on 2020/12/22. Description
+ */
+public class HippyRecyclerViewHolder extends ViewHolder {
 
-	public PullFooterRenderNode(int mId, HippyMap mPropsToUpdate, String className, HippyRootView mRootView, ControllerManager componentManager,
-			boolean isLazyLoad)
-	{
-		super(mId, mPropsToUpdate, className, mRootView, componentManager, isLazyLoad);
-	}
+    public ListItemRenderNode bindNode;
 
-	/**
-	 * 通过类名的hashCode来定义type，计算出来是一个很大的值，几乎不会和前端类型重复
-	 */
-	@Override
-	public int getItemViewType()
-	{
-		return this.getClassName().hashCode();
-	}
+    public HippyRecyclerViewHolder(@NonNull View itemView, ListItemRenderNode renderNode) {
+        super(itemView);
+        bindNode = renderNode;
+    }
 
-	@Override
-	public boolean isPullFooter()
-	{
-		return true;
-	}
+    public boolean isRenderDeleted() {
+        if (bindNode != null) {
+            return bindNode.isDelete();
+        }
+        return false;
+    }
 }

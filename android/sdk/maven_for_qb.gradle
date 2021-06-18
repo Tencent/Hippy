@@ -1,0 +1,68 @@
+apply plugin: 'maven-publish'
+
+//给QB专门写的打包脚本，之前的名字改成了build_old.gradle
+ext {
+    def propFile = file('maven-auth.properties')
+    if (propFile.exists()) {
+        project.file('maven-auth.properties').with {
+            Properties p = new Properties()
+            it.withReader('UTF-8') { p.load(it) }
+            MAVEN_USER = p.get('maven_username')
+            MAVEN_PWD = p.get('maven_password')
+            println("=======MAVEN_USER=" + MAVEN_USER + ", MAVEN_PWD=" + MAVEN_PWD)
+        }
+    } else {
+        MAVEN_USER = ""
+        MAVEN_PWD = ""
+    }
+}
+
+
+// 源代码一起打包(不需要打包源代码的不要添加这几行)
+task androidSourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+publishing {
+    publications {
+
+        myPub(MavenPublication) {
+            groupId 'com.tencent.qqbrowser.hippyforqb'
+            artifactId 'hippysdk'
+            version 'dev-niuniu-SNAPSHOT'
+            artifact(androidSourcesJar)
+            artifact("$buildDir/outputs/aar/android-sdk-release.aar")
+            pom.withXml {
+                def dependenciesNode = asNode().appendNode('dependencies')
+                configurations.api.allDependencies.each {
+                    if (it.group != null && (it.name != null || "unspecified".equals(it.name)) && it.version != null) {
+                        def dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', it.group)
+                        dependencyNode.appendNode('artifactId', it.name)
+                        dependencyNode.appendNode('version', it.version)
+                        dependencyNode.appendNode('scope', 'runtime')
+                    }
+                }
+            }
+            pom {
+                licenses {
+                    license {
+                        name = "The Apache Software License, Version 2.0"
+                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                    }
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            url "https://mirrors.tencent.com/repository/maven/qqbrowser"
+            credentials {
+                username MAVEN_USER
+                password MAVEN_PWD
+            }
+//            url "file:///Users/niuniuyang/maven/hippyforqb/"
+        }
+    }
+}
