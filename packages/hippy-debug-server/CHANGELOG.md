@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.7.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-debug-server/compare/2.7.1...2.7.2) (2021-06-18)
+
+
+### Features
+
+* **hippy-debug-server:** update websocket version ([ab0fdfe](https://github.com/Tencent/Hippy/tree/master/packages/hippy-debug-server/commit/ab0fdfee364faf669cd1a6a86d08ca5dd64ce824))
+* **hippy-react-web:** update swiper ([2c93933](https://github.com/Tencent/Hippy/tree/master/packages/hippy-debug-server/commit/2c939332d95f737cb57a49187324e66d57b89b48))
+
+
+
+
+
 ## [2.7.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-debug-server/compare/2.7.0...2.7.1) (2021-06-10)
 
 **Note:** Version bump only for package @hippy/debug-server

@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.7.2](https://github.com/Tencent/Hippy/compare/2.7.1...2.7.2) (2021-06-18)
+
+
+### Bug Fixes
+
+* **android:** support horizontal scrollView offset x reuse ([5fc57eb](https://github.com/Tencent/Hippy/commit/5fc57eb0309d1e086a66e0b727249e506db6b1da))
+* **core:** fix code cache crash ([#817](https://github.com/Tencent/Hippy/issues/817)) ([8f71301](https://github.com/Tencent/Hippy/commit/8f713013a00617d6738223cae12cb8b5a4e6e678))
+* **core:** fix create ctx value crash ([#820](https://github.com/Tencent/Hippy/issues/820)) ([45a9440](https://github.com/Tencent/Hippy/commit/45a944094e7e32c7d5ed3ac25f1903f213df9996))
+* **core:** fix jni crash ([#803](https://github.com/Tencent/Hippy/issues/803)) ([d1921c0](https://github.com/Tencent/Hippy/commit/d1921c02cdbe4ff86b12690c5414601b0339c9f9))
+* **ios:** image processed by operation should set needblur yes ([5057bfb](https://github.com/Tencent/Hippy/commit/5057bfb418a55684deaebe599bdac2abe04e2e67))
+* **ios:** save scroll's contentoffset for reusing in cell ([197c6d2](https://github.com/Tencent/Hippy/commit/197c6d20874f488fd897382b60a482248c2767e3))
+
+
+### Features
+
+* **hippy-debug-server:** update websocket version ([ab0fdfe](https://github.com/Tencent/Hippy/commit/ab0fdfee364faf669cd1a6a86d08ca5dd64ce824))
+* **hippy-react-web:** update swiper ([2c93933](https://github.com/Tencent/Hippy/commit/2c939332d95f737cb57a49187324e66d57b89b48))
+* **ios:** custom properies can be set before seconary bundle loaded ([8c966bb](https://github.com/Tencent/Hippy/commit/8c966bb084ed1671a00179dbf573e8255c970b95))
+* **ios:** users can get cell type from hippynetinfo module ([cc907f5](https://github.com/Tencent/Hippy/commit/cc907f50c54b1541707666f763573799036d9f6c))
+
+
+
+
+
 ## [2.7.1](https://github.com/Tencent/Hippy/compare/2.7.0...2.7.1) (2021-06-10)
 
 
