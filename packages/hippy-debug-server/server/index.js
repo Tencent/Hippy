@@ -98,6 +98,7 @@ async function startDevServer(args) {
     logger.info('Hippy debug server is started at', `${host}:${port}`, 'for', entry);
     logger.info('Please open "chrome://inspect" in Chrome to debug your android Hippy app, or use Safari to debug iOS app');
   });
+  serverInstance.timeout = 6000 * 1000;
 }
 
 module.exports = startDevServer;
