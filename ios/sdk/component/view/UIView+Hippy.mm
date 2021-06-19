@@ -287,6 +287,10 @@ HippyEventMethod(OnDetachedFromWindow, onDetachedFromWindow, HippyDirectEventBlo
     return nil;
 }
 
+- (BOOL)canBeRetrievedFromViewCache {
+    return YES;
+}
+
 - (void)hippyAddControllerToClosestParent:(UIViewController *)controller {
     if (!controller.parentViewController) {
         UIView *parentView = (UIView *)self.hippySuperview;
