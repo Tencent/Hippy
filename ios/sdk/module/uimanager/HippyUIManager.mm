@@ -943,7 +943,10 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
                              viewName:(NSString *)viewName {
     UIView *view = [self viewForHippyTag:hippyTag];
     
-    BOOL canBeRetrievedFromCache = [view canBeRetrievedFromViewCache];
+    BOOL canBeRetrievedFromCache = YES;
+    if (view && [view respondsToSelector:@selector(canBeRetrievedFromViewCache)]) {
+        canBeRetrievedFromCache = [view canBeRetrievedFromViewCache];
+    }
 
     /**
      * subviews & hippySubviews should be removed from the view which we get from cache(_viewRegistry).
