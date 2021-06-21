@@ -55,6 +55,8 @@ public class MyActivity extends Activity
 			// 可选：debugMode = false 时必须设置coreJSAssetsPath或coreJSFilePath（debugMode = true时，所有jsbundle都是从debug server上下载）
 			initParams.coreJSAssetsPath = "vendor.android.js";
 
+			initParams.codeCacheTag = "common";
+
 			// 可选：异常处理器
 			initParams.exceptionHandler = new HippyExceptionHandlerAdapter() {
 				// JavaScript执行异常
@@ -110,6 +112,8 @@ public class MyActivity extends Activity
 						  });
 						  */
 						loadParams.componentName = "Demo";
+
+						loadParams.codeCacheTag = "Demo";
 						/*
 						  可选：二选一设置。自己开发的业务模块的jsbundle的assets路径（assets路径和文件路径二选一，优先使用assets路径）
 						  debugMode = false 时必须设置jsAssetsPath或jsFilePath（debugMode = true时，所有jsbundle都是从debug server上下载）
