@@ -41,11 +41,11 @@ import com.tencent.mtt.hippy.serialization.nio.writer.SafeDirectWriter;
 import com.tencent.mtt.hippy.serialization.nio.writer.SafeHeapWriter;
 import com.tencent.mtt.hippy.utils.ArgumentUtils;
 import com.tencent.mtt.hippy.utils.DimensionsUtil;
-import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import org.json.JSONObject;
 
@@ -178,11 +178,8 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
       } else {
         mStringBuilder.setLength(0);
         byte[] bytes = new byte[0];
-        try {
-          bytes = ArgumentUtils.objectToJsonOpt((HippyMap) msg.obj, mStringBuilder).getBytes("UTF-16LE");
-        } catch (UnsupportedEncodingException e) {
-          e.printStackTrace();
-        }
+        bytes = ArgumentUtils.objectToJsonOpt((HippyMap) msg.obj, mStringBuilder).getBytes(
+            StandardCharsets.UTF_16LE);
         buffer = ByteBuffer.allocateDirect(bytes.length);
         buffer.put(bytes);
       }
@@ -206,11 +203,8 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
       } else {
         mStringBuilder.setLength(0);
         byte[] bytes = new byte[0];
-        try {
-          bytes = ArgumentUtils.objectToJsonOpt((HippyMap) msg.obj, mStringBuilder).getBytes("UTF-16LE");
-        } catch (UnsupportedEncodingException e) {
-          e.printStackTrace();
-        }
+        bytes = ArgumentUtils.objectToJsonOpt((HippyMap) msg.obj, mStringBuilder).getBytes(
+            StandardCharsets.UTF_16LE);
         mHippyBridge.callFunction(action, callback, bytes);
       }
     }
