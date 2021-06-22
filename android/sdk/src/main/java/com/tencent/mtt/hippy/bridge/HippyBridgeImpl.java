@@ -31,6 +31,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
 import android.content.Context;
@@ -132,7 +133,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
   private void initJSEngine(int groupId) {
     synchronized (HippyBridgeImpl.class) {
       try {
-        byte[] globalConfig = mDebugGlobalConfig.getBytes("UTF-16LE");
+        byte[] globalConfig = mDebugGlobalConfig.getBytes(StandardCharsets.UTF_16LE);
         mV8RuntimeId = initJSFramework(globalConfig, mSingleThreadMode, enableV8Serialization, mIsDevModule, mDebugInitJSFrameworkCallback, groupId);
         mInit = true;
       } catch (Throwable e) {
@@ -402,11 +403,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
   @Override
   public void onReceiveData(String msg) {
     if (this.mIsDevModule) {
-      try {
-        callFunction("onWebsocketMsg", null, msg.getBytes("UTF-16LE"));
-      } catch (UnsupportedEncodingException e) {
-        e.printStackTrace();
-      }
+      callFunction("onWebsocketMsg", null, msg.getBytes(StandardCharsets.UTF_16LE));
     }
   }
 }
