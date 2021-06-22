@@ -2,7 +2,6 @@ package com.tencent.mtt.hippy.bridge;
 
 import android.os.Handler;
 import android.os.Message;
-import com.tencent.mtt.hippy.utils.LogUtils;
 
 @SuppressWarnings({"unused"})
 public abstract class NativeCallback {
