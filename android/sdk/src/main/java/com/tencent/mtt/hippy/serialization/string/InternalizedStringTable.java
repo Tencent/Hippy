@@ -15,7 +15,7 @@
  */
 package com.tencent.mtt.hippy.serialization.string;
 
-import androidx.annotation.NonNull;;
+import androidx.annotation.NonNull;
 import android.util.LruCache;
 
 import com.tencent.mtt.hippy.exception.UnreachableCodeException;
