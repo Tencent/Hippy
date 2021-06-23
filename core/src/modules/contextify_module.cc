@@ -153,7 +153,7 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
       }
 
       std::shared_ptr<Ctx> ctx = scope->GetContext();
-      std::shared_ptr<CtxValue> error;
+      std::shared_ptr<CtxValue> error = nullptr;
       if (!move_code.empty()) {
         auto last_dir_str_obj = ctx->GetGlobalStrVar("__HIPPYCURDIR__");
         TDF_BASE_DLOG(INFO) << "__HIPPYCURDIR__ cur_dir = " << cur_dir;
@@ -172,8 +172,6 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
           error = try_catch->Exception();
           TDF_BASE_DLOG(ERROR) << "RequestUntrustedContent error = "
                                << try_catch->GetExceptionMsg();
-        } else {
-          error = ctx->CreateNull();
         }
       } else {
         unicode_string_view err_msg = uri + " not found";
@@ -183,6 +181,9 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
       std::shared_ptr<CtxValue> function = weak_function.lock();
       if (function) {
         TDF_BASE_DLOG(INFO) << "run js cb";
+        if (!error) {
+          error = ctx->CreateNull();
+        }
         std::shared_ptr<CtxValue> argv[] = {error};
         ctx->CallFunction(function, 1, argv);
         RemoveCBFunc(uri);
