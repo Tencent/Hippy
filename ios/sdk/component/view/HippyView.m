@@ -555,7 +555,7 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
     // solve this, we'll need to add a container view inside the main view to
     // correctly clip the subviews.
 
-    BOOL canHandleBackgroundImageURL = [[self backgroundCachemanager] canHandleImageURL:_backgroundImageUrl];
+    BOOL canHandleBackgroundImageURL = [[self backgroundCachemanager] canHandleImageURL:_backgroundImageUrl] || self.gradientObject;
     if (useIOSBorderRendering && !canHandleBackgroundImageURL) {
         layer.cornerRadius = cornerRadii.topLeft;
         layer.borderColor = borderColors.left;
@@ -619,10 +619,11 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
         return YES;
     }
 
-    if (!self.backgroundImageUrl) {
+    if (!self.backgroundImageUrl && !self.gradientObject) {
         contentBlock(image);
         return YES;
-    } else {
+    }
+    else if (self.backgroundImageUrl) {
         CGFloat backgroundPositionX = self.backgroundPositionX;
         CGFloat backgroundPositionY = self.backgroundPositionY;
         HippyBackgroundImageCacheManager *weakBackgroundCacheManager = [self backgroundCachemanager];
@@ -652,6 +653,20 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
         }];
         return NO;
     }
+    else if (self.gradientObject) {
+//        CGFloat backgroundPositionX = self.backgroundPositionX;
+//        CGFloat backgroundPositionY = self.backgroundPositionY;
+        CGSize size = theFrame.size;
+        UIGraphicsBeginImageContextWithOptions(size, NO, image.scale);
+
+        [image drawInRect:(CGRect) { CGPointZero, size }];
+        
+        [self.gradientObject drawInContext:UIGraphicsGetCurrentContext() withSize:size];
+        UIImage *resultingImage = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+        contentBlock(resultingImage);
+    }
+    return YES;
 }
 
 - (HippyBackgroundImageCacheManager *)backgroundCachemanager {

@@ -29,26 +29,61 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface HippyGradientLocationParser : NSObject
+
+@property(nonatomic, assign) NSUInteger locationsCount;
+
+- (instancetype)initWithLocationsCount:(NSUInteger)count;
+
+- (void)setLocationValue:(NSNumber * )value atLocation:(NSUInteger)location;
+
+- (NSArray<NSNumber *> *) computeLocations;
+
+@end
+
 typedef NS_ENUM(NSUInteger, HippyGradientType) {
     HippyGradientTypeLinear,
     HippyGradientTypeRadial,
 };
 
+typedef NS_ENUM(NSUInteger, HippyGradientDirection) {
+    HippyGradientDirectionTop,
+    HippyGradientDirectionTopRight,
+    HippyGradientDirectionRight,
+    HippyGradientDirectionBottomRight,
+    HippyGradientDirectionBottom,
+    HippyGradientDirectionBottomLeft,
+    HippyGradientDirectionLeft,
+    HippyGradientDirectionTopLeft,
+};
+
+typedef struct _LinearGradientPoints {
+    CGPoint startPoint;
+    CGPoint endPoint;
+}LinearGradientPoints;
+
 @interface HippyGradientObject : NSObject
+
+- (instancetype)initWithGradientObject:(NSDictionary *)object;
 
 @property(nonatomic, strong) NSArray<UIColor *> *colors;
 @property(nonatomic, strong) NSArray<NSNumber *> *locations;
-@property(nonatomic, assign) CGPoint startPoint;
-@property(nonatomic, assign) CGPoint endPoint;
+//degree by angle
+@property(nonatomic, assign) NSInteger degree;
+@property(nonatomic, assign) HippyGradientDirection direction;
+//determine if gradient drawn by degree.Default is NO.
+//if YES, gradient is drawn by degree,otherwise by direction
+@property(nonatomic, assign, getter=isDrawnByDegree) BOOL drawnByDegree;
 @property(nonatomic, assign) HippyGradientType gradientType;
 
-- (void)drawInContext:(CGContextRef)context;
-- (void)drawInGradientLayer:(CAGradientLayer *)gradientLayer;
+- (void)drawInContext:(CGContextRef)context withSize:(CGSize)size;
+
+- (LinearGradientPoints)linearGradientPointsFromSize:(CGSize)size;
 
 @end
 
-HIPPY_EXTERN void HippyDrawLinearGradientInContext(HippyGradientObject *object, CGContextRef context);
-HIPPY_EXTERN void HippyDrawRadialGradientInContext(HippyGradientObject *object, CGContextRef context);
+HIPPY_EXTERN void HippyDrawLinearGradientInContext(HippyGradientObject *object, CGContextRef context, CGSize);
+HIPPY_EXTERN void HippyDrawRadialGradientInContext(HippyGradientObject *object, CGContextRef context, CGSize);
 
 /**
  * pase linear gradient string to HippyGradientObject

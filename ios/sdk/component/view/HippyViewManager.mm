@@ -90,12 +90,13 @@ HIPPY_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, HippyView) {
             [backgroundImage hasPrefix:@"data:image/"]) {
             view.backgroundImageUrl = backgroundImage;
         }
-        else {
-            HippyGradientObject *object = HippyParseLinearGradientString(backgroundImage);
-            if (object) {
-                [object drawInGradientLayer:(CAGradientLayer *)view.layer];
-            }
-        }
+    }
+}
+
+HIPPY_CUSTOM_VIEW_PROPERTY(linearGradient, NSDictionary, HippyView) {
+    if (json) {
+        NSDictionary *linearGradientObject = [HippyConvert NSDictionary:json];
+        view.gradientObject = [[HippyGradientObject alloc] initWithGradientObject:linearGradientObject];
     }
 }
 
