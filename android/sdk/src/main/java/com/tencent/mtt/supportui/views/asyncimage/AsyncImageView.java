@@ -19,6 +19,7 @@ import com.tencent.mtt.supportui.adapters.image.IDrawableTarget;
 import com.tencent.mtt.supportui.adapters.image.IImageLoaderAdapter;
 import com.tencent.mtt.supportui.adapters.image.IImageRequestListener;
 import com.tencent.mtt.supportui.views.IBorder;
+import com.tencent.mtt.supportui.views.IGradient;
 import com.tencent.mtt.supportui.views.IShadow;
 
 import android.animation.Animator;
@@ -32,12 +33,14 @@ import android.graphics.drawable.LayerDrawable;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
+import java.util.ArrayList;
 
 /**
  * Created by leonardgong on 2017/12/7 0007.
  */
 
-public class AsyncImageView extends ViewGroup implements Animator.AnimatorListener, ValueAnimator.AnimatorUpdateListener, IBorder, IShadow
+public class AsyncImageView extends ViewGroup implements Animator.AnimatorListener, ValueAnimator.AnimatorUpdateListener, IBorder, IShadow,
+		IGradient
 {
 	public static final int         FADE_DURATION			= 150;
 	public final static int         IMAGE_UNLOAD            = 0;
@@ -657,6 +660,20 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 		getBackGround().setShadowColor(color);
 	}
 
+	@Override
+	public void setGradientAngle(String angle) {
+		getBackGround().setGradientAngle(angle);
+	}
+
+	@Override
+	public void setGradientColors(ArrayList<Integer> colors) {
+		getBackGround().setGradientColors(colors);
+	}
+
+	@Override
+	public void setGradientPositions(ArrayList<Float> positions) {
+		getBackGround().setGradientPositions(positions);
+	}
 
 	private BackgroundDrawable getBackGround()
 	{
