@@ -89,6 +89,8 @@ public class NodeProps {
   public static final String SHADOW_RADIUS = "shadowRadius";
   public static final String SHADOW_SPREAD = "shadowSpread";
 
+  public static final String LINEAR_GRADIENT = "linearGradient";
+
   //View props
 
   public static final String ENABLED = "enabled";

@@ -15,6 +15,11 @@
  */
 package com.tencent.mtt.supportui.views.asyncimage;
 
+import android.graphics.LinearGradient;
+import android.graphics.PointF;
+import android.graphics.Shader;
+import android.text.TextUtils;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.supportui.utils.CommonTool;
 
 import android.graphics.Bitmap;
@@ -31,6 +36,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import java.util.ArrayList;
 
 /**
  * Created by leonardgong on 2017/11/30 0030.
@@ -53,6 +59,12 @@ public class BackgroundDrawable extends BaseDrawable
 	private boolean	mNeedUpdateBorderPath	= false;
 
 	private final Paint mShadowPaint;
+	private Paint gradientPaint;
+	private String gradientAngleDesc;
+	private int gradientAngle = Integer.MAX_VALUE;
+	private int[]	gradientColors;
+	private float[]	gradientPositions;
+
 	protected float mShadowOpacity = 0.8f;
 	protected int mShadowColor = Color.GRAY;
 	protected RectF mShadowRect;
@@ -184,6 +196,196 @@ public class BackgroundDrawable extends BaseDrawable
 		}
 	}
 
+	public void setGradientAngle(String angle) {
+		gradientAngleDesc = angle;
+	}
+
+	public void setGradientColors(ArrayList<Integer> colors) {
+		int size = colors.size();
+		if (size > 0) {
+			gradientColors = new int[size];
+			for (int i = 0; i < size; i++) {
+				gradientColors[i] = colors.get(i);
+			}
+		} else {
+			gradientColors = null;
+		}
+	}
+
+	public void setGradientPositions(ArrayList<Float> positions) {
+		int size = positions.size();
+		if (size > 0) {
+			int lastPos = 0;
+			float lastValue = 0.0f;
+			gradientPositions = new float[size];
+			for (int i = 0; i < size; i++) {
+				float value = positions.get(i);
+				if (i == 0) {
+					gradientPositions[i] = value;
+					lastValue = value;
+					continue;
+				}
+
+				if (value <= 0.0f && lastPos < i) {
+					continue;
+				}
+
+				if (value > 0.0f && lastPos < (i - 1)) {
+					float average = (value - lastValue)/(i - lastPos);
+					for (int j = (lastPos + 1); j < i; j++) {
+						gradientPositions[j] = lastValue + average*(j - lastPos);
+					}
+				}
+
+				lastPos = i;
+				lastValue = value;
+				gradientPositions[i] = value;
+			}
+		} else {
+			gradientPositions = null;
+		}
+	}
+
+	private int getOppositeAngle() {
+		double angrad = Math.atan(mRect.width()/mRect.height());
+		double angdeg = Math.toDegrees(angrad);
+		return (int)Math.round(angdeg);
+	}
+
+	private boolean checkSpecialAngle(PointF start, PointF end) {
+		switch (gradientAngle) {
+			case 0:
+				end.x = mRect.centerX();
+				end.y = mRect.top;
+				start.x = mRect.centerX();
+				start.y = mRect.bottom;
+				break;
+			case 90:
+				end.x = mRect.right;
+				end.y = mRect.centerY();
+				start.x = mRect.left;
+				start.y = mRect.centerY();
+				break;
+			case 180:
+				end.x = mRect.centerX();
+				end.y = mRect.bottom;
+				start.x = mRect.centerX();
+				start.y = mRect.top;
+				break;
+			case 270:
+				end.x = mRect.left;
+				end.y = mRect.centerY();
+				start.x = mRect.right;
+				start.y = mRect.centerY();
+				break;
+			default:
+				return false;
+		}
+
+		return true;
+	}
+
+	private void correctPointWithOriginDegree(PointF start, PointF end) {
+		if (gradientAngle > 90 && gradientAngle < 180) {
+			start.y = mRect.bottom - start.y;
+			end.y = mRect.bottom - end.y;
+		} else if (gradientAngle > 180 && gradientAngle < 270) {
+			PointF tempPoint = new PointF(start.x, start.y);
+			start.x = end.x;
+			start.y = end.y;
+			end.x = tempPoint.x;
+			end.y = tempPoint.y;
+		} else if (gradientAngle > 270 && gradientAngle < 360) {
+			end.x = mRect.left + (mRect.right - end.x);
+			start.x = mRect.right - start.x;
+		}
+	}
+
+	private void calculateStartEndPoint(PointF start, PointF end, int oppositeDegree) {
+		if (checkSpecialAngle(start, end)) {
+			return;
+		}
+
+		int tempDegree = gradientAngle%90;
+		if ((gradientAngle > 90 && gradientAngle < 180) || (gradientAngle > 270 && gradientAngle < 360)) {
+			tempDegree = 90 - tempDegree;
+		}
+
+		if (tempDegree == oppositeDegree) {
+			end.x = mRect.right;
+			end.y = mRect.top;
+			start.x = mRect.left;
+			start.y = mRect.bottom;
+		} else if (tempDegree < oppositeDegree) {
+			float xl = (float)(Math.tan(Math.toRadians(tempDegree)) * mRect.height()/2);
+			end.x = mRect.centerX() + xl;
+			end.y = mRect.top;
+			start.x = mRect.centerX() - xl;
+			start.y = mRect.bottom;
+		} else {
+			float yl = (float)(Math.tan(Math.toRadians(90 - tempDegree)) * mRect.width()/2);
+			end.x = mRect.right;
+			end.y = mRect.centerY() - yl;
+			start.x = mRect.left;
+			start.y = mRect.centerY() + yl;
+		}
+
+		correctPointWithOriginDegree(start, end);
+	}
+
+	private void calculategradientAngle(int oppositeDegree) {
+		if (gradientAngleDesc.equals("totopright")) {
+			gradientAngle = (90 - oppositeDegree);
+		} else if (gradientAngleDesc.equals("tobottomright")) {
+			gradientAngle = (90 + oppositeDegree);
+		} else if (gradientAngleDesc.equals("tobottomleft")) {
+			gradientAngle = 270 - oppositeDegree;
+		} else if (gradientAngleDesc.equals("totopleft")) {
+			gradientAngle = 270 + oppositeDegree;
+		} else {
+			try {
+				float fa = Float.parseFloat(gradientAngleDesc);
+				gradientAngle = Math.round(fa)%360;
+			} catch (NumberFormatException ignored) {
+				ignored.printStackTrace();
+			}
+		}
+	}
+
+	private boolean initGradientPaint() {
+		if (TextUtils.isEmpty(gradientAngleDesc)) {
+			return false;
+		}
+
+		int oppositeDegree = getOppositeAngle();
+		calculategradientAngle(oppositeDegree);
+
+		if (gradientAngle == Integer.MAX_VALUE || gradientColors == null || gradientColors.length == 0) {
+			return false;
+		}
+
+		if (gradientPositions != null && gradientColors.length != gradientPositions.length) {
+			gradientPositions = null;
+		}
+
+		if (gradientPaint == null) {
+			gradientPaint = new Paint();
+		}
+
+		gradientPaint.setStyle(Paint.Style.FILL);
+
+		PointF start = new PointF();
+		PointF end = new PointF();
+
+		calculateStartEndPoint(start, end, oppositeDegree);
+
+		LinearGradient linearGradient = new LinearGradient(start.x, start.y, end.x, end.y,
+				gradientColors, gradientPositions, Shader.TileMode.CLAMP);
+
+		gradientPaint.setShader(linearGradient);
+		return true;
+	}
+
 	private void drawBGShadow (Canvas canvas)
 	{
 	  if (mShadowRadius == 0 || mShadowOpacity <= 0)
@@ -209,15 +411,17 @@ public class BackgroundDrawable extends BaseDrawable
 	  mShadowPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_ATOP));
 	  canvas.drawRoundRect(mShadowRect, borderRadius, borderRadius, mShadowPaint);
   }
-	
+
 	private void drawBGWithRadius(Canvas canvas)
 	{
 		// updateStyle border with radius path
 		updatePath();
 
 		// draw bg color
-		if (mBackgroundColor != 0)
-		{ // color is not transparent
+		boolean useGradientPaint = initGradientPaint();
+		if (useGradientPaint) {
+			canvas.drawPath(mPathForBorderRadius, gradientPaint);
+		} else if (mBackgroundColor != 0) {
 			mPaint.setColor(mBackgroundColor);
 			mPaint.setStyle(Paint.Style.FILL);
 			canvas.drawPath(mPathForBorderRadius, mPaint);
@@ -465,9 +669,10 @@ public class BackgroundDrawable extends BaseDrawable
 	}
 	private void drawBG(Canvas canvas)
 	{
-		// draw bg color first
-		if (mBackgroundColor != 0)
-		{ // color is not transparent
+		boolean useGradientPaint = initGradientPaint();
+		if (useGradientPaint) {
+			canvas.drawRect(mRect, gradientPaint);
+		} else if (mBackgroundColor != 0) {
 			mPaint.setColor(mBackgroundColor);
 			mPaint.setStyle(Paint.Style.FILL);
 			canvas.drawRect(mRect, mPaint);
