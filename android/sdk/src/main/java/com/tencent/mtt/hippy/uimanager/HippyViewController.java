@@ -19,6 +19,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Looper;
 import android.os.MessageQueue;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -36,8 +37,10 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.common.CommonBorder;
 import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
+import com.tencent.mtt.supportui.views.IGradient;
 import com.tencent.mtt.supportui.views.IShadow;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 @SuppressWarnings({"deprecation", "unused"})
@@ -325,11 +328,48 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 
   @Override
   public void onFocusChange(View v, boolean hasFocus) {
-    if (bUserChageFocus) //只有用户导致的焦点获取，会通知出去
-    {
+    if (bUserChageFocus) {
       HippyMap hippyMap = new HippyMap();
       hippyMap.pushBoolean("focus", hasFocus);
       new HippyViewEvent("onFocus").send(v, hippyMap);
+    }
+  }
+
+  @HippyControllerProps(name = NodeProps.LINEAR_GRADIENT, defaultType = HippyControllerProps.MAP)
+  public void setLinearGradient(T view, HippyMap linearGradient) {
+    if (linearGradient != null && view instanceof IGradient) {
+      String angle = linearGradient.getString("angle");
+      HippyArray colorStopList = linearGradient.getArray("colorStopList");
+
+      if (TextUtils.isEmpty(angle) || colorStopList == null || colorStopList.size() == 0) {
+        return;
+      }
+
+      int size = colorStopList.size();
+      ArrayList<Integer> colorsArray = new ArrayList<>();
+      ArrayList<Float> positionsArray = new ArrayList<>();
+      for(int i = 0; i < size; i++){
+        HippyMap colorStop = colorStopList.getMap(i);
+        if (colorStop == null) {
+          continue;
+        }
+
+        int color = colorStop.getInt("color");
+        colorsArray.add(color);
+
+        float ratio = 0.0f;
+        if (colorStop.containsKey("ratio")) {
+          ratio = (float)colorStop.getDouble("ratio");
+        } else if(i == (size - 1)) {
+          ratio = 1.0f;
+        }
+
+        positionsArray.add(ratio);
+      }
+
+      ((IGradient)view).setGradientAngle(angle);
+      ((IGradient)view).setGradientColors(colorsArray);
+      ((IGradient)view).setGradientPositions(positionsArray);
     }
   }
 
