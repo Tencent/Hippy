@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import Swiper from 'swiper';
-import 'swiper/dist/css/swiper.min.css';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/swiper.min.css';
 
 /**
  * Container that allows to flip left and right between child views.
@@ -14,53 +14,51 @@ export class ViewPager extends Component {
     this.state = {};
   }
 
-  componentDidMount() {
-    const { initialPage = 0, onPageSelected, scrollEnabled } = this.props;
-    this.viewPagerSwiper = new Swiper(this.containerRef, {
-      initialSlide: initialPage,
-      autoHeight: true,
-      on: {
-        init() {
-        },
-        slideChange() {
-          if (onPageSelected) onPageSelected({ position: this.activeIndex });
-        },
-      },
-      allowTouchMove: !!scrollEnabled,
-    });
-  }
-
   setPage(index: number) {
     if (Number.isInteger(index)) {
-      this.viewPagerSwiper.slideTo(index);
+      this.viewPagerSwiper.slideToLoop(index);
     }
   }
 
   setPageWithoutAnimation(index: number) {
     if (Number.isInteger(index)) {
-      this.viewPagerSwiper.slideTo(index, 0);
+      this.viewPagerSwiper.slideToLoop(index, 0);
     }
   }
 
   render() {
-    const { style, children } = this.props;
+    const {
+      style = {},
+      children,
+      initialPage = 0,
+      onPageSelected,
+      scrollEnabled,
+      loop = false,
+      direction = 'horizontal' } = this.props;
     const renderViewPagerItem = () => {
       if (!children || (children as React.ReactNodeArray).length === 0) return null;
       return children.map((item: any, index: number) => {
         const keyParam = index;
-        return <div nativeName="ListViewItem" key={`ViewPager-${keyParam}`} className="swiper-slide">{item}</div>;
+        return <SwiperSlide nativeName="ListViewItem" key={`ViewPager-${keyParam}`}>{item}</SwiperSlide>;
       });
     };
     return (
-      <div style={style}>
-        <div ref={(ref) => {
-          this.containerRef = ref;
-        }} className="swiper-container" style={style}>
-          <div className="swiper-wrapper">
-            {renderViewPagerItem()}
-          </div>
-        </div>
-      </div>
+      <Swiper
+        direction={direction}
+        loop={loop}
+        style={Object.assign({ width: '100%' }, style)}
+        initialSlide={initialPage}
+        autoHeight
+        allowTouchMove={scrollEnabled}
+        onSwiper={swiper => this.viewPagerSwiper = swiper}
+        onSlideChange={(swiper) => {
+          if (onPageSelected) {
+            onPageSelected({ position: swiper.realIndex || 0 });
+          }
+        }}
+      >
+        {renderViewPagerItem()}
+      </Swiper>
     );
   }
 }

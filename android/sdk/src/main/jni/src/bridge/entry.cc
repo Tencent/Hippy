@@ -126,7 +126,7 @@ bool RunScript(std::shared_ptr<Runtime> runtime,
                const unicode_string_view& code_cache_dir,
                const unicode_string_view& uri,
                AAssetManager* asset_manager) {
-  TDF_BASE_DLOG(INFO) << "RunScript begin, file_name = " << file_name
+  TDF_BASE_LOG(INFO) << "RunScript begin, file_name = " << file_name
                       << ", is_use_code_cache = " << is_use_code_cache
                       << ", code_cache_dir = " << code_cache_dir
                       << ", uri = " << uri
