@@ -696,10 +696,10 @@ UIColor *HippyConvertStringToColor(NSString *colorString) {
 }
 
 HIPPY_EXTERN UIColor *HippyConvertNumberToColor(NSInteger colorNumber) {
-    NSInteger r = (colorNumber >> 24) & 0xFF;
-    NSInteger g = (colorNumber >> 16) & 0xFF;
-    NSInteger b = (colorNumber >> 8) & 0xFF;
-    NSInteger a = colorNumber & 0xFF;
+    NSInteger a = (colorNumber >> 24) & 0xFF;
+    NSInteger r = (colorNumber >> 16) & 0xFF;
+    NSInteger g = (colorNumber >> 8) & 0xFF;
+    NSInteger b = colorNumber & 0xFF;
     UIColor *color = [UIColor colorWithRed:r / 255.0f
                                      green:g / 255.0f
                                       blue:b / 255.0f

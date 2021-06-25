@@ -111,43 +111,63 @@
     }
 }
 
-static CGPoint pointWithSizeAndDegree(CGSize size, CGFloat degree) {
+//get the symmetric point to the 'anchor' point
+static CGPoint oppositePointToAnchorPoint(CGPoint point, CGPoint anchor) {
+    CGFloat x = anchor.x - (point.x - anchor.x);
+    CGFloat y = anchor.y - (point.y - anchor.y);
+    return CGPointMake(x, y);
+}
+
+static CGPoint oppositePointToHorizontalAnchorPoint(CGPoint point, CGPoint anchor) {
+    CGFloat x = point.x;
+    CGFloat y = anchor.y + (anchor.y - point.y);
+    return CGPointMake(x, y);
+}
+
+static LinearGradientPoints gradientPointsWithSizeAndDegree(CGSize size, NSInteger degree) {
     CGFloat halfWidth = size.width / 2.f;
     CGFloat halfHeight = size.height / 2.f;
+    CGFloat diagonalLen = sqrt(size.width * size.width + size.height * size.height) / 2.f;
+    CGFloat diagonalRad = atan(size.width / size.height);
     CGFloat rad = degree * M_PI / 180.f;
-    CGPoint point = CGPointZero;
+    CGPoint anchorPoint = CGPointMake(size.width / 2.f, size.height / 2.f);
+    CGPoint endPoint = CGPointZero;
+    CGPoint startPoint = CGPointZero;
     if (degree >= 0 && degree < 90) {
-        CGFloat sideLen = halfHeight * tan(rad);
-        if (sideLen <= halfWidth) {
-            point.x = halfWidth + sideLen;
-            point.y = 0;
+        if (rad <= diagonalRad) {
+            CGFloat diffRad = diagonalRad - rad;
+            CGFloat sideLen = diagonalLen * cos(diffRad);
+            CGFloat x = sin(rad) * sideLen;
+            CGFloat y = cos(rad) * sideLen;
+            endPoint = CGPointMake(halfWidth + x, halfHeight - y);
         }
         else {
-            point.x = size.width;
-            CGFloat diffRad = M_PI_2 - rad;
-            CGFloat sideLen = halfWidth * tan(diffRad);
-            point.y = halfHeight - sideLen;
+            CGFloat diffRad1 = rad - diagonalRad;
+            CGFloat diffLen = diagonalLen / cos(diffRad1);
+            CGFloat diffRad2 = M_PI_2 - rad;
+            CGFloat ySideLen = diffLen * tan(diffRad2) / cos(diffRad2);
+            CGFloat y = halfHeight - ySideLen;
+            CGFloat xSideLen = ySideLen / tan(diffRad2);
+            CGFloat x = halfWidth + xSideLen;
+            endPoint = CGPointMake(x, y);
         }
+        startPoint = oppositePointToAnchorPoint(endPoint, anchorPoint);
     }
-    else if (degree >= 90 && degree < 180) {
-        CGFloat revRad = rad - M_PI_2;
-        CGFloat sideLen = halfWidth * tan(revRad);
-        if (sideLen <= halfHeight) {
-            point.x = size.width;
-            point.y = sideLen + halfHeight;
-        }
-        else {
-            point.y = size.height;
-            CGFloat diffRad = M_PI_2 - revRad;
-            CGFloat sideLen = halfHeight * tan(diffRad);
-            point.x = halfWidth + sideLen;
-        }
+    else if (90 == degree) {
+        endPoint = CGPointMake(size.width, size.height / 2.f);
+        startPoint = CGPointMake(0, size.height / 2.f);
     }
-    else {
-        point.x = halfWidth;
-        point.y = size.height;
+    else if (degree > 90 && degree < 180) {
+        LinearGradientPoints point = gradientPointsWithSizeAndDegree(size, 180 - degree);
+        endPoint = oppositePointToHorizontalAnchorPoint(point.endPoint, anchorPoint);
+        startPoint = oppositePointToAnchorPoint(endPoint, anchorPoint);
     }
-    return point;
+    else if (degree >= 180 && degree < 360) {
+        LinearGradientPoints points = gradientPointsWithSizeAndDegree(size, degree - 180);
+        startPoint = points.endPoint;
+        endPoint = points.startPoint;
+    }
+    return (LinearGradientPoints){startPoint, endPoint};
 }
 
 static BOOL getDirectionFromString(NSString *string, HippyGradientDirection *direction) {
@@ -189,82 +209,83 @@ static BOOL getDirectionFromString(NSString *string, HippyGradientDirection *dir
     return isDrawnByDirection;
 }
 
-static LinearGradientPoints pointsFromDirection(HippyGradientObject *object, CGSize size) {
-//    LinearGradientPoints points = {CGPointZero, CGPointZero};
-    CGPoint startPoint = CGPointMake(size.width / 2.f, size.height);
-    switch (object.direction) {
+static CGFloat degreeFromDirection(HippyGradientDirection direction, CGSize size) {
+    CGFloat degree = 0.0f;
+    switch (direction) {
         case HippyGradientDirectionTopRight:
-            startPoint = CGPointMake(0, size.height);
+            degree = atan(size.height / size.width);
             break;
         case HippyGradientDirectionRight:
-            startPoint = CGPointMake(0, size.height / 2.f);
+            degree = M_PI_2;
             break;
         case HippyGradientDirectionBottomRight:
-            startPoint = CGPointMake(0, 0);
+            degree = M_PI - atan(size.height / size.width);
             break;
         case HippyGradientDirectionBottom:
-            startPoint = CGPointMake(size.width / 2.f, 0);
+            degree = M_PI;
             break;
         case HippyGradientDirectionBottomLeft:
-            startPoint = CGPointMake(size.width, 0);
+            degree = M_PI + atan(size.height / size.width);
             break;
         case HippyGradientDirectionLeft:
-            startPoint = CGPointMake(size.width, size.height / 2.f);
+            degree = M_PI + M_PI_2;
             break;
         case HippyGradientDirectionTopLeft:
-            startPoint = CGPointMake(size.width, size.height);
+            degree = M_PI + M_PI - atan(size.height / size.width);
             break;
         default:
             break;
     }
-    CGPoint endPoint = CGPointMake(size.width - startPoint.x, size.height - startPoint.y);
-    return (LinearGradientPoints){startPoint, endPoint};
+    return degree * 180.f / M_PI;
+}
+
+static LinearGradientPoints pointsFromDirection(HippyGradientObject *object, CGSize size) {
+    return gradientPointsWithSizeAndDegree(size, degreeFromDirection(object.direction, size));
 }
 
 - (instancetype)initWithGradientObject:(NSDictionary *)object {
     self = [super init];
     if (self) {
-        //     style.linearGradient = {
-        //             // @param {string} angle - 浮点数渐变线角度.
-        //             angle: '45',
-        //             /**
-        //              * @param {Array} colorStopList - 颜色停止列表
-        //              */
-        //             colorStopList: [{ color: -11756806, ratio: 0.1 }, { color: -11756806, ratio: 0.6 }],
-        //      };
-        #if HIPPY_DEBUG
-            @try {
-        #endif //#if HIPPY_DEBUG
-                NSString *angleString = [object objectForKey:@"angle"];
-                HippyGradientDirection direction;
-                if (getDirectionFromString(angleString, &direction)) {
-                    self.direction = direction;
-                }
-                else {
-                    self.degree = [angleString intValue];
-                }
-                
-                NSArray<NSDictionary *> *colorStopList = [object objectForKey:@"colorStopList"];
-                NSMutableArray<UIColor *> *colors = [NSMutableArray arrayWithCapacity:[colorStopList count]];
-                HippyGradientLocationParser *locationParser = [[HippyGradientLocationParser alloc] initWithLocationsCount:[colorStopList count]];
-                for (NSUInteger i = 0; i < [colorStopList count]; i++) {
-                    NSDictionary *colorStop = [colorStopList objectAtIndex:i];
-                    NSNumber *colorNumber = [colorStop objectForKey:@"color"];
-                    UIColor *color = HippyConvertNumberToColor([colorNumber integerValue]);
-                    [colors addObject:color];
-
-                    NSNumber *stop = [colorStop objectForKey:@"ratio"];
-                    if (stop) {
-                        [locationParser setLocationValue:stop atLocation:i];
-                    }
-                }
-                self.colors = [colors copy];
-                self.locations = [locationParser computeLocations];
-        #if HIPPY_DEBUG
-            } @catch (NSException *exception) {
-                return self;
+//     style.linearGradient = {
+//             // @param {string} angle - degree for linear gradient line.
+//             angle: '45',
+//             /**
+//              * @param {Array} colorStopList - colors & stops
+//              */
+//             colorStopList: [{ color: -11756806, ratio: 0.1 }, { color: -11756806, ratio: 0.6 }],
+//      };
+        @try {
+            NSString *angleString = [object objectForKey:@"angle"];
+            HippyGradientDirection direction;
+            if (getDirectionFromString(angleString, &direction)) {
+                self.direction = direction;
             }
-        #endif //#if HIPPY_DEBUG
+            else {
+                self.degree = [angleString intValue];
+                self.drawnByDegree = YES;
+            }
+            
+            NSArray<NSDictionary *> *colorStopList = [object objectForKey:@"colorStopList"];
+            NSMutableArray<UIColor *> *colors = [NSMutableArray arrayWithCapacity:[colorStopList count]];
+            HippyGradientLocationParser *locationParser = [[HippyGradientLocationParser alloc] initWithLocationsCount:[colorStopList count]];
+            for (NSUInteger i = 0; i < [colorStopList count]; i++) {
+                NSDictionary *colorStop = [colorStopList objectAtIndex:i];
+                NSNumber *colorNumber = [colorStop objectForKey:@"color"];
+                UIColor *color = HippyConvertNumberToColor([colorNumber integerValue]);
+                [colors addObject:color];
+                NSNumber *stop = [colorStop objectForKey:@"ratio"];
+                if (stop) {
+                    [locationParser setLocationValue:stop atLocation:i];
+                }
+            }
+            self.colors = [colors copy];
+            self.locations = [locationParser computeLocations];
+        } @catch (NSException *exception) {
+            NSString *errorString = [NSString stringWithFormat:@"gradient parse error:%@", [exception reason]];
+            NSError *error = HippyErrorWithMessageAndModuleName(errorString, object[@"moduleName"]);
+            HippyFatal(error);
+            return self;
+        }
     }
     return self;
 }
@@ -276,18 +297,7 @@ static LinearGradientPoints pointsFromDirection(HippyGradientObject *object, CGS
         if (self.degree < 0) {
             self.degree += 360;
         }
-        CGPoint startPoint = CGPointZero;
-        CGPoint endPoint = CGPointZero;
-        if (self.degree <= 180) {
-            endPoint = pointWithSizeAndDegree(size, self.degree);
-            startPoint = CGPointMake(size.width - endPoint.x, size.height - endPoint.y);
-        }
-        else {
-            startPoint = pointWithSizeAndDegree(size, self.degree - 180);
-            endPoint = CGPointMake(size.width - startPoint.x, size.height - startPoint.y);
-        }
-        points.startPoint = startPoint;
-        points.endPoint = endPoint;
+        points = gradientPointsWithSizeAndDegree(size, self.degree);
     }
     else {
         points = pointsFromDirection(self, size);
@@ -327,8 +337,6 @@ HIPPY_EXTERN void HippyDrawLinearGradientInContext(HippyGradientObject *object, 
                                 gradient,
                                 points.startPoint,
                                 points.endPoint,
-//                                CGPointMake(40, 80),
-//                                CGPointMake(120, 0),
                                 kCGGradientDrawsBeforeStartLocation | kCGGradientDrawsAfterEndLocation);
     CGGradientRelease(gradient);
     free(locations);
@@ -338,110 +346,4 @@ HIPPY_EXTERN void HippyDrawLinearGradientInContext(HippyGradientObject *object, 
 HIPPY_EXTERN void HippyDrawRadialGradientInContext(HippyGradientObject *object, CGContextRef context, CGSize size) {
     HippyAssert(context, @"context cannot be null for drawing radial gradient");
     HippyAssert(NO, @"HippyDrawRadialGradientInContext not implemented");
-}
-
-static void parseDirection(HippyGradientObject *object, NSString *direction) {
-
-}
-
-/**
- * in a coordinates, point P(x1,y1) rotates Angle θ about a coordinate point Q(x2,y2), and the new coordinate is set as the calculation formula of (x, y)
- * x= (x1 - x2)*cos(θ) - (y1 - y2)*sin(θ) + x2 ;
- * y= (x1 - x2)*sin(θ) + (y1 - y2)*cos(θ) + y2 ;
- */
-static CGPoint pointRotateAroundAnchor(CGPoint point, CGPoint anchor, NSInteger degree) {
-    CGFloat rad = degree * M_PI / 180.f;
-    CGFloat x1 = point.x;
-    CGFloat y1 = point.y;
-    CGFloat x2 = anchor.x;
-    CGFloat y2 = anchor.y;
-    CGFloat x = (x1 - x2) * cos(rad) - (y1 - y2) * sin(rad) + x2;
-    CGFloat y = (x1 - x2) * sin(rad) + (y1 - y2) * cos(rad) + y2;
-    return CGPointMake(x, y);
-}
-
-/**
- * convert angle to startpoint & endpoint.
- * angle must be degree.
- */
-static void parseDegree(HippyGradientObject *object, CGFloat degree) {
-    //we use 'to top' point as initial point,
-    //then rotate around center point(.5f,.5f) degree degree
-    //then we get new start and end point
-    CGPoint startPoint = CGPointMake(.5f, 1);
-    CGPoint endPoint = CGPointMake(.5f, 0);
-    const CGPoint anchorPoint = CGPointMake(.5f, .5f);
-    
-    startPoint = pointRotateAroundAnchor(startPoint, anchorPoint, degree);
-    endPoint = pointRotateAroundAnchor(endPoint, anchorPoint, degree);
-}
-
-HIPPY_EXTERN HippyGradientObject* HippyParseLinearGradientString(NSString *string) {
-#if HIPPY_DEBUG
-    @try {
-#endif //#if HIPPY_DEBUG
-        if (![string length]) {
-            return nil;
-        }
-        static NSString *linearGradientStringPrefix = @"linear-gradient";
-        if (![string hasPrefix:linearGradientStringPrefix]) {
-            return nil;
-        }
-        NSMutableString *linearGradientString = [string mutableCopy];
-        [linearGradientString replaceOccurrencesOfString:@"linear-gradient(" withString:@"" options:NSCaseInsensitiveSearch range:NSMakeRange(0, 16)];
-        [linearGradientString replaceOccurrencesOfString:@")" withString:@"" options:NSCaseInsensitiveSearch range:NSMakeRange([linearGradientString length] - 1, 1)];
-        NSArray<NSString *> *description = [linearGradientString componentsSeparatedByString:@","];
-        
-        NSString *direction = [description firstObject];
-        
-        NSArray<NSString *> *colorsAndLocations = [description subarrayWithRange:NSMakeRange(1, [description count] - 1)];
-        
-        HippyGradientObject *object = [[HippyGradientObject alloc] init];
-        if ([direction hasSuffix:@"deg"]) {
-            direction = [direction stringByReplacingOccurrencesOfString:@"deg" withString:@""];
-            CGFloat degree = [direction doubleValue];
-            parseDegree(object, degree);
-        }
-        else if ([direction hasSuffix:@"rad"]) {
-            direction = [direction stringByReplacingOccurrencesOfString:@"rad" withString:@""];
-            CGFloat radius = [direction doubleValue];
-            parseDegree(object, radius * 180.f / M_PI);
-        }
-        else {
-            parseDirection(object, direction);
-        }
-        NSMutableArray *colors = [NSMutableArray arrayWithCapacity:[colorsAndLocations count]];
-        NSMutableArray *locations = nil;
-        for (NSString *colorAndLocation in colorsAndLocations) {
-            NSString *filterColorAndLocation = [colorAndLocation stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-            NSArray<NSString *> *infos = [filterColorAndLocation componentsSeparatedByString:@" "];
-            HippyAssert([infos count], @"color and location empty");
-            UIColor *color = HippyConvertStringToColor([infos firstObject]);
-            [colors addObject:color];
-
-            if ([infos count] > 1) {
-                if (!locations) {
-                    locations = [NSMutableArray arrayWithCapacity:[colorsAndLocations count]];
-                }
-                //it could be @"0.3" or @"30%"
-                NSString *location = [infos objectAtIndex:1];
-                CGFloat fLocation = 0;
-                if ([location hasSuffix:@"%"]) {
-                    location = [location stringByReplacingOccurrencesOfString:@"%" withString:@""];
-                    fLocation = [location doubleValue] / 100.f;
-                }
-                else {
-                    fLocation = [location doubleValue];
-                }
-                [locations addObject:@(fLocation)];
-            }
-        }
-        object.colors = colors;
-        object.locations = locations;
-        return object;
-#if HIPPY_DEBUG
-    } @catch (NSException *exception) {
-    }
-#endif //#if HIPPY_DEBUG
-    return nil;
 }

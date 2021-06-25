@@ -654,8 +654,6 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
         return NO;
     }
     else if (self.gradientObject) {
-//        CGFloat backgroundPositionX = self.backgroundPositionX;
-//        CGFloat backgroundPositionY = self.backgroundPositionY;
         CGSize size = theFrame.size;
         UIGraphicsBeginImageContextWithOptions(size, NO, image.scale);
 

@@ -85,10 +85,4 @@ typedef struct _LinearGradientPoints {
 HIPPY_EXTERN void HippyDrawLinearGradientInContext(HippyGradientObject *object, CGContextRef context, CGSize);
 HIPPY_EXTERN void HippyDrawRadialGradientInContext(HippyGradientObject *object, CGContextRef context, CGSize);
 
-/**
- * pase linear gradient string to HippyGradientObject
- * 'linear-gradient(to topright, 4278190335 0, 16711935 0.5, 65535 1)'
- */
-HIPPY_EXTERN HippyGradientObject* HippyParseLinearGradientString(NSString *string);
-
 NS_ASSUME_NONNULL_END
