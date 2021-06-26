@@ -613,7 +613,7 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
     NSInteger clipToBounds = self.clipsToBounds;
     NSString *backgroundSize = self.backgroundSize;
     UIImage *image = HippyGetBorderImage(
-        self.borderStyle, theFrame.size, cornerRadii, borderInsets, borderColors, backgroundColor.CGColor, clipToBounds);
+        self.borderStyle, theFrame.size, cornerRadii, borderInsets, borderColors, backgroundColor.CGColor, clipToBounds, !self.gradientObject);
     if (image == nil) {
         contentBlock(nil);
         return YES;
@@ -655,11 +655,12 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
     }
     else if (self.gradientObject) {
         CGSize size = theFrame.size;
+        CanvasInfo info = {size, {0,0,0,0}, {{0,0},{0,0},{0,0},{0,0}}};
+        info.size = size;
+        info.cornerRadii = cornerRadii;
         UIGraphicsBeginImageContextWithOptions(size, NO, image.scale);
-
+        [self.gradientObject drawInContext:UIGraphicsGetCurrentContext() canvasInfo:info];
         [image drawInRect:(CGRect) { CGPointZero, size }];
-        
-        [self.gradientObject drawInContext:UIGraphicsGetCurrentContext() withSize:size];
         UIImage *resultingImage = UIGraphicsGetImageFromCurrentImageContext();
         UIGraphicsEndImageContext();
         contentBlock(resultingImage);

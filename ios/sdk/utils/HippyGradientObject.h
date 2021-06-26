@@ -26,6 +26,7 @@
 #import <QuartzCore/CAGradientLayer.h>
 #import "HippyAssert.h"
 #import "HippyDefines.h"
+#import "HippyBorderDrawing.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -62,6 +63,12 @@ typedef struct _LinearGradientPoints {
     CGPoint endPoint;
 }LinearGradientPoints;
 
+typedef struct _CanvasInfo {
+    CGSize size;
+    HippyCornerRadii cornerRadii;
+    HippyCornerInsets insets;
+}CanvasInfo;
+
 @interface HippyGradientObject : NSObject
 
 - (instancetype)initWithGradientObject:(NSDictionary *)object;
@@ -76,13 +83,13 @@ typedef struct _LinearGradientPoints {
 @property(nonatomic, assign, getter=isDrawnByDegree) BOOL drawnByDegree;
 @property(nonatomic, assign) HippyGradientType gradientType;
 
-- (void)drawInContext:(CGContextRef)context withSize:(CGSize)size;
+- (void)drawInContext:(CGContextRef)context canvasInfo:(CanvasInfo)canvasInfo;
 
 - (LinearGradientPoints)linearGradientPointsFromSize:(CGSize)size;
 
 @end
 
-HIPPY_EXTERN void HippyDrawLinearGradientInContext(HippyGradientObject *object, CGContextRef context, CGSize);
+HIPPY_EXTERN void HippyDrawLinearGradientInContext(HippyGradientObject *object, CGContextRef context, CanvasInfo canvasInfo);
 HIPPY_EXTERN void HippyDrawRadialGradientInContext(HippyGradientObject *object, CGContextRef context, CGSize);
 
 NS_ASSUME_NONNULL_END

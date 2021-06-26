@@ -71,4 +71,6 @@ CGPathRef HippyPathCreateWithRoundedRect(CGRect bounds, HippyCornerInsets corner
  * `borderInsets` defines the border widths for each edge.
  */
 UIImage *HippyGetBorderImage(HippyBorderStyle borderStyle, CGSize viewSize, HippyCornerRadii cornerRadii, UIEdgeInsets borderInsets,
-    HippyBorderColors borderColors, CGColorRef backgroundColor, BOOL drawToEdge);
+    HippyBorderColors borderColors, CGColorRef backgroundColor, BOOL drawToEdge, BOOL drawBackgroundColor);
+
+CGPathRef HippyPathCreateOuterOutline(BOOL drawToEdge, CGRect rect, HippyCornerRadii cornerRadii);

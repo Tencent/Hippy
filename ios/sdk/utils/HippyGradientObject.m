@@ -22,6 +22,7 @@
 
 #import "HippyGradientObject.h"
 #import "HippyUtils.h"
+#import "HippyBorderDrawing.h"
 
 @interface HippyGradientLocationParser () {
     NSPointerArray *_locations;
@@ -98,13 +99,13 @@
 
 @implementation HippyGradientObject
 
-- (void)drawInContext:(CGContextRef)context withSize:(CGSize)size {
+- (void)drawInContext:(CGContextRef)context canvasInfo:(CanvasInfo)canvasInfo {
     switch (self.gradientType) {
         case HippyGradientTypeLinear:
-            HippyDrawLinearGradientInContext(self, context, size);
+            HippyDrawLinearGradientInContext(self, context, canvasInfo);
             break;
         case HippyGradientTypeRadial:
-            HippyDrawRadialGradientInContext(self, context, size);
+            HippyDrawRadialGradientInContext(self, context, canvasInfo.size);
             break;
         default:
             break;
@@ -324,23 +325,30 @@ static CGFloat *CreateNSNumbersToCGFloats(NSArray<NSNumber *> * locations) {
     return pLocs;
 }
 
-HIPPY_EXTERN void HippyDrawLinearGradientInContext(HippyGradientObject *object, CGContextRef context, CGSize size) {
+HIPPY_EXTERN void HippyDrawLinearGradientInContext(HippyGradientObject *object, CGContextRef context, CanvasInfo canvasInfo) {
     HippyAssert(context, @"context cannot be null for drawing linear gradient");
     CGColorSpaceRef spaceRef = CGColorSpaceCreateDeviceRGB();
     CFArrayRef colors = UIColorsToCGColors(object.colors);
     CGFloat *locations = CreateNSNumbersToCGFloats(object.locations);
     CGGradientRef gradient = CGGradientCreateWithColors(spaceRef, colors, locations);
     
+    CGContextSaveGState(context);
+    CGSize size = canvasInfo.size;
+    CGPathRef pathRef = HippyPathCreateOuterOutline(NO, CGRectMake(0, 0, size.width, size.height), canvasInfo.cornerRadii);
+    CGContextAddPath(context, pathRef);
+    CGContextClip(context);
     LinearGradientPoints points = [object linearGradientPointsFromSize:size];
-    
     CGContextDrawLinearGradient(context,
                                 gradient,
                                 points.startPoint,
                                 points.endPoint,
-                                kCGGradientDrawsBeforeStartLocation | kCGGradientDrawsAfterEndLocation);
+                                kCGGradientDrawsBeforeStartLocation | kCGGradientDrawsAfterEndLocation
+                                );
+    CGPathRelease(pathRef);
     CGGradientRelease(gradient);
     free(locations);
     CGColorSpaceRelease(spaceRef);
+    CGContextRestoreGState(context);
 }
 
 HIPPY_EXTERN void HippyDrawRadialGradientInContext(HippyGradientObject *object, CGContextRef context, CGSize size) {
