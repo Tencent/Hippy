@@ -171,6 +171,7 @@
 		85BCD46F2578C58000638DB4 /* js_native_api_jsc.cc in Sources */ = {isa = PBXBuildFile; fileRef = 85BCD4342578C58000638DB4 /* js_native_api_jsc.cc */; };
 		85BCD47C257A0AFE00638DB4 /* ios_loader.cc in Sources */ = {isa = PBXBuildFile; fileRef = 85BCD477257A0AFD00638DB4 /* ios_loader.cc */; };
 		AC63515623F92C99007FABA5 /* TTTGB-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = AC63515523F92C99007FABA5 /* TTTGB-Medium.otf */; };
+		F43BE80F26733F620080999C /* HippyNetInfoIntenal.m in Sources */ = {isa = PBXBuildFile; fileRef = F43BE80E26733F620080999C /* HippyNetInfoIntenal.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -475,7 +476,6 @@
 		06FF8EED2511C20900C03900 /* NSData+DataType.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSData+DataType.h"; sourceTree = "<group>"; };
 		06FF8EEE2511C20900C03900 /* NSData+DataType.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSData+DataType.m"; sourceTree = "<group>"; };
 		851AD1F32656388E007AF2B0 /* string_view_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = string_view_utils.h; sourceTree = "<group>"; };
-		851AD1F42656455D007AF2B0 /* unicode_string_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = unicode_string_view.h; sourceTree = "<group>"; };
 		851AD1F526564568007AF2B0 /* unicode_string_view.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = unicode_string_view.cc; sourceTree = "<group>"; };
 		854FC5C8262F0D88002EAD41 /* logging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = logging.h; sourceTree = "<group>"; };
 		854FC5C9262F0D88002EAD41 /* log_level.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_level.h; sourceTree = "<group>"; };
@@ -539,6 +539,8 @@
 		85BCD475257A0AFD00638DB4 /* ios_loader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ios_loader.h; sourceTree = "<group>"; };
 		85BCD477257A0AFD00638DB4 /* ios_loader.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ios_loader.cc; sourceTree = "<group>"; };
 		AC63515523F92C99007FABA5 /* TTTGB-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "TTTGB-Medium.otf"; sourceTree = "<group>"; };
+		F43BE80D26733F620080999C /* HippyNetInfoIntenal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyNetInfoIntenal.h; sourceTree = "<group>"; };
+		F43BE80E26733F620080999C /* HippyNetInfoIntenal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyNetInfoIntenal.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -719,6 +721,8 @@
 			children = (
 				064C58EC23AB1A51001E80DD /* HippyNetInfo.h */,
 				064C58ED23AB1A51001E80DD /* HippyNetInfo.m */,
+				F43BE80D26733F620080999C /* HippyNetInfoIntenal.h */,
+				F43BE80E26733F620080999C /* HippyNetInfoIntenal.m */,
 			);
 			path = netinfo;
 			sourceTree = "<group>";
@@ -1279,7 +1283,6 @@
 			children = (
 				85BCD3EC2578C57F00638DB4 /* engine.h */,
 				85BCD3ED2578C57F00638DB4 /* core.h */,
-				85BCD3EE2578C57F00638DB4 /* platform */,
 				85BCD3F02578C57F00638DB4 /* task */,
 				85BCD3F52578C57F00638DB4 /* modules */,
 				85BCD3FB2578C57F00638DB4 /* scope.h */,
@@ -1287,14 +1290,6 @@
 				85BCD4072578C57F00638DB4 /* napi */,
 			);
 			path = core;
-			sourceTree = "<group>";
-		};
-		85BCD3EE2578C57F00638DB4 /* platform */ = {
-			isa = PBXGroup;
-			children = (
-				85BCD3EF2578C57F00638DB4 /* logging_impl.h */,
-			);
-			path = platform;
 			sourceTree = "<group>";
 		};
 		85BCD3F02578C57F00638DB4 /* task */ = {
@@ -1365,20 +1360,12 @@
 			children = (
 				85BCD4152578C58000638DB4 /* scope.cc */,
 				85BCD4162578C58000638DB4 /* engine.cc */,
-				85BCD4172578C58000638DB4 /* platform */,
 				85BCD4192578C58000638DB4 /* task */,
 				85BCD41E2578C58000638DB4 /* modules */,
 				85BCD4232578C58000638DB4 /* base */,
 				85BCD42A2578C58000638DB4 /* napi */,
 			);
 			path = src;
-			sourceTree = "<group>";
-		};
-		85BCD4172578C58000638DB4 /* platform */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = platform;
 			sourceTree = "<group>";
 		};
 		85BCD4192578C58000638DB4 /* task */ = {
@@ -1642,6 +1629,7 @@
 				064C5A0B23AB1A51001E80DD /* HippyRefreshWrapperItemViewManager.m in Sources */,
 				064C5A1323AB1A51001E80DD /* HippyTextViewManager.mm in Sources */,
 				854FC5E5262F0D88002EAD41 /* log_settings.cc in Sources */,
+				F43BE80F26733F620080999C /* HippyNetInfoIntenal.m in Sources */,
 				0612F03423A8BE330079E622 /* main.m in Sources */,
 				064C5A5623AB1A51001E80DD /* HippyModuleData.mm in Sources */,
 				064C5A4723AB1A51001E80DD /* HippyTouchHandler.m in Sources */,

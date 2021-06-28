@@ -29,8 +29,8 @@ function startLiveReloadServer(server, path) {
     path,
   });
 
-  serverSocket.on('connection', (ws) => {
-    const { url } = ws.upgradeReq;
+  serverSocket.on('connection', (ws, req) => {
+    const { url } = req;
     if (url.indexOf('/debugger-live-reload') < 0) {
       ws.close(1011, 'unknown proxy');
       return;

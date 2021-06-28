@@ -164,7 +164,11 @@ static const void *HippyBridgeLoadedBundlesKey = &HippyBridgeLoadedBundlesKey;
                 dispatch_semaphore_signal(strongBridge.semaphore);
 
                 HippyAssert(!strongBridge.isLoading, @"异常了common包没有加载好");
-
+                
+                if ([self.batchedBridge.javaScriptExecutor respondsToSelector:@selector(updateGlobalObjectBeforeExcuteSecondary)]) {
+                    [self.batchedBridge.javaScriptExecutor updateGlobalObjectBeforeExcuteSecondary];
+                }
+                
                 [strongBridge enqueueApplicationScript:sourceCode url:secondaryBundleURL onComplete:^(NSError *error) {
                     if (enqueueScriptCompletion) {
                         enqueueScriptCompletion(error);
