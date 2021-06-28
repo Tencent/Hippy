@@ -23,7 +23,7 @@
 | -------------- | -------------------- | ---- | ------ | ------------------------------------------------------------ |
 | mode           | `string`             | 是   | timing | 动画时间轴模式                                               |
 | delay          | `number`             | 是   | -      | 动画延迟开始的时间，单位为毫秒，默认为 0，即动画start之后立即执行；指定列表的行数，一般直接传入数据源条数 `length` 即可 |
-| startValue     | `number`, `Animation`, `string` | 是   | -      | 动画开始时的值，可为 Number 类型 String 类型，或一个 Animation 的对象，如果指定为一个 Animation 时，代表本动画的初始值为其指定的动画结束或中途 cancel 后的所处的动画值（这种场景通常用于 AnimationSet 中实现多个连续变化的动画）；如果为颜色值参考 [color](style/color.md)  |
+| startValue     | `number`, `string` | 是   | -      | 动画开始时的值，可为 Number 类型 String 类型，如果为颜色值参考 [color](style/color.md)  |
 | toValue        | `number`, `string`             | 是   | -      | 动画结束时候的值；如果为颜色值参考 [color](style/color.md)                                             |
 | valueType*      | `number`, `string`    | 否   | null   | 动画的开始和结束值的类型，默认为空，代表动画起止的单位是普通Number。 PS: Web平台此接口只支持number类型传参 |
 | duration       | `number`             | 否   | -      | 动画时长，单位为毫秒(ms)                                     |
@@ -48,15 +48,11 @@
 
 `() => void` 停止并销毁一个动画集。建议在组件销毁的生命周期执行此方法，避免动画在后台运行耗。
 
-### onAnimationCancel
-
-`(callback: () => void) => void` 注册一个动画的监听回调，在动画被取消时将会回调callback，取消的情况包括：尚未start或尚未结束的动画被destroy时。
-
 ### onAnimationEnd
 
 `(callback: () => void) => void` 注册一个动画的监听回调，在动画结束时将会回调callback。
 
-### onAnimationRepeat
+### onAnimationRepeat（仅 Android 支持）
 
 `(callback: () => void) => void` 注册一个动画的监听回调，当动画开始下一次重复播放时callback将被回调。
 
