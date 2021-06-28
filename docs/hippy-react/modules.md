@@ -103,10 +103,6 @@
 
 `() => void` 停止并销毁一个动画集。建议在组件销毁的生命周期执行此方法，避免动画在后台运行耗。
 
-### onAnimationCancel
-
-`(callback: () => void) => void` 注册一个动画的监听回调，在动画被取消时将会回调 callback，取消的情况包括：尚未 start 或尚未结束的动画被 destroy 时。
-
 ### onAnimationEnd
 
 `(callback: () => void) => void` 注册一个动画的监听回调，在动画结束时将会回调 callback。
