@@ -69,6 +69,11 @@ class Scope;
 - (void)secondBundleLoadCompleted:(BOOL)success;
 
 /**
+ * called before excute secondary js bundle
+ */
+- (void)updateGlobalObjectBeforeExcuteSecondary;
+
+/**
  * Executes BatchedBridge.callFunctionReturnFlushedQueue with the module name,
  * method name and optional additional arguments on the JS thread and calls the
  * given callback with JSValue, containing the next queue, and JSContext.
