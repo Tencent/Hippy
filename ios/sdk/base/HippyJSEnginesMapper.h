@@ -21,7 +21,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "engine.h"
+#import "core/engine.h"
 
 @interface HippyJSEnginesMapper : NSObject
 
