@@ -5,10 +5,10 @@
 #ifndef V8_LIBPLATFORM_LIBPLATFORM_H_
 #define V8_LIBPLATFORM_LIBPLATFORM_H_
 
-#include "libplatform-export.h"
-#include "v8-tracing.h"
-#include "../v8-platform.h"  // NOLINT(build/include)
-#include "../v8config.h"     // NOLINT(build/include)
+#include "libplatform/libplatform-export.h"
+#include "libplatform/v8-tracing.h"
+#include "v8-platform.h"  // NOLINT(build/include)
+#include "v8config.h"     // NOLINT(build/include)
 
 namespace v8 {
 namespace platform {
@@ -34,7 +34,12 @@ enum class MessageLoopBehavior : bool {
  * If |tracing_controller| is nullptr, the default platform will create a
  * v8::platform::TracingController instance and use it.
  */
+#ifdef TENCENT_CHANGES
+__attribute__((visibility("default")))
+    std::unique_ptr<v8::Platform> NewDefaultPlatform(
+#else
 V8_PLATFORM_EXPORT std::unique_ptr<v8::Platform> NewDefaultPlatform(
+#endif
     int thread_pool_size = 0,
     IdleTaskSupport idle_task_support = IdleTaskSupport::kDisabled,
     InProcessStackDumping in_process_stack_dumping =

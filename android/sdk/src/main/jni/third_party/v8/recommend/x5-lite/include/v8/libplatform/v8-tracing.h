@@ -11,8 +11,8 @@
 #include <unordered_set>
 #include <vector>
 
-#include "libplatform-export.h"
-#include "../v8-platform.h"  // NOLINT(build/include)
+#include "libplatform/libplatform-export.h"
+#include "v8-platform.h"  // NOLINT(build/include)
 
 namespace perfetto {
 class TracingSession;
