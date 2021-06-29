@@ -387,7 +387,7 @@ V8 shared library set USING_V8_SHARED.
 # define V8_EXPORT
 #endif
 
-#if ENABLE_INSPECTOR
+#if V8_ENABLE_INSPECTOR || ENABLE_INSPECTOR
 #define V8_HIDE
 #define V8_INSPECTOR_EXPORT V8_EXPORT
 #else
