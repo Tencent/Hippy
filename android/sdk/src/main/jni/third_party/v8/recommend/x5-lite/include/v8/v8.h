@@ -591,7 +591,7 @@ template <class T> class PersistentBase {
   bool IsNearDeath() const;
 
   /** Returns true if the handle's reference is weak.  */
-  bool IsWeak() const;
+  V8_INLINE bool IsWeak() const;
 
   /**
    * Assigns a wrapper class ID to the handle.
@@ -3254,57 +3254,57 @@ class V8_EXPORT Uint32 : public Integer {
 // /**
 //  * A JavaScript BigInt value (https://tc39.github.io/proposal-bigint)
 //  */
-// class  BigInt : public Primitive {
-//  public:
-//   static Local<BigInt> New(Isolate* isolate, int64_t value);
-//   static Local<BigInt> NewFromUnsigned(Isolate* isolate, uint64_t value);
-//   /**
-//    * Creates a new BigInt object using a specified sign bit and a
-//    * specified list of digits/words.
-//    * The resulting number is calculated as:
-//    *
-//    * (-1)^sign_bit * (words[0] * (2^64)^0 + words[1] * (2^64)^1 + ...)
-//    */
-//   static MaybeLocal<BigInt> NewFromWords(Local<Context> context, int sign_bit,
-//                                          int word_count, const uint64_t* words);
+class  BigInt : public Primitive {
+ public:
+  static Local<BigInt> New(Isolate* isolate, int64_t value);
+  static Local<BigInt> NewFromUnsigned(Isolate* isolate, uint64_t value);
+  /**
+   * Creates a new BigInt object using a specified sign bit and a
+   * specified list of digits/words.
+   * The resulting number is calculated as:
+   *
+   * (-1)^sign_bit * (words[0] * (2^64)^0 + words[1] * (2^64)^1 + ...)
+   */
+  static MaybeLocal<BigInt> NewFromWords(Local<Context> context, int sign_bit,
+                                         int word_count, const uint64_t* words);
 
-//   /**
-//    * Returns the value of this BigInt as an unsigned 64-bit integer.
-//    * If `lossless` is provided, it will reflect whether the return value was
-//    * truncated or wrapped around. In particular, it is set to `false` if this
-//    * BigInt is negative.
-//    */
-//   uint64_t Uint64Value(bool* lossless = nullptr) const;
+  /**
+   * Returns the value of this BigInt as an unsigned 64-bit integer.
+   * If `lossless` is provided, it will reflect whether the return value was
+   * truncated or wrapped around. In particular, it is set to `false` if this
+   * BigInt is negative.
+   */
+  uint64_t Uint64Value(bool* lossless = nullptr) const;
 
-//   /**
-//    * Returns the value of this BigInt as a signed 64-bit integer.
-//    * If `lossless` is provided, it will reflect whether this BigInt was
-//    * truncated or not.
-//    */
-//   int64_t Int64Value(bool* lossless = nullptr) const;
+  /**
+   * Returns the value of this BigInt as a signed 64-bit integer.
+   * If `lossless` is provided, it will reflect whether this BigInt was
+   * truncated or not.
+   */
+  int64_t Int64Value(bool* lossless = nullptr) const;
 
-//   /**
-//    * Returns the number of 64-bit words needed to store the result of
-//    * ToWordsArray().
-//    */
-//   int WordCount() const;
+  /**
+   * Returns the number of 64-bit words needed to store the result of
+   * ToWordsArray().
+   */
+  int WordCount() const;
 
-//   /**
-//    * Writes the contents of this BigInt to a specified memory location.
-//    * `sign_bit` must be provided and will be set to 1 if this BigInt is
-//    * negative.
-//    * `*word_count` has to be initialized to the length of the `words` array.
-//    * Upon return, it will be set to the actual number of words that would
-//    * be needed to store this BigInt (i.e. the return value of `WordCount()`).
-//    */
-//   void ToWordsArray(int* sign_bit, int* word_count, uint64_t* words) const;
+  /**
+   * Writes the contents of this BigInt to a specified memory location.
+   * `sign_bit` must be provided and will be set to 1 if this BigInt is
+   * negative.
+   * `*word_count` has to be initialized to the length of the `words` array.
+   * Upon return, it will be set to the actual number of words that would
+   * be needed to store this BigInt (i.e. the return value of `WordCount()`).
+   */
+  void ToWordsArray(int* sign_bit, int* word_count, uint64_t* words) const;
 
-//   V8_INLINE static BigInt* Cast(v8::Value* obj);
+  V8_INLINE static BigInt* Cast(v8::Value* obj);
 
-//  private:
-//   BigInt();
-//   static void CheckCast(v8::Value* obj);
-// };
+ private:
+  BigInt();
+  static void CheckCast(v8::Value* obj);
+};
 
 /**
  * PropertyAttribute.
@@ -8061,6 +8061,8 @@ class V8_EXPORT Isolate {
   V8_HIDE void RequestInterrupt(InterruptCallback callback, void* data);
 
 #ifdef TENCENT_CHANGES
+  void Pause();
+  void Resume();
   void AddCodeCacheSanityCheckCallback(CodeCacheSanityCheckCallback callback);
 #endif
 
@@ -8269,13 +8271,13 @@ class V8_EXPORT Isolate {
   /**
    * Restores the original heap limit after IncreaseHeapLimitForDebugging().
    */
-  V8_HIDE void RestoreOriginalHeapLimit();
+  void RestoreOriginalHeapLimit();
 
   /**
    * Returns true if the heap limit was increased for debugging and the
    * original heap limit was not restored yet.
    */
-  V8_HIDE bool IsHeapLimitIncreasedForDebugging();
+  bool IsHeapLimitIncreasedForDebugging();
 
   /**
    * Allows the host application to provide the address of a function that is
@@ -8511,7 +8513,6 @@ class V8_EXPORT Isolate {
   template <class K, class V, class Traits>
   friend class PersistentValueMapBase;
 
-
   internal::Address* GetDataFromSnapshotOnce(size_t index);
   void ReportExternalAllocationLimitReached();
   void CheckMemoryPressure();
@@ -8580,7 +8581,7 @@ class V8_EXPORT V8 {
   /** Set the callback to invoke in case of Dcheck failures. */
   static void SetDcheckErrorHandler(DcheckErrorCallback that);
 
- 
+
   /**
    * Sets V8 flags from a string.
    */
@@ -10483,12 +10484,12 @@ Uint32* Uint32::Cast(v8::Value* value) {
   return static_cast<Uint32*>(value);
 }
 
-// BigInt* BigInt::Cast(v8::Value* value) {
-// #ifdef V8_ENABLE_CHECKS
-//   CheckCast(value);
-// #endif
-//   return static_cast<BigInt*>(value);
-// }
+BigInt* BigInt::Cast(v8::Value* value) {
+#ifdef V8_ENABLE_CHECKS
+  CheckCast(value);
+#endif
+  return static_cast<BigInt*>(value);
+}
 
 Date* Date::Cast(v8::Value* value) {
 #ifdef V8_ENABLE_CHECKS
