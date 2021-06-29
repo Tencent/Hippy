@@ -47,7 +47,7 @@ public class TimerModule extends HippyNativeModuleBase implements Handler.Callba
 
   @Override
   public void initialize() {
-    mHandler = new Handler(mContext.getThreadExecutor().getJsBridgeThread().getLooper(), this);
+    mHandler = new Handler(mContext.getThreadExecutor().getModuleThread().getLooper(), this);
   }
 
   @Override
