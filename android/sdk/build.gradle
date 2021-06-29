@@ -6,7 +6,6 @@ ext {
   CMAKE_PATH = "$projectDir.absolutePath/src/main/jni/CMakeLists.txt"
   OUTPUT_PATH = "$buildDir/outputs/aar"
   THIRD_PARTY_LIBRARY_PATH = "$projectDir.absolutePath/src/main/jni/third_party"
-  JNI_LIBRARY_PATH = "$projectDir.absolutePath/libs"
   skipCmakeAndNinja = System.getenv('skipCmakeAndNinja') != null
 }
 
@@ -49,6 +48,7 @@ allprojects {
 android {
   archivesBaseName = ARCHIVES_BASE_NAME
   compileSdkVersion COMPILE_SDK_VERSION as int
+  ndkVersion = NDK_VERSION
   defaultConfig {
     minSdkVersion MIN_SDK_VERSION as int
     targetSdkVersion TARGET_SDK_VERSION as int
@@ -62,6 +62,7 @@ android {
     buildConfigField("boolean", "INCLUDE_SUPPORT_UI", INCLUDE_SUPPORT_UI)
 
     packagingOptions {
+      pickFirst 'lib/*/libc++_shared.so'
       if (!INCLUDE_ABI_ARMEABI.toBoolean()) {
         exclude 'lib/armeabi/*'
       }
@@ -89,6 +90,7 @@ android {
           arguments "-DJS_ENGINE=V8",
                   "-DANDROID_CPP_FEATURES=rtti exceptions",
                   "-DANDROID_PLATFORM=android-21",
+                  "-DANDROID_STL=c++_shared",
                   "-DCMAKE_BUILD_TYPE=Release",
                   "-DV8_TAG=$V8_TAG",
                   "-DV8_RELEASE=$V8_RELEASE",
@@ -116,6 +118,7 @@ android {
           arguments "-DJS_ENGINE=V8",
                   "-DANDROID_CPP_FEATURES=rtti exceptions",
                   "-DANDROID_PLATFORM=android-21",
+                  "-DANDROID_STL=c++_shared",
                   "-DCMAKE_BUILD_TYPE=Debug",
                   "-DV8_TAG=$V8_TAG",
                   "-DV8_RELEASE=$V8_RELEASE",
@@ -145,7 +148,7 @@ android {
         java.exclude("com/tencent/mtt/supportui/**")
       }
 
-      jniLibs.srcDirs = ['libs']
+      jniLibs.srcDirs = ["${THIRD_PARTY_LIBRARY_PATH}/layout"]
     }
   }
 }
