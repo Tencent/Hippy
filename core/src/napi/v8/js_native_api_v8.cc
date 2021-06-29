@@ -245,7 +245,11 @@ V8VM::V8VM() {
       platform_ = v8::platform::NewDefaultPlatform();
       v8::V8::SetFlagsFromString("--wasm-disable-structured-cloning",
                                  strlen("--wasm-disable-structured-cloning"));
+#ifdef V8_X5_LITE
       v8::V8::InitializePlatform(platform_.get(), true);
+#else
+      v8::V8::InitializePlatform(platform_.get());
+#endif
       TDF_BASE_DLOG(INFO) << "Initialize";
       v8::V8::Initialize();
     }
