@@ -28,8 +28,10 @@
 #include <memory>
 
 #include "core/core.h"
-#include "inspector/v8_inspector_client_impl.h"
 #include "jni/scoped_java_ref.h"
+#ifdef V8_HAS_INSPECTOR
+#include "inspector/v8_inspector_client_impl.h"
+#endif
 
 class Runtime {
  public:
