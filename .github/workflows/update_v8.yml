@@ -164,13 +164,13 @@ jobs:
       uses: peter-evans/create-pull-request@v3
       with:
         commit-message: |
-                    deps: update V8 to ${{ github.event.inputs.v8_version }}
+                    chore(v8): update V8 to ${{ github.event.inputs.v8_version }}
 
                     Ref-URL: https://github.com/v8/v8/tree/${{ github.event.inputs.v8_version }}
                     Action-Run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        branch: deps/update-v8-to-${{ github.event.inputs.v8_version }}
+        branch: chore/update-v8-to-${{ github.event.inputs.v8_version }}
         delete-branch: true
-        title: 'deps: update V8 to ${{ github.event.inputs.v8_version }}'
+        title: 'chore(v8): update V8 to ${{ github.event.inputs.v8_version }}'
         body: |
           Refs: [${{ github.event.inputs.v8_version }}][1]
           Release TAG: ${{ github.event.inputs.release_tag }}
