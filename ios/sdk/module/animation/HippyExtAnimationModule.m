@@ -330,9 +330,7 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
     [self.bridge.uiManager executeBlockOnUIManagerQueue:^{
         [self.bridge.uiManager updateViewsFromParams:params completion:^(HippyUIManager *uiManager) {
             UIView *view = [uiManager viewForHippyTag:viewId];
-            if (flag) {
-                [view.layer removeAnimationForKey:[NSString stringWithFormat:@"%@", animationId]];
-            }
+            [view.layer removeAnimationForKey:[NSString stringWithFormat:@"%@", animationId]];
             if (!CGPointEqualToPoint(view.layer.anchorPoint, CGPointMake(.5f, .5f))) {
                 CALayer *viewLayer = view.layer;
                 CGPoint cener = CGPointMake(CGRectGetWidth(viewLayer.bounds) / 2, CGRectGetHeight(viewLayer.bounds) / 2);
