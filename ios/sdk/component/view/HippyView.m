@@ -29,6 +29,7 @@
 #import "HippyUtils.h"
 #import "UIView+Hippy.h"
 #import "HippyBackgroundImageCacheManager.h"
+#import "HippyGradientObject.h"
 
 static CGSize makeSizeConstrainWithType(CGSize originSize, CGSize constrainSize, NSString *resizeMode) {
     // width / height
@@ -184,6 +185,10 @@ static NSString *HippyRecursiveAccessibilityLabel(UIView *view) {
     }
 
     return self;
+}
+
++ (Class)layerClass {
+    return [CAGradientLayer class];
 }
 
 HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : unused)
@@ -550,7 +555,7 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
     // solve this, we'll need to add a container view inside the main view to
     // correctly clip the subviews.
 
-    BOOL canHandleBackgroundImageURL = [[self backgroundCachemanager] canHandleImageURL:_backgroundImageUrl];
+    BOOL canHandleBackgroundImageURL = [[self backgroundCachemanager] canHandleImageURL:_backgroundImageUrl] || self.gradientObject;
     if (useIOSBorderRendering && !canHandleBackgroundImageURL) {
         layer.cornerRadius = cornerRadii.topLeft;
         layer.borderColor = borderColors.left;
@@ -608,16 +613,17 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
     NSInteger clipToBounds = self.clipsToBounds;
     NSString *backgroundSize = self.backgroundSize;
     UIImage *image = HippyGetBorderImage(
-        self.borderStyle, theFrame.size, cornerRadii, borderInsets, borderColors, backgroundColor.CGColor, clipToBounds);
+        self.borderStyle, theFrame.size, cornerRadii, borderInsets, borderColors, backgroundColor.CGColor, clipToBounds, !self.gradientObject);
     if (image == nil) {
         contentBlock(nil);
         return YES;
     }
 
-    if (!self.backgroundImageUrl) {
+    if (!self.backgroundImageUrl && !self.gradientObject) {
         contentBlock(image);
         return YES;
-    } else {
+    }
+    else if (self.backgroundImageUrl) {
         CGFloat backgroundPositionX = self.backgroundPositionX;
         CGFloat backgroundPositionY = self.backgroundPositionY;
         HippyBackgroundImageCacheManager *weakBackgroundCacheManager = [self backgroundCachemanager];
@@ -647,6 +653,19 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
         }];
         return NO;
     }
+    else if (self.gradientObject) {
+        CGSize size = theFrame.size;
+        CanvasInfo info = {size, {0,0,0,0}, {{0,0},{0,0},{0,0},{0,0}}};
+        info.size = size;
+        info.cornerRadii = cornerRadii;
+        UIGraphicsBeginImageContextWithOptions(size, NO, image.scale);
+        [self.gradientObject drawInContext:UIGraphicsGetCurrentContext() canvasInfo:info];
+        [image drawInRect:(CGRect) { CGPointZero, size }];
+        UIImage *resultingImage = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+        contentBlock(resultingImage);
+    }
+    return YES;
 }
 
 - (HippyBackgroundImageCacheManager *)backgroundCachemanager {
