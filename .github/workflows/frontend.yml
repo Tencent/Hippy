@@ -10,6 +10,8 @@ jobs:
         node: [ 10.x, 13.x ]
     steps:
       - uses: actions/checkout@v2
+        with:
+          lfs: true
       - name: setup-node
         uses: actions/setup-node@master
         with:
@@ -31,12 +33,16 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
+        with:
+          lfs: true
       - uses: wagoid/commitlint-github-action@v1
   markdownlint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          lfs: true
       - name: markdownlint
         uses: nosborn/github-action-markdown-cli@v1.1.1
         with:
