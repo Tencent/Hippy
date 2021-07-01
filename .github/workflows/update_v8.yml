@@ -5,7 +5,7 @@ on:
     inputs:
       v8_version:
         description: 'V8 version to build'
-        default: '7.7.229'
+        default: '9.1.75'
         required: true
       release_tag:
         description: 'Release tag'
@@ -79,6 +79,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         path: ${{ github.repository }}
+        lfs: true
     - name: Apply patch
       working-directory: ./v8/build
       continue-on-error: true
@@ -130,6 +131,8 @@ jobs:
         shopt -u dotglob
     - name: Checkout repo
       uses: actions/checkout@v2
+      with:
+        lfs: true
     - name: Construct directory structure
       working-directory: ${{ env.v8-dist }}
       run: |
