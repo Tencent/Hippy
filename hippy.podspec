@@ -21,7 +21,7 @@ Pod::Spec.new do |s|
                         Hippy is an open source framework created by Tencent.
                         Hippy enables web developer to create iOS,Android and Web applications with no significant difference between these three platform, 
                         by using their existing React or Vue knowledge.
-                        Hippy makes optimize in app statup speed,reusable component,rendering efficiency and so on.
+                        Hippy makes plenty of optimizations in app statup speed,reusable components,rendering efficiency and so on.
                        DESC
   s.homepage         = 'http://hippyjs.org'
   s.license          = { :type => 'Apache2', :file => 'LICENSE' }
