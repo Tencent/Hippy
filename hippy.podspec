@@ -18,10 +18,8 @@ Pod::Spec.new do |s|
 #   * Finally, don't worry about the indent, CocoaPods strips it!
 
   s.description      = <<-DESC
-                        Hippy is an open source framework created by Tencent.
-                        Hippy enables web developer to create iOS,Android and Web applications with no significant difference between these three platform, 
-                        by using their existing React or Vue knowledge.
-                        Hippy makes plenty of optimizations in app statup speed,reusable components,rendering efficiency and so on.
+                        Hippy is a cross-platform development framework created by Tencent, aiming to help developers write once, run on three platforms(iOS, Android and Web). 
+                        Hippy is quite friendly to web developers, especially who are familiar with React or Vue. With Hippy, developers are able to create the cross platform app easily.
                        DESC
   s.homepage         = 'http://hippyjs.org'
   s.license          = { :type => 'Apache2', :file => 'LICENSE' }
