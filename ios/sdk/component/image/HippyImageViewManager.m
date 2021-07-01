@@ -23,6 +23,7 @@
 #import "HippyImageViewManager.h"
 #import "HippyImageView.h"
 #import "HippyConvert.h"
+#import "HippyBridge+LocalFileSource.h"
 #import <UIKit/UIKit.h>
 
 @implementation HippyImageViewManager
@@ -48,7 +49,17 @@ HIPPY_CUSTOM_VIEW_PROPERTY(tintColor, UIColor, HippyImageView) {
 
 HIPPY_CUSTOM_VIEW_PROPERTY(defaultSource, NSString, HippyImageView) {
     NSString *source = [HippyConvert NSString:json];
-    if ([source hasPrefix:@"data:image/"]) {
+    if ([HippyBridge isHippyLocalFileURLString:source]) {
+        NSString *localPath = [self.bridge absoluteStringFromHippyLocalFileURLString:source];
+        BOOL isDirectory = NO;
+        BOOL fileExist = [[NSFileManager defaultManager] fileExistsAtPath:localPath isDirectory:&isDirectory];
+        if (fileExist && !isDirectory) {
+            NSData *imageData = [NSData dataWithContentsOfFile:localPath];
+            UIImage *image = [view imageFromData:imageData];
+            view.defaultImage = image;
+        }
+    }
+    else if ([source hasPrefix:@"data:image/"]) {
         NSRange range = [source rangeOfString:@";base64,"];
         if (NSNotFound != range.location) {
             source = [source substringFromIndex:range.location + range.length];

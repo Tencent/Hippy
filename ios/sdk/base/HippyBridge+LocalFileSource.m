@@ -50,13 +50,7 @@ NSInteger HippyLocalFileNOFilExist = 100;
 
 + (NSString *)defaultHippyLocalFileScheme {
     // hpfile://
-    static dispatch_once_t onceToken;
-    static NSString *defaultScheme = nil;
-    static NSString *pFile = @"pfile";
-    dispatch_once(&onceToken, ^{
-        defaultScheme = [[@"h" stringByAppendingString:pFile] stringByAppendingString:@"://"];
-    });
-    return defaultScheme;
+    return @"hpfile://";
 }
 
 + (BOOL)isHippyLocalFileURLString:(NSString *)string {
