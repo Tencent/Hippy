@@ -1,0 +1,16 @@
+name: '[markdown-lint] check documents format'
+
+on: [ push, pull_request ]
+
+jobs:
+  markdownlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          lfs: true
+      - name: markdownlint
+        uses: nosborn/github-action-markdown-cli@v1.1.1
+        with:
+          config_file: .markdownlintrc.json
+          files: ./README*.md ./PUBLISH*.md ./docs/**/*.md
