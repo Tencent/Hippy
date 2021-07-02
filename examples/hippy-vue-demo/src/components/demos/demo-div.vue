@@ -5,6 +5,10 @@
       <div :style="demo1Style">
         <p class="div-demo-1-text">Hippy 背景图展示</p>
       </div>
+      <label>渐变色效果:</label>
+      <div class="div-demo-1-1">
+        <p class="div-demo-1-text">Hippy 背景渐变色展示</p>
+      </div>
       <label>Transform</label>
       <div class="div-demo-transform">
         <p class="div-demo-transform-text">Transform</p>
@@ -62,15 +66,15 @@ export default {
         height: '40px',
         width: '200px',
         /**
-         *  inline style 'background-image': `url(${DefaultImage})` only supported above 2.6.1.
+         *  inline style 'backgroundImage': `url(${DefaultImage})` with 'url()' syntax only supported above 2.6.1.
          *  declaration css style supports 'background-image': `url('https://xxxx')` format and remote address only.
          */
-        'background-image': `${defaultImage}`,
-        'background-repeat': 'no-repeat',
-        'justify-content': 'center',
-        'align-items': 'center',
-        'margin-top': '10px',
-        'margin-bottom': '10px',
+        'backgroundImage': `${defaultImage}`,
+        'backgroundRepeat': 'no-repeat',
+        'justifyContent': 'center',
+        'alignItems': 'center',
+        'marginTop': '10px',
+        'marginBottom': '10px',
       },
     };
   },
@@ -140,6 +144,20 @@ export default {
     height: 40px;
     background-image: url('http://mat1.gtimg.com/www/qq2018/imgs/qq_logo_2018x2.png');
     background-repeat: no-repeat;
+  }
+
+  .div-demo-1-1 {
+    display: flex;
+    height: 40px;
+    width: 200px;
+    background-image: linear-gradient(30deg, blue 10%, yellow 40%, red 50%);
+    border-width: 2px;
+    border-color: black;
+    border-radius: 2px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
   }
 
   .div-demo-1-text {
