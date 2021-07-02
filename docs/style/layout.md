@@ -92,11 +92,18 @@ Hippy 的样式排版使用了 Flex 布局。值得注意的是，尚不兼容�
 
 [[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/background-image)
 
-`backgroundImage` 值可以直接传入背景图片地址，让这张图片渲染为一个`View`组件的背景图片。
+`backgroundImage` 值可以直接传入背景图片地址或渐变色。
 
 | 类型            | 必需 |
 | --------------- | -------- |
 | string | 否      |
+
+> 渐变色目前支持 `linear-gradient`  线性渐变 `(最低支持版本 2.8.0）` [[MDN 文档]](//developer.mozilla.org/zh-CN/docs/orphaned/Web/CSS/linear-gradient())，支持使用 `linear-gradient([ [ [ <angle> | to [top | bottom] || [left | right] ],]? <color-stop>[, <color-stop>]+)` 格式; 其中 `angle` 支持 deg、turn、rad 单位；`color-stop` 支持设置多个颜色和百分比。DEMO： [HippyReact](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/components/View/index.jsx) [HippyVue](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue)
+<br/>
+<br/>
+> 注意：
+>+ Android 如果使用 `to [top | bottom] || [left | right]` 四个顶角设置渐变角度，color-stop不能使用百分比；
+>+ iOS color-stop 百分比只能从小到大依次显式设置，不能部分省略，即 `red 10%, yellow 20%, blue 50%`，不能是 `red 10%, yellow 20%, blue 10%`
 
 # backgroundPositionX
 
@@ -117,6 +124,16 @@ Hippy 的样式排版使用了 Flex 布局。值得注意的是，尚不兼容�
 | 类型            | 必需 |
 | --------------- | -------- |
 | number | 否       |
+
+# backgroundSize
+
+[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/background-size)
+
+`backgroundSize` 设置背景图片大小。
+
+| 类型            | 必需 |
+| --------------- | -------- |
+| enum('cover', 'contain') | 否       |
 
 # flex
 

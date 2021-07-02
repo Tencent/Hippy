@@ -1,4 +1,4 @@
-name: buildios
+name: '[iOS] build iOS native example'
 
 on: [ push, pull_request ]
 

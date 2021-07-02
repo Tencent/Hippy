@@ -408,8 +408,8 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 ### UIManagerModule.measureInAppWindow
 
-测量在 App 可视范围内某个组件的尺寸和位置，如果出错 callback 参数可能为字符串或者 -1
+测量在 App 窗口范围内某个组件的尺寸和位置，如果出错 callback 参数可能为字符串或者 -1
 
 `(ref, callback: Function) => Promise`
 
-> * callback: ({ x, y, width, height } | string | -1) => void - 回调函数, 参数可以获取到引用组件在 App 可视范围内的坐标值和宽高，如果出错可能返回 -1 或者 `this view is null` 字符串
+> * callback: ({ x, y, width, height } | string | -1) => void - 回调函数, 参数可以获取到引用组件在 App 窗口范围内的坐标值和宽高，如果出错可能返回 -1 或者 `this view is null` 字符串

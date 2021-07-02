@@ -55,6 +55,10 @@ import icon from './qb_icon_new.png';
 | onError       | 当加载错误的时候调用此回调函数，参数为 `{ nativeEvent: { error } }` | `Function`                                                   | `ALL`    |
 | capInsets     | 当调整 `Image` 大小的时候，由 `capInsets` 指定的边角尺寸会被固定而不进行缩放，而中间和边上其他的部分则会被拉伸。这在制作一些可变大小的圆角按钮、阴影、以及其它资源的时候非常有用。 | `{ top: number, left: number, bottom: number, right: number }` | `ALL`    |
 | onProgress    | 在加载过程中不断调用，参数为 `{ nativeEvent: { loaded, total } }` | `Function`                                                   |      `ALL`     |
+| onTouchDown  | 当用户开始触屏控件时（即用户在该控件上按下手指时），将回调此函数，并将触屏点信息作为参数传递进来； 参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
+| onTouchMove   | 当用户在控件移动手指时，此函数会持续收到回调，并通过event参数告知控件的触屏点信息；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
+| onTouchEnd    | 当触屏操作结束，用户在该控件上抬起手指时，此函数将被回调，event参数也会通知当前的触屏点信息；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
+| onTouchCancel | 当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden），此函数会收到回调，触屏点信息也会通过event参数告知前端；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
 
 ## 方法
 
@@ -160,51 +164,6 @@ import icon from './qb_icon_new.png';
 | onDismiss             | -                                                            | `Function`                                                   | `iOS`    |
 | transparent           | 背景是否是透明的                      | `boolean`                                                    | `ALL`    |
 | visible               | 是否显示                                                       | `boolean`                                                    | `ALL`    |
-
----
-
-# Navigator
-
-导航容器。通过这个组件，你可以实现一个app页面的导航、跳转等功能。
-
-> 该组件通过启动一个新的 Hippy 实例实现，在 2.0 下实例之间可能无法互相通信，iOS 上也必须作为根节点包裹所有子组件，使用有很大限制。
-
-## 参数
-
-| 参数                   | 描述                                                         | 类型          | 支持平台 |
-| ---------------------- | ------------------------------------------------------------ | ------------- | -------- |
-| initialRoute           | `Navigator` 初始化首页面的参数，需要传入`routeName`, `component` 和`initProps` 三个属性 | `Object`      | `ALL`    |
-| initialRoute.routeName | 指定页面的路由名字                                           | `string`      | `ALL`    |
-| initialRoute.component | 传入一个 `React Component`，`Navigator` 路由到此页面就可以渲染此 `component` | `React Component` | `ALL`    |
-| initialRoute.initProps | 初始化当前路由页面的 `props`为透传参数，可以在此路由页面的 `component` 使用 `this.props` 获取 | `Object`  | `ALL`    |
-| initialRoute.animated  | 指定切换的时候是否有动画效果，默认值为 false                 | `boolean`     | `ALL`    |
-
-## 方法
-
-### clear
-
-`() => void` 清空 Navigator 的历史栈
-
-### getCurrentPage
-
-`() => Object` 获取当前 Navigator 的页面，会返回 routeName , component 和 initProps 等属性值
-
-### pop
-
-`(options: Object) => void` 在 Navigator 返回上一个页面
-
-> * options: Object
->   * toDirection: left | right | top | bottom - 自定义页面pop 的方向
-
-### push
-
-`(options: Object) => void` 进入一个新的页面
-
-> * options: Object
->   * routeName: string - 路由名称
->   * component: ReactComponent - 新页面组件
->   * initProps: Object - 初始化参数
->   * toDirection: left | right | top | bottom - 自定义页面pop 的方向
 
 ---
 
@@ -423,6 +382,10 @@ import icon from './qb_icon_new.png';
 | onLayout      | 当元素挂载或者布局改变的时候调用，参数为： `{ nativeEvent: { layout: { x, y, width, height } } }`。 | `Function`                                | `ALL`    |
 | onClick       | 当文本被点击以后调用此回调函数。  例如， `onClick={() => console.log('onClick') }` | `Function`                                | `ALL`    |
 | ellipsizeMode* | 当设定了 `numberOfLines` 值后，这个参数指定了字符串如何被截断。所以在使用 `ellipsizeMode` 时，必须得同时指定 `numberOfLines` 数值。 | `enum`(head, middle, tail, clip)| `Android 仅支持 tail 属性，iOS 全支持`    |
+| onTouchDown  | 当用户开始触屏控件时（即用户在该控件上按下手指时），将回调此函数，并将触屏点信息作为参数传递进来； 参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
+| onTouchMove   | 当用户在控件移动手指时，此函数会持续收到回调，并通过event参数告知控件的触屏点信息；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
+| onTouchEnd    | 当触屏操作结束，用户在该控件上抬起手指时，此函数将被回调，event参数也会通知当前的触屏点信息；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
+| onTouchCancel | 当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden），此函数会收到回调，触屏点信息也会通过event参数告知前端；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
 
 * ellipsizeMode 的参数含义：
   * `clip` - 超过指定行数的文字会被直接截断，不显示“...”；（仅iOS支持）
@@ -449,6 +412,10 @@ import icon from './qb_icon_new.png';
 | overflow           | 指定当子节点内容溢出其父级 `View` 容器时, 是否剪辑内容       | `enum`(visible, hidden)         | `ALL`     |
 | onLayout           | 这个事件会在布局计算完成后立即调用一次，不过收到此事件时新的布局可能还没有在屏幕上呈现，尤其是一个布局动画正在进行中的时候。 | `Function`                           | `ALL`     |
 | onAttachedToWindow           | 这个事件会在节点已经渲染并且添加到容器组件中触发，因为 Hippy 的渲染是异步的，这是很稳妥的执行后续操作的事件。 | `Function`                           | `ALL`     |
+| onTouchDown  | 当用户开始触屏控件时（即用户在该控件上按下手指时），将回调此函数，并将触屏点信息作为参数传递进来； 参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
+| onTouchMove   | 当用户在控件移动手指时，此函数会持续收到回调，并通过event参数告知控件的触屏点信息；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
+| onTouchEnd    | 当触屏操作结束，用户在该控件上抬起手指时，此函数将被回调，event参数也会通知当前的触屏点信息；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
+| onTouchCancel | 当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden），此函数会收到回调，触屏点信息也会通过event参数告知前端；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
 
 ## 样式内特殊属性
 
