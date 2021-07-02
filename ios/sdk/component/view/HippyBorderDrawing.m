@@ -146,7 +146,7 @@ NS_INLINE BOOL HippyCornerRadiiAreAboveThreshold(HippyCornerRadii cornerRadii) {
             || cornerRadii.bottomLeft > HippyViewBorderThreshold || cornerRadii.bottomRight > HippyViewBorderThreshold);
 }
 
-static CGPathRef HippyPathCreateOuterOutline(BOOL drawToEdge, CGRect rect, HippyCornerRadii cornerRadii) {
+CGPathRef HippyPathCreateOuterOutline(BOOL drawToEdge, CGRect rect, HippyCornerRadii cornerRadii) {
     if (drawToEdge) {
         return CGPathCreateWithRect(rect, NULL);
     }
@@ -162,7 +162,7 @@ static CGContextRef HippyUIGraphicsBeginImageContext(CGSize size, CGColorRef bac
 }
 
 static UIImage *HippyGetSolidBorderImage(HippyCornerRadii cornerRadii, CGSize viewSize, UIEdgeInsets borderInsets, HippyBorderColors borderColors,
-    CGColorRef backgroundColor, BOOL drawToEdge) {
+    CGColorRef backgroundColor, BOOL drawToEdge, BOOL drawBackgrondColor) {
     const BOOL hasCornerRadii = HippyCornerRadiiAreAboveThreshold(cornerRadii);
     const HippyCornerInsets cornerInsets = HippyGetCornerInsets(cornerRadii, borderInsets);
 
@@ -188,6 +188,9 @@ static UIImage *HippyGetSolidBorderImage(HippyCornerRadii cornerRadii, CGSize vi
     CGPathRef path = HippyPathCreateOuterOutline(drawToEdge, rect, cornerRadii);
 
     if (backgroundColor) {
+        if (!drawBackgrondColor) {
+            backgroundColor = [UIColor clearColor].CGColor;
+        }
         CGContextSetFillColorWithColor(ctx, backgroundColor);
         CGContextAddPath(ctx, path);
         CGContextFillPath(ctx);
@@ -396,7 +399,7 @@ static UIImage *HippyGetSolidBorderImage(HippyCornerRadii cornerRadii, CGSize vi
 // is _not_ equivalent).
 
 static UIImage *HippyGetDashedOrDottedBorderImage(HippyBorderStyle borderStyle, HippyCornerRadii cornerRadii, CGSize viewSize,
-    UIEdgeInsets borderInsets, HippyBorderColors borderColors, CGColorRef backgroundColor, BOOL drawToEdge) {
+    UIEdgeInsets borderInsets, HippyBorderColors borderColors, CGColorRef backgroundColor, BOOL drawToEdge, BOOL drawBackgrondColor) {
     NSCParameterAssert(borderStyle == HippyBorderStyleDashed || borderStyle == HippyBorderStyleDotted);
 
     if (!HippyBorderColorsAreEqual(borderColors) || !HippyBorderInsetsAreEqual(borderInsets)) {
@@ -417,7 +420,9 @@ static UIImage *HippyGetDashedOrDottedBorderImage(HippyBorderStyle borderStyle, 
         CGPathRef outerPath = HippyPathCreateOuterOutline(drawToEdge, rect, cornerRadii);
         CGContextAddPath(ctx, outerPath);
         CGPathRelease(outerPath);
-
+        if (!drawBackgrondColor) {
+            backgroundColor = [UIColor clearColor].CGColor;
+        }
         CGContextSetFillColorWithColor(ctx, backgroundColor);
         CGContextFillPath(ctx);
     }
@@ -449,13 +454,13 @@ static UIImage *HippyGetDashedOrDottedBorderImage(HippyBorderStyle borderStyle, 
 }
 
 UIImage *HippyGetBorderImage(HippyBorderStyle borderStyle, CGSize viewSize, HippyCornerRadii cornerRadii, UIEdgeInsets borderInsets,
-    HippyBorderColors borderColors, CGColorRef backgroundColor, BOOL drawToEdge) {
+    HippyBorderColors borderColors, CGColorRef backgroundColor, BOOL drawToEdge, BOOL drawBackgrondColor) {
     switch (borderStyle) {
         case HippyBorderStyleSolid:
-            return HippyGetSolidBorderImage(cornerRadii, viewSize, borderInsets, borderColors, backgroundColor, drawToEdge);
+            return HippyGetSolidBorderImage(cornerRadii, viewSize, borderInsets, borderColors, backgroundColor, drawToEdge, drawBackgrondColor);
         case HippyBorderStyleDashed:
         case HippyBorderStyleDotted:
-            return HippyGetDashedOrDottedBorderImage(borderStyle, cornerRadii, viewSize, borderInsets, borderColors, backgroundColor, drawToEdge);
+            return HippyGetDashedOrDottedBorderImage(borderStyle, cornerRadii, viewSize, borderInsets, borderColors, backgroundColor, drawToEdge, drawBackgrondColor);
         case HippyBorderStyleUnset:
             break;
     }

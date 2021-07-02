@@ -31,6 +31,7 @@
 @protocol HippyAutoInsetsProtocol;
 
 @class HippyView;
+@class HippyGradientObject;
 
 @interface HippyView : UIView
 
@@ -118,5 +119,5 @@
 @property (nonatomic, strong) NSString *backgroundSize;
 @property (nonatomic, assign) CGFloat backgroundPositionX;
 @property (nonatomic, assign) CGFloat backgroundPositionY;
-
+@property (nonatomic, strong) HippyGradientObject *gradientObject;
 @end

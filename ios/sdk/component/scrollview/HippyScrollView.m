@@ -171,6 +171,7 @@
     // snap index when the user stops scrolling with a tap on the scroll view.
     CGFloat _lastNonZeroTranslationAlongAxis;
     NSMutableDictionary *_contentOffsetCache;
+    BOOL _didSetContentOffset;
     __weak HippyRootView *_rootView;
 }
 
@@ -225,6 +226,10 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     [view onAttachedToWindow];
     [_scrollView addSubview:view];
     
+    if (_didSetContentOffset) {
+        _didSetContentOffset = NO;
+        return;
+    }
     /**
      * reset its contentOffset when subviews are ready
      */
@@ -743,6 +748,12 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
         CGPoint newOffset = [self calculateOffsetForContentSize:contentSize];
         _scrollView.contentSize = contentSize;
         _scrollView.contentOffset = newOffset;
+    }
+}
+
+- (void)didSetProps:(NSArray<NSString *> *)changedProps {
+    if ([changedProps containsObject:@"contentOffset"]) {
+        _didSetContentOffset = YES;
     }
 }
 

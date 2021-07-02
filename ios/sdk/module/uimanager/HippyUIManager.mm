@@ -942,11 +942,17 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
                            properties:(NSDictionary *)props
                              viewName:(NSString *)viewName {
     UIView *view = [self viewForHippyTag:hippyTag];
+    
+    BOOL canBeRetrievedFromCache = YES;
+    if (view && [view respondsToSelector:@selector(canBeRetrievedFromViewCache)]) {
+        canBeRetrievedFromCache = [view canBeRetrievedFromViewCache];
+    }
+
     /**
      * subviews & hippySubviews should be removed from the view which we get from cache(_viewRegistry).
      * otherwise hippySubviews will be inserted multiple times.
      */
-    if (view) {
+    if (view && canBeRetrievedFromCache) {
         [view resetHippySubviews];
     }
     else {

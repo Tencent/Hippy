@@ -42,11 +42,15 @@
 
 /**
  * Called and inject Object before Hippy execute JS source code
- * Keys will be mounted at JS Global Object.
- * Values will be mounted at Keys.
- * Values must be JSON Strings.
+ * object will be mounted at JS Global Object.
  */
 - (NSDictionary *)objectsBeforeExecuteCode;
+
+/**
+ * Called and update Object before Hippy execute secondary JS source code. call on HippyBridgeQueue
+ * object will be mounted at JS Global Object.
+ */
+- (NSDictionary *)objectsBeforeExecuteSecondaryCode;
 
 /**
  * The bridge will attempt to load the JS source code from the location specified

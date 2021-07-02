@@ -9,7 +9,7 @@
 Pod::Spec.new do |s|
   s.name             = 'hippy'
   s.version          = '2.2.0'
-  s.summary          = 'hippy lib for ios'
+  s.summary          = 'Hippy library for iOS'
 
 # This description is used to generate tags and improve search results.
 #   * Think: What does it do? Why did you write it? What is the focus?
@@ -18,7 +18,8 @@ Pod::Spec.new do |s|
 #   * Finally, don't worry about the indent, CocoaPods strips it!
 
   s.description      = <<-DESC
-TODO: Add long description of the pod here.
+                        Hippy is a cross-platform development framework created by Tencent, aiming to help developers write once, run on three platforms(iOS, Android and Web). 
+                        Hippy is quite friendly to web developers, especially who are familiar with React or Vue. With Hippy, developers are able to create the cross platform app easily.
                        DESC
   s.homepage         = 'http://hippyjs.org'
   s.license          = { :type => 'Apache2', :file => 'LICENSE' }

@@ -83,6 +83,14 @@
 - (UIViewController *)hippyViewController;
 
 /**
+ * CellView is reusable.
+ * but sometimes it misdisplays.
+ * this method is a plan B.
+ * plan A is trying to find why
+ */
+- (BOOL)canBeRetrievedFromViewCache;
+
+/**
  * This method attaches the specified controller as a child of the
  * the owning view controller of this view. Returns NO if no view
  * controller is found (which may happen if the view is not currently

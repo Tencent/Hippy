@@ -139,6 +139,15 @@ HIPPY_EXTERN NSString *__nullable HippyTempFilePath(NSString *__nullable extensi
 // Converts a CGColor to a hex string
 HIPPY_EXTERN NSString *HippyColorToHexString(CGColorRef color);
 
+/**
+ * convert string to UIColor
+ * colorString could be 'fff','#fff','ffffff','#ffffff','ffffffff','#ffffffff'
+ * or 'red', 'green','blue'.etc
+ */
+HIPPY_EXTERN UIColor *HippyConvertStringToColor(NSString *colorString);
+
+HIPPY_EXTERN UIColor *HippyConvertNumberToColor(NSInteger colorNumber);
+
 // Get standard localized string (if it exists)
 HIPPY_EXTERN NSString *HippyUIKitLocalizedString(NSString *string);
 

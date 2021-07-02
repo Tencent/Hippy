@@ -53,10 +53,11 @@ using bytes = std::string;
 
 using Ctx = hippy::napi::Ctx;
 using CtxValue = hippy::napi::CtxValue;
-using V8InspectorClientImpl = hippy::inspector::V8InspectorClientImpl;
 using StringViewUtils = hippy::base::StringViewUtils;
-
+#ifdef V8_HAS_INSPECTOR
+using V8InspectorClientImpl = hippy::inspector::V8InspectorClientImpl;
 extern std::shared_ptr<V8InspectorClientImpl> global_inspector;
+#endif
 
 const char kHippyBridgeName[] = "hippyBridge";
 
@@ -111,16 +112,18 @@ void CallFunction(JNIEnv* j_env,
                     unicode_string_view::Encoding::Utf16);
     if (runtime->IsDebug() &&
         !action_name.utf16_value().compare(u"onWebsocketMsg")) {
+#ifdef V8_HAS_INSPECTOR
       std::u16string str(reinterpret_cast<const char16_t*>(&buffer_data_[0]),
                          buffer_data_.length() / sizeof(char16_t));
       global_inspector->SendMessageToV8(
           std::move(unicode_string_view(std::move(str))));
+#endif
       CallJavaMethod(cb_->GetObj(), CALLFUNCTION_CB_STATE::SUCCESS);
       return;
     }
 
     std::shared_ptr<CtxValue> action = context->CreateString(action_name);
-    std::shared_ptr<CtxValue> params = nullptr;
+    std::shared_ptr<CtxValue> params;
     if (runtime->IsEnableV8Serialization()) {
       v8::Isolate* isolate = std::static_pointer_cast<hippy::napi::V8VM>(
                                  runtime->GetEngine()->GetVM())
@@ -129,7 +132,7 @@ void CallFunction(JNIEnv* j_env,
       v8::Local<v8::Context> ctx = std::static_pointer_cast<hippy::napi::V8Ctx>(
                                        runtime->GetScope()->GetContext())
                                        ->context_persistent_.Get(isolate);
-
+      hippy::napi::V8TryCatch try_catch(true, context);
       v8::ValueDeserializer deserializer(
           isolate, reinterpret_cast<const uint8_t*>(buffer_data_.c_str()),
           buffer_data_.length());
@@ -139,8 +142,13 @@ void CallFunction(JNIEnv* j_env,
         params = std::make_shared<hippy::napi::V8CtxValue>(
             isolate, ret.ToLocalChecked());
       } else {
-        jstring j_msg =
-            JniUtils::StrViewToJString(j_env, u"deserializer error");
+        jstring j_msg;
+        if (try_catch.HasCaught()) {
+          unicode_string_view msg = try_catch.GetExceptionMsg();
+          j_msg = JniUtils::StrViewToJString(j_env, msg);
+        } else {
+          j_msg = JniUtils::StrViewToJString(j_env, u"deserializer error");
+        }
         CallJavaMethod(
             cb_->GetObj(),
             hippy::bridge::CALLFUNCTION_CB_STATE::DESERIALIZER_FAILED, j_msg);
@@ -154,6 +162,9 @@ void CallFunction(JNIEnv* j_env,
       TDF_BASE_DLOG(INFO) << "action_name = " << action_name
                           << ", buf_str = " << buf_str;
       params = context->CreateObject(buf_str);
+    }
+    if (!params) {
+      params = context->CreateNull();
     }
     std::shared_ptr<CtxValue> argv[] = {action, params};
     context->CallFunction(runtime->GetBridgeFunc(), 2, argv);

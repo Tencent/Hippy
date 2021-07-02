@@ -72,9 +72,12 @@ using u8string = unicode_string_view::u8string;
 using RegisterMap = hippy::base::RegisterMap;
 using RegisterFunction = hippy::base::RegisterFunction;
 using Ctx = hippy::napi::Ctx;
-using V8InspectorClientImpl = hippy::inspector::V8InspectorClientImpl;
 using StringViewUtils = hippy::base::StringViewUtils;
 using HippyFile = hippy::base::HippyFile;
+#ifdef V8_HAS_INSPECTOR
+using V8InspectorClientImpl = hippy::inspector::V8InspectorClientImpl;
+std::shared_ptr<V8InspectorClientImpl> global_inspector = nullptr;
+#endif
 
 static std::unordered_map<int64_t, std::pair<std::shared_ptr<Engine>, uint32_t>>
     reuse_engine_map;
@@ -88,8 +91,6 @@ enum INIT_CB_STATE {
   RUN_SCRIPT_ERROR = -1,
   SUCCESS = 0,
 };
-
-std::shared_ptr<V8InspectorClientImpl> global_inspector = nullptr;
 
 void InitLogger(JNIEnv* j_env, jobject j_object, jobject j_logger) {
   if (!j_logger) {
@@ -126,7 +127,7 @@ bool RunScript(std::shared_ptr<Runtime> runtime,
                const unicode_string_view& code_cache_dir,
                const unicode_string_view& uri,
                AAssetManager* asset_manager) {
-  TDF_BASE_DLOG(INFO) << "RunScript begin, file_name = " << file_name
+  TDF_BASE_LOG(INFO) << "RunScript begin, file_name = " << file_name
                       << ", is_use_code_cache = " << is_use_code_cache
                       << ", code_cache_dir = " << code_cache_dir
                       << ", uri = " << uri
@@ -408,7 +409,7 @@ jlong InitInstance(JNIEnv* j_env,
       TDF_BASE_DLOG(ERROR) << "register hippyCallNatives, scope error";
       return;
     }
-
+#ifdef V8_HAS_INSPECTOR
     if (runtime->IsDebug()) {
       if (!global_inspector) {
         global_inspector = std::make_shared<V8InspectorClientImpl>(scope);
@@ -418,7 +419,7 @@ jlong InitInstance(JNIEnv* j_env,
       }
       global_inspector->CreateContext();
     }
-
+#endif
     std::shared_ptr<Ctx> ctx = scope->GetContext();
     ctx->RegisterGlobalInJs();
     hippy::base::RegisterFunction fn =
@@ -508,13 +509,16 @@ void DestroyInstance(JNIEnv* j_env,
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
   task->callback = [runtime, runtime_id] {
     TDF_BASE_LOG(INFO) << "js destroy begin, runtime_id " << runtime_id;
+#ifdef V8_HAS_INSPECTOR
     if (runtime->IsDebug()) {
       global_inspector->DestroyContext();
       global_inspector->Reset(nullptr, runtime->GetBridge());
     } else {
       runtime->GetScope()->WillExit();
     }
-
+#else
+    runtime->GetScope()->WillExit();
+#endif
     TDF_BASE_LOG(INFO) << "SetScope nullptr";
     runtime->SetScope(nullptr);
     TDF_BASE_LOG(INFO) << "erase runtime";
