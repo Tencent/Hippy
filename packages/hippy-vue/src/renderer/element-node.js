@@ -13,9 +13,142 @@ import {
   setsAreEqual,
   endsWith,
   getBeforeLoadStyle,
+  warn,
 } from '../util';
 import ViewNode from './view-node';
 import Native from '../runtime/native';
+
+// linear-gradient direction description map
+const LINEAR_GRADIENT_DIRECTION_MAP = {
+  totop: '0',
+  totopright: 'totopright',
+  toright: '90',
+  tobottomright: 'tobottomright',
+  tobottom: '180', // default value
+  tobottomleft: 'tobottomleft',
+  toleft: '270',
+  totopleft: 'totopleft',
+};
+
+const DEGREE_UNIT = {
+  TURN: 'turn',
+  RAD: 'rad',
+  DEG: 'deg',
+};
+
+/**
+ * convert string value to string degree
+ * @param {string} value
+ * @param {string} unit
+ */
+function convertToDegree(value, unit = DEGREE_UNIT.DEG) {
+  const convertedNumValue = parseFloat(value);
+  let result = value || '';
+  const [, decimals] = value.split('.');
+  if (decimals && decimals.length > 2) {
+    result = convertedNumValue.toFixed(2);
+  }
+  switch (unit) {
+    // turn unit
+    case DEGREE_UNIT.TURN:
+      result = `${(convertedNumValue * 360).toFixed(2)}`;
+      break;
+    // radius unit
+    case DEGREE_UNIT.RAD:
+      result = `${(180 / Math.PI * convertedNumValue).toFixed(2)}`;
+      break;
+    default:
+  }
+  return result;
+}
+
+/**
+ * parse gradient angle or direction
+ * @param {string} value
+ */
+function getLinearGradientAngle(value) {
+  const processedValue = (value || '').replace(/\s*/g, '').toLowerCase();
+  const reg = /^([+-]?\d+\.?\d*)+(deg|turn|rad)|(to\w+)$/g;
+  const valueList = reg.exec(processedValue);
+  if (!Array.isArray(valueList)) return;
+  // default direction is to bottom, i.e. 180degree
+  let angle = '180';
+  const [direction, angleValue, angleUnit] = valueList;
+  if (angleValue && angleUnit) { // angle value
+    angle = convertToDegree(angleValue, angleUnit);
+  } else if (direction && typeof LINEAR_GRADIENT_DIRECTION_MAP[direction] !== 'undefined') { // direction description
+    angle = LINEAR_GRADIENT_DIRECTION_MAP[direction];
+  } else {
+    warn('linear-gradient direction or angle is invalid, default value [to bottom] would be used');
+  }
+  return angle;
+}
+
+/**
+ * parse gradient color stop
+ * @param {string} value
+ */
+function getLinearGradientColorStop(value) {
+  const processedValue = (value || '').replace(/\s+/g, ' ').trim();
+  const [color, percentage] = processedValue.split(' ');
+  const percentageCheckReg = /^([+-]?\d+\.?\d*)%$/g;
+  if (color && !percentageCheckReg.exec(color) && !percentage) {
+    return {
+      color: colorParser(color),
+    };
+  }
+  if (color && percentageCheckReg.exec(percentage)) {
+    return {
+      // color stop ratio
+      ratio: parseFloat(percentage.split('%')[0]) / 100,
+      color: colorParser(color),
+    };
+  }
+  warn('linear-gradient color stop is invalid');
+}
+
+/**
+ * parse backgroundImage
+ * @param {string} property
+ * @param {string|Object|number|boolean} value
+ * @returns {(string|{})[]}
+ */
+function parseBackgroundImage(property, value) {
+  let processedValue = value;
+  let processedProperty = property;
+  if (value.indexOf('linear-gradient') === 0) {
+    processedProperty = 'linearGradient';
+    const valueString = value.substring(value.indexOf('(') + 1, value.lastIndexOf(')'));
+    const tokens = valueString.split(',');
+    const colorStopList = [];
+    processedValue = {};
+    tokens.forEach((value, index) => {
+      if (index === 0) {
+        // the angle of linear-gradient parameter can be optional
+        const angle = getLinearGradientAngle(value);
+        if (angle) {
+          processedValue.angle = angle;
+        } else {
+          // if angle ignored, default direction is to bottom, i.e. 180degree
+          processedValue.angle = '180';
+          const colorObject = getLinearGradientColorStop(value);
+          if (colorObject) colorStopList.push(colorObject);
+        }
+      } else {
+        const colorObject = getLinearGradientColorStop(value);
+        if (colorObject) colorStopList.push(colorObject);
+      }
+    });
+    processedValue.colorStopList = colorStopList;
+  } else {
+    const regexp = /(?:\(['"]?)(.*?)(?:['"]?\))/;
+    const executed = regexp.exec(value);
+    if (executed && executed.length > 1) {
+      [, processedValue] = executed;
+    }
+  }
+  return [processedProperty, processedValue];
+}
 
 class ElementNode extends ViewNode {
   constructor(tagName) {
@@ -181,11 +314,7 @@ class ElementNode extends ViewNode {
         this.attributes['caret-color'] = colorParser(v);
         break;
       case 'backgroundImage': {
-        const regexp = /(?:\(['"]?)(.*?)(?:['"]?\))/;
-        const executed = regexp.exec(v);
-        if (executed && executed.length > 1) {
-          [, v] = executed;
-        }
+        [p, v] = parseBackgroundImage(p, v);
         break;
       }
       default: {
