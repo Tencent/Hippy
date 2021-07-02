@@ -5,5 +5,8 @@
   "first-line-h1": false,
   "no-multiple-blanks": {
     "maximum": 2
+  },
+  "no-inline-html" : {
+    "allowed_elements" : [ "a", "h1", "h3", "HR", "p", "br" ]
   }
 }

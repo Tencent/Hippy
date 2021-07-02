@@ -163,6 +163,14 @@ test('Element.setStyle test', (t) => {
   t.deepEqual(node.style.cde, {});
   node.setStyle('caretColor', '#abcdef');
   t.is(node.attributes['caret-color'], 4289449455);
+  node.setStyle('backgroundImage', 'linear-gradient(to top right, red, yellow, blue 10%)');
+  t.deepEqual(node.style.linearGradient, { angle: 'totopright', colorStopList: [{ color: 4294901760 }, { color: 4294967040 }, { color: 4278190335, ratio: 0.1 }] });
+  node.setStyle('backgroundImage', 'linear-gradient(90deg, red, 10%, blue 10%)');
+  t.deepEqual(node.style.linearGradient, { angle: '90', colorStopList: [{ color: 4294901760 }, { color: 4278190335, ratio: 0.1 }] });
+  node.setStyle('backgroundImage', 'linear-gradient(red, yellow 10%, blue 10%)');
+  t.deepEqual(node.style.linearGradient, { angle: '180', colorStopList: [{ color: 4294901760 }, { color: 4294967040, ratio: 0.1 }, { color: 4278190335, ratio: 0.1 }] });
+  node.setStyle('backgroundImage', 'linear-gradient(10.12341234deg, red, yellow 10%, blue 10%)');
+  t.deepEqual(node.style.linearGradient, { angle: '10.12', colorStopList: [{ color: 4294901760 }, { color: 4294967040, ratio: 0.1 }, { color: 4278190335, ratio: 0.1 }] });
 });
 
 test('Element.setStyle with pre-processed style test', (t) => {
@@ -180,7 +188,7 @@ test('Element.setStyle with pre-processed style test', (t) => {
   t.is(node.style.wid, 100);
 });
 
-test('Element.dispatchEvent with pollyfill event', (t) => {
+test('Element.dispatchEvent with polyfill event', (t) => {
   const node = new ListNode('ul');
   let called = false;
   const callback = (event) => {
