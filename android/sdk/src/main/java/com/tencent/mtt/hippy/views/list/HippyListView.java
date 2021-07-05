@@ -29,6 +29,7 @@ import com.tencent.mtt.hippy.views.refresh.HippyPullHeaderView;
 import com.tencent.mtt.hippy.views.scroll.HippyScrollViewEventHelper;
 import com.tencent.mtt.supportui.views.recyclerview.BaseLayoutManager;
 import com.tencent.mtt.supportui.views.recyclerview.LinearLayoutManager;
+import com.tencent.mtt.supportui.views.recyclerview.RecyclerAdapter;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerView;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewItem;
 
@@ -53,7 +54,7 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
   protected int mFooterRefreshState = REFRESH_STATE_IDLE;
   protected final boolean mEnableRefresh = true;
 
-  private HippyListAdapter mListAdapter;
+  private RecyclerAdapter mListAdapter;
 
   private HippyEngineContext mHippyContext;
 
@@ -107,7 +108,7 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
     init(context, BaseLayoutManager.VERTICAL);
   }
 
-  protected HippyListAdapter createAdapter(RecyclerView hippyRecyclerView,
+  protected RecyclerAdapter createAdapter(RecyclerView hippyRecyclerView,
       HippyEngineContext hippyEngineContext) {
     return new HippyListAdapter(hippyRecyclerView, hippyEngineContext);
   }

@@ -49,8 +49,10 @@
 
 - (void)refreshCompleted {
     CGFloat duration = _bounceTime != 0 ? _bounceTime : 400;
+    UIEdgeInsets contentInset = self->_scrollableView.realScrollView.contentInset;
+    contentInset.top = 0;
     [UIView animateWithDuration:duration / 1000.f animations:^{
-        [self->_scrollableView.realScrollView setContentInset:UIEdgeInsetsZero];
+        [self->_scrollableView.realScrollView setContentInset:contentInset];
     }];
 }
 

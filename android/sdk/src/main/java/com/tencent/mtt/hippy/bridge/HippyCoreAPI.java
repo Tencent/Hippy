@@ -56,6 +56,8 @@ import com.tencent.mtt.hippy.views.textinput.HippyTextInputController;
 import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
 import com.tencent.mtt.hippy.views.viewpager.HippyViewPagerController;
 import com.tencent.mtt.hippy.views.viewpager.HippyViewPagerItemController;
+import com.tencent.mtt.hippy.views.waterfalllist.HippyWaterfallItemViewController;
+import com.tencent.mtt.hippy.views.waterfalllist.HippyWaterfallViewController;
 import com.tencent.mtt.hippy.views.webview.HippyWebViewController;
 
 import java.util.ArrayList;
@@ -192,6 +194,8 @@ public class HippyCoreAPI implements HippyAPIProvider {
     components.add(NavigatorController.class);
     components.add(HippyWebViewController.class);
     components.add(HippyCustomPropsController.class);
+    components.add(HippyWaterfallViewController.class);
+    components.add(HippyWaterfallItemViewController.class);
 
     return components;
   }

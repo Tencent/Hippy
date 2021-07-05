@@ -6,7 +6,7 @@ export default Vue.component('style-two', {
   template: `
   <div class="list-view-item style-two">
     <div class="style-two-left-container">
-      <p class="article-title" numberOfLines="2" enableScale="true">
+      <p class="article-title" :numberOfLines="2" :enableScale="true">
         {{ itemBean.title }}
       </p>
       <div class="tag-line">

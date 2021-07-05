@@ -80,3 +80,5 @@ Vue.use(ModalComponent);
 | ul-refresh         | RefreshWrapperItemView   | ListRefreshComponent  | Contents in pull down area    |
 | swiper             | ViewPager                | SwiperComponent       | Slider                        |
 | swiper-slide       | ViewPagerItem            | SwiperComponent       | Slider Page                   |
+| waterfall          | WaterfallView            | WaterfallComponent    | Waterfall                     |
+| waterfall-item     | WaterfallViewItem        | WaterfallComponent    | Waterfall Item                |
