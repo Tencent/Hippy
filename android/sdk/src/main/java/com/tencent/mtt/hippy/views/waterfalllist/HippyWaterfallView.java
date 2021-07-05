@@ -47,7 +47,7 @@ import com.tencent.mtt.supportui.views.recyclerview.Scroller;
 import java.util.ArrayList;
 
 
-public class HippyWaterfallView extends RecyclerView implements HippyViewBase, IFooterContainer {
+public class HippyWaterfallView extends HippyListView implements HippyViewBase, IFooterContainer {
 
   static final String TAG = "HippyWaterfallView";
 
@@ -80,7 +80,7 @@ public class HippyWaterfallView extends RecyclerView implements HippyViewBase, I
     super(context);
     mHippyContext = ((HippyInstanceContext) context).getEngineContext();
     this.setLayoutManager(new HippyWaterfallLayoutManager(context));
-    mAdapter = new HippyWaterfallAdapter(this);
+    mAdapter = (HippyWaterfallAdapter) getAdapter();
     setRecycledViewPool(new RNWFRecyclerPool());
 
     mEnableFooter = true;
@@ -89,6 +89,12 @@ public class HippyWaterfallView extends RecyclerView implements HippyViewBase, I
 
     addOnListScrollListener(mAdapter.getOnListScrollListener());
 
+  }
+
+  @Override
+  protected HippyWaterfallAdapter createAdapter(RecyclerView hippyRecyclerView,
+    HippyEngineContext hippyEngineContext) {
+    return new HippyWaterfallAdapter(this);
   }
 
   @Override
@@ -110,7 +116,8 @@ public class HippyWaterfallView extends RecyclerView implements HippyViewBase, I
     this.mGestureDispatcher = dispatcher;
   }
 
-  protected void setListData() {
+  @Override
+  public void setListData() {
     if (getAdapter() == null) {
       setAdapter(mAdapter);
     }
