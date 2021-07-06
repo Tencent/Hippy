@@ -81,6 +81,15 @@ android {
     }
   }
 
+  def v8Release = "x5-lite"
+  def v8Debug = "official-release"
+  if (V8_TAG == "latest") {
+    v8Release = v8Debug
+  } else if (project.hasProperty('V8_RELEASE')) {
+    v8Release = V8_RELEASE
+    v8Debug = V8_RELEASE
+  }
+
   buildTypes {
     release {
       minifyEnabled false
@@ -93,7 +102,7 @@ android {
                   "-DANDROID_STL=c++_shared",
                   "-DCMAKE_BUILD_TYPE=Release",
                   "-DV8_TAG=$V8_TAG",
-                  "-DV8_RELEASE=$V8_RELEASE",
+                  "-DV8_RELEASE=$v8Release",
                   "-DEXT_JS_ENGINE_LIB=$EXT_JS_ENGINE_LIB"
 
           if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() || INCLUDE_ABI_ARMEABI.toBoolean()) {
@@ -121,7 +130,7 @@ android {
                   "-DANDROID_STL=c++_shared",
                   "-DCMAKE_BUILD_TYPE=Debug",
                   "-DV8_TAG=$V8_TAG",
-                  "-DV8_RELEASE=$V8_RELEASE",
+                  "-DV8_RELEASE=$v8Debug",
                   "-DEXT_JS_ENGINE_LIB=$EXT_JS_ENGINE_LIB"
 
           abiFilters 'arm64-v8a'
