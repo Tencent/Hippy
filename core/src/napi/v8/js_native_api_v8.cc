@@ -238,8 +238,10 @@ V8VM::V8VM() {
   {
     std::lock_guard<std::mutex> lock(mutex_);
     if (platform_ != nullptr) {
+#ifdef V8_X5_LITE
       TDF_BASE_DLOG(INFO) << "InitializePlatform";
       v8::V8::InitializePlatform(platform_.get());
+#endif
     } else {
       TDF_BASE_DLOG(INFO) << "NewDefaultPlatform";
       platform_ = v8::platform::NewDefaultPlatform();
