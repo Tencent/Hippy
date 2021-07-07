@@ -44,7 +44,7 @@ Hippy
 │   └── sdk                           # Android SDK。
 ├── core                              # C++ 实现的 JS 模块，通过 Binding 方式运行在 JS 引擎中。
 ├── layout                            # Hippy 布局引擎。
-├── scripts                           # 项目编译脚本。
+└── scripts                           # 项目编译脚本。
 ```
 
 ## 开始

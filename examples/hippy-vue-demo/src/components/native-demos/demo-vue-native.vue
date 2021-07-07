@@ -144,6 +144,19 @@
           <span>{{ netInfoText }}</span>
         </div>
       </div>
+
+      <!-- Clipboard使用 -->
+      <div v-if="Vue.Native.Clipboard" class="native-block">
+        <label class="vue-native-title">Clipboard 使用</label>
+        <div class="item-wrapper">
+          <button class='item-button' @click="setString"><span>setString</span></button>
+          <span>{{ clipboardString }}</span>
+        </div>
+        <div class="item-wrapper">
+          <button class='item-button' @click="getString"><span>getString</span></button>
+          <span>{{ clipboardValue }}</span>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -195,6 +208,8 @@ export default {
       screenIsVertical,
       storageValue: '',
       storageSetStatus: 'ready to set',
+      clipboardString: 'ready to set',
+      clipboardValue: '',
       imageSize: '',
       netInfoText: '正在获取..'
     };
@@ -231,6 +246,18 @@ export default {
       const result = await Vue.Native.ImageLoader.getSize('https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png')
       console.log('ImageLoader getSize', result);
       this.imageSize = `${result.width}x${result.height}`
+    },
+    setString() {
+      Vue.Native.Clipboard.setString('clipboardValue');
+      this.clipboardString = 'clipboard set "clipboardValue" succeed'
+    },
+    async getString() {
+      const value = await Vue.Native.Clipboard.getString();
+      if(value) {
+        this.clipboardValue = value
+      } else {
+        this.clipboardValue = 'undefined'
+      }
     },
   },
 };
