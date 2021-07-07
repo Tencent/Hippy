@@ -1,6 +1,17 @@
 import React, { Component } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
+import { SwiperOptions } from 'swiper/types';
 import 'swiper/swiper.min.css';
+
+interface Props extends SwiperOptions {
+  style: Object,
+  children: [],
+  initialPage: number,
+  onPageSelected: Function,
+  scrollEnabled: boolean,
+  loop: boolean,
+  nativeName?: string
+}
 
 /**
  * Container that allows to flip left and right between child views.
@@ -9,7 +20,8 @@ import 'swiper/swiper.min.css';
  * @noInheritDoc
  */
 export class ViewPager extends Component {
-  constructor(props) {
+  private viewPagerSwiper: any;
+  constructor(props: Props) {
     super(props);
     this.state = {};
   }
@@ -34,7 +46,7 @@ export class ViewPager extends Component {
       onPageSelected,
       scrollEnabled,
       loop = false,
-      direction = 'horizontal' } = this.props;
+      direction = 'horizontal' } = this.props as Props;
     const renderViewPagerItem = () => {
       if (!children || (children as React.ReactNodeArray).length === 0) return null;
       return children.map((item: any, index: number) => {
@@ -43,6 +55,7 @@ export class ViewPager extends Component {
       });
     };
     return (
+      // @ts-ignore
       <Swiper
         direction={direction}
         loop={loop}
@@ -53,7 +66,7 @@ export class ViewPager extends Component {
         onSwiper={swiper => this.viewPagerSwiper = swiper}
         onSlideChange={(swiper) => {
           if (onPageSelected) {
-            onPageSelected({ position: swiper.realIndex || 0 });
+            onPageSelected.call(this, { position: swiper.realIndex || 0 });
           }
         }}
       >

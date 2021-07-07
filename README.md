@@ -44,7 +44,7 @@ Hippy
 │   └── sdk                           # Android SDK.
 ├── core                              # JS modules implemented by C++, binding to JS engine.
 ├── layout                            # Hippy layout engine.
-├── scripts                           # Project build script.
+└── scripts                           # Project build script.
 ```
 
 ## Getting started

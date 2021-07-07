@@ -307,7 +307,7 @@ class ElementNode extends ViewNode {
         (this.style as any)[styleKey] = colorArrayParse((styleValue as Color[]));
       } else if (styleKey.toLowerCase().indexOf('color') > -1) {
         (this.style as any)[styleKey] = colorParse((styleValue as Color));
-      } else if (styleKey === 'backgroundImage') {
+      } else if (styleKey === 'backgroundImage' && styleValue) {
         this.style = parseBackgroundImage(styleKey, styleValue, this.style);
       } else {
         (this.style as any)[styleKey] = styleValue;
