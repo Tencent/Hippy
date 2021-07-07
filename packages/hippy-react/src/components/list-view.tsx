@@ -276,12 +276,14 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
    */
   // eslint-disable-next-line class-methods-use-this
   private convertName(attr: string): string {
-    if (Device.platform.OS === 'android' && androidAttrMap[attr]) {
-      return androidAttrMap[attr];
-    } if (Device.platform.OS === 'ios' && iosAttrMap[attr]) {
-      return iosAttrMap[attr];
+    let functionName = attr;
+    if (functionName.indexOf('bound') >= 0) functionName = functionName.substring('bound'.length + 1);
+    if (Device.platform.OS === 'android' && androidAttrMap[functionName]) {
+      return androidAttrMap[functionName];
+    } if (Device.platform.OS === 'ios' && iosAttrMap[functionName]) {
+      return iosAttrMap[functionName];
     }
-    return attr;
+    return functionName;
   }
 
   /**

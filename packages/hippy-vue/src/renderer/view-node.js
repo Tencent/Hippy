@@ -127,7 +127,7 @@ class ViewNode {
 
   moveChild(childNode, referenceNode) {
     if (!childNode) {
-      throw new Error('Can\'t mvoe child.');
+      throw new Error('Can\'t move child.');
     }
 
     if (!referenceNode) {
