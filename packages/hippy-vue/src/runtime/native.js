@@ -129,7 +129,7 @@ const Native = {
       if (!url) {
         throw new TypeError('Vue.Native.Cookie.getAll() must have url argument');
       }
-      return callNativeWithPromise('network', 'getCookie', url);
+      return callNativeWithPromise.call(this, 'network', 'getCookie', url);
     },
     /**
      * Set cookie key and value
@@ -152,7 +152,7 @@ const Native = {
           throw new TypeError('Vue.Native.Cookie.getAll() only receive Date type of expires');
         }
       }
-      callNative('network', 'setCookie', url, keyValue, expireStr);
+      callNative.call(this, 'network', 'setCookie', url, keyValue, expireStr);
     },
   },
 
@@ -161,10 +161,10 @@ const Native = {
    */
   Clipboard: {
     getString() {
-      return callNativeWithPromise('ClipboardModule', 'getString');
+      return callNativeWithPromise.call(this, 'ClipboardModule', 'getString');
     },
     setString(content) {
-      callNative('ClipboardModule', 'setString', content);
+      callNative.call(this, 'ClipboardModule', 'setString', content);
     },
   },
 
@@ -381,7 +381,7 @@ const Native = {
      * @param {string} url - Get image url.
      */
     getSize(url) {
-      return callNativeWithPromise('ImageLoaderModule', 'getSize', url);
+      return callNativeWithPromise.call(this, 'ImageLoaderModule', 'getSize', url);
     },
 
     /**
@@ -390,7 +390,7 @@ const Native = {
      * @param {string} url - Prefetch image url.
      */
     prefetch(url) {
-      callNative('ImageLoaderModule', 'prefetch', url);
+      callNative.call(this, 'ImageLoaderModule', 'prefetch', url);
     },
   },
   /**

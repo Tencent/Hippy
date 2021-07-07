@@ -104,7 +104,7 @@ Hippy 的样式排版使用了 Flex 布局。值得注意的是，尚不兼容�
 > 注意：
 >
 > + Android 如果使用 `to [top | bottom] || [left | right]` 四个顶角设置渐变角度，color-stop不能使用百分比；
-iOS color-stop 百分比只能从小到大依次显式设置，不能部分省略，即 `red 10%, yellow 20%, blue 50%`，不能是 `red 10%, yellow 20%, blue 10%`
+> + iOS color-stop 百分比只能从小到大依次显式设置，不能部分省略，即 `red 10%, yellow 20%, blue 50%`，不能是 `red 10%, yellow 20%, blue 10%`
 
 # backgroundPositionX
 
