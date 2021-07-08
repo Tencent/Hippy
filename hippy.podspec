@@ -7,6 +7,7 @@
 #
 
 Pod::Spec.new do |s|
+  puts 'hippy.podspec read begins'
   s.name             = 'hippy'
   s.version          = '2.2.0'
   s.summary          = 'Hippy library for iOS'
@@ -31,16 +32,21 @@ Pod::Spec.new do |s|
   s.default_subspec = 'core'
 
   s.subspec 'core' do |cores|
+    puts 'hippy subspec \'core\' read begins'
     cores.source_files = 'core/**/*.{h,cc}'
     cores.exclude_files = ['core/include/core/napi/v8','core/src/napi/v8','core/js','core/third_party/base/src/platform/adr']
     cores.libraries = 'c++'
     #this setting causes 'There are header files outside of the header_mappings_dir'
     # cores.header_mappings_dir = 'core/include/'
     cores.xcconfig = {'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/core/third_party/base/include/ ${PODS_ROOT}/hippy/core/include/'}
+    puts 'hippy subspec \'core\' read end'
   end 
 
   if ENV['hippy_use_frameworks']
+    puts 'use frameworks mode, no force load'
   else
+    puts 'use library mode, force load hippy library'
     s.user_target_xcconfig = {'OTHER_LDFLAGS' => '-force_load "${PODS_CONFIGURATION_BUILD_DIR}/hippy/libhippy.a"'}
   end
+  puts 'hippy.podspec read ends'
 end
