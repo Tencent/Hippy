@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.7.3](https://github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/compare/2.7.2...2.7.3) (2021-07-08)
+
+
+### Bug Fixes
+
+* **core:** rm jscore promise ([efdf9af](https://github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/commit/efdf9af93ca269285c96de650873bbc5f4313cfc))
+
+
+
+
+
 ## [2.7.2](https://github.com/Tencent/Hippy/compare/2.7.1...2.7.2) (2021-06-18)
 
 
