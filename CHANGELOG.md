@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.6.5](https://github.com/Tencent/Hippy/compare/2.6.4...2.6.5) (2021-07-08)
+
+
+### Bug Fixes
+
+* **core:** fix jscore promise & execute queue ([65fabb1](https://github.com/Tencent/Hippy/commit/65fabb1dc99f70cecd71ad3cc743a7a03669ac2d))
+
+
+
+
+
 ## [2.6.4](https://github.com/Tencent/Hippy/compare/2.6.3...2.6.4) (2021-05-19)
 
 
