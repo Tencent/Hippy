@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.7.4](https://github.com/Tencent/Hippy/compare/2.7.3...2.7.4) (2021-07-08)
+
+**Note:** Version bump only for package hippy
+
+
+
+
+
 ## [2.7.3](https://github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/compare/2.7.2...2.7.3) (2021-07-08)
 
 
