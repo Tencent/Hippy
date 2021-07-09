@@ -111,6 +111,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         _cachedTextStorageWidth = -1;
         _cachedTextStorageWidthMode = -1;
         _fontSizeMultiplier = 1.0;
+        _textAlign = NSTextAlignmentNatural;
         // MTTlayout
         MTTNodeSetMeasureFunc(self.nodeRef, x5MeasureFunc);
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(contentSizeMultiplierDidChange:)
@@ -487,16 +488,6 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                                  maximumFontLineHeight = font.lineHeight;
                              }
                          }];
-
-    NSTextAlignment newTextAlign = (NSTextAlignment)(_textAlign ?: NSTextAlignmentNatural);
-
-    // The part below is to address textAlign for RTL language before setting paragraph style
-    // Since we can't get layout directly because this logic is currently run just before layout is calculatede
-    // We will climb up to the first node which style has been setted as non-inherit
-
-    if (self.textAlign != newTextAlign) {
-        self.textAlign = newTextAlign;
-    }
 
     // if we found anything, set it :D
     if (hasParagraphStyle) {
