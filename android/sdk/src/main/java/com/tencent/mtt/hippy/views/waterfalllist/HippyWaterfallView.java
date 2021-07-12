@@ -173,26 +173,24 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
     // 这里的代码仅用于自动化测试
     mHasScrollToIndex = true;
 
-    scrollToPosition(yIndex, 0);
-    post(new Runnable() {
-      @Override
-      public void run() {
-        dispatchLayout();
-      }
-    });
+    if (animated) {
+      smoothScrollToPosition(yIndex);
+    } else {
+      scrollToPosition(yIndex, 0);
+      post(this::dispatchLayout);
+    }
   }
 
   public void scrollToContentOffset(double xOffset, double yOffset, boolean animated) {
     // 这里的代码仅用于自动化测试
     mHasScrollToContentOffset = true;
 
-    scrollToPosition(0, (int) -PixelUtil.dp2px(yOffset));
-    post(new Runnable() {
-      @Override
-      public void run() {
-        dispatchLayout();
-      }
-    });
+    if (animated) {
+      smoothScrollBy(0, (int) yOffset);
+    } else {
+      scrollToPosition(0, (int) -PixelUtil.dp2px(yOffset));
+      post(this::dispatchLayout);
+    }
   }
 
   public void setScrollbarEnabled(boolean scrollbarEnabled) {
