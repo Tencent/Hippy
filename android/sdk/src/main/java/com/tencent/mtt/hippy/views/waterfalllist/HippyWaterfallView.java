@@ -197,11 +197,10 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
   }
 
   public void scrollToIndex(int xIndex, int yIndex, boolean animated) {
-    // 这里的代码仅用于自动化测试
     mHasScrollToIndex = true;
 
     if (animated) {
-      smoothScrollToPosition(yIndex);
+      scrollToIndex(xIndex, yIndex, true, 0);
     } else {
       scrollToPosition(yIndex, 0);
       post(this::dispatchLayout);
@@ -209,7 +208,6 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
   }
 
   public void scrollToContentOffset(double xOffset, double yOffset, boolean animated) {
-    // 这里的代码仅用于自动化测试
     mHasScrollToContentOffset = true;
 
     if (animated) {
@@ -655,7 +653,6 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
         int preloadThresholdInPixel = getPreloadThresholdInPixels();
         int preloadThresholdInItemNumber = getPreloadThresholdInItemNumber();
         if (preloadThresholdInPixel > 0 || preloadThresholdInItemNumber > 0) {
-          // 这里的代码仅用于自动化测试
           mHasOnEndReached = true;
           getOnEndReachedEvent().send(mParentRecyclerView, null);
         }
