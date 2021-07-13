@@ -6,27 +6,28 @@
       </ul-refresh>
       <waterfall
         ref="gridView"
+        :column-spacing="columnSpacing"
         :contain-banner-view="true"
         :contain-pull-footer="true"
         :inter-item-spacing="interItemSpacing"
-        :column-spacing="columnSpacing"
         :number-of-columns="numberOfColumns"
         :preload-item-number="0"
         :style="{flex: 1}"
         @onEndReached="onEndReached"
       >
-        <div class="banner-view" :type="1">
+        <div :type="1" class="banner-view">
           <span>BannerView</span>
         </div>
         <waterfall-item
           v-for="(ui, index) in dataSource"
           :key="index"
-          :type="'item_' + ui.style"
           :style="{width: itemWidth}"
+          :type="'item_' + ui.style"
+          @click="() => onItemClick(index)"
         >
-          <style-one v-if="ui.style === 1" :itemBean="ui.itemBean" />
-          <style-two v-if="ui.style === 2" :itemBean="ui.itemBean" />
-          <style-five v-if="ui.style === 5" :itemBean="ui.itemBean" />
+          <style-one v-if="ui.style === 1" :itemBean="ui.itemBean"/>
+          <style-two v-if="ui.style === 2" :itemBean="ui.itemBean"/>
+          <style-five v-if="ui.style === 5" :itemBean="ui.itemBean"/>
         </waterfall-item>
 
         <pull-footer>
@@ -76,7 +77,7 @@ export default {
       return 2;
     },
     contentInset() {
-      return { top: 0, left: 0, bottom: 0, right: 0 };
+      return {top: 0, left: 0, bottom: 0, right: 0};
     },
   },
   methods: {
@@ -100,7 +101,7 @@ export default {
       this.$refs.header.refreshCompleted();
     },
     async onEndReached() {
-      const { dataSource } = this;
+      const {dataSource} = this;
       // 检查锁，如果在加载中，则直接返回，防止二次加载数据
       if (this.isLoading) {
         return;
@@ -119,6 +120,10 @@ export default {
       this.dataSource = [...dataSource, ...newData];
       this.isLoading = false;
     },
+
+    onItemClick(index) {
+      this.$refs.gridView.scrollToIndex({index, animation: true})
+    }
   },
 };
 </script>
