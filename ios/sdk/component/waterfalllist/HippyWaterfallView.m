@@ -592,7 +592,8 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 }
 
 - (void)scrollToIndex:(NSInteger)index animated:(BOOL)animated {
-    [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:index inSection:0]
+    NSInteger section = _containBannerView ? 1 : 0;
+    [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:index inSection:section]
                                 atScrollPosition:UICollectionViewScrollPositionTop
                                         animated:animated];
 }
