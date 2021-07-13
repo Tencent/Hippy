@@ -75,7 +75,7 @@ export default class AnimationExample extends React.Component {
       duration: 1000, // 动画持续时长
       delay: 500, // 至动画真正开始的延迟时间
       mode: 'timing', // 动画模式
-      timingFunction: 'ease-in', // 动画缓动函数
+      timingFunction: 'cubic-bezier(.64,1.82,.67,.71)', // 动画缓动函数
       repeatCount: 'loop',
     });
     this.verticalAnimation = new Animation({
