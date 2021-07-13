@@ -117,6 +117,33 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
   }
 
   @Override
+  protected HippyMap generateScrollEvent() {
+    HippyMap event = super.generateScrollEvent();
+
+    event.pushDouble("startEdgePos", PixelUtil.px2dp(getOffsetY()));
+    event.pushDouble("endEdgePos", PixelUtil.px2dp(getOffsetY() + getHeight()));
+    event.pushInt("firstVisibleRowIndex", getFirstVisibleItemPos());
+    event.pushInt("lastVisibleRowIndex", getFirstVisibleItemPos() + getChildCountInItem());
+
+    HippyArray rowFrames = new HippyArray();
+    for (int i = 0; i < getChildCountInItem(); ++i) {
+      View child = getChildAt(i);
+      if (child == null) {
+        continue;
+      }
+      HippyMap row = new HippyMap();
+      row.pushDouble("x", PixelUtil.px2dp(child.getX()));
+      row.pushDouble("y", PixelUtil.px2dp(child.getY()));
+      row.pushDouble("width", PixelUtil.px2dp(child.getWidth()));
+      row.pushDouble("height", PixelUtil.px2dp(child.getHeight()));
+      rowFrames.pushMap(row);
+    }
+    event.pushArray("visibleRowFrames", rowFrames);
+
+    return event;
+  }
+
+  @Override
   public void setListData() {
     if (getAdapter() == null) {
       setAdapter(mAdapter);
