@@ -49,6 +49,8 @@ typedef NS_ENUM(NSUInteger, HippyRefreshStatus) {
 @property (nonatomic, readonly) HippyRefreshStatus status;
 @property (nonatomic, weak) id<HippyRefreshDelegate> delegate;
 
+- (void)unsetFromScrollView;
+
 - (void)scrollViewDidEndDragging;
 - (void)scrollViewDidScroll;
 

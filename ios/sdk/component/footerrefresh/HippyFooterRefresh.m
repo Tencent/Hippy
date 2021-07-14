@@ -29,6 +29,11 @@
     [scrollView addObserver:self forKeyPath:@"contentSize" options:NSKeyValueObservingOptionNew context:NULL];
 }
 
+- (void)unsetFromScrollView {
+    [_scrollView removeObserver:self forKeyPath:@"contentSize"];
+    [super unsetFromScrollView];
+}
+
 - (void)observeValueForKeyPath:(NSString *)keyPath
                       ofObject:(id)object
                         change:(NSDictionary<NSKeyValueChangeKey, id> *)change
@@ -111,7 +116,7 @@
 }
 
 - (void)dealloc {
-    [_scrollView removeObserver:self forKeyPath:@"contentSize"];
+    [self unsetFromScrollView];
 }
 
 @end
