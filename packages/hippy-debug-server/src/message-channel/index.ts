@@ -1,77 +1,87 @@
-import { DevtoolsClient } from '../client';
 import { DevicePlatform, ClientEvent } from '../@types/enum';
 import { DeviceInfo, DebugPage } from '../@types/tunnel';
 import { AndroidProtocol, AndroidTarget, IosTarget, IOS8Protocol, IOS9Protocol, IOS12Protocol } from '../adapter';
-import { IosProxyClient, WsAppClient, TunnelAppClient } from '../client';
+import { IosProxyClient, WsAppClient, TunnelAppClient, AppClient, DevtoolsClient } from '../client';
 import deviceManager from '../device-manager';
 
+type Adapter = AndroidProtocol | IOS8Protocol | IOS9Protocol | IOS12Protocol;
+
 class MessageChannel {
-  adapter: AndroidProtocol | IOS8Protocol | IOS9Protocol | IOS12Protocol;
-  devtoolsClient;
-  appClient;
-  adapterMap = new Map<string, AndroidProtocol | IOS8Protocol | IOS9Protocol | IOS12Protocol>();
+  // id: `${appClientId}-${devtoolsClientId}`
+  adapterMap = new Map<string, Adapter>();
+  // id: page.webSocketDebuggerUrl
+  appClientMap = new Map<string, AppClient>();
+  // id: req.url
+  devtoolsClientMap = new Map<string, DevtoolsClient>();
 
-  // get current() {
-  //   const device = store.getters['device/current'];
-  //   return this.adapterMap.get(device.deviceid);
-  // }
-
-  constructor() {
-    this.devtoolsClient = new DevtoolsClient();
-  }
+  constructor() {}
 
   /**
-   * 安卓设备连接后调用
-   * ios选择页面后调用
-   *
-   * 如adapter已存在，重新设置调试页面，adapter.target.appClient
-   *
-   * @param page
+   * 新增通道 devtools client， app client, adapter
+   * 在选择调试页面后调用
    */
-  init(page?: DebugPage) {
+  addChannel(devtoolsClient: DevtoolsClient, page?: DebugPage): AppClient | void {
     const device = deviceManager.getCurrent();
     if (device.platform === DevicePlatform.Android) {
-      const id = device.deviceid;
-      if(this.adapterMap.has(id)) return;
-      this.appClient = new TunnelAppClient(device.deviceid);
-      const androidTarget = new AndroidTarget(this.devtoolsClient, this.appClient);
-      this.adapter = new AndroidProtocol(androidTarget);
-      this.adapterMap.set(id, this.adapter);
+      const appClientId = device.deviceid;
+      const devtoolsClientId = devtoolsClient.id;
+      const adapterId = `${appClientId}-${devtoolsClientId}`;
+
+      if(this.adapterMap.has(adapterId)) return;
+
+      const appClient = new TunnelAppClient(appClientId);
+      const androidTarget = new AndroidTarget(devtoolsClient, appClient);
+      const adapter = new AndroidProtocol(androidTarget);
+      this.adapterMap.set(adapterId, adapter);
+      return appClient;
     } else if (device.platform === DevicePlatform.IOS) {
-      if (page) {
-        const url = page.webSocketDebuggerUrl;
-        const id = url;
-        if(this.adapterMap.has(id)) return;
-        const version = page.device.deviceOSVersion;
-        this.appClient = new IosProxyClient(url);
-        const iosTarget = new IosTarget(this.devtoolsClient, this.appClient, page);
-        this.adapter = getIosProtocolAdapter(version, iosTarget);
-        this.adapterMap.set(id, this.adapter);
-        this.devtoolsClient.on('close', () => {
-          // ios 的 resume 需要发送 Debugger.disable
-          this.sendMessage({
-            id: Date.now(),
-            method: 'Debugger.disable',
-            params: {},
-          })
-        })
-      }
+      if (!page?.webSocketDebuggerUrl) return;
+
+      const version = page.device.deviceOSVersion;
+      const url = page.webSocketDebuggerUrl;
+      const appClientId = url;
+      const devtoolsClientId = devtoolsClient.id;
+      const adapterId = `${appClientId}-${devtoolsClientId}`;
+      if(this.adapterMap.has(adapterId)) return this.appClientMap.get(appClientId);
+
+      let appClient;
+      if(this.appClientMap.has(appClientId)) appClient = this.appClientMap.get(appClientId);
+      else appClient = new IosProxyClient(url);
+
+      const iosTarget = new IosTarget(devtoolsClient, appClient, page);
+      const adapter = getIosProtocolAdapter(version, iosTarget);
+      this.adapterMap.set(adapterId, adapter);
+      return appClient;
     }
   }
 
   /**
-   * 设备移除时清除adapter
+   * 移除通道，app断连/devtools断连时做清理
+   * @param appClientId
+   * @param devtoolsClientId
    */
-  destory() {
-    this.devtoolsClient.emit(ClientEvent.Close);
+  removeChannel(appClientId, devtoolsClientId) {
+    const adapterId = `${appClientId}-${devtoolsClientId}`;
+    this.appClientMap.delete(appClientId);
+    this.devtoolsClientMap.delete(devtoolsClientId);
+    this.adapterMap.delete(adapterId);
   }
 
-  sendMessage(msg: Adapter.CDP.Req) {
-    this.adapter.target.devtoolsClient.sendMessage(msg);
-  }
+  /**
+   * 获取通道
+   */
+  getInstance(appClientId: string, devtoolsClientId: string): {
+    sendMessage: (msg: Adapter.CDP.Req) => void,
+    registerDomainCallback: (domain: string, cb: Adapter.DomainCallback) => void,
+  } | void {
+    const adapterId = `${appClientId}-${devtoolsClientId}`;
+    const adapter = this.adapterMap.get(adapterId);
+    if(!adapter) return console.error('message channel adapter instance doesn\'t exist!!!');
 
-  registerDomainCallback(domain: string, cb: Adapter.DomainCallback) {
-    this.adapter.target.devtoolsClient.registerDomainCallback(domain, cb);
+    return {
+      sendMessage: adapter.target.devtoolsClient.sendMessage.bind(adapter.target.devtoolsClient),
+      registerDomainCallback: adapter.target.devtoolsClient.registerDomainCallback.bind(adapter.target.devtoolsClient),
+    };
   }
 }
 

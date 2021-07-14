@@ -30,6 +30,14 @@ export class IosTarget extends EventEmitter {
     this.appClient.on(ClientEvent.Message, this.onMessageFromApp.bind(this));
     this.devtoolsClient.on(ClientEvent.Close, () => {
       console.log('devtools client close');
+
+      // ios 的 resume 需要发送 Debugger.disable
+      this.devtoolsClient.sendMessage({
+        id: Date.now(),
+        method: 'Debugger.disable',
+        params: {},
+      })
+
       appClient.resume();
     });
     this.appClient.on(ClientEvent.Close, () => {

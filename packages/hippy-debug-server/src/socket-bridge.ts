@@ -1,6 +1,6 @@
 import WebSocket, { Server } from 'ws/index.js';
 import { ClientType, ClientRole, ClientEvent, AppClientType, DevicePlatform } from './@types/enum';
-import { AppClient, TunnelAppClient, WsAppClient, IosProxyClient } from './client';
+import { AppClient, TunnelAppClient, WsAppClient, IosProxyClient, DevtoolsClient } from './client';
 import { IosTarget } from './adapter';
 import messageChannel from './message-channel';
 import deviceManager from './device-manager';
@@ -76,22 +76,29 @@ export class SocketBridge {
       // if (this.apps[id]) this.apps[id].close();
       this.addWsAppClient(id, ws);
     } else if (clientType === ClientType.Devtools) {
-      if(appClientType === AppClientType.IosProxy) {
-        messageChannel.init(debugPage);
-        messageChannel.appClient.connect();
-      }
+      const devtoolsClient = new DevtoolsClient(req.url);
+      const appClient = messageChannel.addChannel(devtoolsClient, debugPage);
+      if(!appClient) return console.error('add channel failed!');
+
+      if(appClientType === AppClientType.IosProxy) {}
       ws.on('message', (msg) => {
         try {
           const msgObj = JSON.parse(msg);
-          messageChannel.devtoolsClient.sendMessage(msgObj);
+          devtoolsClient.sendMessage(msgObj);
         }
         catch(e) {
           console.error('parse devtools ws message error!');
         }
       });
-      ws.on('close', () => messageChannel.devtoolsClient.emit(ClientEvent.Close));
-      messageChannel.devtoolsClient.sendToDevtools = ws.send.bind(ws);
-      messageChannel.devtoolsClient.close = ws.close.bind(ws);
+      ws.on('close', () => {
+        devtoolsClient.emit(ClientEvent.Close);
+        messageChannel.removeChannel(appClient.id, devtoolsClient.id);
+      });
+      devtoolsClient.sendToDevtools = ws.send.bind(ws);
+      devtoolsClient.close = () => {
+        ws.close();
+        messageChannel.removeChannel(appClient.id, devtoolsClient.id);
+      };
     }
   }
 }

@@ -54,14 +54,6 @@ class DeviceManager {
           const deviceId = device.deviceid;
           console.log(tag, `selectDevice ${deviceId}`);
           global.addon.selectDevice(deviceId);
-          if (device.platform === DevicePlatform.IOS) {
-            // ipcRenderer.send('fetch-targets:req');
-            // ipcRenderer.on('fetch-targets:res', (e, res) => {
-            //   device.osVersion = res[0]?.device?.deviceOSVersion;
-            // });
-          } else {
-            messageChannel.init();
-          }
         }
       } else {
         this.selectedIndex = -1;

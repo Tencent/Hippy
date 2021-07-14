@@ -2,7 +2,7 @@ import Router from 'koa-router';
 import request from 'request-promise';
 import { DevicePlatform, ClientType } from 'src/@types/enum';
 import deviceManager from '../device-manager';
-// import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import { DebugPage } from '../@types/tunnel'
 import fs from 'fs';
 // import path from 'path';
@@ -27,10 +27,10 @@ export default ({
       const pages = await fetchTargets(iwdpPort);
       rst = pages.map(page => {
         const targetId = page.webSocketDebuggerUrl;
-        // const clientId = uuidv4();
+        const clientId = uuidv4();
         const ws = `${host}:${port}${
           wsPath
-        }?&targetId=${targetId}&from=${ClientType.Devtools}&role=chrome&debugPage=${encodeURIComponent(
+        }?clientId=${clientId}&targetId=${targetId}&from=${ClientType.Devtools}&role=chrome&debugPage=${encodeURIComponent(
           JSON.stringify(page),
         )}`;
         return {

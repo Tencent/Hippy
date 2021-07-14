@@ -2,7 +2,6 @@ import WebSocket from 'ws/index.js';
 import { AppClientType, ClientEvent } from '../@types/enum';
 import { AppClient } from './app-client';
 import { sendMessage } from '../message-channel/tunnel';
-import messageChannel from '../message-channel';
 
 export class IosProxyClient extends AppClient {
   url: string;

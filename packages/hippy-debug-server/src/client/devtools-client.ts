@@ -9,20 +9,21 @@ import { ClientEvent } from '../@types/enum';
  *  on:
  *    message
  *    close     devtools 断连后触发
- *  resume    app 断连后触发
  *  send
  *  close
  **/
 export class DevtoolsClient extends EventEmitter {
+  id: string;
   domainListeners: Map<string, Array<Adapter.DomainCallback>> = new Map();
-  // 记录上行消息 id 和 method 的map，在消息下行时可以根据id获取其 method
+  // 记录下行消息 id 和 method 的map，在消息上行时可以根据id获取其 method
   msgIdMethodMap: Map<number, string> = new Map();
   sendToDevtools: (msg: string) => void;
   // app端断连，devtools ws主动断连。socket-bridge中赋值
   close: () => void;
 
-  constructor() {
+  constructor(id) {
     super();
+    this.id = id;
   }
 
   /**
