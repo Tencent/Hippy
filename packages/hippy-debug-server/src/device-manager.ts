@@ -1,10 +1,10 @@
 import { DeviceInfo } from './@types/tunnel';
-import { DeviceStatus, DevicePlatform } from './@types/enum';
-import messageChannel from './message-channel';
+import { DeviceStatus, DevicePlatform, DeviceManagerEvent } from './@types/enum';
+import { EventEmitter } from 'events';
 
 const tag = '[device-manager]';
 
-class DeviceManager {
+class DeviceManager extends EventEmitter {
   deviceList: DeviceInfo[] = [];
   selectedIndex: number = -1;
   appConnect: boolean = false;
@@ -13,6 +13,7 @@ class DeviceManager {
     if (!this.deviceList.find((item) => item.deviceid === device.deviceid)) {
       this.deviceList.splice(this.deviceList.length - 1, 0, device);
     }
+    this.emit(DeviceManagerEvent.addDevice, device);
   }
 
   removeDevice(device: DeviceInfo) {
@@ -20,15 +21,18 @@ class DeviceManager {
     if (deviceIndex > 0) {
       this.deviceList.splice(deviceIndex, 1);
     }
+    this.emit(DeviceManagerEvent.removeDevice, device);
   }
 
   appDidDisConnect() {
     this.appConnect = false;
     // state.selectedIndex = -1;
+    this.emit(DeviceManagerEvent.appDidDisConnect, this.getCurrent());
   }
 
   appDidConnect() {
     this.appConnect = true;
+    this.emit(DeviceManagerEvent.appDidConnect, this.getCurrent());
   }
 
   getDeviceList() {

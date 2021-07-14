@@ -1,8 +1,9 @@
-import { DevicePlatform, ClientEvent } from '../@types/enum';
+import { DevicePlatform, ClientEvent, AppClientType } from '../@types/enum';
 import { DeviceInfo, DebugPage } from '../@types/tunnel';
 import { AndroidProtocol, AndroidTarget, IosTarget, IOS8Protocol, IOS9Protocol, IOS12Protocol } from '../adapter';
 import { IosProxyClient, WsAppClient, TunnelAppClient, AppClient, DevtoolsClient } from '../client';
 import deviceManager from '../device-manager';
+import WebSocket from 'ws/index.js';
 
 type Adapter = AndroidProtocol | IOS8Protocol | IOS9Protocol | IOS12Protocol;
 
@@ -20,26 +21,40 @@ class MessageChannel {
    * 新增通道 devtools client， app client, adapter
    * 在选择调试页面后调用
    */
-  addChannel(devtoolsClient: DevtoolsClient, page?: DebugPage): AppClient | void {
+  addChannel({
+    devtoolsClient,
+    appClientId,
+    appClientType,
+    ws,
+    debugPage
+  }: {
+    devtoolsClient: DevtoolsClient,
+    appClientId: string,
+    appClientType: AppClientType,
+    ws: WebSocket,
+    debugPage: DebugPage,
+  }): AppClient | void {
     const device = deviceManager.getCurrent();
     if (device.platform === DevicePlatform.Android) {
-      const appClientId = device.deviceid;
       const devtoolsClientId = devtoolsClient.id;
       const adapterId = `${appClientId}-${devtoolsClientId}`;
 
       if(this.adapterMap.has(adapterId)) return;
 
-      const appClient = new TunnelAppClient(appClientId);
+      let appClient
+      if(appClientType === AppClientType.Tunnel)
+        appClient = new TunnelAppClient(appClientId);
+      else
+        appClient = new WsAppClient(appClientId, ws);
       const androidTarget = new AndroidTarget(devtoolsClient, appClient);
       const adapter = new AndroidProtocol(androidTarget);
       this.adapterMap.set(adapterId, adapter);
       return appClient;
     } else if (device.platform === DevicePlatform.IOS) {
-      if (!page?.webSocketDebuggerUrl) return;
+      if (!debugPage?.webSocketDebuggerUrl) return;
 
-      const version = page.device.deviceOSVersion;
-      const url = page.webSocketDebuggerUrl;
-      const appClientId = url;
+      const version = debugPage.device.deviceOSVersion;
+      const url = debugPage.webSocketDebuggerUrl;
       const devtoolsClientId = devtoolsClient.id;
       const adapterId = `${appClientId}-${devtoolsClientId}`;
       if(this.adapterMap.has(adapterId)) return this.appClientMap.get(appClientId);
@@ -48,7 +63,7 @@ class MessageChannel {
       if(this.appClientMap.has(appClientId)) appClient = this.appClientMap.get(appClientId);
       else appClient = new IosProxyClient(url);
 
-      const iosTarget = new IosTarget(devtoolsClient, appClient, page);
+      const iosTarget = new IosTarget(devtoolsClient, appClient, debugPage);
       const adapter = getIosProtocolAdapter(version, iosTarget);
       this.adapterMap.set(adapterId, adapter);
       return appClient;

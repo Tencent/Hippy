@@ -1,3 +1,4 @@
+import { AppClientType } from '@/@types/enum';
 import Router from 'koa-router';
 import request from 'request-promise';
 import { DevicePlatform, ClientType } from 'src/@types/enum';
@@ -5,6 +6,7 @@ import deviceManager from '../device-manager';
 import { v4 as uuidv4 } from 'uuid';
 import { DebugPage } from '../@types/tunnel'
 import fs from 'fs';
+import androidPageManager from '../android-pages-manager';
 // import path from 'path';
 
 export default ({
@@ -23,6 +25,7 @@ export default ({
   chromeInspectRouter.get('/json', async (ctx) => {
     const device = deviceManager.getCurrent();
     let rst: DebugPage[];
+    // ios: 通过 IWDP 获取调试页面列表
     if(device?.platform === DevicePlatform.IOS) {
       const pages = await fetchTargets(iwdpPort);
       rst = pages.map(page => {
@@ -30,7 +33,7 @@ export default ({
         const clientId = uuidv4();
         const ws = `${host}:${port}${
           wsPath
-        }?clientId=${clientId}&targetId=${targetId}&from=${ClientType.Devtools}&role=chrome&debugPage=${encodeURIComponent(
+        }?clientId=${clientId}&targetId=${targetId}&from=${ClientType.Devtools}&role=chrome&appClientType=${AppClientType.IosProxy}&debugPage=${encodeURIComponent(
           JSON.stringify(page),
         )}`;
         return {
@@ -47,9 +50,11 @@ export default ({
       });
     }
     else {
-      const ws = `${host}:${port}${wsPath}?role=chrome&from=${ClientType.Devtools}`;
-      rst = [
-        {
+      rst = androidPageManager.getPages().map(targetId => {
+        const clientId = uuidv4();
+        const appClientType = androidPageManager.useTunnel ? AppClientType.Tunnel : AppClientType.WS;
+        const ws = `${host}:${port}${wsPath}?clientId=${clientId}&targetId=${targetId}&role=chrome&from=${ClientType.Devtools}&appClientType=${appClientType}`;
+        return {
           thumbnailUrl: '',
           description: 'Hippy instance',
           devtoolsFrontendUrl: `chrome-devtools://devtools/bundled/js_app.html?experiments=true&v8only=true&ws=${encodeURIComponent(ws)}`,
@@ -59,8 +64,8 @@ export default ({
           type: 'node',
           url: '',
           webSocketDebuggerUrl: `ws://${ws}`,
-        },
-      ];
+        };
+      });
     }
 
     ctx.body = rst;

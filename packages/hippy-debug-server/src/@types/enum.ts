@@ -51,3 +51,11 @@ export enum PH {
   MetaData = 'M',
   Complete = 'X',
 }
+
+export enum DeviceManagerEvent {
+  addDevice = 'addDevice',
+  removeDevice = 'removeDevice',
+  appDidDisConnect = 'appDidDisConnect',
+  appDidConnect = 'appDidConnect',
+  getDeviceList = 'getDeviceList',
+}

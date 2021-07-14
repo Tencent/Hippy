@@ -1,32 +1,25 @@
 import WebSocket, { Server } from 'ws/index.js';
-import { ClientType, ClientRole, ClientEvent, AppClientType, DevicePlatform } from './@types/enum';
+import { DeviceInfo } from './@types/tunnel';
+import { ClientType, ClientRole, ClientEvent, AppClientType, DevicePlatform, DeviceManagerEvent } from './@types/enum';
 import { AppClient, TunnelAppClient, WsAppClient, IosProxyClient, DevtoolsClient } from './client';
 import { IosTarget } from './adapter';
 import messageChannel from './message-channel';
-import deviceManager from './device-manager';
+import { v4 as uuidv4 } from 'uuid';
+import androidPageManager from './android-pages-manager';
 
 let deviceId;
-export const DefaultTargetId = 'hippy-app';
+
+
+
 /**
  * ws://localhost:7799/devtools?clientId=534&from=devtools&targetId=3214
  * ws://localhost:7799/devtools?clientId=534&from=app
  */
 export class SocketBridge {
   wsPath: string;
-  devtools: {
-    [id: string]: {
-      ws: WebSocket;
-      clientId: string;
-      targetId?: string;
-    };
-  } = {};
-  apps: {
-    [id: string]: AppClient;
-  } = {};
+  appWsMap = new Map<string, WebSocket>();
   wss: Server;
   server;
-  // 缓存起来，避免 target 中重复创建 ws client
-  targetMap: Map<string, IosTarget> = new Map<string, IosTarget>();
 
   constructor(server, { wsPath }) {
     this.wsPath = wsPath;
@@ -40,44 +33,31 @@ export class SocketBridge {
     wss.on('connection', this.onConnection.bind(this));
   }
 
-  addWsAppClient(id, ws) {
-    const appClient = this.apps[id];
-    if (appClient) {
-      appClient.emit(ClientEvent.Close);
-    }
-    setTimeout(() => {
-      const wsAppClient = new WsAppClient(id, ws);
-      this.apps[id] = wsAppClient;
-    }, 100);
-  }
-
-  addProxyAppClient(url) {
-    const proxyAppClient = new IosProxyClient(url);
-    const appClient = this.apps[url];
-    if (appClient) {
-      appClient.emit(ClientEvent.Close);
-    }
-    this.apps[url] = proxyAppClient;
-    return proxyAppClient;
-  }
-
   onConnection(ws, req) {
-    const { clientType, appClientType, clientId, debugPage, pathname } = getClientInfo(req.url);
+    const { clientType, appClientType, clientId, targetId, debugPage, pathname } = getClientInfo(req.url);
+    console.info(clientType, debugPage);
     if (pathname !== this.wsPath) return;
+    if (clientType === ClientType.Unknown) return console.info('invalid client type!');
 
-    console.info(debugPage);
-    if (clientType === ClientType.Unknown) {
-      console.info('invalid client type!');
-      return;
-    }
     if (clientType === ClientType.App) {
-      console.info('app client created');
-      const id = clientId || deviceId;
-      // if (this.apps[id]) this.apps[id].close();
-      this.addWsAppClient(id, ws);
+      console.info('ws app client created');
+      const clientId = androidPageManager.addWsClientId();
+      // 相同id直接覆盖，目前 app 端 ws 连接未作区分
+      this.appWsMap.set(clientId, ws);
+      ws.on('close', () => {
+        androidPageManager.removeWsClientId(clientId);
+      });
     } else if (clientType === ClientType.Devtools) {
       const devtoolsClient = new DevtoolsClient(req.url);
-      const appClient = messageChannel.addChannel(devtoolsClient, debugPage);
+      const appWs = this.appWsMap.get(targetId);
+      if(!appWs && appClientType === AppClientType.WS) return console.warn('app ws is not connected!!!');
+      const appClient = messageChannel.addChannel({
+        devtoolsClient,
+        appClientId: targetId,
+        appClientType,
+        ws: appWs,
+        debugPage,
+      });
       if(!appClient) return console.error('add channel failed!');
 
       if(appClientType === AppClientType.IosProxy) {}
@@ -109,9 +89,9 @@ const getClientInfo = (reqUrl) => {
   const targetId = url.searchParams.get('targetId') || deviceId;
   const role = url.searchParams.get('role');
   const from = url.searchParams.get('from');
+  const appClientType = url.searchParams.get('appClientType') as AppClientType;
   let debugPage: any = url.searchParams.get('debugPage') || '{}';
   let clientType;
-  let appClientType = AppClientType.WS;
   debugPage = JSON.parse(decodeURIComponent(debugPage));
 
   if (from !== ClientType.App && from !== ClientType.Devtools && role !== ClientRole.Android) {
@@ -120,9 +100,6 @@ const getClientInfo = (reqUrl) => {
     clientType = ClientType.App;
   } else if (from === ClientType.Devtools) {
     clientType = ClientType.Devtools;
-  }
-  if (debugPage?.webSocketDebuggerUrl) {
-    appClientType = AppClientType.IosProxy;
   }
   return { clientType, appClientType, clientId, targetId, debugPage, pathname: url.pathname };
 };

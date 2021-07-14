@@ -13,7 +13,9 @@ export class WsAppClient extends AppClient {
       const msgObj = JSON.parse(msg);
       this.emit(ClientEvent.Message, msgObj)
     });
-    ws.on('close', (msg) => this.emit(ClientEvent.Close, msg));
+    ws.on('close', (msg) => {
+      this.emit(ClientEvent.Close, msg)
+    });
   }
 
   send(msg: Adapter.CDP.Req) {
@@ -24,5 +26,10 @@ export class WsAppClient extends AppClient {
   resume() {
     this.ws.send('chrome_socket_closed');
     console.warn('chrome_socket_closed');
+    this.ws.send(JSON.stringify({
+      id: Date.now(),
+      method: 'Debugger.disable',
+      params: {},
+    }));
   }
 }
