@@ -143,7 +143,7 @@
 - (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
     if ([subview isKindOfClass:[HippyHeaderRefresh class]]) {
         if (_headerRefreshView) {
-            [_headerRefreshView removeFromSuperview];
+            [_headerRefreshView unsetFromScrollView];
         }
         _headerRefreshView = (HippyHeaderRefresh *)subview;
         [_headerRefreshView setScrollView:self.tableView];
@@ -151,7 +151,7 @@
         _headerRefreshView.frame = [self.node.subNodes[atIndex] frame];
     } else if ([subview isKindOfClass:[HippyFooterRefresh class]]) {
         if (_footerRefreshView) {
-            [_footerRefreshView removeFromSuperview];
+            [_footerRefreshView unsetFromScrollView];
         }
         _footerRefreshView = (HippyFooterRefresh *)subview;
         [_footerRefreshView setScrollView:self.tableView];
@@ -505,6 +505,11 @@
 
 - (BOOL)showScrollIndicator {
     return [_tableView showsVerticalScrollIndicator];
+}
+
+- (void)dealloc {
+    [_headerRefreshView unsetFromScrollView];
+    [_footerRefreshView unsetFromScrollView];
 }
 
 #pragma mark HippyRefresh Delegate
