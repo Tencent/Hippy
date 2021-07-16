@@ -25,6 +25,7 @@ import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.dom.node.DomDomainData;
 import com.tencent.mtt.hippy.dom.flex.FlexSpacing;
 import com.tencent.mtt.hippy.dom.node.*;
 import com.tencent.mtt.hippy.modules.Promise;
@@ -61,6 +62,7 @@ public class DomManager implements HippyInstanceLifecycleEventListener,
   private final HippyEngineContext mContext;
   private volatile boolean mIsDestroyed = false;
   private volatile boolean mEnginePaused = false;
+  private BatchListener mBatchListener;
 
   public DomManager(HippyEngineContext context) {
     this.mContext = context;
@@ -245,7 +247,7 @@ public class DomManager implements HippyInstanceLifecycleEventListener,
 
   public void batchByAnimation() {
     if (!mRenderBatchStarted) {
-      batch();
+      batch(true);
     }
   }
 
@@ -253,8 +255,13 @@ public class DomManager implements HippyInstanceLifecycleEventListener,
     return mNodeRegistry.getNode(id);
   }
 
-  public void createNode(final HippyRootView hippyRootView, final int id, int pid, int index,
-      final String className, HippyMap map) {
+  public int getRootNodeId() {
+    int count = mNodeRegistry.getRootNodeCount();
+    return count >= 1 ? mNodeRegistry.getRootTag(0) : 0;
+  }
+
+  public void createNode(final HippyRootView hippyRootView, int rootId, final int id, int pid, int index,
+      final String className, String tagName, HippyMap map) {
     //	assertThread();
 
     //create node
@@ -279,6 +286,10 @@ public class DomManager implements HippyInstanceLifecycleEventListener,
       node.setLazy(parentNode.isLazy() || mContext.getRenderManager().getControllerManager()
           .isControllerLazy(className));
       node.setProps(map);
+
+      if (mContext.getDevSupportManager().isSupportDev()) {
+        node.setDomainData(new DomDomainData(id, rootId, pid, className, tagName, map));
+      }
 
       //		boolean isLayoutOnly=false;
       boolean isLayoutOnly =
@@ -759,6 +770,10 @@ public class DomManager implements HippyInstanceLifecycleEventListener,
   }
 
   public void batch() {
+    batch(false);
+  }
+
+  public void batch(boolean isAnimation) {
     int rootNodeCount = mNodeRegistry.getRootNodeCount();
 
     for (int i = 0; i < rootNodeCount; i++) {
@@ -795,6 +810,10 @@ public class DomManager implements HippyInstanceLifecycleEventListener,
     }
     mPaddingNulUITasks.clear();
     mUITasks.clear();
+
+    if (mBatchListener != null) {
+      mBatchListener.onBatch(isAnimation);
+    }
   }
 
   void flushPendingBatches() {
@@ -871,5 +890,14 @@ public class DomManager implements HippyInstanceLifecycleEventListener,
       flushPendingBatches();
     }
   }
+
+	public void setOnBatchListener(BatchListener listener) {
+		mBatchListener = listener;
+	}
+
+	public interface BatchListener {
+
+		void onBatch(boolean isAnimation);
+	}
 
 }
