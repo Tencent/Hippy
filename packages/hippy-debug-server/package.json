@@ -1,6 +1,6 @@
 {
   "name": "@hippy/debug-server",
-  "version": "2.6.5",
+  "version": "2.6.6",
   "description": "Dev server for hippy-core.",
   "repository": "https://github.com/Tencent/Hippy/tree/master/packages/hippy-debug-server",
   "homepage": "http://hippyjs.org",
