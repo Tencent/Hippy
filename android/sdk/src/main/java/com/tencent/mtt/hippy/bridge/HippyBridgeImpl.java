@@ -23,6 +23,7 @@ import com.tencent.mtt.hippy.serialization.nio.reader.BinaryReader;
 import com.tencent.mtt.hippy.serialization.nio.reader.SafeDirectReader;
 import com.tencent.mtt.hippy.serialization.nio.reader.SafeHeapReader;
 import com.tencent.mtt.hippy.serialization.string.InternalizedStringTable;
+import com.tencent.mtt.hippy.devsupport.inspector.Inspector;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.utils.UrlUtils;
 import java.io.ByteArrayOutputStream;
@@ -37,6 +38,7 @@ import java.util.Locale;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.text.TextUtils;
+
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.devsupport.DebugWebSocketClient;
 import com.tencent.mtt.hippy.devsupport.DevRemoteDebugProxy;
@@ -107,9 +109,9 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
       if (TextUtils.isEmpty(mDebugServerHost)) {
         mDebugServerHost = "localhost:38989";
       }
-
+      String clientId = mContext.getDevSupportManager().getDevInstanceUUID();  // 方便区分不同的 Hippy 调试页面
       mDebugWebSocketClient.connect(
-          String.format(Locale.US, "ws://%s/debugger-proxy?role=android_client", mDebugServerHost),
+          String.format(Locale.US, "ws://%s/debugger-proxy?role=android_client&clientId=%s", mDebugServerHost, clientId),
           new DebugWebSocketClient.JSDebuggerCallback() {
             @SuppressWarnings("unused")
             @Override
@@ -403,7 +405,11 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
   @Override
   public void onReceiveData(String msg) {
     if (this.mIsDevModule) {
-      callFunction("onWebsocketMsg", null, msg.getBytes(StandardCharsets.UTF_16LE));
+      boolean isInspectMsg = Inspector.getInstance(mContext)
+        .setWebSocketClient(mDebugWebSocketClient).dispatchReqFromFrontend(mContext, msg);
+      if (!isInspectMsg) {
+        callFunction("onWebsocketMsg", null, msg.getBytes(StandardCharsets.UTF_16LE));
+      }
     }
   }
 }
