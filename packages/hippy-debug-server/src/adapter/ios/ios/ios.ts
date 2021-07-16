@@ -208,7 +208,11 @@ export abstract class IOSProtocol extends ProtocolAdapter {
     });
     this.target.addMessageFilter('tools::Log.enable', (msg) => {
       msg.method = 'Console.enable';
-      return Promise.resolve(msg);
+      this.target.callTarget('Console.enable').then((res) => {
+        console.log('Heap.enable res', msg);
+        this.target.fireResultToTools(msg.id, res);
+      });
+      return Promise.resolve(null);
     });
     this.target.addMessageFilter('target::Console.messageAdded', (msg) => this.onConsoleMessageAdded(msg));
 
@@ -880,7 +884,7 @@ export abstract class IOSProtocol extends ProtocolAdapter {
       networkRequestId: message.networkRequestId,
     };
 
-    this.target.fireEventToTools('Log.entryAdded', {
+    this.target.fireEventToTools('Runtime.consoleAPICalled', {
       entry: consoleMessage,
     });
 

@@ -12,7 +12,7 @@ export type TunnelData = DeviceInfo | number;
 
 export interface DebugPage {
   devtoolsFrontendUrl: string,
-  faviconUrl: string,
+  faviconUrl?: string,
   thumbnailUrl: string,
   title: string,
   url: string,

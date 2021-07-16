@@ -1,4 +1,4 @@
-import { AppClientType } from '@/@types/enum';
+import { AppClientType, ChromePageType } from '../@types/enum';
 import Router from 'koa-router';
 import request from 'request-promise';
 import { DevicePlatform, ClientType } from 'src/@types/enum';
@@ -37,13 +37,14 @@ export default ({
           JSON.stringify(page),
         )}`;
         return {
+          id: targetId,
           thumbnailUrl: '',
           description: page.title,
-          devtoolsFrontendUrl: `chrome-devtools://devtools/bundled/js_app.html?experiments=true&v8only=true&ws=${encodeURIComponent(ws)}`,
-          devtoolsFrontendUrlCompat: `chrome-devtools://devtools/bundled/inspector.html?experiments=true&v8only=true&ws=${encodeURIComponent(ws)}`,
+          devtoolsFrontendUrl: `chrome-devtools://devtools/bundled/inspector.html?experiments=true&ws=${encodeURIComponent(ws)}`,
+          devtoolsFrontendUrlCompat: `chrome-devtools://devtools/bundled/inspector.html?experiments=true&ws=${encodeURIComponent(ws)}`,
           faviconUrl: 'http://res.imtt.qq.com/hippydoc/img/hippy-logo.ico',
           title: page.title,
-          type: 'node',
+          type: ChromePageType.Page,
           url: '',
           webSocketDebuggerUrl: `ws://${ws}`,
         }
@@ -55,13 +56,14 @@ export default ({
         const appClientType = androidPageManager.useTunnel ? AppClientType.Tunnel : AppClientType.WS;
         const ws = `${host}:${port}${wsPath}?clientId=${clientId}&targetId=${targetId}&role=chrome&from=${ClientType.Devtools}&appClientType=${appClientType}`;
         return {
+          id: targetId || clientId,
           thumbnailUrl: '',
           description: 'Hippy instance',
-          devtoolsFrontendUrl: `chrome-devtools://devtools/bundled/js_app.html?experiments=true&v8only=true&ws=${encodeURIComponent(ws)}`,
-          devtoolsFrontendUrlCompat: `chrome-devtools://devtools/bundled/inspector.html?experiments=true&v8only=true&ws=${encodeURIComponent(ws)}`,
+          devtoolsFrontendUrl: `chrome-devtools://devtools/bundled/inspector.html?experiments=true&ws=${encodeURIComponent(ws)}`,
+          devtoolsFrontendUrlCompat: `chrome-devtools://devtools/bundled/inspector.html?experiments=true&ws=${encodeURIComponent(ws)}`,
           faviconUrl: 'http://res.imtt.qq.com/hippydoc/img/hippy-logo.ico',
           title: 'Hippy debug tools for V8',
-          type: 'node',
+          type: ChromePageType.Page,
           url: '',
           webSocketDebuggerUrl: `ws://${ws}`,
         };

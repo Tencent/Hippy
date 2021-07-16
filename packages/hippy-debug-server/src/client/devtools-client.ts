@@ -55,6 +55,7 @@ export class DevtoolsClient extends EventEmitter {
       this.sendToDevtools(msgStr);
     }
 
+    if(!msg) return;
     if('error' in msg) return ;
 
     let method;

@@ -202,6 +202,7 @@ export class IosTarget extends EventEmitter {
         });
 
         sequence.then((filteredMessage) => {
+          if(!filteredMessage) return;
           this.sendToDevtools(filteredMessage);
         });
       } else {

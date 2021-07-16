@@ -59,3 +59,8 @@ export enum DeviceManagerEvent {
   appDidConnect = 'appDidConnect',
   getDeviceList = 'getDeviceList',
 }
+
+export enum ChromePageType {
+  Page = 'page',
+  Node = 'node',
+}
