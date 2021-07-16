@@ -1,17 +1,17 @@
 {
-  "name": "@hippy/debug-server",
-  "version": "2.1.2",
+  "name": "debug-server-next",
+  "version": "3.0.0",
   "description": "Dev server for hippy-core.",
   "repository": "https://github.com/Tencent/Hippy/tree/master/packages/hippy-debug-server",
   "homepage": "http://hippyjs.org",
   "author": "XQ Kuang <x@kxq.io>",
   "license": "Apache-2.0",
   "bin": {
-    "hippy-debug": "index.js"
+    "hippy-debug": "dist/index.js"
   },
   "scripts": {
-    "dev": "cross-env TS_NODE_FILES=true node --inspect=127.0.0.1:9229 -r ts-node/register src/index.ts",
-    "build": ""
+    "dev": "cross-env DEBUG=* TS_NODE_FILES=true node --inspect=127.0.0.1:9229 -r ts-node/register src/index.ts",
+    "build": "npx gulp"
   },
   "keywords": [
     "hippy",
@@ -22,6 +22,7 @@
     "node": ">=10.0.0"
   },
   "dependencies": {
+    "debug": "^4.1.1",
     "find-up": "^4.1.0",
     "koa": "^2.13.1",
     "koa-router": "^10.0.0",
@@ -50,6 +51,9 @@
     "@types/yargs": "^17.0.2",
     "cross-env": "^7.0.3",
     "crossenv": "0.0.2-security",
+    "gulp": "^4.0.2",
+    "gulp-clean": "^0.4.0",
+    "gulp-typescript": "^6.0.0-alpha.1",
     "jest": "^27.0.6",
     "nodemon": "^2.0.10",
     "ts-node": "^10.0.0",
