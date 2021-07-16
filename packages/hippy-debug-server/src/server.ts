@@ -8,7 +8,9 @@ import { TunnelData } from './@types/tunnel';
 import deviceManager from './device-manager';
 import { TunnelEvent } from './@types/enum';
 import { onMessage } from './message-channel/tunnel';
+import createDebug from 'debug';
 
+const debug = createDebug('server');
 const addon = require('./build/Tunnel.node');
 global.addon = addon;
 
@@ -26,7 +28,7 @@ export const startServer = (argv) => {
     const app = new Koa();
 
     server = app.listen(port, host, () => {
-      console.info('start koa dev server');
+      debug('start koa dev server');
       startTunnel(iwdpPort);
       startAdbProxy(port);
       startIosProxy(iwdpPort);
@@ -35,7 +37,7 @@ export const startServer = (argv) => {
     });
 
     server.on('close', () => {
-      console.warn('server is closed.');
+      debug('server is closed.');
       reject();
     });
 
@@ -44,14 +46,14 @@ export const startServer = (argv) => {
         await next();
       } catch (e) {
         debugger;
-        console.error(`koa error: ${JSON.stringify(e)}`);
+        debug(`koa error: %j`, e);
         return (ctx.body = e.msg);
       }
     });
 
     app.use(chromeInspectRouter(argv).routes()).use(chromeInspectRouter(argv).allowedMethods());
 
-    console.log(`serve bundle: ${entry} \nserve folder: ${staticPath}`)
+    debug(`serve bundle: ${entry} \nserve folder: ${staticPath}`)
     // if(entry) app.use(serve(entry));
     if(staticPath) app.use(serve(staticPath));
   });
@@ -61,7 +63,7 @@ const startTunnel = (iwdpPort) => {
   const adbPath = path.join(__dirname, './build/adb');
   const iwdpParams = `--no-frontend --config=null:${iwdpPort},:${iwdpPort + 100}-${iwdpPort + 200}`
   global.addon.addEventListener((event, data: TunnelData) => {
-    console.log(`receive tunnel event: ${event}`);
+    debug(`receive tunnel event: ${event}`);
 
     if (event === TunnelEvent.GetWebsocketPort) {
       // createTunnelClient();

@@ -2,6 +2,11 @@ import { EventEmitter } from 'events';
 import { DebugPage } from '../../@types/tunnel.d';
 import { DevtoolsClient, AppClient } from '../../client';
 import { ClientEvent } from '../../@types/enum';
+import createDebug from 'debug';
+
+const debug = createDebug('target:ios');
+const debugDown = createDebug('↓↓↓');
+const debugUp = createDebug('↑↑↑');
 
 /**
  *
@@ -29,7 +34,7 @@ export class IosTarget extends EventEmitter {
     this.devtoolsClient.on(ClientEvent.Message, this.onMessageFromTools.bind(this));
     this.appClient.on(ClientEvent.Message, this.onMessageFromApp.bind(this));
     this.devtoolsClient.on(ClientEvent.Close, () => {
-      console.log('devtools client close');
+      debug('devtools client close');
 
       // ios 的 resume 需要发送 Debugger.disable
       this.devtoolsClient.sendMessage({
@@ -41,7 +46,7 @@ export class IosTarget extends EventEmitter {
       appClient.resume();
     });
     this.appClient.on(ClientEvent.Close, () => {
-      console.log('app client closed')
+      debug('app client closed')
       debugger
       devtoolsClient.close()
     });
@@ -132,15 +137,15 @@ export class IosTarget extends EventEmitter {
   }
 
   private onMessageFromApp(msg: Adapter.CDP.Res): void {
-    console.info(`↓↓↓ ${JSON.stringify({
+    debugDown(`↓↓↓ %j`, {
       id: (msg as any).id,
       method: (msg as any).method,
       error: (msg as any).error,
-    })}`);
+    });
     this.mockEventsToDevtools(msg);
     if (this._targetBased) {
       if (!(msg as any).method || !(msg as any).method.match(/^Target/)) {
-        console.info(JSON.stringify(msg));
+        debug(JSON.stringify(msg));
         return;
       }
       if ((msg as any).method === 'Target.dispatchMessageFromTarget') {
@@ -185,10 +190,10 @@ export class IosTarget extends EventEmitter {
         } else if ('error' in msg) {
           resultPromise.reject(msg.error);
         } else {
-          console.error(`Unhandled type of request message from target ${JSON.stringify(msg)}`);
+          debug(`Unhandled type of request message from target %j`, msg);
         }
       } else {
-        console.error(`Unhandled message from target ${JSON.stringify(msg)}`);
+        debug(`Unhandled message from target %j`, msg);
       }
     } else {
       const eventName = `target::${msg.method}`;
@@ -215,7 +220,7 @@ export class IosTarget extends EventEmitter {
 
   private mockEventsToDevtools(msg) {
     if (msg.method === 'Runtime.enable') {
-      console.info('emit event Runtime.executionContextCreated');
+      debug('emit event Runtime.executionContextCreated');
       this._contextId += 1;
       this.fireEventToTools('Runtime.executionContextCreated', {
         context: {
@@ -273,7 +278,7 @@ export class IosTarget extends EventEmitter {
       }
     }
 
-    console.info(`↑↑↑ ${JSON.stringify(newMsg)}`);
+    debugUp(`%j`, newMsg);
     this._sendToApp(newMsg);
   }
 }

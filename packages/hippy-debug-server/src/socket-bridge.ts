@@ -6,10 +6,9 @@ import { IosTarget } from './adapter';
 import messageChannel from './message-channel';
 import { v4 as uuidv4 } from 'uuid';
 import androidPageManager from './android-pages-manager';
+import createDebug from 'debug';
 
-let deviceId;
-
-
+const debug = createDebug('socket-bridge');
 
 /**
  * ws://localhost:7799/devtools?clientId=534&from=devtools&targetId=3214
@@ -35,12 +34,12 @@ export class SocketBridge {
 
   onConnection(ws, req) {
     const { clientType, appClientType, clientId, targetId, debugPage, pathname } = getClientInfo(req.url);
-    console.info(clientType, debugPage);
+    debug('%s %j', clientType, debugPage);
     if (pathname !== this.wsPath) return;
-    if (clientType === ClientType.Unknown) return console.info('invalid client type!');
+    if (clientType === ClientType.Unknown) return debug('invalid client type!');
 
     if (clientType === ClientType.App) {
-      console.info('ws app client created');
+      debug('ws app client created');
       const clientId = androidPageManager.addWsClientId();
       // 相同id直接覆盖，目前 app 端 ws 连接未作区分
       this.appWsMap.set(clientId, ws);
@@ -50,7 +49,7 @@ export class SocketBridge {
     } else if (clientType === ClientType.Devtools) {
       const devtoolsClient = new DevtoolsClient(req.url);
       const appWs = this.appWsMap.get(targetId);
-      if(!appWs && appClientType === AppClientType.WS) return console.warn('app ws is not connected!!!');
+      if(!appWs && appClientType === AppClientType.WS) return debug('app ws is not connected!!!');
       const appClient = messageChannel.addChannel({
         devtoolsClient,
         appClientId: targetId,
@@ -58,7 +57,7 @@ export class SocketBridge {
         ws: appWs,
         debugPage,
       });
-      if(!appClient) return console.error('add channel failed!');
+      if(!appClient) return debug('add channel failed!');
 
       if(appClientType === AppClientType.IosProxy) {}
       ws.on('message', (msg) => {
@@ -67,7 +66,7 @@ export class SocketBridge {
           devtoolsClient.sendMessage(msgObj);
         }
         catch(e) {
-          console.error('parse devtools ws message error!');
+          debug('parse devtools ws message error!');
         }
       });
       ws.on('close', () => {
@@ -86,7 +85,7 @@ export class SocketBridge {
 const getClientInfo = (reqUrl) => {
   const url = new URL(reqUrl, 'http://0.0.0.0');
   const clientId = url.searchParams.get('clientId');
-  const targetId = url.searchParams.get('targetId') || deviceId;
+  const targetId = url.searchParams.get('targetId');
   const role = url.searchParams.get('role');
   const from = url.searchParams.get('from');
   const appClientType = url.searchParams.get('appClientType') as AppClientType;

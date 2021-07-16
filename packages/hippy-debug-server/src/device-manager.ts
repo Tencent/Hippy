@@ -1,8 +1,9 @@
 import { DeviceInfo } from './@types/tunnel';
 import { DeviceStatus, DevicePlatform, DeviceManagerEvent } from './@types/enum';
 import { EventEmitter } from 'events';
+import createDebug from 'debug';
 
-const tag = '[device-manager]';
+const debug = createDebug('device-manager');
 
 class DeviceManager extends EventEmitter {
   deviceList: DeviceInfo[] = [];
@@ -37,7 +38,7 @@ class DeviceManager extends EventEmitter {
 
   getDeviceList() {
     global.addon.getDeviceList((devices: any) => {
-      console.log(tag, 'getDeviceList', devices);
+      debug('getDeviceList: %j', devices);
       for (const device of devices) {
         if (device.physicalstatus === DeviceStatus.Disconnected) {
           device.devicename = `${device.devicename}(已断开)`;
@@ -56,7 +57,7 @@ class DeviceManager extends EventEmitter {
           this.selectedIndex = 0;
           const device = this.deviceList[this.selectedIndex];
           const deviceId = device.deviceid;
-          console.log(tag, `selectDevice ${deviceId}`);
+          debug(`selectDevice ${deviceId}`);
           global.addon.selectDevice(deviceId);
         }
       } else {

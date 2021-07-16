@@ -4,6 +4,9 @@ import { AndroidProtocol, AndroidTarget, IosTarget, IOS8Protocol, IOS9Protocol, 
 import { IosProxyClient, WsAppClient, TunnelAppClient, AppClient, DevtoolsClient } from '../client';
 import deviceManager from '../device-manager';
 import WebSocket from 'ws/index.js';
+import createDebug from 'debug';
+
+const debug = createDebug('socket-bridge');
 
 type Adapter = AndroidProtocol | IOS8Protocol | IOS9Protocol | IOS12Protocol;
 
@@ -91,7 +94,7 @@ class MessageChannel {
   } | void {
     const adapterId = `${appClientId}-${devtoolsClientId}`;
     const adapter = this.adapterMap.get(adapterId);
-    if(!adapter) return console.error('message channel adapter instance doesn\'t exist!!!');
+    if(!adapter) return debug('message channel adapter instance doesn\'t exist!!!');
 
     return {
       sendMessage: adapter.target.devtoolsClient.sendMessage.bind(adapter.target.devtoolsClient),
