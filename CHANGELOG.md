@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.7.5](https://github.com/Tencent/Hippy/compare/2.7.4...2.7.5) (2021-07-16)
+
+
+### Bug Fixes
+
+* **ios:** fix hippybaselistview crash when hippyfooterfresh exists ([6132266](https://github.com/Tencent/Hippy/commit/6132266eadeddb62bc297e14dc89d98e354415a2))
+
+
+
+
+
 ## [2.7.4](https://github.com/Tencent/Hippy/compare/2.7.3...2.7.4) (2021-07-08)
 
 **Note:** Version bump only for package hippy
