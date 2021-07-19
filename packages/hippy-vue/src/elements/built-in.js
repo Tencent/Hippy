@@ -67,6 +67,11 @@ const div = {
         case 'onFocus':
           event.isFocused = nativeEventName.focus;
           break;
+        case 'onScrollBeginDrag':
+        case 'onScrollEndDrag':
+          event.offsetX = nativeEventParams.contentOffset.x;
+          event.offsetY = nativeEventParams.contentOffset.y;
+          break;
         default:
       }
       return event;
