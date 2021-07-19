@@ -27,21 +27,25 @@
 #include <string>
 #include <vector>
 
+#include "base/logging.h"
 #include "core/base/common.h"
-#include "core/base/logging.h"
 #include "core/engine.h"
 #include "core/modules/module_register.h"
 #include "core/napi/native_source_code.h"
 #include "core/task/javascript_task.h"
 #include "core/task/javascript_task_runner.h"
 
+using unicode_string_view = tdf::base::unicode_string_view;
+
 using RegisterMap = hippy::base::RegisterMap;
 using RegisterFunction = hippy::base::RegisterFunction;
 using ModuleClassMap = hippy::napi::ModuleClassMap;
 using BindingData = hippy::napi::BindingData;
 using CtxValue = hippy::napi::CtxValue;
+using TryCatch = hippy::napi::TryCatch;
 
-const std::string DEALLOC_FUNCTION_NAME = "HippyDealloc";
+const char kdeallocFuncName[] = "HippyDealloc";
+const char kHippyBootstrapJSName[] = "bootstrap.js";
 
 Scope::Scope(Engine* engine,
              const std::string& name,
@@ -49,33 +53,25 @@ Scope::Scope(Engine* engine,
     : engine_(engine), context_(nullptr), name_(name), map_(std::move(map)) {}
 
 Scope::~Scope() {
-  HIPPY_DLOG(hippy::Debug, "~Scope");
+  TDF_BASE_DLOG(INFO) << "~Scope";
   engine_->Exit();
 }
 
 void Scope::WillExit() {
-  HIPPY_DLOG(hippy::Debug, "WillExit begin");
+  TDF_BASE_DLOG(INFO) << "WillExit begin";
   std::promise<std::shared_ptr<CtxValue>> promise;
   std::future<std::shared_ptr<CtxValue>> future = promise.get_future();
   std::weak_ptr<Ctx> weak_context = context_;
   JavaScriptTask::Function cb = hippy::base::MakeCopyable(
       [weak_context, p = std::move(promise)]() mutable {
-        HIPPY_DLOG(hippy::Debug, "run js WillExit begin");
+        TDF_BASE_LOG(INFO) << "run js WillExit begin";
         std::shared_ptr<CtxValue> rst = nullptr;
         std::shared_ptr<Ctx> context = weak_context.lock();
         if (context) {
-          std::shared_ptr<CtxValue> fn =
-              context->GetJsFn(DEALLOC_FUNCTION_NAME);
+          std::shared_ptr<CtxValue> fn = context->GetJsFn(kdeallocFuncName);
           bool is_fn = context->IsFunction(fn);
           if (is_fn) {
-            std::string exception;
-            context->CallFunction(fn, 0, nullptr, &exception);
-            if (exception.length() > 0) {
-              HIPPY_LOG(hippy::Error, "WillExit error, exception = %s",
-                        exception.c_str());
-            } else {
-              HIPPY_DLOG(hippy::Debug, "js WillExit end");
-            }
+            context->CallFunction(fn, 0, nullptr);
           }
         }
         p.set_value(rst);
@@ -90,7 +86,7 @@ void Scope::WillExit() {
   }
 
   future.get();
-  HIPPY_DLOG(hippy::Debug, "ExitCtx end");
+  TDF_BASE_DLOG(INFO) << "ExitCtx end";
 }
 
 bool Scope::LoadModules() {
@@ -98,16 +94,16 @@ bool Scope::LoadModules() {
 }
 
 void Scope::Initialized() {
-  HIPPY_DLOG(hippy::Debug, "Scope Initialized");
+  TDF_BASE_DLOG(INFO) << "Scope Initialized";
   engine_->Enter();
   context_ = engine_->GetVM()->CreateContext();
   if (context_ == nullptr) {
-    HIPPY_LOG(hippy::Error, "CreateContext return nullptr");
+    TDF_BASE_DLOG(ERROR) << "CreateContext return nullptr";
     return;
   }
   std::shared_ptr<Scope> self = wrapper_->scope_.lock();
   if (!self) {
-    HIPPY_LOG(hippy::Error, "Scope wrapper_ error_");
+    TDF_BASE_DLOG(ERROR) << "Scope wrapper_ error_";
     return;
   }
   RegisterMap::const_iterator it =
@@ -115,87 +111,66 @@ void Scope::Initialized() {
   if (it != map_->end()) {
     RegisterFunction f = it->second;
     if (f) {
-      HIPPY_DLOG(hippy::Debug, "run ContextCreatedCB begin");
+      TDF_BASE_DLOG(INFO) << "run ContextCreatedCB begin";
       f(wrapper_.get());
-      HIPPY_DLOG(hippy::Debug, "run ContextCreatedCB end");
+      TDF_BASE_DLOG(INFO) << "run ContextCreatedCB end";
       map_->erase(it);
     }
   }
-  HIPPY_DLOG(hippy::Debug, "Scope RegisterGlobalInJs");
+  TDF_BASE_DLOG(INFO) << "Scope RegisterGlobalInJs";
   context_->RegisterGlobalModule(self,
                                  ModuleRegister::instance()->GetGlobalList());
   ModuleClassMap map(ModuleRegister::instance()->GetInternalList());
   binding_data_ = std::make_unique<BindingData>(self, map);
 
-  auto source_code = hippy::GetNativeSourceCode("bootstrap.js");
-  HIPPY_DCHECK(source_code.data_ && source_code.length_);
-
-  std::string exception;
-  std::shared_ptr<CtxValue> function =
-      context_->RunScript(source_code.data_, source_code.length_,
-                          "bootstrap.js", false, nullptr, &exception);
-  it = map_->find(hippy::base::kHandleExceptionKey);
-  if (it != map_->end() && !exception.empty()) {
-    RegisterFunction f = it->second;
-    if (f) {
-      f((void*)exception.c_str());
-    }
-  }
+  auto source_code = hippy::GetNativeSourceCode(kHippyBootstrapJSName);
+  TDF_BASE_DCHECK(source_code.data_ && source_code.length_);
+  unicode_string_view str_view(source_code.data_, source_code.length_);
+  std::shared_ptr<CtxValue> function = context_->RunScript(
+      str_view, kHippyBootstrapJSName, false, nullptr, true);
 
   bool is_func = context_->IsFunction(function);
-  HIPPY_CHECK_WITH_MSG(is_func == true,
-                       "bootstrap return not function, register fail!!!");
+  TDF_BASE_CHECK(is_func) << "bootstrap return not function, register fail!!!";
   if (!is_func) {
-    const char* js = reinterpret_cast<const char*>(source_code.data_);
-    HIPPY_LOG(hippy::Error, "bootstrap return not function, js = %s, len = %d",
-              js, source_code.length_);
+    TDF_BASE_DLOG(ERROR) << "bootstrap return not function, js = " << str_view
+                         << ", len = " << source_code.length_;
     return;
   }
 
   std::shared_ptr<CtxValue> internal_binding_fn =
       hippy::napi::GetInternalBindingFn(self);
   std::shared_ptr<CtxValue> argv[] = {internal_binding_fn};
-  exception.empty();
-  std::shared_ptr<CtxValue> ret_value =
-      context_->CallFunction(function, 1, argv, &exception);
-
-  it = map_->find(hippy::base::kHandleExceptionKey);
-  if (it != map_->end() && !exception.empty()) {
-    RegisterFunction f = it->second;
-    if (f) {
-      f((void*)exception.c_str());
-    }
-  }
+  context_->CallFunction(function, 1, argv);
 
   it = map_->find(hippy::base::KScopeInitializedCBKey);
   if (it != map_->end()) {
     RegisterFunction f = it->second;
     if (f) {
-      HIPPY_DLOG(hippy::Debug, "run SCOPE_INITIALIEZED begin");
+      TDF_BASE_DLOG(INFO) << "run SCOPE_INITIALIEZED begin";
       f(wrapper_.get());
-      HIPPY_DLOG(hippy::Debug, "run SCOPE_INITIALIEZED end");
+      TDF_BASE_DLOG(INFO) << "run SCOPE_INITIALIEZED end";
       map_->erase(it);
     }
   }
 }
 
-ModuleBase* Scope::GetModuleClass(const std::string& moduleName) {
+ModuleBase* Scope::GetModuleClass(const unicode_string_view& moduleName) {
   auto it = module_class_map_.find(moduleName);
   return it != module_class_map_.end() ? it->second.get() : nullptr;
 }
 
-void Scope::AddModuleClass(const std::string& name,
+void Scope::AddModuleClass(const unicode_string_view& name,
                            std::unique_ptr<ModuleBase> module) {
   module_class_map_.insert({name, std::move(module)});
 }
 
 std::shared_ptr<hippy::napi::CtxValue> Scope::GetModuleValue(
-    const std::string& moduleName) {
+    const unicode_string_view& moduleName) {
   auto it = module_value_map_.find(moduleName);
   return it != module_value_map_.end() ? it->second : nullptr;
 }
 
-void Scope::AddModuleValue(const std::string& name,
+void Scope::AddModuleValue(const unicode_string_view& name,
                            std::shared_ptr<CtxValue> value) {
   module_value_map_.insert({name, value});
 }
@@ -204,18 +179,16 @@ void Scope::SaveFunctionData(std::unique_ptr<hippy::napi::FunctionData> data) {
   function_data_.push_back(std::move(data));
 }
 
-void Scope::RunJS(const std::string&& js,
-                  const std::string& name,
-                  std::string* exception,
-                  Encoding encodeing) {
+void Scope::RunJS(const unicode_string_view& data,
+                  const unicode_string_view& name,
+                  bool is_copy) {
   std::weak_ptr<Ctx> weak_context = context_;
-  JavaScriptTask::Function callback = [js, name, exception, encodeing,
-                                       weak_context] {
+  JavaScriptTask::Function callback = [data, name, is_copy, weak_context] {
     std::shared_ptr<Ctx> context = weak_context.lock();
     if (!context) {
       return;
     }
-    context->RunScript(std::move(js), name, false, nullptr, exception, encodeing);
+    context->RunScript(data, name, false, nullptr, is_copy);
   };
 
   std::shared_ptr<JavaScriptTaskRunner> runner = engine_->GetJSRunner();
@@ -228,45 +201,18 @@ void Scope::RunJS(const std::string&& js,
   }
 }
 
-void Scope::RunJS(const uint8_t* data,
-                  size_t len,
-                  const std::string& name,
-                  std::string* exception) {
-  std::weak_ptr<Ctx> weak_context = context_;
-  JavaScriptTask::Function callback = [data, len, name, exception, weak_context] {
-    std::shared_ptr<Ctx> context = weak_context.lock();
-    if (!context) {
-      return;
-    }
-    context->RunScript(data, len, name, false, nullptr, exception,
-                        hippy::napi::ONE_BYTE_ENCODING);
-  };
-
-  std::shared_ptr<JavaScriptTaskRunner> runner = engine_->GetJSRunner();
-  if (runner->IsJsThread()) {
-    callback();
-  } else {
-    std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-    task->callback = callback;
-    runner->PostTask(task);
-  }
-}
-
-std::shared_ptr<CtxValue> Scope::RunJSSync(const uint8_t* data,
-                                           size_t len,
-                                           const std::string& name,
-                                           std::string* exception) {
+std::shared_ptr<CtxValue> Scope::RunJSSync(const unicode_string_view& data,
+                                           const unicode_string_view& name,
+                                           bool is_copy) {
   std::promise<std::shared_ptr<CtxValue>> promise;
   std::future<std::shared_ptr<CtxValue>> future = promise.get_future();
   std::weak_ptr<Ctx> weak_context = context_;
-  JavaScriptTask::Function cb =
-      hippy::base::MakeCopyable([data, len, name, weak_context, exception,
-                                 p = std::move(promise)]() mutable {
+  JavaScriptTask::Function cb = hippy::base::MakeCopyable(
+      [data, name, is_copy, weak_context, p = std::move(promise)]() mutable {
         std::shared_ptr<CtxValue> rst = nullptr;
         std::shared_ptr<Ctx> context = weak_context.lock();
         if (context) {
-          rst = context->RunScript(data, len, name, false, nullptr, exception,
-                                   hippy::napi::ONE_BYTE_ENCODING);
+          rst = context->RunScript(data, name, false, nullptr, is_copy);
         }
         p.set_value(rst);
       });

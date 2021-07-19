@@ -119,9 +119,7 @@ function isSameRoute(a, b) {
 
 function isIncludedRoute(current, target) {
   return (
-    current.path.replace(trailingSlashRE, '/').indexOf(
-      target.path.replace(trailingSlashRE, '/'),
-    ) === 0
+    current.path.replace(trailingSlashRE, '/').indexOf(target.path.replace(trailingSlashRE, '/')) === 0
     && (!target.hash || current.hash === target.hash)
     && queryIncludes(current.query, target.query)
   );

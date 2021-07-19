@@ -24,28 +24,26 @@
 
 @implementation HippyTextSelection
 
-- (instancetype)initWithStart:(NSInteger)start end:(NSInteger)end
-{
-  if (self = [super init]) {
-    _start = start;
-    _end = end;
-  }
-  return self;
+- (instancetype)initWithStart:(NSInteger)start end:(NSInteger)end {
+    if (self = [super init]) {
+        _start = start;
+        _end = end;
+    }
+    return self;
 }
 
 @end
 
 @implementation HippyConvert (HippyTextSelection)
 
-+ (HippyTextSelection *)HippyTextSelection:(id)json
-{
-  if ([json isKindOfClass:[NSDictionary class]]) {
-    NSInteger start = [self NSInteger:json[@"start"]];
-    NSInteger end = [self NSInteger:json[@"end"]];
-    return [[HippyTextSelection alloc] initWithStart:start end:end];
-  }
++ (HippyTextSelection *)HippyTextSelection:(id)json {
+    if ([json isKindOfClass:[NSDictionary class]]) {
+        NSInteger start = [self NSInteger:json[@"start"]];
+        NSInteger end = [self NSInteger:json[@"end"]];
+        return [[HippyTextSelection alloc] initWithStart:start end:end];
+    }
 
-  return nil;
+    return nil;
 }
 
 @end

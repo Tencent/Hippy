@@ -1,4 +1,5 @@
 import { Fiber } from 'react-reconciler';
+// @ts-ignore
 import { LayoutContent } from '@localTypes/events';
 import { Bridge, Device, UIManager } from '../global';
 import { getRootViewId, findNodeById, findNodeByCondition } from '../utils/node';
@@ -68,7 +69,7 @@ function getNodeIdByRef(ref: string | Fiber | Element): number {
 
   // typeof fiberRef === 'Fiber'
   if (!(tempRef as Element).nodeId) {
-    const targetElement = getElementFromFiberRef(tempRef);
+    const targetElement = getElementFromFiberRef(tempRef as Element);
     if (!targetElement) {
       return 0;
     }
@@ -83,8 +84,7 @@ function getNodeIdByRef(ref: string | Fiber | Element): number {
  *
  * @param {ViewNode} ref - Element ref that have nodeId.
  * @param {string} funcName - function name.
- * @param {Array} option - fucntion options.
- * @param {function} callback - get result from callUIFunction.
+ * @param {Array} options - function options.
  */
 function callUIFunction(ref: Element | Fiber, funcName: string, ...options: any[]): void {
   let { nativeName: componentName, nodeId } = ref as Element;
@@ -136,7 +136,7 @@ function callUIFunction(ref: Element | Fiber, funcName: string, ...options: any[
  *
  * @param {string} method
  * @param {Fiber | Element} ref - ref that need to measure.
- * @param {function} callBack
+ * @param {function} callback
  */
 function measureInWindowByMethod(
   method: string,
@@ -167,20 +167,23 @@ function measureInWindowByMethod(
 /**
  * Get the ref position and size in the visible window.
  * > For the position and size in the layout, use onLayout event.
+ * P.S. iOS can only obtains the layout of rootView container,
+ * so measureInAppWindow method is recommended
  *
+ * @deprecated
  * @param {Fiber | Element} ref - ref that need to measure.
- * @param {function} callBack
+ * @param {Function} callback
  */
 function measureInWindow(ref: Fiber, callback?: (layout: LayoutContent) => void) {
   return measureInWindowByMethod('measureInWindow', ref, callback);
 }
 
 /**
- * Get the ref position and size in the visible window.
+ * Get the ref position and size in the App visible window.
  * > For the position and size in the layout, use onLayout event.
  *
  * @param {Fiber | Element} ref - ref that need to measure.
- * @param {function} callBack
+ * @param {Function} callback
  */
 function measureInAppWindow(ref: Fiber, callback?: (layout: LayoutContent) => void) {
   if (Device.platform.OS === 'android') {

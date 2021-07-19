@@ -6,9 +6,9 @@
 
 ## 介绍
 
-Hippy 是一个新生的跨端开发框架，目标是使开发者可以只写一套代码就直接运行于三个平台（iOS、Android 和 Web）。Hippy 的设计是面向传统 Web 开发者的，特别是之前有过 React Native 和 Vue 的开发者用起来会更为顺手，Hippy 致力于让前端开发跨端 App 更加容易。
+Hippy 是一个新生的跨端开发框架，目标是使开发者可以只写一套代码就直接运行于三个平台（iOS、Android 和 Web）。Hippy 的设计是面向传统 Web 开发者的，特别是之前有过 React Native 和 Weex 开发经验的开发者用起来会更为顺手，Hippy 致力于让前端开发跨端 App 更加容易。
 
-到目前为止，[腾讯](http://www.tencent.com/)内已经有了18款流行 App 在使用 Hippy 框架，每日触达数亿用户。
+到目前为止，[腾讯](http://www.tencent.com/)内已经有 27 款主流 App 在使用 Hippy 框架，包括手机QQ、手机QQ浏览器、腾讯视频App，QQ音乐App等，每日触达数亿用户。
 
 ## 特征
 
@@ -19,7 +19,7 @@ Hippy 是一个新生的跨端开发框架，目标是使开发者可以只写�
 * 皆可平滑迁移到 Web 浏览器。
 * 完整支持 Flex 的[布局引擎](./layout)。
 
-## Project structure
+## 项目结构
 
 ```text
 Hippy
@@ -35,7 +35,8 @@ Hippy
 │   ├── hippy-vue                     # Hippy 的 Vue 语法绑定。
 │   ├── hippy-vue-css-loader          # 用来将 CSS 文本转换为 JS 语法树以供解析的 Webpack loader。
 │   ├── hippy-vue-native-components   # hippy-vue 中浏览器中所没有的，额外的，终端定制组件。
-│   └── hippy-vue-router              # 在 hippy-vue 中运行的 vue-router。
+│   ├── hippy-vue-router              # 在 hippy-vue 中运行的 vue-router。
+│   └── types                         # 全局 Typescript 类型
 ├── ios
 │   └── sdk                           # iOS SDK。
 ├── android
@@ -43,8 +44,7 @@ Hippy
 │   └── sdk                           # Android SDK。
 ├── core                              # C++ 实现的 JS 模块，通过 Binding 方式运行在 JS 引擎中。
 ├── layout                            # Hippy 布局引擎。
-├── scripts                           # 项目编译脚本。
-└── types                             # 全局 Typescript 类型定义。
+└── scripts                           # 项目编译脚本。
 ```
 
 ## 开始
@@ -72,14 +72,14 @@ Windows 用户需要以下软件:
 
 我们推荐 iOS 开发者使用模拟器来进行开发和调试工作，当然如果你是一个 iOS 开发高手，也可以通过修改配置将 Hippy app 安装到手机上。
 
-1. 安装前端依赖，根目录运行命令：`npm install`。
-2. 通过 lerna 安装前端每一个package依赖: `lerna bootstrap`。
-3. 编译前端 SDK 包，根目录运行命令： `npm run build`。
-4. 选择一个前端范例项目来进行编译：`npm run buildexample -- [hippy-react-demo|hippy-vue-demo]`。
+1. 项目根目录运行命令 `npm install` 安装前端依赖。
+2. 项目根目录运行命令 `lerna bootstrap` 安装前端每一个 package 依赖。（Hippy 采用 [Lerna](https://lerna.js.org/) 管理多JS仓库，如果出现 `lerna command is not found`, 先执行 `npm install lerna -g`）
+3. 项目根目录运行命令 `npm run build` 编译前端 SDK 包。
+4. 选择一个前端范例项目来进行编译，项目根目录运行 `npm run buildexample -- [hippy-react-demo|hippy-vue-demo]`。
 5. 启动 Xcode 并且开始编译终端 App：`open examples/ios-demo/HippyDemo.xcodeproj`。
-6. cd 到 hippy-react-demo 或者 hippy-vue-demo 目录，分别执行 `npm run hippy:dev` 和 `npm run hippy:debug`, 即开启实时 Debug 模式。
+6. `cd` 到 `examples` hippy-react-demo 或者 hippy-vue-demo 目录，先执行 `npm install` 安装 demo 的依赖包，再分别执行 `npm run hippy:dev` 和 `npm run hippy:debug`, 即开启实时 Debug 模式。
 
-在 example 调试模式下，@hippy/react、@hippy/vue等的npm模块会直接链接到 `packages` > `[different package]` >`dist` 下面，所以如果你修改了package下的源代码并且想让其在example中生效，请重新在根目录执行 `npm run build`。
+在 example 调试模式下，@hippy/react、@hippy/vue 等 npm 模块会直接链接到 `packages` > `[different package]` > `dist` 目录下面的js文件，所以如果你修改了 packages 下的源代码并且想让其在 example 中生效，请重新在根目录执行 `npm run build`。
 
 ### 启动 Android App 来测试 hippy-react 或者 hippy-vue 范例
 
@@ -87,22 +87,26 @@ Windows 用户需要以下软件:
 
 在开始前请确认好 SDK 和 NDK 都安装了范例的指定版本，并且**请勿**更新编译工具链。
 
-1. 安装前端依赖，运行命令：`npm install`。
-2. 通过 lerna 安装前端每一个 package 依赖: `lerna bootstrap`。
-3. 编译前端 SDK 包，根目录运行命令： `npm run build`。
-4. 打开一个命令行程序，并选择 hippy-react 范例项目进行编译：`npm run buildexample hippy-react-demo`，或者编译 hippy-vue 范例项目 `npm run buildexample hippy-vue-demo`。
+1. 项目根目录运行命令 `npm install` 安装前端依赖。
+2. 项目根目录运行命令 `lerna bootstrap` 安装前端每一个 package 依赖。（Hippy 采用 [Lerna](https://lerna.js.org/) 管理多JS仓库，如果出现 `lerna command is not found`, 先执行 `npm install lerna -g`）
+3. 项目根目录运行命令 `npm run build` 编译前端 SDK 包。
+4. 选择一个前端范例项目来进行编译，项目根目录运行 `npm run buildexample -- [hippy-react-demo|hippy-vue-demo]`。
 5. 用 Android Studio 来打开终端范例工程 `examples/android-demo`。
 6. 用 USB 数据线插上你的 Android 手机，需要确认手机打开 USB 调试模式和 USB 安装。
-7. 运行工程，并安装 apk。
-8. cd 到 hippy-react-demo 或者 hippy-vue-demo 目录，分别执行 `npm run hippy:dev` 和 `npm run hippy:debug`, 即开启实时 Debug 模式。
+7. 运行工程，并安装 APK。
+8. `cd` 到 `examples` hippy-react-demo 或者 hippy-vue-demo 目录，先执行 `npm install` 安装 demo 的依赖包，再分别执行 `npm run hippy:dev` 和 `npm run hippy:debug`, 即开启实时 Debug 模式。
 
-在 example 调试模式下，@hippy/react、@hippy/vue等的npm模块会直接链接到 `packages` > `[different package]` >`dist` 下面，所以如果你修改了package下的源代码并且想让其在example中生效，请重新在根目录执行 `npm run build`。
+在 example 调试模式下，@hippy/react、@hippy/vue 等 npm 模块会直接链接到 `packages` > `[different package]` > `dist` 目录下面的js文件，所以如果你修改了 packages 下的源代码并且想让其在 example 中生效，请重新在根目录执行 `npm run build`。
 
 > 如果 Android Studio 报了这个错误 `No toolchains found in the NDK toolchains folder for ABI with prefix: mips64el-linux-android`，这里有[解决办法](https://github.com/google/filament/issues/15#issuecomment-415423557)。
 
 ## 贡献
 
 欢迎开发人员为腾讯的开源做出贡献，我们将持续激励他们并感谢他们。我们提供了腾讯对开源贡献的说明，每个项目的具体贡献规则由项目团队制定。开发人员可以选择适当的项目并根据相应的规则参与。腾讯项目管理委员会将定期汇报合格的贡献者，奖项将由官方联络人颁发。
+
+## 追星数
+
+[![Stargazers over time](https://starchart.cc/Tencent/Hippy.svg)](https://starchart.cc/Tencent/Hippy)
 
 ## 许可协议
 

@@ -20,13 +20,13 @@
  *
  */
 
-#ifndef HIPPY_CORE_ENGINE_H_
-#define HIPPY_CORE_ENGINE_H_
+#pragma once
 
 #include <memory>
-#include <mutex>  // NOLINT(build/c++11)
+#include <mutex>
 #include <vector>
 
+#include "base/logging.h"
 #include "core/base/common.h"
 #include "core/napi/js_native_api_types.h"
 #include "core/task/javascript_task_runner.h"
@@ -49,7 +49,7 @@ class Engine {
   std::shared_ptr<Scope> CreateScope(
       const std::string& name = "",
       std::unique_ptr<RegisterMap> map = std::unique_ptr<RegisterMap>());
-  inline const std::shared_ptr<VM> GetVM() { return vm_; }
+  inline std::shared_ptr<VM> GetVM() { return vm_; }
 
   void TerminateRunner();
   inline std::shared_ptr<JavaScriptTaskRunner> GetJSRunner() {
@@ -74,5 +74,3 @@ class Engine {
   std::mutex runner_mutex_;
   uint32_t scope_cnt_;
 };
-
-#endif  // HIPPY_CORE_ENGINE_H_

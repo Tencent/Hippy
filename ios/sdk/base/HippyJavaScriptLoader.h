@@ -30,22 +30,22 @@ NS_ENUM(NSInteger) {
     HippyJavaScriptLoaderErrorFailedReadingFile = 3,
     HippyJavaScriptLoaderErrorFailedStatingFile = 3,
     HippyJavaScriptLoaderErrorURLLoadFailed = 3,
-    
+
     HippyJavaScriptLoaderErrorCannotBeLoadedSynchronously = 1000,
-    };
-    
-    @interface HippyLoadingProgress : NSObject
+};
+
+@interface HippyLoadingProgress : NSObject
 
 @property (nonatomic, copy) NSString *status;
 @property (strong, nonatomic) NSNumber *done;
 @property (strong, nonatomic) NSNumber *total;
 
 @end
-    
-    typedef void (^HippySourceLoadProgressBlock)(HippyLoadingProgress *progressData);
-    typedef void (^HippySourceLoadBlock)(NSError *error, NSData *source, int64_t sourceLength);
-    
-    @interface HippyJavaScriptLoader : NSObject
+
+typedef void (^HippySourceLoadProgressBlock)(HippyLoadingProgress *progressData);
+typedef void (^HippySourceLoadBlock)(NSError *error, NSData *source, int64_t sourceLength);
+
+@interface HippyJavaScriptLoader : NSObject
 
 + (void)loadBundleAtURL:(NSURL *)scriptURL onProgress:(HippySourceLoadProgressBlock)onProgress onComplete:(HippySourceLoadBlock)onComplete;
 

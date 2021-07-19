@@ -21,13 +21,19 @@ public enum FlexCSSDirection {
   COLUMN,
   COLUMN_REVERSE;
 
+  @SuppressWarnings("unused")
   public static FlexCSSDirection fromInt(int value) {
-	    switch (value) {
-	      case 0: return ROW;
-	      case 1: return ROW_REVERSE;
-	      case 2: return COLUMN;
-	      case 3: return COLUMN_REVERSE;
-	      default: throw new IllegalArgumentException("Unknown enum value: " + value);
-	    }
-	  }
+    switch (value) {
+      case 0:
+        return ROW;
+      case 1:
+        return ROW_REVERSE;
+      case 2:
+        return COLUMN;
+      case 3:
+        return COLUMN_REVERSE;
+      default:
+        throw new IllegalArgumentException("Unknown enum value: " + value);
+    }
+  }
 }

@@ -1,7 +1,10 @@
 const ContextifyModule = internalBinding('ContextifyModule');
 
 global.dynamicLoad = (path, encode, cb) => {
-  console.log(`global.__HIPPYCURDIR__ = ${global.__HIPPYCURDIR__},
-    encode = ${encode}, path = ${path}`);
-  ContextifyModule.LoadUriContent(global.__HIPPYCURDIR__ + path, encode, cb);
+  let requestPath = path || '';
+  const isSchema = ['https://', 'http://', '//'].some(schema => requestPath.indexOf(schema) === 0);
+  if (!isSchema) {
+    requestPath = global.__HIPPYCURDIR__ + path;
+  }
+  ContextifyModule.LoadUntrustedContent(requestPath, encode, cb);
 };

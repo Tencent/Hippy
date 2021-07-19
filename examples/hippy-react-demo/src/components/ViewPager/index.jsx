@@ -69,10 +69,16 @@ export default class PagerExample extends React.Component {
     // eslint-disable-next-line class-methods-use-this
     onPageSelected(pageData) {
       // eslint-disable-next-line no-console
-      // console.log('onPageSelected', pageData);
+      console.log('=====onPageSelected', pageData.position);
       this.setState({
         selectedIndex: pageData.position,
       });
+    }
+
+    // eslint-disable-next-line class-methods-use-this
+    onPageScrollStateChanged(pageScrollState) {
+      // eslint-disable-next-line no-console
+      console.log('=====onPageScrollStateChanged===', pageScrollState);
     }
 
     // eslint-disable-next-line class-methods-use-this
@@ -99,7 +105,9 @@ export default class PagerExample extends React.Component {
             </View>
           </View>
           <ViewPager
-            ref={(ref) => { this.viewpager = ref; }}
+            ref={(ref) => {
+              this.viewpager = ref;
+            }}
             style={styles.container}
             initialPage={0}
             keyboardDismissMode="none"
@@ -117,12 +125,14 @@ export default class PagerExample extends React.Component {
           </ViewPager>
           <View style={styles.dotContainer}>
             {
-              new Array(PAGE_COUNT).fill(0).map((n, i) => {
-                const isSelect = i === selectedIndex;
-                return (
+              new Array(PAGE_COUNT).fill(0)
+                .map((n, i) => {
+                  const isSelect = i === selectedIndex;
+                  return (
+                  // eslint-disable-next-line react/jsx-key
                   <View style={[styles.dot, isSelect ? styles.selectDot : null]} />
-                );
-              })
+                  );
+                })
             }
           </View>
         </View>

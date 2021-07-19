@@ -15,18 +15,12 @@
  */
 package com.tencent.mtt.hippy.views.list;
 
-/**
- * @Description: TODO
- * @author: edsheng
- * @date: 2018/2/28 19:45
- * @version: V1.0
- */
+@SuppressWarnings({"unused"})
+public interface HippyRecycler {
 
-public interface HippyRecycler
-{
-	//恢复默认的时候使用
-	void resetProps();
+  //恢复默认的时候使用
+  void resetProps();
 
-	//replace id 的时候清除不需要的属性
-	void clear();
+  //replace id 的时候清除不需要的属性
+  void clear();
 }

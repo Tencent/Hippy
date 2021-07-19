@@ -30,17 +30,17 @@
 #define NanAsINF(n) (isnan(n) ? INFINITY : n)
 
 typedef enum {
-  LogLevelInfo,
-  LogLevelVerbose,
-  LogLevelDebug,
-  LogLevelWarn,
-  LogLevelError,
-  LogLevelFatal,
+    LogLevelInfo,
+    LogLevelVerbose,
+    LogLevelDebug,
+    LogLevelWarn,
+    LogLevelError,
+    LogLevelFatal,
 } LogLevel;
 
-#define MTTLogd(...) MTTLog(LogLevelDebug,  __VA_ARGS__)
+#define MTTLogd(...) MTTLog(LogLevelDebug, __VA_ARGS__)
 #define MTTLogdStr(...) MTTLog(LogLevelDebug, "%s", __VA_ARGS__)
-void  MTTLog(LogLevel level, const char *format, ...);
+void MTTLog(LogLevel level, const char *format, ...);
 
 bool FloatIsEqual(const float a, const float b);
 bool FloatIsEqualInScale(float a, float b, float scale);

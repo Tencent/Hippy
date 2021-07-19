@@ -20,7 +20,7 @@ function mapTransform(transform: any) {
   return `${type}(${value})`;
 }
 
-function resolveTransform(transformArray: any[]) {
+function resolveTransform(transformArray: any[]): any {
   let transform = '';
   if (Array.isArray(transformArray)) {
     if (transformArray.length > 1) {
@@ -69,50 +69,56 @@ function transformHexToRgba(color: number) {
   return `rbga(${red},${green},${blue},${alpha})`;
 }
 
-function hackWebStyle(webStyle_: any) {
-  const webStyle = webStyle_;
-  /*
-     if (webStyle.flexDirection || webStyle.justifyContent || webStyle.alignItems) {
-     }
-  */
-  if (!webStyle.display) {
-    Object.assign(webStyle, {
-      display: displayValue,
-      flexDirection: webStyle.flexDirection ? webStyle.flexDirection : 'column',
-    });
+function isNumeric(num: unknown) {
+  if (typeof num === 'number' && Number.isFinite(num)) {
+    return true;
   }
-
-  if (webStyle.lineHeight) {
-    if (typeof webStyle.lineHeight === 'number' || /^[\d.]+$/.test(webStyle.lineHeight)) {
-      webStyle.lineHeight += 'px';
-    }
+  if (typeof num === 'string') {
+    return !Number.isNaN(Number(num)) && !Number.isNaN(parseFloat(num));
   }
+  return false;
+}
 
-  if (!webStyle.position) {
-    webStyle.position = 'relative';
-  }
+function toPx(num: unknown) {
+  return isNumeric(num) ? `${num}px` : num;
+}
 
-  webStyle.boxSizing = 'border-box';
+interface WebStyle {
+  borderStyle?: any,
+  marginHorizontal?: any
+  marginLeft?: any,
+  marginRight?: any,
+  marginTop?: any,
+  marginBottom?: any,
+  paddingLeft?: any,
+  paddingRight?: any,
+  paddingTop?: any,
+  paddingBottom?: any,
+  marginVertical?: any,
+  paddingHorizontal?: any,
+  paddingVertical?: any,
+  color?: any
+  colors?: any,
+  borderColor?: any,
+  borderColors?: any,
+  borderTopColor?: any,
+  borderTopColors?: any,
+  borderBottomColor?: any,
+  borderBottomColors?: any,
+  borderLeftColor?: any,
+  borderLeftColors?: any,
+  borderRightColor?: any,
+  borderRightColors?: any,
+  backgroundColor?: any,
+  backgroundColors?: any,
+  [props: string]: any
+}
 
-  // 处理特殊 border
-  borderSpecialPropsArray.forEach((borderProp) => {
-    if (hasOwnProperty(webStyle, borderProp)) {
-      webStyle.borderStyle = null;
-      if (borderProp === 'borderTopWidth') {
-        webStyle.borderTopStyle = 'solid';
-      } else if (borderProp === 'borderBottomWidth') {
-        webStyle.borderBottomStyle = 'solid';
-      } else if (borderProp === 'borderLeftWidth') {
-        webStyle.borderLeftStyle = 'solid';
-      } else if (borderProp === 'borderRightWidth') {
-        webStyle.borderRightStyle = 'solid';
-      }
-    }
-  });
-
+function handleBoxStyle(webStyle: WebStyle) {
   // 处理普通border
   borderPropsArray.every((borderProp) => {
     if (hasOwnProperty(webStyle, borderProp)) {
+      // eslint-disable-next-line no-param-reassign
       webStyle.borderStyle = 'solid';
       return false;
     }
@@ -121,65 +127,52 @@ function hackWebStyle(webStyle_: any) {
 
   // 处理marginHorizontal
   if (hasOwnProperty(webStyle, 'marginHorizontal')) {
-    webStyle.marginLeft = `${webStyle.marginHorizontal}px`;
-    webStyle.marginRight = `${webStyle.marginHorizontal}px`;
+    const val = toPx(webStyle.marginHorizontal);
+    /* eslint-disable no-param-reassign */
+    webStyle.marginLeft = val;
+    webStyle.marginRight = val;
   }
 
   // 处理marginVertical
   if (hasOwnProperty(webStyle, 'marginVertical')) {
-    webStyle.marginTop = `${webStyle.marginVertical}px`;
-    webStyle.marginBottom = `${webStyle.marginVertical}px`;
+    const val = toPx(webStyle.marginVertical);
+    webStyle.marginTop = val;
+    webStyle.marginBottom = val;
   }
   // 处理paddingHorizontal
   if (hasOwnProperty(webStyle, 'paddingHorizontal')) {
-    webStyle.paddingLeft = `${webStyle.paddingHorizontal}px`;
-    webStyle.paddingRight = `${webStyle.paddingHorizontal}px`;
+    const val = toPx(webStyle.paddingHorizontal);
+    webStyle.paddingLeft = val;
+    webStyle.paddingRight = val;
   }
   // 处理paddingVertical
   if (hasOwnProperty(webStyle, 'paddingVertical')) {
-    webStyle.paddingTop = `${webStyle.paddingVertical}px`;
-    webStyle.paddingBottom = `${webStyle.paddingVertical}px`;
+    const val = toPx(webStyle.paddingVertical);
+    webStyle.paddingTop = val;
+    webStyle.paddingBottom = val;
   }
+}
 
-  if (webStyle.height && webStyle.height === 0.5) {
-    webStyle.height = '1px';
-  }
+// 处理颜色数组（QQ浏览器专有）
+function handleSpecialColor(webStyle: WebStyle) {
+  const colorStyleArr = [
+    ['color', 'colors'],
+    ['borderColor', 'borderColors'],
+    ['borderTopColor', 'borderTopColors'],
+    ['borderBottomColor', 'borderBottomColors'],
+    ['borderLeftColor', 'borderLeftColors'],
+    ['borderRightColor', 'borderRightColors'],
+    ['backgroundColor', 'backgroundColors'],
+  ];
+  colorStyleArr.forEach((colorList) => {
+    const [color, colors] = colorList;
+    if (!webStyle[color] && webStyle[colors] && webStyle[colors].length > 0) {
+      [webStyle[color]] = webStyle[colors];
+    }
+  });
+}
 
-  // 处理颜色数组（QQ浏览器专有）
-  // TODO 剥离出来，不写在公用库
-  if (!webStyle.color && webStyle.colors && webStyle.colors.length > 0) {
-    [webStyle.color] = webStyle.colors;
-  }
-
-  if (!webStyle.borderColor && webStyle.borderColors && webStyle.borderColors.length > 0) {
-    [webStyle.borderColor] = webStyle.borderColors;
-  }
-
-  if (!webStyle.borderTopColor && webStyle.borderTopColors && webStyle.borderTopColors.length > 0) {
-    [webStyle.borderTopColor] = webStyle.borderTopColors;
-  }
-
-  if (!webStyle.borderBottomColor && webStyle.borderBottomColors
-    && webStyle.borderBottomColors.length > 0) {
-    [webStyle.borderBottomColor] = webStyle.borderBottomColors;
-  }
-
-  if (!webStyle.borderLeftColor && webStyle.borderLeftColors
-    && webStyle.borderLeftColors.length > 0) {
-    [webStyle.borderLeftColor] = webStyle.borderLeftColors;
-  }
-
-  if (!webStyle.borderRightColor && webStyle.borderRightColors
-    && webStyle.borderRightColors.length > 0) {
-    [webStyle.borderRightColor] = webStyle.borderRightColors;
-  }
-
-  if (!webStyle.backgroundColor && webStyle.backgroundColors
-    && webStyle.backgroundColors.length > 0) {
-    [webStyle.backgroundColor] = webStyle.backgroundColors;
-  }
-
-
+function handle8BitHexColor(webStyle: WebStyle) {
   // 处理八位16进制的颜色值为rgba颜色值
   if (is8DigitHexColor(webStyle.backgroundColor)) {
     webStyle.backgroundColor = transformHexToRgba(webStyle.backgroundColor);
@@ -208,6 +201,52 @@ function hackWebStyle(webStyle_: any) {
   if (is8DigitHexColor(webStyle.borderRightColor)) {
     webStyle.borderRightColor = transformHexToRgba(webStyle.borderRightColor);
   }
+}
+
+function hackWebStyle(webStyle_: any) {
+  const webStyle = webStyle_;
+  /*
+     if (webStyle.flexDirection || webStyle.justifyContent || webStyle.alignItems) {
+     }
+  */
+  if (!webStyle.display) {
+    Object.assign(webStyle, {
+      display: displayValue,
+      flexDirection: webStyle.flexDirection ? webStyle.flexDirection : 'column',
+    });
+  }
+
+  toPx(webStyle.lineHeight);
+
+  if (!webStyle.position) {
+    webStyle.position = 'relative';
+  }
+
+  webStyle.boxSizing = 'border-box';
+
+  // 处理特殊 border
+  borderSpecialPropsArray.forEach((borderProp) => {
+    if (hasOwnProperty(webStyle, borderProp)) {
+      webStyle.borderStyle = null;
+      if (borderProp === 'borderTopWidth') {
+        webStyle.borderTopStyle = 'solid';
+      } else if (borderProp === 'borderBottomWidth') {
+        webStyle.borderBottomStyle = 'solid';
+      } else if (borderProp === 'borderLeftWidth') {
+        webStyle.borderLeftStyle = 'solid';
+      } else if (borderProp === 'borderRightWidth') {
+        webStyle.borderRightStyle = 'solid';
+      }
+    }
+  });
+
+  handleBoxStyle(webStyle);
+  if (webStyle.height && webStyle.height === 0.5) {
+    webStyle.height = '1px';
+  }
+  handleSpecialColor(webStyle);
+  // 处理八位16进制的颜色值为rgba颜色值
+  handle8BitHexColor(webStyle);
 
   Object.keys(webStyle)
     .forEach((key) => {

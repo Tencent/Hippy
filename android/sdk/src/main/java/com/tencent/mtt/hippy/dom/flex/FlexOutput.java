@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 package com.tencent.mtt.hippy.dom.flex;
+
+@SuppressWarnings("all")
 public class FlexOutput {
+
   public static long make(float width, float height) {
     return make((int) width, (int) height);
   }
@@ -23,10 +26,12 @@ public class FlexOutput {
     return ((long) width) << 32 | ((long) height);
   }
 
+  @SuppressWarnings("PointlessBitwiseExpression")
   public static int getWidth(long measureOutput) {
     return (int) (0xFFFFFFFF & (measureOutput >> 32));
   }
 
+  @SuppressWarnings("PointlessBitwiseExpression")
   public static int getHeight(long measureOutput) {
     return (int) (0xFFFFFFFF & measureOutput);
   }

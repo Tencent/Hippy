@@ -19,12 +19,18 @@ public enum FlexOverflow {
   VISIBLE,
   HIDDEN,
   SCROLL;
+
+  @SuppressWarnings("unused")
   public static FlexOverflow fromInt(int value) {
-	    switch (value) {
-	      case 0: return VISIBLE;
-	      case 1: return HIDDEN;
-	      case 2: return SCROLL;
-	      default: throw new IllegalArgumentException("Unknown enum value: " + value);
-	    }
-	  }
+    switch (value) {
+      case 0:
+        return VISIBLE;
+      case 1:
+        return HIDDEN;
+      case 2:
+        return SCROLL;
+      default:
+        throw new IllegalArgumentException("Unknown enum value: " + value);
+    }
+  }
 }

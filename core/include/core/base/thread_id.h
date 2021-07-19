@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef HIPPY_CORE_BASE_THREAD_ID_H_
-#define HIPPY_CORE_BASE_THREAD_ID_H_
+#pragma once
 
 #include <pthread.h>
 #include <stdint.h>
@@ -47,5 +46,3 @@ class ThreadId {
 
 }  // namespace base
 }  // namespace hippy
-
-#endif  // HIPPY_CORE_BASE_THREAD_ID_H_

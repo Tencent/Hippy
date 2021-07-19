@@ -3,6 +3,7 @@ import BackAndroid from '../modules/back-android';
 import Hippy from '../hippy';
 import { callUIFunction } from '../modules/ui-manager-module';
 import { Device } from '../native';
+import Element from '../dom/element-node';
 
 interface Top {
   data: any;
@@ -21,8 +22,8 @@ interface NavigatorProps {
    * Initial page option, the option object should contains.
    *
    * * {string} routeName - Router name
-   * * {React.Comopnent} component - Initial react component
-   * * {Object} initProps - Initial props for inital react component
+   * * {React.Component} component - Initial react component
+   * * {Object} initProps - Initial props for initial react component
    * * {boolean} animated - Use animation effect to switch to new page
    */
   initialRoute: Route;
@@ -37,10 +38,6 @@ class Stack {
    * Push into a new page/component.
    *
    * @param {Object} route - New router
-   * @param {string} routeName - Router name
-   * @param {React.Comopnent} component - Initial react component
-   * @param {Object} initProps - Initial props for inital react component
-   * @param {boolean} animated - Use animation effect to switch to new page
    */
   public push(route: Route) {
     (this.top as Top) = {
@@ -111,7 +108,7 @@ class Stack {
 class Navigator extends React.Component<NavigatorProps, {}> {
   private stack = new Stack();
 
-  private instance:  HTMLDivElement | null = null;
+  private instance: HTMLDivElement | Element | null = null;
 
   private routeList: {
     [key: string]: boolean;
@@ -184,10 +181,6 @@ class Navigator extends React.Component<NavigatorProps, {}> {
    * Push into a new page/component.
    *
    * @param {Object} route - New router
-   * @param {string} routeName - Router name
-   * @param {React.Comopnent} component - Initial react component
-   * @param {Object} initProps - Initial props for inital react component
-   * @param {boolean} animated - Use animation effect to switch to new page
    */
   public push(route: Route) {
     if (route && route.component) {
@@ -200,13 +193,13 @@ class Navigator extends React.Component<NavigatorProps, {}> {
         this.routeList[route.routeName] = true;
       }
 
-      const newRoute = route;
-      delete newRoute.component;
+      // eslint-disable-next-line no-param-reassign
+      delete route.component;
     }
 
     const routes = [route];
     this.stack.push(route);
-    callUIFunction(this.instance, 'push', routes);
+    callUIFunction(this.instance as Element, 'push', routes);
   }
 
   /**
@@ -216,7 +209,7 @@ class Navigator extends React.Component<NavigatorProps, {}> {
     if (this.stack.size > 1) {
       const options = [option];
       this.stack.pop();
-      callUIFunction(this.instance, 'pop', options);
+      callUIFunction(this.instance as Element, 'pop', options);
     }
   }
 
@@ -241,7 +234,9 @@ class Navigator extends React.Component<NavigatorProps, {}> {
     } = this.props;
     (nativeProps as NavigatorProps).initialRoute = otherInitialRoute;
     return (
-      <div nativeName="Navigator" ref={(ref) => { this.instance = ref; }} {...nativeProps} />
+      <div nativeName="Navigator" ref={(ref) => {
+        this.instance = ref;
+      }} {...nativeProps} />
     );
   }
 }

@@ -29,33 +29,29 @@ import android.text.TextUtils;
 import android.view.MotionEvent;
 import android.view.View;
 
+@SuppressWarnings({"unused"})
+public class HippyViewPager extends ViewPager implements HippyViewBase {
 
-public class HippyViewPager extends ViewPager implements HippyViewBase
-{
-	private static final String			TAG					= "HippyViewPager";
+  private static final String TAG = "HippyViewPager";
 
-	private final Runnable				mMeasureAndLayout	= new Runnable()
-															{
-																@Override
-																public void run()
-																{
-																	measure(View.MeasureSpec.makeMeasureSpec(getWidth(), View.MeasureSpec.EXACTLY),
-																			View.MeasureSpec.makeMeasureSpec(getHeight(), View.MeasureSpec.EXACTLY));
-																	layout(getLeft(), getTop(), getRight(), getBottom());
-																}
-															};
+  private final Runnable mMeasureAndLayout = new Runnable() {
+    @Override
+    public void run() {
+      measure(View.MeasureSpec.makeMeasureSpec(getWidth(), View.MeasureSpec.EXACTLY),
+          View.MeasureSpec.makeMeasureSpec(getHeight(), View.MeasureSpec.EXACTLY));
+      layout(getLeft(), getTop(), getRight(), getBottom());
+    }
+  };
 
 
-	private NativeGestureDispatcher		mGestureDispatcher;
-	private boolean						mScrollEnabled		= true;
-	private boolean						mFirstUpdateChild	= true;
-	private boolean 					mReNotifyOnAttach = false;
-	private ViewPagerPageChangeListener	mPageListener;
-	private String								mOverflow;
-	private Handler						mHandler			= new Handler(Looper.getMainLooper());
-  private Promise           mCallBackPromise;
+  private NativeGestureDispatcher mGestureDispatcher;
+  private boolean mFirstUpdateChild = true;
+  private final boolean mReNotifyOnAttach = false;
+  private ViewPagerPageChangeListener mPageListener;
+  private final Handler mHandler = new Handler(Looper.getMainLooper());
+  private Promise mCallBackPromise;
 
-	private void init(Context context) {
+  private void init(Context context) {
     setCallPageChangedOnFirstLayout(true);
     setEnableReLayoutOnAttachToWindow(false);
 
@@ -66,19 +62,17 @@ public class HippyViewPager extends ViewPager implements HippyViewBase
     setRightDragOutSizeEnabled(false);
   }
 
-  public HippyViewPager(Context context, boolean isVertical)
-  {
+  public HippyViewPager(Context context, boolean isVertical) {
     super(context, isVertical);
     init(context);
   }
 
-	public HippyViewPager(Context context)
-	{
-		super(context);
+  public HippyViewPager(Context context) {
+    super(context);
     init(context);
-	}
+  }
 
-	public void setCallBackPromise(Promise promise) {
+  public void setCallBackPromise(Promise promise) {
     mCallBackPromise = promise;
   }
 
@@ -86,206 +80,169 @@ public class HippyViewPager extends ViewPager implements HippyViewBase
     return mCallBackPromise;
   }
 
-  protected HippyViewPagerAdapter createAdapter(Context context)
-	{
-		return new HippyViewPagerAdapter((HippyInstanceContext) context, this);
-	}
+  protected HippyViewPagerAdapter createAdapter(Context context) {
+    return new HippyViewPagerAdapter((HippyInstanceContext) context, this);
+  }
 
-	public void setInitialPageIndex(int index)
-	{
-		getAdapter().setInitPageIndex(index);
-	}
+  public void setInitialPageIndex(int index) {
+    getAdapter().setInitPageIndex(index);
+  }
 
 
-	public void setChildCountAndUpdate(final int childCount)
-	{
-		LogUtils.d(TAG, "doUpdateInternal: " + hashCode() + ", childCount=" + childCount);
-		if (mFirstUpdateChild)
-		{
-			setFirstLayoutParameter(true);
-			mFirstUpdateChild = false;
-		}
-		getAdapter().setChildSize(childCount);
-		//getWindowToken() == null执行这个操作，onAttachToWindow就不需要了。
-		getAdapter().notifyDataSetChanged();
-		triggerRequestLayout();
-	}
+  public void setChildCountAndUpdate(final int childCount) {
+    LogUtils.d(TAG, "doUpdateInternal: " + hashCode() + ", childCount=" + childCount);
+    if (mFirstUpdateChild) {
+      setFirstLayoutParameter(true);
+      mFirstUpdateChild = false;
+    }
+    getAdapter().setChildSize(childCount);
+    //getWindowToken() == null执行这个操作，onAttachToWindow就不需要了。
+    getAdapter().notifyDataSetChanged();
+    triggerRequestLayout();
+  }
 
-	protected void addViewToAdapter(HippyViewPagerItem view, int postion)
-	{
-		HippyViewPagerAdapter adapter = getAdapter();
-		if (adapter != null)
-		{
-			adapter.addView(view, postion);
-		}
-	}
+  protected void addViewToAdapter(HippyViewPagerItem view, int postion) {
+    HippyViewPagerAdapter adapter = getAdapter();
+    if (adapter != null) {
+      adapter.addView(view, postion);
+    }
+  }
 
-	protected int getAdapterViewSize()
-	{
-		HippyViewPagerAdapter adapter = getAdapter();
-		if (adapter != null)
-		{
-			return adapter.getItemViewSize();
-		}
-		return 0;
-	}
+  protected int getAdapterViewSize() {
+    HippyViewPagerAdapter adapter = getAdapter();
+    if (adapter != null) {
+      return adapter.getItemViewSize();
+    }
+    return 0;
+  }
 
-	protected void removeViewFromAdapter(HippyViewPagerItem view)
-	{
-		HippyViewPagerAdapter adapter = getAdapter();
-		if (adapter != null)
-		{
-			adapter.removeView(view);
-		}
-	}
+  protected void removeViewFromAdapter(HippyViewPagerItem view) {
+    HippyViewPagerAdapter adapter = getAdapter();
+    if (adapter != null) {
+      adapter.removeView(view);
+    }
+  }
 
-	public View getViewFromAdapter(int currentItem)
-	{
-		HippyViewPagerAdapter adapter = getAdapter();
-		if (adapter != null)
-		{
-			return adapter.getViewAt(currentItem);
-		}
-		return null;
-	}
+  public View getViewFromAdapter(int currentItem) {
+    HippyViewPagerAdapter adapter = getAdapter();
+    if (adapter != null) {
+      return adapter.getViewAt(currentItem);
+    }
+    return null;
+  }
 
-	@Override
-	public HippyViewPagerAdapter getAdapter()
-	{
-		return (HippyViewPagerAdapter) super.getAdapter();
-	}
+  @Override
+  public HippyViewPagerAdapter getAdapter() {
+    return (HippyViewPagerAdapter) super.getAdapter();
+  }
 
-	@Override
-	public boolean onInterceptTouchEvent(MotionEvent ev)
-	{
-		if (!mScrollEnabled)
-		{
-			return false;
-		}
+  @Override
+  public boolean onInterceptTouchEvent(MotionEvent ev) {
+    if (!isScrollEnabled()) {
+      return false;
+    }
 
-		return super.onInterceptTouchEvent(ev);
-	}
+    return super.onInterceptTouchEvent(ev);
+  }
 
-	@Override
-	public boolean onTouchEvent(MotionEvent ev)
-	{
-		if (!mScrollEnabled)
-		{
-			return false;
-		}
+  @Override
+  public boolean onTouchEvent(MotionEvent ev) {
+    if (!isScrollEnabled()) {
+      return false;
+    }
 
-		return super.onTouchEvent(ev);
-	}
+    return super.onTouchEvent(ev);
+  }
 
-	@Override
-	protected void onAttachedToWindow()
-	{
-		super.onAttachedToWindow();
-		LogUtils.d(TAG, "onAttachedToWindow: " + hashCode() + ", childCount=" + getChildCount() + ", repopulate=" + mNeedRepopulate
-				+ ", renotifyOnAttach=" + mReNotifyOnAttach);
+  @Override
+  protected void onAttachedToWindow() {
+    super.onAttachedToWindow();
+    LogUtils.d(TAG, "onAttachedToWindow: " + hashCode() + ", childCount=" + getChildCount()
+        + ", repopulate=" + mNeedRepopulate
+        + ", renotifyOnAttach=" + mReNotifyOnAttach);
 
-		/*
-		 * hippy 在setChildCountAndUpdate打开，执行了
-		 * if (mReNotifyOnAttach)
-		 * {
-		 * getAdapter().notifyDataSetChanged();
-		 * mReNotifyOnAttach = false;
-		 * }
-		 */
-		// 9.6在supportui已经把windowToken的检查过滤去掉了，所以这里应该关掉
-		/*
-		 * if (mNeedRepopulate) //这个是是在supportUI工程里面poplate的时候设置的。再没有上树的情况下
-		 * {
-		 * mNeedRepopulate = false;
-		 * triggerRequestLayout();
-		 * postInvalidate();
-		 * }
-		 */
-	}
+    /*
+     * hippy 在setChildCountAndUpdate打开，执行了
+     * if (mReNotifyOnAttach)
+     * {
+     * getAdapter().notifyDataSetChanged();
+     * mReNotifyOnAttach = false;
+     * }
+     */
+    // 9.6在supportui已经把windowToken的检查过滤去掉了，所以这里应该关掉
+    /*
+     * if (mNeedRepopulate) //这个是是在supportUI工程里面poplate的时候设置的。再没有上树的情况下
+     * {
+     * mNeedRepopulate = false;
+     * triggerRequestLayout();
+     * postInvalidate();
+     * }
+     */
+  }
 
-	@Override
-	protected void onDetachedFromWindow()
-	{
-		super.onDetachedFromWindow();
-		LogUtils.d(TAG, "onDetachedFromWindow: " + hashCode() + ", childCount=" + getChildCount() + ", repopulate=" + mNeedRepopulate
-				+ ", renotifyOnAttach=" + mReNotifyOnAttach);
-	}
+  @Override
+  protected void onDetachedFromWindow() {
+    super.onDetachedFromWindow();
+    LogUtils.d(TAG, "onDetachedFromWindow: " + hashCode() + ", childCount=" + getChildCount()
+        + ", repopulate=" + mNeedRepopulate
+        + ", renotifyOnAttach=" + mReNotifyOnAttach);
+  }
 
-	public void switchToPage(int item, boolean animated)
-	{
-		LogUtils.d(TAG, "switchToPage: " + hashCode() + ", item=" + item + ", animated=" + animated);
-		if (getAdapter().getCount() == 0) // viewpager的children没有初始化好的时候，直接设置mInitialPageIndex
-		{
-			//			mInitialPageIndex = item;
-			//			getAdapter().setInitPageIndex(item);
-		}
-		else
-		{
-			if (getCurrentItem() != item) // 如果和当前位置一样，就不进行switch
-			{
-				if (isSettling())
-				{
-					// 如果仍然在滑动中，重置一下状态
-					setScrollingCacheEnabled(false);
-					mScroller.abortAnimation();
-					int oldX = getScrollX();
-					int oldY = getScrollY();
-					int x = mScroller.getCurrX();
-					int y = mScroller.getCurrY();
-					if (oldX != x || oldY != y)
-					{
-						scrollTo(x, y);
-					}
-					setScrollState(SCROLL_STATE_IDLE);
-				}
-				setCurrentItem(item, animated);
-			}
-			else if (!isFirstLayout())
-			{
-				mPageListener.onPageSelected(item);
-			}
-		}
-	}
+  public void switchToPage(int item, boolean animated) {
+    LogUtils.d(TAG,
+        "switchToPage: " + hashCode() + ", item=" + item + ", animated=" + animated);
+    if (getAdapter().getCount() == 0) // viewpager的children没有初始化好的时候，直接设置mInitialPageIndex
+    {
+      LogUtils.d(TAG, "switchToPage: getAdapter().getCount() == 0");
+    } else {
+      if (getCurrentItem() != item) // 如果和当前位置一样，就不进行switch
+      {
+        if (isSettling()) {
+          // 如果仍然在滑动中，重置一下状态
+          setScrollingCacheEnabled(false);
+          mScroller.abortAnimation();
+          int oldX = getScrollX();
+          int oldY = getScrollY();
+          int x = mScroller.getCurrX();
+          int y = mScroller.getCurrY();
+          if (oldX != x || oldY != y) {
+            scrollTo(x, y);
+          }
+          setScrollState(SCROLL_STATE_IDLE);
+        }
+        setCurrentItem(item, animated);
+      } else if (!isFirstLayout()) {
+        mPageListener.onPageSelected(item);
+      }
+    }
+  }
 
-	public void setScrollEnabled(boolean scrollEnabled)
-	{
-		mScrollEnabled = scrollEnabled;
-	}
+  @Override
+  public NativeGestureDispatcher getGestureDispatcher() {
+    return mGestureDispatcher;
+  }
 
-	@Override
-	public NativeGestureDispatcher getGestureDispatcher()
-	{
-		return mGestureDispatcher;
-	}
+  @Override
+  public void setGestureDispatcher(NativeGestureDispatcher nativeGestureDispatcher) {
+    mGestureDispatcher = nativeGestureDispatcher;
+  }
 
-	@Override
-	public void setGestureDispatcher(NativeGestureDispatcher nativeGestureDispatcher)
-	{
-		mGestureDispatcher = nativeGestureDispatcher;
-	}
+  public void triggerRequestLayout() {
+    mHandler.post(mMeasureAndLayout);
+  }
 
-	public void triggerRequestLayout()
-	{
-		mHandler.post(mMeasureAndLayout);
-	}
-	public void setOverflow(String overflow)
-	{
-		mOverflow = overflow;
-		//robinsli Android 支持 overflow: visible，超出容器之外的属性节点也可以正常显示
-		if(!TextUtils.isEmpty(mOverflow))
-		{
-			switch (mOverflow)
-			{
-				case "visible":
-					setClipChildren(false); //可以超出父亲区域
-					break;
-				case "hidden":
-				{
-					setClipChildren(true); //默认值是false
-					break;
-				}
-			}
-		}
-		invalidate();
-	}
+  public void setOverflow(String overflow) {
+    if (!TextUtils.isEmpty(overflow)) {
+      switch (overflow) {
+        case "visible":
+          setClipChildren(false); //可以超出父亲区域
+          break;
+        case "hidden": {
+          setClipChildren(true); //默认值是false
+          break;
+        }
+      }
+    }
+    invalidate();
+  }
 }

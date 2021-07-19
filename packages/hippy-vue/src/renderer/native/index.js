@@ -14,6 +14,7 @@ import {
   warn,
   isFunction,
   capitalizeFirstLetter,
+  convertImageLocalPath,
 } from '../../util';
 
 const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
@@ -87,7 +88,7 @@ function endBatch(app) {
           break;
         case NODE_OPERATION_TYPES.updateNode:
           trace(...componentName, 'updateNode', chunk.nodes);
-          // FIXME: iOS should be able to update mutiple nodes at once.
+          // FIXME: iOS should be able to update multiple nodes at once.
           if (__PLATFORM__ === 'ios' || Native.Platform === 'ios') {
             chunk.nodes.forEach(node => (
               UIManagerModule.updateNode(rootViewId, [node])
@@ -131,7 +132,7 @@ function getCssMap() {
   } else {
     __cssMap = new SelectorsMap(cssRules);
   }
-  delete global[GLOBAL_STYLE_NAME];
+  global[GLOBAL_STYLE_NAME] = undefined;
   return __cssMap;
 }
 
@@ -204,10 +205,45 @@ function getNativeProps(node) {
     props.source = [{
       uri: props.src,
     }];
-    delete props.src;
+    props.src = undefined;
   }
 
   return props;
+}
+
+/**
+ * parse view component on special condition
+ * @param targetNode
+ * @param nativeNode
+ * @param style
+ */
+function parseViewComponent(targetNode, nativeNode, style) {
+  if (targetNode.meta.component.name === 'View') {
+    // Change View to ScrollView when meet overflow=scroll style.
+    if (style.overflowX === 'scroll' && style.overflowY === 'scroll') {
+      warn('overflow-x and overflow-y for View can not work together');
+    }
+    if (style.overflowY === 'scroll') {
+      nativeNode.name = 'ScrollView';
+    } else if (style.overflowX === 'scroll') {
+      nativeNode.name = 'ScrollView';
+      // Necessary for horizontal scrolling
+      nativeNode.props.horizontal = true;
+    }
+    // Change the ScrollView child collapsable attribute
+    if (nativeNode.name === 'ScrollView') {
+      if (targetNode.childNodes.length !== 1) {
+        warn('Only one child node is acceptable for View with overflow');
+      }
+      if (targetNode.childNodes.length) {
+        targetNode.childNodes[0].setStyle('collapsable', false);
+      }
+    }
+    // TODO backgroundImage would use local path if webpack file-loader active, which needs native support
+    if (style.backgroundImage) {
+      style.backgroundImage = convertImageLocalPath(style.backgroundImage);
+    }
+  }
 }
 
 /**
@@ -273,30 +309,7 @@ function renderToNative(rootViewId, targetNode) {
     },
   };
 
-  // Change View to ScrollView when meet overflow=scroll style.
-  if (targetNode.meta.component.name === 'View') {
-    if (style.overflowX === 'scroll' && style.overflowY === 'scroll') {
-      warn('overflow-x and overflow-y for View can not work together');
-    }
-
-    if (style.overflowY === 'scroll') {
-      nativeNode.name = 'ScrollView';
-    } else if (style.overflowX === 'scroll') {
-      nativeNode.name = 'ScrollView';
-      nativeNode.props.horizontal = true; // Necessary for horizontal scrolling
-    }
-
-    // Change the ScrollView child collapsable attribute
-    if (nativeNode.name === 'ScrollView') {
-      if (targetNode.childNodes.length !== 1) {
-        warn('Only one child node is acceptable for View with overflow');
-      }
-      if (targetNode.childNodes.length) {
-        targetNode.childNodes[0].setStyle('collapsable', false);
-      }
-    }
-  }
-
+  parseViewComponent(targetNode, nativeNode, style);
   return nativeNode;
 }
 

@@ -7,6 +7,9 @@ import {
   isFunction,
 } from '../util';
 
+import BackAndroid from './backAndroid';
+import * as NetInfo from './netInfo';
+
 const {
   on,
   off,
@@ -41,7 +44,7 @@ const measureInWindowByMethod = function measureInWindowByMethod(el, method) {
     height: -1,
   };
   if (!el.isMounted || !el.nodeId) {
-    return empty;
+    return Promise.resolve(empty);
   }
   const { nodeId } = el;
   // FIXME: callNativeWithPromise was broken in iOS, it response
@@ -126,7 +129,7 @@ const Native = {
       if (!url) {
         throw new TypeError('Vue.Native.Cookie.getAll() must have url argument');
       }
-      return callNativeWithPromise('network', 'getCookie', url);
+      return callNativeWithPromise.call(this, 'network', 'getCookie', url);
     },
     /**
      * Set cookie key and value
@@ -149,7 +152,7 @@ const Native = {
           throw new TypeError('Vue.Native.Cookie.getAll() only receive Date type of expires');
         }
       }
-      callNative('network', 'setCookie', url, keyValue, expireStr);
+      callNative.call(this, 'network', 'setCookie', url, keyValue, expireStr);
     },
   },
 
@@ -158,10 +161,10 @@ const Native = {
    */
   Clipboard: {
     getString() {
-      return callNativeWithPromise('ClipboardModule', 'getString');
+      return callNativeWithPromise.call(this, 'ClipboardModule', 'getString');
     },
     setString(content) {
-      callNative('ClipboardModule', 'setString', content);
+      callNative.call(this, 'ClipboardModule', 'setString', content);
     },
   },
 
@@ -354,12 +357,46 @@ const Native = {
   parseColor(color, options = { platform: Native.Platform }) {
     const cache = CACHE.COLOR_PARSER || (CACHE.COLOR_PARSER = Object.create(null));
     if (!cache[color]) {
-      const int32Color = colorParser(color, options);
       // cache the calculation result
-      cache[color] = int32Color;
+      cache[color] = colorParser(color, options);
     }
     return cache[color];
   },
+
+  /**
+   * Key-Value storage system
+   */
+  AsyncStorage: global.localStorage,
+  /**
+   * Android hardware back button event listener.
+   */
+  BackAndroid,
+  /**
+   * operations for img
+   */
+  ImageLoader: {
+    /**
+     * Get the image size before rendering.
+     *
+     * @param {string} url - Get image url.
+     */
+    getSize(url) {
+      return callNativeWithPromise.call(this, 'ImageLoaderModule', 'getSize', url);
+    },
+
+    /**
+     * Prefetch image, to make rendering in next more faster.
+     *
+     * @param {string} url - Prefetch image url.
+     */
+    prefetch(url) {
+      callNative.call(this, 'ImageLoaderModule', 'prefetch', url);
+    },
+  },
+  /**
+   * Network operations
+   */
+  NetInfo,
 };
 
 // Public export

@@ -20,26 +20,26 @@
  *
  */
 
-#ifndef HIPPY_CORE_MODULES_CONTEXTIFY_MODULE_H_
-#define HIPPY_CORE_MODULES_CONTEXTIFY_MODULE_H_
+#pragma once
 
+#include "core/base/string_view_utils.h"
 #include "core/modules/module_base.h"
 #include "core/napi/callback_info.h"
 #include "core/napi/js_native_api_types.h"
-
-using CtxValue = hippy::napi::CtxValue;
 
 class Scope;
 
 class ContextifyModule : public ModuleBase {
  public:
-  explicit ContextifyModule(){};
+  using unicode_string_view = tdf::base::unicode_string_view;
+  using CtxValue = hippy::napi::CtxValue;
+
+  ContextifyModule() {}
   void RunInThisContext(const hippy::napi::CallbackInfo& info);
-  void LoadUriContent(const hippy::napi::CallbackInfo& info);
-  void RemoveCBFunc(const std::string& uri);
+  void LoadUntrustedContent(const hippy::napi::CallbackInfo& info);
+  void RemoveCBFunc(const unicode_string_view& uri);
 
  private:
-  std::unordered_map<std::string, std::shared_ptr<CtxValue>> cb_func_map_;
+  std::unordered_map<unicode_string_view, std::shared_ptr<CtxValue>>
+      cb_func_map_;
 };
-
-#endif  // HIPPY_CORE_MODULES_CONTEXTIFY_MODULE_H_

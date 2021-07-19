@@ -3,7 +3,7 @@
     <label>setNativeProps实现拖动效果</label>
     <div class="native-demo-1-drag"
          :style="{width: this.screenWidth}"
-         @touchdown="onTouchDown1"
+         @touchstart="onTouchDown1"
          @touchmove="onTouchMove1">
       <div ref='demo-1-point' class="native-demo-1-point"></div>
     </div>
@@ -11,7 +11,7 @@
     <label>普通渲染实现拖动效果</label>
     <div class="native-demo-2-drag"
          :style="{width: this.screenWidth}"
-         @touchdown="onTouchDown2"
+         @touchstart="onTouchDown2"
          @touchmove="onTouchMove2">
       <div ref='demo-2-point' class="native-demo-2-point" :style="{left: demon2Left + 'px'}"></div>
     </div>

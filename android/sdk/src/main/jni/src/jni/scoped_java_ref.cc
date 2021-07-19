@@ -25,22 +25,23 @@
 #include "core/core.h"
 #include "jni/jni_env.h"
 
-JavaRef::JavaRef(JNIEnv* env, jobject obj) : obj_(nullptr) {
-  // HIPPY_DLOG(hippy::Debug, "JavaRef create");
-  if (!env) {
-    env = JNIEnvironment::AttachCurrentThread();
+JavaRef::JavaRef(JNIEnv* j_env, jobject j_obj) : obj_(nullptr) {
+  // TDF_BASE_DLOG(INFO) <<  "JavaRef create";
+  if (!j_env) {
+    j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   } else {
-    HIPPY_DCHECK(env == JNIEnvironment::AttachCurrentThread());
+    TDF_BASE_DCHECK(j_env ==
+                    JNIEnvironment::GetInstance()->AttachCurrentThread());
   }
 
-  if (obj) {
-    obj_ = env->NewGlobalRef(obj);
+  if (j_obj) {
+    obj_ = j_env->NewGlobalRef(j_obj);
   }
 }
 
 JavaRef::~JavaRef() {
-  // HIPPY_DLOG(hippy::Debug, "~JavaRef release");
+  // TDF_BASE_DLOG(INFO) <<  "~JavaRef release";
   if (obj_) {
-    JNIEnvironment::AttachCurrentThread()->DeleteGlobalRef(obj_);
+    JNIEnvironment::GetInstance()->AttachCurrentThread()->DeleteGlobalRef(obj_);
   }
 }

@@ -22,13 +22,11 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * FileName: HippyMethod
- * Description：
- * History：
+ * FileName: HippyMethod Description： History：
  */
 @Retention(RUNTIME)
 @Target(ElementType.METHOD)
-public @interface HippyMethod
-{
-    String name() default "";
+public @interface HippyMethod {
+
+  String name() default "";
 }

@@ -20,80 +20,63 @@ import com.tencent.mtt.hippy.annotation.HippyMethod;
 
 import java.util.HashMap;
 
-/**
- * FileName: HippyNativeModuleBase
- * Description：
- * History：
- */
-public class HippyNativeModuleBase
-{
-	protected HippyEngineContext		mContext;
+@SuppressWarnings({"unused"})
+public class HippyNativeModuleBase {
 
-	private HashMap<String, Integer>	mEventMaps;
+  protected final HippyEngineContext mContext;
 
-	public HippyNativeModuleBase(HippyEngineContext context)
-	{
-		this.mContext = context;
-	}
+  private HashMap<String, Integer> mEventMaps;
 
-	@HippyMethod(name = "addListener")
-	public void addListener(String name)
-	{
-		if (mEventMaps == null)
-		{
-			mEventMaps = new HashMap<>();
-		}
-		int count = 0;
-		if (mEventMaps.containsKey(name))
-		{
-			count = mEventMaps.get(name);
-		}
-		count++;
+  public HippyNativeModuleBase(HippyEngineContext context) {
+    this.mContext = context;
+  }
 
-		if (count == 1)
-		{
-			handleAddListener(name);
-		}
-		mEventMaps.remove(name);
-		mEventMaps.put(name, count);
-	}
+  @HippyMethod(name = "addListener")
+  public void addListener(String name) {
+    if (mEventMaps == null) {
+      mEventMaps = new HashMap<>();
+    }
+    int count = 0;
+    if (mEventMaps.containsKey(name)) {
+      //noinspection ConstantConditions
+      count = mEventMaps.get(name);
+    }
+    count++;
 
-	@HippyMethod(name = "removeListener")
-	public void removeListener(String name)
-	{
-		if (mEventMaps == null || !mEventMaps.containsKey(name))
-		{
-			return;
-		}
-		int count = mEventMaps.get(name);
-		if (count == 1)
-		{
-			handleRemoveListener(name);
-			mEventMaps.remove(name);
-		}
-		else
-		{
-			count--;
-			mEventMaps.remove(name);
-			mEventMaps.put(name, count);
-		}
-	}
+    if (count == 1) {
+      handleAddListener(name);
+    }
+    mEventMaps.remove(name);
+    mEventMaps.put(name, count);
+  }
 
-	public void handleAddListener(String name)
-	{
+  @HippyMethod(name = "removeListener")
+  public void removeListener(String name) {
+    if (mEventMaps == null || !mEventMaps.containsKey(name)) {
+      return;
+    }
+    @SuppressWarnings("ConstantConditions") int count = mEventMaps.get(name);
+    if (count == 1) {
+      handleRemoveListener(name);
+      mEventMaps.remove(name);
+    } else {
+      count--;
+      mEventMaps.remove(name);
+      mEventMaps.put(name, count);
+    }
+  }
 
-	}
+  public void handleAddListener(String name) {
 
-	public void handleRemoveListener(String name)
-	{
+  }
 
-	}
+  public void handleRemoveListener(String name) {
 
-	public void initialize()
-	{
-	}
+  }
 
-	public void destroy()
-	{
-	}
+  public void initialize() {
+  }
+
+  public void destroy() {
+  }
 }

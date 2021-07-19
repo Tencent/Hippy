@@ -20,158 +20,182 @@
  *
  */
 
-#ifndef HIPPY_CORE_NAPI_JS_NATIVE_API_TYPES_H_
-#define HIPPY_CORE_NAPI_JS_NATIVE_API_TYPES_H_
+#pragma once
 
 #include <functional>
 #include <memory>
 #include <string>
 #include <unordered_map>
 
+#include "base/logging.h"
 #include "core/base/common.h"
-#include "core/base/logging.h"
+#include "core/base/js_value_wrapper.h"
 
 class Scope;
 
 namespace hippy {
 namespace napi {
 
+static const char kErrorHandlerJSName[] = "ExceptionHandle.js";
+static const char kHippyErrorHandlerName[] = "HippyExceptionHandler";
+
+enum PropertyAttribute {
+  /** None. **/
+  None = 0,
+  /** ReadOnly, i.e., not writable. **/
+  ReadOnly = 1 << 0,
+  /** DontEnum, i.e., not enumerable. **/
+  DontEnum = 1 << 1,
+  /** DontDelete, i.e., not configurable. **/
+  DontDelete = 1 << 2
+};
+
 class CallbackInfo;
 using JsCallback = std::function<void(const CallbackInfo& info)>;
 
 // Map: FunctionName -> Callback (e.g. "Log" -> ConsoleModule::Log)
-using ModuleClass = std::unordered_map<std::string, hippy::napi::JsCallback>;
+using ModuleClass =
+    std::unordered_map<tdf::base::unicode_string_view, hippy::napi::JsCallback>;
 
 // Map: ClassName -> ModuleClass (e.g. "ConsoleModule" -> [ModuleClass])
-using ModuleClassMap = std::unordered_map<std::string, ModuleClass>;
+using ModuleClassMap =
+    std::unordered_map<tdf::base::unicode_string_view, ModuleClass>;
 
-enum Encoding { UNKNOWN_ENCODING, TWO_BYTE_ENCODING, ONE_BYTE_ENCODING };
-
-enum napi_status {
-  napi_ok = 0,
-  napi_invalid_arg = -100,
-  napi_vm_exception = -101,
-  napi_context_exception = -102,
-  napi_object_exception = -103,
-  napi_string_exception = -104,
-  napi_name_exception = -105,
-  napi_function_exception = -106,
-  napi_number_exception = -107,
-  napi_boolean_exception = -108,
-  napi_array_exception = -109,
-  napi_system_error = -110,
-  napi_unknown = -1000,
+enum Encoding {
+  UNKNOWN_ENCODING,
+  ONE_BYTE_ENCODING,
+  TWO_BYTE_ENCODING,
+  UTF8_ENCODING
 };
 
 class CtxValue {
  public:
-  CtxValue(){};
-  virtual ~CtxValue(){
-      // HIPPY_DLOG(hippy::Debug, "~CtxValue");
-  };
+  CtxValue() {}
+  virtual ~CtxValue() {}
 };
 
 class Ctx {
  public:
-  Ctx(){};
-  virtual ~Ctx() { HIPPY_DLOG(hippy::Debug, "~Ctx"); };
+  using JSValueWrapper = hippy::base::JSValueWrapper;
+  using unicode_string_view = tdf::base::unicode_string_view;
+
+  Ctx() {}
+  virtual ~Ctx() { TDF_BASE_DLOG(INFO) << "~Ctx"; }
 
   virtual bool RegisterGlobalInJs() = 0;
-  virtual bool SetGlobalJsonVar(const std::string& name,
-                                const char* json,
-                                std::string* exception = nullptr) = 0;
-  virtual bool SetGlobalStrVar(const std::string& name,
-                               const char* str,
-                               std::string* exception = nullptr) = 0;
-  virtual bool SetGlobalObjVar(const std::string& name,
+  virtual bool SetGlobalJsonVar(const unicode_string_view& name,
+                                const unicode_string_view& json) = 0;
+  virtual bool SetGlobalStrVar(const unicode_string_view& name,
+                               const unicode_string_view& str) = 0;
+  virtual bool SetGlobalObjVar(const unicode_string_view& name,
                                std::shared_ptr<CtxValue> obj,
-                               std::string* exception = nullptr) = 0;
+                               PropertyAttribute attr = None) = 0;
   virtual std::shared_ptr<CtxValue> GetGlobalStrVar(
-      const std::string& name,
-      std::string* exception = nullptr) = 0;
+      const unicode_string_view& name) = 0;
   virtual std::shared_ptr<CtxValue> GetGlobalObjVar(
-      const std::string& name,
-      std::string* exception = nullptr) = 0;
+      const unicode_string_view& name) = 0;
   virtual std::shared_ptr<CtxValue> GetProperty(
       const std::shared_ptr<CtxValue> object,
-      const std::string& name,
-      std::string* exception = nullptr) = 0;
+      const unicode_string_view& name) = 0;
 
   virtual void RegisterGlobalModule(std::shared_ptr<Scope> scope,
                                     const ModuleClassMap& modules) = 0;
-  virtual void RegisterNativeBinding(const std::string& name,
+  virtual void RegisterNativeBinding(const unicode_string_view& name,
                                      hippy::base::RegisterFunction fn,
                                      void* data) = 0;
 
   virtual std::shared_ptr<CtxValue> CreateNumber(double number) = 0;
   virtual std::shared_ptr<CtxValue> CreateBoolean(bool b) = 0;
-  virtual std::shared_ptr<CtxValue> CreateString(const char* string) = 0;
+  virtual std::shared_ptr<CtxValue> CreateString(
+      const unicode_string_view& string) = 0;
   virtual std::shared_ptr<CtxValue> CreateUndefined() = 0;
   virtual std::shared_ptr<CtxValue> CreateNull() = 0;
-  virtual std::shared_ptr<CtxValue> CreateObject(const char* json) = 0;
+  virtual std::shared_ptr<CtxValue> CreateObject(
+      const unicode_string_view& json) = 0;
   virtual std::shared_ptr<CtxValue> CreateArray(
       size_t count,
       std::shared_ptr<CtxValue> value[]) = 0;
-  virtual std::shared_ptr<CtxValue> CreateJsError(const std::string& msg) = 0;
+  virtual std::shared_ptr<CtxValue> CreateJsError(
+      const unicode_string_view& msg) = 0;
 
   // Get From Value
   virtual std::shared_ptr<CtxValue> CallFunction(
       std::shared_ptr<CtxValue> function,
       size_t argument_count = 0,
-      const std::shared_ptr<CtxValue> argumets[] = nullptr,
-      std::string* exception = nullptr) = 0;
+      const std::shared_ptr<CtxValue> argumets[] = nullptr) = 0;
 
-  virtual bool GetValueNumber(std::shared_ptr<CtxValue>, double* result) = 0;
-  virtual bool GetValueNumber(std::shared_ptr<CtxValue>, int32_t* result) = 0;
-  virtual bool GetValueBoolean(std::shared_ptr<CtxValue>, bool* result) = 0;
-  virtual bool GetValueString(std::shared_ptr<CtxValue>,
-                              std::string* result) = 0;
-  virtual bool GetValueJson(std::shared_ptr<CtxValue>, std::string* result) = 0;
+  virtual bool GetValueNumber(std::shared_ptr<CtxValue> value,
+                              double* result) = 0;
+  virtual bool GetValueNumber(std::shared_ptr<CtxValue> value,
+                              int32_t* result) = 0;
+  virtual bool GetValueBoolean(std::shared_ptr<CtxValue> value,
+                               bool* result) = 0;
+  virtual bool GetValueString(std::shared_ptr<CtxValue> value,
+                              unicode_string_view* result) = 0;
+  virtual bool GetValueJson(std::shared_ptr<CtxValue> value,
+                            unicode_string_view* result) = 0;
 
   // Array Helpers
 
-  virtual bool IsArray(std::shared_ptr<CtxValue>) = 0;
-  virtual uint32_t GetArrayLength(std::shared_ptr<CtxValue>) = 0;
+  virtual bool IsArray(std::shared_ptr<CtxValue> value) = 0;
+  virtual uint32_t GetArrayLength(std::shared_ptr<CtxValue> value) = 0;
   virtual std::shared_ptr<CtxValue> CopyArrayElement(std::shared_ptr<CtxValue>,
                                                      uint32_t index) = 0;
 
   // Object Helpers
 
-  virtual bool HasNamedProperty(std::shared_ptr<CtxValue>,
-                                const char* utf8name) = 0;
-  virtual std::shared_ptr<CtxValue> CopyNamedProperty(std::shared_ptr<CtxValue>,
-                                                      const char* utf8name) = 0;
+  virtual bool HasNamedProperty(std::shared_ptr<CtxValue> value,
+                                const unicode_string_view& name) = 0;
+  virtual std::shared_ptr<CtxValue> CopyNamedProperty(
+      std::shared_ptr<CtxValue> value,
+      const unicode_string_view& name) = 0;
   // Function Helpers
 
-  virtual bool IsFunction(std::shared_ptr<CtxValue>) = 0;
-  virtual std::string CopyFunctionName(std::shared_ptr<CtxValue>) = 0;
-  virtual std::shared_ptr<CtxValue> RunScript(
-      const uint8_t* data,
-      size_t len,
-      const std::string& file_name,
-      bool is_use_code_cache = false,
-      std::string* cache = nullptr,
-      std::string* exception = nullptr,
-      Encoding encodeing = Encoding::ONE_BYTE_ENCODING) = 0;
+  virtual bool IsFunction(std::shared_ptr<CtxValue> value) = 0;
+  virtual unicode_string_view CopyFunctionName(
+      std::shared_ptr<CtxValue> value) = 0;
 
   virtual std::shared_ptr<CtxValue> RunScript(
-      const std::string&& script,
-      const std::string& file_name,
+      const unicode_string_view& data,
+      const unicode_string_view& file_name,
       bool is_use_code_cache = false,
-      std::string* cache = nullptr,
-      std::string* exception = nullptr,
-      Encoding encodeing = Encoding::UNKNOWN_ENCODING) = 0;
+      unicode_string_view* cache = nullptr,
+      bool is_copy = true) = 0;
   virtual std::shared_ptr<CtxValue> GetJsFn(
-      const std::string& name,
-      std::string* exception = nullptr) = 0;
+      const unicode_string_view& name) = 0;
+  virtual bool ThrowExceptionToJS(std::shared_ptr<CtxValue> exception) = 0;
+
+  virtual std::shared_ptr<JSValueWrapper> ToJsValueWrapper(
+      std::shared_ptr<CtxValue> value) = 0;
+  virtual std::shared_ptr<CtxValue> CreateCtxValue(
+      std::shared_ptr<JSValueWrapper> wrapper) = 0;
 };
 
 class VM {
  public:
   VM(){};
-  virtual ~VM() { HIPPY_DLOG(hippy::Debug, "~VM"); };
+  virtual ~VM() { TDF_BASE_DLOG(INFO) << "~VM"; };
 
   virtual std::shared_ptr<Ctx> CreateContext() = 0;
+};
+
+class TryCatch {
+ public:
+  explicit TryCatch(bool enable = false, std::shared_ptr<Ctx> ctx = nullptr)
+      : enable_(enable), ctx_(ctx) {}
+  virtual ~TryCatch() {}
+  virtual void ReThrow() = 0;
+  virtual bool HasCaught() = 0;
+  virtual bool CanContinue() = 0;
+  virtual bool HasTerminated() = 0;
+  virtual bool IsVerbose() = 0;
+  virtual void SetVerbose(bool verbose) = 0;
+  virtual std::shared_ptr<CtxValue> Exception() = 0;
+  virtual tdf::base::unicode_string_view GetExceptionMsg() = 0;
+
+ protected:
+  bool enable_;
+  std::shared_ptr<Ctx> ctx_;
 };
 
 class BindingData {
@@ -194,5 +218,3 @@ class FunctionData {
 
 }  // namespace napi
 }  // namespace hippy
-
-#endif  // HIPPY_CORE_NAPI_JS_NATIVE_API_TYPES_H_

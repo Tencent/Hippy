@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef HIPPY_CORE_NAPI_JS_NATIVE_API_H_
-#define HIPPY_CORE_NAPI_JS_NATIVE_API_H_
+#pragma once
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -37,10 +36,10 @@ std::shared_ptr<CtxValue> GetInternalBindingFn(std::shared_ptr<Scope> scope);
 
 std::shared_ptr<VM> CreateVM();
 
+std::shared_ptr<TryCatch> CreateTryCatchScope(bool enable,
+                                              std::shared_ptr<Ctx> ctx);
+
 void DetachThread();
-// Create Value
 
 }  // namespace napi
 }  // namespace hippy
-
-#endif  // HIPPY_CORE_NAPI_JS_NATIVE_API_H_

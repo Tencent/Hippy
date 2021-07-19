@@ -10,8 +10,12 @@ global.Hippy = {
   on() {},
   bridge: {
     callNative() {},
-    callNativeWithPromise() { return Promise.resolve(); },
-    callNativeWithCallbackId() { return 1; },
+    callNativeWithPromise() {
+      return Promise.resolve();
+    },
+    callNativeWithCallbackId() {
+      return 1;
+    },
   },
   device: {
     platform: {

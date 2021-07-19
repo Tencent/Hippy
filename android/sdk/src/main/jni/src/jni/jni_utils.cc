@@ -26,62 +26,102 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "core/base/string_view_utils.h"
 #include "core/core.h"
-#include "jni/hippy_buffer.h"  // NOLINT(build/include_subdir)
 
-size_t SafeGetArrayLength(JNIEnv* env, const jbyteArray& jarray) {
-  HIPPY_DCHECK(jarray);
-  jsize length = env->GetArrayLength(jarray);
-  HIPPY_DCHECK(length > 0);
-  return static_cast<size_t>(std::max(0, length));
+using unicode_string_view = tdf::base::unicode_string_view;
+using StringViewUtils = hippy::base::StringViewUtils;
+
+jsize SafeGetArrayLength(JNIEnv* j_env, const jbyteArray& j_byte_array) {
+  TDF_BASE_DCHECK(j_byte_array);
+  jsize j_size = j_env->GetArrayLength(j_byte_array);
+  return std::max(0, j_size);
 }
 
-std::string JniUtils::AppendJavaByteArrayToString(
-    JNIEnv* env,
-    jbyteArray byte_array) {
-  if (!byte_array) {
+JniUtils::bytes JniUtils::AppendJavaByteArrayToBytes(JNIEnv* j_env,
+                                                     jbyteArray j_byte_array,
+                                                     jsize j_offset,
+                                                     jsize j_length) {
+  if (!j_byte_array) {
     return "";
   }
-  
-  size_t len = SafeGetArrayLength(env, byte_array);
-  if (!len) {
+
+  jsize j_len;
+  if (j_length == -1) {
+    j_len = SafeGetArrayLength(j_env, j_byte_array);
+  } else {
+    j_len = j_length;
+  }
+  if (!j_len) {
     return "";
   }
+
+  bytes ret;
+  ret.resize(j_length);
+  j_env->GetByteArrayRegion(j_byte_array, j_offset, j_len,
+                            reinterpret_cast<int8_t*>(&ret[0]));
+  return ret;
+}
+
+unicode_string_view JniUtils::JByteArrayToStrView(JNIEnv* j_env,
+                                                  jbyteArray j_byte_array,
+                                                  jsize j_offset,
+                                                  jsize j_length) {
+  if (!j_byte_array) {
+    return "";
+  }
+
+  jsize j_len;
+  if (j_length == -1) {
+    j_len = SafeGetArrayLength(j_env, j_byte_array);
+  } else {
+    j_len = j_length;
+  }
+  if (!j_len) {
+    return "";
+  }
+
   std::string ret;
-  ret.resize(len);
-  env->GetByteArrayRegion(byte_array, 0, len,
-                          reinterpret_cast<int8_t*>(&ret[0]));
+  ret.resize(j_len);
+  j_env->GetByteArrayRegion(j_byte_array, j_offset, j_len,
+                            reinterpret_cast<int8_t*>(&ret[0]));
+
+  const char16_t* ptr = reinterpret_cast<const char16_t*>(ret.c_str());
+  return unicode_string_view(ptr, ret.length() / sizeof(char16_t));
+}
+
+jstring JniUtils::StrViewToJString(JNIEnv* j_env,
+                                   const unicode_string_view& str_view) {
+  std::u16string str =
+      StringViewUtils::Convert(str_view, unicode_string_view::Encoding::Utf16)
+          .utf16_value();
+  return j_env->NewString(reinterpret_cast<const jchar*>(str.c_str()),
+                          str.length());
+}
+
+unicode_string_view::u8string JniUtils::ToU8String(JNIEnv* j_env,
+                                                   jstring j_str) {
+  TDF_BASE_DCHECK(j_str);
+
+  const char* c_str = j_env->GetStringUTFChars(j_str, nullptr);
+  const int32_t len = j_env->GetStringLength(j_str);
+  unicode_string_view::u8string ret(
+      reinterpret_cast<const unicode_string_view::char8_t_*>(c_str), len);
+  j_env->ReleaseStringUTFChars(j_str, c_str);
   return ret;
 }
 
-// todo
-// 暂时只有简单字符，没有中文等的场景，为效率和包大小考虑，不进行utf16到utf8的转换
-std::string JniUtils::CovertJavaStringToString(JNIEnv* env, jstring str) {
-  HIPPY_DCHECK(str);
+unicode_string_view JniUtils::ToStrView(JNIEnv* j_env, jstring j_str) {
+  TDF_BASE_DCHECK(j_str);
 
-  const char* c_str = env->GetStringUTFChars(str, NULL);
-  const int len = env->GetStringLength(str);
-  std::string ret(c_str, len);
-  env->ReleaseStringUTFChars(str, c_str);
+  const jchar* j_char = j_env->GetStringChars(j_str, nullptr);
+  int32_t len = j_env->GetStringLength(j_str);
+  unicode_string_view ret(reinterpret_cast<const char16_t*>(j_char), len);
+  j_env->ReleaseStringChars(j_str, j_char);
   return ret;
-}
-
-HippyBuffer* JniUtils::WriteToBuffer(v8::Isolate* isolate,
-                                     v8::Local<v8::Object> value) {
-  HippyBuffer* buffer = NewBuffer();
-  BuildBuffer(isolate, value, buffer);
-  return buffer;
 }
 
 void JniUtils::printCurrentThreadID() {
 #define LOG_DEBUG(FORMAT, ...) \
   __android_log_print(ANDROID_LOG_DEBUG, "Debug", FORMAT, ##__VA_ARGS__);
-
-  /*auto myid = WorkerThread::getCurrentThreadId();
-  std::stringstream ss;
-  ss << myid;
-  std::string threadId = ss.str();
- // napi_print_log("threadId: ");
-  char* log = (char*)threadId.c_str();
-  LOG_DEBUG("current threadid: %s", log);*/
 }

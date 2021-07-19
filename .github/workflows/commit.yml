@@ -1,0 +1,12 @@
+name: '[commit-lint] check commit message format'
+
+on: [ push, pull_request ]
+
+jobs:
+  commitlint:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v1
+      - uses: wagoid/commitlint-github-action@v1

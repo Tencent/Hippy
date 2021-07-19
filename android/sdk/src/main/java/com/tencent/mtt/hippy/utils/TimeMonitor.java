@@ -23,86 +23,68 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * 1.0 xiandongluo on 2018/1/16
- */
-public class TimeMonitor
-{
+public class TimeMonitor {
 
-	long								mStartTime;
-	int									mTotalTime;
-	boolean								mEnable;
-	HippyEngineMonitorEvent				mCurrentEvent;
-	List<HippyEngineMonitorEvent>		mEvents;
+  long mStartTime;
+  int mTotalTime;
+  final boolean mEnable;
+  HippyEngineMonitorEvent mCurrentEvent;
+  List<HippyEngineMonitorEvent> mEvents;
 
-	public TimeMonitor(boolean enable)
-	{
-		mEnable = enable;
-	}
+  public TimeMonitor(boolean enable) {
+    mEnable = enable;
+  }
 
-	public void startEvent(String event)
-	{
-		if (!mEnable)
-		{
-			return;
-		}
-		if (mCurrentEvent != null)
-		{
-			mCurrentEvent.endTime = System.currentTimeMillis();
-			mEvents.add(mCurrentEvent);
-			LogUtils.d("hippy", "hippy endEvent: " + mCurrentEvent.eventName);
-		}
+  public void startEvent(String event) {
+    if (!mEnable) {
+      return;
+    }
+    if (mCurrentEvent != null) {
+      mCurrentEvent.endTime = System.currentTimeMillis();
+      mEvents.add(mCurrentEvent);
+      LogUtils.d("hippy", "hippy endEvent: " + mCurrentEvent.eventName);
+    }
 
-		if (TextUtils.isEmpty(event))
-		{
-			return;
-		}
+    if (TextUtils.isEmpty(event)) {
+      return;
+    }
 
-		mCurrentEvent = new HippyEngineMonitorEvent();
-		mCurrentEvent.eventName = event;
-		mCurrentEvent.startTime = System.currentTimeMillis();
-		LogUtils.d("hippy", "hippy startEvent: " + event);
-	}
+    mCurrentEvent = new HippyEngineMonitorEvent();
+    mCurrentEvent.eventName = event;
+    mCurrentEvent.startTime = System.currentTimeMillis();
+    LogUtils.d("hippy", "hippy startEvent: " + event);
+  }
 
-	public void begine()
-	{
-		if (!mEnable)
-		{
-			return;
-		}
-		mStartTime = SystemClock.elapsedRealtime();
-		mCurrentEvent = null;
-		if (mEvents == null)
-		{
-			mEvents =  Collections.synchronizedList(new ArrayList<HippyEngineMonitorEvent>());
-		}
-		mEvents.clear();
-		mTotalTime = 0;
-	}
+  public void begine() {
+    if (!mEnable) {
+      return;
+    }
+    mStartTime = SystemClock.elapsedRealtime();
+    mCurrentEvent = null;
+    if (mEvents == null) {
+      mEvents = Collections.synchronizedList(new ArrayList<HippyEngineMonitorEvent>());
+    }
+    mEvents.clear();
+    mTotalTime = 0;
+  }
 
-	public void end()
-	{
-		if (!mEnable)
-		{
-			return;
-		}
-		if (mCurrentEvent != null)
-		{
-			mCurrentEvent.endTime = System.currentTimeMillis();
-			mEvents.add(mCurrentEvent);
-		}
+  public void end() {
+    if (!mEnable) {
+      return;
+    }
+    if (mCurrentEvent != null) {
+      mCurrentEvent.endTime = System.currentTimeMillis();
+      mEvents.add(mCurrentEvent);
+    }
 
-		mTotalTime = (int) (SystemClock.elapsedRealtime() - mStartTime);
-		LogUtils.d("hippy", "hippy endEvent: " + mCurrentEvent.eventName);
-	}
+    mTotalTime = (int) (SystemClock.elapsedRealtime() - mStartTime);
+  }
 
-	public int getTotalTime()
-	{
-		return mTotalTime;
-	}
+  public int getTotalTime() {
+    return mTotalTime;
+  }
 
-	public List<HippyEngineMonitorEvent> getEvents()
-	{
-		return mEvents;
-	}
+  public List<HippyEngineMonitorEvent> getEvents() {
+    return mEvents;
+  }
 }

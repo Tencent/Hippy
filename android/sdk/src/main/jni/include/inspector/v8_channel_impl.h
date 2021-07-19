@@ -20,25 +20,22 @@
  *
  */
 
-#ifndef HIPPY_INSPECTOR_V8_CHANNEL_IMPL_H_
-#define HIPPY_INSPECTOR_V8_CHANNEL_IMPL_H_
+#pragma once
 
 #include <memory>
 
-#include "jni/jni_utils.h"  // NOLINT(build/include_subdir)
+#include "jni/jni_env.h"
+#include "jni/jni_utils.h"
 #include "jni/scoped_java_ref.h"
 #include "v8/v8-inspector.h"
 
-class JNIEnvironment;
+namespace hippy {
+namespace inspector {
 
 class V8ChannelImpl : public v8_inspector::V8Inspector::Channel {
  public:
-  V8ChannelImpl(std::shared_ptr<JavaRef> bridge);
+  explicit V8ChannelImpl(std::shared_ptr<JavaRef> bridge);
   ~V8ChannelImpl() override = default;
-
-  inline const char* ToCString(const v8::String::Utf8Value& value) {
-    return JniUtils::ToCString(value);
-  }
 
   inline std::shared_ptr<JavaRef> GetBridge() { return bridge_; }
 
@@ -56,4 +53,5 @@ class V8ChannelImpl : public v8_inspector::V8Inspector::Channel {
   std::shared_ptr<JavaRef> bridge_;
 };
 
-#endif  // HIPPY_INSPECTOR_V8_CHANNEL_IMPL_H_
+}  // namespace inspector
+}  // namespace hippy

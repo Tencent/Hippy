@@ -2,9 +2,8 @@ const fs = require('fs');
 const Koa = require('koa');
 const path = require('path');
 const devSupportWsServer = require('./websocketProxy');
-const liveReloadWsServer = require('./hippy-livereload');
+// const liveReloadWsServer = require('./hippy-livereload');
 const {
-  getFrameworkVersion,
   logger,
   exec,
   content,
@@ -20,9 +19,6 @@ async function startDevServer(args) {
     verbose,
   } = args;
 
-  if (!getFrameworkVersion()) {
-    throw new Error('The current folder is not containing Hippy project.');
-  }
 
   const versionReturn = '{"Browser": "Hippy/v1.0.0","Protocol-Version": "1.1"}';
   const jsonReturn = JSON.stringify([{
@@ -98,10 +94,11 @@ async function startDevServer(args) {
         }
       });
     devSupportWsServer.startWebsocketProxyServer(serverInstance, '/debugger-proxy');
-    liveReloadWsServer.startLiveReloadServer(serverInstance, '/debugger-live-reload');
+    // liveReloadWsServer.startLiveReloadServer(serverInstance, '/debugger-live-reload');
     logger.info('Hippy debug server is started at', `${host}:${port}`, 'for', entry);
     logger.info('Please open "chrome://inspect" in Chrome to debug your android Hippy app, or use Safari to debug iOS app');
   });
+  serverInstance.timeout = 6000 * 1000;
 }
 
 module.exports = startDevServer;

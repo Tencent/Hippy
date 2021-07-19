@@ -17,23 +17,14 @@ package com.tencent.mtt.hippy.devsupport;
 
 import com.tencent.mtt.hippy.HippyGlobalConfigs;
 
-/**
- * @author: edsheng
- * @date: 2017/11/18 16:25
- * @version: V1.0
- */
+public class DevFactory {
 
-public class DevFactory
-{
-	public static DevServerInterface create(HippyGlobalConfigs configs, boolean enableDev, String serverHost, String bundleName)
-	{
-		if (enableDev)
-		{
-			return new DevServerImpl(configs, serverHost, bundleName);
-		}
-		else
-		{
-			return new DevServerImplDisable();
-		}
-	}
+  public static DevServerInterface create(HippyGlobalConfigs configs, boolean enableDev,
+      String serverHost, String bundleName) {
+    if (enableDev) {
+      return new DevServerImpl(configs, serverHost, bundleName);
+    } else {
+      return new DevServerImplDisable(configs, serverHost);
+    }
+  }
 }

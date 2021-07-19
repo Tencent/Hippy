@@ -20,43 +20,40 @@
  *
  */
 
-#ifndef HIPPY_JNI_JNI_ENV_H_
-#define HIPPY_JNI_JNI_ENV_H_
+#pragma once
 
 #include <jni.h>
 
-#include "core/core.h"
+#include <memory>
+#include <mutex>
 
 class JNIEnvironment {
  public:
-  struct JemthodID_Wrapper {
-    explicit JemthodID_Wrapper() {
-      call_natives_method_id = nullptr;
-      report_exception_method_id = nullptr;
-      inspector_channel_method_id = nullptr;
-      get_uri_content_method_id = nullptr;
-    }
-
-    jmethodID call_natives_method_id;
-    jmethodID report_exception_method_id;
-    jmethodID inspector_channel_method_id;
-    jmethodID get_uri_content_method_id;
+  struct JNIWrapper {
+    jmethodID j_call_natives_direct_method_id = nullptr;
+    jmethodID j_call_natives_method_id = nullptr;
+    jmethodID j_report_exception_method_id = nullptr;
+    jmethodID j_inspector_channel_method_id = nullptr;
+    jmethodID j_fetch_resource_method_id = nullptr;
   };
 
  public:
+  static std::shared_ptr<JNIEnvironment> GetInstance();
+  static bool ClearJEnvException(JNIEnv* env);
+  static void DestroyInstance();
+
   JNIEnvironment() = default;
   ~JNIEnvironment() = default;
 
+  inline JNIWrapper GetMethods() { return wrapper_; }
   void init(JavaVM* vm, JNIEnv* env);
+  JNIEnv* AttachCurrentThread();
+  void DetachCurrentThread();
 
-  static bool ClearJEnvException(JNIEnv* env);
-  static JNIEnvironment* GetInstance();
-  static void DestroyInstance();
-  static JNIEnv* AttachCurrentThread();
-  static void DetachCurrentThread();
+ private:
+  static std::shared_ptr<JNIEnvironment> instance_;
+  static std::mutex mutex_;
 
- public:
-  JavaVM* jvm_;
-  JemthodID_Wrapper wrapper_;
+  JavaVM* j_vm_;
+  JNIWrapper wrapper_;
 };
-#endif  // HIPPY_JNI_JNI_ENV_H_

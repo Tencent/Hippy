@@ -7,6 +7,7 @@ import { TextInputEvent } from '@localTypes/event';
 import { LayoutableProps, ClickableProps } from '../types';
 import { callUIFunction } from '../modules/ui-manager-module';
 import { Device } from '../native';
+import Element from '../dom/element-node';
 
 interface KeyboardWillShowEvent {
   keyboardHeight: number;
@@ -167,7 +168,7 @@ interface TextInputProps extends LayoutableProps, ClickableProps {
  * @noInheritDoc
  */
 class TextInput extends React.Component<TextInputProps, {}> {
-  private instance: HTMLDivElement | null = null;
+  private instance: HTMLDivElement | Element | null = null;
 
   private _lastNativeText?: string = '';
 
@@ -205,7 +206,7 @@ class TextInput extends React.Component<TextInputProps, {}> {
    */
   public getValue(): Promise<string> {
     return new Promise((resolve) => {
-      callUIFunction(this.instance, 'getValue', (res: TextInputEvent) => resolve(res.text));
+      callUIFunction(this.instance as Element, 'getValue', (res: TextInputEvent) => resolve(res.text));
     });
   }
 
@@ -216,7 +217,7 @@ class TextInput extends React.Component<TextInputProps, {}> {
    * @returns {string}
    */
   public setValue(value: string): string {
-    callUIFunction(this.instance, 'setValue', [value]);
+    callUIFunction(this.instance as Element, 'setValue', [value]);
     return value;
   }
 
@@ -224,35 +225,35 @@ class TextInput extends React.Component<TextInputProps, {}> {
    * Make the `TextInput` focused.
    */
   public focus() {
-    callUIFunction(this.instance, 'focusTextInput', []);
+    callUIFunction(this.instance as Element, 'focusTextInput', []);
   }
 
   /**
    * Make the `TextInput` blured.
    */
   public blur() {
-    callUIFunction(this.instance, 'blurTextInput', []);
+    callUIFunction(this.instance as Element, 'blurTextInput', []);
   }
 
   /**
    * Show input method selection dialog.
    */
   public showInputMethod() {
-    callUIFunction(this.instance, 'showInputMethod', []);
+    callUIFunction(this.instance as Element, 'showInputMethod', []);
   }
 
   /**
    * Hide the input method selection dialog.
    */
   public hideInputMethod() {
-    callUIFunction(this.instance, 'hideInputMethod', []);
+    callUIFunction(this.instance as Element, 'hideInputMethod', []);
   }
 
   /**
    * Clear the content of `TextInput`
    */
   public clear() {
-    callUIFunction(this.instance, 'clear', []);
+    callUIFunction(this.instance as Element, 'clear', []);
   }
 
   private _onChangeText(e: TextInputEvent) {
@@ -299,7 +300,7 @@ class TextInput extends React.Component<TextInputProps, {}> {
             [prop]: (this.props as any)[prop],
           };
         }
-        delete (nativeProps as any)[prop];
+        (nativeProps as any)[prop] = undefined;
       }
     });
 
@@ -307,7 +308,10 @@ class TextInput extends React.Component<TextInputProps, {}> {
       <div
         nativeName="TextInput"
         {...nativeProps}
-        ref={(ref) => { this.instance = ref; }}
+        ref={(ref) => {
+          this.instance = ref;
+        }}
+        // @ts-ignore
         onChangeText={this._onChangeText}
         onKeyboardWillShow={this._onKeyboardWillShow}
       />

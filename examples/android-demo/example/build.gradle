@@ -1,15 +1,26 @@
 apply plugin: 'com.android.application'
 
+Properties gradleProperties = new Properties()
+def propFileDir = "$projectDir.absolutePath/../../../android/sdk/gradle.properties"
+def propFile = new File(propFileDir)
+def verifyReleaseAar = false
+def includeSupportui = true
+if (propFile.exists()) {
+    gradleProperties.load(propFile.newDataInputStream())
+    includeSupportui = gradleProperties.getProperty('INCLUDE_SUPPORT_UI')
+}
+
 android {
     compileSdkVersion 29
-    buildToolsVersion '30.0.3'
     defaultConfig {
         applicationId "com.tencent.mtt.hippy.example"
-        minSdkVersion 21
+        minSdkVersion 19
         // noinspection ExpiredTargetSdkVersion
+        //noinspection OldTargetApi
         targetSdkVersion 29
-        versionCode 1
-        versionName "1.0"
+        ndk  {
+            abiFilters 'arm64-v8a'
+        }
     }
 
     signingConfigs {
@@ -23,7 +34,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
         }
@@ -33,8 +44,52 @@ android {
     }
 }
 
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:4.2.1'
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+allprojects {
+    ext {
+        MAVEN_USER = System.getenv('maven_username')
+        MAVEN_PWD = System.getenv('maven_password')
+        MAVEN_URL = System.getenv('maven_url')
+    }
+    repositories {
+        if (MAVEN_URL != null) {
+            maven {
+                url MAVEN_URL
+                credentials {
+                    username MAVEN_USER
+                    password MAVEN_PWD
+                }
+            }
+        }
+        google()
+        mavenCentral()
+        flatDir {
+            dirs 'libs'
+        }
+    }
+}
+
 dependencies {
-    api project(path:':android-sdk')
+    if (verifyReleaseAar) {
+        api (name: 'android-sdk-release', ext: 'aar')
+    } else {
+        api project(path: ':android-sdk')
+    }
+    //noinspection GradleDependency
     api 'com.github.bumptech.glide:glide:3.6.1'
-    api 'com.android.support:support-v4:28.0.0'
+    api 'androidx.legacy:legacy-support-v4:1.0.0'
+    if (!includeSupportui.toBoolean()) {
+        implementation 'com.tencent.mtt:support-ui:99.2.3'
+    }
 }

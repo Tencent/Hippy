@@ -22,177 +22,137 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-/**
- * Copyright (C) 2005-2020 TENCENT Inc.All Rights Reserved.
- * FileName: HippyHttpRequest
- * Description：
- * History：
- */
-public class HippyHttpRequest
-{
-	public static final int		DEFAULT_TIMEOUT_MS			= 3000;
+@SuppressWarnings({"unused"})
+public class HippyHttpRequest {
 
-	private static String		USER_AGENT					= null;
-	private int					mConnectTimeout				= DEFAULT_TIMEOUT_MS;
-	private int					mReadTimeout				= DEFAULT_TIMEOUT_MS;
-	private Map<String, Object>	mHeaderMap;
-	private String				mUrl;
-	private boolean				mUseCaches					= true;
-	private String				mMethod						= "GET";
-	private boolean				mInstanceFollowRedirects	= false;
-	private String				mBody;
+  public static final int DEFAULT_TIMEOUT_MS = 3000;
 
-	public HippyHttpRequest()
-	{
-		mHeaderMap = new HashMap();
-		initUserAgent();
+  private static String USER_AGENT = null;
+  private int mConnectTimeout = DEFAULT_TIMEOUT_MS;
+  private int mReadTimeout = DEFAULT_TIMEOUT_MS;
+  private final Map<String, Object> mHeaderMap;
+  private String mUrl;
+  private boolean mUseCaches = true;
+  private String mMethod = "GET";
+  private boolean mInstanceFollowRedirects = false;
+  private String mBody;
 
-		if (USER_AGENT != null)
-			addHeader(HttpHeader.REQ.USER_AGENT, USER_AGENT);
-		else
-			System.err.println("user_agent is null!");
-	}
+  public HippyHttpRequest() {
+    //noinspection unchecked,rawtypes
+    mHeaderMap = new HashMap();
+    initUserAgent();
 
-	public String getUrl()
-	{
-		return mUrl;
-	}
+    if (USER_AGENT != null) {
+      addHeader(HttpHeader.REQ.USER_AGENT, USER_AGENT);
+    } else {
+      System.err.println("user_agent is null!");
+    }
+  }
 
-	public void setUrl(String url)
-	{
-		this.mUrl = url;
-	}
+  public String getUrl() {
+    return mUrl;
+  }
 
-	public void addHeader(String name, String value)
-	{
-		mHeaderMap.put(name, value);
-	}
+  public void setUrl(String url) {
+    this.mUrl = url;
+  }
 
-	public void addHeader(String name, List<String> value)
-	{
-		mHeaderMap.put(name, value);
-	}
+  public void addHeader(String name, String value) {
+    mHeaderMap.put(name, value);
+  }
 
-	public Map<String, Object> getHeaders()
-	{
-		return mHeaderMap;
-	}
+  public void addHeader(String name, List<String> value) {
+    mHeaderMap.put(name, value);
+  }
 
-	public int getConnectTimeout()
-	{
-		return mConnectTimeout;
-	}
+  public Map<String, Object> getHeaders() {
+    return mHeaderMap;
+  }
 
-	public void setConnectTimeout(int time)
-	{
-		mConnectTimeout = time;
-	}
+  public int getConnectTimeout() {
+    return mConnectTimeout;
+  }
 
-	public int getReadTimeout()
-	{
-		return mReadTimeout;
-	}
+  public void setConnectTimeout(int time) {
+    mConnectTimeout = time;
+  }
 
-	public void setReadTimeout(int time)
-	{
-		mReadTimeout = time;
-	}
+  public int getReadTimeout() {
+    return mReadTimeout;
+  }
 
-	public boolean isUseCaches()
-	{
-		return mUseCaches;
-	}
+  public void setReadTimeout(int time) {
+    mReadTimeout = time;
+  }
 
-	public void setUseCaches(boolean useCaches)
-	{
-		this.mUseCaches = useCaches;
-	}
+  public boolean isUseCaches() {
+    return mUseCaches;
+  }
 
-	public String getMethod()
-	{
-		return mMethod;
-	}
+  public void setUseCaches(boolean useCaches) {
+    this.mUseCaches = useCaches;
+  }
 
-	public void setMethod(String method)
-	{
-		this.mMethod = method;
-	}
+  public String getMethod() {
+    return mMethod;
+  }
 
-	public boolean isInstanceFollowRedirects()
-	{
-		return mInstanceFollowRedirects;
-	}
+  public void setMethod(String method) {
+    this.mMethod = method;
+  }
 
-	public void setInstanceFollowRedirects(boolean instanceFollowRedirects)
-	{
-		this.mInstanceFollowRedirects = instanceFollowRedirects;
-	}
+  public boolean isInstanceFollowRedirects() {
+    return mInstanceFollowRedirects;
+  }
 
-	public String getBody()
-	{
-		return mBody;
-	}
+  public void setInstanceFollowRedirects(boolean instanceFollowRedirects) {
+    this.mInstanceFollowRedirects = instanceFollowRedirects;
+  }
 
-	public void setBody(String body)
-	{
-		this.mBody = body;
-	}
+  public String getBody() {
+    return mBody;
+  }
 
-	private void initUserAgent()
-	{
-		if (USER_AGENT == null)
-		{
-			Locale locale = Locale.getDefault();
-			StringBuffer buffer = new StringBuffer();
-			// Add version
-			final String version = Build.VERSION.RELEASE;
-			if (version.length() > 0)
-			{
-				buffer.append(version);
-			}
-			else
-			{
-				// default to "1.0"
-				buffer.append("1.0");
-			}
-			buffer.append("; ");
-			final String language = locale.getLanguage();
-			if (language != null)
-			{
-				buffer.append(language.toLowerCase());
-				final String country = locale.getCountry();
-				if (country != null)
-				{
-					buffer.append("-");
-					buffer.append(country.toLowerCase());
-				}
-			}
-			else
-			{
-				// default to "en"
-				buffer.append("en");
-			}
-			// add the model for the release build
-			if (android.os.Build.VERSION.SDK_INT > 3 && "REL".equals(Build.VERSION.CODENAME))
-			{
-				final String model = Build.MODEL;
-				if (model.length() > 0)
-				{
-					buffer.append("; ");
-					buffer.append(model);
-				}
-			}
-			final String id = Build.ID;
-			if (id.length() > 0)
-			{
-				buffer.append(" Build/");
-				buffer.append(id);
-			}
+  public void setBody(String body) {
+    this.mBody = body;
+  }
 
-			final String base = "Mozilla/5.0 (Linux; U; Android %s) AppleWebKit/533.1 (KHTML, like Gecko) Mobile Safari/533.1";
+  private void initUserAgent() {
+    if (USER_AGENT == null) {
+      Locale locale = Locale.getDefault();
+      StringBuffer buffer = new StringBuffer();
+      // Add version
+      final String version = Build.VERSION.RELEASE;
+      if (version.length() > 0) {
+        buffer.append(version);
+      } else {
+        // default to "1.0"
+        buffer.append("1.0");
+      }
+      buffer.append("; ");
+      final String language = locale.getLanguage();
+      buffer.append(language.toLowerCase());
+      final String country = locale.getCountry();
+      buffer.append("-");
+      buffer.append(country.toLowerCase());
+      // add the model for the release build
+      if (android.os.Build.VERSION.SDK_INT > 3 && "REL".equals(Build.VERSION.CODENAME)) {
+        final String model = Build.MODEL;
+        if (model.length() > 0) {
+          buffer.append("; ");
+          buffer.append(model);
+        }
+      }
+      final String id = Build.ID;
+      if (id.length() > 0) {
+        buffer.append(" Build/");
+        buffer.append(id);
+      }
 
-			USER_AGENT = String.format(base, buffer);
-		}
-	}
+      final String base = "Mozilla/5.0 (Linux; U; Android %s) AppleWebKit/533.1 (KHTML, like Gecko) Mobile Safari/533.1";
+
+      USER_AGENT = String.format(base, buffer);
+    }
+  }
 
 }

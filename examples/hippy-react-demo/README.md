@@ -75,5 +75,5 @@ cp dist/ios/* ../ios-demo/res/ # Copy the built js files to native.
 ### Android
 
 ```
-cp dist/ios/* ../android-demo/res/ # Copy the built js files to native.
+cp dist/android/* ../android-demo/res/ # Copy the built js files to native.
 ```
