@@ -173,13 +173,20 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
   }
 
   protected HippyMap generateScrollEvent() {
+    float value;
     HippyMap contentOffset = new HippyMap();
-    contentOffset.pushDouble("x", PixelUtil.px2dp(0));
-    contentOffset.pushDouble("y", PixelUtil.px2dp(getOffsetY()));
+    if (mLayout.canScrollHorizontally()) {
+      value = (mOffsetX - mState.mCustomHeaderWidth)/PixelUtil.getDensity();
+      contentOffset.pushDouble("x", value);
+      contentOffset.pushDouble("y", 0.0f);
+    } else {
+      value = (mOffsetY - mState.mCustomHeaderHeight)/PixelUtil.getDensity();
+      contentOffset.pushDouble("x", 0.0f);
+      contentOffset.pushDouble("y", value);
+    }
 
     HippyMap event = new HippyMap();
     event.pushMap("contentOffset", contentOffset);
-
     return event;
   }
 

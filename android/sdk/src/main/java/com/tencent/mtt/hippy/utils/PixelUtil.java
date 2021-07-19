@@ -51,4 +51,8 @@ public class PixelUtil {
   public static float px2sp(float value) {
     return value / getMetrics().scaledDensity + 0.5f;
   }
+
+  public static float getDensity() {
+    return getMetrics().density;
+  }
 }
