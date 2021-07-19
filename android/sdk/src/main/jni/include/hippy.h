@@ -20,21 +20,21 @@
  *
  */
 
-#ifndef HIPPY_HIPPY_H_
-#define HIPPY_HIPPY_H_
+#pragma once
 
-#include "inspector/v8_channel_impl.h"
-#include "inspector/v8_inspector_client_impl.h"
-#include "jni/com_tencent_mtt_hippy_bridge_HippyBridgeImpl.h"
+#include "bridge/entry.h"
+#include "bridge/java2js.h"
+#include "bridge/js2java.h"
+#include "bridge/runtime.h"
+#include "bridge/serializer.h"
 #include "jni/exception_handler.h"
 #include "jni/jni_env.h"
+#include "jni/jni_register.h"
 #include "jni/jni_utils.h"
-#include "jni/runtime.h"
 #include "jni/scoped_java_ref.h"
 #include "loader/adr_loader.h"
-#include "loader/asset_loader.h"
-#include "loader/file_loader.h"
-#include "loader/http_loader.h"
+#ifdef V8_HAS_INSPECTOR
+#include "inspector/v8_channel_impl.h"
+#include "inspector/v8_inspector_client_impl.h"
+#endif
 #include "v8/v8.h"
-
-#endif  // HIPPY_HIPPY_H_

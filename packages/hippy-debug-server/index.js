@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const yargs       = require('yargs');
+const yargs = require('yargs');
 const startServer = require('./server');
 
 const { argv } = yargs
@@ -31,7 +31,7 @@ const { argv } = yargs
   .option('verbose', {
     type: 'boolean',
     default: false,
-    describe: 'Output error detals',
+    describe: 'Output error details',
   })
   .epilog(`Copyright (C) 2017-${new Date().getFullYear()} THL A29 Limited, a Tencent company.`);
 

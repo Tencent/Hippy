@@ -22,7 +22,7 @@
 
 #import "HippyDefines.h"
 
-#if HIPPY_DEV // Only supported in dev mode
+#if HIPPY_DEV  // Only supported in dev mode
 
 @protocol HippyWebSocketProxy;
 

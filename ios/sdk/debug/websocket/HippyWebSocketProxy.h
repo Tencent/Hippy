@@ -22,7 +22,7 @@
 
 #import "HippyDefines.h"
 
-#if HIPPY_DEV // Only supported in dev mode
+#if HIPPY_DEV  // Only supported in dev mode
 
 #import "HippyWebSocketProxyDelegate.h"
 
@@ -32,7 +32,7 @@
 
 - (void)setDelegate:(id<HippyWebSocketProxyDelegate>)delegate forURL:(NSURL *)url;
 
-- (instancetype) init   __attribute__((unavailable("init not available, call sharedInstance instead")));
+- (instancetype)init __attribute__((unavailable("init not available, call sharedInstance instead")));
 
 @end
 

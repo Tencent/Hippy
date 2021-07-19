@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef HIPPY_CORE_TASK_WORKER_TASK_RUNNER_H_
-#define HIPPY_CORE_TASK_WORKER_TASK_RUNNER_H_
+#pragma once
 
 #include <stdint.h>
 
@@ -38,7 +37,7 @@
 
 class WorkerTaskRunner {
  public:
-  WorkerTaskRunner(uint32_t pool_size);
+  explicit WorkerTaskRunner(uint32_t pool_size);
   ~WorkerTaskRunner() = default;
 
   void PostTask(std::unique_ptr<CommonTask> task,
@@ -75,5 +74,3 @@ class WorkerTaskRunner {
   bool terminated_ = false;
   std::vector<std::unique_ptr<WorkerThread>> thread_pool_;
 };
-
-#endif  // HIPPY_CORE_TASK_WORKER_TASK_RUNNER_H_

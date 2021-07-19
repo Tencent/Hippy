@@ -15,17 +15,13 @@
  */
 package com.tencent.mtt.hippy.devsupport;
 
-import java.io.File;
 import java.io.InputStream;
 
-public interface DevServerCallBack
-{
-    //The bundle is loaded successfully callback
-    void onDevBundleLoadReady(File bundle);
+public interface DevServerCallBack {
 
-    void onDevBundleLoadReady(InputStream inputStream);
+  void onDevBundleLoadReady(InputStream inputStream);
 
-    void onInitDevError(Throwable e);
+  void onInitDevError(Throwable e);
 
-    void onDevBundleReLoad();
+  void onDevBundleReLoad();
 }

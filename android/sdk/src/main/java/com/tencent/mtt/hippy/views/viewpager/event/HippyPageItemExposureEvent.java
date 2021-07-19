@@ -20,26 +20,21 @@ import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 
 import android.view.View;
 
-/**
- * Created by huskyzhyu on 2017/12/15.
- */
+@SuppressWarnings("deprecation")
+public class HippyPageItemExposureEvent extends HippyViewEvent {
 
-public class HippyPageItemExposureEvent extends HippyViewEvent
-{
-  public static final String EVENT_PAGER_ITEM_WILL_APPEAR	       = "onWillAppear";
-  public static final String EVENT_PAGER_ITEM_DID_APPEAR	       = "onDidAppear";
-  public static final String EVENT_PAGER_ITEM_WILL_DISAPPEAR	   = "onWillDisAppear";
-  public static final String EVENT_PAGER_ITEM_DID_DISAPPEAR	     = "onDidDisAppear";
+  public static final String EVENT_PAGER_ITEM_WILL_APPEAR = "onWillAppear";
+  public static final String EVENT_PAGER_ITEM_DID_APPEAR = "onDidAppear";
+  public static final String EVENT_PAGER_ITEM_WILL_DISAPPEAR = "onWillDisAppear";
+  public static final String EVENT_PAGER_ITEM_DID_DISAPPEAR = "onDidDisAppear";
 
-	public HippyPageItemExposureEvent(String eventName)
-	{
-		super(eventName);
-	}
+  public HippyPageItemExposureEvent(String eventName) {
+    super(eventName);
+  }
 
-	public void send(View view, int position)
-	{
-		HippyMap map = new HippyMap();
-		map.pushInt("position", position);
-		super.send(view, map);
-	}
+  public void send(View view, int position) {
+    HippyMap map = new HippyMap();
+    map.pushInt("position", position);
+    super.send(view, map);
+  }
 }

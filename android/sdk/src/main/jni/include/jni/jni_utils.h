@@ -20,33 +20,41 @@
  *
  */
 
-#ifndef HIPPY_JNI_JNI_UTILS_H_
-#define HIPPY_JNI_JNI_UTILS_H_
+#pragma once
 
 #include <jni.h>
 
+#include <string>
+
+#include "base/unicode_string_view.h"
 #include "v8/v8.h"
 
 struct HippyBuffer;
 
 class JniUtils {
+  using unicode_string_view = tdf::base::unicode_string_view;
+  using bytes = std::string;
+
  public:
   JniUtils() = default;
   ~JniUtils() = default;
 
  public:
-  static std::string AppendJavaByteArrayToString(
-      JNIEnv* env,
-      jbyteArray byte_array);
-  static std::string CovertJavaStringToString(JNIEnv* env, jstring str);
-  static HippyBuffer* WriteToBuffer(v8::Isolate* isolate,
-                                    v8::Local<v8::Object> value);
+  static unicode_string_view JByteArrayToStrView(JNIEnv* j_env,
+                                                 jbyteArray j_byte_array,
+                                                 jsize j_offset = 0,
+                                                 jsize j_length = -1);
 
-  static inline const char* ToCString(const v8::String::Utf8Value& value) {
-    return *value ? *value : "<string conversion failed>";
-  }
+  static jstring StrViewToJString(JNIEnv* j_env,
+                                  const unicode_string_view& str_view);
+  static bytes AppendJavaByteArrayToBytes(JNIEnv* j_env,
+                                                 jbyteArray byte_array,
+                                                 jsize j_offset = 0,
+                                                 jsize j_length = -1);
+  static std::u16string CovertJStringToChars(JNIEnv* j_env, jstring j_str);
 
+  static unicode_string_view::u8string ToU8String(JNIEnv* j_env, jstring j_str);
+
+  static unicode_string_view ToStrView(JNIEnv* j_env, jstring j_str);
   static void printCurrentThreadID();
 };
-
-#endif  // HIPPY_JNI_JNI_UTILS_H_

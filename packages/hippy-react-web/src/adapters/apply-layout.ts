@@ -39,11 +39,9 @@ let id = 1;
 
 let resizeObserver: any;
 if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
-  console.warn(
-    'onLayout relies on ResizeObserver which is not supported by your browser. '
+  console.warn('onLayout relies on ResizeObserver which is not supported by your browser. '
     + 'Please include a polyfill, e.g., https://github.com/que-etc/resize-observer-polyfill. '
-    + 'Falling back to window.onresize.',
-  );
+    + 'Falling back to window.onresize.');
 }
 
 const triggerAll = () => {
@@ -89,7 +87,7 @@ function unobserve(instance: LayoutElement) {
   }
 }
 
-function safeOverride(original: Function, next: Function)  {
+function safeOverride(original: Function, next: Function) {
   if (original) {
     return function prototypeOverride() {
       /* eslint-disable prefer-rest-params */
@@ -163,11 +161,9 @@ function applyLayout(Component: any) {
               enumerable: true,
               get: () => findNodeHandle(this),
             });
-            onLayout(
-              {
-                layout: this.layoutState,
-              },
-            );
+            onLayout({
+              layout: this.layoutState,
+            });
           }
         }
       });

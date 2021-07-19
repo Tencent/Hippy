@@ -20,14 +20,14 @@
  *
  */
 
-#ifndef HIPPY_CORE_MODULES_MODULE_REGISTER_H_
-#define HIPPY_CORE_MODULES_MODULE_REGISTER_H_
+#pragma once
 
 #include <stdio.h>
 
 #include <memory>
 #include <string>
 
+#include "base/unicode_string_view.h"
 #include "core/base/macros.h"
 #include "core/modules/module_base.h"
 #include "core/napi/callback_info.h"
@@ -50,20 +50,22 @@
 
 class ModuleRegister {
  public:
+  using unicode_string_view = tdf::base::unicode_string_view;
+
   static ModuleRegister* instance();
 
   template <typename Module, typename Function>
   void RegisterInternalModule(Function Module::*member_fn,
-                              const std::string& module_name,
-                              const std::string& function_name) {
+                              const unicode_string_view& module_name,
+                              const unicode_string_view& function_name) {
     internal_modules_[module_name][function_name] =
         GenerateCallback(member_fn, module_name);
   }
 
   template <typename Module, typename Function>
   void RegisterGlobalModule(Function Module::*member_fn,
-                            const std::string& module_name,
-                            const std::string& function_name) {
+                            const unicode_string_view& module_name,
+                            const unicode_string_view& function_name) {
     global_modules_[module_name][function_name] =
         GenerateCallback(member_fn, module_name);
   }
@@ -80,7 +82,7 @@ class ModuleRegister {
 
   template <typename Module, typename Function>
   hippy::napi::JsCallback GenerateCallback(Function Module::*member_fn,
-                                           const std::string& module_name) {
+      const unicode_string_view& module_name) {
     return [member_fn, module_name](const hippy::napi::CallbackInfo& info) {
       std::shared_ptr<Scope> scope = info.GetScope();
       if (!scope) {
@@ -107,5 +109,3 @@ class ModuleRegister {
 
   DISALLOW_COPY_AND_ASSIGN(ModuleRegister);
 };
-
-#endif  // HIPPY_CORE_MODULES_MODULE_REGISTER_H_

@@ -22,70 +22,76 @@
 
 #include "core/modules/console_module.h"
 
-#include <string.h>
-
 #include <string>
 
-#include "core/base/logging.h"
+#include "base/logging.h"
+#include "core/base/string_view_utils.h"
 #include "core/modules/module_register.h"
 #include "core/napi/callback_info.h"
 #include "core/napi/js_native_api.h"
 #include "core/scope.h"
 
+using unicode_string_view = tdf::base::unicode_string_view;
+using Ctx = hippy::napi::Ctx;
+using StringViewUtils = hippy::base::StringViewUtils;
+
 REGISTER_MODULE(ConsoleModule, Log)
 
 namespace {
 
-std::string EscapeMessage(const std::string& message) {
-  size_t length = message.length();
-  std::string escapMsg;
-  for (size_t i = 0; i < length; i++) {
-    char c = message[i];
-    escapMsg += c;
+unicode_string_view EscapeMessage(const unicode_string_view& str_view) {
+  std::string u8_str = StringViewUtils::ToU8StdStr(str_view);
+  size_t len = u8_str.length();
+  std::string ret;
+  for (size_t i = 0; i < len; i++) {
+    char16_t c = u8_str[i];
+    ret += c;
     if (c == '%') {
-      escapMsg += '%';
+      ret += '%';
     }
   }
 
-  return escapMsg;
+  return unicode_string_view(ret);
 }
 
 }  // namespace
 
 void ConsoleModule::Log(const hippy::napi::CallbackInfo& info) {
   std::shared_ptr<Scope> scope = info.GetScope();
-  std::shared_ptr<hippy::napi::Ctx> context = scope->GetContext();
-  HIPPY_CHECK(context);
+  std::shared_ptr<Ctx> context = scope->GetContext();
+  TDF_BASE_CHECK(context);
 
-  std::string message;
+  unicode_string_view message;
   if (!context->GetValueString(info[0], &message)) {
     info.GetExceptionValue()->Set(context,
                                   "The first argument must be string.");
     return;
   }
 
-  std::string str = EscapeMessage(message);
-  const char* log_msg = str.c_str();
+  unicode_string_view view_msg = EscapeMessage(message);
   if (info.Length() == 1) {
-    HIPPY_LOG(hippy::Debug, log_msg);
+    TDF_BASE_DLOG(INFO) << view_msg;
   } else {
-    std::string type;
-    if (!context->GetValueString(info[1], &type) || type.empty()) {
+    unicode_string_view view_type;
+    if (!context->GetValueString(info[1], &view_type) ||
+        StringViewUtils::IsEmpty(view_type)) {
       info.GetExceptionValue()->Set(
           context, "The second argument must be non-empty string.");
       return;
     }
 
-    if (type.compare("info") == 0)
-      HIPPY_LOG(hippy::Info, log_msg);
-    else if (type.compare("warn") == 0)
-      HIPPY_LOG(hippy::Warning, log_msg);
-    else if (type.compare("error_") == 0)
-      HIPPY_LOG(hippy::Error, log_msg);
-    else if (type.compare("fatal") == 0)
-      HIPPY_LOG(hippy::Fatal, log_msg);
-    else
-      HIPPY_LOG(hippy::Debug, log_msg);
+    std::string u8_type = StringViewUtils::ToU8StdStr(view_type);
+    if (u8_type.compare("info") == 0) {
+      TDF_BASE_DLOG(INFO) << view_msg;
+    } else if (u8_type.compare("warn") == 0) {
+      TDF_BASE_DLOG(WARNING) << view_msg;
+    } else if (u8_type.compare("error") == 0) {
+      TDF_BASE_DLOG(ERROR) << view_msg;
+    } else if (u8_type.compare("fatal") == 0) {
+      TDF_BASE_DLOG(FATAL) << view_msg;
+    } else {
+      TDF_BASE_DLOG(INFO) << view_msg;
+    }
   }
 
   info.GetReturnValue()->SetUndefined();

@@ -9,7 +9,9 @@ export default class MyView extends React.Component {
 
   render() {
     return (
-      <div nativeName="MyView" ref={(ref) => { this.mytext = ref; }} {...this.props} />
+      <div nativeName="MyView" ref={(ref) => {
+        this.mytext = ref;
+      }} {...this.props} />
     );
   }
 }

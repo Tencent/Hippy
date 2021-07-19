@@ -98,8 +98,7 @@ HIPPY_EXTERN void HippyVerifyAllModulesExported(NSArray *extraModules);
  * Used by HippyModuleData to register the module for frame updates after it is
  * lazily initialized.
  */
-- (void)registerModuleForFrameUpdates:(id<HippyBridgeModule>)module
-                       withModuleData:(HippyModuleData *)moduleData;
+- (void)registerModuleForFrameUpdates:(id<HippyBridgeModule>)module withModuleData:(HippyModuleData *)moduleData;
 
 /**
  * Dispatch work to a module's queue - this is also suports the fake HippyJSThread
@@ -124,19 +123,12 @@ HIPPY_EXTERN void HippyVerifyAllModulesExported(NSArray *extraModules);
 /**
  * Synchronously call a specific native module's method and return the result
  */
-- (id)callNativeModule:(NSUInteger)moduleID
-                method:(NSUInteger)methodID
-                params:(NSArray *)params;
+- (id)callNativeModule:(NSUInteger)moduleID method:(NSUInteger)methodID params:(NSArray *)params;
 
 /**
  * Exposed for the HippyJSCExecutor for lazily loading native modules
  */
 - (NSArray *)configForModuleName:(NSString *)moduleName;
-
-/**
- * Hook exposed for HippyLog to send logs to JavaScript when not running in JSC
- */
-- (void)logMessage:(NSString *)message level:(NSString *)level;
 
 /**
  * Allow super fast, one time, timers to skip the queue and be directly executed
@@ -156,8 +148,6 @@ HIPPY_EXTERN void HippyVerifyAllModulesExported(NSArray *extraModules);
 
 - (instancetype)initWithParentBridge:(HippyBridge *)bridge NS_DESIGNATED_INITIALIZER;
 - (void)start;
-- (void)enqueueApplicationScript:(NSData *)script
-                             url:(NSURL *)url
-                      onComplete:(HippyJavaScriptCompleteBlock)onComplete;
+- (void)enqueueApplicationScript:(NSData *)script url:(NSURL *)url onComplete:(HippyJavaScriptCompleteBlock)onComplete;
 
 @end

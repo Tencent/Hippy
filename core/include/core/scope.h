@@ -20,12 +20,12 @@
  *
  */
 
-#ifndef HIPPY_CORE_SCOPE_H_
-#define HIPPY_CORE_SCOPE_H_
+#pragma once
 
 #include <string>
 #include <unordered_map>
 
+#include "base/unicode_string_view.h"
 #include "core/base/common.h"
 #include "core/base/task.h"
 #include "core/base/uri_loader.h"
@@ -40,7 +40,7 @@ class Scope;
 
 class ScopeWrapper {
  public:
-  ScopeWrapper(std::shared_ptr<Scope> scope) : scope_(scope) {}
+  explicit ScopeWrapper(std::shared_ptr<Scope> scope) : scope_(scope) {}
 
  public:
   std::weak_ptr<Scope> scope_;
@@ -48,6 +48,7 @@ class ScopeWrapper {
 
 class Scope {
  public:
+  using unicode_string_view = tdf::base::unicode_string_view;
   using RegisterMap = hippy::base::RegisterMap;
   using CtxValue = hippy::napi::CtxValue;
   using Ctx = hippy::napi::Ctx;
@@ -66,11 +67,13 @@ class Scope {
   inline std::unique_ptr<RegisterMap>& GetRegisterMap() { return map_; }
 
   bool LoadModules();
-  ModuleBase* GetModuleClass(const std::string& moduleName);
-  void AddModuleClass(const std::string& name,
+  ModuleBase* GetModuleClass(const unicode_string_view& moduleName);
+  void AddModuleClass(const unicode_string_view& name,
                       std::unique_ptr<ModuleBase> module);
-  std::shared_ptr<CtxValue> GetModuleValue(const std::string& moduleName);
-  void AddModuleValue(const std::string& name, std::shared_ptr<CtxValue> value);
+  std::shared_ptr<CtxValue> GetModuleValue(
+      const unicode_string_view& moduleName);
+  void AddModuleValue(const unicode_string_view& name,
+                      std::shared_ptr<CtxValue> value);
 
   void SaveFunctionData(std::unique_ptr<FunctionData> data);
 
@@ -82,20 +85,13 @@ class Scope {
     return binding_data_;
   }
 
-  void RunJS(const std::string&& js,
-             const std::string& name,
-             std::string* exception = nullptr,
-             Encoding encodeing = Encoding::UNKNOWN_ENCODING);
+  void RunJS(const unicode_string_view& js,
+             const unicode_string_view& name,
+             bool is_copy = true);
 
-  void RunJS(const uint8_t* data,
-             size_t len,
-             const std::string& name,
-             std::string* exception = nullptr);
-
-  std::shared_ptr<CtxValue> RunJSSync(const uint8_t* data,
-                                      size_t len,
-                                      const std::string& name,
-                                      std::string* exception = nullptr);
+  std::shared_ptr<CtxValue> RunJSSync(const unicode_string_view& data,
+                                      const unicode_string_view& name,
+                                      bool is_copy = true);
 
   inline std::shared_ptr<JavaScriptTaskRunner> GetTaskRunner() {
     return engine_->GetJSRunner();
@@ -127,13 +123,12 @@ class Scope {
   std::shared_ptr<Ctx> context_;
   std::string name_;
   std::unique_ptr<RegisterMap> map_;
-  std::unordered_map<std::string, std::shared_ptr<CtxValue>> module_value_map_;
-  std::unordered_map<std::string, std::unique_ptr<ModuleBase>>
+  std::unordered_map<unicode_string_view, std::shared_ptr<CtxValue>>
+      module_value_map_;
+  std::unordered_map<unicode_string_view, std::unique_ptr<ModuleBase>>
       module_class_map_;
   std::vector<std::unique_ptr<FunctionData>> function_data_;
   std::unique_ptr<BindingData> binding_data_;
   std::unique_ptr<ScopeWrapper> wrapper_;
   std::shared_ptr<UriLoader> loader_;
 };
-
-#endif  // HIPPY_CORE_SCOPE_H_

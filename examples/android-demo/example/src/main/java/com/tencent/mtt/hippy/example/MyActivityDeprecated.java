@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.Window;
 
 import com.tencent.mtt.hippy.HippyEngine;
+import com.tencent.mtt.hippy.HippyEngine.EngineInitStatus;
 import com.tencent.mtt.hippy.HippyEngineManager;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.HippyRootViewParams;
@@ -13,19 +14,10 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.modules.nativemodules.deviceevent.DeviceEventModule;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
-/**
- * Copyright (C) 2005-2020 TENCENT Inc.All Rights Reserved.
- * FileName: MyActivityDeprecated
- * 2019/3/26 harryguo注释：
- * 老的代码示例。将被废弃
- * 请参见{@link MyActivity}
- * 和{@link MyActivityTiny}（最精简的代码）
- * Description：
- */
+@SuppressWarnings({"unused", "deprecation"})
 @Deprecated
 public class MyActivityDeprecated extends Activity implements HippyEngine.EngineListener, DeviceEventModule.InvokeDefaultBackPress
 {
-	private MyHippyEngineHost mHost;
 	private HippyEngineManager mEngineManager;
 	private HippyRootView mInstance;
 
@@ -34,25 +26,13 @@ public class MyActivityDeprecated extends Activity implements HippyEngine.Engine
 	{
 		super.onCreate(savedInstanceState);
 		getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-		mHost = new MyHippyEngineHost(MyActivityDeprecated.this.getApplication());
+		MyHippyEngineHost mHost = new MyHippyEngineHost(MyActivityDeprecated.this.getApplication());
 		//mEngineManager = mHost.createHippyEngineManager();
 		mEngineManager = mHost.createDebugHippyEngineManager("index.bundle");
 		mEngineManager.addEngineEventListener(this);
 		mEngineManager.initEngineInBackground();
 
 		LogUtils.e("TestActivity", "onCreate");
-	}
-
-	@Override
-	protected void onResume()
-	{
-		super.onResume();
-	}
-
-	@Override
-	protected void onPause()
-	{
-		super.onPause();
 	}
 
 	@Override
@@ -67,11 +47,11 @@ public class MyActivityDeprecated extends Activity implements HippyEngine.Engine
 	@Override
 	public void onBackPressed() {
 		if (!mEngineManager.onBackPress(this))
-			super.onBackPressed();;
+			super.onBackPressed();
 	}
 
 	@Override
-	public void onInitialized(int statusCode, String msg)
+	public void onInitialized(EngineInitStatus statusCode, String msg)
 	{
 		HippyRootViewParams.Builder builder = new HippyRootViewParams.Builder();
 		HippyMap params = new HippyMap();

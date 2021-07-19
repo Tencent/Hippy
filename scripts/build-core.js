@@ -1,10 +1,10 @@
-const fs          = require('fs');
-const path        = require('path');
-const readline    = require('readline');
+const fs = require('fs');
+const path = require('path');
+const readline = require('readline');
 // FIXME: I have no idea the config have no effect in eslintrc, disabled the rule here.
 /* eslint-disable-next-line import/no-extraneous-dependencies */
-const babel       = require('@babel/core');
-const package     = require('../package.json');
+const babel = require('@babel/core');
+const package = require('../package.json');
 
 /**
  * Babel configuration for iOS compiling
@@ -37,22 +37,25 @@ const CodePieces = {
 * Generated at ${new Date().toString()}.
 * DO NOT EDIT IT.
 */
-#include "core/napi/native_source_code.h"
+
 #include <unordered_map>
+
+#include "core/napi/native_source_code.h"
 #include "core/base/macros.h"
 
 // clang-format off
 
 namespace {`;
   },
-  piece1: `
+  android: {
+    piece1: `
 }  // namespace
 
 namespace hippy {
   static const std::unordered_map<std::string, NativeSourceCode> global_base_js_source_map{
     {"bootstrap.js", {k_bootstrap, arraysize(k_bootstrap) - 1}},  // NOLINT
     {"hippy.js", {k_hippy, arraysize(k_hippy) - 1}},  // NOLINT`,
-  piece2: `
+    piece2: `
   };
   const NativeSourceCode GetNativeSourceCode(const std::string& filename) {
     const auto it = global_base_js_source_map.find(filename);
@@ -60,6 +63,24 @@ namespace hippy {
   }
 }  // namespace hippy
 `,
+  },
+  ios: {
+    piece1: `
+}  // namespace
+
+namespace hippy {
+  const NativeSourceCode GetNativeSourceCode(const std::string& filename) {
+    const std::unordered_map<std::string, NativeSourceCode> global_base_js_source_map{
+      {"bootstrap.js", {k_bootstrap, arraysize(k_bootstrap) - 1}},  // NOLINT
+      {"hippy.js", {k_hippy, arraysize(k_hippy) - 1}},  // NOLINT`,
+    piece2: `
+    };
+    const auto it = global_base_js_source_map.find(filename);
+    return it != global_base_js_source_map.cend() ? it->second : NativeSourceCode{};
+  }
+}  // namespace hippy
+`,
+  },
 };
 
 /**
@@ -103,7 +124,7 @@ function getAllRequiredFiles(platform) {
 
     rl.on('line', (line) => {
       if (line.split('//')[0].indexOf('require') > -1) {
-        const entry = line.split("('")[1].split("')")[0];
+        const entry = line.split('(\'')[1].split('\')')[0];
         filePaths.push(getAbsolutePath(`../core/js/entry/${platform}/${entry}`));
       }
     });
@@ -160,7 +181,7 @@ function generateCpp(platform, buildDirPath) {
       }
     });
 
-    code += CodePieces.piece1;
+    code += CodePieces[platform].piece1;
 
     for (let i = 2; i < filesArr.length; i += 1) {
       const fileName = path.basename(filesArr[i], '.js');
@@ -168,7 +189,7 @@ function generateCpp(platform, buildDirPath) {
       {"${fileName}.js", {k_${fileName}, arraysize(k_${fileName}) - 1}},  // NOLINT`;
     }
 
-    code += CodePieces.piece2;
+    code += CodePieces[platform].piece2;
 
     const targetPath = `${buildDirPath}/native_source_code_${platform}.cc`;
     fs.writeFile(targetPath, code, (err) => {

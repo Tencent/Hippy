@@ -20,26 +20,31 @@
  *
  */
 
-#ifndef HIPPY_CORE_BASE_URI_LOADER_H_
-#define HIPPY_CORE_BASE_URI_LOADER_H_
+#pragma once
 
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
+
+#include "base/unicode_string_view.h"
 
 namespace hippy {
 namespace base {
 
 class UriLoader {
  public:
-  UriLoader() {};
-  virtual ~UriLoader(){};
+  using unicode_string_view = tdf::base::unicode_string_view;
+  using u8string = unicode_string_view::u8string;
 
-  virtual std::string Load(const std::string& uri) = 0;
-  virtual std::string Normalize(const std::string& uri) = 0;
+  UriLoader() {}
+  virtual ~UriLoader() {}
+
+  virtual bool RequestUntrustedContent(const unicode_string_view& uri,
+                                       std::function<void(u8string)> cb) = 0;
+
+  virtual bool RequestUntrustedContent(
+      const unicode_string_view& uri,
+      u8string& content) = 0;
 };
 }  // namespace base
-} // namespace hippy
-
-
-#endif  // HIPPY_CORE_BASE_URI_LOADER_H_
+}  // namespace hippy

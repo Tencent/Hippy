@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef CORE_BASE_COMMON_H_
-#define CORE_BASE_COMMON_H_
+#pragma once
 
 #include <functional>
 #include <string>
@@ -30,14 +29,19 @@
 namespace hippy {
 namespace base {
 
-const std::string kVMCreateCBKey = "VM_CREATED";
-const std::string kContextCreatedCBKey = "CONTEXT_CREATED";
-const std::string KScopeInitializedCBKey = "SCOPE_INITIALIEZED";
-const std::string kAsyncTaskEndKey = "ASYNC_TASK_END";
-const std::string kHandleExceptionKey = "HANDLE_EXCEPTION";
+const char kVMCreateCBKey[] = "VM_CREATED";
+const char kContextCreatedCBKey[] = "CONTEXT_CREATED";
+const char KScopeInitializedCBKey[] = "SCOPE_INITIALIEZED";
+const char kAsyncTaskEndKey[] = "ASYNC_TASK_END";
 
 using RegisterFunction = std::function<void(void*)>;
 using RegisterMap = std::unordered_map<std::string, RegisterFunction>;
+
+#define TO_REGISTER_FUNCTION(fn, T)    \
+  [](void* p) {                        \
+    T* data = reinterpret_cast<T*>(p); \
+    fn(data);                          \
+  };
 
 template <class F>
 auto MakeCopyable(F&& f) {
@@ -49,5 +53,3 @@ auto MakeCopyable(F&& f) {
 
 }  // namespace base
 }  // namespace hippy
-
-#endif

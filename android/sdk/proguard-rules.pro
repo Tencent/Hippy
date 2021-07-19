@@ -30,6 +30,7 @@
 -verbose
 -dontskipnonpubliclibraryclasses
 -dontskipnonpubliclibraryclassmembers
+#noinspection ShrinkerUnresolvedReference
 #-overloadaggressively
 
 -dontwarn **HoneycombMR2
@@ -94,14 +95,6 @@
 # <!--方法名中含有“JNI”字符的，认定是Java Native Interface方法，自动排除-->
 # <!--方法名中含有“JRI”字符的，认定是Java Reflection Interface方法，自动排除-->
 
--keepclasseswithmembers class * {
-    ... *JNI*(...);
-}
-
--keepclasseswithmembernames class * {
-	... *JRI*(...);
-}
-
 -keep class **JNI* {*;}
 
 -keep class com.tencent.mtt.hippy.*{*;}
@@ -149,6 +142,8 @@ public void deleteChild(int ,int );
 -keepclasseswithmembers class com.tencent.mtt.hippy.dom.DomManager {
 public void updateNodeSize(int,int,int);
 public void forceUpdateNode(int);
+public void addActionInterceptor(com.tencent.mtt.hippy.dom.node.DomActionInterceptor);
+public void removeActionInterceptor(com.tencent.mtt.hippy.dom.node.DomActionInterceptor);
 
 }
 -keepclasseswithmembers class com.tencent.mtt.hippy.bridge.HippyBridgeImpl {
@@ -167,13 +162,13 @@ public void forceUpdateNode(int);
 -keep class * extends com.tencent.mtt.hippy.dom.node.DomNode {*;}
 
 -keep class com.tencent.mtt.hippy.views.** {*;}
--keep class com.tencent.mtt.tkd.views.** {*;}
 -keep interface com.tencent.mtt.hippy.bridge.HippyBridge {*;}
 
 -keep class com.tencent.mtt.supportui.views.** {*;}
 -keep class com.tencent.mtt.hippy.utils.** {*;}
 -keep class com.tencent.mtt.hippy.dom.node.TypeFaceUtil {*;}
 -keep class com.tencent.mtt.hippy.adapter.image.HippyImageLoader {*;}
+-keep class com.tencent.mtt.hippy.dom.node.DomActionInterceptor {*;}
 
 -keepclasseswithmembers class com.tencent.mtt.supportui.** {
 public <methods>;
@@ -188,6 +183,22 @@ public <fields>;
 }
 
 -keepclasseswithmembers class com.tencent.mtt.supportui.** {
+protected <fields>;
+}
+
+-keepclasseswithmembers class androidx.recyclerview.widget.** {
+public <methods>;
+}
+
+-keepclasseswithmembers class androidx.recyclerview.widget.** {
+protected <methods>;
+}
+
+-keepclasseswithmembers class androidx.recyclerview.widget.** {
+public <fields>;
+}
+
+-keepclasseswithmembers class androidx.recyclerview.widget.** {
 protected <fields>;
 }
 

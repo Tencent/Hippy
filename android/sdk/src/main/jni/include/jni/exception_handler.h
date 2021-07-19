@@ -20,27 +20,22 @@
  *
  */
 
-#ifndef HIPPY_JNI_EXCEPTION_HANDLER_H_
-#define HIPPY_JNI_EXCEPTION_HANDLER_H_
+#pragma once
 
 #include <iostream>
 #include <sstream>
 
-#include "jni/runtime.h"  // NOLINT(build/include_subdir)
+#include "bridge/runtime.h"
 
 class JNIEnvironment;
 
 class ExceptionHandler {
  public:
+  using unicode_string_view = tdf::base::unicode_string_view;
+
   ExceptionHandler() = default;
   ~ExceptionHandler() = default;
-
- public:
   static void ReportJsException(std::shared_ptr<Runtime> runtime,
-                                const std::string desc,
-                                const std::string stack);
-
-  void JSONException(std::shared_ptr<Runtime> runtime, const char* jsonValue);
+                                const unicode_string_view& desc,
+                                const unicode_string_view& stack);
 };
-
-#endif  // HIPPY_JNI_EXCEPTION_HANDLER_H_

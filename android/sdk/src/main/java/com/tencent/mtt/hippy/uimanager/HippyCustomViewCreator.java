@@ -20,13 +20,10 @@ import android.view.View;
 
 import com.tencent.mtt.hippy.common.HippyMap;
 
-/**
- * Created by leonardgong on 2017/12/14 0014.
- */
+public interface HippyCustomViewCreator {
 
-public interface HippyCustomViewCreator
-{
-    String HIPPY_CUSTOM_VIEW_CREATOR = "CustomViewCreator";
+  String HIPPY_CUSTOM_VIEW_CREATOR = "CustomViewCreator";
 
-    View createCustomView(String className, Context context, HippyMap initialProps);
+  @SuppressWarnings("deprecation")
+  View createCustomView(String className, Context context, HippyMap initialProps);
 }

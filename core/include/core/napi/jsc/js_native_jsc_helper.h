@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef HIPPY_CORE_NAPI_JSC_JS_NATIVE_JSC_HELPER_H_
-#define HIPPY_CORE_NAPI_JSC_JS_NATIVE_JSC_HELPER_H_
+#pragma once
 
 #include <JavaScriptCore/JavaScriptCore.h>
 
@@ -37,5 +36,3 @@ std::string JsStrToUTF8(JSStringRef str);
 
 }  // namespace napi
 }  // namespace hippy
-
-#endif  // HIPPY_CORE_NAPI_JSC_JS_NATIVE_JSC_HELPER_H_

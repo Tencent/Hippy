@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef HIPPY_CORE_TASK_COMMON_TASK_H_
-#define HIPPY_CORE_TASK_COMMON_TASK_H_
+#pragma once
 
 #include <functional>
 
@@ -33,5 +32,3 @@ class CommonTask : public hippy::base::Task {
   virtual inline bool isPriorityTask() override { return false; };
   std::function<void()> func_;
 };
-
-#endif  // HIPPY_CORE_TASK_COMMON_TASK_H_

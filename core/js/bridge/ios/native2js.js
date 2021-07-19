@@ -67,7 +67,7 @@ __fbBatchedBridge.callFunctionReturnFlushedQueue = (module, method, args) => {
         throw Error(`error: ${callObj.name} is not regist in js`);
       }
     } else if (method === 'unmountApplicationComponentAtRootTag') {
-      global.Hippy.emit('destroyInstance');
+      global.Hippy.emit('destroyInstance', args[0]);
       const renderId = Date.now().toString();
       Hippy.bridge.callNative('UIManagerModule', 'startBatch', renderId);
       Hippy.bridge.callNative('UIManagerModule', 'removeRootView', args[0]);

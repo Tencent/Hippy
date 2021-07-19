@@ -8,7 +8,7 @@ type NetworkInfoCallback = (data: NetworkChangeEventData) => void;
 
 interface NetInfoRevoker {
   eventName: string;
-  listener: NetworkInfoCallback;
+  listener: NetworkInfoCallback | undefined;
 }
 
 const DEVICE_CONNECTIVITY_EVENT = 'networkStatusDidChange';
@@ -27,7 +27,7 @@ class NetInfoRevoker implements NetInfoRevoker {
       return;
     }
     removeEventListener(this.eventName, this.listener);
-    delete this.listener;
+    this.listener = undefined;
   }
 }
 
@@ -61,11 +61,11 @@ function addEventListener(eventName: string, listener: NetworkInfoCallback): Net
 }
 
 /**
- * Removenetwork status event event listener
+ * Remove network status event event listener
  *
  * @param {string} eventName - Event name will listen for NetInfo module,
  *                             use `change` for listen network change.
- * @param {function} [handler] - The specific event listener will remove.
+ * @param {Function} [listener] - The specific event listener will remove.
  */
 function removeEventListener(eventName: string, listener?: NetInfoRevoker | NetworkInfoCallback) {
   if (listener instanceof NetInfoRevoker) {
@@ -74,7 +74,7 @@ function removeEventListener(eventName: string, listener?: NetInfoRevoker | Netw
   }
 
   let event = eventName;
-  if (eventName && eventName === 'change') {
+  if (eventName === 'change') {
     event = DEVICE_CONNECTIVITY_EVENT;
   }
   const count = NetInfoEventEmitter.listenerSize(event);

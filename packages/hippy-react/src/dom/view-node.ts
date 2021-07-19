@@ -2,7 +2,7 @@
 /* eslint-disable no-param-reassign */
 
 import { insertChild, removeChild } from '../renderer/render';
-import '../../../../types/global';
+import '../../../types/global';
 
 let currentNodeId: number = 0;
 function getNodeId() {
@@ -85,15 +85,11 @@ class ViewNode {
     }
 
     if (referenceNode.parentNode !== this) {
-      throw new Error(
-        'Can\'t insert child, because the reference node has a different parent.',
-      );
+      throw new Error('Can\'t insert child, because the reference node has a different parent.');
     }
 
     if (childNode.parentNode && childNode.parentNode !== this) {
-      throw new Error(
-        'Can\'t insert child, because it already has a different parent.',
-      );
+      throw new Error('Can\'t insert child, because it already has a different parent.');
     }
 
     const index = this.childNodes.indexOf(referenceNode);
@@ -118,15 +114,11 @@ class ViewNode {
     }
 
     if (referenceNode.parentNode !== this) {
-      throw new Error(
-        'Can\'t move child, because the reference node has a different parent.',
-      );
+      throw new Error('Can\'t move child, because the reference node has a different parent.');
     }
 
     if (childNode.parentNode && childNode.parentNode !== this) {
-      throw new Error(
-        'Can\'t move child, because it already has a different parent.',
-      );
+      throw new Error('Can\'t move child, because it already has a different parent.');
     }
 
     const oldIndex = this.childNodes.indexOf(childNode);
@@ -173,9 +165,7 @@ class ViewNode {
     }
 
     if (childNode.parentNode && childNode.parentNode !== this) {
-      throw new Error(
-        'Can\'t append child, because it already has a different parent.',
-      );
+      throw new Error('Can\'t append child, because it already has a different parent.');
     }
 
     childNode.parentNode = this;

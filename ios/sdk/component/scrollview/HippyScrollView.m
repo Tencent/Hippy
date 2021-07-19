@@ -32,18 +32,15 @@
 #import "UIView+Hippy.h"
 #import "HippyInvalidating.h"
 
-
-@interface HippyCustomScrollView : UIScrollView<UIGestureRecognizerDelegate>
+@interface HippyCustomScrollView : UIScrollView <UIGestureRecognizerDelegate>
 
 @property (nonatomic, assign) BOOL centerContent;
 
 @end
 
-
 @implementation HippyCustomScrollView
 
-- (instancetype)initWithFrame:(CGRect)frame
-{
+- (instancetype)initWithFrame:(CGRect)frame {
     if ((self = [super initWithFrame:frame])) {
         [self.panGestureRecognizer addTarget:self action:@selector(handleCustomPan:)];
         if (@available(iOS 11.0, *)) {
@@ -55,8 +52,7 @@
     return self;
 }
 
-- (UIView *)contentView
-{
+- (UIView *)contentView {
     return ((HippyScrollView *)self.superview).contentView;
 }
 
@@ -64,8 +60,7 @@
  * @return Whether or not the scroll view interaction should be blocked because
  * JS was found to be the responder.
  */
-- (BOOL)_shouldDisableScrollInteraction
-{
+- (BOOL)_shouldDisableScrollInteraction {
     // Since this may be called on every pan, we need to make sure to only climb
     // the hierarchy on rare occasions.
     UIView *JSResponder = [HippyUIManager JSResponder];
@@ -76,8 +71,7 @@
     return NO;
 }
 
-- (void)handleCustomPan:(__unused UIPanGestureRecognizer *)sender
-{
+- (void)handleCustomPan:(__unused UIPanGestureRecognizer *)sender {
     if ([self _shouldDisableScrollInteraction] && ![[HippyUIManager JSResponder] isKindOfClass:[HippyScrollView class]]) {
         self.panGestureRecognizer.enabled = NO;
         self.panGestureRecognizer.enabled = YES;
@@ -91,8 +85,7 @@
     }
 }
 
-- (void)scrollRectToVisible:(__unused CGRect)rect animated:(__unused BOOL)animated
-{
+- (void)scrollRectToVisible:(__unused CGRect)rect animated:(__unused BOOL)animated {
     // noop
 }
 
@@ -138,9 +131,8 @@
  * In order to have this called, you must have delaysContentTouches set to NO
  * (which is the not the `UIKit` default).
  */
-- (BOOL)touchesShouldCancelInContentView:(__unused UIView *)view
-{
-    //TODO: shouldn't this call super if _shouldDisableScrollInteraction returns NO?
+- (BOOL)touchesShouldCancelInContentView:(__unused UIView *)view {
+    // TODO: shouldn't this call super if _shouldDisableScrollInteraction returns NO?
     return ![self _shouldDisableScrollInteraction];
 }
 
@@ -150,8 +142,7 @@
  * becomes larger than the ScrollView, there is no padding around the content but it
  * can still fill the whole view.
  */
-- (void)setContentOffset:(CGPoint)contentOffset
-{
+- (void)setContentOffset:(CGPoint)contentOffset {
     UIView *contentView = [self contentView];
     if (contentView && _centerContent) {
         CGSize subviewSize = contentView.frame.size;
@@ -168,8 +159,7 @@
 
 @end
 
-@implementation HippyScrollView
-{
+@implementation HippyScrollView {
     HippyCustomScrollView *_scrollView;
     UIView *_contentView;
     NSTimeInterval _lastScrollDispatchTime;
@@ -180,14 +170,14 @@
     // Tells if user was scrolling forward or backward and is used to determine a correct
     // snap index when the user stops scrolling with a tap on the scroll view.
     CGFloat _lastNonZeroTranslationAlongAxis;
+    NSMutableDictionary *_contentOffsetCache;
+    BOOL _didSetContentOffset;
     __weak HippyRootView *_rootView;
 }
 
-
-- (instancetype)initWithEventDispatcher:(HippyEventDispatcher *)eventDispatcher
-{
+- (instancetype)initWithEventDispatcher:(HippyEventDispatcher *)eventDispatcher {
     HippyAssertParam(eventDispatcher);
-    
+
     if ((self = [super initWithFrame:CGRectZero])) {
         _scrollView = [[HippyCustomScrollView alloc] initWithFrame:CGRectZero];
         _scrollView.delegate = self;
@@ -196,55 +186,84 @@
         _contentInset = UIEdgeInsetsZero;
         _contentSize = CGSizeZero;
         _lastClippedToRect = CGRectNull;
-        
+
         _scrollEventThrottle = 0.0;
         _lastScrollDispatchTime = 0;
 
         _scrollListeners = [NSHashTable weakObjectsHashTable];
-        
+        _contentOffsetCache = [NSMutableDictionary dictionaryWithCapacity:32];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
         [self addSubview:_scrollView];
-        
     }
     return self;
 }
 
-- (void)invalidate
-{
+- (void)didReceiveMemoryWarning {
+    [_contentOffsetCache removeAllObjects];
+}
+
+- (void)invalidate {
     [_scrollListeners removeAllObjects];
 }
 
-HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithFrame:(CGRect)frame)
-HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
+HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithFrame : (CGRect)frame)
+HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 
-- (void)setRemoveClippedSubviews:(__unused BOOL)removeClippedSubviews
-{
+- (void)setRemoveClippedSubviews:(__unused BOOL)removeClippedSubviews {
     // Does nothing
 }
 
-- (void)insertHippySubview:(UIView *)view atIndex:(NSInteger)atIndex
-{
-    [super insertHippySubview:view atIndex:atIndex];
-    HippyAssert(_contentView == nil, @"HippyScrollView may only contain a single subview");
+- (void)insertHippySubview:(UIView *)view atIndex:(NSInteger)atIndex {
+    if (view == _contentView && 0 == atIndex) {
+        return;
+    }
+    HippyAssert(0 == atIndex, @"HippyScrollView only contain one subview at index 0");
+    if (_contentView) {
+        [self removeHippySubview:_contentView];
+    }
     _contentView = view;
-    [_contentView addObserver: self forKeyPath: @"frame" options: NSKeyValueObservingOptionNew context: nil];
+    [_contentView addObserver:self forKeyPath:@"frame" options:NSKeyValueObservingOptionNew context:nil];
     [view onAttachedToWindow];
     [_scrollView addSubview:view];
+    
+    if (_didSetContentOffset) {
+        _didSetContentOffset = NO;
+        return;
+    }
+    /**
+     * reset its contentOffset when subviews are ready
+     */
+    NSString *offsetString = [_contentOffsetCache objectForKey:self.hippyTag];
+    if (offsetString) {
+        CGPoint point = CGPointFromString(offsetString);
+        if (CGRectContainsPoint(_contentView.frame, point)) {
+            self.scrollView.contentOffset = point;
+        }
+    }
+    else {
+        self.scrollView.contentOffset = CGPointZero;
+    }
 }
 
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(__unused NSDictionary<NSKeyValueChangeKey,id> *)change context:(__unused void *)context
-{
-    if ([keyPath isEqualToString: @"frame"]) {
+- (NSArray<UIView *> *)hippySubviews {
+    return _contentView ? [NSMutableArray arrayWithObject:_contentView] : nil;
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(__unused NSDictionary<NSKeyValueChangeKey, id> *)change
+                       context:(__unused void *)context {
+    if ([keyPath isEqualToString:@"frame"]) {
         if (object == _contentView) {
             [self hippyBridgeDidFinishTransaction];
         }
     }
 }
 
-- (void)removeHippySubview:(UIView *)subview
-{
+- (void)removeHippySubview:(UIView *)subview {
     [super removeHippySubview:subview];
     HippyAssert(_contentView == subview, @"Attempted to remove non-existent subview");
-    [_contentView removeObserver: self forKeyPath: @"frame"];
+    [_contentView removeObserver:self forKeyPath:@"frame"];
     _contentView = nil;
 }
 
@@ -253,37 +272,33 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
     // Do nothing, as subviews are managed by `insertHippySubview:atIndex:`
 }
 
-- (BOOL)centerContent
-{
+- (BOOL)centerContent {
     return _scrollView.centerContent;
 }
 
-- (void)setCenterContent:(BOOL)centerContent
-{
+- (void)setCenterContent:(BOOL)centerContent {
     _scrollView.centerContent = centerContent;
 }
 
-- (void)setClipsToBounds:(BOOL)clipsToBounds
-{
+- (void)setClipsToBounds:(BOOL)clipsToBounds {
     super.clipsToBounds = clipsToBounds;
     _scrollView.clipsToBounds = clipsToBounds;
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     _scrollView.delegate = nil;
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
     if (_contentView) {
-        [_contentView removeObserver: self forKeyPath: @"frame"];
+        [_contentView removeObserver:self forKeyPath:@"frame"];
         _contentView = nil;
     }
 }
 
-- (void)layoutSubviews
-{
+- (void)layoutSubviews {
     [super layoutSubviews];
     HippyAssert(self.subviews.count == 1, @"we should only have exactly one subview");
     HippyAssert([self.subviews lastObject] == _scrollView, @"our only subview should be a scrollview");
-    
+
     if (_scrollView.pagingEnabled) {
         //下面计算index,currIndex的计算需要使用scrollview原contentSize除以原frame
         CGRect originFrame = CGRectEqualToRect(CGRectZero, _scrollView.frame) ? self.bounds : _scrollView.frame;
@@ -308,34 +323,32 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
             CGFloat temp = contentSize.height - frame.size.height;
             originalOffset.y = MAX(0, temp);
         }
-        
+
         _scrollView.contentOffset = originalOffset;
     }
-    
+
     [self updateClippedSubviews];
 }
 
-- (void)updateClippedSubviews
-{
+- (void)updateClippedSubviews {
     // Find a suitable view to use for clipping
     UIView *clipView = [self hippy_findClipView];
     if (!clipView) {
         return;
     }
-    
+
     static const CGFloat leeway = 1.0;
-    
+
     const CGSize contentSize = _scrollView.contentSize;
     const CGRect bounds = _scrollView.bounds;
     const BOOL scrollsHorizontally = contentSize.width > bounds.size.width;
     const BOOL scrollsVertically = contentSize.height > bounds.size.height;
-    
-    const BOOL shouldClipAgain =
-    CGRectIsNull(_lastClippedToRect) ||
-    !CGRectEqualToRect(_lastClippedToRect, bounds) ||
-    (scrollsHorizontally && (bounds.size.width < leeway || fabs(_lastClippedToRect.origin.x - bounds.origin.x) >= leeway)) ||
-    (scrollsVertically && (bounds.size.height < leeway || fabs(_lastClippedToRect.origin.y - bounds.origin.y) >= leeway));
-    
+
+    const BOOL shouldClipAgain
+        = CGRectIsNull(_lastClippedToRect) || !CGRectEqualToRect(_lastClippedToRect, bounds)
+          || (scrollsHorizontally && (bounds.size.width < leeway || fabs(_lastClippedToRect.origin.x - bounds.origin.x) >= leeway))
+          || (scrollsVertically && (bounds.size.height < leeway || fabs(_lastClippedToRect.origin.y - bounds.origin.y) >= leeway));
+
     if (shouldClipAgain) {
         const CGRect clipRect = CGRectInset(clipView.bounds, -leeway, -leeway);
         [self hippy_updateClippedSubviewsWithClipRect:clipRect relativeToView:clipView];
@@ -343,64 +356,52 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
     }
 }
 
-- (void)setContentInset:(UIEdgeInsets)contentInset
-{
+- (void)setContentInset:(UIEdgeInsets)contentInset {
     if (UIEdgeInsetsEqualToEdgeInsets(contentInset, _contentInset)) {
         return;
     }
-    
+
     CGPoint contentOffset = _scrollView.contentOffset;
-    
+
     _contentInset = contentInset;
-    [HippyView autoAdjustInsetsForView:self
-                      withScrollView:_scrollView
-                        updateOffset:NO];
-    
+    [HippyView autoAdjustInsetsForView:self withScrollView:_scrollView updateOffset:NO];
+
     _scrollView.contentOffset = contentOffset;
 }
 
-- (void)scrollToOffset:(CGPoint)offset
-{
+- (void)scrollToOffset:(CGPoint)offset {
     [self scrollToOffset:offset animated:YES];
 }
 
-- (void)scrollToOffset:(CGPoint)offset animated:(BOOL)animated
-{
+- (void)scrollToOffset:(CGPoint)offset animated:(BOOL)animated {
     if (!CGPointEqualToPoint(_scrollView.contentOffset, offset)) {
         // Ensure at least one scroll event will fire
         _allowNextScrollNoMatterWhat = YES;
-        
+
         [self setTargetOffset:offset];
         [_scrollView setContentOffset:offset animated:animated];
     }
 }
 
-- (void)zoomToRect:(CGRect)rect animated:(BOOL)animated
-{
+- (void)zoomToRect:(CGRect)rect animated:(BOOL)animated {
     [_scrollView zoomToRect:rect animated:animated];
 }
 
-- (void)refreshContentInset
-{
-    [HippyView autoAdjustInsetsForView:self
-                      withScrollView:_scrollView
-                        updateOffset:YES];
+- (void)refreshContentInset {
+    [HippyView autoAdjustInsetsForView:self withScrollView:_scrollView updateOffset:YES];
 }
 
 #pragma mark - ScrollView delegate
 
-- (void)addScrollListener:(NSObject<UIScrollViewDelegate> *)scrollListener
-{
+- (void)addScrollListener:(NSObject<UIScrollViewDelegate> *)scrollListener {
     [_scrollListeners addObject:scrollListener];
 }
 
-- (void)removeScrollListener:(NSObject<UIScrollViewDelegate> *)scrollListener
-{
+- (void)removeScrollListener:(NSObject<UIScrollViewDelegate> *)scrollListener {
     [_scrollListeners removeObject:scrollListener];
 }
 
-- (UIScrollView *)realScrollView
-{
+- (UIScrollView *)realScrollView {
     return _scrollView;
 }
 
@@ -408,40 +409,28 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
     return _scrollListeners;
 }
 
-- (NSDictionary *)scrollEventBody
-{
+- (NSDictionary *)scrollEventBody {
     NSDictionary *body = @{
-                           @"contentOffset": @{
-                                   @"x": @(_scrollView.contentOffset.x),
-                                   @"y": @(_scrollView.contentOffset.y)
-                                   },
-                           @"contentInset": @{
-                                   @"top": @(_scrollView.contentInset.top),
-                                   @"left": @(_scrollView.contentInset.left),
-                                   @"bottom": @(_scrollView.contentInset.bottom),
-                                   @"right": @(_scrollView.contentInset.right)
-                                   },
-                           @"contentSize": @{
-                                   @"width": @(_scrollView.contentSize.width),
-                                   @"height": @(_scrollView.contentSize.height)
-                                   },
-                           @"layoutMeasurement": @{
-                                   @"width": @(_scrollView.frame.size.width),
-                                   @"height": @(_scrollView.frame.size.height)
-                                   },
-                           @"zoomScale": @(_scrollView.zoomScale ?: 1),
-                           };
-    
+        @"contentOffset": @ { @"x": @(_scrollView.contentOffset.x), @"y": @(_scrollView.contentOffset.y) },
+        @"contentInset": @ {
+            @"top": @(_scrollView.contentInset.top),
+            @"left": @(_scrollView.contentInset.left),
+            @"bottom": @(_scrollView.contentInset.bottom),
+            @"right": @(_scrollView.contentInset.right)
+        },
+        @"contentSize": @ { @"width": @(_scrollView.contentSize.width), @"height": @(_scrollView.contentSize.height) },
+        @"layoutMeasurement": @ { @"width": @(_scrollView.frame.size.width), @"height": @(_scrollView.frame.size.height) },
+        @"zoomScale": @(_scrollView.zoomScale ?: 1),
+    };
+
     return body;
 }
 
-
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView
-{
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     [self updateClippedSubviews];
-    
+
     NSTimeInterval now = CACurrentMediaTime();
-    
+
     /**
      * TODO: this logic looks wrong, and it may be because it is. Currently, if _scrollEventThrottle
      * is set to zero (the default), the "didScroll" event is only sent once per scroll, instead of repeatedly
@@ -464,9 +453,8 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
     }
 }
 
-- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
-{
-    _allowNextScrollNoMatterWhat = YES; // Ensure next scroll event is recorded, regardless of throttle
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
+    _allowNextScrollNoMatterWhat = YES;  // Ensure next scroll event is recorded, regardless of throttle
     if (self.onScrollBeginDrag) {
         self.onScrollBeginDrag([self scrollEventBody]);
     }
@@ -478,8 +466,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
     }
 }
 
-- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset
-{
+- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset {
     // snapToInterval
     // An alternative to enablePaging which allows setting custom stopping intervals,
     // smaller than a full page size. Often seen in apps which feature horizonally
@@ -487,26 +474,26 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
     // but guarantees that the scroll will stop at an interval point.
     if (self.snapToInterval) {
         CGFloat snapToIntervalF = (CGFloat)self.snapToInterval;
-        
+
         // Find which axis to snap
         BOOL isHorizontal = (scrollView.contentSize.width > self.frame.size.width);
-        
+
         // What is the current offset?
         CGFloat targetContentOffsetAlongAxis = isHorizontal ? targetContentOffset->x : targetContentOffset->y;
-        
+
         // Which direction is the scroll travelling?
         CGPoint translation = [scrollView.panGestureRecognizer translationInView:scrollView];
         CGFloat translationAlongAxis = isHorizontal ? translation.x : translation.y;
-        
+
         // Offset based on desired alignment
         CGFloat frameLength = isHorizontal ? self.frame.size.width : self.frame.size.height;
         CGFloat alignmentOffset = 0.0f;
-        if ([self.snapToAlignment  isEqualToString: @"center"]) {
+        if ([self.snapToAlignment isEqualToString:@"center"]) {
             alignmentOffset = (frameLength * 0.5f) + (snapToIntervalF * 0.5f);
-        } else if ([self.snapToAlignment  isEqualToString: @"end"]) {
+        } else if ([self.snapToAlignment isEqualToString:@"end"]) {
             alignmentOffset = frameLength;
         }
-        
+
         // Pick snap point based on direction and proximity
         NSInteger snapIndex = floor((targetContentOffsetAlongAxis + alignmentOffset) / snapToIntervalF);
         BOOL isScrollingForward = translationAlongAxis < 0;
@@ -517,8 +504,8 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
         if (translationAlongAxis != 0) {
             _lastNonZeroTranslationAlongAxis = translationAlongAxis;
         }
-        CGFloat newTargetContentOffset = ( snapIndex * snapToIntervalF ) - alignmentOffset;
-        
+        CGFloat newTargetContentOffset = (snapIndex * snapToIntervalF) - alignmentOffset;
+
         // Set new targetContentOffset
         if (isHorizontal) {
             targetContentOffset->x = newTargetContentOffset;
@@ -526,18 +513,12 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
             targetContentOffset->y = newTargetContentOffset;
         }
     }
-    
+
     if (self.onScrollEndDrag) {
         NSDictionary *userData = @{
-                                   @"velocity": @{
-                                           @"x": @(velocity.x),
-                                           @"y": @(velocity.y)
-                                           },
-                                   @"targetContentOffset": @{
-                                           @"x": @(targetContentOffset->x),
-                                           @"y": @(targetContentOffset->y)
-                                           }
-                                   };
+            @"velocity": @ { @"x": @(velocity.x), @"y": @(velocity.y) },
+            @"targetContentOffset": @ { @"x": @(targetContentOffset->x), @"y": @(targetContentOffset->y) }
+        };
         NSMutableDictionary *mutableBody = [NSMutableDictionary dictionaryWithDictionary:[self scrollEventBody]];
         [mutableBody addEntriesFromDictionary:userData];
         self.onScrollEndDrag(mutableBody);
@@ -549,8 +530,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
     }
 }
 
-- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
-{
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndDragging:willDecelerate:)]) {
             [scrollViewListener scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
@@ -558,8 +538,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
     }
 }
 
-- (void)scrollViewWillBeginZooming:(UIScrollView *)scrollView withView:(UIView *)view
-{
+- (void)scrollViewWillBeginZooming:(UIScrollView *)scrollView withView:(UIView *)view {
     if (self.onScrollBeginDrag) {
         self.onScrollBeginDrag([self scrollEventBody]);
     }
@@ -570,8 +549,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
     }
 }
 
-- (void)scrollViewDidZoom:(UIScrollView *)scrollView
-{
+- (void)scrollViewDidZoom:(UIScrollView *)scrollView {
     if (self.onScroll) {
         self.onScroll([self scrollEventBody]);
     }
@@ -582,8 +560,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
     }
 }
 
-- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(CGFloat)scale
-{
+- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(CGFloat)scale {
     if (self.onScrollEndDrag) {
         self.onScrollEndDrag([self scrollEventBody]);
     }
@@ -594,8 +571,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
     }
 }
 
-- (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView
-{
+- (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView {
     if (self.onMomentumScrollBegin) {
         self.onMomentumScrollBegin([self scrollEventBody]);
     }
@@ -606,12 +582,11 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
     }
 }
 
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
-{
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
     // Fire a final scroll event
     _allowNextScrollNoMatterWhat = YES;
     [self scrollViewDidScroll:scrollView];
-    
+
     if (self.onMomentumScrollEnd) {
         self.onMomentumScrollEnd([self scrollEventBody]);
     }
@@ -623,18 +598,17 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
     }
 }
 
-- (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
-{
+- (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView {
     // Fire a final scroll event
     _allowNextScrollNoMatterWhat = YES;
     [self scrollViewDidScroll:scrollView];
-    
+
     NSDictionary *event = [self scrollEventBody];
-    
+
     if (self.onMomentumScrollEnd) {
         self.onMomentumScrollEnd(event);
     }
-    
+
     if (self.onScrollAnimationEnd) {
         self.onScrollAnimationEnd(event);
     }
@@ -646,67 +620,75 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
     }
 }
 
-- (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView
-{
+- (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView {
     for (NSObject<UIScrollViewDelegate> *scrollListener in _scrollListeners) {
-        if ([scrollListener respondsToSelector:@selector(scrollViewShouldScrollToTop:)] &&
-            ![scrollListener scrollViewShouldScrollToTop:scrollView]) {
+        if ([scrollListener respondsToSelector:@selector(scrollViewShouldScrollToTop:)] && ![scrollListener scrollViewShouldScrollToTop:scrollView]) {
             return NO;
         }
     }
     return YES;
 }
 
-- (UIView *)viewForZoomingInScrollView:(__unused UIScrollView *)scrollView
-{
+- (UIView *)viewForZoomingInScrollView:(__unused UIScrollView *)scrollView {
     return _contentView;
 }
 
-- (HippyRootView *)rootView
-{
+- (HippyRootView *)rootView {
     if (_rootView) {
         return _rootView;
     }
-    
+
     UIView *view = [self superview];
-    
-    while (view && ![view isKindOfClass: [HippyRootView class]]) {
+
+    while (view && ![view isKindOfClass:[HippyRootView class]]) {
         view = [view superview];
     }
-    
-    if ([view isKindOfClass: [HippyRootView class]]) {
+
+    if ([view isKindOfClass:[HippyRootView class]]) {
         _rootView = (HippyRootView *)view;
         return _rootView;
     } else
         return nil;
 }
 
-- (void)didMoveToSuperview
-{
+- (void)didMoveToSuperview {
     _rootView = nil;
 }
 
 #pragma mark - Setters
+/**
+ * we need to cache scroll view's contentOffset.
+ * if scroll view is reused in list view cell, we can save its contentOffset in every cells,
+ * and set right contentOffset for each cell.
+ * resetting hippyTag meas scroll view is in reusing.
+ */
+- (void)setHippyTag:(NSNumber *)hippyTag {
+    if (![self.hippyTag isEqualToNumber:hippyTag]) {
+        if (self.hippyTag) {
+            NSString *offsetString = NSStringFromCGPoint(self.scrollView.contentOffset);
+            [_contentOffsetCache setObject:offsetString forKey:self.hippyTag];
+        }
+        [super setHippyTag:hippyTag];
+    }
+}
 
-- (CGSize)_calculateViewportSize
-{
+- (CGSize)_calculateViewportSize {
     CGSize viewportSize = self.bounds.size;
     if (_automaticallyAdjustContentInsets) {
         UIEdgeInsets contentInsets = [HippyView contentInsetsForView:self];
-        viewportSize = CGSizeMake(self.bounds.size.width - contentInsets.left - contentInsets.right,
-                                  self.bounds.size.height - contentInsets.top - contentInsets.bottom);
+        viewportSize = CGSizeMake(
+            self.bounds.size.width - contentInsets.left - contentInsets.right, self.bounds.size.height - contentInsets.top - contentInsets.bottom);
     }
     return viewportSize;
 }
 
-- (CGPoint)calculateOffsetForContentSize:(CGSize)newContentSize
-{
+- (CGPoint)calculateOffsetForContentSize:(CGSize)newContentSize {
     CGPoint oldOffset = _scrollView.contentOffset;
     CGPoint newOffset = oldOffset;
-    
+
     CGSize oldContentSize = _scrollView.contentSize;
     CGSize viewportSize = [self _calculateViewportSize];
-    
+
     BOOL fitsinViewportY = oldContentSize.height <= viewportSize.height && newContentSize.height <= viewportSize.height;
     if (newContentSize.height < oldContentSize.height && !fitsinViewportY) {
         CGFloat offsetHeight = oldOffset.y + viewportSize.height;
@@ -720,7 +702,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
             newOffset.y = MAX(0, newContentSize.height - viewportSize.height);
         }
     }
-    
+
     BOOL fitsinViewportX = oldContentSize.width <= viewportSize.width && newContentSize.width <= viewportSize.width;
     if (newContentSize.width < oldContentSize.width && !fitsinViewportX) {
         CGFloat offsetHeight = oldOffset.x + viewportSize.width;
@@ -734,7 +716,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
             newOffset.x = MAX(0, newContentSize.width - viewportSize.width);
         }
     }
-    
+
     // all other cases, offset doesn't change
     return newOffset;
 }
@@ -744,8 +726,7 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
  * managed by you, and we'll never automatically compute the size for you,
  * unless you manually reset it back to {0, 0}
  */
-- (CGSize)contentSize
-{
+- (CGSize)contentSize {
     if (!CGSizeEqualToSize(_contentSize, CGSizeZero)) {
         return _contentSize;
     } else if (!_contentView) {
@@ -753,15 +734,11 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
     } else {
         CGSize singleSubviewSize = _contentView.frame.size;
         CGPoint singleSubviewPosition = _contentView.frame.origin;
-        return (CGSize){
-            singleSubviewSize.width + singleSubviewPosition.x,
-            singleSubviewSize.height + singleSubviewPosition.y
-        };
+        return (CGSize) { singleSubviewSize.width + singleSubviewPosition.x, singleSubviewSize.height + singleSubviewPosition.y };
     }
 }
 
-- (void)hippyBridgeDidFinishTransaction
-{
+- (void)hippyBridgeDidFinishTransaction {
     CGSize contentSize = self.contentSize;
     if (!CGSizeEqualToSize(_scrollView.contentSize, contentSize)) {
         // When contentSize is set manually, ScrollView internals will reset
@@ -774,22 +751,26 @@ HIPPY_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
     }
 }
 
+- (void)didSetProps:(NSArray<NSString *> *)changedProps {
+    if ([changedProps containsObject:@"contentOffset"]) {
+        _didSetContentOffset = YES;
+    }
+}
+
 // Note: setting several properties of UIScrollView has the effect of
 // resetting its contentOffset to {0, 0}. To prevent this, we generate
 // setters here that will record the contentOffset beforehand, and
 // restore it after the property has been set.
 
 #define HIPPY_SET_AND_PRESERVE_OFFSET(setter, getter, type) \
-- (void)setter:(type)value                                \
-{                                                         \
-CGPoint contentOffset = _scrollView.contentOffset;      \
-[_scrollView setter:value];                             \
-_scrollView.contentOffset = contentOffset;              \
-}                                                         \
-- (type)getter                                            \
-{                                                         \
-return [_scrollView getter];                            \
-}
+    -(void)setter : (type)value {                           \
+        CGPoint contentOffset = _scrollView.contentOffset;  \
+        [_scrollView setter:value];                         \
+        _scrollView.contentOffset = contentOffset;          \
+    }                                                       \
+    -(type)getter {                                         \
+        return [_scrollView getter];                        \
+    }
 
 HIPPY_SET_AND_PRESERVE_OFFSET(setAlwaysBounceHorizontal, alwaysBounceHorizontal, BOOL)
 HIPPY_SET_AND_PRESERVE_OFFSET(setAlwaysBounceVertical, alwaysBounceVertical, BOOL)

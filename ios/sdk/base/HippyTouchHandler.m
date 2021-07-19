@@ -1,24 +1,24 @@
 /*!
-* iOS SDK
-*
-* Tencent is pleased to support the open source community by making
-* Hippy available.
-*
-* Copyright (C) 2019 THL A29 Limited, a Tencent company.
-* All rights reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*   http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * iOS SDK
+ *
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #import "HippyTouchHandler.h"
 #import "UIView+Hippy.h"
@@ -27,26 +27,26 @@
 #import "HippyText.h"
 #import "UIView+Private.h"
 
-typedef void(^ViewBlock)(UIView* view, BOOL* stop);
+typedef void (^ViewBlock)(UIView *view, BOOL *stop);
 
 @interface UIView (ViewExtensions)
--(void) RNLoopViewHierarchy:(ViewBlock) block;
--(void) RNLoopSuperViewHierarchy:(ViewBlock) block;
+- (void)RNLoopViewHierarchy:(ViewBlock)block;
+- (void)RNLoopSuperViewHierarchy:(ViewBlock)block;
 @end
 
 @implementation UIView (ViewExtensions)
--(void) RNLoopViewHierarchy:(ViewBlock) block {
+- (void)RNLoopViewHierarchy:(ViewBlock)block {
     BOOL stop = NO;
     if (block) {
         block(self, &stop);
     }
     if (!stop) {
-        for (UIView* subview in self.subviews) {
+        for (UIView *subview in self.subviews) {
             [subview RNLoopViewHierarchy:block];
         }
     }
 }
--(void) RNLoopSuperViewHierarchy:(ViewBlock) block {
+- (void)RNLoopSuperViewHierarchy:(ViewBlock)block {
     BOOL stop = NO;
     if (block) {
         block(self, &stop);
@@ -57,43 +57,44 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
 }
 @end
 
-
 @implementation HippyTouchHandler {
-    NSMutableArray <UITouch *> *_moveTouches;
-    NSMutableArray <NSDictionary *> *_moveViews;
-    
+    NSMutableArray<UITouch *> *_moveTouches;
+    NSMutableArray<NSDictionary *> *_moveViews;
+
     __weak UIView *_onPressInView;
     __weak UIView *_onClickView;
     __weak UIView *_onLongClickView;
-    
-    NSTimer * _toucheBeginTimer;
+
+    NSTimer *_toucheBeginTimer;
     NSTimer *_touchLongTimer;
     BOOL _bPressIn;
     BOOL _bLongClick;
-    
+
     __weak UIView *_rootView;
 
     CGPoint _startPoint;
     HippyBridge *_bridge;
     
+    NSHashTable<UIView *> *_onInterceptTouchEventView;
+    NSHashTable<UIView *> *_onInterceptPullUpEventView;
 }
 
-- (instancetype)initWithRootView:(UIView *)view
-{
-    if (self = [super initWithTarget: nil action: NULL]) {
+- (instancetype)initWithRootView:(UIView *)view {
+    if (self = [super initWithTarget:nil action:NULL]) {
         _moveTouches = [NSMutableArray new];
         _moveViews = [NSMutableArray new];
         _startPoint = CGPointZero;
         _rootView = view;
         self.delegate = self;
         self.cancelsTouchesInView = NO;
+        _onInterceptTouchEventView = [NSHashTable weakObjectsHashTable];
+        _onInterceptPullUpEventView = [NSHashTable weakObjectsHashTable];
     }
     return self;
 }
 
-- (instancetype)initWithRootView:(UIView *)view bridge:(HippyBridge *)bridge
-{
-    if (self = [self initWithRootView: view]) {
+- (instancetype)initWithRootView:(UIView *)view bridge:(HippyBridge *)bridge {
+    if (self = [self initWithRootView:view]) {
         _bridge = bridge;
     }
     return self;
@@ -102,18 +103,19 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event;
 {
     [super touchesBegan:touches withEvent:event];
-    if ([ _bridge.customTouchHandler respondsToSelector:@selector(customTouchesBegan:withEvent:)]) {
+    if ([_bridge.customTouchHandler respondsToSelector:@selector(customTouchesBegan:withEvent:)]) {
         BOOL shouldRecursive = [_bridge.customTouchHandler customTouchesBegan:touches withEvent:event];
-        if(!shouldRecursive) {
+        if (!shouldRecursive) {
             return;
         }
     }
-    
+
     UITouch *touch = [touches anyObject];
-    _startPoint = [touch locationInView: touch.view];
+    _startPoint = [touch locationInView:touch.view];
     for (UITouch *touch in touches) {
-        NSDictionary *result = [self responseViewForAction: @[@"onPressIn", @"onTouchDown", @"onClick", @"onLongClick"] inView: touch.view atPoint:[touch locationInView:touch.view]];
-        
+        NSDictionary *result = [self responseViewForAction:@[@"onPressIn", @"onTouchDown", @"onClick", @"onLongClick"] inView:touch.view
+                                                   atPoint:[touch locationInView:touch.view]];
+
         UIView *view = result[@"onTouchDown"][@"view"];
         UIView *clickView = result[@"onClick"][@"view"];
         if (view) {
@@ -122,27 +124,27 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
             if (clickView) {
                 clickIndex = [result[@"onClick"][@"index"] integerValue];
             }
-            
+
             if (clickView == nil || (index <= clickIndex && clickIndex != NSNotFound)) {
-                CGPoint point = [touch locationInView: view];
-                point = [view convertPoint: point toView: _rootView];
+                CGPoint point = [touch locationInView:view];
+                point = [view convertPoint:point toView:_rootView];
                 if (view.onTouchDown) {
                     if ([self checkViewBelongToTouchHandler:view]) {
-                        view.onTouchDown(@{@"page_x": @(point.x), @"page_y": @(point.y)});
+                        view.onTouchDown(@{ @"page_x": @(point.x), @"page_y": @(point.y) });
                     }
                 }
             }
         }
-        
+
         if (result[@"onPressIn"][@"view"]) {
             _onPressInView = result[@"onPressIn"][@"view"];
             [self clearTimer];
-            _toucheBeginTimer = [NSTimer timerWithTimeInterval: 0.1 target: self selector: @selector(scheduleTimer:) userInfo: nil repeats: NO];
-            [[NSRunLoop mainRunLoop] addTimer: _toucheBeginTimer forMode: NSDefaultRunLoopMode];
+            _toucheBeginTimer = [NSTimer timerWithTimeInterval:0.1 target:self selector:@selector(scheduleTimer:) userInfo:nil repeats:NO];
+            [[NSRunLoop mainRunLoop] addTimer:_toucheBeginTimer forMode:NSDefaultRunLoopMode];
         }
-        
+
         _onClickView = clickView;
-        
+
         if (result[@"onLongClick"][@"view"]) {
             _onLongClickView = result[@"onLongClick"][@"view"];
             [self clearLongClickTimer];
@@ -150,7 +152,7 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
             [[NSRunLoop mainRunLoop] addTimer:_touchLongTimer forMode:NSDefaultRunLoopMode];
         }
     }
-    
+
     if (self.state == UIGestureRecognizerStatePossible) {
         self.state = UIGestureRecognizerStateBegan;
     } else if (self.state == UIGestureRecognizerStateBegan) {
@@ -158,20 +160,19 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
     }
 }
 
-- (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
-{
+- (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     [super touchesEnded:touches withEvent:event];
-    if ([ _bridge.customTouchHandler respondsToSelector:@selector(customTouchesEnded:withEvent:)]) {
+    if ([_bridge.customTouchHandler respondsToSelector:@selector(customTouchesEnded:withEvent:)]) {
         BOOL shouldRecursive = [_bridge.customTouchHandler customTouchesEnded:touches withEvent:event];
-        if(!shouldRecursive) {
+        if (!shouldRecursive) {
             return;
         }
     }
-    
-    
+
     for (UITouch *touch in touches) {
-        NSDictionary *result = [self responseViewForAction:@[@"onTouchEnd", @"onPressOut", @"onClick"] inView: touch.view atPoint:[touch locationInView:touch.view]];
-        
+        NSDictionary *result = [self responseViewForAction:@[@"onTouchEnd", @"onPressOut", @"onClick"] inView:touch.view
+                                                   atPoint:[touch locationInView:touch.view]];
+
         UIView *view = result[@"onTouchEnd"][@"view"];
         UIView *clickView = result[@"onClick"][@"view"];
         if (view) {
@@ -180,13 +181,13 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
             if (clickView) {
                 clickIndex = [result[@"onClick"][@"index"] integerValue];
             }
-            
+
             if (clickView == nil || (index <= clickIndex && clickIndex != NSNotFound)) {
-                CGPoint point = [touch locationInView: view];
-                point = [view convertPoint: point toView: _rootView];
+                CGPoint point = [touch locationInView:view];
+                point = [view convertPoint:point toView:_rootView];
                 if (view.onTouchEnd) {
                     if ([self checkViewBelongToTouchHandler:view]) {
-                        view.onTouchEnd(@{@"page_x": @(point.x), @"page_y": @(point.y)});
+                        view.onTouchEnd(@{ @"page_x": @(point.x), @"page_y": @(point.y) });
                     }
                 }
             }
@@ -195,17 +196,17 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
                 NSDictionary *bundle = _moveViews[0][@"onTouchMove"];
                 if (bundle && bundle[@"view"]) {
                     UIView *theView = bundle[@"view"];
-                    CGPoint point = [touch locationInView: theView];
-                    point = [theView convertPoint: point toView: _rootView];
+                    CGPoint point = [touch locationInView:theView];
+                    point = [theView convertPoint:point toView:_rootView];
                     if (theView.onTouchEnd) {
                         if ([self checkViewBelongToTouchHandler:theView]) {
-                            theView.onTouchEnd(@{@"page_x": @(point.x), @"page_y": @(point.y)});
+                            theView.onTouchEnd(@{ @"page_x": @(point.x), @"page_y": @(point.y) });
                         }
                     }
                 }
             }
         }
-        
+
         if (result[@"onPressOut"][@"view"]) {
             UIView *pressOutView = result[@"onPressOut"][@"view"];
             if (pressOutView == _onPressInView && pressOutView.onPressOut) {
@@ -216,7 +217,7 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
                 }
             }
         }
-        
+
         if (clickView && clickView == _onClickView) {
             if (!_bLongClick && clickView.onClick) {
                 if ([self checkViewBelongToTouchHandler:clickView]) {
@@ -228,27 +229,29 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
             _bPressIn = NO;
         }
     }
-    
+
     self.state = UIGestureRecognizerStateEnded;
     [_moveViews removeAllObjects];
     [_moveTouches removeAllObjects];
+    [_onInterceptTouchEventView removeAllObjects];
+    [_onInterceptPullUpEventView removeAllObjects];
 }
 
-- (void)touchesCancelled:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
-{
+- (void)touchesCancelled:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     [super touchesCancelled:touches withEvent:event];
-    if ([ _bridge.customTouchHandler respondsToSelector:@selector(customTouchesCancelled:withEvent:)]) {
+    if ([_bridge.customTouchHandler respondsToSelector:@selector(customTouchesCancelled:withEvent:)]) {
         BOOL shouldRecursive = [_bridge.customTouchHandler customTouchesCancelled:touches withEvent:event];
-        if(!shouldRecursive) {
+        if (!shouldRecursive) {
             return;
         }
     }
-    
+
     [_moveViews removeAllObjects];
     [_moveTouches removeAllObjects];
-    
+
     for (UITouch *touch in touches) {
-        NSDictionary *result = [self responseViewForAction:@[@"onTouchCancel", @"onPressOut", @"onClick"] inView: touch.view atPoint:[touch locationInView:touch.view]];
+        NSDictionary *result = [self responseViewForAction:@[@"onTouchCancel", @"onPressOut", @"onClick"] inView:touch.view
+                                                   atPoint:[touch locationInView:touch.view]];
         UIView *clickView = result[@"onClick"][@"view"];
         UIView *view = result[@"onTouchCancel"][@"view"];
         if (view) {
@@ -257,18 +260,18 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
             if (clickView) {
                 clickIndex = [result[@"onClick"][@"index"] integerValue];
             }
-            
+
             if (clickView == nil || (index <= clickIndex && clickIndex != NSNotFound)) {
-                CGPoint point = [touch locationInView: view];
-                point = [view convertPoint: point toView: _rootView];
+                CGPoint point = [touch locationInView:view];
+                point = [view convertPoint:point toView:_rootView];
                 if (view.onTouchCancel) {
                     if ([self checkViewBelongToTouchHandler:view]) {
-                        view.onTouchCancel(@{@"page_x": @(point.x), @"page_y": @(point.y)});
+                        view.onTouchCancel(@{ @"page_x": @(point.x), @"page_y": @(point.y) });
                     }
                 }
             }
         }
-        
+
         if (result[@"onPressOut"][@"view"]) {
             UIView *pressOutView = result[@"onPressOut"][@"view"];
             if (pressOutView == _onPressInView && pressOutView.onPressOut) {
@@ -281,48 +284,48 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
     self.state = UIGestureRecognizerStateCancelled;
     self.enabled = NO;
     self.enabled = YES;
+    [_onInterceptTouchEventView removeAllObjects];
+    [_onInterceptPullUpEventView removeAllObjects];
 }
 
-- (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
-{
+- (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     [super touchesMoved:touches withEvent:event];
-    if ([ _bridge.customTouchHandler respondsToSelector:@selector(customTouchesMoved:withEvent:)]) {
+    if ([_bridge.customTouchHandler respondsToSelector:@selector(customTouchesMoved:withEvent:)]) {
         BOOL shouldRecursive = [_bridge.customTouchHandler customTouchesMoved:touches withEvent:event];
-        if(!shouldRecursive) {
+        if (!shouldRecursive) {
             return;
         }
     }
-    
+
     UITouch *touch = [touches anyObject];
-    CGPoint point = [touch locationInView: touch.view];
-    
+    CGPoint point = [touch locationInView:touch.view];
+
     float dis = hypotf(_startPoint.x - point.x, _startPoint.y - point.y);
     if (dis < 1.f) {
         return;
     }
     [self clearTimer];
     _onClickView = nil;
-    
+
     for (UITouch *touch in touches) {
-        
-        NSInteger index = [_moveTouches indexOfObject: touch];
+        NSInteger index = [_moveTouches indexOfObject:touch];
         NSDictionary *result = nil;
         if (index != NSNotFound) {
             result = _moveViews[index];
         } else {
-            NSDictionary *result = [self responseViewForAction:@[@"onTouchMove", @"onPressOut", @"onClick"] inView: touch.view atPoint:[touch locationInView:touch.view]];
-            [_moveTouches addObject: touch];
-            [_moveViews addObject: result];
+            NSDictionary *result = [self responseViewForAction:@[@"onTouchMove", @"onPressOut", @"onClick"] inView:touch.view
+                                                       atPoint:[touch locationInView:touch.view]];
+            [_moveTouches addObject:touch];
+            [_moveViews addObject:result];
         }
-        
-        
+
         if (_bPressIn) {
             if (result[@"onLongClick"][@"view"]) {
                 _bLongClick = NO;
                 [self clearLongClickTimer];
             }
         }
-        
+
         UIView *clickView = result[@"onClick"][@"view"];
         UIView *view = result[@"onTouchMove"][@"view"];
         if (view) {
@@ -331,13 +334,13 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
             if (clickView) {
                 clickIndex = [result[@"onClick"][@"index"] integerValue];
             }
-            
+
             if (clickView == nil || (index <= clickIndex && clickIndex != NSNotFound)) {
                 if (view.onTouchMove) {
-                    CGPoint point = [touch locationInView: view];
-                    point = [view convertPoint: point toView: _rootView];
+                    CGPoint point = [touch locationInView:view];
+                    point = [view convertPoint:point toView:_rootView];
                     if ([self checkViewBelongToTouchHandler:view]) {
-                        view.onTouchMove(@{@"page_x": @(point.x), @"page_y": @(point.y)});
+                        view.onTouchMove(@{ @"page_x": @(point.x), @"page_y": @(point.y) });
                     }
                 }
             }
@@ -352,23 +355,21 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
     return checkView == view;
 }
 
-- (void)clearTimer
-{
+- (void)clearTimer {
     if (_toucheBeginTimer) {
         [_toucheBeginTimer invalidate];
         _toucheBeginTimer = nil;
     }
 }
 
-- (void) clearLongClickTimer {
+- (void)clearLongClickTimer {
     if (_touchLongTimer) {
         [_touchLongTimer invalidate];
         _touchLongTimer = nil;
     }
 }
 
-- (void)scheduleTimer:(__unused NSTimer *)timer
-{
+- (void)scheduleTimer:(__unused NSTimer *)timer {
     if (!_bPressIn) {
         if (_onPressInView && _onPressInView.onPressIn) {
             if ([self checkViewBelongToTouchHandler:_onPressInView]) {
@@ -377,11 +378,11 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
         }
         _bPressIn = YES;
     }
-    
+
     //    self.state = UIGestureRecognizerStateEnded;
 }
 
-- (void) longClickTimer:(__unused NSTimer *)timer {
+- (void)longClickTimer:(__unused NSTimer *)timer {
     if (!_bLongClick) {
         _bLongClick = YES;
         if (_onLongClickView && _onLongClickView.onLongClick) {
@@ -392,18 +393,14 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
     }
 }
 
-- (UIView *)rootView:(UIView *)view
-{
+- (UIView *)rootView:(UIView *)view {
     while (view.superview.hippyTag) {
         view = view.superview;
     }
     return view;
 }
 
-- (NSDictionary <NSString *, UIView *> *)responseViewForAction:(NSArray *)actions
-                                                        inView:(UIView *)targetView
-                                                       atPoint:(CGPoint)point
-{
+- (NSDictionary<NSString *, UIView *> *)responseViewForAction:(NSArray *)actions inView:(UIView *)targetView atPoint:(CGPoint)point {
     NSDictionary *result = [self nextResponseViewForAction:actions inView:targetView atPoint:point];
     NSNumber *innerTag = [targetView hippyTagAtPoint:point];
     if (innerTag && ![targetView.hippyTag isEqual:innerTag]) {
@@ -416,72 +413,77 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
     return result;
 }
 
-- (NSDictionary <NSString *, UIView *> *)nextResponseViewForAction:(NSArray *)actions
-                                                            inView:(UIView *)targetView
-                                                           atPoint:(CGPoint)point
-{
+- (NSDictionary<NSString *, UIView *> *)nextResponseViewForAction:(NSArray *)actions inView:(UIView *)targetView atPoint:(CGPoint)point {
     NSMutableDictionary *result = [NSMutableDictionary new];
-    NSMutableArray *findActions = [NSMutableArray arrayWithArray: actions];
-    BOOL onInterceptTouchEvent = NO;
+    NSMutableArray *findActions = [NSMutableArray arrayWithArray:actions];
     UIView *view = (UIView *)targetView;
     NSInteger index = 0;
     while (view) {
-        
-        onInterceptTouchEvent = view.onInterceptTouchEvent;
-        
+        BOOL onInterceptTouchEvent = view.onInterceptTouchEvent;
+        BOOL onInterceptPullUpEvent = view.onInterceptPullUpEvent;
         if (onInterceptTouchEvent) {
-            findActions = [NSMutableArray arrayWithArray: actions];
+            findActions = [NSMutableArray arrayWithArray:actions];
             [result removeAllObjects];
+            [_onInterceptTouchEventView addObject:view];
         }
         
-        if ((onInterceptTouchEvent && findActions.count == 0) || [view isKindOfClass: NSClassFromString(@"HippyRootContentView")]) {
-            break ;
+        if (onInterceptPullUpEvent) {
+            if (point.y < _startPoint.y) {
+                findActions = [NSMutableArray arrayWithArray:actions];
+                [result removeAllObjects];
+                [_onInterceptPullUpEventView addObject:view];
+            }
+        }
+        BOOL touchInterceptEvent = onInterceptTouchEvent || onInterceptPullUpEvent;
+
+        if ((touchInterceptEvent && findActions.count == 0) || [view isKindOfClass:NSClassFromString(@"HippyRootContentView")]) {
+            break;
         } else {
-            if ([findActions containsObject: @"onPressIn"] && view.onPressIn) {
+            if ([findActions containsObject:@"onPressIn"] && view.onPressIn) {
                 if (!result[@"onClick"]) {
-                    [result setValue: @{@"view": view, @"index": @(index)} forKey: @"onPressIn"];
+                    [result setValue:@{ @"view": view, @"index": @(index) } forKey:@"onPressIn"];
                 }
-                [findActions removeObject: @"onPressIn"];
+                [findActions removeObject:@"onPressIn"];
             }
-            
-            if ([findActions containsObject: @"onPressOut"] && view.onPressOut) {
-                [result setValue: @{@"view": view, @"index": @(index)} forKey: @"onPressOut"];
-                [findActions removeObject: @"onPressOut"];
+
+            if ([findActions containsObject:@"onPressOut"] && view.onPressOut) {
+                [result setValue:@{ @"view": view, @"index": @(index) } forKey:@"onPressOut"];
+                [findActions removeObject:@"onPressOut"];
             }
-            
-            if ([findActions containsObject: @"onClick"] && view.onClick) {
-                //UIView可以实现这个协议决定是否由本Hander来分发touches事件，实现自定义UIView组件独占touches的处理
+
+            if ([findActions containsObject:@"onClick"] && view.onClick) {
                 if (![view interceptTouchEvent]) {
-                    [result setValue: @{@"view": view, @"index": @(index)} forKey: @"onClick"];
+                    [result setValue:@{ @"view": view, @"index": @(index) } forKey:@"onClick"];
                 }
-                [findActions removeObject: @"onClick"];
+                [findActions removeObject:@"onClick"];
             }
-            
+
             if ([findActions containsObject:@"onLongClick"] && view.onLongClick) {
-                [result setValue:@{@"view": view, @"index": @(index)} forKey:@"onLongClick"];
+                [result setValue:@{ @"view": view, @"index": @(index) } forKey:@"onLongClick"];
                 [findActions removeObject:@"onLongClick"];
             }
-            
-            if ([findActions containsObject: @"onTouchDown"] && view.onTouchDown) {
-                [result setValue: @{@"view": view, @"index": @(index)} forKey: @"onTouchDown"];
-                [findActions removeObject: @"onTouchDown"];
+
+            if ([findActions containsObject:@"onTouchDown"] && view.onTouchDown) {
+                [result setValue:@{ @"view": view, @"index": @(index) } forKey:@"onTouchDown"];
+                [findActions removeObject:@"onTouchDown"];
             }
-            
-            if ([findActions containsObject: @"onTouchMove"] && view.onTouchMove) {
-                [result setValue: @{@"view": view, @"index": @(index)} forKey: @"onTouchMove"];
-                [findActions removeObject: @"onTouchMove"];
+
+            if ([findActions containsObject:@"onTouchMove"] && view.onTouchMove) {
+                [result setValue:@{ @"view": view, @"index": @(index) } forKey:@"onTouchMove"];
+                [findActions removeObject:@"onTouchMove"];
             }
-            if ([findActions containsObject: @"onTouchCancel"] && view.onTouchCancel) {
-                [result setValue: @{@"view": view, @"index": @(index)} forKey: @"onTouchCancel"];
-                [findActions removeObject: @"onTouchCancel"];
+            if ([findActions containsObject:@"onTouchCancel"] && view.onTouchCancel) {
+                [result setValue:@{ @"view": view, @"index": @(index) } forKey:@"onTouchCancel"];
+                [findActions removeObject:@"onTouchCancel"];
             }
-            
-            if ([findActions containsObject: @"onTouchEnd"] && view.onTouchEnd) {
-                [result setValue: @{@"view": view, @"index": @(index)} forKey: @"onTouchEnd"];
-                [findActions removeObject: @"onTouchEnd"];
+
+            if ([findActions containsObject:@"onTouchEnd"] && view.onTouchEnd) {
+                [result setValue:@{ @"view": view, @"index": @(index) } forKey:@"onTouchEnd"];
+                [findActions removeObject:@"onTouchEnd"];
             }
-            
-            if (onInterceptTouchEvent) break;
+
+            if (touchInterceptEvent)
+                break;
             view = [view nextResponseViewAtPoint:point];
             index++;
         }
@@ -489,50 +491,52 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
     return result;
 }
 
-- (BOOL)gestureRecognizer:(__unused UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
-{
+- (BOOL)gestureRecognizer:(__unused UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
+    UIView *touchView = [touch view];
+    while (touchView && ![touchView hippyTag]) {
+        NSArray<UIGestureRecognizer *> *touchGestureRegs = [touchView gestureRecognizers];
+        for (UIGestureRecognizer *touchGes in touchGestureRegs) {
+            if (![self canPreventGestureRecognizer:touchGes]) {
+                return NO;
+            }
+        }
+        touchView = [touchView superview];
+    }
     if ([self isYYTextView:touch.view]) {
         return NO;
     }
-    
-    if ([touch.view isKindOfClass: [UIButton class]])
-    {
+
+    if ([touch.view isKindOfClass:[UIButton class]]) {
         return NO;
     }
-    
+
     __block BOOL ret = YES;
-    
+
     [touch.view RNLoopSuperViewHierarchy:^(UIView *view, BOOL *stop) {
-        
-        if ([view conformsToProtocol:@protocol(HippyScrollProtocol)])
-        {
-            if ([(id<HippyScrollProtocol>)view isManualScrolling])
-            {
+        if ([view conformsToProtocol:@protocol(HippyScrollProtocol)]) {
+            if ([(id<HippyScrollProtocol>)view isManualScrolling]) {
                 ret = NO;
                 *stop = YES;
             }
         }
     }];
-    
+
     return ret;
 }
 
-- (BOOL)isYYTextView:(UIView*)view{
+- (BOOL)isYYTextView:(UIView *)view {
     Class yyTextViewClass = NSClassFromString(@"YYTextView");
     Class yyTextSelectionView = NSClassFromString(@"YYTextSelectionView");
     Class yyTextContainerView = NSClassFromString(@"YYTextContainerView");
-    
-    if ([view isKindOfClass:yyTextViewClass] ||
-        [view isKindOfClass:yyTextSelectionView] ||
-        [view isKindOfClass:yyTextContainerView]) {
+
+    if ([view isKindOfClass:yyTextViewClass] || [view isKindOfClass:yyTextSelectionView] || [view isKindOfClass:yyTextContainerView]) {
         return YES;
     }
-    
+
     return NO;
 }
 
-- (void)cancelTouch
-{
+- (void)cancelTouch {
     if (_onPressInView) {
         _bPressIn = NO;
         if (_onPressInView.onPressOut) {
@@ -548,15 +552,14 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
     self.enabled = YES;
 }
 
-- (void)reset
-{
-    if ([ _bridge.customTouchHandler respondsToSelector:@selector(customReset)]) {
+- (void)reset {
+    if ([_bridge.customTouchHandler respondsToSelector:@selector(customReset)]) {
         BOOL shouldRecursive = [_bridge.customTouchHandler customReset];
-        if(!shouldRecursive) {
+        if (!shouldRecursive) {
             return;
         }
     }
-    
+
     if (_onPressInView) {
         _bPressIn = NO;
         if (_onPressInView.onPressOut) {
@@ -571,13 +574,22 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
     [super reset];
 }
 
-- (BOOL)canPreventGestureRecognizer:(__unused UIGestureRecognizer *)preventedGestureRecognizer
-{
+- (BOOL)canPreventGestureRecognizer:(__unused UIGestureRecognizer *)preventedGestureRecognizer {
+    UIView *gestureView = [preventedGestureRecognizer view];
+    for (UIView *view in _onInterceptTouchEventView) {
+        if ([gestureView isDescendantOfView:view] && gestureView != view && ![gestureView hippyTag]) {
+            return YES;
+        }
+    }
+    for (UIView *view in _onInterceptPullUpEventView) {
+        if ([gestureView isDescendantOfView:view] && gestureView != view && ![gestureView hippyTag]) {
+            return YES;
+        }
+    }
     return NO;
 }
 
-- (BOOL)canBePreventedByGestureRecognizer:(UIGestureRecognizer *)preventingGestureRecognizer
-{
+- (BOOL)canBePreventedByGestureRecognizer:(UIGestureRecognizer *)preventingGestureRecognizer {
     // We fail in favour of other external gesture recognizers.
     // iOS will ask `delegate`'s opinion about this gesture recognizer little bit later.
     if (![preventingGestureRecognizer.view isDescendantOfView:_rootView]) {
@@ -587,12 +599,11 @@ typedef void(^ViewBlock)(UIView* view, BOOL* stop);
     }
 }
 
-- (BOOL)gestureRecognizer:(__unused UIGestureRecognizer *)gestureRecognizer shouldRequireFailureOfGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
-{
+- (BOOL)gestureRecognizer:(__unused UIGestureRecognizer *)gestureRecognizer
+    shouldRequireFailureOfGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
     // Same condition for `failure of` as for `be prevented by`.
-    
+
     return [self canBePreventedByGestureRecognizer:otherGestureRecognizer];
 }
 
 @end
-

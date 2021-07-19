@@ -45,8 +45,9 @@ std::shared_ptr<CtxValue> CallbackInfo::operator[](int index) const {
   return values_[index];
 }
 
-void ExceptionValue::Set(std::shared_ptr<Ctx> context, const char* value) {
-  value_ = context->CreateString(value);
+void ExceptionValue::Set(std::shared_ptr<Ctx> context,
+                         const unicode_string_view& str) {
+  value_ = context->CreateString(str);
 }
 
 }  // namespace napi

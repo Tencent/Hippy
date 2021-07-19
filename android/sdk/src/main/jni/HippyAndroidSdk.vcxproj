@@ -22,60 +22,62 @@
     <None Include=".clang-format" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\inspector\v8_channel_impl.cc" />
-    <ClCompile Include="src\inspector\v8_inspector_client_impl.cc" />
-    <ClCompile Include="src\jni\com_tencent_mtt_hippy_bridge_HippyBridgeImpl.cc" />
-    <ClCompile Include="src\jni\exception_handler.cc" />
-    <ClCompile Include="src\jni\hippy_buffer.cc" />
-    <ClCompile Include="src\jni\jni_env.cc" />
-    <ClCompile Include="src\jni\jni_utils.cc" />
-    <ClCompile Include="src\jni\runtime.cc" />
-    <ClCompile Include="src\jni\scoped_java_ref.cc" />
-    <ClCompile Include="src\jni\uri.cc" />
-    <ClCompile Include="src\loader\adr_loader.cc" />
-    <ClCompile Include="src\loader\asset_loader.cc" />
-    <ClCompile Include="src\loader\file_loader.cc" />
-    <ClCompile Include="src\loader\http_loader.cc" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="include\hippy.h" />
-    <ClInclude Include="include\inspector\v8_channel_impl.h" />
-    <ClInclude Include="include\inspector\v8_inspector_client_impl.h" />
-    <ClInclude Include="include\jni\com_tencent_mtt_hippy_bridge_HippyBridgeImpl.h" />
-    <ClInclude Include="include\jni\exception_handler.h" />
-    <ClInclude Include="include\jni\hippy_buffer.h" />
-    <ClInclude Include="include\jni\jni_env.h" />
-    <ClInclude Include="include\jni\jni_utils.h" />
-    <ClInclude Include="include\jni\runtime.h" />
-    <ClInclude Include="include\jni\scoped_java_ref.h" />
-    <ClInclude Include="include\jni\uri.h" />
-    <ClInclude Include="include\loader\adr_loader.h" />
-    <ClInclude Include="include\loader\asset_loader.h" />
-    <ClInclude Include="include\loader\file_loader.h" />
-    <ClInclude Include="include\loader\http_loader.h" />
-    <ClInclude Include="third_party\v8\libplatform\libplatform-export.h" />
-    <ClInclude Include="third_party\v8\libplatform\libplatform.h" />
-    <ClInclude Include="third_party\v8\libplatform\v8-tracing.h" />
-    <ClInclude Include="third_party\v8\v8-inspector-protocol.h" />
-    <ClInclude Include="third_party\v8\v8-inspector.h" />
-    <ClInclude Include="third_party\v8\v8-internal.h" />
-    <ClInclude Include="third_party\v8\v8-platform.h" />
-    <ClInclude Include="third_party\v8\v8-profiler.h" />
-    <ClInclude Include="third_party\v8\v8-testing.h" />
-    <ClInclude Include="third_party\v8\v8-util.h" />
-    <ClInclude Include="third_party\v8\v8-value-serializer-version.h" />
-    <ClInclude Include="third_party\v8\v8-version-string.h" />
-    <ClInclude Include="third_party\v8\v8-version.h" />
-    <ClInclude Include="third_party\v8\v8-wasm-trap-handler-posix.h" />
-    <ClInclude Include="third_party\v8\v8-wasm-trap-handler-win.h" />
-    <ClInclude Include="third_party\v8\v8.h" />
-    <ClInclude Include="third_party\v8\v8config.h" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\..\..\..\core\core.vcxproj">
       <Project>{33620009-97b0-440a-88c7-af0afd05dad8}</Project>
       <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\bridge\entry.h" />
+    <ClInclude Include="include\bridge\java2js.h" />
+    <ClInclude Include="include\bridge\js2java.h" />
+    <ClInclude Include="include\bridge\runtime.h" />
+    <ClInclude Include="include\bridge\serializer.h" />
+    <ClInclude Include="include\hippy.h" />
+    <ClInclude Include="include\inspector\v8_channel_impl.h" />
+    <ClInclude Include="include\inspector\v8_inspector_client_impl.h" />
+    <ClInclude Include="include\jni\exception_handler.h" />
+    <ClInclude Include="include\jni\jni_env.h" />
+    <ClInclude Include="include\jni\jni_register.h" />
+    <ClInclude Include="include\jni\jni_utils.h" />
+    <ClInclude Include="include\jni\scoped_java_ref.h" />
+    <ClInclude Include="include\jni\uri.h" />
+    <ClInclude Include="include\loader\adr_loader.h" />
+    <ClInclude Include="third_party\v8\maintenance\x5-lite\include\v8\libplatform\libplatform-export.h" />
+    <ClInclude Include="third_party\v8\maintenance\x5-lite\include\v8\libplatform\libplatform.h" />
+    <ClInclude Include="third_party\v8\maintenance\x5-lite\include\v8\libplatform\v8-tracing.h" />
+    <ClInclude Include="third_party\v8\maintenance\x5-lite\include\v8\v8-debug.h" />
+    <ClInclude Include="third_party\v8\maintenance\x5-lite\include\v8\v8-experimental.h" />
+    <ClInclude Include="third_party\v8\maintenance\x5-lite\include\v8\v8-inspector-protocol.h" />
+    <ClInclude Include="third_party\v8\maintenance\x5-lite\include\v8\v8-inspector.h" />
+    <ClInclude Include="third_party\v8\maintenance\x5-lite\include\v8\v8-internal.h" />
+    <ClInclude Include="third_party\v8\maintenance\x5-lite\include\v8\v8-platform.h" />
+    <ClInclude Include="third_party\v8\maintenance\x5-lite\include\v8\v8-profiler.h" />
+    <ClInclude Include="third_party\v8\maintenance\x5-lite\include\v8\v8-testing.h" />
+    <ClInclude Include="third_party\v8\maintenance\x5-lite\include\v8\v8-util.h" />
+    <ClInclude Include="third_party\v8\maintenance\x5-lite\include\v8\v8-value-serializer-version.h" />
+    <ClInclude Include="third_party\v8\maintenance\x5-lite\include\v8\v8-version-string.h" />
+    <ClInclude Include="third_party\v8\maintenance\x5-lite\include\v8\v8-version.h" />
+    <ClInclude Include="third_party\v8\maintenance\x5-lite\include\v8\v8-wasm-trap-handler-posix.h" />
+    <ClInclude Include="third_party\v8\maintenance\x5-lite\include\v8\v8-wasm-trap-handler-win.h" />
+    <ClInclude Include="third_party\v8\maintenance\x5-lite\include\v8\v8.h" />
+    <ClInclude Include="third_party\v8\maintenance\x5-lite\include\v8\v8config.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\bridge\entry.cc" />
+    <ClCompile Include="src\bridge\java2js.cc" />
+    <ClCompile Include="src\bridge\js2java.cc" />
+    <ClCompile Include="src\bridge\runtime.cc" />
+    <ClCompile Include="src\bridge\serializer.cc" />
+    <ClCompile Include="src\inspector\v8_channel_impl.cc" />
+    <ClCompile Include="src\inspector\v8_inspector_client_impl.cc" />
+    <ClCompile Include="src\jni\exception_handler.cc" />
+    <ClCompile Include="src\jni\jni_env.cc" />
+    <ClCompile Include="src\jni\jni_register.cc" />
+    <ClCompile Include="src\jni\jni_utils.cc" />
+    <ClCompile Include="src\jni\scoped_java_ref.cc" />
+    <ClCompile Include="src\jni\uri.cc" />
+    <ClCompile Include="src\loader\adr_loader.cc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{e0581439-c51a-4f6c-9abf-d697c33333b0}</ProjectGuid>
@@ -163,13 +165,15 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>../../../../../core/include/core/core.h</PrecompiledHeaderFile>
       <CppLanguageStandard>c++14</CppLanguageStandard>
-      <PreprocessorDefinitions>__ANDROID_API__=$(AndroidAPILevelNumber);OS_ANDROID;DEBUG</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\third_party\v8_72;.;.\include;..\..\..\..\..\core\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>__ANDROID_API__=$(AndroidAPILevelNumber);OS_ANDROID;DEBUG;V8_IMMINENT_DEPRECATION_WARNINGS;V8_DEPRECATION_WARNINGS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\third_party\v8\maintenance\x5-lite\include;.;.\include;..\..\..\..\..\core\include;..\..\..\..\..\core\third_party\base\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>third_party\v8_72\v8\armeabi-v7a\libmtt_shared.so;third_party\v8_72\v8\armeabi-v7a\libmttv8.so</AdditionalDependencies>
+      <AdditionalDependencies>third_party\v8\maintenance\x5-lite\libs\armeabi-v7a\libmtt_shared.so;third_party\v8\maintenance\x5-lite\libs\armeabi-v7a\libmttv8.so</AdditionalDependencies>
       <OutputFile>$(ProjectDir)..\..\..\build\outputs\armeabi-v7a\$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalOptions>-lm</AdditionalOptions>
+      <AdditionalOptions>
+      </AdditionalOptions>
+      <LibraryDependencies>m;atomic;%(LibraryDependencies)</LibraryDependencies>
     </Link>
     <PostBuildEvent>
       <Command>cd ../../../../../examples/android-demo &amp;&amp; set skipCmakeAndNinja=1 &amp;&amp; gradlew :example:assembleDebug</Command>

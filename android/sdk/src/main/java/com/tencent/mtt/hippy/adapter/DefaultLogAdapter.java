@@ -15,31 +15,23 @@
  */
 package com.tencent.mtt.hippy.adapter;
 
-/**
- * @author: edsheng
- * @date: 2018/7/9 10:36
- * @version: V1.0
- */
-public class DefaultLogAdapter implements HippyLogAdapter
-{
+@SuppressWarnings({"unused"})
+public class DefaultLogAdapter implements HippyLogAdapter {
 
-	@Override
-	public void log(String tag, String msg)
-	{
+  @Override
+  public void log(String tag, String msg) {
 
-	}
+  }
 
-	@Override
-	public void init(int rootId, String module)
-	{
+  @Override
+  public void init(int rootId, String module) {
 
-	}
+  }
 
-	@Override
-	public void upload(callBack callBack)
-	{
-		callBack.onSuccess();
-	}
+  @Override
+  public void upload(callBack callBack) {
+    callBack.onSuccess();
+  }
 
 
 }

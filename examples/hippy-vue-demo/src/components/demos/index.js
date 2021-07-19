@@ -16,7 +16,7 @@ const demos = {
     component: demoDiv,
   },
   demoShadow: {
-    name: 'box-shadow 范例',
+    name: 'box-shadow',
     component: demoShadow,
   },
   demoP: {

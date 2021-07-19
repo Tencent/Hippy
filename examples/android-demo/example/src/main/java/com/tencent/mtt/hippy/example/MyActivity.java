@@ -2,10 +2,14 @@ package com.tencent.mtt.hippy.example;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Window;
 
+import com.tencent.mtt.hippy.HippyCLogHandler;
 import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyAPIProvider;
+import com.tencent.mtt.hippy.HippyEngine.EngineInitStatus;
+import com.tencent.mtt.hippy.HippyEngine.ModuleLoadStatus;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.adapter.exception.HippyExceptionHandlerAdapter;
 import com.tencent.mtt.hippy.common.HippyJsException;
@@ -16,15 +20,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyright (C) 2005-2020 TENCENT Inc.All Rights Reserved.
- * FileName: MyActivity demo，只展示了常用能力的代码
- * 加载出Hippy的View分为三步：
- * 1. 用EngineInitParams参数create出HippyEngine；
- * 2. HippyEngine.initEngine异步初始化；
- * 3. 用ModuleLoadParams参数loadModule加载出hippy的jsbundle，得到Hippy的View。
- * Description：
- */
+@SuppressWarnings({"unused", "deprecation"})
 public class MyActivity extends Activity
 {
 	private HippyEngine mHippyEngine;
@@ -35,6 +31,13 @@ public class MyActivity extends Activity
 	{
 		super.onCreate(savedInstanceState);
 		getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+
+		HippyEngine.setCLogHandler(new HippyCLogHandler() {
+			@Override
+			public void onReceiveLogMessage(String msg) {
+				Log.e("HippyCLogHandler", "onReceiveLogMessage: " + msg);
+			}
+		});
 
 		// 1/3. 初始化hippy引擎
 		{
@@ -51,6 +54,8 @@ public class MyActivity extends Activity
 			initParams.enableLog = true;
 			// 可选：debugMode = false 时必须设置coreJSAssetsPath或coreJSFilePath（debugMode = true时，所有jsbundle都是从debug server上下载）
 			initParams.coreJSAssetsPath = "vendor.android.js";
+
+			initParams.codeCacheTag = "common";
 
 			// 可选：异常处理器
 			initParams.exceptionHandler = new HippyExceptionHandlerAdapter() {
@@ -89,8 +94,8 @@ public class MyActivity extends Activity
 				 *         Message from initializing procedure
 				 */
 				@Override
-				public void onInitialized(int statusCode, String msg) {
-					if (statusCode != 0)
+				public void onInitialized(EngineInitStatus statusCode, String msg) {
+					if (statusCode != EngineInitStatus.STATUS_OK)
 						LogUtils.e("MyActivity", "hippy engine init failed code:" + statusCode + ", msg=" + msg);
 					// else
 					{
@@ -107,6 +112,8 @@ public class MyActivity extends Activity
 						  });
 						  */
 						loadParams.componentName = "Demo";
+
+						loadParams.codeCacheTag = "Demo";
 						/*
 						  可选：二选一设置。自己开发的业务模块的jsbundle的assets路径（assets路径和文件路径二选一，优先使用assets路径）
 						  debugMode = false 时必须设置jsAssetsPath或jsFilePath（debugMode = true时，所有jsbundle都是从debug server上下载）
@@ -121,7 +128,19 @@ public class MyActivity extends Activity
 						loadParams.jsParams = new HippyMap();
 						loadParams.jsParams.pushString("msgFromNative", "Hi js developer, I come from native code!");
 						// 加载Hippy前端模块
-						mHippyView = mHippyEngine.loadModule(loadParams);
+						mHippyView = mHippyEngine.loadModule(loadParams, new HippyEngine.ModuleListener() {
+							@Override
+							public void onLoadCompleted(ModuleLoadStatus statusCode, String msg, HippyRootView hippyRootView) {
+								if (statusCode != ModuleLoadStatus.STATUS_OK) {
+									LogUtils.e("MyActivity", "loadModule failed code:" + statusCode + ", msg=" + msg);
+								}
+							}
+
+							@Override
+							public boolean onJsException(HippyJsException exception) {
+								return true;
+							}
+						});
 
 						setContentView(mHippyView);
 					}
@@ -131,8 +150,19 @@ public class MyActivity extends Activity
 	}
 
 	@Override
-	protected void onDestroy()
-	{
+	protected void onResume() {
+		super.onResume();
+		mHippyEngine.onEngineResume();
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		mHippyEngine.onEnginePause();
+	}
+
+	@Override
+	protected void onDestroy() {
 		// 3/3. 摧毁hippy前端模块，摧毁hippy引擎
 		mHippyEngine.destroyModule(mHippyView);
 		mHippyEngine.destroyEngine();
@@ -148,8 +178,10 @@ public class MyActivity extends Activity
 				MyActivity.this.doActivityBack();
 			}
 		});
-		if (!handled)
+
+		if (!handled) {
 			super.onBackPressed();
+		}
 	}
 
 	// 可选：让hippy前端能够监听并拦截back事件

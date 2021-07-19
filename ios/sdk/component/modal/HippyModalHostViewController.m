@@ -21,67 +21,60 @@
  */
 
 #import "HippyModalHostViewController.h"
-
+#import "HippyUtils.h"
 #import "HippyLog.h"
 #import "HippyModalHostView.h"
 
-@implementation HippyModalHostViewController
-{
-  CGRect _lastViewFrame;
-  UIStatusBarStyle _preferredStatusBarStyle;
+@implementation HippyModalHostViewController {
+    CGRect _lastViewFrame;
+    UIStatusBarStyle _preferredStatusBarStyle;
 }
 
-- (instancetype)init
-{
-  if (!(self = [super init])) {
-    return nil;
-  }
+- (instancetype)init {
+    if (!(self = [super init])) {
+        return nil;
+    }
 
-  _preferredStatusBarStyle = [[UIApplication sharedApplication] statusBarStyle];
+    _preferredStatusBarStyle = [[UIApplication sharedApplication] statusBarStyle];
 
-  return self;
+    return self;
 }
 
-- (void)viewDidLayoutSubviews
-{
-  [super viewDidLayoutSubviews];
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
 
-  if (self.boundsDidChangeBlock && !CGRectEqualToRect(_lastViewFrame, self.view.frame)) {
-    self.boundsDidChangeBlock(self.view.bounds);
-    _lastViewFrame = self.view.frame;
-  }
+    if (self.boundsDidChangeBlock && !CGRectEqualToRect(_lastViewFrame, self.view.frame)) {
+        self.boundsDidChangeBlock(self.view.bounds);
+        _lastViewFrame = self.view.frame;
+    }
 }
 
-- (UIStatusBarStyle)preferredStatusBarStyle
-{
-  return _preferredStatusBarStyle;
+- (UIStatusBarStyle)preferredStatusBarStyle {
+    return _preferredStatusBarStyle;
 }
 
-- (BOOL)prefersStatusBarHidden
-{
-  if (_hideStatusBar) {
-    return [_hideStatusBar boolValue];
-  }
-  BOOL hidden = [[UIApplication sharedApplication].keyWindow.rootViewController prefersStatusBarHidden];
-  return hidden;
+- (BOOL)prefersStatusBarHidden {
+    if (_hideStatusBar) {
+        return [_hideStatusBar boolValue];
+    }
+    BOOL hidden = [HippyKeyWindow().rootViewController prefersStatusBarHidden];
+    return hidden;
 }
 
 #if HIPPY_DEV
-- (UIInterfaceOrientationMask)supportedInterfaceOrientations
-{
-  UIInterfaceOrientationMask appSupportedOrientationsMask = [[UIApplication sharedApplication] supportedInterfaceOrientationsForWindow:[[UIApplication sharedApplication] keyWindow]];
-  if (!(_supportedInterfaceOrientations & appSupportedOrientationsMask)) {
-    HippyLogError(@"Modal was presented with 0x%x orientations mask but the application only supports 0x%x."
-                @"Add more interface orientations to your app's Info.plist to fix this."
-                @"NOTE: This will crash in non-dev mode.",
-                (unsigned)_supportedInterfaceOrientations,
-                (unsigned)appSupportedOrientationsMask);
-    return UIInterfaceOrientationMaskAll;
-  }
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
+    UIWindow *keyWindow = HippyKeyWindow();
+    UIInterfaceOrientationMask appSupportedOrientationsMask = [[UIApplication sharedApplication] supportedInterfaceOrientationsForWindow:keyWindow];
+    if (!(_supportedInterfaceOrientations & appSupportedOrientationsMask)) {
+        HippyLogError(@"Modal was presented with 0x%x orientations mask but the application only supports 0x%x."
+                      @"Add more interface orientations to your app's Info.plist to fix this."
+                      @"NOTE: This will crash in non-dev mode.",
+            (unsigned)_supportedInterfaceOrientations, (unsigned)appSupportedOrientationsMask);
+        return UIInterfaceOrientationMaskAll;
+    }
 
-  return _supportedInterfaceOrientations;
+    return _supportedInterfaceOrientations;
 }
-#endif // HIPPY_DEV
-
+#endif  // HIPPY_DEV
 
 @end

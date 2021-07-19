@@ -10,3 +10,5 @@ Hippy 端定时器用法与 Web 端 Javascript 用法一致，可以直接使用
 * [clearTimeout](//developer.mozilla.org/zh-CN/docs/Web/API/WindowTimers/clearTimeout)
 * [setInterval](//developer.mozilla.org/zh-CN/docs/Web/API/Window/setInterval)
 * [clearInterval](//developer.mozilla.org/zh-CN/docs/Web/API/window/clearInterval)
+
+> 2.6.4 及以上版本支持 [setTimeout多参数](https://developer.mozilla.org/zh-CN/docs/Web/API/WindowOrWorkerGlobalScope/setTimeout#%E5%8F%82%E6%95%B0) 和 [setInterval多参数](https://developer.mozilla.org/zh-CN/docs/Web/API/WindowOrWorkerGlobalScope/setInterval#%E5%8F%82%E6%95%B0)

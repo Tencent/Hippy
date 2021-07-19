@@ -4,6 +4,8 @@ package com.tencent.mtt.supportui.utils.struct;
  * Created by leonardgong on 2017/12/7 0007.
  */
 
+import com.tencent.mtt.hippy.utils.LogUtils;
+
 /**
  * Helper class for crating pools of objects. An example use looks like this:
  * 
@@ -107,7 +109,8 @@ public final class Pools
 		{
 			if (isInPool(instance))
 			{
-				throw new IllegalStateException("Already in the pool!");
+				LogUtils.e("Pools", "Already in the pool!");
+				return false;
 			}
 			if (mPoolSize >= 0 && mPoolSize < mPool.length)
 			{

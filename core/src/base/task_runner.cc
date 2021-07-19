@@ -25,8 +25,8 @@
 #include <memory>
 #include <utility>
 
+#include "base/logging.h"
 #include "core/base/base_time.h"
-#include "core/base/logging.h"
 #include "core/base/macros.h"
 #include "core/base/task.h"
 #include "core/base/thread_id.h"
@@ -49,7 +49,7 @@ void TaskRunner::Run() {
     if (task == nullptr) {
       return;
     }
-    // HIPPY_DLOG(hippy::Debug, "run task, id = %d", task->id_);
+    // TDF_BASE_DLOG(INFO) <<  "run task, id = %d", task->id_);
 
     bool is_cancel = false;
     {
@@ -65,26 +65,26 @@ void TaskRunner::Run() {
 void TaskRunner::Terminate() {
   {
     std::unique_lock<std::mutex> lock(mutex_);
-    HIPPY_DLOG(hippy::Debug, "TaskRunner::Terminate task_queue_ size = %d",
-               task_queue_.size());
+    TDF_BASE_DLOG(INFO)
+        << "TaskRunner::Terminate task_queue_ size = " << task_queue_.size();
     if (is_terminated_) {
-      HIPPY_DLOG(hippy::Debug, "TaskRunner has been terminated");
+      TDF_BASE_DLOG(INFO) << "TaskRunner has been terminated";
       return;
     }
     is_terminated_ = true;
     if (this->Id() == hippy::base::ThreadId::GetCurrent()) {
-      HIPPY_LOG(hippy::Error, "terminate in task");
+      TDF_BASE_DLOG(ERROR) << "terminate in task";
       return;
     }
   }
   cv_.notify_one();
-  HIPPY_DLOG(hippy::Debug, "TaskRunner Terminate join begin");
+  TDF_BASE_DLOG(INFO) << "TaskRunner Terminate join begin";
   Join();
-  HIPPY_DLOG(hippy::Debug, "TaskRunner Terminate join end");
+  TDF_BASE_DLOG(INFO) << "TaskRunner Terminate join end";
 }
 
 void TaskRunner::PostTask(std::shared_ptr<Task> task) {
-  HIPPY_DLOG(hippy::Debug, "TaskRunner::PostTask task id = %d", task->id_);
+  TDF_BASE_DLOG(INFO) << "TaskRunner::PostTask task id = " << task->id_;
   std::lock_guard<std::mutex> lock(mutex_);
 
   PostTaskNoLock(std::move(task));
@@ -143,7 +143,7 @@ std::shared_ptr<Task> TaskRunner::GetNext() {
 
     if (is_terminated_) {
       hippy::napi::DetachThread();
-      HIPPY_DLOG(hippy::Debug, "TaskRunner terminate");
+      TDF_BASE_DLOG(INFO) << "TaskRunner terminate";
       return nullptr;
     }
 

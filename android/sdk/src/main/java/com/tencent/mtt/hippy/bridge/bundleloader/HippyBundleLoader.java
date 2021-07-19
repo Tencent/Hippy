@@ -18,22 +18,18 @@ package com.tencent.mtt.hippy.bridge.bundleloader;
 import com.tencent.mtt.hippy.bridge.HippyBridge;
 import com.tencent.mtt.hippy.bridge.NativeCallback;
 
-/**
- * FileName: HippyBundleLoader
- * Description：
- * History：
- */
-public interface HippyBundleLoader
-{
-    boolean load(HippyBridge bridge, NativeCallback callback);
+@SuppressWarnings({"unused"})
+public interface HippyBundleLoader {
 
-    String getPath();
+  void load(HippyBridge bridge, NativeCallback callback);
 
-    public String getRawPath();
+  String getPath();
 
-    String getBundleUniKey();
+  String getRawPath();
 
-    boolean canUseCodeCache();
+  String getBundleUniKey();
 
-    String  getCodeCacheTag();
+  boolean canUseCodeCache();
+
+  String getCodeCacheTag();
 }

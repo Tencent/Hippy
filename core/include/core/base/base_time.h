@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef HIPPY_CORE_BASE_TIME_H_
-#define HIPPY_CORE_BASE_TIME_H_
+#pragma once
 
 #include <stdint.h>
 
@@ -37,5 +36,3 @@ inline uint64_t MonotonicallyIncreasingTime() {
 }
 }  // namespace base
 }  // namespace hippy
-
-#endif  // HIPPY_CORE_BASE_TIME_H_

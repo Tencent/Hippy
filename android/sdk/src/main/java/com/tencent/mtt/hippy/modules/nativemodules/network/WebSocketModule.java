@@ -34,284 +34,245 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * Created by ceasoncai on 2018/7/12.
- */
+@SuppressWarnings({"deprecation", "unused"})
 @HippyNativeModule(name = "websocket")
-public class WebSocketModule extends HippyNativeModuleBase
-{
-	private static final String				TAG						= "WebSocketModule";
+public class WebSocketModule extends HippyNativeModuleBase {
 
-	private static final String				WEB_SOCKET_EVENT_NAME	= "hippyWebsocketEvents";
+  private static final String TAG = "WebSocketModule";
 
-	private static final String				PARAM_KEY_SOCKET_ID		= "id";
-	private static final String				PARAM_KEY_CODE			= "code";
-	private static final String				PARAM_KEY_REASON		= "reason";
-	private static final String				PARAM_KEY_HEADERS		= "headers";
-	private static final String				PARAM_KEY_SOCKET_URL	= "url";
-	private static final String				PARAM_KEY_TYPE			= "type";
-	private static final String				PARAM_KEY_DATA			= "data";
+  private static final String WEB_SOCKET_EVENT_NAME = "hippyWebsocketEvents";
 
-	private static AtomicInteger			sWebSocketIds			= new AtomicInteger(0);
+  private static final String PARAM_KEY_SOCKET_ID = "id";
+  private static final String PARAM_KEY_CODE = "code";
+  private static final String PARAM_KEY_REASON = "reason";
+  private static final String PARAM_KEY_HEADERS = "headers";
+  private static final String PARAM_KEY_SOCKET_URL = "url";
+  private static final String PARAM_KEY_TYPE = "type";
+  private static final String PARAM_KEY_DATA = "data";
 
-	private SparseArray<WebSocketClient>	mWebSocketConnections;
+  private static final AtomicInteger sWebSocketIds = new AtomicInteger(0);
 
-	public WebSocketModule(HippyEngineContext context)
-	{
-		super(context);
-		mWebSocketConnections = new SparseArray<WebSocketClient>();
-	}
+  private final SparseArray<WebSocketClient> mWebSocketConnections;
 
-	@HippyMethod(name = "connect")
-	public void connect(HippyMap request, Promise promise)
-	{
-		HippyMap returnValue = new HippyMap();
+  public WebSocketModule(HippyEngineContext context) {
+    super(context);
+    mWebSocketConnections = new SparseArray<>();
+  }
 
-		if (request == null)
-		{
-			returnValue.pushInt(PARAM_KEY_CODE, -1);
-			returnValue.pushString(PARAM_KEY_REASON, "invalid connect param");
-			promise.resolve(returnValue);
-			return;
-		}
+  @HippyMethod(name = "connect")
+  public void connect(HippyMap request, Promise promise) {
+    HippyMap returnValue = new HippyMap();
 
-		final String url = request.getString(PARAM_KEY_SOCKET_URL);
-		if (TextUtils.isEmpty(url))
-		{
-			returnValue.pushInt(PARAM_KEY_CODE, -1);
-			returnValue.pushString(PARAM_KEY_REASON, "no valid url for websocket");
-			promise.resolve(returnValue);
-			return;
-		}
+    if (request == null) {
+      returnValue.pushInt(PARAM_KEY_CODE, -1);
+      returnValue.pushString(PARAM_KEY_REASON, "invalid connect param");
+      promise.resolve(returnValue);
+      return;
+    }
 
-		HippyMap extraHeaders = request.getMap(PARAM_KEY_HEADERS);
-		int webSocketId = sWebSocketIds.addAndGet(1);
-		WebSocketClient webSocketClient = new WebSocketClient(URI.create(url), new HippyWebSocketListener(webSocketId, mContext, this),
-				buildWebSocketHeaders(extraHeaders));
-		mWebSocketConnections.put(webSocketId, webSocketClient);
+    final String url = request.getString(PARAM_KEY_SOCKET_URL);
+    if (TextUtils.isEmpty(url)) {
+      returnValue.pushInt(PARAM_KEY_CODE, -1);
+      returnValue.pushString(PARAM_KEY_REASON, "no valid url for websocket");
+      promise.resolve(returnValue);
+      return;
+    }
 
-		webSocketClient.connect();
-		returnValue.pushInt(PARAM_KEY_CODE, 0);
-		returnValue.pushString(PARAM_KEY_REASON, "");
-		returnValue.pushInt(PARAM_KEY_SOCKET_ID, webSocketId);
-		promise.resolve(returnValue);
-	}
+    HippyMap extraHeaders = request.getMap(PARAM_KEY_HEADERS);
+    int webSocketId = sWebSocketIds.addAndGet(1);
+    WebSocketClient webSocketClient = new WebSocketClient(URI.create(url),
+        new HippyWebSocketListener(webSocketId, mContext, this),
+        buildWebSocketHeaders(extraHeaders));
+    mWebSocketConnections.put(webSocketId, webSocketClient);
 
-	@HippyMethod(name = "send")
-	public void send(HippyMap param)
-	{
-		if (param == null)
-		{
-			LogUtils.d(TAG, "send: ERROR: request is null");
-			return;
-		}
+    webSocketClient.connect();
+    returnValue.pushInt(PARAM_KEY_CODE, 0);
+    returnValue.pushString(PARAM_KEY_REASON, "");
+    returnValue.pushInt(PARAM_KEY_SOCKET_ID, webSocketId);
+    promise.resolve(returnValue);
+  }
 
-		if (!param.containsKey(PARAM_KEY_SOCKET_ID))
-		{
-			LogUtils.d(TAG, "send: ERROR: no socket id specified");
-			return;
-		}
+  @HippyMethod(name = "send")
+  public void send(HippyMap param) {
+    if (param == null) {
+      LogUtils.d(TAG, "send: ERROR: request is null");
+      return;
+    }
 
-		int socketId = param.getInt(PARAM_KEY_SOCKET_ID);
-		WebSocketClient socketClient = mWebSocketConnections.get(socketId, null);
-		if (socketClient == null || !socketClient.isConnected())
-		{
-			LogUtils.d(TAG, "send: ERROR: specified socket not found, or not connected yet");
-			return;
-		}
+    if (!param.containsKey(PARAM_KEY_SOCKET_ID)) {
+      LogUtils.d(TAG, "send: ERROR: no socket id specified");
+      return;
+    }
 
-		String textData = param.getString(PARAM_KEY_DATA);
-		if (textData == null)
-		{
-			LogUtils.d(TAG, "send: ERROR: no data specified to be sent");
-			return;
-		}
+    int socketId = param.getInt(PARAM_KEY_SOCKET_ID);
+    WebSocketClient socketClient = mWebSocketConnections.get(socketId, null);
+    if (socketClient == null || !socketClient.isConnected()) {
+      LogUtils.d(TAG, "send: ERROR: specified socket not found, or not connected yet");
+      return;
+    }
 
-		try
-		{
-			socketClient.send(textData);
-		}
-		catch (Throwable e)
-		{
-			e.printStackTrace();
-			LogUtils.d(TAG, "send: ERROR: error occured in sending [" + e.getMessage() + "]");
-		}
-	}
+    String textData = param.getString(PARAM_KEY_DATA);
+    if (textData == null) {
+      LogUtils.d(TAG, "send: ERROR: no data specified to be sent");
+      return;
+    }
 
-	@HippyMethod(name = "close")
-	public void close(HippyMap param)
-	{
-		if (param == null)
-		{
-			LogUtils.d(TAG, "close: ERROR: request is null");
-			return;
-		}
+    try {
+      socketClient.send(textData);
+    } catch (Throwable e) {
+      e.printStackTrace();
+      LogUtils.d(TAG, "send: ERROR: error occured in sending [" + e.getMessage() + "]");
+    }
+  }
 
-		if (!param.containsKey(PARAM_KEY_SOCKET_ID))
-		{
-			LogUtils.d(TAG, "close: ERROR: no socket id specified");
-			return;
-		}
+  @HippyMethod(name = "close")
+  public void close(HippyMap param) {
+    if (param == null) {
+      LogUtils.d(TAG, "close: ERROR: request is null");
+      return;
+    }
 
-		int socketId = param.getInt(PARAM_KEY_SOCKET_ID);
-		WebSocketClient socketClient = mWebSocketConnections.get(socketId, null);
-		if (socketClient == null || !socketClient.isConnected())
-		{
-			LogUtils.d(TAG, "send: ERROR: specified socket not found, or not connected yet");
-			return;
-		}
+    if (!param.containsKey(PARAM_KEY_SOCKET_ID)) {
+      LogUtils.d(TAG, "close: ERROR: no socket id specified");
+      return;
+    }
 
-		int code = 0;
-		String reason = "";
-		if (param.containsKey(PARAM_KEY_CODE))
-		{
-			code = param.getInt(PARAM_KEY_CODE);
-		}
-		if (param.containsKey(PARAM_KEY_REASON))
-		{
-			reason = param.getString(PARAM_KEY_REASON);
-		}
+    int socketId = param.getInt(PARAM_KEY_SOCKET_ID);
+    WebSocketClient socketClient = mWebSocketConnections.get(socketId, null);
+    if (socketClient == null || !socketClient.isConnected()) {
+      LogUtils.d(TAG, "send: ERROR: specified socket not found, or not connected yet");
+      return;
+    }
 
-		socketClient.requestClose(code, reason == null ? "" : reason);
-	}
+    int code = 0;
+    String reason = "";
+    if (param.containsKey(PARAM_KEY_CODE)) {
+      code = param.getInt(PARAM_KEY_CODE);
+    }
+    if (param.containsKey(PARAM_KEY_REASON)) {
+      reason = param.getString(PARAM_KEY_REASON);
+    }
 
-	private List<Header> buildWebSocketHeaders(HippyMap map)
-	{
-		if (map == null)
-		{
-			return null;
-		}
+    socketClient.requestClose(code, reason == null ? "" : reason);
+  }
 
-		Set<String> keys = map.keySet();
-		List<Header> extraHeaders = new ArrayList<Header>();
-		for (String oneKey : keys)
-		{
-			Object oneHeaderValue = map.get(oneKey);
-			if (oneHeaderValue instanceof Number)
-			{
-				Header oneHeader = new Header(oneKey, oneHeaderValue + "");
-				extraHeaders.add(oneHeader);
-			}
-			else if (oneHeaderValue instanceof Boolean)
-			{
-				Header oneHeader = new Header(oneKey, oneHeaderValue + "");
-				extraHeaders.add(oneHeader);
-			}
-			else if (oneHeaderValue instanceof String)
-			{
-				Header oneHeader = new Header(oneKey, oneHeaderValue + "");
-				extraHeaders.add(oneHeader);
-			}
-			else
-			{
-				LogUtils.e(TAG, "Unsupported Request Header List Type");
-			}
-		}
-		return extraHeaders;
+  private List<Header> buildWebSocketHeaders(HippyMap map) {
+    if (map == null) {
+      return null;
+    }
 
-	}
+    Set<String> keys = map.keySet();
+    List<Header> extraHeaders = new ArrayList<>();
+    for (String oneKey : keys) {
+      Object oneHeaderValue = map.get(oneKey);
+      if (oneHeaderValue instanceof Number) {
+        Header oneHeader = new Header(oneKey, oneHeaderValue + "");
+        extraHeaders.add(oneHeader);
+      } else if (oneHeaderValue instanceof Boolean) {
+        Header oneHeader = new Header(oneKey, oneHeaderValue + "");
+        extraHeaders.add(oneHeader);
+      } else if (oneHeaderValue instanceof String) {
+        Header oneHeader = new Header(oneKey, oneHeaderValue + "");
+        extraHeaders.add(oneHeader);
+      } else {
+        LogUtils.e(TAG, "Unsupported Request Header List Type");
+      }
+    }
+    return extraHeaders;
 
-	@Override
-	public void destroy()
-	{
-		int size = mWebSocketConnections.size();
-		if (size == 0)
-		{
-			return;
-		}
+  }
 
-		for (int i = 0; i < size; i++)
-		{
-			int typeKey = mWebSocketConnections.keyAt(i);
-			WebSocketClient temp = mWebSocketConnections.get(typeKey);
+  @Override
+  public void destroy() {
+    int size = mWebSocketConnections.size();
+    if (size == 0) {
+      return;
+    }
 
-			if (temp != null && temp.isConnected())
-			{
-				temp.disconnect();
-			}
-		}
+    for (int i = 0; i < size; i++) {
+      int typeKey = mWebSocketConnections.keyAt(i);
+      WebSocketClient temp = mWebSocketConnections.get(typeKey);
 
-		mWebSocketConnections.clear();
-	}
+      if (temp != null && temp.isConnected()) {
+        temp.disconnect();
+      }
+    }
 
-	protected void removeSocketConnection(int socketId)
-	{
-		mWebSocketConnections.remove(socketId);
-	}
+    mWebSocketConnections.clear();
+  }
 
-	private static class HippyWebSocketListener implements WebSocketClient.WebSocketListener
-	{
-		private static final String	EVENT_TYPE_ON_OPEN		= "onOpen";
-		private static final String	EVENT_TYPE_ON_CLOSE		= "onClose";
-		private static final String	EVENT_TYPE_ON_ERROR		= "onError";
-		private static final String	EVENT_TYPE_ON_MESSAGE	= "onMessage";
+  protected void removeSocketConnection(int socketId) {
+    mWebSocketConnections.remove(socketId);
+  }
+
+  @SuppressWarnings("deprecation")
+  private static class HippyWebSocketListener implements WebSocketClient.WebSocketListener {
+
+    private static final String EVENT_TYPE_ON_OPEN = "onOpen";
+    private static final String EVENT_TYPE_ON_CLOSE = "onClose";
+    private static final String EVENT_TYPE_ON_ERROR = "onError";
+    private static final String EVENT_TYPE_ON_MESSAGE = "onMessage";
 
 
-		private int					mWebSocketId;
-		private HippyEngineContext	mContext;
-		private WebSocketModule		mWebSocketModule;
-		private boolean				mDisconnected;
+    private final int mWebSocketId;
+    private final HippyEngineContext mContext;
+    private final WebSocketModule mWebSocketModule;
+    private boolean mDisconnected;
 
-		public HippyWebSocketListener(int websocketID, HippyEngineContext context, WebSocketModule socketModule)
-		{
-			mWebSocketId = websocketID;
-			mContext = context;
-			mWebSocketModule = socketModule;
-			mDisconnected = false;
-		}
+    public HippyWebSocketListener(int websocketID, HippyEngineContext context,
+        WebSocketModule socketModule) {
+      mWebSocketId = websocketID;
+      mContext = context;
+      mWebSocketModule = socketModule;
+      mDisconnected = false;
+    }
 
-		private void sendWebSocketEvent(String eventType, HippyMap data)
-		{
-			if (mDisconnected)
-			{
-				return;
-			}
+    private void sendWebSocketEvent(String eventType, HippyMap data) {
+      if (mDisconnected) {
+        return;
+      }
 
-			HippyMap eventParams = new HippyMap();
-			eventParams.pushInt(PARAM_KEY_SOCKET_ID, mWebSocketId);
-			eventParams.pushString(PARAM_KEY_TYPE, eventType);
-			eventParams.pushObject(PARAM_KEY_DATA, data);
-			mContext.getModuleManager().getJavaScriptModule(EventDispatcher.class).receiveNativeEvent(WEB_SOCKET_EVENT_NAME, eventParams);
-		}
+      HippyMap eventParams = new HippyMap();
+      eventParams.pushInt(PARAM_KEY_SOCKET_ID, mWebSocketId);
+      eventParams.pushString(PARAM_KEY_TYPE, eventType);
+      eventParams.pushObject(PARAM_KEY_DATA, data);
+      mContext.getModuleManager().getJavaScriptModule(EventDispatcher.class)
+          .receiveNativeEvent(WEB_SOCKET_EVENT_NAME, eventParams);
+    }
 
-		@Override
-		public void onConnect()
-		{
-			sendWebSocketEvent(EVENT_TYPE_ON_OPEN, null);
-		}
+    @Override
+    public void onConnect() {
+      sendWebSocketEvent(EVENT_TYPE_ON_OPEN, null);
+    }
 
-		@Override
-		public void onMessage(String message)
-		{
-			HippyMap params = new HippyMap();
-			params.pushString(PARAM_KEY_DATA, message);
-			params.pushString(PARAM_KEY_TYPE, "text");
-			sendWebSocketEvent(EVENT_TYPE_ON_MESSAGE, params);
-		}
+    @Override
+    public void onMessage(String message) {
+      HippyMap params = new HippyMap();
+      params.pushString(PARAM_KEY_DATA, message);
+      params.pushString(PARAM_KEY_TYPE, "text");
+      sendWebSocketEvent(EVENT_TYPE_ON_MESSAGE, params);
+    }
 
-		@Override
-		public void onMessage(byte[] data)
-		{
+    @Override
+    public void onMessage(byte[] data) {
 
-		}
+    }
 
-		@Override
-		public void onDisconnect(int code, String reason)
-		{
-			HippyMap map = new HippyMap();
-			map.pushInt(PARAM_KEY_CODE, code);
-			map.pushString(PARAM_KEY_REASON, reason);
-			sendWebSocketEvent(EVENT_TYPE_ON_CLOSE, map);
-			mWebSocketModule.removeSocketConnection(mWebSocketId);
-			mDisconnected = true;
-		}
+    @Override
+    public void onDisconnect(int code, String reason) {
+      HippyMap map = new HippyMap();
+      map.pushInt(PARAM_KEY_CODE, code);
+      map.pushString(PARAM_KEY_REASON, reason);
+      sendWebSocketEvent(EVENT_TYPE_ON_CLOSE, map);
+      mWebSocketModule.removeSocketConnection(mWebSocketId);
+      mDisconnected = true;
+    }
 
-		@Override
-		public void onError(Exception error)
-		{
-			HippyMap map = new HippyMap();
-			map.pushString(PARAM_KEY_REASON, error.getMessage());
-			sendWebSocketEvent(EVENT_TYPE_ON_ERROR, map);
-		}
-	}
+    @Override
+    public void onError(Exception error) {
+      HippyMap map = new HippyMap();
+      map.pushString(PARAM_KEY_REASON, error.getMessage());
+      sendWebSocketEvent(EVENT_TYPE_ON_ERROR, map);
+    }
+  }
 }

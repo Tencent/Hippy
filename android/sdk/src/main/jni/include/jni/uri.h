@@ -20,24 +20,26 @@
  *
  */
 
-#ifndef HIPYY_JNI_URI_H_
-#define HIPYY_JNI_URI_H_
+#pragma once
 
 #include <jni.h>
+
 #include <string>
+
+#include "base/unicode_string_view.h"
 
 class Uri {
  public:
-  Uri(const std::string& uri);
+  using unicode_string_view = tdf::base::unicode_string_view;
+
+  explicit Uri(const unicode_string_view& uri);
   ~Uri();
-  std::string GetPath();
-  std::string GetScheme();
-  std::string Normalize();
+  unicode_string_view GetPath();
+  unicode_string_view GetScheme();
+  unicode_string_view Normalize();
   static bool Init();
   static bool Destory();
 
  private:
   jobject j_obj_uri_;
 };
-
-#endif // HIPYY_JNI_URI_H_

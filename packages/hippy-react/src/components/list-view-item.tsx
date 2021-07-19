@@ -2,7 +2,7 @@ import React from 'react';
 import Style from '@localTypes/style';
 
 interface ListViewItemProps {
-  type?: string;
+  type?: number | string | undefined;
   key?: string;
   itemViewType?: string;
   sticky?: boolean;
@@ -13,6 +13,7 @@ interface ListViewItemProps {
 
 function ListViewItem(props: ListViewItemProps) {
   return (
+    // @ts-ignore
     <li nativeName="ListViewItem" {...props} />
   );
 }

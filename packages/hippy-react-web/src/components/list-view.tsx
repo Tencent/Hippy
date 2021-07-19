@@ -163,7 +163,9 @@ export class ListView extends React.Component {
     });
     return (
       <MListView
-        ref={(ref) => { this.lv = ref; }}
+        ref={(ref) => {
+          this.lv = ref;
+        }}
         {...newProps}
         dataSource={this.getDataSource()}
         renderRow={this.renderRow}

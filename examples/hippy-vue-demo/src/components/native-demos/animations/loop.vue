@@ -1,7 +1,7 @@
 <template>
   <div>
-    <animation :playing="playing" :actions="loopActions" class="loop-red">
-      <div class="loop-blue">
+    <animation :playing="playing" :actions="loopActions" class="loop-green" ref="animationLoop">
+      <div class="loop-white">
         <slot />
       </div>
     </animation>
@@ -24,7 +24,7 @@ const verticalAnimation = {
   transform: {
     translateY: {
       startValue: 0,
-      toValue: 300,
+      toValue: 100,
       duration: 2000,
       repeatCount: -1,
     },
@@ -55,6 +55,7 @@ export default {
         return ['horizon', 'vertical'].indexOf(value) > -1;
       },
     },
+    onRef: Function,
   },
   watch: {
     direction(to) {
@@ -69,22 +70,28 @@ export default {
       }
     },
   },
+  mounted() {
+    if (this.$props.onRef) {
+      this.$props.onRef(this.$refs.animationLoop);
+    }
+  },
 };
 </script>
 
 <style scope>
-  .loop-red {
+  .loop-green {
+    margin-top: 10px;
     justify-content: center;
     align-items: center;
-    background-color: red;
+    background-color: #40b883;
     width: 200px;
     height: 80px;
   }
 
-  .loop-blue {
+  .loop-white {
     justify-content: center;
     align-items: center;
-    background-color: blue;
+    background-color: white;
     width: 160px;
     height: 50px;
   }

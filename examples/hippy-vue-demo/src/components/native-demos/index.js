@@ -12,15 +12,15 @@ const demos = {};
 if (Vue.Native) {
   Object.assign(demos, {
     demoVueNative: {
-      name: 'Vue.Native 属性',
+      name: 'Vue.Native 能力',
       component: demoVueNative,
     },
     demoAnimation: {
-      name: 'animation 动画组件',
+      name: '动画组件',
       component: demoAnimation,
     },
     demoModal: {
-      name: 'dialog 弹窗组件',
+      name: '弹窗组件',
       component: demoDialog,
     },
     demoSwiper: {
@@ -28,11 +28,11 @@ if (Vue.Native) {
       component: demoSwiper,
     },
     demoPullHeader: {
-      name: 'pull-header 下拉组件',
+      name: '下拉组件',
       component: demoPullHeader,
     },
     demoPullFooter: {
-      name: 'pull-footer 上拉组件',
+      name: '上拉组件',
       component: demoPullFooter,
     },
     demoSetNativeProps: {

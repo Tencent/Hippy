@@ -18,77 +18,73 @@ package com.tencent.mtt.hippy.modules;
 
 import android.text.TextUtils;
 
+import com.tencent.mtt.hippy.HippyEngine.BridgeTransferType;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.common.HippyMap;
 
-/**
- * FileName: PromiseImpl
- * Description：
- * History：
- */
-public class PromiseImpl implements Promise
-{
-	public static final int		PROMISE_CODE_SUCCESS		= 0;
-	public static final int		PROMISE_CODE_NORMAN_ERROR	= 1;
-	public static final int		PROMISE_CODE_OTHER_ERROR	= 2;
-	private static final String	CALL_ID_NO_CALLBACK			= "-1";
-	private HippyEngineContext	mContext;
-	private String				mModuleName;
-	private String				mModuleFunc;
-	private String				mCallId;
-	private boolean             mNeedResolveBySelf = true;
+@SuppressWarnings({"deprecation", "unused"})
+public class PromiseImpl implements Promise {
 
-	public PromiseImpl(HippyEngineContext context, String moduleName, String moduleFunc, String callId)
-	{
-		this.mContext = context;
-		this.mModuleName = moduleName;
-		this.mModuleFunc = moduleFunc;
-		this.mCallId = callId;
-	}
+  public static final int PROMISE_CODE_SUCCESS = 0;
+  public static final int PROMISE_CODE_NORMAN_ERROR = 1;
+  public static final int PROMISE_CODE_OTHER_ERROR = 2;
+  private static final String CALL_ID_NO_CALLBACK = "-1";
+  private final HippyEngineContext mContext;
+  private final String mModuleName;
+  private final String mModuleFunc;
+  private final String mCallId;
+  private boolean mNeedResolveBySelf = true;
+  private BridgeTransferType transferType = BridgeTransferType.BRIDGE_TRANSFER_TYPE_NORMAL;
 
-	public String getCallId() {
-		return mCallId;
-	}
+  public PromiseImpl(HippyEngineContext context, String moduleName, String moduleFunc,
+      String callId) {
+    this.mContext = context;
+    this.mModuleName = moduleName;
+    this.mModuleFunc = moduleFunc;
+    this.mCallId = callId;
+  }
 
-	public boolean isCallback()
-	{
-		return !TextUtils.equals(mCallId, CALL_ID_NO_CALLBACK);
-	}
+  public String getCallId() {
+    return mCallId;
+  }
 
-	@Override
-	public void resolve(Object value)
-	{
-		doCallback(PROMISE_CODE_SUCCESS, value);
-	}
+  public boolean isCallback() {
+    return !TextUtils.equals(mCallId, CALL_ID_NO_CALLBACK);
+  }
 
-	@Override
-	public void reject(Object error)
-	{
-		doCallback(PROMISE_CODE_OTHER_ERROR, error);
-	}
+  @Override
+  public void setTransferType(BridgeTransferType type) {
+    transferType = type;
+  }
 
-	public void setNeedResolveBySelf(boolean falg)
-	{
-		mNeedResolveBySelf = falg;
-	}
+  @Override
+  public void resolve(Object value) {
+    doCallback(PROMISE_CODE_SUCCESS, value);
+  }
 
-	public boolean needResolveBySelf()
-	{
-		return mNeedResolveBySelf;
-	}
+  @Override
+  public void reject(Object error) {
+    doCallback(PROMISE_CODE_OTHER_ERROR, error);
+  }
 
-	public void doCallback(int code, Object obj)
-	{
-		if (TextUtils.equals(CALL_ID_NO_CALLBACK, mCallId))
-		{
-			return;
-		}
-		HippyMap map = new HippyMap();
-		map.pushInt("result", code);
-		map.pushString("moduleName", mModuleName);
-		map.pushString("moduleFunc", mModuleFunc);
-		map.pushString("callId", mCallId);
-		map.pushObject("params", obj);
-		mContext.getBridgeManager().execCallback(map);
-	}
+  public void setNeedResolveBySelf(boolean falg) {
+    mNeedResolveBySelf = falg;
+  }
+
+  public boolean needResolveBySelf() {
+    return mNeedResolveBySelf;
+  }
+
+  public void doCallback(int code, Object obj) {
+    if (TextUtils.equals(CALL_ID_NO_CALLBACK, mCallId)) {
+      return;
+    }
+    HippyMap map = new HippyMap();
+    map.pushInt("result", code);
+    map.pushString("moduleName", mModuleName);
+    map.pushString("moduleFunc", mModuleFunc);
+    map.pushString("callId", mCallId);
+    map.pushObject("params", obj);
+    mContext.getBridgeManager().execCallback(map, transferType);
+  }
 }

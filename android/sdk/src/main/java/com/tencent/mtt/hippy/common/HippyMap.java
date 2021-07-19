@@ -23,317 +23,255 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * FileName: HippyMap
- * Description：
- * History：
- */
-public class HippyMap
-{
+@SuppressWarnings({"deprecation", "unused"})
+@Deprecated
+public class HippyMap {
 
-	private final HashMap<String, Object>	mDatas;
+  private final HashMap<String, Object> mDatas;
 
-	@Override
-	public String toString() 
-	{
-		return mDatas == null ? "null" : mDatas.toString();
-	}
+  @Override
+  public String toString() {
+    return mDatas.toString();
+  }
 
-	public HippyMap()
-	{
-		mDatas = new HashMap<>();
-	}
+  public HippyMap() {
+    mDatas = new HashMap<>();
+  }
 
-	public boolean containsKey(String key)
-	{
-		return mDatas.containsKey(key);
-	}
+  public boolean containsKey(String key) {
+    return mDatas.containsKey(key);
+  }
 
-	public int size()
-	{
-		return mDatas.size();
-	}
+  public int size() {
+    return mDatas.size();
+  }
 
-	public Set<String> keySet()
-	{
-		return mDatas.keySet();
-	}
+  public Set<String> keySet() {
+    return mDatas.keySet();
+  }
 
-	public Set<Map.Entry<String, Object>> entrySet()
-	{
-		return mDatas.entrySet();
-	}
+  public Set<Map.Entry<String, Object>> entrySet() {
+    return mDatas.entrySet();
+  }
 
-	public Object get(String key)
-	{
-		return mDatas.get(key);
-	}
+  public Object get(String key) {
+    return mDatas.get(key);
+  }
 
-	public String getString(String key)
-	{
-		Object value = mDatas.get(key);
-		return value == null ? null : String.valueOf(value);
-	}
+  public String getString(String key) {
+    Object value = mDatas.get(key);
+    return value == null ? null : String.valueOf(value);
+  }
 
-	public void remove(String key)
-	{
-		mDatas.remove(key);
-	}
+  public void remove(String key) {
+    mDatas.remove(key);
+  }
 
-	public double getDouble(String key)
-	{
-		Object value = mDatas.get(key);
-		return value instanceof Number ? ((Number) value).doubleValue() : 0;
-	}
+  public double getDouble(String key) {
+    Object value = mDatas.get(key);
+    return value instanceof Number ? ((Number) value).doubleValue() : 0;
+  }
 
-	public int getInt(String key)
-	{
-		Object value = mDatas.get(key);
-		return value instanceof Number ? ((Number) value).intValue() : 0;
-	}
+  public int getInt(String key) {
+    Object value = mDatas.get(key);
+    return value instanceof Number ? ((Number) value).intValue() : 0;
+  }
 
-	public boolean getBoolean(String key)
-	{
-		Object value = mDatas.get(key);
-		return value != null && (boolean) value;
-	}
+  public boolean getBoolean(String key) {
+    Object value = mDatas.get(key);
+    return value != null && (boolean) value;
+  }
 
-	public long getLong(String key)
-	{
-		Object value = mDatas.get(key);
-		return value instanceof Number ? ((Number) value).longValue() : 0;
-	}
+  public long getLong(String key) {
+    Object value = mDatas.get(key);
+    return value instanceof Number ? ((Number) value).longValue() : 0;
+  }
 
-	public HippyMap getMap(String key)
-	{
-		Object value = mDatas.get(key);
-		if (value instanceof HippyMap)
-		{
-			return (HippyMap) value;
-		}
-		return null;
-	}
+  public HippyMap getMap(String key) {
+    Object value = mDatas.get(key);
+    if (value instanceof HippyMap) {
+      return (HippyMap) value;
+    }
+    return null;
+  }
 
-	public HippyArray getArray(String key)
-	{
-		Object value = mDatas.get(key);
-		if (value instanceof HippyArray)
-		{
-			return (HippyArray) value;
-		}
-		return null;
-	}
+  public HippyArray getArray(String key) {
+    Object value = mDatas.get(key);
+    if (value instanceof HippyArray) {
+      return (HippyArray) value;
+    }
+    return null;
+  }
 
-	public boolean isNull(String key)
-	{
-			return mDatas.get(key) == null;
-	}
+  public boolean isNull(String key) {
+    return mDatas.get(key) == null;
+  }
 
-	public void pushNull(String key)
-	{
-		mDatas.put(key, null);
-	}
+  public void pushNull(String key) {
+    mDatas.put(key, null);
+  }
 
-	public void pushInt(String key, int value)
-	{
-		mDatas.put(key, value);
-	}
+  public void pushInt(String key, int value) {
+    mDatas.put(key, value);
+  }
 
-	public void pushString(String key, String value)
-	{
-		mDatas.put(key, value);
-	}
+  public void pushString(String key, String value) {
+    mDatas.put(key, value);
+  }
 
-	public void pushBoolean(String key, boolean value)
-	{
-		mDatas.put(key, value);
-	}
+  public void pushBoolean(String key, boolean value) {
+    mDatas.put(key, value);
+  }
 
-	public void pushDouble(String key, double value)
-	{
-		mDatas.put(key, value);
-	}
+  public void pushDouble(String key, double value) {
+    mDatas.put(key, value);
+  }
 
-	public void pushLong(String key, long value)
-	{
-		mDatas.put(key, value);
-	}
+  public void pushLong(String key, long value) {
+    mDatas.put(key, value);
+  }
 
-	public void pushArray(String key, HippyArray array)
-	{
-		mDatas.put(key, array);
-	}
+  public void pushArray(String key, HippyArray array) {
+    mDatas.put(key, array);
+  }
 
-	public void pushMap(String key, HippyMap map)
-	{
-		mDatas.put(key, map);
-	}
+  public void pushMap(String key, HippyMap map) {
+    mDatas.put(key, map);
+  }
 
-	// 批量加入。QB里有用到
-	public void pushAll(HippyMap map)
-	{
-		if (null != map)
-		{
-			mDatas.putAll(map.mDatas);
-		}
-	}
+  public void pushAll(HippyMap map) {
+    if (null != map) {
+      mDatas.putAll(map.mDatas);
+    }
+  }
 
-	public void pushObject(String key, Object obj)
-	{
-		if (obj == null)
-		{
-			pushNull(key);
-		}
-		else if (obj instanceof String)
-		{
-			pushString(key, (String) obj);
-		}
-		else if (obj instanceof HippyMap)
-		{
-			pushMap(key, (HippyMap) obj);
-		}
-		else if (obj instanceof HippyArray)
-		{
-			pushArray(key, (HippyArray) obj);
-		}
-		else if (obj instanceof Integer)
-		{
-			pushInt(key, (Integer) obj);
-		}
-		else if (obj instanceof Boolean)
-		{
-			pushBoolean(key, (Boolean) obj);
-		}
-		else if (obj instanceof Double)
-		{
-			pushDouble(key, (Double) obj);
-		}
-		else if (obj instanceof Float)
-		{
-			pushDouble(key, ((Number) obj).doubleValue());
-		}
-		else if (obj instanceof Long)
-		{
-			pushLong(key, (Long) obj);
-		}
-		else
-		{
-			Class<?> clazz = obj.getClass();
-			if(clazz.isAssignableFrom(int.class))
-			{
-				pushInt(key, (Integer) obj);
-			}
-			else if (clazz.isAssignableFrom(boolean.class))
-			{
-				pushBoolean(key, (Boolean) obj);
-			}
-			else if (clazz.isAssignableFrom(double.class))
-			{
-				pushDouble(key, (Double) obj);
-			}
-			else if(clazz.isAssignableFrom(float.class))
-			{
-				pushDouble(key, ((Number) obj).doubleValue());
-			}
-			else if (clazz.isAssignableFrom(long.class))
-			{
-				pushLong(key, (Long) obj);
-			}
-			else
-			{
-				throw new RuntimeException("push unsupported object into HippyMap");
-			}
-		}
-	}
+  public void pushObject(String key, Object obj) {
+    if (obj == null) {
+      pushNull(key);
+    } else if (obj instanceof String) {
+      pushString(key, (String) obj);
+    } else if (obj instanceof HippyMap) {
+      pushMap(key, (HippyMap) obj);
+    } else if (obj instanceof HippyArray) {
+      pushArray(key, (HippyArray) obj);
+    } else if (obj instanceof Integer) {
+      pushInt(key, (Integer) obj);
+    } else if (obj instanceof Boolean) {
+      pushBoolean(key, (Boolean) obj);
+    } else if (obj instanceof Double) {
+      pushDouble(key, (Double) obj);
+    } else if (obj instanceof Float) {
+      pushDouble(key, ((Number) obj).doubleValue());
+    } else if (obj instanceof Long) {
+      pushLong(key, (Long) obj);
+    } else if (obj instanceof Byte) {
+      int iObj = ((Byte) obj).intValue();
+      pushInt(key, iObj);
+    } else {
+      Class<?> clazz = obj.getClass();
+      if (clazz.isAssignableFrom(int.class)) {
+        //noinspection ConstantConditions
+        pushInt(key, (Integer) obj);
+      } else if (clazz.isAssignableFrom(boolean.class)) {
+        //noinspection ConstantConditions
+        pushBoolean(key, (Boolean) obj);
+      } else if (clazz.isAssignableFrom(double.class)) {
+        //noinspection ConstantConditions
+        pushDouble(key, (Double) obj);
+      } else if (clazz.isAssignableFrom(float.class)) {
+        pushDouble(key, ((Number) obj).doubleValue());
+      } else if (clazz.isAssignableFrom(long.class)) {
+        //noinspection ConstantConditions
+        pushLong(key, (Long) obj);
+      } else {
+        throw new RuntimeException("push unsupported object into HippyMap");
+      }
+    }
+  }
 
 
-    public void clear()
-	{
-		mDatas.clear();
+  public void clear() {
+    mDatas.clear();
+  }
+
+  public HippyMap copy() {
+    HippyMap newMap = new HippyMap();
+    Iterator<Map.Entry<String, Object>> it = mDatas.entrySet().iterator();
+    Map.Entry<String, Object> entry;
+    Object value;
+    Object newValue;
+    while (it.hasNext()) {
+      entry = it.next();
+      value = entry.getValue();
+
+      if (value instanceof HippyMap) {
+        newValue = ((HippyMap) value).copy();
+      } else if (value instanceof HippyArray) {
+        newValue = ((HippyArray) value).copy();
+      } else {
+        newValue = value;
+      }
+      newMap.pushObject(entry.getKey(), newValue);
     }
 
-	public HippyMap copy()
-	{
-		HippyMap newMap = new HippyMap();
-		Iterator<Map.Entry<String, Object>> it = mDatas.entrySet().iterator();
-		Map.Entry<String, Object> entry;
-		Object value;
-		Object newValue;
-		while (it.hasNext())
-		{
-			entry = it.next();
-			value = entry.getValue();
+    return newMap;
+  }
 
-			if(value instanceof HippyMap )
-			{
-				newValue = ((HippyMap)value).copy();
-			}
-			else if(value instanceof HippyArray)
-			{
-				newValue = ((HippyArray)value).copy();
-			}else{
-				newValue = value;
-			}
-			newMap.pushObject(entry.getKey(),newValue);
-		}
+  public void pushJSONObject(JSONObject jObject) {
+    if (jObject == null) {
+      return;
+    }
 
-		return newMap;
-	}
+    try {
+      Iterator<?> it = jObject.keys();
+      while (it.hasNext()) {
+        String key = it.next().toString();
+        Object obj = jObject.opt(key);
+        if (jObject.isNull(key)) {
+          pushNull(key);
+        } else if (obj instanceof JSONObject) {
+          HippyMap hippyMap = new HippyMap();
+          hippyMap.pushJSONObject((JSONObject) obj);
+          pushMap(key, hippyMap);
+        } else if (obj instanceof JSONArray) {
+          HippyArray hippyArray = new HippyArray();
+          hippyArray.pushJSONArray((JSONArray) obj);
+          pushArray(key, hippyArray);
+        } else {
+          pushObject(key, obj);
+        }
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
 
-	public void pushJSONObject(JSONObject jObject) {
-		if (jObject == null) {
-			return;
-		}
+  public JSONObject toJSONObject() {
+    JSONObject jObject = new JSONObject();
+    if (size() <= 0) {
+      return jObject;
+    }
 
-		try {
-			Iterator<?> it = jObject.keys();
-			while(it.hasNext()){
-				String key = it.next().toString();
-				Object obj = jObject.opt(key);
-				if (jObject.isNull(key)) {
-					pushNull(key);
-				} else if (obj instanceof JSONObject) {
-					HippyMap hippyMap = new HippyMap();
-					hippyMap.pushJSONObject((JSONObject)obj);
-					pushMap(key, hippyMap);
-				} else if (obj instanceof JSONArray) {
-					HippyArray hippyArray = new HippyArray();
-					hippyArray.pushJSONArray((JSONArray)obj);
-					pushArray(key, hippyArray);
-				} else {
-					pushObject(key, obj);
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+    Iterator<?> var2 = entrySet().iterator();
+    try {
+      while (var2.hasNext()) {
+        @SuppressWarnings({"unchecked",
+            "rawtypes"}) Map.Entry<String, Object> entry = (Map.Entry) var2.next();
+        String key = entry.getKey();
+        if (entry.getValue() instanceof HippyMap) {
+          JSONObject jObjectMap = ((HippyMap) entry.getValue()).toJSONObject();
+          jObject.put(key, jObjectMap);
+        } else if (entry.getValue() instanceof HippyArray) {
+          JSONArray jObjectArray = ((HippyArray) entry.getValue()).toJSONArray();
+          jObject.put(key, jObjectArray);
+        } else {
+          jObject.put(key, entry.getValue());
+        }
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
 
-	public JSONObject toJSONObject() {
-		JSONObject jObject = new JSONObject();
-		if (size() <= 0) {
-			return jObject;
-		}
-
-		Iterator var2 = entrySet().iterator();
-		try {
-			while (var2.hasNext()) {
-				Map.Entry<String, Object> entry = (Map.Entry)var2.next();
-				String key = entry.getKey();
-				if (entry.getValue() instanceof HippyMap) {
-					JSONObject jObjectMap = ((HippyMap)entry.getValue()).toJSONObject();
-					jObject.put(key, jObjectMap);
-				} else if (entry.getValue() instanceof HippyArray) {
-					JSONArray jObjectArray = ((HippyArray)entry.getValue()).toJSONArray();
-					jObject.put(key, jObjectArray);
-				} else {
-					jObject.put(key, entry.getValue());
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return jObject;
-	}
+    return jObject;
+  }
 }
