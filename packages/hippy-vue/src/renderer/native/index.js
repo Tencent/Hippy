@@ -247,6 +247,29 @@ function parseViewComponent(targetNode, nativeNode, style) {
 }
 
 /**
+ * Get target node attributes, use to chrome devTool tag attribute show while debugging
+ * @param {*} targetNode
+ * @returns attributes
+ */
+ function getTargetNodeAttributes(targetNode) {
+  try {
+    const targetNodeAttributes = JSON.parse(JSON.stringify(targetNode.attributes));
+    const attributes = {
+      id: targetNode.id,
+      class: Array.from(targetNode.classList).join(' '),
+      ...targetNodeAttributes,
+    };
+    delete attributes.text;
+    delete attributes.value;
+
+    return attributes;
+  } catch (e) {
+    warn('getTargetNodeAttributes error:', e);
+    return {};
+  }
+}
+
+/**
  * Render Element to native
  */
 function renderToNative(rootViewId, targetNode) {
@@ -308,6 +331,11 @@ function renderToNative(rootViewId, targetNode) {
       style,
     },
   };
+  // Add nativeNode attributes info for debugging
+  if (process.env.NODE_ENV !== 'production') {
+    nativeNode.tagName = targetNode.tagName;
+    nativeNode.props.attributes = getTargetNodeAttributes(targetNode);
+  }
 
   parseViewComponent(targetNode, nativeNode, style);
   return nativeNode;
