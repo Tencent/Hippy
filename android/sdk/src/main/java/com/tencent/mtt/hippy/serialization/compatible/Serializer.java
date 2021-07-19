@@ -91,7 +91,7 @@ public class Serializer extends PrimitiveValueSerializer {
     long length = value.size();
     writeTag(SerializationTag.BEGIN_DENSE_JS_ARRAY);
     writer.putVarint(length);
-    for (int i = 0; i < value.size(); i++) {
+    for (int i = 0; i < length; i++) {
       writeValue(value.get(i));
     }
     writeTag(SerializationTag.END_DENSE_JS_ARRAY);
