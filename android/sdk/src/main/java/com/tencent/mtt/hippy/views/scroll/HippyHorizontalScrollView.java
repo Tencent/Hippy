@@ -124,16 +124,12 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
         LogUtils.d("HippyHorizontalScrollView", "emitScrollBeginDragEvent");
         HippyScrollViewEventHelper.emitScrollBeginDragEvent(this);
       }
-      // 当手指触摸listview时，让父控件交出ontouch权限,不能滚动
-      setParentScrollableIfNeed(false);
     } else if (action == MotionEvent.ACTION_UP && mDragging) {
       if (mScrollEndDragEventEnable) {
         LogUtils.d("HippyHorizontalScrollView", "emitScrollEndDragEvent");
         HippyScrollViewEventHelper.emitScrollEndDragEvent(this);
       }
       mDragging = false;
-      // 当手指松开时，让父控件重新获取onTouch权限
-      setParentScrollableIfNeed(true);
     }
 
     boolean result = mScrollEnabled && super.onTouchEvent(event);
@@ -141,14 +137,6 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
       result |= mGestureDispatcher.handleTouchEvent(event);
     }
     return result;
-  }
-
-  // 设置父控件是否可以获取到触摸处理权限
-  private void setParentScrollableIfNeed(boolean flag) {
-    // 若自己能上下滚动
-    if (canScrollHorizontally(-1) || canScrollHorizontally(1)) {
-      getParent().requestDisallowInterceptTouchEvent(!flag);
-    }
   }
 
   @Override

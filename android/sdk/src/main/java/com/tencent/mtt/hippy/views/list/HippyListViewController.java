@@ -159,6 +159,11 @@ public class HippyListViewController extends HippyViewController<HippyListView> 
     view.setOverScrollEnabled(flag);
   }
 
+  @HippyControllerProps(name = "interceptHorizontalTouch")
+  public void setEnableInterceptHorizontalTouch(HippyListView view, boolean enable) {
+    view.setEnableInterceptHorizontalTouch(enable);
+  }
+
   @Override
   public void dispatchFunction(HippyListView view, String functionName, HippyArray dataArray) {
     super.dispatchFunction(view, functionName, dataArray);
