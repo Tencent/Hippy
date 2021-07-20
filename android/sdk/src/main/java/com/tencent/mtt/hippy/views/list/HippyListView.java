@@ -630,22 +630,18 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
 
   public void scrollToContentOffset(double xOffset, double yOffset, boolean animated,
       int duration) {
-    int yOffsetInPixel = (int) PixelUtil.dp2px(yOffset);
+    int scrollToYPos = (int)PixelUtil.dp2px(yOffset) - mOffsetY;
+    int scrollToXPos = (int)PixelUtil.dp2px(xOffset) - mOffsetX;
     if (animated) {
-      int scrollToYPos = yOffsetInPixel - getOffsetY();
-      if (duration != 0) //如果用户设置了duration
-      {
-        if (scrollToYPos != 0) {
-          if (!mState.didStructureChange()) {
-            mViewFlinger.smoothScrollBy(0, scrollToYPos, duration, true);
-          }
+      if (duration != 0){
+        if ((scrollToYPos != 0 || scrollToXPos != 0) && !mState.didStructureChange()) {
+          mViewFlinger.smoothScrollBy(scrollToXPos, scrollToYPos, duration, true);
         }
       } else {
-        smoothScrollBy(0, scrollToYPos);
+        smoothScrollBy(scrollToXPos, scrollToYPos);
       }
     } else {
-      //			scrollToPosition(0, -yOffsetInPixel);
-      scrollBy(0, yOffsetInPixel - getOffsetY());
+      scrollBy(scrollToXPos, scrollToYPos);
       post(new Runnable() {
         @Override
         public void run() {
