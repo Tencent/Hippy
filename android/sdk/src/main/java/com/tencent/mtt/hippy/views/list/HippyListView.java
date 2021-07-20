@@ -74,7 +74,6 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
 
   protected boolean mExposureEventEnable = false;
 
-  boolean enableInterceptHorizontalTouch = false;
   private float touchDownY;
   private float touchDownX;
   private int touchSlop;
@@ -145,7 +144,7 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
       return false;
     }
 
-    if (enableInterceptHorizontalTouch) {
+    if (mLayout.canScrollVertically()) {
       int action = motionEvent.getAction();
       float y = motionEvent.getY();
       float x = motionEvent.getX();
@@ -179,10 +178,6 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
     if (beforeCount == 0 && (afterCount > beforeCount) && mExposureEventEnable) {
       dispatchExposureEvent();
     }
-  }
-
-  void setEnableInterceptHorizontalTouch(boolean enable) {
-    enableInterceptHorizontalTouch = enable;
   }
 
   public void setScrollBeginDragEventEnable(boolean enable) {
