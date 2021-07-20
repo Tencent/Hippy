@@ -521,7 +521,7 @@ bool V8Ctx::RegisterGlobalInJs() {
 
   return global
       ->Set(context, v8::String::NewFromOneByte(
-          isolate_, reinterpret_cast<const u_int8_t *>("global"),
+          isolate_, reinterpret_cast<const uint8_t*>("global"),
           v8::NewStringType::kNormal).ToLocalChecked(), global)
       .FromMaybe(false);
 }
