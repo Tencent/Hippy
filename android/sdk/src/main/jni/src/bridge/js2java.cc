@@ -31,7 +31,6 @@
 #include "core/base/string_view_utils.h"
 #include "jni/jni_env.h"
 
-
 using unicode_string_view = tdf::base::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
 
