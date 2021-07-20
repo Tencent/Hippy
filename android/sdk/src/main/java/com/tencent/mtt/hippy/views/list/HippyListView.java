@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy.views.list;
 
+import android.view.ViewConfiguration;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.common.HippyMap;
@@ -73,6 +74,11 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
 
   protected boolean mExposureEventEnable = false;
 
+  boolean enableInterceptHorizontalTouch = false;
+  private float touchDownY;
+  private float touchDownX;
+  private int touchSlop;
+
   protected int mScrollEventThrottle = 400;  // 400ms最多回调一次
   protected int mLastOffsetX = Integer.MIN_VALUE;
   protected int mLastOffsetY = Integer.MIN_VALUE;
@@ -95,6 +101,9 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
     setRepeatableSuspensionMode(false);
     mListAdapter = createAdapter(this, mHippyContext);
     setAdapter(mListAdapter);
+
+    final ViewConfiguration configuration = ViewConfiguration.get(context);
+    touchSlop = configuration.getScaledTouchSlop();
   }
 
   public HippyListView(Context context, int orientation) {
@@ -135,6 +144,26 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
     if (!mScrollEnable) {
       return false;
     }
+
+    if (enableInterceptHorizontalTouch) {
+      int action = motionEvent.getAction();
+      float y = motionEvent.getY();
+      float x = motionEvent.getX();
+      switch (action) {
+        case MotionEvent.ACTION_DOWN: {
+          touchDownY = y;
+          touchDownX = x;
+          break;
+        }
+        case MotionEvent.ACTION_MOVE: {
+          if (Math.abs(x - touchDownX) / Math.abs(y - touchDownY) > 1 && Math.abs(x - touchDownX) > touchSlop) {
+            return false;
+          }
+          break;
+        }
+      }
+    }
+
     return super.onInterceptTouchEvent(motionEvent);
   }
 
@@ -150,6 +179,10 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
     if (beforeCount == 0 && (afterCount > beforeCount) && mExposureEventEnable) {
       dispatchExposureEvent();
     }
+  }
+
+  void setEnableInterceptHorizontalTouch(boolean enable) {
+    enableInterceptHorizontalTouch = enable;
   }
 
   public void setScrollBeginDragEventEnable(boolean enable) {
