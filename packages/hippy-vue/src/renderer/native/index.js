@@ -256,7 +256,7 @@ function parseViewComponent(targetNode, nativeNode, style) {
     const targetNodeAttributes = JSON.parse(JSON.stringify(targetNode.attributes));
     const attributes = {
       id: targetNode.id,
-      class: Array.from(targetNode.classList).join(' '),
+      class: Array.from(targetNode.classList || []).join(' '),
       ...targetNodeAttributes,
     };
     delete attributes.text;
