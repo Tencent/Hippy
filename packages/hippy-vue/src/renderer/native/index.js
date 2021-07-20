@@ -248,15 +248,16 @@ function parseViewComponent(targetNode, nativeNode, style) {
 
 /**
  * Get target node attributes, use to chrome devTool tag attribute show while debugging
- * @param {*} targetNode
+ * @param targetNode
  * @returns attributes
  */
- function getTargetNodeAttributes(targetNode) {
+function getTargetNodeAttributes(targetNode) {
   try {
     const targetNodeAttributes = JSON.parse(JSON.stringify(targetNode.attributes));
+    const classInfo = Array.from(targetNode.classList || []).join(' ');
     const attributes = {
       id: targetNode.id,
-      class: Array.from(targetNode.classList || []).join(' '),
+      class: classInfo,
       ...targetNodeAttributes,
     };
     delete attributes.text;
