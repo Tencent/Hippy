@@ -8,5 +8,6 @@
   },
   "no-inline-html" : {
     "allowed_elements" : [ "a", "h1", "h3", "HR", "p", "br" ]
-  }
+  },
+  "no-bare-urls": false
 }
