@@ -587,25 +587,12 @@ void MTTNode::layout(float parentWidth,
   }
 
   // calculate container's position
-//  FlexDirection mainAxis = resolveMainAxis();
-//  FlexDirection crossAxis = resolveCrossAxis();
-//  setLayoutStartPosition(mainAxis, getStartMargin(mainAxis), true);
-//  setLayoutEndPosition(mainAxis, getEndMargin(mainAxis), true);
-//  setLayoutStartPosition(crossAxis, getStartMargin(crossAxis), true);
-//  setLayoutEndPosition(crossAxis, getEndMargin(crossAxis), true);
-    
-    if (isDefined(style.position[0])) {
-        result.position[0] = style.position[0];
-    }
-    if (isDefined(style.position[1])) {
-        result.position[1] = style.position[1];
-    }
-    if (isDefined(style.margin[0])) {
-        result.position[0] += style.margin[0];
-    }
-    if (isDefined(style.margin[1])) {
-        result.position[1] += style.margin[1];
-    }
+  FlexDirection mainAxis = resolveMainAxis();
+  FlexDirection crossAxis = resolveCrossAxis();
+  setLayoutStartPosition(mainAxis, getStartMargin(mainAxis), true);
+  setLayoutEndPosition(mainAxis, getEndMargin(mainAxis), true);
+  setLayoutStartPosition(crossAxis, getStartMargin(crossAxis), true);
+  setLayoutEndPosition(crossAxis, getEndMargin(crossAxis), true);
 
   // node 's layout is complete
   // convert its and its descendants position and size to a integer value.

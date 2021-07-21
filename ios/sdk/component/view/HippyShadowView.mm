@@ -151,17 +151,20 @@ DEFINE_PROCESS_META_PROPS(Border);
     MTTNodesetHasNewLayout(node, false);
     float left = MTTNodeLayoutGetLeft(node);
     float top = MTTNodeLayoutGetTop(node);
+    if (!MTTNodeGetParent(_nodeRef)) {
+        left = MTTNodeLayoutGetPosition(_nodeRef, CSSLeft);
+        top = MTTNodeLayoutGetPosition(_nodeRef, CSSTop);
+    }
     float width = MTTNodeLayoutGetWidth(node);
     float height = MTTNodeLayoutGetHeight(node);
-    
     CGPoint absoluteTopLeft = { absolutePosition.x + left, absolutePosition.y + top };
 
     CGPoint absoluteBottomRight = { absolutePosition.x + left + width,
         absolutePosition.y + top + height };
 
     CGRect frame = { {
-                         HippyRoundPixelValue(MTTNodeLayoutGetLeft(node)),
-                         HippyRoundPixelValue(MTTNodeLayoutGetTop(node)),
+                         HippyRoundPixelValue(left),
+                         HippyRoundPixelValue(top),
                      },
         { HippyRoundPixelValue(absoluteBottomRight.x - absoluteTopLeft.x), HippyRoundPixelValue(absoluteBottomRight.y - absoluteTopLeft.y) } };
 

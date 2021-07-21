@@ -89,6 +89,7 @@ uint32_t MTTNodeChildCount(MTTNodeRef node);
 MTTNodeRef MTTNodeGetChild(MTTNodeRef node, uint32_t index);
 
 void MTTNodeSetParent(MTTNodeRef node, MTTNodeRef parentNode);
+MTTNodeRef MTTNodeGetParent(MTTNodeRef node);
 
 bool MTTNodeHasNewLayout(MTTNodeRef node);
 void MTTNodesetHasNewLayout(MTTNodeRef node, bool hasNewLayout);

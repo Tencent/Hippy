@@ -449,7 +449,11 @@ MTTNodeRef MTTNodeGetChild(MTTNodeRef node, uint32_t index) {
 }
 
 void MTTNodeSetParent(MTTNodeRef node, MTTNodeRef parentNode) {
-    node->setParent(parentNode);
+  node->setParent(parentNode);
+}
+
+MTTNodeRef MTTNodeGetParent(MTTNodeRef node) {
+  return node->getParent();
 }
 
 bool MTTNodeHasNewLayout(MTTNodeRef node) {
