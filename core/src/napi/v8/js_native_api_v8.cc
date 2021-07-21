@@ -498,9 +498,22 @@ unicode_string_view V8Ctx::GetStackInfo(v8::Local<v8::Message> message) {
   int len = trace->GetFrameCount();
   for (int i = 0; i < len; ++i) {
     v8::Local<v8::StackFrame> frame = trace->GetFrame(isolate_, i);
+    if (frame.IsEmpty()) {
+      continue;
+    }
 
-    unicode_string_view script_name = ToStringView(frame->GetScriptName());
-    unicode_string_view function_name = ToStringView(frame->GetFunctionName());
+    v8::Local<v8::String> v8_script_name = frame->GetScriptName();
+    unicode_string_view script_name("");
+    if (!v8_script_name.IsEmpty()) {
+      script_name = ToStringView(v8_script_name);
+    }
+
+    unicode_string_view function_name("");
+    v8::Local<v8::String> v8_function_name = frame->GetFunctionName();
+    if (!v8_function_name.IsEmpty()) {
+      function_name = ToStringView(v8_function_name);
+    }
+
     stack_stream << std::endl
                  << script_name << ":" << frame->GetLineNumber() << ":"
                  << frame->GetColumn() << ":" << function_name;
@@ -509,7 +522,7 @@ unicode_string_view V8Ctx::GetStackInfo(v8::Local<v8::Message> message) {
   unicode_string_view stack_str(
       reinterpret_cast<const uint8_t*>(u8_str.c_str()));
   TDF_BASE_DLOG(INFO) << "stack = " << stack_str;
-  return unicode_string_view(stack_str);
+  return stack_str;
 }
 
 bool V8Ctx::RegisterGlobalInJs() {
