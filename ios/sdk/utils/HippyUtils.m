@@ -782,3 +782,15 @@ HIPPY_EXTERN NSStringEncoding HippyGetStringEncodingFromURLResponse(NSURLRespons
     NSStringEncoding dataEncoding = CFStringConvertEncodingToNSStringEncoding(encoding);
     return dataEncoding;
 }
+
+NSWritingDirection HippyGetCurrentWritingDirectionForAppLanguage(void) {
+    NSWritingDirection direction = NSWritingDirectionLeftToRight;
+    if (@available(iOS 10.0, *)) {
+        NSString *lanCode = [[NSLocale currentLocale] languageCode];
+        direction = [NSParagraphStyle defaultWritingDirectionForLanguage:lanCode];
+    }
+    else {
+        direction = [NSParagraphStyle defaultWritingDirectionForLanguage:nil];
+    }
+    return direction;
+}

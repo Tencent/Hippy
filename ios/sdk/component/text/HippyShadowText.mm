@@ -44,7 +44,7 @@ CGFloat const HippyTextAutoSizeGranularity = 0.001f;
 @implementation HippyShadowText
 // MTTlayout
 static MTTSize x5MeasureFunc(
-    MTTNodeRef node, float width, MeasureMode widthMeasureMode, __unused float height, __unused MeasureMode heightMeasureMode) {
+    MTTNodeRef node, float width, MeasureMode widthMeasureMode, __unused float height, __unused MeasureMode heightMeasureMode, void *layoutContext) {
     HippyShadowText *shadowText = (__bridge HippyShadowText *)MTTNodeGetContext(node);
     NSTextStorage *textStorage = [shadowText buildTextStorageForWidth:width widthMode:widthMeasureMode];
     [shadowText calculateTextFrame:textStorage];
@@ -114,6 +114,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         _textAlign = NSTextAlignmentNatural;
         // MTTlayout
         MTTNodeSetMeasureFunc(self.nodeRef, x5MeasureFunc);
+        MTTNodeSetContext(self.nodeRef, (__bridge void *)self);
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(contentSizeMultiplierDidChange:)
                                                      name:HippyUIManagerWillUpdateViewsDueToContentSizeMultiplierChangeNotification
                                                    object:nil];
@@ -383,7 +384,10 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             [child setTextComputed];
         } else {
             // MTTlayout
-            MTTNodeDoLayout(child.nodeRef, NAN, NAN);
+            NSWritingDirection direction = HippyGetCurrentWritingDirectionForAppLanguage();
+            MTTDirection nodeDirection = (NSWritingDirectionRightToLeft == direction) ? DirectionRTL : DirectionLTR;
+            nodeDirection = self.layoutDirection != DirectionInherit ? self.layoutDirection : nodeDirection;
+            MTTNodeDoLayout(child.nodeRef, NAN, NAN, nodeDirection);
             float width = MTTNodeLayoutGetWidth(child.nodeRef);
             float height = MTTNodeLayoutGetHeight(child.nodeRef);
             if (isnan(width) || isnan(height)) {

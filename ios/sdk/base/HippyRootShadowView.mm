@@ -21,7 +21,9 @@
  */
 
 #import "HippyRootShadowView.h"
+#import "HippyUtils.h"
 #include "MTTLayout.h"
+
 @implementation HippyRootShadowView
 
 /**
@@ -54,7 +56,10 @@
 
 - (NSSet<HippyShadowView *> *)collectViewsWithUpdatedFrames {
     [self applySizeConstraints];
-    MTTNodeDoLayout(self.nodeRef, NAN, NAN);
+    
+    NSWritingDirection direction = HippyGetCurrentWritingDirectionForAppLanguage();
+    MTTDirection nodeDirection = (NSWritingDirectionRightToLeft == direction) ? DirectionRTL : DirectionLTR;
+    MTTNodeDoLayout(self.nodeRef, NAN, NAN, nodeDirection);
 
     NSMutableSet<HippyShadowView *> *viewsWithNewFrame = [NSMutableSet set];
     [self applyLayoutNode:self.nodeRef viewsWithNewFrame:viewsWithNewFrame absolutePosition:CGPointZero];
