@@ -2,7 +2,10 @@ import { Tunnel } from '../@types/tunnel';
 import { EventEmitter } from 'events';
 import { sendMessage, registerModuleCallback } from '../message-channel/tunnel';
 import { ClientEvent } from '../@types/enum';
-// import { CDP } from '../@types/cdp';
+import WebSocket, { Server } from 'ws/index.js';
+import createDebug from 'debug';
+
+const debug = createDebug('devtools-client');
 
 /**
  * 对外接口：
@@ -88,5 +91,26 @@ export class DevtoolsClient extends EventEmitter {
   registerDomainCallback(domain, cb) {
     if (!this.domainListeners.has(domain)) this.domainListeners.set(domain, []);
     this.domainListeners.get(domain).push(cb);
+  }
+
+  bindWs(ws: WebSocket, removeChannel) {
+    ws.on('message', (msg: string) => {
+      try {
+        const msgObj = JSON.parse(msg);
+        this.sendMessage(msgObj);
+      }
+      catch(e) {
+        debug('parse devtools ws message error!');
+      }
+    });
+    ws.on('close', () => {
+      this.emit(ClientEvent.Close);
+      removeChannel()
+    });
+    this.sendToDevtools = ws.send.bind(ws);
+    this.close = () => {
+      ws.close();
+      removeChannel();
+    };
   }
 }

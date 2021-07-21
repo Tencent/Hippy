@@ -11,8 +11,8 @@ import { onMessage } from './message-channel/tunnel';
 import createDebug from 'debug';
 
 const debug = createDebug('server');
-const addon = require('./build/Tunnel.node');
-global.addon = addon;
+// const addon = require('./build/Tunnel.node');
+// global.addon = addon;
 
 let server;
 
@@ -29,7 +29,7 @@ export const startServer = (argv) => {
 
     server = app.listen(port, host, () => {
       debug('start koa dev server');
-      startTunnel(iwdpPort);
+      // startTunnel(iwdpPort);
       startAdbProxy(port);
       startIosProxy(iwdpPort);
       new SocketBridge(server, argv);
@@ -45,7 +45,6 @@ export const startServer = (argv) => {
       try {
         await next();
       } catch (e) {
-        debugger;
         debug(`koa error: %j`, e);
         return (ctx.body = e.msg);
       }

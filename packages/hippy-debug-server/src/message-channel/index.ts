@@ -1,8 +1,7 @@
-import { DevicePlatform, ClientEvent, AppClientType } from '../@types/enum';
+import { DevicePlatform, ClientEvent, AppClientType, ClientRole } from '../@types/enum';
 import { DeviceInfo, DebugPage } from '../@types/tunnel';
 import { AndroidProtocol, AndroidTarget, IosTarget, IOS8Protocol, IOS9Protocol, IOS12Protocol } from '../adapter';
 import { IosProxyClient, WsAppClient, TunnelAppClient, AppClient, DevtoolsClient } from '../client';
-import deviceManager from '../device-manager';
 import WebSocket from 'ws/index.js';
 import createDebug from 'debug';
 
@@ -29,16 +28,17 @@ class MessageChannel {
     appClientId,
     appClientType,
     ws,
-    debugPage
+    debugPage,
+    platform,
   }: {
     devtoolsClient: DevtoolsClient,
     appClientId: string,
     appClientType: AppClientType,
     ws: WebSocket,
     debugPage: DebugPage,
+    platform: DevicePlatform,
   }): AppClient | void {
-    const device = deviceManager.getCurrent();
-    if (device.platform === DevicePlatform.Android) {
+    if (platform === DevicePlatform.Android) {
       const devtoolsClientId = devtoolsClient.id;
       const adapterId = `${appClientId}-${devtoolsClientId}`;
 
@@ -53,7 +53,7 @@ class MessageChannel {
       const adapter = new AndroidProtocol(androidTarget);
       this.adapterMap.set(adapterId, adapter);
       return appClient;
-    } else if (device.platform === DevicePlatform.IOS) {
+    } else if(platform === DevicePlatform.IOS) {
       if (!debugPage?.webSocketDebuggerUrl) return;
 
       const version = debugPage.device.deviceOSVersion;
@@ -70,6 +70,8 @@ class MessageChannel {
       const adapter = getIosProtocolAdapter(version, iosTarget);
       this.adapterMap.set(adapterId, adapter);
       return appClient;
+    } else {
+      debug('invalid platform!');
     }
   }
 

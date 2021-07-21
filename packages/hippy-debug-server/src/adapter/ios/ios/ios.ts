@@ -7,6 +7,9 @@ import { IosTarget } from '../target';
 import { ScreencastSession } from './screencast';
 import HeapAdapter from './heap-adapter';
 import TraceAdapter from './trace-adapter';
+import createDebug from 'debug';
+
+const debug = createDebug('adapter:ios');
 
 declare let document: any;
 declare let MouseEvent: any;
@@ -208,10 +211,8 @@ export abstract class IOSProtocol extends ProtocolAdapter {
     });
     this.target.addMessageFilter('tools::Log.enable', (msg) => {
       msg.method = 'Console.enable';
-      this.target.callTarget('Console.enable').then((res) => {
-        console.log('Heap.enable res', msg);
-        this.target.fireResultToTools(msg.id, res);
-      });
+      this.target.callTarget('Console.enable')
+      this.target.fireResultToTools(msg.id, {});
       return Promise.resolve(null);
     });
     this.target.addMessageFilter('target::Console.messageAdded', (msg) => this.onConsoleMessageAdded(msg));
@@ -854,7 +855,7 @@ export abstract class IOSProtocol extends ProtocolAdapter {
     if (message.type === 'log') {
       switch (message.level) {
         case 'log':
-          type = 'log';
+          type = 'info';
           break;
         case 'info':
           type = 'info';
@@ -863,7 +864,7 @@ export abstract class IOSProtocol extends ProtocolAdapter {
           type = 'error';
           break;
         default:
-          type = 'log';
+          type = 'info';
       }
     } else {
       type = message.type;
@@ -884,7 +885,7 @@ export abstract class IOSProtocol extends ProtocolAdapter {
       networkRequestId: message.networkRequestId,
     };
 
-    this.target.fireEventToTools('Runtime.consoleAPICalled', {
+    this.target.fireEventToTools('Log.entryAdded', {
       entry: consoleMessage,
     });
 

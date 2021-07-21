@@ -1,7 +1,6 @@
 import WebSocket from 'ws/index.js';
 import { AppClientType, ClientEvent } from '../@types/enum';
 import { AppClient } from './app-client';
-import { sendMessage } from '../message-channel/tunnel';
 
 export class IosProxyClient extends AppClient {
   url: string;
@@ -47,9 +46,11 @@ export class IosProxyClient extends AppClient {
   }
 
   resume() {
-    sendMessage({
-      module: 'jsDebugger',
-      content: 'chrome_socket_closed',
-    } as any);
+    // ios 的 resume 需要发送 Debugger.disable
+    this.send({
+      id: Date.now(),
+      method: 'Debugger.disable',
+      params: {},
+    });
   }
 }

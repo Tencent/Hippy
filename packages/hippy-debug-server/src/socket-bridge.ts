@@ -1,11 +1,11 @@
 import WebSocket, { Server } from 'ws/index.js';
 import { DeviceInfo } from './@types/tunnel';
-import { ClientType, ClientRole, ClientEvent, AppClientType, DevicePlatform, DeviceManagerEvent } from './@types/enum';
+import { ClientRole, ClientEvent, AppClientType, DevicePlatform, DeviceManagerEvent } from './@types/enum';
 import { AppClient, TunnelAppClient, WsAppClient, IosProxyClient, DevtoolsClient } from './client';
 import { IosTarget } from './adapter';
 import messageChannel from './message-channel';
 import { v4 as uuidv4 } from 'uuid';
-import androidPageManager from './android-pages-manager';
+import androidTargetManager from './android-pages-manager';
 import createDebug from 'debug';
 
 const debug = createDebug('socket-bridge');
@@ -33,20 +33,21 @@ export class SocketBridge {
   }
 
   onConnection(ws, req) {
-    const { clientType, appClientType, clientId, targetId, debugPage, pathname } = getClientInfo(req.url);
-    debug('%s %j', clientType, debugPage);
+    let { appClientType, role, clientId, targetId, debugPage, pathname, platform } = getClientInfo(req.url);
+    debug('%j', debugPage);
     if (pathname !== this.wsPath) return;
-    if (clientType === ClientType.Unknown) return debug('invalid client type!');
+    if (!Object.values(ClientRole).includes(role)) return debug('invalid client role!');
 
-    if (clientType === ClientType.App) {
+    if(role === ClientRole.Android) {
       debug('ws app client created');
-      const clientId = androidPageManager.addWsClientId();
-      // 相同id直接覆盖，目前 app 端 ws 连接未作区分
+      if(!clientId) clientId = uuidv4()  // TODO 移除 uuidv4
+      androidTargetManager.addWsTarget(clientId);
       this.appWsMap.set(clientId, ws);
+      // 终端刷新时未断连，会导致调试页面列表很多脏数据
       ws.on('close', () => {
-        androidPageManager.removeWsClientId(clientId);
+        androidTargetManager.removeWsTarget(clientId);
       });
-    } else if (clientType === ClientType.Devtools) {
+    } else if (role === ClientRole.Devtools) {
       const devtoolsClient = new DevtoolsClient(req.url);
       const appWs = this.appWsMap.get(targetId);
       if(!appWs && appClientType === AppClientType.WS) return debug('app ws is not connected!!!');
@@ -56,28 +57,11 @@ export class SocketBridge {
         appClientType,
         ws: appWs,
         debugPage,
+        platform,
       });
       if(!appClient) return debug('add channel failed!');
-
-      if(appClientType === AppClientType.IosProxy) {}
-      ws.on('message', (msg) => {
-        try {
-          const msgObj = JSON.parse(msg);
-          devtoolsClient.sendMessage(msgObj);
-        }
-        catch(e) {
-          debug('parse devtools ws message error!');
-        }
-      });
-      ws.on('close', () => {
-        devtoolsClient.emit(ClientEvent.Close);
-        messageChannel.removeChannel(appClient.id, devtoolsClient.id);
-      });
-      devtoolsClient.sendToDevtools = ws.send.bind(ws);
-      devtoolsClient.close = () => {
-        ws.close();
-        messageChannel.removeChannel(appClient.id, devtoolsClient.id);
-      };
+      const removeChannel = () => messageChannel.removeChannel(appClient.id, devtoolsClient.id);
+      devtoolsClient.bindWs(ws, removeChannel);
     }
   }
 }
@@ -86,19 +70,18 @@ const getClientInfo = (reqUrl) => {
   const url = new URL(reqUrl, 'http://0.0.0.0');
   const clientId = url.searchParams.get('clientId');
   const targetId = url.searchParams.get('targetId');
-  const role = url.searchParams.get('role');
-  const from = url.searchParams.get('from');
+  const platform = url.searchParams.get('platform') as DevicePlatform;
+  const role = url.searchParams.get('role') as ClientRole;
+  const bundleName = url.searchParams.get('bundleName');
   const appClientType = url.searchParams.get('appClientType') as AppClientType;
   let debugPage: any = url.searchParams.get('debugPage') || '{}';
-  let clientType;
-  debugPage = JSON.parse(decodeURIComponent(debugPage));
-
-  if (from !== ClientType.App && from !== ClientType.Devtools && role !== ClientRole.Android) {
-    clientType = ClientType.Unknown;
-  } else if (from === ClientType.App || role === ClientRole.Android) {
-    clientType = ClientType.App;
-  } else if (from === ClientType.Devtools) {
-    clientType = ClientType.Devtools;
+  try {
+    debugPage = JSON.parse(decodeURIComponent(debugPage));
   }
-  return { clientType, appClientType, clientId, targetId, debugPage, pathname: url.pathname };
+  catch(e) {
+    debugPage = {};
+    debug('parse debug page json error: %j', e);
+  }
+
+  return { appClientType, platform, clientId, targetId, debugPage, pathname: url.pathname, role, bundleName };
 };

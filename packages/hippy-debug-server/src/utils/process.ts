@@ -10,6 +10,6 @@ export const exec = (cmd: string, argv: any, options?: any) =>
       if (code) {
         return reject(new Error(`Execting ${cmd} returns: ${code}`));
       }
-      return resolve(cp);
     });
+    return resolve(cp);
   });

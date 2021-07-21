@@ -2,6 +2,7 @@
 
 import yargs from 'yargs';
 import { startServer } from './server';
+import path from 'path';
 
 const { argv } = yargs
   .alias('v', 'version')
@@ -11,7 +12,7 @@ const { argv } = yargs
   .version()
   .option('entry', {
     type: 'string',
-    default: 'src/public/index.bundle',
+    default: 'dist/dev/index.bundle',
     describe: 'Path of the jsbundle for debugging',
   })
   .option('static', {

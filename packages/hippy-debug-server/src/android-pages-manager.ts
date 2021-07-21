@@ -1,10 +1,8 @@
 
 import { v4 as uuidv4 } from 'uuid';
-import deviceManager from './device-manager';
 import { DeviceInfo } from './@types/tunnel';
-import { ClientType, ClientRole, ClientEvent, AppClientType, DevicePlatform, DeviceManagerEvent } from './@types/enum';
+import { ClientRole, ClientEvent, AppClientType, DevicePlatform, DeviceManagerEvent } from './@types/enum';
 
-let clientId;
 
 /**
  * 安卓有两个通道：
@@ -12,52 +10,45 @@ let clientId;
  *    - tunnel通道：tunnel app connect 时添加可调试页面， app disconnect 时移除，device disconnect时清空
  * 两通道共存时，走tunnel通道
  */
-class AndroidPageManager {
-  wsPages: string[] = [];
-  tunnelPages: string[] = [];
-  useTunnel = false;
+class AndroidTargetManager {
+  wsTargets: string[] = [];
+  customTargets: string[] = [];
+  useCustom = false;
 
-  constructor() {
-    this.bindTunnelPage();
+  constructor() {}
+
+  private addTarget(wsTargets, clientId) {
+    const index = wsTargets.findIndex(v => v === clientId);
+    if(index === -1) {
+      wsTargets.push(clientId);
+    }
   }
 
-  getPages() {
-    if(this.useTunnel) return this.tunnelPages;
-    else return this.wsPages;
+  private removeTarget(wsTargets, clientId: string) {
+    const index = wsTargets.findIndex(v => v === clientId);
+    if(index > -1) wsTargets.splice(index, 1);
   }
 
-  bindTunnelPage() {
-    deviceManager.on(DeviceManagerEvent.removeDevice, device => {
-      if(device.platform === DevicePlatform.Android) {
-        this.tunnelPages.splice(0, this.tunnelPages.length);
-      }
-    });
-    deviceManager.on(DeviceManagerEvent.appDidConnect, device => {
-      // this.useTunnel = true;
-      clientId = uuidv4();
-      this.tunnelPages.push(clientId);
-    });
-    deviceManager.on(DeviceManagerEvent.appDidDisConnect, device => {
-      // this.useTunnel = false;
-      const index = this.tunnelPages.findIndex(v => v === clientId);
-      if(index > -1) this.tunnelPages.splice(index, 1);
-      clientId = null;
-    });
+  getTargets() {
+    if(this.useCustom) return this.customTargets;
+    else return this.wsTargets;
   }
 
-  addWsClientId(): string {
-    // 这里app端未区分clientId，且reload时，旧连接不会close。所以这里复用旧连接 id
-    if(this.wsPages.length) return this.wsPages[0];
-
-    const clientId = uuidv4();
-    this.wsPages.push(clientId);
-    return clientId;
+  addWsTarget(clientId: string) {
+    this.addTarget(this.wsTargets, clientId);
   }
 
-  removeWsClientId(clientId: string) {
-    const index = this.wsPages.findIndex(v => v === clientId);
-    if(index > -1) this.wsPages.splice(index, 1);
+  removeWsTarget(clientId: string) {
+    this.removeTarget(this.wsTargets, clientId);
+  }
+
+  addCustomTarget(clientId: string) {
+    this.addTarget(this.customTargets, clientId);
+  }
+
+  removeCustomTarget(clientId: string) {
+    this.removeTarget(this.customTargets, clientId);
   }
 }
 
-export default new AndroidPageManager();
+export default new AndroidTargetManager();

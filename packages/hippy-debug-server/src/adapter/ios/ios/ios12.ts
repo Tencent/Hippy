@@ -1,5 +1,8 @@
 import { IOS9Protocol } from './ios9';
 import { IosTarget } from '../target';
+import createDebug from 'debug';
+
+const debug = createDebug('adapter:ios12');
 
 export class IOS12Protocol extends IOS9Protocol {
   constructor(target: IosTarget) {
@@ -11,6 +14,7 @@ export class IOS12Protocol extends IOS9Protocol {
   }
 
   private onTargetCreated(msg: any): Promise<any> {
+    debug('Target.targetCreated!');
     this.target.targetId = msg.params.targetInfo.targetId;
 
     return Promise.resolve(msg);

@@ -2,9 +2,9 @@ import { spawn } from 'child_process';
 import { exec } from './utils/process';
 import createDebug from 'debug';
 
-const debug = createDebug('child process');
+const debug = createDebug('child-process');
 let proxyProcess;
-let adbProcess;
+const adbProcess = [];
 
 export const startIosProxy = (iwdpPort: string) => {
   proxyProcess = spawn(
@@ -30,19 +30,27 @@ export const startIosProxy = (iwdpPort: string) => {
 };
 
 export const startAdbProxy = (port: string) => {
-  adbProcess = exec('adb', ['reverse', '--remove-all'])
-    .then(() => exec('adb', ['reverse', `tcp:${port}`, `tcp:${port}`]))
+  const cp = exec('adb', ['reverse', '--remove-all'])
+    .then(() => {
+      const cp = exec('adb', ['reverse', `tcp:${port}`, `tcp:${port}`])
+      adbProcess.push(cp);
+      return cp;
+    })
     .catch((err: Error) => {
       debug('Port reverse failed, For iOS app debug only just ignore the message.');
       debug('Otherwise please check adb devices command working correctly');
+      debug(`type 'adb reverse tcp:${port} tcp:${port}' retry!`)
       debug('start adb reverse error: %j', err);
     });
+  adbProcess.push(cp);
 };
 
 const onExit = () => {
   debug('on debug server exit, do some clean...');
   proxyProcess?.kill('SIGTERM');
-  adbProcess?.kill('SIGTERM');
+  adbProcess.forEach(cp => {
+    if(cp?.kill instanceof Function) cp?.kill('SIGTERM');
+  });
 };
 process.on('exit', onExit);
 process.on('SIGINT', onExit);

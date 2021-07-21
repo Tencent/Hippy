@@ -43,7 +43,7 @@ export class ScreencastSession {
           '(window.innerWidth > 0 ? window.innerWidth : screen.width) + "," + (window.innerHeight > 0 ? window.innerHeight : screen.height) + "," + window.devicePixelRatio',
       })
       .then((msg) => {
-        const parts = msg.result.value.split(',');
+        const parts = msg.result.value?.split(',') || [];
         this._deviceWidth = parseInt(parts[0], 10);
         this._deviceHeight = parseInt(parts[1], 10);
         this._pageScaleFactor = parseInt(parts[2], 10);

@@ -15,13 +15,14 @@ gulp.task('compile', () => {
     .pipe(gulp.dest('dist/'))
 });
 
-gulp.task('copy-resource', function() {
-    return gulp.src(['src/build/**/*'])
-      .pipe(gulp.dest('dist/build'));
+gulp.task('copy-resource', function(cb) {
+  gulp.src(['src/build/**/*']).pipe(gulp.dest('dist/build'));
+  gulp.src(['src/public/**/*']).pipe(gulp.dest('dist/public'));
+  cb();
 });
 
 gulp.task('clean', () => {
   return gulp.src('dist', {read: false}).pipe(clean({allowEmpty: true}));
 })
 
-gulp.task('default', gulp.series(['clean', 'mkdir', 'compile', 'copy-resource']));
+gulp.task('default', gulp.series(['clean', 'mkdir', gulp.parallel(['compile', 'copy-resource'])]));
