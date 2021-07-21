@@ -10,8 +10,6 @@ Hippy is a cross-platform development framework, aiming to help developers write
 
 Hippy is now applied in 27+ [Tencent](http://www.tencent.com/) apps such as Mobile QQ, Mobile QQ Browser, Tencent Video App, QQ Music App，Tencent News, reaching hundreds of millions of ordinary users.
 
-https://user-images.githubusercontent.com/12878546/126472924-650c3ca1-62ca-4bc1-bb6e-739dbe21a277.mp4
-
 ## Advantages
 
 * Design for web developers, officially support web frameworks like `React` and `Vue`.
