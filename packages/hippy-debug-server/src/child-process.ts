@@ -48,9 +48,9 @@ export const startAdbProxy = (port: string) => {
 const onExit = () => {
   debug('on debug server exit, do some clean...');
   proxyProcess?.kill('SIGTERM');
-  adbProcess.forEach(cp => {
-    if(cp?.kill instanceof Function) cp?.kill('SIGTERM');
-  });
+  // adbProcess.forEach(cp => {
+  //   if(cp?.kill instanceof Function) cp?.kill('SIGTERM');
+  // });
 };
 process.on('exit', onExit);
 process.on('SIGINT', onExit);
