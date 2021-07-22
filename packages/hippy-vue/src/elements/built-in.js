@@ -39,8 +39,10 @@ const div = {
     processEventData(event, nativeEventName, nativeEventParams) {
       switch (nativeEventName) {
         case 'onScroll':
-          event.offsetX = nativeEventParams.contentOffset.x;
-          event.offsetY = nativeEventParams.contentOffset.y;
+        case 'onScrollBeginDrag':
+        case 'onScrollEndDrag':
+          event.offsetX = nativeEventParams.contentOffset && nativeEventParams.contentOffset.x;
+          event.offsetY = nativeEventParams.contentOffset && nativeEventParams.contentOffset.y;
           break;
         case 'onTouchDown':
         case 'onTouchMove':
