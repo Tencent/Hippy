@@ -27,6 +27,7 @@
 #import "HippyUtils.h"
 #import "UIView+Hippy.h"
 #import "UIView+Private.h"
+#import "MTTNode.h"
 
 static NSString *const HippyBackgroundColorProp = @"backgroundColor";
 
@@ -623,6 +624,11 @@ static inline void x5AssignSuggestedDimension(MTTNodeRef cssNode, Dimension dime
 - (void)setSize:(CGSize)size {
     MTTNodeStyleSetWidth(_nodeRef, size.width);
     MTTNodeStyleSetHeight(_nodeRef, size.height);
+}
+
+- (void)setLayoutDirection:(MTTDirection)layoutDirection {
+    _layoutDirection = layoutDirection;
+    MTTNodeStyleSetDirection(_nodeRef, layoutDirection);
 }
 
 // Flex
