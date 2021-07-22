@@ -23,7 +23,7 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 
 /**
- * Created by niuniuyang on 2020/10/14.
+ * Created on 2020/10/14.
  *
  * 由于Hippy的特殊需求，需要看到更多的RecyclerVew的方法和成员，这里创建和系统RecyclerView同包名。
  */

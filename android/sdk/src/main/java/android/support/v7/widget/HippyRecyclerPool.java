@@ -20,13 +20,12 @@ import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.view.View;
 import android.view.ViewGroup;
 import com.tencent.mtt.hippy.HippyEngineContext;
-import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewHolder;
 import com.tencent.mtt.hippy.views.hippylist.NodePositionHelper;
 
 /**
- * Created by niuniuyang on 2021/1/4. Description
+ * Created on 2021/1/4. Description
  *
  * 继承RecycledViewPool，主要用于renderNode节点的精确命中，不能从RecycledViewPool里面随意取一个node
  * 所有重写了getRecycledView方法；putRecycledView也需要检测缓存是否会抛弃viewHolder，如果抛弃需要把

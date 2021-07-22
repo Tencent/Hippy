@@ -7,7 +7,7 @@ import android.view.View;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 
 /**
- * Created by niuniuyang on 2021/1/15. Description 预加载的通知
+ * Created  on 2021/1/15. Description 预加载的通知
  */
 public class PreloadHelper extends RecyclerView.OnScrollListener {
 

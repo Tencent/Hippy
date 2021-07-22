@@ -22,7 +22,7 @@ import android.view.View;
 import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
 
 /**
- * Created by niuniuyang on 2020/12/22. Description
+ * Created  on 2020/12/22. Description
  */
 public class HippyRecyclerViewHolder extends ViewHolder {
 

@@ -21,10 +21,8 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.HippyItemTypeHelper;
 import android.support.v7.widget.IItemLayoutParams;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.support.v7.widget.RecyclerView.LayoutParams;
-import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -39,7 +37,7 @@ import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.IStickyItemsProvider;
 import java.util.ArrayList;
 
 /**
- * Created by niuniuyang on 2020/12/22.
+ * Created on 2020/12/22.
  * Description RecyclerView的子View直接是前端的RenderNode节点，没有之前包装的那层RecyclerViewItem。
  * 对于特殊的renderNode，比如header和sticky的节点，我们进行了不同的处理。
  */
@@ -220,12 +218,19 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
 
     /**
      * 设置View的LayoutParams排版属性，宽高由render节点提供
+     * 对于LinearLayout的排版，竖向排版，宽度强行顶满，横向排版，高度强行顶满
      */
     protected void setLayoutParams(View itemView, int position) {
         LayoutParams childLp = getLayoutParams(itemView);
         RenderNode childNode = getChildNodeByAdapterPosition(position);
-        childLp.height = childNode.getHeight();
-        childLp.width = childNode.getWidth();
+        if (HippyListUtils.isLinearLayout(hippyRecyclerView)) {
+            boolean isVertical = HippyListUtils.isLinearLayoutVertical(hippyRecyclerView);
+            childLp.height = isVertical ? childNode.getHeight() : MATCH_PARENT;
+            childLp.width = isVertical ? MATCH_PARENT : childNode.getWidth();
+        } else {
+            childLp.height = childNode.getHeight();
+            childLp.width = childNode.getWidth();
+        }
         itemView.setLayoutParams(childLp);
     }
 

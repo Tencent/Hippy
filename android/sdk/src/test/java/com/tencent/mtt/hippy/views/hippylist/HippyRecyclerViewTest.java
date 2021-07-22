@@ -11,7 +11,7 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.robolectric.Robolectric;
 
 /**
- * Created by niuniuyang on 2021/4/8.
+ * Created  on 2021/4/8.
  * Description
  */
 @RunWith(QBRobolectricTestRunner.class)

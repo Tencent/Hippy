@@ -28,7 +28,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import com.tencent.mtt.hippy.HippyEngineContext;
-import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.IHeaderAttachListener;
@@ -36,7 +35,7 @@ import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.IHeaderHost;
 import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.StickyHeaderHelper;
 
 /**
- * Created by niuniuyang on 2020/12/22. Description
+ * Created  on 2020/12/22. Description
  */
 public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends HippyRecyclerViewBase
         implements IHeaderAttachListener, IHippyViewAboundListener {
@@ -162,22 +161,26 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
 
     /**
      * 获取position 前面的内容高度，不包含position自身的高度
+     * 对于竖向排版，取ItemHeight求和，对于横向排版，取ItemWidth求和
      */
     public int getTotalHeightBefore(int position) {
         int totalHeightBefore = 0;
+        boolean vertical = HippyListUtils.isLinearLayoutVertical(this);
         for (int i = 0; i < position; i++) {
-            totalHeightBefore += listAdapter.getItemHeight(i);
+            totalHeightBefore += vertical ? listAdapter.getItemHeight(i) : listAdapter.getItemWidth(i);
         }
         return totalHeightBefore;
     }
 
     /**
      * 获取renderNodePosition前面的内容高度，不包含renderNodePosition自身的高度
+     * 对于竖向排版，取RenderNodeHeight求和，对于横向排版，取RenderNodeWidth求和
      */
     public int getRenderNodeHeightBefore(int renderNodePosition) {
         int renderNodeTotalHeight = 0;
+        boolean vertical = HippyListUtils.isLinearLayoutVertical(this);
         for (int i = 0; i < renderNodePosition; i++) {
-            renderNodeTotalHeight += listAdapter.getRenderNodeHeight(i);
+            renderNodeTotalHeight += vertical ? listAdapter.getRenderNodeHeight(i) : listAdapter.getRenderNodeWidth(i);
         }
         return renderNodeTotalHeight;
     }

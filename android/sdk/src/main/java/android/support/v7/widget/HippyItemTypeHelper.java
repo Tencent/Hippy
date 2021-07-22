@@ -27,7 +27,7 @@ import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewHolder;
 import java.util.ArrayList;
 
 /**
- * Created by niuniuyang on 2021/1/4.
+ * Created  on 2021/1/4.
  * Description
  * Hippy 前端如果发生Item类型的变化，终端的RecyclerView需要将所有的ViewHolder进行同步修改
  */

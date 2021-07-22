@@ -26,14 +26,13 @@ import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
-import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.uimanager.ListViewRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 
 /**
- * Created by niuniuyang on 2020/12/22.
+ * Created  on 2020/12/22.
  */
 
 @HippyController(name = HippyRecyclerViewController.CLASS_NAME)
@@ -45,6 +44,7 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
     public static final String SCROLL_TO_TOP = "scrollToTop";
     public static final String COLLAPSE_PULL_HEADER = "collapsePullHeader";
     public static final String EXPAND_PULL_HEADER = "expandPullHeader";
+    public static final String HORIZONTAL = "horizontal";
 
     public HippyRecyclerViewController() {
 
@@ -79,7 +79,7 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
     public static HippyRecyclerView initDefault(Context context, HippyMap iniProps, HippyRecyclerView recyclerView) {
         LinearLayoutManager layoutManager = new EasyLinearLayoutManager(context);
         recyclerView.setItemAnimator(null);
-        if (iniProps != null && iniProps.containsKey("horizontal")) {
+        if (iniProps != null && iniProps.containsKey(HORIZONTAL)) {
             layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         }
         recyclerView.setLayoutManager(layoutManager);

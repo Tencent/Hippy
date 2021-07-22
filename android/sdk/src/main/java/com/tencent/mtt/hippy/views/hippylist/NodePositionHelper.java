@@ -17,7 +17,7 @@
 package com.tencent.mtt.hippy.views.hippylist;
 
 /**
- * Created by niuniuyang on 2021/2/3.
+ * Created  on 2021/2/3.
  * Description
  * 由于我们在 HippyRecyclerListAdapter 可能加一些native得Header或者footer，
  * 这样HippyRecyclerListAdapter里面得position和前端的列表位置就无法对应了，

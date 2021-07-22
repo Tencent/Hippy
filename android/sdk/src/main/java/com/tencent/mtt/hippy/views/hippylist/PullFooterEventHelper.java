@@ -22,7 +22,7 @@ import com.tencent.mtt.nxeasy.recyclerview.helper.footer.FooterExposureHelper;
 import com.tencent.mtt.nxeasy.recyclerview.helper.footer.IFooterLoadMoreListener;
 
 /**
- * Created by niuniuyang on 2021/1/7.
+ * Created  on 2021/1/7.
  * Description
  * 监控footerView的显示状态，并通知前端onEndReached的事件
  */

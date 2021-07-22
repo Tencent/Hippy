@@ -30,7 +30,7 @@ import com.tencent.mtt.nxeasy.recyclerview.helper.header.IHeaderRefreshView;
 import com.tencent.mtt.nxeasy.recyclerview.helper.header.ILayoutRequester;
 
 /**
- * Created by niuniuyang on 2021/1/8.
+ * Created  on 2021/1/8.
  * Description
  * 下来刷新事件的Helper，负责和前端进行下来刷新的各种事件通知
  */
