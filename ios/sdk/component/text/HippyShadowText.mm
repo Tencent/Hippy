@@ -111,7 +111,10 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         _cachedTextStorageWidth = -1;
         _cachedTextStorageWidthMode = -1;
         _fontSizeMultiplier = 1.0;
-        _textAlign = NSTextAlignmentNatural;
+        _textAlign = NSTextAlignmentLeft;
+        if (NSWritingDirectionRightToLeft ==  HippyGetCurrentWritingDirectionForAppLanguage()) {
+            _textAlign = NSTextAlignmentRight;
+        }
         // MTTlayout
         MTTNodeSetMeasureFunc(self.nodeRef, x5MeasureFunc);
         MTTNodeSetContext(self.nodeRef, (__bridge void *)self);
