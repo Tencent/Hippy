@@ -6,7 +6,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { DebugPage } from '../@types/tunnel'
 import fs from 'fs';
 import androidTargetManager from '../android-pages-manager';
-// import path from 'path';
+import { appClientManager } from '../client';
+import messageChannel from '../message-channel';
+import * as _ from 'lodash';
 
 export default ({
   host,
@@ -50,6 +52,7 @@ const getIosTargets = async ({
       baseUrl: `http://127.0.0.1:${iwdpPort}`,
       json: true,
     });
+    const appClientType = appClientManager.getIosAppClients().map(({ctor}) => ctor.name);
     const pages: DebugPage[] = await Promise.all(deviceList.map(async device => {
       const port = device.url.match(/:(\d+)/)[1];
       try {
@@ -69,13 +72,15 @@ const getIosTargets = async ({
       const targetId = page.webSocketDebuggerUrl;
       const ws = `${host}:${port}${
         wsPath
-      }?platform=${DevicePlatform.IOS}&clientId=${clientId}&targetId=${targetId}&role=${ClientRole.Devtools}&appClientType=${AppClientType.IosProxy}&debugPage=${encodeURIComponent(
+      }?platform=${DevicePlatform.IOS}&clientId=${clientId}&targetId=${targetId}&role=${ClientRole.Devtools}&appClientType=${encodeURIComponent(JSON.stringify(appClientType))}&debugPage=${encodeURIComponent(
         JSON.stringify(page),
       )}`;
       const matchRst = page.title.match(/^HippyContext:\s(.*)$/);
       const bundleName = matchRst ? matchRst[1] : '';
       return {
+        ...page,
         id: targetId,
+        clientId,
         thumbnailUrl: '',
         description: page.title,
         devtoolsFrontendUrl: `chrome-devtools://devtools/bundled/inspector.html?experiments=true&ws=${encodeURIComponent(ws)}`,
@@ -84,6 +89,7 @@ const getIosTargets = async ({
         title: page.title,
         bundleName,
         type: ChromePageType.Page,
+        platform: DevicePlatform.IOS,
         url: '',
         webSocketDebuggerUrl: `ws://${ws}`,
       }
@@ -95,23 +101,28 @@ const getIosTargets = async ({
 }
 
 const getAndroidTargets = ({host, port, wsPath, clientId}) => {
-  return androidTargetManager.getTargets().map(targetId => {
-    const appClientType = androidTargetManager.useCustom ? AppClientType.Tunnel : AppClientType.WS;
-    const ws = `${host}:${port}${wsPath}?platform=${DevicePlatform.Android}&clientId=${clientId}&targetId=${targetId}&role=${ClientRole.Devtools}&appClientType=${appClientType}`;
+  const appClientType = appClientManager.getAndroidAppClients().map(({ctor}) => ctor.name);
+  return androidTargetManager.getTargets().map(({id: targetId, ws}) => {
+    const wsUrl = `${host}:${port}${wsPath}?platform=${DevicePlatform.Android}&clientId=${clientId}&targetId=${targetId}&role=${ClientRole.Devtools}&appClientType=${encodeURIComponent(JSON.stringify(appClientType))}`;
     return {
       id: targetId || clientId,
+      clientId,
       thumbnailUrl: '',
       description: 'Hippy instance',
-      devtoolsFrontendUrl: `chrome-devtools://devtools/bundled/inspector.html?experiments=true&ws=${encodeURIComponent(ws)}`,
-      devtoolsFrontendUrlCompat: `chrome-devtools://devtools/bundled/inspector.html?experiments=true&ws=${encodeURIComponent(ws)}`,
+      devtoolsFrontendUrl: `chrome-devtools://devtools/bundled/inspector.html?experiments=true&ws=${encodeURIComponent(wsUrl)}`,
+      devtoolsFrontendUrlCompat: `chrome-devtools://devtools/bundled/inspector.html?experiments=true&ws=${encodeURIComponent(wsUrl)}`,
       faviconUrl: 'http://res.imtt.qq.com/hippydoc/img/hippy-logo.ico',
       title: 'Hippy debug tools for V8',
       type: ChromePageType.Page,
+      platform: DevicePlatform.Android,
+      ws,
       url: '',
-      webSocketDebuggerUrl: `ws://${ws}`,
+      webSocketDebuggerUrl: `ws://${wsUrl}`,
     };
   });
 }
+
+let targets: DebugPage[] = [];
 
 export const getTargets = async ({iwdpPort, host, port, wsPath}) => {
   const clientId = uuidv4();
@@ -120,5 +131,17 @@ export const getTargets = async ({iwdpPort, host, port, wsPath}) => {
   const androidTargets = getAndroidTargets({host, port, wsPath, clientId});
   rst.push(...iosTargets);
   rst.push(...androidTargets);
-  return rst;
+  targets = rst;
+  return rst.map(page => _.omit(page, ['ws', 'clientId']));
+}
+
+/**
+ *
+ */
+export const selectTarget = (id: string) => {
+  const target = targets.find(target => target.id === id);
+  return {
+    ...messageChannel.addChannel(target),
+    target,
+  };
 }

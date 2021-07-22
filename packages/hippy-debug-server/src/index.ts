@@ -2,7 +2,8 @@
 
 import yargs from 'yargs';
 import { startServer } from './server';
-import path from 'path';
+import { initHippyEnv, initVoltronEnv, initTdfEnv } from './client';
+import { DevtoolsEnv } from './@types/enum'
 
 const { argv } = yargs
   .alias('v', 'version')
@@ -44,6 +45,11 @@ const { argv } = yargs
     default: 9000,
     describe: 'Port of ios_webkit_debug_proxy'
   })
+  .option('env', {
+    type: 'string',
+    default: 'hippy',
+    choices: [DevtoolsEnv.Hippy, DevtoolsEnv.Voltron, DevtoolsEnv.TDF],
+  })
   .epilog(`Copyright (C) 2017-${new Date().getFullYear()} THL A29 Limited, a Tencent company.`) as any;
 
 if (argv.verbose) {
@@ -57,6 +63,13 @@ if (argv.help) {
 if (argv.version) {
   yargs.version().exit(0, null);
 }
+
+if (argv.env === DevtoolsEnv.Hippy)
+  initHippyEnv();
+else if (argv.env === DevtoolsEnv.Voltron)
+  initVoltronEnv();
+else if(argv.env === DevtoolsEnv.TDF)
+  initTdfEnv();
 
 // Execute command
 startServer(argv);

@@ -6,8 +6,17 @@
  *
  * 统一封装一层，防止app端频繁修改
  */
+import WebSocket from 'ws/index.js';
 import { EventEmitter } from 'events';
 import { AppClientType } from '../@types/enum';
+import { Tunnel } from '../@types/tunnel';
+
+export type AppClientOption = {
+  useAllDomain: boolean,
+  useAdapter: boolean,
+  domains?: string[],
+  ws?: WebSocket,
+};
 
 /**
  * 对外接口：
@@ -21,12 +30,35 @@ export abstract class AppClient extends EventEmitter {
   id: string;
   type: AppClientType;
   msgBuffer: any[] = [];
+  domains: string[] = [];
+  useAdapter = true;
+  useAllDomain = true;
+  isClosed = false;
 
-  constructor(id) {
+  constructor(id, { useAllDomain = true, useAdapter = true, domains = [] }: AppClientOption) {
     super();
     this.id = id;
+    this.useAllDomain = useAllDomain;
+    this.domains = domains;
+    this.useAdapter = useAdapter;
   }
 
   abstract send(msg): void;
   abstract resume(): void;
+
+  /**
+   * 通过filter的才会下行，否则直接丢弃
+   */
+  protected filter(msg: Adapter.CDP.Req | Tunnel.Req) {
+    if (this.useAllDomain) return true;
+    let method, domain;
+    if('module' in msg) method = msg.module;
+    else if('method' in msg) method = msg.method;
+
+    const group = method.match(/^(\w+)(\.\w+)?$/);
+    if(group) {
+      domain = group[1];
+    }
+    return this.domains.indexOf(domain) !== -1 || this.domains.indexOf(method) !== -1;
+  }
  }

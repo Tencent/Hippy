@@ -8,12 +8,9 @@ const debug = createDebug('target:ios');
 const debugDown = createDebug('↓↓↓');
 const debugUp = createDebug('↑↑↑');
 
-/**
- *
- */
 export class IosTarget extends EventEmitter {
   devtoolsClient;
-  appClient;
+  appClients;
   _sendToDevtools;
   _sendToApp;
   private _data: DebugPage;
@@ -25,25 +22,44 @@ export class IosTarget extends EventEmitter {
   private _targetId: string = null;
   private _contextId: number = 0;
 
-  constructor(devtoolsClient: DevtoolsClient, appClient: AppClient, data?: DebugPage) {
+  constructor(devtoolsClient: DevtoolsClient, appClients: AppClient[], data?: DebugPage) {
     super();
     this._data = data;
-    this.appClient = appClient;
+    this.appClients = appClients;
     this.devtoolsClient = devtoolsClient;
 
-    this.devtoolsClient.on(ClientEvent.Message, this.onMessageFromTools.bind(this));
-    this.appClient.on(ClientEvent.Message, this.onMessageFromApp.bind(this));
+    this.devtoolsClient.on(ClientEvent.Message, msg => {
+      this.appClients.forEach(appClient => {
+        if(!appClient.useAdapter) {
+          appClient.send(msg);
+        }
+      });
+      this.onMessageFromTools(msg);
+    });
+
+    this.appClients.forEach(appClient => {
+      appClient.on(ClientEvent.Message, this.onMessageFromApp.bind(this));
+    });
     this.devtoolsClient.on(ClientEvent.Close, () => {
       debug('devtools client close');
-      appClient.resume();
+      this.appClients.forEach(appClient => {
+        appClient.resume();
+      });
     });
-    this.appClient.on(ClientEvent.Close, () => {
-      debug('app client closed')
-      devtoolsClient.close()
+    this.appClients.forEach(appClient => {
+      appClient.on(ClientEvent.Close, () => {
+        debug('app client closed')
+        devtoolsClient.close()
+      });
     });
 
     this._sendToDevtools = devtoolsClient.send.bind(devtoolsClient);
-    this._sendToApp = appClient.send.bind(appClient);
+    this._sendToApp = (msg) => {
+      this.appClients.forEach(appClient => {
+        if(appClient.useAdapter)
+          appClient.send(msg);
+      });
+    }
   }
 
   public get data(): DebugPage {

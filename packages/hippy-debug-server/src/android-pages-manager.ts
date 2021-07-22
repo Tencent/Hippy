@@ -1,5 +1,6 @@
 
 import { v4 as uuidv4 } from 'uuid';
+import WebSocket, { Server } from 'ws/index.js';
 import { DeviceInfo } from './@types/tunnel';
 import { ClientRole, ClientEvent, AppClientType, DevicePlatform, DeviceManagerEvent } from './@types/enum';
 
@@ -11,16 +12,25 @@ import { ClientRole, ClientEvent, AppClientType, DevicePlatform, DeviceManagerEv
  * 两通道共存时，走tunnel通道
  */
 class AndroidTargetManager {
-  wsTargets: string[] = [];
-  customTargets: string[] = [];
+  wsTargets: {
+    id: string,
+    ws: WebSocket,
+  }[] = [];
+  customTargets: {
+    id: string,
+    ws?: WebSocket, 
+  }[] = [];
   useCustom = false;
 
   constructor() {}
 
-  private addTarget(wsTargets, clientId) {
-    const index = wsTargets.findIndex(v => v === clientId);
+  private addTarget(wsTargets, clientId, data = {}) {
+    const index = wsTargets.findIndex(v => v.id === clientId);
     if(index === -1) {
-      wsTargets.push(clientId);
+      wsTargets.push({
+        id: clientId,
+        ...data,
+      });
     }
   }
 
@@ -34,8 +44,8 @@ class AndroidTargetManager {
     else return this.wsTargets;
   }
 
-  addWsTarget(clientId: string) {
-    this.addTarget(this.wsTargets, clientId);
+  addWsTarget(clientId: string, ws) {
+    this.addTarget(this.wsTargets, clientId, {ws});
   }
 
   removeWsTarget(clientId: string) {

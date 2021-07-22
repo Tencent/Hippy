@@ -8,6 +8,7 @@ import { TunnelData } from './@types/tunnel';
 import deviceManager from './device-manager';
 import { TunnelEvent } from './@types/enum';
 import { onMessage } from './message-channel/tunnel';
+import { appClientManager } from './client';
 import createDebug from 'debug';
 
 const debug = createDebug('server');
@@ -32,6 +33,7 @@ export const startServer = (argv) => {
       // startTunnel(iwdpPort);
       startAdbProxy(port);
       startIosProxy(iwdpPort);
+
       new SocketBridge(server, argv);
       resolve(null);
     });
@@ -66,21 +68,21 @@ export const stopServer = () => {
 const startTunnel = (iwdpPort) => {
   const adbPath = path.join(__dirname, './build/adb');
   const iwdpParams = `--no-frontend --config=null:${iwdpPort},:${iwdpPort + 100}-${iwdpPort + 200}`
-  global.addon.addEventListener((event, data: TunnelData) => {
-    debug(`receive tunnel event: ${event}`);
+  // global.addon.addEventListener((event, data: TunnelData) => {
+  //   debug(`receive tunnel event: ${event}`);
 
-    if (event === TunnelEvent.GetWebsocketPort) {
-      // createTunnelClient();
-    } else if ([TunnelEvent.RemoveDevice, TunnelEvent.AddDevice].indexOf(event) !== -1) {
-      deviceManager.getDeviceList();
-    } else if (event === TunnelEvent.AppConnect) {
-      deviceManager.appDidConnect();
-    } else if (event === TunnelEvent.appDisconnect) {
-      deviceManager.appDidDisConnect();
-    } else if (event === TunnelEvent.ReceiveData) {
-      onMessage(data);
-    }
-  });
+    // if (event === TunnelEvent.GetWebsocketPort) {
+    //   // createTunnelClient();
+    // } else if ([TunnelEvent.RemoveDevice, TunnelEvent.AddDevice].indexOf(event) !== -1) {
+    //   deviceManager.getDeviceList();
+    // } else if (event === TunnelEvent.AppConnect) {
+    //   deviceManager.appDidConnect();
+    // } else if (event === TunnelEvent.appDisconnect) {
+    //   deviceManager.appDidDisConnect();
+    // } else if (event === TunnelEvent.ReceiveData) {
+    //   onMessage(data);
+    // }
+  // });
   global.addon.tunnelStart(adbPath, iwdpParams);
 }
 

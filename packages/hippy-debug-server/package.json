@@ -10,7 +10,7 @@
     "hippy-debug": "dist/index.js"
   },
   "scripts": {
-    "dev": "cross-env DEBUG=*,-koa-router,-↑↑↑,-↓↓↓ TS_NODE_FILES=true node --inspect=127.0.0.1:9229 -r ts-node/register src/index.ts --entry=src/public/index.bundle",
+    "dev": "cross-env DEBUG=*,-koa-router TS_NODE_FILES=true node --inspect=127.0.0.1:9229 -r ts-node/register src/index.ts --entry=src/public/index.bundle",
     "build": "npx gulp",
     "test": "npx jest"
   },
@@ -29,6 +29,7 @@
     "koa": "^2.13.1",
     "koa-router": "^10.0.0",
     "koa-static": "^5.0.0",
+    "lodash": "^4.17.21",
     "mime": "^2.5.2",
     "request": "^2.88.2",
     "request-promise": "^4.2.6",

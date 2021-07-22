@@ -2,10 +2,13 @@ import { Tunnel } from '../@types/tunnel';
 import { AppClientType, ClientEvent } from '../@types/enum';
 import { sendMessage, registerModuleCallback } from '../message-channel/tunnel';
 import { AppClient } from './app-client';
+import createDebug from 'debug';
+
+const debug = createDebug('app-client:ws');
 
 export class TunnelAppClient extends AppClient {
-  constructor(id) {
-    super(id);
+  constructor(id, option) {
+    super(id, option);
     this.type = AppClientType.Tunnel;
 
     registerModuleCallback('jsDebugger', (msg) => {
@@ -14,6 +17,8 @@ export class TunnelAppClient extends AppClient {
   }
 
   send(msg: Tunnel.Req) {
+    if(!this.filter(msg)) return;
+
     sendMessage({
       module: 'jsDebugger',
       content: msg,
@@ -21,6 +26,7 @@ export class TunnelAppClient extends AppClient {
   }
 
   resume() {
+    debug('tunnel app client resume');
     sendMessage({
       module: 'jsDebugger',
       content: 'chrome_socket_closed',

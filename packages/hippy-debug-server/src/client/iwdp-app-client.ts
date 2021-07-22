@@ -1,13 +1,16 @@
 import WebSocket from 'ws/index.js';
 import { AppClientType, ClientEvent } from '../@types/enum';
 import { AppClient } from './app-client';
+import createDebug from 'debug';
 
-export class IosProxyClient extends AppClient {
+const debug = createDebug('app-client:ios-proxy');
+
+export class IwdpAppClient extends AppClient {
   url: string;
   ws: WebSocket;
 
-  constructor(url) {
-    super(url);
+  constructor(url, option) {
+    super(url, option);
     this.url = url;
     this.connect();
   }
@@ -22,21 +25,24 @@ export class IosProxyClient extends AppClient {
       this.emit(ClientEvent.Message, msgObj);
     });
     this.ws.on('open', () => {
-      console.debug(`ios proxy client opened: ${this.url}`);
+      debug(`ios proxy client opened: ${this.url}`);
       for (const msg of this.msgBuffer) {
         this.send(msg);
       }
       this.msgBuffer = [];
     });
     this.ws.on('close', () => {
+      this.isClosed = true;
       this.emit(ClientEvent.Close);
     });
     this.ws.on('error', e => {
-      console.error('ios proxy client error: ', e)
+      debug('ios proxy client error: %j', e)
     })
   }
 
-  send(msg: any) {
+  send(msg: Adapter.CDP.Req) {
+    if(!this.filter(msg)) return;
+
     if (this.ws?.readyState === WebSocket.OPEN) {
       const msgStr = JSON.stringify(msg);
       this.ws.send(msgStr);

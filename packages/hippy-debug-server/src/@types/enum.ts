@@ -1,3 +1,9 @@
+export const enum DevtoolsEnv {
+  Hippy = 'hippy',
+  Voltron = 'voltron',
+  TDF = 'TDF',
+}
+
 export const enum DevicePlatform {
   Unkonw = '0',
   IOS = '1',
@@ -42,9 +48,9 @@ export const enum ClientEvent {
 }
 
 export const enum AppClientType {
-  Tunnel = 'tunnel',
-  WS = 'ws',
-  IosProxy = 'ios-proxy',
+  Tunnel = 'TunnelAppClient',
+  WS = 'WsAppClient',
+  IosProxy = 'IwdpAppClient',
   Custom = 'custom',
 }
 

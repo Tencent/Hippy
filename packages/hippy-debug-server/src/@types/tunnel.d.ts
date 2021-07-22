@@ -1,4 +1,5 @@
 import { DevicePlatform, DeviceStatus } from './enum';
+import WebSocket from 'ws/index.js';
 
 export interface DeviceInfo {
   deviceid: string;
@@ -11,6 +12,8 @@ export interface DeviceInfo {
 export type TunnelData = DeviceInfo | number;
 
 export interface DebugPage {
+  id: string,
+  clientId: string,
   devtoolsFrontendUrl: string,
   faviconUrl?: string,
   thumbnailUrl: string,
@@ -19,8 +22,10 @@ export interface DebugPage {
   description: string,
   webSocketDebuggerUrl: string,
   devtoolsFrontendUrlCompat?: string,
+  platform: DevicePlatform,
   type?: string,
   appId?: string,
+  ws?: WebSocket,
   device?: {
     deviceId: string,
     deviceName: string,
@@ -28,7 +33,6 @@ export interface DebugPage {
     url: string
   }
 }
-
 
 export namespace Tunnel {
   export interface Req {

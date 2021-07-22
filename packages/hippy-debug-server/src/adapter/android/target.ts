@@ -9,31 +9,42 @@ const debugUp = createDebug('↑↑↑');
 
 export class AndroidTarget extends EventEmitter {
   devtoolsClient;
-  appClient;
+  appClients: AppClient[] = [];
   cssDomain;
 
-  constructor(devtoolsClient: DevtoolsClient, appClient: AppClient) {
+  constructor(devtoolsClient: DevtoolsClient, appClients: AppClient[]) {
     super();
     this.devtoolsClient = devtoolsClient;
-    this.appClient = appClient;
+    this.appClients = appClients;
     this.cssDomain = new CssDomain();
 
     devtoolsClient.on(ClientEvent.Message, (msg) => {
-      const newMessage = this.cssDomain.handlerDown(msg) || msg;
-      appClient.send(newMessage);
       debugDown('%j', msg);
+      const newMessage = this.cssDomain.handlerDown(msg) || msg;
+      this.appClients.forEach(appClient => {
+        appClient.send(newMessage);
+      });
     });
-    appClient.on(ClientEvent.Message, (msg) => {
-      const newMessage = this.cssDomain.handlerUp(msg) || msg;
-      devtoolsClient.send(newMessage);
-      debugUp('%j', msg);
+
+    this.appClients.forEach(appClient => {
+      appClient.on(ClientEvent.Message, (msg) => {
+        debugUp('%j', msg);
+        const newMessage = this.cssDomain.handlerUp(msg) || msg;
+        devtoolsClient.send(newMessage);
+      });
     });
-    appClient.on(ClientEvent.Close, () => {
-      devtoolsClient.close();
-      debugUp('app client closed, close devtools ws now!');
+
+    this.appClients.forEach(appClient => {
+      appClient.on(ClientEvent.Close, () => {
+        devtoolsClient.close();
+        debugUp('app client closed, close devtools ws now!');
+      });
     });
+
     devtoolsClient.on(ClientEvent.Close, () => {
-      appClient.resume();
+      this.appClients.forEach(appClient => {
+        appClient.resume();
+      })
       debugDown('devtools client closed, resume v8/jsc now!');
     });
   }
