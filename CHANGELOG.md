@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.7.6](https://github.com/Tencent/Hippy/compare/2.7.5...2.7.6) (2021-07-22)
+
+
+### Bug Fixes
+
+* **hippy-vue:** add onScrollBeginDrag & onScrollEndDrag param ([bc27f40](https://github.com/Tencent/Hippy/commit/bc27f40eede5ab20ab2b43380ca288777c5397c4))
+
+
+### Features
+
+* **hippy-vue:** add nativeNode attributes info for debugging ([#869](https://github.com/Tencent/Hippy/issues/869)) ([28a9a58](https://github.com/Tencent/Hippy/commit/28a9a58899106539cbbce48a195f8b3b230d54a3))
+
+
+
+
+
 ## [2.7.5](https://github.com/Tencent/Hippy/compare/2.7.4...2.7.5) (2021-07-16)
 
 
