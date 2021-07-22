@@ -11,7 +11,8 @@
   },
   "scripts": {
     "dev": "cross-env DEBUG=*,-koa-router,-↑↑↑,-↓↓↓ TS_NODE_FILES=true node --inspect=127.0.0.1:9229 -r ts-node/register src/index.ts --entry=src/public/index.bundle",
-    "build": "npx gulp"
+    "build": "npx gulp",
+    "test": "npx jest"
   },
   "keywords": [
     "hippy",
@@ -50,13 +51,16 @@
     "@types/node": "^16.3.0",
     "@types/ws": "^7.4.6",
     "@types/yargs": "^17.0.2",
+    "babel-jest": "^27.0.6",
     "cross-env": "^7.0.3",
     "crossenv": "0.0.2-security",
     "gulp": "^4.0.2",
     "gulp-clean": "^0.4.0",
     "gulp-typescript": "^6.0.0-alpha.1",
     "jest": "^27.0.6",
+    "jest-transform-stub": "^2.0.0",
     "nodemon": "^2.0.10",
+    "ts-jest": "^27.0.3",
     "ts-node": "^10.0.0",
     "tsconfig-paths": "^3.10.1",
     "typescript": "^4.3.5"

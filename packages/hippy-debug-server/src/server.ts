@@ -58,6 +58,11 @@ export const startServer = (argv) => {
   });
 }
 
+export const stopServer = () => {
+  if(!server) return;
+  server.close();
+}
+
 const startTunnel = (iwdpPort) => {
   const adbPath = path.join(__dirname, './build/adb');
   const iwdpParams = `--no-frontend --config=null:${iwdpPort},:${iwdpPort + 100}-${iwdpPort + 200}`
@@ -78,3 +83,6 @@ const startTunnel = (iwdpPort) => {
   });
   global.addon.tunnelStart(adbPath, iwdpParams);
 }
+
+process.on('exit', stopServer);
+process.on('SIGINT', stopServer);

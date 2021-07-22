@@ -34,7 +34,8 @@ export class SocketBridge {
 
   onConnection(ws, req) {
     let { appClientType, role, clientId, targetId, debugPage, pathname, platform } = getClientInfo(req.url);
-    debug('%j', debugPage);
+    debug('debug page: %j', debugPage);
+    debug('%s connected!', role);
     if (pathname !== this.wsPath) return;
     if (!Object.values(ClientRole).includes(role)) return debug('invalid client role!');
 
@@ -48,7 +49,7 @@ export class SocketBridge {
         androidTargetManager.removeWsTarget(clientId);
       });
     } else if (role === ClientRole.Devtools) {
-      const devtoolsClient = new DevtoolsClient(req.url);
+      const devtoolsClient = new DevtoolsClient(clientId);
       const appWs = this.appWsMap.get(targetId);
       if(!appWs && appClientType === AppClientType.WS) return debug('app ws is not connected!!!');
       const appClient = messageChannel.addChannel({
@@ -63,6 +64,12 @@ export class SocketBridge {
       const removeChannel = () => messageChannel.removeChannel(appClient.id, devtoolsClient.id);
       devtoolsClient.bindWs(ws, removeChannel);
     }
+  }
+
+  close() {
+    this.wss.close(() => {
+      debug('close wss!!!');
+    });
   }
 }
 

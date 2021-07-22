@@ -22,12 +22,7 @@ export default ({
   });
 
   chromeInspectRouter.get('/json', async (ctx) => {
-    const clientId = uuidv4();
-    let rst: DebugPage[] = [];
-    const iosTargets = await getIosTargets({iwdpPort, host, port, wsPath, clientId});
-    const androidTargets = getAndroidTargets({host, port, wsPath, clientId});
-    rst.push(...iosTargets);
-    rst.push(...androidTargets);
+    const rst = await getTargets({iwdpPort, host, port, wsPath});
     ctx.body = rst;
   });
 
@@ -116,4 +111,14 @@ const getAndroidTargets = ({host, port, wsPath, clientId}) => {
       webSocketDebuggerUrl: `ws://${ws}`,
     };
   });
+}
+
+export const getTargets = async ({iwdpPort, host, port, wsPath}) => {
+  const clientId = uuidv4();
+  let rst: DebugPage[] = [];
+  const iosTargets = await getIosTargets({iwdpPort, host, port, wsPath, clientId});
+  const androidTargets = getAndroidTargets({host, port, wsPath, clientId});
+  rst.push(...iosTargets);
+  rst.push(...androidTargets);
+  return rst;
 }

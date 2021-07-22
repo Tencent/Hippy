@@ -1,0 +1,245 @@
+{
+  "timestamp": 103.5636552083306,
+  "samples": {
+    "stackTraces": [
+      {
+        "timestamp": 3.8527276369859464,
+        "stackFrames": [
+          {
+            "sourceID": "18",
+            "name": "injectModule",
+            "line": 111,
+            "column": 13,
+            "url": "__InjectedScript_InjectedScriptSource.js",
+            "expressionLocation": {
+              "line": 113,
+              "column": 85
+            }
+          }
+        ]
+      },
+      {
+        "timestamp": 3.857464650995098,
+        "stackFrames": [
+          {
+            "sourceID": "5",
+            "name": "dominantContentIframe",
+            "line": 12,
+            "column": 1348,
+            "url": "",
+            "expressionLocation": {
+              "line": 12,
+              "column": 1394
+            }
+          },
+          {
+            "sourceID": "5",
+            "name": "checkForIframeCoveringMostOfWebpage",
+            "line": 12,
+            "column": 1664,
+            "url": "",
+            "expressionLocation": {
+              "line": 12,
+              "column": 1699
+            }
+          },
+          {
+            "sourceID": "5",
+            "name": "isReaderModeAvailable",
+            "line": 12,
+            "column": 1899,
+            "url": "",
+            "expressionLocation": {
+              "line": 12,
+              "column": 1949
+            }
+          }
+        ]
+      },
+      {
+        "timestamp": 3.8585261419939343,
+        "stackFrames": [
+          {
+            "sourceID": "5",
+            "name": "getVisibleNonWhitespaceTextNodes",
+            "line": 11,
+            "column": 12894,
+            "url": "",
+            "expressionLocation": {
+              "line": 11,
+              "column": 13668
+            }
+          },
+          {
+            "sourceID": "5",
+            "name": "elementContainsEnoughTextOfSameStyle",
+            "line": 12,
+            "column": 62284,
+            "url": "",
+            "expressionLocation": {
+              "line": 12,
+              "column": 62389
+            }
+          },
+          {
+            "sourceID": "5",
+            "name": "findArticleByVisualExamination",
+            "line": 12,
+            "column": 63524,
+            "url": "",
+            "expressionLocation": {
+              "line": 12,
+              "column": 64222
+            }
+          },
+          {
+            "sourceID": "5",
+            "name": "isReaderModeAvailable",
+            "line": 12,
+            "column": 1899,
+            "url": "",
+            "expressionLocation": {
+              "line": 12,
+              "column": 2146
+            }
+          }
+        ]
+      },
+      {
+        "timestamp": 3.859811300993897,
+        "stackFrames": [
+          {
+            "sourceID": "5",
+            "name": "findTextSamplesByVisualExamination",
+            "line": 12,
+            "column": 64637,
+            "url": "",
+            "expressionLocation": {
+              "line": 12,
+              "column": 65656
+            }
+          }
+        ]
+      },
+      {
+        "timestamp": 4.069366611976875,
+        "stackFrames": [
+          {
+            "sourceID": "29",
+            "name": "",
+            "line": 2,
+            "column": 13477,
+            "url": "",
+            "expressionLocation": {
+              "line": 2,
+              "column": 13529
+            }
+          },
+          {
+            "sourceID": "36",
+            "name": "reduce",
+            "line": 1,
+            "column": 11,
+            "url": "",
+            "expressionLocation": {
+              "line": 1,
+              "column": 11
+            }
+          },
+          {
+            "sourceID": "29",
+            "name": "FormMetadata",
+            "line": 2,
+            "column": 12774,
+            "url": "",
+            "expressionLocation": {
+              "line": 2,
+              "column": 13468
+            }
+          },
+          {
+            "sourceID": "29",
+            "name": "(program)",
+            "line": 1,
+            "column": 1,
+            "url": "",
+            "expressionLocation": {
+              "line": 2,
+              "column": 77251
+            }
+          }
+        ]
+      },
+      {
+        "timestamp": 4.070589735987596,
+        "stackFrames": [
+          {
+            "sourceID": "30",
+            "name": "(program)",
+            "line": 1,
+            "column": 1,
+            "url": "",
+            "expressionLocation": {
+              "line": 2,
+              "column": 1068
+            }
+          }
+        ]
+      },
+      {
+        "timestamp": 4.072611776995473,
+        "stackFrames": [
+          {
+            "sourceID": "32",
+            "name": "",
+            "line": 2,
+            "column": 10,
+            "url": "__InjectedScript_CommandLineAPIModuleSource.js",
+            "expressionLocation": {
+              "line": 30,
+              "column": 39
+            }
+          },
+          {
+            "sourceID": "31",
+            "name": "injectModule",
+            "line": 111,
+            "column": 13,
+            "url": "__InjectedScript_InjectedScriptSource.js",
+            "expressionLocation": {
+              "line": 113,
+              "column": 85
+            }
+          }
+        ]
+      },
+      {
+        "timestamp": 4.87774910297594,
+        "stackFrames": [
+          {
+            "sourceID": "5",
+            "name": "t",
+            "line": 12,
+            "column": 64749,
+            "url": "",
+            "expressionLocation": {
+              "line": 12,
+              "column": 64795
+            }
+          },
+          {
+            "sourceID": "5",
+            "name": "findTextSamplesByVisualExamination",
+            "line": 12,
+            "column": 64637,
+            "url": "",
+            "expressionLocation": {
+              "line": 12,
+              "column": 65253
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
