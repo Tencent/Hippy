@@ -22,6 +22,7 @@
     "node": ">=10.0.0"
   },
   "dependencies": {
+    "color-normalize": "^1.5.2",
     "debug": "^4.1.1",
     "find-up": "^4.1.0",
     "koa": "^2.13.1",

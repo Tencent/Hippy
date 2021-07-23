@@ -40,3 +40,5 @@ function hippyVueCSSLoader(source) {
 }
 
 export default hippyVueCSSLoader;
+
+export { parseCSS, translateColor };
