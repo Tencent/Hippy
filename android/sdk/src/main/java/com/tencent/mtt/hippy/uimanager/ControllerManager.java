@@ -59,7 +59,7 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
     mContext.addInstanceLifecycleEventListener(this);
     processControllers(hippyPackages);
     mControllerUpdateManger.setCustomPropsController(mControllerRegistry.getViewController(
-        HippyCustomPropsController.CLASS_NAME));
+        HippyCustomPropsController.CLASS_NAME, mContext));
   }
 
   private void processControllers(List<HippyAPIProvider> hippyPackages) {
@@ -119,7 +119,7 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
       HippyMap initialProps) {
     View view = mControllerRegistry.getView(id);
     if (view == null) {
-      HippyViewController controller = mControllerRegistry.getViewController(className);
+      HippyViewController controller = mControllerRegistry.getViewController(className, mContext);
       view = controller.createView(rootView, id, mContext, className, initialProps);
 
       mPreCacheView.put(id, view);
@@ -135,7 +135,7 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
 
       mPreCacheView.remove(id);
 
-      HippyViewController controller = mControllerRegistry.getViewController(className);
+      HippyViewController controller = mControllerRegistry.getViewController(className, mContext);
       if (view == null) {
         view = controller.createView(rootView, id, mContext, className, initialProps);
       }
@@ -151,18 +151,18 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
   }
 
   public StyleNode createStyleNode(String className, boolean isVirtual, int rootId) {
-    StyleNode tempNode = mControllerRegistry.getViewController(className)
+    StyleNode tempNode = mControllerRegistry.getViewController(className, mContext)
         .createNode(isVirtual, rootId);
     if (tempNode != null) {
       return tempNode;
     }
-    return mControllerRegistry.getViewController(className).createNode(isVirtual);
+    return mControllerRegistry.getViewController(className, mContext).createNode(isVirtual);
   }
 
 
   public void updateView(int id, String name, HippyMap newProps) {
     View view = mControllerRegistry.getView(id);
-    HippyViewController viewComponent = mControllerRegistry.getViewController(name);
+    HippyViewController viewComponent = mControllerRegistry.getViewController(name, mContext);
     if (view != null && viewComponent != null && newProps != null) {
       mControllerUpdateManger.updateProps(viewComponent, view, newProps);
       viewComponent.onAfterUpdateProps(view);
@@ -171,7 +171,7 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
 
 
   public void updateLayout(String name, int id, int x, int y, int width, int height) {
-    HippyViewController component = mControllerRegistry.getViewController(name);
+    HippyViewController component = mControllerRegistry.getViewController(name, mContext);
     component.updateLayout(id, x, y, width, height, mControllerRegistry);
   }
 
@@ -198,7 +198,7 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
   }
 
   public void updateExtra(int viewID, String name, Object object) {
-    HippyViewController component = mControllerRegistry.getViewController(name);
+    HippyViewController component = mControllerRegistry.getViewController(name, mContext);
     View view = mControllerRegistry.getView(viewID);
     component.updateExtra(view, object);
   }
@@ -215,7 +215,7 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
       ViewGroup newParent = (ViewGroup) mControllerRegistry.getView(toId);
       if (newParent != null) {
         String parentClassName = HippyTag.getClassName(newParent);
-        mControllerRegistry.getViewController(parentClassName).addView(newParent, view, index);
+        mControllerRegistry.getViewController(parentClassName, mContext).addView(newParent, view, index);
       }
 
       //			newParent.addView(view, index);
@@ -255,13 +255,13 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
 
   public RenderNode createRenderNode(int id, HippyMap props, String className,
       HippyRootView hippyRootView, boolean lazy) {
-    return mControllerRegistry.getViewController(className)
+    return mControllerRegistry.getViewController(className, mContext)
         .createRenderNode(id, props, className, hippyRootView, this, lazy);
   }
 
   public void dispatchUIFunction(int id, String className, String functionName, HippyArray var,
       Promise promise) {
-    HippyViewController hippyViewController = mControllerRegistry.getViewController(className);
+    HippyViewController hippyViewController = mControllerRegistry.getViewController(className, mContext);
     View view = mControllerRegistry.getView(id);
     if (!promise.isCallback()) {
       hippyViewController.dispatchFunction(view, functionName, var);
@@ -272,7 +272,7 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
   }
 
   public void onBatchComplete(String className, int id) {
-    HippyViewController hippyViewController = mControllerRegistry.getViewController(className);
+    HippyViewController hippyViewController = mControllerRegistry.getViewController(className, mContext);
     View view = mControllerRegistry.getView(id);
     if (view != null) {
       hippyViewController.onBatchComplete(view);
@@ -286,7 +286,7 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
     HippyViewController hippyChildViewController = null;
     String childTagString = HippyTag.getClassName(child);
     if (!TextUtils.isEmpty(childTagString)) {
-      hippyChildViewController = mControllerRegistry.getViewController(childTagString);
+      hippyChildViewController = mControllerRegistry.getViewController(childTagString, mContext);
       if (hippyChildViewController != null) {
         hippyChildViewController.onViewDestroy(child);
       }
@@ -316,7 +316,7 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
       //remove component Like listView there is a RecycleItemView is not js UI
       if (mControllerRegistry.getControllerHolder(parentTagString) != null) {
         HippyViewController hippyViewController = mControllerRegistry.getViewController(
-            parentTagString);
+            parentTagString, mContext);
         hippyViewController.deleteChild(viewParent, child, childIndex);
         //				LogUtils.d("HippyListView", "delete " + child.getId());
       }
@@ -426,7 +426,7 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
   }
 
   public void onManageChildComplete(String className, int id) {
-    HippyViewController hippyViewController = mControllerRegistry.getViewController(className);
+    HippyViewController hippyViewController = mControllerRegistry.getViewController(className, mContext);
     View view = mControllerRegistry.getView(id);
     if (view != null) {
       hippyViewController.onManageChildComplete(view);
@@ -444,7 +444,7 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
         // childView.getParent()==null  this is the move action do first  so the child has a parent we do nothing  temp
 
         String parentClassName = HippyTag.getClassName(parentView);
-        mControllerRegistry.getViewController(parentClassName)
+        mControllerRegistry.getViewController(parentClassName, mContext)
             .addView((ViewGroup) parentView, childView, index);
       }
 //			else

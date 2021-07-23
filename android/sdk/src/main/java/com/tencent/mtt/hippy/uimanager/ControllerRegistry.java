@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy.uimanager;
 import android.util.SparseArray;
 import android.view.View;
 
+import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
@@ -45,11 +46,16 @@ public class ControllerRegistry {
   }
 
   @SuppressWarnings({"rawtypes"})
-  public HippyViewController getViewController(String className) {
+  public HippyViewController getViewController(String className, HippyEngineContext context) {
     try {
       return mControllers.get(className).hippyViewController;
     } catch (Throwable e) {
-      LogUtils.e("Hippy", "error className=" + className);
+      String message = "error className=" + className;
+      if(context != null) {
+        Exception exception = new RuntimeException(message);
+        context.getGlobalConfigs().getExceptionHandler().handleNativeException(exception, true);
+      }
+      LogUtils.e("Hippy", message);
       e.printStackTrace();
     }
     return null;
