@@ -34,10 +34,10 @@
  * rootViewDidChangeIntrinsicSize method of the HippyRootViewDelegate will be called.
  */
 typedef NS_ENUM(NSInteger, HippyRootViewSizeFlexibility) {
-  HippyRootViewSizeFlexibilityNone = 0,
-  HippyRootViewSizeFlexibilityWidth,
-  HippyRootViewSizeFlexibilityHeight,
-  HippyRootViewSizeFlexibilityWidthAndHeight,
+    HippyRootViewSizeFlexibilityNone = 0,
+    HippyRootViewSizeFlexibilityWidth,
+    HippyRootViewSizeFlexibilityHeight,
+    HippyRootViewSizeFlexibilityWidthAndHeight,
 };
 
 /**
@@ -55,18 +55,18 @@ extern NSString *const HippyContentDidAppearNotification;
 @interface HippyRootView : UIView
 
 - (instancetype)initWithBridge:(HippyBridge *)bridge
-					moduleName:(NSString *)moduleName
-			 initialProperties:(NSDictionary *)initialProperties
-				  shareOptions:(NSDictionary *)shareOptions
-					  delegate:(id<HippyRootViewDelegate>)delegate;
+                    moduleName:(NSString *)moduleName
+             initialProperties:(NSDictionary *)initialProperties
+                  shareOptions:(NSDictionary *)shareOptions
+                      delegate:(id<HippyRootViewDelegate>)delegate;
 
 - (instancetype)initWithBundleURL:(NSURL *)bundleURL
-					   moduleName:(NSString *)moduleName
-				initialProperties:(NSDictionary *)initialProperties
-					launchOptions:(NSDictionary *)launchOptions
-					 shareOptions:(NSDictionary *)shareOptions
-						debugMode:(BOOL)mode
-						 delegate:(id<HippyRootViewDelegate>)delegate;
+                       moduleName:(NSString *)moduleName
+                initialProperties:(NSDictionary *)initialProperties
+                    launchOptions:(NSDictionary *)launchOptions
+                     shareOptions:(NSDictionary *)shareOptions
+                        debugMode:(BOOL)mode
+                         delegate:(id<HippyRootViewDelegate>)delegate;
 
 /**
  * - Convenience initializer -
@@ -77,13 +77,13 @@ extern NSString *const HippyContentDidAppearNotification;
  */
 
 - (instancetype)initWithBridge:(HippyBridge *)bridge
-				   businessURL:(NSURL *)businessURL
-					moduleName:(NSString *)moduleName
-			 initialProperties:(NSDictionary *)initialProperties
-				 launchOptions:(NSDictionary *)launchOptions
-				  shareOptions:(NSDictionary *)shareOptions
-					 debugMode:(BOOL)mode
-					  delegate:(id<HippyRootViewDelegate>)delegate;
+                   businessURL:(NSURL *)businessURL
+                    moduleName:(NSString *)moduleName
+             initialProperties:(NSDictionary *)initialProperties
+                 launchOptions:(NSDictionary *)launchOptions
+                  shareOptions:(NSDictionary *)shareOptions
+                     debugMode:(BOOL)mode
+                      delegate:(id<HippyRootViewDelegate>)delegate;
 
 /**
  * The name of the JavaScript module to execute within the
@@ -118,6 +118,8 @@ extern NSString *const HippyContentDidAppearNotification;
  * rootViewDidChangeIntrinsicSize method of HippyRootViewDelegate is called.
  */
 @property (readonly, nonatomic, assign) CGSize intrinsicSize;
+
+@property (readonly, nonatomic) NSNumber *hippyTag;
 
 /**
  * The delegate that handles intrinsic size updates.
@@ -166,7 +168,6 @@ extern NSString *const HippyContentDidAppearNotification;
 - (void)secondaryBundleDidLoadSourceCode:(NSError *)error;
 
 - (void)secondayBundleDidFinishLoad:(NSError *)error;
-
 
 /**
  * Timings for hiding the loading view after the content has loaded. Both of

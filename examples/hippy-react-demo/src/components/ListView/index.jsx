@@ -44,6 +44,7 @@ const mockDataArray = [
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
+    collapsable: false,
   },
   itemContainer: {
     padding: 12,
@@ -99,6 +100,7 @@ export default class ListExample extends React.Component {
     this.onEndReached = this.onEndReached.bind(this);
     this.getRowType = this.getRowType.bind(this);
     this.getRowKey = this.getRowKey.bind(this);
+    this.getRowStyle = this.getRowStyle.bind(this);
   }
 
   async onEndReached() {
@@ -118,10 +120,47 @@ export default class ListExample extends React.Component {
     this.setState({ dataSource: newDataSource });
   }
 
+  // item完全曝光
+  // eslint-disable-next-line class-methods-use-this
+  onAppear(index) {
+    // eslint-disable-next-line no-console
+    console.log('onAppear', index);
+  }
+
+  // item完全隐藏
+  // eslint-disable-next-line class-methods-use-this
+  onDisappear(index) {
+    // eslint-disable-next-line no-console
+    console.log('onDisappear', index);
+  }
+
+  // TODO android onWillAppear不完善，暂时不适用
+  // item至少一个像素曝光
+  // eslint-disable-next-line class-methods-use-this
+  onWillAppear(index) {
+    // eslint-disable-next-line no-console
+    console.log('onWillAppear', index);
+  }
+
+  // TODO android onWillDisappear不完善，暂时不适用
+  // item至少一个像素隐藏
+  // eslint-disable-next-line class-methods-use-this
+  onWillDisappear(index) {
+    // eslint-disable-next-line no-console
+    console.log('onWillDisappear', index);
+  }
+
   getRowType(index) {
     const self = this;
     const item = self.state.dataSource[index];
     return item.style;
+  }
+  // configure listItem style if horizontal listview is set
+  getRowStyle() {
+    return {
+      width: 100,
+      height: 50,
+    };
   }
 
   /* eslint-disable-next-line class-methods-use-this */
@@ -179,12 +218,20 @@ export default class ListExample extends React.Component {
     const { dataSource } = this.state;
     return (
       <ListView
+        horizontal={undefined} // horizontal ListView  flag（only Android support）
         style={{ flex: 1, backgroundColor: '#ffffff' }}
         numberOfRows={dataSource.length}
         renderRow={this.getRenderRow}
         onEndReached={this.onEndReached}
         getRowType={this.getRowType}
+        // getRowStyle={this.getRowStyle}
         getRowKey={this.getRowKey}
+        initialListSize={15}
+        rowShouldSticky={index => index === 2}
+        onAppear={index => this.onAppear(index)}
+        onDisappear={index => this.onDisappear(index)}
+        onWillAppear={index => this.onWillAppear(index)}
+        onWillDisappear={index => this.onWillDisappear(index)}
       />
     );
   }

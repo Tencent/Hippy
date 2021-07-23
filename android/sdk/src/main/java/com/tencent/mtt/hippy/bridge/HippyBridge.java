@@ -18,31 +18,36 @@ package com.tencent.mtt.hippy.bridge;
 import android.content.res.AssetManager;
 
 import com.tencent.mtt.hippy.common.HippyArray;
+import java.nio.ByteBuffer;
 
-/**
- * FileName: HippyBridge
- * Description：
- * History：
- * 1.0 xiandongluo on 2017/11/14
- */
-public interface HippyBridge
-{
-	public void initJSBridge(String gobalConfig, NativeCallback callback, int groupId);
+public interface HippyBridge {
 
-	public boolean runScriptFromFile(String filePath, String scriptName, boolean canUseCodeCache, String codeCacheTag, NativeCallback callback);
+  String URI_SCHEME_ASSETS = "asset:";
+  String URI_SCHEME_FILE = "file:";
 
-	public boolean runScriptFromAssets(String fileName, AssetManager assetManager, boolean canUseCodeCache, String codeCacheTag, NativeCallback callback);
+  void initJSBridge(String gobalConfig, NativeCallback callback, int groupId);
 
-	public void destroy(NativeCallback callback);
+  boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache,
+      String codeCacheTag, NativeCallback callback);
 
-	public void callFunction(String action, String params, NativeCallback callback);
+  void onDestroy();
 
-    public void callFunction(String action, byte[] bytes, int offset, int length, NativeCallback callback);
+  void destroy(NativeCallback callback);
 
-	public static interface BridgeCallback
-	{
-		public void callNatives(String moduleName, String moduleFunc, String callId, HippyArray params);
+  void callFunction(String action, NativeCallback callback, ByteBuffer buffer);
 
-		public void reportException(String exception, String stackTrace);
-	}
+  void callFunction(String action, NativeCallback callback, byte[] buffer);
+
+  void callFunction(String action, NativeCallback callback, byte[] buffer, int offset, int length);
+
+  long getV8RuntimeId();
+
+  interface BridgeCallback {
+
+    void callNatives(String moduleName, String moduleFunc, String callId, HippyArray params);
+
+    void reportException(String message, String stackTrace);
+
+    void reportException(Throwable e);
+  }
 }

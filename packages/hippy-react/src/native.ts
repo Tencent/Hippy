@@ -8,6 +8,8 @@ import BackAndroid from './modules/back-android';
 
 const {
   addEventListener,
+  removeEventListener,
+  dispatchEvent,
   AsyncStorage,
   Bridge,
   Device,
@@ -16,6 +18,8 @@ const {
 
 export {
   addEventListener,
+  removeEventListener,
+  dispatchEvent,
   AsyncStorage,
   BackAndroid,
   Bridge,

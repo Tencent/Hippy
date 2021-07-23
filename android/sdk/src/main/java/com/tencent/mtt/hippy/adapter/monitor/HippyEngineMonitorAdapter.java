@@ -19,27 +19,29 @@ import com.tencent.mtt.hippy.HippyRootView;
 
 import java.util.List;
 
-/**
- * FileName: HippyEngineMonitorAdapter
- * Description：
- * History：
- * 1.0 xiandongluo on 2018/1/23
- */
-public interface HippyEngineMonitorAdapter
-{
+@SuppressWarnings({"EmptyMethod", "unused"})
+public interface HippyEngineMonitorAdapter {
 
-	int	ENGINE_LOAD_RESULT_SUCCESS	= 0;
-	int	ENGINE_LOAD_RESULT_ERROR	= 1;
-	int	ENGINE_LOAD_RESULE_TIMEOUT	= 2;
+  int ENGINE_LOAD_RESULT_SUCCESS = 0;
+  int ENGINE_LOAD_RESULT_ERROR = 1;
+  int ENGINE_LOAD_RESULE_TIMEOUT = 2;
 
-	void reportEngineLoadStart();
+  void reportEngineLoadStart();
 
-	void reportEngineLoadResult(int code, int loadTime, List<HippyEngineMonitorEvent> loadEvents, Throwable e);
+  void reportEngineLoadResult(int code, int loadTime, List<HippyEngineMonitorEvent> loadEvents,
+      Throwable e);
 
-	void reportModuleLoadComplete(HippyRootView rootView, int loadTime, List<HippyEngineMonitorEvent> loadEvents);
+  void reportModuleLoadComplete(HippyRootView rootView, int loadTime,
+      List<HippyEngineMonitorEvent> loadEvents);
 
-	boolean needReportBridgeANR();
+  @SuppressWarnings("SameReturnValue")
+  boolean needReportBridgeANR();
 
-	void reportBridgeANR(String message);
+  void reportBridgeANR(String message);
 
+  void reportDoCallNatives(String moduleName, String moduleFunc);
+
+  void reportGestureEventCallStack(String funcName, String msg);
+
+  void reportClickEvent(Object object, boolean isCustomEvent);
 }

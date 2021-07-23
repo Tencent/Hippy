@@ -44,7 +44,6 @@ export class Gallery extends Component {
     super(props);
     this.state = {
       pressItem: '',
-      // TODO: Make the demo detail be in the demo folder.
       dataSource: [...routes],
     };
     this.renderRow = this.renderRow.bind(this);
@@ -57,6 +56,7 @@ export class Gallery extends Component {
     const { history } = this.props;
     if (Platform.OS === 'android') {
       BackAndroid.addListener(() => {
+        console.log('BackAndroid');
         if (history.index === 0) {
           history.goBack();
           return true;
@@ -69,10 +69,7 @@ export class Gallery extends Component {
   getRowType(index) {
     const { dataSource } = this.state;
     const item = dataSource[index];
-    if (!item.style) {
-      return null;
-    }
-    return item.style;
+    return item.meta.style;
   }
 
   getRowKey(index) {
@@ -96,7 +93,7 @@ export class Gallery extends Component {
   renderRow(index) {
     const { dataSource, pressItem } = this.state;
     const rowData = dataSource[index];
-    const styleType = rowData.meta.style;
+    const { style: styleType } = rowData.meta;
     return (
       <View style={styles.rowContainer}>
         <View

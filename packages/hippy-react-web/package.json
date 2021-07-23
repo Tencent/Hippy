@@ -1,10 +1,10 @@
 {
   "name": "@hippy/react-web",
-  "version": "2.0.2",
+  "version": "2.2.1",
   "description": "Web Adapter for Hippy React",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "homepage": "https://github.com/Tencent/Hippy",
+  "homepage": "http://hippyjs.org",
   "repository": "https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web",
   "author": "XQ Kuang <x@kxq.io>",
   "license": "Apache-2.0",
@@ -22,9 +22,12 @@
     "debounce": "^1.2.0",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
-    "swiper": "^4.5.0"
+    "rmc-list-view": "^0.11.5",
+    "swiper": "^6.7.0",
+    "ua-parser-js": "~0.7.28"
   },
   "devDependencies": {
+    "@types/core-js": "^2.5.3",
     "@types/debounce": "^1.2.0",
     "@types/react": "^16.9.11",
     "@types/react-dom": "^16.9.3",

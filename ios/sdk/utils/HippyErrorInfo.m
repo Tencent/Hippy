@@ -26,14 +26,13 @@
 
 @implementation HippyErrorInfo
 
-- (instancetype)initWithErrorMessage:(NSString *)errorMessage
-                               stack:(NSArray<HippyJSStackFrame *> *)stack {
-  self = [super init];
-  if (self) {
-    _errorMessage = [errorMessage copy];
-    _stack = [stack copy];
-  }
-  return self;
+- (instancetype)initWithErrorMessage:(NSString *)errorMessage stack:(NSArray<HippyJSStackFrame *> *)stack {
+    self = [super init];
+    if (self) {
+        _errorMessage = [errorMessage copy];
+        _stack = [stack copy];
+    }
+    return self;
 }
 
 @end

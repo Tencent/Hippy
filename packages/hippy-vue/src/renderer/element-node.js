@@ -2,7 +2,7 @@
 /* eslint-disable no-param-reassign */
 
 import colorParser from '@css-loader/color-parser';
-import ViewNode from './view-node';
+import { PROPERTIES_MAP } from '@css-loader/css-parser';
 import { updateChild, updateWithChildren } from './native';
 import { getViewMeta, normalizeElementName } from '../elements';
 import { Event, EventEmitter } from './native/event';
@@ -13,8 +13,142 @@ import {
   setsAreEqual,
   endsWith,
   getBeforeLoadStyle,
+  warn,
 } from '../util';
+import ViewNode from './view-node';
 import Native from '../runtime/native';
+
+// linear-gradient direction description map
+const LINEAR_GRADIENT_DIRECTION_MAP = {
+  totop: '0',
+  totopright: 'totopright',
+  toright: '90',
+  tobottomright: 'tobottomright',
+  tobottom: '180', // default value
+  tobottomleft: 'tobottomleft',
+  toleft: '270',
+  totopleft: 'totopleft',
+};
+
+const DEGREE_UNIT = {
+  TURN: 'turn',
+  RAD: 'rad',
+  DEG: 'deg',
+};
+
+/**
+ * convert string value to string degree
+ * @param {string} value
+ * @param {string} unit
+ */
+function convertToDegree(value, unit = DEGREE_UNIT.DEG) {
+  const convertedNumValue = parseFloat(value);
+  let result = value || '';
+  const [, decimals] = value.split('.');
+  if (decimals && decimals.length > 2) {
+    result = convertedNumValue.toFixed(2);
+  }
+  switch (unit) {
+    // turn unit
+    case DEGREE_UNIT.TURN:
+      result = `${(convertedNumValue * 360).toFixed(2)}`;
+      break;
+    // radius unit
+    case DEGREE_UNIT.RAD:
+      result = `${(180 / Math.PI * convertedNumValue).toFixed(2)}`;
+      break;
+    default:
+  }
+  return result;
+}
+
+/**
+ * parse gradient angle or direction
+ * @param {string} value
+ */
+function getLinearGradientAngle(value) {
+  const processedValue = (value || '').replace(/\s*/g, '').toLowerCase();
+  const reg = /^([+-]?\d+\.?\d*)+(deg|turn|rad)|(to\w+)$/g;
+  const valueList = reg.exec(processedValue);
+  if (!Array.isArray(valueList)) return;
+  // default direction is to bottom, i.e. 180degree
+  let angle = '180';
+  const [direction, angleValue, angleUnit] = valueList;
+  if (angleValue && angleUnit) { // angle value
+    angle = convertToDegree(angleValue, angleUnit);
+  } else if (direction && typeof LINEAR_GRADIENT_DIRECTION_MAP[direction] !== 'undefined') { // direction description
+    angle = LINEAR_GRADIENT_DIRECTION_MAP[direction];
+  } else {
+    warn('linear-gradient direction or angle is invalid, default value [to bottom] would be used');
+  }
+  return angle;
+}
+
+/**
+ * parse gradient color stop
+ * @param {string} value
+ */
+function getLinearGradientColorStop(value) {
+  const processedValue = (value || '').replace(/\s+/g, ' ').trim();
+  const [color, percentage] = processedValue.split(' ');
+  const percentageCheckReg = /^([+-]?\d+\.?\d*)%$/g;
+  if (color && !percentageCheckReg.exec(color) && !percentage) {
+    return {
+      color: colorParser(color),
+    };
+  }
+  if (color && percentageCheckReg.exec(percentage)) {
+    return {
+      // color stop ratio
+      ratio: parseFloat(percentage.split('%')[0]) / 100,
+      color: colorParser(color),
+    };
+  }
+  warn('linear-gradient color stop is invalid');
+}
+
+/**
+ * parse backgroundImage
+ * @param {string} property
+ * @param {string|Object|number|boolean} value
+ * @returns {(string|{})[]}
+ */
+function parseBackgroundImage(property, value) {
+  let processedValue = value;
+  let processedProperty = property;
+  if (value.indexOf('linear-gradient') === 0) {
+    processedProperty = 'linearGradient';
+    const valueString = value.substring(value.indexOf('(') + 1, value.lastIndexOf(')'));
+    const tokens = valueString.split(',');
+    const colorStopList = [];
+    processedValue = {};
+    tokens.forEach((value, index) => {
+      if (index === 0) {
+        // the angle of linear-gradient parameter can be optional
+        const angle = getLinearGradientAngle(value);
+        if (angle) {
+          processedValue.angle = angle;
+        } else {
+          // if angle ignored, default direction is to bottom, i.e. 180degree
+          processedValue.angle = '180';
+          const colorObject = getLinearGradientColorStop(value);
+          if (colorObject) colorStopList.push(colorObject);
+        }
+      } else {
+        const colorObject = getLinearGradientColorStop(value);
+        if (colorObject) colorStopList.push(colorObject);
+      }
+    });
+    processedValue.colorStopList = colorStopList;
+  } else {
+    const regexp = /(?:\(['"]?)(.*?)(?:['"]?\))/;
+    const executed = regexp.exec(value);
+    if (executed && executed.length > 1) {
+      [, processedValue] = executed;
+    }
+  }
+  return [processedProperty, processedValue];
+}
 
 class ElementNode extends ViewNode {
   constructor(tagName) {
@@ -65,6 +199,9 @@ class ElementNode extends ViewNode {
     return this._meta;
   }
 
+  get emitter() {
+    return this._emitter;
+  }
 
   hasAttribute(key) {
     return !!this.attributes[key];
@@ -132,7 +269,7 @@ class ElementNode extends ViewNode {
           break;
         case 'caretColor':
         case 'caret-color':
-          this.attributes['caret-color'] = colorParser(value);
+          this.attributes['caret-color'] = Native.parseColor(value);
           break;
         default:
           this.attributes[key] = tryConvertNumber(value);
@@ -151,37 +288,49 @@ class ElementNode extends ViewNode {
     delete this.attributes[key];
   }
 
-  setStyle(property_, value_) {
-    if (value_ === undefined) {
-      delete this.style[property_];
+  setStyle(property, value, isBatchUpdate = false) {
+    if (value === undefined) {
+      delete this.style[property];
       return;
     }
+
     // Preprocess the style
-    const { property, value } = this.beforeLoadStyle({
-      property: property_,
-      value: value_,
+    let {
+      property: p,
+      value: v,
+    } = this.beforeLoadStyle({
+      property,
+      value,
     });
-    let v = value;
 
     // Process the specifc style value
-    switch (property) {
+    switch (p) {
       case 'fontWeight':
         if (typeof v !== 'string') {
           v = v.toString();
         }
         break;
       case 'caretColor':
-        this.attributes['caret-color'] = colorParser(value);
+        this.attributes['caret-color'] = colorParser(v);
         break;
+      case 'backgroundImage': {
+        [p, v] = parseBackgroundImage(p, v);
+        break;
+      }
       default: {
+        // Convert the property to W3C standard.
+        if (Object.prototype.hasOwnProperty.call(PROPERTIES_MAP, p)) {
+          p = PROPERTIES_MAP[p];
+        }
+        // Convert the value
         if (typeof v === 'string') {
-          v = value.trim();
+          v = v.trim();
           // Convert inline color style to int
-          if (property.toLowerCase().indexOf('color') >= 0) {
+          if (p.toLowerCase().indexOf('color') >= 0) {
             v = colorParser(v, Native.Platform);
           // Convert inline length style, drop the px unit
           } else if (endsWith(v, 'px')) {
-            v = parseFloat(value.slice(0, value.length - 2));
+            v = parseFloat(v.slice(0, v.length - 2));
           } else {
             v = tryConvertNumber(v);
           }
@@ -189,11 +338,28 @@ class ElementNode extends ViewNode {
       }
     }
 
-    if (v === undefined || v === null || this.style[property] === v) {
+    if (v === undefined || v === null || this.style[p] === v) {
       return;
     }
-    this.style[property] = v;
-    updateChild(this);
+    this.style[p] = v;
+    if (!isBatchUpdate) {
+      updateChild(this);
+    }
+  }
+
+  /**
+   * set native style props
+   */
+  setNativeProps(nativeProps) {
+    if (nativeProps) {
+      const { style } = nativeProps;
+      if (style) {
+        Object.keys(style).forEach((key) => {
+          this.setStyle(key, style[key], true);
+        });
+        updateChild(this);
+      }
+    }
   }
 
   setStyleScope(styleScopeId) {
@@ -257,6 +423,10 @@ class ElementNode extends ViewNode {
       }
     }
 
+    if (this.polyFillNativeEvents) {
+      this.polyFillNativeEvents('addEvent', eventNames, callback, options);
+    }
+
     updateChild(this);
   }
 
@@ -264,6 +434,11 @@ class ElementNode extends ViewNode {
     if (!this._emitter) {
       return null;
     }
+
+    if (this.polyFillNativeEvents) {
+      this.polyFillNativeEvents('removeEvent', eventNames, callback, options);
+    }
+
     return this._emitter.removeEventListener(eventNames, callback, options);
   }
 
@@ -310,7 +485,7 @@ class ElementNode extends ViewNode {
   /**
    * Scroll children to specific position.
    */
-  scrollToPosition(x = 0, y = 0, duration = 1000)  {
+  scrollToPosition(x = 0, y = 0, duration = 1000) {
     if (typeof x !== 'number' || typeof y !== 'number') {
       return;
     }

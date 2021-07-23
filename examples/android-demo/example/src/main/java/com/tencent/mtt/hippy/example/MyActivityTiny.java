@@ -9,22 +9,13 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.tencent.mtt.hippy.HippyEngine;
+import com.tencent.mtt.hippy.HippyEngine.EngineInitStatus;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.adapter.image.HippyDrawable;
 import com.tencent.mtt.hippy.adapter.image.HippyImageLoader;
-import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
-import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
-/**
- * Copyright (C) 2005-2020 TENCENT Inc.All Rights Reserved.
- * FileName: MyActivityTiny 最简洁的demo，只展示了必须的代码
- * 加载出Hippy的View分为三步：
- * 1. 用EngineInitParams参数create出HippyEngine；
- * 2. HippyEngine.initEngine异步初始化；
- * 3. 用ModuleLoadParams参数loadModule加载出hippy的jsbundle，得到Hippy的View。
- * Description：
- */
+@SuppressWarnings({"unused"})
 public class MyActivityTiny extends Activity
 {
 	private HippyEngine mHippyEngine;
@@ -49,7 +40,8 @@ public class MyActivityTiny extends Activity
 				@Override
 				public void fetchImage(final String url, final Callback requestCallback, Object param)
 				{
-					Glide.with(ContextHolder.getAppContext()).load(url).asBitmap().into(new SimpleTarget() {
+					//noinspection unchecked,rawtypes
+					Glide.with(MyActivityTiny.this).load(url).asBitmap().into(new SimpleTarget() {
 						@Override
 						public void onResourceReady(Object object, GlideAnimation glideAnimation) {
 							HippyDrawable hippyTarget = new HippyDrawable();
@@ -63,17 +55,7 @@ public class MyActivityTiny extends Activity
 
 			// 可选：debugMode = false 时必须设置（debugMode = true时，所有jsbundle都是从debug server上下载）
 			initParams.coreJSAssetsPath = "vendor.android.js";
-
-			String test = "externalData";
-			initParams.thirdPartyAdapter = new HippyThirdPartyAdapter(test) {
-				@Override
-				public void SetHippyBridgeId(long runtimeId) {
-					if (mExternalData != null) {
-
-					}
-				}
-			};
-
+			
 			// 根据EngineInitParams创建引擎实例
 			mHippyEngine = HippyEngine.create(initParams);
 			// 异步初始化Hippy引擎
@@ -84,8 +66,8 @@ public class MyActivityTiny extends Activity
 				 * @param  msg Message from initializing procedure
 				 */
 				@Override
-				public void onInitialized(int statusCode, String msg) {
-					if (statusCode != 0)
+				public void onInitialized(EngineInitStatus statusCode, String msg) {
+					if (statusCode != EngineInitStatus.STATUS_OK)
 						LogUtils.e("MyActivity", "hippy engine init failed code:" + statusCode + ", msg=" + msg);
 					// else
 					{

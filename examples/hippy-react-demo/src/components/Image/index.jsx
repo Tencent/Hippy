@@ -7,10 +7,9 @@ import {
 } from '@hippy/react';
 
 // Import the image to base64 for defaultSource props.
-/* eslint-disable-next-line import/no-webpack-loader-syntax */
-import defaultSource from '!!url-loader?modules!./defaultSource.jpg';
+import defaultSource from './defaultSource.jpg';
 
-const imageUrl = 'https://www.intelerad.com/en/wp-content/uploads/sites/2/2016/05/panorama_bg.jpg';
+const imageUrl = 'https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png';
 
 const styles = StyleSheet.create({
   container_style: {
@@ -37,42 +36,50 @@ export default function ImageExpo() {
     <ScrollView style={styles.container_style}>
       <Text style={styles.info_style}>Contain:</Text>
       <Image
-        style={[styles.image_style, { resizeMode: 'contain' }]}
+        style={[styles.image_style]}
+        resizeMode={Image.resizeMode.contain}
         defaultSource={defaultSource}
         source={{ uri: imageUrl }}
-        onLoad={(e) => {
+        onLoadStart={() => {
           /* eslint-disable-next-line no-console */
-          console.log('onload e', e);
+          console.log('===image onloadStart===');
+        }}
+        onLoad={() => {
+          /* eslint-disable-next-line no-console */
+          console.log('===image onLoad===');
+        }}
+        onError={(e) => {
+          /* eslint-disable-next-line no-console */
+          console.log('===image onError===', e);
+        }}
+        onLoadEnd={() => {
+          /* eslint-disable-next-line no-console */
+          console.log('===image onLoadEnd===');
         }}
       />
       <Text style={styles.info_style}>Cover:</Text>
       <Image
-        style={[styles.image_style, { resizeMode: 'cover' }]}
+        style={[styles.image_style]}
         defaultSource={defaultSource}
         source={{ uri: imageUrl }}
-        onLoadStart={(e) => {
-          /* eslint-disable-next-line no-console */
-          console.log('onLoadStart e', e);
-        }}
+        resizeMode={Image.resizeMode.cover}
       />
       <Text style={styles.info_style}>Center:</Text>
       <Image
-        style={[styles.image_style, { resizeMode: 'center' }]}
+        style={[styles.image_style]}
         defaultSource={defaultSource}
         source={{ uri: imageUrl }}
-        onLoadEnd={(e) => {
-          /* eslint-disable-next-line no-console */
-          console.log('onLoadEnd e', e);
-        }}
+        resizeMode={Image.resizeMode.center}
       />
       <Text style={styles.info_style}>Cover GIF:</Text>
       <Image
-        style={[styles.image_style, { resizeMode: 'cover' }]}
+        style={[styles.image_style]}
+        resizeMode={Image.resizeMode.cover}
         defaultSource={defaultSource}
         source={{ uri: 'http://img.qdaily.com/article/article_show/20180226115511QR0IMWjcBZmo8FaV.gif' }}
-        onLoadEnd={(e) => {
+        onLoadEnd={() => {
           /* eslint-disable-next-line no-console */
-          console.log('onLoadEnd e', e);
+          console.log('gif onLoadEnd');
         }}
       />
     </ScrollView>

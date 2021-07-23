@@ -1,5 +1,6 @@
-/* Tencent is pleased to support the open source community by making Hippy available.
- * Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights reserved.
+/* Tencent is pleased to support the open source community by making Hippy
+ * available. Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights
+ * reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +15,11 @@
  * limitations under the License.
  */
 
-#ifndef HPLAYOUTCACHE_H_
-#define HPLAYOUTCACHE_H_
-#include "Flex.h"
+#pragma once
+
 #include <stdint.h>
+
+#include "Flex.h"
 
 typedef struct {
   HPSize availableSize;
@@ -33,27 +35,28 @@ class HPLayoutCache {
  public:
   HPLayoutCache();
   virtual ~HPLayoutCache();
-  void cacheResult(HPSize availableSize, HPSize resultSize,
-                   HPSizeMode measureMode, FlexLayoutAction layoutAction);
+  void cacheResult(HPSize availableSize,
+                   HPSize resultSize,
+                   HPSizeMode measureMode,
+                   FlexLayoutAction layoutAction);
   MeasureResult* getCachedMeasureResult(HPSize availableSize,
                                         HPSizeMode measureMode,
                                         FlexLayoutAction layoutAction,
                                         bool isMeasureNode);
   MeasureResult* getCachedLayout();
   void clearCache();
+
  protected:
   void initCache();
-  MeasureResult* useLayoutCacheIfPossible(HPSize availableSize,
-                                          HPSizeMode measureMode);
+  MeasureResult* useLayoutCacheIfPossible(HPSize availableSize, HPSizeMode measureMode);
 
   MeasureResult* useMeasureCacheIfPossible(HPSize availableSize,
                                            HPSizeMode measureMode,
                                            FlexLayoutAction layoutAction,
                                            bool isMeasureNode);
+
  private:
   MeasureResult cachedLayout;
   MeasureResult cachedMeasures[MAX_MEASURES_COUNT];
   uint32_t nextMeasureIndex;
 };
-
-#endif /* HPLAYOUTCACHE_H_ */

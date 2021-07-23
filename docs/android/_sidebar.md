@@ -5,3 +5,4 @@
 * [定制适配器](android/custom-adapter.md)
 * [定制界面组件](android/custom-component.md)
 * [定制模块](android/custom-module.md)
+* [ECMAScript 与 Java 类型映射](android/type-mapping.md)

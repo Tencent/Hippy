@@ -68,15 +68,19 @@ export default {
     const globalActiveClass = router.options.linkActiveClass;
     const globalExactActiveClass = router.options.linkExactActiveClass;
     // Support global empty active class
+    // eslint-disable-next-line eqeqeq
     const activeClassFallback = globalActiveClass == null
       ? 'router-link-active'
       : globalActiveClass;
+    // eslint-disable-next-line eqeqeq
     const exactActiveClassFallback = globalExactActiveClass == null
       ? 'router-link-exact-active'
       : globalExactActiveClass;
+    // eslint-disable-next-line eqeqeq
     const activeClass = this.activeClass == null
       ? activeClassFallback
       : this.activeClass;
+    // eslint-disable-next-line eqeqeq
     const exactActiveClass = this.exactActiveClass == null
       ? exactActiveClassFallback
       : this.exactActiveClass;
@@ -101,7 +105,9 @@ export default {
 
     const on = { click: guardEvent };
     if (Array.isArray(this.event)) {
-      this.event.forEach((e) => { on[e] = handler; });
+      this.event.forEach((e) => {
+        on[e] = handler;
+      });
     } else {
       on[this.event] = handler;
     }

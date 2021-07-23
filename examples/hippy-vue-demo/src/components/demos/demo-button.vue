@@ -1,11 +1,12 @@
 <template>
   <div class="button-demo">
-    <label>按钮和状态绑定:</label>
+    <label class="button-label">按钮和状态绑定</label>
     <button v-bind:class="{ 'is-active': isClicked, 'is-pressing': isPressing }"
       class="button-demo-1"
-      @click="clickView"
-      @touchdown="onTouchDown"
-      @touchmove="onTouchMove">
+      @touchstart="onTouchBtnStart"
+      @touchmove="onTouchBtnMove"
+      @touchend="onTouchBtnEnd"
+      @click="clickView">
       <span v-if="isClicked" class="button-text">视图已经被点击了，再点一下恢复</span>
       <span v-else class="button-text">视图尚未点击</span>
     </button>
@@ -19,10 +20,20 @@ export default {
     clickView() {
       this.isClicked = !this.isClicked;
     },
-    onTouchDown(evt) {
+    // button touch event is supported after hippy-vue 2.6.2
+    onTouchBtnStart(evt) {
+      console.log('onBtnTouchDown', evt);
       evt.stopPropagation();
     },
-    onTouchMove(evt) {
+    // button touch event is supported after hippy-vue 2.6.2
+    onTouchBtnMove(evt) {
+      console.log('onBtnTouchMove', evt);
+      evt.stopPropagation();
+      console.log(evt);
+    },
+    // button touch event is supported after hippy-vue 2.6.2
+    onTouchBtnEnd(evt) {
+      console.log('onBtnTouchEnd', evt);
       evt.stopPropagation();
       console.log(evt);
     },
@@ -37,6 +48,14 @@ export default {
 </script>
 
 <style scope>
+  .button-label {
+    width: 220px;
+    height: 50px;
+    margin-top: 20px;
+    text-align: center;
+    line-height: 50px;
+    margin-bottom: 20px;
+  }
   .button-demo {
     display: flex;
     align-items: center;
@@ -61,11 +80,13 @@ export default {
   .button-demo-1-image {
     width: 216px;
     height: 58px;
+    background-color: #40b883;
+    margin-top: 20px;
   }
 
   .button-demo-1.is-active {
     color: white;
-    background-color: red;
+    background-color: cornflowerblue;
   }
 
   .button-demo-1.is-pressing {

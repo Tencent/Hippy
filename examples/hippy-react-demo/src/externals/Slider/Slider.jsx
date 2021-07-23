@@ -49,13 +49,9 @@ class Indicator extends React.Component {
     const indicatorItems = [];
     for (let i = 0; i < itemCount; i += 1) {
       if (currentIndex === i) {
-        indicatorItems.push(
-          <View style={[styles.style_indicator_item, { backgroundColor: '#2424244c' }]} key={i} />,
-        );
+        indicatorItems.push(<View style={[styles.style_indicator_item, { backgroundColor: '#2424244c' }]} key={i} />);
       } else {
-        indicatorItems.push(
-          <View style={[styles.style_indicator_item, { backgroundColor: '#ffffffaa' }]} key={i} />,
-        );
+        indicatorItems.push(<View style={[styles.style_indicator_item, { backgroundColor: '#ffffffaa' }]} key={i} />);
       }
     }
     return (
@@ -112,9 +108,8 @@ export default class Slider extends React.Component {
     if (this.width === 0) return;
     const offset = e.contentOffset.x;
     this.scrollOffset = offset;
-    const idx = Math.round(                                     // 过半 确定索引
-      e.contentOffset.x / this.width,
-    );
+    // 过半 确定索引
+    const idx = Math.round(offset / this.width);
 
     const count = images ? React.Children.count(images) : 0;
 
@@ -180,11 +175,15 @@ export default class Slider extends React.Component {
           onScroll={this.onScroll}
           onScrollBeginDrag={this.onScrollBeginDrag}
           onScrollEndDrag={this.onScrollEndDrag}
-          ref={(ref) => { this.scrollview = ref; }}
+          ref={(ref) => {
+            this.scrollview = ref;
+          }}
         >
           {childViews}
         </ScrollView>
-        <Indicator ref={(ref) => { this.indicator = ref; }} count={this.itemCount} />
+        <Indicator ref={(ref) => {
+          this.indicator = ref;
+        }} count={this.itemCount} />
       </View>
     );
   }

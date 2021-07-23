@@ -54,18 +54,19 @@ export default class NetInfoExample extends React.Component {
       },
     }).then((responseJson) => {
       // eslint-disable-next-line no-console
-      console.error(responseJson);
+      console.log('成功', responseJson);
       self.setState({
         infoText: `成功: ${responseJson.body}`,
       });
       return responseJson;
-    }).catch((error) => {
-      self.setState({
-        infoText: `收到错误: ${error}`,
+    })
+      .catch((error) => {
+        self.setState({
+          infoText: `收到错误: ${error}`,
+        });
+        // eslint-disable-next-line no-console
+        console.error('收到错误:', error);
       });
-      // eslint-disable-next-line no-console
-      console.error(error);
-    });
 
     /**
      * hippy sdk 1.3.0+ setCookie 设置指定url下的Cookie

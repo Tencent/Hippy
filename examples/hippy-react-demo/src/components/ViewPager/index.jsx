@@ -2,7 +2,6 @@ import React from 'react';
 import {
   StyleSheet,
   View,
-  Platform,
   Text,
   ViewPager,
 } from '@hippy/react';
@@ -60,7 +59,6 @@ const styles = StyleSheet.create({
 export default class PagerExample extends React.Component {
     state = {
       selectedIndex: 0,
-      width: 0,
     };
 
     constructor(props) {
@@ -68,35 +66,25 @@ export default class PagerExample extends React.Component {
       this.onPageSelected = this.onPageSelected.bind(this);
     }
 
+    // eslint-disable-next-line class-methods-use-this
     onPageSelected(pageData) {
+      // eslint-disable-next-line no-console
+      console.log('=====onPageSelected', pageData.position);
       this.setState({
         selectedIndex: pageData.position,
       });
     }
 
-    setPage(idx) {
-      this.scrollTo(idx, true);
+    // eslint-disable-next-line class-methods-use-this
+    onPageScrollStateChanged(pageScrollState) {
+      // eslint-disable-next-line no-console
+      console.log('=====onPageScrollStateChanged===', pageScrollState);
     }
 
-    setPageWithoutAnimation(idx) {
-      this.scrollTo(idx, false);
-    }
-
-    // 外部调用执行滑动
-    scrollTo(idx, animated) {
-      const { selectedIndex, width } = this.state;
-      if (idx !== selectedIndex) {
-        if (Platform.OS === 'ios') {
-          this.viewpager.scrollTo({
-            x: idx * width,
-            animated: !!animated,
-          });
-        } else if (animated) {
-          this.viewpager.setPage(idx);
-        } else {
-          this.viewpager.setPageWithoutAnimation(idx);
-        }
-      }
+    // eslint-disable-next-line class-methods-use-this
+    onPageScroll({ offset, position }) {
+      // eslint-disable-next-line no-console
+      console.log('onPageScroll', offset, position);
     }
 
     render() {
@@ -117,12 +105,15 @@ export default class PagerExample extends React.Component {
             </View>
           </View>
           <ViewPager
-            ref={(ref) => { this.viewpager = ref; }}
+            ref={(ref) => {
+              this.viewpager = ref;
+            }}
             style={styles.container}
             initialPage={0}
             keyboardDismissMode="none"
             scrollEnabled
             onPageSelected={this.onPageSelected}
+            onPageScroll={this.onPageScroll}
           >
             {
               [
@@ -134,12 +125,14 @@ export default class PagerExample extends React.Component {
           </ViewPager>
           <View style={styles.dotContainer}>
             {
-              new Array(PAGE_COUNT).fill(0).map((n, i) => {
-                const isSelect = i === selectedIndex;
-                return (
+              new Array(PAGE_COUNT).fill(0)
+                .map((n, i) => {
+                  const isSelect = i === selectedIndex;
+                  return (
+                  // eslint-disable-next-line react/jsx-key
                   <View style={[styles.dot, isSelect ? styles.selectDot : null]} />
-                );
-              })
+                  );
+                })
             }
           </View>
         </View>

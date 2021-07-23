@@ -17,25 +17,17 @@ package com.tencent.mtt.hippy.utils;
 
 import android.content.Context;
 
-/**
- * @version: V1.0
- */
+public class ContextHolder {
 
-public class ContextHolder
-{
-	private static Context	sAppContext;
+  private static Context appContext;
 
-	public ContextHolder()
-	{
-	}
+  public static void initAppContext(Context context) {
+    if (context != null && appContext == null) {
+      appContext = context.getApplicationContext();
+    }
+  }
 
-	public static void initAppContext(Context var0)
-	{
-		sAppContext = var0;
-	}
-
-	public static Context getAppContext()
-	{
-		return sAppContext;
-	}
+  public static Context getAppContext() {
+    return appContext;
+  }
 }

@@ -19,11 +19,13 @@
       所以这里就需要开发者手动填一下，值就是：静态的 li 数量 + 将生成 li 的数据数量。
     -->
     <ul
+      :horizontal="undefined"
       id="list"
       ref="list"
       @endReached="onEndReached"
       @scroll="onScroll"
       :numberOfRows="dataSource.length"
+      :exposureEventEnabled="true"
     >
       <!--
         li 有两个参数是一定要加上的。
@@ -34,14 +36,19 @@
             定义 :type 之后可以从缓存池中将之前已经渲染的终端节点拿出来复用，以达到更高的性能
       -->
       <li
+        class="item-style"
         v-for="(ui, index) in dataSource"
         :key="index"
-        :type="'row-' + ui.style"
+        :type="ui.style"
         @layout="onItemLayout"
+        @appear="onAppear(index)"
+        @disappear="onDisappear(index)"
+        @willAppear="onWillAppear(index)"
+        @willDisappear="onWillDisappear(index)"
       >
-        <style-one v-if="ui.style == 1" :itemBean="ui.itemBean" />
-        <style-two v-if="ui.style == 2" :itemBean="ui.itemBean" />
-        <style-five v-if="ui.style == 5" :itemBean="ui.itemBean" />
+        <style-one v-if="ui.style === 1" :itemBean="ui.itemBean" />
+        <style-two v-if="ui.style === 2" :itemBean="ui.itemBean" />
+        <style-five v-if="ui.style === 5" :itemBean="ui.itemBean" />
       </li>
     </ul>
     <p id="loading" v-show="loadingState">{{ loadingState }}</p>
@@ -89,6 +96,22 @@ export default {
     setTimeout(() => this.exposureReport(0), 500);
   },
   methods: {
+    // item完全曝光
+    onAppear(index) {
+      console.log('onAppear', index);
+    },
+    // item完全隐藏
+    onDisappear(index) {
+      console.log('onDisappear', index);
+    },
+    // item至少一个像素曝光
+    onWillAppear(index) {
+      console.log('onWillAppear', index);
+    },
+    // item至少一个像素隐藏
+    onWillDisappear(index) {
+      console.log('onWillDisappear', index);
+    },
     mockFetchData() {
       return new Promise((resolve) => {
         setTimeout(() => {
@@ -245,5 +268,8 @@ export default {
 
   #demo-list .style-two-image {
     height: 140px;
+  }
+  .item-style {
+    /*width: 100px;*/ /* configure li style if horizontal ul is set*/
   }
 </style>

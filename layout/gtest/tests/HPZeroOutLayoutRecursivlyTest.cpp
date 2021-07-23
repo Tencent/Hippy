@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include <gtest.h>
 #include <Hippy.h>
+#include <gtest.h>
 
 TEST(HippyTest, zero_out_layout) {
   const HPNodeRef root = HPNodeNew();

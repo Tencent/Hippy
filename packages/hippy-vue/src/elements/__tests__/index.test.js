@@ -6,7 +6,7 @@ const EMPTY_TAG_NAME = 'test';
 test.before(() => {
   elements.registerElement(EMPTY_TAG_NAME, {
     component: {
-      name: 'Test',
+      name: 'TestComp',
     },
   });
 });
@@ -96,4 +96,11 @@ test('registerElement with mustUseProp', (t) => {
   t.is(viewMeta.component.name, 'Test');
   t.true(viewMeta.mustUseProp('testAttr'));
   t.false(viewMeta.mustUseProp());
+});
+
+test('register element with empty name', (t) => {
+  const err = t.throws(() => {
+    elements.registerElement('');
+  }, Error);
+  t.is(err.message, 'RegisterElement cannot set empty name');
 });

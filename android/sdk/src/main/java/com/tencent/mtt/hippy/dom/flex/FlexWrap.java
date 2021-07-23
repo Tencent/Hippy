@@ -21,12 +21,18 @@ public enum FlexWrap {
   NOWRAP,
   WRAP,
   WRAP_REVERSE;
+
+  @SuppressWarnings("unused")
   public static FlexWrap fromInt(int value) {
-	    switch (value) {
-	      case 0: return NOWRAP;
-	      case 1: return WRAP;
-	      case 2: return WRAP_REVERSE;
-	      default: throw new IllegalArgumentException("Unknown enum value: " + value);
-	    }
-	  }
+    switch (value) {
+      case 0:
+        return NOWRAP;
+      case 1:
+        return WRAP;
+      case 2:
+        return WRAP_REVERSE;
+      default:
+        throw new IllegalArgumentException("Unknown enum value: " + value);
+    }
+  }
 }

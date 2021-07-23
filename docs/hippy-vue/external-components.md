@@ -4,6 +4,8 @@
 
 扩展组件是终端提供了一些很方便的组件，在 hippy-vue 中由 [@hippy/vue-native-components](//www.npmjs.com/package/@hippy/vue-native-components) 提供，但因为暂时还没有 `@hippy/vue-web-components` 所以暂时无法在浏览器中使用。
 
+---
+
 # animation
 
 [[范例：demo-animation.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-animation.vue)
@@ -20,10 +22,53 @@
 | actions*        | 动画方案，其实是一个样式值跟上它的动画方案，详情请参考范例。 | Object                                | `ALL`    |
 
 * actions 详解
+  
+  和 React 不同，它将单个动画 Animation 和动画序列 AnimationSet 合二为一了，其实方法特别简单，发现是个对象就是 Animation，如果是个数组就是动画序列就用 AnimationSet 处理，单个动画参数具体参考 [Animation 模块](../hippy-react/modules.md?id=animation)和 [范例](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/native-demos/animations)。需要说明 hippy-vue 的动画参数有一些[默认值](https://github.com/Tencent/Hippy/blob/master/packages/hippy-vue-native-components/src/animation.js#L5)，只有差异部分才需要填写。
 
-和 React 不同，它将单个动画 Animation 和动画序列 AnimationSet 合二为一了，其实方法特别简单，发现是个对象就是 Animation，如果是个数组就是动画序列就用 AnimationSet 处理，单个动画参数具体参考 [Animation 模块](../hippy-react/modules.md?id=animation)，和[范例](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/native-demos/animations)。
+  特别说明，对 actions 替换后会自动新建动画，需手动启动新动画。有两种处理方式：
+  * 替换 actions => 延迟一定时间后（如setTimeout） 调用 `this.[animation ref].start()`（推荐）
+  * `playing = false` =>  替换 actions =>  延迟一定时间后（如setTimeout） `playing = true`
+  
+  2.6.0 版本新增 `backgroundColor` 背景色渐变动画支持，参考 [渐变色动画DEMO](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/animations/color-change.vue)
+  * 设置 `actions` 对 `backgroundColor` 进行修饰
+  * 设置 `valueType` 为 `color`
+  * 设置 `startValue` 和 `toValue` 为 [color值](style/color.md)
 
-需要说明 hippy-vue 的动画参数有一些[默认值](https://github.com/Tencent/Hippy/blob/master/packages/hippy-vue-native-components/src/animation.js#L4)，只有差异部分才需要填写。
+## 事件
+
+> 最低支持版本 2.5.2
+
+| 参数          | 描述                                                         | 类型                                      | 支持平台 |
+| ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
+| start              | 动画开始时触发                                                            | `Function`                                                    | `ALL`    |
+| end         | 动画结束时触发                                                            | `Function`| `ALL`    |
+| repeat | 每次循环播放时触发                                                            | `Function` | `Android`   |
+
+## 方法
+
+> 最低支持版本 2.5.2
+
+### start
+
+`() => void` 手动触发动画开始（`playing`属性置为`true`也会自动触发`start`函数调用）
+
+### pause
+
+`() => void` 手动触发动画暂停（`playing`属性置为`false`也会自动触发`pause`函数调用）
+
+### resume
+
+`() => void` 手动触发动画继续（`playing`属性置为`false`后再置为`true`会自动触发`resume`函数调用）
+
+### create
+
+`() => void` 手动触发动画创建
+
+### reset
+
+`() => void` 重置开始标记
+
+---
 
 # dialog
 
@@ -49,11 +94,13 @@
 | orientationChange   | 屏幕旋转方向改变                                           | `Function`                                                   | `ALL`    |
 | requestClose        | 在`Modal`请求关闭时会执行此回调函数，一般时在 Android 系统里按下硬件返回按钮时触发，一般要在里面处理关闭弹窗。 | `Function`                                                   | `Android`    |
 
+---
+
 # swiper
 
 [[范例：demo-swiper.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-swiper.vue)
 
-轮播组件，里面只能包含 `<swiper-slide>` 组件。
+轮播组件，对应终端 `ViewPager`组件， 里面只能包含 `<swiper-slide>` 组件。
 
 > **注意事项：**如果在 ul 里嵌套 swiper，因为 ul 自带复用能力，swiper 滚出屏幕后不可在对其进行任何操作（例如通过代码更改 current 值），否则很可能导致终端出错。
 
@@ -65,6 +112,7 @@
 | initialPage              | 指定一个数字，用于决定初始化后默认显示的页面index，默认不指定的时候是0 | `number`                                     | `ALL`    |
 | needAnimation            | 切换页面时是否需要动画。                        | `boolean`                                    | `ALL`    |
 | scrollEnabled            | 指定ViewPager是否可以滑动，默认为true                        | `boolean`                                    | `ALL`    |
+| direction            | 设置viewPager滚动方向，不设置默认横向滚动，设置 `vertical` 为竖向滚动                       | `boolean`                                    | `Android`    |
 
 ## 事件
 
@@ -79,42 +127,54 @@
   * dragging 拖拽中
   * settling 松手后触发，然后马上回到 idle
 
+---
+
 # swiper-slide
 
 [[范例：demo-swiper.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-swiper.vue)
 
 轮播组件页容器。
 
-# ul-refresh-wrapper
+---
 
-[[范例：demo-list-refresh.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-list-refresh.vue)
+# pull-header
 
-列表下拉刷新组件，里面只能包裹 `<ul-refresh>` 和 `<ul>` 组件。
+[[范例：demo-pull-header.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-pull-header.vue)
 
-## 方法
-
-### refreshCompleted
-
-`() => void` 告知终端内容刷新已经结束，收起刷新栏。
-
-### startRefresh
-
-`() => void` 手动告知终端开始刷新，下拉刷新栏。
-
-## 事件
+下拉刷新组件，嵌套在 `ul` 中作为第一个子元素使用
 
 ## 事件
 
 | 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| refresh                | 下拉刷新回弹后触发刷新回掉函数的事件。*                            | `Function`                                                   | `ALL`    |
+| idle                | 滑动距离在 pull-header 区域内触发一次，参数 contentOffset                            | `Function`                                                   | `ALL`    |
+| pulling   | 滑动距离超出 pull-header 后触发一次，参数 contentOffset                                                        | `Function`   | `ALL`    |
+| refresh   | 滑动超出距离，松手后触发一次          | `Function`   | `ALL`    |
 
-* 刷新事件回调的特别说明
+## 方法
 
-下拉刷新，加载数据完成后需要用 [refreshCompleted()](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-list-refresh.vue#L105) 告知终端刷新已经结束，可以弹回去了。
+### collapsePullHeader
 
-# ul-refresh
+`() => void` 收起顶部刷新条 `<pull-header>`。
 
-[[范例：demo-list-refresh.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-list-refresh.vue)
+---
 
-列表下拉刷新时，刷新内容的容器组件。
+# pull-footer
+
+[[范例：demo-pull-footer.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-pull-footer.vue)
+
+上拉刷新组件，嵌套在 `ul` 中作为最后一个子元素使用
+
+## 事件
+
+| 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
+| ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
+| idle                | 滑动距离在 pull-footer 区域内触发一次，参数 contentOffset                            | `Function`                                                   | `ALL`    |
+| pulling   | 滑动距离超出 pull-footer 后触发一次，参数 contentOffset      | `Function`   | `ALL`    |
+| refresh   | 滑动超出距离，松手后触发一次          | `Function`   | `ALL`    |
+
+## 方法
+
+### collapsePullFooter
+
+`() => void` 收起底部刷新条 `<pull-footer>`。

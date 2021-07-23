@@ -1,5 +1,6 @@
-/* Tencent is pleased to support the open source community by making Hippy available.
- * Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights reserved.
+/* Tencent is pleased to support the open source community by making Hippy
+ * available. Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights
+ * reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +15,11 @@
  * limitations under the License.
  */
 
-#ifndef FLEX_H_
-#define FLEX_H_
+#pragma once
 
-typedef enum {
-  DirectionInherit,
-  DirectionLTR,
-  DirectionRTL
-} HPDirection;
+typedef enum { DirectionInherit, DirectionLTR, DirectionRTL } HPDirection;
 
-//flex-direction : row | row-reverse | column | column-reverse
+// flex-direction : row | row-reverse | column | column-reverse
 typedef enum {
   FLexDirectionRow,
   FLexDirectionRowReverse,
@@ -31,16 +27,17 @@ typedef enum {
   FLexDirectionColumnReverse
 } FlexDirection;
 
-//flex-wrap: nowrap | wrap | wrap-reverse
+// flex-wrap: nowrap | wrap | wrap-reverse
 typedef enum {
   FlexNoWrap,
   FlexWrap,
   FlexWrapReverse,
 } FlexWrapMode;
 
-//align-item: flex-start | flex-end | center | baseline | stretch
-//align-self:	auto | flex-start | flex-end | center | baseline | stretch
-//justify-content: flex-start | flex-end | center | space-between | space-around | space-evenly
+// align-item: flex-start | flex-end | center | baseline | stretch
+// align-self: auto | flex-start | flex-end | center | baseline | stretch
+// justify-content: flex-start | flex-end | center | space-between |
+// space-around | space-evenly
 
 typedef enum {
   FlexAlignAuto,
@@ -54,13 +51,13 @@ typedef enum {
   FlexAlignSpaceEvenly
 } FlexAlign;
 
-//layout size value
+// layout size value
 typedef struct HPSize {
   float width;
   float height;
 } HPSize;
 
-//used to get padding's margin and position in main axis or cross axis
+// used to get padding's margin and position in main axis or cross axis
 typedef enum {
   CSSLeft = 0,
   CSSTop,
@@ -95,10 +92,7 @@ typedef enum {
   OverflowScroll,
 } OverflowType;
 
-typedef enum {
-  NodeTypeDefault,
-  NodeTypeText
-} NodeType;
+typedef enum { NodeTypeDefault, NodeTypeText } NodeType;
 
 typedef struct {
   float position[4];
@@ -109,7 +103,7 @@ typedef struct {
   float border[4];
   bool hadOverflow;
   HPDirection direction;
-  //used to layout
+  // used to layout
   float flexBaseSize;
   float hypotheticalMainAxisMarginBoxSize;
   float hypotheticalMainAxisSize;
@@ -132,11 +126,10 @@ typedef struct {
   MeasureMode heightMeasureMode;
 } HPSizeMode;
 
-
-//following arrays mapping with axis's direction
-const CSSDirection axisStart[4] = { CSSLeft, CSSRight, CSSTop, CSSBottom };
-const CSSDirection axisEnd[4] = { CSSRight, CSSLeft, CSSBottom, CSSTop };
-const Dimension axisDim[4] = { DimWidth, DimWidth, DimHeight, DimHeight };
+// following arrays mapping with axis's direction
+const CSSDirection axisStart[4] = {CSSLeft, CSSRight, CSSTop, CSSBottom};
+const CSSDirection axisEnd[4] = {CSSRight, CSSLeft, CSSBottom, CSSTop};
+const Dimension axisDim[4] = {DimWidth, DimWidth, DimHeight, DimHeight};
 
 bool inline isRowDirection(FlexDirection dir) {
   return dir == FLexDirectionRow || dir == FLexDirectionRowReverse;
@@ -149,5 +142,3 @@ bool inline isColumnDirection(FlexDirection dir) {
 bool inline isReverseDirection(FlexDirection dir) {
   return dir == FLexDirectionColumnReverse || dir == FLexDirectionRowReverse;
 }
-
-#endif

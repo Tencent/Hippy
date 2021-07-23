@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-#include <gtest.h>
 #include <Hippy.h>
+#include <gtest.h>
 
 TEST(HippyTest, padding_no_size) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetPadding(root, CSSLeft, 10);
   HPNodeStyleSetPadding(root, CSSTop, 10);
@@ -39,11 +38,9 @@ TEST(HippyTest, padding_no_size) {
   ASSERT_FLOAT_EQ(20, HPNodeLayoutGetHeight(root));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, padding_container_match_child) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetPadding(root, CSSLeft, 10);
   HPNodeStyleSetPadding(root, CSSTop, 10);
@@ -79,11 +76,9 @@ TEST(HippyTest, padding_container_match_child) {
   ASSERT_FLOAT_EQ(10, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, padding_flex_child) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetPadding(root, CSSLeft, 10);
   HPNodeStyleSetPadding(root, CSSTop, 10);
@@ -121,11 +116,9 @@ TEST(HippyTest, padding_flex_child) {
   ASSERT_FLOAT_EQ(80, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, padding_stretch_child) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetPadding(root, CSSLeft, 10);
   HPNodeStyleSetPadding(root, CSSTop, 10);
@@ -162,11 +155,9 @@ TEST(HippyTest, padding_stretch_child) {
   ASSERT_FLOAT_EQ(10, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, padding_center_child) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetJustifyContent(root, FlexAlignCenter);
   HPNodeStyleSetAlignItems(root, FlexAlignCenter);
@@ -205,11 +196,9 @@ TEST(HippyTest, padding_center_child) {
   ASSERT_FLOAT_EQ(10, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, child_with_padding_align_end) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetJustifyContent(root, FlexAlignEnd);
   HPNodeStyleSetAlignItems(root, FlexAlignEnd);
@@ -249,5 +238,4 @@ TEST(HippyTest, child_with_padding_align_end) {
   ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }

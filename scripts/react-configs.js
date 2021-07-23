@@ -1,15 +1,15 @@
-const path              = require('path');
-const replace           = require('rollup-plugin-replace');
-const alias             = require('rollup-plugin-alias');
-const node              = require('rollup-plugin-node-resolve');
-const commonjs          = require('rollup-plugin-commonjs');
-const typescript        = require('@wessberg/rollup-plugin-ts');
+const path = require('path');
+const replace = require('rollup-plugin-replace');
+const alias = require('rollup-plugin-alias');
+const node = require('rollup-plugin-node-resolve');
+const commonjs = require('rollup-plugin-commonjs');
+const typescript = require('@wessberg/rollup-plugin-ts');
 
 const hippyReactPackage = require('../packages/hippy-react/package.json');
 const hippyReactWebPackage = require('../packages/hippy-react-web/package.json');
 
 const aliases = {
-  '@localTypes': path.resolve(__dirname, '../types'),
+  '@localTypes': path.resolve(__dirname, '../packages/types'),
 };
 
 function banner(name, version) {
@@ -70,6 +70,7 @@ const builds = {
         'bezier-easing',
         'debounce',
         'swiper',
+        'rmc-list-view',
       ].find(ext => id.startsWith(ext));
     },
   },
@@ -83,6 +84,7 @@ function genConfig(name) {
     plugins: [
       replace({
         'process.env.HIPPY_REACT_VERSION': `"${hippyReactPackage.version}"`,
+        'process.env.HIPPY_REACT_WEB_VERSION': `"${hippyReactWebPackage.version}"`,
       }),
       typescript({
         transpileOnly: true,

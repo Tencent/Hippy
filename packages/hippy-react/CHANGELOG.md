@@ -3,6 +3,121 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.2.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.2.0...2.2.1) (2020-12-28)
+
+**Note:** Version bump only for package @hippy/react
+
+
+
+
+
+# [2.2.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.1.6...2.2.0) (2020-12-25)
+
+**Note:** Version bump only for package @hippy/react
+
+
+
+
+
+## [2.1.6](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.1.5...2.1.6) (2020-12-23)
+
+
+### Bug Fixes
+
+* **hippy-react:** fixed hairlineWidth NaN in ios ([82faee1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/82faee1f6693dce534ad97e18f4a42d9af1d2d9d))
+* **hippy-vue,hippy-react:** compatible loadMore and endReached event ([#429](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/issues/429)) ([d992cbe](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/d992cbefbd9a0f76bee70bf604df7d377a08e97c))
+
+
+### Features
+
+* **hippy-react:** added hippy-react boxShadow attr and demo ([#458](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/issues/458)) ([6fd6a34](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/6fd6a342f7c0b7b6aa742eeee5c585e9e5a1d31b))
+
+
+
+
+
+## [2.1.5](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.1.4...2.1.5) (2020-12-10)
+
+
+### Bug Fixes
+
+* **hippy-react:** continue finding nodeId if stringref's stateNode is a ([#442](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/issues/442)) ([3860d3f](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/3860d3ff3c36299b1f973dedbede83bcf94fa9ad))
+
+
+
+
+
+## [2.1.4](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.1.3...2.1.4) (2020-12-03)
+
+
+### Bug Fixes
+
+* **hippy-react:** fix pullHeader and pullFooter ([#420](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/issues/420)) ([abfc574](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/abfc57401951acca4fb3fea72456784efcd4e926))
+
+
+### Features
+
+* **hippy-vue,hippy-react:** added setNativeProps on element ([#430](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/issues/430)) ([d1f7e21](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/d1f7e216b5fef46ace0cf50803ad2940b429a0d6))
+* **hippy-vue,hippy-react:** perf setNativeProps ([5cd1291](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/5cd12910262ad3bb15d07c2dc974a829958a2b86))
+
+
+
+
+
+## [2.1.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.1.1...2.1.2) (2020-11-23)
+
+
+### Features
+
+* **hippy-vue, hippy-react:** changeTryConvertNumberCompatibility ([714faaf](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/714faaf11988659b450a3276342597b7ed095a17))
+
+
+
+
+
+## [2.1.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.1.0...2.1.1) (2020-11-11)
+
+
+**Note:** Version bump only for package @hippy/react
+
+
+
+# [2.1.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.0.3...2.1.0) (2020-10-29)
+
+
+### Bug Fixes
+
+* **hippy-react:** fix hippy-react animationSet destroy problem ([#382](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/issues/382)) ([3c66ca6](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/3c66ca676d8f4fa3bc852492d24e533c617b252d))
+* **hippy-react:** removed unncessary Object.values() ([8a68d44](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/8a68d44d7c7bd439b2be0badc542e9224685c76f))
+* **hippy-react:** restore the ListView type props be number ([#367](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/issues/367)) ([231ec5a](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/231ec5a37b41eb778b649e079ec5d6bbe712fb8f)), closes [/github.com/Tencent/Hippy/commit/9de74e331b797c2137b1d0e3d08cd0dde0ee821a#diff-ccaf44058906717491bd079958ea5684a93acaa5d726e22cb34c0a6c82c79](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/issues/diff-ccaf44058906717491bd079958ea5684a93acaa5d726e22cb34c0a6c82c79)
+* **hippy-vue:** fix hippy-vue transform multi-animation not working ([84bd58b](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/84bd58be840ea3f5ddd9d387e92b5a084387e9d1))
+
+
+### Features
+
+* **hippy-react:** add new method measureInAppWindow ([e25bb67](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/e25bb676942b89fbb57601d7c4ac2c9ce8ec175f))
+* **hippy-react:** added PullHeader and PullFooter components support ([2fcdee9](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/2fcdee9b3ef290f40a25321c978a0c232299b06a))
+
+
+
+
+## [2.0.3](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.0.2...2.0.3) (2020-04-23)
+
+
+### Bug Fixes
+
+* **hippy-react:** drop Object.entries() for lower iOS compatible ([d76b074](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/d76b074b7ed2536422be6052c56165be83b341c2))
+
+
+### Features
+
+* **hippy-react:** merge createNode operation ([#200](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/issues/200)) ([04d77a0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/04d77a074c5d43cbf4bfa0cc40c513167314addc))
+* **hippy-react-web:** added default export for hippy-react web ([62cbdb0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/62cbdb0cb7d65c989439e1d7ffb0a5fa1143eddd))
+
+
+
+
+
 ## [2.0.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.0.1...2.0.2) (2020-03-18)
 
 

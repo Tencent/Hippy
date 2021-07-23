@@ -4,8 +4,9 @@
     <ShowAllFiles>true</ShowAllFiles>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
-    <PackagePath>$(ProjectDir)..\..\..\..\example\build\outputs\apk\example-debug.apk</PackagePath>
+    <PackagePath>$(ProjectDir)..\..\..\..\..\examples\android-demo\example\build\outputs\apk\debug\example-debug.apk</PackagePath>
     <DebuggerFlavor>AndroidDebugger</DebuggerFlavor>
+    <AdditionalSymbolSearchPaths>$(ProjectDir)..\..\..\build\intermediates\ARM\Debug</AdditionalSymbolSearchPaths>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <PackagePath>$(ProjectDir)..\..\..\..\example\build\outputs\apk\example-debug.apk</PackagePath>

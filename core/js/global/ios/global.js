@@ -81,8 +81,9 @@ __GLOBAL__.enqueueNativeCall = (moduleID, methodID, params, onFail, onSucc) => {
   __GLOBAL__._queue[2].push(params);
 
   if (typeof nativeFlushQueueImmediate !== 'undefined') {
-    nativeFlushQueueImmediate(__GLOBAL__._queue);
+    const originalQueue = [...__GLOBAL__._queue];
     __GLOBAL__._queue = [[], [], [], __GLOBAL__._callID];
+    nativeFlushQueueImmediate(originalQueue);
   }
 };
 

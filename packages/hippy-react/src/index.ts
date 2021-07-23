@@ -15,6 +15,7 @@ import View from './components/view';
 import Text from './components/text';
 import Image from './components/image';
 import ListView from './components/list-view';
+import ListViewItem from './components/list-view-item';
 import RefreshWrapper from './components/refresh-wrapper';
 import Navigator from './components/navigator';
 import ViewPager from './components/view-pager';
@@ -23,10 +24,16 @@ import ScrollView from './components/scroll-view';
 import Modal from './components/modal';
 import Focusable from './components/focusable';
 import WebView from './components/web-view';
+import WebSocket from './modules/websocket';
+import PullHeader from './components/pull-header';
+import PullFooter from './components/pull-footer';
 import * as Native from './native';
 import * as StyleSheet from './modules/stylesheet';
 
-const  {
+// @ts-ignore
+global.WebSocket = WebSocket;
+
+const {
   AsyncStorage,
   BackAndroid,
   Bridge,
@@ -57,7 +64,6 @@ const ImageBackground = Image;
 const RNfqbRegister = HippyRegister;
 const RNfqbEventEmitter = HippyEventEmitter;
 const RNfqbEventListener = HippyEventListener;
-
 
 const Dimensions = {
   get(name: 'window' | 'screen') {
@@ -107,6 +113,7 @@ export {
   Text,
   Image,
   ListView,
+  ListViewItem,
   RefreshWrapper,
   Navigator,
   ViewPager,
@@ -116,6 +123,9 @@ export {
   Focusable,
   WebView,
   ImageBackground,
+  WebSocket,
+  PullHeader,
+  PullFooter,
 };
 
 export default HippyReact;

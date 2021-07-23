@@ -15,45 +15,65 @@
  */
 package com.tencent.mtt.hippy.devsupport;
 
-import android.app.Activity;
-
+import com.tencent.mtt.hippy.HippyGlobalConfigs;
 import com.tencent.mtt.hippy.HippyRootView;
+import java.io.InputStream;
 
-/**
- * @author: edsheng
- * @date: 2017/11/18 16:30
- * @version: V1.0
- */
+@SuppressWarnings("unused")
+public class DevServerImplDisable implements DevServerInterface {
 
-public class DevServerImplDisable implements DevServerInterface
-{
-	@Override
-	public void reload(DevRemoteDebugProxy proxy)
-	{
+  final DevServerHelper mFetchHelper;
 
-	}
+  DevServerImplDisable(HippyGlobalConfigs configs, String serverHost) {
+    mFetchHelper = new DevServerHelper(configs, serverHost);
+  }
 
-    @Override
-	public void setDevServerCallback(DevServerCallBack devServerCallback)
-	{
+  @Override
+  public void reload() {
 
-	}
+  }
 
-	@Override
-	public void attachToHost(HippyRootView view)
-	{
+  @Override
+  public String createResourceUrl(String resName) {
+    return null;
+  }
 
-	}
+  @Override
+  public void loadRemoteResource(String url, final DevServerCallBack serverCallBack) {
+    mFetchHelper.fetchBundleFromURL(new BundleFetchCallBack() {
+      @Override
+      public void onSuccess(InputStream inputStream) {
+        if (serverCallBack != null) {
+          serverCallBack.onDevBundleLoadReady(inputStream);
+        }
+      }
 
-	@Override
-	public void detachFromHost(HippyRootView view)
-	{
+      @Override
+      public void onFail(Exception exception) {
+        if (serverCallBack != null) {
+          serverCallBack.onInitDevError(exception);
+        }
+      }
+    }, url);
+  }
 
-	}
+  @Override
+  public void setDevServerCallback(DevServerCallBack devServerCallback) {
 
-	@Override
-	public void handleException(Throwable exception)
-	{
+  }
 
-	}
+  @Override
+  public void attachToHost(HippyRootView view) {
+
+  }
+
+  @Override
+  public void detachFromHost(HippyRootView view) {
+
+  }
+
+  @Override
+  public void handleException(Throwable exception) {
+
+  }
 }

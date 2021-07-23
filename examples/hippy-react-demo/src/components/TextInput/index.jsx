@@ -76,7 +76,9 @@ export default class TextInputExpo extends Component {
       <ScrollView style={styles.container_style}>
         {renderTitle('text')}
         <TextInput
-          ref={(ref) => { this.input = ref; }}
+          ref={(ref) => {
+            this.input = ref;
+          }}
           style={styles.input_style}
           placeholder="text"
           defaultValue={textContent}

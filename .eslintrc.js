@@ -1,17 +1,29 @@
 module.exports = {
   parser: '@typescript-eslint/parser',
   extends: [
-    'airbnb',
+    'eslint-config-tencent',
+    'plugin:react/recommended',
     'plugin:import/errors',
     'plugin:import/warnings',
     'plugin:import/typescript',
   ],
   plugins: [
     '@typescript-eslint',
+    'jsx-a11y',
   ],
   env: {
     browser: true,
     node: true,
+    es6: true,
+  },
+  parserOptions: {
+    ecmaFeatures: {
+      jsx: true,
+      legacyDecorators: true,
+      experimentalObjectRestSpread: true,
+    },
+    ecmaVersion: 2018,
+    sourceType: 'module',
   },
   globals: {
     __PLATFORM__: true,
@@ -19,11 +31,73 @@ module.exports = {
     Hippy: true,
   },
   rules: {
+    indent: 2,
+    'no-multi-spaces': 2,
+    'no-restricted-syntax': [
+      'warn',
+      {
+        selector: 'ForInStatement',
+        message: 'for..in loops iterate over the entire prototype chain, which is virtually never what you want. Use Object.{keys,values,entries}, and iterate over the resulting array.',
+      },
+      {
+        selector: 'LabeledStatement',
+        message: 'Labels are a form of GOTO; using them makes code confusing and hard to maintain and understand.',
+      },
+      {
+        selector: 'WithStatement',
+        message: '`with` is disallowed in strict mode because it makes code impossible to predict and optimize.',
+      },
+    ],
+    'no-mixed-operators': ['error', {
+      groups: [
+        ['%', '**'],
+        ['%', '+'],
+        ['%', '-'],
+        ['%', '*'],
+        ['%', '/'],
+        ['&', '|', '<<', '>>', '>>>'],
+        ['==', '!=', '===', '!=='],
+        ['&&', '||'],
+      ],
+      allowSamePrecedence: false,
+    }],
+    'func-call-spacing': 'off',
+    'new-cap': [
+      'error',
+      {
+        newIsCap: true,
+        newIsCapExceptions: [],
+        capIsNew: false,
+        capIsNewExceptions: ['Immutable.Map', 'Immutable.Set', 'Immutable.List'],
+        properties: false,
+      },
+    ],
+    'prefer-destructuring': [
+      'warn',
+      {
+        VariableDeclarator: {
+          array: false,
+          object: true,
+        },
+        AssignmentExpression: {
+          array: true,
+          object: false,
+        },
+      },
+      {
+        enforceForRenamedProperties: false,
+      },
+    ],
+    quotes: [
+      'error',
+      'single',
+      {
+        allowTemplateLiterals: false,
+      },
+    ],
+    'react/no-deprecated': 0,
     // Ignore the dependency by each package
     'import/no-unresolved': 'off',
-
-    // Allow comment or require align with space
-    'no-multi-spaces': 'off',
 
     // Allow import name different with file name
     'import/no-named-as-default': 'off',
@@ -44,20 +118,19 @@ module.exports = {
         allowComputed: true,
       },
     ],
-
     // Allow import from devDependencies
     'import/no-extraneous-dependencies': [
       'error',
       {
         devDependencies: [
           'scripts/*.js',
-          'packages/**/types/*.d.ts', // FIXME: seems not working
+          // FIXME: seems not working
+          'packages/**/types/*.d.ts',
           'packages/**/__tests__/*.test.js',
           'examples/**/scripts/*.js',
         ],
       },
     ],
-
     // Allow tsx as the jsx file
     'react/jsx-filename-extension': [
       'error',
@@ -71,6 +144,7 @@ module.exports = {
       'error',
       {
         allow: [
+          '__ISHIPPY__',
           '__GLOBAL__',
           '__HIPPYNATIVEGLOBAL__',
           '__instanceId__',
@@ -83,14 +157,8 @@ module.exports = {
     'import/resolver': {
       alias: {
         map: [
-          ['vue', 'vue/src/core/index'],
-          ['compiler', 'vue/src/compiler'],
-          ['web', 'vue/src/platforms/web'],
-          ['core', 'vue/src/core'],
-          ['shared', 'vue/src/shared'],
-          ['sfc', 'vue/src/sfc'],
           ['he', './packages/hippy-vue/util/entity-decoder'],
-          ['@localTypes', './types'],
+          ['@localTypes', './packages/types'],
           ['@vue', './packages/hippy-vue/src'],
           ['@router', './packages/hippy-vue-router/src'],
           ['@css-loader', './packages/hippy-vue-css-loader/src'],
@@ -126,4 +194,4 @@ module.exports = {
       },
     },
   ],
-}
+};

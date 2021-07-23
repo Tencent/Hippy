@@ -18,62 +18,41 @@ package com.tencent.mtt.hippy.devsupport;
 import android.content.Context;
 import android.content.SharedPreferences;
 import com.tencent.mtt.hippy.utils.ContextHolder;
-import java.io.File;
 
-public class DevServerConfig
-{
-	private static final String	JS_REMOTE_DEBUG		= "js_remote_debug";
+public class DevServerConfig {
 
-	private static final String	HIPPYDEBUGPREF		= "hippydebugpref";
+  private static final String JS_REMOTE_DEBUG = "js_remote_debug";
 
-	private static final String	JS_BUNDLE_FILE_NAME	= "HippyDevBundle.js";
+  private static final String HIPPYDEBUGPREF = "hippydebugpref";
 
-	boolean						mLiveDebug			= false;
+  boolean mLiveDebug = false;
 
-	SharedPreferences			sharedPreferences;
+  final SharedPreferences sharedPreferences;
 
-	private File				mJSBundleTempFile;
+  // Hippy Server JsBundle名字
+  private final String mServerHost;
 
-	// Hippy Server JsBundle名字
-	private String				mServerBundleName;
-	private String				mServerHost;
+  @SuppressWarnings("unused")
+  public DevServerConfig(String serverHost, String bundleName) {
+    sharedPreferences = ContextHolder.getAppContext()
+        .getSharedPreferences(HIPPYDEBUGPREF, Context.MODE_PRIVATE);
+    mServerHost = serverHost;
+  }
 
-	public DevServerConfig(String serverHost, String bundleName)
-	{
-		sharedPreferences = ContextHolder.getAppContext().getSharedPreferences(HIPPYDEBUGPREF, Context.MODE_PRIVATE);
-		mJSBundleTempFile = new File(ContextHolder.getAppContext().getFilesDir(), JS_BUNDLE_FILE_NAME);
-		mServerBundleName = bundleName;
-		mServerHost = serverHost;
-	}
+  public String getServerHost() {
+    return mServerHost;
+  }
 
-	public File getJSBundleTempFile()
-	{
-		return mJSBundleTempFile;
-	}
+  public boolean enableRemoteDebug() {
+    return sharedPreferences.getBoolean(JS_REMOTE_DEBUG, false);
+  }
 
-	public String getBundleName()
-	{
-		return mServerBundleName;
-	}
+  public boolean enableLiveDebug() {
+    return mLiveDebug;
+  }
 
-	public String getServerHost()
-	{
-		return mServerHost;
-	}
-
-	public boolean enableRemoteDebug()
-	{
-		return sharedPreferences.getBoolean(JS_REMOTE_DEBUG, false);
-	}
-
-	public boolean enableLiveDebug()
-	{
-		return mLiveDebug;
-	}
-
-	public void setEnableLiveDebug(boolean enableLiveDebug)
-	{
-		mLiveDebug = enableLiveDebug;
-	}
+  public void setEnableLiveDebug(boolean enableLiveDebug) {
+    mLiveDebug = enableLiveDebug;
+  }
 
 }

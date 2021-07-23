@@ -35,7 +35,7 @@
  * Keys and values must always be strings or an error is returned.
  */
 extern NSString *const HippyStorageDirectory;
-@interface HippyAsyncLocalStorage : NSObject <HippyBridgeModule,HippyInvalidating>
+@interface HippyAsyncLocalStorage : NSObject <HippyBridgeModule, HippyInvalidating>
 
 @property (nonatomic, assign) BOOL clearOnInvalidate;
 
@@ -44,5 +44,5 @@ extern NSString *const HippyStorageDirectory;
 // Clear the HippyAsyncLocalStorage data from native code
 + (void)clearAllData;
 
-- (NSString *) HippyGetStorageDirectory;
+- (NSString *)HippyGetStorageDirectory;
 @end

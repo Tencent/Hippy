@@ -1,13 +1,12 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
-import {
+import HippyReact, {
   Image,
   Platform,
   StyleSheet,
   Text,
   View,
 } from '@hippy/react';
-
 
 import BACK_ICON from './back-icon.png';
 
@@ -47,9 +46,15 @@ const Header = ({ history, route }) => {
   if (history.index === 0) {
     return (
       <View style={[styles.container]}>
-        <View style={{ backgroundColor: styles.title.backgroundColor, marginLeft: 12  }}>
+        <View style={{ backgroundColor: styles.title.backgroundColor, marginLeft: 12 }}>
           <Text numberOfLines={1} style={[styles.title, { fontWeight: 'bold' }]}>
             {route.name}
+          </Text>
+        </View>
+        <View style={styles.headerButton}>
+          <Text numberOfLines={1} style={styles.title}>
+            v
+            {HippyReact.version}
           </Text>
         </View>
       </View>

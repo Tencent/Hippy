@@ -21,26 +21,22 @@ import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import android.content.Context;
 import android.view.View;
 
-/**
- * Created by ceasoncai on 2017/12/15.
- */
+@SuppressWarnings({"unused"})
 @HippyController(name = HippyViewPagerItemController.CLASS_NAME)
-public class HippyViewPagerItemController extends HippyViewController<HippyViewPagerItem>
-{
-	public static final String CLASS_NAME	= "ViewPagerItem";
+public class HippyViewPagerItemController extends HippyViewController<HippyViewPagerItem> {
 
-	private static final String TAG			= "ViewPagerItem";
+  public static final String CLASS_NAME = "ViewPagerItem";
 
-	@Override
-	protected View createViewImpl(Context context)
-	{
-		return new HippyViewPagerItem(context);
-	}
+  private static final String TAG = "ViewPagerItem";
 
-	@Override
-	protected boolean shouldInterceptLayout(View view, int x, int y, int width, int height)
-	{
-		return true;
-	}
+  @Override
+  protected View createViewImpl(Context context) {
+    return new HippyViewPagerItem(context);
+  }
+
+  @Override
+  protected boolean shouldInterceptLayout(View view, int x, int y, int width, int height) {
+    return true;
+  }
 
 }

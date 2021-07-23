@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /* eslint-disable import/prefer-default-export */
 
 const IS_NUMBER_REG = new RegExp(/^\d+$/);
@@ -12,6 +11,7 @@ function trace(...context: any[]) {
   if (process.env.NODE_ENV === 'production' || silent) {
     return;
   }
+  /* eslint-disable-next-line no-console */
   console.log(...context);
 }
 
@@ -23,6 +23,7 @@ function warn(...context: any[]) {
   if (process.env.NODE_ENV === 'production') {
     return;
   }
+  /* eslint-disable-next-line no-console */
   console.warn(...context);
 }
 
@@ -37,7 +38,7 @@ function unicodeToChar(text: string): string {
 /**
  * Convert to string as possible
  */
-const numberRegEx = new RegExp('^[+-]?\\d+(\\.\\d+)?$');
+const numberRegEx = new RegExp('^(?=.+)[+-]?\\d*\\.?\\d*([Ee][+-]?\\d+)?$');
 /**
  * Try to convert something to number
  *

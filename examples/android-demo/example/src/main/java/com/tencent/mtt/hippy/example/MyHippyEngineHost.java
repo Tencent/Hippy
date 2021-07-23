@@ -13,21 +13,11 @@ import com.tencent.mtt.hippy.example.adapter.MyImageLoader;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyright (C) 2005-2020 TENCENT Inc.All Rights Reserved.
- * FileName: MyHippyEngineHost
- * Description：
- * History：
- * 1.0 xiandongluo on 2017/11/14
- * 2019/3/26 harryguo注释：
- * 老的引擎初始化代码。将被废弃
- * 请参见{@link MyActivity}
- * 和{@link MyActivityTiny}
- */
+@SuppressWarnings({"DeprecatedIsStillUsed", "unused", "deprecation"})
 @Deprecated
 public class MyHippyEngineHost extends HippyEngineHost
 {
-	private Application	mApplication;
+	final private Application mApplication;
 
 	public MyHippyEngineHost(Application application)
 	{
@@ -52,7 +42,7 @@ public class MyHippyEngineHost extends HippyEngineHost
 	@Override
 	public HippyGlobalConfigs getHippyGlobalConfigs()
 	{
-		return new HippyGlobalConfigs.Builder().setContext(mApplication).setExceptionHandler(new MyExceptionHandler()).setImageLoaderAdapter(new MyImageLoader()).build();
+		return new HippyGlobalConfigs.Builder().setContext(mApplication).setExceptionHandler(new MyExceptionHandler()).setImageLoaderAdapter(new MyImageLoader(mApplication)).build();
 	}
 
 	@Override

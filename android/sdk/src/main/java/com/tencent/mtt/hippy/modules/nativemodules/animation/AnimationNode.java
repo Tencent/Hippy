@@ -20,59 +20,44 @@ import com.tencent.mtt.hippy.common.HippyMap;
 
 import java.util.ArrayList;
 
-/**
- * FileName: AnimationNode
- * Description：
- * History：
- */
-public class AnimationNode
-{
-	private int						mTagId;
+@SuppressWarnings("deprecation")
+public class AnimationNode {
 
-	private HippyRootView			mRootView;
+  private final int mTagId;
+  private final HippyRootView mRootView;
+  private final ArrayList<Animation> mAnimations;
+  private HippyMap mProps;
 
-	private HippyMap				mProps;
+  public AnimationNode(int tagId, HippyRootView rootView) {
+    mTagId = tagId;
+    mRootView = rootView;
+    mAnimations = new ArrayList<>();
+  }
 
-	private ArrayList<Animation>	mAnimations;
+  public int getId() {
+    return mTagId;
+  }
 
-	public AnimationNode(int tagId, HippyRootView rootView)
-	{
-		this.mTagId = tagId;
-		this.mRootView = rootView;
-		mAnimations = new ArrayList<>();
-	}
+  public HippyRootView getRootView() {
+    return mRootView;
+  }
 
-	public int getId()
-	{
-		return mTagId;
-	}
+  public HippyMap getProps() {
+    return mProps;
+  }
 
-	public HippyRootView getRootView()
-	{
-		return mRootView;
-	}
+  public void setProps(HippyMap props) {
+    this.mProps = props;
+  }
 
-	public HippyMap getProps()
-	{
-		return mProps;
-	}
+  public void addAnimation(Animation animation) {
+    if (!mAnimations.contains(animation)) {
+      mAnimations.add(animation);
+    }
+  }
 
-	public void setProps(HippyMap props)
-	{
-		this.mProps = props;
-	}
-
-	public void addAnimation(Animation animation)
-	{
-		if (!mAnimations.contains(animation))
-		{
-			mAnimations.add(animation);
-		}
-	}
-
-	public ArrayList<Animation> getAnimations()
-	{
-		return mAnimations;
-	}
+  public ArrayList<Animation> getAnimations() {
+    return mAnimations;
+  }
 
 }

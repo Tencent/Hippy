@@ -23,20 +23,18 @@
 #import "HippyShadowView.h"
 #import "HippyTextDecorationLineType.h"
 
-typedef NS_ENUM(NSInteger, HippySizeComparison)
-{
-  HippySizeTooLarge,
-  HippySizeTooSmall,
-  HippySizeWithinRange,
+typedef NS_ENUM(NSInteger, HippySizeComparison) {
+    HippySizeTooLarge,
+    HippySizeTooSmall,
+    HippySizeWithinRange,
 };
-
 
 extern NSString *const HippyIsHighlightedAttributeName;
 extern NSString *const HippyHippyTagAttributeName;
 extern NSString *const HippyShadowViewAttributeName;
 
 @interface HippyShadowText : HippyShadowView {
-    @protected
+@protected
     NSTextStorage *_cachedTextStorage;
     CGFloat _cachedTextStorageWidth;
     CGFloat _cachedTextStorageWidthMode;
@@ -69,6 +67,7 @@ extern NSString *const HippyShadowViewAttributeName;
 @property (nonatomic, assign) BOOL adjustsFontSizeToFit;
 @property (nonatomic, assign) CGFloat minimumFontScale;
 @property (nonatomic, copy) NSString *text;
+@property (nonatomic, assign) BOOL autoLetterSpacing;
 
 - (void)recomputeText;
 - (NSAttributedString *)_attributedStringWithFontFamily:(NSString *)fontFamily

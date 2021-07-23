@@ -1,11 +1,11 @@
 package com.tencent.mtt.hippy.example.view;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.view.MotionEvent;
-import android.view.View;
 import android.widget.FrameLayout;
 
 import com.tencent.mtt.hippy.common.HippyMap;
@@ -13,20 +13,14 @@ import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 
-/**
- * @Description: TODO
- * @author: edsheng
- * @date: 2018/3/22 11:12
- * @version: V1.0
- */
-
+@SuppressWarnings("deprecation")
 public class MyView extends FrameLayout implements HippyViewBase
 {
 
 	private NativeGestureDispatcher	mGestureDispatcher;
 
 	String							mText;
-	Paint							mPaint	= new Paint();
+	final Paint						mPaint	= new Paint();
 
 	public MyView(Context context)
 	{
@@ -50,13 +44,14 @@ public class MyView extends FrameLayout implements HippyViewBase
 	{
 		if (mText != null)
 		{
-			canvas.drawText(mText, 0 ,getHeight() / 2, mPaint);
+			canvas.drawText(mText, 0 ,getHeight()/2.0f, mPaint);
 		}
 		super.onDraw(canvas);
 	}
 
 	/** the Gesture use for the touch event*/
-	@Override
+	@SuppressLint("ClickableViewAccessibility")
+    @Override
 	public boolean onTouchEvent(MotionEvent event)
 	{
 		boolean result = super.onTouchEvent(event);

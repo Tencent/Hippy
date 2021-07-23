@@ -1,19 +1,12 @@
 const content = require('./content');
-const dir = require('./dir');
 const exec = require('./exec');
-const mimes = require('./mimes');
-const walk = require('./walk');
-const { getFrameworkVersion, getPackageVersion } = require('./check');
+const parseMimeType = require('./mimes');
 const { logger, timerLogger, verboseInfo } = require('./logger');
 
 module.exports = {
   content,
-  dir,
   exec,
-  mimes,
-  walk,
-  getFrameworkVersion,
-  getPackageVersion,
+  parseMimeType,
   logger,
   timerLogger,
   verboseInfo,
