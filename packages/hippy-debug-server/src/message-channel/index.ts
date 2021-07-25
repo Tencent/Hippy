@@ -100,16 +100,14 @@ class MessageChannel {
   /**
    * 获取通道
    */
-  getInstance(appClientId: string, devtoolsClientId: string): {
-    sendMessage: (msg: Adapter.CDP.Req) => void,
-    registerDomainCallback: (domain: string, cb: Adapter.DomainCallback) => void,
-  } | void {
+  getInstance(appClientId: string, devtoolsClientId: string): Adapter.Channel | void {
     const adapter = this.adapterMap.get(devtoolsClientId);
     if(!adapter) return debug('message channel adapter instance doesn\'t exist!!!');
 
     return {
       sendMessage: adapter.target.devtoolsClient.sendMessage.bind(adapter.target.devtoolsClient),
       registerDomainCallback: adapter.target.devtoolsClient.registerDomainCallback.bind(adapter.target.devtoolsClient),
+      registerModuleCallback: adapter.target.devtoolsClient.registerModuleCallback.bind(adapter.target.devtoolsClient),
     };
   }
 }

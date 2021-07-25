@@ -1,6 +1,6 @@
 {
   "name": "debug-server-next",
-  "version": "3.0.2",
+  "version": "3.0.5",
   "description": "Dev server for hippy-core.",
   "repository": "https://github.com/Tencent/Hippy/tree/master/packages/hippy-debug-server",
   "homepage": "http://hippyjs.org",
@@ -26,6 +26,7 @@
     "color-normalize": "^1.5.2",
     "debug": "^4.1.1",
     "find-up": "^4.1.0",
+    "kill-port": "^1.6.1",
     "koa": "^2.13.1",
     "koa-router": "^10.0.0",
     "koa-static": "^5.0.0",

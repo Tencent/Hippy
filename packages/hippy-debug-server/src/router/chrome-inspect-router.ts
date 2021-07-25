@@ -132,7 +132,7 @@ export const getTargets = async ({iwdpPort, host, port, wsPath}) => {
   rst.push(...iosTargets);
   rst.push(...androidTargets);
   targets = rst;
-  return rst.map(page => _.omit(page, ['ws', 'clientId']));
+  return rst.map(page => _.omit(page, ['ws']));
 }
 
 /**
@@ -140,6 +140,8 @@ export const getTargets = async ({iwdpPort, host, port, wsPath}) => {
  */
 export const selectTarget = (id: string) => {
   const target = targets.find(target => target.id === id);
+  if(!target) return;
+
   return {
     ...messageChannel.addChannel(target),
     target,

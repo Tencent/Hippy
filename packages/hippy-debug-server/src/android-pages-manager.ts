@@ -18,7 +18,7 @@ class AndroidTargetManager {
   }[] = [];
   customTargets: {
     id: string,
-    ws?: WebSocket, 
+    ws?: WebSocket,
   }[] = [];
   useCustom = false;
 
@@ -50,6 +50,10 @@ class AndroidTargetManager {
 
   removeWsTarget(clientId: string) {
     this.removeTarget(this.wsTargets, clientId);
+  }
+
+  clearCustomTarget() {
+    this.customTargets = [];
   }
 
   addCustomTarget(clientId: string) {

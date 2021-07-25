@@ -20,6 +20,7 @@ export function onMessage(msg) {
   try {
     const moduleObject: any = JSON.parse(msg).modules[0];
     const message: string = moduleObject.content;
+    console.warn('on tunnel message', moduleObject.module, listeners.has(moduleObject.module))
     if (listeners.has(moduleObject.module)) {
       listeners.get(moduleObject.module).forEach((cb) => {
         cb(message);

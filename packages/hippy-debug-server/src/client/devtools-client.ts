@@ -6,7 +6,7 @@ import WebSocket, { Server } from 'ws/index.js';
 import createDebug from 'debug';
 
 const debug = createDebug('devtools-client');
-
+const noop = () => {};
 /**
  * 对外接口：
  *  on:
@@ -20,9 +20,9 @@ export class DevtoolsClient extends EventEmitter {
   domainListeners: Map<string, Array<Adapter.DomainCallback>> = new Map();
   // 记录下行消息 id 和 method 的map，在消息上行时可以根据id获取其 method
   msgIdMethodMap: Map<number, string> = new Map();
-  sendToDevtools: (msg: string) => void;
+  sendToDevtools: (msg: string) => void = noop;
   // app端断连，devtools ws主动断连。socket-bridge中赋值
-  close: () => void;
+  close: () => void = noop;
 
   constructor(id) {
     super();

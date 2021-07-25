@@ -31,4 +31,10 @@ declare namespace Adapter {
   declare namespace Client {
 
   }
+
+  type Channel = {
+    sendMessage: (msg: Adapter.CDP.Req) => void,
+    registerDomainCallback: (domain: string, cb: Adapter.DomainCallback) => void,
+    registerModuleCallback: (module: string, cb: Adapter.DomainCallback) => void,
+  }
 }

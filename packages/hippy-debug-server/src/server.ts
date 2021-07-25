@@ -10,6 +10,7 @@ import { TunnelEvent } from './@types/enum';
 import { onMessage } from './message-channel/tunnel';
 import { appClientManager } from './client';
 import createDebug from 'debug';
+import kill from 'kill-port';
 
 const debug = createDebug('server');
 // const addon = require('./build/Tunnel.node');
@@ -17,7 +18,7 @@ const debug = createDebug('server');
 
 let server;
 
-export const startServer = (argv) => {
+export const startServer = async (argv) => {
   const {
     host,
     port,
@@ -25,13 +26,20 @@ export const startServer = (argv) => {
     entry,
     iwdpPort,
   } = argv;
-  new Promise((resolve, reject) => {
+  try {
+    await kill(port, 'tcp');
+    await kill(iwdpPort, 'tcp');
+  }
+  catch(e) {
+    return debug('Address already in use!');
+  }
+  return new Promise((resolve, reject) => {
     const app = new Koa();
 
     server = app.listen(port, host, () => {
       debug('start koa dev server');
       // startTunnel(iwdpPort);
-      startAdbProxy(port);
+      // startAdbProxy(port);
       startIosProxy(iwdpPort);
 
       new SocketBridge(server, argv);
@@ -54,14 +62,20 @@ export const startServer = (argv) => {
 
     app.use(chromeInspectRouter(argv).routes()).use(chromeInspectRouter(argv).allowedMethods());
 
-    debug(`serve bundle: ${entry} \nserve folder: ${staticPath}`)
-    // if(entry) app.use(serve(entry));
-    if(staticPath) app.use(serve(staticPath));
+    let servePath;
+    if(staticPath) {
+      servePath = path.resolve(staticPath);
+    } else {
+      servePath = path.resolve(path.dirname(entry));
+    }
+    debug(`serve bundle: ${entry} \nserve folder: ${servePath}`)
+    app.use(serve(servePath));
   });
 }
 
 export const stopServer = () => {
   if(!server) return;
+  console.warn('stopServer');
   server.close();
 }
 
@@ -83,8 +97,11 @@ const startTunnel = (iwdpPort) => {
     //   onMessage(data);
     // }
   // });
-  global.addon.tunnelStart(adbPath, iwdpParams);
+  // addon.tunnelStart(adbPath, iwdpParams);
 }
 
 process.on('exit', stopServer);
+// catch ctrl c
 process.on('SIGINT', stopServer);
+// catch kill
+process.on('SIGTERM', stopServer);
