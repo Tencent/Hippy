@@ -6,12 +6,12 @@ import fs from 'fs';
 const debug = createDebug('child-process');
 let proxyProcess;
 
-export const startIosProxy = (iwdpPort: string) => {
+export const startIosProxy = (iwdpPort: string, iwdpStartPort: string, iwdpEndPort: string) => {
   const out = fs.openSync('./iwdp-out.log', 'a');
   const err = fs.openSync('./iwdp-err.log', 'a');
   proxyProcess = spawn(
     'ios_webkit_debug_proxy',
-    ['--no-frontend', `--config=null:${iwdpPort},:${iwdpPort + 100}-${iwdpPort + 200}`],
+    ['--no-frontend', `--config=null:${iwdpPort},:${iwdpStartPort}-${iwdpEndPort}`],
     { detached: false },
   );
   proxyProcess.unref();

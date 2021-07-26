@@ -25,6 +25,8 @@ export const startServer = async (argv) => {
     static: staticPath,
     entry,
     iwdpPort,
+    iwdpStartPort,
+    iwdpEndPort,
   } = argv;
   try {
     await kill(port, 'tcp');
@@ -40,7 +42,7 @@ export const startServer = async (argv) => {
       debug('start koa dev server');
       // startTunnel(iwdpPort);
       // startAdbProxy(port);
-      startIosProxy(iwdpPort);
+      startIosProxy(iwdpPort, iwdpStartPort, iwdpEndPort);
 
       new SocketBridge(server, argv);
       resolve(null);

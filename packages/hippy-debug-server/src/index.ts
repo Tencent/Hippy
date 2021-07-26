@@ -45,6 +45,16 @@ const { argv } = yargs
     default: 9000,
     describe: 'Port of ios_webkit_debug_proxy'
   })
+  .option('iwdpStartPort', {
+    type: 'number',
+    default: 9200,
+    describe: 'Start port of ios_webkit_debug_proxy'
+  })
+  .option('iwdpEndPort', {
+    type: 'number',
+    default: 9300,
+    describe: 'End port of ios_webkit_debug_proxy'
+  })
   .option('env', {
     type: 'string',
     default: 'hippy',
