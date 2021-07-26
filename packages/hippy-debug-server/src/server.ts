@@ -75,20 +75,22 @@ export const startServer = async (argv) => {
   });
 }
 
-export const stopServer = () => {
+export const stopServer = (exitProcess: boolean = false) => {
   if(!server) {
-    setTimeout(() => {
-      process.exit(0);
-    }, 100);
+    if(exitProcess)
+      setTimeout(() => {
+        process.exit(0);
+      }, 100);
     return;
   }
   try {
     debug('stopServer');
     server.close();
     server = null;
-    setTimeout(() => {
-      process.exit(0);
-    }, 100);
+    if(exitProcess)
+      setTimeout(() => {
+        process.exit(0);
+      }, 100);
   }
   catch(e) {
     debug('stopServer error, %j', e);
@@ -116,8 +118,8 @@ const startTunnel = (iwdpPort) => {
   // addon.tunnelStart(adbPath, iwdpParams);
 }
 
-process.on('exit', stopServer);
+process.on('exit', () => stopServer(true));
 // catch ctrl c
-process.on('SIGINT', stopServer);
+process.on('SIGINT', () => stopServer(true));
 // catch kill
-process.on('SIGTERM', stopServer);
+process.on('SIGTERM', () => stopServer(true));

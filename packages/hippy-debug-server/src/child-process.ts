@@ -1,14 +1,11 @@
 import { spawn } from 'child_process';
 import { exec } from './utils/process';
 import createDebug from 'debug';
-import fs from 'fs';
 
 const debug = createDebug('child-process');
 let proxyProcess;
 
 export const startIosProxy = (iwdpPort: string, iwdpStartPort: string, iwdpEndPort: string) => {
-  const out = fs.openSync('./iwdp-out.log', 'a');
-  const err = fs.openSync('./iwdp-err.log', 'a');
   proxyProcess = spawn(
     'ios_webkit_debug_proxy',
     ['--no-frontend', `--config=null:${iwdpPort},:${iwdpStartPort}-${iwdpEndPort}`],
