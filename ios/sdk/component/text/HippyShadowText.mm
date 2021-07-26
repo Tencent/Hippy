@@ -457,7 +457,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
     // check if we have lineHeight set on self
     __block BOOL hasParagraphStyle = NO;
-    if (_lineHeight || _textAlign) {
+    if (_lineHeight || _textAlignSet) {
         hasParagraphStyle = YES;
     }
 
@@ -675,7 +675,6 @@ HIPPY_TEXT_PROPERTY(LetterSpacing, _letterSpacing, CGFloat)
 HIPPY_TEXT_PROPERTY(LineHeight, _lineHeight, CGFloat)
 HIPPY_TEXT_PROPERTY(NumberOfLines, _numberOfLines, NSUInteger)
 HIPPY_TEXT_PROPERTY(EllipsizeMode, _ellipsizeMode, NSLineBreakMode)
-HIPPY_TEXT_PROPERTY(TextAlign, _textAlign, NSTextAlignment)
 HIPPY_TEXT_PROPERTY(TextDecorationColor, _textDecorationColor, UIColor *);
 HIPPY_TEXT_PROPERTY(TextDecorationLine, _textDecorationLine, HippyTextDecorationLineType);
 HIPPY_TEXT_PROPERTY(TextDecorationStyle, _textDecorationStyle, NSUnderlineStyle);
@@ -683,6 +682,12 @@ HIPPY_TEXT_PROPERTY(Opacity, _opacity, CGFloat)
 HIPPY_TEXT_PROPERTY(TextShadowOffset, _textShadowOffset, CGSize);
 HIPPY_TEXT_PROPERTY(TextShadowRadius, _textShadowRadius, CGFloat);
 HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
+
+- (void)setTextAlign:(NSTextAlignment)textAlign {
+    _textAlign = textAlign;
+    _textAlignSet = YES;
+    [self dirtyText];
+}
 
 /*
  * text类型控件会响应用户输入交互，但是并不会更新shadowText中的props属性，
