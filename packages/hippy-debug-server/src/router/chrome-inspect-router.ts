@@ -15,7 +15,6 @@ export default ({
   port,
   iwdpPort,
   wsPath,
-  entry,
 }) => {
   const chromeInspectRouter = new Router();
 
@@ -27,14 +26,6 @@ export default ({
     const rst = await getTargets({iwdpPort, host, port, wsPath});
     ctx.body = rst;
   });
-
-  if(entry)
-    chromeInspectRouter.get('/index.bundle', ctx => {
-      ctx.res.writeHead(200, {
-        'content-type': 'application/javascript',
-      });
-      ctx.body = fs.createReadStream(entry);
-    })
 
   return chromeInspectRouter;
 }

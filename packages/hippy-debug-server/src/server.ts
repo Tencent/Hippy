@@ -41,7 +41,7 @@ export const startServer = async (argv) => {
     server = app.listen(port, host, () => {
       debug('start koa dev server');
       // startTunnel(iwdpPort);
-      // startAdbProxy(port);
+      startAdbProxy(port);
       startIosProxy(iwdpPort, iwdpStartPort, iwdpEndPort);
 
       new SocketBridge(server, argv);
@@ -76,9 +76,23 @@ export const startServer = async (argv) => {
 }
 
 export const stopServer = () => {
-  if(!server) return;
-  console.warn('stopServer');
-  server.close();
+  if(!server) {
+    setTimeout(() => {
+      process.exit(0);
+    }, 100);
+    return;
+  }
+  try {
+    debug('stopServer');
+    server.close();
+    server = null;
+    setTimeout(() => {
+      process.exit(0);
+    }, 100);
+  }
+  catch(e) {
+    debug('stopServer error, %j', e);
+  }
 }
 
 const startTunnel = (iwdpPort) => {

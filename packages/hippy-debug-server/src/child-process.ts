@@ -27,8 +27,8 @@ export const startIosProxy = (iwdpPort: string, iwdpStartPort: string, iwdpEndPo
 };
 
 export const startAdbProxy = (port: string) => {
-  exec('adb', ['reverse', '--remove-all'], { detached: true, stdio: 'ignore' })
-    .then(() => exec('adb', ['reverse', `tcp:${port}`, `tcp:${port}`], { detached: true, stdio: 'ignore' }))
+  exec('adb', ['reverse', '--remove-all'])
+    .then(() => exec('adb', ['reverse', `tcp:${port}`, `tcp:${port}`]))
     .catch((err: Error) => {
       debug('Port reverse failed, For iOS app debug only just ignore the message.');
       debug('Otherwise please check adb devices command working correctly');
