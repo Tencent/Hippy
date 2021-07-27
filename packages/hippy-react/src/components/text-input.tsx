@@ -8,6 +8,8 @@ import { LayoutableProps, ClickableProps } from '../types';
 import { callUIFunction } from '../modules/ui-manager-module';
 import { Device } from '../native';
 import Element from '../dom/element-node';
+import { isRTL } from '../utils/i18n';
+import { Platform } from '..';
 
 interface KeyboardWillShowEvent {
   keyboardHeight: number;
@@ -293,7 +295,7 @@ class TextInput extends React.Component<TextInputProps, {}> {
           nativeProps.style.push({
             [prop]: (this.props as any)[prop],
           });
-        } else if (typeof nativeProps.style === 'object') {
+        } else if (nativeProps.style && typeof nativeProps.style === 'object') {
           (nativeProps.style as any)[prop] = (this.props as any)[prop];
         } else {
           nativeProps.style = {
@@ -303,6 +305,18 @@ class TextInput extends React.Component<TextInputProps, {}> {
         (nativeProps as any)[prop] = undefined;
       }
     });
+
+    if (isRTL()) {
+      if (!nativeProps.style) {
+        nativeProps.style = {
+          textAlign: 'right',
+        }
+      } else if (typeof nativeProps.style === 'object' && !Array.isArray(nativeProps.style)) {
+        if (!nativeProps.style.textAlign) {
+          nativeProps.style.textAlign = 'right';
+        }
+      }
+    }
 
     return (
       <div
