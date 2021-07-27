@@ -28,7 +28,7 @@ export const startServer = async (argv) => {
     iwdpStartPort,
     iwdpEndPort,
     startAdb,
-    useIWDP,
+    startIWDP,
     clearAddrInUse,
   } = argv;
   if(clearAddrInUse) {
@@ -48,7 +48,7 @@ export const startServer = async (argv) => {
       // startTunnel(iwdpPort);
       if(startAdb)
         startAdbProxy(port);
-      if(useIWDP)
+      if(startIWDP)
         startIosProxy(iwdpPort, iwdpStartPort, iwdpEndPort);
 
       new SocketBridge(server, argv);
@@ -78,8 +78,11 @@ export const startServer = async (argv) => {
       servePath = path.resolve(path.dirname(entry));
     }
     debug(`serve bundle: ${entry} \nserve folder: ${servePath}`)
+    const serveOption = {
+      maxage: 30 * 24 * 60 * 60 * 1000,
+    };
     app.use(serve(servePath));
-    app.use(serve(path.join(__dirname, 'public')));
+    app.use(serve(path.join(__dirname, 'public'), serveOption));
   });
 }
 
