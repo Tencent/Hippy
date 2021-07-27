@@ -29,13 +29,16 @@ export const startServer = async (argv) => {
     iwdpEndPort,
     startAdb,
     useIWDP,
+    clearAddrInUse,
   } = argv;
-  try {
-    await kill(port, 'tcp');
-    await kill(iwdpPort, 'tcp');
-  }
-  catch(e) {
-    return debug('Address already in use!');
+  if(clearAddrInUse) {
+    try {
+      await kill(port, 'tcp');
+      await kill(iwdpPort, 'tcp');
+    }
+    catch(e) {
+      return debug('Address already in use!');
+    }
   }
   return new Promise((resolve, reject) => {
     const app = new Koa();
