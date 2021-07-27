@@ -2,14 +2,16 @@
   <div id="demo-textarea">
     <label>多行文本:</label>
     <textarea
+      v-model="content"
       :rows="10"
       placeholder="多行文本编辑器"
       class="textarea"
-      v-model="content"
       @contentSizeChange="contentSizeChange"
     />
     <div class="output-container">
-      <p class="output">输入的文本为：{{ content }}</p>
+      <p class="output">
+        输入的文本为：{{ content }}
+      </p>
     </div>
   </div>
 </template>

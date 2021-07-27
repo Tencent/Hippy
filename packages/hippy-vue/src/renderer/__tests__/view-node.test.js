@@ -1,10 +1,10 @@
 // Most nodes test is executed in node-ops.test.js
 // here just test the lacked testing for ViewNode for coverage.
 
-import test from 'ava';
+import test, { before } from 'ava';
 import ViewNode from '../view-node';
 
-test.before(() => {
+before(() => {
   global.__GLOBAL__ = {
     nodeId: 101,
   };

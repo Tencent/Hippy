@@ -2,15 +2,19 @@
   <div id="root">
     <div id="header">
       <img
-        @click="goToHome"
         v-show="subtitle !== DEBUG_SUBTITLE"
-        :src="imgs.backButtonImg" id="back-btn"
-      />
+        id="back-btn"
+        :src="imgs.backButtonImg"
+        @click="goToHome"
+      >
       <label class="title">Hippy Vue 示例</label>
-      <label class="title" @click="remoteDebug">{{ subtitle }}</label>
+      <label
+        class="title"
+        @click="remoteDebug"
+      >{{ subtitle }}</label>
     </div>
     <keep-alive>
-      <router-view class="feature-content"></router-view>
+      <router-view class="feature-content" />
     </keep-alive>
   </div>
 </template>
@@ -26,15 +30,6 @@ if (Vue.Native) {
 
 export default {
   name: 'App',
-  watch: {
-    $route(to) {
-      if (to.name === undefined) {
-        this.subtitle = DEBUG_SUBTITLE;
-        return;
-      }
-      this.subtitle = to.name;
-    },
-  },
   data() {
     return {
       imgs: {
@@ -43,6 +38,15 @@ export default {
       subtitle: DEBUG_SUBTITLE,
       DEBUG_SUBTITLE,
     };
+  },
+  watch: {
+    $route(to) {
+      if (to.name === undefined) {
+        this.subtitle = DEBUG_SUBTITLE;
+        return;
+      }
+      this.subtitle = to.name;
+    },
   },
   methods: {
     goToHome() {

@@ -53,7 +53,7 @@ class WebSocket implements WebSocket {
    *
    * @param {string} url - The URL to which to connect; this should be the URL to which the
    *                       WebSocket server will respond.
-   * @param {string | string[]} [protocals] - Either a single protocol string or an array
+   * @param {string | string[]} [protocols] - Either a single protocol string or an array
    *                                          of protocol strings. These strings are used to
    *                                          indicate sub-protocols, so that a single server
    *                                          can implement multiple WebSocket sub-protocols
@@ -62,9 +62,9 @@ class WebSocket implements WebSocket {
    *                                          on the specified protocol).
    *                                          If you don't specify a protocol string, an empty
    *                                          string is assumed.
-   * @param {Object} headers - Http headers will append to connection.
+   * @param {Object} extrasHeaders - Http headers will append to connection.
    */
-  constructor(url: string, protocals: string[] | string, extrasHeaders: {[key: string]: string}) {
+  constructor(url: string, protocols: string[] | string, extrasHeaders: {[key: string]: string}) {
     this.onWebSocketEvent = this.onWebSocketEvent.bind(this);
 
     if (!websocketEventHub) {
@@ -83,13 +83,13 @@ class WebSocket implements WebSocket {
       ...extrasHeaders,
     };
 
-    if (protocals !== undefined) {
-      if (Array.isArray(protocals) && protocals.length > 0) {
-        headers['Sec-WebSocket-Protocol'] = protocals.join(',');
-      } else if (typeof protocals === 'string') {
-        headers['Sec-WebSocket-Protocol'] = protocals;
+    if (protocols !== undefined) {
+      if (Array.isArray(protocols) && protocols.length > 0) {
+        headers['Sec-WebSocket-Protocol'] = protocols.join(',');
+      } else if (typeof protocols === 'string') {
+        headers['Sec-WebSocket-Protocol'] = protocols;
       } else {
-        throw new TypeError('Invalid WebSocket protocals');
+        throw new TypeError('Invalid WebSocket protocols');
       }
     }
 

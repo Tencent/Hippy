@@ -10,7 +10,7 @@ namespace Hippy {
     [key: string]: null | string | number | number[] | AnimationStyle | AnimationStyle[];
   }
 
-  export type Platform = 'android' | 'ios'
+  export type Platform = 'android' | 'ios';
 
   export interface NativeNode {
     id: number;
@@ -59,7 +59,6 @@ namespace Hippy {
         APILevel: number; // Android Only
       };
       screen: Sizes;
-      vibrate(pattern: number, repeatTimes?: number): void;
       window: Sizes;
     };
     document: {

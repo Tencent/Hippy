@@ -3,12 +3,12 @@
 // Most nodes test is executed in node-ops.test.js
 // here just test the lacked testing for ElementNode for coverage.
 
-import test from 'ava';
+import test, { before } from 'ava';
 import ElementNode from '../element-node';
 import DocumentNode from '../document-node';
 import ListNode from '../list-node';
 
-test.before(() => {
+before(() => {
   global.__GLOBAL__ = {
     nodeId: 101,
   };

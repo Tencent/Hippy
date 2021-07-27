@@ -1,16 +1,24 @@
 <template>
-  <div id="iframe-demo" :style="iframeStyle">
+  <div
+    id="iframe-demo"
+    :style="iframeStyle"
+  >
     <label>地址栏：</label>
     <input
       id="address"
-      name="url"
       ref="input"
+      name="url"
       returnKeyType="go"
       :value="displayUrl"
       @endEditing="goToUrl"
       @keyup="onKeyUp"
+    >
+    <iframe
+      id="iframe"
+      ref="iframe"
+      :src="url"
+      @load="onLoad"
     />
-    <iframe id="iframe" ref="iframe" :src="url" @load="onLoad" />
   </div>
 </template>
 

@@ -2,10 +2,10 @@
 // here just test the lacked testing for ViewNode for coverage.
 /* eslint-disable no-underscore-dangle */
 
-import test from 'ava';
+import test, { before } from 'ava';
 import ListNode from '../list-node';
 
-test.before(() => {
+before(() => {
   global.__GLOBAL__ = {
     nodeId: 101,
   };

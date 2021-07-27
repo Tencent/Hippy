@@ -3,47 +3,76 @@
     <div>
       <label>背景图效果:</label>
       <div :style="demo1Style">
-        <p class="div-demo-1-text">Hippy 背景图展示</p>
+        <p class="div-demo-1-text">
+          Hippy 背景图展示
+        </p>
       </div>
       <label>渐变色效果:</label>
       <div class="div-demo-1-1">
-        <p class="div-demo-1-text">Hippy 背景渐变色展示</p>
+        <p class="div-demo-1-text">
+          Hippy 背景渐变色展示
+        </p>
       </div>
       <label>Transform</label>
       <div class="div-demo-transform">
-        <p class="div-demo-transform-text">Transform</p>
+        <p class="div-demo-transform-text">
+          Transform
+        </p>
       </div>
       <label>水平滚动:</label>
-      <div class="div-demo-2" ref='demo-2'
-           @scroll="onScroll"
-           @momentumScrollBegin="onMomentumScrollBegin"
-           @momentumScrollEnd="onMomentumScrollEnd"
-           @scrollBeginDrag="onScrollBeginDrag"
-           @scrollEndDrag="onScrollEndDrag"
-           :scrollEnabled="true"
-           :pagingEnabled="false"
-           :showsHorizontalScrollIndicator="false"
+      <div
+        ref="demo-2"
+        class="div-demo-2"
+        :scrollEnabled="true"
+        :pagingEnabled="false"
+        :showsHorizontalScrollIndicator="false"
+        @scroll="onScroll"
+        @momentumScrollBegin="onMomentumScrollBegin"
+        @momentumScrollEnd="onMomentumScrollEnd"
+        @scrollBeginDrag="onScrollBeginDrag"
+        @scrollEndDrag="onScrollEndDrag"
       >
         <!-- div 带着 overflow 属性的，只能有一个子节点，否则终端会崩溃 -->
         <div class="display-flex flex-row div-demo-2-container">
-          <p class="text-block">A</p>
-          <p class="text-block">B</p>
-          <p class="text-block">C</p>
-          <p class="text-block">D</p>
-          <p class="text-block">E</p>
+          <p class="text-block">
+            A
+          </p>
+          <p class="text-block">
+            B
+          </p>
+          <p class="text-block">
+            C
+          </p>
+          <p class="text-block">
+            D
+          </p>
+          <p class="text-block">
+            E
+          </p>
         </div>
       </div>
       <label>垂直滚动:</label>
-      <div class="div-demo-3"
-           :showsVerticalScrollIndicator="false"
+      <div
+        class="div-demo-3"
+        :showsVerticalScrollIndicator="false"
       >
         <!-- div 带着 overflow 属性的，只能有一个子节点，否则终端会崩溃 -->
         <div class="display-flex flex-column">
-          <p class="text-block">A</p>
-          <p class="text-block">B</p>
-          <p class="text-block">C</p>
-          <p class="text-block">D</p>
-          <p class="text-block">E</p>
+          <p class="text-block">
+            A
+          </p>
+          <p class="text-block">
+            B
+          </p>
+          <p class="text-block">
+            C
+          </p>
+          <p class="text-block">
+            D
+          </p>
+          <p class="text-block">
+            E
+          </p>
         </div>
       </div>
     </div>
@@ -52,7 +81,6 @@
 
 <script>
 import defaultImage from '../../assets/defaultSource.jpg';
-import Vue from 'vue';
 
 export default {
   data() {
@@ -69,42 +97,42 @@ export default {
          *  inline style 'backgroundImage': `url(${DefaultImage})` with 'url()' syntax only supported above 2.6.1.
          *  declaration css style supports 'background-image': `url('https://xxxx')` format and remote address only.
          */
-        'backgroundImage': `${defaultImage}`,
-        'backgroundRepeat': 'no-repeat',
-        'justifyContent': 'center',
-        'alignItems': 'center',
-        'marginTop': '10px',
-        'marginBottom': '10px',
+        backgroundImage: `${defaultImage}`,
+        backgroundRepeat: 'no-repeat',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: '10px',
+        marginBottom: '10px',
       },
     };
-  },
-  methods: {
-    onScroll(e) {
-      console.log('onScroll', e)
-    },
-    onMomentumScrollBegin(e) {
-      console.log('onMomentumScrollBegin', e)
-    },
-    onMomentumScrollEnd(e) {
-      console.log('onMomentumScrollEnd', e)
-    },
-    onScrollBeginDrag(e) {
-      console.log('onScrollBeginDrag', e)
-    },
-    onScrollEndDrag(e) {
-      console.log('onScrollEndDrag', e)
-    }
   },
   mounted() {
     this.demon2 = this.$refs['demo-2'];
     setTimeout(() => {
-      this.demon2.scrollTo(50, 0, 1000)
-    }, 1000)
+      this.demon2.scrollTo(50, 0, 1000);
+    }, 1000);
+  },
+  methods: {
+    onScroll(e) {
+      console.log('onScroll', e);
+    },
+    onMomentumScrollBegin(e) {
+      console.log('onMomentumScrollBegin', e);
+    },
+    onMomentumScrollEnd(e) {
+      console.log('onMomentumScrollEnd', e);
+    },
+    onScrollBeginDrag(e) {
+      console.log('onScrollBeginDrag', e);
+    },
+    onScrollEndDrag(e) {
+      console.log('onScrollEndDrag', e);
+    },
   },
 };
 </script>
 
-<style scope>
+<style scoped>
 
   /* Common CSS Styles */
 
@@ -139,12 +167,12 @@ export default {
   }
 
   /* background-image path can only use remote address */
-  .div-demo-1 {
-    display: flex;
-    height: 40px;
-    background-image: url('http://mat1.gtimg.com/www/qq2018/imgs/qq_logo_2018x2.png');
-    background-repeat: no-repeat;
-  }
+  /*.div-demo-1 {*/
+  /*  display: flex;*/
+  /*  height: 40px;*/
+  /*  background-image: url('http://mat1.gtimg.com/www/qq2018/imgs/qq_logo_2018x2.png');*/
+  /*  background-repeat: no-repeat;*/
+  /*}*/
 
   .div-demo-1-1 {
     display: flex;
@@ -187,7 +215,7 @@ export default {
     transform: rotate(30deg) scale(.5);
     width: 120px;
     height: 120px;
-  }
+  }  fszxc
 
   .div-demo-transform-text {
     line-height: 120px;

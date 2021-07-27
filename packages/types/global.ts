@@ -1,7 +1,7 @@
 import Hippy from './hippy';
 import WebSocket from '../hippy-react/src/modules/websocket';
 
-declare module NodeJS {
+declare namespace NodeJS {
   interface Global {
     __PLATFORM__: string;
     __GLOBAL__: {

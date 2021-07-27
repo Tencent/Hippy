@@ -8,6 +8,8 @@ import { warn } from '../utils';
 
 type Color = string | number;
 
+// eslint-disable-next-line no-underscore-dangle
+declare const __PLATFORM__: Hippy.Platform;
 
 interface ColorParserOption {
   platform?: Hippy.Platform
@@ -18,7 +20,6 @@ interface ColorParserOption {
  *
  * @param {string} color - The color value.
  * @param {object} options - Color options.
- * @param {android|ios} options.platform - Current executing platform.
  */
 function colorParse(color: Color, options: ColorParserOption = {}) {
   if (Number.isInteger((color as number))) {
@@ -45,7 +46,6 @@ function colorParse(color: Color, options: ColorParserOption = {}) {
  *
  * @param {string[]} colorArray The color values array.
  * @param {object} options Color options.
- * @param {android|ios} options.platform Current executing platform.
  */
 function colorArrayParse(colorArray: Color[], options?: ColorParserOption) {
   if (!Array.isArray(colorArray)) {

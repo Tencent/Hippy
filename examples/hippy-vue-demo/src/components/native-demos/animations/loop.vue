@@ -1,6 +1,11 @@
 <template>
   <div>
-    <animation :playing="playing" :actions="loopActions" class="loop-green" ref="animationLoop">
+    <animation
+      ref="animationLoop"
+      :playing="playing"
+      :actions="loopActions"
+      class="loop-green"
+    >
       <div class="loop-white">
         <slot />
       </div>
@@ -32,6 +37,15 @@ const verticalAnimation = {
 };
 
 export default {
+  props: {
+    playing: Boolean,
+    direction: {
+      validator(value) {
+        return ['horizon', 'vertical'].indexOf(value) > -1;
+      },
+    },
+    onRef: Function,
+  },
   data() {
     let loopActions;
     switch (this.$props.direction) {
@@ -47,15 +61,6 @@ export default {
     return {
       loopActions,
     };
-  },
-  props: {
-    playing: Boolean,
-    direction: {
-      validator(value) {
-        return ['horizon', 'vertical'].indexOf(value) > -1;
-      },
-    },
-    onRef: Function,
   },
   watch: {
     direction(to) {

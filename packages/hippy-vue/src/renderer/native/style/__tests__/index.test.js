@@ -1,11 +1,11 @@
-import test from 'ava';
+import test, { before } from 'ava';
 import { fromAstNodes, SelectorsMap } from '../index';
 import TEST_AST from './test-css-ast.json';
 import ElementNode from '../../../element-node';
 
 let cssMap;
 
-test.before(() => {
+before(() => {
   const rules = fromAstNodes(TEST_AST);
   cssMap = new SelectorsMap(rules);
 });
