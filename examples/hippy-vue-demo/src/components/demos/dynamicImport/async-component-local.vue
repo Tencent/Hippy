@@ -1,6 +1,8 @@
 <template>
   <div id="asynccomponent">
-    <text class="async-txt">我是本地异步组件</text>
+    <text class="async-txt">
+      我是本地异步组件
+    </text>
   </div>
 </template>
 

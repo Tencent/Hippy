@@ -205,17 +205,17 @@ interface ListViewProps {
   onWillDisappear?: (index: number) => void
 }
 
-interface ListItemViewProps {
-  key?: string;
-  type?: number | string | undefined;
-  sticky?: boolean;
-  style?: Style;
-  onLayout?: (evt: any) => void;
-  onAppear?: (index: number) => void;
-  onDisappear?: (index: number) => void;
-  onWillAppear?: (index: number) => void;
-  onWillDisappear?: (index: number) => void;
-}
+// interface ListItemViewProps {
+//   key?: string;
+//   type?: number | string | undefined;
+//   sticky?: boolean;
+//   style?: Style;
+//   onLayout?: (evt: any) => void;
+//   onAppear?: (index: number) => void;
+//   onDisappear?: (index: number) => void;
+//   onWillAppear?: (index: number) => void;
+//   onWillDisappear?: (index: number) => void;
+// }
 
 interface ListViewState {
   initialListReady: boolean;

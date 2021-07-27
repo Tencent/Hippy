@@ -16,7 +16,7 @@ function trace(...context: any[]) {
 }
 
 /**
- * Warninng information output
+ * Warning information output
  */
 function warn(...context: any[]) {
   // In production build
@@ -61,7 +61,7 @@ function tryConvertNumber(input: any) {
 /**
  * Determine input is function.
  *
- * @param {any} input - the input will determine is function.
+ * @param {any} input - The input will determine is function.
  * @returns {boolean}
  */
 function isFunction(input: any): boolean {
@@ -79,6 +79,7 @@ function isNumber(input: string): boolean {
 
 /**
  * Make trace be silent.
+ * @param {boolean} silentArg - The silent flag for log
  */
 function setSilent(silentArg: boolean): void {
   silent = silentArg;

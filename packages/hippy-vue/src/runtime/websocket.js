@@ -28,7 +28,7 @@ class WebSocket {
    *
    * @param {string} url - The URL to which to connect; this should be the URL to which the
    *                       WebSocket server will respond.
-   * @param {string | string[]} [protocals] - Either a single protocol string or an array
+   * @param {string | string[]} [protocols] - Either a single protocol string or an array
    *                                          of protocol strings. These strings are used to
    *                                          indicate sub-protocols, so that a single server
    *                                          can implement multiple WebSocket sub-protocols
@@ -37,13 +37,12 @@ class WebSocket {
    *                                          on the specified protocol).
    *                                          If you don't specify a protocol string, an empty
    *                                          string is assumed.
-   * @param {Object} headers - Http headers will append to connection.
+   * @param {Object} extrasHeaders - Http headers will append to connection.
    */
-  constructor(url, protocals, extrasHeaders) {
+  constructor(url, protocols, extrasHeaders) {
     if (!app) {
       app = getApp();
     }
-
     this.url = url;
     this.readyState = READY_STATE_CONNECTING;
     this.webSocketCallbacks = {};
@@ -60,10 +59,10 @@ class WebSocket {
       throw new TypeError('Invalid WebSocket url');
     }
 
-    if (Array.isArray(protocals) && protocals.length > 0) {
-      headers['Sec-WebSocket-Protocol'] = protocals.join(',');
-    } else if (typeof protocals === 'string') {
-      headers['Sec-WebSocket-Protocol'] = protocals;
+    if (Array.isArray(protocols) && protocols.length > 0) {
+      headers['Sec-WebSocket-Protocol'] = protocols.join(',');
+    } else if (typeof protocols === 'string') {
+      headers['Sec-WebSocket-Protocol'] = protocols;
     }
 
     const params = {

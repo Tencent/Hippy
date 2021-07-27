@@ -1,102 +1,156 @@
 <template>
-  <div id="demo-vue-native" ref="rect">
+  <div
+    id="demo-vue-native"
+    ref="rect"
+  >
     <div>
       <!-- 操作系统平台 -->
-      <div v-if="Vue.Native.Platform" class="native-block">
+      <div
+        v-if="Vue.Native.Platform"
+        class="native-block"
+      >
         <label class="vue-native-title">Vue.Native.Platform</label>
         <p>{{ Vue.Native.Platform }}</p>
       </div>
 
       <!-- 设备名称 -->
-      <div v-if="Vue.Native.Device" class="native-block">
+      <div
+        v-if="Vue.Native.Device"
+        class="native-block"
+      >
         <label class="vue-native-title">Vue.Native.Device</label>
         <p>{{ Vue.Native.Device }}</p>
       </div>
 
       <!-- 是否是 iPhone X，仅限操作系统为 iOS 使用 -->
-      <div v-if="Vue.Native.Platform === 'ios'" class="native-block">
+      <div
+        v-if="Vue.Native.Platform === 'ios'"
+        class="native-block"
+      >
         <label class="vue-native-title">Vue.Native.isIPhoneX</label>
         <p>{{ Vue.Native.isIPhoneX }}</p>
       </div>
 
       <!-- 操作系统版本，目前仅限 iOS 使用，其它平台返回 null -->
-      <div v-if="Vue.Native.Platform === 'ios'" class="native-block">
+      <div
+        v-if="Vue.Native.Platform === 'ios'"
+        class="native-block"
+      >
         <label class="vue-native-title">Vue.Native.OSVersion</label>
         <p>{{ Vue.Native.OSVersion || 'null' }}</p>
       </div>
 
       <!-- API 版本，目前仅限 Android 使用，其它平台返回 null -->
-      <div v-if="Vue.Native.Platform === 'android'"  class="native-block">
+      <div
+        v-if="Vue.Native.Platform === 'android'"
+        class="native-block"
+      >
         <label class="vue-native-title">Vue.Native.APILevel</label>
         <p>{{ Vue.Native.APILevel || 'null' }}</p>
       </div>
 
       <!-- 屏幕是否是垂直显示状态 -->
-      <div class="native-block"  @layout="refreshScreenStatus">
+      <div
+        class="native-block"
+        @layout="refreshScreenStatus"
+      >
         <label class="vue-native-title">Vue.Native.screenIsVertical</label>
         <p>{{ screenIsVertical }}</p>
       </div>
 
       <!-- 窗口宽度 -->
-      <div v-if="Vue.Native.Dimensions.window.width" class="native-block">
+      <div
+        v-if="Vue.Native.Dimensions.window.width"
+        class="native-block"
+      >
         <label class="vue-native-title">Vue.Native.Dimensions.window.width</label>
         <p>{{ Vue.Native.Dimensions.window.width }}</p>
       </div>
 
       <!-- 窗口高度，需要注意的是双平台都是包含状态栏的，而 Android 会从状态栏下方第一个像素开始画 -->
-      <div v-if="Vue.Native.Dimensions.window.height" class="native-block">
+      <div
+        v-if="Vue.Native.Dimensions.window.height"
+        class="native-block"
+      >
         <label class="vue-native-title">Vue.Native.Dimensions.window.height</label>
         <p>{{ Vue.Native.Dimensions.window.height }}</p>
       </div>
 
       <!-- 屏幕宽度 -->
-      <div v-if="Vue.Native.Dimensions.screen.width" class="native-block">
+      <div
+        v-if="Vue.Native.Dimensions.screen.width"
+        class="native-block"
+      >
         <label class="vue-native-title">Vue.Native.Dimensions.screen.width</label>
         <p>{{ Vue.Native.Dimensions.screen.width }}</p>
       </div>
 
       <!-- 屏幕高度 -->
-      <div v-if="Vue.Native.Dimensions.screen.height" class="native-block">
+      <div
+        v-if="Vue.Native.Dimensions.screen.height"
+        class="native-block"
+      >
         <label class="vue-native-title">Vue.Native.Dimensions.screen.height</label>
         <p>{{ Vue.Native.Dimensions.screen.height }}</p>
       </div>
 
       <!-- 一个像素的 pt 值 -->
-      <div v-if="Vue.Native.OnePixel" class="native-block">
+      <div
+        v-if="Vue.Native.OnePixel"
+        class="native-block"
+      >
         <label class="vue-native-title">Vue.Native.OnePixel</label>
         <p>{{ Vue.Native.OnePixel }}</p>
       </div>
 
       <!-- Android底部导航栏高度 -->
-      <div v-if="Vue.Native.Dimensions.screen.navigatorBarHeight" class="native-block">
+      <div
+        v-if="Vue.Native.Dimensions.screen.navigatorBarHeight"
+        class="native-block"
+      >
         <label class="vue-native-title">Vue.Native.Dimensions.screen.navigatorBarHeight</label>
         <p>{{ Vue.Native.Dimensions.screen.navigatorBarHeight }}</p>
       </div>
 
       <!-- 状态栏高度 -->
-      <div v-if="Vue.Native.Dimensions.screen.statusBarHeight" class="native-block">
+      <div
+        v-if="Vue.Native.Dimensions.screen.statusBarHeight"
+        class="native-block"
+      >
         <label class="vue-native-title">Vue.Native.Dimensions.screen.statusBarHeight</label>
         <p>{{ Vue.Native.Dimensions.screen.statusBarHeight }}</p>
       </div>
 
       <!-- android虚拟导航栏高度 -->
-      <div v-if="Vue.Native.Platform === 'android'
-       && Vue.Native.Dimensions.screen.navigatorBarHeight !== undefined" class="native-block">
+      <div
+        v-if="Vue.Native.Platform === 'android'
+          && Vue.Native.Dimensions.screen.navigatorBarHeight !== undefined"
+        class="native-block"
+      >
         <label class="vue-native-title">Vue.Native.Dimensions.screen.navigatorBarHeight(Android only)</label>
         <p>{{ Vue.Native.Dimensions.screen.navigatorBarHeight }}</p>
       </div>
 
       <!-- 终端传递过来的启动参数 superProps -->
-      <div v-if="app" class="native-block">
+      <div
+        v-if="app"
+        class="native-block"
+      >
         <label class="vue-native-title">App.$options.$superProps</label>
         <p>{{ JSON.stringify(app.$options.$superProps) }}</p>
       </div>
 
       <!-- 一个终端事件的范例，官方 Demo 因为没什么事件，所以造了一个假的，终端事件都是通过 app 进行中转，监听范例参考 mounted -->
-      <div v-if="app" class="native-block">
+      <div
+        v-if="app"
+        class="native-block"
+      >
         <label class="vue-native-title">App event</label>
         <div>
-          <button @click="triggerAppEvent" class="event-btn">
+          <button
+            class="event-btn"
+            @click="triggerAppEvent"
+          >
             <span class="event-btn-text">Trigger app event</span>
           </button>
           <div class="event-btn-result">
@@ -106,39 +160,71 @@
       </div>
 
       <!-- 测量一个元素尺寸的范例，其实它是 measureInWindow 的封装 -->
-      <div v-if="Vue.Native.measureInWindow" class="native-block">
+      <div
+        v-if="Vue.Native.measureInWindow"
+        class="native-block"
+      >
         <label class="vue-native-title">Element.getBoundingClientRect</label>
         <p>{{ rect }}</p>
       </div>
 
       <!-- 本地存储使用 -->
-      <div v-if="Vue.Native.AsyncStorage" class="native-block">
+      <div
+        v-if="Vue.Native.AsyncStorage"
+        class="native-block"
+      >
         <label class="vue-native-title">AsyncStorage 使用</label>
         <div class="item-wrapper">
-          <button class='item-button' @click="setItem"><span>setItem</span></button>
+          <button
+            class="item-button"
+            @click="setItem"
+          >
+            <span>setItem</span>
+          </button>
           <span>{{ storageSetStatus }}</span>
         </div>
         <div class="item-wrapper">
-          <button class='item-button' @click="removeItem"><span>removeItem</span></button>
+          <button
+            class="item-button"
+            @click="removeItem"
+          >
+            <span>removeItem</span>
+          </button>
           <span>{{ storageSetStatus }}</span>
         </div>
         <div class="item-wrapper">
-          <button class='item-button' @click="getItem"><span>getItem</span></button>
+          <button
+            class="item-button"
+            @click="getItem"
+          >
+            <span>getItem</span>
+          </button>
           <span>{{ storageValue }}</span>
         </div>
       </div>
 
       <!-- ImageLoader使用 -->
-      <div v-if="Vue.Native.ImageLoader" class="native-block">
+      <div
+        v-if="Vue.Native.ImageLoader"
+        class="native-block"
+      >
         <label class="vue-native-title">ImageLoader 使用</label>
         <div class="item-wrapper">
-          <button class='item-button' @click="getSize"><span>getSize</span></button>
+          <button
+            class="item-button"
+            @click="getSize"
+          >
+            <span>getSize</span>
+          </button>
           <span>{{ imageSize }}</span>
         </div>
       </div>
 
       <!-- NetInfo使用 -->
-      <div v-if="Vue.Native.NetInfo" class="native-block">
+      <div
+        v-if="Vue.Native.NetInfo"
+        class="native-block"
+      >
         <label class="vue-native-title">NetInfo 使用</label>
         <div class="item-wrapper">
           <span>{{ netInfoText }}</span>
@@ -146,14 +232,27 @@
       </div>
 
       <!-- Clipboard使用 -->
-      <div v-if="Vue.Native.Clipboard" class="native-block">
+      <div
+        v-if="Vue.Native.Clipboard"
+        class="native-block"
+      >
         <label class="vue-native-title">Clipboard 使用</label>
         <div class="item-wrapper">
-          <button class='item-button' @click="setString"><span>setString</span></button>
+          <button
+            class="item-button"
+            @click="setString"
+          >
+            <span>setString</span>
+          </button>
           <span>{{ clipboardString }}</span>
         </div>
         <div class="item-wrapper">
-          <button class='item-button' @click="getString"><span>getString</span></button>
+          <button
+            class="item-button"
+            @click="getString"
+          >
+            <span>getString</span>
+          </button>
           <span>{{ clipboardValue }}</span>
         </div>
       </div>
@@ -168,6 +267,23 @@ import { getApp } from '../../util';
 const TEST_EVENT_NAME = 'testEvent';
 
 export default {
+  data() {
+    // 屏幕是否是竖屏
+    const { screenIsVertical } = Vue.Native;
+    return {
+      app: this.app,
+      eventTriggeredTimes: 0,
+      rect: null,
+      Vue,
+      screenIsVertical,
+      storageValue: '',
+      storageSetStatus: 'ready to set',
+      clipboardString: 'ready to set',
+      clipboardValue: '',
+      imageSize: '',
+      netInfoText: '正在获取..',
+    };
+  },
   async created() {
     this.storageValue = '';
     this.imageSize = '';
@@ -175,8 +291,8 @@ export default {
     // netInfo
     this.netInfoText = await Vue.Native.NetInfo.fetch();
     this.netInfoListener = Vue.Native.NetInfo.addEventListener('change', (info) => {
-      this.netInfoText = `收到通知: ${info.network_info}`
-      console.log('this.netInfoText change', this.netInfoText)
+      this.netInfoText = `收到通知: ${info.network_info}`;
+      console.log('this.netInfoText change', this.netInfoText);
     });
   },
   async mounted() {
@@ -193,26 +309,9 @@ export default {
   },
   beforeDestroy() {
     // 取消 mounted 里监听的自定义事件
-    this.netInfoListener && Vue.Native.NetInfo.remove('change', this.netInfoListener)
+    this.netInfoListener && Vue.Native.NetInfo.remove('change', this.netInfoListener);
     this.app.$off(TEST_EVENT_NAME);
     delete this.app;
-  },
-  data() {
-    // 屏幕是否是竖屏
-    const { screenIsVertical } = Vue.Native;
-    return {
-      app: this.app,
-      eventTriggeredTimes: 0,
-      rect: null,
-      Vue,
-      screenIsVertical,
-      storageValue: '',
-      storageSetStatus: 'ready to set',
-      clipboardString: 'ready to set',
-      clipboardValue: '',
-      imageSize: '',
-      netInfoText: '正在获取..'
-    };
   },
   methods: {
     // 通过界面，触发经过 app 中转的事件，其实就是个假的终端事件。
@@ -228,35 +327,35 @@ export default {
     },
     setItem() {
       Vue.Native.AsyncStorage.setItem('itemKey', 'storageValue');
-      this.storageSetStatus = 'set "storageValue" succeed'
+      this.storageSetStatus = 'set "storageValue" succeed';
     },
     removeItem() {
       Vue.Native.AsyncStorage.removeItem('itemKey');
-      this.storageSetStatus = 'remove "storageValue" succeed'
+      this.storageSetStatus = 'remove "storageValue" succeed';
     },
     async getItem() {
       const storageValue = await Vue.Native.AsyncStorage.getItem('itemKey');
-      if(storageValue) {
+      if (storageValue) {
         this.storageValue = storageValue;
       } else {
-        this.storageValue = 'undefined'
+        this.storageValue = 'undefined';
       }
     },
     async getSize() {
-      const result = await Vue.Native.ImageLoader.getSize('https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png')
+      const result = await Vue.Native.ImageLoader.getSize('https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png');
       console.log('ImageLoader getSize', result);
-      this.imageSize = `${result.width}x${result.height}`
+      this.imageSize = `${result.width}x${result.height}`;
     },
     setString() {
       Vue.Native.Clipboard.setString('clipboardValue');
-      this.clipboardString = 'clipboard set "clipboardValue" succeed'
+      this.clipboardString = 'clipboard set "clipboardValue" succeed';
     },
     async getString() {
       const value = await Vue.Native.Clipboard.getString();
-      if(value) {
-        this.clipboardValue = value
+      if (value) {
+        this.clipboardValue = value;
       } else {
-        this.clipboardValue = 'undefined'
+        this.clipboardValue = 'undefined';
       }
     },
   },

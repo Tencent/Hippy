@@ -75,7 +75,9 @@ interface BaseStyle {
   collapse?: boolean,
 }
 
-interface Style extends BaseStyle {}
+interface Style extends BaseStyle {
+  [props: string]: any
+}
 
 export default Style;
 export {

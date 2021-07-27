@@ -1,4 +1,4 @@
-import test from 'ava';
+import test, { before } from 'ava';
 import { registerBuiltinElements } from '../../../../elements';
 import { EventDispatcher } from '../dispatcher';
 import { setApp, getApp } from '../../../../util';
@@ -9,7 +9,7 @@ let textareaNode;
 let listview;
 let iframe;
 
-test.before(() => {
+before(() => {
   registerBuiltinElements();
   const rootNode = new ElementNode('div');
   childNode = new ElementNode('div');

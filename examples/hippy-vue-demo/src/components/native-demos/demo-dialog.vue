@@ -1,31 +1,53 @@
 <template>
   <div id="dialog-demo">
     <label>显示或者隐藏对话框:</label>
-    <button class="dialog-demo-button-1" @click="clickView">
+    <button
+      class="dialog-demo-button-1"
+      @click="clickView"
+    >
       <span class="button-text">显示对话框</span>
     </button>
     <!-- dialog 无法支持 v-show，只能使用 v-if 进行显示切换 -->
     <dialog
+      v-if="dialogIsVisible"
       animationType="slide"
       class="dialog-demo"
       :supportedOrientations="supportedOrientations"
-      v-if="dialogIsVisible"
       @show="onShow"
-      @requestClose="onClose">
+      @requestClose="onClose"
+    >
       <!-- iOS 平台上 dialog 必须只有一个子节点 -->
       <!-- dialog 里的布局比较奇怪，碰到问题请联系终端同学 -->
       <div class="dialog-demo-wrapper">
         <!-- 空白区域点击关闭 -->
-        <div class="fullscreen center row" @click="clickView">
+        <div
+          class="fullscreen center row"
+          @click="clickView"
+        >
           <!-- 内容区域阻止点击事件冒泡导致关闭 -->
-          <div class="dialog-demo-close-btn center column" @click="stopPropagation">
-            <p class="dialog-demo-close-btn-text">点击空白区域关闭</p>
-            <button class="dialog-demo-button-1" @click="clickOpenSecond">
+          <div
+            class="dialog-demo-close-btn center column"
+            @click="stopPropagation"
+          >
+            <p class="dialog-demo-close-btn-text">
+              点击空白区域关闭
+            </p>
+            <button
+              class="dialog-demo-button-1"
+              @click="clickOpenSecond"
+            >
               <span class="button-text">点击打开二级全屏弹窗</span>
             </button>
           </div>
-          <dialog animationType="slide" v-if="dialog2IsVisible" @requestClose="onClose">
-            <div @click="clickOpenSecond" class="dialog-2-demo-wrapper">
+          <dialog
+            v-if="dialog2IsVisible"
+            animationType="slide"
+            @requestClose="onClose"
+          >
+            <div
+              class="dialog-2-demo-wrapper"
+              @click="clickOpenSecond"
+            >
               <p>Hello 我是二级全屏弹窗，点击任意位置关闭。</p>
             </div>
           </dialog>
@@ -37,6 +59,26 @@
 
 <script>
 export default {
+  // 绑定 Vue-Router 的返回 hook
+  beforeRouteLeave(to, from, next) {
+    // 如果弹窗没开，就返回上一页。
+    if (!this.dialogIsVisible) {
+      next();
+    }
+  },
+  data() {
+    return {
+      supportedOrientations: [
+        'portrait',
+        'portrait-upside-down',
+        'landscape',
+        'landscape-left',
+        'landscape-right',
+      ],
+      dialogIsVisible: false,
+      dialog2IsVisible: false,
+    };
+  },
   methods: {
     clickView() {
       this.dialogIsVisible = !this.dialogIsVisible;
@@ -62,26 +104,6 @@ export default {
     stopPropagation(evt) {
       evt.stopPropagation();
     },
-  },
-  data() {
-    return {
-      supportedOrientations: [
-        'portrait',
-        'portrait-upside-down',
-        'landscape',
-        'landscape-left',
-        'landscape-right',
-      ],
-      dialogIsVisible: false,
-      dialog2IsVisible: false,
-    };
-  },
-  // 绑定 Vue-Router 的返回 hook
-  beforeRouteLeave(to, from, next) {
-    // 如果弹窗没开，就返回上一页。
-    if (!this.dialogIsVisible) {
-      next();
-    }
   },
 };
 </script>

@@ -6,17 +6,17 @@ English | [简体中文](./README.zh_CN.md) | [Homepage](//tencent.github.io/Hip
 
 ## Introduction
 
-Hippy is a cross-platform development framework, aiming to help developers write once, run on three platforms(iOS, Android and Web). Hippy is quite friendly to web developers, especially who are familiar with React or Vue. With Hippy, developers are able to create the cross platform app easily.
+Hippy is a cross-platform development framework, aiming to help developers write once, run on three platforms(iOS, Android and Web). Hippy is quite friendly to Web developers, especially who are familiar with React or Vue. With Hippy, developers are able to create the cross platform app easily.
 
-Hippy is now applied in 27+ [Tencent](http://www.tencent.com/) apps such as Mobile QQ, Mobile QQ Browser, Tencent Video App, QQ Music App，Tencent News, reaching hundreds of millions of ordinary users.
+Hippy is now applied in 27+ [Tencent](http://www.tencent.com/) apps such as Mobile QQ, Mobile QQ Browser, Tencent Video App, QQ Music App, Tencent News, reaching hundreds of millions of ordinary users.
 
 ## Advantages
 
-* Design for web developers, officially support web frameworks like `React` and `Vue`.
+* Designed for Web developers, officially support Web frameworks like `React` and `Vue`.
 * Same APIs for different platforms.
 * Excellent performance with JS engine binding communication.
 * Build-in recyclable component with better performance.
-* Smoothly and gracefully migrate to web browser.
+* Smoothly and gracefully migrate to Web browser.
 * Fully supported Flex [Layout engine](./layout).
 
 ## Getting started
@@ -49,6 +49,8 @@ For iOS we recommend to use iOS simulator when first try. However, you can chang
 4. Choose a demo to build with `npm run buildexample -- [hippy-react-demo|hippy-vue-demo]` at root directory.
 5. Start the Xcode and build the iOS app with `open examples/ios-demo/HippyDemo.xcodeproj`.
 
+> If `Step 4` throw error, you can `cd` to `examples` hippy-react-demo or hippy-vue-demo, and run `npm install --legacy-peer-deps` to install demo dependencies first.
+
 ### Build the Android app with js demo
 
 For Android, we recommend using the real cellphone for better develop experience, because Hippy is using [X5](https://x5.tencent.com/) JS engine which can't support x86 simulator, as well as ARM simulator has a low performance.
@@ -64,6 +66,8 @@ Before build the android app, please make sure the SDK and NDK is installed, And
 6. Connect Android phone with USB cable and make sure USB debugging mode is enabled(Run `adb devices` on the computer terminal to check cellphone connection status).
 7. Open the project with Android Studio, run and install the apk.
 
+> If `Step 4` throw error, you can `cd` to `examples` hippy-react-demo or hippy-vue-demo, and run `npm install --legacy-peer-deps` to install demo dependencies first.
+>
 > If you encounter the issue of `No toolchains found in the NDK toolchains folder for ABI with prefix: mips64el-linux-android`, here is the [solution](https://github.com/google/filament/issues/15#issuecomment-415423557).
 
 ### Debug the js demo
@@ -73,7 +77,9 @@ Before build the android app, please make sure the SDK and NDK is installed, And
 3. Run `npm install` to install demo js dependencies.
 4. Run `npm run hippy:dev` and `npm run hippy:debug` respectively to start the live debug mode.
 
-> On example debug mode, npm packages such as @hippy/react, @hippy/vue are linked to `packages` > `[different package]` > `dist`(not node_modules), so if you have changed js package source code and want to make it take effect in target example, please call `npm run build` at root directory again. More details for debug can be read in [Hippy Debug Document](https://hippyjs.org/#/guide/debug).
+> On example debug mode, npm packages such as @hippy/react, @hippy/vue are linked to `packages` > `[different package]` > `dist`(not node_modules), so if you have changed js package source code and want to make it take effect in target example, please call `npm run build` at root directory again.
+>
+> More details for debug can be read in [Hippy Debug Document](https://hippyjs.org/#/guide/debug).
 
 ## Documentation
 
@@ -116,7 +122,7 @@ Hippy
 
 Developers are welcome to contribute to Tencent's open source, and we will also give them incentives to acknowledge and thank them. Here we provide an official description of Tencent's open source contribution. Specific contribution rules for each project are formulated by the project team. Developers can choose the appropriate project and participate according to the corresponding rules. The Tencent Project Management Committee will report regularly to qualified contributors and awards will be issued by the official contact. Before making a pull request or issue to Hippy, please make sure to read [Contributing Guide](https://github.com/Tencent/Hippy/blob/master/.github/CONTRIBUTING.md).
 
-All the people who already contributed to Hippy can be seen at [Contributors](https://github.com/Tencent/Hippy/graphs/contributors) and [Authors File](https://github.com/Tencent/Hippy/blob/master/AUTHORS)
+All the people who already contributed to Hippy can be seen in [Contributors](https://github.com/Tencent/Hippy/graphs/contributors) and [Authors File](https://github.com/Tencent/Hippy/blob/master/AUTHORS).
 
 ## Stargazers over time
 
