@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/models/workspace_diff"},"files":["../../../../../../front_end/models/workspace_diff/workspace_diff.ts"],"references":[{"path":"./workspace_diff-tsconfig.json"}]}

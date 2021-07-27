@@ -40,6 +40,16 @@ const { argv } = yargs
     default: false,
     describe: 'Output error details',
   })
+  .option('startIWDP', {
+    type: 'boolean',
+    default: true,
+    describe: 'weature use ios_webkit_debug_proxy',
+  })
+  .option('startAdb', {
+    type: 'boolean',
+    default: true,
+    describe: 'weature use ios_webkit_debug_proxy',
+  })
   .option('iwdpPort', {
     type: 'number',
     default: 9000,

@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/panels/css_overview"},"files":["../../../../../../front_end/panels/css_overview/css_overview.ts"],"references":[{"path":"./css_overview-tsconfig.json"}]}

@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/third_party/acorn-loose"},"files":["../../../../../../front_end/third_party/acorn-loose/acorn-loose.ts"],"references":[{"path":"./acorn-loose-tsconfig.json"},{"path":"../acorn/bundle-tsconfig.json"}]}

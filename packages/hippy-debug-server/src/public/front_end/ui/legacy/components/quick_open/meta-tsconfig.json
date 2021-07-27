@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../../../front_end/ui/legacy/components/quick_open"},"files":["../../../../../../../../front_end/ui/legacy/components/quick_open/quick_open-meta.ts"],"references":[{"path":"./bundle-tsconfig.json"}]}

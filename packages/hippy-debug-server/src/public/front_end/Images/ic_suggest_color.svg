@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="13" height="13" fill="none" version="1.1" viewBox="0 0 13 13" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+ <circle cx="6.5" cy="6.5" r="5.5" fill="#fff" fill-opacity="1.3e-7"/>
+ <path d="M9.125 8.8151C8.48367 9.54171 7.54536 10 6.5 10C4.567 10 3 8.433 3 6.5C3 4.567 4.567 3 6.5 3C8.433 3 10 4.567 10 6.5V6.9375" stroke="#919191" stroke-width="1.5"/>
+ <path d="m7.194 5.9172 2.806 1.0827 2.1429-2.2862" stroke="#919191" stroke-width="1.5"/>
+</svg>

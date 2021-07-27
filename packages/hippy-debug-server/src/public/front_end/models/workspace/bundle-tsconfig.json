@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/models/workspace"},"files":["../../../../../../front_end/models/workspace/workspace.ts"],"references":[{"path":"./workspace-tsconfig.json"}]}

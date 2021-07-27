@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/panels/application"},"files":["../../../../../../front_end/panels/application/application-meta.ts"],"references":[{"path":"./bundle-tsconfig.json"}]}

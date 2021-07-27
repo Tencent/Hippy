@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/panels/profiler"},"files":["../../../../../../front_end/panels/profiler/profiler.ts"],"references":[{"path":"./profiler-tsconfig.json"}]}

@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../../../front_end/ui/legacy/components/inline_editor"},"files":["../../../../../../../../front_end/ui/legacy/components/inline_editor/inline_editor-legacy.ts"],"references":[{"path":"./bundle-tsconfig.json"}]}

@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/panels/search"},"files":["../../../../../../front_end/panels/search/search.ts"],"references":[{"path":"./search-tsconfig.json"}]}

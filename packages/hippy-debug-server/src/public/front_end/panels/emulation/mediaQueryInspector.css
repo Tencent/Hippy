@@ -1,0 +1,155 @@
+/*
+ * Copyright 2015 The Chromium Authors. All rights reserved.
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+/* Media query bars */
+
+.media-inspector-view {
+  height: 50px;
+  /* (min-width: 50px) */
+  --override-min-width-media-query-selector-background-color: rgb(255 204 128);
+  --override-min-width-media-query-selector-background-color-inactive: rgb(255 243 224);
+  --override-min-width-media-query-selector-marker-color: rgb(245 122 0);
+  /* (min-width: 50px) and (max-width: 50px) */
+  --override-min-and-max-width-media-query-selector-background-color: rgb(196 224 163);
+  --override-min-and-max-width-media-query-selector-background-color-inactive: rgb(234 246 235);
+  --override-min-and-max-width-media-query-selector-marker-color: rgb(104 159 56);
+  /* (max-width: 50px) */
+  --override-max-width-media-query-selector-background-color: rgb(144 202 249);
+  --override-max-width-media-query-selector-background-color-inactive: rgb(225 245 254);
+  --override-max-width-media-query-selector-marker-color: rgb(66 165 245);
+}
+
+.-theme-with-dark-background .media-inspector-view,
+:host-context(.-theme-with-dark-background) .media-inspector-view {
+  /* (min-width: 50px) */
+  --override-min-width-media-query-selector-background-color: rgb(127 76 0);
+  --override-min-width-media-query-selector-background-color-inactive: rgb(31 19 0);
+  --override-min-width-media-query-selector-marker-color: rgb(255 132 10);
+  /* (min-width: 50px) and (max-width: 50px) */
+  --override-min-and-max-width-media-query-selector-background-color: rgb(64 92 31);
+  --override-min-and-max-width-media-query-selector-background-color-inactive: rgb(9 21 10);
+  --override-min-and-max-width-media-query-selector-marker-color: rgb(144 199 96);
+  /* (max-width: 50px) */
+  --override-max-width-media-query-selector-background-color: rgb(6 64 111);
+  --override-max-width-media-query-selector-background-color-inactive: rgb(1 21 30);
+  --override-max-width-media-query-selector-marker-color: rgb(10 109 189);
+}
+
+.media-inspector-marker-container {
+  height: 14px;
+  margin: 2px 0;
+  position: relative;
+}
+
+.media-inspector-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  pointer-events: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+
+.media-inspector-marker {
+  flex: none;
+  pointer-events: auto;
+  margin: 1px 0;
+  white-space: nowrap;
+  z-index: auto;
+  position: relative;
+}
+
+.media-inspector-marker-spacer {
+  flex: auto;
+}
+
+.media-inspector-marker:hover {
+  margin: -1px 0;
+  opacity: 100%;
+}
+
+.media-inspector-marker-min-width {
+  flex: auto;
+  background-color: var(--override-min-width-media-query-selector-background-color);
+  border-right: 2px solid var(--override-min-width-media-query-selector-marker-color);
+  border-left: 2px solid var(--override-min-width-media-query-selector-marker-color);
+}
+
+.media-inspector-marker-min-width-right {
+  border-left: 2px solid var(--override-min-width-media-query-selector-marker-color);
+}
+
+.media-inspector-marker-min-width-left {
+  border-right: 2px solid var(--override-min-width-media-query-selector-marker-color);
+}
+
+.media-inspector-marker-min-max-width {
+  background-color: var(--override-min-and-max-width-media-query-selector-background-color);
+  border-left: 2px solid var(--override-min-and-max-width-media-query-selector-marker-color);
+  border-right: 2px solid var(--override-min-and-max-width-media-query-selector-marker-color);
+}
+
+.media-inspector-marker-min-max-width:hover {
+  z-index: 1;
+}
+
+.media-inspector-marker-max-width {
+  background-color: var(--override-max-width-media-query-selector-background-color);
+  border-right: 2px solid var(--override-max-width-media-query-selector-marker-color);
+  border-left: 2px solid var(--override-max-width-media-query-selector-marker-color);
+}
+
+/* Clear background colors when query is not active and not hovering */
+
+.media-inspector-marker-inactive .media-inspector-marker-min-width:not(:hover) {
+  background-color: var(--override-min-width-media-query-selector-background-color-inactive);
+}
+
+.media-inspector-marker-inactive .media-inspector-marker-min-max-width:not(:hover) {
+  background-color: var(--override-min-and-max-width-media-query-selector-background-color-inactive);
+}
+
+.media-inspector-marker-inactive .media-inspector-marker-max-width:not(:hover) {
+  background-color: var(--override-max-width-media-query-selector-background-color-inactive);
+}
+
+/* Media query labels */
+
+.media-inspector-marker-label-container {
+  position: absolute;
+  z-index: 1;
+}
+
+.media-inspector-marker:not(:hover) .media-inspector-marker-label-container {
+  display: none;
+}
+
+.media-inspector-marker-label-container-left {
+  left: -2px;
+}
+
+.media-inspector-marker-label-container-right {
+  right: -2px;
+}
+
+.media-inspector-marker-label {
+  color: var(--color-text-primary);
+  position: absolute;
+  top: 1px;
+  bottom: 0;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.media-inspector-label-right {
+  right: 4px;
+}
+
+.media-inspector-label-left {
+  left: 4px;
+}

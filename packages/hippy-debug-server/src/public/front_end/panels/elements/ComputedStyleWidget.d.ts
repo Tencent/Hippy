@@ -1,0 +1,45 @@
+import * as Common from '../../core/common/common.js';
+import * as SDK from '../../core/sdk/sdk.js';
+import * as Components from '../../ui/legacy/components/utils/utils.js';
+import * as UI from '../../ui/legacy/legacy.js';
+import type { ComputedStyle } from './ComputedStyleModel.js';
+import { ComputedStyleModel } from './ComputedStyleModel.js';
+import { ImagePreviewPopover } from './ImagePreviewPopover.js';
+import type { Category } from './PropertyNameCategories.js';
+import { IdleCallbackManager } from './StylesSidebarPane.js';
+export declare class ComputedStyleWidget extends UI.ThrottledWidget.ThrottledWidget {
+    _computedStyleModel: ComputedStyleModel;
+    _showInheritedComputedStylePropertiesSetting: Common.Settings.Setting<boolean>;
+    _groupComputedStylesSetting: Common.Settings.Setting<boolean>;
+    input: Element;
+    _filterRegex: RegExp | null;
+    _noMatchesElement: HTMLElement;
+    _propertiesOutline: UI.TreeOutline.TreeOutlineInShadow;
+    _propertyByTreeElement: WeakMap<UI.TreeOutline.TreeElement, {
+        name: string;
+        value: string;
+    }>;
+    _categoryByTreeElement: WeakMap<UI.TreeOutline.TreeElement, Category>;
+    _expandedProperties: Set<string>;
+    _expandedGroups: Set<Category>;
+    _linkifier: Components.Linkifier.Linkifier;
+    _imagePreviewPopover: ImagePreviewPopover;
+    _idleCallbackManager: IdleCallbackManager;
+    constructor();
+    onResize(): void;
+    _showInheritedComputedStyleChanged(): void;
+    update(): void;
+    doUpdate(): Promise<void>;
+    _fetchMatchedCascade(): Promise<SDK.CSSMatchedStyles.CSSMatchedStyles | null>;
+    _rebuildAlphabeticalList(nodeStyle: ComputedStyle | null, matchedStyles: SDK.CSSMatchedStyles.CSSMatchedStyles | null): Promise<void>;
+    _rebuildGroupedList(nodeStyle: ComputedStyle | null, matchedStyles: SDK.CSSMatchedStyles.CSSMatchedStyles | null): Promise<void>;
+    _onTreeElementToggled(event: Common.EventTarget.EventTargetEvent): void;
+    _buildPropertyTreeElement(propertyTraces: Map<string, SDK.CSSProperty.CSSProperty[]>, node: SDK.DOMModel.DOMNode, matchedStyles: SDK.CSSMatchedStyles.CSSMatchedStyles, propertyName: string, propertyValue: string, isInherited: boolean, hadFocus: boolean): UI.TreeOutline.TreeElement;
+    _renderPropertyTrace(matchedStyles: SDK.CSSMatchedStyles.CSSMatchedStyles, node: SDK.DOMModel.DOMNode, rootTreeElement: UI.TreeOutline.TreeElement, tracedProperties: SDK.CSSProperty.CSSProperty[]): SDK.CSSProperty.CSSProperty;
+    _handleContextMenuEvent(matchedStyles: SDK.CSSMatchedStyles.CSSMatchedStyles, property: SDK.CSSProperty.CSSProperty, event: Event): void;
+    _computePropertyTraces(matchedStyles: SDK.CSSMatchedStyles.CSSMatchedStyles): Map<string, SDK.CSSProperty.CSSProperty[]>;
+    _computeNonInheritedProperties(matchedStyles: SDK.CSSMatchedStyles.CSSMatchedStyles): Set<string>;
+    filterComputedStyles(this: ComputedStyleWidget, regex: RegExp | null): void;
+    _filterAlphabeticalList(): void;
+    _filterGroupLists(): void;
+}

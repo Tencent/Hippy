@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/panels/event_listeners"},"files":["../../../../../../front_end/panels/event_listeners/event_listeners.ts"],"references":[{"path":"./event_listeners-tsconfig.json"}]}

@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../../../front_end/ui/legacy/components/data_grid"},"files":["../../../../../../../../front_end/ui/legacy/components/data_grid/data_grid.ts"],"references":[{"path":"./data_grid-tsconfig.json"}]}

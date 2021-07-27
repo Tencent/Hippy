@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/core/sdk"},"files":["../../../../../../front_end/core/sdk/sdk.ts"],"references":[{"path":"./sdk-tsconfig.json"},{"path":"../../generated/generated-tsconfig.json"}]}

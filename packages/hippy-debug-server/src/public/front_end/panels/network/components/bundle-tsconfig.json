@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../../front_end/panels/network/components"},"files":["../../../../../../../front_end/panels/network/components/components.ts"],"references":[{"path":"./components-tsconfig.json"}]}

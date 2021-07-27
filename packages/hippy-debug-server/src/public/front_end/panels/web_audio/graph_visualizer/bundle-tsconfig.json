@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../../front_end/panels/web_audio/graph_visualizer"},"files":["../../../../../../../front_end/panels/web_audio/graph_visualizer/graph_visualizer.ts"],"references":[{"path":"./web_audio_graph_visualizer-tsconfig.json"}]}

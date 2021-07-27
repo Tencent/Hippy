@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/panels/webauthn"},"files":["../../../../../../front_end/panels/webauthn/webauthn-meta.ts"],"references":[{"path":"./bundle-tsconfig.json"}]}

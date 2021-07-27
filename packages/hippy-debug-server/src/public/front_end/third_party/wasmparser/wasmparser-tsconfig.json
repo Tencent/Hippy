@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "composite": true
+  },
+  "files": [
+    "package/dist/esm/WasmDis.js",
+    "package/dist/esm/WasmParser.js"
+  ]
+}

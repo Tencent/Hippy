@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../../../front_end/ui/legacy/components/color_picker"},"files":["../../../../../../../../front_end/ui/legacy/components/color_picker/color_picker.ts"],"references":[{"path":"./color_picker-tsconfig.json"}]}

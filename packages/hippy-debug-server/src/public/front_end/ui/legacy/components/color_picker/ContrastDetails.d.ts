@@ -1,0 +1,62 @@
+import * as Common from '../../../../core/common/common.js';
+import * as UI from '../../legacy.js';
+import type { ContrastInfo } from './ContrastInfo.js';
+export declare class ContrastDetails extends Common.ObjectWrapper.ObjectWrapper {
+    _contrastInfo: ContrastInfo;
+    _element: HTMLElement;
+    _toggleMainColorPicker: (arg0?: boolean | undefined, arg1?: Common.EventTarget.EventTargetEvent | undefined) => void;
+    _expandedChangedCallback: () => void;
+    _colorSelectedCallback: (arg0: Common.Color.Color) => void;
+    _expanded: boolean;
+    _passesAA: boolean;
+    _contrastUnknown: boolean;
+    _visible: boolean;
+    _noContrastInfoAvailable: Element;
+    _contrastValueBubble: HTMLElement;
+    _contrastValue: HTMLElement;
+    _contrastValueBubbleIcons: Node[];
+    _expandButton: UI.Toolbar.ToolbarButton;
+    _expandedDetails: HTMLElement;
+    _contrastThresholds: HTMLElement;
+    _contrastAA: HTMLElement;
+    _contrastPassFailAA: HTMLElement;
+    _contrastAAA: HTMLElement;
+    _contrastPassFailAAA: HTMLElement;
+    _contrastAPCA: HTMLElement;
+    _contrastPassFailAPCA: HTMLElement;
+    _chooseBgColor: HTMLElement;
+    _bgColorPickerButton: UI.Toolbar.ToolbarToggle;
+    _bgColorPickedBound: (event: Common.EventTarget.EventTargetEvent) => void;
+    _bgColorSwatch: Swatch;
+    constructor(contrastInfo: ContrastInfo, contentElement: Element, toggleMainColorPickerCallback: (arg0?: boolean | undefined, arg1?: Common.EventTarget.EventTargetEvent | undefined) => void, expandedChangedCallback: () => void, colorSelectedCallback: (arg0: Common.Color.Color) => void);
+    _showNoContrastInfoAvailableMessage(): void;
+    _hideNoContrastInfoAvailableMessage(): void;
+    _computeSuggestedColor(threshold: string): Common.Color.Color | null | undefined;
+    _onSuggestColor(threshold: string): void;
+    _createFixColorButton(parent: Element, suggestedColor: Common.Color.Color): HTMLElement;
+    _update(): void;
+    static _showHelp(): void;
+    setVisible(visible: boolean): void;
+    visible(): boolean;
+    element(): HTMLElement;
+    _expandButtonClicked(_event: Common.EventTarget.EventTargetEvent): void;
+    _topRowClicked(event: Event): void;
+    _toggleExpanded(): void;
+    collapse(): void;
+    expanded(): boolean;
+    backgroundColorPickerEnabled(): boolean;
+    toggleBackgroundColorPicker(enabled: boolean): void;
+    _toggleBackgroundColorPicker(enabled?: boolean, shouldTriggerEvent?: boolean | undefined): void;
+    _bgColorPicked(event: Common.EventTarget.EventTargetEvent): void;
+}
+export declare const Events: {
+    BackgroundColorPickerWillBeToggled: symbol;
+};
+export declare class Swatch {
+    _parentElement: Element;
+    _swatchElement: Element;
+    _swatchInnerElement: HTMLElement;
+    _textPreview: HTMLElement;
+    constructor(parentElement: Element);
+    setColors(fgColor: Common.Color.Color, bgColor: Common.Color.Color): void;
+}

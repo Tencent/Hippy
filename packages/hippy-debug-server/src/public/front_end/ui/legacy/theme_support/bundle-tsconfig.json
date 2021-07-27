@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../../front_end/ui/legacy/theme_support"},"files":["../../../../../../../front_end/ui/legacy/theme_support/theme_support.ts"],"references":[{"path":"./theme_support-tsconfig.json"}]}

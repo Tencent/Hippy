@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../../front_end/ui/components/tree_outline"},"files":["../../../../../../../front_end/ui/components/tree_outline/tree_outline.ts"],"references":[{"path":"./tree_outline-tsconfig.json"}]}

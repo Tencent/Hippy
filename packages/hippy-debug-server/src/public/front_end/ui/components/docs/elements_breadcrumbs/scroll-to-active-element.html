@@ -1,0 +1,37 @@
+<!--
+  Copyright 2020 The Chromium Authors. All rights reserved.
+  Use of this source code is governed by a BSD-style license that can be
+  found in the LICENSE file.
+-->
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Scrolling breadcrumbs example</title>
+    <style>
+      #container {
+        width: 500px;
+        border: 1px solid black;
+      }
+
+      button {
+        margin-top: 20px;
+        width: 400px;
+        font-size: 18px;
+        padding: 10px;
+      }
+
+      :root {
+        --tab-selected-bg-color: lightblue;
+      }
+    </style>
+  </head>
+  <body>
+
+    <div id="container">
+    </div>
+    <button>Click me to make the <code>div</code> crumb the selected node (as if the user had clicked it in the elements pane)</button>
+
+    <script type="module" src="./scroll-to-active-element.js"></script>
+  </body>
+</html>

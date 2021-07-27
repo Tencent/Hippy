@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/models/har"},"files":["../../../../../../front_end/models/har/har.ts"],"references":[{"path":"./har-tsconfig.json"}]}

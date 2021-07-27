@@ -1,0 +1,53 @@
+import * as Common from '../../core/common/common.js';
+import * as SDK from '../../core/sdk/sdk.js';
+import type * as ProtocolProxyApi from '../../generated/protocol-proxy-api.js';
+import type * as Protocol from '../../generated/protocol.js';
+import { RecordingEventHandler } from './RecordingEventHandler.js';
+import type { Condition, Step, StepWithCondition, UserFlow } from './Steps.js';
+declare type RecorderEvent = {
+    type: 'windowOpened' | 'windowClosed' | 'navigation' | 'bindingCalled';
+    event: Common.EventTarget.EventTargetEvent;
+};
+export declare class RecordingSession extends Common.ObjectWrapper.ObjectWrapper {
+    _target: SDK.Target.Target;
+    _runtimeAgent: ProtocolProxyApi.RuntimeApi;
+    _accessibilityAgent: ProtocolProxyApi.AccessibilityApi;
+    _pageAgent: ProtocolProxyApi.PageApi;
+    _targetAgent: ProtocolProxyApi.TargetApi;
+    _networkManager: SDK.NetworkManager.MultitargetNetworkManager;
+    _domModel: SDK.DOMModel.DOMModel;
+    _resourceTreeModel: SDK.ResourceTreeModel.ResourceTreeModel;
+    _runtimeModel: SDK.RuntimeModel.RuntimeModel;
+    _childTargetManager: SDK.ChildTargetManager.ChildTargetManager | null;
+    _eventHandlers: Map<string, RecordingEventHandler>;
+    _targets: Map<string, SDK.Target.Target>;
+    _newDocumentScriptIdentifiers: Map<string, string>;
+    _indentation: string;
+    _eventQueue: Array<RecorderEvent>;
+    _isProcessingEvent: boolean;
+    userFlow: UserFlow;
+    constructor(target: SDK.Target.Target, indentation: string);
+    start(): Promise<void>;
+    appendNewSection(includeNetworkConditions?: boolean): Promise<void>;
+    stop(): Promise<void>;
+    addViewportStep(viewport: Protocol.Page.VisualViewport): void;
+    addNetworkConditionsChangedStep(): void;
+    appendStep(step: Step): Promise<Step>;
+    addConditionToStep(step: StepWithCondition, condition: Condition): void;
+    bindingCalled(event: Common.EventTarget.EventTargetEvent): void;
+    bindingCalledInternal(params: {
+        data: Protocol.Runtime.BindingCalledEvent;
+    }): void;
+    attachToTarget(target: SDK.Target.Target): Promise<void>;
+    detachFromTarget(target: SDK.Target.Target): Promise<void>;
+    evaluateInAllFrames(target: SDK.Target.Target, expression: string): Promise<void>;
+    receiveWindowOpened(event: Common.EventTarget.EventTargetEvent): void;
+    receiveWindowClosed(event: Common.EventTarget.EventTargetEvent): void;
+    receiveNavigation(event: Common.EventTarget.EventTargetEvent): void;
+    _enqueueEvent(event: RecorderEvent): Promise<void>;
+    handleWindowOpened(event: Common.EventTarget.EventTargetEvent): Promise<void>;
+    handleWindowClosed(event: Common.EventTarget.EventTargetEvent): Promise<void>;
+    handleNavigation(event: Common.EventTarget.EventTargetEvent): Promise<void>;
+    getUserFlow(): UserFlow;
+}
+export {};

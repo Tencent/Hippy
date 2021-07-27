@@ -1,0 +1,31 @@
+import * as IssuesManager from '../../models/issues_manager/issues_manager.js';
+import * as UI from '../../ui/legacy/legacy.js';
+import { AffectedResourcesView } from './AffectedResourcesView.js';
+import type { AggregatedIssue } from './IssueAggregator.js';
+export declare class IssueView extends UI.TreeOutline.TreeElement {
+    _parent: UI.Widget.VBox;
+    _issue: AggregatedIssue;
+    _description: IssuesManager.MarkdownIssueDescription.IssueDescription;
+    toggleOnClick: boolean;
+    affectedResources: UI.TreeOutline.TreeElement;
+    _affectedResourceViews: AffectedResourcesView[];
+    _aggregatedIssuesCount: HTMLElement | null;
+    _hasBeenExpandedBefore: boolean;
+    private throttle;
+    private needsUpdateOnExpand;
+    constructor(parent: UI.Widget.VBox, issue: AggregatedIssue, description: IssuesManager.MarkdownIssueDescription.IssueDescription);
+    private static getBodyCSSClass;
+    getIssueTitle(): string;
+    onattach(): void;
+    appendAffectedResource(resource: UI.TreeOutline.TreeElement): void;
+    _appendHeader(): void;
+    onexpand(): void;
+    _updateAggregatedIssuesCount(): void;
+    updateAffectedResourceVisibility(): void;
+    _createAffectedResources(): UI.TreeOutline.TreeElement;
+    _createBody(): void;
+    _createReadMoreLinks(): void;
+    private doUpdate;
+    update(): void;
+    toggle(expand?: boolean): void;
+}

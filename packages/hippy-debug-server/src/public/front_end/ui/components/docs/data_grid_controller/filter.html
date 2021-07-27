@@ -1,0 +1,40 @@
+<!--
+  Copyright 2020 The Chromium Authors. All rights reserved.
+  Use of this source code is governed by a BSD-style license that can be
+  found in the LICENSE file.
+-->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Filterable Data grid controller example</title>
+    <style>
+      #container {
+        width: 80%;
+        border: 1px solid black;
+        padding: 20px;
+        height: 500px;
+      }
+
+      input {
+        font-size: 18px;
+        padding: 10px;
+        margin-bottom: 30px;
+      }
+
+      devtools-data-grid-controller {
+        height: 300px;
+      }
+
+    </style>
+  </head>
+  <body>
+
+    <div id="container">
+      <input type="text" placeholder="filter text" />
+    </div>
+
+    <script type="module" src="./filter.js"></script>
+  </body>
+</html>

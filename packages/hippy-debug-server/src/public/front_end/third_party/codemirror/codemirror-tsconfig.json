@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "composite": true
+  },
+  "files": [
+    "package/addon/comment/comment.js",
+    "package/addon/edit/closebrackets.js",
+    "package/addon/edit/matchbrackets.js",
+    "package/addon/fold/brace-fold.js",
+    "package/addon/fold/foldcode.js",
+    "package/addon/fold/foldgutter.js",
+    "package/addon/mode/multiplex.js",
+    "package/addon/mode/overlay.js",
+    "package/addon/mode/simple.js",
+    "package/addon/runmode/runmode-standalone.js",
+    "package/addon/selection/active-line.js",
+    "package/addon/selection/mark-selection.js",
+    "package/lib/codemirror.js",
+    "package/mode/clike/clike.js",
+    "package/mode/clojure/clojure.js",
+    "package/mode/coffeescript/coffeescript.js",
+    "package/mode/css/css.js",
+    "package/mode/htmlembedded/htmlembedded.js",
+    "package/mode/htmlmixed/htmlmixed.js",
+    "package/mode/javascript/javascript.js",
+    "package/mode/jsx/jsx.js",
+    "package/mode/livescript/livescript.js",
+    "package/mode/markdown/markdown.js",
+    "package/mode/php/php.js",
+    "package/mode/python/python.js",
+    "package/mode/shell/shell.js",
+    "package/mode/wast/wast.js",
+    "package/mode/xml/xml.js"
+  ]
+}

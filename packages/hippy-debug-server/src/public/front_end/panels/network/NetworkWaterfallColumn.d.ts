@@ -1,0 +1,80 @@
+import * as Common from '../../core/common/common.js';
+import type * as SDK from '../../core/sdk/sdk.js';
+import * as UI from '../../ui/legacy/legacy.js';
+import type { NetworkNode } from './NetworkDataGridNode.js';
+import type { NetworkTimeCalculator } from './NetworkTimeCalculator.js';
+import { RequestTimeRangeNames } from './RequestTimingView.js';
+export declare class NetworkWaterfallColumn extends UI.Widget.VBox {
+    _canvas: HTMLCanvasElement;
+    _canvasPosition: DOMRect;
+    _leftPadding: number;
+    _fontSize: number;
+    _rightPadding: number;
+    _scrollTop: number;
+    _headerHeight: number;
+    _calculator: NetworkTimeCalculator;
+    _rawRowHeight: number;
+    _rowHeight: number;
+    _offsetWidth: number;
+    _offsetHeight: number;
+    _startTime: number;
+    _endTime: number;
+    _popoverHelper: UI.PopoverHelper.PopoverHelper;
+    _nodes: NetworkNode[];
+    _hoveredNode: NetworkNode | null;
+    _eventDividers: Map<string, number[]>;
+    _updateRequestID: number | undefined;
+    _styleForTimeRangeName: Map<RequestTimeRangeNames, _LayerStyle>;
+    _styleForWaitingResourceType: Map<Common.ResourceType.ResourceType, _LayerStyle>;
+    _styleForDownloadingResourceType: Map<Common.ResourceType.ResourceType, _LayerStyle>;
+    _wiskerStyle: _LayerStyle;
+    _hoverDetailsStyle: _LayerStyle;
+    _pathForStyle: Map<_LayerStyle, Path2D>;
+    _textLayers: _TextLayer[];
+    constructor(calculator: NetworkTimeCalculator);
+    static _buildRequestTimeRangeStyle(): Map<RequestTimeRangeNames, _LayerStyle>;
+    static _buildResourceTypeStyle(): Map<Common.ResourceType.ResourceType, _LayerStyle>[];
+    _resetPaths(): void;
+    willHide(): void;
+    wasShown(): void;
+    _onMouseMove(event: MouseEvent): void;
+    _onClick(event: MouseEvent): void;
+    _getPopoverRequest(event: MouseEvent): UI.PopoverHelper.PopoverRequest | null;
+    _setHoveredNode(node: NetworkNode | null, highlightInitiatorChain: boolean): void;
+    _setSelectedNode(node: NetworkNode | null): boolean;
+    setRowHeight(height: number): void;
+    _updateRowHeight(): void;
+    setHeaderHeight(height: number): void;
+    setRightPadding(padding: number): void;
+    setCalculator(calculator: NetworkTimeCalculator): void;
+    getNodeFromPoint(x: number, y: number): NetworkNode | null;
+    scheduleDraw(): void;
+    update(scrollTop?: number, eventDividers?: Map<string, number[]>, nodes?: NetworkNode[]): void;
+    _resetCanvas(): void;
+    onResize(): void;
+    _calculateCanvasSize(): void;
+    _timeToPosition(time: number): number;
+    _didDrawForTest(): void;
+    _draw(): void;
+    _drawLayers(context: CanvasRenderingContext2D): void;
+    _drawEventDividers(context: CanvasRenderingContext2D): void;
+    _getBarHeight(type?: RequestTimeRangeNames): number;
+    _getSimplifiedBarRange(request: SDK.NetworkRequest.NetworkRequest, borderOffset: number): {
+        start: number;
+        mid: number;
+        end: number;
+    };
+    _buildSimplifiedBarLayers(context: CanvasRenderingContext2D, node: NetworkNode, y: number): void;
+    _buildTimingBarLayers(node: NetworkNode, y: number): void;
+    _decorateRow(context: CanvasRenderingContext2D, node: NetworkNode, y: number): void;
+}
+export interface _TextLayer {
+    x: number;
+    y: number;
+    text: string;
+}
+export interface _LayerStyle {
+    fillStyle?: string;
+    lineWidth?: number;
+    borderColor?: string;
+}

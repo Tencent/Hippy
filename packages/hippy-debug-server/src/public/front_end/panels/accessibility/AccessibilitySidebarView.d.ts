@@ -1,0 +1,30 @@
+import type * as Common from '../../core/common/common.js';
+import * as SDK from '../../core/sdk/sdk.js';
+import * as UI from '../../ui/legacy/legacy.js';
+import { AXNodeSubPane } from './AccessibilityNodeView.js';
+import { ARIAAttributesPane } from './ARIAAttributesView.js';
+import { AXBreadcrumbsPane } from './AXBreadcrumbsPane.js';
+import { SourceOrderPane } from './SourceOrderView.js';
+export declare class AccessibilitySidebarView extends UI.ThrottledWidget.ThrottledWidget {
+    _sourceOrderViewerExperimentEnabled: boolean;
+    _node: SDK.DOMModel.DOMNode | null;
+    _axNode: SDK.AccessibilityModel.AccessibilityNode | null;
+    _skipNextPullNode: boolean;
+    _sidebarPaneStack: UI.View.ViewLocation;
+    _breadcrumbsSubPane: AXBreadcrumbsPane | null;
+    _ariaSubPane: ARIAAttributesPane;
+    _axNodeSubPane: AXNodeSubPane;
+    _sourceOrderSubPane: SourceOrderPane | undefined;
+    private constructor();
+    static instance(): AccessibilitySidebarView;
+    node(): SDK.DOMModel.DOMNode | null;
+    axNode(): SDK.AccessibilityModel.AccessibilityNode | null;
+    setNode(node: SDK.DOMModel.DOMNode | null, fromAXTree?: boolean): void;
+    accessibilityNodeCallback(axNode: SDK.AccessibilityModel.AccessibilityNode | null): void;
+    doUpdate(): Promise<void>;
+    wasShown(): void;
+    willHide(): void;
+    _pullNode(): void;
+    _onAttrChange(event: Common.EventTarget.EventTargetEvent): void;
+    _onNodeChange(event: Common.EventTarget.EventTargetEvent): void;
+}

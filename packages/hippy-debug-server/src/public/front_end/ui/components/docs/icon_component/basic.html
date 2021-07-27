@@ -1,0 +1,45 @@
+<!--
+  Copyright 2020 The Chromium Authors. All rights reserved.
+  Use of this source code is governed by a BSD-style license that can be
+  found in the LICENSE file.
+-->
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Element explore icon example</title>
+    <style>
+        #icon-overview {
+          width: 80%;
+        }
+
+        td,
+        th {
+          text-align: left;
+          width: 50%;
+          height: 50px;
+        }
+
+        .custom-color {
+          --icon-color: blue;
+        }
+    </style>
+  </head>
+  <body>
+
+    <table id='icon-overview'>
+      <tr>
+        <th>Icon name</th>
+        <th>Icon</th>
+      </tr>
+    </table>
+
+    <div style="display: flex; align-items: center;">
+      <span>Some text</span>
+      <devtools-icon id="icon-in-flex"></devtools-icon>
+      <span>Some text</span>
+    </div>
+
+    <script type="module" src="./basic.js"></script>
+  </body>
+</html>

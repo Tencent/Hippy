@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../../../front_end/ui/legacy/components/source_frame"},"files":["../../../../../../../../front_end/ui/legacy/components/source_frame/source_frame.ts"],"references":[{"path":"./source_frame-tsconfig.json"}]}

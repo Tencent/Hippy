@@ -1,0 +1,30 @@
+import * as Common from '../../../../core/common/common.js';
+import * as TextUtils from '../../../../models/text_utils/text_utils.js';
+import * as Workspace from '../../../../models/workspace/workspace.js';
+import * as UI from '../../legacy.js';
+export declare class ImageView extends UI.View.SimpleView {
+    _url: string;
+    _parsedURL: Common.ParsedURL.ParsedURL;
+    _mimeType: string;
+    _contentProvider: TextUtils.ContentProvider.ContentProvider;
+    _uiSourceCode: Workspace.UISourceCode.UISourceCode | null;
+    _sizeLabel: UI.Toolbar.ToolbarText;
+    _dimensionsLabel: UI.Toolbar.ToolbarText;
+    _aspectRatioLabel: UI.Toolbar.ToolbarText;
+    _mimeTypeLabel: UI.Toolbar.ToolbarText;
+    _container: HTMLElement;
+    _imagePreviewElement: HTMLImageElement;
+    _cachedContent?: string | null;
+    constructor(mimeType: string, contentProvider: TextUtils.ContentProvider.ContentProvider);
+    toolbarItems(): Promise<UI.Toolbar.ToolbarItem[]>;
+    wasShown(): void;
+    disposeView(): void;
+    _workingCopyCommitted(): void;
+    _updateContentIfNeeded(): Promise<void>;
+    _contextMenu(event: Event): void;
+    _copyImageAsDataURL(): void;
+    _copyImageURL(): void;
+    _saveImage(): Promise<void>;
+    _openInNewTab(): void;
+    _handleDrop(dataTransfer: DataTransfer): Promise<void>;
+}

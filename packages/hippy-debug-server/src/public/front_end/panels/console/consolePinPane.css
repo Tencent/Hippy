@@ -1,0 +1,96 @@
+/*
+ * Copyright 2018 The Chromium Authors. All rights reserved.
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+.close-button {
+  position: absolute;
+  top: 7px;
+  left: 5px;
+}
+
+.console-pins {
+  max-height: 200px;
+  overflow-y: auto;
+  background: var(--color-background-elevation-1);
+
+  --override-error-background-color: rgb(255 240 240);
+  --override-error-border-color: rgb(225 214 214);
+  --override-error-text-color: rgb(255 0 0);
+}
+
+.console-pins:not(:empty) {
+  border-bottom: 1px solid var(--color-details-hairline);
+}
+
+.-theme-with-dark-background .console-pins,
+:host-context(.-theme-with-dark-background) .console-pins {
+  --override-error-background-color: rgb(41 0 0);
+  --override-error-border-color: rgb(92 0 0);
+  --override-error-text-color: rgb(255 128 128);
+}
+
+.console-pin {
+  position: relative;
+  user-select: text;
+  flex: none;
+  padding: 2px 0 6px 24px;
+}
+
+.console-pin:not(:last-child) {
+  border-bottom: 1px solid var(--color-background-elevation-2);
+}
+
+.console-pin.error-level:not(:focus-within) {
+  background-color: var(--override-error-background-color);
+  color: var(--override-error-text-color);
+}
+
+.console-pin:not(:last-child).error-level:not(:focus-within) {
+  border-top: 1px solid var(--override-error-border-color);
+  border-bottom: 1px solid var(--override-error-border-color);
+  margin-top: -1px;
+}
+
+.console-pin-name {
+  margin-left: -4px;
+  margin-bottom: 1px;
+  height: auto;
+}
+
+.console-pin-name,
+.console-pin-preview {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-height: 13px;
+}
+
+.console-delete-pin {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  opacity: 70%;
+  cursor: pointer;
+}
+
+.console-delete-pin:hover,
+.console-delete-pin:focus-visible {
+  opacity: 100%;
+}
+
+:host-context(.-theme-with-dark-background) .console-delete-pin {
+  filter: brightness(2);
+}
+
+.console-pin-name:focus-within {
+  background: var(--color-background);
+  box-shadow: var(--legacy-focus-ring-active-shadow) inset;
+}
+
+.console-pin:focus-within .console-pin-preview,
+.console-pin-name:not(:focus-within):not(:hover) {
+  opacity: 60%;
+}

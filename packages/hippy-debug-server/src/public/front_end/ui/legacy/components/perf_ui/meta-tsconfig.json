@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../../../front_end/ui/legacy/components/perf_ui"},"files":["../../../../../../../../front_end/ui/legacy/components/perf_ui/perf_ui-meta.ts"],"references":[{"path":"./bundle-tsconfig.json"}]}

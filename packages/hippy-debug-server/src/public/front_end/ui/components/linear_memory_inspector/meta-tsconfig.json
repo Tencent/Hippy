@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../../front_end/ui/components/linear_memory_inspector"},"files":["../../../../../../../front_end/ui/components/linear_memory_inspector/linear_memory_inspector-meta.ts"],"references":[{"path":"./bundle-tsconfig.json"}]}

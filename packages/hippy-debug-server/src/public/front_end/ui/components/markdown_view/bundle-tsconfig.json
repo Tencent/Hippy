@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../../front_end/ui/components/markdown_view"},"files":["../../../../../../../front_end/ui/components/markdown_view/markdown_view.ts"],"references":[{"path":"./markdown_view-tsconfig.json"}]}

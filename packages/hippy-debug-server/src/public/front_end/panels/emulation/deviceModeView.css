@@ -1,0 +1,384 @@
+/*
+ * Copyright 2015 The Chromium Authors. All rights reserved.
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+:host {
+  overflow: hidden;
+  align-items: stretch;
+  flex: auto;
+  background-color: var(--color-background-elevation-0);
+}
+
+.device-mode-toolbar {
+  flex: none;
+  background-color: var(--color-background-elevation-0);
+  border-bottom: 1px solid var(--color-details-hairline);
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+}
+
+.device-mode-toolbar .toolbar {
+  overflow: hidden;
+  flex: 0 100000 auto;
+  padding: 0 5px;
+}
+
+.device-mode-toolbar .toolbar.device-mode-toolbar-fixed-size {
+  flex: 0 1 auto;
+}
+
+.device-mode-toolbar-options.toolbar {
+  position: sticky;
+  right: 0;
+  flex: none;
+}
+
+.device-mode-toolbar-spacer {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+}
+
+.device-mode-content-clip {
+  overflow: hidden;
+  flex: auto;
+}
+
+.device-mode-media-container {
+  flex: none;
+  overflow: hidden;
+  box-shadow: inset 0 -1px var(--color-details-hairline);
+}
+
+.device-mode-content-clip:not(.device-mode-outline-visible) .device-mode-media-container {
+  margin-bottom: 20px;
+}
+
+.device-mode-presets-container {
+  flex: 0 0 20px;
+  display: flex;
+}
+
+.device-mode-presets-container-inner {
+  flex: auto;
+  justify-content: center;
+  position: relative;
+  background-color: var(--color-background-elevation-2);
+  border: 2px solid var(--color-background-elevation-0);
+  border-bottom: 2px solid var(--color-background-elevation-0);
+}
+
+.device-mode-presets-container:hover {
+  transition: opacity 0.1s;
+  transition-delay: 50ms;
+  opacity: 100%;
+}
+
+.device-mode-preset-bar-outer {
+  pointer-events: none;
+  display: flex;
+  justify-content: center;
+}
+
+.device-mode-preset-bar {
+  border-left: 2px solid var(--color-background-elevation-0);
+  border-right: 2px solid var(--color-background-elevation-0);
+  pointer-events: auto;
+  text-align: center;
+  flex: none;
+  cursor: pointer;
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  margin-bottom: 1px;
+}
+
+.device-mode-preset-bar:hover {
+  transition: background-color 0.1s;
+  transition-delay: 50ms;
+  background-color: var(--color-background-highlight);
+}
+
+.device-mode-preset-bar > span {
+  visibility: hidden;
+}
+
+.device-mode-preset-bar:hover > span {
+  transition: visibility 0.1s;
+  transition-delay: 50ms;
+  visibility: visible;
+}
+
+.device-mode-content-area {
+  flex: auto;
+  position: relative;
+  margin: 0;
+}
+
+.device-mode-screen-area {
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  background-color: var(--color-background-inverted);
+}
+
+.device-mode-content-clip:not(.device-mode-outline-visible) .device-mode-screen-area {
+  --override-screen-area-box-shadow: hsl(240deg 3% 84%) 0 0 0 0.5px, hsl(0deg 0% 80% / 40%) 0 0 20px;
+
+  box-shadow: var(--override-screen-area-box-shadow);
+}
+
+.-theme-with-dark-background .device-mode-content-clip:not(.device-mode-outline-visible) .device-mode-screen-area,
+:host-context(.-theme-with-dark-background) .device-mode-content-clip:not(.device-mode-outline-visible) .device-mode-screen-area {
+  --override-screen-area-box-shadow: rgb(40 40 42) 0 0 0 0.5px, rgb(51 51 51 / 40%) 0 0 20px;
+}
+
+.device-mode-screen-image {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.device-mode-resizer {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: background-color 0.1s ease, opacity 0.1s ease;
+}
+
+.device-mode-resizer:hover {
+  background-color: var(--color-background-elevation-2);
+  opacity: 100%;
+}
+
+.device-mode-resizer > div {
+  pointer-events: none;
+}
+
+.device-mode-right-resizer {
+  top: 0;
+  bottom: -1px;
+  right: -20px;
+  width: 20px;
+}
+
+.device-mode-left-resizer {
+  top: 0;
+  bottom: -1px;
+  left: -20px;
+  width: 20px;
+  opacity: 0%;
+}
+
+.device-mode-bottom-resizer {
+  left: 0;
+  right: -1px;
+  bottom: -20px;
+  height: 20px;
+}
+
+.device-mode-bottom-right-resizer {
+  left: 0;
+  top: 0;
+  right: -20px;
+  bottom: -20px;
+  background-color: var(--color-background-elevation-1);
+}
+
+.device-mode-bottom-left-resizer {
+  left: -20px;
+  top: 0;
+  right: 0;
+  bottom: -20px;
+  opacity: 0%;
+}
+
+.device-mode-right-resizer > div {
+  content: var(--image-file-resizeHorizontal);
+  width: 6px;
+  height: 26px;
+}
+
+.device-mode-left-resizer > div {
+  content: var(--image-file-resizeHorizontal);
+  width: 6px;
+  height: 26px;
+}
+
+.device-mode-bottom-resizer > div {
+  content: var(--image-file-resizeVertical);
+  margin-bottom: -2px;
+  width: 26px;
+  height: 6px;
+}
+
+.device-mode-bottom-right-resizer > div {
+  position: absolute;
+  bottom: 3px;
+  right: 3px;
+  width: 13px;
+  height: 13px;
+  content: var(--image-file-resizeDiagonal);
+}
+
+.device-mode-bottom-left-resizer > div {
+  position: absolute;
+  bottom: 3px;
+  left: 3px;
+  width: 13px;
+  height: 13px;
+  content: var(--image-file-resizeDiagonal);
+  transform: rotate(90deg);
+}
+
+.device-mode-page-area {
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  display: flex;
+  background-color: var(--color-background-elevation-0);
+}
+
+.device-mode-ruler {
+  position: absolute;
+  overflow: visible;
+}
+
+.device-mode-ruler-top {
+  height: 20px;
+  right: 0;
+}
+
+.device-mode-ruler-left {
+  width: 20px;
+  bottom: 0;
+}
+
+.device-mode-ruler-content {
+  pointer-events: none;
+  position: absolute;
+  left: -20px;
+  top: -20px;
+
+  --override-device-ruler-border-color: hsl(0deg 0% 50%);
+}
+
+.device-mode-ruler-top .device-mode-ruler-content {
+  border-top: 1px solid transparent;
+  right: 0;
+  bottom: 20px;
+  background-color: var(--color-background-opacity-80);
+}
+
+.device-mode-ruler-left .device-mode-ruler-content {
+  border-left: 1px solid transparent;
+  border-top: 1px solid transparent;
+  right: 20px;
+  bottom: 0;
+}
+
+.-theme-with-dark-background .device-mode-ruler-content,
+:host-context(.-theme-with-dark-background) .device-mode-ruler-content {
+  --override-device-ruler-border-color: rgb(127 127 127);
+}
+
+.device-mode-content-clip.device-mode-outline-visible .device-mode-ruler-top .device-mode-ruler-content {
+  border-top: 1px solid var(--override-device-ruler-border-color);
+}
+
+.device-mode-content-clip.device-mode-outline-visible .device-mode-ruler-left .device-mode-ruler-content {
+  border-left: 1px solid var(--override-device-ruler-border-color);
+  border-top: 1px solid var(--override-device-ruler-border-color);
+}
+
+.device-mode-ruler-inner {
+  position: absolute;
+}
+
+.device-mode-ruler-top .device-mode-ruler-inner {
+  top: 0;
+  bottom: 0;
+  left: 20px;
+  right: 0;
+  border-bottom: 1px solid var(--override-device-ruler-border-color);
+}
+
+.device-mode-ruler-left .device-mode-ruler-inner {
+  left: 0;
+  right: 0;
+  top: 19px;
+  bottom: 0;
+  border-right: 1px solid var(--override-device-ruler-border-color);
+  background-color: var(--color-background-opacity-80);
+}
+
+.device-mode-ruler-marker {
+  position: absolute;
+}
+
+.device-mode-ruler-top .device-mode-ruler-marker {
+  width: 0;
+  height: 5px;
+  bottom: 0;
+  border-right: 1px solid var(--override-device-ruler-border-color);
+  margin-right: -1px;
+}
+
+.device-mode-ruler-top .device-mode-ruler-marker.device-mode-ruler-marker-medium {
+  height: 10px;
+}
+
+.device-mode-ruler-top .device-mode-ruler-marker.device-mode-ruler-marker-large {
+  height: 15px;
+}
+
+.device-mode-ruler-left .device-mode-ruler-marker {
+  height: 0;
+  width: 5px;
+  right: 0;
+  border-bottom: 1px solid var(--override-device-ruler-border-color);
+  margin-bottom: -1px;
+}
+
+.device-mode-ruler-left .device-mode-ruler-marker.device-mode-ruler-marker-medium {
+  width: 10px;
+}
+
+.device-mode-ruler-left .device-mode-ruler-marker.device-mode-ruler-marker-large {
+  width: 15px;
+}
+
+.device-mode-ruler-text {
+  color: var(--color-text-secondary);
+  position: relative;
+  pointer-events: auto;
+}
+
+.device-mode-ruler-text:hover {
+  color: var(--color-text-primary);
+}
+
+.device-mode-ruler-top .device-mode-ruler-text {
+  left: 2px;
+  top: -2px;
+}
+
+.device-mode-ruler-left .device-mode-ruler-text {
+  left: -4px;
+  top: -15px;
+  transform: rotate(270deg);
+}

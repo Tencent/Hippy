@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/panels/emulation"},"files":["../../../../../../front_end/panels/emulation/emulation.ts"],"references":[{"path":"./emulation-tsconfig.json"}]}

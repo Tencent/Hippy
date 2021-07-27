@@ -1,0 +1,54 @@
+<!--
+  Copyright 2020 The Chromium Authors. All rights reserved.
+  Use of this source code is governed by a BSD-style license that can be
+  found in the LICENSE file.
+-->
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width" />
+  <title>DevTools Theme Colors</title>
+  <style>
+    body {
+      /**
+       * The injected themes switch off user-select. This switches
+       * it back on so that we can select colors.
+       */
+      user-select: auto !important; /* stylelint-disable-line declaration-no-important */
+      overflow: auto !important; /* stylelint-disable-line declaration-no-important */
+    }
+
+    #container {
+      display: flex;
+    }
+
+    .light-mode-container, .dark-mode-container {
+      width: 50%;
+      max-width: 600px;
+
+    }
+    .light-mode-container li, .dark-mode-container li {
+      display: block;
+      list-style: none;
+      border-bottom-width: 20px;
+      border-bottom-style: solid;
+      text-align: center;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="container">
+    <ul class="light-mode-container"></ul>
+    <ul class="dark-mode-container -theme-with-dark-background"></ul>
+  </div>
+
+  <script type="module" src="./basic.js"></script>
+</body>
+
+</html>

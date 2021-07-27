@@ -1,0 +1,189 @@
+/*
+ * Copyright (C) 2013 Google Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+.filter-bar {
+  background-color: var(--color-background-elevation-1);
+  flex: none;
+  flex-wrap: wrap;
+  align-items: center;
+  border-bottom: var(--legacy-divider-border);
+}
+
+.filter-text-filter {
+  display: inline-flex;
+  margin-left: 1px;
+  margin-right: 2px;
+  min-width: 40px;
+  max-width: 200px;
+  height: 24px;
+  align-items: center;
+}
+
+.filter-bitset-filter {
+  padding: 2px;
+  display: inline-flex;
+  overflow: hidden;
+  height: 24px;
+  position: relative;
+  margin: 0;
+}
+
+.filter-bitset-filter span {
+  --override-background-color-base: 0 0 0;
+
+  display: inline-block;
+  flex: none;
+  margin: auto 2px;
+  padding: 3px;
+  background: transparent;
+  text-shadow: var(--color-background-opacity-50) 0 1px 0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.filter-bitset-filter span:focus-visible {
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+.filter-bitset-filter-divider {
+  background-color: var(--color-details-hairline);
+  height: 16px;
+  width: 1px;
+  margin: auto 2px;
+  display: inline-block;
+}
+
+.filter-bitset-filter span.selected,
+.filter-bitset-filter span:hover,
+.filter-bitset-filter span:active {
+  color: var(--color-background);
+  text-shadow: rgb(var(--override-background-color-base) / 40%) 0 1px 0;
+}
+
+.filter-bitset-filter span:hover {
+  background: rgb(var(--override-background-color-base) / 20%);
+}
+
+.filter-bitset-filter span.selected {
+  background: rgb(var(--override-background-color-base) / 30%);
+}
+
+.filter-bitset-filter span:active {
+  background: rgb(var(--override-background-color-base) / 50%);
+}
+
+.-theme-with-dark-background .filter-bitset-filter span,
+:host-context(.-theme-with-dark-background) .filter-bitset-filter span {
+  --override-background-color-base: 255 255 255;
+}
+
+.filter-checkbox-filter {
+  padding-left: 4px;
+  padding-right: 2px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  display: inline-flex;
+  vertical-align: middle;
+  height: 24px;
+  position: relative;
+}
+
+.filter-checkbox-filter > [is=dt-checkbox] {
+  display: flex;
+  margin: auto 0;
+}
+
+.filter-input-field {
+  padding-left: 3px;
+  width: 163px;
+  height: 18px;
+  line-height: 20px;
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  cursor: auto;
+}
+
+.filter-input-container {
+  margin: 0 3px;
+  display: flex;
+  background: var(--color-background);
+  width: 163px;
+}
+
+.filter-input-container:hover {
+  box-shadow: var(--legacy-focus-ring-inactive-shadow);
+}
+
+.filter-input-container:focus-within,
+.filter-text-filter:not(.filter-text-empty) .filter-input-container {
+  box-shadow: var(--legacy-focus-ring-active-shadow);
+}
+
+.filter-input-clear-button {
+  opacity: 70%;
+  height: 16px;
+  margin-top: 1px;
+}
+
+.filter-cancel-button {
+  display: block;
+}
+
+.filter-text-empty .filter-input-clear-button {
+  display: none;
+}
+
+.filter-input-clear-button:hover {
+  opacity: 99%;
+}
+
+@media (forced-colors: active) {
+  .filter-bitset-filter span:hover,
+  .filter-bitset-filter span.selected,
+  .filter-bitset-filter span:active {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+  }
+
+  .filter-input-container {
+    forced-color-adjust: none;
+    background: ButtonFace;
+    box-shadow: var(--legacy-focus-ring-inactive-shadow);
+  }
+
+  .filter-input-container:hover,
+  .filter-input-container:focus-within,
+  .filter-text-filter:not(.filter-text-empty) .filter-input-container {
+    box-shadow: var(--legacy-focus-ring-active-shadow);
+  }
+}

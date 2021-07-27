@@ -1,0 +1,116 @@
+/*
+ * Copyright (c) 2014 The Chromium Authors. All rights reserved.
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+:host {
+  padding: 0;
+  margin: 0;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center !important; /* stylelint-disable-line declaration-no-important */
+}
+
+input {
+  height: 12px;
+  width: 12px;
+  flex-shrink: 0;
+}
+
+input.inside-datagrid {
+  height: 10px;
+  width: 10px;
+}
+
+input:focus {
+  outline: auto 5px -webkit-focus-ring-color;
+}
+
+input.dt-checkbox-themed {
+  --override-border-color: rgb(45 45 45);
+
+  appearance: none;
+  margin: auto 5px auto 2px;
+  border: 1px solid var(--override-border-color);
+  /* See: crbug.com/1152736 for color variable migration. */
+  border-radius: 3px;
+  background-color: var(--color-background-elevation-2);
+}
+
+.-theme-with-dark-background input.dt-checkbox-themed,
+:host-context(.-theme-with-dark-background) input.dt-checkbox-themed {
+  --override-border-color: rgb(207 207 207);
+}
+
+input.dt-checkbox-themed::after {
+  content: '';
+  line-height: 10px;
+  position: absolute;
+  cursor: pointer;
+  width: 12px;
+  height: 12px;
+  background: none;
+  -webkit-mask-image: var(--image-file-checkboxCheckmark);
+  -webkit-mask-size: 11px 11px;
+  -webkit-mask-position: 0 0;
+}
+
+input.dt-checkbox-themed:checked::after {
+  background-color: var(--color-background-inverted);
+}
+
+:host-context(.-theme-with-dark-background) input:not(.dt-checkbox-themed) {
+  filter: invert(80%);
+}
+
+.dt-checkbox-text {
+  margin-left: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dt-checkbox-subtitle {
+  color: var(--color-text-secondary);
+}
+
+@media (forced-colors: active) {
+  input.dt-checkbox-theme-preserve {
+    forced-color-adjust: none;
+  }
+
+  input.dt-checkbox-theme-preserve:active {
+    background: HighlightText;
+  }
+
+  input.dt-checkbox-theme-preserve:checked,
+  input.dt-checkbox-theme-preserve:active:checked {
+    background: Highlight;
+    border-color: Highlight;
+  }
+
+  input.dt-checkbox-theme-preserve:hover:enabled {
+    border-color: Highlight;
+  }
+
+  input.dt-checkbox-theme-preserve:active::before,
+  input.dt-checkbox-theme-preserve:active::after {
+    background-color: Highlight;
+  }
+
+  input.dt-checkbox-theme-preserve:checked::before,
+  input.dt-checkbox-theme-preserve:checked::after,
+  input.dt-checkbox-theme-preserve:active:checked::before,
+  input.dt-checkbox-theme-preserve:active:checked::after {
+    background-color: HighlightText;
+  }
+
+  input.dt-checkbox-theme-preserve:hover:checked::before,
+  input.dt-checkbox-theme-preserve:hover:checked::after {
+    background-color: Highlight !important; /* stylelint-disable-line declaration-no-important */
+  }
+
+  input.dt-checkbox-theme-preserve:hover:checked {
+    background: HighlightText;
+  }
+}

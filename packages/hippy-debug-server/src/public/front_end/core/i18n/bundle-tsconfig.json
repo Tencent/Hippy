@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/core/i18n"},"files":["../../../../../../front_end/core/i18n/i18n.ts"],"references":[{"path":"./i18n-tsconfig.json"}]}

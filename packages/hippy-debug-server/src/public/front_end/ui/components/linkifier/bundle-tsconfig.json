@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../../front_end/ui/components/linkifier"},"files":["../../../../../../../front_end/ui/components/linkifier/linkifier.ts"],"references":[{"path":"./linkifier-tsconfig.json"}]}

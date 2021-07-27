@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../../front_end/ui/components/survey_link"},"files":["../../../../../../../front_end/ui/components/survey_link/survey_link.ts"],"references":[{"path":"./survey_link-tsconfig.json"}]}

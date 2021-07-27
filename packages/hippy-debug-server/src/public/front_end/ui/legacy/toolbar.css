@@ -1,0 +1,515 @@
+/*
+ * Copyright (c) 2014 The Chromium Authors. All rights reserved.
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+:host {
+  flex: none;
+  padding: 0 2px;
+
+  --override-toolbar-warning-red: rgb(238 68 47 / 7%);
+}
+
+.toolbar-shadow {
+  position: relative;
+  white-space: nowrap;
+  height: 26px;
+  overflow: hidden;
+  z-index: 12;
+  display: flex;
+  flex: none;
+  align-items: center;
+}
+
+.toolbar-shadow.wrappable {
+  flex-wrap: wrap;
+  overflow: visible;
+}
+
+.toolbar-shadow.toolbar-grow-vertical {
+  height: initial;
+}
+
+.toolbar-shadow.vertical {
+  flex-direction: column;
+  height: auto;
+  align-items: flex-start;
+}
+
+.toolbar-item {
+  position: relative;
+  display: flex;
+  background-color: transparent;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  height: 26px;
+  border: none;
+  white-space: pre;
+}
+
+.toolbar-item,
+.toolbar-item .devtools-link {
+  color: var(--color-text-primary);
+}
+
+.toolbar-shadow.vertical .toolbar-item {
+  height: auto;
+  min-height: 26px;
+  white-space: normal;
+}
+
+.toolbar-dropdown-arrow {
+  background-color: var(--color-text-secondary);
+  pointer-events: none;
+  flex: none;
+}
+
+.toolbar-button.dark-text .toolbar-dropdown-arrow {
+  background-color: var(--color-text-primary);
+}
+
+select.toolbar-item:disabled + .toolbar-dropdown-arrow {
+  opacity: 50%;
+}
+/* Toolbar item */
+
+.toolbar-button {
+  white-space: nowrap;
+  overflow: hidden;
+  min-width: 28px;
+  background: transparent;
+  border-radius: 0;
+  cursor: pointer;
+}
+
+.toolbar-text {
+  margin: 0 5px;
+  flex: none;
+  color: var(--color-text-secondary);
+}
+
+.toolbar-text:empty {
+  margin: 0;
+}
+
+.toolbar-has-dropdown {
+  justify-content: space-between;
+  padding: 0 3px 0 5px;
+  border: 1px solid transparent;
+}
+
+.toolbar-has-dropdown-shrinkable {
+  flex-shrink: 1;
+}
+
+.toolbar-has-dropdown .toolbar-text {
+  margin: 0 4px 0 0;
+  text-overflow: ellipsis;
+  flex: auto;
+  overflow: hidden;
+  text-align: right;
+}
+
+.toolbar-has-glyph .toolbar-text {
+  margin-left: -4px;
+}
+
+.toolbar-render-as-links * {
+  font-weight: initial;
+  color: var(--color-link);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.toolbar-render-as-links button {
+  height: 15px;
+  margin: 2px;
+}
+
+.toolbar-render-as-links button:focus-visible {
+  outline: auto 5px -webkit-focus-ring-color;
+}
+
+:not(.toolbar-render-as-links) .toolbar-button:focus-visible::before {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: 2px;
+  right: 2px;
+  background-color: var(--color-background-elevation-2);
+  border-radius: 2px;
+  content: "";
+  /* This ::before rule serves as a background for an element.
+  Setting z-index to make sure it's always below the content. */
+  z-index: -1;
+}
+
+.toolbar-icon {
+  --icon-color: var(--color-text-secondary);
+
+  flex: none;
+}
+
+.toolbar-glyph {
+  background-color: var(--color-text-secondary);
+  flex: none;
+}
+/* Button */
+
+.toolbar-button:disabled {
+  opacity: 50%;
+}
+
+/* Two of the buttons are special in the main toolbar: the close button needs to
+be fixed to the right so it never goes out of the viewport even if other items
+push it. And the main menu button next to it that needs to make some space for
+it. */
+.toolbar-button.close-devtools {
+  position: fixed;
+  right: 0;
+  background-color: var(--color-background-elevation-1);
+}
+
+:host-context(.right) .toolbar-button.main-menu,
+:host-context(.left) .toolbar-button.main-menu,
+:host-context(.bottom) .toolbar-button.main-menu {
+  margin-inline-end: 28px;
+}
+
+.toolbar-button.toolbar-state-on .toolbar-glyph {
+  background-color: var(--color-primary);
+}
+
+.toolbar-button.toolbar-state-on .toolbar-icon {
+  --icon-color: var(--color-primary);
+}
+
+.toolbar-button.toolbar-state-on.toolbar-toggle-with-red-color .toolbar-glyph,
+.toolbar-button.toolbar-state-off.toolbar-default-with-red-color .toolbar-glyph {
+  background-color: var(--color-accent-red) !important; /* stylelint-disable-line declaration-no-important */
+}
+
+.toolbar-button.toolbar-state-on.toolbar-toggle-with-red-color .toolbar-icon,
+.toolbar-button.toolbar-state-off.toolbar-default-with-red-color .toolbar-icon {
+  --icon-color: var(--color-accent-red) !important;  /* stylelint-disable-line declaration-no-important */
+
+  background-color: var(--color-accent-red) !important; /* stylelint-disable-line declaration-no-important */
+}
+
+.toolbar-button:not(.toolbar-has-glyph):not(.toolbar-has-dropdown):not(.largeicon-menu):not(.toolbar-button-secondary) {
+  font-weight: bold;
+}
+
+.toolbar-blue-on-hover .toolbar-button:not(.toolbar-state-on):enabled:hover:not(:active) {
+  background-color: var(--color-primary);
+}
+
+.toolbar-blue-on-hover .toolbar-button:not(.toolbar-state-on):enabled:active:hover {
+  background-color: var(--color-primary);
+}
+
+.toolbar-toggled-gray:not(.toolbar-render-as-links) .toolbar-button:not(.toolbar-has-glyph):not(.toolbar-has-dropdown):not(.largeicon-menu):hover {
+  background-color: var(--color-background-elevation-1);
+}
+
+.toolbar-button.dark-text .toolbar-text {
+  color: var(--color-text-primary) !important;  /* stylelint-disable-line declaration-no-important */
+}
+
+.toolbar-button.toolbar-state-on .toolbar-text {
+  color: var(--color-text-primary);
+}
+
+:not(.toolbar-render-as-links) .toolbar-button:enabled:hover:not(:active) .toolbar-glyph {
+  background-color: var(--color-text-primary);
+}
+
+:not(.toolbar-render-as-links) .toolbar-button:enabled:hover:not(:active) .toolbar-icon {
+  --icon-color: var(--color-text-primary);
+}
+
+:not(.toolbar-render-as-links) .toolbar-button:enabled:hover:not(:active) .toolbar-text {
+  color: var(--color-text-primary);
+}
+
+.toolbar-blue-on-hover .toolbar-button:not(.toolbar-state-on):enabled:hover .toolbar-glyph {
+  background-color: var(--color-background);
+}
+
+.toolbar-blue-on-hover .toolbar-button:not(.toolbar-state-on):enabled:hover .toolbar-icon {
+  --icon-color: var(--color-background);
+}
+
+.toolbar-blue-on-hover .toolbar-button:not(.toolbar-state-on):enabled:hover .toolbar-text {
+  color: var(--color-text-primary);
+}
+
+.toolbar-button.toolbar-state-on:enabled:hover:not(:active) .toolbar-glyph {
+  background-color: var(--color-primary);
+}
+
+.toolbar-button.toolbar-state-on:enabled:hover:not(:active) .toolbar-icon {
+  --icon-color: var(--color-primary);
+}
+
+.toolbar-button.toolbar-state-on:enabled:hover:not(:active) .toolbar-text {
+  color: var(--color-text-primary);
+}
+
+.toolbar-toggled-gray .toolbar-button.toolbar-state-on {
+  background-color: var(--color-background-elevation-1) !important; /* stylelint-disable-line declaration-no-important */
+}
+
+/* Checkbox */
+
+.toolbar-item.checkbox {
+  padding: 0 5px 0 2px;
+}
+
+.toolbar-item.checkbox:hover {
+  color: var(--color-text-primary);
+}
+/* Select */
+
+.toolbar-select-container {
+  display: inline-flex;
+  flex-shrink: 0;
+  margin-right: 6px;
+}
+
+select.toolbar-item {
+  min-width: 38px;
+  appearance: none;
+  border: 1px solid transparent;
+  border-radius: 0;
+  padding: 0 13px 0 5px;
+  margin-right: -10px;
+  position: relative;
+  height: 22px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
+select.toolbar-item:disabled {
+  opacity: 50%;
+}
+
+select.toolbar-item:focus-visible {
+  background: var(--color-background-elevation-2);
+  border-radius: 2px;
+}
+
+select.toolbar-item:focus-visible > * {
+  background: var(--color-background);
+}
+/* Input */
+
+.toolbar-input {
+  width: 120px;
+  height: 19px;
+  padding: 4px 3px 3px 3px;
+  margin: 1px 3px;
+  background-color: var(--color-background);
+  border: 1px solid transparent;
+  min-width: 35px;
+  box-shadow: var(--legacy-focus-ring-inactive-shadow);
+}
+
+.toolbar-input.focused,
+.toolbar-input:not(.toolbar-input-empty) {
+  box-shadow: var(--legacy-focus-ring-active-shadow);
+}
+
+.toolbar-input > input {
+  border: none;
+  flex-grow: 1;
+}
+
+.toolbar-input-clear-button {
+  opacity: 70%;
+  flex-basis: 13px;
+  flex-shrink: 0;
+  height: 16px;
+}
+
+.toolbar-input-clear-button > .search-cancel-button {
+  display: block;
+}
+
+.toolbar-input-clear-button:hover {
+  opacity: 99%;
+}
+
+.toolbar-input-empty .toolbar-input-clear-button {
+  display: none;
+}
+
+.toolbar-prompt-proxy {
+  flex: 1;
+}
+
+.toolbar-input-prompt {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  cursor: auto;
+}
+/* Separator */
+
+.toolbar-divider {
+  background-color: var(--color-details-hairline);
+  width: 1px;
+  margin: 5px 4px;
+  height: 16px;
+}
+
+.toolbar-spacer {
+  flex: auto;
+}
+/* Long click */
+
+.long-click-glyph {
+  position: absolute;
+  background-color: var(--color-text-primary);
+  top: 0;
+  left: 0;
+}
+
+.toolbar-button.emulate-active {
+  background-color: var(--color-background-elevation-2);
+}
+
+.toolbar-shadow.floating {
+  flex-direction: column;
+  height: auto;
+  background-color: var(--color-background);
+  border: 1px solid var(--color-details-hairline);
+  margin-top: -1px;
+  width: 28px;
+  left: -2px;
+}
+
+input[is=history-input] {
+  border: 1px solid transparent;
+  line-height: 16px;
+  padding: 1px;
+}
+
+input[is=history-input]:hover {
+  box-shadow: var(--legacy-focus-ring-inactive-shadow);
+}
+
+input[is=history-input]:focus,
+input[is=history-input]:not(:placeholder-shown) {
+  box-shadow: var(--legacy-focus-ring-active-shadow);
+}
+
+.toolbar-item.warning {
+  background: var(--override-toolbar-warning-red);
+}
+
+devtools-icon.leading-issue-icon {
+  margin: 0 7px;
+}
+
+@media (forced-colors: active) {
+  .toolbar-button:disabled {
+    opacity: 100%;
+  }
+
+  .toolbar-item,
+  .toolbar-text {
+    color: ButtonText;
+  }
+
+  select.toolbar-item:disabled,
+  select.toolbar-item:disabled + .toolbar-dropdown-arrow {
+    opacity: 100%;
+    background-color: Graytext;
+  }
+
+  .toolbar-button.toolbar-state-on .toolbar-glyph {
+    forced-color-adjust: none;
+    background-color: Highlight;
+  }
+
+  .toolbar-button.toolbar-state-on .toolbar-icon {
+    --icon-color: Highlight;
+
+    forced-color-adjust: none;
+  }
+
+  .toolbar-button.toolbar-state-on .toolbar-text {
+    forced-color-adjust: none;
+    color: Highlight;
+  }
+
+  :not(.toolbar-render-as-links) .toolbar-button:enabled:hover:not(:active) .toolbar-text,
+  :not(.toolbar-render-as-links) .toolbar-button:enabled:focus:not(:active) .toolbar-text {
+    color: HighlightText;
+  }
+
+  .toolbar-button:disabled [is=ui-icon].icon-mask {
+    background-color: GrayText;
+    color: GrayText;
+  }
+
+  :not(.toolbar-render-as-links) .toolbar-button:disabled .toolbar-glyph {
+    background-color: GrayText;
+    color: GrayText;
+  }
+
+  :not(.toolbar-render-as-links) .toolbar-button:disabled .toolbar-icon {
+    --icon-color: GrayText;
+
+    color: GrayText;
+  }
+
+  .toolbar-button:enabled.hover:not(:active) .toolbar-glyph,
+  .toolbar-button:focus,
+  .toolbar-button:hover:enabled,
+  .toolbar-toggled-gray:not(.toolbar-render-as-links) .toolbar-button:not(.toolbar-has-glyph):not(.toolbar-has-dropdown):not(.largeicon-menu):hover {
+    forced-color-adjust: none;
+    background-color: Highlight;
+  }
+
+  .toolbar-button:enabled:hover .toolbar-icon,
+  .toolbar-button:enabled:focus .toolbar-icon,
+  :not(.toolbar-render-as-links) .toolbar-button:enabled:hover .toolbar-icon,
+  :not(.toolbar-render-as-links) .toolbar-button:enabled:focus .toolbar-icon,
+  :not(.toolbar-render-as-links) .toolbar-button:enabled:hover:not(:active) .toolbar-icon {
+    --icon-color: HighlightText;
+  }
+
+  :not(.toolbar-render-as-links) .toolbar-button:enabled:hover .toolbar-glyph,
+  :not(.toolbar-render-as-links) .toolbar-button:enabled:focus .toolbar-glyph,
+  :not(.toolbar-render-as-links) .toolbar-button:enabled:hover:not(:active) .toolbar-glyph,
+  .toolbar-button:enabled:hover [is=ui-icon].icon-mask,
+  .toolbar-button:enabled:focus [is=ui-icon].icon-mask {
+    background-color: HighlightText;
+  }
+
+  .toolbar-input {
+    forced-color-adjust: none;
+    background: canvas;
+    box-shadow: var(--legacy-focus-ring-inactive-shadow);
+  }
+
+  .toolbar-input.focused,
+  .toolbar-input:not(.toolbar-input-empty) {
+    forced-color-adjust: none;
+    background: canvas;
+    box-shadow: var(--legacy-focus-ring-active-shadow);
+  }
+
+  .toolbar-input:hover {
+    box-shadow: var(--legacy-focus-ring-active-shadow);
+  }
+
+  .toolbar-item .devtools-link {
+    color: linktext;
+  }
+}

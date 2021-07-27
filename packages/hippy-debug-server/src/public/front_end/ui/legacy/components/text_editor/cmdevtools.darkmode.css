@@ -1,0 +1,102 @@
+/* This file was automatically generated via:
+npm run generate-dark-mode-styles front_end/ui/legacy/components/text_editor/cmdevtools.css
+* Last Updated: Fri Jun 04 2021 11:25:32 GMT+0000 (Coordinated Universal Time)
+*/
+/* stylelint-disable */
+:host-context(.-theme-with-dark-background) .CodeMirror .source-frame-eval-expression,
+.-theme-with-dark-background .CodeMirror .source-frame-eval-expression {
+  border-top-color:rgb(221 99 92);
+  border-right-color:rgb(221 99 92);
+  border-bottom-color:rgb(221 99 92);
+  border-left-color:rgb(221 99 92);
+  background-color:rgb(102 102 0);
+  }
+
+:host-context(.-theme-with-dark-background) .CodeMirror .source-frame-async-step-in,
+.-theme-with-dark-background .CodeMirror .source-frame-async-step-in {
+  background-color:rgb(52 89 34);
+  }
+
+:host-context(.-theme-with-dark-background) .source-frame-async-step-in-hovered .source-frame-async-step-in,
+.-theme-with-dark-background .source-frame-async-step-in-hovered .source-frame-async-step-in {
+  background-color:rgb(80 137 42);
+  border-top-color:rgb(101 155 101);
+  border-right-color:rgb(101 155 101);
+  border-bottom-color:rgb(101 155 101);
+  border-left-color:rgb(101 155 101);
+  }
+
+:host-context(.-theme-with-dark-background) .CodeMirror-linenumber,
+.-theme-with-dark-background .CodeMirror-linenumber {
+  color:rgb(138 138 138);
+  }
+
+:host-context(.-theme-with-dark-background) .cm-non-breakable-line .CodeMirror-linenumber,
+.-theme-with-dark-background .cm-non-breakable-line .CodeMirror-linenumber {
+  color:rgb(127 127 127 / 40%);
+  }
+
+:host-context(.-theme-with-dark-background) .cm-execution-line-tail + .CodeMirror-widget,
+.-theme-with-dark-background .cm-execution-line-tail + .CodeMirror-widget {
+  background-color:rgb(1 28 113);
+  }
+
+:host-context(.-theme-with-dark-background) .source-frame-eval-expression + .CodeMirror-widget,
+.-theme-with-dark-background .source-frame-eval-expression + .CodeMirror-widget {
+  border-top-color:rgb(221 99 92);
+  border-right-color:rgb(221 99 92);
+  border-bottom-color:rgb(221 99 92);
+  border-left-color:rgb(221 99 92);
+  background-color:rgb(102 102 0);
+  }
+
+:host-context(.-theme-with-dark-background) .cm-inline-breakpoint.cm-execution-line-tail,
+.-theme-with-dark-background .cm-inline-breakpoint.cm-execution-line-tail {
+  background-color:rgb(1 36 150);
+  }
+
+:host-context(.-theme-with-dark-background) .cm-inline-breakpoint.cm-inline-conditional,
+.-theme-with-dark-background .cm-inline-breakpoint.cm-inline-conditional {
+  background-color:rgb(242 160 16);
+  }
+
+:host-context(.-theme-with-dark-background) .cm-whitespace::before,
+.-theme-with-dark-background .cm-whitespace::before {
+  color:rgb(80 80 80);
+  }
+
+:host-context(.-theme-with-dark-background) .cm-tab::before,
+.-theme-with-dark-background .cm-tab::before {
+  border-bottom-color:rgb(80 80 80);
+  }
+
+:host-context(.-theme-with-dark-background) .CodeMirror .text-editor-coverage-used-marker,
+.-theme-with-dark-background .CodeMirror .text-editor-coverage-used-marker {
+  background-color:rgb(65 138 156);
+  }
+
+:host-context(.-theme-with-dark-background) .CodeMirror .text-editor-value-decoration,
+.-theme-with-dark-background .CodeMirror .text-editor-value-decoration {
+  background-color:rgb(99 50 0);
+  }
+
+:host-context(.-theme-with-dark-background) .CodeMirror .text-editor-line-with-warning:not(.cm-execution-line):not(.cm-readonly-highlight),
+.-theme-with-dark-background .CodeMirror .text-editor-line-with-warning:not(.cm-execution-line):not(.cm-readonly-highlight) {
+  background-color:rgb(255 244 14 / 10%);
+  }
+
+:host-context(.-theme-with-dark-background) .CodeMirror .text-editor-line-with-error:not(.cm-execution-line):not(.cm-readonly-highlight),
+.-theme-with-dark-background .CodeMirror .text-editor-line-with-error:not(.cm-execution-line):not(.cm-readonly-highlight) {
+  background-color:rgb(255 0 0 / 5%);
+  }
+
+:host-context(.-theme-with-dark-background) .cm-trailing-whitespace,
+.-theme-with-dark-background .cm-trailing-whitespace {
+  background-color:rgb(255 0 0 / 5%);
+  }
+
+:host-context(.-theme-with-dark-background) .CodeMirror div.CodeMirror-secondarycursor,
+.-theme-with-dark-background .CodeMirror div.CodeMirror-secondarycursor {
+  border-left-color:rgb(67 67 67);
+  }
+/* stylelint-enable */

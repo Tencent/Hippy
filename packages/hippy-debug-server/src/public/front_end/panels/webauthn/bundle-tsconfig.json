@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/panels/webauthn"},"files":["../../../../../../front_end/panels/webauthn/webauthn.ts"],"references":[{"path":"./webauthn-tsconfig.json"}]}

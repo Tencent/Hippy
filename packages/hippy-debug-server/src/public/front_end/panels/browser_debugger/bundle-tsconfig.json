@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/panels/browser_debugger"},"files":["../../../../../../front_end/panels/browser_debugger/browser_debugger.ts"],"references":[{"path":"./browser_debugger-tsconfig.json"}]}

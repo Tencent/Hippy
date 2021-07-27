@@ -1,0 +1,57 @@
+import * as Common from '../../core/common/common.js';
+import * as SDK from '../../core/sdk/sdk.js';
+import * as Workspace from '../workspace/workspace.js';
+import { PersistenceBinding } from './PersistenceImpl.js';
+export declare class NetworkPersistenceManager extends Common.ObjectWrapper.ObjectWrapper {
+    _bindings: WeakMap<Workspace.UISourceCode.UISourceCode, PersistenceBinding>;
+    _originalResponseContentPromises: WeakMap<Workspace.UISourceCode.UISourceCode, Promise<string | null>>;
+    _savingForOverrides: WeakSet<Workspace.UISourceCode.UISourceCode>;
+    _savingSymbol: symbol;
+    _enabledSetting: Common.Settings.Setting<boolean>;
+    _workspace: Workspace.Workspace.WorkspaceImpl;
+    _networkUISourceCodeForEncodedPath: Map<string, Workspace.UISourceCode.UISourceCode>;
+    _interceptionHandlerBound: (interceptedRequest: SDK.NetworkManager.InterceptedRequest) => Promise<void>;
+    _updateInterceptionThrottler: Common.Throttler.Throttler;
+    _project: Workspace.Workspace.Project | null;
+    _activeProject: Workspace.Workspace.Project | null;
+    _active: boolean;
+    _enabled: boolean;
+    _eventDescriptors: Common.EventTarget.EventDescriptor[];
+    private constructor();
+    static instance(opts?: {
+        forceNew: boolean | null;
+        workspace: Workspace.Workspace.WorkspaceImpl | null;
+    }): NetworkPersistenceManager;
+    active(): boolean;
+    project(): Workspace.Workspace.Project | null;
+    originalContentForUISourceCode(uiSourceCode: Workspace.UISourceCode.UISourceCode): Promise<string | null> | null;
+    _enabledChanged(): Promise<void>;
+    _uiSourceCodeRenamedListener(event: Common.EventTarget.EventTargetEvent): Promise<void>;
+    _uiSourceCodeRemovedListener(event: Common.EventTarget.EventTargetEvent): Promise<void>;
+    _uiSourceCodeAdded(event: Common.EventTarget.EventTargetEvent): Promise<void>;
+    _updateActiveProject(): Promise<void>;
+    _encodedPathFromUrl(url: string): string;
+    _decodeLocalPathToUrlPath(path: string): string;
+    _unbind(uiSourceCode: Workspace.UISourceCode.UISourceCode): Promise<void>;
+    _bind(networkUISourceCode: Workspace.UISourceCode.UISourceCode, fileSystemUISourceCode: Workspace.UISourceCode.UISourceCode): Promise<void>;
+    _onUISourceCodeWorkingCopyCommitted(uiSourceCode: Workspace.UISourceCode.UISourceCode): void;
+    canSaveUISourceCodeForOverrides(uiSourceCode: Workspace.UISourceCode.UISourceCode): boolean;
+    saveUISourceCodeForOverrides(uiSourceCode: Workspace.UISourceCode.UISourceCode): Promise<void>;
+    _fileCreatedForTest(_path: string, _fileName: string): void;
+    _patternForFileSystemUISourceCode(uiSourceCode: Workspace.UISourceCode.UISourceCode): string;
+    _onUISourceCodeAdded(uiSourceCode: Workspace.UISourceCode.UISourceCode): Promise<void>;
+    _canHandleNetworkUISourceCode(uiSourceCode: Workspace.UISourceCode.UISourceCode): boolean;
+    _networkUISourceCodeAdded(uiSourceCode: Workspace.UISourceCode.UISourceCode): Promise<void>;
+    _filesystemUISourceCodeAdded(uiSourceCode: Workspace.UISourceCode.UISourceCode): Promise<void>;
+    _updateInterceptionPatterns(): void;
+    _onUISourceCodeRemoved(uiSourceCode: Workspace.UISourceCode.UISourceCode): Promise<void>;
+    _networkUISourceCodeRemoved(uiSourceCode: Workspace.UISourceCode.UISourceCode): Promise<void>;
+    _filesystemUISourceCodeRemoved(uiSourceCode: Workspace.UISourceCode.UISourceCode): Promise<void>;
+    _setProject(project: Workspace.Workspace.Project | null): Promise<void>;
+    _onProjectAdded(project: Workspace.Workspace.Project): Promise<void>;
+    _onProjectRemoved(project: Workspace.Workspace.Project): Promise<void>;
+    _interceptionHandler(interceptedRequest: SDK.NetworkManager.InterceptedRequest): Promise<void>;
+}
+export declare const Events: {
+    ProjectChanged: symbol;
+};

@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/entrypoints/main"},"files":["../../../../../../front_end/entrypoints/main/main.ts"],"references":[{"path":"./main-tsconfig.json"}]}

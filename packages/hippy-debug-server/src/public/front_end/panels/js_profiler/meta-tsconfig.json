@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/panels/js_profiler"},"files":["../../../../../../front_end/panels/js_profiler/js_profiler-meta.ts"],"references":[{"path":"./bundle-tsconfig.json"},{"path":"../../core/i18n/bundle-tsconfig.json"},{"path":"../../panels/profiler/bundle-tsconfig.json"}]}

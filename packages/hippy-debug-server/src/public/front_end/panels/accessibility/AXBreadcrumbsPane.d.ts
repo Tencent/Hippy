@@ -1,0 +1,66 @@
+import * as SDK from '../../core/sdk/sdk.js';
+import type * as Protocol from '../../generated/protocol.js';
+import type { AccessibilitySidebarView } from './AccessibilitySidebarView.js';
+import { AccessibilitySubPane } from './AccessibilitySubPane.js';
+export declare class AXBreadcrumbsPane extends AccessibilitySubPane {
+    _axSidebarView: AccessibilitySidebarView;
+    _preselectedBreadcrumb: AXBreadcrumb | null;
+    _inspectedNodeBreadcrumb: AXBreadcrumb | null;
+    _collapsingBreadcrumbId: number;
+    _hoveredBreadcrumb: AXBreadcrumb | null;
+    _rootElement: HTMLElement;
+    constructor(axSidebarView: AccessibilitySidebarView);
+    focus(): void;
+    setAXNode(axNode: SDK.AccessibilityModel.AccessibilityNode | null): void;
+    willHide(): void;
+    _onKeyDown(event: Event): void;
+    _preselectPrevious(): boolean;
+    _preselectNext(): boolean;
+    _preselectParent(): boolean;
+    _setPreselectedBreadcrumb(breadcrumb: AXBreadcrumb | null): void;
+    _collapseBreadcrumb(breadcrumb: AXBreadcrumb): void;
+    _onMouseLeave(_event: Event): void;
+    _onMouseMove(event: Event): void;
+    _onFocusOut(event: Event): void;
+    _onClick(event: Event): void;
+    _setHoveredBreadcrumb(breadcrumb: AXBreadcrumb | null): void;
+    _inspectDOMNode(axNode: SDK.AccessibilityModel.AccessibilityNode): boolean;
+    _contextMenuEventFired(event: Event): void;
+}
+export declare class AXBreadcrumb {
+    _axNode: SDK.AccessibilityModel.AccessibilityNode;
+    _element: HTMLDivElement;
+    _nodeElement: HTMLDivElement;
+    _nodeWrapper: HTMLDivElement;
+    _selectionElement: HTMLDivElement;
+    _childrenGroupElement: HTMLDivElement;
+    _children: AXBreadcrumb[];
+    _hovered: boolean;
+    _preselected: boolean;
+    _parent: AXBreadcrumb | null;
+    _inspected: boolean;
+    constructor(axNode: SDK.AccessibilityModel.AccessibilityNode, depth: number, inspected: boolean);
+    element(): HTMLElement;
+    nodeElement(): HTMLElement;
+    appendChild(breadcrumb: AXBreadcrumb): void;
+    hasExpandedChildren(): number;
+    setParent(breadcrumb: AXBreadcrumb): void;
+    preselected(): boolean;
+    setPreselected(preselected: boolean, selectedByUser: boolean): void;
+    setHovered(hovered: boolean): void;
+    axNode(): SDK.AccessibilityModel.AccessibilityNode;
+    inspected(): boolean;
+    isDOMNode(): boolean;
+    nextBreadcrumb(): AXBreadcrumb | null;
+    previousBreadcrumb(): AXBreadcrumb | null;
+    parentBreadcrumb(): AXBreadcrumb | null;
+    lastChild(): AXBreadcrumb;
+    _appendNameElement(name: string): void;
+    _appendRoleElement(role: Protocol.Accessibility.AXValue | null): void;
+    _appendIgnoredNodeElement(): void;
+}
+declare type RoleStyles = {
+    [type: string]: string;
+};
+export declare const RoleStyles: RoleStyles;
+export {};

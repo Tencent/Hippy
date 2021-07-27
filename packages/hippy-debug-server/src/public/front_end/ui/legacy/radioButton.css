@@ -1,0 +1,43 @@
+/*
+ * Copyright (c) 2014 The Chromium Authors. All rights reserved.
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+::slotted(input.dt-radio-button) {
+  --override-radio-dot: var(--image-file-radioDot);
+
+  height: 17px;
+  width: 17px;
+  min-width: 17px;
+  border: 1px solid var(--color-details-hairline);
+  background-image: linear-gradient(to bottom, var(--color-background-elevation-0), var(--color-background-elevation-1));
+  border-radius: 8px;
+  appearance: none;
+  vertical-align: middle;
+  margin: 0 5px 5px 0;
+}
+
+::slotted(input.dt-radio-button:checked) {
+  background: var(--override-radio-dot) center no-repeat, linear-gradient(to bottom, var(--color-background-elevation-0), var(--color-background-elevation-1));
+}
+
+::slotted(input.dt-radio-button:focus) {
+  box-shadow: var(--legacy-focus-ring-active-shadow);
+}
+
+:host-context(.-theme-with-dark-background) ::slotted(input.dt-radio-button) {
+  --override-radio-dot: var(--image-file-radioDot-dark-theme);
+}
+
+@media (forced-colors: active) {
+  ::slotted(input.dt-radio-button) {
+    --gradient-start: ButtonFace;
+    --gradient-end: ButtonFace;
+  }
+
+  ::slotted(input.dt-radio-button:checked) {
+    --gradient-start: Highlight;
+    --gradient-end: Highlight;
+  }
+}

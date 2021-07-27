@@ -1,0 +1,275 @@
+/*
+ * Copyright 2015 The Chromium Authors. All rights reserved.
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+.cm-js-atom {
+  color: rgb(161 247 181); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-js-attribute {
+  color: rgb(97 148 198); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-js-builtin {
+  color: rgb(159 180 214); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-js-comment {
+  color: rgb(116 116 116); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-js-def {
+  color: var(--dom-tag-name-color); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-js-keyword {
+  color: rgb(154 127 213); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-js-link {
+  color: rgb(159 180 214); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-js-meta {
+  color: rgb(221 251 85); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-js-number {
+  color: rgb(161 247 181); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-js-operator {
+  color: rgb(210 192 87); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-js-property {
+  color: rgb(210 192 87); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-js-string {
+  color: rgb(242 139 84); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-js-string-2 {
+  color: rgb(242 139 84); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-js-tag {
+  color: var(--dom-tag-name-color); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-js-variable {
+  color: rgb(217 217 217); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-js-variable-2 {
+  color: rgb(217 217 217); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-atom {
+  color: rgb(161 247 181); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-comment {
+  color: rgb(116 116 116); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-variable {
+  color: rgb(217 217 217); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-keyword {
+  color: rgb(154 127 213); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-number {
+  color: rgb(161 247 181); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-operator {
+  color: rgb(210 192 87); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-css-atom {
+  color: rgb(217 217 217); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-css-builtin {
+  color: rgb(255 163 79); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-css-def {
+  color: rgb(255 163 79); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-css-comment {
+  color: rgb(116 116 116); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-css-meta {
+  color: rgb(132 240 255); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-css-number {
+  color: rgb(217 217 217); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-css-operator {
+  color: rgb(217 217 217); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-css-property {
+  color: rgb(132 240 255); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-css-qualifier {
+  color: rgb(255 163 79); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-css-string {
+  color: rgb(231 194 111); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-css-string-2 {
+  color: rgb(217 217 217); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-css-tag {
+  color: rgb(255 163 79); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-css-variable {
+  color: rgb(255 163 79); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-css-variable-2 {
+  color: rgb(255 163 79); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-xml-comment {
+  color: rgb(137 137 137); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-xml-error {
+  color: rgb(198 95 95); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-xml-string {
+  color: rgb(242 151 102); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-xml-tag {
+  color: var(--dom-tag-name-color); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-xml-attribute {
+  color: var(--dom-attribute-name-color); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-xml-link {
+  color: rgb(231 194 111); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.webkit-html-attribute-name {
+  color: var(--dom-attribute-name-color); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.webkit-html-attribute-value {
+  color: rgb(242 151 102); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.webkit-html-comment {
+  color: rgb(137 137 137); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.webkit-html-tag {
+  color: var(--dom-tag-name-color); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.webkit-html-tag-name {
+  color: var(--dom-tag-name-color); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.webkit-html-close-tag-name {
+  color: var(--dom-tag-name-color); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.webkit-html-text-node {
+  color: rgb(207 208 208); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.webkit-html-css-node {
+  color: rgb(207 208 208); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.webkit-html-js-node {
+  color: rgb(207 208 208); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.webkit-html-pseudo-element {
+  color: rgb(237 119 229); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.webkit-css-property {
+  color: rgb(53 212 199); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-def {
+  color: var(--dom-tag-name-color); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-header {
+  color: var(--dom-tag-name-color); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-variable-2 {
+  color: #05a; /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-variable-3,
+.cm-type {
+  color: rgb(93 176 215); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-string {
+  color: rgb(242 139 84); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-meta {
+  color: rgb(221 251 85); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-qualifier {
+  color: rgb(255 163 79); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-builtin {
+  color: rgb(159 180 214); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-bracket {
+  color: #997; /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-tag {
+  color: var(--dom-tag-name-color); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-attribute {
+  color: rgb(97 148 198); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-hr {
+  color: #999; /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+.cm-link {
+  color: rgb(159 180 214); /* stylelint-disable-line plugin/use_theme_colors */ /* See: crbug.com/1152736 for color variable migration. */
+}
+
+:root {
+  --dom-tag-name-color: rgb(93 176 215);
+  --dom-attribute-name-color: rgb(155 187 220);
+}

@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/third_party/codemirror"},"files":["../../../../../../front_end/third_party/codemirror/codemirror.ts"],"references":[{"path":"./codemirror-tsconfig.json"},{"path":"./codemirror-legacy-types-tsconfig.json"}]}

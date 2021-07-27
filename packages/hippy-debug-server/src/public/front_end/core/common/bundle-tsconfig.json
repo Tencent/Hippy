@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/core/common"},"files":["../../../../../../front_end/core/common/common.ts"],"references":[{"path":"./common-tsconfig.json"}]}

@@ -1,0 +1,100 @@
+import * as Common from '../../core/common/common.js';
+import * as TimelineModel from '../../models/timeline_model/timeline_model.js';
+import * as PerfUI from '../../ui/legacy/components/perf_ui/perf_ui.js';
+import * as UI from '../../ui/legacy/legacy.js';
+import type { PerformanceModel } from './PerformanceModel.js';
+import type { TimelineModeViewDelegate } from './TimelinePanel.js';
+export declare class CountersGraph extends UI.Widget.VBox {
+    _delegate: TimelineModeViewDelegate;
+    _calculator: Calculator;
+    _model: PerformanceModel | null;
+    _header: UI.Widget.HBox;
+    _toolbar: UI.Toolbar.Toolbar;
+    _graphsContainer: UI.Widget.VBox;
+    _canvasContainer: UI.Widget.WidgetElement;
+    _canvas: HTMLCanvasElement;
+    _timelineGrid: PerfUI.TimelineGrid.TimelineGrid;
+    _counters: Counter[];
+    _counterUI: CounterUI[];
+    _countersByName: Map<string, Counter>;
+    _gpuMemoryCounter: Counter;
+    _track?: TimelineModel.TimelineModel.Track | null;
+    _currentValuesBar?: HTMLElement;
+    _markerXPosition?: number;
+    constructor(delegate: TimelineModeViewDelegate);
+    setModel(model: PerformanceModel | null, track: TimelineModel.TimelineModel.Track | null): void;
+    _createCurrentValuesBar(): void;
+    _createCounter(uiName: string, color: string, formatter?: ((arg0: number) => string)): Counter;
+    resizerElement(): Element | null;
+    _resize(): void;
+    _onWindowChanged(event: Common.EventTarget.EventTargetEvent): void;
+    scheduleRefresh(): void;
+    draw(): void;
+    _onClick(event: Event): void;
+    _onMouseLeave(_event: Event): void;
+    _clearCurrentValueAndMarker(): void;
+    _onMouseMove(event: Event): void;
+    _refreshCurrentValues(): void;
+    refresh(): void;
+    _clear(): void;
+}
+export declare class Counter {
+    times: number[];
+    values: number[];
+    x: number[];
+    _minimumIndex: number;
+    _maximumIndex: number;
+    _maxTime: number;
+    _minTime: number;
+    _limitValue?: number;
+    constructor();
+    appendSample(time: number, value: number): void;
+    reset(): void;
+    setLimit(value: number): void;
+    _calculateBounds(): {
+        min: number;
+        max: number;
+    };
+    _calculateVisibleIndexes(calculator: Calculator): void;
+    _calculateXValues(width: number): void;
+}
+export declare class CounterUI {
+    _countersPane: CountersGraph;
+    counter: Counter;
+    _formatter: (arg0: number) => string;
+    _setting: Common.Settings.Setting<any>;
+    _filter: UI.Toolbar.ToolbarSettingCheckbox;
+    _range: HTMLElement;
+    _value: HTMLElement;
+    graphColor: string;
+    limitColor: string | null | undefined;
+    graphYValues: number[];
+    _verticalPadding: number;
+    _currentValueLabel: string;
+    _marker: HTMLElement;
+    constructor(countersPane: CountersGraph, title: string, graphColor: string, counter: Counter, formatter?: (arg0: number) => string);
+    reset(): void;
+    setRange(minValue: number, maxValue: number): void;
+    _toggleCounterGraph(): void;
+    _recordIndexAt(x: number): number;
+    updateCurrentValue(x: number): void;
+    _clearCurrentValueAndMarker(): void;
+    _drawGraph(canvas: HTMLCanvasElement): void;
+    visible(): boolean;
+}
+export declare class Calculator implements PerfUI.TimelineGrid.Calculator {
+    _minimumBoundary: number;
+    _maximumBoundary: number;
+    _workingArea: number;
+    _zeroTime: number;
+    constructor();
+    setZeroTime(time: number): void;
+    computePosition(time: number): number;
+    setWindow(minimumBoundary: number, maximumBoundary: number): void;
+    setDisplayWidth(clientWidth: number): void;
+    formatValue(value: number, precision?: number): string;
+    maximumBoundary(): number;
+    minimumBoundary(): number;
+    zeroTime(): number;
+    boundarySpan(): number;
+}

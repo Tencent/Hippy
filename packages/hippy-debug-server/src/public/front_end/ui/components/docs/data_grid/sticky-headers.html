@@ -1,0 +1,30 @@
+<!--
+  Copyright 2020 The Chromium Authors. All rights reserved.
+  Use of this source code is governed by a BSD-style license that can be
+  found in the LICENSE file.
+-->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Sticky headers data grid</title>
+    <style>
+      #container {
+        width: 80%;
+        border: 1px solid black;
+        padding: 20px;
+        height: 150px;
+        box-sizing: border-box;
+      }
+    </style>
+  </head>
+  <body>
+
+    <p>Every 2 seconds a new row is added to the grid below.</p>
+    <div id="container">
+    </div>
+
+    <script type="module" src="./sticky-headers.js"></script>
+  </body>
+</html>

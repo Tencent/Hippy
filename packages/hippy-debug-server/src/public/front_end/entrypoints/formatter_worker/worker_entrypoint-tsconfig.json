@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/entrypoints/formatter_worker"},"files":["../../../../../../front_end/entrypoints/formatter_worker/formatter_worker-entrypoint.ts"],"references":[{"path":"./bundle-tsconfig.json"},{"path":"./formatter_actions-tsconfig.json"},{"path":"../../core/platform/bundle-tsconfig.json"}]}

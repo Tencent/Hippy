@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../../front_end/ui/components/render_coordinator"},"files":["../../../../../../../front_end/ui/components/render_coordinator/render_coordinator.ts"],"references":[{"path":"./render_coordinator-tsconfig.json"}]}

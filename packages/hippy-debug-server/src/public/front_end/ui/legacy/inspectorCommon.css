@@ -1,0 +1,745 @@
+/*
+ * Copyright 2015 The Chromium Authors. All rights reserved.
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+* {
+  box-sizing: border-box;
+  /* This is required for correct sizing of flex items because we rely
+     * on an old version of the flexbox spec. */
+
+  min-width: 0;
+  min-height: 0;
+}
+
+:root {
+  height: 100%;
+  overflow: hidden;
+  /**
+   * NOTE: please don't add to these colours!
+   * We are migrating to a new set of theme colors (see below for details) and over time these colors will be deprecated / removed.
+   * Chat to jacktfranklin@ or petermueller@ if you have questions.
+   * https://crbug.com/1122511
+   */
+  --legacy-accent-color: #1a73e8;
+  --legacy-accent-fg-color: #1a73e8;
+  --legacy-accent-color-hover: #3b86e8;
+  --legacy-accent-fg-color-hover: #1567d3;
+  --legacy-active-control-bg-color: #5a5a5a;
+  --legacy-focus-bg-color: hsl(214deg 40% 92%);
+  --legacy-focus-ring-inactive-shadow-color: #e0e0e0;
+  --legacy-input-validation-error: #db1600;
+  --legacy-toolbar-hover-bg-color: #eaeaea;
+  --legacy-selection-fg-color: #fff;
+  --legacy-selection-bg-color: var(--legacy-accent-color);
+  --legacy-selection-inactive-fg-color: #5a5a5a;
+  --legacy-selection-inactive-bg-color: #dadada;
+  --legacy-tab-selected-fg-color: #333;
+  --legacy-divider-border: 1px solid var(--color-details-hairline);
+  --legacy-focus-ring-inactive-shadow: 0 0 0 1px var(--legacy-focus-ring-inactive-shadow-color);
+  --legacy-focus-ring-active-shadow: 0 0 0 1px var(--legacy-accent-color);
+  --legacy-item-selection-bg-color: #cfe8fc;
+  --legacy-item-selection-inactive-bg-color: #e0e0e0;
+  --item-hover-color: rgb(56 121 217 / 10%);
+  --monospace-font-size: 10px;
+  --monospace-font-family: monospace;
+  --source-code-font-size: 11px;
+  --source-code-font-family: monospace;
+  --override-force-white-icons-background: #fafafa;
+}
+
+.-theme-with-dark-background {
+  /**
+   * NOTE: please don't add to these colours!
+   * We are migrating to a new set of theme colors (see below for details) and over time these colors will be deprecated / removed.
+   * Chat to jacktfranklin@ or petermueller@ if you have questions.
+   * https://crbug.com/1122511
+   */
+  --legacy-accent-color: #0e639c;
+  --legacy-accent-fg-color: #ccc;
+  --legacy-accent-fg-color-hover: #fff;
+  --legacy-accent-color-hover: rgb(17 119 187);
+  --legacy-active-control-bg-color: #cdcdcd;
+  --legacy-focus-bg-color: hsl(214deg 19% 27%);
+  --legacy-focus-ring-inactive-shadow-color: #5a5a5a;
+  --legacy-toolbar-hover-bg-color: #202020;
+  --legacy-selection-fg-color: #cdcdcd;
+  --legacy-selection-inactive-fg-color: #cdcdcd;
+  --legacy-selection-inactive-bg-color: hsl(0deg 0% 28%);
+  --legacy-tab-selected-fg-color: #eaeaea;
+  --legacy-focus-ring-inactive-shadow: 0 0 0 1px var(--legacy-focus-ring-inactive-shadow-color);
+  --legacy-item-selection-bg-color: hsl(207deg 88% 22%);
+  --legacy-item-selection-inactive-bg-color: #454545;
+}
+
+body {
+  height: 100%;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  margin: 0;
+  cursor: default;
+  font-family: '.SFNSDisplay-Regular', 'Helvetica Neue', 'Lucida Grande', sans-serif;
+  font-size: 12px;
+  tab-size: 4;
+  user-select: none;
+  color: var(--color-text-primary);
+  background: var(--color-background);
+}
+
+/* Default fonts */
+.platform-linux {
+  font-family: Roboto, Ubuntu, Arial, sans-serif;
+}
+
+.platform-mac {
+  font-family: '.SFNSDisplay-Regular', 'Helvetica Neue', 'Lucida Grande', sans-serif;
+}
+
+.platform-mac,
+.platform-linux {
+  --override-text-color: rgb(48 57 66);
+
+  color: var(--override-text-color);
+}
+
+.platform-windows {
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+}
+
+:focus {
+  outline-width: 0;
+}
+
+/* Monospace font per platform configuration */
+.platform-mac,
+:host-context(.platform-mac) {
+  --monospace-font-size: 11px;
+  --monospace-font-family: menlo, monospace;
+  --source-code-font-size: 11px;
+  --source-code-font-family: menlo, monospace;
+}
+
+.platform-windows,
+:host-context(.platform-windows) {
+  --monospace-font-size: 12px;
+  --monospace-font-family: consolas, lucida console, courier new, monospace;
+  --source-code-font-size: 12px;
+  --source-code-font-family: consolas, lucida console, courier new, monospace;
+}
+
+.platform-linux,
+:host-context(.platform-linux) {
+  --monospace-font-size: 11px;
+  --monospace-font-family: dejavu sans mono, monospace;
+  --source-code-font-size: 11px;
+  --source-code-font-family: dejavu sans mono, monospace;
+}
+
+.-theme-with-dark-background .platform-linux,
+.-theme-with-dark-background .platform-mac,
+:host-context(.-theme-with-dark-background) .platform-linux,
+:host-context(.-theme-with-dark-background) .platform-mac {
+  --override-text-color: rgb(189 198 207);
+}
+
+.monospace {
+  font-family: var(--monospace-font-family);
+  font-size: var(--monospace-font-size) !important; /* stylelint-disable-line declaration-no-important */
+}
+
+.source-code {
+  font-family: var(--source-code-font-family);
+  font-size: var(--source-code-font-size) !important; /* stylelint-disable-line declaration-no-important */
+  white-space: pre-wrap;
+}
+
+img {
+  -webkit-user-drag: none;
+}
+
+iframe,
+a img {
+  border: none;
+}
+
+.fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+iframe.fill {
+  width: 100%;
+  height: 100%;
+}
+
+.widget {
+  position: relative;
+  flex: auto;
+  contain: style;
+}
+
+.hbox {
+  display: flex;
+  flex-direction: row !important; /* stylelint-disable-line declaration-no-important */
+  position: relative;
+}
+
+.vbox {
+  display: flex;
+  flex-direction: column !important; /* stylelint-disable-line declaration-no-important */
+  position: relative;
+}
+
+.view-container > .toolbar {
+  border-bottom: 1px solid var(--color-details-hairline);
+}
+
+.flex-auto {
+  flex: auto;
+}
+
+.flex-none {
+  flex: none;
+}
+
+.flex-centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.overflow-auto {
+  overflow: auto;
+}
+
+iframe.widget {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+
+.hidden {
+  display: none !important; /* stylelint-disable-line declaration-no-important */
+}
+
+.highlighted-search-result {
+  --override-highlighted-search-result-background-color: rgb(255 255 0 / 80%);
+
+  border-radius: 1px;
+  background-color: var(--override-highlighted-search-result-background-color);
+  outline: 1px solid var(--override-highlighted-search-result-background-color);
+}
+
+.-theme-with-dark-background .highlighted-search-result,
+:host-context(.-theme-with-dark-background) .highlighted-search-result {
+  --override-highlighted-search-result-background-color: hsl(133deg 100% 30%);
+
+  color: #333;
+}
+
+.link {
+  cursor: pointer;
+  text-decoration: underline;
+  color: var(--color-link);
+}
+
+button,
+input,
+select {
+  /* Form elements do not automatically inherit font style from ancestors. */
+  font-family: inherit;
+  font-size: inherit;
+}
+
+select option,
+select optgroup,
+input {
+  background-color: var(--color-background);
+}
+
+input {
+  color: inherit;
+}
+
+input::placeholder {
+  --override-input-placeholder-color: rgb(0 0 0 / 54%);
+
+  color: var(--override-input-placeholder-color);
+}
+
+.-theme-with-dark-background input::placeholder,
+:host-context(.-theme-with-dark-background) input::placeholder {
+  --override-input-placeholder-color: rgb(230 230 230 / 54%);
+}
+
+:host-context(.-theme-with-dark-background) input[type="checkbox"]:not(.-theme-preserve) {
+  filter: invert(80%);
+}
+
+.harmony-input:not([type]),
+.harmony-input[type=number],
+.harmony-input[type=text] {
+  padding: 3px 6px;
+  height: 24px;
+  border: none;
+  box-shadow: var(--legacy-focus-ring-inactive-shadow);
+}
+
+.harmony-input:not([type]).error-input,
+.harmony-input[type=number].error-input,
+.harmony-input[type=text].error-input,
+.harmony-input:not([type]):invalid,
+.harmony-input[type=number]:invalid,
+.harmony-input[type=text]:invalid {
+  box-shadow: 0 0 0 1px var(--color-red);
+}
+
+.harmony-input:not([type]):not(.error-input):not(:invalid):hover,
+.harmony-input[type=number]:not(.error-input):not(:invalid):hover,
+.harmony-input[type=text]:not(.error-input):not(:invalid):hover {
+  box-shadow: var(--legacy-focus-ring-inactive-shadow);
+}
+
+.harmony-input:not([type]):not(.error-input):not(:invalid):focus,
+.harmony-input[type=number]:not(.error-input):not(:invalid):focus,
+.harmony-input[type=text]:not(.error-input):not(:invalid):focus {
+  box-shadow: var(--legacy-focus-ring-active-shadow);
+}
+
+.highlighted-search-result.current-search-result {
+  /* Note: this value is used in light & dark mode */
+  --override-current-search-result-background-color: rgb(255 127 0 / 80%);
+
+  border-radius: 1px;
+  padding: 1px;
+  margin: -1px;
+  background-color: var(--override-current-search-result-background-color);
+}
+
+.dimmed {
+  opacity: 60%;
+}
+
+.editing {
+  box-shadow: var(--drop-shadow);
+  background-color: var(--color-background);
+  text-overflow: clip !important; /* stylelint-disable-line declaration-no-important */
+  padding-left: 2px;
+  margin-left: -2px;
+  padding-right: 2px;
+  margin-right: -2px;
+  margin-bottom: -1px;
+  padding-bottom: 1px;
+  opacity: 100% !important; /* stylelint-disable-line declaration-no-important */
+}
+
+.editing,
+.editing * {
+  color: var(--color-text-primary) !important; /* stylelint-disable-line declaration-no-important */
+  text-decoration: none !important; /* stylelint-disable-line declaration-no-important */
+}
+
+.chrome-select {
+  --override-chrome-select-border-color: rgb(0 0 0 / 20%);
+
+  appearance: none;
+  user-select: none;
+  border: 1px solid var(--override-chrome-select-border-color);
+  border-radius: 2px;
+  color: var(--color-text-primary);
+  font: inherit;
+  margin: 0;
+  outline: none;
+  padding-right: 20px;
+  padding-left: 6px;
+  background-image: var(--image-file-chromeSelect);
+  background-color: var(--color-background-elevation-0);
+  background-position: right center;
+  background-repeat: no-repeat;
+  min-height: 24px;
+  min-width: 80px;
+  background-size: 15px;
+}
+
+.chrome-select:disabled {
+  opacity: 38%;
+}
+
+.-theme-with-dark-background .chrome-select,
+:host-context(.-theme-with-dark-background) .chrome-select {
+  --override-chrome-select-border-color: rgb(230 230 230 / 20%);
+
+  background-image: var(--image-file-chromeSelectDark);
+}
+
+.chrome-select:enabled:active,
+.chrome-select:enabled:focus,
+.chrome-select:enabled:hover {
+  --override-select-box-shadow: 0 1px 2px rgb(0 0 0 / 10%);
+
+  background-color: var(--color-background-elevation-1);
+  box-shadow: var(--override-select-box-shadow);
+}
+
+.chrome-select:enabled:active {
+  background-color: var(--color-background-elevation-2);
+}
+
+.chrome-select:enabled:focus {
+  --override-extra-box-shadow-focus: 0 0 0 2px rgb(66 133 244 / 40%);
+
+  border-color: transparent;
+  box-shadow: var(--override-select-box-shadow), var(--override-extra-box-shadow-focus);
+}
+
+.-theme-with-dark-background .chrome-select:enabled:active,
+.-theme-with-dark-background .chrome-select:enabled:focus,
+.-theme-with-dark-background .chrome-select:enabled:hover,
+:host-context(.-theme-with-dark-background) .chrome-select:enabled:active,
+:host-context(.-theme-with-dark-background) .chrome-select:enabled:focus,
+:host-context(.-theme-with-dark-background) .chrome-select:enabled:hover {
+  --override-select-box-shadow: 0 1px 2px rgb(230 230 230 / 10%);
+}
+
+/* Disabled so we can keep all the selectors above in one block */
+/* stylelint-disable-next-line no-descending-specificity */
+.-theme-with-dark-background .chrome-select:enabled:focus,
+:host-context(.-theme-with-dark-background) .chrome-select:enabled:focus {
+  --override-extra-box-shadow-focus: 0 0 0 2px rgb(11 78 189 / 40%);
+}
+
+.chrome-select-label {
+  margin: 0 22px;
+  flex: none;
+}
+
+.chrome-select-label p {
+  margin-top: 0;
+  color: var(--color-text-secondary);
+}
+
+.chrome-select optgroup,
+.chrome-select option {
+  background-color: var(--color-background-elevation-1);
+  color: var(--color-text-primary);
+}
+
+.gray-info-message {
+  text-align: center;
+  font-style: italic;
+  padding: 6px;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+span[is=dt-icon-label] {
+  flex: none;
+}
+
+.full-widget-dimmed-banner a {
+  color: inherit;
+}
+
+.full-widget-dimmed-banner {
+  color: var(--color-text-secondary);
+  background-color: var(--color-background);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  font-size: 13px;
+  overflow: auto;
+  z-index: 500;
+}
+
+[is=ui-icon] {
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.-theme-with-dark-background [is=ui-icon].icon-invert,
+:host-context(.-theme-with-dark-background) [is=ui-icon].icon-invert {
+  filter: invert(80%) hue-rotate(180deg);
+}
+
+[is=ui-icon].icon-mask {
+  --override-icon-mask-background-color: rgb(110 110 110);
+
+  background-color: var(--override-icon-mask-background-color);
+  -webkit-mask-position: var(--spritesheet-position);
+}
+
+.-theme-with-dark-background [is=ui-icon].icon-mask,
+:host-context(.-theme-with-dark-background) [is=ui-icon].icon-mask {
+  --override-icon-mask-background-color: rgb(145 145 145);
+}
+
+[is=ui-icon]:not(.icon-mask) {
+  background-position: var(--spritesheet-position);
+}
+
+.spritesheet-smallicons:not(.icon-mask) {
+  background-image: var(--image-file-smallIcons);
+}
+
+.spritesheet-smallicons.icon-mask {
+  -webkit-mask-image: var(--image-file-smallIcons);
+}
+
+.spritesheet-largeicons:not(.icon-mask) {
+  background-image: var(--image-file-largeIcons);
+}
+
+.spritesheet-largeicons.icon-mask {
+  -webkit-mask-image: var(--image-file-largeIcons);
+}
+
+.spritesheet-mediumicons:not(.icon-mask) {
+  background-image: var(--image-file-mediumIcons);
+}
+
+.spritesheet-mediumicons.icon-mask {
+  -webkit-mask-image: var(--image-file-mediumIcons);
+}
+
+.spritesheet-arrowicons {
+  background-image: var(--image-file-popoverArrows);
+}
+
+.force-white-icons [is=ui-icon].spritesheet-smallicons,
+:host-context(.force-white-icons) [is=ui-icon].spritesheet-smallicons,
+[is=ui-icon].force-white-icons.spritesheet-smallicons,
+.-theme-preserve {
+  -webkit-mask-image: var(--image-file-smallIcons);
+  -webkit-mask-position: var(--spritesheet-position);
+  background: var(--override-force-white-icons-background) !important; /* stylelint-disable-line declaration-no-important */
+}
+
+.force-white-icons [is=ui-icon].spritesheet-largeicons,
+:host-context(.force-white-icons) [is=ui-icon].spritesheet-largeicons,
+[is=ui-icon].force-white-icons.spritesheet-largeicons,
+.-theme-preserve {
+  -webkit-mask-image: var(--image-file-largeIcons);
+  -webkit-mask-position: var(--spritesheet-position);
+  background: var(--override-force-white-icons-background) !important; /* stylelint-disable-line declaration-no-important */
+}
+
+.force-white-icons [is=ui-icon].spritesheet-mediumicons,
+:host-context(.force-white-icons) [is=ui-icon].spritesheet-mediumicons,
+[is=ui-icon].force-white-icons.spritesheet-mediumicons,
+.-theme-preserve {
+  -webkit-mask-image: var(--image-file-mediumIcons);
+  -webkit-mask-position: var(--spritesheet-position);
+  background: var(--override-force-white-icons-background) !important; /* stylelint-disable-line declaration-no-important */
+}
+
+.expandable-inline-button {
+  background-color: var(--color-background-elevation-2);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.undisplayable-text,
+.expandable-inline-button {
+  padding: 1px 3px;
+  margin: 0 2px;
+  font-size: 11px;
+  font-family: sans-serif;
+  white-space: nowrap;
+  display: inline-block;
+}
+
+.undisplayable-text::after,
+.expandable-inline-button::after {
+  content: attr(data-text);
+}
+
+.undisplayable-text {
+  color: var(--color-text-disabled);
+  font-style: italic;
+}
+
+.expandable-inline-button:hover,
+.expandable-inline-button:focus-visible {
+  background-color: var(--color-background-elevation-1);
+}
+
+.expandable-inline-button:focus-visible {
+  background-color: var(--color-background-elevation-1);
+}
+
+::selection {
+  --override-selection-background-color: rgb(141 199 248 / 60%);
+
+  background-color: var(--override-selection-background-color);
+}
+
+.-theme-with-dark-background *::selection,
+:host-context(.-theme-with-dark-background) *::selection {
+  background-color: rgb(93 93 93 / 60%);
+}
+
+.reload-warning {
+  align-self: center;
+  margin-left: 10px;
+}
+
+button.link {
+  border: none;
+  background: none;
+  padding: 3px;
+}
+
+button.link:focus-visible {
+  --override-link-focus-background-color: rgb(0 0 0 / 8%);
+
+  background-color: var(--override-link-focus-background-color);
+  border-radius: 2px;
+}
+
+.-theme-with-dark-background button.link:focus-visible,
+:host-context(.-theme-with-dark-background) button.link:focus-visible {
+  --override-link-focus-background-color: rgb(230 230 230 / 8%);
+}
+
+/* See ARIAUtils.js */
+[data-aria-utils-animation-hack] {
+  animation: ANIMATION-HACK 0s;
+}
+
+@keyframes ANIMATION-HACK {
+  /* empty keyframe to trigger the animation hack above */
+}
+
+@media (forced-colors: active) {
+  .dimmed,
+  .chrome-select:disabled {
+    opacity: 100%;
+  }
+
+  [is=ui-icon].icon-mask,
+  .force-white-icons [is=ui-icon].spritesheet-smallicons,
+  :host-context(.force-white-icons) [is=ui-icon].spritesheet-smallicons,
+  [is=ui-icon].force-white-icons.spritesheet-smallicons,
+  .force-white-icons [is=ui-icon].spritesheet-largeicons,
+  :host-context(.force-white-icons) [is=ui-icon].spritesheet-largeicons,
+  [is=ui-icon].force-white-icons.spritesheet-largeicons,
+  .force-white-icons [is=ui-icon].spritesheet-mediumicons,
+  :host-context(.force-white-icons) [is=ui-icon].spritesheet-mediumicons,
+  [is=ui-icon].force-white-icons.spritesheet-mediumicons,
+  .-theme-preserve {
+    forced-color-adjust: none;
+    background-color: ButtonText;
+  }
+
+  .harmony-input:not([type]),
+  .harmony-input[type=number],
+  .harmony-input[type=text] {
+    border: 1px solid ButtonText;
+  }
+
+  .harmony-input:not([type]):focus,
+  .harmony-input[type=number]:focus,
+  .harmony-input[type=text]:focus {
+    border: 1px solid Highlight;
+  }
+}
+/* search input with customized styling */
+input.custom-search-input::-webkit-search-cancel-button {
+  appearance: none;
+  cursor: pointer;
+  width: 16px;
+  height: 15px;
+  margin-right: 0;
+  background-position: -32px 32px;
+  background-image: var(--image-file-mediumIcons);
+}
+/* loading spinner */
+.spinner::before {
+  display: block;
+  width: var(--dimension, 24px);
+  height: var(--dimension, 24px);
+  border: var(--override-spinner-size, 3px) solid var(--override-spinner-color, var(--color-text-secondary));
+  border-radius: 12px;
+  clip: rect(0, var(--clip-size, 15px), var(--clip-size, 15px), 0);
+  content: "";
+  position: absolute;
+  animation: spinner-animation 1s linear infinite;
+  box-sizing: border-box;
+}
+
+@keyframes spinner-animation {
+  from { transform: rotate(0); }
+  to { transform: rotate(360deg); }
+}
+/** Adorner */
+.adorner-container {
+  display: inline-block;
+}
+
+.adorner-container.hidden {
+  display: none;
+}
+
+.adorner-container devtools-adorner {
+  margin-left: 3px;
+}
+
+:host-context(.-theme-with-dark-background) devtools-adorner {
+  --override-adorner-background-color: rgb(var(--color-syntax-2-rgb) / 15%);
+  --override-adorner-border-color: rgb(var(--color-syntax-2-rgb) / 50%);
+  --override-adorner-focus-border-color: var(--color-syntax-2);
+  --override-adorner-active-background-color: var(--color-syntax-8);
+}
+
+/* General panel styles */
+.panel {
+  display: flex;
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  background-color: var(--color-background);
+}
+
+.panel-sidebar {
+  overflow-x: hidden;
+  background-color: var(--color-background-elevation-1);
+}
+
+iframe.extension {
+  flex: auto;
+  width: 100%;
+  height: 100%;
+}
+
+iframe.panel.extension {
+  display: block;
+  height: 100%;
+}
+
+@media (forced-colors: active) {
+  :root {
+    --legacy-accent-color: Highlight;
+    --legacy-focus-ring-inactive-shadow-color: ButtonText;
+  }
+}
