@@ -2,42 +2,65 @@
   <div id="animation-demo">
     <label>控制动画</label>
     <div class="toolbar">
-      <button @click="toggleLoopPlaying" class="toolbar-btn">
+      <button
+        class="toolbar-btn"
+        @click="toggleLoopPlaying"
+      >
         <span v-if="loopPlaying">暂停</span>
         <span v-else>播放</span>
       </button>
-      <button @click="toggleDirection" class="toolbar-btn">
+      <button
+        class="toolbar-btn"
+        @click="toggleDirection"
+      >
         <span v-if="direction === 'horizon'">切换为纵向</span>
         <span v-else>切换为横向</span>
       </button>
     </div>
-    <div >
-      <loop :playing="loopPlaying" :direction="direction" :onRef="onRef">
+    <div>
+      <loop
+        :playing="loopPlaying"
+        :direction="direction"
+        :on-ref="onRef"
+      >
         <p>I'm a looping animation</p>
       </loop>
     </div>
-    <div style="margin-top: 150px"></div>
+    <div style="margin-top: 150px" />
     <label>点赞笑脸动画:</label>
     <div class="toolbar">
-      <button @click="voteUp" class="toolbar-btn">
+      <button
+        class="toolbar-btn"
+        @click="voteUp"
+      >
         <span>点赞 👍</span>
       </button>
-      <button @click="voteDown" class="toolbar-btn">
+      <button
+        class="toolbar-btn"
+        @click="voteDown"
+      >
         <span>踩 👎</span>
       </button>
     </div>
     <div class="vote-face-container center">
-      <component :is="voteComponent" class="vote-icon" :isChanged="isChanged"/>
+      <component
+        :is="voteComponent"
+        class="vote-icon"
+        :is-changed="isChanged"
+      />
     </div>
-    <div style="margin-top: 10px"></div>
+    <div style="margin-top: 10px" />
     <label>渐变色动画</label>
     <div class="toolbar">
-      <button @click="toggleColorPlaying" class="toolbar-btn">
+      <button
+        class="toolbar-btn"
+        @click="toggleColorPlaying"
+      >
         <span v-if="colorPlaying">暂停</span>
         <span v-else>播放</span>
       </button>
     </div>
-    <div >
+    <div>
       <color-component :playing="colorPlaying">
         <p>背景色渐变</p>
       </color-component>
@@ -73,6 +96,10 @@ import VoteDown from './animations/vote-down.vue';
 import colorComponent from './animations/color-change.vue';
 
 export default {
+  components: {
+    Loop,
+    colorComponent,
+  },
   data() {
     return {
       loopPlaying: true,
@@ -82,10 +109,6 @@ export default {
       colorComponent,
       isChanged: true,
     };
-  },
-  components: {
-    Loop,
-    colorComponent,
   },
   methods: {
     onRef(ref) {

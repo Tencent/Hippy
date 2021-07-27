@@ -1,19 +1,30 @@
 <template>
   <div class="set-native-props-demo">
     <label>setNativeProps实现拖动效果</label>
-    <div class="native-demo-1-drag"
-         :style="{width: this.screenWidth}"
-         @touchstart="onTouchDown1"
-         @touchmove="onTouchMove1">
-      <div ref='demo-1-point' class="native-demo-1-point"></div>
+    <div
+      class="native-demo-1-drag"
+      :style="{width: screenWidth}"
+      @touchstart="onTouchDown1"
+      @touchmove="onTouchMove1"
+    >
+      <div
+        ref="demo-1-point"
+        class="native-demo-1-point"
+      />
     </div>
-    <div class="splitter"></div>
+    <div class="splitter" />
     <label>普通渲染实现拖动效果</label>
-    <div class="native-demo-2-drag"
-         :style="{width: this.screenWidth}"
-         @touchstart="onTouchDown2"
-         @touchmove="onTouchMove2">
-      <div ref='demo-2-point' class="native-demo-2-point" :style="{left: demon2Left + 'px'}"></div>
+    <div
+      class="native-demo-2-drag"
+      :style="{width: screenWidth}"
+      @touchstart="onTouchDown2"
+      @touchmove="onTouchMove2"
+    >
+      <div
+        ref="demo-2-point"
+        class="native-demo-2-point"
+        :style="{left: demon2Left + 'px'}"
+      />
     </div>
   </div>
 </template>
@@ -22,6 +33,16 @@
 import Vue from 'vue';
 
 export default {
+  data() {
+    return {
+      demon2Left: 0,
+      screenWidth: 0,
+    };
+  },
+  mounted() {
+    this.screenWidth = Vue.Native.Dimensions.screen.width;
+    this.demon1Point = this.$refs['demo-1-point'];
+  },
   methods: {
     onTouchDown1(evt) {
       evt.stopPropagation();
@@ -58,20 +79,10 @@ export default {
       console.log('touchmove x', this.demon2Left, this.screenWidth);
     },
   },
-  data() {
-    return {
-      demon2Left: 0,
-      screenWidth: 0,
-    };
-  },
-  mounted() {
-    this.screenWidth = Vue.Native.Dimensions.screen.width;
-    this.demon1Point = this.$refs['demo-1-point'];
-  },
 };
 </script>
 
-<style scope>
+<style scoped>
   .set-native-props-demo {
     display: flex;
     align-items: center;

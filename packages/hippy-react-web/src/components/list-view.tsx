@@ -62,7 +62,7 @@ export class ListView extends React.Component {
 
   /**
    * @TODO scroll to view
-   * @description scoll to item
+   * @description scroll to item
    * @param xIndex
    * @param yIndex
    * @param animated
@@ -104,7 +104,7 @@ export class ListView extends React.Component {
     };
     if (!this.scrolling && isFunc(onMomentumScrollBegin)) {
       this.scrolling = true;
-      onMomentumScrollBegin();
+      onMomentumScrollBegin.call(this);
     }
     if (isFunc(onScroll)) onScroll(eventParam);
 
@@ -113,7 +113,7 @@ export class ListView extends React.Component {
       clearTimeout(this.scrollEndTimer);
     }
     this.scrollEndTimer = setTimeout(() => {
-      if (isFunc(onMomentumScrollEnd)) onMomentumScrollEnd();
+      if (isFunc(onMomentumScrollEnd)) onMomentumScrollEnd.call(this);
       this.scrolling = false;
     }, wait);
   }

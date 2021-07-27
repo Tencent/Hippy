@@ -2,6 +2,7 @@
 
 import React, { ReactElement, ReactNode } from 'react';
 import { callUIFunction } from '../modules/ui-manager-module';
+import Element from '../dom/element-node';
 
 interface PageSelectedEvent {
   position: number;
@@ -88,7 +89,7 @@ function ViewPagerItem(props: any) {
  * @noInheritDoc
  */
 class ViewPager extends React.Component<ViewPagerProps, {}> {
-  private instance: HTMLDivElement | null = null;
+  private instance: Element | HTMLDivElement | null = null;
 
   /**
    * @ignore
@@ -111,14 +112,14 @@ class ViewPager extends React.Component<ViewPagerProps, {}> {
     if (typeof selectedPage !== 'number') {
       return;
     }
-    callUIFunction(this.instance, 'setPage', [selectedPage]);
+    callUIFunction(this.instance as Element, 'setPage', [selectedPage]);
   }
 
   public setPageWithoutAnimation(selectedPage: number | undefined) {
     if (typeof selectedPage !== 'number') {
       return;
     }
-    callUIFunction(this.instance, 'setPageWithoutAnimation', [selectedPage]);
+    callUIFunction(this.instance as Element, 'setPageWithoutAnimation', [selectedPage]);
   }
 
   /**

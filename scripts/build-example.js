@@ -21,7 +21,7 @@ pushd(DEMO_PATH);
 
 const execOptions = { stdio: 'inherit' };
 console.log(`1/3 Start to install ${example} dependencies`);
-exec('npm install', execOptions);
+exec('npm install --legacy-peer-deps', execOptions);
 
 console.log(`2/3 Start to build project ${example}`);
 exec('npm run hippy:vendor', execOptions); // Build vendor js

@@ -1,22 +1,7 @@
 module.exports = {
-  parser: '@typescript-eslint/parser',
-  extends: [
-    'eslint-config-tencent',
-    'plugin:react/recommended',
-    'plugin:import/errors',
-    'plugin:import/warnings',
-    'plugin:import/typescript',
-  ],
-  plugins: [
-    '@typescript-eslint',
-    'jsx-a11y',
-  ],
-  env: {
-    browser: true,
-    node: true,
-    es6: true,
-  },
+  parser: 'vue-eslint-parser',
   parserOptions: {
+    parser: '@typescript-eslint/parser',
     ecmaFeatures: {
       jsx: true,
       legacyDecorators: true,
@@ -25,88 +10,73 @@ module.exports = {
     ecmaVersion: 2018,
     sourceType: 'module',
   },
+  extends: [
+    'eslint-config-tencent',
+    'plugin:react/recommended',
+    'plugin:vue/recommended',
+    'plugin:import/recommended',
+    'plugin:import/typescript',
+  ],
+  plugins: [
+    'vue',
+    '@typescript-eslint',
+    'jsx-a11y',
+  ],
+  overrides: [
+    {
+      files: ['**/*.ts', '**/*.tsx'],
+      rules: {
+        // Allow interface export
+        'no-undef': 'off',
+
+        // Disable props checking
+        'react/prop-types': 'off',
+
+        // Force use 2 space for indent
+        '@typescript-eslint/indent': ['error', 2],
+
+        // Note you must disable the base rule as it can report incorrect errors
+        'no-unused-vars': 'off',
+      },
+    },
+  ],
+  env: {
+    browser: true,
+    node: true,
+    es6: true,
+  },
   globals: {
-    __PLATFORM__: true,
-    __GLOBAL__: true,
-    Hippy: true,
+    __PLATFORM__: 'readonly',
+    __GLOBAL__: 'readonly',
+    Hippy: 'readonly',
+    WebSocket: 'readonly',
   },
   rules: {
-    indent: 2,
-    'no-multi-spaces': 2,
-    'no-restricted-syntax': [
-      'warn',
-      {
-        selector: 'ForInStatement',
-        message: 'for..in loops iterate over the entire prototype chain, which is virtually never what you want. Use Object.{keys,values,entries}, and iterate over the resulting array.',
-      },
-      {
-        selector: 'LabeledStatement',
-        message: 'Labels are a form of GOTO; using them makes code confusing and hard to maintain and understand.',
-      },
-      {
-        selector: 'WithStatement',
-        message: '`with` is disallowed in strict mode because it makes code impossible to predict and optimize.',
-      },
-    ],
-    'no-mixed-operators': ['error', {
-      groups: [
-        ['%', '**'],
-        ['%', '+'],
-        ['%', '-'],
-        ['%', '*'],
-        ['%', '/'],
-        ['&', '|', '<<', '>>', '>>>'],
-        ['==', '!=', '===', '!=='],
-        ['&&', '||'],
-      ],
-      allowSamePrecedence: false,
-    }],
-    'func-call-spacing': 'off',
-    'new-cap': [
-      'error',
-      {
-        newIsCap: true,
-        newIsCapExceptions: [],
-        capIsNew: false,
-        capIsNewExceptions: ['Immutable.Map', 'Immutable.Set', 'Immutable.List'],
-        properties: false,
-      },
-    ],
-    'prefer-destructuring': [
-      'warn',
-      {
-        VariableDeclarator: {
-          array: false,
-          object: true,
-        },
-        AssignmentExpression: {
-          array: true,
-          object: false,
-        },
-      },
-      {
-        enforceForRenamedProperties: false,
-      },
-    ],
-    quotes: [
-      'error',
-      'single',
-      {
-        allowTemplateLiterals: false,
-      },
-    ],
-    'react/no-deprecated': 0,
-    // Ignore the dependency by each package
+    // Allow more than one component per file
+    'vue/one-component-per-file': 'off',
+
+    // Allow no default value
+    'vue/require-default-prop': 'off',
+
+    // Allow no prop type
+    'vue/require-prop-types': 'off',
+
+    // Allow event name not kebab-case
+    'vue/custom-event-name-casing': 'off',
+
     'import/no-unresolved': 'off',
 
     // Allow import name different with file name
     'import/no-named-as-default': 'off',
 
-    // Allow imoprt cycle
+    // Allow import cycle
     'import/no-cycle': 'off',
 
     // Disable prop-types
     'react/prop-types': 'off',
+
+    // Disable deprecated
+    'react/no-deprecated': 'off',
 
     // Turn of extensions checking temporary
     'import/extensions': 'off',
@@ -154,44 +124,8 @@ module.exports = {
     ],
   },
   settings: {
-    'import/resolver': {
-      alias: {
-        map: [
-          ['he', './packages/hippy-vue/util/entity-decoder'],
-          ['@localTypes', './packages/types'],
-          ['@vue', './packages/hippy-vue/src'],
-          ['@router', './packages/hippy-vue-router/src'],
-          ['@css-loader', './packages/hippy-vue-css-loader/src'],
-          ['@native-components', './packages/hippy-vue-native-components/src'],
-        ],
-        extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
-      },
+    react: {
+      version: 'detect', // React version. "detect" automatically picks the version you have installed.
     },
   },
-  overrides: [
-    {
-      files: ['**/*.ts', '**/*.tsx'],
-      rules: {
-        // Allow interface export
-        'no-undef': 'off',
-
-        // Disable props checking
-        'react/prop-types': 'off',
-
-        // Force use 2 space for indent
-        '@typescript-eslint/indent': ['error', 2],
-
-        // Note you must disable the base rule as it can report incorrect errors
-        'no-unused-vars': 'off',
-        '@typescript-eslint/no-unused-vars': [
-            'error',
-            {
-              vars: 'all',
-              args: 'after-used',
-              ignoreRestSiblings: false,
-            },
-        ],
-      },
-    },
-  ],
 };

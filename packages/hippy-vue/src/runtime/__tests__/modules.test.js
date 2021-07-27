@@ -1,10 +1,10 @@
 /* eslint-disable no-underscore-dangle */
 
-import test from 'ava';
+import test, { before } from 'ava';
 import { setVue, setApp } from '../../util';
 import Native from '../native';
 
-test.before(() => {
+before(() => {
   global.Hippy = {
     platform: {
       OS: 'android',

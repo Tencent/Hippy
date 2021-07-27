@@ -14,7 +14,7 @@ interface PullHeaderProps extends LayoutableProps {
   /**
    * Trigger when release the finger after pulling distance larger than the content height
    */
-  onHeaderReleased?() :void;
+  onHeaderReleased?(): void;
 
   /**
    * Trigger when pulling

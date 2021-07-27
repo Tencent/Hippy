@@ -1,13 +1,21 @@
 <template>
   <div id="demo-list">
     <div class="toolbar">
-      <button class="toolbar-btn" @click="scrollToNextPage">
+      <button
+        class="toolbar-btn"
+        @click="scrollToNextPage"
+      >
         <span>翻到下一页</span>
       </button>
-      <button class="toolbar-btn" @click="scrollToBottom">
+      <button
+        class="toolbar-btn"
+        @click="scrollToBottom"
+      >
         <span>翻动到底部</span>
       </button>
-      <p class="toolbar-text">列表元素数量：{{ dataSource.length }}</p>
+      <p class="toolbar-text">
+        列表元素数量：{{ dataSource.length }}
+      </p>
     </div>
     <!--
       *** numberOfRows 是 iOS 渲染列表的必备参数，它的值是 ul 中 li 的数量***
@@ -19,13 +27,13 @@
       所以这里就需要开发者手动填一下，值就是：静态的 li 数量 + 将生成 li 的数据数量。
     -->
     <ul
-      :horizontal="undefined"
       id="list"
       ref="list"
-      @endReached="onEndReached"
-      @scroll="onScroll"
+      :horizontal="undefined"
       :numberOfRows="dataSource.length"
       :exposureEventEnabled="true"
+      @endReached="onEndReached"
+      @scroll="onScroll"
     >
       <!--
         li 有两个参数是一定要加上的。
@@ -36,9 +44,9 @@
             定义 :type 之后可以从缓存池中将之前已经渲染的终端节点拿出来复用，以达到更高的性能
       -->
       <li
-        class="item-style"
         v-for="(ui, index) in dataSource"
         :key="index"
+        class="item-style"
         :type="ui.style"
         @layout="onItemLayout"
         @appear="onAppear(index)"
@@ -46,12 +54,26 @@
         @willAppear="onWillAppear(index)"
         @willDisappear="onWillDisappear(index)"
       >
-        <style-one v-if="ui.style === 1" :itemBean="ui.itemBean" />
-        <style-two v-if="ui.style === 2" :itemBean="ui.itemBean" />
-        <style-five v-if="ui.style === 5" :itemBean="ui.itemBean" />
+        <style-one
+          v-if="ui.style === 1"
+          :item-bean="ui.itemBean"
+        />
+        <style-two
+          v-if="ui.style === 2"
+          :item-bean="ui.itemBean"
+        />
+        <style-five
+          v-if="ui.style === 5"
+          :item-bean="ui.itemBean"
+        />
       </li>
     </ul>
-    <p id="loading" v-show="loadingState">{{ loadingState }}</p>
+    <p
+      v-show="loadingState"
+      id="loading"
+    >
+      {{ loadingState }}
+    </p>
   </div>
 </template>
 

@@ -2,7 +2,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 
-import { Event } from '../../renderer/native/event/event';
+import { Event } from '../../renderer/native/event';
 import Native from '../native';
 
 // FIXME: Android Should update defaultValue while typing for update contents by state.

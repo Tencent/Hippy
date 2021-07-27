@@ -1,30 +1,38 @@
 <template>
   <div id="demo-pull-header">
     <div class="toolbar">
-      <button class="toolbar-btn" @click="scrollToNextPage">
+      <button
+        class="toolbar-btn"
+        @click="scrollToNextPage"
+      >
         <span>翻到下一页</span>
       </button>
-      <button class="toolbar-btn" @click="scrollToBottom">
+      <button
+        class="toolbar-btn"
+        @click="scrollToBottom"
+      >
         <span>翻动到底部</span>
       </button>
-      <p class="toolbar-text">列表元素数量：{{ dataSource.length }}</p>
+      <p class="toolbar-text">
+        列表元素数量：{{ dataSource.length }}
+      </p>
     </div>
 
     <!-- numberOfRows is necessary by iOS first screen rendering -->
     <ul
       id="list"
       ref="list"
-      @endReached="onEndReached"
       :numberOfRows="dataSource.length"
+      @endReached="onEndReached"
     >
       /**
-       * 下拉组件
-       *
-       * 事件：
-       *   idle: 滑动距离在 pull-header 区域内触发一次，参数 contentOffset，滑动距离
-       *   pulling: 滑动距离超出 pull-header 后触发一次，参数 contentOffset，滑动距离
-       *   refresh: 滑动超出距离，松手后触发一次
-       */
+      * 下拉组件
+      *
+      * 事件：
+      *   idle: 滑动距离在 pull-header 区域内触发一次，参数 contentOffset，滑动距离
+      *   pulling: 滑动距离超出 pull-header 后触发一次，参数 contentOffset，滑动距离
+      *   refresh: 滑动超出距离，松手后触发一次
+      */
       <pull-header
         ref="pullHeader"
         class="ul-refresh"
@@ -32,19 +40,35 @@
         @pulling="onPulling"
         @released="onRefresh"
       >
-        <p class="ul-refresh-text">{{ refreshText }}</p>
+        <p class="ul-refresh-text">
+          {{ refreshText }}
+        </p>
       </pull-header>
       <li
         v-for="(ui, index) in dataSource"
         :key="index"
         :type="'row-' + ui.style"
       >
-        <style-one v-if="ui.style == 1" :itemBean="ui.itemBean" />
-        <style-two v-if="ui.style == 2" :itemBean="ui.itemBean" />
-        <style-five v-if="ui.style == 5" :itemBean="ui.itemBean" />
+        <style-one
+          v-if="ui.style == 1"
+          :item-bean="ui.itemBean"
+        />
+        <style-two
+          v-if="ui.style == 2"
+          :item-bean="ui.itemBean"
+        />
+        <style-five
+          v-if="ui.style == 5"
+          :item-bean="ui.itemBean"
+        />
       </li>
     </ul>
-    <p id="loading" v-show="loadingState">{{ loadingState }}</p>
+    <p
+      v-show="loadingState"
+      id="loading"
+    >
+      {{ loadingState }}
+    </p>
   </div>
 </template>
 

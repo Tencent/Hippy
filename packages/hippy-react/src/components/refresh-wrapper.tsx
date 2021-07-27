@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { CSSProperties, ReactElement } from 'react';
 import { Fiber } from 'react-reconciler';
 import Style from '@localTypes/style';
 import { callUIFunction } from '../modules/ui-manager-module';
@@ -8,10 +8,6 @@ interface RefreshWrapperProps {
   bounceTime?: number;
   onRefresh?(): void;
   getRefresh?(): ReactElement;
-}
-
-interface RefreshWrapperItemViewProps {
-  style: Style[];
 }
 
 /**
@@ -58,11 +54,12 @@ class RefreshWrapper extends React.Component<RefreshWrapperProps, {}> {
    */
   public render() {
     const { children, ...nativeProps } = this.props;
+    const style = { left: 0, right: 0, position: 'absolute' } as CSSProperties;
     return (
       <div nativeName="RefreshWrapper" ref={(ref) => {
         this.instance = ref;
       }} {...nativeProps}>
-        <div nativeName="RefreshWrapperItemView" style={[{ left: 0, right: 0, position: 'absolute' }]}>
+        <div nativeName="RefreshWrapperItemView" style={style}>
           { this.getRefresh() }
         </div>
         { children }

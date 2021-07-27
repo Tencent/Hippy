@@ -1,17 +1,22 @@
 <template>
   <div>
-    <animation ref='animationRef' :actions="animations.face" class="vote-face" playing
-               @start="animationStart"
-               @end="animationEnd"
-               @repeat="animationRepeat"
-               @cancel="animationCancel"
+    <animation
+      ref="animationRef"
+      :actions="animations.face"
+      class="vote-face"
+      playing
+      @start="animationStart"
+      @end="animationEnd"
+      @repeat="animationRepeat"
+      @cancel="animationCancel"
     />
     <animation
       tag="img"
       class="vote-down-face"
       playing
       :props="{src: imgs.downVoteFace}"
-      :actions="animations.downVoteFace" />
+      :actions="animations.downVoteFace"
+    />
   </div>
 </template>
 
@@ -60,24 +65,6 @@ const face2 = {
 
 export default {
   props: ['isChanged'],
-  mounted() {
-    this.animationRef = this.$refs.animationRef;
-  },
-  watch: {
-    isChanged(to, from) {
-      if (!from && to) {
-        console.log('changed to face2');
-        this.animations.face = face2;
-      } else if (from && !to) {
-        console.log('changed to face1');
-        this.animations.face = face1;
-      }
-      // actions切换后，手动启动动画，由于创建动画需要与终端通信，延迟10ms保证动画已创建
-      setTimeout(() => {
-        this.animationRef.start();
-      }, 10);
-    },
-  },
   data() {
     return {
       imgs: {
@@ -129,6 +116,24 @@ export default {
         },
       },
     };
+  },
+  watch: {
+    isChanged(to, from) {
+      if (!from && to) {
+        console.log('changed to face2');
+        this.animations.face = face2;
+      } else if (from && !to) {
+        console.log('changed to face1');
+        this.animations.face = face1;
+      }
+      // actions切换后，手动启动动画，由于创建动画需要与终端通信，延迟10ms保证动画已创建
+      setTimeout(() => {
+        this.animationRef.start();
+      }, 10);
+    },
+  },
+  mounted() {
+    this.animationRef = this.$refs.animationRef;
   },
   methods: {
     animationStart() {

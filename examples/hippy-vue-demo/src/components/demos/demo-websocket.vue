@@ -1,26 +1,49 @@
 <template>
   <div id="websocket-demo">
-  <div>
-    <p class="demo-title">Url:</p>
-    <input ref="inputUrl" value="wss://echo.websocket.org" />
-    <div class="row">
-      <button @click="connect"><span>Connect</span></button>
-      <button @click="disconnect"><span>Disconnect</span></button>
-    </div>
-  </div>
-  <div>
-    <p class="demo-title">Message:</p>
-    <input ref="inputMessage" value="Rock it with Hippy WebSocket" />
-    <button @click="sendMessage"><span>Send</span></button>
-  </div>
-  <div>
-    <p class="demo-title">Log:</p>
-    <div class="output fullscreen">
-      <div>
-        <p v-for="(line, index) in output" :key="index">{{ line }}</p>
+    <div>
+      <p class="demo-title">
+        Url:
+      </p>
+      <input
+        ref="inputUrl"
+        value="wss://echo.websocket.org"
+      >
+      <div class="row">
+        <button @click="connect">
+          <span>Connect</span>
+        </button>
+        <button @click="disconnect">
+          <span>Disconnect</span>
+        </button>
       </div>
     </div>
-  </div>
+    <div>
+      <p class="demo-title">
+        Message:
+      </p>
+      <input
+        ref="inputMessage"
+        value="Rock it with Hippy WebSocket"
+      >
+      <button @click="sendMessage">
+        <span>Send</span>
+      </button>
+    </div>
+    <div>
+      <p class="demo-title">
+        Log:
+      </p>
+      <div class="output fullscreen">
+        <div>
+          <p
+            v-for="(line, index) in output"
+            :key="index"
+          >
+            {{ line }}
+          </p>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 

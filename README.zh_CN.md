@@ -10,7 +10,7 @@ Hippy 是一个新生的跨端开发框架，目标是使开发者可以只写�
 
 到目前为止，[腾讯](http://www.tencent.com/)公司内已经有 27+ 款主流 App 在使用 Hippy 框架，包括手机QQ、QQ浏览器、腾讯视频、QQ音乐、腾讯新闻等，每日触达数亿用户。
 
-https://user-images.githubusercontent.com/12878546/126472924-650c3ca1-62ca-4bc1-bb6e-739dbe21a277.mp4
+<https://user-images.githubusercontent.com/12878546/126472924-650c3ca1-62ca-4bc1-bb6e-739dbe21a277.mp4>
 
 ## 特征
 
@@ -50,6 +50,8 @@ Windows 用户者需要以下软件:
 4. 选择一个前端范例项目来进行编译，在项目根目录运行 `npm run buildexample -- [hippy-react-demo|hippy-vue-demo]`。
 5. 启动 Xcode 并且开始编译终端 App：`open examples/ios-demo/HippyDemo.xcodeproj`。
 
+> 如果步骤4出现错误，可以先 `cd` 到 `examples` hippy-react-demo 或者 hippy-vue-demo 目录下，执行 `npm install --legacy-peer-deps`，提前将 demo 的 NPM 包依赖先安装好。
+
 ### 使用 JS 范例来构建 Android App
 
 我们推荐 Android 开发者使用真机，因为 Hippy 使用的 [X5](https://x5.tencent.com/) JS 引擎没有提供 x86 的库以至于无法支持 x86 模拟器，同时使用 ARM 模拟器也比较慢。
@@ -64,16 +66,20 @@ Windows 用户者需要以下软件:
 6. 用 USB 数据线插上你的 Android 手机，需要确认手机已经打开 USB 调试模式（可通过在电脑 Terminal 执行 `adb devices` 判断手机是否已经连上了电脑）。
 7. 运行工程，并安装 APK。
 
+> 如果步骤4出现错误，可以先 `cd` 到 `examples` hippy-react-demo 或者 hippy-vue-demo 目录下，执行 `npm install --legacy-peer-deps`，提前将 demo 的 NPM 包依赖先安装好。
+>
 > 如果 Android Studio 报了这个错误 `No toolchains found in the NDK toolchains folder for ABI with prefix: mips64el-linux-android`，这里有[解决办法](https://github.com/google/filament/issues/15#issuecomment-415423557)。
 
 ### 调试前端 Demo
 
 1. 先按照 **[使用 JS 范例来构建 iOS App]** 和 **[使用 JS 范例来构建 Android App]** 步骤执行。
 2. `cd` 到 `examples` hippy-react-demo 或者 hippy-vue-demo 目录。
-3. 执行 `npm install` 安装相应 js demo 的依赖包
+3. 执行 `npm install` 安装相应 js demo 的依赖包。
 4. 分别执行 `npm run hippy:dev` 和 `npm run hippy:debug` 来开启实时 Debug 模式。
 
-> 在 example 调试模式下，@hippy/react、@hippy/vue 等 npm 模块会直接链接到 `packages` > `[different package]` > `dist` 目录下面的 js 文件(非 node_modules)，所以如果你修改了 packages 下的 JS 源代码并且想让其在 example 中生效，请重新在根目录执行 `npm run build`。更多关于调试的说明请浏览 [Hippy Debug Document](https://hippyjs.org/#/guide/debug).
+> 在 example 调试模式下，@hippy/react、@hippy/vue 等 npm 模块会直接链接到 `packages` > `[different package]` > `dist` 目录下面的 js 文件(非 node_modules)，所以如果你修改了 packages 下的 JS 源代码并且想让其在 example 中生效，请重新在根目录执行 `npm run build`。
+>
+> 更多关于调试的说明请浏览 [Hippy Debug Document](https://hippyjs.org/#/guide/debug).
 
 ## 文档
 
@@ -114,7 +120,7 @@ Hippy
 
 ## 贡献
 
-欢迎开发人员为腾讯的开源做出贡献，我们将持续激励他们并感谢他们。我们提供了腾讯对开源贡献的说明，每个项目的具体贡献规则由项目团队制定。开发人员可以选择适当的项目并根据相应的规则参与。腾讯项目管理委员会将定期汇报合格的贡献者，奖项将由官方联络人颁发。在发起 Pull Request 或者 issue 前, 请确保你已经阅读 [Contributing Guide](https://github.com/Tencent/Hippy/blob/master/.github/CONTRIBUTING.md).
+欢迎开发人员为腾讯的开源做出贡献，我们将持续激励他们并感谢他们。我们提供了腾讯对开源贡献的说明，每个项目的具体贡献规则由项目团队制定。开发人员可以选择适当的项目并根据相应的规则参与。腾讯项目管理委员会将定期汇报合格的贡献者，奖项将由官方联络人颁发。在发起 Pull Request 或者 issue 前, 请确保你已经阅读 [Contributing Guide](https://github.com/Tencent/Hippy/blob/master/.github/CONTRIBUTING.md)。
 
 所有曾经参与 Hippy 项目贡献的开发者都会记录在 [Contributors](https://github.com/Tencent/Hippy/graphs/contributors) 和 [Authors File](https://github.com/Tencent/Hippy/blob/master/AUTHORS) 。
 

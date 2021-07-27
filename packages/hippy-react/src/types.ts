@@ -5,6 +5,7 @@ import { LayoutEvent } from '@localTypes/event';
 declare module 'react' {
   interface HTMLAttributes<T> extends React.AriaAttributes, React.DOMAttributes<T> {
     nativeName: string;
+    // @ts-ignore
     style?: Style; // FIXME: Typescript compile error.
 
     // Ul

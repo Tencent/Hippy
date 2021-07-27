@@ -1,9 +1,9 @@
-import test from 'ava';
+import test, { before } from 'ava';
 import * as elements from '../index';
 
 const EMPTY_TAG_NAME = 'test';
 
-test.before(() => {
+before(() => {
   elements.registerElement(EMPTY_TAG_NAME, {
     component: {
       name: 'TestComp',

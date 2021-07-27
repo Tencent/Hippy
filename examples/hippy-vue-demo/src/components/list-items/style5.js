@@ -1,6 +1,6 @@
 import Vue from 'vue';
 
-export default Vue.component('style-five', {
+export default Vue.component('StyleFive', {
   inheritAttrs: false,
   props: ['itemBean'],
   template: `
