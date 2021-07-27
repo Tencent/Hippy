@@ -41,6 +41,7 @@ import com.tencent.mtt.hippy.serialization.nio.writer.SafeDirectWriter;
 import com.tencent.mtt.hippy.serialization.nio.writer.SafeHeapWriter;
 import com.tencent.mtt.hippy.utils.ArgumentUtils;
 import com.tencent.mtt.hippy.utils.DimensionsUtil;
+import com.tencent.mtt.hippy.utils.I18nUtil;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 
 import java.io.UnsupportedEncodingException;
@@ -599,6 +600,13 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     platformParams.pushString("VersionName", (versionName == null) ? "" : versionName);
     platformParams.pushInt("APILevel", Build.VERSION.SDK_INT);
     platformParams.pushBoolean("NightMode", getNightMode());
+
+    HippyMap Localization = new HippyMap();
+    Localization.pushString("language", I18nUtil.getLanguage());
+    Localization.pushString("country", I18nUtil.getCountry());
+    Localization.pushInt("direction", I18nUtil.getLayoutDirection());
+    platformParams.pushMap("Localization", Localization);
+
     globalParams.pushMap("Platform", platformParams);
 
     HippyMap tkd = new HippyMap();
