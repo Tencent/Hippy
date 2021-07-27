@@ -7,6 +7,7 @@ import * as StyleSheet from '../modules/stylesheet';
 import { callUIFunction } from '../modules/ui-manager-module';
 import Element from '../dom/element-node';
 import { warn } from '../utils';
+import { isRTL } from '../utils/i18n';
 
 interface ScrollViewProps {
   /**
@@ -195,6 +196,11 @@ class ScrollView extends React.Component<ScrollViewProps, {}> {
     const newStyle = horizontal
       ? Object.assign({}, style, styles.baseHorizontal)
       : Object.assign({}, style, styles.baseVertical);
+    
+    if (horizontal) {
+      newStyle.flexDirection = isRTL() ? 'row-reverse' : 'row';
+    }
+
     return (
       <div
         nativeName="ScrollView"
