@@ -46,6 +46,7 @@ const stylesNoOffset = StyleSheet.create({
     // container & content should both set radius
     // 容器和内容都要设置radius
     borderRadius: 5,
+    direction: 'ltr',
   },
   shadowDemoContentAndroid: {
     position: 'absolute',
@@ -114,6 +115,7 @@ const stylesOffset = StyleSheet.create({
     boxShadowOffsetX: 15,
     boxShadowOffsetY: 15,
     boxShadowColor: '#4c9afa',
+    direction: 'ltr',
   },
   shadowDemoContentAndroid: {
     width: 160,

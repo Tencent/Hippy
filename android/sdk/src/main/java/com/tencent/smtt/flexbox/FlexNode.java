@@ -26,6 +26,7 @@ import com.tencent.mtt.hippy.dom.flex.FlexOverflow;
 import com.tencent.mtt.hippy.dom.flex.FlexPositionType;
 import com.tencent.mtt.hippy.dom.flex.FlexWrap;
 import com.tencent.mtt.hippy.dom.flex.FloatUtil;
+import com.tencent.mtt.hippy.utils.I18nUtil;
 import com.tencent.smtt.flexbox.FlexNodeStyle.Edge;
 
 import java.util.ArrayList;
@@ -772,7 +773,8 @@ public class FlexNode implements FlexNodeAPI<FlexNode> {
       return;
     }
     nativeFlexNodereset(mNativeFlexNode);
-    this.setDirection(FlexDirection.LTR);
+    FlexDirection flexDirection = I18nUtil.isRTL() ? FlexDirection.RTL : FlexDirection.LTR;
+    this.setDirection(flexDirection);
     this.setFlexDirection(FlexCSSDirection.COLUMN);
     this.setJustifyContent(FlexJustify.FLEX_START);
     this.setAlignContent(FlexAlign.FLEX_START);
