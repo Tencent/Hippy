@@ -187,10 +187,6 @@ static NSString *HippyRecursiveAccessibilityLabel(UIView *view) {
     return self;
 }
 
-+ (Class)layerClass {
-    return [CAGradientLayer class];
-}
-
 HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : unused)
 
 - (NSString *)accessibilityLabel {

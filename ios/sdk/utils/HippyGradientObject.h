@@ -23,7 +23,6 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIColor.h>
 #import <CoreGraphics/CGContext.h>
-#import <QuartzCore/CAGradientLayer.h>
 #import "HippyAssert.h"
 #import "HippyDefines.h"
 #import "HippyBorderDrawing.h"
