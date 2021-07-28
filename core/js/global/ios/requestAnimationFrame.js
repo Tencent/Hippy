@@ -1,3 +1,6 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-underscore-dangle */
+
 const { JSTimersExecution } = require('../../modules/ios/jsTimersExecution.js');
 
 const RCTTiming = __GLOBAL__.NativeModules.Timing;
@@ -20,7 +23,7 @@ global.requestAnimationFrame = (func) => {
 };
 
 global.cancelAnimationFrame = (timerID) => {
-  if (timerID == null) {
+  if (timerID === null || timerID === undefined) {
     return;
   }
 

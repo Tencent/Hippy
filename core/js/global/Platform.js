@@ -1,3 +1,6 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-underscore-dangle */
+
 /*
   IOS __HIPPYNATIVEGLOBAL__ : {
     Device : 'iPhone XR',

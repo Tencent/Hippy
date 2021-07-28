@@ -1,3 +1,8 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable prefer-rest-params */
+/* eslint-disable prefer-spread */
+
 const timer = internalBinding('TimerModule');
 
 global.setTimeout = function (cb, sleepTime) {
