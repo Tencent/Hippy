@@ -165,7 +165,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
      */
     public int getTotalHeightBefore(int position) {
         int totalHeightBefore = 0;
-        boolean vertical = HippyListUtils.isLinearLayoutVertical(this);
+        boolean vertical = HippyListUtils.isVerticalLayout(this);
         for (int i = 0; i < position; i++) {
             totalHeightBefore += vertical ? listAdapter.getItemHeight(i) : listAdapter.getItemWidth(i);
         }
@@ -178,7 +178,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
      */
     public int getRenderNodeHeightBefore(int renderNodePosition) {
         int renderNodeTotalHeight = 0;
-        boolean vertical = HippyListUtils.isLinearLayoutVertical(this);
+        boolean vertical = HippyListUtils.isVerticalLayout(this);
         for (int i = 0; i < renderNodePosition; i++) {
             renderNodeTotalHeight += vertical ? listAdapter.getRenderNodeHeight(i) : listAdapter.getRenderNodeWidth(i);
         }

@@ -29,7 +29,7 @@ dependencies {
     api fileTree(include: ['*.jar'], dir: 'src/main/libs/')
     implementation 'com.tencent.mtt:support-ui:2.3.3'
     implementation project(':android-res')
-    api 'com.tencent.mtt.easy.list:easyrecyclerlist:qb-11.4.1.10'
+    api 'com.tencent.mtt.easy.list:easyrecyclerlist:qb-11.8.5.1'
 
     testImplementation 'junit:junit:4.12'
     testImplementation "org.powermock:powermock-classloading-xstream:2.0.7"

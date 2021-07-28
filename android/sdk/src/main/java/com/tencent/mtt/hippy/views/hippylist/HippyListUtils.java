@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.views.hippylist;
 
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView.LayoutManager;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
 import com.tencent.mtt.hippy.uimanager.ListViewRenderNode;
@@ -31,10 +33,24 @@ public class HippyListUtils {
 
     }
 
-    public static boolean isLinearLayoutVertical(RecyclerView recyclerView) {
-        if (isLinearLayout(recyclerView)) {
-            return ((LinearLayoutManager) recyclerView.getLayoutManager()).getOrientation()
-                    == LinearLayoutManager.VERTICAL;
+    /**
+     * 是否垂直方向排版
+     */
+    public static boolean isVerticalLayout(RecyclerView recyclerView) {
+        LayoutManager layoutManager = recyclerView.getLayoutManager();
+        if (layoutManager != null) {
+            return layoutManager.canScrollVertically();
+        }
+        return false;
+    }
+
+    /**
+     * 是否水平方向排版
+     */
+    public static boolean isHorizontalLayout(RecyclerView recyclerView) {
+        LayoutManager layoutManager = recyclerView.getLayoutManager();
+        if (layoutManager != null) {
+            return layoutManager.canScrollHorizontally();
         }
         return false;
     }

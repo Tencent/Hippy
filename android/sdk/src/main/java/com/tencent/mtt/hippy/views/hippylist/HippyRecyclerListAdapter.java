@@ -224,7 +224,7 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
         LayoutParams childLp = getLayoutParams(itemView);
         RenderNode childNode = getChildNodeByAdapterPosition(position);
         if (HippyListUtils.isLinearLayout(hippyRecyclerView)) {
-            boolean isVertical = HippyListUtils.isLinearLayoutVertical(hippyRecyclerView);
+            boolean isVertical = HippyListUtils.isVerticalLayout(hippyRecyclerView);
             childLp.height = isVertical ? childNode.getHeight() : MATCH_PARENT;
             childLp.width = isVertical ? MATCH_PARENT : childNode.getWidth();
         } else {

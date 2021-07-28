@@ -67,6 +67,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     private boolean isInitialListReadyNotified = false;
     private ViewTreeObserver viewTreeObserver;
     private OnPreDrawListener preDrawListener;
+    private boolean isLastTimeReachEnd;
 
 
     public RecyclerViewEventHelper(HippyRecyclerView recyclerView) {
@@ -180,16 +181,45 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     public void onScrolled(@NonNull final RecyclerView recyclerView, int dx, int dy) {
         checkSendOnScrollEvent();
         checkSendExposureEvent();
-        if (!recyclerView.canScrollVertically(1)) {
+        checkSendReachEndEvent();
+    }
+
+    /**
+     * 检查是否已经触底，发生onEndReached事件给前端
+     * 如果上次是没有到底，这次滑动底了，需要发事件通知，如果上一次已经是到底了，这次到底不会发事件
+     */
+    private void checkSendReachEndEvent() {
+        boolean isThisTimeReachEnd;
+        if (HippyListUtils.isHorizontalLayout(hippyRecyclerView)) {
+            isThisTimeReachEnd = isHorizontalReachEnd();
+        } else {
+            isThisTimeReachEnd = isVerticalReachEnd();
+        }
+        if (!isLastTimeReachEnd && isThisTimeReachEnd) {
             sendOnReachedEvent();
         }
+        isLastTimeReachEnd = isThisTimeReachEnd;
+    }
+
+    /**
+     * 竖向滑动，内容已经到达最下边
+     */
+    private boolean isVerticalReachEnd() {
+        return !hippyRecyclerView.canScrollVertically(1);
+    }
+
+    /**
+     * 水平滑动，内容已经到达最右边
+     */
+    private boolean isHorizontalReachEnd() {
+        return !hippyRecyclerView.canScrollHorizontally(1);
     }
 
     protected void sendOnReachedEvent() {
         new HippyViewEvent(HippyScrollViewEventHelper.EVENT_ON_END_REACHED).send(getParentView(), null);
     }
 
-    private void checkSendOnScrollEvent() {
+    protected void checkSendOnScrollEvent() {
         if (onScrollEventEnable) {
             long currTime = System.currentTimeMillis();
             if (currTime - lastScrollEventTimeStamp >= scrollEventThrottle) {
@@ -306,7 +336,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
         }
     }
 
-    private void checkSendExposureEvent() {
+    protected void checkSendExposureEvent() {
         if (!exposureEventEnable) {
             return;
         }
@@ -346,8 +376,8 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     @Override
     public void onOverPullStateChanged(int oldState, int newState, int offset) {
         LogUtils.d("QBRecyclerViewEventHelper", "oldState:" + oldState + ",newState:" + newState);
-        if (oldState == OverPullHelper.OVER_PULL_NONE && isOverPulling(newState)) {
-            sendOnReachedEvent();
+        if (oldState == OverPullHelper.OVER_PULL_NONE && (isOverPulling(newState)
+                || newState == OverPullHelper.OVER_PULL_NORMAL)) {
             getOnScrollDragStartedEvent().send(getParentView(), generateScrollEvent());
         }
         if (isOverPulling(oldState) && isOverPulling(newState)) {
