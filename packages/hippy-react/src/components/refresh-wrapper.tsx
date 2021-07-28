@@ -1,6 +1,5 @@
 import React, { CSSProperties, ReactElement } from 'react';
 import { Fiber } from 'react-reconciler';
-import Style from '@localTypes/style';
 import { callUIFunction } from '../modules/ui-manager-module';
 import Element from '../dom/element-node';
 

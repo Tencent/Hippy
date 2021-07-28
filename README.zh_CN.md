@@ -79,15 +79,15 @@ Windows 用户者需要以下软件:
 
 > 在 example 调试模式下，@hippy/react、@hippy/vue 等 npm 模块会直接链接到 `packages` > `[different package]` > `dist` 目录下面的 js 文件(非 node_modules)，所以如果你修改了 packages 下的 JS 源代码并且想让其在 example 中生效，请重新在根目录执行 `npm run build`。
 >
-> 更多关于调试的说明请浏览 [Hippy Debug Document](https://hippyjs.org/#/guide/debug).
+> 更多关于调试的说明请浏览 [Hippy Debug Document](https://hippyjs.org/#/guide/debug)。
 
 ## 文档
 
-参考 [hippy examples](https://github.com/Tencent/Hippy/tree/master/examples) 下的代码和浏览官网 [hippyjs.org](https://hippyjs.org).
+参考 [hippy examples](https://github.com/Tencent/Hippy/tree/master/examples) 下的代码和浏览官网 [hippyjs.org](https://hippyjs.org)。
 
 ## 更新日志
 
-每个发布版本的详细更新日志会记录在 [project release notes](https://github.com/Tencent/Hippy/releases).
+每个发布版本的详细更新日志会记录在 [project release notes](https://github.com/Tencent/Hippy/releases)。
 
 ## 项目结构
 
