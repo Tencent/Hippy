@@ -13,7 +13,7 @@
     "markdownlint": "markdownlint --config .markdownlintrc.json ./*.md ./docs/**/*.md",
     "coverage": "nyc ava",
     "codecov": "cat ./coverage/lcov.info | codecov",
-    "lint": "eslint --fix \"packages/**/*.@(js|ts|tsx|vue)\" \"examples/hippy-react-demo/**/*.@(js|jsx)\" \"examples/hippy-vue-demo/**/*.@(js|vue)\" ./scripts/*.js ./core/js/*.js",
+    "lint": "eslint --fix 'packages/**/*.@(js|ts|tsx|vue)' 'examples/hippy-react-demo/**/*.@(js|jsx)' 'examples/hippy-vue-demo/**/*.@(js|vue)' './scripts/*.js' './core/js/**/*.js'",
     "clean": "rimraf ./coverage ./nyc_output packages/*/dist",
     "test": "ava",
     "watch": "watch \"npm run build\" ./packages --ignoreDotFiles --ignoreUnreadable --ignoreDirectoryPattern '/dist/'",
@@ -22,7 +22,7 @@
     "prepare": "husky install"
   },
   "lint-staged": {
-    "*.{js,ts,jsx,tsx,vue}": "npm run lint"
+    "**/*.{js,ts,jsx,tsx,vue}": "npm run lint"
   },
   "devDependencies": {
     "@babel/plugin-proposal-nullish-coalescing-operator": "^7.13.8",

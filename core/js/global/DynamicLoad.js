@@ -1,3 +1,6 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-underscore-dangle */
+
 const ContextifyModule = internalBinding('ContextifyModule');
 
 global.dynamicLoad = (path, encode, cb) => {

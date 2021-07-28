@@ -1,3 +1,6 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-underscore-dangle */
+
 const Dimensions = {
   get(key) {
     const device = Hippy.device || {};
