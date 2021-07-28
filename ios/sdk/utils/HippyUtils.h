@@ -159,6 +159,4 @@ HIPPY_EXTERN NSURL *__nullable HippyURLWithString(NSString *__nonnull URLString,
 //Get String Encoding From HTTP URL Response
 HIPPY_EXTERN NSStringEncoding HippyGetStringEncodingFromURLResponse(NSURLResponse *response);
 
-HIPPY_EXTERN NSWritingDirection HippyGetCurrentWritingDirectionForAppLanguage(void);
-
 NS_ASSUME_NONNULL_END

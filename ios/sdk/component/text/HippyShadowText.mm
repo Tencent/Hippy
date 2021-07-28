@@ -31,6 +31,7 @@
 #import "HippyUIManager.h"
 #import "HippyUtils.h"
 #import "HippyVirtualTextNode.h"
+#import "HippyI18nUtils.h"
 
 NSString *const HippyShadowViewAttributeName = @"HippyShadowViewAttributeName";
 NSString *const HippyIsHighlightedAttributeName = @"IsHighlightedAttributeName";
@@ -112,7 +113,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         _cachedTextStorageWidthMode = -1;
         _fontSizeMultiplier = 1.0;
         _textAlign = NSTextAlignmentLeft;
-        if (NSWritingDirectionRightToLeft ==  HippyGetCurrentWritingDirectionForAppLanguage()) {
+        if (NSWritingDirectionRightToLeft ==  [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage]) {
             _textAlign = NSTextAlignmentRight;
         }
         // MTTlayout
@@ -387,7 +388,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             [child setTextComputed];
         } else {
             // MTTlayout
-            NSWritingDirection direction = HippyGetCurrentWritingDirectionForAppLanguage();
+            NSWritingDirection direction = [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
             MTTDirection nodeDirection = (NSWritingDirectionRightToLeft == direction) ? DirectionRTL : DirectionLTR;
             nodeDirection = self.layoutDirection != DirectionInherit ? self.layoutDirection : nodeDirection;
             MTTNodeDoLayout(child.nodeRef, NAN, NAN, nodeDirection);

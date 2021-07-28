@@ -28,6 +28,7 @@
 #import "UIView+Hippy.h"
 #import "UIView+Private.h"
 #import "MTTNode.h"
+#import "HippyI18nUtils.h"
 
 static NSString *const HippyBackgroundColorProp = @"backgroundColor";
 
@@ -316,7 +317,7 @@ DEFINE_PROCESS_META_PROPS(Border);
     }
 
     //  CSSNodeCalculateLayout(_cssNode, frame.size.width, frame.size.height, CSSDirectionInherit);
-    NSWritingDirection direction = HippyGetCurrentWritingDirectionForAppLanguage();
+    NSWritingDirection direction = [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
     MTTDirection nodeDirection = (NSWritingDirectionRightToLeft == direction) ? DirectionRTL : DirectionLTR;
     nodeDirection = self.layoutDirection != DirectionInherit ? self.layoutDirection : nodeDirection;
     MTTNodeDoLayout(_nodeRef, frame.size.width, frame.size.height, nodeDirection);

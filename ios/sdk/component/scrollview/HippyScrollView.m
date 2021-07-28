@@ -27,10 +27,10 @@
 #import "HippyConvert.h"
 #import "HippyEventDispatcher.h"
 #import "HippyUIManager.h"
-#import "HippyUtils.h"
 #import "UIView+Private.h"
 #import "UIView+Hippy.h"
 #import "HippyInvalidating.h"
+#import "HippyI18nUtils.h"
 #import "objc/runtime.h"
 
 @interface HippyCustomScrollView : UIScrollView <UIGestureRecognizerDelegate>
@@ -779,7 +779,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 }
 
 - (BOOL)needsLayoutForRTL {
-    return NSWritingDirectionRightToLeft ==  HippyGetCurrentWritingDirectionForAppLanguage() && _horizontal;
+    return NSWritingDirectionRightToLeft ==  [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage] && _horizontal;
 }
 
 // Note: setting several properties of UIScrollView has the effect of
