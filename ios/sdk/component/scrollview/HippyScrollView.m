@@ -265,9 +265,9 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
             }
             else {
                 _contentView.frame = CGRectMake(0, 0, CGRectGetWidth(_contentView.bounds), CGRectGetHeight(_contentView.bounds));
-                if ([self needsLayoutForRTL]) {
-                    _contentView.transform = CGAffineTransformMakeRotation(M_PI);
-                }
+            }
+            if ([self needsLayoutForRTL]) {
+                _contentView.transform = CGAffineTransformMakeRotation(M_PI);
             }
         }
     }
