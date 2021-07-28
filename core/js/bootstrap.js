@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-expressions */
 /* eslint-disable func-names */
+
 (function (getInternalBinding) {
   global.Hippy = {};
 
