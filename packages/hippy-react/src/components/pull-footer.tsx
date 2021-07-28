@@ -2,6 +2,8 @@ import React from 'react';
 import { PullingEvent } from '@localTypes/event';
 import { LayoutableProps } from '../types';
 import { callUIFunction } from '../modules/ui-manager-module';
+import { Fiber } from 'react-reconciler';
+import Element from '../dom/element-node';
 
 interface PullFooterProps extends LayoutableProps {
   /**
@@ -24,7 +26,7 @@ interface PullFooterProps extends LayoutableProps {
 }
 
 class PullFooter extends React.Component<PullFooterProps, {}> {
-  private instance: HTMLDivElement | null = null;
+  private instance: Element | Fiber | HTMLDivElement | null = null;
 
   /**
   * @ignore
@@ -37,14 +39,14 @@ class PullFooter extends React.Component<PullFooterProps, {}> {
    * Expand the PullView and display the content
    */
   expandPullFooter() {
-    callUIFunction(this.instance, 'expandPullFooter', []);
+    callUIFunction(this.instance as Element, 'expandPullFooter', []);
   }
 
   /**
    * Collapse the PullView and hide the content
    */
   collapsePullFooter() {
-    callUIFunction(this.instance, 'collapsePullFooter', []);
+    callUIFunction(this.instance as Element, 'collapsePullFooter', []);
   }
 
   render() {
