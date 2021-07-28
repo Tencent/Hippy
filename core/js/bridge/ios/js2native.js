@@ -192,8 +192,10 @@ Hippy.bridge.callNative = (...callArguments) => {
               __GLOBAL__.IosNodeTree[siblingPid].splice(item.index, 0, item.id);
             });
 
-            __GLOBAL__.NativeModules.UIManager.manageChildren(siblingPid, undefined, undefined,
-              addChildTags, addChildIndexs, undefined);
+            __GLOBAL__.NativeModules.UIManager.manageChildren(
+              siblingPid, undefined, undefined,
+              addChildTags, addChildIndexs, undefined,
+            );
           } else {
             setChildren(siblingPid, insertChildIds);
 
@@ -303,8 +305,10 @@ Hippy.bridge.callNativeWithCallbackId = (...callArguments) => {
       nativeParam.push(currentCallId);
       nativeParam = nativeParam.concat(param);
 
-      callModuleMethod.apply(NativeModule,
-        getParam(callArguments[0], callArguments[1], nativeParam));
+      callModuleMethod.apply(
+        NativeModule,
+        getParam(callArguments[0], callArguments[1], nativeParam),
+      );
 
       return currentCallId;
     }

@@ -78,8 +78,8 @@ class Focusable extends React.Component<FocusableProps, FocusableState> {
 
     if (child && child.child && child.child.memoizedProps && child.child.memoizedProps.nativeName) {
       type = child.child.memoizedProps.nativeName;
-    } else if (child && child.type && child.type.name) {
-      type = child.type.name;
+    } else if (child && child.type && child.type.displayName) {
+      type = child.type.displayName;
     }
 
     const nextFocusDown = nextFocusDownId && getNodeIdByRef(nextFocusDownId);

@@ -1,3 +1,6 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-underscore-dangle */
+
 const consoleModule = internalBinding('ConsoleModule');
 
 const indent = (level) => {
