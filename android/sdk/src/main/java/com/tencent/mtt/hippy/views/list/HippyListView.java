@@ -77,6 +77,8 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
   private float touchDownY;
   private float touchDownX;
   private int touchSlop;
+  private int initialContentOffset = 0;
+  private boolean hasCompleteFirstBatch = false;
 
   protected int mScrollEventThrottle = 400;  // 400ms最多回调一次
   protected int mLastOffsetX = Integer.MIN_VALUE;
@@ -170,14 +172,45 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
   public void setListData() {
     LogUtils.d("hippylistview", "setListData");
     mListAdapter.notifyDataSetChanged();
-
-    int beforeCount = getChildCount();
     dispatchLayout();
-    int afterCount = getChildCount();
+    if (!hasCompleteFirstBatch && getChildCount() > 0) {
+      if (initialContentOffset > 0) {
+        scrollToInitContentOffset();
+      }
 
-    if (beforeCount == 0 && (afterCount > beforeCount) && mExposureEventEnable) {
-      dispatchExposureEvent();
+      hasCompleteFirstBatch = true;
     }
+  }
+
+  private void scrollToInitContentOffset() {
+    int position = 0;
+    int itemHeight = 0;
+    if (mListAdapter == null) {
+      return;
+    }
+
+    int itemCount = mListAdapter.getItemCount();
+    for (; itemHeight < initialContentOffset && position < itemCount; position++) {
+      itemHeight += mListAdapter.getItemHeight(position);
+    }
+
+    final int lastIndex = itemCount - 1;
+    int offset = itemHeight - initialContentOffset;
+
+    //设置的offset超过边界，跳转到最后一个Item上去
+    if (position >= lastIndex) {
+      position = lastIndex;
+      //不能划出内容高度
+      if (offset < 0) {
+        offset = 0;
+      }
+    }
+
+    scrollToPosition(position, offset);
+  }
+
+  public void setInitialContentOffset(int offset) {
+    initialContentOffset = offset;
   }
 
   public void setScrollBeginDragEventEnable(boolean enable) {
