@@ -111,7 +111,7 @@ module.exports = {
 
     // Allow global underscore in dangle
     'no-underscore-dangle': [
-      'error',
+      'warn',
       {
         allow: [
           '__ISHIPPY__',
