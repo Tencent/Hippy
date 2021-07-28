@@ -24,6 +24,7 @@ import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.uimanager.ListViewRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.supportui.views.recyclerview.BaseLayoutManager;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewBase;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewItem;
@@ -157,6 +158,11 @@ public class HippyListViewController extends HippyViewController<HippyListView> 
   @HippyControllerProps(name = "overScrollEnabled", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = true)
   public void setOverScrollEnabled(HippyListView view, boolean flag) {
     view.setOverScrollEnabled(flag);
+  }
+
+  @HippyControllerProps(name = "initialContentOffset", defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
+  public void setInitialContentOffset(HippyListView view, int offset) {
+    view.setInitialContentOffset((int)PixelUtil.dp2px(offset));
   }
 
   @Override
