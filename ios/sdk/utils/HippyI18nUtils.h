@@ -29,20 +29,36 @@ NS_ASSUME_NONNULL_BEGIN
 
 @optional
 
+/**return app language by delegate
+ */
 - (NSString *)currentAppLanguage;
 
 @end
 
+/** I18n manager for hippy
+ */
 @interface HippyI18nUtils : NSObject
 
 @property(nonatomic, weak) id<hippyI18nProtocol> delegate;
 
 + (instancetype)sharedInstance;
 
+/**
+ * get current app language
+ * this method gets app language from delegate by default.
+ * if delegate method is not implementated,
+ * this method gets language from [[NSLocale currentLocale] objectForKey:NSLocaleLanguageCode]
+ */
 - (NSString *)currentAppLanguageCode;
 
+/**
+ * get current country code from [[NSLocale currentLocale] objectForKey:NSLocaleCountryCode] by default
+ */
 - (NSString *)currentCountryCode;
 
+/**
+ * get app language writing direction from the result of 'currentAppLanguageCode' return value
+ */
 - (NSWritingDirection)writingDirectionForCurrentAppLanguage;
 
 @end
