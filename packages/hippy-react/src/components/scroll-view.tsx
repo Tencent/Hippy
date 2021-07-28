@@ -122,11 +122,11 @@ const styles = StyleSheet.create({
     overflow: 'scroll',
   },
   contentContainerVertical: {
-    collapse: false,
+    collapsable: false,
     flexDirection: 'column',
   },
   contentContainerHorizontal: {
-    collapse: false,
+    collapsable: false,
     flexDirection: 'row',
   },
 });
@@ -193,8 +193,8 @@ class ScrollView extends React.Component<ScrollViewProps, {}> {
       contentContainerStyle,
     ];
     const newStyle = horizontal
-      ? Object.assign({}, style, styles.baseHorizontal)
-      : Object.assign({}, style, styles.baseVertical);
+      ? Object.assign({}, styles.baseHorizontal, style)
+      : Object.assign({}, styles.baseVertical, style);
     return (
       <div
         nativeName="ScrollView"
