@@ -114,7 +114,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         _fontSizeMultiplier = 1.0;
         _textAlign = NSTextAlignmentLeft;
         if (NSWritingDirectionRightToLeft ==  [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage]) {
-            _textAlign = NSTextAlignmentRight;
+            self.textAlign = NSTextAlignmentRight;
         }
         // MTTlayout
         MTTNodeSetMeasureFunc(self.nodeRef, x5MeasureFunc);
