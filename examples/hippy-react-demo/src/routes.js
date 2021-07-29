@@ -187,4 +187,12 @@ export default [
       style: 2,
     },
   },
+  {
+    path: '/Localization',
+    name: 'Localization 信息',
+    component: PAGE_LIST.Localization,
+    meta: {
+      style: 2,
+    },
+  },
 ];
