@@ -33,14 +33,12 @@ public class TransformUtil {
     boolean inRadians = true;
     if (transformMap.get(key) instanceof String) {
       String stringValue = (String) transformMap.get(key);
-      if (stringValue.endsWith("rad") || stringValue.endsWith("deg")) {
-        stringValue = stringValue.substring(0, stringValue.length() - 3);
-      }
-
       if (stringValue.endsWith("deg")) {
         inRadians = false;
       }
-
+      if (stringValue.endsWith("rad") || stringValue.endsWith("deg")) {
+        stringValue = stringValue.substring(0, stringValue.length() - 3);
+      }
       value = Float.parseFloat(stringValue);
     } else if (transformMap.get(key) instanceof Number) {
       value = ((Number) transformMap.get(key)).doubleValue();
