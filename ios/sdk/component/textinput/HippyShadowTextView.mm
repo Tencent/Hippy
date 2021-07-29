@@ -28,7 +28,7 @@
 @end
 
 static MTTSize x5MeasureFunc(
-    MTTNodeRef node, float width, MeasureMode widthMeasureMode, __unused float height, __unused MeasureMode heightMeasureMode) {
+    MTTNodeRef node, float width, MeasureMode widthMeasureMode, __unused float height, __unused MeasureMode heightMeasureMode, void *layoutContext) {
     HippyShadowTextView *shadowText = (__bridge HippyShadowTextView *)MTTNodeGetContext(node);
     NSString *text = shadowText.text ?: shadowText.placeholder;
     if (nil == shadowText.dicAttributes) {
@@ -50,6 +50,7 @@ static MTTSize x5MeasureFunc(
     self = [super init];
     if (self) {
         MTTNodeSetMeasureFunc(self.nodeRef, x5MeasureFunc);
+        MTTNodeSetContext(self.nodeRef, (__bridge void *)self);
     }
     return self;
 }
