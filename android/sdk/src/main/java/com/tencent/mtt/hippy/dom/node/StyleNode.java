@@ -78,6 +78,13 @@ public class StyleNode extends DomNode {
     super.setFlexBasis(flexBasis);
   }
 
+  @HippyControllerProps(name = NodeProps.SHADOW_RADIUS, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
+  public void setShadowRadius(float shadowRadius) {
+    if (shadowRadius > 0) {
+      setDirection(FlexDirection.LTR);
+    }
+  }
+
   @HippyControllerProps(name = NodeProps.DIRECTION)
   public void setDirection(String direction) {
     if (TextUtils.isEmpty(direction)) {
