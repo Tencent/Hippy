@@ -19,7 +19,7 @@
     "watch": "watch \"npm run build\" ./packages --ignoreDotFiles --ignoreUnreadable --ignoreDirectoryPattern '/dist/'",
     "publish": "lerna version patch --conventional-commits --sign-git-commit",
     "doc": "docsify serve docs",
-    "prepare": "husky install"
+    "prepare": "is-ci || husky install"
   },
   "lint-staged": {
     "**/*.{js,ts,jsx,tsx,vue}": "npm run lint"
@@ -48,6 +48,7 @@
     "esm": "^3.2.25",
     "flow-remove-types": "^1.2.3",
     "husky": "^7.0.1",
+    "is-ci": "^2.0.0",
     "lerna": "^3.16.4",
     "lint-staged": "^11.0.1",
     "markdownlint-cli": "^0.20.0",

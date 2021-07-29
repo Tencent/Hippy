@@ -1,6 +1,32 @@
-name: '[FrontEnd] check and build js release packages'
+name: '[FrontEnd] check and build js code'
 
-on: [ push, pull_request ]
+on:
+  push:
+    paths:
+      - 'packages/**'
+      - 'examples/hippy-*-demo/**'
+      - 'scripts/**/*.js'
+      - 'core/js/**/*.js'
+    branches:
+      # Push events on main branch
+      - main
+      # Push events on master branch
+      - master
+    tags-ignore:
+      - '**'
+  pull_request:
+    paths:
+      - 'packages/**'
+      - 'examples/hippy-*-demo/**'
+      - 'scripts/**/*.js'
+      - 'core/js/**/*.js'
+    branches:
+      # Pull request events to main branch
+      - main
+      # Pull request events to master branch
+      - master
+    tags-ignore:
+      - '**'
 
 jobs:
   check_and_build_js:
@@ -10,8 +36,6 @@ jobs:
         node: [ 10.x, 13.x ]
     steps:
       - uses: actions/checkout@v2
-        with:
-          lfs: true
       - name: setup-node
         uses: actions/setup-node@master
         with:
