@@ -47,9 +47,9 @@ namespace hippy {
 namespace bridge {
 
 REGISTER_STATIC_JNI("com/tencent/mtt/hippy/HippyEngine",
-                    "initLogger",
-                    "(Lcom/tencent/mtt/hippy/HippyCLogHandler;)V",
-                    InitLogger)
+                    "initNativeLogHandler",
+                    "(Lcom/tencent/mtt/hippy/IHippyNativeLogHandler;)V",
+                    InitNativeLogHandler)
 
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
              "initJSFramework",
@@ -92,7 +92,7 @@ enum INIT_CB_STATE {
   SUCCESS = 0,
 };
 
-void InitLogger(JNIEnv* j_env, jobject j_object, jobject j_logger) {
+void InitNativeLogHandler(JNIEnv* j_env, jobject j_object, jobject j_logger) {
   if (!j_logger) {
     return;
   }
@@ -103,7 +103,7 @@ void InitLogger(JNIEnv* j_env, jobject j_object, jobject j_logger) {
   }
 
   jmethodID j_method =
-      j_env->GetMethodID(j_cls, "onReceiveLogMessage", "(Ljava/lang/String;)V");
+      j_env->GetMethodID(j_cls, "onReceiveNativeLogMessage", "(Ljava/lang/String;)V");
   if (!j_method) {
     return;
   }
