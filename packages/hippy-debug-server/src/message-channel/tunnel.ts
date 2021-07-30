@@ -39,7 +39,10 @@ export function sendMessage(msg: Tunnel.Req): void {
   }
   console.info('sendMessage', msg);
   global.addon.sendMsg(
-    JSON.stringify(msg),
+    JSON.stringify({
+      version: '1.0',
+      modules: [msg],
+    }),
   );
 }
 
