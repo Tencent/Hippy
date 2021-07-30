@@ -1,21 +1,32 @@
 <template>
   <div id="demo-waterfall">
-    <ul-refresh-wrapper ref="header" style="flex:1;" @refresh="onRefresh">
+    <ul-refresh-wrapper
+      ref="header"
+      style="flex:1;"
+      @refresh="onRefresh"
+    >
       <ul-refresh class="refresh-header">
-        <p class="refresh-text">{{ refreshText }}</p>
+        <p class="refresh-text">
+          {{ refreshText }}
+        </p>
       </ul-refresh>
       <waterfall
         ref="gridView"
         :column-spacing="columnSpacing"
-        :contain-banner-view="true"
+        :contain-banner-view="isIos"
         :contain-pull-footer="true"
         :inter-item-spacing="interItemSpacing"
         :number-of-columns="numberOfColumns"
         :preload-item-number="0"
-        :style="{flex: 1}"
-        @onEndReached="onEndReached"
+        :style="{flex: 1, marginHorizontal: listMargin}"
+        @endReached="onEndReached"
+        @scroll="onScroll"
       >
-        <div :type="1" class="banner-view">
+        <div
+          v-if="isIos"
+          class="banner-view"
+          :type="1"
+        >
           <span>BannerView</span>
         </div>
         <waterfall-item
@@ -25,9 +36,18 @@
           :type="'item_' + ui.style"
           @click="() => onItemClick(index)"
         >
-          <style-one v-if="ui.style === 1" :itemBean="ui.itemBean"/>
-          <style-two v-if="ui.style === 2" :itemBean="ui.itemBean"/>
-          <style-five v-if="ui.style === 5" :itemBean="ui.itemBean"/>
+          <style-one
+            v-if="ui.style === 1"
+            :item-bean="ui.itemBean"
+          />
+          <style-two
+            v-if="ui.style === 2"
+            :item-bean="ui.itemBean"
+          />
+          <style-five
+            v-if="ui.style === 5"
+            :item-bean="ui.itemBean"
+          />
         </waterfall-item>
 
         <pull-footer>
@@ -57,6 +77,7 @@ export default {
       STYLE_LOADING,
       loadingState: '正在加载...',
       isLoading: false,
+      isIos: Vue.Native.Platform.OS === 'ios',
     };
   },
   computed: {
@@ -64,8 +85,12 @@ export default {
       return this.isRefreshing ? '正在刷新' : '下拉刷新';
     },
     itemWidth() {
-      const width = 375 - this.contentInset.left - this.contentInset.right;
+      const screenWidth = Vue.Native.Dimensions.screen.width;
+      const width = screenWidth - this.listMargin * 2 - this.contentInset.left - this.contentInset.right;
       return (width - ((this.numberOfColumns - 1) * this.columnSpacing)) / this.numberOfColumns;
+    },
+    listMargin() {
+      return 5;
     },
     columnSpacing() {
       return 6;
@@ -77,8 +102,16 @@ export default {
       return 2;
     },
     contentInset() {
-      return {top: 0, left: 0, bottom: 0, right: 0};
+      return { top: 0, left: 0, bottom: 0, right: 0 };
     },
+  },
+  mounted() {
+    setTimeout(() => {
+      this.$refs.gridView.scrollToContentOffset({
+        yOffset: 400,
+        animated: true,
+      });
+    }, 3000);
   },
   methods: {
     mockFetchData() {
@@ -86,10 +119,10 @@ export default {
         setTimeout(() => {
           this.fetchTimes += 1;
           if (this.fetchTimes >= MAX_FETCH_TIMES) {
-            return resolve(null);
+            return resolve([]);
           }
           return resolve([...mockData, ...mockData]);
-        }, 3000);
+        }, 1000);
       });
     },
     async onRefresh() {
@@ -100,8 +133,11 @@ export default {
       this.dataSource = dataSource.reverse();
       this.$refs.header.refreshCompleted();
     },
+    onScroll(evt) {
+      console.log('waterfall onScroll', evt);
+    },
     async onEndReached() {
-      const {dataSource} = this;
+      const { dataSource } = this;
       // 检查锁，如果在加载中，则直接返回，防止二次加载数据
       if (this.isLoading) {
         return;
@@ -116,14 +152,13 @@ export default {
         this.isLoading = false;
         return;
       }
-
       this.dataSource = [...dataSource, ...newData];
       this.isLoading = false;
     },
 
     onItemClick(index) {
-      this.$refs.gridView.scrollToIndex({index, animation: true})
-    }
+      this.$refs.gridView.scrollToIndex({ index, animation: true });
+    },
   },
 };
 </script>
@@ -145,8 +180,8 @@ export default {
 }
 
 #demo-waterfall .banner-view {
-  background-color: red;
-  height: 250px;
+  background-color: grey;
+  height: 100px;
   display: flex;
   justify-content: center;
   align-items: center;

@@ -179,34 +179,62 @@
 
 `() => void` 收起底部刷新条 `<pull-footer>`。
 
+---
+
 # waterfall
+
+> 最低支持版本 2.8.0
 
 [[范例：demo-waterfall]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-waterfall.vue)
 
-瀑布流组件，子元素必须是 `waterfall-item` ,瀑布流组件下拉刷新需在最外层用`ul-refresh-wrapper`, 可在`waterfall`内用`pull-footer`展示上拉加载文案
+瀑布流组件，子元素必须是 `waterfall-item` ，瀑布流组件下拉刷新需在最外层用`ul-refresh-wrapper`， 可在`waterfall` 内用 `pull-footer` 展示上拉加载文案。
 
 ## 参数
 
 | 参数              | 描述                                                  | 类型       | 支持平台 |
 | ----------------- | ----------------------------------------------------- | ---------- | -------- |
-| columnSpacing     | item间竖向间距                                        | `number`   | `ALL`    |
-| interItemSpacing  | item间横向间距                                        | `number`   | `ALL`    |
-| contentInset      | 内容缩进{top:0, left:0,bottom:0,right:0}              | `Object`   | `ALL`    |
-| containBannerView | 是否包含`bannerView`，只能有一个bannerView,安卓暂不支持  | `boolean`  | `iOS`    |
+| columnSpacing     | item 间竖向间距                                        | `number`   | `ALL`    |
+| interItemSpacing  | item 间横向间距                                        | `number`   | `ALL`    |
+| contentInset      | 内容缩进 `{ top:0, left:0, bottom:0, right:0 }`              | `Object`   | `ALL`    |
+| containBannerView | 是否包含`bannerView`，只能有一个bannerView，`Android` 暂不支持  | `boolean`  | `iOS`    |
+| containPullHeader | 是否包含`pull-header`，`Android` 暂不支持                           | `boolean`  | `iOS`    |
+| containPullFooter | 是否包含 `pull-footer`，`Android` 暂不支持                                 | `boolean`  | `iOS`    |
 | numberOfColumns   | 列数量                                                | `number`   | `ALL`    |
-| preloadItemNumber | 预加载item数量                                        | `number`   | `ALL`    |
-| containPullHeader | 是否包含`pull-header`, 预留                           | `boolean`  | `iOS`    |
-| containPullFooter | 是否包含 `pull-footer`                                | `boolean`  | `iOS`    |
-| onEndReached      | 拖动时触发                                            | `Function` | `ALL`    |
-| onScroll          | 滚动时触发                                            | `Function` | `iOS`    |
+| preloadItemNumber | 预加载 item 数量                                        | `number`   | `ALL`    |
 
 ## 事件
 
 | 事件名称              | 描述           | `类型`     | 支持平台 |
 | --------------------- | -------------- | ---------- | -------- |
-| scrollToIndex         | 滚动到指定索引 | `Function` | `ALL`    |
-| scrollToContentOffset | 滚动到指定位置 | `Function` | `ALL`    |
+| endReached      | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `onEndReached` 回调。                                           | `Function` | `ALL`    |
+| scroll          | 当触发 `WaterFall` 的滑动事件时回调。`startEdgePos`表示距离 List 顶部边缘滚动偏移量；`endEdgePos`表示距离 List 底部边缘滚动偏移量；`firstVisibleRowIndex`表示当前可见区域内第一个元素的索引；`lastVisibleRowIndex`表示当前可见区域内最后一个元素的索引；`visibleRowFrames`表示当前可见区域内所有 item 的信息(x，y，width，height)    | `{ nativeEvent: { startEdgePos: number, endEdgePos: number, firstVisibleRowIndex: number, lastVisibleRowIndex: number, visibleRowFrames: Object[] } }` | `ALL`    |
+
+## 方法
+
+### scrollToIndex
+
+`(obj: { index: number, animated: boolean }) => void` 通知 Waterfall 滑动到第几个 item。
+
+> * `index`: number - 滑动到的第 index 个 item
+> * `animated`: boolean - 滑动过程是否使用动画, 默认 `true`
+
+### scrollToContentOffset
+
+`(obj: { xOffset: number, yOffset: number, animated: boolean }) => void` 通知 Waterfall 滑动到某个具体坐标偏移值(offset)的位置。
+
+> * `xOffset`: number - 滑动到 X 方向的 offset
+> * `yOffset`: number - 滑动到 Y 方向的 offset
+> * `animated`: boolean - 滑动过程是否使用动画，默认 `true`
+
+---
 
 # waterfall-item
 
-瀑布流组件Cell容器，瀑布流子元素
+> 最低支持版本 2.8.0
+
+瀑布流组件 Cell 容器，瀑布流子元素
+
+| 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
+| --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
+| type            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升 List 性能。 | `number`              | `ALL`    |
+| key             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [Vue 官文](//cn.vuejs.org/v2/guide/list.html) | `string`                                    | `ALL`    |
