@@ -129,7 +129,7 @@ import icon from './qb_icon_new.png';
 `(xOffset: number, yOffset: number: animated: boolean) => void` 通知 ListView 滑动到某个具体坐标偏移值(offset)的位置。
 
 > * `xOffset`: number - 滑动到 X 方向的 offset
-> * `yOffset`: numbere - 滑动到 Y 方向的 offset
+> * `yOffset`: number - 滑动到 Y 方向的 offset
 > * `animated`: boolean - 滑动过程是否使用动画
 
 ### scrollToIndex

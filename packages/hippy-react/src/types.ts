@@ -34,7 +34,7 @@ export interface LayoutableProps {
    * @param {number} evt.nativeEvent.x - The position X of component
    * @param {number} evt.nativeEvent.y - The position Y of component
    * @param {number} evt.nativeEvent.width - The width of component
-   * @param {number} evt.nativeEvent.hegiht - The height of component
+   * @param {number} evt.nativeEvent.height - The height of component
    */
   onLayout?(evt: LayoutEvent): void;
 }
@@ -86,7 +86,7 @@ export interface TouchableProps {
    *
    * @param {Object} evt - Touch event data
    * @param {number} evt.page_x - Touch coordinate X
-   * @param {number} evt.page_y = Touch coordinate Y
+   * @param {number} evt.page_y - Touch coordinate Y
    */
   onTouchCancel?(evt: TouchEvent): void;
 }
