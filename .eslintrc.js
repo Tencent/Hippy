@@ -52,6 +52,7 @@ module.exports = {
     WebSocket: 'readonly',
   },
   rules: {
+    semi: ['error', 'always'],
     // Allow more than one component per file
     'vue/one-component-per-file': 'off',
 

@@ -40,6 +40,17 @@
         <p>{{ Vue.Native.OSVersion || 'null' }}</p>
       </div>
 
+      <!-- 国际化相关信息 -->
+      <div
+        class="native-block"
+      >
+        <label class="vue-native-title">Vue.Native.Localization</label>
+        <p>{{ `国际化相关信息` }}</p>
+        <p>{{ `国家 ${Vue.Native.Localization.country}` }}</p>
+        <p>{{ `语言 ${Vue.Native.Localization.language}` }}</p>
+        <p>{{ `方向 ${Vue.Native.Localization.direction === 1 ? 'RTL' : 'LTR'}` }}</p>
+      </div>
+
       <!-- API 版本，目前仅限 Android 使用，其它平台返回 null -->
       <div
         v-if="Vue.Native.Platform === 'android'"
@@ -372,6 +383,10 @@ export default {
   .native-block {
     margin-top: 15px;
     margin-bottom: 15px;
+  }
+
+  .native-block p {
+    marginVertical: 5px;
   }
 
   .vue-native-title {

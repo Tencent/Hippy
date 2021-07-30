@@ -58,7 +58,7 @@ public class BackgroundDrawable extends BaseDrawable
 	private Path	mPathForBorderRadius;
 	private boolean	mNeedUpdateBorderPath	= false;
 
-	private final Paint mShadowPaint;
+	private Paint mShadowPaint;
 	private Paint gradientPaint;
 	private String gradientAngleDesc;
 	private int gradientAngle = Integer.MAX_VALUE;
@@ -79,7 +79,6 @@ public class BackgroundDrawable extends BaseDrawable
 	public BackgroundDrawable()
 	{
 		mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-		mShadowPaint = new Paint();
 	}
   
   @Override
@@ -403,6 +402,10 @@ public class BackgroundDrawable extends BaseDrawable
 			  }
 		  }
 	  }
+
+	  if (mShadowPaint == null) {
+			mShadowPaint = new Paint();
+		}
 
 	  mShadowPaint.setColor(Color.TRANSPARENT);
 	  mShadowPaint.setAntiAlias(true);

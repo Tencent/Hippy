@@ -19,10 +19,12 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.os.Build;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.HorizontalScrollView;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
+import com.tencent.mtt.hippy.utils.I18nUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.supportui.views.ScrollChecker;
@@ -68,6 +70,18 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
     super(context);
     mHippyOnScrollHelper = new HippyOnScrollHelper();
     setHorizontalScrollBarEnabled(false);
+
+    if (I18nUtil.isRTL()) {
+      setRotationY(180f);
+    }
+  }
+
+  @Override
+  public void onViewAdded(View child) {
+    if (I18nUtil.isRTL()) {
+      child.setRotationY(180f);
+    }
+    super.onViewAdded(child);
   }
 
   public void setScrollEnabled(boolean enabled) {
