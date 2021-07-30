@@ -1,14 +1,22 @@
-/**
- * Copyright (c) 2017-present, Tencent, Inc.
- * All rights reserved.
- * Author: ianwang <ianwang@tencent.com>
- * Created on: 2017-12-31
+/* Tencent is pleased to support the open source community by making Hippy
+ * available. Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights
+ * reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
-#ifndef MTTUTIL_H_
-#define MTTUTIL_H_
+#pragma once
 
-#include "MTTFlex.h"
 #include <assert.h>
 #include <math.h>
 #include <stdarg.h>
@@ -16,26 +24,30 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-//#define __DEBUG__
-//#define LAYOUT_TIME_ANALYZE
+#include <cmath>
+
+#include "MTTFlex.h"
+
+// #define __DEBUG__
+// #define LAYOUT_TIME_ANALYZE
 #define ASSERT(e) (assert(e))
 #define nullptr (NULL)
 #define VALUE_AUTO (NAN)
 #define VALUE_UNDEFINED (NAN)
-#define isUndefined(n) (isnan(n))
-#define isAuto(n) (isnan(n))
-#define isDefined(n) (!isnan(n))
+#define isUndefined(n) (std::isnan(n))
+#define isAuto(n) (std::isnan(n))
+#define isDefined(n) (!std::isnan(n))
 #define PixelRound(value, scale) (roundf((value) * (scale)) / (scale))
 #define PixelRoundInt(value) (roundf(value))
-#define NanAsINF(n) (isnan(n) ? INFINITY : n)
+#define NanAsINF(n) (std::isnan(n) ? INFINITY : n)
 
 typedef enum {
-    LogLevelInfo,
-    LogLevelVerbose,
-    LogLevelDebug,
-    LogLevelWarn,
-    LogLevelError,
-    LogLevelFatal,
+  LogLevelInfo,
+  LogLevelVerbose,
+  LogLevelDebug,
+  LogLevelWarn,
+  LogLevelError,
+  LogLevelFatal,
 } LogLevel;
 
 #define MTTLogd(...) MTTLog(LogLevelDebug, __VA_ARGS__)
@@ -47,5 +59,3 @@ bool FloatIsEqualInScale(float a, float b, float scale);
 bool MTTSizeIsEqual(MTTSize a, MTTSize b);
 bool MTTSizeIsEqualInScale(MTTSize a, MTTSize b, float scale);
 float MTTRoundValueToPixelGrid(float value, bool forceCeil, bool forceFloor);
-
-#endif

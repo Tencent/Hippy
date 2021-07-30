@@ -16,6 +16,9 @@ import {
   capitalizeFirstLetter,
   convertImageLocalPath,
 } from '../../util';
+import {
+  isRTL,
+} from '../../util/i18n';
 
 const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
 
@@ -212,6 +215,22 @@ function getNativeProps(node) {
 }
 
 /**
+ * parse TextInput component on special condition
+ * @param targetNode
+ * @param style
+ */
+function parseTextInputComponent(targetNode, style) {
+  if (targetNode.meta.component.name === 'TextInput') {
+    // Change textAlign to right if display direction is right to left.
+    if (isRTL()) {
+      if (!style.textAlign) {
+        style.textAlign = 'right';
+      }
+    }
+  }
+}
+
+/**
  * parse view component on special condition
  * @param targetNode
  * @param nativeNode
@@ -229,6 +248,8 @@ function parseViewComponent(targetNode, nativeNode, style) {
       nativeNode.name = 'ScrollView';
       // Necessary for horizontal scrolling
       nativeNode.props.horizontal = true;
+      // Change flexDirection to row-reverse if display direction is right to left.
+      style.flexDirection = isRTL() ? 'row-reverse' : 'row';
     }
     // Change the ScrollView child collapsable attribute
     if (nativeNode.name === 'ScrollView') {
@@ -339,6 +360,7 @@ function renderToNative(rootViewId, targetNode) {
   }
 
   parseViewComponent(targetNode, nativeNode, style);
+  parseTextInputComponent(targetNode, style);
   return nativeNode;
 }
 

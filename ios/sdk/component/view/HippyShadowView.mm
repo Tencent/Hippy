@@ -27,6 +27,8 @@
 #import "HippyUtils.h"
 #import "UIView+Hippy.h"
 #import "UIView+Private.h"
+#import "MTTNode.h"
+#import "HippyI18nUtils.h"
 
 static NSString *const HippyBackgroundColorProp = @"backgroundColor";
 
@@ -149,14 +151,22 @@ DEFINE_PROCESS_META_PROPS(Border);
         return;
     }
     MTTNodesetHasNewLayout(node, false);
-    CGPoint absoluteTopLeft = { absolutePosition.x + MTTNodeLayoutGetLeft(node), absolutePosition.y + MTTNodeLayoutGetTop(node) };
+    float left = MTTNodeLayoutGetLeft(node);
+    float top = MTTNodeLayoutGetTop(node);
+    if (!MTTNodeGetParent(_nodeRef)) {
+        left = MTTNodeLayoutGetPosition(_nodeRef, CSSLeft);
+        top = MTTNodeLayoutGetPosition(_nodeRef, CSSTop);
+    }
+    float width = MTTNodeLayoutGetWidth(node);
+    float height = MTTNodeLayoutGetHeight(node);
+    CGPoint absoluteTopLeft = { absolutePosition.x + left, absolutePosition.y + top };
 
-    CGPoint absoluteBottomRight = { absolutePosition.x + MTTNodeLayoutGetLeft(node) + MTTNodeLayoutGetWidth(node),
-        absolutePosition.y + MTTNodeLayoutGetTop(node) + MTTNodeLayoutGetHeight(node) };
+    CGPoint absoluteBottomRight = { absolutePosition.x + left + width,
+        absolutePosition.y + top + height };
 
     CGRect frame = { {
-                         HippyRoundPixelValue(MTTNodeLayoutGetLeft(node)),
-                         HippyRoundPixelValue(MTTNodeLayoutGetTop(node)),
+                         HippyRoundPixelValue(left),
+                         HippyRoundPixelValue(top),
                      },
         { HippyRoundPixelValue(absoluteBottomRight.x - absoluteTopLeft.x), HippyRoundPixelValue(absoluteBottomRight.y - absoluteTopLeft.y) } };
 
@@ -307,7 +317,10 @@ DEFINE_PROCESS_META_PROPS(Border);
     }
 
     //  CSSNodeCalculateLayout(_cssNode, frame.size.width, frame.size.height, CSSDirectionInherit);
-    MTTNodeDoLayout(_nodeRef, frame.size.width, frame.size.height);
+    NSWritingDirection direction = [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
+    MTTDirection nodeDirection = (NSWritingDirectionRightToLeft == direction) ? DirectionRTL : DirectionLTR;
+    nodeDirection = self.layoutDirection != DirectionInherit ? self.layoutDirection : nodeDirection;
+    MTTNodeDoLayout(_nodeRef, frame.size.width, frame.size.height, nodeDirection);
     //  [self applyLayoutNode:_cssNode viewsWithNewFrame:viewsWithNewFrame absolutePosition:absolutePosition];
     [self applyLayoutNode:_nodeRef viewsWithNewFrame:viewsWithNewFrame absolutePosition:absolutePosition];
 }
@@ -355,7 +368,6 @@ DEFINE_PROCESS_META_PROPS(Border);
         _hippySubviews = [NSMutableArray array];
 
         _nodeRef = MTTNodeNew();
-        MTTNodeSetContext(_nodeRef, (__bridge void *)self);
     }
     return self;
 }
@@ -613,6 +625,11 @@ static inline void x5AssignSuggestedDimension(MTTNodeRef cssNode, Dimension dime
 - (void)setSize:(CGSize)size {
     MTTNodeStyleSetWidth(_nodeRef, size.width);
     MTTNodeStyleSetHeight(_nodeRef, size.height);
+}
+
+- (void)setLayoutDirection:(MTTDirection)layoutDirection {
+    _layoutDirection = layoutDirection;
+    MTTNodeStyleSetDirection(_nodeRef, layoutDirection);
 }
 
 // Flex

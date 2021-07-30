@@ -96,6 +96,7 @@ class Focusable extends React.Component<FocusableProps, FocusableState> {
 
     if (type === 'Text') {
       return (
+        // @ts-ignore
         <View
           focusable
           nextFocusDownId={nextFocusDown}

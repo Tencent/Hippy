@@ -11,6 +11,7 @@ import {
 } from '../index';
 import { setApp } from '../../../util';
 import { HIPPY_DEBUG_ADDRESS } from '../../../runtime/constants';
+import Native from '../../../runtime/native';
 
 const ROOT_VIEW_ID = 10;
 
@@ -540,6 +541,7 @@ test('a href attribute with http prefix test --production mode', (t) => {
 
 test('div with overflow-X scroll test --debug mode', (t) => {
   process.env.NODE_ENV = 'test';
+  Native.Localization = { direction: 0 };
   const node = DocumentNode.createElement('div');
   node.setStyle('overflowX', 'scroll');
   const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
@@ -555,6 +557,27 @@ test('div with overflow-X scroll test --debug mode', (t) => {
       },
       horizontal: true,
       style: {
+        flexDirection: 'row',
+        overflowX: 'scroll',
+      },
+    },
+    tagName: 'div',
+  });
+  Native.Localization = { direction: 1 };
+  const nativeLanguage2 = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeLanguage2, {
+    id: 33,
+    index: 0,
+    name: 'ScrollView',
+    pId: ROOT_VIEW_ID,
+    props: {
+      attributes: {
+        class: '',
+        id: '',
+      },
+      horizontal: true,
+      style: {
+        flexDirection: 'row-reverse',
         overflowX: 'scroll',
       },
     },
@@ -564,6 +587,7 @@ test('div with overflow-X scroll test --debug mode', (t) => {
 
 test('div with overflow-X scroll test --production mode', (t) => {
   process.env.NODE_ENV = 'production';
+  Native.Localization = { direction: 0 };
   const node = DocumentNode.createElement('div');
   node.setStyle('overflowX', 'scroll');
   const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
@@ -575,13 +599,29 @@ test('div with overflow-X scroll test --production mode', (t) => {
     props: {
       horizontal: true,
       style: {
+        flexDirection: 'row',
+        overflowX: 'scroll',
+      },
+    },
+  });
+  Native.Localization = { direction: 1 };
+  const nativeLanguage2 = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeLanguage2, {
+    id: 34,
+    index: 0,
+    name: 'ScrollView',
+    pId: ROOT_VIEW_ID,
+    props: {
+      horizontal: true,
+      style: {
+        flexDirection: 'row-reverse',
         overflowX: 'scroll',
       },
     },
   });
 });
 
-test('div with overflowX scroll test --debug mode', (t) => {
+test('div with overflowY scroll test --debug mode', (t) => {
   process.env.NODE_ENV = 'test';
   const node = DocumentNode.createElement('div');
   node.setStyle('overflowY', 'scroll');
@@ -604,7 +644,7 @@ test('div with overflowX scroll test --debug mode', (t) => {
   });
 });
 
-test('div with overflowX scroll test --production mode', (t) => {
+test('div with overflowY scroll test --production mode', (t) => {
   process.env.NODE_ENV = 'production';
   const node = DocumentNode.createElement('div');
   node.setStyle('overflowY', 'scroll');
