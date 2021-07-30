@@ -42,6 +42,8 @@ typedef NS_ENUM(NSUInteger, HippyPLTag) {
     HippyPLTTI,
     HippyPLBundleSize,
     HippySecondaryStartup,
+    HippySecondaryLoadSource,
+    HippySecondaryExecuteSource,
     HippyCommonLoadSource,
     HippyExecuteSource,
     HippyFeedsTimeCost,
