@@ -80,6 +80,12 @@ console.log(Vue.Native.PixelRatio); // => 3
 
 一个像素的 dp/pt 值。
 
+## Localization
+
+>* 最低支持版本 2.8.0
+
+输出国际化相关信息，`object: { country: string , language: string, direction: number }`， 其中 `direction` 为 0 表示 LTR 方向，1 表示 RTL 方向
+
 ---
 
 # AsyncStorage

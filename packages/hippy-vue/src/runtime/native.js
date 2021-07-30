@@ -22,6 +22,7 @@ const {
   device: {
     platform: {
       OS: Platform,
+      Localization = {},
     },
     screen: {
       scale: PixelRatio,
@@ -110,6 +111,11 @@ const Native = {
    * Get the running operating system.
    */
   Platform,
+
+  /**
+   * Get the localization of country, language and direction
+   */
+  Localization,
 
   /**
    * Hippy-Vue version

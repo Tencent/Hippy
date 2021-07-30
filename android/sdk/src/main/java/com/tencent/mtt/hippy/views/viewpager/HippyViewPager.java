@@ -19,6 +19,7 @@ import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
+import com.tencent.mtt.hippy.utils.I18nUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.supportui.views.viewpager.ViewPager;
 
@@ -60,6 +61,18 @@ public class HippyViewPager extends ViewPager implements HippyViewBase {
     setAdapter(createAdapter(context));
     setLeftDragOutSizeEnabled(false);
     setRightDragOutSizeEnabled(false);
+
+    if (I18nUtil.isRTL()) {
+      setRotationY(180f);
+    }
+  }
+
+  @Override
+  public void onViewAdded(View child) {
+    if (I18nUtil.isRTL()) {
+      child.setRotationY(180f);
+    }
+    super.onViewAdded(child);
   }
 
   public HippyViewPager(Context context, boolean isVertical) {

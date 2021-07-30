@@ -32,6 +32,7 @@ import com.tencent.mtt.hippy.adapter.image.HippyImageLoader;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.flex.*;
+import com.tencent.mtt.hippy.utils.I18nUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.text.HippyTextView;
@@ -98,6 +99,10 @@ public class TextNode extends StyleNode {
     this.mIsVirtual = mIsVirtual;
     if (!mIsVirtual) {
       setMeasureFunction(TEXT_MEASURE_FUNCTION);
+    }
+
+    if (I18nUtil.isRTL()) {
+      mTextAlign = Layout.Alignment.ALIGN_OPPOSITE;
     }
   }
 
@@ -260,16 +265,14 @@ public class TextNode extends StyleNode {
   @SuppressWarnings("unused")
   @HippyControllerProps(name = NodeProps.TEXT_ALIGN, defaultType = HippyControllerProps.STRING, defaultString = "left")
   public void setTextAlign(String textAlign) {
-    if (textAlign == null || "auto".equals(textAlign)) {
-      mTextAlign = Layout.Alignment.ALIGN_NORMAL;
+    if (textAlign == null || "auto".equals(textAlign) || "justify".equals(textAlign)) {
+      mTextAlign = I18nUtil.isRTL() ? Layout.Alignment.ALIGN_OPPOSITE : Layout.Alignment.ALIGN_NORMAL;
     } else if ("left".equals(textAlign)) {
       mTextAlign = Layout.Alignment.ALIGN_NORMAL;
     } else if ("right".equals(textAlign)) {
       mTextAlign = Layout.Alignment.ALIGN_OPPOSITE;
     } else if ("center".equals(textAlign)) {
       mTextAlign = Layout.Alignment.ALIGN_CENTER;
-    } else if ("justify".equals(textAlign)) {
-      mTextAlign = Layout.Alignment.ALIGN_NORMAL;
     } else {
       throw new RuntimeException("Invalid textAlign: " + textAlign);
     }
