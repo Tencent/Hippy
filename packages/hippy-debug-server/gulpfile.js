@@ -18,6 +18,7 @@ gulp.task('compile', () => {
 gulp.task('copy-resource', function(cb) {
   gulp.src(['src/build/**/*']).pipe(gulp.dest('dist/build'));
   gulp.src(['src/public/**/*']).pipe(gulp.dest('dist/public'));
+  gulp.src(['src/@types/**/*']).pipe(gulp.dest('dist/@types'));
   cb();
 });
 
