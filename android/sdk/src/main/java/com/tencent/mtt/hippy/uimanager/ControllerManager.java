@@ -54,7 +54,7 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
 
   public ControllerManager(HippyEngineContext context, List<HippyAPIProvider> hippyPackages) {
     mContext = context;
-    mControllerRegistry = new ControllerRegistry();
+    mControllerRegistry = new ControllerRegistry(context);
     mControllerUpdateManger = new ControllerUpdateManger();
     mContext.addInstanceLifecycleEventListener(this);
     processControllers(hippyPackages);
