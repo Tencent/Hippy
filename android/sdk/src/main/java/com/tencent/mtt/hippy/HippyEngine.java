@@ -72,14 +72,14 @@ public abstract class HippyEngine {
     LibraryLoader.loadLibraryIfNeed();
   }
 
-  public static void setCLogHandler(HippyCLogHandler handler) {
+  public static void setNativeLogHandler(IHippyNativeLogHandler handler) {
     if (handler != null) {
-      initLogger(handler);
+      initNativeLogHandler(handler);
     }
   }
 
   @SuppressWarnings("JavaJniMissingFunction")
-  private static native void initLogger(HippyCLogHandler handler);
+  private static native void initNativeLogHandler(IHippyNativeLogHandler handler);
 
   /**
    * @param params 创建实例需要的参数 创建一个HippyEngine实例

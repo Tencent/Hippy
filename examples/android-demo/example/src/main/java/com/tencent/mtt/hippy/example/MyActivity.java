@@ -5,12 +5,12 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Window;
 
-import com.tencent.mtt.hippy.HippyCLogHandler;
 import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyAPIProvider;
 import com.tencent.mtt.hippy.HippyEngine.EngineInitStatus;
 import com.tencent.mtt.hippy.HippyEngine.ModuleLoadStatus;
 import com.tencent.mtt.hippy.HippyRootView;
+import com.tencent.mtt.hippy.IHippyNativeLogHandler;
 import com.tencent.mtt.hippy.adapter.exception.HippyExceptionHandlerAdapter;
 import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
@@ -32,12 +32,8 @@ public class MyActivity extends Activity
 		super.onCreate(savedInstanceState);
 		getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 
-		HippyEngine.setCLogHandler(new HippyCLogHandler() {
-			@Override
-			public void onReceiveLogMessage(String msg) {
-				Log.e("HippyCLogHandler", "onReceiveLogMessage: " + msg);
-			}
-		});
+		HippyEngine.setNativeLogHandler(
+				msg -> Log.e("HippyCore", "onReceiveNativeLogMessage: " + msg));
 
 		// 1/3. 初始化hippy引擎
 		{
