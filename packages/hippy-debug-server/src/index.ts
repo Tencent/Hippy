@@ -3,7 +3,7 @@
 import yargs from 'yargs';
 import { startServer } from './server';
 import { initHippyEnv, initVoltronEnv, initTdfEnv } from './client';
-import { DevtoolsEnv } from './@types/enum'
+import { DevtoolsEnv } from './@types/enum';
 
 const { argv } = yargs
   .alias('v', 'version')
@@ -40,30 +40,35 @@ const { argv } = yargs
     default: false,
     describe: 'Output error details',
   })
-  .option('startIWDP', {
+  .option('useTunnel', {
     type: 'boolean',
     default: true,
+    describe: 'weature use tunnel, which integrated ios_webkit_debug_proxy',
+  })
+  .option('startIWDP', {
+    type: 'boolean',
+    default: false,
     describe: 'weature use ios_webkit_debug_proxy',
   })
   .option('startAdb', {
     type: 'boolean',
     default: true,
-    describe: 'weature use ios_webkit_debug_proxy',
+    describe: 'weature use adb reverse',
   })
   .option('iwdpPort', {
     type: 'number',
     default: 9000,
-    describe: 'Port of ios_webkit_debug_proxy'
+    describe: 'Device list port of ios_webkit_debug_proxy',
   })
   .option('iwdpStartPort', {
     type: 'number',
     default: 9200,
-    describe: 'Start port of ios_webkit_debug_proxy'
+    describe: 'Start device port of ios_webkit_debug_proxy',
   })
   .option('iwdpEndPort', {
     type: 'number',
     default: 9300,
-    describe: 'End port of ios_webkit_debug_proxy'
+    describe: 'End device port of ios_webkit_debug_proxy',
   })
   .option('env', {
     type: 'string',
@@ -84,12 +89,9 @@ if (argv.version) {
   yargs.version().exit(0, null);
 }
 
-if (argv.env === DevtoolsEnv.Hippy)
-  initHippyEnv();
-else if (argv.env === DevtoolsEnv.Voltron)
-  initVoltronEnv();
-else if(argv.env === DevtoolsEnv.TDF)
-  initTdfEnv();
+if (argv.env === DevtoolsEnv.Hippy) initHippyEnv();
+else if (argv.env === DevtoolsEnv.Voltron) initVoltronEnv();
+else if (argv.env === DevtoolsEnv.TDF) initTdfEnv();
 
 // Execute command
 startServer(argv);

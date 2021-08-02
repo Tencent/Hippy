@@ -3,19 +3,11 @@ import serve from 'koa-static';
 import path from 'path';
 import { SocketBridge } from './socket-bridge';
 import chromeInspectRouter from './router/chrome-inspect-router';
-import { startAdbProxy, startIosProxy } from './child-process';
-import { TunnelData } from './@types/tunnel';
-import deviceManager from './device-manager';
-import { TunnelEvent } from './@types/enum';
-import { onMessage } from './message-channel/tunnel';
-import { appClientManager } from './client';
+import { startAdbProxy, startIosProxy, startTunnel } from './child-process';
 import createDebug from 'debug';
 import kill from 'kill-port';
 
 const debug = createDebug('server');
-// const addon = require('./build/Tunnel.node');
-// global.addon = addon;
-
 let server;
 
 export const startServer = async (argv) => {
@@ -30,13 +22,13 @@ export const startServer = async (argv) => {
     startAdb,
     startIWDP,
     clearAddrInUse,
+    useTunnel,
   } = argv;
-  if(clearAddrInUse) {
+  if (clearAddrInUse) {
     try {
       await kill(port, 'tcp');
       await kill(iwdpPort, 'tcp');
-    }
-    catch(e) {
+    } catch (e) {
       return debug('Address already in use!');
     }
   }
@@ -45,11 +37,9 @@ export const startServer = async (argv) => {
 
     server = app.listen(port, host, () => {
       debug('start koa dev server');
-      // startTunnel(iwdpPort);
-      if(startAdb)
-        startAdbProxy(port);
-      if(startIWDP)
-        startIosProxy(iwdpPort, iwdpStartPort, iwdpEndPort);
+      if (useTunnel) startTunnel({ iwdpPort, iwdpStartPort, iwdpEndPort });
+      else if (startIWDP) startIosProxy({ iwdpPort, iwdpStartPort, iwdpEndPort });
+      if (startAdb) startAdbProxy(port);
 
       new SocketBridge(server, argv);
       resolve(null);
@@ -72,23 +62,23 @@ export const startServer = async (argv) => {
     app.use(chromeInspectRouter(argv).routes()).use(chromeInspectRouter(argv).allowedMethods());
 
     let servePath;
-    if(staticPath) {
+    if (staticPath) {
       servePath = path.resolve(staticPath);
     } else {
       servePath = path.resolve(path.dirname(entry));
     }
-    debug(`serve bundle: ${entry} \nserve folder: ${servePath}`)
+    debug(`serve bundle: ${entry} \nserve folder: ${servePath}`);
     const serveOption = {
       maxage: 30 * 24 * 60 * 60 * 1000,
     };
     app.use(serve(servePath));
     app.use(serve(path.join(__dirname, 'public'), serveOption));
   });
-}
+};
 
 export const stopServer = (exitProcess: boolean = false) => {
-  if(!server) {
-    if(exitProcess)
+  if (!server) {
+    if (exitProcess)
       setTimeout(() => {
         process.exit(0);
       }, 100);
@@ -98,36 +88,14 @@ export const stopServer = (exitProcess: boolean = false) => {
     debug('stopServer');
     server.close();
     server = null;
-    if(exitProcess)
+    if (exitProcess)
       setTimeout(() => {
         process.exit(0);
       }, 100);
-  }
-  catch(e) {
+  } catch (e) {
     debug('stopServer error, %j', e);
   }
-}
-
-const startTunnel = (iwdpPort) => {
-  const adbPath = path.join(__dirname, './build/adb');
-  const iwdpParams = `--no-frontend --config=null:${iwdpPort},:${iwdpPort + 100}-${iwdpPort + 200}`
-  // global.addon.addEventListener((event, data: TunnelData) => {
-  //   debug(`receive tunnel event: ${event}`);
-
-    // if (event === TunnelEvent.GetWebsocketPort) {
-    //   // createTunnelClient();
-    // } else if ([TunnelEvent.RemoveDevice, TunnelEvent.AddDevice].indexOf(event) !== -1) {
-    //   deviceManager.getDeviceList();
-    // } else if (event === TunnelEvent.AppConnect) {
-    //   deviceManager.appDidConnect();
-    // } else if (event === TunnelEvent.appDisconnect) {
-    //   deviceManager.appDidDisConnect();
-    // } else if (event === TunnelEvent.ReceiveData) {
-    //   onMessage(data);
-    // }
-  // });
-  // addon.tunnelStart(adbPath, iwdpParams);
-}
+};
 
 process.on('exit', () => stopServer(true));
 // catch ctrl c

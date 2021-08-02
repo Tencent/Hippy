@@ -12,7 +12,7 @@ export default class CssDomain {
 
   static intToRGBA(int32Color) {
     const int = int32Color << 0;
-    const int32 = (int << 8 | int >>> 24) >>> 0;
+    const int32 = ((int << 8) | (int >>> 24)) >>> 0;
     const int8 = new Uint8Array(new Uint32Array([int32]).buffer).reverse();
     const r = int8[0];
     const g = int8[1];
@@ -24,7 +24,7 @@ export default class CssDomain {
   static rgbaToInt(stringColor) {
     const uint8 = color(stringColor, 'uint8');
     const int = Buffer.from(uint8).readUInt32BE(0);
-    return (int << 24 | int >>> 8) >>> 0;
+    return ((int << 24) | (int >>> 8)) >>> 0;
   }
 
   static getMethodName(type, method) {
@@ -32,9 +32,9 @@ export default class CssDomain {
   }
 
   static skipStyle(styleName) {
-    return CssDomain.skipStyleList.some(name => name.toString().trim()
-      .toLowerCase() === styleName.toString().trim()
-      .toLowerCase());
+    return CssDomain.skipStyleList.some(
+      (name) => name.toString().trim().toLowerCase() === styleName.toString().trim().toLowerCase(),
+    );
   }
 
   static conversionInlineStyle(style) {
@@ -64,6 +64,7 @@ export default class CssDomain {
   }
 
   static conversionComputedStyle(style) {
+    if (!style) return [];
     return style.reduce((ret, item) => {
       if (!CssDomain.skipStyle(item.name)) {
         if (item.name.toLowerCase().includes('color')) {
@@ -84,7 +85,7 @@ export default class CssDomain {
       const b = channelList[2];
       let a = channelList.length > 3 ? channelList[channelList.length - 1] : 1;
       if (a.toString().includes('%')) {
-        a = (parseInt(a, 10) / 100);
+        a = parseInt(a, 10) / 100;
       }
       return `rgba(${r}, ${g}, ${b}, ${a})`;
     });
@@ -122,13 +123,15 @@ export default class CssDomain {
   }
 
   upSetStyleTexts(msg) {
-    msg.result.styles = msg.result.styles.map(style => CssDomain.conversionInlineStyle(style));
+    msg.result.styles = msg.result.styles.map((style) => CssDomain.conversionInlineStyle(style));
     return msg;
   }
 
   downSetStyleTexts(msg) {
     msg.params.edits = msg.params.edits.map((data) => {
-      const textList = data.text.trim().split(';')
+      const textList = data.text
+        .trim()
+        .split(';')
         .reduce((ret, styleItem) => {
           if (!styleItem.trim()) return ret;
           // eslint-disable-next-line prefer-const

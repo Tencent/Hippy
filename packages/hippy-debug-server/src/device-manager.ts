@@ -1,5 +1,5 @@
 import { DeviceInfo } from './@types/tunnel';
-import { DeviceStatus, DevicePlatform, DeviceManagerEvent } from './@types/enum';
+import { DeviceStatus, DeviceManagerEvent } from './@types/enum';
 import { EventEmitter } from 'events';
 import createDebug from 'debug';
 

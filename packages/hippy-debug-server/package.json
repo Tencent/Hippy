@@ -1,6 +1,6 @@
 {
   "name": "debug-server-next",
-  "version": "3.0.12",
+  "version": "3.0.15",
   "description": "Dev server for hippy-core.",
   "repository": "https://github.com/Tencent/Hippy/tree/master/packages/hippy-debug-server",
   "homepage": "http://hippyjs.org",
@@ -10,7 +10,7 @@
     "hippy-debug": "dist/index.js"
   },
   "scripts": {
-    "dev": "cross-env DEBUG=*,-koa-router TS_NODE_FILES=true node --inspect=127.0.0.1:9229 -r ts-node/register src/index.ts --entry=src/public/index.bundle",
+    "dev": "cross-env DEBUG=*,-↓↓↓,-↑↑↑,-koa-router TS_NODE_FILES=true node --inspect=127.0.0.1:9229 -r ts-node/register src/index.ts --entry=src/public/index.bundle",
     "build": "npx gulp",
     "test": "npx jest"
   },
