@@ -20,19 +20,14 @@ export function createTunnelClient() {
 export const tunnelMessageEmitter = new EventEmitter();
 export function onMessage(msg) {
   try {
-    const moduleObject: any = JSON.parse(msg).modules[0];
-    const message: string = moduleObject.content;
-    const id = msgModuleIdMap.get(moduleObject.module);
-    (moduleObject as any).id = id;
-    msgModuleIdMap.delete(moduleObject.module);
-
-    console.warn('on tunnel message', moduleObject.module, listeners.has(moduleObject.module));
-    if (listeners.has(moduleObject.module)) {
-      listeners.get(moduleObject.module).forEach((cb) => {
+    const message = JSON.parse(msg);
+    console.warn('on tunnel message', message.method, exports.listeners.has(message.method));
+    if (exports.listeners.has(message.method)) {
+      exports.listeners.get(message.method).forEach((cb) => {
         cb(message);
       });
     } else {
-      tunnelMessageEmitter.emit('message', moduleObject);
+      tunnelMessageEmitter.emit('message', message);
     }
   } catch (e) {
     console.error(`parse tunnel response json failed. ${e} \n${JSON.stringify(msg)}`);
@@ -47,12 +42,7 @@ export function sendMessage(msg: Tunnel.Req): void {
   }
   msgModuleIdMap.set(msg.module, (msg as any).id);
   console.info('sendMessage', msg);
-  global.addon.sendMsg(
-    JSON.stringify({
-      version: '1.0',
-      modules: [msg],
-    }),
-  );
+  global.addon.sendMsg(JSON.stringify(msg));
 }
 
 export function registerModuleCallback(module: string, callback: any): void {

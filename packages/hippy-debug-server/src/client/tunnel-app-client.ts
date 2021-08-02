@@ -23,10 +23,7 @@ export class TunnelAppClient extends AppClient {
   send(msg: Tunnel.Req) {
     if (!this.filter(msg)) return;
 
-    sendMessage({
-      module: 'jsDebugger',
-      content: msg,
-    });
+    sendMessage(msg);
   }
 
   resume() {
