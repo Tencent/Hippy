@@ -64,6 +64,18 @@ static void collectNonTextDescendants(HippyText *view, NSMutableArray *nonTextDe
     }];
 }
 
+- (void)removeHippySubview:(UIView *)subview {
+    if ([[self hippySubviews] containsObject:subview]) {
+        [super removeHippySubview:subview];
+    }
+    else {
+        NSArray<UIView *> *hippySubviews = [self hippySubviews];
+        for (UIView *hippySubview in hippySubviews) {
+            [hippySubview removeHippySubview:subview];
+        }
+    }
+}
+
 - (void)hippySetInheritedBackgroundColor:(__unused UIColor *)inheritedBackgroundColor {
     // mttrn:
     //	UIColor *backgroundColor = [self rightBackgroundColorOfTheme];
