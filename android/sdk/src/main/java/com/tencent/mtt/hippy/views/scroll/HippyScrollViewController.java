@@ -101,6 +101,20 @@ public class HippyScrollViewController<T extends ViewGroup & HippyScrollView> ex
     view.setScrollMinOffset(scrollMinOffset);
   }
 
+  @HippyControllerProps(name = "initialContentOffset", defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
+  public void setInitialContentOffset(HippyScrollView view, int offset) {
+    view.setInitialContentOffset((int)PixelUtil.dp2px(offset));
+  }
+
+  @Override
+  public void onBatchComplete(View view) {
+    super.onBatchComplete(view);
+
+    if (view instanceof HippyScrollView) {
+      ((HippyScrollView)view).scrollToInitContentOffset();
+    }
+  }
+
   @Override
   public void dispatchFunction(View view, String functionName, HippyArray args) {
     //noinspection unchecked
