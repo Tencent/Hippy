@@ -12,6 +12,7 @@
       </ul-refresh>
       <waterfall
         ref="gridView"
+        :content-inset="contentInset"
         :column-spacing="columnSpacing"
         :contain-banner-view="isIos"
         :contain-pull-footer="true"
@@ -101,7 +102,7 @@ export default {
       return 2;
     },
     contentInset() {
-      return { top: 0, left: 0, bottom: 0, right: 0 };
+      return { top: 0, left: 5, bottom: 0, right: 5 };
     },
   },
   mounted() {
