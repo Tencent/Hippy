@@ -30,4 +30,8 @@ public interface HippyScrollView {
   void callSmoothScrollTo(int x, int y, int duration);
 
   void setScrollMinOffset(int scrollMinOffset);
+
+  void setInitialContentOffset(int offset);
+
+  void scrollToInitContentOffset();
 }

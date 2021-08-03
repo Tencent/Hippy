@@ -57,6 +57,8 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
 
   protected int mScrollMinOffset = 0;
   private int mLastY = 0;
+  private int initialContentOffset = 0;
+  private boolean hasCompleteFirstBatch = false;
 
   public HippyVerticalScrollView(Context context) {
     super(context);
@@ -304,5 +306,23 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
   public void setScrollMinOffset(int scrollMinOffset) {
     scrollMinOffset = Math.max(5, scrollMinOffset);
     mScrollMinOffset = (int) PixelUtil.dp2px(scrollMinOffset);
+  }
+
+  @Override
+  public void setInitialContentOffset(int offset) {
+    initialContentOffset = offset;
+  }
+
+  @Override
+  public void scrollToInitContentOffset() {
+    if (hasCompleteFirstBatch) {
+      return;
+    }
+
+    if (initialContentOffset > 0) {
+      scrollTo(0, initialContentOffset);
+    }
+
+    hasCompleteFirstBatch = true;
   }
 }
