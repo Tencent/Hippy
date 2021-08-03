@@ -5,7 +5,6 @@ import {
   StyleSheet,
   Text,
   Dimensions,
-  PullFooter,
   RefreshWrapper,
 } from '@hippy/react';
 
@@ -113,9 +112,9 @@ export default class ListExample extends React.Component {
         loadingState: '没有更多数据',
       });
     }
-    const newDataSource = dataSource.concat(newData);
-    this.loadMoreDataFlag = false;
+    const newDataSource = [...dataSource, ...newData];
     this.setState({ dataSource: newDataSource });
+    this.loadMoreDataFlag = false;
   }
 
   // TODO: PullHeader is not supported on Android yet
@@ -180,13 +179,11 @@ export default class ListExample extends React.Component {
   // }
 
   renderPullFooter() {
-    return (<PullFooter>
-      <View style={styles.pullFooter}>
-        <Text style={{
-          color: 'white',
-        }}>{this.state.loadingState}</Text>
-      </View>
-    </PullFooter>);
+    return (<View style={styles.pullFooter}>
+      <Text style={{
+        color: 'white',
+      }}>{this.state.loadingState}</Text>
+    </View>);
   }
 
   async onRefresh() {
@@ -265,7 +262,7 @@ export default class ListExample extends React.Component {
   mockFetchData() {
     return new Promise((resolve) => {
       setTimeout(() => {
-        const data = mockData;
+        const data = [...mockData, ...mockData];
         return resolve(data);
       }, 1000);
     });

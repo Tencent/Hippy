@@ -289,6 +289,7 @@ class WaterfallView extends React.Component<WaterfallViewProps> {
     if (typeof renderPullHeader === 'function') {
       pullHeader = (
         <PullHeader
+          key={'PullHeader'}
           ref={(ref) => {
             this.pullHeader = ref;
           }}
@@ -318,6 +319,7 @@ class WaterfallView extends React.Component<WaterfallViewProps> {
     if (typeof renderPullFooter === 'function') {
       pullFooter = (
         <PullFooter
+          key={'PullFooter'}
           ref={(ref) => {
             this.pullFooter = ref;
           }}
