@@ -193,14 +193,14 @@
 
 | 参数              | 描述                                                  | 类型       | 支持平台 |
 | ----------------- | ----------------------------------------------------- | ---------- | -------- |
-| columnSpacing     | item 间竖向间距                                        | `number`   | `ALL`    |
-| interItemSpacing  | item 间横向间距                                        | `number`   | `ALL`    |
-| contentInset      | 内容缩进 `{ top:0, left:0, bottom:0, right:0 }`              | `Object`   | `ALL`    |
+| columnSpacing     | 瀑布流每列之前的间距                                      | `number`   | `ALL`    |
+| interItemSpacing  | item 间的上下间距                                        | `number`   | `ALL`    |
+| contentInset      | 内容缩进 ，默认值 `{ top:0, left:0, bottom:0, right:0 }`  | `Object`   | `ALL`    |
 | containBannerView | 是否包含`bannerView`，只能有一个bannerView，`Android` 暂不支持  | `boolean`  | `iOS`    |
-| containPullHeader | 是否包含`pull-header`，`Android` 暂不支持                           | `boolean`  | `iOS`    |
-| containPullFooter | 是否包含 `pull-footer`，`Android` 暂不支持                                 | `boolean`  | `iOS`    |
-| numberOfColumns   | 列数量                                                | `number`   | `ALL`    |
-| preloadItemNumber | 预加载 item 数量                                        | `number`   | `ALL`    |
+| containPullHeader | 是否包含`pull-header`；`Android` 暂不支持，可以用 `ul-refresh` 组件替代  | `boolean`  | `iOS`    |
+| containPullFooter | 是否包含 `pull-footer`, Android 必须包含`pull-footer` 组件才可以触发 `endReached` 事件 | `boolean`  | `ALL` |
+| numberOfColumns   | 瀑布流列数量                                                | `number`   | `ALL`    |
+| preloadItemNumber | 滑动到瀑布流底部前提前预加载的 item 数量       | `number`   | `ALL`    |
 
 ## 事件
 
