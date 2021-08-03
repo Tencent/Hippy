@@ -60,6 +60,14 @@ export default [
     },
   },
   {
+    path: '/WaterfallView',
+    name: 'WaterfallView 组件',
+    component: PAGE_LIST.WaterfallView,
+    meta: {
+      style: 1,
+    },
+  },
+  {
     path: '/PullHeader',
     name: 'PullHeader 组件',
     component: PAGE_LIST.PullHeader,

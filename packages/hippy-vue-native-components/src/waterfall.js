@@ -54,14 +54,17 @@ function registerWaterfall(Vue) {
   Vue.component('Waterfall', {
     inheritAttrs: false,
     props: {
+      // specific number of waterfall column
       numberOfColumns: {
         type: Number,
         default: 2,
       },
+      // inner content padding
       contentInset: {
         type: Object,
         default: () => ({ top: 0, left: 0, bottom: 0, right: 0 }),
       },
+      // horizontal space between columns
       columnSpacing: {
         type: Number,
         default: 0,

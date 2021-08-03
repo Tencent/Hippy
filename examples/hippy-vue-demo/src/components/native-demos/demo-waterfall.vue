@@ -18,7 +18,7 @@
         :inter-item-spacing="interItemSpacing"
         :number-of-columns="numberOfColumns"
         :preload-item-number="0"
-        :style="{flex: 1, marginHorizontal: listMargin}"
+        :style="{flex: 1}"
         @endReached="onEndReached"
         @scroll="onScroll"
       >
@@ -49,10 +49,9 @@
             :item-bean="ui.itemBean"
           />
         </waterfall-item>
-
         <pull-footer>
           <div class="pull-footer">
-            <span>{{ loadingState }}</span>
+            <span style="color: white; text-align: center; height: 40px; line-height: 40px">{{ loadingState }}</span>
           </div>
         </pull-footer>
       </waterfall>
@@ -86,7 +85,7 @@ export default {
     },
     itemWidth() {
       const screenWidth = Vue.Native.Dimensions.screen.width;
-      const width = screenWidth - this.listMargin * 2 - this.contentInset.left - this.contentInset.right;
+      const width = screenWidth - this.contentInset.left - this.contentInset.right;
       return (width - ((this.numberOfColumns - 1) * this.columnSpacing)) / this.numberOfColumns;
     },
     listMargin() {
@@ -173,8 +172,8 @@ export default {
 }
 
 #demo-waterfall .refresh-text {
-  height: 60px;
-  line-height: 60px;
+  height: 40px;
+  line-height: 40px;
   text-align: center;
   color: white;
 }
@@ -246,8 +245,8 @@ export default {
 
 #demo-waterfall .pull-footer {
   flex: 1;
-  height: 62px;
-  background-color: red;
+  height: 40px;
+  background-color: green;
   justify-content: center;
   align-items: center;
 }
