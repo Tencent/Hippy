@@ -211,7 +211,7 @@ export abstract class IOSProtocol extends ProtocolAdapter {
     });
     this.target.addMessageFilter('tools::Log.enable', (msg) => {
       msg.method = 'Console.enable';
-      this.target.callTarget('Console.enable')
+      this.target.callTarget('Console.enable');
       this.target.fireResultToTools(msg.id, {});
       return Promise.resolve(null);
     });
@@ -603,7 +603,7 @@ export abstract class IOSProtocol extends ProtocolAdapter {
   private onRuntimeGetProperties(msg: any): Promise<any> {
     const newPropertyDescriptors = [];
 
-    for (let i = 0; i < msg.result.result.length; i += 1) {
+    for (let i = 0; i < msg.result?.result?.length; i += 1) {
       if (msg.result.result[i].isOwn || msg.result.result[i].nativeGetter) {
         msg.result.result[i].isOwn = true;
         newPropertyDescriptors.push(msg.result.result[i]);

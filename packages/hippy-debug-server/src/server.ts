@@ -102,3 +102,7 @@ process.on('exit', () => stopServer(true));
 process.on('SIGINT', () => stopServer(true));
 // catch kill
 process.on('SIGTERM', () => stopServer(true));
+
+process.on('unhandledRejection', (e) => {
+  debug('unhandledRejection %J', e);
+});

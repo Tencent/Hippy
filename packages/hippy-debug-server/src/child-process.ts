@@ -4,6 +4,7 @@ import createDebug from 'debug';
 import path from 'path';
 
 const debug = createDebug('child-process');
+createDebug.enable('child-process');
 let proxyProcess;
 
 type TunnelParams = { iwdpPort: string; iwdpStartPort: string; iwdpEndPort: string };

@@ -1,8 +1,5 @@
 import WebSocket, { Server } from 'ws/index.js';
-import { DeviceInfo } from './@types/tunnel';
-import { ClientRole, ClientEvent, AppClientType, DevicePlatform, DeviceManagerEvent } from './@types/enum';
-import { AppClient, TunnelAppClient, WsAppClient, IwdpAppClient, DevtoolsClient } from './client';
-import { IosTarget } from './adapter';
+import { ClientRole, AppClientType, DevicePlatform } from './@types/enum';
 import messageChannel from './message-channel';
 import { v4 as uuidv4 } from 'uuid';
 import androidTargetManager from './android-pages-manager';
@@ -10,6 +7,7 @@ import { selectTarget } from './router/chrome-inspect-router';
 import createDebug from 'debug';
 
 const debug = createDebug('socket-bridge');
+createDebug.enable('socket-bridge');
 
 export class SocketBridge {
   wsPath: string;
@@ -39,14 +37,13 @@ export class SocketBridge {
 
     if (role === ClientRole.Devtools) {
       const appWs = this.appWsMap.get(targetId);
-      if(!appWs && appClientType.indexOf(AppClientType.WS) !== -1)
-        return debug('app ws is not connected!!!');
+      if (!appWs && appClientType.indexOf(AppClientType.WS) !== -1) return debug('app ws is not connected!!!');
 
       const result = selectTarget(targetId);
-      if(!result) return;
+      if (!result) return;
       const { devtoolsClient, appClients, target } = result;
 
-      if(!appClients) return debug('add channel failed!');
+      if (!appClients) return debug('add channel failed!');
 
       // bind appWs
 
@@ -54,8 +51,8 @@ export class SocketBridge {
       devtoolsClient.bindWs(ws, removeChannel);
     } else {
       debug('ws app client created');
-      if(role === ClientRole.Android) {
-        if(!clientId) clientId = uuidv4()  // TODO 终端加上 clientId 后移除 uuidv4
+      if (role === ClientRole.Android) {
+        if (!clientId) clientId = uuidv4(); // TODO 终端加上 clientId 后移除 uuidv4
         androidTargetManager.addWsTarget(clientId, ws);
         // 终端刷新时未断连，会导致调试页面列表很多脏数据
         ws.on('close', () => {
@@ -81,13 +78,12 @@ const getClientInfo = (reqUrl) => {
   const platform = url.searchParams.get('platform') as DevicePlatform;
   const role = url.searchParams.get('role') as ClientRole;
   const bundleName = url.searchParams.get('bundleName');
-  let appClientType = url.searchParams.get('appClientType') as AppClientType || '[]';
+  let appClientType = (url.searchParams.get('appClientType') as AppClientType) || '[]';
   let debugPage: any = url.searchParams.get('debugPage') || '{}';
   try {
     appClientType = JSON.parse(decodeURIComponent(appClientType));
     debugPage = JSON.parse(decodeURIComponent(debugPage));
-  }
-  catch(e) {
+  } catch (e) {
     debugPage = {};
     debug('parse debug page json error: %j', e);
   }
