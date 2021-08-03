@@ -63,6 +63,8 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
 
   protected int mScrollMinOffset = 0;
   private int mLastX = 0;
+  private int initialContentOffset = 0;
+  private boolean hasCompleteFirstBatch = false;
 
   private HashMap<Integer, Integer> scrollOffsetForReuse = new HashMap<>();
 
@@ -337,5 +339,23 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
   public void setScrollMinOffset(int scrollMinOffset) {
     scrollMinOffset = Math.max(5, scrollMinOffset);
     mScrollMinOffset = (int) PixelUtil.dp2px(scrollMinOffset);
+  }
+
+  @Override
+  public void setInitialContentOffset(int offset) {
+    initialContentOffset = offset;
+  }
+
+  @Override
+  public void scrollToInitContentOffset() {
+    if (hasCompleteFirstBatch) {
+      return;
+    }
+
+    if (initialContentOffset > 0) {
+      scrollTo(initialContentOffset, 0);
+    }
+
+    hasCompleteFirstBatch = true;
   }
 }
