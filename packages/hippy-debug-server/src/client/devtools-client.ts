@@ -1,9 +1,10 @@
-import { Tunnel } from '../@types/tunnel';
-import { EventEmitter } from 'events';
-import { sendMessage, registerModuleCallback } from '../message-channel/tunnel';
-import { ClientEvent } from '../@types/enum';
-import WebSocket, { Server } from 'ws/index.js';
 import createDebug from 'debug';
+import { EventEmitter } from 'events';
+import WebSocket from 'ws/index.js';
+import { ClientEvent } from '../@types/enum';
+import { Tunnel } from '../@types/tunnel';
+import { registerModuleCallback, sendMessage } from '../message-channel/tunnel';
+import { isCdpDomains } from '../utils/cdp';
 
 const debug = createDebug('devtools-client');
 createDebug.enable('devtools-client');
@@ -116,7 +117,7 @@ export class DevtoolsClient extends EventEmitter {
       const domain = msg.method?.split('.')[0] || (msg as any).module;
       debug('%j', msg);
       this.connectionList.forEach(({ ws, customDomains }) => {
-        if (customDomains.length === 0 || customDomains.indexOf(domain) !== -1) {
+        if (isCdpDomains(domain) || customDomains.indexOf(domain) !== -1) {
           ws.send(JSON.stringify(msg));
         }
       });
