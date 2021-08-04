@@ -1,7 +1,7 @@
 import { AppClient, AppClientOption } from './app-client';
 import { IwdpAppClient } from './iwdp-app-client';
-import { WsAppClient } from './ws-app-client';
 import { TunnelAppClient } from './tunnel-app-client';
+import { WsAppClient } from './ws-app-client';
 
 type AppClientConfig = AppClientOption & {
   ctor: new (id: string, option: AppClientOption) => AppClient; // 构造器外部注入，可在 TDF 上做扩展
@@ -58,7 +58,7 @@ export const initHippyEnv = () => {
   });
   appClientManager.addIosAppClients({
     useAllDomain: false,
-    domains: customDomains,
+    acceptDomains: customDomains,
     useAdapter: false,
     ctor: TunnelAppClient,
   });
