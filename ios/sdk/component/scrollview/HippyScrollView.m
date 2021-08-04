@@ -259,13 +259,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
                        context:(__unused void *)context {
     if ([keyPath isEqualToString:@"frame"]) {
         if (object == _contentView) {
-            CGPoint origin = _contentView.frame.origin;
-            if (CGPointEqualToPoint(CGPointZero, origin)) {
-                [self hippyBridgeDidFinishTransaction];
-            }
-            else {
-                _contentView.frame = CGRectMake(0, 0, CGRectGetWidth(_contentView.bounds), CGRectGetHeight(_contentView.bounds));
-            }
+            [self hippyBridgeDidFinishTransaction];
             if ([self needsLayoutForRTL]) {
                 _contentView.transform = CGAffineTransformMakeRotation(M_PI);
             }
