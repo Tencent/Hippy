@@ -8,6 +8,7 @@ import { EventEmitter } from 'events';
 export const listeners = new Map();
 let isTunnelReady = true;
 let msgQueue: Tunnel.Req[] = [];
+const msgIdMethodMap: Map<number, string> = new Map();
 
 export function createTunnelClient() {
   isTunnelReady = true;
@@ -21,25 +22,30 @@ export const emitter = new EventEmitter();
 export function onMessage(msg) {
   try {
     const msgObject = JSON.parse(msg);
+    const method = msgIdMethodMap.get(msgObject.id);
+    msgObject.method = method;
+    msgIdMethodMap.delete(msgObject.id);
+
     console.warn('on tunnel message', msgObject.method, listeners.has(msgObject.method));
     if (listeners.has(msgObject.method)) {
       listeners.get(msgObject.method).forEach((cb) => {
-        cb(msg);
+        cb(msgObject);
       });
     } else {
-      emitter.emit('message', msg);
+      emitter.emit('message', msgObject);
     }
   } catch (e) {
     console.error(`parse tunnel response json failed. ${e} \n${JSON.stringify(msg)}`);
   }
 }
 
-export function sendMessage(msg: Tunnel.Req): void {
+export function sendMessage(msg: any): void {
   if (!isTunnelReady) {
     msgQueue.push(msg);
     console.info('tunnel is not ready, push msg to queue.');
     return;
   }
+  msgIdMethodMap.set(msg.id, msg.method);
   console.info('sendMessage', msg);
   global.addon.sendMsg(JSON.stringify(msg));
 }

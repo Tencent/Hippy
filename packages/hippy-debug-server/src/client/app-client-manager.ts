@@ -1,7 +1,7 @@
 import { AppClient, AppClientOption } from './app-client';
 import { IwdpAppClient } from './iwdp-app-client';
-import { TunnelAppClient } from './tunnel-app-client';
 import { WsAppClient } from './ws-app-client';
+import { TunnelAppClient } from './tunnel-app-client';
 
 type AppClientConfig = AppClientOption & {
   ctor: new (id: string, option: AppClientOption) => AppClient; // 构造器外部注入，可在 TDF 上做扩展
@@ -49,23 +49,17 @@ export const initHippyEnv = () => {
   appClientManager.addAndroidAppClients({
     useAllDomain: true,
     useAdapter: true,
-    ctor: TunnelAppClient,
+    ctor: WsAppClient,
   });
   appClientManager.addIosAppClients({
     useAllDomain: true,
     useAdapter: true,
     ctor: IwdpAppClient,
   });
-  appClientManager.addIosAppClients({
-    useAllDomain: false,
-    acceptDomains: customDomains,
-    useAdapter: false,
-    ctor: TunnelAppClient,
-  });
 };
 
 // 终端自己实现的域
-const customDomains = ['Page', 'DOM', 'CSS', 'Overlay', 'getHeapMeta', 'dumpDomTree', 'updateDomTree'];
+const customDomains = ['Page', 'Dom', 'Css', 'Overlay', 'TDFInspector', 'TDFPerformance', 'TDFMemory'];
 
 /**
  * voltron
