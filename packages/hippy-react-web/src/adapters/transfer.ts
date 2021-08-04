@@ -216,7 +216,10 @@ function hackWebStyle(webStyle_: any) {
     });
   }
 
-  toPx(webStyle.lineHeight);
+  // 处理lineHeight
+  if (hasOwnProperty(webStyle, 'lineHeight')) {
+    webStyle.lineHeight = toPx(webStyle.lineHeight);
+  }
 
   if (!webStyle.position) {
     webStyle.position = 'relative';
