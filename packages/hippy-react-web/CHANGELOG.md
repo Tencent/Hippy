@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.8.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/compare/2.7.6...2.8.0) (2021-08-04)
+
+
+### Bug Fixes
+
+* **hippy-react-web:** correct lineHeight style values ([#901](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/issues/901)) ([1ba1192](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/commit/1ba11929f015033d29dc9aafcfe77883296cd07d))
+
+
+
+
+
 ## [2.7.6](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/compare/2.7.5...2.7.6) (2021-07-22)
 
 **Note:** Version bump only for package @hippy/react-web

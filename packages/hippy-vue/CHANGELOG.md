@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.8.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.7.6...2.8.0) (2021-08-04)
+
+
+### Features
+
+* **android,react,vue:** support RTL layout ([#893](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/issues/893)) ([149ec04](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/149ec0458e82676d16c0728a6feba486bfb2aace))
+* **hippy-react,hippy-vue:** add linear-gradient ([02b5b82](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/02b5b8256995a5fa6a70fcfd0f67ed1c383569ae))
+
+
+
+
+
 ## [2.7.6](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.7.5...2.7.6) (2021-07-22)
 
 

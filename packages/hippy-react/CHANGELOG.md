@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.8.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.7.6...2.8.0) (2021-08-04)
+
+
+### Bug Fixes
+
+* **commit:** fix husky commit issue ([397e717](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/397e717d73fcf96b5a8602e208e855fe4ff4af58))
+* **react:** fixed custom style for scrollview not work ([6e19169](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/6e1916939be607bcf87dc8dd491a3f59a242c884))
+* **react:** fixed focusable component child displayName ([ce69b77](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/ce69b7789fd88c2a92e70d7eaa9875880f53407f))
+
+
+### Features
+
+* **android,react,vue:** support RTL layout ([#893](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/issues/893)) ([149ec04](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/149ec0458e82676d16c0728a6feba486bfb2aace))
+* **hippy-react,hippy-vue:** add linear-gradient ([02b5b82](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/02b5b8256995a5fa6a70fcfd0f67ed1c383569ae))
+
+
+
+
+
 ## [2.7.6](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.7.5...2.7.6) (2021-07-22)
 
 **Note:** Version bump only for package @hippy/react

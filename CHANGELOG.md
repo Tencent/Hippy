@@ -3,6 +3,59 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.8.0](https://github.com/Tencent/Hippy/compare/2.7.6...2.8.0) (2021-08-04)
+
+
+### Bug Fixes
+
+* **android:** fix `v8` crash caused by multiple initialize ([59f36af](https://github.com/Tencent/Hippy/commit/59f36afd333402e9482362f58448348bb7b17029))
+* **android:** rotate animation deg value type ([347e296](https://github.com/Tencent/Hippy/commit/347e296ca859e8391202b8c0ada5933fb5256696))
+* **android:** warnings for minSdkVersion 19 ([676de9c](https://github.com/Tencent/Hippy/commit/676de9cdf9cbf280d9d46b96b4c047a614cd031d))
+* **android:** writeJSArray should use length to iterates array ([2031ab1](https://github.com/Tencent/Hippy/commit/2031ab105baff7eb62032a9f98ad412641d3abea))
+* **commit:** fix husky commit issue ([397e717](https://github.com/Tencent/Hippy/commit/397e717d73fcf96b5a8602e208e855fe4ff4af58))
+* **core:** fix v8 local string crash ([26dec91](https://github.com/Tencent/Hippy/commit/26dec916e25a2923149b23156b96549fabd78707))
+* **core:** fix v8::maybelocal crash, remove TO_LOCAL_UNCHECKED macro ([4eb7ddd](https://github.com/Tencent/Hippy/commit/4eb7ddd3ec1de8b15150b11fd1c2610ab7e61d16))
+* **core:** uniform type ([568979d](https://github.com/Tencent/Hippy/commit/568979d0645e7e8b60609c278729539052e6c75b))
+* **docker:** fix docker image build script error ([77cee97](https://github.com/Tencent/Hippy/commit/77cee978c1d4c7f158893286993f22f57b48ed9b))
+* **hippy-react-web:** correct lineHeight style values ([#901](https://github.com/Tencent/Hippy/issues/901)) ([1ba1192](https://github.com/Tencent/Hippy/commit/1ba11929f015033d29dc9aafcfe77883296cd07d))
+* **hippy-vue:** fixed vue-css-loader path option for building demo ([22c495b](https://github.com/Tencent/Hippy/commit/22c495b1283678ed7a0080f67ee015c38eb4c17d))
+* **ios:** animation must be removed from view even it is not finished ([3462cee](https://github.com/Tencent/Hippy/commit/3462cee62daa835aca272619ce5ca782d5de50a0))
+* **ios:** fix contentoffset property error ([#834](https://github.com/Tencent/Hippy/issues/834)) ([189822a](https://github.com/Tencent/Hippy/commit/189822ab4a0bcc16a076cae24d2b275250d14590))
+* **ios:** fix hippytext reuse bug ([65fbf36](https://github.com/Tencent/Hippy/commit/65fbf369adcc74daa00a776fb107125e132b7dc9))
+* **ios:** fix rtl language support ([b428854](https://github.com/Tencent/Hippy/commit/b428854ac7a270181f7b2acf98a431c2bc00e729))
+* **ios:** fix scrollview padding error ([863ce96](https://github.com/Tencent/Hippy/commit/863ce960db3ab697237a1c35d87ce04ca06b1789))
+* **react:** fixed custom style for scrollview not work ([6e19169](https://github.com/Tencent/Hippy/commit/6e1916939be607bcf87dc8dd491a3f59a242c884))
+* **react:** fixed focusable component child displayName ([ce69b77](https://github.com/Tencent/Hippy/commit/ce69b7789fd88c2a92e70d7eaa9875880f53407f))
+
+
+### Features
+
+* **android:** add ability to disable the inspector ([a9d58eb](https://github.com/Tencent/Hippy/commit/a9d58eb39316fed8bff187e63dfff461080b0459))
+* **android:** add interceptHorizontalTouch prop for listView ([556e7d9](https://github.com/Tencent/Hippy/commit/556e7d9335eca2c5c150db207749af6660b4aa98))
+* **android:** remove unused `gradle-wrapper.jar` ([9a6056f](https://github.com/Tencent/Hippy/commit/9a6056fa005f786f07dcc2d6be703b1c50e31ea0))
+* **android:** support gradient paint in BackgroundDrawable ([f77d76e](https://github.com/Tencent/Hippy/commit/f77d76e03a6f442530b4dc413f52f1ad078535db))
+* **android:** support horizontal scrollToContentOffset event ([814efbd](https://github.com/Tencent/Hippy/commit/814efbd895f0b0033f170c724555f9e6021cfc9e))
+* **android:** support initialContentOffset props for listView ([348754d](https://github.com/Tencent/Hippy/commit/348754d82166359ee04ce1b4f462a934d390c30a))
+* **android:** support initialContentOffset props for ScrollView ([60111c7](https://github.com/Tencent/Hippy/commit/60111c79581c0028f24a8c0cff2a1a83d2461935))
+* **android:** support listView HORIZONTAL on scroll event ([7d0efe3](https://github.com/Tencent/Hippy/commit/7d0efe31b75023def1810a9f137f023ec8f0e26d))
+* **android:** update v8 build script ([32b32c6](https://github.com/Tencent/Hippy/commit/32b32c6efbc27e26d467a61ddbd33374aa9cc317))
+* **android:** use implicit loading for java useless library ([e79370e](https://github.com/Tencent/Hippy/commit/e79370e75ca89344ed4ae0c8a995bf41b655fdb7))
+* **android,react,vue:** support RTL layout ([#893](https://github.com/Tencent/Hippy/issues/893)) ([149ec04](https://github.com/Tencent/Hippy/commit/149ec0458e82676d16c0728a6feba486bfb2aace))
+* **core:** adapt to official release version v8 ([683dff1](https://github.com/Tencent/Hippy/commit/683dff1050a0b2f11eb02b36521888de84656a24))
+* **core:** refactor ctx value ([1547226](https://github.com/Tencent/Hippy/commit/1547226fbc10ef2d57319fd0f6375f3424c35b24))
+* **hippy-react,hippy-vue:** add linear-gradient ([02b5b82](https://github.com/Tencent/Hippy/commit/02b5b8256995a5fa6a70fcfd0f67ed1c383569ae))
+* **ios:** add linear gradient for view component ([#828](https://github.com/Tencent/Hippy/issues/828)) ([fe8659a](https://github.com/Tencent/Hippy/commit/fe8659ab39a465d124fd1052149895aef2709242))
+* **ios:** add localization infomations in deviceinfo object ([24a4aaa](https://github.com/Tencent/Hippy/commit/24a4aaa97920d2a721af3fed34e8a6523dc0d679))
+* **ios:** add performance log enumation options ([155c62d](https://github.com/Tencent/Hippy/commit/155c62d3cc4eb6066a90e0b85e45f2852c6496b8))
+* **ios:** add try catch block for js execution ([28e5d68](https://github.com/Tencent/Hippy/commit/28e5d68d71ceedb048a53e405ba5842f3b53c559))
+* **ios:** defaultimage & backgroundimage now support local file path ([#811](https://github.com/Tencent/Hippy/issues/811)) ([227b584](https://github.com/Tencent/Hippy/commit/227b5844687f98c1df5417f9e2ff550e88752612))
+* **ios:** layout updated, RTL supported ([#873](https://github.com/Tencent/Hippy/issues/873)) ([7e13eee](https://github.com/Tencent/Hippy/commit/7e13eee21b452a4ca8e74953b5c0d41ad6aa38cf))
+* **layout:** update layout build script ([428bf42](https://github.com/Tencent/Hippy/commit/428bf42cd23891b5e028b863834ad27a820a6bf3))
+
+
+
+
+
 ## [2.7.6](https://github.com/Tencent/Hippy/compare/2.7.5...2.7.6) (2021-07-22)
 
 

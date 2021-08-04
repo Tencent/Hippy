@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.8.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-css-loader/compare/2.7.6...2.8.0) (2021-08-04)
+
+
+### Features
+
+* **hippy-react,hippy-vue:** add linear-gradient ([02b5b82](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-css-loader/commit/02b5b8256995a5fa6a70fcfd0f67ed1c383569ae))
+
+
+
+
+
 ## [2.7.6](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-css-loader/compare/2.7.5...2.7.6) (2021-07-22)
 
 **Note:** Version bump only for package @hippy/vue-css-loader
