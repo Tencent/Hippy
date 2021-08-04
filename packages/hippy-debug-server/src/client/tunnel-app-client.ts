@@ -1,6 +1,6 @@
 import { Tunnel } from '../@types/tunnel';
 import { AppClientType, ClientEvent } from '../@types/enum';
-import { sendMessage, registerModuleCallback } from '../message-channel/tunnel';
+import { sendMessage, registerModuleCallback, tunnelMessageEmitter } from '../message-channel/tunnel';
 import { AppClient } from './app-client';
 import createDebug from 'debug';
 
@@ -14,10 +14,14 @@ export class TunnelAppClient extends AppClient {
     registerModuleCallback('jsDebugger', (msg) => {
       this.emit(ClientEvent.Message, msg);
     });
+
+    tunnelMessageEmitter.on('message', (msg) => {
+      this.emit(ClientEvent.Message, msg);
+    });
   }
 
   send(msg: Tunnel.Req) {
-    if(!this.filter(msg)) return;
+    if (!this.filter(msg)) return;
 
     sendMessage({
       module: 'jsDebugger',

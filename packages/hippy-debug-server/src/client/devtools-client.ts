@@ -112,7 +112,8 @@ export class DevtoolsClient extends EventEmitter {
     this.connectionList.push({ ws, customDomains });
 
     this.sendToDevtools = (msg: Adapter.CDP.Res) => {
-      const domain = msg.method?.split('.')[0];
+      // TODO msg 可能是 Tunnel.Res 类型，后续统一协议后修改
+      const domain = msg.method?.split('.')[0] || (msg as any).module;
       debug('%j', msg);
       this.connectionList.forEach(({ ws, customDomains }) => {
         if (customDomains.length === 0 || customDomains.indexOf(domain) !== -1) {

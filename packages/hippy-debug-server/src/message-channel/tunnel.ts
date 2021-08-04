@@ -1,3 +1,4 @@
+import { EventEmitter } from 'events';
 /**
  * 注意：请勿引用此文件接口🚫，需调用 dev-server/adapter 下的 messageChannel 做消息收发！！！
  */
@@ -16,15 +17,18 @@ export function createTunnelClient() {
   }
 }
 
+export const tunnelMessageEmitter = new EventEmitter();
 export function onMessage(msg) {
   try {
     const moduleObject: any = JSON.parse(msg).modules[0];
     const message: string = moduleObject.content;
-    console.warn('on tunnel message', moduleObject.module, listeners.has(moduleObject.module))
+    console.warn('on tunnel message', moduleObject.module, listeners.has(moduleObject.module));
     if (listeners.has(moduleObject.module)) {
       listeners.get(moduleObject.module).forEach((cb) => {
         cb(message);
       });
+    } else {
+      tunnelMessageEmitter.emit('message', moduleObject);
     }
   } catch (e) {
     console.error(`parse tunnel response json failed. ${e} \n${JSON.stringify(msg)}`);
