@@ -1,10 +1,10 @@
 import { AppClient, AppClientOption } from './app-client';
 import { IwdpAppClient } from './iwdp-app-client';
 import { WsAppClient } from './ws-app-client';
-import { TunnelAppClient}  from './tunnel-app-client';
+import { TunnelAppClient } from './tunnel-app-client';
 
 type AppClientConfig = AppClientOption & {
-  ctor: new(id: string, option: AppClientOption) => AppClient, // 构造器外部注入，可在 TDF 上做扩展
+  ctor: new (id: string, option: AppClientOption) => AppClient; // 构造器外部注入，可在 TDF 上做扩展
 };
 
 /**
@@ -75,7 +75,7 @@ export const initVoltronEnv = () => {
   initHippyEnv();
   appClientManager.addIosAppClients({
     useAllDomain: false,
-    domains: customDomains,
+    acceptDomains: customDomains,
     useAdapter: false,
     ctor: WsAppClient,
   });
@@ -91,7 +91,7 @@ export const initVoltronEnv = () => {
  *    - jsc实现的协议走 iwdp 通道
  */
 export const initTdfEnv = () => {
-  console.log('initTdfEnv')
+  console.log('initTdfEnv');
   appClientManager.reset();
   appClientManager.addAndroidAppClients({
     useAllDomain: true,
@@ -99,14 +99,15 @@ export const initTdfEnv = () => {
     ctor: TunnelAppClient,
   });
   appClientManager.addIosAppClients({
-    useAllDomain: true,
+    useAllDomain: false,
     useAdapter: true,
+    ignoreDomains: customDomains,
     ctor: IwdpAppClient,
   });
   appClientManager.addIosAppClients({
     useAllDomain: false,
-    domains: customDomains,
+    acceptDomains: customDomains,
     useAdapter: false,
     ctor: TunnelAppClient,
-  })
-}
+  });
+};

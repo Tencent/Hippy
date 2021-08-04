@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
 import { DebugPage } from '../../@types/tunnel.d';
 import { DevtoolsClient, AppClient } from '../../client';
-import { ClientEvent } from '../../@types/enum';
+import { ClientEvent, AppClientType } from '../../@types/enum';
 import createDebug from 'debug';
 
 const debug = createDebug('target:ios');
@@ -28,38 +28,43 @@ export class IosTarget extends EventEmitter {
     this.appClients = appClients;
     this.devtoolsClient = devtoolsClient;
 
-    this.devtoolsClient.on(ClientEvent.Message, msg => {
-      this.appClients.forEach(appClient => {
-        if(!appClient.useAdapter) {
+    this.devtoolsClient.on(ClientEvent.Message, (msg) => {
+      this.appClients.forEach((appClient) => {
+        if (!appClient.useAdapter) {
           appClient.send(msg);
         }
       });
       this.onMessageFromTools(msg);
     });
 
-    this.appClients.forEach(appClient => {
-      appClient.on(ClientEvent.Message, this.onMessageFromApp.bind(this));
+    this.appClients.forEach((appClient) => {
+      if (appClient.type === AppClientType.Tunnel) {
+        appClient.on(ClientEvent.Message, (msg) => {
+          this.sendToDevtools(msg);
+        });
+      } else {
+        appClient.on(ClientEvent.Message, this.onMessageFromApp.bind(this));
+      }
     });
     this.devtoolsClient.on(ClientEvent.Close, () => {
       debug('devtools client close');
-      this.appClients.forEach(appClient => {
+      this.appClients.forEach((appClient) => {
         appClient.resume();
       });
     });
-    this.appClients.forEach(appClient => {
+    this.appClients.forEach((appClient) => {
       appClient.on(ClientEvent.Close, () => {
-        debug('app client closed')
-        devtoolsClient.close()
+        debug('app client closed');
+        devtoolsClient.close();
       });
     });
 
     this._sendToDevtools = devtoolsClient.send.bind(devtoolsClient);
     this._sendToApp = (msg) => {
-      this.appClients.forEach(appClient => {
-        if(appClient.useAdapter)
-          appClient.send(msg);
+      this.appClients.forEach((appClient) => {
+        if (appClient.useAdapter) appClient.send(msg);
       });
-    }
+    };
   }
 
   public get data(): DebugPage {
@@ -214,7 +219,7 @@ export class IosTarget extends EventEmitter {
         });
 
         sequence.then((filteredMessage) => {
-          if(!filteredMessage) return;
+          if (!filteredMessage) return;
           this.sendToDevtools(filteredMessage);
         });
       } else {

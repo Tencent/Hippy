@@ -12,10 +12,11 @@ import { AppClientType } from '../@types/enum';
 import { Tunnel } from '../@types/tunnel';
 
 export type AppClientOption = {
-  useAllDomain: boolean,
-  useAdapter: boolean,
-  domains?: string[],
-  ws?: WebSocket,
+  useAllDomain: boolean;
+  useAdapter: boolean;
+  acceptDomains?: string[];
+  ignoreDomains?: string[];
+  ws?: WebSocket;
 };
 
 /**
@@ -30,16 +31,18 @@ export abstract class AppClient extends EventEmitter {
   id: string;
   type: AppClientType;
   msgBuffer: any[] = [];
-  domains: string[] = [];
+  acceptDomains: string[] = [];
+  ignoreDomains: string[] = [];
   useAdapter = true;
   useAllDomain = true;
   isClosed = false;
 
-  constructor(id, { useAllDomain = true, useAdapter = true, domains = [] }: AppClientOption) {
+  constructor(id, { useAllDomain = true, useAdapter = true, acceptDomains = [], ignoreDomains = [] }: AppClientOption) {
     super();
     this.id = id;
     this.useAllDomain = useAllDomain;
-    this.domains = domains;
+    this.acceptDomains = acceptDomains;
+    this.ignoreDomains = ignoreDomains;
     this.useAdapter = useAdapter;
   }
 
@@ -52,13 +55,19 @@ export abstract class AppClient extends EventEmitter {
   protected filter(msg: Adapter.CDP.Req | Tunnel.Req) {
     if (this.useAllDomain) return true;
     let method, domain;
-    if('module' in msg) method = msg.module;
-    else if('method' in msg) method = msg.method;
+    if ('module' in msg) method = msg.module;
+    else if ('method' in msg) method = msg.method;
 
     const group = method.match(/^(\w+)(\.\w+)?$/);
-    if(group) {
+    if (group) {
       domain = group[1];
     }
-    return this.domains.indexOf(domain) !== -1 || this.domains.indexOf(method) !== -1;
+
+    if (this.ignoreDomains.length) {
+      const isIgnoreDomain = this.ignoreDomains.indexOf(domain) !== -1 || this.ignoreDomains.indexOf(method) !== -1;
+      return !isIgnoreDomain;
+    }
+    const isAcceptDomain = this.acceptDomains.indexOf(domain) !== -1 || this.acceptDomains.indexOf(method) !== -1;
+    return isAcceptDomain;
   }
- }
+}
