@@ -4,6 +4,7 @@ import createDebug from 'debug';
 import path from 'path';
 import { TunnelEvent } from './@types/enum';
 import { onMessage } from './message-channel/tunnel';
+import deviceManager from './device-manager';
 const addon = require('./build/Tunnel.node');
 global.addon = addon;
 
@@ -18,6 +19,8 @@ export const startTunnel = ({ iwdpPort, iwdpStartPort, iwdpEndPort }: TunnelPara
     debug(`receive tunnel event: ${event}`);
     if (event === TunnelEvent.ReceiveData) {
       onMessage(data);
+    } else if ([TunnelEvent.RemoveDevice, TunnelEvent.AddDevice].indexOf(event) !== -1) {
+      deviceManager.getDeviceList();
     }
   });
 

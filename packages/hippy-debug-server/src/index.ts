@@ -72,7 +72,7 @@ const { argv } = yargs
   })
   .option('env', {
     type: 'string',
-    default: 'hippy',
+    default: 'TDF',
     choices: [DevtoolsEnv.Hippy, DevtoolsEnv.Voltron, DevtoolsEnv.TDF],
   })
   .epilog(`Copyright (C) 2017-${new Date().getFullYear()} THL A29 Limited, a Tencent company.`) as any;
