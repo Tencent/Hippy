@@ -397,6 +397,7 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
     HippyWaterfallItemRenderNode.IRecycleItemTypeChange {
 
     private HippyWaterfallEvent mOnEndReachedEvent;
+    private HippyWaterfallEvent mOnLoadMoreEvent;
     private HippyWaterfallEvent mOnFooterAppearedEvent;
     private HippyWaterfallEvent mOnRefreshEvent;
     private HippyWaterfallEvent mOnScrollForReportEvent;
@@ -488,6 +489,12 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
     }
 
     @Override
+    public void notifyEndReached() {
+      getOnEndReachedEvent().send(mParentRecyclerView, null);
+      getOnLoadMoreEvent().send(mParentRecyclerView, null);
+    }
+
+    @Override
     public void onBindContentView(ContentHolder holder, int position, int layoutType) {
       NodeHolder contentHolder = (NodeHolder) holder;
 
@@ -534,10 +541,6 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
         } catch (Throwable t) {
         }
 
-      }
-
-      if (contentHolder.mContentView instanceof HippyPullFooterView) {
-        FooterUtil.sendFooterReleasedEvent((HippyPullFooterView) contentHolder.mContentView);
       }
 
       if (contentHolder.mBindNode instanceof HippyWaterfallItemRenderNode) {
@@ -1137,6 +1140,13 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
         mOnEndReachedEvent = new HippyWaterfallEvent("onEndReached");
       }
       return mOnEndReachedEvent;
+    }
+
+    private HippyWaterfallEvent getOnLoadMoreEvent() {
+      if (mOnLoadMoreEvent == null) {
+        mOnLoadMoreEvent = new HippyWaterfallEvent("onLoadMore");
+      }
+      return mOnLoadMoreEvent;
     }
 
   }

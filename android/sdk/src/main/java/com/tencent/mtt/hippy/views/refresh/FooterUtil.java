@@ -32,6 +32,7 @@ public class FooterUtil {
     return renderNode instanceof PullFooterRenderNode;
   }
 
+  @Deprecated
   public static void sendFooterReleasedEvent(HippyPullFooterView footerView) {
     IFooterContainer footerContainer = null;
     if (footerView.getParentView() instanceof IFooterContainer) {

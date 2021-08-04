@@ -56,6 +56,7 @@ public class HippyWaterfallLayoutManager extends BaseLayoutManager {
   boolean mBannerViewMatch = false;
   boolean mHasContainBannerView = false;
   ArrayList<Integer> mHeaderHeight = new ArrayList<Integer>();
+  private boolean mEndReached = false;
 
   public HippyWaterfallLayoutManager(Context context) {
     this(context, VERTICAL, false);
@@ -368,7 +369,19 @@ public class HippyWaterfallLayoutManager extends BaseLayoutManager {
     }
     int remainingSpace = renderState.mAvailable + renderState.mExtra;
     while (remainingSpace > 0) {
-      if (renderState.hasMore(state) == RenderState.FILL_TYPE_NOMORE) {
+      int hasMoreState = renderState.hasMore(state);
+
+      boolean isEndReached = renderState.mItemDirection > 0 && !mEndReached
+        && (hasMoreState == RenderState.FILL_TYPE_NOMORE
+        || hasMoreState == RenderState.FILL_TYPE_FOOTER);
+      if (isEndReached) {
+        mEndReached = true;
+        if (mRecyclerView.getAdapter() != null) {
+          mRecyclerView.getAdapter().notifyEndReached();
+        }
+      }
+
+      if (hasMoreState == RenderState.FILL_TYPE_NOMORE) {
         return remainingSpace;
       }
 
@@ -388,6 +401,8 @@ public class HippyWaterfallLayoutManager extends BaseLayoutManager {
         // no more items to layout.
         break;
       }
+
+      mEndReached = false;
 
       if (isFooterView(view)) {
         firstItemWidth = (getWidth() - getPaddingLeft() - getPaddingRight());
