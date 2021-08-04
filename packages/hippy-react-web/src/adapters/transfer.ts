@@ -216,7 +216,7 @@ function hackWebStyle(webStyle_: any) {
     });
   }
 
-  // 处理lineHeight
+  // hack lineHeight
   if (hasOwnProperty(webStyle, 'lineHeight')) {
     webStyle.lineHeight = toPx(webStyle.lineHeight);
   }
