@@ -12,7 +12,7 @@ type Adapter = AndroidProtocol | IOS8Protocol | IOS9Protocol | IOS12Protocol;
 class MessageChannel {
   // id: devtoolsClientId
   adapterMap = new Map<string, Adapter>();
-  // id: page.webSocketDebuggerUrl
+  // id: target.id
   appClientMap = new Map<string, AppClient[]>();
   // id: req.url
   devtoolsClientMap = new Map<string, DevtoolsClient>();
@@ -28,7 +28,7 @@ class MessageChannel {
     const adapterId = devtoolsClientId;
     const appClientId = target.id;
 
-    if(this.devtoolsClientMap.has(devtoolsClientId)) {
+    if (this.devtoolsClientMap.has(devtoolsClientId)) {
       const devtoolsClient = this.devtoolsClientMap.get(devtoolsClientId);
       const appClients = this.appClientMap.get(appClientId);
       return { devtoolsClient, appClients };
@@ -37,8 +37,8 @@ class MessageChannel {
     const devtoolsClient = new DevtoolsClient(devtoolsClientId);
     this.devtoolsClientMap.set(devtoolsClientId, devtoolsClient);
 
-    if(target.platform === DevicePlatform.Android) {
-      if(this.adapterMap.has(adapterId)) {
+    if (target.platform === DevicePlatform.Android) {
+      if (this.adapterMap.has(adapterId)) {
         return {
           appClients: this.appClientMap.get(appClientId),
           devtoolsClient,
@@ -46,9 +46,8 @@ class MessageChannel {
       }
 
       const appClientOptions = appClientManager.getAndroidAppClients();
-      const appClients = appClientOptions.map(({ctor, ...option}) => {
-        if(ctor.name === AppClientType.WS)
-          option.ws = target.ws;
+      const appClients = appClientOptions.map(({ ctor, ...option }) => {
+        if (ctor.name === AppClientType.WS) option.ws = target.ws;
         return new ctor(appClientId, option);
       });
       const androidTarget = new AndroidTarget(devtoolsClient, appClients);
@@ -56,31 +55,30 @@ class MessageChannel {
       this.adapterMap.set(adapterId, adapter);
       this.appClientMap.set(appClientId, appClients);
       return { appClients, devtoolsClient };
-    } else if(target.platform === DevicePlatform.IOS) {
-      if(!target.webSocketDebuggerUrl) return;
+    } else if (target.platform === DevicePlatform.IOS) {
+      if (!target.webSocketDebuggerUrl) return;
 
       const appClientOptions = appClientManager.getIosAppClients();
       const version = target.device.deviceOSVersion;
       // const url = target.webSocketDebuggerUrl;
 
-      if(this.adapterMap.has(adapterId)) {
-        const appClients =  this.appClientMap.get(appClientId);
+      if (this.adapterMap.has(adapterId)) {
+        const appClients = this.appClientMap.get(appClientId);
         return { appClients, devtoolsClient };
       }
 
       let appClients;
-      if(this.appClientMap.has(appClientId))
-        appClients = this.appClientMap.get(appClientId);
+      if (this.appClientMap.has(appClientId)) appClients = this.appClientMap.get(appClientId);
       else {
-        appClients = appClientOptions.map(({ctor, ...option}) => {
+        appClients = appClientOptions.map(({ ctor, ...option }) => {
           return new ctor(appClientId, option);
-        })
+        });
       }
       const iosTarget = new IosTarget(devtoolsClient, appClients, target);
       const adapter = getIosProtocolAdapter(version, iosTarget);
       this.adapterMap.set(adapterId, adapter);
       this.appClientMap.set(appClientId, appClients);
-      return {appClients, devtoolsClient};
+      return { appClients, devtoolsClient };
     } else {
       debug('invalid platform!');
     }
@@ -102,7 +100,7 @@ class MessageChannel {
    */
   getInstance(appClientId: string, devtoolsClientId: string): Adapter.Channel | void {
     const adapter = this.adapterMap.get(devtoolsClientId);
-    if(!adapter) return debug('message channel adapter instance doesn\'t exist!!!');
+    if (!adapter) return debug("message channel adapter instance doesn't exist!!!");
 
     return {
       sendMessage: adapter.target.devtoolsClient.sendMessage.bind(adapter.target.devtoolsClient),

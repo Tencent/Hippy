@@ -6,6 +6,7 @@ import WebSocket, { Server } from 'ws/index.js';
 import createDebug from 'debug';
 
 const debug = createDebug('devtools-client');
+createDebug.enable('devtools-client');
 const noop = () => {};
 /**
  * 对外接口：
@@ -20,9 +21,11 @@ export class DevtoolsClient extends EventEmitter {
   domainListeners: Map<string, Array<Adapter.DomainCallback>> = new Map();
   // 记录下行消息 id 和 method 的map，在消息上行时可以根据id获取其 method
   msgIdMethodMap: Map<number, string> = new Map();
-  sendToDevtools: (msg: string) => void = noop;
+  sendToDevtools: (msg: Adapter.CDP.Res) => void = noop;
   // app端断连，devtools ws主动断连。socket-bridge中赋值
   close: () => void = noop;
+  connectionList = [];
+  onCloseList = [];
 
   constructor(id) {
     super();
@@ -35,8 +38,8 @@ export class DevtoolsClient extends EventEmitter {
    */
   sendMessage(msg: Tunnel.Req | Adapter.CDP.Req) {
     // 自定义协议无需适配，下行至 tunnel
-    if('module' in msg) {
-      if (msg.module !== 'jsDebugger') {
+    if ('module' in msg) {
+      if (msg.module !== undefined) {
         sendMessage(msg as Tunnel.Req);
       }
     }
@@ -53,23 +56,21 @@ export class DevtoolsClient extends EventEmitter {
    * @returns
    */
   send(msg: Adapter.CDP.Res) {
-    if(this.sendToDevtools) {
-      const msgStr = JSON.stringify(msg);
-      this.sendToDevtools(msgStr);
+    if (!msg) return;
+    // if ('error' in msg) return;
+
+    if ('id' in msg) msg.method = this.msgIdMethodMap.get(msg.id);
+
+    // if (!msg.method) return;
+
+    if (this.sendToDevtools) {
+      // const msgStr = JSON.stringify(msg);
+      this.sendToDevtools(msg);
     }
 
-    if(!msg) return;
-    if('error' in msg) return ;
-
-    let method;
-    if('id' in msg) method = this.msgIdMethodMap.get(msg.id);
-    else method = msg.method;
-
-    if(!method) return;
-    const domain = method.split('.')[0];
-    const listeners = (this.domainListeners.get(domain) || [])
-      .concat(this.domainListeners.get(method) || [])
-    listeners.forEach(listener => {
+    const domain = msg.method?.split('.')[0];
+    const listeners = (this.domainListeners.get(domain) || []).concat(this.domainListeners.get(msg.method) || []);
+    listeners.forEach((listener) => {
       listener(msg);
     });
   }
@@ -93,24 +94,42 @@ export class DevtoolsClient extends EventEmitter {
     this.domainListeners.get(domain).push(cb);
   }
 
-  bindWs(ws: WebSocket, removeChannel) {
+  addConnection({ ws, customDomains }: Adapter.Connection<WebSocket>, onClose) {
     ws.on('message', (msg: string) => {
       try {
         const msgObj = JSON.parse(msg);
         this.sendMessage(msgObj);
-      }
-      catch(e) {
+      } catch (e) {
         debug('parse devtools ws message error!');
       }
     });
     ws.on('close', () => {
       this.emit(ClientEvent.Close);
-      removeChannel()
+      onClose();
     });
-    this.sendToDevtools = ws.send.bind(ws);
+
+    this.onCloseList.push(onClose);
+    this.connectionList.push({ ws, customDomains });
+
+    this.sendToDevtools = (msg: Adapter.CDP.Res) => {
+      const domain = msg.method?.split('.')[0];
+      debug('%j', msg);
+      this.connectionList.forEach(({ ws, customDomains }) => {
+        if (customDomains.length === 0 || customDomains.indexOf(domain) !== -1) {
+          ws.send(JSON.stringify(msg));
+        }
+      });
+    };
+
     this.close = () => {
-      ws.close();
-      removeChannel();
+      this.connectionList.forEach(({ ws }) => {
+        ws.close();
+      });
+      this.onCloseList.forEach((cb) => cb());
     };
   }
+
+  // bindConnection(connectionList: Adapter.ConnectionList<WebSocket>, removeChannel) {
+  //   connectionList.forEach(({ ws }) => {});
+  // }
 }

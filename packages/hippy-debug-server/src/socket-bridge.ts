@@ -14,6 +14,7 @@ export class SocketBridge {
   appWsMap = new Map<string, WebSocket>();
   wss: Server;
   server;
+  connectionListMap: Adapter.ConnectionListMap<WebSocket> = new Map();
 
   constructor(server, { wsPath }) {
     this.wsPath = wsPath;
@@ -28,7 +29,7 @@ export class SocketBridge {
   }
 
   onConnection(ws, req) {
-    let { appClientType, role, clientId, targetId, debugPage, pathname, platform } = getClientInfo(req.url);
+    let { appClientType, role, clientId, targetId, debugPage, pathname, customDomains } = getClientInfo(req.url);
     debug('debug page: %j', debugPage);
     debug('%s connected!', role);
 
@@ -36,6 +37,13 @@ export class SocketBridge {
     if (!Object.values(ClientRole).includes(role)) return debug('invalid client role!');
 
     if (role === ClientRole.Devtools) {
+      if (!this.connectionListMap.has(targetId)) this.connectionListMap.set(targetId, []);
+      const connection = {
+        ws,
+        customDomains,
+      };
+      this.connectionListMap.get(targetId).push(connection);
+
       const appWs = this.appWsMap.get(targetId);
       if (!appWs && appClientType.indexOf(AppClientType.WS) !== -1) return debug('app ws is not connected!!!');
 
@@ -47,8 +55,15 @@ export class SocketBridge {
 
       // bind appWs
 
-      const removeChannel = () => messageChannel.removeChannel(target.id, devtoolsClient.id);
-      devtoolsClient.bindWs(ws, removeChannel);
+      const onClose = () => {
+        messageChannel.removeChannel(target.id, devtoolsClient.id);
+        const connList = this.connectionListMap.get(targetId);
+        const i = connList.findIndex((conn) => conn.ws === ws);
+        if (i !== -1) {
+          connList.splice(i, 1);
+        }
+      };
+      devtoolsClient.addConnection(connection, onClose);
     } else {
       debug('ws app client created');
       if (role === ClientRole.Android) {
@@ -80,13 +95,25 @@ const getClientInfo = (reqUrl) => {
   const bundleName = url.searchParams.get('bundleName');
   let appClientType = (url.searchParams.get('appClientType') as AppClientType) || '[]';
   let debugPage: any = url.searchParams.get('debugPage') || '{}';
+  let customDomains: any = url.searchParams.get('customDomains') || '[]';
   try {
     appClientType = JSON.parse(decodeURIComponent(appClientType));
     debugPage = JSON.parse(decodeURIComponent(debugPage));
+    customDomains = JSON.parse(decodeURIComponent(customDomains));
   } catch (e) {
     debugPage = {};
     debug('parse debug page json error: %j', e);
   }
 
-  return { appClientType, platform, clientId, targetId, debugPage, pathname: url.pathname, role, bundleName };
+  return {
+    appClientType,
+    platform,
+    clientId,
+    targetId,
+    debugPage,
+    pathname: url.pathname,
+    role,
+    bundleName,
+    customDomains,
+  };
 };

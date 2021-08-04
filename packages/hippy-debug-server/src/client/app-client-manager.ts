@@ -49,17 +49,23 @@ export const initHippyEnv = () => {
   appClientManager.addAndroidAppClients({
     useAllDomain: true,
     useAdapter: true,
-    ctor: WsAppClient,
+    ctor: TunnelAppClient,
   });
   appClientManager.addIosAppClients({
     useAllDomain: true,
     useAdapter: true,
     ctor: IwdpAppClient,
   });
+  appClientManager.addIosAppClients({
+    useAllDomain: false,
+    domains: customDomains,
+    useAdapter: false,
+    ctor: TunnelAppClient,
+  });
 };
 
 // 终端自己实现的域
-const customDomains = ['Page', 'Dom', 'Css', 'Overlay'];
+const customDomains = ['Page', 'DOM', 'CSS', 'Overlay'];
 
 /**
  * voltron

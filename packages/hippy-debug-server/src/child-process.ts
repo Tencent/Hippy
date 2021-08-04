@@ -2,6 +2,10 @@ import { spawn } from 'child_process';
 import { exec } from './utils/process';
 import createDebug from 'debug';
 import path from 'path';
+import { TunnelEvent } from './@types/enum';
+import { onMessage } from './message-channel/tunnel';
+const addon = require('./build/Tunnel.node');
+global.addon = addon;
 
 const debug = createDebug('child-process');
 createDebug.enable('child-process');
@@ -10,11 +14,11 @@ let proxyProcess;
 type TunnelParams = { iwdpPort: string; iwdpStartPort: string; iwdpEndPort: string };
 
 export const startTunnel = ({ iwdpPort, iwdpStartPort, iwdpEndPort }: TunnelParams) => {
-  const addon = require('./build/Tunnel.node');
-  global.addon = addon;
-
-  global.addon.addEventListener((event) => {
+  addon.addEventListener((event, data) => {
     debug(`receive tunnel event: ${event}`);
+    if (event === TunnelEvent.ReceiveData) {
+      onMessage(data);
+    }
   });
 
   const adbPath = path.join(__dirname, './build/adb');
