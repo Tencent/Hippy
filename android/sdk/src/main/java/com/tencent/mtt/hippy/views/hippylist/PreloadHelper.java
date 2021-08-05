@@ -2,7 +2,7 @@ package com.tencent.mtt.hippy.views.hippylist;
 
 import static com.tencent.mtt.hippy.views.hippylist.PullFooterEventHelper.EVENT_ON_END_REACHED;
 
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 

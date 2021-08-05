@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package android.support.v7.widget;
+package androidx.recyclerview.widget;
 
-import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewHolder;

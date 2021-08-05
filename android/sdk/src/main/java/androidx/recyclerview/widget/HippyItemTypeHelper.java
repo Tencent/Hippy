@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package android.support.v7.widget;
+package androidx.recyclerview.widget;
 
-import android.support.v7.widget.RecyclerView.RecycledViewPool;
-import android.support.v7.widget.RecyclerView.RecycledViewPool.ScrapData;
-import android.support.v7.widget.RecyclerView.Recycler;
-import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.util.SparseArray;
+import androidx.recyclerview.widget.RecyclerView.RecycledViewPool;
+import androidx.recyclerview.widget.RecyclerView.RecycledViewPool.ScrapData;
+import androidx.recyclerview.widget.RecyclerView.Recycler;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewHolder;
 import java.util.ArrayList;
 
 /**
- * Created  on 2021/1/4.
+ * Created on 2021/1/4.
  * Description
  * Hippy 前端如果发生Item类型的变化，终端的RecyclerView需要将所有的ViewHolder进行同步修改
  */

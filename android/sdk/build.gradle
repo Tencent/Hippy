@@ -29,7 +29,7 @@ dependencies {
     api fileTree(include: ['*.jar'], dir: 'src/main/libs/')
     implementation 'com.tencent.mtt:support-ui:2.3.3'
     implementation project(':android-res')
-    api 'com.tencent.mtt.easy.list:easyrecyclerlist:qb-11.8.5.1'
+    api 'com.tencent.mtt.easy.list:easyrecyclerlist:qb-androidx-1.0'
 
     testImplementation 'junit:junit:4.12'
     testImplementation "org.powermock:powermock-classloading-xstream:2.0.7"
@@ -39,9 +39,9 @@ dependencies {
     testImplementation "org.powermock:powermock-module-junit4:2.0.7"
     testImplementation 'org.powermock:powermock-module-junit4-rule:2.0.7'
     testImplementation "org.powermock:powermock-api-mockito2:2.0.7"
-    testImplementation 'com.android.support.test:runner:1.0.2'
-    testImplementation 'com.android.support.test:rules:1.0.2'
-    testImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    testImplementation 'androidx.test.ext:junit:1.1.1'
+    testImplementation 'androidx.test:rules:1.1.1'
+    testImplementation 'androidx.test.espresso:espresso-core:3.1.0'
     testImplementation 'org.robolectric:robolectric:3.3.2'
 }
 

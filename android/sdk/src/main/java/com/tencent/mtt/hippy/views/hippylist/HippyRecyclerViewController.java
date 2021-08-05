@@ -17,8 +17,8 @@
 package com.tencent.mtt.hippy.views.hippylist;
 
 import android.content.Context;
-import android.support.v7.widget.EasyLinearLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.EasyLinearLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import android.view.View;
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.HippyRootView;

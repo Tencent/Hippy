@@ -3,7 +3,7 @@ package com.tencent.mtt.hippy.views.hippylist;
 import android.app.Application;
 import android.content.Context;
 import android.os.Build.VERSION;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;

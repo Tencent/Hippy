@@ -18,10 +18,10 @@ package com.tencent.mtt.hippy.views.hippylist;
 
 import android.content.Context;
 import android.os.Build.VERSION_CODES;
-import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
-import android.support.v7.widget.HippyRecyclerExtension;
-import android.support.v7.widget.HippyRecyclerPool;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.recyclerview.widget.HippyRecyclerExtension;
+import androidx.recyclerview.widget.HippyRecyclerPool;
 import android.view.View;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.FrameLayout;

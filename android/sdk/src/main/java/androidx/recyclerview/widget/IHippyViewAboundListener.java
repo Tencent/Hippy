@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.support.v7.widget;
+package androidx.recyclerview.widget;
 
 import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewHolder;
 

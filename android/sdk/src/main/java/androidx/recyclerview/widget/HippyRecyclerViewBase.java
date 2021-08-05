@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package android.support.v7.widget;
+package androidx.recyclerview.widget;
 
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.EasyRecyclerView;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 /**
  * Created on 2020/10/14.

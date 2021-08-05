@@ -18,11 +18,11 @@ package com.tencent.mtt.hippy.views.hippylist;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
-import android.support.annotation.NonNull;
-import android.support.v7.widget.HippyItemTypeHelper;
-import android.support.v7.widget.IItemLayoutParams;
-import android.support.v7.widget.RecyclerView.Adapter;
-import android.support.v7.widget.RecyclerView.LayoutParams;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.HippyItemTypeHelper;
+import androidx.recyclerview.widget.IItemLayoutParams;
+import androidx.recyclerview.widget.RecyclerView.Adapter;
+import androidx.recyclerview.widget.RecyclerView.LayoutParams;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
