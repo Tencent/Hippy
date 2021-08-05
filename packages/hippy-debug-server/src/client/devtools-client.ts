@@ -3,6 +3,7 @@ import { EventEmitter } from 'events';
 import WebSocket from 'ws/index.js';
 import { ClientEvent } from '../@types/enum';
 import { Tunnel } from '../@types/tunnel';
+import { getHeapMeta, saveHeapMeta } from '../controller/heap-controller';
 import { registerModuleCallback, sendMessage } from '../message-channel/tunnel';
 import { isCdpDomains } from '../utils/cdp';
 
@@ -41,7 +42,12 @@ export class DevtoolsClient extends EventEmitter {
     // 自定义协议无需适配，下行至 tunnel
     if ('module' in msg) {
       if (msg.module !== undefined) {
-        sendMessage(msg as Tunnel.Req);
+        if (msg.module === 'fetchHeapMeta') {
+          const id = msg.content[0].id;
+          getHeapMeta(id).then((data) => {
+            this.sendToDevtools({ ...msg, content: data.content } as any);
+          });
+        } else sendMessage(msg as Tunnel.Req);
       }
     }
     // CDP/IWDP 协议需适配，下行至 adapter
@@ -66,6 +72,11 @@ export class DevtoolsClient extends EventEmitter {
 
     if (this.sendToDevtools) {
       // const msgStr = JSON.stringify(msg);
+      const method = msg.method || (msg as any).module;
+      if (method === 'getHeapMeta') {
+        saveHeapMeta(msg);
+      }
+
       this.sendToDevtools(msg);
     }
 
@@ -134,4 +145,6 @@ export class DevtoolsClient extends EventEmitter {
   // bindConnection(connectionList: Adapter.ConnectionList<WebSocket>, removeChannel) {
   //   connectionList.forEach(({ ws }) => {});
   // }
+
+  handleHeapData(msg) {}
 }

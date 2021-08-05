@@ -1,7 +1,7 @@
-import { EventEmitter } from 'events';
-import { AppClient, DevtoolsClient } from '../../client';
-import { ClientEvent } from '../../@types/enum';
 import createDebug from 'debug';
+import { EventEmitter } from 'events';
+import { ClientEvent } from '../../@types/enum';
+import { AppClient, DevtoolsClient } from '../../client';
 import CssDomain from './domain/css';
 
 const debugDown = createDebug('↓↓↓');
@@ -20,13 +20,14 @@ export class AndroidTarget extends EventEmitter {
 
     devtoolsClient.on(ClientEvent.Message, (msg) => {
       debugDown('%j', msg);
+
       const newMessage = this.cssDomain.handlerDown(msg) || msg;
-      this.appClients.forEach(appClient => {
+      this.appClients.forEach((appClient) => {
         appClient.send(newMessage);
       });
     });
 
-    this.appClients.forEach(appClient => {
+    this.appClients.forEach((appClient) => {
       appClient.on(ClientEvent.Message, (msg) => {
         debugUp('%j', msg);
         const newMessage = this.cssDomain.handlerUp(msg) || msg;
@@ -34,7 +35,7 @@ export class AndroidTarget extends EventEmitter {
       });
     });
 
-    this.appClients.forEach(appClient => {
+    this.appClients.forEach((appClient) => {
       appClient.on(ClientEvent.Close, () => {
         devtoolsClient.close();
         debugUp('app client closed, close devtools ws now!');
@@ -42,9 +43,9 @@ export class AndroidTarget extends EventEmitter {
     });
 
     devtoolsClient.on(ClientEvent.Close, () => {
-      this.appClients.forEach(appClient => {
+      this.appClients.forEach((appClient) => {
         appClient.resume();
-      })
+      });
       debugDown('devtools client closed, resume v8/jsc now!');
     });
   }

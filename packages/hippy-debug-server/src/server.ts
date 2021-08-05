@@ -1,11 +1,11 @@
+import createDebug from 'debug';
+import kill from 'kill-port';
 import Koa from 'koa';
 import serve from 'koa-static';
 import path from 'path';
-import { SocketBridge } from './socket-bridge';
-import chromeInspectRouter from './router/chrome-inspect-router';
 import { startAdbProxy, startIosProxy, startTunnel } from './child-process';
-import createDebug from 'debug';
-import kill from 'kill-port';
+import chromeInspectRouter from './router/chrome-inspect-router';
+import { SocketBridge } from './socket-bridge';
 
 const debug = createDebug('server');
 let server;

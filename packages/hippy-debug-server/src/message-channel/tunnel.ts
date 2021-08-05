@@ -2,12 +2,12 @@ import { EventEmitter } from 'events';
 /**
  * 注意：请勿引用此文件接口🚫，需调用 dev-server/adapter 下的 messageChannel 做消息收发！！！
  */
-
 import { Tunnel } from '../@types/tunnel';
 
 export const listeners = new Map();
 let isTunnelReady = true;
 let msgQueue: Tunnel.Req[] = [];
+const msgModuleIdMap: Map<string, string> = new Map();
 
 export function createTunnelClient() {
   isTunnelReady = true;
@@ -22,6 +22,10 @@ export function onMessage(msg) {
   try {
     const moduleObject: any = JSON.parse(msg).modules[0];
     const message: string = moduleObject.content;
+    const id = msgModuleIdMap.get(moduleObject.module);
+    (moduleObject as any).id = id;
+    msgModuleIdMap.delete(moduleObject.module);
+
     console.warn('on tunnel message', moduleObject.module, listeners.has(moduleObject.module));
     if (listeners.has(moduleObject.module)) {
       listeners.get(moduleObject.module).forEach((cb) => {
@@ -41,6 +45,7 @@ export function sendMessage(msg: Tunnel.Req): void {
     console.info('tunnel is not ready, push msg to queue.');
     return;
   }
+  msgModuleIdMap.set(msg.module, (msg as any).id);
   console.info('sendMessage', msg);
   global.addon.sendMsg(
     JSON.stringify({

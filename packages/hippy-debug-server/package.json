@@ -10,7 +10,8 @@
     "hippy-debug": "dist/index.js"
   },
   "scripts": {
-    "dev": "cross-env DEBUG=*,-↓↓↓,-↑↑↑,-koa-router TS_NODE_FILES=true node --inspect=127.0.0.1:9229 -r ts-node/register src/index.ts --entry=src/public/index.bundle",
+    "start": "nodemon",
+    "dev": "mkdir -p dist/cache & mkdir -p src/cache & cross-env DEBUG=*,-↓↓↓,-↑↑↑,-koa-router TS_NODE_FILES=true node --inspect=127.0.0.1:7777 -r ts-node/register src/index.ts --entry=src/public/index.bundle",
     "build": "npx gulp",
     "test": "npx jest"
   },
@@ -62,7 +63,7 @@
     "gulp-typescript": "^6.0.0-alpha.1",
     "jest": "^27.0.6",
     "jest-transform-stub": "^2.0.0",
-    "nodemon": "^2.0.10",
+    "nodemon": "^2.0.12",
     "ts-jest": "^27.0.3",
     "ts-node": "^10.0.0",
     "tsconfig-paths": "^3.10.1",
