@@ -30,7 +30,7 @@ publishing {
         myPub(MavenPublication) {
             groupId 'com.tencent.qqbrowser.hippyforqb'
             artifactId 'hippysdk'
-            version 'qb-androidx-1.0'
+            version 'qb-androidx-0.1'
             artifact(androidSourcesJar)
             artifact("$buildDir/outputs/aar/android-sdk-release.aar")
             pom.withXml {
