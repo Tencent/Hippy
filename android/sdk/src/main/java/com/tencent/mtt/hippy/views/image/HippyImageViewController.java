@@ -69,24 +69,6 @@ public class HippyImageViewController extends HippyViewController<HippyImageView
     hippyImageView.setUrl(getInnerPath((HippyInstanceContext) hippyImageView.getContext(), url));
   }
 
-  private static String getInnerPath(HippyInstanceContext context, String path) {
-    //hpfile://./assets/file_banner02.jpg
-    if (path != null && path.startsWith("hpfile://")) {
-      String relativePath = path.replace("hpfile://./", "");
-      //hippysdk的图片加载协议
-      String bundlePath = null;
-      if (context.getBundleLoader() != null) {
-        bundlePath = context.getBundleLoader().getPath();
-      }
-
-      path = bundlePath == null ? null
-          : bundlePath.subSequence(0, bundlePath.lastIndexOf(File.separator) + 1) + relativePath;
-      //assets://index.android.jsbundle
-      //file:sdcard/hippy/feeds/index.android.jsbundle
-    }
-    return path;
-  }
-
   @SuppressWarnings("unused")
   @HippyControllerProps(name = "tintColor", defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.TRANSPARENT)
   public void setTintColor(HippyImageView hippyImageView, int tintColor) {
