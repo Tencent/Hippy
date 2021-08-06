@@ -4,11 +4,13 @@ import Koa from 'koa';
 import serve from 'koa-static';
 import path from 'path';
 import { startAdbProxy, startIosProxy, startTunnel } from './child-process';
+import { initDir } from './init';
 import chromeInspectRouter from './router/chrome-inspect-router';
 import { SocketBridge } from './socket-bridge';
 
 const debug = createDebug('server');
 let server;
+initDir();
 
 export const startServer = async (argv) => {
   const {
