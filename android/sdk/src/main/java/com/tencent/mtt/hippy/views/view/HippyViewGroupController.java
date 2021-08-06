@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy.views.view;
 import android.content.Context;
 import android.view.View;
 
+import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
@@ -60,7 +61,7 @@ public class HippyViewGroupController extends HippyGroupController<HippyViewGrou
 
   @HippyControllerProps(name = NodeProps.BACKGROUND_IMAGE, defaultType = HippyControllerProps.STRING)
   public void setBackgroundImage(HippyViewGroup hippyViewGroup, String url) {
-    hippyViewGroup.setUrl(url);
+    hippyViewGroup.setUrl(getInnerPath((HippyInstanceContext)hippyViewGroup.getContext(), url));
   }
 
   @HippyControllerProps(name = NodeProps.BACKGROUND_SIZE, defaultType = HippyControllerProps.STRING, defaultString = "origin")

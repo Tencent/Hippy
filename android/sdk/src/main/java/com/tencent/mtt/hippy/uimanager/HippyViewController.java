@@ -40,6 +40,7 @@ import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
 import com.tencent.mtt.supportui.views.IGradient;
 import com.tencent.mtt.supportui.views.IShadow;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -697,5 +698,23 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
       return ((ViewGroup) viewGroup).getChildAt(i);
     }
     return null;
+  }
+
+  protected String getInnerPath(HippyInstanceContext context, String path) {
+    //hpfile://./assets/file_banner02.jpg
+    if (path != null && path.startsWith("hpfile://")) {
+      String relativePath = path.replace("hpfile://./", "");
+      //hippysdk的图片加载协议
+      String bundlePath = null;
+      if (context.getBundleLoader() != null) {
+        bundlePath = context.getBundleLoader().getPath();
+      }
+
+      path = bundlePath == null ? null
+          : bundlePath.subSequence(0, bundlePath.lastIndexOf(File.separator) + 1) + relativePath;
+      //assets://index.android.jsbundle
+      //file:sdcard/hippy/feeds/index.android.jsbundle
+    }
+    return path;
   }
 }
