@@ -645,7 +645,17 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
   @Override
   public void onDevBundleReLoad() {
-    restartEngineInBackground();
+    mEngineContext.destroyBridge(new Callback<Boolean>() {
+      @Override
+      public void callback(Boolean param, Throwable e) {
+        UIThreadUtils.runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+            restartEngineInBackground();
+          }
+        });
+      }
+    });
   }
 
   @Override
