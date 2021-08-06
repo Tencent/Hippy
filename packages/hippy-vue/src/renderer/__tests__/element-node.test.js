@@ -171,6 +171,8 @@ test('Element.setStyle test', (t) => {
   t.deepEqual(node.style.linearGradient, { angle: '180', colorStopList: [{ color: 4294901760 }, { color: 4294967040, ratio: 0.1 }, { color: 4278190335, ratio: 0.1 }] });
   node.setStyle('backgroundImage', 'linear-gradient(10.12341234deg, red, yellow 10%, blue 10%)');
   t.deepEqual(node.style.linearGradient, { angle: '10.12', colorStopList: [{ color: 4294901760 }, { color: 4294967040, ratio: 0.1 }, { color: 4278190335, ratio: 0.1 }] });
+  node.setStyle('backgroundImage', 'linear-gradient(10.12341234deg, rgba(55, 11, 43, 0.5) 5%, rgb(55, 13, 43) 10%,  rgba(55, 11, 43, 0.1) 23%)');
+  t.deepEqual(node.style.linearGradient, { angle: '10.12', colorStopList: [{ ratio: 0.05, color: 2151090987 }, { ratio: 0.1, color: 4281797931 }, { ratio: 0.23, color: 439814955 }] });
 });
 
 test('Element.setStyle with pre-processed style test', (t) => {
