@@ -7,9 +7,9 @@ import {
 } from '@hippy/react';
 
 // Import the image to base64 for defaultSource props.
-import defaultSource from './defaultSource.jpg';
+import imageUrl from './defaultSource.jpg';
 
-const imageUrl = 'https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png';
+const defaultSource = 'https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png';
 
 const styles = StyleSheet.create({
   container_style: {

@@ -10,7 +10,8 @@ const manifest = require('../dist/ios/vendor-manifest.json');
 const platform = 'ios';
 
 module.exports = {
-  mode: 'production',
+  mode: 'development',
+  devtool: 'eval-source-map',
   bail: true,
   entry: {
     index: ['regenerator-runtime', path.resolve(pkg.main)],
@@ -25,7 +26,7 @@ module.exports = {
   plugins: [
     new webpack.NamedModulesPlugin(),
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify('production'),
+      'process.env.NODE_ENV': JSON.stringify('development'),
       __PLATFORM__: JSON.stringify(platform),
     }),
     new CaseSensitivePathsPlugin(),
@@ -75,12 +76,12 @@ module.exports = {
         use: [{
           loader: 'url-loader',
           options: {
-            limit: true,
+            // limit: true,
             // TODO local path not supported on defaultSource/backgroundImage
-            // limit: 8192,
-            // fallback: 'file-loader',
-            // name: '[name].[ext]',
-            // outputPath: 'assets/',
+            limit: 8192,
+            fallback: 'file-loader',
+            name: '[name].[ext]',
+            outputPath: 'assets/',
           },
         }],
       },

@@ -85,6 +85,22 @@ function setSilent(silentArg: boolean): void {
   silent = silentArg;
 }
 
+/**
+ * Convert Image url to specific type
+ * @param url - image path
+ */
+function convertImgUrl(url: string): string {
+  if (url && !/^(http|https):\/\//.test(url) && url.indexOf('assets') > -1) {
+    // if (process.env.NODE_ENV === 'development') {
+    //   const addStr1 = 'http://';
+    //   return `${addStr1}127.0.0.1:${process.env.PORT}/${url}`;
+    // }
+    const addStr2 = 'hpfile://';
+    return `${addStr2}./${url}`;
+  }
+  return url;
+}
+
 export {
   trace,
   warn,
@@ -93,4 +109,5 @@ export {
   isFunction,
   isNumber,
   setSilent,
+  convertImgUrl,
 };
