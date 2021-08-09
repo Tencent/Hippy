@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.8.1](https://github.com/Tencent/Hippy/compare/2.8.0...2.8.1) (2021-08-09)
+
+
+### Bug Fixes
+
+* **core:** fix uri crash ([a2a9e86](https://github.com/Tencent/Hippy/commit/a2a9e8606fb3d1073759c999f3e4bd3675d75798))
+* **ios:** fix bug when hippyview uses local image ([4849c26](https://github.com/Tencent/Hippy/commit/4849c264581f5566b04823d77f4ad2df38344739))
+* **react,vue:** fix rgb format for linear-gradient parser ([1ae803c](https://github.com/Tencent/Hippy/commit/1ae803c9aa7eb77601d7f995b73c451e0a6971bc))
+
+
+### Features
+
+* **android:** support hpfile use in backgroundImage ([c4808c8](https://github.com/Tencent/Hippy/commit/c4808c8109b73a6d062e6c34e6634f8412c9b7e3))
+* **react:** add local img ([3d901a8](https://github.com/Tencent/Hippy/commit/3d901a8f7478a04bc7af16106e7e3bf5cb2a2752))
+
+
+
+
+
 # [2.8.0](https://github.com/Tencent/Hippy/compare/2.7.6...2.8.0) (2021-08-04)
 
 

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.8.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-css-loader/compare/2.8.0...2.8.1) (2021-08-09)
+
+
+### Bug Fixes
+
+* **react,vue:** fix rgb format for linear-gradient parser ([1ae803c](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-css-loader/commit/1ae803c9aa7eb77601d7f995b73c451e0a6971bc))
+
+
+
+
+
 # [2.8.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-css-loader/compare/2.7.6...2.8.0) (2021-08-04)
 
 
