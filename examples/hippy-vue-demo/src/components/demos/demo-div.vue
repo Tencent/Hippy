@@ -215,7 +215,7 @@ export default {
     transform: rotate(30deg) scale(.5);
     width: 120px;
     height: 120px;
-  }  fszxc
+  }
 
   .div-demo-transform-text {
     line-height: 120px;

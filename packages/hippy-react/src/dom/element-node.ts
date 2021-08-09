@@ -14,6 +14,7 @@ import {
   tryConvertNumber,
   isNumber,
   warn,
+  convertImgUrl,
 } from '../utils';
 import '@localTypes/global';
 
@@ -169,7 +170,7 @@ function parseBackgroundImage(styleKey: string, styleValue: string, style: any) 
     });
     style.linearGradient.colorStopList = colorStopList;
   } else {
-    (style as any)[styleKey] = styleValue;
+    (style as any)[styleKey] = convertImgUrl(styleValue);
   }
   return style;
 }
