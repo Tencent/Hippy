@@ -51,7 +51,17 @@ bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
     return false;
   }
   unicode_string_view schema = uri_obj->GetScheme();
+  if (StringViewUtils::IsEmpty(schema)) {
+    TDF_BASE_DLOG(ERROR) << "schema error, uri = " << uri;
+    cb(u8string());
+    return false;
+  }
   unicode_string_view path = uri_obj->GetPath();
+  if (StringViewUtils::IsEmpty(path)) {
+    TDF_BASE_DLOG(ERROR) << "path error, uri = " << uri;
+    cb(u8string());
+    return false;
+  }
   TDF_BASE_DCHECK(schema.encoding() == unicode_string_view::Encoding::Utf16);
   std::u16string schema_str = schema.utf16_value();
   if (schema_str == u"file") {
@@ -78,10 +88,18 @@ bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
   std::shared_ptr<Uri> uri_obj = Uri::Create(uri);
   if (!uri_obj) {
     TDF_BASE_DLOG(ERROR) << "uri error, uri = " << uri;
-    return "";
+    return false;
   }
   unicode_string_view schema = uri_obj->GetScheme();
+  if (StringViewUtils::IsEmpty(schema)) {
+    TDF_BASE_DLOG(ERROR) << "schema error, uri = " << uri;
+    return false;
+  }
   unicode_string_view path = uri_obj->GetPath();
+  if (StringViewUtils::IsEmpty(path)) {
+    TDF_BASE_DLOG(ERROR) << "path error, uri = " << uri;
+    return false;
+  }
   TDF_BASE_DCHECK(schema.encoding() == unicode_string_view::Encoding::Utf16);
   std::u16string schema_str = schema.utf16_value();
   if (schema_str == u"file") {
@@ -103,10 +121,10 @@ bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
     }
 
     TDF_BASE_DLOG(ERROR) << "aasset_manager error, uri = " << uri;
-    return "";
+    return false;
   } else {
     TDF_BASE_DLOG(ERROR) << "schema error, schema = " << schema;
-    return "";
+    return false;
   }
 }
 
