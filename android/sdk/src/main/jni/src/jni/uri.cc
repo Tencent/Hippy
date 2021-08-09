@@ -103,6 +103,9 @@ unicode_string_view Uri::Normalize() {
       (jstring)j_env->CallObjectMethod(j_obj_uri_, j_normalize_method_id);
   jstring j_parsed_uri =
       (jstring)j_env->CallObjectMethod(j_normalize_uri, j_to_string_method_id);
+  if (!j_parsed_uri)  {
+    return u"";
+  }
   unicode_string_view ret = JniUtils::ToStrView(j_env, j_parsed_uri);
   j_env->DeleteLocalRef(j_parsed_uri);
   j_env->DeleteLocalRef(j_normalize_uri);
@@ -114,6 +117,9 @@ unicode_string_view Uri::GetScheme() {
   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   jstring j_scheme =
       (jstring)j_env->CallObjectMethod(j_obj_uri_, j_get_scheme_method_id);
+  if (!j_scheme) {
+    return u"";
+  }
   unicode_string_view ret = JniUtils::ToStrView(j_env, j_scheme);
   j_env->DeleteLocalRef(j_scheme);
   return ret;
@@ -124,6 +130,9 @@ unicode_string_view Uri::GetPath() {
   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   jstring j_path =
       (jstring)j_env->CallObjectMethod(j_obj_uri_, j_get_path_method_id);
+  if (!j_path) {
+    return u"";
+  }
   unicode_string_view ret = JniUtils::ToStrView(j_env, j_path);
   j_env->DeleteLocalRef(j_path);
   return ret;
