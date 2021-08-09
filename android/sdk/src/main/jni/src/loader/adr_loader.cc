@@ -78,7 +78,7 @@ bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
   std::shared_ptr<Uri> uri_obj = Uri::Create(uri);
   if (!uri_obj) {
     TDF_BASE_DLOG(ERROR) << "uri error, uri = " << uri;
-    return "";
+    return false;
   }
   unicode_string_view schema = uri_obj->GetScheme();
   unicode_string_view path = uri_obj->GetPath();
@@ -103,10 +103,10 @@ bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
     }
 
     TDF_BASE_DLOG(ERROR) << "aasset_manager error, uri = " << uri;
-    return "";
+    return false;
   } else {
     TDF_BASE_DLOG(ERROR) << "schema error, schema = " << schema;
-    return "";
+    return false;
   }
 }
 
