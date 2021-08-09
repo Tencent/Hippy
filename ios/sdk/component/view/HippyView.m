@@ -30,6 +30,7 @@
 #import "UIView+Hippy.h"
 #import "HippyBackgroundImageCacheManager.h"
 #import "HippyGradientObject.h"
+#import "HippyBridge.h"
 
 static CGSize makeSizeConstrainWithType(CGSize originSize, CGSize constrainSize, NSString *resizeMode) {
     // width / height
@@ -56,7 +57,7 @@ static CGSize makeSizeConstrainWithType(CGSize originSize, CGSize constrainSize,
     return originSize;
 }
 
-dispatch_queue_t global_hpview_queue() {
+dispatch_queue_t global_hpview_queue(void) {
     static dispatch_queue_t g_background_queue = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -166,6 +167,14 @@ static NSString *HippyRecursiveAccessibilityLabel(UIView *view) {
 }
 
 @synthesize hippyZIndex = _hippyZIndex;
+
+- (instancetype)initWithBridge:(HippyBridge *)bridge {
+    self = [super init];
+    if (self) {
+        self.bridge = bridge;
+    }
+    return self;
+}
 
 - (instancetype)initWithFrame:(CGRect)frame {
     if ((self = [super initWithFrame:frame])) {
@@ -667,6 +676,7 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
 - (HippyBackgroundImageCacheManager *)backgroundCachemanager {
     if (!_backgroundCachemanager) {
         _backgroundCachemanager = [[HippyBackgroundImageCacheManager alloc] init];
+        _backgroundCachemanager.bridge = [self bridge];
     }
     return _backgroundCachemanager;
 }
