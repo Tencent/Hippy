@@ -98,6 +98,8 @@ Hippy 的样式排版使用了 Flex 布局。值得注意的是，尚不兼容�
 | --------------- | -------- |
 | string | 否      |
 
+> `2.8.1` 版本后支持终端本地图片能力，可通过 webpack `file-loader` 加载。
+
 > 渐变色目前支持 `linear-gradient`  线性渐变 `(最低支持版本 2.8.0）` [[MDN 文档]](//developer.mozilla.org/zh-CN/docs/orphaned/Web/CSS/linear-gradient())，支持使用 `linear-gradient([ [ [ <angle> | to [top | bottom] || [left | right] ],]? <color-stop>[, <color-stop>]+)` 格式; 其中 `angle` 支持 deg、turn、rad 单位；`color-stop` 支持设置多个颜色和百分比。DEMO： [HippyReact](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/components/View/index.jsx) [HippyVue](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue)
 > <br/>
 > <br/>

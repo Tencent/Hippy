@@ -133,6 +133,7 @@ bool RunScript(std::shared_ptr<Runtime> runtime,
                       << ", uri = " << uri
                       << ", asset_manager = " << asset_manager;
   unicode_string_view script_content;
+  bool read_script_flag;
   unicode_string_view code_cache_content;
   uint64_t modify_time = 0;
 
@@ -180,20 +181,28 @@ bool RunScript(std::shared_ptr<Runtime> runtime,
     task_runner = engine->GetWorkerTaskRunner();
     task_runner->PostTask(std::move(task));
     u8string content;
-    runtime->GetScope()->GetUriLoader()->RequestUntrustedContent(uri, content);
-    script_content = unicode_string_view(std::move(content));
+    read_script_flag = runtime->GetScope()->GetUriLoader()
+        ->RequestUntrustedContent(uri, content);
+    if (read_script_flag) {
+      script_content = unicode_string_view(std::move(content));
+    }
     code_cache_content = read_file_future.get();
   } else {
     u8string content;
-    runtime->GetScope()->GetUriLoader()->RequestUntrustedContent(uri, content);
-    script_content = unicode_string_view(std::move(content));
+    read_script_flag = runtime->GetScope()->GetUriLoader()
+        ->RequestUntrustedContent(uri, content);
+    if (read_script_flag) {
+      script_content = unicode_string_view(std::move(content));
+    }
   }
 
   TDF_BASE_DLOG(INFO) << "uri = " << uri
+                      << "read_script_flag = " << read_script_flag
                       << ", script content = " << script_content;
 
-  if (StringViewUtils::IsEmpty(script_content)) {
-    TDF_BASE_LOG(WARNING) << "script content empty, uri = " << uri;
+  if (!read_script_flag || StringViewUtils::IsEmpty(script_content)) {
+    TDF_BASE_LOG(WARNING) << "read_script_flag = " << read_script_flag
+                          << ", script content empty, uri = " << uri;
     return false;
   }
 
@@ -260,7 +269,10 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
                         std::chrono::system_clock::now())
                         .time_since_epoch()
                         .count();
-
+  if (!j_uri) {
+    TDF_BASE_DLOG(WARNING) << "HippyBridgeImpl runScriptFromUri, j_uri invalid";
+    return false;
+  }
   const unicode_string_view uri = JniUtils::ToStrView(j_env, j_uri);
   const unicode_string_view code_cache_dir =
       JniUtils::ToStrView(j_env, j_code_cache_dir);

@@ -69,7 +69,7 @@
         BOOL fileExist = [[NSFileManager defaultManager] fileExistsAtPath:localPath isDirectory:&isDirectory];
         if (fileExist && !isDirectory) {
             NSData *imageData = [NSData dataWithContentsOfFile:localPath];
-            UIImage *image = [UIImage imageWithData:imageData];
+            UIImage *image = [UIImage imageWithData:imageData scale:[UIScreen mainScreen].scale];
             completionHandler(image, nil);
         }
         else {
