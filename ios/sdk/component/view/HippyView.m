@@ -171,13 +171,7 @@ static NSString *HippyRecursiveAccessibilityLabel(UIView *view) {
 - (instancetype)initWithBridge:(HippyBridge *)bridge {
     self = [super init];
     if (self) {
-        self.bridge = bridge;
-    }
-    return self;
-}
-
-- (instancetype)initWithFrame:(CGRect)frame {
-    if ((self = [super initWithFrame:frame])) {
+        _bridge = bridge;
         _borderWidth = -1;
         _borderTopWidth = -1;
         _borderRightWidth = -1;
@@ -192,7 +186,6 @@ static NSString *HippyRecursiveAccessibilityLabel(UIView *view) {
         self.layer.shadowOffset = CGSizeZero;
         self.layer.shadowRadius = 0.f;
     }
-
     return self;
 }
 
