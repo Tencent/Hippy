@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.8.2](https://github.com/Tencent/Hippy/compare/2.8.1...2.8.2) (2021-08-09)
+
+
+### Bug Fixes
+
+* **android:** rtl text direction for ARABIC ([6ce4014](https://github.com/Tencent/Hippy/commit/6ce4014281dfbd62719a891090c1568a515fd7d9))
+* **android:** should draw image border ([c71d7dc](https://github.com/Tencent/Hippy/commit/c71d7dceea3cae00ee74fe08d546b6de1fdd7e37))
+
+
+
+
+
 ## [2.8.1](https://github.com/Tencent/Hippy/compare/2.8.0...2.8.1) (2021-08-09)
 
 
