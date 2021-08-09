@@ -120,7 +120,7 @@ function getLinearGradientAngle(value: string): string | undefined {
  */
 function getLinearGradientColorStop(value: string): Object | undefined {
   const processedValue = (value || '').replace(/\s+/g, ' ').trim();
-  const [color, percentage] = processedValue.split(' ');
+  const [color, percentage] = processedValue.split(/\s+(?![^(]*?\))/);
   const percentageCheckReg = /^([+-]?\d+\.?\d*)%$/g;
   if (color && !percentageCheckReg.exec(color) && !percentage) {
     return {
@@ -147,7 +147,7 @@ function parseBackgroundImage(styleKey: string, styleValue: string, style: any) 
   // handle linear-gradient style
   if (styleValue.indexOf('linear-gradient') === 0) {
     const valueString = styleValue.substring(styleValue.indexOf('(') + 1, styleValue.lastIndexOf(')'));
-    const tokens = valueString.split(',');
+    const tokens = valueString.split(/,(?![^(]*?\))/);
     const colorStopList: object[] = [];
     style.linearGradient = {};
     tokens.forEach((value: any, index: number) => {
