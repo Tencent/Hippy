@@ -37,6 +37,14 @@ static jmethodID j_get_path_method_id;
 using unicode_string_view = tdf::base::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
 
+std::shared_ptr<Uri> Uri::Create(const unicode_string_view& uri) {
+  auto ret = std::make_shared<Uri>(uri);
+  if (!ret->j_obj_uri_) {
+    return nullptr;
+  }
+  return ret;
+}
+
 bool Uri::Init() {
   JNIEnv* env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   jclass j_local_clazz = env->FindClass("java/net/URI");
@@ -69,19 +77,27 @@ bool Uri::Destory() {
 }
 
 Uri::Uri(const unicode_string_view& uri) {
+  TDF_BASE_DCHECK(uri.encoding() != unicode_string_view::Encoding::Unkown);
   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   jstring j_str_uri = JniUtils::StrViewToJString(j_env, uri);
   j_obj_uri_ =
       j_env->CallStaticObjectMethod(j_clazz, j_create_method_id, j_str_uri);
   j_env->DeleteLocalRef(j_str_uri);
+  if (j_env->ExceptionCheck()){
+    j_obj_uri_ = nullptr;
+    j_env->ExceptionClear();
+  }
 }
 
 Uri::~Uri() {
-  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
-  j_env->DeleteLocalRef(j_obj_uri_);
+  if (j_obj_uri_) {
+    JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+    j_env->DeleteLocalRef(j_obj_uri_);
+  }
 }
 
 unicode_string_view Uri::Normalize() {
+  TDF_BASE_DCHECK(j_obj_uri_);
   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   jobject j_normalize_uri =
       (jstring)j_env->CallObjectMethod(j_obj_uri_, j_normalize_method_id);
@@ -94,6 +110,7 @@ unicode_string_view Uri::Normalize() {
 }
 
 unicode_string_view Uri::GetScheme() {
+  TDF_BASE_DCHECK(j_obj_uri_);
   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   jstring j_scheme =
       (jstring)j_env->CallObjectMethod(j_obj_uri_, j_get_scheme_method_id);
@@ -103,6 +120,7 @@ unicode_string_view Uri::GetScheme() {
 }
 
 unicode_string_view Uri::GetPath() {
+  TDF_BASE_DCHECK(j_obj_uri_);
   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   jstring j_path =
       (jstring)j_env->CallObjectMethod(j_obj_uri_, j_get_path_method_id);
