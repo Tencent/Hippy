@@ -47,7 +47,7 @@ HIPPY_EXPORT_MODULE(View)
 }
 
 - (UIView *)view {
-    return [HippyView new];
+    return [[HippyView alloc] initWithBridge:self.bridge];
 }
 
 - (HippyShadowView *)shadowView {
@@ -89,8 +89,12 @@ HIPPY_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, HippyView) {
     if (json) {
         NSString *backgroundImage = [HippyConvert NSString:json];
         if ([backgroundImage hasPrefix:@"http"] ||
-            [backgroundImage hasPrefix:@"data:image/"]) {
+            [backgroundImage hasPrefix:@"data:image/"] ||
+            [backgroundImage hasPrefix:@"hpfile://"]) {
             view.backgroundImageUrl = backgroundImage;
+        }
+        else {
+            HippyAssert(NO, @"backgroundImage %@ not supported", backgroundImage);
         }
     }
 }
