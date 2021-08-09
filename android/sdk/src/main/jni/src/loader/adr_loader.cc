@@ -44,7 +44,12 @@ ADRLoader::ADRLoader() : aasset_manager_(nullptr) {}
 
 bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
                                         std::function<void(u8string)> cb) {
-  std::shared_ptr<Uri> uri_obj = std::make_shared<Uri>(uri);
+  std::shared_ptr<Uri> uri_obj = Uri::Create(uri);
+  if (!uri_obj) {
+    TDF_BASE_DLOG(ERROR) << "uri error, uri = " << uri;
+    cb(u8string());
+    return false;
+  }
   unicode_string_view schema = uri_obj->GetScheme();
   unicode_string_view path = uri_obj->GetPath();
   TDF_BASE_DCHECK(schema.encoding() == unicode_string_view::Encoding::Utf16);
@@ -58,18 +63,23 @@ bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
     if (aasset_manager_) {
       return LoadByAsset(path, cb, false);
     }
-
     TDF_BASE_DLOG(ERROR) << "aasset_manager error, uri = " << uri;
+    cb(u8string());
     return false;
   } else {
-    TDF_BASE_DLOG(ERROR) << "schema error, schema = %s" << schema;
+    TDF_BASE_DLOG(ERROR) << "schema error, schema = " << schema;
+    cb(u8string());
     return false;
   }
 }
 
 bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
                                         u8string& content) {
-  std::shared_ptr<Uri> uri_obj = std::make_shared<Uri>(uri);
+  std::shared_ptr<Uri> uri_obj = Uri::Create(uri);
+  if (!uri_obj) {
+    TDF_BASE_DLOG(ERROR) << "uri error, uri = " << uri;
+    return "";
+  }
   unicode_string_view schema = uri_obj->GetScheme();
   unicode_string_view path = uri_obj->GetPath();
   TDF_BASE_DCHECK(schema.encoding() == unicode_string_view::Encoding::Utf16);
