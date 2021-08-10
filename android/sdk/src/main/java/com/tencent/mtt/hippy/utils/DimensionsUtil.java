@@ -38,7 +38,6 @@ public class DimensionsUtil {
   private static final String NAV_BAR_HEIGHT_RES_NAME = "navigation_bar_height";
   private static final String NAV_BAR_HEIGHT_LANDSCAPE_RES_NAME = "navigation_bar_height_landscape";
   private static final String SHOW_NAV_BAR_RES_NAME = "config_showNavigationBar";
-  private static int hasNavigationBar = -1;
   private static int STATUS_BAR_HEIGHT = -1;
 
   private static String getNavigationBarIsMinKeyName() {
@@ -61,10 +60,6 @@ public class DimensionsUtil {
   }
 
   private static boolean checkNavigationBarShow(@NonNull Context context) {
-    if (hasNavigationBar != -1) {
-      return hasNavigationBar == 1;
-    }
-
     boolean checkResult = false;
     Resources rs = context.getResources();
     int id = rs.getIdentifier(SHOW_NAV_BAR_RES_NAME, "bool", "android");
@@ -95,7 +90,6 @@ public class DimensionsUtil {
       e.printStackTrace();
     }
 
-    hasNavigationBar = checkResult ? 1 : 0;
     return checkResult;
   }
 
