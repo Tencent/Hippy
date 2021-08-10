@@ -42,6 +42,7 @@ public class UIManagerModule extends HippyNativeModuleBase {
   final String INDEX = "index";
   final String NAME = "name";
   final String PROPS = "props";
+  final String TAG_NAME = "tagName";
 
   public UIManagerModule(HippyEngineContext context) {
     super(context);
@@ -59,8 +60,9 @@ public class UIManagerModule extends HippyNativeModuleBase {
         int pTag = (int) nodeArray.get(PID);
         int index = (int) nodeArray.get(INDEX);
         String className = (String) nodeArray.get(NAME);
+        String tagName = (String) nodeArray.get(TAG_NAME);
         HippyMap props = (HippyMap) nodeArray.get(PROPS);
-        domManager.createNode(hippyRootView, tag, pTag, index, className, props);
+        domManager.createNode(hippyRootView, rootID, tag, pTag, index, className, tagName, props);
       }
     }
   }
