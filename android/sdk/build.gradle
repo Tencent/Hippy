@@ -232,6 +232,22 @@ task dealAfterAssembleDebug() {
 
 task dealAfterAssembleRelease() {
   doLast {
+    file("$OUTPUT_PATH/release").deleteDir()
+
+    file(OUTPUT_PATH).list().each{fileName ->
+      if (fileName.contains("release.aar")) {
+        copy {
+          from zipTree("$OUTPUT_PATH/$fileName")
+          into "$OUTPUT_PATH/release"
+        }
+        copy {
+          from "$OUTPUT_PATH/release"
+          into OUTPUT_PATH
+          include 'classes.jar'
+          rename 'classes.jar', 'hippy.jar'
+        }
+      }
+    }
     copy {
       from "$OUTPUT_PATH/$ARCHIVES_BASE_NAME-release.aar"
       into "$projectDir.absolutePath/../../examples/android-demo/example/libs"
