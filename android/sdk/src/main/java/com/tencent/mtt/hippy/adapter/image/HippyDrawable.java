@@ -28,6 +28,17 @@ public class HippyDrawable implements IDrawableTarget {
   // 静态图片
   private Bitmap mBitmap;
 
+  private String imageType;
+
+  public void setImageType(String type) {
+    imageType = type;
+  }
+
+  @Override
+  public String getImageType() {
+    return imageType;
+  }
+  
   public void setDrawable(Drawable drawable) {
     mDrawable = drawable;
   }
