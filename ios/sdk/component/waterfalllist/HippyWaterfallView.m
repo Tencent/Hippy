@@ -24,14 +24,18 @@
 #import "HippyCollectionViewWaterfallLayout.h"
 #import "HippyHeaderRefresh.h"
 #import "HippyFooterRefresh.h"
+#import "HippyReusableNodeCache.h"
+#import "HippyWaterfallItemView.h"
 #import "HippyVirtualList.h"
 
 #define CELL_TAG 10089
 
+static NSString *kCellIdentifier = @"cellIdentifier";
+
 typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDraging, ScrollStateScrolling };
 
 @interface HippyCollectionViewCell : UICollectionViewCell
-@property (nonatomic, weak) HippyVirtualCell *node;
+@property (nonatomic, weak) HippyVirtualNode *node;
 @property (nonatomic, weak) UIView *cellView;
 @end
 
@@ -57,6 +61,7 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
     BOOL _isInitialListReady;
     HippyHeaderRefresh *_headerRefreshView;
     HippyFooterRefresh *_footerRefreshView;
+    HippyReusableNodeCache *_reusableNodeCache;
 }
 
 @property (nonatomic, strong) HippyCollectionViewWaterfallLayout *layout;
@@ -91,7 +96,7 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
         _scrollEventThrottle = 100.f;
 
         [self initCollectionView];
-
+        _reusableNodeCache = [[HippyReusableNodeCache alloc] init];
         if (@available(iOS 11.0, *)) {
             self.collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
         }
@@ -111,9 +116,7 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
         _collectionView.delegate = self;
         _collectionView.alwaysBounceVertical = YES;
         _collectionView.backgroundColor = [UIColor clearColor];
-        [_collectionView registerClass:[HippyCollectionViewCell class] forCellWithReuseIdentifier:@"Collection"];
-        [_collectionView registerClass:[HippyCollectionViewCell class] forCellWithReuseIdentifier:@"BannerView"];
-
+        [_collectionView registerClass:[HippyCollectionViewCell class] forCellWithReuseIdentifier:kCellIdentifier];
         [self addSubview:_collectionView];
     }
 }
@@ -248,6 +251,38 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
     }
 }
 
+- (__kindof HippyVirtualNode *)nodeAtIndexPath:(NSIndexPath *)indexPath {
+    NSInteger section = [indexPath section];
+    NSInteger row = [indexPath item];
+    HippyVirtualNode *cellNode = nil;
+    if (_containBannerView) {
+        if (0 == section) {
+            cellNode = [self nodesWithBannerView];
+        } else {
+            NSArray<HippyVirtualNode *> *subNodes = [self nodesWithOnlyCell];
+            if ([subNodes count] > row) {
+                cellNode = subNodes[row];
+            }
+        }
+    } else {
+        NSArray<HippyVirtualNode *> *subNodes = [self nodesWithOnlyCell];
+        if ([subNodes count] > row) {
+            cellNode = subNodes[row];
+        }
+    }
+    return cellNode;
+}
+
+- (NSString *)reuseIdentifierForIndexPath:(NSIndexPath *)indexPath {
+    HippyVirtualNode *node = [self nodeAtIndexPath:indexPath];
+    if ([node isKindOfClass:[HippyVirtualCell class]]) {
+        return [(HippyVirtualCell *)node itemViewType];
+    }
+    else {
+        return kCellIdentifier;
+    }
+}
+
 #pragma mark - UICollectionViewDataSource
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
     if (_containBannerView) {
@@ -274,80 +309,19 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView bannerViewForItemAtIndexPath:(NSIndexPath *)indexPath {
-    static NSString *identifier = @"BannerView";
-    HippyVirtualCell *newNode = [self nodesWithBannerView];
-    HippyCollectionViewCell *cell = (HippyCollectionViewCell *)[collectionView dequeueReusableCellWithReuseIdentifier:identifier forIndexPath:indexPath];
-    if (nil == cell.cellView) {
-        UIView *cellView = [_bridge.uiManager updateNode:cell.node withNode:newNode];
-        if (cellView == nil) {
-            cell.cellView = [_bridge.uiManager createViewFromNode:newNode];
-        } else {
-            cell.cellView = cellView;
-        }
-    }
+    HippyCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
     return cell;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView itemViewForItemAtIndexPath:(NSIndexPath *)indexPath {
-    static NSString *identifier = @"Collection";
-    HippyVirtualCell *newNode = (HippyVirtualCell *)[self nodesWithOnlyCell][indexPath.item];
-    NSString *itemIdentifier = newNode.itemViewType;
-
-    HippyCollectionViewCell *cell = [self p_findCellByItemIdentifier:itemIdentifier
-                                                      cellIdentifier:identifier
-                                                      collectionView:collectionView
-                                                           IndexPath:indexPath];
-
-    if (cell.node && cell.node.cell != cell) {
-        [cell.cellView removeFromSuperview];
-        cell.cellView = nil;
-        cell.node = nil;
-    }
-
-    if (cell == nil) {
-        cell = (HippyCollectionViewCell *)[collectionView dequeueReusableCellWithReuseIdentifier:identifier forIndexPath:indexPath];
-        cell.cellView = [_bridge.uiManager createViewFromNode:newNode];
-    } else {
-        [self p_setCellViewOnCell:cell withNode:newNode];
-    }
-
-    cell.node.cell = nil;
-    newNode.cell = cell;
-    cell.node = newNode;
+    HippyCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
     return cell;
-}
-
-- (HippyCollectionViewCell *)p_findCellByItemIdentifier:(NSString *)itemIdentifier
-                                         cellIdentifier:(NSString *)cellIdentifier
-                                         collectionView:(UICollectionView *)collectionView
-                                              IndexPath:(NSIndexPath *)indexPath {
-    HippyCollectionViewCell *cell = (HippyCollectionViewCell *)[collectionView dequeueReusableCellWithReuseIdentifier:cellIdentifier forIndexPath:indexPath];
-    while (cell && cell.node && !([[(HippyVirtualCell *)cell.node itemViewType] isEqualToString:itemIdentifier])) {
-        [cell removeFromSuperview];
-        cell = (HippyCollectionViewCell *)[collectionView dequeueReusableCellWithReuseIdentifier:cellIdentifier forIndexPath:indexPath];
-        if (cell == nil) {
-            HippyLogInfo(@"cannot find right cell:%@", @(indexPath.row));
-        }
-    }
-    return cell;
-}
-
-- (void)p_setCellViewOnCell:(HippyCollectionViewCell *)cell withNode:(HippyVirtualCell *)node {
-    if (cell.node && cell.node.cell) {
-        UIView *cellView = [_bridge.uiManager updateNode:cell.node withNode:node];
-        if (cellView == nil) {
-            cell.cellView = [_bridge.uiManager createViewFromNode:node];
-        } else {
-            cell.cellView = cellView;
-        }
-    } else {
-        cell.cellView = [_bridge.uiManager createViewFromNode:node];
-    }
 }
 
 - (void)collectionView:(UICollectionView *)collectionView
        willDisplayCell:(UICollectionViewCell *)cell
-    forItemAtIndexPath:(NSIndexPath *)indexPath NS_AVAILABLE_IOS(8_0) {
+    forItemAtIndexPath:(NSIndexPath *)indexPath {
+    [self itemViewForCollectionViewCell:cell indexPath:indexPath];
     if (0 == [indexPath section] && _containBannerView) {
         return;
     }
@@ -365,6 +339,32 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
             });
         }
     }
+}
+
+- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
+    HippyCollectionViewCell *hpCell = (HippyCollectionViewCell *)cell;
+    [hpCell.cellView removeFromSuperview];
+    HippyVirtualNode *cellNode = hpCell.node;
+    NSString *reuseIdentifier = [self reuseIdentifierForIndexPath:indexPath];
+    [_reusableNodeCache enqueueItemNode:cellNode forIdentifier:reuseIdentifier];
+    hpCell.node = nil;
+}
+
+- (void)itemViewForCollectionViewCell:(UICollectionViewCell *)cell indexPath:(NSIndexPath *)indexPath {
+    NSString *reuseIdentifier = [self reuseIdentifierForIndexPath:indexPath];
+    HippyVirtualNode *cellNode = [self nodeAtIndexPath:indexPath];
+    [_reusableNodeCache removeNode:cellNode forIdentifier:reuseIdentifier];
+    HippyVirtualNode *reusedNode = [_reusableNodeCache dequeueItemNodeForIdentifier:reuseIdentifier];
+    HippyCollectionViewCell *hpCell = (HippyCollectionViewCell *)cell;
+    HippyWaterfallItemView *cellView = nil;
+    if (reusedNode) {
+        cellView = (HippyWaterfallItemView *)[_bridge.uiManager updateNode:reusedNode withNode:cellNode];
+    }
+    if (!cellView) {
+        cellView = (HippyWaterfallItemView *)[_bridge.uiManager createViewFromNode:cellNode];
+    }
+    hpCell.cellView = cellView;
+    hpCell.node = cellNode;
 }
 
 #pragma mark - HippyCollectionViewDelegateWaterfallLayout
