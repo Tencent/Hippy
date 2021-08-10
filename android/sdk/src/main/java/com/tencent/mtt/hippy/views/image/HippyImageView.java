@@ -435,7 +435,11 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 
   @Override
   protected void handleImageRequest(IDrawableTarget target, int sourceType, Object requestInfo) {
-    if (target instanceof HippyDrawable && ((HippyDrawable) target).isAnimated()) {
+    if (target != null && !TextUtils.isEmpty(target.getImageType())) {
+      mImageType = target.getImageType();
+    }
+
+    if (target instanceof HippyDrawable && ((HippyDrawable)target).isAnimated()) {
       mGifMovie = ((HippyDrawable) target).getGIF();
       setLayerType(View.LAYER_TYPE_SOFTWARE, null);
     }

@@ -27,6 +27,8 @@ public interface IDrawableTarget
 
 	Object getExtraData();
 
+	String getImageType();
+
 	void onDrawableAttached();
 
 	void onDrawableDetached();
