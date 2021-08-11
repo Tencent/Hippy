@@ -69,11 +69,11 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
   private ViewTreeObserver mViewTreeObserver = null;
 
   // for auto test >>>
-  private boolean mHasLoadMore = false;
   private boolean mHasScrollToIndex = false;
   private boolean mHasScrollToContentOffset = false;
   private boolean mHasStartRefresh = false;
   private boolean mHasCompeleteRefresh = false;
+  private WaterfallEndChecker mEndChecker = new WaterfallEndChecker();
   // for auto test <<<
 
   public HippyWaterfallView(Context context) {
@@ -165,9 +165,6 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
   }
 
   public void startLoadMore() {
-    mHasLoadMore = true;
-
-    mAdapter.getOnEndReachedEvent().send(this, null);
     mAdapter.setLoadingStatus(IRecyclerViewFooter.LOADING_STATUS_LOADING);
   }
 
@@ -260,6 +257,12 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
       mAdapter.checkScrollForReport();
       mAdapter.checkExposureForReport(oldState, newState);
     }
+  }
+
+  @Override
+  public void onScrolled(int x, int y) {
+    super.onScrolled(x, y);
+    mEndChecker.onScroll(this, y);
   }
 
   public void startRefresh(int type) {
@@ -396,7 +399,6 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
   public class HippyWaterfallAdapter extends RecyclerAdapter implements
     HippyWaterfallItemRenderNode.IRecycleItemTypeChange {
 
-    private HippyWaterfallEvent mOnEndReachedEvent;
     private HippyWaterfallEvent mOnFooterAppearedEvent;
     private HippyWaterfallEvent mOnRefreshEvent;
     private HippyWaterfallEvent mOnScrollForReportEvent;
@@ -415,7 +417,6 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
     private boolean mHasOnRefresh = false;
     private boolean mHasOnFooterAppeared = false;
     private boolean mHasPreload = false;
-    private boolean mHasOnEndReached = false;
     private boolean mHasSetLoadingStatus = false;
 
     public HippyWaterfallAdapter(RecyclerView recyclerView) {
@@ -648,16 +649,6 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
         setLoadingStatus(IRecyclerViewFooter.LOADING_STATUS_LOADING);
       }
 
-      if (!mOnPreloadCalled) {
-
-        int preloadThresholdInPixel = getPreloadThresholdInPixels();
-        int preloadThresholdInItemNumber = getPreloadThresholdInItemNumber();
-        if (preloadThresholdInPixel > 0 || preloadThresholdInItemNumber > 0) {
-          mHasOnEndReached = true;
-          getOnEndReachedEvent().send(mParentRecyclerView, null);
-        }
-      }
-
       if (mLoadingStatus == IRecyclerViewFooter.LOADING_STATUS_LOADING) {
         mHasOnFooterAppeared = true;
 
@@ -864,7 +855,6 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
       mHasPreload = true;
 
       mOnPreloadCalled = true;
-      getOnEndReachedEvent().send(mParentRecyclerView, null);
     }
 
     public boolean hasCustomRecycler() {
@@ -1131,14 +1121,6 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
       }
       return mOnListScrollListener;
     }
-
-    private HippyWaterfallEvent getOnEndReachedEvent() {
-      if (mOnEndReachedEvent == null) {
-        mOnEndReachedEvent = new HippyWaterfallEvent("onEndReached");
-      }
-      return mOnEndReachedEvent;
-    }
-
   }
 
   private static class NodeHolder extends ContentHolder {
