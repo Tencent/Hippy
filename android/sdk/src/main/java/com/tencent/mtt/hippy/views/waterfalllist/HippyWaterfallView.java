@@ -67,13 +67,16 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
   private boolean mHasRemovePreDraw = false;
   private ViewTreeObserver.OnPreDrawListener mPreDrawListener = null;
   private ViewTreeObserver mViewTreeObserver = null;
+  private WaterfallEndChecker mEndChecker = new WaterfallEndChecker();
+  private int mItemViewPaddingLeft;
+  private int mItemViewPaddingRight;
 
   // for auto test >>>
+  private boolean mHasLoadMore = false;
   private boolean mHasScrollToIndex = false;
   private boolean mHasScrollToContentOffset = false;
   private boolean mHasStartRefresh = false;
   private boolean mHasCompeleteRefresh = false;
-  private WaterfallEndChecker mEndChecker = new WaterfallEndChecker();
   // for auto test <<<
 
   public HippyWaterfallView(Context context) {
@@ -165,6 +168,7 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
   }
 
   public void startLoadMore() {
+    mHasLoadMore = true;
     mAdapter.setLoadingStatus(IRecyclerViewFooter.LOADING_STATUS_LOADING);
   }
 
@@ -173,6 +177,11 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
     if (traversalPurpose == HIPPY_SKIN_CHANGE) {
       traversalChildViewForSkinChange(contentView);
     }
+  }
+
+  public void setItemViewPadding(int paddingLeft, int paddingRight) {
+    mItemViewPaddingLeft = paddingLeft;
+    mItemViewPaddingRight = paddingRight;
   }
 
   private void traversalChildViewForSkinChange(View view) {
@@ -463,6 +472,10 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
 
       contentHolder.mBindNode = contentViewRenderNode;
       contentHolder.isCreated = true;
+      if (viewType != ViewHolder.TYPE_CUSTOM_FOOTER) {
+        contentHolder.mItemPaddingLeft = mItemViewPaddingLeft;
+        contentHolder.mItemPaddingRight = mItemViewPaddingRight;
+      }
       return contentHolder;
     }
 
