@@ -68,8 +68,6 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
   private ViewTreeObserver.OnPreDrawListener mPreDrawListener = null;
   private ViewTreeObserver mViewTreeObserver = null;
   private WaterfallEndChecker mEndChecker = new WaterfallEndChecker();
-  private int mItemViewPaddingLeft;
-  private int mItemViewPaddingRight;
 
   // for auto test >>>
   private boolean mHasLoadMore = false;
@@ -91,7 +89,7 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
     mRefreshColors = null;
 
     addOnListScrollListener(mAdapter.getOnListScrollListener());
-
+    setClipToPadding(false);
   }
 
   @Override
@@ -177,11 +175,6 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
     if (traversalPurpose == HIPPY_SKIN_CHANGE) {
       traversalChildViewForSkinChange(contentView);
     }
-  }
-
-  public void setItemViewPadding(int paddingLeft, int paddingRight) {
-    mItemViewPaddingLeft = paddingLeft;
-    mItemViewPaddingRight = paddingRight;
   }
 
   private void traversalChildViewForSkinChange(View view) {
@@ -472,10 +465,6 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
 
       contentHolder.mBindNode = contentViewRenderNode;
       contentHolder.isCreated = true;
-      if (viewType != ViewHolder.TYPE_CUSTOM_FOOTER) {
-        contentHolder.mItemPaddingLeft = mItemViewPaddingLeft;
-        contentHolder.mItemPaddingRight = mItemViewPaddingRight;
-      }
       return contentHolder;
     }
 

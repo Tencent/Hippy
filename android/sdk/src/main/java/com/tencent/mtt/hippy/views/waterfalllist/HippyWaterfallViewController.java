@@ -80,9 +80,11 @@ public class HippyWaterfallViewController extends HippyViewController<HippyWater
   @HippyControllerProps(name = WaterFallComponentName.PROPERTY_CONTENT_INSET, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
   public void setContentInset(HippyWaterfallView listview, HippyMap data) {
     int left = dpToPx(data.getInt("left"));
+    int top = dpToPx(data.getInt("top"));
     int right = dpToPx(data.getInt("right"));
+    int bottom = dpToPx(data.getInt("bottom"));
 
-    listview.setItemViewPadding(left, right);
+    listview.setPadding(left, top, right, bottom);
   }
 
   protected int dpToPx(int dp) {

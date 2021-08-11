@@ -390,7 +390,7 @@ public class HippyWaterfallLayoutManager extends BaseLayoutManager {
       }
 
       if (isFooterView(view)) {
-        firstItemWidth = (getWidth() - getPaddingLeft() - getPaddingRight());
+        firstItemWidth = getWidth();
       }
 
       RecyclerViewBase.LayoutParams params = (RecyclerViewBase.LayoutParams) view
@@ -500,7 +500,7 @@ public class HippyWaterfallLayoutManager extends BaseLayoutManager {
       if (getOrientation() == VERTICAL) {
 
         if (isFooterView(view) || viewType == RecyclerViewBase.ViewHolder.TYPE_FOOTER) {
-          left = getPaddingLeft();
+          left = 0;
           right = left + mOrientationHelper.getDecoratedMeasurementInOther(view);
           top = mOrientationHelper.getDecoratedEnd(getChildClosestToDefaultFooter());
           bottom = mOrientationHelper.getDecoratedEnd(getChildClosestToDefaultFooter())
@@ -681,6 +681,7 @@ public class HippyWaterfallLayoutManager extends BaseLayoutManager {
     MeasureWH measureWH = new MeasureWH();
     measureWH.width = lp.width;
     measureWH.height = lp.height;
+    boolean isFooterView = false;
     if (mRecyclerView.getAdapter() instanceof RecyclerAdapter) {
       boolean enableAutoItemHeight = ((RecyclerAdapter) mRecyclerView.getAdapter())
         .isAutoCalculateItemHeight();
@@ -689,6 +690,7 @@ public class HippyWaterfallLayoutManager extends BaseLayoutManager {
           if (((RecyclerViewItem) child).getChildCount() > 0) {
             View contentView = ((RecyclerViewItem) child).getChildAt(0);
             if (isFooterView(contentView)) {
+              isFooterView = true;
               setFooterMeasureWH(contentView, measureWH);
             } else {
               measureWH.width = contentView.getMeasuredWidth()
@@ -699,6 +701,7 @@ public class HippyWaterfallLayoutManager extends BaseLayoutManager {
             }
           }
         } else if (child instanceof HippyPullFooterView) {
+          isFooterView = true;
           setFooterMeasureWH(child, measureWH);
         } else if (child instanceof ViewGroup) {
           ViewGroup viewGroup = (ViewGroup) child;
@@ -711,8 +714,9 @@ public class HippyWaterfallLayoutManager extends BaseLayoutManager {
       }
     }
 
+    int paddingHorizontally = isFooterView? 0 : getPaddingLeft() + getPaddingRight();
     final int widthSpec = getChildMeasureSpec(getWidth(),
-      getPaddingLeft() + getPaddingRight() + lp.leftMargin + lp.rightMargin + widthUsed,
+      paddingHorizontally + lp.leftMargin + lp.rightMargin + widthUsed,
       measureWH.width, canScrollHorizontally());
     final int heightSpec = getChildMeasureSpec(getHeight(),
       getPaddingTop() + getPaddingBottom() + lp.topMargin + lp.bottomMargin + heightUsed,
