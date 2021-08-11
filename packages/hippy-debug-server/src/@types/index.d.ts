@@ -1,3 +1,3 @@
-/// <reference path="./adapter.d.ts" />
+/// <reference types="@tencent/tdf-devtools-protocol" />
 
 declare module '*.node';

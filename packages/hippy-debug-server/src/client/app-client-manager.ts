@@ -1,38 +1,35 @@
+import { androidMiddleWareManager, iosMiddleWareManager } from '../middlewares';
 import { AppClient, AppClientOption } from './app-client';
 import { IwdpAppClient } from './iwdp-app-client';
-import { WsAppClient } from './ws-app-client';
 import { TunnelAppClient } from './tunnel-app-client';
-
-type AppClientConfig = AppClientOption & {
-  ctor: new (id: string, option: AppClientOption) => AppClient; // 构造器外部注入，可在 TDF 上做扩展
-};
+import { WsAppClient } from './ws-app-client';
 
 /**
  * 管理不同调试器的 AppClient 通道
  */
 class AppClientManager {
-  androidAppClients: AppClientConfig[] = [];
-  iosAppClients: AppClientConfig[] = [];
+  private androidAppClientOptionList: AppClientFullOptionOmicCtx[] = [];
+  private iosAppClientOptionList: AppClientFullOptionOmicCtx[] = [];
 
-  getAndroidAppClients() {
-    return this.androidAppClients;
+  public getAndroidAppClientOptions() {
+    return this.androidAppClientOptionList;
   }
 
-  addAndroidAppClients(appClientOption: AppClientConfig) {
-    this.androidAppClients.push(appClientOption);
+  public addAndroidAppClientOption(appClientOption: AppClientFullOptionOmicCtx) {
+    this.androidAppClientOptionList.push(appClientOption);
   }
 
-  getIosAppClients() {
-    return this.iosAppClients;
+  public getIosAppClientOptions() {
+    return this.iosAppClientOptionList;
   }
 
-  addIosAppClients(appClientOption: AppClientConfig) {
-    this.iosAppClients.push(appClientOption);
+  public addIosAppClientOption(appClientOption: AppClientFullOptionOmicCtx) {
+    this.iosAppClientOptionList.push(appClientOption);
   }
 
-  reset() {
-    this.androidAppClients = [];
-    this.iosAppClients = [];
+  public reset() {
+    this.androidAppClientOptionList = [];
+    this.iosAppClientOptionList = [];
   }
 }
 
@@ -46,20 +43,29 @@ export const appClientManager = new AppClientManager();
  */
 export const initHippyEnv = () => {
   appClientManager.reset();
-  appClientManager.addAndroidAppClients({
+  appClientManager.addAndroidAppClientOption({
     useAllDomain: true,
     useAdapter: true,
-    ctor: WsAppClient,
+    middleWareManager: androidMiddleWareManager,
+    Ctor: WsAppClient,
   });
-  appClientManager.addIosAppClients({
+  appClientManager.addIosAppClientOption({
     useAllDomain: true,
     useAdapter: true,
-    ctor: IwdpAppClient,
+    middleWareManager: iosMiddleWareManager,
+    Ctor: IwdpAppClient,
+  });
+  appClientManager.addIosAppClientOption({
+    useAllDomain: false,
+    acceptDomains: customDomains,
+    useAdapter: false,
+    middleWareManager: iosMiddleWareManager,
+    Ctor: TunnelAppClient,
   });
 };
 
 // 终端自己实现的域
-const customDomains = ['Page', 'Dom', 'Css', 'Overlay', 'TDFInspector', 'TDFPerformance', 'TDFMemory'];
+const customDomains = ['Page', 'DOM', 'CSS', 'Overlay', 'getHeapMeta', 'dumpDomTree', 'updateDomTree'];
 
 /**
  * voltron
@@ -73,11 +79,12 @@ const customDomains = ['Page', 'Dom', 'Css', 'Overlay', 'TDFInspector', 'TDFPerf
 export const initVoltronEnv = () => {
   appClientManager.reset();
   initHippyEnv();
-  appClientManager.addIosAppClients({
+  appClientManager.addIosAppClientOption({
     useAllDomain: false,
     acceptDomains: customDomains,
     useAdapter: false,
-    ctor: WsAppClient,
+    middleWareManager: iosMiddleWareManager,
+    Ctor: WsAppClient,
   });
 };
 
@@ -93,21 +100,30 @@ export const initVoltronEnv = () => {
 export const initTdfEnv = () => {
   console.log('initTdfEnv');
   appClientManager.reset();
-  appClientManager.addAndroidAppClients({
+  appClientManager.addAndroidAppClientOption({
     useAllDomain: true,
     useAdapter: true,
-    ctor: TunnelAppClient,
+    middleWareManager: androidMiddleWareManager,
+    Ctor: TunnelAppClient,
   });
-  appClientManager.addIosAppClients({
+  appClientManager.addIosAppClientOption({
     useAllDomain: false,
     useAdapter: true,
     ignoreDomains: customDomains,
-    ctor: IwdpAppClient,
+    middleWareManager: iosMiddleWareManager,
+    Ctor: IwdpAppClient,
   });
-  appClientManager.addIosAppClients({
+  appClientManager.addIosAppClientOption({
     useAllDomain: false,
     acceptDomains: customDomains,
     useAdapter: false,
-    ctor: TunnelAppClient,
+    middleWareManager: iosMiddleWareManager,
+    Ctor: TunnelAppClient,
   });
 };
+
+export type AppClientFullOption = AppClientOption & {
+  Ctor: new (id: string, option: AppClientOption) => AppClient; // 构造器外部注入，可在 TDF 上做扩展
+};
+
+export type AppClientFullOptionOmicCtx = Omit<AppClientFullOption, 'urlParsedContext'>;

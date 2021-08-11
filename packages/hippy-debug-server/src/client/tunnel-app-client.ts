@@ -1,9 +1,7 @@
-import { Tunnel } from '../@types/tunnel';
-import { AppClientType, ClientEvent } from '../@types/enum';
-import { sendMessage } from '../message-channel/tunnel';
-import { AppClient } from './app-client';
 import createDebug from 'debug';
-import { emitter } from '../message-channel/tunnel';
+import { AppClientType, ClientEvent } from '../@types/enum';
+import { Tunnel, tunnel } from '../tunnel';
+import { AppClient } from './app-client';
 
 const debug = createDebug('app-client:ws');
 
@@ -12,22 +10,24 @@ export class TunnelAppClient extends AppClient {
     super(id, option);
     this.type = AppClientType.Tunnel;
 
-    emitter.on('message', (msg) => {
-      this.emit(ClientEvent.Message, msg);
-    });
+    this.registerMessageListener();
   }
 
-  send(msg: Tunnel.Req) {
-    if (!this.filter(msg)) return;
-
-    sendMessage(msg);
-  }
-
-  resume() {
+  public resumeApp() {
     debug('tunnel app client resume');
-    sendMessage({
+    tunnel.sendMessage({
       module: 'jsDebugger',
       content: 'chrome_socket_closed',
     } as any);
+  }
+
+  protected registerMessageListener() {
+    Tunnel.tunnelMessageEmitter.on(ClientEvent.Message, (msg: Adapter.CDP.Res) => {
+      this.onMessage(msg);
+    });
+  }
+
+  protected sendToApp(msg: Adapter.CDP.Req): Promise<Adapter.CDP.Res> {
+    return tunnel.sendMessage(msg);
   }
 }

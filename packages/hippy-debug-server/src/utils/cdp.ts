@@ -1,4 +1,4 @@
-const cdpDomains = [
+export const CDP_DOMAIN_LIST = [
   'Accessibility',
   'Animation',
   'ApplicationCache',
@@ -47,6 +47,30 @@ const cdpDomains = [
   'Schema',
 ];
 
-export const isCdpDomains = (domain) => {
-  return cdpDomains.indexOf(domain) !== -1;
+export const isCdpDomains = (domain) => CDP_DOMAIN_LIST.indexOf(domain) !== -1;
+
+export const getDomain = (method: string) => {
+  let domain = method;
+  const group = method.match(/^(\w+)(\.\w+)?$/);
+  if (group) {
+    domain = group[1];
+  }
+  return domain;
 };
+
+export class DomainRegister {
+  protected listeners: Map<string, Adapter.DomainListener[]> = new Map();
+
+  public registerDomainListener: Adapter.RegisterDomainListener = (domain, listener) => {
+    if (!this.listeners.has(domain)) this.listeners.set(domain, []);
+    this.listeners.get(domain).push(listener);
+  };
+
+  protected triggerListerner(msg: Adapter.CDP.Res) {
+    if (this.listeners.has(msg.method)) {
+      this.listeners.get(msg.method).forEach((listener) => {
+        listener(msg);
+      });
+    }
+  }
+}

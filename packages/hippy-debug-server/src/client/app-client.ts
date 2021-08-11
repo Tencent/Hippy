@@ -6,18 +6,17 @@
  *
  * 统一封装一层，防止app端频繁修改
  */
-import WebSocket from 'ws/index.js';
 import { EventEmitter } from 'events';
-import { AppClientType } from '../@types/enum';
-import { Tunnel } from '../@types/tunnel';
-
-export type AppClientOption = {
-  useAllDomain: boolean;
-  useAdapter: boolean;
-  acceptDomains?: string[];
-  ignoreDomains?: string[];
-  ws?: WebSocket;
-};
+import WebSocket from 'ws/index.js';
+import { AppClientType, ClientEvent } from '../@types/enum';
+import {
+  defaultDownwardMiddleware,
+  defaultUpwardMiddleware,
+  MiddleWareManager,
+  UrlParsedContext,
+} from '../middlewares';
+import { CDP_DOMAIN_LIST, getDomain } from '../utils/cdp';
+import { compose } from '../utils/middleware';
 
 /**
  * 对外接口：
@@ -28,40 +27,80 @@ export type AppClientOption = {
  *  send              : send to app
  **/
 export abstract class AppClient extends EventEmitter {
-  id: string;
-  type: AppClientType;
-  msgBuffer: any[] = [];
-  acceptDomains: string[] = [];
-  ignoreDomains: string[] = [];
-  useAdapter = true;
-  useAllDomain = true;
-  isClosed = false;
+  public id: string;
+  public type: AppClientType;
+  public middleWareManager: MiddleWareManager;
+  protected urlParsedContext: UrlParsedContext;
+  protected msgBuffer: any[] = [];
+  protected acceptDomains: string[] = CDP_DOMAIN_LIST;
+  protected ignoreDomains: string[] = [];
+  protected useAdapter = true;
+  protected useAllDomain = true;
+  protected isClosed = false;
 
-  constructor(id, { useAllDomain = true, useAdapter = true, acceptDomains = [], ignoreDomains = [] }: AppClientOption) {
+  constructor(
+    id,
+    {
+      useAllDomain = true,
+      useAdapter = true,
+      acceptDomains,
+      ignoreDomains = [],
+      middleWareManager,
+      urlParsedContext,
+    }: AppClientOption,
+  ) {
     super();
     this.id = id;
     this.useAllDomain = useAllDomain;
     this.acceptDomains = acceptDomains;
     this.ignoreDomains = ignoreDomains;
     this.useAdapter = useAdapter;
+    this.middleWareManager = middleWareManager;
+    this.urlParsedContext = urlParsedContext;
   }
 
-  abstract send(msg): void;
-  abstract resume(): void;
+  public send(msg: Adapter.CDP.Req): void {
+    if (!this.filter(msg)) return;
+
+    const { method } = msg;
+    let middlewareList = this.middleWareManager.downwardMiddleWareListMap[method];
+    if (!middlewareList) middlewareList = [];
+    if (!(middlewareList instanceof Array)) middlewareList = [middlewareList];
+    const fullMiddlewareList = [...middlewareList, defaultDownwardMiddleware];
+
+    compose(fullMiddlewareList)(this.makeContext(msg));
+  }
+
+  protected sendToDevtools(msg: Adapter.CDP.Res) {
+    if (!msg) return;
+    this.emit(ClientEvent.Message, msg);
+  }
+
+  protected onMessage(msg: Adapter.CDP.Res) {
+    const { method } = msg;
+    let middlewareList = this.middleWareManager.upwardMiddleWareListMap[method] || [];
+    if (!middlewareList) middlewareList = [];
+    if (!(middlewareList instanceof Array)) middlewareList = [middlewareList];
+    const fullMiddlewareList = [...middlewareList, defaultUpwardMiddleware];
+    compose(fullMiddlewareList)(this.makeContext(msg));
+  }
+
+  protected makeContext(msg: Adapter.CDP.Req | Adapter.CDP.Res) {
+    return {
+      ...this.urlParsedContext,
+      msg,
+      sendToApp: this.sendToApp.bind(this),
+      sendToDevtools: this.sendToDevtools.bind(this),
+    };
+  }
 
   /**
    * 通过filter的才会下行，否则直接丢弃
    */
-  protected filter(msg: Adapter.CDP.Req | Tunnel.Req) {
+  protected filter(msg: Adapter.CDP.Req) {
     if (this.useAllDomain) return true;
-    let method, domain;
-    if ('module' in msg) method = msg.module;
-    else if ('method' in msg) method = msg.method;
-
-    const group = method.match(/^(\w+)(\.\w+)?$/);
-    if (group) {
-      domain = group[1];
-    }
+    const { method } = msg;
+    const domain = getDomain(method);
 
     if (this.ignoreDomains.length) {
       const isIgnoreDomain = this.ignoreDomains.indexOf(domain) !== -1 || this.ignoreDomains.indexOf(method) !== -1;
@@ -70,4 +109,18 @@ export abstract class AppClient extends EventEmitter {
     const isAcceptDomain = this.acceptDomains.indexOf(domain) !== -1 || this.acceptDomains.indexOf(method) !== -1;
     return isAcceptDomain;
   }
+
+  public abstract resumeApp(): void;
+  protected abstract sendToApp(msg: Adapter.CDP.Req): Promise<Adapter.CDP.Res>;
+  protected abstract registerMessageListener(): void;
 }
+
+export type AppClientOption = {
+  useAllDomain: boolean;
+  useAdapter: boolean;
+  acceptDomains?: string[];
+  ignoreDomains?: string[];
+  ws?: WebSocket;
+  middleWareManager: MiddleWareManager;
+  urlParsedContext: UrlParsedContext;
+};

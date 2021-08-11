@@ -1,5 +1,4 @@
-import { DevicePlatform, DeviceStatus } from './enum';
-import WebSocket from 'ws/index.js';
+import { AppClientType, DevicePlatform, DeviceStatus } from './enum';
 
 export interface DeviceInfo {
   deviceid: string;
@@ -11,34 +10,25 @@ export interface DeviceInfo {
 
 export type TunnelData = DeviceInfo | number;
 
-export interface DebugPage {
-  id: string,
-  clientId: string,
-  devtoolsFrontendUrl: string,
-  faviconUrl?: string,
-  thumbnailUrl: string,
-  title: string,
-  url: string,
-  description: string,
-  webSocketDebuggerUrl: string,
-  devtoolsFrontendUrlCompat?: string,
-  platform: DevicePlatform,
-  type?: string,
-  appId?: string,
-  ws?: WebSocket,
+export interface DebugTarget {
+  id: string;
+  clientId: string;
+  devtoolsFrontendUrl: string;
+  faviconUrl?: string;
+  thumbnailUrl: string;
+  title: string;
+  url: string;
+  description: string;
+  webSocketDebuggerUrl: string;
+  devtoolsFrontendUrlCompat?: string;
+  platform: DevicePlatform;
+  appClientTypeList: AppClientType[];
+  type?: string;
+  appId?: string;
   device?: {
-    deviceId: string,
-    deviceName: string,
-    deviceOSVersion: string,
-    url: string
-  }
-}
-
-export namespace Tunnel {
-  export interface Req {
-    module: string;
-    content: any;
-  }
-
-  export type ModuleCallback = (msg: unknown) => void;
+    deviceId: string;
+    deviceName: string;
+    deviceOSVersion: string;
+    url: string;
+  };
 }

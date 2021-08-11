@@ -1,16 +1,16 @@
-import { AppClientType, ChromePageType, ClientRole } from '../@types/enum';
 import Router from 'koa-router';
 import request from 'request-promise';
-import { DevicePlatform } from 'src/@types/enum';
+import { AppClientType, DevicePlatform } from 'src/@types/enum';
 import { v4 as uuidv4 } from 'uuid';
-import { DebugPage } from '../@types/tunnel';
-import fs from 'fs';
-import androidTargetManager from '../android-pages-manager';
+import { ChromePageType, ClientRole } from '../@types/enum';
+import { DebugTarget } from '../@types/tunnel';
+import { androidDebugTargetManager } from '../android-debug-target-manager';
 import { appClientManager } from '../client';
-import messageChannel from '../message-channel';
-import * as _ from 'lodash';
+import { makeUrl } from '../utils/url';
 
-export default ({ host, port, iwdpPort, wsPath }) => {
+type RouterArgv = Pick<Application.StartServerArgv, 'host' | 'port' | 'iwdpPort' | 'wsPath'>;
+
+export const getChromeInspectRouter = ({ host, port, iwdpPort, wsPath }: RouterArgv) => {
   const chromeInspectRouter = new Router();
 
   chromeInspectRouter.get('/json/version', (ctx) => {
@@ -18,25 +18,45 @@ export default ({ host, port, iwdpPort, wsPath }) => {
   });
 
   chromeInspectRouter.get('/json', async (ctx) => {
-    const rst = await getTargets({ iwdpPort, host, port, wsPath });
+    const rst = await DebugTargetManager.getDebugTargets({ iwdpPort, host, port, wsPath });
     ctx.body = rst;
   });
 
   return chromeInspectRouter;
 };
 
+export class DebugTargetManager {
+  public static debugTargets: DebugTarget[] = [];
+
+  public static getDebugTargets = async ({ iwdpPort, host, port, wsPath }: RouterArgv): Promise<DebugTarget[]> => {
+    // clientId 可以随意赋值，每个 ws 连过来时 clientId 不同即可
+    const clientId = uuidv4();
+    const rst: DebugTarget[] = [];
+    const iosTargets = await getIosTargets({ iwdpPort, host, port, wsPath, clientId });
+    const androidTargets = getAndroidTargets({ host, port, wsPath, clientId });
+    rst.push(...iosTargets);
+    rst.push(...androidTargets);
+    DebugTargetManager.debugTargets = rst;
+    return rst;
+  };
+
+  public static findTarget(id: string) {
+    return DebugTargetManager.debugTargets.find((target) => target.id === id);
+  }
+}
+
 /**
  * ios: 通过 IWDP 获取调试页面列表
  */
-const getIosTargets = async ({ iwdpPort, host, port, wsPath, clientId }): Promise<DebugPage[]> => {
+const getIosTargets = async ({ iwdpPort, host, port, wsPath, clientId }): Promise<DebugTarget[]> => {
   try {
     const deviceList = await request({
       url: '/json',
       baseUrl: `http://127.0.0.1:${iwdpPort}`,
       json: true,
     });
-    const appClientType = appClientManager.getIosAppClients().map(({ ctor }) => ctor.name);
-    const pages: DebugPage[] = await Promise.all(
+    const appClientTypeList = appClientManager.getIosAppClientOptions().map(({ Ctor }) => Ctor.name) as AppClientType[];
+    const debugTargets: DebugTarget[] = await Promise.all(
       deviceList.map(async (device) => {
         const port = device.url.match(/:(\d+)/)[1];
         try {
@@ -52,34 +72,37 @@ const getIosTargets = async ({ iwdpPort, host, port, wsPath, clientId }): Promis
         }
       }),
     );
-    return pages.flat().map((page) => {
-      const targetId = page.webSocketDebuggerUrl;
-      const ws = `${host}:${port}${wsPath}?platform=${
-        DevicePlatform.IOS
-      }&clientId=${clientId}&targetId=${targetId}&role=${ClientRole.Devtools}&appClientType=${encodeURIComponent(
-        JSON.stringify(appClientType),
-      )}&debugPage=${encodeURIComponent(JSON.stringify(page))}`;
-      const matchRst = page.title.match(/^HippyContext:\s(.*)$/);
+    return debugTargets.flat().map((debugTarget) => {
+      const targetId = debugTarget.webSocketDebuggerUrl;
+      const wsUrl = makeUrl(`${host}:${port}${wsPath}`, {
+        platform: DevicePlatform.IOS,
+        clientId,
+        targetId,
+        role: ClientRole.Devtools,
+      });
+      const devtoolsFrontendUrl = makeUrl(`http://localhost:${port}/front_end/inspector.html`, {
+        remoteFrontend: true,
+        experiments: true,
+        ws: wsUrl,
+      });
+      const matchRst = debugTarget.title.match(/^HippyContext:\s(.*)$/);
       const bundleName = matchRst ? matchRst[1] : '';
       return {
-        ...page,
+        ...debugTarget,
         id: targetId,
         clientId,
         thumbnailUrl: '',
-        description: page.title,
-        devtoolsFrontendUrl: `http://localhost:${port}/front_end/inspector.html?remoteFrontend=true&experiments=true&ws=${encodeURIComponent(
-          ws,
-        )}`,
-        devtoolsFrontendUrlCompat: `http://localhost:${port}/front_end/inspector.html?remoteFrontend=true&experiments=true&ws=${encodeURIComponent(
-          ws,
-        )}`,
+        appClientTypeList,
+        description: debugTarget.title,
+        devtoolsFrontendUrl,
+        devtoolsFrontendUrlCompat: devtoolsFrontendUrl,
         faviconUrl: bundleName ? 'http://res.imtt.qq.com/hippydoc/img/hippy-logo.ico' : '',
-        title: page.title,
+        title: debugTarget.title,
         bundleName,
         type: ChromePageType.Page,
         platform: DevicePlatform.IOS,
         url: '',
-        webSocketDebuggerUrl: `ws://${ws}`,
+        webSocketDebuggerUrl: `ws://${wsUrl}`,
       };
     });
   } catch (e) {
@@ -87,58 +110,39 @@ const getIosTargets = async ({ iwdpPort, host, port, wsPath, clientId }): Promis
   }
 };
 
-const getAndroidTargets = ({ host, port, wsPath, clientId }) => {
-  const appClientType = appClientManager.getAndroidAppClients().map(({ ctor }) => ctor.name);
-  return androidTargetManager.getTargets().map(({ id: targetId, ws }) => {
-    const wsUrl = `${host}:${port}${wsPath}?platform=${
-      DevicePlatform.Android
-    }&clientId=${clientId}&targetId=${targetId}&role=${ClientRole.Devtools}&appClientType=${encodeURIComponent(
-      JSON.stringify(appClientType),
-    )}`;
+/**
+ * android: 通过 androidDebugTargetManager 获取调试页面列表
+ */
+const getAndroidTargets = ({ host, port, wsPath, clientId }): DebugTarget[] => {
+  const appClientTypeList = appClientManager
+    .getAndroidAppClientOptions()
+    .map(({ Ctor }) => Ctor.name) as AppClientType[];
+  return androidDebugTargetManager.getTargetIdList().map((targetId) => {
+    const wsUrl = makeUrl(`${host}:${port}${wsPath}`, {
+      platform: DevicePlatform.Android,
+      clientId,
+      targetId,
+      role: ClientRole.Devtools,
+    });
+    const devtoolsFrontendUrl = makeUrl(`http://localhost:${port}/front_end/inspector.html`, {
+      remoteFrontend: true,
+      experiments: true,
+      ws: wsUrl,
+    });
     return {
       id: targetId || clientId,
       clientId,
       thumbnailUrl: '',
       description: 'Hippy instance',
-      devtoolsFrontendUrl: `http://localhost:${port}/front_end/inspector.html?remoteFrontend=true&experiments=true&ws=${encodeURIComponent(
-        wsUrl,
-      )}`,
-      devtoolsFrontendUrlCompat: `http://localhost:${port}/front_end/inspector.html?remoteFrontend=true&experiments=true&ws=${encodeURIComponent(
-        wsUrl,
-      )}`,
+      appClientTypeList,
+      devtoolsFrontendUrl,
+      devtoolsFrontendUrlCompat: devtoolsFrontendUrl,
       faviconUrl: 'http://res.imtt.qq.com/hippydoc/img/hippy-logo.ico',
       title: 'Hippy debug tools for V8',
       type: ChromePageType.Page,
       platform: DevicePlatform.Android,
-      ws,
       url: '',
       webSocketDebuggerUrl: `ws://${wsUrl}`,
     };
   });
-};
-
-let targets: DebugPage[] = [];
-
-export const getTargets = async ({ iwdpPort, host, port, wsPath }) => {
-  const clientId = uuidv4();
-  let rst: DebugPage[] = [];
-  const iosTargets = await getIosTargets({ iwdpPort, host, port, wsPath, clientId });
-  const androidTargets = getAndroidTargets({ host, port, wsPath, clientId });
-  rst.push(...iosTargets);
-  rst.push(...androidTargets);
-  targets = rst;
-  return rst.map((page) => _.omit(page, ['ws']));
-};
-
-/**
- *
- */
-export const selectTarget = (id: string) => {
-  const target = targets.find((target) => target.id === id);
-  if (!target) return;
-
-  return {
-    ...messageChannel.addChannel(target),
-    target,
-  };
 };

@@ -1,8 +1,8 @@
-import { EventEmitter } from 'events';
-import { DebugPage } from '../../@types/tunnel.d';
-import { DevtoolsClient, AppClient } from '../../client';
-import { ClientEvent, AppClientType } from '../../@types/enum';
 import createDebug from 'debug';
+import { EventEmitter } from 'events';
+import { AppClientType, ClientEvent } from '../../@types/enum';
+import { DebugTarget } from '../../@types/tunnel.d';
+import { AppClient, DevtoolsClient } from '../../client';
 
 const debug = createDebug('target:ios');
 const debugDown = createDebug('↓↓↓');
@@ -13,7 +13,7 @@ export class IosTarget extends EventEmitter {
   appClients;
   _sendToDevtools;
   _sendToApp;
-  private _data: DebugPage;
+  private _data: DebugTarget;
   private _messageFilters: Map<string, ((msg: any) => Promise<any>)[]> = new Map();
   private _toolRequestMap: Map<number, string> = new Map();
   private _adapterRequestMap: Map<number, { resolve: (any) => void; reject: (any) => void }> = new Map();
@@ -22,7 +22,7 @@ export class IosTarget extends EventEmitter {
   private _targetId: string = null;
   private _contextId: number = 0;
 
-  constructor(devtoolsClient: DevtoolsClient, appClients: AppClient[], data?: DebugPage) {
+  constructor(devtoolsClient: DevtoolsClient, appClients: AppClient[], data?: DebugTarget) {
     super();
     this._data = data;
     this.appClients = appClients;
@@ -67,7 +67,7 @@ export class IosTarget extends EventEmitter {
     };
   }
 
-  public get data(): DebugPage {
+  public get data(): DebugTarget {
     return this._data;
   }
 
@@ -149,7 +149,7 @@ export class IosTarget extends EventEmitter {
   }
 
   private onMessageFromApp(msg: Adapter.CDP.Res): void {
-    debugDown(`↓↓↓ %j`, {
+    debugDown('↓↓↓ %j', {
       id: (msg as any).id,
       method: (msg as any).method,
       error: (msg as any).error,
@@ -202,10 +202,10 @@ export class IosTarget extends EventEmitter {
         } else if ('error' in msg) {
           resultPromise.reject(msg.error);
         } else {
-          debug(`Unhandled type of request message from target %j`, msg);
+          debug('Unhandled type of request message from target %j', msg);
         }
       } else {
-        debug(`Unhandled message from target %j`, msg);
+        debug('Unhandled message from target %j', msg);
       }
     } else {
       const eventName = `target::${msg.method}`;
@@ -290,7 +290,7 @@ export class IosTarget extends EventEmitter {
       }
     }
 
-    debugUp(`%j`, newMsg);
+    debugUp('%j', newMsg);
     this._sendToApp(newMsg);
   }
 }

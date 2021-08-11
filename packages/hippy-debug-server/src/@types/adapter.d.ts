@@ -1,5 +1,5 @@
 declare namespace Adapter {
-  type DomainCallback = (msg: Adapter.CDP.Res) => void;
+  type DomainListener = (msg: Adapter.CDP.Res) => void;
   declare namespace CDP {
     interface Req {
       id: number;
@@ -29,14 +29,16 @@ declare namespace Adapter {
     }
 
     type Res = EventRes | CommandRes | ErrorRes;
+    type Data = Req | Res;
   }
   declare namespace IWDP {}
   declare namespace Client {}
 
+  type RegisterDomainListener = (domain: string, callback: Adapter.DomainListener) => void;
+
   type Channel = {
     sendMessage: (msg: Adapter.CDP.Req) => void;
-    registerDomainCallback: (domain: string, cb: Adapter.DomainCallback) => void;
-    registerModuleCallback: (module: string, cb: Adapter.DomainCallback) => void;
+    registerDomainListener: RegisterDomainListener;
   };
 
   type Connection<T> = {
@@ -45,4 +47,12 @@ declare namespace Adapter {
   };
   type ConnectionList = Connection[];
   type ConnectionListMap<T> = Map<string, ConnectionList<T>>;
+
+  type RequestPromiseMap = Map<
+    string | number,
+    {
+      resolve: Resolve;
+      reject: Reject;
+    }
+  >;
 }

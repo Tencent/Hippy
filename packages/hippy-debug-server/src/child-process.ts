@@ -1,31 +1,31 @@
 import { spawn } from 'child_process';
-import { exec } from './utils/process';
 import createDebug from 'debug';
 import path from 'path';
 import { TunnelEvent } from './@types/enum';
-import { onMessage } from './message-channel/tunnel';
+import addon from './build/Tunnel.node';
 import deviceManager from './device-manager';
-const addon = require('./build/Tunnel.node');
+import { tunnel } from './tunnel';
+import { exec } from './utils/process';
 global.addon = addon;
 
 const debug = createDebug('child-process');
 createDebug.enable('child-process');
 let proxyProcess;
 
-type TunnelParams = { iwdpPort: string; iwdpStartPort: string; iwdpEndPort: string };
+type TunnelParams = { iwdpPort: number; iwdpStartPort: number; iwdpEndPort: number };
 
 export const startTunnel = ({ iwdpPort, iwdpStartPort, iwdpEndPort }: TunnelParams) => {
   addon.addEventListener((event, data) => {
     debug(`receive tunnel event: ${event}`);
     if (event === TunnelEvent.ReceiveData) {
-      onMessage(data);
+      tunnel.onMessage(data);
     } else if ([TunnelEvent.RemoveDevice, TunnelEvent.AddDevice].indexOf(event) !== -1) {
       deviceManager.getDeviceList();
     }
   });
 
   const adbPath = path.join(__dirname, './build/adb');
-  const iwdpParams = [`--no-frontend`, `--config=null:${iwdpPort},:${iwdpStartPort}-${iwdpEndPort}`];
+  const iwdpParams = ['--no-frontend', `--config=null:${iwdpPort},:${iwdpStartPort}-${iwdpEndPort}`];
   addon.tunnelStart(adbPath, iwdpParams, iwdpPort);
 };
 
@@ -40,14 +40,14 @@ export const startIosProxy = ({ iwdpPort, iwdpStartPort, iwdpEndPort }: TunnelPa
   debug(`start IWDP on port ${iwdpPort}`);
 
   proxyProcess.on('error', (e) => {
-    debug(`IWDP error: %j`, e);
+    debug('IWDP error: %j', e);
   });
   proxyProcess.on('close', (code) => {
     debug(`IWDP close with code: ${code}`);
   });
 };
 
-export const startAdbProxy = (port: string) => {
+export const startAdbProxy = (port: number) => {
   exec('adb', ['reverse', '--remove-all'])
     .then(() => exec('adb', ['reverse', `tcp:${port}`, `tcp:${port}`]))
     .catch((err: Error) => {

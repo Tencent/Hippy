@@ -14,28 +14,13 @@
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "baseUrl": ".",
-    "typeRoots": [
-      "src/@types",
-      "node_modules/@types",
-    ],
+    "typeRoots": ["src/@types", "node_modules/@types", "node_modules/@tencent/tdf-devtools-protocol"],
     "paths": {
       "*": ["*", "node_modules/*", "src/@types/*"],
-      "@/*": [
-        "src/*"
-      ]
+      "@/*": ["src/*"]
     },
-    "lib": [
-      "esnext",
-      "dom",
-      "dom.iterable",
-      "scripthost"
-    ]
+    "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   },
-  "include": [
-    "src/**/*.ts",
-    "tests/**/*.ts", "global.d.ts",
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["src/**/*.ts", "tests/**/*.ts", "global.d.ts"],
+  "exclude": ["node_modules"]
 }

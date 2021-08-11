@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
+import createDebug from 'debug';
 import yargs from 'yargs';
-import { startServer } from './server';
-import { initHippyEnv, initVoltronEnv, initTdfEnv } from './client';
 import { DevtoolsEnv } from './@types/enum';
+import { Application } from './app';
 
 const { argv } = yargs
   .alias('v', 'version')
@@ -72,13 +72,13 @@ const { argv } = yargs
   })
   .option('env', {
     type: 'string',
-    default: 'TDF',
+    default: DevtoolsEnv.Hippy,
     choices: [DevtoolsEnv.Hippy, DevtoolsEnv.Voltron, DevtoolsEnv.TDF],
   })
   .epilog(`Copyright (C) 2017-${new Date().getFullYear()} THL A29 Limited, a Tencent company.`) as any;
 
 if (argv.verbose) {
-  process.env.VERBOSE = 'true';
+  createDebug.enable('*');
 }
 
 if (argv.help) {
@@ -89,9 +89,4 @@ if (argv.version) {
   yargs.version().exit(0, null);
 }
 
-if (argv.env === DevtoolsEnv.Hippy) initHippyEnv();
-else if (argv.env === DevtoolsEnv.Voltron) initVoltronEnv();
-else if (argv.env === DevtoolsEnv.TDF) initTdfEnv();
-
-// Execute command
-startServer(argv);
+Application.startServer(argv);
