@@ -1,3 +1,4 @@
+import { ChromeCommand } from '@tencent/tdf-devtools-protocol/types/enum-chrome-mapping';
 import { MiddleWareManager } from '../middleware-context';
 
 export const logMiddlewares: MiddleWareManager = {
@@ -48,25 +49,29 @@ export const logMiddlewares: MiddleWareManager = {
     },
   },
   downwardMiddleWareListMap: {
-    'Log.clear': ({ msg, sendToApp }) => {
+    [ChromeCommand.LogClear]: ({ msg, sendToApp }) => {
       sendToApp({
         id: (msg as Adapter.CDP.Req).id,
         method: 'Console.clearMessages',
+        params: {},
       });
     },
     'Log.disable': ({ msg, sendToApp }) => {
       sendToApp({
         id: (msg as Adapter.CDP.Req).id,
         method: 'Console.disable',
+        params: {},
       });
     },
     'Log.enable': ({ msg, sendToApp, sendToDevtools }) => {
       sendToApp({
         id: (msg as Adapter.CDP.Req).id,
         method: 'Console.enable',
+        params: {},
       });
       sendToDevtools({
         id: (msg as Adapter.CDP.Req).id,
+        method: msg.method,
         result: {},
       });
     },

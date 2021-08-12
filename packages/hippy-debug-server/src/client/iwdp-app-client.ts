@@ -1,6 +1,7 @@
 import createDebug from 'debug';
 import WebSocket from 'ws/index.js';
 import { AppClientType, ClientEvent } from '../@types/enum';
+import { getRequestId } from '../middlewares/global-id';
 import { AppClient } from './app-client';
 
 const debug = createDebug('app-client:ios-proxy');
@@ -20,7 +21,7 @@ export class IwdpAppClient extends AppClient {
   public resumeApp() {
     // ios 的 resume 需要发送 Debugger.disable
     this.sendToApp({
-      id: Date.now(),
+      id: getRequestId(),
       method: 'Debugger.disable',
       params: {},
     });

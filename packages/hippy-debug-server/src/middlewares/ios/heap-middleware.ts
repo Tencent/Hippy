@@ -1,28 +1,33 @@
+import { ChromeCommand } from '@tencent/tdf-devtools-protocol/types/enum-chrome-mapping';
+import { getRequestId } from '../global-id';
 import { MiddleWareManager } from '../middleware-context';
-import { getRequestId } from './global-id';
 import HeapAdapter from './heap-adapter';
 
 export const heapMiddlewares: MiddleWareManager = {
   upwardMiddleWareListMap: {},
   downwardMiddleWareListMap: {
-    'HeapProfiler.enable': ({ msg, sendToApp, sendToDevtools }) => {
+    [ChromeCommand.HeapProfilerEnable]: ({ msg, sendToApp, sendToDevtools }) => {
       sendToApp({
         id: getRequestId(),
         method: 'Heap.enable',
         params: {},
       }).then((res) => {
         console.log('Heap.enable res', msg);
-        sendToDevtools({ id: (msg as Adapter.CDP.Req).id, result: res });
+        sendToDevtools({
+          id: (msg as Adapter.CDP.Req).id,
+          method: msg.method,
+          result: res,
+        });
       });
     },
-    'HeapProfiler.disable': ({ sendToApp }) => {
+    [ChromeCommand.HeapProfilerDisable]: ({ sendToApp }) => {
       sendToApp({
         id: getRequestId(),
         method: 'Heap.disable',
         params: {},
       });
     },
-    'HeapProfiler.takeHeapSnapshot': ({ msg, sendToApp, sendToDevtools }) => {
+    [ChromeCommand.HeapProfilerTakeHeapSnapshot]: ({ msg, sendToApp, sendToDevtools }) => {
       const req = msg as Adapter.CDP.Req;
       console.log('onTakeHeapSnapshot', msg);
       const { reportProgress } = req.params;
@@ -53,14 +58,16 @@ export const heapMiddlewares: MiddleWareManager = {
         });
         sendToDevtools({
           id: (msg as Adapter.CDP.Req).id,
+          method: msg.method,
           result: {},
         });
       });
     },
-    'HeapProfiler.collectGarbage': ({ sendToApp }) => {
+    [ChromeCommand.HeapProfilerCollectGarbage]: ({ sendToApp }) => {
       sendToApp({
         id: getRequestId(),
         method: 'Heap.gc',
+        params: {},
       });
     },
   },

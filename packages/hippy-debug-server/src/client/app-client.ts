@@ -1,10 +1,10 @@
 /**
  * app 客户端，未来可能有多个消息通道：
- *    - tunnel层
- *    - app ws client
- *    - IWDP ws client
+ *    - tunnel 通道
+ *    - app ws client 通道
+ *    - IWDP ws client 通道
  *
- * 统一封装一层，防止app端频繁修改
+ * 统一封装一层，防止app端通道频繁修改
  */
 import { EventEmitter } from 'events';
 import WebSocket from 'ws/index.js';
@@ -15,6 +15,7 @@ import {
   MiddleWareManager,
   UrlParsedContext,
 } from '../middlewares';
+import { getRequestId } from '../middlewares/global-id';
 import { CDP_DOMAIN_LIST, getDomain } from '../utils/cdp';
 import { compose } from '../utils/middleware';
 
@@ -23,13 +24,12 @@ import { compose } from '../utils/middleware';
  *  on:
  *      message       : app response
  *      close         : app 断连后触发，需通知 devtools 也断连
- *  resume            : devtools 断连后触发，需通知 v8/jscore 继续运行
- *  send              : send to app
+ *  send              : send command to app
  **/
 export abstract class AppClient extends EventEmitter {
   public id: string;
   public type: AppClientType;
-  public middleWareManager: MiddleWareManager;
+  protected middleWareManager: MiddleWareManager;
   protected urlParsedContext: UrlParsedContext;
   protected msgBuffer: any[] = [];
   protected acceptDomains: string[] = CDP_DOMAIN_LIST;
@@ -37,6 +37,7 @@ export abstract class AppClient extends EventEmitter {
   protected useAdapter = true;
   protected useAllDomain = true;
   protected isClosed = false;
+  protected msgIdMethodMap: Map<number, string> = new Map();
 
   constructor(
     id,
@@ -63,6 +64,7 @@ export abstract class AppClient extends EventEmitter {
     if (!this.filter(msg)) return;
 
     const { method } = msg;
+    this.msgIdMethodMap.set(msg.id, msg.method);
     let middlewareList = this.middleWareManager.downwardMiddleWareListMap[method];
     if (!middlewareList) middlewareList = [];
     if (!(middlewareList instanceof Array)) middlewareList = [middlewareList];
@@ -77,6 +79,12 @@ export abstract class AppClient extends EventEmitter {
   }
 
   protected onMessage(msg: Adapter.CDP.Res) {
+    if ('id' in msg) {
+      const method = this.msgIdMethodMap.get(msg.id);
+      if (method) msg.method = method;
+      this.msgIdMethodMap.delete(msg.id);
+    }
+
     const { method } = msg;
     let middlewareList = this.middleWareManager.upwardMiddleWareListMap[method] || [];
     if (!middlewareList) middlewareList = [];
@@ -89,7 +97,12 @@ export abstract class AppClient extends EventEmitter {
     return {
       ...this.urlParsedContext,
       msg,
-      sendToApp: this.sendToApp.bind(this),
+      sendToApp: (msg: Adapter.CDP.Req) => {
+        if (!msg.id) {
+          msg.id = getRequestId();
+        }
+        this.sendToApp(msg);
+      },
       sendToDevtools: this.sendToDevtools.bind(this),
     };
   }

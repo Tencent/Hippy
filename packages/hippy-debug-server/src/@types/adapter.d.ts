@@ -4,7 +4,7 @@ declare namespace Adapter {
     interface Req {
       id: number;
       method: string;
-      params?: any;
+      params: any;
     }
 
     interface EventRes {
@@ -12,16 +12,17 @@ declare namespace Adapter {
       params: any;
     }
 
+    // CommanRes/ErrorRes 接口统一在 onMessage 时把 method 字段补充上去了
     interface CommandRes {
       id: number;
       method?: string;
       result: any;
-      method?: string;
+      method: string;
     }
 
     interface ErrorRes {
       id: number;
-      method?: string;
+      method: string;
       error: {
         code: number;
         message: string;

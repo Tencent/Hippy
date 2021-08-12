@@ -1,11 +1,13 @@
+import { ChromeCommand, ChromeEvent } from '@tencent/tdf-devtools-protocol/types/enum-chrome-mapping';
+import { sendEmptyResultToDevtools } from '../default-middleware';
+import { getRequestId } from '../global-id';
 import { MiddleWareManager } from '../middleware-context';
-import { getRequestId } from './global-id';
 
 export let lastScriptEval;
 
 export const debuggerMiddlewares: MiddleWareManager = {
   upwardMiddleWareListMap: {
-    'Debugger.scriptParsed': ({ msg, sendToDevtools }) => {
+    [ChromeEvent.DebuggerScriptParsed]: ({ msg, sendToDevtools }) => {
       const eventRes = msg as Adapter.CDP.EventRes;
       lastScriptEval = eventRes.params.scriptId;
       sendToDevtools(eventRes);
@@ -18,9 +20,12 @@ export const debuggerMiddlewares: MiddleWareManager = {
       delete res.params.hints;
       sendToDevtools(res);
     },
+    'Debugger.enable': sendEmptyResultToDevtools,
+    'Debugger.setBlackboxPatterns': sendEmptyResultToDevtools,
+    'Debugger.setPauseOnExceptions': sendEmptyResultToDevtools,
   },
   downwardMiddleWareListMap: {
-    'Debugger.enable': ({ sendToApp, msg }) => {
+    [ChromeCommand.DebuggerEnable]: ({ sendToApp, msg }) => {
       sendToApp({
         id: getRequestId(),
         method: 'Debugger.setBreakpointsActive',
@@ -28,17 +33,23 @@ export const debuggerMiddlewares: MiddleWareManager = {
       });
       sendToApp(msg);
     },
-    'Debugger.canSetScriptSource': ({ msg, sendToDevtools }) =>
+    ['Debugger.canSetScriptSource']: ({ msg, sendToDevtools }) =>
       sendToDevtools({
         id: (msg as Adapter.CDP.Req).id,
+        method: msg.method,
         result: false,
       }),
-    'Debugger.setBlackboxPatterns': ({ msg, sendToDevtools }) => {
-      sendToDevtools({ id: (msg as Adapter.CDP.Req).id, result: {} });
+    [ChromeCommand.DebuggerSetBlackboxPatterns]: ({ msg, sendToDevtools }) => {
+      sendToDevtools({
+        id: (msg as Adapter.CDP.Req).id,
+        method: msg.method,
+        result: {},
+      });
     },
     'Debugger.setAsyncCallStackDepth': ({ msg, sendToDevtools }) => {
       sendToDevtools({
         id: (msg as Adapter.CDP.Req).id,
+        method: msg.method,
         result: true,
       });
     },

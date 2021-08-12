@@ -1,14 +1,61 @@
-/* eslint-disable no-alert, no-mixed-operators, no-param-reassign */
-
 import color from 'color-normalize';
+import { MiddleWareManager } from './middleware-context';
 
-export default class CssDomain {
-  messageMethodMap;
+export const heapMiddlewares: MiddleWareManager = {
+  upwardMiddleWareListMap: {
+    'CSS.getMatchedStylesForNode': ({ msg, sendToDevtools }) => {
+      const commandRes = msg as Adapter.CDP.CommandRes;
+      commandRes.result.inlineStyle = CssDomain.conversionInlineStyle(commandRes.result.inlineStyle);
+      return sendToDevtools(commandRes);
+    },
+    'CSS.getComputedStyleForNode': ({ msg, sendToDevtools }) => {
+      const commandRes = msg as Adapter.CDP.CommandRes;
+      commandRes.result.computedStyle = CssDomain.conversionComputedStyle(commandRes.result.computedStyle);
+      return sendToDevtools(commandRes);
+    },
+    'CSS.setStyleTexts': ({ msg, sendToDevtools }) => {
+      const commandRes = msg as Adapter.CDP.CommandRes;
+      commandRes.result.styles = commandRes.result.styles.map((style) => CssDomain.conversionInlineStyle(style));
+      return sendToDevtools(commandRes);
+    },
+  },
+  downwardMiddleWareListMap: {
+    'CSS.setStyleTexts': ({ msg, sendToApp }) => {
+      const req = msg as Adapter.CDP.Req;
+      req.params.edits = req.params.edits.map((data) => {
+        const textList = data.text
+          .trim()
+          .split(';')
+          .reduce((ret, styleItem) => {
+            if (!styleItem.trim()) return ret;
+            // eslint-disable-next-line prefer-const
+            let [name, ...values] = styleItem.split(':');
+            if (!CssDomain.skipStyle(name)) {
+              if (name.toLowerCase().includes('color')) {
+                const rgba = CssDomain.transformRGBA(values[0]);
+                values = [CssDomain.rgbaToInt(rgba)];
+              }
+              ret.push(`${name}: ${values.join(':').trim()}`);
+            }
+            return ret;
+          }, []);
+        const totalCSSText = textList.join(';');
+        return {
+          ...data,
+          range: {
+            ...data.range,
+            endColumn: totalCSSText.length,
+          },
+          text: totalCSSText,
+        };
+      });
+      return sendToApp(req);
+    },
+  },
+};
+
+class CssDomain {
   static skipStyleList = ['backgroundImage', 'transform', 'shadowOffset'];
-
-  constructor() {
-    this.messageMethodMap = {};
-  }
 
   static intToRGBA(int32Color) {
     const int = int32Color << 0;
@@ -25,10 +72,6 @@ export default class CssDomain {
     const uint8 = color(stringColor, 'uint8');
     const int = Buffer.from(uint8).readUInt32BE(0);
     return ((int << 24) | (int >>> 8)) >>> 0;
-  }
-
-  static getMethodName(type, method) {
-    return method.replace(/^css\.(\w)(.*)/i, (s, p1, p2) => `${type.toLowerCase()}${p1.toUpperCase()}${p2}`);
   }
 
   static skipStyle(styleName) {
@@ -89,72 +132,5 @@ export default class CssDomain {
       }
       return `rgba(${r}, ${g}, ${b}, ${a})`;
     });
-  }
-
-  // 下行数据处理
-  handlerDown(msg) {
-    if (msg.method.toLowerCase().indexOf('css') === 0) {
-      this.messageMethodMap[msg.id] = msg.method;
-      const method = CssDomain.getMethodName('down', msg.method);
-      if (this[method]) {
-        return this[method].call(this, msg);
-      }
-    }
-  }
-
-  // 上行数据处理
-  handlerUp(msg) {
-    if (this.messageMethodMap[msg.id]) {
-      const method = CssDomain.getMethodName('up', this.messageMethodMap[msg.id]);
-      if (this[method]) {
-        return this[method].call(this, msg);
-      }
-    }
-  }
-
-  upGetMatchedStylesForNode(msg) {
-    msg.result.inlineStyle = CssDomain.conversionInlineStyle(msg.result.inlineStyle);
-    return msg;
-  }
-
-  upGetComputedStyleForNode(msg) {
-    msg.result.computedStyle = CssDomain.conversionComputedStyle(msg.result.computedStyle);
-    return msg;
-  }
-
-  upSetStyleTexts(msg) {
-    msg.result.styles = msg.result.styles.map((style) => CssDomain.conversionInlineStyle(style));
-    return msg;
-  }
-
-  downSetStyleTexts(msg) {
-    msg.params.edits = msg.params.edits.map((data) => {
-      const textList = data.text
-        .trim()
-        .split(';')
-        .reduce((ret, styleItem) => {
-          if (!styleItem.trim()) return ret;
-          // eslint-disable-next-line prefer-const
-          let [name, ...values] = styleItem.split(':');
-          if (!CssDomain.skipStyle(name)) {
-            if (name.toLowerCase().includes('color')) {
-              const rgba = CssDomain.transformRGBA(values[0]);
-              values = [CssDomain.rgbaToInt(rgba)];
-            }
-            ret.push(`${name}: ${values.join(':').trim()}`);
-          }
-          return ret;
-        }, []);
-      const totalCSSText = textList.join(';');
-      return {
-        ...data,
-        range: {
-          ...data.range,
-          endColumn: totalCSSText.length,
-        },
-        text: totalCSSText,
-      };
-    });
-    return msg;
   }
 }

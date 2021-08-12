@@ -9,7 +9,6 @@ export class Tunnel extends DomainRegister {
   public static tunnelMessageEmitter = new EventEmitter();
   private static isTunnelReady = true;
   private static msgQueue: Adapter.CDP.Req[] = [];
-  private static msgIdMethodMap: Map<number, string> = new Map();
   private requestPromiseMap: Adapter.RequestPromiseMap = new Map();
 
   public createTunnelClient() {
@@ -24,10 +23,6 @@ export class Tunnel extends DomainRegister {
     try {
       const msgObject: Adapter.CDP.Res = JSON.parse(msg);
       if ('id' in msgObject) {
-        const method = Tunnel.msgIdMethodMap.get(msgObject.id);
-        msgObject.method = method;
-        Tunnel.msgIdMethodMap.delete(msgObject.id);
-
         const requestPromise = this.requestPromiseMap.get(msgObject.id);
         if (requestPromise) requestPromise.resolve(msgObject);
       }
@@ -45,7 +40,6 @@ export class Tunnel extends DomainRegister {
         console.info('tunnel is not ready, push msg to queue.');
         return;
       }
-      Tunnel.msgIdMethodMap.set(msg.id, msg.method);
       console.info('sendMessage', msg);
       global.addon.sendMsg(JSON.stringify(msg));
 

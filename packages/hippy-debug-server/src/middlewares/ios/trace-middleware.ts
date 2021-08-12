@@ -1,5 +1,5 @@
 import { MiddleWareManager } from '../middleware-context';
-import { getRequestId } from './global-id';
+import { getRequestId } from '../global-id';
 import TraceAdapter from './trace-adapter';
 
 export const traceMiddlewares: MiddleWareManager = {

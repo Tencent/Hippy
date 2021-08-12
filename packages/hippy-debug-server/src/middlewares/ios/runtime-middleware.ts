@@ -1,6 +1,7 @@
+import { sendEmptyResultToDevtools } from '../default-middleware';
+import { getContextId, getRequestId } from '../global-id';
 import { MiddleWareManager } from '../middleware-context';
 import { lastScriptEval } from './debugger-middleware';
-import { getRequestId } from './global-id';
 
 let lastPageExecutionContextId;
 
@@ -70,8 +71,22 @@ export const runtimeMiddlewares: MiddleWareManager = {
       commandRes.result.result = newPropertyDescriptors;
       sendToDevtools(commandRes);
     },
+    'Runtime.enable': ({ msg, sendToDevtools }) => {
+      sendToDevtools({
+        method: 'Runtime.executionContextCreated',
+        params: {
+          context: {
+            id: getContextId(),
+            name: 'tdf',
+            origin: '',
+          },
+        },
+      });
+      sendToDevtools(msg);
+    },
   },
   downwardMiddleWareListMap: {
+    'Runtime.enable': sendEmptyResultToDevtools,
     'Runtime.compileScript': ({ msg, sendToApp, sendToDevtools }) =>
       sendToApp({
         id: getRequestId(),
@@ -83,6 +98,7 @@ export const runtimeMiddlewares: MiddleWareManager = {
       }).then(() =>
         sendToDevtools({
           id: (msg as Adapter.CDP.Req).id,
+          method: msg.method,
           result: {
             scriptId: null,
             exceptionDetails: null,

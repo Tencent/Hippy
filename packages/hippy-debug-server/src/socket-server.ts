@@ -87,6 +87,9 @@ export class SocketServer extends DomainRegister {
         this.triggerListerner(msg);
         // 上行到devtools
         if (ws) {
+          if ('id' in msg && msg.id < 0) {
+            return;
+          }
           ws.send(JSON.stringify(msg));
         }
       });
