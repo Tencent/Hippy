@@ -16,27 +16,27 @@
 package com.tencent.mtt.hippy.adapter.image;
 
 import android.util.SparseArray;
+import com.tencent.mtt.hippy.devsupport.DebugWebSocketClient.JSDebuggerCallback;
 import com.tencent.mtt.supportui.adapters.image.IImageLoaderAdapter;
 import com.tencent.mtt.supportui.adapters.image.IImageRequestListener;
 
 import java.lang.ref.WeakReference;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class HippyImageLoader implements IImageLoaderAdapter<HippyImageLoader.Callback> {
-
-  private final SparseArray<WeakReference<HippyDrawable>> mWeakImageCache = new SparseArray<>();
-
+  private final ConcurrentHashMap<Integer, WeakReference<HippyDrawable>> mWeakImageCache = new ConcurrentHashMap<>();
   // 本地图片加载，同步获取
   @Override
   public HippyDrawable getImage(String source, Object param) {
     //base64图片和APK内置图片增加弱引用缓存，避免每次在主线程加载和解码图片
     boolean canCacheImage = source.startsWith("data:") || source.startsWith("assets://");
-    int imageCacheCode = source.hashCode();
+    Integer imageCacheCode = source.hashCode();
     if (canCacheImage) {
       WeakReference<HippyDrawable> weakReferenceHippyDrawable = mWeakImageCache.get(imageCacheCode);
       if (weakReferenceHippyDrawable != null) {
         HippyDrawable hippyDrawable = weakReferenceHippyDrawable.get();
         if (hippyDrawable == null) {
-          mWeakImageCache.delete(imageCacheCode);
+          mWeakImageCache.remove(imageCacheCode);
         } else {
           return hippyDrawable;
         }
