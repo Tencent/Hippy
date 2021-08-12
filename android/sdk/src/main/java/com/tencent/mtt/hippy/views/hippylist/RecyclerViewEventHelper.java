@@ -179,11 +179,17 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
 
     @Override
     public void onScrolled(@NonNull final RecyclerView recyclerView, int dx, int dy) {
-        if (dx != 0 || dy != 0) {
+        if (scrollHappened(dx, dy)) {
             checkSendOnScrollEvent();
         }
         checkSendExposureEvent();
-        checkSendReachEndEvent();
+        if (scrollHappened(dx, dy)) {
+            checkSendReachEndEvent();
+        }
+    }
+
+    protected boolean scrollHappened(int dx, int dy) {
+        return dx != 0 || dy != 0;
     }
 
     /**
