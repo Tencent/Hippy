@@ -107,6 +107,7 @@ HIPPY_CUSTOM_VIEW_PROPERTY(linearGradient, NSDictionary, HippyView) {
             [object addEntriesFromDictionary:linearGradientObject];
         }
         view.gradientObject = [[HippyGradientObject alloc] initWithGradientObject:object];
+        [view.layer setNeedsDisplay];
     }
 }
 
