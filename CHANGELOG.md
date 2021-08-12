@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.8.3](https://github.com/Tencent/Hippy/compare/2.8.2...2.8.3) (2021-08-12)
+
+
+### Bug Fixes
+
+* **android:** remove hasNavigationBar from DimensionsUtil ([dd05d26](https://github.com/Tencent/Hippy/commit/dd05d26b2b6bd1e77107a2e3d2e6649b9a70265a))
+* **android:** shuold call invalidate after reset props ([c85fc75](https://github.com/Tencent/Hippy/commit/c85fc7511a56b972921a7f5866e27105ea8dab3c))
+* **ios:** fix gradient backgroundcolor update error ([60ceae3](https://github.com/Tencent/Hippy/commit/60ceae3d879281dd03bb7cdeaf7ee3a0c3385622))
+* **react:** fixed linearGradient update not work ([96f7451](https://github.com/Tencent/Hippy/commit/96f74515a8cbb5b6f43682d6e15e9744bca1455a))
+
+
+### Features
+
+* **android:** add image type to HippyDrawable ([4e7d4ba](https://github.com/Tencent/Hippy/commit/4e7d4bae67c76a2d0b4b238b7f9dadacdae0cf9e))
+* **android:** fix cookie sync, no need to call removeSessionCookie ([6f7f766](https://github.com/Tencent/Hippy/commit/6f7f76607d43ddf709e130ade05833622576d602))
+* **android:** support ui element module for devtools ([1567572](https://github.com/Tencent/Hippy/commit/156757252261e7c1c78277ffe66199f6b817d185))
+
+
+
+
+
 ## [2.8.2](https://github.com/Tencent/Hippy/compare/2.8.1...2.8.2) (2021-08-09)
 
 

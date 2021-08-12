@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.8.3](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.8.2...2.8.3) (2021-08-12)
+
+
+### Bug Fixes
+
+* **react:** fixed linearGradient update not work ([96f7451](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/96f74515a8cbb5b6f43682d6e15e9744bca1455a))
+
+
+
+
+
 ## [2.8.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.8.1...2.8.2) (2021-08-09)
 
 **Note:** Version bump only for package @hippy/react
