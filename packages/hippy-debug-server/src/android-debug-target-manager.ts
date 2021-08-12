@@ -7,9 +7,9 @@
 import { add, remove } from './utils/array';
 
 class AndroidDebugTargetManager {
+  public useCustom = false;
   private wsTargetIdList: string[] = [];
   private customTargetIdList: string[] = [];
-  private useCustom = false;
 
   public getTargetIdList() {
     return this.useCustom ? this.customTargetIdList : this.wsTargetIdList;

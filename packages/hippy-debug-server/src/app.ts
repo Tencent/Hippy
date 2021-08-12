@@ -15,6 +15,7 @@ import { SocketServer } from './socket-server';
 const debug = createDebug('server');
 
 export class Application {
+  private static argv: Application.StartServerArgv;
   private static server;
   private static socketServer: SocketServer;
 
@@ -33,6 +34,7 @@ export class Application {
       useTunnel,
       env,
     } = argv;
+    Application.argv = argv;
     Application.init();
     Application.setEnv(env as DevtoolsEnv);
 
@@ -121,8 +123,9 @@ export class Application {
     this.socketServer.selectDebugTarget(debugTarget);
   }
 
-  public static getDebugTargets(): DebugTarget[] {
-    return DebugTargetManager.debugTargets;
+  public static getDebugTargets(): Promise<DebugTarget[]> {
+    const { iwdpPort, host, port, wsPath } = Application.argv;
+    return DebugTargetManager.getDebugTargets({ iwdpPort, host, port, wsPath });
   }
 
   public static sendMessage(msg: Adapter.CDP.Req) {
