@@ -65,17 +65,23 @@ export class SocketServer extends DomainRegister {
         options = appClientManager.getIosAppClientOptions();
       }
 
-      appClientList = options.map(({ Ctor, ...option }: AppClientFullOptionOmicCtx) => {
-        const urlParsedContext = debugTarget2UrlParsedContext(debugTarget);
-        const newOption: AppClientOption = {
-          urlParsedContext,
-          ...option,
-        };
-        if (Ctor.name === AppClientType.WS) {
-          newOption.ws = this.appWsMap.get(appClientId);
-        }
-        return new Ctor(appClientId, newOption);
-      });
+      appClientList = options
+        .map(({ Ctor, ...option }: AppClientFullOptionOmicCtx) => {
+          const urlParsedContext = debugTarget2UrlParsedContext(debugTarget);
+          const newOption: AppClientOption = {
+            urlParsedContext,
+            ...option,
+          };
+          if (Ctor.name === AppClientType.WS) {
+            newOption.ws = this.appWsMap.get(appClientId);
+            if (!newOption.ws) {
+              debug('no app ws connection, ignore WsAppClient.');
+              return;
+            }
+          }
+          return new Ctor(appClientId, newOption);
+        })
+        .filter((v) => v);
       this.appClientListMap.set(appClientId, appClientList);
     }
 
