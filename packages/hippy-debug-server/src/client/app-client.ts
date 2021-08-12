@@ -6,6 +6,7 @@
  *
  * 统一封装一层，防止app端通道频繁修改
  */
+import createDebug from 'debug';
 import { EventEmitter } from 'events';
 import WebSocket from 'ws/index.js';
 import { AppClientType, ClientEvent } from '../@types/enum';
@@ -18,6 +19,10 @@ import {
 import { getRequestId } from '../middlewares/global-id';
 import { CDP_DOMAIN_LIST, getDomain } from '../utils/cdp';
 import { compose } from '../utils/middleware';
+
+const debug = createDebug('app-client');
+const downwareDebug = createDebug('↓↓↓');
+const upwardDebug = createDebug('↑↑↑');
 
 /**
  * 对外接口：
@@ -61,7 +66,7 @@ export abstract class AppClient extends EventEmitter {
   }
 
   public send(msg: Adapter.CDP.Req): void {
-    if (!this.filter(msg)) return;
+    if (!this.filter(msg)) return debug(`'${msg.method}' is filtered in app client type: ${this.type}`);
 
     const { method } = msg;
     this.msgIdMethodMap.set(msg.id, msg.method);
@@ -101,9 +106,13 @@ export abstract class AppClient extends EventEmitter {
         if (!msg.id) {
           msg.id = getRequestId();
         }
+        downwareDebug('%j', msg);
         this.sendToApp(msg);
       },
-      sendToDevtools: this.sendToDevtools.bind(this),
+      sendToDevtools: (msg: Adapter.CDP.Req) => {
+        upwardDebug('%j', msg);
+        this.sendToDevtools(msg);
+      },
     };
   }
 

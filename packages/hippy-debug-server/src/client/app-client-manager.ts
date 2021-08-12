@@ -60,7 +60,7 @@ export const initHippyEnv = () => {
     acceptDomains: customDomains,
     useAdapter: false,
     middleWareManager: iosMiddleWareManager,
-    Ctor: TunnelAppClient,
+    Ctor: WsAppClient,
   });
 };
 
