@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import HeapAdapter from '../adapter/ios/ios/heap-adapter';
+import HeapAdapter from '../middlewares/ios/heap-adapter';
 
 describe('ios heap 适配器', () => {
   it('snapshot转换', async () => {

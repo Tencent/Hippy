@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import TraceAdapter from '../adapter/ios/ios/trace-adapter';
+import TraceAdapter from '../middlewares/ios/trace-adapter';
 
 describe('ios trace 适配器', () => {
   it('trace转换', async () => {
