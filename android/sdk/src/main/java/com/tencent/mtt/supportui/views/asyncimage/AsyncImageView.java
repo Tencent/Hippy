@@ -607,36 +607,42 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 	public void setBorderColor(int color, int position)
 	{
 		getBackGround().setBorderColor(color, position);
+		invalidate();
 	}
-
 
 	@Override
 	public void setBorderStyle(int borderStyle)
 	{
 		getBackGround().setBorderStyle(borderStyle);
+		invalidate();
 	}
+
 	@Override
 	public void setBackgroundColor(int color)
 	{
 		getBackGround().setBackgroundColor(color);
+		invalidate();
 	}
 
 	@Override
 	public void setShadowOffsetX(float x)
 	{
 		getBackGround().setShadowOffsetX(x);
+		invalidate();
 	}
 
 	@Override
 	public void setShadowOffsetY(float y)
 	{
 		getBackGround().setShadowOffsetY(y);
+		invalidate();
 	}
 
 	@Override
 	public void setShadowOpacity(float opacity)
 	{
 		getBackGround().setShadowOpacity(opacity);
+		invalidate();
 	}
 
 	@Override
@@ -647,6 +653,7 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 		{
 			setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 		}
+		invalidate();
 	}
 
 	@Override
@@ -658,21 +665,25 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 	public void setShadowColor(int color)
 	{
 		getBackGround().setShadowColor(color);
+		invalidate();
 	}
 
 	@Override
 	public void setGradientAngle(String angle) {
 		getBackGround().setGradientAngle(angle);
+		invalidate();
 	}
 
 	@Override
 	public void setGradientColors(ArrayList<Integer> colors) {
 		getBackGround().setGradientColors(colors);
+		invalidate();
 	}
 
 	@Override
 	public void setGradientPositions(ArrayList<Float> positions) {
 		getBackGround().setGradientPositions(positions);
+		invalidate();
 	}
 
 	private BackgroundDrawable getBackGround()
