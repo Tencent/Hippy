@@ -46,6 +46,7 @@ export class SocketServer extends DomainRegister {
 
   public sendMessage(msg: Adapter.CDP.Req) {
     const appClientList = this.selectDebugTarget(this.debugTarget);
+    if (!appClientList) return;
     appClientList.forEach((appClient) => {
       appClient.send(msg);
     });
@@ -55,6 +56,8 @@ export class SocketServer extends DomainRegister {
    * 选择调试页面，为其搭建通道
    */
   public selectDebugTarget(debugTarget: DebugTarget, ws?: WebSocket): AppClient[] {
+    if (!debugTarget) return;
+    this.debugTarget = debugTarget;
     const appClientId = debugTarget.id;
     let appClientList = this.appClientListMap.get(appClientId);
     if (!appClientList?.length) {

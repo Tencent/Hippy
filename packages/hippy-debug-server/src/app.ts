@@ -6,7 +6,7 @@ import serve from 'koa-static';
 import path from 'path';
 import { DevtoolsEnv } from './@types/enum';
 import { DebugTarget } from './@types/tunnel.d';
-import { startAdbProxy, startIosProxy, startTunnel } from './child-process';
+import { onExit, startAdbProxy, startIosProxy, startTunnel } from './child-process';
 import { initHippyEnv, initTdfEnv, initVoltronEnv } from './client';
 import { config } from './config';
 import { DebugTargetManager, getChromeInspectRouter } from './router/chrome-inspect-router';
@@ -112,7 +112,9 @@ export class Application {
     }
   }
 
-  public static exit() {}
+  public static exit() {
+    onExit();
+  }
 
   public static selectDebugTarget(id: string) {
     const debugTarget = DebugTargetManager.findTarget(id);

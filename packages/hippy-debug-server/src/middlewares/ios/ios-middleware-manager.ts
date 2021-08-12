@@ -1,6 +1,6 @@
 import { TdfCommand } from '@tencent/tdf-devtools-protocol/types/enum-tdf-mapping';
+import { onFetchHeapCache, onGetHeapMeta } from '../heap-middleware';
 import { MiddleWareManager } from '../middleware-context';
-import { onGetHeapMeta } from '../heap-middleware';
 import { debuggerMiddlewares } from './debugger-middleware';
 import { heapMiddlewares } from './heap-middleware';
 import { logMiddlewares } from './log-middleware';
@@ -17,6 +17,7 @@ export const iosMiddleWareManager: MiddleWareManager = {
     ...heapMiddlewares.upwardMiddleWareListMap,
   },
   downwardMiddleWareListMap: {
+    'TDFMemory.fetchHeapCache': [onFetchHeapCache],
     ...debuggerMiddlewares.downwardMiddleWareListMap,
     ...logMiddlewares.downwardMiddleWareListMap,
     ...runtimeMiddlewares.downwardMiddleWareListMap,
