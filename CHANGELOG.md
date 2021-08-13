@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.8.4](https://github.com/Tencent/Hippy/compare/2.8.3...2.8.4) (2021-08-13)
+
+
+### Bug Fixes
+
+* **android:** fixed gradle config ([9837afa](https://github.com/Tencent/Hippy/commit/9837afa2dc172a9ba63bac46fbf6bb19b5c5a8f4))
+
+
+### Features
+
+* **hippy-react:** add nativeNode attributes info for debugging ([#923](https://github.com/Tencent/Hippy/issues/923)) ([6af97f7](https://github.com/Tencent/Hippy/commit/6af97f72872024b17e65f2c81aff66788bbd7e93))
+
+
+
+
+
 ## [2.8.3](https://github.com/Tencent/Hippy/compare/2.8.2...2.8.3) (2021-08-12)
 
 
