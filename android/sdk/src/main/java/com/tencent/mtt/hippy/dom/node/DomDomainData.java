@@ -14,6 +14,7 @@ public class DomDomainData {
     this.tagName = tagName;
     if (map != null) {
       this.style = map.getMap(NodeProps.STYLE);
+      this.text = map.getString("text");
       this.attributes = map.getMap(NodeProps.ATTRIBUTES);
     }
   }
