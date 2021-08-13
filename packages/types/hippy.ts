@@ -12,14 +12,20 @@ namespace Hippy {
 
   export type Platform = 'android' | 'ios';
 
+  export type Attributes = {
+    [key: string]: string | number;
+  };
+
   export interface NativeNode {
     id: number;
     pId: number;
     index: number;
     name?: string;
     style?: NativeStyle;
+    tagName?: string;
     props?: {
-      [key: string]: string | number;
+      [key: string]: string | number | undefined | Attributes | Style;
+      attributes?: Attributes;
     }
   }
 
