@@ -15,7 +15,6 @@ declare namespace Adapter {
     // CommanRes/ErrorRes 接口统一在 onMessage 时把 method 字段补充上去了
     interface CommandRes {
       id: number;
-      method?: string;
       result: any;
       method: string;
     }
