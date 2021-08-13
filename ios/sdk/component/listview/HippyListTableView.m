@@ -24,6 +24,20 @@
 
 @implementation HippyListTableView
 
+/**
+ * we need scroll indicator to be at top
+ * indicator is UIImageView type at lower ios version
+ * _UIScrollViewScrollIndicator type at higher ios version.
+ * UIImageView zPosition is zero by default, so we need set it manually.
+ * _UIScrollViewScrollIndicator zPosition is HUGE by default
+ */
+- (void)didAddSubview:(UIView *)subview {
+    [super didAddSubview:subview];
+    if ([subview isKindOfClass:[UIImageView class]]) {
+        subview.layer.zPosition = CGFLOAT_MAX;
+    }
+}
+
 - (void)layoutSubviews {
     [super layoutSubviews];
     if ([_layoutDelegate respondsToSelector:@selector(tableViewDidLayoutSubviews:)]) {
