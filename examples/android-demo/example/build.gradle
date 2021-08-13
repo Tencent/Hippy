@@ -81,11 +81,7 @@ allprojects {
 }
 
 dependencies {
-    if (verifyReleaseAar) {
-        api (name: 'android-sdk-release', ext: 'aar')
-    } else {
-        api project(path: ':android-sdk')
-    }
+    api project(path: ':android-sdk')
     //noinspection GradleDependency
     api 'com.github.bumptech.glide:glide:3.6.1'
     api 'androidx.legacy:legacy-support-v4:1.0.0'

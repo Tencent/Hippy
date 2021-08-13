@@ -110,19 +110,52 @@ git push --tags # 提交 tag
   > 如果开启了 npm 二次验证会一直问你一次性密码，正常输入即可。
 
 * iOS 发布到 cocoapods.org
+  
+  * 如果没有cocoapod账户，先进行注册
 
-    如果没有cocoapod账户，先进行注册
-
-    ```bash
+  ```bash
     pod trunk register [EMAIL] [NAME]
-    ```
+  ```
 
-    然后发布
+  * 然后发布
 
-    ```bash
-    pod trunk push hippy.podspec
-    ```
+  ```bash
+  pod trunk push hippy.podspec
+  ```
 
   > 如果发布时参数检查失败，可以在`pod`命令前面加上 `COCOAPODS_VALIDATOR_SKIP_XCODEBUILD=1` 参数
 
-* Android 发布到Maven Central，原有jCenter仓库已经废弃 [版本查询](https://search.maven.org/search?q=com.tencent.hippy)。
+* Android 发布到 Maven Central，原有jCenter仓库已经废弃 [版本查询](https://search.maven.org/search?q=com.tencent.hippy)。
+  
+  * 参照 [发布 Maven Central](https://zhuanlan.zhihu.com/p/362205023) 的步骤，并注册 [sonatype](https://oss.sonatype.org) 的账号。
+  * 增加系统环境变量配置
+
+    ```bash
+    SIGNING_KEY_ID=gpg公钥key后8位
+    SIGNING_PASSWORD=gpg密钥对密码
+    SIGNING_SECRET_KEY_RING_FILE=gpg文件存放路径, 如/Users/user/.gnupg/secring.gpg
+    OSSRH_USERNAME=sonatype账号
+    OSSRH_PASSWORD=sonatype密码
+    ```
+
+  * Gradle Task 先执行 `other` => `assembleRelease`, 再执行 `publishing` => `publish`, 发布成功后SDK会在 sonatype 的 `staging`状态
+  * 在 sonatype 左边 `Staging Repositories` 里找到刚发布的 repository，如果想Release前进行测试，可以在 `Content` 下将 `aar` 下载，替换`examples` => `android-demo` => `example` => `libs` 下的 aar(名字改成 `android-sdk-release.aar`)
+
+    ```bash
+      // 注释 `setting.gradle` 本地 SDK 的引用
+      // include 'android-sdk'
+      // project(':android-sdk').projectDir = new File('../../android/sdk')
+
+      --------------
+
+      // `android-demo` => `example` => `build.gradle` 的 dependencies 修改如下，这样就会默认采用本地 aar
+      if (1) {
+        api (name: 'android-sdk-release', ext: 'aar')
+      } else {
+         api project(path: ':android-sdk')
+      }
+    ```
+
+  * 验证成功后， 将 `Staging Repositories` 的 repository `Close`，再点击 `Release`。
+  * Release 成功后就可以在 Repository 里 搜索到对应版本的aar，Maven主页需要等待2个小时以上才会同步
+  
