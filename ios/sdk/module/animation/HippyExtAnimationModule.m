@@ -355,7 +355,7 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
 - (NSDictionary *)bindAnimaiton:(NSDictionary *)params viewTag:(NSNumber *)viewTag rootTag:(NSNumber *)rootTag {
     [_lock lock];
 
-    HippyExtAnimationViewParams *p = [[HippyExtAnimationViewParams alloc] initWithParams:params viewTag:viewTag rootTag:rootTag];
+    HippyExtAnimationViewParams *p = [[HippyExtAnimationViewParams alloc] initWithParams:params bridge:self.bridge viewTag:viewTag rootTag:rootTag];
     [p parse];
 
     BOOL contain = [self alreadyConnectAnimation:p];
@@ -425,6 +425,10 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
 
 - (BOOL)alreadyConnectAnimation:(HippyExtAnimationViewParams *)p {
     return [[_paramsByHippyTag allValues] containsObject:p];
+}
+
+- (HippyExtAnimation *)animationFromID:(NSNumber *)animationID {
+    return _animationById[animationID];
 }
 
 @end
