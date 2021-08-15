@@ -26,4 +26,5 @@
 @interface HippyConvert (Transform)
 + (CATransform3D)CATransform3D:(id)json;
 + (CGFloat)convertToRadians:(id)json;
++ (CGFloat)convertDegToRadians:(CGFloat)deg;
 @end

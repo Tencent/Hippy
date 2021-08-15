@@ -22,21 +22,27 @@
 
 #import "HippyExtAnimationViewParams.h"
 #import "NSDictionary+HippyDictionaryDeepCopy.h"
+#import "HippyBridge.h"
+#import "HippyExtAnimationModule.h"
+#import "HippyConvert+Transform.h"
 
 @implementation HippyExtAnimationViewParams {
     NSMutableDictionary *_styles;
     NSMutableDictionary *_animationIdWithPropDictionary;
     NSMutableDictionary<NSString *, NSMutableDictionary *> *_valuesByKey;
     NSNumber *_hippyTag;
+    __weak HippyBridge *_bridge;
 }
 
-- (instancetype)initWithParams:(NSDictionary *)params viewTag:(NSNumber *)viewTag rootTag:(NSNumber *)rootTag {
+- (instancetype)initWithParams:(NSDictionary *)params bridge:(HippyBridge *)bridge viewTag:(NSNumber *)viewTag rootTag:(NSNumber *)rootTag {
     if (self = [super init]) {
         _animationIdWithPropDictionary = [NSMutableDictionary new];
         _valuesByKey = [NSMutableDictionary new];
         _hippyTag = viewTag;
         _rootTag = rootTag;
         _originParams = params;
+        _bridge = bridge;
+        _valueType = HippyExtAnimationValueTypeRad;
     }
     return self;
 }
@@ -65,6 +71,9 @@
             if ([obj isKindOfClass:[NSDictionary class]]) {
                 if ([(NSDictionary *)obj count] == 1 && obj[@"animationId"]) {
                     NSNumber *animationID = obj[@"animationId"];
+                    HippyExtAnimation *animation = [_bridge.animationModule animationFromID:animationID];
+                    HippyExtAnimationValueType valueType = animation.valueType;
+                    self.valueType = valueType;
                     [self->_animationIdWithPropDictionary setValue:animationID forKey:key];
                 }
             } else {
@@ -120,6 +129,10 @@
 
 - (void)setValue:(id)value forProp:(NSString *)prop {
     @synchronized(self) {
+        if ([prop isEqualToString:@"rotate"] &&
+            HippyExtAnimationValueTypeDeg == self.valueType) {
+            value = @([HippyConvert convertDegToRadians:[value floatValue]]);
+        }
         if ([[_valuesByKey allKeys] containsObject:prop]) {
             _valuesByKey[prop][prop] = value;
             return;
