@@ -209,11 +209,7 @@
 #pragma mark - Delegate & Datasource
 
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
-	if (self.node.props[@"editable"]) {
-    return self.node.props[@"editable"];
-	} else {
-		return NO;
-	}	
+    return self.editable
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath {

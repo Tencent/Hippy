@@ -45,6 +45,7 @@
 @property (nonatomic, assign) BOOL manualScroll;
 @property (nonatomic, assign) BOOL bounces;
 @property (nonatomic, assign) BOOL showScrollIndicator;
+@property (nonatomic, assign) BOOL editable;
 
 @property (nonatomic, strong) HippyListTableView *tableView;
 @property (nonatomic, strong, readonly) HippyBaseListViewDataSource *dataSource;
