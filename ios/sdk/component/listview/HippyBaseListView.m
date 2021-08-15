@@ -31,6 +31,8 @@
 #import "HippyBaseListViewCell.h"
 #import "HippyVirtualList.h"
 
+#define kCellZIndexConst 10000.f
+
 @interface HippyBaseListView () <HippyScrollProtocol, HippyRefreshDelegate>
 
 @end
@@ -299,7 +301,7 @@
             cellView = [_bridge.uiManager createViewFromNode:indexNode];
         }
     }
-    cell.layer.zPosition = [indexPath section] * 10000.f + [indexPath row];
+    cell.layer.zPosition = [indexPath section] * kCellZIndexConst + [indexPath row];
     NSAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
         @"subviews of HippyBaseListViewCell must conform to protocol ViewAppearStateProtocol");
     cell.cellView = (UIView<ViewAppearStateProtocol> *)cellView;
