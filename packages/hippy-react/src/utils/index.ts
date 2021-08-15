@@ -38,7 +38,7 @@ function unicodeToChar(text: string): string {
 /**
  * Convert to string as possible
  */
-const numberRegEx = new RegExp('^[+-]?\\d+(\\.\\d+)?$');
+const numberRegEx = new RegExp('^(?=.+)[+-]?\\d*\\.?\\d*([Ee][+-]?\\d+)?$');
 /**
  * Try to convert something to number
  *

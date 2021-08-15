@@ -22,6 +22,7 @@ function compileRouteRegex(path, pathToRegexpOptions) {
 function normalizePath(path, parent, strict) {
   if (!strict) path = path.replace(/\/$/, '');
   if (path[0] === '/') return path;
+  // eslint-disable-next-line eqeqeq
   if (parent == null) return path;
   return cleanPath(`${parent.path}/${path}`);
 }
@@ -37,6 +38,7 @@ function addRouteRecord(
 ) {
   const { path, name } = route;
   if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line eqeqeq
     assert(path != null, '"path" is required in a route configuration.');
     assert(
       typeof route.component !== 'string',
@@ -67,6 +69,7 @@ function addRouteRecord(
     redirect: route.redirect,
     beforeEnter: route.beforeEnter,
     meta: route.meta || {},
+    // eslint-disable-next-line eqeqeq
     props: route.props == null
       ? {}
       : route.components

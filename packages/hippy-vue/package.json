@@ -1,6 +1,6 @@
 {
   "name": "@hippy/vue",
-  "version": "2.0.3",
+  "version": "2.2.1",
   "description": "Vue binding for Hippy native framework",
   "author": "XQ Kuang <x@kxq.io>",
   "license": "Apache-2.0",
@@ -20,6 +20,11 @@
     "compiler"
   ],
   "devDependencies": {
-    "ava": "^3.5.0"
+    "ava": "^3.5.0",
+    "glob-parent": "^5.1.2",
+    "hosted-git-info": "~3.0.8",
+    "lodash": "~4.17.21",
+    "normalize-url": "^4.5.1",
+    "y18n": "^4.0.1"
   }
 }

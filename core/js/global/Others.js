@@ -83,7 +83,10 @@ function emit(eventName, ...args) {
     throw new TypeError('Hippy.emit() only accept a string as event name');
   }
   const eventListeners = __GLOBAL__.globalEventHandle[eventName];
-  if (!(eventListeners instanceof Set)) {
+  if (!eventListeners) {
+    if (eventName === 'uncaughtException' && args[0]) {
+      console.error(args[0].toString());
+    }
     return;
   }
   try {

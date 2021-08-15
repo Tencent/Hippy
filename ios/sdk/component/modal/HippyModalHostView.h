@@ -27,6 +27,7 @@
 #import "HippyView.h"
 
 @class HippyBridge;
+@class HippyTouchHandler;
 @class HippyModalHostViewController;
 
 @protocol HippyModalHostViewInteractor;
@@ -46,13 +47,12 @@
 @property (nonatomic, strong) NSArray<NSString *> *supportedOrientations;
 @property (nonatomic, copy) HippyDirectEventBlock onOrientationChange;
 @property (nonatomic, strong) NSNumber *hideStatusBar;
+@property (nonatomic, readonly) HippyBridge *bridge;
+@property (nonatomic, readonly) BOOL isPresented;
+@property (nonatomic, strong) HippyModalHostViewController *modalViewController;
+@property (nonatomic, readonly) HippyTouchHandler *touchHandler;
+
 - (instancetype)initWithBridge:(HippyBridge *)bridge NS_DESIGNATED_INITIALIZER;
-
-@end
-
-@protocol HippyModalHostViewInteractor <NSObject>
-
-- (void)presentModalHostView:(HippyModalHostView *)modalHostView withViewController:(HippyModalHostViewController *)viewController animated:(BOOL)animated;
-- (void)dismissModalHostView:(HippyModalHostView *)modalHostView withViewController:(HippyModalHostViewController *)viewController animated:(BOOL)animated;
+- (void)notifyForBoundsChange:(CGRect)newBounds;
 
 @end

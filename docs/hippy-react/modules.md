@@ -3,9 +3,11 @@
 
 # 模块
 
+---
+
 # Animation
 
-[[Animation 范例]](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/modules/Animation)
+[[Animation 范例]](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/modules/Animation/index.jsx)
 
 `Animation` 是 Hippy 提供的动画组件，可以支持传入动画配置，以及手动控制开始与结束。在 Hippy 上实现一个动画分为三个步骤：
 
@@ -21,9 +23,9 @@
 | -------------- | -------------------- | ---- | ------ | ------------------------------------------------------------ |
 | mode           | `string`             | 是   | timing | 动画时间轴模式                                               |
 | delay          | `number`             | 是   | -      | 动画延迟开始的时间，单位为毫秒，默认为 0，即动画start之后立即执行；指定列表的行数，一般直接传入数据源条数 `length` 即可 |
-| startValue     | `number`, `Animation` | 是   | -      | 动画开始时的值，可为 Number 类型或一个 Animation 的对象，如果指定为一个 Animation 时，代表本动画的初始值为其指定的动画结束或中途 cancel 后的所处的动画值（这种场景通常用于 AnimationSet 中实现多个连续变化的动画）； |
-| toValue        | `number`             | 是   | -      | 动画结束时候的值                                             |
-| valueType*      | `number`, `string`    | 否   | null   | 动画的开始和结束值的单位类型，默认为空，代表动画起止的单位是普通Number，单位pt。 PS: Web平台此接口只支持number类型传参 |
+| startValue     | `number`, `string` | 是   | -      | 动画开始时的值，可为 Number 类型 String 类型，如果为颜色值参考 [color](style/color.md)  |
+| toValue        | `number`, `string`             | 是   | -      | 动画结束时候的值；如果为颜色值参考 [color](style/color.md)                                             |
+| valueType*      | `number`, `string`    | 否   | null   | 动画的开始和结束值的类型，默认为空，代表动画起止的单位是普通Number。 PS: Web平台此接口只支持number类型传参 |
 | duration       | `number`             | 否   | -      | 动画时长，单位为毫秒(ms)                                     |
 | timingFunction* | `string`             | 否   | linear | 动画插值器类型                                               |
 | repeatCount    | `number`, `loop`             | 否   | -      | 动画的重复次数，默认为0，即只播放一次，为"loop"时代表无限循环播放； repeatCount 设为 n 时，则动画会播放 n 次 |
@@ -31,13 +33,14 @@
 * valueType 的参数选项：
   * `rad`：代表动画参数的起止值为弧度；
   * `deg`：代表动画参数的起止值为度数；
+  * `color`：代表动画参数的起止值为颜色值，可修饰背景色 `backgroundColor` 和文字颜色 `color`(仅Android支持)，参考 [例子](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/modules/Animation/index.jsx) `最低支持版本2.6.0`
 
 * timingFunction 的参数选项：
   * `linear`：使用线性插值器，动画将匀速进行；
   * `ease-in`：使用加速插值器，动画速度将随时间逐渐增加；
   * `ease-out`：使用减速插值器，动画速度将随时间逐渐减小；
   * `ease-in-out`：使用加减速插值器，动画速度前半段先随时间逐渐增加，后半段速度将逐渐减小；
-  * `ease_bezier`：使用贝塞尔插值器，动画速度跟随贝塞尔函数变化，贝塞尔函数参数0.42 -> 0 -> 1 -> 1。
+  * `ease_bezier`：暂不支持；
 
 ## 方法
 
@@ -45,15 +48,11 @@
 
 `() => void` 停止并销毁一个动画集。建议在组件销毁的生命周期执行此方法，避免动画在后台运行耗。
 
-### onAnimationCancel
-
-`(callback: () => void) => void` 注册一个动画的监听回调，在动画被取消时将会回调callback，取消的情况包括：尚未start或尚未结束的动画被destroy时。
-
 ### onAnimationEnd
 
 `(callback: () => void) => void` 注册一个动画的监听回调，在动画结束时将会回调callback。
 
-### onAnimationRepeat
+### onAnimationRepeat（仅 Android 支持）
 
 `(callback: () => void) => void` 注册一个动画的监听回调，当动画开始下一次重复播放时callback将被回调。
 
@@ -79,6 +78,8 @@
 
 > * options: Object: 实例化参数
 
+---
+
 # AnimationSet
 
 [[AnimationSet 范例]](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/modules/Animation)
@@ -101,10 +102,6 @@
 ### destroy
 
 `() => void` 停止并销毁一个动画集。建议在组件销毁的生命周期执行此方法，避免动画在后台运行耗。
-
-### onAnimationCancel
-
-`(callback: () => void) => void` 注册一个动画的监听回调，在动画被取消时将会回调 callback，取消的情况包括：尚未 start 或尚未结束的动画被 destroy 时。
 
 ### onAnimationEnd
 
@@ -134,9 +131,11 @@
 
 `(options: Object) => void` 修改动画的配置参数，只需要填入需要修改的配置项即可，不需要重复填入所有的动画参数
 
+---
+
 # AsyncStorage
 
-[[AsyncStorage 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/modules/AsyncStorage)
+[[AsyncStorage 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/modules/AsyncStorage/index.jsx)
 
 AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系统，它对于 App 来说是全局性的。
 
@@ -185,31 +184,35 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 > * key: string - 需要获取值的目标 key
 > * value: string - 需要获取值的目标值
 
+---
+
 # BackAndroid
 
 [[BackAndroid 范例]](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/pages/gallery.jsx#L171)
 
 可以监听 Android 实体键的回退，在退出前做操作或拦截实体键的回退。
 
-> 注意：该方法需要终端拦截实体返回按钮的事件，可以参考 [android-demo 的 onBackPressed 方法](//github.com/Tencent/Hippy/blob/master/examples/android-demo/example/src/main/java/com/tencent/mtt/hippy/example/MyActivity.java#L141)
+> 注意：该方法需要终端拦截实体返回按钮的事件，可以参考 [android-demo 的 onBackPressed 方法](//github.com/Tencent/Hippy/blob/master/examples/android-demo/example/src/main/java/com/tencent/mtt/hippy/example/MyActivity.java)
 
 ## 方法
 
 ### BackAndroid.addListener
 
-`(handler: () => boolean) => { remove: Function }` 监听Android实体健回退，触发时执行 handler 回调函数。回调函数返回 true 时，拦截终端的回退操作。回调函数返回 false 时, 就不会拦截回退。
+`(handler: () => boolean) => { remove: Function }` 监听Android实体健回退，触发时执行 handler 回调函数。回调函数返回 true 时，拦截终端的回退操作。回调函数返回 false 时, 就不会拦截回退。该函数返回包含 `remove()` 方法的对象，可通过调用 `remove()` 方法移除监听，同 `BackAndroid.removeListener`。
 
 > * handler: Function - 实体键回退时触发的回调函数
 
 ### BackAndroid.exitApp
 
-`() => void`直接执行终端的推出 App 逻辑。
+`() => void`直接执行终端的退出 App 逻辑。
 
 ### BackAndroid.removeListener
 
 `(handler: () => boolean) => void` 移除 BackAndroid 关于Android实体健回退事件的监听器。
 
-* handler: Function - 建议使用 `addListener` 返回的 `remove` 对象，也可以是之前 BackAndroid 的回调函数。
+* handler: Function - 建议使用 `addListener` 返回的包含 `remove()` 方法的对象，也可以是之前 BackAndroid 的回调函数。
+
+---
 
 # Clipboard
 
@@ -229,6 +232,8 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 > * value: string - 需要设置到剪贴板中的内容。
 
+---
+
 # Dimensions
 
 用于获取当前设备的宽高。
@@ -237,11 +242,33 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 ### Dimensions.get
 
-`(target: 'window' | 'screen') => { height: number, width: number, scale: number, statusBarHeight }` Hippy Root View 尺寸或者屏幕尺寸。
+`(target: 'window' | 'screen') => { height: number, width: number, scale: number, statusBarHeight, navigatorBarHeight }` Hippy Root View 尺寸或者屏幕尺寸。
 
 > * target: 'window' | 'screen' - 指定丈量 Hippy Root View 或者屏幕尺寸。
+> * Android 特别说明：因为历史遗留问题，screen 下的 statusBarHeight 是按实际像素算的，window 下经过修正已经是 dp 单位。
+> * navigatorBarHeight: Android 底部 navigatorBar 高度；最低支持版本 2.3.4
 
-> Anrdoid 特别说明：因为历史遗留问题，screen 下的 statusBarHeight 是按实际像素算的，window 下经过修正已经是 dp 单位。
+---
+
+# ImageLoaderModule
+
+通过该模块可以对远程图片进行相应操作
+
+## 方法
+
+### ImageLoaderModule.getSize
+
+`(url: string) => Promise<{width, height}>` 获取图片大小（会同时预加载图片）。
+
+> * url - 图片地址
+
+### ImageLoaderModule.prefetch
+
+`(url: string) => void` 用于预加载图片。
+
+> * url - 图片地址
+
+---
 
 # NetInfo
 
@@ -271,7 +298,7 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 `(eventName: string, handler: Function) => NetInfoRevoker` 添加一个网络变化监听器。
 
 > * eventName: 'change' - 事件名称
-> * handler: Function - 网络发生变化时触发的回调函数
+> * handler: ({ network_info:string }) => any - 网络发生变化时触发的回调函数
 
 ### NetInfo.fetch
 
@@ -306,6 +333,8 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 > * keyValue: string - 需要设置的键值对
 > * expires?: string - 设置 Cookie 的超市时间
 
+---
+
 # PixelRatio
 
 用于获取当前设备的像素密度(pixel density)。
@@ -337,6 +366,8 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
   * Pixel XL, Pixel 2 XL
   * [xxxhdpi Android 设备](//material.io/tools/devices/)
 
+---
+
 # Platform
 
 用于书写平台区分代码的一个组件。开发者使用时，根据 `Platform.OS` 输出值开发分平台业务逻辑分支。
@@ -346,6 +377,8 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 | 参数          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | OS | 用来判断是在 iOS 或者 Android 下 | string                                  | `ALL`    |
+
+---
 
 # Stylesheet
 
@@ -364,3 +397,19 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 `(styleObj: Object) => styleObj`
 
 > * styleObj: Object - 样式对象
+
+---
+
+# UIManagerModule
+
+提供了操作 UI 相关的能力。
+
+## 方法
+
+### UIManagerModule.measureInAppWindow
+
+测量在 App 窗口范围内某个组件的尺寸和位置，如果出错 callback 参数可能为字符串或者 -1
+
+`(ref, callback: Function) => Promise`
+
+> * callback: ({ x, y, width, height } | string | -1) => void - 回调函数, 参数可以获取到引用组件在 App 窗口范围内的坐标值和宽高，如果出错可能返回 -1 或者 `this view is null` 字符串

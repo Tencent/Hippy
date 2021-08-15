@@ -97,6 +97,7 @@ class AnimationSet implements AnimationSet {
     // Set as iOS default
     let animationEventName = 'onAnimation';
     // If running in Android, change it.
+    // @ts-ignore
     if (__PLATFORM__ === 'android' || Device.platform.OS === 'android') {
       animationEventName = 'onHippyAnimation';
     }
@@ -157,6 +158,8 @@ class AnimationSet implements AnimationSet {
    */
   public destroy() {
     this.removeEventListener();
+    this.animationList.forEach(item => Number.isInteger(item.animationId)
+        && Bridge.callNative('AnimationModule', 'destroyAnimation', item.animationId));
     Bridge.callNative('AnimationModule', 'destroyAnimation', this.animationId);
   }
 

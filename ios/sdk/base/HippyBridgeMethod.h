@@ -35,8 +35,6 @@ typedef NS_ENUM(NSUInteger, HippyFunctionType) {
 @property (nonatomic, copy, readonly) NSString *JSMethodName;
 @property (nonatomic, readonly) HippyFunctionType functionType;
 
-- (id)invokeWithBridge:(HippyBridge *)bridge
-                module:(id)module
-             arguments:(NSArray *)arguments;
+- (id)invokeWithBridge:(HippyBridge *)bridge module:(id)module arguments:(NSArray *)arguments;
 
 @end

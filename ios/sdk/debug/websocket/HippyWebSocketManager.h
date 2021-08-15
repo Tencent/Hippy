@@ -20,14 +20,8 @@
  * limitations under the License.
  */
 
-#import "HippyDefines.h"
-
-#if HIPPY_DEV // Only supported in dev mode
-
 #import "HippyWebSocketProxy.h"
+#import "HippyEventObserverModule.h"
 
-@interface HippyWebSocketManager : NSObject <HippyWebSocketProxy>
-- (instancetype)init;
+@interface HippyWebSocketManager : HippyEventObserverModule
 @end
-
-#endif

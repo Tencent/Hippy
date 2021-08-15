@@ -4,15 +4,16 @@
 
 hippy-react 的组件接近终端，语法上接近 React Native。
 
+---
+
 # Image
 
 [[Image 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/Image)
 
 图片组件，用于显示单张图片。
 
-> **注意：** 必须指定样式中的宽度和高度，否则无法工作。
-
-> **注意：** Android 端默认会带上灰底色用于图片占位，可以加上 `backgroundColor: transparent` 样式改为透明背景。
+> * 注意： 必须指定样式中的宽度和高度，否则无法工作。
+> * 注意： Android 端默认会带上灰底色用于图片占位，可以加上 `backgroundColor: transparent` 样式改为透明背景。
 
 ## 基本用法
 
@@ -46,7 +47,7 @@ import icon from './qb_icon_new.png';
 | ------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | -------- |
 | onLayout      | 当元素挂载或者布局改变的时候调用，参数为： `{ nativeEvent: { layout: { x, y, width, height } } }`。 | `Function`                                                   | `ALL`    |
 | onLoad        | 加载成功完成时调用此回调函数。                               | `Function`                                                   | `ALL`    |
-| onLoadStart   | 加载开始时调用。 例如, `onLoadStart={(e) => this.setState({ loading: true })}` | `Function`                                                   | `ALL`    |
+| onLoadStart   | 加载开始时调用。 例如, `onLoadStart={() => this.setState({ loading: true })}` | `Function`                                                   | `ALL`    |
 | onLoadEnd     | 加载结束后，不论成功还是失败，调用此回调函数。               | `Function`                                                   | `ALL`    |
 | resizeMode    | 决定当组件尺寸和图片尺寸不成比例的时候如何调整图片的大小。   |  `enum`(cover, contain, stretch, repeat, center) | `ALL`    |
 | source        | uri是一个表示图片的资源标识的字符串，需要用http路径。  现在支持的图片格式有 `png` , `jpg` , `jpeg` , `bmp` , `gif` 。 | `{ uri: string }`                                            | `ALL`    |
@@ -54,6 +55,10 @@ import icon from './qb_icon_new.png';
 | onError       | 当加载错误的时候调用此回调函数，参数为 `{ nativeEvent: { error } }` | `Function`                                                   | `ALL`    |
 | capInsets     | 当调整 `Image` 大小的时候，由 `capInsets` 指定的边角尺寸会被固定而不进行缩放，而中间和边上其他的部分则会被拉伸。这在制作一些可变大小的圆角按钮、阴影、以及其它资源的时候非常有用。 | `{ top: number, left: number, bottom: number, right: number }` | `ALL`    |
 | onProgress    | 在加载过程中不断调用，参数为 `{ nativeEvent: { loaded, total } }` | `Function`                                                   |      `ALL`     |
+| onTouchDown  | 当用户开始触屏控件时（即用户在该控件上按下手指时），将回调此函数，并将触屏点信息作为参数传递进来； 参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
+| onTouchMove   | 当用户在控件移动手指时，此函数会持续收到回调，并通过event参数告知控件的触屏点信息；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
+| onTouchEnd    | 当触屏操作结束，用户在该控件上抬起手指时，此函数将被回调，event参数也会通知当前的触屏点信息；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
+| onTouchCancel | 当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden），此函数会收到回调，触屏点信息也会通过event参数告知前端；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
 
 ## 方法
 
@@ -75,6 +80,8 @@ import icon from './qb_icon_new.png';
 
 > * `uri`: string - 图片的地址
 
+---
+
 # ListView
 
 [[ListView 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/ListView)
@@ -85,25 +92,36 @@ import icon from './qb_icon_new.png';
 
 | 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
 | --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
+| horizontal       | 指定 `ListView` 是否采用横向布局。`default: undefined` | `any`   | `Android`    |
 | initialListSize       | 指定在组件刚挂载的时候渲染多少行数据。用这个属性来确保首屏显示合适数量的数据，而不是花费太多帧时间逐步显示出来。 | `number`                                                    | `ALL`    |
-| numberOfRows          | 指定列表的行数，一般直接传入数据源条数 `length` 即可。       | `number`                                                    | `ALL`    |
-| initialContentOffset  | 初始位移值 -- 在列表初始化时即可指定滚动距离，避免初始化后再通过 scrollTo 系列方法产生的闪动。 | `number`                                                    | `ALL`    |
+| initialContentOffset  | 初始位移值 -- 在列表初始化时即可指定滚动距离，避免初始化后再通过 scrollTo 系列方法产生的闪动。 | `number`                                                    | `iOS`    |
 | renderRow             | 这里的入参是当前row 的index，在这里可以凭借index 获取到具体这一行单元格的数据，从而决定如何渲染这个单元格。 | `(index: number) => Node`                                   | `ALL`    |
-| getRowStyle           | -                                                            | `(index: number) => any`                                    | `ALL`    |
-| getRowType            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升list 性能。 | `(index: number) => any`                                    | `ALL`    |
+| getRowStyle           | 设置`ListViewItem`容器的样式。当设置了 `horizontal=true` 启用横向 `ListView` 时，需显式设置 `ListViewItem` 宽度              | `(index: number) => styleObject`                                    | `ALL`    |
+| getRowType            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升list 性能。 | `(index: number) => number`                                    | `ALL`    |
 | getRowKey             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [React 官文](//reactjs.org/docs/lists-and-keys.html) | `(index: number) => any`                                    | `ALL`    |
+| preloadItemNumber     | 指定当列表滚动至倒数第几行时触发 `onEndReached` 回调。 | `number` | `ALL` |
+| onAppear     | 当有`ListViewItem`滑动进入屏幕时（曝光）触发，入参返回曝光的`ListViewItem`对应索引值。 | `(index) => any` | `ALL` |
+| onDisappear     | 当有`ListViewItem`滑动离开屏幕时触发，入参返回离开的`ListViewItem`对应索引值。 | `(index) => any` | `ALL` |
+| onWillAppear     | 当有`ListViewItem`至少一个像素进入屏幕时（曝光）触发，入参返回曝光的`ListViewItem`对应索引值。 `最低支持版本2.3.0` | `(index) => any` | `ALL` |
+| onWillDisappear     | 当有`ListViewItem`至少一个像素滑动离开屏幕时触发，入参返回离开的`ListViewItem`对应索引值。 `最低支持版本2.3.0`| `(index) => any` | `ALL` |
 | onEndReached          | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `onEndReached` 回调。 | `Function`                                                  | `ALL`    |
 | onMomentumScrollBegin | 在 `ListView` 开始滑动的时候调起                           | `Function`                                                  | `ALL`    |
 | onMomentumScrollEnd   | 在 `ListView` 结束滑动的时候调起                           | `Function`                                                  | `ALL`    |
-| onScroll              | 当触发 `ListView` 的滑动事件时回调，在 `ListView` 滑动时回调，因此调用会非常频繁，请使用 `scrollEventThrottle` 进行频率控制。 注意：ListView 在滚动时会进行组件回收，不要在滚动时对 renderRow() 生成的 ListItemView 做任何 ref 节点级的操作（例如：所有 callUIFunction 和 measureInWindow 方法），回收后的节点将无法再进行操作而报错。 | `(obj: { contentOffset: { x: number, y: number } }) => any` | `ALL`    |
+| onScroll              | 当触发 `ListView` 的滑动事件时回调，在 `ListView` 滑动时回调，因此调用会非常频繁，请使用 `scrollEventThrottle` 进行频率控制。 注意：ListView 在滚动时会进行组件回收，不要在滚动时对 renderRow() 生成的 ListItemView 做任何 ref 节点级的操作（例如：所有 callUIFunction 和 measureInAppWindow 方法），回收后的节点将无法再进行操作而报错。 | `(obj: { contentOffset: { x: number, y: number } }) => any` | `ALL`    |
 | onScrollBeginDrag     | 当用户开始拖拽 `ListView` 时调用。                         | `Function`                                                  | `ALL`    |
 | onScrollEndDrag       | 当用户停止拖拽 `ListView` 或者放手让 `ListView` 开始滑动的时候调用 | `Function`                                                  | `ALL`    |
 | scrollEventThrottle   | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onScroll` 回调事件 | `number`                                                    | `ALL`    |
-| rowShouldSticky       | 在回调函数，根据传入参数index（ListView单元格的index）返回true或false指定对应的item是否需要使用悬停效果（滚动到顶部时，会悬停在List顶部，不会滚出屏幕） | `(index: number) => boolean`                                | `ALL`    |
+| rowShouldSticky       | 在回调函数，根据传入参数index（ListView单元格的index）返回true或false指定对应的item是否需要使用悬停效果（滚动到顶部时，会悬停在List顶部，不会滚出屏幕）。 | `(index: number) => boolean`                                | `ALL`    |
 | showScrollIndicator   | 是否显示垂直滚动条。 因为目前 ListView 其实仅有垂直滚动一种方向，水平滚动会导致 `onEndReached` 等一堆问题暂不建议使用，所以 `showScrollIndicator` 也仅用来控制是否显示垂直滚动条。 | `boolean`                                                   | `ALL`    |
+<<<<<<< HEAD
 | editable   | 是否可编辑，开启侧滑删除时需要设置为 `true` | `boolean`                                                   | `iOS`    |
 | delText   | 侧滑删除文本 | `string`                                                   | `iOS`    |
 | onDelete   | 在列表项侧滑删除时调起 | `Function`                                                   | `iOS`    |
+=======
+| renderPullHeader   | 设置列表下拉头部（刷新条），配合`onHeaderReleased`、`onHeaderPulling` 和 `collapsePullHeader`使用, 参考 [DEMO](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/PullHeader/index.jsx)。 | `() => View`                                                   | `ALL`    |
+| onHeaderPulling   | 下拉过程中触发, 事件会通过 contentOffset 参数返回拖拽高度，可以根据下拉偏移量做相应的逻辑。 | `(obj: { contentOffset: number }) => any`                                                   | `ALL`    |
+| onHeaderReleased   | 下拉超过内容高度，松手后触发。 | `() => any`                                                   | `ALL`    |
+>>>>>>> master
 
 ## 方法
 
@@ -120,8 +138,14 @@ import icon from './qb_icon_new.png';
 `(xIndex: number, yIndex: number: animated: boolean) => void` 通知 ListView 滑动到第几个 item。
 
 > * `xIndex`: number - 滑动到 X 方向的第 xIndex 个 item
-> * `yIndex`: numbere - 滑动到 Y 方向的 xIndex 个 item
+> * `yIndex`: number - 滑动到 Y 方向的 yIndex 个 item
 > * `animated`: boolean - 滑动过程是否使用动画
+
+### collapsePullHeader
+
+`() => void` 收起刷新条 PullHeader。当设置了`renderPullHeader`后，每当下拉刷新结束需要主动调用该方法收回 PullHeader。
+
+---
 
 # Modal
 
@@ -146,48 +170,7 @@ import icon from './qb_icon_new.png';
 | transparent           | 背景是否是透明的                      | `boolean`                                                    | `ALL`    |
 | visible               | 是否显示                                                       | `boolean`                                                    | `ALL`    |
 
-# Navigator
-
-导航容器。通过这个组件，你可以实现一个app页面的导航、跳转等功能。
-
-> 该组件通过启动一个新的 Hippy 实例实现，在 2.0 下实例之间可能无法互相通信，iOS 上也必须作为根节点包裹所有子组件，使用有很大限制。
-
-## 参数
-
-| 参数                   | 描述                                                         | 类型          | 支持平台 |
-| ---------------------- | ------------------------------------------------------------ | ------------- | -------- |
-| initialRoute           | `Navigator` 初始化首页面的参数，需要传入`routeName`, `component` 和`initProps` 三个属性 | `Object`      | `ALL`    |
-| initialRoute.routeName | 指定页面的路由名字                                           | `string`      | `ALL`    |
-| initialRoute.component | 传入一个 `React Component`，`Navigator` 路由到此页面就可以渲染此 `component` | `React Component` | `ALL`    |
-| initialRoute.initProps | 初始化当前路由页面的 `props`为透传参数，可以在此路由页面的 `component` 使用 `this.props` 获取 | `Object`  | `ALL`    |
-| initialRoute.animated  | 指定切换的时候是否有动画效果，默认值为 false                 | `boolean`     | `ALL`    |
-
-## 方法
-
-### clear
-
-`() => void` 清空 Navigator 的历史栈
-
-### getCurrentPage
-
-`() => Object` 获取当前 Navigator 的页面，会返回 routeName , component 和 initProps 等属性值
-
-### pop
-
-`(options: Object) => void` 在 Navigator 返回上一个页面
-
-> * options: Object
->   * toDirection: left | right | top | bottom - 自定义页面pop 的方向
-
-### push
-
-`(options: Object) => void` 进入一个新的页面
-
-> * options: Object
->   * routeName: string - 路由名称
->   * component: ReactComponent - 新页面组件
->   * initProps: Object - 初始化参数
->   * toDirection: left | right | top | bottom - 自定义页面pop 的方向
+---
 
 # RefreshWrapper
 
@@ -215,6 +198,8 @@ import icon from './qb_icon_new.png';
 
 `() => void` 调用此方法，手工告知 RefreshWrapper 开始刷新，展开刷新栏。
 
+---
+
 # ScrollView
 
 [[Scroll 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/ScrollView)
@@ -223,9 +208,8 @@ import icon from './qb_icon_new.png';
 
 一个包装了平台的 `ScrollView`（滚动视图）的组件，同时还集成了触摸锁定的“响应者”系统。
 
-> **注意：**记住 ScrollView 必须有一个确定的高度才能正常工作，因为它实际上所做的就是将一系列不确定高度的子组件装进一个确定高度的容器（通过滚动操作）。要给一个 ScrollView 确定一个高度的话，要么直接给它设置高度（不建议），要么确定所有的父容器都有确定的高度。一般来说我们会给 ScrollView 设置 `flex: 1` 以使其自动填充父容器的空余空间，但前提条件是所有的父容器本身也设置了flex或者指定了高度，否则就会导致无法正常滚动，你可以使用元素查看器来查找问题的原因。
-
-> **注意：** ScrollView 无法使用 onTouch 系列事件监听触屏行为，但可以用 onScroll 监听滚动行为。
+> * 注意：记住 ScrollView 必须有一个确定的高度才能正常工作，因为它实际上所做的就是将一系列不确定高度的子组件装进一个确定高度的容器（通过滚动操作）。要给一个 ScrollView 确定一个高度的话，要么直接给它设置高度（不建议），要么确定所有的父容器都有确定的高度。一般来说我们会给 ScrollView 设置 `flex: 1` 以使其自动填充父容器的空余空间，但前提条件是所有的父容器本身也设置了flex或者指定了高度，否则就会导致无法正常滚动，你可以使用元素查看器来查找问题的原因。
+> * 注意： ScrollView 无法使用 onTouch 系列事件监听触屏行为，但可以用 onScroll 监听滚动行为。
 
 ## 参数
 
@@ -239,11 +223,11 @@ import icon from './qb_icon_new.png';
 | onScrollEndDrag                | 当用户停止拖拽 `ScrollView` 或者放手让 `ScrollView` 开始滑动的时候调用。 | `Function`                                                   | `ALL`    |
 | scrollEventThrottle            | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onScroll` 回调事件。 | `number`                                                     | `ALL`    |
 | scrollIndicatorInsets          | 决定滚动条距离视图边缘的坐标。这个值应该和contentInset一样。 | `{ top: number, left: number, bottom: number, right: number }` | `ALL`    |
-| pagingEnabled                  | 当值为 `true` 时，滚动条会停在滚动视图的尺寸的整数倍位置。这个可以用在水平分页上。 | `boolean`                                                    | `ALL`    |
-| scrollEnabled                  | 当值为 `false` 的时候，内容不能滚动。                        | `boolean`                                                    | `ALL`    |
+| pagingEnabled                  | 当值为 `true` 时，滚动条会停在滚动视图的尺寸的整数倍位置。这个可以用在水平分页上。`default: false` | `boolean`                                                    | `ALL`    |
+| scrollEnabled                  | 当值为 `false` 的时候，内容不能滚动。`default: true`                        | `boolean`                                                    | `ALL`    |
 | horizontal                     | 当此属性为 `true` 的时候，所有的子视图会在水平方向上排成一行，而不是默认的在垂直方向上排成一列 | `boolean`                                                    | `ALL`    |
-| showsHorizontalScrollIndicator | 当此值设为 `true` 的时候，`ScrollView` 会显示一个水平的滚动条。 | `boolean`                                                    | `ALL`    |
-| showsVerticalScrollIndicator   | 当此值设为 `true` 的时候，`ScrollView` 会显示一个垂直的滚动条。 | `boolean`                                                    | `ALL`    |
+| showsHorizontalScrollIndicator | 当此值设为 `false` 的时候，`ScrollView` 会隐藏水平的滚动条。`default: true` | `boolean`                                                    | `iOS`    |
+| showsVerticalScrollIndicator   | 当此值设为 `false` 的时候，`ScrollView` 会隐藏垂直的滚动条。 `default: true` | `boolean`                                                    | `iOS`    |
 
 ## 方法
 
@@ -262,6 +246,8 @@ import icon from './qb_icon_new.png';
 > * x: number - X 偏移值
 > * y: number - Y 偏移值
 > * duration: number - 毫秒为单位的滚动时间
+
+---
 
 # TextInput
 
@@ -368,6 +354,8 @@ import icon from './qb_icon_new.png';
 
 `() => void` 显示软键盘。
 
+---
+
 # Text
 
 [[Text 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/Text)
@@ -398,13 +386,19 @@ import icon from './qb_icon_new.png';
 | opacity       | 配置 `View` 的透明度，同时会影响子节点的透明度。             | `number`                                  | `ALL`    |
 | onLayout      | 当元素挂载或者布局改变的时候调用，参数为： `{ nativeEvent: { layout: { x, y, width, height } } }`。 | `Function`                                | `ALL`    |
 | onClick       | 当文本被点击以后调用此回调函数。  例如， `onClick={() => console.log('onClick') }` | `Function`                                | `ALL`    |
-| ellipsizeMode* | 当设定了 `numberOfLines` 值后，这个参数指定了字符串如何被截断。所以，在使用 `ellipsizeMode` 时，必须得同时指定 `numberOfLines` 数值。 | `enum`(head, middle, tail, clip)| `ALL`    |
+| ellipsizeMode* | 当设定了 `numberOfLines` 值后，这个参数指定了字符串如何被截断。所以在使用 `ellipsizeMode` 时，必须得同时指定 `numberOfLines` 数值。 | `enum`(head, middle, tail, clip)| `Android 仅支持 tail 属性，iOS 全支持`    |
+| onTouchDown  | 当用户开始触屏控件时（即用户在该控件上按下手指时），将回调此函数，并将触屏点信息作为参数传递进来； 参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
+| onTouchMove   | 当用户在控件移动手指时，此函数会持续收到回调，并通过event参数告知控件的触屏点信息；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
+| onTouchEnd    | 当触屏操作结束，用户在该控件上抬起手指时，此函数将被回调，event参数也会通知当前的触屏点信息；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
+| onTouchCancel | 当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden），此函数会收到回调，触屏点信息也会通过event参数告知前端；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
 
 * ellipsizeMode 的参数含义：
-  * `head` - 文字将会从头开始截断，保证字符串的最后的文字可以正常显示在 `Text` 组件的最后，而从开头给截断的文字，将以 “...” 代替，例如 “...wxyz”；
-  * `middle` - "文字将会从中间开始截断，保证字符串的最后与最前的文字可以正常显示在Text组件的响应位置，而中间给截断的文字，将以 “...” 代替，例如 “ab...yz”
+  * `clip` - 超过指定行数的文字会被直接截断，不显示“...”；（仅iOS支持）
+  * `head` - 文字将会从头开始截断，保证字符串的最后的文字可以正常显示在 `Text` 组件的最后，而从开头给截断的文字，将以 “...” 代替，例如 “...wxyz”；（仅iOS支持）
+  * `middle` - "文字将会从中间开始截断，保证字符串的最后与最前的文字可以正常显示在Text组件的响应位置，而中间给截断的文字，将以 “...” 代替，例如 “ab...yz”；（仅iOS支持）
   * `tail` - 文字将会从最后开始截断，保证字符串的最前的文字可以正常显示在 Text 组件的最前，而从最后给截断的文字，将以 “...” 代替，例如 “abcd...”；
-  * `clip` - 超过指定行数的文字会被直接截断，不显示“...”，
+
+---
 
 # View
 
@@ -417,12 +411,24 @@ import icon from './qb_icon_new.png';
 | 参数               | 描述                                                         | 类型                                 | 支持平台  |
 | ------------------ | ------------------------------------------------------------ | ------------------------------------ | --------- |
 | accessibilityLabel | 设置当用户与此元素交互时，“读屏器”（对视力障碍人士的辅助功能）阅读的文字。默认情况下，这个文字会通过遍历所有的子元素并累加所有的文本标签来构建。 | `node`                               | `ALL`     |
-| onLayout           | 这个事件会在布局计算完成后立即调用一次，不过收到此事件时新的布局可能还没有在屏幕上呈现，尤其是一个布局动画正在进行中的时候。 | `Function`                           | `ALL`     |
 | accessible         | 当此属性为 `true` 时，表示此视图时一个启用了无障碍功能的元素。默认情况下，所有可触摸操作的元素都是无障碍功能元素。 | `boolean`                            | `ALL`     |
 | style              | -                                                            | [`View Styles`](style/layout.md) | `ALL`     |
-| collapsable        | 如果一个 `View` 只用于布局它的子组件，则它可能会为了优化而从原生布局树中移除。 把此属性设为 `false` 可以禁用这个优化，以确保对应视图在原生结构中存在。 | `boolean`                            | `Android` |
 | opacity            | 配置 `View` 的透明度，同时会影响子节点的透明度               | `number`                             | `ALL`     |
 | overflow           | 指定当子节点内容溢出其父级 `View` 容器时, 是否剪辑内容       | `enum`(visible, hidden)         | `ALL`     |
+| onLayout           | 这个事件会在布局计算完成后立即调用一次，不过收到此事件时新的布局可能还没有在屏幕上呈现，尤其是一个布局动画正在进行中的时候。 | `Function`                           | `ALL`     |
+| onAttachedToWindow           | 这个事件会在节点已经渲染并且添加到容器组件中触发，因为 Hippy 的渲染是异步的，这是很稳妥的执行后续操作的事件。 | `Function`                           | `ALL`     |
+| onTouchDown  | 当用户开始触屏控件时（即用户在该控件上按下手指时），将回调此函数，并将触屏点信息作为参数传递进来； 参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
+| onTouchMove   | 当用户在控件移动手指时，此函数会持续收到回调，并通过event参数告知控件的触屏点信息；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
+| onTouchEnd    | 当触屏操作结束，用户在该控件上抬起手指时，此函数将被回调，event参数也会通知当前的触屏点信息；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
+| onTouchCancel | 当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden），此函数会收到回调，触屏点信息也会通过event参数告知前端；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
+
+## 样式内特殊属性
+
+| 参数               | 描述                                                         | 类型                                 | 支持平台  |
+| ------------------ | ------------------------------------------------------------ | ------------------------------------ | --------- |
+| collapsable        | Android 里如果一个 `View` 只用于布局它的子组件，则它可能会为了优化而从原生布局树中移除，因此该节点 DOM 的引用会丢失。 把此属性设为 `false` 可以禁用这个优化，以确保对应视图在原生结构中存在。 | `boolean`                            | `Android` |
+
+---
 
 # ViewPager
 
@@ -436,9 +442,10 @@ import icon from './qb_icon_new.png';
 | ------------------------ | ------------------------------------------------------------ | -------------------------------------------- | -------- |
 | initialPage              | 指定一个数字，用于决定初始化后默认显示的页面index，默认不指定的时候是0 | `number`                                     | `ALL`    |
 | scrollEnabled            | 指定ViewPager是否可以滑动，默认为true                        | `boolean`                                    | `ALL`    |
-| onPageSelected           | 指定一个函数，当page被选中时进行回调，回调参数是一个对象event，包括position值 回调参数： `position`: number -当前被选中的page的index | `(position: number) => void`                 | `ALL`    |
-| onPageScroll             | 指定一个函数，当page被滑动时进行回调，回调参数是一个对象event，包括position值与offset值 回调参数： `position`: number -即将滑到的目标page的index `offset`: number -当前被选中的page的相对位移，取值范围-1到1 | `(position: number, offset: number) => void` | `ALL`    |
+| onPageSelected           | 指定一个函数，当page被选中时进行回调，回调参数是一个对象event，包括position值 回调参数： `position`: number -被选中即将滑到的目标page的index | `(obj: {position: number}) => void`                 | `ALL`    |
+| onPageScroll             | 指定一个函数，当page被滑动时进行回调，回调参数是一个对象event，包括position值与offset值 回调参数： `position`: number -即将滑到的目标page的index `offset`: number -当前被选中的page的相对位移，取值范围-1到1 | `(obj: {position: number, offset: number}) => void` | `ALL`    |
 | onPageScrollStateChanged | 指定一个函数，当page的滑动状态改变时进行回调 回调参数： `pageScrollState`: string -改变后的状态，idle表示停止，dragging表示用户用手拖拽，settling表示page正在滑动 | `(pageScrollState: string) => void`          | `ALL`    |
+| direction | 设置viewPager滚动方向，不设置默认横向滚动，设置 `vertical` 为竖向滚动 | `string`          | `Android`    |
 
 ## 方法
 

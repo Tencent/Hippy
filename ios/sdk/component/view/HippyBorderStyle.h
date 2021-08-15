@@ -23,8 +23,8 @@
 #import <Foundation/Foundation.h>
 
 typedef NS_ENUM(NSInteger, HippyBorderStyle) {
-  HippyBorderStyleUnset = 0,
-  HippyBorderStyleSolid,
-  HippyBorderStyleDotted,
-  HippyBorderStyleDashed,
+    HippyBorderStyleUnset = 0,
+    HippyBorderStyleSolid,
+    HippyBorderStyleDotted,
+    HippyBorderStyleDashed,
 };

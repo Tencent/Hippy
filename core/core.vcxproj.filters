@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="include\core\base\base_time.h" />
+    <ClInclude Include="include\core\base\common.h" />
+    <ClInclude Include="include\core\base\file.h" />
+    <ClInclude Include="include\core\base\hash.h" />
+    <ClInclude Include="include\core\base\js_value_wrapper.h" />
+    <ClInclude Include="include\core\base\macros.h" />
+    <ClInclude Include="include\core\base\string_view_utils.h" />
+    <ClInclude Include="include\core\base\task.h" />
+    <ClInclude Include="include\core\base\task_runner.h" />
+    <ClInclude Include="include\core\base\thread.h" />
+    <ClInclude Include="include\core\base\thread_id.h" />
+    <ClInclude Include="include\core\base\uri_loader.h" />
+    <ClInclude Include="include\core\core.h" />
+    <ClInclude Include="include\core\engine.h" />
+    <ClInclude Include="include\core\modules\console_module.h" />
+    <ClInclude Include="include\core\modules\contextify_module.h" />
+    <ClInclude Include="include\core\modules\module_base.h" />
+    <ClInclude Include="include\core\modules\module_register.h" />
+    <ClInclude Include="include\core\modules\timer_module.h" />
+    <ClInclude Include="include\core\napi\callback_info.h" />
+    <ClInclude Include="include\core\napi\jsc\js_native_api_jsc.h" />
+    <ClInclude Include="include\core\napi\jsc\js_native_jsc_helper.h" />
+    <ClInclude Include="include\core\napi\js_native_api.h" />
+    <ClInclude Include="include\core\napi\js_native_api_types.h" />
+    <ClInclude Include="include\core\napi\native_source_code.h" />
+    <ClInclude Include="include\core\napi\v8\js_native_api_v8.h" />
+    <ClInclude Include="include\core\scope.h" />
+    <ClInclude Include="include\core\task\common_task.h" />
+    <ClInclude Include="include\core\task\javascript_task.h" />
+    <ClInclude Include="include\core\task\javascript_task_runner.h" />
+    <ClInclude Include="include\core\task\worker_task_runner.h" />
+    <ClInclude Include="third_party\base\include\base\logging.h" />
+    <ClInclude Include="third_party\base\include\base\log_level.h" />
+    <ClInclude Include="third_party\base\include\base\log_settings.h" />
+    <ClInclude Include="third_party\base\include\base\macros.h" />
+    <ClInclude Include="third_party\base\include\base\unicode_string_view.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\base\file.cc" />
+    <ClCompile Include="src\base\js_value_wrapper.cc" />
+    <ClCompile Include="src\base\task.cc" />
+    <ClCompile Include="src\base\task_runner.cc" />
+    <ClCompile Include="src\base\thread.cc" />
+    <ClCompile Include="src\base\thread_id.cc" />
+    <ClCompile Include="src\engine.cc" />
+    <ClCompile Include="src\modules\console_module.cc" />
+    <ClCompile Include="src\modules\contextify_module.cc" />
+    <ClCompile Include="src\modules\module_register.cc" />
+    <ClCompile Include="src\modules\timer_module.cc" />
+    <ClCompile Include="src\napi\callback_info.cc" />
+    <ClCompile Include="src\napi\v8\js_native_api_v8.cc" />
+    <ClCompile Include="src\napi\v8\native_source_code_android.cc" />
+    <ClCompile Include="src\scope.cc" />
+    <ClCompile Include="src\task\common_task.cc" />
+    <ClCompile Include="src\task\javascript_task.cc" />
+    <ClCompile Include="src\task\javascript_task_runner.cc" />
+    <ClCompile Include="src\task\worker_task_runner.cc" />
+    <ClCompile Include="third_party\base\src\base\log_settings.cc" />
+    <ClCompile Include="third_party\base\src\base\log_settings_state.cc" />
+    <ClCompile Include="third_party\base\src\base\unicode_string_view.cc" />
+    <ClCompile Include="third_party\base\src\platform\adr\logging.cc" />
+  </ItemGroup>
+</Project>

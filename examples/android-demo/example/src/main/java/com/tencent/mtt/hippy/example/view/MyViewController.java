@@ -6,18 +6,11 @@ import android.graphics.Color;
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyArray;
-import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
-/**
- * @Description: TODO
- * @author: edsheng
- * @date: 2018/3/22 11:12
- * @version: V1.0
- */
-
+@SuppressWarnings({"unused"})
 @HippyController(name = "MyView")
 public class MyViewController extends HippyViewController<MyView>
 {
@@ -32,7 +25,7 @@ public class MyViewController extends HippyViewController<MyView>
 		LogUtils.d("MyViewController", "onManageChildComplete");
 	}
 
-	@HippyControllerProps(name = "text", defaultType = HippyControllerProps.STRING, defaultString = "")
+	@HippyControllerProps(name = "text", defaultType = HippyControllerProps.STRING)
 	public void setText(MyView textView, String text)
 	{
 		textView.setText(text);
@@ -50,15 +43,18 @@ public class MyViewController extends HippyViewController<MyView>
 
 	//this is show receive js call
 	@Override
-	public void dispatchFunction(MyView view, String functionName, HippyArray params)
-	{
+	public void dispatchFunction(MyView view, String functionName, HippyArray params) {
 		super.dispatchFunction(view, functionName, params);
-	    switch (functionName)
-        {
-            case "changeColor":
-                   String color = params.getString(0);
-                   view.setColor(Color.parseColor(color));
-                break;
-        }
+		switch (functionName) {
+			case "changeColor":
+				String color = params.getString(0);
+				view.setColor(Color.parseColor(color));
+				break;
+
+			case "changeText":
+				String text = params.getString(0);
+				view.setText(text);
+				break;
+		}
 	}
 }

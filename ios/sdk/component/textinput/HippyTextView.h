@@ -36,12 +36,12 @@
 
 @interface HippyUITextView : UITextView
 @property (nonatomic, assign) BOOL textWasPasted;
-@property (nonatomic, weak) id <HippyUITextViewResponseDelegate> responderDelegate;
+@property (nonatomic, weak) id<HippyUITextViewResponseDelegate> responderDelegate;
 @end
 
 @interface HippyTextView : HippyBaseTextInput <UITextViewDelegate> {
 @protected
-      HippyUITextView *_textView;
+    HippyUITextView *_textView;
 }
 
 @property (nonatomic, assign) BOOL autoCorrect;
@@ -63,9 +63,9 @@
 
 - (void)performTextUpdate;
 
-@property (nonatomic, copy)   NSString* value;
-@property (nonatomic, strong) NSNumber* fontSize;
-@property (nonatomic, strong) NSString* defaultValue;
+@property (nonatomic, copy) NSString *value;
+@property (nonatomic, strong) NSNumber *fontSize;
+@property (nonatomic, strong) NSString *defaultValue;
 @property (nonatomic, strong) UIColor *textColor;
 @property (nonatomic, copy) HippyDirectEventBlock onChangeText;
 @property (nonatomic, copy) HippyDirectEventBlock onBlur;

@@ -19,12 +19,18 @@ public enum FlexDirection {
   INHERIT,
   LTR,
   RTL;
+
+  @SuppressWarnings("unused")
   public static FlexDirection fromInt(int value) {
-	    switch (value) {
-	      case 0: return INHERIT;
-	      case 1: return LTR;
-	      case 2: return RTL;
-	      default: throw new IllegalArgumentException("Unknown enum value: " + value);
-	    }
-	  }
+    switch (value) {
+      case 0:
+        return INHERIT;
+      case 1:
+        return LTR;
+      case 2:
+        return RTL;
+      default:
+        throw new IllegalArgumentException("Unknown enum value: " + value);
+    }
+  }
 }

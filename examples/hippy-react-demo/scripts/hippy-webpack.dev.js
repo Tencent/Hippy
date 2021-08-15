@@ -1,10 +1,12 @@
-const fs                = require('fs');
-const path              = require('path');
-const webpack           = require('webpack');
-const pkg               = require('../package.json');
+const fs = require('fs');
+const path = require('path');
+const webpack = require('webpack');
+const HippyDynamicImportPlugin = require('@hippy/hippy-dynamic-import-plugin');
+const pkg = require('../package.json');
 
 module.exports = {
   mode: 'development',
+  devtool: 'eval-source-map',
   watch: true,
   watchOptions: {
     aggregateTimeout: 1500,
@@ -16,6 +18,9 @@ module.exports = {
     filename: 'index.bundle',
     strictModuleExceptionHandling: true,
     path: path.resolve('./dist/dev/'),
+    globalObject: '(0, eval)("this")',
+    // CDN path can be configured to load children bundles from remote server
+    // publicPath: 'https://static.res.qq.com/hippy/hippyReactDemo/',
   },
   plugins: [
     new webpack.DefinePlugin({
@@ -26,6 +31,7 @@ module.exports = {
       },
       __PLATFORM__: null,
     }),
+    new HippyDynamicImportPlugin(),
   ],
   module: {
     rules: [
@@ -35,6 +41,7 @@ module.exports = {
           {
             loader: 'babel-loader',
             options: {
+              sourceType: 'unambiguous',
               presets: [
                 '@babel/preset-react',
                 [
@@ -48,7 +55,9 @@ module.exports = {
                 ],
               ],
               plugins: [
-                '@babel/plugin-proposal-class-properties',
+                ['@babel/plugin-proposal-class-properties'],
+                ['@babel/plugin-proposal-decorators', { legacy: true }],
+                ['@babel/plugin-transform-runtime', { regenerator: true }],
               ],
             },
           },
@@ -56,12 +65,16 @@ module.exports = {
         ],
       },
       {
-        test: /\.(png|jpg|gif)$/,
+        test: /\.(png|jpe?g|gif)$/i,
         use: [{
-          loader: 'file-loader',
+          loader: 'url-loader',
           options: {
-            name: '[name].[ext]',
-            outputPath: 'assets/',
+            limit: true,
+            // TODO local path not supported on defaultSource/backgroundImage
+            // limit: 8192,
+            // fallback: 'file-loader',
+            // name: '[name].[ext]',
+            // outputPath: 'assets/',
           },
         }],
       },

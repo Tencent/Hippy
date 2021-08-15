@@ -1,6 +1,6 @@
 {
   "name": "@hippy/vue-css-loader",
-  "version": "2.0.3",
+  "version": "2.2.1",
   "description": "hippy-vue style loader module for webpack",
   "main": "dist/index.js",
   "homepage": "http://hippyjs.org",
@@ -20,6 +20,11 @@
     "loader-utils": "^1.0.2"
   },
   "devDependencies": {
-    "ava": "^3.5.0"
+    "ava": "^3.5.0",
+    "glob-parent": "^5.1.2",
+    "hosted-git-info": "~3.0.8",
+    "lodash": "~4.17.21",
+    "normalize-url": "^4.5.1",
+    "y18n": "^4.0.1"
   }
 }

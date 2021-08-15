@@ -4,7 +4,16 @@
 
 Hippy 是直接运行于手机的 JS 引擎中的，在 Android 上使用 WebSocket 通过 [Chrome DevTools Protocol](//chromedevtools.github.io/devtools-protocol/) 与电脑上的 Chrome 进行通讯调试，而 iOS 上使用内置 的 [JavaScriptCore](//developer.apple.com/documentation/javascriptcore) 与 [Safari](//www.apple.com.cn/cn/safari/) 连接进行调试。
 
+Hippy中运行的JS代码可以来源于本地文件(local file)，或者远程服务地址(server)。
+
 [hippy-debug-server](//www.npmjs.com/package/hippy-debug-server) 就是为了解决调试模式下终端模式获取调试用 JS 文件，以及将 [Chrome DevTools Protocol](//chromedevtools.github.io/devtools-protocol/) 传输回调试器而诞生。
+
+# 项目初始化
+
+1. 项目根目录运行命令 `npm install` 安装前端依赖。
+2. 项目根目录运行命令 `lerna bootstrap` 安装前端每一个 package 依赖。（Hippy 采用 [Lerna](https://lerna.js.org/) 管理多JS仓库，如果出现 `lerna command is not found`, 先执行 `npm install lerna -g`）
+3. 项目根目录运行命令 `npm run build` 编译前端 SDK 包。
+4. 选择一个前端范例项目来进行编译，项目根目录运行 `npm run buildexample -- [hippy-react-demo|hippy-vue-demo]`。
 
 # 终端环境准备
 
@@ -28,7 +37,7 @@ Hippy 是直接运行于手机的 JS 引擎中的，在 Android 上使用 WebSoc
 
 1. 点击 [Xcode on Mac AppStore](//apps.apple.com/cn/app/xcode/id497799835?l=en&mt=12) 下载安装 Xcode。
 2. 使用 Xcode 打开[Hippy iOS 范例工程](//github.com/Tencent/Hippy/tree/master/examples/ios-demo) 中的 `HippyDemo.xcodeproj` 工程文件，并点击运行，正常情况下应该可以启动模拟器，并运行之前内置的 Hippy 前端代码。
-3. 打开前端范例工程 [hippy-react-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) 或者 [hippy-vue-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo)，通过 `npm i` 安装完依赖之后，使用 `npm run hippy:dev` 启动编译，并另开一个终端窗口，运行 `npm run hippy:debug` 启动调试服务。
+3. 打开 `examples` 下的前端范例工程 [hippy-react-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) 或者 [hippy-vue-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo)，通过 `npm i` 安装完依赖之后，使用 `npm run hippy:dev` 启动编译，并另开一个终端窗口，运行 `npm run hippy:debug` 启动调试服务。
 4. 回到模拟器，点击前端工程中的调试按钮，即可进入调试状态。hippy-react 有一个单独的页面，hippy-vue 在右上角。以 hippy-react 为例：
 
     ![iOS 模拟器](//puui.qpic.cn/vupload/0/1577796352672_tmjp70r3bma.png/0)
@@ -38,7 +47,14 @@ Hippy 是直接运行于手机的 JS 引擎中的，在 Android 上使用 WebSoc
 
     ![Safari 调试器](//puui.qpic.cn/vupload/0/1577796789605_xogl73o57yk.png/0)
 
-7. 当 JS 文件发生改动时，自动编译会执行，但是终端却无法获知 JS 文件已经发生改变，需要通过 `Command + R` 键手动刷新一下。
+7. 当 JS 文件发生改动时，自动编译会执行，但是终端却无法获知 JS 文件已经发生改变，需要通过按 `Command + R`刷新 或者 `Command + D` 键调起 Reload 面板刷新
+
+> 如果 `Command + D` 无法调起面板，可以点击 `Device` -> `Shake` 强制调起 Reload 面板
+
+## 远程调试
+
+默认情况下，iOS使用本地服务地址进行代码调试。Hippy客户端从服务器地址获取JS代码并运行Hippy业务。但是用户可能遇到真机调试的问题，这就需要真机连接远程地址。
+在`TestModuel.m`文件中，打开`REMOTEDEBUG`宏，并填入Hippy服务地址与业务名称，即可实现远程调试。
 
 # Android
 
@@ -50,19 +66,22 @@ Android 使用了 [adb](//developer.android.com/studio/command-line/adb) 的端�
 2. 通过 Android Studio 打开[Hippy Android 范例工程](//github.com/Tencent/Hippy/tree/master/examples/android-demo)，当提示 ToolChain 需要更新时全部选择拒绝，安装好 SDK、NDK、和 cmake 3.6.4。
 3. 通过数据线插上 Android 手机，并在 Android Studio 中点击运行，正常情况下手机应该已经运行起 `Hippy Demo` app。*编译如果出现问题请参考 [#39](//github.com/Tencent/Hippy/issues/39)*。
 4. 回到手机上，首先确保手机的 `USB 调试模式` 已经打开 -- 一般在关于手机页面里连续点击 `Build` 可以进入`开发者模式`，再进入`开发者模式`界面后打开 `USB 调试模式`。
-5. 打开前端范例工程 [hippy-react-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) 或者 [hippy-vue-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo)，通过 `npm i` 安装完依赖之后，使用 `npm run hippy:dev` 启动编译，并另开一个终端窗口，运行 `npm run hippy:debug` 启动调试服务。
-6. 回到手机上，点击前端工程中的调试按钮，即可进入调试状态。hippy-react 有一个单独的页面，hippy-vue 在右上角。以 hippy-react 为例：
+5. 执行 `adb reverse --remove-all && adb reverse tcp:38989 tcp:38989` 确保 38389 端口不被占用。
+6. 打开前端范例工程 [hippy-react-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) 或者 [hippy-vue-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo)，通过 `npm i` 安装完依赖之后，使用 `npm run hippy:dev` 启动编译，并另开一个终端窗口，运行 `npm run hippy:debug` 启动调试服务。
+7. 回到手机上，点击前端工程中的调试按钮，即可进入调试状态。hippy-react 有一个单独的页面，hippy-vue 在右上角。以 hippy-react 为例：
 
     ![Android](//puui.qpic.cn/vupload/0/1577798072036_g2qmcvgi6n9.png/0)
 
-7. 然后打开 [Chrome](//www.google.com/chrome/)，输入 `chrome://inspect`，首先确保 `Discover USB devices` 的复选框呈未选中状态，然后确保 `Discover network targets` 选中，并在右侧 `Configure` 按钮的弹窗中包含了 `localhost:38989` 调试服务地址，下方的 `Remote Target` 中应该会出现 `Hippy debug tools for V8` 字样，点击下方的 `inspect` 链接即可打开 Chrome 调试器。
+8. 然后打开 [Chrome](//www.google.com/chrome/)，输入 `chrome://inspect`，首先确保 `Discover USB devices` 的复选框呈未选中状态，然后确保 `Discover network targets` 选中，并在右侧 `Configure` 按钮的弹窗中包含了 `localhost:38989` 调试服务地址，下方的 `Remote Target` 中应该会出现 `Hippy debug tools for V8` 字样，点击下方的 `inspect` 链接即可打开 Chrome 调试器。
 
     ![Chrome inspect](//puui.qpic.cn/vupload/0/1577798490075_9tezu60gzzo.png/0)
 
-8. 当 JS 文件发生改动时，自动编译会执行，但是终端却无法获知 JS 文件已经发生改变，点击界面上的`小圆点`，选择弹出菜单中的 `Reload` 重新加载 JS 代码。
+9. 当 JS 文件发生改动时，自动编译会执行，但是终端却无法获知 JS 文件已经发生改变，点击界面上的`小圆点`，选择弹出菜单中的 `Reload` 重新加载 JS 代码。
 
 # 框架日志输出
 
-无论是 hippy-react 还是 hippy-vue 都将和终端通讯的信息进行输出，包含了前终端的节点操作、事件收发。这些日志对于业务调试其实很有帮助，可以让开发了解到前端框架是如何将代码转译成终端可以理解的语法。
+无论是 hippy-react 还是 hippy-vue 都将和终端通讯的信息进行输出，包含了前终端的节点操作、事件收发。这些日志对于业务调试其实很有帮助，可以让开发了解到前端框架是如何将代码转译成终端可以理解的语法，当遇到问题时应先检查框架通信日志，基本可以定位到大部分问题。
 
 如果需要关闭日志，可以在 hippy-react 的 new Hippy 启动参数中增加 `silent: true`，或者 hippy-vue 项目的入口文件中，开启 `Vue.config.silent = true;`。
+
+   ![Communication Info](//static.res.qq.com/nav/hippydoc/img/inspectDebugInfo.png)

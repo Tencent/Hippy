@@ -26,65 +26,48 @@ import com.tencent.mtt.hippy.dom.node.TextExtra;
 import com.tencent.mtt.hippy.dom.node.TextNode;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 
-/**
- * @Description: TODO
- * @author: edsheng
- * @date: 2018/2/28 19:45
- * @version: V1.0
- */
-
+@SuppressWarnings({"unused"})
 @HippyController(name = HippyTextViewController.CLASS_NAME)
-public class HippyTextViewController extends HippyViewController<HippyTextView>
-{
-	public static final String CLASS_NAME = "Text";
+public class HippyTextViewController extends HippyViewController<HippyTextView> {
 
-	@Override
-	protected View createViewImpl(Context context)
-	{
-		return new HippyTextView(context);
-	}
+  public static final String CLASS_NAME = "Text";
 
-	@Override
-	protected void updateExtra(View view, Object object)
-	{
-		TextExtra textExtra = (TextExtra) object;
-		if (textExtra != null && textExtra.mExtra instanceof Layout && view instanceof HippyTextView)
-		{
-			HippyTextView hippyTextView = (HippyTextView) view;
-			Layout layout = (Layout) textExtra.mExtra;
-			CharSequence textSequence =layout.getText();
-			if (textSequence instanceof Spannable)
-			{
-				Spannable spannable = (Spannable) textSequence;
-				HippyNativeGestureSpan[] spans = spannable.getSpans(0, spannable.length(), HippyNativeGestureSpan.class);
-				if (spans != null && spans.length > 0)
-				{
-					hippyTextView.setNativeGestureEnable(true);
-				}
-				else
-				{
-					hippyTextView.setNativeGestureEnable(false);
-				}
-			}
-			hippyTextView.setPadding((int) Math.floor(textExtra.mLeftPadding), (int) Math.floor(textExtra.mTopPadding),
-					(int) Math.floor(textExtra.mRightPadding), (int) Math.floor(textExtra.mBottomPadding));
+  @Override
+  protected View createViewImpl(Context context) {
+    return new HippyTextView(context);
+  }
 
-			hippyTextView.setLayout(layout);
-			hippyTextView.postInvalidate();
-		}
+  @Override
+  protected void updateExtra(View view, Object object) {
+    TextExtra textExtra = (TextExtra) object;
+    if (textExtra != null && textExtra.mExtra instanceof Layout && view instanceof HippyTextView) {
+      HippyTextView hippyTextView = (HippyTextView) view;
+      Layout layout = (Layout) textExtra.mExtra;
+      CharSequence textSequence = layout.getText();
+      if (textSequence instanceof Spannable) {
+        Spannable spannable = (Spannable) textSequence;
+        HippyNativeGestureSpan[] spans = spannable
+            .getSpans(0, spannable.length(), HippyNativeGestureSpan.class);
+        hippyTextView.setNativeGestureEnable(spans != null && spans.length > 0);
+      }
+      hippyTextView.setPadding((int) Math.floor(textExtra.mLeftPadding),
+          (int) Math.floor(textExtra.mTopPadding),
+          (int) Math.floor(textExtra.mRightPadding), (int) Math.floor(textExtra.mBottomPadding));
+
+      hippyTextView.setLayout(layout);
+      hippyTextView.postInvalidate();
+    }
 
 
-	}
+  }
 
-	@Override
-	protected StyleNode createNode(boolean virtual)
-	{
-		return new TextNode(virtual);
-	}
+  @Override
+  protected StyleNode createNode(boolean virtual) {
+    return new TextNode(virtual);
+  }
 
-	@Override
-	protected boolean handleGestureBySelf()
-	{
-		return true;
-	}
+  @Override
+  protected boolean handleGestureBySelf() {
+    return true;
+  }
 }

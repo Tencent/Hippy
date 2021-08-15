@@ -3,6 +3,7 @@
 /* eslint-disable no-console */
 
 import { once } from 'shared/util';
+import { HIPPY_DEBUG_ADDRESS, HIPPY_STATIC_PROTOCOL } from '../runtime/constants';
 
 const VUE_VERSION = process.env.VUE_VERSION;
 const HIPPY_VUE_VERSION = process.env.HIPPY_VUE_VERSION;
@@ -48,9 +49,7 @@ function getBeforeLoadStyle() {
 }
 
 const infoTrace = once(() => {
-  console.log(
-    'Hippy-Vue has "Vue.config.silent" set to true, to see output logs set it to false.',
-  );
+  console.log('Hippy-Vue has "Vue.config.silent" set to true, to see output logs set it to false.');
 });
 
 function trace(...context) {
@@ -86,7 +85,7 @@ function capitalizeFirstLetter(str) {
 /**
  * Convert string to number as possible
  */
-const numberRegEx = new RegExp('^[+-]?\\d+(\\.\\d+)?$');
+const numberRegEx = new RegExp('^(?=.+)[+-]?\\d*\\.?\\d*([Ee][+-]?\\d+)?$');
 function tryConvertNumber(str) {
   if (typeof str === 'number') {
     return str;
@@ -159,6 +158,23 @@ function endsWith(str, search, length) {
   return str.slice(strLen - search.length, strLen) === search;
 }
 
+/**
+ * convert local image path to native specific schema
+ * @param {string} originalUrl
+ * @returns {string}
+ */
+function convertImageLocalPath(originalUrl) {
+  let url = originalUrl;
+  if (/^assets/.test(url)) {
+    if (process.env.NODE_ENV !== 'production') {
+      url = `${HIPPY_DEBUG_ADDRESS}${url}`;
+    } else {
+      url = `${HIPPY_STATIC_PROTOCOL}./${url}`;
+    }
+  }
+  return url;
+}
+
 export {
   VUE_VERSION,
   HIPPY_VUE_VERSION,
@@ -177,4 +193,5 @@ export {
   isFunction,
   setsAreEqual,
   endsWith,
+  convertImageLocalPath,
 };

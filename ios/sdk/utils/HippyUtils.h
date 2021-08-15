@@ -77,8 +77,10 @@ HIPPY_EXTERN BOOL HippyClassOverridesClassMethod(Class cls, SEL selector);
 HIPPY_EXTERN BOOL HippyClassOverridesInstanceMethod(Class cls, SEL selector);
 
 // Creates a standardized error object to return in callbacks
-HIPPY_EXTERN NSDictionary<NSString *, id> *HippyMakeError(NSString *message, id __nullable toStringify, NSDictionary<NSString *, id> *__nullable extraData);
-HIPPY_EXTERN NSDictionary<NSString *, id> *HippyMakeAndLogError(NSString *message, id __nullable toStringify, NSDictionary<NSString *, id> *__nullable extraData);
+HIPPY_EXTERN NSDictionary<NSString *, id> *HippyMakeError(
+    NSString *message, id __nullable toStringify, NSDictionary<NSString *, id> *__nullable extraData);
+HIPPY_EXTERN NSDictionary<NSString *, id> *HippyMakeAndLogError(
+    NSString *message, id __nullable toStringify, NSDictionary<NSString *, id> *__nullable extraData);
 HIPPY_EXTERN NSDictionary<NSString *, id> *HippyJSErrorFromNSError(NSError *error);
 HIPPY_EXTERN NSDictionary<NSString *, id> *HippyJSErrorFromCodeMessageAndNSError(NSString *code, NSString *message, NSError *__nullable error);
 
@@ -108,6 +110,12 @@ HIPPY_EXTERN BOOL HippyForceTouchAvailable(void);
 // Create an NSError in the HippyErrorDomain
 HIPPY_EXTERN NSError *HippyErrorWithMessage(NSString *message);
 
+// Create an NSError in the HippyErrorDomain
+HIPPY_EXTERN NSError *HippyErrorWithMessageAndModuleName(NSString *message, NSString *moduleName);
+
+// Create an NSError with HippyFatalModuleName from another error
+HIPPY_EXTERN NSError *HippyErrorFromErrorAndModuleName(NSError *error, NSString *moduleName);
+
 // Convert nil values to NSNull, and vice-versa
 #define HippyNullIfNil(value) (value ?: (id)kCFNull)
 #define HippyNilIfNull(value) (value == (id)kCFNull ? nil : value)
@@ -131,6 +139,15 @@ HIPPY_EXTERN NSString *__nullable HippyTempFilePath(NSString *__nullable extensi
 // Converts a CGColor to a hex string
 HIPPY_EXTERN NSString *HippyColorToHexString(CGColorRef color);
 
+/**
+ * convert string to UIColor
+ * colorString could be 'fff','#fff','ffffff','#ffffff','ffffffff','#ffffffff'
+ * or 'red', 'green','blue'.etc
+ */
+HIPPY_EXTERN UIColor *HippyConvertStringToColor(NSString *colorString);
+
+HIPPY_EXTERN UIColor *HippyConvertNumberToColor(NSInteger colorNumber);
+
 // Get standard localized string (if it exists)
 HIPPY_EXTERN NSString *HippyUIKitLocalizedString(NSString *string);
 
@@ -138,5 +155,8 @@ HIPPY_EXTERN NSString *HippyUIKitLocalizedString(NSString *string);
 HIPPY_EXTERN NSString *__nullable HippyGetURLQueryParam(NSURL *__nullable URL, NSString *param);
 HIPPY_EXTERN NSURL *__nullable HippyURLByReplacingQueryParam(NSURL *__nullable URL, NSString *param, NSString *__nullable value);
 HIPPY_EXTERN NSURL *__nullable HippyURLWithString(NSString *__nonnull URLString, NSString *__nullable baseURLString);
+
+//Get String Encoding From HTTP URL Response
+HIPPY_EXTERN NSStringEncoding HippyGetStringEncodingFromURLResponse(NSURLResponse *response);
 
 NS_ASSUME_NONNULL_END

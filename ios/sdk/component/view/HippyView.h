@@ -28,11 +28,10 @@
 #import "HippyComponent.h"
 #import "HippyPointerEvents.h"
 
-
-
 @protocol HippyAutoInsetsProtocol;
 
 @class HippyView;
+@class HippyGradientObject;
 
 @interface HippyView : UIView
 
@@ -76,6 +75,12 @@
 - (void)updateClippedSubviews;
 
 /**
+ * get content for layer
+ * return YES if getting content synchronized,else return NO
+ */
+- (BOOL)getLayerContentForColor:(UIColor *)color completionBlock:(void (^)(UIImage *))contentBlock;
+
+/**
  * Border radii.
  */
 @property (nonatomic, assign) CGFloat borderRadius;
@@ -107,8 +112,12 @@
  */
 @property (nonatomic, assign) HippyBorderStyle borderStyle;
 
+/**
+ * BackgroundImage styles.
+ */
 @property (nonatomic, strong) NSString *backgroundImageUrl;
+@property (nonatomic, strong) NSString *backgroundSize;
 @property (nonatomic, assign) CGFloat backgroundPositionX;
 @property (nonatomic, assign) CGFloat backgroundPositionY;
-
+@property (nonatomic, strong) HippyGradientObject *gradientObject;
 @end

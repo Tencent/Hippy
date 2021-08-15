@@ -18,10 +18,10 @@
 #import <Security/SecCertificate.h>
 
 typedef NS_ENUM(unsigned int, HippySRReadyState) {
-    HippySR_CONNECTING   = 0,
-    HippySR_OPEN         = 1,
-    HippySR_CLOSING      = 2,
-    HippySR_CLOSED       = 3,
+    HippySR_CONNECTING = 0,
+    HippySR_OPEN = 1,
+    HippySR_CLOSING = 2,
+    HippySR_CLOSED = 3,
 };
 
 typedef NS_ENUM(NSInteger, HippySRStatusCode) {
@@ -54,6 +54,7 @@ extern NSString *const HippySRHTTPResponseErrorKey;
 
 @property (nonatomic, readonly) HippySRReadyState readyState;
 @property (nonatomic, readonly, strong) NSURL *url;
+@property (nonatomic, assign) NSUInteger socketID;
 
 // This returns the negotiated protocol.
 // It will be nil until after the handshake completes.

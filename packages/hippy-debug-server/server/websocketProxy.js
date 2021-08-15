@@ -33,8 +33,8 @@ function startWebsocketProxyServer(server, path) {
     path,
   });
 
-  serverSocket.on('connection', (ws) => {
-    const { url } = ws.upgradeReq;
+  serverSocket.on('connection', (ws, req) => {
+    const { url } = req;
 
     timerLogger.info('websocket connected, url = ', url);
 

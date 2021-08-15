@@ -23,77 +23,67 @@ import com.tencent.mtt.hippy.modules.javascriptmodules.EventDispatcher;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 
-/**
- * @author: edsheng
- * @date: 2018/6/19 11:04
- * @version: V1.0
- */
-@HippyNativeModule(name = "DeviceEventModule",init = true)
-public class DeviceEventModule extends HippyNativeModuleBase
-{
-	HippyEngine.BackPressHandler mBackPressHandler = null;
-	private boolean mIsListening = false;
+@SuppressWarnings({"unused"})
+@HippyNativeModule(name = "DeviceEventModule", init = true)
+public class DeviceEventModule extends HippyNativeModuleBase {
 
-	public DeviceEventModule(HippyEngineContext context)
-	{
-		super(context);
-	}
+  HippyEngine.BackPressHandler mBackPressHandler = null;
+  private boolean mIsListening = false;
 
-	public boolean onBackPressed(HippyEngine.BackPressHandler handler)
-	{
-		if (mIsListening)
-		{
-			mBackPressHandler = handler;
-			if (mContext != null && mContext.getModuleManager().getJavaScriptModule(EventDispatcher.class) != null)
-			{
-				mContext.getModuleManager().getJavaScriptModule(EventDispatcher.class).receiveNativeEvent("hardwareBackPress", null);
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-		}
-		return false;
-	}
+  public DeviceEventModule(HippyEngineContext context) {
+    super(context);
+  }
 
-	/**
-	 * 前端JS告知SDK：我要监听back事件（如果没有告知，则SDK不用把back事件抛给前端，这样可以加快back的处理速度，毕竟大部分hippy业务是无需监听back事件的）
-	 * @param listen 是否监听？
-	 */
-	@HippyMethod(name = "setListenBackPress")
-	public void setListenBackPress(boolean listen)
-	{
-		mIsListening = listen;
-	}
+  public boolean onBackPressed(HippyEngine.BackPressHandler handler) {
+    if (mIsListening) {
+      mBackPressHandler = handler;
+      if (mContext != null
+          && mContext.getModuleManager().getJavaScriptModule(EventDispatcher.class) != null) {
+        mContext.getModuleManager().getJavaScriptModule(EventDispatcher.class)
+            .receiveNativeEvent("hardwareBackPress", null);
+        return true;
+      } else {
+        return false;
+      }
+    }
+    return false;
+  }
 
-	@HippyMethod(name = "invokeDefaultBackPressHandler")
-	public void invokeDefaultBackPressHandler()
-	{
-		UIThreadUtils.runOnUiThread(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				HippyEngine.BackPressHandler handler = mBackPressHandler;
-				if (handler != null)
-				{
-				handler.handleBackPress();
-				}
-			}
-		});
-	}
+  /**
+   * 前端JS告知SDK：我要监听back事件（如果没有告知，则SDK不用把back事件抛给前端，这样可以加快back的处理速度，毕竟大部分hippy业务是无需监听back事件的）
+   *
+   * @param listen 是否监听？
+   */
+  @SuppressWarnings("unused")
+  @HippyMethod(name = "setListenBackPress")
+  public void setListenBackPress(boolean listen) {
+    mIsListening = listen;
+  }
 
-	@Override
-	public void destroy()
-	{
-		super.destroy();
-		mBackPressHandler = null;
-	}
+  @SuppressWarnings("unused")
+  @HippyMethod(name = "invokeDefaultBackPressHandler")
+  public void invokeDefaultBackPressHandler() {
+    UIThreadUtils.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        HippyEngine.BackPressHandler handler = mBackPressHandler;
+        if (handler != null) {
+          handler.handleBackPress();
+        }
+      }
+    });
+  }
 
-	@Deprecated
-	public interface InvokeDefaultBackPress
-	{
-		void callSuperOnBackPress();
-	}
+  @Override
+  public void destroy() {
+    super.destroy();
+    mBackPressHandler = null;
+  }
+
+  @SuppressWarnings("DeprecatedIsStillUsed")
+  @Deprecated
+  public interface InvokeDefaultBackPress {
+
+    void callSuperOnBackPress();
+  }
 }

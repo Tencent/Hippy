@@ -33,7 +33,7 @@ import android.view.WindowManager;
   public static Point getModalHostSize(Context context) {
     WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
     Display display = wm.getDefaultDisplay();
-    if(Build.VERSION.SDK_INT>=16) {
+    if (Build.VERSION.SDK_INT >= 16) {
       display.getCurrentSizeRange(MIN_POINT, MAX_POINT);
     }
     display.getSize(SIZE_POINT);

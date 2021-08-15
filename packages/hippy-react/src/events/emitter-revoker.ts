@@ -1,8 +1,8 @@
 import HippyEventListener from './listener';
 
 interface EventEmitterRevoker {
-  callback: number;
-  bindListener: HippyEventListener;
+  callback: number | undefined;
+  bindListener: HippyEventListener | undefined;
 }
 
 class EventEmitterRevoker implements EventEmitterRevoker {
@@ -17,7 +17,7 @@ class EventEmitterRevoker implements EventEmitterRevoker {
     }
 
     this.bindListener.removeCallback(this.callback);
-    delete this.bindListener;
+    this.bindListener = undefined;
   }
 }
 

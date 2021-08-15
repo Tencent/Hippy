@@ -31,16 +31,16 @@ const styles = StyleSheet.create({
 });
 
 function HorizontalScrollView(props) {
-  const { scrollRef } = props;
+  const { scrollRef, ...otherProps } = props;
   return (
-    <ul ref={scrollRef} {...props} />
+    <ul ref={scrollRef} {...otherProps} />
   );
 }
 
 function VerticalScrollView(props) {
-  const { scrollRef } = props;
+  const { scrollRef, ...otherProps } = props;
   return (
-    <ul ref={scrollRef} {...props} />
+    <ul ref={scrollRef} {...otherProps} />
   );
 }
 
@@ -82,7 +82,9 @@ export class ScrollView extends React.Component {
     newProps.style = formatWebStyle(newStyle);
     if (typeof newProps.onScroll === 'function') {
       const onScrollFunc = newProps.onScroll;
-      delete newProps.onScroll;
+      newProps.onScroll = undefined;
+      let waiting = false;
+      let endScrollHandle: any = null;
       newProps.onScroll = (e) => {
         const target = e.currentTarget;
         const eventParam = {
@@ -95,9 +97,6 @@ export class ScrollView extends React.Component {
             width: target.clientWidth,
           },
         };
-
-        let waiting = false;
-        let endScrollHandle;
 
         if (waiting) {
           return;
@@ -117,9 +116,15 @@ export class ScrollView extends React.Component {
         }, 200);
       };
     }
-    delete newProps.showsVerticalScrollIndicator;
-    delete newProps.showsHorizontalScrollIndicator;
-    delete newProps.horizontal;
+    if (newProps.scrollEnabled === false) {
+      newProps.style.overflow = 'hidden';
+    } else {
+      newProps.style.overflow = 'scroll';
+    }
+    newProps.scrollEnabled = undefined;
+    newProps.showsVerticalScrollIndicator = undefined;
+    newProps.showsHorizontalScrollIndicator = undefined;
+    newProps.horizontal = undefined;
     if (horizontal) {
       return (
         <HorizontalScrollView

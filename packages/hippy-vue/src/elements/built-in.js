@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 
-import { arrayCount, warn } from '../util';
-import { HIPPY_STATIC_PROTOCOL, HIPPY_DEBUG_ADDRESS } from '../runtime/constants';
+import { arrayCount, warn, convertImageLocalPath } from '../util';
+import { HIPPY_DEBUG_ADDRESS } from '../runtime/constants';
 import NATIVE_COMPONENT_NAME_MAP, * as components from '../renderer/native/components';
 import Native from '../runtime/native';
 
@@ -9,11 +9,11 @@ function mapEvent(...args) {
   const map = {};
   if (Array.isArray(args[0])) {
     args[0].forEach(([vueEventName, nativeEventName]) => {
-      map[map[vueEventName] = nativeEventName]  = vueEventName;
+      map[map[vueEventName] = nativeEventName] = vueEventName;
     });
   } else {
     const [vueEventName, nativeEventName] = args;
-    map[map[vueEventName] = nativeEventName]  = vueEventName;
+    map[map[vueEventName] = nativeEventName] = vueEventName;
   }
   return map;
 }
@@ -25,16 +25,6 @@ const INPUT_VALUE_MAP = {
 };
 
 // View area
-const button = {
-  symbol: components.View,
-  component: {
-    name: NATIVE_COMPONENT_NAME_MAP[components.View],
-    defaultNativeStyle: {
-      // TODO: Fill border style.
-    },
-  },
-};
-
 const div = {
   symbol: components.View,
   component: {
@@ -49,8 +39,10 @@ const div = {
     processEventData(event, nativeEventName, nativeEventParams) {
       switch (nativeEventName) {
         case 'onScroll':
-          event.offsetX = nativeEventParams.contentOffset.x;
-          event.offsetY = nativeEventParams.contentOffset.y;
+        case 'onScrollBeginDrag':
+        case 'onScrollEndDrag':
+          event.offsetX = nativeEventParams.contentOffset && nativeEventParams.contentOffset.x;
+          event.offsetY = nativeEventParams.contentOffset && nativeEventParams.contentOffset.y;
           break;
         case 'onTouchDown':
         case 'onTouchMove':
@@ -64,9 +56,23 @@ const div = {
             length: 1,
           };
           break;
+        case 'onFocus':
+          event.isFocused = nativeEventName.focus;
+          break;
         default:
       }
       return event;
+    },
+  },
+};
+
+const button = {
+  symbol: components.View,
+  component: {
+    ...div.component,
+    name: NATIVE_COMPONENT_NAME_MAP[components.View],
+    defaultNativeStyle: {
+      // TODO: Fill border style.
     },
   },
 };
@@ -82,31 +88,32 @@ const form = {
 const img = {
   symbol: components.Image,
   component: {
+    ...div.component,
     name: NATIVE_COMPONENT_NAME_MAP[components.Image],
+    defaultNativeStyle: {
+      backgroundColor: 0,
+    },
     attributeMaps: {
       // TODO: check placeholder or defaultSource value in compile-time wll be better.
       placeholder: {
         name: 'defaultSource',
         propsValue(value) {
-          if (value.slice(0, 11) !== 'data:image/') {
-            warn(`img placeholder should be a base64 image, recommend to use \`import image from '!!url-loader?modules!./image.png'\` to import placeholder then use: ${value}`);
+          const url = convertImageLocalPath(value);
+          if (url
+              && url.indexOf(HIPPY_DEBUG_ADDRESS) < 0
+              && ['https://', 'http://'].some(schema => url.indexOf(schema) === 0)) {
+            warn(`img placeholder ${url} recommend to use base64 image or local path image`);
           }
-          return value;
+          return url;
         },
       },
-      // TODO: source property is working for iOS and src is just working for Android.
-      //       source property should remove as soon.
-      //       And Native renderer the workaround should remove.
+      /**
+       * For Android, will use src property
+       * For iOS, will convert to use source property
+       * At line: hippy-vue/renderer/native/index.js line 196.
+       */
       src(value) {
-        let url = value;
-        if (/^assets/.test(url)) {
-          if (process.env.NODE_ENV !== 'production') {
-            url = `${HIPPY_DEBUG_ADDRESS}${url}`;
-          } else {
-            url = `${HIPPY_STATIC_PROTOCOL}./${url}`;
-          }
-        }
-        return url;
+        return convertImageLocalPath(value);
       },
     },
   },
@@ -118,7 +125,7 @@ const ul = {
   component: {
     name: NATIVE_COMPONENT_NAME_MAP[components.ListView],
     defaultNativeStyle: {
-      flex: 1,              // Necessary by iOS
+      flex: 1, // Necessary by iOS
     },
     defaultNativeProps: {
       numberOfRows(node) {
@@ -144,18 +151,22 @@ const li = {
   component: {
     name: NATIVE_COMPONENT_NAME_MAP[components.ListViewItem],
   },
+  eventNamesMap: mapEvent([
+    ['disappear', (__PLATFORM__ === 'android' || Native.Platform === 'android') ? 'onDisAppear' : 'onDisappear'],
+  ]),
 };
 
 // Text area
 const span = {
   symbol: components.View, // IMPORTANT: Can't be Text.
   component: {
+    ...div.component,
     name: NATIVE_COMPONENT_NAME_MAP[components.Text],
     defaultNativeProps: {
       text: '',
     },
     defaultNativeStyle: {
-      color: 4278190080,      // Black color(#000), necessary for Android
+      color: 4278190080, // Black color(#000), necessary for Android
     },
   },
 };
@@ -168,7 +179,7 @@ const a = {
   component: {
     ...span.component,
     defaultNativeStyle: {
-      color: 4278190318,      // Blue color(rgb(0, 0, 238), necessary for android
+      color: 4278190318, // Blue color(rgb(0, 0, 238), necessary for android
     },
     attributeMaps: {
       href: {
@@ -215,11 +226,11 @@ const input = {
       multiline: false,
     },
     defaultNativeProps: {
-      underlineColorAndroid: 0,       // Remove the android underline
+      underlineColorAndroid: 0, // Remove the android underline
     },
     defaultNativeStyle: {
-      padding: 0,                     // Remove the android underline
-      color: 4278190080,              // Black color(#000), necessary for Android
+      padding: 0, // Remove the android underline
+      color: 4278190080, // Black color(#000), necessary for Android
     },
     eventNamesMap: mapEvent([
       ['change', 'onChangeText'],
