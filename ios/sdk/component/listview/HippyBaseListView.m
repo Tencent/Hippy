@@ -208,7 +208,6 @@
 
 #pragma mark - Delegate & Datasource
 
-<<<<<<< HEAD
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
 	if (self.node.props[@"editable"]) {
     return self.node.props[@"editable"];
@@ -234,13 +233,8 @@
 	}  
 }
 
-- (NSInteger)numberOfSectionsInTableView:(__unused UITableView *)tableView
-{
-	return [_dataSource numberOfSection];
-=======
 - (NSInteger)numberOfSectionsInTableView:(__unused UITableView *)tableView {
     return [_dataSource numberOfSection];
->>>>>>> master
 }
 
 - (CGFloat)tableView:(__unused UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
