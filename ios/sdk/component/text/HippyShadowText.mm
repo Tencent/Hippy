@@ -257,12 +257,16 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                 if (isnan(width) || isnan(height)) {
                     HippyLogError(@"Views nested within a <Text> must have a width and height");
                 }
-                UIFont *font = [textStorage attribute:NSFontAttributeName atIndex:range.location effectiveRange:nil];
                 CGRect glyphRect = [layoutManager boundingRectForGlyphRange:range inTextContainer:textContainer];
+                /** if LineHeight is higher than height text needs, hippy sets NSBaselineOffsetAttributeName for NSAttributeString
+                 *  so when we draw child view into text, we need to consider the offset.
+                 *  otherwise child view will be drawn at bottom of text component.
+                 */
+                NSNumber *baselineOffset = [textStorage attribute:NSBaselineOffsetAttributeName atIndex:range.location effectiveRange:nil];
                 CGRect childFrame = { { x5RoundPixelValue(glyphRect.origin.x),
-                                          x5RoundPixelValue(glyphRect.origin.y + glyphRect.size.height - height + font.descender) },
+                                          x5RoundPixelValue(glyphRect.origin.y + glyphRect.size.height - height - [baselineOffset floatValue]) },
                     { x5RoundPixelValue(width), x5RoundPixelValue(height) } };
-
+                
                 NSRange truncatedGlyphRange = [layoutManager truncatedGlyphRangeInLineFragmentForGlyphAtIndex:range.location];
                 BOOL childIsTruncated = NSIntersectionRange(range, truncatedGlyphRange).length != 0;
 
