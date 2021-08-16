@@ -214,7 +214,7 @@
 
 - (NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath {
 	NSString *delText = self.node.props[@"delText"];
-  return delText;
+    return delText;
 }
 
 - (BOOL)tableView: (UITableView *)tableView shouldIndentWhileEditingRowAtIndexPath:(NSIndexPath *)indexPath {		
