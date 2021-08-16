@@ -115,7 +115,7 @@ import icon from './qb_icon_new.png';
 | showScrollIndicator   | 是否显示垂直滚动条。 因为目前 ListView 其实仅有垂直滚动一种方向，水平滚动会导致 `onEndReached` 等一堆问题暂不建议使用，所以 `showScrollIndicator` 也仅用来控制是否显示垂直滚动条。 | `boolean`                                                   | `ALL`    |
 | editable   | 是否可编辑，开启侧滑删除时需要设置为 `true` | `boolean`                                                   | `iOS`    |
 | delText   | 侧滑删除文本 | `string`                                                   | `iOS`    |
-| onDelete   | 在列表项侧滑删除时调起 | `Function`                                                   | 
+| onDelete   | 在列表项侧滑删除时调起 | `Function`                                                   | `iOS`    |
 | renderPullHeader   | 设置列表下拉头部（刷新条），配合`onHeaderReleased`、`onHeaderPulling` 和 `collapsePullHeader`使用, 参考 [DEMO](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/PullHeader/index.jsx)。 | `() => View`                                                   | `ALL`    |
 | onHeaderPulling   | 下拉过程中触发, 事件会通过 contentOffset 参数返回拖拽高度，可以根据下拉偏移量做相应的逻辑。 | `(obj: { contentOffset: number }) => any`                                                   | `ALL`    |
 | onHeaderReleased   | 下拉超过内容高度，松手后触发。 | `() => any`                                                   | `ALL`    |
