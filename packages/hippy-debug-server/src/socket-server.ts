@@ -133,6 +133,8 @@ export class SocketServer extends DomainRegister {
         conn.appClientList.forEach((appClient) => {
           appClient.resumeApp();
         });
+        const i = conn.devtoolsWsList.findIndex((v) => v === ws);
+        if (i !== -1) conn.devtoolsWsList.splice(i, 1);
       });
     }
 
@@ -178,7 +180,6 @@ export class SocketServer extends DomainRegister {
           appWs: ws,
         });
       }
-      ws.removeAllListeners('close');
       ws.on('close', () => {
         for (const [clientId, { appWs }] of this.connectionMap.entries()) {
           if (appWs === ws) {
