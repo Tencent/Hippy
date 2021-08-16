@@ -150,7 +150,7 @@ function parseBackgroundImage(styleKey: string, styleValue: string, style: any) 
     const valueString = styleValue.substring(styleValue.indexOf('(') + 1, styleValue.lastIndexOf(')'));
     const tokens = valueString.split(/,(?![^(]*?\))/);
     const colorStopList: object[] = [];
-    style.linearGradient = {};
+    style.linearGradient = style.linearGradient || {};
     tokens.forEach((value: any, index: number) => {
       if (index === 0) {
         // the angle of linear-gradient parameter can be optional
