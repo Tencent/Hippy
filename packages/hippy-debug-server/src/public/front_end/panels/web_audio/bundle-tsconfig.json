@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/panels/web_audio"},"files":["../../../../../../front_end/panels/web_audio/web_audio.ts"],"references":[{"path":"./web_audio-tsconfig.json"}]}

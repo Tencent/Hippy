@@ -1,0 +1,70 @@
+/*
+ * Copyright (c) 2015 The Chromium Authors. All rights reserved.
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+.tooltip {
+  --override-tooltip-background-color: hsl(0deg 0% 95%);
+  --override-tooltip-color: hsl(0deg 0% 20%);
+  --override-tooltip-drop-shadow-color: hsl(0deg 0% 0% / 30%);
+  --override-tooltip-border-color: hsl(0deg 0% 0% / 10%);
+
+  background: var(--override-tooltip-background-color);
+  border-radius: 2px;
+  color: var(--override-tooltip-color);
+  padding: 5px 8px;
+  line-height: 14px;
+  display: flex;
+  align-items: center;
+  filter: drop-shadow(0 1px 2px var(--override-tooltip-drop-shadow-color));
+  border: 1px solid var(--override-tooltip-border-color);
+  background-clip: padding-box;
+  box-sizing: border-box;
+  position: absolute;
+  visibility: hidden;
+  transition: visibility 0s 100ms, opacity 150ms cubic-bezier(0, 0, 0.2, 1);
+  z-index: 20001;
+  top: 0;
+  left: 0;
+  opacity: 0%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.-theme-with-dark-background .tooltip,
+:host-context(.-theme-with-dark-background) .tooltip {
+  --override-tooltip-background-color: rgb(13 13 13);
+  --override-tooltip-color: rgb(204 204 204);
+  --override-tooltip-drop-shadow-color: rgb(230 230 230 / 30%);
+  --override-tooltip-border-color: rgb(230 230 230 / 10%);
+}
+
+.tooltip-breakword {
+  word-break: break-word;
+}
+
+.tooltip.shown {
+  visibility: visible;
+  transition-delay: 600ms;
+  opacity: 100%;
+}
+
+.tooltip.shown.instant {
+  transition-delay: 0s;
+}
+
+.tooltip-shortcut {
+  --override-tooltip-shortcut-color: hsl(0deg 0% 45%);
+
+  color: var(--override-tooltip-shortcut-color);
+  display: inline-block;
+  margin-left: 8px;
+  flex: 0 0 auto;
+}
+
+.-theme-with-dark-background .tooltip-shortcut,
+:host-context(.-theme-with-dark-background) .tooltip-shortcut {
+  --override-tooltip-shortcut-color: rgb(140 140 140);
+}

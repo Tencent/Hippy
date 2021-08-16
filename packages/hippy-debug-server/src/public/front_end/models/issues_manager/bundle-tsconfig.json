@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/models/issues_manager"},"files":["../../../../../../front_end/models/issues_manager/issues_manager.ts"],"references":[{"path":"./issues_manager-tsconfig.json"}]}

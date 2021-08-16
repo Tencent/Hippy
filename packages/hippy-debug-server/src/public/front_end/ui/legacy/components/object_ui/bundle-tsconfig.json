@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../../../front_end/ui/legacy/components/object_ui"},"files":["../../../../../../../../front_end/ui/legacy/components/object_ui/object_ui.ts"],"references":[{"path":"./object_ui-tsconfig.json"}]}

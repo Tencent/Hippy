@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/entrypoints/toolbox"},"files":["../../../../../../front_end/entrypoints/toolbox/toolbox.ts"],"references":[{"path":"../../Images/generate_css_vars-tsconfig.json"},{"path":"../../core/dom_extension/bundle-tsconfig.json"},{"path":"../../core/platform/bundle-tsconfig.json"}]}

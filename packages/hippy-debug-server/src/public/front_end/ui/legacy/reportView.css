@@ -1,0 +1,125 @@
+/*
+ * Copyright 2016 The Chromium Authors. All rights reserved.
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+:host {
+  background-color: var(--color-background-elevation-1);
+}
+
+.report-content-box {
+  background-color: var(--color-background);
+  overflow: auto;
+}
+
+.report-content-box.no-scroll {
+  overflow: visible;
+}
+
+.report-header {
+  border-bottom: 1px solid var(--color-details-hairline);
+  padding: 12px 24px;
+}
+
+.report-header .toolbar {
+  margin-bottom: -8px;
+  margin-top: 5px;
+  margin-left: -8px;
+}
+
+.report-title {
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.report-url,
+.report-subtitle {
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+.report-section {
+  display: flex;
+  padding: 12px;
+  border-bottom: 1px solid var(--color-details-hairline);
+  flex-direction: column;
+}
+
+.report-section-header {
+  margin-left: 18px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.report-section-title {
+  flex: auto;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  font-weight: bold;
+  color: var(--color-text-secondary);
+}
+
+.report-field {
+  margin-top: 8px;
+  display: flex;
+  line-height: 28px;
+}
+
+.report-row {
+  margin: 10px 0 2px 18px;
+}
+
+.report-field-name {
+  color: var(--color-text-disabled);
+  flex: 0 0 128px;
+  text-align: right;
+  padding: 0 6px;
+  white-space: pre-wrap;
+}
+
+.report-field-value {
+  flex: auto;
+  padding: 0 6px;
+  white-space: pre;
+}
+
+.report-field-value-is-flexed {
+  display: flex;
+  white-space: pre-wrap;
+}
+
+.report-field-value-subtitle {
+  color: var(--color-text-disabled);
+  line-height: 14px;
+}
+
+.report-row-selectable {
+  user-select: text;
+}
+
+.image-wrapper,
+.image-wrapper img {
+  max-width: 200px;
+  max-height: 200px;
+  display: block;
+}
+
+.image-wrapper {
+  height: fit-content;
+  margin-right: 8px;
+}
+
+.show-mask img {
+  /* The safe zone is a centrally positioned circle, with radius 2/5
+  * (40%) of the minimum of the icon's width and height.
+  * https://w3c.github.io/manifest/#icon-masks */
+  clip-path: circle(40% at 50% 50%);
+}
+
+.show-mask .image-wrapper {
+  background: var(--image-file-checker);
+}

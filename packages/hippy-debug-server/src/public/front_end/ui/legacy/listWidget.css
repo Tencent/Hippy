@@ -1,0 +1,138 @@
+/*
+ * Copyright 2015 The Chromium Authors. All rights reserved.
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+.list {
+  flex: auto 0 1;
+  overflow-y: auto;
+  border: 1px solid var(--color-details-hairline);
+  flex-direction: column;
+}
+
+.list-separator {
+  background: var(--color-background-elevation-1);
+  height: 1px;
+}
+
+.list-item {
+  flex: none;
+  min-height: 30px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.list-item:focus-within,
+.list-item:hover {
+  background: var(--color-background-elevation-2);
+}
+
+.list-widget-input-validation-error {
+  color: var(--legacy-input-validation-error);
+  margin: 0 5px;
+}
+
+.controls-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: stretch;
+  pointer-events: none;
+}
+
+.controls-gradient {
+  flex: 0 1 50px;
+}
+
+.list-item:focus-within .controls-gradient,
+.list-item:hover .controls-gradient {
+  --override-background-gradient-color: hsl(0deg 0% 96%);
+
+  background-image: linear-gradient(90deg, transparent, var(--override-background-gradient-color));
+}
+
+.-theme-with-dark-background .list-item:focus-within .controls-gradient,
+.-theme-with-dark-background .list-item:hover .controls-gradient,
+:host-context(.-theme-with-dark-background) .list-item:focus-within .controls-gradient,
+:host-context(.-theme-with-dark-background) .list-item:hover .controls-gradient {
+  --override-background-gradient-color: rgb(10 10 10);
+}
+
+.controls-buttons {
+  flex: none;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  pointer-events: auto;
+  visibility: hidden;
+}
+
+.list-item:focus-within .controls-buttons,
+.list-item:hover .controls-buttons {
+  background-color: var(--color-background-elevation-2);
+  visibility: visible;
+}
+
+.editor-container {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex: none;
+  background: var(--color-background-elevation-2);
+  overflow: hidden;
+}
+
+.editor-content {
+  flex: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.editor-buttons {
+  flex: none;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 5px;
+}
+
+.editor-buttons > button {
+  flex: none;
+  margin-right: 10px;
+}
+
+.editor-content input {
+  margin-right: 10px;
+}
+
+.editor-content input.error-input {
+  background-color: var(--color-background);
+}
+
+@media (forced-colors: active) {
+  .list-item:focus-within .controls-buttons,
+  .list-item:hover .controls-buttons {
+    background-color: canvas;
+  }
+
+  .list-item:focus-within,
+  .list-item:hover {
+    forced-color-adjust: none;
+    background: Highlight;
+  }
+
+  .list-item:focus-within *,
+  .list-item:hover * {
+    color: HighlightText;
+  }
+
+  .list-item:focus-within .controls-gradient,
+  .list-item:hover .controls-gradient {
+    background-image: unset;
+  }
+}

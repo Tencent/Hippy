@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/core/host"},"files":["../../../../../../front_end/core/host/host.ts"],"references":[{"path":"./host-tsconfig.json"}]}

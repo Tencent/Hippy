@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/models/recorder"},"files":["../../../../../../front_end/models/recorder/recorder.ts"],"references":[{"path":"./recorder-tsconfig.json"}]}

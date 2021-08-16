@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/models/text_utils"},"files":["../../../../../../front_end/models/text_utils/text_utils-legacy.ts"],"references":[{"path":"./bundle-tsconfig.json"}]}

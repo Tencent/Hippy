@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../../front_end/ui/components/icon_button"},"files":["../../../../../../../front_end/ui/components/icon_button/icon_button.ts"],"references":[{"path":"./icon_button-tsconfig.json"}]}

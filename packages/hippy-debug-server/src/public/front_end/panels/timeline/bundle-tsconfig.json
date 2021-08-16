@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/panels/timeline"},"files":["../../../../../../front_end/panels/timeline/timeline.ts"],"references":[{"path":"./timeline-tsconfig.json"}]}

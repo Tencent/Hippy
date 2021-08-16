@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/panels/accessibility"},"files":["../../../../../../front_end/panels/accessibility/accessibility-meta.ts"],"references":[{"path":"./bundle-tsconfig.json"}]}

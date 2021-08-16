@@ -1,15 +1,28 @@
 {
-  "name": "@hippy/debug-server",
-  "version": "2.1.2",
+  "name": "debug-server-next",
+  "version": "3.0.21",
   "description": "Dev server for hippy-core.",
   "repository": "https://github.com/Tencent/Hippy/tree/master/packages/hippy-debug-server",
   "homepage": "http://hippyjs.org",
   "author": "XQ Kuang <x@kxq.io>",
   "license": "Apache-2.0",
   "bin": {
-    "hippy-debug": "index.js"
+    "hippy-debug": "dist/index.js"
   },
-  "scripts": {},
+  "scripts": {
+    "start": "nodemon",
+    "dev": "cross-env DEBUG=*,-↓↓↓,-↑↑↑,-koa-router TS_NODE_FILES=true node --inspect=127.0.0.1:7777 -r ts-node/register src/index.ts --entry=~/Workspace/hippy/boodo-comic/dist/home/dev/index.bundle",
+    "build": "npx gulp",
+    "test": "npx jest",
+    "lint": "npx eslint --fix --quiet --ext .js,.ts ./src"
+  },
+  "nodemonConfig": {
+    "watch": [
+      "src"
+    ],
+    "exec": "npm run dev",
+    "ext": "ts"
+  },
   "keywords": [
     "hippy",
     "debug",
@@ -18,12 +31,52 @@
   "engines": {
     "node": ">=10.0.0"
   },
+  "types": "dist/@types/index.d.ts",
   "dependencies": {
+    "@tencent/tdf-devtools-protocol": "0.0.17",
+    "color-normalize": "^1.5.2",
+    "debug": "^4.1.1",
     "find-up": "^4.1.0",
-    "koa": "^2.3.0",
+    "kill-port": "^1.6.1",
+    "koa": "^2.13.1",
+    "koa-router": "^10.0.0",
+    "koa-static": "^5.0.0",
+    "lodash": "^4.17.21",
     "mime": "^2.5.2",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.6",
     "signale": "^1.4.0",
-    "ws": "^7.4.6",
+    "uuid": "^8.3.2",
+    "ws": "^7.5.3",
     "yargs": "^15.0.2"
+  },
+  "devDependencies": {
+    "@tencent/eslint-config-tencent": "^0.15.2",
+    "@types/jest": "^26.0.24",
+    "@types/koa": "^2.13.4",
+    "@types/koa-router": "^7.4.4",
+    "@types/koa-static": "^4.0.2",
+    "@types/node": "^16.3.0",
+    "@types/ws": "^7.4.6",
+    "@types/yargs": "^17.0.2",
+    "@typescript-eslint/eslint-plugin": "^4.29.1",
+    "@typescript-eslint/parser": "^4.29.1",
+    "babel-jest": "^27.0.6",
+    "cross-env": "^7.0.3",
+    "crossenv": "0.0.2-security",
+    "eslint": "^7.32.0",
+    "eslint-plugin-prettier": "^3.4.0",
+    "gulp": "^4.0.2",
+    "gulp-clean": "^0.4.0",
+    "gulp-typescript": "^6.0.0-alpha.1",
+    "jest": "^27.0.6",
+    "jest-transform-stub": "^2.0.0",
+    "nodemon": "^2.0.12",
+    "prettier": "^2.3.2",
+    "ts-jest": "^27.0.3",
+    "ts-node": "^10.0.0",
+    "tsconfig-paths": "^3.10.1",
+    "tslib": "^2.3.0",
+    "typescript": "^4.3.5"
   }
 }

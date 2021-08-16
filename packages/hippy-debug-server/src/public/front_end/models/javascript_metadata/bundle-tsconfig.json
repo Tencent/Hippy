@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/models/javascript_metadata"},"files":["../../../../../../front_end/models/javascript_metadata/javascript_metadata.ts"],"references":[{"path":"./javascript_metadata-tsconfig.json"}]}

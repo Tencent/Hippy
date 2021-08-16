@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/panels/protocol_monitor"},"files":["../../../../../../front_end/panels/protocol_monitor/protocol_monitor.ts"],"references":[{"path":"./protocol_monitor-tsconfig.json"}]}

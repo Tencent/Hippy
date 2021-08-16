@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/third_party/wasmparser"},"files":["../../../../../../front_end/third_party/wasmparser/wasmparser.ts"],"references":[{"path":"./wasmparser-tsconfig.json"}]}

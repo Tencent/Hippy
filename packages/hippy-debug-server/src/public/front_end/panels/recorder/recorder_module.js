@@ -1,0 +1,1 @@
+import*as RootModule from'../../core/root/root.js';RootModule.Runtime.cachedResources.set("panels/recorder/recorderPanel.css","\n.recorder-toolbar {\n  background-color: var(--color-background-elevation-1);\n  border-bottom: 1px solid var(--color-details-hairline);\n  overflow: hidden;\n  z-index: 1;\n}\n\n/*# sourceURL=panels/recorder/recorderPanel.css */");

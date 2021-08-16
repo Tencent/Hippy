@@ -1,0 +1,43 @@
+<!--
+  Copyright 2020 The Chromium Authors. All rights reserved.
+  Use of this source code is governed by a BSD-style license that can be
+  found in the LICENSE file.
+-->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Basic Breadcrumbs example</title>
+    <style>
+      #container {
+        width: 80%;
+        border: 1px solid black;
+      }
+
+      .fake-crumb-element {
+        width: 300px;
+        height: 40px;
+        background: red;
+        margin-bottom: 10px;
+        padding: 2px;
+        color: white;
+        font-size: 20px;
+        text-align: center;
+      }
+      .fake-crumb-element.highlight {
+        background: blue;
+      }
+    </style>
+  </head>
+  <body>
+
+    <div class="fake-crumb-element" data-fake-crumb-1>body</div>
+    <div class="fake-crumb-element" data-fake-crumb-2>div#test-id</div>
+
+    <div id="container">
+    </div>
+
+    <script type="module" src="./basic.js"></script>
+  </body>
+</html>

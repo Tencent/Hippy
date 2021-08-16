@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/entrypoints/wasmparser_worker"},"files":["../../../../../../front_end/entrypoints/wasmparser_worker/wasmparser_worker.ts"],"references":[{"path":"./wasmparser_worker-tsconfig.json"}]}

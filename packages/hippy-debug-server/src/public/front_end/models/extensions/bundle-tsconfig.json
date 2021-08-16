@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/models/extensions"},"files":["../../../../../../front_end/models/extensions/extensions.ts"],"references":[{"path":"./extensions-tsconfig.json"}]}

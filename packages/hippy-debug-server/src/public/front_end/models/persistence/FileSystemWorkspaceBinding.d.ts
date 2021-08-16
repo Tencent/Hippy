@@ -1,0 +1,70 @@
+import * as Common from '../../core/common/common.js';
+import * as Platform from '../../core/platform/platform.js';
+import * as TextUtils from '../text_utils/text_utils.js';
+import * as Workspace from '../workspace/workspace.js';
+import type { IsolatedFileSystem } from './IsolatedFileSystem.js';
+import type { IsolatedFileSystemManager } from './IsolatedFileSystemManager.js';
+import type { PlatformFileSystem } from './PlatformFileSystem.js';
+export declare class FileSystemWorkspaceBinding {
+    _isolatedFileSystemManager: IsolatedFileSystemManager;
+    _workspace: Workspace.Workspace.WorkspaceImpl;
+    _eventListeners: Common.EventTarget.EventDescriptor[];
+    _boundFileSystems: Map<string, FileSystem>;
+    constructor(isolatedFileSystemManager: IsolatedFileSystemManager, workspace: Workspace.Workspace.WorkspaceImpl);
+    static projectId(fileSystemPath: string): string;
+    static relativePath(uiSourceCode: Workspace.UISourceCode.UISourceCode): string[];
+    static tooltipForUISourceCode(uiSourceCode: Workspace.UISourceCode.UISourceCode): string;
+    static fileSystemType(project: Workspace.Workspace.Project): string;
+    static fileSystemSupportsAutomapping(project: Workspace.Workspace.Project): boolean;
+    static completeURL(project: Workspace.Workspace.Project, relativePath: string): string;
+    static fileSystemPath(projectId: string): string;
+    fileSystemManager(): IsolatedFileSystemManager;
+    _onFileSystemsLoaded(fileSystems: IsolatedFileSystem[]): void;
+    _onFileSystemAdded(event: Common.EventTarget.EventTargetEvent): void;
+    _addFileSystem(fileSystem: PlatformFileSystem): void;
+    _onFileSystemRemoved(event: Common.EventTarget.EventTargetEvent): void;
+    _fileSystemFilesChanged(event: Common.EventTarget.EventTargetEvent): void;
+    dispose(): void;
+}
+export declare class FileSystem extends Workspace.Workspace.ProjectStore implements Workspace.Workspace.Project {
+    _fileSystem: PlatformFileSystem;
+    _fileSystemBaseURL: string;
+    _fileSystemParentURL: string;
+    _fileSystemWorkspaceBinding: FileSystemWorkspaceBinding;
+    _fileSystemPath: string;
+    _creatingFilesGuard: Set<string>;
+    constructor(fileSystemWorkspaceBinding: FileSystemWorkspaceBinding, isolatedFileSystem: PlatformFileSystem, workspace: Workspace.Workspace.WorkspaceImpl);
+    fileSystemPath(): string;
+    fileSystem(): PlatformFileSystem;
+    mimeType(uiSourceCode: Workspace.UISourceCode.UISourceCode): string;
+    initialGitFolders(): string[];
+    _filePathForUISourceCode(uiSourceCode: Workspace.UISourceCode.UISourceCode): string;
+    isServiceProject(): boolean;
+    requestMetadata(uiSourceCode: Workspace.UISourceCode.UISourceCode): Promise<Workspace.UISourceCode.UISourceCodeMetadata | null>;
+    requestFileBlob(uiSourceCode: Workspace.UISourceCode.UISourceCode): Promise<Blob | null>;
+    requestFileContent(uiSourceCode: Workspace.UISourceCode.UISourceCode): Promise<TextUtils.ContentProvider.DeferredContent>;
+    canSetFileContent(): boolean;
+    setFileContent(uiSourceCode: Workspace.UISourceCode.UISourceCode, newContent: string, isBase64: boolean): Promise<void>;
+    fullDisplayName(uiSourceCode: Workspace.UISourceCode.UISourceCode): string;
+    canRename(): boolean;
+    rename(uiSourceCode: Workspace.UISourceCode.UISourceCode, newName: string, callback: (arg0: boolean, arg1?: string | undefined, arg2?: string | undefined, arg3?: Common.ResourceType.ResourceType | undefined) => void): void;
+    searchInFileContent(uiSourceCode: Workspace.UISourceCode.UISourceCode, query: string, caseSensitive: boolean, isRegex: boolean): Promise<TextUtils.ContentProvider.SearchMatch[]>;
+    findFilesMatchingSearchRequest(searchConfig: Workspace.Workspace.ProjectSearchConfig, filesMathingFileQuery: string[], progress: Common.Progress.Progress): Promise<string[]>;
+    indexContent(progress: Common.Progress.Progress): void;
+    populate(): void;
+    excludeFolder(url: string): void;
+    canExcludeFolder(path: string): boolean;
+    canCreateFile(): boolean;
+    createFile(path: string, name: string | null, content: string, isBase64?: boolean): Promise<Workspace.UISourceCode.UISourceCode | null>;
+    deleteFile(uiSourceCode: Workspace.UISourceCode.UISourceCode): void;
+    remove(): void;
+    _addFile(filePath: string): Workspace.UISourceCode.UISourceCode;
+    _fileChanged(path: string): void;
+    tooltipForURL(url: string): string;
+    dispose(): void;
+}
+export interface FilesChangedData {
+    changed: Platform.MapUtilities.Multimap<string, string>;
+    added: Platform.MapUtilities.Multimap<string, string>;
+    removed: Platform.MapUtilities.Multimap<string, string>;
+}

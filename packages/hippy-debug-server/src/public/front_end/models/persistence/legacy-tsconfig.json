@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/models/persistence"},"files":["../../../../../../front_end/models/persistence/persistence-legacy.ts"],"references":[{"path":"./bundle-tsconfig.json"}]}

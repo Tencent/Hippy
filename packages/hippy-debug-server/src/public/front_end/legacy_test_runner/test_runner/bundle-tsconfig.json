@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/legacy_test_runner/test_runner"},"files":["../../../../../../front_end/legacy_test_runner/test_runner/test_runner.js"],"references":[{"path":"./test_runner-tsconfig.json"}]}

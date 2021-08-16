@@ -1,0 +1,53 @@
+/*
+ * Copyright 2016 The Chromium Authors. All rights reserved.
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+div {
+  display: inline-block;
+  height: 14px;
+  vertical-align: middle;
+  white-space: nowrap;
+  padding: 1px 4px;
+  text-align: left;
+  font-size: 11px;
+  line-height: normal;
+  font-weight: bold;
+  text-shadow: none;
+  /*
+   * We need an "inverted" color here - because the text is on a darker background the regular foreground text colors don't work. It's been logged to the dark mode tracking spreadsheet
+   */
+  color: var(--color-background);
+  margin-top: -1px;
+  border-radius: 7px;
+}
+
+div.verbose {
+  background-color: var(--color-syntax-3);
+}
+
+:host-context(.-theme-with-dark-background) div.verbose {
+  /* color-syntax-3 isn't blue in dark mode, but the text that gets logged is,
+  so we use a different syntax in dark mode that matches the text. Once the text
+  colors have been updated we can remove this. */
+  background-color: var(--color-syntax-2);
+}
+
+div.info {
+  background-color: var(--color-syntax-8);
+}
+
+div.warning {
+  background-color: var(--color-syntax-4);
+}
+
+:host-context(.-theme-with-dark-background) div.warning {
+  /* Pick a color that's closer to the color shown on the background of the
+  entire message */
+  background-color: var(--color-syntax-3);
+}
+
+div.error {
+  background-color: var(--color-accent-red);
+}

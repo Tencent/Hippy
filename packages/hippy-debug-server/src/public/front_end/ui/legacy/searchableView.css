@@ -1,0 +1,150 @@
+/*
+ * Copyright (c) 2014 The Chromium Authors. All rights reserved.
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+.search-bar {
+  flex: 0 0 31px;
+  background-color: var(--color-background-elevation-1);
+  border-top: 1px solid var(--color-details-hairline);
+  display: flex;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.search-bar.replaceable {
+  flex: 0 0 57px;
+}
+
+.search-replace {
+  appearance: none;
+  border: 0;
+  padding: 0 3px;
+  margin: 0;
+  flex: 1;
+}
+
+.search-replace:focus {
+  outline: none;
+}
+
+.toolbar-search {
+  display: flex;
+  width: 100%;
+}
+
+.toolbar-search > div {
+  margin: 2px 2px;
+  flex-shrink: 0;
+}
+
+.toolbar-search-inputs {
+  flex-grow: 1;
+  min-width: 150px;
+}
+
+.toolbar-search-navigation-controls {
+  align-self: stretch;
+}
+
+.toolbar-search-navigation {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  background-repeat: no-repeat;
+  background-position: 4px 7px;
+  border-left: 1px solid var(--color-details-hairline);
+  opacity: 30%;
+}
+
+.toolbar-search-navigation.enabled {
+  opacity: 100%;
+}
+
+.toolbar-search button.search-action-button {
+  font-weight: 400;
+  height: 22px;
+  width: 87px;
+}
+
+.toolbar-search-control {
+  display: flex;
+  position: relative;
+  background-color: var(--color-background);
+}
+
+.toolbar-search-buttons {
+  display: flex;
+  flex-direction: column;
+}
+
+.toolbar-replace-control,
+#search-input-field {
+  line-height: 17px;
+}
+
+.toolbar-search-control,
+.toolbar-replace-control {
+  border: 1px solid var(--color-details-hairline);
+  height: 22px;
+  border-radius: 2px;
+  width: 100%;
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
+.toolbar-search-navigation.enabled:active {
+  background-position: 4px 7px, 0 0;
+}
+
+.toolbar-search-navigation.toolbar-search-navigation-prev {
+  background-image: var(--image-file-searchPrev);
+  border-left: 1px solid var(--color-details-hairline);
+}
+
+:host-context(.-theme-with-dark-background) .toolbar-search-navigation {
+  filter: invert(90%);
+}
+
+.toolbar-search-navigation.toolbar-search-navigation-prev.enabled:active {
+  background-image: var(--image-file-searchPrev), var(--color-background-elevation-1);
+}
+
+.toolbar-search-navigation.toolbar-search-navigation-next {
+  background-image: var(--image-file-searchNext);
+  border-left: 1px solid var(--color-details-hairline);
+}
+
+.toolbar-search-navigation.toolbar-search-navigation-next.enabled:active {
+  background-image: var(--image-file-searchNext), var(--color-background-elevation-1);
+}
+
+.search-results-matches {
+  display: inline-block;
+  text-align: right;
+  padding: 0 4px;
+  color: var(--color-text-secondary);
+  align-self: center;
+}
+
+.first-row-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.toolbar-search > .replace-toggle-toolbar {
+  margin: 2px -2px 0 0;
+}
+
+.toolbar-search-options {
+  margin: 0 auto;
+}
+
+:host-context(#sources-panel-sources-view) .search-bar {
+  flex-basis: auto;
+}
+
+:host-context(#sources-panel-sources-view) .toolbar-search {
+  flex-wrap: wrap;
+}

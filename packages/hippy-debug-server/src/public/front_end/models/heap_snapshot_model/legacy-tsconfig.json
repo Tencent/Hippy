@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/models/heap_snapshot_model"},"files":["../../../../../../front_end/models/heap_snapshot_model/heap_snapshot_model-legacy.ts"],"references":[{"path":"./bundle-tsconfig.json"}]}

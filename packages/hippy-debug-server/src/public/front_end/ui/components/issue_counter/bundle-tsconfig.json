@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../../front_end/ui/components/issue_counter"},"files":["../../../../../../../front_end/ui/components/issue_counter/issue_counter.ts"],"references":[{"path":"./issue_counter-tsconfig.json"}]}

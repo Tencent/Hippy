@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/panels/layer_viewer"},"files":["../../../../../../front_end/panels/layer_viewer/layer_viewer.ts"],"references":[{"path":"./layer_viewer-tsconfig.json"}]}

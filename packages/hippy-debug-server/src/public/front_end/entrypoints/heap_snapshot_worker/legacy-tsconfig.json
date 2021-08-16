@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/entrypoints/heap_snapshot_worker"},"files":["../../../../../../front_end/entrypoints/heap_snapshot_worker/heap_snapshot_worker-legacy.ts"],"references":[{"path":"./worker_entrypoint-tsconfig.json"},{"path":"../../models/heap_snapshot_model/legacy-tsconfig.json"}]}

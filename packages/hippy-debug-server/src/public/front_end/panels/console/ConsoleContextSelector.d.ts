@@ -1,0 +1,30 @@
+import * as Common from '../../core/common/common.js';
+import * as SDK from '../../core/sdk/sdk.js';
+import * as UI from '../../ui/legacy/legacy.js';
+export declare class ConsoleContextSelector implements SDK.TargetManager.SDKModelObserver<SDK.RuntimeModel.RuntimeModel>, UI.SoftDropDown.Delegate<SDK.RuntimeModel.ExecutionContext> {
+    _items: UI.ListModel.ListModel<SDK.RuntimeModel.ExecutionContext>;
+    _dropDown: UI.SoftDropDown.SoftDropDown<SDK.RuntimeModel.ExecutionContext>;
+    _toolbarItem: UI.Toolbar.ToolbarItem;
+    constructor();
+    toolbarItem(): UI.Toolbar.ToolbarItem;
+    highlightedItemChanged(from: SDK.RuntimeModel.ExecutionContext | null, to: SDK.RuntimeModel.ExecutionContext | null, fromElement: Element | null, toElement: Element | null): void;
+    titleFor(executionContext: SDK.RuntimeModel.ExecutionContext): string;
+    _depthFor(executionContext: SDK.RuntimeModel.ExecutionContext): number;
+    _executionContextCreated(executionContext: SDK.RuntimeModel.ExecutionContext): void;
+    _onExecutionContextCreated(event: Common.EventTarget.EventTargetEvent): void;
+    _onExecutionContextChanged(event: Common.EventTarget.EventTargetEvent): void;
+    _executionContextDestroyed(executionContext: SDK.RuntimeModel.ExecutionContext): void;
+    _onExecutionContextDestroyed(event: Common.EventTarget.EventTargetEvent): void;
+    _executionContextChangedExternally(event: Common.EventTarget.EventTargetEvent): void;
+    _isTopContext(executionContext: SDK.RuntimeModel.ExecutionContext | null): boolean;
+    _hasTopContext(): boolean;
+    modelAdded(runtimeModel: SDK.RuntimeModel.RuntimeModel): void;
+    modelRemoved(runtimeModel: SDK.RuntimeModel.RuntimeModel): void;
+    createElementForItem(item: SDK.RuntimeModel.ExecutionContext): Element;
+    _subtitleFor(executionContext: SDK.RuntimeModel.ExecutionContext): string;
+    isItemSelectable(item: SDK.RuntimeModel.ExecutionContext): boolean;
+    itemSelected(item: SDK.RuntimeModel.ExecutionContext | null): void;
+    _callFrameSelectedInUI(): void;
+    _callFrameSelectedInModel(event: Common.EventTarget.EventTargetEvent): void;
+    _frameNavigated(event: Common.EventTarget.EventTargetEvent): void;
+}

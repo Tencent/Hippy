@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/panels/lighthouse"},"files":["../../../../../../front_end/panels/lighthouse/lighthouse-legacy.ts"],"references":[{"path":"./bundle-tsconfig.json"}]}

@@ -1,0 +1,9 @@
+
+{
+    "compilerOptions": {
+        "composite": true
+    },
+    "files": [
+        "Images.js"
+    ]
+}

@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/entrypoints/inspector_main"},"files":["../../../../../../front_end/entrypoints/inspector_main/inspector_main.ts"],"references":[{"path":"./inspector_main-tsconfig.json"}]}

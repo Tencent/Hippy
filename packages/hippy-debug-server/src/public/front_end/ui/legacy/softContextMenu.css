@@ -1,0 +1,165 @@
+/*
+ * Copyright (c) 2014 The Chromium Authors. All rights reserved.
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+.soft-context-menu {
+  --override-context-menu-seperator-color: var(--color-details-hairline);
+  --override-context-menu-hover-text-color: rgb(255 255 255);
+
+  overflow-y: auto;
+  min-width: 160px !important; /* stylelint-disable-line declaration-no-important */
+  /* NOTE: Keep padding in sync with padding adjustment in SoftContextMenu.js */
+  padding: 4px 0 4px 0;
+  border: 1px solid var(--color-details-hairline);
+  background-color: var(--color-background);
+  box-shadow: var(--drop-shadow);
+}
+
+:host-context(.-theme-with-dark-background) .soft-context-menu {
+  border: none;
+}
+
+:host:host-context(.platform-mac):host-context(html:not(.-theme-with-dark-background)) .soft-context-menu {
+  --override-mac-specific-border-color: rgb(196 196 196 / 90%);
+  --override-mac-specific-border-top-color: rgb(196 196 196 / 50%);
+  --override-mac-specific-background-color: rgb(240 240 240);
+  --override-mac-specific-box-shadow: 0 5px 10px rgb(0 0 0 25%);
+  --override-context-menu-seperator-color: rgb(222 222 222);
+
+  border: 1px solid var(--override-mac-specific-border-color);
+  border-top: 1px solid var(--override-mac-specific-border-top-color);
+  border-radius: 4px;
+  background-color: var(--override-mac-specific-background-color);
+  box-shadow: var(--override-mac-specific-box-shadow);
+}
+
+.soft-context-menu-item {
+  display: flex;
+  width: 100%;
+  font-size: 12px;
+  padding: 3px 7px 3px 8px;
+  margin: 0 13px 0 0;
+  white-space: nowrap;
+}
+
+.soft-context-menu-disabled {
+  color: var(--color-text-disabled);
+  pointer-events: none;
+}
+
+.soft-context-menu-separator {
+  height: 10px;
+  margin: 0 1px;
+}
+
+.soft-context-menu-separator > .separator-line {
+  margin: 0;
+  height: 5px;
+  border-bottom: 1px solid var(--override-context-menu-seperator-color);
+  pointer-events: none;
+}
+
+.soft-context-menu-item-mouse-over {
+  background-color: var(--color-primary);
+  color: var(--override-context-menu-hover-text-color);
+}
+
+:host:host-context(.platform-mac):host-context(html:not(.-theme-with-dark-background)) .soft-context-menu-item-mouse-over {
+  --override-mac-specific-dark-background: linear-gradient(to right, hsl(214deg 81% 60%), hsl(214deg 100% 56%));
+
+  background-image: var(--override-mac-specific-dark-background);
+}
+
+:host:host-context(.platform-mac):host-context(html:not(.-theme-with-dark-background)) .separator-line {
+  border-width: 2px;
+}
+
+.soft-context-menu-item-submenu-arrow {
+  pointer-events: none;
+  font-size: 11px;
+  text-align: right;
+  align-self: center;
+  margin-left: auto;
+}
+
+.soft-context-menu-item-mouse-over .soft-context-menu-item-checkmark {
+  color: var(--legacy-selection-fg-color);
+}
+
+.soft-context-menu-custom-item {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  flex: auto;
+}
+
+.soft-context-menu-shortcut {
+  color: var(--color-text-secondary);
+  pointer-events: none;
+  flex: 1 1 auto;
+  text-align: right;
+  padding-left: 10px;
+}
+
+.soft-context-menu-item-mouse-over .soft-context-menu-shortcut {
+  color: inherit;
+}
+
+.checkmark {
+  opacity: 70%;
+  pointer-events: none;
+  margin: auto 5px auto 0;
+}
+
+.soft-context-menu-item-mouse-over .checkmark {
+  opacity: 100%;
+  filter: none;
+}
+
+:host-context(.-theme-with-dark-background) .checkmark {
+  filter: invert(80%);
+}
+
+@media (forced-colors: active) {
+  .soft-context-menu-item {
+    color: canvastext;
+  }
+
+  .soft-context-menu-item-mouse-over {
+    background-color: Highlight;
+    color: HighlightText;
+    forced-color-adjust: none;
+  }
+
+  .soft-context-menu-shortcut {
+    color: ButtonText;
+  }
+
+  .soft-context-menu-item-mouse-over .soft-context-menu-shortcut {
+    color: HighlightText;
+  }
+
+  .soft-context-menu:focus-visible {
+    forced-color-adjust: none;
+    background: canvas;
+    border-color: Highlight;
+  }
+
+  .soft-context-menu-separator > .separator-line {
+    border-bottom-color: ButtonText;
+  }
+
+  .checkmark {
+    opacity: 100%;
+  }
+
+  .spritesheet-smallicons:not(.icon-mask) {
+    filter: invert(100%);
+  }
+
+  .soft-context-menu-item-mouse-over .spritesheet-smallicons:not(.icon-mask) {
+    filter: invert(0);
+  }
+}

@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../../../front_end/ui/legacy/components/utils"},"files":["../../../../../../../../front_end/ui/legacy/components/utils/utils-legacy.ts"],"references":[{"path":"./bundle-tsconfig.json"}]}

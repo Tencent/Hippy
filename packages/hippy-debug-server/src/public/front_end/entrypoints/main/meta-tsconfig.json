@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/entrypoints/main"},"files":["../../../../../../front_end/entrypoints/main/main-meta.ts"],"references":[{"path":"./bundle-tsconfig.json"},{"path":"../../entrypoints/inspector_main/bundle-tsconfig.json"}]}

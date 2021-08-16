@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/panels/snippets"},"files":["../../../../../../front_end/panels/snippets/snippets.ts"],"references":[{"path":"./snippets-tsconfig.json"}]}

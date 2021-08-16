@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../../../front_end/ui/legacy/components/cookie_table"},"files":["../../../../../../../../front_end/ui/legacy/components/cookie_table/cookie_table.ts"],"references":[{"path":"./cookie_table-tsconfig.json"}]}

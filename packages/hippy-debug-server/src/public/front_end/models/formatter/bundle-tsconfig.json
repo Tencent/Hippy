@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/models/formatter"},"files":["../../../../../../front_end/models/formatter/formatter.ts"],"references":[{"path":"./formatter-tsconfig.json"}]}

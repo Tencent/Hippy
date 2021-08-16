@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/panels/performance_monitor"},"files":["../../../../../../front_end/panels/performance_monitor/performance_monitor.ts"],"references":[{"path":"./performance_monitor-tsconfig.json"}]}

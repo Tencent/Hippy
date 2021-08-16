@@ -1,0 +1,39 @@
+/*
+ * Copyright 2017 The Chromium Authors. All rights reserved.
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+.item.disabled {
+  opacity: 50%;
+}
+
+.item-list {
+  background-color: var(--color-background);
+  box-shadow: var(--drop-shadow);
+  overflow-x: hidden;
+  overflow-y: auto;
+  width: 100%;
+}
+
+.item.highlighted {
+  color: var(--legacy-selection-fg-color);
+  background-color: var(--legacy-selection-bg-color);
+}
+
+@media (forced-colors: active) {
+  .item.disabled {
+    opacity: 100%;
+  }
+
+  .item-list {
+    border: 1px solid ButtonText;
+    background-color: ButtonFace;
+  }
+
+  .item.highlighted {
+    forced-color-adjust: none;
+    color: HighlightText;
+    background-color: Highlight;
+  }
+}

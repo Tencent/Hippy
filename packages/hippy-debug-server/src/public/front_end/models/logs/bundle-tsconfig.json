@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/models/logs"},"files":["../../../../../../front_end/models/logs/logs.ts"],"references":[{"path":"./logs-tsconfig.json"}]}

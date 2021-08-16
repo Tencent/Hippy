@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../front_end/core/platform"},"files":["../../../../../../front_end/core/platform/platform.ts"],"references":[{"path":"./platform-tsconfig.json"}]}

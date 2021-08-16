@@ -1,0 +1,1 @@
+{"compilerOptions":{"composite":true,"outDir":".","baseUrl":".","rootDir":"../../../../../../../front_end/ui/components/expandable_list"},"files":["../../../../../../../front_end/ui/components/expandable_list/expandable_list.ts"],"references":[{"path":"./expandable_list-tsconfig.json"}]}
