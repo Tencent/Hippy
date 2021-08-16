@@ -424,7 +424,3 @@ ul 的子节点，终端层节点回收和复用的最小颗粒度。
 [[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-textarea.vue)
 
 多行文本输入框。 一切同 [input](hippy-vue/components.md?id=input)。
-
-```
-
-```
