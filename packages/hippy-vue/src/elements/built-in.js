@@ -139,6 +139,9 @@ const ul = {
           event.offsetX = nativeEventParams.contentOffset.x;
           event.offsetY = nativeEventParams.contentOffset.y;
           break;
+        case 'onDelete': 
+          event.index = nativeEventParams.index
+          break;
         default:
       }
       return event;
