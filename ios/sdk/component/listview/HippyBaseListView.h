@@ -39,11 +39,14 @@
 @property (nonatomic, copy) HippyDirectEventBlock onMomentumScrollEnd;
 @property (nonatomic, copy) HippyDirectEventBlock onRowWillDisplay;
 @property (nonatomic, copy) HippyDirectEventBlock onEndReached;
+@property (nonatomic, copy) HippyDirectEventBlock onDelete;
+
 @property (nonatomic, assign) NSUInteger preloadItemNumber;
 @property (nonatomic, assign) CGFloat initialContentOffset;
 @property (nonatomic, assign) BOOL manualScroll;
 @property (nonatomic, assign) BOOL bounces;
 @property (nonatomic, assign) BOOL showScrollIndicator;
+@property (nonatomic, assign) BOOL editable;
 
 @property (nonatomic, strong) HippyListTableView *tableView;
 @property (nonatomic, strong, readonly) HippyBaseListViewDataSource *dataSource;
