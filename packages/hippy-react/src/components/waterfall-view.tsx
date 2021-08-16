@@ -32,7 +32,7 @@ interface WaterfallViewProps {
   preloadItemNumber?: number;
 
   // Return banner view element
-  bannerView?(): React.ReactElement;
+  renderBanner?(): React.ReactElement;
 
   // Declare whether PullHeader view exists
   containPullHeader?: boolean;
@@ -344,7 +344,7 @@ class WaterfallView extends React.Component<WaterfallViewProps> {
   public render() {
     const {
       style = {},
-      bannerView,
+      renderBanner,
       numberOfColumns = 2,
       columnSpacing = 0,
       interItemSpacing = 0,
@@ -382,8 +382,8 @@ class WaterfallView extends React.Component<WaterfallViewProps> {
     };
     const itemList = [];
 
-    if (typeof bannerView === 'function') {
-      const banner = bannerView();
+    if (typeof renderBanner === 'function') {
+      const banner = renderBanner();
       if (banner) {
         itemList.push((
           <View key="bannerView">

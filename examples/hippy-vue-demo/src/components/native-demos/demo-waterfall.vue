@@ -34,7 +34,7 @@
           v-for="(ui, index) in dataSource"
           :key="index"
           :style="{width: itemWidth}"
-          :type="'item_' + ui.style"
+          :type="ui.style"
           @click="() => onItemClick(index)"
         >
           <style-one
@@ -105,14 +105,6 @@ export default {
       return { top: 0, left: 5, bottom: 0, right: 5 };
     },
   },
-  mounted() {
-    setTimeout(() => {
-      this.$refs.gridView.scrollToContentOffset({
-        yOffset: 400,
-        animated: true,
-      });
-    }, 3000);
-  },
   methods: {
     mockFetchData() {
       return new Promise((resolve) => {
@@ -122,7 +114,7 @@ export default {
             return resolve([]);
           }
           return resolve([...mockData, ...mockData]);
-        }, 1000);
+        }, 600);
       });
     },
     async onRefresh() {

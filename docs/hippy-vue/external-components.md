@@ -183,7 +183,7 @@
 
 # waterfall
 
-> 最低支持版本 2.8.0
+> 最低支持版本 2.8.5
 
 [[范例：demo-waterfall]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-waterfall.vue)
 
@@ -193,13 +193,13 @@
 
 | 参数              | 描述                                                  | 类型       | 支持平台 |
 | ----------------- | ----------------------------------------------------- | ---------- | -------- |
-| columnSpacing     | 瀑布流每列之前的间距                                      | `number`   | `ALL`    |
-| interItemSpacing  | item 间的上下间距                                        | `number`   | `ALL`    |
+| columnSpacing     | 瀑布流每列之前的水平间距                                      | `number`   | `ALL`    |
+| interItemSpacing  | item 间的垂直间距                                        | `number`   | `ALL`    |
 | contentInset      | 内容缩进 ，默认值 `{ top:0, left:0, bottom:0, right:0 }`  | `Object`   | `ALL`    |
 | containBannerView | 是否包含`bannerView`，只能有一个bannerView，`Android` 暂不支持  | `boolean`  | `iOS`    |
 | containPullHeader | 是否包含`pull-header`；`Android` 暂不支持，可以用 `ul-refresh` 组件替代  | `boolean`  | `iOS`    |
-| containPullFooter | 是否包含 `pull-footer`, Android 必须包含`pull-footer` 组件才可以触发 `endReached` 事件 | `boolean`  | `ALL` |
-| numberOfColumns   | 瀑布流列数量                                                | `number`   | `ALL`    |
+| containPullFooter | 是否包含 `pull-footer` | `boolean`  | `ALL` |
+| numberOfColumns   | 瀑布流列数量，Default: 2                                               | `number`   | `ALL`    |
 | preloadItemNumber | 滑动到瀑布流底部前提前预加载的 item 数量       | `number`   | `ALL`    |
 
 ## 事件
@@ -230,7 +230,7 @@
 
 # waterfall-item
 
-> 最低支持版本 2.8.0
+> 最低支持版本 2.8.5
 
 瀑布流组件 Cell 容器，瀑布流子元素
 

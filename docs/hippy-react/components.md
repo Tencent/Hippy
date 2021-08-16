@@ -459,3 +459,52 @@ import icon from './qb_icon_new.png';
 `(index: number) => void` 通过传入一个index 值（数字），滑动到第 index 个页面（无动画）
 
 > * index: number - 指定滑动页面
+
+---
+
+# WaterfallView
+
+> 最低支持版本 2.8.5
+
+[[WaterfallView 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/WaterfallView)
+
+瀑布流组件。
+
+## 参数
+
+| 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
+| --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
+| numberOfColumns | 瀑布流列数量 ， Default: 2 | `number` | `ALL` |
+| numberOfItems | 瀑布流 item 总个数 | `number` | `ALL`|
+| columnSpacing     | 瀑布流每列之前的水平间距  | `number`   | `ALL`    |
+| interItemSpacing  | item 间的垂直间距  | `number`   | `ALL`  |
+| contentInset      | 内容缩进 ，默认值 `{ top:0, left:0, bottom:0, right:0 }`  | `Object`   | `ALL`   |
+| renderItem             | 这里的入参是当前 item 的 index，在这里可以凭借 index 获取到瀑布流一个具体单元格的数据，从而决定如何渲染这个单元格。 | `(index: number) => React.ReactElement`                                   | `ALL`    |
+| renderBanner | 如何渲染 Banner。 | `() => React.ReactElement` |  `iOS`
+| getItemStyle           | 设置`WaterfallItem`容器的样式。  | `(index: number) => styleObject`                                    | `ALL`    |
+| getItemType            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升list 性能。 | `(index: number) => number`                                    | `ALL`    |
+| getItemKey             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [React 官文](//reactjs.org/docs/lists-and-keys.html) | `(index: number) => any`                                    | `ALL`    |
+| preloadItemNumber     | 滑动到瀑布流底部前提前预加载的 item 数量 | `number` | `ALL` |
+| onEndReached          | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `onEndReached` 回调。 | `Function`                                                  | `ALL`    |
+| containPullHeader | 是否包含`PullHeader`组件，默认 `false` ；`Android` 暂不支持，可暂时用 `RefreshWrapper` 组件替代  | `boolean`  | `iOS`    |
+| renderPullHeader | 如何渲染 `PullHeader`，此时 `containPullHeader` 默认设置成 `true` |  `() => React.ReactElement` | `iOS`    |
+| containPullFooter | 是否包含`PullFooter`组件，默认 `false`  | `boolean`  | `ALL`    |
+| renderPullFooter | 如何渲染 `PullFooter`，此时 `containPullFooter` 默认设置成 `true` |  `() => React.ReactElement` | `ALL` |
+| onScroll              | 当触发 `WaterFall` 的滑动事件时回调。`startEdgePos`表示距离 List 顶部边缘滚动偏移量；`endEdgePos`表示距离 List 底部边缘滚动偏移量；`firstVisibleRowIndex`表示当前可见区域内第一个元素的索引；`lastVisibleRowIndex`表示当前可见区域内最后一个元素的索引；`visibleRowFrames`表示当前可见区域内所有 item 的信息(x，y，width，height)    | `{ nativeEvent: { startEdgePos: number, endEdgePos: number, firstVisibleRowIndex: number, lastVisibleRowIndex: number, visibleRowFrames: Object[] } }` | `ALL`
+
+## 方法
+
+### scrollToIndex
+
+`(obj: { index: number, animated: boolean }) => void` 通知 Waterfall 滑动到第几个 item。
+
+> * `index`: number - 滑动到的第 index 个 item
+> * `animated`: boolean - 滑动过程是否使用动画, 默认 `true`
+
+### scrollToContentOffset
+
+`(obj: { xOffset: number, yOffset: number, animated: boolean }) => void` 通知 Waterfall 滑动到某个具体坐标偏移值(offset)的位置。
+
+> * `xOffset`: number - 滑动到 X 方向的 offset
+> * `yOffset`: number - 滑动到 Y 方向的 offset
+> * `animated`: boolean - 滑动过程是否使用动画，默认 `true`

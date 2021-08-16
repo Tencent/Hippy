@@ -5,14 +5,15 @@ import {
   StyleSheet,
   Text,
   Dimensions,
+  Platform,
   RefreshWrapper,
 } from '@hippy/react';
 
-import mockData from '../../shared/UIStyles/mock';
+import mockDataTemp from '../../shared/UIStyles/mock';
 import Style1 from '../../shared/UIStyles/Style1';
 import Style2 from '../../shared/UIStyles/Style2';
 import Style5 from '../../shared/UIStyles/Style5';
-
+const mockData = mockDataTemp.filter(item => item.style !== 2);
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#ffffff',
@@ -59,6 +60,9 @@ export default class ListExample extends React.Component {
       pullingText: '继续下拉触发刷新',
       loadingState: '正在加载...',
     };
+    this.numberOfColumns = 2;
+    this.columnSpacing = 6;
+    this.interItemSpacing = 6;
     this.mockFetchData = this.mockFetchData.bind(this);
     this.renderItem = this.renderItem.bind(this);
     this.getItemType = this.getItemType.bind(this);
@@ -67,6 +71,7 @@ export default class ListExample extends React.Component {
     this.onRefresh = this.onRefresh.bind(this);
     this.getRefresh = this.getRefresh.bind(this);
     this.renderPullFooter = this.renderPullFooter.bind(this);
+    this.renderBanner = this.renderBanner.bind(this);
     // TODO: PullHeader is not supported on Android yet
     // this.renderPullHeader = this.renderPullHeader.bind(this);
     // this.onHeaderReleased = this.onHeaderReleased.bind(this);
@@ -78,19 +83,11 @@ export default class ListExample extends React.Component {
     this.setState({ dataSource });
     // // 结束时需主动调用collapsePullHeader
     // this.listView.collapsePullHeader();
-    setTimeout(() => {
-      this.listView.scrollToContentOffset({
-        yOffset: 400,
-        animated: true,
-      });
-    }, 3000);
   }
 
   /**
    * 页面加载更多时触发
-   *
    * 这里触发加载更多还可以使用 PullFooter 组件，主要看是否需要一个内容加载区。
-   *
    * onEndReached 更适合用来无限滚动的场景。
    */
   async onEndReached() {
@@ -101,7 +98,7 @@ export default class ListExample extends React.Component {
     }
     this.loadMoreDataFlag = true;
     this.setState({
-      loadingState: '正在加载...',
+      loadingState: '加载更多...',
     });
     let newData = [];
     try {
@@ -155,10 +152,8 @@ export default class ListExample extends React.Component {
   // TODO: PullHeader is not supported on Android yet
   /**
    * 下拉过程中触发
-   *
    * 事件会通过 contentOffset 参数返回拖拽高度，我们已经知道了内容高度，
    * 简单对比一下就可以显示不同的状态。
-   *
    * 这里简单处理，其实可以做到更复杂的动态效果。
    */
   // onHeaderPulling(evt) {
@@ -179,6 +174,7 @@ export default class ListExample extends React.Component {
   // }
 
   renderPullFooter() {
+    if (this.state.dataSource.length === 0) return null;
     return (<View style={styles.pullFooter}>
       <Text style={{
         color: 'white',
@@ -226,6 +222,25 @@ export default class ListExample extends React.Component {
     this.listView.scrollToIndex({ index, animation: true });
   }
 
+  // TODO: renderBanner is not supported on Android yet
+  // render banner
+  renderBanner() {
+    if (Platform.OS === 'android' || this.state.dataSource.length === 0) return null;
+    return (<View style={{
+      backgroundColor: 'grey',
+      height: 100,
+      justifyContent: 'center',
+      alignItems: 'center',
+    }}>
+      <Text style={{
+        fontSize: 20,
+        color: 'white',
+        lineHeight: 100,
+        height: 100,
+      }}>Banner View</Text>
+    </View>);
+  }
+
   renderItem(index) {
     const { dataSource } = this.state;
     let styleUI = null;
@@ -241,7 +256,6 @@ export default class ListExample extends React.Component {
         styleUI = <Style5 itemBean={rowData.itemBean} />;
         break;
       default:
-        // pass
     }
     return (
         <View
@@ -264,7 +278,7 @@ export default class ListExample extends React.Component {
       setTimeout(() => {
         const data = [...mockData, ...mockData];
         return resolve(data);
-      }, 1000);
+      }, 600);
     });
   }
 
@@ -272,20 +286,20 @@ export default class ListExample extends React.Component {
     return { top: 0, left: 5, bottom: 0, right: 5 };
   }
 
-  getNumberOfColumns = () => 2;
+  getItemStyle() {
+    const { numberOfColumns, columnSpacing } = this;
+    const screenWidth = Dimensions.get('screen').width;
+    const contentInset = this.getWaterfallContentInset();
+    const width = screenWidth - contentInset.left - contentInset.right;
+    return {
+      width: (width - ((numberOfColumns - 1) * columnSpacing)) / numberOfColumns,
+    };
+  }
 
   render() {
     const { dataSource } = this.state;
-    const screenWidth = Dimensions.get('screen').width;
-    const numberOfColumns = this.getNumberOfColumns();
-    const columnSpacing = 6;
-    const interItemSpacing = 6;
+    const { numberOfColumns, columnSpacing, interItemSpacing } = this;
     const contentInset = this.getWaterfallContentInset();
-    const width = screenWidth - contentInset.left - contentInset.right;
-    const itemStyle = {
-      width: (width - ((numberOfColumns - 1) * columnSpacing)) / numberOfColumns,
-    };
-    const getItemStyle = () => itemStyle;
     return (
         <RefreshWrapper
             ref={(ref) => {
@@ -300,6 +314,7 @@ export default class ListExample extends React.Component {
               ref={(ref) => {
                 this.listView = ref;
               }}
+              renderBanner={this.renderBanner}
               numberOfColumns={numberOfColumns}
               columnSpacing={columnSpacing}
               interItemSpacing={interItemSpacing}
@@ -310,7 +325,7 @@ export default class ListExample extends React.Component {
               getItemType={this.getItemType}
               getItemKey={this.getItemKey}
               contentInset={contentInset}
-              getItemStyle={getItemStyle}
+              getItemStyle={() => this.getItemStyle()}
               containPullFooter={true}
               // renderPullHeader={this.renderPullHeader}
               // onHeaderReleased={this.onHeaderReleased}
