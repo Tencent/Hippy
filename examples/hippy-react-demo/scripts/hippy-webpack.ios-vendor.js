@@ -1,6 +1,7 @@
-const path                        = require('path');
-const webpack                     = require('webpack');
-const CaseSensitivePathsPlugin    = require('case-sensitive-paths-webpack-plugin');
+const fs = require('fs');
+const path = require('path');
+const webpack = require('webpack');
+const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 
 const platform = 'ios';
 
@@ -24,8 +25,8 @@ module.exports = {
     }),
     new CaseSensitivePathsPlugin(),
     new webpack.DllPlugin({
-      context: path.resolve('..'),
-      path: path.resolve(`./dist/${platform}/[name]-manifest.json`),
+      context: path.resolve(__dirname, '..'),
+      path: path.resolve(__dirname, `../dist/${platform}/[name]-manifest.json`),
       name: 'hippyReactBase',
     }),
   ],
@@ -47,6 +48,9 @@ module.exports = {
                   },
                 ],
               ],
+              plugins: [
+                ['@babel/plugin-proposal-class-properties'],
+              ],
             },
           },
           'unicode-loader',
@@ -56,9 +60,24 @@ module.exports = {
   },
   resolve: {
     extensions: ['.js', '.jsx', '.json'],
+    // if node_modules path listed below is not your repo directory, change it.
     modules: [path.resolve(__dirname, '../node_modules')],
-    alias: {
-      'hippy-react': path.resolve(__dirname, '../../../packages/hippy-react'),
-    },
+    alias: (() => {
+      const aliases = {};
+
+      // If hippy-react was built exist then make a alias
+      // Remove the section if you don't use it
+      const hippyReactPath = path.resolve(__dirname, '../../../packages/hippy-react');
+      if (fs.existsSync(path.resolve(hippyReactPath, 'dist/index.js'))) {
+        /* eslint-disable-next-line no-console */
+        console.warn(`* Using the @hippy/react in ${hippyReactPath}`);
+        aliases['@hippy/react'] = hippyReactPath;
+      } else {
+        /* eslint-disable-next-line no-console */
+        console.warn('* Using the @hippy/react defined in package.json');
+      }
+
+      return aliases;
+    })(),
   },
 };

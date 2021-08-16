@@ -1,3 +1,6 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-underscore-dangle */
+
 const Dimensions = {
   get(key) {
     const device = Hippy.device || {};
@@ -15,6 +18,7 @@ const Dimensions = {
         scale: windowPhysicalPixels.scale,
         fontScale: windowPhysicalPixels.fontScale,
         statusBarHeight: windowPhysicalPixels.statusBarHeight / windowPhysicalPixels.scale,
+        navigatorBarHeight: windowPhysicalPixels.navigationBarHeight / windowPhysicalPixels.scale,
       };
     }
 
@@ -25,6 +29,7 @@ const Dimensions = {
         scale: screenPhysicalPixels.scale,
         fontScale: screenPhysicalPixels.fontScale,
         statusBarHeight: screenPhysicalPixels.statusBarHeight, // px unit
+        navigatorBarHeight: screenPhysicalPixels.navigationBarHeight / screenPhysicalPixels.scale,
       };
     }
 

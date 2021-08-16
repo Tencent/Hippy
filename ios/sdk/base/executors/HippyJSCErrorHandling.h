@@ -45,4 +45,4 @@ HIPPY_EXTERN NSError *HippyNSErrorFromJSError(JSValue *exception);
 
  @see HippyNSErrorFromJSError for details
  */
-HIPPY_EXTERN NSError *HippyNSErrorFromJSErrorRef(JSValueRef exception, JSGlobalContextRef ctx, HippyJSCWrapper *jscWrapper);
+HIPPY_EXTERN NSError *HippyNSErrorFromJSErrorRef(JSValueRef exception, JSGlobalContextRef ctx);

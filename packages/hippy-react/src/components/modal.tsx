@@ -112,6 +112,7 @@ const styles = StyleSheet.create({
  */
 class Modal extends React.Component<ModalProps, {}> {
   private eventSubscription: null | HippyEventListener;
+  static defaultProps: { visible: boolean };
 
   /**
    * @ignore

@@ -3,7 +3,11 @@
   "no-blanks-blockquote": false,
   "single-h1": false,
   "first-line-h1": false,
-  "ol-prefix": false,
-  "blanks-around-fences": false,
-  "no-blanks-quota": false
+  "no-multiple-blanks": {
+    "maximum": 2
+  },
+  "no-inline-html" : {
+    "allowed_elements" : [ "a", "h1", "h3", "HR", "p", "br" ]
+  },
+  "no-bare-urls": false
 }

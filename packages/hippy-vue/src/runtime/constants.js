@@ -4,7 +4,7 @@
  * hippy-vue-css-loader will translate the CSS texts to be AST
  * and attached at global[GLOBAL_STYLE_NAME]
  */
-const GLOBAL_STYLE_NAME   = '__HIPPY_VUE_STYLES__';
+const GLOBAL_STYLE_NAME = '__HIPPY_VUE_STYLES__';
 
 /**
  * Hippy debug address

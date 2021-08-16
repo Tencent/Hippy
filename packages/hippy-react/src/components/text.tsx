@@ -3,7 +3,7 @@
 import React from 'react';
 import Style from '@localTypes/style';
 import { LayoutableProps, ClickableProps } from '../types';
-import { warn, unicodeToChar } from '../utils';
+import { unicodeToChar } from '../utils';
 
 interface TextProps extends LayoutableProps, ClickableProps {
   /**
@@ -49,7 +49,11 @@ interface TextProps extends LayoutableProps, ClickableProps {
  * `Text` doesn't support nesting.
  * @noInheritDoc
  */
-function Text({ style, ...nativeProps }: TextProps) {
+function forwardRef(
+  { style, ...nativeProps }: TextProps,
+  // eslint-disable-next-line max-len
+  ref: string | ((instance: HTMLParagraphElement | null) => void) | React.RefObject<HTMLParagraphElement> | null | undefined,
+) {
   const nativeStyle: undefined | Style | Style[] = style;
 
   // Fill default color
@@ -66,12 +70,6 @@ function Text({ style, ...nativeProps }: TextProps) {
     }
   }
 
-  if (process.env.NODE_ENV !== 'production') {
-    if (typeof nativeProps.children !== 'string' && typeof nativeProps.children !== 'number') {
-      warn('The children of Text component only suppport string type', nativeProps);
-    }
-  }
-
   nativeProps.text = ''; // Important: Text must recevie text props.
   if (typeof nativeProps.children === 'string') {
     nativeProps.text = unicodeToChar(nativeProps.children);
@@ -81,11 +79,19 @@ function Text({ style, ...nativeProps }: TextProps) {
     const text = nativeProps.children
       .filter(t => typeof t === 'string' || typeof t === 'number')
       .join('');
-    nativeProps.text = unicodeToChar(text);
+    // FIXME: if Text is nested, all child components of this component need to be wrapped by Text
+    if (text) {
+      nativeProps.text = unicodeToChar(text);
+      nativeProps.children = nativeProps.text;
+    }
   }
 
   return (
-    <p nativeName="Text" style={nativeStyle} {...nativeProps} />
+  // @ts-ignore
+    <p ref={ref} nativeName="Text" style={nativeStyle} {...nativeProps} />
   );
 }
+forwardRef.displayName = 'Text';
+const Text = React.forwardRef(forwardRef);
+Text.displayName = 'Text';
 export default Text;

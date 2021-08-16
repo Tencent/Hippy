@@ -86,7 +86,9 @@ class UniversalSelector extends SimpleSelector {
     return `*${this.combinator}`;
   }
 
-  match() { return true; }
+  match() {
+    return true;
+  }
 }
 
 /**
@@ -132,7 +134,7 @@ class TypeSelector extends SimpleSelector {
   }
 
   match(node) {
-    return node.cssType === this.cssType;
+    return node.tagName === this.cssType;
   }
 
   lookupSort(sorter, base) {
@@ -487,7 +489,7 @@ Selector.SiblingGroup = SiblingGroup;
 class RuleSet {
   constructor(selectors, declarations) {
     selectors.forEach((sel) => {
-      sel.ruleSet = this;                    // FIXME: It makes circular dependency
+      sel.ruleSet = this; // FIXME: It makes circular dependency
       return null;
     });
     this.selectors = selectors;

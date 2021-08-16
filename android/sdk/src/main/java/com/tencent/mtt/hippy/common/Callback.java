@@ -16,11 +16,10 @@
 package com.tencent.mtt.hippy.common;
 
 /**
- * FileName: Callback
- * Description：
- * History：
+ * FileName: Callback Description： History：
  */
-public interface Callback <T extends Object>
-{
-    public void callback(T param,Throwable e);
+@SuppressWarnings({"TypeParameterExplicitlyExtendsObject", "UnusedReturnValue"})
+public interface Callback<T extends Object> {
+
+  void callback(T param, Throwable e);
 }

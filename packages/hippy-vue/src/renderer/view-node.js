@@ -101,15 +101,11 @@ class ViewNode {
     }
 
     if (referenceNode.parentNode !== this) {
-      throw new Error(
-        'Can\'t insert child, because the reference node has a different parent.',
-      );
+      throw new Error('Can\'t insert child, because the reference node has a different parent.');
     }
 
     if (childNode.parentNode && childNode.parentNode !== this) {
-      throw new Error(
-        'Can\'t insert child, because it already has a different parent.',
-      );
+      throw new Error('Can\'t insert child, because it already has a different parent.');
     }
 
     const index = this.childNodes.indexOf(referenceNode);
@@ -131,7 +127,7 @@ class ViewNode {
 
   moveChild(childNode, referenceNode) {
     if (!childNode) {
-      throw new Error('Can\'t mvoe child.');
+      throw new Error('Can\'t move child.');
     }
 
     if (!referenceNode) {
@@ -139,15 +135,11 @@ class ViewNode {
     }
 
     if (referenceNode.parentNode !== this) {
-      throw new Error(
-        'Can\'t move child, because the reference node has a different parent.',
-      );
+      throw new Error('Can\'t move child, because the reference node has a different parent.');
     }
 
     if (childNode.parentNode && childNode.parentNode !== this) {
-      throw new Error(
-        'Can\'t move child, because it already has a different parent.',
-      );
+      throw new Error('Can\'t move child, because it already has a different parent.');
     }
 
     const oldIndex = this.childNodes.indexOf(childNode);
@@ -194,9 +186,12 @@ class ViewNode {
     }
 
     if (childNode.parentNode && childNode.parentNode !== this) {
-      throw new Error(
-        'Can\'t append child, because it already has a different parent.',
-      );
+      throw new Error('Can\'t append child, because it already has a different parent.');
+    }
+
+    // remove childNode if exist
+    if (childNode.isMounted) {
+      this.removeChild(childNode);
     }
 
     childNode.parentNode = this;
@@ -236,14 +231,14 @@ class ViewNode {
 
     if (childNode.prevSibling) {
       childNode.prevSibling.nextSibling = childNode.nextSibling;
-      childNode.prevSibling = null;
     }
 
     if (childNode.nextSibling) {
       childNode.nextSibling.prevSibling = childNode.prevSibling;
-      childNode.nextSibling = null;
     }
 
+    childNode.prevSibling = null;
+    childNode.nextSibling = null;
     this.childNodes = this.childNodes.filter(node => node !== childNode);
   }
 

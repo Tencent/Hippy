@@ -16,53 +16,44 @@
 package com.tencent.mtt.hippy.adapter.image;
 
 import android.util.SparseArray;
+import com.tencent.mtt.hippy.devsupport.DebugWebSocketClient.JSDebuggerCallback;
 import com.tencent.mtt.supportui.adapters.image.IImageLoaderAdapter;
 import com.tencent.mtt.supportui.adapters.image.IImageRequestListener;
 
 import java.lang.ref.WeakReference;
-/**
- * Created by leonardgong on 2017/12/4 0004.
- * modified by harryguo 2019/3/27
- */
+import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class HippyImageLoader implements IImageLoaderAdapter<HippyImageLoader.Callback>
-{
-	private SparseArray<WeakReference<HippyDrawable>> mWeakImageCache = new SparseArray<>();
-	// 本地图片加载，同步获取
-	@Override
-	public HippyDrawable getImage(String source, Object param)
-	{
-        //base64图片和APK内置图片增加弱引用缓存，避免每次在主线程加载和解码图片
-		boolean canCacheImage = source.startsWith("data:") || source.startsWith("assets://");
-		int imageCacheCode = source.hashCode();
-		if (canCacheImage)
-		{
-			WeakReference<HippyDrawable> weakReferenceHippyDrawable = mWeakImageCache.get(imageCacheCode);
-			if (weakReferenceHippyDrawable != null)
-			{
-				HippyDrawable hippyDrawable = weakReferenceHippyDrawable.get();
-				if (hippyDrawable == null)
-					mWeakImageCache.delete(imageCacheCode);
-				else
-					return hippyDrawable;
-			}
-		}
-		HippyDrawable drawable = new HippyDrawable();
-		drawable.setData(source);
-		if (canCacheImage)
-		{
-			mWeakImageCache.put(imageCacheCode, new WeakReference<>(drawable));
-		}
-		return drawable;
-	}
-
-	public void destroyIfNeed(){
+public abstract class HippyImageLoader implements IImageLoaderAdapter<HippyImageLoader.Callback> {
+  private final ConcurrentHashMap<Integer, WeakReference<HippyDrawable>> mWeakImageCache = new ConcurrentHashMap<>();
+  // 本地图片加载，同步获取
+  @Override
+  public HippyDrawable getImage(String source, Object param) {
+    //base64图片和APK内置图片增加弱引用缓存，避免每次在主线程加载和解码图片
+    boolean canCacheImage = source.startsWith("data:") || source.startsWith("assets://");
+    Integer imageCacheCode = source.hashCode();
+    if (canCacheImage) {
+      WeakReference<HippyDrawable> weakReferenceHippyDrawable = mWeakImageCache.get(imageCacheCode);
+      if (weakReferenceHippyDrawable != null) {
+        HippyDrawable hippyDrawable = weakReferenceHippyDrawable.get();
+        if (hippyDrawable == null) {
+          mWeakImageCache.remove(imageCacheCode);
+        } else {
+          return hippyDrawable;
+        }
+      }
     }
-	/**
-	 * Created by leonardgong on 2017/12/4 0004.
-	 */
+    HippyDrawable drawable = new HippyDrawable();
+    drawable.setData(source);
+    if (canCacheImage) {
+      mWeakImageCache.put(imageCacheCode, new WeakReference<>(drawable));
+    }
+    return drawable;
+  }
 
-	public static interface Callback extends IImageRequestListener<HippyDrawable>
-	{
-	}
+  public void destroyIfNeed() {
+  }
+
+  public interface Callback extends IImageRequestListener<HippyDrawable> {
+
+  }
 }

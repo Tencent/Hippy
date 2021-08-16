@@ -1,0 +1,54 @@
+name: '[FrontEnd] check and build js code'
+
+on:
+  push:
+    paths:
+      - 'packages/**'
+      - 'examples/hippy-*-demo/**'
+      - 'scripts/**/*.js'
+      - 'core/js/**/*.js'
+    branches:
+      # Push events on main branch
+      - main
+      # Push events on master branch
+      - master
+    tags-ignore:
+      - '**'
+  pull_request:
+    paths:
+      - 'packages/**'
+      - 'examples/hippy-*-demo/**'
+      - 'scripts/**/*.js'
+      - 'core/js/**/*.js'
+    branches:
+      # Pull request events to main branch
+      - main
+      # Pull request events to master branch
+      - master
+    tags-ignore:
+      - '**'
+
+jobs:
+  check_and_build_js:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [ 10.x, 13.x ]
+    steps:
+      - uses: actions/checkout@v2
+      - name: setup-node
+        uses: actions/setup-node@master
+        with:
+          node-version: ${{ matrix.node }}
+          registry-url: https://npm.pkg.github.com
+      - name: install
+        run: npm install
+      - name: lint
+        run: npm run lint
+      - name: test
+        run: npm run coverage
+      - name: coverage
+        if: matrix.node == '10.x'
+        uses: codecov/codecov-action@v1
+      - name: build
+        run: npm run build

@@ -1,16 +1,25 @@
 apply plugin: 'com.android.application'
 
+Properties gradleProperties = new Properties()
+def propFileDir = "$projectDir.absolutePath/../../../android/sdk/gradle.properties"
+def propFile = new File(propFileDir)
+def verifyReleaseAar = false
+def includeSupportui = true
+if (propFile.exists()) {
+    gradleProperties.load(propFile.newDataInputStream())
+    includeSupportui = gradleProperties.getProperty('INCLUDE_SUPPORT_UI')
+}
+
 android {
-    compileSdkVersion 26
-    buildToolsVersion '26.0.2'
+    compileSdkVersion 29
     defaultConfig {
         applicationId "com.tencent.mtt.hippy.example"
-        minSdkVersion 14
-        targetSdkVersion 21
-        versionCode 1
-        versionName "1.0"
-        ndk {
-            abiFilters "armeabi-v7a"
+        minSdkVersion 19
+        // noinspection ExpiredTargetSdkVersion
+        //noinspection OldTargetApi
+        targetSdkVersion 29
+        ndk  {
+            abiFilters 'arm64-v8a'
         }
     }
 
@@ -25,7 +34,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
         }
@@ -33,16 +42,54 @@ android {
             minifyEnabled false
         }
     }
-//    externalNativeBuild {
-//        cmake {
-//            path file('../../../android/sdk/src/main/jni/armeabi-v7a/CMakeLists.txt')
-//        }
-//    }
+}
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:4.2.1'
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+allprojects {
+    ext {
+        MAVEN_USER = System.getenv('maven_username')
+        MAVEN_PWD = System.getenv('maven_password')
+        MAVEN_URL = System.getenv('maven_url')
+    }
+    repositories {
+        if (MAVEN_URL != null) {
+            maven {
+                url MAVEN_URL
+                credentials {
+                    username MAVEN_USER
+                    password MAVEN_PWD
+                }
+            }
+        }
+        google()
+        mavenCentral()
+        flatDir {
+            dirs 'libs'
+        }
+    }
 }
 
 dependencies {
-    compile project(path:':android-sdk')
-    compile project(path:':support_ui')
-    compile 'com.github.bumptech.glide:glide:3.6.1'
-    compile 'com.android.support:support-v4:26.1.0'
+    if (verifyReleaseAar) {
+        api (name: 'android-sdk-release', ext: 'aar')
+    } else {
+        api project(path: ':android-sdk')
+    }
+    //noinspection GradleDependency
+    api 'com.github.bumptech.glide:glide:3.6.1'
+    api 'androidx.legacy:legacy-support-v4:1.0.0'
+    if (!includeSupportui.toBoolean()) {
+        implementation 'com.tencent.mtt:support-ui:99.2.3'
+    }
 }

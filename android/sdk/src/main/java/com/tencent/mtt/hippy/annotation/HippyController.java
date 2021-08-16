@@ -21,15 +21,13 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-/**
- * @author: edsheng
- * @date: 2017/12/6 12:00
- * @version: V1.0
- */
 @Retention(RUNTIME)
 @Target(ElementType.TYPE)
 public @interface HippyController {
-  String  name();
 
-  boolean isLazyLoad() default  false;
+  String name();
+
+  String[] names() default {};
+
+  boolean isLazyLoad() default false;
 }

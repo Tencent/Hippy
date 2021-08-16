@@ -16,7 +16,7 @@ function normalizeLocation(raw, current, append, router) {
   if (!next.path && next.params && current) {
     next = { ...next };
     next._normalized = true;
-    const params      = { ...current.params, ...next.params };
+    const params = { ...current.params, ...next.params };
     if (current.name) {
       next.name = current.name;
       next.params = params;

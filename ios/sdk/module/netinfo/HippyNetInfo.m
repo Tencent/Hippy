@@ -25,101 +25,61 @@
 #import "HippyAssert.h"
 #import "HippyBridge.h"
 #import "HippyEventDispatcher.h"
+#import "HippyNetInfoIntenal.h"
 
-static NSString *const HippyReachabilityStateUnknown = @"UNKNOWN";
-static NSString *const HippyReachabilityStateNone = @"NONE";
-static NSString *const HippyReachabilityStateWifi = @"WIFI";
-static NSString *const HippyReachabilityStateCell = @"CELL";
+@interface HippyNetInfo ()<HippyNetworkTypeChangedDelegate> {
+}
+
+@end
 
 @implementation HippyNetInfo
-{
-  SCNetworkReachabilityRef _reachability;
-  NSString *_status;
-  NSString *_host;
+
+static NSDictionary *callbackParamFromCellType(HippyNetworkTypeObject *object) {
+    if (!object) {
+        return @{};
+    }
+    NSString *networkType = object.networkType?:HippyNetworkTypeUnknown;
+    NSString *cellType = object.cellType?:HippNetworkCellTypeUnknown;
+    return @{@"network_info": networkType, @"network_type":cellType};
 }
 
 HIPPY_EXPORT_MODULE()
 
-static void HippyReachabilityCallback(__unused SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void *info)
-{
-  HippyNetInfo *self = (__bridge id)info;
-  NSString *status = HippyReachabilityStateUnknown;
-  if ((flags & kSCNetworkReachabilityFlagsReachable) == 0 ||
-      (flags & kSCNetworkReachabilityFlagsConnectionRequired) != 0) {
-    status = HippyReachabilityStateNone;
-  }
+- (void)addEventObserverForName:(NSString *)eventName {
+    if ([eventName isEqualToString:@"networkStatusDidChange"]) {
+        HippyNetworkTypeObject *networkType = [[HippyNetInfoIntenal sharedInstance] addNetworkTypeChangeObserver:self];
+        NSDictionary *params = callbackParamFromCellType(networkType);
+        [self sendEvent:@"networkStatusDidChange" params:params];
 
-#if TARGET_OS_IPHONE
-
-  else if ((flags & kSCNetworkReachabilityFlagsIsWWAN) != 0) {
-    status = HippyReachabilityStateCell;
-  }
-
-#endif
-
-  else {
-    status = HippyReachabilityStateWifi;
-  }
-
-  if (![status isEqualToString:self->_status]) {
-    self->_status = status;
-    [self sendEvent:@"networkStatusDidChange" params:@{@"network_info": status}];
-  }
+    }
 }
 
-#pragma mark - Lifecycle
-
-- (instancetype)initWithHost:(NSString *)host
-{
-  HippyAssertParam(host);
-  HippyAssert(![host hasPrefix:@"http"], @"Host value should just contain the domain, not the URL scheme.");
-
-  if ((self = [self init])) {
-    _host = [host copy];
-  }
-  return self;
+- (void)removeEventObserverForName:(NSString *)eventName {
+    if ([eventName isEqualToString:@"networkStatusDidChange"]) {
+        [[HippyNetInfoIntenal sharedInstance] removeNetworkTypeChangeObserver:self];
+    }
 }
 
-- (void) addEventObserverForName:(NSString *)eventName {
-  if ([eventName isEqualToString:@"networkStatusDidChange"]) {
-    _status = HippyReachabilityStateUnknown;
-    _reachability = SCNetworkReachabilityCreateWithName(kCFAllocatorDefault, _host.UTF8String ?: "apple.com");
-    SCNetworkReachabilityContext context = { 0, ( __bridge void *)self, NULL, NULL, NULL };
-    SCNetworkReachabilitySetCallback(_reachability, HippyReachabilityCallback, &context);
-    SCNetworkReachabilityScheduleWithRunLoop(_reachability, CFRunLoopGetMain(), kCFRunLoopCommonModes);
-  }
+- (void)invalidate {
 }
 
-- (void) removeEventObserverForName:(NSString *)eventName {
-  if ([eventName isEqualToString:@"networkStatusDidChange"]) {
-		[self releaseReachability];
-  }
+- (void)hippyNetworkTypeChanged:(HippyNetworkTypeObject *)networkType {
+    NSDictionary *params = callbackParamFromCellType(networkType);
+    [self sendEvent:@"networkStatusDidChange" params:params];
 }
 
-- (void)invalidate
-{
-	[self releaseReachability];
-}
-
-- (void)releaseReachability
-{
-	if (_reachability) {
-		SCNetworkReachabilityUnscheduleFromRunLoop(_reachability, CFRunLoopGetMain(), kCFRunLoopCommonModes);
-		CFRelease(_reachability);
-		_reachability = NULL;
-	}
-}
-
-- (void)dealloc
-{
-	[self releaseReachability];
-}
 #pragma mark - Public API
 
+// clang-format off
 HIPPY_EXPORT_METHOD(getCurrentConnectivity:(HippyPromiseResolveBlock)resolve
-                  reject:(__unused HippyPromiseRejectBlock)reject)
-{
-  resolve(@{@"network_info": _status ?: HippyReachabilityStateUnknown});
+                  reject:(__unused HippyPromiseRejectBlock)reject) {
+    if (!resolve) {
+        return;
+    }
+    HippyNetworkTypeObject *obj = [[HippyNetInfoIntenal sharedInstance] currentNetworkType];
+    NSDictionary *dic = callbackParamFromCellType(obj);
+    resolve(dic);
 }
+// clang-format on
 
 @end

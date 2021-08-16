@@ -9,6 +9,8 @@ function initLeftRepeatCount(repeatCount: number | 'loop') {
   return repeatCount;
 }
 
+const isDef = v => v !== undefined;
+
 export class Animation {
   constructor(config) {
     this.initNowAnimationState(config);
@@ -245,27 +247,27 @@ export class Animation {
         startValue, toValue, duration, timingFunction, repeatCount,
         mode, delay, valueType, direction,
       } = param;
-      if (startValue) {
+      if (isDef(startValue)) {
         this.renderStyleAttribute(startValue);
       }
-      if (mode) this.mode = mode;
-      if (delay) {
+      if (isDef(mode)) this.mode = mode;
+      if (isDef(delay)) {
         this.delay = delay;
         this.leftDelayCount = this.delay;
       }
-      if (startValue) {
+      if (isDef(startValue)) {
         this.startValue = startValue;
         this.nowValue = this.startValue;
       }
-      if (toValue) this.toValue = toValue;
-      if (valueType) this.valueType = valueType;
-      if (duration) {
+      if (isDef(toValue)) this.toValue = toValue;
+      if (isDef(valueType)) this.valueType = valueType;
+      if (isDef(duration)) {
         this.duration = duration;
         this.nowLeftDuration = this.duration;
       }
-      if (direction) this.direction = direction;
-      if (timingFunction) this.timingFunction = timingFunction;
-      if (repeatCount) {
+      if (isDef(direction)) this.direction = direction;
+      if (isDef(timingFunction)) this.timingFunction = timingFunction;
+      if (isDef(repeatCount)) {
         this.initRepeatCount = initLeftRepeatCount(repeatCount || 0);
         this.leftRepeatCount = this.initRepeatCount;
       }

@@ -4,8 +4,9 @@ import {
   Text,
   View,
   StyleSheet,
-} from 'hippy-react';
-import MyView from '../../externals/MyView/MyView';
+} from '@hippy/react';
+
+import imageUrl from './defaultSource.jpg';
 
 const styles = StyleSheet.create({
   itemTitle: {
@@ -49,6 +50,23 @@ export default function ViewExpo() {
     <ScrollView style={{ padding: 10 }}>
       {renderTitle('backgroundColor')}
       <View style={[styles.rectangle, { backgroundColor: '#4c9afa' }]} />
+      {renderTitle('backgroundImage')}
+      <View style={[styles.rectangle, {
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 20,
+        backgroundImage: imageUrl,
+      }]} ><Text style={{ color: 'white' }}>背景图</Text></View>
+      {renderTitle('backgroundImage linear-gradient')}
+      <View style={[styles.rectangle, {
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 20,
+        borderWidth: 2,
+        borderColor: 'black',
+        borderRadius: 2,
+        backgroundImage: 'linear-gradient(30deg, blue 10%, yellow 40%, red 50%);',
+      }]} ><Text style={{ color: 'white' }}>渐变色</Text></View>
       {renderTitle('border props')}
       <View style={[styles.rectangle, { borderColor: '#242424', borderRadius: 4, borderWidth: 1 }]} />
       {renderTitle('flex props')}
@@ -62,17 +80,6 @@ export default function ViewExpo() {
         <View style={[styles.smallRectangle, { backgroundColor: 'blue' }]} />
         <View style={[styles.smallRectangle, { backgroundColor: 'green' }]} />
       </View>
-      <MyView text="你好，我是MyView" style={{ width: 250, height: 100, color: 'black' }}>
-        <Text style={{
-          marginTop: 2,
-          marginLeft: 2,
-          fontSize: 8,
-          color: '#4c9afa',
-        }}
-        >
-          MyView内部的文字
-        </Text>
-      </MyView>
     </ScrollView>
   );
 }

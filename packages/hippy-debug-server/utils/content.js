@@ -1,24 +1,40 @@
 const path = require('path');
 const fs = require('fs');
-const dir = require('./dir');
+
+function dir(url, reqPath) {
+  const contentList = fs.readdirSync(reqPath)
+    .map((filePath) => {
+      const isDir = fs.lstatSync(filePath).isDirectory();
+      return {
+        path,
+        isDir,
+      };
+    })
+    .sort((a, b) => (b.isDir && 1) || -1)
+    .map(item => item.path);
+  let html = '<ul>';
+  contentList.forEach((item) => {
+    html += `<li><a href="${url === '/' ? '' : url}/${item}">${item}</a></li>`;
+  });
+  html += '</ul>';
+
+  return html;
+}
 
 function content(ctx, fullStaticPath) {
-  let reqPath = path.join(fullStaticPath, ctx.url);
-  if (reqPath.indexOf('?') > -1) {
-    [reqPath] = reqPath.split('?');
-  }
+  const reqPath = path.join(fullStaticPath, ctx.path);
   const exist = fs.existsSync(reqPath);
   let returns = '';
 
   if (!exist) {
-    returns = `${reqPath} is not found.`;
+    returns = null;
   } else {
     const stat = fs.statSync(reqPath);
 
     if (stat.isDirectory()) {
       returns = dir(ctx.url, reqPath);
     } else {
-      returns = fs.readFileSync(reqPath, 'binary');
+      returns = fs.readFileSync(reqPath);
     }
   }
 

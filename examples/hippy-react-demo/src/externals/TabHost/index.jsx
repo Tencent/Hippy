@@ -5,7 +5,7 @@ import {
   Text,
   ViewPager,
   StyleSheet,
-} from 'hippy-react';
+} from '@hippy/react';
 import {
   SquarePagerView,
   TrianglePagerView,
@@ -54,7 +54,7 @@ export default class TabHostExample extends React.Component {
     super(props);
     this.state = {
       curIndex: 0,
-      navList: ['头条', '圈子', 'NBA', '中超', '英超', '西甲', 'CBA', '澳网', '法甲'],
+      navList: ['头条', '推荐', '圈子', 'NBA', '中超', '英超', '西甲', 'CBA', '澳网', '电影', '本地', '娱乐', '小说', '生活', '直播', '游戏'],
     };
     this.navScrollView = null;
     this.viewPager = null;
@@ -93,17 +93,17 @@ export default class TabHostExample extends React.Component {
         navList,
       } = this.state;
       const navNum = navList.length;
-      const navw = Utils.getScreenWidth();
-      const hnavw = navw / 2;
-      const halfScreenNavNum = Math.ceil(hnavw / NAV_WIDTH);
-      const notOverScreen = (navNum * NAV_WIDTH) < navw;
+      const navWidth = Utils.getScreenWidth();
+      const hNavWidth = navWidth / 2;
+      const halfScreenNavNum = hNavWidth / NAV_WIDTH;
+      const notOverScreen = (navNum * NAV_WIDTH) < navWidth;
       let scrollX;
       if (idx <= halfScreenNavNum || notOverScreen) {
         scrollX = 0;
       } else if (idx > (navNum - halfScreenNavNum)) {
-        scrollX = navNum * NAV_WIDTH - navw;
+        scrollX = navNum * NAV_WIDTH - navWidth;
       } else {
-        scrollX = idx * NAV_WIDTH - (halfScreenNavNum * NAV_WIDTH);
+        scrollX = idx * NAV_WIDTH - (halfScreenNavNum * NAV_WIDTH) + NAV_WIDTH / 2;
       }
       this.navScrollView.scrollTo({ x: scrollX, y: 0, animated: true });
     }
@@ -126,13 +126,15 @@ export default class TabHostExample extends React.Component {
           style={navStyles.scroll}
           horizontal
           showsHorizontalScrollIndicator={false}
-          ref={(sv) => { this.navScrollView = sv; }}
+          ref={(sv) => {
+            this.navScrollView = sv;
+          }}
         >
           {
             navList.map((v, idx) => (
               <View
                 style={navStyles.navItem}
-                key={`nav_${v.id}_${v.idx}`}
+                key={`nav_${v}`}
                 activeOpacity={0.5}
                 onClick={() => this.pressNavItem(idx)}
               >

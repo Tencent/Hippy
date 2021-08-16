@@ -18,11 +18,11 @@ Vue.registerElement('MyView');
 
 /*
  * 也可以注册一个小写的 tagname，然后通过参数映射到 ComponentName 终端组件
- * 但是 tagname 忽略大小写后也不能和 ComponentName 相同。
+ * 但是 tagname 忽略大小写后也不能和 ComponentName 相同。(如 element name 命名为 my-view, component name 不能命名为 MyView)
  * template 里可以直接用 <tagname />，同样会映射 ComponentName 组件上。
  * ComponentName 必须跟终端组件名称一致，不能包含 Hippy 字符。
  */
-Vue.registerElement('my-view', {
+Vue.registerElement('h-my-view', {
   component: {
     name: 'MyView',
   },
@@ -76,7 +76,7 @@ component: {
 hippy-vue 的模块其实只是一个 `Vue.Native.callNative` 调用，写个 `function` 即可。
 
 ```js
-import Vue from 'hippy-vue';
+import Vue from 'vue';
 
 function log(msg) {
   Vue.Native.callNative("TestModule", "log", msg)

@@ -18,50 +18,41 @@ package com.tencent.mtt.hippy.utils;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 
-/**
- * @Description: TODO
- * @author: edsheng
- * @date: 2017/11/24 15:54
- * @version: V1.0
- */
+@SuppressWarnings({"unused"})
+public class PixelUtil {
 
-public class PixelUtil
-{
-	static DisplayMetrics sMetrics = null;
+  static DisplayMetrics sMetrics = null;
 
 
-	private static DisplayMetrics getMetrics()
-	{
-		if (sMetrics == null)
-		{
-			sMetrics = ContextHolder.getAppContext().getResources().getDisplayMetrics();
-		}
-		return sMetrics;
-	}
+  private static DisplayMetrics getMetrics() {
+    if (sMetrics == null) {
+      sMetrics = ContextHolder.getAppContext().getResources().getDisplayMetrics();
+    }
+    return sMetrics;
+  }
 
 
-	public static float dp2px(float value)
-	{
-		return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, getMetrics());
-	}
+  public static float dp2px(float value) {
+    return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, getMetrics());
+  }
 
-	public static float dp2px(double value)
-	{
-		return dp2px((float)value);
-	}
+  public static float dp2px(double value) {
+    return dp2px((float) value);
+  }
 
-	public static float px2dp(float value)
-	{
-		return value / getMetrics().density + 0.5f;
-	}
+  public static float px2dp(float value) {
+    return value / getMetrics().density + 0.5f;
+  }
 
-	public static float sp2px(float value)
-	{
-		return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, value, getMetrics());
-	}
+  public static float sp2px(float value) {
+    return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, value, getMetrics());
+  }
 
-	public static float px2sp(float value)
-	{
-		return value / getMetrics().scaledDensity + 0.5f;
-	}
+  public static float px2sp(float value) {
+    return value / getMetrics().scaledDensity + 0.5f;
+  }
+
+  public static float getDensity() {
+    return getMetrics().density;
+  }
 }

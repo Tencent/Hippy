@@ -16,41 +16,37 @@
 
 #include <dlfcn.h>
 
-
-void __attribute__((visibility("hidden"),weak)) HippyCustomJSCInit(__unused void *handle) {
-  return;
+void __attribute__((visibility("hidden"), weak)) HippyCustomJSCInit(__unused void *handle) {
+    return;
 }
 
-static void HippySetUpSystemLibraryPointers(HippyJSCWrapper *wrapper)
-{
-  wrapper->JSStringCreateWithCFString = JSStringCreateWithCFString;
-  wrapper->JSStringCreateWithUTF8CString = JSStringCreateWithUTF8CString;
-  wrapper->JSStringRelease = JSStringRelease;
-  wrapper->JSGlobalContextSetName = JSGlobalContextSetName;
-  wrapper->JSObjectSetProperty = JSObjectSetProperty;
-  wrapper->JSContextGetGlobalObject = JSContextGetGlobalObject;
-  wrapper->JSObjectGetProperty = JSObjectGetProperty;
-  wrapper->JSValueMakeFromJSONString = JSValueMakeFromJSONString;
-  wrapper->JSObjectCallAsFunction = JSObjectCallAsFunction;
-  wrapper->JSValueMakeNull = JSValueMakeNull;
-  wrapper->JSValueCreateJSONString = JSValueCreateJSONString;
-  wrapper->JSValueIsUndefined = JSValueIsUndefined;
-  wrapper->JSValueIsNull = JSValueIsNull;
-  wrapper->JSEvaluateScript = JSEvaluateScript;
-  wrapper->JSContext = [JSContext class];
-  wrapper->JSValue = [JSValue class];
+static void HippySetUpSystemLibraryPointers(HippyJSCWrapper *wrapper) {
+    wrapper->JSStringCreateWithCFString = JSStringCreateWithCFString;
+    wrapper->JSStringCreateWithUTF8CString = JSStringCreateWithUTF8CString;
+    wrapper->JSStringRelease = JSStringRelease;
+    wrapper->JSGlobalContextSetName = JSGlobalContextSetName;
+    wrapper->JSObjectSetProperty = JSObjectSetProperty;
+    wrapper->JSContextGetGlobalObject = JSContextGetGlobalObject;
+    wrapper->JSObjectGetProperty = JSObjectGetProperty;
+    wrapper->JSValueMakeFromJSONString = JSValueMakeFromJSONString;
+    wrapper->JSObjectCallAsFunction = JSObjectCallAsFunction;
+    wrapper->JSValueMakeNull = JSValueMakeNull;
+    wrapper->JSValueCreateJSONString = JSValueCreateJSONString;
+    wrapper->JSValueIsUndefined = JSValueIsUndefined;
+    wrapper->JSValueIsNull = JSValueIsNull;
+    wrapper->JSEvaluateScript = JSEvaluateScript;
+    wrapper->JSContext = [JSContext class];
+    wrapper->JSValue = [JSValue class];
 }
 
-HippyJSCWrapper *HippyJSCWrapperCreate(BOOL useCustomJSC)
-{
+HippyJSCWrapper *HippyJSCWrapperCreate(BOOL useCustomJSC) {
     HippyJSCWrapper *wrapper = (HippyJSCWrapper *)malloc(sizeof(HippyJSCWrapper));
     HippySetUpSystemLibraryPointers(wrapper);
     return wrapper;
 }
 
-void HippyJSCWrapperRelease(HippyJSCWrapper *wrapper)
-{
-  if (wrapper) {
-    free(wrapper);
-  }
+void HippyJSCWrapperRelease(HippyJSCWrapper *wrapper) {
+    if (wrapper) {
+        free(wrapper);
+    }
 }

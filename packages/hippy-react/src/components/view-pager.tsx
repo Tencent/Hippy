@@ -2,6 +2,7 @@
 
 import React, { ReactElement, ReactNode } from 'react';
 import { callUIFunction } from '../modules/ui-manager-module';
+import Element from '../dom/element-node';
 
 interface PageSelectedEvent {
   position: number;
@@ -19,7 +20,7 @@ interface PageScrollStateEvent {
 
 interface ViewPagerProps {
   /**
-   * Specifc initial page after rendering.
+   * Specific initial page after rendering.
    *
    * Default: 0
    */
@@ -54,10 +55,10 @@ interface ViewPagerProps {
   /**
    * Called when the page scroll state changed.
    *
-   * @param {string} str - Page scroll state event data
+   * @param {string} evt - Page scroll state event data
    * This can be one of the following values:
    *
-   * * idel
+   * * idle
    * * dragging
    * * settling
    */
@@ -88,7 +89,7 @@ function ViewPagerItem(props: any) {
  * @noInheritDoc
  */
 class ViewPager extends React.Component<ViewPagerProps, {}> {
-  private instance: HTMLDivElement | null = null;
+  private instance: Element | HTMLDivElement | null = null;
 
   /**
    * @ignore
@@ -107,18 +108,18 @@ class ViewPager extends React.Component<ViewPagerProps, {}> {
     }
   }
 
-  public setPage(selectedPage: number) {
+  public setPage(selectedPage: number | undefined) {
     if (typeof selectedPage !== 'number') {
       return;
     }
-    callUIFunction(this.instance, 'setPage', [selectedPage]);
+    callUIFunction(this.instance as Element, 'setPage', [selectedPage]);
   }
 
-  public setPageWithoutAnimation(selectedPage: number) {
+  public setPageWithoutAnimation(selectedPage: number | undefined) {
     if (typeof selectedPage !== 'number') {
       return;
     }
-    callUIFunction(this.instance, 'setPageWithoutAnimation', [selectedPage]);
+    callUIFunction(this.instance as Element, 'setPageWithoutAnimation', [selectedPage]);
   }
 
   /**
@@ -133,6 +134,7 @@ class ViewPager extends React.Component<ViewPagerProps, {}> {
         if (typeof (child as ReactElement).key === 'string') {
           viewPageItemProps.key = `viewPager_${(child as ReactElement).key}`;
         }
+        // eslint-disable-next-line react/jsx-key
         return (<ViewPagerItem {...viewPageItemProps}>{child}</ViewPagerItem>);
       });
     } else {
@@ -150,7 +152,9 @@ class ViewPager extends React.Component<ViewPagerProps, {}> {
     return (
       <div
         nativeName="ViewPager"
-        ref={(ref) => { this.instance = ref; }}
+        ref={(ref) => {
+          this.instance = ref;
+        }}
         {...nativeProps}
       >
         {mappedChildren}

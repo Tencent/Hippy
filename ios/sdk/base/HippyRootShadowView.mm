@@ -21,23 +21,24 @@
  */
 
 #import "HippyRootShadowView.h"
+#import "HippyUtils.h"
 #include "MTTLayout.h"
+#import "HippyI18nUtils.h"
+
 @implementation HippyRootShadowView
 
 /**
  * Init the HippyRootShadowView with RTL status.
  * Returns a RTL CSS layout if isRTL is true (Default is LTR CSS layout).
  */
-- (instancetype)init
-{
+- (instancetype)init {
     self = [super init];
     if (self) {
     }
     return self;
 }
 
-- (void)applySizeConstraints
-{
+- (void)applySizeConstraints {
     switch (_sizeFlexibility) {
         case HippyRootViewSizeFlexibilityNone:
             break;
@@ -54,11 +55,13 @@
     }
 }
 
-- (NSSet<HippyShadowView *> *)collectViewsWithUpdatedFrames
-{
+- (NSSet<HippyShadowView *> *)collectViewsWithUpdatedFrames {
     [self applySizeConstraints];
-    MTTNodeDoLayout(self.nodeRef, NAN, NAN);
     
+    NSWritingDirection direction = [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
+    MTTDirection nodeDirection = (NSWritingDirectionRightToLeft == direction) ? DirectionRTL : DirectionLTR;
+    MTTNodeDoLayout(self.nodeRef, NAN, NAN, nodeDirection);
+
     NSMutableSet<HippyShadowView *> *viewsWithNewFrame = [NSMutableSet set];
     [self applyLayoutNode:self.nodeRef viewsWithNewFrame:viewsWithNewFrame absolutePosition:CGPointZero];
     return viewsWithNewFrame;

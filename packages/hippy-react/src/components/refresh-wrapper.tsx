@@ -1,6 +1,7 @@
-import React, { ReactElement } from 'react';
-import Style from '@localTypes/style';
+import React, { CSSProperties, ReactElement } from 'react';
+import { Fiber } from 'react-reconciler';
 import { callUIFunction } from '../modules/ui-manager-module';
+import Element from '../dom/element-node';
 
 interface RefreshWrapperProps {
   bounceTime?: number;
@@ -8,16 +9,14 @@ interface RefreshWrapperProps {
   getRefresh?(): ReactElement;
 }
 
-interface RefreshWrapperItemViewProps {
-  style: Style[];
-}
-
 /**
  * Simply to implement the drag down to refresh feature.
+ *
+ * @deprecated
  * @noInheritDoc
  */
 class RefreshWrapper extends React.Component<RefreshWrapperProps, {}> {
-  private instance: HTMLDivElement | null = null;
+  private instance: Element | Fiber | HTMLDivElement | null = null;
 
   public refreshComplected: () => void;
 
@@ -39,14 +38,14 @@ class RefreshWrapper extends React.Component<RefreshWrapperProps, {}> {
    * Call native for start refresh.
    */
   public startRefresh() {
-    callUIFunction(this.instance, 'startRefresh', null);
+    callUIFunction(this.instance as Element, 'startRefresh', null);
   }
 
   /**
    * Call native that data is refreshed
    */
   public refreshCompleted() {
-    callUIFunction(this.instance, 'refreshComplected', null);
+    callUIFunction(this.instance as Element, 'refreshComplected', null);
   }
 
   /**
@@ -54,9 +53,12 @@ class RefreshWrapper extends React.Component<RefreshWrapperProps, {}> {
    */
   public render() {
     const { children, ...nativeProps } = this.props;
+    const style = { left: 0, right: 0, position: 'absolute' } as CSSProperties;
     return (
-      <div nativeName="RefreshWrapper" ref={(ref) => { this.instance = ref; }} {...nativeProps}>
-        <div nativeName="RefreshWrapperItemView" style={[{ left: 0, right: 0, position: 'absolute' }]}>
+      <div nativeName="RefreshWrapper" ref={(ref) => {
+        this.instance = ref;
+      }} {...nativeProps}>
+        <div nativeName="RefreshWrapperItemView" style={style}>
           { this.getRefresh() }
         </div>
         { children }

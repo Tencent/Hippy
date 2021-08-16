@@ -2,21 +2,14 @@ this is adapter for android enviroment,
 build libflexbox.so need following conditions.
 
 How to compile:
-1.use bash shell as build platform.
-  if at win32 enviroment, you can use git bash in win32(https://gitforwindows.org/)
+1.make sure android sdk & ndk installed
 
-2.make sure android sdk & ndk installed
+2.install cmake tools for android sdk (you can install it in android studio)
 
-3.install cmake tools for android sdk (you can install it in android studio)
+3.modify build_flexbox_so.sh
+  set "**ANDROID_NDK_HOME**, **CMAKE_MAKE_PROGRAM**" variable depend on  your installed path
 
-4.modify build_flexbox_so.sh
-  set "**ANDROID_SDK_CMAKE_BIN**, **ANDROID_NDK**, **ANDROID_SO_STRIP**" variable depend on  your installed path
-
-5.in bash enviroment, run build_flexbox_so.sh 
-  in directory `out/android/`, libflexboxso.sh has symbols
-  libflexbox_strip.so is stripped that can be used for product.
-
-6.android/libs/armeabi is compiled under the libmtt_shared.so, see android/CMakeLists.txt, can be used directly.
+4.in bash enviroment, run build_flexbox_so.sh.
 
 How to use:
 java interface is at java directory.

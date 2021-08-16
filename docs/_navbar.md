@@ -1,9 +1,15 @@
 * 起步
+  * [Hippy概述](/README.md)
   * [开始接入](guide/integration.md)
+  * [Core C++ 扩展](core/introduction.md)
   * [Android](android/integration.md)
   * [iOS](ios/integration.md)
   * [前端调试](guide/debug.md)
   * [网络请求](guide/network-request.md)
+  * [定时器](guide/timer.md)
+  * [日志](guide/console.md)
+  * [自定义字体](guide/custom-font.md)
+  * [动态加载](guide/dynamic-import.md)
   * [技术支持](guide/support.md)
 
 * Hippy-React
@@ -31,3 +37,8 @@
   * [外观](style/appearance.md)
   * [颜色](style/color.md)
   * [变形](style/transform.md)
+  * [更改终端属性](style/setNativeProps.md)
+  
+* 博客
+  * [2.x](https://github.com/Tencent/Hippy/wiki/Hippy-v2.x-ChangeLog)
+ 

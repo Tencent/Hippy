@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 
-import test from 'ava';
+import test, { before } from 'ava';
 import * as nodeOps from '../node-ops';
 import CommentNode from '../../renderer/comment-node';
 import DocumentNode from '../../renderer/document-node';
@@ -12,7 +12,7 @@ function createElement(tagName) {
   return nodeOps.createElement(tagName);
 }
 
-test.before(() => {
+before(() => {
   setVue({
     config: {
       silent: true,

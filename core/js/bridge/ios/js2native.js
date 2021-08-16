@@ -27,49 +27,6 @@ const getComponentName = (originComponentName) => {
       && __GLOBAL__.NativeModules.TextInput) {
     return originComponentName;
   }
-
-  switch (originComponentName) {
-    case 'ListView':
-    case 'QBListView':
-      return 'QBNativeListView';
-    case 'ListViewItem':
-      return 'QBNativeNode';
-    case 'Image':
-      return 'RCTImageView';
-    case 'ScrollViewIOS':
-    case 'ScrollView':
-      return 'RCTScrollView';
-    case 'Modal':
-      return 'RCTModalHostView';
-    case 'QBVRImageView':
-      return 'QBRNVRImage';
-    case 'QBTabHost':
-      return 'RCTQBTabHost';
-    case 'QBTabView':
-      return 'RCTQBTabView';
-    case 'QBWebView':
-      return 'RCTWebView';
-    case 'QBWaterfallView':
-      return 'QBRNWaterfallView';
-    case 'QBWaterfallViewItem':
-      return 'QBRNWaterfallItemView';
-    case 'QBLoopScrollImage':
-      return 'MttRNLoopScrollImageView';
-    case 'QBViewListPager':
-      return 'QBRNListPager';
-    case 'QBKeyboardAccessoryItem':
-      return 'QBRNKeyBoardAccessoryItemView';
-    case 'QBKeyboardAccessoryView':
-      return 'QBRNKeyBoardAccessoryView';
-    case 'TextInput':
-      return 'RCTTextView';
-    default: {
-      if (originComponentName.indexOf('QB') > -1) {
-        return `QBRN${originComponentName.split('QB')[1]}`;
-      }
-      return `RCT${originComponentName}`;
-    }
-  }
 };
 
 const getParam = (moduleName, methodName, originParam) => {
@@ -120,7 +77,6 @@ const needReject = (moduleName, methodName) => {
   if (moduleName === 'StorageModule' || methodName === 'multiGet') {
     return false;
   }
-
   return true;
 };
 
@@ -236,8 +192,10 @@ Hippy.bridge.callNative = (...callArguments) => {
               __GLOBAL__.IosNodeTree[siblingPid].splice(item.index, 0, item.id);
             });
 
-            __GLOBAL__.NativeModules.UIManager.manageChildren(siblingPid, undefined, undefined,
-              addChildTags, addChildIndexs, undefined);
+            __GLOBAL__.NativeModules.UIManager.manageChildren(
+              siblingPid, undefined, undefined,
+              addChildTags, addChildIndexs, undefined,
+            );
           } else {
             setChildren(siblingPid, insertChildIds);
 
@@ -276,7 +234,7 @@ Hippy.bridge.callNative = (...callArguments) => {
     }
   }
 
-  throw new ReferenceError('Native module[func] not found');
+  throw new ReferenceError(`Native ${callArguments[0]}.${callArguments[1]}() not found`);
 };
 
 Hippy.bridge.callNativeWithPromise = (...callArguments) => {
@@ -294,8 +252,7 @@ Hippy.bridge.callNativeWithPromise = (...callArguments) => {
     }
 
     if (callModuleMethod.type === 'promise') {
-      return callModuleMethod.apply(NativeModule,
-        getParam(callArguments[0], callArguments[1], param));
+      return callModuleMethod.apply(NativeModule, getParam(callArguments[0], callArguments[1], param));
     }
 
     return new Promise((resolve, reject) => {
@@ -306,12 +263,11 @@ Hippy.bridge.callNativeWithPromise = (...callArguments) => {
         param.push(resolve);
       }
 
-      callModuleMethod.apply(NativeModule,
-        getParam(callArguments[0], callArguments[1], param));
+      callModuleMethod.apply(NativeModule, getParam(callArguments[0], callArguments[1], param));
     });
   }
 
-  throw new ReferenceError('Native module[func] not found');
+  return Promise.reject(new ReferenceError(`Native ${callArguments[0]}.${callArguments[1]}() not found`));
 };
 
 Hippy.bridge.callNativeWithCallbackId = (...callArguments) => {
@@ -349,14 +305,16 @@ Hippy.bridge.callNativeWithCallbackId = (...callArguments) => {
       nativeParam.push(currentCallId);
       nativeParam = nativeParam.concat(param);
 
-      callModuleMethod.apply(NativeModule,
-        getParam(callArguments[0], callArguments[1], nativeParam));
+      callModuleMethod.apply(
+        NativeModule,
+        getParam(callArguments[0], callArguments[1], nativeParam),
+      );
 
       return currentCallId;
     }
   }
 
-  throw new ReferenceError('Native module[func] not found');
+  throw new ReferenceError(`Native ${callArguments[0]}.${callArguments[1]}() not found`);
 };
 
 Hippy.bridge.removeNativeCallback = () => {};

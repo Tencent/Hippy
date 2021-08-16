@@ -1,26 +1,21 @@
+import '@localTypes/global';
 import './global';
 import {
   HippyEventEmitter,
   HippyEventListener,
 } from './events';
-import {
-  HippyRegister,
-  Device,
-  AsyncStorage,
-  Bridge,
-} from './native';
 import { colorParse } from './color';
-import Hippy from './hippy';
+import HippyReact from './hippy';
 import AppRegistry from './adapters/app-registry';
 import Animated from './adapters/animated';
 import Easing from './adapters/easing';
-import BackAndroid from './modules/back-android';
 import Animation from './modules/animation';
 import AnimationSet from './modules/animation-set';
 import View from './components/view';
 import Text from './components/text';
 import Image from './components/image';
 import ListView from './components/list-view';
+import ListViewItem from './components/list-view-item';
 import RefreshWrapper from './components/refresh-wrapper';
 import Navigator from './components/navigator';
 import ViewPager from './components/view-pager';
@@ -29,24 +24,46 @@ import ScrollView from './components/scroll-view';
 import Modal from './components/modal';
 import Focusable from './components/focusable';
 import WebView from './components/web-view';
-import * as Clipboard from './modules/clipboard';
-import * as ImageLoaderModule from './modules/image-loader-module';
-import * as NetInfo from './modules/net-info';
-import * as NetworkModule from './modules/network-module';
+import WebSocket from './modules/websocket';
+import PullHeader from './components/pull-header';
+import PullFooter from './components/pull-footer';
+import * as Native from './native';
 import * as StyleSheet from './modules/stylesheet';
-import * as UIManagerModule from './modules/ui-manager-module';
 
-const { __GLOBAL__ } = global;
+// @ts-ignore
+global.WebSocket = WebSocket;
 
-const GlobalEventEmitter = new HippyEventEmitter();
+const {
+  AsyncStorage,
+  BackAndroid,
+  Bridge,
+  Clipboard,
+  Cookie: NetworkModule,
+  Device,
+  HippyRegister,
+  ImageLoader: ImageLoaderModule,
+  NetworkInfo: NetInfo,
+  UIManager: UIManagerModule,
+} = Native;
 
-GlobalEventEmitter.addListener('startPerformanceMonitor', () => {
-  __GLOBAL__.report_js_trace = true;
-});
+const {
+  callNative,
+  callNativeWithPromise,
+  callNativeWithCallbackId,
+  removeNativeCallback,
+} = Bridge;
 
-GlobalEventEmitter.addListener('endPerformanceMonitor', () => {
-  __GLOBAL__.report_js_trace = false;
-});
+const TimerModule = null;
+const ConsoleModule = console;
+const Platform = Device.platform;
+const Hippy = HippyReact;
+const RNfqb = HippyReact;
+const ImageBackground = Image;
+
+// Forward compatibilities
+const RNfqbRegister = HippyRegister;
+const RNfqbEventEmitter = HippyEventEmitter;
+const RNfqbEventListener = HippyEventListener;
 
 const Dimensions = {
   get(name: 'window' | 'screen') {
@@ -59,23 +76,6 @@ const PixelRatio = {
     return Device.screen.scale;
   },
 };
-
-const {
-  callNative,
-  callNativeWithPromise,
-  callNativeWithCallbackId,
-  removeNativeCallback,
-} = Bridge;
-const TimerModule = null;
-const ConsoleModule = console;
-const Platform = Device.platform;
-const RNfqb = Hippy;
-const ImageBackground = Image;
-
-// Forward compatibilities
-const RNfqbRegister = HippyRegister;
-const RNfqbEventEmitter = HippyEventEmitter;
-const RNfqbEventListener = HippyEventListener;
 
 export {
   colorParse,
@@ -113,6 +113,7 @@ export {
   Text,
   Image,
   ListView,
+  ListViewItem,
   RefreshWrapper,
   Navigator,
   ViewPager,
@@ -122,4 +123,9 @@ export {
   Focusable,
   WebView,
   ImageBackground,
+  WebSocket,
+  PullHeader,
+  PullFooter,
 };
+
+export default HippyReact;

@@ -1,13 +1,21 @@
 <template>
   <div id="demo-list">
     <div class="toolbar">
-      <button class="toolbar-btn" @click="scrollToNextPage">
+      <button
+        class="toolbar-btn"
+        @click="scrollToNextPage"
+      >
         <span>翻到下一页</span>
       </button>
-      <button class="toolbar-btn" @click="scrollToBottom">
+      <button
+        class="toolbar-btn"
+        @click="scrollToBottom"
+      >
         <span>翻动到底部</span>
       </button>
-      <p class="toolbar-text">列表元素数量：{{ dataSource.length }}</p>
+      <p class="toolbar-text">
+        列表元素数量：{{ dataSource.length }}
+      </p>
     </div>
     <!--
       *** numberOfRows 是 iOS 渲染列表的必备参数，它的值是 ul 中 li 的数量***
@@ -21,9 +29,11 @@
     <ul
       id="list"
       ref="list"
+      :horizontal="undefined"
+      :numberOfRows="dataSource.length"
+      :exposureEventEnabled="true"
       @endReached="onEndReached"
       @scroll="onScroll"
-      :numberOfRows="dataSource.length"
     >
       <!--
         li 有两个参数是一定要加上的。
@@ -36,15 +46,34 @@
       <li
         v-for="(ui, index) in dataSource"
         :key="index"
-        :type="'row-' + ui.style"
+        class="item-style"
+        :type="ui.style"
         @layout="onItemLayout"
+        @appear="onAppear(index)"
+        @disappear="onDisappear(index)"
+        @willAppear="onWillAppear(index)"
+        @willDisappear="onWillDisappear(index)"
       >
-        <style-one v-if="ui.style == 1" :itemBean="ui.itemBean" />
-        <style-two v-if="ui.style == 2" :itemBean="ui.itemBean" />
-        <style-five v-if="ui.style == 5" :itemBean="ui.itemBean" />
+        <style-one
+          v-if="ui.style === 1"
+          :item-bean="ui.itemBean"
+        />
+        <style-two
+          v-if="ui.style === 2"
+          :item-bean="ui.itemBean"
+        />
+        <style-five
+          v-if="ui.style === 5"
+          :item-bean="ui.itemBean"
+        />
       </li>
     </ul>
-    <p id="loading" v-show="loadingState">{{ loadingState }}</p>
+    <p
+      v-show="loadingState"
+      id="loading"
+    >
+      {{ loadingState }}
+    </p>
   </div>
 </template>
 
@@ -89,6 +118,22 @@ export default {
     setTimeout(() => this.exposureReport(0), 500);
   },
   methods: {
+    // item完全曝光
+    onAppear(index) {
+      console.log('onAppear', index);
+    },
+    // item完全隐藏
+    onDisappear(index) {
+      console.log('onDisappear', index);
+    },
+    // item至少一个像素曝光
+    onWillAppear(index) {
+      console.log('onWillAppear', index);
+    },
+    // item至少一个像素隐藏
+    onWillDisappear(index) {
+      console.log('onWillDisappear', index);
+    },
     mockFetchData() {
       return new Promise((resolve) => {
         setTimeout(() => {
@@ -245,5 +290,8 @@ export default {
 
   #demo-list .style-two-image {
     height: 140px;
+  }
+  .item-style {
+    /*width: 100px;*/ /* configure li style if horizontal ul is set*/
   }
 </style>

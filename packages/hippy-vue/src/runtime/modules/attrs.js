@@ -25,6 +25,7 @@ function updateAttrs(oldVNode, vNode) {
     }
   });
   Object.keys(oldAttrs).forEach((key) => {
+    // eslint-disable-next-line eqeqeq
     if (attrs[key] == null) {
       elm.setAttribute(key);
     }

@@ -24,164 +24,125 @@ import com.tencent.mtt.supportui.views.viewpager.ViewPagerAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by ceasoncai on 2017/12/15.
- */
+@SuppressWarnings({"unused"})
+public class HippyViewPagerAdapter extends ViewPagerAdapter {
 
-public class HippyViewPagerAdapter extends ViewPagerAdapter
-{
-	private static final String		TAG				= "HippyViewPagerAdapter";
+  private static final String TAG = "HippyViewPagerAdapter";
 
-	protected List<View>			mViews			= new ArrayList<View>();
+  protected final List<View> mViews = new ArrayList<>();
 
-	private int						mChildSize		= 0;
+  private int mChildSize = 0;
 
-	private int						mInitPageIndex	= 0;
-	private HippyInstanceContext	mEngineContext;
+  private int mInitPageIndex = 0;
 
-	protected HippyViewPager		mViewPager;
+  protected final HippyViewPager mViewPager;
 
+  public HippyViewPagerAdapter(HippyInstanceContext context, HippyViewPager viewPager) {
+    mViewPager = viewPager;
+  }
 
-	public HippyViewPagerAdapter(HippyInstanceContext context, HippyViewPager viewPager)
-	{
-		mEngineContext = context;
-		mViewPager = viewPager;
-	}
+  public void setChildSize(int size) {
+    mChildSize = size;
+  }
 
-	public void setChildSize(int size)
-	{
-		mChildSize = size;
-	}
+  public void setInitPageIndex(int index) {
+    mInitPageIndex = index;
+  }
 
-	public void setInitPageIndex(int index)
-	{
-		mInitPageIndex = index;
-	}
+  protected void addView(HippyViewPagerItem view, int position) {
+    if (view != null && position >= 0) {
+      if (position >= mViews.size()) {
+        mViews.add(view);
+      } else {
+        mViews.add(position, view);
+      }
+    }
+  }
 
-	protected void addView(HippyViewPagerItem view, int position)
-	{
-		if (view != null && position >= 0)
-		{
-			if (position >= mViews.size())
-			{
-				mViews.add(view);
-			}
-			else
-			{
-				mViews.add(position, view);
-			}
-		}
-	}
+  protected void removeViewAtIndex(int postion) {
+    if (postion >= 0 && postion < mViews.size()) {
+      mViews.remove(postion);
+    }
+  }
 
-	protected void removeViewAtIndex(int postion)
-	{
-		if (postion >= 0 && postion < mViews.size())
-		{
-			mViews.remove(postion);
-		}
-	}
+  protected void removeView(View view) {
+    int size = mViews.size();
+    int index = -1;
+    for (int i = 0; i < size; i++) {
+      View curr = getViewAt(i);
+      if (curr == view) {
+        index = i;
+        break;
+      }
+    }
 
-	protected void removeView(View view)
-	{
-		int size = mViews.size();
-		int index = -1;
-		for (int i = 0; i < size; i++)
-		{
-			View curr = getViewAt(i);
-			if (curr == view)
-			{
-				index = i;
-				break;
-			}
-		}
+    if (index >= 0) {
+      mViews.remove(index);
+    }
+  }
 
-		if (index >= 0)
-		{
-			mViews.remove(index);
-		}
-	}
+  protected View getViewAt(int index) {
+    if (index < 0 || index >= mViews.size()) {
+      return null;
+    }
+    return mViews.get(index);
+  }
 
-	protected View getViewAt(int index)
-	{
-		if (mViews == null || index < 0 || index >= mViews.size())
-		{
-			return null;
-		}
-		return mViews.get(index);
-	}
+  protected int getItemViewSize() {
+    return mViews.size();
+  }
 
-	protected int getItemViewSize()
-	{
-		return mViews == null ? 0 : mViews.size();
-	}
+  @Override
+  public int getCount() {
+    return mChildSize;
+  }
 
-	@Override
-	public int getCount()
-	{
-		return mChildSize;
-	}
+  @Override
+  public int getItemPosition(Object object) {
+    if (mViews.isEmpty()) {
+      return POSITION_NONE;
+    }
+    @SuppressWarnings("SuspiciousMethodCalls") int index = mViews.indexOf(object);
+    if (index < 0) {
+      return POSITION_NONE;
+    }
+    return index;
+  }
 
-	@Override
-	public int getItemPosition(Object object)
-	{
-		if (mViews == null || mViews.isEmpty())
-		{
-			return POSITION_NONE;
-		}
-		int index = mViews.indexOf(object);
-		if (index < 0)
-		{
-			return POSITION_NONE;
-		}
-		return index;
-	}
+  @Override
+  public Object instantiateItem(ViewGroup container, int position) {
+    View viewWrapper = null;
+    if (position < mViews.size()) {
+      viewWrapper = mViews.get(position);
+    }
 
-	@Override
-	public Object instantiateItem(ViewGroup container, int position)
-	{
-		View viewWrapper = null;
-		if (mViews != null && position < mViews.size())
-		{
-			viewWrapper = mViews.get(position);
-		}
+    if (viewWrapper != null && viewWrapper.getParent() == null) {
+      container.addView(viewWrapper, new ViewPager.LayoutParams());
+      mViewPager.triggerRequestLayout();
+    } else {
+      viewWrapper = null;
+    }
 
-		if (viewWrapper != null && viewWrapper.getParent() == null)
-		{
-			container.addView(viewWrapper, new ViewPager.LayoutParams());
-			mViewPager.triggerRequestLayout();
-		}
-		else
-		{
-			viewWrapper = null;
-		}
+    return viewWrapper;
+  }
 
-		return viewWrapper;
-	}
+  @Override
+  public int getInitialItemIndex() {
+    return mInitPageIndex;
+  }
 
-	@Override
-	public int getInitialItemIndex()
-	{
-		return mInitPageIndex;
-	}
+  @Override
+  public void destroyItem(ViewGroup container, int position, Object object) {
+    if (object instanceof View) {
+      View view = (View) object;
+      view.layout(0, 0, 0, 0);
+      container.removeView(view);
+    }
 
-	@Override
-	public void destroyItem(ViewGroup container, int position, Object object)
-	{
-		if (object instanceof View)
-		{
-			View view = (View) object;
-			if (view != null)
-			{
-				view.layout(0, 0, 0, 0);
-				container.removeView(view);
-			}
-		}
+  }
 
-	}
-
-	@Override
-	public boolean isViewFromObject(View view, Object object)
-	{
-		return view == object;
-	}
+  @Override
+  public boolean isViewFromObject(View view, Object object) {
+    return view == object;
+  }
 }

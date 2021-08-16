@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import HippyVueNativeComponents from 'hippy-vue-native-components';
+import HippyVueNativeComponents from '@hippy/vue-native-components';
 import App from './app.vue';
 import routes from './routes';
 import { setApp } from './util';
@@ -54,8 +54,13 @@ const app = new Vue({
 app.$start((/* app */) => {
   // 这里干一点 Hippy 启动后的需要干的事情，比如通知终端前端已经准备完毕，可以开始发消息了。
   // setApp(app);
+  // listen Android back press
+  Vue.Native.BackAndroid.addListener(() => {
+    console.log('backAndroid');
+    // set true interrupts native back
+    return true;
+  });
 });
-
 /**
  * 保存 app 供后面通过 app 接受来自终端的事件。
  *

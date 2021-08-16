@@ -5,7 +5,9 @@ import View from './view';
 import { prefetch, getSize } from '../modules/image-loader-module';
 import { Device } from '../native';
 import { colorParse, colorArrayParse } from '../color';
-import { warn } from '../utils';
+import { warn, convertImgUrl } from '../utils';
+
+type Color = string | number;
 
 interface Size {
   width: number;
@@ -104,18 +106,6 @@ interface ImageProps extends LayoutableProps, ClickableProps {
   onProgress?(evt: { nativeEvent: { loaded: number; total: number }}): void;
 }
 
-function handleImgUrl(url: string): string {
-  if (url && !/^(http|https):\/\//.test(url) && url.indexOf('assets') > -1) {
-    if (process.env.NODE_ENV === 'dev') {
-      const addStr1 = 'http://'; // do not change this, otherwise js-min went wrong
-      return `${addStr1}127.0.0.1:${process.env.PORT}/${url}`;
-    }
-    const addStr2 = 'hpfile://'; // do not change this, otherwise js-min went wrong
-    return `${addStr2}./${url}`;
-  }
-  return url;
-}
-
 /**
  * A React component for displaying different types of images, including network images,
  * static resources, temporary local images, and images from local disk, such as the camera roll.
@@ -133,7 +123,7 @@ class Image extends React.Component<ImageProps, {}> {
   }
 
   static getSize(
-    url: string,
+    url: any,
     success: (width: number, height: number) => void,
     failure: (err: typeof Error) => void,
   ) {
@@ -153,6 +143,61 @@ class Image extends React.Component<ImageProps, {}> {
   }
 
   static prefetch = prefetch;
+
+  private getImageUrls({ src, srcs, source, sources }: {
+    src: string | any,
+    srcs: string[] | any,
+    source: string | any,
+    sources: string[] | any,
+  }) {
+    let imageUrls = [];
+    if (typeof src === 'string') {
+      imageUrls.push(src);
+    }
+    if (Array.isArray(srcs)) {
+      imageUrls = [...imageUrls, ...srcs];
+    }
+    if (source) {
+      if (typeof source === 'string') {
+        imageUrls.push(source);
+      } else if (typeof source === 'object' && source !== null) {
+        const { uri } = source as ImageSource;
+        if (uri) {
+          imageUrls.push(uri);
+        }
+      }
+    }
+    if (sources) {
+      if (Array.isArray(sources)) {
+        sources.forEach((imageSrc) => {
+          if (typeof imageSrc === 'string') {
+            imageUrls.push(imageSrc);
+          } else if (typeof imageSrc === 'object' && imageSrc !== null && imageSrc.uri) {
+            imageUrls.push(imageSrc.uri);
+          }
+        });
+      }
+    }
+
+    if (imageUrls.length) {
+      imageUrls = imageUrls.map((url: string) => convertImgUrl(url));
+    }
+    return imageUrls;
+  }
+
+  private handleTintColor(
+    nativeStyle: { tintColor: number, tintColors: number[] },
+    tintColor: Color, tintColors: Color[],
+  ) {
+    if (tintColor) {
+      // eslint-disable-next-line no-param-reassign
+      nativeStyle.tintColor = colorParse(tintColor) as number;
+    }
+    if (Array.isArray(tintColors)) {
+      // eslint-disable-next-line no-param-reassign
+      nativeStyle.tintColors = colorArrayParse(tintColors) as number[];
+    }
+  }
 
   /**
    * @ignore
@@ -177,39 +222,7 @@ class Image extends React.Component<ImageProps, {}> {
      */
 
     // Define the image source url array.
-    let imageUrls: string[] = [];
-    if (typeof src === 'string') {
-      imageUrls.push(src);
-    }
-    if (Array.isArray(srcs)) {
-      imageUrls = [...imageUrls, ...srcs];
-    }
-    if (source) {
-      if (typeof source === 'string') {
-        imageUrls.push(source);
-      } else if (typeof source === 'object' && source !== null) {
-        const { uri } = source as ImageSource;
-        if (uri) {
-          imageUrls.push(uri);
-        }
-      }
-    }
-
-    if (sources) {
-      if (Array.isArray(sources)) {
-        sources.forEach((imageSrc) => {
-          if (typeof imageSrc === 'string') {
-            imageUrls.push(imageSrc);
-          } else if (typeof imageSrc === 'object' && imageSrc !== null && imageSrc.uri) {
-            imageUrls.push(imageSrc.uri);
-          }
-        });
-      }
-    }
-
-    if (imageUrls.length) {
-      imageUrls = imageUrls.map(url => handleImgUrl(url));
-    }
+    const imageUrls: string[] = this.getImageUrls({ src, srcs, source, sources });
 
     // Set sources props by platform specification
     if (Device.platform.OS === 'ios') {
@@ -231,19 +244,15 @@ class Image extends React.Component<ImageProps, {}> {
       if (nativeProps.defaultSource.indexOf('data:image/') !== 0) {
         warn('[Image] defaultSource prop must be a local base64 image');
       }
-      nativeProps.defaultSource = handleImgUrl(nativeProps.defaultSource);
+      nativeProps.defaultSource = convertImgUrl(nativeProps.defaultSource);
     }
 
     /**
      * tintColor(s)
      */
     const nativeStyle = { ...style };
-    if (tintColor) {
-      nativeStyle.tintColor = colorParse(tintColor);
-    }
-    if (Array.isArray(tintColors)) {
-      nativeStyle.tintColors = colorArrayParse(tintColors);
-    }
+    // @ts-ignore
+    this.handleTintColor(nativeStyle, tintColor, tintColors);
     (nativeProps as ImageProps).style = nativeStyle;
 
     if (children) {
@@ -253,7 +262,9 @@ class Image extends React.Component<ImageProps, {}> {
             {...nativeProps}
             nativeName="Image"
             alt=""
+            // @ts-ignore
             ref={imageRef}
+            // @ts-ignore
             style={[{
               position: 'absolute',
               left: 0,
@@ -273,6 +284,7 @@ class Image extends React.Component<ImageProps, {}> {
         {...nativeProps}
         nativeName="Image"
         alt=""
+        // @ts-ignore
         ref={imageRef}
       />
     );

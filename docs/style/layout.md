@@ -92,11 +92,21 @@ Hippy 的样式排版使用了 Flex 布局。值得注意的是，尚不兼容�
 
 [[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/background-image)
 
-`backgroundImage` 值可以直接传入背景图片地址，让这张图片渲染为一个`View`组件的背景图片。
+`backgroundImage` 值可以直接传入背景图片地址或渐变色。
 
 | 类型            | 必需 |
 | --------------- | -------- |
 | string | 否      |
+
+> `2.8.1` 版本后支持终端本地图片能力，可通过 webpack `file-loader` 加载。
+
+> 渐变色目前支持 `linear-gradient`  线性渐变 `(最低支持版本 2.8.0）` [[MDN 文档]](//developer.mozilla.org/zh-CN/docs/orphaned/Web/CSS/linear-gradient())，支持使用 `linear-gradient([ [ [ <angle> | to [top | bottom] || [left | right] ],]? <color-stop>[, <color-stop>]+)` 格式; 其中 `angle` 支持 deg、turn、rad 单位；`color-stop` 支持设置多个颜色和百分比。DEMO： [HippyReact](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/components/View/index.jsx) [HippyVue](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue)
+> <br/>
+> <br/>
+> 注意：
+>
+> + Android 如果使用 `to [top | bottom] || [left | right]` 四个顶角设置渐变角度，color-stop不能使用百分比；
+> + iOS color-stop 百分比只能从小到大依次显式设置，不能部分省略，即 `red 10%, yellow 20%, blue 50%`，不能是 `red 10%, yellow 20%, blue 10%`
 
 # backgroundPositionX
 
@@ -117,6 +127,16 @@ Hippy 的样式排版使用了 Flex 布局。值得注意的是，尚不兼容�
 | 类型            | 必需 |
 | --------------- | -------- |
 | number | 否       |
+
+# backgroundSize
+
+[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/background-size)
+
+`backgroundSize` 设置背景图片大小。
+
+| 类型            | 必需 |
+| --------------- | -------- |
+| enum('cover', 'contain') | 否       |
 
 # flex
 
@@ -165,6 +185,8 @@ Hippy 的样式排版使用了 Flex 布局。值得注意的是，尚不兼容�
 
 [[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/flex-shrink )
 
+`注意：Hippy 中 flexShrink 默认值为 0，与Web标准有差异`
+
 `flexBasis` 属性指定了 flex 元素的收缩规则。flex 元素仅在默认宽度之和大于容器的时候才会发生收缩，其收缩的大小是依据 flex-shrink 的值。
 
 | 类型   | 必需 |
@@ -208,6 +230,16 @@ Hippy 的样式排版使用了 Flex 布局。值得注意的是，尚不兼容�
 `left` 值是指将本组件定位到距离左边多少个逻辑像素（左边的定义取决于position属性）。
 
 它的表现和 CSS 上的 left 类似，但注意在 Hippy 上只能使用逻辑像素值（数字单位），而不能使用百分比、em或是任何其他单位。
+
+| 类型            | 必需 |
+| --------------- | -------- |
+| number | 否       |
+
+# lineHeight
+
+[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/line-height)
+
+`lineHeight` 属性用于设置多行元素的空间量，如多行文本的间距，hippy里仅支持设置具体数值。
 
 | 类型            | 必需 |
 | --------------- | -------- |
@@ -274,6 +306,38 @@ Hippy 的样式排版使用了 Flex 布局。值得注意的是，尚不兼容�
 # marginVertical
 
 设置 `marginVertical` 与同时设置 `marginTop` and `marginBottom`一个值效果一致。
+
+| 类型            | 必需 |
+| --------------- | -------- |
+| number | 否       |
+
+# maxHeight
+
+[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/max-height)
+
+| 类型            | 必需 |
+| --------------- | -------- |
+| number | 否       |
+
+# maxWidth
+
+[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/max-width)
+
+| 类型            | 必需 |
+| --------------- | -------- |
+| number | 否       |
+
+# minHeight
+
+[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/min-height)
+
+| 类型            | 必需 |
+| --------------- | -------- |
+| number | 否       |
+
+# minWidth
+
+[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/min-width)
 
 | 类型            | 必需 |
 | --------------- | -------- |

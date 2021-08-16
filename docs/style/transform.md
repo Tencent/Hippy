@@ -7,8 +7,9 @@
 `transform` 可以传入多个变形的参数数组，完成对原元素的变形操作。例如：
 
 ```jsx
-transform([{ rotateX: '45deg' }, { rotateZ: '0.785398rad' }])
+transform: [{ rotateX: '45deg' }, { rotateZ: '0.785398rad' }]
 ```
+
 它与 CSS 的 transform 参数类似，请参考 [MDN](//developer.mozilla.org/zh-CN/docs/Web/CSS/transform) 上的详细信息。
 
 | 类型                                                                                                                                                                                                                                                                                                                                                    | 必需 |

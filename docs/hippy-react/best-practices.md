@@ -33,8 +33,8 @@ PK进度条动画
 ## 示例代码
 
 ``` jsx
-import { Animation, StyleSheet } from "@tencent/hippy-react";
-import { Component } from 'react';
+import { Animation, StyleSheet } from "@hippy/react";
+import React, { Component } from 'react';
 
 export default class AnimationExample extends Component {
   componentDidMount() {
@@ -151,7 +151,7 @@ Animation支持的动画配置包括：
   * “ease-in”：使用加速插值器，动画速度将随时间逐渐增加；
   * “ease-out”：使用减速插值器，动画速度将随时间逐渐减小；
   * “ease-in-out”：使用加减速插值器，动画速度前半段先随时间逐渐增加，后半段速度将逐渐减小；
-  * “ease_bezier”：使用贝塞尔插值器，动画速度跟随贝塞尔函数变化，贝塞尔函数参数0.42 -> 0 -> 1 -> 1；
+  * “ease_bezier”：暂不支持；
 
 * repeatCount ：动画的重复次数，默认为0，即不重复播放，为"loop"时代表无限循环播放；
 
@@ -172,10 +172,10 @@ AnimationSet为实现动画集合添加了3个属性
 
 ## 回调
 
-* onHippyAnimationStart(callback)：注册一个动画的监听回调，在动画开始时将会回调callback；
-* onHippyAnimationEnd(callback)：注册一个动画的监听回调，在动画结束时将会回调callback；
-* onHippyAnimationCancel(callback)：注册一个动画的监听回调，在动画被取消时将会回调callback，取消的情况包括：尚未start或尚未结束的动画被destroy时；
-* onHippyAnimationRepeat(callback)：注册一个动画的监听回调，当动画开始下一次重复播放时callback将被回调；
+* onAnimationStart(callback)：注册一个动画的监听回调，在动画开始时将会回调callback；
+* onAnimationEnd(callback)：注册一个动画的监听回调，在动画结束时将会回调callback；
+* onAnimationCancel(callback)：注册一个动画的监听回调，在动画被取消时将会回调callback，取消的情况包括：尚未start或尚未结束的动画被destroy时；
+* onAnimationRepeat(callback)：注册一个动画的监听回调，当动画开始下一次重复播放时callback将被回调；
 
 # 手势系统
 

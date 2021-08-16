@@ -1,25 +1,24 @@
 /*!
-* iOS SDK
-*
-* Tencent is pleased to support the open source community by making
-* Hippy available.
-*
-* Copyright (C) 2019 THL A29 Limited, a Tencent company.
-* All rights reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*   http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
-
+ * iOS SDK
+ *
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #import "HippyAnimatedImageView.h"
 #import "HippyAnimatedImage.h"
@@ -35,11 +34,11 @@
 @property (nonatomic, assign) NSTimeInterval accumulator;
 @property (nonatomic, strong) CADisplayLink *displayLink;
 
-@property (nonatomic, assign) BOOL shouldAnimate; // Before checking this value, call `-updateShouldAnimate` whenever the animated image or visibility (window, superview, hidden, alpha) has changed.
+@property (nonatomic, assign) BOOL shouldAnimate;  // Before checking this value, call `-updateShouldAnimate` whenever the animated image or
+                                                   // visibility (window, superview, hidden, alpha) has changed.
 @property (nonatomic, assign) BOOL needsDisplayWhenImageBecomesAvailable;
 
 @end
-
 
 @implementation HippyAnimatedImageView
 @synthesize runLoopMode = _runLoopMode;
@@ -48,8 +47,7 @@
 
 // -initWithImage: isn't documented as a designated initializer of UIImageView, but it actually seems to be.
 // Using -initWithImage: doesn't call any of the other designated initializers.
-- (instancetype)initWithImage:(UIImage *)image
-{
+- (instancetype)initWithImage:(UIImage *)image {
     self = [super initWithImage:image];
     if (self) {
         [self commonInit];
@@ -57,9 +55,9 @@
     return self;
 }
 
-// -initWithImage:highlightedImage: also isn't documented as a designated initializer of UIImageView, but it doesn't call any other designated initializers.
-- (instancetype)initWithImage:(UIImage *)image highlightedImage:(UIImage *)highlightedImage
-{
+// -initWithImage:highlightedImage: also isn't documented as a designated initializer of UIImageView, but it doesn't call any other designated
+// initializers.
+- (instancetype)initWithImage:(UIImage *)image highlightedImage:(UIImage *)highlightedImage {
     self = [super initWithImage:image highlightedImage:highlightedImage];
     if (self) {
         [self commonInit];
@@ -67,8 +65,7 @@
     return self;
 }
 
-- (instancetype)initWithFrame:(CGRect)frame
-{
+- (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
         [self commonInit];
@@ -76,8 +73,7 @@
     return self;
 }
 
-- (instancetype)initWithCoder:(NSCoder *)aDecoder
-{
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
     self = [super initWithCoder:aDecoder];
     if (self) {
         [self commonInit];
@@ -85,36 +81,34 @@
     return self;
 }
 
-- (void)commonInit
-{
+- (void)commonInit {
     self.runLoopMode = [[self class] defaultRunLoopMode];
-    
+
     if (@available(iOS 11.0, *)) {
         self.accessibilityIgnoresInvertColors = YES;
     }
 }
 
-
 #pragma mark - Accessors
 #pragma mark Public
 
-- (void)setAnimatedImage:(HippyAnimatedImage *)animatedImage
-{
+- (void)setAnimatedImage:(HippyAnimatedImage *)animatedImage {
     if (![_animatedImage isEqual:animatedImage]) {
         if (animatedImage) {
             // Clear out the image.
             super.image = nil;
             // Ensure disabled highlighting; it's not supported (see `-setHighlighted:`).
             super.highlighted = NO;
-            // UIImageView seems to bypass some accessors when calculating its intrinsic content size, so this ensures its intrinsic content size comes from the animated image.
+            // UIImageView seems to bypass some accessors when calculating its intrinsic content size, so this ensures its intrinsic content size
+            // comes from the animated image.
             [self invalidateIntrinsicContentSize];
         } else {
             // Stop animating before the animated image gets cleared out.
             [self stopAnimating];
         }
-        
+
         _animatedImage = animatedImage;
-        
+
         self.currentFrame = animatedImage.posterImage;
         self.currentFrameIndex = 0;
         if (animatedImage.loopCount > 0) {
@@ -123,34 +117,30 @@
             self.loopCountdown = NSUIntegerMax;
         }
         self.accumulator = 0.0;
-        
+
         // Start animating after the new animated image has been set.
         [self updateShouldAnimate];
         if (self.shouldAnimate) {
             [self startAnimating];
         }
-        
+
         [self.layer setNeedsDisplay];
     }
 }
 
-
 #pragma mark - Life Cycle
 
-- (void)dealloc
-{
+- (void)dealloc {
     // Removes the display link from all run loop modes.
     [_displayLink invalidate];
 }
 
-
 #pragma mark - UIView Method Overrides
 #pragma mark Observing View-Related Changes
 
-- (void)didMoveToSuperview
-{
+- (void)didMoveToSuperview {
     [super didMoveToSuperview];
-    
+
     [self updateShouldAnimate];
     if (self.shouldAnimate) {
         [self startAnimating];
@@ -159,11 +149,9 @@
     }
 }
 
-
-- (void)didMoveToWindow
-{
+- (void)didMoveToWindow {
     [super didMoveToWindow];
-    
+
     [self updateShouldAnimate];
     if (self.shouldAnimate) {
         [self startAnimating];
@@ -172,8 +160,7 @@
     }
 }
 
-- (void)setAlpha:(CGFloat)alpha
-{
+- (void)setAlpha:(CGFloat)alpha {
     [super setAlpha:alpha];
 
     [self updateShouldAnimate];
@@ -184,8 +171,7 @@
     }
 }
 
-- (void)setHidden:(BOOL)hidden
-{
+- (void)setHidden:(BOOL)hidden {
     [super setHidden:hidden];
 
     [self updateShouldAnimate];
@@ -196,21 +182,21 @@
     }
 }
 
-
 #pragma mark Auto Layout
 
-- (CGSize)intrinsicContentSize
-{
+- (CGSize)intrinsicContentSize {
     // Default to let UIImageView handle the sizing of its image, and anything else it might consider.
     CGSize intrinsicContentSize = [super intrinsicContentSize];
-    
+
     // If we have have an animated image, use its image size.
-    // UIImageView's intrinsic content size seems to be the size of its image. The obvious approach, simply calling `-invalidateIntrinsicContentSize` when setting an animated image, results in UIImageView steadfastly returning `{UIViewNoIntrinsicMetric, UIViewNoIntrinsicMetric}` for its intrinsicContentSize.
-    // (Perhaps UIImageView bypasses its `-image` getter in its implementation of `-intrinsicContentSize`, as `-image` is not called after calling `-invalidateIntrinsicContentSize`.)
+    // UIImageView's intrinsic content size seems to be the size of its image. The obvious approach, simply calling `-invalidateIntrinsicContentSize`
+    // when setting an animated image, results in UIImageView steadfastly returning `{UIViewNoIntrinsicMetric, UIViewNoIntrinsicMetric}` for its
+    // intrinsicContentSize. (Perhaps UIImageView bypasses its `-image` getter in its implementation of `-intrinsicContentSize`, as `-image` is not
+    // called after calling `-invalidateIntrinsicContentSize`.)
     if (self.animatedImage) {
         intrinsicContentSize = self.image.size;
     }
-    
+
     return intrinsicContentSize;
 }
 
@@ -219,8 +205,7 @@
 #pragma mark - UIImageView Method Overrides
 #pragma mark Image Data
 
-- (UIImage *)image
-{
+- (UIImage *)image {
     UIImage *image = nil;
     if (self.animatedImage) {
         // Initially set to the poster image.
@@ -231,22 +216,18 @@
     return image;
 }
 
-
-- (void)setImage:(UIImage *)image
-{
+- (void)setImage:(UIImage *)image {
     if (image) {
         // Clear out the animated image and implicitly pause animation playback.
         self.animatedImage = nil;
     }
-    
+
     super.image = image;
 }
 
-
 #pragma mark Animating Images
 
-- (NSTimeInterval)frameDelayGreatestCommonDivisor
-{
+- (NSTimeInterval)frameDelayGreatestCommonDivisor {
     // Presision is set to half of the `kHippyAnimatedImageDelayTimeIntervalMinimum` in order to minimize frame dropping.
     const NSTimeInterval kGreatestCommonDivisorPrecision = 2.0 / kHippyAnimatedImageDelayTimeIntervalMinimum;
 
@@ -263,9 +244,7 @@
     return scaledGCD / kGreatestCommonDivisorPrecision;
 }
 
-
-static NSUInteger gcd(NSUInteger a, NSUInteger b)
-{
+static NSUInteger gcd(NSUInteger a, NSUInteger b) {
     // http://en.wikipedia.org/wiki/Greatest_common_divisor
     if (a < b) {
         return gcd(b, a);
@@ -283,9 +262,7 @@ static NSUInteger gcd(NSUInteger a, NSUInteger b)
     }
 }
 
-
-- (void)startAnimating
-{
+- (void)startAnimating {
     if (self.animatedImage) {
         // Lazily create the display link.
         if (!self.displayLink) {
@@ -295,23 +272,23 @@ static NSUInteger gcd(NSUInteger a, NSUInteger b)
             // link which will lead to the deallocation of both the display link and the weak proxy.
             HippyWeakProxy *weakProxy = [HippyWeakProxy weakProxyForObject:self];
             self.displayLink = [CADisplayLink displayLinkWithTarget:weakProxy selector:@selector(displayDidRefresh:)];
-            
+
             [self.displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:self.runLoopMode];
         }
 
         // Note: The display link's `.frameInterval` value of 1 (default) means getting callbacks at the refresh rate of the display (~60Hz).
         // Setting it to 2 divides the frame rate by 2 and hence calls back at every other display refresh.
-        const NSTimeInterval kDisplayRefreshRate = 60.0; // 60Hz
+        const NSTimeInterval kDisplayRefreshRate = 60.0;  // 60Hz
         self.displayLink.frameInterval = MAX([self frameDelayGreatestCommonDivisor] * kDisplayRefreshRate, 1);
 
+        [self.layer setNeedsDisplay];
         self.displayLink.paused = NO;
     } else {
         [super startAnimating];
     }
 }
 
-- (void)setRunLoopMode:(NSString *)runLoopMode
-{
+- (void)setRunLoopMode:(NSString *)runLoopMode {
     if (![@[NSDefaultRunLoopMode, NSRunLoopCommonModes] containsObject:runLoopMode]) {
         HippyAssert(NO, @"Invalid run loop mode: %@", runLoopMode);
         _runLoopMode = [[self class] defaultRunLoopMode];
@@ -320,8 +297,7 @@ static NSUInteger gcd(NSUInteger a, NSUInteger b)
     }
 }
 
-- (void)stopAnimating
-{
+- (void)stopAnimating {
     if (self.animatedImage) {
         self.displayLink.paused = YES;
     } else {
@@ -329,9 +305,7 @@ static NSUInteger gcd(NSUInteger a, NSUInteger b)
     }
 }
 
-
-- (BOOL)isAnimating
-{
+- (BOOL)isAnimating {
     BOOL isAnimating = NO;
     if (self.animatedImage) {
         isAnimating = self.displayLink && !self.displayLink.isPaused;
@@ -341,39 +315,33 @@ static NSUInteger gcd(NSUInteger a, NSUInteger b)
     return isAnimating;
 }
 
-
 #pragma mark Highlighted Image Unsupport
 
-- (void)setHighlighted:(BOOL)highlighted
-{
+- (void)setHighlighted:(BOOL)highlighted {
     // Highlighted image is unsupported for animated images, but implementing it breaks the image view when embedded in a UICollectionViewCell.
     if (!self.animatedImage) {
         [super setHighlighted:highlighted];
     }
 }
 
-
 #pragma mark - Private Methods
 #pragma mark Animation
 
 // Don't repeatedly check our window & superview in `-displayDidRefresh:` for performance reasons.
 // Just update our cached value whenever the animated image or visibility (window, superview, hidden, alpha) is changed.
-- (void)updateShouldAnimate
-{
+- (void)updateShouldAnimate {
     BOOL isVisible = self.window && self.superview && ![self isHidden] && self.alpha > 0.0;
     self.shouldAnimate = self.animatedImage && isVisible;
 }
 
-
-- (void)displayDidRefresh:(CADisplayLink *)displayLink
-{
+- (void)displayDidRefresh:(CADisplayLink *)displayLink {
     // If for some reason a wild call makes it through when we shouldn't be animating, bail.
     // Early return!
     if (!self.shouldAnimate) {
         RAILog(RAILogLevelWarn, @"Trying to animate image when we shouldn't: %@", self);
         return;
     }
-    
+
     NSNumber *delayTimeNumber = [self.animatedImage.delayTimesForIndexes objectForKey:@(self.currentFrameIndex)];
     // If we don't have a frame delay (e.g. corrupt frame), don't update the view but skip the playhead to the next frame (in else-block).
     if (delayTimeNumber) {
@@ -387,9 +355,9 @@ static NSUInteger gcd(NSUInteger a, NSUInteger b)
                 [self.layer setNeedsDisplay];
                 self.needsDisplayWhenImageBecomesAvailable = NO;
             }
-            
+
             self.accumulator += displayLink.duration * displayLink.frameInterval;
-            
+
             // While-loop first inspired by & good Karma to: https://github.com/ondalabs/OLImageView/blob/master/OLImageView.m
             while (self.accumulator >= delayTime) {
                 self.accumulator -= delayTime;
@@ -400,7 +368,7 @@ static NSUInteger gcd(NSUInteger a, NSUInteger b)
                     if (self.loopCompletionBlock) {
                         self.loopCompletionBlock(self.loopCountdown);
                     }
-                    
+
                     if (self.loopCountdown == 0) {
                         [self stopAnimating];
                         return;
@@ -419,38 +387,18 @@ static NSUInteger gcd(NSUInteger a, NSUInteger b)
     }
 }
 
-//- (void)URLSession:(__unused NSURLSession *)session task:(nonnull NSURLSessionTask *)task didCompleteWithError:(nullable NSError *)error
-//{
-//    if (!error) {
-//        BOOL isGIF = [HippyAnimatedImage isAnimatedImageData:self->_data];
-//        if (isGIF) {
-//            dispatch_async(dispatch_get_main_queue(), ^{
-//                self.animatedImage = [HippyAnimatedImage animatedImageWithGIFData:self->_data];
-//            });
-//        }
-//        else {
-//            [super URLSession:session task:task didCompleteWithError:error];
-//        }
-//    }
-//    [session finishTasksAndInvalidate];
-//}
-
-+ (NSString *)defaultRunLoopMode
-{
++ (NSString *)defaultRunLoopMode {
     // Key off `activeProcessorCount` (as opposed to `processorCount`) since the system could shut down cores in certain situations.
-//    return [NSProcessInfo processInfo].activeProcessorCount > 1 ? NSRunLoopCommonModes : NSDefaultRunLoopMode;
+    //    return [NSProcessInfo processInfo].activeProcessorCount > 1 ? NSRunLoopCommonModes : NSDefaultRunLoopMode;
     return (__bridge NSString *)(kCFRunLoopDefaultMode);
 }
-
 
 #pragma mark - CALayerDelegate (Informal)
 #pragma mark Providing the Layer's Content
 
-- (void)displayLayer:(CALayer *)layer
-{
+- (void)displayLayer:(CALayer *)layer {
     UIImage *image = self.image;
     layer.contents = (__bridge id)image.CGImage;
 }
-
 
 @end

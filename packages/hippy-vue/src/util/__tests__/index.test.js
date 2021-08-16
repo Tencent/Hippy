@@ -63,6 +63,15 @@ test('tryConvertNumber output test', (t) => {
   t.is(util.tryConvertNumber('abc'), 'abc');
   t.is(util.tryConvertNumber('123abc'), '123abc');
   t.is(util.tryConvertNumber('abc123'), 'abc123');
+  t.is(util.tryConvertNumber('12e3'), 12000);
+  t.is(util.tryConvertNumber('123.12'), 123.12);
+  t.is(util.tryConvertNumber('123.'), 123);
+  t.is(util.tryConvertNumber('.123'), 0.123);
+  t.is(util.tryConvertNumber('+.123'), 0.123);
+  t.is(util.tryConvertNumber('-.123'), -0.123);
+  t.is(util.tryConvertNumber('.123.'), '.123.');
+  t.is(util.tryConvertNumber('.123.1'), '.123.1');
+  t.is(util.tryConvertNumber(''), '');
   const obj = {};
   t.is(util.tryConvertNumber(obj), obj);
 });
@@ -74,7 +83,8 @@ test('unicodeToChar output test', (t) => {
 });
 
 test('arrayCount test', (t) => {
-  const arr = new Array(10).fill(0).map((a, index) => index);
+  const arr = new Array(10).fill(0)
+    .map((a, index) => index);
   t.is(util.arrayCount(arr, a => a === 1), 1);
   t.is(util.arrayCount(arr, a => a < 5), 5);
 });
@@ -88,7 +98,7 @@ test('isFunction test', (t) => {
   t.false(util.isFunction(undefined));
   t.false(util.isFunction(null));
   t.false(util.isFunction({}));
-  t.false(util.isFunction(new Date()));       // Date is function
+  t.false(util.isFunction(new Date())); // Date is function
   t.false(util.isFunction(String('foobar'))); // String is function too
   t.false(util.isFunction(123));
   t.false(util.isFunction('abc'));
@@ -109,4 +119,16 @@ test('setsAreEqual test', (t) => {
     util.setsAreEqual('a', 'b');
   });
   t.is(err2.message, 'as.values is not a function');
+});
+
+test('endsWith test', (t) => {
+  t.true(util.endsWith('100px', 'px'));
+  t.false(util.endsWith('100', 'px'));
+  t.true(util.endsWith('px', 'px'));
+  t.false(util.endsWith('x', 'px'));
+  delete String.prototype.endsWith;
+  const str = 'To be, or not to be, that is the question.';
+  t.true(util.endsWith(str, 'question.'));
+  t.false(util.endsWith(str, 'to be'));
+  t.true(util.endsWith(str, 'to be', 19));
 });

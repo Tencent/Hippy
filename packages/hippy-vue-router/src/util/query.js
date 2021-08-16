@@ -88,6 +88,8 @@ export function stringifyQuery(obj) {
     }
 
     return `${encode(key)}=${encode(val)}`;
-  }).filter(x => x.length > 0).join('&') : null;
+  })
+    .filter(x => x.length > 0)
+    .join('&') : null;
   return res ? `?${res}` : '';
 }

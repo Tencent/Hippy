@@ -1,18 +1,24 @@
 <template>
   <div>
-    <animation :actions="animations.face" class="vote-face" playing />
+    <animation
+      :actions="animations.face"
+      class="vote-face"
+      playing
+    />
     <animation
       tag="img"
       class="vote-up-eye"
       playing
       :props="{src: imgs.upVoteEye}"
-      :actions="animations.upVoteEye" />
+      :actions="animations.upVoteEye"
+    />
     <animation
       tag="img"
       class="vote-up-mouth"
       playing
       :props="{src: imgs.upVoteMouth}"
-      :actions="animations.upVoteMouth" />
+      :actions="animations.upVoteMouth"
+    />
   </div>
 </template>
 

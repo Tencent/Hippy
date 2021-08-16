@@ -16,35 +16,40 @@
 package com.tencent.mtt.hippy.bridge;
 
 import com.tencent.mtt.hippy.HippyEngine;
+import com.tencent.mtt.hippy.HippyEngine.BridgeTransferType;
 import com.tencent.mtt.hippy.HippyRootView;
+import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
 import com.tencent.mtt.hippy.common.Callback;
+import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
 
+@SuppressWarnings({"deprecation", "unused"})
+public interface HippyBridgeManager {
 
-/**
- * FileName: HippyBridgeManager
- * Description：
- * History：
- */
-public interface HippyBridgeManager
-{
-	void initBridge(Callback<Boolean> callback);
+  void initBridge(Callback<Boolean> callback);
 
-	void runBundle(int id, HippyBundleLoader loader, HippyEngine.ModuleListener listener, HippyRootView hippyRootView);
+  void runBundle(int id, HippyBundleLoader loader, HippyEngine.ModuleListener listener,
+      HippyRootView hippyRootView);
 
-	void loadInstance(String name, int id, HippyMap params);
+  void notifyModuleJsException(final HippyJsException exception);
 
-	void resumeInstance(int id);
+  void loadInstance(String name, int id, HippyMap params);
 
-	void pauseInstance(int id);
+  void resumeInstance(int id);
 
-	void destroyInstance(int id);
+  void pauseInstance(int id);
 
-	void execCallback(Object params);
+  void destroyInstance(int id);
 
-	void destroy();
+  void execCallback(Object params, BridgeTransferType transferType);
 
-	void callJavaScriptModule(String mName, String name, Object params);
+  void destroyBridge(Callback<Boolean> callback);
 
+  void destroy();
+
+  void callJavaScriptModule(String mName, String name, Object params,
+      BridgeTransferType transferType);
+
+  HippyThirdPartyAdapter getThirdPartyAdapter();
 }

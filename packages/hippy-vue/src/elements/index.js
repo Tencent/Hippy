@@ -1,5 +1,6 @@
-import { makeMap } from 'shared/util';
-import * as builtInComponents from './built-in';
+import { makeMap, camelize } from 'shared/util';
+import * as BUILT_IN_ELEMENTS from './built-in';
+import { capitalizeFirstLetter, warn } from '../util';
 
 const isReservedTag = makeMap(
   'template,script,style,element,content,slot,'
@@ -10,11 +11,11 @@ const isReservedTag = makeMap(
 const elementMap = new Map();
 
 const defaultViewMeta = {
-  skipAddToDom: false,      // The tag will not add to native DOM.
-  isUnaryTag: false,        // Single tag, such as img, input...
-  tagNamespace: '',         // Tag space, such as svg or math, not in using so far.
-  canBeLeftOpenTag: false,  // Able to no close.
-  mustUseProp: false,       // Tag must have attribute, such as src with img.
+  skipAddToDom: false, // The tag will not add to native DOM.
+  isUnaryTag: false, // Single tag, such as img, input...
+  tagNamespace: '', // Tag space, such as svg or math, not in using so far.
+  canBeLeftOpenTag: false, // Able to no close.
+  mustUseProp: false, // Tag must have attribute, such as src with img.
   model: null,
   component: null,
 };
@@ -36,6 +37,9 @@ function normalizeElementName(elementName) {
 }
 
 function registerElement(elementName, oldMeta) {
+  if (!elementName) {
+    throw new Error('RegisterElement cannot set empty name');
+  }
   const normalizedName = normalizeElementName(elementName);
 
   const meta = { ...defaultViewMeta, ...oldMeta };
@@ -48,6 +52,10 @@ function registerElement(elementName, oldMeta) {
     ...getDefaultComponent(elementName, meta, normalizedName),
     ...meta.component,
   };
+
+  if (meta.component.name && meta.component.name === capitalizeFirstLetter(camelize(elementName))) {
+    warn(`Cannot registerElement with kebab-case name ${elementName}, which converted to camelCase is the same with component.name ${meta.component.name}, please make them different`);
+  }
 
   const entry = {
     meta,
@@ -102,14 +110,15 @@ function isUnknownElement(el) {
 }
 
 // Register components
-Object.keys(builtInComponents).forEach((tagName) => {
-  const meta = builtInComponents[tagName];
-  registerElement(tagName, meta);
-});
+function registerBuiltinElements() {
+  Object.keys(BUILT_IN_ELEMENTS).forEach((tagName) => {
+    const meta = BUILT_IN_ELEMENTS[tagName];
+    registerElement(tagName, meta);
+  });
+}
 
 export {
   isReservedTag,
-  builtInComponents,
   normalizeElementName,
   registerElement,
   getElementMap,
@@ -120,4 +129,5 @@ export {
   mustUseProp,
   getTagNamespace,
   isUnknownElement,
+  registerBuiltinElements,
 };

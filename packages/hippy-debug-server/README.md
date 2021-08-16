@@ -6,10 +6,10 @@ The package provide the debug server communicated with native(Android apk or iOS
 
 ## Usage
 
-`hippy-debug-server` can be install globally, but install to local in most case.
+`@hippy/debug-server` can be install globally, but install to local in most case.
 
 ```
-npm install -g hippy-debug-server # Install
+npm install -g @hippy/debug-server # Install
 cd hippy-react-demo               # Change to a hippy-react project folder.
 hippy-debug                       # Start the debug server
 ```

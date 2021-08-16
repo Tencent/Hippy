@@ -1,13 +1,24 @@
 <template>
   <div id="demo-swiper">
     <div class="toolbar">
-      <button class="toolbar-btn" @click="scrollToPrevPage">
+      <button
+        class="toolbar-btn"
+        @click="scrollToPrevPage"
+      >
         <span>翻到上一页</span>
       </button>
-      <button class="toolbar-btn" @click="scrollToNextPage">
+      <button
+        class="toolbar-btn"
+        @click="scrollToNextPage"
+      >
         <span>翻到下一页</span>
       </button>
-      <p class="toolbar-text">当前第 {{ currentSlideNum + 1 }} 页</p>
+      <p class="toolbar-text">
+        当前第 {{ currentSlideNum + 1 }} 页，
+      </p>
+      <p class="toolbar-text">
+        滚屏状态：{{ state }}
+      </p>
     </div>
     <!--
       swiper 组件参数
@@ -19,10 +30,12 @@
     <swiper
       id="swiper"
       ref="swiper"
-      needAnimation
+      need-animation
       :current="currentSlide"
       @dragging="onDragging"
-      @dropped="onDropped">
+      @dropped="onDropped"
+      @stateChanged="onStateChanged"
+    >
       <!-- slides -->
       <swiper-slide
         v-for="n in dataSource"
@@ -35,9 +48,9 @@
     <!-- 一个放小点的范例 -->
     <div id="swiper-dots">
       <div
-        class="dot"
         v-for="n in dataSource"
         :key="n"
+        class="dot"
         :class="{hightlight: currentSlideNum === n}"
       />
     </div>
@@ -50,7 +63,8 @@ export default {
     return {
       // 假数据，7 是页数，页数初始化成功后不可更改。
       // 所以如果是动态加载的数据，建议再 <swiper> 上加上 v-if 判断数据加载完成之后再进行渲染。
-      dataSource: (new Array(7)).fill(0).map((n, i) => i),
+      dataSource: (new Array(7)).fill(0)
+        .map((n, i) => i),
 
       // 初始化时 swiper 显示第几个 slide，通过改变它可以改变 swiper 的显示 slide
       // IMPORTANT: 需要注意一点，数据驱动可能会因为 Vue 的内部机制导致性能比较差。
@@ -63,6 +77,8 @@ export default {
       // 所以这里单独做个变量，保存当前正在显示的值，跟 currentSlide 的值做个区分，避免推拉现象。
       currentSlideNum: 2,
 
+      // 设置默认滚屏状态
+      state: 'idle',
     };
   },
   mounted() {
@@ -91,6 +107,10 @@ export default {
     onDropped(evt) {
       // 更细当前页码
       this.currentSlideNum = evt.currentSlide;
+    },
+    onStateChanged(evt) {
+      // 更新当前滚屏状态
+      this.state = evt.state;
     },
   },
 };

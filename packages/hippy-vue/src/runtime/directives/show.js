@@ -9,7 +9,7 @@ function toggle(el, value, vNode, originalDisplay) {
     vNode.data.show = true;
     el.setStyle('display', originalDisplay);
   } else {
-    el.setStyle('display', value ? originalDisplay : 'none');
+    el.setStyle('display', 'none');
   }
 }
 

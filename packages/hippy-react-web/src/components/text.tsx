@@ -43,6 +43,12 @@ const styles = {
  * @noInheritDoc
  */
 export class Text extends React.Component {
+  // suppress waring:
+  // - childContextTypes must be defined in order to use getChildContext()
+  static childContextTypes = {
+    isInAParentText: () => {},
+  };
+
   constructor(props) {
     super(props);
     this.state = {};
@@ -56,13 +62,15 @@ export class Text extends React.Component {
   render() {
     let { style } = this.props;
     const { isInAParentText } = this.context;
-    const { numberOfLines } = this.props;
+    const { numberOfLines, ellipsizeMode } = this.props;
     if (style) {
       style = formatWebStyle(style);
     }
+
+    const textOverflow = ellipsizeMode === 'clip' ? 'clip' : 'ellipsis';
     const baseStyle = {
+      textOverflow,
       overflow: 'hidden',
-      textOverflow: 'ellipsis',
       display: '-webkit-box',
       WebkitBoxOrient: 'vertical',
       WebkitLineClamp: numberOfLines ? numberOfLines.toString() : '0',
@@ -72,12 +80,14 @@ export class Text extends React.Component {
       style: formatWebStyle([styles.initial,
         isInAParentText === true && styles.isInAParentText,
         newStyle,
-        numberOfLines === 1 && styles.singleLineStyle,
+        numberOfLines === 1 && Object.assign({}, styles.singleLineStyle, { textOverflow }),
         isInAParentText === true && { display: 'inline' },
       ]),
     });
     delete newProps.numberOfLines;
     delete newProps.onLayout;
+    delete newProps.ellipsizeMode;
+
     if (isInAParentText) return <span {...newProps} />;
     return (
       <div {...newProps} />

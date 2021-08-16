@@ -8,7 +8,7 @@ interface HippyEventHub {
       id: number;
       eventHandler: Function;
       context: any;
-    }
+    } | undefined
   }
 }
 
@@ -37,7 +37,7 @@ class HippyEventHub implements HippyEventHub {
     return currId;
   }
 
-  public removeEventHandler(handlerId: number) {
+  public removeEventHandler(handlerId: number | undefined) {
     if (typeof handlerId !== 'number') {
       throw new TypeError('Invalid arguments');
     }
@@ -49,23 +49,24 @@ class HippyEventHub implements HippyEventHub {
   }
 
   public notifyEvent(eventParams: any) {
-    Object.values(this.handlerContainer).forEach((wrapperInstance) => {
-      if (wrapperInstance && wrapperInstance.eventHandler) {
-        if (wrapperInstance.context) {
-          wrapperInstance.eventHandler.call(wrapperInstance.context, eventParams);
-        } else {
-          wrapperInstance.eventHandler(eventParams);
-        }
+    Object.keys(this.handlerContainer).forEach((key) => {
+      const instance = this.handlerContainer[key];
+      if (!instance || !instance.eventHandler) {
+        return;
+      }
+      if (instance.context) {
+        instance.eventHandler.call(instance.context, eventParams);
+      } else {
+        instance.eventHandler(eventParams);
       }
     });
   }
 
 
   public getEventListeners() {
-    return Object
-      .values(this.handlerContainer)
-      .filter(x => x)
-      .map(wrapperInstance => wrapperInstance);
+    return Object.keys(this.handlerContainer)
+      .filter(key => this.handlerContainer[key])
+      .map(key => this.handlerContainer[key]);
   }
 
   public getHandlerSize() {

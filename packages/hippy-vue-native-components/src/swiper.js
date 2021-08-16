@@ -1,5 +1,7 @@
 /* eslint-disable no-param-reassign */
 
+import { getEventRedirector } from './utils';
+
 function registerSwiper(Vue) {
   Vue.registerElement('hi-swiper', {
     component: {
@@ -12,6 +14,9 @@ function registerSwiper(Vue) {
           case 'onPageScroll':
             event.nextSlide = nativeEventParams.position;
             event.offset = nativeEventParams.offset;
+            break;
+          case 'onPageScrollStateChanged':
+            event.state = nativeEventParams.pageScrollState;
             break;
           default:
         }
@@ -33,7 +38,7 @@ function registerSwiper(Vue) {
     },
   });
 
-  Vue.component('swiper', {
+  Vue.component('Swiper', {
     inheritAttrs: false,
     props: {
       current: {
@@ -43,6 +48,15 @@ function registerSwiper(Vue) {
       needAnimation: {
         type: Boolean,
         defaultValue: true,
+      },
+    },
+    watch: {
+      current(to) {
+        if (this.$props.needAnimation) {
+          this.setSlide(to);
+        } else {
+          this.setSlideWithoutAnimation(to);
+        }
       },
     },
     beforeMount() {
@@ -63,26 +77,25 @@ function registerSwiper(Vue) {
       onPageSelected(evt) {
         this.$emit('dropped', evt);
       },
-    },
-    watch: {
-      current(to) {
-        if (this.$props.needAnimation) {
-          this.setSlide(to);
-        } else {
-          this.setSlideWithoutAnimation(to);
-        }
+      // On page scroll state changed.
+      onPageScrollStateChanged(evt) {
+        this.$emit('stateChanged', evt);
       },
     },
-    template: `
-      <hi-swiper
-        ref="swiper"
-        :initialPage="$initialSlide"
-        @pageSelected="onPageSelected"
-        @pageScroll="onPageScroll"
-        >
-        <slot />
-      </hi-swiper>
-    `,
+    render(h) {
+      const on = getEventRedirector.call(this, [
+        ['dropped', 'pageSelected'],
+        ['dragging', 'pageScroll'],
+        ['stateChanged', 'pageScrollStateChanged'],
+      ]);
+      return h('hi-swiper', {
+        on,
+        ref: 'swiper',
+        attrs: {
+          initialPage: this.$initialSlide,
+        },
+      }, this.$slots.default);
+    },
   });
 }
 

@@ -11,6 +11,9 @@ import {
 } from '../types';
 
 function appendChild(parent: Element, child: Element): void {
+  if (parent.childNodes.indexOf(child) >= 0) {
+    parent.removeChild(child);
+  }
   parent.appendChild(child);
 }
 
@@ -23,6 +26,8 @@ function appendInitialChild(parent: Element, child: Element) {
 }
 
 function commitMount() {}
+
+function commitTextUpdate() {}
 
 function commitUpdate(
   instance: any,
@@ -175,6 +180,7 @@ export {
   appendChildToContainer,
   appendInitialChild,
   commitMount,
+  commitTextUpdate,
   commitUpdate,
   createContainerChildSet,
   createInstance,

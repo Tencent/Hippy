@@ -1,3 +1,5 @@
+/* eslint-disable no-underscore-dangle */
+
 global.__PLATFORM__ = null;
 global.__HIPPYNATIVEGLOBAL__ = {};
 global.__GLOBAL__ = {
@@ -8,8 +10,12 @@ global.Hippy = {
   on() {},
   bridge: {
     callNative() {},
-    callNativeWithPromise() { return Promise.resolve(); },
-    callNativeWithCallbackId() { return 1; },
+    callNativeWithPromise() {
+      return Promise.resolve();
+    },
+    callNativeWithCallbackId() {
+      return 1;
+    },
   },
   device: {
     platform: {

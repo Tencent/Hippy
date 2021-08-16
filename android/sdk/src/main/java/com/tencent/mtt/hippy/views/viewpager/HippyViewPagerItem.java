@@ -19,13 +19,9 @@ import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 
 import android.content.Context;
 
-/**
- * Created by ceasoncai on 2017/12/15.
- */
-public class HippyViewPagerItem extends HippyViewGroup
-{
-	public HippyViewPagerItem(Context context)
-	{
-		super(context);
-	}
+public class HippyViewPagerItem extends HippyViewGroup {
+
+  public HippyViewPagerItem(Context context) {
+    super(context);
+  }
 }

@@ -39,11 +39,9 @@ let id = 1;
 
 let resizeObserver: any;
 if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
-  console.warn(
-    'onLayout relies on ResizeObserver which is not supported by your browser. '
+  console.warn('onLayout relies on ResizeObserver which is not supported by your browser. '
     + 'Please include a polyfill, e.g., https://github.com/que-etc/resize-observer-polyfill. '
-    + 'Falling back to window.onresize.',
-  );
+    + 'Falling back to window.onresize.');
 }
 
 const triggerAll = () => {
@@ -54,7 +52,9 @@ const triggerAll = () => {
     });
 };
 
-window.addEventListener('resize', debounce(triggerAll, 16), false);
+if (typeof window === 'object') {
+  window.addEventListener('resize', debounce(triggerAll, 16), false);
+}
 
 function observe(instance: LayoutElement) {
   id += 1;
@@ -87,7 +87,7 @@ function unobserve(instance: LayoutElement) {
   }
 }
 
-function safeOverride(original: Function, next: Function)  {
+function safeOverride(original: Function, next: Function) {
   if (original) {
     return function prototypeOverride() {
       /* eslint-disable prefer-rest-params */
@@ -106,7 +106,7 @@ function applyLayout(Component: any) {
     componentDidMount,
     function componentDidMount() {
       this.layoutState = emptyObject;
-      this.isMounted = true;
+      this.hasMounted = true;
       if (this.props.onLayout) {
         observe(this);
       }
@@ -127,7 +127,7 @@ function applyLayout(Component: any) {
   Component.prototype.componentWillUnmount = safeOverride(
     componentWillUnmount,
     function componentWillUnmount() {
-      this.isMounted = false;
+      this.hasMounted = false;
       if (this.props.onLayout) {
         unobserve(this);
       }
@@ -141,7 +141,7 @@ function applyLayout(Component: any) {
     if (onLayout) {
       const node = findNodeHandle(this);
       UIManager.measure(node, (x: number, y: number, width: number, height: number) => {
-        if (this.isMounted) {
+        if (this.hasMounted) {
           if (
             layout.x !== x
             || layout.y !== y
@@ -161,11 +161,9 @@ function applyLayout(Component: any) {
               enumerable: true,
               get: () => findNodeHandle(this),
             });
-            onLayout(
-              {
-                layout: this.layoutState,
-              },
-            );
+            onLayout({
+              layout: this.layoutState,
+            });
           }
         }
       });

@@ -1,5 +1,6 @@
-/* Tencent is pleased to support the open source community by making Hippy available.
- * Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights reserved.
+/* Tencent is pleased to support the open source community by making Hippy
+ * available. Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights
+ * reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +15,20 @@
  * limitations under the License.
  */
 
-#ifndef HPSTYLE_H_
-#define HPSTYLE_H_
+#pragma once
+
+#include <string>
+
 #include "Flex.h"
 #include "HPUtil.h"
-#include <string>
-//CSSLeft <---> CSSEnd
+// CSSLeft <---> CSSEnd
 #define CSS_PROPS_COUNT (6)
 class HPStyle {
  public:
   HPStyle();
   virtual ~HPStyle();
   std::string toString();
-  void setDirection(HPDirection direction_) {
-    direction = direction_;
-  }
+  void setDirection(HPDirection direction_) { direction = direction_; }
 
   bool setMargin(CSSDirection dir, float value);
   bool setPadding(CSSDirection dir, float value);
@@ -55,6 +55,7 @@ class HPStyle {
   float getDim(Dimension dimension);
   bool isOverflowScroll();
   float getFlexBasis();
+
  public:
   NodeType nodeType;
   HPDirection direction;
@@ -88,5 +89,3 @@ class HPStyle {
   float itemSpace;
   float lineSpace;
 };
-
-#endif /* HPSTYLE_H_ */

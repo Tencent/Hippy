@@ -1,3 +1,6 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-underscore-dangle */
+
 const consoleModule = internalBinding('ConsoleModule');
 
 const indent = (level) => {
@@ -10,6 +13,15 @@ const indent = (level) => {
 
 let inspectObject = null;
 let inspect = null;
+
+function getOwnPropertyDescriptors(param) {
+  const result = {};
+  const propKeys = Object.keys(param);
+  propKeys.forEach((key, index) => {
+    result[propKeys[index]] = Object.getOwnPropertyDescriptor(param, propKeys[index]);
+  });
+  return result;
+}
 
 inspectObject = (value, level = 0, recurseTimes = 2, linebreak = '\n') => {
   if (value === null) {
@@ -53,8 +65,7 @@ inspectObject = (value, level = 0, recurseTimes = 2, linebreak = '\n') => {
   if (value instanceof Error) {
     return `${value.stack || Error.prototype.toString.call(value)}`;
   }
-
-  const descs = Object.getOwnPropertyDescriptors(value);
+  const descs = getOwnPropertyDescriptors(value);
   const keys = Object.keys(descs);
   const pairs = [];
   keys.forEach((key) => {
@@ -111,12 +122,22 @@ global.console = {
   },
 };
 
-['log', 'info', 'warn', 'error', 'debug'].forEach((api) => {
+const supportApiList = ['log', 'info', 'warn', 'error', 'debug'];
+
+supportApiList.forEach((api) => {
   global.console[api] = (...args) => {
-    const log = args.map(arg => inspect(arg)).join(' ');
-    consoleModule.Log(log);
     if (vmConsole) {
       vmConsole[api](...args);
     }
+    const log = args.map(arg => inspect(arg)).join(' ');
+    consoleModule.Log(log);
   };
 });
+
+if (vmConsole) {
+  Object.keys(vmConsole).forEach((api) => {
+    if (supportApiList.indexOf(api) < 0) {
+      global.console[api] = vmConsole[api];
+    }
+  });
+}

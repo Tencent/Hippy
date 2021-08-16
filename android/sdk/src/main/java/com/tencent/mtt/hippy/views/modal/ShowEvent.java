@@ -18,12 +18,13 @@ package com.tencent.mtt.hippy.views.modal;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 
 /**
+ *
  */
-/* package */ class ShowEvent extends HippyViewEvent {
+public class ShowEvent extends HippyViewEvent {
 
   public static final String EVENT_NAME = "onShow";
 
-  protected ShowEvent() {
+  public ShowEvent() {
     super(EVENT_NAME);
   }
 

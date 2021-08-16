@@ -1,5 +1,6 @@
 import React from 'react';
-import { UIManagerModule } from 'hippy-react';
+import { UIManagerModule } from '@hippy/react';
+
 
 export default class MyView extends React.Component {
   changeColor(color) {
@@ -8,7 +9,9 @@ export default class MyView extends React.Component {
 
   render() {
     return (
-      <div nativeName="MyView" ref={(ref) => { this.mytext = ref; }} {...this.props} />
+      <div nativeName="MyView" ref={(ref) => {
+        this.mytext = ref;
+      }} {...this.props} />
     );
   }
 }

@@ -1,44 +1,77 @@
 <template>
   <div>
-    <animation :actions="animations.face" class="vote-face" playing />
+    <animation
+      ref="animationRef"
+      :actions="animations.face"
+      class="vote-face"
+      playing
+      @start="animationStart"
+      @end="animationEnd"
+      @repeat="animationRepeat"
+      @cancel="animationCancel"
+    />
     <animation
       tag="img"
       class="vote-down-face"
       playing
       :props="{src: imgs.downVoteFace}"
-      :actions="animations.downVoteFace" />
+      :actions="animations.downVoteFace"
+    />
   </div>
 </template>
 
 <script>
 import downVoteFace from './down-vote-face.png';
 
+const face1 = {
+  transform: {
+    scale: [
+      {
+        startValue: 1,
+        toValue: 1.2,
+        duration: 250,
+        timingFunction: 'ease_bezier',
+      },
+      {
+        startValue: 1.2,
+        toValue: 1,
+        duration: 250,
+        delay: 750,
+        timingFunction: 'ease_bezier',
+      },
+    ],
+  },
+};
+const face2 = {
+  transform: {
+    translateX: [
+      {
+        startValue: 10,
+        toValue: 1,
+        duration: 250,
+        timingFunction: 'ease_bezier',
+      },
+      {
+        startValue: 1,
+        toValue: 10,
+        duration: 250,
+        delay: 750,
+        timingFunction: 'ease_bezier',
+        repeatCount: -1,
+      },
+    ],
+  },
+};
+
 export default {
+  props: ['isChanged'],
   data() {
     return {
       imgs: {
         downVoteFace,
       },
       animations: {
-        face: {
-          transform: {
-            scale: [
-              {
-                startValue: 1,
-                toValue: 1.2,
-                duration: 250,
-                timingFunction: 'ease_bezier',
-              },
-              {
-                startValue: 1.2,
-                toValue: 1,
-                duration: 250,
-                delay: 750,
-                timingFunction: 'ease_bezier',
-              },
-            ],
-          },
-        },
+        face: face1,
         downVoteFace: {
           left: [
             {
@@ -83,6 +116,38 @@ export default {
         },
       },
     };
+  },
+  watch: {
+    isChanged(to, from) {
+      if (!from && to) {
+        console.log('changed to face2');
+        this.animations.face = face2;
+      } else if (from && !to) {
+        console.log('changed to face1');
+        this.animations.face = face1;
+      }
+      // actions切换后，手动启动动画，由于创建动画需要与终端通信，延迟10ms保证动画已创建
+      setTimeout(() => {
+        this.animationRef.start();
+      }, 10);
+    },
+  },
+  mounted() {
+    this.animationRef = this.$refs.animationRef;
+  },
+  methods: {
+    animationStart() {
+      console.log('animation-start callback');
+    },
+    animationEnd() {
+      console.log('animation-end callback');
+    },
+    animationRepeat() {
+      console.log('animation-repeat callback');
+    },
+    animationCancel() {
+      console.log('animation-cancel callback');
+    },
   },
 };
 </script>

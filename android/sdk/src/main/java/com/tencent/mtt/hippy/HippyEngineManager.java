@@ -25,235 +25,157 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-/**
- * FileName: HippyEngineManager
- * Description：This class has been deprecated. use HippyEngine instead.
- * History：
- * 2019/3/26 harryguo注释：
- * 老的引擎初始化管理器。将被废弃，完全由HippyEngine替代
- * 请参见{@link com.tencent.mtt.hippy.HippyEngine}
- */
+@SuppressWarnings({"unused", "DeprecatedIsStillUsed", "deprecation"})
 @Deprecated
-public abstract class HippyEngineManager extends HippyEngine
-{
-	final HashMap mExtendDatas		= new HashMap();
+public abstract class HippyEngineManager extends HippyEngine {
 
-	public abstract boolean onBackPress(DeviceEventModule.InvokeDefaultBackPress invokeImp);
+  @SuppressWarnings("rawtypes")
+  final HashMap mExtendDatas = new HashMap();
 
-	/**
-	 * Add engine event Listener
-	 *
-	 * @param listener
-	 */
-	public void addEngineEventListener(EngineListener listener)
-	{
-		if (listener != null)
-		{
-			listen(listener);
-		}
-	}
+  @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+  public abstract boolean onBackPress(DeviceEventModule.InvokeDefaultBackPress invokeImp);
 
-	/**
-	 * Remove engine event Listener
-	 *
-	 * @param listener
-	 */
-	public void removeEngineEventListener(EngineListener listener)
-	{
-		mEventListeners.remove(listener);
-	}
+  public void addEngineEventListener(EngineListener listener) {
+    if (listener != null) {
+      listen(listener);
+    }
+  }
 
-	/**
-	 * Initialize the hippy engine
-	 * Asynchronous return initialization results
-	 * {@link HippyInstanceLifecycleEventListener}
-	 */
-	public void initEngineInBackground()
-	{
-		initEngine(null);
-	}
+  public void removeEngineEventListener(EngineListener listener) {
+    mEventListeners.remove(listener);
+  }
 
-	/**
-	 * get engine state
-	 *
-	 * @return
-	 */
-	public EngineState getCurrentEngineState()
-	{
-		return mCurrentState;
-	}
+  public void initEngineInBackground() {
+    initEngine(null);
+  }
 
-	/**
-	 * load hippy instance
-	 *
-	 * @param params
-	 * @return HippyRootView
-	 */
-	public abstract HippyRootView loadInstance(HippyRootViewParams params);
-	public abstract HippyRootView loadInstance(HippyRootViewParams params, ModuleListener listener);
-	public abstract HippyRootView loadInstance(HippyRootViewParams params, ModuleListener listener,HippyRootView.OnLoadCompleteListener onLoadCompleteListener);
+  public EngineState getCurrentEngineState() {
+    return mCurrentState;
+  }
 
-	/**
-	 * destroy hippy instance
-	 *
-	 * @param rootView
-	 */
-	public void destroyInstance(HippyRootView rootView)
-	{
-		destroyModule(rootView);
-	}
+  public abstract HippyRootView loadInstance(HippyRootViewParams params);
 
-	/**
-	 *  create context ahead ,if you need create view ahead ,
-	 * @return
-	 */
-	public abstract  HippyInstanceContext preCreateInstanceContext(Context context);
+  public abstract HippyRootView loadInstance(HippyRootViewParams params, ModuleListener listener);
 
-	public abstract HippyEngineContext getCurrentEngineContext();
+  public abstract HippyRootView loadInstance(HippyRootViewParams params, ModuleListener listener,
+      HippyRootView.OnLoadCompleteListener onLoadCompleteListener);
 
-	/**
-	 * put extend data
-	 *
-	 * @param key
-	 * @param value
-	 */
-	public void putExtendData(String key, Object value)
-	{
-		mExtendDatas.put(key, value);
-	}
+  public void destroyInstance(HippyRootView rootView) {
+    destroyModule(rootView);
+  }
 
-	/**
-	 * get extend data
-	 *
-	 * @param key
-	 */
-	public Object getExtendData(String key)
-	{
-		return mExtendDatas.get(key);
-	}
+  public abstract HippyInstanceContext preCreateInstanceContext(Context context);
 
-	/**
-	 * remove extend data
-	 *
-	 * @param key
-	 */
-	public void removeExtendData(String key)
-	{
-		mExtendDatas.remove(key);
-	}
+  public abstract HippyEngineContext getCurrentEngineContext();
 
-	static class Builder
-	{
-		private HippyGlobalConfigs			mGlobalConfigs;
-		private HippyBundleLoader			mCoreBundleLoader;
-		private HippyBundleLoader			mPreloadBundleLoader;
-		private List<HippyAPIProvider>			mPackages;
-		private boolean						mSupportDev	= false;
-		private String						mDebugJs;
-		private EngineMode mEngineMode;
-		private boolean 					mBridgeHippyBuffer = false;
-		private int 						mGroupId = -1;
+  public void putExtendData(String key, Object value) {
+    //noinspection unchecked
+    mExtendDatas.put(key, value);
+  }
 
-		Builder()
-		{
-		}
+  public Object getExtendData(String key) {
+    return mExtendDatas.get(key);
+  }
 
-		Builder setSupportDev(boolean supportDev)
-		{
-			this.mSupportDev = supportDev;
-			return this;
-		}
+  public void removeExtendData(String key) {
+    mExtendDatas.remove(key);
+  }
 
-		Builder setHippyGlobalConfigs(HippyGlobalConfigs configs)
-		{
-			this.mGlobalConfigs = configs;
-			return this;
-		}
+  static class Builder {
 
-		Builder setCoreBundleLoader(HippyBundleLoader coreBundleLoader)
-		{
-			this.mCoreBundleLoader = coreBundleLoader;
-			return this;
-		}
+    private HippyGlobalConfigs mGlobalConfigs;
+    private HippyBundleLoader mCoreBundleLoader;
+    private HippyBundleLoader mPreloadBundleLoader;
+    private List<HippyAPIProvider> mPackages;
+    private boolean mSupportDev = false;
+    private String mDebugJs;
+    private boolean enableV8Serialization = true;
+    private int mGroupId = -1;
 
-		Builder setPreloadBundleLoader(HippyBundleLoader loader)
-		{
-			this.mPreloadBundleLoader = loader;
-			return this;
-		}
+    Builder() {
+    }
 
-		Builder setPackages(List<HippyAPIProvider> packages)
-		{
-			this.mPackages = packages;
-			return this;
-		}
+    @SuppressWarnings("SameParameterValue")
+    Builder setSupportDev(boolean supportDev) {
+      this.mSupportDev = supportDev;
+      return this;
+    }
 
-		Builder setDebugJs(String debugJs)
-		{
-			this.mDebugJs = debugJs;
-			return this;
-		}
+    Builder setHippyGlobalConfigs(HippyGlobalConfigs configs) {
+      this.mGlobalConfigs = configs;
+      return this;
+    }
 
-		Builder setEngineMode(EngineMode mode)
-		{
-			this.mEngineMode = mode;
-			return this;
-		}
+    @SuppressWarnings("SameParameterValue")
+    Builder setCoreBundleLoader(HippyBundleLoader coreBundleLoader) {
+      this.mCoreBundleLoader = coreBundleLoader;
+      return this;
+    }
 
-		Builder setEnableHippyBuffer(boolean enable)
-		{
-			this.mBridgeHippyBuffer = enable;
-			return this;
-		}
+    Builder setPreloadBundleLoader(HippyBundleLoader loader) {
+      this.mPreloadBundleLoader = loader;
+      return this;
+    }
 
-		HippyEngineManager build()
-		{
-			if (mCoreBundleLoader == null && !mSupportDev)
-			{
-				throw new RuntimeException("In non-debug mode, it must be set core bundle loader!");
-			}
-			if (mSupportDev && TextUtils.isEmpty(mDebugJs))
-			{
-				throw new RuntimeException("In debug mode, it must be set debug js!");
-			}
-			if (mPackages == null)
-			{
-				mPackages = new ArrayList<>();
-			}
+    Builder setPackages(List<HippyAPIProvider> packages) {
+      this.mPackages = packages;
+      return this;
+    }
 
-			EngineInitParams params = new EngineInitParams();
-			mGlobalConfigs.to(params);
-			params.debugMode = mSupportDev;
-			params.engineMode = mEngineMode;
-			if (mCoreBundleLoader instanceof HippyAssetBundleLoader)
-				params.coreJSAssetsPath = mCoreBundleLoader.getRawPath();
-			else if (mCoreBundleLoader instanceof HippyFileBundleLoader)
-				params.coreJSFilePath = mCoreBundleLoader.getRawPath();
-			else if (mCoreBundleLoader != null)
-				throw new RuntimeException("Hippy: CoreBundleLoader is neither a HippyAssetBundleLoader nor a HippyFileBundleLoader!");
-			params.providers = mPackages;
-			params.enableBuffer = mBridgeHippyBuffer;
-			if (mCoreBundleLoader != null)
-				params.codeCacheTag = mCoreBundleLoader.getCodeCacheTag();
-			params.groupId = mGroupId;
-			params.check();
+    Builder setDebugJs(String debugJs) {
+      this.mDebugJs = debugJs;
+      return this;
+    }
 
-			HippyEngineManager hippyEngineManager = null;
-			switch (mEngineMode)
-			{
-				case NORMAL:
-					hippyEngineManager = new HippyNormalEngineManager(params, mPreloadBundleLoader);
-					break;
-				case SINGLE_THREAD:
-					hippyEngineManager = new HippySingleThreadEngineManager(params, mPreloadBundleLoader);
-					break;
-			}
+    Builder setEnableV8Serialization(boolean enable) {
+      this.enableV8Serialization = enable;
+      return this;
+    }
 
-			return hippyEngineManager;
-		}
+    @SuppressWarnings("UnusedReturnValue")
+    Builder setGroupId(int groupId) {
+      mGroupId = groupId;
+      return this;
+    }
 
-		public void setGroupId(int groupId) {
-			mGroupId = groupId;
-		}
-	}
+    HippyEngineManager build() {
+      if (mCoreBundleLoader == null && !mSupportDev) {
+        throw new RuntimeException("In non-debug mode, it must be set core bundle loader!");
+      }
+      if (mSupportDev && TextUtils.isEmpty(mDebugJs)) {
+        throw new RuntimeException("In debug mode, it must be set debug js!");
+      }
+      if (mPackages == null) {
+        mPackages = new ArrayList<>();
+      }
+
+      EngineInitParams params = new EngineInitParams();
+      mGlobalConfigs.to(params);
+      params.debugMode = mSupportDev;
+      if (mCoreBundleLoader instanceof HippyAssetBundleLoader) {
+        params.coreJSAssetsPath = mCoreBundleLoader.getRawPath();
+      } else if (mCoreBundleLoader instanceof HippyFileBundleLoader) {
+        params.coreJSFilePath = mCoreBundleLoader.getRawPath();
+      } else if (mCoreBundleLoader != null) {
+        throw new RuntimeException(
+            "Hippy: CoreBundleLoader is neither a HippyAssetBundleLoader nor a HippyFileBundleLoader!");
+      }
+      params.providers = mPackages;
+      params.enableV8Serialization = enableV8Serialization;
+      if (mCoreBundleLoader != null) {
+        params.codeCacheTag = mCoreBundleLoader.getCodeCacheTag();
+      }
+      params.groupId = mGroupId;
+      params.check();
+
+      HippyEngineManager hippyEngineManager;
+      if (mGroupId == -1) {
+        hippyEngineManager = new HippyNormalEngineManager(params, mPreloadBundleLoader);
+      } else {
+        hippyEngineManager = new HippySingleThreadEngineManager(params, mPreloadBundleLoader);
+      }
+
+      return hippyEngineManager;
+    }
+  }
 }

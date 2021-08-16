@@ -1,3 +1,6 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-underscore-dangle */
+
 __GLOBAL__.appRegister = {};
 __GLOBAL__.nodeIdCache = {};
 __GLOBAL__.nodeTreeCache = {};
@@ -81,8 +84,9 @@ __GLOBAL__.enqueueNativeCall = (moduleID, methodID, params, onFail, onSucc) => {
   __GLOBAL__._queue[2].push(params);
 
   if (typeof nativeFlushQueueImmediate !== 'undefined') {
-    nativeFlushQueueImmediate(__GLOBAL__._queue);
+    const originalQueue = [...__GLOBAL__._queue];
     __GLOBAL__._queue = [[], [], [], __GLOBAL__._callID];
+    nativeFlushQueueImmediate(originalQueue);
   }
 };
 
@@ -132,9 +136,15 @@ __GLOBAL__.genMethod = (moduleID, methodID, type) => {
   let fn = null;
   if (type === 'promise') {
     fn = (...args) => new Promise((resolve, reject) => {
-      __GLOBAL__.enqueueNativeCall(moduleID, methodID, args,
-        (data) => { resolve(data); },
-        (errorData) => { reject(errorData); });
+      __GLOBAL__.enqueueNativeCall(
+        moduleID, methodID, args,
+        (data) => {
+          resolve(data);
+        },
+        (errorData) => {
+          reject(errorData);
+        },
+      );
     });
   } else if (type === 'sync') {
     fn = (...args) => nativeCallSyncHook(moduleID, methodID, args);

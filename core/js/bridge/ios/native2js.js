@@ -1,3 +1,6 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-underscore-dangle */
+
 const { JSTimersExecution } = require('../../modules/ios/jsTimersExecution.js');
 
 global.__fbBatchedBridge = {};
@@ -29,7 +32,7 @@ __fbBatchedBridge.__invokeCallback = (cbID, args) => {
     __GLOBAL__._callbacks[cbID | 1] = null;
   }
 
-  if (args && args.length > 1 && args[0] == null) {
+  if (args && args.length > 1 && (args[0] === null || args[0] === undefined)) {
     args.splice(0, 1);
   }
 
@@ -67,6 +70,7 @@ __fbBatchedBridge.callFunctionReturnFlushedQueue = (module, method, args) => {
         throw Error(`error: ${callObj.name} is not regist in js`);
       }
     } else if (method === 'unmountApplicationComponentAtRootTag') {
+      global.Hippy.emit('destroyInstance', args[0]);
       const renderId = Date.now().toString();
       Hippy.bridge.callNative('UIManagerModule', 'startBatch', renderId);
       Hippy.bridge.callNative('UIManagerModule', 'removeRootView', args[0]);

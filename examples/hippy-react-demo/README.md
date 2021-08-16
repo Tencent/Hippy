@@ -12,10 +12,14 @@ npm install
 npm run serve
 ```
 
+> For web target, the demo project has defined a [alias to local hippy-react-web](./scripts/hippy-webpack.web.js#L85), you should remove the section and keeps `@hippy/react-web` is the alias for `@hippy/react`.
+
 ### Compiles and minifies for production
 ```
 npm run build
 ```
+
+> For web target, the demo project has defined a [alias to local hippy-react-web](./scripts/hippy-webpack.web.js#L85), you should remove the section and keeps `@hippy/react-web` is the alias for `@hippy/react`.
 
 ## Debug the JS codes in native
 
@@ -24,6 +28,9 @@ npm run build
 ```
 npm run hippy:dev
 ```
+
+> For dev target, the demo project has defined a [alias to local hippy-react](./scripts/hippy-webpack.dev.js#L80), you should remove it first if you don't use it.
+
 ### Start a debug server
 
 Keep the `hippy:dev` running and open anther terminal, and execute:
@@ -57,8 +64,6 @@ npm run hippy:build # Build the index js
 
 The output files will be placed at `dist/android` and `dist/ios` folders.
 
-> Take care, when you build own js project, here's defined a [alias to local hippy-react](./scripts/hippy-webpack.android-vendor.js#L61), you should remove it first, otherwise build progress will prompt a ModuleNotFound error.
-
 ### Integrate built output js to native
 
 #### iOS
@@ -70,5 +75,5 @@ cp dist/ios/* ../ios-demo/res/ # Copy the built js files to native.
 ### Android
 
 ```
-cp dist/ios/* ../android-demo/res/ # Copy the built js files to native.
+cp dist/android/* ../android-demo/res/ # Copy the built js files to native.
 ```

@@ -2,13 +2,13 @@ import {
   Dimensions,
   PixelRatio,
   Platform,
-} from 'hippy-react';
+} from '@hippy/react';
 
 const Utils = {
   getScreenWidth() {
     // 以短的那条边做屏幕宽度
-    const screenWidth = Dimensions.get('window').width;
-    const screenHeight = Dimensions.get('window').height;
+    const screenWidth = Dimensions.get('screen').width;
+    const screenHeight = Dimensions.get('screen').height;
     const width = screenWidth > screenHeight ? screenHeight : screenWidth;
     return Math.floor(width);
   },

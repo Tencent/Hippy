@@ -22,12 +22,12 @@
 
 #import <UIKit/UIKit.h>
 
-#define RN_FORWARD_SCROLL_EVENT(call) \
-for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) { \
-  if ([scrollViewListener respondsToSelector:_cmd]) { \
-    [scrollViewListener call]; \
-  } \
-}
+#define RN_FORWARD_SCROLL_EVENT(call)                                                     \
+    for (NSObject<UIScrollViewDelegate> * scrollViewListener in [self scrollListeners]) { \
+        if ([scrollViewListener respondsToSelector:_cmd]) {                               \
+            [scrollViewListener call];                                                    \
+        }                                                                                 \
+    }
 
 @protocol HippyScrollableProtocol <UIScrollViewDelegate>
 
@@ -36,7 +36,7 @@ for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners
 - (void)addScrollListener:(NSObject<UIScrollViewDelegate> *)scrollListener;
 - (void)removeScrollListener:(NSObject<UIScrollViewDelegate> *)scrollListener;
 - (UIScrollView *)realScrollView;
-- (NSArray *)scrollListeners;
+- (NSHashTable *)scrollListeners;
 
 @optional
 - (void)scrollToOffset:(CGPoint)offset animated:(BOOL)animated;

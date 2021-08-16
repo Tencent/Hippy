@@ -1,0 +1,31 @@
+name: '[iOS] build iOS native example'
+
+on:
+  push:
+    paths:
+      - 'ios/**'
+    branches:
+      # Push events on main branch
+      - main
+      # Push events on master branch
+      - master
+    tags-ignore:
+      - '**'
+  pull_request:
+    paths:
+      - 'ios/**'
+    branches:
+      # Pull request events to main branch
+      - main
+      # Pull request events to master branch
+      - master
+    tags-ignore:
+      - '**'
+
+jobs:
+  buildios:
+    runs-on: macOS-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: buildexample
+        run: pushd examples/ios-demo && xcodebuild build -destination 'name=iPhone 11' -scheme 'HippyDemo' && popd

@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-#include <gtest.h>
 #include <Hippy.h>
+#include <gtest.h>
 
 TEST(HippyTest, max_width) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 100);
   HPNodeStyleSetHeight(root, 100);
@@ -52,11 +51,9 @@ TEST(HippyTest, max_width) {
   ASSERT_FLOAT_EQ(10, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, max_height) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetWidth(root, 100);
@@ -91,11 +88,9 @@ TEST(HippyTest, max_height) {
   ASSERT_FLOAT_EQ(50, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, min_height) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 100);
   HPNodeStyleSetHeight(root, 100);
@@ -143,11 +138,9 @@ TEST(HippyTest, min_height) {
   ASSERT_FLOAT_EQ(20, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, min_width) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetWidth(root, 100);
@@ -196,11 +189,9 @@ TEST(HippyTest, min_width) {
   ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, justify_content_min_max) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetJustifyContent(root, FlexAlignCenter);
   HPNodeStyleSetWidth(root, 100);
@@ -236,11 +227,9 @@ TEST(HippyTest, justify_content_min_max) {
   ASSERT_FLOAT_EQ(60, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, align_items_min_max) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetAlignItems(root, FlexAlignCenter);
   HPNodeStyleSetMinWidth(root, 100);
@@ -276,11 +265,9 @@ TEST(HippyTest, align_items_min_max) {
   ASSERT_FLOAT_EQ(60, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, justify_content_overflow_min_max) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetJustifyContent(root, FlexAlignCenter);
   HPNodeStyleSetMinHeight(root, 100);
@@ -345,11 +332,9 @@ TEST(HippyTest, justify_content_overflow_min_max) {
   ASSERT_FLOAT_EQ(50, HPNodeLayoutGetHeight(root_child2));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, flex_grow_to_min) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 100);
   HPNodeStyleSetMinHeight(root, 100);
@@ -398,11 +383,9 @@ TEST(HippyTest, flex_grow_to_min) {
   ASSERT_FLOAT_EQ(50, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, flex_grow_in_at_most_container) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetAlignItems(root, FlexAlignStart);
@@ -452,11 +435,9 @@ TEST(HippyTest, flex_grow_in_at_most_container) {
   ASSERT_FLOAT_EQ(0, HPNodeLayoutGetHeight(root_child0_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, flex_grow_child) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
 
@@ -490,11 +471,9 @@ TEST(HippyTest, flex_grow_child) {
   ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, flex_grow_within_constrained_min_max_column) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetMinHeight(root, 100);
   HPNodeStyleSetMaxHeight(root, 200);
@@ -541,11 +520,9 @@ TEST(HippyTest, flex_grow_within_constrained_min_max_column) {
   ASSERT_FLOAT_EQ(50, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, flex_grow_within_max_width) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 200);
   HPNodeStyleSetHeight(root, 100);
@@ -594,11 +571,9 @@ TEST(HippyTest, flex_grow_within_max_width) {
   ASSERT_FLOAT_EQ(20, HPNodeLayoutGetHeight(root_child0_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, flex_grow_within_constrained_max_width) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 200);
   HPNodeStyleSetHeight(root, 100);
@@ -647,11 +622,9 @@ TEST(HippyTest, flex_grow_within_constrained_max_width) {
   ASSERT_FLOAT_EQ(20, HPNodeLayoutGetHeight(root_child0_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, flex_root_ignored) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexGrow(root, 1);
   HPNodeStyleSetWidth(root, 100);
@@ -701,11 +674,9 @@ TEST(HippyTest, flex_root_ignored) {
   ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, flex_grow_root_minimized) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 100);
   HPNodeStyleSetMinHeight(root, 100);
@@ -770,11 +741,9 @@ TEST(HippyTest, flex_grow_root_minimized) {
   ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root_child0_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, flex_grow_height_maximized) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 100);
   HPNodeStyleSetHeight(root, 500);
@@ -838,11 +807,9 @@ TEST(HippyTest, flex_grow_height_maximized) {
   ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root_child0_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, flex_grow_within_constrained_min_row) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetMinWidth(root, 100);
@@ -890,11 +857,9 @@ TEST(HippyTest, flex_grow_within_constrained_min_row) {
   ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, flex_grow_within_constrained_min_column) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetMinHeight(root, 100);
 
@@ -940,11 +905,9 @@ TEST(HippyTest, flex_grow_within_constrained_min_column) {
   ASSERT_FLOAT_EQ(50, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, flex_grow_within_constrained_max_row) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 200);
 
@@ -1007,11 +970,9 @@ TEST(HippyTest, flex_grow_within_constrained_max_row) {
   ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root_child0_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, flex_grow_within_constrained_max_column) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 100);
   HPNodeStyleSetMaxHeight(root, 100);
@@ -1059,11 +1020,9 @@ TEST(HippyTest, flex_grow_within_constrained_max_column) {
   ASSERT_FLOAT_EQ(50, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, child_min_max_width_flexing) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetWidth(root, 120);
@@ -1115,11 +1074,9 @@ TEST(HippyTest, child_min_max_width_flexing) {
   ASSERT_FLOAT_EQ(50, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, min_width_overrides_width) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 50);
   HPNodeStyleSetMinWidth(root, 100);
@@ -1138,11 +1095,9 @@ TEST(HippyTest, min_width_overrides_width) {
   ASSERT_FLOAT_EQ(0, HPNodeLayoutGetHeight(root));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, max_width_overrides_width) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 200);
   HPNodeStyleSetMaxWidth(root, 100);
@@ -1161,11 +1116,9 @@ TEST(HippyTest, max_width_overrides_width) {
   ASSERT_FLOAT_EQ(0, HPNodeLayoutGetHeight(root));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, min_height_overrides_height) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetHeight(root, 50);
   HPNodeStyleSetMinHeight(root, 100);
@@ -1184,11 +1137,9 @@ TEST(HippyTest, min_height_overrides_height) {
   ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, max_height_overrides_height) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetHeight(root, 200);
   HPNodeStyleSetMaxHeight(root, 100);
@@ -1207,11 +1158,9 @@ TEST(HippyTest, max_height_overrides_height) {
   ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, min_max_percent_no_width_height) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetAlignItems(root, FlexAlignStart);
   HPNodeStyleSetWidth(root, 100);
@@ -1248,5 +1197,4 @@ TEST(HippyTest, min_max_percent_no_width_height) {
   ASSERT_FLOAT_EQ(10, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }

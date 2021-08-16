@@ -3,13 +3,12 @@
 
 import React from 'react';
 import Style from '@localTypes/style';
+import { TextInputEvent } from '@localTypes/event';
 import { LayoutableProps, ClickableProps } from '../types';
 import { callUIFunction } from '../modules/ui-manager-module';
 import { Device } from '../native';
-
-interface TextInputResponse {
-  text: string;
-}
+import Element from '../dom/element-node';
+import { isRTL } from '../utils/i18n';
 
 interface KeyboardWillShowEvent {
   keyboardHeight: number;
@@ -170,7 +169,7 @@ interface TextInputProps extends LayoutableProps, ClickableProps {
  * @noInheritDoc
  */
 class TextInput extends React.Component<TextInputProps, {}> {
-  private instance: HTMLDivElement | null = null;
+  private instance: HTMLDivElement | Element | null = null;
 
   private _lastNativeText?: string = '';
 
@@ -208,7 +207,7 @@ class TextInput extends React.Component<TextInputProps, {}> {
    */
   public getValue(): Promise<string> {
     return new Promise((resolve) => {
-      callUIFunction(this.instance, 'getValue', (res: TextInputResponse) => resolve(res.text));
+      callUIFunction(this.instance as Element, 'getValue', (res: TextInputEvent) => resolve(res.text));
     });
   }
 
@@ -219,7 +218,7 @@ class TextInput extends React.Component<TextInputProps, {}> {
    * @returns {string}
    */
   public setValue(value: string): string {
-    callUIFunction(this.instance, 'setValue', [value]);
+    callUIFunction(this.instance as Element, 'setValue', [value]);
     return value;
   }
 
@@ -227,38 +226,38 @@ class TextInput extends React.Component<TextInputProps, {}> {
    * Make the `TextInput` focused.
    */
   public focus() {
-    callUIFunction(this.instance, 'focusTextInput', []);
+    callUIFunction(this.instance as Element, 'focusTextInput', []);
   }
 
   /**
    * Make the `TextInput` blured.
    */
   public blur() {
-    callUIFunction(this.instance, 'blurTextInput', []);
+    callUIFunction(this.instance as Element, 'blurTextInput', []);
   }
 
   /**
    * Show input method selection dialog.
    */
   public showInputMethod() {
-    callUIFunction(this.instance, 'showInputMethod', []);
+    callUIFunction(this.instance as Element, 'showInputMethod', []);
   }
 
   /**
    * Hide the input method selection dialog.
    */
   public hideInputMethod() {
-    callUIFunction(this.instance, 'hideInputMethod', []);
+    callUIFunction(this.instance as Element, 'hideInputMethod', []);
   }
 
   /**
    * Clear the content of `TextInput`
    */
   public clear() {
-    callUIFunction(this.instance, 'clear', []);
+    callUIFunction(this.instance as Element, 'clear', []);
   }
 
-  private _onChangeText(e: TextInputResponse) {
+  private _onChangeText(e: TextInputEvent) {
     const { onChangeText } = this.props;
     if (typeof onChangeText === 'function') {
       onChangeText(e.text);
@@ -291,22 +290,41 @@ class TextInput extends React.Component<TextInputProps, {}> {
     const nativeProps = { ...this.props };
     ['underlineColorAndroid', 'placeholderTextColor', 'placeholderTextColors'].forEach((prop) => {
       if (typeof (this.props as any)[prop] === 'string') {
-        if (typeof nativeProps.style === 'object') {
+        if (Array.isArray(nativeProps.style)) {
+          nativeProps.style.push({
+            [prop]: (this.props as any)[prop],
+          });
+        } else if (nativeProps.style && typeof nativeProps.style === 'object') {
           (nativeProps.style as any)[prop] = (this.props as any)[prop];
         } else {
           nativeProps.style = {
             [prop]: (this.props as any)[prop],
           };
         }
-        delete (nativeProps as any)[prop];
+        (nativeProps as any)[prop] = undefined;
       }
     });
+
+    if (isRTL()) {
+      if (!nativeProps.style) {
+        nativeProps.style = {
+          textAlign: 'right',
+        };
+      } else if (typeof nativeProps.style === 'object' && !Array.isArray(nativeProps.style)) {
+        if (!nativeProps.style.textAlign) {
+          nativeProps.style.textAlign = 'right';
+        }
+      }
+    }
 
     return (
       <div
         nativeName="TextInput"
         {...nativeProps}
-        ref={(ref) => { this.instance = ref; }}
+        ref={(ref) => {
+          this.instance = ref;
+        }}
+        // @ts-ignore
         onChangeText={this._onChangeText}
         onKeyboardWillShow={this._onKeyboardWillShow}
       />

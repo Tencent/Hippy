@@ -1,9 +1,8 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 
-import DocumentNode from './document-node';
 import { insertChild, removeChild } from '../renderer/render';
-import '../../../../types/global';
+import '../../../types/global';
 
 let currentNodeId: number = 0;
 function getNodeId() {
@@ -26,9 +25,6 @@ interface NodeMeta {
 
 class ViewNode {
   public nodeId: number;
-
-  // Point to root document element.
-  private _ownerDocument: ViewNode | null = null;
 
   // Component meta information, such as native component will use.
   public meta: NodeMeta = {
@@ -70,24 +66,6 @@ class ViewNode {
       : null;
   }
 
-  /* istanbul ignore next */
-  get ownerDocument(): ViewNode | null {
-    if (this._ownerDocument) {
-      return this._ownerDocument;
-    }
-
-    let el: ViewNode | null = this;
-    while (!(el instanceof DocumentNode)) {
-      if (el.parentNode) {
-        el = el.parentNode;
-      } else {
-        break;
-      }
-    }
-    this._ownerDocument = el;
-    return el;
-  }
-
   get isMounted() {
     return this._isMounted;
   }
@@ -107,15 +85,11 @@ class ViewNode {
     }
 
     if (referenceNode.parentNode !== this) {
-      throw new Error(
-        'Can\'t insert child, because the reference node has a different parent.',
-      );
+      throw new Error('Can\'t insert child, because the reference node has a different parent.');
     }
 
     if (childNode.parentNode && childNode.parentNode !== this) {
-      throw new Error(
-        'Can\'t insert child, because it already has a different parent.',
-      );
+      throw new Error('Can\'t insert child, because it already has a different parent.');
     }
 
     const index = this.childNodes.indexOf(referenceNode);
@@ -140,15 +114,11 @@ class ViewNode {
     }
 
     if (referenceNode.parentNode !== this) {
-      throw new Error(
-        'Can\'t move child, because the reference node has a different parent.',
-      );
+      throw new Error('Can\'t move child, because the reference node has a different parent.');
     }
 
     if (childNode.parentNode && childNode.parentNode !== this) {
-      throw new Error(
-        'Can\'t move child, because it already has a different parent.',
-      );
+      throw new Error('Can\'t move child, because it already has a different parent.');
     }
 
     const oldIndex = this.childNodes.indexOf(childNode);
@@ -195,9 +165,7 @@ class ViewNode {
     }
 
     if (childNode.parentNode && childNode.parentNode !== this) {
-      throw new Error(
-        'Can\'t append child, because it already has a different parent.',
-      );
+      throw new Error('Can\'t append child, because it already has a different parent.');
     }
 
     childNode.parentNode = this;

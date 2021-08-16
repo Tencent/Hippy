@@ -5,11 +5,11 @@ import {
   View,
   StyleSheet,
   Text,
-} from 'hippy-react';
-import mockData from './UIStyles/mock';
-import Style1 from './UIStyles/Style1';
-import Style2 from './UIStyles/Style2';
-import Style5 from './UIStyles/Style5';
+} from '@hippy/react';
+import mockData from '../../shared/UIStyles/mock';
+import Style1 from '../../shared/UIStyles/Style1';
+import Style2 from '../../shared/UIStyles/Style2';
+import Style5 from '../../shared/UIStyles/Style5';
 
 const STYLE_LOADING = 100;
 const MAX_FETCH_TIMES = 50;
@@ -163,7 +163,9 @@ export default class RefreshWrapperExample extends React.Component {
     const { dataSource } = this.state;
     return (
       <RefreshWrapper
-        ref={(ref) => { this.refresh = ref; }}
+        ref={(ref) => {
+          this.refresh = ref;
+        }}
         style={{ flex: 1 }}
         onRefresh={this.onRefresh}
         bounceTime={100}
