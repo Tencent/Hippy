@@ -1,4 +1,3 @@
-```
 <!-- markdownlint-disable no-duplicate-header -->
 
 # 核心组件
