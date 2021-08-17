@@ -95,12 +95,22 @@ export default class ListExample extends React.Component {
       fetchingDataFlag: false,
     };
     this.fetchTimes = 0;
+    this.delText = 'Delete';
     this.mockFetchData = this.mockFetchData.bind(this);
     this.getRenderRow = this.getRenderRow.bind(this);
     this.onEndReached = this.onEndReached.bind(this);
     this.getRowType = this.getRowType.bind(this);
     this.getRowKey = this.getRowKey.bind(this);
     this.getRowStyle = this.getRowStyle.bind(this);
+    this.onDelete = this.onDelete.bind(this);
+  }
+
+  onDelete({ index }) {
+    const { dataSource } = this.state;
+    const newData = dataSource.filter((item, i) => index !== i);
+    this.setState({
+      dataSource: newData,
+    });
   }
 
   async onEndReached() {
@@ -224,6 +234,9 @@ export default class ListExample extends React.Component {
         renderRow={this.getRenderRow}
         onEndReached={this.onEndReached}
         getRowType={this.getRowType}
+        onDelete={this.onDelete}
+        delText={this.delText}
+        editable={true}
         // getRowStyle={this.getRowStyle}
         getRowKey={this.getRowKey}
         initialListSize={15}
