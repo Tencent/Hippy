@@ -32,8 +32,11 @@
       :horizontal="undefined"
       :numberOfRows="dataSource.length"
       :exposureEventEnabled="true"
+      :delText="delText"
+      :editable="true"
       @endReached="onEndReached"
       @scroll="onScroll"
+      @delete="onDelete"
     >
       <!--
         li 有两个参数是一定要加上的。
@@ -96,6 +99,7 @@ export default {
         top: 0,
         left: 0,
       },
+      delText: 'Delete',
       Vue,
       STYLE_LOADING,
     };
@@ -144,6 +148,9 @@ export default {
           return resolve(mockData);
         }, 300);
       });
+    },
+    onDelete(event) {
+      this.dataSource.splice(event.index, 1);
     },
     async onEndReached() {
       const { dataSource } = this;
