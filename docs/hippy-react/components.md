@@ -119,7 +119,7 @@ import icon from './qb_icon_new.png';
 | onHeaderReleased   | 下拉超过内容高度，松手后触发。 | `() => any`                                                   | `ALL`    |
 | editable   | 是否可编辑，开启侧滑删除时需要设置为 `true`。`最低支持版本2.9.0` | `boolean`                                                   | `iOS`    |
 | delText   | 侧滑删除文本。`最低支持版本2.9.0` | `string`                                                   | `iOS`    |
-| onDelete   | 在列表项侧滑删除时调起。`最低支持版本2.9.0` | `Function`                                                   | `iOS`    |
+| onDelete   | 在列表项侧滑删除时调起。`最低支持版本2.9.0` | `( nativeEvent: { index: number} ) => void`                                                   | `iOS`    |
 
 
 ## 方法
