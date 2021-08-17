@@ -62,6 +62,7 @@ const styles = StyleSheet.create({
   },
 });
 
+
 function Style1({ index }) {
   return (
     <View style={styles.container}>
