@@ -85,6 +85,7 @@ function Style5({ index }) {
     </View>
   );
 }
+
 export default class ListExample extends React.Component {
   constructor(props) {
     super(props);
