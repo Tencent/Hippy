@@ -106,9 +106,9 @@ export default class ListExample extends React.Component {
 
   onDelete({ index }) {
     const { dataSource } = this.state;
-    const _dataSource = dataSource.filter((item, i) => index !== i);
+    const newData = dataSource.filter((item, i) => index !== i);
     this.setState({
-      dataSource: _dataSource,
+      dataSource: newData,
     });
   }
 
