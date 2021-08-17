@@ -312,8 +312,8 @@ Hippy 的重点功能，高性能的可复用列表组件。里面第一层只�
 | preloadItemNumber     | 指定当列表滚动至倒数第几行时触发 `onEndReached` 回调。 | `number` | `ALL` |
 | exposureEventEnabled | Android曝光能力启用开关，如果要使用`appear`、`disappear`相关事件，Android需要设置（iOS无需设置）| `boolean` | `Android`
 | endReached | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `endReached` 回调。 | `Function`                                                  | `ALL`    |
-| editable | 是否可编辑，开启侧滑删除时需要设置为 `true`。 | `boolean`                                                  | `iOS`    |
-| delText | 侧滑删除文本 | `string`                                                  | `iOS`    |
+| editable | 是否可编辑，开启侧滑删除时需要设置为 `true`。`最低支持版本2.9.0` | `boolean`                                                  | `iOS`    |
+| delText | 侧滑删除文本。`最低支持版本2.9.0` | `string`                                                  | `iOS`    |
 
 ## 事件
 
@@ -326,7 +326,7 @@ Hippy 的重点功能，高性能的可复用列表组件。里面第一层只�
 | scrollBeginDrag     | 当用户开始拖拽 `ScrollView` 时调用。                         | `Function`                                                  | `ALL`    |
 | scrollEndDrag       | 当用户停止拖拽 `ScrollView` 或者放手让 `ScrollView` 开始滑动的时候调用 | `Function`                                                  | `ALL`    |
 | layout      | 当元素挂载或者布局改变的时候调用，参数为： `{ nativeEvent: { layout: { x, y, width, height } } }`。 | `Function`                                | `ALL`    |
-| delete      | 在列表项侧滑删除时调起，参数为： `{ nativeEvent: { index } }`。 | `Function`                                | `iOS`    |
+| delete      | 在列表项侧滑删除时调起，参数为： `{ nativeEvent: { index } }`。`最低支持版本2.9.0` | `Function`                                | `iOS`    |
 
 ## 方法
 
