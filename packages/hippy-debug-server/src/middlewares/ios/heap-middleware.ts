@@ -3,7 +3,7 @@ import { getRequestId } from '../global-id';
 import { MiddleWareManager } from '../middleware-context';
 import HeapAdapter from './heap-adapter';
 
-export const heapMiddlewares: MiddleWareManager = {
+export const heapMiddleWareManager: MiddleWareManager = {
   upwardMiddleWareListMap: {},
   downwardMiddleWareListMap: {
     [ChromeCommand.HeapProfilerEnable]: ({ msg, sendToApp, sendToDevtools }) => {

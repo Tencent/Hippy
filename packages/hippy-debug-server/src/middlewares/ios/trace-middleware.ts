@@ -2,7 +2,7 @@ import { MiddleWareManager } from '../middleware-context';
 import { getRequestId } from '../global-id';
 import TraceAdapter from './trace-adapter';
 
-export const traceMiddlewares: MiddleWareManager = {
+export const traceMiddleWareManager: MiddleWareManager = {
   upwardMiddleWareListMap: {
     'ScriptProfiler.trackingComplete': ({ msg, sendToDevtools }) => {
       const eventRes = msg as Adapter.CDP.EventRes;

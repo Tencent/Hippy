@@ -13,8 +13,10 @@ import { DebugTargetManager, getChromeInspectRouter } from './router/chrome-insp
 import { SocketServer } from './socket-server';
 
 const debug = createDebug('server');
+createDebug.enable('server');
 
 export class Application {
+  public static isServerReady = false;
   private static argv: Application.StartServerArgv;
   private static server;
   private static socketServer: SocketServer;
@@ -26,8 +28,6 @@ export class Application {
       static: staticPath,
       entry,
       iwdpPort,
-      iwdpStartPort,
-      iwdpEndPort,
       startAdb,
       startIWDP,
       clearAddrInUse,
@@ -58,6 +58,7 @@ export class Application {
 
         Application.socketServer = new SocketServer(Application.server, argv);
         Application.socketServer.start();
+        Application.isServerReady = true;
         resolve(null);
       });
 
@@ -94,17 +95,13 @@ export class Application {
   }
 
   public static stopServer(exitProcess = false) {
-    if (!Application.server) {
-      if (exitProcess)
-        setTimeout(() => {
-          process.exit(0);
-        }, 100);
-      return;
-    }
     try {
       debug('stopServer');
-      Application.server.close();
-      Application.server = null;
+      if (Application.server) {
+        Application.server.close();
+        Application.server = null;
+      }
+      Application.isServerReady = false;
       if (exitProcess)
         setTimeout(() => {
           process.exit(0);

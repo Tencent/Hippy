@@ -1,7 +1,7 @@
 import color from 'color-normalize';
 import { MiddleWareManager } from './middleware-context';
 
-export const heapMiddlewares: MiddleWareManager = {
+export const cssMiddleWareManager: MiddleWareManager = {
   upwardMiddleWareListMap: {
     'CSS.getMatchedStylesForNode': ({ msg, sendToDevtools }) => {
       const commandRes = msg as Adapter.CDP.CommandRes;

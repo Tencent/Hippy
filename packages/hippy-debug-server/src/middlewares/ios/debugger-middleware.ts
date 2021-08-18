@@ -5,7 +5,7 @@ import { MiddleWareManager } from '../middleware-context';
 
 export let lastScriptEval;
 
-export const debuggerMiddlewares: MiddleWareManager = {
+export const debuggerMiddleWareManager: MiddleWareManager = {
   upwardMiddleWareListMap: {
     [ChromeEvent.DebuggerScriptParsed]: ({ msg, sendToDevtools }) => {
       const eventRes = msg as Adapter.CDP.EventRes;

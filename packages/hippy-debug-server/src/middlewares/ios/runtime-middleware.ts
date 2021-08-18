@@ -5,7 +5,7 @@ import { lastScriptEval } from './debugger-middleware';
 
 let lastPageExecutionContextId;
 
-export const runtimeMiddlewares: MiddleWareManager = {
+export const runtimeMiddleWareManager: MiddleWareManager = {
   upwardMiddleWareListMap: {
     'Runtime.executionContextCreated': ({ msg, sendToDevtools }) => {
       const eventRes = msg as Adapter.CDP.EventRes;

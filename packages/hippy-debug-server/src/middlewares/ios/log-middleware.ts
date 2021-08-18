@@ -1,7 +1,7 @@
 import { ChromeCommand } from 'tdf-devtools-protocol/types/enum-chrome-mapping';
 import { MiddleWareManager } from '../middleware-context';
 
-export const logMiddlewares: MiddleWareManager = {
+export const logMiddleWareManager: MiddleWareManager = {
   upwardMiddleWareListMap: {
     'Console.messageAdded': ({ msg, sendToDevtools }) => {
       const eventRes = msg as Adapter.CDP.EventRes;
