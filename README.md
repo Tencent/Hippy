@@ -50,7 +50,8 @@ For iOS, we recommend to use iOS simulator when first try. However, you can chan
 5. Start the Xcode and build the iOS app with `open examples/ios-demo/HippyDemo.xcodeproj`.
 
 > If `Step 4` throw error, you can `cd` to `examples` hippy-react-demo or hippy-vue-demo, and run `npm install --legacy-peer-deps` to install demo dependencies first.
-> [iOS SDK integration](https://hippyjs.org/#/ios/integration?id=ios-%e9%9b%86%e6%88%90)
+> 
+> More details for [iOS SDK integration](https://hippyjs.org/#/ios/integration?id=ios-%e9%9b%86%e6%88%90).
 
 ### Build the Android app with js demo
 
@@ -70,7 +71,8 @@ Before build the android app, please make sure the SDK and NDK is installed, And
 > If `Step 4` throw error, you can `cd` to `examples` hippy-react-demo or hippy-vue-demo, and run `npm install --legacy-peer-deps` to install demo dependencies first.
 >
 > If you encounter the issue of `No toolchains found in the NDK toolchains folder for ABI with prefix: mips64el-linux-android`, here is the [solution](https://github.com/google/filament/issues/15#issuecomment-415423557).
-> [Android SDK integration](https://hippyjs.org/#/android/integration?id=android-%e9%9b%86%e6%88%90)
+> 
+> More details for [Android SDK integration](https://hippyjs.org/#/android/integration?id=android-%e9%9b%86%e6%88%90).
 
 ### Debug the js demo
 
@@ -81,7 +83,7 @@ Before build the android app, please make sure the SDK and NDK is installed, And
 
 > On example debug mode, npm packages such as @hippy/react, @hippy/vue are linked to `packages` > `[different package]` > `dist`(not node_modules), so if you have changed js package source code and want to make it take effect in target example, please call `npm run build` at root directory again.
 >
-> More details for debug can be read in [Hippy Debug Document](https://hippyjs.org/#/guide/debug).
+> More details for debugging can be read in [Hippy Debug Document](https://hippyjs.org/#/guide/debug).
 
 ## Documentation
 
