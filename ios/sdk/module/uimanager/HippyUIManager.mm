@@ -1416,6 +1416,10 @@ static UIView *_jsResponder;
         if (oldNode == nil) {
             return nil;
         }
+        
+        if (![[oldNode viewName] isEqualToString:[node viewName]]) {
+            return nil;
+        }
 
         NSDictionary *diff = [oldNode diff:node];
 

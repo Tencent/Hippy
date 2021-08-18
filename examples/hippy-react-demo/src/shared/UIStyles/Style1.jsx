@@ -11,7 +11,7 @@ import Utils from '../../utils';
 const IMAGE_CONTAINER_WIDTH = Utils.getScreenWidth() - 2 * 12;
 const IMAGE_SPACE = 6;
 const IMAGE_WIDTH = (IMAGE_CONTAINER_WIDTH - IMAGE_SPACE * 2) / 3;
-const IMAGE_ASPECT_RATIO = 108 * 1.0 / 80;
+const IMAGE_ASPECT_RATIO = 108 / 80;
 const IMAGE_HEIGHT = Math.floor(IMAGE_WIDTH / IMAGE_ASPECT_RATIO);
 
 const styles = StyleSheet.create({

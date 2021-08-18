@@ -41,6 +41,6 @@
 ## 附录
 
 [版本查询地址](//search.maven.org/search?q=com.tencent.hippy)
-[Demo 下载地址](//github.com/Tencent/Hippy)
+[Demo 下载地址](//github.com/Tencent/Hippy/tree/master/examples/android-demo)
 
 Demo工程位于examples/android-demo目录下

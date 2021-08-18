@@ -18,6 +18,7 @@
     "RefreshWrapper",
     "tab-host",
     "view-pager",
-    "ul-refresh"
+    "ul-refresh",
+    "waterfall"
   ]
 }

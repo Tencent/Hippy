@@ -6,7 +6,7 @@ Hippy 已经提供了完整的[前终端范例](//github.com/Tencent/Hippy/tree/
 
 # 终端集成
 
-如果要接入 Hippy 到现有项目，请查看 [iOS](ios/integration.md) 或 [Android](android/integration.md) 集成教程。
+如果要接入 Hippy 到现有终端项目，请参考 [Android](android/integration.md) 和 [iOS](ios/integration.md) 集成教程。
 
 # 前端接入
 
