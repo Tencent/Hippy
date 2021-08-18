@@ -27,8 +27,8 @@ export interface MiddleWareContext extends UrlParsedContext {
 export type MiddleWare = (ctx: MiddleWareContext, next: () => void) => void;
 
 export interface MiddleWareManager {
-  upwardMiddleWareListMap: { [k: string]: Array<MiddleWare> | MiddleWare };
-  downwardMiddleWareListMap: { [k: string]: Array<MiddleWare> | MiddleWare };
+  upwardMiddleWareListMap?: { [k: string]: Array<MiddleWare> | MiddleWare };
+  downwardMiddleWareListMap?: { [k: string]: Array<MiddleWare> | MiddleWare };
 }
 
 export const debugTarget2UrlParsedContext = (debugTarget: DebugTarget): UrlParsedContext => ({

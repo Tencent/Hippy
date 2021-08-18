@@ -66,7 +66,7 @@ export const initHippyEnv = () => {
 };
 
 // 终端自己实现的域
-const customDomains = ['Page', 'DOM', 'CSS', 'Overlay', 'TDFInspector', 'TDFPerformance', 'TDFMemory'];
+const customDomains = ['Page', 'DOM', 'CSS', 'Overlay', 'TDFInspector', 'TDFPerformance', 'TDFMemory', 'TDFLog'];
 
 /**
  * voltron

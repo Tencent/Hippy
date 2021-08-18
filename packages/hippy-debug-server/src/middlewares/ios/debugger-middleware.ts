@@ -1,4 +1,4 @@
-import { ChromeCommand, ChromeEvent } from '@tencent/tdf-devtools-protocol/types/enum-chrome-mapping';
+import { ChromeCommand, ChromeEvent } from 'tdf-devtools-protocol/types/enum-chrome-mapping';
 import { sendEmptyResultToDevtools } from '../default-middleware';
 import { getRequestId } from '../global-id';
 import { MiddleWareManager } from '../middleware-context';

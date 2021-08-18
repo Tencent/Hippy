@@ -1,4 +1,4 @@
-import { ChromeCommand } from '@tencent/tdf-devtools-protocol/types/enum-chrome-mapping';
+import { ChromeCommand } from 'tdf-devtools-protocol/types/enum-chrome-mapping';
 import { MiddleWareManager } from '../middleware-context';
 
 export const logMiddlewares: MiddleWareManager = {

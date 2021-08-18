@@ -33,7 +33,6 @@
   },
   "types": "dist/@types/index.d.ts",
   "dependencies": {
-    "@tencent/tdf-devtools-protocol": "0.0.17",
     "color-normalize": "^1.5.2",
     "debug": "^4.1.1",
     "find-up": "^4.1.0",
@@ -46,6 +45,7 @@
     "request": "^2.88.2",
     "request-promise": "^4.2.6",
     "signale": "^1.4.0",
+    "tdf-devtools-protocol": "^0.0.18",
     "uuid": "^8.3.2",
     "ws": "^7.5.3",
     "yargs": "^15.0.2"
