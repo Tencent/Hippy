@@ -172,6 +172,13 @@ static NSString *HippyRecursiveAccessibilityLabel(UIView *view) {
     self = [super init];
     if (self) {
         _bridge = bridge;
+    }
+    return self;
+}
+
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
         _borderWidth = -1;
         _borderTopWidth = -1;
         _borderRightWidth = -1;
