@@ -51,7 +51,7 @@ Windows 用户者需要以下软件:
 5. 启动 Xcode 并且开始编译终端 App：`open examples/ios-demo/HippyDemo.xcodeproj`。
 
 > 如果步骤4出现错误，可以先 `cd` 到 `examples` hippy-react-demo 或者 hippy-vue-demo 目录下，执行 `npm install --legacy-peer-deps`，提前将 demo 的 NPM 包依赖先安装好。
-> 
+>
 > 更多信息请参考 [iOS SDK 集成](https://hippyjs.org/#/ios/integration?id=ios-%e9%9b%86%e6%88%90)。
 
 ### 使用 JS 范例来构建 Android App
@@ -71,7 +71,7 @@ Windows 用户者需要以下软件:
 > 如果步骤4出现错误，可以先 `cd` 到 `examples` hippy-react-demo 或者 hippy-vue-demo 目录下，执行 `npm install --legacy-peer-deps`，提前将 demo 的 NPM 包依赖先安装好。
 >
 > 如果 Android Studio 报了这个错误 `No toolchains found in the NDK toolchains folder for ABI with prefix: mips64el-linux-android`，这里有[解决办法](https://github.com/google/filament/issues/15#issuecomment-415423557)。
-> 
+>
 > 更多信息请参考 [Android SDK 集成](https://hippyjs.org/#/android/integration?id=android-%e9%9b%86%e6%88%90)。
 
 ### 调试前端 Demo
