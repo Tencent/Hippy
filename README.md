@@ -1,6 +1,6 @@
 # Hippy Cross Platform Framework
 
-![Hippy Group](https://img.shields.io/badge/group-Hippy-blue.svg) [![license](https://img.shields.io/badge/license-Apache%202-blue)](https://github.com/Tencent/Hippy/blob/master/LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Tencent/Hippy/pulls) ![node](https://img.shields.io/badge/node-%3E%3D10.0.0-green.svg) [![Actions Status](https://github.com/Tencent/Hippy/workflows/build/badge.svg?branch=master)](https://github.com/Tencent/Hippy/actions) [![Codecov](https://img.shields.io/codecov/c/github/Tencent/Hippy)](https://codecov.io/gh/Tencent/Hippy) ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/Tencent/Hippy)
+![Hippy Group](https://img.shields.io/badge/group-Hippy-blue.svg) [![license](https://img.shields.io/badge/license-Apache%202-blue)](https://github.com/Tencent/Hippy/blob/master/LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Tencent/Hippy/pulls) ![node](https://img.shields.io/badge/node-%3E%3D10.0.0-green.svg) [![Actions Status](https://github.com/Tencent/Hippy/workflows/build/badge.svg?branch=master)](https://github.com/Tencent/Hippy/actions) [![Codecov](https://img.shields.io/codecov/c/github/Tencent/Hippy)](https://codecov.io/gh/Tencent/Hippy) [![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/Tencent/Hippy)](https://github.com/Tencent/Hippy/releases)
 
 English | [简体中文](./README.zh_CN.md) | [Homepage](//tencent.github.io/Hippy/)
 
@@ -40,7 +40,7 @@ For Windows developers:
 
 ### Build the iOS simulator with js demo
 
-For iOS we recommend to use iOS simulator when first try. However, you can change the Xcode configuration to install the app to iPhone if you are an iOS expert.
+For iOS, we recommend to use iOS simulator when first try. However, you can change the Xcode configuration to install the app to iPhone if you are an iOS expert.
 
 1. Install the project build scripts dependencies at root directory with `npm install`.
 2. Install dependencies of each npm package at root directory with `lerna bootstrap`.
@@ -50,6 +50,8 @@ For iOS we recommend to use iOS simulator when first try. However, you can chang
 5. Start the Xcode and build the iOS app with `open examples/ios-demo/HippyDemo.xcodeproj`.
 
 > If `Step 4` throw error, you can `cd` to `examples` hippy-react-demo or hippy-vue-demo, and run `npm install --legacy-peer-deps` to install demo dependencies first.
+>
+> More details for [iOS SDK integration](https://hippyjs.org/#/ios/integration?id=ios-%e9%9b%86%e6%88%90).
 
 ### Build the Android app with js demo
 
@@ -69,6 +71,8 @@ Before build the android app, please make sure the SDK and NDK is installed, And
 > If `Step 4` throw error, you can `cd` to `examples` hippy-react-demo or hippy-vue-demo, and run `npm install --legacy-peer-deps` to install demo dependencies first.
 >
 > If you encounter the issue of `No toolchains found in the NDK toolchains folder for ABI with prefix: mips64el-linux-android`, here is the [solution](https://github.com/google/filament/issues/15#issuecomment-415423557).
+>
+> More details for [Android SDK integration](https://hippyjs.org/#/android/integration?id=android-%e9%9b%86%e6%88%90).
 
 ### Debug the js demo
 
@@ -79,7 +83,7 @@ Before build the android app, please make sure the SDK and NDK is installed, And
 
 > On example debug mode, npm packages such as @hippy/react, @hippy/vue are linked to `packages` > `[different package]` > `dist`(not node_modules), so if you have changed js package source code and want to make it take effect in target example, please call `npm run build` at root directory again.
 >
-> More details for debug can be read in [Hippy Debug Document](https://hippyjs.org/#/guide/debug).
+> More details for debugging can be read in [Hippy Debug Document](https://hippyjs.org/#/guide/debug).
 
 ## Documentation
 

@@ -10,7 +10,7 @@
     "build": "node ./scripts/build.js",
     "buildcore": "node ./scripts/build-core.js",
     "buildexample": "node ./scripts/build-example.js",
-    "markdownlint": "markdownlint --config .markdownlintrc.json ./*.md ./docs/**/*.md",
+    "markdownlint": "markdownlint --config .markdownlintrc.json \"./@(README|README.zh_CN|PUBLISH.zh_CN).md\" \"./docs/**/*.md\"",
     "coverage": "nyc ava",
     "codecov": "cat ./coverage/lcov.info | codecov",
     "lint": "eslint --fix \"packages/**/*.@(js|ts|tsx|vue)\" \"examples/hippy-react-demo/**/*.@(js|jsx)\" \"examples/hippy-vue-demo/**/*.@(js|vue)\" \"./scripts/**/*.js\" \"./core/js/**/*.js\"",

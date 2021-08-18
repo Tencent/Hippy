@@ -72,6 +72,7 @@ class View extends React.Component<ViewProps, {}> {
     }
 
     return (
+    // @ts-ignore
       <div nativeName="View" style={nativeStyle} {...nativeProps} />
     );
   }
