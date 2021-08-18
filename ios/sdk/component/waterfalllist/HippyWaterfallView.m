@@ -90,6 +90,7 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 - (instancetype)initWithBridge:(HippyBridge *)bridge {
     if (self = [super initWithFrame:CGRectZero]) {
         self.backgroundColor = [UIColor clearColor];
+        self.bridge = bridge;
         _scrollListeners = [NSMutableArray array];
         _scrollEventThrottle = 100.f;
 
