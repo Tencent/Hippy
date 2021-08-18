@@ -8,7 +8,7 @@
 
 ## 使用pod集成
 
-1.安装[CocoaPods](https://cocoapods.org/)
+1.安装[CocoaPods](https://cocoapods.org/)，Hippy iOS SDK [版本查询](https://cocoapods.org/pods/hippy)
 
 2.在用户自定义工程目录下创建podfile文件，文本如下
 

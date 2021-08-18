@@ -464,7 +464,7 @@ import icon from './qb_icon_new.png';
 
 # WaterfallView
 
-> 最低支持版本 2.8.5
+> 最低支持版本 2.9.0
 
 [[WaterfallView 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/WaterfallView)
 

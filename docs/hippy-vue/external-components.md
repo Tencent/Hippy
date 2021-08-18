@@ -183,7 +183,7 @@
 
 # waterfall
 
-> 最低支持版本 2.8.5
+> 最低支持版本 2.9.0
 
 [[范例：demo-waterfall]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-waterfall.vue)
 
@@ -230,7 +230,7 @@
 
 # waterfall-item
 
-> 最低支持版本 2.8.5
+> 最低支持版本 2.9.0
 
 瀑布流组件 Cell 容器，瀑布流子元素
 
