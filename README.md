@@ -4,13 +4,13 @@
 
 English | [简体中文](./README.zh_CN.md) | [Homepage](//tencent.github.io/Hippy/)
 
-## Introduction
+## 💡 Introduction
 
 Hippy is a cross-platform development framework, aiming to help developers write once, run on three platforms(iOS, Android and Web). Hippy is quite friendly to Web developers, especially who are familiar with React or Vue. With Hippy, developers are able to create the cross platform app easily.
 
 Hippy is now applied in 27+ [Tencent](http://www.tencent.com/) apps such as Mobile QQ, Mobile QQ Browser, Tencent Video App, QQ Music App, Tencent News, reaching hundreds of millions of ordinary users.
 
-## Advantages
+## 💯 Advantages
 
 * Designed for Web developers, officially support Web frameworks like `React` and `Vue`.
 * Same APIs for different platforms.
@@ -19,7 +19,7 @@ Hippy is now applied in 27+ [Tencent](http://www.tencent.com/) apps such as Mobi
 * Smoothly and gracefully migrate to Web browser.
 * Fully supported Flex [Layout engine](./layout).
 
-## Getting started
+## 🔨 Getting started
 
 ### Preparing environment
 
@@ -85,15 +85,15 @@ Before build the android app, please make sure the SDK and NDK is installed, And
 >
 > More details for debugging can be read in [Hippy Debug Document](https://hippyjs.org/#/guide/debug).
 
-## Documentation
+## 📁 Documentation
 
 To check out [hippy examples](https://github.com/Tencent/Hippy/tree/master/examples) and visit [hippyjs.org](https://hippyjs.org).
 
-## Changelog
+## 📅 Changelog
 
 Detailed changes for each release version are documented in the [project release notes](https://github.com/Tencent/Hippy/releases).
 
-## Project structure
+## 🧱 Project structure
 
 ```text
 Hippy
@@ -122,21 +122,21 @@ Hippy
 └── scripts                           # Project build script.
 ```
 
-## Contribution
+## 🤝 Contribution
 
 Developers are welcome to contribute to Tencent's open source, and we will also give them incentives to acknowledge and thank them. Here we provide an official description of Tencent's open source contribution. Specific contribution rules for each project are formulated by the project team. Developers can choose the appropriate project and participate according to the corresponding rules. The Tencent Project Management Committee will report regularly to qualified contributors and awards will be issued by the official contact. Before making a pull request or issue to Hippy, please make sure to read [Contributing Guide](https://github.com/Tencent/Hippy/blob/master/.github/CONTRIBUTING.md).
 
 All the people who already contributed to Hippy can be seen in [Contributors](https://github.com/Tencent/Hippy/graphs/contributors) and [Authors File](https://github.com/Tencent/Hippy/blob/master/AUTHORS).
 
-## Stargazers over time
+## ❤️ Stargazers over time
 
 [![Stargazers over time](https://starchart.cc/Tencent/Hippy.svg)](https://starchart.cc/Tencent/Hippy)
 
-## License
+## 📄 License
 
 Hippy is [Apache-2.0 licensed](./LICENSE).
 
-## Links
+## 🔗 Links
 
 [Hippy Eco-System](https://github.com/hippy-contrib)
 
