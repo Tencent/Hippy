@@ -4,12 +4,12 @@ import React from 'react';
 import Style from '@localTypes/style';
 import { Fiber } from 'react-reconciler';
 import { LayoutEvent } from '@localTypes/event';
-import ListViewItem, { ListViewItemProps } from './list-view-item';
-import PullHeader from './pull-header';
-import PullFooter from './pull-footer';
 import { callUIFunction } from '../modules/ui-manager-module';
 import { warn } from '../utils';
 import { Device } from '../native';
+import ListViewItem, { ListViewItemProps } from './list-view-item';
+import PullHeader from './pull-header';
+import PullFooter from './pull-footer';
 
 
 type DataItem = any;

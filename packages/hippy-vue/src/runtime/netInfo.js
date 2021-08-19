@@ -1,7 +1,7 @@
 /* eslint-disable no-use-before-define */
 
-import Native from './native';
 import { getApp, warn } from '../util';
+import Native from './native';
 let app;
 
 const DEVICE_CONNECTIVITY_EVENT = 'networkStatusDidChange';

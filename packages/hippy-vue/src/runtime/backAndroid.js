@@ -1,5 +1,5 @@
-import Native from './native';
 import { getApp } from '../util';
+import Native from './native';
 
 const backPressSubscriptions = new Set();
 let app;

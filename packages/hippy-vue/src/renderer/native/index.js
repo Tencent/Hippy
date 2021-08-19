@@ -6,7 +6,6 @@
  */
 
 import Native, { UIManagerModule } from '../../runtime/native';
-import { fromAstNodes, SelectorsMap } from './style';
 import { GLOBAL_STYLE_NAME } from '../../runtime/constants';
 import {
   getApp,
@@ -19,6 +18,7 @@ import {
 import {
   isRTL,
 } from '../../util/i18n';
+import { fromAstNodes, SelectorsMap } from './style';
 
 const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
 

@@ -1,5 +1,5 @@
-import Hippy from './hippy';
 import WebSocket from '../hippy-react/src/modules/websocket';
+import Hippy from './hippy';
 
 declare namespace NodeJS {
   interface Global {

@@ -1,8 +1,8 @@
 /* eslint-disable no-bitwise */
 
-import normalizeValue from './normalize-value';
 import Animation from '../modules/animation';
 import AnimationSet from '../modules/animation-set';
+import normalizeValue from './normalize-value';
 
 const borderSpecialPropsArray = ['borderTopWidth', 'borderBottomWidth', 'borderLeftWidth', 'borderRightWidth'];
 const borderPropsArray = ['borderWidth'];

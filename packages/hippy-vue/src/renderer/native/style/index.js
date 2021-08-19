@@ -1,5 +1,6 @@
 /* eslint-disable import/prefer-default-export */
 
+import { getBeforeLoadStyle } from '../../../util';
 import parseSelector from './parser';
 import {
   RuleSet,
@@ -13,7 +14,6 @@ import {
   SimpleSelectorSequence,
   Selector,
 } from './css-selectors';
-import { getBeforeLoadStyle } from '../../../util';
 
 function isDeclaration(node) {
   return node.type === 'declaration';

@@ -1,8 +1,8 @@
 import React from 'react';
 import { PullingEvent } from '@localTypes/event';
+import { Fiber } from 'react-reconciler';
 import { LayoutableProps } from '../types';
 import { callUIFunction } from '../modules/ui-manager-module';
-import { Fiber } from 'react-reconciler';
 import Element from '../dom/element-node';
 
 interface PullFooterProps extends LayoutableProps {

@@ -109,7 +109,8 @@ module.exports = {
         extensions: ['.tsx', '.jsx'],
       },
     ],
-
+    // Auto range order of imported module
+    'import/order': ['error'],
     // Allow global underscore in dangle
     'no-underscore-dangle': [
       'warn',
