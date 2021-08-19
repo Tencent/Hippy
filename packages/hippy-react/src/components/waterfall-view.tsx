@@ -4,11 +4,11 @@ import React from 'react';
 import Style from '@localTypes/style';
 import { Fiber } from 'react-reconciler';
 import { LayoutEvent } from '@localTypes/event';
+import { callUIFunction } from '../modules/ui-manager-module';
+import { warn } from '../utils';
 import PullHeader from './pull-header';
 import PullFooter from './pull-footer';
 import View from './View';
-import { callUIFunction } from '../modules/ui-manager-module';
-import { warn } from '../utils';
 
 type DataItem = any;
 

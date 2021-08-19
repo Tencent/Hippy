@@ -3,10 +3,7 @@
 
 import colorParser from '@css-loader/color-parser';
 import { PROPERTIES_MAP } from '@css-loader/css-parser';
-import { updateChild, updateWithChildren } from './native';
 import { getViewMeta, normalizeElementName } from '../elements';
-import { Event, EventEmitter } from './native/event';
-import { Text } from './native/components';
 import {
   unicodeToChar,
   tryConvertNumber,
@@ -15,8 +12,11 @@ import {
   getBeforeLoadStyle,
   warn,
 } from '../util';
-import ViewNode from './view-node';
 import Native from '../runtime/native';
+import { updateChild, updateWithChildren } from './native';
+import { Event, EventEmitter } from './native/event';
+import { Text } from './native/components';
+import ViewNode from './view-node';
 
 // linear-gradient direction description map
 const LINEAR_GRADIENT_DIRECTION_MAP = {

@@ -2,9 +2,9 @@
 /* eslint-disable no-mixed-operators */
 
 import Hippy from '@localTypes/hippy';
-import baseColor from './color-parser';
 import { Device } from '../native';
 import { warn } from '../utils';
+import baseColor from './color-parser';
 
 type Color = string | number;
 

@@ -1,4 +1,5 @@
 import Vue from 'vue';
+import demoSetNativeProps from '../demos/demo-set-native-props.vue';
 import demoVueNative from './demo-vue-native.vue';
 import demoAnimation from './demo-animation.vue';
 import demoDialog from './demo-dialog.vue';
@@ -6,7 +7,6 @@ import demoSwiper from './demo-swiper.vue';
 import demoPullHeader from './demo-pull-header.vue';
 import demoPullFooter from './demo-pull-footer.vue';
 import demoWaterfall from './demo-waterfall.vue';
-import demoSetNativeProps from '../demos/demo-set-native-props.vue';
 
 const demos = {};
 

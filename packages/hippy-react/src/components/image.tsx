@@ -1,11 +1,11 @@
 import React from 'react';
 import Style from '@localTypes/style';
 import { LayoutableProps, ClickableProps } from '../types';
-import View from './view';
 import { prefetch, getSize } from '../modules/image-loader-module';
 import { Device } from '../native';
 import { colorParse, colorArrayParse } from '../color';
 import { warn, convertImgUrl } from '../utils';
+import View from './view';
 
 type Color = string | number;
 

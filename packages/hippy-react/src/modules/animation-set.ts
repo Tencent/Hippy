@@ -1,8 +1,8 @@
 import { HippyEventEmitter, HippyEventRevoker } from '../events';
 import { Bridge, Device } from '../native';
 import { warn } from '../utils';
-import { Animation, AnimationCallback } from './animation';
 import { repeatCountDict } from '../utils/animation';
+import { Animation, AnimationCallback } from './animation';
 import '../global';
 
 interface AnimationInstance {

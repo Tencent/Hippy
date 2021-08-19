@@ -3,7 +3,6 @@
 
 import Hippy from '@localTypes/hippy';
 import { Transform } from '@localTypes/style';
-import ViewNode from './view-node';
 import Animation from '../modules/animation';
 import AnimationSet from '../modules/animation-set';
 import { colorParse, colorArrayParse, Color } from '../color';
@@ -16,6 +15,7 @@ import {
   warn,
   convertImgUrl,
 } from '../utils';
+import ViewNode from './view-node';
 import '@localTypes/global';
 
 interface Attributes {

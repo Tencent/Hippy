@@ -19,8 +19,8 @@
 /* eslint-disable no-console */
 
 import debounce from 'debounce';
-import findNodeHandle from './find-node';
 import UIManager from '../modules/ui-manager-module';
+import findNodeHandle from './find-node';
 
 interface Registry {
   [key: string]: any;
