@@ -68,6 +68,19 @@ public class HippyRecyclerViewBase extends EasyRecyclerView {
     }
 
     @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        //这里不调用super.onLayout，因为HippyListView的RenderNode的update会走onLayout，导致多余的排版
+        //HippyListView的dispatchLayout统一走setListData函数
+    }
+
+    @Override
+    public void dispatchLayout() {
+        super.dispatchLayout();
+        //由于上面屏蔽了super.onLayout,这里需要对齐框架的代码，把mFirstLayoutComplete该为true
+        this.mFirstLayoutComplete = true;
+    }
+
+    @Override
     String exceptionLabel() {
         return super.exceptionLabel() + ",state:" + getStateInfo();
     }
