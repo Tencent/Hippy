@@ -34,6 +34,7 @@ export class Application {
       clearAddrInUse,
       useTunnel,
       env,
+      publicPath,
     } = argv;
     Application.argv = argv;
     Application.init();
@@ -89,7 +90,7 @@ export class Application {
       debug(`serve bundle: ${entry} \nserve folder: ${servePath}`);
       app.use(serve(servePath));
       app.use(
-        serve(path.join(__dirname, 'public'), {
+        serve(publicPath || path.join(__dirname, 'public'), {
           maxage: 30 * 24 * 60 * 60 * 1000,
         }),
       );

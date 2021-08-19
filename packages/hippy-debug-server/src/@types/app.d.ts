@@ -13,5 +13,6 @@ declare namespace Application {
     clearAddrInUse: boolean;
     useTunnel: boolean;
     env: string;
+    publicPath?: string;
   }
 }
