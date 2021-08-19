@@ -2,33 +2,38 @@ import { spawn } from 'child_process';
 import createDebug from 'debug';
 import path from 'path';
 import { TunnelEvent } from './@types/enum';
-import addon from './build/Tunnel.node';
 import deviceManager from './device-manager';
 import { tunnel } from './tunnel';
 import { exec } from './utils/process';
-global.addon = addon;
 
 const debug = createDebug('child-process');
 createDebug.enable('child-process');
 let proxyProcess;
 
 export const startTunnel = ({ port, iwdpPort, iwdpStartPort, iwdpEndPort }) => {
-  addon.addEventListener((event, data) => {
-    debug(`receive tunnel event: ${event}`);
-    if (event === TunnelEvent.ReceiveData) {
-      tunnel.onMessage(data);
-    } else if ([TunnelEvent.RemoveDevice, TunnelEvent.AddDevice].indexOf(event) !== -1) {
-      deviceManager.getDeviceList();
-      if (event === TunnelEvent.AddDevice) {
-        // 每次设备连接后，运行 adb reverse
-        startAdbProxy(port);
-      }
-    }
-  });
+  try {
+    import('./build/Tunnel.node').then((addon) => {
+      global.addon = addon;
+      addon.addEventListener((event, data) => {
+        debug(`receive tunnel event: ${event}`);
+        if (event === TunnelEvent.ReceiveData) {
+          tunnel.onMessage(data);
+        } else if ([TunnelEvent.RemoveDevice, TunnelEvent.AddDevice].indexOf(event) !== -1) {
+          deviceManager.getDeviceList();
+          if (event === TunnelEvent.AddDevice) {
+            // 每次设备连接后，运行 adb reverse
+            startAdbProxy(port);
+          }
+        }
+      });
 
-  const adbPath = path.join(__dirname, './build/adb');
-  const iwdpParams = ['--no-frontend', `--config=null:${iwdpPort},:${iwdpStartPort}-${iwdpEndPort}`];
-  addon.tunnelStart(adbPath, iwdpParams, iwdpPort);
+      const adbPath = path.join(__dirname, './build/adb');
+      const iwdpParams = ['--no-frontend', `--config=null:${iwdpPort},:${iwdpStartPort}-${iwdpEndPort}`];
+      addon.tunnelStart(adbPath, iwdpParams, iwdpPort);
+    });
+  } catch (e) {
+    console.error(e);
+  }
 };
 
 export const startIosProxy = ({ iwdpPort, iwdpStartPort, iwdpEndPort }) => {
@@ -62,7 +67,7 @@ export const startAdbProxy = (port: number) => {
 
 export const onExit = () => {
   if (!proxyProcess) return;
-  console.warn('on debug server exit, do some clean...');
+  debug('on debug server exit, do some clean...');
   proxyProcess?.kill('SIGKILL');
   proxyProcess = null;
 };

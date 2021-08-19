@@ -1,6 +1,7 @@
 import createDebug from 'debug';
 import WebSocket from 'ws/index.js';
-import { AppClientType, ClientEvent } from '../@types/enum';
+import { AppClientType, ClientEvent, DevicePlatform } from '../@types/enum';
+import { getRequestId } from '../middlewares';
 import { AppClient } from './app-client';
 
 const debug = createDebug('app-client:ws');
@@ -19,10 +20,18 @@ export class WsAppClient extends AppClient {
 
   public resumeApp() {
     debug('ws app client resume');
-    this.ws.send('chrome_socket_closed');
+    if (this.platform === DevicePlatform.Android) {
+      this.ws.send(
+        JSON.stringify({
+          id: getRequestId(),
+          method: 'TDFRuntime.resume',
+          params: {},
+        }),
+      );
+    }
     this.ws.send(
       JSON.stringify({
-        id: Date.now(),
+        id: getRequestId(),
         method: 'Debugger.disable',
         params: {},
       }),

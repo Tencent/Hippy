@@ -22,6 +22,7 @@ export class Application {
   private static socketServer: SocketServer;
 
   public static async startServer(argv: Application.StartServerArgv) {
+    debug('start server argv: %j', argv);
     const {
       host,
       port,
@@ -51,7 +52,7 @@ export class Application {
       const app = new Koa();
 
       Application.server = app.listen(port, host, () => {
-        debug('start koa dev server');
+        debug('start debug server.');
         if (useTunnel) startTunnel(argv);
         else if (startIWDP) startIosProxy(argv);
         if (startAdb) startAdbProxy(port);
@@ -63,7 +64,7 @@ export class Application {
       });
 
       Application.server.on('close', () => {
-        debug('server is closed.');
+        debug('debug server is closed.');
         reject();
       });
 
@@ -86,11 +87,12 @@ export class Application {
         servePath = path.resolve(path.dirname(entry));
       }
       debug(`serve bundle: ${entry} \nserve folder: ${servePath}`);
-      const serveOption = {
-        maxage: 30 * 24 * 60 * 60 * 1000,
-      };
       app.use(serve(servePath));
-      app.use(serve(path.join(__dirname, 'public'), serveOption));
+      app.use(
+        serve(path.join(__dirname, 'public'), {
+          maxage: 30 * 24 * 60 * 60 * 1000,
+        }),
+      );
     });
   }
 
@@ -134,6 +136,11 @@ export class Application {
   }
 
   private static init() {
+    try {
+      fs.rmdirSync(config.cachePath, { recursive: true });
+    } catch (e) {
+      debug('rm cache dir error: %j', e);
+    }
     return fs.promises.mkdir(config.cachePath, { recursive: true });
   }
 

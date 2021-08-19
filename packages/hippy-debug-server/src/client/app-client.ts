@@ -9,7 +9,7 @@
 import createDebug from 'debug';
 import { EventEmitter } from 'events';
 import WebSocket from 'ws/index.js';
-import { AppClientType, ClientEvent } from '../@types/enum';
+import { AppClientType, ClientEvent, DevicePlatform } from '../@types/enum';
 import {
   defaultDownwardMiddleware,
   defaultUpwardMiddleware,
@@ -20,8 +20,7 @@ import { getRequestId } from '../middlewares/global-id';
 import { CDP_DOMAIN_LIST, getDomain } from '../utils/cdp';
 import { compose } from '../utils/middleware';
 
-const debug = createDebug('app-client');
-const downwareDebug = createDebug('↓↓↓');
+const downwardDebug = createDebug('↓↓↓');
 const upwardDebug = createDebug('↑↑↑');
 
 /**
@@ -43,6 +42,7 @@ export abstract class AppClient extends EventEmitter {
   protected useAllDomain = true;
   protected isClosed = false;
   protected msgIdMethodMap: Map<number, string> = new Map();
+  protected platform: DevicePlatform;
 
   constructor(
     id,
@@ -53,6 +53,7 @@ export abstract class AppClient extends EventEmitter {
       ignoreDomains = [],
       middleWareManager,
       urlParsedContext,
+      platform,
     }: AppClientOption,
   ) {
     super();
@@ -63,10 +64,11 @@ export abstract class AppClient extends EventEmitter {
     this.useAdapter = useAdapter;
     this.middleWareManager = middleWareManager;
     this.urlParsedContext = urlParsedContext;
+    this.platform = platform;
   }
 
   public send(msg: Adapter.CDP.Req): void {
-    if (!this.filter(msg)) return debug(`'${msg.method}' is filtered in app client type: ${this.type}`);
+    if (!this.filter(msg)) return downwardDebug(`'${msg.method}' is filtered in app client type: ${this.type}`);
 
     const { method } = msg;
     this.msgIdMethodMap.set(msg.id, msg.method);
@@ -106,7 +108,7 @@ export abstract class AppClient extends EventEmitter {
         if (!msg.id) {
           msg.id = getRequestId();
         }
-        downwareDebug('%j', msg);
+        downwardDebug('%j', msg);
         this.sendToApp(msg);
       },
       sendToDevtools: (msg: Adapter.CDP.Req) => {
@@ -145,4 +147,5 @@ export type AppClientOption = {
   ws?: WebSocket;
   middleWareManager: MiddleWareManager;
   urlParsedContext: UrlParsedContext;
+  platform: DevicePlatform;
 };

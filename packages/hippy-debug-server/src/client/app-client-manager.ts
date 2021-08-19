@@ -1,3 +1,4 @@
+import { DevicePlatform } from '../@types/enum';
 import { androidDebugTargetManager } from '../android-debug-target-manager';
 import { androidMiddleWareManager, iosMiddleWareManager } from '../middlewares';
 import { AppClient, AppClientOption } from './app-client';
@@ -49,12 +50,14 @@ export const initHippyEnv = () => {
     useAdapter: true,
     middleWareManager: androidMiddleWareManager,
     Ctor: WsAppClient,
+    platform: DevicePlatform.Android,
   });
   appClientManager.addIosAppClientOption({
     useAllDomain: true,
     useAdapter: true,
     middleWareManager: iosMiddleWareManager,
     Ctor: IwdpAppClient,
+    platform: DevicePlatform.IOS,
   });
   appClientManager.addIosAppClientOption({
     useAllDomain: false,
@@ -62,6 +65,7 @@ export const initHippyEnv = () => {
     useAdapter: false,
     middleWareManager: iosMiddleWareManager,
     Ctor: WsAppClient,
+    platform: DevicePlatform.IOS,
   });
 };
 
@@ -80,13 +84,6 @@ const customDomains = ['Page', 'DOM', 'CSS', 'Overlay', 'TDFInspector', 'TDFPerf
 export const initVoltronEnv = () => {
   appClientManager.reset();
   initHippyEnv();
-  appClientManager.addIosAppClientOption({
-    useAllDomain: false,
-    acceptDomains: customDomains,
-    useAdapter: false,
-    middleWareManager: iosMiddleWareManager,
-    Ctor: WsAppClient,
-  });
 };
 
 /**
@@ -107,6 +104,7 @@ export const initTdfEnv = () => {
     useAdapter: true,
     middleWareManager: androidMiddleWareManager,
     Ctor: TunnelAppClient,
+    platform: DevicePlatform.Android,
   });
   appClientManager.addIosAppClientOption({
     useAllDomain: false,
@@ -114,6 +112,7 @@ export const initTdfEnv = () => {
     ignoreDomains: customDomains,
     middleWareManager: iosMiddleWareManager,
     Ctor: IwdpAppClient,
+    platform: DevicePlatform.IOS,
   });
   appClientManager.addIosAppClientOption({
     useAllDomain: false,
@@ -121,6 +120,7 @@ export const initTdfEnv = () => {
     useAdapter: false,
     middleWareManager: iosMiddleWareManager,
     Ctor: TunnelAppClient,
+    platform: DevicePlatform.IOS,
   });
 };
 

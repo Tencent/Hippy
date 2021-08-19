@@ -30,30 +30,10 @@ const { argv } = yargs
     default: 38989,
     describe: 'The port the debug server will listen to',
   })
-  .option('wsPath', {
-    type: 'string',
-    default: '/debugger-proxy',
-    describe: '',
-  })
   .option('verbose', {
     type: 'boolean',
     default: false,
     describe: 'Output error details',
-  })
-  .option('useTunnel', {
-    type: 'boolean',
-    default: true,
-    describe: 'weature use tunnel, which integrated ios_webkit_debug_proxy',
-  })
-  .option('startIWDP', {
-    type: 'boolean',
-    default: false,
-    describe: 'weature use ios_webkit_debug_proxy',
-  })
-  .option('startAdb', {
-    type: 'boolean',
-    default: true,
-    describe: 'weature use adb reverse',
   })
   .option('iwdpPort', {
     type: 'number',
@@ -89,4 +69,10 @@ if (argv.version) {
   yargs.version().exit(0, null);
 }
 
-Application.startServer(argv);
+Application.startServer({
+  ...argv,
+  wsPath: '/debugger-proxy',
+  useTunnel: true,
+  startAdb: true,
+  startIWDP: false,
+});

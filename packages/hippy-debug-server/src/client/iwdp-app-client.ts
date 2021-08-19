@@ -19,7 +19,6 @@ export class IwdpAppClient extends AppClient {
   }
 
   public resumeApp() {
-    // ios 的 resume 需要发送 Debugger.disable
     this.sendToApp({
       id: getRequestId(),
       method: 'Debugger.disable',

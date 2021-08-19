@@ -1,5 +1,6 @@
 import createDebug from 'debug';
-import { AppClientType, ClientEvent } from '../@types/enum';
+import { AppClientType, ClientEvent, DevicePlatform } from '../@types/enum';
+import { getRequestId } from '../middlewares';
 import { Tunnel, tunnel } from '../tunnel';
 import { AppClient } from './app-client';
 
@@ -15,10 +16,13 @@ export class TunnelAppClient extends AppClient {
 
   public resumeApp() {
     debug('tunnel app client resume');
-    tunnel.sendMessage({
-      module: 'jsDebugger',
-      content: 'chrome_socket_closed',
-    } as any);
+    if (this.platform === DevicePlatform.Android) {
+      tunnel.sendMessage({
+        id: getRequestId(),
+        method: 'TDFRuntime.resume',
+        params: {},
+      });
+    }
   }
 
   protected registerMessageListener() {
