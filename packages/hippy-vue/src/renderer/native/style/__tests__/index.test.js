@@ -1,7 +1,7 @@
 import test, { before } from 'ava';
 import { fromAstNodes, SelectorsMap } from '../index';
-import TEST_AST from './test-css-ast.json';
 import ElementNode from '../../../element-node';
+import TEST_AST from './test-css-ast.json';
 
 let cssMap;
 

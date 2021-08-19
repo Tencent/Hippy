@@ -1,7 +1,7 @@
 /* eslint-disable import/prefer-default-export */
 
-import Native from './native';
 import ElementNode from '../renderer/element-node';
+import Native from './native';
 
 function drawStatusBar(appOptions = {}) {
   const { iPhone } = appOptions;

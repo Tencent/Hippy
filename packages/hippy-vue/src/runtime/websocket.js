@@ -1,9 +1,9 @@
-import Native from './native';
 import {
   getApp,
   warn,
   isFunction,
 } from '../util';
+import Native from './native';
 
 const READY_STATE_CONNECTING = 0;
 const READY_STATE_OPEN = 1;

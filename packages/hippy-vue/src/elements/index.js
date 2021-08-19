@@ -1,6 +1,6 @@
 import { makeMap, camelize } from 'shared/util';
-import * as BUILT_IN_ELEMENTS from './built-in';
 import { capitalizeFirstLetter, warn } from '../util';
+import * as BUILT_IN_ELEMENTS from './built-in';
 
 const isReservedTag = makeMap(
   'template,script,style,element,content,slot,'

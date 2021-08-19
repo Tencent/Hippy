@@ -1,6 +1,6 @@
-import HippyEventHub from './hub';
 import { findNodeById } from '../utils/node';
 import { trace, warn } from '../utils';
+import HippyEventHub from './hub';
 import '@localTypes/global';
 
 type EventParam = string[] | number[];

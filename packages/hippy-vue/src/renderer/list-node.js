@@ -1,5 +1,5 @@
-import ElementNode from './element-node';
 import Native from '../runtime/native';
+import ElementNode from './element-node';
 
 /**
  * List element

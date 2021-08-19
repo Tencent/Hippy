@@ -1,14 +1,14 @@
 const fs = require('fs');
-const Koa = require('koa');
 const path = require('path');
-const devSupportWsServer = require('./websocketProxy');
-// const liveReloadWsServer = require('./hippy-livereload');
+const Koa = require('koa');
 const {
   logger,
   exec,
   content,
   parseMimeType,
 } = require('../utils');
+const devSupportWsServer = require('./websocketProxy');
+// const liveReloadWsServer = require('./hippy-livereload');
 
 async function startDevServer(args) {
   const {

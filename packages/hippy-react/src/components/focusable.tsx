@@ -2,8 +2,8 @@ import React from 'react';
 import { Fiber } from 'react-reconciler';
 import Style from '@localTypes/style';
 import { FocusEvent } from '@localTypes/event';
-import View from './view';
 import { getNodeIdByRef } from '../modules/ui-manager-module';
+import View from './view';
 
 interface FocusableProps {
   requestFocus?: boolean;
