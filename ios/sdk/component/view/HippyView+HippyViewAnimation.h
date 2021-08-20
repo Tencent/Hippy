@@ -29,4 +29,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@interface CAAnimation (OriginValue)
+
+- (void)setOriginToValue:(id)toValue;
+
+- (id)originToValue;
+
+@end
+
 NS_ASSUME_NONNULL_END

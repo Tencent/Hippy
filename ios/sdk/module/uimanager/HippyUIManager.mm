@@ -51,6 +51,9 @@
 #import "HippyMemoryOpt.h"
 #import "HippyDeviceBaseInfo.h"
 #import "HippyVirtualList.h"
+#import "HippyExtAnimation.h"
+#import "HippyConvert+Transform.h"
+#import "HippyView+HippyViewAnimation.h"
 
 @protocol HippyBaseListViewProtocol;
 
@@ -987,7 +990,8 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
         } else {
             HippyAssert(NO, @"param.rootTag不应该为nil，保留现场，找mengyanluo");
         }
-        [self updateView:param.hippyTag viewName:nil props:param.updateParams];
+        NSDictionary *updateParams = [param updateParams];
+        [self updateView:param.hippyTag viewName:nil props:updateParams];
         if (block) {
             [[self completeBlocks] addObject:block];
         }
@@ -995,6 +999,51 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
 
     for (NSNumber *rootTag in rootTags) {
         [self _layoutAndMount:rootTag];
+    }
+}
+
+- (void)updateViewsAfterAnimation:(CAAnimation *)animation completion:(HippyViewUpdateCompletedBlock)block {
+    @try {
+        NSArray<CABasicAnimation *> *basicAnimations = nil;
+        if ([animation isKindOfClass:[CABasicAnimation class]]) {
+            basicAnimations = @[(CABasicAnimation *)animation];
+        }
+        else if ([animation isKindOfClass:[CAAnimationGroup class]]) {
+            basicAnimations = (NSArray<CABasicAnimation *> *)[(CAAnimationGroup *)animation animations];
+        }
+        
+        NSMutableArray<NSDictionary *> *props = [NSMutableArray arrayWithCapacity:[basicAnimations count]];
+        NSNumber *viewId = [animation valueForKey:@"viewID"];
+        HippyShadowView *shadowView = [[self shadowViewRegistry] objectForKey:viewId];
+        NSDictionary *shadowViewOriginProps = [shadowView props];
+        NSMutableDictionary *propsAfterAnimation = [shadowViewOriginProps mutableCopy];
+        for (CABasicAnimation *basicAni in basicAnimations) {
+            NSString *keyPath = [basicAni keyPath];
+            NSString *property = [HippyExtAnimation convertAnimationKeyPathToViewProperty:keyPath]?:keyPath;
+            if (property) {
+                if ([HippyConvert canConvertPropertyWithTransform3D:property]) {
+                    NSDictionary *updateParams = [NSDictionary dictionaryWithObject:[basicAni toValue] forKey:property];
+                    [props addObject:updateParams];
+                }
+                else {
+                    [propsAfterAnimation setObject:[basicAni originToValue] forKey:property];
+                }
+            }
+        }
+        if ([props count] > 0) {
+            [propsAfterAnimation setObject:props forKey:@"transform"];
+        }
+        [self updateView:viewId viewName:nil props:propsAfterAnimation];
+        if (block) {
+            [[self completeBlocks] addObject:block];
+        }
+        [self _layoutAndMount];
+    }
+    @catch (NSException *exception) {
+#if HIPPY_DEBUG
+        NSError *error = HippyErrorWithMessageAndModuleName([exception reason], self.bridge.moduleName);
+        HippyFatal(error);
+#endif //HIPPY_DEBUG
     }
 }
 

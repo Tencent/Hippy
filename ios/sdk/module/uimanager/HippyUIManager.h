@@ -153,6 +153,11 @@ HIPPY_EXTERN NSString *const HippyUIManagerRootViewKey;
 - (void)removeNativeNode:(HippyVirtualNode *)node;
 - (void)removeNativeNodeView:(UIView *)nodeView;
 - (void)updateViewsFromParams:(NSArray<HippyExtAnimationViewParams *> *)params completion:(HippyViewUpdateCompletedBlock)block;
+
+/**
+ * param animation could be CABasicAnimation or CABasicAnimations within CAAnimationGroup
+ */
+- (void)updateViewsAfterAnimation:(CAAnimation *)animation completion:(HippyViewUpdateCompletedBlock)block;
 - (void)updateViewWithHippyTag:(NSNumber *)hippyTag props:(NSDictionary *)pros;
 @end
 
