@@ -64,8 +64,20 @@ static const NSUInteger kMatrixArrayLength = 4 * 4;
     return transform;
 }
 
++ (BOOL)canConvertPropertyWithTransform3D:(NSString *)property {
+    static NSArray<NSString *> *props = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        props = @[@"matrix", @"perspective", @"rotate", @"rotateX", @"rotateY",
+                  @"rotateZ", @"scale", @"scaleX", @"scaleY", @"translate",
+                  @"translateX", @"translateY", @"translateZ", @"skewX", @"skewY"];
+    });
+    return [props containsObject:property];
+}
+
 + (CATransform3D)CATransform3D:(id)json {
     CATransform3D transform = CATransform3DIdentity;
+    //CATransform3D.m34 makes sure everything looks small in distance and big on the contrary
     transform.m34 = -1.0 / 500.0;
     if (!json) {
         return transform;
@@ -131,7 +143,6 @@ static const NSUInteger kMatrixArrayLength = 4 * 4;
             CGFloat translateY = [HippyNilIfNull(array[1]) floatValue];
             CGFloat translateZ = array.count > 2 ? [HippyNilIfNull(array[2]) floatValue] : 0;
             transform = CATransform3DTranslate(transform, translateX, translateY, translateZ);
-
         } else if ([property isEqualToString:@"translateX"]) {
             CGFloat translate = [value floatValue];
             transform = CATransform3DTranslate(transform, translate, 0, 0);
@@ -139,7 +150,6 @@ static const NSUInteger kMatrixArrayLength = 4 * 4;
         } else if ([property isEqualToString:@"translateY"]) {
             CGFloat translate = [value floatValue];
             transform = CATransform3DTranslate(transform, 0, translate, 0);
-
         } else if ([property isEqualToString:@"translateZ"]) {
             CGFloat translate = [value floatValue];
             transform = CATransform3DTranslate(transform, 0, 0, translate);

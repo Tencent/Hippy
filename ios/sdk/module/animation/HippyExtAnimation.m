@@ -53,6 +53,12 @@
     return animationMap;
 }
 
++ (NSString *)convertAnimationKeyPathToViewProperty:(NSString *)keyPath {
+    NSDictionary *map = [self animationKeyMap];
+    NSArray *keys = [map objectForKey:keyPath];
+    return [keys firstObject];
+}
+
 + (CGFloat)convertToRadians:(id)json {
     if ([json isKindOfClass:[NSString class]]) {
         NSString *stringValue = (NSString *)json;
