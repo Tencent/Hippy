@@ -70,7 +70,7 @@
 
 @implementation CAAnimation(OriginValue)
 
-#define kOriginToValueKey @"kOriginToValue"
+static NSString *const kOriginToValueKey = @"kOriginToValue";
 
 - (void)setOriginToValue:(id)toValue {
     [self setValue:toValue forKey:kOriginToValueKey];
