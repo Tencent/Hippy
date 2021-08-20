@@ -328,7 +328,7 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
     [_lock unlock];
 
     [self.bridge.uiManager executeBlockOnUIManagerQueue:^{
-        [self.bridge.uiManager updateViewsFromParams:params completion:^(HippyUIManager *uiManager) {
+        [self.bridge.uiManager updateViewsAfterAnimation:anim completion:^(HippyUIManager *uiManager) {
             UIView *view = [uiManager viewForHippyTag:viewId];
             [view.layer removeAnimationForKey:[NSString stringWithFormat:@"%@", animationId]];
             if (!CGPointEqualToPoint(view.layer.anchorPoint, CGPointMake(.5f, .5f))) {
