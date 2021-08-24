@@ -410,6 +410,10 @@ DEFINE_PROCESS_META_PROPS(Border);
     _textLifecycle = HippyUpdateLifecycleComputed;
 }
 
+- (BOOL)isHidden {
+    return _hidden || [_visibility isEqualToString:@"hidden"];
+}
+
 - (void)insertHippySubview:(HippyShadowView *)subview atIndex:(NSInteger)atIndex {
     [_hippySubviews insertObject:subview atIndex:atIndex];
     if (![self isCSSLeafNode]) {
