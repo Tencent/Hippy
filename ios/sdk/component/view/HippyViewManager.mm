@@ -66,6 +66,9 @@ HIPPY_EXPORT_MODULE(View)
     return nil;
 }
 
+#pragma mark - ShadowView properties
+HIPPY_EXPORT_SHADOW_PROPERTY(visibility, NSString)
+
 #pragma mark - View properties
 
 HIPPY_EXPORT_VIEW_PROPERTY(accessibilityLabel, NSString)

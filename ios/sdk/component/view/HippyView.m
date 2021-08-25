@@ -716,6 +716,7 @@ static BOOL HippyLayerHasShadow(CALayer *layer) {
 
 #pragma mark Border Color
 
+// clang-format off
 #define setBorderColor(side)                                    \
     -(void)setBorder##side##Color : (CGColorRef)color {         \
         if (CGColorEqualToColor(_border##side##Color, color)) { \
@@ -726,7 +727,12 @@ static BOOL HippyLayerHasShadow(CALayer *layer) {
         [self.layer setNeedsDisplay];                           \
     }
 
-setBorderColor() setBorderColor(Top) setBorderColor(Right) setBorderColor(Bottom) setBorderColor(Left)
+setBorderColor()
+setBorderColor(Top)
+setBorderColor(Right)
+setBorderColor(Bottom)
+setBorderColor(Left)
+
 #pragma mark - Border Width
 
 #define setBorderWidth(side)                         \
@@ -738,7 +744,11 @@ setBorderColor() setBorderColor(Top) setBorderColor(Right) setBorderColor(Bottom
         [self.layer setNeedsDisplay];                \
     }
 
-        setBorderWidth() setBorderWidth(Top) setBorderWidth(Right) setBorderWidth(Bottom) setBorderWidth(Left)
+setBorderWidth()
+setBorderWidth(Top)
+setBorderWidth(Right)
+setBorderWidth(Bottom)
+setBorderWidth(Left)
 
 #pragma mark - Border Radius
 
@@ -751,7 +761,11 @@ setBorderColor() setBorderColor(Top) setBorderColor(Right) setBorderColor(Bottom
         [self.layer setNeedsDisplay];                  \
     }
 
-            setBorderRadius() setBorderRadius(TopLeft) setBorderRadius(TopRight) setBorderRadius(BottomLeft) setBorderRadius(BottomRight)
+setBorderRadius()
+setBorderRadius(TopLeft)
+setBorderRadius(TopRight)
+setBorderRadius(BottomLeft)
+setBorderRadius(BottomRight)
 
 #pragma mark - Border Style
 
@@ -764,9 +778,10 @@ setBorderColor() setBorderColor(Top) setBorderColor(Right) setBorderColor(Bottom
         [self.layer setNeedsDisplay];                         \
     }
 
-                setBorderStyle()
+setBorderStyle()
+// clang-format on
 
-    - (void)dealloc {
+- (void)dealloc {
     CGColorRelease(_borderColor);
     CGColorRelease(_borderTopColor);
     CGColorRelease(_borderRightColor);
