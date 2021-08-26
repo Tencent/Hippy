@@ -79,7 +79,7 @@ Windows 用户者需要以下软件:
 1. 先按照 **[使用 JS 范例来构建 iOS App]** 和 **[使用 JS 范例来构建 Android App]** 步骤执行。
 2. `cd` 到 `examples` hippy-react-demo 或者 hippy-vue-demo 目录。
 3. 执行 `npm install` 安装相应 js demo 的依赖包。
-4. 分别执行 `npm run hippy:dev` 和 `npm run hippy:debug` 来开启实时 Debug 模式。
+4. 分别执行 `npm run hippy:dev` 和 `npm run hippy:debug`(`npm run hippy:local-debug` 会调用 packages 下的源码) 来开启实时 Debug 模式。
 
 > 在 example 调试模式下，@hippy/react、@hippy/vue 等 npm 模块会直接链接到 `packages` > `[different package]` > `dist` 目录下面的 js 文件(非 node_modules)，所以如果你修改了 packages 下的 JS 源代码并且想让其在 example 中生效，请重新在根目录执行 `npm run build`。
 >

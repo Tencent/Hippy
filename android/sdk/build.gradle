@@ -168,6 +168,16 @@ dependencies {
   if (!INCLUDE_SUPPORT_UI.toBoolean()) {
     compileOnly('com.tencent.mtt:support-ui:99.2.3')
   }
+
+  testImplementation "junit:junit:4.13.2"
+  testImplementation "org.mockito:mockito-core:2.8.9"
+  testImplementation "org.mockito:mockito-android:2.8.9"
+  testImplementation "org.powermock:powermock-module-junit4:2.0.7"
+  testImplementation "org.powermock:powermock-api-mockito2:2.0.7"
+  testImplementation 'org.powermock:powermock-core:2.0.7'
+  testImplementation "org.powermock:powermock-module-junit4-rule:2.0.7"
+  testImplementation "org.powermock:powermock-classloading-xstream:2.0.7"
+  testImplementation "org.robolectric:robolectric:4.4"
 }
 
 project.tasks.whenTaskAdded { task ->

@@ -51,7 +51,7 @@ const EventDispatcher = {
    */
   receiveNativeEvent(nativeEvent) {
     trace(...componentName, 'receiveNativeEvent', nativeEvent);
-    if (!nativeEvent || !Array.isArray((nativeEvent)) || nativeEvent.length < 2) {
+    if (!nativeEvent || !Array.isArray(nativeEvent) || nativeEvent.length < 2) {
       return;
     }
     const [eventName, eventParams] = nativeEvent;
