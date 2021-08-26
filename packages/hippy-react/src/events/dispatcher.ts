@@ -45,7 +45,7 @@ function unregisterNativeEventHub(eventName: string) {
 
 function receiveNativeEvent(nativeEvent: EventParam) {
   trace(...componentName, 'receiveNativeEvent', nativeEvent);
-  if (!nativeEvent || !(nativeEvent instanceof Array) || nativeEvent.length < 2) {
+  if (!nativeEvent || !Array.isArray(nativeEvent) || nativeEvent.length < 2) {
     throw new TypeError(`Invalid params for receiveNativeEvent: ${JSON.stringify(nativeEvent)}`);
   }
   const [eventName, eventParams] = nativeEvent;
@@ -54,7 +54,6 @@ function receiveNativeEvent(nativeEvent: EventParam) {
   }
   const currEventHub = getHippyEventHub(eventName);
   if (!currEventHub) {
-    warn('[event] currEventHub: target eventHub is not found', eventName, nativeEvent);
     return;
   }
   currEventHub.notifyEvent(eventParams);

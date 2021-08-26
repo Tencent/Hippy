@@ -17,7 +17,7 @@ interface WebSocket {
 
   /**
    * read-only property returns the name of the sub-protocol the server selected; this will be
-   * one of the stringsspecified in the protocols parameter when creating the WebSocket object,
+   * one of the strings specified in the protocols parameter when creating the WebSocket object,
    * or the empty string if no connection is established.
    */
   protocol: string;
