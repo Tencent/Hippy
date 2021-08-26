@@ -1,19 +1,11 @@
 package com.tencent.mtt.hippy.utils;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.spy;
-import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -28,9 +20,9 @@ import org.powermock.modules.junit4.PowerMockRunner;
     "android.*",
 })
 public class UrlUtilsTest {
-  private final static String URL_HTTPS = "https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png";
-  private final static String URL_HTTP = "http://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png";
-  private final static String URL_FILE = "file://vendor.android.js";
+  private final String URL_HTTPS = "https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png";
+  private final String URL_HTTP = "http://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png";
+  private final String URL_FILE = "file://vendor.android.js";
 
   @Before
   public void setUp() throws Exception {
@@ -65,7 +57,7 @@ public class UrlUtilsTest {
   }
 
   @Test
-  public void testSum() {
+  public void isWebUrl() {
     assertTrue(UrlUtils.isWebUrl(URL_HTTPS));
     assertTrue(UrlUtils.isWebUrl(URL_HTTP));
     assertFalse(UrlUtils.isWebUrl(URL_FILE));
