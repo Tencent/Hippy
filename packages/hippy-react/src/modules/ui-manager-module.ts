@@ -104,7 +104,7 @@ function callUIFunction(ref: Element | Fiber, funcName: string, ...options: any[
     throw new Error('callUIFunction is calling a component have no nodeId');
   }
 
-  let [paramList, callback] = options;
+  let [paramList = [], callback] = options;
   if (isFunction(paramList)) {
     callback = paramList;
     paramList = [];
