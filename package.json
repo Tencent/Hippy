@@ -48,7 +48,7 @@
     "is-ci": "^2.0.0",
     "lerna": "^3.16.4",
     "lint-staged": "^11.0.1",
-    "markdownlint-cli": "^0.20.0",
+    "markdownlint-cli": "^0.28.1",
     "module-alias": "^2.2.1",
     "nyc": "^14.1.1",
     "path-to-regexp": "^1.7.0",
