@@ -106,18 +106,7 @@
         }
 
         // timing function
-        NSString *timingFunction = config[@"timingFunction"];
-        if ([timingFunction isEqualToString:@"easeIn"]) {
-            _timingFunction = kCAMediaTimingFunctionEaseIn;
-        } else if ([timingFunction isEqualToString:@"easeOut"]) {
-            _timingFunction = kCAMediaTimingFunctionEaseOut;
-        } else if ([timingFunction isEqualToString:@"easeInOut"]) {
-            _timingFunction = kCAMediaTimingFunctionEaseInEaseOut;
-        } else if ([timingFunction isEqualToString:@"linear"]) {
-            _timingFunction = kCAMediaTimingFunctionLinear;
-        } else {
-            _timingFunction = kCAMediaTimingFunctionEaseIn;
-        }
+        [self updateTimingFunction:config[@"timingFunction"]];
     }
     return self;
 }
@@ -156,18 +145,26 @@
     }
 
     // timing function
-    if (config[@"timingFunction"]) {
-        NSString *timingFunction = config[@"timingFunction"];
+    [self updateTimingFunction:config[@"timingFunction"]];
+}
+
+- (void)updateTimingFunction:(NSString *)timingFunction {
+    if (timingFunction) {
         if ([timingFunction isEqualToString:@"ease-in"]) {
-            _timingFunction = kCAMediaTimingFunctionEaseIn;
+            _timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
         } else if ([timingFunction isEqualToString:@"ease-out"]) {
-            _timingFunction = kCAMediaTimingFunctionEaseOut;
+            _timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
         } else if ([timingFunction isEqualToString:@"ease-in-out"]) {
-            _timingFunction = kCAMediaTimingFunctionEaseInEaseOut;
+            _timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
         } else if ([timingFunction isEqualToString:@"linear"]) {
-            _timingFunction = kCAMediaTimingFunctionLinear;
+            _timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
         } else {
-            _timingFunction = kCAMediaTimingFunctionDefault;
+            CAMediaTimingFunction *func = [self makeCustomBezierFunction:timingFunction];
+            if (func) {
+                _timingFunction = func;
+            } else {
+                _timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionDefault];
+            }
         }
     }
 }
@@ -245,12 +242,32 @@
     if (fabs(_delay) > CGFLOAT_MIN) {
         animation.beginTime = CACurrentMediaTime() + _delay;
     }
-    animation.timingFunction = [CAMediaTimingFunction functionWithName:_timingFunction];
+    animation.timingFunction = _timingFunction;
     animation.repeatCount = _repeatCount;
     animation.removedOnCompletion = NO;
     animation.fillMode = kCAFillModeForwards;
 
     return animation;
+}
+
+- (nullable CAMediaTimingFunction *)makeCustomBezierFunction:(NSString *)timingFunction {
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"^cubic-bezier\\(([^,]*),([^,]*),([^,]*),([^,]*)\\)$" options:NSRegularExpressionCaseInsensitive error:nil];
+    if (!regex) return nil;
+    NSString *trimmedTimingFunction = trimWhiteSpace(timingFunction);
+    NSRange searchedRange = NSMakeRange(0, [trimmedTimingFunction length]);
+    NSArray<NSTextCheckingResult *> *matches = [regex matchesInString:trimmedTimingFunction options:0 range:searchedRange];
+    if (matches.count <= 0) return nil;
+    NSTextCheckingResult *match = matches[0];
+    float (^getValue)(NSUInteger) = ^(NSUInteger index) {
+        NSRange range = [match rangeAtIndex: index];
+        NSString *numberString = [trimmedTimingFunction substringWithRange:range];
+        return [numberString floatValue];
+    };
+    return [CAMediaTimingFunction functionWithControlPoints:getValue(1) :getValue(2) :getValue(3) :getValue(4)];
+}
+
+NSString *trimWhiteSpace(NSString *str) {
+    return [str stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
 }
 
 @end
