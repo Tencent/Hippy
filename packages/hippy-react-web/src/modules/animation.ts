@@ -1,6 +1,7 @@
 import bezierEasing from 'bezier-easing';
 import findNodeHandle from '../adapters/find-node';
 import normalizeValue from '../adapters/normalize-value';
+import { tryMakeCubicBezierEasing } from './cubic-bezier';
 
 function initLeftRepeatCount(repeatCount: number | 'loop') {
   if (repeatCount === 'loop') {
@@ -102,10 +103,15 @@ export class Animation {
         return this.startValue + valueDistance * 0.5
           * (Math.sin((nowPercentage - 0.5) * Math.PI) + 1);
       case 'easebezierEasing':
-        // TODO Once Hippy native supports custom bazier params, will fix here to accept params
+        // NOTE: custom bazier implemented in default, this options consider deprecated.
         return this.startValue + valueDistance * bezierEasing(0.42, 0, 1, 1);
-      default:
+      default: {
+        const cubicBezierEasing = tryMakeCubicBezierEasing(timingFunction);
+        if (cubicBezierEasing) {
+          return this.startValue + valueDistance * cubicBezierEasing(nowPercentage);
+        }
         return this.startValue + valueDistance * nowPercentage;
+      }
     }
   }
 
@@ -159,13 +165,11 @@ export class Animation {
         if (this.leftDelayCount > 0) {
           this.leftDelayCount -= 16;
         } else {
-          if (finalValue <= this.toValue && this.toValue >= this.startValue) {
+          if (this.toValue >= this.startValue) {
             finalValue = this.calculateNowValue();
-            if (finalValue > this.toValue) finalValue = this.toValue;
             this.renderNowValue(finalValue);
-          } else if (finalValue >= this.toValue && this.startValue >= this.toValue) {
+          } else if (this.startValue >= this.toValue) {
             finalValue = this.calculateNowValue();
-            if (finalValue < this.toValue) finalValue = this.toValue;
             this.renderNowValue(finalValue);
           }
           if (this.nowLeftDuration <= 0) {
