@@ -54,7 +54,7 @@
         if (fabs(animation.delay) > CGFLOAT_MIN) {
             ani.beginTime = CACurrentMediaTime() + animation.delay;
         }
-        ani.timingFunction = [CAMediaTimingFunction functionWithName:animation.timingFunction];
+        ani.timingFunction = animation.timingFunction;
         ani.repeatCount = animation.repeatCount;
         ani.removedOnCompletion = NO;
         ani.fillMode = kCAFillModeForwards;
