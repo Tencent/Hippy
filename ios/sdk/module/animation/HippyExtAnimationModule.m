@@ -127,11 +127,10 @@ HIPPY_EXPORT_METHOD(createAnimationSet:(NSNumber *__nonnull)animationId animatio
         NSNumber *subAnimationId = info[@"animationId"];
         BOOL follow = [info[@"follow"] boolValue];
         HippyExtAnimation *ani = self->_animationById[subAnimationId];
-#ifdef NSAssert
         if (ani == nil) {
             HippyAssert(ani != nil, @"create group animation but use illege sub animaiton");
+            return;
         }
-#endif
         ani.bFollow = follow;
         [anis addObject: ani];
     }];
