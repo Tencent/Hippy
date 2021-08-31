@@ -15,11 +15,15 @@
  */
 package com.tencent.mtt.hippy.adapter.http;
 
+import com.tencent.mtt.hippy.common.HippyArray;
+
 public interface HippyHttpAdapter {
 
   void sendRequest(HippyHttpRequest request, HttpTaskCallback callback);
 
   void destroyIfNeed();
+
+  void handleRequestCookie(String url, HippyArray requestCookies, HippyHttpRequest httpRequest);
 
   interface HttpTaskCallback {
 
