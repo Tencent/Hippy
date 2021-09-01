@@ -30,9 +30,9 @@ publishing {
         myPub(MavenPublication) {
             groupId 'com.tencent.qqbrowser.hippyforqb'
             artifactId 'hippysdk'
-            version 'qb-androidx-11.9.6'
+            version 'qb-androidx-11.9.6.1'
             artifact(androidSourcesJar)
-            artifact("$buildDir/outputs/aar/android-sdk-release.aar")
+            artifact("$buildDir/outputs/aar/android-sdk.aar")
             pom.withXml {
                 def dependenciesNode = asNode().appendNode('dependencies')
                 configurations.api.allDependencies.each {
