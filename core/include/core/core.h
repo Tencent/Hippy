@@ -52,6 +52,10 @@
 #include "core/napi/jsc/js_native_jsc_helper.h"
 #endif
 
+#ifdef MMKV
+#include "core/mmkv/MMKV.h"
+#endif
+
 #include "core/task/common_task.h"
 #include "core/task/javascript_task.h"
 #include "core/task/javascript_task_runner.h"

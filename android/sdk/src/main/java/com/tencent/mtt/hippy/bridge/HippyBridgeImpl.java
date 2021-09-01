@@ -150,6 +150,16 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
   }
 
   @Override
+  public  void installBinding(String moduleName){
+    return installBinding(mV8RuntimeId,moduleName);
+  }
+
+  @Override
+  public void installBindingMMKV(String path){
+    return installBindingMMKV(mV8RuntimeId,path);
+  }
+
+  @Override
   public boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache,
       String codeCacheTag, NativeCallback callback) {
     if (!mInit) {
@@ -255,6 +265,8 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
     destroy(mV8RuntimeId, mSingleThreadMode, callback);
   }
 
+  public native void installBinding(long V8RuntimId, String moduleName);
+  public native void installBindingMMKV(long V8RuntimId,String path);
   public native long initJSFramework(byte[] gobalConfig, boolean useLowMemoryMode,
       boolean enableV8Serialization, boolean isDevModule, NativeCallback callback, long groupId);
 

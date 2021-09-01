@@ -20,6 +20,7 @@ import android.content.res.AssetManager;
 import com.tencent.mtt.hippy.common.HippyArray;
 import java.nio.ByteBuffer;
 
+
 public interface HippyBridge {
 
   String URI_SCHEME_ASSETS = "asset:";
@@ -27,6 +28,8 @@ public interface HippyBridge {
 
   void initJSBridge(String gobalConfig, NativeCallback callback, int groupId);
 
+  void installBinding(String moduleName);
+  void installBindingMMKV(String path);
   boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache,
       String codeCacheTag, NativeCallback callback);
 

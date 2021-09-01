@@ -33,7 +33,16 @@
 #include <unordered_map>
 
 #include "bridge/java2js.h"
+
+#ifndef JSI
 #include "bridge/js2java.h"
+#else 
+#include "bridge/js2javaJSI.h"
+#ifdef MMKV
+#include "cpp_adapter.h"
+#endif
+#endif
+
 #include "bridge/runtime.h"
 #include "core/base/string_view_utils.h"
 #include "core/core.h"
@@ -66,6 +75,20 @@ REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
              "destroy",
              "(JZLcom/tencent/mtt/hippy/bridge/NativeCallback;)V",
              DestroyInstance)
+
+#ifdef JSI
+REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
+             "installBinding",
+             "(JZLcom/tencent/mtt/hippy/bridge/NativeCallback;)V",
+             InstallBinding)
+#ifdef MMKV
+REGISTER_JNI("com/tencent/mtt/hippy/mmkv",
+             "installBindingMMKV",
+             "(JZLcom/tencent/mtt/hippy/bridge/NativeCallback;)V",
+             InstallBindingMMKV)
+#endif
+
+#endif
 
 using unicode_string_view = tdf::base::unicode_string_view;
 using u8string = unicode_string_view::u8string;
@@ -557,6 +580,39 @@ void DestroyInstance(JNIEnv* j_env,
   TDF_BASE_DLOG(INFO) << "destroy end";
 }
 
+#ifdef JSI
+void InstallBinding(JNIEnv *env, jobject thiz, jlong j_runtime_id,jstring jModuleName)
+{
+  char* chardata = jstringToChar(env, jModuleName);
+  std::string moduleName = charData;
+  auto runtime = Runtime::Find(j_runtime_id);;
+  auto binding = std::make_shared<TurboModule>();
+
+  TurboModule::install(runtime, binding,moduleName);
+
+  jobject globalObjectRef = env->NewGlobalRef(thiz);
+  objectList.emplace(moduleName,globalObjectRef);
+  
+  //auto clazz = env->FindClass("com/jsi/" + moduleName);
+  //jclass globalClassRef = (jclass)env->NewGlobalRef(clazz);
+  //classList.emplace(moduleName,globalClassRef);
+}
+#ifdef MMKV
+void InstallBindingMMKV(JNIEnv *env, jobject clazz, jlong j_runtime_id, jstring path) {
+    MMKV::initializeMMKV(jstringToStdString(env, path));
+
+    auto runtime = Runtime::Find(j_runtime_id);;
+    if (runtime) {
+        install(*runtime);
+    }
+    // if runtime was nullptr, MMKV will not be installed. This should only happen while Remote Debugging (Chrome), but will be weird either way.
+}
+#endif
+
+#endif
+
+
+
 }  // namespace bridge
 }  // namespace hippy
 
@@ -590,3 +646,4 @@ void JNI_OnUnload(JavaVM* j_vm, void* reserved) {
 
   JNIEnvironment::DestroyInstance();
 }
+

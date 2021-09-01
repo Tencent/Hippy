@@ -53,5 +53,10 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
                           jlong j_runtime_id,
                           jobject j_cb);
 
+ void InstallBinding(JNIEnv* env, 
+                     jobject thiz, 
+                     jlong runtimePtr,
+                     jstring jModuleName);
+
 }  // namespace bridge
 }  // namespace hippy

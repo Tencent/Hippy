@@ -142,8 +142,9 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${CORE_SRC_DIR}/include)
 include_directories(${PROJECT_SOURCE_DIR})
 include_directories(${CORE_SRC_DIR}/third_party/base/include)
+include_directories(${PROJECT_SOURCE_DIR}/mmkvModule)
 
-add_library(${HIPPY_TARGET_NAME} SHARED ${CORE_SRC} ${URL_PARSER_SRC} ${JNI_SRC})
+add_library(${HIPPY_TARGET_NAME} SHARED ${CORE_SRC} ${URL_PARSER_SRC} ${JNI_SRC} ${PROJECT_SOURCE_DIR}/cpp_adapter.cpp)
 target_link_libraries(${HIPPY_TARGET_NAME} ${HIPPY_DEPS})
 
 if (${JS_ENGINE} STREQUAL "V8")
