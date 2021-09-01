@@ -144,6 +144,16 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
     public void setPreloadItemNumber(HRW view, int preloadItemNumber) {
         getAdapter(view).setPreloadItemNumber(preloadItemNumber);
     }
+    @HippyControllerProps(name = "suspendViewListener", defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
+    public void setSuspendViewListener(final HRW viewWrapper, int open) {
+        viewWrapper.getRecyclerView().enableStickEvent(open == 1);
+    }
+
+    @Override
+    public void onAfterUpdateProps(HRW viewWrapper) {
+        super.onAfterUpdateProps(viewWrapper);
+        viewWrapper.getRecyclerView().onAfterUpdateProps();
+    }
 
     @Override
     public void dispatchFunction(HRW view, String functionName, HippyArray dataArray) {

@@ -47,8 +47,10 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     protected IHeaderHost headerHost;                //用于pullHeader下拉刷新
     protected LayoutManager layoutManager;
     protected RecyclerViewEventHelper recyclerViewEventHelper;//事件集合
-    private NodePositionHelper nodePositionHelper;
     protected int renderNodeCount = 0;
+    private NodePositionHelper nodePositionHelper;
+    private ViewStickEventHelper viewStickEventHelper;
+    private boolean stickEventEnable;
 
     public HippyRecyclerView(Context context) {
         super(context);
@@ -369,6 +371,34 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
 
     public void setNodePositionHelper(NodePositionHelper nodePositionHelper) {
         this.nodePositionHelper = nodePositionHelper;
+    }
+
+    public void enableStickEvent(boolean enable) {
+        stickEventEnable = enable;
+    }
+
+    public void onAfterUpdateProps() {
+        if (stickEventEnable) {
+            ensureViewStickEventHelper();
+        } else {
+            destoryViewStickEventHelper();
+        }
+    }
+
+    private void ensureViewStickEventHelper() {
+        if (viewStickEventHelper == null) {
+            viewStickEventHelper = new ViewStickEventHelper((View) this.getParent());
+        }
+        if (stickyHeaderHelper != null) {
+            stickyHeaderHelper.setStickViewListener(viewStickEventHelper);
+        }
+    }
+
+    private void destoryViewStickEventHelper() {
+        if (stickyHeaderHelper != null) {
+            stickyHeaderHelper.setStickViewListener(null);
+        }
+        viewStickEventHelper = null;
     }
 
     @Override
