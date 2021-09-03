@@ -149,7 +149,7 @@
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | idle                | 滑动距离在 pull-header 区域内触发一次，参数 contentOffset                            | `Function`                                                   | `ALL`    |
 | pulling   | 滑动距离超出 pull-header 后触发一次，参数 contentOffset                                                        | `Function`   | `ALL`    |
-| refresh   | 滑动超出距离，松手后触发一次          | `Function`   | `ALL`    |
+| released   | 滑动超出距离，松手后触发一次          | `Function`   | `ALL`    |
 
 ## 方法
 

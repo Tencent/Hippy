@@ -33,7 +33,7 @@
         @scrollEndDrag="onScrollEndDrag"
       >
         <!-- div 带着 overflow 属性的，只能有一个子节点，否则终端会崩溃 -->
-        <div class="display-flex flex-row div-demo-2-container">
+        <div class="display-flex flex-row">
           <p class="text-block">
             A
           </p>
@@ -198,10 +198,6 @@ export default {
     overflow-x: scroll;
     margin: 10px;
     flex-direction: row;
-  }
-
-  .div-demo-2-container {
-    width: 1000px;
   }
 
   .div-demo-3 {
