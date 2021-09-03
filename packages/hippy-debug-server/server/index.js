@@ -8,7 +8,7 @@ const {
   parseMimeType,
 } = require('../utils');
 const devSupportWsServer = require('./websocketProxy');
-// const liveReloadWsServer = require('./hippy-livereload');
+const liveReloadWsServer = require('./hippy-livereload');
 
 async function startDevServer(args) {
   const {
@@ -16,10 +16,10 @@ async function startDevServer(args) {
     entry = 'dist/dev/index.bundle',
     host = '127.0.0.1',
     port = 38989,
+    livePort = 38999,
     verbose,
+    live,
   } = args;
-
-
   const versionReturn = '{"Browser": "Hippy/v1.0.0","Protocol-Version": "1.1"}';
   const jsonReturn = JSON.stringify([{
     description: 'hippy instance',
@@ -31,25 +31,21 @@ async function startDevServer(args) {
     url: '',
     webSocketDebuggerUrl: `ws://${host}:${port}/debugger-proxy?role=chrome`,
   }]);
-
   const app = new Koa();
-
   let staticPath;
+  const watchPath = path.resolve(path.dirname(entry));
   if (static) {
     staticPath = path.resolve(static);
   } else {
     staticPath = path.resolve(path.dirname(entry));
   }
-
   if (!fs.statSync(staticPath).isDirectory()) {
     throw new Error('Static folder is not exist or not a folder');
   }
-
   app.use((ctx) => {
     if (verbose) {
       logger.info('Received url request', ctx.url);
     }
-
     // Response the content of version request
     if (ctx.path === '/json/version') {
       ctx.res.writeHead(200, {
@@ -59,7 +55,6 @@ async function startDevServer(args) {
       ctx.res.write(versionReturn);
       return ctx.res.end();
     }
-
     // Response the content of json api request
     if (ctx.path === '/json') {
       ctx.res.writeHead(200, {
@@ -69,7 +64,6 @@ async function startDevServer(args) {
       ctx.res.write(jsonReturn);
       return ctx.res.end();
     }
-
     // Read the file content from specific path
     const contentStr = content(ctx, staticPath);
     if (!contentStr) {
@@ -82,23 +76,32 @@ async function startDevServer(args) {
     ctx.res.write(contentStr);
     return ctx.res.end();
   });
-
-  const serverInstance = app.listen(port, host, () => {
-    exec('adb', ['reverse', '--remove-all'])
-      .then(() => exec('adb', ['reverse', `tcp:${port}`, `tcp:${port}`]))
-      .catch((err) => {
-        logger.warn('Port reverse failed, For iOS app debug only just ignore the message.');
-        logger.warn('Otherwise please check adb devices command working correctly');
-        if (verbose) {
-          logger.error(err);
-        }
+  exec('adb', ['reverse', '--remove-all'])
+    .then(() => {
+      exec('adb', ['reverse', `tcp:${port}`, `tcp:${port}`]);
+      exec('adb', ['reverse', `tcp:${livePort}`, `tcp:${livePort}`]);
+    })
+    .catch((err) => {
+      logger.warn('Port reverse failed, For iOS app debug only just ignore the message.');
+      logger.warn('Otherwise please check adb devices command working correctly');
+      if (verbose) {
+        logger.error(err);
+      }
+    })
+    .finally(() => {
+      const serverDebugInstance = app.listen(port, host, () => {
+        devSupportWsServer.startWebsocketProxyServer(serverDebugInstance, '/debugger-proxy');
+        logger.info('Hippy debug server is started at', `${host}:${port}`, 'for entry', entry);
+        logger.info('Please open "chrome://inspect" in Chrome to debug your android Hippy app, or use Safari to debug iOS app');
       });
-    devSupportWsServer.startWebsocketProxyServer(serverInstance, '/debugger-proxy');
-    // liveReloadWsServer.startLiveReloadServer(serverInstance, '/debugger-live-reload');
-    logger.info('Hippy debug server is started at', `${host}:${port}`, 'for', entry);
-    logger.info('Please open "chrome://inspect" in Chrome to debug your android Hippy app, or use Safari to debug iOS app');
-  });
-  serverInstance.timeout = 6000 * 1000;
+      serverDebugInstance.timeout = 6000 * 1000;
+      if (!live) return;
+      const serverLiveReloadInstance = app.listen(livePort, host, () => {
+        liveReloadWsServer.startLiveReloadServer(serverLiveReloadInstance, '/debugger-live-reload', watchPath);
+        logger.info('Hippy live reload server is started at', `${host}:${livePort}`, 'to watch directory', watchPath);
+      });
+      serverLiveReloadInstance.timeout = 6000 * 1000;
+    });
 }
 
 module.exports = startDevServer;
