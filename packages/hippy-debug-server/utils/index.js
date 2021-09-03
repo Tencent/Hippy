@@ -1,6 +1,7 @@
 const content = require('./content');
 const exec = require('./exec');
 const parseMimeType = require('./mimes');
+const Watcher = require('./watcher');
 const { logger, timerLogger, verboseInfo } = require('./logger');
 
 module.exports = {
@@ -10,4 +11,5 @@ module.exports = {
   logger,
   timerLogger,
   verboseInfo,
+  Watcher,
 };

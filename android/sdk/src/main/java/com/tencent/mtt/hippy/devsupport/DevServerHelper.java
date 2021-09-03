@@ -47,7 +47,9 @@ public class DevServerHelper {
   }
 
   public String getLiveReloadURL() {
-    return String.format(Locale.US, WEBSOCKET_LIVERELOAD_URL_FORMAT, mServerHost);
+    String[] host = mServerHost.split(":");
+    String newHost = host[0] + ":38999";
+    return String.format(Locale.US, WEBSOCKET_LIVERELOAD_URL_FORMAT, newHost);
   }
 
   public void fetchBundleFromURL(final BundleFetchCallBack bundleFetchCallBack, final String url) {
