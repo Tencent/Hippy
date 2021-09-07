@@ -5,9 +5,9 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.Window;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.SimpleTarget;
+//import com.bumptech.glide.Glide;
+//import com.bumptech.glide.request.animation.GlideAnimation;
+//import com.bumptech.glide.request.target.SimpleTarget;
 import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.adapter.image.HippyDrawable;
@@ -49,15 +49,15 @@ public class MyActivityTiny extends Activity
 				@Override
 				public void fetchImage(final String url, final Callback requestCallback, Object param)
 				{
-					Glide.with(ContextHolder.getAppContext()).load(url).asBitmap().into(new SimpleTarget() {
-						@Override
-						public void onResourceReady(Object object, GlideAnimation glideAnimation) {
-							HippyDrawable hippyTarget = new HippyDrawable();
-							if (object instanceof Bitmap)
-								hippyTarget.setData((Bitmap) object);
-							requestCallback.onRequestSuccess(hippyTarget);
-						}
-					});
+//					Glide.with(ContextHolder.getAppContext()).load(url).asBitmap().into(new SimpleTarget() {
+//						@Override
+//						public void onResourceReady(Object object, GlideAnimation glideAnimation) {
+//							HippyDrawable hippyTarget = new HippyDrawable();
+//							if (object instanceof Bitmap)
+//								hippyTarget.setData((Bitmap) object);
+//							requestCallback.onRequestSuccess(hippyTarget);
+//						}
+//					});
 				}
 			};
 

@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 28
     buildToolsVersion '28.0.3'
     defaultConfig {
         applicationId "com.tencent.mtt.hippy.example"
@@ -9,9 +9,6 @@ android {
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
-        ndk {
-            abiFilters "armeabi-v7a"
-        }
     }
 
     signingConfigs {
@@ -42,6 +39,7 @@ android {
 
 dependencies {
     api project(path:':android-sdk')
-    api 'com.github.bumptech.glide:glide:3.6.1'
+    api project(path:':android-res')
+//    api 'com.github.bumptech.glide:glide:4.7.1'
     api 'com.tencent.mtt:support-ui:2.3.3'
 }
