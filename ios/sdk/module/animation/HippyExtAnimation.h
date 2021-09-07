@@ -60,8 +60,6 @@ typedef NS_ENUM(NSInteger, HippyExtAnimationState) {
 @property (nonatomic, copy) NSNumber *parentAnimationId;
 @property (nonatomic, assign) HippyExtAnimationState state;
 
-+ (NSString *)convertAnimationKeyPathToViewProperty:(NSString *)keyPath;
-
 - (void)updateAnimation:(NSDictionary *)config;
 
 - (CAAnimation *)animationOfView:(UIView *)view forProp:(NSString *)prop;

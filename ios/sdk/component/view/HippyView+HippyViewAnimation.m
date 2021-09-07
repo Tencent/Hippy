@@ -24,7 +24,6 @@
 #import "HippyView+HippyViewAnimation.h"
 #import "HippyExtAnimation.h"
 #import "HippyConvert.h"
-#import "objc/runtime.h"
 
 @implementation HippyView (HippyViewAnimation)
 
@@ -60,33 +59,9 @@
         ani.fillMode = kCAFillModeForwards;
         ani.toValue = toValue;
         ani.fromValue = fromValue;
-        [ani setOriginToValue:@(animation.endValue)];
         return ani;
     }
     return nil;
 }
 
 @end
-
-@implementation CAAnimation(OriginValue)
-
-static NSString *const kOriginToValueKey = @"kOriginToValue";
-
-- (void)setOriginToValue:(id)toValue {
-    [self setValue:toValue forKey:kOriginToValueKey];
-}
-
-- (id)originToValue {
-    id value = [self valueForKey:kOriginToValueKey];
-    if (value) {
-        return value;
-    }
-    else if ([self respondsToSelector:@selector(toValue)]) {
-        value = [self performSelector:@selector(toValue)];
-        return value;
-    }
-    return nil;
-}
-
-@end
-
