@@ -30,7 +30,7 @@
 #import "HippyDefines.h"
 #import "HippyRedBox.h"
 #import "HippyUtils.h"
-#import "logging.h"
+#import "base/logging.h"
 
 static NSString *const HippyLogFunctionStack = @"HippyLogFunctionStack";
 
