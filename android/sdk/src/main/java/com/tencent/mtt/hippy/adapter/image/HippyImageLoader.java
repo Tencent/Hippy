@@ -15,7 +15,10 @@
  */
 package com.tencent.mtt.hippy.adapter.image;
 
+import android.graphics.Bitmap;
 import android.util.SparseArray;
+import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.supportui.adapters.image.IImageLoaderAdapter;
 import com.tencent.mtt.supportui.adapters.image.IImageRequestListener;
 
@@ -55,6 +58,33 @@ public abstract class HippyImageLoader implements IImageLoaderAdapter<HippyImage
 		}
 		return drawable;
 	}
+
+    public void getSize(final String url, final Promise promise) {
+        fetchImage(url, new HippyImageLoader.Callback() {
+            @Override
+            public void onRequestStart(HippyDrawable hippyDrawable) {
+            }
+
+            @Override
+            public void onRequestSuccess(HippyDrawable hippyDrawable) {
+                if (hippyDrawable != null) {
+                    Bitmap bitmap = hippyDrawable.getBitmap();
+                    HippyMap resultMap = new HippyMap();
+                    resultMap.pushInt("width", bitmap != null ? bitmap.getWidth() : hippyDrawable.getWidth());
+                    resultMap.pushInt("height", bitmap != null ? bitmap.getHeight() : hippyDrawable.getHeight());
+                    promise.resolve(resultMap);
+                    hippyDrawable.onDrawableDetached();
+                } else {
+                    promise.reject("fetch image fail " + url);
+                }
+            }
+
+            @Override
+            public void onRequestFail(Throwable throwable, String source) {
+                promise.reject("fetch image fail " + source);
+            }
+        }, null);
+    }
 
 	public void destroyIfNeed(){
     }
