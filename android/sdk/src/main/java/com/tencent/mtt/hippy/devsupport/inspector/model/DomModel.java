@@ -338,11 +338,12 @@ public class DomModel {
       View view = controllerManager.findView(renderNode.getId());
       if (view != null) {
         view.getLocationOnScreen(viewLocation);
-        int statusBarHeight = ControllerManager.getStatusBarHeightFromSystem();
-        viewLocation[1] = viewLocation[1] - statusBarHeight;
-        if (isTranslucentStatus(context)) {
-          // 沉浸式，需要加回状态栏的高度
-          viewLocation[1] = viewLocation[1] + statusBarHeight;
+        HippyRootView rootView = getRootView(context);
+        if (rootView != null) {
+          int[] rootViewLocation = new int[2];
+          rootView.getLocationOnScreen(rootViewLocation);
+          viewLocation[0] = viewLocation[0] - rootViewLocation[0];
+          viewLocation[1] = viewLocation[1] - rootViewLocation[1];
         }
       } else {
         return null;
@@ -510,6 +511,11 @@ public class DomModel {
       LogUtils.e(TAG, "setInspectMode, exception:", e);
     }
     return new JSONObject();
+  }
+
+  private static HippyRootView getRootView(HippyEngineContext context) {
+    int rootId = context.getDomManager().getRootNodeId();
+    return context.getInstance(rootId);
   }
 
   /**
