@@ -11,7 +11,7 @@
     "serve": "webpack-dev-server --mode=development --config ./scripts/hippy-webpack.web.js",
     "build": "webpack --mode=production --config ./scripts/hippy-webpack.web.js",
     "hippy:local-debug": "node ../../packages/hippy-debug-server/index.js --live",
-    "hippy:debug": "hippy-debug",
+    "hippy:debug": "hippy-debug --live",
     "hippy:dev": "webpack --config ./scripts/hippy-webpack.dev.js",
     "hippy:vendor": "webpack --config ./scripts/hippy-webpack.ios-vendor.js --config ./scripts/hippy-webpack.android-vendor.js",
     "hippy:build": "webpack --config ./scripts/hippy-webpack.ios.js --config ./scripts/hippy-webpack.android.js"
