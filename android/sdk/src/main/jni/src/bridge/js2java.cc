@@ -30,12 +30,22 @@
 #include "bridge/serializer.h"
 #include "core/base/string_view_utils.h"
 #include "jni/jni_env.h"
+#include "jsi/v8JSI.h"
 
 using unicode_string_view = tdf::base::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
 
 namespace hippy {
 namespace bridge {
+
+void TurboModule::get(JNIEnv* env,string methodName){
+  jmethodID mid = (*env)->GetMethodID(env, object, methodName, "()V");
+  (*env)->CallVoidMethod(env,object,mid);
+}
+
+void install(std::shared_ptr<Runtime> runtime,const std::shared_ptr<TurboModule> turboModule,string name){
+  createHostObject(runtime,turboModule,name);
+}
 
 void CallJava(hippy::napi::CBDataTuple* data) {
   TDF_BASE_DLOG(INFO) << "CallJava";

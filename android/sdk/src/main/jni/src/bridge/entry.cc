@@ -42,6 +42,7 @@
 #include "jni/jni_register.h"
 #include "jni/uri.h"
 #include "loader/adr_loader.h"
+#include "jsi/v8JSI.h"
 
 namespace hippy {
 namespace bridge {
@@ -66,6 +67,11 @@ REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
              "destroy",
              "(JZLcom/tencent/mtt/hippy/bridge/NativeCallback;)V",
              DestroyInstance)
+
+REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
+             "installBinding",
+             "(JZLcom/tencent/mtt/hippy/bridge/NativeCallback;)V",
+             InstallBinding)
 
 using unicode_string_view = tdf::base::unicode_string_view;
 using u8string = unicode_string_view::u8string;
@@ -567,6 +573,16 @@ void DestroyInstance(JNIEnv* j_env,
   }
   hippy::bridge::CallJavaMethod(j_callback, INIT_CB_STATE::SUCCESS);
   TDF_BASE_DLOG(INFO) << "destroy end";
+}
+
+void InstallBinding(JNIEnv *env, jobject thiz, jlong j_runtime_id,jstring jModuleName)
+{
+  char* chardata = jstringToChar(env, jModuleName);
+  std::string moduleName = charData;
+  auto runtime = Runtime::Find(j_runtime_id);;
+  auto binding = std::make_shared<TurboModule>(thiz);
+  jsi::install(runtime, binding,moduleName);
+  
 }
 
 }  // namespace bridge
