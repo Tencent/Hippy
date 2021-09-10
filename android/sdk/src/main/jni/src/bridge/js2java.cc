@@ -30,12 +30,22 @@
 #include "bridge/serializer.h"
 #include "core/base/string_view_utils.h"
 #include "jni/jni_env.h"
+#include "jsi/v8JSI.h"
 
 using unicode_string_view = tdf::base::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
 
 namespace hippy {
 namespace bridge {
+
+void TurboModule::get(JNIEnv* env,string methodName){
+  jmethodID mid = (*env)->GetMethodID(env, object, methodName, "()V");
+  (*env)->CallVoidMethod(env,object,mid);
+}
+
+void install(std::shared_ptr<Runtime> runtime,const std::shared_ptr<TurboModule> turboModule,string name){
+  createHostObject(runtime,turboModule,name);
+}
 
 void CallJava(hippy::napi::CBDataTuple* data) {
   TDF_BASE_DLOG(INFO) << "CallJava";
@@ -67,58 +77,29 @@ void CallJava(hippy::napi::CBDataTuple* data) {
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
   JNIEnv* j_env = instance->AttachCurrentThread();
   if (info.Length() >= 1 && !info[0].IsEmpty()) {
-    v8::MaybeLocal<v8::String> module_maybe_str = info[0]->ToString(context);
-    if (module_maybe_str.IsEmpty()) {
-      isolate->ThrowException(
-          v8::Exception::TypeError(
-              v8::String::NewFromOneByte(isolate,
-                                         reinterpret_cast<const uint8_t *>("module name error"))
-                  .ToLocalChecked()));
-      return;
-    }
-    unicode_string_view module_name = v8_ctx->ToStringView(module_maybe_str.ToLocalChecked());
+    v8::Local<v8::String> v8_str =
+        TO_LOCAL_UNCHECKED(info[0]->ToString(context), v8::String);
+    unicode_string_view module_name = v8_ctx->ToStringView(v8_str);
     j_module_name = JniUtils::StrViewToJString(j_env, module_name);
     TDF_BASE_DLOG(INFO) << "CallJava module_name = " << module_name;
-  } else {
-    isolate->ThrowException(
-        v8::Exception::Error(
-            v8::String::NewFromOneByte(isolate,
-                                       reinterpret_cast<const uint8_t *>("info error"))
-                .ToLocalChecked()));
-    return;
   }
 
   jstring j_module_func = nullptr;
   if (info.Length() >= 2 && !info[1].IsEmpty()) {
-    v8::MaybeLocal<v8::String> func_maybe_str = info[1]->ToString(context);
-    if (func_maybe_str.IsEmpty()) {
-      isolate->ThrowException(
-          v8::Exception::TypeError(
-              v8::String::NewFromOneByte(isolate,
-                                         reinterpret_cast<const uint8_t *>("func name error"))
-                  .ToLocalChecked()));
-      return;
-    }
-    unicode_string_view module_func = v8_ctx->ToStringView(func_maybe_str.ToLocalChecked());
+    v8::Local<v8::String> v8_str =
+        TO_LOCAL_UNCHECKED(info[1]->ToString(context), v8::String);
+    unicode_string_view module_func = v8_ctx->ToStringView(v8_str);
     j_module_func = JniUtils::StrViewToJString(j_env, module_func);
     TDF_BASE_DLOG(INFO) << "CallJava module_func = " << module_func;
-  } else {
-    isolate->ThrowException(
-        v8::Exception::Error(
-            v8::String::NewFromOneByte(isolate,
-                                       reinterpret_cast<const uint8_t *>("info error"))
-                .ToLocalChecked()));
-    return;
   }
 
   jstring j_cb_id = nullptr;
   if (info.Length() >= 3 && !info[2].IsEmpty()) {
-    v8::MaybeLocal<v8::String> cb_id_maybe_str = info[2]->ToString(context);
-    if (!cb_id_maybe_str.IsEmpty()) {
-      unicode_string_view cb_id = v8_ctx->ToStringView(cb_id_maybe_str.ToLocalChecked());
-      j_cb_id = JniUtils::StrViewToJString(j_env, cb_id);
-      TDF_BASE_DLOG(INFO) << "CallJava cb_id = " << cb_id;
-    }
+    v8::Local<v8::String> v8_str =
+        TO_LOCAL_UNCHECKED(info[2]->ToString(context), v8::String);
+    unicode_string_view cb_id = v8_ctx->ToStringView(v8_str);
+    j_cb_id = JniUtils::StrViewToJString(j_env, cb_id);
+    TDF_BASE_DLOG(INFO) << "CallJava cb_id = " << cb_id;
   }
 
   std::string buffer_data;
@@ -136,6 +117,7 @@ void CallJava(hippy::napi::CBDataTuple* data) {
       unicode_string_view json;
       TDF_BASE_DCHECK(v8_ctx->GetValueJson(obj, &json));
       TDF_BASE_DLOG(INFO) << "CallJava json = " << json;
+
       buffer_data = StringViewUtils::ToU8StdStr(json);
     }
   }

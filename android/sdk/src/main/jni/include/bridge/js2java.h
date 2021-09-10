@@ -29,6 +29,16 @@
 namespace hippy {
 namespace bridge {
 
+class TurboModule:public HostObject{
+public:
+  TurboModule(jobject _object):object(_object){};
+  virtual get(string methodName);
+private:
+  jobject object;
+}
+
+void install(jsi::Runtime &runtime,const std::shared_ptr<TurboModule> turboModule);
+
 void CallJava(hippy::napi::CBDataTuple* data);
 
 }  // namespace bridge

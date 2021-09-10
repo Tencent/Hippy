@@ -42,14 +42,15 @@
 #include "jni/jni_register.h"
 #include "jni/uri.h"
 #include "loader/adr_loader.h"
+#include "jsi/v8JSI.h"
 
 namespace hippy {
 namespace bridge {
 
 REGISTER_STATIC_JNI("com/tencent/mtt/hippy/HippyEngine",
-                    "initNativeLogHandler",
-                    "(Lcom/tencent/mtt/hippy/IHippyNativeLogHandler;)V",
-                    InitNativeLogHandler)
+                    "initLogger",
+                    "(Lcom/tencent/mtt/hippy/HippyCLogHandler;)V",
+                    InitLogger)
 
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
              "initJSFramework",
@@ -66,6 +67,11 @@ REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
              "destroy",
              "(JZLcom/tencent/mtt/hippy/bridge/NativeCallback;)V",
              DestroyInstance)
+
+REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
+             "installBinding",
+             "(JZLcom/tencent/mtt/hippy/bridge/NativeCallback;)V",
+             InstallBinding)
 
 using unicode_string_view = tdf::base::unicode_string_view;
 using u8string = unicode_string_view::u8string;
@@ -92,7 +98,7 @@ enum INIT_CB_STATE {
   SUCCESS = 0,
 };
 
-void InitNativeLogHandler(JNIEnv* j_env, jobject j_object, jobject j_logger) {
+void InitLogger(JNIEnv* j_env, jobject j_object, jobject j_logger) {
   if (!j_logger) {
     return;
   }
@@ -103,7 +109,7 @@ void InitNativeLogHandler(JNIEnv* j_env, jobject j_object, jobject j_logger) {
   }
 
   jmethodID j_method =
-      j_env->GetMethodID(j_cls, "onReceiveNativeLogMessage", "(Ljava/lang/String;)V");
+      j_env->GetMethodID(j_cls, "onReceiveLogMessage", "(Ljava/lang/String;)V");
   if (!j_method) {
     return;
   }
@@ -133,7 +139,6 @@ bool RunScript(std::shared_ptr<Runtime> runtime,
                       << ", uri = " << uri
                       << ", asset_manager = " << asset_manager;
   unicode_string_view script_content;
-  bool read_script_flag;
   unicode_string_view code_cache_content;
   uint64_t modify_time = 0;
 
@@ -181,28 +186,20 @@ bool RunScript(std::shared_ptr<Runtime> runtime,
     task_runner = engine->GetWorkerTaskRunner();
     task_runner->PostTask(std::move(task));
     u8string content;
-    read_script_flag = runtime->GetScope()->GetUriLoader()
-        ->RequestUntrustedContent(uri, content);
-    if (read_script_flag) {
-      script_content = unicode_string_view(std::move(content));
-    }
+    runtime->GetScope()->GetUriLoader()->RequestUntrustedContent(uri, content);
+    script_content = unicode_string_view(std::move(content));
     code_cache_content = read_file_future.get();
   } else {
     u8string content;
-    read_script_flag = runtime->GetScope()->GetUriLoader()
-        ->RequestUntrustedContent(uri, content);
-    if (read_script_flag) {
-      script_content = unicode_string_view(std::move(content));
-    }
+    runtime->GetScope()->GetUriLoader()->RequestUntrustedContent(uri, content);
+    script_content = unicode_string_view(std::move(content));
   }
 
   TDF_BASE_DLOG(INFO) << "uri = " << uri
-                      << "read_script_flag = " << read_script_flag
                       << ", script content = " << script_content;
 
-  if (!read_script_flag || StringViewUtils::IsEmpty(script_content)) {
-    TDF_BASE_LOG(WARNING) << "read_script_flag = " << read_script_flag
-                          << ", script content empty, uri = " << uri;
+  if (StringViewUtils::IsEmpty(script_content)) {
+    TDF_BASE_LOG(WARNING) << "script content empty, uri = " << uri;
     return false;
   }
 
@@ -269,10 +266,7 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
                         std::chrono::system_clock::now())
                         .time_since_epoch()
                         .count();
-  if (!j_uri) {
-    TDF_BASE_DLOG(WARNING) << "HippyBridgeImpl runScriptFromUri, j_uri invalid";
-    return false;
-  }
+
   const unicode_string_view uri = JniUtils::ToStrView(j_env, j_uri);
   const unicode_string_view code_cache_dir =
       JniUtils::ToStrView(j_env, j_code_cache_dir);
@@ -567,6 +561,16 @@ void DestroyInstance(JNIEnv* j_env,
   }
   hippy::bridge::CallJavaMethod(j_callback, INIT_CB_STATE::SUCCESS);
   TDF_BASE_DLOG(INFO) << "destroy end";
+}
+
+void InstallBinding(JNIEnv *env, jobject thiz, jlong j_runtime_id,jstring jModuleName)
+{
+  char* chardata = jstringToChar(env, jModuleName);
+  std::string moduleName = charData;
+  auto runtime = Runtime::Find(j_runtime_id);;
+  auto binding = std::make_shared<TurboModule>(thiz);
+  jsi::install(runtime, binding,moduleName);
+  
 }
 
 }  // namespace bridge
