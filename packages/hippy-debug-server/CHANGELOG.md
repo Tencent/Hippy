@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.9.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-debug-server/compare/2.8.4...2.9.0) (2021-09-10)
+
+
+### Features
+
+* **debug-server:** change chrome dev protocal for Elements tab ([da50de2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-debug-server/commit/da50de25ff00705604373c0e482879405dc283ee))
+* **react,vue,android:** add live reload ([22582f4](https://github.com/Tencent/Hippy/tree/master/packages/hippy-debug-server/commit/22582f4179d484ae4b7ff088511d42656307e1de))
+
+
+
+
+
 ## [2.8.4](https://github.com/Tencent/Hippy/tree/master/packages/hippy-debug-server/compare/2.8.3...2.8.4) (2021-08-13)
 
 **Note:** Version bump only for package @hippy/debug-server

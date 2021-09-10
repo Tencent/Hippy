@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.9.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.8.4...2.9.0) (2021-09-10)
+
+
+### Bug Fixes
+
+* **hippy-react:** add callUIFunction default options ([24c3d9c](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/24c3d9c7732c558251d99eb77725b03a3c951373))
+
+
+### Features
+
+* **animation:** animation cubic-bezier timingFunction ([#785](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/issues/785)) ([044e8b2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/044e8b2dec9d86a0c5e391d99794953b73c11bcf))
+* **react,vue,ios,android:** add waterfall component for hippy ([#933](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/issues/933)) ([909cf79](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/909cf793af5fb70f54f001a2ddb1c43702ca2352)), closes [#1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/issues/1)
+
+
+
+
+
 ## [2.8.4](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.8.3...2.8.4) (2021-08-13)
 
 

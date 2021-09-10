@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.9.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-native-components/compare/2.8.4...2.9.0) (2021-09-10)
+
+
+### Features
+
+* **react,vue,ios,android:** add waterfall component for hippy ([#933](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-native-components/issues/933)) ([909cf79](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-native-components/commit/909cf793af5fb70f54f001a2ddb1c43702ca2352)), closes [#1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-native-components/issues/1)
+
+
+
+
+
 ## [2.8.4](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-native-components/compare/2.8.3...2.8.4) (2021-08-13)
 
 **Note:** Version bump only for package @hippy/vue-native-components

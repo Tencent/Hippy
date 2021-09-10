@@ -3,6 +3,43 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.9.0](https://github.com/Tencent/Hippy/compare/2.8.4...2.9.0) (2021-09-10)
+
+
+### Bug Fixes
+
+* **android:** add HippyDrawable get gif width and height ([d4c10ff](https://github.com/Tencent/Hippy/commit/d4c10ffaf06bda0151623b7629600db5ee41255a))
+* **android:** add useAndroidX to sdk gradle properties ([4c88717](https://github.com/Tencent/Hippy/commit/4c88717ac813a6dfcf1a19ead093493b29498c13))
+* **android:** correct recycler list pull header height ([f07e485](https://github.com/Tencent/Hippy/commit/f07e4851add0b0beba89bcae1fc2d44764a75dde))
+* **android:** element refresh bug ([955b01b](https://github.com/Tencent/Hippy/commit/955b01b60669e3a6b36f97e48d6b70da21f6d2f7))
+* **hippy-react:** add callUIFunction default options ([24c3d9c](https://github.com/Tencent/Hippy/commit/24c3d9c7732c558251d99eb77725b03a3c951373))
+* **ios:** fix an animation group error ([67104f0](https://github.com/Tencent/Hippy/commit/67104f0db5121d956de41b243476176918260df1))
+* **ios:** fix combined animation error ([#941](https://github.com/Tencent/Hippy/issues/941)) ([a090d32](https://github.com/Tencent/Hippy/commit/a090d3272bc608e487aef86dd99bdd243dbca5f5))
+* **ios:** fix degree rotation bug ([76fab1d](https://github.com/Tencent/Hippy/commit/76fab1db3c8e522ab55fae3d39393db6c09fa263))
+* **ios:** properties define in uiview's designated initializer ([63d0841](https://github.com/Tencent/Hippy/commit/63d08414aa9511ac453ee8c818d12e622b1267ff))
+* **ios:** set right zPosition for listview cell ([#928](https://github.com/Tencent/Hippy/issues/928)) ([c9a0b0e](https://github.com/Tencent/Hippy/commit/c9a0b0e3b073acc7b748c192750f704a8a015b9f))
+* **ios:** update visibility available now ([988106c](https://github.com/Tencent/Hippy/commit/988106c9f128a645bc74079e4b9d1147eeebd7a2))
+
+
+### Features
+
+* **android:** import junit + powermock + robolectric ([18dcaff](https://github.com/Tencent/Hippy/commit/18dcaff2b5b709ec605ab77541aec4e50f6086da))
+* **animation:** animation cubic-bezier timingFunction ([#785](https://github.com/Tencent/Hippy/issues/785)) ([044e8b2](https://github.com/Tencent/Hippy/commit/044e8b2dec9d86a0c5e391d99794953b73c11bcf))
+* **debug-server:** change chrome dev protocal for Elements tab ([da50de2](https://github.com/Tencent/Hippy/commit/da50de25ff00705604373c0e482879405dc283ee))
+* **ios:** add visibility property for view ([4652fe9](https://github.com/Tencent/Hippy/commit/4652fe98363521dbba770082869da1bd29150b47))
+* **ios:** enable swipe to delete in UITableView ([#935](https://github.com/Tencent/Hippy/issues/935)) ([ebcf138](https://github.com/Tencent/Hippy/commit/ebcf138c7167e4b4a42244ec00a2c28390af695b))
+* **react,vue,android:** add live reload ([22582f4](https://github.com/Tencent/Hippy/commit/22582f4179d484ae4b7ff088511d42656307e1de))
+* **react,vue,ios,android:** add waterfall component for hippy ([#933](https://github.com/Tencent/Hippy/issues/933)) ([909cf79](https://github.com/Tencent/Hippy/commit/909cf793af5fb70f54f001a2ddb1c43702ca2352)), closes [#1](https://github.com/Tencent/Hippy/issues/1)
+
+
+### Reverts
+
+* Revert "fix(ios): fix combined animation error (#941)" ([6c4fe03](https://github.com/Tencent/Hippy/commit/6c4fe03f6510442385011ad86f6f60ceecb01ca0)), closes [#941](https://github.com/Tencent/Hippy/issues/941)
+
+
+
+
+
 ## [2.8.4](https://github.com/Tencent/Hippy/compare/2.8.3...2.8.4) (2021-08-13)
 
 

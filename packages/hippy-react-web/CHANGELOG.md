@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.9.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/compare/2.8.4...2.9.0) (2021-09-10)
+
+
+### Features
+
+* **animation:** animation cubic-bezier timingFunction ([#785](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/issues/785)) ([044e8b2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/commit/044e8b2dec9d86a0c5e391d99794953b73c11bcf))
+
+
+
+
+
 ## [2.8.4](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/compare/2.8.3...2.8.4) (2021-08-13)
 
 **Note:** Version bump only for package @hippy/react-web
