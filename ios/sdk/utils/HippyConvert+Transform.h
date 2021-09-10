@@ -27,5 +27,4 @@
 + (CATransform3D)CATransform3D:(id)json;
 + (CGFloat)convertToRadians:(id)json;
 + (CGFloat)convertDegToRadians:(CGFloat)deg;
-+ (BOOL)canConvertPropertyWithTransform3D:(NSString *)property;
 @end
