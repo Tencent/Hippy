@@ -10,10 +10,14 @@ Hippy中运行的JS代码可以来源于本地文件(local file)，或者远程�
 
 # 项目初始化
 
-1. 项目根目录运行命令 `npm install` 安装前端依赖。
-2. 项目根目录运行命令 `lerna bootstrap` 安装前端每一个 package 依赖。（Hippy 采用 [Lerna](https://lerna.js.org/) 管理多JS仓库，如果出现 `lerna command is not found`, 先执行 `npm install lerna -g`）
-3. 项目根目录运行命令 `npm run build` 编译前端 SDK 包。
-4. 选择一个前端范例项目来进行编译，项目根目录运行 `npm run buildexample -- [hippy-react-demo|hippy-vue-demo]`。
+1. 运行 `git clone https://github.com/Tencent/Hippy.git`
+
+   !> Hippy 仓库使用 [git-lfs](https://git-lfs.github.com/) 来管理 so,gz,otf,png,jpg 文件, 请确保你已经安装 [git-lfs](https://git-lfs.github.com/)。
+
+2. 项目根目录运行命令 `npm install` 安装前端依赖。
+3. 项目根目录运行命令 `lerna bootstrap` 安装前端每一个 package 依赖。（Hippy 采用 [Lerna](https://lerna.js.org/) 管理多JS仓库，如果出现 `lerna command is not found`, 先执行 `npm install lerna -g`）
+4. 项目根目录运行命令 `npm run build` 编译前端 SDK 包。
+5. 选择一个前端范例项目来进行编译，项目根目录运行 `npm run buildexample -- [hippy-react-demo|hippy-vue-demo]`。
 
 # 终端环境准备
 
@@ -78,10 +82,54 @@ Android 使用了 [adb](//developer.android.com/studio/command-line/adb) 的端�
 
 9. 当 JS 文件发生改动时，自动编译会执行，但是终端却无法获知 JS 文件已经发生改变，点击界面上的`小圆点`，选择弹出菜单中的 `Reload` 重新加载 JS 代码。
 
+# Elements 检查能力
+
+> Android 最低支持版本 2.9.0
+
+Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Inspector 上进行 Elements 的可视化检查。
+
+<img src="https://user-images.githubusercontent.com/12878546/132838547-40ab9e10-ba93-4bc4-86b0-6babba020d03.png" alt="Inspect Elements" width="70%"/>
+<br />
+<br />
+
+# Live-Reload 能力
+
+> 最低支持版本 2.9.0
+
+当开发者修改了前端代码后，我们可以通过 `live-reload` 能力帮助我们在代码变更时自动重载业务实例，步骤如下：
+
++ webpack 配置文件在 entry 末端引入 `@hippy/hippy-live-reload-polyfill`
+
+```javascript
+module.exports = {
+  mode: 'development',
+  entry: {
+    index: ['regenerator-runtime', 'index.js', '@hippy/hippy-live-reload-polyfill'],
+  }
+}
+```
+
++ 启动调试 server 增加 `--live` 参数，这时候会启动一个 `38999` 端口的 Websocket
+
+```json
+{
+   "scripts": {
+      "hippy:debug": "hippy-debug --live"
+   }  
+} 
+```
+
++ 对于 Android 调试，打开 `Enable Live Reload` 开关
+
+<img src="https://user-images.githubusercontent.com/12878546/132832119-b1b7e042-da9d-4792-a21c-ff4773f3cca0.jpg" alt="Android Debug" width="25%"/>
+<br />
+
++ 对于 iOS 调试，业务代码启动后会自动监听
+
 # 框架日志输出
 
 无论是 hippy-react 还是 hippy-vue 都将和终端通讯的信息进行输出，包含了前终端的节点操作、事件收发。这些日志对于业务调试其实很有帮助，可以让开发了解到前端框架是如何将代码转译成终端可以理解的语法，当遇到问题时应先检查框架通信日志，基本可以定位到大部分问题。
 
 如果需要关闭日志，可以在 hippy-react 的 new Hippy 启动参数中增加 `silent: true`，或者 hippy-vue 项目的入口文件中，开启 `Vue.config.silent = true;`。
 
-   ![Communication Info](//static.res.qq.com/nav/hippydoc/img/inspectDebugInfo.png)
+<img src="//static.res.qq.com/nav/hippydoc/img/inspectDebugInfo.png" alt="Communication Info" width="60%"/>
