@@ -28,6 +28,7 @@ import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.views.refresh.HippyPullFooterView;
 import com.tencent.mtt.hippy.views.refresh.HippyPullHeaderView;
+import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 import com.tencent.mtt.supportui.views.recyclerview.*;
 
 import java.util.ArrayList;
@@ -559,6 +560,15 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
   public void onPreload() {
     getOnEndReachedEvent().send(mParentRecyclerView, null);
     getOnLoadMoreEvent().send(mParentRecyclerView, null);
+  }
+
+  @Override
+  public boolean getClipChildrenOfContenView(View contentView) {
+    if (contentView instanceof HippyViewGroup) {
+      return ((HippyViewGroup)contentView).getClipChildren();
+    }
+
+    return false;
   }
 
   protected void setPreloadItemNumber(int preloadItemNum) {
