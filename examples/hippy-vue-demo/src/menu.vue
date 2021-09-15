@@ -90,7 +90,7 @@ export default {
 };
 </script>
 
-<style scope>
+<style scoped>
 .feature-list {
   overflow: scroll;
 }
@@ -122,7 +122,6 @@ export default {
   font-size: 16px;
   color: #40b883;
   text-align: center;
-  text-align-vertical: center;
 }
 
 #version-info {
@@ -131,6 +130,5 @@ export default {
   margin-bottom: 10px;
   border-bottom-width: 1px;
   border-bottom-color: gainsboro;
-  border-bottom-style: solid;
 }
 </style>

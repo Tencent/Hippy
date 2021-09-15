@@ -138,6 +138,22 @@ Hippy 的样式排版使用了 Flex 布局。值得注意的是，尚不兼容�
 | --------------- | -------- |
 | enum('cover', 'contain') | 否       |
 
+# collapsable
+
+Android 里如果一个 View 只用于布局它的子组件，则它可能会为了优化而从原生布局树中移除，因此该节点 DOM 的引用会丢失。 把此属性设为 false 可以禁用这个优化，以确保对应视图在原生结构中存在。
+
+| 类型            | 必需 | 支持平台
+| --------------- | -------- | ---- |
+| enum('false'， 'true'[default]) | 否       | Android
+
+# display
+
+Hippy 默认采用 Flex 布局。同时，因为仅支持 Flex 布局，所以不需要手写 display: flex 即可使用。
+
+| 类型            | 必需 |
+| --------------- | -------- |
+| enum('flex') | 否       |
+
 # flex
 
 [[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/flex)

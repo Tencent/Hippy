@@ -25,9 +25,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     justifyContent: 'center',
     height: 100,
-    borderBottomWidth: 1,
-    borderLeftWidth: 1,
-    borderRightWidth: 1,
+    borderWidth: 1,
     borderRadius: 2,
     borderColor: '#e0e0e0',
     backgroundColor: '#ffffff',
@@ -36,7 +34,7 @@ const styles = StyleSheet.create({
   normalText: {
     fontSize: 14,
     lineHeight: 18,
-    fontColor: 'black',
+    color: 'black',
   },
   button: {
     width: 100,
@@ -98,7 +96,7 @@ export default class TextExpo extends React.Component {
     return (
       <ScrollView style={{ padding: 10 }}>
         {renderTitle('color')}
-        <View style={styles.itemContent}>
+        <View style={[styles.itemContent]}>
           <Text style={[styles.normalText, { color: '#242424' }]}>Text color is black</Text>
           <Text style={[styles.normalText, { color: 'blue' }]}>Text color is blue</Text>
           <Text style={[styles.normalText, { color: 'rgb(228,61,36)' }]}>This is red</Text>
