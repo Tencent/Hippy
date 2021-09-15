@@ -32,7 +32,7 @@ PK 进度条动画
 
 ## 示例代码
 
-```jsx
+```js
 import { Animation, StyleSheet } from "@hippy/react";
 import React, { Component } from "react";
 
@@ -45,7 +45,7 @@ export default class AnimationExample extends Component {
       duration: 500, // 动画持续时长
       delay: 360, // 至动画真正开始的延迟时间
       mode: "timing", // 动画模式，现在只支持timing
-      timingFunction: "ease_bezier", // 动画缓动函数
+      timingFunction: "linear", // 动画缓动函数
     });
     this.horizonAnimation = new Animation({
       startValue: 0, // 开始值
@@ -53,7 +53,7 @@ export default class AnimationExample extends Component {
       duration: 500, // 动画持续时长
       delay: 360, // 至动画真正开始的延迟时间
       mode: "timing", // 动画模式，现在只支持timing
-      timingFunction: "ease_bezier", // 动画缓动函数
+      timingFunction: "linear", // 动画缓动函数
     });
     this.scaleAnimationSet = new AnimationSet({
       children: [
@@ -161,6 +161,7 @@ Animation 支持的动画配置包括：
 
   - “rad” ：代表动画参数的起止值为弧度；
   - “deg” ：代表动画参数的起止值为度数；
+  - “color” ：代表动画参数的起止值为颜色；
 
 - duration ：动画的持续时间，单位为毫秒，默认为 0；
 
@@ -269,7 +270,7 @@ render() {
 
 我们通过以下示例进一步说明事件冒泡的机制：
 
-```jsx
+```js
 render() {
   return (
     <View style={{ width: 300, height: 200, backgroundColor: "#FFFFFF" }}
@@ -311,7 +312,7 @@ render() {
 
 还是以代码为例：
 
-```jsx
+```js
 render() {
   return (
     <View style={{ width: 300, height: 200, backgroundColor: "#FFFFFF" }}

@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
   normalText: {
     fontSize: 14,
     lineHeight: 18,
-    fontColor: 'black',
+    color: 'black',
   },
 });
 
