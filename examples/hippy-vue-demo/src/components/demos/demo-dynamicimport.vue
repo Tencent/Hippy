@@ -72,7 +72,6 @@ export default {
   flex-direction: row;
   border-radius: 5px;
   justify-content: center;
-  align-content: center;
 }
 .import-btn p{
   color: black;

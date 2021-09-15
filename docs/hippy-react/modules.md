@@ -27,7 +27,7 @@
 | toValue          | `number`, `string` | 是   | -      | 动画结束时候的值；如果为颜色值参考 [color](style/color.md)                                                                |
 | valueType\*      | `number`, `string` | 否   | null   | 动画的开始和结束值的类型，默认为空，代表动画起止的单位是普通 Number。 PS: Web 平台此接口只支持 number 类型传参            |
 | duration         | `number`           | 否   | -      | 动画时长，单位为毫秒(ms)                                                                                                  |
-| timingFunction\* | `string`           | 否   | linear | 动画插值器类型                                                                                                            |
+| timingFunction\* | `string`           | 否   | linear | 动画插值器类型, 支持 `linear`，`ease-in`， `ease-out`，`ease-in-out`，`cubic-bezier`                                                                                                       |
 | repeatCount      | `number`, `loop`   | 否   | -      | 动画的重复次数，默认为 0，即只播放一次，为"loop"时代表无限循环播放； repeatCount 设为 n 时，则动画会播放 n 次             |
 
 - valueType 的参数选项：
