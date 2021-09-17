@@ -10,7 +10,7 @@ function sendCompileFinMsg(option = {}) {
     clientSockets.forEach((item) => {
       const actionData = { ...option };
       if (actionData.action === 'compileSuccess') {
-        timerLogger.info('Project is trigger Live Reloading...');
+        timerLogger.info('Project is Reloading...');
       }
       item.clientSocket.send(JSON.stringify(actionData));
     });

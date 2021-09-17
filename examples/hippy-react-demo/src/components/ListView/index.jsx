@@ -228,6 +228,8 @@ export default class ListExample extends React.Component {
     const { dataSource } = this.state;
     return (
       <ListView
+        bounces={true}
+        overScrollEnabled={false}
         horizontal={undefined} // horizontal ListView  flag（only Android support）
         style={{ flex: 1, backgroundColor: '#ffffff' }}
         numberOfRows={dataSource.length}
@@ -249,3 +251,4 @@ export default class ListExample extends React.Component {
     );
   }
 }
+
