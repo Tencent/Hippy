@@ -45,7 +45,7 @@
     "@babel/preset-react": "^7.9.4",
     "@hippy/debug-server": "^2.1.2",
     "@hippy/hippy-dynamic-import-plugin": "^2.0.0",
-    "@hippy/hippy-live-reload-polyfill": "^1.0.1",
+    "@hippy/hippy-live-reload-polyfill": "^1.0.4",
     "babel-loader": "^8.1.0",
     "bezier-easing": "^2.1.0",
     "case-sensitive-paths-webpack-plugin": "^2.2.0",
