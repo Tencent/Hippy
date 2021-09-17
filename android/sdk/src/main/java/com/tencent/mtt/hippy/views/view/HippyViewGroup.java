@@ -51,7 +51,6 @@ public class HippyViewGroup extends HippyImageView implements IHippyZIndexViewGr
     mDrawingOrderHelper = new ViewGroupDrawingOrderHelper(this);
     mOldLayerType = LAYER_TYPE_NOT_SET;
     setScaleType(ScaleType.ORIGIN);
-    setClipChildren(false);
   }
 
   //	@Override
