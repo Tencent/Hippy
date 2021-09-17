@@ -4644,10 +4644,6 @@ public abstract class RecyclerViewBase extends ViewGroup
 
 		}
 
-		public boolean getClipChildrenOfContenView(View contentView) {
-			return false;
-		}
-
 		/**
 		 * Return the stable ID for the item at <code>position</code>. If
 		 * {@link #hasStableIds()} would return false this method should return
