@@ -77,7 +77,7 @@ public class HippyRootView extends FrameLayout {
     mInstanceId = ID_COUNTER.addAndGet(ROOT_VIEW_TAG_INCREMENT);
 
     setId(mInstanceId);
-    setClipChildren(false);
+    //setTag(NodeProps.ROOT_NODE);
     HippyMap tagMap = HippyTag.createTagMap(NodeProps.ROOT_NODE, null);
     setTag(tagMap);
     getViewTreeObserver().addOnGlobalLayoutListener(getGlobalLayoutListener());
