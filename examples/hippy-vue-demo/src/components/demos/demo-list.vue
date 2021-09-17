@@ -34,6 +34,8 @@
       :exposureEventEnabled="true"
       :delText="delText"
       :editable="true"
+      :bounces="true"
+      :overScrollEnabled="true"
       @endReached="onEndReached"
       @scroll="onScroll"
       @delete="onDelete"

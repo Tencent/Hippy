@@ -146,7 +146,7 @@
 
 | 类型   | 必需 | 支持平台
 | ------ | -------- | --- |
-| number|string | 否 | All
+| number \| string | 否 | All
 
 # opacity
 
