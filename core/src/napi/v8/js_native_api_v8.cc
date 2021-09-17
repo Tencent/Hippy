@@ -783,7 +783,11 @@ std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
     bool is_use_code_cache,
     unicode_string_view* cache) {
   v8::Local<v8::String> v8_file_name = CreateV8String(file_name);
+#ifdef V8_LATEST
+  v8::ScriptOrigin origin(isolate_, v8_file_name);
+#else
   v8::ScriptOrigin origin(v8_file_name);
+#endif
   v8::MaybeLocal<v8::Script> script;
   if (is_use_code_cache && cache && !StringViewUtils::IsEmpty(*cache)) {
     unicode_string_view::Encoding encoding = cache->encoding();
