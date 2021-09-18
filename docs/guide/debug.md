@@ -119,7 +119,7 @@ module.exports = {
 } 
 ```
 
-+ 对于 Android 调试，打开 `Enable Live Reload` 开关
++ 对于 Android 调试，打开 `Enable Live Reload` 开关，（`2.9.1` 版本后业务代码启动后会自动监听，无需再用开关）
 
 <img src="https://user-images.githubusercontent.com/12878546/132832119-b1b7e042-da9d-4792-a21c-ff4773f3cca0.jpg" alt="Android Debug" width="25%"/>
 <br />
