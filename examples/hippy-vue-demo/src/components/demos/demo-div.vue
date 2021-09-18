@@ -23,6 +23,7 @@
       <div
         ref="demo-2"
         class="div-demo-2"
+        :bounces="true"
         :scrollEnabled="true"
         :pagingEnabled="false"
         :showsHorizontalScrollIndicator="false"
