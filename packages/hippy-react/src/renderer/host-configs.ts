@@ -100,7 +100,9 @@ function insertBefore(
   }
 }
 
-function prepareForCommit() {}
+function prepareForCommit() {
+  return null;
+}
 
 function prepareUpdate(
   instance: Element,
@@ -252,6 +254,9 @@ function afterActiveInstanceBlur() {
 function preparePortalMount(portalInstance: Element): void {
   // noop
 }
+
+export const scheduleTimeout = setTimeout;
+export const cancelTimeout = clearTimeout;
 
 export {
   afterActiveInstanceBlur,
