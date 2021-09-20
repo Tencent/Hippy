@@ -1,9 +1,35 @@
-name: build
+name: '[FrontEnd] check and build js code'
 
-on: [ push, pull_request ]
+on:
+  push:
+    paths:
+      - 'packages/**'
+      - 'examples/hippy-*-demo/**'
+      - 'scripts/**/*.js'
+      - 'core/js/**/*.js'
+    branches:
+      # Push events on main branch
+      - main
+      # Push events on master branch
+      - master
+    tags-ignore:
+      - '**'
+  pull_request:
+    paths:
+      - 'packages/**'
+      - 'examples/hippy-*-demo/**'
+      - 'scripts/**/*.js'
+      - 'core/js/**/*.js'
+    branches:
+      # Pull request events to main branch
+      - main
+      # Pull request events to master branch
+      - master
+    tags-ignore:
+      - '**'
 
 jobs:
-  build:
+  check_and_build_js:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -26,19 +52,3 @@ jobs:
         uses: codecov/codecov-action@v1
       - name: build
         run: npm run build
-  commitlint:
-    runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-      - uses: actions/checkout@v1
-      - uses: wagoid/commitlint-github-action@v1
-  markdownlint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: markdownlint
-        uses: nosborn/github-action-markdown-cli@v1.1.1
-        with:
-          config_file: .markdownlintrc.json
-          files: ./README*.md ./PUBLISH*.md ./docs/**/*.md

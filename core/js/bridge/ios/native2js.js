@@ -1,3 +1,6 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-underscore-dangle */
+
 const { JSTimersExecution } = require('../../modules/ios/jsTimersExecution.js');
 
 global.__fbBatchedBridge = {};
@@ -29,7 +32,7 @@ __fbBatchedBridge.__invokeCallback = (cbID, args) => {
     __GLOBAL__._callbacks[cbID | 1] = null;
   }
 
-  if (args && args.length > 1 && args[0] == null) {
+  if (args && args.length > 1 && (args[0] === null || args[0] === undefined)) {
     args.splice(0, 1);
   }
 

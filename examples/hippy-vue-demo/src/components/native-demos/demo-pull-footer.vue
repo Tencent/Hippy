@@ -1,13 +1,21 @@
 <template>
   <div id="demo-pull-footer">
     <div class="toolbar">
-      <button class="toolbar-btn" @click="scrollToNextPage">
+      <button
+        class="toolbar-btn"
+        @click="scrollToNextPage"
+      >
         <span>翻到下一页</span>
       </button>
-      <button class="toolbar-btn" @click="scrollToBottom">
+      <button
+        class="toolbar-btn"
+        @click="scrollToBottom"
+      >
         <span>翻动到底部</span>
       </button>
-      <p class="toolbar-text">列表元素数量：{{ dataSource.length }}</p>
+      <p class="toolbar-text">
+        列表元素数量：{{ dataSource.length }}
+      </p>
     </div>
 
     <!-- numberOfRows is necessary by iOS first screen rendering -->
@@ -21,22 +29,31 @@
         :key="index"
         :type="'row-' + ui.style"
       >
-        <style-one v-if="ui.style == 1" :itemBean="ui.itemBean" />
-        <style-two v-if="ui.style == 2" :itemBean="ui.itemBean" />
-        <style-five v-if="ui.style == 5" :itemBean="ui.itemBean" />
+        <style-one
+          v-if="ui.style == 1"
+          :item-bean="ui.itemBean"
+        />
+        <style-two
+          v-if="ui.style == 2"
+          :item-bean="ui.itemBean"
+        />
+        <style-five
+          v-if="ui.style == 5"
+          :item-bean="ui.itemBean"
+        />
       </li>
       /**
-       * 上拉组件
-       *   > 如果不需要显示加载情况，可以直接使用 ul 的 onEndReached 实现一直加载
-       *
-       * 属性：
-       *   sticky: 上拉后保持显示，在执行 collapsePullFooter 后收起
-       *
-       * 事件：
-       *   idle: 滑动距离在 pull-footer 区域内触发一次，参数 contentOffset，滑动距离
-       *   pulling: 滑动距离超出 pull-footer 后触发一次，参数 contentOffset，滑动距离
-       *   refresh: 滑动超出距离，松手后触发一次
-       */
+      * 上拉组件
+      *   > 如果不需要显示加载情况，可以直接使用 ul 的 onEndReached 实现一直加载
+      *
+      * 属性：
+      *   sticky: 上拉后保持显示，在执行 collapsePullFooter 后收起
+      *
+      * 事件：
+      *   idle: 滑动距离在 pull-footer 区域内触发一次，参数 contentOffset，滑动距离
+      *   pulling: 滑动距离超出 pull-footer 后触发一次，参数 contentOffset，滑动距离
+      *   refresh: 滑动超出距离，松手后触发一次
+      */
       <pull-footer
         ref="pullFooter"
         class="pull-footer"
@@ -45,7 +62,9 @@
         @pulling="onPulling"
         @released="onEndReached"
       >
-        <p class="pull-footer-text">{{ refreshText }}</p>
+        <p class="pull-footer-text">
+          {{ refreshText }}
+        </p>
       </pull-footer>
     </ul>
   </div>

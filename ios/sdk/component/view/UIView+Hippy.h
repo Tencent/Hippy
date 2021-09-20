@@ -37,6 +37,7 @@
 - (UIView *)hippySuperview;
 - (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex;
 - (void)removeHippySubview:(UIView *)subview;
+- (void)resetHippySubviews;
 
 /**
  * HippyViewTouchHandlerProtocol interface.
@@ -80,6 +81,14 @@
  * This method finds and returns the containing view controller for the view.
  */
 - (UIViewController *)hippyViewController;
+
+/**
+ * CellView is reusable.
+ * but sometimes it misdisplays.
+ * this method is a plan B.
+ * plan A is trying to find why
+ */
+- (BOOL)canBeRetrievedFromViewCache;
 
 /**
  * This method attaches the specified controller as a child of the

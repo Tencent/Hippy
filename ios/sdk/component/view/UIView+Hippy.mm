@@ -190,6 +190,16 @@ HippyEventMethod(OnDetachedFromWindow, onDetachedFromWindow, HippyDirectEventBlo
     [subview removeFromSuperview];
 }
 
+- (void)resetHippySubviews {
+    NSMutableArray *subviews = objc_getAssociatedObject(self, @selector(hippySubviews));
+    if (subviews) {
+        [subviews makeObjectsPerformSelector:@selector(sendDetachedFromWindowEvent)];
+        [subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+        [subviews removeAllObjects];
+    }
+    [self clearSortedSubviews];
+}
+
 - (NSInteger)hippyZIndex {
     return [objc_getAssociatedObject(self, _cmd) integerValue];
 }
@@ -275,6 +285,10 @@ HippyEventMethod(OnDetachedFromWindow, onDetachedFromWindow, HippyDirectEventBlo
         responder = [responder nextResponder];
     }
     return nil;
+}
+
+- (BOOL)canBeRetrievedFromViewCache {
+    return YES;
 }
 
 - (void)hippyAddControllerToClosestParent:(UIViewController *)controller {

@@ -1,11 +1,11 @@
 import React from 'react';
 import Style from '@localTypes/style';
 import { LayoutableProps, ClickableProps } from '../types';
-import View from './view';
 import { prefetch, getSize } from '../modules/image-loader-module';
 import { Device } from '../native';
 import { colorParse, colorArrayParse } from '../color';
-import { warn } from '../utils';
+import { warn, convertImgUrl } from '../utils';
+import View from './view';
 
 type Color = string | number;
 
@@ -106,18 +106,6 @@ interface ImageProps extends LayoutableProps, ClickableProps {
   onProgress?(evt: { nativeEvent: { loaded: number; total: number }}): void;
 }
 
-function handleImgUrl(url: string): string {
-  if (url && !/^(http|https):\/\//.test(url) && url.indexOf('assets') > -1) {
-    if (process.env.NODE_ENV === 'development') {
-      const addStr1 = 'http://'; // do not change this, otherwise js-min went wrong
-      return `${addStr1}127.0.0.1:${process.env.PORT}/${url}`;
-    }
-    const addStr2 = 'hpfile://'; // do not change this, otherwise js-min went wrong
-    return `${addStr2}./${url}`;
-  }
-  return url;
-}
-
 /**
  * A React component for displaying different types of images, including network images,
  * static resources, temporary local images, and images from local disk, such as the camera roll.
@@ -192,7 +180,7 @@ class Image extends React.Component<ImageProps, {}> {
     }
 
     if (imageUrls.length) {
-      imageUrls = imageUrls.map((url: string) => handleImgUrl(url));
+      imageUrls = imageUrls.map((url: string) => convertImgUrl(url));
     }
     return imageUrls;
   }
@@ -256,7 +244,7 @@ class Image extends React.Component<ImageProps, {}> {
       if (nativeProps.defaultSource.indexOf('data:image/') !== 0) {
         warn('[Image] defaultSource prop must be a local base64 image');
       }
-      nativeProps.defaultSource = handleImgUrl(nativeProps.defaultSource);
+      nativeProps.defaultSource = convertImgUrl(nativeProps.defaultSource);
     }
 
     /**

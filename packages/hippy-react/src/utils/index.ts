@@ -16,7 +16,7 @@ function trace(...context: any[]) {
 }
 
 /**
- * Warninng information output
+ * Warning information output
  */
 function warn(...context: any[]) {
   // In production build
@@ -61,7 +61,7 @@ function tryConvertNumber(input: any) {
 /**
  * Determine input is function.
  *
- * @param {any} input - the input will determine is function.
+ * @param {any} input - The input will determine is function.
  * @returns {boolean}
  */
 function isFunction(input: any): boolean {
@@ -79,9 +79,26 @@ function isNumber(input: string): boolean {
 
 /**
  * Make trace be silent.
+ * @param {boolean} silentArg - The silent flag for log
  */
 function setSilent(silentArg: boolean): void {
   silent = silentArg;
+}
+
+/**
+ * Convert Image url to specific type
+ * @param url - image path
+ */
+function convertImgUrl(url: string): string {
+  if (url && !/^(http|https):\/\//.test(url) && url.indexOf('assets') > -1) {
+    if (process.env.NODE_ENV === 'development') {
+      const addStr1 = 'http://';
+      return `${addStr1}127.0.0.1:${process.env.PORT}/${url}`;
+    }
+    const addStr2 = 'hpfile://';
+    return `${addStr2}./${url}`;
+  }
+  return url;
 }
 
 export {
@@ -92,4 +109,5 @@ export {
   isFunction,
   isNumber,
   setSilent,
+  convertImgUrl,
 };

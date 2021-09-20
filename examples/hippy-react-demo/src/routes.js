@@ -60,6 +60,14 @@ export default [
     },
   },
   {
+    path: '/WaterfallView',
+    name: 'WaterfallView 组件',
+    component: PAGE_LIST.WaterfallView,
+    meta: {
+      style: 1,
+    },
+  },
+  {
     path: '/PullHeader',
     name: 'PullHeader 组件',
     component: PAGE_LIST.PullHeader,
@@ -183,6 +191,14 @@ export default [
     path: '/DynamicImport',
     name: 'DynamicImport 能力',
     component: PAGE_LIST.DynamicImport,
+    meta: {
+      style: 2,
+    },
+  },
+  {
+    path: '/Localization',
+    name: 'Localization 信息',
+    component: PAGE_LIST.Localization,
     meta: {
       style: 2,
     },

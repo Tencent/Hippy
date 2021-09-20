@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy.uimanager;
 import android.util.SparseArray;
 import android.view.View;
 
+import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
@@ -29,11 +30,13 @@ public class ControllerRegistry {
   private final SparseArray<View> mViews;    // store all views here
   private final SparseArray<View> mRoots;    // store all root views here
   private final Map<String, ControllerHolder> mControllers;  // store all viewManager instance here
+  final HippyEngineContext engineContext;
 
-  public ControllerRegistry() {
+  public ControllerRegistry(HippyEngineContext context) {
     mViews = new SparseArray<>();
     mRoots = new SparseArray<>();
     mControllers = new HashMap<>();
+    engineContext = context;
   }
 
   public void addControllerHolder(String name, ControllerHolder controllerHolder) {
@@ -49,8 +52,12 @@ public class ControllerRegistry {
     try {
       return mControllers.get(className).hippyViewController;
     } catch (Throwable e) {
-      LogUtils.e("Hippy", "error className=" + className);
-      e.printStackTrace();
+      if (engineContext != null) {
+        String message = "getViewController: error className=" + className;
+        Exception exception = new RuntimeException(message);
+        engineContext.getGlobalConfigs().getExceptionHandler()
+            .handleNativeException(exception, true);
+      }
     }
     return null;
   }

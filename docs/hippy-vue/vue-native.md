@@ -80,6 +80,12 @@ console.log(Vue.Native.PixelRatio); // => 3
 
 一个像素的 dp/pt 值。
 
+## Localization
+
+>* 最低支持版本 2.8.0
+
+输出国际化相关信息，`object: { country: string , language: string, direction: number }`， 其中 `direction` 为 0 表示 LTR 方向，1 表示 RTL 方向
+
 ---
 
 # AsyncStorage
@@ -253,13 +259,15 @@ Hippy 中通过 fetch 服务返回的 `set-cookie` Header 会自动将 Cookie �
 > * Deprecated.
 > * iOS 仅可以获取 Hippy 容器的布局, 所以建议统一采用 measureInAppWindow 方法。
 
-测量可视范围内某个组件的尺寸和位置，如果出错会都是 -1。
-
 ---
 
 # measureInAppWindow
 
-测量在 App 可视范围内某个组件的尺寸和位置，如果出错 callback 参数可能为字符串或者 -1
+测量在 App 窗口范围内某个组件的尺寸和位置，如果出错 callback 参数可能为字符串或者 -1
+
+`(ref, callback: Function) => Promise`
+
+> * callback: ({ x, y, width, height } | string | -1) => void - 回调函数, 参数可以获取到引用组件在 App 窗口范围内的坐标值和宽高，如果出错可能返回 -1 或者 `this view is null` 字符串
 
 ---
 

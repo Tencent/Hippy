@@ -17,17 +17,23 @@ package com.tencent.mtt.hippy.devsupport;
 
 import com.tencent.mtt.hippy.HippyGlobalConfigs;
 import com.tencent.mtt.hippy.HippyRootView;
+import java.util.UUID;
 
 @SuppressWarnings({"unused"})
 public class DevSupportManager {
 
   final DevServerInterface mDevImp;
   final boolean mSupportDev;
+  private UUID mInstanceUUID = UUID.randomUUID();
 
   public DevSupportManager(HippyGlobalConfigs configs, boolean enableDev, String serverHost,
       String bundleName) {
     this.mDevImp = DevFactory.create(configs, enableDev, serverHost, bundleName);
     mSupportDev = enableDev;
+  }
+
+  public DevServerInterface getDevImp() {
+    return this.mDevImp;
   }
 
   public void setDevCallback(DevServerCallBack devCallback) {
@@ -52,5 +58,13 @@ public class DevSupportManager {
 
   public void loadRemoteResource(String url, DevServerCallBack serverCallBack) {
     mDevImp.loadRemoteResource(url, serverCallBack);
+  }
+
+	public String getDevInstanceUUID() {
+	  return mInstanceUUID.toString();
+  }
+
+  public boolean isSupportDev() {
+	  return mSupportDev;
   }
 }

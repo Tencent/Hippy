@@ -31,6 +31,8 @@
 #import "HippyBaseListViewCell.h"
 #import "HippyVirtualList.h"
 
+#define kCellZIndexConst 10000.f
+
 @interface HippyBaseListView () <HippyScrollProtocol, HippyRefreshDelegate>
 
 @end
@@ -143,7 +145,7 @@
 - (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
     if ([subview isKindOfClass:[HippyHeaderRefresh class]]) {
         if (_headerRefreshView) {
-            [_headerRefreshView removeFromSuperview];
+            [_headerRefreshView unsetFromScrollView];
         }
         _headerRefreshView = (HippyHeaderRefresh *)subview;
         [_headerRefreshView setScrollView:self.tableView];
@@ -151,7 +153,7 @@
         _headerRefreshView.frame = [self.node.subNodes[atIndex] frame];
     } else if ([subview isKindOfClass:[HippyFooterRefresh class]]) {
         if (_footerRefreshView) {
-            [_footerRefreshView removeFromSuperview];
+            [_footerRefreshView unsetFromScrollView];
         }
         _footerRefreshView = (HippyFooterRefresh *)subview;
         [_footerRefreshView setScrollView:self.tableView];
@@ -207,6 +209,27 @@
 }
 
 #pragma mark - Delegate & Datasource
+
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+    return self.editable;
+}
+
+- (NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath {
+	NSString *delText = self.node.props[@"delText"];
+    return delText;
+}
+
+- (BOOL)tableView: (UITableView *)tableView shouldIndentWhileEditingRowAtIndexPath:(NSIndexPath *)indexPath {		
+	return NO;
+}
+
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+	HippyVirtualCell *node = [_dataSource cellForIndexPath: indexPath];
+	NSInteger index = [self.node.subNodes indexOfObject: node];
+	if (self.onDelete) {
+		self.onDelete(@{@"index": @(index)});
+	}  
+}
 
 - (NSInteger)numberOfSectionsInTableView:(__unused UITableView *)tableView {
     return [_dataSource numberOfSection];
@@ -299,6 +322,7 @@
             cellView = [_bridge.uiManager createViewFromNode:indexNode];
         }
     }
+    cell.layer.zPosition = [indexPath section] * kCellZIndexConst + [indexPath row];
     NSAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
         @"subviews of HippyBaseListViewCell must conform to protocol ViewAppearStateProtocol");
     cell.cellView = (UIView<ViewAppearStateProtocol> *)cellView;
@@ -505,6 +529,11 @@
 
 - (BOOL)showScrollIndicator {
     return [_tableView showsVerticalScrollIndicator];
+}
+
+- (void)dealloc {
+    [_headerRefreshView unsetFromScrollView];
+    [_footerRefreshView unsetFromScrollView];
 }
 
 #pragma mark HippyRefresh Delegate

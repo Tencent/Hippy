@@ -67,29 +67,58 @@ void CallJava(hippy::napi::CBDataTuple* data) {
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
   JNIEnv* j_env = instance->AttachCurrentThread();
   if (info.Length() >= 1 && !info[0].IsEmpty()) {
-    v8::Local<v8::String> v8_str =
-        TO_LOCAL_UNCHECKED(info[0]->ToString(context), v8::String);
-    unicode_string_view module_name = v8_ctx->ToStringView(v8_str);
+    v8::MaybeLocal<v8::String> module_maybe_str = info[0]->ToString(context);
+    if (module_maybe_str.IsEmpty()) {
+      isolate->ThrowException(
+          v8::Exception::TypeError(
+              v8::String::NewFromOneByte(isolate,
+                                         reinterpret_cast<const uint8_t *>("module name error"))
+                  .ToLocalChecked()));
+      return;
+    }
+    unicode_string_view module_name = v8_ctx->ToStringView(module_maybe_str.ToLocalChecked());
     j_module_name = JniUtils::StrViewToJString(j_env, module_name);
     TDF_BASE_DLOG(INFO) << "CallJava module_name = " << module_name;
+  } else {
+    isolate->ThrowException(
+        v8::Exception::Error(
+            v8::String::NewFromOneByte(isolate,
+                                       reinterpret_cast<const uint8_t *>("info error"))
+                .ToLocalChecked()));
+    return;
   }
 
   jstring j_module_func = nullptr;
   if (info.Length() >= 2 && !info[1].IsEmpty()) {
-    v8::Local<v8::String> v8_str =
-        TO_LOCAL_UNCHECKED(info[1]->ToString(context), v8::String);
-    unicode_string_view module_func = v8_ctx->ToStringView(v8_str);
+    v8::MaybeLocal<v8::String> func_maybe_str = info[1]->ToString(context);
+    if (func_maybe_str.IsEmpty()) {
+      isolate->ThrowException(
+          v8::Exception::TypeError(
+              v8::String::NewFromOneByte(isolate,
+                                         reinterpret_cast<const uint8_t *>("func name error"))
+                  .ToLocalChecked()));
+      return;
+    }
+    unicode_string_view module_func = v8_ctx->ToStringView(func_maybe_str.ToLocalChecked());
     j_module_func = JniUtils::StrViewToJString(j_env, module_func);
     TDF_BASE_DLOG(INFO) << "CallJava module_func = " << module_func;
+  } else {
+    isolate->ThrowException(
+        v8::Exception::Error(
+            v8::String::NewFromOneByte(isolate,
+                                       reinterpret_cast<const uint8_t *>("info error"))
+                .ToLocalChecked()));
+    return;
   }
 
   jstring j_cb_id = nullptr;
   if (info.Length() >= 3 && !info[2].IsEmpty()) {
-    v8::Local<v8::String> v8_str =
-        TO_LOCAL_UNCHECKED(info[2]->ToString(context), v8::String);
-    unicode_string_view cb_id = v8_ctx->ToStringView(v8_str);
-    j_cb_id = JniUtils::StrViewToJString(j_env, cb_id);
-    TDF_BASE_DLOG(INFO) << "CallJava cb_id = " << cb_id;
+    v8::MaybeLocal<v8::String> cb_id_maybe_str = info[2]->ToString(context);
+    if (!cb_id_maybe_str.IsEmpty()) {
+      unicode_string_view cb_id = v8_ctx->ToStringView(cb_id_maybe_str.ToLocalChecked());
+      j_cb_id = JniUtils::StrViewToJString(j_env, cb_id);
+      TDF_BASE_DLOG(INFO) << "CallJava cb_id = " << cb_id;
+    }
   }
 
   std::string buffer_data;
@@ -107,7 +136,6 @@ void CallJava(hippy::napi::CBDataTuple* data) {
       unicode_string_view json;
       TDF_BASE_DCHECK(v8_ctx->GetValueJson(obj, &json));
       TDF_BASE_DLOG(INFO) << "CallJava json = " << json;
-
       buffer_data = StringViewUtils::ToU8StdStr(json);
     }
   }
@@ -144,38 +172,6 @@ void CallJava(hippy::napi::CBDataTuple* data) {
   j_env->DeleteLocalRef(j_module_func);
   j_env->DeleteLocalRef(j_cb_id);
   j_env->DeleteLocalRef(j_buffer);
-}
-
-void CallJavaMethod(jobject j_obj, jlong j_value) {
-  TDF_BASE_DLOG(INFO) << "CallJavaMethod begin";
-  jclass j_class = nullptr;
-
-  if (!j_obj) {
-    TDF_BASE_DLOG(INFO) << "CallJavaMethod j_obj is nullptr";
-    return;
-  }
-
-  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
-  j_class = j_env->GetObjectClass(j_obj);
-  if (!j_class) {
-    TDF_BASE_DLOG(ERROR) << "CallJavaMethod j_class error";
-    return;
-  }
-
-  jmethodID j_cb_id = j_env->GetMethodID(j_class, "Callback", "(J)V");
-  if (!j_cb_id) {
-    TDF_BASE_DLOG(ERROR) << "CallJavaMethod j_cb_id error";
-    return;
-  }
-
-  TDF_BASE_DLOG(INFO) << "CallJavaMethod call method";
-  j_env->CallVoidMethod(j_obj, j_cb_id, j_value);
-  JNIEnvironment::ClearJEnvException(j_env);
-
-  if (j_class) {
-    j_env->DeleteLocalRef(j_class);
-  }
-  TDF_BASE_DLOG(INFO) << "CallJavaMethod end";
 }
 
 }  // namespace bridge

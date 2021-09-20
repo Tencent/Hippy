@@ -121,7 +121,7 @@ function registerAnimation(Vue) {
   /**
    * Register the animation component.
    */
-  Vue.component('animation', {
+  Vue.component('Animation', {
     inheritAttrs: false,
     props: {
       tag: {
@@ -145,6 +145,21 @@ function registerAnimation(Vue) {
         animationEventMap: {},
         childAnimationIdList: [],
       };
+    },
+    watch: {
+      playing(to, from) {
+        if (!from && to) {
+          this.start();
+        } else if (from && !to) {
+          this.pause();
+        }
+      },
+      actions() {
+        // FIXME: Should diff the props and use updateAnimation method to update the animation.
+        //        Hard restart the animation is no correct.
+        this.destroy();
+        this.create();
+      },
     },
     created() {
       let animationEventName = 'onAnimation';
@@ -248,21 +263,6 @@ function registerAnimation(Vue) {
             && Vue.Native.callNative(MODULE_NAME, 'destroyAnimation', animationId));
         animationIds.forEach(animationId => Vue.Native.callNative(MODULE_NAME, 'destroyAnimation', animationId));
         this.childAnimationIdList = [];
-      },
-    },
-    watch: {
-      playing(to, from) {
-        if (!from && to) {
-          this.start();
-        } else if (from && !to) {
-          this.pause();
-        }
-      },
-      actions() {
-        // FIXME: Should diff the props and use updateAnimation method to update the animation.
-        //        Hard restart the animation is no correct.
-        this.destroy();
-        this.create();
       },
     },
     template: `

@@ -388,7 +388,8 @@ public class ContentDrawable extends BaseDrawable
             }
             return;
         }
-        if (CommonTool.hasPositiveItem(mBorderRadiusArray) || Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
+        if (CommonTool.hasPositiveItem(mBorderRadiusArray) || CommonTool.hasPositiveItem(mBorderWidthArray)
+						|| Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
         {
             // 有圆角
             BitmapShader bitmapShader = new BitmapShader(mContentBitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);

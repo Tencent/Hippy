@@ -1,6 +1,6 @@
 import { makeMap, camelize } from 'shared/util';
+import { capitalizeFirstLetter, warn } from '../util';
 import * as BUILT_IN_ELEMENTS from './built-in';
-import { capitalizeFirstLetter } from '../util';
 
 const isReservedTag = makeMap(
   'template,script,style,element,content,slot,'
@@ -54,7 +54,7 @@ function registerElement(elementName, oldMeta) {
   };
 
   if (meta.component.name && meta.component.name === capitalizeFirstLetter(camelize(elementName))) {
-    throw new Error(`Cannot registerElement with kebab-case name ${elementName}, which converted to camelCase is the same with component.name ${meta.component.name}, please make them different`);
+    warn(`Cannot registerElement with kebab-case name ${elementName}, which converted to camelCase is the same with component.name ${meta.component.name}, please make them different`);
   }
 
   const entry = {

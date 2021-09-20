@@ -3323,7 +3323,7 @@ public abstract class RecyclerViewBase extends ViewGroup
 		protected SparseIntArray				mMaxScrap			= new SparseIntArray();
 		/* private */int						mAttachCount		= 0;
 
-		/* private */public int					DEFAULT_MAX_SCRAP	= 7;
+		/* private */public int					DEFAULT_MAX_SCRAP	= 10;
 
 		public void clear()
 		{
@@ -6884,11 +6884,11 @@ public abstract class RecyclerViewBase extends ViewGroup
 		public long					mItemId				= NO_ID;
 		public int					mItemViewType		= INVALID_TYPE;
 
-		public static final int		TYPE_HEADERE		      = 1;
-		public static final int		TYPE_FOOTER			      = 2;
-		public static final int		TYPE_NORMAL			      = 3;
-		public static final int		TYPE_CUSTOM_HEADERE		= 4;
-		public static final int		TYPE_CUSTOM_FOOTER		= 5;
+		public static final int		TYPE_HEADERE		      = -1;
+		public static final int		TYPE_FOOTER			      = -2;
+		public static final int		TYPE_NORMAL			      = -3;
+		public static final int		TYPE_CUSTOM_HEADERE		= -4;
+		public static final int		TYPE_CUSTOM_FOOTER		= -5;
 		public int					mViewType			= TYPE_NORMAL;
 		/**
 		 * This ViewHolder has been bound to a position; mPosition, mItemId and

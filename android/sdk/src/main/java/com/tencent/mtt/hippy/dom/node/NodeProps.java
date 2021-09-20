@@ -34,6 +34,7 @@ public class NodeProps {
   public static final String FLEX_GROW = "flexGrow";
   public static final String FLEX_SHRINK = "flexShrink";
   public static final String FLEX_BASIS = "flexBasis";
+  public static final String DIRECTION = "direction";
   public static final String FLEX_DIRECTION = "flexDirection";
   public static final String FLEX_WRAP = "flexWrap";
   public static final String HEIGHT = "height";
@@ -88,6 +89,8 @@ public class NodeProps {
   public static final String SHADOW_OPACITY = "shadowOpacity";
   public static final String SHADOW_RADIUS = "shadowRadius";
   public static final String SHADOW_SPREAD = "shadowSpread";
+
+  public static final String LINEAR_GRADIENT = "linearGradient";
 
   //View props
 
@@ -161,6 +164,7 @@ public class NodeProps {
 
   public static final String VISIBLE = "visible";
   public static final String REPEAT_COUNT = "repeatCount";
+  public static final String ATTRIBUTES	= "attributes";
 
   private static final HashSet<String> JUST_LAYOUT_PROPS = new HashSet<>(
       Arrays.asList(ALIGN_SELF, ALIGN_ITEMS, COLLAPSABLE, FLEX, FLEX_DIRECTION, FLEX_WRAP,

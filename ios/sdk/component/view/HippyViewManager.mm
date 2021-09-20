@@ -21,7 +21,7 @@
  */
 
 #import "HippyViewManager.h"
-
+#include "MTTFlex.h"
 #import "HippyBridge.h"
 #import "HippyBorderStyle.h"
 #import "HippyConvert.h"
@@ -34,6 +34,7 @@
 #import "UIView+Hippy.h"
 #import "HippyVirtualNode.h"
 #import "HippyConvert+Transform.h"
+#import "HippyGradientObject.h"
 
 @implementation HippyViewManager
 
@@ -46,7 +47,7 @@ HIPPY_EXPORT_MODULE(View)
 }
 
 - (UIView *)view {
-    return [HippyView new];
+    return [[HippyView alloc] initWithBridge:self.bridge];
 }
 
 - (HippyShadowView *)shadowView {
@@ -65,6 +66,9 @@ HIPPY_EXPORT_MODULE(View)
     return nil;
 }
 
+#pragma mark - ShadowView properties
+HIPPY_EXPORT_SHADOW_PROPERTY(visibility, NSString)
+
 #pragma mark - View properties
 
 HIPPY_EXPORT_VIEW_PROPERTY(accessibilityLabel, NSString)
@@ -74,8 +78,6 @@ HIPPY_EXPORT_VIEW_PROPERTY(shadowSpread, CGFloat)
 HIPPY_REMAP_VIEW_PROPERTY(accessible, isAccessibilityElement, BOOL)
 HIPPY_REMAP_VIEW_PROPERTY(opacity, alpha, CGFloat)
 
-HIPPY_REMAP_VIEW_PROPERTY(backgroundImage, backgroundImageUrl, NSString)
-
 HIPPY_REMAP_VIEW_PROPERTY(shadowOpacity, layer.shadowOpacity, float)
 HIPPY_REMAP_VIEW_PROPERTY(shadowRadius, layer.shadowRadius, CGFloat)
 
@@ -83,6 +85,34 @@ HIPPY_EXPORT_VIEW_PROPERTY(backgroundPositionX, CGFloat)
 HIPPY_EXPORT_VIEW_PROPERTY(backgroundPositionY, CGFloat)
 HIPPY_EXPORT_VIEW_PROPERTY(onInterceptTouchEvent, BOOL)
 HIPPY_EXPORT_VIEW_PROPERTY(onInterceptPullUpEvent, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(onAttachedToWindow, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onDetachedFromWindow, HippyDirectEventBlock)
+
+HIPPY_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, HippyView) {
+    if (json) {
+        NSString *backgroundImage = [HippyConvert NSString:json];
+        if ([backgroundImage hasPrefix:@"http"] ||
+            [backgroundImage hasPrefix:@"data:image/"] ||
+            [backgroundImage hasPrefix:@"hpfile://"]) {
+            view.backgroundImageUrl = backgroundImage;
+        }
+        else {
+            HippyAssert(NO, @"backgroundImage %@ not supported", backgroundImage);
+        }
+    }
+}
+
+HIPPY_CUSTOM_VIEW_PROPERTY(linearGradient, NSDictionary, HippyView) {
+    if (json) {
+        NSMutableDictionary *object = [NSMutableDictionary dictionaryWithObject:self.bridge.moduleName forKey:@"moduleName"];
+        NSDictionary *linearGradientObject = [HippyConvert NSDictionary:json];
+        if (linearGradientObject) {
+            [object addEntriesFromDictionary:linearGradientObject];
+        }
+        view.gradientObject = [[HippyGradientObject alloc] initWithGradientObject:object];
+        [view.layer setNeedsDisplay];
+    }
+}
 
 HIPPY_CUSTOM_VIEW_PROPERTY(backgroundSize, NSString, HippyView) {
     NSString *bgSize = @"auto";
@@ -305,8 +335,12 @@ HIPPY_EXPORT_VIEW_PROPERTY(onTouchCancel, HippyDirectEventBlock)
 
 HIPPY_EXPORT_SHADOW_PROPERTY(zIndex, NSInteger)
 
-HIPPY_EXPORT_VIEW_PROPERTY(onAttachedToWindow, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onDetachedFromWindow, HippyDirectEventBlock)
+HIPPY_CUSTOM_VIEW_PROPERTY(direction, MTTDirection, HippyShadowView) {
+    if (json) {
+        MTTDirection dir = (MTTDirection)[HippyConvert int:json];
+        view.layoutDirection = dir;
+    }
+}
 
 @end
 

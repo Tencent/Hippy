@@ -23,6 +23,8 @@
 #import <Foundation/Foundation.h>
 #import "HippyInvalidating.h"
 
+@class HippyExtAnimation;
+
 @interface HippyExtAnimationIdCount : NSObject
 - (void)addCountForAnimationId:(NSNumber *)animationID;
 - (BOOL)subtractionCountForAnimationId:(NSNumber *)animationID;
@@ -32,4 +34,5 @@
 @interface HippyExtAnimationModule : NSObject <HippyBridgeModule, HippyInvalidating>
 - (NSDictionary *)bindAnimaiton:(NSDictionary *)params viewTag:(NSNumber *)viewTag rootTag:(NSNumber *)rootTag;
 - (void)connectAnimationToView:(UIView *)view;
+- (HippyExtAnimation *)animationFromID:(NSNumber *)animationID;
 @end

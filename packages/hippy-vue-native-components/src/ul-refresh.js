@@ -13,7 +13,7 @@ function registerUlRefresh(Vue) {
     },
   });
 
-  Vue.component('ul-refresh-wrapper', {
+  Vue.component('UlRefreshWrapper', {
     inheritAttrs: false,
     props: {
       bounceTime: {
@@ -44,7 +44,7 @@ function registerUlRefresh(Vue) {
     },
   });
 
-  Vue.component('ul-refresh', {
+  Vue.component('UlRefresh', {
     inheritAttrs: false,
     template: `
       <hi-refresh-wrapper-item :style="{position: 'absolute', left: 0, right: 0}">

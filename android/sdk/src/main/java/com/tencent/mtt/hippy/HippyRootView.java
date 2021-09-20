@@ -230,6 +230,12 @@ public class HippyRootView extends FrameLayout {
     return mGlobalLayoutListener;
   }
 
+  public void startMonitorEvent(String eventName) {
+    if (mTimeMonitor != null) {
+      mTimeMonitor.startEvent(eventName);
+    }
+  }
+
   public TimeMonitor getTimeMonitor() {
     return mTimeMonitor;
   }

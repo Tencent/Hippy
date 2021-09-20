@@ -1,6 +1,10 @@
 <template>
   <div>
-    <animation :playing="playing" :actions="colorActions" class="color-green">
+    <animation
+      :playing="playing"
+      :actions="colorActions"
+      class="color-green"
+    >
       <div class="color-white">
         <slot />
       </div>
@@ -36,20 +40,20 @@ const backgroundColorAnimation = {
 };
 
 export default {
+  props: {
+    playing: Boolean,
+    onRef: Function,
+  },
   data() {
     const colorActions = backgroundColorAnimation;
     return {
       colorActions,
     };
   },
-  props: {
-    playing: Boolean,
-    onRef: Function,
-  },
 };
 </script>
 
-<style scope>
+<style scoped>
 .color-green {
   margin-top: 10px;
   justify-content: center;

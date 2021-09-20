@@ -1,0 +1,209 @@
+name: '[android] [third_party] update v8'
+
+on:
+  workflow_dispatch:
+    inputs:
+      v8_version:
+        description: 'V8 version to build'
+        default: '9.1.75'
+        required: true
+      release_tag:
+        description: 'Release tag'
+        default: 'latest'
+        required: true
+      build_args:
+        description: 'Build args'
+        default: 'is_component_build=true is_debug=false v8_use_external_startup_data=false is_official_build=true v8_enable_i18n_support=false treat_warnings_as_errors=false enable_resource_allowlist_generation=false symbol_level=1 use_custom_libcxx=false clang_use_chrome_plugins=false'
+        required: true
+      build_target:
+        description: 'Build target'
+        default: 'v8 v8_libplatform'
+        required: true
+
+jobs:
+  build:
+    runs-on: [self-hosted, linux, trusted]
+    container:
+      image: ghcr.io/tencent/android-release:latest # repository name must be lowercase(${{ github.repository_owner }})
+      credentials:
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    strategy:
+      matrix:
+        cpu: [arm, arm64, x86, x64]
+        include:
+        - cpu: arm
+          arch: armeabi-v7a
+          host-tag: arm-linux-androideabi
+        - cpu: arm64
+          arch: arm64-v8a
+          host-tag: aarch64-linux-android
+        - cpu: x86
+          arch: x86
+          host-tag: i686-linux-android
+        - cpu: x64
+          arch: x86_64
+          host-tag: x86_64-linux-android
+    steps:
+    - name: Clean up before
+      run: |
+        shopt -s dotglob
+        rm -rf *
+        shopt -u dotglob
+    - name: Fetch v8
+      run: |
+        fetch v8
+        cd v8
+        git checkout ${{ github.event.inputs.v8_version }}
+    - name: Sync third_party
+      working-directory: ./v8
+      run: |
+        echo "target_os = ['android']" >> ../.gclient
+        gclient sync -D
+    - name: Prepare android_ndk
+      working-directory: ./v8
+      run: |
+        if [ -d third_party/android_tools ]; then
+          rm -rf third_party/android_tools
+          mkdir third_party/android_tools
+          ln -s $ANDROID_NDK_HOME third_party/android_tools/ndk
+        fi
+        if [ -f third_party/android_ndk/BUILD.gn ]; then
+          cp third_party/android_ndk/BUILD.gn $ANDROID_NDK_HOME
+        fi
+        if [ -d third_party/android_tools -o -f third_party/android_ndk/BUILD.gn ]; then
+          rm -rf third_party/android_ndk
+          ln -s $ANDROID_NDK_HOME third_party/android_ndk
+        fi
+    - name: Fetch patch
+      uses: actions/checkout@v2
+      with:
+        path: ${{ github.repository }}
+        lfs: true
+    - name: Apply patch
+      working-directory: ./v8/build
+      continue-on-error: true
+      run: |
+        git apply ../../${{ github.repository }}/.github/workflows/tools/v8_build.patch
+    - name: Generate ${{ matrix.arch }}
+      working-directory: ./v8
+      run: |
+        gn gen out/${{ matrix.arch }} --args="target_os=\"android\" target_cpu=\"${{ matrix.cpu }}\" v8_target_cpu=\"${{ matrix.cpu }}\" android_ndk_root=\"${ANDROID_NDK_HOME}\" ${{ github.event.inputs.build_args }}"
+    - name: Compile ${{ matrix.arch }}
+      working-directory: ./v8
+      run: |
+        \cp -f build/linux/debian_sid_amd64-sysroot/usr/lib/x86_64-linux-gnu/libstdc++.so.6 /lib64
+        \cp -f build/linux/debian_sid_i386-sysroot/usr/lib/i386-linux-gnu/libstdc++.so.6 /lib
+        ninja -C out/${{ matrix.arch }} ${{ github.event.inputs.build_target }}
+    - name: Release artifact
+      working-directory: ./v8/out/${{ matrix.arch }}
+      run: |
+        mkdir -p artifact/include/v8 artifact/libs/${{ matrix.arch }}
+        cp *.so artifact/libs/${{ matrix.arch }}
+        cp -r lib.unstripped artifact/libs/${{ matrix.arch }}
+        cp ${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/${{ matrix.host-tag }}/libc++_shared.so artifact/libs/${{ matrix.arch }}/lib.unstripped
+        ${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/${{ matrix.host-tag }}/bin/strip -x artifact/libs/${{ matrix.arch }}/lib.unstripped/libc++_shared.so -o artifact/libs/${{ matrix.arch }}/libc++_shared.so
+        cp -r ../../include/* artifact/include/v8/
+        cp -r gen/include/* artifact/include/v8/
+        find artifact/include/v8/. ! -name "*.h" -type f -delete
+    - name: Upload ${{ matrix.arch }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ matrix.arch }}
+        path: ./v8/out/${{ matrix.arch }}/artifact
+        if-no-files-found: error
+    - name: Clean up after
+      if: ${{ always() }}
+      run: |
+        shopt -s dotglob
+        rm -rf *
+        shopt -u dotglob
+  pull-request:
+    needs: build
+    runs-on: [self-hosted, linux, trusted]
+    env:
+      v8-dist: ./android/sdk/src/main/jni/third_party/v8/${{ github.event.inputs.release_tag }}
+    steps:
+    - name: Clean up before
+      run: |
+        shopt -s dotglob
+        rm -rf *
+        shopt -u dotglob
+    - name: Checkout repo
+      uses: actions/checkout@v2
+      with:
+        lfs: true
+    - name: Construct directory structure
+      working-directory: ${{ env.v8-dist }}
+      run: |
+        rm -rf official-release
+        mkdir official-release
+    - name: Fetch artifact
+      uses: actions/download-artifact@v2
+      with:
+        path: ${{ env.v8-dist }}/official-release
+    - name: Merge all artifact
+      working-directory: ${{ env.v8-dist }}/official-release
+      run: |
+        for d in */ ; do
+          cp -r $d/* ./
+          rm -rf $d
+        done
+    - name: Generate Readme
+      uses: DamianReeves/write-file-action@v1.0
+      with:
+        path: ${{ env.v8-dist }}/official-release/README.md
+        contents: |
+              This v8 release is auto generated by Github Action([${{ github.run_id }}][2]).
+
+              _Do NOT modify this release manually._
+
+              Refs: [${{ github.event.inputs.v8_version }}][1]
+
+              [1]: https://github.com/v8/v8/tree/${{ github.event.inputs.v8_version }}
+              [2]: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        write-mode: overwrite
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v3
+      with:
+        commit-message: |
+                    chore(v8): update V8 to ${{ github.event.inputs.v8_version }}
+
+                    Ref-URL: https://github.com/v8/v8/tree/${{ github.event.inputs.v8_version }}
+                    Action-Run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        branch: chore/update-v8-to-${{ github.event.inputs.v8_version }}
+        delete-branch: true
+        title: 'chore(v8): update V8 to ${{ github.event.inputs.v8_version }}'
+        body: |
+          Refs: [${{ github.event.inputs.v8_version }}][1]
+          Release TAG: ${{ github.event.inputs.release_tag }}
+          Action Run: [${{ github.run_id }}][2]
+
+          [1]: https://github.com/v8/v8/tree/${{ github.event.inputs.v8_version }}
+          [2]: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        labels: |
+          dependencies
+          android
+    - name: Clean up after
+      if: ${{ always() }}
+      run: |
+        shopt -s dotglob
+        rm -rf *
+        shopt -u dotglob
+  notification:
+    if: ${{ always() }}
+    needs: [build, pull-request]
+    runs-on: [self-hosted, linux, trusted]
+    continue-on-error: true
+    env:
+      WECHAT_WORK_BOT_WEBHOOK: ${{ secrets.WECHAT_WORK_BOT_WEBHOOK }}
+    steps:
+    - name: Wechat Work notification
+      uses: chf007/action-wechat-work@1.0.5
+      with:
+        msgtype: markdown
+        content: "Github [Action] Notification\n
+        > repository: ${{ github.repository }}\n
+        > workflow: ${{ github.workflow }}\n
+        > result: ${{ needs.pull-request.result == 'success' && '<font color=\"info\">success</font>' || '<font color=\"warning\">failure</font>'}}\n
+        > run: [${{ github.run_id }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})"

@@ -57,6 +57,16 @@ export default function ViewExpo() {
         marginTop: 20,
         backgroundImage: imageUrl,
       }]} ><Text style={{ color: 'white' }}>背景图</Text></View>
+      {renderTitle('backgroundImage linear-gradient')}
+      <View style={[styles.rectangle, {
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 20,
+        borderWidth: 2,
+        borderColor: 'black',
+        borderRadius: 2,
+        backgroundImage: 'linear-gradient(30deg, blue 10%, yellow 40%, red 50%);',
+      }]} ><Text style={{ color: 'white' }}>渐变色</Text></View>
       {renderTitle('border props')}
       <View style={[styles.rectangle, { borderColor: '#242424', borderRadius: 4, borderWidth: 1 }]} />
       {renderTitle('flex props')}

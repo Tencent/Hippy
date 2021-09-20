@@ -3,12 +3,12 @@
 // Most nodes test is executed in node-ops.test.js
 // here just test the lacked testing for ElementNode for coverage.
 
-import test from 'ava';
+import test, { before } from 'ava';
 import ElementNode from '../element-node';
 import DocumentNode from '../document-node';
 import ListNode from '../list-node';
 
-test.before(() => {
+before(() => {
   global.__GLOBAL__ = {
     nodeId: 101,
   };
@@ -163,6 +163,16 @@ test('Element.setStyle test', (t) => {
   t.deepEqual(node.style.cde, {});
   node.setStyle('caretColor', '#abcdef');
   t.is(node.attributes['caret-color'], 4289449455);
+  node.setStyle('backgroundImage', 'linear-gradient(to top right, red, yellow, blue 10%)');
+  t.deepEqual(node.style.linearGradient, { angle: 'totopright', colorStopList: [{ color: 4294901760 }, { color: 4294967040 }, { color: 4278190335, ratio: 0.1 }] });
+  node.setStyle('backgroundImage', 'linear-gradient(90deg, red, 10%, blue 10%)');
+  t.deepEqual(node.style.linearGradient, { angle: '90', colorStopList: [{ color: 4294901760 }, { color: 4278190335, ratio: 0.1 }] });
+  node.setStyle('backgroundImage', 'linear-gradient(red, yellow 10%, blue 10%)');
+  t.deepEqual(node.style.linearGradient, { angle: '180', colorStopList: [{ color: 4294901760 }, { color: 4294967040, ratio: 0.1 }, { color: 4278190335, ratio: 0.1 }] });
+  node.setStyle('backgroundImage', 'linear-gradient(10.12341234deg, red, yellow 10%, blue 10%)');
+  t.deepEqual(node.style.linearGradient, { angle: '10.12', colorStopList: [{ color: 4294901760 }, { color: 4294967040, ratio: 0.1 }, { color: 4278190335, ratio: 0.1 }] });
+  node.setStyle('backgroundImage', 'linear-gradient(10.12341234deg, rgba(55, 11, 43, 0.5) 5%, rgb(55, 13, 43) 10%,  rgba(55, 11, 43, 0.1) 23%)');
+  t.deepEqual(node.style.linearGradient, { angle: '10.12', colorStopList: [{ ratio: 0.05, color: 2151090987 }, { ratio: 0.1, color: 4281797931 }, { ratio: 0.23, color: 439814955 }] });
 });
 
 test('Element.setStyle with pre-processed style test', (t) => {
@@ -180,7 +190,7 @@ test('Element.setStyle with pre-processed style test', (t) => {
   t.is(node.style.wid, 100);
 });
 
-test('Element.dispatchEvent with pollyfill event', (t) => {
+test('Element.dispatchEvent with polyfill event', (t) => {
   const node = new ListNode('ul');
   let called = false;
   const callback = (event) => {

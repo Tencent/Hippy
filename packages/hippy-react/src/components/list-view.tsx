@@ -4,12 +4,12 @@ import React from 'react';
 import Style from '@localTypes/style';
 import { Fiber } from 'react-reconciler';
 import { LayoutEvent } from '@localTypes/event';
-import ListViewItem, { ListViewItemProps } from './list-view-item';
-import PullHeader from './pull-header';
-import PullFooter from './pull-footer';
 import { callUIFunction } from '../modules/ui-manager-module';
 import { warn } from '../utils';
 import { Device } from '../native';
+import ListViewItem, { ListViewItemProps } from './list-view-item';
+import PullHeader from './pull-header';
+import PullFooter from './pull-footer';
 
 
 type DataItem = any;
@@ -205,17 +205,17 @@ interface ListViewProps {
   onWillDisappear?: (index: number) => void
 }
 
-interface ListItemViewProps {
-  key?: string;
-  type?: number | string | undefined;
-  sticky?: boolean;
-  style?: Style;
-  onLayout?: (evt: any) => void;
-  onAppear?: (index: number) => void;
-  onDisappear?: (index: number) => void;
-  onWillAppear?: (index: number) => void;
-  onWillDisappear?: (index: number) => void;
-}
+// interface ListItemViewProps {
+//   key?: string;
+//   type?: number | string | undefined;
+//   sticky?: boolean;
+//   style?: Style;
+//   onLayout?: (evt: any) => void;
+//   onAppear?: (index: number) => void;
+//   onDisappear?: (index: number) => void;
+//   onWillAppear?: (index: number) => void;
+//   onWillDisappear?: (index: number) => void;
+// }
 
 interface ListViewState {
   initialListReady: boolean;
@@ -276,12 +276,14 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
    */
   // eslint-disable-next-line class-methods-use-this
   private convertName(attr: string): string {
-    if (Device.platform.OS === 'android' && androidAttrMap[attr]) {
-      return androidAttrMap[attr];
-    } if (Device.platform.OS === 'ios' && iosAttrMap[attr]) {
-      return iosAttrMap[attr];
+    let functionName = attr;
+    if (functionName.indexOf('bound') >= 0) functionName = functionName.substring('bound'.length + 1);
+    if (Device.platform.OS === 'android' && androidAttrMap[functionName]) {
+      return androidAttrMap[functionName];
+    } if (Device.platform.OS === 'ios' && iosAttrMap[functionName]) {
+      return iosAttrMap[functionName];
     }
-    return attr;
+    return functionName;
   }
 
   /**

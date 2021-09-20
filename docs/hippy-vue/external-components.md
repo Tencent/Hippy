@@ -42,8 +42,7 @@
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | start              | 动画开始时触发                                                            | `Function`                                                    | `ALL`    |
 | end         | 动画结束时触发                                                            | `Function`| `ALL`    |
-| repeat | 每次循环播放时触发                                                            | `Function` | `Android`    |
-| cancel    | 动画取消时触发                                         | `Function`                                                    | `ALL`    |
+| repeat | 每次循环播放时触发                                                            | `Function` | `Android`   |
 
 ## 方法
 
@@ -150,7 +149,7 @@
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | idle                | 滑动距离在 pull-header 区域内触发一次，参数 contentOffset                            | `Function`                                                   | `ALL`    |
 | pulling   | 滑动距离超出 pull-header 后触发一次，参数 contentOffset                                                        | `Function`   | `ALL`    |
-| refresh   | 滑动超出距离，松手后触发一次          | `Function`   | `ALL`    |
+| released   | 滑动超出距离，松手后触发一次          | `Function`   | `ALL`    |
 
 ## 方法
 
@@ -179,3 +178,63 @@
 ### collapsePullFooter
 
 `() => void` 收起底部刷新条 `<pull-footer>`。
+
+---
+
+# waterfall
+
+> 最低支持版本 2.9.0
+
+[[范例：demo-waterfall]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-waterfall.vue)
+
+瀑布流组件，子元素必须是 `waterfall-item` ，瀑布流组件下拉刷新需在最外层用`ul-refresh-wrapper`， 可在`waterfall` 内用 `pull-footer` 展示上拉加载文案。
+
+## 参数
+
+| 参数              | 描述                                                  | 类型       | 支持平台 |
+| ----------------- | ----------------------------------------------------- | ---------- | -------- |
+| columnSpacing     | 瀑布流每列之前的水平间距                                      | `number`   | `ALL`    |
+| interItemSpacing  | item 间的垂直间距                                        | `number`   | `ALL`    |
+| contentInset      | 内容缩进 ，默认值 `{ top:0, left:0, bottom:0, right:0 }`  | `Object`   | `ALL`    |
+| containBannerView | 是否包含`bannerView`，只能有一个bannerView，`Android` 暂不支持  | `boolean`  | `iOS`    |
+| containPullHeader | 是否包含`pull-header`；`Android` 暂不支持，可以用 `ul-refresh` 组件替代  | `boolean`  | `iOS`    |
+| containPullFooter | 是否包含 `pull-footer` | `boolean`  | `ALL` |
+| numberOfColumns   | 瀑布流列数量，Default: 2                                               | `number`   | `ALL`    |
+| preloadItemNumber | 滑动到瀑布流底部前提前预加载的 item 数量       | `number`   | `ALL`    |
+
+## 事件
+
+| 事件名称              | 描述           | `类型`     | 支持平台 |
+| --------------------- | -------------- | ---------- | -------- |
+| endReached      | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `onEndReached` 回调。                                           | `Function` | `ALL`    |
+| scroll          | 当触发 `WaterFall` 的滑动事件时回调。`startEdgePos`表示距离 List 顶部边缘滚动偏移量；`endEdgePos`表示距离 List 底部边缘滚动偏移量；`firstVisibleRowIndex`表示当前可见区域内第一个元素的索引；`lastVisibleRowIndex`表示当前可见区域内最后一个元素的索引；`visibleRowFrames`表示当前可见区域内所有 item 的信息(x，y，width，height)    | `{ nativeEvent: { startEdgePos: number, endEdgePos: number, firstVisibleRowIndex: number, lastVisibleRowIndex: number, visibleRowFrames: Object[] } }` | `ALL`    |
+
+## 方法
+
+### scrollToIndex
+
+`(obj: { index: number, animated: boolean }) => void` 通知 Waterfall 滑动到第几个 item。
+
+> * `index`: number - 滑动到的第 index 个 item
+> * `animated`: boolean - 滑动过程是否使用动画, 默认 `true`
+
+### scrollToContentOffset
+
+`(obj: { xOffset: number, yOffset: number, animated: boolean }) => void` 通知 Waterfall 滑动到某个具体坐标偏移值(offset)的位置。
+
+> * `xOffset`: number - 滑动到 X 方向的 offset
+> * `yOffset`: number - 滑动到 Y 方向的 offset
+> * `animated`: boolean - 滑动过程是否使用动画，默认 `true`
+
+---
+
+# waterfall-item
+
+> 最低支持版本 2.9.0
+
+瀑布流组件 Cell 容器，瀑布流子元素
+
+| 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
+| --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
+| type            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升 List 性能。 | `number`              | `ALL`    |
+| key             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [Vue 官文](//cn.vuejs.org/v2/guide/list.html) | `string`                                    | `ALL`    |

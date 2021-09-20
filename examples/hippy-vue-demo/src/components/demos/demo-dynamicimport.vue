@@ -1,25 +1,23 @@
 <template>
-  <div id="demo-dynamicimport" v-on:click="onAsyncComponentLoad">
-    <div class="import-btn"><p>点我异步加载</p></div>
-    <div v-if="loaded" class="async-com-wrapper">
-        <AsyncComponentFromLocal></AsyncComponentFromLocal>
-        <AsyncComponentFromHttp></AsyncComponentFromHttp>
+  <div
+    id="demo-dynamicimport"
+    @click="onAsyncComponentLoad"
+  >
+    <div class="import-btn">
+      <p>点我异步加载</p>
+    </div>
+    <div
+      v-if="loaded"
+      class="async-com-wrapper"
+    >
+      <AsyncComponentFromLocal />
+      <AsyncComponentFromHttp />
     </div>
   </div>
 </template>
 
 <script>
 export default {
-  data() {
-    return {
-      loaded: false,
-    };
-  },
-  methods: {
-    onAsyncComponentLoad() {
-      this.loaded = true;
-    },
-  },
   components: {
     /**
      *  在支持动态加载的终端版本，可添加 magic comment 'webpackMode: "lazy"'，也可以不加，默认采用lazy模式;
@@ -44,6 +42,16 @@ export default {
      */
     AsyncComponentFromHttp: () => import(/* webpackMode: "lazy",customChunkPath: "https://static.res.qq.com/hippy/hippyVueDemo/relativePath/", webpackChunkName: "asyncComponentFromHttp" */'./dynamicImport/async-component-http.vue').then(res => res).catch(err => console.error('import async remote component error', err)),
   },
+  data() {
+    return {
+      loaded: false,
+    };
+  },
+  methods: {
+    onAsyncComponentLoad() {
+      this.loaded = true;
+    },
+  },
 };
 </script>
 
@@ -64,7 +72,6 @@ export default {
   flex-direction: row;
   border-radius: 5px;
   justify-content: center;
-  align-content: center;
 }
 .import-btn p{
   color: black;

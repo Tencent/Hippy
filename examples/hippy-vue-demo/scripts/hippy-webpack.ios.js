@@ -8,6 +8,16 @@ const pkg = require('../package.json');
 const manifest = require('../dist/ios/vendor-manifest.json');
 
 const platform = 'ios';
+let cssLoader = '@hippy/vue-css-loader';
+const hippyVueCssLoaderPath = path.resolve(__dirname, '../../../packages/hippy-vue-css-loader/dist/index.js');
+if (fs.existsSync(hippyVueCssLoaderPath)) {
+  /* eslint-disable-next-line no-console */
+  console.warn(`* Using the @hippy/vue-css-loader in ${hippyVueCssLoaderPath}`);
+  cssLoader = hippyVueCssLoaderPath;
+} else {
+  /* eslint-disable-next-line no-console */
+  console.warn('* Using the @hippy/vue-css-loader defined in package.json');
+}
 
 module.exports = {
   mode: 'production',
@@ -53,7 +63,7 @@ module.exports = {
       {
         test: /\.css$/,
         use: [
-          '@hippy/vue-css-loader',
+          cssLoader,
         ],
       },
       {
@@ -88,12 +98,12 @@ module.exports = {
         use: [{
           loader: 'url-loader',
           options: {
-            limit: true,
-            // TODO local path not supported on defaultSource/backgroundImage
-            // limit: 8192,
-            // fallback: 'file-loader',
-            // name: '[name].[ext]',
-            // outputPath: 'assets/',
+            // if you would like to use base64 for picture, uncomment limit: true
+            // limit: true,
+            limit: 8192,
+            fallback: 'file-loader',
+            name: '[name].[ext]',
+            outputPath: 'assets/',
           },
         }],
       },

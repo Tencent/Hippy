@@ -41,6 +41,10 @@ static const NSUInteger kMatrixArrayLength = 4 * 4;
     return [json floatValue];
 }
 
++ (CGFloat)convertDegToRadians:(CGFloat)deg {
+    return deg * M_PI / 180;
+}
+
 + (CATransform3D)CATransform3DFromMatrix:(id)json {
     CATransform3D transform = CATransform3DIdentity;
     if (!json) {

@@ -27,7 +27,7 @@ hippy-react 的组件接近终端，语法上接近 React Native。
 />;
 ```
 
-或者使用终端的本地图片加载能力：
+或者使用本地图片加载能力：
 
 ```jsx
 import icon from './qb_icon_new.png';
@@ -39,7 +39,8 @@ import icon from './qb_icon_new.png';
 />
 ```
 
-本地图片还有另外一种形式：通过 base64 图片引用进来也可以支持，直接通过[加载时定义 Loader](//webpack.js.org/concepts/loaders/#inline)，用 `url-loader` 加载即可。
+>* 本地图片可通过[加载时定义 Loader](//webpack.js.org/concepts/loaders/#inline)，或者 webpack 配置 `url-loader` 转换成 base64加载。
+>* `2.8.1` 版本后支持终端本地图片能力，可通过 webpack `file-loader` 加载。
 
 ## 参数
 
@@ -55,6 +56,10 @@ import icon from './qb_icon_new.png';
 | onError       | 当加载错误的时候调用此回调函数，参数为 `{ nativeEvent: { error } }` | `Function`                                                   | `ALL`    |
 | capInsets     | 当调整 `Image` 大小的时候，由 `capInsets` 指定的边角尺寸会被固定而不进行缩放，而中间和边上其他的部分则会被拉伸。这在制作一些可变大小的圆角按钮、阴影、以及其它资源的时候非常有用。 | `{ top: number, left: number, bottom: number, right: number }` | `ALL`    |
 | onProgress    | 在加载过程中不断调用，参数为 `{ nativeEvent: { loaded, total } }` | `Function`                                                   |      `ALL`     |
+| onTouchDown  | 当用户开始触屏控件时（即用户在该控件上按下手指时），将回调此函数，并将触屏点信息作为参数传递进来； 参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
+| onTouchMove   | 当用户在控件移动手指时，此函数会持续收到回调，并通过event参数告知控件的触屏点信息；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
+| onTouchEnd    | 当触屏操作结束，用户在该控件上抬起手指时，此函数将被回调，event参数也会通知当前的触屏点信息；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
+| onTouchCancel | 当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden），此函数会收到回调，触屏点信息也会通过event参数告知前端；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
 
 ## 方法
 
@@ -90,8 +95,9 @@ import icon from './qb_icon_new.png';
 | --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
 | horizontal       | 指定 `ListView` 是否采用横向布局。`default: undefined` | `any`   | `Android`    |
 | initialListSize       | 指定在组件刚挂载的时候渲染多少行数据。用这个属性来确保首屏显示合适数量的数据，而不是花费太多帧时间逐步显示出来。 | `number`                                                    | `ALL`    |
-| numberOfRows          | 指定列表的行数，一般直接传入数据源条数 `length` 即可。       | `number`                                                    | `ALL`    |
-| initialContentOffset  | 初始位移值 -- 在列表初始化时即可指定滚动距离，避免初始化后再通过 scrollTo 系列方法产生的闪动。 | `number`                                                    | `ALL`    |
+| initialContentOffset  | 初始位移值 -- 在列表初始化时即可指定滚动距离，避免初始化后再通过 scrollTo 系列方法产生的闪动。Android 在 `2.8.0` 版本后支持        | `number`                                             | `ALL`    |
+| bounces | 是否开启回弹效果，默认 `true` | `boolean`                                                  | `iOS`    |
+| overScrollEnabled | 是否开启回弹效果，默认 `true` | `boolean`                                                  | `Android`    |
 | renderRow             | 这里的入参是当前row 的index，在这里可以凭借index 获取到具体这一行单元格的数据，从而决定如何渲染这个单元格。 | `(index: number) => Node`                                   | `ALL`    |
 | getRowStyle           | 设置`ListViewItem`容器的样式。当设置了 `horizontal=true` 启用横向 `ListView` 时，需显式设置 `ListViewItem` 宽度              | `(index: number) => styleObject`                                    | `ALL`    |
 | getRowType            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升list 性能。 | `(index: number) => number`                                    | `ALL`    |
@@ -104,7 +110,7 @@ import icon from './qb_icon_new.png';
 | onEndReached          | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `onEndReached` 回调。 | `Function`                                                  | `ALL`    |
 | onMomentumScrollBegin | 在 `ListView` 开始滑动的时候调起                           | `Function`                                                  | `ALL`    |
 | onMomentumScrollEnd   | 在 `ListView` 结束滑动的时候调起                           | `Function`                                                  | `ALL`    |
-| onScroll              | 当触发 `ListView` 的滑动事件时回调，在 `ListView` 滑动时回调，因此调用会非常频繁，请使用 `scrollEventThrottle` 进行频率控制。 注意：ListView 在滚动时会进行组件回收，不要在滚动时对 renderRow() 生成的 ListItemView 做任何 ref 节点级的操作（例如：所有 callUIFunction 和 measureInAppWindow 方法），回收后的节点将无法再进行操作而报错。 | `(obj: { contentOffset: { x: number, y: number } }) => any` | `ALL`    |
+| onScroll              | 当触发 `ListView` 的滑动事件时回调，在 `ListView` 滑动时回调，因此调用会非常频繁，请使用 `scrollEventThrottle` 进行频率控制。 注意：ListView 在滚动时会进行组件回收，不要在滚动时对 renderRow() 生成的 ListItemView 做任何 ref 节点级的操作（例如：所有 callUIFunction 和 measureInAppWindow 方法），回收后的节点将无法再进行操作而报错。横向ListView时，Android在 `2.8.0` 版本后支持 | `(obj: { contentOffset: { x: number, y: number } }) => any` | `ALL`    |
 | onScrollBeginDrag     | 当用户开始拖拽 `ListView` 时调用。                         | `Function`                                                  | `ALL`    |
 | onScrollEndDrag       | 当用户停止拖拽 `ListView` 或者放手让 `ListView` 开始滑动的时候调用 | `Function`                                                  | `ALL`    |
 | scrollEventThrottle   | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onScroll` 回调事件 | `number`                                                    | `ALL`    |
@@ -113,6 +119,10 @@ import icon from './qb_icon_new.png';
 | renderPullHeader   | 设置列表下拉头部（刷新条），配合`onHeaderReleased`、`onHeaderPulling` 和 `collapsePullHeader`使用, 参考 [DEMO](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/PullHeader/index.jsx)。 | `() => View`                                                   | `ALL`    |
 | onHeaderPulling   | 下拉过程中触发, 事件会通过 contentOffset 参数返回拖拽高度，可以根据下拉偏移量做相应的逻辑。 | `(obj: { contentOffset: number }) => any`                                                   | `ALL`    |
 | onHeaderReleased   | 下拉超过内容高度，松手后触发。 | `() => any`                                                   | `ALL`    |
+| editable   | 是否可编辑，开启侧滑删除时需要设置为 `true`。`最低支持版本2.9.0` | `boolean`                                                   | `iOS`    |
+| delText   | 侧滑删除文本。`最低支持版本2.9.0` | `string`                                                   | `iOS`    |
+| onDelete   | 在列表项侧滑删除时调起。`最低支持版本2.9.0` | `( nativeEvent: { index: number} ) => void`                                                   | `iOS`    |
+
 
 ## 方法
 
@@ -121,7 +131,7 @@ import icon from './qb_icon_new.png';
 `(xOffset: number, yOffset: number: animated: boolean) => void` 通知 ListView 滑动到某个具体坐标偏移值(offset)的位置。
 
 > * `xOffset`: number - 滑动到 X 方向的 offset
-> * `yOffset`: numbere - 滑动到 Y 方向的 offset
+> * `yOffset`: number - 滑动到 Y 方向的 offset
 > * `animated`: boolean - 滑动过程是否使用动画
 
 ### scrollToIndex
@@ -160,51 +170,6 @@ import icon from './qb_icon_new.png';
 | onDismiss             | -                                                            | `Function`                                                   | `iOS`    |
 | transparent           | 背景是否是透明的                      | `boolean`                                                    | `ALL`    |
 | visible               | 是否显示                                                       | `boolean`                                                    | `ALL`    |
-
----
-
-# Navigator
-
-导航容器。通过这个组件，你可以实现一个app页面的导航、跳转等功能。
-
-> 该组件通过启动一个新的 Hippy 实例实现，在 2.0 下实例之间可能无法互相通信，iOS 上也必须作为根节点包裹所有子组件，使用有很大限制。
-
-## 参数
-
-| 参数                   | 描述                                                         | 类型          | 支持平台 |
-| ---------------------- | ------------------------------------------------------------ | ------------- | -------- |
-| initialRoute           | `Navigator` 初始化首页面的参数，需要传入`routeName`, `component` 和`initProps` 三个属性 | `Object`      | `ALL`    |
-| initialRoute.routeName | 指定页面的路由名字                                           | `string`      | `ALL`    |
-| initialRoute.component | 传入一个 `React Component`，`Navigator` 路由到此页面就可以渲染此 `component` | `React Component` | `ALL`    |
-| initialRoute.initProps | 初始化当前路由页面的 `props`为透传参数，可以在此路由页面的 `component` 使用 `this.props` 获取 | `Object`  | `ALL`    |
-| initialRoute.animated  | 指定切换的时候是否有动画效果，默认值为 false                 | `boolean`     | `ALL`    |
-
-## 方法
-
-### clear
-
-`() => void` 清空 Navigator 的历史栈
-
-### getCurrentPage
-
-`() => Object` 获取当前 Navigator 的页面，会返回 routeName , component 和 initProps 等属性值
-
-### pop
-
-`(options: Object) => void` 在 Navigator 返回上一个页面
-
-> * options: Object
->   * toDirection: left | right | top | bottom - 自定义页面pop 的方向
-
-### push
-
-`(options: Object) => void` 进入一个新的页面
-
-> * options: Object
->   * routeName: string - 路由名称
->   * component: ReactComponent - 新页面组件
->   * initProps: Object - 初始化参数
->   * toDirection: left | right | top | bottom - 自定义页面pop 的方向
 
 ---
 
@@ -251,6 +216,7 @@ import icon from './qb_icon_new.png';
 
 | 参数                           | 描述                                                         | 类型                                                         | 支持平台 |
 | ------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ | -------- |
+| bounces | 是否开启回弹效果，默认 `true` | `boolean`                                                  | `iOS`    |
 | contentContainerStyle          | 这些样式会应用到一个内层的内容容器上，所有的子视图都会包裹在内容容器内。 | `StyleSheet`                                                 | `ALL`    |
 | onMomentumScrollBegin          | 在 `ScrollView` 滑动开始的时候调起。                         | `Function`                                                   | `ALL`    |
 | onMomentumScrollEnd            | 在 `ScrollView` 滑动结束的时候调起。                         | `Function`                                                   | `ALL`    |
@@ -396,7 +362,7 @@ import icon from './qb_icon_new.png';
 
 [[Text 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/Text)
 
-文本组件，但不支持嵌套。
+文本组件。
 
 ## 注意事项
 
@@ -423,6 +389,10 @@ import icon from './qb_icon_new.png';
 | onLayout      | 当元素挂载或者布局改变的时候调用，参数为： `{ nativeEvent: { layout: { x, y, width, height } } }`。 | `Function`                                | `ALL`    |
 | onClick       | 当文本被点击以后调用此回调函数。  例如， `onClick={() => console.log('onClick') }` | `Function`                                | `ALL`    |
 | ellipsizeMode* | 当设定了 `numberOfLines` 值后，这个参数指定了字符串如何被截断。所以在使用 `ellipsizeMode` 时，必须得同时指定 `numberOfLines` 数值。 | `enum`(head, middle, tail, clip)| `Android 仅支持 tail 属性，iOS 全支持`    |
+| onTouchDown  | 当用户开始触屏控件时（即用户在该控件上按下手指时），将回调此函数，并将触屏点信息作为参数传递进来； 参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
+| onTouchMove   | 当用户在控件移动手指时，此函数会持续收到回调，并通过event参数告知控件的触屏点信息；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
+| onTouchEnd    | 当触屏操作结束，用户在该控件上抬起手指时，此函数将被回调，event参数也会通知当前的触屏点信息；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
+| onTouchCancel | 当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden），此函数会收到回调，触屏点信息也会通过event参数告知前端；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
 
 * ellipsizeMode 的参数含义：
   * `clip` - 超过指定行数的文字会被直接截断，不显示“...”；（仅iOS支持）
@@ -449,6 +419,10 @@ import icon from './qb_icon_new.png';
 | overflow           | 指定当子节点内容溢出其父级 `View` 容器时, 是否剪辑内容       | `enum`(visible, hidden)         | `ALL`     |
 | onLayout           | 这个事件会在布局计算完成后立即调用一次，不过收到此事件时新的布局可能还没有在屏幕上呈现，尤其是一个布局动画正在进行中的时候。 | `Function`                           | `ALL`     |
 | onAttachedToWindow           | 这个事件会在节点已经渲染并且添加到容器组件中触发，因为 Hippy 的渲染是异步的，这是很稳妥的执行后续操作的事件。 | `Function`                           | `ALL`     |
+| onTouchDown  | 当用户开始触屏控件时（即用户在该控件上按下手指时），将回调此函数，并将触屏点信息作为参数传递进来； 参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
+| onTouchMove   | 当用户在控件移动手指时，此函数会持续收到回调，并通过event参数告知控件的触屏点信息；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
+| onTouchEnd    | 当触屏操作结束，用户在该控件上抬起手指时，此函数将被回调，event参数也会通知当前的触屏点信息；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
+| onTouchCancel | 当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden），此函数会收到回调，触屏点信息也会通过event参数告知前端；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
 
 ## 样式内特殊属性
 
@@ -488,3 +462,52 @@ import icon from './qb_icon_new.png';
 `(index: number) => void` 通过传入一个index 值（数字），滑动到第 index 个页面（无动画）
 
 > * index: number - 指定滑动页面
+
+---
+
+# WaterfallView
+
+> 最低支持版本 2.9.0
+
+[[WaterfallView 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/WaterfallView)
+
+瀑布流组件。
+
+## 参数
+
+| 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
+| --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
+| numberOfColumns | 瀑布流列数量 ， Default: 2 | `number` | `ALL` |
+| numberOfItems | 瀑布流 item 总个数 | `number` | `ALL`|
+| columnSpacing     | 瀑布流每列之前的水平间距  | `number`   | `ALL`    |
+| interItemSpacing  | item 间的垂直间距  | `number`   | `ALL`  |
+| contentInset      | 内容缩进 ，默认值 `{ top:0, left:0, bottom:0, right:0 }`  | `Object`   | `ALL`   |
+| renderItem             | 这里的入参是当前 item 的 index，在这里可以凭借 index 获取到瀑布流一个具体单元格的数据，从而决定如何渲染这个单元格。 | `(index: number) => React.ReactElement`                                   | `ALL`    |
+| renderBanner | 如何渲染 Banner。 | `() => React.ReactElement` |  `iOS`
+| getItemStyle           | 设置`WaterfallItem`容器的样式。  | `(index: number) => styleObject`                                    | `ALL`    |
+| getItemType            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升list 性能。 | `(index: number) => number`                                    | `ALL`    |
+| getItemKey             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [React 官文](//reactjs.org/docs/lists-and-keys.html) | `(index: number) => any`                                    | `ALL`    |
+| preloadItemNumber     | 滑动到瀑布流底部前提前预加载的 item 数量 | `number` | `ALL` |
+| onEndReached          | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `onEndReached` 回调。 | `Function`                                                  | `ALL`    |
+| containPullHeader | 是否包含`PullHeader`组件，默认 `false` ；`Android` 暂不支持，可暂时用 `RefreshWrapper` 组件替代  | `boolean`  | `iOS`    |
+| renderPullHeader | 如何渲染 `PullHeader`，此时 `containPullHeader` 默认设置成 `true` |  `() => React.ReactElement` | `iOS`    |
+| containPullFooter | 是否包含`PullFooter`组件，默认 `false`  | `boolean`  | `ALL`    |
+| renderPullFooter | 如何渲染 `PullFooter`，此时 `containPullFooter` 默认设置成 `true` |  `() => React.ReactElement` | `ALL` |
+| onScroll              | 当触发 `WaterFall` 的滑动事件时回调。`startEdgePos`表示距离 List 顶部边缘滚动偏移量；`endEdgePos`表示距离 List 底部边缘滚动偏移量；`firstVisibleRowIndex`表示当前可见区域内第一个元素的索引；`lastVisibleRowIndex`表示当前可见区域内最后一个元素的索引；`visibleRowFrames`表示当前可见区域内所有 item 的信息(x，y，width，height)    | `{ nativeEvent: { startEdgePos: number, endEdgePos: number, firstVisibleRowIndex: number, lastVisibleRowIndex: number, visibleRowFrames: Object[] } }` | `ALL`
+
+## 方法
+
+### scrollToIndex
+
+`(obj: { index: number, animated: boolean }) => void` 通知 Waterfall 滑动到第几个 item。
+
+> * `index`: number - 滑动到的第 index 个 item
+> * `animated`: boolean - 滑动过程是否使用动画, 默认 `true`
+
+### scrollToContentOffset
+
+`(obj: { xOffset: number, yOffset: number, animated: boolean }) => void` 通知 Waterfall 滑动到某个具体坐标偏移值(offset)的位置。
+
+> * `xOffset`: number - 滑动到 X 方向的 offset
+> * `yOffset`: number - 滑动到 Y 方向的 offset
+> * `animated`: boolean - 滑动过程是否使用动画，默认 `true`

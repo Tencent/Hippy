@@ -2,11 +2,12 @@
 
 import React from 'react';
 import Style from '@localTypes/style';
-import View from './view';
 import * as StyleSheet from '../modules/stylesheet';
 import { callUIFunction } from '../modules/ui-manager-module';
 import Element from '../dom/element-node';
 import { warn } from '../utils';
+import { isRTL } from '../utils/i18n';
+import View from './view';
 
 interface ScrollViewProps {
   /**
@@ -122,11 +123,11 @@ const styles = StyleSheet.create({
     overflow: 'scroll',
   },
   contentContainerVertical: {
-    collapse: false,
+    collapsable: false,
     flexDirection: 'column',
   },
   contentContainerHorizontal: {
-    collapse: false,
+    collapsable: false,
     flexDirection: 'row',
   },
 });
@@ -193,8 +194,13 @@ class ScrollView extends React.Component<ScrollViewProps, {}> {
       contentContainerStyle,
     ];
     const newStyle = horizontal
-      ? Object.assign({}, style, styles.baseHorizontal)
-      : Object.assign({}, style, styles.baseVertical);
+      ? Object.assign({}, styles.baseHorizontal, style)
+      : Object.assign({}, styles.baseVertical, style);
+
+    if (horizontal) {
+      newStyle.flexDirection = isRTL() ? 'row-reverse' : 'row';
+    }
+
     return (
       <div
         nativeName="ScrollView"

@@ -26,6 +26,7 @@ import com.tencent.mtt.hippy.modules.nativemodules.animation.AnimationFrameModul
 import com.tencent.mtt.hippy.modules.nativemodules.animation.AnimationModule;
 import com.tencent.mtt.hippy.modules.nativemodules.audio.AudioPlayerModule;
 import com.tencent.mtt.hippy.modules.nativemodules.clipboard.ClipboardModule;
+import com.tencent.mtt.hippy.modules.nativemodules.debug.DevMenu;
 import com.tencent.mtt.hippy.modules.nativemodules.console.ConsoleModule;
 import com.tencent.mtt.hippy.modules.nativemodules.deviceevent.DeviceEventModule;
 import com.tencent.mtt.hippy.modules.nativemodules.exception.ExceptionModule;
@@ -56,6 +57,8 @@ import com.tencent.mtt.hippy.views.textinput.HippyTextInputController;
 import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
 import com.tencent.mtt.hippy.views.viewpager.HippyViewPagerController;
 import com.tencent.mtt.hippy.views.viewpager.HippyViewPagerItemController;
+import com.tencent.mtt.hippy.views.waterfalllist.HippyWaterfallItemViewController;
+import com.tencent.mtt.hippy.views.waterfalllist.HippyWaterfallViewController;
 import com.tencent.mtt.hippy.views.webview.HippyWebViewController;
 
 import java.util.ArrayList;
@@ -154,6 +157,12 @@ public class HippyCoreAPI implements HippyAPIProvider {
         return new ClipboardModule(context);
       }
     });
+    modules.put(DevMenu.class, new Provider<HippyNativeModuleBase>() {
+      @Override
+      public HippyNativeModuleBase get() {
+        return new DevMenu(context);
+      }
+    });
     modules.put(AudioPlayerModule.class, new Provider<HippyNativeModuleBase>() {
       @Override
       public HippyNativeModuleBase get() {
@@ -192,6 +201,8 @@ public class HippyCoreAPI implements HippyAPIProvider {
     components.add(NavigatorController.class);
     components.add(HippyWebViewController.class);
     components.add(HippyCustomPropsController.class);
+    components.add(HippyWaterfallViewController.class);
+    components.add(HippyWaterfallItemViewController.class);
 
     return components;
   }

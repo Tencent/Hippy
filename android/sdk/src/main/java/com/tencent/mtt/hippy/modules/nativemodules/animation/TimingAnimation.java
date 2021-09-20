@@ -21,6 +21,11 @@ import android.animation.ValueAnimator;
 import android.os.Build;
 import android.text.TextUtils;
 import android.view.animation.*;
+
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
@@ -37,6 +42,7 @@ public class TimingAnimation extends Animation implements ValueAnimator.Animator
   private static final String TIMING_FUNCTION_EASE_OUT = "ease-out";
   private static final String TIMING_FUNCTION_EASE_IN_OUT = "ease-in-out";
   private static final String TIMING_FUNCTION_EASE_BEZIER = "ease_bezier";
+  private static final Pattern TIMING_FUNCTION_CUBIC_BEZIER_PATTERN = Pattern.compile("^cubic-bezier\\(([^,]*),([^,]*),([^,]*),([^,]*)\\)$");
   protected float mStartValue;
   protected float mToValue;
   protected int mDuration;
@@ -182,14 +188,32 @@ public class TimingAnimation extends Animation implements ValueAnimator.Animator
     } else if (TextUtils.equals(TIMING_FUNCTION_EASE_IN_OUT, mTimingFunction)) {
       mAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
     } else if (TextUtils.equals(TIMING_FUNCTION_EASE_BEZIER, mTimingFunction)) {
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-        mAnimator.setInterpolator(new PathInterpolator(0.42f, 0, 1, 1));
-      } else {
-        mAnimator.setInterpolator(new BezierInterpolator(0.42f, 0, 1, 1));
-      }
+      this.setCubicBezierInterpolator(0.42f, 0, 1, 1);
     } else {
-      mAnimator.setInterpolator(new LinearInterpolator());
+      Matcher matcher = TIMING_FUNCTION_CUBIC_BEZIER_PATTERN.matcher(mTimingFunction.trim());
+      if (matcher.matches()) {
+        try {
+          this.setCubicBezierInterpolator(
+            Float.parseFloat(matcher.group(1)),
+            Float.parseFloat(matcher.group(2)),
+            Float.parseFloat(matcher.group(3)),
+            Float.parseFloat(matcher.group(4))
+          );
+        } catch (Exception e) {
+          mAnimator.setInterpolator(new LinearInterpolator());
+        }
+      } else {
+        mAnimator.setInterpolator(new LinearInterpolator());
+      }
     }
     mAnimator.setStartDelay(mDelay);
+  }
+
+  private void setCubicBezierInterpolator(float p1x, float p1y, float p2x, float p2y) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+      mAnimator.setInterpolator(new PathInterpolator(p1x, p1y, p2x, p2y));
+    } else {
+      mAnimator.setInterpolator(new BezierInterpolator(p1x, p1y, p2x, p2y));
+    }
   }
 }

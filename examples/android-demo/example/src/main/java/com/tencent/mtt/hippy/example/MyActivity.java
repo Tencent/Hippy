@@ -5,12 +5,12 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Window;
 
-import com.tencent.mtt.hippy.HippyCLogHandler;
 import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyAPIProvider;
 import com.tencent.mtt.hippy.HippyEngine.EngineInitStatus;
 import com.tencent.mtt.hippy.HippyEngine.ModuleLoadStatus;
 import com.tencent.mtt.hippy.HippyRootView;
+import com.tencent.mtt.hippy.IHippyNativeLogHandler;
 import com.tencent.mtt.hippy.adapter.exception.HippyExceptionHandlerAdapter;
 import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
@@ -32,12 +32,8 @@ public class MyActivity extends Activity
 		super.onCreate(savedInstanceState);
 		getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 
-		HippyEngine.setCLogHandler(new HippyCLogHandler() {
-			@Override
-			public void onReceiveLogMessage(String msg) {
-				Log.e("HippyCLogHandler", "onReceiveLogMessage: " + msg);
-			}
-		});
+		HippyEngine.setNativeLogHandler(
+				msg -> Log.e("HippyCore", "onReceiveNativeLogMessage: " + msg));
 
 		// 1/3. 初始化hippy引擎
 		{
@@ -54,6 +50,8 @@ public class MyActivity extends Activity
 			initParams.enableLog = true;
 			// 可选：debugMode = false 时必须设置coreJSAssetsPath或coreJSFilePath（debugMode = true时，所有jsbundle都是从debug server上下载）
 			initParams.coreJSAssetsPath = "vendor.android.js";
+
+			initParams.codeCacheTag = "common";
 
 			// 可选：异常处理器
 			initParams.exceptionHandler = new HippyExceptionHandlerAdapter() {
@@ -110,6 +108,8 @@ public class MyActivity extends Activity
 						  });
 						  */
 						loadParams.componentName = "Demo";
+
+						loadParams.codeCacheTag = "Demo";
 						/*
 						  可选：二选一设置。自己开发的业务模块的jsbundle的assets路径（assets路径和文件路径二选一，优先使用assets路径）
 						  debugMode = false 时必须设置jsAssetsPath或jsFilePath（debugMode = true时，所有jsbundle都是从debug server上下载）

@@ -20,8 +20,6 @@
  * limitations under the License.
  */
 
-#import "HippyView.h"
-
 #import <UIKit/UIKit.h>
 
 #import "HippyBorderStyle.h"
@@ -30,9 +28,14 @@
 
 @protocol HippyAutoInsetsProtocol;
 
-@class HippyView;
+@class HippyGradientObject;
+@class HippyBridge;
 
 @interface HippyView : UIView
+
+- (instancetype)initWithBridge:(HippyBridge *)bridge;
+
+@property (nonatomic, weak) HippyBridge *bridge;
 
 /**
  * Used to control how touch events are processed.
@@ -118,5 +121,5 @@
 @property (nonatomic, strong) NSString *backgroundSize;
 @property (nonatomic, assign) CGFloat backgroundPositionX;
 @property (nonatomic, assign) CGFloat backgroundPositionY;
-
+@property (nonatomic, strong) HippyGradientObject *gradientObject;
 @end

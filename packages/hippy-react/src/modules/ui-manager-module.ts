@@ -28,7 +28,7 @@ function getElementFromFiberRef(ref: Fiber | Element) {
     return ref;
   }
   // FIXME: should not use the private _reactInternalFiber
-  const internalFiber = (ref as any)._reactInternalFiber;
+  const internalFiber = (ref as any)._reactInternalFiber || (ref as any)._reactInternals;
   if (internalFiber && internalFiber.child) {
     let targetNode = internalFiber.child;
     while (targetNode && !(targetNode.stateNode instanceof Element)) {
@@ -104,7 +104,7 @@ function callUIFunction(ref: Element | Fiber, funcName: string, ...options: any[
     throw new Error('callUIFunction is calling a component have no nodeId');
   }
 
-  let [paramList, callback] = options;
+  let [paramList = [], callback] = options;
   if (isFunction(paramList)) {
     callback = paramList;
     paramList = [];

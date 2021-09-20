@@ -2,10 +2,10 @@
 
 import React from 'react';
 import Style from '@localTypes/style';
-import View from './view';
 import * as StyleSheet from '../modules/stylesheet';
 import { HippyEventListener } from '../events';
 import { Device } from '../native';
+import View from './view';
 
 type ModalOrientation = 'portrait' | 'portrait-upside-down' | 'landscape' | 'landscape-left' | 'landscape-right';
 
@@ -112,6 +112,7 @@ const styles = StyleSheet.create({
  */
 class Modal extends React.Component<ModalProps, {}> {
   private eventSubscription: null | HippyEventListener;
+  static defaultProps: { visible: boolean };
 
   /**
    * @ignore

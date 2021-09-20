@@ -4,6 +4,7 @@ import { Fiber } from 'react-reconciler';
 import { LayoutableProps } from '../types';
 import { callUIFunction } from '../modules/ui-manager-module';
 import { Device } from '../native';
+import Element from '../dom/element-node';
 
 interface CollapsePullHeaderOptions {
   // time left to hide pullHeader after collapsePullHeader() is called, unit is ms
@@ -14,7 +15,7 @@ interface PullHeaderProps extends LayoutableProps {
   /**
    * Trigger when release the finger after pulling distance larger than the content height
    */
-  onHeaderReleased?() :void;
+  onHeaderReleased?(): void;
 
   /**
    * Trigger when pulling
@@ -26,7 +27,7 @@ interface PullHeaderProps extends LayoutableProps {
 }
 
 class PullHeader extends React.Component<PullHeaderProps, {}> {
-  private instance: HTMLDivElement | Fiber | null = null;
+  private instance: Element | Fiber | HTMLDivElement | null = null;
 
   /**
    * Expand the PullView and display the content
@@ -45,9 +46,9 @@ class PullHeader extends React.Component<PullHeaderProps, {}> {
     } else {
       // iOS is not supported if param invalid, so create a new function name for compatibility
       if (typeof options !== 'undefined') {
-        callUIFunction(this.instance as Fiber, 'collapsePullHeaderWithOptions', [options]);
+        callUIFunction(this.instance as Element, 'collapsePullHeaderWithOptions', [options]);
       } else {
-        callUIFunction(this.instance as Fiber, 'collapsePullHeader', []);
+        callUIFunction(this.instance as Element, 'collapsePullHeader', []);
       }
     }
   }

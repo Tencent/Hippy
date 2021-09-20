@@ -25,6 +25,7 @@
 #import "HippyBridge.h"
 #import "HippyImageViewCustomLoader.h"
 #import "HippyUtils.h"
+#import "HippyBridge+LocalFileSource.h"
 
 @interface HippyBackgroundImageCacheManager ()
 
@@ -37,7 +38,10 @@
     if (imageLoader && [imageLoader respondsToSelector:@selector(canHandleImageURL:)]) {
         return [imageLoader canHandleImageURL:HippyURLWithString(URLString, nil)];
     } else {
-        if ([URLString hasPrefix:@"http://"] || [URLString hasPrefix:@"https://"] || [URLString hasPrefix:@"data:image/"]) {
+        if ([URLString hasPrefix:@"http://"] ||
+            [URLString hasPrefix:@"https://"] ||
+            [URLString hasPrefix:@"data:image/"] ||
+            [URLString hasPrefix:@"hpfile://"]) {
             return YES;
         }
     }
@@ -57,6 +61,21 @@
         NSString *errorString = [NSString stringWithFormat:@"background image url convert error:%@", uri];
         NSError *error = HippyErrorWithMessageAndModuleName(errorString, self.bridge.moduleName);
         completionHandler(nil, error);
+        return;
+    }
+    if ([HippyBridge isHippyLocalFileURLString:uri]) {
+        NSString *localPath = [self.bridge absoluteStringFromHippyLocalFileURLString:uri];
+        BOOL isDirectory = NO;
+        BOOL fileExist = [[NSFileManager defaultManager] fileExistsAtPath:localPath isDirectory:&isDirectory];
+        if (fileExist && !isDirectory) {
+            NSData *imageData = [NSData dataWithContentsOfFile:localPath];
+            UIImage *image = [UIImage imageWithData:imageData scale:[UIScreen mainScreen].scale];
+            completionHandler(image, nil);
+        }
+        else {
+            NSString *errorString = [NSString stringWithFormat:@"file not exists in path %@", uri];
+            completionHandler(nil, HippyErrorWithMessage(errorString));
+        }
         return;
     }
     id<HippyImageViewCustomLoader> imageLoader = self.bridge.imageLoader;

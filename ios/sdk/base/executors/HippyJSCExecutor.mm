@@ -432,6 +432,36 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
     }
 }
 
+- (void)updateGlobalObjectBeforeExcuteSecondary{
+    if(![self.bridge.delegate respondsToSelector:@selector(objectsBeforeExecuteSecondaryCode)]){
+        return;
+    }
+    NSDictionary *secondaryGlobal = [self.bridge.delegate objectsBeforeExecuteSecondaryCode];
+    if(0 == secondaryGlobal.count){
+        return;
+    }
+    __weak HippyJSCExecutor *weakSelf = self;
+    [self executeBlockOnJavaScriptQueue:^{
+        HippyJSCExecutor *strongSelf = weakSelf;
+        if (!strongSelf || !strongSelf.isValid || nullptr == strongSelf.pScope) {
+            return;
+        }
+        [strongSelf addInfoToGlobalObject:[secondaryGlobal copy]];
+    }];
+}
+
+-(void)addInfoToGlobalObject:(NSDictionary*)addInfoDict{
+    JSContext *context = [self JSContext];
+    if (context) {
+        JSValue *value = context[@"__HIPPYNATIVEGLOBAL__"];
+        if (value) {
+            for (NSString *key in addInfoDict) {
+                value[key] = addInfoDict[key];
+            }
+        }
+    }
+}
+
 - (void)flushedQueue:(HippyJavaScriptCallback)onComplete {
     // TODO: Make this function handle first class instead of dynamically dispatching it. #9317773
     [self _executeJSCall:@"flushedQueue" arguments:@[] unwrapResult:YES callback:onComplete];
@@ -476,10 +506,7 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
             if (!strongSelf || !strongSelf.isValid || nullptr == strongSelf.pScope) {
                 return;
             }
-
-#ifndef HIPPY_DEBUG
             @try {
-#endif
                 HippyBridge *bridge = [strongSelf bridge];
                 NSString *moduleName = [bridge moduleName];
                 NSError *executeError = nil;
@@ -532,11 +559,14 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
                     objcValue = unwrapResult ? [objc_value toObject] : objc_value;
                 }
                 onComplete(objcValue, executeError);
-#ifndef HIPPY_DEBUG
             } @catch (NSException *exception) {
-                MttHippyException(exception);
+                NSString *moduleName = strongSelf.bridge.moduleName?:@"unknown";
+                NSMutableDictionary *userInfo = [exception.userInfo mutableCopy]?:[NSMutableDictionary dictionary];
+                [userInfo setObject:moduleName forKey:HippyFatalModuleName];
+                [userInfo setObject:arguments?:[NSArray array] forKey:@"arguments"];
+                NSException *reportException = [NSException exceptionWithName:exception.name reason:exception.reason userInfo:userInfo];
+                MttHippyException(reportException);
             }
-#endif
         }
     }];
 }

@@ -1,7 +1,7 @@
 import React from 'react';
-import View from './view';
 import { formatWebStyle } from '../adapters/transfer';
 import StyleSheet from '../modules/stylesheet';
+import View from './view';
 
 const side = 'left';
 const styles = StyleSheet.create({

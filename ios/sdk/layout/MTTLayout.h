@@ -1,21 +1,33 @@
-/**
- * Copyright (c) 2017-present, Tencent, Inc.
- * All rights reserved.
- * Author: ianwang <ianwang@tencent.com>
- * Created on: 2018-01-10
+/* Tencent is pleased to support the open source community by making Hippy
+ * available. Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights
+ * reserved.
  *
- * this module hold common operations for MTTNode
- * It's open to outside
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
-#ifndef HIPPY_H_
-#define HIPPY_H_
+/* this module hold common operations for MTTNode
+ *  It's open to outside
+ */
+
+#pragma once
+
 #include "MTTNode.h"
 
 MTTNodeRef MTTNodeNew();
 void MTTNodeFree(MTTNodeRef node);
 void MTTNodeFreeRecursive(MTTNodeRef node);
 
+void MTTNodeStyleSetDirection(MTTNodeRef node, MTTDirection direction);
 void MTTNodeStyleSetWidth(MTTNodeRef node, float width);
 void MTTNodeStyleSetHeight(MTTNodeRef node, float height);
 bool MTTNodeSetMeasureFunc(MTTNodeRef node, MTTMeasureFunc _measure);
@@ -61,7 +73,6 @@ float MTTNodeLayoutGetFlexGrow(MTTNodeRef node);
 float MTTNodeLayoutGetFlexShrink(MTTNodeRef node);
 float MTTNodeLayoutGetPosition(MTTNodeRef node, CSSDirection dir);
 DisplayType MTTNodeLayoutGetDisplay(MTTNodeRef node);
-
 float MTTNodeLayoutGetFlexBasis(MTTNodeRef node);
 FlexDirection MTTNodeLayoutGetFlexDirection(MTTNodeRef node);
 FlexAlign MTTNodeLayoutGetJustifyContent(MTTNodeRef node);
@@ -70,13 +81,15 @@ FlexAlign MTTNodeLayoutGetAlignItems(MTTNodeRef node);
 PositionType MTTNodeLayoutGetPositionType(MTTNodeRef node);
 FlexWrapMode MTTNodeLayoutGetFlexWrap(MTTNodeRef node);
 OverflowType MTTNodeLayoutGetOverflow(MTTNodeRef node);
-
 bool MTTNodeLayoutGetHadOverflow(MTTNodeRef node);
 
 bool MTTNodeInsertChild(MTTNodeRef node, MTTNodeRef child, uint32_t index);
 bool MTTNodeRemoveChild(MTTNodeRef node, MTTNodeRef child);
 uint32_t MTTNodeChildCount(MTTNodeRef node);
 MTTNodeRef MTTNodeGetChild(MTTNodeRef node, uint32_t index);
+
+void MTTNodeSetParent(MTTNodeRef node, MTTNodeRef parentNode);
+MTTNodeRef MTTNodeGetParent(MTTNodeRef node);
 
 bool MTTNodeHasNewLayout(MTTNodeRef node);
 void MTTNodesetHasNewLayout(MTTNodeRef node, bool hasNewLayout);
@@ -86,10 +99,10 @@ void *MTTNodeGetContext(MTTNodeRef node);
 
 void MTTNodeMarkDirty(MTTNodeRef node);
 bool MTTNodeIsDirty(MTTNodeRef node);
-void MTTNodeDoLayout(MTTNodeRef node, float parentWidth, float parentHeight);
+void MTTNodeDoLayout(MTTNodeRef node,
+                    float parentWidth,
+                    float parentHeight,
+                    MTTDirection direction = DirectionLTR,
+                    void* layoutContext = nullptr);
 void MTTNodePrint(MTTNodeRef node);
 bool MTTNodeReset(MTTNodeRef node);
-
-bool MTTNodeIsTextNode(MTTNodeRef node);
-
-#endif /* HIPPY_H_ */

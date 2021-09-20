@@ -1,11 +1,11 @@
 import Vue from 'vue';
 
-export default Vue.component('style-one', {
+export default Vue.component('StyleOne', {
   inheritAttrs: false,
   props: ['itemBean'],
   template: `
   <div class="list-view-item style-one">
-    <p numberOfLines="2" enableScale="true" class="article-title">
+    <p :numberOfLines="2" :enableScale="true" class="article-title">
       {{ itemBean.title }}
     </p>
     <div class="style-one-image-container">

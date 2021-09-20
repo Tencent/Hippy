@@ -13,7 +13,6 @@ import {
   mergeOptions,
   extend,
 } from 'core/util/index';
-import { patch } from './patch';
 import {
   registerBuiltinElements,
   registerElement,
@@ -31,6 +30,7 @@ import {
 } from '../util';
 import DocumentNode from '../renderer/document-node';
 import { Event } from '../renderer/native/event';
+import { patch } from './patch';
 import Native, { HippyRegister } from './native';
 import * as iPhone from './iphone';
 import * as platformDirectives from './directives';

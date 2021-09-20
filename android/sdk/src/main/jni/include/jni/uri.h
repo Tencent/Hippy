@@ -32,6 +32,7 @@ class Uri {
  public:
   using unicode_string_view = tdf::base::unicode_string_view;
 
+  static std::shared_ptr<Uri> Create(const unicode_string_view& uri);
   explicit Uri(const unicode_string_view& uri);
   ~Uri();
   unicode_string_view GetPath();

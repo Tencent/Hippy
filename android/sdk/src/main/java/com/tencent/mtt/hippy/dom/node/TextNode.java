@@ -23,6 +23,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.text.*;
+import android.text.Layout.Alignment;
 import android.text.style.*;
 
 import com.tencent.mtt.hippy.HippyEngineContext;
@@ -32,6 +33,7 @@ import com.tencent.mtt.hippy.adapter.image.HippyImageLoader;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.flex.*;
+import com.tencent.mtt.hippy.utils.I18nUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.text.HippyTextView;
@@ -98,6 +100,10 @@ public class TextNode extends StyleNode {
     this.mIsVirtual = mIsVirtual;
     if (!mIsVirtual) {
       setMeasureFunction(TEXT_MEASURE_FUNCTION);
+    }
+
+    if (I18nUtil.isRTL()) {
+      mTextAlign = Layout.Alignment.ALIGN_OPPOSITE;
     }
   }
 
@@ -260,16 +266,14 @@ public class TextNode extends StyleNode {
   @SuppressWarnings("unused")
   @HippyControllerProps(name = NodeProps.TEXT_ALIGN, defaultType = HippyControllerProps.STRING, defaultString = "left")
   public void setTextAlign(String textAlign) {
-    if (textAlign == null || "auto".equals(textAlign)) {
-      mTextAlign = Layout.Alignment.ALIGN_NORMAL;
+    if (textAlign == null || "auto".equals(textAlign) || "justify".equals(textAlign)) {
+      mTextAlign = I18nUtil.isRTL() ? Layout.Alignment.ALIGN_OPPOSITE : Layout.Alignment.ALIGN_NORMAL;
     } else if ("left".equals(textAlign)) {
       mTextAlign = Layout.Alignment.ALIGN_NORMAL;
     } else if ("right".equals(textAlign)) {
       mTextAlign = Layout.Alignment.ALIGN_OPPOSITE;
     } else if ("center".equals(textAlign)) {
       mTextAlign = Layout.Alignment.ALIGN_CENTER;
-    } else if ("justify".equals(textAlign)) {
-      mTextAlign = Layout.Alignment.ALIGN_NORMAL;
     } else {
       throw new RuntimeException("Invalid textAlign: " + textAlign);
     }
@@ -621,6 +625,19 @@ public class TextNode extends StyleNode {
 
   }
 
+  private StaticLayout buildStaticLayout(CharSequence source, TextPaint paint, int width) {
+    Layout.Alignment textAlign = mTextAlign;
+    if (I18nUtil.isRTL()) {
+      BidiFormatter bidiFormatter = BidiFormatter.getInstance();
+      if (bidiFormatter.isRtl(source.toString()) && textAlign == Layout.Alignment.ALIGN_OPPOSITE) {
+        textAlign = Layout.Alignment.ALIGN_NORMAL;
+      }
+    }
+
+    return new StaticLayout(source, paint, width, textAlign, 1.f, 0.f,
+        true);
+  }
+
   private Layout createLayout(float width, FlexMeasureMode widthMode) {
     TextPaint textPaint = sTextPaintInstance;
     Layout layout;
@@ -636,13 +653,12 @@ public class TextNode extends StyleNode {
     boolean unconstrainedWidth = widthMode == FlexMeasureMode.UNDEFINED || width < 0;
     if (boring == null && (unconstrainedWidth || (!FlexConstants.isUndefined(desiredWidth)
         && desiredWidth <= width))) {
-      layout = new StaticLayout(text, textPaint, (int) Math.ceil(desiredWidth), mTextAlign, 1.f,
+      layout = new StaticLayout(text, textPaint, (int)Math.ceil(desiredWidth), mTextAlign, 1.f,
           0.f, true);
     } else if (boring != null && (unconstrainedWidth || boring.width <= width)) {
       layout = BoringLayout.make(text, textPaint, boring.width, mTextAlign, 1.f, 0.f, boring, true);
     } else {
-      layout = new StaticLayout(text, textPaint, (int) Math.ceil(width), mTextAlign, 1.f, 0.f,
-          true);
+      layout = buildStaticLayout(text, textPaint, (int)Math.ceil(width));
     }
     if (mNumberOfLines != UNSET && mNumberOfLines > 0) {
       if (layout.getLineCount() > mNumberOfLines) {
@@ -681,9 +697,7 @@ public class TextNode extends StyleNode {
       }
     }
 
-    return new StaticLayout(temp.replace(start, text.length(), ELLIPSIS), sTextPaintInstance, width,
-        mTextAlign, 1.f, 0.f,
-        true);
+    return buildStaticLayout(temp.replace(start, text.length(), ELLIPSIS), sTextPaintInstance, width);
   }
 
   private static final String ELLIPSIS = "\u2026";
@@ -703,8 +717,7 @@ public class TextNode extends StyleNode {
           builder.append(source, 0, i);
         }
         spanned = createSpan(builder.toString(), false);
-        layout = new StaticLayout(spanned, paint, desired, Layout.Alignment.ALIGN_NORMAL, 1, 0,
-            true);
+        layout = buildStaticLayout(spanned, paint, desired);
         if (layout.getLineCount() <= 1) {
           return spanned.toString();
         }

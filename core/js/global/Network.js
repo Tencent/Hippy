@@ -1,3 +1,6 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-underscore-dangle */
+
 global.Headers = class Headers {
   constructor(initValues) {
     this._headers = {};

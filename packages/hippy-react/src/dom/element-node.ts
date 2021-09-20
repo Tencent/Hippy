@@ -3,7 +3,6 @@
 
 import Hippy from '@localTypes/hippy';
 import { Transform } from '@localTypes/style';
-import ViewNode from './view-node';
 import Animation from '../modules/animation';
 import AnimationSet from '../modules/animation-set';
 import { colorParse, colorArrayParse, Color } from '../color';
@@ -13,7 +12,10 @@ import {
   unicodeToChar,
   tryConvertNumber,
   isNumber,
+  warn,
+  convertImgUrl,
 } from '../utils';
+import ViewNode from './view-node';
 import '@localTypes/global';
 
 interface Attributes {
@@ -28,6 +30,14 @@ interface PropertiesMap {
   [propName: string]: string;
 }
 
+interface DirectionMap {
+  [propName: string]: string;
+}
+
+interface DegreeUnit {
+  [propName: string]: string;
+}
+
 const PROPERTIES_MAP: PropertiesMap = {
   textDecoration: 'textDecorationLine',
   boxShadowOffset: 'shadowOffset',
@@ -38,6 +48,132 @@ const PROPERTIES_MAP: PropertiesMap = {
   boxShadowSpread: 'shadowSpread',
   boxShadowColor: 'shadowColor',
 };
+
+// linear-gradient direction description map
+const LINEAR_GRADIENT_DIRECTION_MAP: DirectionMap = {
+  totop: '0',
+  totopright: 'totopright',
+  toright: '90',
+  tobottomright: 'tobottomright',
+  tobottom: '180', // default value
+  tobottomleft: 'tobottomleft',
+  toleft: '270',
+  totopleft: 'totopleft',
+};
+
+const DEGREE_UNIT: DegreeUnit = {
+  TURN: 'turn',
+  RAD: 'rad',
+  DEG: 'deg',
+};
+
+/**
+ * convert string value to string degree
+ * @param {string} value
+ * @param {string} unit
+ */
+function convertToDegree(value: string, unit = DEGREE_UNIT.DEG): string {
+  const convertedNumValue = parseFloat(value);
+  let result = value || '';
+  const [, decimals] = value.split('.');
+  if (decimals && decimals.length > 2) {
+    result = convertedNumValue.toFixed(2);
+  }
+  switch (unit) {
+    // turn unit
+    case DEGREE_UNIT.TURN:
+      result = `${(convertedNumValue * 360).toFixed(2)}`;
+      break;
+    // radius unit
+    case DEGREE_UNIT.RAD:
+      result = `${(180 / Math.PI * convertedNumValue).toFixed(2)}`;
+      break;
+    default:
+  }
+  return result;
+}
+
+/**
+ * parse gradient angle or direction
+ * @param {string} value
+ */
+function getLinearGradientAngle(value: string): string | undefined {
+  const processedValue = (value || '').replace(/\s*/g, '').toLowerCase();
+  const reg = /^([+-]?\d+\.?\d*)+(deg|turn|rad)|(to\w+)$/g;
+  const valueList = reg.exec(processedValue);
+  if (!Array.isArray(valueList)) return;
+  // default direction is to bottom, i.e. 180degree
+  let angle: string = '180';
+  const [direction, angleValue, angleUnit] = valueList;
+  if (angleValue && angleUnit) { // angle value
+    angle = convertToDegree(angleValue, angleUnit);
+  } else if (direction && typeof LINEAR_GRADIENT_DIRECTION_MAP[direction] !== 'undefined') { // direction description
+    angle = LINEAR_GRADIENT_DIRECTION_MAP[direction];
+  } else {
+    warn('linear-gradient direction or angle is invalid, default value [to bottom] would be used');
+  }
+  return angle;
+}
+
+/**
+ * parse gradient color stop
+ * @param {string} value
+ */
+function getLinearGradientColorStop(value: string): Object | undefined {
+  const processedValue = (value || '').replace(/\s+/g, ' ').trim();
+  const [color, percentage] = processedValue.split(/\s+(?![^(]*?\))/);
+  const percentageCheckReg = /^([+-]?\d+\.?\d*)%$/g;
+  if (color && !percentageCheckReg.exec(color) && !percentage) {
+    return {
+      color: colorParse(color),
+    };
+  }
+  if (color && percentageCheckReg.exec(percentage)) {
+    return {
+      // color stop ratio
+      ratio: parseFloat(percentage.split('%')[0]) / 100,
+      color: colorParse(color),
+    };
+  }
+  warn('linear-gradient color stop is invalid');
+}
+
+/**
+ * parse backgroundImage
+ * @param {string} styleKey
+ * @param {string} styleValue
+ * @param style
+ */
+function parseBackgroundImage(styleKey: string, styleValue: string, style: any) {
+  // handle linear-gradient style
+  if (styleValue.indexOf('linear-gradient') === 0) {
+    const valueString = styleValue.substring(styleValue.indexOf('(') + 1, styleValue.lastIndexOf(')'));
+    const tokens = valueString.split(/,(?![^(]*?\))/);
+    const colorStopList: object[] = [];
+    style.linearGradient = style.linearGradient || {};
+    tokens.forEach((value: any, index: number) => {
+      if (index === 0) {
+        // the angle of linear-gradient parameter can be optional
+        const angle = getLinearGradientAngle(value);
+        if (angle) {
+          style.linearGradient.angle = angle;
+        } else {
+          // if angle ignored, default direction is to bottom, i.e. 180degree
+          style.linearGradient.angle = '180';
+          const colorObject = getLinearGradientColorStop(value);
+          if (colorObject) colorStopList.push(colorObject);
+        }
+      } else {
+        const colorObject = getLinearGradientColorStop(value);
+        if (colorObject) colorStopList.push(colorObject);
+      }
+    });
+    style.linearGradient.colorStopList = colorStopList;
+  } else {
+    (style as any)[styleKey] = convertImgUrl(styleValue);
+  }
+  return style;
+}
 
 class ElementNode extends ViewNode {
   tagName: string;
@@ -172,6 +308,8 @@ class ElementNode extends ViewNode {
         (this.style as any)[styleKey] = colorArrayParse((styleValue as Color[]));
       } else if (styleKey.toLowerCase().indexOf('color') > -1) {
         (this.style as any)[styleKey] = colorParse((styleValue as Color));
+      } else if (styleKey === 'backgroundImage' && styleValue) {
+        this.style = parseBackgroundImage(styleKey, styleValue, this.style);
       } else {
         (this.style as any)[styleKey] = styleValue;
       }

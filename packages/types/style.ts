@@ -53,7 +53,7 @@ interface BaseStyle {
   borderBottomWidth?: number;
   borderLeftWidth?: number;
   position?: 'relative' | 'absolute';
-  flexDirection?: 'row' | 'column';
+  flexDirection?: 'row' | 'column' | 'row-reverse';
   flexWrap?: 'nowrap' | 'wrap' | 'wrap-reverse';
   justifyContent?: 'start' | 'center' | 'end' | 'flex-start' | 'flex-end' | 'left' | 'right' | 'normal' | 'space-between' | 'space-around' | 'space-evenly' | 'stretch';
   alignItems?: 'stretch' | 'center' | 'flex-start' | 'flex-end' | 'baseline';
@@ -75,7 +75,9 @@ interface BaseStyle {
   collapse?: boolean,
 }
 
-interface Style extends BaseStyle {}
+interface Style extends BaseStyle {
+  [props: string]: any
+}
 
 export default Style;
 export {

@@ -1,3 +1,6 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-underscore-dangle */
+
 Hippy.device.window = 0;
 Hippy.device.screen = 0;
 

@@ -56,27 +56,12 @@ function startBatch() {
   }
 }
 
-/**
- * Hippy applies batched rendering,
- * but iOS JSCore Promise.resolve task executed too fast,
- * resulting in segmented rendering,
- * so use polyfill to handle it on different platforms.
- */
-function taskPolyfill(handler: Function) {
-  // @ts-ignore
-  if (__PLATFORM__ === 'ios' || Device.platform.OS === 'ios') {
-    setTimeout(handler, 0);
-  } else {
-    Promise.resolve().then(handler as ((value: void) => void | Promise<void>));
-  }
-}
-
 function endBatch(rootViewId: number) {
   if (!__batchIdle) {
     return;
   }
   __batchIdle = false;
-  taskPolyfill(() => {
+  Promise.resolve().then(() => {
     const chunks = chunkNodes(__batchNodes);
     chunks.forEach((chunk) => {
       switch (chunk.type) {
@@ -128,6 +113,26 @@ function getNativeProps(node: Element) {
 }
 
 /**
+ * Get target node attributes, use to chrome devTool tag attribute show while debugging
+ */
+function getTargetNodeAttributes(targetNode: Element) {
+  try {
+    const targetNodeAttributes = JSON.parse(JSON.stringify(targetNode.attributes));
+    const attributes = {
+      id: targetNode.id,
+      ...targetNodeAttributes,
+    };
+    delete attributes.text;
+    delete attributes.value;
+
+    return attributes;
+  } catch (e) {
+    warn('getTargetNodeAttributes error:', e);
+    return {};
+  }
+}
+
+/**
  * Render Element to native
  */
 function renderToNative(rootViewId: number, targetNode: Element): Hippy.NativeNode | null {
@@ -144,8 +149,7 @@ function renderToNative(rootViewId: number, targetNode: Element): Hippy.NativeNo
   }
 
   // Translate to native node
-  // @ts-ignore
-  return {
+  const nativeNode: Hippy.NativeNode = {
     id: targetNode.nodeId,
     pId: (targetNode.parentNode && targetNode.parentNode.nodeId) || rootViewId,
     index: targetNode.index,
@@ -155,6 +159,14 @@ function renderToNative(rootViewId: number, targetNode: Element): Hippy.NativeNo
       style: targetNode.style,
     },
   };
+  // Add nativeNode attributes info for debugging
+  if (process.env.NODE_ENV !== 'production') {
+    nativeNode.tagName = targetNode.nativeName;
+    if (nativeNode.props) {
+      nativeNode.props.attributes = getTargetNodeAttributes(targetNode);
+    }
+  }
+  return nativeNode;
 }
 
 /**

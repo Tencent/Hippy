@@ -1,0 +1,55 @@
+diff --git a/config/android/BUILD.gn b/config/android/BUILD.gn
+index 233e8b0e7..d78a09e0b 100644
+--- a/config/android/BUILD.gn
++++ b/config/android/BUILD.gn
+@@ -105,9 +105,7 @@ config("runtime_library") {
+   # arm-linux-androideabi-4.4.3 toolchain (circa Gingerbread) will exhibit
+   # strange errors. The include ordering here is important; change with
+   # caution.
+-  cflags_cc = [ "-isystem" +
+-                rebase_path("$android_ndk_root/sources/android/support/include",
+-                            root_build_dir) ]
++  cflags_cc = []
+ 
+   defines = [
+     "__GNU_SOURCE=1",  # Necessary for clone().
+@@ -117,7 +115,25 @@ config("runtime_library") {
+   lib_dirs = [ android_libcpp_lib_dir ]
+ 
+   libs = []
+-  libs += [ "android_support" ]
++  if (!use_custom_libcxx) {
++    # The libc++ runtime library (must come first).
++    # ASan needs to dynamically link to libc++ even in static builds so
++    # that it can interpose operator new.
++    if (is_component_build || is_asan) {
++        libs += [ "c++_shared" ]
++    } else {
++        libs += [ "c++_static" ]
++    }
++    libs += [ "c++abi" ]
++  }
++  # On 64-bit platforms, the only symbols provided by libandroid_support.a are
++  # strto{d,f,l,ul}_l. These symbols are not used by our libc++, and newer NDKs
++  # don't provide a libandroid_support.a on 64-bit platforms, so we only depend
++  # on this library on 32-bit platforms.
++  if (current_cpu == "arm" || current_cpu == "x86") {
++    libs += [ "android_support" ]
++  }
++
+ 
+   # arm builds of libc++ starting in NDK r12 depend on unwind.
+   if (current_cpu == "arm") {
+diff --git a/config/sysroot.gni b/config/sysroot.gni
+index 701c66082..bc33b7cd1 100644
+--- a/config/sysroot.gni
++++ b/config/sysroot.gni
+@@ -27,7 +27,7 @@ if (current_os == target_os && current_cpu == target_cpu &&
+   import("//build/config/android/config.gni")
+ 
+   # Android uses unified headers, and thus a single compile time sysroot
+-  sysroot = "$android_ndk_root/sysroot"
++  sysroot = "$android_ndk_root/toolchains/llvm/prebuilt/linux-x86_64/sysroot"
+ } else if (is_linux && use_sysroot) {
+   # By default build against a sysroot image downloaded from Cloud Storage
+   # during gclient runhooks.

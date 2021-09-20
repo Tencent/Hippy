@@ -29,6 +29,8 @@
 #import "HippyUtils.h"
 #import "UIView+Hippy.h"
 #import "HippyBackgroundImageCacheManager.h"
+#import "HippyGradientObject.h"
+#import "HippyBridge.h"
 
 static CGSize makeSizeConstrainWithType(CGSize originSize, CGSize constrainSize, NSString *resizeMode) {
     // width / height
@@ -55,7 +57,7 @@ static CGSize makeSizeConstrainWithType(CGSize originSize, CGSize constrainSize,
     return originSize;
 }
 
-dispatch_queue_t global_hpview_queue() {
+dispatch_queue_t global_hpview_queue(void) {
     static dispatch_queue_t g_background_queue = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -166,8 +168,17 @@ static NSString *HippyRecursiveAccessibilityLabel(UIView *view) {
 
 @synthesize hippyZIndex = _hippyZIndex;
 
+- (instancetype)initWithBridge:(HippyBridge *)bridge {
+    self = [super init];
+    if (self) {
+        _bridge = bridge;
+    }
+    return self;
+}
+
 - (instancetype)initWithFrame:(CGRect)frame {
-    if ((self = [super initWithFrame:frame])) {
+    self = [super initWithFrame:frame];
+    if (self) {
         _borderWidth = -1;
         _borderTopWidth = -1;
         _borderRightWidth = -1;
@@ -182,7 +193,6 @@ static NSString *HippyRecursiveAccessibilityLabel(UIView *view) {
         self.layer.shadowOffset = CGSizeZero;
         self.layer.shadowRadius = 0.f;
     }
-
     return self;
 }
 
@@ -550,7 +560,7 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
     // solve this, we'll need to add a container view inside the main view to
     // correctly clip the subviews.
 
-    BOOL canHandleBackgroundImageURL = [[self backgroundCachemanager] canHandleImageURL:_backgroundImageUrl];
+    BOOL canHandleBackgroundImageURL = [[self backgroundCachemanager] canHandleImageURL:_backgroundImageUrl] || self.gradientObject;
     if (useIOSBorderRendering && !canHandleBackgroundImageURL) {
         layer.cornerRadius = cornerRadii.topLeft;
         layer.borderColor = borderColors.left;
@@ -608,16 +618,17 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
     NSInteger clipToBounds = self.clipsToBounds;
     NSString *backgroundSize = self.backgroundSize;
     UIImage *image = HippyGetBorderImage(
-        self.borderStyle, theFrame.size, cornerRadii, borderInsets, borderColors, backgroundColor.CGColor, clipToBounds);
+        self.borderStyle, theFrame.size, cornerRadii, borderInsets, borderColors, backgroundColor.CGColor, clipToBounds, !self.gradientObject);
     if (image == nil) {
         contentBlock(nil);
         return YES;
     }
 
-    if (!self.backgroundImageUrl) {
+    if (!self.backgroundImageUrl && !self.gradientObject) {
         contentBlock(image);
         return YES;
-    } else {
+    }
+    else if (self.backgroundImageUrl) {
         CGFloat backgroundPositionX = self.backgroundPositionX;
         CGFloat backgroundPositionY = self.backgroundPositionY;
         HippyBackgroundImageCacheManager *weakBackgroundCacheManager = [self backgroundCachemanager];
@@ -647,11 +658,25 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
         }];
         return NO;
     }
+    else if (self.gradientObject) {
+        CGSize size = theFrame.size;
+        CanvasInfo info = {size, {0,0,0,0}, {{0,0},{0,0},{0,0},{0,0}}};
+        info.size = size;
+        info.cornerRadii = cornerRadii;
+        UIGraphicsBeginImageContextWithOptions(size, NO, image.scale);
+        [self.gradientObject drawInContext:UIGraphicsGetCurrentContext() canvasInfo:info];
+        [image drawInRect:(CGRect) { CGPointZero, size }];
+        UIImage *resultingImage = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+        contentBlock(resultingImage);
+    }
+    return YES;
 }
 
 - (HippyBackgroundImageCacheManager *)backgroundCachemanager {
     if (!_backgroundCachemanager) {
         _backgroundCachemanager = [[HippyBackgroundImageCacheManager alloc] init];
+        _backgroundCachemanager.bridge = [self bridge];
     }
     return _backgroundCachemanager;
 }
@@ -691,6 +716,7 @@ static BOOL HippyLayerHasShadow(CALayer *layer) {
 
 #pragma mark Border Color
 
+// clang-format off
 #define setBorderColor(side)                                    \
     -(void)setBorder##side##Color : (CGColorRef)color {         \
         if (CGColorEqualToColor(_border##side##Color, color)) { \
@@ -701,7 +727,12 @@ static BOOL HippyLayerHasShadow(CALayer *layer) {
         [self.layer setNeedsDisplay];                           \
     }
 
-setBorderColor() setBorderColor(Top) setBorderColor(Right) setBorderColor(Bottom) setBorderColor(Left)
+setBorderColor()
+setBorderColor(Top)
+setBorderColor(Right)
+setBorderColor(Bottom)
+setBorderColor(Left)
+
 #pragma mark - Border Width
 
 #define setBorderWidth(side)                         \
@@ -713,7 +744,11 @@ setBorderColor() setBorderColor(Top) setBorderColor(Right) setBorderColor(Bottom
         [self.layer setNeedsDisplay];                \
     }
 
-        setBorderWidth() setBorderWidth(Top) setBorderWidth(Right) setBorderWidth(Bottom) setBorderWidth(Left)
+setBorderWidth()
+setBorderWidth(Top)
+setBorderWidth(Right)
+setBorderWidth(Bottom)
+setBorderWidth(Left)
 
 #pragma mark - Border Radius
 
@@ -726,7 +761,11 @@ setBorderColor() setBorderColor(Top) setBorderColor(Right) setBorderColor(Bottom
         [self.layer setNeedsDisplay];                  \
     }
 
-            setBorderRadius() setBorderRadius(TopLeft) setBorderRadius(TopRight) setBorderRadius(BottomLeft) setBorderRadius(BottomRight)
+setBorderRadius()
+setBorderRadius(TopLeft)
+setBorderRadius(TopRight)
+setBorderRadius(BottomLeft)
+setBorderRadius(BottomRight)
 
 #pragma mark - Border Style
 
@@ -739,9 +778,10 @@ setBorderColor() setBorderColor(Top) setBorderColor(Right) setBorderColor(Bottom
         [self.layer setNeedsDisplay];                         \
     }
 
-                setBorderStyle()
+setBorderStyle()
+// clang-format on
 
-    - (void)dealloc {
+- (void)dealloc {
     CGColorRelease(_borderColor);
     CGColorRelease(_borderTopColor);
     CGColorRelease(_borderRightColor);

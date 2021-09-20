@@ -38,7 +38,7 @@ function registerSwiper(Vue) {
     },
   });
 
-  Vue.component('swiper', {
+  Vue.component('Swiper', {
     inheritAttrs: false,
     props: {
       current: {
@@ -48,6 +48,15 @@ function registerSwiper(Vue) {
       needAnimation: {
         type: Boolean,
         defaultValue: true,
+      },
+    },
+    watch: {
+      current(to) {
+        if (this.$props.needAnimation) {
+          this.setSlide(to);
+        } else {
+          this.setSlideWithoutAnimation(to);
+        }
       },
     },
     beforeMount() {
@@ -71,15 +80,6 @@ function registerSwiper(Vue) {
       // On page scroll state changed.
       onPageScrollStateChanged(evt) {
         this.$emit('stateChanged', evt);
-      },
-    },
-    watch: {
-      current(to) {
-        if (this.$props.needAnimation) {
-          this.setSlide(to);
-        } else {
-          this.setSlideWithoutAnimation(to);
-        }
       },
     },
     render(h) {

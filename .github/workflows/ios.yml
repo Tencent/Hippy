@@ -1,6 +1,26 @@
-name: buildios
+name: '[iOS] build iOS native example'
 
-on: [ push, pull_request ]
+on:
+  push:
+    paths:
+      - 'ios/**'
+    branches:
+      # Push events on main branch
+      - main
+      # Push events on master branch
+      - master
+    tags-ignore:
+      - '**'
+  pull_request:
+    paths:
+      - 'ios/**'
+    branches:
+      # Pull request events to main branch
+      - main
+      # Pull request events to master branch
+      - master
+    tags-ignore:
+      - '**'
 
 jobs:
   buildios:

@@ -2,8 +2,8 @@ import React from 'react';
 import { Fiber } from 'react-reconciler';
 import Style from '@localTypes/style';
 import { FocusEvent } from '@localTypes/event';
-import View from './view';
 import { getNodeIdByRef } from '../modules/ui-manager-module';
+import View from './view';
 
 interface FocusableProps {
   requestFocus?: boolean;
@@ -78,8 +78,8 @@ class Focusable extends React.Component<FocusableProps, FocusableState> {
 
     if (child && child.child && child.child.memoizedProps && child.child.memoizedProps.nativeName) {
       type = child.child.memoizedProps.nativeName;
-    } else if (child && child.type && child.type.name) {
-      type = child.type.name;
+    } else if (child && child.type && child.type.displayName) {
+      type = child.type.displayName;
     }
 
     const nextFocusDown = nextFocusDownId && getNodeIdByRef(nextFocusDownId);
@@ -96,6 +96,7 @@ class Focusable extends React.Component<FocusableProps, FocusableState> {
 
     if (type === 'Text') {
       return (
+        // @ts-ignore
         <View
           focusable
           nextFocusDownId={nextFocusDown}

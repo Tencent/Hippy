@@ -26,12 +26,22 @@ const { argv } = yargs
   .option('port', {
     type: 'string',
     default: '38989',
-    describe: 'The port the debug server will listen to',
+    describe: 'The port for debug server will listen to',
+  })
+  .option('livePort', {
+    type: 'string',
+    default: '38999',
+    describe: 'The port for live debug server will listen to',
   })
   .option('verbose', {
     type: 'boolean',
     default: false,
-    describe: 'Output error detals',
+    describe: 'Output error details',
+  })
+  .option('live', {
+    type: 'boolean',
+    default: false,
+    describe: 'live reload enable',
   })
   .epilog(`Copyright (C) 2017-${new Date().getFullYear()} THL A29 Limited, a Tencent company.`);
 

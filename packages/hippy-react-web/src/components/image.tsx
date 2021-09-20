@@ -1,8 +1,8 @@
 import React from 'react';
 import { formatWebStyle } from '../adapters/transfer';
-import { View } from './view';
 import applyLayout from '../adapters/apply-layout';
 import ImageLoader from '../adapters/image-loader';
+import { View } from './view';
 
 const ImageResizeMode = {
   center: 'center',

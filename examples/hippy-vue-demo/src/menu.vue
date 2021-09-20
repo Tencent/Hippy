@@ -2,23 +2,48 @@
   <ul class="feature-list">
     <li>
       <div id="version-info">
-        <p class="feature-title">Vue: {{ Vue.version }}</p>
-        <p class="feature-title" v-if="Vue.Native">Hippy-Vue: {{ Vue.Native.version }}</p>
+        <p class="feature-title">
+          Vue: {{ Vue.version }}
+        </p>
+        <p
+          v-if="Vue.Native"
+          class="feature-title"
+        >
+          Hippy-Vue: {{ Vue.Native.version }}
+        </p>
       </div>
     </li>
     <li>
-      <p class="feature-title">浏览器组件 Demos</p>
+      <p class="feature-title">
+        浏览器组件 Demos
+      </p>
     </li>
-    <li v-for="feature in featureList" :key="feature.id" class="feature-item">
-      <router-link :to="{path: `/demo/${feature.id}`}" class="button">
+    <li
+      v-for="feature in featureList"
+      :key="feature.id"
+      class="feature-item"
+    >
+      <router-link
+        :to="{path: `/demo/${feature.id}`}"
+        class="button"
+      >
         {{ feature.name }}
       </router-link>
     </li>
     <li v-if="nativeFeatureList.length">
-      <p class="feature-title">终端组件 Demos</p>
+      <p class="feature-title">
+        终端组件 Demos
+      </p>
     </li>
-    <li v-for="feature in nativeFeatureList" :key="feature.id" class="feature-item">
-      <router-link :to="{path: `/demo/${feature.id}`}" class="button">
+    <li
+      v-for="feature in nativeFeatureList"
+      :key="feature.id"
+      class="feature-item"
+    >
+      <router-link
+        :to="{path: `/demo/${feature.id}`}"
+        class="button"
+      >
         {{ feature.name }}
       </router-link>
     </li>
@@ -65,7 +90,7 @@ export default {
 };
 </script>
 
-<style scope>
+<style scoped>
 .feature-list {
   overflow: scroll;
 }
@@ -97,7 +122,6 @@ export default {
   font-size: 16px;
   color: #40b883;
   text-align: center;
-  text-align-vertical: center;
 }
 
 #version-info {
@@ -106,6 +130,5 @@ export default {
   margin-bottom: 10px;
   border-bottom-width: 1px;
   border-bottom-color: gainsboro;
-  border-bottom-style: solid;
 }
 </style>

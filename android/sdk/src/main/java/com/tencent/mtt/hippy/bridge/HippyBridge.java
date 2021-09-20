@@ -40,10 +40,14 @@ public interface HippyBridge {
 
   void callFunction(String action, NativeCallback callback, byte[] buffer, int offset, int length);
 
+  long getV8RuntimeId();
+
   interface BridgeCallback {
 
     void callNatives(String moduleName, String moduleFunc, String callId, HippyArray params);
 
-    void reportException(String exception, String stackTrace);
+    void reportException(String message, String stackTrace);
+
+    void reportException(Throwable e);
   }
 }

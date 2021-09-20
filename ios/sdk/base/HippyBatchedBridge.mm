@@ -37,6 +37,7 @@
 #import "HippyRedBox.h"
 #import "HippyDevLoadingView.h"
 #import "HippyDeviceBaseInfo.h"
+#import "HippyI18nUtils.h"
 #include "core/scope.h"
 
 #define HippyAssertJSThread()
@@ -586,6 +587,11 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
     if (_dimDic) {
         [deviceInfo setValue:_dimDic forKey:@"Dimensions"];
     }
+    NSString *countryCode = [[HippyI18nUtils sharedInstance] currentCountryCode];
+    NSString *lanCode = [[HippyI18nUtils sharedInstance] currentAppLanguageCode];
+    NSWritingDirection direction = [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
+    NSDictionary *local = @{@"country": countryCode?:@"unknown", @"language": lanCode?:@"unknown", @"direction": @(direction)};
+    [deviceInfo setValue:local forKey:@"Localization"];
     return [NSDictionary dictionaryWithDictionary:deviceInfo];
 }
 

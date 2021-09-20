@@ -27,10 +27,11 @@
 #import "HippyConvert.h"
 #import "HippyEventDispatcher.h"
 #import "HippyUIManager.h"
-#import "HippyUtils.h"
 #import "UIView+Private.h"
 #import "UIView+Hippy.h"
 #import "HippyInvalidating.h"
+#import "HippyI18nUtils.h"
+#import "objc/runtime.h"
 
 @interface HippyCustomScrollView : UIScrollView <UIGestureRecognizerDelegate>
 
@@ -170,6 +171,8 @@
     // Tells if user was scrolling forward or backward and is used to determine a correct
     // snap index when the user stops scrolling with a tap on the scroll view.
     CGFloat _lastNonZeroTranslationAlongAxis;
+    NSMutableDictionary *_contentOffsetCache;
+    BOOL _didSetContentOffset;
     __weak HippyRootView *_rootView;
 }
 
@@ -189,10 +192,18 @@
         _lastScrollDispatchTime = 0;
 
         _scrollListeners = [NSHashTable weakObjectsHashTable];
-
+        _contentOffsetCache = [NSMutableDictionary dictionaryWithCapacity:32];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
         [self addSubview:_scrollView];
+        if ([self needsLayoutForRTL]) {
+            _scrollView.transform = CGAffineTransformMakeRotation(M_PI);
+        }
     }
     return self;
+}
+
+- (void)didReceiveMemoryWarning {
+    [_contentOffsetCache removeAllObjects];
 }
 
 - (void)invalidate {
@@ -218,6 +229,24 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     [_contentView addObserver:self forKeyPath:@"frame" options:NSKeyValueObservingOptionNew context:nil];
     [view onAttachedToWindow];
     [_scrollView addSubview:view];
+    
+    if (_didSetContentOffset) {
+        _didSetContentOffset = NO;
+        return;
+    }
+    /**
+     * reset its contentOffset when subviews are ready
+     */
+    NSString *offsetString = [_contentOffsetCache objectForKey:self.hippyTag];
+    if (offsetString) {
+        CGPoint point = CGPointFromString(offsetString);
+        if (CGRectContainsPoint(_contentView.frame, point)) {
+            self.scrollView.contentOffset = point;
+        }
+    }
+    else {
+        self.scrollView.contentOffset = CGPointZero;
+    }
 }
 
 - (NSArray<UIView *> *)hippySubviews {
@@ -231,6 +260,9 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     if ([keyPath isEqualToString:@"frame"]) {
         if (object == _contentView) {
             [self hippyBridgeDidFinishTransaction];
+            if ([self needsLayoutForRTL]) {
+                _contentView.transform = CGAffineTransformMakeRotation(M_PI);
+            }
         }
     }
 }
@@ -262,6 +294,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 
 - (void)dealloc {
     _scrollView.delegate = nil;
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
     if (_contentView) {
         [_contentView removeObserver:self forKeyPath:@"frame"];
         _contentView = nil;
@@ -630,6 +663,28 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 }
 
 #pragma mark - Setters
+/**
+ * we need to cache scroll view's contentOffset.
+ * if scroll view is reused in list view cell, we can save its contentOffset in every cells,
+ * and set right contentOffset for each cell.
+ * resetting hippyTag meas scroll view is in reusing.
+ */
+- (void)setHippyTag:(NSNumber *)hippyTag {
+    if (![self.hippyTag isEqualToNumber:hippyTag]) {
+        if (self.hippyTag) {
+            NSString *offsetString = NSStringFromCGPoint(self.scrollView.contentOffset);
+            [_contentOffsetCache setObject:offsetString forKey:self.hippyTag];
+        }
+        [super setHippyTag:hippyTag];
+    }
+}
+
+- (void)setHorizontal:(BOOL)horizontal {
+    _horizontal = horizontal;
+    if ([self needsLayoutForRTL]) {
+        _scrollView.transform = CGAffineTransformMakeRotation(M_PI);
+    }
+}
 
 - (CGSize)_calculateViewportSize {
     CGSize viewportSize = self.bounds.size;
@@ -692,8 +747,9 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
         return CGSizeZero;
     } else {
         CGSize singleSubviewSize = _contentView.frame.size;
-        CGPoint singleSubviewPosition = _contentView.frame.origin;
-        return (CGSize) { singleSubviewSize.width + singleSubviewPosition.x, singleSubviewSize.height + singleSubviewPosition.y };
+//        CGPoint singleSubviewPosition = _contentView.frame.origin;
+//        return (CGSize) { singleSubviewSize.width + singleSubviewPosition.x, singleSubviewSize.height + singleSubviewPosition.y };
+        return singleSubviewSize;
     }
 }
 
@@ -708,6 +764,16 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
         _scrollView.contentSize = contentSize;
         _scrollView.contentOffset = newOffset;
     }
+}
+
+- (void)didSetProps:(NSArray<NSString *> *)changedProps {
+    if ([changedProps containsObject:@"contentOffset"]) {
+        _didSetContentOffset = YES;
+    }
+}
+
+- (BOOL)needsLayoutForRTL {
+    return NSWritingDirectionRightToLeft ==  [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage] && _horizontal;
 }
 
 // Note: setting several properties of UIScrollView has the effect of

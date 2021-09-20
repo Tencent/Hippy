@@ -1,8 +1,8 @@
 /* eslint-disable no-bitwise */
 
-import normalizeValue from './normalize-value';
 import Animation from '../modules/animation';
 import AnimationSet from '../modules/animation-set';
+import normalizeValue from './normalize-value';
 
 const borderSpecialPropsArray = ['borderTopWidth', 'borderBottomWidth', 'borderLeftWidth', 'borderRightWidth'];
 const borderPropsArray = ['borderWidth'];
@@ -216,7 +216,10 @@ function hackWebStyle(webStyle_: any) {
     });
   }
 
-  toPx(webStyle.lineHeight);
+  // hack lineHeight
+  if (hasOwnProperty(webStyle, 'lineHeight')) {
+    webStyle.lineHeight = toPx(webStyle.lineHeight);
+  }
 
   if (!webStyle.position) {
     webStyle.position = 'relative';

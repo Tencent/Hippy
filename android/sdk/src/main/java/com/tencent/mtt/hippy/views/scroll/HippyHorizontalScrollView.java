@@ -19,13 +19,16 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.os.Build;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.HorizontalScrollView;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
+import com.tencent.mtt.hippy.utils.I18nUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.supportui.views.ScrollChecker;
+import java.util.HashMap;
 
 @SuppressWarnings("deprecation")
 public class HippyHorizontalScrollView extends HorizontalScrollView implements HippyViewBase,
@@ -59,12 +62,29 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
   private long mLastScrollEventTimeStamp = -1;
 
   protected int mScrollMinOffset = 0;
+  private int startScrollX = 0;
   private int mLastX = 0;
+  private int initialContentOffset = 0;
+  private boolean hasCompleteFirstBatch = false;
+
+  private HashMap<Integer, Integer> scrollOffsetForReuse = new HashMap<>();
 
   public HippyHorizontalScrollView(Context context) {
     super(context);
     mHippyOnScrollHelper = new HippyOnScrollHelper();
     setHorizontalScrollBarEnabled(false);
+
+    if (I18nUtil.isRTL()) {
+      setRotationY(180f);
+    }
+  }
+
+  @Override
+  public void onViewAdded(View child) {
+    if (I18nUtil.isRTL()) {
+      child.setRotationY(180f);
+    }
+    super.onViewAdded(child);
   }
 
   public void setScrollEnabled(boolean enabled) {
@@ -117,20 +137,22 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
     int action = event.getAction() & MotionEvent.ACTION_MASK;
     if (action == MotionEvent.ACTION_DOWN && !mDragging) {
       mDragging = true;
+      startScrollX = getScrollX();
       if (mScrollBeginDragEventEnable) {
         LogUtils.d("HippyHorizontalScrollView", "emitScrollBeginDragEvent");
         HippyScrollViewEventHelper.emitScrollBeginDragEvent(this);
       }
-      // 当手指触摸listview时，让父控件交出ontouch权限,不能滚动
-      setParentScrollableIfNeed(false);
     } else if (action == MotionEvent.ACTION_UP && mDragging) {
       if (mScrollEndDragEventEnable) {
         LogUtils.d("HippyHorizontalScrollView", "emitScrollEndDragEvent");
         HippyScrollViewEventHelper.emitScrollEndDragEvent(this);
       }
+
+      if(mPagingEnabled) {
+        post(() -> doPageScroll());
+      }
+
       mDragging = false;
-      // 当手指松开时，让父控件重新获取onTouch权限
-      setParentScrollableIfNeed(true);
     }
 
     boolean result = mScrollEnabled && super.onTouchEvent(event);
@@ -138,14 +160,6 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
       result |= mGestureDispatcher.handleTouchEvent(event);
     }
     return result;
-  }
-
-  // 设置父控件是否可以获取到触摸处理权限
-  private void setParentScrollableIfNeed(boolean flag) {
-    // 若自己能上下滚动
-    if (canScrollHorizontally(-1) || canScrollHorizontally(1)) {
-      getParent().requestDisallowInterceptTouchEvent(!flag);
-    }
   }
 
   @Override
@@ -177,6 +191,11 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
   @Override
   protected void onScrollChanged(int x, int y, int oldX, int oldY) {
     super.onScrollChanged(x, y, oldX, oldY);
+
+    Integer id = getId();
+    Integer scrollX = getScrollX();
+    scrollOffsetForReuse.put(id, scrollX);
+
     if (mHippyOnScrollHelper.onScrollChanged(x, y)) {
       if (mScrollEventEnable) {
         long currTime = System.currentTimeMillis();
@@ -197,76 +216,72 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
 
   }
 
+  protected void doPageScroll() {
+    smoothScrollToPage();
+
+    if (mMomentumScrollBeginEventEnable) {
+      HippyScrollViewEventHelper.emitScrollMomentumBeginEvent(this);
+    }
+
+    Runnable runnable = () -> {
+      if (mMomentumScrollEndEventEnable) {
+        HippyScrollViewEventHelper.emitScrollMomentumEndEvent(HippyHorizontalScrollView.this);
+      }
+    };
+
+    postOnAnimationDelayed(runnable, HippyScrollViewEventHelper.MOMENTUM_DELAY * 2);
+  }
+
   @Override
   public void fling(int velocityX) {
-    if (!mFlingEnabled) {
+    if (!mFlingEnabled || mPagingEnabled) {
       return;
     }
 
-    if (mPagingEnabled) {
-      smoothScrollToPage(velocityX);
-    } else {
-      super.fling(velocityX);
-    }
+    super.fling(velocityX);
+
     if (mMomentumScrollBeginEventEnable) {
       HippyScrollViewEventHelper.emitScrollMomentumBeginEvent(this);
     }
     Runnable runnable = new Runnable() {
-      private boolean mSnappingToPage = false;
-
       @Override
       public void run() {
         if (mDoneFlinging) {
-          boolean doneWithAllScrolling = true;
-          if (mPagingEnabled && !mSnappingToPage) {
-            mSnappingToPage = true;
-            smoothScrollToPage(0);
-            doneWithAllScrolling = false;
+          if (mMomentumScrollEndEventEnable) {
+            HippyScrollViewEventHelper.emitScrollMomentumEndEvent(HippyHorizontalScrollView.this);
           }
-
-          if (doneWithAllScrolling) {
-            if (mMomentumScrollEndEventEnable) {
-              HippyScrollViewEventHelper.emitScrollMomentumEndEvent(HippyHorizontalScrollView.this);
-            }
-          } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-              postOnAnimationDelayed(this, HippyScrollViewEventHelper.MOMENTUM_DELAY);
-            } else {
-              HippyHorizontalScrollView.this.getHandler()
-                  .postDelayed(this, 16 + HippyScrollViewEventHelper.MOMENTUM_DELAY);
-            }
-          }
-
         } else {
           mDoneFlinging = true;
-          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            postOnAnimationDelayed(this, HippyScrollViewEventHelper.MOMENTUM_DELAY);
-          } else {
-            HippyHorizontalScrollView.this.getHandler()
-                .postDelayed(this, 16 + HippyScrollViewEventHelper.MOMENTUM_DELAY);
-          }
+          postOnAnimationDelayed(this, HippyScrollViewEventHelper.MOMENTUM_DELAY);
         }
       }
     };
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-      postOnAnimationDelayed(runnable, HippyScrollViewEventHelper.MOMENTUM_DELAY);
-    } else {
-      this.getHandler().postDelayed(runnable, 16 + HippyScrollViewEventHelper.MOMENTUM_DELAY);
-    }
+
+    postOnAnimationDelayed(runnable, HippyScrollViewEventHelper.MOMENTUM_DELAY);
   }
 
-  private void smoothScrollToPage(int velocity) {
+  private void smoothScrollToPage() {
     int width = getWidth();
-    int currentX = getScrollX();
-    int predictedX = currentX + velocity;
-    int page = 0;
-    if (width != 0) {
-      page = currentX / width;
+    if (width <= 0) {
+      return;
+    }
+    int maxPage = getChildAt(0).getWidth()/width;
+    int page = startScrollX / width;
+    int offset = getScrollX() - startScrollX;
+    if (offset == 0) {
+      return;
     }
 
-    if (predictedX > page * width + width / 2) {
+    if ((page == maxPage - 1) && offset > 0) {
       page = page + 1;
+    } else if (Math.abs(offset) > width/4) {
+      page = (offset > 0) ? page + 1 : page - 1;
     }
+
+    if (page < 0) {
+      page = 0;
+    }
+
     smoothScrollTo(page * width, getScrollY());
   }
 
@@ -300,6 +315,15 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
     scrollTo((int) PixelUtil.dp2px(offset), 0);
   }
 
+  public void setContentOffset4Reuse() {
+    Integer offset = scrollOffsetForReuse.get(getId());
+    if (offset != null) {
+      scrollTo(offset, 0);
+    } else {
+      scrollTo(0, 0);
+    }
+  }
+
   public void setPagingEnabled(boolean pagingEnabled) {
     this.mPagingEnabled = pagingEnabled;
   }
@@ -318,5 +342,23 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
   public void setScrollMinOffset(int scrollMinOffset) {
     scrollMinOffset = Math.max(5, scrollMinOffset);
     mScrollMinOffset = (int) PixelUtil.dp2px(scrollMinOffset);
+  }
+
+  @Override
+  public void setInitialContentOffset(int offset) {
+    initialContentOffset = offset;
+  }
+
+  @Override
+  public void scrollToInitContentOffset() {
+    if (hasCompleteFirstBatch) {
+      return;
+    }
+
+    if (initialContentOffset > 0) {
+      scrollTo(initialContentOffset, 0);
+    }
+
+    hasCompleteFirstBatch = true;
   }
 }

@@ -4,9 +4,9 @@ import {
   Route,
 } from 'react-router-dom';
 import { View } from '@hippy/react';
-import Gallery from './gallery';
 import routes from '../routes';
 import Header from '../shared/Header';
+import Gallery from './gallery';
 
 const ALLROUTES = [{
   path: '/Gallery',

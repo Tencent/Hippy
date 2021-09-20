@@ -18,13 +18,40 @@ function getVueEventName(eventName, targetNode) {
   return str.charAt(0).toLowerCase() + str.slice(1);
 }
 
+/**
+ * Special Touch Event handler compatible for previous camelCase touch event,
+ * such as touchStart, touchMove etc.
+ * @type {{isTouchEvent(), mapTouchEvent()}}
+ */
+const SpecialTouchHandler = {
+  isTouchEvent(eventName) {
+    return ['onTouchDown', 'onTouchMove', 'onTouchEnd', 'onTouchCancel'].indexOf(eventName) >= 0;
+  },
+  convertTouchEvent(eventName, nativeEvent) {
+    let touchEvent;
+    if (eventName === 'onTouchDown') {
+      touchEvent = new Event('touchStart');
+    } else {
+      touchEvent = new Event(`t${eventName.slice(3, eventName.length)}`);
+    }
+    touchEvent.touches = {
+      0: {
+        clientX: nativeEvent.page_x,
+        clientY: nativeEvent.page_y,
+      },
+      length: 1,
+    };
+    return touchEvent;
+  },
+};
+
 const EventDispatcher = {
   /**
    * Redirect native events to Vue directly.
    */
   receiveNativeEvent(nativeEvent) {
     trace(...componentName, 'receiveNativeEvent', nativeEvent);
-    if (!nativeEvent || !Array.isArray((nativeEvent)) || nativeEvent.length < 2) {
+    if (!nativeEvent || !Array.isArray(nativeEvent) || nativeEvent.length < 2) {
       return;
     }
     const [eventName, eventParams] = nativeEvent;
@@ -33,6 +60,7 @@ const EventDispatcher = {
       app.$emit(eventName, eventParams);
     }
   },
+
   /**
    * Receive native interactive events.
    */
@@ -55,22 +83,9 @@ const EventDispatcher = {
       processEventData(targetEvent, eventName, nativeEvent);
     }
     targetNode.dispatchEvent(targetEvent);
-    // Back compatible for previous touch events
     // TODO: Will remove soon.
-    if (['onTouchDown', 'onTouchMove', 'onTouchEnd', 'onTouchCancel'].indexOf(eventName) !== -1) {
-      let touchEvent;
-      if (eventName === 'onTouchDown') {
-        touchEvent = new Event('touchStart');
-      } else {
-        touchEvent = new Event(`t${eventName.slice(3, eventName.length)}`);
-      }
-      touchEvent.touches = [
-        {
-          clientX: nativeEvent.page_x,
-          clientY: nativeEvent.page_y,
-        },
-      ];
-      targetNode.dispatchEvent(touchEvent);
+    if (SpecialTouchHandler.isTouchEvent(eventName)) {
+      targetNode.dispatchEvent(SpecialTouchHandler.convertTouchEvent(eventName, nativeEvent));
     }
   },
   /**

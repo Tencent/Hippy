@@ -6,7 +6,6 @@
  */
 
 import Native, { UIManagerModule } from '../../runtime/native';
-import { fromAstNodes, SelectorsMap } from './style';
 import { GLOBAL_STYLE_NAME } from '../../runtime/constants';
 import {
   getApp,
@@ -16,6 +15,10 @@ import {
   capitalizeFirstLetter,
   convertImageLocalPath,
 } from '../../util';
+import {
+  isRTL,
+} from '../../util/i18n';
+import { fromAstNodes, SelectorsMap } from './style';
 
 const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
 
@@ -66,33 +69,19 @@ function startBatch() {
   }
 }
 
-/**
- * Hippy applies batched rendering,
- * but iOS JSCore Promise.resolve task executed too fast,
- * resulting in segmented rendering,
- * so use polyfill to handle it on different platforms.
- */
-function taskPolyfill(handler) {
-  // @ts-ignore
-  if (__PLATFORM__ === 'ios' || Native.Platform === 'ios') {
-    setTimeout(handler, 0);
-  } else {
-    Promise.resolve().then(handler);
-  }
-}
-
 function endBatch(app) {
   if (!__batchIdle) {
     return;
   }
   __batchIdle = false;
   const {
+    $nextTick,
     $options: {
       rootViewId,
     },
   } = app;
 
-  taskPolyfill(() => {
+  $nextTick(() => {
     const chunks = chunkNodes(__batchNodes);
     chunks.forEach((chunk) => {
       switch (chunk.type) {
@@ -226,6 +215,22 @@ function getNativeProps(node) {
 }
 
 /**
+ * parse TextInput component on special condition
+ * @param targetNode
+ * @param style
+ */
+function parseTextInputComponent(targetNode, style) {
+  if (targetNode.meta.component.name === 'TextInput') {
+    // Change textAlign to right if display direction is right to left.
+    if (isRTL()) {
+      if (!style.textAlign) {
+        style.textAlign = 'right';
+      }
+    }
+  }
+}
+
+/**
  * parse view component on special condition
  * @param targetNode
  * @param nativeNode
@@ -243,6 +248,8 @@ function parseViewComponent(targetNode, nativeNode, style) {
       nativeNode.name = 'ScrollView';
       // Necessary for horizontal scrolling
       nativeNode.props.horizontal = true;
+      // Change flexDirection to row-reverse if display direction is right to left.
+      style.flexDirection = isRTL() ? 'row-reverse' : 'row';
     }
     // Change the ScrollView child collapsable attribute
     if (nativeNode.name === 'ScrollView') {
@@ -257,6 +264,30 @@ function parseViewComponent(targetNode, nativeNode, style) {
     if (style.backgroundImage) {
       style.backgroundImage = convertImageLocalPath(style.backgroundImage);
     }
+  }
+}
+
+/**
+ * Get target node attributes, use to chrome devTool tag attribute show while debugging
+ * @param targetNode
+ * @returns attributes
+ */
+function getTargetNodeAttributes(targetNode) {
+  try {
+    const targetNodeAttributes = JSON.parse(JSON.stringify(targetNode.attributes));
+    const classInfo = Array.from(targetNode.classList || []).join(' ');
+    const attributes = {
+      id: targetNode.id,
+      class: classInfo,
+      ...targetNodeAttributes,
+    };
+    delete attributes.text;
+    delete attributes.value;
+
+    return attributes;
+  } catch (e) {
+    warn('getTargetNodeAttributes error:', e);
+    return {};
   }
 }
 
@@ -322,8 +353,14 @@ function renderToNative(rootViewId, targetNode) {
       style,
     },
   };
+  // Add nativeNode attributes info for debugging
+  if (process.env.NODE_ENV !== 'production') {
+    nativeNode.tagName = targetNode.tagName;
+    nativeNode.props.attributes = getTargetNodeAttributes(targetNode);
+  }
 
   parseViewComponent(targetNode, nativeNode, style);
+  parseTextInputComponent(targetNode, style);
   return nativeNode;
 }
 

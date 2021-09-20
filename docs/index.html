@@ -34,6 +34,9 @@
       mergeNavbar: true,
       maxLevel: 4,
       subMaxLevel: 1,
+      search: {
+        depth: 5,
+      }
     }
   </script>
   <script src="//static.res.qq.com/nav/hippydoc/docsify.min.js"></script>
@@ -45,17 +48,13 @@
   <script src="//static.res.qq.com/nav/hippydoc/prism-objectivec.min.js" async></script>
   <script src="//static.res.qq.com/nav/hippydoc/prism-bash.min.js" async></script>
   <script src="//static.res.qq.com/nav/hippydoc/prism-cpp.min.js" async></script>
+  <script src="https://cdn-go.cn/aegis/aegis-sdk/latest/aegis.min.26.js"></script>
   <script>
-    var _mtac = {"senseQuery":1};
-    (function() {
-      var mta = document.createElement("script");
-      mta.src = "//pingjs.qq.com/h5/stats.js?v2.0.4";
-      mta.setAttribute("name", "MTAH5");
-      mta.setAttribute("sid", "500707886");
-      mta.setAttribute("cid", "500709715");
-      var s = document.getElementsByTagName("script")[0];
-      s.parentNode.insertBefore(mta, s);
-    })();
+    const aegis = new Aegis({
+        id: 'cTTfdMjcwAwMLaMdCq',
+        reportApiSpeed: true, // 接口测速
+        reportAssetSpeed: true // 静态资源测速
+    });
   </script>
 <!--  <script>-->
 <!--    (function () {-->

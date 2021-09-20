@@ -1,3 +1,6 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-underscore-dangle */
+
 Hippy.document = {
   createNode(rootViewId, queue) {
     Hippy.bridge.callNative('UIManagerModule', 'createNode', rootViewId, queue);

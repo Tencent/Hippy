@@ -2087,7 +2087,7 @@ public abstract class BaseLayoutManager extends RecyclerViewBase.LayoutManager
 		return findOneVisibleChild(getChildCount() - 1, -1, true);
 	}
 
-	int findOneVisibleChild(int fromIndex, int toIndex, boolean completelyVisible)
+	protected int findOneVisibleChild(int fromIndex, int toIndex, boolean completelyVisible)
 	{
 		if (mOrientationHelper == null) // 异常情况返回-1
 			return -1;

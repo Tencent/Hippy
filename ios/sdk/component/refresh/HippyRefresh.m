@@ -29,6 +29,11 @@
     [_scrollView addSubview:self];
 }
 
+- (void)unsetFromScrollView {
+    _scrollView = nil;
+    [self removeFromSuperview];
+}
+
 - (void)scrollViewDidScroll {
 }
 

@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy.views.list;
 
+import android.view.ViewConfiguration;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.common.HippyMap;
@@ -29,6 +30,7 @@ import com.tencent.mtt.hippy.views.refresh.HippyPullHeaderView;
 import com.tencent.mtt.hippy.views.scroll.HippyScrollViewEventHelper;
 import com.tencent.mtt.supportui.views.recyclerview.BaseLayoutManager;
 import com.tencent.mtt.supportui.views.recyclerview.LinearLayoutManager;
+import com.tencent.mtt.supportui.views.recyclerview.RecyclerAdapter;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerView;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewItem;
 
@@ -53,7 +55,7 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
   protected int mFooterRefreshState = REFRESH_STATE_IDLE;
   protected final boolean mEnableRefresh = true;
 
-  private HippyListAdapter mListAdapter;
+  private RecyclerAdapter mListAdapter;
 
   private HippyEngineContext mHippyContext;
 
@@ -72,6 +74,12 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
   protected boolean mScrollEnable = true;
 
   protected boolean mExposureEventEnable = false;
+
+  private float touchDownY;
+  private float touchDownX;
+  private int touchSlop;
+  private int initialContentOffset = 0;
+  private boolean hasCompleteFirstBatch = false;
 
   protected int mScrollEventThrottle = 400;  // 400ms最多回调一次
   protected int mLastOffsetX = Integer.MIN_VALUE;
@@ -95,6 +103,9 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
     setRepeatableSuspensionMode(false);
     mListAdapter = createAdapter(this, mHippyContext);
     setAdapter(mListAdapter);
+
+    final ViewConfiguration configuration = ViewConfiguration.get(context);
+    touchSlop = configuration.getScaledTouchSlop();
   }
 
   public HippyListView(Context context, int orientation) {
@@ -107,7 +118,7 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
     init(context, BaseLayoutManager.VERTICAL);
   }
 
-  protected HippyListAdapter createAdapter(RecyclerView hippyRecyclerView,
+  protected RecyclerAdapter createAdapter(RecyclerView hippyRecyclerView,
       HippyEngineContext hippyEngineContext) {
     return new HippyListAdapter(hippyRecyclerView, hippyEngineContext);
   }
@@ -135,6 +146,26 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
     if (!mScrollEnable) {
       return false;
     }
+
+    if (mLayout.canScrollVertically()) {
+      int action = motionEvent.getAction();
+      float y = motionEvent.getY();
+      float x = motionEvent.getX();
+      switch (action) {
+        case MotionEvent.ACTION_DOWN: {
+          touchDownY = y;
+          touchDownX = x;
+          break;
+        }
+        case MotionEvent.ACTION_MOVE: {
+          if (Math.abs(x - touchDownX) / Math.abs(y - touchDownY) > 1 && Math.abs(x - touchDownX) > touchSlop) {
+            return false;
+          }
+          break;
+        }
+      }
+    }
+
     return super.onInterceptTouchEvent(motionEvent);
   }
 
@@ -142,14 +173,45 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
   public void setListData() {
     LogUtils.d("hippylistview", "setListData");
     mListAdapter.notifyDataSetChanged();
-
-    int beforeCount = getChildCount();
     dispatchLayout();
-    int afterCount = getChildCount();
+    if (!hasCompleteFirstBatch && getChildCount() > 0) {
+      if (initialContentOffset > 0) {
+        scrollToInitContentOffset();
+      }
 
-    if (beforeCount == 0 && (afterCount > beforeCount) && mExposureEventEnable) {
-      dispatchExposureEvent();
+      hasCompleteFirstBatch = true;
     }
+  }
+
+  private void scrollToInitContentOffset() {
+    int position = 0;
+    int itemHeight = 0;
+    if (mListAdapter == null) {
+      return;
+    }
+
+    int itemCount = mListAdapter.getItemCount();
+    for (; itemHeight < initialContentOffset && position < itemCount; position++) {
+      itemHeight += mListAdapter.getItemHeight(position);
+    }
+
+    final int lastIndex = itemCount - 1;
+    int offset = itemHeight - initialContentOffset;
+
+    //设置的offset超过边界，跳转到最后一个Item上去
+    if (position >= lastIndex) {
+      position = lastIndex;
+      //不能划出内容高度
+      if (offset < 0) {
+        offset = 0;
+      }
+    }
+
+    scrollToPosition(position, offset);
+  }
+
+  public void setInitialContentOffset(int offset) {
+    initialContentOffset = offset;
   }
 
   public void setScrollBeginDragEventEnable(boolean enable) {
@@ -173,13 +235,20 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
   }
 
   protected HippyMap generateScrollEvent() {
+    float value;
     HippyMap contentOffset = new HippyMap();
-    contentOffset.pushDouble("x", PixelUtil.px2dp(0));
-    contentOffset.pushDouble("y", PixelUtil.px2dp(getOffsetY()));
+    if (mLayout.canScrollHorizontally()) {
+      value = (mOffsetX - mState.mCustomHeaderWidth)/PixelUtil.getDensity();
+      contentOffset.pushDouble("x", value);
+      contentOffset.pushDouble("y", 0.0f);
+    } else {
+      value = (mOffsetY - mState.mCustomHeaderHeight)/PixelUtil.getDensity();
+      contentOffset.pushDouble("x", 0.0f);
+      contentOffset.pushDouble("y", value);
+    }
 
     HippyMap event = new HippyMap();
     event.pushMap("contentOffset", contentOffset);
-
     return event;
   }
 
@@ -590,22 +659,18 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
 
   public void scrollToContentOffset(double xOffset, double yOffset, boolean animated,
       int duration) {
-    int yOffsetInPixel = (int) PixelUtil.dp2px(yOffset);
+    int scrollToYPos = (int)PixelUtil.dp2px(yOffset) - mOffsetY;
+    int scrollToXPos = (int)PixelUtil.dp2px(xOffset) - mOffsetX;
     if (animated) {
-      int scrollToYPos = yOffsetInPixel - getOffsetY();
-      if (duration != 0) //如果用户设置了duration
-      {
-        if (scrollToYPos != 0) {
-          if (!mState.didStructureChange()) {
-            mViewFlinger.smoothScrollBy(0, scrollToYPos, duration, true);
-          }
+      if (duration != 0){
+        if ((scrollToYPos != 0 || scrollToXPos != 0) && !mState.didStructureChange()) {
+          mViewFlinger.smoothScrollBy(scrollToXPos, scrollToYPos, duration, true);
         }
       } else {
-        smoothScrollBy(0, scrollToYPos);
+        smoothScrollBy(scrollToXPos, scrollToYPos);
       }
     } else {
-      //			scrollToPosition(0, -yOffsetInPixel);
-      scrollBy(0, yOffsetInPixel - getOffsetY());
+      scrollBy(scrollToXPos, scrollToYPos);
       post(new Runnable() {
         @Override
         public void run() {

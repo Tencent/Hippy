@@ -1,10 +1,10 @@
 /* eslint-disable no-return-assign */
 
 import React from 'react';
-import { View } from './view';
 import { formatWebStyle } from '../adapters/transfer';
 import StyleSheet from '../modules/stylesheet';
 import applyLayout from '../adapters/apply-layout';
+import { View } from './view';
 
 const styles = StyleSheet.create({
   baseVertical: {
