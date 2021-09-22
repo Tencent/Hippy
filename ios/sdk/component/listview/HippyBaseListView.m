@@ -249,6 +249,10 @@
         NSString *type = header.itemViewType;
         UIView *headerView = [tableView dequeueReusableHeaderFooterViewWithIdentifier:type];
         headerView = [_bridge.uiManager createViewFromNode:header];
+        CGFloat zPositionForFirstCellInSection = section * kCellZIndexConst;
+        NSInteger numberOfRowsInSection = [tableView numberOfRowsInSection:section];
+        //make sure section view's zPosition is higher than last cell's in section {section}
+        headerView.layer.zPosition = zPositionForFirstCellInSection + numberOfRowsInSection;
         return headerView;
     } else {
         return nil;
