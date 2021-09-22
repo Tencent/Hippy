@@ -249,10 +249,8 @@
         NSString *type = header.itemViewType;
         UIView *headerView = [tableView dequeueReusableHeaderFooterViewWithIdentifier:type];
         headerView = [_bridge.uiManager createViewFromNode:header];
-        CGFloat zPositionForFirstCellInSection = section * kCellZIndexConst;
-        NSInteger numberOfRowsInSection = [tableView numberOfRowsInSection:section];
         //make sure section view's zPosition is higher than last cell's in section {section}
-        headerView.layer.zPosition = zPositionForFirstCellInSection + numberOfRowsInSection;
+        headerView.layer.zPosition = [self zPositionOfSectionView:headerView forSection:section];
         return headerView;
     } else {
         return nil;
@@ -326,7 +324,7 @@
             cellView = [_bridge.uiManager createViewFromNode:indexNode];
         }
     }
-    cell.layer.zPosition = [indexPath section] * kCellZIndexConst + [indexPath row];
+    cell.layer.zPosition = [self zPositionOfCell:cell forRowAtIndexPath:indexPath];
     NSAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
         @"subviews of HippyBaseListViewCell must conform to protocol ViewAppearStateProtocol");
     cell.cellView = (UIView<ViewAppearStateProtocol> *)cellView;
@@ -354,6 +352,17 @@
         }
     }
     _previousVisibleCells = visibleCells;
+}
+
+- (CGFloat)zPositionOfCell:(HippyBaseListViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
+    return [indexPath section] * kCellZIndexConst + [indexPath row];
+}
+
+- (CGFloat)zPositionOfSectionView:(UIView *)sectionView forSection:(NSInteger)section {
+    CGFloat zPositionForFirstCellInSection = section * kCellZIndexConst;
+    NSInteger numberOfRowsInSection = [self.tableView numberOfRowsInSection:section];
+    //make sure section view's zPosition is higher than last cell's in section {section}
+    return zPositionForFirstCellInSection + numberOfRowsInSection;
 }
 
 #pragma mark - Scroll
