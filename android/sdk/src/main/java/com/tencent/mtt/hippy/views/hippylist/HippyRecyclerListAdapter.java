@@ -312,7 +312,11 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends
     ListItemRenderNode childNode = getChildNode(position);
     if (childNode != null) {
       if (childNode.isPullHeader()) {
-        return headerEventHelper.getVisibleHeight();
+        if (headerEventHelper != null) {
+          return headerEventHelper.getVisibleHeight();
+        }
+
+        return 0;
       }
       return childNode.getHeight();
     }
