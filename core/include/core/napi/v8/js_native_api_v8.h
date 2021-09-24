@@ -159,6 +159,9 @@ class V8Ctx : public Ctx {
   virtual std::shared_ptr<CtxValue> CreateArray(
       size_t count,
       std::shared_ptr<CtxValue> value[]);
+  virtual std::shared_ptr<CtxValue> CreateMap(
+      size_t count,
+      std::shared_ptr<CtxValue> value[]);
   virtual std::shared_ptr<CtxValue> CreateJsError(
       const unicode_string_view& msg);
 
@@ -176,12 +179,21 @@ class V8Ctx : public Ctx {
   virtual bool GetValueJson(std::shared_ptr<CtxValue> value,
                             unicode_string_view* result);
 
+  virtual bool IsMap(std::shared_ptr<CtxValue>);
+
+  virtual bool IsNullOrUndefined(std::shared_ptr<CtxValue>);
+
   // Array Helpers
 
   virtual bool IsArray(std::shared_ptr<CtxValue> value);
   virtual uint32_t GetArrayLength(std::shared_ptr<CtxValue> value);
   virtual std::shared_ptr<CtxValue> CopyArrayElement(std::shared_ptr<CtxValue>,
                                                      uint32_t index);
+
+  // Map Helpers
+  virtual uint32_t GetMapLength(std::shared_ptr<CtxValue>);
+  virtual std::shared_ptr<CtxValue> ConvertMapToArray(
+      const std::shared_ptr<CtxValue> value);
 
   // Object Helpers
 

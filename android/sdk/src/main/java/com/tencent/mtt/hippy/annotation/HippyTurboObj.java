@@ -21,14 +21,7 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-/**
- * FileName: HippyMethod Description： History：
- */
 @Retention(RUNTIME)
-@Target(ElementType.METHOD)
-public @interface HippyMethod {
-
-  String name() default "";
-
-  boolean isSync() default false;
+@Target(ElementType.TYPE)
+public @interface HippyTurboObj {
 }

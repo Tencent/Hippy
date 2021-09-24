@@ -19,18 +19,29 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import com.tencent.mtt.hippy.annotation.HippyMethod;
+import com.tencent.mtt.hippy.annotation.HippyTurboObj;
+import com.tencent.mtt.hippy.annotation.HippyTurboProp;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.modules.Promise;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
 @SuppressWarnings("deprecation")
 public class ArgumentUtils {
+
+  private static final String TAG = "ArgumentUtils";
+
+  private static HashMap<Class, String> sMethodSigMap = new HashMap<>();
 
   public static HippyArray parseToArray(String json) {
     HippyArray array = new HippyArray();
@@ -518,5 +529,121 @@ public class ArgumentUtils {
       }
     }
     builder.append("\"");
+  }
+
+  private static boolean isSupportedObject(Class clazz) {
+    if (clazz == Boolean.class
+      || clazz == Integer.class
+      || clazz == Double.class
+      || clazz == Float.class
+      || clazz == Long.class
+      || clazz == String.class
+      || clazz == HippyArray.class
+      || clazz == HippyMap.class
+      || clazz == Promise.class
+      || clazz.getAnnotation(HippyTurboObj.class) != null) {
+      return true;
+    }
+    return false;
+  }
+
+  public static String getSupportSignature(Class clazz) {
+    if (clazz == boolean.class) {
+      return "Z";
+    }
+
+    if (clazz == double.class) {
+      return "D";
+    }
+
+    if (clazz == int.class) {
+      return "I";
+    }
+
+    if (clazz == float.class) {
+      return "F";
+    }
+
+    if (clazz == long.class) {
+      return "J";
+    }
+
+    if (clazz == void.class) {
+      return "V";
+    }
+
+    if (isSupportedObject(clazz)) {
+      return "L" + clazz.getCanonicalName().replace(".", "/") + ";";
+    }
+
+    LogUtils.e(TAG, "getSupportSignature null :" + clazz.getCanonicalName());
+    return "Lcom/invalid;";
+  }
+
+  public static String getMethodsSignature(Object obj) {
+    LogUtils.d(TAG, "enter getMethodsSignature");
+
+    if (obj == null) {
+      return null;
+    }
+
+    String ret;
+    Class clazz = obj.getClass();
+    if (sMethodSigMap.containsKey(clazz)) {
+      ret = sMethodSigMap.get(clazz);
+      LogUtils.d(TAG, "exit getMethodsSignature from cache= " + ret);
+      return ret;
+    }
+
+    Method[] methods = clazz.getMethods();
+    if (methods == null || methods.length == 0) {
+      return null;
+    }
+    HashMap<String, String> resultMap = new HashMap<>();
+    for (int i = 0; i < methods.length; i++) {
+      HippyTurboProp hippyTurboProp = methods[i].getAnnotation(HippyTurboProp.class);
+      HippyMethod hippyMethod = methods[i].getAnnotation(HippyMethod.class);
+      if (!canPropExpose(hippyTurboProp, hippyMethod)) {
+        continue;
+      }
+      String sig = buildSignature(methods[i]);
+      resultMap.put(methods[i].getName(), sig);
+    }
+    if (resultMap.size() == 0) {
+      ret = null;
+    } else {
+      ret = resultMap.toString();
+    }
+    sMethodSigMap.put(clazz, ret);
+    LogUtils.d(TAG, "exit getMethodsSignature=" + ret);
+    return ret;
+  }
+
+  private static String buildSignature(Method method) {
+    Class[] paramTypes = method.getParameterTypes();
+    if (paramTypes == null) {
+      return null;
+    }
+
+    int length = paramTypes.length;
+
+    StringBuilder sb = new StringBuilder("(");
+    try {
+      for (int i = 0; i < length; i++) {
+        sb.append(getSupportSignature(paramTypes[i]));
+      }
+      sb.append(")");
+      sb.append(getSupportSignature(method.getReturnType()));
+    } catch (Exception e) {
+      sb = new StringBuilder();
+    }
+    String result = sb.toString();
+    LogUtils.d("buildSignature", "method " + method.getName() + " sig " + result);
+    return result;
+  }
+
+  private static boolean canPropExpose(HippyTurboProp hippyTurboProp, HippyMethod hippyMethod) {
+    return (hippyTurboProp != null && hippyTurboProp.expose())
+      || (hippyMethod != null && hippyMethod.isSync());
   }
 }
