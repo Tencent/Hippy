@@ -275,6 +275,7 @@ public abstract class HippyEngine {
     @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
     public HippyLogAdapter logAdapter;
+    public boolean enableTurbo;
 
     protected void check() {
       if (context == null) {
