@@ -274,4 +274,17 @@ public class HippyMap {
 
     return jObject;
   }
+
+  public HippyArray toHippyArray() {
+    if (size() == 0) {
+      return null;
+    }
+
+    HippyArray hippyArray = new HippyArray();
+    for (Map.Entry<String, Object> stringObjectEntry : entrySet()) {
+      hippyArray.pushObject(stringObjectEntry.getKey());
+      hippyArray.pushObject(stringObjectEntry.getValue());
+    }
+    return hippyArray;
+  }
 }

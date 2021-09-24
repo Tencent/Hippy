@@ -15,6 +15,8 @@
  */
 package com.tencent.mtt.hippy.common;
 
+import com.tencent.mtt.hippy.utils.ArgumentUtils;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -223,5 +225,13 @@ public class HippyArray {
     }
 
     return jArray;
+  }
+
+  public String getSignature(int index) {
+    Object obj = get(index);
+    if (obj == null) {
+      return null;
+    }
+    return ArgumentUtils.getSupportSignature(obj.getClass());
   }
 }

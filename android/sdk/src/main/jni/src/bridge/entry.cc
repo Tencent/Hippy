@@ -37,7 +37,9 @@
 #include "bridge/runtime.h"
 #include "core/base/string_view_utils.h"
 #include "core/core.h"
+#include "jni/turbo_module_manager.h"
 #include "jni/exception_handler.h"
+#include "jni/java_turbo_module.h"
 #include "jni/jni_env.h"
 #include "jni/jni_register.h"
 #include "jni/uri.h"
@@ -579,6 +581,9 @@ jint JNI_OnLoad(JavaVM* j_vm, void* reserved) {
   JNIEnvironment::GetInstance()->init(j_vm, j_env);
 
   Uri::Init();
+  JavaTurboModule::Init();
+  ConvertUtils::Init();
+  TurboModuleManager::Init();
 
   return JNI_VERSION_1_4;
 }
@@ -587,6 +592,9 @@ void JNI_OnUnload(JavaVM* j_vm, void* reserved) {
   hippy::napi::V8VM::PlatformDestroy();
 
   Uri::Destory();
+  JavaTurboModule::Destory();
+  ConvertUtils::Destory();
+  TurboModuleManager::Destory();
 
   JNIEnvironment::DestroyInstance();
 }
