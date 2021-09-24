@@ -31,6 +31,7 @@ import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorEvent;
 import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
+import com.tencent.mtt.hippy.bridge.jsi.TurboModuleManager;
 import com.tencent.mtt.hippy.common.Callback;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyJsException;
@@ -46,11 +47,11 @@ import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.I18nUtil;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 
-import java.io.UnsupportedEncodingException;
+import org.json.JSONObject;
+
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import org.json.JSONObject;
 
 @SuppressWarnings({"unused", "deprecation"})
 public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.BridgeCallback,
@@ -91,6 +92,8 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 
 
   HippyEngine.ModuleListener mLoadModuleListener;
+
+  private TurboModuleManager mTurboModuleManager;
 
   public HippyBridgeManagerImpl(HippyEngineContext context, HippyBundleLoader coreBundleLoader,
       int bridgeType,
@@ -222,6 +225,10 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
       mThirdPartyAdapter.onRuntimeDestroy();
     }
 
+    if (enableTurbo() && mTurboModuleManager != null) {
+      mTurboModuleManager.unInstall(mHippyBridge.getV8RuntimeId());
+    }
+
     @SuppressWarnings("unchecked") final com.tencent.mtt.hippy.common.Callback<Boolean> destroyCallback = (com.tencent.mtt.hippy.common.Callback<Boolean>) msg.obj;
     mHippyBridge.destroy(new NativeCallback(mHandler) {
       @Override
@@ -259,6 +266,11 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                 if (result != 0) {
                   String info = "initJSBridge error: result=" + result + ", reason=" + reason;
                   reportException(new Throwable(info));
+                }
+
+                if (enableTurbo()) {
+                  mTurboModuleManager = new TurboModuleManager(mContext);
+                  mTurboModuleManager.install(mHippyBridge.getV8RuntimeId());
                 }
 
                 if (mThirdPartyAdapter != null) {
@@ -643,5 +655,9 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
   @Override
   public HippyThirdPartyAdapter getThirdPartyAdapter() {
     return mThirdPartyAdapter;
+  }
+
+  private boolean enableTurbo() {
+    return mContext.getGlobalConfigs() != null && mContext.getGlobalConfigs().enableTurbo();
   }
 }

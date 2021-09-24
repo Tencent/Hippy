@@ -28,6 +28,7 @@
 #include <memory>
 
 #include "core/core.h"
+#include "jni/turbo_module_runtime.h"
 #include "jni/scoped_java_ref.h"
 #ifdef ENABLE_INSPECTOR
 #include "inspector/v8_inspector_client_impl.h"
@@ -56,6 +57,14 @@ class Runtime {
   inline void SetEngine(std::shared_ptr<Engine> engine) { engine_ = engine; }
   inline void SetScope(std::shared_ptr<Scope> scope) { scope_ = scope; }
 
+  inline std::shared_ptr<TurboModuleRuntime> GetTurboModuleRuntime() {
+    return turbo_module_runtime_;
+  }
+  inline void SetTurboModuleRuntime(
+      std::shared_ptr<TurboModuleRuntime> turbo_module_runtime) {
+    turbo_module_runtime_ = turbo_module_runtime;
+  }
+
   static void Insert(std::shared_ptr<Runtime> runtime);
   static std::shared_ptr<Runtime> Find(int64_t id);
   static bool Erase(int64_t id);
@@ -73,4 +82,5 @@ class Runtime {
   std::shared_ptr<Scope> scope_;
   std::shared_ptr<hippy::napi::CtxValue> bridge_func_;
   int64_t id_;
+  std::shared_ptr<TurboModuleRuntime> turbo_module_runtime_;
 };

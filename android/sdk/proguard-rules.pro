@@ -202,3 +202,18 @@ public <fields>;
 protected <fields>;
 }
 
+# turbo
+-keep class com.tencent.mtt.hippy.annotation.HippyTurboObj
+
+-keep @com.tencent.mtt.hippy.annotation.HippyTurboObj class * {*;}
+
+-keep class com.tencent.mtt.hippy.annotation.HippyTurboProp
+
+-keepclasseswithmembers class * {
+    @com.tencent.mtt.hippy.annotation.HippyTurboProp <methods>;
+}
+
+-keep public class com.tencent.mtt.hippy.bridge.jsi.TurboModuleManager {
+public <fields>;
+public <methods>;
+}

@@ -29,8 +29,8 @@ import com.tencent.mtt.hippy.modules.javascriptmodules.HippyJavaScriptModule;
 import com.tencent.mtt.hippy.modules.javascriptmodules.HippyJavaScriptModuleInvocationHandler;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleInfo;
-
 import com.tencent.mtt.hippy.utils.LogUtils;
+
 import java.lang.reflect.Proxy;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -235,7 +235,7 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
 
       moduleInfo.initialize();
       HippyNativeModuleInfo.HippyNativeMethod method = moduleInfo.findMethod(moduleFunc);
-      if (method == null) {
+      if (method == null || method.isSync()) {
         promise
             .doCallback(PromiseImpl.PROMISE_CODE_NORMAN_ERROR, "module function can not be found");
         return;
@@ -328,5 +328,9 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
       }
     }
     return false;
+  }
+
+  public ConcurrentHashMap<String, HippyNativeModuleInfo> getNativeModuleInfo() {
+    return mNativeModuleInfo;
   }
 }

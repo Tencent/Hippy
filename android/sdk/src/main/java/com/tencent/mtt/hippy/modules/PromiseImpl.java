@@ -33,7 +33,7 @@ public class PromiseImpl implements Promise {
   public static final int PROMISE_CODE_NORMAN_ERROR = 1;
   public static final int PROMISE_CODE_OTHER_ERROR = 2;
   private static final String CALL_ID_NO_CALLBACK = "-1";
-  private final HippyEngineContext mContext;
+  private HippyEngineContext mContext;
   private final String mModuleName;
   private final String mModuleFunc;
   private final String mCallId;
@@ -46,6 +46,10 @@ public class PromiseImpl implements Promise {
     this.mModuleName = moduleName;
     this.mModuleFunc = moduleFunc;
     this.mCallId = callId;
+  }
+
+  public void setContext(HippyEngineContext context) {
+    mContext = context;
   }
 
   public String getCallId() {
