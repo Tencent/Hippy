@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.9.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.9.0...2.9.1) (2021-09-24)
+
+
+### Features
+
+* **hippy-react:** add unhideInstance api in hostconfig ([39da68a](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/39da68a1212fc1a979886d84599a42c1fb6849f3))
+* **hippy-react:** compatible for react 17 ([a3c21d6](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/a3c21d6f79b40475aa8bae7840ffa10a2bd9aa3a))
+
+
+
+
+
 # [2.9.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.8.4...2.9.0) (2021-09-10)
 
 

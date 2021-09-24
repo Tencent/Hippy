@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.9.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-css-loader/compare/2.9.0...2.9.1) (2021-09-24)
+
+
+### Bug Fixes
+
+* **css-loader:** collapsable transfer to boolean ([b5b2e12](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-css-loader/commit/b5b2e12c8e52b62aac4bc2be0eaa443cc2f50a63))
+
+
+
+
+
 # [2.9.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-css-loader/compare/2.8.4...2.9.0) (2021-09-10)
 
 **Note:** Version bump only for package @hippy/vue-css-loader

@@ -3,6 +3,37 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.9.1](https://github.com/Tencent/Hippy/compare/2.9.0...2.9.1) (2021-09-24)
+
+
+### Bug Fixes
+
+* **android:**  remove add 0.5 from px2dp ([8f7b2fb](https://github.com/Tencent/Hippy/commit/8f7b2fb8481f64e3ada8fd3743a4b936becdb0d9))
+* **android:** enlarge DEFAULT_MAX_SCRAP to 10 ([7023c70](https://github.com/Tencent/Hippy/commit/7023c7026f4381687850bd307daf58ada110aea9))
+* **android:** fix v8 build script for `latest` TAG ([#975](https://github.com/Tencent/Hippy/issues/975)) ([d79012f](https://github.com/Tencent/Hippy/commit/d79012fbf775a52b9a2b1802fd96785611a8d082))
+* **android:** getRenderNodeHeight headerEventHelper null crash ([dff7bb3](https://github.com/Tencent/Hippy/commit/dff7bb303edd8888781eb55b073e9a392fbcbb9a))
+* **android:** linearGradient needs >= 2 number of colors ([eab80a6](https://github.com/Tencent/Hippy/commit/eab80a651c2e88ba4d20698465c84dce28a663f6))
+* **android:** use Number do type conversion ([4cbdd47](https://github.com/Tencent/Hippy/commit/4cbdd477b1b8c3c619a7946a2953782d898ca9ab))
+* **css-loader:** collapsable transfer to boolean ([b5b2e12](https://github.com/Tencent/Hippy/commit/b5b2e12c8e52b62aac4bc2be0eaa443cc2f50a63))
+* **ios:** fix a bug that a wrong zposition for section view ([#983](https://github.com/Tencent/Hippy/issues/983)) ([96eb238](https://github.com/Tencent/Hippy/commit/96eb238175b9aa19877c4c85b4ab2f2a70a7eeee))
+
+
+### Features
+
+* **android:** add DevMemu module for reload ([c936581](https://github.com/Tencent/Hippy/commit/c936581411e879fa0f718c2b13e679ca543826b1))
+* **android:** callNative remove init flag limit ([30215b0](https://github.com/Tencent/Hippy/commit/30215b08f7b0c099f89daf731c46bb98002fc08d))
+* **hippy-react:** add unhideInstance api in hostconfig ([39da68a](https://github.com/Tencent/Hippy/commit/39da68a1212fc1a979886d84599a42c1fb6849f3))
+* **hippy-react:** compatible for react 17 ([a3c21d6](https://github.com/Tencent/Hippy/commit/a3c21d6f79b40475aa8bae7840ffa10a2bd9aa3a))
+
+
+### Reverts
+
+* Revert "refactor(android): set default false to view group clip children" ([9873d21](https://github.com/Tencent/Hippy/commit/9873d214a04905d01c2dff0e3229d9b3002a1600))
+
+
+
+
+
 # [2.9.0](https://github.com/Tencent/Hippy/compare/2.8.4...2.9.0) (2021-09-10)
 
 

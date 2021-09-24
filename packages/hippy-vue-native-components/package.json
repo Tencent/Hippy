@@ -1,6 +1,6 @@
 {
   "name": "@hippy/vue-native-components",
-  "version": "2.9.0",
+  "version": "2.9.1",
   "description": "Native components middleware for Hippy-Vue, the components only for native, can't compatible with web.",
   "main": "dist/index.js",
   "homepage": "http://hippyjs.org",
