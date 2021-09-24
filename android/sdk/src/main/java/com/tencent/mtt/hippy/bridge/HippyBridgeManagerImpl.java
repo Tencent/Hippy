@@ -470,10 +470,6 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 
   @Override
   public void execCallback(Object params, BridgeTransferType transferType) {
-    if (!mIsInit) {
-      return;
-    }
-
     Message message = mHandler
         .obtainMessage(MSG_CODE_CALL_FUNCTION, transferType.value(), FUNCTION_ACTION_CALLBACK,
             params);
@@ -523,7 +519,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 
   @Override
   public void callNatives(String moduleName, String moduleFunc, String callId, HippyArray params) {
-    if (mIsInit && mContext != null && mContext.getModuleManager() != null) {
+    if (mContext != null && mContext.getModuleManager() != null) {
       HippyModuleManager manager = mContext.getModuleManager();
       if (manager != null) {
         HippyCallNativeParams callNativeParams = HippyCallNativeParams
