@@ -2,14 +2,14 @@
  * All of component implemented by Native.
  */
 
-const View = Symbol('View');
-const Image = Symbol('Image');
-const ListView = Symbol('ListView');
-const ListViewItem = Symbol('ListViewItem');
-const Text = Symbol('Text');
-const TextInput = Symbol('TextInput');
-const WebView = Symbol('WebView');
-const VideoPlayer = Symbol('VideoPlayer');
+const View = Symbol.for('View');
+const Image = Symbol.for('Image');
+const ListView = Symbol.for('ListView');
+const ListViewItem = Symbol.for('ListViewItem');
+const Text = Symbol.for('Text');
+const TextInput = Symbol.for('TextInput');
+const WebView = Symbol.for('WebView');
+const VideoPlayer = Symbol.for('VideoPlayer');
 
 const NATIVE_COMPONENT_NAME_MAP = {
   [View]: 'View',

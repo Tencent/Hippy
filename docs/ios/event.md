@@ -4,8 +4,6 @@
 
 ---
 
-<!-- toc -->
-
 # 终端发送
 
 终端在需要发送事件的地方调用代码：
@@ -25,7 +23,7 @@
 
 这里是向前端发送一个名叫rotate的事件里面有个参数是result，这样就发送到前端去了。然后在前端进行接收处理。
 
-PS: 最新版 Hippy 的监听器添加方法由`addEventListener`改为了`addListener`
+PS: 最新版 Hippy 的监听器添加方法由 `addEventListener` 改为了 `addListener`
 
 ```jsx
 import { HippyEventEmitter } from '@hippy/react';
@@ -37,10 +35,3 @@ this.call = hippyEventEmitter.addListener("rotate", (e) => {
 });
 ```
 
-# 注意
-
-前端如果不需要使用的时候记得调用一下移除监听的方法。
-
-```jsx
-this.call.remove()
-```
