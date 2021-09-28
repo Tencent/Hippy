@@ -1,6 +1,7 @@
 <template>
   <div>
     <animation
+      ref="animationView"
       :playing="playing"
       :actions="colorActions"
       class="color-green"
@@ -49,6 +50,9 @@ export default {
     return {
       colorActions,
     };
+  },
+  beforeDestroy() {
+    this.$refs.animationView.destroy();
   },
 };
 </script>

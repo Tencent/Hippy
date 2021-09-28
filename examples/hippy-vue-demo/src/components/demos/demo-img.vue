@@ -61,7 +61,7 @@ export default {
   },
 };
 </script>
-<style scope>
+<style scoped>
 #demo-img {
   overflow-y: scroll;
   flex: 1;
