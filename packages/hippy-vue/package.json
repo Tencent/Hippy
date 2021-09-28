@@ -20,7 +20,8 @@
     "compiler"
   ],
   "devDependencies": {
-    "ava": "^3.5.0",
+    "ansi-regex": "^5.0.1",
+    "ava": "^3.15.0",
     "glob-parent": "^5.1.2",
     "hosted-git-info": "~3.0.8",
     "lodash": "~4.17.21",
