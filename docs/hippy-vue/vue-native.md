@@ -6,7 +6,7 @@ hippy-vue 通过在 Vue 上绑定了一个 `Native` 属性，实现获取终端�
 
 > 对应 Demo: [demo-vue-native.vue](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-vue-native.vue)
 
-# 获取设备信息
+# Vue.Native 获取终端信息
 
 它无需任何方法，直接取值即可。
 
@@ -14,7 +14,7 @@ hippy-vue 通过在 Vue 上绑定了一个 `Native` 属性，实现获取终端�
 
 获取 hippy-vue 的版本
 
-## 示例
+* 示例
 
 ```javascript
 console.log(Vue.Native.version); // => 2.0.0
@@ -40,7 +40,7 @@ Hippy 终端 SDK 版本。
 
 获取操作系统类型。
 
-## 示例
+* 示例
 
 ```javascript
 console.log(Vue.Native.Platform); // => android
@@ -50,7 +50,7 @@ console.log(Vue.Native.Platform); // => android
 
 获取屏幕分辨率。
 
-## 示例
+* 示例
 
 ```javascript
 const { window, screen } = Vue.Native.Dimensions;
@@ -62,7 +62,7 @@ console.log(`带状态栏的窗口尺寸：${window.height}x${window.width}`); /
 
 获取设备像素比例。
 
-## 示例
+* 示例
 
 ```javascript
 console.log(Vue.Native.PixelRatio); // => 3
@@ -97,7 +97,7 @@ console.log(Vue.Native.PixelRatio); // => 3
 
 AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系统。
 
-示例：
+* 示例：
 
 ``` js
 Vue.Native.AsyncStorage.setItem('itemKey', 'itemValue');
@@ -326,7 +326,7 @@ Hippy 中通过 fetch 服务返回的 `set-cookie` Header 会自动将 Cookie �
 
 * `number`: 返回值为终端可识别的 `int32Color`
 
-示例：
+* 示例：
 
 ``` js
 const int32Color = Vue.Native.parseColor('#40b883') // int32Color: 4282431619

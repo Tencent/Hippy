@@ -80,10 +80,13 @@ export default {
       this.$props.onRef(this.$refs.animationLoop);
     }
   },
+  beforeDestroy() {
+    this.$refs.animationLoop.destroy();
+  },
 };
 </script>
 
-<style scope>
+<style scoped>
   .loop-green {
     margin-top: 10px;
     justify-content: center;

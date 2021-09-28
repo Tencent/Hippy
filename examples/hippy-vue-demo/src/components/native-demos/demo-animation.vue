@@ -179,7 +179,7 @@ export default {
 };
 </script>
 
-<style scope>
+<style scoped>
 #animation-demo {
   overflow: scroll;
 }
