@@ -508,6 +508,14 @@ class ElementNode extends ViewNode {
       this.scrollToPosition(x, y, duration);
     }
   }
+
+  setPressed(pressed) {
+    Native.callUIFunction(this, 'setPressed', [pressed]);
+  }
+
+  setHotspot(x, y) {
+    Native.callUIFunction(this, 'setHotspot', [x, y]);
+  }
 }
 
 export default ElementNode;

@@ -24,11 +24,16 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Path;
 import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
 import android.text.TextUtils;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 @SuppressWarnings({"unused"})
 public class HippyViewGroup extends HippyImageView implements IHippyZIndexViewGroup {
@@ -142,6 +147,30 @@ public class HippyViewGroup extends HippyImageView implements IHippyZIndexViewGr
     if (mOldLayerType > LAYER_TYPE_NOT_SET) {
       this.setLayerType(mOldLayerType, null);
     }
+  }
+
+  @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+  public void setTranslucentBackgroundDrawable(@Nullable Drawable background) {
+    // it's required to call setBackground to null, as in some of the cases we may set new
+    // background to be a layer drawable that contains a drawable that has been setup
+    // as a background previously. This will not work correctly as the drawable callback logic is
+    // messed up in AOSP
+    updateBackgroundDrawable(null);
+    if (background != null) {
+      updateBackgroundDrawable(background);
+    }
+  }
+
+  /**
+   * Set the background for the view or remove the background. It calls {@link
+   * #setBackground(Drawable)} or {@link #setBackgroundDrawable(Drawable)} based on the sdk version.
+   *
+   * @param drawable {@link Drawable} The Drawable to use as the background, or null to remove the
+   *     background
+   */
+  @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+  private void updateBackgroundDrawable(Drawable drawable) {
+    super.setBackground(drawable);
   }
 
   //	public void setBorderRadius(float radius, int position)

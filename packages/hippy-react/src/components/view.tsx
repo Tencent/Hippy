@@ -4,6 +4,7 @@ import React from 'react';
 import Style from '@localTypes/style';
 import { FocusEvent } from '@localTypes/event';
 import { Fiber } from 'react-reconciler';
+import { callUIFunction } from '../modules/ui-manager-module';
 import { LayoutableProps, ClickableProps, TouchableProps } from '../types';
 
 interface ViewProps extends LayoutableProps, ClickableProps, TouchableProps {
@@ -61,6 +62,16 @@ interface ViewProps extends LayoutableProps, ClickableProps, TouchableProps {
  * @noInheritDoc
  */
 class View extends React.Component<ViewProps, {}> {
+  private instance: HTMLDivElement | Fiber | null = null;
+
+  public setPressed(pressed: boolean) {
+    callUIFunction(this.instance as Fiber, 'setPressed', [pressed]);
+  }
+
+  setHotspot(x: number, y: number) {
+    callUIFunction(this.instance as Fiber, 'setHotspot', [x, y]);
+  }
+
   /**
    * @ignore
    */
@@ -72,8 +83,15 @@ class View extends React.Component<ViewProps, {}> {
     }
 
     return (
-    // @ts-ignore
-      <div nativeName="View" style={nativeStyle} {...nativeProps} />
+      <div
+        ref={(ref) => {
+          this.instance = ref;
+        }}
+        nativeName="View"
+        // @ts-ignore
+        style={nativeStyle}
+        {...nativeProps}
+      />
     );
   }
 }

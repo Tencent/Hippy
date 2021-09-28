@@ -16,17 +16,24 @@
 package com.tencent.mtt.hippy.views.view;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
+import android.util.Log;
 import android.view.View;
 
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
+import com.tencent.mtt.hippy.common.HippyArray;
+import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.uimanager.HippyGroupController;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.image.HippyImageView;
 
 import java.util.WeakHashMap;
+
+import androidx.annotation.RequiresApi;
 
 @SuppressWarnings({"unused"})
 @HippyController(name = HippyViewGroupController.CLASS_NAME)
@@ -96,4 +103,48 @@ public class HippyViewGroupController extends HippyGroupController<HippyViewGrou
   public void setBackgroundImagePositionY(HippyViewGroup hippyViewGroup, int positionY) {
     hippyViewGroup.setImagePositionY((int) PixelUtil.dp2px(positionY));
   }
+
+  @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+  @HippyControllerProps(name = "nativeBackgroundAndroid", defaultType = HippyControllerProps.MAP)
+  public void setNativeBackground(final HippyViewGroup hippyViewGroup, final HippyMap rippleConfig) {
+    Drawable rd = HippyDrawableHelper.createDrawableFromJSDescription(hippyViewGroup.getContext(), rippleConfig);
+    hippyViewGroup.setTranslucentBackgroundDrawable(rippleConfig.size() == 0 ? null : rd);
+  }
+
+  @Override
+  public void dispatchFunction(HippyViewGroup view, String functionName, HippyArray params) {
+    super.dispatchFunction(view, functionName, params);
+    switch (functionName) {
+      case "setPressed": {
+        this.handleSetPressed(view, params);
+        break;
+      }
+      case "setHotspot": {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+          this.handSetHotspot(view, params);
+        }
+        break;
+      }
+      default:
+        break;
+    }
+  }
+
+  public void handleSetPressed(HippyViewGroup view, HippyArray params) {
+    if (params == null || params.size() == 0) {
+      throw new IllegalArgumentException("Illegal number of arguments for 'setPressed' command");
+    }
+    view.setPressed(params.getBoolean(0));
+  }
+
+  @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+  public void handSetHotspot(HippyViewGroup view, HippyArray params) {
+    if (params == null || params.size() == 0) {
+      throw new IllegalArgumentException("Illegal number of arguments for 'setHotspot' command");
+    }
+    float x = PixelUtil.dp2px(params.getDouble(0));
+    float y = PixelUtil.dp2px(params.getDouble(1));
+    view.drawableHotspotChanged(x, y);
+  }
+
 }

@@ -429,6 +429,19 @@ import icon from './qb_icon_new.png';
 | 参数               | 描述                                                         | 类型                                 | 支持平台  |
 | ------------------ | ------------------------------------------------------------ | ------------------------------------ | --------- |
 | collapsable        | Android 里如果一个 `View` 只用于布局它的子组件，则它可能会为了优化而从原生布局树中移除，因此该节点 DOM 的引用会丢失。 把此属性设为 `false` 可以禁用这个优化，以确保对应视图在原生结构中存在。 | `boolean`                            | `Android` |
+| nativeBackgroundAndroid    | 配置安卓水波纹效果；配置项为 `{ borderless: boolean, color, rippleRadius: int }` 注意：`设置水波纹后默认不显示，需要调用setPressed以及setHotspot方法进行水波纹展示` | `Object`| `Android`    |
+
+## 方法
+
+### setPressed
+
+`(pressed: boolean) => void` 通过传入一个pressed 值（bool），通知终端当前是否需要显示水波纹效果
+
+> * pressed: boolean - true:显示水波纹，false收起水波纹
+
+### setHotspot
+
+`(x: number, y: number) => void` 通过传入一个[x,y]坐标值，通知终端设置当前波纹中心位置
 
 ---
 
