@@ -422,6 +422,10 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
 
 - (void)secondBundleLoadCompleted:(BOOL)success {
     std::shared_ptr<hippy::napi::JSCCtx> context = std::static_pointer_cast<hippy::napi::JSCCtx>(self.pScope->GetContext());
+    HippyAssert(context != nullptr, @"secondBundleLoadCompleted get null context");
+    if (nullptr == context) {
+        return;
+    }
     NSString *workFolder = [self.bridge workFolder2];
     HippyAssert(workFolder, @"work folder path should not be null");
     if (workFolder) {
