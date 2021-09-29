@@ -14,20 +14,6 @@ Hippy 为了方便前端开发便于理解，样式也采用了 CSS 的盒模型
 * [margin](style/layout.md?id=margin)
 * [border](style/layout.md?id=borderWidth)
 
-# 长度单位
-
-Hippy 现在暂时不支持百分比的长度值，只支持具体数值（number）。单位为 dp，具体换算公式为：
-
-```text
-实际真机长度值 = 屏幕缩放比例 * Hippy 样式长度值
-```
-
-屏幕缩放比例 可以通过 `PixelRatio.get()`(hippy-react) 或 `Vue.Native.PixelRatio`（hippy-vue） 获取，如 iPhone 8 为 2，iPhone X 为 3，以 iPhone 8 为例：
-
-* 屏幕真实宽度为 750px
-* PixelRatio 为 2
-* 所以 Hippy 的全屏宽度为`750/2 = 375`
-
 # 布局（Flex）
 
 Hippy 中，为了方便移动端编写布局，所以默认支持了现在移动端最流行的 `Flex` 布局。同时，因为仅支持 `Flex` 布局，所以不需要手写 `display: flex` 即可使用
@@ -39,7 +25,9 @@ flexDirection 属性指定了内部元素是如何在 flex 容器中布局的，
 
 > 注意：Hippy 的 flexDirection 与 Web的 flex-direction Web 默认为 `row`, Hippy 默认为 `column`。
 
-![flexDirection](//res.imtt.qq.com/hippydoc/img/flex-direction.png)
+<img src="//res.imtt.qq.com/hippydoc/img/flex-direction.png" alt="flexDirection" width="30%"/>
+<br />
+<br />
 
 | 类型   | 必需 |默认|
 | ------ | -------- |---|
@@ -114,3 +102,17 @@ flexShrink 定义伸缩项目收缩的能力。
 | 类型   | 必需 |默认|
 | ------ | -------- |---|
 | number| 否      |0|
+
+# 长度单位
+
+Hippy 现在暂时不支持百分比的长度值，只支持具体数值（number）。单位为 dp，具体换算公式为：
+
+```text
+实际真机长度值 = 屏幕缩放比例 * Hippy 样式长度值
+```
+
+屏幕缩放比例 可以通过 `PixelRatio.get()`(hippy-react) 或 `Vue.Native.PixelRatio`（hippy-vue） 获取，如 iPhone 8 为 2，iPhone X 为 3，以 iPhone 8 为例：
+
+* 屏幕真实宽度为 750px
+* PixelRatio 为 2
+* 所以 Hippy 的全屏宽度为`750/2 = 375`

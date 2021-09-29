@@ -23,11 +23,11 @@
     </div>
     <div class="features">
         <div class="feature"><h2>⚡ 高性能</h2>
-            <p>提供了极致流畅体验的可复用列表，<br/> 通过 binding 模式实现高效的前端-终端通讯。</p></div>
-        <div class="feature"><h2>🔗 跨平台</h2>
-            <p>不同的平台保持了相同的接口，<br/>可平滑迁移到 Web 浏览器。</p></div>
-        <div class="feature"><h2>📖 易学习</h2>
-            <p>支持 React 和 Vue 两套界面框架，<br/>完整支持 Flex 布局。</p></div>
+            <p>提供极致流畅体验的可复用列表，通过 binding 模式实现高效的前端-终端通讯。</p></div>
+        <div class="feature"><h2>📱 跨平台</h2>
+            <p>不同的平台保持了相同的接口，可平滑迁移到 Web 浏览器。</p></div>
+        <div class="feature"><h2>📚 易学习</h2>
+            <p>支持 React 和 Vue 两套界面框架，完整支持 Flex 布局。</p></div>
     </div>
 </div>
 <hr>
