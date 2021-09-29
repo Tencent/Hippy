@@ -59,7 +59,6 @@ module.exports = {
         use: [
           'vue-loader',
           'scope-loader',
-          'unicode-loader',
         ],
       },
       {
@@ -85,7 +84,6 @@ module.exports = {
               ],
             },
           },
-          'unicode-loader',
         ],
       },
       {

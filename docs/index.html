@@ -90,13 +90,18 @@
       #custom-homepage .feature {
           flex-grow: 1;
           flex-basis: 30%;
-          max-width: 30%;
           margin: 0 7px;
+          justify-content: center;
+          align-items: center;
+          display: flex;
+          flex-direction: column;
+          flex-wrap: wrap;
       }
       #custom-homepage .feature p {
           color: #4e6e8e;
+          max-width: 80%;
       }
-      @media (max-width: 719px) {
+      @media (max-width: 920px) {
           #custom-homepage .features {
               justify-content: center;
               align-items: center;
