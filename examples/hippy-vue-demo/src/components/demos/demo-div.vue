@@ -2,7 +2,21 @@
   <div id="div-demo">
     <div>
       <label>背景图效果:</label>
-      <div :style="demo1Style">
+      <div
+        :style="demo1Style"
+        :accessible="true"
+        aria-label="背景图"
+        :aria-disabled="false"
+        :aria-selected="true"
+        :aria-checked="false"
+        :aria-expanded="false"
+        :aria-busy="true"
+        role="image"
+        :aria-valuemax="10"
+        :aria-valuemin="1"
+        :aria-valuenow="5"
+        aria-valuetext="middle"
+      >
         <p class="div-demo-1-text">
           Hippy 背景图展示
         </p>
