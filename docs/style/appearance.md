@@ -154,6 +154,78 @@
 | ------ | -------- | --- |
 | number | 否  | All
 
+# textShadowColor
+
+> 最低支持版本 2.10.0
+
+[Hippy-React 范例](https://github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/components/Text/index.jsx)
+
+[Hippy-Vue 范例](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-p.vue)
+
+文字阴影颜色
+
+| 类型   | 必需 | 平台 | 
+| ------ | -------- | --------|
+| [color](style/color.md)  | 否 | 双平台支持 |
+
+# textShadowOffset
+
+> 最低支持版本 2.10.0
+
+[Hippy-React 范例](https://github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/components/Text/index.jsx)
+
+[Hippy-Vue 范例](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-p.vue)
+
+文字阴影偏移量
+
+| 类型   | 必需 | 平台 | 
+| ------ | -------- | --------|
+| object: { x: number, y: number }  | 否 | 双平台支持 |
+
+# textShadowOffsetX
+
+> * 最低支持版本 2.10.0
+> * 注意 hippy-vue class 样式只支持合并写法 `text-shadow-offset: 1px 1px`，不支持拆分
+
+[Hippy-React 范例](https://github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/components/Text/index.jsx)
+
+[Hippy-Vue 范例](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-p.vue)
+
+文字阴影X轴偏移量
+
+| 类型   | 必需 | 平台 | 
+| ------ | -------- | --------|
+| number | 否 | 双平台支持 |
+
+# textShadowOffsetY
+
+> * 最低支持版本 2.10.0
+> * 注意 hippy-vue class 样式只支持合并写法 `text-shadow-offset: 1px 1px`，不支持拆分
+
+[Hippy-React 范例](https://github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/components/Text/index.jsx)
+
+[Hippy-Vue 范例](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-p.vue)
+
+文字阴影Y轴偏移量
+
+| 类型   | 必需 | 平台 | 
+| ------ | -------- | --------|
+| number  | 否 | 双平台支持 |
+
+# textShadowRadius
+
+> 最低支持版本 2.10.0
+
+[Hippy-React 范例](https://github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/components/Text/index.jsx)
+
+[Hippy-Vue 范例](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-p.vue)
+
+文字阴影半径
+
+| 类型   | 必需 | 平台 | 
+| ------ | -------- | --------|
+| number | 否 | 双平台支持 |
+
 # visibility
 
 | 类型   | 必需 | 支持平台

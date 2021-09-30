@@ -33,6 +33,13 @@
     <p class="p-demo-6 p-demo-content">
       腾讯字体 Hippy
     </p>
+    <label>文字阴影：</label>
+    <p
+      class="p-demo-7 p-demo-content"
+      :style="textShadow"
+    >
+      这里是文字灰色阴影
+    </p>
   </div>
 </template>
 
@@ -43,6 +50,17 @@ export default {
       isClicked: false,
       isPressing: false,
       labelTouchStatus: '',
+      textShadow: {
+        // textShadowOffset: {
+        //   x: 1,
+        //   y: 1,
+        // },
+        // support declare textShadowOffsetX & textShadowOffsetY separately
+        // textShadowOffsetX: 1,
+        // textShadowOffsetY: 1,
+        // textShadowRadius: 3,
+        // textShadowColor: 'grey',
+      },
     };
   },
   methods: {
@@ -70,7 +88,7 @@ export default {
 };
 </script>
 
-<style scope>
+<style scoped>
 .p-demo .p-demo-content {
   margin: 20px;
 }
@@ -98,5 +116,11 @@ export default {
   color: #0052d9;
   font-family: TTTGB;
   font-size: 32px;
+}
+
+.p-demo .p-demo-7 {
+  text-shadow-offset: 1px 1px; /* not support declared separately */
+  text-shadow-radius: 3;
+  text-shadow-color: grey;
 }
 </style>

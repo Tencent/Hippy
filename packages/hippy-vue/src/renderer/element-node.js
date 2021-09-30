@@ -150,6 +150,30 @@ function parseBackgroundImage(property, value) {
   return [processedProperty, processedValue];
 }
 
+/**
+ * parse text shadow offset
+ * @param property
+ * @param value
+ * @param style
+ * @returns {(*|number)[]}
+ */
+function parseTextShadowOffset(property, value = 0, style) {
+  const offsetMap = {
+    textShadowOffsetX: 'width',
+    textShadowOffsetY: 'height',
+  };
+  if (!style.textShadowOffset) {
+    style.textShadowOffset = {
+      [offsetMap[property]]: value,
+    };
+  } else {
+    Object.assign(style.textShadowOffset, {
+      [offsetMap[property]]: value,
+    });
+  }
+  return [property, value];
+}
+
 class ElementNode extends ViewNode {
   constructor(tagName) {
     super();
@@ -315,6 +339,16 @@ class ElementNode extends ViewNode {
         break;
       case 'backgroundImage': {
         [p, v] = parseBackgroundImage(p, v);
+        break;
+      }
+      case 'textShadowOffsetX':
+      case 'textShadowOffsetY': {
+        [p, v] = parseTextShadowOffset(p, v, this.style);
+        break;
+      }
+      case 'textShadowOffset': {
+        const { x = 0, width = 0, y = 0, height = 0 } = v || {};
+        v = { width: x || width, height: y || height };
         break;
       }
       default: {

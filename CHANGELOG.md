@@ -18,7 +18,6 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * **ios:** improve stability for websocket module ([d5595ea](https://github.com/Tencent/Hippy/commit/d5595ea2f9a9b7a404bbcce27addce7937f93e34))
 * **ios:** reset tableview top padding to zero in ios15 ([#1000](https://github.com/Tencent/Hippy/issues/1000)) ([a5184cf](https://github.com/Tencent/Hippy/commit/a5184cfe5d4777ede135cdff52da23ab5b59f89a))
 * **vue-example:** fix loop animation height ([dc3d948](https://github.com/Tencent/Hippy/commit/dc3d948b836bcab5a9f7c35ee0be840f4a050b3c))
-* **vue-example:** fix loop animation height ([f7dad4d](https://github.com/Tencent/Hippy/commit/f7dad4d53039a74c3550f6c53bb8408e08a107d9))
 
 
 
