@@ -193,15 +193,10 @@ function getNativeProps(node) {
     }
     // if jointKey set, multi attributes will be assigned to the same jointKey object
     if (jointKey) {
-      if (props[jointKey] === undefined) {
-        props[jointKey] = {
-          [propsKey]: value,
-        };
-      } else {
-        Object.assign(props[jointKey], {
-          [propsKey]: value,
-        });
-      }
+      props[jointKey] = props[jointKey] || {};
+      Object.assign(props[jointKey], {
+        [propsKey]: value,
+      });
     } else {
       props[propsKey] = value;
     }

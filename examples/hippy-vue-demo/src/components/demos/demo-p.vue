@@ -37,6 +37,7 @@
     <p
       class="p-demo-7 p-demo-content"
       :style="textShadow"
+      @click="changeTextShadow"
     >
       这里是文字灰色阴影
     </p>
@@ -47,23 +48,33 @@
 export default {
   data() {
     return {
+      textShadowIndex: 0,
       isClicked: false,
       isPressing: false,
       labelTouchStatus: '',
       textShadow: {
-        // textShadowOffset: {
-        //   x: 1,
-        //   y: 1,
-        // },
+        textShadowOffset: {
+          x: 1,
+          y: 1,
+        },
         // support declare textShadowOffsetX & textShadowOffsetY separately
         // textShadowOffsetX: 1,
         // textShadowOffsetY: 1,
-        // textShadowRadius: 3,
-        // textShadowColor: 'grey',
+        textShadowRadius: 3,
+        textShadowColor: 'grey',
       },
     };
   },
   methods: {
+    changeTextShadow() {
+      this.textShadow = {
+        textShadowOffsetX: this.textShadowIndex % 2 === 1 ? 10 : 1,
+        textShadowOffsetY: 1,
+        textShadowRadius: 3,
+        textShadowColor: this.textShadowIndex % 2 === 1 ? 'red' : 'grey',
+      };
+      this.textShadowIndex += 1;
+    },
     // text/span/label/p/a element touch event is supported after hippy-vue 2.6.2
     onTouchTextStart(evt) {
       this.labelTouchStatus = 'touch start';
@@ -119,8 +130,8 @@ export default {
 }
 
 .p-demo .p-demo-7 {
-  text-shadow-offset: 1px 1px; /* not support declared separately */
-  text-shadow-radius: 3;
-  text-shadow-color: grey;
+  /*text-shadow-offset: 1px 1px; !* not support declared separately *!*/
+  /*text-shadow-radius: 3;*/
+  /*text-shadow-color: grey;*/
 }
 </style>

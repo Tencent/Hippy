@@ -162,16 +162,11 @@ function parseTextShadowOffset(property, value = 0, style) {
     textShadowOffsetX: 'width',
     textShadowOffsetY: 'height',
   };
-  if (!style.textShadowOffset) {
-    style.textShadowOffset = {
-      [offsetMap[property]]: value,
-    };
-  } else {
-    Object.assign(style.textShadowOffset, {
-      [offsetMap[property]]: value,
-    });
-  }
-  return [property, value];
+  style.textShadowOffset = style.textShadowOffset || {};
+  Object.assign(style.textShadowOffset, {
+    [offsetMap[property]]: value,
+  });
+  return ['textShadowOffset', style.textShadowOffset];
 }
 
 class ElementNode extends ViewNode {
