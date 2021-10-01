@@ -481,6 +481,21 @@ function parseCSS(css, options) {
       case 'fontWeight':
         // Keep string and going on.
         break;
+      case 'textShadowOffset': {
+        const pos = value.split(' ')
+          .filter(v => v)
+          .map(v => convertPxUnitToPt(v));
+        const [width] = pos;
+        let [, height] = pos;
+        if (!height) {
+          height = width;
+        }
+        value = {
+          width,
+          height,
+        };
+        break;
+      }
       case 'shadowOffset': {
         const pos = value.split(' ')
           .filter(v => v)

@@ -9,7 +9,7 @@
           v-if="Vue.Native"
           class="feature-title"
         >
-          Hippy-Vue: {{ Vue.Native.version }}
+          Hippy-Vue: {{ Vue.Native.version !== '2.2.1' ? Vue.Native.version : 'master' }}
         </p>
       </div>
     </li>

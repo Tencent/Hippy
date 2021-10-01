@@ -69,18 +69,6 @@ function registerSwiper(Vue) {
       setSlideWithoutAnimation(slideIndex) {
         Vue.Native.callUIFunction(this.$refs.swiper, 'setPageWithoutAnimation', [slideIndex]);
       },
-      // On dragging
-      onPageScroll(evt) {
-        this.$emit('dragging', evt);
-      },
-      // On dropped finished dragging.
-      onPageSelected(evt) {
-        this.$emit('dropped', evt);
-      },
-      // On page scroll state changed.
-      onPageScrollStateChanged(evt) {
-        this.$emit('stateChanged', evt);
-      },
     },
     render(h) {
       const on = getEventRedirector.call(this, [
