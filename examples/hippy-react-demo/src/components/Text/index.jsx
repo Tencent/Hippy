@@ -106,7 +106,7 @@ export default class TextExpo extends React.Component {
           let textShadowOffset = { x: 10, y: 1 };
           if (i % 2 === 1) {
             textShadowColor = 'grey';
-            textShadowOffset = { x: 1, y: 10 };
+            textShadowOffset = { x: 1, y: 1 };
           }
           i += 1;
           this.setState({
@@ -117,7 +117,9 @@ export default class TextExpo extends React.Component {
           <Text style={[styles.normalText,
             { color: '#242424',
               textShadowOffset,
-              textShadowOffsetY: 1,
+              // support declare textShadowOffsetX & textShadowOffsetY separately
+              // textShadowOffsetX: 1,
+              // textShadowOffsetY: 1,
               textShadowRadius: 3,
               textShadowColor,
             }]}>Text shadow is grey with radius 3 and offset 1</Text>
