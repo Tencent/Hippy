@@ -180,8 +180,10 @@ test('Element.setStyle test', (t) => {
   node.setStyle('textShadowOffsetX', 1);
   node.setStyle('textShadowOffsetY', 2);
   t.deepEqual(node.style.textShadowOffset, { width: 1, height: 2 });
-  node.setStyle('textShadowOffset', { x: 10, y: 8 });
-  node.setStyle('textShadowOffset', { width: 10, height: 8 });
+  node.setStyle('textShadowOffsetX', 10);
+  t.deepEqual(node.style.textShadowOffset, { width: 10, height: 2 });
+  node.setStyle('textShadowOffset', { x: 11, y: 8 });
+  t.deepEqual(node.style.textShadowOffset, { width: 11, height: 8 });
 });
 
 test('Element.setStyle with pre-processed style test', (t) => {
