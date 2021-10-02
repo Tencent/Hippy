@@ -17,6 +17,10 @@ global.Hippy = {
       return 1;
     },
   },
+  turbo: {
+    turboPromise() {},
+    getTurboModule() {},
+  },
   device: {
     platform: {
       OS: null,
