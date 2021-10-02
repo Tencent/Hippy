@@ -41,6 +41,8 @@
 #import "HippyDevManager.h"
 #import "HippyBundleURLProvider.h"
 #include "core/scope.h"
+#import "HippyTurboModuleManager.h"
+#import <core/napi/jsc/js_native_api_jsc.h>
 
 #define HippyAssertJSThread()
 //
@@ -669,6 +671,10 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     return _parentBridge.debugMode ?: NO;
 }
 
+- (BOOL)enableTurbo {
+    return _parentBridge.enableTurbo ?: NO;
+}
+
 - (void)setExecutorClass:(Class)executorClass {
     HippyAssertMainQueue();
     _parentBridge.executorClass = executorClass;
@@ -873,6 +879,24 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     [_javaScriptExecutor executeAsyncBlockOnJavaScriptQueue:^{
         [self _actuallyInvokeAndProcessModule:@"JSTimersExecution" method:@"callTimers" arguments:@[@[timer]]];
     }];
+}
+
+- (HippyOCTurboModule *)turboModuleWithName:(NSString *)name {
+    if (!self.enableTurbo) {
+        return nil;
+    }
+    
+    if (name.length <= 0) {
+        return nil;
+    }
+    
+    if(!self.turboModuleManager) {
+        self.turboModuleManager = [[HippyTurboModuleManager alloc] initWithBridge:self delegate:nil];
+    }
+    
+    // getTurboModule
+    HippyOCTurboModule *turboModule = [self.turboModuleManager turboModuleWithName:name];
+    return turboModule;
 }
 
 - (void)enqueueApplicationScript:(NSData *)script url:(NSURL *)url onComplete:(HippyJavaScriptCompleteBlock)onComplete {
