@@ -238,6 +238,8 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 @property (nonatomic, assign) BOOL debugMode;
 
+@property (nonatomic, assign) BOOL enableTurbo;
+
 @property (nonatomic, strong) NSMutableDictionary *shareOptions;
 
 @property (nonatomic, strong) NSString *moduleName;
@@ -248,6 +250,11 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  * just for debugger
  */
 - (void)bindKeys;
+
+/**
+ * Get  the turbo module for a given name.
+ */
+- (id)turboModuleWithName:(NSString *)name;
 
 @end
 
