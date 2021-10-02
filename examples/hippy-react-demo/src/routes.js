@@ -203,4 +203,12 @@ export default [
       style: 2,
     },
   },
+  {
+    path: '/Turbo',
+    name: 'Turbo',
+    component: PAGE_LIST.Turbo,
+    meta: {
+      style: 2,
+    },
+  },
 ];

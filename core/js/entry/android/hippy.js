@@ -16,6 +16,8 @@ require('../../global/UtilsModule.js'); // Hippy.device.vibrate Hippy.device.can
 require('../../global/android/global.js'); // __GLOBAL__
 require('../../bridge/android/native2js.js');
 require('../../global/android/requestAnimationFrame.js'); // requestAnimationFrame cancelAnimationFrame
+require('../../global/android/Turbo.js'); // turbo
 
 // alias
 global.localStorage = Hippy.asyncStorage;
+global.turboPromise = Hippy.turboPromise;
