@@ -134,7 +134,6 @@ class Ctx {
                               unicode_string_view* result) = 0;
   virtual bool GetValueJson(std::shared_ptr<CtxValue> value,
                             unicode_string_view* result) = 0;
-
   virtual bool IsNullOrUndefined(std::shared_ptr<CtxValue>) = 0;
 
   // Array Helpers

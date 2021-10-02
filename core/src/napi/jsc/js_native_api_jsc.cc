@@ -581,5 +581,15 @@ std::shared_ptr<CtxValue> JSCCtx::CreateCtxValue(
   return nullptr;
 }
 
+bool JSCCtx::IsNullOrUndefined(std::shared_ptr<CtxValue> value) {
+  if (!value) {
+    return true;
+  }
+  std::shared_ptr<JSCCtxValue> ctx_value =
+  std::dynamic_pointer_cast<JSCCtxValue>(value);
+  JSValueRef value_ref = ctx_value->value_;
+  return (JSValueIsNull(context_, value_ref) || JSValueIsUndefined(context_, value_ref));
+}
+
 }  // namespace napi
 }  // namespace hippy

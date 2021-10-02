@@ -34,9 +34,8 @@ TurboEnv::~TurboEnv() = default;
 
 HostObject::~HostObject() = default;
 
-std::shared_ptr<CtxValue> HostObject::Get(
-    TurboEnv &turbo_env,
-    const std::shared_ptr<CtxValue> &prop_name) {
+std::shared_ptr<CtxValue> HostObject::Get(TurboEnv &turbo_env,
+                                          const std::shared_ptr<CtxValue> &prop_name) {
   std::shared_ptr<Ctx> context = turbo_env.context_;
   return context->CreateNull();
 }
@@ -45,8 +44,7 @@ void HostObject::Set(TurboEnv &,
                      const std::shared_ptr<CtxValue> &name,
                      const std::shared_ptr<CtxValue> &value) {}
 
-std::vector<std::shared_ptr<CtxValue>> HostObject::GetPropertyNames(
-    TurboEnv &) {
+std::vector<std::shared_ptr<CtxValue>> HostObject::GetPropertyNames(TurboEnv &) {
   std::vector<std::shared_ptr<CtxValue>> values;
   return values;
 }
@@ -58,21 +56,20 @@ void HippyTurboModule::Set(TurboEnv &,
                            const std::shared_ptr<CtxValue> &name,
                            const std::shared_ptr<CtxValue> &value) {}
 
-std::shared_ptr<CtxValue> HippyTurboModule::Get(
-    TurboEnv &turbo_env,
-    const std::shared_ptr<CtxValue> &prop_name) {
-  return turbo_env.CreateFunction(
-      prop_name, 0,
-      [this](TurboEnv &env, const std::shared_ptr<CtxValue> &thisVal,
-             const std::shared_ptr<CtxValue> *args, size_t count) {
-        std::shared_ptr<CtxValue> res =
-            this->callback_(env, thisVal, args, count);
-        return res;
-      });
+std::shared_ptr<CtxValue> HippyTurboModule::Get(TurboEnv &turbo_env,
+                                                const std::shared_ptr<CtxValue> &prop_name) {
+  return turbo_env.CreateFunction(prop_name,
+                                  0,
+                                  [this](TurboEnv &env,
+                                         const std::shared_ptr<CtxValue> &thisVal,
+                                         const std::shared_ptr<CtxValue> *args,
+                                         size_t count) {
+    std::shared_ptr<CtxValue> res = this->callback_(env, thisVal, args, count);
+    return res;
+  });
 }
 
-std::vector<std::shared_ptr<CtxValue>> HippyTurboModule::GetPropertyNames(
-    TurboEnv &) {
+std::vector<std::shared_ptr<CtxValue>> HippyTurboModule::GetPropertyNames(TurboEnv &) {
   std::vector<std::shared_ptr<CtxValue>> values;
   return values;
 }
