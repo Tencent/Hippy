@@ -168,11 +168,7 @@ function getNativeProps(node) {
     let value = node.getAttribute(key);
 
     // No defined map
-    if (!node.meta.component.attributeMaps) {
-      props[key] = value;
-      return;
-    }
-    if (!node.meta.component.attributeMaps[key]) {
+    if (!node.meta.component.attributeMaps || !node.meta.component.attributeMaps[key]) {
       props[key] = value;
       return;
     }
@@ -191,11 +187,19 @@ function getNativeProps(node) {
     }
 
     // Defined object map with value
-    const { name: propsKey, propsValue } = map;
+    const { name: propsKey, propsValue, jointKey } = map;
     if (isFunction(propsValue)) {
       value = propsValue(value);
     }
-    props[propsKey] = value;
+    // if jointKey set, multi attributes will be assigned to the same jointKey object
+    if (jointKey) {
+      props[jointKey] = props[jointKey] || {};
+      Object.assign(props[jointKey], {
+        [propsKey]: value,
+      });
+    } else {
+      props[propsKey] = value;
+    }
   });
 
   // Get the force props from meta, it's can't be override

@@ -38,7 +38,6 @@ module.exports = {
         test: /\.vue$/,
         use: [
           'vue-loader',
-          'unicode-loader',
         ],
       },
       {
@@ -62,7 +61,6 @@ module.exports = {
               ],
             },
           },
-          'unicode-loader',
         ],
       },
     ],
