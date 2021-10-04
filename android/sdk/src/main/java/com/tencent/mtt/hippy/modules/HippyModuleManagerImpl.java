@@ -221,6 +221,7 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
       method.invoke(mContext, moduleInfo.getInstance(), params, promise);
     } catch (Throwable e) {
       promise.doCallback(PromiseImpl.PROMISE_CODE_NORMAN_ERROR, e.getMessage());
+      mContext.getGlobalConfigs().getExceptionHandler().handleNativeException(new RuntimeException(e), true);
     }
   }
 
