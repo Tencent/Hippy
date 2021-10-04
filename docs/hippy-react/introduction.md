@@ -6,4 +6,6 @@ hippy-react 是基于 Facebook React 的官方自定义渲染器 [react-reconcil
 
 # 架构图
 
-![hippy-react 架构](//static.res.qq.com/nav/hippydoc/img/hippy-react.png)
+<img src="//static.res.qq.com/nav/hippydoc/img/hippy-react.png" alt="hippy-react 架构图" width="70%"/>
+<br />
+<br />

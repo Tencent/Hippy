@@ -121,6 +121,7 @@ module.exports = {
           '__HIPPYNATIVEGLOBAL__',
           '__instanceId__',
           '_reactInternalFiber',
+          '_reactInternals',
         ],
       },
     ],

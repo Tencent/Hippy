@@ -60,7 +60,6 @@ module.exports = {
               ],
             },
           },
-          'unicode-loader',
         ],
       },
       {

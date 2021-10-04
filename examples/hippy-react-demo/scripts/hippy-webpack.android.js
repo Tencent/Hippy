@@ -66,7 +66,6 @@ module.exports = {
               ],
             },
           },
-          'unicode-loader',
         ],
       },
       {

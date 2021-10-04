@@ -2,58 +2,60 @@
 
 >注：以下文档都是假设您已经具备一定的iOS开发经验。
 
-这篇教程，讲述了如何将Hippy集成到iOS工程
+这篇教程，讲述了如何将 Hippy 集成到 iOS 工程。
 
 # 集成到自定义工程中
 
 ## 使用pod集成
 
-1.安装[CocoaPods](https://cocoapods.org/)，Hippy iOS SDK [版本查询](https://cocoapods.org/pods/hippy)
+1. 安装 [CocoaPods](https://cocoapods.org/)，Hippy iOS SDK [版本查询](https://cocoapods.org/pods/hippy)
 
-2.在用户自定义工程目录下创建podfile文件，文本如下
+2. 在用户自定义工程目录下创建podfile文件，文本如下
 
-```text
-#保持pod文件目录结构
-install! "cocoapods", :preserve_pod_file_structure => true
-platform :ios, '8.0'
-#TargetName替换成用户工程名
-target TargetName do
-    #使用hippy最新版本
-    pod 'hippy'
-    #若想指定使用的hippy版本号，比如2.0.0版，请使用
-    #pod 'hippy', '2.0.0'
-end
-```
+    ```text
+    #保持pod文件目录结构
+    install! "cocoapods", :preserve_pod_file_structure => true
+    platform :ios, '8.0'
+    #TargetName替换成用户工程名
+    target TargetName do
+        #使用hippy最新版本
+        pod 'hippy'
+        #若想指定使用的hippy版本号，比如2.0.0版，请使用
+        #pod 'hippy', '2.0.0'
+    end
+    ```
 
-3.在命令行中执行命令
+3. 在命令行中执行命令
 
-```text
-pod install
-```
+    ```text
+    pod install
+    ```
 
-4.使用cocoapods生成的.xcworkspace后缀名的工程文件来打开工程。
+4. 使用 cocoapods 生成的 `.xcworkspace` 后缀名的工程文件来打开工程。
 
 ## 使用源码直接集成
 
-1.从GitHub中将源码ios源码下载，将ios/sdk文件夹以及core文件夹拖入工程中
+1. 从GitHub中将ios源码下载，将ios/sdk文件夹以及core文件夹拖入工程中
 
-2.删除对core/js文件夹的引用。
+2. 删除对 `core/js` 文件夹的引用。
 
->core/js文件夹中包含的是不参与编译的js文件
+   > core/js文件夹中包含的是不参与编译的js文件
 
-3.删除对core/napi/v8文件夹的引用
->core文件夹代码涉及ios/adr JS引擎，ios使用的JSC
+3. 删除对 `core/napi/v8` 文件夹的引用
 
-4.在xcode build settings中设置*User Header Search Paths*项为core文件夹所在路径
->假设core文件夹路径为*~/documents/project/hippy/demo/core*，那应当设置为*~/documents/project/hippy/demo/*而不是*~/documents/project/hippy/demo/core*
+   > core 文件夹代码涉及 ios/adr JS引擎，ios使用的JSC
+
+4. 在 `xcode build settings` 中设置 *User Header Search Paths* 项为core文件夹所在路径
+
+ > 假设core文件夹路径为 `~/documents/project/hippy/demo/core`，那应当设置为 `~/documents/project/hippy/demo/` 而不是 `~/documents/project/hippy/demo/core`
 
 # 编写代码开始调试或者加载业务代码
 
-Hippy提供分包加载接口以及不分包加载接口, 所有的业务包都是通过HippyRootView进行承载，创建业务也就是创建RootView。
+Hippy 提供分包加载接口以及不分包加载接口, 所有的业务包都是通过 HippyRootView 进行承载，创建业务也就是创建 RootView。
 
 目前HippyRootView提供分包加载接口以及不分包加载接口
 
-## 1. 使用分包加载接口
+## 使用分包加载接口
 
 ``` objectivec
 /** 此方法适用于以下场景：
@@ -80,7 +82,7 @@ HippyBridge *bridge = [[HippyBridge alloc] initWithBundleURL: commonBundlePath
 
 ```
 
-## 2. 使用不分包加载接口
+## 使用不分包加载接口
 
 ``` objectivec
 - (instancetype)initWithBundleURL:(NSURL *)bundleURL  // 包地址
@@ -91,6 +93,4 @@ HippyBridge *bridge = [[HippyBridge alloc] initWithBundleURL: commonBundlePath
     delegate:(id <HippyRootViewDelegate>)delegate // rootview加载回调
 ```
 
-不管使用分包还是不分包初始化rootview, 如果**isDebugMode**为YES的情况下，会忽略所有参数，直接使用tnpm本地服务加载测试bundle。
-
-使用分包加载可以结合一系列策略，比如提前预加载bridge, 全局单bridge等来优化页面打开速度。
+!> 不管使用分包还是不分包初始化 rootview, 如果 **isDebugMode** 为YES的情况下，会忽略所有参数，直接使用 npm 本地服务加载测试 bundle。使用分包加载可以结合一系列策略，比如提前预加载bridge, 全局单bridge等来优化页面打开速度。
