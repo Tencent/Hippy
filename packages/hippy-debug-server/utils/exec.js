@@ -1,4 +1,4 @@
-const { spawn } = require('child_process');
+const spawn = require('cross-spawn');
 const { logger } = require('./logger');
 
 function exec(cmd, argv, options = {}) {
