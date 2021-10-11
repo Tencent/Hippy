@@ -55,7 +55,8 @@ const {
 } = Bridge;
 
 const TimerModule = null;
-const ConsoleModule = console;
+// @ts-ignore
+const ConsoleModule = global.ConsoleModule || global.console;
 const Platform = Device.platform;
 const Hippy = HippyReact;
 const RNfqb = HippyReact;
