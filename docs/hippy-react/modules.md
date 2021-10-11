@@ -235,6 +235,33 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 ---
 
+# ConsoleModule
+
+提供了将前端日志输出到 iOS 终端日志和 [Android logcat](//developer.android.com/studio/command-line/logcat) 的能力
+
+## 方法
+
+### ConsoleModule.log
+
+`(...value: string) => void`
+
+### ConsoleModule.info
+
+`(...value: string) => void`
+
+### ConsoleModule.warn
+
+`(...value: string) => void`
+
+### ConsoleModule.error
+
+`(...value: string) => void`
+
+> - `log` 和 `info` 默认都输出为终端 INFO 级别日志。
+> - Hippy 2.10.0 版本之后将原始 js 的 `console` 方法与 `ConsoleModule` 方法进行分离，`console` 不再输出日志到终端。
+
+---
+
 # Dimensions
 
 用于获取当前设备的宽高。
