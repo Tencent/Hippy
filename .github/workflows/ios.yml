@@ -24,8 +24,12 @@ on:
 
 jobs:
   buildios:
-    runs-on: macOS-latest
+    runs-on: macOS-11
     steps:
       - uses: actions/checkout@v2
       - name: buildexample
-        run: pushd examples/ios-demo && xcodebuild build -destination 'name=iPhone 11' -scheme 'HippyDemo' && popd
+        run: |
+          # https://github.com/actions/virtual-environments/issues/4180
+          # Xcode_13 will be selected on October, 18, so we need to set to xcode13 manually before that day.
+          sudo xcode-select --switch '/Applications/Xcode_13.0.app/'
+          pushd examples/ios-demo && xcodebuild build -destination 'name=iPhone 11' -scheme 'HippyDemo' && popd
