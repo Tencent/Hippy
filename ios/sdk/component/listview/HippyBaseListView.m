@@ -85,6 +85,9 @@
         _tableView.allowsSelection = NO;
         _tableView.estimatedRowHeight = 0;
         _tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+        if (@available(iOS 15.0, *)) {
+            [_tableView setSectionHeaderTopPadding:0.0f];
+        }
         if (@available(iOS 11.0, *)) {
             _tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
             _tableView.insetsContentViewsToSafeArea = NO;
