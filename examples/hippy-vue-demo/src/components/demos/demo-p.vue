@@ -116,11 +116,12 @@ export default {
 
 .p-demo .p-demo-4 {
   text-decoration-line: underline;
-  text-decoration: underline;
+  text-decoration-style: dotted;
 }
 
 .p-demo .p-demo-5 {
-  text-decoration: line-through;
+  text-decoration-line: line-through;
+  text-decoration-color: red;
 }
 
 .p-demo .p-demo-6 {
