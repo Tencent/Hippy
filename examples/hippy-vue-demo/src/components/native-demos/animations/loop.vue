@@ -80,9 +80,6 @@ export default {
       this.$props.onRef(this.$refs.animationLoop);
     }
   },
-  beforeDestroy() {
-    this.$refs.animationLoop.destroy();
-  },
 };
 </script>
 
