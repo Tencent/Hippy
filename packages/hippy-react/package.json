@@ -20,11 +20,11 @@
   ],
   "dependencies": {
     "fast-deep-equal": "^2.0.1",
-    "react": "^16.14.0",
-    "react-reconciler": "^0.21.0"
+    "react": "^17.0.2",
+    "react-reconciler": "^0.26.2"
   },
   "devDependencies": {
-    "@types/react": "^16.14.0",
-    "@types/react-reconciler": "^0.18.0"
+    "@types/react": "^17.0.21",
+    "@types/react-reconciler": "^0.26.3"
   }
 }

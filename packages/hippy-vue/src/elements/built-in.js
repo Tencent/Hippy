@@ -24,6 +24,47 @@ const INPUT_VALUE_MAP = {
   search: 'web-search',
 };
 
+const accessibilityAttrMaps = {
+  role: 'accessibilityRole',
+  'aria-label': 'accessibilityLabel',
+  'aria-disabled': {
+    jointKey: 'accessibilityState',
+    name: 'disabled',
+  },
+  'aria-selected': {
+    jointKey: 'accessibilityState',
+    name: 'selected',
+  },
+  'aria-checked': {
+    jointKey: 'accessibilityState',
+    name: 'checked',
+  },
+  'aria-busy': {
+    jointKey: 'accessibilityState',
+    name: 'busy',
+  },
+  'aria-expanded': {
+    jointKey: 'accessibilityState',
+    name: 'expanded',
+  },
+  'aria-valuemin': {
+    jointKey: 'accessibilityValue',
+    name: 'min',
+  },
+  'aria-valuemax': {
+    jointKey: 'accessibilityValue',
+    name: 'max',
+  },
+  'aria-valuenow': {
+    jointKey: 'accessibilityValue',
+    name: 'now',
+  },
+  'aria-valuetext': {
+    jointKey: 'accessibilityValue',
+    name: 'text',
+  },
+};
+
 // View area
 const div = {
   symbol: components.View,
@@ -36,6 +77,9 @@ const div = {
       ['touchend', 'onTouchEnd'],
       ['touchcancel', 'onTouchCancel'],
     ]),
+    attributeMaps: {
+      ...accessibilityAttrMaps,
+    },
     processEventData(event, nativeEventName, nativeEventParams) {
       switch (nativeEventName) {
         case 'onScroll':
@@ -115,6 +159,7 @@ const img = {
       src(value) {
         return convertImageLocalPath(value);
       },
+      ...accessibilityAttrMaps,
     },
   },
 };
@@ -131,6 +176,9 @@ const ul = {
       numberOfRows(node) {
         return arrayCount(node.childNodes, childNode => !childNode.meta.skipAddToDom);
       },
+    },
+    attributeMaps: {
+      ...accessibilityAttrMaps,
     },
     eventNamesMap: mapEvent('listReady', 'initialListReady'),
     processEventData(event, nativeEventName, nativeEventParams) {
@@ -153,6 +201,9 @@ const li = {
   symbol: components.ListViewItem,
   component: {
     name: NATIVE_COMPONENT_NAME_MAP[components.ListViewItem],
+    attributeMaps: {
+      ...accessibilityAttrMaps,
+    },
   },
   eventNamesMap: mapEvent([
     ['disappear', (__PLATFORM__ === 'android' || Native.Platform === 'android') ? 'onDisAppear' : 'onDisappear'],
@@ -223,6 +274,7 @@ const input = {
       },
       value: 'defaultValue',
       maxlength: 'maxLength',
+      ...accessibilityAttrMaps,
     },
     nativeProps: {
       numberOfLines: 1,

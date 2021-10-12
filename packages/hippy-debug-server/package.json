@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "chokidar": "~3.5.2",
+    "cross-spawn": "^7.0.3",
     "find-up": "^4.1.0",
     "koa": "^2.3.0",
     "mime": "^2.5.2",
