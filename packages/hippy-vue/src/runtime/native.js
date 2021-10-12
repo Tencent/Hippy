@@ -403,6 +403,10 @@ const Native = {
    * Network operations
    */
   NetInfo,
+  /**
+   * console log to native
+   */
+  ConsoleModule: global.ConsoleModule || global.console,
 };
 
 // Public export

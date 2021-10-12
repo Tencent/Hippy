@@ -123,7 +123,6 @@ import icon from './qb_icon_new.png';
 | delText   | 侧滑删除文本。`最低支持版本2.9.0` | `string`                                                   | `iOS`    |
 | onDelete   | 在列表项侧滑删除时调起。`最低支持版本2.9.0` | `( nativeEvent: { index: number} ) => void`                                                   | `iOS`    |
 
-
 ## 方法
 
 ### scrollToContentOffset
@@ -511,3 +510,23 @@ import icon from './qb_icon_new.png';
 > * `xOffset`: number - 滑动到 X 方向的 offset
 > * `yOffset`: number - 滑动到 Y 方向的 offset
 > * `animated`: boolean - 滑动过程是否使用动画，默认 `true`
+
+---
+
+# WebView
+
+[[WebView 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/WebView/index.jsx)
+
+WebView组件。
+
+## 参数
+
+| 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
+| --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
+| source | Webview 内嵌地址 | `{ uri: string }` | `ALL` |
+| userAgent | Webview userAgent | `string` | `ALL`|
+| method     | 请求方式， `get`、`post` | `string`   | `ALL`    |
+| onLoadStart  | 网页开始加载时触发 | `(object: { url:string }) => void`   | `ALL`  |
+| onLoad  | 网页加载时触发  | `(object: { url:string }) => void`   | `ALL`  |
+| onLoadEnd  | 网页加载结束时触发 | `(object: { url:string }) => void`   | `ALL`  |
+| style  | Webview 容器样式  | `Object`   | `ALL`  |
