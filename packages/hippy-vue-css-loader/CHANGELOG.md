@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.10.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-css-loader/compare/2.9.2...2.10.0) (2021-10-12)
+
+
+### Features
+
+* **hippy-vue,hippy-react:** add text shadow ([a891690](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-css-loader/commit/a8916904cca88f09bdee55511dce670bf09571fa))
+
+
+
+
+
 ## [2.9.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-css-loader/compare/2.9.1...2.9.2) (2021-10-12)
 
 

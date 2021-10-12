@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.10.0](https://github.com/Tencent/Hippy/compare/2.9.2...2.10.0) (2021-10-12)
+
+
+### Features
+
+* **core:** seperate console & ConsoleModule ([dd9d80a](https://github.com/Tencent/Hippy/commit/dd9d80a4e5bdf9048bf61f31866c59266e1aeaf6))
+* **hippy-react:** update react 17 ([df6bccb](https://github.com/Tencent/Hippy/commit/df6bccba5d6e74fcb88e343e77ff6425e46442f4))
+* **hippy-vue,hippy-react:** add text shadow ([a891690](https://github.com/Tencent/Hippy/commit/a8916904cca88f09bdee55511dce670bf09571fa))
+
+
+
+
+
 ## [2.9.2](https://github.com/Tencent/Hippy/compare/2.9.1...2.9.2) (2021-10-12)
 
 
