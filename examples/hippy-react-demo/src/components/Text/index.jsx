@@ -160,6 +160,15 @@ export default class TextExpo extends React.Component {
             lines just two lines just two lines just two lines just two lines just two lines
           </Text>
         </View>
+        {renderTitle('textDecoration')}
+        <View style={styles.itemContent}>
+          <Text numberOfLines={1} style={[styles.normalText, { textDecorationLine: 'underline', textDecorationStyle: 'dotted' }]}>
+            underline
+          </Text>
+          <Text numberOfLines={1} style={[styles.normalText, { textDecorationLine: 'line-through', textDecorationColor: 'red' }]}>
+            line-through
+          </Text>
+        </View>
         {renderTitle('Nest Text')}
         <View style={styles.itemContent}>
           <Text numberOfLines={3}>
