@@ -29,7 +29,7 @@ const verticalAnimation = {
   transform: {
     translateY: {
       startValue: 0,
-      toValue: 100,
+      toValue: 50,
       duration: 2000,
       repeatCount: -1,
     },
