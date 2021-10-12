@@ -50,9 +50,6 @@ export default {
       this.$props.onRef(this.$refs.animationView);
     }
   },
-  beforeDestroy() {
-    this.$refs.animationView.destroy();
-  },
 };
 </script>
 
