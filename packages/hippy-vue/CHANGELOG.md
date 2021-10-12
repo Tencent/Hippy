@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.9.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.9.1...2.9.2) (2021-10-12)
+
+
+### Bug Fixes
+
+* **hippy-vue:** update ava package to safe ver ([e9752b4](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/e9752b494c66a49938575fd32e9f9234ef643d1f))
+
+
+
+
+
 ## [2.9.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.9.0...2.9.1) (2021-09-24)
 
 **Note:** Version bump only for package @hippy/vue

@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.9.2](https://github.com/Tencent/Hippy/compare/2.9.1...2.9.2) (2021-10-12)
+
+
+### Bug Fixes
+
+* **hippy-debug-server:** change child_process to cross-spawn ([870ab07](https://github.com/Tencent/Hippy/commit/870ab07d3592eb1865e40cfca617b6b338a4f711))
+* **hippy-vue:** update ava package to safe ver ([e9752b4](https://github.com/Tencent/Hippy/commit/e9752b494c66a49938575fd32e9f9234ef643d1f))
+* **ios:** also check root tag for touch handler ([58feddf](https://github.com/Tencent/Hippy/commit/58feddf981f3bdd4ae944bc9d323941d247b294b))
+* **ios:** fix a potential crash due to null pointer ([#985](https://github.com/Tencent/Hippy/issues/985)) ([77545f2](https://github.com/Tencent/Hippy/commit/77545f21a64d5e624f77104ad3aca4bc88320ba7))
+* **ios:** fix potential multi-thread crash ([e2faa1d](https://github.com/Tencent/Hippy/commit/e2faa1dae532f5154b5aa5f4bddc1aa2bbda3484))
+* **ios:** fix scroll animation in ios15 ([c31f25e](https://github.com/Tencent/Hippy/commit/c31f25e2d86b56514296a992af39435897db9e09))
+* **ios:** improve stability for vfs module ([888d408](https://github.com/Tencent/Hippy/commit/888d408860811317ac0764fd357b6aa3f017f1d7))
+* **ios:** improve stability for websocket module ([d5595ea](https://github.com/Tencent/Hippy/commit/d5595ea2f9a9b7a404bbcce27addce7937f93e34))
+* **ios:** reset tableview top padding to zero in ios15 ([#1000](https://github.com/Tencent/Hippy/issues/1000)) ([a5184cf](https://github.com/Tencent/Hippy/commit/a5184cfe5d4777ede135cdff52da23ab5b59f89a))
+* **vue-example:** fix loop animation height ([dc3d948](https://github.com/Tencent/Hippy/commit/dc3d948b836bcab5a9f7c35ee0be840f4a050b3c))
+* **vue-example:** fix loop animation height ([f7dad4d](https://github.com/Tencent/Hippy/commit/f7dad4d53039a74c3550f6c53bb8408e08a107d9))
+
+
+
+
+
 ## [2.9.1](https://github.com/Tencent/Hippy/compare/2.9.0...2.9.1) (2021-09-24)
 
 

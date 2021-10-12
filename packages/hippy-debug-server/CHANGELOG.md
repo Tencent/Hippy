@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.9.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-debug-server/compare/2.9.1...2.9.2) (2021-10-12)
+
+
+### Bug Fixes
+
+* **hippy-debug-server:** change child_process to cross-spawn ([870ab07](https://github.com/Tencent/Hippy/tree/master/packages/hippy-debug-server/commit/870ab07d3592eb1865e40cfca617b6b338a4f711))
+
+
+
+
+
 ## [2.9.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-debug-server/compare/2.9.0...2.9.1) (2021-09-24)
 
 
