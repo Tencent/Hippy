@@ -51,9 +51,6 @@ export default {
       colorActions,
     };
   },
-  beforeDestroy() {
-    this.$refs.animationView.destroy();
-  },
 };
 </script>
 

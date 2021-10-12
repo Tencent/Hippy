@@ -18,7 +18,7 @@
           <span v-else>切换为横向</span>
         </button>
       </div>
-      <div>
+      <div style="height: 150px">
         <loop
           :playing="loopPlaying"
           :direction="direction"
@@ -29,7 +29,7 @@
       </div>
     </li>
     <li>
-      <div style="margin-top: 150px" />
+      <div style="margin-top: 10px" />
       <label>点赞笑脸动画:</label>
       <div class="toolbar">
         <button
