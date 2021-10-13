@@ -29,7 +29,7 @@ const verticalAnimation = {
   transform: {
     translateY: {
       startValue: 0,
-      toValue: 100,
+      toValue: 50,
       duration: 2000,
       repeatCount: -1,
     },
@@ -79,9 +79,6 @@ export default {
     if (this.$props.onRef) {
       this.$props.onRef(this.$refs.animationLoop);
     }
-  },
-  beforeDestroy() {
-    this.$refs.animationLoop.destroy();
   },
 };
 </script>
