@@ -135,7 +135,7 @@ class HPNode {
   void layoutFixedItems(HPSizeMode measureMode, void *layoutContext);
   void calculateFixedItemPosition(HPNodeRef item, FlexDirection axis);
 
-  void convertLayoutResult(float absLeft, float absTop);
+  void convertLayoutResult(float absLeft, float absTop, float scaleFactor);
 
  public:
   HPStyle style;

@@ -597,7 +597,7 @@ void HPNode::layout(float parentWidth,
   // node 's layout is complete
   // convert its and its descendants position and size to a integer value.
 #ifndef ANDROID
-  convertLayoutResult(0.0f, 0.0f);  // layout result convert has been taken in
+  convertLayoutResult(0.0f, 0.0f, 1.0f);  // layout result convert has been taken in
                                     // java . 3.8.2018. ianwang..
 #endif
 
@@ -1512,7 +1512,7 @@ void HPNode::calculateFixedItemPosition(HPNodeRef item, FlexDirection axis) {
 // offset for example: if parent's Fraction offset is 0.3 and current child
 // offset is 0.4 then the child's absolute offset  is 0.7. if use roundf ,
 // roundf(0.7) == 1 so we need absLeft, absTop  parameter
-void HPNode::convertLayoutResult(float absLeft, float absTop) {
+void HPNode::convertLayoutResult(float absLeft, float absTop, float scaleFactor) {
   if (!hasNewLayout()) {
     return;
   }
@@ -1524,8 +1524,8 @@ void HPNode::convertLayoutResult(float absLeft, float absTop) {
   absLeft += left;
   absTop += top;
   bool isTextNode = style.nodeType == NodeTypeText;
-  result.position[CSSLeft] = HPRoundValueToPixelGrid(left, false, isTextNode);
-  result.position[CSSTop] = HPRoundValueToPixelGrid(top, false, isTextNode);
+  result.position[CSSLeft] = HPRoundValueToPixelGrid(left, scaleFactor, false, isTextNode);
+  result.position[CSSTop] = HPRoundValueToPixelGrid(top, scaleFactor, false, isTextNode);
 
   const bool hasFractionalWidth =
       !FloatIsEqual(fmodf(width, 1.0), 0) && !FloatIsEqual(fmodf(width, 1.0), 1.0);
@@ -1534,16 +1534,16 @@ void HPNode::convertLayoutResult(float absLeft, float absTop) {
 
   const float absRight = absLeft + width;
   const float absBottom = absTop + height;
-  result.dim[DimWidth] = HPRoundValueToPixelGrid(absRight, (isTextNode && hasFractionalWidth),
+  result.dim[DimWidth] = HPRoundValueToPixelGrid(absRight, scaleFactor,(isTextNode && hasFractionalWidth),
                                                  (isTextNode && !hasFractionalWidth)) -
-                         HPRoundValueToPixelGrid(absLeft, false, isTextNode);
+                         HPRoundValueToPixelGrid(absLeft, scaleFactor, false, isTextNode);
 
-  result.dim[DimHeight] = HPRoundValueToPixelGrid(absBottom, (isTextNode && hasFractionalHeight),
+  result.dim[DimHeight] = HPRoundValueToPixelGrid(absBottom, scaleFactor, (isTextNode && hasFractionalHeight),
                                                   (isTextNode && !hasFractionalHeight)) -
-                          HPRoundValueToPixelGrid(absTop, false, isTextNode);
+                          HPRoundValueToPixelGrid(absTop, scaleFactor, false, isTextNode);
   std::vector<HPNodeRef>& items = children;
   for (size_t i = 0; i < items.size(); i++) {
     HPNodeRef item = items[i];
-    item->convertLayoutResult(absLeft, absTop);
+    item->convertLayoutResult(absLeft, absTop, scaleFactor);
   }
 }
