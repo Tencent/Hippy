@@ -91,7 +91,7 @@ function setSilent(silentArg: boolean): void {
  */
 function convertImgUrl(url: string): string {
   if (url && !/^(http|https):\/\//.test(url) && url.indexOf('assets') > -1) {
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV !== 'production') {
       const addStr1 = 'http://';
       return `${addStr1}127.0.0.1:${process.env.PORT}/${url}`;
     }
