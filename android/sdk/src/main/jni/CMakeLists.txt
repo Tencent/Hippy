@@ -148,8 +148,10 @@ include_directories(${CORE_SRC_DIR}/third_party/base/include)
 add_library(${CMAKE_PROJECT_NAME} SHARED ${CORE_SRC} ${URL_PARSER_SRC} ${JNI_SRC})
 target_link_libraries(${CMAKE_PROJECT_NAME} ${HIPPY_DEPS})
 
-foreach(LIBRARY_DEP ${V8_LIBRARY_DEPS})
-  add_custom_command(
-          TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
-          COMMAND ${CMAKE_COMMAND} -E copy ${V8_LIBRARY_PATH}/${LIBRARY_DEP} $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>)
-endforeach()
+if ((${JS_ENGINE} STREQUAL "V8") AND (${V8_LINKING_MODE} STREQUAL "shared"))
+  foreach(LIBRARY_DEP ${V8_LIBRARY_DEPS})
+    add_custom_command(
+            TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy ${V8_LIBRARY_PATH}/${LIBRARY_DEP} $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>)
+  endforeach()
+endif()
