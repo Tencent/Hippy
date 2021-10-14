@@ -3,6 +3,10 @@ cmake_minimum_required(VERSION 3.4.1)
 project(flexbox)
 
 set(CMAKE_VERBOSE_MAKEFILE on)
+if (NOT ${ANDROID_STL} STREQUAL "c++_shared")
+  string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--exclude-libs,libc++_static.a")
+  string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--exclude-libs,libc++abi.a")
+endif()
 add_compile_options(
 	-fno-rtti
 	-fno-threadsafe-statics
