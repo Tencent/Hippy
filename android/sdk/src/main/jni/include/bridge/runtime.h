@@ -29,7 +29,7 @@
 
 #include "core/core.h"
 #include "jni/scoped_java_ref.h"
-#ifdef V8_HAS_INSPECTOR
+#ifdef ENABLE_INSPECTOR
 #include "inspector/v8_inspector_client_impl.h"
 #endif
 
