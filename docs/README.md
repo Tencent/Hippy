@@ -8,7 +8,7 @@
         </h1>
         <div class="sub-title"><span>为前端开发人员设计的跨端框架</span></div>
         <a href="https://github.com/Tencent/Hippy/stargazers" rel="noopener" target="_blank"><img
-                alt="GitHub Repo stars" src="https://img.shields.io/github/stars/Tencent/Hippy?color=50c52b"></a>
+                alt="GitHub Repo stars" src="https://img.shields.io/github/stars/Tencent/Hippy?color=50c52a"></a>
         <a href="https://github.com/Tencent/Hippy/releases"
            rel="noopener" target="_blank">
             <img
