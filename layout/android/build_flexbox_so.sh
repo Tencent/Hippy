@@ -22,7 +22,7 @@ for CURRENT_ARCH in ${ARCH_ARR[@]}; do
   -DANDROID_TOOLCHAIN=clang\
   -DANDROID_NDK="${ANDROID_NDK_HOME}" \
   -DANDROID_PLATFORM=android-16\
-  -DANDROID_STL=c++_shared\
+  -DANDROID_STL=c++_static\
   -DCMAKE_TOOLCHAIN_FILE="${CMAKE_TOOLCHAIN_FILE}"\
   -DLIBRARY_OUTPUT_PATH="${BASH_SOURCE_DIR}/out/${CURRENT_ARCH}/lib.unstripped"\
   -G"Ninja" ../../../android/
@@ -32,10 +32,8 @@ for CURRENT_ARCH in ${ARCH_ARR[@]}; do
   "${CMAKE_MAKE_PROGRAM}/ninja"
 
   HOST_TAG=${HOST_TAG_ARR[$INDEX]}
-  cp "$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/${HOST_TAG}/libc++_shared.so" "${BASH_SOURCE_DIR}/out/${CURRENT_ARCH}/lib.unstripped/libc++_shared.so"
   STRIP="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/${HOST_TAG}/bin/strip"
   $STRIP --strip-all -x "${BASH_SOURCE_DIR}/out/${CURRENT_ARCH}/lib.unstripped/libflexbox.so" -o "${BASH_SOURCE_DIR}/out/${CURRENT_ARCH}/libflexbox.so"
-  $STRIP --strip-all -x "${BASH_SOURCE_DIR}/out/${CURRENT_ARCH}/lib.unstripped/libc++_shared.so" -o "${BASH_SOURCE_DIR}/out/${CURRENT_ARCH}/libc++_shared.so"
 
   INDEX=$INDEX+1
 done
