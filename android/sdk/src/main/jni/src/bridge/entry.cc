@@ -74,7 +74,7 @@ using RegisterFunction = hippy::base::RegisterFunction;
 using Ctx = hippy::napi::Ctx;
 using StringViewUtils = hippy::base::StringViewUtils;
 using HippyFile = hippy::base::HippyFile;
-#ifdef V8_HAS_INSPECTOR
+#ifdef ENABLE_INSPECTOR
 using V8InspectorClientImpl = hippy::inspector::V8InspectorClientImpl;
 std::shared_ptr<V8InspectorClientImpl> global_inspector = nullptr;
 #endif
@@ -409,7 +409,7 @@ jlong InitInstance(JNIEnv* j_env,
       TDF_BASE_DLOG(ERROR) << "register hippyCallNatives, scope error";
       return;
     }
-#ifdef V8_HAS_INSPECTOR
+#ifdef ENABLE_INSPECTOR
     if (runtime->IsDebug()) {
       if (!global_inspector) {
         global_inspector = std::make_shared<V8InspectorClientImpl>(scope);
@@ -509,7 +509,7 @@ void DestroyInstance(JNIEnv* j_env,
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
   task->callback = [runtime, runtime_id] {
     TDF_BASE_LOG(INFO) << "js destroy begin, runtime_id " << runtime_id;
-#ifdef V8_HAS_INSPECTOR
+#ifdef ENABLE_INSPECTOR
     if (runtime->IsDebug()) {
       global_inspector->DestroyContext();
       global_inspector->Reset(nullptr, runtime->GetBridge());
