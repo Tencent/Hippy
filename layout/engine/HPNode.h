@@ -136,6 +136,9 @@ class HPNode {
   void calculateFixedItemPosition(HPNodeRef item, FlexDirection axis);
 
   void convertLayoutResult(float absLeft, float absTop, float scaleFactor);
+  static void setScaleFactor(float scaleFactor) {
+    HPNode::scaleFactor = scaleFactor;
+  };
 
  public:
   HPStyle style;
@@ -155,6 +158,7 @@ class HPNode {
   HPLayoutCache layoutCache;
   // layout result is in initial state or not
   bool inInitailState;
+  static float scaleFactor;
 #ifdef LAYOUT_TIME_ANALYZE
   int fetchCount;
 #endif
