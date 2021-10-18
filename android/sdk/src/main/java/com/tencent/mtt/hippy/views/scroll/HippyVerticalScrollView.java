@@ -129,7 +129,13 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
       }
 
       if(mPagingEnabled) {
-        post(() -> doPageScroll());
+        post(new Runnable() {
+               @Override
+               public void run() {
+                 doPageScroll();
+               }
+             }
+        );
       }
       // 当手指松开时，让父控件重新获取onTouch权限
       setParentScrollableIfNeed(true);
@@ -207,9 +213,12 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
       HippyScrollViewEventHelper.emitScrollMomentumBeginEvent(this);
     }
 
-    Runnable runnable = () -> {
-      if (mMomentumScrollEndEventEnable) {
-        HippyScrollViewEventHelper.emitScrollMomentumEndEvent(HippyVerticalScrollView.this);
+    Runnable runnable = new Runnable() {
+      @Override
+      public void run() {
+        if (mMomentumScrollEndEventEnable) {
+          HippyScrollViewEventHelper.emitScrollMomentumEndEvent(HippyVerticalScrollView.this);
+        }
       }
     };
 
