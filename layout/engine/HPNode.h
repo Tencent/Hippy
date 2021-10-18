@@ -94,7 +94,7 @@ class HPNode {
   float boundAxis(FlexDirection axis, float value);
   void layout(float parentWidth,
               float parentHeight,
-              HPConfig config,
+              HPConfigRef config,
               HPDirection parentDirection = DirectionLTR,
               void *layoutContext = nullptr);
   float getMainAxisDim();
@@ -104,6 +104,8 @@ class HPNode {
   void setLayoutDirection(HPDirection direction);
   HPDirection getLayoutDirection();
   FlexAlign getNodeAlign(HPNodeRef item);
+  void SetConfig(HPConfigRef config);
+  HPConfigRef GetConfig();
 
  protected:
   HPDirection resolveDirection(HPDirection parentDirection);
@@ -157,6 +159,8 @@ class HPNode {
   HPLayoutCache layoutCache;
   // layout result is in initial state or not
   bool inInitailState;
+  HPConfigRef _config = nullptr;
+
 #ifdef LAYOUT_TIME_ANALYZE
   int fetchCount;
 #endif

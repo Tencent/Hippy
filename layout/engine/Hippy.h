@@ -22,6 +22,7 @@
 #pragma once
 
 #include "HPNode.h"
+#include "HPConfig.h"
 
 HPNodeRef HPNodeNew();
 void HPNodeFree(HPNodeRef node);
@@ -67,6 +68,8 @@ float HPNodeLayoutGetPadding(HPNodeRef node, CSSDirection dir);
 float HPNodeLayoutGetBorder(HPNodeRef node, CSSDirection dir);
 bool HPNodeLayoutGetHadOverflow(HPNodeRef node);
 
+void HPNodeSetConfig(HPNodeRef node, HPConfigRef config);
+
 bool HPNodeInsertChild(HPNodeRef node, HPNodeRef child, uint32_t index);
 bool HPNodeRemoveChild(HPNodeRef node, HPNodeRef child);
 bool HPNodeHasNewLayout(HPNodeRef node);
@@ -76,7 +79,6 @@ bool HPNodeIsDirty(HPNodeRef node);
 void HPNodeDoLayout(HPNodeRef node,
                     float parentWidth,
                     float parentHeight,
-                    HPConfig config,
                     HPDirection direction = DirectionLTR,
                     void* layoutContext = nullptr);
 void HPNodePrint(HPNodeRef node);

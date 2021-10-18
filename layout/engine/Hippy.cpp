@@ -263,6 +263,10 @@ bool HPNodeLayoutGetHadOverflow(HPNodeRef node) {
   return node->result.hadOverflow;
 }
 
+void HPNodeSetConfig(HPNodeRef node, HPConfigRef config) {
+  node->SetConfig(config);
+}
+
 void HPNodeStyleSetDisplay(HPNodeRef node, DisplayType displayType) {
   if (node == nullptr)
     return;
@@ -352,13 +356,12 @@ bool HPNodeIsDirty(HPNodeRef node) {
 void HPNodeDoLayout(HPNodeRef node,
                     float parentWidth,
                     float parentHeight,
-                    HPConfig config,
                     HPDirection direction,
                     void* layoutContext) {
   if (node == nullptr)
     return;
 
-  node->layout(parentWidth, parentHeight, config, direction, layoutContext);
+  node->layout(parentWidth, parentHeight, node->GetConfig(), direction, layoutContext);
 }
 
 void HPNodePrint(HPNodeRef node) {

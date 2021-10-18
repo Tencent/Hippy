@@ -29,3 +29,5 @@ class HPConfig {
  public:
   float scaleFactor = 1.0f;
 };
+
+typedef HPConfig *HPConfigRef;

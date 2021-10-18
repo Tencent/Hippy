@@ -65,6 +65,7 @@ HPNode::HPNode() {
   parent = nullptr;
   measure = nullptr;
   dirtiedFunc = nullptr;
+  _config = new HPConfig();
 
   initLayoutResult();
   inInitailState = true;
@@ -83,6 +84,10 @@ HPNode::~HPNode() {
     if (item != nullptr) {
       item->setParent(nullptr);
     }
+  }
+
+  if(_config != nullptr) {
+    delete _config;
   }
 
   children.clear();
@@ -496,6 +501,14 @@ FlexAlign HPNode::getNodeAlign(HPNodeRef item) {
   return item->style.alignSelf;
 }
 
+void HPNode::SetConfig(HPConfigRef config) {
+  _config = config;
+}
+
+HPConfigRef HPNode::GetConfig() {
+  return _config;
+};
+
 float HPNode::boundAxis(FlexDirection axis, float value) {
   float min = style.minDim[axisDim[axis]];
   float max = style.maxDim[axisDim[axis]];
@@ -551,7 +564,7 @@ static int measureCacheCount = 0;
 
 void HPNode::layout(float parentWidth,
                     float parentHeight,
-                    HPConfig config,
+                    HPConfigRef config,
                     HPDirection parentDirection,
                     void* layoutContext) {
 #ifdef LAYOUT_TIME_ANALYZE
@@ -598,7 +611,7 @@ void HPNode::layout(float parentWidth,
   // node 's layout is complete
   // convert its and its descendants position and size to a integer value.
 #ifndef ANDROID
-  convertLayoutResult(0.0f, 0.0f, config.GetScaleFactor());  // layout result convert has been taken in
+  convertLayoutResult(0.0f, 0.0f, config->GetScaleFactor());  // layout result convert has been taken in
                                     // java . 3.8.2018. ianwang..
 #endif
 
