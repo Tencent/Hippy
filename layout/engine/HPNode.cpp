@@ -551,6 +551,7 @@ static int measureCacheCount = 0;
 
 void HPNode::layout(float parentWidth,
                     float parentHeight,
+                    HPConfig config,
                     HPDirection parentDirection,
                     void* layoutContext) {
 #ifdef LAYOUT_TIME_ANALYZE
@@ -597,7 +598,7 @@ void HPNode::layout(float parentWidth,
   // node 's layout is complete
   // convert its and its descendants position and size to a integer value.
 #ifndef ANDROID
-  convertLayoutResult(0.0f, 0.0f, HPNode::scaleFactor);  // layout result convert has been taken in
+  convertLayoutResult(0.0f, 0.0f, config.GetScaleFactor());  // layout result convert has been taken in
                                     // java . 3.8.2018. ianwang..
 #endif
 
@@ -1547,6 +1548,3 @@ void HPNode::convertLayoutResult(float absLeft, float absTop, float scaleFactor)
     item->convertLayoutResult(absLeft, absTop, scaleFactor);
   }
 }
-
-
-float HPNode::scaleFactor = 1.0f;

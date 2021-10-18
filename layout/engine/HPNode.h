@@ -24,6 +24,7 @@
 #include "HPLayoutCache.h"
 #include "HPStyle.h"
 #include "HPUtil.h"
+#include "HPConfig.h"
 
 class HPNode;
 typedef HPNode *HPNodeRef;
@@ -93,6 +94,7 @@ class HPNode {
   float boundAxis(FlexDirection axis, float value);
   void layout(float parentWidth,
               float parentHeight,
+              HPConfig config,
               HPDirection parentDirection = DirectionLTR,
               void *layoutContext = nullptr);
   float getMainAxisDim();
@@ -136,9 +138,6 @@ class HPNode {
   void calculateFixedItemPosition(HPNodeRef item, FlexDirection axis);
 
   void convertLayoutResult(float absLeft, float absTop, float scaleFactor);
-  static void setScaleFactor(float scaleFactor) {
-    HPNode::scaleFactor = scaleFactor;
-  };
 
  public:
   HPStyle style;
@@ -158,7 +157,6 @@ class HPNode {
   HPLayoutCache layoutCache;
   // layout result is in initial state or not
   bool inInitailState;
-  static float scaleFactor;
 #ifdef LAYOUT_TIME_ANALYZE
   int fetchCount;
 #endif
