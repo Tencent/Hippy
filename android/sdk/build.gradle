@@ -14,7 +14,7 @@ buildscript {
     mavenCentral()
   }
   dependencies {
-    classpath 'com.android.tools.build:gradle:4.2.1'
+    classpath 'com.android.tools.build:gradle:4.2.2'
     // NOTE: Do not place your application dependencies here; they belong
     // in the individual module build.gradle files
   }
@@ -79,6 +79,16 @@ android {
     }
   }
 
+  def V8_COMPONENT_DEBUG
+  def V8_COMPONENT_RELEASE
+  if (V8_COMPONENT == 'auto') {
+    V8_COMPONENT_DEBUG = 'third_party/v8/stable/official-release'
+    V8_COMPONENT_RELEASE = 'third_party/v8/stable/x5-lite'
+  } else {
+    V8_COMPONENT_DEBUG = V8_COMPONENT
+    V8_COMPONENT_RELEASE = V8_COMPONENT
+  }
+
   buildTypes {
     release {
       minifyEnabled true
@@ -90,7 +100,7 @@ android {
                   "-DANDROID_PLATFORM=android-21",
                   "-DCMAKE_BUILD_TYPE=Release",
                   "-DANDROID_STL=$ANDROID_STL",
-                  "-DV8_COMPONENT=$V8_COMPONENT",
+                  "-DV8_COMPONENT=$V8_COMPONENT_RELEASE",
                   "-DHIDDEN_LIBRARY_SYMBOL=$HIDDEN_LIBRARY_SYMBOL"
 
           if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() || INCLUDE_ABI_ARMEABI.toBoolean()) {
@@ -117,7 +127,7 @@ android {
                   "-DANDROID_PLATFORM=android-21",
                   "-DCMAKE_BUILD_TYPE=Debug",
                   "-DANDROID_STL=$ANDROID_STL",
-                  "-DV8_COMPONENT=$V8_COMPONENT",
+                  "-DV8_COMPONENT=$V8_COMPONENT_DEBUG",
                   "-DHIDDEN_LIBRARY_SYMBOL=$HIDDEN_LIBRARY_SYMBOL"
 
           abiFilters 'arm64-v8a'
@@ -151,7 +161,9 @@ android {
 
 dependencies {
   api fileTree(dir: 'libs', include: ['*.jar'])
+  //noinspection GradleDependency
   implementation 'androidx.annotation:annotation:1.0.0'
+  //noinspection GradleDependency
   implementation 'androidx.recyclerview:recyclerview:1.1.0'
   if (!INCLUDE_SUPPORT_UI.toBoolean()) {
     compileOnly('com.tencent.mtt:support-ui:99.2.3')
