@@ -352,12 +352,13 @@ bool HPNodeIsDirty(HPNodeRef node) {
 void HPNodeDoLayout(HPNodeRef node,
                     float parentWidth,
                     float parentHeight,
+                    HPConfig config,
                     HPDirection direction,
                     void* layoutContext) {
   if (node == nullptr)
     return;
 
-  node->layout(parentWidth, parentHeight, direction, layoutContext);
+  node->layout(parentWidth, parentHeight, config, direction, layoutContext);
 }
 
 void HPNodePrint(HPNodeRef node) {

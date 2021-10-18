@@ -76,6 +76,7 @@ bool HPNodeIsDirty(HPNodeRef node);
 void HPNodeDoLayout(HPNodeRef node,
                     float parentWidth,
                     float parentHeight,
+                    HPConfig config,
                     HPDirection direction = DirectionLTR,
                     void* layoutContext = nullptr);
 void HPNodePrint(HPNodeRef node);
