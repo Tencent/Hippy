@@ -149,7 +149,13 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
       }
 
       if(mPagingEnabled) {
-        post(() -> doPageScroll());
+        post(new Runnable() {
+               @Override
+               public void run() {
+                 doPageScroll();
+               }
+             }
+        );
       }
 
       mDragging = false;
@@ -223,9 +229,12 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
       HippyScrollViewEventHelper.emitScrollMomentumBeginEvent(this);
     }
 
-    Runnable runnable = () -> {
-      if (mMomentumScrollEndEventEnable) {
-        HippyScrollViewEventHelper.emitScrollMomentumEndEvent(HippyHorizontalScrollView.this);
+    Runnable runnable = new Runnable() {
+      @Override
+      public void run() {
+        if (mMomentumScrollEndEventEnable) {
+          HippyScrollViewEventHelper.emitScrollMomentumEndEvent(HippyHorizontalScrollView.this);
+        }
       }
     };
 

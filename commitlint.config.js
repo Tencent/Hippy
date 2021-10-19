@@ -21,6 +21,7 @@ module.exports = {
         'test', // Adds or modifies tests.
       ],
     ],
+    'subject-case': [2, 'never', []],
     'scope-empty': [2, 'never'],
   },
 };
