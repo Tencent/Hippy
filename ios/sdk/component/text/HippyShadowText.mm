@@ -400,6 +400,9 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
             NSTextAttachment *attachment = [NSTextAttachment new];
             attachment.bounds = (CGRect) { CGPointZero, { width, height } };
+            if (@available(iOS 15.0, *)) {
+                attachment.image = [[UIImage alloc] init];
+            }
             NSMutableAttributedString *attachmentString = [NSMutableAttributedString new];
             [attachmentString appendAttributedString:[NSAttributedString attributedStringWithAttachment:attachment]];
             [attachmentString addAttribute:HippyShadowViewAttributeName value:child range:(NSRange) { 0, attachmentString.length }];
