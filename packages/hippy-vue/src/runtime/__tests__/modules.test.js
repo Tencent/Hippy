@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 
 import test, { before } from 'ava';
+import * as nodeOps from '../node-ops';
 import { setVue, setApp } from '../../util';
 import Native from '../native';
 
@@ -76,4 +77,9 @@ test('native NetInfo', (t) => {
   const listener = Native.NetInfo.addEventListener('change', handler);
   Native.NetInfo.removeEventListener('change', listener);
   t.pass();
+});
+
+test('native getElemCss', async (t) => {
+  const element = nodeOps.createElement('div');
+  t.deepEqual(Native.getElemCss(element), {});
 });

@@ -517,6 +517,7 @@ function updateWithChildren(parentNode) {
 }
 
 export {
+  getCssMap,
   renderToNative,
   renderToNativeWithChildren,
   insertChild,
