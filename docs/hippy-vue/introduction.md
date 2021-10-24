@@ -17,6 +17,23 @@ hippy-vue 其实是基于官方 Vue 2.x 源代码，通过改写 [node-ops](//gi
 
 不过依然存在一些问题，类似 rem、vh 这样的相对单位如果写进 Hippy 业务里了，及时发现避免更重要大的风险可能更重要一些，所以现在只转换 px 单位，别的单位任由终端层报错。
 
+HippyVue 提供了 `beforeLoadStyle` 的 Vue options 勾子函数，可以自定义修改 CSS 样式，如
+
+```js
+    new Vue({
+      // ...
+      beforeLoadStyle(decl) {
+         let { type, property, value } = decl;
+         console.log('property|value', property, value); // => height, 1rem
+          // 比如可以对 rem 单位进行处理
+         if(typeof value === 'string' && /rem$/.test(value)) {
+             // ...value = xxx
+         } 
+         return { ...decl, value}
+      }
+    });
+```
+
 # 转 Web
 
 hippy-vue 项目基于官方 [vue-cli](//cli.vuejs.org/) 构建，再加上基础组件和浏览器兼容，可以直接使用 vue-cli 的方式将 Hippy 工程转为运行在浏览器上。
