@@ -6,6 +6,9 @@ import {
   trace,
   isFunction,
 } from '../util';
+import {
+  getCssMap,
+} from '../renderer/native/index';
 
 import BackAndroid from './backAndroid';
 import * as NetInfo from './netInfo';
@@ -69,6 +72,25 @@ const measureInWindowByMethod = function measureInWindowByMethod(el, method) {
     });
   }));
   return Promise.race([timeout, measure]);
+};
+
+/**
+ * getElemCss
+ * @param {ElementNode} element
+ * @returns {{}}
+ */
+const getElemCss = function getElemCss(element) {
+  const style = Object.create(null);
+  try {
+    getCssMap().query(element).selectors.forEach((matchedSelector) => {
+      matchedSelector.ruleSet.declarations.forEach((cssStyle) => {
+        style[cssStyle.property] = cssStyle.value;
+      });
+    });
+  } catch (err) {
+    console.error('getDomCss Error:', err);
+  }
+  return style;
 };
 
 /**
@@ -407,6 +429,7 @@ const Native = {
    * console log to native
    */
   ConsoleModule: global.ConsoleModule || global.console,
+  getElemCss,
 };
 
 // Public export
