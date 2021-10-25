@@ -261,6 +261,23 @@ Hippy 中通过 fetch 服务返回的 `set-cookie` Header 会自动将 Cookie �
 
 ---
 
+# getElemCss
+
+获取具体节点的 CSS 样式。
+
+> 最低支持版本 2.10.1
+
+`(ref: ElementNode) => {}`
+
+* 示例：
+
+```js
+this.demon1Point = this.$refs['demo-1-point'];
+console.log(Vue.Native.getElemCss(this.demon1Point)) // => { height: 80, left: 0, position: "absolute" }
+```
+
+---
+
 # ImageLoaderModule
 
 通过该模块可以对远程图片进行相应操作
