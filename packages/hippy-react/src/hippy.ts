@@ -3,7 +3,7 @@ import Document from './dom/document-node';
 import renderer from './renderer';
 import * as Native from './native';
 import { setRootContainer } from './utils/node';
-import { trace, warn, setSilent } from './utils';
+import { trace, warn, setSilent, setBubbles } from './utils';
 
 const {
   createContainer,
@@ -27,6 +27,11 @@ interface HippyReactConfig {
    * Disable trace output
    */
   silent?: boolean;
+
+  /**
+   * enable global bubbles
+   */
+  bubbles?: boolean;
 
   /**
    * The callback after rendering.
@@ -94,6 +99,7 @@ class HippyReact implements HippyReact {
       appName,
       entryPage,
       silent = false,
+      bubbles = false,
       callback = () => {},
     } = this.config;
     const { __instanceId__: rootViewId } = superProps;
@@ -104,7 +110,9 @@ class HippyReact implements HippyReact {
     if (silent) {
       setSilent(silent);
     }
-
+    if (bubbles) {
+      setBubbles(bubbles);
+    }
     // Save the root container
     setRootContainer(rootViewId, this.rootContainer);
 
