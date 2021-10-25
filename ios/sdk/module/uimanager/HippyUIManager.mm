@@ -874,6 +874,7 @@ HIPPY_EXPORT_METHOD(manageChildren:(nonnull NSNumber *)containerTag
 HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
                   viewName:(NSString *)viewName
                   rootTag:(nonnull NSNumber *)rootTag
+                  tagName:(NSString *)tagName
                   props:(NSDictionary *)props) {
     HippyComponentData *componentData = _componentDataByName[viewName];
     HippyShadowView *shadowView = [componentData createShadowViewWithTag:hippyTag];
@@ -929,6 +930,7 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
         HippyVirtualNode *node = [componentData createVirtualNode: hippyTag props: newProps];
         if(node) {
             node.rootTag = rootTag;
+            node.tagName = tagName;
             node.bridge = [uiManager bridge];
             uiManager->_nodeRegistry[hippyTag] = node;
         }
@@ -1373,6 +1375,10 @@ HIPPY_EXPORT_METHOD(measureInAppWindow:(nonnull NSNumber *)hippyTag
             completion(rootView);
         });
     });
+}
+
+- (NSNumber *)rootHippyTag {
+    return _rootViewTags.count > 0 ? _rootViewTags.allObjects.firstObject : @(0);
 }
 
 - (NSNumber *)_rootTagForHippyTag:(NSNumber *)hippyTag {
