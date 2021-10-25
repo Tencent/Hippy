@@ -38,6 +38,8 @@
 #import "HippyDevLoadingView.h"
 #import "HippyDeviceBaseInfo.h"
 #import "HippyI18nUtils.h"
+#import "HippyDevWebSocketClient.h"
+#import "HippyBundleURLProvider.h"
 #include "core/scope.h"
 #import "HippyTurboModuleManager.h"
 #import <core/napi/jsc/js_native_api_jsc.h>
@@ -74,6 +76,7 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     NSUInteger _modulesInitializedOnMainQueue;
     HippyDisplayLink *_displayLink;
     NSDictionary *_dimDic;
+    HippyDevWebSocketClient *_devClient;
 }
 
 @synthesize flowID = _flowID;
@@ -473,6 +476,13 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
 
 - (void)setUpExecutor {
     [_javaScriptExecutor setUp];
+}
+
+- (void)setUpDevClientWithName:(NSString *)name {
+    if (self.debugMode) {
+        HippyBundleURLProvider *bundleURLProvider = [HippyBundleURLProvider sharedInstance];
+        _devClient = [[HippyDevWebSocketClient alloc] initWithDevIPAddress:bundleURLProvider.localhostIP port:bundleURLProvider.localhostPort contextName:name];
+    }
 }
 
 - (void)registerModuleForFrameUpdates:(id<HippyBridgeModule>)module withModuleData:(HippyModuleData *)moduleData {

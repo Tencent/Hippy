@@ -187,6 +187,7 @@
 		F440E26E26B80A990069436B /* HippyReusableNodeCache.m in Sources */ = {isa = PBXBuildFile; fileRef = F440E26D26B80A990069436B /* HippyReusableNodeCache.m */; };
 		F45D1BDD26B1555E004010EE /* HippyI18nUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F45D1BDC26B1555E004010EE /* HippyI18nUtils.m */; };
 		F4D0028F2675C7D5004A43B6 /* HippyGradientObject.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D0028E2675C7D5004A43B6 /* HippyGradientObject.m */; };
+		F4E2AD79271FC23500E36EFB /* HippyDevWebSocketClient.m in Sources */ = {isa = PBXBuildFile; fileRef = F4E2AD78271FC23500E36EFB /* HippyDevWebSocketClient.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -588,6 +589,8 @@
 		F45D1BDC26B1555E004010EE /* HippyI18nUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyI18nUtils.m; sourceTree = "<group>"; };
 		F4D0028D2675C7D5004A43B6 /* HippyGradientObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyGradientObject.h; sourceTree = "<group>"; };
 		F4D0028E2675C7D5004A43B6 /* HippyGradientObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyGradientObject.m; sourceTree = "<group>"; };
+		F4E2AD77271FC23500E36EFB /* HippyDevWebSocketClient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyDevWebSocketClient.h; sourceTree = "<group>"; };
+		F4E2AD78271FC23500E36EFB /* HippyDevWebSocketClient.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyDevWebSocketClient.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1203,6 +1206,7 @@
 		064C59E123AB1A51001E80DD /* debug */ = {
 			isa = PBXGroup;
 			children = (
+				F4E2AD76271FBF2900E36EFB /* devtools */,
 				064C59E223AB1A51001E80DD /* websocket */,
 			);
 			path = debug;
@@ -1541,6 +1545,13 @@
 				B21E4B432708680900B6A3ED /* TurboBaseModule.mm */,
 			);
 			path = turbomodule;
+		F4E2AD76271FBF2900E36EFB /* devtools */ = {
+			isa = PBXGroup;
+			children = (
+				F4E2AD77271FC23500E36EFB /* HippyDevWebSocketClient.h */,
+				F4E2AD78271FC23500E36EFB /* HippyDevWebSocketClient.m */,
+			);
+			path = devtools;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1623,6 +1634,7 @@
 				067AB97623B5F309009D5EE2 /* MyView.m in Sources */,
 				064C5A4023AB1A51001E80DD /* HippyConvert.mm in Sources */,
 				064C5A0723AB1A51001E80DD /* HippyScrollViewManager.mm in Sources */,
+				F4E2AD79271FC23500E36EFB /* HippyDevWebSocketClient.m in Sources */,
 				064C5A5323AB1A51001E80DD /* HippyFont.mm in Sources */,
 				064C5A5723AB1A51001E80DD /* HippyBridge+Mtt.mm in Sources */,
 				064C5A1823AB1A51001E80DD /* HippySimpleWebView.m in Sources */,
@@ -1910,7 +1922,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = GD4XA3P5ZN;
 				HEADER_SEARCH_PATHS = (
 					"\"$(SRCROOT)/../../core/include\"",
 					"\"$(SRCROOT)/../../core/third_party/base/include\"",
@@ -1921,8 +1935,9 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.tencent.HippyDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tencent.mttliteextension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "match Development com.tencent.mttliteextension";
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
@@ -1931,7 +1946,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = GD4XA3P5ZN;
 				HEADER_SEARCH_PATHS = (
 					"\"$(SRCROOT)/../../core/include\"",
 					"\"$(SRCROOT)/../../core/third_party/base/include\"",
@@ -1942,8 +1959,9 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.tencent.HippyDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tencent.mttliteextension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "match Development com.tencent.mttliteextension";
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
