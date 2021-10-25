@@ -1,5 +1,5 @@
 import { findNodeById } from '../utils/node';
-import { trace, warn } from '../utils';
+import { trace, isBubbles } from '../utils';
 import HippyEventHub from './hub';
 import '@localTypes/global';
 
@@ -71,7 +71,7 @@ function receiveNativeGesture(nativeEvent: NativeEvent) {
     return;
   }
 
-  let eventHandled = false;
+  let eventHandled: any = false;
   let nextNodeItem = targetNode;
   let { name: eventName } = nativeEvent;
   do {
@@ -88,6 +88,10 @@ function receiveNativeGesture(nativeEvent: NativeEvent) {
       && typeof nextNodeItem.memoizedProps[eventName] === 'function') {
       try {
         eventHandled = nextNodeItem.memoizedProps[eventName](nativeEvent);
+        // If callback have no return, set global bubbles config to eventHandled.
+        if (typeof eventHandled !== 'boolean') {
+          eventHandled = !isBubbles();
+        }
       } catch (err) {
         (console as any).reportUncaughtException(err); // eslint-disable-line
       }
