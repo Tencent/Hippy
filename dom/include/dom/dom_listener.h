@@ -1,10 +1,9 @@
 #pragma once
 
 #include <any>
-#include <functional>
 
 namespace hippy {
-inline namespace dom {
+namespace dom {
 
 enum class TouchEvent {
   Start, Move, End, Cancel
@@ -17,8 +16,7 @@ struct TouchEventInfo {
 
 using OnTouchEventListener = std::function<void(TouchEventInfo)>;
 
-using OnClickEventListener = std::function<void()>;
-using OnLongClickEventListener = std::function<void()>;
+using OnClickEventListener = std::function<void(TouchEventInfo)>;
 
 enum class DomTreeEvent {
   Create, Update, Delete
@@ -37,18 +35,10 @@ enum class LayoutEvent {
 };
 
 struct LayoutResult {
-  float left;
-  float top;
-  float width;
-  float height;
-  float marginLeft;
-  float marginTop;
-  float marginRight;
-  float marginBottom;
-  float paddingLeft;
-  float paddingTop;
-  float paddingRight;
-  float paddingBottom;
+  float x;
+  float y;
+  float w;
+  float h;
 };
 
 enum class LayoutDiffMapKey {
@@ -60,13 +50,6 @@ using OnLayoutEventListener = std::function<void(LayoutResult)>;
 using DispatchFunctionCallback = std::function<void(std::any)>;
 
 using CallFunctionCallback = std::function<void(std::any)>;
-
-using OnAttachChangedListener = std::function<void(bool)>;
-
-enum class ShowEvent {
-  Show, Dismiss
-};
-using OnShowEventListener = std::function<void(std::any)>;
 
 }
 }

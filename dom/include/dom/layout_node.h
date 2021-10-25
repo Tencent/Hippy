@@ -1,37 +1,35 @@
 #pragma once
 
-#include <unordered_map>
-#include "dom/dom_value.h"
-#include "engine/HPNode.h"
+#include <cstdint>
 
 namespace hippy {
-inline namespace dom {
-
-typedef HPDirection Direction;
+namespace dom {
 
 class LayoutNode {
- public:
-  LayoutNode();
+ private:
+  std::shared_ptr<LayoutNode> parent_;
+  std::vector<LayoutNode> children_;
+  int32_t index;
 
-  virtual ~LayoutNode();
-  /**
-   * @brief 插入子节点
-   * @param child
-   * @param index
-   */
-  virtual void InsertChild(std::shared_ptr<LayoutNode> child, uint32_t index);
-
-  /**
-   * @brief 删除子节点
-   * @param child
-   */
-  virtual void RemoveChild(const std::shared_ptr<LayoutNode> child);
-
-  virtual void CalculateLayout(float parent_width, float parent_height, Direction direction = DirectionLTR,
-                               void* layout_context = nullptr) = 0;
-
-  virtual void SetLayoutStyles(std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>& style_map) = 0;
+  float width_ = 0;
+  float height_ = 0;
+  float top_ = 0;
+  float left_ = 0;
+  float margin_left_ = 0;
+  float margin_top_ = 0;
+  float margin_right_ = 0;
+  float margin_bottom_ = 0;
+  float padding_left_ = 0;
+  float padding_top_ = 0;
+  float padding_right_ = 0;
+  float padding_bottom_ = 0;
+  float border_left_ = 0;
+  float border_top_ = 0;
+  float border_right_ = 0;
+  float border_bottom_ = 0;
+  uint32_t border_color_ = 0;
+  int32_t edge_set_flag_ = 0;
 };
 
-}  // namespace dom
-}  // namespace hippy
+}
+}
