@@ -343,6 +343,10 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 #endif
 }
 
+- (void)setUpDevClientWithName:(NSString *)name {
+    [self.batchedBridge setUpDevClientWithName:name];
+}
+
 - (void)createBatchedBridge {
     self.batchedBridge = [[HippyBatchedBridge alloc] initWithParentBridge:self];
 }

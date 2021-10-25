@@ -409,6 +409,9 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
 HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
     [self executeBlockOnJavaScriptQueue:^{
         [[self JSContext] setName:contextName];
+        dispatch_async(dispatch_get_global_queue(0, 0), ^{
+            [self.bridge setUpDevClientWithName:contextName];
+        });
     }];
 }
 // clang-format on
