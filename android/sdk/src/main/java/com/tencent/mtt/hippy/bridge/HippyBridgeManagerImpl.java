@@ -36,6 +36,8 @@ import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.modules.HippyModuleManager;
+import com.tencent.mtt.hippy.runtime.builtins.JSValue;
+import com.tencent.mtt.hippy.serialization.PrimitiveValueSerializer;
 import com.tencent.mtt.hippy.serialization.compatible.Serializer;
 import com.tencent.mtt.hippy.serialization.nio.writer.SafeDirectWriter;
 import com.tencent.mtt.hippy.serialization.nio.writer.SafeHeapWriter;
@@ -84,7 +86,9 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
   private StringBuilder mStringBuilder;
   private SafeHeapWriter safeHeapWriter;
   private SafeDirectWriter safeDirectWriter;
-  private Serializer serializer;
+  private Serializer compatibleSerializer;
+  private com.tencent.mtt.hippy.serialization.recommend.Serializer recommendSerializer;
+
 
   HippyEngine.ModuleListener mLoadModuleListener;
 
@@ -102,7 +106,8 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     this.enableV8Serialization = enableV8Serialization;
 
     if (enableV8Serialization) {
-      serializer = new Serializer();
+      compatibleSerializer = new Serializer();
+      recommendSerializer = new com.tencent.mtt.hippy.serialization.recommend.Serializer();
     } else {
       mStringBuilder = new StringBuilder(1024);
     }
@@ -163,6 +168,9 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
       }
     };
 
+    PrimitiveValueSerializer serializer = (msg.obj instanceof JSValue) ?
+            recommendSerializer : compatibleSerializer;
+
     if (msg.arg1 == BridgeTransferType.BRIDGE_TRANSFER_TYPE_NIO.value()) {
       ByteBuffer buffer;
       if (enableV8Serialization) {
@@ -178,8 +186,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         buffer = safeDirectWriter.chunked();
       } else {
         mStringBuilder.setLength(0);
-        byte[] bytes = new byte[0];
-        bytes = ArgumentUtils.objectToJsonOpt((HippyMap) msg.obj, mStringBuilder).getBytes(
+        byte[] bytes = ArgumentUtils.objectToJsonOpt(msg.obj, mStringBuilder).getBytes(
             StandardCharsets.UTF_16LE);
         buffer = ByteBuffer.allocateDirect(bytes.length);
         buffer.put(bytes);
@@ -203,8 +210,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         mHippyBridge.callFunction(action, callback, buffer.array(), offset, length);
       } else {
         mStringBuilder.setLength(0);
-        byte[] bytes = new byte[0];
-        bytes = ArgumentUtils.objectToJsonOpt((HippyMap) msg.obj, mStringBuilder).getBytes(
+        byte[] bytes = ArgumentUtils.objectToJsonOpt(msg.obj, mStringBuilder).getBytes(
             StandardCharsets.UTF_16LE);
         mHippyBridge.callFunction(action, callback, bytes);
       }
