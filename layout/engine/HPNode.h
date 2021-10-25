@@ -26,6 +26,8 @@
 #include "HPUtil.h"
 #include "HPConfig.h"
 
+HPConfigRef HPConfigGetDefault();
+
 class HPNode;
 typedef HPNode *HPNodeRef;
 typedef HPSize (*HPMeasureFunc)(HPNodeRef node,
@@ -38,7 +40,8 @@ typedef void (*HPDirtiedFunc)(HPNodeRef node);
 
 class HPNode {
  public:
-  HPNode();
+  HPNode() : HPNode{HPConfigGetDefault()} {}
+  HPNode(HPConfigRef config);
   virtual ~HPNode();
   void initLayoutResult();
   bool reset();

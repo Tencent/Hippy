@@ -69,6 +69,8 @@ float HPNodeLayoutGetBorder(HPNodeRef node, CSSDirection dir);
 bool HPNodeLayoutGetHadOverflow(HPNodeRef node);
 
 void HPNodeSetConfig(HPNodeRef node, HPConfigRef config);
+void HPConfigFree(HPConfigRef);
+HPConfigRef HPConfigGetDefault();
 
 bool HPNodeInsertChild(HPNodeRef node, HPNodeRef child, uint32_t index);
 bool HPNodeRemoveChild(HPNodeRef node, HPNodeRef child);

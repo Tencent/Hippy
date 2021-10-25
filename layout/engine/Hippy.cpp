@@ -267,6 +267,15 @@ void HPNodeSetConfig(HPNodeRef node, HPConfigRef config) {
   node->SetConfig(config);
 }
 
+void HPConfigFree(HPConfigRef config) {
+  delete config;
+}
+
+HPConfigRef HPConfigGetDefault() {
+  static HPConfigRef defaultConfig = new HPConfig();
+  return defaultConfig;
+}
+
 void HPNodeStyleSetDisplay(HPNodeRef node, DisplayType displayType) {
   if (node == nullptr)
     return;

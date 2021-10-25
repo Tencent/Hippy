@@ -60,12 +60,12 @@ void HPNode::printNode(uint32_t indent) {
   HPLogd(endStr.c_str());
 }
 
-HPNode::HPNode() {
+HPNode::HPNode(HPConfigRef config) {
   context = nullptr;
   parent = nullptr;
   measure = nullptr;
   dirtiedFunc = nullptr;
-  _config = new HPConfig();
+  _config = config;
 
   initLayoutResult();
   inInitailState = true;
@@ -84,10 +84,6 @@ HPNode::~HPNode() {
     if (item != nullptr) {
       item->setParent(nullptr);
     }
-  }
-
-  if(_config != nullptr) {
-    delete _config;
   }
 
   children.clear();
