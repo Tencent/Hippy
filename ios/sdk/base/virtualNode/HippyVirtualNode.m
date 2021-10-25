@@ -52,6 +52,7 @@ typedef NS_ENUM(NSUInteger, CreationType) {
 @synthesize frame = _frame;
 @synthesize parent = _parent;
 @synthesize rootTag = _rootTag;
+@synthesize tagName = _tagName;
 
 + (HippyVirtualNode *)createNode:(NSNumber *)hippyTag viewName:(NSString *)viewName props:(NSDictionary *)props {
     HippyAssertParam(hippyTag);
