@@ -48,11 +48,13 @@
 
 #pragma mark WS Delegate
 - (void)devClient:(HippyDevWebSocketClient *)devClient didReceiveMessage:(NSString *)message {
-    HippyInspector *inspector = [HippyInspector sharedInstance];
-    HippyDevCommand *command = nil;
-    HippyInspectorDomain *domain = [inspector inspectorDomainFromMessage:message command:&command];
-    [domain handleRequestDevCommand:command bridge:_bridge];
-    [devClient sendData:command.resultString];
+    dispatch_sync(dispatch_get_main_queue(), ^{
+        HippyInspector *inspector = [HippyInspector sharedInstance];
+        HippyDevCommand *command = nil;
+        HippyInspectorDomain *domain = [inspector inspectorDomainFromMessage:message command:&command];
+        [domain handleRequestDevCommand:command bridge:_bridge];
+        [devClient sendData:command.resultString];
+    });
 }
 
 @end

@@ -21,10 +21,41 @@
 */
 
 #import <Foundation/Foundation.h>
+#import "HippyVirtualNode.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+NSString *const HippyCSSKeyStyleSheetId = @"styleSheetId";
+
 @interface HippyCSSModel : NSObject
+
+/**
+ * @brief Get Chrome CSS getMatchedStyles JSON String
+ * @param node virtual node
+ * @return JSON Dictionary
+ */
+- (NSDictionary *)MatchedStyleJSONStringWithNode:(nullable HippyVirtualNode *)node;
+
+/**
+ * @brief Get Chrome CSS getComputedStyle JSON String
+ * @param node virtual node
+ * @return JSON Dictionary
+ */
+- (NSDictionary *)ComputedStyleJSONStringWithNode:(nullable HippyVirtualNode *)node;
+
+/**
+ * @brief Get Chrome CSS getInlineStyles JSON String
+ * @param node virtual node
+ * @return JSON Dictionary
+ */
+- (NSDictionary *)InlineStyleJSONStringWithNode:(nullable HippyVirtualNode *)node;
+
+/**
+ * @brief Get Chrome CSS setStyleText JSON String
+ * @param node virtual node
+ * @return JSON Dictionary
+ */
+- (NSDictionary *)StyleTextJSONStringWithNode:(nullable HippyVirtualNode *)node;
 
 @end
 
