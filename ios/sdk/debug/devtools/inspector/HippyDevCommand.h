@@ -20,17 +20,21 @@
 * limitations under the License.
 */
 
-#import "HippyDomModel.h"
-#import "HippyBridge.h"
+#import <Foundation/Foundation.h>
 
-@implementation HippyDomModel
+NS_ASSUME_NONNULL_BEGIN
 
-- (NSDictionary *)getDocumentWithBridge:(HippyBridge *)bridge {
-    //TODO 测试代码，需要删除
-    NSString *path = [[NSBundle mainBundle] pathForResource:@"document" ofType:@"txt"];
-    NSString *str = [[NSString alloc] initWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
-    NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:[str dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil];
-    return dic;
-}
+@interface HippyDevCommand : NSObject
+
+- (instancetype)initWithRAWString:(NSString *)rawString;
+
+@property(nonatomic, readonly) NSString *rawString;
+@property(nonatomic, readonly) NSNumber *cmdID;
+@property(nonatomic, readonly) NSString *domain;
+@property(nonatomic, readonly) NSString *method;
+@property(nonatomic, readonly) NSDictionary *params;
+@property(nonatomic, strong) NSString *resultString;
 
 @end
+
+NS_ASSUME_NONNULL_END

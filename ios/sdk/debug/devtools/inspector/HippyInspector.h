@@ -24,12 +24,16 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class HippyInspectorDomain, HippyDevCommand;
+
 @interface HippyInspector : NSObject
 
 + (instancetype)sharedInstance;
 
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)new NS_UNAVAILABLE;
+
+- (HippyInspectorDomain *)inspectorDomainFromMessage:(NSString *)message command:(out HippyDevCommand **)command;
 
 @end
 

@@ -24,25 +24,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class HippyDevWebSocketClient;
-@protocol HippyDevClientProtocol <NSObject>
+@class HippyBridge;
 
-@optional
-- (void)devClientDidConnect:(HippyDevWebSocketClient *)devClient;
-- (void)devClient:(HippyDevWebSocketClient *)devClient didFailWithError:(NSError *)error;
-- (void)devClientDidClose:(HippyDevWebSocketClient *)devClient;
-- (void)devClient:(HippyDevWebSocketClient *)devClient didReceiveMessage:(NSString *)message;
+@interface HippyDevManager : NSObject
 
-@end
+- (instancetype)initWithBridge:(HippyBridge *)bridge devIPAddress:(NSString *)devIPAddress devPort:(NSString *)devPort contextName:(NSString *)contextName;
 
-@interface HippyDevWebSocketClient : NSObject
-
-@property(nonatomic, readonly)NSURL *devURL;
-@property(nonatomic, weak)id<HippyDevClientProtocol> delegate;
-
-- (instancetype)initWithDevIPAddress:(NSString *)ipAddress port:(NSString *)port contextName:(NSString *)contextName;
-
-- (void)sendData:(id)data;
+@property(nonatomic, weak) HippyBridge *bridge;
 
 @end
 

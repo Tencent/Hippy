@@ -25,6 +25,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class HippyDevCommand;
+@class HippyBridge;
+
 @interface HippyInspectorDomain : NSObject
 
 @property (nonatomic, weak) HippyInspector *inspector;
@@ -54,6 +57,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)HandleRequestMethod:(NSString *)method
                       rspId:(NSInteger)rspId
                      params:(NSDictionary *)params;
+
+- (BOOL)handleRequestDevCommand:(HippyDevCommand *)command bridge:(HippyBridge *)bridge;
 
 - (NSString *)domainName;
 

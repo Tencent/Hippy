@@ -24,6 +24,7 @@
 #import "HippyDomDomain.h"
 #import "HippyCSSDomain.h"
 #import "HippyPageDomain.h"
+#import "HippyDevCommand.h"
 
 @interface HippyInspector ()
 
@@ -59,6 +60,15 @@
     self.domainMap[domDomain.domainName] = domDomain;
     self.domainMap[cssDomain.domainName] = cssDomain;
     self.domainMap[pageDomain.domainName] = pageDomain;
+}
+
+- (HippyInspectorDomain *)inspectorDomainFromMessage:(NSString *)message command:(out HippyDevCommand *__autoreleasing *)command{
+    HippyDevCommand *cmd = [[HippyDevCommand alloc] initWithRAWString:message];
+    HippyInspectorDomain *domain = self.domainMap[cmd.domain];
+    if (command) {
+        *command = cmd;
+    }
+    return domain;
 }
 
 @end
