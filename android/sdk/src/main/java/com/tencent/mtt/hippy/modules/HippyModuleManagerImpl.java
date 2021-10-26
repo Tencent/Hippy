@@ -33,14 +33,14 @@ import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleInfo;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import java.lang.reflect.Proxy;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @SuppressWarnings({"unchecked", "unused", "rawtypes"})
 public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callback {
 
   private static final int MSG_CODE_CALL_NATIVES = 1;
   private static final int MSG_CODE_DESTROY_MODULE = 2;
-  //Only multi-threaded read
-  private final HashMap<String, HippyNativeModuleInfo> mNativeModuleInfo;
+  private final ConcurrentHashMap<String, HippyNativeModuleInfo> mNativeModuleInfo;
   //Only multi-threaded read
   private final HashMap<Class<? extends HippyJavaScriptModule>, HippyJavaScriptModule> mJsModules;
   private final HippyEngineContext mContext;
@@ -53,7 +53,7 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
   public HippyModuleManagerImpl(HippyEngineContext context, List<HippyAPIProvider> packages) {
     this.mContext = context;
     mANRMonitor = new HippyModuleANRMonitor(mContext);
-    mNativeModuleInfo = new HashMap<>();
+    mNativeModuleInfo = new ConcurrentHashMap<>();
     mJsModules = new HashMap<>();
     for (HippyAPIProvider pckg : packages) {
       Map<Class<? extends HippyNativeModuleBase>, Provider<? extends HippyNativeModuleBase>> nativeModules = pckg
@@ -90,6 +90,28 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
         }
       }
 
+    }
+  }
+
+  @Override
+  public synchronized <T extends HippyNativeModuleBase> void addNativeModule(Class<T> cls, Provider<T> provider) {
+    assert provider != null;
+    if (provider == null) {
+      return;
+    }
+
+    HippyNativeModuleInfo moduleInfo = new HippyNativeModuleInfo(cls, provider);
+    String[] names = moduleInfo.getNames();
+    if (names != null && names.length > 0) {
+      for (String name : names) {
+        if (!mNativeModuleInfo.containsKey(name)) {
+          mNativeModuleInfo.put(name, moduleInfo);
+        }
+      }
+    }
+
+    if (!mNativeModuleInfo.containsKey(moduleInfo.getName())) {
+      mNativeModuleInfo.put(moduleInfo.getName(), moduleInfo);
     }
   }
 
