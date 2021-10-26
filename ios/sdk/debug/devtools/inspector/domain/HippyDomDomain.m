@@ -21,13 +21,39 @@
 */
 
 #import "HippyDomDomain.h"
-
+#import "HippyDevCommand.h"
+#import "HippyBridge.h"
+#import "HippyDomModel.h"
 NSString *const HippyDomDomainName = @"DOM";
+
+@interface HippyDomDomain () {
+    HippyDomModel *_domModel;
+}
+
+@end
 
 @implementation HippyDomDomain
 
+- (instancetype)initWithInspector:(HippyInspector *)inspector {
+    self = [super initWithInspector:inspector];
+    if (self) {
+        _domModel = [[HippyDomModel alloc] init];
+    }
+    return self;
+}
+
 - (NSString *)domainName {
     return HippyDomDomainName;
+}
+
+- (BOOL)handleRequestDevCommand:(HippyDevCommand *)command bridge:(HippyBridge *)bridge{
+    if ([command.method isEqualToString:@"getDocument"]) {
+        NSDictionary *dic = [_domModel getDocumentWithBridge:bridge];
+        NSDictionary *result = @{@"id": command.cmdID, @"result": dic};
+        NSData *retData = [NSJSONSerialization dataWithJSONObject:result options:0 error:nil];
+        command.resultString = [[NSString alloc] initWithData:retData encoding:NSUTF8StringEncoding];
+    }
+    return NO;
 }
 
 @end

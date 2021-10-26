@@ -24,7 +24,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class HippyBridge;
+
 @interface HippyDomModel : NSObject
+
+- (NSDictionary *)getDocumentWithBridge:(HippyBridge *)bridge;
 
 @end
 

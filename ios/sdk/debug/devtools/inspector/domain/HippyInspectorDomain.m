@@ -21,6 +21,7 @@
 */
 
 #import "HippyInspectorDomain.h"
+#import "HippyBridge.h"
 
 NSString *const HippyInspectorDomainName = @"InspectorDomain";
 NSString *const HippyDomainMethodNameEnable = @"enable";
@@ -49,6 +50,10 @@ NSString *const HippyDomainMethodNameDisable = @"disable";
                       rspId:(NSInteger)rspId
                      params:(NSDictionary *)params {
     return false;
+}
+
+- (BOOL)handleRequestDevCommand:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
+    return NO;
 }
 
 - (NSString *)domainName {

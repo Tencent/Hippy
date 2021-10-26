@@ -38,7 +38,7 @@
 #import "HippyDevLoadingView.h"
 #import "HippyDeviceBaseInfo.h"
 #import "HippyI18nUtils.h"
-#import "HippyDevWebSocketClient.h"
+#import "HippyDevManager.h"
 #import "HippyBundleURLProvider.h"
 #include "core/scope.h"
 #import "HippyTurboModuleManager.h"
@@ -76,7 +76,7 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     NSUInteger _modulesInitializedOnMainQueue;
     HippyDisplayLink *_displayLink;
     NSDictionary *_dimDic;
-    HippyDevWebSocketClient *_devClient;
+    HippyDevManager *_devManager;
 }
 
 @synthesize flowID = _flowID;
@@ -481,7 +481,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
 - (void)setUpDevClientWithName:(NSString *)name {
     if (self.debugMode) {
         HippyBundleURLProvider *bundleURLProvider = [HippyBundleURLProvider sharedInstance];
-        _devClient = [[HippyDevWebSocketClient alloc] initWithDevIPAddress:bundleURLProvider.localhostIP port:bundleURLProvider.localhostPort contextName:name];
+        _devManager = [[HippyDevManager alloc] initWithBridge:self.parentBridge devIPAddress:bundleURLProvider.localhostIP devPort:bundleURLProvider.localhostPort contextName:name];
     }
 }
 

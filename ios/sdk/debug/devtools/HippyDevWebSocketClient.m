@@ -58,7 +58,7 @@ static const char *stringFromReadyState(HippySRReadyState state) {
 #pragma mark initialization methods
 
 - (instancetype)initWithDevIPAddress:(NSString *)ipAddress port:(NSString *)port contextName:(NSString *)contextName {
-    //ws://127.0.0.1:38989/debugger-proxy?clientId=123145124&platform=1&role=ios_client
+    //ws://127.0.0.1:38989/debugger-proxy?clientId=123145124&platform=1&role=ios_client&contextName={encode(contextName)}
     HippyAssertParam(ipAddress);
     self = [super init];
     if (self) {
@@ -91,6 +91,10 @@ static const char *stringFromReadyState(HippySRReadyState state) {
 - (NSString *)description {
     NSString *desString = [NSString stringWithFormat:@"ws address %@, state %s", _devURL, stringFromReadyState(_devWebSocket.readyState)];
     return [NSString stringWithFormat:@"%@, %@", [super description], desString];
+}
+
+- (void)sendData:(id)data {
+    [_devWebSocket send:data];
 }
 
 #pragma mark dev websocket delegate methods
