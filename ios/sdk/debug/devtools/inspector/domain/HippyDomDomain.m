@@ -21,10 +21,16 @@
 */
 
 #import "HippyDomDomain.h"
-#import "HippyDevCommand.h"
 #import "HippyBridge.h"
+#import "HippyDevCommand.h"
 #import "HippyDomModel.h"
+
 NSString *const HippyDomDomainName = @"DOM";
+NSString *const HippyDomMethodGetDocument = @"getDocument";
+NSString *const HippyDomMethodGetBoxModel = @"getBoxModel";
+NSString *const HippyDomMethodGetNodeForLocation = @"getNodeForLocation";
+NSString *const HippyDomMethodRemoveNode = @"removeNode";
+NSString *const HippyDomMethodSetInspectedNode = @"setInspectedNode";
 
 @interface HippyDomDomain () {
     HippyDomModel *_domModel;
@@ -46,14 +52,45 @@ NSString *const HippyDomDomainName = @"DOM";
     return HippyDomDomainName;
 }
 
-- (BOOL)handleRequestDevCommand:(HippyDevCommand *)command bridge:(HippyBridge *)bridge{
-    if ([command.method isEqualToString:@"getDocument"]) {
-        NSDictionary *dic = [_domModel getDocumentWithBridge:bridge];
-        NSDictionary *result = @{@"id": command.cmdID, @"result": dic};
-        NSData *retData = [NSJSONSerialization dataWithJSONObject:result options:0 error:nil];
-        command.resultString = [[NSString alloc] initWithData:retData encoding:NSUTF8StringEncoding];
+#pragma mark - Method Handle
+- (BOOL)handleRequestDevCommand:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
+    
+    if ([command.method isEqualToString:HippyDomMethodGetDocument]) {
+        return [self handleGetDocumentWithCmd:command bridge:bridge];
     }
+    if ([command.method isEqualToString:HippyDomMethodGetBoxModel]) {
+        return YES;
+    }
+    if ([command.method isEqualToString:HippyDomMethodGetNodeForLocation]) {
+        return YES;
+    }
+    if ([command.method isEqualToString:HippyDomMethodRemoveNode]) {
+        return YES;
+    }
+    if ([command.method isEqualToString:HippyDomMethodSetInspectedNode]) {
+        return YES;
+    }
+    
     return NO;
+}
+
+- (BOOL)handleGetDocumentWithCmd:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
+    HippyUIManager *manager = bridge.uiManager;
+    if (!manager) {
+        HippyLogError(@"DomDomain, getDocument error, manager is nil");
+        return NO;
+    }
+    HippyVirtualNode *rootNode = [manager nodeForHippyTag:[manager rootHippyTag]];
+    NSDictionary *documentJSON = [_domModel domGetDocumentJSONStringWithRootNode:rootNode];
+    NSDictionary *result = @{@"id": command.cmdID, @"result": documentJSON};
+    NSError *parseError;
+    NSData *retData = [NSJSONSerialization dataWithJSONObject:result options:0 error:&parseError];
+    if (parseError) {
+        HippyLogError(@"DomDomain, getDocument error, parse json data error");
+        return NO;
+    }
+    command.resultString = [[NSString alloc] initWithData:retData encoding:NSUTF8StringEncoding];
+    return YES;
 }
 
 @end

@@ -21,6 +21,7 @@
 */
 
 #import <Foundation/Foundation.h>
+#import "HippyVirtualNode.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -28,7 +29,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface HippyDomModel : NSObject
 
-- (NSDictionary *)getDocumentWithBridge:(HippyBridge *)bridge;
+/**
+ * @brief Get Chrome DOM getDocument JSON String
+ * @param rootNode root node
+ * @return JSON String
+ */
+- (NSDictionary *)domGetDocumentJSONStringWithRootNode:(nullable HippyVirtualNode *)rootNode;
 
 @end
 
