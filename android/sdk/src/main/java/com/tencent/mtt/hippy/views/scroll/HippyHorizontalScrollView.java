@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy.views.scroll;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.os.Build;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.HorizontalScrollView;
@@ -137,7 +138,6 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
     int action = event.getAction() & MotionEvent.ACTION_MASK;
     if (action == MotionEvent.ACTION_DOWN && !mDragging) {
       mDragging = true;
-      startScrollX = getScrollX();
       if (mScrollBeginDragEventEnable) {
         LogUtils.d("HippyHorizontalScrollView", "emitScrollBeginDragEvent");
         HippyScrollViewEventHelper.emitScrollBeginDragEvent(this);
@@ -173,6 +173,12 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
     if (!mScrollEnabled) {
       return false;
     }
+
+    int action = event.getAction() & MotionEvent.ACTION_MASK;
+    if (action == MotionEvent.ACTION_DOWN) {
+      startScrollX = getScrollX();
+    }
+
     if (super.onInterceptTouchEvent(event)) {
       if (mScrollBeginDragEventEnable) {
         LogUtils.d("HippyHorizontalScrollView", "emitScrollBeginDragEvent");
@@ -223,22 +229,27 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
   }
 
   protected void doPageScroll() {
-    smoothScrollToPage();
-
     if (mMomentumScrollBeginEventEnable) {
       HippyScrollViewEventHelper.emitScrollMomentumBeginEvent(this);
     }
 
+    smoothScrollToPage();
+
     Runnable runnable = new Runnable() {
       @Override
       public void run() {
-        if (mMomentumScrollEndEventEnable) {
-          HippyScrollViewEventHelper.emitScrollMomentumEndEvent(HippyHorizontalScrollView.this);
+        if (mDoneFlinging) {
+          if (mMomentumScrollEndEventEnable) {
+            HippyScrollViewEventHelper.emitScrollMomentumEndEvent(HippyHorizontalScrollView.this);
+          }
+        } else {
+          mDoneFlinging = true;
+          postOnAnimationDelayed(this, HippyScrollViewEventHelper.MOMENTUM_DELAY);
         }
       }
     };
 
-    postOnAnimationDelayed(runnable, HippyScrollViewEventHelper.MOMENTUM_DELAY * 2);
+    postOnAnimationDelayed(runnable, HippyScrollViewEventHelper.MOMENTUM_DELAY);
   }
 
   @Override
@@ -283,7 +294,7 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
 
     if ((page == maxPage - 1) && offset > 0) {
       page = page + 1;
-    } else if (Math.abs(offset) > width/4) {
+    } else if (Math.abs(offset) > width/5) {
       page = (offset > 0) ? page + 1 : page - 1;
     }
 

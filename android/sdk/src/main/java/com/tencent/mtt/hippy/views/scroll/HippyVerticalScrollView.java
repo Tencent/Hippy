@@ -117,7 +117,6 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
     int action = event.getAction() & MotionEvent.ACTION_MASK;
     if (action == MotionEvent.ACTION_DOWN && !mDragging) {
       mDragging = true;
-      startScrollY = getScrollY();
       if (mScrollBeginDragEventEnable) {
         HippyScrollViewEventHelper.emitScrollBeginDragEvent(this);
       }
@@ -154,6 +153,12 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
     if (!mScrollEnabled) {
       return false;
     }
+
+    int action = event.getAction() & MotionEvent.ACTION_MASK;
+    if (action == MotionEvent.ACTION_DOWN) {
+      startScrollY = getScrollY();
+    }
+
     if (super.onInterceptTouchEvent(event)) {
       if (mScrollBeginDragEventEnable) {
         HippyScrollViewEventHelper.emitScrollBeginDragEvent(this);
@@ -207,22 +212,27 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
   }
 
   protected void doPageScroll() {
-    smoothScrollToPage();
-
     if (mMomentumScrollBeginEventEnable) {
       HippyScrollViewEventHelper.emitScrollMomentumBeginEvent(this);
     }
 
+    smoothScrollToPage();
+
     Runnable runnable = new Runnable() {
       @Override
       public void run() {
-        if (mMomentumScrollEndEventEnable) {
-          HippyScrollViewEventHelper.emitScrollMomentumEndEvent(HippyVerticalScrollView.this);
+        if (mDoneFlinging) {
+          if (mMomentumScrollEndEventEnable) {
+            HippyScrollViewEventHelper.emitScrollMomentumEndEvent(HippyVerticalScrollView.this);
+          }
+        } else {
+          mDoneFlinging = true;
+          postOnAnimationDelayed(this, HippyScrollViewEventHelper.MOMENTUM_DELAY);
         }
       }
     };
 
-    postOnAnimationDelayed(runnable, HippyScrollViewEventHelper.MOMENTUM_DELAY * 2);
+    postOnAnimationDelayed(runnable, HippyScrollViewEventHelper.MOMENTUM_DELAY);
   }
 
   @Override
@@ -267,7 +277,7 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
 
     if ((page == maxPage - 1) && offset > 0) {
       page = page + 1;
-    } else if (Math.abs(offset) > height/4) {
+    } else if (Math.abs(offset) > height/5) {
       page = (offset > 0) ? page + 1 : page - 1;
     }
 
