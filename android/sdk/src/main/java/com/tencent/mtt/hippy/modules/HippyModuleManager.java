@@ -17,6 +17,7 @@ package com.tencent.mtt.hippy.modules;
 
 
 import com.tencent.mtt.hippy.bridge.HippyCallNativeParams;
+import com.tencent.mtt.hippy.common.Provider;
 import com.tencent.mtt.hippy.modules.javascriptmodules.HippyJavaScriptModule;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 
@@ -32,4 +33,6 @@ public interface HippyModuleManager {
   <T extends HippyJavaScriptModule> T getJavaScriptModule(Class<T> cls);
 
   <T extends HippyNativeModuleBase> T getNativeModule(Class<T> cls);
+
+  <T extends HippyNativeModuleBase> void addNativeModule(Class<T> cls, Provider<T> provider);
 }
