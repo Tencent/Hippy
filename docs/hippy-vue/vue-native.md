@@ -182,6 +182,16 @@ Vue.Native.AsyncStorage.getItem('itemKey');
 
 调用终端模块的方法，`callNative` 一般用于无返回的模块方法调用，`callNativeWithPromise` 一般用于有返回的模块方法调用，它会返回一个带着结果的 Promise。
 
+# callUIFunction
+
+调用组件定义的终端方法
+
+`callUIFunction(instance: ref, method: string, options: Array)`
+
+> * instance: 组件的引用 Ref
+> * method：方法名称，如 ListView 的 `scrollToIndex`
+> * options: 需传递的数据，如 ListView 的 `[xIndex, yIndex, animated]`
+
 ---
 
 # Clipboard
