@@ -109,6 +109,7 @@ export default class TextInputExpo extends Component {
           style={styles.input_style}
           keyboardType="password"
           placeholder="Password"
+          multiline={false}
         />
         {renderTitle('maxLength')}
         <TextInput
