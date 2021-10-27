@@ -25,37 +25,37 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSString *const HippyCSSKeyStyleSheetId = @"styleSheetId";
+HIPPY_EXTERN NSString *const HippyCSSKeyStyleSheetId;
 
 @interface HippyCSSModel : NSObject
 
 /**
- * @brief Get Chrome CSS getMatchedStyles JSON String
+ * @brief Get Chrome CSS getMatchedStyles JSON
  * @param node virtual node
  * @return JSON Dictionary
  */
-- (NSDictionary *)MatchedStyleJSONStringWithNode:(nullable HippyVirtualNode *)node;
+- (NSDictionary *)matchedStyleJSONWithNode:(nullable HippyVirtualNode *)node;
 
 /**
- * @brief Get Chrome CSS getComputedStyle JSON String
+ * @brief Get Chrome CSS getComputedStyle JSON
  * @param node virtual node
  * @return JSON Dictionary
  */
-- (NSDictionary *)ComputedStyleJSONStringWithNode:(nullable HippyVirtualNode *)node;
+- (NSDictionary *)computedStyleJSONWithNode:(nullable HippyVirtualNode *)node;
 
 /**
- * @brief Get Chrome CSS getInlineStyles JSON String
+ * @brief Get Chrome CSS getInlineStyles JSON
  * @param node virtual node
  * @return JSON Dictionary
  */
-- (NSDictionary *)InlineStyleJSONStringWithNode:(nullable HippyVirtualNode *)node;
+- (NSDictionary *)inlineStyleJSONWithNode:(nullable HippyVirtualNode *)node;
 
 /**
- * @brief Get Chrome CSS setStyleText JSON String
+ * @brief Get Chrome CSS setStyleText JSON
  * @param node virtual node
  * @return JSON Dictionary
  */
-- (NSDictionary *)StyleTextJSONStringWithNode:(nullable HippyVirtualNode *)node;
+- (NSDictionary *)styleTextJSONWithNode:(nullable HippyVirtualNode *)node;
 
 @end
 

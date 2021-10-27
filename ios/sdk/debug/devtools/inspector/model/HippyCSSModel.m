@@ -45,6 +45,7 @@ NSString *const HippyCSSKeyStartLine = @"startLine";
 NSString *const HippyCSSKeyStartColumn = @"startColumn";
 NSString *const HippyCSSKeyEndLine = @"endLine";
 NSString *const HippyCSSKeyEndColumn = @"endColumn";
+NSString *const HippyCSSKeyStyleSheetId = @"styleSheetId";
 
 // Default value
 NSString *const HippyCSSDefaultLength = @"0";
@@ -73,27 +74,35 @@ NSString *const HippyCSSDefaultPosition = @"relative";
 }
 
 #pragma mark - CSS Protocol
-- (NSDictionary *)MatchedStyleJSONStringWithNode:(HippyVirtualNode *)node {
+- (NSDictionary *)matchedStyleJSONWithNode:(HippyVirtualNode *)node {
     if (!node || node.props.count <= 0) {
         HippyLogWarn(@"CSS Model, matched style, node is nil or props is empty");
         return @{};
     }
-    return @{};
+    NSDictionary *cssStyleDic = [self assemblyCSSStyleJSONWithProps:node.props nodeId:node.hippyTag];
+    return @{
+        HippyCSSKeyInlineStyleKey : cssStyleDic
+    };
 }
 
-- (NSDictionary *)ComputedStyleJSONStringWithNode:(HippyVirtualNode *)node {
+- (NSDictionary *)computedStyleJSONWithNode:(HippyVirtualNode *)node {
     if (!node || node.props.count <= 0) {
         HippyLogWarn(@"CSS Model, computed style, node is nil or props is empty");
         return @{};
     }
+    NSArray *computedStyles = [self assemblyComputedStyleJSONWithProps:node.props
+                                                                 width:@(node.frame.size.width)
+                                                                height:@(node.frame.size.height)];
+    return @{
+        HippyCSSKeyComputedStyle : computedStyles
+    };
+}
+
+- (NSDictionary *)inlineStyleJSONWithNode:(HippyVirtualNode *)node {
     return @{};
 }
 
-- (NSDictionary *)InlineStyleJSONStringWithNode:(HippyVirtualNode *)node {
-    return @{};
-}
-
-- (NSDictionary *)StyleTextJSONStringWithNode:(HippyVirtualNode *)node{
+- (NSDictionary *)styleTextJSONWithNode:(HippyVirtualNode *)node{
     if (!node || node.props.count <= 0) {
         HippyLogWarn(@"CSS Model, style text json, node is nil or props is empty");
         return @{};
@@ -104,12 +113,72 @@ NSString *const HippyCSSDefaultPosition = @"relative";
 #pragma mark - private method
 - (NSDictionary *)assemblyCSSStyleJSONWithProps:(NSDictionary *)props
                                          nodeId:(NSNumber *)nodeId {
-    if (!props) {
+    if (props.count <= 0) {
         return @{};
     }
+    NSMutableArray *cssProps = [NSMutableArray array];
+    NSMutableString *allOfCSSText = [NSMutableString string];
+    for (NSString *propKey in props) {
+        if (![self canHandleStyle:propKey]) {
+            continue;
+        }
+        NSString *cssName = [self unCamelize:propKey];
+        NSString *cssValue = [NSString stringWithFormat:@"%@", props[propKey]];
+        NSString *cssPropStr = [NSString stringWithFormat:@"%@:%@", cssName, cssValue];
+        NSDictionary *rangeDic = [self assemblyRangeJSONWithStartLine:0
+                                                          startColumn:allOfCSSText.length
+                                                              endLine:0
+                                                            endColumn:allOfCSSText.length + cssPropStr.length + 1];
+        NSDictionary *cssPropDic = [self assemblyCSSPropertyWithName:cssName
+                                                               value:cssValue
+                                                           rangeJSON:rangeDic];
+        [cssProps addObject:cssPropDic];
+        [allOfCSSText appendFormat:@"%@;", cssPropStr];
+    }
     NSMutableDictionary *resultDictionary = [NSMutableDictionary dictionary];
-    
+    resultDictionary[HippyCSSKeyStyleSheetId] = nodeId;
+    resultDictionary[HippyCSSKeyCSSProperties] = cssProps;
+    resultDictionary[HippyCSSKeyShorthandEntries] = @{};
+    resultDictionary[HippyCSSKeyCSSText] = allOfCSSText;
+    resultDictionary[HippyCSSKeyRange] = [self assemblyRangeJSONWithStartLine:0
+                                                                  startColumn:0
+                                                                      endLine:0
+                                                                    endColumn:allOfCSSText.length];
     return resultDictionary;
+}
+
+- (NSArray *)assemblyComputedStyleJSONWithProps:(NSDictionary *)props
+                                               width:(NSNumber *)width
+                                              height:(NSNumber *)height {
+    if (props.count <= 0) {
+        return @[];
+    }
+    NSMutableArray *computedStyles = [NSMutableArray array];
+    for (NSString *propKey in props) {
+        if (![self canHandleStyle:propKey] ||
+            [propKey isEqualToString:HippyDevtoolsCSSPropWidth] ||
+            [propKey isEqualToString:HippyDevtoolsCSSPropHeight]) {
+            continue;
+        }
+        NSString *cssName = [self unCamelize:propKey];
+        NSString *cssValue = [NSString stringWithFormat:@"%@", props[propKey]];
+        NSDictionary *cssProp = [self assemblyStylePropertyWithName:cssName value:cssValue];
+        [computedStyles addObject:cssProp];
+    }
+    for (NSString *boxModelKey in self.boxModelRequireMap) {
+        if ([props.allKeys containsObject:boxModelKey]) {
+            continue;
+        }
+        NSString *boxModelName = [self unCamelize:boxModelKey];
+        NSString *boxModelValue = [NSString stringWithFormat:@"%@", self.boxModelRequireMap[boxModelKey]];
+        NSDictionary *boxModelDic = [self assemblyStylePropertyWithName:boxModelName value:boxModelValue];
+        [computedStyles addObject:boxModelDic];
+    }
+    [computedStyles addObject:[self assemblyStylePropertyWithName:[self unCamelize:HippyDevtoolsCSSPropWidth]
+                                                            value:[width stringValue]]];
+    [computedStyles addObject:[self assemblyStylePropertyWithName:[self unCamelize:HippyDevtoolsCSSPropHeight]
+                                                            value:[height stringValue]]];
+    return [computedStyles copy];
 }
 
 - (NSDictionary *)assemblyRangeJSONWithStartLine:(NSInteger)startLine
@@ -173,7 +242,6 @@ NSString *const HippyCSSDefaultPosition = @"relative";
  * aB to a-b
  */
 - (NSString *)unCamelize:(NSString *)originStr {
-    
     if (originStr.length <= 0) {
         HippyLogInfo(@"CSS Model, unCamelize, origin string is empty");
         return @"";
@@ -192,7 +260,6 @@ NSString *const HippyCSSDefaultPosition = @"relative";
         range = [tempOriginStr rangeOfString:regularString options:NSRegularExpressionSearch];
     }
     [resultString appendString:tempOriginStr];
-    
     return resultString;
 }
 

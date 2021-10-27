@@ -31,6 +31,7 @@ NSString *const HippyDomMethodGetBoxModel = @"getBoxModel";
 NSString *const HippyDomMethodGetNodeForLocation = @"getNodeForLocation";
 NSString *const HippyDomMethodRemoveNode = @"removeNode";
 NSString *const HippyDomMethodSetInspectedNode = @"setInspectedNode";
+NSString *const HippyDOMParamsKeyNodeId = @"nodeId";
 
 @interface HippyDomDomain () {
     HippyDomModel *_domModel;
@@ -54,21 +55,19 @@ NSString *const HippyDomMethodSetInspectedNode = @"setInspectedNode";
 
 #pragma mark - Method Handle
 - (BOOL)handleRequestDevCommand:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
+    [super handleRequestDevCommand:command bridge:bridge];
     
     if ([command.method isEqualToString:HippyDomMethodGetDocument]) {
         return [self handleGetDocumentWithCmd:command bridge:bridge];
     }
     if ([command.method isEqualToString:HippyDomMethodGetBoxModel]) {
-        return YES;
+        return [self handleGetBoxModelWithCmd:command bridge:bridge];
     }
     if ([command.method isEqualToString:HippyDomMethodGetNodeForLocation]) {
-        return YES;
-    }
-    if ([command.method isEqualToString:HippyDomMethodRemoveNode]) {
-        return YES;
+        return [self handleGetNodeForLocationWithCmd:command bridge:bridge];
     }
     if ([command.method isEqualToString:HippyDomMethodSetInspectedNode]) {
-        return YES;
+        return [self handleRspDataWithCmd:command dataJSON:@{}];
     }
     
     return NO;
@@ -81,15 +80,28 @@ NSString *const HippyDomMethodSetInspectedNode = @"setInspectedNode";
         return NO;
     }
     HippyVirtualNode *rootNode = [manager nodeForHippyTag:[manager rootHippyTag]];
-    NSDictionary *documentJSON = [_domModel domGetDocumentJSONStringWithRootNode:rootNode];
-    NSDictionary *result = @{@"id": command.cmdID, @"result": documentJSON};
-    NSError *parseError;
-    NSData *retData = [NSJSONSerialization dataWithJSONObject:result options:0 error:&parseError];
-    if (parseError) {
-        HippyLogError(@"DomDomain, getDocument error, parse json data error");
+    NSDictionary *documentJSON = [_domModel domGetDocumentJSONWithRootNode:rootNode];
+    return [self handleRspDataWithCmd:command dataJSON:documentJSON];
+}
+
+- (BOOL)handleGetBoxModelWithCmd:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
+    HippyUIManager *manager = bridge.uiManager;
+    if (!manager) {
+        HippyLogError(@"DomDomain, getBoxModel error, manager is nil");
         return NO;
     }
-    command.resultString = [[NSString alloc] initWithData:retData encoding:NSUTF8StringEncoding];
+    NSNumber *nodeId = command.params[HippyDOMParamsKeyNodeId];
+    if (!nodeId) {
+        HippyLogError(@"DomDomain, getBoxModel error, params is't contains nodeId key");
+        return NO;
+    }
+    HippyVirtualNode *node = [manager nodeForHippyTag:nodeId];
+    NSDictionary *boxModelJSON = [_domModel domGetBoxModelJSONWithNode:node];
+    return [self handleRspDataWithCmd:command dataJSON:boxModelJSON];
+}
+
+- (BOOL)handleGetNodeForLocationWithCmd:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
+    
     return YES;
 }
 

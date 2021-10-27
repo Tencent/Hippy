@@ -21,6 +21,7 @@
 */
 
 #import "HippyDomModel.h"
+#import "HippyCSSPropsDefine.h"
 #import "HippyLog.h"
 
 // DOM Result JSON Key
@@ -36,6 +37,8 @@ NSString *const HippyDOMKeyChildren = @"children";
 NSString *const HippyDOMKeyLocalName = @"localName";
 NSString *const HippyDOMKeyNodeValue = @"nodeValue";
 NSString *const HippyDOMKeyParentId = @"parentId";
+NSString *const HippyDOMKeyModel = @"model";
+NSString *const HippyDOMKeyBoxModelContent = @"content";
 
 // Default Value
 NSInteger const HippyDOMDefaultDocumentNodeId = -3;
@@ -61,7 +64,7 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
 @implementation HippyDomModel
 
 #pragma mark - DOM Protocol
-- (NSDictionary *)domGetDocumentJSONStringWithRootNode:(HippyVirtualNode *)rootNode {
+- (NSDictionary *)domGetDocumentJSONWithRootNode:(HippyVirtualNode *)rootNode {
     if (!rootNode) {
         HippyLogError(@"DOM Model, getDocument error, rootNode is nil");
         return @{};
@@ -82,6 +85,26 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
     NSMutableDictionary *resultDic = [NSMutableDictionary dictionary];
     resultDic[HippyDOMKeyRoot] = rootDic;
     return [resultDic copy];
+}
+
+- (NSDictionary *)domGetBoxModelJSONWithNode:(HippyVirtualNode *)node {
+    if (!node) {
+        HippyLogError(@"DOM Model, getBoxModel error, node is nil");
+        return @{};
+    }
+    
+    NSMutableDictionary *boxModelDic = [NSMutableDictionary dictionary];
+    NSArray *border = [self assemblyBoxModelBorderWithFrame:node.frame];
+    NSArray *padding = [self assemblyBoxModelPaddingWithProps:node.props border:border];
+    NSArray *content = [self assemblyBoxModelContentWithProps:node.props padding:padding];
+    NSArray *margin = [self assemblyBoxModelMarginWithProps:node.props border:border];
+    boxModelDic[HippyDevtoolsCSSPropWidth] = @(node.frame.size.width);
+    boxModelDic[HippyDevtoolsCSSPropHeight] = @(node.frame.size.height);
+    boxModelDic[HippyDevtoolsCSSPropBorder] = border;
+    boxModelDic[HippyDevtoolsCSSPropPadding] = padding;
+    boxModelDic[HippyDOMKeyBoxModelContent] = content;
+    boxModelDic[HippyDevtoolsCSSPropMargin] = margin;
+    return @{HippyDOMKeyModel : boxModelDic};
 }
 
 #pragma mark - private method
@@ -152,6 +175,154 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
         [attributeJSONArray addObject:value];
     }
     return [attributeJSONArray copy];
+}
+
+- (NSArray<NSNumber *> *)assemblyBoxModelBorderWithFrame:(CGRect)frame {
+    return @[
+        @(frame.origin.x),
+        @(frame.origin.y),
+        @(frame.origin.x + frame.size.width),
+        @(frame.origin.y),
+        @(frame.origin.x + frame.size.width),
+        @(frame.origin.y + frame.size.height),
+        @(frame.origin.x),
+        @(frame.origin.y + frame.size.height)
+    ];
+}
+
+- (NSArray<NSNumber *> *)assemblyBoxModelPaddingWithProps:(NSDictionary *)props
+                                                   border:(NSArray<NSNumber *> *)border {
+    if (props.count <= 0 || border.count <= 0) {
+        return @[];
+    }
+    NSInteger borderTop = 0;
+    NSInteger borderLeft = 0;
+    NSInteger borderRight = 0;
+    NSInteger borderBottom = 0;
+    NSNumber *borderWidth = props[HippyDevtoolsCSSPropBorderWidth];
+    if (borderWidth) {
+        borderTop = borderWidth.integerValue;
+        borderLeft = borderWidth.integerValue;
+        borderRight = borderWidth.integerValue;
+        borderBottom = borderWidth.integerValue;
+    }
+    NSNumber *borderTopWidth = props[HippyDevtoolsCSSPropBorderTopWidth];
+    if (borderTopWidth) {
+        borderTop = borderTopWidth.integerValue;
+    }
+    NSNumber *borderLeftWidth = props[HippyDevtoolsCSSPropBorderLeftWidth];
+    if (borderLeftWidth) {
+        borderLeft = borderLeftWidth.integerValue;
+    }
+    NSNumber *borderRightWidth = props[HippyDevtoolsCSSPropBorderRightWidth];
+    if (borderRightWidth) {
+        borderRight = borderRightWidth.integerValue;
+    }
+    NSNumber *borderBottomWidth = props[HippyDevtoolsCSSPropBorderBottomWidth];
+    if (borderBottomWidth) {
+        borderBottom = borderBottomWidth.integerValue;
+    }
+    
+    return @[
+        @(border[0].integerValue + borderLeft),
+        @(border[1].integerValue + borderTop),
+        @(border[2].integerValue - borderRight),
+        @(border[3].integerValue + borderTop),
+        @(border[4].integerValue - borderRight),
+        @(border[5].integerValue - borderBottom),
+        @(border[6].integerValue + borderLeft),
+        @(border[7].integerValue - borderBottom)
+    ];
+}
+
+- (NSArray<NSNumber *> *)assemblyBoxModelContentWithProps:(NSDictionary *)props
+                                                  padding:(NSArray<NSNumber *> *)padding {
+    if (props.count <= 0 || padding.count <= 0) {
+        return @[];
+    }
+    NSInteger paddingTop = 0;
+    NSInteger paddingLeft = 0;
+    NSInteger paddingRight = 0;
+    NSInteger paddingBottom = 0;
+    NSNumber *propsPadding = props[HippyDevtoolsCSSPropPadding];
+    if (propsPadding) {
+        paddingTop = propsPadding.integerValue;
+        paddingLeft = propsPadding.integerValue;
+        paddingRight = propsPadding.integerValue;
+        paddingBottom = propsPadding.integerValue;
+    }
+    NSNumber *propsPaddingTop = props[HippyDevtoolsCSSPropPaddingTop];
+    if (propsPaddingTop) {
+        paddingTop = propsPaddingTop.integerValue;
+    }
+    NSNumber *propsPaddingLeft = props[HippyDevtoolsCSSPropPaddingLeft];
+    if (propsPaddingLeft) {
+        paddingLeft = propsPaddingLeft.integerValue;
+    }
+    NSNumber *propsPaddingRight = props[HippyDevtoolsCSSPropPaddingRight];
+    if (propsPaddingRight) {
+        paddingRight = propsPaddingRight.integerValue;
+    }
+    NSNumber *propsPaddingBottom = props[HippyDevtoolsCSSPropPaddingBottom];
+    if (propsPaddingBottom) {
+        paddingBottom = propsPaddingBottom.integerValue;
+    }
+    
+    return @[
+        @(padding[0].integerValue + paddingLeft),
+        @(padding[1].integerValue + paddingTop),
+        @(padding[2].integerValue - paddingRight),
+        @(padding[3].integerValue + paddingTop),
+        @(padding[4].integerValue - paddingRight),
+        @(padding[5].integerValue - paddingBottom),
+        @(padding[6].integerValue + paddingLeft),
+        @(padding[7].integerValue - paddingBottom)
+    ];
+}
+
+- (NSArray<NSNumber *> *)assemblyBoxModelMarginWithProps:(NSDictionary *)props
+                                                  border:(NSArray<NSNumber *> *)border {
+    if (props.count <= 0 || border.count <= 0) {
+        return @[];
+    }
+    NSInteger marginTop = 0;
+    NSInteger marginLeft = 0;
+    NSInteger marginRight = 0;
+    NSInteger marginBottom = 0;
+    NSNumber *propsMargin = props[HippyDevtoolsCSSPropMargin];
+    if (propsMargin) {
+        marginTop = propsMargin.integerValue;
+        marginLeft = propsMargin.integerValue;
+        marginRight = propsMargin.integerValue;
+        marginBottom = propsMargin.integerValue;
+    }
+    NSNumber *propsMarginTop = props[HippyDevtoolsCSSPropMarginTop];
+    if (propsMarginTop) {
+        marginTop = propsMarginTop.integerValue;
+    }
+    NSNumber *propsMarginLeft = props[HippyDevtoolsCSSPropMarginLeft];
+    if (propsMarginLeft) {
+        marginLeft = propsMarginLeft.integerValue;
+    }
+    NSNumber *propsMarginRight = props[HippyDevtoolsCSSPropMarginRight];
+    if (propsMarginRight) {
+        marginRight = propsMarginRight.integerValue;
+    }
+    NSNumber *propsMarginBottom = props[HippyDevtoolsCSSPropMarginBottom];
+    if (propsMarginBottom) {
+        marginBottom = propsMarginBottom.integerValue;
+    }
+    
+    return @[
+        @(border[0].integerValue - marginLeft),
+        @(border[1].integerValue - marginTop),
+        @(border[2].integerValue + marginRight),
+        @(border[3].integerValue - marginTop),
+        @(border[4].integerValue + marginRight),
+        @(border[5].integerValue + marginBottom),
+        @(border[6].integerValue - marginLeft),
+        @(border[7].integerValue + marginBottom)
+    ];
 }
 
 @end

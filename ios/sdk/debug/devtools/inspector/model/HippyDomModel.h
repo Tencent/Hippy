@@ -30,11 +30,18 @@ NS_ASSUME_NONNULL_BEGIN
 @interface HippyDomModel : NSObject
 
 /**
- * @brief Get Chrome DOM getDocument JSON String
+ * @brief Get Chrome DOM getDocument JSON
  * @param rootNode root node
- * @return JSON String
+ * @return JSON Dictionary
  */
-- (NSDictionary *)domGetDocumentJSONStringWithRootNode:(nullable HippyVirtualNode *)rootNode;
+- (NSDictionary *)domGetDocumentJSONWithRootNode:(nullable HippyVirtualNode *)rootNode;
+
+/**
+ * @brief Get Chrome DOM getBoxModel JSON
+ * @param node virtual node
+ * @return JSON Dictionary
+ */
+- (NSDictionary *)domGetBoxModelJSONWithNode:(nullable HippyVirtualNode *)node;
 
 @end
 
