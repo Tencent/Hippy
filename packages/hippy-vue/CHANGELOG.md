@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.10.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.10.0...2.10.1) (2021-10-27)
+
+
+### Features
+
+* **hippy-vue:** add getElemCss function ([32101dc](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/32101dcad1bce6bde43f4253d4e0f785ce114d35))
+
+
+
+
+
 # [2.10.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.9.2...2.10.0) (2021-10-12)
 
 

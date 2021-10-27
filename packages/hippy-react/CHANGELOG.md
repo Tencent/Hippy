@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.10.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.10.0...2.10.1) (2021-10-27)
+
+
+### Bug Fixes
+
+* **hippy-react:** change dev condition judge ([268a6e9](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/268a6e90eb8c926f17776a26e7f554221134f9cd))
+
+
+### Features
+
+* **hippy-react:** add global bubbles config ([56edf20](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/56edf204214b56cbf1098097c34cc84d20dff069))
+
+
+
+
+
 # [2.10.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.9.2...2.10.0) (2021-10-12)
 
 

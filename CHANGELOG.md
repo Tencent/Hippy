@@ -3,6 +3,32 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.10.1](https://github.com/Tencent/Hippy/compare/2.10.0...2.10.1) (2021-10-27)
+
+
+### Bug Fixes
+
+* **android:** do not onRestoreInstanceState for sub views ([87bb19c](https://github.com/Tencent/Hippy/commit/87bb19c844278de5321b3341cc8ffeb39596ff4f))
+* **android:** do not use JAVA 8 lambda temporary ([d5fdf41](https://github.com/Tencent/Hippy/commit/d5fdf413290eac1d115073c841f288c0ca0645dd))
+* **android:** fix `hippy` library build script exception ([1534ba3](https://github.com/Tencent/Hippy/commit/1534ba3ac2ae22be126f777515a1a90e36b5c10c))
+* **android:** scroll view page scroll problem ([2b22b5f](https://github.com/Tencent/Hippy/commit/2b22b5fcd5ec7e8afcf8e32d5026cf9ef4c0dc94))
+* **hippy-react:** change dev condition judge ([268a6e9](https://github.com/Tencent/Hippy/commit/268a6e90eb8c926f17776a26e7f554221134f9cd))
+* **hippy-vue-demo:** fix scroll height bug ([42c30ce](https://github.com/Tencent/Hippy/commit/42c30ceddf6a0a3fd70a2d6b1208f080773fc002))
+* **ios:** a placeholder of text attachment for all system version ([519d40e](https://github.com/Tencent/Hippy/commit/519d40edb364ef1acbc6f5194d56b31dbf0a3f20))
+* **ios:** place an empty image for placeholder ([f1e1856](https://github.com/Tencent/Hippy/commit/f1e18562d31218f258dca69512166ebe73a17e5f))
+
+
+### Features
+
+* **android:** support add native module after init engine ([d1924d6](https://github.com/Tencent/Hippy/commit/d1924d676b0fdc5e48c23772dbf0110ba3f9fd93))
+* **android:** update `x5-lite` definitions ([86f9509](https://github.com/Tencent/Hippy/commit/86f9509506a1f73278848c61ba75c7f5ffdfd5a0))
+* **hippy-react:** add global bubbles config ([56edf20](https://github.com/Tencent/Hippy/commit/56edf204214b56cbf1098097c34cc84d20dff069))
+* **hippy-vue:** add getElemCss function ([32101dc](https://github.com/Tencent/Hippy/commit/32101dcad1bce6bde43f4253d4e0f785ce114d35))
+
+
+
+
+
 # [2.10.0](https://github.com/Tencent/Hippy/compare/2.9.2...2.10.0) (2021-10-12)
 
 
