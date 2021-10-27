@@ -397,12 +397,14 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             if (isnan(width) || isnan(height)) {
                 HippyLogError(@"Views nested within a <Text> must have a width and height");
             }
-
+            static UIImage *placehoderImage = nil;
+            static dispatch_once_t onceToken;
+            dispatch_once(&onceToken, ^{
+                placehoderImage = [[UIImage alloc] init];
+            });
             NSTextAttachment *attachment = [NSTextAttachment new];
             attachment.bounds = (CGRect) { CGPointZero, { width, height } };
-            if (@available(iOS 15.0, *)) {
-                attachment.image = [[UIImage alloc] init];
-            }
+            attachment.image = placehoderImage;
             NSMutableAttributedString *attachmentString = [NSMutableAttributedString new];
             [attachmentString appendAttributedString:[NSAttributedString attributedStringWithAttachment:attachment]];
             [attachmentString addAttribute:HippyShadowViewAttributeName value:child range:(NSRange) { 0, attachmentString.length }];
