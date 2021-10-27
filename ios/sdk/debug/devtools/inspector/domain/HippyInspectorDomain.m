@@ -22,10 +22,15 @@
 
 #import "HippyInspectorDomain.h"
 #import "HippyBridge.h"
+#import "HippyDevCommand.h"
+#import "HippyLog.h"
 
 NSString *const HippyInspectorDomainName = @"InspectorDomain";
 NSString *const HippyDomainMethodNameEnable = @"enable";
 NSString *const HippyDomainMethodNameDisable = @"disable";
+
+NSString *const HippyDomainRspKeyId = @"id";
+NSString *const HippyDomainRspKeyResult = @"result";
 
 @implementation HippyInspectorDomain
 
@@ -53,7 +58,28 @@ NSString *const HippyDomainMethodNameDisable = @"disable";
 }
 
 - (BOOL)handleRequestDevCommand:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
+    if ([command.method isEqualToString:HippyDomainMethodNameEnable] ||
+        [command.method isEqualToString:HippyDomainMethodNameDisable]) {
+        return [self handleRspDataWithCmd:command dataJSON:@{}];
+    }
     return NO;
+}
+
+- (BOOL)handleRspDataWithCmd:(HippyDevCommand *)command dataJSON:(NSDictionary *)dataJSON {
+    if (!dataJSON) {
+        HippyLogError(@"InspectorDomain, dataJSON is nil");
+        return NO;
+    }
+    NSDictionary *result = @{HippyDomainRspKeyId : command.cmdID,
+                             HippyDomainRspKeyResult: dataJSON};
+    NSError *parseError;
+    NSData *retData = [NSJSONSerialization dataWithJSONObject:result options:0 error:&parseError];
+    if (parseError) {
+        HippyLogError(@"InspectorDomain, parse json data error");
+        return NO;
+    }
+    command.resultString = [[NSString alloc] initWithData:retData encoding:NSUTF8StringEncoding];
+    return YES;
 }
 
 - (NSString *)domainName {

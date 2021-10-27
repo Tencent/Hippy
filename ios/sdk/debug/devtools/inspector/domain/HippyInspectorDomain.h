@@ -60,6 +60,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)handleRequestDevCommand:(HippyDevCommand *)command bridge:(HippyBridge *)bridge;
 
+- (BOOL)handleRspDataWithCmd:(HippyDevCommand *)command dataJSON:(NSDictionary *)dataJSON;
+
 - (NSString *)domainName;
 
 @end
