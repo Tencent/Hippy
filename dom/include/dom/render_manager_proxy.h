@@ -1,5 +1,6 @@
 #pragma once
 
+#include "dom/dom_node.h"
 #include "dom/render_manager.h"
 
 namespace hippy {
@@ -27,9 +28,9 @@ class RenderManagerProxy : public RenderManager {
                         DispatchFunctionCallback cb) override;
 
   void AddTouchEventListener(int32_t id,
-                             TouchEvent event,
+                             std::shared_ptr<TouchEvent> event,
                              OnTouchEventListener listener) override;
-  void RemoveTouchEventListener(int32_t id, TouchEvent event) override;
+  void RemoveTouchEventListener(std::shared_ptr<TouchEvent> event) override;
 
  protected:
   bool ComputeIsLayoutOnly(std::shared_ptr<DomNode> node) const;

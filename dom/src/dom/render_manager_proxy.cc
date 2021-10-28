@@ -101,13 +101,13 @@ void RenderManagerProxy::DispatchFunction(
 }
 
 void RenderManagerProxy::AddTouchEventListener(int32_t id,
-                                               TouchEvent event,
+                                               std::shared_ptr<TouchEvent> event,
                                                OnTouchEventListener listener) {
   render_manager_->AddTouchEventListener(id, event, listener);
 }
 
-void RenderManagerProxy::RemoveTouchEventListener(int32_t id, TouchEvent event) {
-  render_manager_->RemoveTouchEventListener(id, event);
+void RenderManagerProxy::RemoveTouchEventListener(std::shared_ptr<TouchEvent> event) {
+  render_manager_->RemoveTouchEventListener(event);
 }
 
 bool RenderManagerProxy::ComputeIsLayoutOnly(std::shared_ptr<DomNode> node) const {

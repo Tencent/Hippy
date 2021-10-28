@@ -99,7 +99,7 @@ DomValue::DomValue(const DomValue& source) : type_(source.type_), number_type_(s
   }
 }
 
-DomValue::~DomValue() { Deallocate(); }
+DomValue::~DomValue() { deallocate(); }
 
 DomValue& DomValue::operator=(const DomValue& rhs) noexcept {
   if (this == &rhs) {
@@ -109,10 +109,10 @@ DomValue& DomValue::operator=(const DomValue& rhs) noexcept {
   switch (rhs.type_) {
     case DomValue::Type::kNull:
     case DomValue::Type::kUndefined:
-      Deallocate();
+      deallocate();
       break;
     case DomValue::Type::kNumber:
-      Deallocate();
+      deallocate();
       switch (rhs.number_type_) {
         case DomValue::NumberType::kInt32:
           num_.i32_ = rhs.num_.i32_;
@@ -136,12 +136,12 @@ DomValue& DomValue::operator=(const DomValue& rhs) noexcept {
       }
       break;
     case DomValue::Type::kBoolean:
-      Deallocate();
+      deallocate();
       b_ = rhs.b_;
       break;
     case DomValue::Type::kString:
       if (type_ != DomValue::Type::kString) {
-        Deallocate();
+        deallocate();
         new (&str_) std::string(rhs.str_);
       } else {
         str_ = rhs.str_;
@@ -149,7 +149,7 @@ DomValue& DomValue::operator=(const DomValue& rhs) noexcept {
       break;
     case DomValue::Type::kObject:
       if (type_ != DomValue::Type::kObject) {
-        Deallocate();
+        deallocate();
         new (&obj_) DomValueObjectType(rhs.obj_);
       } else {
         obj_ = rhs.obj_;
@@ -157,7 +157,7 @@ DomValue& DomValue::operator=(const DomValue& rhs) noexcept {
       break;
     case DomValue::Type::kArray:
       if (type_ != DomValue::Type::kArray) {
-        Deallocate();
+        deallocate();
         new (&arr_) DomValueArrayType(rhs.arr_);
       } else {
         arr_ = rhs.arr_;
@@ -173,7 +173,7 @@ DomValue& DomValue::operator=(const DomValue& rhs) noexcept {
 }
 
 DomValue& DomValue::operator=(const int32_t rhs) noexcept {
-  Deallocate();
+  deallocate();
   type_ = DomValue::Type::kNumber;
   number_type_ = DomValue::NumberType::kInt32;
   num_.i32_ = rhs;
@@ -181,7 +181,7 @@ DomValue& DomValue::operator=(const int32_t rhs) noexcept {
 }
 
 DomValue& DomValue::operator=(const uint32_t rhs) noexcept {
-  Deallocate();
+  deallocate();
   type_ = DomValue::Type::kNumber;
   number_type_ = DomValue::NumberType::kUInt32;
   num_.u32_ = rhs;
@@ -189,7 +189,7 @@ DomValue& DomValue::operator=(const uint32_t rhs) noexcept {
 }
 
 DomValue& DomValue::operator=(const int64_t rhs) noexcept {
-  Deallocate();
+  deallocate();
   type_ = DomValue::Type::kNumber;
   number_type_ = DomValue::NumberType::kInt64;
   num_.i64_ = rhs;
@@ -197,7 +197,7 @@ DomValue& DomValue::operator=(const int64_t rhs) noexcept {
 }
 
 DomValue& DomValue::operator=(const uint64_t rhs) noexcept {
-  Deallocate();
+  deallocate();
   type_ = DomValue::Type::kNumber;
   number_type_ = DomValue::NumberType::kUInt64;
   num_.u64_ = rhs;
@@ -205,7 +205,7 @@ DomValue& DomValue::operator=(const uint64_t rhs) noexcept {
 }
 
 DomValue& DomValue::operator=(const double rhs) noexcept {
-  Deallocate();
+  deallocate();
   type_ = DomValue::Type::kNumber;
   number_type_ = DomValue::NumberType::kDouble;
   num_.d_ = rhs;
@@ -213,7 +213,7 @@ DomValue& DomValue::operator=(const double rhs) noexcept {
 }
 
 DomValue& DomValue::operator=(const bool rhs) noexcept {
-  Deallocate();
+  deallocate();
   type_ = DomValue::Type::kBoolean;
   number_type_ = DomValue::NumberType::kNaN;
   b_ = rhs;
@@ -222,7 +222,7 @@ DomValue& DomValue::operator=(const bool rhs) noexcept {
 
 DomValue& DomValue::operator=(const std::string& rhs) noexcept {
   if (type_ != DomValue::Type::kString) {
-    Deallocate();
+    deallocate();
     new (&str_) std::string(rhs);
   } else {
     str_ = rhs;
@@ -234,7 +234,7 @@ DomValue& DomValue::operator=(const std::string& rhs) noexcept {
 
 DomValue& DomValue::operator=(const char* rhs) noexcept {
   if (type_ != DomValue::Type::kString) {
-    Deallocate();
+    deallocate();
     new (&str_) std::string(rhs);
   } else {
     str_ = rhs;
@@ -247,7 +247,7 @@ DomValue& DomValue::operator=(const char* rhs) noexcept {
 
 DomValue& DomValue::operator=(const DomValueObjectType& rhs) noexcept {
   if (type_ != DomValue::Type::kObject) {
-    Deallocate();
+    deallocate();
     new (&obj_) DomValueObjectType(rhs);
   } else {
     obj_ = rhs;
@@ -260,7 +260,7 @@ DomValue& DomValue::operator=(const DomValueObjectType& rhs) noexcept {
 
 DomValue& DomValue::operator=(const DomValueArrayType& rhs) noexcept {
   if (type_ != DomValue::Type::kArray) {
-    Deallocate();
+    deallocate();
     new (&arr_) DomValueArrayType(rhs);
   } else {
     arr_ = rhs;
@@ -421,7 +421,7 @@ DomValue::DomValueArrayType& DomValue::ToArray() {
   return arr_;
 }
 
-inline void DomValue::Deallocate() {
+inline void DomValue::deallocate() {
   switch (type_) {
     case Type::kString:
       str_.~basic_string();
