@@ -1,7 +1,7 @@
 /* eslint-disable import/prefer-default-export */
 
-import { createPatchFunction } from 'core/vdom/patch';
-import baseModules from 'core/vdom/modules/index';
+import { createPatchFunction } from 'framework/js/core/vdom/patch';
+import baseModules from 'framework/js/core/vdom/modules/index';
 
 import platformModules from './modules/index';
 import * as nodeOps from './node-ops';

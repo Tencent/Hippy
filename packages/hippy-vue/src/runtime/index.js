@@ -2,17 +2,17 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 
-import Vue from 'core/index';
-import { defineComputed, proxy } from 'core/instance/state';
+import Vue from 'framework/js/core/index';
+import { defineComputed, proxy } from 'framework/js/core/instance/state';
 import { ASSET_TYPES } from 'shared/constants';
-import { mountComponent } from 'core/instance/lifecycle';
+import { mountComponent } from 'framework/js/core/instance/lifecycle';
 import { compileToFunctions } from 'web/compiler/index';
 import {
   warn,
   isPlainObject,
   mergeOptions,
   extend,
-} from 'core/util/index';
+} from 'framework/js/core/util/index';
 import {
   registerBuiltinElements,
   registerElement,

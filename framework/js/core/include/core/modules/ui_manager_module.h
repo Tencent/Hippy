@@ -22,37 +22,33 @@
 
 #pragma once
 
-#include "base/logging.h"
-#include "base/unicode_string_view.h"
-#include "core/base/base_time.h"
-#include "core/base/common.h"
-#include "core/base/file.h"
-#include "core/base/macros.h"
+#include <memory>
+#include <string>
+#include <unordered_map>
+#include <utility>
+
 #include "core/base/task.h"
-#include "core/base/task_runner.h"
-#include "core/base/thread.h"
-#include "core/base/thread_id.h"
-#include "core/base/uri_loader.h"
-#include "core/engine.h"
-#include "core/modules/console_module.h"
-#include "core/modules/contextify_module.h"
 #include "core/modules/module_base.h"
-#include "core/modules/module_register.h"
-#include "core/modules/timer_module.h"
 #include "core/napi/callback_info.h"
 #include "core/napi/js_native_api.h"
 #include "core/napi/js_native_api_types.h"
-#include "core/napi/native_source_code.h"
-#include "core/scope.h"
+#include "dom/dom_manager.h"
 
-#ifdef OS_ANDROID
-#include "core/napi/v8/js_native_api_v8.h"
-#else
-#include "core/napi/jsc/js_native_api_jsc.h"
-#include "core/napi/jsc/js_native_jsc_helper.h"
-#endif
+class UIManager : public ModuleBase {
+ public:
+  using CallbackInfo = hippy::napi::CallbackInfo;
 
-#include "core/task/common_task.h"
-#include "core/task/javascript_task.h"
-#include "core/task/javascript_task_runner.h"
-#include "core/task/worker_task_runner.h"
+  UIManagerModule();
+  ~UIManagerModule();
+
+  void CreateNode(const CallbackInfo& info);
+  void UpdateNode(const CallbackInfo& info);
+  void DeleteNode(const CallbackInfo& info);
+  void FlushBatch(const CallbackInfo& info);
+  void StartBatch(const CallbackInfo& info);
+  void EndBatch(const CallbackInfo& info);
+  void CallUIFunction(const CallbackInfo& info);
+
+ private:
+
+};
