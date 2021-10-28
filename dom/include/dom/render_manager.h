@@ -8,17 +8,16 @@
 #include "dom/dom_value.h"
 
 namespace hippy {
-namespace dom {
+inline namespace dom {
 
 class RenderManager {
  public:
-  RenderManager(int32_t root_id);
   virtual ~RenderManager();
 
-  virtual void CreateRenderNode(std::vector<std::shared_ptr<DomNode>> node) = 0;
-  virtual void UpdateRenderNode(std::vector<std::shared_ptr<DomNode>> node) = 0;
-  virtual void DeleteRenderNode(std::vector<std::shared_ptr<DomNode>> node) = 0;
-  virtual void MoveRenderNode(std::vector<int32_t> ids,
+  virtual void CreateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) = 0;
+  virtual void UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) = 0;
+  virtual void DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) = 0;
+  virtual void MoveRenderNode(std::vector<int32_t>&& ids,
                               int32_t pid,
                               int32_t id) = 0;
   virtual void Batch() = 0;
@@ -34,8 +33,6 @@ class RenderManager {
                                      std::shared_ptr<TouchEvent> event,
                                      OnTouchEventListener listener) = 0;
   virtual void RemoveTouchEventListener(std::shared_ptr<TouchEvent> event) = 0;
- private:
-  int32_t root_id_;
 };
 
 }

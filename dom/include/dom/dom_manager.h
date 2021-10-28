@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <cstdint>
+#include <map>
 #include <memory>
 #include <future>
 
@@ -44,14 +45,33 @@ class DomManager {
   int32_t AddDomTreeEventListener(DomTreeEvent event, OnDomTreeEventListener listener);
   void RemoveDomTreeEventListener(DomTreeEvent event, int32_t listener_id);
 
+ protected:
+  void OnDomNodeCreated(std::shared_ptr<DomNode> node);
+  void OnDomNodeUpdated(std::shared_ptr<DomNode> node);
+  void OnDomNodeDeleted(std::shared_ptr<DomNode> node);
+
  private:
   int32_t root_id_;
   std::shared_ptr<DomNode> root_node_;
   std::shared_ptr<RenderManager> render_manager_;
   std::unordered_map<DomTreeEvent, std::vector<OnDomTreeEventListener>> dom_tree_event_listeners;
-  std::unordered_map<std::shared_ptr<DomEvent>, std::vector<OnDomEventListener>>
-      dom_event_listener_map_;
+  std::unordered_map<DomEvent, std::vector<OnDomEventListener>> dom_event_listener_map_;
   std::shared_ptr<TaskRunner> runner_;
+
+  class DomNodeRegistry {
+   public:
+    void AddNode(std::shared_ptr<DomNode> node);
+    std::shared_ptr<DomNode> GetNode(int32_t id);
+    void RemoveNode(int32_t id);
+
+   private:
+    std::map<int32_t, std::shared_ptr<DomNode>> nodes_;
+  };
+
+  DomNodeRegistry dom_node_registry_;
+
+  using DomOperation = std::function<void(void)>;
+  std::vector<DomOperation> batch_operations_;
 };
 
 }

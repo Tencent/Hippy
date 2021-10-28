@@ -26,7 +26,22 @@ class DomNode {
   DomNode();
   ~DomNode();
 
+  // 记录RenderNode相关信息
+  struct RenderInfo {
+    int32_t pid = -1;  // 父RenderNode的id
+    int32_t index = -1;  // 在父RenderNode上的索引值
+    bool created = false;  // RenderNode是否已经创建
+
+    void Reset() {
+      pid = -1;
+      index = -1;
+      created = false;
+    }
+  };
+
   std::shared_ptr<DomNode> GetParent();
+  int32_t GetChildCount() const { return children_.size(); }
+  int32_t IndexOf(std::shared_ptr<DomNode> child);
   std::shared_ptr<DomNode> GetChildAt(int32_t index);
   void AddChildAt(std::shared_ptr<DomNode> dom_node, int32_t index);
   std::shared_ptr<DomNode> RemoveChildAt(int32_t index);
@@ -35,6 +50,10 @@ class DomNode {
   void RemoveClickEventListener(int32_t listener_id);
   int32_t AddTouchEventListener(std::shared_ptr<TouchEvent> event, OnTouchEventListener listener);
   void RemoveTouchEventListener(std::shared_ptr<TouchEvent> event, int32_t listener_id);
+
+  inline void SetTagName(const std::string& tag_name) {
+    tag_name_ = tag_name;
+  }
 
   inline const std::string& GetTagName() {
     return tag_name_;
@@ -48,10 +67,36 @@ class DomNode {
     return view_name_;
   }
 
+  void SetId(int32_t id) { id_ = id; }
+  int32_t GetId() const { return id_; }
+
+  void SetPid(int32_t pid) { pid_ = pid; }
+  int32_t GetPid() const { return pid_; }
+
+  RenderInfo GetRenderInfo() const  { return render_info_; }
+  void SetRenderInfo(RenderInfo render_info) { render_info_ = render_info; }
+
+  bool IsJustLayout() const { return is_just_layout_; }
+  void SetIsJustLayout(bool is_just_layout) { is_just_layout_ = is_just_layout; }
+
+  bool IsVirtual() { return is_virtual_; }
+  void SetIsVirtual(bool is_virtual) { is_virtual_ = is_virtual; }
+
+  void SetIndex(int32_t index) { index_ = index; }
+  int32_t GetIndex() const { return index_; }
+
   int32_t AddDomEventListener(std::shared_ptr<DomEvent> event, OnDomEventListener listener);
   void RemoveDomEventListener(std::shared_ptr<DomEvent> event, int32_t listener_id);
 
   int32_t AddOnLayoutListener(std::shared_ptr<LayoutEvent> event, OnLayoutEventListener listener);
+
+  const std::unordered_map<std::string, std::shared_ptr<DomValue>>& GetStyleMap() const {
+    return style_map_;
+  }
+
+  bool HasTouchEventListeners() const {
+    return !touch_event_listener_map_.empty();
+  }
 
  private:
   int32_t id_;  // 节点唯一id
@@ -73,11 +118,13 @@ class DomNode {
   bool is_virtual_;
 
   OnLayoutEventListener on_layout_event_listener_;
-  std::unordered_map<std::shared_ptr<TouchEvent>, OnTouchEventListener>
+  std::unordered_map<TouchEvent, OnTouchEventListener>
       touch_event_listener_map_;
 
   std::shared_ptr<DomNode> parent_;
   std::vector<std::shared_ptr<DomNode>> children_;
+
+  RenderInfo render_info_;
 };
 
 }
