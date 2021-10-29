@@ -102,12 +102,49 @@ NSString *const HippyCSSDefaultPosition = @"relative";
     return @{};
 }
 
-- (NSDictionary *)styleTextJSONWithNode:(HippyVirtualNode *)node{
-    if (!node || node.props.count <= 0) {
-        HippyLogWarn(@"CSS Model, style text json, node is nil or props is empty");
+- (NSDictionary *)styleTextJSONWithUIManager:(HippyUIManager *)manager
+                                     editDic:(NSDictionary *)editDic{
+    if (!manager || editDic.count <= 0) {
+        HippyLogWarn(@"CSS Model, style text json, manager is nil or editDic is empty");
         return @{};
     }
-    return @{};
+    NSNumber *nodeId = editDic[HippyCSSKeyStyleSheetId];
+    HippyVirtualNode *node = [manager nodeForHippyTag:nodeId];
+    if (!node) {
+        HippyLogWarn(@"CSS Model, style text json, node is nil");
+        return @{};
+    }
+    NSMutableDictionary *newProps = [NSMutableDictionary dictionary];
+    if (node.props.count > 0) {
+        newProps = [NSMutableDictionary dictionaryWithDictionary:node.props];
+    }
+    NSString *editText = editDic[HippyCSSKeyText];
+    NSArray *editTexts = [editText componentsSeparatedByString:@";"];
+    for (NSString *propText in editTexts) {
+        NSArray *propTextArray = [propText componentsSeparatedByString:@":"];
+        if (propTextArray.count != 2) {
+            continue;
+        }
+        NSString *propKey = [self camelize:[propTextArray.firstObject
+                                                stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]]];
+        NSString *propValue = [propTextArray.lastObject stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        if ([self.styleNumberSet containsObject:propKey]) {
+            newProps[propKey] = @(propValue.doubleValue);
+        }
+        if ([self.styleEnumMap.allKeys containsObject:propKey]) {
+            NSArray *enumValues = self.styleEnumMap[propKey];
+            if ([enumValues containsObject:propValue]) {
+                newProps[propKey] = propValue;
+            } else {
+                newProps[propKey] = enumValues.firstObject;
+            }
+        }
+    }
+    NSDictionary *resultProps = [newProps copy];
+    dispatch_async(HippyGetUIManagerQueue(), ^{
+        [manager updateViewWithHippyTag:nodeId props:resultProps];
+    });
+    return [self assemblyCSSStyleJSONWithProps:resultProps nodeId:nodeId];
 }
 
 #pragma mark - private method

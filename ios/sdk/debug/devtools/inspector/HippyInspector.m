@@ -23,8 +23,13 @@
 #import "HippyInspector.h"
 #import "HippyDomDomain.h"
 #import "HippyCSSDomain.h"
-#import "HippyPageDomain.h"
 #import "HippyDevCommand.h"
+#import "HippyDevManager.h"
+#import "HippyLog.h"
+#import "HippyPageDomain.h"
+
+NSString *const HippyInspectorRspDataKeyMethod = @"method";
+NSString *const HippyInspectorRspDataKeyParams = @"params";
 
 @interface HippyInspector ()
 
@@ -69,6 +74,22 @@
         *command = cmd;
     }
     return domain;
+}
+
+- (void)sendDataToFrontendWithMethod:(NSString *)method params:(NSDictionary *)params {
+    NSDictionary *resultDic = @{
+        HippyInspectorRspDataKeyMethod : method,
+        HippyInspectorRspDataKeyParams : params == nil ? @{} : params
+    };
+    NSError *parseError;
+    NSData *retData = [NSJSONSerialization dataWithJSONObject:resultDic options:0 error:&parseError];
+    if (parseError) {
+        HippyLogError(@"Inspector, parse json data error");
+    }
+    NSString *resultString = [[NSString alloc] initWithData:retData encoding:NSUTF8StringEncoding];
+    if (self.devManager) {
+        [self.devManager sendDataToFrontendWithData:resultString];
+    }
 }
 
 @end

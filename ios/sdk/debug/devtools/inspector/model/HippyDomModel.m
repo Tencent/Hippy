@@ -44,6 +44,7 @@ NSString *const HippyDOMKeyBoxModelContent = @"content";
 NSInteger const HippyDOMDefaultDocumentNodeId = -3;
 NSInteger const HippyDOMDefaultDocumentChildNodeCount = 1;
 NSString *const HippyDOMDefaultDocumentNodeName = @"#document";
+NSInteger const HippyDOMMaxValueLength = 2 * 1024;
 
 // Node Prop
 NSString *const HippyNodePropAttributes = @"attributes";
@@ -66,7 +67,7 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
 #pragma mark - DOM Protocol
 - (NSDictionary *)domGetDocumentJSONWithRootNode:(HippyVirtualNode *)rootNode {
     if (!rootNode) {
-        HippyLogError(@"DOM Model, getDocument error, rootNode is nil");
+        HippyLogWarn(@"DOM Model, getDocument error, rootNode is nil");
         return @{};
     }
     NSMutableDictionary *rootDic = [NSMutableDictionary dictionary];
@@ -89,7 +90,7 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
 
 - (NSDictionary *)domGetBoxModelJSONWithNode:(HippyVirtualNode *)node {
     if (!node) {
-        HippyLogError(@"DOM Model, getBoxModel error, node is nil");
+        HippyLogWarn(@"DOM Model, getBoxModel error, node is nil");
         return @{};
     }
     
@@ -168,7 +169,7 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
     NSMutableArray<NSString *> *attributeJSONArray = [NSMutableArray array];
     for (NSString *key in attribute) {
         NSString *value = [NSString stringWithFormat:@"%@", attribute[key]];
-        if (value.length <= 0) {
+        if (value.length <= 0 || value.length > HippyDOMMaxValueLength) {
             continue;
         }
         [attributeJSONArray addObject:key];

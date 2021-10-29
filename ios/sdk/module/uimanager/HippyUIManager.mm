@@ -70,6 +70,7 @@ NSString *const HippyUIManagerWillUpdateViewsDueToContentSizeMultiplierChangeNot
 NSString *const HippyUIManagerDidRegisterRootViewNotification = @"HippyUIManagerDidRegisterRootViewNotification";
 NSString *const HippyUIManagerDidRemoveRootViewNotification = @"HippyUIManagerDidRemoveRootViewNotification";
 NSString *const HippyUIManagerRootViewKey = @"HippyUIManagerRootViewKey";
+NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBatchNotification";
 
 @implementation HippyUIManager {
     // Root views are only mutated on the shadow queue
@@ -766,6 +767,8 @@ HIPPY_EXPORT_METHOD(startBatch:(__unused NSString *)batchID) {
 HIPPY_EXPORT_METHOD(endBatch:(__unused NSString *)batchID) {
     if (_pendingUIBlocks.count) {
         [self batchDidComplete];
+        [[NSNotificationCenter defaultCenter] postNotificationName:HippyUIManagerDidEndBatchNotification
+                                                            object:self];
     }
 }
 // clang-format on
@@ -1003,6 +1006,7 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
 
 - (void)updateViewWithHippyTag:(NSNumber *)hippyTag props:(NSDictionary *)pros {
     [self updateView:hippyTag viewName:nil props:pros];
+    [self batchDidComplete];
 }
 
 // clang-format off

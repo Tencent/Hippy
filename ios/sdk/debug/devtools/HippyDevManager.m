@@ -26,6 +26,7 @@
 #import "HippyInspectorDomain.h"
 #import "HippyDevCommand.h"
 #import "HippyBridge.h"
+#import "HippyUIManager.h"
 
 @interface HippyDevManager ()<HippyDevClientProtocol> {
     HippyDevWebSocketClient *_devWSClient;
@@ -42,8 +43,13 @@
         _bridge = bridge;
         _devWSClient = [[HippyDevWebSocketClient alloc] initWithDevIPAddress:devIPAddress port:devPort contextName:contextName];
         _devWSClient.delegate = self;
+        [HippyInspector sharedInstance].devManager = self;
     }
     return self;
+}
+
+- (void)sendDataToFrontendWithData:(NSString *)dataString {
+    [_devWSClient sendData:dataString];
 }
 
 #pragma mark WS Delegate
