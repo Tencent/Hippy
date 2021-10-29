@@ -24,9 +24,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class HippyInspectorDomain, HippyDevCommand;
+@class HippyInspectorDomain, HippyDevCommand, HippyDevManager;
 
 @interface HippyInspector : NSObject
+
+@property (nonatomic, weak) HippyDevManager *devManager;
 
 + (instancetype)sharedInstance;
 
@@ -34,6 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)new NS_UNAVAILABLE;
 
 - (HippyInspectorDomain *)inspectorDomainFromMessage:(NSString *)message command:(out HippyDevCommand **)command;
+
+- (void)sendDataToFrontendWithMethod:(NSString *)method params:(NSDictionary *)params;
 
 @end
 

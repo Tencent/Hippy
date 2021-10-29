@@ -52,10 +52,12 @@ HIPPY_EXTERN NSString *const HippyCSSKeyStyleSheetId;
 
 /**
  * @brief Get Chrome CSS setStyleText JSON
- * @param node virtual node
+ * @param manager Hippy UI manager
+ * @param editDic edit dictionary
  * @return JSON Dictionary
  */
-- (NSDictionary *)styleTextJSONWithNode:(nullable HippyVirtualNode *)node;
+- (NSDictionary *)styleTextJSONWithUIManager:(HippyUIManager *)manager
+                                     editDic:(NSDictionary *)editDic;
 
 @end
 

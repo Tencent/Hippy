@@ -30,6 +30,8 @@ NSString *const HippyCSSMethodGetComputedStyleForNode = @"getComputedStyleForNod
 NSString *const HippyCSSMethodGetInlineStylesForNode = @"getInlineStylesForNode";
 NSString *const HippyCSSMethodSetStyleTexts = @"setStyleTexts";
 NSString *const HippyCSSParamsKeyNodeId = @"nodeId";
+NSString *const HippyCSSParamsKeyEdits = @"edits";
+NSString *const HippyCSSRspKeyStyles = @"styles";
 
 @interface HippyCSSDomain () {
     HippyCSSModel *_cssModel;
@@ -120,8 +122,23 @@ NSString *const HippyCSSParamsKeyNodeId = @"nodeId";
 }
 
 - (BOOL)handleSetStyleTextsWithCmd:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
-    
-    return [self handleRspDataWithCmd:command dataJSON:@{}];
+    HippyUIManager *manager = bridge.uiManager;
+    if (!manager) {
+        HippyLogError(@"CSSDomain, setStyleTexts error, manager is nil");
+        return NO;
+    }
+    NSArray<NSDictionary *> *edits = command.params[HippyCSSParamsKeyEdits];
+    if (edits.count <= 0) {
+        HippyLogError(@"CSSDomain, setStyleTexts error, params is't contains edits key");
+        return NO;
+    }
+    NSMutableArray *styles = [NSMutableArray array];
+    for (NSDictionary *editDic in edits) {
+        NSDictionary *styleJSON = [_cssModel styleTextJSONWithUIManager:manager
+                                                                editDic:editDic];
+        [styles addObject:styleJSON];
+    }
+    return [self handleRspDataWithCmd:command dataJSON:@{HippyCSSRspKeyStyles : styles}];
 }
 
 @end

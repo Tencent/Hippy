@@ -31,6 +31,7 @@ NSString *const HippyDomMethodGetBoxModel = @"getBoxModel";
 NSString *const HippyDomMethodGetNodeForLocation = @"getNodeForLocation";
 NSString *const HippyDomMethodRemoveNode = @"removeNode";
 NSString *const HippyDomMethodSetInspectedNode = @"setInspectedNode";
+NSString *const HippyDomMethodDocumentUpdated = @"documentUpdated";
 NSString *const HippyDOMParamsKeyNodeId = @"nodeId";
 
 @interface HippyDomDomain () {
@@ -45,6 +46,9 @@ NSString *const HippyDOMParamsKeyNodeId = @"nodeId";
     self = [super initWithInspector:inspector];
     if (self) {
         _domModel = [[HippyDomModel alloc] init];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(handleEndBatchNotification) name:HippyUIManagerDidEndBatchNotification
+                                                   object:nil];
     }
     return self;
 }
@@ -104,5 +108,15 @@ NSString *const HippyDOMParamsKeyNodeId = @"nodeId";
     
     return YES;
 }
+
+- (void)handleEndBatchNotification{
+    if (!self.inspector) {
+        return;
+    }
+    NSString *methodName = [NSString stringWithFormat:@"%@.%@", HippyDomDomainName, HippyDomMethodDocumentUpdated];
+    [self.inspector sendDataToFrontendWithMethod:methodName
+                                          params:@{}];
+}
+
 
 @end

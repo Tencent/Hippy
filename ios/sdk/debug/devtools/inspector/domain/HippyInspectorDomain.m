@@ -42,21 +42,6 @@ NSString *const HippyDomainRspKeyResult = @"result";
     return self;
 }
 
-- (BOOL)HandleRequestFromBackendWithMethod:(NSString *)method
-                                     rspId:(NSInteger)rspId
-                                    params:(NSDictionary *)params {
-    if (self.inspector == nil) {
-        return false;
-    }
-    return false;
-}
-
-- (BOOL)HandleRequestMethod:(NSString *)method
-                      rspId:(NSInteger)rspId
-                     params:(NSDictionary *)params {
-    return false;
-}
-
 - (BOOL)handleRequestDevCommand:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
     if ([command.method isEqualToString:HippyDomainMethodNameEnable] ||
         [command.method isEqualToString:HippyDomainMethodNameDisable]) {

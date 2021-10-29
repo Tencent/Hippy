@@ -66,6 +66,11 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidRemoveRootViewNotification;
  */
 HIPPY_EXTERN NSString *const HippyUIManagerRootViewKey;
 
+/**
+ * Posted whenever endBatch is called
+ */
+HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
+
 @protocol HippyScrollableProtocol;
 
 /**

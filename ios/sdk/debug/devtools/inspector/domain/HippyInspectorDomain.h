@@ -34,30 +34,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithInspector:(HippyInspector *)inspector;
 
-/**
- *  @brief Handle backend method request
- *
- *  @param method request method name
- *  @param rspId response id
- *  @param params request params
- *  @return handle result (success or fail)
- */
-- (BOOL)HandleRequestFromBackendWithMethod:(NSString *)method
-                                rspId:(NSInteger)rspId
-                                params:(NSDictionary *)params;
-/**
- *  @brief  dispatch the request to DOM、CSS、Page.
- *          Subclasses need to implement this method
- *
- *  @param method request method name
- *  @param rspId response id
- *  @param params request params
- *  @return handle result (success or fail)
- */
-- (BOOL)HandleRequestMethod:(NSString *)method
-                      rspId:(NSInteger)rspId
-                     params:(NSDictionary *)params;
-
 - (BOOL)handleRequestDevCommand:(HippyDevCommand *)command bridge:(HippyBridge *)bridge;
 
 - (BOOL)handleRspDataWithCmd:(HippyDevCommand *)command dataJSON:(NSDictionary *)dataJSON;

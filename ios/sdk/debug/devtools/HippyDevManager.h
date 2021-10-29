@@ -30,6 +30,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithBridge:(HippyBridge *)bridge devIPAddress:(NSString *)devIPAddress devPort:(NSString *)devPort contextName:(NSString *)contextName;
 
+- (void)sendDataToFrontendWithData:(NSString *)dataString;
+
 @property(nonatomic, weak) HippyBridge *bridge;
 
 @end
