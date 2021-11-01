@@ -11,7 +11,7 @@
 #include "dom/dom_listener.h"
 
 namespace hippy {
-namespace dom {
+inline namespace dom {
 
 class LayoutNode;
 
@@ -19,6 +19,10 @@ class DomNode {
  public:
   using DomValue = tdf::base::DomValue;
 
+  DomNode(int32_t id, int32_t pid, int32_t index, std::string tag_name, std::string view_name,
+          std::unordered_map<std::string, std::shared_ptr<DomValue>>&& style_map,
+          std::unordered_map<std::string, std::shared_ptr<DomValue>>&& dom_ext_map);
+  DomNode(int32_t id, int32_t pid, int32_t index);
   DomNode();
   ~DomNode();
 
@@ -36,12 +40,12 @@ class DomNode {
     return tag_name_;
   }
 
-  inline void SetStyleStr(const std::string& style) {
-    style_str_ = style;
+  inline void SetStyleStr(const std::string& view_name) {
+    view_name_ = view_name;
   }
 
-  inline const std::string& GetStyleStr() {
-    return style_str_;
+  inline const std::string& GetViweName() {
+    return view_name_;
   }
 
   int32_t AddDomEventListener(std::shared_ptr<DomEvent> event, OnDomEventListener listener);
@@ -52,10 +56,9 @@ class DomNode {
  private:
   int32_t id_;  // 节点唯一id
   int32_t pid_; // 父节点id
-  bool is_just_layout_;
-  bool is_virtual_;
+  int32_t index_; // 当前节点在父节点孩子数组中的索引位置
   std::string tag_name_; // DSL 中定义的组件名称
-  std::string style_str_; // 样式字符串
+  std::string view_name_; // 底层映射的组件
   std::unordered_map<std::string, std::shared_ptr<DomValue>> style_map_;
   // 样式预处理后结果
   std::unordered_map<std::string, std::shared_ptr<DomValue>> dom_ext_map_;
@@ -66,13 +69,15 @@ class DomNode {
   std::shared_ptr<LayoutNode> node_;
   LayoutResult layout_; // Layout 结果
 
+  bool is_just_layout_;
+  bool is_virtual_;
+
   OnLayoutEventListener on_layout_event_listener_;
   std::unordered_map<std::shared_ptr<TouchEvent>, OnTouchEventListener>
       touch_event_listener_map_;
 
   std::shared_ptr<DomNode> parent_;
   std::vector<std::shared_ptr<DomNode>> children_;
-  int32_t index_;
 };
 
 }

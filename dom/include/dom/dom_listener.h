@@ -3,7 +3,7 @@
 #include <any>
 
 namespace hippy {
-namespace dom {
+inline namespace dom {
 
 enum class TouchEvent {
   Start, Move, End, Cancel

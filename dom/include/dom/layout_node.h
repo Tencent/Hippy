@@ -3,7 +3,7 @@
 #include <cstdint>
 
 namespace hippy {
-namespace dom {
+inline namespace dom {
 
 class LayoutNode {
  private:
