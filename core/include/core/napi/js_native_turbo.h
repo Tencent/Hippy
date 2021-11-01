@@ -51,7 +51,7 @@ class TurboEnv {
       int param_count,
       HostFunctionType func) = 0;
   virtual std::shared_ptr<HostObject> GetHostObject(
-      std::shared_ptr<CtxValue> value) = 0;
+      std::shared_ptr<CtxValue> value);
 };
 
 class HostObject {
