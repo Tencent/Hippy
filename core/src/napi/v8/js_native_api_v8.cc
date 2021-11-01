@@ -241,7 +241,7 @@ V8VM::V8VM() {
   {
     std::lock_guard<std::mutex> lock(mutex_);
     if (platform_ != nullptr) {
-#ifdef V8_X5_LITE
+#if defined(V8_X5_LITE) && defined(THREAD_LOCAL_PLATFORM)
       TDF_BASE_DLOG(INFO) << "InitializePlatform";
       v8::V8::InitializePlatform(platform_.get());
 #endif
@@ -250,7 +250,7 @@ V8VM::V8VM() {
       platform_ = v8::platform::NewDefaultPlatform();
       v8::V8::SetFlagsFromString("--wasm-disable-structured-cloning",
                                  strlen("--wasm-disable-structured-cloning"));
-#ifdef V8_X5_LITE
+#if defined(V8_X5_LITE)
       v8::V8::InitializePlatform(platform_.get(), true);
 #else
       v8::V8::InitializePlatform(platform_.get());
