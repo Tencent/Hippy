@@ -116,7 +116,7 @@
 | initialPage              | 指定一个数字，用于决定初始化后默认显示的页面index，默认不指定的时候是0 | `number`                                     | `ALL`    |
 | needAnimation            | 切换页面时是否需要动画。                        | `boolean`                                    | `ALL`    |
 | scrollEnabled            | 指定ViewPager是否可以滑动，默认为true                        | `boolean`                                    | `ALL`    |
-| direction            | 设置viewPager滚动方向，不设置默认横向滚动，设置 `vertical` 为竖向滚动                       | `boolean`                                    | `Android`    |
+| direction            | 设置viewPager滚动方向，不设置默认横向滚动，设置 `vertical` 为竖向滚动                       | `string`                                    | `Android`    |
 
 ## 事件
 
