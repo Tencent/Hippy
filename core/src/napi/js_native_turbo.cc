@@ -49,6 +49,11 @@ std::vector<std::shared_ptr<CtxValue>> HostObject::GetPropertyNames(TurboEnv &) 
   return values;
 }
 
+std::shared_ptr<HostObject> TurboEnv::GetHostObject(
+    std::shared_ptr<CtxValue> value) {
+  return nullptr;
+}
+
 HippyTurboModule::HippyTurboModule(std::string name) : name_(std::move(name)) {}
 HippyTurboModule::~HippyTurboModule() = default;
 
