@@ -34,6 +34,7 @@
     "ava": "^2.2.0",
     "codecov": "^3.6.1",
     "csstype": "^2.6.7",
+    "cz-conventional-changelog": "^3.3.0",
     "docsify-cli": "^4.4.0",
     "eslint": "^7.28.0",
     "eslint-config-tencent": "^1.0.2",
@@ -83,5 +84,10 @@
     "@router": "packages/hippy-vue-router/src",
     "@css-loader": "packages/hippy-vue-css-loader/src",
     "@native-components": "packages/hippy-vue-native-components/src"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }
