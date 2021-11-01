@@ -104,11 +104,13 @@ public class HippyViewGroupController extends HippyGroupController<HippyViewGrou
     hippyViewGroup.setImagePositionY((int) PixelUtil.dp2px(positionY));
   }
 
-  @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+  @RequiresApi(api = Build.VERSION_CODES.M)
   @HippyControllerProps(name = "nativeBackgroundAndroid", defaultType = HippyControllerProps.MAP)
   public void setNativeBackground(final HippyViewGroup hippyViewGroup, final HippyMap rippleConfig) {
-    Drawable rd = HippyDrawableHelper.createDrawableFromJSDescription(hippyViewGroup.getContext(), rippleConfig);
-    hippyViewGroup.setTranslucentBackgroundDrawable(rippleConfig.size() == 0 ? null : rd);
+    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+      Drawable rd = HippyDrawableHelper.createDrawableFromJSDescription(hippyViewGroup.getContext(), rippleConfig);
+      hippyViewGroup.setTranslucentBackgroundDrawable(rippleConfig.size() == 0 ? null : rd);
+    }
   }
 
   @Override
@@ -120,7 +122,7 @@ public class HippyViewGroupController extends HippyGroupController<HippyViewGrou
         break;
       }
       case "setHotspot": {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
           this.handSetHotspot(view, params);
         }
         break;
@@ -137,7 +139,7 @@ public class HippyViewGroupController extends HippyGroupController<HippyViewGrou
     view.setPressed(params.getBoolean(0));
   }
 
-  @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+  @RequiresApi(api = Build.VERSION_CODES.M)
   public void handSetHotspot(HippyViewGroup view, HippyArray params) {
     if (params == null || params.size() == 0) {
       throw new IllegalArgumentException("Illegal number of arguments for 'setHotspot' command");

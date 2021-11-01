@@ -16,10 +16,14 @@ import androidx.annotation.RequiresApi;
 
 public class HippyDrawableHelper {
 
-  @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+  @RequiresApi(api = Build.VERSION_CODES.M)
   public static Drawable createDrawableFromJSDescription(Context context, HippyMap drawableDescriptionDict) {
-    RippleDrawable rd = getRippleDrawable(context, drawableDescriptionDict);
-    return setRadius(drawableDescriptionDict, rd);
+    RippleDrawable rd = null;
+    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+      rd = getRippleDrawable(context, drawableDescriptionDict);
+      return setRadius(drawableDescriptionDict, rd);
+    }
+    return null;
   }
 
   /**
@@ -39,15 +43,18 @@ public class HippyDrawableHelper {
     return drawable;
   }
 
-  @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+  @RequiresApi(api = Build.VERSION_CODES.M)
   private static RippleDrawable getRippleDrawable(
     Context context, HippyMap drawableDescriptionDict) {
-    int color = getColor(drawableDescriptionDict);
-    Drawable mask = getMask(drawableDescriptionDict);
-    ColorStateList colorStateList =
-      new ColorStateList(new int[][] { new int[]{} }, new int[] {color});
+    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+      int color = getColor(drawableDescriptionDict);
+      Drawable mask = getMask(drawableDescriptionDict);
+      ColorStateList colorStateList =
+        new ColorStateList(new int[][] { new int[]{} }, new int[] {color});
 
-    return new RippleDrawable(colorStateList, null, mask);
+      return new RippleDrawable(colorStateList, null, mask);
+    }
+    return null;
   }
 
   private static int getColor(HippyMap drawableDescriptionDict) {
