@@ -1,0 +1,246 @@
+group 'com.tencent.flutter_render'
+version '1.0-SNAPSHOT'
+
+buildscript {
+    ext {
+        kotlin_version = '1.3.50'
+
+        THIRD_PARTY_LIBRARY_PATH = "$projectDir.absolutePath/src/main/jni/third_party"
+        JNI_LIBRARY_PATH = "$projectDir.absolutePath/libs"
+
+        // 默认不编译C++代码，可以加快编译速度和调试速度(默认关闭LLVM调试器)
+        // 如果需要本地调试/修改C++代码，打开这个即可
+        enableLocalCmake = true
+
+        if (!enableLocalCmake) {
+            def enable = System.getenv("ENABLE_LOCAL_CMAKE")
+
+            println("system env enable local cmake:$enable")
+
+            if (enable == "true") {
+                println("system env enable local cmake inner:$enable")
+                enableLocalCmake = false
+            } else {
+                // 系统环境里面没有从local.properties里面取
+                def dir = System.getProperty("user.dir")
+                def file = new File(dir, 'local.properties')
+                Properties properties = new Properties()
+                if (file.exists()) {
+                    properties.load(file.newDataInputStream())
+                    enableLocalCmake = Boolean.valueOf(properties.getProperty('enableLocalCmake', "false"))
+                }
+            }
+        }
+        println("enable local cmake:$enableLocalCmake")
+    }
+
+
+    repositories {
+        maven {
+            //代理的外部仓库
+            url "https://mirrors.tencent.com/nexus/repository/maven-public/"
+        }
+        maven {
+            url "https://mirrors.tencent.com/repository/maven/tencent_public"
+        }
+        maven {//release发布路径
+            url "https://mirrors.tencent.com/repository/maven/thirdparty"
+        }
+        maven {//debug发布路径
+            url "https://mirrors.tencent.com/repository/maven/thirdparty-snapshots"
+        }
+        maven {
+            url "https://mirrors.tencent.com/repository/maven/gamecommunity"
+            mavenContent {
+                releasesOnly()
+            }
+        }
+        maven {
+            url "https://mirrors.tencent.com/repository/maven/gamecommunity-snapshot"
+            mavenContent {
+                snapshotsOnly()
+            }
+        }
+        google()
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.2.1'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.novoda:bintray-release:0.9.2'
+    }
+}
+
+rootProject.allprojects {
+    repositories {
+        maven {
+            //代理的外部仓库
+            url "https://mirrors.tencent.com/nexus/repository/maven-public/"
+        }
+        maven {
+            url "https://mirrors.tencent.com/repository/maven/tencent_public"
+        }
+        maven {//release发布路径
+            url "https://mirrors.tencent.com/repository/maven/thirdparty"
+        }
+        maven {//debug发布路径
+            url "https://mirrors.tencent.com/repository/maven/thirdparty-snapshots"
+        }
+        maven {
+            url "https://mirrors.tencent.com/repository/maven/gamecommunity"
+            mavenContent {
+                releasesOnly()
+            }
+        }
+        maven {
+            url "https://mirrors.tencent.com/repository/maven/gamecommunity-snapshot"
+            mavenContent {
+                snapshotsOnly()
+            }
+        }
+        google()
+        jcenter()
+    }
+}
+
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+def v8Release = "official-release"
+def v8Debug = "official-release"
+if (V8_TAG == "latest") {
+    v8Release = v8Debug
+} else if (project.hasProperty('V8_RELEASE')) {
+    v8Release = V8_RELEASE
+    v8Debug = V8_RELEASE
+}
+
+android {
+    compileSdkVersion 28
+
+
+    defaultConfig {
+        minSdkVersion 16
+
+        ndk {
+            abiFilters  'armeabi-v7a', 'arm64-v8a'
+        }
+    }
+
+
+
+    buildTypes {
+        profile {
+            minifyEnabled false
+
+            //关键代码，release， debug为library中已有buildType
+            matchingFallbacks = ['release', 'debug']
+            externalNativeBuild {
+                cmake {
+                    arguments "-DJS_ENGINE=V8",
+                            "-DANDROID_CPP_FEATURES=rtti exceptions",
+                            "-DANDROID_PLATFORM=android-21",
+                            "-DANDROID_STL=c++_shared",
+                            "-DCMAKE_BUILD_TYPE=Profile",
+                            "-DV8_TAG=$V8_TAG",
+                            "-DV8_RELEASE=$v8Release",
+                            "-DEXT_JS_ENGINE_LIB=$EXT_JS_ENGINE_LIB",
+                            "-DCMAKE_SELF_PROJECT_BUILD_OUTPUT_DIR=${project.buildDir}",
+                            "-DCMAKE_BUILD_OUTPUT_DIR=${project.rootProject.buildDir}"
+                }
+            }
+        }
+        release {
+            minifyEnabled true
+            if (enableLocalCmake) {
+                externalNativeBuild {
+                    cmake {
+                        arguments "-DJS_ENGINE=V8",
+                                "-DANDROID_CPP_FEATURES=rtti exceptions",
+                                "-DANDROID_PLATFORM=android-21",
+                                "-DANDROID_STL=c++_shared",
+                                "-DCMAKE_BUILD_TYPE=Release",
+                                "-DV8_TAG=$V8_TAG",
+                                "-DV8_RELEASE=$v8Release",
+                                "-DEXT_JS_ENGINE_LIB=$EXT_JS_ENGINE_LIB",
+                                "-DCMAKE_SELF_PROJECT_BUILD_OUTPUT_DIR=${project.buildDir}",
+                                "-DCMAKE_BUILD_OUTPUT_DIR=${project.rootProject.buildDir}"
+                    }
+                }
+            }
+        }
+        debug {
+            minifyEnabled false
+            jniDebuggable true
+            if (enableLocalCmake) {
+                externalNativeBuild {
+                    cmake {
+                        arguments "-DJS_ENGINE=V8",
+                                "-DANDROID_CPP_FEATURES=rtti exceptions",
+                                "-DANDROID_PLATFORM=android-21",
+                                "-DANDROID_STL=c++_shared",
+                                "-DCMAKE_BUILD_TYPE=Debug",
+                                "-DV8_TAG=$V8_TAG",
+                                "-DV8_RELEASE=$v8Release",
+                                "-DEXT_JS_ENGINE_LIB=$EXT_JS_ENGINE_LIB",
+                                "-DCMAKE_SELF_PROJECT_BUILD_OUTPUT_DIR=${project.buildDir}",
+                                "-DCMAKE_BUILD_OUTPUT_DIR=${project.rootProject.buildDir}"
+                    }
+                }
+            }
+        }
+    }
+
+    tasks.withType(JavaCompile) {
+        options.encoding = "UTF-8"
+    }
+
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+        main {
+            if (!enableLocalCmake) {
+                jniLibs.srcDirs = ['libs']
+            }
+        }
+    }
+
+    if (enableLocalCmake) {
+        externalNativeBuild {
+            cmake {
+                path "CMakeLists.txt"
+            }
+        }
+    }
+
+    lintOptions {
+        disable 'InvalidPackage'
+    }
+
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}
+
+task buildSo(type: Copy) {
+    println("config local cmake:$enableLocalCmake, buildDir:$buildDir/intermediates/cmake/release/obj/")
+
+    copy {
+        from "$buildDir/intermediates/cmake/release/obj/"  // 调用 from 方法
+        into 'libs/'  // 调用 into 方法
+    }
+
+    println("$projectDir.absolutePath/src/main/jni/third_party/v8/$V8_TAG/$v8Release/libs/armeabi-v7a/libc++_shared.so")
+    copy {
+        from "$projectDir.absolutePath/src/main/jni/third_party/v8/$V8_TAG/$v8Release/libs/armeabi-v7a/libc++_shared.so"
+        into 'libs/armeabi-v7a/'
+    }
+
+    println("$projectDir.absolutePath/src/main/jni/third_party/v8/$V8_TAG/$v8Release/libs/arm64-v8a/libc++_shared.so")
+    copy {
+        from "$projectDir.absolutePath/src/main/jni/third_party/v8/$V8_TAG/$v8Release/libs/arm64-v8a/libc++_shared.so"
+        into 'libs/arm64-v8a/'
+    }
+}

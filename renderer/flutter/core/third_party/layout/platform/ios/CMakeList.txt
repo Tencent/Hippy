@@ -1,0 +1,143 @@
+if(CMAKE_SYSTEM_NAME STREQUAL "Android")
+    cmake_minimum_required(VERSION 3.4.1)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    cmake_minimum_required(VERSION 3.14.0)
+endif(CMAKE_SYSTEM_NAME STREQUAL "Android")
+
+cmake_policy(VERSION 3.0)
+
+project(flexbox)
+
+if("${CMAKE_LIBRARY_NAME}" STREQUAL "")
+    message("CMAKE_LIBRARY_NAME is empty! Set as 'crossing' by default!")
+    set(CMAKE_LIBRARY_NAME "crossing")
+endif()
+
+
+# Android在build.gradle里指定
+if(NOT CMAKE_SYSTEM_NAME STREQUAL "Android")
+    set(CMAKE_CXX_STANDARD 17)
+endif()
+
+
+# 编译器pthread支持
+# find_package(Threads)
+set(CMAKE_USE_PTHREADS_INIT TRUE)
+if(CMAKE_USE_PTHREADS_INIT)
+    add_definitions(-DHAVE_PTHREAD)
+endif(CMAKE_USE_PTHREADS_INIT)
+
+set(SOURCE_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+
+set(SRC_FILES
+        ${SOURCE_ROOT_DIR}/../place_holder.cc)
+
+set(INCLUDE_DIRS
+        ${SOURCE_ROOT_DIR}
+)
+
+# 添加编译选项
+include(Options.cmake)
+
+# 添加子模块
+include(${SOURCE_ROOT_DIR}/platform/platform.cmake)
+include(${SOURCE_ROOT_DIR}/base/base.cmake)
+include(${SOURCE_ROOT_DIR}/core/core.cmake)
+include(${SOURCE_ROOT_DIR}/platform/platform.cmake)
+include(${SOURCE_ROOT_DIR}/external/external.cmake)
+include(${SOURCE_ROOT_DIR}/components/components.cmake)
+include(${SOURCE_ROOT_DIR}/ports/ports.cmake)
+include(${SOURCE_ROOT_DIR}/sx/sx.cmake)
+
+include_directories(${INCLUDE_DIRS})
+
+if(ENABLED_UNIT_TEST)
+    add_subdirectory(${SOURCE_ROOT_DIR}/test test)
+    include_directories(${SOURCE_ROOT_DIR}/test/googletest/googletest/include)
+    include(${SOURCE_ROOT_DIR}/test/unittest/test.cmake)
+endif()
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Android")
+#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c2a")
+    add_library( # Sets the name of the library.
+                ${CMAKE_LIBRARY_NAME}
+
+                # Sets the library as a shared library.
+                SHARED
+
+                # Provides a relative path to your source file(s).
+                # Associated headers in the same location as their source
+                # file are automatically included.
+                ${SRC_FILES}
+                )
+
+    find_library( # Sets the name of the path variable.
+            log-lib
+
+            # Specifies the name of the NDK library that
+            # you want CMake to locate.
+            log )
+
+    find_library( # Sets the name of the path variable.
+            android-lib
+
+            # Specifies the name of the NDK library that
+            # you want CMake to locate.
+            android )
+elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    set(CMAKE_CXX_FLAGS "-x objective-c++")
+    add_library( # Sets the name of the library.
+                ${CMAKE_LIBRARY_NAME}
+
+                # Sets the library as a shared library.
+                STATIC
+
+                # Provides a relative path to your source file(s).
+                # Associated headers in the same location as their source
+                # file are automatically included.
+                ${SRC_FILES}
+                )
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    set(CMAKE_CXX_FLAGS "-x objective-c++ -fprofile-instr-generate -fcoverage-mapping -std=c2a")
+                add_library( # Sets the name of the library.
+                ${CMAKE_LIBRARY_NAME}
+
+                # Sets the library as a shared library.
+                STATIC
+
+                # Provides a relative path to your source file(s).
+                # Associated headers in the same location as their source
+                # file are automatically included.
+                ${SRC_FILES}
+                )
+endif(CMAKE_SYSTEM_NAME STREQUAL "Android")
+
+include("${CMAKE_ROOT}/Modules/FindZLIB.cmake")
+find_library(ZLIB_LIBRARY_DEBUG NAMES libz )
+
+# 链接
+if(CMAKE_SYSTEM_NAME STREQUAL "Android")
+    list(APPEND LINKED_LIBS -Wl,--gc-sections)
+
+    # Specifies libraries CMake should link to your target library. You
+    # can link multiple libraries, such as libraries you define in the
+    # build script, prebuilt third-party libraries, or system libraries.
+    target_link_libraries( # Specifies the target library.
+            ${CMAKE_LIBRARY_NAME}
+            ${log-lib}
+            ${android-lib}
+            ${ZLIB_LIBRARIES}
+            ${LINKED_LIBS}
+            )
+elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    target_link_libraries( # Specifies the target library.
+            ${CMAKE_LIBRARY_NAME}
+            ${ZLIB_LIBRARIES}
+            )
+endif(CMAKE_SYSTEM_NAME STREQUAL "Android")
+
+INSTALL (
+        DIRECTORY ${SOURCE_ROOT_DIR}
+        DESTINATION include
+        FILES_MATCHING PATTERN "*.h*")
