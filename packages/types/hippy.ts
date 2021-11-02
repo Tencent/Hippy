@@ -70,10 +70,10 @@ namespace Hippy {
     document: {
       createNode(rootViewId: number, queue: NativeNode[]): void;
       deleteNode(rootViewId: number, queue: NativeNode[]): void;
-      endBatch(renderId: number): void;
+      endBatch(): void;
       flushBatch(rootViewId: number, queue: NativeNode[]): void;
       sendRenderError(err: Error): void;
-      startBatch(renderId: number): void;
+      startBatch(): void;
       updateNode(rootViewId: number, queue: NativeNode[]): void;
     };
 
