@@ -1,3 +1,6 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-underscore-dangle */
+
 function turboPromise(func) {
   return function (...args) {
     return new Promise((resolve, reject) => {

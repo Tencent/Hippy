@@ -18,7 +18,7 @@ export const getObject = jsonVal => getTurboModule('demoTurbo')
 export const getArray = arrayVal => getTurboModule('demoTurbo')
   .getArray(arrayVal);
 
-export const nativeWithPromise = async value => await turboPromise(getTurboModule('demoTurbo').nativeWithPromise)(value);
+export const nativeWithPromise = async value => turboPromise(getTurboModule('demoTurbo').nativeWithPromise)(value);
 
 export const getTurboConfig = () => getTurboModule('demoTurbo')
   .getTurboConfig();
