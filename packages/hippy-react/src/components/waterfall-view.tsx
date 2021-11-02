@@ -232,7 +232,7 @@ class WaterfallView extends React.Component<WaterfallViewProps> {
 
     if (typeof onItemLayout === 'function') {
       itemProps.onLayout = (e: any) => {
-        onItemLayout(e, index);
+        onItemLayout.call(this, e, index);
       };
     }
 

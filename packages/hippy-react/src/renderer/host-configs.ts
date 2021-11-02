@@ -182,7 +182,7 @@ function hideInstance(instance: Element): void {
   Object.keys(updatePayload).forEach(attr => instance.setAttribute(attr, updatePayload[attr]));
 }
 
-function hideTextInstance(textInstance: Element): void {
+function hideTextInstance(): void {
   throw new Error('Not yet implemented.');
 }
 
@@ -191,47 +191,44 @@ function unhideInstance(instance: Element, props: Props): void {
   Object.keys(updatePayload).forEach(attr => instance.setAttribute(attr, updatePayload[attr]));
 }
 
-function clearContainer(container: any): void {
+function clearContainer(): void {
   // TODO Implement this in future
   // UIManager does not expose a "remove all" type method.
 }
 
-function unhideTextInstance(
-  textInstance: Element,
-  text: string,
-): void {
+function unhideTextInstance(): void {
   throw new Error('Not yet implemented.');
 }
 
-function getFundamentalComponentInstance(fundamentalInstance: any) {
+function getFundamentalComponentInstance() {
   throw new Error('Not yet implemented.');
 }
 
-function mountFundamentalComponent(fundamentalInstance: any) {
+function mountFundamentalComponent() {
   throw new Error('Not yet implemented.');
 }
 
-function shouldUpdateFundamentalComponent(fundamentalInstance: any) {
+function shouldUpdateFundamentalComponent() {
   throw new Error('Not yet implemented.');
 }
 
-function updateFundamentalComponent(fundamentalInstance: any) {
+function updateFundamentalComponent() {
   throw new Error('Not yet implemented.');
 }
 
-function unmountFundamentalComponent(fundamentalInstance: any) {
+function unmountFundamentalComponent() {
   throw new Error('Not yet implemented.');
 }
 
-function getInstanceFromNode(node: any) {
+function getInstanceFromNode() {
   throw new Error('Not yet implemented.');
 }
 
-function isOpaqueHydratingObject(value: any): boolean {
+function isOpaqueHydratingObject(): boolean {
   throw new Error('Not yet implemented');
 }
 
-function makeOpaqueHydratingObject(attemptToReadValue: () => void): String {
+function makeOpaqueHydratingObject(): String {
   throw new Error('Not yet implemented.');
 }
 
@@ -239,11 +236,11 @@ function makeClientId(): String {
   throw new Error('Not yet implemented');
 }
 
-function makeClientIdInDEV(warnOnAccessInDEV: () => void): String {
+function makeClientIdInDEV(): String {
   throw new Error('Not yet implemented');
 }
 
-function beforeActiveInstanceBlur(internalInstanceHandle: Object) {
+function beforeActiveInstanceBlur() {
   // noop
 }
 
@@ -251,7 +248,7 @@ function afterActiveInstanceBlur() {
   // noop
 }
 
-function preparePortalMount(portalInstance: Element): void {
+function preparePortalMount(): void {
   // noop
 }
 
