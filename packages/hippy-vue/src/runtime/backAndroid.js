@@ -66,14 +66,22 @@ const realBackAndroid = {
  * Fake BackAndroid for iOS
  */
 const fakeBackAndroid = {
-  exitApp() {},
+  exitApp() {
+    // do nothing.
+  },
   addListener() {
     return {
-      remove() {},
+      remove() {
+        // do nothing.
+      },
     };
   },
-  removeListener() {},
-  initEventListener() {},
+  removeListener() {
+    // do nothing.
+  },
+  initEventListener() {
+    // do nothing.
+  },
 };
 
 const BackAndroid = (() => {

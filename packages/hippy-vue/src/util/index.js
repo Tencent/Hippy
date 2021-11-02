@@ -138,7 +138,7 @@ function setsAreEqual(as, bs) {
 }
 
 /**
- * endsWith polyfill for iOS 8 compatiblity
+ * endsWith polyfill for iOS 8 compatibility
  *
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/endsWith#Polyfill
  *

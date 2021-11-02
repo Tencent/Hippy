@@ -514,6 +514,7 @@ function parseCSS(css, options) {
       }
       case 'collapsable':
         value = Boolean(value);
+        break;
       default: {
         value = tryConvertNumber(value);
         // Convert the px to pt for specific properties

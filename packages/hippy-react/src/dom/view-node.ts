@@ -32,7 +32,7 @@ class ViewNode {
   };
 
   // Will change to be true after insert into Native dom.
-  private _isMounted = false;
+  private mounted = false;
 
   // Index number in children, will update at traverseChildren method.
   public index = 0;
@@ -67,12 +67,12 @@ class ViewNode {
   }
 
   get isMounted() {
-    return this._isMounted;
+    return this.mounted;
   }
 
-  set isMounted(isMounted) {
+  set isMounted(isMounted: boolean) {
     // TODO: Maybe need validation, maybe not.
-    this._isMounted = isMounted;
+    this.mounted = isMounted;
   }
 
   insertBefore(childNode: ViewNode, referenceNode: ViewNode) {
