@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.10.2](https://github.com/Tencent/Hippy/compare/2.10.1...2.10.2) (2021-11-02)
+
+
+### Bug Fixes
+
+* **android:** fix exception caused by multiple instances ([6db49c9](https://github.com/Tencent/Hippy/commit/6db49c976f667ad96d841c5f17b8bfcb24f88598))
+* **vue-demo:** fix waterfall Platform judgement ([9409cb2](https://github.com/Tencent/Hippy/commit/9409cb2b91f1b7c9caa122547a1129255c00960d))
+
+
+
+
+
 ## [2.10.1](https://github.com/Tencent/Hippy/compare/2.10.0...2.10.1) (2021-10-27)
 
 
