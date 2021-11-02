@@ -759,12 +759,12 @@ static void HippySetChildren(NSNumber *containerTag, NSArray<NSNumber *> *hippyT
 }
 
 // clang-format off
-HIPPY_EXPORT_METHOD(startBatch:(__unused NSString *)batchID) {
+HIPPY_EXPORT_METHOD(startBatch) {
 }
 // clang-format on
 
 // clang-format off
-HIPPY_EXPORT_METHOD(endBatch:(__unused NSString *)batchID) {
+HIPPY_EXPORT_METHOD(endBatch) {
     if (_pendingUIBlocks.count) {
         [self batchDidComplete];
         [[NSNotificationCenter defaultCenter] postNotificationName:HippyUIManagerDidEndBatchNotification

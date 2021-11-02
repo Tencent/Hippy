@@ -234,13 +234,13 @@ public class DomManager implements HippyInstanceLifecycleEventListener,
     mNodeRegistry.addRootNode(node);
   }
 
-  public void renderBatchStart(String renderID) {
-    LogUtils.d(TAG, "renderBatchStart " + renderID);
+  public void renderBatchStart() {
+    LogUtils.d(TAG, "renderBatchStart");
     mRenderBatchStarted = true;
   }
 
-  public void renderBatchEnd(String renderID) {
-    LogUtils.d(TAG, "renderBatchEnd " + renderID);
+  public void renderBatchEnd() {
+    LogUtils.d(TAG, "renderBatchEnd");
     mRenderBatchStarted = false;
     batch();
   }
