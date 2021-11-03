@@ -7,19 +7,11 @@
 namespace tdf {
 namespace base {
 
-class DomValue {
-public:
+class DomValue final {
+ public:
   using DomValueObjectType = typename std::unordered_map<std::string, DomValue>;
   using DomValueArrayType = typename std::vector<DomValue>;
-  enum class Type {
-    kUndefined,
-    kNull,
-    kNumber,
-    kBoolean,
-    kString,
-    kObject,
-    kArray
-  };
+  enum class Type { kUndefined, kNull, kNumber, kBoolean, kString, kObject, kArray };
   enum class NumberType { kInt32, kUInt32, kInt64, kUInt64, kDouble, kNaN };
 
   union Number {
@@ -50,13 +42,10 @@ public:
       : type_(Type::kNumber), number_type_(NumberType::kInt64), num_(i64) {}
   explicit DomValue(uint64_t u64)
       : type_(Type::kNumber), number_type_(NumberType::kUInt64), num_(u64) {}
-  explicit DomValue(float f)
-      : type_(Type::kNumber), number_type_(NumberType::kDouble), num_(f) {}
-  explicit DomValue(double d)
-      : type_(Type::kNumber), number_type_(NumberType::kDouble), num_(d) {}
+  explicit DomValue(float f) : type_(Type::kNumber), number_type_(NumberType::kDouble), num_(f) {}
+  explicit DomValue(double d) : type_(Type::kNumber), number_type_(NumberType::kDouble), num_(d) {}
   explicit DomValue(bool b) : type_(Type::kBoolean), b_(b) {}
-  explicit DomValue(std::string &&str)
-      : type_(Type::kString), str_(std::move(str)) {}
+  explicit DomValue(std::string &&str) : type_(Type::kString), str_(std::move(str)) {}
   explicit DomValue(const std::string &str) : type_(Type::kString), str_(str) {}
   explicit DomValue(const char *string_value)
       : type_(Type::kString), str_(std::string(string_value)) {}
@@ -66,10 +55,8 @@ public:
       : type_(Type::kObject), obj_(std::move(object_value)) {}
   explicit DomValue(const DomValueObjectType &object_value)
       : type_(Type::kObject), obj_(object_value) {}
-  explicit DomValue(DomValueArrayType &&array_value)
-      : type_(Type::kArray), arr_(array_value) {}
-  explicit DomValue(DomValueArrayType &array_value)
-      : type_(Type::kArray), arr_(array_value) {}
+  explicit DomValue(DomValueArrayType &&array_value) : type_(Type::kArray), arr_(array_value) {}
+  explicit DomValue(DomValueArrayType &array_value) : type_(Type::kArray), arr_(array_value) {}
   ~DomValue();
 
   DomValue &operator=(const DomValue &rhs) noexcept;
@@ -81,7 +68,6 @@ public:
   DomValue &operator=(const bool rhs) noexcept;
   DomValue &operator=(const std::string &rhs) noexcept;
   DomValue &operator=(const char *rhs) noexcept;
-  DomValue &operator=(const char16_t *rhs) noexcept;
   DomValue &operator=(const DomValueObjectType &rhs) noexcept;
   DomValue &operator=(const DomValueArrayType &rhs) noexcept;
 
@@ -110,8 +96,6 @@ public:
   bool IsUInt64() const noexcept;
   bool IsDouble() const noexcept;
 
-  /* 调用所有ToXXX方法之前，请务必调用IsXXX方法确定值是否有效，
-   * 否则直接调用ToXXX不清楚结果是异常值强转到对应类型还是实际值 */
   int32_t ToInt32() const;
   uint32_t ToUint32() const;
   int64_t ToInt64() const;
@@ -122,13 +106,13 @@ public:
   const DomValueObjectType &ToObject() const;
   const DomValueArrayType &ToArray() const;
 
-private:
+ private:
   inline void deallocate();
 
   friend std::hash<DomValue>;
 
   Type type_ = Type::kUndefined;
-  NumberType = Type::kNaN;
+  NumberType number_type_ = NumberType::kNaN;
   union {
     bool b_{};
     DomValueObjectType obj_;
@@ -138,13 +122,14 @@ private:
   };
 };
 
-} // namespace base
-} // namespace tdf
+}  // namespace base
+}  // namespace tdf
 
-template <> struct std::hash<tdf::base::DomValue> {
+template <>
+struct std::hash<tdf::base::DomValue> {
   std::size_t operator()(const tdf::base::DomValue &value) const noexcept;
 
-private:
+ private:
   const static size_t UndefinedHashValue = 0x79476983;
   const static size_t NullHashValue = 0x7a695478;
 };
