@@ -1,9 +1,9 @@
 Language: Cpp
 BasedOnStyle: Google
-ColumnLimit: 100
+ColumnLimit: 120
 
 # 自动识别代码中的指针对齐方式，如果希望强制统一，则可以改为 false
-DerivePointerAlignment: true
+DerivePointerAlignment: false
 
 # 默认对齐到类型名
 PointerAlignment: Left
