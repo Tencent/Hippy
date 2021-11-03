@@ -407,12 +407,27 @@ const std::string &DomValue::ToString() const {
   return str_;
 }
 
+std::string &DomValue::ToString() {
+  assert(IsString());
+  return str_;
+}
+
 const DomValue::DomValueObjectType &DomValue::ToObject() const {
   assert(IsObject());
   return obj_;
 }
 
+DomValue::DomValueObjectType &DomValue::ToObject() {
+  assert(IsObject());
+  return obj_;
+}
+
 const DomValue::DomValueArrayType &DomValue::ToArray() const {
+  assert(IsArray());
+  return arr_;
+}
+
+DomValue::DomValueArrayType &DomValue::ToArray() {
   assert(IsArray());
   return arr_;
 }

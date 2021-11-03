@@ -103,8 +103,11 @@ class DomValue final {
   double ToDouble() const;
   bool ToBoolean() const;
   const std::string &ToString() const;
+  std::string &ToString();
   const DomValueObjectType &ToObject() const;
+  DomValueObjectType &ToObject();
   const DomValueArrayType &ToArray() const;
+  DomValueArrayType &ToArray();
 
  private:
   inline void deallocate();
