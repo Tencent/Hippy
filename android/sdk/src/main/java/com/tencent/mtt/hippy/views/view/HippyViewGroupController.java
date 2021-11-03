@@ -28,6 +28,7 @@ import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.uimanager.HippyGroupController;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.image.HippyImageView;
 
@@ -40,6 +41,8 @@ import androidx.annotation.RequiresApi;
 public class HippyViewGroupController extends HippyGroupController<HippyViewGroup> {
 
   public static final String CLASS_NAME = "View";
+
+  private static final String TAG = "HippyViewGroupController";
 
   public static final WeakHashMap<View, Integer> mZIndexHash = new WeakHashMap<>();
 
@@ -134,7 +137,8 @@ public class HippyViewGroupController extends HippyGroupController<HippyViewGrou
 
   public void handleSetPressed(HippyViewGroup view, HippyArray params) {
     if (params == null || params.size() == 0) {
-      throw new IllegalArgumentException("Illegal number of arguments for 'setPressed' command");
+      LogUtils.e(TAG, "Illegal number of arguments for 'setPressed' command");
+      return;
     }
     view.setPressed(params.getBoolean(0));
   }
@@ -142,7 +146,8 @@ public class HippyViewGroupController extends HippyGroupController<HippyViewGrou
   @RequiresApi(api = Build.VERSION_CODES.M)
   public void handSetHotspot(HippyViewGroup view, HippyArray params) {
     if (params == null || params.size() == 0) {
-      throw new IllegalArgumentException("Illegal number of arguments for 'setHotspot' command");
+      LogUtils.e(TAG, "Illegal number of arguments for 'setHotspot' command");
+      return;
     }
     float x = PixelUtil.dp2px(params.getDouble(0));
     float y = PixelUtil.dp2px(params.getDouble(1));

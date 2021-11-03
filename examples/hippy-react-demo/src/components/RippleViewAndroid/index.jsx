@@ -4,13 +4,13 @@ import {
   Text,
   View,
   StyleSheet,
-  Image,
   Platform,
 } from '@hippy/react';
 
 import { useCallback, useRef } from 'react/cjs/react.development';
 import imageUrl from './defaultSource.jpg';
 import RippleViewAndroid from './RippleViewAndroid';
+const httpImageUrl = 'https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png';
 
 const styles = StyleSheet.create({
   itemTitle: {
@@ -36,13 +36,40 @@ const styles = StyleSheet.create({
     height: 56,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 3,
+    borderColor: 'red',
   },
   squareRipple: {
     alignItems: 'center',
     justifyContent: 'center',
     width: 150,
     height: 150,
+    backgroundColor: 'blue',
+    marginTop: 30,
+  },
+  squareRippleWrapper: {
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+    height: 150,
+    marginTop: 30,
+  },
+  squareRipple1: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 150,
+    height: 150,
     position: 'absolute',
+    borderWidth: 5,
+    borderColor: 'black',
+    backgroundImage: imageUrl,
+  },
+  squareRipple2: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 150,
+    height: 150,
+    position: 'absolute',
+    backgroundImage: httpImageUrl,
   },
 });
 
@@ -59,7 +86,7 @@ export default function RippleViewExpo() {
     return <Text>ios暂未支持水波纹效果</Text>;
   }
   return (
-    <ScrollView style={{ padding: 10 }}>
+    <ScrollView style={{ padding: 10, flex: 1 }}>
       <View style={[styles.rectangle, {
         marginTop: 20,
         backgroundImage: imageUrl,
@@ -83,17 +110,31 @@ export default function RippleViewExpo() {
       >
         <Text style={{ color: 'black' }}>圆形水波纹</Text>
       </RippleViewAndroid>
-      <View
-        style={[{
-          alignItems: 'center',
-          justifyContent: 'center',
-        }]}
+      <RippleViewAndroid
+        style={[styles.squareRipple]}
+        nativeBackgroundAndroid={{ borderless: false, color: '#11000000' }}
       >
-        <Image source={imageUrl} style={{ width: 150, height: 150 }} >
-          <Text style={{ color: 'white' }}>有边框水波纹，带底图效果</Text>
-        </Image>
+        <Text style={{ color: '#fff' }}>带背景色水波纹</Text>
+      </RippleViewAndroid>
+      <View
+        style={[styles.squareRippleWrapper]}
+      >
+        <View style={{ width: 150, height: 150, position: 'absolute', zIndex: 100, top: 30 }} >
+          <Text style={{ color: 'white' }}>有边框水波纹，带本地底图效果</Text>
+        </View>
         <RippleViewAndroid
-          style={[styles.squareRipple]}
+          style={[styles.squareRipple1]}
+          nativeBackgroundAndroid={{ borderless: false, color: '#11000000' }}
+        ></RippleViewAndroid>
+      </View>
+      <View
+        style={[styles.squareRippleWrapper]}
+      >
+        <View style={{ width: 150, height: 150, position: 'absolute', zIndex: 100, top: 30 }} >
+          <Text style={{ color: 'black' }}>有边框水波纹，带网络底图效果</Text>
+        </View>
+        <RippleViewAndroid
+          style={[styles.squareRipple2]}
           nativeBackgroundAndroid={{ borderless: false, color: '#11000000' }}
         ></RippleViewAndroid>
       </View>

@@ -23,13 +23,13 @@ export default function RippleViewAndroid(props) {
   return (
     <View
       style={style}
-      nativeBackgroundAndroid={{ ...defaultRippleConfig, ...nativeBackgroundAndroid }}
       onTouchDown={onTouchDown}
       onTouchEnd={onTouchEnd}
       ref={rViewRef}
       onClick={() => {
         console.log('onClick......');
       }}
+      nativeBackgroundAndroid={{ ...defaultRippleConfig, ...nativeBackgroundAndroid }}
     >
       {props.children}
     </View>
