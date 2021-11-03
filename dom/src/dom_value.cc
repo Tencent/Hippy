@@ -3,7 +3,7 @@
 
 using DomValue = tdf::base::DomValue;
 
-std::size_t std::hash<DomValue>::operator()(const DomValue &value) const noexcept {
+std::size_t std::hash<DomValue>::operator()(const DomValue& value) const noexcept {
   switch (value.type_) {
     case DomValue::Type::kUndefined:
       return UndefinedHashValue;
@@ -57,8 +57,7 @@ const DomValue DomValue::Null() {
   return Null;
 }
 
-DomValue::DomValue(const DomValue &source)
-    : type_(source.type_), number_type_(source.number_type_) {
+DomValue::DomValue(const DomValue& source) : type_(source.type_), number_type_(source.number_type_) {
   switch (type_) {
     case DomValue::Type::kBoolean:
       b_ = source.b_;
@@ -102,7 +101,7 @@ DomValue::DomValue(const DomValue &source)
 
 DomValue::~DomValue() { deallocate(); }
 
-DomValue &DomValue::operator=(const DomValue &rhs) noexcept {
+DomValue& DomValue::operator=(const DomValue& rhs) noexcept {
   if (this == &rhs) {
     return *this;
   }
@@ -173,7 +172,7 @@ DomValue &DomValue::operator=(const DomValue &rhs) noexcept {
   return *this;
 }
 
-DomValue &DomValue::operator=(const int32_t rhs) noexcept {
+DomValue& DomValue::operator=(const int32_t rhs) noexcept {
   deallocate();
   type_ = DomValue::Type::kNumber;
   number_type_ = DomValue::NumberType::kInt32;
@@ -181,7 +180,7 @@ DomValue &DomValue::operator=(const int32_t rhs) noexcept {
   return *this;
 }
 
-DomValue &DomValue::operator=(const uint32_t rhs) noexcept {
+DomValue& DomValue::operator=(const uint32_t rhs) noexcept {
   deallocate();
   type_ = DomValue::Type::kNumber;
   number_type_ = DomValue::NumberType::kUInt32;
@@ -189,7 +188,7 @@ DomValue &DomValue::operator=(const uint32_t rhs) noexcept {
   return *this;
 }
 
-DomValue &DomValue::operator=(const int64_t rhs) noexcept {
+DomValue& DomValue::operator=(const int64_t rhs) noexcept {
   deallocate();
   type_ = DomValue::Type::kNumber;
   number_type_ = DomValue::NumberType::kInt64;
@@ -197,7 +196,7 @@ DomValue &DomValue::operator=(const int64_t rhs) noexcept {
   return *this;
 }
 
-DomValue &DomValue::operator=(const uint64_t rhs) noexcept {
+DomValue& DomValue::operator=(const uint64_t rhs) noexcept {
   deallocate();
   type_ = DomValue::Type::kNumber;
   number_type_ = DomValue::NumberType::kUInt64;
@@ -205,7 +204,7 @@ DomValue &DomValue::operator=(const uint64_t rhs) noexcept {
   return *this;
 }
 
-DomValue &DomValue::operator=(const double rhs) noexcept {
+DomValue& DomValue::operator=(const double rhs) noexcept {
   deallocate();
   type_ = DomValue::Type::kNumber;
   number_type_ = DomValue::NumberType::kDouble;
@@ -213,7 +212,7 @@ DomValue &DomValue::operator=(const double rhs) noexcept {
   return *this;
 }
 
-DomValue &DomValue::operator=(const bool rhs) noexcept {
+DomValue& DomValue::operator=(const bool rhs) noexcept {
   deallocate();
   type_ = DomValue::Type::kBoolean;
   number_type_ = DomValue::NumberType::kNaN;
@@ -221,7 +220,7 @@ DomValue &DomValue::operator=(const bool rhs) noexcept {
   return *this;
 }
 
-DomValue &DomValue::operator=(const std::string &rhs) noexcept {
+DomValue& DomValue::operator=(const std::string& rhs) noexcept {
   if (type_ != DomValue::Type::kString) {
     deallocate();
     new (&str_) std::string(rhs);
@@ -233,7 +232,7 @@ DomValue &DomValue::operator=(const std::string &rhs) noexcept {
   return *this;
 }
 
-DomValue &DomValue::operator=(const char *rhs) noexcept {
+DomValue& DomValue::operator=(const char* rhs) noexcept {
   if (type_ != DomValue::Type::kString) {
     deallocate();
     new (&str_) std::string(rhs);
@@ -246,7 +245,7 @@ DomValue &DomValue::operator=(const char *rhs) noexcept {
   return *this;
 }
 
-DomValue &DomValue::operator=(const DomValueObjectType &rhs) noexcept {
+DomValue& DomValue::operator=(const DomValueObjectType& rhs) noexcept {
   if (type_ != DomValue::Type::kObject) {
     deallocate();
     new (&obj_) DomValueObjectType(rhs);
@@ -259,7 +258,7 @@ DomValue &DomValue::operator=(const DomValueObjectType &rhs) noexcept {
   return *this;
 }
 
-DomValue &DomValue::operator=(const DomValueArrayType &rhs) noexcept {
+DomValue& DomValue::operator=(const DomValueArrayType& rhs) noexcept {
   if (type_ != DomValue::Type::kArray) {
     deallocate();
     new (&arr_) DomValueArrayType(rhs);
@@ -272,7 +271,7 @@ DomValue &DomValue::operator=(const DomValueArrayType &rhs) noexcept {
   return *this;
 }
 
-bool DomValue::operator==(const DomValue &rhs) const noexcept {
+bool DomValue::operator==(const DomValue& rhs) const noexcept {
   if (type_ != rhs.type_) {
     return false;
   }
@@ -313,25 +312,25 @@ bool DomValue::operator==(const DomValue &rhs) const noexcept {
   return false;
 }
 
-bool DomValue::operator!=(const DomValue &rhs) const noexcept { return !operator==(rhs); }
+bool DomValue::operator!=(const DomValue& rhs) const noexcept { return !operator==(rhs); }
 
-bool DomValue::operator<(const DomValue &rhs) const noexcept {
+bool DomValue::operator<(const DomValue& rhs) const noexcept {
   if (type_ == DomValue::Type::kNumber && rhs.type_ == DomValue::Type::kNumber) {
     return number_type_ < rhs.number_type_;
   }
   return type_ < rhs.type_;
 }
 
-bool DomValue::operator>(const DomValue &rhs) const noexcept {
+bool DomValue::operator>(const DomValue& rhs) const noexcept {
   if (type_ == DomValue::Type::kNumber && rhs.type_ == DomValue::Type::kNumber) {
     return number_type_ > rhs.number_type_;
   }
   return type_ > rhs.type_;
 }
 
-bool DomValue::operator<=(const DomValue &rhs) const noexcept { return !operator>(rhs); }
+bool DomValue::operator<=(const DomValue& rhs) const noexcept { return !operator>(rhs); }
 
-bool DomValue::operator>=(const DomValue &rhs) const noexcept { return !operator<(rhs); }
+bool DomValue::operator>=(const DomValue& rhs) const noexcept { return !operator<(rhs); }
 
 bool DomValue::IsUndefined() const noexcept { return type_ == Type::kUndefined; }
 
@@ -347,25 +346,15 @@ bool DomValue::IsArray() const noexcept { return type_ == Type::kArray; }
 
 bool DomValue::IsObject() const noexcept { return type_ == Type::kObject; }
 
-bool DomValue::IsInt32() const noexcept {
-  return type_ == Type::kNumber && number_type_ == NumberType::kInt32;
-}
+bool DomValue::IsInt32() const noexcept { return type_ == Type::kNumber && number_type_ == NumberType::kInt32; }
 
-bool DomValue::IsUInt32() const noexcept {
-  return type_ == Type::kNumber && number_type_ == NumberType::kUInt32;
-}
+bool DomValue::IsUInt32() const noexcept { return type_ == Type::kNumber && number_type_ == NumberType::kUInt32; }
 
-bool DomValue::IsInt64() const noexcept {
-  return type_ == Type::kNumber && number_type_ == NumberType::kInt64;
-}
+bool DomValue::IsInt64() const noexcept { return type_ == Type::kNumber && number_type_ == NumberType::kInt64; }
 
-bool DomValue::IsUInt64() const noexcept {
-  return type_ == Type::kNumber && number_type_ == NumberType::kUInt64;
-}
+bool DomValue::IsUInt64() const noexcept { return type_ == Type::kNumber && number_type_ == NumberType::kUInt64; }
 
-bool DomValue::IsDouble() const noexcept {
-  return type_ == Type::kNumber && number_type_ == NumberType::kDouble;
-}
+bool DomValue::IsDouble() const noexcept { return type_ == Type::kNumber && number_type_ == NumberType::kDouble; }
 
 int32_t DomValue::ToInt32() const {
   assert(IsInt32());
@@ -402,32 +391,32 @@ bool DomValue::ToBoolean() const {
   return b_;
 }
 
-const std::string &DomValue::ToString() const {
+const std::string& DomValue::ToString() const {
   assert(IsString());
   return str_;
 }
 
-std::string &DomValue::ToString() {
+std::string& DomValue::ToString() {
   assert(IsString());
   return str_;
 }
 
-const DomValue::DomValueObjectType &DomValue::ToObject() const {
+const DomValue::DomValueObjectType& DomValue::ToObject() const {
   assert(IsObject());
   return obj_;
 }
 
-DomValue::DomValueObjectType &DomValue::ToObject() {
+DomValue::DomValueObjectType& DomValue::ToObject() {
   assert(IsObject());
   return obj_;
 }
 
-const DomValue::DomValueArrayType &DomValue::ToArray() const {
+const DomValue::DomValueArrayType& DomValue::ToArray() const {
   assert(IsArray());
   return arr_;
 }
 
-DomValue::DomValueArrayType &DomValue::ToArray() {
+DomValue::DomValueArrayType& DomValue::ToArray() {
   assert(IsArray());
   return arr_;
 }
