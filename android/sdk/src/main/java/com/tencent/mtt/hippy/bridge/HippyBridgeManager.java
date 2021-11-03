@@ -15,8 +15,9 @@
  */
 package com.tencent.mtt.hippy.bridge;
 
+import android.view.ViewGroup;
 import com.tencent.mtt.hippy.HippyEngine;
-import com.tencent.mtt.hippy.HippyEngine.BridgeTransferType;
+import com.tencent.mtt.hippy.modules.Promise.BridgeTransferType;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
@@ -29,8 +30,7 @@ public interface HippyBridgeManager {
 
   void initBridge(Callback<Boolean> callback);
 
-  void runBundle(int id, HippyBundleLoader loader, HippyEngine.ModuleListener listener,
-      HippyRootView hippyRootView);
+  void runBundle(int id, HippyBundleLoader loader, HippyEngine.ModuleListener listener);
 
   void notifyModuleJsException(final HippyJsException exception);
 

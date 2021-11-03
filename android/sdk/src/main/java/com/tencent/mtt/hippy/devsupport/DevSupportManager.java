@@ -15,8 +15,8 @@
  */
 package com.tencent.mtt.hippy.devsupport;
 
+import android.content.Context;
 import com.tencent.mtt.hippy.HippyGlobalConfigs;
-import com.tencent.mtt.hippy.HippyRootView;
 import java.util.UUID;
 
 @SuppressWarnings({"unused"})
@@ -40,12 +40,12 @@ public class DevSupportManager {
     mDevImp.setDevServerCallback(devCallback);
   }
 
-  public void attachToHost(HippyRootView view) {
-    mDevImp.attachToHost(view);
+  public void attachToHost(Context context) {
+    mDevImp.attachToHost(context);
   }
 
-  public void detachFromHost(HippyRootView view) {
-    mDevImp.detachFromHost(view);
+  public void detachFromHost(Context context) {
+    mDevImp.detachFromHost(context);
   }
 
   public String createResourceUrl(String resName) {

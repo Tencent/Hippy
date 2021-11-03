@@ -20,9 +20,9 @@ import android.os.Message;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.SparseArray;
+import android.view.ViewGroup;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyEngineLifecycleEventListener;
-import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.annotation.HippyMethod;
 import com.tencent.mtt.hippy.annotation.HippyNativeModule;
 import com.tencent.mtt.hippy.common.HippyArray;
@@ -303,12 +303,12 @@ public class AnimationModule extends HippyNativeModuleBase implements DomActionI
   }
 
   @Override
-  public HippyMap onCreateNode(int tagId, HippyRootView rootView, HippyMap props) {
+  public HippyMap onCreateNode(int tagId, ViewGroup rootView, HippyMap props) {
     return onUpdateAnimationProperty(tagId, rootView, props);
   }
 
   @Override
-  public HippyMap onUpdateNode(int tagId, HippyRootView rootView, HippyMap props) {
+  public HippyMap onUpdateNode(int tagId, ViewGroup rootView, HippyMap props) {
     return onUpdateAnimationProperty(tagId, rootView, props);
   }
 
@@ -358,7 +358,7 @@ public class AnimationModule extends HippyNativeModuleBase implements DomActionI
     dealAnimationNode(tagId, null, null, null);
   }
 
-  private HippyMap onUpdateAnimationProperty(int tagId, HippyRootView rootView, HippyMap props) {
+  private HippyMap onUpdateAnimationProperty(int tagId, ViewGroup rootView, HippyMap props) {
     //		LogUtils.d("AnimationModule","dom  updateNode node id : "+tagId+" onUpdateAnimationProperty width:" +props.get("width"));
     if (props == null) {
       return null;
@@ -390,7 +390,7 @@ public class AnimationModule extends HippyNativeModuleBase implements DomActionI
     return props;
   }
 
-  private void dealAnimationNode(int tagId, HippyRootView rootView, HippyMap newProps,
+  private void dealAnimationNode(int tagId, ViewGroup rootView, HippyMap newProps,
       ArrayList<Integer> newAnimationIds) {
     AnimationNode node = mAnimationNodes.get(tagId);
     if (node != null) {

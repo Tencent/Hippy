@@ -26,7 +26,6 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 
 import com.tencent.mtt.hippy.HippyGlobalConfigs;
-import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 
@@ -156,31 +155,26 @@ public class DevServerImpl implements View.OnClickListener, DevServerInterface,
   }
 
   @Override
-  public void attachToHost(HippyRootView view) {
-    LogUtils.d(TAG, "hippy DevServerImpl attachToHost");
-    Context host = view.getHost();
-    DevFloatButton debugButton = new DevFloatButton(host);
+  public void attachToHost(Context context) {
+    DevFloatButton debugButton = new DevFloatButton(context);
     debugButton.setOnClickListener(this);
 
-    if (host instanceof Activity) {
+    if (context instanceof Activity) {
       // 添加到Activity的根部，这就稳当了。
-      ViewGroup decorView = (ViewGroup) ((Activity) host).getWindow().getDecorView();
+      ViewGroup decorView = (ViewGroup)((Activity)context).getWindow().getDecorView();
       decorView.addView(debugButton);
-    } else {
-      view.addView(debugButton); // 添加到HippyRootView，不够稳当，要HippyRootView上屏后，再摘到根部去。
     }
-    mHostButtonMap.put(host, debugButton);
+
+    mHostButtonMap.put(context, debugButton);
     mDebugButtonStack.push(debugButton);
   }
 
   @Override
-  public void detachFromHost(HippyRootView view) {
-    LogUtils.d(TAG, "hippy DevServerImpl detachFromHost");
-    Context host = view.getHost();
-    DevFloatButton button = mHostButtonMap.get(host);
+  public void detachFromHost(Context context) {
+    DevFloatButton button = mHostButtonMap.get(context);
     if (button != null) {
       mDebugButtonStack.remove(button);
-      mHostButtonMap.remove(host);
+      mHostButtonMap.remove(context);
       ViewParent parent = button.getParent();
       if (parent instanceof ViewGroup) {
         ((ViewGroup) parent).removeView(button);

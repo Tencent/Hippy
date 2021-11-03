@@ -3,6 +3,7 @@ package com.tencent.mtt.hippy.example;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ViewGroup;
 import android.view.Window;
 
 import com.tencent.mtt.hippy.HippyEngine;
@@ -24,7 +25,7 @@ import java.util.List;
 public class MyActivity extends Activity
 {
 	private HippyEngine mHippyEngine;
-	private HippyRootView mHippyView;
+	private ViewGroup mHippyView;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -129,7 +130,7 @@ public class MyActivity extends Activity
 						// 加载Hippy前端模块
 						mHippyView = mHippyEngine.loadModule(loadParams, new HippyEngine.ModuleListener() {
 							@Override
-							public void onLoadCompleted(ModuleLoadStatus statusCode, String msg, HippyRootView hippyRootView) {
+							public void onLoadCompleted(ModuleLoadStatus statusCode, String msg) {
 								if (statusCode != ModuleLoadStatus.STATUS_OK) {
 									LogUtils.e("MyActivity", "loadModule failed code:" + statusCode + ", msg=" + msg);
 								}
@@ -138,6 +139,11 @@ public class MyActivity extends Activity
 							@Override
 							public boolean onJsException(HippyJsException exception) {
 								return true;
+							}
+
+							@Override
+							public void onFirstViewAdded() {
+								LogUtils.e("MyActivity", "onFirstViewAdded");
 							}
 						});
 

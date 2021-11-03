@@ -2,6 +2,7 @@ package com.tencent.mtt.hippy.example;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.ViewGroup;
 import android.view.Window;
 
 import com.tencent.mtt.hippy.HippyEngine;
@@ -19,7 +20,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 public class MyActivityDeprecated extends Activity implements HippyEngine.EngineListener, DeviceEventModule.InvokeDefaultBackPress
 {
 	private HippyEngineManager mEngineManager;
-	private HippyRootView mInstance;
+	private ViewGroup mInstance;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)

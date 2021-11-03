@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy.bridge;
 
+import com.tencent.hippy.support.HippyBaseController;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyAPIProvider;
 import com.tencent.mtt.hippy.common.Provider;
@@ -46,7 +47,6 @@ import com.tencent.mtt.hippy.views.image.HippyImageViewController;
 import com.tencent.mtt.hippy.views.list.HippyListItemViewController;
 import com.tencent.mtt.hippy.views.list.HippyListViewController;
 import com.tencent.mtt.hippy.views.modal.HippyModalHostManager;
-import com.tencent.mtt.hippy.views.navigator.NavigatorController;
 import com.tencent.mtt.hippy.views.refresh.HippyPullFooterViewController;
 import com.tencent.mtt.hippy.views.refresh.HippyPullHeaderViewController;
 import com.tencent.mtt.hippy.views.refresh.RefreshWrapperController;
@@ -181,8 +181,8 @@ public class HippyCoreAPI implements HippyAPIProvider {
   }
 
   @Override
-  public List<Class<? extends HippyViewController>> getControllers() {
-    List<Class<? extends HippyViewController>> components = new ArrayList<>();
+  public List<Class<? extends HippyBaseController>> getControllers() {
+    List<Class<? extends HippyBaseController>> components = new ArrayList<>();
     components.add(HippyTextViewController.class);
     components.add(HippyViewGroupController.class);
     components.add(HippyImageViewController.class);
@@ -198,7 +198,6 @@ public class HippyCoreAPI implements HippyAPIProvider {
     components.add(RefreshWrapperItemController.class);
     components.add(HippyPullHeaderViewController.class);
     components.add(HippyPullFooterViewController.class);
-    components.add(NavigatorController.class);
     components.add(HippyWebViewController.class);
     components.add(HippyCustomPropsController.class);
     components.add(HippyWaterfallViewController.class);

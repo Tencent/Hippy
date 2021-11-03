@@ -1,5 +1,7 @@
 package com.tencent.mtt.hippy.devsupport.inspector.model;
 
+import android.view.ViewGroup;
+
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.common.HippyMap;
@@ -145,7 +147,7 @@ public class CSSModel {
       LogUtils.e(TAG, "setStyleText node is null");
       return null;
     }
-    HippyRootView hippyRootView = context.getInstance(node.getDomainData().rootId);
+    ViewGroup hippyRootView = context.getRootView();
     if (hippyRootView == null) {
       LogUtils.e(TAG, "setStyleText hippyRootView is null");
       return null;

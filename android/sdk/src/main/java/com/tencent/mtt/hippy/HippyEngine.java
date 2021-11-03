@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy;
 import android.content.Context;
 import android.text.TextUtils;
 
+import android.view.ViewGroup;
 import com.tencent.mtt.hippy.adapter.DefaultLogAdapter;
 import com.tencent.mtt.hippy.adapter.HippyLogAdapter;
 import com.tencent.mtt.hippy.adapter.device.DefaultDeviceAdapter;
@@ -48,6 +49,7 @@ import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
+import com.tencent.mtt.hippy.modules.Promise.BridgeTransferType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,16 +59,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @SuppressWarnings({"deprecation", "unused", "rawtypes"})
 public abstract class HippyEngine {
+  private static final AtomicInteger ID_COUNTER = new AtomicInteger();
+  private final int engineId = ID_COUNTER.getAndIncrement();
 
-  private static final AtomicInteger sIdCounter = new AtomicInteger();
   @SuppressWarnings("unchecked")
   final CopyOnWriteArrayList<EngineListener> mEventListeners = new CopyOnWriteArrayList();
   volatile EngineState mCurrentState = EngineState.UNINIT;
-  // Engine的ID，唯一
-  private final int mID = sIdCounter.getAndIncrement();
   // Engine所属的分组ID，同一个组共享线程和isolate，不同context
   protected int mGroupId;
-  ModuleListener mModuleListener;
+  ModuleListener moduleListener;
 
   static {
     LibraryLoader.loadLibraryIfNeed();
@@ -151,8 +152,8 @@ public abstract class HippyEngine {
   /**
    * get engine id
    */
-  public int getId() {
-    return mID;
+  public int getEngineId() {
+    return engineId;
   }
 
   public abstract void initEngine(EngineListener listener);
@@ -172,24 +173,14 @@ public abstract class HippyEngine {
    *
    * @param loadParams 加载hippy业务模块时需要的参数
    */
-  public abstract HippyRootView loadModule(ModuleLoadParams loadParams);
+  public abstract ViewGroup loadModule(ModuleLoadParams loadParams);
 
-  public abstract HippyRootView loadModule(ModuleLoadParams loadParams, ModuleListener listener);
+  public abstract ViewGroup loadModule(ModuleLoadParams loadParams, ModuleListener listener);
 
-  @SuppressWarnings("unused")
-  public abstract HippyRootView loadModule(ModuleLoadParams loadParams, ModuleListener listener,
-      HippyRootView.OnLoadCompleteListener onLoadCompleteListener);
+  public abstract void destroyModule(ViewGroup moduleView);
 
-  public abstract void destroyModule(HippyRootView moduleView);
-
-  /**
-   * resume hippy engine
-   */
   public abstract void onEngineResume();
 
-  /**
-   * pause hippy engine
-   */
   public abstract void onEnginePause();
 
   public abstract void sendEvent(String event, Object params);
@@ -416,21 +407,6 @@ public abstract class HippyEngine {
     }
   }
 
-  public enum BridgeTransferType {
-    BRIDGE_TRANSFER_TYPE_NORMAL(0),
-    BRIDGE_TRANSFER_TYPE_NIO(1);
-
-    private final int iValue;
-
-    BridgeTransferType(int value) {
-      iValue = value;
-    }
-
-    public int value() {
-      return iValue;
-    }
-  }
-
   /**
    * Hippy引擎初始化结果listener
    */
@@ -448,9 +424,11 @@ public abstract class HippyEngine {
   @SuppressWarnings("unused")
   public interface ModuleListener {
 
-    void onLoadCompleted(ModuleLoadStatus statusCode, String msg, HippyRootView hippyRootView);
+    void onLoadCompleted(ModuleLoadStatus statusCode, String msg);
 
     @SuppressWarnings("SameReturnValue")
     boolean onJsException(HippyJsException exception);
+
+    void onFirstViewAdded();
   }
 }

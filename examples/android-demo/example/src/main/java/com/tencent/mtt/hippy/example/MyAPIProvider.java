@@ -1,5 +1,6 @@
 package com.tencent.mtt.hippy.example;
 
+import com.tencent.hippy.support.HippyBaseController;
 import com.tencent.mtt.hippy.HippyAPIProvider;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.common.Provider;
@@ -70,9 +71,9 @@ public class MyAPIProvider implements HippyAPIProvider
 	 */
 	@SuppressWarnings("rawtypes")
 	@Override
-	public List<Class<? extends HippyViewController>> getControllers()
+	public List<Class<? extends HippyBaseController>> getControllers()
 	{
-		List<Class<? extends HippyViewController>> components = new ArrayList<>();
+		List<Class<? extends HippyBaseController>> components = new ArrayList<>();
 		//regist the MyViewController
 		components.add(MyViewController.class);
 		components.add(MyCustomViewController.class);

@@ -17,6 +17,8 @@ package com.tencent.mtt.hippy;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.view.ViewGroup;
+
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyAssetBundleLoader;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyFileBundleLoader;
@@ -53,18 +55,13 @@ public abstract class HippyEngineManager extends HippyEngine {
     return mCurrentState;
   }
 
-  public abstract HippyRootView loadInstance(HippyRootViewParams params);
+  public abstract ViewGroup loadInstance(HippyRootViewParams params);
 
-  public abstract HippyRootView loadInstance(HippyRootViewParams params, ModuleListener listener);
+  public abstract ViewGroup loadInstance(HippyRootViewParams params, ModuleListener listener);
 
-  public abstract HippyRootView loadInstance(HippyRootViewParams params, ModuleListener listener,
-      HippyRootView.OnLoadCompleteListener onLoadCompleteListener);
-
-  public void destroyInstance(HippyRootView rootView) {
+  public void destroyInstance(ViewGroup rootView) {
     destroyModule(rootView);
   }
-
-  public abstract HippyInstanceContext preCreateInstanceContext(Context context);
 
   public abstract HippyEngineContext getCurrentEngineContext();
 

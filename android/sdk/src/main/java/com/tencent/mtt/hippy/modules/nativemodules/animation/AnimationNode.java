@@ -15,7 +15,7 @@
  */
 package com.tencent.mtt.hippy.modules.nativemodules.animation;
 
-import com.tencent.mtt.hippy.HippyRootView;
+import android.view.ViewGroup;
 import com.tencent.mtt.hippy.common.HippyMap;
 
 import java.util.ArrayList;
@@ -24,11 +24,11 @@ import java.util.ArrayList;
 public class AnimationNode {
 
   private final int mTagId;
-  private final HippyRootView mRootView;
+  private final ViewGroup mRootView;
   private final ArrayList<Animation> mAnimations;
   private HippyMap mProps;
 
-  public AnimationNode(int tagId, HippyRootView rootView) {
+  public AnimationNode(int tagId, ViewGroup rootView) {
     mTagId = tagId;
     mRootView = rootView;
     mAnimations = new ArrayList<>();
@@ -38,7 +38,7 @@ public class AnimationNode {
     return mTagId;
   }
 
-  public HippyRootView getRootView() {
+  public ViewGroup getRootView() {
     return mRootView;
   }
 

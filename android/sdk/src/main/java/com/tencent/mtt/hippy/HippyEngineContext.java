@@ -15,11 +15,15 @@
  */
 package com.tencent.mtt.hippy;
 
+import android.view.ViewGroup;
+
 import com.tencent.mtt.hippy.bridge.HippyBridgeManager;
+import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.ThreadExecutor;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
 import com.tencent.mtt.hippy.dom.DomManager;
 import com.tencent.mtt.hippy.modules.HippyModuleManager;
+import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
 
@@ -40,11 +44,7 @@ public interface HippyEngineContext {
 
   RenderManager getRenderManager();
 
-  HippyRootView getInstance(int id);
-
-  void addInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);
-
-  void removeInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);
+  ViewGroup getRootView();
 
   void addEngineLifecycleEventListener(HippyEngineLifecycleEventListener listener);
 
@@ -52,7 +52,19 @@ public interface HippyEngineContext {
 
   void handleException(Throwable throwable);
 
-  TimeMonitor getStartTimeMonitor();
+  void createNode(int rootId, HippyArray hippyArray);
+
+  void updateNode(int rootId, HippyArray updateArray);
+
+  void deleteNode(int rootId, HippyArray deleteArray);
+
+  void callUIFunction(HippyArray hippyArray, Promise promise);
+
+  void measureInWindow(int id, Promise promise);
+
+  void startBatch();
+
+  void endBatch();
 
   int getEngineId();
 }
