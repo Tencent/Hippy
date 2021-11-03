@@ -32,51 +32,44 @@ class DomValue final {
   static const DomValue Null();
 
   DomValue(){};
-  DomValue(const DomValue &source);
+  DomValue(const DomValue& source);
 
-  explicit DomValue(int32_t i32)
-      : type_(Type::kNumber), number_type_(NumberType::kInt32), num_(i32) {}
-  explicit DomValue(uint32_t u32)
-      : type_(Type::kNumber), number_type_(NumberType::kUInt32), num_(u32) {}
-  explicit DomValue(int64_t i64)
-      : type_(Type::kNumber), number_type_(NumberType::kInt64), num_(i64) {}
-  explicit DomValue(uint64_t u64)
-      : type_(Type::kNumber), number_type_(NumberType::kUInt64), num_(u64) {}
+  explicit DomValue(int32_t i32) : type_(Type::kNumber), number_type_(NumberType::kInt32), num_(i32) {}
+  explicit DomValue(uint32_t u32) : type_(Type::kNumber), number_type_(NumberType::kUInt32), num_(u32) {}
+  explicit DomValue(int64_t i64) : type_(Type::kNumber), number_type_(NumberType::kInt64), num_(i64) {}
+  explicit DomValue(uint64_t u64) : type_(Type::kNumber), number_type_(NumberType::kUInt64), num_(u64) {}
   explicit DomValue(float f) : type_(Type::kNumber), number_type_(NumberType::kDouble), num_(f) {}
   explicit DomValue(double d) : type_(Type::kNumber), number_type_(NumberType::kDouble), num_(d) {}
   explicit DomValue(bool b) : type_(Type::kBoolean), b_(b) {}
-  explicit DomValue(std::string &&str) : type_(Type::kString), str_(std::move(str)) {}
-  explicit DomValue(const std::string &str) : type_(Type::kString), str_(str) {}
-  explicit DomValue(const char *string_value)
-      : type_(Type::kString), str_(std::string(string_value)) {}
-  explicit DomValue(const char *string_value, size_t length)
+  explicit DomValue(std::string&& str) : type_(Type::kString), str_(std::move(str)) {}
+  explicit DomValue(const std::string& str) : type_(Type::kString), str_(str) {}
+  explicit DomValue(const char* string_value) : type_(Type::kString), str_(std::string(string_value)) {}
+  explicit DomValue(const char* string_value, size_t length)
       : type_(Type::kString), str_(std::string(string_value, length)) {}
-  explicit DomValue(DomValueObjectType &&object_value)
-      : type_(Type::kObject), obj_(std::move(object_value)) {}
-  explicit DomValue(const DomValueObjectType &object_value)
-      : type_(Type::kObject), obj_(object_value) {}
-  explicit DomValue(DomValueArrayType &&array_value) : type_(Type::kArray), arr_(array_value) {}
-  explicit DomValue(DomValueArrayType &array_value) : type_(Type::kArray), arr_(array_value) {}
+  explicit DomValue(DomValueObjectType&& object_value) : type_(Type::kObject), obj_(std::move(object_value)) {}
+  explicit DomValue(const DomValueObjectType& object_value) : type_(Type::kObject), obj_(object_value) {}
+  explicit DomValue(DomValueArrayType&& array_value) : type_(Type::kArray), arr_(array_value) {}
+  explicit DomValue(DomValueArrayType& array_value) : type_(Type::kArray), arr_(array_value) {}
   ~DomValue();
 
-  DomValue &operator=(const DomValue &rhs) noexcept;
-  DomValue &operator=(const int32_t rhs) noexcept;
-  DomValue &operator=(const uint32_t rhs) noexcept;
-  DomValue &operator=(const int64_t rhs) noexcept;
-  DomValue &operator=(const uint64_t rhs) noexcept;
-  DomValue &operator=(const double rhs) noexcept;
-  DomValue &operator=(const bool rhs) noexcept;
-  DomValue &operator=(const std::string &rhs) noexcept;
-  DomValue &operator=(const char *rhs) noexcept;
-  DomValue &operator=(const DomValueObjectType &rhs) noexcept;
-  DomValue &operator=(const DomValueArrayType &rhs) noexcept;
+  DomValue& operator=(const DomValue& rhs) noexcept;
+  DomValue& operator=(const int32_t rhs) noexcept;
+  DomValue& operator=(const uint32_t rhs) noexcept;
+  DomValue& operator=(const int64_t rhs) noexcept;
+  DomValue& operator=(const uint64_t rhs) noexcept;
+  DomValue& operator=(const double rhs) noexcept;
+  DomValue& operator=(const bool rhs) noexcept;
+  DomValue& operator=(const std::string& rhs) noexcept;
+  DomValue& operator=(const char* rhs) noexcept;
+  DomValue& operator=(const DomValueObjectType& rhs) noexcept;
+  DomValue& operator=(const DomValueArrayType& rhs) noexcept;
 
-  bool operator==(const DomValue &rhs) const noexcept;
-  bool operator!=(const DomValue &rhs) const noexcept;
-  bool operator<(const DomValue &rhs) const noexcept;
-  bool operator<=(const DomValue &rhs) const noexcept;
-  bool operator>(const DomValue &rhs) const noexcept;
-  bool operator>=(const DomValue &rhs) const noexcept;
+  bool operator==(const DomValue& rhs) const noexcept;
+  bool operator!=(const DomValue& rhs) const noexcept;
+  bool operator<(const DomValue& rhs) const noexcept;
+  bool operator<=(const DomValue& rhs) const noexcept;
+  bool operator>(const DomValue& rhs) const noexcept;
+  bool operator>=(const DomValue& rhs) const noexcept;
 
   inline Type GetType() noexcept { return type_; }
   inline Type GetType() const noexcept { return type_; }
@@ -102,12 +95,12 @@ class DomValue final {
   uint64_t ToUint64() const;
   double ToDouble() const;
   bool ToBoolean() const;
-  const std::string &ToString() const;
-  std::string &ToString();
-  const DomValueObjectType &ToObject() const;
-  DomValueObjectType &ToObject();
-  const DomValueArrayType &ToArray() const;
-  DomValueArrayType &ToArray();
+  const std::string& ToString() const;
+  std::string& ToString();
+  const DomValueObjectType& ToObject() const;
+  DomValueObjectType& ToObject();
+  const DomValueArrayType& ToArray() const;
+  DomValueArrayType& ToArray();
 
  private:
   inline void deallocate();
@@ -130,7 +123,7 @@ class DomValue final {
 
 template <>
 struct std::hash<tdf::base::DomValue> {
-  std::size_t operator()(const tdf::base::DomValue &value) const noexcept;
+  std::size_t operator()(const tdf::base::DomValue& value) const noexcept;
 
  private:
   const static size_t UndefinedHashValue = 0x79476983;
