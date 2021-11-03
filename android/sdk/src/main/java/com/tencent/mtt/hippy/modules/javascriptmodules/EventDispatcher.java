@@ -15,7 +15,7 @@
  */
 package com.tencent.mtt.hippy.modules.javascriptmodules;
 
-import com.tencent.mtt.hippy.HippyEngine.BridgeTransferType;
+import com.tencent.mtt.hippy.modules.Promise.BridgeTransferType;
 import com.tencent.mtt.hippy.common.HippyMap;
 
 @SuppressWarnings({"unused", "deprecation"})

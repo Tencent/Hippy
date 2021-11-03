@@ -15,7 +15,7 @@
  */
 package com.tencent.mtt.hippy.devsupport;
 
-import com.tencent.mtt.hippy.HippyRootView;
+import android.content.Context;
 
 @SuppressWarnings("unused")
 public interface DevServerInterface {
@@ -28,9 +28,9 @@ public interface DevServerInterface {
 
   void setDevServerCallback(DevServerCallBack devServerCallback);
 
-  void attachToHost(HippyRootView view);
+  void attachToHost(Context context);
 
-  void detachFromHost(HippyRootView view);
+  void detachFromHost(Context context);
 
   void handleException(Throwable throwable);
 }

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Build;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyRootView;
@@ -338,7 +339,7 @@ public class DomModel {
       View view = controllerManager.findView(renderNode.getId());
       if (view != null) {
         view.getLocationOnScreen(viewLocation);
-        HippyRootView rootView = getRootView(context);
+        ViewGroup rootView = getRootView(context);
         if (rootView != null) {
           int[] rootViewLocation = new int[2];
           rootView.getLocationOnScreen(rootViewLocation);
@@ -378,17 +379,16 @@ public class DomModel {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
       return false;
     }
-    int rootId = context.getDomManager().getRootNodeId();
-    HippyRootView rootView = context.getInstance(rootId);
-    if (rootView == null || !(rootView.getHost() instanceof Activity)) {
+    ViewGroup rootView = context.getRootView();
+    if (rootView == null || !(rootView.getContext() instanceof Activity)) {
       return false;
     }
-    int flag = ((Activity) rootView.getHost()).getWindow().getAttributes().flags;
+    int flag = ((Activity) rootView.getContext()).getWindow().getAttributes().flags;
     if ((WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS & flag)
       == WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS) {
       return true;
     }
-    int options = ((Activity) rootView.getHost()).getWindow().getDecorView()
+    int options = ((Activity) rootView.getContext()).getWindow().getDecorView()
       .getSystemUiVisibility();
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
       && (View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN & options)
@@ -513,9 +513,8 @@ public class DomModel {
     return new JSONObject();
   }
 
-  private static HippyRootView getRootView(HippyEngineContext context) {
-    int rootId = context.getDomManager().getRootNodeId();
-    return context.getInstance(rootId);
+  private static ViewGroup getRootView(HippyEngineContext context) {
+    return context.getRootView();
   }
 
   /**

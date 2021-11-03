@@ -41,7 +41,7 @@ public class ThreadExecutorManager implements ThreadExecutor.UncaughtExceptionHa
         mThreadExecutorMap.put(groupId, threadExecutor);
       }
 
-      Integer engineId = engine.getId();
+      Integer engineId = engine.getEngineId();
       ArrayList<Integer> engineList = mEngineMap.get(groupId);
       if (engineList == null) {
         engineList = new ArrayList<>();
@@ -83,7 +83,7 @@ public class ThreadExecutorManager implements ThreadExecutor.UncaughtExceptionHa
         return;
       }
 
-      Integer engineId = engine.getId();
+      Integer engineId = engine.getEngineId();
       engineList.remove(engineId);
 
       if (engineList.size() <= 0) {

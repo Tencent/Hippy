@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.ViewGroup;
 import android.view.Window;
 
 import com.tencent.mtt.hippy.HippyEngine;
@@ -24,7 +25,7 @@ public class BaseActivity extends Activity implements EngineListener, DeviceEven
 {
 
     private HippyEngineManager		mEngineManager;
-	private HippyRootView			mInstance;
+	private ViewGroup mInstance;
 
 	@SuppressWarnings("deprecation")
 	@Override
@@ -100,7 +101,7 @@ public class BaseActivity extends Activity implements EngineListener, DeviceEven
 					 * @param  msg Message from initializing procedure
 					 */
 					@Override
-					public void onLoadCompleted(ModuleLoadStatus statusCode, String msg, HippyRootView hippyRootView) {
+					public void onLoadCompleted(ModuleLoadStatus statusCode, String msg) {
 						if (statusCode == ModuleLoadStatus.STATUS_OK) {
 							LogUtils.d("BaseActivity", "onLoadCompleted: statusCode=ModuleLoadStatus.STATUS_OK");
 						}
@@ -109,6 +110,11 @@ public class BaseActivity extends Activity implements EngineListener, DeviceEven
 					@Override
 					public boolean onJsException(HippyJsException exception) {
 						return true;
+					}
+
+					@Override
+					public void onFirstViewAdded() {
+						LogUtils.e("MyActivity", "onFirstViewAdded");
 					}
 				}
 		);

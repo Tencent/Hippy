@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy.devsupport;
 
+import android.content.Context;
 import com.tencent.mtt.hippy.HippyGlobalConfigs;
 import com.tencent.mtt.hippy.HippyRootView;
 import java.io.InputStream;
@@ -63,12 +64,12 @@ public class DevServerImplDisable implements DevServerInterface {
   }
 
   @Override
-  public void attachToHost(HippyRootView view) {
+  public void attachToHost(Context context) {
 
   }
 
   @Override
-  public void detachFromHost(HippyRootView view) {
+  public void detachFromHost(Context context) {
 
   }
 

@@ -16,15 +16,12 @@
 package com.tencent.mtt.hippy.modules.nativemodules.uimanager;
 
 import com.tencent.mtt.hippy.HippyEngineContext;
-import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.annotation.HippyMethod;
 import com.tencent.mtt.hippy.annotation.HippyNativeModule;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
-import com.tencent.mtt.hippy.dom.DomManager;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
-import com.tencent.mtt.hippy.utils.LogUtils;
 
 @SuppressWarnings({"deprecation", "unused"})
 @HippyNativeModule(name = UIManagerModule.CLASS_NAME, thread = HippyNativeModule.Thread.DOM)
@@ -37,76 +34,25 @@ public class UIManagerModule extends HippyNativeModuleBase {
   final String OPTION_TYPE_UPDATE_NODE = "updateNode";
   final String OPTION_TYPE_DELETE_NODE = "deleteNode";
   final String OPTION_TYPE_PARAM = "param";
-  final String ID = "id";
-  final String PID = "pId";
-  final String INDEX = "index";
-  final String NAME = "name";
-  final String PROPS = "props";
-  final String TAG_NAME = "tagName";
 
   public UIManagerModule(HippyEngineContext context) {
     super(context);
   }
 
   @HippyMethod(name = "createNode")
-  public void createNode(int rootID, HippyArray hippyArray) {
-    HippyRootView hippyRootView = mContext.getInstance(rootID);
-    DomManager domManager = this.mContext.getDomManager();
-    if (hippyArray != null && hippyRootView != null && domManager != null) {
-      int len = hippyArray.size();
-      for (int i = 0; i < len; i++) {
-        HippyMap nodeArray = hippyArray.getMap(i);
-        int tag = ((Number)nodeArray.get(ID)).intValue();
-        int pTag = ((Number)nodeArray.get(PID)).intValue();
-        int index = ((Number)nodeArray.get(INDEX)).intValue();
-        if (tag < 0 || pTag < 0 || index < 0) {
-          throw new IllegalArgumentException(
-              "createNode invalid value: " + "id=" + tag + ", pId=" + pTag + ", index=" + index);
-        }
-
-        String className = (String) nodeArray.get(NAME);
-        String tagName = (String) nodeArray.get(TAG_NAME);
-        HippyMap props = (HippyMap) nodeArray.get(PROPS);
-        domManager.createNode(hippyRootView, rootID, tag, pTag, index, className, tagName, props);
-      }
-    }
+  public void createNode(int rootId, HippyArray hippyArray) {
+    mContext.createNode(rootId, hippyArray);
   }
 
 
   @HippyMethod(name = "updateNode")
-  public void updateNode(int rootID, HippyArray updateArray) {
-    HippyRootView hippyRootView = mContext.getInstance(rootID);
-    DomManager domManager = this.mContext.getDomManager();
-    if (updateArray != null && updateArray.size() > 0 && hippyRootView != null
-        && domManager != null) {
-      int len = updateArray.size();
-      for (int i = 0; i < len; i++) {
-        HippyMap nodemap = updateArray.getMap(i);
-        int id = ((Number)nodemap.get(ID)).intValue();
-        if (id < 0) {
-          throw new IllegalArgumentException("updateNode invalid value: " + "id=" + id);
-        }
-        HippyMap props = (HippyMap) nodemap.get(PROPS);
-        domManager.updateNode(id, props, hippyRootView);
-      }
-    }
+  public void updateNode(int rootId, HippyArray updateArray) {
+    mContext.updateNode(rootId, updateArray);
   }
 
   @HippyMethod(name = "deleteNode")
-  public void deleteNode(int rootId, HippyArray delete) {
-    DomManager domManager = this.mContext.getDomManager();
-    if (delete != null && delete.size() > 0 && domManager != null) {
-      int len = delete.size();
-      for (int i = 0; i < len; i++) {
-        HippyMap nodemap = delete.getMap(i);
-        int id = ((Number)nodemap.get(ID)).intValue();
-        if (id < 0) {
-          throw new IllegalArgumentException("deleteNode invalid value: " + "id=" + id);
-        }
-        domManager.deleteNode(id);
-      }
-    }
-
+  public void deleteNode(int rootId, HippyArray deleteArray) {
+    mContext.deleteNode(rootId, deleteArray);
   }
 
   @HippyMethod(name = "flushBatch")
@@ -133,38 +79,21 @@ public class UIManagerModule extends HippyNativeModuleBase {
 
   @HippyMethod(name = "callUIFunction")
   public void callUIFunction(HippyArray hippyArray, Promise promise) {
-    DomManager domManager = this.mContext.getDomManager();
-    if (hippyArray != null && hippyArray.size() > 0 && domManager != null) {
-      int id = hippyArray.getInt(0);
-      String functionName = hippyArray.getString(1);
-      HippyArray array = hippyArray.getArray(2);
-      domManager.dispatchUIFunction(id, functionName, array, promise);
-    }
+    mContext.callUIFunction(hippyArray, promise);
   }
 
   @HippyMethod(name = "measureInWindow")
   public void measureInWindow(int id, Promise promise) {
-    DomManager domManager = this.mContext.getDomManager();
-    if (domManager != null) {
-      domManager.measureInWindow(id, promise);
-    }
-    LogUtils.d("UIManagerModule", id + "" + promise);
+    mContext.measureInWindow(id, promise);
   }
 
   @HippyMethod(name = "startBatch")
   public void startBatch() {
-    DomManager domManager = this.mContext.getDomManager();
-    if (domManager != null) {
-      domManager.renderBatchStart();
-    }
+    mContext.startBatch();
   }
 
   @HippyMethod(name = "endBatch")
   public void endBatch() {
-    DomManager domManager = this.mContext.getDomManager();
-    if (domManager != null) {
-      domManager.renderBatchEnd();
-    }
+    mContext.endBatch();
   }
-
 }

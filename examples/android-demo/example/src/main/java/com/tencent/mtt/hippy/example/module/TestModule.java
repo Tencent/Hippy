@@ -3,6 +3,7 @@ package com.tencent.mtt.hippy.example.module;
 import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.ViewGroup;
 
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyRootView;
@@ -24,7 +25,7 @@ public class TestModule extends HippyNativeModuleBase {
 
     @HippyMethod(name = "debug")
     public void debug(int instanceid) {
-        HippyRootView hippyRootView = mContext.getInstance(instanceid);
+        ViewGroup hippyRootView = mContext.getRootView();
         Intent intent = new Intent();
         intent.setClass(hippyRootView.getContext(), BaseActivity.class);
         hippyRootView.getContext().startActivity(intent);

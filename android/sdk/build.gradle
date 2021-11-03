@@ -172,10 +172,10 @@ android {
 
 dependencies {
   api fileTree(dir: 'libs', include: ['*.jar'])
+  api project(path: ':renderer-native')
+  api project(path: ':hippy-support')
   //noinspection GradleDependency
   implementation 'androidx.annotation:annotation:1.0.0'
-  //noinspection GradleDependency
-  implementation 'androidx.recyclerview:recyclerview:1.1.0'
   if (!INCLUDE_SUPPORT_UI.toBoolean()) {
     compileOnly('com.tencent.mtt:support-ui:99.2.3')
   }

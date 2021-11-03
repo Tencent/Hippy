@@ -7,6 +7,7 @@ import android.os.Build;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.DisplayMetrics;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
 import com.tencent.mtt.hippy.HippyEngineContext;
@@ -56,7 +57,7 @@ public class PageModel {
 
   private void listenFrameUpdate(final HippyEngineContext context) {
     if (canListenFrameUpdate()) {
-      HippyRootView hippyRootView = getHippyRootView(context);
+      ViewGroup hippyRootView = getHippyRootView(context);
       if (hippyRootView == null) {
         LogUtils.e(TAG, "listenFrameUpdate error none hippyRootView");
         return;
@@ -96,7 +97,7 @@ public class PageModel {
     isFramingScreenCast = false;
 
     if (canListenFrameUpdate()) {
-      HippyRootView hippyRootView = getHippyRootView(context);
+      ViewGroup hippyRootView = getHippyRootView(context);
       if (hippyRootView == null) {
         LogUtils.e(TAG, "stopScreenCast error none hippyRootView");
         return;
@@ -120,17 +121,14 @@ public class PageModel {
     return null;
   }
 
-  private HippyRootView getHippyRootView(HippyEngineContext context) {
-    DomManager domManager = context.getDomManager();
-    int rootNodeId = domManager.getRootNodeId();
-    HippyRootView hippyRootView = context.getInstance(rootNodeId);
-    return hippyRootView;
+  private ViewGroup getHippyRootView(HippyEngineContext context) {
+    return context.getRootView();
   }
 
   private JSONObject getScreenCastData(HippyEngineContext context) {
     JSONObject result = new JSONObject();
     try {
-      HippyRootView hippyRootView = getHippyRootView(context);
+      ViewGroup hippyRootView = getHippyRootView(context);
       if (hippyRootView == null) {
         LogUtils.e(TAG, "getScreenCastData error none hippyRootView");
         return null;

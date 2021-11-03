@@ -18,7 +18,7 @@ package com.tencent.mtt.hippy.modules;
 
 import android.text.TextUtils;
 
-import com.tencent.mtt.hippy.HippyEngine.BridgeTransferType;
+import com.tencent.mtt.hippy.modules.Promise.BridgeTransferType;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.runtime.builtins.JSMap;
