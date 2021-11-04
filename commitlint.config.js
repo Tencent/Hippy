@@ -1,6 +1,6 @@
-function isIncludeChinese(message) {
-  const chineseReg = /[\u4e00-\u9fa5]+/i;
-  return chineseReg.test(message);
+function asciiAndEmojiCheck(message) {
+  const asciiAndEmojiReg = /^((\ud83c[\udf00-\udfff])|(\ud83d[\udc00-\ude4f\ude80-\udeff])|[\u2600-\u2B55]|[\x00-\xff])*$/i;
+  return asciiAndEmojiReg.test(message);
 }
 
 module.exports = {
@@ -49,11 +49,11 @@ module.exports = {
       'always',
       (parsed) => {
         const { header, body, footer } = parsed;
-        const isContainChinese = [header, body, footer].some(message => isIncludeChinese(message));
-        if (isContainChinese) {
-          return [false, 'commit message cannot contain Chinese'];
+        const isAsciiAndEmoji = [header, body, footer].every(message => asciiAndEmojiCheck(message));
+        if (isAsciiAndEmoji) {
+          return [true];
         }
-        return [true];
+        return [false, 'commit message must only use English or Emoji'];
       },
     ],
   },
