@@ -166,10 +166,10 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
 }
 
 - (NSArray *)assemblyAttributeJSON:(NSDictionary *)attribute {
-    NSMutableArray<NSString *> *attributeJSONArray = [NSMutableArray array];
+    NSMutableArray<NSString *> *attributeJSONArray = [NSMutableArray arrayWithCapacity:[attribute count]];
     for (NSString *key in attribute) {
         NSString *value = [NSString stringWithFormat:@"%@", attribute[key]];
-        if (value.length <= 0 || value.length > HippyDOMMaxValueLength) {
+        if (value.length <= 0) {
             continue;
         }
         [attributeJSONArray addObject:key];
