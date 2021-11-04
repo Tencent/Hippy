@@ -10,6 +10,7 @@
 #import "HippySRWebSocket.h"
 #import "HippyAssert.h"
 #import "HippyLog.h"
+#import <UIKit/UIDevice.h>
 
 static NSString *generateRandomUUID() {
     static char alpha[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -21,6 +22,21 @@ static NSString *generateRandomUUID() {
     }
     buffer[length] = '\0';
     return [NSString stringWithCString:buffer encoding:NSUTF8StringEncoding];
+}
+
+static NSString *UUIDForContextName(NSString *contextName) {
+    static dispatch_once_t onceToken;
+    static NSMutableDictionary *UUIDPairs = nil;
+    dispatch_once(&onceToken, ^{
+        UUIDPairs = [NSMutableDictionary dictionary];
+    });
+    if (contextName) {
+        NSString *UUIDString = UUIDPairs[contextName];
+        return UUIDString?:generateRandomUUID();
+    }
+    else {
+        return generateRandomUUID();
+    }
 }
 
 static const char *stringFromReadyState(HippySRReadyState state) {
@@ -58,14 +74,16 @@ static const char *stringFromReadyState(HippySRReadyState state) {
 #pragma mark initialization methods
 
 - (instancetype)initWithDevIPAddress:(NSString *)ipAddress port:(NSString *)port contextName:(NSString *)contextName {
-    //ws://127.0.0.1:38989/debugger-proxy?clientId=123145124&platform=1&role=ios_client&contextName={encode(contextName)}
+    //ws://127.0.0.1:38989/debugger-proxy?clientId={clientId}&platform=1&role=ios_client&contextName={urlencode(contextName)}&deviceName={urlencode(deviceName)}
     HippyAssertParam(ipAddress);
     self = [super init];
     if (self) {
-        NSString *uuid = generateRandomUUID();
+        NSString *uuid = UUIDForContextName(contextName);
         NSCharacterSet *allowedChar = [[NSCharacterSet characterSetWithCharactersInString:@"?!@#$^&%*+,:;='\"`<>()[]{}/\\| "] invertedSet];
         NSString *encodeName = [contextName stringByAddingPercentEncodingWithAllowedCharacters:allowedChar];
-        NSString *devAddress = [NSString stringWithFormat:@"ws://%@:%@/debugger-proxy?clientId=%@&platform=1&role=ios_client&contextName=%@", ipAddress, port?:@"38989", uuid, encodeName];
+        NSString *deviceName = [[UIDevice currentDevice] name];
+        NSString *encodedDeviceName = [deviceName stringByAddingPercentEncodingWithAllowedCharacters:allowedChar];
+        NSString *devAddress = [NSString stringWithFormat:@"ws://%@:%@/debugger-proxy?clientId=%@&platform=1&role=ios_client&contextName=%@&deviceName=%@", ipAddress, port?:@"38989", uuid, encodeName, encodedDeviceName];
         _devURL = [NSURL URLWithString:devAddress];
         HippyLog(@"[DevTools client]:try to connect to %@", devAddress);
         [self setup];
@@ -85,6 +103,10 @@ static const char *stringFromReadyState(HippySRReadyState state) {
 #pragma mark property setter/getter
 - (NSURL *)devURL {
     return _devURL;
+}
+
+- (HippyDevWebSocketState)state {
+    return (HippyDevWebSocketState)[_devWebSocket readyState];
 }
 
 #pragma mask other methods
