@@ -263,11 +263,10 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                  */
 
                 CGRect glyphRect = [layoutManager boundingRectForGlyphRange:range inTextContainer:textContainer];
-                NSParagraphStyle *style = [textStorage attribute:NSParagraphStyleAttributeName atIndex:0 effectiveRange:nil];
-                CGFloat maxLineHeight = style ? style.maximumLineHeight : _maximumFontLineHeight;
                 CGRect usedOriginRect = [layoutManager lineFragmentRectForGlyphAtIndex:range.location effectiveRange:nil];
+                CGFloat lineHeight = usedOriginRect.size.height;
                 CGFloat Roundedheight = x5RoundPixelValue(height);
-                CGFloat originY = usedOriginRect.origin.y + (maxLineHeight - Roundedheight) / 2;
+                CGFloat originY = usedOriginRect.origin.y + (lineHeight - Roundedheight) / 2;
                 CGRect childFrame = { { x5RoundPixelValue(glyphRect.origin.x),
                                         x5RoundPixelValue(originY) },
                     { x5RoundPixelValue(width), Roundedheight } };
