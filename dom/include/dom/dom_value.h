@@ -103,7 +103,7 @@ class DomValue final {
   DomValueArrayType& ToArray();
 
  private:
-  inline void deallocate();
+  inline void Deallocate();
 
   friend std::hash<DomValue>;
 
