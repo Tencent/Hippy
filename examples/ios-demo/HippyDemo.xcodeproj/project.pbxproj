@@ -192,6 +192,7 @@
 		B21E4B3C270859C600B6A3ED /* js_native_turbo.cc in Sources */ = {isa = PBXBuildFile; fileRef = B21E4B3B270859C600B6A3ED /* js_native_turbo.cc */; };
 		B21E4B452708680900B6A3ED /* TurboConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = B21E4B412708680900B6A3ED /* TurboConfig.m */; };
 		B21E4B462708680900B6A3ED /* TurboBaseModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = B21E4B432708680900B6A3ED /* TurboBaseModule.mm */; };
+		F405949A2733C4A900157225 /* HippySRSIMDHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = F40594982733C4A900157225 /* HippySRSIMDHelpers.m */; };
 		F417B54D2727ACCE00894090 /* HippyDevManager.m in Sources */ = {isa = PBXBuildFile; fileRef = F417B54C2727ACCE00894090 /* HippyDevManager.m */; };
 		F417B5532727B31200894090 /* HippyDevCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = F417B5522727B31200894090 /* HippyDevCommand.m */; };
 		F417B5552727F7B000894090 /* document.txt in Resources */ = {isa = PBXBuildFile; fileRef = F417B5542727F7AF00894090 /* document.txt */; };
@@ -611,6 +612,8 @@
 		B21E4B422708680900B6A3ED /* TurboBaseModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TurboBaseModule.h; sourceTree = "<group>"; };
 		B21E4B432708680900B6A3ED /* TurboBaseModule.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TurboBaseModule.mm; sourceTree = "<group>"; };
 		B26F0FC62717D90F008F2640 /* HippyOCTurboModule+Inner.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "HippyOCTurboModule+Inner.h"; sourceTree = "<group>"; };
+		F40594982733C4A900157225 /* HippySRSIMDHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippySRSIMDHelpers.m; sourceTree = "<group>"; };
+		F40594992733C4A900157225 /* HippySRSIMDHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippySRSIMDHelpers.h; sourceTree = "<group>"; };
 		F417B54B2727ACCE00894090 /* HippyDevManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyDevManager.h; sourceTree = "<group>"; };
 		F417B54C2727ACCE00894090 /* HippyDevManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyDevManager.m; sourceTree = "<group>"; };
 		F417B5512727B31200894090 /* HippyDevCommand.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyDevCommand.h; sourceTree = "<group>"; };
@@ -1251,6 +1254,8 @@
 		064C59E223AB1A51001E80DD /* websocket */ = {
 			isa = PBXGroup;
 			children = (
+				F40594992733C4A900157225 /* HippySRSIMDHelpers.h */,
+				F40594982733C4A900157225 /* HippySRSIMDHelpers.m */,
 				064C59E323AB1A51001E80DD /* HippyWebSocketProxyDelegate.h */,
 				064C59E523AB1A51001E80DD /* HippyWebSocketManager.h */,
 				064C59E623AB1A51001E80DD /* HippyWebSocketProxy.h */,
@@ -1737,6 +1742,7 @@
 				064C59FA23AB1A51001E80DD /* HippyTiming.mm in Sources */,
 				B21E4B3C270859C600B6A3ED /* js_native_turbo.cc in Sources */,
 				787C199C2726A1020062EBFF /* HippyPageModel.m in Sources */,
+				F405949A2733C4A900157225 /* HippySRSIMDHelpers.m in Sources */,
 				787C19A02726A1020062EBFF /* HippyDomDomain.m in Sources */,
 				064C5A4E23AB1A51001E80DD /* HippyBatchedBridge.mm in Sources */,
 				064C59FE23AB1A51001E80DD /* HippyDevMenu.mm in Sources */,
