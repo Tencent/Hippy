@@ -24,7 +24,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NS_ENUM(unsigned int, HippyDevWebSocketState) {
+    DevWebSocketState_CONNECTING = 0,
+    DevWebSocketState_OPEN = 1,
+    DevWebSocketState_CLOSING = 2,
+    DevWebSocketState_CLOSED = 3,
+};
+
 @class HippyDevWebSocketClient;
+
 @protocol HippyDevClientProtocol <NSObject>
 
 @optional
@@ -39,6 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, readonly)NSURL *devURL;
 @property(nonatomic, weak)id<HippyDevClientProtocol> delegate;
+@property(nonatomic, readonly)HippyDevWebSocketState state;
 
 - (instancetype)initWithDevIPAddress:(NSString *)ipAddress port:(NSString *)port contextName:(NSString *)contextName;
 

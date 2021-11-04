@@ -49,7 +49,9 @@
 }
 
 - (void)sendDataToFrontendWithData:(NSString *)dataString {
-    [_devWSClient sendData:dataString];
+    if (DevWebSocketState_OPEN == _devWSClient.state) {
+        [_devWSClient sendData:dataString];
+    }
 }
 
 #pragma mark WS Delegate
