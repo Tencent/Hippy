@@ -21,13 +21,81 @@
 */
 
 #import "HippyPageDomain.h"
+#import "HippyDevCommand.h"
+#import "HippyLog.h"
+#import "HippyPageModel.h"
+#import "HippyUIManager.h"
 
 NSString *const HippyPageDomainName = @"Page";
+// Method
+NSString *const HippyPageMethodStartScreencast = @"startScreencast";
+NSString *const HippyPageMethodStopScreencast = @"stopScreencast";
+NSString *const HippyPageMethodScreencastFrameAck = @"screencastFrameAck";
+NSString *const HippyPageMethodScreencastFrame = @"screencastFrame";
+
+const char *HippyPageDomainQueueName = "com.tencent.hippy.page.domain.queue";
+
+@interface HippyPageDomain () {
+    HippyPageModel *_pageModel;
+}
+
+@end
 
 @implementation HippyPageDomain
 
+- (instancetype)initWithInspector:(HippyInspector *)inspector {
+    self = [super initWithInspector:inspector];
+    if (self) {
+        _pageModel = [[HippyPageModel alloc] init];
+    }
+    return self;
+}
+
 - (NSString *)domainName {
     return HippyPageDomainName;
+}
+
+#pragma mark - Method Handle
+- (BOOL)handleRequestDevCommand:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
+    [super handleRequestDevCommand:command bridge:bridge];
+    
+    if ([command.method isEqualToString:HippyPageMethodStartScreencast]) {
+        return [self handleStartScreencast:command bridge:bridge];
+    }
+    if ([command.method isEqualToString:HippyPageMethodStopScreencast]) {
+        return [self handleStopScreencast:command bridge:bridge];
+    }
+    if ([command.method isEqualToString:HippyPageMethodScreencastFrameAck]) {
+        return [self handleRspDataWithCmd:command dataJSON:@{}];
+    }
+    
+    return NO;
+}
+
+- (BOOL)handleStartScreencast:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
+    HippyUIManager *manager = bridge.uiManager;
+    if (!manager) {
+        HippyLogWarn(@"DomDomain, getDocument error, manager is nil");
+        return NO;
+    }
+    NSDictionary *resultJSON = [_pageModel startScreenCastWithUIManager:manager
+                                                                 params:command.params];
+    if (self.inspector && resultJSON.count > 0) {
+        NSString *methodName = [NSString stringWithFormat:@"%@.%@", HippyPageDomainName, HippyPageMethodScreencastFrame];
+        [self.inspector sendDataToFrontendWithMethod:methodName
+                                              params:resultJSON];
+    }
+    return YES;
+}
+
+- (BOOL)handleStopScreencast:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
+    HippyUIManager *manager = bridge.uiManager;
+    if (!manager) {
+        HippyLogWarn(@"DomDomain, getDocument error, manager is nil");
+        return NO;
+    }
+    [_pageModel stopScreenCastWithUIManager:manager];
+    return YES;
 }
 
 @end

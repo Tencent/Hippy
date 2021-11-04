@@ -21,6 +21,7 @@
 */
 
 #import "HippyDomModel.h"
+#import <UIKit/UIKit.h>
 #import "HippyCSSPropsDefine.h"
 #import "HippyLog.h"
 
@@ -44,7 +45,6 @@ NSString *const HippyDOMKeyBoxModelContent = @"content";
 NSInteger const HippyDOMDefaultDocumentNodeId = -3;
 NSInteger const HippyDOMDefaultDocumentChildNodeCount = 1;
 NSString *const HippyDOMDefaultDocumentNodeName = @"#document";
-NSInteger const HippyDOMMaxValueLength = 2 * 1024;
 
 // Node Prop
 NSString *const HippyNodePropAttributes = @"attributes";
@@ -93,9 +93,15 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
         HippyLogWarn(@"DOM Model, getBoxModel error, node is nil");
         return @{};
     }
-    
+    UIView *parentView = [node.bridge.uiManager viewForHippyTag:node.parent.hippyTag];
+    UIView *selfView = [node.bridge.uiManager viewForHippyTag:node.hippyTag];
+    if (!parentView || !selfView) {
+        return @{};
+    }
+    CGRect location = [parentView convertRect:node.frame
+                                       toView:[UIApplication sharedApplication].keyWindow];
     NSMutableDictionary *boxModelDic = [NSMutableDictionary dictionary];
-    NSArray *border = [self assemblyBoxModelBorderWithFrame:node.frame];
+    NSArray *border = [self assemblyBoxModelBorderWithFrame:location];
     NSArray *padding = [self assemblyBoxModelPaddingWithProps:node.props border:border];
     NSArray *content = [self assemblyBoxModelContentWithProps:node.props padding:padding];
     NSArray *margin = [self assemblyBoxModelMarginWithProps:node.props border:border];

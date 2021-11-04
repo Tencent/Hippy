@@ -76,12 +76,12 @@ NSString *const HippyCSSRspKeyStyles = @"styles";
 - (BOOL)handleGetMatchedStylesForNodeWithCmd:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
     HippyUIManager *manager = bridge.uiManager;
     if (!manager) {
-        HippyLogError(@"CSSDomain, getMatchedStylesForNode error, manager is nil");
+        HippyLogWarn(@"CSSDomain, getMatchedStylesForNode error, manager is nil");
         return NO;
     }
     NSNumber *nodeId = command.params[HippyCSSParamsKeyNodeId];
     if (!nodeId) {
-        HippyLogError(@"CSSDomain, getMatchedStylesForNode error, params is't contains nodeId key");
+        HippyLogWarn(@"CSSDomain, getMatchedStylesForNode error, params is't contains nodeId key");
         return NO;
     }
     HippyVirtualNode *node = [manager nodeForHippyTag:nodeId];
@@ -92,12 +92,12 @@ NSString *const HippyCSSRspKeyStyles = @"styles";
 - (BOOL)handleGetComputedStyleForNodeWithCmd:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
     HippyUIManager *manager = bridge.uiManager;
     if (!manager) {
-        HippyLogError(@"CSSDomain, getComputedStyleForNode error, manager is nil");
+        HippyLogWarn(@"CSSDomain, getComputedStyleForNode error, manager is nil");
         return NO;
     }
     NSNumber *nodeId = command.params[HippyCSSParamsKeyNodeId];
     if (!nodeId) {
-        HippyLogError(@"CSSDomain, getComputedStyleForNode error, params is't contains nodeId key");
+        HippyLogWarn(@"CSSDomain, getComputedStyleForNode error, params is't contains nodeId key");
         return NO;
     }
     HippyVirtualNode *node = [manager nodeForHippyTag:nodeId];
@@ -108,12 +108,12 @@ NSString *const HippyCSSRspKeyStyles = @"styles";
 - (BOOL)handleGetInlineStylesForNodeWithCmd:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
     HippyUIManager *manager = bridge.uiManager;
     if (!manager) {
-        HippyLogError(@"CSSDomain, getInlineStylesForNode error, manager is nil");
+        HippyLogWarn(@"CSSDomain, getInlineStylesForNode error, manager is nil");
         return NO;
     }
     NSNumber *nodeId = command.params[HippyCSSParamsKeyNodeId];
     if (!nodeId) {
-        HippyLogError(@"CSSDomain, getInlineStylesForNode error, params is't contains nodeId key");
+        HippyLogWarn(@"CSSDomain, getInlineStylesForNode error, params is't contains nodeId key");
         return NO;
     }
     HippyVirtualNode *node = [manager nodeForHippyTag:nodeId];
@@ -124,12 +124,12 @@ NSString *const HippyCSSRspKeyStyles = @"styles";
 - (BOOL)handleSetStyleTextsWithCmd:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
     HippyUIManager *manager = bridge.uiManager;
     if (!manager) {
-        HippyLogError(@"CSSDomain, setStyleTexts error, manager is nil");
+        HippyLogWarn(@"CSSDomain, setStyleTexts error, manager is nil");
         return NO;
     }
     NSArray<NSDictionary *> *edits = command.params[HippyCSSParamsKeyEdits];
     if (edits.count <= 0) {
-        HippyLogError(@"CSSDomain, setStyleTexts error, params is't contains edits key");
+        HippyLogWarn(@"CSSDomain, setStyleTexts error, params is't contains edits key");
         return NO;
     }
     NSMutableArray *styles = [NSMutableArray array];

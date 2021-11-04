@@ -24,7 +24,32 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class HippyUIManager;
 @interface HippyPageModel : NSObject
+
+/**
+ * @brief Get Chrome Page startScreencast JSON
+ * @param manager UIManager
+ * @param params param objects
+ * @return JSON Dictionary
+ */
+- (NSDictionary *)startScreenCastWithUIManager:(HippyUIManager *)manager
+                                        params:(NSDictionary *)params;
+
+/**
+ * @brief Handle Chrome Page stopScreencast
+ * @param manager UIManager
+ */
+- (void)stopScreenCastWithUIManager:(HippyUIManager *)manager;
+
+/**
+ * @brief Get Chrome Page screencastFrameAck JSON
+ * @param manager UIManager
+ * @param params param objects
+ * @return JSON Dictionary
+ */
+- (NSDictionary *)screencastFrameAckWithUIManager:(HippyUIManager *)manager
+                                           params:(NSDictionary *)params;
 
 @end
 
