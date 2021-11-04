@@ -80,7 +80,7 @@ NSString *const HippyDOMParamsKeyNodeId = @"nodeId";
 - (BOOL)handleGetDocumentWithCmd:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
     HippyUIManager *manager = bridge.uiManager;
     if (!manager) {
-        HippyLogError(@"DomDomain, getDocument error, manager is nil");
+        HippyLogWarn(@"DomDomain, getDocument error, manager is nil");
         return NO;
     }
     HippyVirtualNode *rootNode = [manager nodeForHippyTag:[manager rootHippyTag]];
@@ -91,12 +91,12 @@ NSString *const HippyDOMParamsKeyNodeId = @"nodeId";
 - (BOOL)handleGetBoxModelWithCmd:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
     HippyUIManager *manager = bridge.uiManager;
     if (!manager) {
-        HippyLogError(@"DomDomain, getBoxModel error, manager is nil");
+        HippyLogWarn(@"DomDomain, getBoxModel error, manager is nil");
         return NO;
     }
     NSNumber *nodeId = command.params[HippyDOMParamsKeyNodeId];
     if (!nodeId) {
-        HippyLogError(@"DomDomain, getBoxModel error, params is't contains nodeId key");
+        HippyLogWarn(@"DomDomain, getBoxModel error, params is't contains nodeId key");
         return NO;
     }
     HippyVirtualNode *node = [manager nodeForHippyTag:nodeId];

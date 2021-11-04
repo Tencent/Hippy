@@ -52,7 +52,7 @@ NSString *const HippyDomainRspKeyResult = @"result";
 
 - (BOOL)handleRspDataWithCmd:(HippyDevCommand *)command dataJSON:(NSDictionary *)dataJSON {
     if (!dataJSON) {
-        HippyLogError(@"InspectorDomain, dataJSON is nil");
+        HippyLogWarn(@"InspectorDomain, dataJSON is nil");
         return NO;
     }
     NSDictionary *result = @{HippyDomainRspKeyId : command.cmdID,
@@ -60,7 +60,7 @@ NSString *const HippyDomainRspKeyResult = @"result";
     NSError *parseError;
     NSData *retData = [NSJSONSerialization dataWithJSONObject:result options:0 error:&parseError];
     if (parseError) {
-        HippyLogError(@"InspectorDomain, parse json data error");
+        HippyLogWarn(@"InspectorDomain, parse json data error");
         return NO;
     }
     command.resultString = [[NSString alloc] initWithData:retData encoding:NSUTF8StringEncoding];
