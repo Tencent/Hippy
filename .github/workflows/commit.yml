@@ -1,12 +1,19 @@
 name: '[commit-lint] check commit message format'
 
-on: [ push, pull_request ]
+on: [ pull_request ]
 
 jobs:
   commitlint:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@v1
-      - uses: wagoid/commitlint-github-action@v1
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: setup-node
+        uses: actions/setup-node@master
+        with:
+          node-version: 16.x
+      - name: Install
+        run: npm install commitlint-plugin-function-rules@1.4.0 @commitlint/cli@13.1.0 @commitlint/config-conventional@13.1.0 @commitlint/config-conventional@13.1.0 @commitlint/lint@13.1.0 @commitlint/prompt-cli@13.1.0
+      - name: commitlint
+        run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose

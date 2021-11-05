@@ -1,4 +1,4 @@
-name: '[FrontEnd] check and build js code'
+name: '[FrontEnd] check js code'
 
 on:
   push:
@@ -29,11 +29,11 @@ on:
       - '**'
 
 jobs:
-  check_and_build_js:
+  check_js:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [ 10.x, 13.x ]
+        node: [ 10.x, 16.x ]
     steps:
       - uses: actions/checkout@v2
       - name: setup-node
@@ -48,7 +48,7 @@ jobs:
       - name: test
         run: npm run coverage
       - name: coverage
-        if: matrix.node == '10.x'
-        uses: codecov/codecov-action@v1
+        if: matrix.node == '16.x'
+        uses: codecov/codecov-action@v2
       - name: build
         run: npm run build
