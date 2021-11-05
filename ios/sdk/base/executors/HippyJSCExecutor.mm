@@ -454,7 +454,11 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
 }
 
 - (void)secondBundleLoadCompleted:(BOOL)success {
-    std::shared_ptr<hippy::napi::JSCCtx> context = std::static_pointer_cast<hippy::napi::JSCCtx>(self.pScope->GetContext());
+    std::shared_ptr<Scope> scope = self.pScope;
+    if (!scope) {
+        return;
+    }
+    std::shared_ptr<hippy::napi::JSCCtx> context = std::static_pointer_cast<hippy::napi::JSCCtx>(scope->GetContext());
     HippyAssert(context != nullptr, @"secondBundleLoadCompleted get null context");
     if (nullptr == context) {
         return;
