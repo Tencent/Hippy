@@ -2,7 +2,21 @@
   <div id="div-demo">
     <div>
       <label>背景图效果:</label>
-      <div :style="demo1Style">
+      <div
+        :style="demo1Style"
+        :accessible="true"
+        aria-label="背景图"
+        :aria-disabled="false"
+        :aria-selected="true"
+        :aria-checked="false"
+        :aria-expanded="false"
+        :aria-busy="true"
+        role="image"
+        :aria-valuemax="10"
+        :aria-valuemin="1"
+        :aria-valuenow="5"
+        aria-valuetext="middle"
+      >
         <p class="div-demo-1-text">
           Hippy 背景图展示
         </p>
@@ -23,6 +37,7 @@
       <div
         ref="demo-2"
         class="div-demo-2"
+        :bounces="true"
         :scrollEnabled="true"
         :pagingEnabled="false"
         :showsHorizontalScrollIndicator="false"
@@ -33,7 +48,7 @@
         @scrollEndDrag="onScrollEndDrag"
       >
         <!-- div 带着 overflow 属性的，只能有一个子节点，否则终端会崩溃 -->
-        <div class="display-flex flex-row div-demo-2-container">
+        <div class="display-flex flex-row">
           <p class="text-block">
             A
           </p>
@@ -198,10 +213,6 @@ export default {
     overflow-x: scroll;
     margin: 10px;
     flex-direction: row;
-  }
-
-  .div-demo-2-container {
-    width: 1000px;
   }
 
   .div-demo-3 {

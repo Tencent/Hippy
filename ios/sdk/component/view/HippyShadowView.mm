@@ -147,7 +147,7 @@ DEFINE_PROCESS_META_PROPS(Border);
 - (void)applyLayoutNode:(MTTNodeRef)node
       viewsWithNewFrame:(NSMutableSet<HippyShadowView *> *)viewsWithNewFrame
        absolutePosition:(CGPoint)absolutePosition {
-    if (!MTTNodeHasNewLayout(node)) {
+    if (!MTTNodeHasNewLayout(node) && !_visibilityChanged) {
         return;
     }
     MTTNodesetHasNewLayout(node, false);
@@ -170,9 +170,11 @@ DEFINE_PROCESS_META_PROPS(Border);
                      },
         { HippyRoundPixelValue(absoluteBottomRight.x - absoluteTopLeft.x), HippyRoundPixelValue(absoluteBottomRight.y - absoluteTopLeft.y) } };
 
-    if (!CGRectEqualToRect(frame, _frame)) {
+    if (!CGRectEqualToRect(frame, _frame) ||
+        _visibilityChanged) {
         _frame = frame;
         [viewsWithNewFrame addObject:self];
+        _visibilityChanged = NO;
     }
 
     absolutePosition.x += MTTNodeLayoutGetLeft(node);
@@ -408,6 +410,18 @@ DEFINE_PROCESS_META_PROPS(Border);
 
 - (void)setTextComputed {
     _textLifecycle = HippyUpdateLifecycleComputed;
+}
+
+- (BOOL)isHidden {
+    return _hidden || [_visibility isEqualToString:@"hidden"];
+}
+
+- (void)setVisibility:(NSString *)visibility {
+    if (![_visibility isEqualToString:visibility]) {
+        _visibility = visibility;
+        _visibilityChanged = YES;
+        MTTNodeMarkDirty(self.nodeRef);
+    }
 }
 
 - (void)insertHippySubview:(HippyShadowView *)subview atIndex:(NSInteger)atIndex {

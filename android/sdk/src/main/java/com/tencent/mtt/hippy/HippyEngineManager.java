@@ -150,7 +150,7 @@ public abstract class HippyEngineManager extends HippyEngine {
       }
 
       EngineInitParams params = new EngineInitParams();
-      mGlobalConfigs.to(params);
+      mGlobalConfigs.toDebug(params);
       params.debugMode = mSupportDev;
       if (mCoreBundleLoader instanceof HippyAssetBundleLoader) {
         params.coreJSAssetsPath = mCoreBundleLoader.getRawPath();

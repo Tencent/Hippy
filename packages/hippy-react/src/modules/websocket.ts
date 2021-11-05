@@ -2,7 +2,7 @@ import HippyEventListener from '../events/listener';
 import { Bridge } from '../global';
 import { warn } from '../utils';
 
-const enum READY_STATE {
+const enum ReadyState {
   CONNECTING,
   OPEN,
   CLOSING,
@@ -17,7 +17,7 @@ interface WebSocket {
 
   /**
    * read-only property returns the name of the sub-protocol the server selected; this will be
-   * one of the stringsspecified in the protocols parameter when creating the WebSocket object,
+   * one of the strings specified in the protocols parameter when creating the WebSocket object,
    * or the empty string if no connection is established.
    */
   protocol: string;
@@ -25,7 +25,7 @@ interface WebSocket {
   /**
    * Read-only property returns the current state of the WebSocket connection.
    */
-  readyState: READY_STATE;
+  readyState: ReadyState;
   webSocketCallbacks: {
     onOpen?: Function;
     onClose?: Function;
@@ -70,7 +70,7 @@ class WebSocket implements WebSocket {
     if (!websocketEventHub) {
       websocketEventHub = new HippyEventListener('hippyWebsocketEvents');
     }
-    this.readyState = READY_STATE.CONNECTING;
+    this.readyState = ReadyState.CONNECTING;
     this.webSocketCallbacks = {};
 
     if (!url || typeof url !== 'string') {
@@ -124,12 +124,12 @@ class WebSocket implements WebSocket {
    *                            of UTF-8 text (not characters).
    */
   public close(code: number, reason: string) {
-    if (this.readyState !== READY_STATE.OPEN) {
+    if (this.readyState !== ReadyState.OPEN) {
       warn('WebSocket is not connected');
       return;
     }
 
-    this.readyState = READY_STATE.CLOSING;
+    this.readyState = ReadyState.CLOSING;
     Bridge.callNative(WEB_SOCKET_MODULE_NAME, 'close', {
       id: this.webSocketId,
       code,
@@ -143,7 +143,7 @@ class WebSocket implements WebSocket {
    * @param {string} data - The data to send to the server. Hippy supports string type only.
    */
   public send(data: string) {
-    if (this.readyState !== READY_STATE.OPEN) {
+    if (this.readyState !== ReadyState.OPEN) {
       warn('WebSocket is not connected');
       return;
     }
@@ -204,9 +204,9 @@ class WebSocket implements WebSocket {
 
     const { type: eventType } = param;
     if (eventType === 'onOpen') {
-      this.readyState = READY_STATE.OPEN;
+      this.readyState = ReadyState.OPEN;
     } else if (eventType === 'onClose') {
-      this.readyState = READY_STATE.CLOSED;
+      this.readyState = ReadyState.CLOSED;
       websocketEventHub.removeCallback(this.webSocketCallbackId);
     }
 

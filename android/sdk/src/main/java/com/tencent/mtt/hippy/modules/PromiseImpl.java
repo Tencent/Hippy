@@ -21,6 +21,10 @@ import android.text.TextUtils;
 import com.tencent.mtt.hippy.HippyEngine.BridgeTransferType;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.runtime.builtins.JSMap;
+import com.tencent.mtt.hippy.runtime.builtins.JSObject;
+import com.tencent.mtt.hippy.runtime.builtins.JSValue;
+import java.util.HashMap;
 
 @SuppressWarnings({"deprecation", "unused"})
 public class PromiseImpl implements Promise {
@@ -29,7 +33,7 @@ public class PromiseImpl implements Promise {
   public static final int PROMISE_CODE_NORMAN_ERROR = 1;
   public static final int PROMISE_CODE_OTHER_ERROR = 2;
   private static final String CALL_ID_NO_CALLBACK = "-1";
-  private final HippyEngineContext mContext;
+  private HippyEngineContext mContext;
   private final String mModuleName;
   private final String mModuleFunc;
   private final String mCallId;
@@ -42,6 +46,10 @@ public class PromiseImpl implements Promise {
     this.mModuleName = moduleName;
     this.mModuleFunc = moduleFunc;
     this.mCallId = callId;
+  }
+
+  public void setContext(HippyEngineContext context) {
+    mContext = context;
   }
 
   public String getCallId() {
@@ -79,12 +87,23 @@ public class PromiseImpl implements Promise {
     if (TextUtils.equals(CALL_ID_NO_CALLBACK, mCallId)) {
       return;
     }
-    HippyMap map = new HippyMap();
-    map.pushInt("result", code);
-    map.pushString("moduleName", mModuleName);
-    map.pushString("moduleFunc", mModuleFunc);
-    map.pushString("callId", mCallId);
-    map.pushObject("params", obj);
-    mContext.getBridgeManager().execCallback(map, transferType);
+
+    if (obj instanceof JSValue) {
+      JSObject jsObject = new JSObject();
+      jsObject.set("result", code);
+      jsObject.set("moduleName", mModuleName);
+      jsObject.set("moduleFunc", mModuleFunc);
+      jsObject.set("callId", mCallId);
+      jsObject.set("params", obj);
+      mContext.getBridgeManager().execCallback(jsObject, transferType);
+    } else {
+      HippyMap hippyMap = new HippyMap();
+      hippyMap.pushInt("result", code);
+      hippyMap.pushString("moduleName", mModuleName);
+      hippyMap.pushString("moduleFunc", mModuleFunc);
+      hippyMap.pushString("callId", mCallId);
+      hippyMap.pushObject("params", obj);
+      mContext.getBridgeManager().execCallback(hippyMap, transferType);
+    }
   }
 }

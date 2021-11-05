@@ -3,9 +3,9 @@ name: '[android] [third_party] update v8'
 on:
   workflow_dispatch:
     inputs:
-      v8_version:
-        description: 'V8 version to build'
-        default: '9.1.75'
+      v8_revision:
+        description: 'V8 TAG(Branch) to build'
+        default: '9.5-lkgr'
         required: true
       release_tag:
         description: 'Release tag'
@@ -13,11 +13,11 @@ on:
         required: true
       build_args:
         description: 'Build args'
-        default: 'is_component_build=true is_debug=false v8_use_external_startup_data=false is_official_build=true v8_enable_i18n_support=false treat_warnings_as_errors=false enable_resource_allowlist_generation=false symbol_level=1 use_custom_libcxx=false clang_use_chrome_plugins=false'
+        default: 'is_component_build=false is_debug=false v8_use_external_startup_data=false is_official_build=true v8_enable_i18n_support=false treat_warnings_as_errors=false symbol_level=0 use_custom_libcxx=false clang_use_chrome_plugins=false use_thin_lto=false v8_enable_webassembly=false v8_monolithic=true'
         required: true
       build_target:
         description: 'Build target'
-        default: 'v8 v8_libplatform'
+        default: 'v8_monolith'
         required: true
 
 jobs:
@@ -54,7 +54,7 @@ jobs:
       run: |
         fetch v8
         cd v8
-        git checkout ${{ github.event.inputs.v8_version }}
+        git checkout ${{ github.event.inputs.v8_revision }}
     - name: Sync third_party
       working-directory: ./v8
       run: |
@@ -99,10 +99,7 @@ jobs:
       working-directory: ./v8/out/${{ matrix.arch }}
       run: |
         mkdir -p artifact/include/v8 artifact/libs/${{ matrix.arch }}
-        cp *.so artifact/libs/${{ matrix.arch }}
-        cp -r lib.unstripped artifact/libs/${{ matrix.arch }}
-        cp ${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/${{ matrix.host-tag }}/libc++_shared.so artifact/libs/${{ matrix.arch }}/lib.unstripped
-        ${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/${{ matrix.host-tag }}/bin/strip -x artifact/libs/${{ matrix.arch }}/lib.unstripped/libc++_shared.so -o artifact/libs/${{ matrix.arch }}/libc++_shared.so
+        cp obj/libv8_monolith.a artifact/libs/${{ matrix.arch }}
         cp -r ../../include/* artifact/include/v8/
         cp -r gen/include/* artifact/include/v8/
         find artifact/include/v8/. ! -name "*.h" -type f -delete
@@ -121,6 +118,11 @@ jobs:
   pull-request:
     needs: build
     runs-on: [self-hosted, linux, trusted]
+    container:
+      image: ghcr.io/tencent/android-release:latest # repository name must be lowercase(${{ github.repository_owner }})
+      credentials:
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     env:
       v8-dist: ./android/sdk/src/main/jni/third_party/v8/${{ github.event.inputs.release_tag }}
     steps:
@@ -134,10 +136,13 @@ jobs:
       with:
         lfs: true
     - name: Construct directory structure
-      working-directory: ${{ env.v8-dist }}
+      working-directory: ${{ env.v8-dist }}/official-release
       run: |
-        rm -rf official-release
-        mkdir official-release
+        shopt -s dotglob
+        shopt -s extglob
+        rm -rf -- !(CMakeLists.txt)
+        shopt -u extglob
+        shopt -u dotglob
     - name: Fetch artifact
       uses: actions/download-artifact@v2
       with:
@@ -158,28 +163,28 @@ jobs:
 
               _Do NOT modify this release manually._
 
-              Refs: [${{ github.event.inputs.v8_version }}][1]
+              Refs: [${{ github.event.inputs.v8_revision }}][1]
 
-              [1]: https://github.com/v8/v8/tree/${{ github.event.inputs.v8_version }}
+              [1]: https://github.com/v8/v8/tree/${{ github.event.inputs.v8_revision }}
               [2]: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
         write-mode: overwrite
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v3
       with:
         commit-message: |
-                    chore(v8): update V8 to ${{ github.event.inputs.v8_version }}
+                    chore(v8): update V8 to ${{ github.event.inputs.v8_revision }}
 
-                    Ref-URL: https://github.com/v8/v8/tree/${{ github.event.inputs.v8_version }}
+                    Ref-URL: https://github.com/v8/v8/tree/${{ github.event.inputs.v8_revision }}
                     Action-Run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        branch: chore/update-v8-to-${{ github.event.inputs.v8_version }}
+        branch: chore/update-v8-to-${{ github.event.inputs.v8_revision }}
         delete-branch: true
-        title: 'chore(v8): update V8 to ${{ github.event.inputs.v8_version }}'
+        title: 'chore(v8): update V8 to ${{ github.event.inputs.v8_revision }}'
         body: |
-          Refs: [${{ github.event.inputs.v8_version }}][1]
+          Refs: [${{ github.event.inputs.v8_revision }}][1]
           Release TAG: ${{ github.event.inputs.release_tag }}
           Action Run: [${{ github.run_id }}][2]
 
-          [1]: https://github.com/v8/v8/tree/${{ github.event.inputs.v8_version }}
+          [1]: https://github.com/v8/v8/tree/${{ github.event.inputs.v8_revision }}
           [2]: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
         labels: |
           dependencies

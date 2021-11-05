@@ -8,12 +8,14 @@ const componentName = ['%c[event]%c', 'color: green', 'color: auto'];
 
 function getVueEventName(eventName, targetNode) {
   const { eventNamesMap } = targetNode.meta.component;
+  // event names map for internal view, i.e. div,ul,li,etc.
   if (eventNamesMap && eventNamesMap[eventName]) {
     return eventNamesMap[eventName];
   }
   if (eventName.indexOf('on') !== 0) {
     return eventName;
   }
+  // remove "on" string and lowercase the first letter
   const str = eventName.slice(2, eventName.length); // Assume 'on' prefix length = 2.
   return str.charAt(0).toLowerCase() + str.slice(1);
 }
@@ -51,7 +53,7 @@ const EventDispatcher = {
    */
   receiveNativeEvent(nativeEvent) {
     trace(...componentName, 'receiveNativeEvent', nativeEvent);
-    if (!nativeEvent || !Array.isArray((nativeEvent)) || nativeEvent.length < 2) {
+    if (!nativeEvent || !Array.isArray(nativeEvent) || nativeEvent.length < 2) {
       return;
     }
     const [eventName, eventParams] = nativeEvent;

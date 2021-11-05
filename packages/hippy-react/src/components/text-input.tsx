@@ -178,8 +178,8 @@ class TextInput extends React.Component<TextInputProps, {}> {
    */
   constructor(props: TextInputProps) {
     super(props);
-    this._onChangeText = this._onChangeText.bind(this);
-    this._onKeyboardWillShow = this._onKeyboardWillShow.bind(this);
+    this.onChangeText = this.onChangeText.bind(this);
+    this.onKeyboardWillShow = this.onKeyboardWillShow.bind(this);
   }
 
   /**
@@ -257,7 +257,7 @@ class TextInput extends React.Component<TextInputProps, {}> {
     callUIFunction(this.instance as Element, 'clear', []);
   }
 
-  private _onChangeText(e: TextInputEvent) {
+  private onChangeText(e: TextInputEvent) {
     const { onChangeText } = this.props;
     if (typeof onChangeText === 'function') {
       onChangeText(e.text);
@@ -272,7 +272,7 @@ class TextInput extends React.Component<TextInputProps, {}> {
     this._lastNativeText = e.text;
   }
 
-  private _onKeyboardWillShow(originEvt: KeyboardWillShowEvent) {
+  private onKeyboardWillShow(originEvt: KeyboardWillShowEvent) {
     const { onKeyboardWillShow } = this.props;
     const evt = originEvt;
     if (Device.platform.OS === 'android') {
@@ -325,8 +325,8 @@ class TextInput extends React.Component<TextInputProps, {}> {
           this.instance = ref;
         }}
         // @ts-ignore
-        onChangeText={this._onChangeText}
-        onKeyboardWillShow={this._onKeyboardWillShow}
+        onChangeText={this.onChangeText}
+        onKeyboardWillShow={this.onKeyboardWillShow}
       />
     );
   }

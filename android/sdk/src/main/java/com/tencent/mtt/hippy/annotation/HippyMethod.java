@@ -29,4 +29,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public @interface HippyMethod {
 
   String name() default "";
+
+  boolean isSync() default false;
 }

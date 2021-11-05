@@ -23,18 +23,23 @@ Hippy is now applied in 27+ [Tencent](http://www.tencent.com/) apps such as Mobi
 
 ### Preparing environment
 
+Run `git clone https://github.com/Tencent/Hippy.git`
+
+> Hippy repository applies [git-lfs](https://git-lfs.github.com/) to manage so,gz,otf,png,jpg files, make sure you have installed [git-lfs](https://git-lfs.github.com/) first.
+
+
 For macOS developers:
 
-1. [Xcode](https://developer.apple.com/xcode/) with iOS sdk: build the iOS app.
-2. [Android Studio](https://developer.android.com/studio) with NDK: build the android app.
-3. [Node.JS](https://nodejs.org/en/): run the build scripts.
+* [Xcode](https://developer.apple.com/xcode/) with iOS sdk: build the iOS app.
+* [Android Studio](https://developer.android.com/studio) with NDK: build the android app.
+* [Node.JS](https://nodejs.org/en/): run the build scripts.
 
 [homebrew](https://brew.sh/) is recommended to install the dependencies.
 
 For Windows developers:
 
-1. [Android Studio](https://developer.android.com/studio) with NDK: build the android app.
-2. [Node.JS](https://nodejs.org/en/): run the build scripts.
+* [Android Studio](https://developer.android.com/studio) with NDK: build the android app.
+* [Node.JS](https://nodejs.org/en/): run the build scripts.
 
 > Windows can't run the iOS development environment so far.
 
@@ -79,7 +84,7 @@ Before build the android app, please make sure the SDK and NDK is installed, And
 1. Follow [Build the iOS simulator with js demo](https://github.com/Tencent/Hippy#build-the-ios-simulator-with-js-demo) or [Build the Android app with js demo](https://github.com/Tencent/Hippy#build-the-android-app-with-js-demo) first to build the App.
 2. `cd` to `examples` hippy-react-demo or hippy-vue-demo.
 3. Run `npm install` to install demo js dependencies.
-4. Run `npm run hippy:dev` and `npm run hippy:debug` respectively to start the live debug mode.
+4. Run `npm run hippy:dev` and `npm run hippy:debug` (`npm run hippy:local-debug` will link to source code in packages) respectively to start the live debug mode.
 
 > On example debug mode, npm packages such as @hippy/react, @hippy/vue are linked to `packages` > `[different package]` > `dist`(not node_modules), so if you have changed js package source code and want to make it take effect in target example, please call `npm run build` at root directory again.
 >
@@ -141,3 +146,4 @@ Hippy is [Apache-2.0 licensed](./LICENSE).
 [Hippy Eco-System](https://github.com/hippy-contrib)
 
 [Taitank Layout Engine](https://github.com/Tencent/Taitank)
+

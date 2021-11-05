@@ -206,12 +206,20 @@ public class HippyDrawable implements IDrawableTarget {
       return mBitmap.getWidth();
     }
 
+    if (mGifMovie != null) {
+      return mGifMovie.width();
+    }
+
     return 0;
   }
 
   public int getHeight() {
     if (mBitmap != null) {
       return mBitmap.getHeight();
+    }
+
+    if (mGifMovie != null) {
+      return mGifMovie.height();
     }
 
     return 0;

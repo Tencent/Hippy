@@ -86,10 +86,7 @@ test('registerElement with mustUseProp', (t) => {
       name: 'Test',
     },
     mustUseProp(attr) {
-      if (attr === 'testAttr') {
-        return true;
-      }
-      return false;
+      return attr === 'testAttr';
     },
   });
   const viewMeta = elements.getViewMeta(elementName);

@@ -6,6 +6,9 @@ import {
   trace,
   isFunction,
 } from '../util';
+import {
+  getCssMap,
+} from '../renderer/native/index';
 
 import BackAndroid from './backAndroid';
 import * as NetInfo from './netInfo';
@@ -69,6 +72,25 @@ const measureInWindowByMethod = function measureInWindowByMethod(el, method) {
     });
   }));
   return Promise.race([timeout, measure]);
+};
+
+/**
+ * getElemCss
+ * @param {ElementNode} element
+ * @returns {{}}
+ */
+const getElemCss = function getElemCss(element) {
+  const style = Object.create(null);
+  try {
+    getCssMap().query(element).selectors.forEach((matchedSelector) => {
+      matchedSelector.ruleSet.declarations.forEach((cssStyle) => {
+        style[cssStyle.property] = cssStyle.value;
+      });
+    });
+  } catch (err) {
+    console.error('getDomCss Error:', err);
+  }
+  return style;
 };
 
 /**
@@ -183,8 +205,7 @@ const Native = {
       let isIPhoneX = false;
       if (Native.Platform === 'ios') {
         // iOS12 - iPhone11: 48 Phone12/12 pro/12 pro max: 47 other: 44
-        const statusBarHeightList = [44, 47, 48];
-        isIPhoneX = statusBarHeightList.indexOf(Native.Dimensions.screen.statusBarHeight) > -1;
+        isIPhoneX = Native.Dimensions.screen.statusBarHeight !== 20;
       }
       CACHE.isIPhoneX = isIPhoneX;
     }
@@ -403,6 +424,11 @@ const Native = {
    * Network operations
    */
   NetInfo,
+  /**
+   * console log to native
+   */
+  ConsoleModule: global.ConsoleModule || global.console,
+  getElemCss,
 };
 
 // Public export

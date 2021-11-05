@@ -145,6 +145,9 @@ class JSCCtx : public Ctx {
                               unicode_string_view* result);
   virtual bool GetValueJson(std::shared_ptr<CtxValue> value,
                             unicode_string_view* result);
+  
+  // Null Helpers
+  virtual bool IsNullOrUndefined(std::shared_ptr<CtxValue>);
 
   // Array Helpers
 

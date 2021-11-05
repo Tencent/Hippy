@@ -95,25 +95,6 @@ function registerWaterfall(Vue) {
       call(action, params) {
         Vue.Native.callUIFunction(this.$refs.waterfall, action, params);
       },
-      onScroll(evt) {
-        this.$emit('scroll', evt);
-      },
-      onEndReached() {
-        this.$emit('endReached');
-      },
-      onHeaderReleased() {
-        this.$emit('headerReleased');
-      },
-      onHeaderPulling() {
-        this.$emit('headerPulling');
-      },
-      onInitialListReady() {
-        this.$emit('initialListReady');
-      },
-      // TODO onExposureReport is not supported yet
-      onExposureReport(evt) {
-        this.$emit('exposureReport', evt);
-      },
       startRefresh() {
         this.call('startRefresh');
       },
@@ -160,6 +141,8 @@ function registerWaterfall(Vue) {
     },
     render(h) {
       const on = getEventRedirector.call(this, [
+        'headerReleased',
+        'headerPulling',
         'endReached',
         'exposureReport',
         'initialListReady',

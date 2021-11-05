@@ -2,6 +2,7 @@
 
 const IS_NUMBER_REG = new RegExp(/^\d+$/);
 let silent = false;
+let defaultBubbles = false;
 
 /**
  * Trace running information
@@ -86,12 +87,28 @@ function setSilent(silentArg: boolean): void {
 }
 
 /**
+ * set bubbles config, default is false
+ * @param bubbles
+ */
+function setBubbles(bubbles: boolean = false): void {
+  defaultBubbles = bubbles;
+}
+
+/**
+ * get bubbles config
+ * @returns boolean
+ */
+function isBubbles(): boolean {
+  return defaultBubbles;
+}
+
+/**
  * Convert Image url to specific type
  * @param url - image path
  */
 function convertImgUrl(url: string): string {
   if (url && !/^(http|https):\/\//.test(url) && url.indexOf('assets') > -1) {
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV !== 'production') {
       const addStr1 = 'http://';
       return `${addStr1}127.0.0.1:${process.env.PORT}/${url}`;
     }
@@ -109,5 +126,7 @@ export {
   isFunction,
   isNumber,
   setSilent,
+  setBubbles,
+  isBubbles,
   convertImgUrl,
 };

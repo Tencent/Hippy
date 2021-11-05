@@ -39,6 +39,8 @@
 #import "HippyDeviceBaseInfo.h"
 #import "HippyI18nUtils.h"
 #include "core/scope.h"
+#import "HippyTurboModuleManager.h"
+#import <core/napi/jsc/js_native_api_jsc.h>
 
 #define HippyAssertJSThread()
 //
@@ -659,6 +661,10 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     return _parentBridge.debugMode ?: NO;
 }
 
+- (BOOL)enableTurbo {
+    return _parentBridge.enableTurbo ?: NO;
+}
+
 - (void)setExecutorClass:(Class)executorClass {
     HippyAssertMainQueue();
     _parentBridge.executorClass = executorClass;
@@ -865,6 +871,24 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     }];
 }
 
+- (HippyOCTurboModule *)turboModuleWithName:(NSString *)name {
+    if (!self.enableTurbo) {
+        return nil;
+    }
+    
+    if (name.length <= 0) {
+        return nil;
+    }
+    
+    if(!self.turboModuleManager) {
+        self.turboModuleManager = [[HippyTurboModuleManager alloc] initWithBridge:self delegate:nil];
+    }
+    
+    // getTurboModule
+    HippyOCTurboModule *turboModule = [self.turboModuleManager turboModuleWithName:name];
+    return turboModule;
+}
+
 - (void)enqueueApplicationScript:(NSData *)script url:(NSURL *)url onComplete:(HippyJavaScriptCompleteBlock)onComplete {
     HippyAssert(onComplete != nil, @"onComplete block passed in should be non-nil");
     _errorOccured = NO;
@@ -1019,7 +1043,8 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
 }
 
 - (void)partialBatchDidFlush {
-    for (HippyModuleData *moduleData in _moduleDataByID) {
+    NSArray<HippyModuleData *> *moduleDataByID = _valid ? _moduleDataByID : [_moduleDataByID copy];
+    for (HippyModuleData *moduleData in moduleDataByID) {
         if (moduleData.hasInstance && moduleData.implementsPartialBatchDidFlush) {
             [self dispatchBlock:^{
                 [moduleData.instance partialBatchDidFlush];
@@ -1029,8 +1054,8 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
 }
 
 - (void)batchDidComplete {
-    // TODO: batchDidComplete is only used by HippyUIManager - can we eliminate this special case?
-    for (HippyModuleData *moduleData in _moduleDataByID) {
+    NSArray<HippyModuleData *> *moduleDataByID = _valid ? _moduleDataByID : [_moduleDataByID copy];
+    for (HippyModuleData *moduleData in moduleDataByID) {
         if (moduleData.hasInstance && moduleData.implementsBatchDidComplete) {
             [self dispatchBlock:^{
                 [moduleData.instance batchDidComplete];
@@ -1046,12 +1071,12 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     //    if (!_valid) {
     //        return nil;
     //    }
-    
-    if (moduleID >= [_moduleDataByID count]) {
-        HippyLogError(@"moduleID %lu exceed range of _moduleDataByID %lu, bridge is valid %ld", moduleID, [_moduleDataByID count], (long)_valid);
+    NSArray<HippyModuleData *> *moduleDataByID = [_moduleDataByID copy];
+    if (moduleID >= [moduleDataByID count]) {
+        HippyLogError(@"moduleID %lu exceed range of moduleDataByID %lu, bridge is valid %ld", moduleID, [moduleDataByID count], (long)_valid);
         return nil;
     }
-    HippyModuleData *moduleData = _moduleDataByID[moduleID];
+    HippyModuleData *moduleData = moduleDataByID[moduleID];
     if (HIPPY_DEBUG && !moduleData) {
         HippyLogError(@"No module found for id '%lu'", (unsigned long)moduleID);
         return nil;

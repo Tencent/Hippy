@@ -75,7 +75,7 @@ export default class AnimationExample extends React.Component {
       duration: 1000, // 动画持续时长
       delay: 500, // 至动画真正开始的延迟时间
       mode: 'timing', // 动画模式
-      timingFunction: 'ease-in', // 动画缓动函数
+      timingFunction: 'linear', // 动画缓动函数
       repeatCount: 'loop',
     });
     this.verticalAnimation = new Animation({
@@ -174,6 +174,34 @@ export default class AnimationExample extends React.Component {
       ],
       repeatCount: 'loop',
     });
+
+    // timingFunction cubic-bezier 范例
+    this.cubicBezierScaleAnimationSet = new AnimationSet({
+      children: [
+        {
+          animation: new Animation({
+            startValue: 0,
+            toValue: 1,
+            duration: 1000,
+            delay: 0,
+            mode: 'timing',
+            timingFunction: 'cubic-bezier(.45,2.84,.38,.5)',
+          }),
+          follow: false,
+        },
+        {
+          animation: new Animation({
+            startValue: 1,
+            toValue: 0,
+            duration: 1000,
+            mode: 'timing',
+            timingFunction: 'cubic-bezier(.17,1.45,.78,.14)',
+          }),
+          follow: true,
+        },
+      ],
+      repeatCount: 'loop',
+    });
   }
 
   componentDidMount() {
@@ -184,6 +212,7 @@ export default class AnimationExample extends React.Component {
       this.scaleAnimationSet.setRef(this.scaleRef);
       this.bgColorAnimationSet.setRef(this.bgColorRef);
       this.txtColorAnimationSet.setRef(this.textColorRef);
+      this.cubicBezierScaleAnimationSet.setRef(this.cubicBezierScaleRef);
     }
     this.horizonAnimation.onHippyAnimationStart(() => {
       /* eslint-disable-next-line no-console */
@@ -212,6 +241,9 @@ export default class AnimationExample extends React.Component {
     }
     if (this.verticalAnimation) {
       this.verticalAnimation.destroy();
+    }
+    if (this.cubicBezierScaleAnimationSet) {
+      this.cubicBezierScaleAnimationSet.destroy();
     }
   }
 
@@ -390,6 +422,46 @@ export default class AnimationExample extends React.Component {
             // TODO iOS暂不支持文字颜色渐变动画
             color: Platform.OS === 'android' ? this.txtColorAnimationSet : 'white',
           }]}>颜色渐变背景和文字</Text></View>
+        </View>
+
+        <Text style={styles.title}>贝塞尔曲线动画</Text>
+        <View style={styles.buttonContainer}>
+          <View
+              style={styles.button}
+              onClick={() => {
+                this.cubicBezierScaleAnimationSet.start();
+              }}
+          >
+            <Text style={styles.buttonText}>开始</Text>
+          </View>
+          <View
+              style={[styles.button]}
+              onClick={() => {
+                this.cubicBezierScaleAnimationSet.pause();
+              }}
+          >
+            <Text style={styles.buttonText}>暂停</Text>
+          </View>
+          <View
+              style={styles.button}
+              onClick={() => {
+                this.cubicBezierScaleAnimationSet.resume();
+              }}
+          >
+            <Text style={styles.buttonText}>继续</Text>
+          </View>
+        </View>
+        <View style={[styles.showArea, { marginVertical: 20 }]}>
+          <View
+            ref={(ref) => {
+              this.cubicBezierScaleRef = ref;
+            }}
+            style={[styles.square, {
+              transform: [{
+                scale: this.cubicBezierScaleAnimationSet,
+              }],
+            }]}
+          />
         </View>
       </ScrollView>
     );

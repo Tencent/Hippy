@@ -17,7 +17,9 @@ package com.tencent.mtt.hippy;
 
 import android.content.Context;
 import android.os.Build;
+import android.os.Parcelable;
 import android.util.DisplayMetrics;
+import android.util.SparseArray;
 import android.view.Display;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -138,6 +140,11 @@ public class HippyRootView extends FrameLayout {
 
   public void setOnLoadCompleteListener(OnLoadCompleteListener listener) {
     this.mOnLoadCompleteListener = listener;
+  }
+
+  @Override
+  protected void dispatchRestoreInstanceState(SparseArray<Parcelable> container) {
+    // No-op do not onRestoreInstanceState for sub views
   }
 
   @Override

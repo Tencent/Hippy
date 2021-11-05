@@ -113,24 +113,19 @@ public class NetworkModule extends HippyNativeModuleBase {
     httpRequest.setMethod(method);
     httpRequest.setUrl(url);
     HippyMap headers = request.getMap("headers");
+    HippyArray requestCookies = null;
     if (headers != null) {
-      HippyArray requestCookies = headers.getArray("Cookie");
-      saveCookie2Manager(url, requestCookies);
+      requestCookies = headers.getArray("Cookie");
       hippyMapToRequestHeaders(httpRequest, headers);
     }
     String body = request.getString("body");
     httpRequest.setBody(body);
-    String cookie = getCookieManager().getCookie(url);
-    if (!TextUtils.isEmpty(cookie)) {
-      httpRequest.addHeader(HttpHeader.REQ.COOKIE, cookie);
-    }
 
     HippyGlobalConfigs configs = mContext.getGlobalConfigs();
-    HippyHttpAdapter adapter = null;
-    if (configs != null) {
+    HippyHttpAdapter adapter;
+    if (configs != null && configs.getHttpAdapter() != null) {
       adapter = configs.getHttpAdapter();
-    }
-    if (adapter != null) {
+      adapter.handleRequestCookie(url, requestCookies, httpRequest);
       adapter.sendRequest(httpRequest, new HttpTaskCallbackImpl(promise));
     }
   }
@@ -144,20 +139,17 @@ public class NetworkModule extends HippyNativeModuleBase {
   @HippyMethod(name = "setCookie")
   public void setCookie(String url, String keyValue, String expires) {
     if (!TextUtils.isEmpty(url) && !TextUtils.isEmpty(keyValue)) {
-      // 单个cookie
       if (!TextUtils.isEmpty(expires)) {
         keyValue = keyValue + ";expires=" + expires;
         getCookieManager().setCookie(url, keyValue);
-      } else // 多个cookie
-      {
+        syncCookie();
+      } else {
         saveCookie2Manager(url, keyValue);
       }
-
-      syncCookie();
     }
   }
 
-  private void saveCookie2Manager(String url, HippyArray cookies) {
+  public static void saveCookie2Manager(String url, HippyArray cookies) {
     if (cookies != null) {
       CookieManager cookieManager = getCookieManager();
       for (int i = 0; i < cookies.size(); i++) {
@@ -167,7 +159,7 @@ public class NetworkModule extends HippyNativeModuleBase {
     }
   }
 
-  private void saveCookie2Manager(String url, String cookies) {
+  public static void saveCookie2Manager(String url, String cookies) {
     if (cookies != null) {
       cookies = cookies.replaceAll("\\s+", "");
       String[] cookieItems = cookies.split(";");
@@ -175,10 +167,12 @@ public class NetworkModule extends HippyNativeModuleBase {
       for (String cookie : cookieItems) {
         cookieManager.setCookie(url, cookie);
       }
+
+      syncCookie();
     }
   }
 
-  private static CookieManager getCookieManager() {
+  public static CookieManager getCookieManager() {
     if (mCookieSyncManager == null) {
       mCookieSyncManager = CookieSyncManager.createInstance(ContextHolder.getAppContext());
 

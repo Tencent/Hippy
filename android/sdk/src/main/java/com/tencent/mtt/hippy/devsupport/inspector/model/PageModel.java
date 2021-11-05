@@ -57,6 +57,10 @@ public class PageModel {
   private void listenFrameUpdate(final HippyEngineContext context) {
     if (canListenFrameUpdate()) {
       HippyRootView hippyRootView = getHippyRootView(context);
+      if (hippyRootView == null) {
+        LogUtils.e(TAG, "listenFrameUpdate error none hippyRootView");
+        return;
+      }
       if (mOnDrawListener == null) {
         mOnDrawListener = new ViewTreeObserver.OnDrawListener() {
           @Override
@@ -71,8 +75,12 @@ public class PageModel {
           }
         };
       }
-      hippyRootView.getViewTreeObserver().removeOnDrawListener(mOnDrawListener);
-      hippyRootView.getViewTreeObserver().addOnDrawListener(mOnDrawListener);
+      try {
+        hippyRootView.getViewTreeObserver().removeOnDrawListener(mOnDrawListener);
+        hippyRootView.getViewTreeObserver().addOnDrawListener(mOnDrawListener);
+      } catch (Exception e) {
+        LogUtils.e(TAG, "listenFrameUpdate e:", e);
+      }
     }
   }
 
@@ -89,6 +97,10 @@ public class PageModel {
 
     if (canListenFrameUpdate()) {
       HippyRootView hippyRootView = getHippyRootView(context);
+      if (hippyRootView == null) {
+        LogUtils.e(TAG, "stopScreenCast error none hippyRootView");
+        return;
+      }
       hippyRootView.getViewTreeObserver().removeOnDrawListener(mOnDrawListener);
     }
   }
@@ -101,10 +113,10 @@ public class PageModel {
   }
 
   public JSONObject screenFrameAck(HippyEngineContext context, int sessionId) {
-    if (isFramingScreenCast && sessionId == lastSessionId) {
+    if (isFramingScreenCast) {
       return getScreenCastData(context);
     }
-    LogUtils.w(TAG, "screenFrameAck, isFramingScreenCast=" + isFramingScreenCast);
+    LogUtils.e(TAG, "screencast, screenFrameAck, isFramingScreenCast=" + isFramingScreenCast);
     return null;
   }
 
@@ -119,6 +131,10 @@ public class PageModel {
     JSONObject result = new JSONObject();
     try {
       HippyRootView hippyRootView = getHippyRootView(context);
+      if (hippyRootView == null) {
+        LogUtils.e(TAG, "getScreenCastData error none hippyRootView");
+        return null;
+      }
       int viewWidth = hippyRootView.getWidth();
       int viewHeight = hippyRootView.getHeight();
       float scale = 1.0f;

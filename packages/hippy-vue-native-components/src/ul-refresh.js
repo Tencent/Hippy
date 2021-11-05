@@ -22,9 +22,6 @@ function registerUlRefresh(Vue) {
       },
     },
     methods: {
-      onRefresh(evt) {
-        this.$emit('refresh', evt);
-      },
       startRefresh() {
         Vue.Native.callUIFunction(this.$refs.refreshWrapper, 'startRefresh', null);
       },

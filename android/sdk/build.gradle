@@ -14,7 +14,7 @@ buildscript {
     mavenCentral()
   }
   dependencies {
-    classpath 'com.android.tools.build:gradle:4.2.1'
+    classpath 'com.android.tools.build:gradle:4.2.2'
     // NOTE: Do not place your application dependencies here; they belong
     // in the individual module build.gradle files
   }
@@ -61,7 +61,6 @@ android {
     buildConfigField("boolean", "INCLUDE_SUPPORT_UI", INCLUDE_SUPPORT_UI)
 
     packagingOptions {
-      pickFirst 'lib/*/libc++_shared.so'
       if (!INCLUDE_ABI_ARMEABI.toBoolean()) {
         exclude 'lib/armeabi/*'
       }
@@ -80,13 +79,14 @@ android {
     }
   }
 
-  def v8Release = "x5-lite"
-  def v8Debug = "official-release"
-  if (V8_TAG == "latest") {
-    v8Release = v8Debug
-  } else if (project.hasProperty('V8_RELEASE')) {
-    v8Release = V8_RELEASE
-    v8Debug = V8_RELEASE
+  def V8_COMPONENT_DEBUG
+  def V8_COMPONENT_RELEASE
+  if (V8_COMPONENT == 'auto') {
+    V8_COMPONENT_DEBUG = 'third_party/v8/stable/official-release'
+    V8_COMPONENT_RELEASE = 'third_party/v8/stable/x5-lite'
+  } else {
+    V8_COMPONENT_DEBUG = V8_COMPONENT
+    V8_COMPONENT_RELEASE = V8_COMPONENT
   }
 
   buildTypes {
@@ -98,11 +98,10 @@ android {
           arguments "-DJS_ENGINE=V8",
                   "-DANDROID_CPP_FEATURES=rtti exceptions",
                   "-DANDROID_PLATFORM=android-21",
-                  "-DANDROID_STL=c++_shared",
                   "-DCMAKE_BUILD_TYPE=Release",
-                  "-DV8_TAG=$V8_TAG",
-                  "-DV8_RELEASE=$v8Release",
-                  "-DEXT_JS_ENGINE_LIB=$EXT_JS_ENGINE_LIB"
+                  "-DANDROID_STL=$ANDROID_STL",
+                  "-DV8_COMPONENT=$V8_COMPONENT_RELEASE",
+                  "-DHIDDEN_LIBRARY_SYMBOL=$HIDDEN_LIBRARY_SYMBOL"
 
           if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() || INCLUDE_ABI_ARMEABI.toBoolean()) {
             abiFilters 'armeabi-v7a'
@@ -126,11 +125,10 @@ android {
           arguments "-DJS_ENGINE=V8",
                   "-DANDROID_CPP_FEATURES=rtti exceptions",
                   "-DANDROID_PLATFORM=android-21",
-                  "-DANDROID_STL=c++_shared",
                   "-DCMAKE_BUILD_TYPE=Debug",
-                  "-DV8_TAG=$V8_TAG",
-                  "-DV8_RELEASE=$v8Debug",
-                  "-DEXT_JS_ENGINE_LIB=$EXT_JS_ENGINE_LIB"
+                  "-DANDROID_STL=$ANDROID_STL",
+                  "-DV8_COMPONENT=$V8_COMPONENT_DEBUG",
+                  "-DHIDDEN_LIBRARY_SYMBOL=$HIDDEN_LIBRARY_SYMBOL"
 
           abiFilters 'arm64-v8a'
         }
@@ -163,11 +161,23 @@ android {
 
 dependencies {
   api fileTree(dir: 'libs', include: ['*.jar'])
+  //noinspection GradleDependency
   implementation 'androidx.annotation:annotation:1.0.0'
+  //noinspection GradleDependency
   implementation 'androidx.recyclerview:recyclerview:1.1.0'
   if (!INCLUDE_SUPPORT_UI.toBoolean()) {
     compileOnly('com.tencent.mtt:support-ui:99.2.3')
   }
+
+  testImplementation "junit:junit:4.13.2"
+  testImplementation "org.mockito:mockito-core:2.8.9"
+  testImplementation "org.mockito:mockito-android:2.8.9"
+  testImplementation "org.powermock:powermock-module-junit4:2.0.7"
+  testImplementation "org.powermock:powermock-api-mockito2:2.0.7"
+  testImplementation 'org.powermock:powermock-core:2.0.7'
+  testImplementation "org.powermock:powermock-module-junit4-rule:2.0.7"
+  testImplementation "org.powermock:powermock-classloading-xstream:2.0.7"
+  testImplementation "org.robolectric:robolectric:4.4"
 }
 
 project.tasks.whenTaskAdded { task ->
@@ -188,66 +198,71 @@ project.tasks.whenTaskAdded { task ->
   }
 }
 
+def dealAfterMergeNativeLibs(mergedNativeLibsPath) {
+  EXCLUDE_LIBRARY_FILES.tokenize(";").each{filename ->
+    if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() || INCLUDE_ABI_ARMEABI.toBoolean()) {
+      delete "$mergedNativeLibsPath/armeabi-v7a/$filename"
+    }
+    if (INCLUDE_ABI_ARM64_V8A.toBoolean()) {
+      delete "$mergedNativeLibsPath/arm64-v8a/$filename"
+    }
+    if (INCLUDE_ABI_X86.toBoolean()) {
+      delete "$mergedNativeLibsPath/x86/$filename"
+    }
+    if (INCLUDE_ABI_X86_64.toBoolean()) {
+      delete "$mergedNativeLibsPath/x86_64/$filename"
+    }
+  }
+  delete "$mergedNativeLibsPath/armeabi"
+  if (INCLUDE_ABI_ARMEABI.toBoolean()) {
+    copy {
+      from "$mergedNativeLibsPath/armeabi-v7a"
+      into "$mergedNativeLibsPath/armeabi"
+    }
+  }
+}
+
 def MERGED_NATIVE_LIBS_PATH = "$buildDir/intermediates/merged_native_libs"
 task dealAfterMergeReleaseNativeLibs() {
   doLast {
-    def MERGED_NATIVE_LIBS = "$MERGED_NATIVE_LIBS_PATH/release/out/lib"
-    copy {
-      from "$MERGED_NATIVE_LIBS/armeabi-v7a"
-      into "$MERGED_NATIVE_LIBS/armeabi"
-    }
+    dealAfterMergeNativeLibs("$MERGED_NATIVE_LIBS_PATH/release/out/lib")
   }
 }
 
 task dealAfterMergeDebugNativeLibs() {
   doLast {
-    def MERGED_NATIVE_LIBS = "$MERGED_NATIVE_LIBS_PATH/debug/out/lib"
-    copy {
-      from "$MERGED_NATIVE_LIBS/armeabi-v7a"
-      into "$MERGED_NATIVE_LIBS/armeabi"
+    dealAfterMergeNativeLibs("$MERGED_NATIVE_LIBS_PATH/debug/out/lib")
+  }
+}
+
+def dealAfterAssemble(buildType) {
+  file("$OUTPUT_PATH/$buildType").deleteDir()
+
+  file(OUTPUT_PATH).list().each{fileName ->
+    if (fileName.contains(buildType + ".aar")) {
+      copy {
+        from zipTree("$OUTPUT_PATH/$fileName")
+        into "$OUTPUT_PATH/$buildType"
+      }
+      copy {
+        from "$OUTPUT_PATH/$buildType"
+        into OUTPUT_PATH
+        include 'classes.jar'
+        rename 'classes.jar', 'hippy.jar'
+      }
     }
   }
 }
 
 task dealAfterAssembleDebug() {
   doLast {
-    file("$OUTPUT_PATH/debug").deleteDir()
-
-    file(OUTPUT_PATH).list().each{fileName ->
-      if (fileName.contains("debug.aar")) {
-        copy {
-          from zipTree("$OUTPUT_PATH/$fileName")
-          into "$OUTPUT_PATH/debug"
-        }
-        copy {
-          from "$OUTPUT_PATH/debug"
-          into OUTPUT_PATH
-          include 'classes.jar'
-          rename 'classes.jar', 'hippy.jar'
-        }
-      }
-    }
+    dealAfterAssemble("debug")
   }
 }
 
 task dealAfterAssembleRelease() {
   doLast {
-    file("$OUTPUT_PATH/release").deleteDir()
-
-    file(OUTPUT_PATH).list().each{fileName ->
-      if (fileName.contains("release.aar")) {
-        copy {
-          from zipTree("$OUTPUT_PATH/$fileName")
-          into "$OUTPUT_PATH/release"
-        }
-        copy {
-          from "$OUTPUT_PATH/release"
-          into OUTPUT_PATH
-          include 'classes.jar'
-          rename 'classes.jar', 'hippy.jar'
-        }
-      }
-    }
+    dealAfterAssemble("release")
     copy {
       from "$OUTPUT_PATH/$ARCHIVES_BASE_NAME-release.aar"
       into "$projectDir.absolutePath/../../examples/android-demo/example/libs"

@@ -6,7 +6,7 @@ import Image from '../components/image';
 interface TimingConfig {
   toValue: number;
   duration: number;
-  easing?: 'linear' | 'ease' | 'bezier' | 'in' | 'ease-in' | 'out' | 'ease-out' | 'inOut' | 'ease-in-out';
+  easing?: 'linear' | 'ease' | 'in' | 'ease-in' | 'out' | 'ease-out' | 'inOut' | 'ease-in-out' | 'cubic-bezier';
 }
 
 class Animated {

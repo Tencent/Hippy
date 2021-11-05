@@ -3,7 +3,6 @@ const path = require('path');
 const webpack = require('webpack');
 const HippyDynamicImportPlugin = require('@hippy/hippy-dynamic-import-plugin');
 const pkg = require('../package.json');
-
 module.exports = {
   mode: 'development',
   devtool: 'eval-source-map',
@@ -12,7 +11,7 @@ module.exports = {
     aggregateTimeout: 1500,
   },
   entry: {
-    index: ['regenerator-runtime', path.resolve(pkg.main)],
+    index: ['regenerator-runtime', path.resolve(pkg.main), '@hippy/hippy-live-reload-polyfill'],
   },
   output: {
     filename: 'index.bundle',
@@ -61,7 +60,6 @@ module.exports = {
               ],
             },
           },
-          'unicode-loader',
         ],
       },
       {

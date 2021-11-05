@@ -12,6 +12,8 @@ import com.tencent.mtt.hippy.devsupport.inspector.model.PageModel;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import org.json.JSONObject;
 
+import java.lang.ref.WeakReference;
+
 public class PageDomain extends InspectorDomain implements Handler.Callback, PageModel.FrameUpdateListener {
 
   private static final String TAG = "PageDomain";
@@ -160,16 +162,19 @@ public class PageDomain extends InspectorDomain implements Handler.Callback, Pag
   @Override
   public void onFrameUpdate(HippyEngineContext context) {
     mIsFrameUpdate = true;
-
-    if (mHandlerThread != null && mLastSessionId != -1) {
-        Handler hander = mHandlerThread.getHandler();
-        Message msg = hander.obtainMessage(MSG_SCREEN_CAST_ACK);
-        msg.obj = context;
-        msg.arg1 = mLastSessionId;
-        hander.removeMessages(MSG_SCREEN_CAST_ACK);
-        hander.sendMessageDelayed(msg, DELAY_FOR_FRAME_UPDATE);
-        mIsFrameUpdate = false;
-      }
+    if (mInspectorRef != null && mInspectorRef.get() != null
+      && mInspectorRef.get().getContext() != null) {
+      context = mInspectorRef.get().getContext();
+    }
+    if (context != null && mHandlerThread != null && mLastSessionId != -1) {
+      Handler hander = mHandlerThread.getHandler();
+      Message msg = hander.obtainMessage(MSG_SCREEN_CAST_ACK);
+      msg.obj = context;
+      msg.arg1 = mLastSessionId;
+      hander.removeMessages(MSG_SCREEN_CAST_ACK);
+      hander.sendMessageDelayed(msg, DELAY_FOR_FRAME_UPDATE);
+      mIsFrameUpdate = false;
+    }
   }
 
   final static class ScreenCastHandlerThread extends HandlerThread {

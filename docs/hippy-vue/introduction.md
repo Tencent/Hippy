@@ -7,13 +7,32 @@ hippy-vue 其实是基于官方 Vue 2.x 源代码，通过改写 [node-ops](//gi
 
 # 架构图
 
-![hippy-vue 架构图](//static.res.qq.com/nav/hippydoc/img/hippy-vue.png)
+<img src="//static.res.qq.com/nav/hippydoc/img/hippy-vue.png" alt="hippy-vue 架构图" width="80%"/>
+<br />
+<br />
 
 # 样式
 
-标准 Hippy 中长度单位是不允许带有单位的，不过为了和浏览器保持兼容，hippy-vue 采取了 1px = 1pt 的方案进行换算，其实就是把 CSS 单位中的 px 直接去掉变成了 Hippy 中不带单位的数字。
+标准 Hippy 中长度单位是不允许带有单位的，不过为了和浏览器保持兼容，hippy-vue 采取了 1px = 1pt 的方案进行换算，把 CSS 单位中的 px 直接去掉变成了 Hippy 中不带单位的数字。
 
 不过依然存在一些问题，类似 rem、vh 这样的相对单位如果写进 Hippy 业务里了，及时发现避免更重要大的风险可能更重要一些，所以现在只转换 px 单位，别的单位任由终端层报错。
+
+HippyVue 提供了 `beforeLoadStyle` 的 Vue options 勾子函数，可以自定义修改 CSS 样式，如
+
+```js
+    new Vue({
+      // ...
+      beforeLoadStyle(decl) {
+         let { type, property, value } = decl;
+         console.log('property|value', property, value); // => height, 1rem
+          // 比如可以对 rem 单位进行处理
+         if(typeof value === 'string' && /rem$/.test(value)) {
+             // ...value = xxx
+         } 
+         return { ...decl, value}
+      }
+    });
+```
 
 # 转 Web
 
@@ -31,11 +50,11 @@ hippy-vue 仍在开发中，目前主要有以下几个需要支持的地方，�
 
 ## CSS 更多选择器和 scope 的支持
 
-这部分需要更多时间，目前已经实现了基本的 ID、Class、Tag 选择器，而且可以支持基本的嵌套关系。因为单元测试就很复杂，这块儿很不好写，暂时不要挑战太高难度的选择器即可。
+这部分需要更多时间，目前已经实现了基本的 ID、Class、Tag 选择器，而且可以支持基本的嵌套关系，其余选择器还未支持。
 
 ## CSS 3 动画
 
-因为终端和浏览器不同，终端的动画在没有关联组件时也会自动运行，所以不能将它声明在 CSS 中脱离组件的生命周期，目前封装了一个 [animation](hippy-vue/native-components.md?id=animation) 组件在 `@hippy/react-native-components` 中，将动画和组件的声明周期绑定在一起。
+因为终端和浏览器不同，终端的动画在没有关联组件时也会自动运行，所以不能将它声明在 CSS 中脱离组件的生命周期，目前封装了一个 [animation](hippy-vue/native-components.md?id=animation) 组件在 `@hippy/vue-native-components` 中，将动画和组件的声明周期绑定在一起。
 
 未来会把 Vue 的 [transtion](https://vuejs.org/v2/api/#transition) 移植过来，还请静候。
 

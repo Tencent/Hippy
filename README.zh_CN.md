@@ -25,18 +25,22 @@ Hippy 是一个新生的跨端开发框架，目标是使开发者可以只写�
 
 ### 准备环境
 
+运行 `git clone https://github.com/Tencent/Hippy.git`
+
+> Hippy 仓库使用 [git-lfs](https://git-lfs.github.com/) 来管理 so,gz,otf,png,jpg 文件, 请确保你已经安装 [git-lfs](https://git-lfs.github.com/)。
+
 macOS 用户需要以下软件：
 
-1. [Xcode](https://developer.apple.com/xcode/) 和 iOS SDK: 用以编译 iOS 终端 app。
-2. [Android Studio](https://developer.android.com/studio) 和 NDK: 用以编译 Android app。
-3. [Node.JS](http://nodejs.cn/): 用以运行前端编译脚本。
+* [Xcode](https://developer.apple.com/xcode/) 和 iOS SDK: 用以编译 iOS 终端 app。
+* [Android Studio](https://developer.android.com/studio) 和 NDK: 用以编译 Android app。
+* [Node.JS](http://nodejs.cn/): 用以运行前端编译脚本。
 
 我们推荐使用 [homebrew](https://brew.sh/) 来安装依赖。
 
 Windows 用户者需要以下软件:
 
-1. [Android Studio](https://developer.android.com/studio) 和 NDK: 用以编译 Android app。
-2. [Node.JS](http://nodejs.cn/): 用以运行前端编译脚本。
+* [Android Studio](https://developer.android.com/studio) 和 NDK: 用以编译 Android app。
+* [Node.JS](http://nodejs.cn/): 用以运行前端编译脚本。
 
 > Windows 用户受条件所限，暂时无法进行 iOS app 开发。
 
@@ -79,7 +83,7 @@ Windows 用户者需要以下软件:
 1. 先按照 **[使用 JS 范例来构建 iOS App]** 和 **[使用 JS 范例来构建 Android App]** 步骤执行。
 2. `cd` 到 `examples` hippy-react-demo 或者 hippy-vue-demo 目录。
 3. 执行 `npm install` 安装相应 js demo 的依赖包。
-4. 分别执行 `npm run hippy:dev` 和 `npm run hippy:debug` 来开启实时 Debug 模式。
+4. 分别执行 `npm run hippy:dev` 和 `npm run hippy:debug`(`npm run hippy:local-debug` 会调用 packages 下的源码) 来开启实时 Debug 模式。
 
 > 在 example 调试模式下，@hippy/react、@hippy/vue 等 npm 模块会直接链接到 `packages` > `[different package]` > `dist` 目录下面的 js 文件(非 node_modules)，所以如果你修改了 packages 下的 JS 源代码并且想让其在 example 中生效，请重新在根目录执行 `npm run build`。
 >

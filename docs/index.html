@@ -18,6 +18,102 @@
   <meta name="twitter:image" content="https://res.imtt.qq.com/hippydoc/img/hippy-logo.svg">
   <link rel="icon" href="//static.res.qq.com/nav/hippydoc/hippy-logo.ico">
   <link rel="stylesheet" href="//static.res.qq.com/nav/hippydoc/themes/vue.css" title="vue">
+  <style>
+      #custom-homepage {
+          flex: 1;
+          text-align: center;
+          position: relative;
+          padding: 40px 0px 0;
+      }
+      #custom-homepage .custom-homepage-container {
+          margin-top: 25px;
+      }
+      #hippy {
+          color: inherit;
+          font-size: 3rem;
+          font-weight: 300;
+          position: relative;
+          text-align: center;
+          margin: 0;
+      }
+      #hippy .anchor {
+          display: block;
+          text-decoration: none;
+      }
+      #hippy .anchor span {
+          color: #34495e;
+          font-weight: normal;
+      }
+      .custom-homepage-container .sub-title {
+          font-size: 1.4rem;
+          text-align: center;
+          margin: 2rem 0;
+      }
+      .custom-homepage-container .sub-title span {
+          display: inline-block;
+          line-height: 2.2rem;
+      }
+      .custom-homepage-container .btn-container a {
+          border-radius: 2rem;
+          font-weight: normal;
+          border: 1px solid #2d6feb;
+          box-sizing: border-box;
+          color: #2d6feb;
+          display: inline-block;
+          font-size: 1.05rem;
+          letter-spacing: .1rem;
+          margin: .5rem 1rem;
+          padding: .75em 2rem;
+          text-decoration: none;
+          transition: all .15s ease;
+      }
+      .custom-homepage-container .btn-container a:last-child {
+          background-color: #2d6feb;
+          border: 1px solid #2d6feb;
+          color: #fff;
+      }
+      .custom-homepage-container .btn-container a:first-child:hover {
+          color: #868686;
+          border: 1px solid #868686;
+      }
+      .custom-homepage-container .btn-container a:last-child:hover {
+          color: #c8c8c8;
+          background-color: #006cd4;
+      }
+      #custom-homepage .features {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: flex-start;
+          align-content: stretch;
+          justify-content: center;
+      }
+      #custom-homepage .feature {
+          flex-grow: 1;
+          flex-basis: 30%;
+          margin: 0 7px;
+          justify-content: center;
+          align-items: center;
+          display: flex;
+          flex-direction: column;
+          flex-wrap: wrap;
+      }
+      #custom-homepage .feature p {
+          color: #4e6e8e;
+          max-width: 80%;
+      }
+      @media (max-width: 920px) {
+          #custom-homepage .features {
+              justify-content: center;
+              align-items: center;
+              flex-direction: column;
+          }
+          #custom-homepage .feature {
+              flex-shrink: 0;
+              max-width: 100%;
+              padding: 0 2.5rem;
+          }
+      }
+  </style>
 </head>
 <body>
   <div id="app">Loading ...</div>
@@ -28,51 +124,40 @@
       formatUpdated: '{MM}/{DD} {HH}:{mm}',
       themeColor: '#2d6feb',
       auto2top: true,
-      coverpage: true,
+      coverpage: false,
       loadSidebar: true,
       loadNavbar: true,
       mergeNavbar: true,
       maxLevel: 4,
       subMaxLevel: 1,
       search: {
-        depth: 5,
+        depth: 6,
+          // 支持本地化
+        placeholder: {
+            '/': '🔍 搜索'
+        },
+        noData: {
+            '/': '找不到结果',
+        }
       }
     }
   </script>
   <script src="//static.res.qq.com/nav/hippydoc/docsify.min.js"></script>
-  <script src="//static.res.qq.com/nav/hippydoc/search.min.js" defer></script>
-  <script src="//static.res.qq.com/nav/hippydoc/prism-jsx.min.js" async></script>
-  <script src="//static.res.qq.com/nav/hippydoc/prism-json.min.js" async></script>
-  <script src="//static.res.qq.com/nav/hippydoc/prism-css.min.js" async></script>
-  <script src="//static.res.qq.com/nav/hippydoc/prism-java.min.js" async></script>
-  <script src="//static.res.qq.com/nav/hippydoc/prism-objectivec.min.js" async></script>
-  <script src="//static.res.qq.com/nav/hippydoc/prism-bash.min.js" async></script>
-  <script src="//static.res.qq.com/nav/hippydoc/prism-cpp.min.js" async></script>
+  <script src="//static.res.qq.com/nav/hippydoc/prism-jsx.min.js" defer></script>
+  <script src="//static.res.qq.com/nav/hippydoc/prism-json.min.js" defer></script>
+  <script src="//static.res.qq.com/nav/hippydoc/prism-css.min.js" defer></script>
+  <script src="//static.res.qq.com/nav/hippydoc/prism-java.min.js" defer></script>
+  <script src="//static.res.qq.com/nav/hippydoc/prism-objectivec.min.js" defer></script>
+  <script src="//static.res.qq.com/nav/hippydoc/prism-bash.min.js" defer></script>
+  <script src="//static.res.qq.com/nav/hippydoc/prism-cpp.min.js" defer></script>
+  <script src="//static.res.qq.com/nav/hippydoc/search2.js" defer></script>
+  <script src="https://cdn-go.cn/aegis/aegis-sdk/latest/aegis.min.26.js"></script>
   <script>
-    var _mtac = {"senseQuery":1};
-    (function() {
-      var mta = document.createElement("script");
-      mta.src = "//pingjs.qq.com/h5/stats.js?v2.0.4";
-      mta.setAttribute("name", "MTAH5");
-      mta.setAttribute("sid", "500707886");
-      mta.setAttribute("cid", "500709715");
-      var s = document.getElementsByTagName("script")[0];
-      s.parentNode.insertBefore(mta, s);
-    })();
+    const aegis = new Aegis({
+        id: 'cTTfdMjcwAwMLaMdCq',
+        reportApiSpeed: true, // 接口测速
+        reportAssetSpeed: true // 静态资源测速
+    });
   </script>
-<!--  <script>-->
-<!--    (function () {-->
-<!--      if (['zh-CN', 'zh'].indexOf(navigator.language) !== -1 && location.host !== 'cn.hippyjs.org') {-->
-<!--        if (localStorage.getItem('PREFER_GITHUB')) {-->
-<!--          return;-->
-<!--        }-->
-<!--        if (confirm('建议大陆用户访问部署在国内的 cn.hippyjs.org，如需跳转请点击“确定”按钮。')) {-->
-<!--          location.replace(location.protocol + '//cn.hippyjs.org/' + location.hash);-->
-<!--        } else {-->
-<!--          localStorage.setItem('PREFER_GITHUB', true);-->
-<!--        }-->
-<!--      }-->
-<!--    })();-->
-<!--  </script>-->
 </body>
 </html>

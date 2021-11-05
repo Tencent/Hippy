@@ -54,13 +54,11 @@ typedef NS_ENUM(NSInteger, HippyExtAnimationState) {
 @property (nonatomic, assign, readonly) float repeatCount;
 @property (nonatomic, strong, readonly) NSNumber *animationId;
 @property (nonatomic, assign) NSTimeInterval duration;
-@property (nonatomic, strong, readonly) NSString *timingFunction;
+@property (nonatomic, strong, readonly) CAMediaTimingFunction *timingFunction;
 @property (nonatomic, assign, readonly) HippyExtAnimationValueType valueType;
 @property (nonatomic, assign, readonly) HippyExtAnimationDirection directionType;
 @property (nonatomic, copy) NSNumber *parentAnimationId;
 @property (nonatomic, assign) HippyExtAnimationState state;
-
-+ (NSString *)convertAnimationKeyPathToViewProperty:(NSString *)keyPath;
 
 - (void)updateAnimation:(NSDictionary *)config;
 

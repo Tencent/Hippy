@@ -80,7 +80,11 @@ public class Inspector implements BatchListener {
               String method = methodParamArray[1];
               int id = msgObj.optInt("id");
               JSONObject paramsObj = msgObj.optJSONObject("params");
-              return inspectorDomain.handleRequestFromBackend(context, method, id, paramsObj);
+              boolean shouldHandle = inspectorDomain.handleRequestFromBackend(context, method, id, paramsObj);
+              if (shouldHandle) {
+                mContextRef = new WeakReference<>(context);
+              }
+              return shouldHandle;
             }
           }
         }
@@ -95,6 +99,13 @@ public class Inspector implements BatchListener {
     for (Map.Entry<String, InspectorDomain> entry : mDomainMap.entrySet()) {
       entry.getValue().onFrontendClosed(context);
     }
+  }
+
+  public HippyEngineContext getContext() {
+    if (mContextRef == null) {
+      return null;
+    }
+    return mContextRef.get();
   }
 
   public void rspToFrontend(int id, JSONObject result) {

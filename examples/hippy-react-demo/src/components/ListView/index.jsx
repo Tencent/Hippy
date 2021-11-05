@@ -65,7 +65,11 @@ const styles = StyleSheet.create({
 
 function Style1({ index }) {
   return (
-    <View style={styles.container}>
+    <View style={styles.container}
+          onClick={() => {
+            console.log('click style1');
+          }}
+    >
       <Text numberOfLines={1}>{ `${index}: Style 1 UI` }</Text>
     </View>
   );
@@ -228,6 +232,11 @@ export default class ListExample extends React.Component {
     const { dataSource } = this.state;
     return (
       <ListView
+          onClick={() => {
+            console.log('click listview');
+          }}
+        bounces={true}
+        overScrollEnabled={true}
         horizontal={undefined} // horizontal ListView  flag（only Android support）
         style={{ flex: 1, backgroundColor: '#ffffff' }}
         numberOfRows={dataSource.length}
@@ -249,3 +258,4 @@ export default class ListExample extends React.Component {
     );
   }
 }
+

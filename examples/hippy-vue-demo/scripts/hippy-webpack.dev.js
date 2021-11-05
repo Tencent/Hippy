@@ -24,7 +24,7 @@ module.exports = {
     aggregateTimeout: 1500,
   },
   entry: {
-    index: path.resolve(pkg.nativeMain),
+    index: [path.resolve(pkg.nativeMain), '@hippy/hippy-live-reload-polyfill'],
   },
   output: {
     filename: 'index.bundle',
@@ -59,7 +59,6 @@ module.exports = {
         use: [
           'vue-loader',
           'scope-loader',
-          'unicode-loader',
         ],
       },
       {
@@ -85,7 +84,6 @@ module.exports = {
               ],
             },
           },
-          'unicode-loader',
         ],
       },
       {

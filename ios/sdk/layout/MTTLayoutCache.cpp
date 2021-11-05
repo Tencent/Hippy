@@ -134,9 +134,6 @@ MeasureResult* MTTLayoutCache::useMeasureCacheIfPossible(MTTSize availableSize,
     }
 
     if (widthCanUse && heightCanUse) {
-#ifdef __DEBUG__
-      MTTLogd("cache: action:%d\n", cacheMeasure.layoutAction);
-#endif
       return &cacheMeasure;
     }
   }
@@ -154,9 +151,6 @@ MeasureResult* MTTLayoutCache::useLayoutCacheIfPossible(MTTSize availableSize,
   if (MTTSizeIsEqual(cachedLayout.availableSize, availableSize) &&
       cachedLayout.widthMeasureMode == measureMode.widthMeasureMode &&
       cachedLayout.heightMeasureMode == measureMode.heightMeasureMode) {
-#ifdef __DEBUG__
-    MTTLogd("cache: action:%d\n", LayoutActionLayout);
-#endif
     return &cachedLayout;
   }
 

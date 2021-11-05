@@ -127,11 +127,10 @@ HIPPY_EXPORT_METHOD(createAnimationSet:(NSNumber *__nonnull)animationId animatio
         NSNumber *subAnimationId = info[@"animationId"];
         BOOL follow = [info[@"follow"] boolValue];
         HippyExtAnimation *ani = self->_animationById[subAnimationId];
-#ifdef NSAssert
         if (ani == nil) {
             HippyAssert(ani != nil, @"create group animation but use illege sub animaiton");
+            return;
         }
-#endif
         ani.bFollow = follow;
         [anis addObject: ani];
     }];
@@ -328,7 +327,7 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
     [_lock unlock];
 
     [self.bridge.uiManager executeBlockOnUIManagerQueue:^{
-        [self.bridge.uiManager updateViewsAfterAnimation:anim completion:^(HippyUIManager *uiManager) {
+        [self.bridge.uiManager updateViewsFromParams:params completion:^(HippyUIManager *uiManager) {
             UIView *view = [uiManager viewForHippyTag:viewId];
             [view.layer removeAnimationForKey:[NSString stringWithFormat:@"%@", animationId]];
             if (!CGPointEqualToPoint(view.layer.anchorPoint, CGPointMake(.5f, .5f))) {
