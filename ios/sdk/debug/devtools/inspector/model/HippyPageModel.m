@@ -48,6 +48,7 @@ NSString *const HippyPageImageFormatJPEG = @"jpeg";
 @property (nonatomic, assign) CGSize maxSize;
 @property (nonatomic, assign) NSInteger quality;
 @property (nonatomic, assign) NSTimeInterval lastTimestamp;
+@property (nonatomic, assign) BOOL needScreenCast;
 
 @end
 
@@ -58,12 +59,14 @@ NSString *const HippyPageImageFormatJPEG = @"jpeg";
     if (self) {
         self.maxSize = CGSizeMake(0, 0);
         self.format = HippyPageImageFormatJPEG;
+        self.needScreenCast = NO;
     }
     return self;
 }
 
 - (NSDictionary *)startScreenCastWithUIManager:(HippyUIManager *)manager
                                         params:(NSDictionary *)params {
+    self.needScreenCast = YES;
     if (params.count > 0) {
         self.format = [params objectForKey:HippyPageKeyFormat] ? params[HippyPageKeyFormat] : HippyPageImageFormatJPEG;
         self.quality = [params objectForKey:HippyPageKeyQuality] ? [params[HippyPageKeyQuality] integerValue] : 0;
@@ -75,13 +78,19 @@ NSString *const HippyPageImageFormatJPEG = @"jpeg";
 }
 
 - (void)stopScreenCastWithUIManager:(HippyUIManager *)manager {
-    // TODO(nolantang): stop frame update listener
+    self.needScreenCast = NO;
 }
 
 - (NSDictionary *)screencastFrameAckWithUIManager:(HippyUIManager *)manager
                                            params:(NSDictionary *)params {
-    // TODO(nolantang): need update screencast
-    return @{};
+    if (!manager) {
+        return @{};
+    }
+    NSTimeInterval sessionId = [params[HippyPageKeySessionId] doubleValue];
+    if (!self.needScreenCast || sessionId != self.lastTimestamp) {
+        return @{};
+    }
+    return [self screencastJSONWithManager:manager];
 }
 
 - (NSDictionary *)screencastJSONWithManager:(HippyUIManager *)manager {
