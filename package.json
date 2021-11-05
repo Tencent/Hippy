@@ -33,6 +33,7 @@
     "@wessberg/rollup-plugin-ts": "^1.1.72",
     "ava": "^2.2.0",
     "codecov": "^3.6.1",
+    "commitlint-plugin-function-rules": "^1.4.0",
     "csstype": "^2.6.7",
     "docsify-cli": "^4.4.0",
     "eslint": "^7.28.0",
