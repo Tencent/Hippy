@@ -33,7 +33,7 @@ NSString *const HippyPageMethodStopScreencast = @"stopScreencast";
 NSString *const HippyPageMethodScreencastFrameAck = @"screencastFrameAck";
 NSString *const HippyPageMethodScreencastFrame = @"screencastFrame";
 
-const char *HippyPageDomainQueueName = "com.tencent.hippy.page.domain.queue";
+double const HippyPageScreenFrameAckDelayTime = 1.5f;
 
 @interface HippyPageDomain () {
     HippyPageModel *_pageModel;
@@ -66,7 +66,7 @@ const char *HippyPageDomainQueueName = "com.tencent.hippy.page.domain.queue";
         return [self handleStopScreencast:command bridge:bridge];
     }
     if ([command.method isEqualToString:HippyPageMethodScreencastFrameAck]) {
-        return [self handleRspDataWithCmd:command dataJSON:@{}];
+        return [self handleScreenFrameAck:command bridge:bridge];
     }
     
     return NO;
@@ -75,7 +75,7 @@ const char *HippyPageDomainQueueName = "com.tencent.hippy.page.domain.queue";
 - (BOOL)handleStartScreencast:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
     HippyUIManager *manager = bridge.uiManager;
     if (!manager) {
-        HippyLogWarn(@"DomDomain, getDocument error, manager is nil");
+        HippyLogWarn(@"PageDomain, start screencast error, manager is nil");
         return NO;
     }
     NSDictionary *resultJSON = [_pageModel startScreenCastWithUIManager:manager
@@ -91,10 +91,29 @@ const char *HippyPageDomainQueueName = "com.tencent.hippy.page.domain.queue";
 - (BOOL)handleStopScreencast:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
     HippyUIManager *manager = bridge.uiManager;
     if (!manager) {
-        HippyLogWarn(@"DomDomain, getDocument error, manager is nil");
+        HippyLogWarn(@"PageDomain, stop screencast error, manager is nil");
         return NO;
     }
     [_pageModel stopScreenCastWithUIManager:manager];
+    return YES;
+}
+
+- (BOOL)handleScreenFrameAck:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
+    HippyUIManager *manager = bridge.uiManager;
+    if (!manager) {
+        HippyLogWarn(@"PageDomain, getDocument error, manager is nil");
+        return NO;
+    }
+    dispatch_time_t delayTime = dispatch_time(DISPATCH_TIME_NOW,
+                                               (int64_t)(HippyPageScreenFrameAckDelayTime * NSEC_PER_SEC));
+    dispatch_after(delayTime, dispatch_get_main_queue(), ^{
+        NSDictionary *resultJSON = [self->_pageModel screencastFrameAckWithUIManager:manager params:command.params];
+        if (self.inspector && resultJSON.count > 0) {
+            NSString *methodName = [NSString stringWithFormat:@"%@.%@", HippyPageDomainName, HippyPageMethodScreencastFrame];
+            [self.inspector sendDataToFrontendWithMethod:methodName
+                                                  params:resultJSON];
+        }
+    });
     return YES;
 }
 
