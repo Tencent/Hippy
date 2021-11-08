@@ -92,7 +92,7 @@ function insertBefore(
   child: Element,
   beforeChild: Element,
 ): void {
-  if (parent.childNodes.indexOf(child) > 0) {
+  if (parent.childNodes.indexOf(child) >= 0) {
     // move it if the node has existed
     parent.moveChild(child, beforeChild);
   } else {
