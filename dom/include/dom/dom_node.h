@@ -48,8 +48,13 @@ class DomNode {
 
   int32_t AddClickEventListener(OnClickEventListener listener);
   void RemoveClickEventListener(int32_t listener_id);
-  int32_t AddTouchEventListener(std::shared_ptr<TouchEvent> event, OnTouchEventListener listener);
-  void RemoveTouchEventListener(std::shared_ptr<TouchEvent> event, int32_t listener_id);
+  int32_t AddLongClickListener(OnLongClickEventListener listener);
+  void RemoveLongClickEventListener(int32_t listener_id);
+  int32_t AddTouchEventListener(TouchEvent event, OnTouchEventListener listener);
+  void RemoveTouchEventListener(TouchEvent event, int32_t listener_id);
+  int32_t SetOnAttachChangedListener(OnAttachChangedListener listener);
+  int32_t AddShowEventListener(ShowEvent event, OnShowEventListener listener);
+  void RemoveShowEventListener(ShowEvent event, int32_t listener_id);
 
   inline void SetTagName(const std::string& tag_name) {
     tag_name_ = tag_name;

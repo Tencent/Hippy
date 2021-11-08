@@ -16,7 +16,8 @@ struct TouchEventInfo {
 
 using OnTouchEventListener = std::function<void(TouchEventInfo)>;
 
-using OnClickEventListener = std::function<void(TouchEventInfo)>;
+using OnClickEventListener = std::function<void()>;
+using OnLongClickEventListener = std::function<void()>;
 
 enum class DomTreeEvent {
   Create, Update, Delete
@@ -50,6 +51,13 @@ using OnLayoutEventListener = std::function<void(LayoutResult)>;
 using DispatchFunctionCallback = std::function<void(std::any)>;
 
 using CallFunctionCallback = std::function<void(std::any)>;
+
+using OnAttachChangedListener = std::function<void(bool)>;
+
+enum class ShowEvent {
+  Show, Dismiss
+};
+using OnShowEventListener = std::function<void(std::any)>;
 
 }
 }
