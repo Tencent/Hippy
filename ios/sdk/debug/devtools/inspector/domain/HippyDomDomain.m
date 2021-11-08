@@ -33,6 +33,8 @@ NSString *const HippyDomMethodRemoveNode = @"removeNode";
 NSString *const HippyDomMethodSetInspectedNode = @"setInspectedNode";
 NSString *const HippyDomMethodDocumentUpdated = @"documentUpdated";
 NSString *const HippyDOMParamsKeyNodeId = @"nodeId";
+NSString *const HippyDOMParamsKeyX = @"x";
+NSString *const HippyDOMParamsKeyY = @"y";
 
 @interface HippyDomDomain () {
     HippyDomModel *_domModel;
@@ -96,7 +98,7 @@ NSString *const HippyDOMParamsKeyNodeId = @"nodeId";
     }
     NSNumber *nodeId = command.params[HippyDOMParamsKeyNodeId];
     if (!nodeId) {
-        HippyLogWarn(@"DomDomain, getBoxModel error, params is't contains nodeId key");
+        HippyLogWarn(@"DomDomain, getBoxModel error, params isn't contains nodeId key");
         return NO;
     }
     HippyVirtualNode *node = [manager nodeForHippyTag:nodeId];
@@ -105,8 +107,21 @@ NSString *const HippyDOMParamsKeyNodeId = @"nodeId";
 }
 
 - (BOOL)handleGetNodeForLocationWithCmd:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
-    
-    return YES;
+    HippyUIManager *manager = bridge.uiManager;
+    if (!manager) {
+        HippyLogWarn(@"DomDomain, getNodeForLocation error, manager is nil");
+        return NO;
+    }
+    NSNumber *x = command.params[HippyDOMParamsKeyX];
+    NSNumber *y = command.params[HippyDOMParamsKeyY];
+    if (!x || !y) {
+        HippyLogWarn(@"DomDomain, getNodeForLocation error, param isn't contains x or y key");
+        return NO;
+    }
+    CGPoint location = CGPointMake(x.doubleValue, y.doubleValue);
+    NSDictionary *resultJSON = [_domModel domGetNodeForLocationWithManager:manager
+                                                                  location:location];
+    return [self handleRspDataWithCmd:command dataJSON:resultJSON];
 }
 
 - (void)handleEndBatchNotification{
