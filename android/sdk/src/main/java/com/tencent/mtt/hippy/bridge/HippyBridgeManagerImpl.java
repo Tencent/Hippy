@@ -226,7 +226,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     }
 
     if (enableTurbo() && mTurboModuleManager != null) {
-      mTurboModuleManager.unInstall(mHippyBridge.getV8RuntimeId());
+      mTurboModuleManager.uninstall(mHippyBridge.getV8RuntimeId());
     }
 
     @SuppressWarnings("unchecked") final com.tencent.mtt.hippy.common.Callback<Boolean> destroyCallback = (com.tencent.mtt.hippy.common.Callback<Boolean>) msg.obj;
