@@ -22,10 +22,12 @@
 
 #include "core/modules/ui_manager_module.h"
 
+#include <set>
 #include <tuple>
 
 #include "core/modules/module_register.h"
 #include "core/base/string_view_utils.h"
+#include "dom/node_props.h"
 
 REGISTER_MODULE(UIManagerModule, CreateNodes)
 REGISTER_MODULE(UIManagerModule, UpdateNodes)
@@ -47,7 +49,6 @@ const char *kStylePropertyWidth = "width";
 const char *kStylePropertyHeight = "height";
 const char *kStylePropertyMargin = "margin";
 const char *kStylePropertyDisplay = "display";
-const char *kOnClickFuncName = "__onClickDispatcher";
 
 const int32_t kInvalidValue = -1;
 
@@ -70,7 +71,7 @@ UIManagerModule::~UIManagerModule() {}
 std::tuple<bool, std::string, int32_t> GetNodeId(std::shared_ptr<Ctx> context,
                                                  std::shared_ptr<CtxValue> node) {
   // parse id
-  std::shared_ptr<CtxValue> id_value = context->GetProperty(node, kNodePropertyId);
+  std::shared_ptr<CtxValue> id_value = context->GetProperty(node, hippy::kNodeId);
   if (!id_value) {
     return std::make_tuple(false, "Get property id failed", kInvalidValue);
   }
@@ -160,53 +161,152 @@ GetNodeStyle(std::shared_ptr<Ctx> context, std::unordered_map<std::string, DomVa
   return std::make_tuple(false, "props does not contain style", std::move(ret));
 }
 
-std::tuple<bool, std::string, bool,
+std::tuple<bool, std::string, bool>
+HandleFunctionListener(std::shared_ptr<Ctx> context, const std::string &name,
+                       std::unordered_map<std::string, DomValue> &props) {
+  // handle function listener
+  bool has_function = false;
+  auto it = props.find(name);
+  if (it != props.end()) {
+    if (it->second.IsBoolean()) {
+      has_function = it->second.ToBoolean();
+    } else {
+      return std::make_tuple(false, name + " type error", has_function);
+    }
+    props.erase(it);
+  }
+  return std::make_tuple(true, "", has_function);
+}
+
+std::tuple<bool, std::string,
+           std::set<std::string>,
            std::unordered_map<std::string, std::shared_ptr<DomValue>>>
 GetNodeExtValue(std::shared_ptr<Ctx> context, std::unordered_map<std::string, DomValue> &props) {
   std::unordered_map<std::string, std::shared_ptr<DomValue>> dom_ext_map;
+  std::set<std::string> func_set;
   // handle click listener
-  bool on_click_flag = false;
-  auto click_flag_it = props.find(kNodePropertyOnClick);
-  if (click_flag_it != props.end()) {
-    if (click_flag_it->second.IsBoolean()) {
-      on_click_flag = click_flag_it->second.ToBoolean();
-    } else {
-      return std::make_tuple(false, "click flag type error", on_click_flag, std::move(dom_ext_map));
-    }
-    props.erase(click_flag_it);
+  auto on_click_tuple = HandleFunctionListener(context, hippy::kOnClick, props);
+  if (!std::get<0>(on_click_tuple)) {
+    return std::make_tuple(false, std::get<1>(on_click_tuple),
+                           std::move(func_set), std::move(dom_ext_map));
   }
+  func_set.insert(hippy::kOnClick);
+
+  // handle layout listener
+  auto on_layout_tuple = HandleFunctionListener(context, hippy::kOnLayout, props);
+  if (!std::get<0>(on_layout_tuple)) {
+    return std::make_tuple(false, std::get<1>(on_layout_tuple),
+                           std::move(func_set), std::move(dom_ext_map));
+  }
+  func_set.insert(hippy::kOnLayout);
+
+  // handle long click listener
+  auto on_long_click_tuple = HandleFunctionListener(context, hippy::kOnLongClick, props);
+  if (!std::get<0>(on_long_click_tuple)) {
+    return std::make_tuple(false, std::get<1>(on_long_click_tuple),
+                           std::move(func_set), std::move(dom_ext_map));
+  }
+  func_set.insert(hippy::kOnLongClick);
+
+  // handle touch start listener
+  auto on_touch_start_tuple = HandleFunctionListener(context, hippy::kOnTouchStart, props);
+  if (!std::get<0>(on_touch_start_tuple)) {
+    return std::make_tuple(false, std::get<1>(on_touch_start_tuple),
+                           std::move(func_set), std::move(dom_ext_map));
+  }
+  func_set.insert(hippy::kOnTouchStart);
+
+  // handle touch move listener
+  auto on_touch_move_tuple = HandleFunctionListener(context, hippy::kOnTouchMove, props);
+  if (!std::get<0>(on_touch_move_tuple)) {
+    return std::make_tuple(false, std::get<1>(on_touch_move_tuple),
+                           std::move(func_set), std::move(dom_ext_map));
+  }
+  func_set.insert(hippy::kOnTouchMove);
+
+  // handle touch end listener
+  auto on_touch_end_tuple = HandleFunctionListener(context, hippy::kOnTouchEnd, props);
+  if (!std::get<0>(on_touch_end_tuple)) {
+    return std::make_tuple(false, std::get<1>(on_touch_end_tuple),
+                           std::move(func_set), std::move(dom_ext_map));
+  }
+  func_set.insert(hippy::kOnTouchEnd);
+
+  // handle touch cancel listener
+  auto on_touch_cancel_tuple = HandleFunctionListener(context, hippy::kOnTouchCancel, props);
+  if (!std::get<0>(on_touch_cancel_tuple)) {
+    return std::make_tuple(false, std::get<1>(on_touch_cancel_tuple),
+                           std::move(func_set), std::move(dom_ext_map));
+  }
+  func_set.insert(hippy::kOnTouchCancel);
+
+  // handle attached to window listener
+  auto on_attached_to_window_tuple = HandleFunctionListener(context, hippy::kOnAttachedToWindow,
+                                                            props);
+  if (!std::get<0>(on_attached_to_window_tuple)) {
+    return std::make_tuple(false, std::get<1>(on_attached_to_window_tuple),
+                           std::move(func_set), std::move(dom_ext_map));
+  }
+  func_set.insert(hippy::kOnAttachedToWindow);
+
+  // handle attached from window listener
+  auto on_attached_from_window_tuple = HandleFunctionListener(context, hippy::kOnDetachedFromWindow,
+                                                              props);
+  if (!std::get<0>(on_attached_from_window_tuple)) {
+    return std::make_tuple(false, std::get<1>(on_attached_from_window_tuple),
+                           std::move(func_set), std::move(dom_ext_map));
+  }
+  func_set.insert(hippy::kOnDetachedFromWindow);
+
+  // handle show listener
+  auto on_show_tuple = HandleFunctionListener(context, hippy::kOnShow, props);
+  if (!std::get<0>(on_show_tuple)) {
+    return std::make_tuple(false, std::get<1>(on_show_tuple),
+                           std::move(func_set), std::move(dom_ext_map));
+  }
+  func_set.insert(hippy::kOnShow);
+
+  // handle dismiss listener
+  auto on_dismiss_tuple = HandleFunctionListener(context, hippy::kOnDismiss, props);
+  if (!std::get<0>(on_dismiss_tuple)) {
+    return std::make_tuple(false, std::get<1>(on_dismiss_tuple),
+                           std::move(func_set), std::move(dom_ext_map));
+  }
+  func_set.insert(hippy::kOnDismiss);
+
   // parse ext value
   for (auto p : props) {
     dom_ext_map[p.first] = std::make_shared<DomValue>(std::move(p.second));
   }
-  return std::make_tuple(true, "", on_click_flag, std::move(dom_ext_map));
+  return std::make_tuple(true, "", std::move(func_set), std::move(dom_ext_map));
 }
 
-std::tuple<bool, std::string, std::unordered_map<std::string, std::shared_ptr<DomValue>>, bool,
+std::tuple<bool, std::string, std::unordered_map<std::string, std::shared_ptr<DomValue>>,
+           std::set<std::string>,
            std::unordered_map<std::string, std::shared_ptr<DomValue>>> GetNodeProps(
     std::shared_ptr<Ctx> context, std::shared_ptr<CtxValue> node) {
   std::unordered_map<std::string, std::shared_ptr<DomValue>> style_map;
   std::unordered_map<std::string, std::shared_ptr<DomValue>> dom_ext_map;
-  bool on_click_flag = false;
+  std::set<std::string> func_set;
   std::shared_ptr<CtxValue> props = context->GetProperty(node, kNodePropertyProps);
   if (!props) {
     return std::make_tuple(false, "node does not contain props",
                            std::move(style_map),
-                           on_click_flag,
+                           std::move(func_set),
                            std::move(dom_ext_map));
   }
   std::shared_ptr<DomValue> props_obj = context->ToDomValue(props);
   if (!props_obj) {
     return std::make_tuple(false, "to dom value failed",
                            std::move(style_map),
-                           on_click_flag,
+                           std::move(func_set),
                            std::move(dom_ext_map));
   }
 
   if (!props_obj->IsObject()) {
     return std::make_tuple(false, "props_obj type error",
                            std::move(style_map),
-                           on_click_flag,
+                           std::move(func_set),
                            std::move(dom_ext_map));
   }
 
@@ -217,12 +317,149 @@ std::tuple<bool, std::string, std::unordered_map<std::string, std::shared_ptr<Do
   }
   auto ext_tuple = GetNodeExtValue(context, props_map);
   if (std::get<0>(ext_tuple)) {
+    if (!std::get<2>(ext_tuple).empty()) {
+      func_set = std::move(std::get<2>(ext_tuple));
+    }
     if (!std::get<3>(ext_tuple).empty()) {
       dom_ext_map = std::move(std::get<3>(ext_tuple));
     }
-    on_click_flag = std::get<2>(ext_tuple);
   }
-  return std::make_tuple(true, "", std::move(style_map), on_click_flag, std::move(dom_ext_map));
+  return std::make_tuple(true, "", std::move(style_map), std::move(func_set),
+                         std::move(dom_ext_map));
+}
+
+void BindClickEvent(std::shared_ptr<Ctx> context, const std::string &name,
+                    std::shared_ptr<DomNode> dom_node) {
+  std::shared_ptr<CtxValue>
+      func = context->GetGlobalObjVar(unicode_string_view("__" + name));
+  if (context->IsFunction(func)) {
+    std::weak_ptr<Ctx> weak_context = context;
+    std::weak_ptr<CtxValue> weak_func = func;
+    int32_t id = dom_node->GetId();
+    dom_node->AddClickEventListener([weak_context, weak_func, id]() {
+      auto context = weak_context.lock();
+      if (!context) {
+        return;
+      }
+      auto func = weak_func.lock();
+      if (!func) {
+        return;
+      }
+      std::string info_json = "{ id: " + std::to_string(id) + " }";
+      const std::shared_ptr<CtxValue> argus[] = {
+          context->CreateObject(unicode_string_view(info_json))
+      };
+      context->CallFunction(func, 1, argus);
+    });
+  }
+}
+
+void BindTouchEvent(std::shared_ptr<Ctx> context, const std::string &name,
+                    std::shared_ptr<DomNode> dom_node) {
+  std::shared_ptr<CtxValue>
+      func = context->GetGlobalObjVar(unicode_string_view("__" + name));
+  if (context->IsFunction(func)) {
+    std::weak_ptr<Ctx> weak_context = context;
+    std::weak_ptr<CtxValue> weak_func = func;
+    hippy::TouchEvent event;
+    if (name == hippy::kOnTouchStart) {
+      event = hippy::TouchEvent::Start;
+    } else if (name == hippy::kOnTouchMove) {
+      event = hippy::TouchEvent::Move;
+    } else if (name == hippy::kOnTouchEnd) {
+      event = hippy::TouchEvent::End;
+    } else if (name == hippy::kOnTouchCancel) {
+      event = hippy::TouchEvent::Cancel;
+    } else {
+      TDF_BASE_NOTREACHED();
+    }
+    int32_t id = dom_node->GetId();
+    dom_node->AddTouchEventListener(event, [weak_context, weak_func, id]
+        (hippy::TouchEventInfo info) {
+      auto context = weak_context.lock();
+      if (!context) {
+        return;
+      }
+      auto func = weak_func.lock();
+      if (!func) {
+        return;
+      }
+      std::string info_json =
+          "{ id: " + std::to_string(id) + ", page_x: " + std::to_string(info.x) + ", page_y:"
+              + std::to_string(info.y) + " }";
+      const std::shared_ptr<CtxValue> argus[] = {
+          context->CreateObject(unicode_string_view(info_json))
+      };
+      context->CallFunction(func, 1, argus);
+    });
+  }
+}
+
+void SetAttachListener(std::shared_ptr<Ctx> context, const std::string &name,
+                       std::shared_ptr<DomNode> dom_node) {
+
+  std::shared_ptr<CtxValue> func = context->GetGlobalObjVar(unicode_string_view("__" + name));
+  if (context->IsFunction(func)) {
+    std::weak_ptr<Ctx> weak_context = context;
+    std::weak_ptr<CtxValue> weak_func = func;
+    int32_t id = dom_node->GetId();
+    dom_node->SetOnAttachChangedListener([weak_context, weak_func, name, id](bool is_attach) {
+      auto context = weak_context.lock();
+      if (!context) {
+        return;
+      }
+      auto func = weak_func.lock();
+      if (!func) {
+        return;
+      }
+      std::string info_json = "{ id: " + std::to_string(id) + " }";
+      const std::shared_ptr<CtxValue> argus[] = {
+          context->CreateObject(unicode_string_view(info_json))
+      };
+      if (is_attach && name == hippy::kOnAttachedToWindow) {
+        context->CallFunction(func, 1, argus);
+      } else if (!is_attach && name == hippy::kOnDetachedFromWindow) {
+        context->CallFunction(func, 1, argus);
+      } else {
+        TDF_BASE_NOTREACHED();
+      }
+    });
+  }
+}
+
+void BindShowEvent(std::shared_ptr<Ctx> context, const std::string &name,
+                   std::shared_ptr<DomNode> dom_node) {
+  std::shared_ptr<CtxValue>
+      func = context->GetGlobalObjVar(unicode_string_view("__" + name));
+  if (context->IsFunction(func)) {
+    std::weak_ptr<Ctx> weak_context = context;
+    std::weak_ptr<CtxValue> weak_func = func;
+    hippy::ShowEvent event;
+    if (name == hippy::kOnShow) {
+      event = hippy::ShowEvent::Show;
+    } else if (name == hippy::kOnDismiss) {
+      event = hippy::ShowEvent::Dismiss;
+    } else {
+      TDF_BASE_NOTREACHED();
+      return;
+    }
+    int32_t id = dom_node->GetId();
+    dom_node->AddShowEventListener(event, [weak_context, weak_func, id](const std::any &) {
+      auto context = weak_context.lock();
+      if (!context) {
+        return;
+      }
+      auto func = weak_func.lock();
+      if (!func) {
+        return;
+      }
+      std::string info_json = "{ id: " + std::to_string(id) + " }";
+      const std::shared_ptr<CtxValue> argus[] = {
+          context->CreateObject(unicode_string_view(info_json))
+      };
+      context->CallFunction(func, 1, argus);
+    });
+  }
 }
 
 std::tuple<bool, std::string, std::shared_ptr<DomNode>> CreateNode(std::shared_ptr<Ctx> context,
@@ -265,27 +502,26 @@ std::tuple<bool, std::string, std::shared_ptr<DomNode>> CreateNode(std::shared_p
                                                                 std::move(u8_view_name),
                                                                 std::move(std::get<2>(props_tuple)),
                                                                 std::move(std::get<4>(props_tuple)));
-  if (std::get<3>(props_tuple)) {
-    std::shared_ptr<CtxValue> func = context->GetGlobalObjVar(kOnClickFuncName);
-    if (context->IsFunction(func)) {
-      std::weak_ptr<Ctx> weak_context = context;
-      std::weak_ptr<CtxValue> weak_func = func;
-      dom_node->AddClickEventListener([weak_context, weak_func](hippy::TouchEventInfo info) {
-        auto context = weak_context.lock();
-        if (!context) {
-          return;
-        }
-        auto func = weak_func.lock();
-        if (!func) {
-          return;
-        }
-        std::string info_json = "{ x: " + std::to_string(info.x) + ", y:" +
-            std::to_string(info.y) + " }";
-        std::shared_ptr<CtxValue> param = context->CreateObject(
-            unicode_string_view(info_json));
-        std::shared_ptr<CtxValue> argv[] = {param};
-        context->CallFunction(func, 1, argv);
-      });
+  std::set<std::string> func_set = std::move(std::get<3>(props_tuple));
+  if (!func_set.empty()) {
+    for (const auto &v : func_set) {
+      if (v == hippy::kOnClick) {
+        BindClickEvent(context, hippy::kOnClick, dom_node);
+      } else if (v == hippy::kOnLongClick) {
+        BindClickEvent(context, hippy::kOnLongClick, dom_node);
+      } else if (v == hippy::kOnTouchStart) {
+        BindTouchEvent(context, hippy::kOnTouchStart, dom_node);
+      } else if (v == hippy::kOnTouchMove) {
+        BindTouchEvent(context, hippy::kOnTouchMove, dom_node);
+      } else if (v == hippy::kOnTouchEnd) {
+        BindTouchEvent(context, hippy::kOnTouchEnd, dom_node);
+      } else if (v == hippy::kOnTouchCancel) {
+        BindTouchEvent(context, hippy::kOnTouchCancel, dom_node);
+      } else if (v == hippy::kOnAttachedToWindow) {
+        SetAttachListener(context, hippy::kOnAttachedToWindow, dom_node);
+      } else if (v == hippy::kOnDetachedFromWindow) {
+        SetAttachListener(context, hippy::kOnDetachedFromWindow, dom_node);
+      }
     }
   }
   return std::make_tuple(true, "", dom_node);
@@ -364,7 +600,8 @@ void UIManagerModule::DeleteNodes(const hippy::napi::CallbackInfo &info) {
       return;
     }
     dom_nodes.push_back(std::make_shared<DomNode>(std::get<2>(id_tuple),
-        std::get<2>(pid_tuple), std::get<2>(index_tuple)));
+                                                  std::get<2>(pid_tuple),
+                                                  std::get<2>(index_tuple)));
   }
   scope->GetDomManager()->DeleteDomNode(dom_nodes);
 }
@@ -418,7 +655,7 @@ void UIManagerModule::CallUIFunction(const hippy::napi::CallbackInfo &info) {
     auto func = info[3];
     std::weak_ptr<Ctx> weak_context = context;
     std::weak_ptr<CtxValue> weak_func = func;
-    cb = [weak_context, weak_func](const std::any& rst) {
+    cb = [weak_context, weak_func](const std::any &rst) {
       auto context = weak_context.lock();
       if (!context) {
         return;
