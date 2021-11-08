@@ -43,6 +43,15 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (NSDictionary *)domGetBoxModelJSONWithNode:(nullable HippyVirtualNode *)node;
 
+/**
+ * @brief Get Chrome DOM getNodeForLocation JSON
+ * @param manager Hippy UI Manager
+ * @param location location position
+ * @return result JSON Dictionary
+ */
+- (NSDictionary *)domGetNodeForLocationWithManager:(nullable HippyUIManager *)manager
+                                          location:(CGPoint)location;
+
 @end
 
 NS_ASSUME_NONNULL_END

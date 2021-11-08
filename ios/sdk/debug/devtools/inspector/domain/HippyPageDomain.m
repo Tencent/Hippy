@@ -101,7 +101,7 @@ double const HippyPageScreenFrameAckDelayTime = 1.5f;
 - (BOOL)handleScreenFrameAck:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
     HippyUIManager *manager = bridge.uiManager;
     if (!manager) {
-        HippyLogWarn(@"PageDomain, getDocument error, manager is nil");
+        HippyLogWarn(@"PageDomain, screencastFrameAck error, manager is nil");
         return NO;
     }
     dispatch_time_t delayTime = dispatch_time(DISPATCH_TIME_NOW,

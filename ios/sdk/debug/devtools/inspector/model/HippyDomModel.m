@@ -40,11 +40,14 @@ NSString *const HippyDOMKeyNodeValue = @"nodeValue";
 NSString *const HippyDOMKeyParentId = @"parentId";
 NSString *const HippyDOMKeyModel = @"model";
 NSString *const HippyDOMKeyBoxModelContent = @"content";
+NSString *const HippyDOMKeyBackendId = @"backendId";
+NSString *const HippyDOMKeyFrameId = @"frameId";
 
 // Default Value
 NSInteger const HippyDOMDefaultDocumentNodeId = -3;
 NSInteger const HippyDOMDefaultDocumentChildNodeCount = 1;
 NSString *const HippyDOMDefaultDocumentNodeName = @"#document";
+NSString *const HippyDOMDefaultFrameID = @"main_frame";
 
 // Node Prop
 NSString *const HippyNodePropAttributes = @"attributes";
@@ -61,6 +64,12 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
     HippyDOMNodeTypeDocumentTypeNode = 8,
     HippyDOMNodeTypeDocumentFragmentNode = 9
 };
+
+@interface HippyDomModel ()
+
+@property (nonatomic, weak) HippyUIManager *manager;
+
+@end
 
 @implementation HippyDomModel
 
@@ -93,25 +102,43 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
         HippyLogWarn(@"DOM Model, getBoxModel error, node is nil");
         return @{};
     }
-    UIView *parentView = [node.bridge.uiManager viewForHippyTag:node.parent.hippyTag];
-    UIView *selfView = [node.bridge.uiManager viewForHippyTag:node.hippyTag];
-    if (!parentView || !selfView) {
-        return @{};
-    }
-    CGRect location = [parentView convertRect:node.frame
-                                       toView:[UIApplication sharedApplication].keyWindow];
+    CGRect windowFrame = [self windowFrameWithNode:node];
     NSMutableDictionary *boxModelDic = [NSMutableDictionary dictionary];
-    NSArray *border = [self assemblyBoxModelBorderWithFrame:location];
+    NSArray *border = [self assemblyBoxModelBorderWithFrame:windowFrame];
     NSArray *padding = [self assemblyBoxModelPaddingWithProps:node.props border:border];
     NSArray *content = [self assemblyBoxModelContentWithProps:node.props padding:padding];
     NSArray *margin = [self assemblyBoxModelMarginWithProps:node.props border:border];
-    boxModelDic[HippyDevtoolsCSSPropWidth] = @(node.frame.size.width);
-    boxModelDic[HippyDevtoolsCSSPropHeight] = @(node.frame.size.height);
+    boxModelDic[HippyDevtoolsCSSPropWidth] = @(windowFrame.size.width);
+    boxModelDic[HippyDevtoolsCSSPropHeight] = @(windowFrame.size.height);
     boxModelDic[HippyDevtoolsCSSPropBorder] = border;
     boxModelDic[HippyDevtoolsCSSPropPadding] = padding;
     boxModelDic[HippyDOMKeyBoxModelContent] = content;
     boxModelDic[HippyDevtoolsCSSPropMargin] = margin;
     return @{HippyDOMKeyModel : boxModelDic};
+}
+
+- (NSDictionary *)domGetNodeForLocationWithManager:(nullable HippyUIManager *)manager
+                                          location:(CGPoint)location {
+    if (!manager) {
+        HippyLogWarn(@"DOM Model, getNodeForLocation error, manager is nil");
+        return @{};
+    }
+    NSMutableDictionary *resultDic = [NSMutableDictionary dictionary];
+    HippyVirtualNode *rootNode = [manager nodeForHippyTag:[manager rootHippyTag]];
+    if (!rootNode) {
+        HippyLogWarn(@"DOM Model, getNodeForLocation error, root node is nil");
+        return @{};
+    }
+    self.manager = manager;
+    HippyVirtualNode *hitNode = [self maxDepthAndMinAreaHitNodeWithLocation:location
+                                                                       node:rootNode];
+    if (!hitNode) {
+        return @{};
+    }
+    resultDic[HippyDOMKeyBackendId] = hitNode.hippyTag;
+    resultDic[HippyDOMKeyFrameId] = HippyDOMDefaultFrameID;
+    resultDic[HippyDOMKeyNodeId] = hitNode.hippyTag;
+    return resultDic;
 }
 
 #pragma mark - private method
@@ -330,6 +357,65 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
         @(border[6].integerValue - marginLeft),
         @(border[7].integerValue + marginBottom)
     ];
+}
+
+- (CGRect)windowFrameWithNode:(HippyVirtualNode *)node {
+    if (!node) {
+        HippyLogWarn(@"DOM Model, windowFrameWithNode, node is nil");
+        return CGRectZero;
+    }
+    HippyUIManager *manager = self.manager;
+    if (node.bridge.uiManager) {
+        manager = node.bridge.uiManager;
+    }
+    UIView *selfView = [manager viewForHippyTag:node.hippyTag];
+    if (!selfView) {
+        HippyLogWarn(@"DOM Model, windowFrameWithNode, view is nil");
+        return CGRectZero;
+    }
+    UIWindow *window = [[[UIApplication sharedApplication] delegate] window];
+    return [selfView.superview convertRect:selfView.frame toView:window];
+}
+
+- (HippyVirtualNode *)maxDepthAndMinAreaHitNodeWithLocation:(CGPoint)location
+                                                       node:(HippyVirtualNode *)node {
+    if (!node || ![self isLocationHitNode:location node:node]) {
+        return nil;
+    }
+    HippyVirtualNode *hitNode = nil;
+    for (HippyVirtualNode *childNode in node.subNodes) {
+        if (![self isLocationHitNode:location node:childNode]) {
+            continue;
+        }
+        HippyVirtualNode *newHitNode = [self maxDepthAndMinAreaHitNodeWithLocation:location
+                                                                              node:childNode];
+        hitNode = [self smallerAreaNodeWithOldNode:hitNode newNode:newHitNode];
+    }
+    return hitNode != nil ? hitNode : node;
+}
+
+- (BOOL)isLocationHitNode:(CGPoint)location node:(HippyVirtualNode *)node {
+    if (!node) {
+        return false;
+    }
+    CGRect windowFrame = [self windowFrameWithNode:node];
+    BOOL isInTopOffset = (location.x >= windowFrame.origin.x) && (location.y >= windowFrame.origin.y);
+    BOOL isInBottomOffset = (location.x <= (windowFrame.origin.x + windowFrame.size.width)) &&
+                            (location.y <= (windowFrame.origin.y + windowFrame.size.height));
+    return isInTopOffset && isInBottomOffset;
+}
+
+- (HippyVirtualNode *)smallerAreaNodeWithOldNode:(HippyVirtualNode *)oldNode
+                                         newNode:(HippyVirtualNode *)newNode {
+    if (!oldNode) {
+        return newNode;
+    }
+    if (!newNode) {
+        return oldNode;
+    }
+    double oldNodeArea = oldNode.frame.size.width * oldNode.frame.size.height;
+    double newNodeArea = newNode.frame.size.width * newNode.frame.size.height;
+    return oldNodeArea > newNodeArea ? newNode : oldNode;
 }
 
 @end
