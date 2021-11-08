@@ -33,13 +33,13 @@
 #include "jni/jni_utils.h"
 #include "jni/scoped_java_ref.h"
 
-REGISTER_JNI("com.tencent.mtt.hippy.bridge.jsi.TurboModuleManager",
+REGISTER_JNI("com/tencent/mtt/hippy/bridge/jsi/TurboModuleManager",
              "install",
              "(J)I",
              Install)
 
-REGISTER_JNI("com.tencent.mtt.hippy.bridge.jsi.TurboModuleManager",
-             "unInstall",
+REGISTER_JNI("com/tencent/mtt/hippy/bridge/jsi/TurboModuleManager",
+             "uninstall",
              "(J)V",
              Uninstall)
 

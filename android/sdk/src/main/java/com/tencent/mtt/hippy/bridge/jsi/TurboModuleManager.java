@@ -61,5 +61,5 @@ public class TurboModuleManager {
 
   public native int install(long v8RuntimeId);
 
-  public native void unInstall(long v8RuntimeId);
+  public native void uninstall(long v8RuntimeId);
 }
