@@ -38,12 +38,14 @@ class DomManager {
                     std::unordered_map<std::string, std::shared_ptr<DomValue>> param,
                     CallFunctionCallback cb);
   void AddTouchEventListener(int32_t id,
-                           std::shared_ptr<TouchEvent> event,
+                           TouchEvent event,
                            OnTouchEventListener listener);
-  void RemoveTouchEventListener(std::shared_ptr<TouchEvent> event);
+  void RemoveTouchEventListener(TouchEvent event);
 
   int32_t AddDomTreeEventListener(DomTreeEvent event, OnDomTreeEventListener listener);
   void RemoveDomTreeEventListener(DomTreeEvent event, int32_t listener_id);
+
+  std::shared_ptr<RenderManager> GetRenderManager() { return render_manager_;}
 
  protected:
   void OnDomNodeCreated(std::shared_ptr<DomNode> node);

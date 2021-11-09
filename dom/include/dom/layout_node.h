@@ -14,11 +14,23 @@ class LayoutNode {
   LayoutNode();
 
   virtual ~LayoutNode();
+  /**
+   * @brief 插入子节点
+   * @param child
+   * @param index
+   */
+  virtual void InsertChild(std::shared_ptr<LayoutNode> child, uint32_t index);
+
+  /**
+   * @brief 删除子节点
+   * @param child
+   */
+  virtual void RemoveChild(const std::shared_ptr<LayoutNode> child);
 
   virtual void CalculateLayout(float parent_width, float parent_height, Direction direction = DirectionLTR,
                                void* layout_context = nullptr) = 0;
 
-  virtual void SetLayoutStyles(std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>&& style_map) = 0;
+  virtual void SetLayoutStyles(std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>& style_map) = 0;
 };
 
 }  // namespace dom

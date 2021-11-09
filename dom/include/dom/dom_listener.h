@@ -36,10 +36,18 @@ enum class LayoutEvent {
 };
 
 struct LayoutResult {
-  float x;
-  float y;
-  float w;
-  float h;
+  float left;
+  float top;
+  float width;
+  float height;
+  float marginLeft;
+  float marginTop;
+  float marginRight;
+  float marginBottom;
+  float paddingLeft;
+  float paddingTop;
+  float paddingRight;
+  float paddingBottom;
 };
 
 enum class LayoutDiffMapKey {
