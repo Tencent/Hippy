@@ -33,7 +33,7 @@ typedef HPMeasureFunc TaitankMeasureFunction;
    * @brief 设置 Taitank Layout 的属性
    * @param style_map 属性的map
    */
-  void SetLayoutStyles(std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>&& style_map) override;
+  void SetLayoutStyles(std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>& style_map) override;
 
   /**
    * @brief 设置测量函数
@@ -117,13 +117,13 @@ typedef HPMeasureFunc TaitankMeasureFunction;
    * @param child
    * @param index
    */
-  void InsertChild(std::shared_ptr<TaitankLayoutNode> child, uint32_t index);
+  void InsertChild(std::shared_ptr<TaitankLayoutNode> child, uint32_t index) override;
 
   /**
    * @brief 删除子节点
    * @param child
    */
-  void RemoveChild(const std::shared_ptr<TaitankLayoutNode> child);
+  void RemoveChild(const std::shared_ptr<TaitankLayoutNode> child) override;
 
   /**
    * @brief 是否有新的布局
@@ -162,7 +162,7 @@ typedef HPMeasureFunc TaitankMeasureFunction;
   /**
    * @brief 解析属性
    */
-  void Parser(std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>&& style_map);
+  void Parser(std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>& style_map);
 
   /**
    * @brief 设置方向
