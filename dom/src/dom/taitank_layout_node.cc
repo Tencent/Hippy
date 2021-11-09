@@ -157,11 +157,11 @@ void TaitankLayoutNode::CalculateLayout(float parent_width, float parent_height,
 }
 
 void TaitankLayoutNode::SetLayoutStyles(
-    std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>&& style_map) {
-  Parser(std::move(style_map));
+    std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>& style_map) {
+  Parser(style_map);
 }
 
-void TaitankLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>&& style_map) {
+void TaitankLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>& style_map) {
   if (style_map.find(kAlignItems) != style_map.end()) {
     SetAlignItems(GetFlexAlign(style_map.find(kAlignItems)->second->ToString()));
   }
