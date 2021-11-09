@@ -150,18 +150,15 @@ static DisplayType GetDisplayType(std::string display) {
   return DisplayType::DisplayTypeFlex;
 }
 
-void TaitankLayoutNode::CalculateLayout(float parent_width, float parent_height, Direction direction,
-                                        void* layout_context) {
-  assert(engine_node_ != nullptr);
-  engine_node_->layout(parent_width, parent_height, direction, layout_context);
-}
+void TaitankLayoutNode::CalculateLayout(float parent_width, float parent_height, HPDirection direction = DirectionLTR,
+                                        void* layout_context = nullptr) {}
 
 void TaitankLayoutNode::SetLayoutStyles(
-    std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>& style_map) {
-  Parser(style_map);
+    std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>&& style_map) {
+  Parser(std::move(style_map));
 }
 
-void TaitankLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>& style_map) {
+void TaitankLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>&& style_map) {
   if (style_map.find(kAlignItems) != style_map.end()) {
     SetAlignItems(GetFlexAlign(style_map.find(kAlignItems)->second->ToString()));
   }
@@ -336,6 +333,7 @@ void TaitankLayoutNode::RemoveChild(const std::shared_ptr<TaitankLayoutNode> chi
   auto iter = std::find(children_.begin(), children_.end(), child);
   if (iter != children_.end()) {
     children_.erase(iter);
+    child->parent_ = nullptr;
   }
 }
 

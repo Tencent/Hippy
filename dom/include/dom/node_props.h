@@ -5,7 +5,11 @@ inline namespace dom {
 
 constexpr const char* kAlignItems = "alignItems";
 constexpr const char* kAilgnSelf = "alignSelf";
+constexpr const char* kAlignContent = "alignContent";
 constexpr const char* kFlex = "flex";
+constexpr const char* kFlexBasis = "flexBasis";
+constexpr const char* kFlexGrow = "flexGrow";
+constexpr const char* kFlexShrink = "flexShrink";
 constexpr const char* kFlexDirection = "flexDirection";
 constexpr const char* kFlexWrap = "flexWrap";
 constexpr const char* kWidth = "width";
