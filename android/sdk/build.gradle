@@ -130,7 +130,18 @@ android {
                   "-DV8_COMPONENT=$V8_COMPONENT_DEBUG",
                   "-DHIDDEN_LIBRARY_SYMBOL=$HIDDEN_LIBRARY_SYMBOL"
 
-          abiFilters 'arm64-v8a'
+          if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() || INCLUDE_ABI_ARMEABI.toBoolean()) {
+            abiFilters 'armeabi-v7a'
+          }
+          if (INCLUDE_ABI_ARM64_V8A.toBoolean()) {
+            abiFilters 'arm64-v8a'
+          }
+          if (INCLUDE_ABI_X86.toBoolean()) {
+            abiFilters 'x86'
+          }
+          if (INCLUDE_ABI_X86_64.toBoolean()) {
+            abiFilters 'x86_64'
+          }
         }
       }
     }
@@ -218,6 +229,9 @@ def dealAfterMergeNativeLibs(mergedNativeLibsPath) {
     copy {
       from "$mergedNativeLibsPath/armeabi-v7a"
       into "$mergedNativeLibsPath/armeabi"
+    }
+    if (!INCLUDE_ABI_ARMEABI_V7A.toBoolean()) {
+      delete "$mergedNativeLibsPath/armeabi-v7a"
     }
   }
 }
