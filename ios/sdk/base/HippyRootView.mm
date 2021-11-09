@@ -40,6 +40,7 @@
 #import "UIView+Hippy.h"
 #import "HippyBridge+Mtt.h"
 #import "HippyBundleURLProvider.h"
+#import "core/scope.h"
 
 NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotification";
 
@@ -330,6 +331,10 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
         [bridge.shareOptions setObject:self.shareOptions ?: @{} forKey:self.hippyTag];
     }
 
+    auto scope = bridge.javaScriptExecutor.pScope;
+    auto manager = std::make_shared<hippy::DomManager>(self.hippyTag.intValue);
+    scope->SetDomManager(manager);
+    
     [self runApplication:bridge];
 
     _contentView.backgroundColor = self.backgroundColor;
