@@ -21,7 +21,8 @@ void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>> nodes) {
       continue;
     }
     node->SetRenderInfo({node->GetPid(), node->GetIndex(), true});
-
+    // 解析布局属性
+    node->ParseLayoutStyleInfo();
     parent_node->AddChildAt(node, node->GetIndex());
     OnDomNodeCreated(node);
   }
@@ -73,10 +74,18 @@ void DomManager::DeleteDomNode(std::vector<std::shared_ptr<DomNode>> nodes) {
 }
 
 void DomManager::EndBatch() {
+  // 触发布局计算
+  root_node_->DoLayout();
   for (auto it = batch_operations_.begin(); it != batch_operations_.end(); it++) {
     (*it)();
   }
   batch_operations_.clear();
+}
+
+void DomManager::CallFunction(int32_t id, const std::string &name,
+                              std::unordered_map<std::string, std::shared_ptr<DomValue>> param,
+                              CallFunctionCallback cb) {
+    render_manager_->DispatchFunction(id, name, param, cb);
 }
 
 void DomManager::OnDomNodeCreated(std::shared_ptr<DomNode> node) {
