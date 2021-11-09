@@ -336,7 +336,7 @@ typedef HPMeasureFunc TaitankMeasureFunction;
   void Deallocate();
 
  private:
-  std::shared_ptr<TaitankLayoutNode> parent_;
+  std::weak_ptr<TaitankLayoutNode> parent_;
   std::vector<std::shared_ptr<TaitankLayoutNode>> children_;
 
   HPNodeRef engine_node_;
