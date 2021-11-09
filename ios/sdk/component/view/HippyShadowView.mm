@@ -156,6 +156,12 @@ DEFINE_PROCESS_META_PROPS(Border);
     if (!MTTNodeGetParent(_nodeRef)) {
         left = MTTNodeLayoutGetPosition(_nodeRef, CSSLeft);
         top = MTTNodeLayoutGetPosition(_nodeRef, CSSTop);
+        if (isnan(left)) {
+            left = 0;
+        }
+        if (isnan(top)) {
+            top = 0;
+        }
     }
     float width = MTTNodeLayoutGetWidth(node);
     float height = MTTNodeLayoutGetHeight(node);
