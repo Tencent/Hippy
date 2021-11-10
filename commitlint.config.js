@@ -48,12 +48,12 @@ module.exports = {
       2,
       'always',
       (parsed) => {
-        const { header, body, footer } = parsed;
-        const isAsciiAndEmoji = [header, body, footer].every(message => asciiAndEmojiCheck(message));
+        const { header, body } = parsed;
+        const isAsciiAndEmoji = [header, body].every(message => asciiAndEmojiCheck(message));
         if (isAsciiAndEmoji) {
           return [true];
         }
-        return [false, 'commit message must only use English or Emoji'];
+        return [false, 'commit message header and body must only use English or Emoji'];
       },
     ],
   },
