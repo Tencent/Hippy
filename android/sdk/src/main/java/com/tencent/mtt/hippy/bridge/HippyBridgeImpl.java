@@ -136,7 +136,9 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
     synchronized (HippyBridgeImpl.class) {
       try {
         byte[] globalConfig = mDebugGlobalConfig.getBytes(StandardCharsets.UTF_16LE);
-        mV8RuntimeId = initJSFramework(globalConfig, mSingleThreadMode, enableV8Serialization, mIsDevModule, mDebugInitJSFrameworkCallback, groupId);
+        mV8RuntimeId = initJSFramework(globalConfig, mSingleThreadMode, enableV8Serialization,
+          mIsDevModule, mDebugInitJSFrameworkCallback, groupId,
+          mContext.getDomManager().getRootNodeId());
         mInit = true;
       } catch (Throwable e) {
         if (mBridgeCallback != null) {
@@ -258,7 +260,8 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
   }
 
   public native long initJSFramework(byte[] gobalConfig, boolean useLowMemoryMode,
-      boolean enableV8Serialization, boolean isDevModule, NativeCallback callback, long groupId);
+      boolean enableV8Serialization, boolean isDevModule, NativeCallback callback, long groupId,
+                                     long rootViewId);
 
   public native boolean runScriptFromUri(String uri, AssetManager assetManager,
       boolean canUseCodeCache, String codeCacheDir, long V8RuntimId, NativeCallback callback);

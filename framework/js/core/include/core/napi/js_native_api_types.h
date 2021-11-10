@@ -30,6 +30,7 @@
 #include "base/logging.h"
 #include "core/base/common.h"
 #include "core/base/js_value_wrapper.h"
+#include "dom/dom_value.h"
 
 class Scope;
 
@@ -78,6 +79,7 @@ class Ctx {
  public:
   using JSValueWrapper = hippy::base::JSValueWrapper;
   using unicode_string_view = tdf::base::unicode_string_view;
+  using DomValue = tdf::base::DomValue;
 
   Ctx() {}
   virtual ~Ctx() { TDF_BASE_DLOG(INFO) << "~Ctx"; }
@@ -169,6 +171,11 @@ class Ctx {
       std::shared_ptr<CtxValue> value) = 0;
   virtual std::shared_ptr<CtxValue> CreateCtxValue(
       std::shared_ptr<JSValueWrapper> wrapper) = 0;
+
+  virtual std::shared_ptr<DomValue> ToDomValue(
+      std::shared_ptr<CtxValue> value) = 0;
+  virtual std::shared_ptr<CtxValue> CreateDomValue(
+      std::shared_ptr<DomValue> value) = 0;
 };
 
 class VM {

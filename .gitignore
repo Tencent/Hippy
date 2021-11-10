@@ -27,6 +27,7 @@ examples/hippy-react-demo/package-lock.json
 examples/hippy-vue-demo/package-lock.json
 examples/android-demo/maven-auth.properties
 examples/android-demo/example/.cxx/
+framework/js/android/cmake-build-debug/*
 
 # android
 *.iml

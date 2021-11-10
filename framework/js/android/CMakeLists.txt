@@ -149,6 +149,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../../dom/include)
 
 add_library(${CMAKE_PROJECT_NAME} SHARED ${CORE_SRC} ${URL_PARSER_SRC} ${JNI_SRC})
 target_link_libraries(${CMAKE_PROJECT_NAME} ${HIPPY_DEPS})
+set_property(TARGET ${CMAKE_PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 
 if ((${JS_ENGINE} STREQUAL "V8") AND (${V8_LINKING_MODE} STREQUAL "shared"))
   foreach(LIBRARY_DEP ${V8_LIBRARY_DEPS})
