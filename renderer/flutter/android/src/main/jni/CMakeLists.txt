@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.4.1)
+cmake_minimum_required(VERSION 3.9)
 
 set(CMAKE_VERBOSE_MAKEFILE on)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
@@ -31,7 +31,7 @@ set(ABI_COMPILE_OPTIONS
 
 message("CMAKE_ANDROID_ARCH_ABI: ${CMAKE_ANDROID_ARCH_ABI}")
 
-if (${CMAKE_ANDROID_ARCH_ABI} STREQUAL "armeabi-v7a")
+if ("${CMAKE_ANDROID_ARCH_ABI}" STREQUAL "armeabi-v7a")
 	set(ABI_COMPILE_OPTIONS
 			${ABI_COMPILE_OPTIONS}
 			-march=armv7-a
@@ -40,9 +40,9 @@ if (${CMAKE_ANDROID_ARCH_ABI} STREQUAL "armeabi-v7a")
 			-mfloat-abi=softfp
 			-mthumb
 			)
-elseif (${CMAKE_ANDROID_ARCH_ABI} STREQUAL "arm64-v8a")
+elseif ("${CMAKE_ANDROID_ARCH_ABI}" STREQUAL "arm64-v8a")
 
-elseif (${CMAKE_ANDROID_ARCH_ABI} STREQUAL "x86")
+elseif ("${CMAKE_ANDROID_ARCH_ABI}" STREQUAL "x86")
 	set(ABI_COMPILE_OPTIONS
 			${ABI_COMPILE_OPTIONS}
 			-march=i686
@@ -51,7 +51,7 @@ elseif (${CMAKE_ANDROID_ARCH_ABI} STREQUAL "x86")
 			-mssse3
 			-mfpmath=sse
 			)
-elseif (${CMAKE_ANDROID_ARCH_ABI} STREQUAL "x86_64")
+elseif ("${CMAKE_ANDROID_ARCH_ABI}" STREQUAL "x86_64")
 	set(ABI_COMPILE_OPTIONS
 			${ABI_COMPILE_OPTIONS}
 			-march=x86-64
@@ -69,7 +69,7 @@ get_filename_component(HIPPY_CORE_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../
 get_filename_component(TDF_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../core/third_party/tdf" REALPATH)
 get_filename_component(CORE_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../core/" REALPATH)
 get_filename_component(JNI_DIR "${PROJECT_SOURCE_DIR}/src/main/jni" REALPATH)
-
+get_filename_component(HIPPY_DOM_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../dom" REALPATH)
 
 add_definitions("-DANDROID")
 add_subdirectory(${TDF_SRC_DIR} out)
@@ -91,13 +91,14 @@ message("PROJECT_SOURCE_DIR: ${PROJECT_SOURCE_DIR}")
 message("JNI_SRC: ${JNI_SRC}")
 
 set(HIPPY_TARGET_NAME "rendercore")
+set(HIPPY_DOM_NAME "dom")
 set(HIPPY_DEPS android log tdf_base)
 
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -s")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s")
 
 message("JS_ENGINE:" ${JS_ENGINE})
-if (${JS_ENGINE} STREQUAL "V8")
+if ("${JS_ENGINE}" STREQUAL "V8")
 	message("V8_TAG: ${v8_TAG}")
 	message("V8_RELEASE: ${V8_RELEASE}")
 	add_definitions("-DV8_IMMINENT_DEPRECATION_WARNINGS")
@@ -140,7 +141,7 @@ if (${JS_ENGINE} STREQUAL "V8")
 	include_directories(${V8_ROOT}/include/v8)
 	# endregion
 
-elseif (${JS_ENGINE} STREQUAL "JSC")
+elseif ("${JS_ENGINE}" STREQUAL "JSC")
 	file(GLOB_RECURSE V8_SRC ${HIPPY_CORE_SRC_DIR}/src/napi/v8/*)
 	message("V8_SRC: ${V8_SRC}")
 	list(REMOVE_ITEM HIPPY_CORE_SRC ${V8_SRC})
@@ -155,12 +156,13 @@ include_directories(${JNI_DIR}/include)
 include_directories(${TDF_SRC_DIR}/include)
 include_directories(${CORE_SRC_DIR}/include)
 include_directories(${HIPPY_CORE_SRC_DIR}/include)
-
+include_directories(${HIPPY_CORE_SRC_DIR}/include)
+include_directories(${HIPPY_DOM_SRC_DIR}/include)
 
 add_library(${HIPPY_TARGET_NAME} SHARED ${HIPPY_CORE_SRC} ${CORE_SRC} ${JNI_SRC} ${URL_PARSER_SRC} ${CORE_SRC_DIR}/empty.cc)
-target_link_libraries(${HIPPY_TARGET_NAME} ${HIPPY_DEPS})
+target_link_libraries(${HIPPY_TARGET_NAME} ${HIPPY_DOM_NAME} ${HIPPY_DEPS})
 
-if (${JS_ENGINE} STREQUAL "V8")
+if ("${JS_ENGINE}" STREQUAL "V8")
 	if (${EXT_JS_ENGINE_LIB} STREQUAL "true" OR ${EXT_JS_ENGINE_LIB} STREQUAL "1")
 		add_custom_command(
 				TARGET ${HIPPY_TARGET_NAME} POST_BUILD

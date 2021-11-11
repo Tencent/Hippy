@@ -6,6 +6,7 @@
 
 #include "dom/dom_listener.h"
 #include "dom/dom_value.h"
+#include "dom/dom_node.h"
 
 namespace hippy {
 inline namespace dom {
