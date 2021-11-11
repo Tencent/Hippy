@@ -27,9 +27,9 @@ class RenderManagerProxy : public RenderManager {
                         DispatchFunctionCallback cb) override;
 
   void AddTouchEventListener(int32_t id,
-                             std::shared_ptr<TouchEvent> event,
+                             TouchEvent event,
                              OnTouchEventListener listener) override;
-  void RemoveTouchEventListener(std::shared_ptr<TouchEvent> event) override;
+  void RemoveTouchEventListener(int32_t id, TouchEvent event) override;
 
  protected:
   bool ComputeIsLayoutOnly(std::shared_ptr<DomNode> node) const;
