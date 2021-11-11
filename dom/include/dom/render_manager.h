@@ -28,10 +28,10 @@ class RenderManager {
                                 std::unordered_map<std::string, std::shared_ptr<DomValue>> param,
                                 DispatchFunctionCallback cb) = 0;
 
-  virtual int32_t AddClickEventListener(int32_t id, OnClickEventListener listener);
-  virtual void RemoveClickEventListener(int32_t id, int32_t listener_id);
-  virtual int32_t AddLongClickEventListener(int32_t id, OnLongClickEventListener listener);
-  virtual void RemoveLongClickEventListener(int32_t id, int32_t listener_id);
+  virtual int32_t AddClickEventListener(int32_t id, OnClickEventListener listener) = 0;
+  virtual void RemoveClickEventListener(int32_t id, int32_t listener_id) = 0;
+  virtual int32_t AddLongClickEventListener(int32_t id, OnLongClickEventListener listener) = 0;
+  virtual void RemoveLongClickEventListener(int32_t id, int32_t listener_id) = 0;
   virtual void AddTouchEventListener(int32_t id, TouchEvent event, OnTouchEventListener listener) = 0;
   virtual void RemoveTouchEventListener(int32_t id, TouchEvent event) = 0;
 };
