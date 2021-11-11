@@ -136,10 +136,22 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius, NSErr
         free(tempBuffer);
         tempBuffer = NULL;
 
+        CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+        CGBitmapInfo bitmapInfo = kCGBitmapByteOrderDefault;
+        CGImageAlphaInfo alphaInfo = CGImageGetAlphaInfo(imageRef);
+        if (alphaInfo == kCGImageAlphaNone || alphaInfo == kCGImageAlphaOnly) {
+            alphaInfo = kCGImageAlphaNoneSkipFirst;
+        } else if (alphaInfo == kCGImageAlphaFirst) {
+            alphaInfo = kCGImageAlphaPremultipliedFirst;
+        } else if (alphaInfo == kCGImageAlphaLast) {
+            alphaInfo = kCGImageAlphaPremultipliedLast;
+        }
+        // "The constants for specifying the alpha channel information are declared with the `CGImageAlphaInfo` type but can be passed to this parameter safely." (source: docs)
+        bitmapInfo |= alphaInfo;
         // create image context from buffer
         ctx = CGBitmapContextCreate(
-            buffer1.data, buffer1.width, buffer1.height, 8, buffer1.rowBytes, CGImageGetColorSpace(imageRef), CGImageGetBitmapInfo(imageRef));
-
+            buffer1.data, buffer1.width, buffer1.height, 8, buffer1.rowBytes, colorSpace, bitmapInfo);
+        CGColorSpaceRelease(colorSpace);
         // create image from context
         blurredImageRef = CGBitmapContextCreateImage(ctx);
         UIImage *outputImage = [UIImage imageWithCGImage:blurredImageRef scale:imageScale orientation:imageOrientation];
