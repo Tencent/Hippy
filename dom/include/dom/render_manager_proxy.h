@@ -1,6 +1,5 @@
 #pragma once
 
-#include "dom/dom_node.h"
 #include "dom/render_manager.h"
 
 namespace hippy {
