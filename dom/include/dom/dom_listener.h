@@ -1,6 +1,7 @@
 #pragma once
 
 #include <any>
+#include <functional>
 
 namespace hippy {
 inline namespace dom {
