@@ -136,10 +136,11 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius, NSErr
         free(tempBuffer);
         tempBuffer = NULL;
 
+        CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
         // create image context from buffer
         ctx = CGBitmapContextCreate(
-            buffer1.data, buffer1.width, buffer1.height, 8, buffer1.rowBytes, CGImageGetColorSpace(imageRef), CGImageGetBitmapInfo(imageRef));
-
+            buffer1.data, buffer1.width, buffer1.height, 8, buffer1.rowBytes, colorSpace, kCGImageAlphaNoneSkipLast);
+        CGColorSpaceRelease(colorSpace);
         // create image from context
         blurredImageRef = CGBitmapContextCreateImage(ctx);
         UIImage *outputImage = [UIImage imageWithCGImage:blurredImageRef scale:imageScale orientation:imageOrientation];
