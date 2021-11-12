@@ -40,7 +40,7 @@ class Runtime {
 
   inline bool IsEnableV8Serialization() { return enable_v8_serialization_; }
   inline bool IsDebug() { return is_debug_; }
-  inline int64_t GetId() { return id_; }
+  inline int32_t GetId() { return id_; }
   inline int64_t GetGroupId() { return group_id_; }
   inline std::shared_ptr<JavaRef> GetBridge() { return bridge_; }
   inline std::shared_ptr<Engine> GetEngine() { return engine_; }
@@ -66,11 +66,10 @@ class Runtime {
   }
 
   static void Insert(std::shared_ptr<Runtime> runtime);
-  static std::shared_ptr<Runtime> Find(int64_t id);
+  static std::shared_ptr<Runtime> Find(int32_t id);
   static std::shared_ptr<Runtime> Find(v8::Isolate* isolate);
-  static bool Erase(int64_t id);
+  static bool Erase(int32_t id);
   static bool Erase(std::shared_ptr<Runtime> runtime);
-  static std::shared_ptr<int64_t> GetKey(std::shared_ptr<Runtime> runtime);
   static bool ReleaseKey(int64_t id);
 
  private:
@@ -82,6 +81,6 @@ class Runtime {
   std::shared_ptr<Engine> engine_;
   std::shared_ptr<Scope> scope_;
   std::shared_ptr<hippy::napi::CtxValue> bridge_func_;
-  int64_t id_;
+  int32_t id_;
   std::shared_ptr<TurboModuleRuntime> turbo_module_runtime_;
 };

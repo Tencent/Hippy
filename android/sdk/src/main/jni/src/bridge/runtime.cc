@@ -27,11 +27,10 @@
 
 using V8Ctx = hippy::napi::V8Ctx;
 
-static std::unordered_map<int64_t, std::shared_ptr<Runtime>> RuntimeMap;
-static std::unordered_map<int64_t, std::shared_ptr<int64_t>> RuntimeKeyMap;
+static std::unordered_map<int32_t, std::shared_ptr<Runtime>> RuntimeMap;
 static std::mutex mutex;
 
-static std::atomic<int64_t> global_runtime_key{0};
+static std::atomic<int32_t> global_runtime_key{0};
 
 Runtime::Runtime(std::shared_ptr<JavaRef> bridge, bool enable_v8_serialization, bool is_dev)
     : enable_v8_serialization_(enable_v8_serialization), is_debug_(is_dev), bridge_(bridge) {
@@ -40,12 +39,10 @@ Runtime::Runtime(std::shared_ptr<JavaRef> bridge, bool enable_v8_serialization, 
 
 void Runtime::Insert(std::shared_ptr<Runtime> runtime) {
   std::lock_guard<std::mutex> lock(mutex);
-  int64_t id = runtime->id_;
-  RuntimeKeyMap[id] = std::make_shared<int64_t>(id);
-  RuntimeMap[id] = runtime;
+  RuntimeMap[runtime->id_] = runtime;
 }
 
-std::shared_ptr<Runtime> Runtime::Find(int64_t id) {
+std::shared_ptr<Runtime> Runtime::Find(int32_t id) {
   std::lock_guard<std::mutex> lock(mutex);
   const auto it = RuntimeMap.find(id);
   if (it == RuntimeMap.end()) {
@@ -55,13 +52,14 @@ std::shared_ptr<Runtime> Runtime::Find(int64_t id) {
   return it->second;
 }
 
-static const uint32_t kRuntimeKeyIndex = 0;
-std::shared_ptr<Runtime>  Runtime::Find(v8::Isolate* isolate) {
+static const uint32_t kRuntimeSlotIndex = 0;
+std::shared_ptr<Runtime> Runtime::Find(v8::Isolate *isolate) {
   if (!isolate) {
     return nullptr;
   }
-  void* isolate_data = isolate->GetData(kRuntimeKeyIndex);
-  if (!isolate_data) { // 约定nullptr为单isolate多context模式
+  int32_t runtime_id =
+      static_cast<int32_t>(reinterpret_cast<int64_t>(isolate->GetData(kRuntimeSlotIndex)));
+  if (runtime_id == -1) {// -1 means single isolate multi context mode
     v8::Local<v8::Context> context = isolate->GetCurrentContext();
     std::lock_guard<std::mutex> lock(mutex);
     for (auto p: RuntimeMap) {
@@ -72,14 +70,12 @@ std::shared_ptr<Runtime>  Runtime::Find(v8::Isolate* isolate) {
       }
     }
   } else {
-    int64_t runtime_key =
-        *(reinterpret_cast<int64_t*>(isolate_data));
-    return Runtime::Find(runtime_key);
+    return Runtime::Find(runtime_id);
   }
   return nullptr;
 }
 
-bool Runtime::Erase(int64_t id) {
+bool Runtime::Erase(int32_t id) {
   std::lock_guard<std::mutex> lock(mutex);
   const auto it = RuntimeMap.find(id);
   if (it == RuntimeMap.end()) {
@@ -92,25 +88,4 @@ bool Runtime::Erase(int64_t id) {
 
 bool Runtime::Erase(std::shared_ptr<Runtime> runtime) {
   return Runtime::Erase(runtime->id_);
-}
-
-std::shared_ptr<int64_t> Runtime::GetKey(std::shared_ptr<Runtime> runtime) {
-  std::lock_guard<std::mutex> lock(mutex);
-  const auto it = RuntimeKeyMap.find(runtime->id_);
-  if (it == RuntimeKeyMap.end()) {
-    return nullptr;
-  }
-
-  return it->second;
-}
-
-bool Runtime::ReleaseKey(int64_t id) {
-  std::lock_guard<std::mutex> lock(mutex);
-  const auto it = RuntimeKeyMap.find(id);
-  if (it == RuntimeKeyMap.end()) {
-    return false;
-  }
-
-  RuntimeKeyMap.erase(it);
-  return true;
 }

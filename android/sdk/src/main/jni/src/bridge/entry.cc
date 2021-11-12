@@ -88,7 +88,7 @@ static std::mutex engine_mutex;
 
 static const int64_t kDefaultEngineId = -1;
 static const int64_t kDebuggerEngineId = -9999;
-static const uint32_t kRuntimeKeyIndex = 0;
+static const uint32_t kRuntimeSlotIndex = 0;
 
 enum INIT_CB_STATE {
   RUN_SCRIPT_ERROR = -1,
@@ -387,15 +387,14 @@ jlong InitInstance(JNIEnv* j_env,
   std::shared_ptr<Runtime> runtime =
       std::make_shared<Runtime>(std::make_shared<JavaRef>(j_env, j_object),
                                 j_enable_v8_serialization, j_is_dev_module);
-  int64_t runtime_id = runtime->GetId();
+  int32_t runtime_id = runtime->GetId();
   Runtime::Insert(runtime);
-  std::shared_ptr<int64_t> runtime_key = Runtime::GetKey(runtime);
-  RegisterFunction vm_cb = [runtime_key](void* vm) {
+  RegisterFunction vm_cb = [runtime_id](void* vm) {
     V8VM* v8_vm = reinterpret_cast<V8VM*>(vm);
     v8::Isolate* isolate = v8_vm->isolate_;
     v8::HandleScope handle_scope(isolate);
     isolate->AddMessageListener(HandleUncaughtJsError);
-    isolate->SetData(kRuntimeKeyIndex, runtime_key.get());
+    isolate->SetData(kRuntimeSlotIndex, reinterpret_cast<void*>(runtime_id));
   };
 
   std::unique_ptr<RegisterMap> engine_cb_map = std::make_unique<RegisterMap>();
@@ -410,10 +409,8 @@ jlong InitInstance(JNIEnv* j_env,
       std::make_shared<JavaRef>(j_env, j_callback);
 
   RegisterFunction context_cb = [runtime, global_config,
-                                 runtime_key](void* scopeWrapper) {
-    TDF_BASE_LOG(INFO)
-        << "InitInstance register hippyCallNatives, runtime_key = "
-        << *runtime_key;
+                                 runtime_id](void* scopeWrapper) {
+    TDF_BASE_LOG(INFO) << "InitInstance register hippyCallNatives, runtime_id = " << runtime_id;
     TDF_BASE_DCHECK(scopeWrapper);
     ScopeWrapper* wrapper = reinterpret_cast<ScopeWrapper*>(scopeWrapper);
     TDF_BASE_DCHECK(wrapper);
@@ -437,8 +434,7 @@ jlong InitInstance(JNIEnv* j_env,
     ctx->RegisterGlobalInJs();
     hippy::base::RegisterFunction fn =
         TO_REGISTER_FUNCTION(hippy::bridge::CallJava, hippy::napi::CBDataTuple);
-    ctx->RegisterNativeBinding("hippyCallNatives", fn,
-                               static_cast<void*>(runtime_key.get()));
+    ctx->RegisterNativeBinding("hippyCallNatives", fn, reinterpret_cast<void*>(runtime_id));
     bool ret = ctx->SetGlobalJsonVar("__HIPPYNATIVEGLOBAL__", global_config);
     if (!ret) {
       TDF_BASE_DLOG(ERROR) << "register __HIPPYNATIVEGLOBAL__ failed";
@@ -472,7 +468,7 @@ jlong InitInstance(JNIEnv* j_env,
 
       std::shared_ptr<V8VM> v8_vm = std::static_pointer_cast<V8VM>(engine->GetVM());
       v8::Isolate* isolate = v8_vm->isolate_;
-      isolate->SetData(kRuntimeKeyIndex, runtime_key.get());
+      isolate->SetData(kRuntimeSlotIndex, reinterpret_cast<void*>(runtime_id));
     } else {
       engine = std::make_shared<Engine>(std::move(engine_cb_map));
       runtime->SetEngine(engine);
@@ -488,7 +484,8 @@ jlong InitInstance(JNIEnv* j_env,
       std::get<uint32_t>(it->second) += 1;
       std::shared_ptr<V8VM> v8_vm = std::static_pointer_cast<V8VM>(engine->GetVM());
       v8::Isolate* isolate = v8_vm->isolate_;
-      isolate->SetData(kRuntimeKeyIndex, nullptr); // 约定nullptr为单isolate多context模式
+      isolate->SetData(kRuntimeSlotIndex, reinterpret_cast<void*>(-1));
+      // -1 means single isolate multi-context mode
       TDF_BASE_DLOG(INFO) << "engine cnt = " << std::get<uint32_t>(it->second)
                           << ", use_count = " << engine.use_count();
     } else {
@@ -518,7 +515,7 @@ void DestroyInstance(JNIEnv* j_env,
                      jobject j_callback) {
   TDF_BASE_DLOG(INFO) << "DestroyInstance begin, j_runtime_id = "
                       << j_runtime_id;
-  int64_t runtime_id = j_runtime_id;
+  int32_t runtime_id = static_cast<int32_t>(j_runtime_id);
   std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
   if (!runtime) {
     TDF_BASE_DLOG(WARNING) << "HippyBridgeImpl destroy, j_runtime_id invalid";
@@ -542,8 +539,6 @@ void DestroyInstance(JNIEnv* j_env,
     runtime->SetScope(nullptr);
     TDF_BASE_LOG(INFO) << "erase runtime";
     Runtime::Erase(runtime);
-    TDF_BASE_LOG(INFO) << "ReleaseKey";
-    Runtime::ReleaseKey(runtime_id);
     TDF_BASE_LOG(INFO) << "js destroy end";
   };
   int64_t group = runtime->GetGroupId();
