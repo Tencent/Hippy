@@ -7,7 +7,6 @@ namespace voltron {
 using namespace hippy;
 using namespace dom;
 
-
 class VoltronRenderManager : public RenderManager {
  public:
   void CreateRenderNode(std::vector<std::shared_ptr<DomNode>> &&nodes) override;
@@ -28,9 +27,9 @@ class VoltronRenderManager : public RenderManager {
                         DispatchFunctionCallback cb) override;
 
   void AddTouchEventListener(int32_t id,
-                             std::shared_ptr<TouchEvent> event,
+                             TouchEvent event,
                              OnTouchEventListener listener) override;
-  void RemoveTouchEventListener(std::shared_ptr<TouchEvent> event) override;
+  void RemoveTouchEventListener(int32_t id, TouchEvent event) override;
 };
 
 }
