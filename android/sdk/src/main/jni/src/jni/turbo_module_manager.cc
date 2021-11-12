@@ -150,11 +150,9 @@ void BindNativeFunction(std::shared_ptr<Runtime> runtime,
       v8_ctx->context_persistent_.Get(v8_ctx->isolate_);
   v8::Context::Scope context_scope(context);
 
-  std::shared_ptr<int64_t> runtime_key = Runtime::GetKey(runtime);
   v8::Local<v8::FunctionTemplate> function_template = v8::FunctionTemplate::New(
       v8_ctx->isolate_, function_callback,
-      v8::External::New(v8_ctx->isolate_,
-                        static_cast<void *>(runtime_key.get())));
+      v8::External::New(v8_ctx->isolate_, reinterpret_cast<void *>(runtime->GetId())));
   function_template->RemovePrototype();
 
   v8::Local<v8::String> function_name = v8_ctx->CreateV8String(name);

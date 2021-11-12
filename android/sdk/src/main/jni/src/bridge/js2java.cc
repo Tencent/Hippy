@@ -37,16 +37,16 @@ using StringViewUtils = hippy::base::StringViewUtils;
 namespace hippy {
 namespace bridge {
 
-void CallJava(hippy::napi::CBDataTuple* data) {
+void CallJava(hippy::napi::CBDataTuple *data) {
   TDF_BASE_DLOG(INFO) << "CallJava";
-  int64_t runtime_key = *(reinterpret_cast<int64_t*>(data->cb_tuple_.data_));
-  std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_key);
+  int32_t runtime_id = static_cast<int32_t>(reinterpret_cast<int64_t>(data->cb_tuple_.data_));
+  std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
   if (!runtime) {
     return;
   }
 
-  const v8::FunctionCallbackInfo<v8::Value>& info = data->info_;
-  v8::Isolate* isolate = info.GetIsolate();
+  const v8::FunctionCallbackInfo<v8::Value> &info = data->info_;
+  v8::Isolate *isolate = info.GetIsolate();
   if (!isolate) {
     TDF_BASE_DLOG(ERROR) << "CallJava isolate error";
     return;
@@ -65,7 +65,7 @@ void CallJava(hippy::napi::CBDataTuple* data) {
 
   jstring j_module_name = nullptr;
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
-  JNIEnv* j_env = instance->AttachCurrentThread();
+  JNIEnv *j_env = instance->AttachCurrentThread();
   if (info.Length() >= 1 && !info[0].IsEmpty()) {
     v8::MaybeLocal<v8::String> module_maybe_str = info[0]->ToString(context);
     if (module_maybe_str.IsEmpty()) {
@@ -127,9 +127,9 @@ void CallJava(hippy::napi::CBDataTuple* data) {
       Serializer serializer(isolate, context, runtime->GetBuffer());
       serializer.WriteHeader();
       serializer.WriteValue(info[3]);
-      std::pair<uint8_t*, size_t> pair = serializer.Release();
+      std::pair<uint8_t *, size_t> pair = serializer.Release();
       buffer_data =
-          std::string(reinterpret_cast<const char*>(pair.first), pair.second);
+          std::string(reinterpret_cast<const char *>(pair.first), pair.second);
     } else {
       std::shared_ptr<hippy::napi::V8CtxValue> obj =
           std::make_shared<hippy::napi::V8CtxValue>(isolate, info[3]);
@@ -151,14 +151,14 @@ void CallJava(hippy::napi::CBDataTuple* data) {
   jmethodID j_method = nullptr;
   if (transfer_type == 1) {  // Direct
     j_buffer = j_env->NewDirectByteBuffer(
-        const_cast<void*>(reinterpret_cast<const void*>(buffer_data.c_str())),
+        const_cast<void *>(reinterpret_cast<const void *>(buffer_data.c_str())),
         buffer_data.length());
     j_method = instance->GetMethods().j_call_natives_direct_method_id;
   } else {  // Default
     j_buffer = j_env->NewByteArray(buffer_data.length());
     j_env->SetByteArrayRegion(
         reinterpret_cast<jbyteArray>(j_buffer), 0, buffer_data.length(),
-        reinterpret_cast<const jbyte*>(buffer_data.c_str()));
+        reinterpret_cast<const jbyte *>(buffer_data.c_str()));
     j_method = instance->GetMethods().j_call_natives_method_id;
   }
 
