@@ -275,9 +275,7 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
    * change key
    */
   // eslint-disable-next-line class-methods-use-this
-  private convertName(attr: string): string {
-    let functionName = attr;
-    if (functionName.indexOf('bound') >= 0) functionName = functionName.substring('bound'.length + 1);
+  private convertName(functionName: string): string {
     if (Device.platform.OS === 'android' && androidAttrMap[functionName]) {
       return androidAttrMap[functionName];
     } if (Device.platform.OS === 'ios' && iosAttrMap[functionName]) {
@@ -498,14 +496,17 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
 
         this.handleRowProps(itemProps, index, { getRowKey, getRowStyle, getRowType, onRowLayout, rowShouldSticky });
 
-        [onAppear, onDisappear, onWillAppear, onWillDisappear]
-          .forEach((func) => {
-            if (typeof func === 'function') {
-              itemProps[this.convertName(func.name)] = () => {
-                func(index);
-              };
-            }
-          });
+        [{ func: onAppear, name: 'onAppear' },
+          { func: onDisappear, name: 'onDisappear' },
+          { func: onWillAppear, name: 'onWillAppear' },
+          { func: onWillDisappear, name: 'onWillDisappear' },
+        ].forEach(({ func, name }) => {
+          if (typeof func === 'function') {
+            itemProps[this.convertName(name)] = () => {
+              func(index);
+            };
+          }
+        });
 
         if (rowChildren) {
           itemList.push((
