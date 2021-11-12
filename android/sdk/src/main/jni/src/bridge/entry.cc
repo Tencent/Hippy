@@ -76,6 +76,7 @@ using RegisterFunction = hippy::base::RegisterFunction;
 using Ctx = hippy::napi::Ctx;
 using StringViewUtils = hippy::base::StringViewUtils;
 using HippyFile = hippy::base::HippyFile;
+using V8VM = hippy::napi::V8VM;
 #ifdef ENABLE_INSPECTOR
 using V8InspectorClientImpl = hippy::inspector::V8InspectorClientImpl;
 std::shared_ptr<V8InspectorClientImpl> global_inspector = nullptr;
@@ -349,9 +350,7 @@ void HandleUncaughtJsError(v8::Local<v8::Message> message,
   }
 
   v8::Isolate* isolate = message->GetIsolate();
-  int64_t runtime_key =
-      *(reinterpret_cast<int64_t*>(isolate->GetData(kRuntimeKeyIndex)));
-  std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_key);
+  std::shared_ptr<Runtime> runtime = Runtime::Find(isolate);
   if (!runtime) {
     return;
   }
@@ -392,7 +391,7 @@ jlong InitInstance(JNIEnv* j_env,
   Runtime::Insert(runtime);
   std::shared_ptr<int64_t> runtime_key = Runtime::GetKey(runtime);
   RegisterFunction vm_cb = [runtime_key](void* vm) {
-    hippy::napi::V8VM* v8_vm = reinterpret_cast<hippy::napi::V8VM*>(vm);
+    V8VM* v8_vm = reinterpret_cast<V8VM*>(vm);
     v8::Isolate* isolate = v8_vm->isolate_;
     v8::HandleScope handle_scope(isolate);
     isolate->AddMessageListener(HandleUncaughtJsError);
@@ -467,10 +466,13 @@ jlong InitInstance(JNIEnv* j_env,
     TDF_BASE_DLOG(INFO) << "debug mode";
     group = kDebuggerEngineId;
     auto it = reuse_engine_map.find(group);
-
     if (it != reuse_engine_map.end()) {
       engine = std::get<std::shared_ptr<Engine>>(it->second);
       runtime->SetEngine(engine);
+
+      std::shared_ptr<V8VM> v8_vm = std::static_pointer_cast<V8VM>(engine->GetVM());
+      v8::Isolate* isolate = v8_vm->isolate_;
+      isolate->SetData(kRuntimeKeyIndex, runtime_key.get());
     } else {
       engine = std::make_shared<Engine>(std::move(engine_cb_map));
       runtime->SetEngine(engine);
@@ -484,6 +486,9 @@ jlong InitInstance(JNIEnv* j_env,
       engine = std::get<std::shared_ptr<Engine>>(it->second);
       runtime->SetEngine(engine);
       std::get<uint32_t>(it->second) += 1;
+      std::shared_ptr<V8VM> v8_vm = std::static_pointer_cast<V8VM>(engine->GetVM());
+      v8::Isolate* isolate = v8_vm->isolate_;
+      isolate->SetData(kRuntimeKeyIndex, nullptr); // 约定nullptr为单isolate多context模式
       TDF_BASE_DLOG(INFO) << "engine cnt = " << std::get<uint32_t>(it->second)
                           << ", use_count = " << engine.use_count();
     } else {

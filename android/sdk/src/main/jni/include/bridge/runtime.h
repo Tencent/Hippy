@@ -67,6 +67,7 @@ class Runtime {
 
   static void Insert(std::shared_ptr<Runtime> runtime);
   static std::shared_ptr<Runtime> Find(int64_t id);
+  static std::shared_ptr<Runtime> Find(v8::Isolate* isolate);
   static bool Erase(int64_t id);
   static bool Erase(std::shared_ptr<Runtime> runtime);
   static std::shared_ptr<int64_t> GetKey(std::shared_ptr<Runtime> runtime);

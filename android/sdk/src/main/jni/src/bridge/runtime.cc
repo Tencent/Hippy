@@ -25,6 +25,8 @@
 #include <mutex>
 #include <unordered_map>
 
+using V8Ctx = hippy::napi::V8Ctx;
+
 static std::unordered_map<int64_t, std::shared_ptr<Runtime>> RuntimeMap;
 static std::unordered_map<int64_t, std::shared_ptr<int64_t>> RuntimeKeyMap;
 static std::mutex mutex;
@@ -51,6 +53,30 @@ std::shared_ptr<Runtime> Runtime::Find(int64_t id) {
   }
 
   return it->second;
+}
+
+static const uint32_t kRuntimeKeyIndex = 0;
+std::shared_ptr<Runtime>  Runtime::Find(v8::Isolate* isolate) {
+  if (!isolate) {
+    return nullptr;
+  }
+  void* isolate_data = isolate->GetData(kRuntimeKeyIndex);
+  if (!isolate_data) { // 约定nullptr为单isolate多context模式
+    v8::Local<v8::Context> context = isolate->GetCurrentContext();
+    std::lock_guard<std::mutex> lock(mutex);
+    for (auto p: RuntimeMap) {
+      std::shared_ptr<Scope> scope = p.second->GetScope();
+      std::shared_ptr<V8Ctx> ctx = std::static_pointer_cast<V8Ctx>(scope->GetContext());
+      if (ctx->context_persistent_ == context) {
+        return p.second;
+      }
+    }
+  } else {
+    int64_t runtime_key =
+        *(reinterpret_cast<int64_t*>(isolate_data));
+    return Runtime::Find(runtime_key);
+  }
+  return nullptr;
 }
 
 bool Runtime::Erase(int64_t id) {
