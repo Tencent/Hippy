@@ -32,6 +32,10 @@ NSString *const HippyDomainMethodNameDisable = @"disable";
 NSString *const HippyDomainRspKeyId = @"id";
 NSString *const HippyDomainRspKeyResult = @"result";
 
+HIPPY_EXTERN NSDictionary *properResultForEmprtyObject(NSNumber *index, NSDictionary *object) {
+    return index ? [object count] ? object : @{HippyDomainRspKeyId: index, HippyDomainRspKeyResult: @{}} : object;
+}
+
 @implementation HippyInspectorDomain
 
 - (instancetype)initWithInspector:(HippyInspector *)inspector {
@@ -42,28 +46,30 @@ NSString *const HippyDomainRspKeyResult = @"result";
     return self;
 }
 
-- (BOOL)handleRequestDevCommand:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
+- (BOOL)handleRequestDevCommand:(HippyDevCommand *)command
+                         bridge:(HippyBridge *)bridge
+                     completion:(void (^)(NSDictionary *rspObject))completion {
     if ([command.method isEqualToString:HippyDomainMethodNameEnable] ||
         [command.method isEqualToString:HippyDomainMethodNameDisable]) {
-        return [self handleRspDataWithCmd:command dataJSON:@{}];
+        if (completion) {
+            completion(@{HippyDomainRspKeyId : command.cmdID,
+                         HippyDomainRspKeyResult: @{}});
+        }
+        return YES;
     }
     return NO;
 }
 
-- (BOOL)handleRspDataWithCmd:(HippyDevCommand *)command dataJSON:(NSDictionary *)dataJSON {
+- (BOOL)handleRspDataWithCmd:(HippyDevCommand *)command
+                    dataJSON:(NSDictionary *)dataJSON
+                  completion:(void (^)(NSDictionary *))completion {
     if (!dataJSON) {
         HippyLogWarn(@"InspectorDomain, dataJSON is nil");
         return NO;
     }
     NSDictionary *result = @{HippyDomainRspKeyId : command.cmdID,
                              HippyDomainRspKeyResult: dataJSON};
-    NSError *parseError;
-    NSData *retData = [NSJSONSerialization dataWithJSONObject:result options:0 error:&parseError];
-    if (parseError) {
-        HippyLogWarn(@"InspectorDomain, parse json data error");
-        return NO;
-    }
-    command.resultString = [[NSString alloc] initWithData:retData encoding:NSUTF8StringEncoding];
+    completion(result);
     return YES;
 }
 

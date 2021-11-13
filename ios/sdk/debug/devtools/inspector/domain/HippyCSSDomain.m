@@ -54,91 +54,147 @@ NSString *const HippyCSSRspKeyStyles = @"styles";
 }
 
 #pragma mark - Method Handle
-- (BOOL)handleRequestDevCommand:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
-    [super handleRequestDevCommand:command bridge:bridge];
-    
-    if ([command.method isEqualToString:HippyCSSMethodGetMatchedStylesForNode]) {
-        return [self handleGetMatchedStylesForNodeWithCmd:command bridge:bridge];
+- (BOOL)handleRequestDevCommand:(HippyDevCommand *)command
+                         bridge:(HippyBridge *)bridge
+                     completion:(void (^)(NSDictionary *))completion {
+    if (!completion) {
+        return NO;
     }
-    if ([command.method isEqualToString:HippyCSSMethodGetComputedStyleForNode]) {
-        return [self handleGetComputedStyleForNodeWithCmd:command bridge:bridge];
+    if (!command) {
+        HippyLogWarn(@"PageDomain, handleReqDevCommand error, command or completion block is nil");
+        completion(@{});
+        return NO;
     }
-    if ([command.method isEqualToString:HippyCSSMethodGetInlineStylesForNode]) {
-        return [self handleGetInlineStylesForNodeWithCmd:command bridge:bridge];
-    }
-    if ([command.method isEqualToString:HippyCSSMethodSetStyleTexts]) {
-        return [self handleSetStyleTextsWithCmd:command bridge:bridge];
+    if (![super handleRequestDevCommand:command bridge:bridge completion:completion]) {
+        if ([command.method isEqualToString:HippyCSSMethodGetMatchedStylesForNode]) {
+            return [self handleGetMatchedStylesForNodeWithCmd:command bridge:bridge completion:completion];
+        }
+        if ([command.method isEqualToString:HippyCSSMethodGetComputedStyleForNode]) {
+            return [self handleGetComputedStyleForNodeWithCmd:command bridge:bridge completion:completion];
+        }
+        if ([command.method isEqualToString:HippyCSSMethodGetInlineStylesForNode]) {
+            return [self handleGetInlineStylesForNodeWithCmd:command bridge:bridge completion:completion];
+        }
+        if ([command.method isEqualToString:HippyCSSMethodSetStyleTexts]) {
+            return [self handleSetStyleTextsWithCmd:command bridge:bridge completion:completion];
+        }
     }
     
     return NO;
 }
 
-- (BOOL)handleGetMatchedStylesForNodeWithCmd:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
+- (BOOL)handleGetMatchedStylesForNodeWithCmd:(HippyDevCommand *)command
+                                      bridge:(HippyBridge *)bridge
+                                  completion:(void (^)(NSDictionary *rspObject))completion {
+    if (!completion) {
+        return NO;
+    }
     HippyUIManager *manager = bridge.uiManager;
     if (!manager) {
         HippyLogWarn(@"CSSDomain, getMatchedStylesForNode error, manager is nil");
+        completion(@{});
         return NO;
     }
     NSNumber *nodeId = command.params[HippyCSSParamsKeyNodeId];
     if (!nodeId) {
         HippyLogWarn(@"CSSDomain, getMatchedStylesForNode error, params is't contains nodeId key");
+        completion(@{});
         return NO;
     }
-    HippyVirtualNode *node = [manager nodeForHippyTag:nodeId];
-    NSDictionary *matchedStylesJSON = [_cssModel matchedStyleJSONWithNode:node];
-    return [self handleRspDataWithCmd:command dataJSON:matchedStylesJSON];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        HippyVirtualNode *node = [manager nodeForHippyTag:nodeId];
+        [self->_cssModel matchedStyleJSONWithNode:node completion:^(NSDictionary * rspObject) {
+            [self handleRspDataWithCmd:command dataJSON:rspObject completion:completion];
+        }];
+    });
+    return YES;
 }
 
-- (BOOL)handleGetComputedStyleForNodeWithCmd:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
+- (BOOL)handleGetComputedStyleForNodeWithCmd:(HippyDevCommand *)command
+                                      bridge:(HippyBridge *)bridge
+                                  completion:(void (^)(NSDictionary *rspObject))completion {
+    if (!completion) {
+        return NO;
+    }
     HippyUIManager *manager = bridge.uiManager;
     if (!manager) {
         HippyLogWarn(@"CSSDomain, getComputedStyleForNode error, manager is nil");
+        completion(@{});
         return NO;
     }
     NSNumber *nodeId = command.params[HippyCSSParamsKeyNodeId];
     if (!nodeId) {
         HippyLogWarn(@"CSSDomain, getComputedStyleForNode error, params is't contains nodeId key");
+        completion(@{});
         return NO;
     }
-    HippyVirtualNode *node = [manager nodeForHippyTag:nodeId];
-    NSDictionary *computedStylesJSON = [_cssModel computedStyleJSONWithNode:node];
-    return [self handleRspDataWithCmd:command dataJSON:computedStylesJSON];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        HippyVirtualNode *node = [manager nodeForHippyTag:nodeId];
+        [self->_cssModel computedStyleJSONWithNode:node completion:^(NSDictionary *rspObject) {
+            [self handleRspDataWithCmd:command dataJSON:rspObject completion:completion];
+        }];
+    });
+    return YES;
 }
 
-- (BOOL)handleGetInlineStylesForNodeWithCmd:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
+- (BOOL)handleGetInlineStylesForNodeWithCmd:(HippyDevCommand *)command
+                                     bridge:(HippyBridge *)bridge
+                                 completion:(void (^)(NSDictionary *rspObject))completion {
+    if (!completion) {
+        return NO;
+    }
     HippyUIManager *manager = bridge.uiManager;
     if (!manager) {
         HippyLogWarn(@"CSSDomain, getInlineStylesForNode error, manager is nil");
+        completion(@{});
         return NO;
     }
     NSNumber *nodeId = command.params[HippyCSSParamsKeyNodeId];
     if (!nodeId) {
         HippyLogWarn(@"CSSDomain, getInlineStylesForNode error, params is't contains nodeId key");
+        completion(@{});
         return NO;
     }
-    HippyVirtualNode *node = [manager nodeForHippyTag:nodeId];
-    NSDictionary *inlineStylesJSON = [_cssModel inlineStyleJSONWithNode:node];
-    return [self handleRspDataWithCmd:command dataJSON:inlineStylesJSON];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        HippyVirtualNode *node = [manager nodeForHippyTag:nodeId];
+        [self->_cssModel inlineStyleJSONWithNode:node completion:^(NSDictionary *rspObject) {
+            [self handleRspDataWithCmd:command dataJSON:rspObject completion:completion];
+        }];
+    });
+    return YES;
 }
 
-- (BOOL)handleSetStyleTextsWithCmd:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
+- (BOOL)handleSetStyleTextsWithCmd:(HippyDevCommand *)command
+                            bridge:(HippyBridge *)bridge
+                        completion:(void (^)(NSDictionary *rspObject))completion{
+    if (!completion) {
+        return NO;
+    }
     HippyUIManager *manager = bridge.uiManager;
     if (!manager) {
         HippyLogWarn(@"CSSDomain, setStyleTexts error, manager is nil");
+        completion(@{});
         return NO;
     }
     NSArray<NSDictionary *> *edits = command.params[HippyCSSParamsKeyEdits];
     if (edits.count <= 0) {
         HippyLogWarn(@"CSSDomain, setStyleTexts error, params is't contains edits key");
+        completion(@{});
         return NO;
     }
-    NSMutableArray *styles = [NSMutableArray array];
+    NSMutableArray *styles = [NSMutableArray arrayWithCapacity:[edits count]];
+    dispatch_group_t group = dispatch_group_create();
     for (NSDictionary *editDic in edits) {
-        NSDictionary *styleJSON = [_cssModel styleTextJSONWithUIManager:manager
-                                                                editDic:editDic];
-        [styles addObject:styleJSON];
+        dispatch_group_enter(group);
+        [_cssModel styleTextJSONWithUIManager:manager
+                                      editDic:editDic
+                                   completion:^(NSDictionary * _Nonnull rspObject) {
+            [styles addObject:rspObject];
+            dispatch_group_leave(group);
+        }];
     }
-    return [self handleRspDataWithCmd:command dataJSON:@{HippyCSSRspKeyStyles : styles}];
+    dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+    return [self handleRspDataWithCmd:command dataJSON:@{HippyCSSRspKeyStyles : styles} completion:completion];
 }
 
 @end

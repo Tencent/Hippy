@@ -32,26 +32,31 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Get Chrome DOM getDocument JSON
  * @param rootNode root node
- * @return JSON Dictionary
+ * @param completion completion block
+ * @return sucess or failure
  */
-- (NSDictionary *)domGetDocumentJSONWithRootNode:(nullable HippyVirtualNode *)rootNode;
+- (BOOL)domGetDocumentJSONWithRootNode:(nullable HippyVirtualNode *)rootNode
+                            completion:(void (^)(NSDictionary *rspObject))completion;
 
 /**
  * @brief Get Chrome DOM getBoxModel JSON
  * @param node virtual node
- * @return JSON Dictionary
+ * @param completion completion block
+ * @return sucess or failure
  */
-- (NSDictionary *)domGetBoxModelJSONWithNode:(nullable HippyVirtualNode *)node;
+- (BOOL)domGetBoxModelJSONWithNode:(nullable HippyVirtualNode *)node
+                        completion:(void (^)(NSDictionary *rspObject))completion;
 
 /**
  * @brief Get Chrome DOM getNodeForLocation JSON
  * @param manager Hippy UI Manager
  * @param location location position
- * @return result JSON Dictionary
+ * @param completion completion block
+ * @return sucess or failure
  */
-- (NSDictionary *)domGetNodeForLocationWithManager:(nullable HippyUIManager *)manager
-                                          location:(CGPoint)location;
-
+- (BOOL)domGetNodeForLocationWithManager:(nullable HippyUIManager *)manager
+                                location:(CGPoint)location
+                              completion:(void (^)(NSDictionary *rspObject))completion;
 @end
 
 NS_ASSUME_NONNULL_END

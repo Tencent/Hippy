@@ -27,6 +27,7 @@
 #import "HippyDevCommand.h"
 #import "HippyBridge.h"
 #import "HippyUIManager.h"
+#import "HippyInspector.h"
 
 @interface HippyDevManager ()<HippyDevClientProtocol> {
     HippyDevWebSocketClient *_devWSClient;
@@ -56,13 +57,14 @@
 
 #pragma mark WS Delegate
 - (void)devClient:(HippyDevWebSocketClient *)devClient didReceiveMessage:(NSString *)message {
-    dispatch_sync(dispatch_get_main_queue(), ^{
-        HippyInspector *inspector = [HippyInspector sharedInstance];
-        HippyDevCommand *command = nil;
-        HippyInspectorDomain *domain = [inspector inspectorDomainFromMessage:message command:&command];
-        [domain handleRequestDevCommand:command bridge:_bridge];
-        [devClient sendData:command.resultString];
-    });
+    HippyInspector *inspector = [HippyInspector sharedInstance];
+    HippyDevCommand *command = nil;
+    HippyInspectorDomain *domain = [inspector inspectorDomainFromMessage:message command:&command];
+    [domain handleRequestDevCommand:command bridge:_bridge completion:^(NSDictionary *rspObject) {
+        rspObject = properResultForEmprtyObject(command.cmdID, rspObject);
+        NSData *data = [NSJSONSerialization dataWithJSONObject:rspObject options:0 error:nil];
+        [devClient sendData:data];
+    }];
 }
 
 @end

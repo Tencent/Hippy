@@ -48,7 +48,7 @@ NSString *const HippyPageImageFormatJPEG = @"jpeg";
 @property (nonatomic, assign) CGSize maxSize;
 @property (nonatomic, assign) NSInteger quality;
 @property (nonatomic, assign) NSTimeInterval lastTimestamp;
-@property (nonatomic, assign) BOOL needScreenCast;
+@property (atomic, assign) BOOL needScreenCast;
 
 @end
 
@@ -64,8 +64,9 @@ NSString *const HippyPageImageFormatJPEG = @"jpeg";
     return self;
 }
 
-- (NSDictionary *)startScreenCastWithUIManager:(HippyUIManager *)manager
-                                        params:(NSDictionary *)params {
+- (BOOL)startScreenCastWithUIManager:(HippyUIManager *)manager
+                              params:(NSDictionary *)params
+                          completion:(void (^)(NSDictionary *rspObject))completion {
     self.needScreenCast = YES;
     if (params.count > 0) {
         self.format = [params objectForKey:HippyPageKeyFormat] ? params[HippyPageKeyFormat] : HippyPageImageFormatJPEG;
@@ -74,69 +75,78 @@ NSString *const HippyPageImageFormatJPEG = @"jpeg";
         CGFloat maxHeight = [params objectForKey:HippyPageKeyMaxHeight] ? [params[HippyPageKeyMaxHeight] doubleValue] : 0;
         self.maxSize = CGSizeMake(maxWidth, maxHeight);
     }
-    return [self screencastJSONWithManager:manager];
+    return [self screencastJSONWithManager:manager completion:completion];
 }
 
 - (void)stopScreenCastWithUIManager:(HippyUIManager *)manager {
     self.needScreenCast = NO;
 }
 
-- (NSDictionary *)screencastFrameAckWithUIManager:(HippyUIManager *)manager
-                                           params:(NSDictionary *)params {
-    if (!manager) {
-        return @{};
+- (BOOL)screencastFrameAckWithUIManager:(HippyUIManager *)manager
+                                 params:(NSDictionary *)params
+                             completion:(void (^)(NSDictionary *rspObject))completion {
+    if (!completion || !manager) {
+        return NO;
     }
     NSTimeInterval sessionId = [params[HippyPageKeySessionId] doubleValue];
     if (!self.needScreenCast || sessionId != self.lastTimestamp) {
-        return @{};
+        completion(@{});
+        return NO;
     }
-    return [self screencastJSONWithManager:manager];
+    return [self screencastJSONWithManager:manager completion:completion];
 }
 
-- (NSDictionary *)screencastJSONWithManager:(HippyUIManager *)manager {
+- (BOOL)screencastJSONWithManager:(HippyUIManager *)manager
+                       completion:(void (^)(NSDictionary *rspObject))completion {
+    if (!completion) {
+        return NO;
+    }
     if (!manager) {
         HippyLogWarn(@"PageModel, screen cast, manager is nil");
-        return @{};
+        return NO;
     }
-    UIView *rootView = [manager viewForHippyTag:[manager rootHippyTag]];
-    if (!rootView) {
-        HippyLogWarn(@"PageModel, screen cast, root view is nil");
-        return @{};
-    }
-    
-    CGFloat viewWidth = rootView.frame.size.width;
-    CGFloat viewHeight = rootView.frame.size.height;
-    CGFloat scale = 1.f;
-    if (viewWidth != 0 && viewHeight != 0) {
-        CGFloat scaleX = self.maxSize.width / viewWidth;
-        CGFloat scaleY = self.maxSize.height / viewHeight;
-        scale = MIN(scaleX, scaleY);
-    }
-    // root view snapshot
-    UIGraphicsBeginImageContextWithOptions(rootView.frame.size, YES, scale);
-    [rootView drawViewHierarchyInRect:rootView.bounds afterScreenUpdates:YES];
-    UIImage *resultImage = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    if (!resultImage) {
-        HippyLogWarn(@"PageModel, screen cast, snapshot is nil");
-        return @{};
-    }
-    NSTimeInterval timestamp = [[NSDate date] timeIntervalSince1970];
-    NSString *base64String = [self imageToBase64String:resultImage format:self.format];
-    NSMutableDictionary *meta = [NSMutableDictionary dictionary];
-    meta[HippyPageKeyOffsetTop] = @(0);
-    meta[HippyPageKeyPageScaleFactor] = @(1);
-    meta[HippyPageKeyDeviceWidth] = @(viewWidth);
-    meta[HippyPageKeyDeviceHeight] = @(viewHeight);
-    meta[HippyPageKeyScrollOffsetX] = @(0);
-    meta[HippyPageKeyScrollOffsetY] = @(0);
-    meta[HippyPageKeyTimestamp] = @(timestamp);
-    NSMutableDictionary *resultJSON = [NSMutableDictionary dictionary];
-    resultJSON[HippyPageKeyData] = base64String != nil ? base64String : @"";
-    resultJSON[HippyPageKeyMetaData] = meta;
-    resultJSON[HippyPageKeySessionId] = @(timestamp);
-    self.lastTimestamp = timestamp;
-    return resultJSON;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        UIView *rootView = [manager viewForHippyTag:[manager rootHippyTag]];
+        if (!rootView) {
+            HippyLogWarn(@"PageModel, screen cast, root view is nil");
+            completion(@{});
+        }
+        CGFloat viewWidth = rootView.frame.size.width;
+        CGFloat viewHeight = rootView.frame.size.height;
+        CGFloat scale = 1.f;
+        if (viewWidth != 0 && viewHeight != 0) {
+            CGFloat scaleX = self.maxSize.width / viewWidth;
+            CGFloat scaleY = self.maxSize.height / viewHeight;
+            scale = MIN(scaleX, scaleY);
+        }
+        // root view snapshot
+        UIGraphicsBeginImageContextWithOptions(rootView.frame.size, YES, scale);
+        [rootView drawViewHierarchyInRect:rootView.bounds afterScreenUpdates:YES];
+        UIImage *resultImage = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+        if (resultImage) {
+            NSTimeInterval timestamp = [[NSDate date] timeIntervalSince1970];
+            NSString *base64String = [self imageToBase64String:resultImage format:self.format];
+            NSMutableDictionary *meta = [NSMutableDictionary dictionary];
+            meta[HippyPageKeyOffsetTop] = @(0);
+            meta[HippyPageKeyPageScaleFactor] = @(1);
+            meta[HippyPageKeyDeviceWidth] = @(viewWidth);
+            meta[HippyPageKeyDeviceHeight] = @(viewHeight);
+            meta[HippyPageKeyScrollOffsetX] = @(0);
+            meta[HippyPageKeyScrollOffsetY] = @(0);
+            meta[HippyPageKeyTimestamp] = @(timestamp);
+            NSMutableDictionary *resultJSON = [NSMutableDictionary dictionary];
+            resultJSON[HippyPageKeyData] = base64String != nil ? base64String : @"";
+            resultJSON[HippyPageKeyMetaData] = meta;
+            resultJSON[HippyPageKeySessionId] = @(timestamp);
+            self.lastTimestamp = timestamp;
+            completion(resultJSON);
+        }
+        else {
+            completion(@{});
+        }
+    });
+    return YES;
 }
 
 - (NSString *)imageToBase64String:(UIImage *)image

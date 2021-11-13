@@ -56,49 +56,65 @@ double const HippyPageScreenFrameAckDelayTime = 1.5f;
 }
 
 #pragma mark - Method Handle
-- (BOOL)handleRequestDevCommand:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
-    [super handleRequestDevCommand:command bridge:bridge];
-    
-    if ([command.method isEqualToString:HippyPageMethodStartScreencast]) {
-        return [self handleStartScreencast:command bridge:bridge];
-    }
-    if ([command.method isEqualToString:HippyPageMethodStopScreencast]) {
-        return [self handleStopScreencast:command bridge:bridge];
-    }
-    if ([command.method isEqualToString:HippyPageMethodScreencastFrameAck]) {
-        return [self handleScreenFrameAck:command bridge:bridge];
-    }
-    
-    return NO;
-}
 
-- (BOOL)handleStartScreencast:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
-    HippyUIManager *manager = bridge.uiManager;
-    if (!manager) {
-        HippyLogWarn(@"PageDomain, start screencast error, manager is nil");
+- (BOOL)handleRequestDevCommand:(HippyDevCommand *)command
+                         bridge:(HippyBridge *)bridge
+                     completion:(void (^)(NSDictionary * _Nonnull))completion {
+    if (!command || !completion) {
+        HippyLogWarn(@"PageDomain, handleReqDevCommand error, command or completion block is nil");
         return NO;
     }
-    NSDictionary *resultJSON = [_pageModel startScreenCastWithUIManager:manager
-                                                                 params:command.params];
-    if (self.inspector && resultJSON.count > 0) {
-        NSString *methodName = [NSString stringWithFormat:@"%@.%@", HippyPageDomainName, HippyPageMethodScreencastFrame];
-        [self.inspector sendDataToFrontendWithMethod:methodName
-                                              params:resultJSON];
+    if (![super handleRequestDevCommand:command bridge:bridge completion:completion]) {
+        if ([command.method isEqualToString:HippyPageMethodStartScreencast]) {
+            return [self handleStartScreencast:command bridge:bridge completion:completion];
+        }
+        if ([command.method isEqualToString:HippyPageMethodStopScreencast]) {
+            return [self handleStopScreencast:command bridge:bridge completion:completion];
+        }
+        if ([command.method isEqualToString:HippyPageMethodScreencastFrameAck]) {
+            return [self handleScreenFrameAck:command bridge:bridge completion:completion];
+        }
     }
     return YES;
 }
 
-- (BOOL)handleStopScreencast:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
+- (BOOL)handleStartScreencast:(HippyDevCommand *)command
+                       bridge:(HippyBridge *)bridge
+                   completion:(void (^)(NSDictionary * _Nonnull))completion {
+    HippyUIManager *manager = bridge.uiManager;
+    if (!manager || !completion) {
+        HippyLogWarn(@"PageDomain, start screencast error, manager or completion block is nil");
+        return NO;
+    }
+    return [_pageModel startScreenCastWithUIManager:manager
+                                             params:command.params
+                                         completion:^(NSDictionary * _Nonnull rspObject) {
+        if (self.inspector && rspObject.count > 0) {
+            NSString *methodName = [NSString stringWithFormat:@"%@.%@", HippyPageDomainName, HippyPageMethodScreencastFrame];
+            [self.inspector sendDataToFrontendWithMethod:methodName
+                                                  params:rspObject];
+        }
+    }];
+}
+
+- (BOOL)handleStopScreencast:(HippyDevCommand *)command
+                      bridge:(HippyBridge *)bridge
+                  completion:(void (^)(NSDictionary * _Nonnull))completion{
     HippyUIManager *manager = bridge.uiManager;
     if (!manager) {
         HippyLogWarn(@"PageDomain, stop screencast error, manager is nil");
         return NO;
     }
     [_pageModel stopScreenCastWithUIManager:manager];
+    if (completion) {
+        completion(@{});
+    }
     return YES;
 }
 
-- (BOOL)handleScreenFrameAck:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
+- (BOOL)handleScreenFrameAck:(HippyDevCommand *)command
+                      bridge:(HippyBridge *)bridge
+                  completion:(void (^)(NSDictionary * _Nonnull))completion {
     HippyUIManager *manager = bridge.uiManager;
     if (!manager) {
         HippyLogWarn(@"PageDomain, screencastFrameAck error, manager is nil");
@@ -107,12 +123,13 @@ double const HippyPageScreenFrameAckDelayTime = 1.5f;
     dispatch_time_t delayTime = dispatch_time(DISPATCH_TIME_NOW,
                                                (int64_t)(HippyPageScreenFrameAckDelayTime * NSEC_PER_SEC));
     dispatch_after(delayTime, dispatch_get_main_queue(), ^{
-        NSDictionary *resultJSON = [self->_pageModel screencastFrameAckWithUIManager:manager params:command.params];
-        if (self.inspector && resultJSON.count > 0) {
-            NSString *methodName = [NSString stringWithFormat:@"%@.%@", HippyPageDomainName, HippyPageMethodScreencastFrame];
-            [self.inspector sendDataToFrontendWithMethod:methodName
-                                                  params:resultJSON];
-        }
+        [self->_pageModel screencastFrameAckWithUIManager:manager params:command.params completion:^(NSDictionary * _Nonnull rspObject) {
+            if (self.inspector && rspObject.count > 0) {
+                NSString *methodName = [NSString stringWithFormat:@"%@.%@", HippyPageDomainName, HippyPageMethodScreencastFrame];
+                [self.inspector sendDataToFrontendWithMethod:methodName
+                                                      params:rspObject];
+            }
+        }];
     });
     return YES;
 }
