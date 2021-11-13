@@ -74,77 +74,96 @@ NSString *const HippyCSSDefaultPosition = @"relative";
 }
 
 #pragma mark - CSS Protocol
-- (NSDictionary *)matchedStyleJSONWithNode:(HippyVirtualNode *)node {
+- (BOOL)matchedStyleJSONWithNode:(HippyVirtualNode *)node
+                      completion:(void (^)(NSDictionary *rspObject))completion {
+    if (!completion) {
+        return NO;
+    }
     if (!node || node.props.count <= 0) {
         HippyLogWarn(@"CSS Model, matched style, node is nil or props is empty");
-        return @{};
+        completion(@{});
+        return NO;
     }
     NSDictionary *cssStyleDic = [self assemblyCSSStyleJSONWithProps:node.props nodeId:node.hippyTag];
-    return @{
-        HippyCSSKeyInlineStyleKey : cssStyleDic
-    };
+    completion(@{HippyCSSKeyInlineStyleKey: cssStyleDic});
+    return YES;
 }
 
-- (NSDictionary *)computedStyleJSONWithNode:(HippyVirtualNode *)node {
+- (BOOL)computedStyleJSONWithNode:(HippyVirtualNode *)node
+                       completion:(void (^)(NSDictionary *rspObject))completion {
+    if (!completion) {
+        return NO;
+    }
     if (!node || node.props.count <= 0) {
         HippyLogWarn(@"CSS Model, computed style, node is nil or props is empty");
-        return @{};
+        return NO;
     }
     NSArray *computedStyles = [self assemblyComputedStyleJSONWithProps:node.props
                                                                  width:@(node.frame.size.width)
                                                                 height:@(node.frame.size.height)];
-    return @{
-        HippyCSSKeyComputedStyle : computedStyles
-    };
+    completion(@{HippyCSSKeyComputedStyle: computedStyles});
+    return NO;
 }
 
-- (NSDictionary *)inlineStyleJSONWithNode:(HippyVirtualNode *)node {
-    return @{};
+- (BOOL)inlineStyleJSONWithNode:(HippyVirtualNode *)node
+                     completion:(void (^)(NSDictionary *respObject))completion{
+    if (completion) {
+        completion(@{});
+    }
+    return YES;
 }
 
-- (NSDictionary *)styleTextJSONWithUIManager:(HippyUIManager *)manager
-                                     editDic:(NSDictionary *)editDic{
+- (BOOL)styleTextJSONWithUIManager:(HippyUIManager *)manager
+                           editDic:(NSDictionary *)editDic
+                        completion:(void (^)(NSDictionary *rspObject))completion {
+    if (!completion) {
+        return NO;
+    }
     if (!manager || editDic.count <= 0) {
         HippyLogWarn(@"CSS Model, style text json, manager is nil or editDic is empty");
-        return @{};
+        return NO;
     }
-    NSNumber *nodeId = editDic[HippyCSSKeyStyleSheetId];
-    HippyVirtualNode *node = [manager nodeForHippyTag:nodeId];
-    if (!node) {
-        HippyLogWarn(@"CSS Model, style text json, node is nil");
-        return @{};
-    }
-    NSMutableDictionary *newProps = [NSMutableDictionary dictionary];
-    if (node.props.count > 0) {
-        newProps = [NSMutableDictionary dictionaryWithDictionary:node.props];
-    }
-    NSString *editText = editDic[HippyCSSKeyText];
-    NSArray *editTexts = [editText componentsSeparatedByString:@";"];
-    for (NSString *propText in editTexts) {
-        NSArray *propTextArray = [propText componentsSeparatedByString:@":"];
-        if (propTextArray.count != 2) {
-            continue;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSNumber *nodeId = editDic[HippyCSSKeyStyleSheetId];
+        HippyVirtualNode *node = [manager nodeForHippyTag:nodeId];
+        if (!node) {
+            HippyLogWarn(@"CSS Model, style text json, node is nil");
+            completion(@{});
         }
-        NSString *propKey = [self camelize:[propTextArray.firstObject
-                                                stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]]];
-        NSString *propValue = [propTextArray.lastObject stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-        if ([self.styleNumberSet containsObject:propKey]) {
-            newProps[propKey] = @(propValue.doubleValue);
+        NSMutableDictionary *newProps = [NSMutableDictionary dictionary];
+        if (node.props.count > 0) {
+            newProps = [NSMutableDictionary dictionaryWithDictionary:node.props];
         }
-        if ([self.styleEnumMap.allKeys containsObject:propKey]) {
-            NSArray *enumValues = self.styleEnumMap[propKey];
-            if ([enumValues containsObject:propValue]) {
-                newProps[propKey] = propValue;
-            } else {
-                newProps[propKey] = enumValues.firstObject;
+        NSString *editText = editDic[HippyCSSKeyText];
+        NSArray *editTexts = [editText componentsSeparatedByString:@";"];
+        for (NSString *propText in editTexts) {
+            NSArray *propTextArray = [propText componentsSeparatedByString:@":"];
+            if (propTextArray.count != 2) {
+                continue;
+            }
+            NSString *propKey = [self camelize:[propTextArray.firstObject
+                                                    stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]]];
+            NSString *propValue = [propTextArray.lastObject stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+            if ([self.styleNumberSet containsObject:propKey]) {
+                newProps[propKey] = @(propValue.doubleValue);
+            }
+            if ([self.styleEnumMap.allKeys containsObject:propKey]) {
+                NSArray *enumValues = self.styleEnumMap[propKey];
+                if ([enumValues containsObject:propValue]) {
+                    newProps[propKey] = propValue;
+                } else {
+                    newProps[propKey] = enumValues.firstObject;
+                }
             }
         }
-    }
-    NSDictionary *resultProps = [newProps copy];
-    dispatch_async(HippyGetUIManagerQueue(), ^{
-        [manager updateViewWithHippyTag:nodeId props:resultProps];
+        NSDictionary *resultProps = [newProps copy];
+        dispatch_async(HippyGetUIManagerQueue(), ^{
+            [manager updateViewWithHippyTag:nodeId props:resultProps];
+        });
+        NSDictionary *ret = [self assemblyCSSStyleJSONWithProps:resultProps nodeId:nodeId];
+        completion(ret);
     });
-    return [self assemblyCSSStyleJSONWithProps:resultProps nodeId:nodeId];
+    return YES;
 }
 
 #pragma mark - private method

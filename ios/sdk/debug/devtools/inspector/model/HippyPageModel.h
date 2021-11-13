@@ -31,10 +31,12 @@ NS_ASSUME_NONNULL_BEGIN
  * @brief Get Chrome Page startScreencast JSON
  * @param manager UIManager
  * @param params param objects
- * @return JSON Dictionary
- */
-- (NSDictionary *)startScreenCastWithUIManager:(HippyUIManager *)manager
-                                        params:(NSDictionary *)params;
+ * @param completion completion block
+ * @return success or failure
+*/
+- (BOOL)startScreenCastWithUIManager:(HippyUIManager *)manager
+                              params:(NSDictionary *)params
+                          completion:(void (^)(NSDictionary *rspObject))completion;
 
 /**
  * @brief Handle Chrome Page stopScreencast
@@ -46,10 +48,12 @@ NS_ASSUME_NONNULL_BEGIN
  * @brief Get Chrome Page screencastFrameAck JSON
  * @param manager UIManager
  * @param params param objects
- * @return JSON Dictionary
+ * @param completion completion block
+ * @return success or failure
  */
-- (NSDictionary *)screencastFrameAckWithUIManager:(HippyUIManager *)manager
-                                           params:(NSDictionary *)params;
+- (BOOL)screencastFrameAckWithUIManager:(HippyUIManager *)manager
+                                 params:(NSDictionary *)params
+                             completion:(void (^)(NSDictionary *rspObject))completion;
 
 @end
 

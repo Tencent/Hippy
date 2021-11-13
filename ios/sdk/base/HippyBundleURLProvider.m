@@ -46,8 +46,7 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
-        _localhostIP = @"172.20.10.3";
-//        _localhostIP = @"localhost";
+        _localhostIP = @"localhost";
         _localhostPort = @"38989";
         _debugPathUrl = @"/index.bundle?platform=ios&dev=true&minify=false";
     }

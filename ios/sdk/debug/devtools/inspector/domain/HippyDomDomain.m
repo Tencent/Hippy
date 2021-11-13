@@ -60,56 +60,92 @@ NSString *const HippyDOMParamsKeyY = @"y";
 }
 
 #pragma mark - Method Handle
-- (BOOL)handleRequestDevCommand:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
-    [super handleRequestDevCommand:command bridge:bridge];
-    
-    if ([command.method isEqualToString:HippyDomMethodGetDocument]) {
-        return [self handleGetDocumentWithCmd:command bridge:bridge];
+- (BOOL)handleRequestDevCommand:(HippyDevCommand *)command
+                         bridge:(HippyBridge *)bridge
+                     completion:(nonnull void (^)(NSDictionary *))completion {
+    if (!completion) {
+        return NO;
     }
-    if ([command.method isEqualToString:HippyDomMethodGetBoxModel]) {
-        return [self handleGetBoxModelWithCmd:command bridge:bridge];
+    if (!command) {
+        HippyLogWarn(@"PageDomain, handleReqDevCommand error, command or completion block is nil");
+        completion(@{});
+        return NO;
     }
-    if ([command.method isEqualToString:HippyDomMethodGetNodeForLocation]) {
-        return [self handleGetNodeForLocationWithCmd:command bridge:bridge];
+    if (![super handleRequestDevCommand:command bridge:bridge completion:completion]) {
+        if ([command.method isEqualToString:HippyDomMethodGetDocument]) {
+            return [self handleGetDocumentWithCmd:command bridge:bridge completion:completion];
+        }
+        if ([command.method isEqualToString:HippyDomMethodGetBoxModel]) {
+            return [self handleGetBoxModelWithCmd:command bridge:bridge completion:completion];
+        }
+        if ([command.method isEqualToString:HippyDomMethodGetNodeForLocation]) {
+            return [self handleGetNodeForLocationWithCmd:command bridge:bridge completion:completion];
+        }
+        if ([command.method isEqualToString:HippyDomMethodSetInspectedNode]) {
+            return [self handleRspDataWithCmd:command dataJSON:@{} completion:completion];
+        }
     }
-    if ([command.method isEqualToString:HippyDomMethodSetInspectedNode]) {
-        return [self handleRspDataWithCmd:command dataJSON:@{}];
-    }
-    
     return NO;
 }
 
-- (BOOL)handleGetDocumentWithCmd:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
+- (BOOL)handleGetDocumentWithCmd:(HippyDevCommand *)command
+                          bridge:(HippyBridge *)bridge
+                      completion:(void (^)(NSDictionary *rspObject))completion {
+    if (!completion) {
+        return NO;
+    }
     HippyUIManager *manager = bridge.uiManager;
     if (!manager) {
         HippyLogWarn(@"DomDomain, getDocument error, manager is nil");
+        completion(@{});
         return NO;
     }
-    HippyVirtualNode *rootNode = [manager nodeForHippyTag:[manager rootHippyTag]];
-    NSDictionary *documentJSON = [_domModel domGetDocumentJSONWithRootNode:rootNode];
-    return [self handleRspDataWithCmd:command dataJSON:documentJSON];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        HippyVirtualNode *rootNode = [manager nodeForHippyTag:[manager rootHippyTag]];
+        [self->_domModel domGetDocumentJSONWithRootNode:rootNode completion:^(NSDictionary * rspObject) {
+            [self handleRspDataWithCmd:command dataJSON:rspObject completion:completion];
+        }];
+    });
+    return YES;
 }
 
-- (BOOL)handleGetBoxModelWithCmd:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
+- (BOOL)handleGetBoxModelWithCmd:(HippyDevCommand *)command
+                          bridge:(HippyBridge *)bridge
+                      completion:(void (^)(NSDictionary *rspObject))completion {
+    if (!completion) {
+        return NO;
+    }
     HippyUIManager *manager = bridge.uiManager;
     if (!manager) {
         HippyLogWarn(@"DomDomain, getBoxModel error, manager is nil");
+        completion(@{});
         return NO;
     }
     NSNumber *nodeId = command.params[HippyDOMParamsKeyNodeId];
     if (!nodeId) {
         HippyLogWarn(@"DomDomain, getBoxModel error, params isn't contains nodeId key");
+        completion(@{});
         return NO;
     }
-    HippyVirtualNode *node = [manager nodeForHippyTag:nodeId];
-    NSDictionary *boxModelJSON = [_domModel domGetBoxModelJSONWithNode:node];
-    return [self handleRspDataWithCmd:command dataJSON:boxModelJSON];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        HippyVirtualNode *node = [manager nodeForHippyTag:nodeId];
+        [self->_domModel domGetBoxModelJSONWithNode:node completion:^(NSDictionary * rspObject) {
+            [self handleRspDataWithCmd:command dataJSON:rspObject completion:completion];
+        }];
+    });
+    return YES;
 }
 
-- (BOOL)handleGetNodeForLocationWithCmd:(HippyDevCommand *)command bridge:(HippyBridge *)bridge {
+- (BOOL)handleGetNodeForLocationWithCmd:(HippyDevCommand *)command
+                                 bridge:(HippyBridge *)bridge
+                             completion:(void (^)(NSDictionary *rspObject))completion {
+    if (!completion) {
+        return NO;
+    }
     HippyUIManager *manager = bridge.uiManager;
     if (!manager) {
         HippyLogWarn(@"DomDomain, getNodeForLocation error, manager is nil");
+        completion(@{});
         return NO;
     }
     NSNumber *x = command.params[HippyDOMParamsKeyX];
@@ -119,9 +155,12 @@ NSString *const HippyDOMParamsKeyY = @"y";
         return NO;
     }
     CGPoint location = CGPointMake(x.doubleValue, y.doubleValue);
-    NSDictionary *resultJSON = [_domModel domGetNodeForLocationWithManager:manager
-                                                                  location:location];
-    return [self handleRspDataWithCmd:command dataJSON:resultJSON];
+    [_domModel domGetNodeForLocationWithManager:manager
+                                       location:location
+                                     completion:^(NSDictionary *rspObject) {
+        [self handleRspDataWithCmd:command dataJSON:rspObject completion:completion];
+    }];
+    return YES;
 }
 
 - (void)handleEndBatchNotification{

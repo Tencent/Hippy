@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)new NS_UNAVAILABLE;
 
-- (HippyInspectorDomain *)inspectorDomainFromMessage:(NSString *)message command:(out HippyDevCommand **)command;
+- (HippyInspectorDomain *)inspectorDomainFromMessage:(NSString *)message command:(out HippyDevCommand *_Nullable*_Nullable)command;
 
 - (void)sendDataToFrontendWithMethod:(NSString *)method params:(NSDictionary *)params;
 

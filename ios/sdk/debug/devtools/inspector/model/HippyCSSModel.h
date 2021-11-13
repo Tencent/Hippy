@@ -32,32 +32,41 @@ HIPPY_EXTERN NSString *const HippyCSSKeyStyleSheetId;
 /**
  * @brief Get Chrome CSS getMatchedStyles JSON
  * @param node virtual node
- * @return JSON Dictionary
+ * @param completion complection block
+ * @return success or failure
  */
-- (NSDictionary *)matchedStyleJSONWithNode:(nullable HippyVirtualNode *)node;
+- (BOOL)matchedStyleJSONWithNode:(nullable HippyVirtualNode *)node
+                      completion:(void (^)(NSDictionary *rspObject))completion;
+
 
 /**
  * @brief Get Chrome CSS getComputedStyle JSON
  * @param node virtual node
- * @return JSON Dictionary
+ * @param completion complection block
+ * @return success or failure
  */
-- (NSDictionary *)computedStyleJSONWithNode:(nullable HippyVirtualNode *)node;
+- (BOOL)computedStyleJSONWithNode:(nullable HippyVirtualNode *)node
+                       completion:(void (^)(NSDictionary *rspObject))completion;
 
 /**
  * @brief Get Chrome CSS getInlineStyles JSON
  * @param node virtual node
- * @return JSON Dictionary
+ * @param completion complection block
+ * @return success or failure
  */
-- (NSDictionary *)inlineStyleJSONWithNode:(nullable HippyVirtualNode *)node;
+- (BOOL)inlineStyleJSONWithNode:(nullable HippyVirtualNode *)node
+                     completion:(void (^)(NSDictionary *rspObject))completion;
 
 /**
  * @brief Get Chrome CSS setStyleText JSON
  * @param manager Hippy UI manager
  * @param editDic edit dictionary
- * @return JSON Dictionary
+ * @param completion complection block
+ * @return success or failure
  */
-- (NSDictionary *)styleTextJSONWithUIManager:(HippyUIManager *)manager
-                                     editDic:(NSDictionary *)editDic;
+- (BOOL)styleTextJSONWithUIManager:(HippyUIManager *)manager
+                           editDic:(NSDictionary *)editDic
+                        completion:(void (^)(NSDictionary *rspObject))completion;
 
 @end
 

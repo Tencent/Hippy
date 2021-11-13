@@ -22,8 +22,11 @@
 
 #import <Foundation/Foundation.h>
 #import "HippyInspector.h"
+#import "HippyDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
+
+HIPPY_EXTERN NSDictionary *properResultForEmprtyObject(NSNumber *index, NSDictionary *object);
 
 @class HippyDevCommand;
 @class HippyBridge;
@@ -34,9 +37,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithInspector:(HippyInspector *)inspector;
 
-- (BOOL)handleRequestDevCommand:(HippyDevCommand *)command bridge:(HippyBridge *)bridge;
+- (BOOL)handleRequestDevCommand:(HippyDevCommand *)command
+                         bridge:(HippyBridge *)bridge
+                     completion:(void (^)(NSDictionary *))completion;
 
-- (BOOL)handleRspDataWithCmd:(HippyDevCommand *)command dataJSON:(NSDictionary *)dataJSON;
+- (BOOL)handleRspDataWithCmd:(HippyDevCommand *)command
+                    dataJSON:(NSDictionary *)dataJSON
+                  completion:(void (^)(NSDictionary *))completion;
 
 - (NSString *)domainName;
 

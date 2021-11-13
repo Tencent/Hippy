@@ -24,6 +24,7 @@
 #import <UIKit/UIKit.h>
 #import "HippyCSSPropsDefine.h"
 #import "HippyLog.h"
+#import "HippyUIManager.h"
 
 // DOM Result JSON Key
 NSString *const HippyDOMKeyRoot = @"root";
@@ -74,71 +75,95 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
 @implementation HippyDomModel
 
 #pragma mark - DOM Protocol
-- (NSDictionary *)domGetDocumentJSONWithRootNode:(HippyVirtualNode *)rootNode {
+- (BOOL)domGetDocumentJSONWithRootNode:(HippyVirtualNode *)rootNode
+                            completion:(void (^)(NSDictionary *rspObject))completion {
+    if (!completion) {
+        return NO;
+    }
     if (!rootNode) {
         HippyLogWarn(@"DOM Model, getDocument error, rootNode is nil");
-        return @{};
+        completion(@{});
+        return NO;
     }
-    NSMutableDictionary *rootDic = [NSMutableDictionary dictionary];
-    rootDic[HippyDOMKeyNodeId] = @(HippyDOMDefaultDocumentNodeId);
-    rootDic[HippyDOMKeyBackendNodeId] = @(HippyDOMDefaultDocumentNodeId);
-    rootDic[HippyDOMKeyNodeType] = @(HippyDOMNodeTypeDocumentFragmentNode);
-    rootDic[HippyDOMKeyChildNodeCount] = @(HippyDOMDefaultDocumentChildNodeCount);
-    rootDic[HippyDOMKeyBaseURL] = @"";
-    rootDic[HippyDOMKeyDocumentURL] = @"";
-    NSMutableArray *children = [NSMutableArray array];
-    for (HippyVirtualNode *childNode in rootNode.subNodes) {
-        [children addObject:[self nodeJSONWithVirtualNode:childNode nodeType:HippyDOMNodeTypeElementNode]];
-    }
-    
-    rootDic[HippyDOMKeyChildren] = children;
-    NSMutableDictionary *resultDic = [NSMutableDictionary dictionary];
-    resultDic[HippyDOMKeyRoot] = rootDic;
-    return [resultDic copy];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSMutableDictionary *rootDic = [NSMutableDictionary dictionary];
+        rootDic[HippyDOMKeyNodeId] = @(HippyDOMDefaultDocumentNodeId);
+        rootDic[HippyDOMKeyBackendNodeId] = @(HippyDOMDefaultDocumentNodeId);
+        rootDic[HippyDOMKeyNodeType] = @(HippyDOMNodeTypeDocumentFragmentNode);
+        rootDic[HippyDOMKeyChildNodeCount] = @(HippyDOMDefaultDocumentChildNodeCount);
+        rootDic[HippyDOMKeyBaseURL] = @"";
+        rootDic[HippyDOMKeyDocumentURL] = @"";
+        NSMutableArray *children = [NSMutableArray array];
+        for (HippyVirtualNode *childNode in rootNode.subNodes) {
+            [children addObject:[self nodeJSONWithVirtualNode:childNode nodeType:HippyDOMNodeTypeElementNode]];
+        }
+        
+        rootDic[HippyDOMKeyChildren] = children;
+        NSMutableDictionary *resultDic = [NSMutableDictionary dictionary];
+        resultDic[HippyDOMKeyRoot] = rootDic;
+        completion(resultDic);
+    });
+    return YES;
 }
 
-- (NSDictionary *)domGetBoxModelJSONWithNode:(HippyVirtualNode *)node {
+- (BOOL)domGetBoxModelJSONWithNode:(HippyVirtualNode *)node
+                        completion:(void (^)(NSDictionary *rspObject))completion {
+    if (!completion) {
+        return NO;
+    }
     if (!node) {
         HippyLogWarn(@"DOM Model, getBoxModel error, node is nil");
-        return @{};
+        completion(@{});
+        return NO;
     }
-    CGRect windowFrame = [self windowFrameWithNode:node];
-    NSMutableDictionary *boxModelDic = [NSMutableDictionary dictionary];
-    NSArray *border = [self assemblyBoxModelBorderWithFrame:windowFrame];
-    NSArray *padding = [self assemblyBoxModelPaddingWithProps:node.props border:border];
-    NSArray *content = [self assemblyBoxModelContentWithProps:node.props padding:padding];
-    NSArray *margin = [self assemblyBoxModelMarginWithProps:node.props border:border];
-    boxModelDic[HippyDevtoolsCSSPropWidth] = @(windowFrame.size.width);
-    boxModelDic[HippyDevtoolsCSSPropHeight] = @(windowFrame.size.height);
-    boxModelDic[HippyDevtoolsCSSPropBorder] = border;
-    boxModelDic[HippyDevtoolsCSSPropPadding] = padding;
-    boxModelDic[HippyDOMKeyBoxModelContent] = content;
-    boxModelDic[HippyDevtoolsCSSPropMargin] = margin;
-    return @{HippyDOMKeyModel : boxModelDic};
+    dispatch_async(dispatch_get_main_queue(), ^{
+        CGRect windowFrame = [self windowFrameWithNode:node];
+        NSMutableDictionary *boxModelDic = [NSMutableDictionary dictionary];
+        NSArray *border = [self assemblyBoxModelBorderWithFrame:windowFrame];
+        NSArray *padding = [self assemblyBoxModelPaddingWithProps:node.props border:border];
+        NSArray *content = [self assemblyBoxModelContentWithProps:node.props padding:padding];
+        NSArray *margin = [self assemblyBoxModelMarginWithProps:node.props border:border];
+        boxModelDic[HippyDevtoolsCSSPropWidth] = @(windowFrame.size.width);
+        boxModelDic[HippyDevtoolsCSSPropHeight] = @(windowFrame.size.height);
+        boxModelDic[HippyDevtoolsCSSPropBorder] = border;
+        boxModelDic[HippyDevtoolsCSSPropPadding] = padding;
+        boxModelDic[HippyDOMKeyBoxModelContent] = content;
+        boxModelDic[HippyDevtoolsCSSPropMargin] = margin;
+        completion(@{HippyDOMKeyModel: boxModelDic});
+    });
+    return YES;
 }
 
-- (NSDictionary *)domGetNodeForLocationWithManager:(nullable HippyUIManager *)manager
-                                          location:(CGPoint)location {
+- (BOOL)domGetNodeForLocationWithManager:(nullable HippyUIManager *)manager
+                                location:(CGPoint)location
+                              completion:(void (^)(NSDictionary *rspObject))completion {
+    if (!completion) {
+        return NO;
+    }
     if (!manager) {
-        HippyLogWarn(@"DOM Model, getNodeForLocation error, manager is nil");
-        return @{};
+        HippyLogWarn(@"DOM Model, getNodeForLocation error, manager or completion is nil");
+        completion(@{});
+        return NO;
     }
-    NSMutableDictionary *resultDic = [NSMutableDictionary dictionary];
-    HippyVirtualNode *rootNode = [manager nodeForHippyTag:[manager rootHippyTag]];
-    if (!rootNode) {
-        HippyLogWarn(@"DOM Model, getNodeForLocation error, root node is nil");
-        return @{};
-    }
-    self.manager = manager;
-    HippyVirtualNode *hitNode = [self maxDepthAndMinAreaHitNodeWithLocation:location
-                                                                       node:rootNode];
-    if (!hitNode) {
-        return @{};
-    }
-    resultDic[HippyDOMKeyBackendId] = hitNode.hippyTag;
-    resultDic[HippyDOMKeyFrameId] = HippyDOMDefaultFrameID;
-    resultDic[HippyDOMKeyNodeId] = hitNode.hippyTag;
-    return resultDic;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSMutableDictionary *resultDic = [NSMutableDictionary dictionary];
+        HippyVirtualNode *rootNode = [manager nodeForHippyTag:[manager rootHippyTag]];
+        if (!rootNode) {
+            HippyLogWarn(@"DOM Model, getNodeForLocation error, root node is nil");
+            completion(@{});
+        }
+        self.manager = manager;
+        HippyVirtualNode *hitNode = [self maxDepthAndMinAreaHitNodeWithLocation:location
+                                                                           node:rootNode];
+        if (!hitNode) {
+            completion(@{});
+        }
+        resultDic[HippyDOMKeyBackendId] = hitNode.hippyTag;
+        resultDic[HippyDOMKeyFrameId] = HippyDOMDefaultFrameID;
+        resultDic[HippyDOMKeyNodeId] = hitNode.hippyTag;
+        completion(resultDic);
+    });
+    return YES;
 }
 
 #pragma mark - private method
