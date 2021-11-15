@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 Properties gradleProperties = new Properties()
-def propFileDir = "$projectDir.absolutePath/../../../android/sdk/gradle.properties"
+def propFileDir = "$projectDir.absolutePath/../../android/gradle.properties"
 def propFile = new File(propFileDir)
 def verifyReleaseAar = false
 def includeSupportui = true
@@ -104,7 +104,7 @@ dependencies {
     if (verifyReleaseAar) {
         api (name: 'android-sdk-release', ext: 'aar')
     } else {
-        api project(path: ':android-sdk')
+        api project(path: ':hippy-framework')
     }
     //noinspection GradleDependency
     api 'com.github.bumptech.glide:glide:3.6.1'

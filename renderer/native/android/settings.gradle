@@ -1,3 +1,3 @@
 
 include 'hippy-support'
-project(':hippy-support').projectDir = new File('../../../modules/hippy_support')
+//project(':hippy-support').projectDir = new File('../../../modules/hippy_support')
