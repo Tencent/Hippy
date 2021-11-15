@@ -70,7 +70,7 @@ void ConsoleModule::Log(const hippy::napi::CallbackInfo& info) {
 
   unicode_string_view view_msg = EscapeMessage(message);
   if (info.Length() == 1) {
-    TDF_BASE_DLOG(INFO) << view_msg;
+    TDF_BASE_LOG(INFO) << view_msg;
   } else {
     unicode_string_view view_type;
     if (!context->GetValueString(info[1], &view_type) ||
@@ -82,15 +82,15 @@ void ConsoleModule::Log(const hippy::napi::CallbackInfo& info) {
 
     std::string u8_type = StringViewUtils::ToU8StdStr(view_type);
     if (u8_type.compare("info") == 0) {
-      TDF_BASE_DLOG(INFO) << view_msg;
+      TDF_BASE_LOG(INFO) << view_msg;
     } else if (u8_type.compare("warn") == 0) {
-      TDF_BASE_DLOG(WARNING) << view_msg;
+      TDF_BASE_LOG(WARNING) << view_msg;
     } else if (u8_type.compare("error") == 0) {
-      TDF_BASE_DLOG(ERROR) << view_msg;
+      TDF_BASE_LOG(ERROR) << view_msg;
     } else if (u8_type.compare("fatal") == 0) {
-      TDF_BASE_DLOG(FATAL) << view_msg;
+      TDF_BASE_LOG(FATAL) << view_msg;
     } else {
-      TDF_BASE_DLOG(INFO) << view_msg;
+      TDF_BASE_LOG(INFO) << view_msg;
     }
   }
 
