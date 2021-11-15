@@ -172,8 +172,8 @@ android {
 
 dependencies {
   api fileTree(dir: 'libs', include: ['*.jar'])
-  api project(path: ':renderer-native')
   api project(path: ':hippy-support')
+  api project(path: ':renderer-native')
   //noinspection GradleDependency
   implementation 'androidx.annotation:annotation:1.0.0'
   if (!INCLUDE_SUPPORT_UI.toBoolean()) {
@@ -279,7 +279,7 @@ task dealAfterAssembleRelease() {
     dealAfterAssemble("release")
     copy {
       from "$OUTPUT_PATH/$ARCHIVES_BASE_NAME-release.aar"
-      into "$projectDir.absolutePath/../../examples/android-demo/example/libs"
+      into "$projectDir.absolutePath/../examples/android-demo/example/libs"
     }
   }
 }

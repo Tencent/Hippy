@@ -1,0 +1,5 @@
+include 'renderer-native'
+//project(':renderer-native').projectDir = new File('../../../renderer/native/android')
+
+include 'hippy-support'
+//project(':hippy-support').projectDir = new File('../../../modules/hippy_support')
