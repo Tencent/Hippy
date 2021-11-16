@@ -74,6 +74,8 @@ test('Element.removeAttribute test', (t) => {
   const testNode = new ElementNode('div');
   const key = 'test';
   testNode.setAttribute(key, '123');
+  t.is(testNode.getAttribute(key), '123');
+  testNode.setAttribute(key, 123);
   t.is(testNode.getAttribute(key), 123);
   testNode.removeAttribute(key);
   t.is(testNode.getAttribute(key), undefined);

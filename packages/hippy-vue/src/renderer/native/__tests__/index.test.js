@@ -848,6 +848,8 @@ test('text element with number text test', (t) => {
   parentNode.setText(0);
   parentNode.setAttribute('test', '123');
   t.is(parentNode.getAttribute('text'), '0');
+  t.is(parentNode.getAttribute('test'), '123');
+  parentNode.setAttribute('test', 123);
   t.is(parentNode.getAttribute('test'), 123);
   // debug mode
   process.env.NODE_ENV = 'test';
