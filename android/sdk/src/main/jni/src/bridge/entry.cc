@@ -55,7 +55,8 @@ REGISTER_STATIC_JNI("com/tencent/mtt/hippy/HippyEngine",
 
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
              "initJSFramework",
-             "([BZZZLcom/tencent/mtt/hippy/bridge/NativeCallback;J)J",
+             "([BZZZLcom/tencent/mtt/hippy/bridge/NativeCallback;"
+             "JLcom/tencent/mtt/hippy/HippyEngine$V8InitParams;)J",
              InitInstance)
 
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
@@ -77,6 +78,7 @@ using Ctx = hippy::napi::Ctx;
 using StringViewUtils = hippy::base::StringViewUtils;
 using HippyFile = hippy::base::HippyFile;
 using V8VM = hippy::napi::V8VM;
+using V8VMInitParam = hippy::napi::V8VMInitParam;
 #ifdef ENABLE_INSPECTOR
 using V8InspectorClientImpl = hippy::inspector::V8InspectorClientImpl;
 std::shared_ptr<V8InspectorClientImpl> global_inspector = nullptr;
@@ -364,7 +366,8 @@ jlong InitInstance(JNIEnv* j_env,
                    jboolean j_enable_v8_serialization,
                    jboolean j_is_dev_module,
                    jobject j_callback,
-                   jlong j_group_id) {
+                   jlong j_group_id,
+                   jobject j_vm_init_param) {
   TDF_BASE_LOG(INFO) << "InitInstance begin, j_single_thread_mode = "
                      << static_cast<uint32_t>(j_single_thread_mode)
                      << ", j_bridge_param_json = "
@@ -444,6 +447,20 @@ jlong InitInstance(JNIEnv* j_env,
       std::make_pair(hippy::base::KScopeInitializedCBKey, scope_cb));
 
   int64_t group = j_group_id;
+  std::shared_ptr<V8VMInitParam> param;
+  if (j_vm_init_param) {
+    param = std::make_shared<V8VMInitParam>();
+    jclass cls = j_env->GetObjectClass(j_vm_init_param);
+    jfieldID init_field = j_env->GetFieldID(cls,"initialHeapSize","J");
+    jlong initial_heap_size_in_bytes = j_env->GetLongField(j_vm_init_param, init_field);
+    TDF_BASE_CHECK(initial_heap_size_in_bytes <= std::numeric_limits<size_t>::max());
+    param->initial_heap_size_in_bytes = static_cast<size_t>(initial_heap_size_in_bytes);
+    jfieldID max_field = j_env->GetFieldID(cls,"maximumHeapSize","J");
+    jlong maximum_heap_size_in_bytes = j_env->GetLongField(j_vm_init_param, max_field);
+    TDF_BASE_CHECK(maximum_heap_size_in_bytes <= std::numeric_limits<size_t>::max());
+    param->maximum_heap_size_in_bytes = static_cast<size_t>(maximum_heap_size_in_bytes);
+    TDF_BASE_CHECK(initial_heap_size_in_bytes <= maximum_heap_size_in_bytes);
+  }
   std::shared_ptr<Engine> engine;
   if (j_is_dev_module) {
     std::lock_guard<std::mutex> lock(engine_mutex);
@@ -458,7 +475,7 @@ jlong InitInstance(JNIEnv* j_env,
       v8::Isolate* isolate = v8_vm->isolate_;
       isolate->SetData(kRuntimeSlotIndex, reinterpret_cast<void*>(runtime_id));
     } else {
-      engine = std::make_shared<Engine>(std::move(engine_cb_map));
+      engine = std::make_shared<Engine>(std::move(engine_cb_map), param);
       runtime->SetEngine(engine);
       reuse_engine_map[group] = std::make_pair(engine, 1);
     }
@@ -478,13 +495,13 @@ jlong InitInstance(JNIEnv* j_env,
                           << ", use_count = " << engine.use_count();
     } else {
       TDF_BASE_DLOG(INFO) << "engine create";
-      engine = std::make_shared<Engine>(std::move(engine_cb_map));
+      engine = std::make_shared<Engine>(std::move(engine_cb_map), param);
       runtime->SetEngine(engine);
       reuse_engine_map[group] = std::make_pair(engine, 1);
     }
   } else {  // kDefaultEngineId
     TDF_BASE_DLOG(INFO) << "default create engine";
-    engine = std::make_shared<Engine>(std::move(engine_cb_map));
+    engine = std::make_shared<Engine>(std::move(engine_cb_map), param);
     runtime->SetEngine(engine);
   }
   runtime->SetScope(
