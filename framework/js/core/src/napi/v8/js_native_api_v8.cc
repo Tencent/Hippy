@@ -225,8 +225,8 @@ void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& info) {
   TDF_BASE_DLOG(INFO) << "v8 GetInternalBinding end";
 }
 
-std::shared_ptr<VM> CreateVM() {
-  return std::make_shared<V8VM>();
+std::shared_ptr<VM> CreateVM(std::shared_ptr<VMInitParam> param) {
+  return std::make_shared<V8VM>(std::static_pointer_cast<V8VMInitParam>(param));
 }
 
 std::shared_ptr<TryCatch> CreateTryCatchScope(bool enable,
@@ -238,7 +238,7 @@ void DetachThread() {
   JNIEnvironment::GetInstance()->DetachCurrentThread();
 }
 
-V8VM::V8VM() {
+V8VM::V8VM(std::shared_ptr<V8VMInitParam> param): VM(param) {
   TDF_BASE_DLOG(INFO) << "V8VM begin";
   {
     std::lock_guard<std::mutex> lock(mutex_);
@@ -250,6 +250,7 @@ V8VM::V8VM() {
     } else {
       TDF_BASE_DLOG(INFO) << "NewDefaultPlatform";
       platform_ = v8::platform::NewDefaultPlatform();
+
       v8::V8::SetFlagsFromString("--wasm-disable-structured-cloning",
                                  strlen("--wasm-disable-structured-cloning"));
 #if defined(V8_X5_LITE)
@@ -264,6 +265,10 @@ V8VM::V8VM() {
 
   create_params_.array_buffer_allocator =
       v8::ArrayBuffer::Allocator::NewDefaultAllocator();
+  if (param) {
+    create_params_.constraints.ConfigureDefaultsFromHeapSize(param->initial_heap_size_in_bytes,
+                                                             param->maximum_heap_size_in_bytes);
+  }
   isolate_ = v8::Isolate::New(create_params_);
   isolate_->Enter();
   isolate_->SetCaptureStackTraceForUncaughtExceptions(true);

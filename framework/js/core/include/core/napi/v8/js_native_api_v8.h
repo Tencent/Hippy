@@ -50,9 +50,14 @@ void JsCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info);
 void NativeCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info);
 void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& info);
 
+struct V8VMInitParam: public VMInitParam {
+  size_t initial_heap_size_in_bytes;
+  size_t maximum_heap_size_in_bytes;
+};
+
 class V8VM : public VM {
  public:
-  V8VM();
+  V8VM(std::shared_ptr<V8VMInitParam> param);
   ~V8VM();
 
   virtual std::shared_ptr<Ctx> CreateContext();
