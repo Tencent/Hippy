@@ -122,7 +122,7 @@ JSObjectRef RegisterModule(std::shared_ptr<Scope> scope,
   return module_obj;
 }
 
-std::shared_ptr<VM> CreateVM() {
+std::shared_ptr<VM> CreateVM(std::shared_ptr<VMInitParam> param) {
   return std::make_shared<JSCVM>();
 }
 
