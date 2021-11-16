@@ -59,7 +59,7 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
 
   private boolean mPagingEnabled = false;
 
-  protected int mScrollEventThrottle = 400; // 400ms最多回调一次
+  protected int mScrollEventThrottle = 10;
   private long mLastScrollEventTimeStamp = -1;
 
   protected int mScrollMinOffset = 0;
@@ -214,18 +214,15 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
         int offsetX = Math.abs(x - mLastX);
         if (mScrollMinOffset > 0 && offsetX >= mScrollMinOffset) {
           mLastX = x;
+          HippyScrollViewEventHelper.emitScrollEvent(this);
         } else if ((mScrollMinOffset == 0) && (currTime - mLastScrollEventTimeStamp
             >= mScrollEventThrottle)) {
           mLastScrollEventTimeStamp = currTime;
-        } else {
-          return;
+          HippyScrollViewEventHelper.emitScrollEvent(this);
         }
-
-        HippyScrollViewEventHelper.emitScrollEvent(this);
       }
       mDoneFlinging = false;
     }
-
   }
 
   protected void doPageScroll() {
