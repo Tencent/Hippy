@@ -154,6 +154,13 @@ public class NativeRenderer implements INativeRenderer, INativeRendererProxy {
   }
 
   @Override
+  public void resetRootView(ViewGroup rootView) {
+    if(rootView instanceof HippyRootView) {
+      this.rootView = (HippyRootView)rootView;
+    }
+  }
+
+  @Override
   public Object getDomManagerObject() {
     return getDomManager();
   }
