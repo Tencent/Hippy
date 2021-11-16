@@ -27,6 +27,7 @@ import android.view.ViewGroup;
 import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.modules.Promise.BridgeTransferType;
 import com.tencent.mtt.hippy.HippyEngine.ModuleLoadStatus;
+import com.tencent.mtt.hippy.HippyEngine.V8InitParams;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorEvent;
 import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
@@ -89,16 +90,13 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
   private SafeDirectWriter safeDirectWriter;
   private Serializer compatibleSerializer;
   private com.tencent.mtt.hippy.serialization.recommend.Serializer recommendSerializer;
-
-
   HippyEngine.ModuleListener mLoadModuleListener;
-
   private TurboModuleManager mTurboModuleManager;
+  private HippyEngine.V8InitParams v8InitParams;
 
   public HippyBridgeManagerImpl(HippyEngineContext context, HippyBundleLoader coreBundleLoader,
-      int bridgeType,
-      boolean enableV8Serialization, boolean isDevModule, String debugServerHost, int groupId,
-      HippyThirdPartyAdapter thirdPartyAdapter) {
+      int bridgeType, boolean enableV8Serialization, boolean isDevModule, String debugServerHost,
+      int groupId, HippyThirdPartyAdapter thirdPartyAdapter, V8InitParams v8InitParams) {
     mContext = context;
     mCoreBundleLoader = coreBundleLoader;
     mBridgeType = bridgeType;
@@ -107,6 +105,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     mGroupId = groupId;
     mThirdPartyAdapter = thirdPartyAdapter;
     this.enableV8Serialization = enableV8Serialization;
+    this.v8InitParams = v8InitParams;
 
     if (enableV8Serialization) {
       compatibleSerializer = new Serializer();
@@ -243,8 +242,8 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
           @SuppressWarnings("unchecked") final com.tencent.mtt.hippy.common.Callback<Boolean> callback = (com.tencent.mtt.hippy.common.Callback<Boolean>) msg.obj;
           try {
             mHippyBridge = new HippyBridgeImpl(mContext, HippyBridgeManagerImpl.this,
-                mBridgeType == BRIDGE_TYPE_SINGLE_THREAD, enableV8Serialization, this.mIsDevModule,
-                this.mDebugServerHost);
+                mBridgeType == BRIDGE_TYPE_SINGLE_THREAD, enableV8Serialization,
+                this.mIsDevModule, this.mDebugServerHost, v8InitParams);
 
             mHippyBridge.initJSBridge(getGlobalConfigs(), new NativeCallback(mHandler) {
               @Override
