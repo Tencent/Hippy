@@ -216,6 +216,11 @@ public abstract class HippyEngine {
     DESTROYED
   }
 
+  public static class V8InitParams {
+    public long initialHeapSize;
+    public long maximumHeapSize;
+  }
+
   // Hippy 引擎初始化时的参数设置
   @SuppressWarnings("deprecation")
   public static class EngineInitParams {
@@ -275,6 +280,7 @@ public abstract class HippyEngine {
     @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
     public HippyLogAdapter logAdapter;
+    public V8InitParams v8InitParams;
     public boolean enableTurbo;
 
     protected void check() {

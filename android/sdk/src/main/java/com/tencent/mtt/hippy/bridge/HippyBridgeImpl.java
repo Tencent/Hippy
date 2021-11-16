@@ -15,6 +15,8 @@
  */
 package com.tencent.mtt.hippy.bridge;
 
+import com.tencent.mtt.hippy.HippyEngine;
+import com.tencent.mtt.hippy.HippyEngine.V8InitParams;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.devsupport.DevServerCallBack;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
@@ -71,16 +73,18 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
   private Deserializer deserializer;
   private BinaryReader safeHeapReader;
   private BinaryReader safeDirectReader;
+  private final HippyEngine.V8InitParams v8InitParams;
 
   public HippyBridgeImpl(HippyEngineContext engineContext, BridgeCallback callback,
-      boolean singleThreadMode,
-      boolean enableV8Serialization, boolean isDevModule, String debugServerHost) {
+      boolean singleThreadMode, boolean enableV8Serialization, boolean isDevModule,
+      String debugServerHost, V8InitParams v8InitParams) {
     this.mBridgeCallback = callback;
     this.mSingleThreadMode = singleThreadMode;
     this.enableV8Serialization = enableV8Serialization;
     this.mIsDevModule = isDevModule;
     this.mDebugServerHost = debugServerHost;
     this.mContext = engineContext;
+    this.v8InitParams = v8InitParams;
 
     synchronized (sBridgeSyncLock) {
       if (mCodeCacheRootDir == null) {
@@ -136,7 +140,8 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
     synchronized (HippyBridgeImpl.class) {
       try {
         byte[] globalConfig = mDebugGlobalConfig.getBytes(StandardCharsets.UTF_16LE);
-        mV8RuntimeId = initJSFramework(globalConfig, mSingleThreadMode, enableV8Serialization, mIsDevModule, mDebugInitJSFrameworkCallback, groupId);
+        mV8RuntimeId = initJSFramework(globalConfig, mSingleThreadMode, enableV8Serialization,
+            mIsDevModule, mDebugInitJSFrameworkCallback, groupId, v8InitParams);
         mInit = true;
       } catch (Throwable e) {
         if (mBridgeCallback != null) {
@@ -258,7 +263,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
   }
 
   public native long initJSFramework(byte[] gobalConfig, boolean useLowMemoryMode,
-      boolean enableV8Serialization, boolean isDevModule, NativeCallback callback, long groupId);
+      boolean enableV8Serialization, boolean isDevModule, NativeCallback callback, long groupId, V8InitParams v8InitParams);
 
   public native boolean runScriptFromUri(String uri, AssetManager assetManager,
       boolean canUseCodeCache, String codeCacheDir, long V8RuntimId, NativeCallback callback);
