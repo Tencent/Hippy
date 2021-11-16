@@ -2,15 +2,27 @@
 
 namespace voltron {
 
+VoltronRenderManager::VoltronRenderManager(int32_t root_id) : root_id_(root_id) {}
+
 void voltron::VoltronRenderManager::CreateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
+  for (const auto& node : nodes) {
+    RunCreateDomNode(node);
+  }
+}
+
+void VoltronRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
 
 }
 
-void VoltronRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {}
+void VoltronRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
+  for (const auto& node : nodes) {
+    RunDeleteDomNode(node);
+  }
+}
 
-void VoltronRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {}
+void VoltronRenderManager::MoveRenderNode(std::vector<int32_t>&& ids, int32_t pid, int32_t id) {
 
-void VoltronRenderManager::MoveRenderNode(std::vector<int32_t>&& ids, int32_t pid, int32_t id) {}
+}
 
 void VoltronRenderManager::Batch() {}
 

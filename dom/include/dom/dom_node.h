@@ -7,7 +7,6 @@
 #include <vector>
 
 #include "dom/dom_listener.h"
-#include "dom/dom_manager.h"
 #include "dom/dom_value.h"
 #include "dom/taitank_layout_node.h"
 
@@ -15,6 +14,7 @@ namespace hippy {
 inline namespace dom {
 
 class LayoutNode;
+class DomManager;
 
 class DomNode : public std::enable_shared_from_this<DomNode> {
  public:
@@ -68,7 +68,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
 
   inline void SetStyleStr(const std::string& view_name) { view_name_ = view_name; }
 
-  inline const std::string& GetViweName() { return view_name_; }
+  inline const std::string& GetViewName() { return view_name_; }
 
   void SetId(int32_t id) { id_ = id; }
   int32_t GetId() const { return id_; }
@@ -94,6 +94,9 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   int32_t AddOnLayoutListener(std::shared_ptr<LayoutEvent> event, OnLayoutEventListener listener);
 
   const std::unordered_map<std::string, std::shared_ptr<DomValue>>& GetStyleMap() const { return style_map_; }
+
+  const std::unordered_map<std::string, std::shared_ptr<DomValue>>& GetPropMap() const { return dom_ext_map_; }
+
 
   bool HasTouchEventListeners() const { return !touch_event_listener_map_.empty(); }
 

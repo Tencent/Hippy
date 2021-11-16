@@ -1,7 +1,10 @@
 #pragma once
 
+#include "ffi/common_header.h"
+
 namespace voltron {
-enum VoltronRenderOp {
+
+enum VoltronRenderOpType {
   ADD_NODE,
   DELETE_NODE,
   MOVE_NODE,
@@ -10,4 +13,5 @@ enum VoltronRenderOp {
   UPDATE_LAYOUT,
   DISPATCH_UI_FUNCTION,
 };
-}
+
+}  // namespace voltron
