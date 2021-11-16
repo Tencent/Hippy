@@ -52,7 +52,7 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
 
   private boolean mPagingEnabled = false;
 
-  protected int mScrollEventThrottle = 400; // 400ms最多回调一次
+  protected int mScrollEventThrottle = 10;
   private long mLastScrollEventTimeStamp = -1;
 
   protected int mScrollMinOffset = 0;
@@ -196,19 +196,15 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
         int offsetY = Math.abs(y - mLastY);
         if (mScrollMinOffset > 0 && offsetY >= mScrollMinOffset) {
           mLastY = y;
+          HippyScrollViewEventHelper.emitScrollEvent(this);
         } else if ((mScrollMinOffset == 0) && (currTime - mLastScrollEventTimeStamp
             >= mScrollEventThrottle)) {
           mLastScrollEventTimeStamp = currTime;
-        } else {
-          return;
+          HippyScrollViewEventHelper.emitScrollEvent(this);
         }
-
-        HippyScrollViewEventHelper.emitScrollEvent(this);
       }
-
       mDoneFlinging = false;
     }
-
   }
 
   protected void doPageScroll() {
