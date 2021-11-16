@@ -34,6 +34,8 @@ public interface INativeRendererProxy extends HippyInstanceLifecycleEventListene
 
   ViewGroup createRootView(Context context);
 
+  void resetRootView(ViewGroup rootView);
+
   Object getDomManagerObject();
 
   Object getRenderManagerObject();
