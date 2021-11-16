@@ -31,12 +31,12 @@
 
 const uint32_t Engine::kDefaultWorkerPoolSize = 1;
 
-Engine::Engine(std::unique_ptr<RegisterMap> map)
+Engine::Engine(std::unique_ptr<RegisterMap> map, std::shared_ptr<VMInitParam> init_param)
     : vm_(nullptr), map_(std::move(map)), scope_cnt_(0) {
   SetupThreads();
 
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-  task->callback = [=] { CreateVM(); };
+  task->callback = [=] { CreateVM(init_param); };
   js_runner_->PostTask(task);
 }
 
@@ -91,9 +91,9 @@ void Engine::SetupThreads() {
   }
 }
 
-void Engine::CreateVM() {
+void Engine::CreateVM(std::shared_ptr<VMInitParam> param) {
   TDF_BASE_DLOG(INFO) << "Engine CreateVM";
-  vm_ = hippy::napi::CreateVM();
+  vm_ = hippy::napi::CreateVM(param);
 
   RegisterMap::const_iterator it = map_->find(hippy::base::kVMCreateCBKey);
   if (it != map_->end()) {
