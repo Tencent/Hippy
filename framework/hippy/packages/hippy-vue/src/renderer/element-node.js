@@ -291,7 +291,7 @@ class ElementNode extends ViewNode {
           this.attributes['caret-color'] = Native.parseColor(value);
           break;
         default:
-          this.attributes[key] = tryConvertNumber(value);
+          this.attributes[key] = value;
       }
 
       updateChild(this);
