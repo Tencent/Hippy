@@ -95,6 +95,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
   final TimeMonitor mStartTimeMonitor;
   boolean mHasReportEngineLoadResult = false;
   private final HippyThirdPartyAdapter mThirdPartyAdapter;
+  private final V8InitParams v8InitParams;
 
   final Handler mHandler = new Handler(Looper.getMainLooper()) {
     @Override
@@ -133,6 +134,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     this.mServerHost = params.debugServerHost;
     this.mGroupId = params.groupId;
     this.mThirdPartyAdapter = params.thirdPartyAdapter;
+    this.v8InitParams = params.v8InitParams;
   }
 
   /**
@@ -722,8 +724,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     public HippyEngineContextImpl(boolean isDevModule, String debugServerHost) {
       mModuleManager = new HippyModuleManagerImpl(this, mAPIProviders);
       mBridgeManager = new HippyBridgeManagerImpl(this, mCoreBundleLoader,
-          HippyEngineManagerImpl.this.getBridgeType(),
-          enableV8Serialization, isDevModule, debugServerHost, mGroupId, mThirdPartyAdapter);
+          HippyEngineManagerImpl.this.getBridgeType(), enableV8Serialization,
+          isDevModule, debugServerHost, mGroupId, mThirdPartyAdapter, v8InitParams);
       mRenderManager = new RenderManager(this, mAPIProviders);
       mDomManager = new DomManager(this);
     }
