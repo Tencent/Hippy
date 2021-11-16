@@ -96,9 +96,9 @@ module.exports = {
         devDependencies: [
           'scripts/*.js',
           // FIXME: seems not working
-          'packages/**/types/*.d.ts',
-          'packages/**/__tests__/*.test.js',
-          'examples/**/scripts/*.js',
+          'framework/hippy/packages/**/types/*.d.ts',
+          'framework/hippy/packages/**/__tests__/*.test.js',
+          'framework/hippy/examples/**/scripts/*.js',
         ],
       },
     ],

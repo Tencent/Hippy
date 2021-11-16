@@ -52,9 +52,9 @@ Windows 用户者需要以下软件:
 2. 在根目录运行命令 `lerna bootstrap` 安装前端每一个 package 依赖。（Hippy 采用 [Lerna](https://lerna.js.org/) 管理多 JS SDK 包仓库，如果出现 `lerna command is not found`, 先执行 `npm install lerna -g` 全局安装 `Lerna`。）
 3. 在根目录运行命令 `npm run build` 编译每一个 JS SDK 包。
 4. 选择一个前端范例项目来进行编译，在项目根目录运行 `npm run buildexample -- [hippy-react-demo|hippy-vue-demo]`。
-5. 启动 Xcode 并且开始编译终端 App：`open examples/ios-demo/HippyDemo.xcodeproj`。
+5. 启动 Xcode 并且开始编译终端 App：`open framework/hippy/examples/ios-demo/HippyDemo.xcodeproj`。
 
-> 如果步骤4出现错误，可以先 `cd` 到 `examples` hippy-react-demo 或者 hippy-vue-demo 目录下，执行 `npm install --legacy-peer-deps`，提前将 demo 的 NPM 包依赖先安装好。
+> 如果步骤4出现错误，可以先 `cd` 到 `framework/hippy/examples` hippy-react-demo 或者 hippy-vue-demo 目录下，执行 `npm install --legacy-peer-deps`，提前将 demo 的 NPM 包依赖先安装好。
 >
 > 更多信息请参考 [iOS SDK 集成](https://hippyjs.org/#/ios/integration?id=ios-%e9%9b%86%e6%88%90)。
 
@@ -68,11 +68,11 @@ Windows 用户者需要以下软件:
 2. 在根目录运行命令 `lerna bootstrap` 安装前端每一个 package 依赖。（Hippy 采用 [Lerna](https://lerna.js.org/) 管理多 JS SDK 包仓库，如果出现 `lerna command is not found`, 先执行 `npm install lerna -g` 全局安装 `Lerna`。）
 3. 在根目录运行命令 `npm run build` 编译每一个 JS SDK 包。
 4. 选择一个前端范例项目来进行编译，在项目根目录运行 `npm run buildexample -- [hippy-react-demo|hippy-vue-demo]`。
-5. 用 Android Studio 来打开终端范例工程 `examples/android-demo`。
+5. 用 Android Studio 来打开终端范例工程 `framework/hippy/examples/android-demo`。
 6. 用 USB 数据线插上你的 Android 手机，需要确认手机已经打开 USB 调试模式（可通过在电脑 Terminal 执行 `adb devices` 判断手机是否已经连上了电脑）。
 7. 运行工程，并安装 APK。
 
-> 如果步骤4出现错误，可以先 `cd` 到 `examples` hippy-react-demo 或者 hippy-vue-demo 目录下，执行 `npm install --legacy-peer-deps`，提前将 demo 的 NPM 包依赖先安装好。
+> 如果步骤4出现错误，可以先 `cd` 到 `framework/hippy/examples` hippy-react-demo 或者 hippy-vue-demo 目录下，执行 `npm install --legacy-peer-deps`，提前将 demo 的 NPM 包依赖先安装好。
 >
 > 如果 Android Studio 报了这个错误 `No toolchains found in the NDK toolchains folder for ABI with prefix: mips64el-linux-android`，这里有[解决办法](https://github.com/google/filament/issues/15#issuecomment-415423557)。
 >
@@ -81,11 +81,11 @@ Windows 用户者需要以下软件:
 ### 调试前端 Demo
 
 1. 先按照 **[使用 JS 范例来构建 iOS App]** 和 **[使用 JS 范例来构建 Android App]** 步骤执行。
-2. `cd` 到 `examples` hippy-react-demo 或者 hippy-vue-demo 目录。
+2. `cd` 到 `framework/hippy/examples` hippy-react-demo 或者 hippy-vue-demo 目录。
 3. 执行 `npm install` 安装相应 js demo 的依赖包。
 4. 分别执行 `npm run hippy:dev` 和 `npm run hippy:debug`(`npm run hippy:local-debug` 会调用 packages 下的源码) 来开启实时 Debug 模式。
 
-> 在 example 调试模式下，@hippy/react、@hippy/vue 等 npm 模块会直接链接到 `packages` > `[different package]` > `dist` 目录下面的 js 文件(非 node_modules)，所以如果你修改了 packages 下的 JS 源代码并且想让其在 example 中生效，请重新在根目录执行 `npm run build`。
+> 在 example 调试模式下，@hippy/react、@hippy/vue 等 npm 模块会直接链接到 `framework/hippy/packages` > `[different package]` > `dist` 目录下面的 js 文件(非 node_modules)，所以如果你修改了 packages 下的 JS 源代码并且想让其在 example 中生效，请重新在根目录执行 `npm run build`。
 >
 > 更多关于调试的说明请浏览 [Hippy Debug Document](https://hippyjs.org/#/guide/debug)。
 
