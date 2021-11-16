@@ -14,6 +14,7 @@ class VoltronRenderTaskRunner {
   virtual ~VoltronRenderTaskRunner();
   void RunCreateDomNode(const Sp<DomNode>& node);
   void RunDeleteDomNode(const Sp<DomNode>& node);
+  void RunUpdateDomNode(const Sp<DomNode>& node);
 
  private:
   EncodableValue EncodeDomValueMap(const SpMap<DomValue>& value_map);

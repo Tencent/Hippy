@@ -11,7 +11,9 @@ void voltron::VoltronRenderManager::CreateRenderNode(std::vector<std::shared_ptr
 }
 
 void VoltronRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
-
+  for (const auto& node : nodes) {
+    RunUpdateDomNode(node);
+  }
 }
 
 void VoltronRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {

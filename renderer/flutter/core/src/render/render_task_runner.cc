@@ -30,7 +30,8 @@ void VoltronRenderTaskRunner::RunCreateDomNode(const Sp<DomNode>& node) {
 }
 
 void VoltronRenderTaskRunner::RunDeleteDomNode(const Sp<DomNode>& node) {
-
+  auto delete_task = std::make_shared<RenderTask>(VoltronRenderOpType::DELETE_NODE, node->GetId());
+  queue_->ProduceRenderOp(delete_task);
 }
 
 std::unique_ptr<EncodableValue> VoltronRenderTaskRunner::ParseDomValue(const DomValue& value) {
@@ -84,6 +85,16 @@ EncodableValue VoltronRenderTaskRunner::EncodeDomValueMap(const SpMap<DomValue>&
   }
 
   return encode_value;
+}
+
+void VoltronRenderTaskRunner::RunUpdateDomNode(const Sp<DomNode>& node) {
+  auto argsMap = EncodableMap();
+  if (!node->GetDiffMap().empty()) {
+    argsMap[EncodableValue(kPropsKey)] = EncodeDomValueMap(node->GetDiffMap());
+    auto args = std::make_unique<EncodableValue>(argsMap);
+    auto update_task = std::make_shared<RenderTask>(VoltronRenderOpType::ADD_NODE, node->GetId(), std::move(args));
+    queue_->ProduceRenderOp(update_task);
+  }
 }
 
 }  // namespace voltron
