@@ -53,7 +53,7 @@
     >
     <label>文本（限制5个字符）:</label>
     <input
-      maxlength="5"
+      :maxlength="5"
       placeholder="5 个字符"
       class="input"
       @change="textChange"
