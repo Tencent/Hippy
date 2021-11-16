@@ -32,7 +32,11 @@ static NSString *UUIDForContextName(NSString *contextName) {
     });
     if (contextName) {
         NSString *UUIDString = UUIDPairs[contextName];
-        return UUIDString?:generateRandomUUID();
+        if (!UUIDString) {
+            UUIDString = generateRandomUUID();
+            [UUIDPairs setObject:UUIDString forKey:contextName];
+        }
+        return UUIDString;
     }
     else {
         return generateRandomUUID();
