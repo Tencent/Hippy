@@ -42,18 +42,18 @@
     "moduleResolution": "node",               /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */
     "baseUrl": "./",                          /* Base directory to resolve non-absolute module names. */
     "paths": {                                /* A series of entries which re-map imports to lookup locations relative to the 'baseUrl'. */
-      "@localTypes/*": ["packages/types/*"],
-      "@vue/*": ["packages/hippy-vue/src/*"],
-      "@router/*": ["packages/hippy-vue-router/src/*"],
-      "@css-loader/*": ["packages/hippy-vue-css-loader/src/*"],
-      "@native-components/*": ["packages/hippy-vue-native-components/src/*"],
+      "@localTypes/*": ["framework/hippy/packages/types/*"],
+      "@vue/*": ["framework/hippy/packages/hippy-vue/src/*"],
+      "@router/*": ["framework/hippy/packages/hippy-vue-router/src/*"],
+      "@css-loader/*": ["framework/hippy/packages/hippy-vue-css-loader/src/*"],
+      "@native-components/*": ["framework/hippy/packages/hippy-vue-native-components/src/*"],
       "vue": ["node_modules/vue/src/core/index"],
       "compiler/*": ["node_modules/vue/src/compiler/*"],
       "web/*": ["node_modules/vue/src/platforms/web/*"],
       "core/*": ["node_modules/vue/src/core/*"],
       "shared/*": ["node_modules/vue/src/shared/*"],
       "sfc/*": ["node_modules/vue/src/sfc/*"],
-      "he": ["packages/hippy-vue/src/util/entity-decoder"]
+      "he": ["framework/hippy/packages/hippy-vue/src/util/entity-decoder"]
     },
     // "rootDirs": [],                        /* List of root folders whose combined content represents the structure of the project at runtime. */
     // "typeRoots": [],                       /* List of folders to include type definitions from. */
