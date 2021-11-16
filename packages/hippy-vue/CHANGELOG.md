@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.10.3](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.10.2...2.10.3) (2021-11-16)
+
+
+### Bug Fixes
+
+* **hippy-vue:** remove vue other attributes converted to number ([8ce311a](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/8ce311a175ea1616168e3621e1c43a3eef9a1b30))
+
+
+
+
+
 ## [2.10.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.10.1...2.10.2) (2021-11-02)
 
 **Note:** Version bump only for package @hippy/vue

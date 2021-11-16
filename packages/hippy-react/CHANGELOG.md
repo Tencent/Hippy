@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.10.3](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.10.2...2.10.3) (2021-11-16)
+
+
+### Bug Fixes
+
+* **hippy-react:** fixed insertBefore moveChild condition ([b2d71eb](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/b2d71ebee6bec5813da930e4f907d445cc1282ee))
+
+
+
+
+
 ## [2.10.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.10.1...2.10.2) (2021-11-02)
 
 **Note:** Version bump only for package @hippy/react

@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.10.3](https://github.com/Tencent/Hippy/compare/2.10.2...2.10.3) (2021-11-16)
+
+
+### Bug Fixes
+
+* **android:** element y position use root view location ([3542a59](https://github.com/Tencent/Hippy/commit/3542a59a6b7b40808e36382d4761b26282b5f6a8))
+* **android:** view pager use Number cast obj to int ([f5c982f](https://github.com/Tencent/Hippy/commit/f5c982f0f5ffd924fca559cf58734dbc798f1e35))
+* **hippy-react:** fixed insertBefore moveChild condition ([b2d71eb](https://github.com/Tencent/Hippy/commit/b2d71ebee6bec5813da930e4f907d445cc1282ee))
+* **hippy-vue:** remove vue other attributes converted to number ([8ce311a](https://github.com/Tencent/Hippy/commit/8ce311a175ea1616168e3621e1c43a3eef9a1b30))
+* **ios:** crash fixed,improve stability ([#1042](https://github.com/Tencent/Hippy/issues/1042)) ([383daba](https://github.com/Tencent/Hippy/commit/383daba3a6b947f7bdd0027e8c028c194f0d1a89))
+* **ios:** fix layout nan value ([7b394fb](https://github.com/Tencent/Hippy/commit/7b394fba92b663abba1ddbdcc5f6d77ceb6d63cd))
+* **ios:** ignore multiline property for password type textinput ([72c0879](https://github.com/Tencent/Hippy/commit/72c08794089fa821ce58c02db11e6b3b4f562c71))
+* **ios:** improve stability ([ec2686f](https://github.com/Tencent/Hippy/commit/ec2686f96ad5c9abcae09d03135f87c07b2d715a))
+
+
+### Features
+
+* **core:** modify console module log level ([809627d](https://github.com/Tencent/Hippy/commit/809627dbdc3828026328342bdd8046886d9360c4))
+
+
+
+
+
 ## [2.10.2](https://github.com/Tencent/Hippy/compare/2.10.1...2.10.2) (2021-11-02)
 
 
