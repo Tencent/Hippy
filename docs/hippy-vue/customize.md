@@ -39,7 +39,7 @@ Vue.registerElement('h-my-view', {
 * nativeEventName: 终端的原生事件名称
 * nativeEventParams：终端的原生事件返回体
 
-例如，hippy-vue 的 [hi-swiper 组件](//github.com/Tencent/Hippy/blob/master/packages/hippy-vue-native-components/src/swiper.js#L4)，它是 swiper 实际渲染的对应节点。
+例如，hippy-vue 的 [hi-swiper 组件](//github.com/Tencent/Hippy/blob/master/framework/js/packages/hippy-vue-native-components/src/swiper.js#L4)，它是 swiper 实际渲染的对应节点。
 
 ```javascript
 component: {

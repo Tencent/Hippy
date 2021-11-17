@@ -8,7 +8,7 @@
 
 # animation
 
-[[范例：demo-animation.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-animation.vue)
+[[范例：demo-animation.vue]](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/components/native-demos/demo-animation.vue)
 
 该组件是 hippy-vue 的动画解决方案，直接传入一个样式值和动画方案数组，即可触发动作效果。
 
@@ -23,13 +23,13 @@
 
 * actions 详解
   
-  和 React 不同，它将单个动画 Animation 和动画序列 AnimationSet 合二为一了，其实方法特别简单，发现是个对象就是 Animation，如果是个数组就是动画序列就用 AnimationSet 处理，单个动画参数具体参考 [Animation 模块](../hippy-react/modules.md?id=animation)和 [范例](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/native-demos/animations)。需要说明 hippy-vue 的动画参数有一些[默认值](https://github.com/Tencent/Hippy/blob/master/packages/hippy-vue-native-components/src/animation.js#L5)，只有差异部分才需要填写。
+  和 React 不同，它将单个动画 Animation 和动画序列 AnimationSet 合二为一了，其实方法特别简单，发现是个对象就是 Animation，如果是个数组就是动画序列就用 AnimationSet 处理，单个动画参数具体参考 [Animation 模块](../hippy-react/modules.md?id=animation)和 [范例](https://github.com/Tencent/Hippy/tree/master/framework/js/examples/hippy-vue-demo/src/components/native-demos/animations)。需要说明 hippy-vue 的动画参数有一些[默认值](https://github.com/Tencent/Hippy/blob/master/framework/js/packages/hippy-vue-native-components/src/animation.js#L5)，只有差异部分才需要填写。
 
   特别说明，对 actions 替换后会自动新建动画，需手动启动新动画。有两种处理方式：
   * 替换 actions => 延迟一定时间后（如setTimeout） 调用 `this.[animation ref].start()`（推荐）
   * `playing = false` =>  替换 actions =>  延迟一定时间后（如setTimeout） `playing = true`
   
-  2.6.0 版本新增 `backgroundColor` 背景色渐变动画支持，参考 [渐变色动画DEMO](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/animations/color-change.vue)
+  2.6.0 版本新增 `backgroundColor` 背景色渐变动画支持，参考 [渐变色动画DEMO](https://github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/components/native-demos/animations/color-change.vue)
   * 设置 `actions` 对 `backgroundColor` 进行修饰
   * 设置 `valueType` 为 `color`
   * 设置 `startValue` 和 `toValue` 为 [color值](style/color.md)
@@ -76,7 +76,7 @@
 
 # dialog
 
-[[范例：demo-dialog.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-dialog.vue)
+[[范例：demo-dialog.vue]](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/components/native-demos/demo-dialog.vue)
 
 用于模态弹窗，默认透明背景色，需要加一个带背景色的 `<div>` 填充。
 
@@ -102,7 +102,7 @@
 
 # swiper
 
-[[范例：demo-swiper.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-swiper.vue)
+[[范例：demo-swiper.vue]](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/components/native-demos/demo-swiper.vue)
 
 支持翻页的容器，它的每一个子容器组件会被视作一个单独的页面，对应终端 `ViewPager`组件， 里面只能包含 `<swiper-slide>` 组件。
 
@@ -133,7 +133,7 @@
 
 # swiper-slide
 
-[[范例：demo-swiper.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-swiper.vue)
+[[范例：demo-swiper.vue]](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/components/native-demos/demo-swiper.vue)
 
 翻页子容器组件容器。
 
@@ -141,7 +141,7 @@
 
 # pull-header
 
-[[范例：demo-pull-header.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-pull-header.vue)
+[[范例：demo-pull-header.vue]](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/components/native-demos/demo-pull-header.vue)
 
 下拉刷新组件，嵌套在 `ul` 中作为第一个子元素使用
 
@@ -163,7 +163,7 @@
 
 # pull-footer
 
-[[范例：demo-pull-footer.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-pull-footer.vue)
+[[范例：demo-pull-footer.vue]](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/components/native-demos/demo-pull-footer.vue)
 
 上拉刷新组件，嵌套在 `ul` 中作为最后一个子元素使用
 
@@ -187,7 +187,7 @@
 
 > 最低支持版本 2.9.0
 
-[[范例：demo-waterfall]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-waterfall.vue)
+[[范例：demo-waterfall]](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/components/native-demos/demo-waterfall.vue)
 
 瀑布流组件，子元素必须是 `waterfall-item` ，瀑布流组件下拉刷新需在最外层用`ul-refresh-wrapper`， 可在`waterfall` 内用 `pull-footer` 展示上拉加载文案。
 

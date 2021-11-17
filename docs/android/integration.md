@@ -16,7 +16,7 @@
 
 1. 创建一个 Android 工程。
 
-2. [Demo](//github.com/Tencent/Hippy/tree/master/examples/android-demo) 工程运行 Gradle Task `other => assembleRelease` 后会在 `android\sdk\build\outputs\aar` 目录下生成
+2. [Demo](//github.com/Tencent/Hippy/tree/master/framework/js/examples/android-demo) 工程运行 Gradle Task `other => assembleRelease` 后会在 `android\sdk\build\outputs\aar` 目录下生成
    `android-sdk-release.aar`，将 `android-sdk-release.aar` 拷贝到你的libs目录下。
 
 3. 配置build.gradle。
@@ -41,12 +41,12 @@
 
    !> 通过 `assembleRelease` task 生成的 AAR 默认不携带 inspector 模块，若需要集成 inspector，请执行 `assembleDebug` task
 
-4. 继承 HippyImageLoader 并实现自己的图片加载器，具体可以参考 [Demo](//github.com/Tencent/Hippy/tree/master/examples/android-demo) 工程中 MyImageLoader 实现。
+4. 继承 HippyImageLoader 并实现自己的图片加载器，具体可以参考 [Demo](//github.com/Tencent/Hippy/tree/master/framework/js/examples/android-demo) 工程中 MyImageLoader 实现。
 
-5. 在宿主 APP 工程中增加引擎初始化与 hippyRootView 挂载逻辑，具体可以参考 [Demo](//github.com/Tencent/Hippy/tree/master/examples/android-demo) 工程中 MyActivity 实现
+5. 在宿主 APP 工程中增加引擎初始化与 hippyRootView 挂载逻辑，具体可以参考 [Demo](//github.com/Tencent/Hippy/tree/master/framework/js/examples/android-demo) 工程中 MyActivity 实现
 
 ## 附录
 
 [maven 版本查询地址](https://search.maven.org/search?q=com.tencent.hippy)
 
-[Demo 下载地址](https://github.com/Tencent/Hippy/tree/master/examples/android-demo)
+[Demo 下载地址](https://github.com/Tencent/Hippy/tree/master/framework/js/examples/android-demo)

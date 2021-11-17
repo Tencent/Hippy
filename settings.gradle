@@ -5,7 +5,7 @@ include 'hippy-support'
 project(':hippy-support').projectDir = new File('modules/hippy_support')
 
 include 'hippy-framework'
-project(':hippy-framework').projectDir = new File('framework/hippy/android')
+project(':hippy-framework').projectDir = new File('framework/js/android')
 
 include 'example'
-project(':example').projectDir = new File('framework/hippy/examples/android-demo')
+project(':example').projectDir = new File('framework/js/examples/android-demo')

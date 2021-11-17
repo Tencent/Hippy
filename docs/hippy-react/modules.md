@@ -7,7 +7,7 @@
 
 # Animation
 
-[[Animation 范例]](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/modules/Animation/index.jsx)
+[[Animation 范例]](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-react-demo/src/modules/Animation/index.jsx)
 
 `Animation` 是 Hippy 提供的动画组件，可以支持传入动画配置，以及手动控制开始与结束。在 Hippy 上实现一个动画分为三个步骤：
 
@@ -34,7 +34,7 @@
 
   - `rad`：代表动画参数的起止值为弧度；
   - `deg`：代表动画参数的起止值为度数；
-  - `color`：代表动画参数的起止值为颜色值，可修饰背景色 `backgroundColor` 和文字颜色 `color`(仅 Android 支持)，参考 [例子](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/modules/Animation/index.jsx) `最低支持版本2.6.0`
+  - `color`：代表动画参数的起止值为颜色值，可修饰背景色 `backgroundColor` 和文字颜色 `color`(仅 Android 支持)，参考 [例子](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-react-demo/src/modules/Animation/index.jsx) `最低支持版本2.6.0`
 
 - timingFunction 的参数选项：
   - `linear`：使用线性插值器，动画将匀速进行；
@@ -83,7 +83,7 @@
 
 # AnimationSet
 
-[[AnimationSet 范例]](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/modules/Animation)
+[[AnimationSet 范例]](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-react-demo/src/modules/Animation)
 
 `AnimationSet` 与 `Animation` 类似，都是赋予 hippy 组件的单个样式属性（如 width、height、left、right）动画能力的模块。
 
@@ -136,7 +136,7 @@
 
 # AsyncStorage
 
-[[AsyncStorage 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/modules/AsyncStorage/index.jsx)
+[[AsyncStorage 范例]](//github.com/Tencent/Hippy/tree/master/framework/js/examples/hippy-react-demo/src/modules/AsyncStorage/index.jsx)
 
 AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系统，它对于 App 来说是全局性的。
 
@@ -189,11 +189,11 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 # BackAndroid
 
-[[BackAndroid 范例]](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/pages/gallery.jsx#L171)
+[[BackAndroid 范例]](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-react-demo/src/pages/gallery.jsx#L171)
 
 可以监听 Android 实体键的回退，在退出前做操作或拦截实体键的回退。
 
-> 注意：该方法需要终端拦截实体返回按钮的事件，可以参考 [android-demo 的 onBackPressed 方法](//github.com/Tencent/Hippy/blob/master/examples/android-demo/example/src/main/java/com/tencent/mtt/hippy/example/MyActivity.java)
+> 注意：该方法需要终端拦截实体返回按钮的事件，可以参考 [android-demo 的 onBackPressed 方法](//github.com/Tencent/Hippy/blob/master/framework/js/examples/android-demo/example/src/main/java/com/tencent/mtt/hippy/example/MyActivity.java)
 
 ## 方法
 
@@ -217,7 +217,7 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 # Clipboard
 
-[[Clipboard 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/modules/Clipboard)
+[[Clipboard 范例]](//github.com/Tencent/Hippy/tree/master/framework/js/examples/hippy-react-demo/src/modules/Clipboard)
 
 模块提供了 iOS/Android 双端的剪贴板能力，开发者可使用其来读取或写入剪贴板，目前仅支持字符串作为存取类型。
 
@@ -300,7 +300,7 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 # NetInfo
 
-[[NetInfo 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/modules/NetInfo)
+[[NetInfo 范例]](//github.com/Tencent/Hippy/tree/master/framework/js/examples/hippy-react-demo/src/modules/NetInfo)
 
 通过该接口可以获得当前设备的网络状态，也可以注册一个监听器，当系统网络切换的时候，得到一个通知。
 
