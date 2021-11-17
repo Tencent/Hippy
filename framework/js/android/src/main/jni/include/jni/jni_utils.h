@@ -29,8 +29,6 @@
 #include "base/unicode_string_view.h"
 #include "v8/v8.h"
 
-struct HippyBuffer;
-
 class JniUtils {
   using unicode_string_view = tdf::base::unicode_string_view;
   using bytes = std::string;
