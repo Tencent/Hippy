@@ -23,6 +23,10 @@ HPNodeRef HPNodeNew() {
   return new HPNode();
 }
 
+HPNodeRef HPNodeNewWithConfig(HPConfigRef config) {
+  return new HPNode(config);
+}
+
 void HPNodeFree(HPNodeRef node) {
   if (node == nullptr)
     return;

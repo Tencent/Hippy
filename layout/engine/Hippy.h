@@ -25,6 +25,7 @@
 #include "HPConfig.h"
 
 HPNodeRef HPNodeNew();
+HPNodeRef HPNodeNewWithConfig(HPConfigRef config);
 void HPNodeFree(HPNodeRef node);
 void HPNodeFreeRecursive(HPNodeRef node);
 
