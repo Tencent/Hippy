@@ -71,7 +71,7 @@ function getLinearGradientAngle(value) {
   const reg = /^([+-]?\d+\.?\d*)+(deg|turn|rad)|(to\w+)$/g;
   const valueList = reg.exec(processedValue);
   if (!Array.isArray(valueList)) return;
-  // default direction is to bottom, i.e. 180degree
+  // if default direction is to bottom, i.e. 180degree
   let angle = '180';
   const [direction, angleValue, angleUnit] = valueList;
   if (angleValue && angleUnit) { // angle value
@@ -172,28 +172,20 @@ function parseTextShadowOffset(property, value = 0, style) {
 class ElementNode extends ViewNode {
   constructor(tagName) {
     super();
-
     // Tag name
     this.tagName = tagName;
-
     // ID attribute in template.
     this.id = '';
-
     // style attribute in template.
     this.style = {};
-
     // Vue style scope id.
     this._styleScopeId = null;
-
     // Class attribute in template.
     this.classList = new Set(); // Fake DOMTokenLis
-
     // Other attributes in template.
     this.attributes = {};
-
     // Event observer.
     this._emitter = null;
-
     // Style pre-processor
     this.beforeLoadStyle = getBeforeLoadStyle();
   }
@@ -242,7 +234,6 @@ class ElementNode extends ViewNode {
         updateChild(this);
         return;
       }
-
       switch (key) {
         case 'class': {
           const newClassList = new Set(value.split(' ').filter(x => x.trim()));
@@ -293,7 +284,6 @@ class ElementNode extends ViewNode {
         default:
           this.attributes[key] = value;
       }
-
       updateChild(this);
     } catch (err) {
       // Throw error in development mode
@@ -312,7 +302,6 @@ class ElementNode extends ViewNode {
       delete this.style[property];
       return;
     }
-
     // Preprocess the style
     let {
       property: p,
@@ -321,8 +310,7 @@ class ElementNode extends ViewNode {
       property,
       value,
     });
-
-    // Process the specifc style value
+    // Process the specific style value
     switch (p) {
       case 'fontWeight':
         if (typeof v !== 'string') {
@@ -366,7 +354,6 @@ class ElementNode extends ViewNode {
         }
       }
     }
-
     if (v === undefined || v === null || this.style[p] === v) {
       return;
     }
@@ -400,7 +387,6 @@ class ElementNode extends ViewNode {
 
   appendChild(childNode) {
     super.appendChild(childNode);
-
     if (childNode.meta.symbol === Text) {
       this.setText(childNode.text);
     }
@@ -408,7 +394,6 @@ class ElementNode extends ViewNode {
 
   insertBefore(childNode, referenceNode) {
     super.insertBefore(childNode, referenceNode);
-
     if (childNode.meta.symbol === Text) {
       this.setText(childNode.text);
     }
@@ -416,7 +401,6 @@ class ElementNode extends ViewNode {
 
   moveChild(childNode, referenceNode) {
     super.moveChild(childNode, referenceNode);
-
     if (childNode.meta.symbol === Text) {
       this.setText(childNode.text);
     }
@@ -424,7 +408,6 @@ class ElementNode extends ViewNode {
 
   removeChild(childNode) {
     super.removeChild(childNode);
-
     if (childNode.meta.symbol === Text) {
       this.setText('');
     }
