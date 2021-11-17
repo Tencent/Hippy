@@ -148,7 +148,8 @@ export class Image extends React.Component {
       isLoadSuccess: true,
     });
     if (onLoad) {
-      const imageInfo = e.path[0];
+      const path = e.path || (e.composedPath && e.composedPath());
+      const imageInfo = path[0];
       onLoad({
         width: imageInfo.naturalWidth,
         height: imageInfo.naturalHeight,
