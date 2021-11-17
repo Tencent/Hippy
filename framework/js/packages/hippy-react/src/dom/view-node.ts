@@ -42,10 +42,6 @@ class ViewNode {
 
   public parentNode: ViewNode | null = null;
 
-  public prevSibling: ViewNode | null = null;
-
-  public nextSibling: ViewNode | null = null;
-
   constructor() {
     // Virtual DOM node id, will used in native to identify.
     this.nodeId = getNodeId();
@@ -54,16 +50,6 @@ class ViewNode {
   /* istanbul ignore next */
   toString() {
     return this.constructor.name;
-  }
-
-  get firstChild() {
-    return this.childNodes.length ? this.childNodes[0] : null;
-  }
-
-  get lastChild() {
-    return this.childNodes.length
-      ? this.childNodes[this.childNodes.length - 1]
-      : null;
   }
 
   get isMounted() {
@@ -79,104 +65,66 @@ class ViewNode {
     if (!childNode) {
       throw new Error('Can\'t insert child.');
     }
-
+    if (childNode.meta.skipAddToDom) {
+      return;
+    }
     if (!referenceNode) {
       return this.appendChild(childNode);
     }
-
     if (referenceNode.parentNode !== this) {
       throw new Error('Can\'t insert child, because the reference node has a different parent.');
     }
-
     if (childNode.parentNode && childNode.parentNode !== this) {
       throw new Error('Can\'t insert child, because it already has a different parent.');
     }
-
     const index = this.childNodes.indexOf(referenceNode);
-
     childNode.parentNode = this;
-    childNode.nextSibling = referenceNode;
-    childNode.prevSibling = this.childNodes[index - 1];
-
-    referenceNode.prevSibling = childNode;
     this.childNodes.splice(index, 0, childNode);
-
     return insertChild(this, childNode, index);
   }
 
   moveChild(childNode: ViewNode, referenceNode: ViewNode) {
     if (!childNode) {
-      throw new Error('Can\'t mvoe child.');
+      throw new Error('Can\'t move child.');
     }
-
+    if (childNode.meta.skipAddToDom) {
+      return;
+    }
     if (!referenceNode) {
       return this.appendChild(childNode);
     }
-
     if (referenceNode.parentNode !== this) {
       throw new Error('Can\'t move child, because the reference node has a different parent.');
     }
-
     if (childNode.parentNode && childNode.parentNode !== this) {
       throw new Error('Can\'t move child, because it already has a different parent.');
     }
-
     const oldIndex = this.childNodes.indexOf(childNode);
-    const newIndex = this.childNodes.indexOf(referenceNode);
-
+    const referenceIndex = this.childNodes.indexOf(referenceNode);
     // return if the moved index is the same as the previous one
-    if (newIndex === oldIndex) {
+    if (referenceIndex === oldIndex) {
       return childNode;
     }
-
-    // set new siblings relations
-    childNode.nextSibling = referenceNode;
-    childNode.prevSibling = referenceNode.prevSibling;
-    referenceNode.prevSibling = childNode;
-
-    if (this.childNodes[newIndex - 1]) {
-      this.childNodes[newIndex - 1].nextSibling = childNode;
-    }
-    if (this.childNodes[newIndex + 1]) {
-      this.childNodes[newIndex + 1].prevSibling = childNode;
-    }
-    if (this.childNodes[oldIndex - 1]) {
-      this.childNodes[oldIndex - 1].nextSibling = this.childNodes[oldIndex + 1];
-    }
-    if (this.childNodes[oldIndex + 1]) {
-      this.childNodes[oldIndex + 1].prevSibling = this.childNodes[oldIndex - 1];
-    }
-
-    // remove old child node from native
-    removeChild(this, childNode);
-
     // remove old child and insert new child, which is like moving child
+    this.childNodes.splice(oldIndex, 1);
+    removeChild(this, childNode, oldIndex);
+    const newIndex = this.childNodes.indexOf(referenceNode);
     this.childNodes.splice(newIndex, 0, childNode);
-    this.childNodes.splice(oldIndex + (newIndex < oldIndex ? 1 : 0), 1);
-
-    // should filter empty nodes before finding the index of node
-    const atIndex = this.childNodes.filter(ch => ch.index > -1).indexOf(childNode);
-    return insertChild(this, childNode, atIndex);
+    return insertChild(this, childNode, newIndex);
   }
 
   appendChild(childNode: ViewNode) {
     if (!childNode) {
       throw new Error('Can\'t append child.');
     }
-
+    if (childNode.meta.skipAddToDom) {
+      return;
+    }
     if (childNode.parentNode && childNode.parentNode !== this) {
       throw new Error('Can\'t append child, because it already has a different parent.');
     }
-
     childNode.parentNode = this;
-
-    if (this.lastChild) {
-      childNode.prevSibling = this.lastChild;
-      this.lastChild.nextSibling = childNode;
-    }
-
     this.childNodes.push(childNode);
-
     insertChild(this, childNode, this.childNodes.length - 1);
   }
 
@@ -184,36 +132,18 @@ class ViewNode {
     if (!childNode) {
       throw new Error('Can\'t remove child.');
     }
-
-    if (!childNode.parentNode) {
-      throw new Error('Can\'t remove child, because it has no parent.');
-    }
-
-    if (childNode.parentNode !== this) {
-      throw new Error('Can\'t remove child, because it has a different parent.');
-    }
-
     if (childNode.meta.skipAddToDom) {
       return;
     }
-
-    removeChild(this, childNode);
-
-    // FIXME: parentNode should be null when removeChild, But it breaks add the node again.
-    //        Issue position: https://github.com/vuejs/vue/tree/master/src/core/vdom/patch.js#L250
-    // childNode.parentNode = null;
-
-    if (childNode.prevSibling) {
-      childNode.prevSibling.nextSibling = childNode.nextSibling;
-      childNode.prevSibling = null;
+    if (!childNode.parentNode) {
+      throw new Error('Can\'t remove child, because it has no parent.');
     }
-
-    if (childNode.nextSibling) {
-      childNode.nextSibling.prevSibling = childNode.prevSibling;
-      childNode.nextSibling = null;
+    if (childNode.parentNode !== this) {
+      throw new Error('Can\'t remove child, because it has a different parent.');
     }
-
-    this.childNodes = this.childNodes.filter(node => node !== childNode);
+    const index = this.childNodes.indexOf(childNode);
+    this.childNodes.splice(index, 1);
+    removeChild(this, childNode, index);
   }
 
   /**
@@ -238,22 +168,16 @@ class ViewNode {
 
   /**
    * Traverse the children and execute callback
+   * @param callback - callback function
+   * @param newIndex - index to be updated
    */
-  traverseChildren(callback: Function) {
-    // Find the index and apply callback
-    let index;
-    if (this.parentNode) {
-      index = this.parentNode.childNodes.filter(node => !node.meta.skipAddToDom).indexOf(this);
-    } else {
-      index = 0;
-    }
-    this.index = index;
+  traverseChildren(callback: Function, newIndex: number | undefined = 0) {
+    this.index = !this.parentNode ? 0 : newIndex;
     callback(this);
-
     // Find the children
     if (this.childNodes.length) {
-      this.childNodes.forEach((childNode) => {
-        this.traverseChildren.call(childNode, callback);
+      this.childNodes.forEach((childNode, index) => {
+        this.traverseChildren.call(childNode, callback, index);
       });
     }
   }

@@ -105,7 +105,7 @@ class HippyReact implements HippyReact {
     const { __instanceId__: rootViewId } = superProps;
     trace(...componentName, 'Start', appName, 'with rootViewId', rootViewId, superProps);
 
-    // Update nodeId for contaienr
+    // Update nodeId for container
     this.rootContainer.containerInfo.nodeId = rootViewId;
     if (silent) {
       setSilent(silent);

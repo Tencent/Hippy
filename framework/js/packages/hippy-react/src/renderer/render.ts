@@ -113,7 +113,7 @@ function getNativeProps(node: Element) {
 }
 
 /**
- * Get target node attributes, use to chrome devTool tag attribute show while debugging
+ * Get target node attributes, used to chrome devTool tag attribute show while debugging
  */
 function getTargetNodeAttributes(targetNode: Element) {
   try {
@@ -124,7 +124,6 @@ function getTargetNodeAttributes(targetNode: Element) {
     };
     delete attributes.text;
     delete attributes.value;
-
     return attributes;
   } catch (e) {
     warn('getTargetNodeAttributes error:', e);
@@ -140,14 +139,12 @@ function renderToNative(rootViewId: number, targetNode: Element): Hippy.NativeNo
     warn('Component need to define the native name', targetNode);
     return null;
   }
-
   if (targetNode.meta.skipAddToDom) {
     return null;
   }
   if (!targetNode.meta.component) {
     throw new Error(`Specific tag is not supported yet: ${targetNode.tagName}`);
   }
-
   // Translate to native node
   const nativeNode: Hippy.NativeNode = {
     id: targetNode.nodeId,
@@ -171,15 +168,22 @@ function renderToNative(rootViewId: number, targetNode: Element): Hippy.NativeNo
 
 /**
  * Render Element with child to native
+ * @param rootViewId - rootView id
+ * @param node - current node
+ * @param atIndex - current node index
  */
-function renderToNativeWithChildren(rootViewId: number, node: ViewNode) {
+function renderToNativeWithChildren(rootViewId: number, node: ViewNode, atIndex?: number | undefined) {
   const nativeLanguages: Hippy.NativeNode[] = [];
+  let index = atIndex;
+  if (typeof index === 'undefined' && node && node.parentNode) {
+    index = node.parentNode.childNodes.indexOf(node);
+  }
   node.traverseChildren((targetNode: Element) => {
     const nativeNode = renderToNative(rootViewId, targetNode);
     if (nativeNode) {
       nativeLanguages.push(nativeNode);
     }
-  });
+  }, index);
   return nativeLanguages;
 }
 
@@ -194,19 +198,17 @@ function isLayout(node: ViewNode) {
 
 /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 function insertChild(parentNode: ViewNode, childNode: ViewNode, atIndex = -1) {
-  if (!parentNode) {
+  if (!parentNode || !childNode) {
     return;
   }
-
   if (childNode.meta.skipAddToDom) {
     return;
   }
-
   const rootViewId = getRootViewId();
   // Render the root node
   if (isLayout(parentNode) && !parentNode.isMounted) {
     // Start real native work.
-    const translated = renderToNativeWithChildren(rootViewId, childNode);
+    const translated = renderToNativeWithChildren(rootViewId, childNode, atIndex);
     startBatch();
     batchNodes.push({
       type: NODE_OPERATION_TYPES.createNode,
@@ -217,10 +219,10 @@ function insertChild(parentNode: ViewNode, childNode: ViewNode, atIndex = -1) {
       if (!node.isMounted) {
         node.isMounted = true;
       }
-    });
-  // Render others child nodes.
+    }, atIndex);
+    // Render others child nodes.
   } else if (parentNode.isMounted && !childNode.isMounted) {
-    const translated = renderToNativeWithChildren(rootViewId, childNode);
+    const translated = renderToNativeWithChildren(rootViewId, childNode, atIndex);
     startBatch();
     batchNodes.push({
       type: NODE_OPERATION_TYPES.createNode,
@@ -231,20 +233,16 @@ function insertChild(parentNode: ViewNode, childNode: ViewNode, atIndex = -1) {
       if (!node.isMounted) {
         node.isMounted = true;
       }
-    });
+    }, atIndex);
   }
 }
 
-function removeChild(parentNode: ViewNode, childNode: ViewNode) {
+function removeChild(parentNode: ViewNode, childNode: ViewNode | null, index: number) {
   if (!childNode || childNode.meta.skipAddToDom) {
     return;
   }
   childNode.isMounted = false;
-  childNode.traverseChildren((targetNode: ViewNode) => {
-    if (targetNode.isMounted) {
-      targetNode.isMounted = false;
-    }
-  });
+  childNode.index = index;
   const rootViewId = getRootViewId();
   const deleteNodeIds: Hippy.NativeNode[] = [{
     id: childNode.nodeId,

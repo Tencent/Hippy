@@ -6,7 +6,7 @@
 
 # 事件监听器
 
-这里是向前端发送一个名叫 rotate 的事件，里面有个参数是 result，这样就发送到前端去了。
+这里监听 rotate 的事件，里面有回调参数 result。
 
 ```js
 // 将入口文件中 setApp() 时保存的 Vue 实例取出来。
@@ -18,7 +18,7 @@ export default {
       console.log(rsp.result);
     }
   },
-  didMount() {
+  mounted() {
     // 通过 app 监听 rotate 事件，并通过 this.listener 在事件发生时触发回调。
     app.$on('rotate', this.listener);
   }
@@ -26,11 +26,21 @@ export default {
 
 ```
 
+# 事件触发
+
+如果需要手动发送事件，可以通过 `app.$emit` 触发。
+
+```js
+const app = getApp();
+app.$emit('rotate', { width: 100, height: 100 });
+```
+
 # 事件卸载
 
 如果不需要使用的时候记得调用一下移除监听的方法，一般放在组件的卸载生命周期中执行。
 
-```jsx
+```js
+const app = getApp();
 app.$off('rotate', this.listener);
 ```
 
