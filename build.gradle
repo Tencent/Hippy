@@ -32,9 +32,9 @@ task clean(type: Delete) {
 }
 
 project.afterEvaluate {
-    delete 'framework/hippy/examples/android-demo/src/main/assets'
+    delete 'framework/js/examples/android-demo/src/main/assets'
     copy{
-        from "framework/hippy/examples/android-demo/res"
-        into "framework/hippy/examples/android-demo/src/main/assets"
+        from "framework/js/examples/android-demo/res"
+        into "framework/js/examples/android-demo/src/main/assets"
     }
 }

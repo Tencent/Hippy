@@ -4,7 +4,7 @@
 
 hippy-vue 通过在 Vue 上绑定了一个 `Native` 属性，实现获取终端设备信息、以及调用终端模块。也可以用来监测是否在 Hippy 环境下运行。
 
-> 对应 Demo: [demo-vue-native.vue](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-vue-native.vue)
+> 对应 Demo: [demo-vue-native.vue](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/components/native-demos/demo-vue-native.vue)
 
 # Vue.Native 获取终端信息
 
@@ -93,7 +93,7 @@ console.log(Vue.Native.PixelRatio); // => 3
 >* 最低支持版本 2.7.0
 >* AsyncStorage 能力与挂载在全局变量下的 localStorage 模块一致，localStorage 可以在所有版本使用
 
-[[AsyncStorage 范例（与Hippy-React AsyncStorage 一致）]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/modules/AsyncStorage/index.jsx)
+[[AsyncStorage 范例（与Hippy-React AsyncStorage 一致）]](//github.com/Tencent/Hippy/tree/master/framework/js/examples/hippy-react-demo/src/modules/AsyncStorage/index.jsx)
 
 AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系统。
 
@@ -151,12 +151,12 @@ Vue.Native.AsyncStorage.getItem('itemKey');
 
 # BackAndroid
 
-[[BackAndroid 范例]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/main-native.js)
+[[BackAndroid 范例]](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/main-native.js)
 
 可以监听 Android 实体键的回退，在退出前做操作或拦截实体键的回退。
 
 >* 最低支持版本 2.7.0
->* 注意：该方法需要终端拦截实体返回按钮的事件，可以参考 [android-demo 的 onBackPressed 方法](//github.com/Tencent/Hippy/blob/master/examples/android-demo/example/src/main/java/com/tencent/mtt/hippy/example/MyActivity.java)
+>* 注意：该方法需要终端拦截实体返回按钮的事件，可以参考 [android-demo 的 onBackPressed 方法](//github.com/Tencent/Hippy/blob/master/framework/js/examples/android-demo/example/src/main/java/com/tencent/mtt/hippy/example/MyActivity.java)
 
 ## 方法
 

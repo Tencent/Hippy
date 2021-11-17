@@ -4,7 +4,7 @@
 
 ## React
 
-[[范例：SetNativeProps.jsx]](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/externals/SetNativeProps/index.jsx)
+[[范例：SetNativeProps.jsx]](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-react-demo/src/externals/SetNativeProps/index.jsx)
 
 除了element component（如div）外，React 没有直接暴露 ElementNode 给业务使用，可以通过 [React.forwardRef](https://zh-hans.reactjs.org/docs/forwarding-refs.html) 转发，或者使用 Hippy 提供的 `UIManagerModule.getElementFromFiberRef` 方法（该方法会从当前节点逐个遍历子节点直到找到 `ElementNode` 元素并返回，有一定性能损耗） 获取第一个 `ElementNode`，使用 demo 如下：
 
@@ -29,6 +29,6 @@
 
 ## Vue
 
-[[范例：demo-set-native-props.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-set-native-props.vue)
+[[范例：demo-set-native-props.vue]](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/components/demos/demo-set-native-props.vue)
 
 Vue 如果是 HTML 元素，直接通过`$refs`可以获取到 DOM；如果是自定义组件，可以通过`$refs.x.$el` 获取，`setNativeProps`使用方法和 React 一致

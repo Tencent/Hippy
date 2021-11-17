@@ -11,7 +11,7 @@ const {
 const example = process.argv[2];
 const BASE_PATH = process.cwd();
 // Target demo project path
-const DEMO_PATH = path.join(BASE_PATH, 'framework/hippy/examples', example);
+const DEMO_PATH = path.join(BASE_PATH, 'framework/js/examples', example);
 if (!test('-d', DEMO_PATH)) {
   console.log(`❌ Can not find demo project: ${example}`);
   return;

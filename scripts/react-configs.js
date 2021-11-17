@@ -5,11 +5,11 @@ const node = require('rollup-plugin-node-resolve');
 const commonjs = require('rollup-plugin-commonjs');
 const typescript = require('@wessberg/rollup-plugin-ts');
 
-const hippyReactPackage = require('../framework/hippy/packages/hippy-react/package.json');
-const hippyReactWebPackage = require('../framework/hippy/packages/hippy-react-web/package.json');
+const hippyReactPackage = require('../framework/js/packages/hippy-react/package.json');
+const hippyReactWebPackage = require('../framework/js/packages/hippy-react-web/package.json');
 
 const aliases = {
-  '@localTypes': path.resolve(__dirname, '../framework/hippy/packages/types'),
+  '@localTypes': path.resolve(__dirname, '../framework/js/packages/types'),
 };
 
 function banner(name, version) {
@@ -47,8 +47,8 @@ function banner(name, version) {
 
 const builds = {
   '@hippy/react': {
-    entry: './framework/hippy/packages/hippy-react/src/index.ts',
-    dest: './framework/hippy/packages/hippy-react/dist/index.js',
+    entry: './framework/js/packages/hippy-react/src/index.ts',
+    dest: './framework/js/packages/hippy-react/dist/index.js',
     format: 'es',
     banner: banner('@hippy/react', hippyReactPackage.version),
     external(id) {
@@ -59,8 +59,8 @@ const builds = {
     },
   },
   '@hippy/react-web': {
-    entry: './framework/hippy/packages/hippy-react-web/src/index.ts',
-    dest: './framework/hippy/packages/hippy-react-web/dist/index.js',
+    entry: './framework/js/packages/hippy-react-web/src/index.ts',
+    dest: './framework/js/packages/hippy-react-web/dist/index.js',
     format: 'es',
     banner: banner('@hippy/react-web', hippyReactWebPackage.version),
     external(id) {

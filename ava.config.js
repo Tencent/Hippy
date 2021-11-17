@@ -13,10 +13,10 @@ export default {
   extensions: false,
   compileEnhancements: false,
   files: [
-    'framework/hippy/packages/**/__tests__/*.test.js',
+    'framework/js/packages/**/__tests__/*.test.js',
   ],
   sources: [
-    'framework/hippy/packages/**/*.js',
+    'framework/js/packages/**/*.js',
   ],
   require: [
     'esm', // Use ES modules in NodeJS.

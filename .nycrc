@@ -1,9 +1,9 @@
 {
   "include": [
-    "framework/hippy/packages/**/*.js"
+    "framework/js/packages/**/*.js"
   ],
   "exclude": [
-    "framework/hippy/packages/**/__tests__/*.test.js"
+    "framework/js/packages/**/__tests__/*.test.js"
   ],
   "reporter": [
     "lcov",

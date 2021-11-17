@@ -1,7 +1,7 @@
 {
   "npmClient": "npm",
   "packages": [
-    "framework/hippy/packages/*"
+    "framework/js/packages/*"
   ],
   "version": "2.2.1"
 }
