@@ -58,4 +58,4 @@ bool FloatIsEqual(const float a, const float b);
 bool FloatIsEqualInScale(float a, float b, float scale);
 bool HPSizeIsEqual(HPSize a, HPSize b);
 bool HPSizeIsEqualInScale(HPSize a, HPSize b, float scale);
-float HPRoundValueToPixelGrid(float value, bool forceCeil, bool forceFloor);
+float HPRoundValueToPixelGrid(float value, float scaleValue, bool forceCeil, bool forceFloor);
