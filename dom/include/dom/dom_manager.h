@@ -13,7 +13,7 @@
 
 
 namespace hippy {
-namespace dom {
+inline namespace dom {
 
 class TaskRunner;
 
@@ -24,7 +24,7 @@ class DomManager {
   static std::shared_ptr<DomManager> GetDomManager(int32_t root_id);
   static void Destroy(int32_t root_id);
 
-  DomManager();
+  DomManager(int32_t root_id);
   ~DomManager();
 
   void CreateDomNodes(std::vector<std::shared_ptr<DomNode>> nodes);

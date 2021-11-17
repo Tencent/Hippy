@@ -3,6 +3,16 @@
 
 const UIManagerModule = internalBinding('UIManagerModule');
 
+__onClickDispatcher = (param) => {
+  const targetModule = __GLOBAL__.jsModuleList.receiveNativeEvent;
+  if (targetModule) {
+    const targetMethod = targetModule.EventDispatcher;
+    if (targetMethod) {
+      targetMethod(param);
+    }
+  }
+};
+
 Hippy.document = {
   createNode(rootViewId, queue) {
     UIManagerModule.CreateNode(rootViewId, queue);

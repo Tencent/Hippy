@@ -43,6 +43,7 @@ namespace hippy {
 namespace napi {
 
 using unicode_string_view = tdf::base::unicode_string_view;
+using DomValue = tdf::base::DomValue;
 using StringViewUtils = hippy::base::StringViewUtils;
 using JSValueWrapper = hippy::base::JSValueWrapper;
 
@@ -1113,6 +1114,86 @@ std::shared_ptr<JSValueWrapper> V8Ctx::ToJsValueWrapper(
   return nullptr;
 }
 
+std::shared_ptr<DomValue> V8Ctx::ToDomValue(
+    std::shared_ptr<CtxValue> value) {
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(value);
+  const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, global_value);
+  if (handle_value->IsUndefined()) {
+    return std::make_shared<DomValue>(DomValue::Undefined());
+  } else if (handle_value->IsNull()) {
+    return std::make_shared<DomValue>(DomValue::Null());
+  } else if (handle_value->IsBoolean()) {
+    bool v8_value = handle_value->ToBoolean(isolate_)->Value();
+    return std::make_shared<DomValue>(v8_value);
+  } else if (handle_value->IsString()) {
+    return std::make_shared<DomValue>(
+        *v8::String::Utf8Value(isolate_, handle_value));
+  } else if (handle_value->IsNumber()) {
+    double v8_value = handle_value->ToNumber(context).ToLocalChecked()->Value();
+    return std::make_shared<DomValue>(v8_value);
+  } else if (handle_value->IsArray()) {
+    v8::Local<v8::Object> v8_value =
+        handle_value->ToObject(context).ToLocalChecked();
+    // v8::NewStringType::kInternaliz
+    v8::Local<v8::Array>::Cast(handle_value);
+    v8::Local<v8::String> len_str =
+        v8::String::NewFromOneByte(isolate_,
+                                   reinterpret_cast<const uint8_t*>("length"),
+                                   v8::NewStringType::kInternalized)
+            .ToLocalChecked();
+    uint32_t len = v8_value->Get(context, len_str)
+        .ToLocalChecked()
+        ->Uint32Value(context)
+        .FromMaybe(0);
+    DomValue::DomValueArrayType ret;
+    for (uint32_t i = 0; i < len; i++) {
+      v8::Local<v8::Value> element = v8_value->Get(context, i).ToLocalChecked();
+      std::shared_ptr<DomValue> value_obj =
+          ToDomValue(std::make_shared<V8CtxValue>(isolate_, element));
+      ret.push_back(*value_obj);
+    }
+    return std::make_shared<DomValue>(std::move(ret));
+  } else if (handle_value->IsObject()) {
+    v8::Local<v8::Object> v8_value =
+        handle_value->ToObject(context).ToLocalChecked();
+    DomValue::DomValueObjectType ret;
+    v8::MaybeLocal<v8::Array> maybe_props =
+        v8_value->GetOwnPropertyNames(context);
+    if (!maybe_props.IsEmpty()) {
+      v8::Local<v8::Array> props = maybe_props.ToLocalChecked();
+      for (uint32_t i = 0; i < props->Length(); i++) {
+        v8::Local<v8::Value> props_key =
+            props->Get(context, i).ToLocalChecked();
+        v8::Local<v8::Value> props_value =
+            v8_value->Get(context, props_key).ToLocalChecked();
+
+        std::string key_obj;
+        if (props_key->IsString()) {
+          key_obj = *v8::String::Utf8Value(isolate_, props_key);
+        } else {
+          TDF_BASE_LOG(ERROR)
+          << "ToJsValueWrapper parse v8::Object err, props_key illegal";
+          return nullptr;
+        }
+
+        std::shared_ptr<DomValue> value_obj = ToDomValue(
+            std::make_shared<V8CtxValue>(isolate_, props_value));
+        ret[key_obj] = *value_obj;
+      }
+    }
+    return std::make_shared<DomValue>(std::move(ret));
+  }
+
+  // TDF_BASE_NOTIMPLEMENTED();
+  return nullptr;
+}
+
 std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
     std::shared_ptr<JSValueWrapper> wrapper) {
   TDF_BASE_DCHECK(wrapper);
@@ -1165,6 +1246,59 @@ std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
   }
 
   TDF_BASE_NOTIMPLEMENTED();
+  return nullptr;
+}
+
+std::shared_ptr<CtxValue> V8Ctx::CreateDomValue(
+    std::shared_ptr<DomValue> value) {
+  TDF_BASE_DCHECK(value);
+  if (value->IsUndefined()) {
+    return CreateUndefined();
+  } else if (value->IsNull()) {
+    return CreateNull();
+  } else if (value->IsString()) {
+    std::string str = value->ToString();
+    unicode_string_view str_view(StringViewUtils::ToU8Pointer(str.c_str()),
+                                 str.length());
+    return CreateString(str_view);
+  } else if (value->IsNumber()) {
+    return CreateNumber(value->ToDouble());
+  } else if (value->IsBoolean()) {
+    return CreateBoolean(value->ToBoolean());
+  } else if (value->IsArray()) {
+    auto arr = value->ToArray();
+    std::shared_ptr<CtxValue> args[arr.size()];
+    for (auto i = 0; i < arr.size(); ++i) {
+      args[i] = CreateDomValue(std::make_shared<DomValue>(arr[i]));
+    }
+    return CreateArray(arr.size(), args);
+  } else if (value->IsObject()) {
+    auto obj = value->ToObject();
+
+    v8::HandleScope handle_scope(isolate_);
+    v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+    v8::Context::Scope context_scope(context);
+
+    v8::Local<v8::Object> v8_obj = v8::Object::New(isolate_);
+    for (const auto& p : obj) {
+      auto obj_key = p.first;
+      auto obj_value = p.second;
+      unicode_string_view obj_key_view(
+          StringViewUtils::ToU8Pointer(obj_key.c_str()), obj_key.length());
+      v8::Local<v8::String> key = CreateV8String(obj_key_view);
+      std::shared_ptr<V8CtxValue> ctx_value =
+          std::static_pointer_cast<V8CtxValue>(
+              CreateDomValue(std::make_shared<DomValue>(obj_value)));
+      const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
+      TDF_BASE_DCHECK(!global_value.IsEmpty());
+      v8::Local<v8::Value> handle_value =
+          v8::Local<v8::Value>::New(isolate_, global_value);
+      v8_obj->Set(context, key, handle_value).ToChecked();
+    }
+    return std::make_shared<V8CtxValue>(isolate_, v8_obj);
+  }
+
+  // TDF_BASE_NOTIMPLEMENTED();
   return nullptr;
 }
 

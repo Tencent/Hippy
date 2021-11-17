@@ -222,6 +222,11 @@ class V8Ctx : public Ctx {
   virtual std::shared_ptr<CtxValue> CreateCtxValue(
       std::shared_ptr<JSValueWrapper> wrapper);
 
+  virtual std::shared_ptr<DomValue> ToDomValue(
+      std::shared_ptr<CtxValue> value);
+  virtual std::shared_ptr<CtxValue> CreateDomValue(
+      std::shared_ptr<DomValue> value);
+
   unicode_string_view ToStringView(v8::Local<v8::String> str);
   unicode_string_view GetMsgDesc(v8::Local<v8::Message> message);
   unicode_string_view GetStackInfo(v8::Local<v8::Message> message);
