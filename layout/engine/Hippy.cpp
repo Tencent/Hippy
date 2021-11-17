@@ -23,6 +23,10 @@ HPNodeRef HPNodeNew() {
   return new HPNode();
 }
 
+HPNodeRef HPNodeNewWithConfig(HPConfigRef config) {
+  return new HPNode(config);
+}
+
 void HPNodeFree(HPNodeRef node) {
   if (node == nullptr)
     return;
@@ -263,6 +267,19 @@ bool HPNodeLayoutGetHadOverflow(HPNodeRef node) {
   return node->result.hadOverflow;
 }
 
+void HPNodeSetConfig(HPNodeRef node, HPConfigRef config) {
+  node->SetConfig(config);
+}
+
+void HPConfigFree(HPConfigRef config) {
+  delete config;
+}
+
+HPConfigRef HPConfigGetDefault() {
+  static HPConfigRef defaultConfig = new HPConfig();
+  return defaultConfig;
+}
+
 void HPNodeStyleSetDisplay(HPNodeRef node, DisplayType displayType) {
   if (node == nullptr)
     return;
@@ -357,7 +374,7 @@ void HPNodeDoLayout(HPNodeRef node,
   if (node == nullptr)
     return;
 
-  node->layout(parentWidth, parentHeight, direction, layoutContext);
+  node->layout(parentWidth, parentHeight, node->GetConfig(), direction, layoutContext);
 }
 
 void HPNodePrint(HPNodeRef node) {
