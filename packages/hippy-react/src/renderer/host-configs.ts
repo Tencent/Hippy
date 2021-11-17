@@ -59,6 +59,7 @@ function createInstance(
       }
     }
   });
+  // only HostComponent(5) or Fragment(7) render to native
   if ([5, 7].indexOf(workInProgress.tag) < 0) {
     element.meta.skipAddToDom = true;
   }
@@ -71,7 +72,6 @@ function createTextInstance(newText: string, rootContainerInstance: Document) {
   element.meta = {
     component: {
       name: 'Text',
-      skipAddToDom: true,
     },
   };
   return element;
