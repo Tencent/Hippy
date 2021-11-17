@@ -37,6 +37,7 @@
 #include "bridge/runtime.h"
 #include "core/base/string_view_utils.h"
 #include "core/core.h"
+#include "dom/dom_manager.h"
 #include "jni/turbo_module_manager.h"
 #include "jni/exception_handler.h"
 #include "jni/java_turbo_module.h"
@@ -55,7 +56,7 @@ REGISTER_STATIC_JNI("com/tencent/mtt/hippy/HippyEngine",
 
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
              "initJSFramework",
-             "([BZZZLcom/tencent/mtt/hippy/bridge/NativeCallback;J)J",
+             "([BZZZLcom/tencent/mtt/hippy/bridge/NativeCallback;J;J)J",
              InitInstance)
 
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
@@ -376,14 +377,16 @@ jlong InitInstance(JNIEnv* j_env,
                    jboolean j_enable_v8_serialization,
                    jboolean j_is_dev_module,
                    jobject j_callback,
-                   jlong j_group_id) {
+                   jlong j_group_id,
+                   jlong j_root_view_id) {
   TDF_BASE_LOG(INFO) << "InitInstance begin, j_single_thread_mode = "
                      << static_cast<uint32_t>(j_single_thread_mode)
                      << ", j_bridge_param_json = "
                      << static_cast<uint32_t>(j_enable_v8_serialization)
                      << ", j_is_dev_module = "
                      << static_cast<uint32_t>(j_is_dev_module)
-                     << ", j_group_id = " << j_group_id;
+                     << ", j_group_id = " << j_group_id
+                     << ", j_root_view_id = " << j_root_view_id;
   std::shared_ptr<Runtime> runtime =
       std::make_shared<Runtime>(std::make_shared<JavaRef>(j_env, j_object),
                                 j_enable_v8_serialization, j_is_dev_module);
@@ -499,8 +502,10 @@ jlong InitInstance(JNIEnv* j_env,
     engine = std::make_shared<Engine>(std::move(engine_cb_map));
     runtime->SetEngine(engine);
   }
-  runtime->SetScope(
-      runtime->GetEngine()->CreateScope("", std::move(scope_cb_map)));
+  auto scope = runtime->GetEngine()->CreateScope("", std::move(scope_cb_map));
+  TDF_BASE_DCHECK(j_root_view_id <= std::numeric_limits<std::int32_t>::max());
+  scope->SetDomManager(std::make_shared<DomManager>(static_cast<int32_t>(j_root_view_id)));
+  runtime->SetScope(scope);
   TDF_BASE_DLOG(INFO) << "group = " << group;
   runtime->SetGroupId(group);
   TDF_BASE_LOG(INFO) << "InitInstance end, runtime_id = " << runtime_id;

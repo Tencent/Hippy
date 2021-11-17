@@ -33,6 +33,7 @@
 #include "core/napi/js_native_api.h"
 #include "core/napi/js_native_api_types.h"
 #include "core/task/worker_task_runner.h"
+#include "dom/dom_manager.h"
 
 class JavaScriptTaskRunner;
 class ModuleBase;
@@ -52,6 +53,7 @@ class Scope {
   using RegisterMap = hippy::base::RegisterMap;
   using CtxValue = hippy::napi::CtxValue;
   using Ctx = hippy::napi::Ctx;
+  using DomManager = hippy::dom::DomManager;
   using UriLoader = hippy::base::UriLoader;
   using FunctionData = hippy::napi::FunctionData;
   using BindingData = hippy::napi::BindingData;
@@ -114,6 +116,14 @@ class Scope {
 
   inline std::shared_ptr<UriLoader> GetUriLoader() { return loader_; }
 
+  inline void SetDomManager(std::shared_ptr<DomManager> dom_manager) {
+    dom_manager_ = dom_manager;
+  }
+
+  inline std::shared_ptr<DomManager> GetDomManager() {
+    return dom_manager_;
+  }
+
  private:
   friend class Engine;
   void Initialized();
@@ -131,4 +141,5 @@ class Scope {
   std::unique_ptr<BindingData> binding_data_;
   std::unique_ptr<ScopeWrapper> wrapper_;
   std::shared_ptr<UriLoader> loader_;
+  std::shared_ptr<DomManager> dom_manager_;
 };
