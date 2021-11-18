@@ -28,6 +28,9 @@ framework/js/examples/hippy-vue-demo/package-lock.json
 framework/js/examples/android-demo/maven-auth.properties
 framework/js/examples/android-demo/example/.cxx/
 
+framework/js/android/cmake-build-debug/*
+framework/js/android/src/main/jni/cmake-build-debug/*
+
 # android
 *.iml
 local.properties
