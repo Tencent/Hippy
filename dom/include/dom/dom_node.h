@@ -15,6 +15,7 @@ namespace hippy {
 inline namespace dom {
 
 class LayoutNode;
+class DomManager;
 
 class DomNode : public std::enable_shared_from_this<DomNode> {
  public:

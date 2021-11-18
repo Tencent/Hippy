@@ -149,68 +149,15 @@
 		A1649EDC265BB62700D9D700 /* HippyCollectionViewWaterfallLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = A1649ED6265BB62700D9D700 /* HippyCollectionViewWaterfallLayout.m */; };
 		A1649EDD265BB62700D9D700 /* HippyWaterfallViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A1649ED7265BB62700D9D700 /* HippyWaterfallViewManager.m */; };
 		AC63515623F92C99007FABA5 /* TTTGB-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = AC63515523F92C99007FABA5 /* TTTGB-Medium.otf */; };
-		B21E4B342708550F00B6A3ED /* HippyOCTurboModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = B21E4B312708550F00B6A3ED /* HippyOCTurboModule.mm */; };
-		B21E4B352708550F00B6A3ED /* HippyTurboModuleManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = B21E4B322708550F00B6A3ED /* HippyTurboModuleManager.mm */; };
-		B21E4B362708550F00B6A3ED /* NSObject+HippyTurbo.mm in Sources */ = {isa = PBXBuildFile; fileRef = B21E4B332708550F00B6A3ED /* NSObject+HippyTurbo.mm */; };
-		B21E4B3A270859BC00B6A3ED /* js_native_turbo_jsc.cc in Sources */ = {isa = PBXBuildFile; fileRef = B21E4B39270859BC00B6A3ED /* js_native_turbo_jsc.cc */; };
-		B21E4B3C270859C600B6A3ED /* js_native_turbo.cc in Sources */ = {isa = PBXBuildFile; fileRef = B21E4B3B270859C600B6A3ED /* js_native_turbo.cc */; };
-		B21E4B452708680900B6A3ED /* TurboConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = B21E4B412708680900B6A3ED /* TurboConfig.m */; };
-		B21E4B462708680900B6A3ED /* TurboBaseModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = B21E4B432708680900B6A3ED /* TurboBaseModule.mm */; };
-		D84AB8EA273A5AAD00987D03 /* CMakeLists.txt in Resources */ = {isa = PBXBuildFile; fileRef = D84AB8D7273A5AAD00987D03 /* CMakeLists.txt */; };
-		D84AB8EB273A5AAD00987D03 /* .clang-format in Resources */ = {isa = PBXBuildFile; fileRef = D84AB8E2273A5AAD00987D03 /* .clang-format */; };
 		D84AB8EC273A5AAD00987D03 /* dom_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = D84AB8E5273A5AAD00987D03 /* dom_manager.cc */; };
 		D84AB8ED273A5AAD00987D03 /* dom_node.cc in Sources */ = {isa = PBXBuildFile; fileRef = D84AB8E6273A5AAD00987D03 /* dom_node.cc */; };
 		D84AB8EE273A5AAD00987D03 /* render_manager_proxy.cc in Sources */ = {isa = PBXBuildFile; fileRef = D84AB8E7273A5AAD00987D03 /* render_manager_proxy.cc */; };
 		D84AB8EF273A5AAD00987D03 /* layout_node.cc in Sources */ = {isa = PBXBuildFile; fileRef = D84AB8E8273A5AAD00987D03 /* layout_node.cc */; };
 		D84AB8F0273A5AAD00987D03 /* dom_value.cc in Sources */ = {isa = PBXBuildFile; fileRef = D84AB8E9273A5AAD00987D03 /* dom_value.cc */; };
-		D84AB986273A618B00987D03 /* core.vcxproj.user in Resources */ = {isa = PBXBuildFile; fileRef = D84AB8F2273A618A00987D03 /* core.vcxproj.user */; };
-		D84AB987273A618B00987D03 /* hippy.js in Resources */ = {isa = PBXBuildFile; fileRef = D84AB8F6273A618A00987D03 /* hippy.js */; };
-		D84AB988273A618B00987D03 /* hippy.js in Resources */ = {isa = PBXBuildFile; fileRef = D84AB8F8273A618A00987D03 /* hippy.js */; };
-		D84AB989273A618B00987D03 /* native2js.js in Resources */ = {isa = PBXBuildFile; fileRef = D84AB8FB273A618A00987D03 /* native2js.js */; };
-		D84AB98A273A618B00987D03 /* js2native.js in Resources */ = {isa = PBXBuildFile; fileRef = D84AB8FC273A618A00987D03 /* js2native.js */; };
-		D84AB98B273A618B00987D03 /* native2js.js in Resources */ = {isa = PBXBuildFile; fileRef = D84AB8FE273A618A00987D03 /* native2js.js */; };
-		D84AB98C273A618B00987D03 /* js2native.js in Resources */ = {isa = PBXBuildFile; fileRef = D84AB8FF273A618A00987D03 /* js2native.js */; };
-		D84AB98D273A618B00987D03 /* bootstrap.js in Resources */ = {isa = PBXBuildFile; fileRef = D84AB900273A618A00987D03 /* bootstrap.js */; };
-		D84AB98E273A618B00987D03 /* ExceptionHandle.js in Resources */ = {isa = PBXBuildFile; fileRef = D84AB902273A618A00987D03 /* ExceptionHandle.js */; };
-		D84AB98F273A618B00987D03 /* jsTimersExecution.js in Resources */ = {isa = PBXBuildFile; fileRef = D84AB904273A618A00987D03 /* jsTimersExecution.js */; };
-		D84AB990273A618B00987D03 /* ConsoleModule.js in Resources */ = {isa = PBXBuildFile; fileRef = D84AB906273A618A00987D03 /* ConsoleModule.js */; };
-		D84AB991273A618B00987D03 /* DynamicLoad.js in Resources */ = {isa = PBXBuildFile; fileRef = D84AB907273A618A00987D03 /* DynamicLoad.js */; };
-		D84AB992273A618B00987D03 /* Event.js in Resources */ = {isa = PBXBuildFile; fileRef = D84AB908273A618A00987D03 /* Event.js */; };
-		D84AB993273A618B00987D03 /* UIManagerModule.js in Resources */ = {isa = PBXBuildFile; fileRef = D84AB909273A618A00987D03 /* UIManagerModule.js */; };
-		D84AB994273A618B00987D03 /* UtilsModule.js in Resources */ = {isa = PBXBuildFile; fileRef = D84AB90A273A618A00987D03 /* UtilsModule.js */; };
-		D84AB995273A618B00987D03 /* promise.js in Resources */ = {isa = PBXBuildFile; fileRef = D84AB90C273A618A00987D03 /* promise.js */; };
-		D84AB996273A618B00987D03 /* global.js in Resources */ = {isa = PBXBuildFile; fileRef = D84AB90D273A618A00987D03 /* global.js */; };
-		D84AB997273A618B00987D03 /* Dimensions.js in Resources */ = {isa = PBXBuildFile; fileRef = D84AB90E273A618A00987D03 /* Dimensions.js */; };
-		D84AB998273A618B00987D03 /* requestAnimationFrame.js in Resources */ = {isa = PBXBuildFile; fileRef = D84AB90F273A618A00987D03 /* requestAnimationFrame.js */; };
-		D84AB999273A618B00987D03 /* Others.js in Resources */ = {isa = PBXBuildFile; fileRef = D84AB910273A618A00987D03 /* Others.js */; };
-		D84AB99A273A618B00987D03 /* TimerModule.js in Resources */ = {isa = PBXBuildFile; fileRef = D84AB911273A618A00987D03 /* TimerModule.js */; };
-		D84AB99B273A618B00987D03 /* global.js in Resources */ = {isa = PBXBuildFile; fileRef = D84AB913273A618A00987D03 /* global.js */; };
-		D84AB99C273A618B00987D03 /* Dimensions.js in Resources */ = {isa = PBXBuildFile; fileRef = D84AB914273A618A00987D03 /* Dimensions.js */; };
-		D84AB99D273A618B00987D03 /* requestAnimationFrame.js in Resources */ = {isa = PBXBuildFile; fileRef = D84AB915273A618A00987D03 /* requestAnimationFrame.js */; };
-		D84AB99E273A618B00987D03 /* Platform.js in Resources */ = {isa = PBXBuildFile; fileRef = D84AB916273A618A00987D03 /* Platform.js */; };
-		D84AB99F273A618B00987D03 /* Network.js in Resources */ = {isa = PBXBuildFile; fileRef = D84AB917273A618B00987D03 /* Network.js */; };
-		D84AB9A0273A618B00987D03 /* Storage.js in Resources */ = {isa = PBXBuildFile; fileRef = D84AB918273A618B00987D03 /* Storage.js */; };
-		D84AB9A1273A618B00987D03 /* js.iml in Resources */ = {isa = PBXBuildFile; fileRef = D84AB91A273A618B00987D03 /* js.iml */; };
-		D84AB9A2273A618B00987D03 /* runConfigurations.xml in Resources */ = {isa = PBXBuildFile; fileRef = D84AB91C273A618B00987D03 /* runConfigurations.xml */; };
-		D84AB9A3273A618B00987D03 /* vcs.xml in Resources */ = {isa = PBXBuildFile; fileRef = D84AB91D273A618B00987D03 /* vcs.xml */; };
-		D84AB9A4273A618B00987D03 /* workspace.xml in Resources */ = {isa = PBXBuildFile; fileRef = D84AB91E273A618B00987D03 /* workspace.xml */; };
-		D84AB9A5273A618B00987D03 /* modules.xml in Resources */ = {isa = PBXBuildFile; fileRef = D84AB91F273A618B00987D03 /* modules.xml */; };
-		D84AB9A6273A618B00987D03 /* misc.xml in Resources */ = {isa = PBXBuildFile; fileRef = D84AB920273A618B00987D03 /* misc.xml */; };
-		D84AB9A7273A618B00987D03 /* CMakeLists.txt in Resources */ = {isa = PBXBuildFile; fileRef = D84AB94B273A618B00987D03 /* CMakeLists.txt */; };
-		D84AB9A8273A618B00987D03 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = D84AB953273A618B00987D03 /* .gitignore */; };
-		D84AB9A9273A618B00987D03 /* .clang-format in Resources */ = {isa = PBXBuildFile; fileRef = D84AB954273A618B00987D03 /* .clang-format */; };
-		D84AB9AA273A618B00987D03 /* CMakeLists.txt in Resources */ = {isa = PBXBuildFile; fileRef = D84AB956273A618B00987D03 /* CMakeLists.txt */; };
-		D84AB9AB273A618B00987D03 /* CMakeLists.txt in Resources */ = {isa = PBXBuildFile; fileRef = D84AB959273A618B00987D03 /* CMakeLists.txt */; };
-		D84AB9AC273A618B00987D03 /* logging.cc in Sources */ = {isa = PBXBuildFile; fileRef = D84AB95A273A618B00987D03 /* logging.cc */; };
-		D84AB9AD273A618B00987D03 /* CMakeLists.txt in Resources */ = {isa = PBXBuildFile; fileRef = D84AB95C273A618B00987D03 /* CMakeLists.txt */; };
 		D84AB9AE273A618B00987D03 /* logging.cc in Sources */ = {isa = PBXBuildFile; fileRef = D84AB95D273A618B00987D03 /* logging.cc */; };
 		D84AB9AF273A618B00987D03 /* log_settings_state.cc in Sources */ = {isa = PBXBuildFile; fileRef = D84AB95F273A618B00987D03 /* log_settings_state.cc */; };
-		D84AB9B0273A618B00987D03 /* CMakeLists.txt in Resources */ = {isa = PBXBuildFile; fileRef = D84AB960273A618B00987D03 /* CMakeLists.txt */; };
 		D84AB9B1273A618B00987D03 /* log_settings.cc in Sources */ = {isa = PBXBuildFile; fileRef = D84AB961273A618B00987D03 /* log_settings.cc */; };
 		D84AB9B2273A618B00987D03 /* unicode_string_view.cc in Sources */ = {isa = PBXBuildFile; fileRef = D84AB962273A618B00987D03 /* unicode_string_view.cc */; };
-		D84AB9B3273A618B00987D03 /* .clang-format in Resources */ = {isa = PBXBuildFile; fileRef = D84AB963273A618B00987D03 /* .clang-format */; };
-		D84AB9B4273A618B00987D03 /* core.vcxproj in Resources */ = {isa = PBXBuildFile; fileRef = D84AB964273A618B00987D03 /* core.vcxproj */; };
-		D84AB9B5273A618B00987D03 /* core.vcxproj.filters in Resources */ = {isa = PBXBuildFile; fileRef = D84AB965273A618B00987D03 /* core.vcxproj.filters */; };
 		D84AB9B6273A618B00987D03 /* scope.cc in Sources */ = {isa = PBXBuildFile; fileRef = D84AB967273A618B00987D03 /* scope.cc */; };
 		D84AB9B7273A618B00987D03 /* engine.cc in Sources */ = {isa = PBXBuildFile; fileRef = D84AB968273A618B00987D03 /* engine.cc */; };
 		D84AB9B8273A618B00987D03 /* javascript_task_runner.cc in Sources */ = {isa = PBXBuildFile; fileRef = D84AB96B273A618B00987D03 /* javascript_task_runner.cc */; };
@@ -228,13 +175,12 @@
 		D84AB9C4273A618B00987D03 /* task_runner.cc in Sources */ = {isa = PBXBuildFile; fileRef = D84AB979273A618B00987D03 /* task_runner.cc */; };
 		D84AB9C5273A618B00987D03 /* task.cc in Sources */ = {isa = PBXBuildFile; fileRef = D84AB97A273A618B00987D03 /* task.cc */; };
 		D84AB9C6273A618B00987D03 /* thread.cc in Sources */ = {isa = PBXBuildFile; fileRef = D84AB97B273A618B00987D03 /* thread.cc */; };
-		D84AB9C7273A618B00987D03 /* js_native_api_v8.cc in Sources */ = {isa = PBXBuildFile; fileRef = D84AB97E273A618B00987D03 /* js_native_api_v8.cc */; };
-		D84AB9C8273A618B00987D03 /* native_source_code_android.cc in Sources */ = {isa = PBXBuildFile; fileRef = D84AB97F273A618B00987D03 /* native_source_code_android.cc */; };
 		D84AB9C9273A618B00987D03 /* callback_info.cc in Sources */ = {isa = PBXBuildFile; fileRef = D84AB980273A618B00987D03 /* callback_info.cc */; };
 		D84AB9CA273A618B00987D03 /* js_native_jsc_helper.cc in Sources */ = {isa = PBXBuildFile; fileRef = D84AB982273A618B00987D03 /* js_native_jsc_helper.cc */; };
 		D84AB9CB273A618B00987D03 /* native_source_code_ios.cc in Sources */ = {isa = PBXBuildFile; fileRef = D84AB983273A618B00987D03 /* native_source_code_ios.cc */; };
 		D84AB9CC273A618B00987D03 /* js_native_api_value_jsc.cc in Sources */ = {isa = PBXBuildFile; fileRef = D84AB984273A618B00987D03 /* js_native_api_value_jsc.cc */; };
 		D84AB9CD273A618B00987D03 /* js_native_api_jsc.cc in Sources */ = {isa = PBXBuildFile; fileRef = D84AB985273A618B00987D03 /* js_native_api_jsc.cc */; };
+		F419C383274634E9003E242A /* taitank_layout_node.cc in Sources */ = {isa = PBXBuildFile; fileRef = F419C382274634E9003E242A /* taitank_layout_node.cc */; };
 		F43BE80F26733F620080999C /* HippyNetInfoIntenal.m in Sources */ = {isa = PBXBuildFile; fileRef = F43BE80E26733F620080999C /* HippyNetInfoIntenal.m */; };
 		F440E26E26B80A990069436B /* HippyReusableNodeCache.m in Sources */ = {isa = PBXBuildFile; fileRef = F440E26D26B80A990069436B /* HippyReusableNodeCache.m */; };
 		F45D1BDD26B1555E004010EE /* HippyI18nUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F45D1BDC26B1555E004010EE /* HippyI18nUtils.m */; };
@@ -555,23 +501,6 @@
 		A1649ED7265BB62700D9D700 /* HippyWaterfallViewManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyWaterfallViewManager.m; sourceTree = "<group>"; };
 		A1649ED8265BB62700D9D700 /* HippyWaterfallView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyWaterfallView.h; sourceTree = "<group>"; };
 		AC63515523F92C99007FABA5 /* TTTGB-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "TTTGB-Medium.otf"; sourceTree = "<group>"; };
-		B21E4B2D2708550F00B6A3ED /* HippyOCTurboModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyOCTurboModule.h; sourceTree = "<group>"; };
-		B21E4B2E2708550F00B6A3ED /* HippyTurboModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyTurboModule.h; sourceTree = "<group>"; };
-		B21E4B2F2708550F00B6A3ED /* HippyTurboModuleManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyTurboModuleManager.h; sourceTree = "<group>"; };
-		B21E4B302708550F00B6A3ED /* NSObject+HippyTurbo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+HippyTurbo.h"; sourceTree = "<group>"; };
-		B21E4B312708550F00B6A3ED /* HippyOCTurboModule.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyOCTurboModule.mm; sourceTree = "<group>"; };
-		B21E4B322708550F00B6A3ED /* HippyTurboModuleManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyTurboModuleManager.mm; sourceTree = "<group>"; };
-		B21E4B332708550F00B6A3ED /* NSObject+HippyTurbo.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "NSObject+HippyTurbo.mm"; sourceTree = "<group>"; };
-		B21E4B372708592800B6A3ED /* js_native_turbo_jsc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_native_turbo_jsc.h; sourceTree = "<group>"; };
-		B21E4B382708593000B6A3ED /* js_native_turbo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_native_turbo.h; sourceTree = "<group>"; };
-		B21E4B39270859BC00B6A3ED /* js_native_turbo_jsc.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_native_turbo_jsc.cc; sourceTree = "<group>"; };
-		B21E4B3B270859C600B6A3ED /* js_native_turbo.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_native_turbo.cc; sourceTree = "<group>"; };
-		B21E4B3E2708680900B6A3ED /* TurboConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TurboConfig.h; sourceTree = "<group>"; };
-		B21E4B412708680900B6A3ED /* TurboConfig.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TurboConfig.m; sourceTree = "<group>"; };
-		B21E4B422708680900B6A3ED /* TurboBaseModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TurboBaseModule.h; sourceTree = "<group>"; };
-		B21E4B432708680900B6A3ED /* TurboBaseModule.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TurboBaseModule.mm; sourceTree = "<group>"; };
-		B26F0FC62717D90F008F2640 /* HippyOCTurboModule+Inner.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "HippyOCTurboModule+Inner.h"; sourceTree = "<group>"; };
-		D84AB8D7273A5AAD00987D03 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 		D84AB8DA273A5AAD00987D03 /* layout_node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = layout_node.h; sourceTree = "<group>"; };
 		D84AB8DB273A5AAD00987D03 /* dom_listener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dom_listener.h; sourceTree = "<group>"; };
 		D84AB8DC273A5AAD00987D03 /* dom_node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dom_node.h; sourceTree = "<group>"; };
@@ -580,45 +509,11 @@
 		D84AB8DF273A5AAD00987D03 /* render_manager_proxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = render_manager_proxy.h; sourceTree = "<group>"; };
 		D84AB8E0273A5AAD00987D03 /* dom_value.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dom_value.h; sourceTree = "<group>"; };
 		D84AB8E1273A5AAD00987D03 /* dom_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dom_manager.h; sourceTree = "<group>"; };
-		D84AB8E2273A5AAD00987D03 /* .clang-format */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ".clang-format"; sourceTree = "<group>"; };
 		D84AB8E5273A5AAD00987D03 /* dom_manager.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dom_manager.cc; sourceTree = "<group>"; };
 		D84AB8E6273A5AAD00987D03 /* dom_node.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dom_node.cc; sourceTree = "<group>"; };
 		D84AB8E7273A5AAD00987D03 /* render_manager_proxy.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = render_manager_proxy.cc; sourceTree = "<group>"; };
 		D84AB8E8273A5AAD00987D03 /* layout_node.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = layout_node.cc; sourceTree = "<group>"; };
 		D84AB8E9273A5AAD00987D03 /* dom_value.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dom_value.cc; sourceTree = "<group>"; };
-		D84AB8F2273A618A00987D03 /* core.vcxproj.user */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = core.vcxproj.user; sourceTree = "<group>"; };
-		D84AB8F6273A618A00987D03 /* hippy.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = hippy.js; sourceTree = "<group>"; };
-		D84AB8F8273A618A00987D03 /* hippy.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = hippy.js; sourceTree = "<group>"; };
-		D84AB8FB273A618A00987D03 /* native2js.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = native2js.js; sourceTree = "<group>"; };
-		D84AB8FC273A618A00987D03 /* js2native.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = js2native.js; sourceTree = "<group>"; };
-		D84AB8FE273A618A00987D03 /* native2js.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = native2js.js; sourceTree = "<group>"; };
-		D84AB8FF273A618A00987D03 /* js2native.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = js2native.js; sourceTree = "<group>"; };
-		D84AB900273A618A00987D03 /* bootstrap.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = bootstrap.js; sourceTree = "<group>"; };
-		D84AB902273A618A00987D03 /* ExceptionHandle.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = ExceptionHandle.js; sourceTree = "<group>"; };
-		D84AB904273A618A00987D03 /* jsTimersExecution.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jsTimersExecution.js; sourceTree = "<group>"; };
-		D84AB906273A618A00987D03 /* ConsoleModule.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = ConsoleModule.js; sourceTree = "<group>"; };
-		D84AB907273A618A00987D03 /* DynamicLoad.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = DynamicLoad.js; sourceTree = "<group>"; };
-		D84AB908273A618A00987D03 /* Event.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = Event.js; sourceTree = "<group>"; };
-		D84AB909273A618A00987D03 /* UIManagerModule.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = UIManagerModule.js; sourceTree = "<group>"; };
-		D84AB90A273A618A00987D03 /* UtilsModule.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = UtilsModule.js; sourceTree = "<group>"; };
-		D84AB90C273A618A00987D03 /* promise.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = promise.js; sourceTree = "<group>"; };
-		D84AB90D273A618A00987D03 /* global.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = global.js; sourceTree = "<group>"; };
-		D84AB90E273A618A00987D03 /* Dimensions.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = Dimensions.js; sourceTree = "<group>"; };
-		D84AB90F273A618A00987D03 /* requestAnimationFrame.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = requestAnimationFrame.js; sourceTree = "<group>"; };
-		D84AB910273A618A00987D03 /* Others.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = Others.js; sourceTree = "<group>"; };
-		D84AB911273A618A00987D03 /* TimerModule.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = TimerModule.js; sourceTree = "<group>"; };
-		D84AB913273A618A00987D03 /* global.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = global.js; sourceTree = "<group>"; };
-		D84AB914273A618A00987D03 /* Dimensions.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = Dimensions.js; sourceTree = "<group>"; };
-		D84AB915273A618A00987D03 /* requestAnimationFrame.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = requestAnimationFrame.js; sourceTree = "<group>"; };
-		D84AB916273A618A00987D03 /* Platform.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = Platform.js; sourceTree = "<group>"; };
-		D84AB917273A618B00987D03 /* Network.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = Network.js; sourceTree = "<group>"; };
-		D84AB918273A618B00987D03 /* Storage.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = Storage.js; sourceTree = "<group>"; };
-		D84AB91A273A618B00987D03 /* js.iml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = js.iml; sourceTree = "<group>"; };
-		D84AB91C273A618B00987D03 /* runConfigurations.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = runConfigurations.xml; sourceTree = "<group>"; };
-		D84AB91D273A618B00987D03 /* vcs.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = vcs.xml; sourceTree = "<group>"; };
-		D84AB91E273A618B00987D03 /* workspace.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = workspace.xml; sourceTree = "<group>"; };
-		D84AB91F273A618B00987D03 /* modules.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = modules.xml; sourceTree = "<group>"; };
-		D84AB920273A618B00987D03 /* misc.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = misc.xml; sourceTree = "<group>"; };
 		D84AB923273A618B00987D03 /* engine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = engine.h; sourceTree = "<group>"; };
 		D84AB924273A618B00987D03 /* core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = core.h; sourceTree = "<group>"; };
 		D84AB926273A618B00987D03 /* javascript_task.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = javascript_task.h; sourceTree = "<group>"; };
@@ -651,26 +546,15 @@
 		D84AB945273A618B00987D03 /* native_source_code.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = native_source_code.h; sourceTree = "<group>"; };
 		D84AB947273A618B00987D03 /* js_native_jsc_helper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_native_jsc_helper.h; sourceTree = "<group>"; };
 		D84AB948273A618B00987D03 /* js_native_api_jsc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_native_api_jsc.h; sourceTree = "<group>"; };
-		D84AB94B273A618B00987D03 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 		D84AB94E273A618B00987D03 /* logging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = logging.h; sourceTree = "<group>"; };
 		D84AB94F273A618B00987D03 /* log_level.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_level.h; sourceTree = "<group>"; };
 		D84AB950273A618B00987D03 /* macros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = macros.h; sourceTree = "<group>"; };
 		D84AB951273A618B00987D03 /* log_settings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_settings.h; sourceTree = "<group>"; };
 		D84AB952273A618B00987D03 /* unicode_string_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = unicode_string_view.h; sourceTree = "<group>"; };
-		D84AB953273A618B00987D03 /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
-		D84AB954273A618B00987D03 /* .clang-format */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ".clang-format"; sourceTree = "<group>"; };
-		D84AB956273A618B00987D03 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
-		D84AB959273A618B00987D03 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
-		D84AB95A273A618B00987D03 /* logging.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = logging.cc; sourceTree = "<group>"; };
-		D84AB95C273A618B00987D03 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 		D84AB95D273A618B00987D03 /* logging.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = logging.cc; sourceTree = "<group>"; };
 		D84AB95F273A618B00987D03 /* log_settings_state.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log_settings_state.cc; sourceTree = "<group>"; };
-		D84AB960273A618B00987D03 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 		D84AB961273A618B00987D03 /* log_settings.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log_settings.cc; sourceTree = "<group>"; };
 		D84AB962273A618B00987D03 /* unicode_string_view.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = unicode_string_view.cc; sourceTree = "<group>"; };
-		D84AB963273A618B00987D03 /* .clang-format */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ".clang-format"; sourceTree = "<group>"; };
-		D84AB964273A618B00987D03 /* core.vcxproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = core.vcxproj; sourceTree = "<group>"; };
-		D84AB965273A618B00987D03 /* core.vcxproj.filters */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = core.vcxproj.filters; sourceTree = "<group>"; };
 		D84AB967273A618B00987D03 /* scope.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scope.cc; sourceTree = "<group>"; };
 		D84AB968273A618B00987D03 /* engine.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = engine.cc; sourceTree = "<group>"; };
 		D84AB96B273A618B00987D03 /* javascript_task_runner.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = javascript_task_runner.cc; sourceTree = "<group>"; };
@@ -688,13 +572,13 @@
 		D84AB979273A618B00987D03 /* task_runner.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = task_runner.cc; sourceTree = "<group>"; };
 		D84AB97A273A618B00987D03 /* task.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = task.cc; sourceTree = "<group>"; };
 		D84AB97B273A618B00987D03 /* thread.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = thread.cc; sourceTree = "<group>"; };
-		D84AB97E273A618B00987D03 /* js_native_api_v8.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_native_api_v8.cc; sourceTree = "<group>"; };
-		D84AB97F273A618B00987D03 /* native_source_code_android.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = native_source_code_android.cc; sourceTree = "<group>"; };
 		D84AB980273A618B00987D03 /* callback_info.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = callback_info.cc; sourceTree = "<group>"; };
 		D84AB982273A618B00987D03 /* js_native_jsc_helper.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_native_jsc_helper.cc; sourceTree = "<group>"; };
 		D84AB983273A618B00987D03 /* native_source_code_ios.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = native_source_code_ios.cc; sourceTree = "<group>"; };
 		D84AB984273A618B00987D03 /* js_native_api_value_jsc.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_native_api_value_jsc.cc; sourceTree = "<group>"; };
 		D84AB985273A618B00987D03 /* js_native_api_jsc.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_native_api_jsc.cc; sourceTree = "<group>"; };
+		F419C381274634DB003E242A /* taitank_layout_node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = taitank_layout_node.h; sourceTree = "<group>"; };
+		F419C382274634E9003E242A /* taitank_layout_node.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = taitank_layout_node.cc; sourceTree = "<group>"; };
 		F43BE80D26733F620080999C /* HippyNetInfoIntenal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyNetInfoIntenal.h; sourceTree = "<group>"; };
 		F43BE80E26733F620080999C /* HippyNetInfoIntenal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyNetInfoIntenal.m; sourceTree = "<group>"; };
 		F440E26C26B80A990069436B /* HippyReusableNodeCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyReusableNodeCache.h; sourceTree = "<group>"; };
@@ -796,7 +680,7 @@
 				064C59E123AB1A51001E80DD /* debug */,
 			);
 			name = sdk;
-			path = ../../ios/sdk;
+			path = ../../../../ios/sdk;
 			sourceTree = "<group>";
 		};
 		064C58C723AB1A50001E80DD /* handler */ = {
@@ -1385,13 +1269,11 @@
 		D84AB8D6273A5AAD00987D03 /* dom */ = {
 			isa = PBXGroup;
 			children = (
-				D84AB8D7273A5AAD00987D03 /* CMakeLists.txt */,
 				D84AB8D8273A5AAD00987D03 /* include */,
-				D84AB8E2273A5AAD00987D03 /* .clang-format */,
 				D84AB8E3273A5AAD00987D03 /* src */,
 			);
 			name = dom;
-			path = ../../dom;
+			path = ../../../../dom;
 			sourceTree = "<group>";
 		};
 		D84AB8D8273A5AAD00987D03 /* include */ = {
@@ -1405,6 +1287,7 @@
 		D84AB8D9273A5AAD00987D03 /* dom */ = {
 			isa = PBXGroup;
 			children = (
+				F419C381274634DB003E242A /* taitank_layout_node.h */,
 				D84AB8DA273A5AAD00987D03 /* layout_node.h */,
 				D84AB8DB273A5AAD00987D03 /* dom_listener.h */,
 				D84AB8DC273A5AAD00987D03 /* dom_node.h */,
@@ -1428,6 +1311,7 @@
 		D84AB8E4273A5AAD00987D03 /* dom */ = {
 			isa = PBXGroup;
 			children = (
+				F419C382274634E9003E242A /* taitank_layout_node.cc */,
 				D84AB8E5273A5AAD00987D03 /* dom_manager.cc */,
 				D84AB8E6273A5AAD00987D03 /* dom_node.cc */,
 				D84AB8E7273A5AAD00987D03 /* render_manager_proxy.cc */,
@@ -1440,160 +1324,12 @@
 		D84AB8F1273A618A00987D03 /* core */ = {
 			isa = PBXGroup;
 			children = (
-				D84AB8F2273A618A00987D03 /* core.vcxproj.user */,
-				D84AB8F3273A618A00987D03 /* js */,
 				D84AB921273A618B00987D03 /* include */,
 				D84AB949273A618B00987D03 /* third_party */,
-				D84AB963273A618B00987D03 /* .clang-format */,
-				D84AB964273A618B00987D03 /* core.vcxproj */,
-				D84AB965273A618B00987D03 /* core.vcxproj.filters */,
 				D84AB966273A618B00987D03 /* src */,
 			);
 			name = core;
-			path = ../../framework/js/core;
-			sourceTree = "<group>";
-		};
-		D84AB8F3273A618A00987D03 /* js */ = {
-			isa = PBXGroup;
-			children = (
-				D84AB8F4273A618A00987D03 /* entry */,
-				D84AB8F9273A618A00987D03 /* bridge */,
-				D84AB900273A618A00987D03 /* bootstrap.js */,
-				D84AB901273A618A00987D03 /* modules */,
-				D84AB905273A618A00987D03 /* global */,
-				D84AB919273A618B00987D03 /* .idea */,
-			);
-			path = js;
-			sourceTree = "<group>";
-		};
-		D84AB8F4273A618A00987D03 /* entry */ = {
-			isa = PBXGroup;
-			children = (
-				D84AB8F5273A618A00987D03 /* ios */,
-				D84AB8F7273A618A00987D03 /* android */,
-			);
-			path = entry;
-			sourceTree = "<group>";
-		};
-		D84AB8F5273A618A00987D03 /* ios */ = {
-			isa = PBXGroup;
-			children = (
-				D84AB8F6273A618A00987D03 /* hippy.js */,
-			);
-			path = ios;
-			sourceTree = "<group>";
-		};
-		D84AB8F7273A618A00987D03 /* android */ = {
-			isa = PBXGroup;
-			children = (
-				D84AB8F8273A618A00987D03 /* hippy.js */,
-			);
-			path = android;
-			sourceTree = "<group>";
-		};
-		D84AB8F9273A618A00987D03 /* bridge */ = {
-			isa = PBXGroup;
-			children = (
-				D84AB8FA273A618A00987D03 /* ios */,
-				D84AB8FD273A618A00987D03 /* android */,
-			);
-			path = bridge;
-			sourceTree = "<group>";
-		};
-		D84AB8FA273A618A00987D03 /* ios */ = {
-			isa = PBXGroup;
-			children = (
-				D84AB8FB273A618A00987D03 /* native2js.js */,
-				D84AB8FC273A618A00987D03 /* js2native.js */,
-			);
-			path = ios;
-			sourceTree = "<group>";
-		};
-		D84AB8FD273A618A00987D03 /* android */ = {
-			isa = PBXGroup;
-			children = (
-				D84AB8FE273A618A00987D03 /* native2js.js */,
-				D84AB8FF273A618A00987D03 /* js2native.js */,
-			);
-			path = android;
-			sourceTree = "<group>";
-		};
-		D84AB901273A618A00987D03 /* modules */ = {
-			isa = PBXGroup;
-			children = (
-				D84AB902273A618A00987D03 /* ExceptionHandle.js */,
-				D84AB903273A618A00987D03 /* ios */,
-			);
-			path = modules;
-			sourceTree = "<group>";
-		};
-		D84AB903273A618A00987D03 /* ios */ = {
-			isa = PBXGroup;
-			children = (
-				D84AB904273A618A00987D03 /* jsTimersExecution.js */,
-			);
-			path = ios;
-			sourceTree = "<group>";
-		};
-		D84AB905273A618A00987D03 /* global */ = {
-			isa = PBXGroup;
-			children = (
-				D84AB906273A618A00987D03 /* ConsoleModule.js */,
-				D84AB907273A618A00987D03 /* DynamicLoad.js */,
-				D84AB908273A618A00987D03 /* Event.js */,
-				D84AB909273A618A00987D03 /* UIManagerModule.js */,
-				D84AB90A273A618A00987D03 /* UtilsModule.js */,
-				D84AB90B273A618A00987D03 /* ios */,
-				D84AB910273A618A00987D03 /* Others.js */,
-				D84AB911273A618A00987D03 /* TimerModule.js */,
-				D84AB912273A618A00987D03 /* android */,
-				D84AB916273A618A00987D03 /* Platform.js */,
-				D84AB917273A618B00987D03 /* Network.js */,
-				D84AB918273A618B00987D03 /* Storage.js */,
-			);
-			path = global;
-			sourceTree = "<group>";
-		};
-		D84AB90B273A618A00987D03 /* ios */ = {
-			isa = PBXGroup;
-			children = (
-				D84AB90C273A618A00987D03 /* promise.js */,
-				D84AB90D273A618A00987D03 /* global.js */,
-				D84AB90E273A618A00987D03 /* Dimensions.js */,
-				D84AB90F273A618A00987D03 /* requestAnimationFrame.js */,
-			);
-			path = ios;
-			sourceTree = "<group>";
-		};
-		D84AB912273A618A00987D03 /* android */ = {
-			isa = PBXGroup;
-			children = (
-				D84AB913273A618A00987D03 /* global.js */,
-				D84AB914273A618A00987D03 /* Dimensions.js */,
-				D84AB915273A618A00987D03 /* requestAnimationFrame.js */,
-			);
-			path = android;
-			sourceTree = "<group>";
-		};
-		D84AB919273A618B00987D03 /* .idea */ = {
-			isa = PBXGroup;
-			children = (
-				D84AB91A273A618B00987D03 /* js.iml */,
-				D84AB91B273A618B00987D03 /* inspectionProfiles */,
-				D84AB91C273A618B00987D03 /* runConfigurations.xml */,
-				D84AB91D273A618B00987D03 /* vcs.xml */,
-				D84AB91E273A618B00987D03 /* workspace.xml */,
-				D84AB91F273A618B00987D03 /* modules.xml */,
-				D84AB920273A618B00987D03 /* misc.xml */,
-			);
-			path = .idea;
-			sourceTree = "<group>";
-		};
-		D84AB91B273A618B00987D03 /* inspectionProfiles */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = inspectionProfiles;
+			path = ../../core;
 			sourceTree = "<group>";
 		};
 		D84AB921273A618B00987D03 /* include */ = {
@@ -1702,10 +1438,7 @@
 		D84AB94A273A618B00987D03 /* base */ = {
 			isa = PBXGroup;
 			children = (
-				D84AB94B273A618B00987D03 /* CMakeLists.txt */,
 				D84AB94C273A618B00987D03 /* include */,
-				D84AB953273A618B00987D03 /* .gitignore */,
-				D84AB954273A618B00987D03 /* .clang-format */,
 				D84AB955273A618B00987D03 /* src */,
 			);
 			path = base;
@@ -1734,7 +1467,6 @@
 		D84AB955273A618B00987D03 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				D84AB956273A618B00987D03 /* CMakeLists.txt */,
 				D84AB957273A618B00987D03 /* platform */,
 				D84AB95E273A618B00987D03 /* base */,
 			);
@@ -1744,25 +1476,14 @@
 		D84AB957273A618B00987D03 /* platform */ = {
 			isa = PBXGroup;
 			children = (
-				D84AB958273A618B00987D03 /* adr */,
 				D84AB95B273A618B00987D03 /* ios */,
 			);
 			path = platform;
 			sourceTree = "<group>";
 		};
-		D84AB958273A618B00987D03 /* adr */ = {
-			isa = PBXGroup;
-			children = (
-				D84AB959273A618B00987D03 /* CMakeLists.txt */,
-				D84AB95A273A618B00987D03 /* logging.cc */,
-			);
-			path = adr;
-			sourceTree = "<group>";
-		};
 		D84AB95B273A618B00987D03 /* ios */ = {
 			isa = PBXGroup;
 			children = (
-				D84AB95C273A618B00987D03 /* CMakeLists.txt */,
 				D84AB95D273A618B00987D03 /* logging.cc */,
 			);
 			path = ios;
@@ -1772,7 +1493,6 @@
 			isa = PBXGroup;
 			children = (
 				D84AB95F273A618B00987D03 /* log_settings_state.cc */,
-				D84AB960273A618B00987D03 /* CMakeLists.txt */,
 				D84AB961273A618B00987D03 /* log_settings.cc */,
 				D84AB962273A618B00987D03 /* unicode_string_view.cc */,
 			);
@@ -1784,20 +1504,12 @@
 			children = (
 				D84AB967273A618B00987D03 /* scope.cc */,
 				D84AB968273A618B00987D03 /* engine.cc */,
-				D84AB969273A618B00987D03 /* platform */,
 				D84AB96A273A618B00987D03 /* task */,
 				D84AB96F273A618B00987D03 /* modules */,
 				D84AB975273A618B00987D03 /* base */,
 				D84AB97C273A618B00987D03 /* napi */,
 			);
 			path = src;
-			sourceTree = "<group>";
-		};
-		D84AB969273A618B00987D03 /* platform */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = platform;
 			sourceTree = "<group>";
 		};
 		D84AB96A273A618B00987D03 /* task */ = {
@@ -1839,20 +1551,10 @@
 		D84AB97C273A618B00987D03 /* napi */ = {
 			isa = PBXGroup;
 			children = (
-				D84AB97D273A618B00987D03 /* v8 */,
 				D84AB980273A618B00987D03 /* callback_info.cc */,
 				D84AB981273A618B00987D03 /* jsc */,
 			);
 			path = napi;
-			sourceTree = "<group>";
-		};
-		D84AB97D273A618B00987D03 /* v8 */ = {
-			isa = PBXGroup;
-			children = (
-				D84AB97E273A618B00987D03 /* js_native_api_v8.cc */,
-				D84AB97F273A618B00987D03 /* native_source_code_android.cc */,
-			);
-			path = v8;
 			sourceTree = "<group>";
 		};
 		D84AB981273A618B00987D03 /* jsc */ = {
@@ -1923,53 +1625,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D84AB993273A618B00987D03 /* UIManagerModule.js in Resources */,
-				D84AB9B3273A618B00987D03 /* .clang-format in Resources */,
-				D84AB99E273A618B00987D03 /* Platform.js in Resources */,
-				D84AB98E273A618B00987D03 /* ExceptionHandle.js in Resources */,
 				AC63515623F92C99007FABA5 /* TTTGB-Medium.otf in Resources */,
-				D84AB99B273A618B00987D03 /* global.js in Resources */,
-				D84AB998273A618B00987D03 /* requestAnimationFrame.js in Resources */,
-				D84AB9A9273A618B00987D03 /* .clang-format in Resources */,
-				D84AB99A273A618B00987D03 /* TimerModule.js in Resources */,
-				D84AB9AA273A618B00987D03 /* CMakeLists.txt in Resources */,
-				D84AB9B5273A618B00987D03 /* core.vcxproj.filters in Resources */,
-				D84AB99C273A618B00987D03 /* Dimensions.js in Resources */,
-				D84AB996273A618B00987D03 /* global.js in Resources */,
-				D84AB9AD273A618B00987D03 /* CMakeLists.txt in Resources */,
-				D84AB987273A618B00987D03 /* hippy.js in Resources */,
 				064C5AF023AB1A70001E80DD /* res in Resources */,
-				D84AB9B4273A618B00987D03 /* core.vcxproj in Resources */,
-				D84AB9A5273A618B00987D03 /* modules.xml in Resources */,
-				D84AB9A7273A618B00987D03 /* CMakeLists.txt in Resources */,
-				D84AB9B0273A618B00987D03 /* CMakeLists.txt in Resources */,
-				D84AB994273A618B00987D03 /* UtilsModule.js in Resources */,
-				D84AB986273A618B00987D03 /* core.vcxproj.user in Resources */,
-				D84AB99F273A618B00987D03 /* Network.js in Resources */,
-				D84AB988273A618B00987D03 /* hippy.js in Resources */,
-				D84AB98C273A618B00987D03 /* js2native.js in Resources */,
-				D84AB9A3273A618B00987D03 /* vcs.xml in Resources */,
-				D84AB989273A618B00987D03 /* native2js.js in Resources */,
-				D84AB990273A618B00987D03 /* ConsoleModule.js in Resources */,
-				D84AB9A2273A618B00987D03 /* runConfigurations.xml in Resources */,
-				D84AB98A273A618B00987D03 /* js2native.js in Resources */,
-				D84AB9A1273A618B00987D03 /* js.iml in Resources */,
-				D84AB995273A618B00987D03 /* promise.js in Resources */,
-				D84AB8EB273A5AAD00987D03 /* .clang-format in Resources */,
-				D84AB992273A618B00987D03 /* Event.js in Resources */,
-				D84AB999273A618B00987D03 /* Others.js in Resources */,
-				D84AB98D273A618B00987D03 /* bootstrap.js in Resources */,
-				D84AB8EA273A5AAD00987D03 /* CMakeLists.txt in Resources */,
-				D84AB9AB273A618B00987D03 /* CMakeLists.txt in Resources */,
-				D84AB9A4273A618B00987D03 /* workspace.xml in Resources */,
-				D84AB99D273A618B00987D03 /* requestAnimationFrame.js in Resources */,
-				D84AB9A6273A618B00987D03 /* misc.xml in Resources */,
-				D84AB9A0273A618B00987D03 /* Storage.js in Resources */,
-				D84AB98F273A618B00987D03 /* jsTimersExecution.js in Resources */,
-				D84AB991273A618B00987D03 /* DynamicLoad.js in Resources */,
-				D84AB98B273A618B00987D03 /* native2js.js in Resources */,
-				D84AB9A8273A618B00987D03 /* .gitignore in Resources */,
-				D84AB997273A618B00987D03 /* Dimensions.js in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1986,9 +1643,7 @@
 				064C59F023AB1A51001E80DD /* MTTFlexLine.cpp in Sources */,
 				067AB97623B5F309009D5EE2 /* MyView.m in Sources */,
 				064C5A4023AB1A51001E80DD /* HippyConvert.mm in Sources */,
-				D84AB9C8273A618B00987D03 /* native_source_code_android.cc in Sources */,
 				064C5A0723AB1A51001E80DD /* HippyScrollViewManager.mm in Sources */,
-				D84AB9AC273A618B00987D03 /* logging.cc in Sources */,
 				064C5A5323AB1A51001E80DD /* HippyFont.mm in Sources */,
 				064C5A5723AB1A51001E80DD /* HippyBridge+Mtt.mm in Sources */,
 				064C5A1823AB1A51001E80DD /* HippySimpleWebView.m in Sources */,
@@ -2029,7 +1684,6 @@
 				06082A7A24AB222000AF85BC /* HippyFooterRefreshManager.m in Sources */,
 				064C5A2523AB1A51001E80DD /* HippyBaseListView.m in Sources */,
 				064C5A3923AB1A51001E80DD /* HippyModalCustomAnimationTransition.m in Sources */,
-				D84AB9C7273A618B00987D03 /* js_native_api_v8.cc in Sources */,
 				064C5A3423AB1A51001E80DD /* HippyTextManager.mm in Sources */,
 				A1649EDD265BB62700D9D700 /* HippyWaterfallViewManager.m in Sources */,
 				D84AB8ED273A5AAD00987D03 /* dom_node.cc in Sources */,
@@ -2151,6 +1805,7 @@
 				060F6F6D25F1DE0C0038F8F9 /* HippyVirtualList.m in Sources */,
 				F4D0028F2675C7D5004A43B6 /* HippyGradientObject.m in Sources */,
 				064C5A4C23AB1A51001E80DD /* HippyBundleURLProvider.m in Sources */,
+				F419C383274634E9003E242A /* taitank_layout_node.cc in Sources */,
 				064C5A1D23AB1A51001E80DD /* HippyAnimatedImage.m in Sources */,
 				067AB96F23B5EEF4009D5EE2 /* TestModule.m in Sources */,
 				06FF8EEC2511C10B00C03900 /* HippyDefaultImageProvider.m in Sources */,
@@ -2278,11 +1933,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CODE_SIGN_STYLE = Automatic;
 				HEADER_SEARCH_PATHS = (
-					"\"$(SRCROOT)/../../framework/js/core/include\"",
-					"\"$(SRCROOT)/../../framework/js/third_party/base/include\"",
-					"\"$(SRCROOT)/../../dom/include",
+					"$(SRCROOT)/../../core/include",
+					"$(SRCROOT)/../../core/third_party/base/include",
+					"$(SRCROOT)/../../core/include",
+					"$(SRCROOT)/../../../../layout",
+					"$(SRCROOT)/../../../../dom/include",
 				);
 				INFOPLIST_FILE = HippyDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
@@ -2300,11 +1958,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CODE_SIGN_STYLE = Automatic;
 				HEADER_SEARCH_PATHS = (
-					"\"$(SRCROOT)/../../framework/js/core/include\"",
-					"\"$(SRCROOT)/../../framework/js/third_party/base/include\"",
-					"\"$(SRCROOT)/../../dom/include",
+					"$(SRCROOT)/../../core/include",
+					"$(SRCROOT)/../../core/third_party/base/include",
+					"$(SRCROOT)/../../core/include",
+					"$(SRCROOT)/../../../../layout",
+					"$(SRCROOT)/../../../../dom/include",
 				);
 				INFOPLIST_FILE = HippyDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
