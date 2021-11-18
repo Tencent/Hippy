@@ -11,6 +11,7 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.DomDomainData;
 import com.tencent.mtt.hippy.dom.DomManager;
 import com.tencent.mtt.hippy.dom.node.DomNode;
+import com.tencent.mtt.hippy.dom.node.DomNodeRecord;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
@@ -37,10 +38,10 @@ public class DomModel {
         return null;
       }
 
-      DomDomainData domainData = domNode.getDomainData();
+      DomNodeRecord domainData = domNode.getDomNodeRecord();
       // rootNode domainData为空
-      if (domainData != null && !TextUtils.isEmpty(domainData.text)) {
-        childrenArray.put(getTextNodeJson(domainData));
+      if (domainData instanceof DomDomainData && !TextUtils.isEmpty(((DomDomainData)domainData).text)) {
+        childrenArray.put(getTextNodeJson((DomDomainData)domainData));
       }
 
       for (int i = 0, size = domNode.getChildCount(); i < size; i++) {
@@ -49,7 +50,7 @@ public class DomModel {
       }
 
       try {
-        result = getNodeJson(domainData, NodeType.ELEMENT_NODE);
+        result = getNodeJson((DomDomainData)domainData, NodeType.ELEMENT_NODE);
         if (result == null) {
           result = new JSONObject();
         }
@@ -298,7 +299,7 @@ public class DomModel {
       if (domManager != null && renderManager != null) {
         DomNode domNode = domManager.getNode(nodeId);
         RenderNode renderNode = renderManager.getRenderNode(nodeId);
-        if (domNode != null && domNode.getDomainData() != null && renderNode != null) {
+        if (domNode != null && domNode.getDomNodeRecord() instanceof DomDomainData && renderNode != null) {
           int[] viewLocation = getRenderViewLocation(context, renderNode);
           // 没找到view，还未创建
           if (viewLocation == null) {
@@ -307,7 +308,7 @@ public class DomModel {
 
           JSONArray border = getBorder(viewLocation[0], viewLocation[1], renderNode.getWidth(),
             renderNode.getHeight());
-          HippyMap style = domNode.getDomainData().style;
+          HippyMap style = ((DomDomainData)domNode.getDomNodeRecord()).style;
           JSONArray padding = getPadding(border, style);
           JSONArray content = getContent(padding, style);
           JSONArray margin = getMargin(border, style);

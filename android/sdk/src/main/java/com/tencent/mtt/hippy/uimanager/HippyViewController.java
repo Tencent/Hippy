@@ -36,6 +36,9 @@ import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.common.CommonBorder;
+import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewWrapper;
+import com.tencent.mtt.hippy.views.list.HippyListView;
+import com.tencent.mtt.hippy.views.scroll.HippyScrollView;
 import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
 import com.tencent.mtt.supportui.views.IGradient;
 import com.tencent.mtt.supportui.views.IShadow;
@@ -77,6 +80,20 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         view = createViewImpl(rootView.getContext(), initialProps);
         if (view == null) {
           view = createViewImpl(rootView.getContext());
+        }
+      }
+
+      if (id < 0) {
+        if (view instanceof HippyRecyclerViewWrapper) {
+          ((HippyRecyclerViewWrapper)view).setScrollEnable(false);
+        }
+
+        if (view instanceof HippyListView) {
+          ((HippyListView)view).setScrollEnable(false);
+        }
+
+        if (view instanceof HippyScrollView) {
+          ((HippyScrollView)view).setScrollEnabled(false);
         }
       }
 
@@ -675,6 +692,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
     if (realIndex > parentView.getChildCount()) {
       realIndex = parentView.getChildCount();
     }
+
     try {
       parentView.addView(view, realIndex);
     } catch (Exception e) {
