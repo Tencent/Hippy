@@ -34,7 +34,7 @@ void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>> nodes) {
   }
 }
 
-void DomManager::UpdateDomNode(std::vector<std::shared_ptr<DomNode>> nodes) {
+void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>> nodes) {
   for (auto it = nodes.begin(); it != nodes.end(); it++) {
     std::shared_ptr<DomNode> node = dom_node_registry_.GetNode((*it)->GetId());
     if (node == nullptr) {
@@ -52,7 +52,7 @@ void DomManager::UpdateDomNode(std::vector<std::shared_ptr<DomNode>> nodes) {
   }
 }
 
-void DomManager::DeleteDomNode(std::vector<std::shared_ptr<DomNode>> nodes) {
+void DomManager::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>> nodes) {
   for (auto it = nodes.begin(); it != nodes.end(); it++) {
     std::shared_ptr<DomNode> node = dom_node_registry_.GetNode((*it)->GetId());
     if (node == nullptr) {

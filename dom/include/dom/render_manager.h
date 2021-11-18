@@ -11,6 +11,8 @@
 namespace hippy {
 inline namespace dom {
 
+class DomNode;
+
 class RenderManager {
  public:
   virtual ~RenderManager();

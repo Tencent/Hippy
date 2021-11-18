@@ -117,13 +117,13 @@ typedef HPMeasureFunc TaitankMeasureFunction;
    * @param child
    * @param index
    */
-  void InsertChild(std::shared_ptr<TaitankLayoutNode> child, uint32_t index) override;
+  void InsertChild(std::shared_ptr<TaitankLayoutNode> child, uint32_t index);
 
   /**
    * @brief 删除子节点
    * @param child
    */
-  void RemoveChild(const std::shared_ptr<TaitankLayoutNode> child) override;
+  void RemoveChild(const std::shared_ptr<TaitankLayoutNode> child);
 
   /**
    * @brief 是否有新的布局

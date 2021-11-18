@@ -31,8 +31,8 @@ class DomManager {
   ~DomManager();
 
   void CreateDomNodes(std::vector<std::shared_ptr<DomNode>> nodes);
-  void UpdateDomNode(std::vector<std::shared_ptr<DomNode>> nodes);
-  void DeleteDomNode(std::vector<std::shared_ptr<DomNode>> nodes);
+  void UpdateDomNodes(std::vector<std::shared_ptr<DomNode>> nodes);
+  void DeleteDomNodes(std::vector<std::shared_ptr<DomNode>> nodes);
   void BeginBatch();
   void EndBatch();
   void CallFunction(int32_t id,
