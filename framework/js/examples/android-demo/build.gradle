@@ -19,13 +19,13 @@ if (propFile.exists()) {
 }
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     defaultConfig {
         applicationId "com.tencent.mtt.hippy.example"
         minSdkVersion 19
         // noinspection ExpiredTargetSdkVersion
         //noinspection OldTargetApi
-        targetSdkVersion 29
+        targetSdkVersion 30
         ndk  {
             if (include_abi_armeabi_v7a.toBoolean()) {
                 abiFilters 'armeabi-v7a'
