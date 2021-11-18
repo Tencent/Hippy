@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.11.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-native-components/compare/2.10.3...2.11.0) (2021-11-18)
+
+**Note:** Version bump only for package @hippy/vue-native-components
+
+
+
+
+
 ## [2.10.3](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-native-components/compare/2.10.2...2.10.3) (2021-11-16)
 
 **Note:** Version bump only for package @hippy/vue-native-components

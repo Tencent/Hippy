@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.11.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-css-loader/compare/2.10.3...2.11.0) (2021-11-18)
+
+
+### Features
+
+* **vue:** add vue jsi ([368874d](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-css-loader/commit/368874dda6d3ef6ba7c65d693b0722132edb6aee))
+
+
+
+
+
 ## [2.10.3](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-css-loader/compare/2.10.2...2.10.3) (2021-11-16)
 
 **Note:** Version bump only for package @hippy/vue-css-loader

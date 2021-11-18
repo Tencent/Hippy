@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.11.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.10.3...2.11.0) (2021-11-18)
+
+
+### Bug Fixes
+
+* **hippy-react:** fixed getting appear event name for anonymous function ([9c180a7](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/9c180a711e92784ef262311993862b2d7fac78af))
+
+
+### Features
+
+* **react,vue:** improve managing node performance ([8b35ba6](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/8b35ba6bdbe4bfaf2f3ac866ed05ebfed2df3d8e))
+* **vue:** add vue jsi ([368874d](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/368874dda6d3ef6ba7c65d693b0722132edb6aee))
+
+
+
+
+
 ## [2.10.3](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.10.2...2.10.3) (2021-11-16)
 
 

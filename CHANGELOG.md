@@ -3,6 +3,35 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.11.0](https://github.com/Tencent/Hippy/compare/2.10.3...2.11.0) (2021-11-18)
+
+
+### Bug Fixes
+
+* **android:** scroll view onScroll event ([feafe71](https://github.com/Tencent/Hippy/commit/feafe71d3ee6aa062df370d30b3a1aa74f0064e7))
+* **core:** fix debug mode uncaught exception bug ([#1058](https://github.com/Tencent/Hippy/issues/1058)) ([44fcb76](https://github.com/Tencent/Hippy/commit/44fcb76ab07a2a5ac526989889b70a346cee9aa9))
+* **core:** fix jni crash ([0b8c325](https://github.com/Tencent/Hippy/commit/0b8c3259cee528577cf498cb008eeb53d5909dcb))
+* **core:** fix turbo runtime ([4ff32f9](https://github.com/Tencent/Hippy/commit/4ff32f9c3496f2b24eaaddf40f95c86f9a517288))
+* **core:** jsi ([f28ccf7](https://github.com/Tencent/Hippy/commit/f28ccf748126db0cb97080180bba4221ec31e368))
+* **hippy-react:** fixed getting appear event name for anonymous function ([9c180a7](https://github.com/Tencent/Hippy/commit/9c180a711e92784ef262311993862b2d7fac78af))
+* **hippy-vue:** fixed measureInAppWindow issue ([57a2523](https://github.com/Tencent/Hippy/commit/57a252364d161d3c22a2089ba809dd45d625fa08))
+* **ios:** fix compile-time error on Xcode 12 and previous versions ([fb47e54](https://github.com/Tencent/Hippy/commit/fb47e548f474c61b1a5a6ea1c07086ffdf552782))
+
+
+### Features
+
+* **android:** add v8 init param ([04235b3](https://github.com/Tencent/Hippy/commit/04235b32ea9c567bb312b78360d7d00308cecb55))
+* **android:** jsi ([792294f](https://github.com/Tencent/Hippy/commit/792294f8967226038076e12908e47ae36b6ee8c7))
+* **core:** add v8 init param ([b15d3a6](https://github.com/Tencent/Hippy/commit/b15d3a683efcf7b25ad07dffef11bf08acfe45da))
+* **ios:** add ios jsi ([1960454](https://github.com/Tencent/Hippy/commit/19604547f465fca5be14cb95a40d3f5b43f2d5bd))
+* **ios:** optimize scale factor and demo ([f49813b](https://github.com/Tencent/Hippy/commit/f49813bfbd95996b7e9238cbd4eaf43e2fa41274))
+* **react,vue:** improve managing node performance ([8b35ba6](https://github.com/Tencent/Hippy/commit/8b35ba6bdbe4bfaf2f3ac866ed05ebfed2df3d8e))
+* **vue:** add vue jsi ([368874d](https://github.com/Tencent/Hippy/commit/368874dda6d3ef6ba7c65d693b0722132edb6aee))
+
+
+
+
+
 ## [2.10.3](https://github.com/Tencent/Hippy/compare/2.10.2...2.10.3) (2021-11-16)
 
 

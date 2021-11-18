@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.11.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-router/compare/2.10.3...2.11.0) (2021-11-18)
+
+
+### Features
+
+* **ios:** add ios jsi ([1960454](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-router/commit/19604547f465fca5be14cb95a40d3f5b43f2d5bd))
+
+
+
+
+
 ## [2.10.3](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-router/compare/2.10.2...2.10.3) (2021-11-16)
 
 **Note:** Version bump only for package @hippy/vue-router

@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.11.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.10.3...2.11.0) (2021-11-18)
+
+
+### Bug Fixes
+
+* **hippy-vue:** fixed measureInAppWindow issue ([57a2523](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/57a252364d161d3c22a2089ba809dd45d625fa08))
+
+
+### Features
+
+* **react,vue:** improve managing node performance ([8b35ba6](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/8b35ba6bdbe4bfaf2f3ac866ed05ebfed2df3d8e))
+* **vue:** add vue jsi ([368874d](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/368874dda6d3ef6ba7c65d693b0722132edb6aee))
+
+
+
+
+
 ## [2.10.3](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.10.2...2.10.3) (2021-11-16)
 
 

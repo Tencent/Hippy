@@ -5,7 +5,7 @@
 * js2cpp is maintenance by Hippy Team <hippy@tencent.com>
 * Copyright © 2018-2021 Tencent. All rights reserved.
 *
-* Generated at Tue Nov 02 2021 19:14:32 GMT+0800 (China Standard Time).
+* Generated at Thu Nov 18 2021 15:30:08 GMT+0800 (China Standard Time).
 * DO NOT EDIT IT.
 */
 
