@@ -19,14 +19,16 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.Resources.NotFoundException;
+import android.graphics.Insets;
 import android.os.Build;
 import android.provider.Settings;
+import android.view.WindowInsets;
 import androidx.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.WindowManager;
-
+import android.view.WindowMetrics;
 import com.tencent.mtt.hippy.common.HippyMap;
 
 import java.lang.reflect.Field;
@@ -120,6 +122,52 @@ public class DimensionsUtil {
     return result;
   }
 
+  public static int getStatusBarHeight() {
+    Context context = ContextHolder.getAppContext();
+    assert context != null;
+    if (STATUS_BAR_HEIGHT > 0) {
+      return STATUS_BAR_HEIGHT;
+    }
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+      WindowManager wm = (WindowManager) ContextHolder.getAppContext()
+              .getSystemService(Context.WINDOW_SERVICE);
+      WindowMetrics windowMetrics = wm.getCurrentWindowMetrics();
+      WindowInsets windowInsets = windowMetrics.getWindowInsets();
+      Insets insets = windowInsets
+              .getInsetsIgnoringVisibility(WindowInsets.Type.statusBars());
+      STATUS_BAR_HEIGHT = insets.top;
+    } else {
+      Class<?> c;
+      Object obj;
+      Field field;
+      int x;
+      try {
+        c = Class.forName("com.android.internal.R$dimen");
+        obj = c.newInstance();
+        field = c.getField("status_bar_height");
+        //noinspection ConstantConditions
+        x = Integer.parseInt(field.get(obj).toString());
+        STATUS_BAR_HEIGHT = context.getResources().getDimensionPixelSize(x);
+      } catch (Exception e) {
+        STATUS_BAR_HEIGHT = -1;
+        e.printStackTrace();
+      }
+
+      if (STATUS_BAR_HEIGHT < 1) {
+        try {
+          int statebarH_id = context.getResources()
+                  .getIdentifier("statebar_height", "dimen", context.getPackageName());
+          STATUS_BAR_HEIGHT = Math.round(context.getResources().getDimension(statebarH_id));
+        } catch (NotFoundException e) {
+          LogUtils.d("DimensionsUtil", "getDimensions: " + e.getMessage());
+        }
+      }
+    }
+
+    return STATUS_BAR_HEIGHT;
+  }
+
   public static HippyMap getDimensions(int windowWidth, int windowHeight, Context context,
       boolean shouldUseScreenDisplay) {
     if (context == null) {
@@ -152,34 +200,7 @@ public class DimensionsUtil {
 
     // construct param
     HippyMap dimensionMap = new HippyMap();
-    if (STATUS_BAR_HEIGHT < 0) {
-      Class<?> c;
-      Object obj;
-      Field field;
-      int x;
-      try {
-        c = Class.forName("com.android.internal.R$dimen");
-        obj = c.newInstance();
-        field = c.getField("status_bar_height");
-        //noinspection ConstantConditions
-        x = Integer.parseInt(field.get(obj).toString());
-        STATUS_BAR_HEIGHT = context.getResources().getDimensionPixelSize(x);
-      } catch (Exception e) {
-        STATUS_BAR_HEIGHT = -1;
-        e.printStackTrace();
-      }
-
-      if (STATUS_BAR_HEIGHT < 1) {
-        try {
-          int statebarH_id = context.getResources()
-              .getIdentifier("statebar_height", "dimen", context.getPackageName());
-          STATUS_BAR_HEIGHT = Math.round(context.getResources().getDimension(statebarH_id));
-        } catch (NotFoundException e) {
-          LogUtils.d("DimensionsUtil", "getDimensions: " + e.getMessage());
-        }
-      }
-    }
-
+    getStatusBarHeight();
     int navigationBarHeight = getNavigationBarHeight(context);
     HippyMap windowDisplayMetricsMap = new HippyMap();
 

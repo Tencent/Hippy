@@ -30,6 +30,7 @@ import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.dom.node.StyleNode;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.utils.ContextHolder;
+import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
@@ -312,43 +313,6 @@ public class ControllerManager {
     }
   }
 
-  private static int statusBarHeight = -1;
-
-  public static int getStatusBarHeightFromSystem() {
-    if (statusBarHeight > 0) {
-      return statusBarHeight;
-    }
-
-    Class<?> c;
-    Object obj;
-    Field field;
-    int x;
-    try {
-      c = Class.forName("com.android.internal.R$dimen");
-      obj = c.newInstance();
-      field = c.getField("status_bar_height");
-      //noinspection ConstantConditions
-      x = Integer.parseInt(field.get(obj).toString());
-      statusBarHeight = ContextHolder.getAppContext().getResources().getDimensionPixelSize(x);
-    } catch (Exception e1) {
-      statusBarHeight = -1;
-      e1.printStackTrace();
-    }
-
-    if (statusBarHeight < 1) {
-      try {
-        int statebarH_id = ContextHolder.getAppContext().getResources()
-            .getIdentifier("statebar_height", "dimen",
-                ContextHolder.getAppContext().getPackageName());
-        statusBarHeight = Math
-            .round(ContextHolder.getAppContext().getResources().getDimension(statebarH_id));
-      } catch (NotFoundException e) {
-        LogUtils.d("ControllerManager", "getStatusBarHeightFromSystem: " + e.getMessage());
-      }
-    }
-    return statusBarHeight;
-  }
-
   @SuppressLint("Range")
   public void measureInWindow(int id, Promise promise) {
     View v = mControllerRegistry.getView(id);
@@ -362,7 +326,7 @@ public class ControllerManager {
 
         // We need to remove the status bar from the height.  getLocationOnScreen will include the
         // status bar.
-        statusBarHeight = getStatusBarHeightFromSystem();
+        statusBarHeight = DimensionsUtil.getStatusBarHeight();
         if (statusBarHeight > 0) {
           outputBuffer[1] -= statusBarHeight;
         }
