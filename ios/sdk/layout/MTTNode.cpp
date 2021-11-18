@@ -68,6 +68,16 @@ MTTNode::MTTNode() {
 
   initLayoutResult();
   inInitailState = true;
+  scaleFactor = 1.f;
+}
+
+MTTNode::MTTNode(float sf):scaleFactor(sf) {
+  context = nullptr;
+  parent = nullptr;
+  measure = nullptr;
+  dirtiedFunc = nullptr;
+  initLayoutResult();
+  inInitailState = true;
 }
 
 MTTNode::~MTTNode() {
@@ -597,7 +607,7 @@ void MTTNode::layout(float parentWidth,
   // node 's layout is complete
   // convert its and its descendants position and size to a integer value.
 #ifndef ANDROID
-  convertLayoutResult(0.0f, 0.0f);  // layout result convert has been taken in
+  convertLayoutResult(0.0f, 0.0f, scaleFactor);  // layout result convert has been taken in
                                     // java . 3.8.2018. ianwang..
 #endif
 
@@ -1512,7 +1522,7 @@ void MTTNode::calculateFixedItemPosition(MTTNodeRef item, FlexDirection axis) {
 // offset for example: if parent's Fraction offset is 0.3 and current child
 // offset is 0.4 then the child's absolute offset  is 0.7. if use roundf ,
 // roundf(0.7) == 1 so we need absLeft, absTop  parameter
-void MTTNode::convertLayoutResult(float absLeft, float absTop) {
+void MTTNode::convertLayoutResult(float absLeft, float absTop, float scaleFactor) {
   if (!hasNewLayout()) {
     return;
   }
@@ -1524,8 +1534,8 @@ void MTTNode::convertLayoutResult(float absLeft, float absTop) {
   absLeft += left;
   absTop += top;
   bool isTextNode = style.nodeType == NodeTypeText;
-  result.position[CSSLeft] = MTTRoundValueToPixelGrid(left, false, isTextNode);
-  result.position[CSSTop] = MTTRoundValueToPixelGrid(top, false, isTextNode);
+  result.position[CSSLeft] = MTTRoundValueToPixelGrid(left, scaleFactor, false, isTextNode);
+  result.position[CSSTop] = MTTRoundValueToPixelGrid(top, scaleFactor, false, isTextNode);
 
   const bool hasFractionalWidth =
       !FloatIsEqual(fmodf(width, 1.0), 0) && !FloatIsEqual(fmodf(width, 1.0), 1.0);
@@ -1534,16 +1544,16 @@ void MTTNode::convertLayoutResult(float absLeft, float absTop) {
 
   const float absRight = absLeft + width;
   const float absBottom = absTop + height;
-  result.dim[DimWidth] = MTTRoundValueToPixelGrid(absRight, (isTextNode && hasFractionalWidth),
+  result.dim[DimWidth] = MTTRoundValueToPixelGrid(absRight, scaleFactor, (isTextNode && hasFractionalWidth),
                                                  (isTextNode && !hasFractionalWidth)) -
-                         MTTRoundValueToPixelGrid(absLeft, false, isTextNode);
+                         MTTRoundValueToPixelGrid(absLeft, scaleFactor, false, isTextNode);
 
-  result.dim[DimHeight] = MTTRoundValueToPixelGrid(absBottom, (isTextNode && hasFractionalHeight),
+  result.dim[DimHeight] = MTTRoundValueToPixelGrid(absBottom, scaleFactor, (isTextNode && hasFractionalHeight),
                                                   (isTextNode && !hasFractionalHeight)) -
-                          MTTRoundValueToPixelGrid(absTop, false, isTextNode);
+                          MTTRoundValueToPixelGrid(absTop, scaleFactor, false, isTextNode);
   std::vector<MTTNodeRef>& items = children;
   for (size_t i = 0; i < items.size(); i++) {
     MTTNodeRef item = items[i];
-    item->convertLayoutResult(absLeft, absTop);
+    item->convertLayoutResult(absLeft, absTop, scaleFactor);
   }
 }
