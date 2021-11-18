@@ -169,6 +169,7 @@ public void removeActionInterceptor(com.tencent.mtt.hippy.dom.node.DomActionInte
 -keep class com.tencent.mtt.hippy.dom.node.TypeFaceUtil {*;}
 -keep class com.tencent.mtt.hippy.adapter.image.HippyImageLoader {*;}
 -keep class com.tencent.mtt.hippy.dom.node.DomActionInterceptor {*;}
+-keep class com.tencent.mtt.hippy.dom.node.DomNodeRecord {*;}
 
 -keepclasseswithmembers class com.tencent.mtt.supportui.** {
 public <methods>;

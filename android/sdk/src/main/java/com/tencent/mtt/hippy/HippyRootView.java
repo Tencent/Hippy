@@ -71,6 +71,15 @@ public class HippyRootView extends FrameLayout {
 
   protected boolean mLoadCompleted = false;
 
+  public HippyRootView(Context context, HippyEngine.ModuleLoadParams loadParams) {
+    super(context);
+    mInstanceId = -10;
+    setId(mInstanceId);
+    HippyMap tagMap = HippyTag.createTagMap(NodeProps.ROOT_NODE, null);
+    setTag(tagMap);
+    mLoadParams = loadParams;
+  }
+
   public HippyRootView(HippyEngine.ModuleLoadParams loadParams) {
     super(loadParams.hippyContext != null ? loadParams.hippyContext
         : new HippyInstanceContext(loadParams.context, loadParams));
