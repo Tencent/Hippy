@@ -51,15 +51,9 @@ const measureInWindowByMethod = function measureInWindowByMethod(el, method) {
     return Promise.resolve(empty);
   }
   const { nodeId } = el;
-  // FIXME: callNativeWithPromise was broken in iOS, it response
-  // UIManager was called with 3 arguments, but expect 2.
-  // So wrap the function with a Promise.
-  const timeout = new Promise(resolve => setTimeout(() => {
-    resolve(empty);
-  }, 100));
-  const measure = new Promise(resolve => callNative('UIManagerModule', method, nodeId, (pos) => {
+  return new Promise(resolve => callNative('UIManagerModule', method, nodeId, (pos) => {
     // Android error handler.
-    if (!pos || pos === 'this view is null') {
+    if (!pos || pos === 'this view is null' || typeof nodeId === 'undefined') {
       return resolve(empty);
     }
     return resolve({
@@ -71,7 +65,6 @@ const measureInWindowByMethod = function measureInWindowByMethod(el, method) {
       height: pos.height,
     });
   }));
-  return Promise.race([timeout, measure]);
 };
 
 /**
