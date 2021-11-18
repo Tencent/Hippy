@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
   separatorLine: {
     marginLeft: 12,
     marginRight: 12,
-    height: 0.5,
+    height: 1,
     backgroundColor: '#e5e5e5',
   },
   loading: {
