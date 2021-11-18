@@ -256,8 +256,15 @@ public class DomManager implements HippyInstanceLifecycleEventListener,
   }
 
   public int getRootNodeId() {
-    int count = mNodeRegistry.getRootNodeCount();
-    return count >= 1 ? mNodeRegistry.getRootTag(0) : 0;
+    int id = 0;
+    for (int i = 0; i < mNodeRegistry.getRootNodeCount(); i++) {
+      int tempId = mNodeRegistry.getRootTag(i);
+      if (tempId >= 0) {
+        id = tempId;
+        break;
+      }
+    }
+    return id;
   }
 
   public void createNode(final HippyRootView hippyRootView, int rootId, final int id, int pid, int index,
@@ -288,7 +295,7 @@ public class DomManager implements HippyInstanceLifecycleEventListener,
       node.setProps(map);
 
       if (mContext.getDevSupportManager().isSupportDev()) {
-        node.setDomainData(new DomDomainData(id, rootId, pid, className, tagName, map));
+        node.setDomNodeRecord(new DomDomainData(rootId, id, pid, index, className, tagName, map));
       }
 
       //		boolean isLayoutOnly=false;

@@ -15,11 +15,15 @@
 package com.tencent.mtt.hippy;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
 
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.FrameLayout.LayoutParams;
 import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorAdapter;
 import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorEvent;
 import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
@@ -36,6 +40,8 @@ import com.tencent.mtt.hippy.common.ThreadExecutor;
 import com.tencent.mtt.hippy.devsupport.DevServerCallBack;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
 import com.tencent.mtt.hippy.dom.DomManager;
+import com.tencent.mtt.hippy.dom.node.DomNode;
+import com.tencent.mtt.hippy.dom.node.DomNodeRecord;
 import com.tencent.mtt.hippy.modules.HippyModuleManager;
 import com.tencent.mtt.hippy.modules.HippyModuleManagerImpl;
 import com.tencent.mtt.hippy.modules.javascriptmodules.EventDispatcher;
@@ -45,6 +51,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -453,6 +460,125 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     return mDebugMode;
   }
 
+  private void addNodeRecordOfChild(ArrayList<DomNodeRecord> recordList, DomNode parent, int index, int rootId) {
+    int count = parent.getChildCount();
+    for (int i = 0; i < count; i++) {
+      DomNode child = parent.getChildAt(i);
+      if (child == null) {
+        continue;
+      }
+      DomNodeRecord record = new DomNodeRecord();
+      record.rootId = rootId;
+      record.id = child.getId();
+      record.index = i;
+      record.pid = parent.getId();
+      record.className = child.getViewClass();
+      record.props = child.getTotalProps();
+      recordList.add(record);
+      addNodeRecordOfChild(recordList, child, i, rootId);
+    }
+  }
+
+  public void saveInstanceState() {
+    if (mEngineContext == null || mEngineContext.getDomManager() == null
+        || mThirdPartyAdapter == null) {
+      return;
+    }
+
+    DomManager domManager = mEngineContext.getDomManager();
+    int rootId = domManager.getRootNodeId();
+    DomNode rootNode = domManager.getNode(rootId);
+    if (rootNode == null) {
+      LogUtils.e(TAG, "saveInstanceState root node is null!");
+      return;
+    }
+
+    ArrayList<DomNodeRecord> recordList = new ArrayList<>();
+    int count = rootNode.getChildCount();
+    for (int i = 0; i < count; i++) {
+      DomNode child = rootNode.getChildAt(i);
+      if (child == null) {
+        continue;
+      }
+      DomNodeRecord record = new DomNodeRecord();
+      record.rootId = rootId;
+      record.id = child.getId();
+      record.index = i;
+      record.pid = rootId;
+      record.className = child.getViewClass();
+      record.props = child.getTotalProps();
+      recordList.add(record);
+      addNodeRecordOfChild(recordList, child, i, rootId);
+    }
+
+    mThirdPartyAdapter.saveInstanceState(recordList);
+  }
+
+  public HippyRootView restoreInstanceState(final ArrayList<DomNodeRecord> domNodeRecordList,
+      HippyEngine.ModuleLoadParams loadParams) {
+    if (domNodeRecordList == null || domNodeRecordList.isEmpty() || mEngineContext == null) {
+      return null;
+    }
+
+    final DomManager domManager = mEngineContext.getDomManager();
+    final RenderManager renderManager = mEngineContext.getRenderManager();
+    final HippyInstanceContext context = new HippyInstanceContext(loadParams.context, loadParams);
+    context.setEngineContext(mEngineContext);
+    final HippyRootView tempRootView = new HippyRootView(context, loadParams);
+    tempRootView.setOnSizeChangedListener(this);
+    final int tempRootId = tempRootView.getId();
+    mInstances.add(tempRootView);
+    renderManager.getControllerManager().onInstanceLoad(tempRootId);
+
+    getThreadExecutor().postOnDomThread(new Runnable() {
+      @Override
+      public void run() {
+        domManager.createRootNode(tempRootId);
+
+        domManager.renderBatchStart();
+        for(int i = 0;i < domNodeRecordList.size(); i ++){
+          DomNodeRecord domNodeRecord = domNodeRecordList.get(i);
+          if (domNodeRecord == null || domNodeRecord.id < 0) {
+            continue;
+          }
+
+          int pid = domNodeRecord.pid;
+          if (pid % 10 == 0) {
+            pid = tempRootId;
+          } else {
+            pid = 0 - pid;
+          }
+          int id = 0 - domNodeRecord.id;
+          domManager.createNode(tempRootView, tempRootId, id, pid, domNodeRecord.index,
+              domNodeRecord.className, domNodeRecord.tagName, domNodeRecord.props);
+        }
+        domManager.renderBatchEnd();
+      }
+    });
+
+    return tempRootView;
+  }
+
+  public void destroyInstanceState(HippyRootView rootView) {
+    if (rootView == null || mEngineContext == null) {
+      return;
+    }
+
+    rootView.setOnSizeChangedListener(null);
+    final int rootId = rootView.getId();
+    final DomManager domManager = mEngineContext.getDomManager();
+    getThreadExecutor().postOnDomThread(new Runnable() {
+      @Override
+      public void run() {
+        domManager.deleteNode(rootId);
+      }
+    });
+
+    if (mInstances.contains(rootView)) {
+      mInstances.remove(rootView);
+    }
+  }
+
   private void notifyModuleLoaded(final ModuleLoadStatus statusCode, final String msg,
       final HippyRootView hippyRootView) {
     if (mModuleListener != null) {
@@ -589,6 +715,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     instance.attachToEngine(mEngineContext);
     HippyMap launchParams = instance.getLaunchParams();
     HippyBundleLoader loader = ((HippyInstanceContext) instance.getContext()).getBundleLoader();
+
     if (!mDebugMode) {
       if (loader != null) {
         instance.getTimeMonitor()

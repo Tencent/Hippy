@@ -35,7 +35,7 @@ public class DomNode extends FlexNode {
 
   boolean mIsLazy = false;
 
-  private DomDomainData	mDomainData;
+  private DomNodeRecord	domNodeRecord;
 
   public void setLazy(boolean lazy) {
     this.mIsLazy = lazy;
@@ -107,17 +107,17 @@ public class DomNode extends FlexNode {
     mTotalProps = props;
   }
 
-  public void setDomainData(DomDomainData domainData) {
-    mDomainData = domainData;
+  public void setDomNodeRecord(DomNodeRecord domNodeRecord) {
+    this.domNodeRecord = domNodeRecord;
   }
 
-  public DomDomainData getDomainData() {
-    return mDomainData;
+  public DomNodeRecord getDomNodeRecord() {
+    return domNodeRecord;
   }
 
   private void updateDomainData() {
-    if (mDomainData != null) {
-      mDomainData.updateLayout(mLastX, mLastY, mLastWidth, mLastHeight);
+    if (domNodeRecord instanceof DomDomainData) {
+      ((DomDomainData)domNodeRecord).updateLayout(mLastX, mLastY, mLastWidth, mLastHeight);
     }
   }
 

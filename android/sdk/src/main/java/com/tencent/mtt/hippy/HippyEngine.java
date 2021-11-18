@@ -44,6 +44,7 @@ import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
 import com.tencent.mtt.hippy.bridge.libraryloader.LibraryLoader;
 import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.dom.node.DomNodeRecord;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
@@ -201,6 +202,13 @@ public abstract class HippyEngine {
   public abstract boolean onBackPressed(BackPressHandler handler);
 
   public abstract HippyEngineContext getEngineContext();
+
+  public abstract void saveInstanceState();
+
+  public abstract HippyRootView restoreInstanceState(ArrayList<DomNodeRecord> domNodeRecordList,
+      HippyEngine.ModuleLoadParams loadParams);
+
+  public abstract void destroyInstanceState(HippyRootView rootView);
 
   public interface BackPressHandler {
 
