@@ -14,6 +14,6 @@ jobs:
         with:
           node-version: 16.x
       - name: Install
-        run: npm install commitlint-plugin-function-rules@1.4.0 @commitlint/cli@13.1.0 @commitlint/config-conventional@13.1.0 @commitlint/config-conventional@13.1.0 @commitlint/lint@13.1.0 @commitlint/prompt-cli@13.1.0
+        run: npm install commitlint-plugin-function-rules@1.4.0 @commitlint/cli@15.0.0 @commitlint/config-conventional@15.0.0 @commitlint/config-conventional@15.0.0 @commitlint/lint@15.0.0 @commitlint/prompt-cli@15.0.0 --save
       - name: commitlint
         run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
