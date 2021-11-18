@@ -11,6 +11,7 @@
   * [日志](guide/console.md)
   * [自定义字体](guide/custom-font.md)
   * [动态加载](guide/dynamic-import.md)
+  * [JSI 模式](guide/jsi.md)
   * [技术支持](guide/support.md)
 
 * Hippy-React
