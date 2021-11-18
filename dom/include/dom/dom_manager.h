@@ -17,6 +17,8 @@ namespace hippy {
 inline namespace dom {
 
 class TaskRunner;
+class DomNode;
+class RenderManager;
 
 class DomManager {
  public:
