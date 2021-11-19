@@ -29,7 +29,7 @@ namespace base {
 
 pthread_t ThreadId::kInvalidId = 0;
 
-ThreadId::~ThreadId() {}
+ThreadId::~ThreadId() = default;
 
 void ThreadId::InitId(pthread_t id) {
   if (id_ != kInvalidId) {

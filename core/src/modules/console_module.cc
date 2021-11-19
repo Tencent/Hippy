@@ -35,7 +35,7 @@ using unicode_string_view = tdf::base::unicode_string_view;
 using Ctx = hippy::napi::Ctx;
 using StringViewUtils = hippy::base::StringViewUtils;
 
-REGISTER_MODULE(ConsoleModule, Log)
+REGISTER_MODULE(ConsoleModule, Log) // NOLINT(cert-err58-cpp)
 
 namespace {
 
@@ -56,7 +56,7 @@ unicode_string_view EscapeMessage(const unicode_string_view& str_view) {
 
 }  // namespace
 
-void ConsoleModule::Log(const hippy::napi::CallbackInfo& info) {
+void ConsoleModule::Log(const hippy::napi::CallbackInfo& info) { // NOLINT(readability-convert-member-functions-to-static)
   std::shared_ptr<Scope> scope = info.GetScope();
   std::shared_ptr<Ctx> context = scope->GetContext();
   TDF_BASE_CHECK(context);
@@ -81,13 +81,13 @@ void ConsoleModule::Log(const hippy::napi::CallbackInfo& info) {
     }
 
     std::string u8_type = StringViewUtils::ToU8StdStr(view_type);
-    if (u8_type.compare("info") == 0) {
+    if (u8_type == "info") {
       TDF_BASE_LOG(INFO) << view_msg;
-    } else if (u8_type.compare("warn") == 0) {
+    } else if (u8_type == "warn") {
       TDF_BASE_LOG(WARNING) << view_msg;
-    } else if (u8_type.compare("error") == 0) {
+    } else if (u8_type == "error") {
       TDF_BASE_LOG(ERROR) << view_msg;
-    } else if (u8_type.compare("fatal") == 0) {
+    } else if (u8_type == "fatal") {
       TDF_BASE_LOG(FATAL) << view_msg;
     } else {
       TDF_BASE_LOG(INFO) << view_msg;

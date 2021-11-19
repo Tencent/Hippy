@@ -1,3 +1,4 @@
+#include <__bit_reference>
 /*
  *
  * Tencent is pleased to support the open source community by making
@@ -111,7 +112,7 @@ bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
 }
 
 bool ADRLoader::LoadByFile(const unicode_string_view& path,
-                           std::function<void(u8string)> cb) {
+                           const std::function<void(u8string)>& cb) {
   std::shared_ptr<WorkerTaskRunner> runner = runner_.lock();
   if (!runner) {
     return false;
@@ -128,7 +129,7 @@ bool ADRLoader::LoadByFile(const unicode_string_view& path,
 }
 
 bool ADRLoader::LoadByAsset(const unicode_string_view& path,
-                            std::function<void(u8string)> cb,
+                            const std::function<void(u8string)>& cb,
                             bool is_auto_fill) {
   TDF_BASE_DLOG(INFO) << "ReadAssetFile file_path = " << path;
   std::shared_ptr<WorkerTaskRunner> runner = runner_.lock();
@@ -147,7 +148,7 @@ bool ADRLoader::LoadByAsset(const unicode_string_view& path,
 }
 
 bool ADRLoader::LoadByHttp(const unicode_string_view& uri,
-                           std::function<void(u8string)> cb) {
+                           const std::function<void(u8string)>& cb) {
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
   JNIEnv* j_env = instance->AttachCurrentThread();
 
@@ -166,7 +167,7 @@ bool ADRLoader::LoadByHttp(const unicode_string_view& uri,
 }
 
 void OnResourceReady(JNIEnv* j_env,
-                     jobject j_object,
+                     __unused jobject j_object,
                      jobject j_byte_buffer,
                      jlong j_runtime_id,
                      jlong j_request_id) {
@@ -217,7 +218,7 @@ void OnResourceReady(JNIEnv* j_env,
   cb(std::move(str));
 }
 
-REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
+REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err58-cpp)
              "onResourceReady",
              "(Ljava/nio/ByteBuffer;JJ)V",
              OnResourceReady)
@@ -227,7 +228,7 @@ std::function<void(u8string)> ADRLoader::GetRequestCB(int64_t request_id) {
   return it != request_map_.end() ? it->second : nullptr;
 }
 
-int64_t ADRLoader::SetRequestCB(std::function<void(u8string)> cb) {
+int64_t ADRLoader::SetRequestCB(const std::function<void(u8string)>& cb) {
   int64_t id = global_request_id.fetch_add(1);
   request_map_.insert({id, cb});
   return id;

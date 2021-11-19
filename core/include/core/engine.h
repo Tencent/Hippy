@@ -43,7 +43,7 @@ class Engine {
 
   Engine(
       std::unique_ptr<RegisterMap> map = std::make_unique<RegisterMap>(),
-      std::shared_ptr<VMInitParam> param = nullptr);
+      const std::shared_ptr<VMInitParam>& param = nullptr);
   virtual ~Engine();
 
   void Enter();
@@ -63,7 +63,7 @@ class Engine {
 
  private:
   void SetupThreads();
-  void CreateVM(std::shared_ptr<VMInitParam> param);
+  void CreateVM(const std::shared_ptr<VMInitParam>& param);
 
  private:
   static const uint32_t kDefaultWorkerPoolSize;

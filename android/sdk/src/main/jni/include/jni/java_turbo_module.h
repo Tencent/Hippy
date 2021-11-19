@@ -64,7 +64,7 @@ class JavaTurboModule : public hippy::napi::HippyTurboModule {
 
   static void Init();
 
-  static void Destory();
+  static void Destroy();
 };
 
 #endif  // HIPPYJSI_JAVATURBOMODULE_H

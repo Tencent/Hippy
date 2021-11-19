@@ -62,7 +62,7 @@ bool Uri::Init() {
   return true;
 }
 
-bool Uri::Destory() {
+bool Uri::Destroy() {
   JNIEnv* env = JNIEnvironment::GetInstance()->AttachCurrentThread();
 
   j_get_path_method_id = nullptr;
@@ -101,7 +101,7 @@ unicode_string_view Uri::Normalize() {
   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   jobject j_normalize_uri =
       (jstring)j_env->CallObjectMethod(j_obj_uri_, j_normalize_method_id);
-  jstring j_parsed_uri =
+  auto j_parsed_uri =
       (jstring)j_env->CallObjectMethod(j_normalize_uri, j_to_string_method_id);
   unicode_string_view ret = JniUtils::ToStrView(j_env, j_parsed_uri);
   j_env->DeleteLocalRef(j_parsed_uri);
@@ -112,7 +112,7 @@ unicode_string_view Uri::Normalize() {
 unicode_string_view Uri::GetScheme() {
   TDF_BASE_DCHECK(j_obj_uri_);
   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
-  jstring j_scheme =
+  auto j_scheme =
       (jstring)j_env->CallObjectMethod(j_obj_uri_, j_get_scheme_method_id);
   unicode_string_view ret = JniUtils::ToStrView(j_env, j_scheme);
   j_env->DeleteLocalRef(j_scheme);
@@ -122,7 +122,7 @@ unicode_string_view Uri::GetScheme() {
 unicode_string_view Uri::GetPath() {
   TDF_BASE_DCHECK(j_obj_uri_);
   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
-  jstring j_path =
+  auto j_path =
       (jstring)j_env->CallObjectMethod(j_obj_uri_, j_get_path_method_id);
   unicode_string_view ret = JniUtils::ToStrView(j_env, j_path);
   j_env->DeleteLocalRef(j_path);

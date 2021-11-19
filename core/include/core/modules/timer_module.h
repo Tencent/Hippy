@@ -52,20 +52,17 @@ class TimerModule : public ModuleBase {
 
   std::shared_ptr<CtxValue> Start(const hippy::napi::CallbackInfo& info,
                                   bool repeat);
-  void RemoveTask(std::shared_ptr<JavaScriptTask> task);
-  void Cancel(TaskId task_id, std::shared_ptr<Scope> scope);
+  void RemoveTask(const std::shared_ptr<JavaScriptTask>& task);
+  void Cancel(TaskId task_id, const std::shared_ptr<Scope>& scope);
 
   struct TaskEntry {
     TaskEntry(std::shared_ptr<Ctx> context,
-              std::weak_ptr<JavaScriptTask> task,
-              std::shared_ptr<CtxValue> function) {
+              std::weak_ptr<JavaScriptTask> task) {
       task_ = std::move(task);
-      function_ = function;
       context_ = context;
     }
 
     std::weak_ptr<JavaScriptTask> task_;
-    std::shared_ptr<CtxValue> function_;
     std::shared_ptr<Ctx> context_;
   };
 
