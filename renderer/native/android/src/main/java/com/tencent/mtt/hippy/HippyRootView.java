@@ -42,17 +42,15 @@ import static android.content.res.Configuration.ORIENTATION_UNDEFINED;
 
 @SuppressWarnings({"deprecation", "unused"})
 public class HippyRootView extends FrameLayout {
-  private static final int ROOT_VIEW_TAG_INCREMENT = 10;
-  private static final AtomicInteger ID_COUNTER = new AtomicInteger(0);
   private final int instanceId;
   private GlobalLayoutListener mGlobalLayoutListener;
   protected boolean firstViewAdded = false;
 
-  public HippyRootView(Context context, int instanceId) {
+  public HippyRootView(Context context, int instanceId, int rootId) {
     super(new NativeRendererContext(context, instanceId));
 
     this.instanceId = instanceId;
-    setId(ID_COUNTER.addAndGet(ROOT_VIEW_TAG_INCREMENT));
+    setId(rootId);
     HippyMap tagMap = HippyTag.createTagMap(NodeProps.ROOT_NODE, null);
     setTag(tagMap);
     getViewTreeObserver().addOnGlobalLayoutListener(getGlobalLayoutListener());

@@ -49,6 +49,7 @@ import com.tencent.mtt.hippy.modules.HippyModuleManagerImpl;
 import com.tencent.mtt.hippy.modules.javascriptmodules.Dimensions;
 import com.tencent.mtt.hippy.modules.javascriptmodules.EventDispatcher;
 import com.tencent.mtt.hippy.modules.nativemodules.deviceevent.DeviceEventModule;
+import com.tencent.mtt.hippy.uimanager.HippyCustomViewCreator;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.LogUtils;
@@ -208,7 +209,10 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
   protected void onDestroy() {
     mCurrentState = EngineState.DESTROYED;
     destroyInstance(rootView);
-    resetEngine();
+
+    if (mEngineContext != null) {
+      mEngineContext.destroy();
+    }
 
     if (moduleLoadParams != null && moduleLoadParams.nativeParams != null) {
       moduleLoadParams.nativeParams.clear();
@@ -261,6 +265,24 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
   @Override
   public ThreadExecutor getJSEngineThreadExecutor() {
     return getThreadExecutor();
+  }
+
+  @Override
+  public Object getCustomViewCreator() {
+    if (moduleLoadParams != null && moduleLoadParams.nativeParams != null) {
+      return moduleLoadParams.nativeParams.get(HippyCustomViewCreator.HIPPY_CUSTOM_VIEW_CREATOR);
+    }
+
+    return null;
+  }
+
+  @Override
+  public String getBundlePath() {
+    if (jsBundleLoader != null) {
+      return jsBundleLoader.getPath();
+    }
+
+    return null;
   }
 
   @Override
@@ -566,10 +588,13 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     if (mCurrentState != EngineState.INITING) {
       mCurrentState = EngineState.ONRESTART;
     }
-    resetEngine();
+
+    if (mEngineContext != null) {
+      mEngineContext.destroy();
+    }
 
     try {
-      mEngineContext = new HippyEngineContextImpl(mDebugMode, mServerHost);
+      mEngineContext = new HippyEngineContextImpl();
     } catch (Exception e) {
       e.printStackTrace();
       notifyEngineInitialized(EngineInitStatus.STATUS_INIT_EXCEPTION, new Throwable(e.getMessage()));
@@ -592,7 +617,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             notifyEngineInitialized(EngineInitStatus.STATUS_WRONG_STATE, new Throwable(errorMsg));
             return;
           }
-          mEngineContext.resetRootView();
           internalLoadInstance(moduleLoadParams);
         }
 
@@ -607,12 +631,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         }
       }
     });
-  }
-
-  private void resetEngine() {
-    if (mEngineContext != null) {
-      mEngineContext.destroy();
-    }
   }
 
   private void internalLoadInstance(ModuleLoadParams loadParams) {
@@ -713,12 +731,12 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     private INativeRendererProxy nativeRendererProxy;
     volatile CopyOnWriteArrayList<HippyEngineLifecycleEventListener> mEngineLifecycleEventListeners;
 
-    public HippyEngineContextImpl(boolean isDevModule, String debugServerHost)
+    public HippyEngineContextImpl()
         throws IllegalAccessException, InstantiationException, ClassNotFoundException {
       mModuleManager = new HippyModuleManagerImpl(this, mAPIProviders);
       mBridgeManager = new HippyBridgeManagerImpl(this, mCoreBundleLoader,
-          HippyEngineManagerImpl.this.getBridgeType(), enableV8Serialization, isDevModule,
-          debugServerHost, mGroupId, mThirdPartyAdapter, v8InitParams);
+          getBridgeType(), enableV8Serialization, mDebugMode,
+          mServerHost, mGroupId, mThirdPartyAdapter, v8InitParams);
       try {
         Class nativeRendererClass = Class.forName("com.tencent.renderer.NativeRenderer");
         nativeRendererProxy = (INativeRendererProxy)(nativeRendererClass.newInstance());
@@ -731,10 +749,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
           }
         }
 
-        String bundlePath = (jsBundleLoader != null) ? jsBundleLoader.getPath() : null;
-        Map nativeParams = (moduleLoadParams != null) ? moduleLoadParams.nativeParams : null;
-        nativeRendererProxy.init(HippyEngineManagerImpl.this.getEngineId(), controllers,
-            nativeParams, bundlePath, isDevModule);
+        nativeRendererProxy.init(getEngineId(), controllers, mDebugMode, rootView);
         nativeRendererProxy.setFrameworkProxy(HippyEngineManagerImpl.this);
       } catch (Exception e) {
         throw e;
@@ -866,14 +881,13 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     @Override
-    public ViewGroup getRootView() {
-      return rootView;
+    public int getRootId() {
+      return nativeRendererProxy.getRootId();
     }
 
-    public void resetRootView() {
-      if (nativeRendererProxy != null && rootView != null) {
-        nativeRendererProxy.resetRootView(rootView);
-      }
+    @Override
+    public ViewGroup getRootView() {
+      return rootView;
     }
 
     @Override

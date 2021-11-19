@@ -22,11 +22,10 @@ import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.modules.Promise;
 
 import java.util.List;
-import java.util.Map;
 
 public interface INativeRendererProxy extends HippyInstanceLifecycleEventListener {
   void init(int instanceId, List<Class<? extends HippyBaseController>> controllers,
-      Map nativeParam, String bundlePath, boolean isDebugMode);
+      boolean isDebugMode, ViewGroup rootView);
 
   void setFrameworkProxy(IFrameworkProxy proxy);
 
@@ -34,7 +33,7 @@ public interface INativeRendererProxy extends HippyInstanceLifecycleEventListene
 
   ViewGroup createRootView(Context context);
 
-  void resetRootView(ViewGroup rootView);
+  int getRootId();
 
   Object getDomManagerObject();
 

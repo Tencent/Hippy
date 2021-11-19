@@ -31,4 +31,8 @@ public interface IJSFrameworkProxy extends IFrameworkProxy {
   Object getImageLoaderAdapter();
 
   Object getFontScaleAdapter();
+
+  Object getCustomViewCreator();
+
+  String getBundlePath();
 }
