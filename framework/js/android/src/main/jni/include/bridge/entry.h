@@ -27,7 +27,7 @@
 namespace hippy {
 namespace bridge {
 
-void InitNativeLogHandler(JNIEnv* j_env, jobject j_object, jobject j_logger);
+void InitNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_logger);
 
 jlong InitInstance(JNIEnv* j_env,
                    jobject j_object,
@@ -47,7 +47,7 @@ void DestroyInstance(JNIEnv* j_env,
                      jobject j_callback);
 
 jboolean RunScriptFromUri(JNIEnv* j_env,
-                          jobject j_obj,
+                          __unused jobject j_obj,
                           jstring j_uri,
                           jobject j_aasset_manager,
                           jboolean j_can_use_code_cache,

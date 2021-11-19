@@ -56,7 +56,7 @@ class ExceptionValue {
   ExceptionValue() = default;
 
   void Set(std::shared_ptr<CtxValue> value) { value_ = value; }
-  void Set(std::shared_ptr<Ctx> context, const unicode_string_view& str);
+  void Set(const std::shared_ptr<Ctx>& context, const unicode_string_view& str);
   std::shared_ptr<CtxValue> Get() const { return value_; }
 
  private:
@@ -69,7 +69,7 @@ class CallbackInfo {
  public:
   explicit CallbackInfo(std::shared_ptr<Scope> scope);
 
-  void AddValue(std::shared_ptr<CtxValue> value);
+  void AddValue(const std::shared_ptr<CtxValue>& value);
   std::shared_ptr<CtxValue> operator[](int index) const;
 
   size_t Length() const { return values_.size(); }

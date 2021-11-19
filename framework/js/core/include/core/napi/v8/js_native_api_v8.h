@@ -57,13 +57,10 @@ struct V8VMInitParam: public VMInitParam {
 
 class V8VM : public VM {
  public:
-  V8VM(std::shared_ptr<V8VMInitParam> param);
+  V8VM(const std::shared_ptr<V8VMInitParam>& param);
   ~V8VM();
 
   virtual std::shared_ptr<Ctx> CreateContext();
-  static void CodeCacheSanityCheck(v8::Isolate* isolate,
-                                   int result,
-                                   v8::Local<v8::String> source) {}
   static void PlatformDestroy();
 
   v8::Isolate* isolate_;
@@ -78,7 +75,7 @@ class V8TryCatch : public TryCatch {
  public:
   using unicode_string_view = tdf::base::unicode_string_view;
 
-  explicit V8TryCatch(bool enable = false, std::shared_ptr<Ctx> ctx = nullptr);
+  explicit V8TryCatch(bool enable = false, const std::shared_ptr<Ctx>& ctx = nullptr);
   virtual ~V8TryCatch();
 
   virtual void ReThrow();
@@ -174,7 +171,7 @@ class V8Ctx : public Ctx {
   virtual std::shared_ptr<CtxValue> CallFunction(
       std::shared_ptr<CtxValue> function,
       size_t argument_count,
-      const std::shared_ptr<CtxValue> argumets[] = nullptr);
+      const std::shared_ptr<CtxValue> arguments[] = nullptr);
 
   virtual bool GetValueNumber(std::shared_ptr<CtxValue> value, double* result);
   virtual bool GetValueNumber(std::shared_ptr<CtxValue> value, int32_t* result);
@@ -184,9 +181,9 @@ class V8Ctx : public Ctx {
   virtual bool GetValueJson(std::shared_ptr<CtxValue> value,
                             unicode_string_view* result);
 
-  virtual bool IsMap(std::shared_ptr<CtxValue>);
+  virtual bool IsMap(const std::shared_ptr<CtxValue>& value);
 
-  virtual bool IsNullOrUndefined(std::shared_ptr<CtxValue>);
+  virtual bool IsNullOrUndefined(std::shared_ptr<CtxValue> value);
 
   // Array Helpers
 
@@ -196,9 +193,9 @@ class V8Ctx : public Ctx {
                                                      uint32_t index);
 
   // Map Helpers
-  virtual uint32_t GetMapLength(std::shared_ptr<CtxValue>);
+  virtual uint32_t GetMapLength(std::shared_ptr<CtxValue>& value);
   virtual std::shared_ptr<CtxValue> ConvertMapToArray(
-      const std::shared_ptr<CtxValue> value);
+      const std::shared_ptr<CtxValue>& value);
 
   // Object Helpers
 
@@ -232,10 +229,10 @@ class V8Ctx : public Ctx {
   virtual std::shared_ptr<CtxValue> CreateDomValue(
       std::shared_ptr<DomValue> value);
 
-  unicode_string_view ToStringView(v8::Local<v8::String> str);
+  unicode_string_view ToStringView(v8::Local<v8::String> str) const;
   unicode_string_view GetMsgDesc(v8::Local<v8::Message> message);
   unicode_string_view GetStackInfo(v8::Local<v8::Message> message);
-  v8::Local<v8::String> CreateV8String(const unicode_string_view& string);
+  v8::Local<v8::String> CreateV8String(const unicode_string_view& string) const;
 
   v8::Isolate* isolate_;
   v8::Persistent<v8::ObjectTemplate> global_persistent_;

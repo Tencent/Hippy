@@ -1,3 +1,4 @@
+#include <__bit_reference>
 /*
  *
  * Tencent is pleased to support the open source community by making
@@ -49,24 +50,24 @@
 namespace hippy {
 namespace bridge {
 
-REGISTER_STATIC_JNI("com/tencent/mtt/hippy/HippyEngine",
+REGISTER_STATIC_JNI("com/tencent/mtt/hippy/HippyEngine", // NOLINT(cert-err58-cpp)
                     "initNativeLogHandler",
                     "(Lcom/tencent/mtt/hippy/IHippyNativeLogHandler;)V",
                     InitNativeLogHandler)
 
-REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
+REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err58-cpp)
              "initJSFramework",
              "([BZZZLcom/tencent/mtt/hippy/bridge/NativeCallback;"
              "JJLcom/tencent/mtt/hippy/HippyEngine$V8InitParams;)J",
              InitInstance)
 
-REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
+REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err58-cpp)
              "runScriptFromUri",
              "(Ljava/lang/String;Landroid/content/res/AssetManager;ZLjava/lang/"
              "String;JLcom/tencent/mtt/hippy/bridge/NativeCallback;)Z",
              RunScriptFromUri)
 
-REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
+REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err58-cpp)
              "destroy",
              "(JZLcom/tencent/mtt/hippy/bridge/NativeCallback;)V",
              DestroyInstance)
@@ -98,7 +99,7 @@ enum INIT_CB_STATE {
   SUCCESS = 0,
 };
 
-void InitNativeLogHandler(JNIEnv* j_env, jobject j_object, jobject j_logger) {
+void InitNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_logger) {
   if (!j_logger) {
     return;
   }
@@ -127,7 +128,7 @@ void InitNativeLogHandler(JNIEnv* j_env, jobject j_object, jobject j_logger) {
   });
 }
 
-bool RunScript(std::shared_ptr<Runtime> runtime,
+bool RunScript(const std::shared_ptr<Runtime>& runtime,
                const unicode_string_view& file_name,
                bool is_use_code_cache,
                const unicode_string_view& code_cache_dir,
@@ -147,18 +148,7 @@ bool RunScript(std::shared_ptr<Runtime> runtime,
   unicode_string_view code_cache_path;
   if (is_use_code_cache) {
     if (!asset_manager) {
-      auto time1 = std::chrono::time_point_cast<std::chrono::microseconds>(
-                       std::chrono::system_clock::now())
-                       .time_since_epoch()
-                       .count();
       modify_time = HippyFile::GetFileModifytime(uri);
-      auto time2 = std::chrono::time_point_cast<std::chrono::microseconds>(
-                       std::chrono::system_clock::now())
-                       .time_since_epoch()
-                       .count();
-
-      TDF_BASE_DLOG(INFO) << "GetFileModifytime cost %lld microseconds"
-                          << time2 - time1;
     }
 
     code_cache_path = code_cache_dir + file_name + unicode_string_view("_") +
@@ -249,13 +239,13 @@ bool RunScript(std::shared_ptr<Runtime> runtime,
     }
   }
 
-  bool flag = !!ret;
+  bool flag = (ret != nullptr);
   TDF_BASE_LOG(INFO) << "runScript end, flag = " << flag;
   return flag;
 }
 
 jboolean RunScriptFromUri(JNIEnv* j_env,
-                          jobject j_obj,
+                          __unused jobject j_obj,
                           jstring j_uri,
                           jobject j_aasset_manager,
                           jboolean j_can_use_code_cache,
@@ -314,7 +304,7 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
   task->callback = [runtime, save_object_ = std::move(save_object), script_name,
                     j_can_use_code_cache, code_cache_dir, uri, aasset_manager,
                     time_begin] {
-    TDF_BASE_DLOG(INFO) << "runScriptFromUri enter tast";
+    TDF_BASE_DLOG(INFO) << "runScriptFromUri enter";
     bool flag = RunScript(runtime, script_name, j_can_use_code_cache,
                           code_cache_dir, uri, aasset_manager);
     auto time_end = std::chrono::time_point_cast<std::chrono::microseconds>(
@@ -417,9 +407,9 @@ jlong InitInstance(JNIEnv* j_env,
   RegisterFunction context_cb = [runtime, global_config,
                                  runtime_id](void* scopeWrapper) {
     TDF_BASE_LOG(INFO) << "InitInstance register hippyCallNatives, runtime_id = " << runtime_id;
-    TDF_BASE_DCHECK(scopeWrapper);
-    ScopeWrapper* wrapper = reinterpret_cast<ScopeWrapper*>(scopeWrapper);
-    TDF_BASE_DCHECK(wrapper);
+    TDF_BASE_CHECK(scopeWrapper);
+    auto* wrapper = reinterpret_cast<ScopeWrapper*>(scopeWrapper);
+    TDF_BASE_CHECK(wrapper);
     std::shared_ptr<Scope> scope = wrapper->scope_.lock();
     if (!scope) {
       TDF_BASE_DLOG(ERROR) << "register hippyCallNatives, scope error";
@@ -438,8 +428,8 @@ jlong InitInstance(JNIEnv* j_env,
 #endif
     std::shared_ptr<Ctx> ctx = scope->GetContext();
     ctx->RegisterGlobalInJs();
-    hippy::base::RegisterFunction fn =
-        TO_REGISTER_FUNCTION(hippy::bridge::CallJava, hippy::napi::CBDataTuple);
+    auto fn =
+        TO_REGISTER_FUNCTION(hippy::bridge::CallJava, hippy::napi::CBDataTuple)
     ctx->RegisterNativeBinding("hippyCallNatives", fn, reinterpret_cast<void*>(runtime_id));
     bool ret = ctx->SetGlobalJsonVar("__HIPPYNATIVEGLOBAL__", global_config);
     if (!ret) {
@@ -530,14 +520,14 @@ jlong InitInstance(JNIEnv* j_env,
   return runtime_id;
 }
 
-void DestroyInstance(JNIEnv* j_env,
-                     jobject j_object,
+void DestroyInstance(__unused JNIEnv* j_env,
+                     __unused jobject j_object,
                      jlong j_runtime_id,
-                     jboolean j_single_thread_mode,
+                     __unused jboolean j_single_thread_mode,
                      jobject j_callback) {
   TDF_BASE_DLOG(INFO) << "DestroyInstance begin, j_runtime_id = "
                       << j_runtime_id;
-  int32_t runtime_id = static_cast<int32_t>(j_runtime_id);
+  auto runtime_id = static_cast<int32_t>(j_runtime_id);
   std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
   if (!runtime) {
     TDF_BASE_DLOG(WARNING) << "HippyBridgeImpl destroy, j_runtime_id invalid";
@@ -596,7 +586,7 @@ void DestroyInstance(JNIEnv* j_env,
 }  // namespace bridge
 }  // namespace hippy
 
-jint JNI_OnLoad(JavaVM* j_vm, void* reserved) {
+jint JNI_OnLoad(JavaVM* j_vm, __unused void* reserved) {
   JNIEnv* j_env;
   jint onLoad_err = -1;
   if ((j_vm)->GetEnv(reinterpret_cast<void**>(&j_env), JNI_VERSION_1_4) !=
@@ -622,13 +612,13 @@ jint JNI_OnLoad(JavaVM* j_vm, void* reserved) {
   return JNI_VERSION_1_4;
 }
 
-void JNI_OnUnload(JavaVM* j_vm, void* reserved) {
+void JNI_OnUnload(__unused JavaVM* j_vm, __unused void* reserved) {
   hippy::napi::V8VM::PlatformDestroy();
 
-  Uri::Destory();
-  JavaTurboModule::Destory();
-  ConvertUtils::Destory();
-  TurboModuleManager::Destory();
+  Uri::Destroy();
+  JavaTurboModule::Destroy();
+  ConvertUtils::Destroy();
+  TurboModuleManager::Destroy();
 
   JNIEnvironment::DestroyInstance();
 }

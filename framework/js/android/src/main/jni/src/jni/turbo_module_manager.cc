@@ -33,12 +33,12 @@
 #include "jni/jni_utils.h"
 #include "jni/scoped_java_ref.h"
 
-REGISTER_JNI("com/tencent/mtt/hippy/bridge/jsi/TurboModuleManager",
+REGISTER_JNI("com/tencent/mtt/hippy/bridge/jsi/TurboModuleManager", // NOLINT(cert-err58-cpp)
              "install",
              "(J)I",
              Install)
 
-REGISTER_JNI("com/tencent/mtt/hippy/bridge/jsi/TurboModuleManager",
+REGISTER_JNI("com/tencent/mtt/hippy/bridge/jsi/TurboModuleManager", // NOLINT(cert-err58-cpp)
              "uninstall",
              "(J)V",
              Uninstall)
@@ -138,7 +138,7 @@ void GetTurboModule(const v8::FunctionCallbackInfo<v8::Value> &info) {
   TDF_BASE_DLOG(INFO) << "[turbo-perf] exit getTurboModule";
 }
 
-void BindNativeFunction(std::shared_ptr<Runtime> runtime,
+void BindNativeFunction(const std::shared_ptr<Runtime>& runtime,
                         const unicode_string_view &name,
                         v8::FunctionCallback function_callback) {
   TDF_BASE_DLOG(INFO) << "enter bindNativeFunction name "
@@ -167,7 +167,7 @@ void TurboModuleManager::Init() {
   JNIEnv *env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   jclass clazz =
       env->FindClass("com/tencent/mtt/hippy/bridge/jsi/TurboModuleManager");
-  turbo_module_manager_clazz = static_cast<jclass>(env->NewGlobalRef(clazz));
+  turbo_module_manager_clazz = reinterpret_cast<jclass>(env->NewGlobalRef(clazz));
   env->DeleteLocalRef(clazz);
 
   get_method_id =
@@ -176,7 +176,7 @@ void TurboModuleManager::Init() {
                        "nativemodules/HippyNativeModuleBase;");
 }
 
-void TurboModuleManager::Destory() {
+void TurboModuleManager::Destroy() {
   JNIEnv *env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   if (turbo_module_manager_clazz) {
     env->DeleteGlobalRef(turbo_module_manager_clazz);

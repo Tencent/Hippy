@@ -39,7 +39,7 @@ namespace bridge {
 
 void CallJava(hippy::napi::CBDataTuple *data) {
   TDF_BASE_DLOG(INFO) << "CallJava";
-  int32_t runtime_id = static_cast<int32_t>(reinterpret_cast<int64_t>(data->cb_tuple_.data_));
+  auto runtime_id = static_cast<int32_t>(reinterpret_cast<int64_t>(data->cb_tuple_.data_));
   std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
   if (!runtime) {
     return;
@@ -63,7 +63,7 @@ void CallJava(hippy::napi::CBDataTuple *data) {
     return;
   }
 
-  jstring j_module_name = nullptr;
+  jstring j_module_name;
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
   JNIEnv *j_env = instance->AttachCurrentThread();
   if (info.Length() >= 1 && !info[0].IsEmpty()) {
@@ -88,7 +88,7 @@ void CallJava(hippy::napi::CBDataTuple *data) {
     return;
   }
 
-  jstring j_module_func = nullptr;
+  jstring j_module_func;
   if (info.Length() >= 2 && !info[1].IsEmpty()) {
     v8::MaybeLocal<v8::String> func_maybe_str = info[1]->ToString(context);
     if (func_maybe_str.IsEmpty()) {
@@ -147,8 +147,8 @@ void CallJava(hippy::napi::CBDataTuple *data) {
   }
   TDF_BASE_DLOG(INFO) << "CallNative transfer_type = " << transfer_type;
 
-  jobject j_buffer = nullptr;
-  jmethodID j_method = nullptr;
+  jobject j_buffer;
+  jmethodID j_method;
   if (transfer_type == 1) {  // Direct
     j_buffer = j_env->NewDirectByteBuffer(
         const_cast<void *>(reinterpret_cast<const void *>(buffer_data.c_str())),
