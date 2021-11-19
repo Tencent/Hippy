@@ -110,7 +110,7 @@ std::shared_ptr<JNIArgs> ConvertUtils::ConvertJSIArgsToJNIArgs(
   JNIEnv *env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   if (JNIEnvironment::ClearJEnvException(env)) {
     throw std::runtime_error(
-        "JNI Exception occured when convertJSIArgsToJNIArgs");
+        "JNI Exception occurred when convertJSIArgsToJNIArgs");
   }
 
   return jni_args;
@@ -190,7 +190,7 @@ bool ConvertUtils::HandleObjectType(TurboEnv &turbo_env,
     jstring module_name_str = env->NewStringUTF(module_name.c_str());
     jstring method_name_str = env->NewStringUTF(method_name.c_str());
     jstring call_id_str = env->NewStringUTF(str.c_str());
-    jobject tmp = env->NewObject(promise_clazz, promise_constructor, nullptr,
+    jobject tmp = env->NewObject(promise_clazz, promise_constructor, static_cast<jobject>(nullptr),
                                  module_name_str, method_name_str, call_id_str);
     env->DeleteLocalRef(module_name_str);
     env->DeleteLocalRef(method_name_str);
@@ -530,7 +530,7 @@ std::shared_ptr<CtxValue> ConvertUtils::ConvertMethodResultToJSValue(
 }
 
 std::shared_ptr<CtxValue> ConvertUtils::ToJsValueInArray(TurboEnv &turbo_env,
-                                                         const jobject &array,
+                                                         jobject array,
                                                          int index) {
   std::shared_ptr<Ctx> ctx = turbo_env.context_;
   JNIEnv *env = JNIEnvironment::GetInstance()->AttachCurrentThread();
@@ -554,13 +554,13 @@ std::shared_ptr<CtxValue> ConvertUtils::ToJsValueInArray(TurboEnv &turbo_env,
   auto obj = env->CallObjectMethod(array, hippy_array_get, index);
 
   if (IsNumberObject(signature)) {
-    jdouble d = env->CallDoubleMethod(obj, double_value);
+    jdouble d = env->CallDoubleMethod(reinterpret_cast<jclass>(obj), double_value);
     result = ctx->CreateNumber(d);
   } else if (kString == signature) {
-    unicode_string_view obj_str_view = JniUtils::ToStrView(env, (jstring)(obj));
+    unicode_string_view obj_str_view = JniUtils::ToStrView(env, reinterpret_cast<jstring>(obj));
     result = ctx->CreateString(obj_str_view);
   } else if (kBoolean == signature) {
-    jboolean b = env->CallBooleanMethod(obj, boolean_value);
+    jboolean b = env->CallBooleanMethod(reinterpret_cast<jclass>(obj), boolean_value);
     result = ctx->CreateBoolean(b);
   } else if (kHippyArray == signature) {
     result = ToJsArray(turbo_env, obj);
@@ -577,7 +577,7 @@ std::shared_ptr<CtxValue> ConvertUtils::ToJsValueInArray(TurboEnv &turbo_env,
 }
 
 std::shared_ptr<CtxValue> ConvertUtils::ToJsArray(TurboEnv &turbo_env,
-                                                  const jobject &array) {
+                                                  jobject array) {
   std::shared_ptr<Ctx> ctx = turbo_env.context_;
   if (!array) {
     return ctx->CreateNull();
@@ -598,7 +598,7 @@ std::shared_ptr<CtxValue> ConvertUtils::ToJsArray(TurboEnv &turbo_env,
 }
 
 std::shared_ptr<CtxValue> ConvertUtils::ToJsMap(TurboEnv &turbo_env,
-                                                const jobject &map) {
+                                                jobject map) {
   std::shared_ptr<Ctx> ctx = turbo_env.context_;
   if (!map) {
     return ctx->CreateNull();
@@ -690,7 +690,7 @@ bool ConvertUtils::Init() {
   return true;
 }
 
-bool ConvertUtils::Destory() {
+bool ConvertUtils::Destroy() {
   TDF_BASE_DLOG(INFO) << "enter destroy";
   hippy_array_constructor = nullptr;
   hippy_array_push_object = nullptr;

@@ -22,9 +22,9 @@
 
 #include "core/base/thread.h"
 
-#include <limits.h>
-#include <stdio.h>
-#include <string.h>
+#include <climits>
+#include <cstdio>
+#include <cstring>
 
 #include "base/logging.h"
 #include "core/base/macros.h"
@@ -42,7 +42,7 @@ Thread::Thread(const Options& options) : stack_size_(options.stack_size()) {
   SetName(options.name());
 }
 
-Thread::~Thread() {}
+Thread::~Thread() = default;
 
 void Thread::Start() {
   pthread_attr_t attr;
@@ -66,7 +66,7 @@ void Thread::Start() {
   HIPPY_USE(result);
 }
 
-void Thread::Join() {
+void Thread::Join() const {
   int ret = pthread_join(thread_, nullptr);
   TDF_BASE_DLOG(INFO) << "Thread::Join ret = " << ret;
 }
@@ -89,7 +89,7 @@ static void* ThreadEntry(void* arg) {
     return nullptr;
   }
 
-  Thread* thread = reinterpret_cast<Thread*>(arg);
+  auto* thread = reinterpret_cast<Thread*>(arg);
   SetThreadName(thread->name());
   thread->Run();
 

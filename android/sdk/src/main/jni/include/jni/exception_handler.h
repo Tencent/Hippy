@@ -35,7 +35,7 @@ class ExceptionHandler {
 
   ExceptionHandler() = default;
   ~ExceptionHandler() = default;
-  static void ReportJsException(std::shared_ptr<Runtime> runtime,
+  static void ReportJsException(const std::shared_ptr<Runtime>& runtime,
                                 const unicode_string_view& desc,
                                 const unicode_string_view& stack);
 };

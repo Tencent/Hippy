@@ -58,7 +58,7 @@ class Scope {
   using Encoding = hippy::napi::Encoding;
 
   Scope(Engine* engine,
-        const std::string& name,
+        std::string  name,
         std::unique_ptr<RegisterMap> map);
   ~Scope();
 
@@ -66,14 +66,13 @@ class Scope {
   inline std::shared_ptr<Ctx> GetContext() { return context_; }
   inline std::unique_ptr<RegisterMap>& GetRegisterMap() { return map_; }
 
-  bool LoadModules();
   ModuleBase* GetModuleClass(const unicode_string_view& moduleName);
   void AddModuleClass(const unicode_string_view& name,
                       std::unique_ptr<ModuleBase> module);
   std::shared_ptr<CtxValue> GetModuleValue(
       const unicode_string_view& moduleName);
   void AddModuleValue(const unicode_string_view& name,
-                      std::shared_ptr<CtxValue> value);
+                      const std::shared_ptr<CtxValue>& value);
 
   void SaveFunctionData(std::unique_ptr<FunctionData> data);
 

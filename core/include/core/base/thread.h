@@ -55,16 +55,16 @@ class Thread {
 
   virtual void Run() = 0;
   void Start();
-  void Join();
+  void Join() const;
 
   inline const char* name() const { return name_; }
 
   static const int kMaxThreadNameLength = 16;
 
  protected:
-  char name_[kMaxThreadNameLength];
+  char name_[kMaxThreadNameLength]{};
   int stack_size_;
-  pthread_t thread_;
+  pthread_t thread_{};
 
   ThreadId thread_id_;
 };

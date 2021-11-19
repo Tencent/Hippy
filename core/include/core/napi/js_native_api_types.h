@@ -122,7 +122,7 @@ class Ctx {
   virtual std::shared_ptr<CtxValue> CallFunction(
       std::shared_ptr<CtxValue> function,
       size_t argument_count = 0,
-      const std::shared_ptr<CtxValue> argumets[] = nullptr) = 0;
+      const std::shared_ptr<CtxValue> arguments[] = nullptr) = 0;
 
   virtual bool GetValueNumber(std::shared_ptr<CtxValue> value,
                               double* result) = 0;

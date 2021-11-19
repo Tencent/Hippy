@@ -32,10 +32,10 @@
 #include "core/task/javascript_task.h"
 #include "core/task/javascript_task_runner.h"
 
-REGISTER_MODULE(TimerModule, SetTimeout)
-REGISTER_MODULE(TimerModule, ClearTimeout)
-REGISTER_MODULE(TimerModule, SetInterval)
-REGISTER_MODULE(TimerModule, ClearInterval)
+REGISTER_MODULE(TimerModule, SetTimeout) // NOLINT(cert-err58-cpp)
+REGISTER_MODULE(TimerModule, ClearTimeout) // NOLINT(cert-err58-cpp)
+REGISTER_MODULE(TimerModule, SetInterval) // NOLINT(cert-err58-cpp)
+REGISTER_MODULE(TimerModule, ClearInterval) // NOLINT(cert-err58-cpp)
 
 namespace napi = ::hippy::napi;
 
@@ -45,9 +45,9 @@ using CtxValue = hippy::napi::CtxValue;
 using RegisterFunction = hippy::base::RegisterFunction;
 using RegisterMap = hippy::base::RegisterMap;
 
-TimerModule::TimerModule() {}
+TimerModule::TimerModule() = default;
 
-TimerModule::~TimerModule() {}
+TimerModule::~TimerModule() = default;
 
 void TimerModule::SetTimeout(const napi::CallbackInfo& info) {
   info.GetReturnValue()->Set(Start(info, false));
@@ -145,7 +145,7 @@ std::shared_ptr<hippy::napi::CtxValue> TimerModule::Start(
   }
 
   std::shared_ptr<TaskEntry> entry =
-      std::make_shared<TaskEntry>(context, task, function);
+      std::make_shared<TaskEntry>(context, task);
   std::pair<TaskId, std::shared_ptr<TaskEntry>> item{task->id_,
                                                      std::move(entry)};
   task_map_.insert(item);
@@ -153,7 +153,7 @@ std::shared_ptr<hippy::napi::CtxValue> TimerModule::Start(
   return context->CreateNumber(task->id_);
 }
 
-void TimerModule::RemoveTask(std::shared_ptr<JavaScriptTask> task) {
+void TimerModule::RemoveTask(const std::shared_ptr<JavaScriptTask>& task) {
   if (!task) {
     return;
   }
@@ -161,7 +161,7 @@ void TimerModule::RemoveTask(std::shared_ptr<JavaScriptTask> task) {
   task_map_.erase(task->id_);
 }
 
-void TimerModule::Cancel(TaskId task_id, std::shared_ptr<Scope> scope) {
+void TimerModule::Cancel(TaskId task_id, const std::shared_ptr<Scope>& scope) {
   auto item = task_map_.find(task_id);
   if (item != task_map_.end()) {
     std::shared_ptr<JavaScriptTaskRunner> runner = scope->GetTaskRunner();

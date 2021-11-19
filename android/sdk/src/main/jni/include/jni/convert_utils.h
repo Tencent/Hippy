@@ -53,7 +53,7 @@ class ConvertUtils {
  public:
   static bool Init();
 
-  static bool Destory();
+  static bool Destroy();
 
   static std::vector<std::string> GetMethodArgTypesFromSignature(
       const std::string &method_signature);
@@ -84,16 +84,16 @@ class ConvertUtils {
 
   static std::shared_ptr<hippy::napi::CtxValue> ToJsValueInArray(
       hippy::napi::TurboEnv &turbo_env,
-      const jobject &array,
+      jobject array,
       int index);
 
   static std::shared_ptr<hippy::napi::CtxValue> ToJsArray(
       hippy::napi::TurboEnv &turbo_env,
-      const jobject &array);
+      jobject array);
 
   static std::shared_ptr<hippy::napi::CtxValue> ToJsMap(
       hippy::napi::TurboEnv &turbo_env,
-      const jobject &map);
+      jobject map);
 
   static bool HandleBasicType(
       hippy::napi::TurboEnv &turbo_env,

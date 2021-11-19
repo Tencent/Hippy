@@ -16,7 +16,7 @@ class JSValueWrapper final {
     Null,
     Boolean,
     Int32,
-    Uint32,
+    UInt32,
     Double,
     String,
     Object,
@@ -24,8 +24,8 @@ class JSValueWrapper final {
   };
 
  public:
-  static const JSValueWrapper Undefined();
-  static const JSValueWrapper Null();
+  static JSValueWrapper Undefined();
+  static JSValueWrapper Null();
 
  public:
   JSValueWrapper() {}
@@ -34,7 +34,7 @@ class JSValueWrapper final {
   JSValueWrapper(int32_t int32_value)  // NOLINT
       : type_(Type::Int32), int32_value_(int32_value) {}
   JSValueWrapper(uint32_t uint32_value)  // NOLINT
-      : type_(Type::Uint32), uint32_value_(uint32_value) {}
+      : type_(Type::UInt32), uint32_value_(uint32_value) {}
   JSValueWrapper(double double_value)  // NOLINT
       : type_(Type::Double), double_value_(double_value) {}
   JSValueWrapper(bool bool_value)  // NOLINT
@@ -95,13 +95,9 @@ class JSValueWrapper final {
   bool IsObject() const noexcept;
 
  public:
-  int32_t Int32Value();
   int32_t Int32Value() const;
-  uint32_t Uint32Value();
-  uint32_t Uint32Value() const;
-  double DoubleValue();
+  uint32_t UInt32Value() const;
   double DoubleValue() const;
-  bool BooleanValue();
   bool BooleanValue() const;
   std::string& StringValue();
   const std::string& StringValue() const;
