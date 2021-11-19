@@ -49,7 +49,6 @@ class JniUtils {
                                                  jbyteArray byte_array,
                                                  jsize j_offset = 0,
                                                  jsize j_length = -1);
-  static std::u16string CovertJStringToChars(JNIEnv* j_env, jstring j_str);
 
   static unicode_string_view::u8string ToU8String(JNIEnv* j_env, jstring j_str);
 

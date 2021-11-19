@@ -28,7 +28,7 @@ class TurboModuleManager {
  public:
   static void Init();
 
-  static void Destory();
+  static void Destroy();
 };
 
 int Install(JNIEnv *, jobject, jlong);

@@ -30,7 +30,7 @@ namespace hippy {
 namespace inspector {
 
 V8ChannelImpl::V8ChannelImpl(std::shared_ptr<JavaRef> bridge)
-    : bridge_(bridge) {}
+    : bridge_(std::move(bridge)) {}
 
 void V8ChannelImpl::sendResponse(
     int callId,

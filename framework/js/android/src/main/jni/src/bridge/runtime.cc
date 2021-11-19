@@ -33,11 +33,11 @@ static std::mutex mutex;
 static std::atomic<int32_t> global_runtime_key{0};
 
 Runtime::Runtime(std::shared_ptr<JavaRef> bridge, bool enable_v8_serialization, bool is_dev)
-    : enable_v8_serialization_(enable_v8_serialization), is_debug_(is_dev), bridge_(bridge) {
+    : enable_v8_serialization_(enable_v8_serialization), is_debug_(is_dev), group_id_(0), bridge_(std::move(bridge)) {
   id_ = global_runtime_key.fetch_add(1);
 }
 
-void Runtime::Insert(std::shared_ptr<Runtime> runtime) {
+void Runtime::Insert(const std::shared_ptr<Runtime>& runtime) {
   std::lock_guard<std::mutex> lock(mutex);
   RuntimeMap[runtime->id_] = runtime;
 }
@@ -57,12 +57,12 @@ std::shared_ptr<Runtime> Runtime::Find(v8::Isolate *isolate) {
   if (!isolate) {
     return nullptr;
   }
-  int32_t runtime_id =
+  auto runtime_id =
       static_cast<int32_t>(reinterpret_cast<int64_t>(isolate->GetData(kRuntimeSlotIndex)));
   if (runtime_id == -1) {// -1 means single isolate multi context mode
     v8::Local<v8::Context> context = isolate->GetCurrentContext();
     std::lock_guard<std::mutex> lock(mutex);
-    for (auto p: RuntimeMap) {
+    for (const auto& p: RuntimeMap) {
       std::shared_ptr<Scope> scope = p.second->GetScope();
       std::shared_ptr<V8Ctx> ctx = std::static_pointer_cast<V8Ctx>(scope->GetContext());
       if (ctx->context_persistent_ == context) {
@@ -86,6 +86,6 @@ bool Runtime::Erase(int32_t id) {
   return true;
 }
 
-bool Runtime::Erase(std::shared_ptr<Runtime> runtime) {
+bool Runtime::Erase(const std::shared_ptr<Runtime>& runtime) {
   return Runtime::Erase(runtime->id_);
 }

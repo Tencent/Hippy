@@ -43,10 +43,10 @@ bool JNIRegister::RegisterMethods(JNIEnv* j_env) {
   const std::unordered_map<std::string, std::vector<JNIRegisterData>>&
       jni_modules = JNIRegister::GetInstance()->GetJniModules();
 
-  for (auto it = jni_modules.begin(); it != jni_modules.end(); ++it) {
+  for (const auto & jni_module : jni_modules) {
     std::vector<JNINativeMethod> methods;
     jclass j_class;
-    const char* class_name = it->first.c_str();
+    const char* class_name = jni_module.first.c_str();
     j_class = j_env->FindClass(class_name);
     if (!j_class) {
       TDF_BASE_DLOG(ERROR)
@@ -55,11 +55,11 @@ bool JNIRegister::RegisterMethods(JNIEnv* j_env) {
           << "not found";
       return false;
     }
-    std::vector<JNIRegisterData> datas = it->second;
-    for (auto data_it = datas.begin(); data_it != datas.end(); ++data_it) {
-      JNINativeMethod method = data_it->ToJNINativeMethod();
+    std::vector<JNIRegisterData> jni_register_data = jni_module.second;
+    for (auto & data : jni_register_data) {
+      JNINativeMethod method = data.ToJNINativeMethod();
       jmethodID id;
-      bool is_static = data_it->IsStaticMethod();
+      bool is_static = data.IsStaticMethod();
       if (is_static) {
         id = j_env->GetStaticMethodID(j_class, method.name, method.signature);
       } else {

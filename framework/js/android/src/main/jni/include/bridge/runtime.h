@@ -65,12 +65,11 @@ class Runtime {
     turbo_module_runtime_ = turbo_module_runtime;
   }
 
-  static void Insert(std::shared_ptr<Runtime> runtime);
+  static void Insert(const std::shared_ptr<Runtime>& runtime);
   static std::shared_ptr<Runtime> Find(int32_t id);
   static std::shared_ptr<Runtime> Find(v8::Isolate* isolate);
   static bool Erase(int32_t id);
-  static bool Erase(std::shared_ptr<Runtime> runtime);
-  static bool ReleaseKey(int64_t id);
+  static bool Erase(const std::shared_ptr<Runtime>& runtime);
 
  private:
   bool enable_v8_serialization_;

@@ -180,7 +180,7 @@ void JavaTurboModule::InitPropertyMap() {
 
 JavaTurboModule::JavaTurboModule(const std::string &name,
                                  std::shared_ptr<JavaRef> &impl)
-    : HippyTurboModule(name), impl_(impl) {
+    : HippyTurboModule(name), impl_(impl), impl_j_clazz_(nullptr) {
   InitPropertyMap();
 }
 
@@ -224,7 +224,7 @@ void JavaTurboModule::Init() {
   env->DeleteLocalRef(argument_utils_clazz_local);
 }
 
-void JavaTurboModule::Destory() {
+void JavaTurboModule::Destroy() {
   JNIEnv *env = JNIEnvironment::GetInstance()->AttachCurrentThread();
 
   if (argument_utils_clazz) {
