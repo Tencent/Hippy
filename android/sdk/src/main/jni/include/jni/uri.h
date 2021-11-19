@@ -39,7 +39,7 @@ class Uri {
   unicode_string_view GetScheme();
   unicode_string_view Normalize();
   static bool Init();
-  static bool Destory();
+  static bool Destroy();
 
  private:
   jobject j_obj_uri_;

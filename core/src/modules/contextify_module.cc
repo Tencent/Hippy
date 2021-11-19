@@ -22,8 +22,7 @@
 
 #include "core/modules/contextify_module.h"
 
-#include <string.h>
-
+#include <cstring>
 #include <memory>
 #include <string>
 
@@ -38,8 +37,8 @@
 #include "core/task/common_task.h"
 #include "core/task/javascript_task.h"
 
-REGISTER_MODULE(ContextifyModule, RunInThisContext)
-REGISTER_MODULE(ContextifyModule, LoadUntrustedContent)
+REGISTER_MODULE(ContextifyModule, RunInThisContext) // NOLINT(cert-err58-cpp)
+REGISTER_MODULE(ContextifyModule, LoadUntrustedContent) // NOLINT(cert-err58-cpp)
 
 using unicode_string_view = tdf::base::unicode_string_view;
 using u8string = unicode_string_view::u8string;
@@ -50,7 +49,7 @@ using TryCatch = hippy::napi::TryCatch;
 using UriLoader = hippy::base::UriLoader;
 using StringViewUtils = hippy::base::StringViewUtils;
 
-void ContextifyModule::RunInThisContext(const hippy::napi::CallbackInfo& info) {
+void ContextifyModule::RunInThisContext(const hippy::napi::CallbackInfo& info) { // NOLINT(readability-convert-member-functions-to-static)
   std::shared_ptr<Scope> scope = info.GetScope();
   std::shared_ptr<Ctx> context = scope->GetContext();
   TDF_BASE_CHECK(context);
@@ -161,7 +160,7 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
         std::shared_ptr<TryCatch> try_catch =
             CreateTryCatchScope(true, scope->GetContext());
         try_catch->SetVerbose(true);
-        unicode_string_view view_code(std::move(move_code));
+        unicode_string_view view_code(move_code);
         scope->RunJS(view_code, file_name);
         ctx->SetGlobalObjVar("__HIPPYCURDIR__", last_dir_str_obj);
         unicode_string_view view_last_dir_str;

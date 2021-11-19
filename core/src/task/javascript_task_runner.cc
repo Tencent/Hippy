@@ -44,7 +44,7 @@ void JavaScriptTaskRunner::PauseThreadForInspector() {
       return;
     }
 
-    if (task->canceled_ == false) {
+    if (!task->canceled_) {
       task->Run();
     }
   }

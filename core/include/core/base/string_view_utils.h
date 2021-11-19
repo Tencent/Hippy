@@ -64,7 +64,6 @@ class StringViewUtils {
     }
 
     TDF_BASE_NOTREACHED();
-    return true;
   }
 
   static unicode_string_view CovertToLatin(
@@ -79,10 +78,9 @@ class StringViewUtils {
       case unicode_string_view::Encoding::Utf8:
       default: {
         TDF_BASE_NOTREACHED();
-        break;
       }
     }
-    return unicode_string_view();
+    TDF_BASE_NOTREACHED();
   }
 
   static unicode_string_view CovertToUtf16(
@@ -104,10 +102,9 @@ class StringViewUtils {
       }
       default: {
         TDF_BASE_NOTREACHED();
-        break;
       }
     }
-    return unicode_string_view();
+    TDF_BASE_NOTREACHED();
   }
 
   static unicode_string_view CovertToUtf32(
@@ -129,10 +126,9 @@ class StringViewUtils {
       }
       default: {
         TDF_BASE_NOTREACHED();
-        break;
       }
     }
-    return unicode_string_view();
+    TDF_BASE_NOTREACHED();
   }
 
   static unicode_string_view CovertToUtf8(
@@ -156,10 +152,9 @@ class StringViewUtils {
       }
       default: {
         TDF_BASE_NOTREACHED();
-        break;
       }
     }
-    return unicode_string_view();
+    TDF_BASE_NOTREACHED();
   }
 
   static unicode_string_view Convert(
@@ -181,10 +176,9 @@ class StringViewUtils {
       }
       default: {
         TDF_BASE_NOTREACHED();
-        break;
       }
     }
-    return unicode_string_view();
+    TDF_BASE_NOTREACHED();
   }
 
   inline static const char* U8ToConstCharPointer(
@@ -219,11 +213,9 @@ class StringViewUtils {
       }
       default: {
         TDF_BASE_NOTREACHED();
-        break;
       }
     }
     TDF_BASE_NOTREACHED();
-    return nullptr;
   }
 
   inline static unicode_string_view ConstCharPointerToStrView(const char* p,
@@ -254,17 +246,14 @@ class StringViewUtils {
       case unicode_string_view::Encoding::Latin1: {
         const std::string& str = str_view.latin1_value();
         return str.find_last_of(ch);
-        break;
       }
       case unicode_string_view::Encoding::Utf16: {
         const std::u16string& str = str_view.utf16_value();
         return str.find_last_of(u16_ch);
-        break;
       }
       case unicode_string_view::Encoding::Utf32: {
         const std::u32string& str = str_view.utf32_value();
         return str.find_last_of(u32_ch);
-        break;
       }
       case unicode_string_view::Encoding::Utf8: {
         const unicode_string_view::u8string& str = str_view.utf8_value();
@@ -272,12 +261,10 @@ class StringViewUtils {
       }
       default: {
         TDF_BASE_NOTREACHED();
-        break;
       }
     }
 
     TDF_BASE_NOTREACHED();
-    return 0;
   }
 
   inline static unicode_string_view SubStr(const unicode_string_view& str_view,
@@ -288,31 +275,25 @@ class StringViewUtils {
       case unicode_string_view::Encoding::Latin1: {
         const std::string& str = str_view.latin1_value();
         return unicode_string_view(str.substr(pos, n));
-        break;
       }
       case unicode_string_view::Encoding::Utf16: {
         const std::u16string& str = str_view.utf16_value();
         return unicode_string_view(str.substr(pos, n));
-        break;
       }
       case unicode_string_view::Encoding::Utf32: {
         const std::u32string& str = str_view.utf32_value();
         return unicode_string_view(str.substr(pos, n));
-        break;
       }
       case unicode_string_view::Encoding::Utf8: {
         const unicode_string_view::u8string& str = str_view.utf8_value();
         return unicode_string_view(str.substr(pos, n));
-        break;
       }
       default: {
         TDF_BASE_NOTREACHED();
-        break;
       }
     }
 
     TDF_BASE_NOTREACHED();
-    return unicode_string_view();
   }
 
   inline static size_t GetLength(const unicode_string_view& str_view) {
@@ -321,31 +302,25 @@ class StringViewUtils {
       case unicode_string_view::Encoding::Latin1: {
         const std::string& str = str_view.latin1_value();
         return str.length();
-        break;
       }
       case unicode_string_view::Encoding::Utf16: {
         const std::u16string& str = str_view.utf16_value();
         return str.length();
-        break;
       }
       case unicode_string_view::Encoding::Utf32: {
         const std::u32string& str = str_view.utf32_value();
         return str.length();
-        break;
       }
       case unicode_string_view::Encoding::Utf8: {
         const unicode_string_view::u8string& str = str_view.utf8_value();
         return str.length();
-        break;
       }
       default: {
         TDF_BASE_NOTREACHED();
-        break;
       }
     }
 
     TDF_BASE_NOTREACHED();
-    return 0;
   }
 
  private:
@@ -445,7 +420,6 @@ inline unicode_string_view operator+(const unicode_string_view& lhs,
       }
       default: {
         TDF_BASE_NOTREACHED();
-        return unicode_string_view();
       }
     }
   }
@@ -475,7 +449,7 @@ inline unicode_string_view operator+(const unicode_string_view& lhs,
       TDF_BASE_NOTREACHED();
     }
   }
-  return unicode_string_view();
+  TDF_BASE_NOTREACHED();
 }
 
 }  // namespace base

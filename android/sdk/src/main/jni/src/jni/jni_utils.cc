@@ -23,8 +23,8 @@
 #include "jni/jni_utils.h"  // NOLINT(build/include_subdir)
 
 #include <android/log.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 
 #include "core/base/string_view_utils.h"
 #include "core/core.h"
@@ -86,7 +86,7 @@ unicode_string_view JniUtils::JByteArrayToStrView(JNIEnv* j_env,
   j_env->GetByteArrayRegion(j_byte_array, j_offset, j_len,
                             reinterpret_cast<int8_t*>(&ret[0]));
 
-  const char16_t* ptr = reinterpret_cast<const char16_t*>(ret.c_str());
+  const auto* ptr = reinterpret_cast<const char16_t*>(ret.c_str());
   return unicode_string_view(ptr, ret.length() / sizeof(char16_t));
 }
 
