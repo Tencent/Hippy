@@ -67,4 +67,6 @@ public interface HippyEngineContext {
   void endBatch();
 
   int getEngineId();
+
+  int getRootId();
 }

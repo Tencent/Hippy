@@ -37,6 +37,7 @@ import com.tencent.mtt.supportui.adapters.image.IImageLoaderAdapter;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class NativeRenderer implements INativeRenderer, INativeRendererProxy {
   final String ID = "id";
@@ -46,39 +47,48 @@ public class NativeRenderer implements INativeRenderer, INativeRendererProxy {
   final String PROPS = "props";
   final String TAG_NAME = "tagName";
 
+  private static final int ROOT_VIEW_TAG_INCREMENT = 10;
+  private static final AtomicInteger ID_COUNTER = new AtomicInteger(0);
+
   private int instanceId;
+  private int rootId;
   private RenderManager renderManager;
   private DomManager domManager;
   private HippyRootView rootView;
-  private Map nativeParam;
-  private String bundlePath;
   private boolean isDebugMode;
   private IFrameworkProxy frameworkProxy;
   volatile CopyOnWriteArrayList<HippyInstanceLifecycleEventListener> instanceLifecycleEventListeners;
 
   @Override
   public void init(int instanceId, List<Class<? extends HippyBaseController>> controllers,
-      Map nativeParam, String bundlePath, boolean isDebugMode) {
+      boolean isDebugMode, ViewGroup rootView) {
     renderManager = new RenderManager(this, controllers);
     domManager = new DomManager(this);
+    if (rootView instanceof HippyRootView) {
+      rootId = rootView.getId();
+      this.rootView = (HippyRootView)rootView;
+    } else {
+      rootId = ID_COUNTER.addAndGet(ROOT_VIEW_TAG_INCREMENT);
+    }
     this.instanceId = instanceId;
-    this.bundlePath = bundlePath;
-    this.nativeParam = nativeParam;
     this.isDebugMode = isDebugMode;
     NativeRendererManager.addNativeRendererInstance(instanceId, this);
   }
 
   @Override
   public Object getCustomViewCreator() {
-    if (nativeParam != null) {
-      return nativeParam.get(HippyCustomViewCreator.HIPPY_CUSTOM_VIEW_CREATOR);
+    if (checkJSFrameworkProxy()) {
+      return ((IJSFrameworkProxy)frameworkProxy).getCustomViewCreator();
     }
     return null;
   }
 
   @Override
   public String getBundlePath() {
-    return bundlePath;
+    if (checkJSFrameworkProxy()) {
+      return ((IJSFrameworkProxy)frameworkProxy).getBundlePath();
+    }
+    return null;
   }
 
   @Override
@@ -141,7 +151,6 @@ public class NativeRenderer implements INativeRenderer, INativeRendererProxy {
       instanceLifecycleEventListeners.clear();
     }
     rootView = null;
-    nativeParam = null;
     frameworkProxy = null;
     NativeRendererManager.removeNativeRendererInstance(instanceId);
   }
@@ -149,15 +158,8 @@ public class NativeRenderer implements INativeRenderer, INativeRendererProxy {
   @Override
   public ViewGroup createRootView(Context context) {
     assert context != null;
-    rootView = new HippyRootView(context, instanceId);
+    rootView = new HippyRootView(context, instanceId, rootId);
     return rootView;
-  }
-
-  @Override
-  public void resetRootView(ViewGroup rootView) {
-    if(rootView instanceof HippyRootView) {
-      this.rootView = (HippyRootView)rootView;
-    }
   }
 
   @Override
@@ -183,6 +185,11 @@ public class NativeRenderer implements INativeRenderer, INativeRendererProxy {
   @Override
   public ViewGroup getRootView() {
     return rootView;
+  }
+
+  @Override
+  public int getRootId() {
+    return rootId;
   }
 
   @Override
@@ -407,7 +414,7 @@ public class NativeRenderer implements INativeRenderer, INativeRendererProxy {
   }
 
   private boolean checkJSFrameworkProxy() {
-    if (frameworkProxy == null || !(frameworkProxy instanceof IJSFrameworkProxy)) {
+    if (!(frameworkProxy instanceof IJSFrameworkProxy)) {
       return false;
     }
     return true;
