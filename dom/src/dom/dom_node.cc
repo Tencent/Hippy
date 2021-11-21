@@ -1,4 +1,5 @@
 #include "dom/dom_node.h"
+#include "base/logging.h"
 #include "dom/node_props.h"
 
 namespace hippy {
@@ -19,6 +20,20 @@ DomNode::DomNode(int32_t id, int32_t pid, int32_t index, std::string tag_name, s
 
 DomNode::DomNode(int32_t id, int32_t pid, int32_t index) : id_(id), pid_(pid), index_(index) {}
 
+DomNode::DomNode() {}
+
+DomNode::~DomNode() {}
+
+int32_t DomNode::IndexOf(std::shared_ptr<DomNode> child) {
+  TDF_BASE_NOTIMPLEMENTED();
+  return 0;
+}
+
+std::shared_ptr<DomNode> DomNode::GetChildAt(int32_t index) {
+  TDF_BASE_NOTIMPLEMENTED();
+  return nullptr;
+}
+
 void DomNode::AddChildAt(std::shared_ptr<DomNode> dom_node, int32_t index) {
   children_.insert(children_.begin() + index, dom_node);
   dom_node->SetParent(shared_from_this());
@@ -31,8 +46,7 @@ std::shared_ptr<DomNode> DomNode::RemoveChildAt(int32_t index) {
   child->SetParent(nullptr);
   children_.erase(children_.begin() + index);
   std::shared_ptr<TaitankLayoutNode> node = std::static_pointer_cast<TaitankLayoutNode>(node_);
-  std::shared_ptr<TaitankLayoutNode> child_node =
-    std::static_pointer_cast<TaitankLayoutNode>(child->node_);
+  std::shared_ptr<TaitankLayoutNode> child_node = std::static_pointer_cast<TaitankLayoutNode>(child->node_);
   node->RemoveChild(child_node);
   return child;
 }
@@ -103,7 +117,8 @@ void DomNode::RemoveLongClickEventListener(int32_t listener_id) {
 int32_t DomNode::AddTouchEventListener(TouchEvent event, OnTouchEventListener listener) {
   auto dom_manager = dom_manager_.lock();
   if (dom_manager) {
-    dom_manager->GetRenderManager()->AddTouchEventListener(id_, event, [listener](TouchEventInfo eventInfo) { listener(eventInfo); });
+    dom_manager->GetRenderManager()->AddTouchEventListener(
+        id_, event, [listener](TouchEventInfo eventInfo) { listener(eventInfo); });
   }
   return 0;
 }
@@ -114,5 +129,16 @@ void DomNode::RemoveTouchEventListener(TouchEvent event) {
     dom_manager->GetRenderManager()->RemoveTouchEventListener(id_, event);
   }
 }
+
+int32_t DomNode::SetOnAttachChangedListener(OnAttachChangedListener listener) {
+  TDF_BASE_NOTIMPLEMENTED();
+  return 0;
+}
+int32_t DomNode::AddShowEventListener(ShowEvent event, OnShowEventListener listener) {
+  TDF_BASE_NOTIMPLEMENTED();
+  return 0;
+}
+void DomNode::RemoveShowEventListener(ShowEvent event, int32_t listener_id) { TDF_BASE_NOTIMPLEMENTED(); }
+
 }  // namespace dom
 }  // namespace hippy

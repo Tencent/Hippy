@@ -3,14 +3,23 @@
 namespace hippy {
 inline namespace dom {
 
-DomManager::DomManager(int32_t root_id): root_id_(root_id) {
-  dom_event_listener_map_[DomEvent::Create].push_back([this](std::any node) {
-    dom_node_registry_.AddNode(std::any_cast<std::shared_ptr<DomNode>>(node));
-  });
-  dom_event_listener_map_[DomEvent::Delete].push_back([this](std::any node) {
-    dom_node_registry_.RemoveNode(std::any_cast<std::shared_ptr<DomNode>>(node)->GetId());
-  });
+std::shared_ptr<DomManager> DomManager::GetDomManager(int32_t root_id) {
+  TDF_BASE_NOTIMPLEMENTED();
+  return nullptr;
 }
+void DomManager::Destroy(int32_t root_id) {
+  TDF_BASE_NOTIMPLEMENTED();
+  return;
+}
+
+DomManager::DomManager(int32_t root_id) : root_id_(root_id) {
+  dom_event_listener_map_[DomEvent::Create].push_back(
+      [this](std::any node) { dom_node_registry_.AddNode(std::any_cast<std::shared_ptr<DomNode>>(node)); });
+  dom_event_listener_map_[DomEvent::Delete].push_back(
+      [this](std::any node) { dom_node_registry_.RemoveNode(std::any_cast<std::shared_ptr<DomNode>>(node)->GetId()); });
+}
+
+DomManager::~DomManager() {}
 
 void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>> nodes) {
   for (auto it = nodes.begin(); it != nodes.end(); it++) {
@@ -73,6 +82,11 @@ void DomManager::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>> nodes) {
   }
 }
 
+void DomManager::BeginBatch() {
+  TDF_BASE_NOTIMPLEMENTED();
+  return;
+}
+
 void DomManager::EndBatch() {
   // 触发布局计算
   root_node_->DoLayout();
@@ -82,10 +96,29 @@ void DomManager::EndBatch() {
   batch_operations_.clear();
 }
 
-void DomManager::CallFunction(int32_t id, const std::string &name,
+void DomManager::CallFunction(int32_t id, const std::string& name,
                               std::unordered_map<std::string, std::shared_ptr<DomValue>> param,
                               CallFunctionCallback cb) {
-    render_manager_->DispatchFunction(id, name, param, cb);
+  render_manager_->DispatchFunction(id, name, param, cb);
+}
+
+void DomManager::AddTouchEventListener(int32_t id, TouchEvent event, OnTouchEventListener listener) {
+  TDF_BASE_NOTIMPLEMENTED();
+  root_id_ = 1;
+  return;
+}
+void DomManager::RemoveTouchEventListener(TouchEvent event) {
+  TDF_BASE_NOTIMPLEMENTED();
+  return;
+}
+
+int32_t DomManager::AddDomTreeEventListener(DomTreeEvent event, OnDomTreeEventListener listener) {
+  TDF_BASE_NOTIMPLEMENTED();
+  return 0;
+}
+void DomManager::RemoveDomTreeEventListener(DomTreeEvent event, int32_t listener_id) {
+  TDF_BASE_NOTIMPLEMENTED();
+  return;
 }
 
 void DomManager::OnDomNodeCreated(std::shared_ptr<DomNode> node) {
@@ -118,9 +151,7 @@ std::shared_ptr<DomNode> DomManager::DomNodeRegistry::GetNode(int32_t id) {
   return found->second;
 }
 
-void DomManager::DomNodeRegistry::RemoveNode(int32_t id) {
-  nodes_.erase(id);
-}
+void DomManager::DomNodeRegistry::RemoveNode(int32_t id) { nodes_.erase(id); }
 
 }  // namespace dom
 }  // namespace hippy
