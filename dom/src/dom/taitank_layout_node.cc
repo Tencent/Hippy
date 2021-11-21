@@ -153,7 +153,7 @@ static DisplayType GetDisplayType(std::string display) {
 void TaitankLayoutNode::CalculateLayout(float parent_width, float parent_height, Direction direction,
                                         void* layout_context) {
   assert(engine_node_ != nullptr);
-  engine_node_->layout(parent_width, parent_height, direction, layout_context);
+  engine_node_->layout(parent_width, parent_height, engine_node_->GetConfig(), direction, layout_context);
 }
 
 void TaitankLayoutNode::SetLayoutStyles(
@@ -321,19 +321,21 @@ bool TaitankLayoutNode::LayoutHadOverflow() {
   return engine_node_->result.hadOverflow;
 }
 
-void TaitankLayoutNode::InsertChild(std::shared_ptr<TaitankLayoutNode> child, uint32_t index) {
+void TaitankLayoutNode::InsertChild(std::shared_ptr<LayoutNode> child, uint32_t index) {
   assert(engine_node_ != nullptr);
-  assert(child->GetLayoutEngineNodeRef() != nullptr);
-  engine_node_->insertChild(child->GetLayoutEngineNodeRef(), index);
-  children_.insert(children_.begin() + index, child);
-  child->parent_ = shared_from_this();
+  auto node = std::static_pointer_cast<TaitankLayoutNode>(child);
+  assert(node->GetLayoutEngineNodeRef() != nullptr);
+  engine_node_->insertChild(node->GetLayoutEngineNodeRef(), index);
+  children_.insert(children_.begin() + index, node);
+  node->parent_ = shared_from_this();
 }
 
-void TaitankLayoutNode::RemoveChild(const std::shared_ptr<TaitankLayoutNode> child) {
+void TaitankLayoutNode::RemoveChild(const std::shared_ptr<LayoutNode> child) {
   assert(engine_node_ != nullptr);
-  assert(child->GetLayoutEngineNodeRef() != nullptr);
-  engine_node_->removeChild(child->GetLayoutEngineNodeRef());
-  auto iter = std::find(children_.begin(), children_.end(), child);
+  auto node = std::static_pointer_cast<TaitankLayoutNode>(child);
+  assert(node->GetLayoutEngineNodeRef() != nullptr);
+  engine_node_->removeChild(node->GetLayoutEngineNodeRef());
+  auto iter = std::find(children_.begin(), children_.end(), node);
   if (iter != children_.end()) {
     children_.erase(iter);
   }

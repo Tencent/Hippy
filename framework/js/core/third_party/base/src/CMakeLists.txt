@@ -10,3 +10,4 @@ else()
 	message("platform is not supported")
 endif()
 
+add_subdirectory(base)

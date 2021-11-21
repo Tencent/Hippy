@@ -37,6 +37,7 @@ jlong InitInstance(JNIEnv* j_env,
                    jboolean j_is_dev_module,
                    jobject j_callback,
                    jlong j_group_id,
+                   jlong j_root_view_id,
                    jobject j_vm_init_param);
 
 void DestroyInstance(JNIEnv* j_env,

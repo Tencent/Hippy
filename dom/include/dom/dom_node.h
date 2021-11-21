@@ -124,7 +124,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   std::vector<std::shared_ptr<DomNode>> children_;
 
   RenderInfo render_info_;
-  std::weak_ptr<DomManager> dom_manager;
+  std::weak_ptr<DomManager> dom_manager_;
 };
 
 }  // namespace dom

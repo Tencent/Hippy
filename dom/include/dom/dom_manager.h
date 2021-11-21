@@ -1,17 +1,17 @@
 #pragma once
 
-#include <vector>
 #include <cstdint>
+#include <future>
 #include <map>
 #include <memory>
-#include <future>
+#include <vector>
 
+#include "base/logging.h"
+#include "dom/dom_listener.h"
 #include "dom/dom_node.h"
 #include "dom/dom_value.h"
-#include "dom/dom_listener.h"
 #include "dom/layout_node.h"
 #include "dom/render_manager.h"
-
 
 namespace hippy {
 inline namespace dom {
@@ -35,19 +35,15 @@ class DomManager {
   void DeleteDomNodes(std::vector<std::shared_ptr<DomNode>> nodes);
   void BeginBatch();
   void EndBatch();
-  void CallFunction(int32_t id,
-                    const std::string& name,
-                    std::unordered_map<std::string, std::shared_ptr<DomValue>> param,
-                    CallFunctionCallback cb);
-  void AddTouchEventListener(int32_t id,
-                           TouchEvent event,
-                           OnTouchEventListener listener);
+  void CallFunction(int32_t id, const std::string& name,
+                    std::unordered_map<std::string, std::shared_ptr<DomValue>> param, CallFunctionCallback cb);
+  void AddTouchEventListener(int32_t id, TouchEvent event, OnTouchEventListener listener);
   void RemoveTouchEventListener(TouchEvent event);
 
   int32_t AddDomTreeEventListener(DomTreeEvent event, OnDomTreeEventListener listener);
   void RemoveDomTreeEventListener(DomTreeEvent event, int32_t listener_id);
 
-  std::shared_ptr<RenderManager> GetRenderManager() { return render_manager_;}
+  std::shared_ptr<RenderManager> GetRenderManager() { return render_manager_; }
 
  protected:
   void OnDomNodeCreated(std::shared_ptr<DomNode> node);
@@ -78,5 +74,5 @@ class DomManager {
   std::vector<DomOperation> batch_operations_;
 };
 
-}
-}
+}  // namespace dom
+}  // namespace hippy

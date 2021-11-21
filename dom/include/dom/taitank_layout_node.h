@@ -10,8 +10,7 @@ inline namespace dom {
 typedef CSSDirection TaitankCssDirection;
 typedef HPMeasureFunc TaitankMeasureFunction;
 
-    class TaitankLayoutNode : public LayoutNode,
-                              public std::enable_shared_from_this<TaitankLayoutNode> {
+class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this<TaitankLayoutNode> {
  public:
   TaitankLayoutNode() { Allocate(); }
 
@@ -117,13 +116,13 @@ typedef HPMeasureFunc TaitankMeasureFunction;
    * @param child
    * @param index
    */
-  void InsertChild(std::shared_ptr<TaitankLayoutNode> child, uint32_t index);
+  void InsertChild(std::shared_ptr<LayoutNode> child, uint32_t index) override;
 
   /**
    * @brief 删除子节点
    * @param child
    */
-  void RemoveChild(const std::shared_ptr<TaitankLayoutNode> child);
+  void RemoveChild(const std::shared_ptr<LayoutNode> child) override;
 
   /**
    * @brief 是否有新的布局
