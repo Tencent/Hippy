@@ -101,7 +101,8 @@ std::shared_ptr<hippy::napi::CtxValue> TimerModule::Start(
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
   std::weak_ptr<JavaScriptTask> weak_task = task;
   std::weak_ptr<Scope> weak_scope = scope;
-  std::weak_ptr<CtxValue> weak_function = function;
+  std::shared_ptr<TaskEntry> entry = std::make_shared<TaskEntry>(function, task);
+  std::weak_ptr<CtxValue> weak_function = entry->func;
 
   task->callback = [this, weak_scope, weak_function, weak_task, repeat,
                     interval] {
@@ -112,7 +113,7 @@ std::shared_ptr<hippy::napi::CtxValue> TimerModule::Start(
     std::shared_ptr<CtxValue> function = weak_function.lock();
     if (function) {
       std::shared_ptr<hippy::napi::Ctx> context = scope->GetContext();
-      context->CallFunction(function);
+      context->CallFunction(function, 0, nullptr);
     }
 
     std::unique_ptr<RegisterMap>& map = scope->GetRegisterMap();
@@ -143,11 +144,7 @@ std::shared_ptr<hippy::napi::CtxValue> TimerModule::Start(
   if (runner) {
     runner->PostDelayedTask(task, interval);
   }
-
-  std::shared_ptr<TaskEntry> entry =
-      std::make_shared<TaskEntry>(context, task);
-  std::pair<TaskId, std::shared_ptr<TaskEntry>> item{task->id_,
-                                                     std::move(entry)};
+  std::pair<TaskId, std::shared_ptr<TaskEntry>> item{task->id_, std::move(entry)};
   task_map_.insert(item);
 
   return context->CreateNumber(task->id_);
@@ -165,8 +162,7 @@ void TimerModule::Cancel(TaskId task_id, const std::shared_ptr<Scope>& scope) {
   auto item = task_map_.find(task_id);
   if (item != task_map_.end()) {
     std::shared_ptr<JavaScriptTaskRunner> runner = scope->GetTaskRunner();
-    std::shared_ptr<JavaScriptTask> task = item->second->task_.lock();
-
+    std::shared_ptr<JavaScriptTask> task = item->second->task.lock();
     if (runner) {
       runner->CancelTask(task);
     }
