@@ -1,5 +1,6 @@
 #include "dom/dom_value.h"
 #include "core/base/hash.h"
+#include "base/logging.h"
 
 using DomValue = tdf::base::DomValue;
 
@@ -357,67 +358,67 @@ bool DomValue::IsUInt64() const noexcept { return type_ == Type::kNumber && numb
 bool DomValue::IsDouble() const noexcept { return type_ == Type::kNumber && number_type_ == NumberType::kDouble; }
 
 int32_t DomValue::ToInt32() const {
-  assert(IsInt32());
+  TDF_BASE_CHECK(IsInt32());
   return num_.i32_;
 }
 
 uint32_t DomValue::ToUint32() const {
-  assert(IsUInt32());
+  TDF_BASE_CHECK(IsUInt32());
   return num_.u32_;
 }
 
 int64_t DomValue::ToInt64() const {
-  assert(IsInt64());
+  TDF_BASE_CHECK(IsInt64());
   return num_.i64_;
 }
 
 uint64_t DomValue::ToUint64() const {
-  assert(IsUInt64());
+  TDF_BASE_CHECK(IsUInt64());
   return num_.u64_;
 }
 
 double DomValue::ToDouble() const {
-  assert(IsNumber());
+  TDF_BASE_CHECK(IsNumber());
   if (number_type_ == DomValue::NumberType::kDouble) return num_.d_;
   if (number_type_ == DomValue::NumberType::kInt32) return num_.i32_;
   if (number_type_ == DomValue::NumberType::kUInt32) return num_.u32_;
   if (number_type_ == DomValue::NumberType::kInt64) return static_cast<double>(num_.i64_);
   if (number_type_ == DomValue::NumberType::kUInt64) return static_cast<double>(num_.u64_);
-  assert(false);
+  TDF_BASE_NOTREACHED();
 }
 
 bool DomValue::ToBoolean() const {
-  assert(IsBoolean());
+  TDF_BASE_CHECK(IsBoolean());
   return b_;
 }
 
 const std::string& DomValue::ToString() const {
-  assert(IsString());
+  TDF_BASE_CHECK(IsString());
   return str_;
 }
 
 std::string& DomValue::ToString() {
-  assert(IsString());
+  TDF_BASE_CHECK(IsString());
   return str_;
 }
 
 const DomValue::DomValueObjectType& DomValue::ToObject() const {
-  assert(IsObject());
+  TDF_BASE_CHECK(IsObject());
   return obj_;
 }
 
 DomValue::DomValueObjectType& DomValue::ToObject() {
-  assert(IsObject());
+  TDF_BASE_CHECK(IsObject());
   return obj_;
 }
 
 const DomValue::DomValueArrayType& DomValue::ToArray() const {
-  assert(IsArray());
+  TDF_BASE_CHECK(IsArray());
   return arr_;
 }
 
 DomValue::DomValueArrayType& DomValue::ToArray() {
-  assert(IsArray());
+  TDF_BASE_CHECK(IsArray());
   return arr_;
 }
 
