@@ -37,7 +37,7 @@ namespace napi {
 using unicode_string_view = tdf::base::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
 
-bool JSCCtx::GetValueNumber(std::shared_ptr<CtxValue> value, double* result) {
+bool JSCCtx::GetValueNumber(const std::shared_ptr<CtxValue>& value, double* result) {
   if (!value) {
     return false;
   }
@@ -57,7 +57,7 @@ bool JSCCtx::GetValueNumber(std::shared_ptr<CtxValue> value, double* result) {
   return false;
 }
 
-bool JSCCtx::GetValueNumber(std::shared_ptr<CtxValue> value, int32_t* result) {
+bool JSCCtx::GetValueNumber(const std::shared_ptr<CtxValue>& value, int32_t* result) {
   if (!value) {
     return false;
   }
@@ -77,7 +77,7 @@ bool JSCCtx::GetValueNumber(std::shared_ptr<CtxValue> value, int32_t* result) {
   return false;
 }
 
-bool JSCCtx::GetValueBoolean(std::shared_ptr<CtxValue> value, bool* result) {
+bool JSCCtx::GetValueBoolean(const std::shared_ptr<CtxValue>& value, bool* result) {
   if (!value) {
     return false;
   }
@@ -92,7 +92,7 @@ bool JSCCtx::GetValueBoolean(std::shared_ptr<CtxValue> value, bool* result) {
   return false;
 }
 
-bool JSCCtx::GetValueString(std::shared_ptr<CtxValue> value,
+bool JSCCtx::GetValueString(const std::shared_ptr<CtxValue>& value,
                             unicode_string_view* result) {
   if (!value) {
     return false;
@@ -116,7 +116,7 @@ bool JSCCtx::GetValueString(std::shared_ptr<CtxValue> value,
   return false;
 }
 
-bool JSCCtx::IsArray(std::shared_ptr<CtxValue> value) {
+bool JSCCtx::IsArray(const std::shared_ptr<CtxValue>& value) {
   if (!value) {
     return false;
   }
@@ -126,7 +126,7 @@ bool JSCCtx::IsArray(std::shared_ptr<CtxValue> value) {
   return JSValueIsArray(context_, value_ref);
 }
 
-uint32_t JSCCtx::GetArrayLength(std::shared_ptr<CtxValue> value) {
+uint32_t JSCCtx::GetArrayLength(const std::shared_ptr<CtxValue>& value) {
   if (!value) {
     return 0;
   }
@@ -158,7 +158,7 @@ uint32_t JSCCtx::GetArrayLength(std::shared_ptr<CtxValue> value) {
   return count;
 }
 
-bool JSCCtx::GetValueJson(std::shared_ptr<CtxValue> value,
+bool JSCCtx::GetValueJson(const std::shared_ptr<CtxValue>& value,
                           unicode_string_view* result) {
   if (!value) {
     return false;
@@ -180,7 +180,7 @@ bool JSCCtx::GetValueJson(std::shared_ptr<CtxValue> value,
   return true;
 }
 
-bool JSCCtx::HasNamedProperty(std::shared_ptr<CtxValue> value,
+bool JSCCtx::HasNamedProperty(const std::shared_ptr<CtxValue>& value,
                               const unicode_string_view& name) {
   if (!value) {
     return false;
@@ -200,7 +200,7 @@ bool JSCCtx::HasNamedProperty(std::shared_ptr<CtxValue> value,
   return ret;
 }
 
-bool JSCCtx::IsFunction(std::shared_ptr<CtxValue> value) {
+bool JSCCtx::IsFunction(const std::shared_ptr<CtxValue>& value) {
   if (!value) {
     return false;
   }
@@ -221,7 +221,7 @@ bool JSCCtx::IsFunction(std::shared_ptr<CtxValue> value) {
 }
 
 unicode_string_view JSCCtx::CopyFunctionName(
-    std::shared_ptr<CtxValue> function) {
+    const std::shared_ptr<CtxValue>& function) {
   TDF_BASE_NOTIMPLEMENTED();
   return "";
 }
@@ -296,7 +296,7 @@ std::shared_ptr<CtxValue> JSCCtx::CreateJsError(
 }
 
 std::shared_ptr<CtxValue> JSCCtx::CopyArrayElement(
-    std::shared_ptr<CtxValue> array,
+    const std::shared_ptr<CtxValue>& array,
     uint32_t index) {
   std::shared_ptr<JSCCtxValue> array_value =
       std::static_pointer_cast<JSCCtxValue>(array);
@@ -323,7 +323,7 @@ std::shared_ptr<CtxValue> JSCCtx::CopyArrayElement(
 }
 
 std::shared_ptr<CtxValue> JSCCtx::CopyNamedProperty(
-    std::shared_ptr<CtxValue> value,
+    const std::shared_ptr<CtxValue>& value,
     const unicode_string_view& name) {
   std::shared_ptr<JSCCtxValue> ctx_value =
       std::static_pointer_cast<JSCCtxValue>(value);
@@ -352,7 +352,7 @@ std::shared_ptr<CtxValue> JSCCtx::CopyNamedProperty(
 }
 
 std::shared_ptr<CtxValue> JSCCtx::CallFunction(
-    std::shared_ptr<CtxValue> function,
+    const std::shared_ptr<CtxValue>& function,
     size_t argc,
     const std::shared_ptr<CtxValue> args[]) {
   std::shared_ptr<JSCCtxValue> func_value =
@@ -396,7 +396,7 @@ std::shared_ptr<CtxValue> JSCCtx::CallFunction(
 }
 
 unicode_string_view JSCCtx::GetExceptionMsg(
-    std::shared_ptr<CtxValue> exception) {
+    const std::shared_ptr<CtxValue>& exception) {
   if (!exception) {
     return unicode_string_view();
   }
@@ -423,7 +423,7 @@ unicode_string_view JSCCtx::GetExceptionMsg(
   return ret;
 }
 
-bool JSCCtx::ThrowExceptionToJS(std::shared_ptr<CtxValue> exception) {
+bool JSCCtx::ThrowExceptionToJS(const std::shared_ptr<CtxValue>& exception) {
   if (!exception) {
     return false;
   }
