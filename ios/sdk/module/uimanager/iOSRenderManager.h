@@ -47,22 +47,13 @@ public:
                           std::unordered_map<std::string, std::shared_ptr<DomValue>> param,
                           DispatchFunctionCallback cb) override;
 
-    void AddTouchEventListener(int32_t id,
-                               TouchEvent event,
-                               OnTouchEventListener listener) override;
+    int32_t AddClickEventListener(int32_t id, OnClickEventListener listener) override;
+    void RemoveClickEventListener(int32_t id, int32_t listener_id) override;
+    int32_t AddLongClickEventListener(int32_t id, OnLongClickEventListener listener) override;
+    void RemoveLongClickEventListener(int32_t id, int32_t listener_id) override;
+    void AddTouchEventListener(int32_t id, TouchEvent event, OnTouchEventListener listener) override;
     void RemoveTouchEventListener(int32_t id, TouchEvent event) override;
-
-   protected:
-    bool ComputeIsLayoutOnly(std::shared_ptr<DomNode> node) const;
-
-    virtual bool CheckStyleJustLayout(std::shared_ptr<DomNode> node) const;
-
-    virtual bool IsJustLayoutProp(const char *prop_name) const;
-
-    std::shared_ptr<DomNode> GetRenderParent(std::shared_ptr<DomNode> node);
-
-    int32_t CalculateRenderNodeIndex(std::shared_ptr<DomNode> parent,
-                                     std::shared_ptr<DomNode> node);
+    
 private:
     using RenderManager = hippy::RenderManager;
     using DomNode = hippy::DomNode;

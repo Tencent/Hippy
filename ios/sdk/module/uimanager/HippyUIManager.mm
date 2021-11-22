@@ -1702,6 +1702,101 @@ static NSDictionary *unorderedMapDomValueToDictionary(const std::unordered_map<s
     [self batchDidComplete];
 }
 
+- (void)dispatchFunction:(const std::string &)functionName
+                 forView:(int32_t)hippyTag
+                  params:(const std::unordered_map<std::string, std::shared_ptr<DomValue>> &)params
+                callback:(DispatchFunctionCallback)cb {
+    UIView *view = [self viewForHippyTag:@(hippyTag)];
+    NSString *name = [NSString stringWithUTF8String:functionName.c_str()];
+    SEL sel = NSSelectorFromString(name);
+    HippyAssert([view respondsToSelector:sel], @"dispatch function failed, object %@ does not respond to function %@", NSStringFromClass([view class]), name);
+    if (sel) {
+        NSMethodSignature *methodSig = [view methodSignatureForSelector:sel];
+        HippyAssert(0 == strcmp([methodSig methodReturnType], @encode(std::any)), @"dispatch function failed, function %@ return type is not std::any, return type not matched", name);
+        HippyAssert(sizeof(std::any) == [methodSig methodReturnLength], @"dispatch function failed, function %@ return type is not std::any, return length not matched", name);
+        if (view && methodSig) {
+#ifndef DEBUG
+            @try {
+#endif //#ifndef DEBUG
+                NSDictionary *dicParams = unorderedMapDomValueToDictionary(params);
+                NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSig];
+                [invocation setTarget:view];
+                [invocation setArgument:&dicParams atIndex:2];
+                [invocation invoke];
+                //method return type is always std::any
+                std::any ret;
+                [invocation getReturnValue:&ret];
+                cb(ret);
+#ifndef DEBUG
+            } @catch (NSException *exception) {
+                HippyAssert(NO, @"exception happened:%@", [exception description]);
+            }
+#endif //#ifndef DEBUG
+        }
+    }
+}
+
+- (int32_t) addClickEventListener:(OnClickEventListener)listener
+                          forView:(int32_t)hippyTag {
+    UIView *view = [self viewForHippyTag:@(hippyTag)];
+    if (view) {
+        NSInteger ret = [view addTouchEvent:HippyTouchEventTypeClick eventListener:^(CGPoint) {
+            if (listener) {
+                listener();
+            }
+        }];
+        return static_cast<int32_t>(ret);
+    }
+    return 0;
+}
+
+- (void) removeClickEventListener:(int32_t)listenerID forView:(int32_t)hippyTag {
+    UIView *view = [self viewForHippyTag:@(hippyTag)];
+    if (view) {
+        [view removeTouchEventByID:listenerID];
+    }
+}
+
+- (int32_t) addLongClickEventListener:(OnLongClickEventListener)listener
+                              forView:(int32_t)hippyTag {
+    UIView *view = [self viewForHippyTag:@(hippyTag)];
+    if (view) {
+        NSInteger ret = [view addTouchEvent:HippyTouchEventTypeLongClick eventListener:^(CGPoint) {
+            if (listener) {
+                listener();
+            }
+        }];
+        return static_cast<int32_t>(ret);
+    }
+    return 0;
+}
+
+- (void) removeLongClickEventListener:(int32_t)listenerID forView:(int32_t)hippyTag {
+    UIView *view = [self viewForHippyTag:@(hippyTag)];
+    if (view) {
+        [view removeTouchEventByID:listenerID];
+    }
+}
+
+- (void) addTouchEventListener:(OnTouchEventListener)listener
+                    touchEvent:(TouchEvent)event
+                       forView:(int32_t)hippyTag {
+    UIView *view = [self viewForHippyTag:@(hippyTag)];
+    if (view) {
+        [view addTouchEvent:static_cast<HippyTouchEventType>(event) eventListener:^(CGPoint point) {
+            if (listener) {
+                hippy::TouchEventInfo info = {static_cast<float>(point.x), static_cast<float>(point.y)};
+                listener(info);
+            }
+        }];
+    }
+}
+
+- (void) removeTouchEvent:(TouchEvent)event forView:(int32_t)hippyTag {
+    UIView *view = [self viewForHippyTag:@(hippyTag)];
+    [view removeTouchEvent:static_cast<HippyTouchEventType>(event)];
+}
+
 @end
 
 @implementation HippyBridge (HippyUIManager)
