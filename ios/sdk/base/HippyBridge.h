@@ -120,6 +120,10 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 - (void)enqueueJSCall:(NSString *)module method:(NSString *)method args:(NSArray *)args completion:(dispatch_block_t)completion;
 
 /**
+ * set up chrome dev tools connection
+ */
+- (void)setUpDevClientWithName:(NSString *)name;
+/**
  * This method is used to call functions in the JavaScript application context
  * synchronously.  This is intended for use by applications which do their own
  * thread management and are careful to manage multi-threaded access to the JSVM.
