@@ -38,6 +38,8 @@
 #import "HippyDevLoadingView.h"
 #import "HippyDeviceBaseInfo.h"
 #import "HippyI18nUtils.h"
+#import "HippyDevManager.h"
+#import "HippyBundleURLProvider.h"
 #include "core/scope.h"
 #import "HippyTurboModuleManager.h"
 #import <core/napi/jsc/js_native_api_jsc.h>
@@ -74,6 +76,7 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     NSUInteger _modulesInitializedOnMainQueue;
     HippyDisplayLink *_displayLink;
     NSDictionary *_dimDic;
+    HippyDevManager *_devManager;
 }
 
 @synthesize flowID = _flowID;
@@ -473,6 +476,26 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
 
 - (void)setUpExecutor {
     [_javaScriptExecutor setUp];
+}
+
+- (void)setUpDevClientWithName:(NSString *)name {
+    if ([self.delegate respondsToSelector:@selector(shouldStartInspector:)]) {
+        if ([self.delegate shouldStartInspector:self.parentBridge]) {
+            NSString *ipAddress = nil;
+            NSString *ipPort = nil;
+            if ([self.delegate respondsToSelector:@selector(inspectorSourceURLForBridge:)]) {
+                NSURL *url = [self.delegate inspectorSourceURLForBridge:self.parentBridge];
+                ipAddress = [url host];
+                ipPort = [NSString stringWithFormat:@"%@", [url port]];
+            }
+            else {
+                HippyBundleURLProvider *bundleURLProvider = [HippyBundleURLProvider sharedInstance];
+                ipAddress = bundleURLProvider.localhostIP;
+                ipPort = bundleURLProvider.localhostPort;
+            }
+            _devManager = [[HippyDevManager alloc] initWithBridge:self.parentBridge devIPAddress:ipAddress devPort:ipPort contextName:name];
+        }
+    }
 }
 
 - (void)registerModuleForFrameUpdates:(id<HippyBridgeModule>)module withModuleData:(HippyModuleData *)moduleData {

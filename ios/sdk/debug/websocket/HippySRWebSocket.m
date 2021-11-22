@@ -24,6 +24,7 @@
 
 #import "HippyAssert.h"
 #import "HippyLog.h"
+#import "HippySRSIMDHelpers.h"
 
 typedef NS_ENUM(NSInteger, HippySROpCode) {
     HippySROpCodeTextFrame = 0x1,
@@ -1263,83 +1264,75 @@ static const char CRLFCRLFBytes[] = { '\r', '\n', '\r', '\n' };
 
 static const size_t HippySRFrameHeaderOverhead = 32;
 
-- (void)_sendFrameWithOpcode:(HippySROpCode)opcode data:(id)data;
+- (void)_sendFrameWithOpcode:(HippySROpCode)opCode data:(id)data;
 {
     [self assertOnWorkQueue];
 
-    if (nil == data) {
+    if (!data) {
         return;
     }
+    
+    NSData *originData = [data isKindOfClass:[NSData class]] ? data : [(NSString *)data dataUsingEncoding:NSUTF8StringEncoding];
+    size_t payloadLength = originData.length;
 
-    HippyAssert([data isKindOfClass:[NSData class]] || [data isKindOfClass:[NSString class]], @"NSString or NSData");
-
-    size_t payloadLength = [data isKindOfClass:[NSString class]] ? [(NSString *)data lengthOfBytesUsingEncoding:NSUTF8StringEncoding] : [data length];
-
-    NSMutableData *frame = [[NSMutableData alloc] initWithLength:payloadLength + HippySRFrameHeaderOverhead];
-    if (!frame) {
+    NSMutableData *frameData = [[NSMutableData alloc] initWithLength:payloadLength + HippySRFrameHeaderOverhead];
+    if (!frameData) {
         [self closeWithCode:HippySRStatusCodeMessageTooBig reason:@"Message too big"];
         return;
     }
-    uint8_t *frame_buffer = (uint8_t *)frame.mutableBytes;
+    uint8_t *frameBuffer = (uint8_t *)frameData.mutableBytes;
 
     // set fin
-    frame_buffer[0] = HippySRFinMask | opcode;
+    frameBuffer[0] = HippySRFinMask | opCode;
 
-    BOOL useMask = YES;
-#ifdef NOMASK
-    useMask = NO;
-#endif
+    // set the mask and header
+    frameBuffer[1] |= HippySRMaskMask;
 
-    if (useMask) {
-        // set the mask and header
-        frame_buffer[1] |= HippySRMaskMask;
-    }
-
-    size_t frame_buffer_size = 2;
-
-    const uint8_t *unmasked_payload = NULL;
-    if ([data isKindOfClass:[NSData class]]) {
-        unmasked_payload = (uint8_t *)[data bytes];
-    } else if ([data isKindOfClass:[NSString class]]) {
-        unmasked_payload = (const uint8_t *)[data UTF8String];
-    } else {
-        return;
-    }
+    size_t frameBufferSize = 2;
 
     if (payloadLength < 126) {
-        frame_buffer[1] |= payloadLength;
-    } else if (payloadLength <= UINT16_MAX) {
-        frame_buffer[1] |= 126;
-        *((uint16_t *)(frame_buffer + frame_buffer_size)) = NSSwapBigShortToHost((uint16_t)payloadLength);
-        frame_buffer_size += sizeof(uint16_t);
+        frameBuffer[1] |= payloadLength;
     } else {
-        frame_buffer[1] |= 127;
-        *((uint64_t *)(frame_buffer + frame_buffer_size)) = NSSwapBigShortToHost((uint64_t)payloadLength);
-        frame_buffer_size += sizeof(uint64_t);
+        uint64_t declaredPayloadLength = 0;
+        size_t declaredPayloadLengthSize = 0;
+
+        if (payloadLength <= UINT16_MAX) {
+            frameBuffer[1] |= 126;
+
+            declaredPayloadLength = CFSwapInt16BigToHost((uint16_t)payloadLength);
+            declaredPayloadLengthSize = sizeof(uint16_t);
+        } else {
+            frameBuffer[1] |= 127;
+
+            declaredPayloadLength = CFSwapInt64BigToHost((uint64_t)payloadLength);
+            declaredPayloadLengthSize = sizeof(uint64_t);
+        }
+
+        memcpy((frameBuffer + frameBufferSize), &declaredPayloadLength, declaredPayloadLengthSize);
+        frameBufferSize += declaredPayloadLengthSize;
     }
 
-    if (!useMask) {
-        for (size_t i = 0; i < payloadLength; i++) {
-            frame_buffer[frame_buffer_size] = unmasked_payload[i];
-            frame_buffer_size += 1;
-        }
-    } else {
-        uint8_t *mask_key = frame_buffer + frame_buffer_size;
-        int result = SecRandomCopyBytes(kSecRandomDefault, sizeof(uint32_t), (uint8_t *)mask_key);
-        assert(result == 0);
-        frame_buffer_size += sizeof(uint32_t);
+    const uint8_t *unmaskedPayloadBuffer = (uint8_t *)originData.bytes;
+    uint8_t *maskKey = frameBuffer + frameBufferSize;
 
-        // TODO: could probably optimize this with SIMD
-        for (size_t i = 0; i < payloadLength; i++) {
-            frame_buffer[frame_buffer_size] = unmasked_payload[i] ^ mask_key[i % sizeof(uint32_t)];
-            frame_buffer_size += 1;
-        }
+    size_t randomBytesSize = sizeof(uint32_t);
+    int result = SecRandomCopyBytes(kSecRandomDefault, randomBytesSize, maskKey);
+    if (result != 0) {
+        //TODO: (nlutsenko) Check if there was an error.
     }
+    frameBufferSize += randomBytesSize;
 
-    assert(frame_buffer_size <= [frame length]);
-    frame.length = frame_buffer_size;
+    // Copy and unmask the buffer
+    uint8_t *frameBufferPayloadPointer = frameBuffer + frameBufferSize;
 
-    [self _writeData:frame];
+    memcpy(frameBufferPayloadPointer, unmaskedPayloadBuffer, payloadLength);
+    HippySRMaskBytesSIMD(frameBufferPayloadPointer, payloadLength, maskKey);
+    frameBufferSize += payloadLength;
+
+    assert(frameBufferSize <= frameData.length);
+    frameData.length = frameBufferSize;
+
+    [self _writeData:frameData];
 }
 
 - (void)stream:(NSStream *)aStream handleEvent:(NSStreamEvent)eventCode;

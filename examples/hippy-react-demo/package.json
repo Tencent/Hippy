@@ -21,8 +21,9 @@
     "React"
   ],
   "dependencies": {
-    "@hippy/react": "^2.0.2",
+    "@hippy/react": "latest",
     "@hippy/react-web": "^2.0.2",
+    "@hippy/vue": "latest",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-reconciler": "0.26.2",
