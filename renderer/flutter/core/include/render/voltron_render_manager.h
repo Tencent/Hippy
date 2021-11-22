@@ -24,9 +24,6 @@ class VoltronRenderManager : public RenderManager, public VoltronRenderTaskRunne
 
   void Batch() override;
 
-  void UpdateLayout(std::shared_ptr<LayoutResult> result) override;
-  void UpdateLayout(std::unordered_map<LayoutDiffMapKey, float> diff) override;
-
   void DispatchFunction(int32_t id, const std::string& name,
                         std::unordered_map<std::string, std::shared_ptr<DomValue>> param,
                         DispatchFunctionCallback cb) override;

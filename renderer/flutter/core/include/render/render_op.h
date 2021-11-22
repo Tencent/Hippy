@@ -12,6 +12,7 @@ enum VoltronRenderOpType {
   UPDATE_PROP,
   UPDATE_LAYOUT,
   DISPATCH_UI_FUNCTION,
+  BATCH,
 };
 
 }  // namespace voltron

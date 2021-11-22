@@ -97,9 +97,6 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   const std::unordered_map<std::string, std::shared_ptr<DomValue>>& GetPropMap() const { return dom_ext_map_; }
   const std::unordered_map<std::string, std::shared_ptr<DomValue>>& GetDiffMap() const { return diff_; }
 
-  const std::unordered_map<std::string, std::shared_ptr<DomValue>>& GetPropMap() const { return dom_ext_map_; }
-
-
   bool HasTouchEventListeners() const { return !touch_event_listener_map_.empty(); }
 
  private:

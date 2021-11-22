@@ -34,6 +34,36 @@ void VoltronRenderTaskRunner::RunDeleteDomNode(const Sp<DomNode>& node) {
   queue_->ProduceRenderOp(delete_task);
 }
 
+void VoltronRenderTaskRunner::RunUpdateDomNode(const Sp<DomNode>& node) {
+  auto argsMap = EncodableMap();
+  if (!node->GetDiffMap().empty()) {
+    argsMap[EncodableValue(kPropsKey)] = EncodeDomValueMap(node->GetDiffMap());
+    auto args = std::make_unique<EncodableValue>(argsMap);
+    auto update_task = std::make_shared<RenderTask>(VoltronRenderOpType::ADD_NODE, node->GetId(), std::move(args));
+    queue_->ProduceRenderOp(update_task);
+  }
+}
+
+void VoltronRenderTaskRunner::RunMoveDomNode(std::vector<int32_t>&& ids, int32_t pid, int32_t id) {
+  auto argsMap = EncodableMap();
+  if (!ids.empty()) {
+    auto id_list = EncodableList();
+    for (const auto& item_id : ids) {
+      id_list.emplace_back(item_id);
+    }
+    argsMap[EncodableValue(kMoveIdListKey)] = id_list;
+  }
+  argsMap[EncodableValue(kMovePidKey)] = EncodableValue(pid);
+  auto args = std::make_unique<EncodableValue>(argsMap);
+  auto update_task = std::make_shared<RenderTask>(VoltronRenderOpType::MOVE_NODE, id, std::move(args));
+  queue_->ProduceRenderOp(update_task);
+}
+
+void VoltronRenderTaskRunner::RunBatch() {
+  auto batch_task = std::make_shared<RenderTask>(VoltronRenderOpType::BATCH, 0);
+  queue_->ProduceRenderOp(batch_task);
+}
+
 std::unique_ptr<EncodableValue> VoltronRenderTaskRunner::ParseDomValue(const DomValue& value) {
  if (value.IsBoolean()) {
    return std::make_unique<EncodableValue>(value.ToBoolean());
@@ -85,16 +115,6 @@ EncodableValue VoltronRenderTaskRunner::EncodeDomValueMap(const SpMap<DomValue>&
   }
 
   return encode_value;
-}
-
-void VoltronRenderTaskRunner::RunUpdateDomNode(const Sp<DomNode>& node) {
-  auto argsMap = EncodableMap();
-  if (!node->GetDiffMap().empty()) {
-    argsMap[EncodableValue(kPropsKey)] = EncodeDomValueMap(node->GetDiffMap());
-    auto args = std::make_unique<EncodableValue>(argsMap);
-    auto update_task = std::make_shared<RenderTask>(VoltronRenderOpType::ADD_NODE, node->GetId(), std::move(args));
-    queue_->ProduceRenderOp(update_task);
-  }
 }
 
 }  // namespace voltron

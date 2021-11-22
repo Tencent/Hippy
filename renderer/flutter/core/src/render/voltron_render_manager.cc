@@ -23,14 +23,12 @@ void VoltronRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>
 }
 
 void VoltronRenderManager::MoveRenderNode(std::vector<int32_t>&& ids, int32_t pid, int32_t id) {
-
+  RunMoveDomNode(std::move(ids), pid, id);
 }
 
-void VoltronRenderManager::Batch() {}
-
-void VoltronRenderManager::UpdateLayout(std::shared_ptr<LayoutResult> result) {}
-
-void VoltronRenderManager::UpdateLayout(std::unordered_map<LayoutDiffMapKey, float> diff) {}
+void VoltronRenderManager::Batch() {
+  RunBatch();
+}
 
 void VoltronRenderManager::DispatchFunction(int32_t id, const std::string& name,
                                             std::unordered_map<std::string, std::shared_ptr<DomValue>> param,
