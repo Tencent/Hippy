@@ -588,8 +588,8 @@ bool V8Ctx::SetGlobalStrVar(const unicode_string_view& name,
 }
 
 bool V8Ctx::SetGlobalObjVar(const unicode_string_view& name,
-                            std::shared_ptr<CtxValue> obj,
-                            PropertyAttribute attr) {
+                            const std::shared_ptr<CtxValue>& obj,
+                            const PropertyAttribute& attr) {
   TDF_BASE_DLOG(INFO) << "SetGlobalStrVar name = " << name
                       << ", attr = " << attr;
   if (StringViewUtils::IsEmpty(name)) {
@@ -640,7 +640,7 @@ std::shared_ptr<CtxValue> V8Ctx::GetGlobalObjVar(
 }
 
 std::shared_ptr<CtxValue> V8Ctx::GetProperty(
-    const std::shared_ptr<CtxValue> object,
+    const std::shared_ptr<CtxValue>& object,
     const unicode_string_view& name) {
   TDF_BASE_DLOG(INFO) << "GetGlobalStrVar name =" << name;
   std::shared_ptr<V8CtxValue> ctx_value =
@@ -658,7 +658,7 @@ std::shared_ptr<CtxValue> V8Ctx::GetProperty(
   return std::make_shared<V8CtxValue>(isolate_, value);
 }
 
-void V8Ctx::RegisterGlobalModule(std::shared_ptr<Scope> scope,
+void V8Ctx::RegisterGlobalModule(const std::shared_ptr<Scope>& scope,
                                  const ModuleClassMap& modules) {
   TDF_BASE_DLOG(INFO) << "RegisterGlobalModule";
   v8::HandleScope handle_scope(isolate_);
@@ -861,7 +861,7 @@ std::shared_ptr<CtxValue> V8Ctx::GetJsFn(const unicode_string_view& name) {
   return std::make_shared<V8CtxValue>(isolate_, maybe_func.ToLocalChecked());
 }
 
-bool V8Ctx::ThrowExceptionToJS(std::shared_ptr<CtxValue> exception) {
+bool V8Ctx::ThrowExceptionToJS(const std::shared_ptr<CtxValue>& exception) {
   unicode_string_view error_handle_name(kHippyErrorHandlerName);
   std::shared_ptr<CtxValue> exception_handler =
       GetGlobalObjVar(error_handle_name);
@@ -893,7 +893,7 @@ bool V8Ctx::ThrowExceptionToJS(std::shared_ptr<CtxValue> exception) {
 }
 
 std::shared_ptr<CtxValue> V8Ctx::CallFunction(
-    std::shared_ptr<CtxValue> function,
+    const std::shared_ptr<CtxValue>& function,
     size_t argument_count,
     const std::shared_ptr<CtxValue> arguments[]) {
   TDF_BASE_DLOG(INFO) << "V8Ctx CallFunction begin";
@@ -1034,7 +1034,7 @@ v8::Local<v8::String> V8Ctx::CreateV8String(
 }
 
 std::shared_ptr<JSValueWrapper> V8Ctx::ToJsValueWrapper(
-    std::shared_ptr<CtxValue> value) {
+    const std::shared_ptr<CtxValue>& value) {
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
@@ -1194,7 +1194,7 @@ std::shared_ptr<DomValue> V8Ctx::ToDomValue(
 }
 
 std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
-    std::shared_ptr<JSValueWrapper> wrapper) {
+    const std::shared_ptr<JSValueWrapper>& wrapper) {
   TDF_BASE_DCHECK(wrapper);
   if (wrapper->IsUndefined()) {
     return CreateUndefined();
@@ -1404,7 +1404,7 @@ std::shared_ptr<CtxValue> V8Ctx::CreateJsError(const unicode_string_view& msg) {
   return std::make_shared<V8CtxValue>(isolate_, error);
 }
 
-bool V8Ctx::GetValueNumber(std::shared_ptr<CtxValue> value, double* result) {
+bool V8Ctx::GetValueNumber(const std::shared_ptr<CtxValue>& value, double* result) {
   if (!value || !result) {
     return false;
   }
@@ -1431,7 +1431,7 @@ bool V8Ctx::GetValueNumber(std::shared_ptr<CtxValue> value, double* result) {
   return true;
 }
 
-bool V8Ctx::GetValueNumber(std::shared_ptr<CtxValue> value, int32_t* result) {
+bool V8Ctx::GetValueNumber(const std::shared_ptr<CtxValue>& value, int32_t* result) {
   if (!value || !result) {
     return false;
   }
@@ -1453,7 +1453,7 @@ bool V8Ctx::GetValueNumber(std::shared_ptr<CtxValue> value, int32_t* result) {
   return true;
 }
 
-bool V8Ctx::GetValueBoolean(std::shared_ptr<CtxValue> value, bool* result) {
+bool V8Ctx::GetValueBoolean(const std::shared_ptr<CtxValue>& value, bool* result) {
   if (!value || !result) {
     return false;
   }
@@ -1476,7 +1476,7 @@ bool V8Ctx::GetValueBoolean(std::shared_ptr<CtxValue> value, bool* result) {
   return true;
 }
 
-bool V8Ctx::GetValueString(std::shared_ptr<CtxValue> value,
+bool V8Ctx::GetValueString(const std::shared_ptr<CtxValue>& value,
                            unicode_string_view* result) {
   TDF_BASE_DLOG(INFO) << "V8Ctx::GetValueString";
   if (!value || !result) {
@@ -1501,7 +1501,7 @@ bool V8Ctx::GetValueString(std::shared_ptr<CtxValue> value,
   return false;
 }
 
-bool V8Ctx::GetValueJson(std::shared_ptr<CtxValue> value,
+bool V8Ctx::GetValueJson(const std::shared_ptr<CtxValue>& value,
                          unicode_string_view* result) {
   if (!value || !result) {
     return false;
@@ -1549,7 +1549,7 @@ bool V8Ctx::IsMap(const std::shared_ptr<CtxValue>& value) {
   return handle_value->IsMap();
 }
 
-bool V8Ctx::IsNullOrUndefined(std::shared_ptr<CtxValue> value) {
+bool V8Ctx::IsNullOrUndefined(const std::shared_ptr<CtxValue>& value) {
   if (!value) {
     return true;
   }
@@ -1571,7 +1571,7 @@ bool V8Ctx::IsNullOrUndefined(std::shared_ptr<CtxValue> value) {
 
 // Array Helpers
 
-bool V8Ctx::IsArray(std::shared_ptr<CtxValue> value) {
+bool V8Ctx::IsArray(const std::shared_ptr<CtxValue>& value) {
   if (!value) {
     return false;
   }
@@ -1590,7 +1590,7 @@ bool V8Ctx::IsArray(std::shared_ptr<CtxValue> value) {
   return handle_value->IsArray();
 }
 
-uint32_t V8Ctx::GetArrayLength(std::shared_ptr<CtxValue> value) {
+uint32_t V8Ctx::GetArrayLength(const std::shared_ptr<CtxValue>& value) {
   if (value == nullptr) {
     return 0;
   }
@@ -1616,7 +1616,7 @@ uint32_t V8Ctx::GetArrayLength(std::shared_ptr<CtxValue> value) {
 }
 
 std::shared_ptr<CtxValue> V8Ctx::CopyArrayElement(
-    std::shared_ptr<CtxValue> value,
+    const std::shared_ptr<CtxValue>& value,
     uint32_t index) {
   if (!value) {
     return nullptr;
@@ -1701,7 +1701,7 @@ std::shared_ptr<CtxValue> V8Ctx::ConvertMapToArray(
 
 // Object Helpers
 
-bool V8Ctx::HasNamedProperty(std::shared_ptr<CtxValue> value,
+bool V8Ctx::HasNamedProperty(const std::shared_ptr<CtxValue>& value,
                              const unicode_string_view& name) {
   if (!value || StringViewUtils::IsEmpty(name)) {
     return false;
@@ -1733,7 +1733,7 @@ bool V8Ctx::HasNamedProperty(std::shared_ptr<CtxValue> value,
 }
 
 std::shared_ptr<CtxValue> V8Ctx::CopyNamedProperty(
-    std::shared_ptr<CtxValue> value,
+    const std::shared_ptr<CtxValue>& value,
     const unicode_string_view& name) {
   if (!value || StringViewUtils::IsEmpty(name)) {
     return nullptr;
@@ -1771,7 +1771,7 @@ std::shared_ptr<CtxValue> V8Ctx::CopyNamedProperty(
 
 // Function Helpers
 
-bool V8Ctx::IsFunction(std::shared_ptr<CtxValue> value) {
+bool V8Ctx::IsFunction(const std::shared_ptr<CtxValue>& value) {
   if (!value) {
     return false;
   }
@@ -1792,7 +1792,7 @@ bool V8Ctx::IsFunction(std::shared_ptr<CtxValue> value) {
 }
 
 unicode_string_view V8Ctx::CopyFunctionName(
-    std::shared_ptr<CtxValue> function) {
+    const std::shared_ptr<CtxValue>& function) {
   if (!function) {
     return unicode_string_view();
   }

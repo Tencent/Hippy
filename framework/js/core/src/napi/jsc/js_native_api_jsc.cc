@@ -122,7 +122,7 @@ JSObjectRef RegisterModule(std::shared_ptr<Scope> scope,
   return module_obj;
 }
 
-std::shared_ptr<VM> CreateVM(std::shared_ptr<VMInitParam> param) {
+std::shared_ptr<VM> CreateVM(const std::shared_ptr<VMInitParam>& param) {
   return std::make_shared<JSCVM>();
 }
 
@@ -247,7 +247,7 @@ JSValueRef GetInternalBinding(JSContextRef ctx,
   return RegisterModule(scope, ctx, module_name, it->second);
 }
 
-std::shared_ptr<CtxValue> GetInternalBindingFn(std::shared_ptr<Scope> scope) {
+std::shared_ptr<CtxValue> GetInternalBindingFn(const std::shared_ptr<Scope>& scope) {
   std::shared_ptr<JSCCtx> context =
       std::static_pointer_cast<JSCCtx>(scope->GetContext());
   JSClassDefinition cls_def = kJSClassDefinitionEmpty;
@@ -327,8 +327,8 @@ JSPropertyAttributes ConvertPropertyAttribute(PropertyAttribute attr) {
 }
 
 bool JSCCtx::SetGlobalObjVar(const unicode_string_view& name,
-                             std::shared_ptr<CtxValue> obj,
-                             PropertyAttribute attr) {
+                             const std::shared_ptr<CtxValue>& obj,
+                             const PropertyAttribute& attr) {
   JSObjectRef global_obj = JSContextGetGlobalObject(context_);
   JSStringRef name_ref = CreateJSCString(name);
   std::shared_ptr<JSCCtxValue> ctx_value =
@@ -383,7 +383,7 @@ std::shared_ptr<CtxValue> JSCCtx::GetGlobalObjVar(
 }
 
 std::shared_ptr<CtxValue> JSCCtx::GetProperty(
-    const std::shared_ptr<CtxValue> obj,
+    const std::shared_ptr<CtxValue>& obj,
     const unicode_string_view& name) {
   std::shared_ptr<JSCCtxValue> ctx_value =
       std::static_pointer_cast<JSCCtxValue>(obj);
@@ -407,7 +407,7 @@ std::shared_ptr<CtxValue> JSCCtx::GetProperty(
   return std::make_shared<JSCCtxValue>(context_, prop_ref);
 }
 
-void JSCCtx::RegisterGlobalModule(std::shared_ptr<Scope> scope,
+void JSCCtx::RegisterGlobalModule(const std::shared_ptr<Scope>& scope,
                                   const ModuleClassMap& module_cls_map) {
   std::shared_ptr<JSCCtx> ctx =
       std::static_pointer_cast<JSCCtx>(scope->GetContext());
@@ -464,7 +464,7 @@ std::shared_ptr<CtxValue> JSCCtx::RunScript(
 }
 
 std::shared_ptr<JSValueWrapper> JSCCtx::ToJsValueWrapper(
-    std::shared_ptr<CtxValue> value) {
+    const std::shared_ptr<CtxValue>& value) {
   std::shared_ptr<JSCCtxValue> ctx_value =
       std::static_pointer_cast<JSCCtxValue>(value);
   JSValueRef value_ref = ctx_value->value_;
@@ -533,7 +533,7 @@ std::shared_ptr<JSValueWrapper> JSCCtx::ToJsValueWrapper(
 }
 
 std::shared_ptr<CtxValue> JSCCtx::CreateCtxValue(
-    std::shared_ptr<JSValueWrapper> wrapper) {
+    const std::shared_ptr<JSValueWrapper>& wrapper) {
   if (wrapper->IsUndefined()) {
     return CreateUndefined();
   } else if (wrapper->IsNull()) {
@@ -581,7 +581,7 @@ std::shared_ptr<CtxValue> JSCCtx::CreateCtxValue(
   return nullptr;
 }
 
-bool JSCCtx::IsNullOrUndefined(std::shared_ptr<CtxValue> value) {
+bool JSCCtx::IsNullOrUndefined(const std::shared_ptr<CtxValue>& value) {
   if (!value) {
     return true;
   }
