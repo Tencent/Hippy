@@ -56,14 +56,11 @@ class TimerModule : public ModuleBase {
   void Cancel(TaskId task_id, const std::shared_ptr<Scope>& scope);
 
   struct TaskEntry {
-    TaskEntry(std::shared_ptr<Ctx> context,
-              std::weak_ptr<JavaScriptTask> task) {
-      task_ = std::move(task);
-      context_ = context;
-    }
+    TaskEntry(std::shared_ptr<CtxValue> func,
+              std::weak_ptr<JavaScriptTask> task): func(func), task(task) {}
 
-    std::weak_ptr<JavaScriptTask> task_;
-    std::shared_ptr<Ctx> context_;
+    std::shared_ptr<CtxValue> func;
+    std::weak_ptr<JavaScriptTask> task;
   };
 
   std::unordered_map<TaskId, std::shared_ptr<TaskEntry>> task_map_;

@@ -162,7 +162,8 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
         try_catch->SetVerbose(true);
         unicode_string_view view_code(move_code);
         scope->RunJS(view_code, file_name);
-        ctx->SetGlobalObjVar("__HIPPYCURDIR__", last_dir_str_obj);
+        ctx->SetGlobalObjVar("__HIPPYCURDIR__", last_dir_str_obj,
+                             hippy::napi::PropertyAttribute::None);
         unicode_string_view view_last_dir_str;
         ctx->GetValueString(last_dir_str_obj, &view_last_dir_str);
         TDF_BASE_DLOG(INFO)
