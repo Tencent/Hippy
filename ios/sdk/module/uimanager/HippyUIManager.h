@@ -27,6 +27,9 @@
 #import "HippyInvalidating.h"
 #import "HippyViewManager.h"
 #import "HippyRootView.h"
+#include <memory>
+#include <unordered_map>
+#include "dom/dom_value.h"
 
 @class HippyVirtualNode;
 @class HippyExtAnimationViewParams;
@@ -164,6 +167,28 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 - (void)removeNativeNodeView:(UIView *)nodeView;
 - (void)updateViewsFromParams:(NSArray<HippyExtAnimationViewParams *> *)params completion:(HippyViewUpdateCompletedBlock)block;
 - (void)updateViewWithHippyTag:(NSNumber *)hippyTag props:(NSDictionary *)pros;
+@end
+
+using DomValue = tdf::base::DomValue;
+
+@interface HippyUIManager(iOSRenderManager)
+
+- (void)renderCreateView:(int32_t)hippyTag
+                viewName:(const std::string &)name
+                 rootTag:(int32_t)rootTag
+                   props:(const std::unordered_map<std::string, std::shared_ptr<DomValue>> &)styleMap;
+
+- (void)renderUpdateView:(int32_t)hippyTag
+                viewName:(const std::string &)name
+                   props:(const std::unordered_map<std::string, std::shared_ptr<DomValue>> &)styleMap;
+
+- (void)renderDeleteViewFromContainer:(int32_t)hippyTag
+                           forIndices:(const std::vector<int32_t> &)indices;
+
+- (void)renderMoveViews:(const std::vector<int32_t> &)ids fromContainer:(int32_t)fromContainer toContainer:(int32_t)toContainer;
+
+-(void)batch;
+
 @end
 
 /**

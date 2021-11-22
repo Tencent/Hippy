@@ -1588,6 +1588,122 @@ static UIView *_jsResponder;
 
 @end
 
+using DomValueType = tdf::base::DomValue::Type;
+using DomValueNumberType = tdf::base::DomValue::NumberType;
+
+@implementation HippyUIManager (iOSRenderManager)
+
+static NSNumber *domValueToNumber(const DomValue *const pDomValue) {
+    HippyAssert(pDomValue->IsNumber(), @"domvalue should be a number");
+    NSNumber *number = nil;
+    switch (pDomValue->GetNumberType()) {
+        case DomValueNumberType::kInt32:
+            number = @(pDomValue->ToInt32());
+            break;
+        case DomValueNumberType::kUInt32:
+            number = @(pDomValue->ToUint32());
+            break;
+        case DomValueNumberType::kInt64:
+            number = @(pDomValue->ToInt64());
+            break;
+        case DomValueNumberType::kUInt64:
+            number = @(pDomValue->ToUint64());
+            break;
+        case DomValueNumberType::kDouble:
+            number = @(pDomValue->ToDouble());
+            break;
+        case DomValueNumberType::kNaN:
+            number = [NSDecimalNumber notANumber];
+            break;
+        default:
+            break;
+    }
+    return number;
+}
+
+static id domValueToOCType(const DomValue *const pDomValue) {
+    DomValueType type = pDomValue->GetType();
+    id value = [NSNull null];
+    switch (type) {
+        case DomValueType::kBoolean:
+            value = @(pDomValue->ToBoolean());
+            break;
+        case DomValueType::kString:
+            value = [NSString stringWithUTF8String:pDomValue->ToString().c_str()];
+            break;
+        case DomValueType::kObject: {
+            DomValue::DomValueObjectType objectType = pDomValue->ToObject();
+            std::unordered_map<std::string, std::shared_ptr<DomValue>> map(objectType.size());
+            for (const auto &pair : objectType) {
+                map[pair.first] = std::make_shared<DomValue>(pair.second);
+            }
+            value = unorderedMapDomValueToDictionary(map);
+        }
+            break;
+        case DomValueType::kArray: {
+            DomValue::DomValueArrayType domValueArray = pDomValue->ToArray();
+            NSMutableArray *array = [NSMutableArray arrayWithCapacity:domValueArray.size()];
+            for (auto it = domValueArray.begin(); it != domValueArray.end(); it++) {
+                const DomValue &v = *it;
+                id subValue = domValueToOCType(&v);
+                [array addObject:subValue];
+            }
+            value = (id)[array copy];
+        }
+            break;
+        case DomValueType::kNumber: {
+            value = domValueToNumber(pDomValue);
+        }
+            break;
+        default:
+            break;
+    }
+    return value;
+}
+
+static NSDictionary *unorderedMapDomValueToDictionary(const std::unordered_map<std::string, std::shared_ptr<DomValue>> &domValuesObject) {
+    NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithCapacity:domValuesObject.size()];
+    for (auto it = domValuesObject.begin(); it != domValuesObject.end(); it++) {
+        NSString *key = [NSString stringWithUTF8String:it->first.c_str()];
+        std::shared_ptr<DomValue> domValue = it->second;
+        id value = domValueToOCType(domValue.get());
+        [dic setObject:value forKey:key];
+    }
+    return [dic copy];
+}
+
+- (void)renderCreateView:(int32_t)hippyTag
+                viewName:(const std::string &)name
+                 rootTag:(int32_t)rootTag
+                   props:(const std::unordered_map<std::string, std::shared_ptr<DomValue>> &)styleMap {
+    [self createView:@(hippyTag) viewName:[NSString stringWithUTF8String:name.c_str()] rootTag:@(rootTag) props:unorderedMapDomValueToDictionary(styleMap)];
+}
+
+- (void)renderUpdateView:(int32_t)hippyTag
+                viewName:(const std::string &)name
+                   props:(const std::unordered_map<std::string, std::shared_ptr<DomValue>> &)styleMap {
+    [self updateView:@(hippyTag) viewName:[NSString stringWithUTF8String:name.c_str()] props:unorderedMapDomValueToDictionary(styleMap)];
+}
+
+- (void)renderDeleteViewFromContainer:(int32_t)hippyTag
+                           forIndices:(const std::vector<int32_t> &)indices {
+    NSMutableArray<NSNumber *> *numbers = [NSMutableArray arrayWithCapacity:indices.size()];
+    for (const int32_t &index : indices) {
+        [numbers addObject:@(index)];
+    }
+    [self manageChildren:@(hippyTag) moveFromIndices:nil moveToIndices:nil addChildHippyTags:nil addAtIndices:nil removeAtIndices:numbers];
+}
+
+- (void)renderMoveViews:(const std::vector<int32_t> &)ids fromContainer:(int32_t)fromContainer toContainer:(int32_t)toContainer {
+    //这个方法疑点很多，比如移动之后被移动的node属性是否变化，否则位置可能会与原住民重叠。或者移动之后索引值如何变化。
+}
+
+-(void)batch {
+    [self batchDidComplete];
+}
+
+@end
+
 @implementation HippyBridge (HippyUIManager)
 
 - (HippyUIManager *)uiManager {
