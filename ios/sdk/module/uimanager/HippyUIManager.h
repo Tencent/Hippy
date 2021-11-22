@@ -30,6 +30,7 @@
 #include <memory>
 #include <unordered_map>
 #include "dom/dom_value.h"
+#include "dom/dom_listener.h"
 
 @class HippyVirtualNode;
 @class HippyExtAnimationViewParams;
@@ -170,6 +171,11 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 @end
 
 using DomValue = tdf::base::DomValue;
+using DispatchFunctionCallback = hippy::DispatchFunctionCallback;
+using OnClickEventListener = hippy::OnClickEventListener;
+using OnLongClickEventListener = hippy::OnLongClickEventListener;
+using OnTouchEventListener = hippy::OnTouchEventListener;
+using TouchEvent = hippy::TouchEvent;
 
 @interface HippyUIManager(iOSRenderManager)
 
@@ -189,6 +195,26 @@ using DomValue = tdf::base::DomValue;
 
 -(void)batch;
 
+- (void)dispatchFunction:(const std::string &)functionName
+                 forView:(int32_t)hippyTag
+                  params:(const std::unordered_map<std::string, std::shared_ptr<DomValue>> &)params
+                callback:(DispatchFunctionCallback)cb;
+
+- (int32_t) addClickEventListener:(OnClickEventListener)listener
+                          forView:(int32_t)hippyTag;
+
+- (void) removeClickEventListener:(int32_t)listenerID forView:(int32_t)hippyTag;
+
+- (int32_t) addLongClickEventListener:(OnLongClickEventListener)listener
+                              forView:(int32_t)hippyTag;
+
+- (void) removeLongClickEventListener:(int32_t)listenerID forView:(int32_t)hippyTag;
+
+- (void) addTouchEventListener:(OnTouchEventListener)listener
+                    touchEvent:(TouchEvent)event
+                       forView:(int32_t)hippyTag;
+
+- (void) removeTouchEvent:(TouchEvent)event forView:(int32_t)hippyTag;
 @end
 
 /**

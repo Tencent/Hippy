@@ -62,3 +62,35 @@ void iOSRenderManager::MoveRenderNode(std::vector<int32_t>&& ids,
                                       int32_t id) {
     [uiManager renderMoveViews:ids fromContainer:pid toContainer:id];
 }
+
+void iOSRenderManager::DispatchFunction(int32_t id,
+                                        const std::string &name,
+                                        std::unordered_map<std::string,
+                                        std::shared_ptr<DomValue>> param,
+                                        DispatchFunctionCallback cb) {
+    [uiManager dispatchFunction:name forView:id params:param callback:cb];
+}
+
+int32_t iOSRenderManager::AddClickEventListener(int32_t id, OnClickEventListener listener) {
+    return [uiManager addClickEventListener:listener forView:id];
+}
+
+void iOSRenderManager::RemoveClickEventListener(int32_t id, int32_t listener_id) {
+    [uiManager removeClickEventListener:listener_id forView:id];
+}
+
+int32_t iOSRenderManager::AddLongClickEventListener(int32_t id, OnLongClickEventListener listener) {
+    return [uiManager addLongClickEventListener:listener forView:id];
+}
+
+void iOSRenderManager::RemoveLongClickEventListener(int32_t id, int32_t listener_id) {
+    [uiManager removeLongClickEventListener:listener_id forView:id];
+}
+
+void iOSRenderManager::AddTouchEventListener(int32_t id, TouchEvent event, OnTouchEventListener listener) {
+    [uiManager addTouchEventListener:listener touchEvent:event forView:id];
+}
+
+void iOSRenderManager::RemoveTouchEventListener(int32_t id, TouchEvent event) {
+    [uiManager removeTouchEvent:event forView:id];
+}
