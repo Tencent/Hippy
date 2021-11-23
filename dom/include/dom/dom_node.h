@@ -58,7 +58,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   int32_t AddLongClickEventListener(OnLongClickEventListener listener);
   void RemoveLongClickEventListener(int32_t listener_id);
   int32_t AddTouchEventListener(TouchEvent event, OnTouchEventListener listener);
-  void RemoveTouchEventListener(TouchEvent event);
+  void RemoveTouchEventListener(TouchEvent event, int32_t listener);
   int32_t SetOnAttachChangedListener(OnAttachChangedListener listener);
   int32_t AddShowEventListener(ShowEvent event, OnShowEventListener listener);
   void RemoveShowEventListener(ShowEvent event, int32_t listener_id);
@@ -88,7 +88,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
 
   void SetIndex(int32_t index) { index_ = index; }
   int32_t GetIndex() const { return index_; }
-
+  void SetSize(int32_t width, int32_t height);
   int32_t AddDomEventListener(std::shared_ptr<DomEvent> event, OnDomEventListener listener);
   void RemoveDomEventListener(std::shared_ptr<DomEvent> event, int32_t listener_id);
 
@@ -96,7 +96,11 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
 
   const std::unordered_map<std::string, std::shared_ptr<DomValue>>& GetStyleMap() const { return style_map_; }
 
-  bool HasTouchEventListeners() const { return !touch_event_listener_map_.empty(); }
+  bool HasTouchEventListeners() const { return !touch_listeners->empty(); }
+  void CallFunction(const std::string& name,
+                    std::unordered_map<std::string, std::shared_ptr<DomValue>> param,
+                    CallFunctionCallback cb);
+  CallFunctionCallback GetCallback(const std::string& name);
 
  private:
   int32_t id_;             // 节点唯一id
@@ -113,18 +117,24 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
 
   std::shared_ptr<TaitankLayoutNode> node_;
   LayoutResult layout_;  // Layout 结果
-
   bool is_just_layout_;
   bool is_virtual_;
 
   OnLayoutEventListener on_layout_event_listener_;
-  std::unordered_map<TouchEvent, OnTouchEventListener> touch_event_listener_map_;
 
   std::weak_ptr<DomNode> parent_;
   std::vector<std::shared_ptr<DomNode>> children_;
 
   RenderInfo render_info_;
   std::weak_ptr<DomManager> dom_manager_;
+  int32_t current_callback_id_;
+  std::shared_ptr<std::unordered_map<int32_t, OnTouchEventListener>> touch_listeners;
+  std::shared_ptr<std::unordered_map<int32_t, OnClickEventListener>> click_listeners;
+  std::shared_ptr<std::unordered_map<int32_t, OnLongClickEventListener>> long_click_listeners;
+  std::shared_ptr<std::unordered_map<int32_t, OnShowEventListener>> show_listeners;
+  std::shared_ptr<std::unordered_map<std::string, CallFunctionCallback>> callbacks_;
+
+
 };
 
 }  // namespace dom
