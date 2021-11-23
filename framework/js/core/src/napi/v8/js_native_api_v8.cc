@@ -1114,7 +1114,7 @@ std::shared_ptr<JSValueWrapper> V8Ctx::ToJsValueWrapper(
 }
 
 std::shared_ptr<DomValue> V8Ctx::ToDomValue(
-    std::shared_ptr<CtxValue> value) {
+    const std::shared_ptr<CtxValue>& value) {
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
@@ -1248,9 +1248,8 @@ std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
   return nullptr;
 }
 
-<<<<<<< HEAD:framework/js/core/src/napi/v8/js_native_api_v8.cc
-std::shared_ptr<CtxValue> V8Ctx::CreateDomValue(
-    std::shared_ptr<DomValue> value) {
+std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
+    const std::shared_ptr<DomValue>& value) {
   TDF_BASE_DCHECK(value);
   if (value->IsUndefined()) {
     return CreateUndefined();
@@ -1269,7 +1268,7 @@ std::shared_ptr<CtxValue> V8Ctx::CreateDomValue(
     auto arr = value->ToArray();
     std::shared_ptr<CtxValue> args[arr.size()];
     for (auto i = 0; i < arr.size(); ++i) {
-      args[i] = CreateDomValue(std::make_shared<DomValue>(arr[i]));
+      args[i] = CreateCtxValue(std::make_shared<DomValue>(arr[i]));
     }
     return CreateArray(arr.size(), args);
   } else if (value->IsObject()) {
@@ -1288,7 +1287,7 @@ std::shared_ptr<CtxValue> V8Ctx::CreateDomValue(
       v8::Local<v8::String> key = CreateV8String(obj_key_view);
       std::shared_ptr<V8CtxValue> ctx_value =
           std::static_pointer_cast<V8CtxValue>(
-              CreateDomValue(std::make_shared<DomValue>(obj_value)));
+              CreateCtxValue(std::make_shared<DomValue>(obj_value)));
       const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
       TDF_BASE_DCHECK(!global_value.IsEmpty());
       v8::Local<v8::Value> handle_value =

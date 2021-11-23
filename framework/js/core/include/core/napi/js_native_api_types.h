@@ -173,12 +173,12 @@ class Ctx {
   virtual std::shared_ptr<JSValueWrapper> ToJsValueWrapper(
       const std::shared_ptr<CtxValue>& value) = 0;
   virtual std::shared_ptr<CtxValue> CreateCtxValue(
-      std::shared_ptr<JSValueWrapper> wrapper) = 0;
+      const std::shared_ptr<JSValueWrapper>& wrapper) = 0;
 
   virtual std::shared_ptr<DomValue> ToDomValue(
-      std::shared_ptr<CtxValue> value) = 0;
-  virtual std::shared_ptr<CtxValue> CreateDomValue(
-      std::shared_ptr<DomValue> value) = 0;
+      const std::shared_ptr<CtxValue>& value) = 0;
+  virtual std::shared_ptr<CtxValue> CreateCtxValue(
+      const std::shared_ptr<DomValue>& value) = 0;
 };
 
 struct VMInitParam {};
