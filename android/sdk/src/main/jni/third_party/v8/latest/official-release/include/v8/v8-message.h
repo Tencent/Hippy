@@ -7,6 +7,8 @@
 
 #include <stdio.h>
 
+#include <iosfwd>
+
 #include "v8-local-handle.h"  // NOLINT(build/include_directory)
 #include "v8-maybe.h"         // NOLINT(build/include_directory)
 #include "v8config.h"         // NOLINT(build/include_directory)
@@ -58,7 +60,7 @@ class ScriptOriginOptions {
  */
 class V8_EXPORT ScriptOrigin {
  public:
-  V8_DEPRECATE_SOON("Use constructor with primitive C++ types")
+  V8_DEPRECATED("Use constructor with primitive C++ types")
   ScriptOrigin(
       Local<Value> resource_name, Local<Integer> resource_line_offset,
       Local<Integer> resource_column_offset,
@@ -69,7 +71,7 @@ class V8_EXPORT ScriptOrigin {
       Local<Boolean> is_wasm = Local<Boolean>(),
       Local<Boolean> is_module = Local<Boolean>(),
       Local<PrimitiveArray> host_defined_options = Local<PrimitiveArray>());
-  V8_DEPRECATE_SOON("Use constructor that takes an isolate")
+  V8_DEPRECATED("Use constructor that takes an isolate")
   explicit ScriptOrigin(
       Local<Value> resource_name, int resource_line_offset = 0,
       int resource_column_offset = 0,
@@ -97,11 +99,11 @@ class V8_EXPORT ScriptOrigin {
         host_defined_options_(host_defined_options) {}
 
   V8_INLINE Local<Value> ResourceName() const;
-  V8_DEPRECATE_SOON("Use getter with primitive C++ types.")
+  V8_DEPRECATED("Use getter with primitive C++ types.")
   V8_INLINE Local<Integer> ResourceLineOffset() const;
-  V8_DEPRECATE_SOON("Use getter with primitive C++ types.")
+  V8_DEPRECATED("Use getter with primitive C++ types.")
   V8_INLINE Local<Integer> ResourceColumnOffset() const;
-  V8_DEPRECATE_SOON("Use getter with primitive C++ types.")
+  V8_DEPRECATED("Use getter with primitive C++ types.")
   V8_INLINE Local<Integer> ScriptID() const;
   V8_INLINE int LineOffset() const;
   V8_INLINE int ColumnOffset() const;
@@ -206,8 +208,9 @@ class V8_EXPORT Message {
   bool IsSharedCrossOrigin() const;
   bool IsOpaque() const;
 
-  // TODO(1245381): Print to a string instead of on a FILE.
+  V8_DEPRECATE_SOON("Use the version that takes a std::ostream&.")
   static void PrintCurrentStackTrace(Isolate* isolate, FILE* out);
+  static void PrintCurrentStackTrace(Isolate* isolate, std::ostream& out);
 
   static const int kNoLineNumberInfo = 0;
   static const int kNoColumnInfo = 0;
