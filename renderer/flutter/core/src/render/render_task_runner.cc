@@ -64,6 +64,20 @@ void VoltronRenderTaskRunner::RunBatch() {
   queue_->ProduceRenderOp(batch_task);
 }
 
+void VoltronRenderTaskRunner::RunDispatchFunction(int32_t id, const std::string& name,
+                                                  std::unordered_map<std::string, std::shared_ptr<DomValue>> param,
+                                                  DispatchFunctionCallback cb) {
+  auto argsMap = EncodableMap();
+  argsMap[EncodableValue(kFuncNameKey)] = EncodableValue(name);
+  if (!param.empty()) {
+    argsMap[EncodableValue(kFunParamsKey)] = EncodeDomValueMap(param);
+  }
+
+  auto args = std::make_unique<EncodableValue>(argsMap);
+  auto dispatch_task = std::make_shared<RenderTask>(VoltronRenderOpType::DISPATCH_UI_FUNCTION, id, std::move(args));
+  queue_->ProduceRenderOp(dispatch_task);
+}
+
 std::unique_ptr<EncodableValue> VoltronRenderTaskRunner::ParseDomValue(const DomValue& value) {
  if (value.IsBoolean()) {
    return std::make_unique<EncodableValue>(value.ToBoolean());
@@ -116,5 +130,6 @@ EncodableValue VoltronRenderTaskRunner::EncodeDomValueMap(const SpMap<DomValue>&
 
   return encode_value;
 }
+
 
 }  // namespace voltron

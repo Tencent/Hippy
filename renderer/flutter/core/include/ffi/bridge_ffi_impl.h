@@ -10,7 +10,7 @@
 #include "bridge/bridge_runtime.h"
 #elif __APPLE__
 #include "common_header.h"
-#include "bridge_runtime.h"
+#include "bridge/bridge_runtime.h"
 #endif
 
 #ifdef __cplusplus

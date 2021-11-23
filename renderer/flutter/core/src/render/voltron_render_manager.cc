@@ -32,9 +32,13 @@ void VoltronRenderManager::Batch() {
 
 void VoltronRenderManager::DispatchFunction(int32_t id, const std::string& name,
                                             std::unordered_map<std::string, std::shared_ptr<DomValue>> param,
-                                            DispatchFunctionCallback cb) {}
+                                            DispatchFunctionCallback cb) {
+  RunDispatchFunction(id, name, param, cb);
+}
 
-void VoltronRenderManager::AddTouchEventListener(int32_t id, TouchEvent event, OnTouchEventListener listener) {}
+void VoltronRenderManager::AddTouchEventListener(int32_t id, TouchEvent event, OnTouchEventListener listener) {
+
+}
 
 void VoltronRenderManager::RemoveTouchEventListener(int32_t id, TouchEvent event) {}
 

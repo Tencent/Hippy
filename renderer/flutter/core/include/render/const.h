@@ -7,11 +7,14 @@ namespace voltron {
 const double kInvalidSize = -1.0;
 const int32_t kInvalidId = -1;
 
-constexpr const char* kParentNodeIdKey = "pid_key";
-constexpr const char* kChildIndexKey = "index_key";
-constexpr const char* kClassNameKey = "name_key";
-constexpr const char* kPropsKey = "props_key";
-constexpr const char* kStylesKey = "styles_key";
-constexpr const char* kMoveIdListKey = "move_ids_key";
-constexpr const char* kMovePidKey = "move_pid_key";
+constexpr const char* kParentNodeIdKey = "pid";
+constexpr const char* kChildIndexKey = "index";
+constexpr const char* kClassNameKey = "name";
+constexpr const char* kFuncNameKey = "func_name";
+constexpr const char* kFunParamsKey = "func_params";
+constexpr const char* kFunIdKey = "callback_id";
+constexpr const char* kPropsKey = "props";
+constexpr const char* kStylesKey = "styles";
+constexpr const char* kMoveIdListKey = "move_id";
+constexpr const char* kMovePidKey = "move_pid";
 }  // namespace voltron

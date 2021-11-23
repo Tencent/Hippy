@@ -1,10 +1,12 @@
 #pragma once
 
+#include "dom/dom_listener.h"
 #include "dom/dom_node.h"
 #include "render/render_queue.h"
 
 namespace voltron {
 
+using hippy::DispatchFunctionCallback;
 using hippy::DomNode;
 using tdf::base::DomValue;
 
@@ -17,6 +19,9 @@ class VoltronRenderTaskRunner {
   void RunUpdateDomNode(const Sp<DomNode>& node);
   void RunMoveDomNode(std::vector<int32_t>&& ids, int32_t pid, int32_t id);
   void RunBatch();
+  void RunDispatchFunction(int32_t id, const std::string& name,
+                           std::unordered_map<std::string, std::shared_ptr<DomValue>> param,
+                           DispatchFunctionCallback cb);
 
  private:
   EncodableValue EncodeDomValueMap(const SpMap<DomValue>& value_map);
