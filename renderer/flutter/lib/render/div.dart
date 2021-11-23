@@ -120,8 +120,9 @@ class DivRenderViewModel extends GroupViewModel {
   String backgroundImgRepeat = "";
 
   @override
-  Decoration? get decoration {
+  Decoration? getDecoration({Color? backgroundColor}) {
     return toDecoration(
+        decorationColor: backgroundColor,
         backgroundImg: backgroundImg,
         backgroundImgSize: backgroundImgSize,
         backgroundImgRepeat: backgroundImgRepeat,

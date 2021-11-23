@@ -60,13 +60,13 @@ class AnimationUtil {
     _handleSupplyPropertyInitValue(
         styleWithAnimationProperty, _animationSupportPropertyInitValueMap);
     final initValueMap = styleWithAnimationProperty.data;
-    // 1.处理0%(from)的样式补缺
+    // 2.处理0%(from)的样式补缺
     animationPropertyMap.pushIfNotExist(
         NodeProps.animationKeyFrameZeroPercent, VoltronMap());
     final zeroPercentProperty = animationPropertyMap
         .get<VoltronMap>(NodeProps.animationKeyFrameZeroPercent);
     _handleSupplyPropertyInitValue(zeroPercentProperty, initValueMap);
-    // 2.100%(to)的样式补缺
+    // 3.100%(to)的样式补缺
     animationPropertyMap.pushIfNotExist(
         NodeProps.animationKeyFrameHundredPercent, VoltronMap());
     final hundredPercentProperty = animationPropertyMap
@@ -562,8 +562,7 @@ class AnimationPropertyOption {
   bool operator ==(Object other) {
     return other is AnimationPropertyOption &&
         isDomNodeDisableSetting == other.isDomNodeDisableSetting &&
-        hasInitRenderNodeValue &&
-        other.hasInitRenderNodeValue;
+        hasInitRenderNodeValue == other.hasInitRenderNodeValue;
   }
 
   @override

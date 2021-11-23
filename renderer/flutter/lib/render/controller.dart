@@ -264,8 +264,6 @@ abstract class VoltronViewController<T extends RenderNode>
     node.renderViewModel.animationFillMode =
         value.get<String>(NodeProps.animationFillModel) ??
             AnimationFillMode.none;
-    node.renderViewModel.domTreeCssAnimation =
-        DomTreeCssAnimation.initByAnimation(value, propertyMapSortList);
   }
 
   @ControllerProps(NodeProps.animationEndPropertyMap)

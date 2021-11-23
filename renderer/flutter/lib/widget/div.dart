@@ -175,9 +175,9 @@ class _BoxWidgetState extends FRState<BoxWidget> {
     }
 
     var current = widget.child;
-    final decoration = widget._viewModel.decoration;
     final color = animationProperty?.get<Color>(NodeProps.backgroundColor) ??
         widget._viewModel.backgroundColor;
+    final decoration = widget._viewModel.getDecoration(backgroundColor: color);
     if (decoration != null) {
       current = DecoratedBox(decoration: decoration, child: current);
     } else if (color != null) {

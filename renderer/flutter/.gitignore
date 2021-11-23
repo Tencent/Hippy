@@ -41,3 +41,4 @@ pubspec.lock
 # iOS
 windows/RenderCorebuild/
 windows/RenderCorebin/
+cmake-build-debug/
