@@ -1,3 +1,4 @@
+import '../module/clipboard.dart';
 import '../module/console.dart';
 import '../module/device_event.dart';
 import '../module/dialog.dart';
@@ -137,5 +138,7 @@ class CoreApi implements APIProvider {
             DialogModule.dialogModuleName, (context) => DialogModule(context)),
         ModuleGenerator(WebsocketModule.websocketModuleName,
             (context) => WebsocketModule(context)),
+        ModuleGenerator(ClipboardModule.clipboardModuleName,
+            (context) => ClipboardModule(context))
       ];
 }

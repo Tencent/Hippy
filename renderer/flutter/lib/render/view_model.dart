@@ -170,8 +170,6 @@ class RenderViewModel extends ChangeNotifier {
   CssAnimation? transition;
   CssAnimation? animation;
   String? animationFillMode;
-  // DomTree的cssAnimation，用于同步整个树的动画布局
-  DomTreeCssAnimation? domTreeCssAnimation;
   // animation动画播放结束后，animationFillModel为'none'时，需要设置的属性集
   VoltronMap? animationEndPropertyMap;
   // 需要根据animation规则操作的动画属性Map(key: String, value: AnimationPropertyOption(如：禁止设置属性值))
@@ -257,7 +255,6 @@ class RenderViewModel extends ChangeNotifier {
     animation = viewModel.animation;
     transition = viewModel.transition;
     animationFillMode = viewModel.animationFillMode;
-    domTreeCssAnimation = viewModel.domTreeCssAnimation;
     animationEndPropertyMap = viewModel.animationEndPropertyMap;
     animationPropertyOptionMap = viewModel.animationPropertyOptionMap;
   }
@@ -298,7 +295,6 @@ class RenderViewModel extends ChangeNotifier {
         animation == other.animation &&
         transition == other.transition &&
         animationFillMode == other.animationFillMode &&
-        domTreeCssAnimation == other.domTreeCssAnimation &&
         animationEndPropertyMap == other.animationEndPropertyMap &&
         animationPropertyOptionMap == other.animationPropertyOptionMap &&
         transform == other.transform &&
@@ -342,7 +338,6 @@ class RenderViewModel extends ChangeNotifier {
       animation.hashCode |
       transition.hashCode |
       animationFillMode.hashCode |
-      domTreeCssAnimation.hashCode |
       animationEndPropertyMap.hashCode |
       animationPropertyOptionMap.hashCode |
       transform.hashCode |
@@ -520,8 +515,8 @@ class RenderViewModel extends ChangeNotifier {
     return "$name($id): (x[$_x], y[$_y], w[$_width], h[$_height])";
   }
 
-  Decoration? get decoration {
-    return toDecoration();
+  Decoration? getDecoration({Color? backgroundColor}) {
+    return toDecoration(decorationColor: backgroundColor);
   }
 
   BorderRadius? get toBorderRadius {
@@ -612,13 +607,14 @@ class RenderViewModel extends ChangeNotifier {
   }
 
   Decoration? toDecoration(
-      {Object? backgroundImg,
+      {Color? decorationColor,
+      Object? backgroundImg,
       String? backgroundImgSize,
       String? backgroundImgRepeat,
       String? backgroundImgPositionX,
       String? backgroundImgPositionY}) {
     var radius = _toRadius();
-    var color = backgroundColor;
+    var color = decorationColor ?? backgroundColor;
     var boxShadow = _generateBoxShadow();
     var gradient = _generateGradient(backgroundImg);
     var image = _toImage(backgroundImg, backgroundImgSize, backgroundImgRepeat,
@@ -835,53 +831,6 @@ class Transition {
           resizeModeToCurve(originTransitionTimingFunction);
     }
     transitionDelay = params.get(NodeProps.transitionDelay) ?? transitionDelay;
-  }
-}
-
-/// DomTree的cssAnimation，当RenderTree播放当前动画帧的时候，需要提前设置下一帧的DomTree动画帧，同步整棵树的动画布局
-class DomTreeCssAnimation {
-  /// 动画执行链表，每个节点是一个animation的keyframe-selector的设置
-  late VoltronLinkNode<VoltronMap> headNode;
-
-  /// 动画播放时间
-  late Duration duration;
-
-  /// 动画延时时间
-  late Duration delay;
-
-  /// 动画效果
-  late Curve curve;
-
-  DomTreeCssAnimation(this.headNode, this.duration, this.delay, this.curve);
-
-  DomTreeCssAnimation.initByAnimation(
-      VoltronMap animation, List<VoltronMap> propertyMapSortList) {
-    final animationDuration =
-        animation.get<int>(NodeProps.animationDuration) ?? 0;
-    final animationDelay = animation.get<int>(NodeProps.animationDelay) ?? 0;
-    final originTransitionTimingFunction =
-        animation.get<String>(NodeProps.transitionTimingFunction) ??
-            TimingFunction.ease;
-    final animationCurve = resizeModeToCurve(originTransitionTimingFunction);
-    // 根据排好序的keyframeSelector的属性列表生成双向链表
-    final animationLinkHeadNode = VoltronLinkNode<VoltronMap>();
-    var currentLinkNode = animationLinkHeadNode;
-    VoltronLinkNode<VoltronMap>? prevLinkNode;
-    for (final item in propertyMapSortList) {
-      currentLinkNode.value = item;
-      currentLinkNode.prev = prevLinkNode;
-      currentLinkNode.next = VoltronLinkNode<VoltronMap>();
-      prevLinkNode = currentLinkNode;
-      currentLinkNode = currentLinkNode.next!;
-    }
-    if (animationLinkHeadNode.next != null) {
-      animationLinkHeadNode.prev = prevLinkNode;
-    }
-
-    headNode = animationLinkHeadNode;
-    duration = Duration(milliseconds: animationDuration);
-    delay = Duration(milliseconds: animationDelay);
-    curve = animationCurve;
   }
 }
 
