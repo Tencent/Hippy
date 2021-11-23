@@ -65,6 +65,7 @@ class JSCCtx : public Ctx {
  public:
   using unicode_string_view = tdf::base::unicode_string_view;
   using JSValueWrapper = hippy::base::JSValueWrapper;
+  using DomValue = tdf::base::DomValue;
 
   explicit JSCCtx(JSContextGroupRef vm) {
     context_ = JSGlobalContextCreateInGroup(vm, nullptr);
@@ -188,6 +189,11 @@ class JSCCtx : public Ctx {
       const std::shared_ptr<CtxValue>& value) override;
   virtual std::shared_ptr<CtxValue> CreateCtxValue(
       const std::shared_ptr<JSValueWrapper>& wrapper) override;
+    
+  virtual std::shared_ptr<DomValue> ToDomValue(
+      const std::shared_ptr<CtxValue>& value) override;
+  virtual std::shared_ptr<CtxValue> CreateCtxValue(
+      const std::shared_ptr<DomValue>& value) override;
 
   unicode_string_view GetExceptionMsg(const std::shared_ptr<CtxValue>& exception);
   JSStringRef CreateJSCString(const unicode_string_view& str_view);

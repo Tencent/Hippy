@@ -225,9 +225,9 @@ class V8Ctx : public Ctx {
       const std::shared_ptr<JSValueWrapper>& wrapper) override;
 
   virtual std::shared_ptr<DomValue> ToDomValue(
-      std::shared_ptr<CtxValue> value);
-  virtual std::shared_ptr<CtxValue> CreateDomValue(
-      std::shared_ptr<DomValue> value);
+      const std::shared_ptr<CtxValue>& value) override;
+  virtual std::shared_ptr<CtxValue> CreateCtxValue(
+      const std::shared_ptr<DomValue>& value) override;
 
   unicode_string_view ToStringView(v8::Local<v8::String> str) const;
   unicode_string_view GetMsgDesc(v8::Local<v8::Message> message);
