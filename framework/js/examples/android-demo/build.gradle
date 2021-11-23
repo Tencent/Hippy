@@ -105,6 +105,9 @@ dependencies {
         api (name: 'android-sdk-release', ext: 'aar')
     } else {
         api project(path: ':hippy-framework')
+        api project(path: ':hippy-support')
+        api project(path: ':renderer-native')
+        api project(path: ':serialization')
     }
     //noinspection GradleDependency
     api 'com.github.bumptech.glide:glide:3.6.1'

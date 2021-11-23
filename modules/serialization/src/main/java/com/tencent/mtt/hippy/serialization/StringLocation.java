@@ -15,8 +15,6 @@
  */
 package com.tencent.mtt.hippy.serialization;
 
-import com.tencent.mtt.hippy.runtime.builtins.JSError;
-
 public enum StringLocation {
   /**
    * Independent Value
