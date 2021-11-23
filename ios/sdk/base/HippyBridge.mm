@@ -338,16 +338,12 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 
     // Sanitize the bundle URL
     _bundleURL = [HippyConvert NSURL:_bundleURL.absoluteString];
-#ifndef HIPPY_DEBUG
     @try {
-#endif
         [self createBatchedBridge];
         [self.batchedBridge start];
-#ifndef HIPPY_DEBUG
     } @catch (NSException *exception) {
         MttHippyException(exception);
     }
-#endif
 }
 
 - (void)setUpDevClientWithName:(NSString *)name {
