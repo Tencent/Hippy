@@ -172,8 +172,9 @@ android {
 
 dependencies {
   api fileTree(dir: 'libs', include: ['*.jar'])
-  api project(path: ':hippy-support')
-  api project(path: ':renderer-native')
+  compileOnly project(path: ':hippy-support')
+  compileOnly project(path: ':renderer-native')
+  compileOnly project(path: ':serialization')
   //noinspection GradleDependency
   implementation 'androidx.annotation:annotation:1.0.0'
   if (!INCLUDE_SUPPORT_UI.toBoolean()) {

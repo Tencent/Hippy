@@ -31,6 +31,8 @@ framework/js/examples/android-demo/example/.cxx/
 framework/js/android/cmake-build-debug/*
 framework/js/android/src/main/jni/cmake-build-debug/*
 
+dom/lib/*
+
 # android
 *.iml
 local.properties
