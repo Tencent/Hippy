@@ -444,13 +444,7 @@ class PageAllocator {
    * zero-initialized again. The memory must have been previously allocated by a
    * call to AllocatePages. Returns true on success, false otherwise.
    */
-#ifdef V8_VIRTUAL_MEMORY_CAGE
-  // Implementing this API is required when the virtual memory cage is enabled.
   virtual bool DecommitPages(void* address, size_t size) = 0;
-#else
-  // Otherwise, it is optional for now.
-  virtual bool DecommitPages(void* address, size_t size) { return false; }
-#endif
 
   /**
    * INTERNAL ONLY: This interface has not been stabilised and may change
@@ -517,6 +511,18 @@ class PageAllocator {
 };
 
 /**
+ * V8 Allocator used for allocating zone backings.
+ */
+class ZoneBackingAllocator {
+ public:
+  using MallocFn = void* (*)(size_t);
+  using FreeFn = void (*)(void*);
+
+  virtual MallocFn GetMallocFn() const { return ::malloc; }
+  virtual FreeFn GetFreeFn() const { return ::free; }
+};
+
+/**
  * V8 Platform abstraction layer.
  *
  * The embedder has to provide an implementation of this interface before
@@ -532,6 +538,14 @@ class Platform {
   virtual PageAllocator* GetPageAllocator() {
     // TODO(bbudge) Make this abstract after all embedders implement this.
     return nullptr;
+  }
+
+  /**
+   * Allows the embedder to specify a custom allocator used for zones.
+   */
+  virtual ZoneBackingAllocator* GetZoneBackingAllocator() {
+    static ZoneBackingAllocator default_allocator;
+    return &default_allocator;
   }
 
   /**

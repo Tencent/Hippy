@@ -210,32 +210,6 @@ using CreateHistogramCallback = void* (*)(const char* name, int min, int max,
 
 using AddHistogramSampleCallback = void (*)(void* histogram, int sample);
 
-/**
- * HostImportModuleDynamicallyCallback is called when we require the
- * embedder to load a module. This is used as part of the dynamic
- * import syntax.
- *
- * The referrer contains metadata about the script/module that calls
- * import.
- *
- * The specifier is the name of the module that should be imported.
- *
- * The embedder must compile, instantiate, evaluate the Module, and
- * obtain its namespace object.
- *
- * The Promise returned from this function is forwarded to userland
- * JavaScript. The embedder must resolve this promise with the module
- * namespace object. In case of an exception, the embedder must reject
- * this promise with the exception. If the promise creation itself
- * fails (e.g. due to stack overflow), the embedder must propagate
- * that exception by returning an empty MaybeLocal.
- */
-using HostImportModuleDynamicallyCallback V8_DEPRECATED(
-    "Use HostImportModuleDynamicallyWithImportAssertionsCallback instead") =
-    MaybeLocal<Promise> (*)(Local<Context> context,
-                            Local<ScriptOrModule> referrer,
-                            Local<String> specifier);
-
 // --- Exceptions ---
 
 using FatalErrorCallback = void (*)(const char* location, const char* message);
@@ -333,6 +307,9 @@ using WasmSimdEnabledCallback = bool (*)(Local<Context> context);
 
 // --- Callback for checking if WebAssembly exceptions are enabled ---
 using WasmExceptionsEnabledCallback = bool (*)(Local<Context> context);
+
+// --- Callback for checking if WebAssembly dynamic tiering is enabled ---
+using WasmDynamicTieringEnabledCallback = bool (*)(Local<Context> context);
 
 // --- Callback for checking if the SharedArrayBuffer constructor is enabled ---
 using SharedArrayBufferConstructorEnabledCallback =

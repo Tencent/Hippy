@@ -224,23 +224,30 @@ class Internals {
   static const int kExternalOneByteRepresentationTag = 0x0a;
 
   static const uint32_t kNumIsolateDataSlots = 4;
+  static const int kStackGuardSize = 7 * kApiSystemPointerSize;
+  static const int kBuiltinTier0EntryTableSize = 13 * kApiSystemPointerSize;
+  static const int kBuiltinTier0TableSize = 13 * kApiSystemPointerSize;
 
   // IsolateData layout guarantees.
-  static const int kIsolateEmbedderDataOffset = 0;
+  static const int kIsolateCageBaseOffset = 0;
+  static const int kIsolateStackGuardOffset =
+      kIsolateCageBaseOffset + kApiSystemPointerSize;
+  static const int kBuiltinTier0EntryTableOffset =
+      kIsolateStackGuardOffset + kStackGuardSize;
+  static const int kBuiltinTier0TableOffset =
+      kBuiltinTier0EntryTableOffset + kBuiltinTier0EntryTableSize;
+  static const int kIsolateEmbedderDataOffset =
+      kBuiltinTier0TableOffset + kBuiltinTier0TableSize;
   static const int kIsolateFastCCallCallerFpOffset =
-      kNumIsolateDataSlots * kApiSystemPointerSize;
+      kIsolateEmbedderDataOffset + kNumIsolateDataSlots * kApiSystemPointerSize;
   static const int kIsolateFastCCallCallerPcOffset =
       kIsolateFastCCallCallerFpOffset + kApiSystemPointerSize;
   static const int kIsolateFastApiCallTargetOffset =
       kIsolateFastCCallCallerPcOffset + kApiSystemPointerSize;
-  static const int kIsolateCageBaseOffset =
-      kIsolateFastApiCallTargetOffset + kApiSystemPointerSize;
   static const int kIsolateLongTaskStatsCounterOffset =
-      kIsolateCageBaseOffset + kApiSystemPointerSize;
-  static const int kIsolateStackGuardOffset =
-      kIsolateLongTaskStatsCounterOffset + kApiSizetSize;
+      kIsolateFastApiCallTargetOffset + kApiSystemPointerSize;
   static const int kIsolateRootsOffset =
-      kIsolateStackGuardOffset + 7 * kApiSystemPointerSize;
+      kIsolateLongTaskStatsCounterOffset + kApiSizetSize;
 
   static const int kExternalPointerTableBufferOffset = 0;
   static const int kExternalPointerTableLengthOffset =
@@ -487,18 +494,14 @@ constexpr bool VirtualMemoryCageIsEnabled() {
 #endif
 }
 
-#ifdef V8_VIRTUAL_MEMORY_CAGE
-// Size of the pointer compression cage located at the start of the virtual
-// memory cage.
-constexpr size_t kVirtualMemoryCagePointerCageSize =
-    Internals::kPtrComprCageReservationSize;
+#ifdef V8_VIRTUAL_MEMORY_CAGE_IS_AVAILABLE
+
+#define GB (1ULL << 30)
+#define TB (1ULL << 40)
 
 // Size of the virtual memory cage, excluding the guard regions surrounding it.
-constexpr size_t kVirtualMemoryCageSize = size_t{1} << 40;  // 1 TB
-
-static_assert(kVirtualMemoryCageSize > kVirtualMemoryCagePointerCageSize,
-              "The virtual memory cage must be larger than the pointer "
-              "compression cage contained within it.");
+constexpr size_t kVirtualMemoryCageSizeLog2 = 40;  // 1 TB
+constexpr size_t kVirtualMemoryCageSize = 1ULL << kVirtualMemoryCageSizeLog2;
 
 // Required alignment of the virtual memory cage. For simplicity, we require the
 // size of the guard regions to be a multiple of this, so that this specifies
@@ -508,32 +511,75 @@ static_assert(kVirtualMemoryCageSize > kVirtualMemoryCagePointerCageSize,
 constexpr size_t kVirtualMemoryCageAlignment =
     Internals::kPtrComprCageBaseAlignment;
 
+#ifdef V8_CAGED_POINTERS
+// CagedPointers are guaranteed to point into the virtual memory cage. This is
+// achieved by storing them as offset from the cage base rather than as raw
+// pointers.
+using CagedPointer_t = Address;
+
+// For efficiency, the offset is stored shifted to the left, so that
+// it is guaranteed that the offset is smaller than the cage size after
+// shifting it to the right again. This constant specifies the shift amount.
+constexpr uint64_t kCagedPointerShift = 64 - kVirtualMemoryCageSizeLog2;
+#endif
+
 // Size of the guard regions surrounding the virtual memory cage. This assumes a
 // worst-case scenario of a 32-bit unsigned index being used to access an array
 // of 64-bit values.
-constexpr size_t kVirtualMemoryCageGuardRegionSize = size_t{32} << 30;  // 32 GB
+constexpr size_t kVirtualMemoryCageGuardRegionSize = 32ULL * GB;
 
 static_assert((kVirtualMemoryCageGuardRegionSize %
                kVirtualMemoryCageAlignment) == 0,
               "The size of the virtual memory cage guard region must be a "
               "multiple of its required alignment.");
 
-// Minimum possible size of the virtual memory cage, excluding the guard regions
-// surrounding it. Used by unit tests.
-constexpr size_t kVirtualMemoryCageMinimumSize =
-    2 * kVirtualMemoryCagePointerCageSize;
+// Minimum size of the virtual memory cage, excluding the guard regions
+// surrounding it. If the cage reservation fails, its size is currently halved
+// until either the reservation succeeds or the minimum size is reached. A
+// minimum of 32GB allows the 4GB pointer compression region as well as the
+// ArrayBuffer partition and two 10GB WASM memory cages to fit into the cage.
+// 32GB should also be the minimum possible size of the userspace address space
+// as there are some machine configurations with only 36 virtual address bits.
+constexpr size_t kVirtualMemoryCageMinimumSize = 32ULL * GB;
+
+static_assert(kVirtualMemoryCageMinimumSize <= kVirtualMemoryCageSize,
+              "The minimal size of the virtual memory cage must be smaller or "
+              "equal to the regular size.");
+
+// On OSes where reservation virtual memory is too expensive to create a real
+// cage, notably Windows pre 8.1, we create a fake cage that doesn't actually
+// reserve most of the memory, and so doesn't have the desired security
+// properties, but still ensures that objects that should be located inside the
+// cage are allocated within kVirtualMemoryCageSize bytes from the start of the
+// cage, and so appear to be inside the cage. The minimum size of the virtual
+// memory range that is actually reserved for a fake cage is specified by this
+// constant and should be big enough to contain the pointer compression region
+// as well as the ArrayBuffer partition.
+constexpr size_t kFakeVirtualMemoryCageMinReservationSize = 8ULL * GB;
+
+static_assert(kVirtualMemoryCageMinimumSize >
+                  Internals::kPtrComprCageReservationSize,
+              "The virtual memory cage must be larger than the pointer "
+              "compression cage contained within it.");
+static_assert(kFakeVirtualMemoryCageMinReservationSize >
+                  Internals::kPtrComprCageReservationSize,
+              "The reservation for a fake virtual memory cage must be larger "
+              "than the pointer compression cage contained within it.");
 
 // For now, even if the virtual memory cage is enabled, we still allow backing
 // stores to be allocated outside of it as fallback. This will simplify the
 // initial rollout. However, if the heap sandbox is also enabled, we already use
 // the "enforcing mode" of the virtual memory cage. This is useful for testing.
 #ifdef V8_HEAP_SANDBOX
-constexpr bool kAllowBackingStoresOutsideDataCage = false;
+constexpr bool kAllowBackingStoresOutsideCage = false;
 #else
-constexpr bool kAllowBackingStoresOutsideDataCage = true;
+constexpr bool kAllowBackingStoresOutsideCage = true;
 #endif  // V8_HEAP_SANDBOX
 
-#endif  // V8_VIRTUAL_MEMORY_CAGE
+#undef GB
+#undef TB
+
+#endif  // V8_VIRTUAL_MEMORY_CAGE_IS_AVAILABLE
 
 // Only perform cast check for types derived from v8::Data since
 // other types do not implement the Cast method.
@@ -564,14 +610,6 @@ V8_INLINE void PerformCastCheck(T* data) {
 class BackingStoreBase {};
 
 }  // namespace internal
-
-V8_EXPORT bool CopyAndConvertArrayToCppBufferInt32(Local<Array> src,
-                                                   int32_t* dst,
-                                                   uint32_t max_length);
-
-V8_EXPORT bool CopyAndConvertArrayToCppBufferFloat64(Local<Array> src,
-                                                     double* dst,
-                                                     uint32_t max_length);
 
 }  // namespace v8
 
