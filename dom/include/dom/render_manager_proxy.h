@@ -18,18 +18,18 @@ class RenderManagerProxy : public RenderManager {
 
   void Batch() override;
 
-  void UpdateLayout(std::shared_ptr<LayoutResult> result) override;
-  void UpdateLayout(std::unordered_map<LayoutDiffMapKey, float> diff) override;
-
-  void DispatchFunction(int32_t id,
-                        const std::string &name,
+  void CallFunction(std::weak_ptr<DomNode> domNode, const std::string& name,
                         std::unordered_map<std::string, std::shared_ptr<DomValue>> param,
                         DispatchFunctionCallback cb) override;
 
-  void AddTouchEventListener(int32_t id,
-                             TouchEvent event,
-                             OnTouchEventListener listener) override;
+  void SetClickEventListener(int32_t id, OnClickEventListener listener) override;
+  void RemoveClickEventListener(int32_t id) override;
+  void SetLongClickEventListener(int32_t id, OnLongClickEventListener listener) override;
+  void RemoveLongClickEventListener(int32_t id) override;
+  void SetTouchEventListener(int32_t id, TouchEvent event, OnTouchEventListener listener) override;
   void RemoveTouchEventListener(int32_t id, TouchEvent event) override;
+  void SetShowEventListener(int32_t id, ShowEvent event, OnShowEventListener listener) override;
+  void RemoveShowEventListener(int32_t id, ShowEvent event) override;
 
  protected:
   bool ComputeIsLayoutOnly(std::shared_ptr<DomNode> node) const;

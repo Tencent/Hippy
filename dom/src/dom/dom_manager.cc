@@ -3,15 +3,6 @@
 namespace hippy {
 inline namespace dom {
 
-std::shared_ptr<DomManager> DomManager::GetDomManager(int32_t root_id) {
-  TDF_BASE_NOTIMPLEMENTED();
-  return nullptr;
-}
-void DomManager::Destroy(int32_t root_id) {
-  TDF_BASE_NOTIMPLEMENTED();
-  return;
-}
-
 DomManager::DomManager(int32_t root_id) : root_id_(root_id) {
   dom_event_listener_map_[DomEvent::Create].push_back(
       [this](std::any node) { dom_node_registry_.AddNode(std::any_cast<std::shared_ptr<DomNode>>(node)); });
@@ -99,17 +90,11 @@ void DomManager::EndBatch() {
 void DomManager::CallFunction(int32_t id, const std::string& name,
                               std::unordered_map<std::string, std::shared_ptr<DomValue>> param,
                               CallFunctionCallback cb) {
-  render_manager_->DispatchFunction(id, name, param, cb);
-}
-
-void DomManager::AddTouchEventListener(int32_t id, TouchEvent event, OnTouchEventListener listener) {
-  TDF_BASE_NOTIMPLEMENTED();
-  root_id_ = 1;
-  return;
-}
-void DomManager::RemoveTouchEventListener(TouchEvent event) {
-  TDF_BASE_NOTIMPLEMENTED();
-  return;
+  auto node = dom_node_registry_.GetNode(id);
+  if (node == nullptr) {
+      return;
+  }
+  node->CallFunction(name, param, cb);
 }
 
 int32_t DomManager::AddDomTreeEventListener(DomTreeEvent event, OnDomTreeEventListener listener) {
@@ -119,6 +104,12 @@ int32_t DomManager::AddDomTreeEventListener(DomTreeEvent event, OnDomTreeEventLi
 void DomManager::RemoveDomTreeEventListener(DomTreeEvent event, int32_t listener_id) {
   TDF_BASE_NOTIMPLEMENTED();
   return;
+}
+
+void DomManager::SetRootSize(int32_t width, int32_t height) {
+  if (root_node_ != nullptr) {
+    root_node_->SetSize(width, height);
+  }
 }
 
 void DomManager::OnDomNodeCreated(std::shared_ptr<DomNode> node) {

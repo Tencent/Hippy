@@ -24,9 +24,6 @@ class DomManager {
  public:
   using DomValue = tdf::base::DomValue;
 
-  static std::shared_ptr<DomManager> GetDomManager(int32_t root_id);
-  static void Destroy(int32_t root_id);
-
   DomManager(int32_t root_id);
   ~DomManager();
 
@@ -37,13 +34,12 @@ class DomManager {
   void EndBatch();
   void CallFunction(int32_t id, const std::string& name,
                     std::unordered_map<std::string, std::shared_ptr<DomValue>> param, CallFunctionCallback cb);
-  void AddTouchEventListener(int32_t id, TouchEvent event, OnTouchEventListener listener);
-  void RemoveTouchEventListener(TouchEvent event);
-
   int32_t AddDomTreeEventListener(DomTreeEvent event, OnDomTreeEventListener listener);
   void RemoveDomTreeEventListener(DomTreeEvent event, int32_t listener_id);
 
   std::shared_ptr<RenderManager> GetRenderManager() { return render_manager_; }
+  void SetRootSize(int32_t width, int32_t height);
+  inline int32_t GetRooId() { return root_id_; }
 
  protected:
   void OnDomNodeCreated(std::shared_ptr<DomNode> node);

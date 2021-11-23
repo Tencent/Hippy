@@ -35,6 +35,17 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
   void SetLayoutStyles(std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>& style_map) override;
 
   /**
+   * @brief 设置宽度
+   * @param width 宽度
+   */
+  void SetWidth(float width);
+
+  /**
+   * @brief 设置高度
+   * @param height 高度
+   */
+  void SetHeight(float height);
+  /**
    * @brief 设置测量函数
    * @param measure_function 测量函数
    * @return 是否成功
@@ -169,17 +180,6 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
    */
   void SetDirection(HPDirection direction);
 
-  /**
-   * @brief 设置宽度
-   * @param width 宽度
-   */
-  void SetWidth(float width);
-
-  /**
-   * @brief 设置高度
-   * @param height 高度
-   */
-  void SetHeight(float height);
 
   /**
    * @brief 设置 max width 属性
