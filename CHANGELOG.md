@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.11.1](https://github.com/Tencent/Hippy/compare/2.11.0...2.11.1) (2021-11-24)
+
+
+### Bug Fixes
+
+* **android:** adapter android 11 get status bar height ([c918740](https://github.com/Tencent/Hippy/commit/c918740685e7b698f4abd436cc4fb959f9460edb))
+* **android:** fix lint warnings & errors ([49c9c4f](https://github.com/Tencent/Hippy/commit/49c9c4f77c11f14b7b9c42781c85663be2210574))
+* **android:** minisdk=14 and release minifyEnabled=false ([69b18d8](https://github.com/Tencent/Hippy/commit/69b18d8c92886b03289a8e2c1e1eb9101214f7cc))
+* **android:** remove dispatch layout in onLayout for RecyclerViewBase ([2c3d378](https://github.com/Tencent/Hippy/commit/2c3d3782fde7d93f1cad8cabc12d5841fa36a088))
+* **android:** resolve [#1104](https://github.com/Tencent/Hippy/issues/1104) commit crash ([626cb0d](https://github.com/Tencent/Hippy/commit/626cb0de027ab64a33ad19555633d2604eb15f1e))
+* **hippy-react-web:** event.path is not supported for safari ([9855ff9](https://github.com/Tencent/Hippy/commit/9855ff92ccda25d22be33d3e1b56eadd4a8b9bdf))
+* **ios:** text should not be available for view cache ([10fdadb](https://github.com/Tencent/Hippy/commit/10fdadb9d0dca10d2d942152b9d5a49fea1ad85f))
+
+
+### Features
+
+* **core:** fix lint warning and fix iOS demo bug ([2bec712](https://github.com/Tencent/Hippy/commit/2bec712b1ef1e7d16e2bc1cf452912a59d36ff88))
+
+
+
+
+
 # [2.11.0](https://github.com/Tencent/Hippy/compare/2.10.3...2.11.0) (2021-11-18)
 
 

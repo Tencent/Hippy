@@ -43,7 +43,7 @@ NSString *const HippyJavaScriptDidLoadNotification = @"HippyJavaScriptDidLoadNot
 NSString *const HippyJavaScriptDidFailToLoadNotification = @"HippyJavaScriptDidFailToLoadNotification";
 NSString *const HippyDidInitializeModuleNotification = @"HippyDidInitializeModuleNotification";
 NSString *const HippyBusinessDidLoadNotification = @"HippyBusinessDidLoadNotification";
-NSString *const _HippySDKVersion = @"2.11.0";
+NSString *const _HippySDKVersion = @"2.11.1";
 
 static NSMutableArray<Class> *HippyModuleClasses;
 NSArray<Class> *HippyGetModuleClasses(void) {

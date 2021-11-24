@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.11.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/compare/2.11.0...2.11.1) (2021-11-24)
+
+
+### Bug Fixes
+
+* **hippy-react-web:** event.path is not supported for safari ([9855ff9](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/commit/9855ff92ccda25d22be33d3e1b56eadd4a8b9bdf))
+
+
+
+
+
 # [2.11.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/compare/2.10.3...2.11.0) (2021-11-18)
 
 
