@@ -38,13 +38,13 @@ typedef void (*send_notification)(int64_t runtimeId, const uint16_t *source, int
 typedef void (*destroy_function)(int64_t runtimeId);
 typedef void (*global_callback)(int32_t callbackId, int64_t value);
 
-extern call_native callNativeFunc;
-extern post_code_cache_runnable postCodeCacheRunnableFunc;
-extern report_json_exception reportJsonExceptionFunc;
-extern report_js_exception reportJsExceptionFunc;
-extern check_code_cache_sanity checkCodeCacheSanityFunc;
-extern send_response sendResponseFunc;
-extern send_notification sendNotificationFunc;
+extern call_native call_native_func;
+extern post_code_cache_runnable post_code_cache_runnable_func;
+extern report_json_exception report_json_exception_func;
+extern report_js_exception report_js_exception_func;
+extern check_code_cache_sanity check_code_cache_sanity_func;
+extern send_response send_response_func;
+extern send_notification send_notification_func;
 extern destroy_function destroyFunc;
 extern global_callback globalCallbackFunc;
 

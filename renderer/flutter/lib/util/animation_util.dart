@@ -416,17 +416,17 @@ class AnimationUtil {
   /// 根据animation的style，更新相关domNode的style
   static void updateDomNodeStyleByAnimationStyle(
       RenderViewModel viewModel, VoltronMap animationStyle) {
-    final nodeId = viewModel.id;
-    final rootId = viewModel.rootId;
-    final context = viewModel.context;
-    final rootWidgetViewModel = context.getInstance(rootId);
-    final node = context.domManager.getNode(nodeId);
-    if (node != null && rootWidgetViewModel != null) {
-      final totalProps = VoltronMap.copy(node.totalProps);
-      context.domManager
-          .updateNode(nodeId, totalProps, rootWidgetViewModel, animationStyle);
-      context.domManager.batch();
-    }
+    // final nodeId = viewModel.id;
+    // final rootId = viewModel.rootId;
+    // final context = viewModel.context;
+    // final rootWidgetViewModel = context.getInstance(rootId);
+    // final node = context.domManager.getNode(nodeId);
+    // if (node != null && rootWidgetViewModel != null) {
+    //   final totalProps = VoltronMap.copy(node.totalProps);
+    //   context.domManager
+    //       .updateNode(nodeId, totalProps, rootWidgetViewModel, animationStyle);
+    //   context.domManager.batch();
+    // }
   }
 
   /// 获取CssAnimation，如果animation的isDisable为true，则返回null，否则返回对应的animation

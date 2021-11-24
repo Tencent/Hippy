@@ -5,11 +5,11 @@
 namespace voltron {
 
 VoltronRenderTaskRunner::~VoltronRenderTaskRunner() {
-  queue_ = std::make_shared<VoltronRenderQueue>();
+  queue_ = nullptr;
 }
 
 VoltronRenderTaskRunner::VoltronRenderTaskRunner() {
-  queue_ = nullptr;
+  queue_ = std::make_shared<VoltronRenderQueue>();
 }
 
 void VoltronRenderTaskRunner::RunCreateDomNode(const Sp<DomNode>& node) {

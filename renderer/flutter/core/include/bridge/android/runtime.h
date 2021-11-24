@@ -13,6 +13,7 @@
 #include "bridge/bridge_runtime.h"
 #include "core/core.h"
 
+using voltron::PlatformRuntime;
 class Runtime {
  public:
   Runtime(std::shared_ptr<PlatformRuntime> platform_runtime, bool enable_v8_serialization, bool is_dev);

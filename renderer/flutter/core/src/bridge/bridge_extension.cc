@@ -6,7 +6,6 @@
 #include "bridge/bridge_extension.h"
 
 #include <utility>
-#include <base/logging.h>
 
 #if defined(__ANDROID__) || defined(_WIN32)
 #include "bridge/android/bridge_impl.h"
@@ -14,21 +13,19 @@
 #include "bridge_impl_ios.h"
 #endif
 
-#include "bridge/string_util.h"
-
-EXTERN_C int64_t initJSFrameworkEx(const std::shared_ptr<PlatformRuntime>& platformRuntime,
-                                   const char16_t *globalConfig,
-                                   bool singleThreadMode,
-                                   bool bridgeParamJson,
-                                   bool isDevModule,
-                                   int64_t groupId,
+EXTERN_C int64_t InitJSFrameworkEx(const std::shared_ptr<PlatformRuntime>& platform_runtime,
+                                   const char16_t *global_config,
+                                   bool single_thread_mode,
+                                   bool bridge_param_json,
+                                   bool is_dev_module,
+                                   int64_t group_id,
                                    std::function<void(int64_t)> callback) {
-  return BridgeImpl::InitJsFrameWork(platformRuntime,
-                                     singleThreadMode,
-                                     bridgeParamJson,
-                                     isDevModule,
-                                     groupId,
-                                     globalConfig,
+  return BridgeImpl::InitJsFrameWork(platform_runtime,
+                                     single_thread_mode,
+                                     bridge_param_json,
+                                     is_dev_module,
+                                     group_id,
+                                     global_config,
                                      [
                                          callback_ = std::move(callback)](
                                          int64_t value) {
@@ -36,16 +33,16 @@ EXTERN_C int64_t initJSFrameworkEx(const std::shared_ptr<PlatformRuntime>& platf
                                      });
 }
 
-EXTERN_C bool runScriptFromFileEx(int64_t runtimeId,
-                                  const char16_t *filePath,
-                                  const char16_t *scriptName,
-                                  const char16_t *codeCacheDir,
-                                  bool canUseCodeCache,
+EXTERN_C bool RunScriptFromFileEx(int64_t runtime_id,
+                                  const char16_t *file_path,
+                                  const char16_t *script_name,
+                                  const char16_t *code_cache_dir,
+                                  bool can_use_code_cache,
                                   std::function<void(int64_t)> callback) {
 
-  return BridgeImpl::RunScriptFromFile(runtimeId, filePath,
-                                       scriptName, codeCacheDir,
-                                       canUseCodeCache,
+  return BridgeImpl::RunScriptFromFile(runtime_id, file_path,
+                                       script_name, code_cache_dir,
+                                       can_use_code_cache,
                                        [
                                            callback_ = std::move(callback)](
                                            int64_t value) {
@@ -53,26 +50,15 @@ EXTERN_C bool runScriptFromFileEx(int64_t runtimeId,
                                        });
 }
 
-EXTERN_C bool runScriptFromAssetsEx(int64_t runtimeId,
-                                    const char16_t *assetName,
-                                    const char16_t *codeCacheDir,
-                                    bool canUseCodeCache,
-                                    const char16_t *assetContent,
+EXTERN_C bool RunScriptFromAssetsEx(int64_t runtime_id, const char16_t* asset_name, const char16_t* code_cache_dir,
+                                    bool can_use_code_cache, const char16_t* asset_content,
                                     std::function<void(int64_t)> callback) {
-
-  return BridgeImpl::RunScriptFromAssets(runtimeId,
-                                         canUseCodeCache,
-                                         assetName,
-                                         codeCacheDir,
-                                         [
-                                             callback_ = std::move(callback)](
-                                             int value) {
-                                           callback_(value);
-                                         },
-                                         assetContent);
+  return BridgeImpl::RunScriptFromAssets(
+      runtime_id, can_use_code_cache, asset_name, code_cache_dir,
+      [callback_ = std::move(callback)](int value) { callback_(value); }, asset_content);
 }
 
-EXTERN_C void callFunctionEx(int64_t runtimeId,
+EXTERN_C void CallFunctionEx(int64_t runtimeId,
                              const char16_t *action,
                              const char16_t *params,
                              std::function<void(int64_t)> callback) {
@@ -85,14 +71,14 @@ EXTERN_C void callFunctionEx(int64_t runtimeId,
                            });
 }
 
-EXTERN_C void runNativeRunnableEx(int64_t runtimeId,
-                                  const char16_t *codeCachePath,
-                                  int64_t runnableId,
+EXTERN_C void RunNativeRunnableEx(int64_t runtime_id,
+                                  const char16_t *code_cache_path,
+                                  int64_t runnable_id,
                                   std::function<void(int64_t)> callback) {
 
-  BridgeImpl::RunNativeRunnable(runtimeId,
-                                codeCachePath,
-                                runnableId,
+  BridgeImpl::RunNativeRunnable(runtime_id,
+                                code_cache_path,
+                                runnable_id,
                                 [callback_ = std::move(callback)](int value) {
                                   callback_(value);
                                 });
@@ -102,12 +88,12 @@ EXTERN_C const char *getCrashMessageEx() {
   return "lucas_crash_report_test";
 }
 
-EXTERN_C void destroyEx(int64_t runtimeId,
-                        bool singleThreadMode,
+EXTERN_C void DestroyEx(int64_t runtime_id,
+                        bool single_thread_mode,
                         std::function<void(int64_t)> callback) {
 
-  BridgeImpl::Destroy(runtimeId,
-                      singleThreadMode,
+  BridgeImpl::Destroy(runtime_id,
+                      single_thread_mode,
                       [callback_ = std::move(callback)](int64_t value) {
                         callback_(value);
                       });

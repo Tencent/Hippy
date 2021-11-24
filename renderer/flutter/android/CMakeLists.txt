@@ -6,6 +6,8 @@ if(NOT CMAKE_SYSTEM_NAME STREQUAL "Android")
     set(CMAKE_CXX_STANDARD 17)
 endif()
 
+add_definitions(-D__ANDROID__)
+
 set(GENERATOR "Android Gradle - Ninja")
 
 set(JS_ENGINE "V8")
