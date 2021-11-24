@@ -1,8 +1,14 @@
 #include "render/voltron_render_manager.h"
+#include "bridge/bridge_manager.h"
 
 namespace voltron {
 
-VoltronRenderManager::VoltronRenderManager(int32_t root_id) : root_id_(root_id) {}
+VoltronRenderManager::VoltronRenderManager(int32_t root_id) : root_id_(root_id) {
+}
+
+VoltronRenderManager::~VoltronRenderManager() {
+
+}
 
 void voltron::VoltronRenderManager::CreateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   for (const auto& node : nodes) {

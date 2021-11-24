@@ -30,6 +30,10 @@ class RenderManagerProxy : public RenderManager {
                              TouchEvent event,
                              OnTouchEventListener listener) override;
   void RemoveTouchEventListener(int32_t id, TouchEvent event) override;
+  int32_t AddClickEventListener(int32_t id, OnClickEventListener listener) override {}
+  void RemoveClickEventListener(int32_t id, int32_t listener_id) override {}
+  int32_t AddLongClickEventListener(int32_t id, OnLongClickEventListener listener) override {}
+  void RemoveLongClickEventListener(int32_t id, int32_t listener_id) override {}
 
  protected:
   bool ComputeIsLayoutOnly(std::shared_ptr<DomNode> node) const;

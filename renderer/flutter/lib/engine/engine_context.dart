@@ -30,9 +30,6 @@ class EngineContext implements Destroyable {
   // Bridge Manager
   late VoltronBridgeManager _bridgeManager;
 
-  // Dom Manager
-  late DomManager _domManager;
-
   final EngineMonitorAdapter _engineMonitor;
 
   // global configuration
@@ -57,8 +54,6 @@ class EngineContext implements Destroyable {
   VoltronBridgeManager get bridgeManager => _bridgeManager;
 
   DevSupportManager? get devSupportManager => _devSupportManager;
-
-  DomManager get domManager => _domManager;
 
   RenderManager get renderManager => _renderManager;
 
@@ -90,7 +85,6 @@ class EngineContext implements Destroyable {
         bridgeType: bridgeType,
         isDevModule: isDevModule);
     _renderManager = RenderManager(this, apiProviders);
-    _domManager = DomManager(this);
   }
 
   RootWidgetViewModel? getInstance(int id) {
@@ -140,7 +134,6 @@ class EngineContext implements Destroyable {
   void destroy() {
     _bridgeManager.destroy();
     _moduleManager.destroy();
-    _domManager.destroy();
     _renderManager.destroy();
     _instanceLifecycleEventListeners.clear();
     _engineLifecycleEventListeners.clear();

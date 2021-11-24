@@ -15,42 +15,44 @@
 #include "bridge_runtime.h"
 #endif
 
-EXTERN_C int64_t initJSFrameworkEx(const std::shared_ptr<PlatformRuntime>& platformRuntime,
-                                   const char16_t *globalConfig,
-                                   bool singleThreadMode,
-                                   bool bridgeParamJson,
-                                   bool isDevModule,
-                                   int64_t groupId,
+using voltron::PlatformRuntime;
+
+EXTERN_C int64_t InitJSFrameworkEx(const std::shared_ptr<PlatformRuntime>& platform_runtime,
+                                   const char16_t *global_config,
+                                   bool single_thread_mode,
+                                   bool bridge_param_json,
+                                   bool is_dev_module,
+                                   int64_t group_id,
                                    std::function<void(int64_t)> callback);
 
-EXTERN_C bool runScriptFromFileEx(int64_t runtimeId,
-                                  const char16_t *filePath,
-                                  const char16_t *scriptName,
-                                  const char16_t *codeCacheDir,
-                                  bool canUseCodeCache,
+EXTERN_C bool RunScriptFromFileEx(int64_t runtime_id,
+                                  const char16_t *file_path,
+                                  const char16_t *script_name,
+                                  const char16_t *code_cache_dir,
+                                  bool can_use_code_cache,
                                   std::function<void(int64_t)> callback);
 
-EXTERN_C bool runScriptFromAssetsEx(int64_t runtimeId,
-                                    const char16_t *assetName,
-                                    const char16_t *codeCacheDir,
-                                    bool canUseCodeCache,
-                                    const char16_t *assetContent,
+EXTERN_C bool RunScriptFromAssetsEx(int64_t runtime_id,
+                                    const char16_t *asset_name,
+                                    const char16_t *code_cache_dir,
+                                    bool can_use_code_cache,
+                                    const char16_t *asset_content,
                                     std::function<void(int64_t)> callback);
 
-EXTERN_C void callFunctionEx(int64_t runtimeId,
+EXTERN_C void CallFunctionEx(int64_t runtime_id,
                              const char16_t *action,
                              const char16_t *params,
                              std::function<void(int64_t)> callback);
 
-EXTERN_C void runNativeRunnableEx(int64_t runtimeId,
-                                  const char16_t *codeCachePath,
-                                  int64_t runnableId,
+EXTERN_C void RunNativeRunnableEx(int64_t runtime_id,
+                                  const char16_t *code_cache_path,
+                                  int64_t runnable_id,
                                   std::function<void(int64_t)> callback);
 
-EXTERN_C const char *getCrashMessageEx();
+EXTERN_C const char *GetCrashMessageEx();
 
-EXTERN_C void destroyEx(int64_t runtimeId,
-                        bool singleThreadMode,
+EXTERN_C void DestroyEx(int64_t runtime_id,
+                        bool single_thread_mode,
                         std::function<void(int64_t)> callback);
 
 #endif // BRIDGE_EXTENSION_H_

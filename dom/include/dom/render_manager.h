@@ -13,7 +13,8 @@ inline namespace dom {
 
 class RenderManager {
  public:
-  virtual ~RenderManager();
+  RenderManager() = default;
+  virtual ~RenderManager() = default;
 
   virtual void CreateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) = 0;
   virtual void UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) = 0;
