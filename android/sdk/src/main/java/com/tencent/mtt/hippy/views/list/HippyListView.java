@@ -179,6 +179,10 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
         scrollToInitContentOffset();
       }
 
+      if (mExposureEventEnable) {
+        dispatchExposureEvent();
+      }
+
       hasCompleteFirstBatch = true;
     }
   }
@@ -488,9 +492,6 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
   @Override
   protected void onLayout(boolean changed, int l, int t, int r, int b) {
     super.onLayout(changed, l, t, r, b);
-    if (changed && mExposureEventEnable) {
-      dispatchExposureEvent();
-    }
   }
 
   @Override
@@ -574,6 +575,10 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
   private void dispatchExposureEvent() {
     if (mLayout instanceof BaseLayoutManager) {
       BaseLayoutManager.OrientationHelper layoutHelper = ((BaseLayoutManager) mLayout).mOrientationHelper;
+      if (layoutHelper == null) {
+        return;
+      }
+
       int count = getChildCount();
       int fixOffset = (mLayout.canScrollHorizontally()) ? mState.mCustomHeaderWidth
           : mState.mCustomHeaderHeight;
