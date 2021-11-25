@@ -1,3 +1,23 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import {
   getApp,
   warn,
@@ -50,32 +70,26 @@ class WebSocket {
     const headers = {
       ...extrasHeaders,
     };
-
     if (!websocketEventHub) {
       websocketEventHub = app.$on(WEB_SOCKET_NATIVE_EVENT, this.onWebSocketEvent);
     }
-
     if (!url || typeof url !== 'string') {
       throw new TypeError('Invalid WebSocket url');
     }
-
     if (Array.isArray(protocols) && protocols.length > 0) {
       headers['Sec-WebSocket-Protocol'] = protocols.join(',');
     } else if (typeof protocols === 'string') {
       headers['Sec-WebSocket-Protocol'] = protocols;
     }
-
     const params = {
       headers,
       url,
     };
-
     Native.callNativeWithPromise(WEB_SOCKET_MODULE_NAME, 'connect', params).then((resp) => {
       if (!resp || resp.code !== 0 || typeof resp.id !== 'number') {
         warn('Fail to create websocket connection', resp);
         return;
       }
-
       this.webSocketId = resp.id;
     });
   }
@@ -96,7 +110,6 @@ class WebSocket {
     if (this.readyState !== READY_STATE_OPEN) {
       return;
     }
-
     this.readyState = READY_STATE_CLOSING;
     Native.callNative(WEB_SOCKET_MODULE_NAME, 'close', {
       id: this.webSocketId,
@@ -115,11 +128,9 @@ class WebSocket {
       warn('WebSocket is not connected');
       return;
     }
-
     if (typeof data !== 'string') {
       throw new TypeError(`Unsupported websocket data type: ${typeof data}`);
     }
-
     Native.callNative(WEB_SOCKET_MODULE_NAME, 'send', {
       id: this.webSocketId,
       data,
@@ -165,19 +176,16 @@ class WebSocket {
     if (typeof param !== 'object' || param.id !== this.webSocketId) {
       return;
     }
-
     const eventType = param.type;
     if (typeof eventType !== 'string') {
       return;
     }
-
     if (eventType === 'onOpen') {
       this.readyState = READY_STATE_OPEN;
     } else if (eventType === 'onClose') {
       this.readyState = READY_STATE_CLOSED;
       app.$off(WEB_SOCKET_NATIVE_EVENT);
     }
-
     const callback = this.webSocketCallbacks[eventType];
     if (isFunction(callback)) {
       callback(param.data);
