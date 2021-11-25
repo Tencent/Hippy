@@ -18,12 +18,13 @@ DomNode::DomNode(int32_t id, int32_t pid, int32_t index, std::string tag_name, s
       view_name_(std::move(view_name)),
       style_map_(std::move(style_map)),
       dom_ext_map_(std::move(dom_ext_map)),
+      is_just_layout_(false),
+      is_virtual_(false),
       dom_manager_(dom_manager),
-      current_callback_id_(0){}
+      current_callback_id_(0) {}
 
-DomNode::DomNode(int32_t id, int32_t pid, int32_t index) : id_(id), pid_(pid), index_(index) {}
-
-DomNode::DomNode() = default;
+DomNode::DomNode(int32_t id, int32_t pid, int32_t index)
+    : id_(id), pid_(pid), index_(index), is_just_layout_(false), is_virtual_(false), current_callback_id_(0) {}
 
 DomNode::~DomNode() = default;
 
@@ -37,7 +38,7 @@ int32_t DomNode::IndexOf(const std::shared_ptr<DomNode>& child) {
 }
 
 std::shared_ptr<DomNode> DomNode::GetChildAt(int32_t index) {
-  for (auto & i : children_) {
+  for (auto& i : children_) {
     if (i->index_ == index) {
       return i;
     }
@@ -69,8 +70,8 @@ void DomNode::DoLayout() {
 }
 
 void DomNode::SetSize(int32_t width, int32_t height) {
-    node_->SetWidth(width);
-    node_->SetHeight(height);
+  node_->SetWidth(width);
+  node_->SetHeight(height);
 }
 
 int32_t DomNode::AddDomEventListener(DomEvent event, OnDomEventListener listener) {
@@ -161,7 +162,7 @@ void DomNode::TransferLayoutOutputsRecursive(const std::shared_ptr<DomNode>& dom
   dom_node->layout_.paddingBottom = node->GetPadding(TaitankCssDirection::CSSBottom);
   OnLayout(LayoutEvent::OnLayout, layout_);
   node->SetHasNewLayout(false);
-  for (auto & it : children_) {
+  for (auto& it : children_) {
     TransferLayoutOutputsRecursive(it);
   }
 }
@@ -175,10 +176,10 @@ void DomNode::CallFunction(const std::string& name, std::unordered_map<std::stri
   if (callbacks_ == nullptr) {
     callbacks_ = std::make_shared<std::unordered_map<std::string, CallFunctionCallback>>();
   }
-  (*callbacks_)[name] =cb;
+  (*callbacks_)[name] = cb;
 }
 
-    [[maybe_unused]] CallFunctionCallback DomNode::GetCallback(const std::string& name) {
+[[maybe_unused]] CallFunctionCallback DomNode::GetCallback(const std::string& name) {
   if (callbacks_ && callbacks_->find(name) != callbacks_->end()) {
     return callbacks_->find(name)->second;
   }

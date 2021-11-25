@@ -26,7 +26,6 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
           std::unordered_map<std::string, std::shared_ptr<DomValue>>&& dom_ext_map,
           const std::shared_ptr<DomManager>& dom_manager);
   DomNode(int32_t id, int32_t pid, int32_t index);
-  DomNode();
   ~DomNode();
 
   // 记录RenderNode相关信息
@@ -111,9 +110,9 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   void OnLayout(LayoutEvent event, LayoutResult result);
 
  private:
-  int32_t id_{};             // 节点唯一id
-  int32_t pid_{};            // 父节点id
-  int32_t index_{};          // 当前节点在父节点孩子数组中的索引位置
+  int32_t id_;             // 节点唯一id
+  int32_t pid_;            // 父节点id
+  int32_t index_;          // 当前节点在父节点孩子数组中的索引位置
   std::string tag_name_;   // DSL 中定义的组件名称
   std::string view_name_;  // 底层映射的组件
   std::unordered_map<std::string, std::shared_ptr<DomValue>> style_map_;
@@ -124,9 +123,9 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   // Update 时用户自定义数据差异，UpdateRenderNode 完成后会清空 map，以节省内存
 
   std::shared_ptr<TaitankLayoutNode> node_;
-  LayoutResult layout_{};  // Layout 结果
-  bool is_just_layout_{};
-  bool is_virtual_{};
+  LayoutResult layout_;  // Layout 结果
+  bool is_just_layout_;
+  bool is_virtual_;
 
   OnLayoutEventListener on_layout_event_listener_;
 
@@ -135,7 +134,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
 
   RenderInfo render_info_;
   std::weak_ptr<DomManager> dom_manager_;
-  int32_t current_callback_id_{};
+  int32_t current_callback_id_;
   std::shared_ptr<std::unordered_map<DomEvent, std::unordered_map<int32_t, OnDomEventListener>>> dom_event_listeners;
   std::shared_ptr<std::unordered_map<LayoutEvent, std::unordered_map<int32_t, OnLayoutEventListener>>> layout_listeners;
   std::shared_ptr<std::unordered_map<int32_t, OnTouchEventListener>> touch_listeners;
