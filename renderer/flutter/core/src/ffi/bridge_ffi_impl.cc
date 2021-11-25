@@ -48,7 +48,7 @@ EXTERN_C int64_t InitJSFrameworkFFI(const char16_t* global_config, int32_t singl
 
 EXTERN_C int32_t RunScriptFromFileFFI(int32_t root_id, const char16_t* file_path, const char16_t* script_name,
                                       const char16_t* code_cache_dir, int32_t can_use_code_cache, int32_t callback_id) {
-  auto runtime = voltron::BridgeManager::GetBridgeManager(root_id)->GetRuntime().lock();
+  auto runtime = BridgeManager::GetBridgeManager(root_id)->GetRuntime().lock();
   if (runtime) {
     auto runtime_id = runtime->GetRuntimeId();
     return RunScriptFromFileEx(runtime_id, file_path, script_name, code_cache_dir, can_use_code_cache,
@@ -60,7 +60,7 @@ EXTERN_C int32_t RunScriptFromFileFFI(int32_t root_id, const char16_t* file_path
 EXTERN_C int32_t RunScriptFromAssetsFFI(int32_t root_id, const char16_t* asset_name, const char16_t* code_cache_dir,
                                         int32_t can_use_code_cache, const char16_t* asset_str_char,
                                         int32_t callback_id) {
-  auto runtime = voltron::BridgeManager::GetBridgeManager(root_id)->GetRuntime().lock();
+  auto runtime = BridgeManager::GetBridgeManager(root_id)->GetRuntime().lock();
   bool result = false;
   if (runtime) {
     auto runtime_id = runtime->GetRuntimeId();
@@ -76,7 +76,7 @@ EXTERN_C int32_t RunScriptFromAssetsFFI(int32_t root_id, const char16_t* asset_n
 }
 
 EXTERN_C void CallFunctionFFI(int32_t root_id, const char16_t* action, const char16_t* params, int32_t callback_id) {
-  auto runtime = voltron::BridgeManager::GetBridgeManager(root_id)->GetRuntime().lock();
+  auto runtime = BridgeManager::GetBridgeManager(root_id)->GetRuntime().lock();
   if (runtime) {
     auto runtime_id = runtime->GetRuntimeId();
     CallFunctionEx(runtime_id, action, params,
@@ -85,12 +85,22 @@ EXTERN_C void CallFunctionFFI(int32_t root_id, const char16_t* action, const cha
 }
 
 EXTERN_C void ConsumeRenderOpQueue(int32_t root_id) {
-
+  auto render_manager = BridgeManager::GetBridgeManager(root_id)->GetRenderManager().lock();
+  if (render_manager && post_render_op_func) {
+    auto render_op_buffer = render_manager->Consume();
+    if (render_op_buffer) {
+      auto buffer_length = static_cast<int64_t>(render_op_buffer->size());
+      if (buffer_length > 0) {
+        auto ptr = reinterpret_cast<const void*>(render_op_buffer->data());
+        post_render_op_func(root_id, ptr, buffer_length);
+      }
+    }
+  }
 }
 
 EXTERN_C void RunNativeRunnableFFI(int32_t root_id, const char16_t* code_cache_path, int64_t runnable_id,
                                    int32_t callback_id) {
-  auto runtime = voltron::BridgeManager::GetBridgeManager(root_id)->GetRuntime().lock();
+  auto runtime = BridgeManager::GetBridgeManager(root_id)->GetRuntime().lock();
   if (runtime) {
     auto runtime_id = runtime->GetRuntimeId();
     RunNativeRunnableEx(runtime_id, code_cache_path, runnable_id,
@@ -132,22 +142,25 @@ EXTERN_C int32_t RegisterCallFunc(int32_t type, void* func) {
     send_notification_func = reinterpret_cast<send_notification>(func);
     return true;
   } else if (type == DESTROY_FUNC_TYPE) {
-    destroyFunc = reinterpret_cast<destroy_function>(func);
+    destroy_func = reinterpret_cast<destroy_function>(func);
     return true;
   } else if (type == GLOBAL_CALLBACK_TYPE) {
-    globalCallbackFunc = reinterpret_cast<global_callback>(func);
+    global_callback_func = reinterpret_cast<global_callback>(func);
+    return true;
+  } else if (type == POST_RENDER_OP_TYPE) {
+    post_render_op_func = reinterpret_cast<post_render_op>(func);
     return true;
   }
   RENDER_CORE_LOG(rendercore::LoggingLevel::Error, "register func error, unknown type %d", type);
   return false;
 }
 
-bool callGlobalCallback(int32_t callbackId, int64_t value) {
-  if (globalCallbackFunc) {
-    const Work work = [value, callbackId]() { globalCallbackFunc(callbackId, value); };
+bool CallGlobalCallback(int32_t callbackId, int64_t value) {
+  if (global_callback_func) {
+    const Work work = [value, callbackId]() { global_callback_func(callbackId, value); };
     const Work* work_ptr = new Work(work);
     RENDER_CORE_LOG(rendercore::LoggingLevel::Info, "start callback");
-    postWorkToDart(work_ptr);
+    PostWorkToDart(work_ptr);
     return true;
   } else {
     RENDER_CORE_LOG(rendercore::LoggingLevel::Error, "call callback error, func not found");
@@ -159,12 +172,12 @@ EXTERN_C void Test() {
   //  const char16_t *params =
   //      "[10,[{\"index\":0,\"props\":{\"onPressIn\":true,\"style\":{\"width\":250,\"marginTop\":30,\"borderColor\":-11756806,\"alignItems\":\"center\",\"borderRadius\":8,\"height\":50,\"opacity\":1.0,\"borderWidth\":2,\"justifyContent\":\"center\"},\"onPressOut\":true,\"onClick\":true},\"name\":\"View\",\"id\":108,\"pId\":109}]]";
   //  int paramLen = strlen(params);
-  //  const void *paramsData = reinterpret_cast<const void *>(params);
+  //  const void *params_data = reinterpret_cast<const void *>(params);
   //  callNativeFunc(0,
-  //                 "moduleName",
-  //                 "moduleFunc",
-  //                 "callId",
-  //                 paramsData,
+  //                 "module_name",
+  //                 "module_func",
+  //                 "call_id",
+  //                 params_data,
   //                 paramLen,
   //                 true);
   //
@@ -191,9 +204,9 @@ EXTERN_C void Test() {
   //  int paramLenData = length;
   //  const void *paramsDataByte = reinterpret_cast<const void *>(data);
   //  callNativeFunc(0,
-  //                 "moduleName",
-  //                 "moduleFunc",
-  //                 "callId",
+  //                 "module_name",
+  //                 "module_func",
+  //                 "call_id",
   //                 paramsDataByte,
   //                 paramLenData,
   //                 false);

@@ -270,7 +270,8 @@ class ModalRenderViewModel extends GroupViewModel
       if (children.isNotEmpty) {
         oldWidth = newWidth;
         oldHeight = newHeight;
-        context.domManager.updateNodeSize(children[0].id, newWidth, newHeight);
+        // todo 更新root node size
+        // context.domManager.updateNodeSize(children[0].id, newWidth, newHeight);
       }
     }
   }

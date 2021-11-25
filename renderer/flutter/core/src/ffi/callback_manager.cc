@@ -7,19 +7,19 @@
 Dart_PostCObjectType dartPostCObject = NULL;
 Dart_Port callbackPort = 0;
 
-EXTERN_C void registerDartPostCObject(Dart_PostCObjectType _dartPostCObject, int64_t port) {
+EXTERN_C void VoltronRegisterDartPostCObject(Dart_PostCObjectType _dartPostCObject, int64_t port) {
   dartPostCObject = _dartPostCObject;
   callbackPort = port;
 }
 
-EXTERN_C void executeCallback(Work* work_ptr) {
+EXTERN_C void VoltronExecuteCallback(Work* work_ptr) {
   RENDER_CORE_LOG(rendercore::LoggingLevel::Info, "real callback");
   const Work work = *work_ptr;
   work();
   delete work_ptr;
 }
 
-bool postWorkToDart(const Work* work) {
+bool PostWorkToDart(const Work* work) {
   if (callbackPort != 0) {
     const auto workAddress = reinterpret_cast<intptr_t>(work);
     Dart_CObject dart_object;

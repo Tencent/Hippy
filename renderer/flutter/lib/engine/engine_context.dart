@@ -79,7 +79,7 @@ class EngineContext implements Destroyable {
         _startTimeMonitor = monitor,
         _engineMonitor = engineMonitor {
     _moduleManager = ModuleManager(this, apiProviders);
-    _bridgeManager = VoltronBridgeManager(this, coreLoader, groupId,
+    _bridgeManager = VoltronBridgeManager(this, coreLoader, groupId, _id,
         enableVoltronBuffer: enableVoltronBuffer,
         thirdPartyAdapter: thirdPartyAdapter,
         bridgeType: bridgeType,

@@ -22,7 +22,7 @@ class VoltronRenderTaskRunner {
   void RunDispatchFunction(int32_t id, const std::string& name,
                            std::unordered_map<std::string, std::shared_ptr<DomValue>> param,
                            DispatchFunctionCallback cb);
-
+  std::unique_ptr<std::vector<uint8_t>> ConsumeQueue();
  private:
   EncodableValue EncodeDomValueMap(const SpMap<DomValue>& value_map);
   std::unique_ptr<EncodableValue> ParseDomValue(const DomValue& value);

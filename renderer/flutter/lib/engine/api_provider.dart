@@ -9,7 +9,6 @@ import '../module/module.dart';
 import '../module/network.dart';
 import '../module/storage.dart';
 import '../module/time.dart';
-import '../module/ui_manager.dart';
 import '../module/utils.dart';
 import '../module/websocket.dart';
 import '../render/controller.dart';
@@ -124,8 +123,6 @@ class CoreApi implements APIProvider {
             (context) => ConsoleModule(context)),
         ModuleGenerator(ExceptionModule.exceptionModuleName,
             (context) => ExceptionModule(context)),
-        ModuleGenerator(UIManagerModule.uiModuleName,
-            (context) => UIManagerModule(context)),
         ModuleGenerator(DeviceEventModule.deviceModuleName,
             (context) => DeviceEventModule(context)),
         ModuleGenerator(NetworkModule.networkModuleName,

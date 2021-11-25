@@ -12,9 +12,9 @@ void FFIPlatformRuntime::CallNaive(const char16_t* moduleName, const char16_t* m
                                    const void* paramsData, uint32_t paramsLen, bool bridgeParamJson,
                                    std::function<void()> callback, bool autoFree) {
   if (call_native_func) {
-    const Work work = [runtimeId = runtime_id_, moduleName, moduleFunc, callId, paramsData, paramsLen, bridgeParamJson,
+    const Work work = [root_id = root_id_, moduleName, moduleFunc, callId, paramsData, paramsLen, bridgeParamJson,
                        callback_ = std::move(callback), autoFree]() {
-      call_native_func(runtimeId, moduleName, moduleFunc, callId, paramsData, paramsLen, bridgeParamJson);
+      call_native_func(root_id, moduleName, moduleFunc, callId, paramsData, paramsLen, bridgeParamJson);
       if (callback_) {
         callback_();
       }
@@ -36,7 +36,7 @@ void FFIPlatformRuntime::CallNaive(const char16_t* moduleName, const char16_t* m
       }
     };
     const Work* work_ptr = new Work(work);
-    postWorkToDart(work_ptr);
+    PostWorkToDart(work_ptr);
   }
 }
 
@@ -47,7 +47,7 @@ void FFIPlatformRuntime::PostCodeCacheRunnable(const char* codeCacheDirChar, int
       post_code_cache_runnable_func(runtimeId, codeCacheDirChar, runnableId, needClearException);
     };
     const Work* work_ptr = new Work(work);
-    postWorkToDart(work_ptr);
+    PostWorkToDart(work_ptr);
   }
 }
 
@@ -55,7 +55,7 @@ void FFIPlatformRuntime::ReportJSONException(const char* jsonValue) {
   if (report_json_exception_func) {
     const Work work = [runtimeId = runtime_id_, jsonValue]() { report_json_exception_func(runtimeId, jsonValue); };
     const Work* work_ptr = new Work(work);
-    postWorkToDart(work_ptr);
+    PostWorkToDart(work_ptr);
   }
 }
 
@@ -73,7 +73,7 @@ void FFIPlatformRuntime::ReportJSException(const char16_t* description_stream, c
       }
     };
     const Work* work_ptr = new Work(work);
-    postWorkToDart(work_ptr);
+    PostWorkToDart(work_ptr);
   }
 }
 
@@ -81,7 +81,7 @@ void FFIPlatformRuntime::CheckCodeCacheSanity(const char* scriptMd5) {
   if (check_code_cache_sanity_func) {
     const Work work = [runtimeId = runtime_id_, scriptMd5]() { check_code_cache_sanity_func(runtimeId, scriptMd5); };
     const Work* work_ptr = new Work(work);
-    postWorkToDart(work_ptr);
+    PostWorkToDart(work_ptr);
   }
 }
 
@@ -95,7 +95,7 @@ void FFIPlatformRuntime::SendResponse(const uint16_t* source, int len) {
       free(data);
     };
     const Work* work_ptr = new Work(work);
-    postWorkToDart(work_ptr);
+    PostWorkToDart(work_ptr);
   }
 }
 
@@ -110,15 +110,15 @@ void FFIPlatformRuntime::SendNotification(const uint16_t* source, int len) {
       free(data);
     };
     const Work* work_ptr = new Work(work);
-    postWorkToDart(work_ptr);
+    PostWorkToDart(work_ptr);
   }
 }
 
 void FFIPlatformRuntime::Destroy() {
-  if (destroyFunc) {
-    const Work work = [runtimeId = runtime_id_]() { destroyFunc(runtimeId); };
+  if (destroy_func) {
+    const Work work = [runtimeId = runtime_id_]() { destroy_func(runtimeId); };
     const Work* work_ptr = new Work(work);
-    postWorkToDart(work_ptr);
+    PostWorkToDart(work_ptr);
   }
 }
 

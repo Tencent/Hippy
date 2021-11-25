@@ -404,7 +404,8 @@ class VoltronEngine implements OnSizeChangedListener, OnResumeAndPauseListener {
   @override
   void onSizeChanged(int rootId, double width, double height, double oldWidth,
       double oldHeight) {
-    _engineContext?.domManager.updateNodeSize(rootId, width, height);
+    // todo 更新size
+    // _engineContext?.domManager.updateNodeSize(rootId, width, height);
   }
 
   void destroyEngine() {

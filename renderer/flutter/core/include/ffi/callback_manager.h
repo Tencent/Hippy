@@ -102,11 +102,11 @@ typedef bool (*Dart_PostCObjectType)(Dart_Port port_id, Dart_CObject* message);
 #ifdef __cplusplus
 extern "C" {
 #endif
-EXTERN_C void registerDartPostCObject(Dart_PostCObjectType _dartPostCObject, int64_t port);
+EXTERN_C void VoltronRegisterDartPostCObject(Dart_PostCObjectType _dartPostCObject, int64_t port);
 
-EXTERN_C void executeCallback(Work* work_ptr);
+EXTERN_C void VoltronExecuteCallback(Work* work_ptr);
 
-bool postWorkToDart(const Work* work);
+bool PostWorkToDart(const Work* work);
 #ifdef __cplusplus
 }
 #endif

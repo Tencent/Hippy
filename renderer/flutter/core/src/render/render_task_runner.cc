@@ -131,5 +131,8 @@ EncodableValue VoltronRenderTaskRunner::EncodeDomValueMap(const SpMap<DomValue>&
   return encode_value;
 }
 
+std::unique_ptr<std::vector<uint8_t>> VoltronRenderTaskRunner::ConsumeQueue() {
+  return queue_->ConsumeRenderOp();
+}
 
 }  // namespace voltron

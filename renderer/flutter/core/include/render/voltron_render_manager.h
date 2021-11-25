@@ -40,6 +40,10 @@ class VoltronRenderManager : public RenderManager, private VoltronRenderTaskRunn
   int32_t AddLongClickEventListener(int32_t id, OnLongClickEventListener listener) override {}
   void RemoveLongClickEventListener(int32_t id, int32_t listener_id) override {}
 
+  std::unique_ptr<std::vector<uint8_t>> Consume() {
+    return ConsumeQueue();
+  }
+
  private:
   int32_t root_id_;
 };

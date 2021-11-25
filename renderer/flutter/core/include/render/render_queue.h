@@ -11,7 +11,7 @@ class VoltronRenderQueue {
   VoltronRenderQueue() = default;
   ~VoltronRenderQueue();
   void ProduceRenderOp(const Sp<RenderTask>& task);
-  void* ConsumeRenderOp();
+  std::unique_ptr<std::vector<uint8_t>> ConsumeRenderOp();
 
  private:
   mutable std::mutex queue_mutex_;

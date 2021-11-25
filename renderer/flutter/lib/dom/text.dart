@@ -497,17 +497,18 @@ class TextNode extends StyleNode {
   @override
   void updateData(EngineContext context) {
     if (!isVirtual()) {
-      context.domManager.addUITask(() {
-        context.renderManager.updateExtra(
-            rootId,
-            id,
-            TextExtra(
-                data,
-                getPadding(FlexSpacing.start),
-                getPadding(FlexSpacing.end),
-                getPadding(FlexSpacing.bottom),
-                getPadding(FlexSpacing.top)));
-      });
+      // todo update textPadding
+      // context.domManager.addUITask(() {
+      //   context.renderManager.updateExtra(
+      //       rootId,
+      //       id,
+      //       TextExtra(
+      //           data,
+      //           getPadding(FlexSpacing.start),
+      //           getPadding(FlexSpacing.end),
+      //           getPadding(FlexSpacing.bottom),
+      //           getPadding(FlexSpacing.top)));
+      // });
     }
   }
 

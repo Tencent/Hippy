@@ -8,8 +8,9 @@ import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/services.dart' show StandardMessageCodec, rootBundle;
 import 'package:path_provider/path_provider.dart';
+
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:web_socket_channel/io.dart';
 
@@ -82,6 +83,7 @@ class _BridgeFFIManager {
   late RegisterSendResponseFfiDartType registerSendResponse;
   late RegisterSendNotificationFfiDartType registerSendNotification;
   late RegisterDestroyFfiDartType registerDestroy;
+  late RegisterPostRenderOpFfiDartType registerPostRenderOp;
 
   // 注册回调port和post指针
   late RegisterDartPostCObjectDartType registerDartPostCObject;
@@ -103,61 +105,63 @@ class _BridgeFFIManager {
   _BridgeFFIManager._internal() {
     registerDartPostCObject = _library.lookupFunction<
         RegisterDartPostCObjectNativeType,
-        RegisterDartPostCObjectDartType>("registerDartPostCObject");
+        RegisterDartPostCObjectDartType>("VoltronRegisterDartPostCObject");
 
     executeCallback = _library.lookupFunction<ExecuteCallbackNativeType,
-        ExecuteCallbackDartType>('executeCallback');
+        ExecuteCallbackDartType>('VoltronExecuteCallback');
 
     initJsFramework = _library.lookupFunction<InitJsFrameworkFfiNativeType,
-        InitJsFrameworkFfiDartType>("initJSFrameworkFFI");
+        InitJsFrameworkFfiDartType>("InitJSFrameworkFFI");
 
     runScriptFromFile = _library.lookupFunction<RunScriptFromFileFfiNativeType,
-        RunScriptFromFileFfiDartType>("runScriptFromFileFFI");
+        RunScriptFromFileFfiDartType>("RunScriptFromFileFFI");
 
     runScriptFromAsset = _library.lookupFunction<
         RunScriptFromAssetsFfiNativeType,
-        RunScriptFromAssetsFfiDartType>("runScriptFromAssetsFFI");
+        RunScriptFromAssetsFfiDartType>("RunScriptFromAssetsFFI");
 
     callFunction = _library.lookupFunction<CallFunctionFfiNativeType,
-        CallFunctionFfiDartType>("callFunctionFFI");
+        CallFunctionFfiDartType>("CallFunctionFFI");
 
     runNativeRunnable = _library.lookupFunction<RunNativeRunnableFfiNativeType,
-        RunNativeRunnableFfiDartType>("runNativeRunnableFFI");
+        RunNativeRunnableFfiDartType>("RunNativeRunnableFFI");
 
     getCrashMessage =
         _library.lookupFunction<GetCrashMessageFfiType, GetCrashMessageFfiType>(
-            "getCrashMessageFFI");
+            "GetCrashMessageFFI");
 
     destroy = _library
-        .lookupFunction<DestroyFfiNativeType, DestroyFfiDartType>("destroyFFI");
+        .lookupFunction<DestroyFfiNativeType, DestroyFfiDartType>("DestroyFFI");
 
     registerCallNative = _library.lookupFunction<
         RegisterCallNativeFfiNativeType,
-        RegisterCallNativeFfiDartType>("registerCallFunc");
+        RegisterCallNativeFfiDartType>("RegisterCallFunc");
     registerCallback = _library.lookupFunction<RegisterCallbackFfiNativeType,
-        RegisterCallbackFfiDartType>("registerCallFunc");
+        RegisterCallbackFfiDartType>("RegisterCallFunc");
     registerPostCodeCache = _library.lookupFunction<
         RegisterPostCodeCacheFfiNativeType,
-        RegisterPostCodeCacheFfiDartType>("registerCallFunc");
+        RegisterPostCodeCacheFfiDartType>("RegisterCallFunc");
     registerReportJson = _library.lookupFunction<
         RegisterReportJsonFfiNativeType,
-        RegisterReportJsonFfiDartType>("registerCallFunc");
+        RegisterReportJsonFfiDartType>("RegisterCallFunc");
     registerReportJs = _library.lookupFunction<RegisterReportJsFfiNativeType,
-        RegisterReportJsFfiDartType>("registerCallFunc");
+        RegisterReportJsFfiDartType>("RegisterCallFunc");
     registerCheckCodeCache = _library.lookupFunction<
         RegisterCheckCodeCacheFfiNativeType,
-        RegisterCheckCodeCacheFfiDartType>("registerCallFunc");
+        RegisterCheckCodeCacheFfiDartType>("RegisterCallFunc");
     registerSendResponse = _library.lookupFunction<
         RegisterSendResponseFfiNativeType,
-        RegisterSendResponseFfiDartType>("registerCallFunc");
+        RegisterSendResponseFfiDartType>("RegisterCallFunc");
     registerSendNotification = _library.lookupFunction<
         RegisterSendNotificationFfiNativeType,
-        RegisterSendNotificationFfiDartType>("registerCallFunc");
+        RegisterSendNotificationFfiDartType>("RegisterCallFunc");
     registerDestroy = _library.lookupFunction<RegisterDestroyFfiNativeType,
-        RegisterDestroyFfiDartType>("registerCallFunc");
-
+        RegisterDestroyFfiDartType>("RegisterCallFunc");
+    registerPostRenderOp = _library.lookupFunction<
+        RegisterPostRenderOpFfiNativeType,
+        RegisterPostRenderOpFfiDartType>("RegisterCallFunc");
     testFunc = _library
-        .lookupFunction<TestFunctionNativeType, TestFunctionDartType>("test");
+        .lookupFunction<TestFunctionNativeType, TestFunctionDartType>("Test");
   }
 }
 
@@ -173,7 +177,7 @@ class VoltronApi {
       bool bridgeParamJson,
       bool isDevModule,
       int groupId,
-      int runtimeId,
+      int rootId,
       CommonCallback callback) async {
     var globalConfigPtr = globalConfig.toNativeUtf16();
     globalConfig.toNativeUtf16();
@@ -183,7 +187,7 @@ class VoltronApi {
         bridgeParamJson ? 1 : 0,
         isDevModule ? 1 : 0,
         groupId,
-        runtimeId, generateCallback((value) {
+        rootId, generateCallback((value) {
       callback(value);
     }));
     free(globalConfigPtr);
@@ -191,7 +195,7 @@ class VoltronApi {
   }
 
   static Future<bool> runScriptFromFile(
-      int runtimeId,
+      int rootId,
       String filePath,
       String scriptName,
       String codeCacheDir,
@@ -201,7 +205,7 @@ class VoltronApi {
     var scriptNamePtr = scriptName.toNativeUtf16();
     var codeCacheDirPtr = codeCacheDir.toNativeUtf16();
     var result = _BridgeFFIManager.instance.runScriptFromFile(
-        runtimeId,
+        rootId,
         filePathPtr,
         scriptNamePtr,
         codeCacheDirPtr,
@@ -215,7 +219,7 @@ class VoltronApi {
   }
 
   static Future<dynamic> runScriptFromAssetWithData(
-      int runtimeId,
+      int rootId,
       String assetName,
       String codeCacheDir,
       bool canUseCodeCache,
@@ -236,7 +240,7 @@ class VoltronApi {
     stopwatch.reset();
     stopwatch.start();
     _BridgeFFIManager.instance.runScriptFromAsset(
-        runtimeId,
+        rootId,
         assetNamePtr,
         codeCacheDirPtr,
         canUseCodeCache ? 1 : 0,
@@ -250,7 +254,7 @@ class VoltronApi {
   }
 
   static Future<dynamic> runScriptFromAsset(
-      int runtimeId,
+      int rootId,
       String assetName,
       String codeCacheDir,
       bool canUseCodeCache,
@@ -267,7 +271,7 @@ class VoltronApi {
     LogUtils.profile("loadBundleFromAsset", stopwatch.elapsedMilliseconds);
 
     if (assetData != null) {
-      runScriptFromAssetWithData(runtimeId, assetName, codeCacheDir,
+      runScriptFromAssetWithData(rootId, assetName, codeCacheDir,
           canUseCodeCache, assetData, callback);
     }
   }
@@ -278,15 +282,15 @@ class VoltronApi {
     return result.toNativeUtf16();
   }
 
-  static Future<dynamic> callFunction(int runtimeId, String action,
-      String params, CommonCallback callback) async {
+  static Future<dynamic> callFunction(
+      int rootId, String action, String params, CommonCallback callback) async {
     var stopwatch = Stopwatch();
     stopwatch.start();
     var actionPtr = action.toNativeUtf16();
     var paramsPtr = params.toNativeUtf16();
     stopwatch.stop();
     LogUtils.profile("callFunction", stopwatch.elapsedMilliseconds);
-    _BridgeFFIManager.instance.callFunction(runtimeId, actionPtr, paramsPtr,
+    _BridgeFFIManager.instance.callFunction(rootId, actionPtr, paramsPtr,
         generateCallback((value) {
       stopwatch.stop();
       LogUtils.profile("callFunction", stopwatch.elapsedMilliseconds);
@@ -296,11 +300,11 @@ class VoltronApi {
     free(paramsPtr);
   }
 
-  static Future<dynamic> runNativeRunnable(int runtimeId, String codeCachePath,
+  static Future<dynamic> runNativeRunnable(int rootId, String codeCachePath,
       int runnableId, CommonCallback callback) async {
     var codeCachePathPtr = codeCachePath.toNativeUtf16();
     _BridgeFFIManager.instance.runNativeRunnable(
-        runtimeId, codeCachePathPtr, runnableId, generateCallback((value) {
+        rootId, codeCachePathPtr, runnableId, generateCallback((value) {
       callback(value);
     }));
     free(codeCachePathPtr);
@@ -312,8 +316,8 @@ class VoltronApi {
   }
 
   static Future<dynamic> destroy(
-      int runtimeId, bool singleThreadMode, CommonCallback callback) async {
-    _BridgeFFIManager.instance.destroy(runtimeId, singleThreadMode ? 1 : 0,
+      int rootId, bool singleThreadMode, CommonCallback callback) async {
+    _BridgeFFIManager.instance.destroy(rootId, singleThreadMode ? 1 : 0,
         generateCallback((value) {
       callback(value);
     }));
@@ -385,6 +389,12 @@ class VoltronApi {
         Pointer.fromFunction<DestroyFunctionNativeType>(onDestroy);
     _BridgeFFIManager.instance
         .registerDestroy(FuncType.destroy.index, onDestroyFunc);
+
+    // 注册postRenderOp回调
+    var postRenderOpFunc =
+        Pointer.fromFunction<PostRenderOpNativeType>(postRenderOp);
+    _BridgeFFIManager.instance
+        .registerPostRenderOp(FuncType.postRenderOp.index, postRenderOpFunc);
   }
 }
 
@@ -399,7 +409,7 @@ void requestExecuteCallback(dynamic message) {
 }
 
 void callNative(
-    int runtimeId,
+    int rootId,
     Pointer<Utf16> moduleNamePtr,
     Pointer<Utf16> moduleFuncPtr,
     Pointer<Utf16> callIdPtr,
@@ -412,86 +422,93 @@ void callNative(
   var callId = callIdPtr.toDartString();
   var dataList = paramsDataPtr.cast<Uint8>().asTypedList(paramsLen);
 
-  final bridge = VoltronBridgeManager.bridgeMap[runtimeId];
+  final bridge = VoltronBridgeManager.bridgeMap[rootId];
   if (bridge != null) {
     bridge.callNatives(
         moduleName, moduleFunc, callId, dataList, bridgeParamJson);
   }
 }
 
-void postCodeCacheRunnable(int runtimeId, Pointer<Utf8> codeCacheDirChar,
+void postCodeCacheRunnable(int rootId, Pointer<Utf8> codeCacheDirChar,
     int runnableId, int needClearException) {
   var codeCacheDir = codeCacheDirChar.toDartString();
-  final bridge = VoltronBridgeManager.bridgeMap[runtimeId];
+  final bridge = VoltronBridgeManager.bridgeMap[rootId];
   if (bridge != null) {
     bridge.runCacheRunnable(codeCacheDir, runnableId);
   }
 }
 
-void reportJsonException(int runtimeId, Pointer<Utf8> jsonValue) {
+void reportJsonException(int rootId, Pointer<Utf8> jsonValue) {
   var exception = jsonValue.toDartString();
   LogUtils.e("Voltron_bridge",
       "reportJsonException\n !!!!!!!!!!!!!!!!!!! \n Error($exception)");
 
-  final bridge = VoltronBridgeManager.bridgeMap[runtimeId];
+  final bridge = VoltronBridgeManager.bridgeMap[rootId];
   if (bridge != null) {
     bridge.reportException(exception, "");
   }
 }
 
-void reportJSException(int runtimeId, Pointer<Utf16> descriptionStream,
-    Pointer<Utf16> stackStream) {
+void reportJSException(
+    int rootId, Pointer<Utf16> descriptionStream, Pointer<Utf16> stackStream) {
   var exception = descriptionStream.toDartString();
   var stackTrace = stackStream.toDartString();
   LogUtils.e("Voltron_bridge",
       "reportJsException\n !!!!!!!!!!!!!!!!!!! \n Error($exception)\n StackTrace($stackTrace)");
 
-  final bridge = VoltronBridgeManager.bridgeMap[runtimeId];
+  final bridge = VoltronBridgeManager.bridgeMap[rootId];
   if (bridge != null) {
     bridge.reportException(exception, stackTrace);
   }
 }
 
-void checkCodeCacheSanity(int runtimeId, Pointer<Utf8> scriptMd5) {
+void checkCodeCacheSanity(int rootId, Pointer<Utf8> scriptMd5) {
   var filePath = scriptMd5.toDartString();
 
-  final bridge = VoltronBridgeManager.bridgeMap[runtimeId];
+  final bridge = VoltronBridgeManager.bridgeMap[rootId];
   if (bridge != null) {
     bridge.deleteCodeCache(filePath);
   }
 }
 
-void sendResponse(int runtimeId, Pointer<Uint16> source, int len) {
+void sendResponse(int rootId, Pointer<Uint16> source, int len) {
   var bytes = source.asTypedList(len);
   var msg = utf8.decode(bytes);
 
-  final bridge = getCurrentBridge(runtimeId);
+  final bridge = getCurrentBridge(rootId);
   if (bridge != null) {
     bridge.sendWebSocketMessage(msg);
   }
 }
 
-VoltronBridgeManager? getCurrentBridge(int runtimeId) {
-  var bridge = VoltronBridgeManager.bridgeMap[runtimeId];
+VoltronBridgeManager? getCurrentBridge(int rootId) {
+  var bridge = VoltronBridgeManager.bridgeMap[rootId];
   if (bridge == null) {
     bridge = VoltronBridgeManager.bridgeMap[0];
   }
   return bridge;
 }
 
-void sendNotification(int runtimeId, Pointer<Uint16> source, int len) {
+void sendNotification(int rootId, Pointer<Uint16> source, int len) {
   var bytes = source.asTypedList(len);
   var msg = utf8.decode(bytes);
   print('sendNotification utf8: $msg');
 
-  final bridge = getCurrentBridge(runtimeId);
+  final bridge = getCurrentBridge(rootId);
   if (bridge != null) {
     bridge.sendWebSocketMessage(msg);
   }
 }
 
-void onDestroy(int runtimeId) {
+void onDestroy(int rootId) {
   // empty
+}
+
+void postRenderOp(int rootId, Pointer<Void> data, int len) {
+  var dataList = data.cast<Uint8>().asTypedList(len);
+  if (dataList.isNotEmpty) {
+    var renderOpList = StandardMessageCodec().decodeMessage(dataList.buffer.asByteData());
+  }
 }
 
 // ------------------ native call dart方法 end ---------------------
@@ -506,7 +523,6 @@ class VoltronBridgeManager implements Destroyable {
   static const int bridgeTypeRemoteDebug = 0;
 
   static String? sCodeCacheRootDir;
-  static int sRuntimeIdCnt = 1;
   static int sBridgeNum = 0;
   static HashMap<int, VoltronBridgeManager> bridgeMap = HashMap();
 
@@ -517,13 +533,14 @@ class VoltronBridgeManager implements Destroyable {
   bool _isBridgeInit = false;
   final bool _enableVoltronBuffer;
   final bool _isDevModule;
+
   bool get isDevModule => _isDevModule;
   final bool _isSingleThread;
   final int _groupId;
   final List<String> _loadBundleInfo = [];
 
   late int _v8RuntimeId;
-  final int _platformRuntimeId = sRuntimeIdCnt++;
+  final int _rootId;
   IOWebSocketChannel? _webSocketChannel;
 
   ModuleListener? _loadModuleListener;
@@ -534,8 +551,8 @@ class VoltronBridgeManager implements Destroyable {
 
   VoltronBundleLoader? get coreBundleLoader => _coreBundleLoader;
 
-  VoltronBridgeManager(
-      EngineContext context, VoltronBundleLoader? coreBundleLoader, int groupId,
+  VoltronBridgeManager(EngineContext context,
+      VoltronBundleLoader? coreBundleLoader, int groupId, int id,
       {VoltronThirdPartyAdapter? thirdPartyAdapter,
       int bridgeType = bridgeTypeNormal,
       bool enableVoltronBuffer = false,
@@ -543,6 +560,7 @@ class VoltronBridgeManager implements Destroyable {
       : _context = context,
         _coreBundleLoader = coreBundleLoader,
         _groupId = groupId,
+        _rootId = id,
         _isDevModule = isDevModule,
         _enableVoltronBuffer = enableVoltronBuffer,
         _thirdPartyAdapter = thirdPartyAdapter,
@@ -552,35 +570,36 @@ class VoltronBridgeManager implements Destroyable {
   }
 
   void _handleVoltronInspectorInit() {
-    if (_isDevModule) {
-      bridgeMap[0] = this;
-      final webSocketUri = Uri.parse(
-          'ws://localhost:38989/debugger-proxy?role=android_client&id=$_platformRuntimeId');
-      _webSocketChannel = IOWebSocketChannel.connect(webSocketUri);
-      _sendDebugInfo({'platformRuntimeId': _platformRuntimeId});
-      final networkModel =
-          _context.moduleManager.nativeModule[NetworkModule.networkModuleName];
-      // 1.Inspector拦截网络请求和响应
-      if (networkModel is NetworkModule) {
-        networkModel.requestWillBeSentHook = Inspector().requestWillBeSent;
-        networkModel.responseReceivedHook = Inspector().responseReceived;
-      }
-      // 2、同步更新dom元素的数据
-      _context.domManager.batchHook = Inspector().updateDocument;
-      _webSocketChannel?.stream.listen((message) {
-        try {
-          // 优先处理VoltronInspector定义的事件。处理不成功，如果为安卓客户端，就通过V8转发事件信息
-          final isSuccessful =
-              Inspector().receiveFromFrontend(_context, json.decode(message));
-          if (!isSuccessful && PlatformManager.getInstance().isAndroid) {
-            VoltronApi.callFunction(
-                _v8RuntimeId, "onWebsocketMsg", message, (value) {});
-          }
-        } catch (e) {
-          LogUtils.e('Voltron_bridge', 'receive web socket message error: $e');
-        }
-      });
-    }
+    // todo 处理调试器初始化
+    // if (_isDevModule) {
+    //   bridgeMap[0] = this;
+    //   final webSocketUri = Uri.parse(
+    //       'ws://localhost:38989/debugger-proxy?role=android_client&id=$_platformRuntimeId');
+    //   _webSocketChannel = IOWebSocketChannel.connect(webSocketUri);
+    //   _sendDebugInfo({'platformRuntimeId': _platformRuntimeId});
+    //   final networkModel =
+    //       _context.moduleManager.nativeModule[NetworkModule.networkModuleName];
+    //   // 1.Inspector拦截网络请求和响应
+    //   if (networkModel is NetworkModule) {
+    //     networkModel.requestWillBeSentHook = Inspector().requestWillBeSent;
+    //     networkModel.responseReceivedHook = Inspector().responseReceived;
+    //   }
+    //   // 2、同步更新dom元素的数据
+    //   _context.domManager.batchHook = Inspector().updateDocument;
+    //   _webSocketChannel?.stream.listen((message) {
+    //     try {
+    //       // 优先处理VoltronInspector定义的事件。处理不成功，如果为安卓客户端，就通过V8转发事件信息
+    //       final isSuccessful =
+    //           Inspector().receiveFromFrontend(_context, json.decode(message));
+    //       if (!isSuccessful && PlatformManager.getInstance().isAndroid) {
+    //         VoltronApi.callFunction(
+    //             _v8RuntimeId, "onWebsocketMsg", message, (value) {});
+    //       }
+    //     } catch (e) {
+    //       LogUtils.e('Voltron_bridge', 'receive web socket message error: $e');
+    //     }
+    //   });
+    // }
   }
 
   Future<dynamic> initBridge(Callback callback) async {
@@ -594,7 +613,7 @@ class VoltronBridgeManager implements Destroyable {
           !_enableVoltronBuffer,
           _isDevModule,
           _groupId,
-          _platformRuntimeId, (value) {
+          _rootId, (value) {
         var thirdPartyAdapter = _thirdPartyAdapter;
         if (thirdPartyAdapter != null) {
           thirdPartyAdapter.setVoltronBridgeId(value);
@@ -611,14 +630,14 @@ class VoltronBridgeManager implements Destroyable {
               error = StateError(
                   "load coreJsBundle failed,check your core jsBundle");
             } else {
-              bridgeMap[_platformRuntimeId] = this;
+              bridgeMap[_rootId] = this;
             }
             callback(_isFrameWorkInit, error);
           });
         } else {
           _isFrameWorkInit = true;
           callback(_isFrameWorkInit, null);
-          bridgeMap[_platformRuntimeId] = this;
+          bridgeMap[_rootId] = this;
         }
       });
       _sendDebugInfo({'v8RuntimeId': _v8RuntimeId});
@@ -778,7 +797,7 @@ class VoltronBridgeManager implements Destroyable {
     _isBridgeInit = false;
     sBridgeNum--;
     _voltronBuffer.release();
-    bridgeMap.remove(_platformRuntimeId);
+    bridgeMap.remove(_rootId);
     await VoltronApi.destroy(_v8RuntimeId, _isSingleThread, (value) {});
   }
 
