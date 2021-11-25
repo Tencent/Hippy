@@ -12,7 +12,8 @@ RenderManagerProxy::RenderManagerProxy(std::shared_ptr<RenderManager> render_man
 
 void RenderManagerProxy::CreateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   std::vector<std::shared_ptr<DomNode>> nodes_to_create;
-  for (auto node : nodes) {
+  for (auto it = nodes.begin(); it != nodes.end(); it++) {
+    std::shared_ptr<DomNode> node = *it;
     node->SetIsJustLayout(ComputeIsLayoutOnly(node));
 
     if (!node->IsJustLayout() && !node->IsVirtual() && UpdateRenderInfo(node)) {
@@ -28,7 +29,8 @@ void RenderManagerProxy::CreateRenderNode(std::vector<std::shared_ptr<DomNode>>&
 void RenderManagerProxy::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   std::vector<std::shared_ptr<DomNode>> nodes_to_create;
   std::vector<std::shared_ptr<DomNode>> nodes_to_update;
-  for (const auto& node : nodes) {
+  for (auto it = nodes.begin(); it != nodes.end(); it++) {
+    std::shared_ptr<DomNode> node = *it;
     bool old_just_layout = node->IsJustLayout();
     node->SetIsJustLayout(ComputeIsLayoutOnly(node));
     if (old_just_layout && !node->IsJustLayout()) {
@@ -62,7 +64,8 @@ void RenderManagerProxy::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&
 
 void RenderManagerProxy::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   std::vector<std::shared_ptr<DomNode>> nodes_to_delete;
-  for (const auto& node : nodes) {
+  for (auto it = nodes.begin(); it != nodes.end(); it++) {
+    std::shared_ptr<DomNode> node = *it;
     if (!node->IsJustLayout() && !node->IsVirtual() && node->GetRenderInfo().created) {
       nodes_to_delete.push_back(node);
     }
@@ -123,7 +126,7 @@ void RenderManagerProxy::RemoveShowEventListener(int32_t id, ShowEvent event) {
   render_manager_->RemoveShowEventListener(id, event);
 }
 
-bool RenderManagerProxy::ComputeIsLayoutOnly(const std::shared_ptr<DomNode>& node) const {
+bool RenderManagerProxy::ComputeIsLayoutOnly(std::shared_ptr<DomNode> node) const {
   return node->GetTagName() == kTagNameView
          && CheckStyleJustLayout(node)
          && !node->HasTouchEventListeners();
@@ -220,7 +223,7 @@ bool RenderManagerProxy::IsJustLayoutProp(const char *prop_name) const {
   return kJustLayoutProps.find(prop_name) != kJustLayoutProps.end();
 }
 
-bool RenderManagerProxy::UpdateRenderInfo(const std::shared_ptr<DomNode>& node) {
+bool RenderManagerProxy::UpdateRenderInfo(std::shared_ptr<DomNode> node) {
   DomNode::RenderInfo render_info;
   auto render_parent = GetRenderParent(node);
   if (render_parent) {
@@ -237,7 +240,7 @@ bool RenderManagerProxy::UpdateRenderInfo(const std::shared_ptr<DomNode>& node) 
   return render_info.created;
 }
 
-std::shared_ptr<DomNode> RenderManagerProxy::GetRenderParent(const std::shared_ptr<DomNode>& node) {
+std::shared_ptr<DomNode> RenderManagerProxy::GetRenderParent(std::shared_ptr<DomNode> node) {
   auto parent = node->GetParent();
   while (parent && parent->IsJustLayout()) {
     parent = parent->GetParent();
@@ -245,15 +248,15 @@ std::shared_ptr<DomNode> RenderManagerProxy::GetRenderParent(const std::shared_p
   return parent;
 }
 
-int32_t RenderManagerProxy::CalculateRenderNodeIndex(const std::shared_ptr<DomNode>& parent,
-                                                     const std::shared_ptr<DomNode>& node) {
+int32_t RenderManagerProxy::CalculateRenderNodeIndex(std::shared_ptr<DomNode> parent,
+                                                     std::shared_ptr<DomNode> node) {
   assert(parent != nullptr);
   return CalculateRenderNodeIndex(parent, node, 0).second;
 }
 
 std::pair<bool, int32_t>
-RenderManagerProxy::CalculateRenderNodeIndex(const std::shared_ptr<DomNode>& parent,
-                                             const std::shared_ptr<DomNode>& node,
+RenderManagerProxy::CalculateRenderNodeIndex(std::shared_ptr<DomNode> parent,
+                                             std::shared_ptr<DomNode> node,
                                              int32_t index) {
   for (int i = 0; i < parent->GetChildCount(); i++) {
     std::shared_ptr<DomNode> child_node = parent->GetChildAt(i);
@@ -275,7 +278,7 @@ RenderManagerProxy::CalculateRenderNodeIndex(const std::shared_ptr<DomNode>& par
   return std::make_pair(false, index);
 }
 
-void RenderManagerProxy::FindMoveChildren(const std::shared_ptr<DomNode>& node,
+void RenderManagerProxy::FindMoveChildren(std::shared_ptr<DomNode> node,
                                           std::vector<int32_t> &removes) {
   for (int32_t i = 0; i < node->GetChildCount(); i++) {
     auto child_node = node->GetChildAt(i);
@@ -287,7 +290,7 @@ void RenderManagerProxy::FindMoveChildren(const std::shared_ptr<DomNode>& node,
   }
 }
 
-void RenderManagerProxy::ApplyLayoutRecursive(const std::shared_ptr<DomNode>& node) {
+void RenderManagerProxy::ApplyLayoutRecursive(std::shared_ptr<DomNode> node) {
   // TODO: 处理因为层级优化导致的布局信息变化
 }
 

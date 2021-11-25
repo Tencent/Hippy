@@ -210,7 +210,7 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
             switch (objcType[0]) {
 #define HIPPY_CASE(_value, _type)                                                     \
     case _value: {                                                                    \
-        _type (*convert)(id, SEL, id) = (typeof(convert))objc_msgSend;                \
+        _type (*convert)(id, SEL, id) = (__typeof(convert))objc_msgSend;                \
         HIPPY_ARG_BLOCK(_type value = convert([HippyConvert class], selector, json);) \
         break;                                                                        \
     }
@@ -232,7 +232,7 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
 #define HIPPY_NULLABLE_CASE(_value, _type)                                            \
     case _value: {                                                                    \
         isNullableType = YES;                                                         \
-        _type (*convert)(id, SEL, id) = (typeof(convert))objc_msgSend;                \
+        _type (*convert)(id, SEL, id) = (__typeof(convert))objc_msgSend;                \
         HIPPY_ARG_BLOCK(_type value = convert([HippyConvert class], selector, json);) \
         break;                                                                        \
     }
@@ -243,7 +243,7 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
 
                 case _C_ID: {
                     isNullableType = YES;
-                    id (*convert)(id, SEL, id) = (typeof(convert))objc_msgSend;
+                    id (*convert)(id, SEL, id) = (__typeof(convert))objc_msgSend;
                     HIPPY_ARG_BLOCK(id value = convert([HippyConvert class], selector, json); CFBridgingRetain(value);)
                     break;
                 }
@@ -267,7 +267,7 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
                 }
 
                 default: {
-                    static const char *blockType = @encode(typeof(^ {
+                    static const char *blockType = @encode(__typeof(^ {
                     }));
                     if (!strcmp(objcType, blockType)) {
                         addBlockArgument();

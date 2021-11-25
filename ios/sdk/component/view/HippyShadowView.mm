@@ -27,7 +27,7 @@
 #import "HippyUtils.h"
 #import "UIView+Hippy.h"
 #import "UIView+Private.h"
-#import "MTTNode.h"
+#import "HPNode.h"
 #import "HippyI18nUtils.h"
 
 static NSString *const HippyBackgroundColorProp = @"backgroundColor";
@@ -69,45 +69,45 @@ typedef NS_ENUM(unsigned int, meta_prop_t) {
 //  printf("%s(%zd), ", shadowView.viewName.UTF8String, shadowView.hippyTag.integerValue);
 //}
 #define DEFINE_PROCESS_META_PROPS(type)                                                                \
-    static void HippyProcessMetaProps##type(const float metaProps[META_PROP_COUNT], MTTNodeRef node) { \
+    static void HippyProcessMetaProps##type(const float metaProps[META_PROP_COUNT], HPNodeRef node) { \
         if (!isnan(metaProps[META_PROP_LEFT])) {                                                       \
-            MTTNodeStyleSet##type(node, CSSLeft, metaProps[META_PROP_LEFT]);                           \
+            HPNodeStyleSet##type(node, CSSLeft, metaProps[META_PROP_LEFT]);                           \
         } else if (!isnan(metaProps[META_PROP_HORIZONTAL])) {                                          \
-            MTTNodeStyleSet##type(node, CSSLeft, metaProps[META_PROP_HORIZONTAL]);                     \
+            HPNodeStyleSet##type(node, CSSLeft, metaProps[META_PROP_HORIZONTAL]);                     \
         } else if (!isnan(metaProps[META_PROP_ALL])) {                                                 \
-            MTTNodeStyleSet##type(node, CSSLeft, metaProps[META_PROP_ALL]);                            \
+            HPNodeStyleSet##type(node, CSSLeft, metaProps[META_PROP_ALL]);                            \
         } else {                                                                                       \
-            MTTNodeStyleSet##type(node, CSSLeft, 0);                                                   \
+            HPNodeStyleSet##type(node, CSSLeft, 0);                                                   \
         }                                                                                              \
                                                                                                        \
         if (!isnan(metaProps[META_PROP_RIGHT])) {                                                      \
-            MTTNodeStyleSet##type(node, CSSRight, metaProps[META_PROP_RIGHT]);                         \
+            HPNodeStyleSet##type(node, CSSRight, metaProps[META_PROP_RIGHT]);                         \
         } else if (!isnan(metaProps[META_PROP_HORIZONTAL])) {                                          \
-            MTTNodeStyleSet##type(node, CSSRight, metaProps[META_PROP_HORIZONTAL]);                    \
+            HPNodeStyleSet##type(node, CSSRight, metaProps[META_PROP_HORIZONTAL]);                    \
         } else if (!isnan(metaProps[META_PROP_ALL])) {                                                 \
-            MTTNodeStyleSet##type(node, CSSRight, metaProps[META_PROP_ALL]);                           \
+            HPNodeStyleSet##type(node, CSSRight, metaProps[META_PROP_ALL]);                           \
         } else {                                                                                       \
-            MTTNodeStyleSet##type(node, CSSRight, 0);                                                  \
+            HPNodeStyleSet##type(node, CSSRight, 0);                                                  \
         }                                                                                              \
                                                                                                        \
         if (!isnan(metaProps[META_PROP_TOP])) {                                                        \
-            MTTNodeStyleSet##type(node, CSSTop, metaProps[META_PROP_TOP]);                             \
+            HPNodeStyleSet##type(node, CSSTop, metaProps[META_PROP_TOP]);                             \
         } else if (!isnan(metaProps[META_PROP_VERTICAL])) {                                            \
-            MTTNodeStyleSet##type(node, CSSTop, metaProps[META_PROP_VERTICAL]);                        \
+            HPNodeStyleSet##type(node, CSSTop, metaProps[META_PROP_VERTICAL]);                        \
         } else if (!isnan(metaProps[META_PROP_ALL])) {                                                 \
-            MTTNodeStyleSet##type(node, CSSTop, metaProps[META_PROP_ALL]);                             \
+            HPNodeStyleSet##type(node, CSSTop, metaProps[META_PROP_ALL]);                             \
         } else {                                                                                       \
-            MTTNodeStyleSet##type(node, CSSTop, 0);                                                    \
+            HPNodeStyleSet##type(node, CSSTop, 0);                                                    \
         }                                                                                              \
                                                                                                        \
         if (!isnan(metaProps[META_PROP_BOTTOM])) {                                                     \
-            MTTNodeStyleSet##type(node, CSSBottom, metaProps[META_PROP_BOTTOM]);                       \
+            HPNodeStyleSet##type(node, CSSBottom, metaProps[META_PROP_BOTTOM]);                       \
         } else if (!isnan(metaProps[META_PROP_VERTICAL])) {                                            \
-            MTTNodeStyleSet##type(node, CSSBottom, metaProps[META_PROP_VERTICAL]);                     \
+            HPNodeStyleSet##type(node, CSSBottom, metaProps[META_PROP_VERTICAL]);                     \
         } else if (!isnan(metaProps[META_PROP_ALL])) {                                                 \
-            MTTNodeStyleSet##type(node, CSSBottom, metaProps[META_PROP_ALL]);                          \
+            HPNodeStyleSet##type(node, CSSBottom, metaProps[META_PROP_ALL]);                          \
         } else {                                                                                       \
-            MTTNodeStyleSet##type(node, CSSBottom, 0);                                                 \
+            HPNodeStyleSet##type(node, CSSBottom, 0);                                                 \
         }                                                                                              \
     }
 
@@ -144,18 +144,19 @@ DEFINE_PROCESS_META_PROPS(Border);
 // width = 213.5 - 106.5 = 107
 // You'll notice that this is the same width we calculated for the parent view because we've taken its position into account.
 
-- (void)applyLayoutNode:(MTTNodeRef)node
+- (void)applyLayoutNode:(HPNodeRef)node
       viewsWithNewFrame:(NSMutableSet<HippyShadowView *> *)viewsWithNewFrame
        absolutePosition:(CGPoint)absolutePosition {
-    if (!MTTNodeHasNewLayout(node) && !_visibilityChanged) {
+    if (!HPNodeHasNewLayout(node) && !_visibilityChanged) {
         return;
     }
-    MTTNodesetHasNewLayout(node, false);
-    float left = MTTNodeLayoutGetLeft(node);
-    float top = MTTNodeLayoutGetTop(node);
-    if (!MTTNodeGetParent(_nodeRef)) {
-        left = MTTNodeLayoutGetPosition(_nodeRef, CSSLeft);
-        top = MTTNodeLayoutGetPosition(_nodeRef, CSSTop);
+    HPNodesetHasNewLayout(node, false);
+    float left = HPNodeLayoutGetLeft(node);
+    float top = HPNodeLayoutGetTop(node);
+    HPNodeRef parentNode = _nodeRef->getParent();
+    if (!parentNode) {
+        left = HPNodeLayoutGetLeft(_nodeRef);
+        top = HPNodeLayoutGetTop(_nodeRef);
         if (isnan(left)) {
             left = 0;
         }
@@ -163,8 +164,8 @@ DEFINE_PROCESS_META_PROPS(Border);
             top = 0;
         }
     }
-    float width = MTTNodeLayoutGetWidth(node);
-    float height = MTTNodeLayoutGetHeight(node);
+    float width = HPNodeLayoutGetWidth(node);
+    float height = HPNodeLayoutGetHeight(node);
     CGPoint absoluteTopLeft = { absolutePosition.x + left, absolutePosition.y + top };
 
     CGPoint absoluteBottomRight = { absolutePosition.x + left + width,
@@ -183,18 +184,18 @@ DEFINE_PROCESS_META_PROPS(Border);
         _visibilityChanged = NO;
     }
 
-    absolutePosition.x += MTTNodeLayoutGetLeft(node);
-    absolutePosition.y += MTTNodeLayoutGetTop(node);
+    absolutePosition.x += HPNodeLayoutGetLeft(node);
+    absolutePosition.y += HPNodeLayoutGetTop(node);
 
     [self applyLayoutToChildren:node viewsWithNewFrame:viewsWithNewFrame absolutePosition:absolutePosition];
 }
 
-- (void)applyLayoutToChildren:(MTTNodeRef)node
+- (void)applyLayoutToChildren:(HPNodeRef)node
             viewsWithNewFrame:(NSMutableSet<HippyShadowView *> *)viewsWithNewFrame
              absolutePosition:(CGPoint)absolutePosition {
-    for (unsigned int i = 0; i < MTTNodeChildCount(node); ++i) {
+    for (unsigned int i = 0; i < HPNodeChildCount(node); ++i) {
         HippyShadowView *child = (HippyShadowView *)_hippySubviews[i];
-        [child applyLayoutNode:MTTNodeGetChild(node, i) viewsWithNewFrame:viewsWithNewFrame absolutePosition:absolutePosition];
+        [child applyLayoutNode:HPNodeGetChild(node, i) viewsWithNewFrame:viewsWithNewFrame absolutePosition:absolutePosition];
     }
 }
 
@@ -317,18 +318,18 @@ DEFINE_PROCESS_META_PROPS(Border);
     }
 
     if (!CGRectEqualToRect(frame, _frame)) {
-        MTTNodeStyleSetPositionType(_nodeRef, PositionTypeAbsolute);
-        MTTNodeStyleSetWidth(_nodeRef, CGRectGetWidth(frame));
-        MTTNodeStyleSetHeight(_nodeRef, CGRectGetHeight(frame));
-        MTTNodeStyleSetPosition(_nodeRef, CSSLeft, frame.origin.x);
-        MTTNodeStyleSetPosition(_nodeRef, CSSTop, frame.origin.y);
+        HPNodeStyleSetPositionType(_nodeRef, PositionTypeAbsolute);
+        HPNodeStyleSetWidth(_nodeRef, CGRectGetWidth(frame));
+        HPNodeStyleSetHeight(_nodeRef, CGRectGetHeight(frame));
+        HPNodeStyleSetPosition(_nodeRef, CSSLeft, frame.origin.x);
+        HPNodeStyleSetPosition(_nodeRef, CSSTop, frame.origin.y);
     }
 
     //  CSSNodeCalculateLayout(_cssNode, frame.size.width, frame.size.height, CSSDirectionInherit);
     NSWritingDirection direction = [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
-    MTTDirection nodeDirection = (NSWritingDirectionRightToLeft == direction) ? DirectionRTL : DirectionLTR;
+    HPDirection nodeDirection = (NSWritingDirectionRightToLeft == direction) ? DirectionRTL : DirectionLTR;
     nodeDirection = self.layoutDirection != DirectionInherit ? self.layoutDirection : nodeDirection;
-    MTTNodeDoLayout(_nodeRef, frame.size.width, frame.size.height, nodeDirection);
+    HPNodeDoLayout(_nodeRef, frame.size.width, frame.size.height, nodeDirection);
     //  [self applyLayoutNode:_cssNode viewsWithNewFrame:viewsWithNewFrame absolutePosition:absolutePosition];
     [self applyLayoutNode:_nodeRef viewsWithNewFrame:viewsWithNewFrame absolutePosition:absolutePosition];
 }
@@ -375,7 +376,9 @@ DEFINE_PROCESS_META_PROPS(Border);
 
         _hippySubviews = [NSMutableArray array];
 
-        _nodeRef = MTTNodeNewWithScaleFactor([UIScreen mainScreen].scale);
+        HPConfigRef configRef = new HPConfig();
+        configRef->SetScaleFactor([UIScreen mainScreen].scale);
+        _nodeRef = HPNodeNewWithConfig(configRef);
     }
     return self;
 }
@@ -385,7 +388,11 @@ DEFINE_PROCESS_META_PROPS(Border);
 }
 
 - (void)dealloc {
-    MTTNodeFree(_nodeRef);
+    HPConfigRef configRef = _nodeRef->GetConfig();
+    if (configRef) {
+        HPConfigFree(configRef);
+    }
+    HPNodeFree(_nodeRef);
 }
 
 - (BOOL)isCSSLeafNode {
@@ -426,14 +433,14 @@ DEFINE_PROCESS_META_PROPS(Border);
     if (![_visibility isEqualToString:visibility]) {
         _visibility = visibility;
         _visibilityChanged = YES;
-        MTTNodeMarkDirty(self.nodeRef);
+        HPNodeMarkDirty(self.nodeRef);
     }
 }
 
 - (void)insertHippySubview:(HippyShadowView *)subview atIndex:(NSInteger)atIndex {
     [_hippySubviews insertObject:subview atIndex:atIndex];
     if (![self isCSSLeafNode]) {
-        MTTNodeInsertChild(_nodeRef, subview.nodeRef, (uint32_t)atIndex);
+        HPNodeInsertChild(_nodeRef, subview.nodeRef, (uint32_t)atIndex);
     }
     subview->_superview = self;
     _didUpdateSubviews = YES;
@@ -448,7 +455,7 @@ DEFINE_PROCESS_META_PROPS(Border);
     subview->_superview = nil;
     [_hippySubviews removeObject:subview];
     if (![self isCSSLeafNode]) {
-        MTTNodeRemoveChild(_nodeRef, subview.nodeRef);
+        HPNodeRemoveChild(_nodeRef, subview.nodeRef);
     }
 }
 
@@ -538,19 +545,19 @@ HIPPY_PADDING_PROPERTY(Bottom, BOTTOM)
 HIPPY_PADDING_PROPERTY(Right, RIGHT)
 
 - (UIEdgeInsets)paddingAsInsets {
-    CGFloat top = MTTNodeLayoutGetPadding(_nodeRef, CSSTop);
+    CGFloat top = HPNodeLayoutGetPadding(_nodeRef, CSSTop);
     if (isnan(top)) {
         top = 0;
     }
-    CGFloat left = MTTNodeLayoutGetPadding(_nodeRef, CSSLeft);
+    CGFloat left = HPNodeLayoutGetPadding(_nodeRef, CSSLeft);
     if (isnan(left)) {
         left = 0;
     }
-    CGFloat bottom = MTTNodeLayoutGetPadding(_nodeRef, CSSBottom);
+    CGFloat bottom = HPNodeLayoutGetPadding(_nodeRef, CSSBottom);
     if (isnan(bottom)) {
         bottom = 0;
     }
-    CGFloat right = MTTNodeLayoutGetPadding(_nodeRef, CSSRight);
+    CGFloat right = HPNodeLayoutGetPadding(_nodeRef, CSSRight);
     if (isnan(right)) {
         right = 0;
     }
@@ -576,11 +583,11 @@ HIPPY_BORDER_PROPERTY(Right, RIGHT)
 // Dimensions
 #define X5_DIMENSION_PROPERTY(setProp, getProp, cssProp) \
     -(void)set##setProp : (CGFloat)value {               \
-        MTTNodeStyleSet##cssProp(_nodeRef, value);       \
+        HPNodeStyleSet##cssProp(_nodeRef, value);       \
         [self dirtyText];                                \
     }                                                    \
     -(CGFloat)getProp {                                  \
-        return MTTNodeLayoutGet##cssProp(_nodeRef);      \
+        return HPNodeLayoutGet##cssProp(_nodeRef);      \
     }
 X5_DIMENSION_PROPERTY(Width, width, Width)
 X5_DIMENSION_PROPERTY(Height, height, Height)
@@ -592,11 +599,11 @@ X5_DIMENSION_PROPERTY(MaxHeight, maxHeight, MaxHeight)
 // Position
 #define X5_POSITION_PROPERTY(setProp, getProp, edge)     \
     -(void)set##setProp : (CGFloat)value {               \
-        MTTNodeStyleSetPosition(_nodeRef, edge, value);  \
+        HPNodeStyleSetPosition(_nodeRef, edge, value);  \
         [self dirtyText];                                \
     }                                                    \
     -(CGFloat)getProp {                                  \
-        return MTTNodeLayoutGetPosition(_nodeRef, edge); \
+        return _nodeRef->style.position[edge];        \
     }
 X5_POSITION_PROPERTY(Top, top, CSSTop)
 X5_POSITION_PROPERTY(Right, right, CSSRight)
@@ -606,24 +613,24 @@ X5_POSITION_PROPERTY(Left, left, CSSLeft)
 - (void)setFrame:(CGRect)frame {
     if (!CGRectEqualToRect(frame, _frame)) {
         _frame = frame;
-        MTTNodeStyleSetPosition(_nodeRef, CSSLeft, CGRectGetMinX(frame));
-        MTTNodeStyleSetPosition(_nodeRef, CSSTop, CGRectGetMinY(frame));
-        MTTNodeStyleSetWidth(_nodeRef, CGRectGetWidth(frame));
-        MTTNodeStyleSetHeight(_nodeRef, CGRectGetHeight(frame));
+        HPNodeStyleSetPosition(_nodeRef, CSSLeft, CGRectGetMinX(frame));
+        HPNodeStyleSetPosition(_nodeRef, CSSTop, CGRectGetMinY(frame));
+        HPNodeStyleSetWidth(_nodeRef, CGRectGetWidth(frame));
+        HPNodeStyleSetHeight(_nodeRef, CGRectGetHeight(frame));
     }
 }
 
-static inline void x5AssignSuggestedDimension(MTTNodeRef cssNode, Dimension dimension, CGFloat amount) {
+static inline void x5AssignSuggestedDimension(HPNodeRef cssNode, Dimension dimension, CGFloat amount) {
     if (amount != UIViewNoIntrinsicMetric) {
         switch (dimension) {
             case DimWidth:
-                if (isnan(MTTNodeLayoutGetWidth(cssNode))) {
-                    MTTNodeStyleSetWidth(cssNode, amount);
+                if (isnan(HPNodeLayoutGetWidth(cssNode))) {
+                    HPNodeStyleSetWidth(cssNode, amount);
                 }
                 break;
             case DimHeight:
-                if (isnan(MTTNodeLayoutGetHeight(cssNode))) {
-                    MTTNodeStyleSetHeight(cssNode, amount);
+                if (isnan(HPNodeLayoutGetHeight(cssNode))) {
+                    HPNodeStyleSetHeight(cssNode, amount);
                 }
                 break;
         }
@@ -631,39 +638,39 @@ static inline void x5AssignSuggestedDimension(MTTNodeRef cssNode, Dimension dime
 }
 
 - (void)setIntrinsicContentSize:(CGSize)size {
-    if (MTTNodeLayoutGetFlexGrow(_nodeRef) == 0.f && MTTNodeLayoutGetFlexShrink(_nodeRef) == 0.f) {
+    if (HPNodeLayoutGetFlexGrow(_nodeRef) == 0.f && HPNodeLayoutGetFlexShrink(_nodeRef) == 0.f) {
         x5AssignSuggestedDimension(_nodeRef, DimHeight, size.height);
         x5AssignSuggestedDimension(_nodeRef, DimWidth, size.width);
     }
 }
 
 - (void)setTopLeft:(CGPoint)topLeft {
-    MTTNodeStyleSetPosition(_nodeRef, CSSLeft, topLeft.x);
-    MTTNodeStyleSetPosition(_nodeRef, CSSLeft, topLeft.y);
+    HPNodeStyleSetPosition(_nodeRef, CSSLeft, topLeft.x);
+    HPNodeStyleSetPosition(_nodeRef, CSSLeft, topLeft.y);
 }
 
 - (void)setSize:(CGSize)size {
-    MTTNodeStyleSetWidth(_nodeRef, size.width);
-    MTTNodeStyleSetHeight(_nodeRef, size.height);
+    HPNodeStyleSetWidth(_nodeRef, size.width);
+    HPNodeStyleSetHeight(_nodeRef, size.height);
 }
 
-- (void)setLayoutDirection:(MTTDirection)layoutDirection {
+- (void)setLayoutDirection:(HPDirection)layoutDirection {
     _layoutDirection = layoutDirection;
-    MTTNodeStyleSetDirection(_nodeRef, layoutDirection);
+    HPNodeStyleSetDirection(_nodeRef, layoutDirection);
 }
 
 // Flex
 
 - (void)setFlex:(CGFloat)value {
-    MTTNodeStyleSetFlex(_nodeRef, value);
+    HPNodeStyleSetFlex(_nodeRef, value);
 }
 
 #define X5_STYLE_PROPERTY(setProp, getProp, cssProp, type) \
     -(void)set##setProp : (type)value {                    \
-        MTTNodeStyleSet##cssProp(_nodeRef, value);         \
+        HPNodeStyleSet##cssProp(_nodeRef, value);         \
     }                                                      \
     -(type)getProp {                                       \
-        return MTTNodeLayoutGet##cssProp(_nodeRef);        \
+        return HPNodeLayoutGet##cssProp(_nodeRef);        \
     }
 
 X5_STYLE_PROPERTY(FlexGrow, flexGrow, FlexGrow, CGFloat)

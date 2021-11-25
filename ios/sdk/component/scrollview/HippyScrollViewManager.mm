@@ -26,7 +26,6 @@
 #import "HippyScrollView.h"
 #import "HippyShadowView.h"
 #import "HippyUIManager.h"
-#import "MTTFlex.h"
 
 @implementation HippyConvert (UIScrollView)
 

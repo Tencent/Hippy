@@ -22,7 +22,7 @@
 
 #import "HippyRootShadowView.h"
 #import "HippyUtils.h"
-#include "MTTLayout.h"
+#include "Hippy.h"
 #import "HippyI18nUtils.h"
 
 @implementation HippyRootShadowView
@@ -43,14 +43,14 @@
         case HippyRootViewSizeFlexibilityNone:
             break;
         case HippyRootViewSizeFlexibilityWidth:
-            MTTNodeStyleSetWidth(self.nodeRef, NAN);
+            HPNodeStyleSetWidth(self.nodeRef, NAN);
             break;
         case HippyRootViewSizeFlexibilityHeight:
-            MTTNodeStyleSetHeight(self.nodeRef, NAN);
+            HPNodeStyleSetHeight(self.nodeRef, NAN);
             break;
         case HippyRootViewSizeFlexibilityWidthAndHeight:
-            MTTNodeStyleSetWidth(self.nodeRef, NAN);
-            MTTNodeStyleSetHeight(self.nodeRef, NAN);
+            HPNodeStyleSetWidth(self.nodeRef, NAN);
+            HPNodeStyleSetHeight(self.nodeRef, NAN);
             break;
     }
 }
@@ -59,8 +59,8 @@
     [self applySizeConstraints];
     
     NSWritingDirection direction = [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
-    MTTDirection nodeDirection = (NSWritingDirectionRightToLeft == direction) ? DirectionRTL : DirectionLTR;
-    MTTNodeDoLayout(self.nodeRef, NAN, NAN, nodeDirection);
+    HPDirection nodeDirection = (NSWritingDirectionRightToLeft == direction) ? DirectionRTL : DirectionLTR;
+    HPNodeDoLayout(self.nodeRef, NAN, NAN, nodeDirection);
 
     NSMutableSet<HippyShadowView *> *viewsWithNewFrame = [NSMutableSet set];
     [self applyLayoutNode:self.nodeRef viewsWithNewFrame:viewsWithNewFrame absolutePosition:CGPointZero];

@@ -112,17 +112,24 @@
  * gesture event
  */
 typedef void(^onTouchEventListener)(CGPoint);
-typedef NS_ENUM(NSUInteger, HippyTouchEventType) {
-    HippyTouchEventTypeStart,
-    HippyTouchEventTypeMove,
-    HippyTouchEventTypeEnd,
-    HippyTouchEventTypeCancel,
-    HippyTouchEventTypeClick,
-    HippyTouchEventTypeLongClick,
+typedef NS_ENUM(NSUInteger, HippyViewEventType) {
+    //touche event
+    HippyViewEventTypeTouchStart,
+    HippyViewEventTypeTouchMove,
+    HippyViewEventTypeTouchEnd,
+    HippyViewEventTypeTouchCancel,
+    
+    //show event
+    HippyViewEventTypeShow,
+    HippyViewEventTypeDismiss,
+    
+    //click event
+    HippyViewEventTypeClick,
+    HippyViewEventTypeLongClick,
 };
-- (NSInteger)addTouchEvent:(HippyTouchEventType)touchEvent eventListener:(onTouchEventListener)listener;
-- (void)removeTouchEvent:(HippyTouchEventType)touchEvent;
-- (void)removeTouchEventByID:(NSInteger)touchID;
+- (NSInteger)addViewEvent:(HippyViewEventType)touchEvent eventListener:(onTouchEventListener)listener;
+- (void)removeViewEvent:(HippyViewEventType)touchEvent;
+- (void)removeViewEventByID:(NSInteger)touchID;
 
 #if HIPPY_DEV
 

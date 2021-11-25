@@ -445,7 +445,7 @@ void BindShowEvent(std::shared_ptr<Ctx> context, const std::string &name,
       return;
     }
     int32_t id = dom_node->GetId();
-    dom_node->AddShowEventListener(event, [weak_context, weak_func, id](const std::any &) {
+    dom_node->AddShowEventListener(event, [weak_context, weak_func, id](void) {
       auto context = weak_context.lock();
       if (!context) {
         return;
