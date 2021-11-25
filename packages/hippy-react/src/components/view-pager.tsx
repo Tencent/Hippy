@@ -144,11 +144,9 @@ class ViewPager extends React.Component<ViewPagerProps, {}> {
         </ViewPagerItem>
       ));
     }
-
     if (typeof onPageScrollStateChanged === 'function') {
       (nativeProps as any).onPageScrollStateChanged = this.onPageScrollStateChanged;
     }
-
     return (
       <div
         nativeName="ViewPager"

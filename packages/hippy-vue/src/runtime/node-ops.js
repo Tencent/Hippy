@@ -1,6 +1,5 @@
-/* eslint-disable import/prefer-default-export */
-
 import document from '../renderer/document-node';
+// import { recursivelyUnCacheNode } from '../util/node';
 
 const namespaceMap = {};
 
@@ -30,6 +29,9 @@ function insertBefore(pNode, newNode, referenceNode) {
 }
 
 function removeChild(node, child) {
+  // if (child !== undefined && child !== null) {
+  //   recursivelyUnCacheNode(child);
+  // }
   node.removeChild(child);
 }
 

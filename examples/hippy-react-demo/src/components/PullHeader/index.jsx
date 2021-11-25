@@ -206,7 +206,7 @@ export default class PullHeaderExample extends React.Component {
           data = mockData;
         }
         return resolve(data);
-      }, 2000);
+      }, 600);
     });
   }
 
