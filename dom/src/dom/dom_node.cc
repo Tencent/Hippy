@@ -1,4 +1,5 @@
 #include "dom/dom_node.h"
+#include "dom/node_props.h"
 #include "dom/dom_manager.h"
 
 namespace hippy {
