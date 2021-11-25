@@ -10,9 +10,7 @@ import { Event } from './native/event';
 class DocumentNode extends ViewNode {
   constructor() {
     super();
-
     this.documentElement = new ElementNode('document');
-
     // make static methods accessible via this
     this.createComment = this.constructor.createComment;
     this.createElement = this.constructor.createElement;
@@ -25,7 +23,6 @@ class DocumentNode extends ViewNode {
   }
 
   static createElement(tagName) {
-    // TODO: create element instance by tagName definition.
     switch (tagName) {
       case 'input':
       case 'textarea':

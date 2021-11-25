@@ -1,5 +1,3 @@
-/* eslint-disable import/prefer-default-export */
-/* eslint-disable class-methods-use-this */
 /* eslint-disable no-underscore-dangle */
 
 import { looseEqual } from 'shared/util';

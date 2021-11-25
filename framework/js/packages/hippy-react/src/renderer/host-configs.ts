@@ -2,6 +2,7 @@ import isEqual from 'fast-deep-equal';
 import Document from '../dom/document-node';
 import Element from '../dom/element-node';
 import { unicodeToChar } from '../utils';
+// import { preCacheFiberNode, recursivelyUnCacheFiberNode } from '../utils/node';
 import '@localTypes/global';
 import {
   Type,
@@ -59,14 +60,20 @@ function createInstance(
       }
     }
   });
-  // only HostComponent(5) or Fragment(7) render to native
+  // only HostComponent (5) or Fragment (7) rendered to native
   if ([5, 7].indexOf(workInProgress.tag) < 0) {
     element.meta.skipAddToDom = true;
   }
+  // preCacheFiberNode(workInProgress, element.nodeId);
   return element;
 }
 
-function createTextInstance(newText: string, rootContainerInstance: Document) {
+function createTextInstance(
+  newText: string,
+  rootContainerInstance: Document,
+  hostContext: object,
+  workInProgress: any,
+) {
   const element = rootContainerInstance.createElement('p');
   element.setAttribute('text', unicodeToChar(newText));
   element.meta = {
@@ -74,6 +81,7 @@ function createTextInstance(newText: string, rootContainerInstance: Document) {
       name: 'Text',
     },
   };
+  // preCacheFiberNode(workInProgress, element.nodeId);
   return element;
 }
 
@@ -145,10 +153,12 @@ function prepareUpdate(
 function replaceContainerChildren() {}
 
 function removeChild(parent: Element, child: Element): void {
+  // recursivelyUnCacheFiberNode(child);
   parent.removeChild(child);
 }
 
 function removeChildFromContainer(parent: Element, child: Element): void {
+  // recursivelyUnCacheFiberNode(child);
   parent.removeChild(child);
 }
 
