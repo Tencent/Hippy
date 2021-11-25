@@ -33,7 +33,7 @@ public class NativeRendererDelegate {
   public NativeRendererDelegate(INativeRenderer nativeRenderer) {
     this.nativeRenderer = nativeRenderer;
     deserializer = new Deserializer(null, new InternalizedStringTable());
-    onCreateNativeRendererDelegate();
+    //onCreateNativeRendererDelegate();
   }
 
   public void destroy() {
@@ -63,7 +63,7 @@ public class NativeRendererDelegate {
 
     return (paramsObj instanceof HippyArray) ? (HippyArray)paramsObj : new HippyArray();
   }
-  
+
   public void createNode(byte[] buffer) {
     final HippyArray hippyArray = bytesToArgument(ByteBuffer.wrap(buffer));
     UIThreadUtils.runOnUiThread(new Runnable() {
@@ -100,5 +100,5 @@ public class NativeRendererDelegate {
     });
   }
 
-  public native void onCreateNativeRendererDelegate();
+  //public native void onCreateNativeRendererDelegate();
 }
