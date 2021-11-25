@@ -5,7 +5,7 @@ on:
     inputs:
       v8_revision:
         description: 'V8 TAG(Branch) to build'
-        default: '9.5-lkgr'
+        default: '9.7-lkgr'
         required: true
       release_tag:
         description: 'Release tag'
@@ -103,6 +103,7 @@ jobs:
         cp -r ../../include/* artifact/include/v8/
         cp -r gen/include/* artifact/include/v8/
         find artifact/include/v8/. ! -name "*.h" -type f -delete
+        git rev-parse HEAD >> artifact/HEAD
     - name: Upload ${{ matrix.arch }}
       uses: actions/upload-artifact@v2
       with:
@@ -148,12 +149,25 @@ jobs:
       with:
         path: ${{ env.v8-dist }}/official-release
     - name: Merge all artifact
+      id: merge_all_artifact
       working-directory: ${{ env.v8-dist }}/official-release
       run: |
         for d in */ ; do
+          current_head=`cat $d/HEAD`
+          if [ -z ${prev_head} ]; then
+            prev_head=${current_head}
+          else
+            if [ ${prev_head} != ${current_head} ]; then
+              echo "prev HEAD(${prev_head}) and ${d} HEAD(${current_head}) are not equal"
+              exit -1
+            fi
+          fi
+          rm $d/HEAD
           cp -r $d/* ./
           rm -rf $d
         done
+        echo "::set-output name=head_full::${current_head}"
+        echo "::set-output name=head_lite::${current_head:0:8}"
     - name: Generate Readme
       uses: DamianReeves/write-file-action@v1.0
       with:
@@ -163,28 +177,30 @@ jobs:
 
               _Do NOT modify this release manually._
 
-              Refs: [${{ github.event.inputs.v8_revision }}][1]
+              Refs: [v8/v8@${{ steps.merge_all_artifact.outputs.head_lite }}][1]
+              Branch/Tag: ${{ github.event.inputs.v8_revision }}
 
-              [1]: https://github.com/v8/v8/tree/${{ github.event.inputs.v8_revision }}
+              [1]: https://github.com/v8/v8/tree/${{ steps.merge_all_artifact.outputs.head_full }}
               [2]: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
         write-mode: overwrite
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v3
       with:
         commit-message: |
-                    chore(v8): update V8 to ${{ github.event.inputs.v8_revision }}
+                    chore(v8): update V8 to ${{ github.event.inputs.v8_revision }}@${{ steps.merge_all_artifact.outputs.head_lite }}
 
-                    Ref-URL: https://github.com/v8/v8/tree/${{ github.event.inputs.v8_revision }}
-                    Action-Run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+                    Ref-URL: v8/v8@${{ steps.merge_all_artifact.outputs.head_full }}
+                    Action-Run: [${{ github.run_id }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
         branch: chore/update-v8-to-${{ github.event.inputs.v8_revision }}
         delete-branch: true
-        title: 'chore(v8): update V8 to ${{ github.event.inputs.v8_revision }}'
+        title: 'chore(v8): update V8 to ${{ github.event.inputs.v8_revision }}@${{ steps.merge_all_artifact.outputs.head_lite }}'
         body: |
-          Refs: [${{ github.event.inputs.v8_revision }}][1]
+          Refs: [v8/v8@${{ steps.merge_all_artifact.outputs.head_lite }}][1]
+          Branch/Tag: ${{ github.event.inputs.v8_revision }}
           Release TAG: ${{ github.event.inputs.release_tag }}
-          Action Run: [${{ github.run_id }}][2]
+          Action Run: [#${{ github.run_id }}][2]
 
-          [1]: https://github.com/v8/v8/tree/${{ github.event.inputs.v8_revision }}
+          [1]: https://github.com/v8/v8/tree/${{ steps.merge_all_artifact.outputs.head_full }}
           [2]: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
         labels: |
           dependencies
