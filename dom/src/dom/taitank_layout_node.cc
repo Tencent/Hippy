@@ -17,7 +17,7 @@ static OverflowType GetFlexOverflow(int overflow) {
   }
 }
 
-static FlexDirection GetFlexDirection(std::string flex_direction) {
+static FlexDirection GetFlexDirection(const std::string& flex_direction) {
   if (flex_direction.empty()) {
     return FlexDirection::FLexDirectionColumn;
   }
@@ -37,7 +37,7 @@ static FlexDirection GetFlexDirection(std::string flex_direction) {
 }
 
 static FlexWrapMode GetFlexWrapMode(std::string wrap_mode) {
-  if (wrap_mode.empty() || wrap_mode.compare("nowrap") == 0) {
+  if (wrap_mode.empty() || wrap_mode == "nowrap") {
     return FlexWrapMode::FlexNoWrap;
   } else if (wrap_mode.compare("wrap") == 0) {
     return FlexWrapMode::FlexWrap;
@@ -49,7 +49,7 @@ static FlexWrapMode GetFlexWrapMode(std::string wrap_mode) {
   }
 }
 
-static FlexAlign GetFlexJustify(std::string justify_content) {
+static FlexAlign GetFlexJustify(const std::string& justify_content) {
   if (justify_content.empty()) {
     return FlexAlign::FlexAlignStart;
   }
@@ -78,7 +78,7 @@ static FlexAlign GetFlexAlign(std::string align) {
   if (align.compare("auto") == 0) {
     return FlexAlign::FlexAlignAuto;
   }
-  if (align.compare("flex-start") == 0) {
+  if (align == "flex-start") {
     return FlexAlign::FlexAlignStart;
   }
   if (align.compare("center") == 0) {

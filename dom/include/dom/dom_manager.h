@@ -42,9 +42,9 @@ class DomManager {
   inline int32_t GetRooId() { return root_id_; }
 
  protected:
-  void OnDomNodeCreated(std::shared_ptr<DomNode> node);
-  void OnDomNodeUpdated(std::shared_ptr<DomNode> node);
-  void OnDomNodeDeleted(std::shared_ptr<DomNode> node);
+  void OnDomNodeCreated(const std::shared_ptr<DomNode>& node);
+  static void OnDomNodeUpdated(const std::shared_ptr<DomNode>& node);
+  void OnDomNodeDeleted(const std::shared_ptr<DomNode>& node);
 
  private:
   int32_t root_id_;
@@ -56,7 +56,7 @@ class DomManager {
 
   class DomNodeRegistry {
    public:
-    void AddNode(std::shared_ptr<DomNode> node);
+    void AddNode(const std::shared_ptr<DomNode>& node);
     std::shared_ptr<DomNode> GetNode(int32_t id);
     void RemoveNode(int32_t id);
 

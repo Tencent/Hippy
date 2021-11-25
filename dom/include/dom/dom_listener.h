@@ -30,7 +30,7 @@ enum class DomEvent {
   Create, Update, Delete
 };
 
-using OnDomEventListener = std::function<void(std::any)> ;
+using OnDomEventListener = std::function<void()> ;
 
 enum class LayoutEvent {
   OnLayout

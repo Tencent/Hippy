@@ -24,7 +24,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   DomNode(int32_t id, int32_t pid, int32_t index, std::string tag_name, std::string view_name,
           std::unordered_map<std::string, std::shared_ptr<DomValue>>&& style_map,
           std::unordered_map<std::string, std::shared_ptr<DomValue>>&& dom_ext_map,
-          std::shared_ptr<DomManager> dom_manager);
+          const std::shared_ptr<DomManager>& dom_manager);
   DomNode(int32_t id, int32_t pid, int32_t index);
   DomNode();
   ~DomNode();
@@ -46,13 +46,13 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   void SetParent(std::shared_ptr<DomNode> parent) { parent_ = parent; }
 
   int32_t GetChildCount() const { return children_.size(); }
-  int32_t IndexOf(std::shared_ptr<DomNode> child);
+  int32_t IndexOf(const std::shared_ptr<DomNode>& child);
   std::shared_ptr<DomNode> GetChildAt(int32_t index);
-  void AddChildAt(std::shared_ptr<DomNode> dom_node, int32_t index);
+  void AddChildAt(const std::shared_ptr<DomNode>& dom_node, int32_t index);
   std::shared_ptr<DomNode> RemoveChildAt(int32_t index);
   void DoLayout();
   void ParseLayoutStyleInfo();
-  void TransferLayoutOutputsRecursive(std::shared_ptr<DomNode> dom_node);
+  void TransferLayoutOutputsRecursive(const std::shared_ptr<DomNode>& dom_node);
   int32_t AddClickEventListener(OnClickEventListener listener);
   void RemoveClickEventListener(int32_t listener_id);
   int32_t AddLongClickEventListener(OnLongClickEventListener listener);
@@ -89,23 +89,27 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   void SetIndex(int32_t index) { index_ = index; }
   int32_t GetIndex() const { return index_; }
   void SetSize(int32_t width, int32_t height);
-  int32_t AddDomEventListener(std::shared_ptr<DomEvent> event, OnDomEventListener listener);
-  void RemoveDomEventListener(std::shared_ptr<DomEvent> event, int32_t listener_id);
-
-  int32_t AddOnLayoutListener(std::shared_ptr<LayoutEvent> event, OnLayoutEventListener listener);
-
+  int32_t AddDomEventListener(DomEvent event, OnDomEventListener listener);
+  void RemoveDomEventListener(DomEvent event, int32_t listener_id);
+  int32_t AddOnLayoutListener(LayoutEvent event, OnLayoutEventListener listener);
+  void RemoveOnLayoutListener(LayoutEvent event, int32_t listener_id);
+  void OnDomNodeStateChange(DomEvent event);
   const std::unordered_map<std::string, std::shared_ptr<DomValue>>& GetStyleMap() const { return style_map_; }
 
   bool HasTouchEventListeners() const { return !touch_listeners->empty(); }
   void CallFunction(const std::string& name,
                     std::unordered_map<std::string, std::shared_ptr<DomValue>> param,
-                    CallFunctionCallback cb);
+                    const CallFunctionCallback& cb);
+
   CallFunctionCallback GetCallback(const std::string& name);
 
+ protected:
+  void OnLayout(LayoutEvent event, LayoutResult result);
+
  private:
-  int32_t id_;             // 节点唯一id
-  int32_t pid_;            // 父节点id
-  int32_t index_;          // 当前节点在父节点孩子数组中的索引位置
+  int32_t id_{};             // 节点唯一id
+  int32_t pid_{};            // 父节点id
+  int32_t index_{};          // 当前节点在父节点孩子数组中的索引位置
   std::string tag_name_;   // DSL 中定义的组件名称
   std::string view_name_;  // 底层映射的组件
   std::unordered_map<std::string, std::shared_ptr<DomValue>> style_map_;
@@ -116,9 +120,9 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   // Update 时用户自定义数据差异，UpdateRenderNode 完成后会清空 map，以节省内存
 
   std::shared_ptr<TaitankLayoutNode> node_;
-  LayoutResult layout_;  // Layout 结果
-  bool is_just_layout_;
-  bool is_virtual_;
+  LayoutResult layout_{};  // Layout 结果
+  bool is_just_layout_{};
+  bool is_virtual_{};
 
   OnLayoutEventListener on_layout_event_listener_;
 
@@ -127,14 +131,14 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
 
   RenderInfo render_info_;
   std::weak_ptr<DomManager> dom_manager_;
-  int32_t current_callback_id_;
+  int32_t current_callback_id_{};
+  std::shared_ptr<std::unordered_map<DomEvent, std::unordered_map<int32_t, OnDomEventListener>>> dom_event_listeners;
+  std::shared_ptr<std::unordered_map<LayoutEvent, std::unordered_map<int32_t, OnLayoutEventListener>>> layout_listeners;
   std::shared_ptr<std::unordered_map<int32_t, OnTouchEventListener>> touch_listeners;
   std::shared_ptr<std::unordered_map<int32_t, OnClickEventListener>> click_listeners;
   std::shared_ptr<std::unordered_map<int32_t, OnLongClickEventListener>> long_click_listeners;
   std::shared_ptr<std::unordered_map<int32_t, OnShowEventListener>> show_listeners;
   std::shared_ptr<std::unordered_map<std::string, CallFunctionCallback>> callbacks_;
-
-
 };
 
 }  // namespace dom
