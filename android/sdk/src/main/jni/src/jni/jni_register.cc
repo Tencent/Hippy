@@ -80,7 +80,7 @@ bool JNIRegister::RegisterMethods(JNIEnv* j_env) {
       methods.push_back(method);
     }
 
-    j_env->RegisterNatives(j_class, methods.data(), methods.size());
+    j_env->RegisterNatives(j_class, methods.data(), JniUtils::CheckedNumericCast<size_t, jint>(methods.size()));
   }
   return true;
 }
