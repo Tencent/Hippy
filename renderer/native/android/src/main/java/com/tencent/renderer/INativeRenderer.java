@@ -18,8 +18,10 @@ package com.tencent.renderer;
 import android.view.ViewGroup;
 import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
 import com.tencent.mtt.hippy.adapter.font.HippyFontScaleAdapter;
+import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.DomManager;
+import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.supportui.adapters.image.IImageLoaderAdapter;
 
@@ -58,5 +60,12 @@ public interface INativeRenderer {
   void removeInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);
 
   void handleNativeException(Exception exception, boolean haveCaught);
+
+  void createNode(HippyArray hippyArray);
+
+  void updateNode(HippyArray updateArray);
+
+  void deleteNode(HippyArray deleteArray);
+
 
 }

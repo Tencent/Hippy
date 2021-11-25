@@ -52,11 +52,12 @@ public class NativeRenderer implements INativeRenderer, INativeRendererProxy {
 
   private int instanceId;
   private int rootId;
+  private boolean isDebugMode;
   private RenderManager renderManager;
   private DomManager domManager;
   private HippyRootView rootView;
-  private boolean isDebugMode;
   private IFrameworkProxy frameworkProxy;
+  private NativeRendererDelegate delegate;
   volatile CopyOnWriteArrayList<HippyInstanceLifecycleEventListener> instanceLifecycleEventListeners;
 
   @Override
@@ -64,6 +65,7 @@ public class NativeRenderer implements INativeRenderer, INativeRendererProxy {
       boolean isDebugMode, ViewGroup rootView) {
     renderManager = new RenderManager(this, controllers);
     domManager = new DomManager(this);
+    delegate = new NativeRendererDelegate(this);
     if (rootView instanceof HippyRootView) {
       rootId = rootView.getId();
       this.rootView = (HippyRootView)rootView;
@@ -146,6 +148,10 @@ public class NativeRenderer implements INativeRenderer, INativeRendererProxy {
     }
     if (renderManager != null) {
       renderManager.destroy();
+    }
+    if (delegate != null) {
+      delegate.destroy();
+      delegate = null;
     }
     if (instanceLifecycleEventListeners != null) {
       instanceLifecycleEventListeners.clear();
@@ -405,6 +411,22 @@ public class NativeRenderer implements INativeRenderer, INativeRendererProxy {
       domManager.renderBatchEnd();
     }
   }
+
+  @Override
+  public void createNode(HippyArray hippyArray) {
+
+  }
+
+  @Override
+  public void updateNode(HippyArray updateArray) {
+
+  }
+
+  @Override
+  public void deleteNode(HippyArray deleteArray) {
+
+  }
+
 
   public ThreadExecutor getJSEngineThreadExecutor() {
     if (!checkJSFrameworkProxy()) {
