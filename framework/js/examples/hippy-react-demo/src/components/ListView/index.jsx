@@ -148,7 +148,6 @@ export default class ListExample extends React.Component {
     console.log('onDisappear', index);
   }
 
-  // TODO android onWillAppear不完善，暂时不适用
   // item至少一个像素曝光
   // eslint-disable-next-line class-methods-use-this
   onWillAppear(index) {
@@ -156,7 +155,6 @@ export default class ListExample extends React.Component {
     console.log('onWillAppear', index);
   }
 
-  // TODO android onWillDisappear不完善，暂时不适用
   // item至少一个像素隐藏
   // eslint-disable-next-line class-methods-use-this
   onWillDisappear(index) {
@@ -224,7 +222,7 @@ export default class ListExample extends React.Component {
           return resolve([]);
         }
         return resolve(mockDataArray);
-      }, 1000);
+      }, 600);
     });
   }
 
@@ -237,7 +235,8 @@ export default class ListExample extends React.Component {
           }}
         bounces={true}
         overScrollEnabled={true}
-        horizontal={undefined} // horizontal ListView  flag（only Android support）
+        // horizontal ListView  flag（only Android support）
+        horizontal={undefined}
         style={{ flex: 1, backgroundColor: '#ffffff' }}
         numberOfRows={dataSource.length}
         renderRow={this.getRenderRow}

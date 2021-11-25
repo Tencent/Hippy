@@ -11,7 +11,6 @@ import ListViewItem, { ListViewItemProps } from './list-view-item';
 import PullHeader from './pull-header';
 import PullFooter from './pull-footer';
 
-
 type DataItem = any;
 
 interface ListViewProps {
@@ -205,18 +204,6 @@ interface ListViewProps {
   onWillDisappear?: (index: number) => void
 }
 
-// interface ListItemViewProps {
-//   key?: string;
-//   type?: number | string | undefined;
-//   sticky?: boolean;
-//   style?: Style;
-//   onLayout?: (evt: any) => void;
-//   onAppear?: (index: number) => void;
-//   onDisappear?: (index: number) => void;
-//   onWillAppear?: (index: number) => void;
-//   onWillDisappear?: (index: number) => void;
-// }
-
 interface ListViewState {
   initialListReady: boolean;
 }
@@ -365,6 +352,7 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
     if (typeof renderPullHeader === 'function') {
       pullHeader = (
         <PullHeader
+          key={'pull-header'}
           ref={(ref) => {
             this.pullHeader = ref;
           }}
@@ -387,6 +375,7 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
     if (typeof renderPullFooter === 'function') {
       pullFooter = (
         <PullFooter
+          key={'pull-footer'}
           ref={(ref) => {
             this.pullFooter = ref;
           }}
@@ -464,30 +453,24 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
       onWillDisappear,
       ...nativeProps
     } = this.props;
-
     const itemList = [];
     // Deprecated: Fallback for up-forward compatible.
     if (typeof renderRow === 'function') {
       const {
         initialListReady,
       } = this.state;
-
       let { numberOfRows } = this.props;
       const pullHeader = this.getPullHeader(renderPullHeader, onHeaderPulling, onHeaderReleased);
       const pullFooter = this.getPullFooter(renderPullFooter, onFooterPulling, onFooterReleased);
-
       if (!numberOfRows && dataSource) {
         numberOfRows = dataSource.length;
       }
-
       if (!initialListReady) {
         numberOfRows = Math.min(numberOfRows, (initialListSize || 10));
       }
-
       for (let index = 0; index < numberOfRows; index += 1) {
         const itemProps: ListViewItemProps = {};
         let rowChildren;
-
         if (dataSource) {
           rowChildren = renderRow(dataSource[index], null, index);
         } else {
@@ -507,7 +490,6 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
             };
           }
         });
-
         if (rowChildren) {
           itemList.push((
             <ListViewItem {...itemProps}>
@@ -516,15 +498,12 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
           ));
         }
       }
-
       if (pullHeader) {
         itemList.unshift(pullHeader);
       }
-
       if (pullFooter) {
         itemList.push(pullFooter);
       }
-
       if (typeof rowShouldSticky === 'function') {
         Object.assign(nativeProps, {
           rowShouldSticky: true,
@@ -539,7 +518,6 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
         ...style,
       };
     }
-
     if (!nativeProps.onLoadMore && nativeProps.onEndReached) {
       nativeProps.onLoadMore = nativeProps.onEndReached;
     }

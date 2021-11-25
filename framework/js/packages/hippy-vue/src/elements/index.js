@@ -31,7 +31,6 @@ function getDefaultComponent(elementName, meta, normalizedName) {
   };
 }
 
-// Methods
 function normalizeElementName(elementName) {
   return elementName.toLowerCase();
 }
@@ -41,22 +40,17 @@ function registerElement(elementName, oldMeta) {
     throw new Error('RegisterElement cannot set empty name');
   }
   const normalizedName = normalizeElementName(elementName);
-
   const meta = { ...defaultViewMeta, ...oldMeta };
-
   if (elementMap.has(normalizedName)) {
     throw new Error(`Element for ${elementName} already registered.`);
   }
-
   meta.component = {
     ...getDefaultComponent(elementName, meta, normalizedName),
     ...meta.component,
   };
-
   if (meta.component.name && meta.component.name === capitalizeFirstLetter(camelize(elementName))) {
     warn(`Cannot registerElement with kebab-case name ${elementName}, which converted to camelCase is the same with component.name ${meta.component.name}, please make them different`);
   }
-
   const entry = {
     meta,
   };
@@ -70,14 +64,11 @@ function getElementMap() {
 
 function getViewMeta(elementName) {
   const normalizedName = normalizeElementName(elementName);
-
   let viewMeta = defaultViewMeta;
   const entry = elementMap.get(normalizedName);
-
   if (entry && entry.meta) {
     viewMeta = entry.meta;
   }
-
   return viewMeta;
 }
 
