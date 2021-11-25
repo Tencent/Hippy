@@ -88,11 +88,17 @@ public class HippyListViewController extends HippyViewController<HippyListView> 
 
   @Override
   protected View createViewImpl(Context context, HippyMap iniProps) {
-    if (iniProps != null && iniProps.containsKey("horizontal")) {
-      return new HippyListView(context, BaseLayoutManager.HORIZONTAL);
-    } else {
-      return new HippyListView(context, BaseLayoutManager.VERTICAL);
+    boolean enableScrollEvent = false;
+    int orientation = BaseLayoutManager.VERTICAL;
+    if (iniProps != null) {
+      if (iniProps.getBoolean("horizontal")) {
+        orientation = BaseLayoutManager.HORIZONTAL;
+      }
+      enableScrollEvent = iniProps.getBoolean("onScroll");
     }
+    HippyListView listView = new HippyListView(context, orientation);
+    listView.setOnScrollEventEnable(enableScrollEvent);
+    return listView;
   }
 
   @Override
@@ -125,11 +131,6 @@ public class HippyListViewController extends HippyViewController<HippyListView> 
   @HippyControllerProps(name = "onMomentumScrollEnd", defaultType = HippyControllerProps.BOOLEAN)
   public void setMomentumScrollEndEventEnable(HippyListView view, boolean flag) {
     view.setMomentumScrollEndEventEnable(flag);
-  }
-
-  @HippyControllerProps(name = "onScrollEnable", defaultType = HippyControllerProps.BOOLEAN)
-  public void setOnScrollEventEnable(HippyListView view, boolean flag) {
-    view.setOnScrollEventEnable(flag);
   }
 
   @HippyControllerProps(name = "exposureEventEnabled", defaultType = HippyControllerProps.BOOLEAN)
