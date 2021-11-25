@@ -66,7 +66,7 @@ using OnAttachChangedListener = std::function<void(bool)>;
 enum class ShowEvent {
   Show, Dismiss
 };
-using OnShowEventListener = std::function<void()>;
+using OnShowEventListener = std::function<void(std::any)>;
 
 }
 }

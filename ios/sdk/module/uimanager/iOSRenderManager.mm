@@ -24,7 +24,7 @@
 void iOSRenderManager::CreateRenderNode(std::vector<std::shared_ptr<DomNode>> &&nodes) {
     for (const std::shared_ptr<DomNode> &node : nodes) {
         int32_t tag = node->GetId();
-        const std::string &viewName = node->GetViweName();
+        const std::string &viewName = node->GetViewName();
         int32_t rootTag = node->GetRenderInfo().pid;
         [uiManager renderCreateView:tag viewName:viewName rootTag:rootTag tagName:node->GetTagName() props:node->GetStyleMap()];
     }
@@ -33,7 +33,7 @@ void iOSRenderManager::CreateRenderNode(std::vector<std::shared_ptr<DomNode>> &&
 void iOSRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
     for (const std::shared_ptr<DomNode> &node : nodes) {
         int32_t tag = node->GetId();
-        const std::string &viewName = node->GetViweName();
+        const std::string &viewName = node->GetViewName();
         [uiManager renderUpdateView:tag viewName:viewName props:node->GetStyleMap()];
     }
 }

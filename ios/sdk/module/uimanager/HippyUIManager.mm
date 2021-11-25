@@ -1814,9 +1814,10 @@ static NSDictionary *unorderedMapDomValueToDictionary(const std::unordered_map<s
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
         HippyViewEventType type = ShowEvent::Show == event ? HippyViewEventTypeShow : HippyViewEventTypeDismiss;
-        [view addViewEvent:type eventListener:^(CGPoint) {
+        [view addViewEvent:type eventListener:^(CGPoint point) {
             if (listener) {
-                listener();
+                std::any flag = true;
+                listener(flag);
             }
         }];
     }
