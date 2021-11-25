@@ -57,3 +57,4 @@
 #include "core/task/javascript_task.h"
 #include "core/task/javascript_task_runner.h"
 #include "core/task/worker_task_runner.h"
+#include "../../dom/include/dom/dom_node.h"

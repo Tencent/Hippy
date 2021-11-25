@@ -21,7 +21,7 @@ Hippy中运行的JS代码可以来源于本地文件(local file)，或者远程�
 
 # 终端环境准备
 
-我们推荐在终端代码中留一个后门，通过一定条件触发后进入调试模式，具体代码可以参考 [iOS](//github.com/Tencent/Hippy/blob/master/examples/ios-demo/HippyDemo/TestModule.m#L36) 和 [Android](//github.com/Tencent/Hippy/blob/master/examples/android-demo/example/src/main/java/com/tencent/mtt/hippy/example/module/TestModule.java#L31)，这里实现了一个 `TestModule`，当前端调用它的 `debug` 方法时就会进入调试模式，而终端可以通过其它方式进入。
+我们推荐在终端代码中留一个后门，通过一定条件触发后进入调试模式，具体代码可以参考 [iOS](//github.com/Tencent/Hippy/blob/master/framework/js/examples/ios-demo/HippyDemo/TestModule.m#L36) 和 [Android](//github.com/Tencent/Hippy/blob/master/framework/js/examples/android-demo/example/src/main/java/com/tencent/mtt/hippy/example/module/TestModule.java#L31)，这里实现了一个 `TestModule`，当前端调用它的 `debug` 方法时就会进入调试模式，而终端可以通过其它方式进入。
 
 # 调试 Javascript
 
@@ -29,7 +29,7 @@ Hippy中运行的JS代码可以来源于本地文件(local file)，或者远程�
 
 这里仅以官方范例为准，讲述如何进行调试。
 
-!> 需要注意的是：官方范例为测试最新功能，将 `@hippy/react` 和 `@hippy/vue` 做了个 [alias 到 packages 目录](https://github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/scripts/hippy-webpack.dev.js#L76)，如果调试官方范例，需要先在 Hippy 项目根目录下使用 ```npm run build``` 编译前端 SDK；或者删除范例的 `scripts` 目录中对 packages 的 alias，Hippy-Vue 范例则需要将 `vue` 和 `vue-router` 分别映射到 `@hippy/vue` 和 `@hippy/vue-router`
+!> 需要注意的是：官方范例为测试最新功能，将 `@hippy/react` 和 `@hippy/vue` 做了个 [alias 到 packages 目录](https://github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-react-demo/scripts/hippy-webpack.dev.js#L76)，如果调试官方范例，需要先在 Hippy 项目根目录下使用 ```npm run build``` 编译前端 SDK；或者删除范例的 `scripts` 目录中对 packages 的 alias，Hippy-Vue 范例则需要将 `vue` 和 `vue-router` 分别映射到 `@hippy/vue` 和 `@hippy/vue-router`
 
 ## iOS
 
@@ -40,8 +40,8 @@ Hippy中运行的JS代码可以来源于本地文件(local file)，或者远程�
 具体流程：
 
 1. 点击 [Xcode on Mac AppStore](//apps.apple.com/cn/app/xcode/id497799835?l=en&mt=12) 下载安装 Xcode。
-2. 使用 Xcode 打开[Hippy iOS 范例工程](//github.com/Tencent/Hippy/tree/master/examples/ios-demo) 中的 `HippyDemo.xcodeproj` 工程文件，并点击运行，正常情况下应该可以启动模拟器，并运行之前内置的 Hippy 前端代码。
-3. 打开 `examples` 下的前端范例工程 [hippy-react-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) 或者 [hippy-vue-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo)，通过 `npm i` 安装完依赖之后，使用 `npm run hippy:dev` 启动编译，并另开一个终端窗口，运行 `npm run hippy:debug` 启动调试服务。
+2. 使用 Xcode 打开[Hippy iOS 范例工程](//github.com/Tencent/Hippy/tree/master/framework/js/examples/ios-demo) 中的 `HippyDemo.xcodeproj` 工程文件，并点击运行，正常情况下应该可以启动模拟器，并运行之前内置的 Hippy 前端代码。
+3. 打开 `examples` 下的前端范例工程 [hippy-react-demo](//github.com/Tencent/Hippy/tree/master/framework/js/examples/hippy-react-demo) 或者 [hippy-vue-demo](//github.com/Tencent/Hippy/tree/master/framework/js/examples/hippy-vue-demo)，通过 `npm i` 安装完依赖之后，使用 `npm run hippy:dev` 启动编译，并另开一个终端窗口，运行 `npm run hippy:debug` 启动调试服务。
 4. 回到模拟器，点击前端工程中的调试按钮，即可进入调试状态。hippy-react 有一个单独的页面，hippy-vue 在右上角。以 hippy-react 为例：
 
     ![iOS 模拟器](//puui.qpic.cn/vupload/0/1577796352672_tmjp70r3bma.png/0)
@@ -67,11 +67,11 @@ Android 使用了 [adb](//developer.android.com/studio/command-line/adb) 的端�
 具体流程：
 
 1. 下载安装 [Android Studio](//developer.android.com/studio) （可能需要翻墙，也可以通过其它途径下载）。
-2. 通过 Android Studio 打开[Hippy Android 范例工程](//github.com/Tencent/Hippy/tree/master/examples/android-demo)，当提示 ToolChain 需要更新时全部选择拒绝，安装好 SDK、NDK、和 cmake 3.6.4。
+2. 通过 Android Studio 打开[Hippy Android 范例工程](//github.com/Tencent/Hippy/tree/master/framework/js/examples/android-demo)，当提示 ToolChain 需要更新时全部选择拒绝，安装好 SDK、NDK、和 cmake 3.6.4。
 3. 通过数据线插上 Android 手机，并在 Android Studio 中点击运行，正常情况下手机应该已经运行起 `Hippy Demo` app。*编译如果出现问题请参考 [#39](//github.com/Tencent/Hippy/issues/39)*。
 4. 回到手机上，首先确保手机的 `USB 调试模式` 已经打开 -- 一般在关于手机页面里连续点击 `Build` 可以进入`开发者模式`，再进入`开发者模式`界面后打开 `USB 调试模式`。
 5. 执行 `adb reverse --remove-all && adb reverse tcp:38989 tcp:38989` 确保 38389 端口不被占用。
-6. 打开前端范例工程 [hippy-react-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) 或者 [hippy-vue-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo)，通过 `npm i` 安装完依赖之后，使用 `npm run hippy:dev` 启动编译，并另开一个终端窗口，运行 `npm run hippy:debug` 启动调试服务。
+6. 打开前端范例工程 [hippy-react-demo](//github.com/Tencent/Hippy/tree/master/framework/js/examples/hippy-react-demo) 或者 [hippy-vue-demo](//github.com/Tencent/Hippy/tree/master/framework/js/examples/hippy-vue-demo)，通过 `npm i` 安装完依赖之后，使用 `npm run hippy:dev` 启动编译，并另开一个终端窗口，运行 `npm run hippy:debug` 启动调试服务。
 7. 回到手机上，点击前端工程中的调试按钮，即可进入调试状态。hippy-react 有一个单独的页面，hippy-vue 在右上角。以 hippy-react 为例：
 
    <img src="//puui.qpic.cn/vupload/0/1577798072036_g2qmcvgi6n9.png/0" style="box-shadow: 4px 4px 10px 1px rgba(0,0,0,0.4);" alt="Android 调试" width="40%"/>

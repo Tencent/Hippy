@@ -7,10 +7,10 @@ const node = require('rollup-plugin-node-resolve');
 const flow = require('rollup-plugin-flow-no-whitespace');
 
 const VueVersion = require('vue/package.json').version;
-const hippyVuePackage = require('../packages/hippy-vue/package.json');
-const cssLoaderPackage = require('../packages/hippy-vue-css-loader/package.json');
-const nativeComponentsPackage = require('../packages/hippy-vue-native-components/package.json');
-const routerPackage = require('../packages/hippy-vue-router/package.json');
+const hippyVuePackage = require('../framework/js/packages/hippy-vue/package.json');
+const cssLoaderPackage = require('../framework/js/packages/hippy-vue-css-loader/package.json');
+const nativeComponentsPackage = require('../framework/js/packages/hippy-vue-native-components/package.json');
+const routerPackage = require('../framework/js/packages/hippy-vue-router/package.json');
 
 const andHippyVueString = ` and Hippy-Vue v${hippyVuePackage.version}`;
 
@@ -53,7 +53,7 @@ function resolveVue(p) {
 }
 
 function resolvePackage(src, extra = 'src') {
-  return path.resolve(__dirname, '../packages/', src, extra);
+  return path.resolve(__dirname, '../framework/js/packages/', src, extra);
 }
 
 const aliases = {
@@ -63,7 +63,7 @@ const aliases = {
   core: resolveVue('core'),
   shared: resolveVue('shared'),
   sfc: resolveVue('sfc'),
-  he: path.resolve(__dirname, '../packages/hippy-vue/src/util/entity-decoder'),
+  he: path.resolve(__dirname, '../framework/js/packages/hippy-vue/src/util/entity-decoder'),
   '@vue': resolvePackage('hippy-vue'),
   '@router': resolvePackage('hippy-vue-router'),
   '@css-loader': resolvePackage('hippy-vue-css-loader'),

@@ -91,4 +91,6 @@ HIPPY_EXTERN NSString *const HippyFBJSValueClassKey;
                    arguments:(NSArray *)args
              jsValueCallback:(HippyJavaScriptValueCallback)onComplete;
 
+- (JSValueRef)JSTurboObjectWithName:(NSString *)name;
+
 @end

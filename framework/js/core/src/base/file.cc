@@ -61,7 +61,7 @@ int HippyFile::RmFullPath(const unicode_string_view& dir_full_path) {
     return -1;
   }
   struct dirent* dir;
-  struct stat st;
+  struct stat st{};
   while ((dir = readdir(dir_parent)) != nullptr) {
     if (strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0) {
       continue;
@@ -114,7 +114,7 @@ uint64_t HippyFile::GetFileModifytime(const unicode_string_view& file_path) {
   TDF_BASE_DLOG(INFO) << "GetFileModifytime file_path = " << file_path;
   unicode_string_view view_owner(""_u8s);
   const char* path = StringViewUtils::ToConstCharPointer(file_path, view_owner);
-  struct stat statInfo;
+  struct stat statInfo{};
   FILE* fp = fopen(path, "r");
   if (fp == nullptr) {
     return 0;

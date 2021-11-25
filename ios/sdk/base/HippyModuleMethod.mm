@@ -31,6 +31,7 @@
 #import "HippyLog.h"
 #import "HippyParserUtils.h"
 #import "HippyUtils.h"
+#import "HippyTurboModuleManager.h"
 
 typedef BOOL (^HippyArgumentBlock)(HippyBridge *, NSUInteger, id);
 
@@ -311,6 +312,11 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
                                 NSDictionary *errorJSON = HippyJSErrorFromCodeMessageAndNSError(code, message, error);
                                 [bridge enqueueCallback:json args:@[errorJSON]];
                             });)
+        } else if ([HippyTurboModuleManager isTurboModule:typeName]) {
+            [argumentBlocks addObject:^(__unused HippyBridge * bridge, NSUInteger index, id json) {
+                [invocation setArgument:&json atIndex:(index) + 2];
+                return YES;
+            }];
         } else {
             // Unknown argument type
             HippyLogError(@"Unknown argument type '%@' in method %@. Extend HippyConvert"
@@ -473,10 +479,20 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
             __unsafe_unretained id value;
             [_invocation getArgument:&value atIndex:index];
 
-            if (value) {
+            BOOL shouldRelase = YES;
+            if ([value isKindOfClass:[HippyOCTurboModule class]]) {
+                shouldRelase = NO;
+            }
+            if (value && shouldRelase) {
                 CFRelease((__bridge CFTypeRef)value);
             }
         }
+    }
+    
+    void *returnValue;
+    if (strcmp(_invocation.methodSignature.methodReturnType, "@") == 0) {
+        [_invocation getReturnValue:&returnValue];
+        return (__bridge id)returnValue;
     }
 
     return nil;

@@ -70,6 +70,7 @@ NSString *const HippyUIManagerWillUpdateViewsDueToContentSizeMultiplierChangeNot
 NSString *const HippyUIManagerDidRegisterRootViewNotification = @"HippyUIManagerDidRegisterRootViewNotification";
 NSString *const HippyUIManagerDidRemoveRootViewNotification = @"HippyUIManagerDidRemoveRootViewNotification";
 NSString *const HippyUIManagerRootViewKey = @"HippyUIManagerRootViewKey";
+NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBatchNotification";
 
 @implementation HippyUIManager {
     // Root views are only mutated on the shadow queue
@@ -758,14 +759,16 @@ static void HippySetChildren(NSNumber *containerTag, NSArray<NSNumber *> *hippyT
 }
 
 // clang-format off
-HIPPY_EXPORT_METHOD(startBatch:(__unused NSString *)batchID) {
+HIPPY_EXPORT_METHOD(startBatch) {
 }
 // clang-format on
 
 // clang-format off
-HIPPY_EXPORT_METHOD(endBatch:(__unused NSString *)batchID) {
+HIPPY_EXPORT_METHOD(endBatch) {
     if (_pendingUIBlocks.count) {
         [self batchDidComplete];
+        [[NSNotificationCenter defaultCenter] postNotificationName:HippyUIManagerDidEndBatchNotification
+                                                            object:self];
     }
 }
 // clang-format on
@@ -874,6 +877,7 @@ HIPPY_EXPORT_METHOD(manageChildren:(nonnull NSNumber *)containerTag
 HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
                   viewName:(NSString *)viewName
                   rootTag:(nonnull NSNumber *)rootTag
+                  tagName:(NSString *)tagName
                   props:(NSDictionary *)props) {
     HippyComponentData *componentData = _componentDataByName[viewName];
     HippyShadowView *shadowView = [componentData createShadowViewWithTag:hippyTag];
@@ -929,6 +933,7 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
         HippyVirtualNode *node = [componentData createVirtualNode: hippyTag props: newProps];
         if(node) {
             node.rootTag = rootTag;
+            node.tagName = tagName;
             node.bridge = [uiManager bridge];
             uiManager->_nodeRegistry[hippyTag] = node;
         }
@@ -1001,6 +1006,7 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
 
 - (void)updateViewWithHippyTag:(NSNumber *)hippyTag props:(NSDictionary *)pros {
     [self updateView:hippyTag viewName:nil props:pros];
+    [self batchDidComplete];
 }
 
 // clang-format off
@@ -1375,6 +1381,10 @@ HIPPY_EXPORT_METHOD(measureInAppWindow:(nonnull NSNumber *)hippyTag
     });
 }
 
+- (NSNumber *)rootHippyTag {
+    return _rootViewTags.count > 0 ? _rootViewTags.allObjects.firstObject : @(0);
+}
+
 - (NSNumber *)_rootTagForHippyTag:(NSNumber *)hippyTag {
     HippyAssert(!HippyIsMainQueue(), @"Should be called on shadow queue");
 
@@ -1512,9 +1522,7 @@ static UIView *_jsResponder;
 - (UIView *)createViewFromNode:(HippyVirtualNode *)node {
     UIView *result = nil;
     NSMutableArray *tranctions = [NSMutableArray new];
-#ifndef HIPPY_DEBUG
     @try {
-#endif
         result = [node createView:^UIView *(HippyVirtualNode *subNode) {
             NSString *viewName = subNode.viewName;
             NSNumber *tag = subNode.hippyTag;
@@ -1542,11 +1550,9 @@ static UIView *_jsResponder;
         for (UIView *view in tranctions) {
             [view hippyBridgeDidFinishTransaction];
         }
-#ifndef HIPPY_DEBUG
     } @catch (NSException *exception) {
         MttHippyException(exception);
     }
-#endif
     return result;
 }
 
@@ -1574,6 +1580,217 @@ static UIView *_jsResponder;
         }
     }];
     return tmpProps;
+}
+
+@end
+
+using DomValueType = tdf::base::DomValue::Type;
+using DomValueNumberType = tdf::base::DomValue::NumberType;
+
+@implementation HippyUIManager (iOSRenderManager)
+
+static NSNumber *domValueToNumber(const DomValue *const pDomValue) {
+    HippyAssert(pDomValue->IsNumber(), @"domvalue should be a number");
+    NSNumber *number = nil;
+    switch (pDomValue->GetNumberType()) {
+        case DomValueNumberType::kInt32:
+            number = @(pDomValue->ToInt32());
+            break;
+        case DomValueNumberType::kUInt32:
+            number = @(pDomValue->ToUint32());
+            break;
+        case DomValueNumberType::kInt64:
+            number = @(pDomValue->ToInt64());
+            break;
+        case DomValueNumberType::kUInt64:
+            number = @(pDomValue->ToUint64());
+            break;
+        case DomValueNumberType::kDouble:
+            number = @(pDomValue->ToDouble());
+            break;
+        case DomValueNumberType::kNaN:
+            number = [NSDecimalNumber notANumber];
+            break;
+        default:
+            break;
+    }
+    return number;
+}
+
+static id domValueToOCType(const DomValue *const pDomValue) {
+    DomValueType type = pDomValue->GetType();
+    id value = [NSNull null];
+    switch (type) {
+        case DomValueType::kBoolean:
+            value = @(pDomValue->ToBoolean());
+            break;
+        case DomValueType::kString:
+            value = [NSString stringWithUTF8String:pDomValue->ToString().c_str()];
+            break;
+        case DomValueType::kObject: {
+            DomValue::DomValueObjectType objectType = pDomValue->ToObject();
+            std::unordered_map<std::string, std::shared_ptr<DomValue>> map(objectType.size());
+            for (const auto &pair : objectType) {
+                map[pair.first] = std::make_shared<DomValue>(pair.second);
+            }
+            value = unorderedMapDomValueToDictionary(map);
+        }
+            break;
+        case DomValueType::kArray: {
+            DomValue::DomValueArrayType domValueArray = pDomValue->ToArray();
+            NSMutableArray *array = [NSMutableArray arrayWithCapacity:domValueArray.size()];
+            for (auto it = domValueArray.begin(); it != domValueArray.end(); it++) {
+                const DomValue &v = *it;
+                id subValue = domValueToOCType(&v);
+                [array addObject:subValue];
+            }
+            value = (id)[array copy];
+        }
+            break;
+        case DomValueType::kNumber: {
+            value = domValueToNumber(pDomValue);
+        }
+            break;
+        default:
+            break;
+    }
+    return value;
+}
+
+static NSDictionary *unorderedMapDomValueToDictionary(const std::unordered_map<std::string, std::shared_ptr<DomValue>> &domValuesObject) {
+    NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithCapacity:domValuesObject.size()];
+    for (auto it = domValuesObject.begin(); it != domValuesObject.end(); it++) {
+        NSString *key = [NSString stringWithUTF8String:it->first.c_str()];
+        std::shared_ptr<DomValue> domValue = it->second;
+        id value = domValueToOCType(domValue.get());
+        [dic setObject:value forKey:key];
+    }
+    return [dic copy];
+}
+
+- (void)renderCreateView:(int32_t)hippyTag
+                viewName:(const std::string &)name
+                 rootTag:(int32_t)rootTag
+                   props:(const std::unordered_map<std::string, std::shared_ptr<DomValue>> &)styleMap {
+    [self createView:@(hippyTag) viewName:[NSString stringWithUTF8String:name.c_str()] rootTag:@(rootTag) props:unorderedMapDomValueToDictionary(styleMap)];
+}
+
+- (void)renderUpdateView:(int32_t)hippyTag
+                viewName:(const std::string &)name
+                   props:(const std::unordered_map<std::string, std::shared_ptr<DomValue>> &)styleMap {
+    [self updateView:@(hippyTag) viewName:[NSString stringWithUTF8String:name.c_str()] props:unorderedMapDomValueToDictionary(styleMap)];
+}
+
+- (void)renderDeleteViewFromContainer:(int32_t)hippyTag
+                           forIndices:(const std::vector<int32_t> &)indices {
+    NSMutableArray<NSNumber *> *numbers = [NSMutableArray arrayWithCapacity:indices.size()];
+    for (const int32_t &index : indices) {
+        [numbers addObject:@(index)];
+    }
+    [self manageChildren:@(hippyTag) moveFromIndices:nil moveToIndices:nil addChildHippyTags:nil addAtIndices:nil removeAtIndices:numbers];
+}
+
+- (void)renderMoveViews:(const std::vector<int32_t> &)ids fromContainer:(int32_t)fromContainer toContainer:(int32_t)toContainer {
+    //这个方法疑点很多，比如移动之后被移动的node属性是否变化，否则位置可能会与原住民重叠。或者移动之后索引值如何变化。
+}
+
+-(void)batch {
+    [self batchDidComplete];
+}
+
+- (void)dispatchFunction:(const std::string &)functionName
+                 forView:(int32_t)hippyTag
+                  params:(const std::unordered_map<std::string, std::shared_ptr<DomValue>> &)params
+                callback:(DispatchFunctionCallback)cb {
+    UIView *view = [self viewForHippyTag:@(hippyTag)];
+    NSString *name = [NSString stringWithUTF8String:functionName.c_str()];
+    SEL sel = NSSelectorFromString(name);
+    HippyAssert([view respondsToSelector:sel], @"dispatch function failed, object %@ does not respond to function %@", NSStringFromClass([view class]), name);
+    if (sel) {
+        NSMethodSignature *methodSig = [view methodSignatureForSelector:sel];
+        HippyAssert(0 == strcmp([methodSig methodReturnType], @encode(std::any)), @"dispatch function failed, function %@ return type is not std::any, return type not matched", name);
+        HippyAssert(sizeof(std::any) == [methodSig methodReturnLength], @"dispatch function failed, function %@ return type is not std::any, return length not matched", name);
+        if (view && methodSig) {
+#ifndef DEBUG
+            @try {
+#endif //#ifndef DEBUG
+                NSDictionary *dicParams = unorderedMapDomValueToDictionary(params);
+                NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSig];
+                [invocation setTarget:view];
+                [invocation setArgument:&dicParams atIndex:2];
+                [invocation invoke];
+                //method return type is always std::any
+                std::any ret;
+                [invocation getReturnValue:&ret];
+                cb(ret);
+#ifndef DEBUG
+            } @catch (NSException *exception) {
+                HippyAssert(NO, @"exception happened:%@", [exception description]);
+            }
+#endif //#ifndef DEBUG
+        }
+    }
+}
+
+- (int32_t) addClickEventListener:(OnClickEventListener)listener
+                          forView:(int32_t)hippyTag {
+    UIView *view = [self viewForHippyTag:@(hippyTag)];
+    if (view) {
+        NSInteger ret = [view addTouchEvent:HippyTouchEventTypeClick eventListener:^(CGPoint) {
+            if (listener) {
+                listener();
+            }
+        }];
+        return static_cast<int32_t>(ret);
+    }
+    return 0;
+}
+
+- (void) removeClickEventListener:(int32_t)listenerID forView:(int32_t)hippyTag {
+    UIView *view = [self viewForHippyTag:@(hippyTag)];
+    if (view) {
+        [view removeTouchEventByID:listenerID];
+    }
+}
+
+- (int32_t) addLongClickEventListener:(OnLongClickEventListener)listener
+                              forView:(int32_t)hippyTag {
+    UIView *view = [self viewForHippyTag:@(hippyTag)];
+    if (view) {
+        NSInteger ret = [view addTouchEvent:HippyTouchEventTypeLongClick eventListener:^(CGPoint) {
+            if (listener) {
+                listener();
+            }
+        }];
+        return static_cast<int32_t>(ret);
+    }
+    return 0;
+}
+
+- (void) removeLongClickEventListener:(int32_t)listenerID forView:(int32_t)hippyTag {
+    UIView *view = [self viewForHippyTag:@(hippyTag)];
+    if (view) {
+        [view removeTouchEventByID:listenerID];
+    }
+}
+
+- (void) addTouchEventListener:(OnTouchEventListener)listener
+                    touchEvent:(TouchEvent)event
+                       forView:(int32_t)hippyTag {
+    UIView *view = [self viewForHippyTag:@(hippyTag)];
+    if (view) {
+        [view addTouchEvent:static_cast<HippyTouchEventType>(event) eventListener:^(CGPoint point) {
+            if (listener) {
+                hippy::TouchEventInfo info = {static_cast<float>(point.x), static_cast<float>(point.y)};
+                listener(info);
+            }
+        }];
+    }
+}
+
+- (void) removeTouchEvent:(TouchEvent)event forView:(int32_t)hippyTag {
+    UIView *view = [self viewForHippyTag:@(hippyTag)];
+    [view removeTouchEvent:static_cast<HippyTouchEventType>(event)];
 }
 
 @end

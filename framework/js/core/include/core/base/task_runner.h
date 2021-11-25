@@ -48,8 +48,8 @@ class TaskRunner : public Thread {
   void Terminate();
   void PostTask(std::shared_ptr<Task> task);
   void PostDelayedTask(std::shared_ptr<Task> task,
-                       DelayedTimeInMs delay_in_mseconds);
-  void CancelTask(std::shared_ptr<Task> task);
+                       DelayedTimeInMs delay_in_milliseconds);
+  void CancelTask(const std::shared_ptr<Task>& task);
 
  protected:
   void PostTaskNoLock(std::shared_ptr<Task> task);

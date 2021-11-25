@@ -90,17 +90,17 @@ class Ctx {
   virtual bool SetGlobalStrVar(const unicode_string_view& name,
                                const unicode_string_view& str) = 0;
   virtual bool SetGlobalObjVar(const unicode_string_view& name,
-                               std::shared_ptr<CtxValue> obj,
-                               PropertyAttribute attr = None) = 0;
+                               const std::shared_ptr<CtxValue>& obj,
+                               const PropertyAttribute& attr) = 0;
   virtual std::shared_ptr<CtxValue> GetGlobalStrVar(
       const unicode_string_view& name) = 0;
   virtual std::shared_ptr<CtxValue> GetGlobalObjVar(
       const unicode_string_view& name) = 0;
   virtual std::shared_ptr<CtxValue> GetProperty(
-      const std::shared_ptr<CtxValue> object,
+      const std::shared_ptr<CtxValue>& object,
       const unicode_string_view& name) = 0;
 
-  virtual void RegisterGlobalModule(std::shared_ptr<Scope> scope,
+  virtual void RegisterGlobalModule(const std::shared_ptr<Scope>& scope,
                                     const ModuleClassMap& modules) = 0;
   virtual void RegisterNativeBinding(const unicode_string_view& name,
                                      hippy::base::RegisterFunction fn,
@@ -114,6 +114,7 @@ class Ctx {
   virtual std::shared_ptr<CtxValue> CreateNull() = 0;
   virtual std::shared_ptr<CtxValue> CreateObject(
       const unicode_string_view& json) = 0;
+  virtual std::shared_ptr<CtxValue> CreateMap(size_t count, std::shared_ptr<CtxValue>* value) = 0;
   virtual std::shared_ptr<CtxValue> CreateArray(
       size_t count,
       std::shared_ptr<CtxValue> value[]) = 0;
@@ -122,40 +123,42 @@ class Ctx {
 
   // Get From Value
   virtual std::shared_ptr<CtxValue> CallFunction(
-      std::shared_ptr<CtxValue> function,
-      size_t argument_count = 0,
-      const std::shared_ptr<CtxValue> argumets[] = nullptr) = 0;
+      const std::shared_ptr<CtxValue>& function,
+      size_t argument_count,
+      const std::shared_ptr<CtxValue> arguments[]) = 0;
 
-  virtual bool GetValueNumber(std::shared_ptr<CtxValue> value,
+  virtual bool GetValueNumber(const std::shared_ptr<CtxValue>& value,
                               double* result) = 0;
-  virtual bool GetValueNumber(std::shared_ptr<CtxValue> value,
+  virtual bool GetValueNumber(const std::shared_ptr<CtxValue>& value,
                               int32_t* result) = 0;
-  virtual bool GetValueBoolean(std::shared_ptr<CtxValue> value,
+  virtual bool GetValueBoolean(const std::shared_ptr<CtxValue>& value,
                                bool* result) = 0;
-  virtual bool GetValueString(std::shared_ptr<CtxValue> value,
+  virtual bool GetValueString(const std::shared_ptr<CtxValue>& value,
                               unicode_string_view* result) = 0;
-  virtual bool GetValueJson(std::shared_ptr<CtxValue> value,
+  virtual bool GetValueJson(const std::shared_ptr<CtxValue>& value,
                             unicode_string_view* result) = 0;
+  virtual bool IsNullOrUndefined(const std::shared_ptr<CtxValue>& value) = 0;
+
+  virtual bool IsMap(const std::shared_ptr<CtxValue>& value) = 0;
 
   // Array Helpers
-
-  virtual bool IsArray(std::shared_ptr<CtxValue> value) = 0;
-  virtual uint32_t GetArrayLength(std::shared_ptr<CtxValue> value) = 0;
-  virtual std::shared_ptr<CtxValue> CopyArrayElement(std::shared_ptr<CtxValue>,
+  virtual bool IsArray(const std::shared_ptr<CtxValue>& value) = 0;
+  virtual uint32_t GetArrayLength(const std::shared_ptr<CtxValue>& value) = 0;
+  virtual std::shared_ptr<CtxValue> CopyArrayElement(const std::shared_ptr<CtxValue>& value,
                                                      uint32_t index) = 0;
 
   // Object Helpers
 
-  virtual bool HasNamedProperty(std::shared_ptr<CtxValue> value,
+  virtual bool HasNamedProperty(const std::shared_ptr<CtxValue>& value,
                                 const unicode_string_view& name) = 0;
   virtual std::shared_ptr<CtxValue> CopyNamedProperty(
-      std::shared_ptr<CtxValue> value,
+      const std::shared_ptr<CtxValue>& value,
       const unicode_string_view& name) = 0;
   // Function Helpers
 
-  virtual bool IsFunction(std::shared_ptr<CtxValue> value) = 0;
+  virtual bool IsFunction(const std::shared_ptr<CtxValue>& value) = 0;
   virtual unicode_string_view CopyFunctionName(
-      std::shared_ptr<CtxValue> value) = 0;
+      const std::shared_ptr<CtxValue>& value) = 0;
 
   virtual std::shared_ptr<CtxValue> RunScript(
       const unicode_string_view& data,
@@ -165,22 +168,24 @@ class Ctx {
       bool is_copy = true) = 0;
   virtual std::shared_ptr<CtxValue> GetJsFn(
       const unicode_string_view& name) = 0;
-  virtual bool ThrowExceptionToJS(std::shared_ptr<CtxValue> exception) = 0;
+  virtual bool ThrowExceptionToJS(const std::shared_ptr<CtxValue>& exception) = 0;
 
   virtual std::shared_ptr<JSValueWrapper> ToJsValueWrapper(
-      std::shared_ptr<CtxValue> value) = 0;
+      const std::shared_ptr<CtxValue>& value) = 0;
   virtual std::shared_ptr<CtxValue> CreateCtxValue(
-      std::shared_ptr<JSValueWrapper> wrapper) = 0;
+      const std::shared_ptr<JSValueWrapper>& wrapper) = 0;
 
   virtual std::shared_ptr<DomValue> ToDomValue(
-      std::shared_ptr<CtxValue> value) = 0;
-  virtual std::shared_ptr<CtxValue> CreateDomValue(
-      std::shared_ptr<DomValue> value) = 0;
+      const std::shared_ptr<CtxValue>& value) = 0;
+  virtual std::shared_ptr<CtxValue> CreateCtxValue(
+      const std::shared_ptr<DomValue>& value) = 0;
 };
+
+struct VMInitParam {};
 
 class VM {
  public:
-  VM(){};
+  VM(std::shared_ptr<VMInitParam> param = nullptr){};
   virtual ~VM() { TDF_BASE_DLOG(INFO) << "~VM"; };
 
   virtual std::shared_ptr<Ctx> CreateContext() = 0;

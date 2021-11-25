@@ -23,7 +23,7 @@
 
 # button
 
-[[范例：demo-button.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-button.vue)
+[[范例：demo-button.vue]](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/components/demos/demo-button.vue)
 
 该组件映射到 View 上是因为它是一个可点击的容器，容器里面可以放图片、也可以放文本。但是因为 View 不能包裹文本，所以需要在 `<button>` 里包裹其它文本组件才能显示文字，这个跟浏览器不一样，浏览器的 `<button>` 也可以包裹 `<span>` 组件，所以这只是需要开发时注意一下。
 
@@ -42,7 +42,7 @@
 
 # div
 
-[[范例：demo-div.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue)
+[[范例：demo-div.vue]](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/components/demos/demo-div.vue)
 
 > div 组件容器，默认不可以滚动。可以通过增加样式参数 `overflow-y: scroll` 切换为可以纵向滚动容器，或者增加样式参数 `overflow-x: scroll` 切换为水平滚动容器。在终端侧会被映射成 [ScrollView](hippy-react/components.md?id=ScrollView)，因此具备 [ScrollView](hippy-react/components.md?id=ScrollView) 通用的能力。
 
@@ -104,7 +104,7 @@
 
 # form
 
-[[范例：demo-div.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue)
+[[范例：demo-div.vue]](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/components/demos/demo-div.vue)
 
 别的组件容器。 一切同 [div](hippy-vue/components.md?id=div)。
 
@@ -112,7 +112,7 @@
 
 # iframe
 
-[[范例：demo-iframe.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-iframe.vue)
+[[范例：demo-iframe.vue]](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/components/demos/demo-iframe.vue)
 
 内嵌网页容器。
 
@@ -136,7 +136,7 @@
 
 # img
 
-[[范例：demo-img.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-img.vue)
+[[范例：demo-img.vue]](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/components/demos/demo-img.vue)
 
 图片组件，和浏览器的一样。
 
@@ -175,7 +175,7 @@
 
 # input
 
-[[范例：demo-input.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-input.vue)
+[[范例：demo-input.vue]](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/components/demos/demo-input.vue)
 
 单行文本组件。
 
@@ -284,7 +284,7 @@
 
 # label
 
-[[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-p.vue)
+[[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/components/demos/demo-p.vue)
 
 显示文本。 一切同 [p](hippy-vue/components.md?id=p)。
 
@@ -301,7 +301,7 @@
 
 # ul
 
-[[范例：demo-list.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-list.vue)
+[[范例：demo-list.vue]](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/components/demos/demo-list.vue)
 
 Hippy 的重点功能，高性能的可复用列表组件。里面第一层只能包含 `<li>`。
 
@@ -359,7 +359,7 @@ Hippy 的重点功能，高性能的可复用列表组件。里面第一层只�
 
 ul 的子节点，终端层节点回收和复用的最小颗粒度。
 
-[[范例：demo-list.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-list.vue)
+[[范例：demo-list.vue]](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/components/demos/demo-list.vue)
 
 ## 参数
 

@@ -13,10 +13,10 @@
     "markdownlint": "markdownlint --config .markdownlintrc.json \"./@(README|README.zh_CN|PUBLISH.zh_CN).md\" \"./docs/**/*.md\"",
     "coverage": "nyc ava",
     "codecov": "cat ./coverage/lcov.info | codecov",
-    "lint": "eslint --fix \\\"packages/**/*.@(js|ts|tsx|vue)\\\" \\\"examples/hippy-react-demo/**/*.@(js|jsx)\\\" \\\"examples/hippy-vue-demo/**/*.@(js|vue)\\\" \\\"./scripts/**/*.js\\\" \\\"framework/js/core/js/**/*.js\\\"",
+    "lint": "eslint --fix \"framework/js/packages/**/*.@(js|ts|tsx|vue)\" \"framework/js/examples/hippy-react-demo/**/*.@(js|jsx)\" \"framework/js/examples/hippy-vue-demo/**/*.@(js|vue)\" \"./scripts/**/*.js\" \"./core/js/**/*.js\"",
     "clean": "rimraf ./coverage ./nyc_output packages/*/dist",
     "test": "ava",
-    "watch": "watch \"npm run build\" ./packages --ignoreDotFiles --ignoreUnreadable --ignoreDirectoryPattern '/dist/'",
+    "watch": "watch \"npm run build\" ./framework/js/packages --ignoreDotFiles --ignoreUnreadable --ignoreDirectoryPattern '/dist/'",
     "publish": "lerna version patch --conventional-commits --sign-git-commit",
     "doc": "docsify serve docs",
     "prepare": "is-ci || husky install"
@@ -33,8 +33,8 @@
     "@wessberg/rollup-plugin-ts": "^1.1.72",
     "ava": "^2.2.0",
     "codecov": "^3.6.1",
+    "commitlint-plugin-function-rules": "^1.4.0",
     "csstype": "^2.6.7",
-    "cz-conventional-changelog": "^3.3.0",
     "docsify-cli": "^4.4.0",
     "eslint": "^7.28.0",
     "eslint-config-tencent": "^1.0.2",
@@ -78,16 +78,11 @@
     "core": "node_modules/vue/src/core",
     "shared": "node_modules/vue/src/shared",
     "sfc": "node_modules/vue/src/sfc",
-    "he": "packages/hippy-vue/util/entity-decoder",
-    "@localTypes": "packages/types",
-    "@vue": "packages/hippy-vue/src",
-    "@router": "packages/hippy-vue-router/src",
-    "@css-loader": "packages/hippy-vue-css-loader/src",
-    "@native-components": "packages/hippy-vue-native-components/src"
-  },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
+    "he": "framework/js/packages/hippy-vue/util/entity-decoder",
+    "@localTypes": "framework/js/packages/types",
+    "@vue": "framework/js/packages/hippy-vue/src",
+    "@router": "framework/js/packages/hippy-vue-router/src",
+    "@css-loader": "framework/js/packages/hippy-vue-css-loader/src",
+    "@native-components": "framework/js/packages/hippy-vue-native-components/src"
   }
 }

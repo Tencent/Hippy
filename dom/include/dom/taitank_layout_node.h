@@ -10,8 +10,7 @@ inline namespace dom {
 typedef CSSDirection TaitankCssDirection;
 typedef HPMeasureFunc TaitankMeasureFunction;
 
-    class TaitankLayoutNode : public LayoutNode,
-                              public std::enable_shared_from_this<TaitankLayoutNode> {
+class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this<TaitankLayoutNode> {
  public:
   TaitankLayoutNode() { Allocate(); }
 
@@ -35,6 +34,17 @@ typedef HPMeasureFunc TaitankMeasureFunction;
    */
   void SetLayoutStyles(std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>& style_map) override;
 
+  /**
+   * @brief 设置宽度
+   * @param width 宽度
+   */
+  void SetWidth(float width);
+
+  /**
+   * @brief 设置高度
+   * @param height 高度
+   */
+  void SetHeight(float height);
   /**
    * @brief 设置测量函数
    * @param measure_function 测量函数
@@ -117,13 +127,13 @@ typedef HPMeasureFunc TaitankMeasureFunction;
    * @param child
    * @param index
    */
-  void InsertChild(std::shared_ptr<TaitankLayoutNode> child, uint32_t index) override;
+  void InsertChild(std::shared_ptr<LayoutNode> child, uint32_t index) override;
 
   /**
    * @brief 删除子节点
    * @param child
    */
-  void RemoveChild(const std::shared_ptr<TaitankLayoutNode> child) override;
+  void RemoveChild(const std::shared_ptr<LayoutNode> child) override;
 
   /**
    * @brief 是否有新的布局
@@ -170,17 +180,6 @@ typedef HPMeasureFunc TaitankMeasureFunction;
    */
   void SetDirection(HPDirection direction);
 
-  /**
-   * @brief 设置宽度
-   * @param width 宽度
-   */
-  void SetWidth(float width);
-
-  /**
-   * @brief 设置高度
-   * @param height 高度
-   */
-  void SetHeight(float height);
 
   /**
    * @brief 设置 max width 属性

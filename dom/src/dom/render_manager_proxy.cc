@@ -85,25 +85,33 @@ void RenderManagerProxy::Batch() {
   render_manager_->Batch();
 }
 
-void RenderManagerProxy::UpdateLayout(std::shared_ptr<LayoutResult> result) {
-  render_manager_->UpdateLayout(result);
-}
-
-void RenderManagerProxy::UpdateLayout(std::unordered_map<LayoutDiffMapKey, float> diff) {
-  render_manager_->UpdateLayout(diff);
-}
-
-void RenderManagerProxy::DispatchFunction(
-    int32_t id, const std::string &name,
+void RenderManagerProxy::CallFunction(
+    std::weak_ptr<DomNode> domNode, const std::string &name,
     std::unordered_map<std::string, std::shared_ptr<DomValue>> param,
     DispatchFunctionCallback cb) {
-  render_manager_->DispatchFunction(id, name, param, cb);
+  render_manager_->CallFunction(domNode, name, param, cb);
 }
 
-void RenderManagerProxy::AddTouchEventListener(int32_t id,
+void RenderManagerProxy::SetClickEventListener(int32_t id, OnClickEventListener listener) {
+    render_manager_->SetClickEventListener(id, listener);
+}
+
+void RenderManagerProxy::RemoveClickEventListener(int32_t id) {
+    render_manager_->RemoveClickEventListener(id);
+}
+
+void RenderManagerProxy::SetLongClickEventListener(int32_t id,
+                                                      OnLongClickEventListener listener) {
+    render_manager_->SetLongClickEventListener(id, listener);
+}
+
+void RenderManagerProxy::RemoveLongClickEventListener(int32_t id) {
+    render_manager_->RemoveLongClickEventListener(id);
+}
+void RenderManagerProxy::SetTouchEventListener(int32_t id,
                                                TouchEvent event,
                                                OnTouchEventListener listener) {
-  render_manager_->AddTouchEventListener(id, event, listener);
+  render_manager_->SetTouchEventListener(id, event, listener);
 }
 
 void RenderManagerProxy::RemoveTouchEventListener(int32_t id, TouchEvent event) {

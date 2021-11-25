@@ -28,6 +28,7 @@
 #include "core/modules/module_register.h"
 #include "core/base/string_view_utils.h"
 #include "dom/node_props.h"
+#include "dom/dom_node.h"
 
 REGISTER_MODULE(UIManagerModule, CreateNodes)
 REGISTER_MODULE(UIManagerModule, UpdateNodes)
@@ -463,30 +464,32 @@ void BindShowEvent(std::shared_ptr<Ctx> context, const std::string &name,
 }
 
 std::tuple<bool, std::string, std::shared_ptr<DomNode>> CreateNode(std::shared_ptr<Ctx> context,
-                                                                   std::shared_ptr<CtxValue> node) {
+                                                                   std::shared_ptr<CtxValue> node,
+                                                                   std::shared_ptr<Scope> scope) {
+  std::shared_ptr<DomNode> dom_node = nullptr;
   auto id_tuple = GetNodeId(context, node);
   if (!std::get<0>(id_tuple)) {
-    return std::make_tuple(false, std::get<1>(id_tuple), nullptr);
+    return std::make_tuple(false, std::get<1>(id_tuple), dom_node);
   }
 
   auto pid_tuple = GetNodePid(context, node);
   if (!std::get<0>(pid_tuple)) {
-    return std::make_tuple(false, std::get<1>(pid_tuple), nullptr);
+    return std::make_tuple(false, std::get<1>(pid_tuple), dom_node);
   }
 
   auto index_tuple = GetNodePid(context, node);
   if (!std::get<0>(index_tuple)) {
-    return std::make_tuple(false, std::get<1>(index_tuple), nullptr);
+    return std::make_tuple(false, std::get<1>(index_tuple), dom_node);
   }
 
   auto view_name_tuple = GetNodeViewName(context, node);
   if (!std::get<0>(view_name_tuple)) {
-    return std::make_tuple(false, std::get<1>(view_name_tuple), nullptr);
+    return std::make_tuple(false, std::get<1>(view_name_tuple), dom_node);
   }
 
   auto tag_name_tuple = GetNodeViewName(context, node);
   if (!std::get<0>(tag_name_tuple)) {
-    return std::make_tuple(false, std::get<1>(tag_name_tuple), nullptr);
+    return std::make_tuple(false, std::get<1>(tag_name_tuple), dom_node);
   }
 
   auto props_tuple = GetNodeProps(context, node);
@@ -495,13 +498,10 @@ std::tuple<bool, std::string, std::shared_ptr<DomNode>> CreateNode(std::shared_p
   std::string u8_tag_name = StringViewUtils::ToU8StdStr(std::get<2>(tag_name_tuple));
   std::string u8_view_name = StringViewUtils::ToU8StdStr(std::get<2>(view_name_tuple));
 
-  std::shared_ptr<DomNode> dom_node = std::make_shared<DomNode>(std::get<2>(id_tuple),
-                                                                std::get<2>(pid_tuple),
-                                                                std::get<2>(index_tuple),
-                                                                std::move(u8_tag_name),
-                                                                std::move(u8_view_name),
-                                                                std::move(std::get<2>(props_tuple)),
-                                                                std::move(std::get<4>(props_tuple)));
+  dom_node = std::make_shared<DomNode>(std::get<2>(id_tuple), std::get<2>(pid_tuple),
+    std::get<2>(index_tuple), std::move(u8_tag_name), std::move(u8_view_name),
+    std::move(std::get<2>(props_tuple)), std::move(std::get<4>(props_tuple)),
+    scope->GetDomManager());
   std::set<std::string> func_set = std::move(std::get<3>(props_tuple));
   if (!func_set.empty()) {
     for (const auto &v : func_set) {
@@ -529,12 +529,13 @@ std::tuple<bool, std::string, std::shared_ptr<DomNode>> CreateNode(std::shared_p
 
 std::tuple<bool, std::string, std::vector<std::shared_ptr<DomNode>>> HandleJsValue(
     std::shared_ptr<Ctx> context,
-    std::shared_ptr<CtxValue> nodes) {
+    std::shared_ptr<CtxValue> nodes,
+    std::shared_ptr<Scope> scope) {
   uint32_t len = context->GetArrayLength(nodes);
   std::vector<std::shared_ptr<DomNode>> dom_nodes;
   for (uint32_t i = 0; i < len; ++i) {
     std::shared_ptr<CtxValue> node = context->CopyArrayElement(nodes, i);
-    auto tuple = CreateNode(context, node);
+    auto tuple = CreateNode(context, node, scope);
     if (!std::get<0>(tuple)) {
       return std::make_tuple(false, std::move(std::get<1>(tuple)), std::move(dom_nodes));
     }
@@ -550,7 +551,7 @@ void UIManagerModule::CreateNodes(const hippy::napi::CallbackInfo &info) {
 
   // info[0] rootId 兼容上个版本，暂时无用
   std::shared_ptr<CtxValue> nodes = info[1];
-  auto ret = HandleJsValue(context, nodes);
+  auto ret = HandleJsValue(context, nodes, scope);
   if (!std::get<0>(ret)) {
     info.GetExceptionValue()->Set(context, unicode_string_view(std::get<1>(ret)));
     return;
@@ -564,12 +565,12 @@ void UIManagerModule::UpdateNodes(const hippy::napi::CallbackInfo &info) {
   TDF_BASE_CHECK(context);
 
   std::shared_ptr<CtxValue> nodes = info[1];
-  auto ret = HandleJsValue(context, nodes);
+  auto ret = HandleJsValue(context, nodes, scope);
   if (!std::get<0>(ret)) {
     info.GetExceptionValue()->Set(context, unicode_string_view(std::get<1>(ret)));
     return;
   }
-  scope->GetDomManager()->UpdateDomNode(std::move(std::get<2>(ret)));
+  scope->GetDomManager()->UpdateDomNodes(std::move(std::get<2>(ret)));
 }
 
 void UIManagerModule::DeleteNodes(const hippy::napi::CallbackInfo &info) {
@@ -603,7 +604,7 @@ void UIManagerModule::DeleteNodes(const hippy::napi::CallbackInfo &info) {
                                                   std::get<2>(pid_tuple),
                                                   std::get<2>(index_tuple)));
   }
-  scope->GetDomManager()->DeleteDomNode(dom_nodes);
+  scope->GetDomManager()->DeleteDomNodes(dom_nodes);
 }
 
 void UIManagerModule::StartBatch(const hippy::napi::CallbackInfo &info) {

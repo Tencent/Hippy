@@ -38,7 +38,11 @@
 #import "HippyDevLoadingView.h"
 #import "HippyDeviceBaseInfo.h"
 #import "HippyI18nUtils.h"
+#import "HippyDevManager.h"
+#import "HippyBundleURLProvider.h"
 #include "core/scope.h"
+#import "HippyTurboModuleManager.h"
+#import <core/napi/jsc/js_native_api_jsc.h>
 
 #define HippyAssertJSThread()
 //
@@ -72,6 +76,7 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     NSUInteger _modulesInitializedOnMainQueue;
     HippyDisplayLink *_displayLink;
     NSDictionary *_dimDic;
+    HippyDevManager *_devManager;
 }
 
 @synthesize flowID = _flowID;
@@ -473,6 +478,26 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
     [_javaScriptExecutor setUp];
 }
 
+- (void)setUpDevClientWithName:(NSString *)name {
+    if ([self.delegate respondsToSelector:@selector(shouldStartInspector:)]) {
+        if ([self.delegate shouldStartInspector:self.parentBridge]) {
+            NSString *ipAddress = nil;
+            NSString *ipPort = nil;
+            if ([self.delegate respondsToSelector:@selector(inspectorSourceURLForBridge:)]) {
+                NSURL *url = [self.delegate inspectorSourceURLForBridge:self.parentBridge];
+                ipAddress = [url host];
+                ipPort = [NSString stringWithFormat:@"%@", [url port]];
+            }
+            else {
+                HippyBundleURLProvider *bundleURLProvider = [HippyBundleURLProvider sharedInstance];
+                ipAddress = bundleURLProvider.localhostIP;
+                ipPort = bundleURLProvider.localhostPort;
+            }
+            _devManager = [[HippyDevManager alloc] initWithBridge:self.parentBridge devIPAddress:ipAddress devPort:ipPort contextName:name];
+        }
+    }
+}
+
 - (void)registerModuleForFrameUpdates:(id<HippyBridgeModule>)module withModuleData:(HippyModuleData *)moduleData {
     [_displayLink registerModuleForFrameUpdates:module withModuleData:moduleData];
 }
@@ -657,6 +682,10 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
 
 - (BOOL)debugMode {
     return _parentBridge.debugMode ?: NO;
+}
+
+- (BOOL)enableTurbo {
+    return _parentBridge.enableTurbo ?: NO;
 }
 
 - (void)setExecutorClass:(Class)executorClass {
@@ -865,6 +894,24 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     }];
 }
 
+- (HippyOCTurboModule *)turboModuleWithName:(NSString *)name {
+    if (!self.enableTurbo) {
+        return nil;
+    }
+    
+    if (name.length <= 0) {
+        return nil;
+    }
+    
+    if(!self.turboModuleManager) {
+        self.turboModuleManager = [[HippyTurboModuleManager alloc] initWithBridge:self delegate:nil];
+    }
+    
+    // getTurboModule
+    HippyOCTurboModule *turboModule = [self.turboModuleManager turboModuleWithName:name];
+    return turboModule;
+}
+
 - (void)enqueueApplicationScript:(NSData *)script url:(NSURL *)url onComplete:(HippyJavaScriptCompleteBlock)onComplete {
     HippyAssert(onComplete != nil, @"onComplete block passed in should be non-nil");
     _errorOccured = NO;
@@ -1047,12 +1094,12 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     //    if (!_valid) {
     //        return nil;
     //    }
-    
-    if (moduleID >= [_moduleDataByID count]) {
-        HippyLogError(@"moduleID %lu exceed range of _moduleDataByID %lu, bridge is valid %ld", moduleID, [_moduleDataByID count], (long)_valid);
+    NSArray<HippyModuleData *> *moduleDataByID = [_moduleDataByID copy];
+    if (moduleID >= [moduleDataByID count]) {
+        HippyLogError(@"moduleID %lu exceed range of moduleDataByID %lu, bridge is valid %ld", moduleID, [moduleDataByID count], (long)_valid);
         return nil;
     }
-    HippyModuleData *moduleData = _moduleDataByID[moduleID];
+    HippyModuleData *moduleData = moduleDataByID[moduleID];
     if (HIPPY_DEBUG && !moduleData) {
         HippyLogError(@"No module found for id '%lu'", (unsigned long)moduleID);
         return nil;

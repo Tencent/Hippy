@@ -108,6 +108,22 @@
 - (void)sendAttachedToWindowEvent;
 - (void)sendDetachedFromWindowEvent;
 
+/**
+ * gesture event
+ */
+typedef void(^onTouchEventListener)(CGPoint);
+typedef NS_ENUM(NSUInteger, HippyTouchEventType) {
+    HippyTouchEventTypeStart,
+    HippyTouchEventTypeMove,
+    HippyTouchEventTypeEnd,
+    HippyTouchEventTypeCancel,
+    HippyTouchEventTypeClick,
+    HippyTouchEventTypeLongClick,
+};
+- (NSInteger)addTouchEvent:(HippyTouchEventType)touchEvent eventListener:(onTouchEventListener)listener;
+- (void)removeTouchEvent:(HippyTouchEventType)touchEvent;
+- (void)removeTouchEventByID:(NSInteger)touchID;
+
 #if HIPPY_DEV
 
 /**
