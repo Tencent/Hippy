@@ -82,6 +82,7 @@ using V8VM = hippy::napi::V8VM;
 using V8VMInitParam = hippy::napi::V8VMInitParam;
 #ifdef ENABLE_INSPECTOR
 using V8InspectorClientImpl = hippy::inspector::V8InspectorClientImpl;
+std::mutex inspector_mutex;
 std::shared_ptr<V8InspectorClientImpl> global_inspector = nullptr;
 #endif
 
@@ -414,6 +415,7 @@ jlong InitInstance(JNIEnv* j_env,
     }
 #ifdef ENABLE_INSPECTOR
     if (runtime->IsDebug()) {
+      std::lock_guard<std::mutex> lock(inspector_mutex);
       if (!global_inspector) {
         global_inspector = std::make_shared<V8InspectorClientImpl>(scope);
         global_inspector->Connect(runtime->GetBridge());
@@ -534,6 +536,7 @@ void DestroyInstance(__unused JNIEnv* j_env,
     TDF_BASE_LOG(INFO) << "js destroy begin, runtime_id " << runtime_id;
 #ifdef ENABLE_INSPECTOR
     if (runtime->IsDebug()) {
+      std::lock_guard<std::mutex> lock(inspector_mutex);
       global_inspector->DestroyContext();
       global_inspector->Reset(nullptr, runtime->GetBridge());
     } else {

@@ -57,6 +57,7 @@ using CtxValue = hippy::napi::CtxValue;
 using StringViewUtils = hippy::base::StringViewUtils;
 #ifdef ENABLE_INSPECTOR
 using V8InspectorClientImpl = hippy::inspector::V8InspectorClientImpl;
+extern std::mutex inspector_mutex;
 extern std::shared_ptr<V8InspectorClientImpl> global_inspector;
 #endif
 
@@ -117,6 +118,7 @@ void CallFunction(JNIEnv* j_env,
     if (runtime->IsDebug() &&
         action_name.utf16_value() == u"onWebsocketMsg") {
 #ifdef ENABLE_INSPECTOR
+      std::lock_guard<std::mutex> lock(inspector_mutex);
       std::u16string str(reinterpret_cast<const char16_t*>(&buffer_data_[0]),
                          buffer_data_.length() / sizeof(char16_t));
       global_inspector->SendMessageToV8(
