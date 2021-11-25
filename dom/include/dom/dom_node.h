@@ -69,7 +69,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
 
   inline void SetStyleStr(const std::string& view_name) { view_name_ = view_name; }
 
-  inline const std::string& GetViweName() { return view_name_; }
+  inline const std::string& GetViewName() { return view_name_; }
 
   void SetId(int32_t id) { id_ = id; }
   int32_t GetId() const { return id_; }
@@ -100,6 +100,10 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   void CallFunction(const std::string& name,
                     std::unordered_map<std::string, std::shared_ptr<DomValue>> param,
                     const CallFunctionCallback& cb);
+  const std::unordered_map<std::string, std::shared_ptr<DomValue>> GetStyle() { return style_map_; }
+  const std::unordered_map<std::string, std::shared_ptr<DomValue>> GetExtStyle() { return dom_ext_map_; }
+  const std::unordered_map<std::string, std::shared_ptr<DomValue>> GetDiffStyle() { return diff_; }
+  void SetDiffStyle(std::unordered_map<std::string, std::shared_ptr<DomValue>> diff) { diff_ = std::move(diff); }
 
   CallFunctionCallback GetCallback(const std::string& name);
 
