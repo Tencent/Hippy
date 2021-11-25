@@ -95,10 +95,10 @@ public class MyActivity extends Activity
 				 */
 				@Override
 				public void onInitialized(EngineInitStatus statusCode, String msg) {
-					if (statusCode != EngineInitStatus.STATUS_OK)
-						LogUtils.e("MyActivity", "hippy engine init failed code:" + statusCode + ", msg=" + msg);
-					// else
-					{
+					if (statusCode != EngineInitStatus.STATUS_OK) {
+						LogUtils
+								.e("MyActivity", "hippy engine init failed code:" + statusCode + ", msg=" + msg);
+					} else {
 						// 2/3. 加载hippy前端模块
 
 						HippyEngine.ModuleLoadParams loadParams = new HippyEngine.ModuleLoadParams();
