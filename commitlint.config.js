@@ -1,5 +1,5 @@
 function asciiAndEmojiCheck(message) {
-  const asciiAndEmojiReg = /^((\ud83c[\udf00-\udfff])|(\ud83d[\udc00-\ude4f\ude80-\udeff])|[\u2600-\u2B55]|[\x00-\xff])*$/i;
+  const asciiAndEmojiReg = /^((\ud83c[\udf00-\udfff])|(\ud83d[\udc00-\ude4f\ude80-\udeff])|[\u2600-\u2B55]|[\x00-\x1e]|[\x20-\xff])*$/i;
   return asciiAndEmojiReg.test(message);
 }
 

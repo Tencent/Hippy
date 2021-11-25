@@ -3,6 +3,7 @@ import * as hostConfigs from './host-configs';
 
 const hippyReconciler = reactReconciler({
   ...hostConfigs,
+  // @ts-ignore compatible for React 16 and React latest
   clearTimeout,
   setTimeout,
   isPrimaryRenderer: true,

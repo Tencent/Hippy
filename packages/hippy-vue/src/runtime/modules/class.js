@@ -13,15 +13,12 @@ function updateClass(oldVNode, vNode) {
   ) {
     return;
   }
-
   let cls = genClassForVnode(vNode);
-
   // handle transition classes
   const transitionClass = elm._transitionClasses;
   if (transitionClass) {
     cls = concat(cls, stringifyClass(transitionClass));
   }
-
   // set the class
   if (cls !== elm._prevClass) {
     elm.setAttribute('class', cls);

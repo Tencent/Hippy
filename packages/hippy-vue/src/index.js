@@ -7,7 +7,6 @@ global.process.env = global.process.env || {};
 global.WebSocket = WebSocket;
 
 Vue.config.silent = false;
-
 setVue(Vue);
 
 export default Vue;

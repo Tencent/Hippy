@@ -426,7 +426,6 @@ class ElementNode extends ViewNode {
       this._emitter = new EventEmitter(this);
     }
     this._emitter.addEventListener(eventNames, callback, options);
-
     // Added default scrollEventThrottle when scroll event is added.
     if (eventNames === 'scroll' && !(this.getAttribute('scrollEventThrottle') > 0)) {
       const scrollEventThrottle = 200;
@@ -434,11 +433,9 @@ class ElementNode extends ViewNode {
         this.attributes.scrollEventThrottle = scrollEventThrottle;
       }
     }
-
     if (this.polyFillNativeEvents) {
       this.polyFillNativeEvents('addEvent', eventNames, callback, options);
     }
-
     updateChild(this);
   }
 
@@ -446,11 +443,9 @@ class ElementNode extends ViewNode {
     if (!this._emitter) {
       return null;
     }
-
     if (this.polyFillNativeEvents) {
       this.polyFillNativeEvents('removeEvent', eventNames, callback, options);
     }
-
     return this._emitter.removeEventListener(eventNames, callback, options);
   }
 
@@ -458,10 +453,8 @@ class ElementNode extends ViewNode {
     if (!(eventInstance instanceof Event)) {
       throw new Error('dispatchEvent method only accept Event instance');
     }
-
     // Current Target always be the event listener.
     eventInstance.currentTarget = this;
-
     // But target be the first target.
     // Be careful, here's different than Browser,
     // because Hippy can't callback without element _emitter.
@@ -472,11 +465,9 @@ class ElementNode extends ViewNode {
         eventInstance.target.value = eventInstance.value;
       }
     }
-
     if (this._emitter) {
       this._emitter.emit(eventInstance);
     }
-
     if (this.parentNode && eventInstance.bubbles) {
       this.parentNode.dispatchEvent.call(this.parentNode, eventInstance);
     }
