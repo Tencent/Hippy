@@ -41,7 +41,7 @@ std::size_t std::hash<DomValue>::operator()(const DomValue& value) const noexcep
       break;
   }
   return 0;
-};
+}
 
 namespace tdf {
 namespace base {
@@ -85,6 +85,7 @@ DomValue::DomValue(const DomValue& source) : type_(source.type_), number_type_(s
         default:
           break;
       }
+      break;
     }
     case DomValue::Type::kString:
       new (&str_) std::string(source.str_);
