@@ -155,9 +155,10 @@ void CallJava(hippy::napi::CBDataTuple *data) {
         buffer_data.length());
     j_method = instance->GetMethods().j_call_natives_direct_method_id;
   } else {  // Default
-    j_buffer = j_env->NewByteArray(buffer_data.length());
+    auto buffer_size = JniUtils::CheckedNumericCast<size_t, jsize>(buffer_data.length());
+    j_buffer = j_env->NewByteArray(buffer_size);
     j_env->SetByteArrayRegion(
-        reinterpret_cast<jbyteArray>(j_buffer), 0, buffer_data.length(),
+        reinterpret_cast<jbyteArray>(j_buffer), 0, buffer_size,
         reinterpret_cast<const jbyte *>(buffer_data.c_str()));
     j_method = instance->GetMethods().j_call_natives_method_id;
   }
