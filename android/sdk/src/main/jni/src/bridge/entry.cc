@@ -254,11 +254,11 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
                           jobject j_cb) {
   TDF_BASE_DLOG(INFO) << "runScriptFromUri begin, j_runtime_id = "
                       << j_runtime_id;
-  std::shared_ptr<Runtime> runtime = Runtime::Find(j_runtime_id);
+  std::shared_ptr<Runtime> runtime = Runtime::Find(JniUtils::CheckedNumericCast<jlong, int32_t>(j_runtime_id));
   if (!runtime) {
     TDF_BASE_DLOG(WARNING)
         << "HippyBridgeImpl runScriptFromUri, j_runtime_id invalid";
-    return false;
+    return JNI_FALSE;
   }
 
   auto time_begin = std::chrono::time_point_cast<std::chrono::microseconds>(
@@ -267,7 +267,7 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
                         .count();
   if (!j_uri) {
     TDF_BASE_DLOG(WARNING) << "HippyBridgeImpl runScriptFromUri, j_uri invalid";
-    return false;
+    return JNI_FALSE;
   }
   const unicode_string_view uri = JniUtils::ToStrView(j_env, j_uri);
   const unicode_string_view code_cache_dir =
@@ -330,7 +330,7 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
 
   runner->PostTask(task);
 
-  return true;
+  return JNI_TRUE;
 }
 
 void HandleUncaughtJsError(v8::Local<v8::Message> message,

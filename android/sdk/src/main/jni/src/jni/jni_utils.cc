@@ -27,7 +27,6 @@
 #include <cstring>
 
 #include "core/base/string_view_utils.h"
-#include "core/core.h"
 
 using unicode_string_view = tdf::base::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
@@ -57,7 +56,7 @@ JniUtils::bytes JniUtils::AppendJavaByteArrayToBytes(JNIEnv* j_env,
   }
 
   bytes ret;
-  ret.resize(j_length);
+  ret.resize(CheckedNumericCast<jsize, size_t>(j_length));
   j_env->GetByteArrayRegion(j_byte_array, j_offset, j_len,
                             reinterpret_cast<int8_t*>(&ret[0]));
   return ret;
@@ -82,7 +81,7 @@ unicode_string_view JniUtils::JByteArrayToStrView(JNIEnv* j_env,
   }
 
   std::string ret;
-  ret.resize(j_len);
+  ret.resize(CheckedNumericCast<jsize, size_t>(j_len));
   j_env->GetByteArrayRegion(j_byte_array, j_offset, j_len,
                             reinterpret_cast<int8_t*>(&ret[0]));
 
@@ -96,7 +95,7 @@ jstring JniUtils::StrViewToJString(JNIEnv* j_env,
       StringViewUtils::Convert(str_view, unicode_string_view::Encoding::Utf16)
           .utf16_value();
   return j_env->NewString(reinterpret_cast<const jchar*>(str.c_str()),
-                          str.length());
+                          CheckedNumericCast<size_t, jsize>(str.length()));
 }
 
 unicode_string_view::u8string JniUtils::ToU8String(JNIEnv* j_env,
@@ -104,9 +103,9 @@ unicode_string_view::u8string JniUtils::ToU8String(JNIEnv* j_env,
   TDF_BASE_DCHECK(j_str);
 
   const char* c_str = j_env->GetStringUTFChars(j_str, nullptr);
-  const int32_t len = j_env->GetStringLength(j_str);
+  auto len = j_env->GetStringLength(j_str);
   unicode_string_view::u8string ret(
-      reinterpret_cast<const unicode_string_view::char8_t_*>(c_str), len);
+      reinterpret_cast<const unicode_string_view::char8_t_*>(c_str), CheckedNumericCast<jsize, size_t>(len));
   j_env->ReleaseStringUTFChars(j_str, c_str);
   return ret;
 }
@@ -115,13 +114,8 @@ unicode_string_view JniUtils::ToStrView(JNIEnv* j_env, jstring j_str) {
   TDF_BASE_DCHECK(j_str);
 
   const jchar* j_char = j_env->GetStringChars(j_str, nullptr);
-  int32_t len = j_env->GetStringLength(j_str);
-  unicode_string_view ret(reinterpret_cast<const char16_t*>(j_char), len);
+  auto len = j_env->GetStringLength(j_str);
+  unicode_string_view ret(reinterpret_cast<const char16_t*>(j_char), CheckedNumericCast<jsize, size_t>(len));
   j_env->ReleaseStringChars(j_str, j_char);
   return ret;
-}
-
-void JniUtils::printCurrentThreadID() {
-#define LOG_DEBUG(FORMAT, ...) \
-  __android_log_print(ANDROID_LOG_DEBUG, "Debug", FORMAT, ##__VA_ARGS__);
 }
