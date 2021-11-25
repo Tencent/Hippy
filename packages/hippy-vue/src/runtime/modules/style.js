@@ -24,15 +24,12 @@ function updateStyle(oldVNode, vNode) {
   const { elm } = vNode;
   const oldStyle = oldVNode.data.style || {};
   let style = vNode.data.style || {};
-
   const needClone = style.__ob__;
-
   // handle array syntax
   if (Array.isArray(style)) {
     style = toObject(style);
     vNode.data.style = style;
   }
-
   // clone the style for future updates,
   // in case the user mutates the style object in-place.
   if (needClone) {

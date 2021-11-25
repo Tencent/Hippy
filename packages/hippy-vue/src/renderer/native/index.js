@@ -18,6 +18,7 @@ import {
 import {
   isRTL,
 } from '../../util/i18n';
+// import { preCacheNode } from '../../util/node';
 import { fromAstNodes, SelectorsMap } from './style';
 
 const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
@@ -361,14 +362,21 @@ function renderToNative(rootViewId, targetNode) {
 }
 
 /**
- * Render Element with child to native
+ * Render Element with children to native
+ * @param {number} rootViewId - root view id
+ * @param {ViewNode} node - target node to be traversed
+ * @param {Function} [callback] - function called on each traversing process
+ * @returns {[]}
  */
-function renderToNativeWithChildren(rootViewId, node) {
+function renderToNativeWithChildren(rootViewId, node, callback) {
   const nativeLanguages = [];
   node.traverseChildren((targetNode) => {
     const nativeNode = renderToNative(rootViewId, targetNode);
     if (nativeNode) {
       nativeLanguages.push(nativeNode);
+    }
+    if (typeof callback === 'function') {
+      callback(targetNode);
     }
   });
   return nativeLanguages;
@@ -409,32 +417,32 @@ function insertChild(parentNode, childNode, atIndex = -1) {
   // Render the root node
   if (isLayout(parentNode, rootView) && !parentNode.isMounted) {
     // Start real native work.
-    const translated = renderToNativeWithChildren(rootViewId, parentNode);
+    const translated = renderToNativeWithChildren(rootViewId, parentNode, (node) => {
+      if (!node.isMounted) {
+        node.isMounted = true;
+      }
+      // preCacheNode(node, node.nodeId);
+    });
     startBatch();
     __batchNodes.push({
       type: NODE_OPERATION_TYPES.createNode,
       nodes: translated,
     });
     endBatch(app);
-    parentNode.traverseChildren((node) => {
-      if (!node.isMounted) {
-        node.isMounted = true;
-      }
-    });
   // Render others child nodes.
   } else if (parentNode.isMounted && !childNode.isMounted) {
-    const translated = renderToNativeWithChildren(rootViewId, childNode);
+    const translated = renderToNativeWithChildren(rootViewId, childNode, (node) => {
+      if (!node.isMounted) {
+        node.isMounted = true;
+      }
+      // preCacheNode(node, node.nodeId);
+    });
     startBatch();
     __batchNodes.push({
       type: NODE_OPERATION_TYPES.createNode,
       nodes: translated,
     });
     endBatch(app);
-    childNode.traverseChildren((node) => {
-      if (!node.isMounted) {
-        node.isMounted = true;
-      }
-    });
   }
 }
 

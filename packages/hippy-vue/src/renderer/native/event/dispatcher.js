@@ -1,4 +1,3 @@
-/* eslint-disable import/prefer-default-export */
 /* eslint-disable no-underscore-dangle */
 
 import { trace, getApp } from '../../../util';
@@ -77,7 +76,6 @@ const EventDispatcher = {
     if (!targetNode) {
       return;
     }
-
     const targetEventName = getVueEventName(eventName, targetNode);
     const targetEvent = new Event(targetEventName);
     const { processEventData } = targetNode._meta.component;

@@ -6,7 +6,6 @@ import { Text } from './native/components';
 export default class TextNode extends ViewNode {
   constructor(text) {
     super();
-
     this.text = text;
     this._meta = {
       symbol: Text,

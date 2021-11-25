@@ -6,7 +6,6 @@ import { Text } from './native/components';
 class CommentNode extends ElementNode {
   constructor(text) {
     super('comment');
-
     this.text = text;
     this._meta = {
       symbol: Text,

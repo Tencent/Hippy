@@ -23,19 +23,14 @@ class ViewNode {
   constructor() {
     // Point to root document element.
     this._ownerDocument = null;
-
     // Component meta information, such as native component will use.
     this._meta = null;
-
     // Will change to be true after insert into Native dom.
     this._isMounted = false;
-
     // Virtual DOM node id, will used in native to identify.
     this.nodeId = getNodeId();
-
     // Index number in children, will update at traverseChildren method.
     this.index = 0;
-
     // Relation nodes.
     this.childNodes = [];
     this.parentNode = null;
