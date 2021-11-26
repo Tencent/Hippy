@@ -19,9 +19,6 @@ class VoltronRenderTaskRunner {
   void RunUpdateDomNode(const Sp<DomNode>& node);
   void RunMoveDomNode(std::vector<int32_t>&& ids, int32_t pid, int32_t id);
   void RunBatch();
-  void RunDispatchFunction(int32_t id, const std::string& name,
-                           std::unordered_map<std::string, std::shared_ptr<DomValue>> param,
-                           DispatchFunctionCallback cb);
   std::unique_ptr<std::vector<uint8_t>> ConsumeQueue();
  private:
   EncodableValue EncodeDomValueMap(const SpMap<DomValue>& value_map);

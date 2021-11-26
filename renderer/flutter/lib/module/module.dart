@@ -8,6 +8,7 @@ import '../engine/engine_context.dart';
 import '../util/log_util.dart';
 import 'monitor.dart';
 import 'promise.dart';
+import '../util/extension.dart';
 
 // ignore: constant_identifier_names
 enum JavaScriptModuleType { EventDispatcher, Dimensions }
@@ -72,6 +73,12 @@ class ModuleManager implements Destroyable {
     }
 
     _doCallNative(moduleInfo, params);
+  }
+
+  void consumeRenderOp(dynamic renderOp) {
+    if (renderOp is List) {
+
+    }
   }
 
   void _doCallNative(VoltronNativeModule module, CallNativeParams params) {

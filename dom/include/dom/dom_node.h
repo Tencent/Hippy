@@ -69,7 +69,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
 
   inline void SetStyleStr(const std::string& view_name) { view_name_ = view_name; }
 
-  inline const std::string& GetViweName() { return view_name_; }
+  inline const std::string& GetViewName() { return view_name_; }
 
   void SetId(int32_t id) { id_ = id; }
   int32_t GetId() const { return id_; }

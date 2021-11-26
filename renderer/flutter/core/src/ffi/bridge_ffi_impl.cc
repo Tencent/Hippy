@@ -33,7 +33,7 @@ EXTERN_C int64_t InitJSFrameworkFFI(const char16_t* global_config, int32_t singl
   BridgeManager::GetBridgeManager(root_id)->BindRuntime(ffi_runtime);
   auto render_manager = std::make_shared<VoltronRenderManager>(root_id);
   auto proxy_render_manager = std::make_shared<RenderManagerProxy>(render_manager);
-  Sp<DomManager> dom_manager = DomManager::GetDomManager(root_id);
+  Sp<DomManager> dom_manager = DomManager(root_id);
   // todo bind render manager to dom manager
   BridgeManager::GetBridgeManager(root_id)->BindDomManager(dom_manager);
   BridgeManager::GetBridgeManager(root_id)->BindRenderManager(render_manager);

@@ -507,7 +507,12 @@ void onDestroy(int rootId) {
 void postRenderOp(int rootId, Pointer<Void> data, int len) {
   var dataList = data.cast<Uint8>().asTypedList(len);
   if (dataList.isNotEmpty) {
-    var renderOpList = StandardMessageCodec().decodeMessage(dataList.buffer.asByteData());
+    var renderOpList =
+        StandardMessageCodec().decodeMessage(dataList.buffer.asByteData());
+    final bridge = VoltronBridgeManager.bridgeMap[rootId];
+    if (bridge != null) {
+      bridge.postRenderOp(renderOpList);
+    }
   }
 }
 
@@ -930,6 +935,13 @@ class VoltronBridgeManager implements Destroyable {
     }
 
     return true;
+  }
+
+  void postRenderOp(dynamic renderOp) {
+    LogUtils.dBridge("call post render op ($renderOp)");
+    if (_isBridgeInit) {
+      _context.moduleManager.consumeRenderOp(renderOp);
+    }
   }
 
   void callNatives(String moduleName, String moduleFunc, String callId,
