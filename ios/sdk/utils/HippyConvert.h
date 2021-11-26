@@ -23,7 +23,7 @@
 #import <QuartzCore/QuartzCore.h>
 #import <UIKit/UIKit.h>
 
-#include "MTTFlex.h"
+#include "Flex.h"
 #import "HippyAnimationType.h"
 #import "HippyBorderStyle.h"
 #import "HippyTextDecorationLineType.h"
@@ -36,6 +36,7 @@
  * JSON objects to native types and classes. These are useful when writing
  * custom HippyViewManager setter methods.
  */
+
 @interface HippyConvert : NSObject
 
 + (id)id:(id)json;

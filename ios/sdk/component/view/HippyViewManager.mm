@@ -21,7 +21,6 @@
  */
 
 #import "HippyViewManager.h"
-#include "MTTFlex.h"
 #import "HippyBridge.h"
 #import "HippyBorderStyle.h"
 #import "HippyConvert.h"
@@ -335,9 +334,9 @@ HIPPY_EXPORT_VIEW_PROPERTY(onTouchCancel, HippyDirectEventBlock)
 
 HIPPY_EXPORT_SHADOW_PROPERTY(zIndex, NSInteger)
 
-HIPPY_CUSTOM_VIEW_PROPERTY(direction, MTTDirection, HippyShadowView) {
+HIPPY_CUSTOM_VIEW_PROPERTY(direction, HPDirection, HippyShadowView) {
     if (json) {
-        MTTDirection dir = (MTTDirection)[HippyConvert int:json];
+        HPDirection dir = (HPDirection)[HippyConvert int:json];
         view.layoutDirection = dir;
     }
 }

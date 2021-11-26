@@ -621,7 +621,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
         return;
     }
 
-    __weak typeof(self) weakSelf = self;
+    __weak __typeof(self) weakSelf = self;
     void (^setImageBlock)(UIImage *) = ^(UIImage *image) {
         weakSelf.pendingImageSourceUri = nil;
         weakSelf.imageSourceUri = url;

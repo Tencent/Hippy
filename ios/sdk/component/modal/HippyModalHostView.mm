@@ -53,7 +53,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : coder)
         _touchHandler = [[HippyTouchHandler alloc] initWithRootView:containerView bridge:bridge];
         _isPresented = NO;
 
-        __weak typeof(self) weakSelf = self;
+        __weak __typeof(self) weakSelf = self;
         _modalViewController.boundsDidChangeBlock = ^(CGRect newBounds) {
             [weakSelf notifyForBoundsChange:newBounds];
         };
