@@ -20,6 +20,8 @@ set(V8_RELEASE "official-release")
 set(EXT_JS_ENGINE_LIB "false")
 set(CMAKE_SELF_PROJECT_BUILD_OUTPUT_DIR $CMAKE_CURRENT_LIST_DIR)
 
+get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../.." REALPATH)
+get_filename_component(LAYOUT_DIR "${PROJECT_ROOT_DIR}/layout" REALPATH)
+
 add_subdirectory(../../../dom ${CMAKE_CURRENT_BINARY_DIR}/dom)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/main/jni/ ${CMAKE_CURRENT_BINARY_DIR}/rendercore)
-add_subdirectory(../core/third_party/layout ${CMAKE_CURRENT_BINARY_DIR}/flexbox)
