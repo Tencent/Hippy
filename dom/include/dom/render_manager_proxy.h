@@ -32,30 +32,30 @@ class RenderManagerProxy : public RenderManager {
   void RemoveShowEventListener(int32_t id, ShowEvent event) override;
 
  protected:
-  bool ComputeIsLayoutOnly(std::shared_ptr<DomNode> node) const;
+  bool ComputeIsLayoutOnly(const std::shared_ptr<DomNode>& node) const;
 
   virtual bool CheckStyleJustLayout(std::shared_ptr<DomNode> node) const;
 
   virtual bool IsJustLayoutProp(const char *prop_name) const;
 
-  std::shared_ptr<DomNode> GetRenderParent(std::shared_ptr<DomNode> node);
+  static std::shared_ptr<DomNode> GetRenderParent(const std::shared_ptr<DomNode>& node);
 
-  int32_t CalculateRenderNodeIndex(std::shared_ptr<DomNode> parent,
-                                   std::shared_ptr<DomNode> node);
+  int32_t CalculateRenderNodeIndex(const std::shared_ptr<DomNode>& parent,
+                                   const std::shared_ptr<DomNode>& node);
 
  private:
   std::shared_ptr<RenderManager> render_manager_;
 
-  bool UpdateRenderInfo(std::shared_ptr<DomNode> node);
+  bool UpdateRenderInfo(const std::shared_ptr<DomNode>& node);
 
   std::pair<bool, int32_t>
-  CalculateRenderNodeIndex(std::shared_ptr<DomNode> parent,
-                           std::shared_ptr<DomNode> node, int32_t index);
+  CalculateRenderNodeIndex(const std::shared_ptr<DomNode>& parent,
+                           const std::shared_ptr<DomNode>& node, int32_t index);
 
-  void FindMoveChildren(std::shared_ptr<DomNode> node,
+  void FindMoveChildren(const std::shared_ptr<DomNode>& node,
                         std::vector<int32_t> &removes);
 
-  void ApplyLayoutRecursive(std::shared_ptr<DomNode> node);
+  void ApplyLayoutRecursive(const std::shared_ptr<DomNode>& node);
 };
 
 }  // namespace dom

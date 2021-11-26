@@ -38,6 +38,10 @@ public class HippyMap {
     mDatas = new HashMap<>();
   }
 
+  public HashMap<String, Object> getInternalMap() {
+    return mDatas;
+  }
+
   public boolean containsKey(String key) {
     return mDatas.containsKey(key);
   }

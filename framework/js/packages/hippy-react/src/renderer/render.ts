@@ -1,3 +1,23 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 
@@ -167,12 +187,19 @@ function renderToNative(rootViewId: number, targetNode: Element): Hippy.NativeNo
 }
 
 /**
- * Render Element with child to native
- * @param rootViewId - rootView id
- * @param node - current node
- * @param atIndex - current node index
+ * Render Element with children to native
+ * @param {number} rootViewId - rootView id
+ * @param {ViewNode} node - current node
+ * @param {number} [atIndex] - current node index
+ * @param {Function} [callback] - function called on each traversing process
+ * @returns {Hippy.NativeNode[]}
  */
-function renderToNativeWithChildren(rootViewId: number, node: ViewNode, atIndex?: number | undefined) {
+function renderToNativeWithChildren(
+  rootViewId: number,
+  node: ViewNode,
+  atIndex?: number,
+  callback?: Function,
+): Hippy.NativeNode[] {
   const nativeLanguages: Hippy.NativeNode[] = [];
   let index = atIndex;
   if (typeof index === 'undefined' && node && node.parentNode) {
@@ -182,6 +209,9 @@ function renderToNativeWithChildren(rootViewId: number, node: ViewNode, atIndex?
     const nativeNode = renderToNative(rootViewId, targetNode);
     if (nativeNode) {
       nativeLanguages.push(nativeNode);
+    }
+    if (typeof callback === 'function') {
+      callback(targetNode);
     }
   }, index);
   return nativeLanguages;
@@ -208,32 +238,40 @@ function insertChild(parentNode: ViewNode, childNode: ViewNode, atIndex = -1) {
   // Render the root node
   if (isLayout(parentNode) && !parentNode.isMounted) {
     // Start real native work.
-    const translated = renderToNativeWithChildren(rootViewId, childNode, atIndex);
+    const translated = renderToNativeWithChildren(
+      rootViewId,
+      childNode,
+      atIndex,
+      (node: ViewNode) => {
+        if (!node.isMounted) {
+          node.isMounted = true;
+        }
+      },
+    );
     startBatch();
     batchNodes.push({
       type: NODE_OPERATION_TYPES.createNode,
       nodes: translated,
     });
     endBatch(rootViewId);
-    parentNode.traverseChildren((node: ViewNode) => {
-      if (!node.isMounted) {
-        node.isMounted = true;
-      }
-    }, atIndex);
     // Render others child nodes.
   } else if (parentNode.isMounted && !childNode.isMounted) {
-    const translated = renderToNativeWithChildren(rootViewId, childNode, atIndex);
+    const translated = renderToNativeWithChildren(
+      rootViewId,
+      childNode,
+      atIndex,
+      (node: ViewNode) => {
+        if (!node.isMounted) {
+          node.isMounted = true;
+        }
+      },
+    );
     startBatch();
     batchNodes.push({
       type: NODE_OPERATION_TYPES.createNode,
       nodes: translated,
     });
     endBatch(rootViewId);
-    childNode.traverseChildren((node: ViewNode) => {
-      if (!node.isMounted) {
-        node.isMounted = true;
-      }
-    }, atIndex);
   }
 }
 

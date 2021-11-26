@@ -32,6 +32,10 @@ public class HippyArray {
     mDatas = new ArrayList();
   }
 
+  public ArrayList getInternalArray() {
+    return mDatas;
+  }
+
   public int size() {
     return mDatas.size();
   }

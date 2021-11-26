@@ -1,3 +1,23 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 
@@ -18,6 +38,7 @@ import {
 import {
   isRTL,
 } from '../../util/i18n';
+// import { preCacheNode } from '../../util/node';
 import { fromAstNodes, SelectorsMap } from './style';
 
 const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
@@ -361,14 +382,21 @@ function renderToNative(rootViewId, targetNode) {
 }
 
 /**
- * Render Element with child to native
+ * Render Element with children to native
+ * @param {number} rootViewId - root view id
+ * @param {ViewNode} node - target node to be traversed
+ * @param {Function} [callback] - function called on each traversing process
+ * @returns {[]}
  */
-function renderToNativeWithChildren(rootViewId, node) {
+function renderToNativeWithChildren(rootViewId, node, callback) {
   const nativeLanguages = [];
   node.traverseChildren((targetNode) => {
     const nativeNode = renderToNative(rootViewId, targetNode);
     if (nativeNode) {
       nativeLanguages.push(nativeNode);
+    }
+    if (typeof callback === 'function') {
+      callback(targetNode);
     }
   });
   return nativeLanguages;
@@ -409,32 +437,32 @@ function insertChild(parentNode, childNode, atIndex = -1) {
   // Render the root node
   if (isLayout(parentNode, rootView) && !parentNode.isMounted) {
     // Start real native work.
-    const translated = renderToNativeWithChildren(rootViewId, parentNode);
+    const translated = renderToNativeWithChildren(rootViewId, parentNode, (node) => {
+      if (!node.isMounted) {
+        node.isMounted = true;
+      }
+      // preCacheNode(node, node.nodeId);
+    });
     startBatch();
     __batchNodes.push({
       type: NODE_OPERATION_TYPES.createNode,
       nodes: translated,
     });
     endBatch(app);
-    parentNode.traverseChildren((node) => {
-      if (!node.isMounted) {
-        node.isMounted = true;
-      }
-    });
   // Render others child nodes.
   } else if (parentNode.isMounted && !childNode.isMounted) {
-    const translated = renderToNativeWithChildren(rootViewId, childNode);
+    const translated = renderToNativeWithChildren(rootViewId, childNode, (node) => {
+      if (!node.isMounted) {
+        node.isMounted = true;
+      }
+      // preCacheNode(node, node.nodeId);
+    });
     startBatch();
     __batchNodes.push({
       type: NODE_OPERATION_TYPES.createNode,
       nodes: translated,
     });
     endBatch(app);
-    childNode.traverseChildren((node) => {
-      if (!node.isMounted) {
-        node.isMounted = true;
-      }
-    });
   }
 }
 

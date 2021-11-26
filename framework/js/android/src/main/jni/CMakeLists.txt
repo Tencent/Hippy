@@ -95,7 +95,6 @@ add_definitions("-DANDROID")
 # endregion
 
 # region source
-file(GLOB_RECURSE LAYOUT_SRC ${LAYOUT_DIR}/engine/*.cpp)
 file(GLOB_RECURSE CORE_SRC ${CORE_SRC_DIR}/src/*.cc)
 file(GLOB_RECURSE JNI_SRC ${PROJECT_SOURCE_DIR}/src/*.cc)
 if (${ENABLE_INSPECTOR} STREQUAL "false")
@@ -151,7 +150,7 @@ include_directories(${CORE_SRC_DIR}/third_party/base/include)
 include_directories(${DOM_SRC_DIR}/include)
 include_directories(${LAYOUT_DIR})
 
-add_library(${CMAKE_PROJECT_NAME} SHARED ${CORE_SRC} ${URL_PARSER_SRC} ${JNI_SRC} ${LAYOUT_SRC})
+add_library(${CMAKE_PROJECT_NAME} SHARED ${CORE_SRC} ${URL_PARSER_SRC} ${JNI_SRC})
 target_link_libraries(${CMAKE_PROJECT_NAME} ${HIPPY_DEPS})
 set_property(TARGET ${CMAKE_PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 

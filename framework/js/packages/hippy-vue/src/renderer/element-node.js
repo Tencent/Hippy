@@ -1,3 +1,23 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 
@@ -426,7 +446,6 @@ class ElementNode extends ViewNode {
       this._emitter = new EventEmitter(this);
     }
     this._emitter.addEventListener(eventNames, callback, options);
-
     // Added default scrollEventThrottle when scroll event is added.
     if (eventNames === 'scroll' && !(this.getAttribute('scrollEventThrottle') > 0)) {
       const scrollEventThrottle = 200;
@@ -434,11 +453,9 @@ class ElementNode extends ViewNode {
         this.attributes.scrollEventThrottle = scrollEventThrottle;
       }
     }
-
     if (this.polyFillNativeEvents) {
       this.polyFillNativeEvents('addEvent', eventNames, callback, options);
     }
-
     updateChild(this);
   }
 
@@ -446,11 +463,9 @@ class ElementNode extends ViewNode {
     if (!this._emitter) {
       return null;
     }
-
     if (this.polyFillNativeEvents) {
       this.polyFillNativeEvents('removeEvent', eventNames, callback, options);
     }
-
     return this._emitter.removeEventListener(eventNames, callback, options);
   }
 
@@ -458,10 +473,8 @@ class ElementNode extends ViewNode {
     if (!(eventInstance instanceof Event)) {
       throw new Error('dispatchEvent method only accept Event instance');
     }
-
     // Current Target always be the event listener.
     eventInstance.currentTarget = this;
-
     // But target be the first target.
     // Be careful, here's different than Browser,
     // because Hippy can't callback without element _emitter.
@@ -472,11 +485,9 @@ class ElementNode extends ViewNode {
         eventInstance.target.value = eventInstance.value;
       }
     }
-
     if (this._emitter) {
       this._emitter.emit(eventInstance);
     }
-
     if (this.parentNode && eventInstance.bubbles) {
       this.parentNode.dispatchEvent.call(this.parentNode, eventInstance);
     }

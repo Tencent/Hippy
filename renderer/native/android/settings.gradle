@@ -1,3 +1,6 @@
 
 //include 'hippy-support'
 //project(':hippy-support').projectDir = new File('../../../modules/hippy_support')
+//
+//include 'serialization'
+//project(':serialization').projectDir = new File('../../../modules/serialization')

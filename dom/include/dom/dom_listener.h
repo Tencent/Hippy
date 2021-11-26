@@ -30,25 +30,25 @@ enum class DomEvent {
   Create, Update, Delete
 };
 
-using OnDomEventListener = std::function<void(std::any)> ;
+using OnDomEventListener = std::function<void()> ;
 
 enum class LayoutEvent {
   OnLayout
 };
 
 struct LayoutResult {
-  float left;
-  float top;
-  float width;
-  float height;
-  float marginLeft;
-  float marginTop;
-  float marginRight;
-  float marginBottom;
-  float paddingLeft;
-  float paddingTop;
-  float paddingRight;
-  float paddingBottom;
+  float left = 0;
+  float top = 0;
+  float width = 0;
+  float height = 0;
+  float marginLeft = 0;
+  float marginTop = 0;
+  float marginRight = 0;
+  float marginBottom = 0;
+  float paddingLeft = 0;
+  float paddingTop = 0;
+  float paddingRight = 0;
+  float paddingBottom = 0;
 };
 
 enum class LayoutDiffMapKey {
