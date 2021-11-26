@@ -19,9 +19,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#import "iOSRenderManager.h"
+#import "NativeRenderManager.h"
 
-void iOSRenderManager::CreateRenderNode(std::vector<std::shared_ptr<DomNode>> &&nodes) {
+void NativeRenderManager::CreateRenderNode(std::vector<std::shared_ptr<DomNode>> &&nodes) {
     for (const std::shared_ptr<DomNode> &node : nodes) {
         int32_t tag = node->GetId();
         const std::string &viewName = node->GetViewName();
@@ -30,7 +30,7 @@ void iOSRenderManager::CreateRenderNode(std::vector<std::shared_ptr<DomNode>> &&
     }
 }
 
-void iOSRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
+void NativeRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
     for (const std::shared_ptr<DomNode> &node : nodes) {
         int32_t tag = node->GetId();
         const std::string &viewName = node->GetViewName();
@@ -38,7 +38,7 @@ void iOSRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& 
     }
 }
 
-void iOSRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
+void NativeRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
     std::vector<int32_t> indices;
     int32_t rootTag = INT32_MIN;
     for (const std::shared_ptr<DomNode> &node : nodes) {
@@ -56,17 +56,17 @@ void iOSRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&& 
     }
 }
 
-void iOSRenderManager::MoveRenderNode(std::vector<int32_t>&& ids,
+void NativeRenderManager::MoveRenderNode(std::vector<int32_t>&& ids,
                                       int32_t pid,
                                       int32_t id) {
     [uiManager renderMoveViews:ids fromContainer:pid toContainer:id];
 }
 
-void iOSRenderManager::Batch() {
+void NativeRenderManager::Batch() {
     [uiManager batch];
 }
 
-void iOSRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std::string &name,
+void NativeRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std::string &name,
                                     std::unordered_map<std::string, std::shared_ptr<DomValue>> param,
                                     DispatchFunctionCallback cb) {
     std::shared_ptr<DomNode> node = domNode.lock();
@@ -75,34 +75,34 @@ void iOSRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std::s
     }
 }
 
-void iOSRenderManager::SetClickEventListener(int32_t id, OnClickEventListener listener) {
+void NativeRenderManager::SetClickEventListener(int32_t id, OnClickEventListener listener) {
     [uiManager addClickEventListener:listener forView:id];
 }
 
-void iOSRenderManager::RemoveClickEventListener(int32_t id) {
+void NativeRenderManager::RemoveClickEventListener(int32_t id) {
     [uiManager removeClickEventForView:id];
 }
 
-void iOSRenderManager::SetLongClickEventListener(int32_t id, OnLongClickEventListener listener) {
+void NativeRenderManager::SetLongClickEventListener(int32_t id, OnLongClickEventListener listener) {
     [uiManager addLongClickEventListener:listener forView:id];
 }
 
-void iOSRenderManager::RemoveLongClickEventListener(int32_t id) {
+void NativeRenderManager::RemoveLongClickEventListener(int32_t id) {
     [uiManager removeLongClickEventForView:id];
 }
 
-void iOSRenderManager::SetTouchEventListener(int32_t id, TouchEvent event, OnTouchEventListener listener) {
+void NativeRenderManager::SetTouchEventListener(int32_t id, TouchEvent event, OnTouchEventListener listener) {
     [uiManager addTouchEventListener:listener touchEvent:event forView:id];
 }
 
-void iOSRenderManager::RemoveTouchEventListener(int32_t id, TouchEvent event) {
+void NativeRenderManager::RemoveTouchEventListener(int32_t id, TouchEvent event) {
     [uiManager removeTouchEvent:event forView:id];
 }
 
-void iOSRenderManager::SetShowEventListener(int32_t id, ShowEvent event, OnShowEventListener listener) {
+void NativeRenderManager::SetShowEventListener(int32_t id, ShowEvent event, OnShowEventListener listener) {
     [uiManager addShowEventListener:listener showEvent:event forView:id];
 }
 
-void iOSRenderManager::RemoveShowEventListener(int32_t id, ShowEvent event) {
+void NativeRenderManager::RemoveShowEventListener(int32_t id, ShowEvent event) {
     [uiManager removeShowEvent:event forView:id];
 }

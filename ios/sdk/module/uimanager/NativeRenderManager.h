@@ -31,7 +31,7 @@
 using RenderManager = hippy::RenderManager;
 using DomNode = hippy::DomNode;
 
-class iOSRenderManager : public RenderManager {
+class NativeRenderManager : public RenderManager {
 public:
     
     void CreateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) override;
