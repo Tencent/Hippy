@@ -5,6 +5,9 @@ import '../flutter_render.dart';
 
 typedef RenderOpTaskGenerator = RenderOpTask Function(int nodeId, Map params);
 
+const int kInvalidIndex = -1;
+const int kInvalidId = -1;
+
 class RenderOperatorRunner implements Destroyable {
   final EngineContext _engineContext;
 
@@ -22,28 +25,22 @@ class RenderOperatorRunner implements Destroyable {
   void consumeRenderOp(List renderOpList) {
     if (renderOpList.isNotEmpty) {
       for (var op in renderOpList) {
-        _parseOp(op)?._run();
+        try {
+          _parseOp(op as List)?._run();
+          // ignore: avoid_catching_errors
+        } on Error catch (e) {
+          LogUtils.dRender('consume render op error, op:$op, error:$e');
+        }
       }
     }
   }
 
-  RenderOpTask? _parseOp(dynamic opData) {
-    try {
-      if (opData is List && opData.length >= 2) {
-        var type = opData[0] as int;
-        var nodeId = opData[1] as int;
-        var args = opData.length > 2 ? opData[2] as Map : {};
-        return _taskGeneratorMap[type]?.call(nodeId, args)
-          ?.._engineContext = _engineContext;
-      } else {
-        LogUtils.dRender(
-            'parse render op error, op:$opData, error: Unknown op');
-      }
-      // ignore: avoid_catching_errors
-    } on Error catch (e) {
-      LogUtils.dRender('parse render op error, op:$opData, error:$e');
-    }
-    return null;
+  RenderOpTask? _parseOp(List opData) {
+    var type = opData[0] as int;
+    var nodeId = opData[1] as int;
+    var args = opData.length > 2 ? opData[2] as Map : {};
+    return _taskGeneratorMap[type]?.call(nodeId, args)
+      ?.._engineContext = _engineContext;
   }
 
   @override
@@ -60,7 +57,7 @@ mixin RenderOpTask {
 
 abstract class _NodeOpTask with RenderOpTask {
   final int _nodeId;
-  final Map? _params;
+  final Map _params;
 
   _NodeOpTask(this._nodeId, this._params);
 }
@@ -69,11 +66,18 @@ class _AddNodeOpTask extends _NodeOpTask {
   _AddNodeOpTask(int nodeId, Map params): super(nodeId, params);
 
   @override
-  void _run() {}
+  void _run() {
+    var className = _params[_RenderOpParamsKey.kClassNameKey]??'';
+    var childIndex = _params[_RenderOpParamsKey.kChildIndexKey]??kInvalidIndex;
+    var parentId = _params[_RenderOpParamsKey.kParentNodeIdKey]??kInvalidId;
+    var styleMap = _params[_RenderOpParamsKey.kStylesKey]??{};
+    var propMap = _params[_RenderOpParamsKey.kPropsKey]??{};
+
+  }
 }
 
 class _DeleteNodeOpTask extends _NodeOpTask {
-  _DeleteNodeOpTask(int nodeId): super(nodeId, null);
+  _DeleteNodeOpTask(int nodeId): super(nodeId, {});
 
   @override
   void _run() {}
