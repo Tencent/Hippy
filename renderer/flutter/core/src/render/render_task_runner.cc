@@ -20,8 +20,8 @@ void VoltronRenderTaskRunner::RunCreateDomNode(const Sp<DomNode>& node) {
   if (!node->GetStyleMap().empty()) {
     argsMap[EncodableValue(kStylesKey)] = EncodeDomValueMap(node->GetStyleMap());
   }
-  if (!node->GetPropMap().empty()) {
-    argsMap[EncodableValue(kPropsKey)] = EncodeDomValueMap(node->GetPropMap());
+  if (!node->GetExtStyle().empty()) {
+    argsMap[EncodableValue(kPropsKey)] = EncodeDomValueMap(node->GetExtStyle());
   }
 
   auto args = std::make_unique<EncodableValue>(argsMap);
@@ -36,8 +36,8 @@ void VoltronRenderTaskRunner::RunDeleteDomNode(const Sp<DomNode>& node) {
 
 void VoltronRenderTaskRunner::RunUpdateDomNode(const Sp<DomNode>& node) {
   auto argsMap = EncodableMap();
-  if (!node->GetDiffMap().empty()) {
-    argsMap[EncodableValue(kPropsKey)] = EncodeDomValueMap(node->GetDiffMap());
+  if (!node->GetDiffStyle().empty()) {
+    argsMap[EncodableValue(kPropsKey)] = EncodeDomValueMap(node->GetDiffStyle());
     auto args = std::make_unique<EncodableValue>(argsMap);
     auto update_task = std::make_shared<RenderTask>(VoltronRenderOpType::ADD_NODE, node->GetId(), std::move(args));
     queue_->ProduceRenderOp(update_task);
