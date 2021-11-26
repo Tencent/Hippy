@@ -8,6 +8,8 @@ get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/.." REALPAT
 get_filename_component(CORE_DIR "${PROJECT_ROOT_DIR}/framework/js/core/" REALPATH)
 get_filename_component(LAYOUT_DIR "${PROJECT_ROOT_DIR}/layout" REALPATH)
 
+message("DOM LAYOUT_DIR: ${LAYOUT_DIR}")
+
 add_subdirectory(${LAYOUT_DIR} layout_out)
 set(DEPS layout)
 
