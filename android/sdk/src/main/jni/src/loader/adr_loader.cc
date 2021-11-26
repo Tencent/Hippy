@@ -191,7 +191,7 @@ void OnResourceReady(JNIEnv* j_env,
                      jlong j_request_id) {
   TDF_BASE_DLOG(INFO) << "HippyBridgeImpl onResourceReady j_runtime_id = "
                       << j_runtime_id;
-  std::shared_ptr<Runtime> runtime = Runtime::Find(j_runtime_id);
+  std::shared_ptr<Runtime> runtime = Runtime::Find(JniUtils::CheckedNumericCast<jlong, int32_t>(j_runtime_id));
   if (!runtime) {
     TDF_BASE_DLOG(WARNING)
         << "HippyBridgeImpl onResourceReady, j_runtime_id invalid";
@@ -217,7 +217,7 @@ void OnResourceReady(JNIEnv* j_env,
     cb(u8string());
     return;
   }
-  int64_t len = (j_env)->GetDirectBufferCapacity(j_byte_buffer);
+  auto len = (j_env)->GetDirectBufferCapacity(j_byte_buffer);
   TDF_BASE_DLOG(INFO) << "len = " << len;
   if (len == -1) {
     TDF_BASE_DLOG(ERROR)
@@ -232,7 +232,7 @@ void OnResourceReady(JNIEnv* j_env,
     return;
   }
 
-  u8string str(reinterpret_cast<const char8_t_*>(buff), len);
+  u8string str(reinterpret_cast<const char8_t_*>(buff), JniUtils::CheckedNumericCast<jlong, size_t>(len));
   cb(std::move(str));
 }
 
