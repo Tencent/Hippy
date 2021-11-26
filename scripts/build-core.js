@@ -114,18 +114,18 @@ function getAbsolutePath(relativePath) {
 function getAllRequiredFiles(platform) {
   return new Promise((resole) => {
     const rl = readline.createInterface({
-      input: fs.createReadStream(getAbsolutePath(`../core/js/entry/${platform}/hippy.js`)),
+      input: fs.createReadStream(getAbsolutePath(`../framework/js/core/js/entry/${platform}/hippy.js`)),
     });
     const filePaths = [
-      getAbsolutePath('../core/js/bootstrap.js'),
-      getAbsolutePath(`../core/js/entry/${platform}/hippy.js`),
-      getAbsolutePath('../core/js/modules/ExceptionHandle.js'),
+      getAbsolutePath('../framework/js/core/js/bootstrap.js'),
+      getAbsolutePath(`../framework/js/core/js/entry/${platform}/hippy.js`),
+      getAbsolutePath('../framework/js/core/js/modules/ExceptionHandle.js'),
     ];
 
     rl.on('line', (line) => {
       if (line.split('//')[0].indexOf('require') > -1) {
         const entry = line.split('(\'')[1].split('\')')[0];
-        filePaths.push(getAbsolutePath(`../core/js/entry/${platform}/${entry}`));
+        filePaths.push(getAbsolutePath(`../framework/js/core/js/entry/${platform}/${entry}`));
       }
     });
     rl.on('close', () => {
@@ -205,5 +205,5 @@ function generateCpp(platform, buildDirPath) {
 }
 
 // Start to work
-generateCpp('ios', getAbsolutePath('../core/src/napi/jsc/'));
-generateCpp('android', getAbsolutePath('../core/src/napi/v8/'));
+generateCpp('ios', getAbsolutePath('../framework/js/core/src/napi/jsc/'));
+generateCpp('android', getAbsolutePath('../framework/js/core/src/napi/v8/'));
