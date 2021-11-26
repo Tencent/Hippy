@@ -114,7 +114,7 @@ void V8InspectorClientImpl::DestroyContext() {
 }
 
 v8::Local<v8::Context> V8InspectorClientImpl::ensureDefaultContextInGroup(
-    int contextGroupId) {
+    __unused int contextGroupId) {
   std::shared_ptr<hippy::napi::V8Ctx> ctx =
       std::static_pointer_cast<hippy::napi::V8Ctx>(scope_->GetContext());
   v8::Isolate* isolate = ctx->isolate_;
@@ -133,7 +133,7 @@ void V8InspectorClientImpl::quitMessageLoopOnPause() {
   scope_->GetTaskRunner()->ResumeThreadForInspector();
 }
 
-void V8InspectorClientImpl::runIfWaitingForDebugger(int contextGroupId) {
+void V8InspectorClientImpl::runIfWaitingForDebugger(__unused int contextGroupId) {
   scope_->GetTaskRunner()->ResumeThreadForInspector();
 }
 
