@@ -27,9 +27,6 @@
 #include "core/napi/js_native_api_types.h"
 #include "hippy.h"
 
-#ifndef ANDROID_DEMO_CONVERT_UTILS_H
-#define ANDROID_DEMO_CONVERT_UTILS_H
-
 struct JNIArgs {
   JNIArgs(size_t count) : args_(count) {}
 
@@ -37,7 +34,7 @@ struct JNIArgs {
   std::vector<jobject> global_refs_;
 };
 
-template <typename T>
+template<typename T>
 std::string ToString(T v) {
   std::ostringstream stream;
   stream << v;
@@ -51,6 +48,10 @@ struct MethodInfo {
 
 class ConvertUtils {
  public:
+  using Ctx = hippy::napi::Ctx;
+  using CtxValue = hippy::napi::CtxValue;
+  using TurboEnv = hippy::napi::TurboEnv;
+
   static bool Init();
 
   static bool Destroy();
@@ -58,66 +59,66 @@ class ConvertUtils {
   static std::vector<std::string> GetMethodArgTypesFromSignature(
       const std::string &method_signature);
 
-  static std::shared_ptr<JNIArgs> ConvertJSIArgsToJNIArgs(
-      hippy::napi::TurboEnv &turbo_env,
+  static std::tuple<bool, std::string, std::shared_ptr<JNIArgs>> ConvertJSIArgsToJNIArgs(
+      TurboEnv &turbo_env,
       const std::string &module_name,
       const std::string &method_name,
       const std::vector<std::string> &method_arg_types,
-      const std::vector<std::shared_ptr<hippy::napi::CtxValue>> &arg_values);
+      const std::vector<std::shared_ptr<CtxValue>> &arg_values);
 
-  static std::shared_ptr<hippy::napi::CtxValue> ConvertMethodResultToJSValue(
-      hippy::napi::TurboEnv &turbo_env,
+  static std::tuple<bool, std::string, std::shared_ptr<CtxValue>> ConvertMethodResultToJSValue(
+      TurboEnv &turbo_env,
       const jobject &obj,
       const MethodInfo &method_info,
       const jvalue *args);
 
-  static jobject ToJObject(hippy::napi::TurboEnv &turbo_env,
-                           const std::shared_ptr<hippy::napi::CtxValue> &value);
+  static std::tuple<bool, std::string, jobject> ToJObject(TurboEnv &turbo_env,
+                                                          const std::shared_ptr<CtxValue> &value);
 
-  static jobject ToHippyMap(
-      hippy::napi::TurboEnv &turbo_env,
-      const std::shared_ptr<hippy::napi::CtxValue> &value);
+  static std::tuple<bool, std::string, jobject> ToHippyMap(
+      TurboEnv &turbo_env,
+      const std::shared_ptr<CtxValue> &value);
 
-  static jobject ToHippyArray(
-      hippy::napi::TurboEnv &turbo_env,
-      const std::shared_ptr<hippy::napi::CtxValue> &value);
+  static std::tuple<bool, std::string, jobject> ToHippyArray(
+      TurboEnv &turbo_env,
+      const std::shared_ptr<CtxValue> &value);
 
-  static std::shared_ptr<hippy::napi::CtxValue> ToJsValueInArray(
-      hippy::napi::TurboEnv &turbo_env,
+  static std::tuple<bool, std::string, std::shared_ptr<CtxValue>> ToJsValueInArray(
+      TurboEnv &turbo_env,
       jobject array,
       int index);
 
-  static std::shared_ptr<hippy::napi::CtxValue> ToJsArray(
-      hippy::napi::TurboEnv &turbo_env,
+  static std::tuple<bool, std::string, std::shared_ptr<CtxValue>> ToJsArray(
+      TurboEnv &turbo_env,
       jobject array);
 
-  static std::shared_ptr<hippy::napi::CtxValue> ToJsMap(
-      hippy::napi::TurboEnv &turbo_env,
+  static std::tuple<bool, std::string, std::shared_ptr<CtxValue>> ToJsMap(
+      TurboEnv &turbo_env,
       jobject map);
 
-  static bool HandleBasicType(
-      hippy::napi::TurboEnv &turbo_env,
+  static std::tuple<bool, std::string, bool> HandleBasicType(
+      TurboEnv &turbo_env,
       const std::string &type,
       jvalue &j_args,
-      const std::shared_ptr<hippy::napi::CtxValue> &value);
+      const std::shared_ptr<CtxValue> &value);
 
-  static bool HandleObjectType(
-      hippy::napi::TurboEnv &turbo_env,
+  static std::tuple<bool, std::string, bool> HandleObjectType(
+      TurboEnv &turbo_env,
       const std::string &module_name,
       const std::string &method_name,
       const std::string &type,
       jvalue &j_args,
-      const std::shared_ptr<hippy::napi::CtxValue> &value,
+      const std::shared_ptr<CtxValue> &value,
       std::vector<jobject> &global_refs);
 
-  static void ThrowException(const std::shared_ptr<hippy::napi::Ctx> &ctx,
+  static void ThrowException(const std::shared_ptr<Ctx> &ctx,
                              const std::string &info);
 
   static std::unordered_map<std::string, MethodInfo> GetMethodMap(
       const std::string &method_map_str);
 
-  static std::shared_ptr<hippy::napi::CtxValue> ToHostObject(
-      hippy::napi::TurboEnv &turbo_env,
+  static std::shared_ptr<CtxValue> ToHostObject(
+      TurboEnv &turbo_env,
       jobject &j_obj,
       std::string name);
 };
@@ -167,5 +168,3 @@ const std::string kHippyMap = "Lcom/tencent/mtt/hippy/common/HippyMap;";
 const std::string kPromise = "Lcom/tencent/mtt/hippy/modules/Promise;";
 const std::string kvoid = "V";
 const std::string kUnSupportedType = "Lcom/invalid;";
-
-#endif  // ANDROID_DEMO_CONVERT_UTILS_H
