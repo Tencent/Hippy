@@ -21,7 +21,6 @@ set(ABI_COMPILE_OPTIONS
         -fno-exceptions
         -fno-strict-aliasing
         -Wall
-        -fexceptions
         -Wno-unused-parameter
         -Wno-missing-field-initializers
         -pipe
