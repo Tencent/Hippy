@@ -60,13 +60,13 @@ std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
   MethodInfo method_info = method_map_[method];
   if (method_info.signature_.empty()) {
     std::string exception_info = std::string("MethodUnsupportedException: ")
-                                     .append(name_)
-                                     .append(".")
-                                     .append(method);
+        .append(name_)
+        .append(".")
+        .append(method);
     ConvertUtils::ThrowException(ctx, exception_info);
     return ctx->CreateUndefined();
   }
-  TDF_BASE_DLOG(INFO) << "invokeJavaMethod, method= %s", method.c_str();
+  TDF_BASE_DLOG(INFO) << "invokeJavaMethod, method = " << method.c_str();
 
   // arguments count
   std::vector<std::shared_ptr<CtxValue>> arg_values;
@@ -81,11 +81,11 @@ std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
   int actual_count = arg_values.size();
   if (expected_count != actual_count) {
     std::string exception_info = std::string("ArgCountException: ")
-                                     .append(call_info)
-                                     .append(": ExpectedArgCount=")
-                                     .append(ToString(expected_count))
-                                     .append(", ActualArgCount = ")
-                                     .append(ToString(actual_count));
+        .append(call_info)
+        .append(": ExpectedArgCount=")
+        .append(ToString(expected_count))
+        .append(", ActualArgCount = ")
+        .append(ToString(actual_count));
     ConvertUtils::ThrowException(ctx, exception_info);
     return ctx->CreateUndefined();
   }
@@ -100,9 +100,9 @@ std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
       JNIEnvironment::ClearJEnvException(env);
 
       std::string exception_info = std::string("NullMethodIdException: ")
-                                       .append(call_info)
-                                       .append(": Signature=")
-                                       .append(method_info.signature_);
+          .append(call_info)
+          .append(": Signature=")
+          .append(method_info.signature_);
       ConvertUtils::ThrowException(ctx, exception_info);
       return ctx->CreateUndefined();
     }
@@ -113,37 +113,39 @@ std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
   std::shared_ptr<JNIArgs> jni_args = nullptr;
   std::shared_ptr<CtxValue> ret = ctx->CreateUndefined();
 
-  try {
-    // args convert
-    TDF_BASE_DLOG(INFO) << "[turbo-perf] enter convertJSIArgsToJNIArgs";
-    jni_args = ConvertUtils::ConvertJSIArgsToJNIArgs(
-        turbo_env, name_, method, method_arg_types, arg_values);
-    TDF_BASE_DLOG(INFO) << "[turbo-perf] exit convertJSIArgsToJNIArgs";
+  // args convert
+  TDF_BASE_DLOG(INFO) << "[turbo-perf] enter convertJSIArgsToJNIArgs";
+  auto jni_tuple = ConvertUtils::ConvertJSIArgsToJNIArgs(
+      turbo_env, name_, method, method_arg_types, arg_values);
+  TDF_BASE_DLOG(INFO) << "[turbo-perf] exit convertJSIArgsToJNIArgs";
+  if (!std::get<0>(jni_tuple)) {
+    DeleteGlobalRef(jni_args);
+    ctx->ThrowExceptionToJS(ctx->CreateJsError(unicode_string_view(std::get<1>(jni_tuple))));
+    return ctx->CreateUndefined();
+  }
+  jni_args = std::get<2>(jni_tuple);
+  TDF_BASE_DLOG(INFO) << "[turbo-perf] enter convertMethodResultToJSValue";
 
-    TDF_BASE_DLOG(INFO) << "[turbo-perf] enter convertMethodResultToJSValue";
-
-    // call method
-    ret = ConvertUtils::ConvertMethodResultToJSValue(
-        turbo_env, impl_->GetObj(), method_info, jni_args->args_.data());
-    TDF_BASE_DLOG(INFO) << "[turbo-perf] exit convertMethodResultToJSValue";
-
-  } catch (std::runtime_error &e) {
-    std::string exception_info =
-        std::string(call_info).append(" ").append(e.what());
-    ConvertUtils::ThrowException(ctx, exception_info);
-    ret = ctx->CreateUndefined();
+  // call method
+  auto js_tuple = ConvertUtils::ConvertMethodResultToJSValue(
+      turbo_env, impl_->GetObj(), method_info, jni_args->args_.data());
+  TDF_BASE_DLOG(INFO) << "[turbo-perf] exit convertMethodResultToJSValue";
+  if (!std::get<0>(js_tuple)) {
+    DeleteGlobalRef(jni_args);
+    ctx->ThrowExceptionToJS(ctx->CreateJsError(unicode_string_view(std::get<1>(js_tuple))));
+    return ctx->CreateUndefined();
   }
 
   DeleteGlobalRef(jni_args);
   TDF_BASE_DLOG(INFO) << "[turbo-perf] exit invokeJavaMethod";
 
   if (JNIEnvironment::ClearJEnvException(
-          JNIEnvironment::GetInstance()->AttachCurrentThread())) {
+      JNIEnvironment::GetInstance()->AttachCurrentThread())) {
     TDF_BASE_LOG(ERROR) << "ClearJEnvException when %s", call_info.c_str();
     return ctx->CreateUndefined();
   }
 
-  return ret;
+  return std::get<2>(js_tuple);
 }
 
 void JavaTurboModule::DeleteGlobalRef(const std::shared_ptr<JNIArgs> &jni_args) {
@@ -165,8 +167,8 @@ void JavaTurboModule::DeleteGlobalRef(const std::shared_ptr<JNIArgs> &jni_args) 
 void JavaTurboModule::InitPropertyMap() {
   JNIEnv *env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   jclass obj_clazz = env->GetObjectClass(impl_->GetObj());
-  impl_j_clazz_ = (jclass)env->NewGlobalRef(obj_clazz);
-  auto methods_sig = (jstring)env->CallStaticObjectMethod(
+  impl_j_clazz_ = (jclass) env->NewGlobalRef(obj_clazz);
+  auto methods_sig = (jstring) env->CallStaticObjectMethod(
       argument_utils_clazz, get_methods_signature, impl_->GetObj());
   if (methods_sig) {
     unicode_string_view str_view = JniUtils::ToStrView(env, methods_sig);
@@ -217,7 +219,7 @@ void JavaTurboModule::Init() {
   jclass argument_utils_clazz_local =
       env->FindClass("com/tencent/mtt/hippy/utils/ArgumentUtils");
   argument_utils_clazz =
-      (jclass)(env->NewGlobalRef(argument_utils_clazz_local));
+      (jclass) (env->NewGlobalRef(argument_utils_clazz_local));
   get_methods_signature =
       env->GetStaticMethodID(argument_utils_clazz, "getMethodsSignature",
                              "(Ljava/lang/Object;)Ljava/lang/String;");
