@@ -1,4 +1,5 @@
 #include "dom/dom_manager.h"
+#include "dom/diff_utils.h"
 
 namespace hippy {
 inline namespace dom {
@@ -36,7 +37,11 @@ void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>> nodes) {
       it = nodes.erase(it);
       continue;
     }
-    // TODO: 执行DomNode更新相关的事务
+    // diff props
+    DomValueMap style_diff = DiffUtils::DiffProps(node->GetStyle(), it->get()->GetStyle());
+    DomValueMap ext_diff = DiffUtils::DiffProps(node->GetExtStyle(), it->get()->GetExtStyle());
+    style_diff.insert(ext_diff.begin(), ext_diff.end());
+    it->get()->SetDiffStyle(std::move(style_diff));
     OnDomNodeUpdated(node);
   }
 
