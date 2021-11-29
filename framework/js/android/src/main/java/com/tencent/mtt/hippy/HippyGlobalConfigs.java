@@ -48,7 +48,7 @@ public class HippyGlobalConfigs {
    */
   private final HippySharedPreferencesAdapter mSharedPreferencesAdapter;
 
-  private final Context mContext;
+  private Context mContext;
 
   /**
    * Crash Handler
@@ -143,17 +143,16 @@ public class HippyGlobalConfigs {
       if (mHttpAdapter != null) {
         mHttpAdapter.destroyIfNeed();
       }
-
       if (mStorageAdapter != null) {
         mStorageAdapter.destroyIfNeed();
       }
-
       if (mExecutorSupplierAdapter != null) {
         mExecutorSupplierAdapter.destroyIfNeed();
       }
       if (mImageLoaderAdapter != null) {
         mImageLoaderAdapter.destroyIfNeed();
       }
+      mContext = null;
     } catch (Throwable e) {
       LogUtils.d("HippyGlobalConfigs", "destroyIfNeed: " + e.getMessage());
     }
