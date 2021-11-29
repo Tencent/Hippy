@@ -69,7 +69,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
   private DebugWebSocketClient mDebugWebSocketClient;
   private String mDebugGlobalConfig;
   private NativeCallback mDebugInitJSFrameworkCallback;
-  private final HippyEngineContext mContext;
+  private HippyEngineContext mContext;
   private Deserializer deserializer;
   private BinaryReader safeHeapReader;
   private BinaryReader safeDirectReader;
@@ -253,6 +253,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
       deserializer.getStringTable().release();
     }
 
+    mContext = null;
     mV8RuntimeId = 0;
     mBridgeCallback = null;
   }
