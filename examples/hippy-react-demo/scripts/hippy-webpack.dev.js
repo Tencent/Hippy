@@ -31,6 +31,10 @@ module.exports = {
       __PLATFORM__: null,
     }),
     new HippyDynamicImportPlugin(),
+    new webpack.SourceMapDevToolPlugin({
+      test: /\.(js|jsbundle|css|bundle)($|\?)/i,
+      filename: '[file].map',
+    }),
   ],
   module: {
     rules: [
