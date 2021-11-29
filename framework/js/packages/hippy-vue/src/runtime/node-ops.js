@@ -19,7 +19,7 @@
  */
 
 import document from '../renderer/document-node';
-// import { recursivelyUnCacheNode } from '../util/node';
+import { unCacheNodeOnIdle } from '../util/node';
 
 const namespaceMap = {};
 
@@ -49,10 +49,8 @@ function insertBefore(pNode, newNode, referenceNode) {
 }
 
 function removeChild(node, child) {
-  // if (child !== undefined && child !== null) {
-  //   recursivelyUnCacheNode(child);
-  // }
   node.removeChild(child);
+  unCacheNodeOnIdle(child);
 }
 
 function appendChild(node, child) {
