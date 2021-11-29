@@ -18,8 +18,7 @@
  * limitations under the License.
  */
 
-// import { getFiberNodeFromId } from '../utils/node';
-import { findNodeById } from '../utils/node';
+import { getFiberNodeFromId } from '../utils/node';
 import { trace, isBubbles } from '../utils';
 import HippyEventHub from './hub';
 import '@localTypes/global';
@@ -87,7 +86,7 @@ function receiveNativeGesture(nativeEvent: NativeEvent) {
     return;
   }
   const { id: targetNodeId } = nativeEvent;
-  const targetNode = findNodeById(targetNodeId);
+  const targetNode = getFiberNodeFromId(targetNodeId);
   if (!targetNode) {
     return;
   }
@@ -143,7 +142,7 @@ function receiveUIComponentEvent(nativeEvent: string[]) {
   if (typeof targetNodeId !== 'number' || typeof eventName !== 'string') {
     return;
   }
-  const targetNode = findNodeById(targetNodeId);
+  const targetNode = getFiberNodeFromId(targetNodeId);
   if (!targetNode) {
     return;
   }

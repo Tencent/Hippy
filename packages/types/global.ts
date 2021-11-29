@@ -49,6 +49,7 @@ declare namespace NodeJS {
     };
     Hippy: Hippy.HippyConstance;
     WebSocket: WebSocket;
+    requestIdleCallback: Function;
   }
 }
 export default NodeJS;
