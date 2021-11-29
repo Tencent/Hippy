@@ -26,7 +26,7 @@ void NativeRenderManager::CreateRenderNode(std::vector<std::shared_ptr<DomNode>>
         int32_t tag = node->GetId();
         const std::string &viewName = node->GetViewName();
         int32_t rootTag = node->GetRenderInfo().pid;
-        [uiManager renderCreateView:tag viewName:viewName rootTag:rootTag tagName:node->GetTagName() props:node->GetStyleMap()];
+        [uiManager_ renderCreateView:tag viewName:viewName rootTag:rootTag tagName:node->GetTagName() props:node->GetStyleMap()];
     }
 }
 
@@ -34,7 +34,7 @@ void NativeRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>
     for (const std::shared_ptr<DomNode> &node : nodes) {
         int32_t tag = node->GetId();
         const std::string &viewName = node->GetViewName();
-        [uiManager renderUpdateView:tag viewName:viewName props:node->GetStyleMap()];
+        [uiManager_ renderUpdateView:tag viewName:viewName props:node->GetStyleMap()];
     }
 }
 
@@ -52,18 +52,18 @@ void NativeRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>
         indices.push_back(info.index);
     }
     if (INT32_MIN != rootTag) {
-        [uiManager renderDeleteViewFromContainer:rootTag forIndices:indices];
+        [uiManager_ renderDeleteViewFromContainer:rootTag forIndices:indices];
     }
 }
 
 void NativeRenderManager::MoveRenderNode(std::vector<int32_t>&& ids,
                                       int32_t pid,
                                       int32_t id) {
-    [uiManager renderMoveViews:ids fromContainer:pid toContainer:id];
+    [uiManager_ renderMoveViews:ids fromContainer:pid toContainer:id];
 }
 
 void NativeRenderManager::Batch() {
-    [uiManager batch];
+    [uiManager_ batch];
 }
 
 void NativeRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std::string &name,
@@ -71,38 +71,38 @@ void NativeRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std
                                     DispatchFunctionCallback cb) {
     std::shared_ptr<DomNode> node = domNode.lock();
     if (node) {
-        [uiManager dispatchFunction:name forView:node->GetId() params:param callback:cb];
+        [uiManager_ dispatchFunction:name forView:node->GetId() params:param callback:cb];
     }
 }
 
 void NativeRenderManager::SetClickEventListener(int32_t id, OnClickEventListener listener) {
-    [uiManager addClickEventListener:listener forView:id];
+    [uiManager_ addClickEventListener:listener forView:id];
 }
 
 void NativeRenderManager::RemoveClickEventListener(int32_t id) {
-    [uiManager removeClickEventForView:id];
+    [uiManager_ removeClickEventForView:id];
 }
 
 void NativeRenderManager::SetLongClickEventListener(int32_t id, OnLongClickEventListener listener) {
-    [uiManager addLongClickEventListener:listener forView:id];
+    [uiManager_ addLongClickEventListener:listener forView:id];
 }
 
 void NativeRenderManager::RemoveLongClickEventListener(int32_t id) {
-    [uiManager removeLongClickEventForView:id];
+    [uiManager_ removeLongClickEventForView:id];
 }
 
 void NativeRenderManager::SetTouchEventListener(int32_t id, TouchEvent event, OnTouchEventListener listener) {
-    [uiManager addTouchEventListener:listener touchEvent:event forView:id];
+    [uiManager_ addTouchEventListener:listener touchEvent:event forView:id];
 }
 
 void NativeRenderManager::RemoveTouchEventListener(int32_t id, TouchEvent event) {
-    [uiManager removeTouchEvent:event forView:id];
+    [uiManager_ removeTouchEvent:event forView:id];
 }
 
 void NativeRenderManager::SetShowEventListener(int32_t id, ShowEvent event, OnShowEventListener listener) {
-    [uiManager addShowEventListener:listener showEvent:event forView:id];
+    [uiManager_ addShowEventListener:listener showEvent:event forView:id];
 }
 
 void NativeRenderManager::RemoveShowEventListener(int32_t id, ShowEvent event) {
-    [uiManager removeShowEvent:event forView:id];
+    [uiManager_ removeShowEvent:event forView:id];
 }

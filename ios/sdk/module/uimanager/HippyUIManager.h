@@ -179,7 +179,7 @@ using OnShowEventListener = hippy::OnShowEventListener;
 using TouchEvent = hippy::TouchEvent;
 using ShowEvent = hippy::ShowEvent;
 
-@interface HippyUIManager(iOSRenderManager)
+@interface HippyUIManager(NativeRenderManager)
 
 - (void)renderCreateView:(int32_t)hippyTag
                 viewName:(const std::string &)name

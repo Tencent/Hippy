@@ -1587,7 +1587,7 @@ static UIView *_jsResponder;
 using DomValueType = tdf::base::DomValue::Type;
 using DomValueNumberType = tdf::base::DomValue::NumberType;
 
-@implementation HippyUIManager (iOSRenderManager)
+@implementation HippyUIManager (NativeRenderManager)
 
 static NSNumber *domValueToNumber(const DomValue *const pDomValue) {
     HippyAssert(pDomValue->IsNumber(), @"domvalue should be a number");

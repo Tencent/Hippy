@@ -36,7 +36,7 @@ class DomManager {
                     std::unordered_map<std::string, std::shared_ptr<DomValue>> param, const CallFunctionCallback& cb);
   int32_t AddDomTreeEventListener(DomTreeEvent event, OnDomTreeEventListener listener);
   void RemoveDomTreeEventListener(DomTreeEvent event, int32_t listener_id);
-
+  void setRenderManager(std::shared_ptr<RenderManager> manager){render_manager_ = manager;}
   std::shared_ptr<RenderManager> GetRenderManager() { return render_manager_; }
   std::tuple<float, float> GetRootSize();
   void SetRootSize(float width, float height);
