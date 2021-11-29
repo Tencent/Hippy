@@ -203,14 +203,14 @@ using ShowEvent = hippy::ShowEvent;
                   params:(const std::unordered_map<std::string, std::shared_ptr<DomValue>> &)params
                 callback:(DispatchFunctionCallback)cb;
 
-- (int32_t) addClickEventListener:(OnClickEventListener)listener
+- (void) addClickEventListener:(OnClickEventListener)listener
                           forView:(int32_t)hippyTag;
 
 - (void) removeClickEventListener:(int32_t)listenerID forView:(int32_t)hippyTag;
 
 - (void) removeClickEventForView:(int32_t)hippyTag;
 
-- (int32_t) addLongClickEventListener:(OnLongClickEventListener)listener
+- (void) addLongClickEventListener:(OnLongClickEventListener)listener
                               forView:(int32_t)hippyTag;
 
 - (void) removeLongClickEventListener:(int32_t)listenerID forView:(int32_t)hippyTag;

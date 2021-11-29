@@ -125,6 +125,16 @@ void DomManager::AddLayoutChangedNode(const std::shared_ptr<DomNode>& node) {
   layout_changed_nodes_.push_back(node);
 }
 
+void DomManager::SetRootNode(std::shared_ptr<DomNode> root_node) {
+  if (root_node) {
+    if (root_node_) {
+      dom_node_registry_.RemoveNode(root_node_->GetId());
+    }
+    root_node_ = root_node;
+    dom_node_registry_.AddNode(root_node);
+  }
+}
+
 void DomManager::OnDomNodeCreated(const std::shared_ptr<DomNode>& node) {
   dom_node_registry_.AddNode(node);
   node->OnDomNodeStateChange(DomEvent::Create);

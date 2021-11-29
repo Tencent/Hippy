@@ -21,10 +21,14 @@ DomNode::DomNode(int32_t id, int32_t pid, int32_t index, std::string tag_name, s
       is_just_layout_(false),
       is_virtual_(false),
       dom_manager_(dom_manager),
-      current_callback_id_(0) {}
+      current_callback_id_(0) {
+        node_ = std::make_shared<TaitankLayoutNode>();
+      }
 
 DomNode::DomNode(int32_t id, int32_t pid, int32_t index)
-    : id_(id), pid_(pid), index_(index), is_just_layout_(false), is_virtual_(false), current_callback_id_(0) {}
+    : id_(id), pid_(pid), index_(index), is_just_layout_(false), is_virtual_(false), current_callback_id_(0) {
+      node_ = std::make_shared<TaitankLayoutNode>();
+    }
 
 DomNode::~DomNode() = default;
 

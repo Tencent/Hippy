@@ -1737,18 +1737,16 @@ static NSDictionary *unorderedMapDomValueToDictionary(const std::unordered_map<s
     }
 }
 
-- (int32_t) addClickEventListener:(OnClickEventListener)listener
+- (void) addClickEventListener:(OnClickEventListener)listener
                           forView:(int32_t)hippyTag {
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
-        NSInteger ret = [view addViewEvent:HippyViewEventTypeClick eventListener:^(CGPoint) {
+        [view addViewEvent:HippyViewEventTypeClick eventListener:^(CGPoint) {
             if (listener) {
                 listener();
             }
         }];
-        return static_cast<int32_t>(ret);
     }
-    return 0;
 }
 
 - (void) removeClickEventListener:(int32_t)listenerID forView:(int32_t)hippyTag {
@@ -1763,18 +1761,16 @@ static NSDictionary *unorderedMapDomValueToDictionary(const std::unordered_map<s
     [view removeViewEvent:HippyViewEventTypeClick];
 }
 
-- (int32_t) addLongClickEventListener:(OnLongClickEventListener)listener
+- (void) addLongClickEventListener:(OnLongClickEventListener)listener
                               forView:(int32_t)hippyTag {
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
-        NSInteger ret = [view addViewEvent:HippyViewEventTypeLongClick eventListener:^(CGPoint) {
+        [view addViewEvent:HippyViewEventTypeLongClick eventListener:^(CGPoint) {
             if (listener) {
                 listener();
             }
         }];
-        return static_cast<int32_t>(ret);
     }
-    return 0;
 }
 
 - (void) removeLongClickEventListener:(int32_t)listenerID forView:(int32_t)hippyTag {

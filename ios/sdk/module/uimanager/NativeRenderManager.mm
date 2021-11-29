@@ -76,33 +76,49 @@ void NativeRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std
 }
 
 void NativeRenderManager::SetClickEventListener(int32_t id, OnClickEventListener listener) {
-    [uiManager_ addClickEventListener:listener forView:id];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [uiManager_ addClickEventListener:listener forView:id];
+    });
 }
 
 void NativeRenderManager::RemoveClickEventListener(int32_t id) {
-    [uiManager_ removeClickEventForView:id];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [uiManager_ removeClickEventForView:id];
+    });
 }
 
 void NativeRenderManager::SetLongClickEventListener(int32_t id, OnLongClickEventListener listener) {
-    [uiManager_ addLongClickEventListener:listener forView:id];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [uiManager_ addLongClickEventListener:listener forView:id];
+    });
 }
 
 void NativeRenderManager::RemoveLongClickEventListener(int32_t id) {
-    [uiManager_ removeLongClickEventForView:id];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [uiManager_ removeLongClickEventForView:id];
+    });
 }
 
 void NativeRenderManager::SetTouchEventListener(int32_t id, TouchEvent event, OnTouchEventListener listener) {
-    [uiManager_ addTouchEventListener:listener touchEvent:event forView:id];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [uiManager_ addTouchEventListener:listener touchEvent:event forView:id];
+    });
 }
 
 void NativeRenderManager::RemoveTouchEventListener(int32_t id, TouchEvent event) {
-    [uiManager_ removeTouchEvent:event forView:id];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [uiManager_ removeTouchEvent:event forView:id];
+    });
 }
 
 void NativeRenderManager::SetShowEventListener(int32_t id, ShowEvent event, OnShowEventListener listener) {
-    [uiManager_ addShowEventListener:listener showEvent:event forView:id];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [uiManager_ addShowEventListener:listener showEvent:event forView:id];
+    });
 }
 
 void NativeRenderManager::RemoveShowEventListener(int32_t id, ShowEvent event) {
-    [uiManager_ removeShowEvent:event forView:id];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [uiManager_ removeShowEvent:event forView:id];
+    });
 }
