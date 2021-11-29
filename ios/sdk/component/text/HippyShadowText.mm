@@ -467,7 +467,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                               fontLineHeight:(CGFloat)fontLineHeight
                       heightOfTallestSubview:(CGFloat)heightOfTallestSubview {
     NSTextStorage *textStorage = [[NSTextStorage alloc] initWithAttributedString:attributedString];
-    if (0 == _lineHeight) {
+    if (fabs(_lineHeight - 0) < DBL_EPSILON) {
         _lineHeight = fontLineHeight;
     }
     // check if we have lineHeight set on self
