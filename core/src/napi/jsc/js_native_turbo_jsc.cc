@@ -53,24 +53,9 @@ struct HostObjectProxy {
         std::shared_ptr<JSCCtx> context = std::dynamic_pointer_cast<JSCCtx>(turboEnv.context_);
         auto props = context->CreateString(JsStrToUTF8(propName).c_str());
           
-        JSValueRef result;
-        try {
-          auto ret = proxy->hostObject->Get(turboEnv, props);
-          std::shared_ptr<JSCCtxValue> jscValue = std::dynamic_pointer_cast<JSCCtxValue>(ret);
-          result = jscValue->value_;
-        } catch (const std::exception& ex) {
-          JSStringRef exRef = JSStringCreateWithUTF8CString(ex.what());
-          JSValueRef exValue = JSValueMakeString(ctx, exRef);
-          JSGlobalContextRef ctxRef = context->GetCtxRef();
-          context->SetException(std::make_shared<JSCCtxValue>(ctxRef, exValue));
-          return JSValueMakeUndefined(ctx);
-        } catch (...) {
-//          std::exception ex = std::bad_exception();
-//          JSStringRef exRef = JSStringCreateWithUTF8CString(ex.what());
-//          context->SetException(std::make_shared<JSCCtxValue>(context, exRef));
-          return JSValueMakeUndefined(ctx);
-        }
-        return result;
+        auto ret = proxy->hostObject->Get(turboEnv, props);
+        std::shared_ptr<JSCCtxValue> jscValue = std::static_pointer_cast<JSCCtxValue>(ret);
+        return jscValue->value_;
     }
 
     static bool setProperty(
@@ -85,22 +70,7 @@ struct HostObjectProxy {
         auto props = context->CreateString(JsStrToUTF8(propName).c_str());
           
         auto jscValue = std::make_shared<JSCCtxValue>(context->context_, value);
-        try {
-          proxy->hostObject->Set(turboEnv, props, jscValue);
-        } catch (const std::exception& ex) {
-          JSStringRef exRef = JSStringCreateWithUTF8CString(ex.what());
-          JSValueRef exValue = JSValueMakeString(ctx, exRef);
-          JSGlobalContextRef ctxRef = context->GetCtxRef();
-          context->SetException(std::make_shared<JSCCtxValue>(ctxRef, exValue));
-          return false;
-        } catch (...) {
-          std::exception ex = std::bad_exception();
-          JSStringRef exRef = JSStringCreateWithUTF8CString(ex.what());
-          JSValueRef exValue = JSValueMakeString(ctx, exRef);
-          JSGlobalContextRef ctxRef = context->GetCtxRef();
-          context->SetException(std::make_shared<JSCCtxValue>(ctxRef, exValue));
-          return false;
-        }
+        proxy->hostObject->Set(turboEnv, props, jscValue);
         return true;
     }
 
@@ -217,27 +187,10 @@ struct HostFunctionProxy {
         }
         args = stackArgs;
 
-        JSValueRef result;
         auto thisVal = std::make_shared<JSCCtxValue>(context->context_, JSValueMakeString(context->context_, proxy->name));
-        try {
-          auto ret = proxy->hostFunction(turboEnv, thisVal, args, argumentCount);
-          std::shared_ptr<JSCCtxValue> jscValue = std::dynamic_pointer_cast<JSCCtxValue>(ret);
-          result = jscValue->value_;
-        } catch (const std::exception& ex) {
-          JSStringRef exRef = JSStringCreateWithUTF8CString(ex.what());
-          JSValueRef exValue = JSValueMakeString(ctx, exRef);
-          JSGlobalContextRef ctxRef = context->GetCtxRef();
-          context->SetException(std::make_shared<JSCCtxValue>(ctxRef, exValue));
-          return JSValueMakeUndefined(ctx);
-        } catch (...) {
-          std::exception ex = std::bad_exception();
-          JSStringRef exRef = JSStringCreateWithUTF8CString(ex.what());
-          JSValueRef exValue = JSValueMakeString(ctx, exRef);
-          JSGlobalContextRef ctxRef = context->GetCtxRef();
-          context->SetException(std::make_shared<JSCCtxValue>(ctxRef, exValue));
-          return JSValueMakeUndefined(ctx);
-        }
-        return result;
+        auto ret = proxy->hostFunction(turboEnv, thisVal, args, argumentCount);
+        std::shared_ptr<JSCCtxValue> jscValue = std::static_pointer_cast<JSCCtxValue>(ret);
+        return jscValue->value_;
   }
 };
 
