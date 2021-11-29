@@ -256,12 +256,20 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                 if (isnan(width) || isnan(height)) {
                     HippyLogError(@"Views nested within a <Text> must have a width and height");
                 }
-                UIFont *font = [textStorage attribute:NSFontAttributeName atIndex:range.location effectiveRange:nil];
-                CGRect glyphRect = [layoutManager boundingRectForGlyphRange:range inTextContainer:textContainer];
-                CGRect childFrame = { { HippyRoundPixelValue(glyphRect.origin.x),
-                    HippyRoundPixelValue(glyphRect.origin.y + glyphRect.size.height - height + font.descender) },
-                    { HippyRoundPixelValue(width), HippyRoundPixelValue(height) } };
+                
+                /**
+                 * For RichText, a view, which is top aligment by default, should be center alignment to text,
+                 */
 
+                CGRect glyphRect = [layoutManager boundingRectForGlyphRange:range inTextContainer:textContainer];
+                CGRect usedOriginRect = [layoutManager lineFragmentRectForGlyphAtIndex:range.location effectiveRange:nil];
+                CGFloat lineHeight = usedOriginRect.size.height;
+                CGFloat Roundedheight = HippyRoundPixelValue(height);
+                CGFloat originY = usedOriginRect.origin.y + (lineHeight - Roundedheight) / 2;
+                CGRect childFrame = {
+                    { HippyRoundPixelValue(glyphRect.origin.x), HippyRoundPixelValue(originY) },
+                    { HippyRoundPixelValue(width), Roundedheight }
+                };
                 NSRange truncatedGlyphRange = [layoutManager truncatedGlyphRangeInLineFragmentForGlyphAtIndex:range.location];
                 BOOL childIsTruncated = NSIntersectionRange(range, truncatedGlyphRange).length != 0;
 
@@ -459,7 +467,9 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                               fontLineHeight:(CGFloat)fontLineHeight
                       heightOfTallestSubview:(CGFloat)heightOfTallestSubview {
     NSTextStorage *textStorage = [[NSTextStorage alloc] initWithAttributedString:attributedString];
-
+    if (fabs(_lineHeight - 0) < DBL_EPSILON) {
+        _lineHeight = fontLineHeight;
+    }
     // check if we have lineHeight set on self
     __block BOOL hasParagraphStyle = NO;
     if (_lineHeight || _textAlignSet) {
@@ -514,12 +524,16 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         paragraphStyle.maximumLineHeight = maxHeight;
         [attributedString addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:(NSRange) { 0, attributedString.length }];
 
+        /**
+         * for keeping text ertical center, we need to set baseline offset
+         */
         if (lineHeight > fontLineHeight) {
-            [attributedString addAttribute:NSBaselineOffsetAttributeName value:@(newLineHeight / 2 - maximumFontLineHeight / 2)
+            CGFloat baselineOffset = newLineHeight / 2 - maximumFontLineHeight / 2;
+            [attributedString addAttribute:NSBaselineOffsetAttributeName value:@(baselineOffset)
                                      range:(NSRange) { 0, attributedString.length }];
         }
     }
-
+    _maximumFontLineHeight = maximumFontLineHeight;
     // Text decoration
     if (_textDecorationLine == HippyTextDecorationLineTypeUnderline || _textDecorationLine == HippyTextDecorationLineTypeUnderlineStrikethrough) {
         [self _addAttribute:NSUnderlineStyleAttributeName withValue:@(_textDecorationStyle) toAttributedString:attributedString];
