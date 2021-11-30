@@ -1673,17 +1673,22 @@ static NSDictionary *unorderedMapDomValueToDictionary(const std::unordered_map<s
                  rootTag:(int32_t)rootTag
                  tagName:(const std::string &)tagName
                    props:(const std::unordered_map<std::string, std::shared_ptr<DomValue>> &)styleMap {
-    [self createView:@(hippyTag)
-            viewName:[NSString stringWithUTF8String:viewName.c_str()]
-             rootTag:@(rootTag)
-             tagName:[NSString stringWithUTF8String:tagName.c_str()]
-               props:unorderedMapDomValueToDictionary(styleMap)];
+    dispatch_async(HippyGetUIManagerQueue(), ^{
+        NSLog(@"renderCreateView trigger");
+        [self createView:@(hippyTag)
+                viewName:[NSString stringWithUTF8String:viewName.c_str()]
+                 rootTag:@(rootTag)
+                 tagName:[NSString stringWithUTF8String:tagName.c_str()]
+                   props:unorderedMapDomValueToDictionary(styleMap)];
+    });
 }
 
 - (void)renderUpdateView:(int32_t)hippyTag
                 viewName:(const std::string &)name
                    props:(const std::unordered_map<std::string, std::shared_ptr<DomValue>> &)styleMap {
-    [self updateView:@(hippyTag) viewName:[NSString stringWithUTF8String:name.c_str()] props:unorderedMapDomValueToDictionary(styleMap)];
+    dispatch_async(HippyGetUIManagerQueue(), ^{
+        [self updateView:@(hippyTag) viewName:[NSString stringWithUTF8String:name.c_str()] props:unorderedMapDomValueToDictionary(styleMap)];
+    });
 }
 
 - (void)renderDeleteViewFromContainer:(int32_t)hippyTag
@@ -1692,7 +1697,9 @@ static NSDictionary *unorderedMapDomValueToDictionary(const std::unordered_map<s
     for (const int32_t &index : indices) {
         [numbers addObject:@(index)];
     }
-    [self manageChildren:@(hippyTag) moveFromIndices:nil moveToIndices:nil addChildHippyTags:nil addAtIndices:nil removeAtIndices:numbers];
+    dispatch_async(HippyGetUIManagerQueue(), ^{
+        [self manageChildren:@(hippyTag) moveFromIndices:nil moveToIndices:nil addChildHippyTags:nil addAtIndices:nil removeAtIndices:numbers];
+    });
 }
 
 - (void)renderMoveViews:(const std::vector<int32_t> &)ids fromContainer:(int32_t)fromContainer toContainer:(int32_t)toContainer {
@@ -1700,7 +1707,9 @@ static NSDictionary *unorderedMapDomValueToDictionary(const std::unordered_map<s
 }
 
 -(void)batch {
-    [self batchDidComplete];
+    dispatch_async(HippyGetUIManagerQueue(), ^{
+        [self batchDidComplete];
+    });
 }
 
 - (void)dispatchFunction:(const std::string &)functionName
@@ -1716,9 +1725,7 @@ static NSDictionary *unorderedMapDomValueToDictionary(const std::unordered_map<s
         HippyAssert(0 == strcmp([methodSig methodReturnType], @encode(std::any)), @"dispatch function failed, function %@ return type is not std::any, return type not matched", name);
         HippyAssert(sizeof(std::any) == [methodSig methodReturnLength], @"dispatch function failed, function %@ return type is not std::any, return length not matched", name);
         if (view && methodSig) {
-#ifndef DEBUG
             @try {
-#endif //#ifndef DEBUG
                 NSDictionary *dicParams = unorderedMapDomValueToDictionary(params);
                 NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSig];
                 [invocation setTarget:view];
@@ -1728,11 +1735,9 @@ static NSDictionary *unorderedMapDomValueToDictionary(const std::unordered_map<s
                 std::any ret;
                 [invocation getReturnValue:&ret];
                 cb(ret);
-#ifndef DEBUG
             } @catch (NSException *exception) {
                 HippyAssert(NO, @"exception happened:%@", [exception description]);
             }
-#endif //#ifndef DEBUG
         }
     }
 }

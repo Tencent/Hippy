@@ -89,8 +89,8 @@ void DomManager::EndBatch() {
   for (auto& batch_operation : batched_operations_) {
     batch_operation();
   }
-  render_manager_->Batch();
   batched_operations_.clear();
+  render_manager_->Batch();
 }
 
 void DomManager::CallFunction(int32_t id, const std::string& name,
