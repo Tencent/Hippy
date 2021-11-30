@@ -251,7 +251,8 @@ task dealAfterMergeDebugNativeLibs() {
 
 def dealAfterAssemble(buildType) {
   file("$OUTPUT_PATH/$buildType").deleteDir()
-
+  File target = file("$OUTPUT_PATH/$ARCHIVES_BASE_NAME" + ".aar")
+  delete target
   file(OUTPUT_PATH).list().each{fileName ->
     if (fileName.contains(buildType + ".aar")) {
       copy {
@@ -264,6 +265,7 @@ def dealAfterAssemble(buildType) {
         include 'classes.jar'
         rename 'classes.jar', 'hippy.jar'
       }
+      file("$OUTPUT_PATH/$fileName").renameTo(target)
     }
   }
 }
