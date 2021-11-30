@@ -22,9 +22,8 @@
 
 #import <UIKit/UIKit.h>
 
-#include "MTTNode.h"
-#include "MTTFlex.h"
-#include "MTTLayout.h"
+#include "HPNode.h"
+#include "Hippy.h"
 #import "HippyComponent.h"
 #import "HippyRootView.h"
 
@@ -62,13 +61,13 @@ typedef void (^HippyApplierVirtualBlock)(NSDictionary<NSNumber *, HippyVirtualNo
 
 @property (nonatomic, weak, readonly) HippyShadowView *superview;
 //@property (nonatomic, assign, readonly) CSSNodeRef cssNode;
-@property (nonatomic, assign, readonly) MTTNodeRef nodeRef;
+@property (nonatomic, assign, readonly) HPNodeRef nodeRef;
 @property (nonatomic, copy) NSString *viewName;
 @property (nonatomic, strong) UIColor *backgroundColor;  // Used to propagate to children
 @property (nonatomic, copy) HippyDirectEventBlock onLayout;
 @property (nonatomic, assign) BOOL isList;
 @property (nonatomic, weak) HippyBridge *bridge;
-@property (nonatomic, assign) MTTDirection layoutDirection;
+@property (nonatomic, assign) HPDirection layoutDirection;
 @property (nonatomic, copy) NSString *visibility;
 @property (nonatomic, assign) BOOL visibilityChanged;
 
@@ -213,14 +212,14 @@ typedef void (^HippyApplierVirtualBlock)(NSDictionary<NSNumber *, HippyVirtualNo
  * is split into two methods so subclasses can override `applyLayoutToChildren:`
  * while using default implementation of `applyLayoutNode:`.
  */
-- (void)applyLayoutNode:(MTTNodeRef)node
+- (void)applyLayoutNode:(HPNodeRef)node
       viewsWithNewFrame:(NSMutableSet<HippyShadowView *> *)viewsWithNewFrame
        absolutePosition:(CGPoint)absolutePosition NS_REQUIRES_SUPER;
 
 /**
  * Enumerate the child nodes and tell them to apply layout.
  */
-- (void)applyLayoutToChildren:(MTTNodeRef)node
+- (void)applyLayoutToChildren:(HPNodeRef)node
             viewsWithNewFrame:(NSMutableSet<HippyShadowView *> *)viewsWithNewFrame
              absolutePosition:(CGPoint)absolutePosition;
 

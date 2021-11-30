@@ -46,6 +46,19 @@ function getNodeById(nodeId) {
 }
 
 /**
+ * unCacheViewNodeOnIdle - recursively delete ViewNode cache on idle
+ * @param {ViewNode|number} node
+ */
+function unCacheNodeOnIdle(node) {
+  requestIdleCallback((deadline) => {
+    // if idle time exists or callback invoked when timeout
+    if (deadline.timeRemaining() > 0 || deadline.didTimeout) {
+      recursivelyUnCacheNode(node);
+    }
+  }, { timeout: 50 });  // 50ms to avoid blocking user operation
+}
+
+/**
  * recursivelyUnCacheNode - delete ViewNode cache recursively
  * @param {ViewNode|number} node
  */
@@ -59,9 +72,43 @@ function recursivelyUnCacheNode(node) {
   }
 }
 
+/**
+ * requestIdleCallback polyfill
+ * @param {Function} cb
+ * @param {{timeout: number}} [options]
+ */
+function requestIdleCallback(cb, options) {
+  if (!global.requestIdleCallback) {
+    return setTimeout(() => {
+      cb({
+        didTimeout: false,
+        timeRemaining() {
+          return Infinity;
+        },
+      });
+    }, 1);
+  }
+  return global.requestIdleCallback(cb, options);
+}
+
+/**
+ * cancelIdleCallback polyfill
+ * @param {ReturnType<typeof setTimeout>} id
+ */
+function cancelIdleCallback(id) {
+  if (!global.cancelIdleCallback) {
+    clearTimeout(id);
+  } else {
+    global.cancelIdleCallback(id);
+  }
+}
+
 export {
+  recursivelyUnCacheNode,
+  requestIdleCallback,
+  cancelIdleCallback,
   preCacheNode,
   unCacheNode,
   getNodeById,
-  recursivelyUnCacheNode,
+  unCacheNodeOnIdle,
 };

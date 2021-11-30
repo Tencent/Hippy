@@ -51,6 +51,10 @@ module.exports = {
     // new webpack.optimize.LimitChunkCountPlugin({
     //   maxChunks: 1,
     // }),
+    new webpack.SourceMapDevToolPlugin({
+      test: /\.(js|jsbundle|css|bundle)($|\?)/i,
+      filename: '[file].map',
+    }),
   ],
   module: {
     rules: [

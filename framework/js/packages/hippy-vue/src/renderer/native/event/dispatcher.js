@@ -21,6 +21,7 @@
 /* eslint-disable no-underscore-dangle */
 
 import { trace, getApp } from '../../../util';
+import { getNodeById } from '../../../util/node';
 import { Event } from './event';
 
 const componentName = ['%c[event]%c', 'color: green', 'color: auto'];
@@ -91,8 +92,7 @@ const EventDispatcher = {
       return;
     }
     const { id: targetNodeId, name: eventName } = nativeEvent;
-    const { $el: rootNode } = getApp();
-    const targetNode = rootNode.findChild(node => node.nodeId === targetNodeId);
+    const targetNode = getNodeById(targetNodeId);
     if (!targetNode) {
       return;
     }
@@ -120,8 +120,7 @@ const EventDispatcher = {
     if (typeof targetNodeId !== 'number' || typeof eventName !== 'string') {
       return;
     }
-    const { $el: rootNode } = getApp();
-    const targetNode = rootNode.findChild(node => node.nodeId === targetNodeId);
+    const targetNode = getNodeById(targetNodeId);
     if (!targetNode) {
       return;
     }

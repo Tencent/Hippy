@@ -127,9 +127,9 @@ typedef struct {
 } HPSizeMode;
 
 // following arrays mapping with axis's direction
-const CSSDirection axisStart[4] = {CSSLeft, CSSRight, CSSTop, CSSBottom};
-const CSSDirection axisEnd[4] = {CSSRight, CSSLeft, CSSBottom, CSSTop};
-const Dimension axisDim[4] = {DimWidth, DimWidth, DimHeight, DimHeight};
+extern const CSSDirection axisStart[4];
+extern const CSSDirection axisEnd[4];
+extern const Dimension axisDim[4];
 
 bool inline isRowDirection(FlexDirection dir) {
   return dir == FLexDirectionRow || dir == FLexDirectionRowReverse;

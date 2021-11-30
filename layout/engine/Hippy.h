@@ -64,17 +64,42 @@ float HPNodeLayoutGetRight(HPNodeRef node);
 float HPNodeLayoutGetBottom(HPNodeRef node);
 float HPNodeLayoutGetWidth(HPNodeRef node);
 float HPNodeLayoutGetHeight(HPNodeRef node);
+float HPNodeLayoutGetMaxWidth(HPNodeRef node);
+float HPNodeLayoutGetMaxHeight(HPNodeRef node);
+float HPNodeLayoutGetMinWidth(HPNodeRef node);
+float HPNodeLayoutGetMinHeight(HPNodeRef node);
+
 float HPNodeLayoutGetMargin(HPNodeRef node, CSSDirection dir);
 float HPNodeLayoutGetPadding(HPNodeRef node, CSSDirection dir);
 float HPNodeLayoutGetBorder(HPNodeRef node, CSSDirection dir);
+float HPNodeLayoutGetFlexGrow(HPNodeRef node);
+float HPNodeLayoutGetFlexShrink(HPNodeRef node);
+
+DisplayType HPNodeLayoutGetDisplay(HPNodeRef node);
+float HPNodeLayoutGetFlexBasis(HPNodeRef node);
+FlexDirection HPNodeLayoutGetFlexDirection(HPNodeRef node);
+FlexAlign HPNodeLayoutGetJustifyContent(HPNodeRef node);
+FlexAlign HPNodeLayoutGetAlignSelf(HPNodeRef node);
+FlexAlign HPNodeLayoutGetAlignItems(HPNodeRef node);
+PositionType HPNodeLayoutGetPositionType(HPNodeRef node);
+FlexWrapMode HPNodeLayoutGetFlexWrap(HPNodeRef node);
+OverflowType HPNodeLayoutGetOverflow(HPNodeRef node);
+
 bool HPNodeLayoutGetHadOverflow(HPNodeRef node);
+
 
 void HPNodeSetConfig(HPNodeRef node, HPConfigRef config);
 void HPConfigFree(HPConfigRef);
 HPConfigRef HPConfigGetDefault();
 
+void HPNodeSetContext(HPNodeRef node, void *context);
+void *HPNodeGetContext(HPNodeRef node);
+
 bool HPNodeInsertChild(HPNodeRef node, HPNodeRef child, uint32_t index);
 bool HPNodeRemoveChild(HPNodeRef node, HPNodeRef child);
+uint32_t HPNodeChildCount(HPNodeRef node);
+HPNodeRef HPNodeGetChild(HPNodeRef node, uint32_t index);
+
 bool HPNodeHasNewLayout(HPNodeRef node);
 void HPNodesetHasNewLayout(HPNodeRef node, bool hasNewLayout);
 void HPNodeMarkDirty(HPNodeRef node);

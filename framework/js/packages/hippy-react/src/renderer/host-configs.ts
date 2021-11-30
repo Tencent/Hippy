@@ -22,7 +22,7 @@ import isEqual from 'fast-deep-equal';
 import Document from '../dom/document-node';
 import Element from '../dom/element-node';
 import { unicodeToChar } from '../utils';
-// import { preCacheFiberNode, recursivelyUnCacheFiberNode } from '../utils/node';
+import { preCacheFiberNode, unCacheFiberNodeOnIdle } from '../utils/node';
 import '@localTypes/global';
 import {
   Type,
@@ -84,15 +84,15 @@ function createInstance(
   if ([5, 7].indexOf(workInProgress.tag) < 0) {
     element.meta.skipAddToDom = true;
   }
-  // preCacheFiberNode(workInProgress, element.nodeId);
+  preCacheFiberNode(workInProgress, element.nodeId);
   return element;
 }
 
 function createTextInstance(
   newText: string,
   rootContainerInstance: Document,
-  // hostContext: object,
-  // workInProgress: any,
+  hostContext: object,
+  workInProgress: any,
 ) {
   const element = rootContainerInstance.createElement('p');
   element.setAttribute('text', unicodeToChar(newText));
@@ -101,7 +101,7 @@ function createTextInstance(
       name: 'Text',
     },
   };
-  // preCacheFiberNode(workInProgress, element.nodeId);
+  preCacheFiberNode(workInProgress, element.nodeId);
   return element;
 }
 
@@ -173,13 +173,13 @@ function prepareUpdate(
 function replaceContainerChildren() {}
 
 function removeChild(parent: Element, child: Element): void {
-  // recursivelyUnCacheFiberNode(child);
   parent.removeChild(child);
+  unCacheFiberNodeOnIdle(child);
 }
 
 function removeChildFromContainer(parent: Element, child: Element): void {
-  // recursivelyUnCacheFiberNode(child);
   parent.removeChild(child);
+  unCacheFiberNodeOnIdle(child);
 }
 
 function resetAfterCommit() {}

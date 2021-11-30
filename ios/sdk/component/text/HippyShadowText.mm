@@ -21,7 +21,6 @@
  */
 
 #import "HippyShadowText.h"
-#import "x5LayoutUtil.h"
 #import "HippyBridge.h"
 #import "HippyConvert.h"
 #import "HippyFont.h"
@@ -44,21 +43,21 @@ CGFloat const HippyTextAutoSizeGranularity = 0.001f;
 
 @implementation HippyShadowText
 // MTTlayout
-static MTTSize x5MeasureFunc(
-    MTTNodeRef node, float width, MeasureMode widthMeasureMode, __unused float height, __unused MeasureMode heightMeasureMode, void *layoutContext) {
-    HippyShadowText *shadowText = (__bridge HippyShadowText *)MTTNodeGetContext(node);
+static HPSize x5MeasureFunc(
+    HPNodeRef node, float width, MeasureMode widthMeasureMode, __unused float height, __unused MeasureMode heightMeasureMode, void *layoutContext) {
+    HippyShadowText *shadowText = (__bridge HippyShadowText *)node->getContext();
     NSTextStorage *textStorage = [shadowText buildTextStorageForWidth:width widthMode:widthMeasureMode];
     [shadowText calculateTextFrame:textStorage];
     NSLayoutManager *layoutManager = textStorage.layoutManagers.firstObject;
     NSTextContainer *textContainer = layoutManager.textContainers.firstObject;
     CGSize computedSize = [layoutManager usedRectForTextContainer:textContainer].size;
 
-    MTTSize result;
-    result.width = x5CeilPixelValue(computedSize.width);
+    HPSize result;
+    result.width = HippyCeilPixelValue(computedSize.width);
     if (shadowText->_effectiveLetterSpacing < 0) {
         result.width -= shadowText->_effectiveLetterSpacing;
     }
-    result.height = x5CeilPixelValue(computedSize.height);
+    result.height = HippyCeilPixelValue(computedSize.height);
     return result;
 }
 
@@ -117,8 +116,8 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             self.textAlign = NSTextAlignmentRight;
         }
         // MTTlayout
-        MTTNodeSetMeasureFunc(self.nodeRef, x5MeasureFunc);
-        MTTNodeSetContext(self.nodeRef, (__bridge void *)self);
+        HPNodeSetMeasureFunc(self.nodeRef, x5MeasureFunc);
+        HPNodeSetContext(self.nodeRef, (__bridge void *)self);
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(contentSizeMultiplierDidChange:)
                                                      name:HippyUIManagerWillUpdateViewsDueToContentSizeMultiplierChangeNotification
                                                    object:nil];
@@ -141,7 +140,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
 - (void)contentSizeMultiplierDidChange:(__unused NSNotification *)note {
     // MTTlayout
-    MTTNodeMarkDirty(self.nodeRef);
+    HPNodeMarkDirty(self.nodeRef);
     [self dirtyText];
 }
 
@@ -229,7 +228,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     return parentProperties;
 }
 // MTTlayout
-- (void)applyLayoutNode:(MTTNodeRef)node
+- (void)applyLayoutNode:(HPNodeRef)node
       viewsWithNewFrame:(NSMutableSet<HippyShadowView *> *)viewsWithNewFrame
        absolutePosition:(CGPoint)absolutePosition {
     [super applyLayoutNode:node viewsWithNewFrame:viewsWithNewFrame absolutePosition:absolutePosition];
@@ -237,7 +236,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 }
 
 // MTTlayout
-- (void)applyLayoutToChildren:(__unused MTTNodeRef)node
+- (void)applyLayoutToChildren:(__unused HPNodeRef)node
             viewsWithNewFrame:(NSMutableSet<HippyShadowView *> *)viewsWithNewFrame
              absolutePosition:(CGPoint)absolutePosition {
     @try {
@@ -251,18 +250,26 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         [layoutManager.textStorage enumerateAttribute:HippyShadowViewAttributeName inRange:characterRange options:0 usingBlock:^(
             HippyShadowView *child, NSRange range, __unused BOOL *_) {
             if (child) {
-                MTTNodeRef childNode = child.nodeRef;
-                float width = MTTNodeLayoutGetWidth(childNode);
-                float height = MTTNodeLayoutGetHeight(childNode);
+                HPNodeRef childNode = child.nodeRef;
+                float width = HPNodeLayoutGetWidth(childNode);
+                float height = HPNodeLayoutGetHeight(childNode);
                 if (isnan(width) || isnan(height)) {
                     HippyLogError(@"Views nested within a <Text> must have a width and height");
                 }
-                UIFont *font = [textStorage attribute:NSFontAttributeName atIndex:range.location effectiveRange:nil];
-                CGRect glyphRect = [layoutManager boundingRectForGlyphRange:range inTextContainer:textContainer];
-                CGRect childFrame = { { x5RoundPixelValue(glyphRect.origin.x),
-                                          x5RoundPixelValue(glyphRect.origin.y + glyphRect.size.height - height + font.descender) },
-                    { x5RoundPixelValue(width), x5RoundPixelValue(height) } };
+                
+                /**
+                 * For RichText, a view, which is top aligment by default, should be center alignment to text,
+                 */
 
+                CGRect glyphRect = [layoutManager boundingRectForGlyphRange:range inTextContainer:textContainer];
+                CGRect usedOriginRect = [layoutManager lineFragmentRectForGlyphAtIndex:range.location effectiveRange:nil];
+                CGFloat lineHeight = usedOriginRect.size.height;
+                CGFloat Roundedheight = HippyRoundPixelValue(height);
+                CGFloat originY = usedOriginRect.origin.y + (lineHeight - Roundedheight) / 2;
+                CGRect childFrame = {
+                    { HippyRoundPixelValue(glyphRect.origin.x), HippyRoundPixelValue(originY) },
+                    { HippyRoundPixelValue(width), Roundedheight }
+                };
                 NSRange truncatedGlyphRange = [layoutManager truncatedGlyphRangeInLineFragmentForGlyphAtIndex:range.location];
                 BOOL childIsTruncated = NSIntersectionRange(range, truncatedGlyphRange).length != 0;
 
@@ -389,11 +396,11 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         } else {
             // MTTlayout
             NSWritingDirection direction = [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
-            MTTDirection nodeDirection = (NSWritingDirectionRightToLeft == direction) ? DirectionRTL : DirectionLTR;
+            HPDirection nodeDirection = (NSWritingDirectionRightToLeft == direction) ? DirectionRTL : DirectionLTR;
             nodeDirection = self.layoutDirection != DirectionInherit ? self.layoutDirection : nodeDirection;
-            MTTNodeDoLayout(child.nodeRef, NAN, NAN, nodeDirection);
-            float width = MTTNodeLayoutGetWidth(child.nodeRef);
-            float height = MTTNodeLayoutGetHeight(child.nodeRef);
+            HPNodeDoLayout(child.nodeRef, NAN, NAN, nodeDirection);
+            float width = HPNodeLayoutGetWidth(child.nodeRef);
+            float height = HPNodeLayoutGetHeight(child.nodeRef);
             if (isnan(width) || isnan(height)) {
                 HippyLogError(@"Views nested within a <Text> must have a width and height");
             }
@@ -438,7 +445,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     // create a non-mutable attributedString for use by the Text system which avoids copies down the line
     _cachedAttributedString = [[NSAttributedString alloc] initWithAttributedString:attributedString];
     // MTTlayout
-    MTTNodeMarkDirty(self.nodeRef);
+    HPNodeMarkDirty(self.nodeRef);
 
     return _cachedAttributedString;
 }
@@ -460,7 +467,9 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                               fontLineHeight:(CGFloat)fontLineHeight
                       heightOfTallestSubview:(CGFloat)heightOfTallestSubview {
     NSTextStorage *textStorage = [[NSTextStorage alloc] initWithAttributedString:attributedString];
-
+    if (fabs(_lineHeight - 0) < DBL_EPSILON) {
+        _lineHeight = fontLineHeight;
+    }
     // check if we have lineHeight set on self
     __block BOOL hasParagraphStyle = NO;
     if (_lineHeight || _textAlignSet) {
@@ -515,12 +524,16 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         paragraphStyle.maximumLineHeight = maxHeight;
         [attributedString addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:(NSRange) { 0, attributedString.length }];
 
+        /**
+         * for keeping text ertical center, we need to set baseline offset
+         */
         if (lineHeight > fontLineHeight) {
-            [attributedString addAttribute:NSBaselineOffsetAttributeName value:@(newLineHeight / 2 - maximumFontLineHeight / 2)
+            CGFloat baselineOffset = newLineHeight / 2 - maximumFontLineHeight / 2;
+            [attributedString addAttribute:NSBaselineOffsetAttributeName value:@(baselineOffset)
                                      range:(NSRange) { 0, attributedString.length }];
         }
     }
-
+    _maximumFontLineHeight = maximumFontLineHeight;
     // Text decoration
     if (_textDecorationLine == HippyTextDecorationLineTypeUnderline || _textDecorationLine == HippyTextDecorationLineTypeUnderlineStrikethrough) {
         [self _addAttribute:NSUnderlineStyleAttributeName withValue:@(_textDecorationStyle) toAttributedString:attributedString];

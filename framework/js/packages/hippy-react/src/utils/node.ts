@@ -102,6 +102,19 @@ function getFiberNodeFromId(nodeId: number) {
 }
 
 /**
+ * unCacheFiberNodeOnIdle - recursively delete FiberNode cache on idle
+ * @param {ElementNode|number} node
+ */
+function unCacheFiberNodeOnIdle(node: ElementNode | number) {
+  requestIdleCallback((deadline: { timeRemaining: Function, didTimeout: boolean }) => {
+    // if idle time exists or callback invoked when timeout
+    if (deadline.timeRemaining() > 0 || deadline.didTimeout) {
+      recursivelyUnCacheFiberNode(node);
+    }
+  }, { timeout: 50 }); // 50ms to avoid blocking user operation
+}
+
+/**
  * recursivelyUnCacheFiberNode - delete ViewNode cache recursively
  * @param {ElementNode|number} node
  */
@@ -115,7 +128,44 @@ function recursivelyUnCacheFiberNode(node: ElementNode | number): void {
   }
 }
 
+/**
+ * requestIdleCallback polyfill
+ * @param {Function} cb
+ * @param {{timeout: number}} [options]
+ */
+function requestIdleCallback(cb: Function, options?: { timeout: number }): ReturnType<typeof setTimeout> {
+  // @ts-ignore
+  if (!global.requestIdleCallback) {
+    return setTimeout(() => {
+      cb({
+        didTimeout: false,
+        timeRemaining() {
+          return Infinity;
+        },
+      });
+    }, 1);
+  }
+  // @ts-ignore
+  return global.requestIdleCallback(cb, options);
+}
+
+/**
+ * cancelIdleCallback polyfill
+ * @param {ReturnType<typeof setTimeout>} id
+ */
+function cancelIdleCallback(id: ReturnType<typeof setTimeout>): void {
+  // @ts-ignore
+  if (!global.cancelIdleCallback) {
+    clearTimeout(id);
+  } else {
+    // @ts-ignore
+    global.cancelIdleCallback(id);
+  }
+}
+
 export {
+  requestIdleCallback,
+  cancelIdleCallback,
   setRootContainer,
   getRootContainer,
   getRootViewId,
@@ -124,5 +174,6 @@ export {
   preCacheFiberNode,
   unCacheFiberNode,
   getFiberNodeFromId,
+  unCacheFiberNodeOnIdle,
   recursivelyUnCacheFiberNode,
 };

@@ -1669,10 +1669,15 @@ static NSDictionary *unorderedMapDomValueToDictionary(const std::unordered_map<s
 }
 
 - (void)renderCreateView:(int32_t)hippyTag
-                viewName:(const std::string &)name
+                viewName:(const std::string &)viewName
                  rootTag:(int32_t)rootTag
+                 tagName:(const std::string &)tagName
                    props:(const std::unordered_map<std::string, std::shared_ptr<DomValue>> &)styleMap {
-    [self createView:@(hippyTag) viewName:[NSString stringWithUTF8String:name.c_str()] rootTag:@(rootTag) props:unorderedMapDomValueToDictionary(styleMap)];
+    [self createView:@(hippyTag)
+            viewName:[NSString stringWithUTF8String:viewName.c_str()]
+             rootTag:@(rootTag)
+             tagName:[NSString stringWithUTF8String:tagName.c_str()]
+               props:unorderedMapDomValueToDictionary(styleMap)];
 }
 
 - (void)renderUpdateView:(int32_t)hippyTag
@@ -1736,7 +1741,7 @@ static NSDictionary *unorderedMapDomValueToDictionary(const std::unordered_map<s
                           forView:(int32_t)hippyTag {
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
-        NSInteger ret = [view addTouchEvent:HippyTouchEventTypeClick eventListener:^(CGPoint) {
+        NSInteger ret = [view addViewEvent:HippyViewEventTypeClick eventListener:^(CGPoint) {
             if (listener) {
                 listener();
             }
@@ -1749,15 +1754,20 @@ static NSDictionary *unorderedMapDomValueToDictionary(const std::unordered_map<s
 - (void) removeClickEventListener:(int32_t)listenerID forView:(int32_t)hippyTag {
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
-        [view removeTouchEventByID:listenerID];
+        [view removeViewEventByID:listenerID];
     }
+}
+
+- (void) removeClickEventForView:(int32_t)hippyTag {
+    UIView *view = [self viewForHippyTag:@(hippyTag)];
+    [view removeViewEvent:HippyViewEventTypeClick];
 }
 
 - (int32_t) addLongClickEventListener:(OnLongClickEventListener)listener
                               forView:(int32_t)hippyTag {
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
-        NSInteger ret = [view addTouchEvent:HippyTouchEventTypeLongClick eventListener:^(CGPoint) {
+        NSInteger ret = [view addViewEvent:HippyViewEventTypeLongClick eventListener:^(CGPoint) {
             if (listener) {
                 listener();
             }
@@ -1770,8 +1780,13 @@ static NSDictionary *unorderedMapDomValueToDictionary(const std::unordered_map<s
 - (void) removeLongClickEventListener:(int32_t)listenerID forView:(int32_t)hippyTag {
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
-        [view removeTouchEventByID:listenerID];
+        [view removeViewEventByID:listenerID];
     }
+}
+
+- (void) removeLongClickEventForView:(int32_t)hippyTag {
+    UIView *view = [self viewForHippyTag:@(hippyTag)];
+    [view removeViewEvent:HippyViewEventTypeLongClick];
 }
 
 - (void) addTouchEventListener:(OnTouchEventListener)listener
@@ -1779,7 +1794,7 @@ static NSDictionary *unorderedMapDomValueToDictionary(const std::unordered_map<s
                        forView:(int32_t)hippyTag {
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
-        [view addTouchEvent:static_cast<HippyTouchEventType>(event) eventListener:^(CGPoint point) {
+        [view addViewEvent:static_cast<HippyViewEventType>(event) eventListener:^(CGPoint point) {
             if (listener) {
                 hippy::TouchEventInfo info = {static_cast<float>(point.x), static_cast<float>(point.y)};
                 listener(info);
@@ -1790,7 +1805,30 @@ static NSDictionary *unorderedMapDomValueToDictionary(const std::unordered_map<s
 
 - (void) removeTouchEvent:(TouchEvent)event forView:(int32_t)hippyTag {
     UIView *view = [self viewForHippyTag:@(hippyTag)];
-    [view removeTouchEvent:static_cast<HippyTouchEventType>(event)];
+    [view removeViewEvent:static_cast<HippyViewEventType>(event)];
+}
+
+- (void) addShowEventListener:(OnShowEventListener)listener
+                    showEvent:(ShowEvent)event
+                      forView:(int32_t)hippyTag {
+    UIView *view = [self viewForHippyTag:@(hippyTag)];
+    if (view) {
+        HippyViewEventType type = ShowEvent::Show == event ? HippyViewEventTypeShow : HippyViewEventTypeDismiss;
+        [view addViewEvent:type eventListener:^(CGPoint point) {
+            if (listener) {
+                std::any flag = true;
+                listener(flag);
+            }
+        }];
+    }
+}
+
+- (void) removeShowEvent:(ShowEvent)event forView:(int32_t)hippyTag {
+    UIView *view = [self viewForHippyTag:@(hippyTag)];
+    if (view) {
+        HippyViewEventType type = ShowEvent::Show == event ? HippyViewEventTypeShow : HippyViewEventTypeDismiss;
+        [view removeViewEvent:type];
+    }
 }
 
 @end
