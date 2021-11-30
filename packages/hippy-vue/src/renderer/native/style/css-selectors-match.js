@@ -18,7 +18,6 @@
  * limitations under the License.
  */
 
-/* eslint-disable import/prefer-default-export */
 /* eslint-disable no-param-reassign */
 
 /**

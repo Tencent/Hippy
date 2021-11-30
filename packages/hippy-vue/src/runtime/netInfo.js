@@ -18,8 +18,6 @@
  * limitations under the License.
  */
 
-/* eslint-disable no-use-before-define */
-
 import { getApp, warn } from '../util';
 import Native from './native';
 let app;

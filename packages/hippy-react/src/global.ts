@@ -18,8 +18,6 @@
  * limitations under the License.
  */
 
-/* eslint-disable no-underscore-dangle */
-
 import '@localTypes/global';
 // @ts-ignore
 if (!global.__GLOBAL__) {

@@ -18,7 +18,6 @@
  * limitations under the License.
  */
 
-/* eslint-disable import/prefer-default-export */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 
@@ -54,7 +53,6 @@ const model = {
       el._vModifiers = binding.modifiers;
       // Initial value
       el.attributes.defaultValue = binding.value;
-
       // Binding event when typing
       if (!binding.modifiers.lazy) {
         el.addEventListener('change', ({ value }) => {

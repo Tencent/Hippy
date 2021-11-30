@@ -18,8 +18,6 @@
  * limitations under the License.
  */
 
-/* eslint-disable react/prefer-stateless-function */
-
 import React from 'react';
 import Style from '@localTypes/style';
 import { FocusEvent } from '@localTypes/event';
@@ -81,16 +79,12 @@ interface ViewProps extends LayoutableProps, ClickableProps, TouchableProps {
  * @noInheritDoc
  */
 class View extends React.Component<ViewProps, {}> {
-  /**
-   * @ignore
-   */
   render() {
     const { collapsable, style = {}, ...nativeProps } = this.props;
     const nativeStyle: Style = style;
     if (typeof collapsable === 'boolean') {
       nativeStyle.collapsable = collapsable;
     }
-
     return (
     // @ts-ignore
       <div nativeName="View" style={nativeStyle} {...nativeProps} />

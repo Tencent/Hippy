@@ -18,8 +18,6 @@
  * limitations under the License.
  */
 
-/* eslint-disable class-methods-use-this */
-
 import Element from './element-node';
 import ViewNode from './view-node';
 
@@ -47,6 +45,5 @@ class DocumentNode extends ViewNode {
 
 DocumentNode.createElement = DocumentNode.prototype.createElement;
 DocumentNode.createElementNS = DocumentNode.prototype.createElementNS;
-
 
 export default DocumentNode;

@@ -87,20 +87,20 @@ const realBackAndroid = {
  */
 const fakeBackAndroid = {
   exitApp() {
-    // do nothing.
+    // noop
   },
   addListener() {
     return {
       remove() {
-        // do nothing.
+        // noop
       },
     };
   },
   removeListener() {
-    // do nothing.
+    // noop
   },
   initEventListener() {
-    // do nothing.
+    // noop
   },
 };
 
