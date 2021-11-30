@@ -482,7 +482,7 @@ std::tuple<bool, std::string, std::shared_ptr<DomNode>> CreateNode(std::shared_p
     return std::make_tuple(false, std::get<1>(pid_tuple), dom_node);
   }
 
-  auto index_tuple = GetNodePid(context, node);
+  auto index_tuple = GetNodeIndex(context, node);
   if (!std::get<0>(index_tuple)) {
     return std::make_tuple(false, std::get<1>(index_tuple), dom_node);
   }
