@@ -21,7 +21,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 
-import { getVue } from '@vue/util/index';
+import { getVue } from '@vue2/util/index';
 import { once } from 'shared/util';
 import { warn, isError } from './warn';
 

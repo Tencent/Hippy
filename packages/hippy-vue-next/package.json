@@ -2,7 +2,7 @@
   "name": "@hippy/vue-next",
   "version": "2.2.1",
   "description": "Vue Next binding for Hippy native framework",
-  "author": "shermanchen <282791341@qq.com>",
+  "author": "Zoom Chan <282791341@qq.com>",
   "license": "Apache-2.0",
   "main": "dist/index.js",
   "types": "types/index.d.ts",
@@ -29,6 +29,8 @@
     "y18n": "^4.0.1"
   },
   "dependencies": {
+    "@vue/runtime-core": "^3.2.23",
+    "@vue/shared": "^3.2.23",
     "vue": "^3.2.23"
   }
 }

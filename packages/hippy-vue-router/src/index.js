@@ -22,7 +22,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 
-import { isFunction } from '@vue/util/index';
+import { isFunction } from '@vue2/util/index';
 import install from './install';
 import normalizeLocation from './util/location';
 import createMatcher from './create-matcher';

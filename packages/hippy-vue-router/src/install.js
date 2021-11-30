@@ -21,7 +21,7 @@
 /* eslint-disable no-multi-assign */
 /* eslint-disable no-underscore-dangle */
 
-import { setVue, getVue } from '@vue/util/index';
+import { setVue, getVue } from '@vue2/util/index';
 import View from './components/view';
 import Link from './components/link';
 
