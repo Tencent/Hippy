@@ -24,7 +24,7 @@ void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   }
 
   if (!nodes.empty()) {
-    batch_operations_.emplace_back([this, moved_nodes = std::move(nodes)]() mutable {
+    batched_operations_.emplace_back([this, moved_nodes = std::move(nodes)]() mutable {
       render_manager_->CreateRenderNode(std::move(moved_nodes));
     });
   }
@@ -46,7 +46,7 @@ void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   }
 
   if (!nodes.empty()) {
-    batch_operations_.emplace_back([this, moved_nodes = std::move(nodes)]() mutable {
+    batched_operations_.emplace_back([this, moved_nodes = std::move(nodes)]() mutable {
       render_manager_->UpdateRenderNode(std::move(moved_nodes));
     });
   }
@@ -67,7 +67,7 @@ void DomManager::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   }
 
   if (!nodes.empty()) {
-    batch_operations_.emplace_back([this, moved_nodes = std::move(nodes)]() mutable {
+    batched_operations_.emplace_back([this, moved_nodes = std::move(nodes)]() mutable {
       render_manager_->DeleteRenderNode(std::move(moved_nodes));
     });
   }
@@ -83,12 +83,14 @@ void DomManager::EndBatch() {
   root_node_->DoLayout();
   const auto& udpate_node = layout_changed_nodes_;
   if (!layout_changed_nodes_.empty()) {
-    batch_operations_.emplace_back([this, &udpate_node]() { render_manager_->UpdateLayout(udpate_node); });
+    batched_operations_.emplace_back(
+            [this, &udpate_node]() { render_manager_->UpdateLayout(udpate_node); });
   }
-  for (auto& batch_operation : batch_operations_) {
+  for (auto& batch_operation : batched_operations_) {
     batch_operation();
   }
-  batch_operations_.clear();
+  render_manager_->Batch();
+  batched_operations_.clear();
 }
 
 void DomManager::CallFunction(int32_t id, const std::string& name,

@@ -105,7 +105,7 @@ constexpr const char* kHorizontal = "horizontal";
 constexpr const char* kShowsHorizontalScrollIndicator = "showsHorizontalScrollIndicator";
 constexpr const char* kShowsVerticalScrollIndicator = "showsVerticalScrollIndicator";
 
-constexpr const char* knEndReached = "onEndReached";
+constexpr const char* kOnEndReached = "onEndReached";
 constexpr const char* kInitialContentOffset = "initialContentOffset";
 constexpr const char* kInitialListReady = "initialListReady";
 constexpr const char* kType = "type";
