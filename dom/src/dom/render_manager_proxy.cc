@@ -42,16 +42,14 @@ void RenderManagerProxy::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&
 
   if (!nodes_to_create.empty()) {
     // step1: create child
-    render_manager_->CreateRenderNode(std::move(nodes_to_create));
+    render_manager_->CreateRenderNode(std::vector<std::shared_ptr<DomNode>>(nodes_to_create));
     for (auto it = nodes_to_create.begin(); it != nodes_to_create.end(); it++) {
       std::shared_ptr<DomNode> node = *it;
 
       // step2: move child
-      std::vector<int32_t> moveIds;
-      FindMoveChildren(node, moveIds);
-
-      MoveRenderNode(std::move(moveIds), node->GetRenderInfo().pid,
-                                      node->GetId());
+      std::vector<int32_t> moved_ids;
+      FindMoveChildren(node, moved_ids);
+      MoveRenderNode(std::move(moved_ids), node->GetRenderInfo().pid, node->GetId());
     }
   }
 
@@ -82,10 +80,10 @@ void RenderManagerProxy::UpdateLayout(const std::vector<std::shared_ptr<DomNode>
     render_manager_->UpdateLayout(std::move(nodes_to_update));
 }
 
-void RenderManagerProxy::MoveRenderNode(std::vector<int32_t>&& ids,
-                                        int32_t pid,
-                                        int32_t id) {
-  render_manager_->MoveRenderNode(std::move(ids), pid, id);
+void RenderManagerProxy::MoveRenderNode(std::vector<int32_t>&& moved_ids,
+                                        int32_t from_pid,
+                                        int32_t to_pid) {
+  render_manager_->MoveRenderNode(std::move(moved_ids), from_pid, to_pid);
 }
 
 void RenderManagerProxy::Batch() {

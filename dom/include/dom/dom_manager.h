@@ -68,7 +68,7 @@ class DomManager {
   DomNodeRegistry dom_node_registry_;
 
   using DomOperation = std::function<void(void)>;
-  std::vector<DomOperation> batch_operations_;
+  std::vector<DomOperation> batched_operations_;
   std::vector<std::shared_ptr<DomNode>> layout_changed_nodes_;
 };
 
