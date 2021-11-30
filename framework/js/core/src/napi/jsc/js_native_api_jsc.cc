@@ -694,8 +694,7 @@ bool JSCCtx::IsNullOrUndefined(const std::shared_ptr<CtxValue>& value) {
   if (!value) {
     return true;
   }
-  std::shared_ptr<JSCCtxValue> ctx_value =
-  std::dynamic_pointer_cast<JSCCtxValue>(value);
+  std::shared_ptr<JSCCtxValue> ctx_value = std::static_pointer_cast<JSCCtxValue>(value);
   JSValueRef value_ref = ctx_value->value_;
   return (JSValueIsNull(context_, value_ref) || JSValueIsUndefined(context_, value_ref));
 }
