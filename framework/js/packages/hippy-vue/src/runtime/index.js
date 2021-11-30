@@ -18,7 +18,6 @@
  * limitations under the License.
  */
 
-/* eslint-disable import/no-unresolved */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 

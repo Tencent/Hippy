@@ -18,8 +18,6 @@
  * limitations under the License.
  */
 
-/* eslint-disable no-bitwise */
-/* eslint-disable no-cond-assign */
 /* eslint-disable no-use-before-define */
 /* eslint-disable no-param-reassign */
 

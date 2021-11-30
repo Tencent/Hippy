@@ -19,14 +19,9 @@
  */
 
 /* eslint-disable import/prefer-default-export */
-/* eslint-disable class-methods-use-this */
 /* eslint-disable prefer-destructuring */
-/* eslint-disable key-spacing */
 /* eslint-disable no-cond-assign */
-/* eslint-disable arrow-body-style */
 /* eslint-disable no-useless-escape */
-/* eslint-disable max-len */
-/* eslint-disable no-continue */
 /* eslint-disable no-param-reassign */
 
 /**
@@ -63,9 +58,7 @@ class SimpleSelectorSequence extends SimpleSelector {
   constructor(selectors) {
     super();
     this.specificity = selectors.reduce((sum, sel) => sel.specificity + sum, 0);
-    this.head = selectors.reduce((prev, curr) => {
-      return !prev || (curr.rarity > prev.rarity) ? curr : prev;
-    }, null);
+    this.head = selectors.reduce((prev, curr) => (!prev || (curr.rarity > prev.rarity) ? curr : prev), null);
     this.dynamic = selectors.some(sel => sel.dynamic);
     this.selectors = selectors;
   }

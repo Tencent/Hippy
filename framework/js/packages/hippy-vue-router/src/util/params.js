@@ -22,7 +22,6 @@
 import Regexp from 'path-to-regexp';
 import { warn } from './warn';
 
-// $flow-disable-line
 const regexpCompileCache = Object.create(null);
 
 function fillParams(path, params, routeMsg) {

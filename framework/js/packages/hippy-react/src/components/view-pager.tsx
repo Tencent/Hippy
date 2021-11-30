@@ -18,8 +18,6 @@
  * limitations under the License.
  */
 
-/* eslint-disable no-underscore-dangle */
-
 import React, { ReactElement, ReactNode } from 'react';
 import { callUIFunction } from '../modules/ui-manager-module';
 import Element from '../dom/element-node';
@@ -111,9 +109,6 @@ function ViewPagerItem(props: any) {
 class ViewPager extends React.Component<ViewPagerProps, {}> {
   private instance: Element | HTMLDivElement | null = null;
 
-  /**
-   * @ignore
-   */
   constructor(props: ViewPagerProps) {
     super(props);
     this.setPage = this.setPage.bind(this);
@@ -142,9 +137,6 @@ class ViewPager extends React.Component<ViewPagerProps, {}> {
     callUIFunction(this.instance as Element, 'setPageWithoutAnimation', [selectedPage]);
   }
 
-  /**
-   * @ignore
-   */
   public render() {
     const { children, onPageScrollStateChanged, ...nativeProps } = this.props;
     let mappedChildren: ReactElement[] = [];

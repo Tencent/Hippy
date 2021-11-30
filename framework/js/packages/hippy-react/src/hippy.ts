@@ -68,7 +68,7 @@ const componentName = ['%c[Hippy-React process.env.HIPPY_REACT_VERSION]%c', 'col
 interface HippyReact {
   config: HippyReactConfig;
   rootContainer: any;
-  // Keep foward comaptatble.
+  // Keep forward comaptatble.
   regist: () => void;
 }
 

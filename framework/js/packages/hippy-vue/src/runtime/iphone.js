@@ -18,8 +18,6 @@
  * limitations under the License.
  */
 
-/* eslint-disable import/prefer-default-export */
-
 import ElementNode from '../renderer/element-node';
 import Native from './native';
 
