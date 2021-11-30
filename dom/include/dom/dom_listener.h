@@ -15,7 +15,7 @@ struct TouchEventInfo {
   float y;
 };
 
-using OnTouchEventListener = std::function<void(TouchEventInfo)>;
+using OnTouchEventListener = std::function<void(TouchEvent, TouchEventInfo)>;
 
 using OnClickEventListener = std::function<void()>;
 using OnLongClickEventListener = std::function<void()>;
