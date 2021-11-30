@@ -51,10 +51,11 @@ function getNodeById(nodeId) {
  */
 function unCacheNodeOnIdle(node) {
   requestIdleCallback((deadline) => {
-    if (deadline.timeRemaining() || deadline.didTimeout) {
+    // if idle time exists or callback invoked when timeout
+    if (deadline.timeRemaining() > 0 || deadline.didTimeout) {
       recursivelyUnCacheNode(node);
     }
-  }, { timeout: 50 });
+  }, { timeout: 50 });  // 50ms to avoid blocking user operation
 }
 
 /**
