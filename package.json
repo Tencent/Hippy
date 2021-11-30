@@ -80,7 +80,7 @@
     "sfc": "node_modules/vue/src/sfc",
     "he": "packages/hippy-vue/util/entity-decoder",
     "@localTypes": "packages/types",
-    "@vue": "packages/hippy-vue/src",
+    "@vue2": "packages/hippy-vue/src",
     "@router": "packages/hippy-vue-router/src",
     "@css-loader": "packages/hippy-vue-css-loader/src",
     "@native-components": "packages/hippy-vue-native-components/src"

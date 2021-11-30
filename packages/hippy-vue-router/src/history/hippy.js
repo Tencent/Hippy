@@ -21,7 +21,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 
-import { getVue, isFunction } from '@vue/util/index';
+import { getVue, isFunction } from '@vue2/util/index';
 import runQueue from '../util/async';
 import { warn, isError } from '../util/warn';
 import { START, isSameRoute } from '../util/route';

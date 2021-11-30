@@ -64,7 +64,7 @@ const aliases = {
   shared: resolveVue('shared'),
   sfc: resolveVue('sfc'),
   he: path.resolve(__dirname, '../packages/hippy-vue/src/util/entity-decoder'),
-  '@vue': resolvePackage('hippy-vue'),
+  '@vue2': resolvePackage('hippy-vue'),
   '@router': resolvePackage('hippy-vue-router'),
   '@css-loader': resolvePackage('hippy-vue-css-loader'),
   '@native-components': resolvePackage('hippy-vue-native-components'),

@@ -19,7 +19,7 @@
  */
 
 import { getOptions } from 'loader-utils';
-import { GLOBAL_STYLE_NAME } from '@vue/runtime/constants';
+import { GLOBAL_STYLE_NAME } from '@vue2/runtime/constants';
 import parseCSS from './css-parser';
 import translateColor from './color-parser';
 

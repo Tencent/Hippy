@@ -22,7 +22,7 @@
 /* eslint-disable no-param-reassign */
 
 import { camelize } from 'shared/util';
-import { tryConvertNumber, warn } from '@vue/util/index';
+import { tryConvertNumber, warn } from '@vue2/util/index';
 import translateColor from './color-parser';
 
 const PROPERTIES_MAP = {
