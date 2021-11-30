@@ -34,21 +34,97 @@ class DomValue final {
   DomValue(){};
   DomValue(const DomValue& source);
 
+  /**
+   * @brief 构造 int32_t 类型的 dom value
+   * @param i32 int32_t 的值
+   */
   explicit DomValue(int32_t i32) : type_(Type::kNumber), number_type_(NumberType::kInt32), num_(i32) {}
+
+  /**
+   * @brief 构造 uint32_t 类型的 dom value
+   * @param u32 uint32_t 的值
+   */
   explicit DomValue(uint32_t u32) : type_(Type::kNumber), number_type_(NumberType::kUInt32), num_(u32) {}
+
+  /**
+   * @brief 构造 int64_t 类型的 dom value
+   * @param i64 int64_t 的值
+   */
   explicit DomValue(int64_t i64) : type_(Type::kNumber), number_type_(NumberType::kInt64), num_(i64) {}
+
+  /**
+   * @brief 构造 uint64_t 类型的  dom value
+   * @param u64 uint64_t 的值
+   */
   explicit DomValue(uint64_t u64) : type_(Type::kNumber), number_type_(NumberType::kUInt64), num_(u64) {}
+
+  /**
+   * @brief 构造 double 类型的 dom value
+   * @param f float 的值
+   */
   explicit DomValue(float f) : type_(Type::kNumber), number_type_(NumberType::kDouble), num_(f) {}
+
+  /**
+   * @brief 构造 double 类型的 dom value
+   * @param d double 值
+   */
   explicit DomValue(double d) : type_(Type::kNumber), number_type_(NumberType::kDouble), num_(d) {}
+
+  /**
+   * @brief 构造 bool 类型的 dom value
+   * @param b bool 值
+   */
   explicit DomValue(bool b) : type_(Type::kBoolean), b_(b) {}
+
+  /**
+   * @brief 移动构造 string 类型的  dom value
+   * @param str string 的值
+   */
   explicit DomValue(std::string&& str) : type_(Type::kString), str_(std::move(str)) {}
+
+  /**
+   * @brief 构造 string 类型的  dom value
+   * @param str string
+   */
   explicit DomValue(const std::string& str) : type_(Type::kString), str_(str) {}
+
+  /**
+   * @brief 构造 string 类型的 dom value
+   * @param string_value const char* 的指针
+   */
   explicit DomValue(const char* string_value) : type_(Type::kString), str_(std::string(string_value)) {}
+
+  /**
+   * @brief 构造 string 类型的 dom value
+   * @param string_value const char * 的指针
+   * @param length 字符串长度
+   */
   explicit DomValue(const char* string_value, size_t length)
       : type_(Type::kString), str_(std::string(string_value, length)) {}
+
+  /**
+   * @brief 移动构造 object 类型的 dom value
+   * @param object_value DomValueObjectType 的对象
+   */
   explicit DomValue(DomValueObjectType&& object_value) : type_(Type::kObject), obj_(std::move(object_value)) {}
+
+  /**
+   * @brief 构造 object 类型的 dom value
+   * @param object_value DomValueObjectType 的对象
+   * @param length 字符串长度
+   */
   explicit DomValue(const DomValueObjectType& object_value) : type_(Type::kObject), obj_(object_value) {}
+
+  /**
+   * @brief 移动构造 array 类型的 dom value
+   * @param array_value DomValueArrayType 的对象
+   */
   explicit DomValue(DomValueArrayType&& array_value) : type_(Type::kArray), arr_(array_value) {}
+
+  /**
+   * @brief 移动构造 array 类型的 dom value
+   * @param array_value DomValueArrayType 的对象
+   */
   explicit DomValue(DomValueArrayType& array_value) : type_(Type::kArray), arr_(array_value) {}
   ~DomValue();
 
@@ -71,35 +147,144 @@ class DomValue final {
   bool operator>(const DomValue& rhs) const noexcept;
   bool operator>=(const DomValue& rhs) const noexcept;
 
+  /**
+   * @brief 获取 dom value 的类型
+   */
   inline Type GetType() noexcept { return type_; }
+
+  /**
+   * @brief 获取 dom value 的类型
+   */
   inline Type GetType() const noexcept { return type_; }
+
+  /**
+   * @brief 获取 dom value number 类型的具体类型
+   */
   inline NumberType GetNumberType() noexcept { return number_type_; }
+
+  /**
+   * @brief 获取 dom value number 类型的具体类型
+   */
   inline NumberType GetNumberType() const noexcept { return number_type_; }
 
+  /**
+   * @brief dom value 是否是 undefined 类型
+   */
   bool IsUndefined() const noexcept;
+
+  /**
+   * @brief dom value 是否是 null 类型
+   */
   bool IsNull() const noexcept;
+
+  /**
+   * @brief dom value 是否是 boolean 类型
+   */
   bool IsBoolean() const noexcept;
+
+  /**
+   * @brief dom value 是否是 number 类型
+   */
   bool IsNumber() const noexcept;
+
+  /**
+   * @brief dom value 是否是 string 类型
+   */
   bool IsString() const noexcept;
+
+  /**
+   * @brief dom value 是否是 array 类型
+   */
   bool IsArray() const noexcept;
+
+  /**
+   * @brief dom value 是否是 object 类型
+   */
   bool IsObject() const noexcept;
+
+  /**
+   * @brief dom value 是否是 int32_t 类型
+   */
   bool IsInt32() const noexcept;
+
+  /**
+   * @brief dom value 是否是 uint32_t 类型
+   */
   bool IsUInt32() const noexcept;
+
+  /**
+   * @brief dom value 是否是 int64_t 类型
+   */
   bool IsInt64() const noexcept;
+
+  /**
+   * @brief dom value 是否是 uint64_t 类型
+   */
   bool IsUInt64() const noexcept;
+
+  /**
+   * @brief dom value 是否是 double 类型
+   */
   bool IsDouble() const noexcept;
 
+  /**
+   * @brief 转化成 int32_t
+   */
   int32_t ToInt32() const;
+
+  /**
+   * @brief 转化成 uint32_t
+   */
   uint32_t ToUint32() const;
+
+  /**
+   * @brief 转化成 int64_t
+   */
   int64_t ToInt64() const;
+
+  /**
+   * @brief 转化成 uint64_t
+   */
   uint64_t ToUint64() const;
+
+  /**
+   * @brief 转化成 double 类型， int32_t\uint32_t\double 可以无损转化， int64_t\uint64_t 有损转化
+   */
   double ToDouble() const;
+
+  /**
+   * @brief 转化成 bool 类型
+   */
   bool ToBoolean() const;
+
+  /**
+   * @brief 转化成 string 类型
+   */
   const std::string& ToString() const;
+
+  /**
+   * @brief 转化成 string 类型
+   */
   std::string& ToString();
+
+  /**
+   * @brief 转化成 DomValueObjectType 类型
+   */
   const DomValueObjectType& ToObject() const;
+
+  /**
+   * @brief 转化成 DomValueObjectType 类型
+   */
   DomValueObjectType& ToObject();
+
+  /**
+   * @brief 转化成 DomValueArrayType 类型
+   */
   const DomValueArrayType& ToArray() const;
+
+  /**
+   * @brief 转化成 DomValueArrayType 类型
+   */
   DomValueArrayType& ToArray();
 
  private:
