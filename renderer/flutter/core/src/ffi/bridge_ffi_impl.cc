@@ -30,7 +30,7 @@ EXTERN_C void InitDomFFI(int32_t engine_id, int32_t root_id) {
   auto render_manager = std::make_shared<VoltronRenderManager>(engine_id, root_id);
   auto proxy_render_manager = std::make_shared<RenderManagerProxy>(render_manager);
   Sp<DomManager> dom_manager = std::make_shared<DomManager>(engine_id);
-  dom_manager->BindRenderManager(proxy_render_manager);
+  dom_manager->SetRenderManager(proxy_render_manager);
   BridgeManager::GetBridgeManager(engine_id)->BindDomManager(root_id, dom_manager);
   BridgeManager::GetBridgeManager(engine_id)->BindRenderManager(root_id, render_manager);
 }

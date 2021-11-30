@@ -24,6 +24,7 @@ class VoltronRenderManager : public RenderManager, private VoltronRenderTaskRunn
   void CreateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) override;
   void UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) override;
   void DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) override;
+  void UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) override;
   void MoveRenderNode(std::vector<int32_t>&& ids, int32_t pid, int32_t id) override;
 
   void Batch() override;

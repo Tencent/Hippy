@@ -30,6 +30,10 @@ void VoltronRenderManager::MoveRenderNode(std::vector<int32_t>&& ids, int32_t pi
   RunMoveDomNode(std::move(ids), pid, id);
 }
 
+void VoltronRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) {
+
+}
+
 void VoltronRenderManager::Batch() { RunBatch(); }
 
 void VoltronRenderManager::RemoveTouchEventListener(int32_t id, TouchEvent event) {
@@ -63,5 +67,6 @@ void VoltronRenderManager::RemoveLongClickEventListener(int32_t id) {}
 void VoltronRenderManager::SetTouchEventListener(int32_t id, TouchEvent event, OnTouchEventListener listener) {}
 void VoltronRenderManager::SetShowEventListener(int32_t id, ShowEvent event, OnShowEventListener listener) {}
 void VoltronRenderManager::RemoveShowEventListener(int32_t id, ShowEvent event) {}
+
 
 }  // namespace voltron
