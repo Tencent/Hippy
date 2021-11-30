@@ -27,19 +27,20 @@ class DomManager {
   DomManager(int32_t root_id);
   ~DomManager();
 
-  void CreateDomNodes(std::vector<std::shared_ptr<DomNode>> nodes);
-  void UpdateDomNodes(std::vector<std::shared_ptr<DomNode>> nodes);
-  void DeleteDomNodes(std::vector<std::shared_ptr<DomNode>> nodes);
+  void CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes);
+  void UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes);
+  void DeleteDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes);
   void BeginBatch();
   void EndBatch();
   void CallFunction(int32_t id, const std::string& name,
-                    std::unordered_map<std::string, std::shared_ptr<DomValue>> param, CallFunctionCallback cb);
+                    std::unordered_map<std::string, std::shared_ptr<DomValue>> param, const CallFunctionCallback& cb);
   int32_t AddDomTreeEventListener(DomTreeEvent event, OnDomTreeEventListener listener);
   void RemoveDomTreeEventListener(DomTreeEvent event, int32_t listener_id);
 
   std::shared_ptr<RenderManager> GetRenderManager() { return render_manager_; }
   void SetRootSize(int32_t width, int32_t height);
   inline int32_t GetRooId() { return root_id_; }
+  void AddLayoutChangedNode(const std::shared_ptr<DomNode>& node);
 
  protected:
   void OnDomNodeCreated(const std::shared_ptr<DomNode>& node);
@@ -68,6 +69,7 @@ class DomManager {
 
   using DomOperation = std::function<void(void)>;
   std::vector<DomOperation> batch_operations_;
+  std::vector<std::shared_ptr<DomNode>> layout_changed_nodes_;
 };
 
 }  // namespace dom

@@ -604,7 +604,7 @@ void UIManagerModule::DeleteNodes(const hippy::napi::CallbackInfo &info) {
                                                   std::get<2>(pid_tuple),
                                                   std::get<2>(index_tuple)));
   }
-  scope->GetDomManager()->DeleteDomNodes(dom_nodes);
+  scope->GetDomManager()->DeleteDomNodes(std::move(dom_nodes));
 }
 
 void UIManagerModule::StartBatch(const hippy::napi::CallbackInfo &info) {

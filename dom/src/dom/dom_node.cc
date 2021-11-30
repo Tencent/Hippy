@@ -66,7 +66,7 @@ std::shared_ptr<DomNode> DomNode::RemoveChildAt(int32_t index) {
 void DomNode::DoLayout() {
   std::shared_ptr<TaitankLayoutNode> node = std::static_pointer_cast<TaitankLayoutNode>(node_);
   node->CalculateLayout(0, 0);
-  TransferLayoutOutputsRecursive(shared_from_this());
+  TransferLayoutOutputsRecursive();
 }
 
 void DomNode::SetSize(int32_t width, int32_t height) {
@@ -143,27 +143,35 @@ void DomNode::OnLayout(LayoutEvent event, LayoutResult result) {
 
 void DomNode::ParseLayoutStyleInfo() { node_->SetLayoutStyles(style_map_); }
 
-void DomNode::TransferLayoutOutputsRecursive(const std::shared_ptr<DomNode>& dom_node) {
+void DomNode::TransferLayoutOutputsRecursive() {
   std::shared_ptr<TaitankLayoutNode> node = std::static_pointer_cast<TaitankLayoutNode>(node_);
   if (!node->HasNewLayout()) {
     return;
   }
-  dom_node->layout_.left = node->GetLeft();
-  dom_node->layout_.top = node->GetTop();
-  dom_node->layout_.width = node->GetWidth();
-  dom_node->layout_.height = node->GetHeight();
-  dom_node->layout_.marginLeft = node->GetMargin(TaitankCssDirection::CSSLeft);
-  dom_node->layout_.marginTop = node->GetMargin(TaitankCssDirection::CSSTop);
-  dom_node->layout_.marginRight = node->GetMargin(TaitankCssDirection::CSSRight);
-  dom_node->layout_.marginBottom = node->GetMargin(TaitankCssDirection::CSSBottom);
-  dom_node->layout_.paddingLeft = node->GetPadding(TaitankCssDirection::CSSLeft);
-  dom_node->layout_.paddingTop = node->GetPadding(TaitankCssDirection::CSSTop);
-  dom_node->layout_.paddingRight = node->GetPadding(TaitankCssDirection::CSSRight);
-  dom_node->layout_.paddingBottom = node->GetPadding(TaitankCssDirection::CSSBottom);
+  bool changed = layout_.left != node->GetLeft() || layout_.top != node->GetTop() ||
+                 layout_.width != node->GetWidth() || layout_.height != node->GetHeight();
+  layout_.left = node->GetLeft();
+  layout_.top = node->GetTop();
+  layout_.width = node->GetWidth();
+  layout_.height = node->GetHeight();
+  layout_.marginLeft = node->GetMargin(TaitankCssDirection::CSSLeft);
+  layout_.marginTop = node->GetMargin(TaitankCssDirection::CSSTop);
+  layout_.marginRight = node->GetMargin(TaitankCssDirection::CSSRight);
+  layout_.marginBottom = node->GetMargin(TaitankCssDirection::CSSBottom);
+  layout_.paddingLeft = node->GetPadding(TaitankCssDirection::CSSLeft);
+  layout_.paddingTop = node->GetPadding(TaitankCssDirection::CSSTop);
+  layout_.paddingRight = node->GetPadding(TaitankCssDirection::CSSRight);
+  layout_.paddingBottom = node->GetPadding(TaitankCssDirection::CSSBottom);
   OnLayout(LayoutEvent::OnLayout, layout_);
   node->SetHasNewLayout(false);
+  if (changed) {
+    auto dom_manager = dom_manager_.lock();
+    if (dom_manager) {
+      dom_manager->AddLayoutChangedNode(shared_from_this());
+    }
+  }
   for (auto& it : children_) {
-    TransferLayoutOutputsRecursive(it);
+    it->TransferLayoutOutputsRecursive();
   }
 }
 

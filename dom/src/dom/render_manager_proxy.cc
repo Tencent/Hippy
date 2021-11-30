@@ -72,6 +72,16 @@ void RenderManagerProxy::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&
   }
 }
 
+void RenderManagerProxy::UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) {
+    std::vector<std::shared_ptr<DomNode>> nodes_to_update;
+    for (const auto& node : nodes) {
+        if (!node->IsJustLayout() && !node->IsVirtual() && node->GetRenderInfo().created) {
+            nodes_to_update.push_back(node);
+        }
+    }
+    render_manager_->UpdateLayout(std::move(nodes_to_update));
+}
+
 void RenderManagerProxy::MoveRenderNode(std::vector<int32_t>&& ids,
                                         int32_t pid,
                                         int32_t id) {
