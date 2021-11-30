@@ -627,7 +627,7 @@ void UIManagerModule::DeleteNode(const hippy::napi::CallbackInfo &info) {
       return;
     }
 
-    auto index_tuple = GetNodePid(context, node);
+    auto index_tuple = GetNodeIndex(context, node);
     if (!std::get<0>(index_tuple)) {
       info.GetExceptionValue()->Set(context, unicode_string_view(std::get<1>(index_tuple)));
       return;

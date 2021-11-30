@@ -32,16 +32,6 @@ DomNode::DomNode(int32_t id, int32_t pid, int32_t index)
 
 DomNode::~DomNode() = default;
 
-void DomNode::SetLayoutWidth(float width) {
-  TDF_BASE_CHECK(layout_node_);
-  layout_node_->SetWidth(width);
-}
-
-void DomNode::SetLayoutHeight(float height) {
-  TDF_BASE_CHECK(layout_node_);
-  layout_node_->SetHeight(height);
-}
-
 int32_t DomNode::IndexOf(const std::shared_ptr<DomNode>& child) {
   for (int i = 0; i < children_.size(); i++) {
     if (children_[i] == child) {
@@ -63,34 +53,29 @@ std::shared_ptr<DomNode> DomNode::GetChildAt(int32_t index) {
 void DomNode::AddChildAt(const std::shared_ptr<DomNode>& dom_node, int32_t index) {
   children_.insert(children_.begin() + index, dom_node);
   dom_node->SetParent(shared_from_this());
-  std::shared_ptr<TaitankLayoutNode> node = std::static_pointer_cast<TaitankLayoutNode>(layout_node_);
-  node->InsertChild(node, index);
+  std::shared_ptr<TaitankLayoutNode> node = std::static_pointer_cast<TaitankLayoutNode>(node_);
+  node_->InsertChild(dom_node->node_, index);
 }
 
 std::shared_ptr<DomNode> DomNode::RemoveChildAt(int32_t index) {
   auto child = children_[index];
   child->SetParent(nullptr);
   children_.erase(children_.begin() + index);
-  std::shared_ptr<TaitankLayoutNode> node = std::static_pointer_cast<TaitankLayoutNode>(layout_node_);
-  std::shared_ptr<TaitankLayoutNode> child_node = std::static_pointer_cast<TaitankLayoutNode>(child->layout_node_);
+  std::shared_ptr<TaitankLayoutNode> node = std::static_pointer_cast<TaitankLayoutNode>(node_);
+  std::shared_ptr<TaitankLayoutNode> child_node = std::static_pointer_cast<TaitankLayoutNode>(child->node_);
   node->RemoveChild(child_node);
   return child;
 }
 
 void DomNode::DoLayout() {
-  std::shared_ptr<TaitankLayoutNode> node = std::static_pointer_cast<TaitankLayoutNode>(layout_node_);
+  std::shared_ptr<TaitankLayoutNode> node = std::static_pointer_cast<TaitankLayoutNode>(node_);
   node->CalculateLayout(0, 0);
-  TransferLayoutOutputsRecursive();
+  TransferLayoutOutputsRecursive(shared_from_this());
 }
-
-std::tuple<int32_t, int32_t> DomNode::GetSize() {
-  return std::make_tuple(layout_node_->GetWidth(), layout_node_->GetHeight());
-}
-
 
 void DomNode::SetSize(int32_t width, int32_t height) {
-  layout_node_->SetWidth(width);
-  layout_node_->SetHeight(height);
+  node_->SetWidth(width);
+  node_->SetHeight(height);
 }
 
 int32_t DomNode::AddDomEventListener(DomEvent event, OnDomEventListener listener) {
@@ -160,37 +145,29 @@ void DomNode::OnLayout(LayoutEvent event, LayoutResult result) {
   }
 }
 
-void DomNode::ParseLayoutStyleInfo() { layout_node_->SetLayoutStyles(style_map_); }
+void DomNode::ParseLayoutStyleInfo() { node_->SetLayoutStyles(style_map_); }
 
-void DomNode::TransferLayoutOutputsRecursive() {
-  std::shared_ptr<TaitankLayoutNode> node = std::static_pointer_cast<TaitankLayoutNode>(layout_node_);
+void DomNode::TransferLayoutOutputsRecursive(const std::shared_ptr<DomNode>& dom_node) {
+  std::shared_ptr<TaitankLayoutNode> node = std::static_pointer_cast<TaitankLayoutNode>(node_);
   if (!node->HasNewLayout()) {
     return;
   }
-  bool changed = layout_.left != node->GetLeft() || layout_.top != node->GetTop() ||
-                 layout_.width != node->GetWidth() || layout_.height != node->GetHeight();
-  layout_.left = node->GetLeft();
-  layout_.top = node->GetTop();
-  layout_.width = node->GetWidth();
-  layout_.height = node->GetHeight();
-  layout_.marginLeft = node->GetMargin(TaitankCssDirection::CSSLeft);
-  layout_.marginTop = node->GetMargin(TaitankCssDirection::CSSTop);
-  layout_.marginRight = node->GetMargin(TaitankCssDirection::CSSRight);
-  layout_.marginBottom = node->GetMargin(TaitankCssDirection::CSSBottom);
-  layout_.paddingLeft = node->GetPadding(TaitankCssDirection::CSSLeft);
-  layout_.paddingTop = node->GetPadding(TaitankCssDirection::CSSTop);
-  layout_.paddingRight = node->GetPadding(TaitankCssDirection::CSSRight);
-  layout_.paddingBottom = node->GetPadding(TaitankCssDirection::CSSBottom);
+  dom_node->layout_.left = node->GetLeft();
+  dom_node->layout_.top = node->GetTop();
+  dom_node->layout_.width = node->GetWidth();
+  dom_node->layout_.height = node->GetHeight();
+  dom_node->layout_.marginLeft = node->GetMargin(TaitankCssDirection::CSSLeft);
+  dom_node->layout_.marginTop = node->GetMargin(TaitankCssDirection::CSSTop);
+  dom_node->layout_.marginRight = node->GetMargin(TaitankCssDirection::CSSRight);
+  dom_node->layout_.marginBottom = node->GetMargin(TaitankCssDirection::CSSBottom);
+  dom_node->layout_.paddingLeft = node->GetPadding(TaitankCssDirection::CSSLeft);
+  dom_node->layout_.paddingTop = node->GetPadding(TaitankCssDirection::CSSTop);
+  dom_node->layout_.paddingRight = node->GetPadding(TaitankCssDirection::CSSRight);
+  dom_node->layout_.paddingBottom = node->GetPadding(TaitankCssDirection::CSSBottom);
   OnLayout(LayoutEvent::OnLayout, layout_);
   node->SetHasNewLayout(false);
-  if (changed) {
-    auto dom_manager = dom_manager_.lock();
-    if (dom_manager) {
-      dom_manager->AddLayoutChangedNode(shared_from_this());
-    }
-  }
   for (auto& it : children_) {
-    it->TransferLayoutOutputsRecursive();
+    TransferLayoutOutputsRecursive(it);
   }
 }
 
@@ -286,13 +263,13 @@ int32_t DomNode::AddTouchEventListener(TouchEvent event, OnTouchEventListener li
   }
   (*touch_listeners)[id] = std::move(listener);
   std::weak_ptr<std::unordered_map<int32_t, OnTouchEventListener>> weak_listeners = touch_listeners;
-  auto function = [weak_listeners](TouchEvent event, TouchEventInfo info) {
+  auto function = [weak_listeners](TouchEventInfo info) {
     auto listeners = weak_listeners.lock();
     if (!listeners) {
       return;
     }
     for (const auto& func : *listeners) {
-      func.second(event, info);
+      func.second(info);
     }
   };
   auto dom_manager = dom_manager_.lock();
@@ -346,36 +323,6 @@ void DomNode::RemoveShowEventListener(ShowEvent event, int32_t listener_id) {
     auto dom_manager = dom_manager_.lock();
     if (show_listeners->empty() && dom_manager) {
       dom_manager->GetRenderManager()->RemoveShowEventListener(id_, event);
-    }
-  }
-}
-
-void DomNode::CallClick() {
-  if (!click_listeners->empty()) {
-    for (auto const& listener : (*click_listeners)) {
-      listener.second();
-    }
-  }
-}
-
-void DomNode::CallLongClick() {
-  if (!long_click_listeners->empty()) {
-    for (auto const& listener : (*long_click_listeners)) {
-      listener.second();
-    }
-  }
-}
-void DomNode::CallTouch(TouchEvent event, TouchEventInfo info) {
-  if (!touch_listeners->empty()) {
-    for (auto const& listener : (*touch_listeners)) {
-      listener.second(event, info);
-    }
-  }
-}
-void DomNode::CallOnShow(ShowEvent event) {
-  if (!show_listeners->empty()) {
-    for (auto const& listener : (*show_listeners)) {
-      listener.second(event);
     }
   }
 }
