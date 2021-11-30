@@ -51,7 +51,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   std::shared_ptr<DomNode> RemoveChildAt(int32_t index);
   void DoLayout();
   void ParseLayoutStyleInfo();
-  void TransferLayoutOutputsRecursive(const std::shared_ptr<DomNode>& dom_node);
+  void TransferLayoutOutputsRecursive();
   int32_t AddClickEventListener(OnClickEventListener listener);
   void RemoveClickEventListener(int32_t listener_id);
   int32_t AddLongClickEventListener(OnLongClickEventListener listener);
