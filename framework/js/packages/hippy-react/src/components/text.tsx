@@ -89,8 +89,8 @@ function forwardRef(
       }
     }
   }
-
-  nativeProps.text = ''; // Important: Text must recevie text props.
+  // Important: Text must receive text props.
+  nativeProps.text = '';
   if (typeof nativeProps.children === 'string') {
     nativeProps.text = unicodeToChar(nativeProps.children);
   } else if (typeof nativeProps.children === 'number') {
@@ -107,7 +107,7 @@ function forwardRef(
   }
 
   return (
-  // @ts-ignore
+    // @ts-ignore
     <p ref={ref} nativeName="Text" style={nativeStyle} {...nativeProps} />
   );
 }

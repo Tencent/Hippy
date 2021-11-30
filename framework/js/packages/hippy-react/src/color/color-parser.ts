@@ -18,8 +18,6 @@
  * limitations under the License.
  */
 
-/* eslint-disable no-bitwise */
-
 import {
   colors,
   Colors,

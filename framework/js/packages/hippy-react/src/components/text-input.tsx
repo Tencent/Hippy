@@ -19,7 +19,6 @@
  */
 
 /* eslint-disable no-underscore-dangle */
-/* eslint-disable react/destructuring-assignment */
 
 import React from 'react';
 import Style from '@localTypes/style';

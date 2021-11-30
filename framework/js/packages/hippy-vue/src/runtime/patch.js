@@ -18,8 +18,6 @@
  * limitations under the License.
  */
 
-/* eslint-disable import/prefer-default-export */
-
 import { createPatchFunction } from 'core/vdom/patch';
 import baseModules from 'core/vdom/modules/index';
 import platformModules from './modules/index';

@@ -18,11 +18,8 @@
  * limitations under the License.
  */
 
-/* eslint-disable import/prefer-default-export */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
-
-// TODO: Transition support.
 
 function toggle(el, value, vNode, originalDisplay) {
   if (value) {

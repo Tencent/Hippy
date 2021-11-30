@@ -242,7 +242,6 @@ class ElementNode extends ViewNode {
     return this.attributes[key];
   }
 
-  /* istanbul ignore next */
   setAttribute(key, value) {
     try {
       // detect expandable attrs for boolean values

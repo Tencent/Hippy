@@ -18,7 +18,6 @@
  * limitations under the License.
  */
 
-/* eslint-disable import/no-unresolved */
 import { getOptions } from 'loader-utils';
 import { GLOBAL_STYLE_NAME } from '@vue/runtime/constants';
 import parseCSS from './css-parser';

@@ -18,9 +18,6 @@
  * limitations under the License.
  */
 
-/* eslint-disable no-constant-condition */
-/* eslint-disable no-continue */
-
 import { Fiber } from 'react-reconciler';
 import '@localTypes/global';
 import ElementNode from '../dom/element-node';

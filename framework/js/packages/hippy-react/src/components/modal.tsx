@@ -184,11 +184,9 @@ class Modal extends React.Component<ModalProps, {}> {
     if (visible === false) {
       return null;
     }
-
     const containerStyles = {
       backgroundColor: transparent ? 'transparent' : 'white',
     };
-
     if (!animationType) {
       // manually setting default prop here to keep support for the deprecated 'animated' prop
       animationType = 'none';
@@ -202,6 +200,7 @@ class Modal extends React.Component<ModalProps, {}> {
         nativeName="Modal"
         animationType={animationType}
         transparent={transparent}
+        // @ts-ignore
         style={styles.modal}
         {...this.props}
       >

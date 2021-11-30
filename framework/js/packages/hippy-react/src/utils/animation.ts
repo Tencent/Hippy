@@ -18,8 +18,6 @@
  * limitations under the License.
  */
 
-/* eslint-disable import/prefer-default-export */
-
 function repeatCountDict(repeatCount: number | 'loop') {
   if (repeatCount === 'loop') {
     return -1;
