@@ -18,8 +18,6 @@
  * limitations under the License.
  */
 
-/* eslint-disable import/prefer-default-export */
-
 import { getBeforeLoadStyle } from '../../../util';
 import parseSelector from './parser';
 import {
@@ -113,8 +111,7 @@ function fromAstNodes(astRules = []) {
       .filter(isDeclaration)
       .map(createDeclaration(beforeLoadStyle));
     const selectors = rule.selectors.map(createSelector);
-    const ruleSet = new RuleSet(selectors, declarations);
-    return ruleSet;
+    return new RuleSet(selectors, declarations);
   });
 }
 

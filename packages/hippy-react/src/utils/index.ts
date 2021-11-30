@@ -18,8 +18,6 @@
  * limitations under the License.
  */
 
-/* eslint-disable import/prefer-default-export */
-
 const IS_NUMBER_REG = new RegExp(/^\d+$/);
 let silent = false;
 let defaultBubbles = false;
@@ -32,7 +30,6 @@ function trace(...context: any[]) {
   if (process.env.NODE_ENV === 'production' || silent) {
     return;
   }
-  /* eslint-disable-next-line no-console */
   console.log(...context);
 }
 
@@ -44,7 +41,6 @@ function warn(...context: any[]) {
   if (process.env.NODE_ENV === 'production') {
     return;
   }
-  /* eslint-disable-next-line no-console */
   console.warn(...context);
 }
 

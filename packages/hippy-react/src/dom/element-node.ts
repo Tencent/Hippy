@@ -18,7 +18,6 @@
  * limitations under the License.
  */
 
-/* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 
 import Hippy from '@localTypes/hippy';
@@ -197,9 +196,9 @@ function parseBackgroundImage(styleKey: string, styleValue: string, style: any) 
 
 /**
  * parse text shadow offset
- * @param styleKey
- * @param styleValue
- * @param style
+ * @param {string} styleKey
+ * @param {number} styleValue
+ * @param {any} style
  */
 function parseTextShadowOffset(styleKey: string, styleValue: number, style: any) {
   const offsetMap: PropertiesMap = {
@@ -481,7 +480,7 @@ class ElementNode extends ViewNode {
 
       updateChild(this);
     } catch (e) {
-      // ignore
+      // noop
     }
   }
 

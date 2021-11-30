@@ -18,7 +18,6 @@
  * limitations under the License.
  */
 
-/* eslint-disable class-methods-use-this */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 

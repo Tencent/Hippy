@@ -18,8 +18,6 @@
  * limitations under the License.
  */
 
-/* eslint-disable import/prefer-default-export */
-
 /**
  * hippy-vue-css-loader will translate the CSS texts to be AST
  * and attached at global[GLOBAL_STYLE_NAME]

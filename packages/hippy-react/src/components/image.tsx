@@ -206,7 +206,7 @@ class Image extends React.Component<ImageProps, {}> {
   }
 
   private handleTintColor(
-    nativeStyle: { tintColor: number, tintColors: number[] },
+    nativeStyle: { tintColor?: number, tintColors?: number[] },
     tintColor: Color, tintColors: Color[],
   ) {
     if (tintColor) {
@@ -270,9 +270,8 @@ class Image extends React.Component<ImageProps, {}> {
     /**
      * tintColor(s)
      */
-    const nativeStyle = { ...style };
-    // @ts-ignore
-    this.handleTintColor(nativeStyle, tintColor, tintColors);
+    const nativeStyle = { ...style } as { tintColor?: number, tintColors?: number[] };
+    this.handleTintColor(nativeStyle, tintColor as Color, tintColors as Color[]);
     (nativeProps as ImageProps).style = nativeStyle;
 
     if (children) {

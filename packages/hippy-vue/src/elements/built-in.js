@@ -135,9 +135,7 @@ const button = {
   component: {
     ...div.component,
     name: NATIVE_COMPONENT_NAME_MAP[components.View],
-    defaultNativeStyle: {
-      // TODO: Fill border style.
-    },
+    defaultNativeStyle: {},
   },
 };
 
@@ -174,7 +172,6 @@ const img = {
       /**
        * For Android, will use src property
        * For iOS, will convert to use source property
-       * At line: hippy-vue/renderer/native/index.js line 196.
        */
       src(value) {
         return convertImageLocalPath(value);
