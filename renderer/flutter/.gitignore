@@ -1,0 +1,44 @@
+.DS_Store
+
+build/
+
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.atom/
+.buildlog/
+.history
+.svn/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+.vscode/
+
+#js
+**/package-lock.json
+
+# Flutter/Dart/Pub related
+**/doc/api/
+.dart_tool/
+.flutter-plugins
+.packages
+.pub-cache/
+.pub/
+/build/
+.flutter-plugins-dependencies
+pubspec.lock
+.github
+
+# iOS
+windows/RenderCorebuild/
+windows/RenderCorebin/
+cmake-build-debug/

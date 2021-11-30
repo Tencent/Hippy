@@ -39,9 +39,10 @@
 #include "core/napi/js_native_api_types.h"
 #include "core/napi/native_source_code.h"
 #include "core/scope.h"
-#include "jni/jni_env.h"
-#include "jni/jni_utils.h"
 #include "v8/v8.h"
+
+#define TO_LOCAL_UNCHECKED(maybe_local, CharType) \
+  maybe_local.FromMaybe(v8::Local<CharType>())
 
 namespace hippy {
 namespace napi {
