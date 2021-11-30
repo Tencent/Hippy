@@ -325,7 +325,7 @@ static unicode_string_view NSStringToU8(NSString* str) {
     std::shared_ptr<hippy::napi::HippyTurboModule> ho = [turboModule getTurboModule];
     //should be function!!!!!
     std::shared_ptr<hippy::napi::CtxValue> obj = self->_turboRuntime->CreateObject(ho);
-    std::shared_ptr<hippy::napi::JSCCtxValue> jscObj = std::dynamic_pointer_cast<hippy::napi::JSCCtxValue>(obj);
+    std::shared_ptr<hippy::napi::JSCCtxValue> jscObj = std::static_pointer_cast<hippy::napi::JSCCtxValue>(obj);
     return jscObj->value_;
 }
 

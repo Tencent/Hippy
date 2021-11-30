@@ -50,7 +50,7 @@ struct HostObjectProxy {
       JSValueRef* exception) {
         auto proxy = static_cast<HostObjectProxy*>(JSObjectGetPrivate(object));
         ObjcTurboEnv& turboEnv = proxy->turboEnv;
-        std::shared_ptr<JSCCtx> context = std::dynamic_pointer_cast<JSCCtx>(turboEnv.context_);
+        std::shared_ptr<JSCCtx> context = std::static_pointer_cast<JSCCtx>(turboEnv.context_);
         auto props = context->CreateString(JsStrToUTF8(propName).c_str());
           
         auto ret = proxy->hostObject->Get(turboEnv, props);
@@ -66,7 +66,7 @@ struct HostObjectProxy {
       JSValueRef* exception) {
         auto proxy = static_cast<HostObjectProxy*>(JSObjectGetPrivate(object));
         auto turboEnv = proxy->turboEnv;
-        std::shared_ptr<JSCCtx> context = std::dynamic_pointer_cast<JSCCtx>(turboEnv.context_);
+        std::shared_ptr<JSCCtx> context = std::static_pointer_cast<JSCCtx>(turboEnv.context_);
         auto props = context->CreateString(JsStrToUTF8(propName).c_str());
           
         auto jscValue = std::make_shared<JSCCtxValue>(context->context_, value);
@@ -83,7 +83,7 @@ struct HostObjectProxy {
         
         auto names = proxy->hostObject->GetPropertyNames(turboEnv);
         for (auto& name : names) {
-            std::shared_ptr<JSCCtxValue> jscValue = std::dynamic_pointer_cast<JSCCtxValue>(name);
+            std::shared_ptr<JSCCtxValue> jscValue = std::static_pointer_cast<JSCCtxValue>(name);
             JSStringRef stringRef = JSValueToStringCopy(ctx, jscValue->value_, nullptr);
             JSPropertyNameAccumulatorAddName(propertyNames, stringRef);
         }
@@ -177,7 +177,7 @@ struct HostFunctionProxy {
 
         auto proxy = static_cast<HostFunctionProxy*>(JSObjectGetPrivate(function));
         ObjcTurboEnv &turboEnv = proxy->turboEnv;
-        std::shared_ptr<JSCCtx> context = std::dynamic_pointer_cast<JSCCtx>(turboEnv.context_);
+        std::shared_ptr<JSCCtx> context = std::static_pointer_cast<JSCCtx>(turboEnv.context_);
 
         const unsigned maxStackArgCount = 8;
         std::shared_ptr<CtxValue> *args;
@@ -215,7 +215,7 @@ std::shared_ptr<CtxValue> ObjcTurboEnv::CreateObject(const std::shared_ptr<HostO
         hostObjectClass = JSClassCreate(&hostObjectClassDef);
     });
 
-    std::shared_ptr<JSCCtx> context = std::dynamic_pointer_cast<JSCCtx>(context_);
+    std::shared_ptr<JSCCtx> context = std::static_pointer_cast<JSCCtx>(context_);
     JSObjectRef obj = JSObjectMake(context->context_, hostObjectClass, new HostObjectProxy(*this, hostObject));
 
     auto jscValue = std::make_shared<JSCCtxValue>(context->context_, obj);
@@ -240,7 +240,7 @@ std::shared_ptr<CtxValue> ObjcTurboEnv::CreateFunction( const std::shared_ptr<Ct
     auto jscName = std::static_pointer_cast<JSCCtxValue>(name);
     JSStringRef nameRef = (JSStringRef)(jscName->value_);
 
-    std::shared_ptr<JSCCtx> context = std::dynamic_pointer_cast<JSCCtx>(context_);
+    std::shared_ptr<JSCCtx> context = std::static_pointer_cast<JSCCtx>(context_);
     JSObjectRef funcRef = JSObjectMake(context->context_, hostFunctionClass, new HostFunctionProxy(*this, func, paramCount, nameRef));
 
     auto jscValue = std::make_shared<JSCCtxValue>(context->context_, funcRef);
