@@ -212,7 +212,6 @@ class Navigator extends React.Component<NavigatorProps, {}> {
         hippy.regist();
         this.routeList[route.routeName] = true;
       }
-
       // eslint-disable-next-line no-param-reassign
       delete route.component;
     }

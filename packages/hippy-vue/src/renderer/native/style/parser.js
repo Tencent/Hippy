@@ -18,9 +18,6 @@
  * limitations under the License.
  */
 
-/* eslint-disable consistent-return */
-/* eslint-disable import/no-mutable-exports */
-/* eslint-disable no-else-return */
 /* eslint-disable no-param-reassign */
 
 // Check the Regexp is support sticky flag.
@@ -213,9 +210,8 @@ function parseSelector(text, start) {
       if (!simpleSelectorSequence) {
         if (expectSimpleSelector) {
           return null;
-        } else {
-          break;
         }
+        break;
       }
       ({ end } = simpleSelectorSequence);
       if (combinator) {

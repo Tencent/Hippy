@@ -18,7 +18,6 @@
  * limitations under the License.
  */
 
-/* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 
 import Hippy from '@localTypes/hippy';
@@ -127,7 +126,6 @@ function endBatch(rootViewId: number) {
  * Translate to native props from attributes and meta
  */
 function getNativeProps(node: Element) {
-  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   const { children, ...otherProps } = node.attributes;
   return otherProps;
 }
@@ -226,7 +224,6 @@ function isLayout(node: ViewNode) {
   return node instanceof container.containerInfo.constructor;
 }
 
-/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 function insertChild(parentNode: ViewNode, childNode: ViewNode, atIndex = -1) {
   if (!parentNode || !childNode) {
     return;

@@ -18,7 +18,6 @@
  * limitations under the License.
  */
 
-/* eslint-disable no-bitwise */
 /* eslint-disable no-mixed-operators */
 
 const names = {
