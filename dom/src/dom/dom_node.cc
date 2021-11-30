@@ -267,13 +267,13 @@ int32_t DomNode::AddTouchEventListener(TouchEvent event, OnTouchEventListener li
   }
   (*touch_listeners)[id] = std::move(listener);
   std::weak_ptr<std::unordered_map<int32_t, OnTouchEventListener>> weak_listeners = touch_listeners;
-  auto function = [weak_listeners](TouchEventInfo info) {
+  auto function = [weak_listeners](TouchEvent event, TouchEventInfo info) {
     auto listeners = weak_listeners.lock();
     if (!listeners) {
       return;
     }
     for (const auto& func : *listeners) {
-      func.second(info);
+      func.second(event, info);
     }
   };
   auto dom_manager = dom_manager_.lock();
@@ -327,6 +327,36 @@ void DomNode::RemoveShowEventListener(ShowEvent event, int32_t listener_id) {
     auto dom_manager = dom_manager_.lock();
     if (show_listeners->empty() && dom_manager) {
       dom_manager->GetRenderManager()->RemoveShowEventListener(id_, event);
+    }
+  }
+}
+
+void DomNode::CallClick() {
+  if (!click_listeners->empty()) {
+    for (auto const& listener : (*click_listeners)) {
+      listener.second();
+    }
+  }
+}
+
+void DomNode::CallLongClick() {
+  if (!long_click_listeners->empty()) {
+    for (auto const& listener : (*long_click_listeners)) {
+      listener.second();
+    }
+  }
+}
+void DomNode::CallTouch(TouchEvent event, TouchEventInfo info) {
+  if (!touch_listeners->empty()) {
+    for (auto const& listener : (*touch_listeners)) {
+      listener.second(event, info);
+    }
+  }
+}
+void DomNode::CallOnShow(ShowEvent event) {
+  if (!show_listeners->empty()) {
+    for (auto const& listener : (*show_listeners)) {
+      listener.second(event);
     }
   }
 }
