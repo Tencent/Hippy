@@ -70,6 +70,15 @@ class _BridgeFFIManager {
   late RunNativeRunnableFfiDartType runNativeRunnable;
   late GetCrashMessageFfiType getCrashMessage;
 
+  // 消费native dom传入的renderOp队列
+  late ConsumeRenderOpFfiDartType consumeRenderOp;
+
+  // 更新节点宽高
+  late UpdateNodeSizeFfiDartType updateNodeSize;
+
+  // 初始化native dom
+  late InitDomFfiDartType initDom;
+
   // 销毁
   late DestroyFfiDartType destroy;
 
@@ -116,6 +125,9 @@ class _BridgeFFIManager {
     runScriptFromFile = _library.lookupFunction<RunScriptFromFileFfiNativeType,
         RunScriptFromFileFfiDartType>("RunScriptFromFileFFI");
 
+    initDom = _library
+        .lookupFunction<InitDomFfiNativeType, InitDomFfiDartType>('InitDomFFI');
+
     runScriptFromAsset = _library.lookupFunction<
         RunScriptFromAssetsFfiNativeType,
         RunScriptFromAssetsFfiDartType>("RunScriptFromAssetsFFI");
@@ -129,6 +141,13 @@ class _BridgeFFIManager {
     getCrashMessage =
         _library.lookupFunction<GetCrashMessageFfiType, GetCrashMessageFfiType>(
             "GetCrashMessageFFI");
+
+    consumeRenderOp =
+        _library.lookupFunction<ConsumeRenderOpFfiNativeType, ConsumeRenderOpFfiDartType>(
+            'ConsumeRenderOpQueue');
+
+    updateNodeSize =  _library.lookupFunction<UpdateNodeSizeFfiNativeType, UpdateNodeSizeFfiDartType>(
+        'UpdateNodeSize');
 
     destroy = _library
         .lookupFunction<DestroyFfiNativeType, DestroyFfiDartType>("DestroyFFI");
@@ -177,7 +196,7 @@ class VoltronApi {
       bool bridgeParamJson,
       bool isDevModule,
       int groupId,
-      int rootId,
+      int engineId,
       CommonCallback callback) async {
     var globalConfigPtr = globalConfig.toNativeUtf16();
     globalConfig.toNativeUtf16();
@@ -187,7 +206,7 @@ class VoltronApi {
         bridgeParamJson ? 1 : 0,
         isDevModule ? 1 : 0,
         groupId,
-        rootId, generateCallback((value) {
+        engineId, generateCallback((value) {
       callback(value);
     }));
     free(globalConfigPtr);
@@ -195,7 +214,7 @@ class VoltronApi {
   }
 
   static Future<bool> runScriptFromFile(
-      int rootId,
+      int engineId,
       String filePath,
       String scriptName,
       String codeCacheDir,
@@ -205,7 +224,7 @@ class VoltronApi {
     var scriptNamePtr = scriptName.toNativeUtf16();
     var codeCacheDirPtr = codeCacheDir.toNativeUtf16();
     var result = _BridgeFFIManager.instance.runScriptFromFile(
-        rootId,
+        engineId,
         filePathPtr,
         scriptNamePtr,
         codeCacheDirPtr,
@@ -218,8 +237,28 @@ class VoltronApi {
     return result == 1;
   }
 
+  static Future consumeRenderOpQueue(int engineId) async {
+    var stopwatch = Stopwatch();
+
+    stopwatch.start();
+    _BridgeFFIManager.instance.consumeRenderOp(engineId);
+    stopwatch.stop();
+    LogUtils.profile("consume render op cost", stopwatch.elapsedMilliseconds);
+  }
+
+  static Future updateNodeSize(
+      int engineId, int rootId, int nodeId, double width, double height) async {
+    var stopwatch = Stopwatch();
+
+    stopwatch.start();
+    _BridgeFFIManager.instance
+        .updateNodeSize(engineId, rootId, nodeId, width, height);
+    stopwatch.stop();
+    LogUtils.profile("update node size cost", stopwatch.elapsedMilliseconds);
+  }
+
   static Future<dynamic> runScriptFromAssetWithData(
-      int rootId,
+      int engineId,
       String assetName,
       String codeCacheDir,
       bool canUseCodeCache,
@@ -240,7 +279,7 @@ class VoltronApi {
     stopwatch.reset();
     stopwatch.start();
     _BridgeFFIManager.instance.runScriptFromAsset(
-        rootId,
+        engineId,
         assetNamePtr,
         codeCacheDirPtr,
         canUseCodeCache ? 1 : 0,
@@ -254,7 +293,7 @@ class VoltronApi {
   }
 
   static Future<dynamic> runScriptFromAsset(
-      int rootId,
+      int engineId,
       String assetName,
       String codeCacheDir,
       bool canUseCodeCache,
@@ -271,7 +310,7 @@ class VoltronApi {
     LogUtils.profile("loadBundleFromAsset", stopwatch.elapsedMilliseconds);
 
     if (assetData != null) {
-      runScriptFromAssetWithData(rootId, assetName, codeCacheDir,
+      runScriptFromAssetWithData(engineId, assetName, codeCacheDir,
           canUseCodeCache, assetData, callback);
     }
   }
@@ -282,15 +321,19 @@ class VoltronApi {
     return result.toNativeUtf16();
   }
 
-  static Future<dynamic> callFunction(
-      int rootId, String action, String params, CommonCallback callback) async {
+  static Future initDom(int engineId, int rootId) async {
+    _BridgeFFIManager.instance.initDom(engineId, rootId);
+  }
+
+  static Future<dynamic> callFunction(int engineId, String action,
+      String params, CommonCallback callback) async {
     var stopwatch = Stopwatch();
     stopwatch.start();
     var actionPtr = action.toNativeUtf16();
     var paramsPtr = params.toNativeUtf16();
     stopwatch.stop();
     LogUtils.profile("callFunction", stopwatch.elapsedMilliseconds);
-    _BridgeFFIManager.instance.callFunction(rootId, actionPtr, paramsPtr,
+    _BridgeFFIManager.instance.callFunction(engineId, actionPtr, paramsPtr,
         generateCallback((value) {
       stopwatch.stop();
       LogUtils.profile("callFunction", stopwatch.elapsedMilliseconds);
@@ -300,11 +343,12 @@ class VoltronApi {
     free(paramsPtr);
   }
 
-  static Future<dynamic> runNativeRunnable(int rootId, String codeCachePath,
-      int runnableId, CommonCallback callback) async {
+  static Future<dynamic> runNativeRunnable(int engineId, int rootId,
+      String codeCachePath, int runnableId, CommonCallback callback) async {
     var codeCachePathPtr = codeCachePath.toNativeUtf16();
-    _BridgeFFIManager.instance.runNativeRunnable(
-        rootId, codeCachePathPtr, runnableId, generateCallback((value) {
+    _BridgeFFIManager.instance
+        .runNativeRunnable(engineId, rootId, codeCachePathPtr, runnableId,
+            generateCallback((value) {
       callback(value);
     }));
     free(codeCachePathPtr);
@@ -316,8 +360,8 @@ class VoltronApi {
   }
 
   static Future<dynamic> destroy(
-      int rootId, bool singleThreadMode, CommonCallback callback) async {
-    _BridgeFFIManager.instance.destroy(rootId, singleThreadMode ? 1 : 0,
+      int engineId, bool singleThreadMode, CommonCallback callback) async {
+    _BridgeFFIManager.instance.destroy(engineId, singleThreadMode ? 1 : 0,
         generateCallback((value) {
       callback(value);
     }));
@@ -409,6 +453,7 @@ void requestExecuteCallback(dynamic message) {
 }
 
 void callNative(
+    int engineId,
     int rootId,
     Pointer<Utf16> moduleNamePtr,
     Pointer<Utf16> moduleFuncPtr,
@@ -422,23 +467,23 @@ void callNative(
   var callId = callIdPtr.toDartString();
   var dataList = paramsDataPtr.cast<Uint8>().asTypedList(paramsLen);
 
-  final bridge = VoltronBridgeManager.bridgeMap[rootId];
+  final bridge = VoltronBridgeManager.bridgeMap[engineId];
   if (bridge != null) {
     bridge.callNatives(
         moduleName, moduleFunc, callId, dataList, bridgeParamJson);
   }
 }
 
-void postCodeCacheRunnable(int rootId, Pointer<Utf8> codeCacheDirChar,
-    int runnableId, int needClearException) {
+void postCodeCacheRunnable(int engineId, int rootId,
+    Pointer<Utf8> codeCacheDirChar, int runnableId, int needClearException) {
   var codeCacheDir = codeCacheDirChar.toDartString();
-  final bridge = VoltronBridgeManager.bridgeMap[rootId];
+  final bridge = VoltronBridgeManager.bridgeMap[engineId];
   if (bridge != null) {
-    bridge.runCacheRunnable(codeCacheDir, runnableId);
+    bridge.runCacheRunnable(rootId, codeCacheDir, runnableId);
   }
 }
 
-void reportJsonException(int rootId, Pointer<Utf8> jsonValue) {
+void reportJsonException(int engineId, int rootId, Pointer<Utf8> jsonValue) {
   var exception = jsonValue.toDartString();
   LogUtils.e("Voltron_bridge",
       "reportJsonException\n !!!!!!!!!!!!!!!!!!! \n Error($exception)");
@@ -449,33 +494,33 @@ void reportJsonException(int rootId, Pointer<Utf8> jsonValue) {
   }
 }
 
-void reportJSException(
-    int rootId, Pointer<Utf16> descriptionStream, Pointer<Utf16> stackStream) {
+void reportJSException(int engineId, int rootId,
+    Pointer<Utf16> descriptionStream, Pointer<Utf16> stackStream) {
   var exception = descriptionStream.toDartString();
   var stackTrace = stackStream.toDartString();
   LogUtils.e("Voltron_bridge",
       "reportJsException\n !!!!!!!!!!!!!!!!!!! \n Error($exception)\n StackTrace($stackTrace)");
 
-  final bridge = VoltronBridgeManager.bridgeMap[rootId];
+  final bridge = VoltronBridgeManager.bridgeMap[engineId];
   if (bridge != null) {
     bridge.reportException(exception, stackTrace);
   }
 }
 
-void checkCodeCacheSanity(int rootId, Pointer<Utf8> scriptMd5) {
+void checkCodeCacheSanity(int engineId, int rootId, Pointer<Utf8> scriptMd5) {
   var filePath = scriptMd5.toDartString();
 
-  final bridge = VoltronBridgeManager.bridgeMap[rootId];
+  final bridge = VoltronBridgeManager.bridgeMap[engineId];
   if (bridge != null) {
     bridge.deleteCodeCache(filePath);
   }
 }
 
-void sendResponse(int rootId, Pointer<Uint16> source, int len) {
+void sendResponse(int engineId, int rootId, Pointer<Uint16> source, int len) {
   var bytes = source.asTypedList(len);
   var msg = utf8.decode(bytes);
 
-  final bridge = getCurrentBridge(rootId);
+  final bridge = getCurrentBridge(engineId);
   if (bridge != null) {
     bridge.sendWebSocketMessage(msg);
   }
@@ -489,27 +534,28 @@ VoltronBridgeManager? getCurrentBridge(int rootId) {
   return bridge;
 }
 
-void sendNotification(int rootId, Pointer<Uint16> source, int len) {
+void sendNotification(
+    int engineId, int rootId, Pointer<Uint16> source, int len) {
   var bytes = source.asTypedList(len);
   var msg = utf8.decode(bytes);
   print('sendNotification utf8: $msg');
 
-  final bridge = getCurrentBridge(rootId);
+  final bridge = getCurrentBridge(engineId);
   if (bridge != null) {
     bridge.sendWebSocketMessage(msg);
   }
 }
 
-void onDestroy(int rootId) {
+void onDestroy(int engineId, int rootId) {
   // empty
 }
 
-void postRenderOp(int rootId, Pointer<Void> data, int len) {
+void postRenderOp(int engineId, int rootId, Pointer<Void> data, int len) {
   var dataList = data.cast<Uint8>().asTypedList(len);
   if (dataList.isNotEmpty) {
     var renderOpList =
         StandardMessageCodec().decodeMessage(dataList.buffer.asByteData());
-    final bridge = VoltronBridgeManager.bridgeMap[rootId];
+    final bridge = VoltronBridgeManager.bridgeMap[engineId];
     if (bridge != null) {
       bridge.postRenderOp(renderOpList);
     }
@@ -545,7 +591,7 @@ class VoltronBridgeManager implements Destroyable {
   final List<String> _loadBundleInfo = [];
 
   late int _v8RuntimeId;
-  final int _rootId;
+  final int _engineId;
   IOWebSocketChannel? _webSocketChannel;
 
   ModuleListener? _loadModuleListener;
@@ -565,7 +611,7 @@ class VoltronBridgeManager implements Destroyable {
       : _context = context,
         _coreBundleLoader = coreBundleLoader,
         _groupId = groupId,
-        _rootId = id,
+        _engineId = id,
         _isDevModule = isDevModule,
         _enableVoltronBuffer = enableVoltronBuffer,
         _thirdPartyAdapter = thirdPartyAdapter,
@@ -618,7 +664,7 @@ class VoltronBridgeManager implements Destroyable {
           !_enableVoltronBuffer,
           _isDevModule,
           _groupId,
-          _rootId, (value) {
+          _engineId, (value) {
         var thirdPartyAdapter = _thirdPartyAdapter;
         if (thirdPartyAdapter != null) {
           thirdPartyAdapter.setVoltronBridgeId(value);
@@ -635,14 +681,14 @@ class VoltronBridgeManager implements Destroyable {
               error = StateError(
                   "load coreJsBundle failed,check your core jsBundle");
             } else {
-              bridgeMap[_rootId] = this;
+              bridgeMap[_engineId] = this;
             }
             callback(_isFrameWorkInit, error);
           });
         } else {
           _isFrameWorkInit = true;
           callback(_isFrameWorkInit, null);
-          bridgeMap[_rootId] = this;
+          bridgeMap[_engineId] = this;
         }
       });
       _sendDebugInfo({'v8RuntimeId': _v8RuntimeId});
@@ -711,6 +757,16 @@ class VoltronBridgeManager implements Destroyable {
     });
   }
 
+  Future initDom(int instanceId) async {
+    await VoltronApi.initDom(_engineId, instanceId);
+  }
+
+  Future updateNodeSize(int instanceId,
+      {int nodeId = 0, double width = 0, double height = 0}) async {
+    await VoltronApi.updateNodeSize(
+        _engineId, instanceId, nodeId, width, height);
+  }
+
   Future<dynamic> loadInstance(String name, int id, VoltronMap? params) async {
     if (!_isFrameWorkInit) {
       return;
@@ -736,7 +792,7 @@ class VoltronBridgeManager implements Destroyable {
           ?.startEvent(EngineMonitorEvent.moduleLoadEventRunBundle);
     }
 
-    await VoltronApi.callFunction(_v8RuntimeId, action, paramsJsonStr, (value) {
+    await VoltronApi.callFunction(_engineId, action, paramsJsonStr, (value) {
       var curRootView = _context.getInstance(id);
       if (curRootView != null && curRootView.timeMonitor != null) {
         curRootView.timeMonitor
@@ -747,20 +803,20 @@ class VoltronBridgeManager implements Destroyable {
 
   Future<dynamic> resumeInstance(int id) async {
     var action = "resumeInstance";
-    await callFunction(id, action);
+    await callJsFunction(id, action);
   }
 
   Future<dynamic> pauseInstance(int id) async {
     var action = "pauseInstance";
-    await callFunction(id, action);
+    await callJsFunction(id, action);
   }
 
   Future<dynamic> destroyInstance(int id) async {
     var action = "destroyInstance";
-    await callFunction(id, action);
+    await callJsFunction(id, action);
   }
 
-  Future<dynamic> callFunction(Object params, String action) async {
+  Future<dynamic> callJsFunction(Object params, String action) async {
     LogUtils.dBridge("call function ($action), params($params)");
 
     if (!_isFrameWorkInit) {
@@ -772,13 +828,21 @@ class VoltronBridgeManager implements Destroyable {
       return;
     }
 
-    await VoltronApi.callFunction(
-        _v8RuntimeId, action, paramsJsonStr, (value) {});
+    await VoltronApi.callFunction(_engineId, action, paramsJsonStr, (value) {});
   }
 
-  Future<dynamic> execCallback(Object params) async {
+  Future<dynamic> callNativeFunction(String callbackId, Map params) async {
+
+  }
+
+  Future<dynamic> execJsCallback(Object params) async {
     var action = "callBack";
-    await callFunction(params, action);
+    await callJsFunction(params, action);
+  }
+
+  Future<dynamic> execNativeCallback(String callbackId, Map params) async {
+    var action = "callBack";
+    await callNativeFunction(params, action);
   }
 
   void sendWebSocketMessage(dynamic msg) {
@@ -802,8 +866,12 @@ class VoltronBridgeManager implements Destroyable {
     _isBridgeInit = false;
     sBridgeNum--;
     _voltronBuffer.release();
-    bridgeMap.remove(_rootId);
-    await VoltronApi.destroy(_v8RuntimeId, _isSingleThread, (value) {});
+    bridgeMap.remove(_engineId);
+    await VoltronApi.destroy(_engineId, _isSingleThread, (value) {});
+  }
+
+  Future consumeRenderOp() async {
+    await VoltronApi.consumeRenderOpQueue(_engineId);
   }
 
   Future<dynamic> callJavaScriptModule(
@@ -817,7 +885,7 @@ class VoltronBridgeManager implements Destroyable {
     map.push("methodName", methodName);
     map.push("params", params);
     var action = "callJsModule";
-    await callFunction(map, action);
+    await callJsFunction(map, action);
   }
 
   String getGlobalConfigs() {
@@ -940,7 +1008,7 @@ class VoltronBridgeManager implements Destroyable {
   void postRenderOp(dynamic renderOp) {
     LogUtils.dBridge("call post render op ($renderOp)");
     if (_isBridgeInit) {
-      _context.moduleManager.consumeRenderOp(renderOp);
+      _context.moduleManager.consumeRenderOp(_engineId, renderOp);
     }
   }
 
@@ -978,7 +1046,8 @@ class VoltronBridgeManager implements Destroyable {
 
   void reportException(String exception, String stackTrace) {}
 
-  Future<dynamic> runCacheRunnable(String path, int nativeId) async {
+  Future<dynamic> runCacheRunnable(
+      int rootId, String path, int nativeId) async {
     if (isEmpty(path)) {
       return;
     }
@@ -990,7 +1059,7 @@ class VoltronBridgeManager implements Destroyable {
     var file = File(path);
     await file.create();
 
-    VoltronApi.runNativeRunnable(_v8RuntimeId, path, nativeId, (value) {});
+    VoltronApi.runNativeRunnable(_engineId, rootId, path, nativeId, (value) {});
   }
 
   Future<dynamic> deleteDirWithFile(Directory dir) async {

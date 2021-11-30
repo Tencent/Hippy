@@ -4,9 +4,9 @@ import '../adapter/monitor.dart';
 import '../adapter/third_party.dart';
 import '../common/destroy.dart';
 import '../dev/dev.dart';
-import '../dom/manager.dart';
 import '../module/module.dart';
 import '../render/manager.dart';
+import '../render/operator_runner.dart';
 import '../voltron/lifecycle.dart';
 import '../voltron/voltron_bridge.dart';
 import '../widget/root.dart';
@@ -17,6 +17,8 @@ import 'global_config.dart';
 class EngineContext implements Destroyable {
   // UI Manager
   late RenderManager _renderManager;
+
+  late RenderOperatorRunner _operatorRunner;
 
   final List<EngineLifecycleEventListener> _engineLifecycleEventListeners = [];
 
@@ -61,6 +63,8 @@ class EngineContext implements Destroyable {
 
   EngineMonitorAdapter get engineMonitor => _engineMonitor;
 
+  RenderOperatorRunner get opRunner => _operatorRunner;
+
   EngineContext(
       List<APIProvider>? apiProviders,
       VoltronBundleLoader? coreLoader,
@@ -85,6 +89,7 @@ class EngineContext implements Destroyable {
         bridgeType: bridgeType,
         isDevModule: isDevModule);
     _renderManager = RenderManager(this, apiProviders);
+    _operatorRunner = RenderOperatorRunner(this);
   }
 
   RootWidgetViewModel? getInstance(int id) {

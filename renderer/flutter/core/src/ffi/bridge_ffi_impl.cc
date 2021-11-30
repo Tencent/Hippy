@@ -20,35 +20,39 @@ extern "C" {
 
 using hippy::DomManager;
 using hippy::RenderManagerProxy;
+using voltron::BridgeManager;
 using voltron::FFIPlatformRuntime;
 using voltron::PlatformRuntime;
 using voltron::Sp;
 using voltron::VoltronRenderManager;
-using voltron::BridgeManager;
+
+EXTERN_C void InitDomFFI(int32_t engine_id, int32_t root_id) {
+  auto render_manager = std::make_shared<VoltronRenderManager>(engine_id);
+  auto proxy_render_manager = std::make_shared<RenderManagerProxy>(render_manager);
+  Sp<DomManager> dom_manager = std::make_shared<DomManager>(engine_id);
+  // todo bind render manager to dom manager
+  BridgeManager::GetBridgeManager(engine_id)->BindDomManager(root_id, dom_manager);
+  BridgeManager::GetBridgeManager(engine_id)->BindRenderManager(root_id, render_manager);
+}
 
 EXTERN_C int64_t InitJSFrameworkFFI(const char16_t* global_config, int32_t single_thread_mode,
-                                    int32_t bridge_param_json, int32_t is_dev_module, int64_t group_id, int32_t root_id,
-                                    int32_t callback_id) {
-  Sp<PlatformRuntime> ffi_runtime = std::make_shared<FFIPlatformRuntime>(root_id);
-  BridgeManager::GetBridgeManager(root_id)->BindRuntime(ffi_runtime);
-  auto render_manager = std::make_shared<VoltronRenderManager>(root_id);
-  auto proxy_render_manager = std::make_shared<RenderManagerProxy>(render_manager);
-  Sp<DomManager> dom_manager = DomManager(root_id);
-  // todo bind render manager to dom manager
-  BridgeManager::GetBridgeManager(root_id)->BindDomManager(dom_manager);
-  BridgeManager::GetBridgeManager(root_id)->BindRenderManager(render_manager);
+                                    int32_t bridge_param_json, int32_t is_dev_module, int64_t group_id,
+                                    int32_t engine_id, int32_t callback_id) {
+  Sp<PlatformRuntime> ffi_runtime = std::make_shared<FFIPlatformRuntime>(engine_id);
+  BridgeManager::GetBridgeManager(engine_id)->BindRuntime(ffi_runtime);
 
   auto result = InitJSFrameworkEx(ffi_runtime, global_config, single_thread_mode, bridge_param_json, is_dev_module,
                                   group_id, [callback_id](int64_t value) { CallGlobalCallback(callback_id, value); });
   if (result == 0) {
-    BridgeManager::Destroy(root_id);
+    BridgeManager::Destroy(engine_id);
   }
   return result;
 }
 
-EXTERN_C int32_t RunScriptFromFileFFI(int32_t root_id, const char16_t* file_path, const char16_t* script_name,
-                                      const char16_t* code_cache_dir, int32_t can_use_code_cache, int32_t callback_id) {
-  auto runtime = BridgeManager::GetBridgeManager(root_id)->GetRuntime().lock();
+EXTERN_C int32_t RunScriptFromFileFFI(int32_t engine_id, const char16_t* file_path,
+                                      const char16_t* script_name, const char16_t* code_cache_dir,
+                                      int32_t can_use_code_cache, int32_t callback_id) {
+  auto runtime = BridgeManager::GetBridgeManager(engine_id)->GetRuntime().lock();
   if (runtime) {
     auto runtime_id = runtime->GetRuntimeId();
     return RunScriptFromFileEx(runtime_id, file_path, script_name, code_cache_dir, can_use_code_cache,
@@ -57,10 +61,10 @@ EXTERN_C int32_t RunScriptFromFileFFI(int32_t root_id, const char16_t* file_path
   return 0;
 }
 
-EXTERN_C int32_t RunScriptFromAssetsFFI(int32_t root_id, const char16_t* asset_name, const char16_t* code_cache_dir,
-                                        int32_t can_use_code_cache, const char16_t* asset_str_char,
-                                        int32_t callback_id) {
-  auto runtime = BridgeManager::GetBridgeManager(root_id)->GetRuntime().lock();
+EXTERN_C int32_t RunScriptFromAssetsFFI(int32_t engine_id, const char16_t* asset_name,
+                                        const char16_t* code_cache_dir, int32_t can_use_code_cache,
+                                        const char16_t* asset_str_char, int32_t callback_id) {
+  auto runtime = BridgeManager::GetBridgeManager(engine_id)->GetRuntime().lock();
   bool result = false;
   if (runtime) {
     auto runtime_id = runtime->GetRuntimeId();
@@ -75,8 +79,9 @@ EXTERN_C int32_t RunScriptFromAssetsFFI(int32_t root_id, const char16_t* asset_n
   return result;
 }
 
-EXTERN_C void CallFunctionFFI(int32_t root_id, const char16_t* action, const char16_t* params, int32_t callback_id) {
-  auto runtime = BridgeManager::GetBridgeManager(root_id)->GetRuntime().lock();
+EXTERN_C void CallFunctionFFI(int32_t engine_id, const char16_t* action, const char16_t* params,
+                              int32_t callback_id) {
+  auto runtime = BridgeManager::GetBridgeManager(engine_id)->GetRuntime().lock();
   if (runtime) {
     auto runtime_id = runtime->GetRuntimeId();
     CallFunctionEx(runtime_id, action, params,
@@ -84,22 +89,45 @@ EXTERN_C void CallFunctionFFI(int32_t root_id, const char16_t* action, const cha
   }
 }
 
-EXTERN_C void ConsumeRenderOpQueue(int32_t root_id) {
-  auto render_manager = BridgeManager::GetBridgeManager(root_id)->GetRenderManager().lock();
-  if (render_manager && post_render_op_func) {
-    auto render_op_buffer = render_manager->Consume();
-    if (render_op_buffer) {
-      auto buffer_length = static_cast<int64_t>(render_op_buffer->size());
-      if (buffer_length > 0) {
-        auto ptr = reinterpret_cast<const void*>(render_op_buffer->data());
-        post_render_op_func(root_id, ptr, buffer_length);
+EXTERN_C void CallNativeFunctionFFI(int32_t engine_id, const char16_t* call_id,  const uint8_t* params, const int32_t&
+                                                                                                           params_len) {
+  auto bridge_manager = BridgeManager::GetBridgeManager(engine_id);
+  if (bridge_manager) {
+
+  }
+}
+
+EXTERN_C void ConsumeRenderOpQueue(int32_t engine_id) {
+  auto bridge_manager = BridgeManager::GetBridgeManager(engine_id);
+  if (bridge_manager) {
+    bridge_manager->VisitAllRenderManager([engine_id](const std::weak_ptr<VoltronRenderManager>& render_manager_ptr) {
+      auto render_manager = render_manager_ptr.lock();
+      if (render_manager && post_render_op_func) {
+        auto render_op_buffer = render_manager->Consume();
+        if (render_op_buffer) {
+          auto buffer_length = static_cast<int64_t>(render_op_buffer->size());
+          if (buffer_length > 0) {
+            auto ptr = reinterpret_cast<const void*>(render_op_buffer->data());
+            post_render_op_func(engine_id, render_manager->GetRootId(), ptr, buffer_length);
+          }
+        }
       }
+    });
+  }
+}
+
+EXTERN_C void UpdateNodeSize(int32_t engine_id, int32_t root_id, int32_t node_id, double width, double height) {
+  auto bridge_manager = BridgeManager::GetBridgeManager(engine_id);
+  if (bridge_manager) {
+    auto dom_manager = bridge_manager->GetDomManager(root_id);
+    if (dom_manager) {
+      dom_manager->SetRootSize(width, height);
     }
   }
 }
 
-EXTERN_C void RunNativeRunnableFFI(int32_t root_id, const char16_t* code_cache_path, int64_t runnable_id,
-                                   int32_t callback_id) {
+EXTERN_C void RunNativeRunnableFFI(int32_t engine_id, int32_t root_id, const char16_t* code_cache_path,
+                                   int64_t runnable_id, int32_t callback_id) {
   auto runtime = BridgeManager::GetBridgeManager(root_id)->GetRuntime().lock();
   if (runtime) {
     auto runtime_id = runtime->GetRuntimeId();
@@ -110,8 +138,8 @@ EXTERN_C void RunNativeRunnableFFI(int32_t root_id, const char16_t* code_cache_p
 
 EXTERN_C const char* GetCrashMessageFFI() { return GetCrashMessageEx(); }
 
-EXTERN_C void DestroyFFI(int32_t root_id, bool single_thread_mode, int32_t callback_id) {
-  auto runtime = voltron::BridgeManager::GetBridgeManager(root_id)->GetRuntime().lock();
+EXTERN_C void DestroyFFI(int32_t engine_id, bool single_thread_mode, int32_t callback_id) {
+  auto runtime = voltron::BridgeManager::GetBridgeManager(engine_id)->GetRuntime().lock();
   if (runtime) {
     auto runtime_id = runtime->GetRuntimeId();
     DestroyEx(runtime_id, single_thread_mode, [callback_id](int64_t value) { CallGlobalCallback(callback_id, value); });

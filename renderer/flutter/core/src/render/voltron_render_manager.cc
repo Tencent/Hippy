@@ -1,9 +1,9 @@
 #include "render/voltron_render_manager.h"
-#include "bridge/bridge_manager.h"
 
 namespace voltron {
 
-VoltronRenderManager::VoltronRenderManager(int32_t root_id) : root_id_(root_id) {}
+VoltronRenderManager::VoltronRenderManager(int32_t root_id, int32_t engine_id)
+    : VoltronRenderTaskRunner(engine_id), root_id_(root_id) {}
 
 VoltronRenderManager::~VoltronRenderManager() = default;
 

@@ -23,6 +23,22 @@ class VoltronMap {
     }
   }
 
+  VoltronMap.fromMap(Map? map) {
+    if (map == null) {
+      return;
+    }
+
+    for (final entry in map.entries) {
+      if (entry.value is Map) {
+        push(entry.key, VoltronMap.fromMap(entry.value as Map));
+      } else if (entry.value is List) {
+        push(entry.key, VoltronArray.fromList(entry.value as List));
+      } else {
+        push(entry.key, entry.value);
+      }
+    }
+  }
+
   @override
   String toString() => _data.toString();
 

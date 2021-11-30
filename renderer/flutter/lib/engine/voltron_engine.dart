@@ -294,6 +294,8 @@ class VoltronEngine implements OnSizeChangedListener, OnResumeAndPauseListener {
           instance);
       return;
     }
+    // 在通知创建dart侧的 renderManager之前，需要先初始化native的domManager
+    await engineContext.bridgeManager.initDom(instance.id);
     LogUtils.d(_tag, "in internalLoadInstance");
     for (var listener in engineContext.instanceLifecycleEventListener) {
       listener.onInstanceLoad(instance.id);
@@ -403,9 +405,9 @@ class VoltronEngine implements OnSizeChangedListener, OnResumeAndPauseListener {
 
   @override
   void onSizeChanged(int rootId, double width, double height, double oldWidth,
-      double oldHeight) {
-    // todo 更新size
-    // _engineContext?.domManager.updateNodeSize(rootId, width, height);
+      double oldHeight) async {
+    await _engineContext?.bridgeManager
+        .updateNodeSize(rootId, width: width, height: height);
   }
 
   void destroyEngine() {

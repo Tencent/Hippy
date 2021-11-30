@@ -17,4 +17,10 @@ constexpr const char* kPropsKey = "props";
 constexpr const char* kStylesKey = "styles";
 constexpr const char* kMoveIdListKey = "move_id";
 constexpr const char* kMovePidKey = "move_pid";
+
+constexpr const char* kCallUiFuncType = "call_ui";
+constexpr const char* kAddClickFuncType = "add_click";
+constexpr const char* kAddLongClickFuncType = "add_long_click";
+constexpr const char* kAddTouchFuncType = "add_touch";
+constexpr const char* kAddShowFuncType = "add_show";
 }  // namespace voltron

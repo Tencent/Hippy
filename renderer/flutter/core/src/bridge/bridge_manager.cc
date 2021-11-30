@@ -1,17 +1,11 @@
+#include <iterator>
+
 #include "bridge/bridge_manager.h"
 #include "dom/dom_manager.h"
 
 namespace voltron {
 
 static Map<int32_t, Sp<BridgeManager>> bridge_map_;
-
-void BridgeManager::BindRuntime(const voltron::Sp<PlatformRuntime>& runtime) {
-  runtime_ = std::weak_ptr<PlatformRuntime>(runtime);
-}
-
-void BridgeManager::BindRenderManager(const voltron::Sp<voltron::VoltronRenderManager>& render_manager) {
-  render_manager_ = std::weak_ptr<VoltronRenderManager>(render_manager);
-}
 
 std::shared_ptr<BridgeManager> BridgeManager::GetBridgeManager(int32_t root_id) {
   auto bridge_manager = bridge_map_[root_id];
@@ -26,19 +20,66 @@ std::shared_ptr<BridgeManager> BridgeManager::GetBridgeManager(int32_t root_id) 
 
 void BridgeManager::Destroy(int32_t root_id) { bridge_map_[root_id] = nullptr; }
 
-std::weak_ptr<PlatformRuntime> BridgeManager::GetRuntime() { return runtime_; }
-
-std::weak_ptr<VoltronRenderManager> BridgeManager::GetRenderManager() { return render_manager_; }
-
-Sp<DomManager> BridgeManager::GetDomManager() { return dom_manager_; }
-
-void BridgeManager::BindDomManager(const Sp<DomManager>& dom_manager) { dom_manager_ = dom_manager; }
-
 BridgeManager::~BridgeManager() {
-  dom_manager_ = nullptr;
-  DomManager::Destroy(root_id_);
+  dom_manager_map_.clear();
+  render_manager_map_.clear();
+  native_callback_map_.clear();
 }
 
-BridgeManager::BridgeManager(int32_t root_id) : root_id_(root_id) {}
+BridgeManager::BridgeManager(int32_t engine_id) : engine_id_(engine_id) {
+}
+
+std::weak_ptr<PlatformRuntime> BridgeManager::GetRuntime() { return runtime_; }
+
+std::weak_ptr<VoltronRenderManager> BridgeManager::GetRenderManager(int32_t root_id) {
+  return render_manager_map_[root_id];
+}
+
+Sp<DomManager> BridgeManager::GetDomManager(int32_t root_id) { return dom_manager_map_[root_id]; }
+
+void BridgeManager::BindDomManager(int32_t root_id, const Sp<DomManager>& dom_manager) {
+  dom_manager_map_[root_id] = dom_manager;
+}
+
+void BridgeManager::BindRuntime(const voltron::Sp<PlatformRuntime>& runtime) {
+  runtime_ = std::weak_ptr<PlatformRuntime>(runtime);
+}
+
+void BridgeManager::BindRenderManager(int32_t root_id,
+                                      const voltron::Sp<voltron::VoltronRenderManager>& render_manager) {
+  render_manager_map_[root_id] = std::weak_ptr<VoltronRenderManager>(render_manager);
+}
+
+void BridgeManager::VisitAllRenderManager(const VisitRenderCallback& callback) {
+  if (!render_manager_map_.empty()) {
+    auto end = render_manager_map_.rbegin();
+    auto begin = render_manager_map_.rend();
+    while (end != begin) {
+      auto render_manager = (*end.base()).second;
+      callback(render_manager);
+      end++;
+    }
+  }
+}
+
+String BridgeManager::AddNativeCallback(const String& tag, const NativeCallback& callback) {
+  auto callback_id = tag + std::to_string(++callback_id_increment_);
+  native_callback_map_[callback_id] = callback;
+  return callback_id;
+}
+
+void BridgeManager::RemoveNativeCallback(const String& callback_id) {
+  native_callback_map_.erase(callback_id);
+}
+
+void BridgeManager::CallNativeCallback(const String& callback_id, const std::any& params, bool keep) {
+  auto callback = native_callback_map_[callback_id];
+  if (callback) {
+    callback(params);
+    if (!keep) {
+      RemoveNativeCallback(callback_id);
+    }
+  }
+}
 
 }  // namespace voltron

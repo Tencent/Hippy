@@ -13,7 +13,7 @@ typedef InitJsFrameworkFfiNativeType = Int64 Function(
     Int32 bridgeParamJson,
     Int32 isDevModule,
     Int64 groupId,
-    Int32 rootId,
+    Int32 engineId,
     Int32 callbackId);
 typedef InitJsFrameworkFfiDartType = int Function(
     Pointer<Utf16> globalConfig,
@@ -21,18 +21,26 @@ typedef InitJsFrameworkFfiDartType = int Function(
     int bridgeParamJson,
     int isDevModule,
     int groupId,
-    int rootId,
+    int engineId,
     int callbackId);
 
+typedef InitDomFfiNativeType = Int64 Function(
+    Int32 engineId,
+    Int32 rootId);
+typedef InitDomFfiDartType = int Function(
+    int engineId,
+    int rootId);
+
+
 typedef RunScriptFromFileFfiNativeType = Int32 Function(
-    Int32 rootId,
+    Int32 engineId,
     Pointer<Utf16> filePath,
     Pointer<Utf16> scriptName,
     Pointer<Utf16> codeCacheDir,
     Int32 canUseCodeCache,
     Int32 callbackId);
 typedef RunScriptFromFileFfiDartType = int Function(
-    int rootId,
+    int engineId,
     Pointer<Utf16> filePath,
     Pointer<Utf16> scriptName,
     Pointer<Utf16> codeCacheDir,
@@ -40,36 +48,52 @@ typedef RunScriptFromFileFfiDartType = int Function(
     int callbackId);
 
 typedef RunScriptFromAssetsFfiNativeType = Int32 Function(
-    Int32 rootId,
+    Int32 engineId,
     Pointer<Utf16> assetName,
     Pointer<Utf16> codeCacheDir,
     Int32 canUseCodeCache,
     Pointer<Utf16> assetStr,
     Int32 callbackId);
 typedef RunScriptFromAssetsFfiDartType = int Function(
-    int rootId,
+    int engineId,
     Pointer<Utf16> assetName,
     Pointer<Utf16> codeCacheDir,
     int canUseCodeCache,
     Pointer<Utf16> assetStr,
     int callbackId);
 
-typedef CallFunctionFfiNativeType = Void Function(Int32 rootId,
+typedef CallFunctionFfiNativeType = Void Function(
+    Int32 engineId,
     Pointer<Utf16> action, Pointer<Utf16> params, Int32 callbackId);
-typedef CallFunctionFfiDartType = void Function(int rootId,
+typedef CallFunctionFfiDartType = void Function(
+    int engineId,
     Pointer<Utf16> action, Pointer<Utf16> params, int callbackId);
 
-typedef RunNativeRunnableFfiNativeType = Void Function(Int32 rootId,
+typedef RunNativeRunnableFfiNativeType = Void Function(
+    Int32 engineId,
+    Int32 rootId,
     Pointer<Utf16> codeCachePath, Int64 runnableId, Int32 callbackId);
-typedef RunNativeRunnableFfiDartType = void Function(int rootId,
+typedef RunNativeRunnableFfiDartType = void Function(
+    int engineId,
+    int rootId,
     Pointer<Utf16> codeCachePath, int runnableId, int callbackId);
+
+typedef ConsumeRenderOpFfiNativeType = Void Function(
+    Int32 engineId);
+typedef ConsumeRenderOpFfiDartType = void Function(
+    int engineId);
+
+typedef UpdateNodeSizeFfiNativeType = Void Function(
+    Int32 engineId, Int32 rootId, Int32 nodeId, Double width, Double height);
+typedef UpdateNodeSizeFfiDartType = void Function(
+    int engineId, int rootId, int nodeId, double width, double height);
 
 typedef GetCrashMessageFfiType = Pointer<Utf8> Function();
 
 typedef DestroyFfiNativeType = Void Function(
-    Int32 rootId, Int32 singleThreadMode, Int32 callbackId);
+    Int32 engineId, Int32 singleThreadMode, Int32 callbackId);
 typedef DestroyFfiDartType = void Function(
-    int rootId, int singleThreadMode, int callbackId);
+    int engineId, int singleThreadMode, int callbackId);
 
 typedef RegisterCallbackFfiNativeType = Int32 Function(
     Int32 type, Pointer<NativeFunction<GlobalCallbackNativeType>> func);
@@ -147,6 +171,7 @@ enum FuncType {
 }
 
 typedef CallNativeFfiNativeType = Void Function(
+    Int32 engineId,
     Int32 rootId,
     Pointer<Utf16> moduleName,
     Pointer<Utf16> moduleFunc,
@@ -155,28 +180,28 @@ typedef CallNativeFfiNativeType = Void Function(
     Uint32 paramsLen,
     Int32 bridgeParamJson);
 
-typedef PostCodeCacheRunnableNativeType = Void Function(Int32 rootId,
+typedef PostCodeCacheRunnableNativeType = Void Function(Int32 engineId, Int32 rootId,
     Pointer<Utf8> codeCacheDirChar, Int64 runnableId, Int32 needClearException);
 
-typedef ReportJsonExceptionNativeType = Void Function(
-    Int64 runtimeId, Pointer<Utf8> jsonValue);
+typedef ReportJsonExceptionNativeType = Void Function(Int32 engineId,
+    Int32 rootId, Pointer<Utf8> jsonValue);
 
-typedef ReportJsExceptionNativeType = Void Function(Int32 rootId,
+typedef ReportJsExceptionNativeType = Void Function(Int32 engineId, Int32 rootId,
     Pointer<Utf16> descriptionStream, Pointer<Utf16> stackStream);
 
 typedef CheckCodeCacheSanityNativeType = Void Function(
-    Int32 rootId, Pointer<Utf8> scriptMd5);
+    Int32 engineId, Int32 rootId, Pointer<Utf8> scriptMd5);
 
 typedef SendResponseNativeType = Void Function(
-    Int32 rootId, Pointer<Uint16> source, Int32 len);
+    Int32 engineId, Int32 rootId, Pointer<Uint16> source, Int32 len);
 
 typedef SendNotificationNativeType = Void Function(
-    Int32 rootId, Pointer<Uint16> source, Int32 len);
+    Int32 engineId, Int32 rootId, Pointer<Uint16> source, Int32 len);
 
-typedef DestroyFunctionNativeType = Void Function(Int32 rootId);
+typedef DestroyFunctionNativeType = Void Function(Int32 engineId, Int32 rootId);
 
 typedef PostRenderOpNativeType = Void Function(
-    Int32 rootId, Pointer<Void> paramsData, Int64 paramsLen);
+    Int32 engineId, Int32 rootId, Pointer<Void> paramsData, Int64 paramsLen);
 
 typedef LoggerFunctionNativeType = Void Function(
     Int32 level, Pointer<Utf8> print);
