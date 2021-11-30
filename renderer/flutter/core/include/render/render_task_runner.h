@@ -9,11 +9,12 @@ namespace voltron {
 using hippy::CallFunctionCallback;
 using hippy::DispatchFunctionCallback;
 using hippy::DomNode;
+using hippy::DomManager;
 using tdf::base::DomValue;
 
 class VoltronRenderTaskRunner {
  public:
-  VoltronRenderTaskRunner(int32_t engine_id);
+  explicit VoltronRenderTaskRunner(int32_t engine_id);
   virtual ~VoltronRenderTaskRunner();
   void RunCreateDomNode(const Sp<DomNode>& node);
   void RunDeleteDomNode(const Sp<DomNode>& node);
@@ -24,17 +25,15 @@ class VoltronRenderTaskRunner {
                        const std::unordered_map<std::string, std::shared_ptr<DomValue>>& param,
                        const DispatchFunctionCallback& cb);
   void RunAddEventListener(const int32_t& node_id, const String& event_name, const EncodableMap& params,
-                           const std::function<void(const int32_t&, const String&, const std::any& params)>& cb);
+                           const std::function<void(const std::any& params)>& cb);
+  void RunRemoveEventListener(const int32_t& node_id, const String& event_name, const EncodableMap& params);
   std::unique_ptr<std::vector<uint8_t>> ConsumeQueue();
+  Sp<DomNode> GetDomNode(int32_t root_id, int32_t node_id);
 
  private:
-  String GenEventCallKey(int32_t node_id, const String& event_name);
-  bool HasEventCall(int32_t node_id, const String& event_name, const String& call_id);
-
   EncodableValue EncodeDomValueMap(const SpMap<DomValue>& value_map);
   std::unique_ptr<EncodableValue> ParseDomValue(const DomValue& value);
   Sp<VoltronRenderQueue> queue_;
-  Map<String, List<String>> callback_id_map_;
 
   int32_t engine_id_;
 };

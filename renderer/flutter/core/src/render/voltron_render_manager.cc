@@ -1,4 +1,5 @@
 #include "render/voltron_render_manager.h"
+#include "render/const.h"
 
 namespace voltron {
 
@@ -31,12 +32,32 @@ void VoltronRenderManager::MoveRenderNode(std::vector<int32_t>&& ids, int32_t pi
 
 void VoltronRenderManager::Batch() { RunBatch(); }
 
-void VoltronRenderManager::RemoveTouchEventListener(int32_t id, TouchEvent event) {}
-void VoltronRenderManager::RemoveClickEventListener(int32_t id) {}
+void VoltronRenderManager::RemoveTouchEventListener(int32_t id, TouchEvent event) {
+  auto params = EncodableMap();
+  params[EncodableValue(kTouchTypeKey)] = EncodableValue(static_cast<int>(event));
+  RunRemoveEventListener(id, kRemoveTouchFuncType, params);
+}
+
+void VoltronRenderManager::RemoveClickEventListener(int32_t id) {
+  RunRemoveEventListener(id, kRemoveClickFuncType, EncodableMap());
+}
+
 void VoltronRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std::string& name,
                                         std::unordered_map<std::string, std::shared_ptr<DomValue>> param,
-                                        DispatchFunctionCallback cb) {}
-void VoltronRenderManager::SetClickEventListener(int32_t id, OnClickEventListener listener) {}
+                                        DispatchFunctionCallback cb) {
+  RunCallFunction(domNode, name, param, cb);
+}
+
+void VoltronRenderManager::SetClickEventListener(int32_t id, OnClickEventListener listener) {
+  RunAddEventListener(id, kAddClickFuncType, EncodableMap(),
+                      [id, this](const std::any& params) {
+                        auto node = GetDomNode(root_id_, id);
+                        if (node) {
+
+                        }
+                      });
+}
+
 void VoltronRenderManager::SetLongClickEventListener(int32_t id, OnLongClickEventListener listener) {}
 void VoltronRenderManager::RemoveLongClickEventListener(int32_t id) {}
 void VoltronRenderManager::SetTouchEventListener(int32_t id, TouchEvent event, OnTouchEventListener listener) {}

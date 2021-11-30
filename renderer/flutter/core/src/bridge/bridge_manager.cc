@@ -8,13 +8,13 @@ namespace voltron {
 static Map<int32_t, Sp<BridgeManager>> bridge_map_;
 
 std::shared_ptr<BridgeManager> BridgeManager::GetBridgeManager(int32_t root_id) {
-  auto bridge_manager = bridge_map_[root_id];
-  if (bridge_manager == nullptr) {
+  auto bridge_manager_iter = bridge_map_.find(root_id);
+  if (bridge_manager_iter == bridge_map_.end()) {
     auto new_bridge_manager = std::make_shared<BridgeManager>(root_id);
     bridge_map_[root_id] = new_bridge_manager;
     return new_bridge_manager;
   } else {
-    return bridge_manager;
+    return bridge_manager_iter->second;
   }
 }
 
@@ -32,10 +32,20 @@ BridgeManager::BridgeManager(int32_t engine_id) : engine_id_(engine_id) {
 std::weak_ptr<PlatformRuntime> BridgeManager::GetRuntime() { return runtime_; }
 
 std::weak_ptr<VoltronRenderManager> BridgeManager::GetRenderManager(int32_t root_id) {
-  return render_manager_map_[root_id];
+  auto render_manager = render_manager_map_.find(root_id);
+  if (render_manager != render_manager_map_.end()) {
+    return render_manager->second;
+  }
+  return {};
 }
 
-Sp<DomManager> BridgeManager::GetDomManager(int32_t root_id) { return dom_manager_map_[root_id]; }
+Sp<DomManager> BridgeManager::GetDomManager(int32_t root_id) {
+  auto dom_manager = dom_manager_map_.find(root_id);
+  if (dom_manager != dom_manager_map_.end()) {
+    return dom_manager->second;
+  }
+  return nullptr;
+}
 
 void BridgeManager::BindDomManager(int32_t root_id, const Sp<DomManager>& dom_manager) {
   dom_manager_map_[root_id] = dom_manager;
@@ -73,11 +83,14 @@ void BridgeManager::RemoveNativeCallback(const String& callback_id) {
 }
 
 void BridgeManager::CallNativeCallback(const String& callback_id, const std::any& params, bool keep) {
-  auto callback = native_callback_map_[callback_id];
-  if (callback) {
-    callback(params);
-    if (!keep) {
-      RemoveNativeCallback(callback_id);
+  auto native_callback_iter = native_callback_map_.find(callback_id);
+  if (native_callback_iter != native_callback_map_.end()) {
+    auto callback = native_callback_iter->second;
+    if (callback) {
+      callback(params);
+      if (!keep) {
+        RemoveNativeCallback(callback_id);
+      }
     }
   }
 }

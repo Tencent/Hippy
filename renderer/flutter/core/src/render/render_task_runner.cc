@@ -146,9 +146,9 @@ void VoltronRenderTaskRunner::RunCallFunction(const std::weak_ptr<DomNode>& dom_
   }
 }
 
-void VoltronRenderTaskRunner::RunAddEventListener(
-    const int32_t& node_id, const String& event_name, const EncodableMap& params,
-    const std::function<void(const int32_t&, const String&, const std::any& params)>& cb) {
+void VoltronRenderTaskRunner::RunAddEventListener(const int32_t& node_id, const String& event_name,
+                                                  const EncodableMap& params,
+                                                  const std::function<void(const std::any& params)>& cb) {
   auto bridge_manager = BridgeManager::GetBridgeManager(engine_id_);
   if (bridge_manager) {
     auto args_map = EncodableMap();
@@ -157,28 +157,38 @@ void VoltronRenderTaskRunner::RunAddEventListener(
     }
     args_map[EncodableValue(kFuncNameKey)] = event_name;
 
-    auto callback_id = bridge_manager->AddNativeCallback(event_name, [node_id, event_name, cb](const std::any& params) {
-      cb(node_id, event_name, params);
-    });
+    auto callback_id = bridge_manager->AddNativeCallback(event_name, [cb](const std::any& params) { cb(params); });
     args_map[EncodableValue(kFunIdKey)] = callback_id;
     auto args = std::make_unique<EncodableValue>(args_map);
     auto update_task = std::make_shared<RenderTask>(VoltronRenderOpType::ADD_EVENT, node_id, std::move(args));
     queue_->ProduceRenderOp(update_task);
-
   }
 }
 
-String VoltronRenderTaskRunner::GenEventCallKey(int32_t node_id, const String& event_name) {
-  return std::to_string(node_id) + event_name;
+void VoltronRenderTaskRunner::RunRemoveEventListener(const int32_t& node_id, const String& event_name,
+                                                     const EncodableMap& params) {
+  auto bridge_manager = BridgeManager::GetBridgeManager(engine_id_);
+  if (bridge_manager) {
+    auto args_map = EncodableMap();
+    args_map[EncodableValue(kFuncNameKey)] = event_name;
+    if (!params.empty()) {
+      args_map[EncodableValue(kFunParamsKey)] = params;
+    }
+    auto args = std::make_unique<EncodableValue>(args_map);
+    auto update_task = std::make_shared<RenderTask>(VoltronRenderOpType::REMOVE_EVENT, node_id, std::move(args));
+    queue_->ProduceRenderOp(update_task);
+  }
 }
 
-bool VoltronRenderTaskRunner::HasEventCall(int32_t node_id, const String& event_name, const String& call_id) {
-  auto key = GenEventCallKey(node_id, event_name);
-  auto call_id_list = callback_id_map_[key];
-//  if (!call_id_list.empty()) {
-//    return call_id_list.
-//  }
-  return false;
+Sp<DomNode> VoltronRenderTaskRunner::GetDomNode(int32_t root_id, int32_t node_id) {
+  auto bridge_manager = BridgeManager::GetBridgeManager(engine_id_);
+  if (bridge_manager) {
+    auto dom_manager = bridge_manager->GetDomManager(root_id);
+    if (dom_manager) {
+      return dom_manager->GetNode(node_id);
+    }
+  }
+  return nullptr;
 }
 
 }  // namespace voltron
