@@ -107,8 +107,8 @@ function getFiberNodeFromId(nodeId: number) {
  */
 function unCacheFiberNodeOnIdle(node: ElementNode | number) {
   requestIdleCallback((deadline: { timeRemaining: Function, didTimeout: boolean }) => {
-    // if idle time exist or invoked when timeout
-    if (deadline.timeRemaining() || deadline.didTimeout) {
+    // if idle time exists or callback invoked when timeout
+    if (deadline.timeRemaining() > 0 || deadline.didTimeout) {
       recursivelyUnCacheFiberNode(node);
     }
   }, { timeout: 50 }); // 50ms to avoid blocking user operation
