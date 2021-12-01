@@ -212,6 +212,7 @@ function parseCSS(css, options) {
     const rules = [];
     whitespace();
     comments(rules);
+    // eslint-disable-next-line no-cond-assign
     while (css.length && css.charAt(0) !== '}' && (node = atrule() || rule())) {
       if (node !== false) {
         rules.push(node);
@@ -248,7 +249,7 @@ function parseCSS(css, options) {
   function comments(rules = []) {
     let c;
     rules = rules || [];
-    while (c = comment()) {
+    while ((c = comment()) !== null) {
       if (c !== false) {
         rules.push(c);
       }
@@ -537,7 +538,7 @@ function parseCSS(css, options) {
     comments(decls);
     // declarations
     let decl;
-    while (decl = declaration()) {
+    while ((decl = declaration()) !== null) {
       if (decl !== false) {
         if (Array.isArray(decl)) {
           decls = decls.concat(decl);
@@ -558,7 +559,7 @@ function parseCSS(css, options) {
     let m;
     const vals = [];
     const pos = position();
-    while (m = match(/^((\d+\.\d+|\.\d+|\d+)%?|[a-z]+)\s*/)) {
+    while ((m = match(/^((\d+\.\d+|\.\d+|\d+)%?|[a-z]+)\s*/)) !== null) {
       vals.push(m[1]);
       match(/^,\s*/);
     }
@@ -591,7 +592,7 @@ function parseCSS(css, options) {
     if (!open()) return error('@keyframes missing \'{\'');
     let frame;
     let frames = comments();
-    while (frame = keyframe()) {
+    while ((frame = keyframe()) !== null) {
       frames.push(frame);
       frames = frames.concat(comments());
     }
@@ -704,7 +705,7 @@ function parseCSS(css, options) {
     let decls = comments();
     // declarations
     let decl;
-    while (decl = declaration()) {
+    while ((decl = declaration()) !== null) {
       decls.push(decl);
       decls = decls.concat(comments());
     }
@@ -759,7 +760,7 @@ function parseCSS(css, options) {
     let decls = comments();
     // declarations
     let decl;
-    while (decl = declaration()) {
+    while ((decl = declaration()) !== null) {
       decls.push(decl);
       decls = decls.concat(comments());
     }

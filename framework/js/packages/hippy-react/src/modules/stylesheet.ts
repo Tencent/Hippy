@@ -23,9 +23,9 @@ import { Device } from '../native';
 
 const ratio = Device.window.scale;
 /* eslint-disable-next-line import/no-mutable-exports */
-let hairlineWidth = Math.round(0.4 * ratio) / ratio;
-if (hairlineWidth === 0) {
-  hairlineWidth = 1 / ratio;
+let HAIRLINE_WIDTH = Math.round(0.4 * ratio) / ratio;
+if (HAIRLINE_WIDTH === 0) {
+  HAIRLINE_WIDTH = 1 / ratio;
 }
 
 interface StyleObj {
@@ -42,7 +42,8 @@ function create(styleObj: StyleObj): StyleObj {
   return styleObj;
 }
 
+
 export {
-  hairlineWidth,
+  HAIRLINE_WIDTH as hairlineWidth,
   create,
 };
