@@ -32,7 +32,7 @@ class NetworkModule extends VoltronNativeModule {
   NetworkModule(EngineContext context) : super(context);
 
   @VoltronMethod(fetchMethodName)
-  bool fetch(final VoltronMap request, final Promise promise) {
+  bool fetch(final VoltronMap request, final JSPromise promise) {
     var url = request.get<String>('url') ?? '';
     final method = request.get<String>("method") ?? '';
     if (isEmpty(url) || isEmpty(method)) {
@@ -132,7 +132,7 @@ class NetworkModule extends VoltronNativeModule {
   /// * @param expires 默认为空，过期时间，格式与http协议头response里的Set-Cookie相同，如：Thu, 08-Jan-2020 00:00:00 GMT
   /// *
   @VoltronMethod(setCookieMethodName)
-  bool setCookie(String url, String keyValue, String expires, Promise promise) {
+  bool setCookie(String url, String keyValue, String expires, JSPromise promise) {
     var cookies = <Cookie>[];
     var keyValueList = keyValue.split(';');
     for (var item in keyValueList) {
@@ -149,7 +149,7 @@ class NetworkModule extends VoltronNativeModule {
   }
 
   @VoltronMethod(getCookieMethodName)
-  bool getCookie(String url, Promise promise) {
+  bool getCookie(String url, JSPromise promise) {
     CookieManager.getInstance().getCookie(url).then((value) {
       var cookieList = value;
       var result = '';

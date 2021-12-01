@@ -11,14 +11,18 @@ constexpr const char* kParentNodeIdKey = "pid";
 constexpr const char* kChildIndexKey = "index";
 constexpr const char* kClassNameKey = "name";
 constexpr const char* kFuncNameKey = "func_name";
-constexpr const char* kFunParamsKey = "func_params";
-constexpr const char* kFunIdKey = "callback_id";
+constexpr const char* kFuncParamsKey = "func_params";
+constexpr const char* kFuncIdKey = "callback_id";
 constexpr const char* kPropsKey = "props";
 constexpr const char* kStylesKey = "styles";
 constexpr const char* kMoveIdListKey = "move_id";
 constexpr const char* kMovePidKey = "move_pid";
 
 constexpr const char* kTouchTypeKey = "touch_type";
+constexpr const char* kTouchX = "x";
+constexpr const char* kTouchY = "y";
+
+constexpr const char* kShowEventKey = "show";
 
 constexpr const char* kCallUiFuncType = "call_ui";
 constexpr const char* kAddClickFuncType = "add_click";

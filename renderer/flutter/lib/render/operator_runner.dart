@@ -157,6 +157,26 @@ class _BatchOpTask extends RenderOpTask {
   }
 }
 
+class _CallUiFunctionOpTask extends _NodeOpTask {
+  _CallUiFunctionOpTask(int instanceId, int nodeId, Map params)
+      : super(instanceId, nodeId, params);
+
+  @override
+  void _run() {
+    String funcName = _params[_RenderOpParamsKey.kFuncNameKey]??'';
+    if (funcName.isNotEmpty) {
+      Map funcParams = _params[_RenderOpParamsKey.kFuncParamsKey]??{};
+      String callbackId = _params[_RenderOpParamsKey.kFuncIdKey]??'';
+      if (callbackId.isNotEmpty) {
+        renderManager.addNulUITask(() {
+          renderManager.dispatchUIFunction(
+              _instanceId, _nodeId, movePid, _nodeId);
+        });
+      }
+    }
+  }
+}
+
 enum _RenderOpType {
   addNode,
   deleteNode,
@@ -164,6 +184,9 @@ enum _RenderOpType {
   updateNode,
   updateLayout,
   batch,
+  dispatchUiFunc,
+  addEvent,
+  removeEvent,
 }
 
 class _RenderOpParamsKey {
@@ -171,10 +194,26 @@ class _RenderOpParamsKey {
   static const String kChildIndexKey = "index";
   static const String kClassNameKey = "name";
   static const String kFuncNameKey = "func_name";
-  static const String kFunParamsKey = "func_params";
-  static const String kFunIdKey = "callback_id";
+  static const String kFuncParamsKey = "func_params";
+  static const String kFuncIdKey = "callback_id";
   static const String kPropsKey = "props";
   static const String kStylesKey = "styles";
   static const String kMoveIdListKey = "move_id";
   static const String kMovePidKey = "move_pid";
+
+  static const String kTouchTypeKey = "touch_type";
+  static const String kTouchX = "x";
+  static const String kTouchY = "y";
+
+  static const String kShowEventKey = "show";
+
+  static const String kCallUiFuncType = "call_ui";
+  static const String kAddClickFuncType = "add_click";
+  static const String kAddLongClickFuncType = "add_long_click";
+  static const String kAddTouchFuncType = "add_touch";
+  static const String kAddShowFuncType = "add_show";
+  static const String kRemoveClickFuncType = "remove_click";
+  static const String kRemoveLongClickFuncType = "remove_long_click";
+  static const String kRemoveTouchFuncType = "remove_touch";
+  static const String kRemoveShowFuncType = "remove_show";
 }

@@ -66,6 +66,9 @@ class _BridgeFFIManager {
   // 调用js方法
   late CallFunctionFfiDartType callFunction;
 
+  // 调用c++ dom相关方法
+  late CallNativeFunctionFfiDartType callNativeFunction;
+
   // 执行native的任务
   late RunNativeRunnableFfiDartType runNativeRunnable;
   late GetCrashMessageFfiType getCrashMessage;
@@ -135,6 +138,10 @@ class _BridgeFFIManager {
     callFunction = _library.lookupFunction<CallFunctionFfiNativeType,
         CallFunctionFfiDartType>("CallFunctionFFI");
 
+    callNativeFunction = _library.lookupFunction<
+        CallNativeFunctionFfiNativeType,
+        CallNativeFunctionFfiDartType>("CallNativeFunctionFFI");
+
     runNativeRunnable = _library.lookupFunction<RunNativeRunnableFfiNativeType,
         RunNativeRunnableFfiDartType>("RunNativeRunnableFFI");
 
@@ -142,12 +149,11 @@ class _BridgeFFIManager {
         _library.lookupFunction<GetCrashMessageFfiType, GetCrashMessageFfiType>(
             "GetCrashMessageFFI");
 
-    consumeRenderOp =
-        _library.lookupFunction<ConsumeRenderOpFfiNativeType, ConsumeRenderOpFfiDartType>(
-            'ConsumeRenderOpQueue');
+    consumeRenderOp = _library.lookupFunction<ConsumeRenderOpFfiNativeType,
+        ConsumeRenderOpFfiDartType>('ConsumeRenderOpQueue');
 
-    updateNodeSize =  _library.lookupFunction<UpdateNodeSizeFfiNativeType, UpdateNodeSizeFfiDartType>(
-        'UpdateNodeSize');
+    updateNodeSize = _library.lookupFunction<UpdateNodeSizeFfiNativeType,
+        UpdateNodeSizeFfiDartType>('UpdateNodeSize');
 
     destroy = _library
         .lookupFunction<DestroyFfiNativeType, DestroyFfiDartType>("DestroyFFI");
@@ -341,6 +347,31 @@ class VoltronApi {
     }));
     free(actionPtr);
     free(paramsPtr);
+  }
+
+  static Future<dynamic> callNativeFunction(
+      int engineId, String callId, Object params, bool keep) async {
+    var stopwatch = Stopwatch();
+    stopwatch.start();
+    var callIdU16 = callId.toNativeUtf16();
+    var encodeParamsByteData = StandardMessageCodec().encodeMessage(params);
+    if (encodeParamsByteData != null) {
+      var length = encodeParamsByteData.lengthInBytes;
+      final result = malloc<Uint8>(length);
+      final nativeParams = result.asTypedList(length);
+      nativeParams.setRange(
+          0, length, encodeParamsByteData.buffer.asUint8List());
+      _BridgeFFIManager.instance.callNativeFunction(
+          engineId, callIdU16, result, length, keep ? 1 : 0);
+      free(result);
+      stopwatch.stop();
+      LogUtils.profile("callNativeFunction", stopwatch.elapsedMilliseconds);
+    } else {
+      LogUtils.e(
+          'Voltron::Bridge', 'call native function error, invalid params');
+    }
+
+    free(callIdU16);
   }
 
   static Future<dynamic> runNativeRunnable(int engineId, int rootId,
@@ -831,7 +862,7 @@ class VoltronBridgeManager implements Destroyable {
     await VoltronApi.callFunction(_engineId, action, paramsJsonStr, (value) {});
   }
 
-  Future<dynamic> callNativeFunction(String callbackId, Map params) async {
+  Future<dynamic> callNativeFunction(String callbackId, Object params) async {
 
   }
 
@@ -840,9 +871,8 @@ class VoltronBridgeManager implements Destroyable {
     await callJsFunction(params, action);
   }
 
-  Future<dynamic> execNativeCallback(String callbackId, Map params) async {
-    var action = "callBack";
-    await callNativeFunction(params, action);
+  Future<dynamic> execNativeCallback(String callbackId, Object params) async {
+    await callNativeFunction(callbackId, params);
   }
 
   void sendWebSocketMessage(dynamic msg) {

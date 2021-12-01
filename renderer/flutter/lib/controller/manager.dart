@@ -203,12 +203,12 @@ class ControllerManager implements InstanceLifecycleEventListener {
   }
 
   void dispatchUIFunction(int instanceId, int id, String name,
-      String functionName, VoltronArray array, Promise promise) {
+      String functionName, VoltronArray params, Promise promise) {
     final node = findNode(instanceId, id);
     final controller = findController(name);
 
     if (node != null && controller != null) {
-      controller.dispatchFunction(node, functionName, array,
+      controller.dispatchFunction(node, functionName, params,
           promise: promise.isCallback() ? promise : null);
     }
   }

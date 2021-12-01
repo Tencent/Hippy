@@ -10,7 +10,7 @@ namespace voltron {
 
 using hippy::DomManager;
 using VisitRenderCallback = std::function<void(const std::weak_ptr<VoltronRenderManager>&)>;
-using NativeCallback = std::function<void(const std::any&)>;
+using NativeCallback = std::function<void(const EncodableValue&)>;
 
 class BridgeManager {
  public:
@@ -30,7 +30,7 @@ class BridgeManager {
 
   String AddNativeCallback(const String& tag, const NativeCallback& callback);
   void RemoveNativeCallback(const String& callback_id);
-  void CallNativeCallback(const String& callback_id, const std::any& params, bool keep);
+  void CallNativeCallback(const String& callback_id, std::unique_ptr<EncodableValue> params, bool keep);
  private:
   std::weak_ptr<PlatformRuntime> runtime_;
   std::map<int, std::weak_ptr<VoltronRenderManager>> render_manager_map_;

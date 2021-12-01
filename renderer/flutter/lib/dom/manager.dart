@@ -229,7 +229,7 @@ class DomManager {
   }
 
 
-  void measureInWindow(final int id, final Promise promise) {
+  void measureInWindow(final int id, final JSPromise promise) {
     var node = _nodeRegistry.getNode(id);
     if (node == null) {
       return;

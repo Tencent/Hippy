@@ -2,7 +2,7 @@ import '../common/voltron_map.dart';
 
 import '../engine/engine_context.dart';
 
-class _JSPromiseImpl extends Promise {
+class _JSPromiseImpl extends JSPromise {
   final String _moduleName;
   final String _moduleFunc;
 
@@ -19,12 +19,25 @@ class _JSPromiseImpl extends Promise {
     map.push("params", obj);
     _context.bridgeManager.execJsCallback(map);
   }
+
+}
+
+class _NativePromiseImpl extends Promise {
+  bool keep = true;
+
+  _NativePromiseImpl(EngineContext context, String callId)
+      : super(context, callId);
+
+  void resolve(Object? value) {
+    if (!isCallback()) {
+      return;
+    }
+
+    _context.bridgeManager.execNativeCallback(_callId, value ?? 'unknown');
+  }
 }
 
 abstract class Promise {
-  static const int promiseCodeSuccess = 0;
-  static const int promiseCodeNormanError = 1;
-  static const int promiseCodeOtherError = 2;
   static const String callIdNoCallback = "-1";
 
   final EngineContext _context;
@@ -36,17 +49,32 @@ abstract class Promise {
 
   Promise(this._context, this._callId);
 
-  factory Promise.js(EngineContext context,
+  factory Promise.native(EngineContext context,
+      {required String callId}) =>
+      _NativePromiseImpl(context, callId);
+
+  bool isCallback() => _callId != callIdNoCallback;
+
+  void resolve(Object? value);
+}
+
+abstract class JSPromise extends Promise {
+  static const int promiseCodeSuccess = 0;
+  static const int promiseCodeNormanError = 1;
+  static const int promiseCodeOtherError = 2;
+
+  JSPromise(EngineContext context, String callId): super(context, callId);
+
+  factory JSPromise.js(EngineContext context,
           {required String module,
           required String method,
           required String callId}) =>
       _JSPromiseImpl(context, module, method, callId);
 
-  bool isCallback() => _callId != callIdNoCallback;
-
   void resolve(Object? value) {
     _doCallback(promiseCodeSuccess, value);
   }
+
 
   void reject(Object error) {
     _doCallback(promiseCodeOtherError, error);
@@ -57,7 +85,7 @@ abstract class Promise {
   }
 
   void _doCallback(int code, Object? obj) {
-    if (callIdNoCallback == _callId) {
+    if (!isCallback()) {
       return;
     }
     call(code, obj);

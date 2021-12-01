@@ -13,25 +13,25 @@ class ConsoleModule extends VoltronNativeModule {
   ConsoleModule(EngineContext context) : super(context);
 
   @VoltronMethod(consoleLog)
-  bool log(String message, Promise promise) {
+  bool log(String message, JSPromise promise) {
     LogUtils.d("Voltron_console", message);
     return false;
   }
 
   @VoltronMethod(consoleWarn)
-  bool warn(String message, Promise promise) {
+  bool warn(String message, JSPromise promise) {
     LogUtils.w("Voltron_console", message);
     return false;
   }
 
   @VoltronMethod(consoleInfo)
-  bool info(String message, Promise promise) {
+  bool info(String message, JSPromise promise) {
     LogUtils.i("Voltron_console", message);
     return false;
   }
 
   @VoltronMethod(consoleError)
-  bool error(String message, Promise promise) {
+  bool error(String message, JSPromise promise) {
     LogUtils.e("Voltron_console", message);
     return false;
   }

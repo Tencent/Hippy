@@ -63,13 +63,13 @@ class ModuleManager implements Destroyable {
 
     final moduleInfo = _nativeModule[params._moduleName];
     if (moduleInfo == null) {
-      var promise = Promise.js(_context,
+      var promise = JSPromise.js(_context,
           module: params._moduleName,
           method: params._moduleFunc,
           callId: params._callId);
       // 这里跟hippy不一致，我们要主动暴露模块未找到的错误
       promise.error(
-          Promise.promiseCodeOtherError, "module can not be found");
+          JSPromise.promiseCodeOtherError, "module can not be found");
       return;
     }
 
@@ -84,7 +84,7 @@ class ModuleManager implements Destroyable {
 
   void _doCallNative(VoltronNativeModule module, CallNativeParams params) {
     var id = _anrMonitor.startMonitor(params._moduleName, params._moduleFunc);
-    var promise = Promise.js(_context,
+    var promise = JSPromise.js(_context,
         module: params._moduleName,
         method: params._moduleFunc,
         callId: params._callId);
@@ -93,13 +93,13 @@ class ModuleManager implements Destroyable {
       var function = module.funcMap[params._moduleFunc];
       if (function == null) {
         promise.error(
-            Promise.promiseCodeNormanError, "module function can not be found");
+            JSPromise.promiseCodeNormanError, "module function can not be found");
         return;
       }
       _invokeMethod(_context, module, params._params ?? VoltronArray(), promise,
           function);
     } catch (e) {
-      promise.error(Promise.promiseCodeNormanError, e.toString());
+      promise.error(JSPromise.promiseCodeNormanError, e.toString());
       LogUtils.e(
           tag, "call(${params._moduleName}.${params._moduleFunc} error:$e)");
     } finally {
@@ -112,7 +112,7 @@ class ModuleManager implements Destroyable {
   }
 
   void _invokeMethod(EngineContext context, VoltronNativeModule receiver,
-      VoltronArray args, Promise promise, Function function) {
+      VoltronArray args, JSPromise promise, Function function) {
     final params = _prepareArguments(args, promise);
     final result = Function.apply(function, params);
     if (!promise.hasCall && !result) {
@@ -120,7 +120,7 @@ class ModuleManager implements Destroyable {
     }
   }
 
-  List<Object> _prepareArguments(VoltronArray args, Promise promise) {
+  List<Object> _prepareArguments(VoltronArray args, JSPromise promise) {
     var length = args.size() + 1;
     var resultArguments = List<Object>.filled(length, Object());
     resultArguments[length - 1] = promise;

@@ -79,7 +79,7 @@ class DialogModule extends VoltronNativeModule {
   }
 
   @VoltronMethod(funcToast)
-  bool toast(VoltronMap message, Promise promise) {
+  bool toast(VoltronMap message, JSPromise promise) {
     var gravity = message.get('gravity') ?? 'bottom';
     var text = message.get('message') ?? '';
     Fluttertoast.showToast(
@@ -91,7 +91,7 @@ class DialogModule extends VoltronNativeModule {
   }
 
   @VoltronMethod(funcAlert)
-  Future<bool> alert(int rootId, VoltronMap message, Promise promise) async {
+  Future<bool> alert(int rootId, VoltronMap message, JSPromise promise) async {
     var text = message.get('message') ?? '';
     var textOK = message.get('textOK') ?? '确定';
     var buildContext = _context?.getInstance(rootId)?.rootKey.currentContext;
@@ -108,7 +108,7 @@ class DialogModule extends VoltronNativeModule {
   }
 
   @VoltronMethod(funcConfirm)
-  Future<bool> confirm(int rootId, VoltronMap message, Promise promise) async {
+  Future<bool> confirm(int rootId, VoltronMap message, JSPromise promise) async {
     var text = message.get('message') ?? '';
     var textOK = message.get('textOK') ?? '确定';
     var textCancel = message.get('textOK') ?? '取消';
@@ -127,7 +127,7 @@ class DialogModule extends VoltronNativeModule {
   }
 
   @VoltronMethod(funcPrompt)
-  Future<bool> prompt(int rootId, VoltronMap message, Promise promise) async {
+  Future<bool> prompt(int rootId, VoltronMap message, JSPromise promise) async {
     var text = message.get('title') ?? '';
     var textOK = message.get('textOK') ?? '确定';
     var textCancel = message.get('textOK') ?? '取消';

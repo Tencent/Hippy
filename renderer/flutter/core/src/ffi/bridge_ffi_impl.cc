@@ -6,6 +6,7 @@
 
 #include "bridge/bridge_extension.h"
 #include "bridge/bridge_manager.h"
+#include "bridge/string_util.h"
 #include "dom/dom_manager.h"
 #include "dom/render_manager_proxy.h"
 #include "ffi/bridge_ffi_impl.h"
@@ -13,6 +14,7 @@
 #include "ffi/ffi_platform_runtime.h"
 #include "ffi/logging.h"
 #include "render/common.h"
+#include "standard_message_codec.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,6 +27,8 @@ using voltron::FFIPlatformRuntime;
 using voltron::PlatformRuntime;
 using voltron::Sp;
 using voltron::VoltronRenderManager;
+using voltron::StandardMessageCodec;
+using voltron::EncodableValue;
 
 EXTERN_C void InitDomFFI(int32_t engine_id, int32_t root_id) {
   auto render_manager = std::make_shared<VoltronRenderManager>(engine_id, root_id);
@@ -49,9 +53,8 @@ EXTERN_C int64_t InitJSFrameworkFFI(const char16_t* global_config, int32_t singl
   return result;
 }
 
-EXTERN_C int32_t RunScriptFromFileFFI(int32_t engine_id, const char16_t* file_path,
-                                      const char16_t* script_name, const char16_t* code_cache_dir,
-                                      int32_t can_use_code_cache, int32_t callback_id) {
+EXTERN_C int32_t RunScriptFromFileFFI(int32_t engine_id, const char16_t* file_path, const char16_t* script_name,
+                                      const char16_t* code_cache_dir, int32_t can_use_code_cache, int32_t callback_id) {
   auto runtime = BridgeManager::GetBridgeManager(engine_id)->GetRuntime().lock();
   if (runtime) {
     auto runtime_id = runtime->GetRuntimeId();
@@ -61,9 +64,9 @@ EXTERN_C int32_t RunScriptFromFileFFI(int32_t engine_id, const char16_t* file_pa
   return 0;
 }
 
-EXTERN_C int32_t RunScriptFromAssetsFFI(int32_t engine_id, const char16_t* asset_name,
-                                        const char16_t* code_cache_dir, int32_t can_use_code_cache,
-                                        const char16_t* asset_str_char, int32_t callback_id) {
+EXTERN_C int32_t RunScriptFromAssetsFFI(int32_t engine_id, const char16_t* asset_name, const char16_t* code_cache_dir,
+                                        int32_t can_use_code_cache, const char16_t* asset_str_char,
+                                        int32_t callback_id) {
   auto runtime = BridgeManager::GetBridgeManager(engine_id)->GetRuntime().lock();
   bool result = false;
   if (runtime) {
@@ -79,8 +82,7 @@ EXTERN_C int32_t RunScriptFromAssetsFFI(int32_t engine_id, const char16_t* asset
   return result;
 }
 
-EXTERN_C void CallFunctionFFI(int32_t engine_id, const char16_t* action, const char16_t* params,
-                              int32_t callback_id) {
+EXTERN_C void CallFunctionFFI(int32_t engine_id, const char16_t* action, const char16_t* params, int32_t callback_id) {
   auto runtime = BridgeManager::GetBridgeManager(engine_id)->GetRuntime().lock();
   if (runtime) {
     auto runtime_id = runtime->GetRuntimeId();
@@ -89,11 +91,15 @@ EXTERN_C void CallFunctionFFI(int32_t engine_id, const char16_t* action, const c
   }
 }
 
-EXTERN_C void CallNativeFunctionFFI(int32_t engine_id, const char16_t* call_id,  const uint8_t* params, const int32_t&
-                                                                                                           params_len) {
+EXTERN_C void CallNativeFunctionFFI(int32_t engine_id, const char16_t* call_id, const uint8_t* params,
+                                    const int32_t& params_len, int32_t keep) {
   auto bridge_manager = BridgeManager::GetBridgeManager(engine_id);
   if (bridge_manager) {
-
+    bool is_keep = keep;
+    std::string call_id_str = C16CharToString(call_id);
+    std::unique_ptr<EncodableValue> decode_params =
+        StandardMessageCodec::GetInstance().DecodeMessage(params, params_len);
+    bridge_manager->CallNativeCallback(call_id_str, std::move(decode_params), is_keep);
   }
 }
 

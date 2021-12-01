@@ -127,7 +127,7 @@ void VoltronRenderTaskRunner::RunCallFunction(const std::weak_ptr<DomNode>& dom_
     auto args_map = EncodableMap();
     args_map[EncodableValue(kFuncNameKey)] = EncodableValue(name);
     if (!param.empty()) {
-      args_map[EncodableValue(kFunParamsKey)] = EncodeDomValueMap(param);
+      args_map[EncodableValue(kFuncParamsKey)] = EncodeDomValueMap(param);
     }
     auto callback_id = bridge_manager->AddNativeCallback(kCallUiFuncType, [dom_node, name](const std::any& params) {
       auto inner_node = dom_node.lock();
@@ -138,7 +138,7 @@ void VoltronRenderTaskRunner::RunCallFunction(const std::weak_ptr<DomNode>& dom_
         }
       }
     });
-    args_map[EncodableValue(kFunIdKey)] = EncodableValue(callback_id);
+    args_map[EncodableValue(kFuncIdKey)] = EncodableValue(callback_id);
     auto args = std::make_unique<EncodableValue>(args_map);
     auto update_task =
         std::make_shared<RenderTask>(VoltronRenderOpType::DISPATCH_UI_FUNC, node->GetId(), std::move(args));
@@ -148,17 +148,18 @@ void VoltronRenderTaskRunner::RunCallFunction(const std::weak_ptr<DomNode>& dom_
 
 void VoltronRenderTaskRunner::RunAddEventListener(const int32_t& node_id, const String& event_name,
                                                   const EncodableMap& params,
-                                                  const std::function<void(const std::any& params)>& cb) {
+                                                  const std::function<void(const EncodableValue& params)>& cb) {
   auto bridge_manager = BridgeManager::GetBridgeManager(engine_id_);
   if (bridge_manager) {
     auto args_map = EncodableMap();
     if (!params.empty()) {
-      args_map[EncodableValue(kFunParamsKey)] = params;
+      args_map[EncodableValue(kFuncParamsKey)] = params;
     }
     args_map[EncodableValue(kFuncNameKey)] = event_name;
 
-    auto callback_id = bridge_manager->AddNativeCallback(event_name, [cb](const std::any& params) { cb(params); });
-    args_map[EncodableValue(kFunIdKey)] = callback_id;
+    auto callback_id =
+        bridge_manager->AddNativeCallback(event_name, [cb](const EncodableValue& params) { cb(params); });
+    args_map[EncodableValue(kFuncIdKey)] = callback_id;
     auto args = std::make_unique<EncodableValue>(args_map);
     auto update_task = std::make_shared<RenderTask>(VoltronRenderOpType::ADD_EVENT, node_id, std::move(args));
     queue_->ProduceRenderOp(update_task);
@@ -172,7 +173,7 @@ void VoltronRenderTaskRunner::RunRemoveEventListener(const int32_t& node_id, con
     auto args_map = EncodableMap();
     args_map[EncodableValue(kFuncNameKey)] = event_name;
     if (!params.empty()) {
-      args_map[EncodableValue(kFunParamsKey)] = params;
+      args_map[EncodableValue(kFuncParamsKey)] = params;
     }
     auto args = std::make_unique<EncodableValue>(args_map);
     auto update_task = std::make_shared<RenderTask>(VoltronRenderOpType::REMOVE_EVENT, node_id, std::move(args));

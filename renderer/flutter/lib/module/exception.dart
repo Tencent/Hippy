@@ -21,13 +21,13 @@ class ExceptionModule extends VoltronNativeModule {
 
   @VoltronMethod(handleExceptionModule)
   bool handleException(
-      String title, String details, int exceptionId, Promise promise) {
+      String title, String details, int exceptionId, JSPromise promise) {
     context.handleException(JsError(title, details));
     return false;
   }
 
   @VoltronMethod(handleExceptionBackgroundTracing)
-  bool handleBackgroundTracing(String details, Promise promise) {
+  bool handleBackgroundTracing(String details, JSPromise promise) {
     context.globalConfigs.exceptionHandlerAdapter
         ?.handleBackgroundTracing(details);
     return false;

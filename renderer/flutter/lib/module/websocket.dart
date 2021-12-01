@@ -18,7 +18,7 @@ class WebsocketModule extends VoltronNativeModule {
   }
 
   @VoltronMethod(funcConnect)
-  bool connect(VoltronMap params, final Promise promise) {
+  bool connect(VoltronMap params, final JSPromise promise) {
     var headers = params.get<VoltronMap>('headers');
     var url = params.get<String>('url');
     var protocals = headers?.get<String>('Sec-WebSocket-Protocol')?.split(',');
@@ -45,7 +45,7 @@ class WebsocketModule extends VoltronNativeModule {
   }
 
   @VoltronMethod(funcClose)
-  bool close(VoltronMap params, final Promise promise) {
+  bool close(VoltronMap params, final JSPromise promise) {
     var id = params.get('id')?.toInt();
     var code = params.get('code')?.toInt();
     var reason = params.get<String>('reason');
@@ -55,7 +55,7 @@ class WebsocketModule extends VoltronNativeModule {
   }
 
   @VoltronMethod(funcSend)
-  bool send(VoltronMap params, final Promise promise) {
+  bool send(VoltronMap params, final JSPromise promise) {
     var id = params.get('id')?.toInt();
     var data = params.get<String>('data') ?? '';
     var channel = WebSocketManager.getInstance().get(id.toString());

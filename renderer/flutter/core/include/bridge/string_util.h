@@ -28,6 +28,8 @@ EXPORT const char *v8Utf8ValueToCString(const v8::String::Utf8Value &value);
 EXPORT unicode_string_view CU16StringToStrView(
     const char16_t *source_char);
 
+EXPORT std::string C16CharToString(const char16_t *source_char);
+
 EXPORT const char16_t *StrViewToCU16String(const unicode_string_view &str_view);
 
 #endif

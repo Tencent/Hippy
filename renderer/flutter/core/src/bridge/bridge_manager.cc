@@ -82,12 +82,12 @@ void BridgeManager::RemoveNativeCallback(const String& callback_id) {
   native_callback_map_.erase(callback_id);
 }
 
-void BridgeManager::CallNativeCallback(const String& callback_id, const std::any& params, bool keep) {
+void BridgeManager::CallNativeCallback(const String& callback_id, std::unique_ptr<EncodableValue> params, bool keep) {
   auto native_callback_iter = native_callback_map_.find(callback_id);
   if (native_callback_iter != native_callback_map_.end()) {
     auto callback = native_callback_iter->second;
     if (callback) {
-      callback(params);
+      callback(*params);
       if (!keep) {
         RemoveNativeCallback(callback_id);
       }

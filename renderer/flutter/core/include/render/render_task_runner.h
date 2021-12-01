@@ -25,7 +25,7 @@ class VoltronRenderTaskRunner {
                        const std::unordered_map<std::string, std::shared_ptr<DomValue>>& param,
                        const DispatchFunctionCallback& cb);
   void RunAddEventListener(const int32_t& node_id, const String& event_name, const EncodableMap& params,
-                           const std::function<void(const std::any& params)>& cb);
+                           const std::function<void(const EncodableValue& params)>& cb);
   void RunRemoveEventListener(const int32_t& node_id, const String& event_name, const EncodableMap& params);
   std::unique_ptr<std::vector<uint8_t>> ConsumeQueue();
   Sp<DomNode> GetDomNode(int32_t root_id, int32_t node_id);

@@ -14,7 +14,7 @@ class ClipboardModule extends VoltronNativeModule {
   ClipboardModule(EngineContext context) : super(context);
 
   @VoltronMethod(getStringMethodName)
-  bool getString(Promise promise) {
+  bool getString(JSPromise promise) {
     Clipboard.getData('text/plain').then((data) {
       promise.resolve(data?.text ?? '');
     }).catchError((err) {
@@ -25,7 +25,7 @@ class ClipboardModule extends VoltronNativeModule {
   }
 
   @VoltronMethod(setStringMethodName)
-  bool setString(String text, Promise promise) {
+  bool setString(String text, JSPromise promise) {
     Clipboard.setData(ClipboardData(text: text)).then((data) {
       promise.resolve(text);
     }).catchError((err) {

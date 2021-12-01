@@ -391,7 +391,7 @@ class RenderManager
   }
 
   void dispatchUIFunction(int instanceId, int id, String funcName,
-      VoltronArray array, Promise promise) {
+      VoltronMap array, Promise promise) {
     var renderNode = controllerManager.findNode(instanceId, id);
     if (renderNode != null) {
       renderNode.dispatchUIFunction(funcName, array, promise);
@@ -405,7 +405,7 @@ class RenderManager
     return _controllerManager.findNode(instanceId, id);
   }
 
-  void measureInWindow(int instanceId, int id, Promise? promise) {
+  void measureInWindow(int instanceId, int id, JSPromise? promise) {
     if (promise != null) {
       var renderNode = getRenderNode(instanceId, id);
       if (renderNode == null) {
