@@ -5,7 +5,7 @@ const HippyDynamicImportPlugin = require('@hippy/hippy-dynamic-import-plugin');
 const pkg = require('../package.json');
 module.exports = {
   mode: 'development',
-  devtool: 'eval-source-map',
+  devtool: 'eval-cheap-module-source-map',
   watch: true,
   watchOptions: {
     aggregateTimeout: 1500,
@@ -31,10 +31,11 @@ module.exports = {
       __PLATFORM__: null,
     }),
     new HippyDynamicImportPlugin(),
-    new webpack.SourceMapDevToolPlugin({
-      test: /\.(js|jsbundle|css|bundle)($|\?)/i,
-      filename: '[file].map',
-    }),
+    // use SourceMapDevToolPlugin can generate sourcemap file while setting devtool to false
+    // new webpack.SourceMapDevToolPlugin({
+    //   test: /\.(js|jsbundle|css|bundle)($|\?)/i,
+    //   filename: '[file].map',
+    // }),
   ],
   module: {
     rules: [
