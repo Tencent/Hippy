@@ -374,11 +374,11 @@ class VoltronApi {
     free(callIdU16);
   }
 
-  static Future<dynamic> runNativeRunnable(int engineId, int rootId,
+  static Future<dynamic> runNativeRunnable(int engineId,
       String codeCachePath, int runnableId, CommonCallback callback) async {
     var codeCachePathPtr = codeCachePath.toNativeUtf16();
     _BridgeFFIManager.instance
-        .runNativeRunnable(engineId, rootId, codeCachePathPtr, runnableId,
+        .runNativeRunnable(engineId, codeCachePathPtr, runnableId,
             generateCallback((value) {
       callback(value);
     }));
@@ -485,7 +485,6 @@ void requestExecuteCallback(dynamic message) {
 
 void callNative(
     int engineId,
-    int rootId,
     Pointer<Utf16> moduleNamePtr,
     Pointer<Utf16> moduleFuncPtr,
     Pointer<Utf16> callIdPtr,
@@ -505,28 +504,28 @@ void callNative(
   }
 }
 
-void postCodeCacheRunnable(int engineId, int rootId,
+void postCodeCacheRunnable(int engineId,
     Pointer<Utf8> codeCacheDirChar, int runnableId, int needClearException) {
   var codeCacheDir = codeCacheDirChar.toDartString();
   final bridge = VoltronBridgeManager.bridgeMap[engineId];
   if (bridge != null) {
-    bridge.runCacheRunnable(rootId, codeCacheDir, runnableId);
+    bridge.runCacheRunnable(codeCacheDir, runnableId);
   }
 }
 
-void reportJsonException(int engineId, int rootId, Pointer<Utf8> jsonValue) {
+void reportJsonException(int engineId, Pointer<Utf8> jsonValue) {
   var exception = jsonValue.toDartString();
   LogUtils.e("Voltron_bridge",
       "reportJsonException\n !!!!!!!!!!!!!!!!!!! \n Error($exception)");
 
-  final bridge = VoltronBridgeManager.bridgeMap[rootId];
+  final bridge = VoltronBridgeManager.bridgeMap[engineId];
   if (bridge != null) {
     bridge.reportException(exception, "");
   }
 }
 
-void reportJSException(int engineId, int rootId,
-    Pointer<Utf16> descriptionStream, Pointer<Utf16> stackStream) {
+void reportJSException(int engineId, Pointer<Utf16> descriptionStream,
+    Pointer<Utf16> stackStream) {
   var exception = descriptionStream.toDartString();
   var stackTrace = stackStream.toDartString();
   LogUtils.e("Voltron_bridge",
@@ -547,7 +546,7 @@ void checkCodeCacheSanity(int engineId, int rootId, Pointer<Utf8> scriptMd5) {
   }
 }
 
-void sendResponse(int engineId, int rootId, Pointer<Uint16> source, int len) {
+void sendResponse(int engineId, Pointer<Uint16> source, int len) {
   var bytes = source.asTypedList(len);
   var msg = utf8.decode(bytes);
 
@@ -557,8 +556,8 @@ void sendResponse(int engineId, int rootId, Pointer<Uint16> source, int len) {
   }
 }
 
-VoltronBridgeManager? getCurrentBridge(int rootId) {
-  var bridge = VoltronBridgeManager.bridgeMap[rootId];
+VoltronBridgeManager? getCurrentBridge(int engineId) {
+  var bridge = VoltronBridgeManager.bridgeMap[engineId];
   if (bridge == null) {
     bridge = VoltronBridgeManager.bridgeMap[0];
   }
@@ -566,7 +565,7 @@ VoltronBridgeManager? getCurrentBridge(int rootId) {
 }
 
 void sendNotification(
-    int engineId, int rootId, Pointer<Uint16> source, int len) {
+    int engineId, Pointer<Uint16> source, int len) {
   var bytes = source.asTypedList(len);
   var msg = utf8.decode(bytes);
   print('sendNotification utf8: $msg');
@@ -577,7 +576,7 @@ void sendNotification(
   }
 }
 
-void onDestroy(int engineId, int rootId) {
+void onDestroy(int engineId) {
   // empty
 }
 
@@ -1076,8 +1075,7 @@ class VoltronBridgeManager implements Destroyable {
 
   void reportException(String exception, String stackTrace) {}
 
-  Future<dynamic> runCacheRunnable(
-      int rootId, String path, int nativeId) async {
+  Future<dynamic> runCacheRunnable( String path, int nativeId) async {
     if (isEmpty(path)) {
       return;
     }
@@ -1089,7 +1087,7 @@ class VoltronBridgeManager implements Destroyable {
     var file = File(path);
     await file.create();
 
-    VoltronApi.runNativeRunnable(_engineId, rootId, path, nativeId, (value) {});
+    VoltronApi.runNativeRunnable(_engineId, path, nativeId, (value) {});
   }
 
   Future<dynamic> deleteDirWithFile(Directory dir) async {

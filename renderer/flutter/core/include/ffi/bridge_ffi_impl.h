@@ -35,7 +35,7 @@ EXTERN_C void CallFunctionFFI(int32_t engine_id, const char16_t* action, const c
 EXTERN_C void CallNativeFunctionFFI(int32_t engine_id, const char16_t* call_id, const uint8_t* params,
                                     const int32_t& params_len, int32_t keep);
 
-EXTERN_C void RunNativeRunnableFFI(int32_t engine_id, int32_t root_id, const char16_t* code_cache_path,
+EXTERN_C void RunNativeRunnableFFI(int32_t engine_id, const char16_t* code_cache_path,
                                    int64_t runnable_id, int32_t callback_id);
 
 EXTERN_C const char* GetCrashMessageFFI();

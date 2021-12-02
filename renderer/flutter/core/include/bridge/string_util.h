@@ -7,6 +7,7 @@
 
 #include <cstring>
 #include <cstdlib>
+#include <string>
 #if defined(__ANDROID__) || defined(_WIN32)
 #include "core/base/string_view_utils.h"
 using StringViewUtils = hippy::base::StringViewUtils;
@@ -20,6 +21,8 @@ char16_t *copyChar16(const char16_t *source_char, int length);
 
 char* copyCharToChar(const char *source_char, int length);
 
+
+
 #if defined(__ANDROID__) || defined(_WIN32)
 
 using unicode_string_view = tdf::base::unicode_string_view;
@@ -30,10 +33,10 @@ EXPORT const char *v8Utf8ValueToCString(const v8::String::Utf8Value &value);
 EXPORT unicode_string_view CU16StringToStrView(
     const char16_t *source_char);
 
-EXPORT std::string C16CharToString(const char16_t *source_char);
-
 EXPORT const char16_t *StrViewToCU16String(const unicode_string_view &str_view);
 
 #endif
+
+std::string C16CharToString(const char16_t *source_char);
 
 #endif // STRING_UTIL_H_

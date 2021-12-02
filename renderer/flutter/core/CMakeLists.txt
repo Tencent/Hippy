@@ -8,6 +8,8 @@ endif (CMAKE_SYSTEM_NAME STREQUAL "Android")
 
 cmake_policy(VERSION 3.0)
 
+#add_definitions(-D__ANDROID__)
+
 project(VoltronCore)
 
 set(CMAKE_LIBRARY_NAME "voltron_core")

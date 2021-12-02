@@ -24,13 +24,8 @@ typedef InitJsFrameworkFfiDartType = int Function(
     int engineId,
     int callbackId);
 
-typedef InitDomFfiNativeType = Int64 Function(
-    Int32 engineId,
-    Int32 rootId);
-typedef InitDomFfiDartType = int Function(
-    int engineId,
-    int rootId);
-
+typedef InitDomFfiNativeType = Int64 Function(Int32 engineId, Int32 rootId);
+typedef InitDomFfiDartType = int Function(int engineId, int rootId);
 
 typedef RunScriptFromFileFfiNativeType = Int32 Function(
     Int32 engineId,
@@ -62,33 +57,23 @@ typedef RunScriptFromAssetsFfiDartType = int Function(
     Pointer<Utf16> assetStr,
     int callbackId);
 
-typedef CallFunctionFfiNativeType = Void Function(
-    Int32 engineId,
+typedef CallFunctionFfiNativeType = Void Function(Int32 engineId,
     Pointer<Utf16> action, Pointer<Utf16> params, Int32 callbackId);
 typedef CallFunctionFfiDartType = void Function(
-    int engineId,
-    Pointer<Utf16> action, Pointer<Utf16> params, int callbackId);
+    int engineId, Pointer<Utf16> action, Pointer<Utf16> params, int callbackId);
 
-typedef CallNativeFunctionFfiNativeType = Void Function(
-    Int32 engineId,
+typedef CallNativeFunctionFfiNativeType = Void Function(Int32 engineId,
     Pointer<Utf16> callId, Pointer<Uint8> params, Int32 paramsLen, Int32 keep);
-typedef CallNativeFunctionFfiDartType = void Function(
-    int engineId,
+typedef CallNativeFunctionFfiDartType = void Function(int engineId,
     Pointer<Utf16> callId, Pointer<Uint8> params, int paramsLen, int keep);
 
-typedef RunNativeRunnableFfiNativeType = Void Function(
-    Int32 engineId,
-    Int32 rootId,
+typedef RunNativeRunnableFfiNativeType = Void Function(Int32 engineId,
     Pointer<Utf16> codeCachePath, Int64 runnableId, Int32 callbackId);
 typedef RunNativeRunnableFfiDartType = void Function(
-    int engineId,
-    int rootId,
-    Pointer<Utf16> codeCachePath, int runnableId, int callbackId);
+    int engineId, Pointer<Utf16> codeCachePath, int runnableId, int callbackId);
 
-typedef ConsumeRenderOpFfiNativeType = Void Function(
-    Int32 engineId);
-typedef ConsumeRenderOpFfiDartType = void Function(
-    int engineId);
+typedef ConsumeRenderOpFfiNativeType = Void Function(Int32 engineId);
+typedef ConsumeRenderOpFfiDartType = void Function(int engineId);
 
 typedef UpdateNodeSizeFfiNativeType = Void Function(
     Int32 engineId, Int32 rootId, Int32 nodeId, Double width, Double height);
@@ -179,7 +164,6 @@ enum FuncType {
 
 typedef CallNativeFfiNativeType = Void Function(
     Int32 engineId,
-    Int32 rootId,
     Pointer<Utf16> moduleName,
     Pointer<Utf16> moduleFunc,
     Pointer<Utf16> callId,
@@ -187,25 +171,25 @@ typedef CallNativeFfiNativeType = Void Function(
     Uint32 paramsLen,
     Int32 bridgeParamJson);
 
-typedef PostCodeCacheRunnableNativeType = Void Function(Int32 engineId, Int32 rootId,
+typedef PostCodeCacheRunnableNativeType = Void Function(Int32 engineId,
     Pointer<Utf8> codeCacheDirChar, Int64 runnableId, Int32 needClearException);
 
-typedef ReportJsonExceptionNativeType = Void Function(Int32 engineId,
-    Int32 rootId, Pointer<Utf8> jsonValue);
+typedef ReportJsonExceptionNativeType = Void Function(
+    Int32 engineId, Pointer<Utf8> jsonValue);
 
-typedef ReportJsExceptionNativeType = Void Function(Int32 engineId, Int32 rootId,
+typedef ReportJsExceptionNativeType = Void Function(Int32 engineId,
     Pointer<Utf16> descriptionStream, Pointer<Utf16> stackStream);
 
 typedef CheckCodeCacheSanityNativeType = Void Function(
     Int32 engineId, Int32 rootId, Pointer<Utf8> scriptMd5);
 
 typedef SendResponseNativeType = Void Function(
-    Int32 engineId, Int32 rootId, Pointer<Uint16> source, Int32 len);
+    Int32 engineId, Pointer<Uint16> source, Int32 len);
 
 typedef SendNotificationNativeType = Void Function(
-    Int32 engineId, Int32 rootId, Pointer<Uint16> source, Int32 len);
+    Int32 engineId, Pointer<Uint16> source, Int32 len);
 
-typedef DestroyFunctionNativeType = Void Function(Int32 engineId, Int32 rootId);
+typedef DestroyFunctionNativeType = Void Function(Int32 engineId);
 
 typedef PostRenderOpNativeType = Void Function(
     Int32 engineId, Int32 rootId, Pointer<Void> paramsData, Int64 paramsLen);

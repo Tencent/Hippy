@@ -47,9 +47,12 @@ EXTERN_C int64_t InitJSFrameworkFFI(const char16_t* global_config, int32_t singl
 
   auto result = InitJSFrameworkEx(ffi_runtime, global_config, single_thread_mode, bridge_param_json, is_dev_module,
                                   group_id, [callback_id](int64_t value) { CallGlobalCallback(callback_id, value); });
-  if (result == 0) {
+  if (result != 0) {
+    ffi_runtime->BindRuntimeId(result);
+  } else {
     BridgeManager::Destroy(engine_id);
   }
+
   return result;
 }
 
@@ -132,9 +135,9 @@ EXTERN_C void UpdateNodeSize(int32_t engine_id, int32_t root_id, int32_t node_id
   }
 }
 
-EXTERN_C void RunNativeRunnableFFI(int32_t engine_id, int32_t root_id, const char16_t* code_cache_path,
+EXTERN_C void RunNativeRunnableFFI(int32_t engine_id, const char16_t* code_cache_path,
                                    int64_t runnable_id, int32_t callback_id) {
-  auto runtime = BridgeManager::GetBridgeManager(root_id)->GetRuntime().lock();
+  auto runtime = BridgeManager::GetBridgeManager(engine_id)->GetRuntime().lock();
   if (runtime) {
     auto runtime_id = runtime->GetRuntimeId();
     RunNativeRunnableEx(runtime_id, code_cache_path, runnable_id,
