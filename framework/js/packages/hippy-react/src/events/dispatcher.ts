@@ -18,8 +18,9 @@
  * limitations under the License.
  */
 
+import { Fiber } from 'react-reconciler';
 import { getFiberNodeFromId } from '../utils/node';
-import { trace, isBubbles } from '../utils';
+import { trace, isGlobalBubble, isHostComponent } from '../utils';
 import HippyEventHub from './hub';
 import '@localTypes/global';
 
@@ -79,6 +80,111 @@ function receiveNativeEvent(nativeEvent: EventParam) {
   currEventHub.notifyEvent(eventParams);
 }
 
+interface ListenerObj { listener: Function, isCapture: boolean }
+
+/**
+ * convertEventName - convert all special event name
+ * @param eventName
+ * @param nodeItem
+ */
+function convertEventName(eventName: string, nodeItem: Fiber) {
+  let processedEvenName = eventName;
+  if (nodeItem.memoizedProps
+      && !nodeItem.memoizedProps[eventName]
+      && eventName === 'onClick'
+      && nodeItem.memoizedProps.onPress) {
+    // Compatible with React Native
+    processedEvenName = 'onPress';
+  }
+  return processedEvenName;
+}
+
+function isNodePropFunction(prop: string, nextNodeItem: Fiber) {
+  return !!(nextNodeItem.memoizedProps && typeof nextNodeItem.memoizedProps[prop] === 'function');
+}
+
+/**
+ * doCaptureAndBubbleLoop - process capture phase and bubble phase
+ * @param {string} originalEventName
+ * @param {NativeEvent} nativeEvent
+ * @param {Fiber} nodeItem
+ */
+function doCaptureAndBubbleLoop(originalEventName: string, nativeEvent: NativeEvent, nodeItem: Fiber) {
+  const eventQueue: ListenerObj[] = [];
+  let nextNodeItem: Fiber | null = nodeItem;
+  let eventName = originalEventName;
+  // capture and bubble loop
+  while (nextNodeItem) {
+    eventName = convertEventName(eventName, nextNodeItem);
+    const captureName = `${eventName}Capture`;
+    if (isNodePropFunction(captureName, nextNodeItem)) {
+      // capture phase to add listener at queue head
+      eventQueue.unshift({ listener: nextNodeItem.memoizedProps[captureName], isCapture: true });
+    }
+    if (isNodePropFunction(eventName, nextNodeItem)) {
+      // bubble phase to add listener at queue tail
+      eventQueue.push({ listener: nextNodeItem.memoizedProps[eventName], isCapture: false });
+    }
+    nextNodeItem = nextNodeItem.return;
+    while (nextNodeItem && !isHostComponent(nextNodeItem.tag)) {
+      // only handle HostComponent
+      nextNodeItem = nextNodeItem.return;
+    }
+  }
+  if (eventQueue.length > 0) {
+    let listenerObj: ListenerObj | undefined;
+    let isStopBubble: any = false;
+    while (!isStopBubble && (listenerObj = eventQueue.shift()) !== undefined) {
+      try {
+        if (listenerObj.isCapture) {
+          listenerObj.listener(nativeEvent);
+        } else {
+          isStopBubble = listenerObj.listener(nativeEvent);
+          // If callback have no return, use global bubble config to set isStopBubble.
+          if (typeof isStopBubble !== 'boolean') {
+            isStopBubble = !isGlobalBubble();
+          }
+        }
+      } catch (err) {
+        (console as any).reportUncaughtException(err);
+      }
+    }
+  }
+}
+
+/**
+ * doBubbleLoop - process only bubble phase
+ * @param {string} originalEventName
+ * @param {NativeEvent} nativeEvent
+ * @param {Fiber} nodeItem
+ */
+function doBubbleLoop(originalEventName: string, nativeEvent: NativeEvent, nodeItem: Fiber) {
+  let isStopBubble: any = false;
+  let nextNodeItem: Fiber | null = nodeItem;
+  let eventName = originalEventName;
+  // only bubble loop
+  do {
+    eventName = convertEventName(eventName, nextNodeItem);
+    if (isNodePropFunction(eventName, nextNodeItem)) {
+      try {
+        isStopBubble = nextNodeItem.memoizedProps[eventName](nativeEvent);
+        // If callback have no return, use global bubble config to set isStopBubble.
+        if (typeof isStopBubble !== 'boolean') {
+          isStopBubble = !isGlobalBubble();
+        }
+      } catch (err) {
+        (console as any).reportUncaughtException(err);
+      }
+    }
+    if (isStopBubble === false) {
+      nextNodeItem = nextNodeItem.return;
+      while (nextNodeItem && !isHostComponent(nextNodeItem.tag)) {
+        // only handle HostComponent
+        nextNodeItem = nextNodeItem.return;
+      }
+    }
+  } while (!isStopBubble && nextNodeItem);
+}
 
 function receiveNativeGesture(nativeEvent: NativeEvent) {
   trace(...componentName, 'receiveNativeGesture', nativeEvent);
@@ -90,47 +196,20 @@ function receiveNativeGesture(nativeEvent: NativeEvent) {
   if (!targetNode) {
     return;
   }
-
-  let eventHandled: any = false;
-  let nextNodeItem = targetNode;
+  let hasCapturePhase: boolean = true;
   let { name: eventName } = nativeEvent;
-  do {
-    if (nextNodeItem.memoizedProps
-      && !nextNodeItem.memoizedProps[eventName]
-      && eventName === 'onClick'
-      && nextNodeItem.memoizedProps.onPress) {
-      // Compatible with React Native
-      eventName = 'onPress';
-    }
-
-    if (nextNodeItem.memoizedProps
-      && nextNodeItem.memoizedProps[eventName]
-      && typeof nextNodeItem.memoizedProps[eventName] === 'function') {
-      try {
-        eventHandled = nextNodeItem.memoizedProps[eventName](nativeEvent);
-        // If callback have no return, set global bubbles config to eventHandled.
-        if (typeof eventHandled !== 'boolean') {
-          eventHandled = !isBubbles();
-        }
-      } catch (err) {
-        (console as any).reportUncaughtException(err); // eslint-disable-line
-      }
-    }
-
-    // If callback have no return is meaning no need the event bubbling
-    if (typeof eventHandled !== 'boolean') {
-      eventHandled = true;
-    }
-
-    if (eventHandled === false) {
-      // @ts-ignore
-      nextNodeItem = nextNodeItem.return;
-      while (nextNodeItem && nextNodeItem.tag !== 5) {
-        // @ts-ignore
-        nextNodeItem = nextNodeItem.return;
-      }
-    }
-  } while (!eventHandled && nextNodeItem);
+  eventName = convertEventName(eventName, targetNode);
+  const captureName = `${eventName}Capture`;
+  const nextNodeItem: Fiber = targetNode;
+  // if current target has no capture listener, only do bubble phase loop to improve performance
+  if (targetNode.memoizedProps && typeof targetNode.memoizedProps[captureName] !== 'function') {
+    hasCapturePhase = false;
+  }
+  if (hasCapturePhase) {
+    doCaptureAndBubbleLoop(eventName, nativeEvent, nextNodeItem);
+  } else {
+    doBubbleLoop(eventName, nativeEvent, nextNodeItem);
+  }
 }
 
 function receiveUIComponentEvent(nativeEvent: string[]) {

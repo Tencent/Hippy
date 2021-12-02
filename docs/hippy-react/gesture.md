@@ -64,12 +64,14 @@ render() {
 
 ## 事件冒泡
 
+[[事件冒泡范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/ListView)
+
 点击事件和触屏事件均可以在回调函数中定义是否需要冒泡该事件到上层组件，点击或触屏事件发生时，终端会寻找该触屏点下声明了要处理该事件的最小控件：
 
 !> HippyReact 默认不冒泡
 
-1. 返回 true 或没有返回值：控件处理完事件后，将不再继续冒泡，整个手势事件处理结束；
-2. 返回 false：控件处理完事件后，事件将继续往上一层冒泡，如果找到某个父控件也设置了对应事件处理函数，则会调用改该回调函数，并再次根据其返回值决定是否继续冒泡。如果再向上冒泡的过程中达到了根节点，则事件冒泡结束；
+1. 返回 `true` 或 `没有返回值`：控件处理完事件后，将不再继续冒泡，整个手势事件处理结束；
+2. 返回 `false`：控件处理完事件后，事件将继续往上一层冒泡，如果找到某个父控件也设置了对应事件处理函数，则会调用改该回调函数，并再次根据其返回值决定是否继续冒泡。如果再向上冒泡的过程中达到了根节点，则事件冒泡结束；
 
 我们通过以下示例进一步说明事件冒泡的机制：
 
@@ -80,19 +82,21 @@ render() {
       onClick={() => { console.log("根节点 点击"); }}
     >
       <Text style={{ width: 150, height: 100, backgroundColor: "#FF0000" }}
-        onClick={() => console.log("点击按钮1 点击")}
+        onClick={() => console.log("按钮1 点击")}
       >
         点击按钮1
       </Text>
       <View style={{ width: 150, height: 100, backgroundColor: "#00FF00" }}
         onClick={() => {
           console.log("父控件 点击");
+          // 不再向上冒泡到跟节点
           return true;
         }}
       >
         <Text style={{ width: 80, height: 50, backgroundColor: "#0000FF" }}
           onClick={() => {
-            console.log("点击按钮2 点击");
+            console.log("按钮2 点击");
+            // 向上冒泡到父控件
             return false;
           }}
         >
@@ -114,6 +118,46 @@ new Hippy({
     bubbles: true,
 }).start();
 ````
+
+## 事件捕获
+
+> 最低支持版本 2.11.2
+
+[[事件捕获范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/ListView)
+
+点击事件和触屏事件支持事件捕获，如需注册捕获阶段的事件处理函数，则应在目标元素事件名添加 `Capture` 后缀，如 `onClickCapture`、`onTouchDownCapture`。如果目标元素没有`Capture` 事件处理函数，默认不开启捕获。事件捕获会有一定性能损耗，如非必要尽量不开启。
+
+例子如下：
+
+```js
+render() {
+  return (
+    <View style={{ width: 300, height: 200, backgroundColor: "#FFFFFF" }}
+      onClick={() => { console.log("根节点 点击"); }}
+      onClickCapture={() => console.log("根节点 捕获点击")}
+    >
+      <Text style={{ width: 150, height: 100, backgroundColor: "#FF0000" }}
+        onClick={() => {
+            // 点击按钮1不会触发根节点捕获点击
+            console.log("按钮1 点击")
+        }}
+      >
+        点击按钮1
+      </Text>
+      <View style={{ width: 150, height: 100, backgroundColor: "#00FF00" }}>
+        <Text style={{ width: 80, height: 50, backgroundColor: "#0000FF" }}
+          onClickCapture={() => {
+            // 点击按钮2会触发根节点捕获点击
+            console.log("按钮2 点击");
+          }}
+        >
+          点击按钮2
+        </Text>
+      </View>
+    </View>
+  );
+}
+```
 
 ## 事件的拦截
 

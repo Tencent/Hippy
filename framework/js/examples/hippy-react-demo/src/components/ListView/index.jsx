@@ -66,8 +66,12 @@ const styles = StyleSheet.create({
 function Style1({ index }) {
   return (
     <View style={styles.container}
+          onClickCapture={() => {
+            console.log('onClickCapture style1');
+          }}
           onClick={() => {
             console.log('click style1');
+            return false;
           }}
     >
       <Text numberOfLines={1}>{ `${index}: Style 1 UI` }</Text>
@@ -202,7 +206,12 @@ export default class ListExample extends React.Component {
         // pass
     }
     return (
-      <View style={styles.container}>
+      <View style={styles.container}
+            onClick={() => {
+              console.log('click style outer');
+              // return false means trigger bubble
+              return false;
+            }}>
         <View style={styles.itemContainer}>
           {styleUI}
         </View>
@@ -230,8 +239,13 @@ export default class ListExample extends React.Component {
     const { dataSource } = this.state;
     return (
       <ListView
+          onClickCapture={() => {
+            console.log('onClickCapture listview');
+          }}
           onClick={() => {
             console.log('click listview');
+            // return false means trigger bubble
+            return false;
           }}
         bounces={true}
         overScrollEnabled={true}
