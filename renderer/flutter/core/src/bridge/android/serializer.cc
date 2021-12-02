@@ -1,12 +1,12 @@
 /*****************************************************************************
  * @copyright Copyright (C), 1998-2020, Tencent Tech. Co., Ltd.
  * @file     serializer.cc
- * @brief    
+ * @brief
  * @author   skindhu
  * @version  1.0.0
  * @date     2021/8/13
  *****************************************************************************/
-#include "bridge/android/serializer.h"
+#include "serializer.h"
 
 
 const int kMaxReusedBuffersSize = 128 * 1024;  // 128k

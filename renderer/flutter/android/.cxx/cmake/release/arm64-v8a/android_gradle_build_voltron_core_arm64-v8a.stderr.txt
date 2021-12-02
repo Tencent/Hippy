@@ -1,0 +1,3 @@
+FRAMEWORK_ANDROID_SRC: /Users/huli/svn_work/Hippy/renderer/flutter/core/../android/src/main/jni/src/inspector/v8_channel_impl.cc;/Users/huli/svn_work/Hippy/renderer/flutter/core/../android/src/main/jni/src/inspector/v8_inspector_client_impl.cc
+JS_ENGINE:V8
+DOM LAYOUT_DIR: /Users/huli/svn_work/Hippy/layout

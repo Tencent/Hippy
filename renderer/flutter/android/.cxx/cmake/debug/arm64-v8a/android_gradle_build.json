@@ -1,0 +1,422 @@
+{
+  "stringTable": {
+    "0": "/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a",
+    "1": "--target=aarch64-none-linux-android21 --gcc-toolchain=/Users/huli/android_sdk_tools/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64 --sysroot=/Users/huli/android_sdk_tools/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -DANDROID -DENABLE_INSPECTOR -DOS_ANDROID -DV8_DEPRECATION_WARNINGS -DV8_IMMINENT_DEPRECATION_WARNINGS -Dvoltron_core_EXPORTS -I/Users/huli/svn_work/Hippy/framework/js/android/src/main/jni/third_party/v8/stable/official-release/include -I/Users/huli/svn_work/Hippy/framework/js/android/src/main/jni/third_party/v8/stable/official-release/include/v8 -I/Users/huli/svn_work/Hippy/renderer/flutter/core/../android/src/main/jni/include -I/Users/huli/svn_work/Hippy/renderer/flutter/core/../../../framework/js/core/include -I/Users/huli/svn_work/Hippy/renderer/flutter/core/../../../framework/js/core/third_party/base/include -I/Users/huli/svn_work/Hippy/renderer/flutter/core/src/bridge/android -I/Users/huli/svn_work/Hippy/renderer/flutter/core/third_party/codec/include -I/Users/huli/svn_work/Hippy/renderer/flutter/core/include -I/Users/huli/svn_work/Hippy/renderer/flutter/core/../../../dom/include -I/Users/huli/svn_work/Hippy/renderer/flutter/core/../../../layout -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security -std=c++17 -O0 -fno-limit-debug-info -fPIC -fno-rtti",
+    "2": "--target=aarch64-none-linux-android21 --gcc-toolchain=/Users/huli/android_sdk_tools/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64 --sysroot=/Users/huli/android_sdk_tools/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -DANDROID -DENABLE_INSPECTOR -DOS_ANDROID -DV8_DEPRECATION_WARNINGS -DV8_IMMINENT_DEPRECATION_WARNINGS -I/Users/huli/svn_work/Hippy/framework/js/android/src/main/jni/third_party/v8/stable/official-release/include -I/Users/huli/svn_work/Hippy/framework/js/android/src/main/jni/third_party/v8/stable/official-release/include/v8 -I/Users/huli/svn_work/Hippy/renderer/flutter/core/../android/src/main/jni/include -I/Users/huli/svn_work/Hippy/framework/js/core/third_party/base/include -I/Users/huli/svn_work/Hippy/framework/js/core/third_party/base/src/platform/adr/. -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security -std=c++17 -O0 -fno-limit-debug-info -fPIC -fno-rtti -std=gnu++1z",
+    "3": "--target=aarch64-none-linux-android21 --gcc-toolchain=/Users/huli/android_sdk_tools/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64 --sysroot=/Users/huli/android_sdk_tools/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -DANDROID -DENABLE_INSPECTOR -DOS_ANDROID -DV8_DEPRECATION_WARNINGS -DV8_IMMINENT_DEPRECATION_WARNINGS -I/Users/huli/svn_work/Hippy/framework/js/android/src/main/jni/third_party/v8/stable/official-release/include -I/Users/huli/svn_work/Hippy/framework/js/android/src/main/jni/third_party/v8/stable/official-release/include/v8 -I/Users/huli/svn_work/Hippy/renderer/flutter/core/../android/src/main/jni/include -I/Users/huli/svn_work/Hippy/framework/js/core/third_party/base/include -I/Users/huli/svn_work/Hippy/renderer/flutter/core -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security -std=c++17 -O0 -fno-limit-debug-info -fPIC -fno-rtti -std=gnu++1z",
+    "4": "--target=aarch64-none-linux-android21 --gcc-toolchain=/Users/huli/android_sdk_tools/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64 --sysroot=/Users/huli/android_sdk_tools/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -DANDROID -DENABLE_INSPECTOR -DOS_ANDROID -DV8_DEPRECATION_WARNINGS -DV8_IMMINENT_DEPRECATION_WARNINGS -I/Users/huli/svn_work/Hippy/framework/js/android/src/main/jni/third_party/v8/stable/official-release/include -I/Users/huli/svn_work/Hippy/framework/js/android/src/main/jni/third_party/v8/stable/official-release/include/v8 -I/Users/huli/svn_work/Hippy/renderer/flutter/core/../android/src/main/jni/include -I/Users/huli/svn_work/Hippy/renderer/flutter/core/../../../framework/js/core/include -I/Users/huli/svn_work/Hippy/renderer/flutter/core/../../../framework/js/core/third_party/base/include -I/Users/huli/svn_work/Hippy/renderer/flutter/core/src/bridge/android -I/Users/huli/svn_work/Hippy/renderer/flutter/core/third_party/codec/include -I/Users/huli/svn_work/Hippy/renderer/flutter/core/include -I/Users/huli/svn_work/Hippy/framework/js/core/include -I/Users/huli/svn_work/Hippy/framework/js/core/third_party/base/include -I/Users/huli/svn_work/Hippy/layout -I/Users/huli/svn_work/Hippy/dom/include -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security -std=c++17 -O0 -fno-limit-debug-info -fPIC -fno-rtti -std=gnu++1z",
+    "5": "--target=aarch64-none-linux-android21 --gcc-toolchain=/Users/huli/android_sdk_tools/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64 --sysroot=/Users/huli/android_sdk_tools/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -DANDROID -DENABLE_INSPECTOR -DOS_ANDROID -DV8_DEPRECATION_WARNINGS -DV8_IMMINENT_DEPRECATION_WARNINGS -I/Users/huli/svn_work/Hippy/framework/js/android/src/main/jni/third_party/v8/stable/official-release/include -I/Users/huli/svn_work/Hippy/framework/js/android/src/main/jni/third_party/v8/stable/official-release/include/v8 -I/Users/huli/svn_work/Hippy/renderer/flutter/core/../android/src/main/jni/include -I/Users/huli/svn_work/Hippy/renderer/flutter/core/../../../framework/js/core/include -I/Users/huli/svn_work/Hippy/renderer/flutter/core/../../../framework/js/core/third_party/base/include -I/Users/huli/svn_work/Hippy/renderer/flutter/core/src/bridge/android -I/Users/huli/svn_work/Hippy/renderer/flutter/core/third_party/codec/include -I/Users/huli/svn_work/Hippy/renderer/flutter/core/include -I/Users/huli/svn_work/Hippy/layout/engine -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security -std=c++17 -O0 -fno-limit-debug-info -fPIC -fno-rtti -std=gnu++1z",
+    "6": "null"
+  },
+  "buildFiles": [
+    "/Users/huli/svn_work/Hippy/framework/js/android/src/main/jni/third_party/v8/stable/official-release/CMakeLists.txt",
+    "/Users/huli/svn_work/Hippy/renderer/flutter/cmake/render_core.cmake",
+    "/Users/huli/svn_work/Hippy/dom/CMakeLists.txt",
+    "/Users/huli/svn_work/Hippy/framework/js/core/third_party/base/CMakeLists.txt",
+    "/Users/huli/svn_work/Hippy/renderer/flutter/core/CMakeLists.txt",
+    "/Users/huli/svn_work/Hippy/renderer/flutter/cmake/framework_platform_android.cmake",
+    "/Users/huli/svn_work/Hippy/framework/js/core/third_party/base/src/CMakeLists.txt",
+    "/Users/huli/svn_work/Hippy/layout/CMakeLists.txt",
+    "/Users/huli/android_sdk_tools/ndk/21.4.7075529/build/cmake/android.toolchain.cmake",
+    "/Users/huli/svn_work/Hippy/framework/js/core/third_party/base/src/base/CMakeLists.txt",
+    "/Users/huli/svn_work/Hippy/renderer/flutter/cmake/framework_core.cmake",
+    "/Users/huli/android_sdk_tools/ndk/21.4.7075529/build/cmake/platforms.cmake",
+    "/Users/huli/svn_work/Hippy/framework/js/core/third_party/base/src/platform/adr/CMakeLists.txt"
+  ],
+  "cleanCommands": [
+    "/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/bin/ninja -C \"/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a\" clean"
+  ],
+  "buildTargetsCommand": "/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/bin/ninja -C \"/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a\" {LIST_OF_TARGETS_TO_BUILD}",
+  "libraries": {
+    "voltron_core-Debug-arm64-v8a": {
+      "buildCommand": "/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/bin/ninja -C \"/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a\" voltron_core",
+      "buildType": "debug",
+      "toolchain": "1174358585",
+      "abi": "arm64-v8a",
+      "artifactName": "voltron_core",
+      "files": [
+        {
+          "src": "/Users/huli/svn_work/Hippy/framework/js/core/src/base/file.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/framework/js/core/src/base/js_value_wrapper.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/framework/js/core/src/base/task.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/framework/js/core/src/base/task_runner.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/framework/js/core/src/base/thread.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/framework/js/core/src/base/thread_id.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/framework/js/core/src/modules/console_module.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/framework/js/core/src/modules/contextify_module.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/framework/js/core/src/modules/module_register.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/framework/js/core/src/modules/timer_module.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/framework/js/core/src/modules/ui_manager_module.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/framework/js/core/src/napi/callback_info.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/framework/js/core/src/napi/js_native_turbo.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/framework/js/core/src/task/common_task.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/framework/js/core/src/task/javascript_task.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/framework/js/core/src/task/javascript_task_runner.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/framework/js/core/src/task/worker_task_runner.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/framework/js/core/src/engine.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/framework/js/core/src/scope.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/framework/js/core/src/napi/v8/js_native_api_v8.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/framework/js/core/src/napi/v8/js_native_turbo_v8.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/framework/js/core/src/napi/v8/native_source_code_android.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/renderer/flutter/core/src/ffi/bridge_define.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/renderer/flutter/core/src/ffi/bridge_ffi_impl.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/renderer/flutter/core/src/ffi/callback_manager.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/renderer/flutter/core/src/ffi/ffi_platform_runtime.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/renderer/flutter/core/src/ffi/logging.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/renderer/flutter/core/src/ffi/logging-impl.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/renderer/flutter/core/src/render/render_queue.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/renderer/flutter/core/src/render/render_task.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/renderer/flutter/core/src/render/render_task_runner.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/renderer/flutter/core/src/render/voltron_render_manager.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/renderer/flutter/core/src/bridge/bridge_extension.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/renderer/flutter/core/src/bridge/bridge_manager.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/renderer/flutter/core/src/bridge/bridge_runtime.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/renderer/flutter/core/src/bridge/code-cache-runnable.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/renderer/flutter/core/src/bridge/string_util.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/renderer/flutter/core/third_party/codec/src/standard_codec.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/renderer/flutter/core/src/bridge/android/bridge_impl.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/renderer/flutter/core/src/bridge/android/dart2js.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/renderer/flutter/core/src/bridge/android/exception_handler.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/renderer/flutter/core/src/bridge/android/js2dart.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/renderer/flutter/core/src/bridge/android/runtime.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/renderer/flutter/core/src/bridge/android/serializer.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/renderer/flutter/android/src/main/jni/src/inspector/v8_channel_impl.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/renderer/flutter/android/src/main/jni/src/inspector/v8_inspector_client_impl.cc",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        }
+      ],
+      "headers": [],
+      "output": "/Users/huli/svn_work/Hippy/renderer/flutter/example/build/tencent_voltron_render/intermediates/cmake/debug/obj/arm64-v8a/libvoltron_core.so"
+    },
+    "layout-Debug-arm64-v8a": {
+      "buildCommand": "/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/bin/ninja -C \"/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a\" layout",
+      "buildType": "debug",
+      "toolchain": "1174358585",
+      "abi": "arm64-v8a",
+      "artifactName": "layout",
+      "files": [
+        {
+          "src": "/Users/huli/svn_work/Hippy/layout/engine/FlexLine.cpp",
+          "flagsOrdinal": 5,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/layout/engine/HPConfig.cpp",
+          "flagsOrdinal": 5,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/layout/engine/HPLayoutCache.cpp",
+          "flagsOrdinal": 5,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/layout/engine/HPNode.cpp",
+          "flagsOrdinal": 5,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/layout/engine/HPStyle.cpp",
+          "flagsOrdinal": 5,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/layout/engine/HPUtil.cpp",
+          "flagsOrdinal": 5,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/layout/engine/Hippy.cpp",
+          "flagsOrdinal": 5,
+          "workingDirectoryOrdinal": 0
+        }
+      ],
+      "headers": [],
+      "output": "/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a/dom/layout_out/liblayout.a"
+    },
+    "tdf_base-Debug-arm64-v8a": {
+      "buildCommand": "/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/bin/ninja -C \"/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a\" tdf_base",
+      "buildType": "debug",
+      "toolchain": "1174358585",
+      "abi": "arm64-v8a",
+      "artifactName": "tdf_base",
+      "files": [
+        {
+          "src": "/Users/huli/svn_work/Hippy/framework/js/core/third_party/base/src/platform/adr/logging.cc",
+          "flagsOrdinal": 2,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/framework/js/core/third_party/base/src/platform/adr/CMakeLists.txt",
+          "flagsOrdinal": 6,
+          "workingDirectoryOrdinal": 0
+        }
+      ],
+      "headers": [],
+      "output": "/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a/base/src/platform/adr/libtdf_base.a"
+    },
+    "tdf_base_common-Debug-arm64-v8a": {
+      "buildCommand": "/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/bin/ninja -C \"/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a\" tdf_base_common",
+      "buildType": "debug",
+      "toolchain": "1174358585",
+      "abi": "arm64-v8a",
+      "artifactName": "tdf_base_common",
+      "files": [
+        {
+          "src": "/Users/huli/svn_work/Hippy/framework/js/core/third_party/base/src/base/log_settings.cc",
+          "flagsOrdinal": 3,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/framework/js/core/third_party/base/src/base/log_settings_state.cc",
+          "flagsOrdinal": 3,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/framework/js/core/third_party/base/src/base/unicode_string_view.cc",
+          "flagsOrdinal": 3,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/framework/js/core/third_party/base/src/base/CMakeLists.txt",
+          "flagsOrdinal": 6,
+          "workingDirectoryOrdinal": 0
+        }
+      ],
+      "headers": [],
+      "output": "/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a/base/src/base/libtdf_base_common.a"
+    },
+    "dom-Debug-arm64-v8a": {
+      "buildCommand": "/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/bin/ninja -C \"/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a\" dom",
+      "buildType": "debug",
+      "toolchain": "1174358585",
+      "abi": "arm64-v8a",
+      "artifactName": "dom",
+      "files": [
+        {
+          "src": "/Users/huli/svn_work/Hippy/dom/src/dom/dom_manager.cc",
+          "flagsOrdinal": 4,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/dom/src/dom/dom_node.cc",
+          "flagsOrdinal": 4,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/dom/src/dom/dom_value.cc",
+          "flagsOrdinal": 4,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/dom/src/dom/layout_node.cc",
+          "flagsOrdinal": 4,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/dom/src/dom/render_manager_proxy.cc",
+          "flagsOrdinal": 4,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/Users/huli/svn_work/Hippy/dom/src/dom/taitank_layout_node.cc",
+          "flagsOrdinal": 4,
+          "workingDirectoryOrdinal": 0
+        }
+      ],
+      "headers": [],
+      "output": "/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a/dom/libdom.a"
+    }
+  },
+  "toolchains": {
+    "1174358585": {
+      "cppCompilerExecutable": "/Users/huli/android_sdk_tools/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++"
+    }
+  },
+  "cFileExtensions": [],
+  "cppFileExtensions": [
+    "cc",
+    "cpp"
+  ]
+}

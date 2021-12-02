@@ -38,7 +38,7 @@ import {
 import {
   isRTL,
 } from '../../util/i18n';
-// import { preCacheNode } from '../../util/node';
+import { preCacheNode } from '../../util/node';
 import { fromAstNodes, SelectorsMap } from './style';
 
 const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
@@ -441,7 +441,7 @@ function insertChild(parentNode, childNode, atIndex = -1) {
       if (!node.isMounted) {
         node.isMounted = true;
       }
-      // preCacheNode(node, node.nodeId);
+      preCacheNode(node, node.nodeId);
     });
     startBatch();
     __batchNodes.push({
@@ -455,7 +455,7 @@ function insertChild(parentNode, childNode, atIndex = -1) {
       if (!node.isMounted) {
         node.isMounted = true;
       }
-      // preCacheNode(node, node.nodeId);
+      preCacheNode(node, node.nodeId);
     });
     startBatch();
     __batchNodes.push({

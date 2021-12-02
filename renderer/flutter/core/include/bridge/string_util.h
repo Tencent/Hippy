@@ -8,9 +8,11 @@
 #include <cstring>
 #include <cstdlib>
 #if defined(__ANDROID__) || defined(_WIN32)
+#include "core/base/string_view_utils.h"
+using StringViewUtils = hippy::base::StringViewUtils;
 #include "v8/v8.h"
 #include "base/unicode_string_view.h"
-#include "bridge/android/runtime.h"
+#include "runtime.h"
 #elif __APPLE__
 #endif
 

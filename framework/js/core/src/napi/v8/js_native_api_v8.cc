@@ -19,6 +19,7 @@
  * limitations under the License.
  *
  */
+
 #include "core/napi/v8/js_native_api_v8.h"
 
 #include <iostream>
@@ -26,11 +27,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#if defined(_WIN32)
-#include <Shlwapi.h>
-#include <tchar.h>
-#include <atlstr.h>
-#endif
+
 #include "base/logging.h"
 #include "core/base/common.h"
 #include "core/base/macros.h"
@@ -41,14 +38,6 @@
 #include "core/scope.h"
 #include "v8/libplatform/libplatform.h"
 
-#if defined(_WIN32)
-#undef ERROR
-#ifdef UNICODE
-typedef std::wstring TSTRING;
-#else
-typedef std::string TSTRING;
-#endif
-#endif
 namespace hippy {
 namespace napi {
 
@@ -245,33 +234,13 @@ std::shared_ptr<TryCatch> CreateTryCatchScope(bool enable,
 }
 
 void DetachThread() {
+  //JNIEnvironment::GetInstance()->DetachCurrentThread();
 }
 
 V8VM::V8VM(const std::shared_ptr<V8VMInitParam>& param): VM(param) {
   TDF_BASE_DLOG(INFO) << "V8VM begin";
   {
     std::lock_guard<std::mutex> lock(mutex_);
-#if defined(_WIN32)
-    TCHAR szPath[MAX_PATH];
-    int nSize = GetModuleFileName(NULL, szPath, MAX_PATH);
-    
-    for (int i = nSize - 1; i > 0; i--) {
-      if (szPath[i] == _T('\\')) {
-        szPath[i + 1] = 0;
-        break;
-      }
-    }
-    TSTRING path = szPath;
-    size_t required_size = WideCharToMultiByte(
-        CP_UTF8, 0, path.c_str(), path.length(), nullptr, 0, nullptr, nullptr);
-    auto data = UP<char>(new char[required_size]);
-    WideCharToMultiByte(CP_UTF8, 0, path.c_str(), path.length(), data.get(),
-                        required_size, nullptr, nullptr);
-    auto path_str =  std::string(data.get(), required_size);
-
-    v8::V8::InitializeICUDefaultLocation(path_str.c_str());
-    v8::V8::InitializeExternalStartupData(path_str.c_str());
-#endif
     if (platform_ != nullptr) {
 #if defined(V8_X5_LITE) && defined(THREAD_LOCAL_PLATFORM)
       TDF_BASE_DLOG(INFO) << "InitializePlatform";
@@ -280,14 +249,10 @@ V8VM::V8VM(const std::shared_ptr<V8VMInitParam>& param): VM(param) {
     } else {
       TDF_BASE_DLOG(INFO) << "NewDefaultPlatform";
       platform_ = v8::platform::NewDefaultPlatform();
-<<<<<<< HEAD:renderer/flutter/core/third_party/hippy_core/src/napi/v8/js_native_api_v8.cc
-#ifdef V8_X5_LITE
-=======
 
       v8::V8::SetFlagsFromString("--wasm-disable-structured-cloning",
                                  strlen("--wasm-disable-structured-cloning"));
 #if defined(V8_X5_LITE)
->>>>>>> remotes/main/v3.0-dev:framework/js/core/src/napi/v8/js_native_api_v8.cc
       v8::V8::InitializePlatform(platform_.get(), true);
 #else
       v8::V8::InitializePlatform(platform_.get());
@@ -826,15 +791,13 @@ std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
     bool is_use_code_cache,
     unicode_string_view* cache) {
   v8::Local<v8::String> v8_file_name = CreateV8String(file_name);
-<<<<<<< HEAD:renderer/flutter/core/third_party/hippy_core/src/napi/v8/js_native_api_v8.cc
-=======
 #if (V8_MAJOR_VERSION == 8 && V8_MINOR_VERSION == 9 && \
      V8_BUILD_NUMBER >= 45) ||                         \
     (V8_MAJOR_VERSION == 8 && V8_MINOR_VERSION > 9) || (V8_MAJOR_VERSION > 8)
   v8::ScriptOrigin origin(isolate_, v8_file_name);
 #else
->>>>>>> remotes/main/v3.0-dev:framework/js/core/src/napi/v8/js_native_api_v8.cc
   v8::ScriptOrigin origin(v8_file_name);
+#endif
   v8::MaybeLocal<v8::Script> script;
   if (is_use_code_cache && cache && !StringViewUtils::IsEmpty(*cache)) {
     unicode_string_view::Encoding encoding = cache->encoding();
@@ -957,7 +920,7 @@ std::shared_ptr<CtxValue> V8Ctx::CallFunction(
   }
 
   v8::Function* v8_fn = v8::Function::Cast(*handle_value);
-  v8::Local<v8::Value> *args = new v8::Local<v8::Value>[argument_count];
+  v8::Local<v8::Value> args[argument_count];
   for (size_t i = 0; i < argument_count; i++) {
     std::shared_ptr<V8CtxValue> argument =
         std::static_pointer_cast<V8CtxValue>(arguments[i]);
@@ -965,7 +928,6 @@ std::shared_ptr<CtxValue> V8Ctx::CallFunction(
       args[i] = v8::Local<v8::Value>::New(isolate_, argument->global_value_);
     } else {
       TDF_BASE_LOG(WARNING) << "CallFunction argument error, i = " << i;
-      delete[] args;
       return nullptr;
     }
   }
@@ -977,10 +939,8 @@ std::shared_ptr<CtxValue> V8Ctx::CallFunction(
 
   if (maybe_result.IsEmpty()) {
     TDF_BASE_DLOG(INFO) << "maybe_result is empty";
-    delete[] args;
     return nullptr;
   }
-  delete[] args;
   return std::make_shared<V8CtxValue>(isolate_, maybe_result.ToLocalChecked());
 }
 
@@ -1252,13 +1212,11 @@ std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
     return CreateBoolean(wrapper->BooleanValue());
   } else if (wrapper->IsArray()) {
     auto arr = wrapper->ArrayValue();
-    std::shared_ptr<CtxValue> *args = new std::shared_ptr<CtxValue>[arr.size()];
+    std::shared_ptr<CtxValue> args[arr.size()];
     for (auto i = 0; i < arr.size(); ++i) {
       args[i] = CreateCtxValue(std::make_shared<JSValueWrapper>(arr[i]));
     }
-    auto result = CreateArray(arr.size(), args);
-    delete[] args;
-    return result;
+    return CreateArray(arr.size(), args);
   } else if (wrapper->IsObject()) {
     auto obj = wrapper->ObjectValue();
 
@@ -1285,7 +1243,7 @@ std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
     return std::make_shared<V8CtxValue>(isolate_, v8_obj);
   }
 
-  //TDF_BASE_NOTIMPLEMENTED();
+  TDF_BASE_NOTIMPLEMENTED();
   return nullptr;
 }
 

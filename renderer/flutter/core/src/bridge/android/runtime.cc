@@ -6,7 +6,7 @@
  * @version  1.0.0
  * @date     2021/8/11
  *****************************************************************************/
-#include "bridge/android/runtime.h"
+#include "runtime.h"
 
 #include <mutex>
 #include <unordered_map>

@@ -6,10 +6,10 @@
  * @version  1.0.0
  * @date     2021/8/12
  *****************************************************************************/
-#include "bridge/android/js2dart.h"
-#include "bridge/android/runtime.h"
+#include "js2dart.h"
+#include "runtime.h"
 #include "bridge/string_util.h"
-#include "bridge/android/serializer.h"
+#include "serializer.h"
 
 using unicode_string_view = tdf::base::unicode_string_view;
 using StringViewUtil = hippy::base::StringViewUtils;

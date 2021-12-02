@@ -8,11 +8,11 @@
 #include <future>
 #include <sys/stat.h>
 
-#include "bridge/android/bridge_impl.h"
-#include "bridge/android/exception_handler.h"
+#include "bridge_impl.h"
+#include "exception_handler.h"
 #include "bridge/string_util.h"
-#include "bridge/android/js2dart.h"
-#include "bridge/android/dart2js.h"
+#include "js2dart.h"
+#include "dart2js.h"
 #ifdef V8_HAS_INSPECTOR
 #include "inspector/v8_inspector_client_impl.h"
 #endif

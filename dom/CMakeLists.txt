@@ -19,7 +19,7 @@ include_directories(${LAYOUT_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 file(GLOB_RECURSE SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/**)
 
-set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib/dom)
+#set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib/dom)
 add_library(${LIB_NAME} STATIC ${SRC_FILES})
 target_link_libraries(${LIB_NAME} ${DEPS})
 set_property(TARGET ${LIB_NAME} PROPERTY CXX_STANDARD 17)

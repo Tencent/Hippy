@@ -36,7 +36,6 @@ void BridgeManager::BindDomManager(const Sp<DomManager>& dom_manager) { dom_mana
 
 BridgeManager::~BridgeManager() {
   dom_manager_ = nullptr;
-  DomManager::Destroy(root_id_);
 }
 
 BridgeManager::BridgeManager(int32_t root_id) : root_id_(root_id) {}

@@ -24,7 +24,7 @@
 
 #include <memory>
 #include "v8/v8-inspector.h"
-#include "bridge/android/runtime.h"
+#include "runtime.h"
 
 namespace hippy {
 namespace inspector {

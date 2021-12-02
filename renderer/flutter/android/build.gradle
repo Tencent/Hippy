@@ -123,6 +123,15 @@ android {
   defaultConfig {
     minSdkVersion 21
 
+    if (enableLocalCmake) {
+        externalNativeBuild {
+            cmake {
+               cppFlags "-std=c++17"
+               arguments "-DANDROID_TOOLCHAIN=clang", "-DANDROID_STL=c++_shared"
+            }
+        }
+    }
+
     ndk {
       abiFilters 'armeabi-v7a', 'arm64-v8a'
     }
@@ -132,62 +141,13 @@ android {
   buildTypes {
     profile {
       minifyEnabled false
-
-      //关键代码，release， debug为library中已有buildType
-      matchingFallbacks = ['release', 'debug']
-      externalNativeBuild {
-        cmake {
-          arguments "-DJS_ENGINE=V8",
-            "-DANDROID_CPP_FEATURES=rtti exceptions",
-            "-DANDROID_PLATFORM=android-28",
-            "-DANDROID_STL=c++_shared",
-            "-DCMAKE_BUILD_TYPE=Profile",
-            "-DV8_TAG=$V8_TAG",
-            "-DV8_RELEASE=$v8Release",
-            "-DEXT_JS_ENGINE_LIB=$EXT_JS_ENGINE_LIB",
-            "-DCMAKE_SELF_PROJECT_BUILD_OUTPUT_DIR=${project.buildDir}",
-            "-DCMAKE_BUILD_OUTPUT_DIR=${project.rootProject.buildDir}"
-        }
-      }
     }
     release {
       minifyEnabled true
-      if (enableLocalCmake) {
-        externalNativeBuild {
-          cmake {
-            arguments "-DJS_ENGINE=V8",
-              "-DANDROID_CPP_FEATURES=rtti exceptions",
-              "-DANDROID_PLATFORM=android-28",
-              "-DANDROID_STL=c++_shared",
-              "-DCMAKE_BUILD_TYPE=Release",
-              "-DV8_TAG=$V8_TAG",
-              "-DV8_RELEASE=$v8Release",
-              "-DEXT_JS_ENGINE_LIB=$EXT_JS_ENGINE_LIB",
-              "-DCMAKE_SELF_PROJECT_BUILD_OUTPUT_DIR=${project.buildDir}",
-              "-DCMAKE_BUILD_OUTPUT_DIR=${project.rootProject.buildDir}"
-          }
-        }
-      }
     }
     debug {
       minifyEnabled false
       jniDebuggable true
-      if (enableLocalCmake) {
-        externalNativeBuild {
-          cmake {
-            arguments "-DJS_ENGINE=V8",
-              "-DANDROID_CPP_FEATURES=rtti exceptions",
-              "-DANDROID_PLATFORM=android-28",
-              "-DANDROID_STL=c++_shared",
-              "-DCMAKE_BUILD_TYPE=Debug",
-              "-DV8_TAG=$V8_TAG",
-              "-DV8_RELEASE=$v8Release",
-              "-DEXT_JS_ENGINE_LIB=$EXT_JS_ENGINE_LIB",
-              "-DCMAKE_SELF_PROJECT_BUILD_OUTPUT_DIR=${project.buildDir}",
-              "-DCMAKE_BUILD_OUTPUT_DIR=${project.rootProject.buildDir}"
-          }
-        }
-      }
     }
   }
 
@@ -209,7 +169,7 @@ android {
     externalNativeBuild {
       cmake {
         version "3.10.2"
-        path "CMakeLists.txt"
+        path "../core/CMakeLists.txt"
       }
     }
   }

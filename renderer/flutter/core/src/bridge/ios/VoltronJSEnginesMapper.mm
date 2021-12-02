@@ -6,7 +6,7 @@
 //
 
 #import "VoltronJSEnginesMapper.h"
-#import "VoltronLog.h"
+#import "utils/VoltronLog.h"
 #import "VoltronJavaScriptExecutor.h"
 
 using EngineRef = std::pair<std::shared_ptr<Engine>, NSUInteger>;

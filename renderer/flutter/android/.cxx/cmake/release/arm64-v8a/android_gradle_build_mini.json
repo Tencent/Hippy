@@ -1,0 +1,53 @@
+{
+  "buildFiles": [
+    "/Users/huli/svn_work/Hippy/framework/js/android/src/main/jni/third_party/v8/stable/official-release/CMakeLists.txt",
+    "/Users/huli/svn_work/Hippy/renderer/flutter/cmake/render_core.cmake",
+    "/Users/huli/svn_work/Hippy/dom/CMakeLists.txt",
+    "/Users/huli/svn_work/Hippy/framework/js/core/third_party/base/CMakeLists.txt",
+    "/Users/huli/svn_work/Hippy/renderer/flutter/core/CMakeLists.txt",
+    "/Users/huli/svn_work/Hippy/renderer/flutter/cmake/framework_platform_android.cmake",
+    "/Users/huli/svn_work/Hippy/framework/js/core/third_party/base/src/CMakeLists.txt",
+    "/Users/huli/svn_work/Hippy/layout/CMakeLists.txt",
+    "/Users/huli/android_sdk_tools/ndk/21.4.7075529/build/cmake/android.toolchain.cmake",
+    "/Users/huli/svn_work/Hippy/framework/js/core/third_party/base/src/base/CMakeLists.txt",
+    "/Users/huli/svn_work/Hippy/renderer/flutter/cmake/framework_core.cmake",
+    "/Users/huli/android_sdk_tools/ndk/21.4.7075529/build/cmake/platforms.cmake",
+    "/Users/huli/svn_work/Hippy/framework/js/core/third_party/base/src/platform/adr/CMakeLists.txt"
+  ],
+  "cleanCommands": [
+    "/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/bin/ninja -C \"/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/release/arm64-v8a\" clean"
+  ],
+  "buildTargetsCommand": "/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/bin/ninja -C \"/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/release/arm64-v8a\" {LIST_OF_TARGETS_TO_BUILD}",
+  "libraries": {
+    "tdf_base-Release-arm64-v8a": {
+      "artifactName": "tdf_base",
+      "buildCommand": "/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/bin/ninja -C \"/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/release/arm64-v8a\" tdf_base",
+      "abi": "arm64-v8a",
+      "output": "/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/release/arm64-v8a/base/src/platform/adr/libtdf_base.a"
+    },
+    "dom-Release-arm64-v8a": {
+      "artifactName": "dom",
+      "buildCommand": "/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/bin/ninja -C \"/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/release/arm64-v8a\" dom",
+      "abi": "arm64-v8a",
+      "output": "/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/release/arm64-v8a/dom/libdom.a"
+    },
+    "tdf_base_common-Release-arm64-v8a": {
+      "artifactName": "tdf_base_common",
+      "buildCommand": "/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/bin/ninja -C \"/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/release/arm64-v8a\" tdf_base_common",
+      "abi": "arm64-v8a",
+      "output": "/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/release/arm64-v8a/base/src/base/libtdf_base_common.a"
+    },
+    "voltron_core-Release-arm64-v8a": {
+      "artifactName": "voltron_core",
+      "buildCommand": "/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/bin/ninja -C \"/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/release/arm64-v8a\" voltron_core",
+      "abi": "arm64-v8a",
+      "output": "/Users/huli/svn_work/Hippy/renderer/flutter/example/build/tencent_voltron_render/intermediates/cmake/release/obj/arm64-v8a/libvoltron_core.so"
+    },
+    "layout-Release-arm64-v8a": {
+      "artifactName": "layout",
+      "buildCommand": "/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/bin/ninja -C \"/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/release/arm64-v8a\" layout",
+      "abi": "arm64-v8a",
+      "output": "/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/release/arm64-v8a/dom/layout_out/liblayout.a"
+    }
+  }
+}
