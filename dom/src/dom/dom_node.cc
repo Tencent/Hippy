@@ -28,6 +28,16 @@ DomNode::DomNode(int32_t id, int32_t pid, int32_t index)
 
 DomNode::~DomNode() = default;
 
+void DomNode::SetLayoutWidth(float width) {
+  TDF_BASE_CHECK(layout_node_);
+  layout_node_->SetWidth(width);
+}
+
+void DomNode::SetLayoutHeight(float height) {
+  TDF_BASE_CHECK(layout_node_);
+  layout_node_->SetHeight(height);
+}
+
 int32_t DomNode::IndexOf(const std::shared_ptr<DomNode>& child) {
   for (int i = 0; i < children_.size(); i++) {
     if (children_[i] == child) {
@@ -49,7 +59,7 @@ std::shared_ptr<DomNode> DomNode::GetChildAt(int32_t index) {
 void DomNode::AddChildAt(const std::shared_ptr<DomNode>& dom_node, int32_t index) {
   children_.insert(children_.begin() + index, dom_node);
   dom_node->SetParent(shared_from_this());
-  std::shared_ptr<TaitankLayoutNode> node = std::static_pointer_cast<TaitankLayoutNode>(node_);
+  std::shared_ptr<TaitankLayoutNode> node = std::static_pointer_cast<TaitankLayoutNode>(layout_node_);
   node->InsertChild(node, index);
 }
 
@@ -57,21 +67,26 @@ std::shared_ptr<DomNode> DomNode::RemoveChildAt(int32_t index) {
   auto child = children_[index];
   child->SetParent(nullptr);
   children_.erase(children_.begin() + index);
-  std::shared_ptr<TaitankLayoutNode> node = std::static_pointer_cast<TaitankLayoutNode>(node_);
-  std::shared_ptr<TaitankLayoutNode> child_node = std::static_pointer_cast<TaitankLayoutNode>(child->node_);
+  std::shared_ptr<TaitankLayoutNode> node = std::static_pointer_cast<TaitankLayoutNode>(layout_node_);
+  std::shared_ptr<TaitankLayoutNode> child_node = std::static_pointer_cast<TaitankLayoutNode>(child->layout_node_);
   node->RemoveChild(child_node);
   return child;
 }
 
 void DomNode::DoLayout() {
-  std::shared_ptr<TaitankLayoutNode> node = std::static_pointer_cast<TaitankLayoutNode>(node_);
+  std::shared_ptr<TaitankLayoutNode> node = std::static_pointer_cast<TaitankLayoutNode>(layout_node_);
   node->CalculateLayout(0, 0);
   TransferLayoutOutputsRecursive();
 }
 
+std::tuple<int32_t, int32_t> DomNode::GetSize() {
+  return std::make_tuple(layout_node_->GetWidth(), layout_node_->GetHeight());
+}
+
+
 void DomNode::SetSize(int32_t width, int32_t height) {
-  node_->SetWidth(width);
-  node_->SetHeight(height);
+  layout_node_->SetWidth(width);
+  layout_node_->SetHeight(height);
 }
 
 int32_t DomNode::AddDomEventListener(DomEvent event, OnDomEventListener listener) {
@@ -141,10 +156,10 @@ void DomNode::OnLayout(LayoutEvent event, LayoutResult result) {
   }
 }
 
-void DomNode::ParseLayoutStyleInfo() { node_->SetLayoutStyles(style_map_); }
+void DomNode::ParseLayoutStyleInfo() { layout_node_->SetLayoutStyles(style_map_); }
 
 void DomNode::TransferLayoutOutputsRecursive() {
-  std::shared_ptr<TaitankLayoutNode> node = std::static_pointer_cast<TaitankLayoutNode>(node_);
+  std::shared_ptr<TaitankLayoutNode> node = std::static_pointer_cast<TaitankLayoutNode>(layout_node_);
   if (!node->HasNewLayout()) {
     return;
   }
