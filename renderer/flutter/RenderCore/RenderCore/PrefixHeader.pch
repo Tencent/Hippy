@@ -1,0 +1,16 @@
+//
+//  PrefixHeader.pch
+//  RenderCore
+//
+//  Created by sshsong on 14/1/2021.
+//
+
+#ifndef PrefixHeader_pch
+#define PrefixHeader_pch
+
+// Include any system framework and library headers here that should be included in all compilation units.
+// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+
+//#define NSLog(...)
+
+#endif /* PrefixHeader_pch */
