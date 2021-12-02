@@ -15,18 +15,23 @@ class LayoutNode {
 
   virtual ~LayoutNode();
 
+  virtual float GetWidth() = 0;
+  virtual float GetHeight() = 0;
+  virtual void SetWidth(float width) = 0;
+  virtual void SetHeight(float height) = 0;
+
   /**
    * @brief 插入子节点
    * @param child
    * @param index
    */
-  virtual void InsertChild(std::shared_ptr<LayoutNode> child, uint32_t index);
+  virtual void InsertChild(std::shared_ptr<LayoutNode> child, uint32_t index) = 0;
 
   /**
    * @brief 删除子节点
    * @param child
    */
-  virtual void RemoveChild(const std::shared_ptr<LayoutNode> child);
+  virtual void RemoveChild(const std::shared_ptr<LayoutNode> child) = 0;
 
   /**
    * @brief 删除子节点

@@ -111,10 +111,14 @@ void DomManager::RemoveDomTreeEventListener(DomTreeEvent event, int32_t listener
   TDF_BASE_NOTIMPLEMENTED();
 }
 
-void DomManager::SetRootSize(int32_t width, int32_t height) {
-  if (root_node_ != nullptr) {
-    root_node_->SetSize(width, height);
-  }
+std::tuple<float, float> DomManager::GetRootSize() {
+  TDF_BASE_DCHECK(root_node_);
+  return root_node_->GetSize();
+}
+
+void DomManager::SetRootSize(float width, float height) {
+  TDF_BASE_CHECK(root_node_);
+  root_node_->SetSize(width, height);
 }
 
 void DomManager::AddLayoutChangedNode(const std::shared_ptr<DomNode>& node) {

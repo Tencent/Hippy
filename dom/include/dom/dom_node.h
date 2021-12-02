@@ -41,10 +41,28 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
     }
   };
 
-  std::shared_ptr<DomNode> GetParent() { return parent_.lock(); }
-  void SetParent(std::shared_ptr<DomNode> parent) { parent_ = parent; }
+  inline std::shared_ptr<DomNode> GetParent() { return parent_.lock(); }
+  inline void SetParent(std::shared_ptr<DomNode> parent) { parent_ = parent; }
+  inline int32_t GetChildCount() const { return children_.size(); }
+  inline void SetTagName(const std::string& tag_name) { tag_name_ = tag_name; }
+  inline const std::string& GetTagName() { return tag_name_; }
+  inline const std::string& GetViewName() { return view_name_; }
+  inline std::shared_ptr<LayoutNode> GetLayoutNode() {return layout_node_; }
+  inline void SetId(int32_t id) { id_ = id; }
+  inline int32_t GetId() const { return id_; }
+  inline void SetPid(int32_t pid) { pid_ = pid; }
+  inline int32_t GetPid() const { return pid_; }
+  inline RenderInfo GetRenderInfo() const { return render_info_; }
+  inline void SetRenderInfo(RenderInfo render_info) { render_info_ = render_info; }
+  inline bool IsJustLayout() const { return is_just_layout_; }
+  inline void SetIsJustLayout(bool is_just_layout) { is_just_layout_ = is_just_layout; }
+  inline bool IsVirtual() { return is_virtual_; }
+  inline void SetIsVirtual(bool is_virtual) { is_virtual_ = is_virtual; }
+  inline void SetIndex(int32_t index) { index_ = index; }
+  inline int32_t GetIndex() const { return index_; }
 
-  int32_t GetChildCount() const { return children_.size(); }
+  void SetLayoutWidth(float width);
+  void SetLayoutHeight(float height);
   int32_t IndexOf(const std::shared_ptr<DomNode>& child);
   std::shared_ptr<DomNode> GetChildAt(int32_t index);
   void AddChildAt(const std::shared_ptr<DomNode>& dom_node, int32_t index);
@@ -66,31 +84,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   void CallTouch(TouchEvent event, TouchEventInfo info);
   void CallOnShow(ShowEvent event);
 
-  inline void SetTagName(const std::string& tag_name) { tag_name_ = tag_name; }
-
-  inline const std::string& GetTagName() { return tag_name_; }
-
-  inline void SetStyleStr(const std::string& view_name) { view_name_ = view_name; }
-
-  inline const std::string& GetViewName() { return view_name_; }
-
-  void SetId(int32_t id) { id_ = id; }
-  int32_t GetId() const { return id_; }
-
-  void SetPid(int32_t pid) { pid_ = pid; }
-  int32_t GetPid() const { return pid_; }
-
-  RenderInfo GetRenderInfo() const { return render_info_; }
-  void SetRenderInfo(RenderInfo render_info) { render_info_ = render_info; }
-
-  bool IsJustLayout() const { return is_just_layout_; }
-  void SetIsJustLayout(bool is_just_layout) { is_just_layout_ = is_just_layout; }
-
-  bool IsVirtual() { return is_virtual_; }
-  void SetIsVirtual(bool is_virtual) { is_virtual_ = is_virtual; }
-
-  void SetIndex(int32_t index) { index_ = index; }
-  int32_t GetIndex() const { return index_; }
+  std::tuple<int32_t, int32_t> GetSize();
   void SetSize(int32_t width, int32_t height);
   int32_t AddDomEventListener(DomEvent event, OnDomEventListener listener);
   void RemoveDomEventListener(DomEvent event, int32_t listener_id);
@@ -126,7 +120,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   std::unordered_map<std::string, std::shared_ptr<DomValue>> diff_;
   // Update 时用户自定义数据差异，UpdateRenderNode 完成后会清空 map，以节省内存
 
-  std::shared_ptr<TaitankLayoutNode> node_;
+  std::shared_ptr<LayoutNode> layout_node_;
   LayoutResult layout_;  // Layout 结果
   bool is_just_layout_;
   bool is_virtual_;

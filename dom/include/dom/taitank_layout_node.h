@@ -38,13 +38,13 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
    * @brief 设置宽度
    * @param width 宽度
    */
-  void SetWidth(float width);
+  void SetWidth(float width) override;
 
   /**
    * @brief 设置高度
    * @param height 高度
    */
-  void SetHeight(float height);
+  void SetHeight(float height) override;
   /**
    * @brief 设置测量函数
    * @param measure_function 测量函数
@@ -80,13 +80,13 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
    * @brief 获取 width 属性
    * @return width 属性
    */
-  float GetWidth();
+  float GetWidth() override;
 
   /**
    * @brief 获取 height 属性
    * @return height 属性
    */
-  float GetHeight();
+  float GetHeight() override;
 
   /**
    * @brief 获取 margin 属性

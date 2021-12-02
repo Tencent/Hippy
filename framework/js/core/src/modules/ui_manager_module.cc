@@ -37,8 +37,13 @@ REGISTER_MODULE(UIManagerModule, StartBatch)
 REGISTER_MODULE(UIManagerModule, EndBatch)
 REGISTER_MODULE(UIManagerModule, CallUIFunction)
 
+constexpr char kFuncParamKey[] = "param";
+constexpr char kModalViewName[] = "modal";
+constexpr char kTextViewName[] = "text";
+constexpr char kImageViewName[] = "image";
+
 const char *kNodePropertyId = "id";
-const char *kNodePropertyPid = "pid";
+const char *kNodePropertyPid = "pId";
 const char *kNodePropertyIndex = "index";
 const char *kNodePropertyViewName = "name";
 const char *kNodePropertyTagName = "tagName";
@@ -376,7 +381,7 @@ void BindTouchEvent(std::shared_ptr<Ctx> context, const std::string &name,
     }
     int32_t id = dom_node->GetId();
     dom_node->AddTouchEventListener(event, [weak_context, weak_func, id]
-        (hippy::TouchEventInfo info) {
+        (hippy::TouchEvent event, hippy::TouchEventInfo info) {
       auto context = weak_context.lock();
       if (!context) {
         return;
@@ -498,6 +503,27 @@ std::tuple<bool, std::string, std::shared_ptr<DomNode>> CreateNode(std::shared_p
   std::string u8_tag_name = StringViewUtils::ToU8StdStr(std::get<2>(tag_name_tuple));
   std::string u8_view_name = StringViewUtils::ToU8StdStr(std::get<2>(view_name_tuple));
 
+  /*
+   * 特殊组件，需要js delegate特殊处理
+   * 1. modal组件需要外部传入宽高，因为大部分modal组件render实现会挂在window上
+   * 2. text组件需要外部传入测量方法
+   * 3. image组件需要外部传入测量方法
+   */
+  bool isModalView = false;
+  if (u8_view_name == kModalViewName) {
+    isModalView = true;
+  }
+
+  bool isTextView = false;
+  if (u8_view_name == kTextViewName) {
+    isTextView = true;
+  }
+
+  bool isImageView = false;
+  if (u8_view_name == kImageViewName) {
+    isImageView = true;
+  }
+
   dom_node = std::make_shared<DomNode>(std::get<2>(id_tuple), std::get<2>(pid_tuple),
     std::get<2>(index_tuple), std::move(u8_tag_name), std::move(u8_view_name),
     std::move(std::get<2>(props_tuple)), std::move(std::get<4>(props_tuple)),
@@ -523,6 +549,12 @@ std::tuple<bool, std::string, std::shared_ptr<DomNode>> CreateNode(std::shared_p
         SetAttachListener(context, hippy::kOnDetachedFromWindow, dom_node);
       }
     }
+  }
+
+  if (isModalView) {
+    auto size = scope->GetDomManager()->GetRootSize();
+    dom_node->SetLayoutWidth(std::get<0>(size));
+    dom_node->SetLayoutHeight(std::get<1>(size));
   }
   return std::make_tuple(true, "", dom_node);
 }
@@ -648,6 +680,8 @@ void UIManagerModule::CallUIFunction(const hippy::napi::CallbackInfo &info) {
     for (auto p: param_obj) {
       param[p.first] = std::make_shared<DomValue>(std::move(p.second));
     }
+  } else if (param_value->IsArray()) { // 暂时兼容老版本，后续该处改为协商机制
+    param[kFuncParamKey] = param_value;
   }
 
   hippy::CallFunctionCallback cb;
