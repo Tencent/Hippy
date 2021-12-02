@@ -21,15 +21,17 @@
  */
 
 #import "HippyShadowTextView.h"
-#import "MTTLayout.h"
-#import "x5LayoutUtil.h"
+#import "Hippy.h"
+#import "HippyUtils.h"
+
+
 @interface HippyShadowTextView ()
 @property (nonatomic, strong) NSDictionary *dicAttributes;
 @end
 
-static MTTSize x5MeasureFunc(
-    MTTNodeRef node, float width, MeasureMode widthMeasureMode, __unused float height, __unused MeasureMode heightMeasureMode, void *layoutContext) {
-    HippyShadowTextView *shadowText = (__bridge HippyShadowTextView *)MTTNodeGetContext(node);
+static HPSize x5MeasureFunc(
+    HPNodeRef node, float width, MeasureMode widthMeasureMode, __unused float height, __unused MeasureMode heightMeasureMode, void *layoutContext) {
+    HippyShadowTextView *shadowText = (__bridge HippyShadowTextView *)node->getContext();
     NSString *text = shadowText.text ?: shadowText.placeholder;
     if (nil == shadowText.dicAttributes) {
         if (shadowText.font == nil) {
@@ -38,9 +40,9 @@ static MTTSize x5MeasureFunc(
         shadowText.dicAttributes = @ { NSFontAttributeName: shadowText.font };
     }
     CGSize computedSize = [text sizeWithAttributes:shadowText.dicAttributes];
-    MTTSize result;
-    result.width = x5CeilPixelValue(computedSize.width);
-    result.height = x5CeilPixelValue(computedSize.height);
+    HPSize result;
+    result.width = HippyCeilPixelValue(computedSize.width);
+    result.height = HippyCeilPixelValue(computedSize.height);
     return result;
 }
 
@@ -49,8 +51,8 @@ static MTTSize x5MeasureFunc(
 - (instancetype)init {
     self = [super init];
     if (self) {
-        MTTNodeSetMeasureFunc(self.nodeRef, x5MeasureFunc);
-        MTTNodeSetContext(self.nodeRef, (__bridge void *)self);
+        HPNodeSetMeasureFunc(self.nodeRef, x5MeasureFunc);
+        self.nodeRef->setContext((__bridge void *)self);
     }
     return self;
 }

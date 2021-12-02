@@ -40,6 +40,14 @@ unicode_string_view CU16StringToStrView(const char16_t *source_char) {
                              std::char_traits<char16_t>::length(source_char));
 }
 
+EXPORT std::string C16CharToString(const char16_t* source_char) {
+  if (source_char == nullptr) {
+    return "";
+  }
+  size_t length = std::char_traits<char16_t>::length(source_char);
+  return std::wstring_convert<std::codecvt_utf8<char16_t>, char16_t>{}.to_bytes(source_char, source_char + length);
+}
+
 const char16_t *StrViewToCU16String(const unicode_string_view &str_view) {
   std::u16string str =
       StringViewUtils::Convert(str_view, unicode_string_view::Encoding::Utf16)

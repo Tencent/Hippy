@@ -77,6 +77,18 @@ class VoltronArray {
     }
   }
 
+  VoltronArray.fromList(List list) {
+    for (final value in list) {
+      if (value is Map) {
+        push(VoltronMap.fromMap(value));
+      } else if (value is List) {
+        push(VoltronArray.fromList(value));
+      } else {
+        push(value);
+      }
+    }
+  }
+
   @override
   String toString() {
     return _data.toString();

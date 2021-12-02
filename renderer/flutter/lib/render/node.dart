@@ -70,7 +70,7 @@ abstract class RenderNode<T extends RenderViewModel> {
 
   /// 更新相关属性
   final HashMap<int, int> _deleteIdIndexMap = HashMap();
-  final List<Promise> _measureInWindows = [];
+  final List<JSPromise> _measureInWindows = [];
   final List<UIFunction> _uiFunction = [];
 
   /// 外部依赖
@@ -407,7 +407,7 @@ abstract class RenderNode<T extends RenderViewModel> {
     _props = map;
   }
 
-  void measureInWindow(Promise promise) {
+  void measureInWindow(JSPromise promise) {
     if (!_measureInWindows.contains(promise)) {
       _measureInWindows.add(promise);
     }
@@ -423,7 +423,7 @@ abstract class RenderNode<T extends RenderViewModel> {
     _uiFunction.add(UIFunction(funcName, array, promise));
   }
 
-  void _measureInWindow(Promise promise) {
+  void _measureInWindow(JSPromise promise) {
     var renderObject =
         _viewModel?.currentContext?.findRenderObject() as RenderBox?;
     if (renderObject == null) {

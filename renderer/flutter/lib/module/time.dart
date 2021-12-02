@@ -53,7 +53,7 @@ class TimeModule extends VoltronNativeModule
   }
 
   @VoltronMethod(funcSetTimeout)
-  bool setTimeout(int timeOut, String callId, Promise promise) {
+  bool setTimeout(int timeOut, String callId, JSPromise promise) {
     var timer = TimerTask(timeOut, false, callId, (task) {
       promise.resolve("");
       _timeInfo.remove(task);
@@ -64,7 +64,7 @@ class TimeModule extends VoltronNativeModule
   }
 
   @VoltronMethod(funcClearTimeout)
-  bool clearTimeout(String callId, Promise promise) {
+  bool clearTimeout(String callId, JSPromise promise) {
     var task = _timeInfo[callId];
     task?.stop();
     _timeInfo.remove(callId);
@@ -72,7 +72,7 @@ class TimeModule extends VoltronNativeModule
   }
 
   @VoltronMethod(funcSetInterval)
-  bool setInterval(int interval, String callId, Promise promise) {
+  bool setInterval(int interval, String callId, JSPromise promise) {
     var timer = TimerTask(interval, true, callId, (task) {
       promise.resolve("");
     });
@@ -82,7 +82,7 @@ class TimeModule extends VoltronNativeModule
   }
 
   @VoltronMethod(funcClearInterval)
-  bool clearInterval(String callId, Promise promise) {
+  bool clearInterval(String callId, JSPromise promise) {
     var task = _timeInfo[callId];
     task?.stop();
     _timeInfo.remove(callId);

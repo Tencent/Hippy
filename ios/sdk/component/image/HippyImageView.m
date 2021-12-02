@@ -613,15 +613,20 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
 - (void)loadImage:(UIImage *)image url:(NSString *)url error:(NSError *)error needBlur:(BOOL)needBlur needCache:(BOOL)needCache {
     if (error) {
         if (_onError && error.code != NSURLErrorCancelled) {
-            _onError(@{ @"error": error.localizedDescription, @"errorCode": @(error.code) });
+            _onError(@{ @"error": error.localizedDescription, @"errorCode": @(error.code), @"errorURL": url });
         }
         if (_onLoadEnd) {
             _onLoadEnd(nil);
         }
         return;
     }
-
-    __weak typeof(self) weakSelf = self;
+    NSDictionary *source = [self.source firstObject];
+    NSString *currentImageURLString = [source objectForKey:@"uri"];
+    BOOL shouldContinue = url && currentImageURLString && [url isEqualToString:currentImageURLString];
+    if (!shouldContinue) {
+        return;
+    }
+    __weak __typeof(self) weakSelf = self;
     void (^setImageBlock)(UIImage *) = ^(UIImage *image) {
         weakSelf.pendingImageSourceUri = nil;
         weakSelf.imageSourceUri = url;

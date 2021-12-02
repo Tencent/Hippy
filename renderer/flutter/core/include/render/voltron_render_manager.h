@@ -19,11 +19,12 @@ using hippy::ShowEvent;
 
 class VoltronRenderManager : public RenderManager, private VoltronRenderTaskRunner {
  public:
-  explicit VoltronRenderManager(int32_t root_id);
+  explicit VoltronRenderManager(int32_t root_id, int32_t engine_id);
   ~VoltronRenderManager() override;
   void CreateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) override;
   void UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) override;
   void DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) override;
+  void UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) override;
   void MoveRenderNode(std::vector<int32_t>&& ids, int32_t pid, int32_t id) override;
 
   void Batch() override;
@@ -40,6 +41,10 @@ class VoltronRenderManager : public RenderManager, private VoltronRenderTaskRunn
   void RemoveTouchEventListener(int32_t id, TouchEvent event) override;
   void SetShowEventListener(int32_t id, ShowEvent event, OnShowEventListener listener) override;
   void RemoveShowEventListener(int32_t id, ShowEvent event) override;
+
+  int32_t GetRootId() {
+    return root_id_;
+  }
 
   std::unique_ptr<std::vector<uint8_t>> Consume() {
     return ConsumeQueue();

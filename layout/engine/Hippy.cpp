@@ -245,6 +245,34 @@ float HPNodeLayoutGetHeight(HPNodeRef node) {
   return node->result.dim[DimHeight];
 }
 
+float HPNodeLayoutGetMaxWidth(HPNodeRef node) {
+  if (node == nullptr) {
+    return 0;
+  }
+  return node->style.maxDim[DimWidth];
+}
+
+float HPNodeLayoutGetMaxHeight(HPNodeRef node) {
+  if (node == nullptr) {
+    return 0;
+  }
+  return node->style.maxDim[DimHeight];
+}
+
+float HPNodeLayoutGetMinWidth(HPNodeRef node) {
+  if (node == nullptr) {
+    return 0;
+  }
+  return node->style.minDim[DimWidth];
+}
+
+float HPNodeLayoutGetMinHeight(HPNodeRef node) {
+  if (node == nullptr) {
+    return 0;
+  }
+  return node->style.minDim[DimHeight];
+}
+
 float HPNodeLayoutGetMargin(HPNodeRef node, CSSDirection dir) {
   if (node == nullptr || dir > CSSBottom)
     return 0;
@@ -256,15 +284,94 @@ float HPNodeLayoutGetPadding(HPNodeRef node, CSSDirection dir) {
     return 0;
   return node->result.padding[dir];
 }
+
 float HPNodeLayoutGetBorder(HPNodeRef node, CSSDirection dir) {
   if (node == nullptr || dir > CSSBottom)
     return 0;
   return node->result.border[dir];
 }
+
 bool HPNodeLayoutGetHadOverflow(HPNodeRef node) {
   if (node == nullptr)
     return false;
   return node->result.hadOverflow;
+}
+
+float HPNodeLayoutGetFlexGrow(HPNodeRef node) {
+  if (node == nullptr) {
+    return 0;
+  }
+  return node->style.flexGrow;
+}
+
+float HPNodeLayoutGetFlexShrink(HPNodeRef node) {
+  if (node == nullptr) {
+    return 0;
+  }
+  return node->style.flexShrink;
+}
+
+DisplayType HPNodeLayoutGetDisplay(HPNodeRef node) {
+  if (nullptr == node) {
+    return DisplayTypeFlex;
+  }
+  return node->style.displayType;
+}
+
+float HPNodeLayoutGetFlexBasis(HPNodeRef node) {
+  if (nullptr == node) {
+    return 0;
+  }
+  return node->style.getFlexBasis();
+}
+
+FlexDirection HPNodeLayoutGetFlexDirection(HPNodeRef node) {
+  if (nullptr == node) {
+    return FLexDirectionRow;
+  }
+  return node->style.flexDirection;
+}
+
+FlexAlign HPNodeLayoutGetJustifyContent(HPNodeRef node) {
+  if (nullptr == node) {
+    return FlexAlignStart;
+  }
+  return node->style.alignContent;
+}
+
+FlexAlign HPNodeLayoutGetAlignSelf(HPNodeRef node) {
+  if (nullptr == node) {
+    return FlexAlignAuto;
+  }
+  return node->style.alignSelf;
+}
+
+FlexAlign HPNodeLayoutGetAlignItems(HPNodeRef node) {
+  if (nullptr == node) {
+    return FlexAlignStart;
+  }
+  return node->style.alignItems;
+}
+
+PositionType HPNodeLayoutGetPositionType(HPNodeRef node) {
+  if (nullptr == node) {
+    return PositionTypeRelative;
+  }
+  return node->style.positionType;
+}
+
+FlexWrapMode HPNodeLayoutGetFlexWrap(HPNodeRef node) {
+  if (nullptr == node) {
+    return FlexNoWrap;
+  }
+  return node->style.flexWrap;
+}
+
+OverflowType HPNodeLayoutGetOverflow(HPNodeRef node) {
+  if (nullptr == node) {
+    return OverflowVisible;
+  }
+  return node->style.overflowType;
 }
 
 void HPNodeSetConfig(HPNodeRef node, HPConfigRef config) {
@@ -278,6 +385,19 @@ void HPConfigFree(HPConfigRef config) {
 HPConfigRef HPConfigGetDefault() {
   static HPConfigRef defaultConfig = new HPConfig();
   return defaultConfig;
+}
+
+void HPNodeSetContext(HPNodeRef node, void *context) {
+  if (node) {
+    node->setContext(context);
+  }
+}
+
+void *HPNodeGetContext(HPNodeRef node) {
+  if (node) {
+    return node->getContext();
+  }
+  return nullptr;
 }
 
 void HPNodeStyleSetDisplay(HPNodeRef node, DisplayType displayType) {
@@ -340,6 +460,23 @@ bool HPNodeRemoveChild(HPNodeRef node, HPNodeRef child) {
   if (node == nullptr)
     return false;
   return node->removeChild(child);
+}
+
+uint32_t HPNodeChildCount(HPNodeRef node) {
+  if (node == nullptr) {
+    return 0;
+  }
+  return node->childCount();
+}
+
+HPNodeRef HPNodeGetChild(HPNodeRef node, uint32_t index) {
+  if (node == nullptr) {
+    return 0;
+  }
+  if (index >= node->childCount()) {
+    return nullptr;
+  }
+  return node->getChild(index);
 }
 
 bool HPNodeHasNewLayout(HPNodeRef node) {

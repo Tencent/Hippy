@@ -11,6 +11,9 @@ enum VoltronRenderOpType {
   UPDATE_NODE,
   UPDATE_LAYOUT,
   BATCH,
+  DISPATCH_UI_FUNC,
+  ADD_EVENT,
+  REMOVE_EVENT,
 };
 
 }  // namespace voltron

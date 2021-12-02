@@ -225,7 +225,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     HippyKeyCommands *commands = [HippyKeyCommands sharedInstance];
 
     // reload in current mode
-    __weak typeof(self) weakSelf = self;
+    __weak __typeof(self) weakSelf = self;
     [commands registerKeyCommandWithInput:@"r" modifierFlags:UIKeyModifierCommand action:^(__unused UIKeyCommand *command) {
         // 暂时屏蔽掉RN的调试
         [weakSelf requestReload];

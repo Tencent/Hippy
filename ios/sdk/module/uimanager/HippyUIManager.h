@@ -175,13 +175,16 @@ using DispatchFunctionCallback = hippy::DispatchFunctionCallback;
 using OnClickEventListener = hippy::OnClickEventListener;
 using OnLongClickEventListener = hippy::OnLongClickEventListener;
 using OnTouchEventListener = hippy::OnTouchEventListener;
+using OnShowEventListener = hippy::OnShowEventListener;
 using TouchEvent = hippy::TouchEvent;
+using ShowEvent = hippy::ShowEvent;
 
 @interface HippyUIManager(iOSRenderManager)
 
 - (void)renderCreateView:(int32_t)hippyTag
                 viewName:(const std::string &)name
                  rootTag:(int32_t)rootTag
+                 tagName:(const std::string &)tagName
                    props:(const std::unordered_map<std::string, std::shared_ptr<DomValue>> &)styleMap;
 
 - (void)renderUpdateView:(int32_t)hippyTag
@@ -205,16 +208,27 @@ using TouchEvent = hippy::TouchEvent;
 
 - (void) removeClickEventListener:(int32_t)listenerID forView:(int32_t)hippyTag;
 
+- (void) removeClickEventForView:(int32_t)hippyTag;
+
 - (int32_t) addLongClickEventListener:(OnLongClickEventListener)listener
                               forView:(int32_t)hippyTag;
 
 - (void) removeLongClickEventListener:(int32_t)listenerID forView:(int32_t)hippyTag;
+
+- (void) removeLongClickEventForView:(int32_t)hippyTag;
 
 - (void) addTouchEventListener:(OnTouchEventListener)listener
                     touchEvent:(TouchEvent)event
                        forView:(int32_t)hippyTag;
 
 - (void) removeTouchEvent:(TouchEvent)event forView:(int32_t)hippyTag;
+
+- (void) addShowEventListener:(OnShowEventListener)listener
+                    showEvent:(ShowEvent)event
+                      forView:(int32_t)hippyTag;
+
+- (void) removeShowEvent:(ShowEvent)event forView:(int32_t)hippyTag;
+
 @end
 
 /**

@@ -18,7 +18,7 @@ class StorageModule extends VoltronNativeModule {
   }
 
   @VoltronMethod(funcMultiGet)
-  bool multiGet(VoltronArray keys, final Promise promise) {
+  bool multiGet(VoltronArray keys, final JSPromise promise) {
     if (keys.size() <= 0) {
       promise.reject("Invalid Key");
       return true;
@@ -49,7 +49,7 @@ class StorageModule extends VoltronNativeModule {
   }
 
   @VoltronMethod(funcMultiSet)
-  bool multiSet(VoltronArray keyValues, final Promise promise) {
+  bool multiSet(VoltronArray keyValues, final JSPromise promise) {
     if (keyValues.size() <= 0) {
       promise.reject("Invalid keyValues");
       return true;
@@ -93,7 +93,7 @@ class StorageModule extends VoltronNativeModule {
   }
 
   @VoltronMethod(funcMultiRemove)
-  bool multiRemove(VoltronArray keys, final Promise promise) {
+  bool multiRemove(VoltronArray keys, final JSPromise promise) {
     if (keys.size() <= 0) {
       promise.reject("Invalid Key");
       return true;
@@ -111,7 +111,7 @@ class StorageModule extends VoltronNativeModule {
   }
 
   @VoltronMethod(funcGetAllKeys)
-  bool getAllKeys(final Promise promise) {
+  bool getAllKeys(final JSPromise promise) {
     LogUtils.i('StorageModule', funcGetAllKeys);
     var storageAdapter = _storageAdapter;
     if (storageAdapter == null) {

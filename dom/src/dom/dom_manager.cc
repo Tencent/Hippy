@@ -1,4 +1,5 @@
 #include "dom/dom_manager.h"
+#include "dom/diff_utils.h"
 
 namespace hippy {
 inline namespace dom {
@@ -7,7 +8,7 @@ DomManager::DomManager(int32_t root_id) : root_id_(root_id) {}
 
 DomManager::~DomManager() = default;
 
-void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>> nodes) {
+void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   for (auto it = nodes.begin(); it != nodes.end(); it++) {
     std::shared_ptr<DomNode> node = *it;
     std::shared_ptr<DomNode> parent_node = dom_node_registry_.GetNode(node->GetPid());
@@ -29,14 +30,18 @@ void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>> nodes) {
   }
 }
 
-void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>> nodes) {
+void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   for (auto it = nodes.begin(); it != nodes.end(); it++) {
     std::shared_ptr<DomNode> node = dom_node_registry_.GetNode((*it)->GetId());
     if (node == nullptr) {
       it = nodes.erase(it);
       continue;
     }
-    // TODO: 执行DomNode更新相关的事务
+    // diff props
+    DomValueMap style_diff = DiffUtils::DiffProps(node->GetStyle(), it->get()->GetStyle());
+    DomValueMap ext_diff = DiffUtils::DiffProps(node->GetExtStyle(), it->get()->GetExtStyle());
+    style_diff.insert(ext_diff.begin(), ext_diff.end());
+    it->get()->SetDiffStyle(std::move(style_diff));
     OnDomNodeUpdated(node);
   }
 
@@ -47,7 +52,7 @@ void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>> nodes) {
   }
 }
 
-void DomManager::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>> nodes) {
+void DomManager::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   for (auto it = nodes.begin(); it != nodes.end(); it++) {
     std::shared_ptr<DomNode> node = dom_node_registry_.GetNode((*it)->GetId());
     if (node == nullptr) {
@@ -74,8 +79,13 @@ void DomManager::BeginBatch() {
 
 void DomManager::EndBatch() {
   // 触发布局计算
+  layout_changed_nodes_.clear();
   root_node_->DoLayout();
-  for (auto & batch_operation : batch_operations_) {
+  const auto& udpate_node = layout_changed_nodes_;
+  if (!layout_changed_nodes_.empty()) {
+    batch_operations_.emplace_back([this, &udpate_node]() { render_manager_->UpdateLayout(udpate_node); });
+  }
+  for (auto& batch_operation : batch_operations_) {
     batch_operation();
   }
   batch_operations_.clear();
@@ -83,7 +93,7 @@ void DomManager::EndBatch() {
 
 void DomManager::CallFunction(int32_t id, const std::string& name,
                               std::unordered_map<std::string, std::shared_ptr<DomValue>> param,
-                              CallFunctionCallback cb) {
+                              const CallFunctionCallback& cb) {
   auto node = dom_node_registry_.GetNode(id);
   if (node == nullptr) {
       return;
@@ -103,6 +113,10 @@ void DomManager::SetRootSize(int32_t width, int32_t height) {
   if (root_node_ != nullptr) {
     root_node_->SetSize(width, height);
   }
+}
+
+void DomManager::AddLayoutChangedNode(const std::shared_ptr<DomNode>& node) {
+  layout_changed_nodes_.push_back(node);
 }
 
 void DomManager::OnDomNodeCreated(const std::shared_ptr<DomNode>& node) {

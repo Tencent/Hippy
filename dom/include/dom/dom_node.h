@@ -51,7 +51,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   std::shared_ptr<DomNode> RemoveChildAt(int32_t index);
   void DoLayout();
   void ParseLayoutStyleInfo();
-  void TransferLayoutOutputsRecursive(const std::shared_ptr<DomNode>& dom_node);
+  void TransferLayoutOutputsRecursive();
   int32_t AddClickEventListener(OnClickEventListener listener);
   void RemoveClickEventListener(int32_t listener_id);
   int32_t AddLongClickEventListener(OnLongClickEventListener listener);
@@ -61,6 +61,10 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   int32_t SetOnAttachChangedListener(OnAttachChangedListener listener);
   int32_t AddShowEventListener(ShowEvent event, OnShowEventListener listener);
   void RemoveShowEventListener(ShowEvent event, int32_t listener_id);
+  void CallClick();
+  void CallLongClick();
+  void CallTouch(TouchEvent event, TouchEventInfo info);
+  void CallOnShow(ShowEvent event);
 
   inline void SetTagName(const std::string& tag_name) { tag_name_ = tag_name; }
 

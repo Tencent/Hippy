@@ -1,5 +1,5 @@
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 
 import '../common/destroy.dart';
 import '../common/voltron_array.dart';
@@ -10,29 +10,233 @@ import '../engine/api_provider.dart';
 import '../engine/engine_context.dart';
 import '../module/promise.dart';
 import '../util/log_util.dart';
+import '../util/render_util.dart';
+import '../util/time_util.dart';
+import '../voltron/lifecycle.dart';
 import '../widget/root.dart';
 import 'node.dart';
 import 'view_model.dart';
 
-class RenderManager implements Destroyable {
+typedef IRenderExecutor = void Function();
+
+const String _kTag = "RenderManager";
+
+mixin EngineLifecycleDelegate {
+  bool _enginePaused = false;
+
+  bool get isPause => _enginePaused;
+
+  void onEnginePause() {
+    _enginePaused = true;
+  }
+
+  void onEngineResume() {
+    _enginePaused = false;
+  }
+}
+
+mixin InstanceLifeCycleDelegate {
+  void onInstanceDestroy(int instanceId);
+
+  void onInstancePause(int instanceId) {}
+
+  void onInstanceResume(int instanceId) {}
+
+  void onInstanceLoad(final int instanceId) {}
+
+  void createRootNode(int instanceId);
+}
+
+mixin RenderExecutorDelegate {
+  bool _hasAddFrameCallback = false;
+  bool _isDestroyed = false;
+  bool _isDispatchUiFrameEnqueued = false;
+  bool _renderBatchStarted = false;
+
+  final List<IRenderExecutor> _uiTasks = [];
+  final List<IRenderExecutor> _paddingNullUiTasks = [];
+  final List<IRenderExecutor> _dispatchRunnable = [];
+  final List<IRenderExecutor> _pageUpdateTasks = [];
+
+  bool get isPause;
+
+  void doRenderBatch();
+
+  void destroy() {
+    _isDestroyed = true;
+
+    _uiTasks.clear();
+    _paddingNullUiTasks.clear();
+
+    _isDispatchUiFrameEnqueued = false;
+  }
+
+  void doFrame() {
+    if (!_isDestroyed) {
+      updatePage();
+      flushPendingBatches();
+    }
+  }
+
+  void updatePage() {
+    if (_pageUpdateTasks.isNotEmpty) {
+      for (var task in _pageUpdateTasks) {
+        task();
+      }
+    }
+  }
+
+  void addUITask(IRenderExecutor executor) {
+    _uiTasks.add(executor);
+  }
+
+  void addNulUITask(IRenderExecutor executor) {
+    if (_renderBatchStarted) {
+      _paddingNullUiTasks.add(executor);
+    } else {
+      addDispatchTask(executor);
+    }
+  }
+
+  void addDispatchTask(IRenderExecutor executor) {
+    if (_isDestroyed) {
+      return;
+    }
+
+    _dispatchRunnable.add(executor);
+
+    if (!_isDispatchUiFrameEnqueued) {
+      _isDispatchUiFrameEnqueued = true;
+    }
+
+    postFrameCallback();
+  }
+
+  void postFrameCallback() {
+    if (!_hasAddFrameCallback) {
+      WidgetsFlutterBinding.ensureInitialized();
+      WidgetsBinding.instance?.addPersistentFrameCallback((timeStamp) {
+        doFrame();
+      });
+      _hasAddFrameCallback = true;
+    }
+    if (_dispatchRunnable.isNotEmpty) {
+      WidgetsBinding.instance?.scheduleFrame();
+    }
+  }
+
+  void _renderBatchStart() {
+    _renderBatchStarted = true;
+  }
+
+  void renderBatchEnd() {
+    _renderBatchStarted = false;
+    _batch();
+  }
+
+  void _batch() {
+    for (final task in _uiTasks) {
+      addDispatchTask(task);
+    }
+    for (final task in _paddingNullUiTasks) {
+      addDispatchTask(task);
+    }
+
+    _paddingNullUiTasks.clear();
+    _uiTasks.clear();
+
+    postFrameCallback();
+    _renderBatchStart();
+  }
+
+  void flushPendingBatches() {
+    if (isPause) {
+      _isDispatchUiFrameEnqueued = false;
+    } else {
+      postFrameCallback();
+    }
+
+    var iterator = _dispatchRunnable.iterator;
+    var shouldBatch = _dispatchRunnable.isNotEmpty;
+    var startTime = currentTimeMillis();
+    var deleteList = <IRenderExecutor>[];
+    while (iterator.moveNext()) {
+      var iRenderExecutor = iterator.current;
+      if (!_isDestroyed) {
+        try {
+          iRenderExecutor();
+        } catch (e) {
+          LogUtils.e(_kTag, "exec render executor error:$e");
+        }
+      }
+      deleteList.add(iRenderExecutor);
+      if (_isDispatchUiFrameEnqueued) {
+        if (currentTimeMillis() - startTime > 500) {
+          break;
+        }
+      }
+    }
+
+    if (deleteList.isNotEmpty) {
+      deleteList.forEach(_dispatchRunnable.remove);
+    }
+
+    if (shouldBatch) {
+      doRenderBatch();
+    }
+  }
+}
+
+class RenderManager
+    with
+        EngineLifecycleDelegate,
+        InstanceLifeCycleDelegate,
+        RenderExecutorDelegate
+    implements
+        Destroyable,
+        InstanceLifecycleEventListener,
+        EngineLifecycleEventListener {
   final List<RenderNode> _uiUpdateNodes = [];
   final List<RenderNode> _nullUiUpdateNodes = [];
 
   final ControllerManager _controllerManager;
+  final EngineContext context;
 
   ControllerManager get controllerManager => _controllerManager;
 
-  RenderManager(EngineContext context, List<APIProvider>? packages)
-      : _controllerManager = ControllerManager(context, packages);
-
-  void createRootNode(int instanceId) {
-    controllerManager.createRootNode(instanceId);
+  RenderManager(this.context, List<APIProvider>? packages)
+      : _controllerManager = ControllerManager(context, packages) {
+    context.addEngineLifecycleEventListener(this);
+    context.addInstanceLifecycleEventListener(this);
   }
 
-  void createNode(RootWidgetViewModel rootWidgetViewModel, int id, int pId,
-      int childIndex, String name, VoltronMap? props) {
-    var parentNode = controllerManager.findNode(rootWidgetViewModel.id, pId);
-    var tree = controllerManager.findTree(rootWidgetViewModel.id);
+  @override
+  void onInstanceLoad(final int instanceId) {
+    createRootNode(instanceId);
+  }
+
+  void createRootNode(int instanceId) async {
+    var viewModel = context.getInstance(instanceId);
+    if (viewModel != null) {
+      var renderSize = getSizeFromKey(viewModel.rootKey);
+      await context.bridgeManager.updateNodeSize(instanceId,
+          width: renderSize.width, height: renderSize.height);
+      controllerManager.createRootNode(instanceId);
+      var executor = viewModel.executor;
+      if (executor != null) {
+        _pageUpdateTasks.add(executor);
+      }
+
+      _pageUpdateTasks.add(viewModel.viewExecutor);
+    } else {
+      LogUtils.e(_kTag, "createRootNode  RootView Null error");
+    }
+  }
+
+  void createNode(int instanceId, int id, int pId, int childIndex, String name,
+      VoltronMap? props) {
+    var parentNode = controllerManager.findNode(instanceId, pId);
+    var tree = controllerManager.findTree(instanceId);
     if (parentNode != null && tree != null) {
       var isLazy = controllerManager.isControllerLazy(name);
       var uiNode = controllerManager.createRenderNode(
@@ -149,6 +353,14 @@ class RenderManager implements Destroyable {
     }
   }
 
+  @override
+  void doFrame() {
+    super.doFrame();
+    if (!_isDestroyed) {
+      context.bridgeManager.consumeRenderOp();
+    }
+  }
+
   void deleteNode(int instanceId, int id) {
     var uiNode = controllerManager.findNode(instanceId, id);
     if (uiNode != null) {
@@ -179,7 +391,7 @@ class RenderManager implements Destroyable {
   }
 
   void dispatchUIFunction(int instanceId, int id, String funcName,
-      VoltronArray array, Promise promise) {
+      VoltronMap array, Promise promise) {
     var renderNode = controllerManager.findNode(instanceId, id);
     if (renderNode != null) {
       renderNode.dispatchUIFunction(funcName, array, promise);
@@ -189,7 +401,31 @@ class RenderManager implements Destroyable {
     }
   }
 
-  void batch() {
+  RenderNode? getRenderNode(int instanceId, int id) {
+    return _controllerManager.findNode(instanceId, id);
+  }
+
+  void measureInWindow(int instanceId, int id, JSPromise? promise) {
+    if (promise != null) {
+      var renderNode = getRenderNode(instanceId, id);
+      if (renderNode == null) {
+        promise.reject("this view is null");
+      } else {
+        renderNode.measureInWindow(promise);
+        addNullUINodeIfNeeded(renderNode);
+      }
+    }
+  }
+
+  @override
+  void destroy() {
+    controllerManager.destroy();
+    context.removeInstanceLifecycleEventListener(this);
+    context.removeEngineLifecycleEventListener(this);
+  }
+
+  @override
+  void doRenderBatch() {
     LogUtils.d("RenderManager", "do batch size: ${_uiUpdateNodes.length}");
     //		mContext.getGlobalConfigs().getLogAdapter().log(TAG,"do batch size " + mShouldUpdateNodes.size());
 
@@ -222,31 +458,15 @@ class RenderManager implements Destroyable {
     _nullUiUpdateNodes.clear();
   }
 
-  DomNode createStyleNode(
-      String name, String tagName, bool isVirtual, int id, int instanceId) {
-    DomNode domNode = _controllerManager.createStyleNode(
-        name, tagName, instanceId, id, isVirtual);
-    return domNode;
-  }
-
-  RenderNode? getRenderNode(int instanceId, int id) {
-    return _controllerManager.findNode(instanceId, id);
-  }
-
-  void measureInWindow(int instanceId, int id, Promise? promise) {
-    if (promise != null) {
-      var renderNode = getRenderNode(instanceId, id);
-      if (renderNode == null) {
-        promise.reject("this view is null");
-      } else {
-        renderNode.measureInWindow(promise);
-        addNullUINodeIfNeeded(renderNode);
-      }
-    }
-  }
-
   @override
-  void destroy() {
-    controllerManager.destroy();
+  void onInstanceDestroy(int instanceId) {
+    var viewModel = context.getInstance(instanceId);
+    if (viewModel != null) {
+      if (viewModel.executor != null) {
+        _pageUpdateTasks.remove(viewModel.executor);
+      }
+
+      _pageUpdateTasks.remove(viewModel.viewExecutor);
+    }
   }
 }

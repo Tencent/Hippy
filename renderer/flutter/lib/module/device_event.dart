@@ -44,13 +44,13 @@ class DeviceEventModule extends VoltronNativeModule {
   // 前端JS告知SDK：我要监听back事件（如果没有告知，则SDK不用把back事件抛给前端，这样可以加快back的处理速度，毕竟大部分Voltron业务是无需监听back事件的）
   // @param listen 是否监听？
   @VoltronMethod(deviceSetListenBackPress)
-  bool setListenBackPress(bool listen, Promise promise) {
+  bool setListenBackPress(bool listen, JSPromise promise) {
     _isListening = listen;
     return false;
   }
 
   @VoltronMethod(deviceInvokeDefaultBackPressHandler)
-  bool invokeDefaultBackPressHandler(Promise promise) {
+  bool invokeDefaultBackPressHandler(JSPromise promise) {
     _doInvokeHandler();
     return false;
   }

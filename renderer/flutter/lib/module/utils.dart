@@ -16,7 +16,7 @@ class UtilsModule extends VoltronNativeModule {
   }
 
   @VoltronMethod(funcCheckAPI)
-  bool checkApi(VoltronMap message, Promise promise) {
+  bool checkApi(VoltronMap message, JSPromise promise) {
     var nativeModuleMap = _context?.moduleManager.nativeModule;
     var jsModuleMap = _context?.moduleManager.jsModule;
     var controllerGeneratorMap = _context?.moduleManager.controllerGenerator;
