@@ -54,12 +54,12 @@ class RootWidgetViewModel extends ChangeNotifier {
   ContextWrapper? _wrapper;
 
   Orientation? _orientation;
-
-  IDomExecutor? executor;
-
-  List<IDomExecutor> viewExecutorList = [];
-
-  late IDomExecutor viewExecutor;
+  //
+  // IDomExecutor? executor;
+  //
+  // List<IDomExecutor> viewExecutorList = [];
+  //
+  // late IDomExecutor viewExecutor;
 
   RootWidgetViewModel(ModuleLoadParams loadParams) {
     _instanceContext = loadParams.instanceContext;
@@ -67,13 +67,13 @@ class RootWidgetViewModel extends ChangeNotifier {
       _instanceContext = InstanceContext(loadParams);
     }
     _loadParams = loadParams;
-    viewExecutor = () {
-      if (viewExecutorList.isNotEmpty) {
-        for (var element in viewExecutorList) {
-          element();
-        }
-      }
-    };
+    // viewExecutor = () {
+    //   if (viewExecutorList.isNotEmpty) {
+    //     for (var element in viewExecutorList) {
+    //       element();
+    //     }
+    //   }
+    // };
   }
 
   void attachToEngine(EngineContext context) {
@@ -266,7 +266,7 @@ class _VoltronWidgetState extends State<VoltronWidget> {
     super.initState();
     viewModel = RootWidgetViewModel(widget.loadParams);
     WidgetsBinding.instance?.addPostFrameCallback(doFirstFrame);
-    viewModel!.executor = doFrame;
+    // viewModel!.executor = doFrame;
     viewModel!._wrapper = () {
       return context;
     };

@@ -253,14 +253,14 @@ class ModalRenderViewModel extends GroupViewModel
   }
 
   void registerFrameCallback() {
-    if (context.getInstance(rootId)?.viewExecutorList.contains(doFrame) ==
-        false) {
-      context.getInstance(rootId)?.viewExecutorList.add(doFrame);
-    }
+    // if (context.getInstance(rootId)?.viewExecutorList.contains(doFrame) ==
+    //     false) {
+    //   context.getInstance(rootId)?.viewExecutorList.add(doFrame);
+    // }
   }
 
   void removeFrameCallback() {
-    context.getInstance(rootId)?.viewExecutorList.remove(doFrame);
+    // context.getInstance(rootId)?.viewExecutorList.remove(doFrame);
   }
 
   void doFrame() {
