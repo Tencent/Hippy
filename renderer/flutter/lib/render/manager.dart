@@ -222,12 +222,12 @@ class RenderManager
       await context.bridgeManager.updateNodeSize(instanceId,
           width: renderSize.width, height: renderSize.height);
       controllerManager.createRootNode(instanceId);
-      // var executor = viewModel.executor;
-      // if (executor != null) {
-      //   _pageUpdateTasks.add(executor);
-      // }
-      //
-      // _pageUpdateTasks.add(viewModel.viewExecutor);
+      var executor = viewModel.executor;
+      if (executor != null) {
+        _pageUpdateTasks.add(executor);
+      }
+
+      _pageUpdateTasks.add(viewModel.viewExecutor);
     } else {
       LogUtils.e(_kTag, "createRootNode  RootView Null error");
     }
@@ -462,11 +462,11 @@ class RenderManager
   void onInstanceDestroy(int instanceId) {
     var viewModel = context.getInstance(instanceId);
     if (viewModel != null) {
-      // if (viewModel.executor != null) {
-      //   _pageUpdateTasks.remove(viewModel.executor);
-      // }
-      //
-      // _pageUpdateTasks.remove(viewModel.viewExecutor);
+      if (viewModel.executor != null) {
+        _pageUpdateTasks.remove(viewModel.executor);
+      }
+
+      _pageUpdateTasks.remove(viewModel.viewExecutor);
     }
   }
 }

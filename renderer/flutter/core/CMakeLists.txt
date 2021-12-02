@@ -8,8 +8,6 @@ endif (CMAKE_SYSTEM_NAME STREQUAL "Android")
 
 cmake_policy(VERSION 3.0)
 
-#add_definitions(-D__ANDROID__)
-
 project(VoltronCore)
 
 set(CMAKE_LIBRARY_NAME "voltron_core")
@@ -20,7 +18,6 @@ set(SOURCE_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 if (NOT CMAKE_SYSTEM_NAME STREQUAL "Android")
     set(CMAKE_CXX_STANDARD 17)
 endif ()
-
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Android")
 

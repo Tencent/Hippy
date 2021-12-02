@@ -12,7 +12,6 @@ set(RENDER_CORE_SRC_FILES
         ${RENDER_CORE_SRC_DIR}/render/render_task.cc
         ${RENDER_CORE_SRC_DIR}/render/render_task_runner.cc
         ${RENDER_CORE_SRC_DIR}/render/voltron_render_manager.cc
-        ${RENDER_CORE_SRC_DIR}/bridge/bridge_extension.cc
         ${RENDER_CORE_SRC_DIR}/bridge/bridge_manager.cc
         ${RENDER_CORE_SRC_DIR}/bridge/bridge_runtime.cc
         ${RENDER_CORE_SRC_DIR}/bridge/code-cache-runnable.cc

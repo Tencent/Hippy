@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 
 import '../adapter/monitor.dart';
 import '../common/voltron_map.dart';
-import '../dom/manager.dart';
 import '../dom/prop.dart';
 import '../engine/context.dart';
 import '../engine/engine_context.dart';
@@ -13,6 +12,7 @@ import '../engine/module_params.dart';
 import '../engine/voltron_engine.dart';
 import '../module/dimensions.dart';
 import '../module/module.dart';
+import '../render/manager.dart';
 import '../render/node.dart';
 import '../render/tree.dart';
 import '../render/view_model.dart';
@@ -54,12 +54,12 @@ class RootWidgetViewModel extends ChangeNotifier {
   ContextWrapper? _wrapper;
 
   Orientation? _orientation;
-  //
-  // IDomExecutor? executor;
-  //
-  // List<IDomExecutor> viewExecutorList = [];
-  //
-  // late IDomExecutor viewExecutor;
+
+  IRenderExecutor? executor;
+
+  List<IRenderExecutor> viewExecutorList = [];
+
+  late IRenderExecutor viewExecutor;
 
   RootWidgetViewModel(ModuleLoadParams loadParams) {
     _instanceContext = loadParams.instanceContext;
@@ -67,13 +67,13 @@ class RootWidgetViewModel extends ChangeNotifier {
       _instanceContext = InstanceContext(loadParams);
     }
     _loadParams = loadParams;
-    // viewExecutor = () {
-    //   if (viewExecutorList.isNotEmpty) {
-    //     for (var element in viewExecutorList) {
-    //       element();
-    //     }
-    //   }
-    // };
+    viewExecutor = () {
+      if (viewExecutorList.isNotEmpty) {
+        for (var element in viewExecutorList) {
+          element();
+        }
+      }
+    };
   }
 
   void attachToEngine(EngineContext context) {
