@@ -42,3 +42,4 @@ pubspec.lock
 windows/RenderCorebuild/
 windows/RenderCorebin/
 cmake-build-debug/
+android/.cxx/

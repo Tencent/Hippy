@@ -1,7 +1,0 @@
-Executable : /Users/huli/android_sdk_tools/cmake/3.10.2.4988404/bin/ninja
-arguments : 
--C
-/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a
-voltron_core
-jvmArgs : 
-
