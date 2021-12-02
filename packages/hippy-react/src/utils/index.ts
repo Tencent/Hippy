@@ -52,6 +52,15 @@ function unicodeToChar(text: string): string {
   return text.replace(/\\u[\dA-F]{4}|\\x[\dA-F]{2}/gi, match => String.fromCharCode(parseInt(match.replace(/\\u|\\x/g, ''), 16)));
 }
 
+const captureEventReg = new RegExp('^on.+Capture$');
+/**
+ * ensure capture event name
+ * @param {any} eventName
+ */
+function isCaptureEvent(eventName: any) {
+  return captureEventReg.test(eventName);
+}
+
 /**
  * Convert to string as possible
  */
@@ -114,7 +123,7 @@ function setBubbles(bubbles: boolean = false): void {
  * get bubbles config
  * @returns boolean
  */
-function isBubbles(): boolean {
+function isGlobalBubble(): boolean {
   return defaultBubbles;
 }
 
@@ -134,15 +143,25 @@ function convertImgUrl(url: string): string {
   return url;
 }
 
+/**
+ * isHostComponent - judge current tag is hostComponent type
+ * @param {number} tag
+ */
+function isHostComponent(tag: number) {
+  return tag === 5;
+}
+
 export {
   trace,
   warn,
   unicodeToChar,
   tryConvertNumber,
+  isCaptureEvent,
   isFunction,
   isNumber,
   setSilent,
   setBubbles,
-  isBubbles,
+  isGlobalBubble,
   convertImgUrl,
+  isHostComponent,
 };
