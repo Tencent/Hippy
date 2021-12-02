@@ -25,7 +25,10 @@ export const Entry = () => (
           const Comp = item.component;
           return (
             <Route key={item.path} exact path={`${item.path}`}>
-              <View style={{ flex: 1, backgroundColor: '#fff' }}>
+              <View style={{ flex: 1, backgroundColor: '#fff' }}
+                    onClick={() => {
+                      console.log('click router');
+                    }}>
                 <Header route={item} />
                 <Comp meta={item.meta || {}} />
               </View>
