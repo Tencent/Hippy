@@ -43,6 +43,23 @@ void VoltronRenderTaskRunner::RunUpdateDomNode(const Sp<DomNode>& node) {
   }
 }
 
+void VoltronRenderTaskRunner::RunUpdateLayout(const SpList<DomNode>& nodes) {
+  if (!nodes.empty()) {
+    auto args_map = EncodableMap();
+    auto render_node_list = EncodableList();
+
+    for (const auto& node : nodes) {
+      node->LayoutR();
+    }
+    if (!node->GetDiffStyle().empty()) {
+      args_map[EncodableValue(kPropsKey)] = EncodeDomValueMap(node->GetDiffStyle());
+      auto args = std::make_unique<EncodableValue>(args_map);
+      auto update_task = std::make_shared<RenderTask>(VoltronRenderOpType::UPDATE_LAYOUT, node->GetId(), std::move(args));
+      queue_->ProduceRenderOp(update_task);
+    }
+  }
+}
+
 void VoltronRenderTaskRunner::RunMoveDomNode(std::vector<int32_t>&& ids, int32_t pid, int32_t id) {
   auto args_map = EncodableMap();
   if (!ids.empty()) {

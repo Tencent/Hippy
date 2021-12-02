@@ -26,7 +26,13 @@ class RenderOperatorRunner implements Destroyable {
     _RenderOpType.updateLayout.index: (instanceId, nodeId, params) =>
         _UpdateLayoutOpTask(instanceId, nodeId, params),
     _RenderOpType.batch.index: (instanceId, nodeId, params) =>
-        _BatchOpTask(instanceId)
+        _BatchOpTask(instanceId),
+    _RenderOpType.dispatchUiFunc.index: (instanceId, nodeId, params) =>
+        _CallUiFunctionOpTask(instanceId, nodeId, params),
+    _RenderOpType.addEvent.index: (instanceId, nodeId, params) =>
+        _AddEventOpTask(instanceId, nodeId, params),
+    _RenderOpType.removeEvent.index: (instanceId, nodeId, params) =>
+        _RemoveEventOpTask(instanceId, nodeId, params),
   };
 
   RenderOperatorRunner(this._engineContext);
@@ -144,8 +150,7 @@ class _MoveNodeOpTask extends _NodeOpTask {
     var movePid = _params[_RenderOpParamsKey.kMovePidKey];
 
     renderManager.addUITask(() {
-      renderManager.moveNode(
-          _instanceId, moveIdList, movePid, _nodeId);
+      renderManager.moveNode(_instanceId, moveIdList, movePid, _nodeId);
     });
   }
 }
@@ -170,7 +175,8 @@ class _CallUiFunctionOpTask extends _NodeOpTask {
       Map funcParams = _params[_RenderOpParamsKey.kFuncParamsKey] ?? {};
       var realParams = VoltronArray.fromList(
           funcParams[_RenderOpParamsKey.kParamsKey] ?? []);
-      String callbackId = _params[_RenderOpParamsKey.kFuncIdKey] ?? Promise.callIdNoCallback;
+      String callbackId =
+          _params[_RenderOpParamsKey.kFuncIdKey] ?? Promise.callIdNoCallback;
       var promise = Promise.native(_engineContext, callId: callbackId);
       renderManager.addNulUITask(() {
         renderManager.dispatchUIFunction(
@@ -179,6 +185,157 @@ class _CallUiFunctionOpTask extends _NodeOpTask {
     }
   }
 }
+
+class _AddEventOpTask extends _NodeOpTask {
+  _AddEventOpTask(int instanceId, int nodeId, Map params)
+      : super(instanceId, nodeId, params);
+
+  @override
+  void _run() {
+    String eventName = _params[_RenderOpParamsKey.kFuncNameKey] ?? '';
+    if (eventName.isNotEmpty) {
+      String callbackId =
+          _params[_RenderOpParamsKey.kFuncIdKey] ?? Promise.callIdNoCallback;
+      var promise = Promise.native(_engineContext, callId: callbackId);
+
+      switch (eventName) {
+        case _RenderOpParamsKey.kAddClickFuncType: // 点击事件
+          renderManager.addNulUITask(() {
+            renderManager.setEventListener(
+                _instanceId, _nodeId, EventType.click, promise);
+          });
+          break;
+        case _RenderOpParamsKey.kAddLongClickFuncType: // 长按事件
+          renderManager.addNulUITask(() {
+            renderManager.setEventListener(
+                _instanceId, _nodeId, EventType.longClick, promise);
+          });
+          break;
+        case _RenderOpParamsKey.kAddTouchFuncType: // 触摸事件
+          Map funcParams = _params[_RenderOpParamsKey.kFuncParamsKey] ?? {};
+          int touchType = funcParams[_RenderOpParamsKey.kTouchTypeKey] ?? -1;
+          if (touchType == _TouchType.start.index) {
+            renderManager.addNulUITask(() {
+              renderManager.setEventListener(
+                  _instanceId, _nodeId, EventType.touchStart, promise);
+            });
+          } else if (touchType == _TouchType.move.index) {
+            renderManager.addNulUITask(() {
+              renderManager.setEventListener(
+                  _instanceId, _nodeId, EventType.touchMove, promise);
+            });
+          } else if (touchType == _TouchType.end.index) {
+            renderManager.addNulUITask(() {
+              renderManager.setEventListener(
+                  _instanceId, _nodeId, EventType.touchEnd, promise);
+            });
+          } else if (touchType == _TouchType.cancel) {
+            renderManager.addNulUITask(() {
+              renderManager.setEventListener(
+                  _instanceId, _nodeId, EventType.touchCancel, promise);
+            });
+          }
+          break;
+        case _RenderOpParamsKey.kAddShowFuncType: // 显示隐藏事件
+          Map funcParams = _params[_RenderOpParamsKey.kFuncParamsKey] ?? {};
+          int showType = funcParams[_RenderOpParamsKey.kShowEventKey] ?? -1;
+          if (showType == _ShowType.show.index) {
+            renderManager.addNulUITask(() {
+              renderManager.setEventListener(
+                  _instanceId, _nodeId, EventType.show, promise);
+            });
+          } else if (showType == _ShowType.dismiss.index) {
+            renderManager.addNulUITask(() {
+              renderManager.setEventListener(
+                  _instanceId, _nodeId, EventType.dismiss, promise);
+            });
+          }
+          break;
+      }
+    }
+  }
+}
+
+class _RemoveEventOpTask extends _NodeOpTask {
+  _RemoveEventOpTask(int instanceId, int nodeId, Map params)
+      : super(instanceId, nodeId, params);
+
+  @override
+  void _run() {
+    String eventName = _params[_RenderOpParamsKey.kFuncNameKey] ?? '';
+    if (eventName.isNotEmpty) {
+      switch (eventName) {
+        case _RenderOpParamsKey.kRemoveClickFuncType: // 点击事件
+          renderManager.addNulUITask(() {
+            renderManager.removeEventListener(
+                _instanceId, _nodeId, EventType.click);
+          });
+          break;
+        case _RenderOpParamsKey.kRemoveLongClickFuncType: // 长按事件
+          renderManager.addNulUITask(() {
+            renderManager.removeEventListener(
+                _instanceId, _nodeId, EventType.longClick);
+          });
+          break;
+        case _RenderOpParamsKey.kRemoveTouchFuncType: // 触摸事件
+          Map funcParams = _params[_RenderOpParamsKey.kFuncParamsKey] ?? {};
+          int touchType = funcParams[_RenderOpParamsKey.kTouchTypeKey] ?? -1;
+          if (touchType == _TouchType.start.index) {
+            renderManager.addNulUITask(() {
+              renderManager.removeEventListener(
+                  _instanceId, _nodeId, EventType.touchStart);
+            });
+          } else if (touchType == _TouchType.move.index) {
+            renderManager.addNulUITask(() {
+              renderManager.removeEventListener(
+                  _instanceId, _nodeId, EventType.touchMove);
+            });
+          } else if (touchType == _TouchType.end.index) {
+            renderManager.addNulUITask(() {
+              renderManager.removeEventListener(
+                  _instanceId, _nodeId, EventType.touchEnd);
+            });
+          } else if (touchType == _TouchType.cancel) {
+            renderManager.addNulUITask(() {
+              renderManager.removeEventListener(
+                  _instanceId, _nodeId, EventType.touchCancel);
+            });
+          }
+          break;
+        case _RenderOpParamsKey.kRemoveShowFuncType: // 显示隐藏事件
+          Map funcParams = _params[_RenderOpParamsKey.kFuncParamsKey] ?? {};
+          int showType = funcParams[_RenderOpParamsKey.kShowEventKey] ?? -1;
+          if (showType == _ShowType.show.index) {
+            renderManager.addNulUITask(() {
+              renderManager.removeEventListener(
+                  _instanceId, _nodeId, EventType.show);
+            });
+          } else if (showType == _ShowType.dismiss.index) {
+            renderManager.addNulUITask(() {
+              renderManager.removeEventListener(
+                  _instanceId, _nodeId, EventType.dismiss);
+            });
+          }
+          break;
+      }
+    }
+  }
+}
+
+enum EventType {
+  click,
+  longClick,
+  touchStart,
+  touchMove,
+  touchEnd,
+  touchCancel,
+  show,
+  dismiss
+}
+
+enum _TouchType { start, move, end, cancel }
+
+enum _ShowType { show, dismiss }
 
 enum _RenderOpType {
   addNode,

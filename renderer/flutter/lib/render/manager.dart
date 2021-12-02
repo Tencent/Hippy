@@ -5,7 +5,6 @@ import '../common/destroy.dart';
 import '../common/voltron_array.dart';
 import '../common/voltron_map.dart';
 import '../controller/manager.dart';
-import '../dom/dom_node.dart';
 import '../engine/api_provider.dart';
 import '../engine/engine_context.dart';
 import '../module/promise.dart';
@@ -13,8 +12,8 @@ import '../util/log_util.dart';
 import '../util/render_util.dart';
 import '../util/time_util.dart';
 import '../voltron/lifecycle.dart';
-import '../widget/root.dart';
 import 'node.dart';
+import 'operator_runner.dart';
 import 'view_model.dart';
 
 typedef IRenderExecutor = void Function();
@@ -351,6 +350,14 @@ class RenderManager
 
       addUpdateNodeIfNeeded(uiNode);
     }
+  }
+
+  void setEventListener(int instanceId, int id, EventType type, Promise promise) {
+
+  }
+
+  void removeEventListener(int instanceId, int id, EventType type) {
+
   }
 
   @override

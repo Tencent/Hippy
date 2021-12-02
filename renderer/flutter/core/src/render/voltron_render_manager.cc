@@ -34,7 +34,9 @@ void VoltronRenderManager::MoveRenderNode(std::vector<int32_t>&& ids, int32_t pi
   RunMoveDomNode(std::move(ids), pid, id);
 }
 
-void VoltronRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) {}
+void VoltronRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) {
+
+}
 
 void VoltronRenderManager::Batch() { RunBatch(); }
 

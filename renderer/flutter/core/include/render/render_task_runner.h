@@ -19,6 +19,7 @@ class VoltronRenderTaskRunner {
   void RunCreateDomNode(const Sp<DomNode>& node);
   void RunDeleteDomNode(const Sp<DomNode>& node);
   void RunUpdateDomNode(const Sp<DomNode>& node);
+  void RunUpdateLayout(const SpList<DomNode>& nodes);
   void RunMoveDomNode(std::vector<int32_t>&& ids, int32_t pid, int32_t id);
   void RunBatch();
   void RunCallFunction(const std::weak_ptr<DomNode>& dom_node, const std::string& name,
