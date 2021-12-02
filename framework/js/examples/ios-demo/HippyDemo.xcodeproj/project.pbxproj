@@ -525,7 +525,7 @@
 		D4B09E362750D21600643CDF /* Flex.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Flex.cpp; sourceTree = "<group>"; };
 		D84AB8DA273A5AAD00987D03 /* layout_node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = layout_node.h; sourceTree = "<group>"; };
 		D84AB8DB273A5AAD00987D03 /* dom_listener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dom_listener.h; sourceTree = "<group>"; };
-		D84AB8DC273A5AAD00987D03 /* dom_node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dom_node.h; sourceTree = "<group>"; };
+		D84AB8DC273A5AAD00987D03 /* dom_node.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = dom_node.h; sourceTree = "<group>"; tabWidth = 2; };
 		D84AB8DD273A5AAD00987D03 /* render_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = render_manager.h; sourceTree = "<group>"; };
 		D84AB8DE273A5AAD00987D03 /* node_props.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = node_props.h; sourceTree = "<group>"; };
 		D84AB8DF273A5AAD00987D03 /* render_manager_proxy.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = render_manager_proxy.h; sourceTree = "<group>"; tabWidth = 2; };
@@ -627,7 +627,7 @@
 		F482918F274E420C00D91128 /* HPNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNode.h; sourceTree = "<group>"; };
 		F4829190274E420C00D91128 /* Flex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Flex.h; sourceTree = "<group>"; };
 		F4829191274E420C00D91128 /* HPConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPConfig.h; sourceTree = "<group>"; };
-		F4829192274E420C00D91128 /* HPNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HPNode.cpp; sourceTree = "<group>"; };
+		F4829192274E420C00D91128 /* HPNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = HPNode.cpp; sourceTree = "<group>"; tabWidth = 2; };
 		F4829193274E420C00D91128 /* Hippy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Hippy.h; sourceTree = "<group>"; };
 		F4829194274E420C00D91128 /* FlexLine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FlexLine.cpp; sourceTree = "<group>"; };
 		F4829195274E420C00D91128 /* Hippy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = Hippy.cpp; sourceTree = "<group>"; tabWidth = 2; };

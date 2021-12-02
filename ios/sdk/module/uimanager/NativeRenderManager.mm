@@ -21,13 +21,15 @@
  */
 #import "NativeRenderManager.h"
 
+using RenderManager = hippy::RenderManager;
+using DomNode = hippy::DomNode;
+using LayoutResult = hippy::LayoutResult;
+
 void NativeRenderManager::CreateRenderNode(std::vector<std::shared_ptr<DomNode>> &&nodes) {
-    for (const std::shared_ptr<DomNode> &node : nodes) {
-        int32_t tag = node->GetId();
-        const std::string &viewName = node->GetViewName();
-        int32_t rootTag = node->GetRenderInfo().pid;
-        [uiManager_ renderCreateView:tag viewName:viewName rootTag:rootTag tagName:node->GetTagName() props:node->GetStyleMap()];
-    }
+    auto block = [tmpManager = uiManager_, tmpNodes = std::move(nodes)]() mutable {
+        [tmpManager createRenderNodes:std::move(tmpNodes)];
+    };
+    dispatch_async(HippyGetUIManagerQueue(), block);
 }
 
 void NativeRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {

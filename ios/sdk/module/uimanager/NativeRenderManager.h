@@ -28,10 +28,8 @@
 #include <memory>
 #import "HippyUIManager.h"
 
-using RenderManager = hippy::RenderManager;
-using DomNode = hippy::DomNode;
-
-class NativeRenderManager : public RenderManager {
+class NativeRenderManager : public hippy::RenderManager {
+    
 public:
     NativeRenderManager(HippyUIManager *uiManager):uiManager_(uiManager){}
     
