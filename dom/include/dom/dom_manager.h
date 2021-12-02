@@ -43,7 +43,6 @@ class DomManager {
   std::shared_ptr<DomNode> GetNode(int32_t id) { return dom_node_registry_.GetNode(id); };
   void SetRenderManager(std::shared_ptr<RenderManager> render_manager) { render_manager_ = render_manager; }
   void AddLayoutChangedNode(const std::shared_ptr<DomNode>& node);
-  void SetRootSize(int32_t width, int32_t height);
   inline int32_t GetRooId() { return root_id_; }
   void SetRootNode(std::shared_ptr<DomNode> root_node);
 

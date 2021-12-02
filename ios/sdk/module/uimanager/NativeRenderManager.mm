@@ -58,6 +58,13 @@ void NativeRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>
     }
 }
 
+void NativeRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) {
+    auto block = [tmpManager = uiManager_, tmpNodes = std::move(nodes)]() {
+        [tmpManager renderNodesUpdateLayout:tmpNodes];
+    };
+    dispatch_async(HippyGetUIManagerQueue(), block);
+}
+
 void NativeRenderManager::MoveRenderNode(std::vector<int32_t>&& ids,
                                       int32_t pid,
                                       int32_t id) {

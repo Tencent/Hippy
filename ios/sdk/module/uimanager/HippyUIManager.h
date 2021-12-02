@@ -207,6 +207,8 @@ using DomNode = hippy::DomNode;
 
 - (void)renderMoveViews:(const std::vector<int32_t> &)ids fromContainer:(int32_t)fromContainer toContainer:(int32_t)toContainer;
 
+- (void)renderNodesUpdateLayout:(const std::vector<std::shared_ptr<DomNode>> &)nodes;
+
 - (void)batch;
 
 - (void)dispatchFunction:(const std::string &)functionName

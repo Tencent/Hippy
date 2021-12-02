@@ -765,6 +765,28 @@ static void HippySetChildren(NSNumber *containerTag, NSArray<NSNumber *> *hippyT
     }
 }
 
+- (void)setChildrenForPendingView {
+    NSMutableDictionary<NSNumber *, NSArray<NSNumber *> *> *viewsToSetChildren = [self pendingViewToRender];
+    [viewsToSetChildren enumerateKeysAndObjectsUsingBlock:^(NSNumber * _Nonnull key, NSArray<NSNumber *> * _Nonnull obj, BOOL * _Nonnull stop) {
+        HippySetChildren(key, obj, _viewRegistry);
+        UIView *view = [self viewForHippyTag:key];
+        [view setHippySubviewsUpdated:YES];
+    }];
+    UIView *rootView = [self viewForHippyTag:[self rootHippyTag]];
+    [self recursivelyUpdateSubviewsFromView:rootView];
+    [viewsToSetChildren removeAllObjects];
+}
+
+- (void)recursivelyUpdateSubviewsFromView:(UIView *)view {
+    if ([view isHippySubviewsUpdated]) {
+        [view didUpdateHippySubviews];
+        view.hippySubviewsUpdated = NO;
+    }
+    for (UIView *subview in view.hippySubviews) {
+        [self recursivelyUpdateSubviewsFromView:subview];
+    }
+}
+
 // clang-format off
 HIPPY_EXPORT_METHOD(startBatch) {
 }
@@ -1224,14 +1246,9 @@ HIPPY_EXPORT_METHOD(dispatchViewManagerCommand:(nonnull NSNumber *)hippyTag
                     for (HippyViewManagerUIBlock block in previousPendingUIBlocks) {
                         block(uiManager, uiManager->_viewRegistry);
                     }
-
+                    [uiManager setChildrenForPendingView];
+                    
                     [uiManager flushListView];
-                    NSDictionary<NSNumber *,  NSArray<NSNumber *> *> *viewsToRender = [uiManager.pendingViewToRender copy];
-                    [uiManager.pendingViewToRender removeAllObjects];
-                    [viewsToRender enumerateKeysAndObjectsUsingBlock:^(NSNumber * _Nonnull key, NSArray<NSNumber *> * _Nonnull obj, BOOL * _Nonnull stop) {
-                        HippySetChildren(key, obj, uiManager->_viewRegistry);
-                    }];
-                    NSLog(@"222");
                 } @catch (NSException *exception) {
                     HippyLogError(@"Exception thrown while executing UI block: %@", exception);
                 }
@@ -1751,8 +1768,15 @@ static CGRect CGRectMakeFromLayoutResult(LayoutResult result) {
 //    }];
 }
 
+/**
+ * When HippyUIManager received command to create view by node, HippyUIManager must get all new created view ordered by index, set frames,
+ * then insert them into superview one by one.
+ *
+ */
 - (void)createRenderNodes:(std::vector<std::shared_ptr<DomNode>> &&)nodes {
-    HippyAssertThread(HippyGetUIManagerQueue(), @"flushUIBlocks can only be called from the shadow queue");
+    HippyAssertThread(HippyGetUIManagerQueue(), @"createRenderNodes can only be called from the shadow queue");
+    NSMutableArray<NSNumber *> *subviewHippTagsToRootview = [NSMutableArray arrayWithCapacity:2];
+    int32_t rootviewTag = [[self rootHippyTag] intValue];
     for (const std::shared_ptr<DomNode> &node : nodes) {
         NSNumber *hippyTag = @(node->GetId());
         NSString *viewName = [NSString stringWithUTF8String:node->GetViewName().c_str()];
@@ -1762,15 +1786,27 @@ static CGRect CGRectMakeFromLayoutResult(LayoutResult result) {
         NSNumber *rootTag = [_rootViewTags anyObject];
         NSMutableArray<NSNumber *> *childrenTags = [NSMutableArray arrayWithCapacity:node->GetChildCount()];
         const std::vector<std::shared_ptr<DomNode>> &children = node->GetChildren();
+        //The order of subviews can not be guaranteed to be the same as that of index.
+        //So we have to reorder.
         std::vector<std::shared_ptr<DomNode>> results(children.size());
         std::partial_sort_copy(children.begin(), children.end(), results.begin(), results.end(), domNodeCompare);
+        //Set Superview Hippy Tag to Subview Hippy Tags map.
+        //But we have to find subviews to rootview manually.fuck
         for (const std::shared_ptr<DomNode> &nodeResult : results) {
             [childrenTags addObject:@(nodeResult->GetId())];
+        }
+        if (node->GetPid() == rootviewTag) {
+            [subviewHippTagsToRootview addObject:@(node->GetId())];
         }
         [self addUIBlock:^(HippyUIManager *uiManager, __unused NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
             UIView *view = [uiManager createViewByComponentData:componentData hippyTag:hippyTag rootTag:rootTag properties:props viewName:viewName];
             view.frame = rect;
             [uiManager->_pendingViewToRender setObject:childrenTags forKey:hippyTag];
+        }];
+    }
+    if ([subviewHippTagsToRootview count]) {
+        [self addUIBlock:^(HippyUIManager *uiManager, __unused NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+            [uiManager->_pendingViewToRender setObject:subviewHippTagsToRootview forKey:[uiManager rootHippyTag]];
         }];
     }
 }
@@ -1796,6 +1832,19 @@ static CGRect CGRectMakeFromLayoutResult(LayoutResult result) {
 
 - (void)renderMoveViews:(const std::vector<int32_t> &)ids fromContainer:(int32_t)fromContainer toContainer:(int32_t)toContainer {
     //这个方法疑点很多，比如移动之后被移动的node属性是否变化，否则位置可能会与原住民重叠。或者移动之后索引值如何变化。
+}
+
+- (void)renderNodesUpdateLayout:(const std::vector<std::shared_ptr<DomNode>> &)nodes {
+    HippyAssertThread(HippyGetUIManagerQueue(), @"renderNodesUpdateLayout can only be called from the shadow queue");
+    for (const auto &node : nodes) {
+        int32_t tag = node->GetId();
+        [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+            UIView *view = viewRegistry[@(tag)];
+            HippyAssert(view, @"renderNodesUpdateLayout finds no view");
+            CGRect rect = CGRectMakeFromLayoutResult(node->GetLayoutResult());
+            view.frame = rect;
+        }];
+    }
 }
 
 -(void)batch {
@@ -1890,7 +1939,7 @@ static CGRect CGRectMakeFromLayoutResult(LayoutResult result) {
         [view addViewEvent:static_cast<HippyViewEventType>(event) eventListener:^(CGPoint point) {
             if (listener) {
                 hippy::TouchEventInfo info = {static_cast<float>(point.x), static_cast<float>(point.y)};
-                listener(info);
+                listener(event, info);
             }
         }];
     }

@@ -87,34 +87,11 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
 
   std::tuple<int32_t, int32_t> GetSize();
 
-  inline void SetTagName(const std::string& tag_name) { tag_name_ = tag_name; }
-
-  inline const std::string& GetTagName() { return tag_name_; }
-
   inline void SetStyleStr(const std::string& view_name) { view_name_ = view_name; }
 
-  inline const std::string& GetViewName() { return view_name_; }
-
-  void SetId(int32_t id) { id_ = id; }
-  int32_t GetId() const { return id_; }
-
-  void SetPid(int32_t pid) { pid_ = pid; }
-  int32_t GetPid() const { return pid_; }
-
-  RenderInfo GetRenderInfo() const { return render_info_; }
-  void SetRenderInfo(RenderInfo render_info) { render_info_ = render_info; }
-
-  bool IsJustLayout() const { return is_just_layout_; }
-  void SetIsJustLayout(bool is_just_layout) { is_just_layout_ = is_just_layout; }
-
   const LayoutResult &GetLayoutResult() {return layout_;}
-    
-  bool IsVirtual() { return is_virtual_; }
-  void SetIsVirtual(bool is_virtual) { is_virtual_ = is_virtual; }
-
-  void SetIndex(int32_t index) { index_ = index; }
-  int32_t GetIndex() const { return index_; }
   void SetSize(int32_t width, int32_t height);
+  
   int32_t AddDomEventListener(DomEvent event, OnDomEventListener listener);
   void RemoveDomEventListener(DomEvent event, int32_t listener_id);
   int32_t AddOnLayoutListener(LayoutEvent event, OnLayoutEventListener listener);

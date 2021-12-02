@@ -208,6 +208,14 @@ HippyEventMethod(OnDetachedFromWindow, onDetachedFromWindow, HippyDirectEventBlo
     objc_setAssociatedObject(self, @selector(hippyZIndex), @(hippyZIndex), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
+- (BOOL)isHippySubviewsUpdated {
+    return [objc_getAssociatedObject(self, _cmd) integerValue];
+}
+
+- (void)setHippySubviewsUpdated:(BOOL)hippySubViewsUpdated {
+    objc_setAssociatedObject(self, @selector(isHippySubviewsUpdated), @(hippySubViewsUpdated), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
 - (NSArray<UIView *> *)sortedHippySubviews {
     NSArray *subviews = objc_getAssociatedObject(self, _cmd);
     if (!subviews) {
