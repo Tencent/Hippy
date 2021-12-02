@@ -1,6 +1,8 @@
 import '../common/destroy.dart';
+import '../common/voltron_array.dart';
 import '../engine/engine_context.dart';
 import '../flutter_render.dart';
+import '../module/promise.dart';
 import 'manager.dart';
 
 typedef RenderOpTaskGenerator = RenderOpTask Function(
@@ -163,16 +165,17 @@ class _CallUiFunctionOpTask extends _NodeOpTask {
 
   @override
   void _run() {
-    String funcName = _params[_RenderOpParamsKey.kFuncNameKey]??'';
+    String funcName = _params[_RenderOpParamsKey.kFuncNameKey] ?? '';
     if (funcName.isNotEmpty) {
-      Map funcParams = _params[_RenderOpParamsKey.kFuncParamsKey]??{};
-      String callbackId = _params[_RenderOpParamsKey.kFuncIdKey]??'';
-      if (callbackId.isNotEmpty) {
-        renderManager.addNulUITask(() {
-          renderManager.dispatchUIFunction(
-              _instanceId, _nodeId, movePid, _nodeId);
-        });
-      }
+      Map funcParams = _params[_RenderOpParamsKey.kFuncParamsKey] ?? {};
+      var realParams = VoltronArray.fromList(
+          funcParams[_RenderOpParamsKey.kParamsKey] ?? []);
+      String callbackId = _params[_RenderOpParamsKey.kFuncIdKey] ?? Promise.callIdNoCallback;
+      var promise = Promise.native(_engineContext, callId: callbackId);
+      renderManager.addNulUITask(() {
+        renderManager.dispatchUIFunction(
+            _instanceId, _nodeId, funcName, realParams, promise);
+      });
     }
   }
 }
@@ -190,6 +193,8 @@ enum _RenderOpType {
 }
 
 class _RenderOpParamsKey {
+  static const String kParamsKey = 'params';
+
   static const String kParentNodeIdKey = "pid";
   static const String kChildIndexKey = "index";
   static const String kClassNameKey = "name";

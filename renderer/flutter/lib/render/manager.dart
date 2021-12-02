@@ -391,7 +391,7 @@ class RenderManager
   }
 
   void dispatchUIFunction(int instanceId, int id, String funcName,
-      VoltronMap array, Promise promise) {
+      VoltronArray array, Promise promise) {
     var renderNode = controllerManager.findNode(instanceId, id);
     if (renderNode != null) {
       renderNode.dispatchUIFunction(funcName, array, promise);
