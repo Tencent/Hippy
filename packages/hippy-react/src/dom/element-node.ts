@@ -33,6 +33,7 @@ import {
   isNumber,
   warn,
   convertImgUrl,
+  isCaptureEvent,
 } from '../utils';
 import ViewNode from './view-node';
 import '@localTypes/global';
@@ -426,6 +427,9 @@ class ElementNode extends ViewNode {
           match: () => true,
           action: () => {
             if (typeof value === 'function') {
+              if (isCaptureEvent(key)) {
+                key = key.replace('Capture', '');
+              }
               this.attributes[key] = true;
             } else {
               this.attributes[key] = value;
