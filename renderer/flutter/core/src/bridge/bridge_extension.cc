@@ -8,7 +8,7 @@
 #include <utility>
 
 #if defined(__ANDROID__) || defined(_WIN32)
-#include "bridge/android/bridge_impl.h"
+#include "bridge_impl.h"
 #else
 #include "bridge_impl_ios.h"
 #endif
@@ -84,7 +84,7 @@ EXTERN_C void RunNativeRunnableEx(int64_t runtime_id,
                                 });
 }
 
-EXTERN_C const char *getCrashMessageEx() {
+EXTERN_C const char *GetCrashMessageEx() {
   return "lucas_crash_report_test";
 }
 

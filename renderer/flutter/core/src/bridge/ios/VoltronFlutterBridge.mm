@@ -17,7 +17,7 @@
 #import "utils/VoltronLog.h"
 #import "utils/VoltronUtils.h"
 #include "core/base/string_view_utils.h"
-#include "string_util.h"
+#include "bridge/string_util.h"
 
 using StringViewUtils = hippy::base::StringViewUtils;
 

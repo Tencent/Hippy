@@ -39,7 +39,6 @@
 #include "core/modules/module_base.h"
 #include "core/modules/module_register.h"
 #include "core/modules/timer_module.h"
-#include "core/modules/ui_manager_module.h"
 #include "core/napi/callback_info.h"
 #include "core/napi/js_native_api.h"
 #include "core/napi/js_native_api_types.h"

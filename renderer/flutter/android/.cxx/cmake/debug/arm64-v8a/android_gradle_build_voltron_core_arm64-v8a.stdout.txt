@@ -1,0 +1,69 @@
+ninja: Entering directory `/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a'
+[1/68] Building CXX object CMakeFiles/voltron_core.dir/Users/huli/svn_work/Hippy/framework/js/core/src/base/task.cc.o
+[2/68] Building CXX object CMakeFiles/voltron_core.dir/Users/huli/svn_work/Hippy/framework/js/core/src/base/thread_id.cc.o
+[3/68] Building CXX object CMakeFiles/voltron_core.dir/Users/huli/svn_work/Hippy/framework/js/core/src/base/thread.cc.o
+[4/68] Building CXX object CMakeFiles/voltron_core.dir/Users/huli/svn_work/Hippy/framework/js/core/src/base/js_value_wrapper.cc.o
+[5/68] Building CXX object CMakeFiles/voltron_core.dir/Users/huli/svn_work/Hippy/framework/js/core/src/task/common_task.cc.o
+[6/68] Building CXX object CMakeFiles/voltron_core.dir/Users/huli/svn_work/Hippy/framework/js/core/src/task/javascript_task.cc.o
+[7/68] Building CXX object CMakeFiles/voltron_core.dir/Users/huli/svn_work/Hippy/framework/js/core/src/base/file.cc.o
+[8/68] Building CXX object CMakeFiles/voltron_core.dir/Users/huli/svn_work/Hippy/framework/js/core/src/base/task_runner.cc.o
+[9/68] Building CXX object CMakeFiles/voltron_core.dir/Users/huli/svn_work/Hippy/framework/js/core/src/modules/module_register.cc.o
+[10/68] Building CXX object CMakeFiles/voltron_core.dir/Users/huli/svn_work/Hippy/framework/js/core/src/task/javascript_task_runner.cc.o
+[11/68] Building CXX object CMakeFiles/voltron_core.dir/Users/huli/svn_work/Hippy/framework/js/core/src/napi/js_native_turbo.cc.o
+[12/68] Building CXX object CMakeFiles/voltron_core.dir/Users/huli/svn_work/Hippy/framework/js/core/src/napi/callback_info.cc.o
+[13/68] Building CXX object CMakeFiles/voltron_core.dir/Users/huli/svn_work/Hippy/framework/js/core/src/modules/console_module.cc.o
+[14/68] Building CXX object CMakeFiles/voltron_core.dir/src/ffi/bridge_define.cc.o
+[15/68] Building CXX object CMakeFiles/voltron_core.dir/Users/huli/svn_work/Hippy/framework/js/core/src/modules/timer_module.cc.o
+[16/68] Building CXX object CMakeFiles/voltron_core.dir/Users/huli/svn_work/Hippy/framework/js/core/src/task/worker_task_runner.cc.o
+[17/68] Building CXX object CMakeFiles/voltron_core.dir/Users/huli/svn_work/Hippy/framework/js/core/src/modules/contextify_module.cc.o
+[18/68] Building CXX object CMakeFiles/voltron_core.dir/src/ffi/callback_manager.cc.o
+[19/68] Building CXX object CMakeFiles/voltron_core.dir/src/ffi/logging-impl.cc.o
+[20/68] Building CXX object CMakeFiles/voltron_core.dir/Users/huli/svn_work/Hippy/framework/js/core/src/napi/v8/native_source_code_android.cc.o
+[21/68] Building CXX object CMakeFiles/voltron_core.dir/src/ffi/logging.cc.o
+[22/68] Building CXX object CMakeFiles/voltron_core.dir/Users/huli/svn_work/Hippy/framework/js/core/src/engine.cc.o
+[23/68] Building CXX object CMakeFiles/voltron_core.dir/src/ffi/ffi_platform_runtime.cc.o
+[24/68] Building CXX object CMakeFiles/voltron_core.dir/Users/huli/svn_work/Hippy/framework/js/core/src/modules/ui_manager_module.cc.o
+[25/68] Building CXX object CMakeFiles/voltron_core.dir/Users/huli/svn_work/Hippy/framework/js/core/src/napi/v8/js_native_turbo_v8.cc.o
+[26/68] Building CXX object CMakeFiles/voltron_core.dir/src/bridge/bridge_runtime.cc.o
+[27/68] Building CXX object CMakeFiles/voltron_core.dir/src/render/render_task.cc.o
+[28/68] Building CXX object CMakeFiles/voltron_core.dir/Users/huli/svn_work/Hippy/framework/js/core/src/scope.cc.o
+[29/68] Building CXX object CMakeFiles/voltron_core.dir/src/render/render_queue.cc.o
+[30/68] Building CXX object CMakeFiles/voltron_core.dir/src/ffi/bridge_ffi_impl.cc.o
+[31/68] Building CXX object CMakeFiles/voltron_core.dir/src/render/voltron_render_manager.cc.o
+[32/68] Building CXX object CMakeFiles/voltron_core.dir/src/bridge/code-cache-runnable.cc.o
+[33/68] Building CXX object CMakeFiles/voltron_core.dir/src/bridge/bridge_manager.cc.o
+[34/68] Building CXX object CMakeFiles/voltron_core.dir/Users/huli/svn_work/Hippy/framework/js/core/src/napi/v8/js_native_api_v8.cc.o
+[35/68] Building CXX object CMakeFiles/voltron_core.dir/src/bridge/string_util.cc.o
+[36/68] Building CXX object CMakeFiles/voltron_core.dir/src/bridge/bridge_extension.cc.o
+[37/68] Building CXX object CMakeFiles/voltron_core.dir/src/render/render_task_runner.cc.o
+[38/68] Building CXX object CMakeFiles/voltron_core.dir/src/bridge/android/serializer.cc.o
+[39/68] Building CXX object CMakeFiles/voltron_core.dir/src/bridge/android/dart2js.cc.o
+[40/68] Building CXX object CMakeFiles/voltron_core.dir/third_party/codec/src/standard_codec.cc.o
+[41/68] Building CXX object CMakeFiles/voltron_core.dir/src/bridge/android/exception_handler.cc.o
+[42/68] Building CXX object base/src/base/CMakeFiles/tdf_base_common.dir/log_settings_state.cc.o
+[43/68] Building CXX object base/src/base/CMakeFiles/tdf_base_common.dir/log_settings.cc.o
+[44/68] Building CXX object base/src/platform/adr/CMakeFiles/tdf_base.dir/logging.cc.o
+[45/68] Linking CXX static library base/src/platform/adr/libtdf_base.a
+[46/68] Building CXX object CMakeFiles/voltron_core.dir/src/bridge/android/js2dart.cc.o
+[47/68] Building CXX object base/src/base/CMakeFiles/tdf_base_common.dir/unicode_string_view.cc.o
+[48/68] Linking CXX static library base/src/base/libtdf_base_common.a
+[49/68] Building CXX object dom/CMakeFiles/dom.dir/src/dom/layout_node.cc.o
+[50/68] Building CXX object CMakeFiles/voltron_core.dir/src/bridge/android/runtime.cc.o
+[51/68] Building CXX object dom/layout_out/CMakeFiles/layout.dir/engine/HPConfig.cpp.o
+[52/68] Building CXX object dom/layout_out/CMakeFiles/layout.dir/engine/HPLayoutCache.cpp.o
+[53/68] Building CXX object dom/CMakeFiles/dom.dir/src/dom/dom_value.cc.o
+[54/68] Building CXX object CMakeFiles/voltron_core.dir/Users/huli/svn_work/Hippy/renderer/flutter/android/src/main/jni/src/inspector/v8_channel_impl.cc.o
+[55/68] Building CXX object dom/layout_out/CMakeFiles/layout.dir/engine/HPUtil.cpp.o
+[56/68] Building CXX object dom/layout_out/CMakeFiles/layout.dir/engine/FlexLine.cpp.o
+[57/68] Building CXX object dom/CMakeFiles/dom.dir/src/dom/taitank_layout_node.cc.o
+[58/68] Building CXX object CMakeFiles/voltron_core.dir/Users/huli/svn_work/Hippy/renderer/flutter/android/src/main/jni/src/inspector/v8_inspector_client_impl.cc.o
+[59/68] Building CXX object dom/layout_out/CMakeFiles/layout.dir/engine/Hippy.cpp.o
+[60/68] Building CXX object dom/layout_out/CMakeFiles/layout.dir/engine/HPNode.cpp.o
+[61/68] Building CXX object dom/layout_out/CMakeFiles/layout.dir/engine/HPStyle.cpp.o
+[62/68] Linking CXX static library dom/layout_out/liblayout.a
+[63/68] Building CXX object dom/CMakeFiles/dom.dir/src/dom/dom_manager.cc.o
+[64/68] Building CXX object CMakeFiles/voltron_core.dir/src/bridge/android/bridge_impl.cc.o
+[65/68] Building CXX object dom/CMakeFiles/dom.dir/src/dom/render_manager_proxy.cc.o
+[66/68] Building CXX object dom/CMakeFiles/dom.dir/src/dom/dom_node.cc.o
+[67/68] Linking CXX static library dom/libdom.a
+[68/68] Linking CXX shared library /Users/huli/svn_work/Hippy/renderer/flutter/example/build/tencent_voltron_render/intermediates/cmake/debug/obj/arm64-v8a/libvoltron_core.so

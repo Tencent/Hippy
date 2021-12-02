@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 apply from: './mavencentral.gradle'
 
 ext {
-  CMAKE_PATH = "$projectDir.absolutePath/../../framework/js/android/CMakeLists.txt"
+  CMAKE_PATH = "$projectDir.absolutePath/src/main/jni/CMakeLists.txt"
   OUTPUT_PATH = "$buildDir/outputs/aar"
   THIRD_PARTY_LIBRARY_PATH = "$projectDir.absolutePath/src/main/jni/third_party"
   skipCmakeAndNinja = System.getenv('skipCmakeAndNinja') != null

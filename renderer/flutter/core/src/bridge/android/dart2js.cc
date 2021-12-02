@@ -6,8 +6,8 @@
  * @version  1.0.0
  * @date     2021/8/15
  *****************************************************************************/
-#include "bridge/android/dart2js.h"
-#include "bridge/android/runtime.h"
+#include "dart2js.h"
+#include "runtime.h"
 #include "bridge/string_util.h"
 #ifdef V8_HAS_INSPECTOR
 #include "inspector/v8_inspector_client_impl.h"

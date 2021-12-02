@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   shared_preferences: ^2.0.5
-  path_provider: ^2.0.1
+  path_provider: 2.0.1
   benchmark_harness: ^2.0.0
   ffi: ^1.0.0
   sprintf: ^6.0.0

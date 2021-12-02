@@ -6,7 +6,7 @@
  * @version  1.0.0
  * @date     2021/8/12
  *****************************************************************************/
-#include "bridge/android/exception_handler.h"
+#include "exception_handler.h"
 #include "bridge/string_util.h"
 
 using StringViewUtil = hippy::base::StringViewUtils;

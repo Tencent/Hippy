@@ -376,7 +376,7 @@ void BindTouchEvent(std::shared_ptr<Ctx> context, const std::string &name,
     }
     int32_t id = dom_node->GetId();
     dom_node->AddTouchEventListener(event, [weak_context, weak_func, id]
-        (hippy::TouchEventInfo info) {
+        (hippy::TouchEvent e, hippy::TouchEventInfo info) {
       auto context = weak_context.lock();
       if (!context) {
         return;

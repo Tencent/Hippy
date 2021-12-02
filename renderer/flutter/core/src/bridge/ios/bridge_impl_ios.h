@@ -8,7 +8,7 @@
 #ifndef bridge_impl_ios_h
 #define bridge_impl_ios_h
 
-#include "bridge_runtime.h"
+#include "bridge/bridge_runtime.h"
 
 class BridgeImpl {
  public:
@@ -16,7 +16,7 @@ class BridgeImpl {
   ~BridgeImpl() = default;
 
  public:
-  static int64_t InitJsFrameWork(std::shared_ptr<PlatformRuntime> platform_runtime,
+  static int64_t InitJsFrameWork(std::shared_ptr<voltron::PlatformRuntime> platform_runtime,
                               bool single_thread_mode,
                               bool bridge_param_json,
                               bool is_dev_module,

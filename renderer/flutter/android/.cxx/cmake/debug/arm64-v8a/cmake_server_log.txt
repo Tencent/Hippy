@@ -1,0 +1,343 @@
+CMAKE SERVER: 
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"supportedProtocolVersions":[{"isExperimental":true,"major":1,"minor":1}],"type":"hello"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {
+  "type": "handshake",
+  "cookie": "gradle-cmake-cookie",
+  "protocolVersion": {
+    "isExperimental": true,
+    "major": 1,
+    "minor": 1
+  },
+  "sourceDirectory": "/Users/huli/svn_work/Hippy/renderer/flutter/core",
+  "buildDirectory": "/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a",
+  "generator": "Ninja"
+}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: 
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"cookie":"gradle-cmake-cookie","inReplyTo":"handshake","type":"reply"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {
+  "type": "configure",
+  "cacheArguments": [
+    "",
+    "-DANDROID_ABI\u003darm64-v8a",
+    "-DANDROID_PLATFORM\u003dandroid-21",
+    "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY\u003d/Users/huli/svn_work/Hippy/renderer/flutter/example/build/tencent_voltron_render/intermediates/cmake/debug/obj/arm64-v8a",
+    "-DCMAKE_BUILD_TYPE\u003dDebug",
+    "-DANDROID_NDK\u003d/Users/huli/android_sdk_tools/ndk/21.4.7075529",
+    "-DCMAKE_CXX_FLAGS\u003d-std\u003dc++17",
+    "-DCMAKE_SYSTEM_NAME\u003dAndroid",
+    "-DCMAKE_ANDROID_ARCH_ABI\u003darm64-v8a",
+    "-DCMAKE_SYSTEM_VERSION\u003d21",
+    "-DCMAKE_EXPORT_COMPILE_COMMANDS\u003dON",
+    "-DCMAKE_ANDROID_NDK\u003d/Users/huli/android_sdk_tools/ndk/21.4.7075529",
+    "-DCMAKE_TOOLCHAIN_FILE\u003d/Users/huli/android_sdk_tools/ndk/21.4.7075529/build/cmake/android.toolchain.cmake",
+    "-G Ninja",
+    "-DCMAKE_MAKE_PROGRAM\u003d/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/bin/ninja",
+    "-DANDROID_TOOLCHAIN\u003dclang",
+    "-DANDROID_STL\u003dc++_shared"
+  ]
+}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: 
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"cookie":"","inReplyTo":"configure","progressCurrent":225,"progressMaximum":1000,"progressMessage":"Configuring","progressMinimum":0,"type":"progress"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: 
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"cookie":"","inReplyTo":"configure","message":"FRAMEWORK_ANDROID_SRC: /Users/huli/svn_work/Hippy/renderer/flutter/core/../android/src/main/jni/src/inspector/v8_channel_impl.cc;/Users/huli/svn_work/Hippy/renderer/flutter/core/../android/src/main/jni/src/inspector/v8_inspector_client_impl.cc","type":"message"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: FRAMEWORK_ANDROID_SRC: /Users/huli/svn_work/Hippy/renderer/flutter/core/../android/src/main/jni/src/inspector/v8_channel_impl.cc;/Users/huli/svn_work/Hippy/renderer/flutter/core/../android/src/main/jni/src/inspector/v8_inspector_client_impl.cc
+CMAKE SERVER: FRAMEWORK_ANDROID_SRC: /Users/huli/svn_work/Hippy/renderer/flutter/core/../android/src/main/jni/src/inspector/v8_channel_impl.cc;/Users/huli/svn_work/Hippy/renderer/flutter/core/../android/src/main/jni/src/inspector/v8_inspector_client_impl.cc
+CMAKE SERVER: 
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"cookie":"","inReplyTo":"configure","message":"JS_ENGINE:V8","type":"message"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: JS_ENGINE:V8
+CMAKE SERVER: JS_ENGINE:V8
+CMAKE SERVER: 
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"cookie":"","inReplyTo":"configure","progressCurrent":337,"progressMaximum":1000,"progressMessage":"Configuring","progressMinimum":0,"type":"progress"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: 
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"cookie":"","inReplyTo":"configure","progressCurrent":450,"progressMaximum":1000,"progressMessage":"Configuring","progressMinimum":0,"type":"progress"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: 
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"cookie":"","inReplyTo":"configure","progressCurrent":562,"progressMaximum":1000,"progressMessage":"Configuring","progressMinimum":0,"type":"progress"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: 
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"cookie":"","inReplyTo":"configure","progressCurrent":674,"progressMaximum":1000,"progressMessage":"Configuring","progressMinimum":0,"type":"progress"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: 
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"cookie":"","inReplyTo":"configure","progressCurrent":787,"progressMaximum":1000,"progressMessage":"Configuring","progressMinimum":0,"type":"progress"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: 
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"cookie":"","inReplyTo":"configure","message":"DOM LAYOUT_DIR: /Users/huli/svn_work/Hippy/layout","type":"message"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: DOM LAYOUT_DIR: /Users/huli/svn_work/Hippy/layout
+CMAKE SERVER: DOM LAYOUT_DIR: /Users/huli/svn_work/Hippy/layout
+CMAKE SERVER: 
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"cookie":"","inReplyTo":"configure","progressCurrent":900,"progressMaximum":1000,"progressMessage":"Configuring","progressMinimum":0,"type":"progress"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: 
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"cookie":"","inReplyTo":"configure","progressCurrent":912,"progressMaximum":1000,"progressMessage":"Configuring","progressMinimum":0,"type":"progress"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: 
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"cookie":"","inReplyTo":"configure","progressCurrent":924,"progressMaximum":1000,"progressMessage":"Configuring","progressMinimum":0,"type":"progress"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: 
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"cookie":"","inReplyTo":"configure","progressCurrent":937,"progressMaximum":1000,"progressMessage":"Configuring","progressMinimum":0,"type":"progress"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: 
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"cookie":"","inReplyTo":"configure","progressCurrent":950,"progressMaximum":1000,"progressMessage":"Configuring","progressMinimum":0,"type":"progress"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: 
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"cookie":"","inReplyTo":"configure","progressCurrent":962,"progressMaximum":1000,"progressMessage":"Configuring","progressMinimum":0,"type":"progress"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: 
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"cookie":"","inReplyTo":"configure","progressCurrent":974,"progressMaximum":1000,"progressMessage":"Configuring","progressMinimum":0,"type":"progress"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: 
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"cookie":"","inReplyTo":"configure","progressCurrent":987,"progressMaximum":1000,"progressMessage":"Configuring","progressMinimum":0,"type":"progress"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: 
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"cookie":"","inReplyTo":"configure","progressCurrent":1000,"progressMaximum":1000,"progressMessage":"Configuring","progressMinimum":0,"type":"progress"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: 
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"cookie":"","inReplyTo":"configure","message":"Configuring done","type":"message"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: Configuring done
+CMAKE SERVER: Configuring done
+CMAKE SERVER: 
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"cookie":"","inReplyTo":"configure","type":"reply"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"type":"compute"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: 
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"cookie":"","inReplyTo":"compute","progressCurrent":125,"progressMaximum":1000,"progressMessage":"Generating","progressMinimum":0,"type":"progress"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: 
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"cookie":"","inReplyTo":"compute","progressCurrent":250,"progressMaximum":1000,"progressMessage":"Generating","progressMinimum":0,"type":"progress"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: 
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"cookie":"","inReplyTo":"compute","progressCurrent":375,"progressMaximum":1000,"progressMessage":"Generating","progressMinimum":0,"type":"progress"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: 
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"cookie":"","inReplyTo":"compute","progressCurrent":500,"progressMaximum":1000,"progressMessage":"Generating","progressMinimum":0,"type":"progress"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: 
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"cookie":"","inReplyTo":"compute","progressCurrent":625,"progressMaximum":1000,"progressMessage":"Generating","progressMinimum":0,"type":"progress"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: 
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"cookie":"","inReplyTo":"compute","progressCurrent":750,"progressMaximum":1000,"progressMessage":"Generating","progressMinimum":0,"type":"progress"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: 
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"cookie":"","inReplyTo":"compute","progressCurrent":875,"progressMaximum":1000,"progressMessage":"Generating","progressMinimum":0,"type":"progress"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: 
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"cookie":"","inReplyTo":"compute","progressCurrent":1000,"progressMaximum":1000,"progressMessage":"Generating","progressMinimum":0,"type":"progress"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: 
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"cookie":"","inReplyTo":"compute","message":"Generating done","type":"message"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: Generating done
+CMAKE SERVER: 
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"cookie":"","inReplyTo":"compute","type":"reply"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"type":"cmakeInputs"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: 
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"buildFiles":[{"isCMake":true,"isTemporary":false,"sources":["/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeSystemSpecificInitialize.cmake","/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android-Initialize.cmake","/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeSystemSpecificInformation.cmake","/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeGenericSystem.cmake","/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android.cmake","/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Linux.cmake","/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/UnixPaths.cmake","/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeCInformation.cmake","/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeLanguageInformation.cmake","/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/Clang-C.cmake","/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/Clang.cmake","/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/CMakeCommonCompilerMacros.cmake","/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/GNU.cmake","/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/CMakeCommonCompilerMacros.cmake","/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android-Clang-C.cmake","/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android-Clang.cmake","/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeCommonLanguageInclude.cmake","/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeCXXInformation.cmake","/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeLanguageInformation.cmake","/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/Clang-CXX.cmake","/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/Clang.cmake","/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android-Clang-CXX.cmake","/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android-Clang.cmake","/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeCommonLanguageInclude.cmake"]},{"isCMake":false,"isTemporary":false,"sources":["CMakeLists.txt","/Users/huli/android_sdk_tools/ndk/21.4.7075529/build/cmake/android.toolchain.cmake","/Users/huli/android_sdk_tools/ndk/21.4.7075529/build/cmake/platforms.cmake","../cmake/framework_platform_android.cmake","../cmake/framework_core.cmake","../cmake/render_core.cmake","../../../framework/js/android/src/main/jni/third_party/v8/stable/official-release/CMakeLists.txt","../../../framework/js/core/third_party/base/CMakeLists.txt","../../../framework/js/core/third_party/base/src/CMakeLists.txt","../../../framework/js/core/third_party/base/src/platform/adr/CMakeLists.txt","../../../framework/js/core/third_party/base/src/base/CMakeLists.txt","../../../dom/CMakeLists.txt","../../../layout/CMakeLists.txt"]},{"isCMake":false,"isTemporary":true,"sources":["../android/.cxx/cmake/debug/arm64-v8a/CMakeFiles/3.10.2/CMakeSystem.cmake","../android/.cxx/cmake/debug/arm64-v8a/CMakeFiles/3.10.2/CMakeCCompiler.cmake","../android/.cxx/cmake/debug/arm64-v8a/CMakeFiles/3.10.2/CMakeCXXCompiler.cmake"]}],"cmakeRootDirectory":"/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/share/cmake-3.10","cookie":"","inReplyTo":"cmakeInputs","sourceDirectory":"/Users/huli/svn_work/Hippy/renderer/flutter/core","type":"reply"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"type":"codemodel"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+
+CMAKE SERVER: 
+
+CMAKE SERVER: [== "CMake Server" ==[
+
+CMAKE SERVER: {"configurations":[{"name":"Debug","projects":[{"buildDirectory":"/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a","name":"VoltronCore","sourceDirectory":"/Users/huli/svn_work/Hippy/renderer/flutter/core","targets":[{"artifacts":["/Users/huli/svn_work/Hippy/renderer/flutter/example/build/tencent_voltron_render/intermediates/cmake/debug/obj/arm64-v8a/libvoltron_core.so"],"buildDirectory":"/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a","fileGroups":[{"compileFlags":"-g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -std=c++17 -O0 -fno-limit-debug-info  -fPIC   -fno-rtti","defines":["ANDROID","ENABLE_INSPECTOR","OS_ANDROID","V8_DEPRECATION_WARNINGS","V8_IMMINENT_DEPRECATION_WARNINGS","voltron_core_EXPORTS"],"includePath":[{"path":"/Users/huli/svn_work/Hippy/framework/js/android/src/main/jni/third_party/v8/stable/official-release/include"},{"path":"/Users/huli/svn_work/Hippy/framework/js/android/src/main/jni/third_party/v8/stable/official-release/include/v8"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/../android/src/main/jni/include"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/../../../framework/js/core/include"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/../../../framework/js/core/third_party/base/include"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/src/bridge/android"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/third_party/codec/include"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/include"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/../../../dom/include"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/../../../layout"}],"isGenerated":false,"language":"CXX","sources":["../../../framework/js/core/src/base/file.cc","../../../framework/js/core/src/base/js_value_wrapper.cc","../../../framework/js/core/src/base/task.cc","../../../framework/js/core/src/base/task_runner.cc","../../../framework/js/core/src/base/thread.cc","../../../framework/js/core/src/base/thread_id.cc","../../../framework/js/core/src/modules/console_module.cc","../../../framework/js/core/src/modules/contextify_module.cc","../../../framework/js/core/src/modules/module_register.cc","../../../framework/js/core/src/modules/timer_module.cc","../../../framework/js/core/src/modules/ui_manager_module.cc","../../../framework/js/core/src/napi/callback_info.cc","../../../framework/js/core/src/napi/js_native_turbo.cc","../../../framework/js/core/src/task/common_task.cc","../../../framework/js/core/src/task/javascript_task.cc","../../../framework/js/core/src/task/javascript_task_runner.cc","../../../framework/js/core/src/task/worker_task_runner.cc","../../../framework/js/core/src/engine.cc","../../../framework/js/core/src/scope.cc","../../../framework/js/core/src/napi/v8/js_native_api_v8.cc","../../../framework/js/core/src/napi/v8/js_native_turbo_v8.cc","../../../framework/js/core/src/napi/v8/native_source_code_android.cc","src/ffi/bridge_define.cc","src/ffi/bridge_ffi_impl.cc","src/ffi/callback_manager.cc","src/ffi/ffi_platform_runtime.cc","src/ffi/logging.cc","src/ffi/logging-impl.cc","src/render/render_queue.cc","src/render/render_task.cc","src/render/render_task_runner.cc","src/render/voltron_render_manager.cc","src/bridge/bridge_extension.cc","src/bridge/bridge_manager.cc","src/bridge/bridge_runtime.cc","src/bridge/code-cache-runnable.cc","src/bridge/string_util.cc","third_party/codec/src/standard_codec.cc","src/bridge/android/bridge_impl.cc","src/bridge/android/dart2js.cc","src/bridge/android/exception_handler.cc","src/bridge/android/js2dart.cc","src/bridge/android/runtime.cc","src/bridge/android/serializer.cc","../android/src/main/jni/src/inspector/v8_channel_impl.cc","../android/src/main/jni/src/inspector/v8_inspector_client_impl.cc"]}],"fullName":"libvoltron_core.so","linkFlags":"-Wl,--exclude-libs,libgcc.a -Wl,--exclude-libs,libgcc_real.a -Wl,--exclude-libs,libatomic.a -Wl,--build-id -Wl,--fatal-warnings -Wl,--no-undefined -Qunused-arguments  -Wl,--exclude-libs,libv8_monolith.a","linkLibraries":"dom/libdom.a base/src/base/libtdf_base_common.a base/src/platform/adr/libtdf_base.a -landroid -llog /Users/huli/svn_work/Hippy/framework/js/android/src/main/jni/third_party/v8/stable/official-release/libs/arm64-v8a/libv8_monolith.a -Wl,--gc-sections dom/layout_out/liblayout.a -latomic -lm","linkerLanguage":"CXX","name":"voltron_core","sourceDirectory":"/Users/huli/svn_work/Hippy/renderer/flutter/core","sysroot":"/Users/huli/android_sdk_tools/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/sysroot","type":"SHARED_LIBRARY"},{"artifacts":["/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a/base/src/platform/adr/libtdf_base.a"],"buildDirectory":"/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a/base/src/platform/adr","fileGroups":[{"compileFlags":"-g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -std=c++17 -O0 -fno-limit-debug-info  -fPIC   -fno-rtti -std=gnu++1z","defines":["ANDROID","ENABLE_INSPECTOR","OS_ANDROID","V8_DEPRECATION_WARNINGS","V8_IMMINENT_DEPRECATION_WARNINGS"],"includePath":[{"path":"/Users/huli/svn_work/Hippy/framework/js/android/src/main/jni/third_party/v8/stable/official-release/include"},{"path":"/Users/huli/svn_work/Hippy/framework/js/android/src/main/jni/third_party/v8/stable/official-release/include/v8"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/../android/src/main/jni/include"},{"path":"/Users/huli/svn_work/Hippy/framework/js/core/third_party/base/include"},{"path":"/Users/huli/svn_work/Hippy/framework/js/core/third_party/base/src/platform/adr/."}],"isGenerated":false,"language":"CXX","sources":["logging.cc"]},{"isGenerated":false,"sources":["CMakeLists.txt"]}],"fullName":"libtdf_base.a","linkerLanguage":"CXX","name":"tdf_base","sourceDirectory":"/Users/huli/svn_work/Hippy/framework/js/core/third_party/base/src/platform/adr","sysroot":"/Users/huli/android_sdk_tools/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/sysroot","type":"STATIC_LIBRARY"},{"artifacts":["/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a/base/src/base/libtdf_base_common.a"],"buildDirectory":"/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a/base/src/base","fileGroups":[{"compileFlags":"-g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -std=c++17 -O0 -fno-limit-debug-info  -fPIC   -fno-rtti -std=gnu++1z","defines":["ANDROID","ENABLE_INSPECTOR","OS_ANDROID","V8_DEPRECATION_WARNINGS","V8_IMMINENT_DEPRECATION_WARNINGS"],"includePath":[{"path":"/Users/huli/svn_work/Hippy/framework/js/android/src/main/jni/third_party/v8/stable/official-release/include"},{"path":"/Users/huli/svn_work/Hippy/framework/js/android/src/main/jni/third_party/v8/stable/official-release/include/v8"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/../android/src/main/jni/include"},{"path":"/Users/huli/svn_work/Hippy/framework/js/core/third_party/base/include"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core"}],"isGenerated":false,"language":"CXX","sources":["log_settings.cc","log_settings_state.cc","unicode_string_view.cc"]},{"isGenerated":false,"sources":["CMakeLists.txt"]}],"fullName":"libtdf_base_common.a","linkerLanguage":"CXX","name":"tdf_base_common","sourceDirectory":"/Users/huli/svn_work/Hippy/framework/js/core/third_party/base/src/base","sysroot":"/Users/huli/android_sdk_tools/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/sysroot","type":"STATIC_LIBRARY"},{"artifacts":["/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a/dom/libdom.a"],"buildDirectory":"/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a/dom","fileGroups":[{"compileFlags":"-g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -std=c++17 -O0 -fno-limit-debug-info  -fPIC   -fno-rtti -std=gnu++1z","defines":["ANDROID","ENABLE_INSPECTOR","OS_ANDROID","V8_DEPRECATION_WARNINGS","V8_IMMINENT_DEPRECATION_WARNINGS"],"includePath":[{"path":"/Users/huli/svn_work/Hippy/framework/js/android/src/main/jni/third_party/v8/stable/official-release/include"},{"path":"/Users/huli/svn_work/Hippy/framework/js/android/src/main/jni/third_party/v8/stable/official-release/include/v8"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/../android/src/main/jni/include"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/../../../framework/js/core/include"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/../../../framework/js/core/third_party/base/include"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/src/bridge/android"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/third_party/codec/include"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/include"},{"path":"/Users/huli/svn_work/Hippy/framework/js/core/include"},{"path":"/Users/huli/svn_work/Hippy/framework/js/core/third_party/base/include"},{"path":"/Users/huli/svn_work/Hippy/layout"},{"path":"/Users/huli/svn_work/Hippy/dom/include"}],"isGenerated":false,"language":"CXX","sources":["src/dom/dom_manager.cc","src/dom/dom_node.cc","src/dom/dom_value.cc","src/dom/layout_node.cc","src/dom/render_manager_proxy.cc","src/dom/taitank_layout_node.cc"]}],"fullName":"libdom.a","linkerLanguage":"CXX","name":"dom","sourceDirectory":"/Users/huli/svn_work/Hippy/dom","sysroot":"/Users/huli/android_sdk_tools/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/sysroot","type":"STATIC_LIBRARY"},{"artifacts":["/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a/dom/layout_out/liblayout.a"],"buildDirectory":"/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a/dom/layout_out","fileGroups":[{"compileFlags":"-g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -std=c++17 -O0 -fno-limit-debug-info  -fPIC   -fno-rtti -std=gnu++1z","defines":["ANDROID","ENABLE_INSPECTOR","OS_ANDROID","V8_DEPRECATION_WARNINGS","V8_IMMINENT_DEPRECATION_WARNINGS"],"includePath":[{"path":"/Users/huli/svn_work/Hippy/framework/js/android/src/main/jni/third_party/v8/stable/official-release/include"},{"path":"/Users/huli/svn_work/Hippy/framework/js/android/src/main/jni/third_party/v8/stable/official-release/include/v8"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/../android/src/main/jni/include"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/../../../framework/js/core/include"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/../../../framework/js/core/third_party/base/include"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/src/bridge/android"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/third_party/codec/include"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/include"},{"path":"/Users/huli/svn_work/Hippy/layout/engine"}],"isGenerated":false,"language":"CXX","sources":["engine/FlexLine.cpp","engine/HPConfig.cpp","engine/HPLayoutCache.cpp","engine/HPNode.cpp","engine/HPStyle.cpp","engine/HPUtil.cpp","engine/Hippy.cpp"]}],"fullName":"liblayout.a","linkerLanguage":"CXX","name":"layout","sourceDirectory":"/Users/huli/svn_work/Hippy/layout","sysroot":"/Users/huli/android_sdk_tools/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/sysroot","type":"STATIC_LIBRARY"}]},{"buildDirectory":"/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a/base","name":"base","sourceDirectory":"/Users/huli/svn_work/Hippy/framework/js/core/third_party/base","targets":[{"artifacts":["/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a/base/src/platform/adr/libtdf_base.a"],"buildDirectory":"/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a/base/src/platform/adr","fileGroups":[{"compileFlags":"-g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -std=c++17 -O0 -fno-limit-debug-info  -fPIC   -fno-rtti -std=gnu++1z","defines":["ANDROID","ENABLE_INSPECTOR","OS_ANDROID","V8_DEPRECATION_WARNINGS","V8_IMMINENT_DEPRECATION_WARNINGS"],"includePath":[{"path":"/Users/huli/svn_work/Hippy/framework/js/android/src/main/jni/third_party/v8/stable/official-release/include"},{"path":"/Users/huli/svn_work/Hippy/framework/js/android/src/main/jni/third_party/v8/stable/official-release/include/v8"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/../android/src/main/jni/include"},{"path":"/Users/huli/svn_work/Hippy/framework/js/core/third_party/base/include"},{"path":"/Users/huli/svn_work/Hippy/framework/js/core/third_party/base/src/platform/adr/."}],"isGenerated":false,"language":"CXX","sources":["logging.cc"]},{"isGenerated":false,"sources":["CMakeLists.txt"]}],"fullName":"libtdf_base.a","linkerLanguage":"CXX","name":"tdf_base","sourceDirectory":"/Users/huli/svn_work/Hippy/framework/js/core/third_party/base/src/platform/adr","sysroot":"/Users/huli/android_sdk_tools/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/sysroot","type":"STATIC_LIBRARY"},{"artifacts":["/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a/base/src/base/libtdf_base_common.a"],"buildDirectory":"/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a/base/src/base","fileGroups":[{"compileFlags":"-g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -std=c++17 -O0 -fno-limit-debug-info  -fPIC   -fno-rtti -std=gnu++1z","defines":["ANDROID","ENABLE_INSPECTOR","OS_ANDROID","V8_DEPRECATION_WARNINGS","V8_IMMINENT_DEPRECATION_WARNINGS"],"includePath":[{"path":"/Users/huli/svn_work/Hippy/framework/js/android/src/main/jni/third_party/v8/stable/official-release/include"},{"path":"/Users/huli/svn_work/Hippy/framework/js/android/src/main/jni/third_party/v8/stable/official-release/include/v8"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/../android/src/main/jni/include"},{"path":"/Users/huli/svn_work/Hippy/framework/js/core/third_party/base/include"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core"}],"isGenerated":false,"language":"CXX","sources":["log_settings.cc","log_settings_state.cc","unicode_string_view.cc"]},{"isGenerated":false,"sources":["CMakeLists.txt"]}],"fullName":"libtdf_base_common.a","linkerLanguage":"CXX","name":"tdf_base_common","sourceDirectory":"/Users/huli/svn_work/Hippy/framework/js/core/third_party/base/src/base","sysroot":"/Users/huli/android_sdk_tools/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/sysroot","type":"STATIC_LIBRARY"}]},{"buildDirectory":"/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a/dom","name":"dom","sourceDirectory":"/Users/huli/svn_work/Hippy/dom","targets":[{"artifacts":["/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a/dom/libdom.a"],"buildDirectory":"/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a/dom","fileGroups":[{"compileFlags":"-g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -std=c++17 -O0 -fno-limit-debug-info  -fPIC   -fno-rtti -std=gnu++1z","defines":["ANDROID","ENABLE_INSPECTOR","OS_ANDROID","V8_DEPRECATION_WARNINGS","V8_IMMINENT_DEPRECATION_WARNINGS"],"includePath":[{"path":"/Users/huli/svn_work/Hippy/framework/js/android/src/main/jni/third_party/v8/stable/official-release/include"},{"path":"/Users/huli/svn_work/Hippy/framework/js/android/src/main/jni/third_party/v8/stable/official-release/include/v8"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/../android/src/main/jni/include"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/../../../framework/js/core/include"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/../../../framework/js/core/third_party/base/include"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/src/bridge/android"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/third_party/codec/include"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/include"},{"path":"/Users/huli/svn_work/Hippy/framework/js/core/include"},{"path":"/Users/huli/svn_work/Hippy/framework/js/core/third_party/base/include"},{"path":"/Users/huli/svn_work/Hippy/layout"},{"path":"/Users/huli/svn_work/Hippy/dom/include"}],"isGenerated":false,"language":"CXX","sources":["src/dom/dom_manager.cc","src/dom/dom_node.cc","src/dom/dom_value.cc","src/dom/layout_node.cc","src/dom/render_manager_proxy.cc","src/dom/taitank_layout_node.cc"]}],"fullName":"libdom.a","linkerLanguage":"CXX","name":"dom","sourceDirectory":"/Users/huli/svn_work/Hippy/dom","sysroot":"/Users/huli/android_sdk_tools/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/sysroot","type":"STATIC_LIBRARY"},{"artifacts":["/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a/dom/layout_out/liblayout.a"],"buildDirectory":"/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a/dom/layout_out","fileGroups":[{"compileFlags":"-g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -std=c++17 -O0 -fno-limit-debug-info  -fPIC   -fno-rtti -std=gnu++1z","defines":["ANDROID","ENABLE_INSPECTOR","OS_ANDROID","V8_DEPRECATION_WARNINGS","V8_IMMINENT_DEPRECATION_WARNINGS"],"includePath":[{"path":"/Users/huli/svn_work/Hippy/framework/js/android/src/main/jni/third_party/v8/stable/official-release/include"},{"path":"/Users/huli/svn_work/Hippy/framework/js/android/src/main/jni/third_party/v8/stable/official-release/include/v8"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/../android/src/main/jni/include"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/../../../framework/js/core/include"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/../../../framework/js/core/third_party/base/include"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/src/bridge/android"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/third_party/codec/include"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/include"},{"path":"/Users/huli/svn_work/Hippy/layout/engine"}],"isGenerated":false,"language":"CXX","sources":["engine/FlexLine.cpp","engine/HPConfig.cpp","engine/HPLayoutCache.cpp","engine/HPNode.cpp","engine/HPStyle.cpp","engine/HPUtil.cpp","engine/Hippy.cpp"]}],"fullName":"liblayout.a","linkerLanguage":"CXX","name":"layout","sourceDirectory":"/Users/huli/svn_work/Hippy/layout","sysroot":"/Users/huli/android_sdk_tools/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/sysroot","type":"STATIC_LIBRARY"}]},{"buildDirectory":"/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a/dom/layout_out","name":"layout","sourceDirectory":"/Users/huli/svn_work/Hippy/layout","targets":[{"artifacts":["/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a/dom/layout_out/liblayout.a"],"buildDirectory":"/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a/dom/layout_out","fileGroups":[{"compileFlags":"-g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -std=c++17 -O0 -fno-limit-debug-info  -fPIC   -fno-rtti -std=gnu++1z","defines":["ANDROID","ENABLE_INSPECTOR","OS_ANDROID","V8_DEPRECATION_WARNINGS","V8_IMMINENT_DEPRECATION_WARNINGS"],"includePath":[{"path":"/Users/huli/svn_work/Hippy/framework/js/android/src/main/jni/third_party/v8/stable/official-release/include"},{"path":"/Users/huli/svn_work/Hippy/framework/js/android/src/main/jni/third_party/v8/stable/official-release/include/v8"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/../android/src/main/jni/include"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/../../../framework/js/core/include"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/../../../framework/js/core/third_party/base/include"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/src/bridge/android"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/third_party/codec/include"},{"path":"/Users/huli/svn_work/Hippy/renderer/flutter/core/include"},{"path":"/Users/huli/svn_work/Hippy/layout/engine"}],"isGenerated":false,"language":"CXX","sources":["engine/FlexLine.cpp","engine/HPConfig.cpp","engine/HPLayoutCache.cpp","engine/HPNode.cpp","engine/HPStyle.cpp","engine/HPUtil.cpp","engine/Hippy.cpp"]}],"fullName":"liblayout.a","linkerLanguage":"CXX","name":"layout","sourceDirectory":"/Users/huli/svn_work/Hippy/layout","sysroot":"/Users/huli/android_sdk_tools/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/sysroot","type":"STATIC_LIBRARY"}]},{"buildDirectory":"/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/debug/arm64-v8a/v8","name":"v8","sourceDirectory":"/Users/huli/svn_work/Hippy/framework/js/android/src/main/jni/third_party/v8/stable/official-release","targets":[]}]}],"cookie":"","inReplyTo":"codemodel","type":"reply"}
+
+CMAKE SERVER: ]== "CMake Server" ==]
+

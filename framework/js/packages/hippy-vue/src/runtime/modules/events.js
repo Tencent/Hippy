@@ -22,7 +22,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 
-import { updateListeners } from 'framework/js/core/vdom/helpers/update-listeners';
+import { updateListeners } from 'core/vdom/helpers/update-listeners';
 
 let target;
 

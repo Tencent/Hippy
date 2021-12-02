@@ -14,7 +14,7 @@ typedef void (^VoltronFlutterCallback)(id _Nullable result, NSError * _Nullable 
 
 @interface VoltronFlutterBridge : NSObject
 
-@property (nonatomic, assign) std::shared_ptr<PlatformRuntime> platformRuntime;
+@property (nonatomic, assign) std::shared_ptr<voltron::PlatformRuntime> platformRuntime;
 
 - (void)initJSFramework:(NSString *)globalConfig completion:(void (^)(BOOL) _Nullable)completion;
 

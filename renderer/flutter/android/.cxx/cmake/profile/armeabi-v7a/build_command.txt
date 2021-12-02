@@ -1,0 +1,22 @@
+Executable : /Users/huli/android_sdk_tools/cmake/3.10.2.4988404/bin/cmake
+arguments : 
+-H/Users/huli/svn_work/Hippy/renderer/flutter/core
+-B/Users/huli/svn_work/Hippy/renderer/flutter/android/.cxx/cmake/profile/armeabi-v7a
+-DANDROID_ABI=armeabi-v7a
+-DANDROID_PLATFORM=android-21
+-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=/Users/huli/svn_work/Hippy/renderer/flutter/example/build/tencent_voltron_render/intermediates/cmake/profile/obj/armeabi-v7a
+-DCMAKE_BUILD_TYPE=Release
+-DANDROID_NDK=/Users/huli/android_sdk_tools/ndk/21.4.7075529
+-DCMAKE_CXX_FLAGS=-std=c++17
+-DCMAKE_SYSTEM_NAME=Android
+-DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a
+-DCMAKE_SYSTEM_VERSION=21
+-DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+-DCMAKE_ANDROID_NDK=/Users/huli/android_sdk_tools/ndk/21.4.7075529
+-DCMAKE_TOOLCHAIN_FILE=/Users/huli/android_sdk_tools/ndk/21.4.7075529/build/cmake/android.toolchain.cmake
+-G Ninja
+-DCMAKE_MAKE_PROGRAM=/Users/huli/android_sdk_tools/cmake/3.10.2.4988404/bin/ninja
+-DANDROID_TOOLCHAIN=clang
+-DANDROID_STL=c++_shared
+jvmArgs : 
+
