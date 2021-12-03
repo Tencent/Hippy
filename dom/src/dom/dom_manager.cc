@@ -4,7 +4,10 @@
 namespace hippy {
 inline namespace dom {
 
-DomManager::DomManager(int32_t root_id) : root_id_(root_id) {}
+DomManager::DomManager(int32_t root_id) : root_id_(root_id) {
+  root_node_ = std::make_shared<DomNode>(root_id, -1, 0);
+  dom_node_registry_.AddNode(root_node_);
+}
 
 DomManager::~DomManager() = default;
 
@@ -123,16 +126,6 @@ void DomManager::SetRootSize(float width, float height) {
 
 void DomManager::AddLayoutChangedNode(const std::shared_ptr<DomNode>& node) {
   layout_changed_nodes_.push_back(node);
-}
-
-void DomManager::SetRootNode(std::shared_ptr<DomNode> root_node) {
-  if (root_node) {
-    if (root_node_) {
-      dom_node_registry_.RemoveNode(root_node_->GetId());
-    }
-    root_node_ = root_node;
-    dom_node_registry_.AddNode(root_node);
-  }
 }
 
 void DomManager::OnDomNodeCreated(const std::shared_ptr<DomNode>& node) {
