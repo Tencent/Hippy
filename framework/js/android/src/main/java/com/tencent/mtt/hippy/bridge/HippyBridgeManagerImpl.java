@@ -251,15 +251,22 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                 if (result != 0) {
                   String info = "initJSBridge error: result=" + result + ", reason=" + reason;
                   reportException(new Throwable(info));
+                  return;
                 }
+
+                long runtimeId = mHippyBridge.getV8RuntimeId();
 
                 if (enableTurbo()) {
                   mTurboModuleManager = new TurboModuleManager(mContext);
-                  mTurboModuleManager.install(mHippyBridge.getV8RuntimeId());
+                  mTurboModuleManager.install(runtimeId);
+                }
+
+                if (mContext != null) {
+                  mContext.onRuntimeInitialized(runtimeId);
                 }
 
                 if (mThirdPartyAdapter != null) {
-                  mThirdPartyAdapter.onRuntimeInit(mHippyBridge.getV8RuntimeId());
+                  mThirdPartyAdapter.onRuntimeInit(runtimeId);
                 }
 
                 if (mCoreBundleLoader != null) {

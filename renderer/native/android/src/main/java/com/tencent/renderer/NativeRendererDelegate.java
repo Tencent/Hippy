@@ -15,7 +15,6 @@
  */
 package com.tencent.renderer;
 
-
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.serialization.nio.reader.BinaryReader;
 import com.tencent.mtt.hippy.serialization.nio.reader.SafeHeapReader;
@@ -26,14 +25,14 @@ import com.tencent.renderer.serialization.Deserializer;
 import java.nio.ByteBuffer;
 
 public class NativeRendererDelegate {
-  private INativeRenderer nativeRenderer;
+  private final INativeRenderer nativeRenderer;
+  private final Deserializer deserializer;
   private BinaryReader safeHeapReader;
-  private Deserializer deserializer;
 
-  public NativeRendererDelegate(INativeRenderer nativeRenderer) {
+  public NativeRendererDelegate(INativeRenderer nativeRenderer, long runtimeId) {
     this.nativeRenderer = nativeRenderer;
     deserializer = new Deserializer(null, new InternalizedStringTable());
-    //onCreateNativeRendererDelegate();
+    //onCreateNativeRendererDelegate(runtimeId);
   }
 
   public void destroy() {
@@ -100,5 +99,5 @@ public class NativeRendererDelegate {
     });
   }
 
-  //public native void onCreateNativeRendererDelegate();
+  //public native void onCreateNativeRendererDelegate(long runtimeId);
 }
