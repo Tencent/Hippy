@@ -90,6 +90,15 @@ function unCacheFiberNode(nodeId: number): void {
   fiberNodeCache.delete(nodeId);
 }
 
+
+/**
+ * getElementFromFiber - get ElementNode by Fiber
+ * @param {number} fiberNode
+ */
+function getElementFromFiber(fiberNode: Fiber) {
+  return (fiberNode && fiberNode.stateNode) || null;
+}
+
 /**
  * getFiberNodeFromId - get FiberNode by nodeId
  * @param {number} nodeId
@@ -171,6 +180,7 @@ export {
   preCacheFiberNode,
   unCacheFiberNode,
   getFiberNodeFromId,
+  getElementFromFiber,
   unCacheFiberNodeOnIdle,
   recursivelyUnCacheFiberNode,
 };
