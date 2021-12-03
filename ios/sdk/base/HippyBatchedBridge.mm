@@ -43,6 +43,8 @@
 #include "core/scope.h"
 #import "HippyTurboModuleManager.h"
 #import <core/napi/jsc/js_native_api_jsc.h>
+#include "NativeRenderManager.h"
+#include "dom/dom_manager.h"
 
 #define HippyAssertJSThread()
 //
@@ -106,8 +108,10 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
         _loading = YES;
         _pendingCalls = [NSMutableArray new];
         _displayLink = [HippyDisplayLink new];
-
+        
         [HippyBridge setCurrentBridge:self];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveCreationOfRootView:) name:HippyUIManagerDidRegisterRootViewNotification object:nil];
+
         HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyBatchedBridge Init %p", self);
     }
     return self;
@@ -745,6 +749,19 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     } else if (queue) {
         dispatch_async(queue, block);
     }
+}
+
+- (void)didReceiveCreationOfRootView:(NSNotification *)notification {
+    HippyUIManager *uiManager = [self moduleForName:@"UIManager"];
+    UIView *rootView = [[notification userInfo] objectForKey:HippyUIManagerRootViewKey];
+    int32_t rootTag = [[rootView hippyTag] intValue];
+    std::shared_ptr<hippy::DomManager> domManager = std::make_shared<hippy::DomManager>(rootTag);
+    std::shared_ptr<DomNode> rootNode = std::make_shared<DomNode>(rootTag, -1, -1);
+    domManager->SetRootNode(rootNode);
+    domManager->SetRootSize(CGRectGetWidth(rootView.bounds), CGRectGetHeight(rootView.bounds));
+    std::shared_ptr<NativeRenderManager> nativeRenderManager = std::make_shared<NativeRenderManager>(uiManager);
+    domManager->SetRenderManager(nativeRenderManager);
+    self.javaScriptExecutor.pScope->SetDomManager(domManager);
 }
 
 #pragma mark - HippyInvalidating

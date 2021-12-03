@@ -330,10 +330,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     if (self.shareOptions) {
         [bridge.shareOptions setObject:self.shareOptions ?: @{} forKey:self.hippyTag];
     }
-
-    auto scope = bridge.javaScriptExecutor.pScope;
-    auto manager = std::make_shared<hippy::DomManager>(self.hippyTag.intValue);
-    scope->SetDomManager(manager);
     
     [self runApplication:bridge];
 

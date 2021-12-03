@@ -31,6 +31,8 @@
 #include <unordered_map>
 #include "dom/dom_value.h"
 #include "dom/dom_listener.h"
+#include "dom/dom_manager.h"
+#include "dom/dom_node.h"
 
 @class HippyVirtualNode;
 @class HippyExtAnimationViewParams;
@@ -178,15 +180,24 @@ using OnTouchEventListener = hippy::OnTouchEventListener;
 using OnShowEventListener = hippy::OnShowEventListener;
 using TouchEvent = hippy::TouchEvent;
 using ShowEvent = hippy::ShowEvent;
+using DomManager = hippy::DomManager;
+using DomNode = hippy::DomNode;
 
-@interface HippyUIManager(iOSRenderManager)
+@interface HippyUIManager(NativeRenderManager)
+
+- (void)setDomManager:(std::shared_ptr<DomManager>)domManager;
+
+- (std::shared_ptr<DomManager>)domManager;
+
+- (const std::map<int32_t, std::shared_ptr<DomNode>> &)domNodes;
 
 - (void)renderCreateView:(int32_t)hippyTag
                 viewName:(const std::string &)name
                  rootTag:(int32_t)rootTag
                  tagName:(const std::string &)tagName
+                   frame:(CGRect)frame
                    props:(const std::unordered_map<std::string, std::shared_ptr<DomValue>> &)styleMap;
-
+- (void)createRenderNodes:(std::vector<std::shared_ptr<DomNode>> &&)nodes;
 - (void)renderUpdateView:(int32_t)hippyTag
                 viewName:(const std::string &)name
                    props:(const std::unordered_map<std::string, std::shared_ptr<DomValue>> &)styleMap;
@@ -196,21 +207,23 @@ using ShowEvent = hippy::ShowEvent;
 
 - (void)renderMoveViews:(const std::vector<int32_t> &)ids fromContainer:(int32_t)fromContainer toContainer:(int32_t)toContainer;
 
--(void)batch;
+- (void)renderNodesUpdateLayout:(const std::vector<std::shared_ptr<DomNode>> &)nodes;
+
+- (void)batch;
 
 - (void)dispatchFunction:(const std::string &)functionName
                  forView:(int32_t)hippyTag
                   params:(const std::unordered_map<std::string, std::shared_ptr<DomValue>> &)params
                 callback:(DispatchFunctionCallback)cb;
 
-- (int32_t) addClickEventListener:(OnClickEventListener)listener
+- (void) addClickEventListener:(OnClickEventListener)listener
                           forView:(int32_t)hippyTag;
 
 - (void) removeClickEventListener:(int32_t)listenerID forView:(int32_t)hippyTag;
 
 - (void) removeClickEventForView:(int32_t)hippyTag;
 
-- (int32_t) addLongClickEventListener:(OnLongClickEventListener)listener
+- (void) addLongClickEventListener:(OnLongClickEventListener)listener
                               forView:(int32_t)hippyTag;
 
 - (void) removeLongClickEventListener:(int32_t)listenerID forView:(int32_t)hippyTag;

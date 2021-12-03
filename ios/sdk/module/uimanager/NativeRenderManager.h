@@ -20,23 +20,23 @@
  * limitations under the License.
  */
 
-#ifndef iOSRenderManager_h
-#define iOSRenderManager_h
+#ifndef NativeRenderManager_h
+#define NativeRenderManager_h
 
 #include "dom/render_manager.h"
 #include <vector>
 #include <memory>
 #import "HippyUIManager.h"
 
-using RenderManager = hippy::RenderManager;
-using DomNode = hippy::DomNode;
-
-class NativeRenderManager : public RenderManager {
+class NativeRenderManager : public hippy::RenderManager {
+    
 public:
+    NativeRenderManager(HippyUIManager *uiManager):uiManager_(uiManager){}
     
     void CreateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) override;
     void UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) override;
     void DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) override;
+    void UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) override;
     void MoveRenderNode(std::vector<int32_t>&& ids,
                         int32_t pid,
                         int32_t id) override;
@@ -57,7 +57,7 @@ public:
     void RemoveShowEventListener(int32_t id, ShowEvent event) override;
     
 private:
-    HippyUIManager *uiManager;
+    HippyUIManager *uiManager_;
 };
 
-#endif /* iOSRenderManager_h */
+#endif /* NativeRenderManager_h */

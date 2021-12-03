@@ -30,9 +30,9 @@
 #include "dom/node_props.h"
 #include "dom/dom_node.h"
 
-REGISTER_MODULE(UIManagerModule, CreateNodes)
-REGISTER_MODULE(UIManagerModule, UpdateNodes)
-REGISTER_MODULE(UIManagerModule, DeleteNodes)
+REGISTER_MODULE(UIManagerModule, CreateNode)
+REGISTER_MODULE(UIManagerModule, UpdateNode)
+REGISTER_MODULE(UIManagerModule, DeleteNode)
 REGISTER_MODULE(UIManagerModule, StartBatch)
 REGISTER_MODULE(UIManagerModule, EndBatch)
 REGISTER_MODULE(UIManagerModule, CallUIFunction)
@@ -482,7 +482,7 @@ std::tuple<bool, std::string, std::shared_ptr<DomNode>> CreateNode(std::shared_p
     return std::make_tuple(false, std::get<1>(pid_tuple), dom_node);
   }
 
-  auto index_tuple = GetNodePid(context, node);
+  auto index_tuple = GetNodeIndex(context, node);
   if (!std::get<0>(index_tuple)) {
     return std::make_tuple(false, std::get<1>(index_tuple), dom_node);
   }
@@ -576,7 +576,7 @@ std::tuple<bool, std::string, std::vector<std::shared_ptr<DomNode>>> HandleJsVal
   return std::make_tuple(true, "", std::move(dom_nodes));
 }
 
-void UIManagerModule::CreateNodes(const hippy::napi::CallbackInfo &info) {
+void UIManagerModule::CreateNode(const hippy::napi::CallbackInfo &info) {
   std::shared_ptr<Scope> scope = info.GetScope();
   std::shared_ptr<Ctx> context = scope->GetContext();
   TDF_BASE_CHECK(context);
@@ -591,7 +591,7 @@ void UIManagerModule::CreateNodes(const hippy::napi::CallbackInfo &info) {
   scope->GetDomManager()->CreateDomNodes(std::move(std::get<2>(ret)));
 }
 
-void UIManagerModule::UpdateNodes(const hippy::napi::CallbackInfo &info) {
+void UIManagerModule::UpdateNode(const hippy::napi::CallbackInfo &info) {
   std::shared_ptr<Scope> scope = info.GetScope();
   std::shared_ptr<Ctx> context = scope->GetContext();
   TDF_BASE_CHECK(context);
@@ -605,7 +605,7 @@ void UIManagerModule::UpdateNodes(const hippy::napi::CallbackInfo &info) {
   scope->GetDomManager()->UpdateDomNodes(std::move(std::get<2>(ret)));
 }
 
-void UIManagerModule::DeleteNodes(const hippy::napi::CallbackInfo &info) {
+void UIManagerModule::DeleteNode(const hippy::napi::CallbackInfo &info) {
   std::shared_ptr<Scope> scope = info.GetScope();
   std::shared_ptr<Ctx> context = scope->GetContext();
   TDF_BASE_CHECK(context);
@@ -627,7 +627,7 @@ void UIManagerModule::DeleteNodes(const hippy::napi::CallbackInfo &info) {
       return;
     }
 
-    auto index_tuple = GetNodePid(context, node);
+    auto index_tuple = GetNodeIndex(context, node);
     if (!std::get<0>(index_tuple)) {
       info.GetExceptionValue()->Set(context, unicode_string_view(std::get<1>(index_tuple)));
       return;

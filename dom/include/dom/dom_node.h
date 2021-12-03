@@ -65,6 +65,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   void SetLayoutHeight(float height);
   int32_t IndexOf(const std::shared_ptr<DomNode>& child);
   std::shared_ptr<DomNode> GetChildAt(int32_t index);
+  const std::vector<std::shared_ptr<DomNode>> &GetChildren(){return children_;}
   void AddChildAt(const std::shared_ptr<DomNode>& dom_node, int32_t index);
   std::shared_ptr<DomNode> RemoveChildAt(int32_t index);
   void DoLayout();
@@ -85,7 +86,12 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   void CallOnShow(ShowEvent event);
 
   std::tuple<int32_t, int32_t> GetSize();
+
+  inline void SetStyleStr(const std::string& view_name) { view_name_ = view_name; }
+
+  const LayoutResult &GetLayoutResult() {return layout_;}
   void SetSize(int32_t width, int32_t height);
+  
   int32_t AddDomEventListener(DomEvent event, OnDomEventListener listener);
   void RemoveDomEventListener(DomEvent event, int32_t listener_id);
   int32_t AddOnLayoutListener(LayoutEvent event, OnLayoutEventListener listener);

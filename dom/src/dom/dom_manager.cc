@@ -89,8 +89,8 @@ void DomManager::EndBatch() {
   for (auto& batch_operation : batched_operations_) {
     batch_operation();
   }
-  render_manager_->Batch();
   batched_operations_.clear();
+  render_manager_->Batch();
 }
 
 void DomManager::CallFunction(int32_t id, const std::string& name,
@@ -123,6 +123,16 @@ void DomManager::SetRootSize(float width, float height) {
 
 void DomManager::AddLayoutChangedNode(const std::shared_ptr<DomNode>& node) {
   layout_changed_nodes_.push_back(node);
+}
+
+void DomManager::SetRootNode(std::shared_ptr<DomNode> root_node) {
+  if (root_node) {
+    if (root_node_) {
+      dom_node_registry_.RemoveNode(root_node_->GetId());
+    }
+    root_node_ = root_node;
+    dom_node_registry_.AddNode(root_node);
+  }
 }
 
 void DomManager::OnDomNodeCreated(const std::shared_ptr<DomNode>& node) {

@@ -50,6 +50,12 @@
 @property (nonatomic, assign) NSInteger hippyZIndex;
 
 /**
+ * set true when hippy subviews changed, but subviews does not.
+ * set false after subviews does.
+ */
+@property (nonatomic, assign, getter=isHippySubviewsUpdated) BOOL hippySubviewsUpdated;
+
+/**
  * The hippySubviews array, sorted by zIndex. This value is cached and
  * automatically recalculated if views are added or removed.
  */

@@ -106,26 +106,36 @@ global.__onDismiss = (param) => {
 
 Hippy.document = {
   createNode(rootViewId, queue) {
+    global.ConsoleModule.debug(`rootViewId = ${rootViewId}`);
+    global.ConsoleModule.debug(`createNode queue = ${JSON.stringify(queue)}`);
     UIManagerModule.CreateNode(rootViewId, queue);
     // Hippy.bridge.callNative('UIManagerModule', 'createNode', rootViewId, queue);
   },
   updateNode(rootViewId, queue) {
+    global.ConsoleModule.debug(`rootViewId = ${rootViewId}`);
+    global.ConsoleModule.debug(`updateNode queue = ${JSON.stringify(queue)}`);
     UIManagerModule.UpdateNode(rootViewId, queue);
     // Hippy.bridge.callNative('UIManagerModule', 'updateNode', rootViewId, queue);
   },
   deleteNode(rootViewId, queue) {
+    global.ConsoleModule.debug(`rootViewId = ${rootViewId}`);
+    global.ConsoleModule.debug(`deleteNode queue = ${JSON.stringify(queue)}`);
     UIManagerModule.DeleteNode(rootViewId, queue);
     // Hippy.bridge.callNative('UIManagerModule', 'deleteNode', rootViewId, queue);
   },
   flushBatch(rootViewId, queue) {
+    global.ConsoleModule.debug(`rootViewId = ${rootViewId}`);
+    global.ConsoleModule.debug(`flushBatch queue = ${JSON.stringify(queue)}`);
     UIManagerModule.FlushBatch(rootViewId, queue);
     // Hippy.bridge.callNative('UIManagerModule', 'flushBatch', rootViewId, queue);
   },
   startBatch(renderId) {
+    global.ConsoleModule.debug(`global renderId = ${renderId}`);
     UIManagerModule.StartBatch((`${renderId}`));
     // Hippy.bridge.callNative('UIManagerModule', 'startBatch', (`${renderId}`));
   },
   endBatch(renderId) {
+    global.ConsoleModule.debug(`endBatch renderId = ${renderId}`);
     UIManagerModule.EndBatch((`${renderId}`));
     // Hippy.bridge.callNative('UIManagerModule', 'endBatch', (`${renderId}`));
 

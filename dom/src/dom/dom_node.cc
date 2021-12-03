@@ -21,10 +21,14 @@ DomNode::DomNode(int32_t id, int32_t pid, int32_t index, std::string tag_name, s
       is_just_layout_(false),
       is_virtual_(false),
       dom_manager_(dom_manager),
-      current_callback_id_(0) {}
+      current_callback_id_(0) {
+        layout_node_ = std::make_shared<TaitankLayoutNode>();
+      }
 
 DomNode::DomNode(int32_t id, int32_t pid, int32_t index)
-    : id_(id), pid_(pid), index_(index), is_just_layout_(false), is_virtual_(false), current_callback_id_(0) {}
+    : id_(id), pid_(pid), index_(index), is_just_layout_(false), is_virtual_(false), current_callback_id_(0) {
+      layout_node_ = std::make_shared<TaitankLayoutNode>();
+    }
 
 DomNode::~DomNode() = default;
 
@@ -59,17 +63,14 @@ std::shared_ptr<DomNode> DomNode::GetChildAt(int32_t index) {
 void DomNode::AddChildAt(const std::shared_ptr<DomNode>& dom_node, int32_t index) {
   children_.insert(children_.begin() + index, dom_node);
   dom_node->SetParent(shared_from_this());
-  std::shared_ptr<TaitankLayoutNode> node = std::static_pointer_cast<TaitankLayoutNode>(layout_node_);
-  node->InsertChild(node, index);
+  layout_node_->InsertChild(dom_node->layout_node_, index);
 }
 
 std::shared_ptr<DomNode> DomNode::RemoveChildAt(int32_t index) {
   auto child = children_[index];
   child->SetParent(nullptr);
   children_.erase(children_.begin() + index);
-  std::shared_ptr<TaitankLayoutNode> node = std::static_pointer_cast<TaitankLayoutNode>(layout_node_);
-  std::shared_ptr<TaitankLayoutNode> child_node = std::static_pointer_cast<TaitankLayoutNode>(child->layout_node_);
-  node->RemoveChild(child_node);
+  layout_node_->RemoveChild(child->layout_node_);
   return child;
 }
 
@@ -82,7 +83,6 @@ void DomNode::DoLayout() {
 std::tuple<int32_t, int32_t> DomNode::GetSize() {
   return std::make_tuple(layout_node_->GetWidth(), layout_node_->GetHeight());
 }
-
 
 void DomNode::SetSize(int32_t width, int32_t height) {
   layout_node_->SetWidth(width);
@@ -342,36 +342,6 @@ void DomNode::RemoveShowEventListener(ShowEvent event, int32_t listener_id) {
     auto dom_manager = dom_manager_.lock();
     if (show_listeners->empty() && dom_manager) {
       dom_manager->GetRenderManager()->RemoveShowEventListener(id_, event);
-    }
-  }
-}
-
-void DomNode::CallClick() {
-  if (!click_listeners->empty()) {
-    for (auto const& listener : (*click_listeners)) {
-      listener.second();
-    }
-  }
-}
-
-void DomNode::CallLongClick() {
-  if (!long_click_listeners->empty()) {
-    for (auto const& listener : (*long_click_listeners)) {
-      listener.second();
-    }
-  }
-}
-void DomNode::CallTouch(TouchEvent event, TouchEventInfo info) {
-  if (!touch_listeners->empty()) {
-    for (auto const& listener : (*touch_listeners)) {
-      listener.second(event, info);
-    }
-  }
-}
-void DomNode::CallOnShow(ShowEvent event) {
-  if (!show_listeners->empty()) {
-    for (auto const& listener : (*show_listeners)) {
-      listener.second(event);
     }
   }
 }
