@@ -443,3 +443,11 @@ void BridgeImpl::Destroy(int64_t runtimeId, bool singleThreadMode,
   }
 }
 
+void BridgeImpl::BindDomManager(int64_t runtime_id, const std::shared_ptr<DomManager>& dom_manager) {
+  std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
+  if (!runtime) {
+    TDF_BASE_DLOG(WARNING) << "Bind dom Manager failed, runtime_id invalid";
+    return;
+  }
+  runtime->GetScope()->SetDomManager(dom_manager);
+}

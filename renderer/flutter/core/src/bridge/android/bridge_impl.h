@@ -13,6 +13,7 @@ extern "C" {
 #endif
 using unicode_string_view = tdf::base::unicode_string_view;
 using voltron::PlatformRuntime;
+using hippy::DomManager;
 class BridgeImpl {
  public:
   BridgeImpl() = default;
@@ -38,6 +39,8 @@ class BridgeImpl {
 
   static void CallFunction(int64_t runtime_id, const char16_t* action, const char16_t* params,
                            std::function<void(int64_t)> callback);
+
+  static void BindDomManager(int64_t runtime_id, const std::shared_ptr<DomManager>& dom_manager);
 
  private:
   static bool RunScript(int64_t runtime_id, const unicode_string_view& script_content,

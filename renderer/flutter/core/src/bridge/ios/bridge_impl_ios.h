@@ -47,6 +47,8 @@ class BridgeImpl {
                            const char16_t *params,
                            std::function<void(int64_t)> callback);
 
+//  static void BindDomManager(int64_t runtime_id, const std::shared_ptr<DomManager>& dom_manager);
+
  private:
   static bool RunScript(int64_t runtime_id,
                         const char16_t *script,
