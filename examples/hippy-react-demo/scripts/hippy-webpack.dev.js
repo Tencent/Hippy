@@ -5,7 +5,7 @@ const HippyDynamicImportPlugin = require('@hippy/hippy-dynamic-import-plugin');
 const pkg = require('../package.json');
 module.exports = {
   mode: 'development',
-  devtool: 'eval-cheap-module-source-map',
+  devtool: 'eval-source-map',
   watch: true,
   watchOptions: {
     aggregateTimeout: 1500,

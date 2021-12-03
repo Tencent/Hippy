@@ -66,11 +66,17 @@ const styles = StyleSheet.create({
 function Style1({ index }) {
   return (
     <View style={styles.container}
-          onClickCapture={() => {
-            console.log('onClickCapture style1');
+          onClickCapture={(event) => {
+            console.log('onClickCapture style1', event.target.nodeId, event.currentTarget.nodeId);
           }}
-          onClick={() => {
-            console.log('click style1');
+          onTouchDown={(event) => {
+            // if stopPropagation && return false called at the same time, stopPropagation has higher priority
+            event.stopPropagation();
+            console.log('onTouchDown style1', event.target.nodeId, event.currentTarget.nodeId);
+            return false;
+          }}
+          onClick={(event) => {
+            console.log('click style1', event.target.nodeId, event.currentTarget.nodeId);
             return false;
           }}
     >
@@ -207,8 +213,8 @@ export default class ListExample extends React.Component {
     }
     return (
       <View style={styles.container}
-            onClick={() => {
-              console.log('click style outer');
+            onClick={(event) => {
+              console.log('click style outer', event.target.nodeId, event.currentTarget.nodeId);
               // return false means trigger bubble
               return false;
             }}>
@@ -239,11 +245,14 @@ export default class ListExample extends React.Component {
     const { dataSource } = this.state;
     return (
       <ListView
-          onClickCapture={() => {
-            console.log('onClickCapture listview');
+          onTouchDown={(event) => {
+            console.log('onTouchDown ListView', event.target.nodeId, event.currentTarget.nodeId);
           }}
-          onClick={() => {
-            console.log('click listview');
+          onClickCapture={(event) => {
+            console.log('onClickCapture listview', event.target.nodeId, event.currentTarget.nodeId);
+          }}
+          onClick={(event) => {
+            console.log('click listview', event.target.nodeId, event.currentTarget.nodeId);
             // return false means trigger bubble
             return false;
           }}
