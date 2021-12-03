@@ -19,9 +19,10 @@
  */
 
 import { Fiber } from 'react-reconciler';
-import { getFiberNodeFromId } from '../utils/node';
+import { getFiberNodeFromId, getElementFromFiber } from '../utils/node';
 import { trace, isGlobalBubble, isHostComponent } from '../utils';
 import HippyEventHub from './hub';
+import Event from './event';
 import '@localTypes/global';
 
 type EventParam = string[] | number[];
@@ -80,7 +81,7 @@ function receiveNativeEvent(nativeEvent: EventParam) {
   currEventHub.notifyEvent(eventParams);
 }
 
-interface ListenerObj { listener: Function, isCapture: boolean }
+interface ListenerObj { eventName: string, listener: Function, isCapture: boolean, target: Element }
 
 /**
  * convertEventName - convert all special event name
@@ -104,7 +105,7 @@ function isNodePropFunction(prop: string, nextNodeItem: Fiber) {
 }
 
 /**
- * doCaptureAndBubbleLoop - process capture phase and bubble phase
+ * doCaptureAndBubbleLoop - process capture phase and bubbling phase
  * @param {string} originalEventName
  * @param {NativeEvent} nativeEvent
  * @param {Fiber} nodeItem
@@ -119,11 +120,21 @@ function doCaptureAndBubbleLoop(originalEventName: string, nativeEvent: NativeEv
     const captureName = `${eventName}Capture`;
     if (isNodePropFunction(captureName, nextNodeItem)) {
       // capture phase to add listener at queue head
-      eventQueue.unshift({ listener: nextNodeItem.memoizedProps[captureName], isCapture: true });
+      eventQueue.unshift({
+        eventName: captureName,
+        listener: nextNodeItem.memoizedProps[captureName],
+        isCapture: true,
+        target: getElementFromFiber(nextNodeItem),
+      });
     }
     if (isNodePropFunction(eventName, nextNodeItem)) {
-      // bubble phase to add listener at queue tail
-      eventQueue.push({ listener: nextNodeItem.memoizedProps[eventName], isCapture: false });
+      // bubbling phase to add listener at queue tail
+      eventQueue.push({
+        eventName,
+        listener: nextNodeItem.memoizedProps[eventName],
+        isCapture: false,
+        target: getElementFromFiber(nextNodeItem),
+      });
     }
     nextNodeItem = nextNodeItem.return;
     while (nextNodeItem && !isHostComponent(nextNodeItem.tag)) {
@@ -134,15 +145,22 @@ function doCaptureAndBubbleLoop(originalEventName: string, nativeEvent: NativeEv
   if (eventQueue.length > 0) {
     let listenerObj: ListenerObj | undefined;
     let isStopBubble: any = false;
+    const targetElementNode = getElementFromFiber(nodeItem);
     while (!isStopBubble && (listenerObj = eventQueue.shift()) !== undefined) {
       try {
+        const syntheticEvent = new Event(listenerObj.eventName, listenerObj.target, targetElementNode);
+        Object.assign(syntheticEvent, nativeEvent);
         if (listenerObj.isCapture) {
-          listenerObj.listener(nativeEvent);
+          listenerObj.listener(syntheticEvent);
         } else {
-          isStopBubble = listenerObj.listener(nativeEvent);
+          isStopBubble = listenerObj.listener(syntheticEvent);
           // If callback have no return, use global bubble config to set isStopBubble.
           if (typeof isStopBubble !== 'boolean') {
             isStopBubble = !isGlobalBubble();
+          }
+          // event bubbles flag has higher priority
+          if (!syntheticEvent.bubbles) {
+            isStopBubble = true;
           }
         }
       } catch (err) {
@@ -162,15 +180,23 @@ function doBubbleLoop(originalEventName: string, nativeEvent: NativeEvent, nodeI
   let isStopBubble: any = false;
   let nextNodeItem: Fiber | null = nodeItem;
   let eventName = originalEventName;
+  const targetElementNode = getElementFromFiber(nodeItem);
   // only bubble loop
   do {
     eventName = convertEventName(eventName, nextNodeItem);
     if (isNodePropFunction(eventName, nextNodeItem)) {
       try {
-        isStopBubble = nextNodeItem.memoizedProps[eventName](nativeEvent);
+        const elementNode = getElementFromFiber(nextNodeItem);
+        const syntheticEvent = new Event(eventName, elementNode, targetElementNode);
+        Object.assign(syntheticEvent, nativeEvent);
+        isStopBubble = nextNodeItem.memoizedProps[eventName](syntheticEvent);
         // If callback have no return, use global bubble config to set isStopBubble.
         if (typeof isStopBubble !== 'boolean') {
           isStopBubble = !isGlobalBubble();
+        }
+        // event bubbles flag has higher priority
+        if (!syntheticEvent.bubbles) {
+          isStopBubble = true;
         }
       } catch (err) {
         (console as any).reportUncaughtException(err);
@@ -225,9 +251,7 @@ function receiveUIComponentEvent(nativeEvent: string[]) {
   if (!targetNode) {
     return;
   }
-  if (targetNode.memoizedProps
-    && targetNode.memoizedProps[eventName]
-    && typeof targetNode.memoizedProps[eventName] === 'function') {
+  if (isNodePropFunction(eventName, targetNode)) {
     targetNode.memoizedProps[eventName](eventParam);
   }
 }
