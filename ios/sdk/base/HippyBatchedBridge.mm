@@ -757,7 +757,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     int32_t rootTag = [[rootView hippyTag] intValue];
     std::shared_ptr<hippy::DomManager> domManager = std::make_shared<hippy::DomManager>(rootTag);
     std::shared_ptr<DomNode> rootNode = std::make_shared<DomNode>(rootTag, -1, -1);
-    domManager->SetRootNode(rootNode);
     domManager->SetRootSize(CGRectGetWidth(rootView.bounds), CGRectGetHeight(rootView.bounds));
     std::shared_ptr<NativeRenderManager> nativeRenderManager = std::make_shared<NativeRenderManager>(uiManager);
     domManager->SetRenderManager(nativeRenderManager);
