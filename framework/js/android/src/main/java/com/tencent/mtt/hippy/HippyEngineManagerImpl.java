@@ -861,6 +861,13 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     @Override
+    public void onRuntimeInitialized(long runtimeId) {
+      if (nativeRendererProxy != null) {
+        nativeRendererProxy.onRuntimeInitialized(runtimeId);
+      }
+    }
+
+    @Override
     public void handleException(Throwable throwable) {
       if (mDebugMode && mDevSupportManager != null) {
         mDevSupportManager.handleException(throwable);

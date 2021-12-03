@@ -29,6 +29,8 @@ public interface INativeRendererProxy extends HippyInstanceLifecycleEventListene
 
   void setFrameworkProxy(IFrameworkProxy proxy);
 
+  void onRuntimeInitialized(long runtimeId);
+
   void destroy();
 
   ViewGroup createRootView(Context context);

@@ -52,6 +52,8 @@ public interface HippyEngineContext {
 
   void handleException(Throwable throwable);
 
+  void onRuntimeInitialized(long runtimeId);
+
   void createNode(int rootId, HippyArray hippyArray);
 
   void updateNode(int rootId, HippyArray updateArray);
