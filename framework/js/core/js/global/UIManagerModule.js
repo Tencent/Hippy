@@ -108,19 +108,19 @@ Hippy.document = {
   createNode(rootViewId, queue) {
     global.ConsoleModule.debug(`rootViewId = ${rootViewId}`);
     global.ConsoleModule.debug(`createNode queue = ${JSON.stringify(queue)}`);
-    UIManagerModule.CreateNode(rootViewId, queue);
+    UIManagerModule.CreateNodes(rootViewId, queue);
     // Hippy.bridge.callNative('UIManagerModule', 'createNode', rootViewId, queue);
   },
   updateNode(rootViewId, queue) {
     global.ConsoleModule.debug(`rootViewId = ${rootViewId}`);
     global.ConsoleModule.debug(`updateNode queue = ${JSON.stringify(queue)}`);
-    UIManagerModule.UpdateNode(rootViewId, queue);
+    UIManagerModule.UpdateNodes(rootViewId, queue);
     // Hippy.bridge.callNative('UIManagerModule', 'updateNode', rootViewId, queue);
   },
   deleteNode(rootViewId, queue) {
     global.ConsoleModule.debug(`rootViewId = ${rootViewId}`);
     global.ConsoleModule.debug(`deleteNode queue = ${JSON.stringify(queue)}`);
-    UIManagerModule.DeleteNode(rootViewId, queue);
+    UIManagerModule.DeleteNodes(rootViewId, queue);
     // Hippy.bridge.callNative('UIManagerModule', 'deleteNode', rootViewId, queue);
   },
   flushBatch(rootViewId, queue) {
