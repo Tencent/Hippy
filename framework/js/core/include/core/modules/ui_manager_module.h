@@ -44,9 +44,9 @@ class UIManagerModule : public ModuleBase {
   UIManagerModule();
   ~UIManagerModule();
 
-  void CreateNode(const CallbackInfo& info);
-  void UpdateNode(const CallbackInfo& info);
-  void DeleteNode(const CallbackInfo& info);
+  void CreateNodes(const CallbackInfo& info);
+  void UpdateNodes(const CallbackInfo& info);
+  void DeleteNodes(const CallbackInfo& info);
   void StartBatch(const CallbackInfo& info);
   void EndBatch(const CallbackInfo& info);
   void CallUIFunction(const CallbackInfo& info);
