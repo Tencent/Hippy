@@ -18,8 +18,6 @@
  * limitations under the License.
  */
 
-import { isGlobalBubble } from '../utils';
-
 interface Event {
   type: string;
   bubbles: boolean;
