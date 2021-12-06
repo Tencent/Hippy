@@ -97,40 +97,6 @@ void RenderManagerProxy::CallFunction(
   render_manager_->CallFunction(domNode, name, param, cb);
 }
 
-void RenderManagerProxy::SetClickEventListener(int32_t id, OnClickEventListener listener) {
-    render_manager_->SetClickEventListener(id, listener);
-}
-
-void RenderManagerProxy::RemoveClickEventListener(int32_t id) {
-    render_manager_->RemoveClickEventListener(id);
-}
-
-void RenderManagerProxy::SetLongClickEventListener(int32_t id,
-                                                      OnLongClickEventListener listener) {
-    render_manager_->SetLongClickEventListener(id, listener);
-}
-
-void RenderManagerProxy::RemoveLongClickEventListener(int32_t id) {
-    render_manager_->RemoveLongClickEventListener(id);
-}
-void RenderManagerProxy::SetTouchEventListener(int32_t id,
-                                               TouchEvent event,
-                                               OnTouchEventListener listener) {
-  render_manager_->SetTouchEventListener(id, event, listener);
-}
-
-void RenderManagerProxy::RemoveTouchEventListener(int32_t id, TouchEvent event) {
-  render_manager_->RemoveTouchEventListener(id, event);
-}
-
-void RenderManagerProxy::SetShowEventListener(int32_t id, ShowEvent event, OnShowEventListener listener) {
-  render_manager_->SetShowEventListener(id, event, listener);
-}
-
-void RenderManagerProxy::RemoveShowEventListener(int32_t id, ShowEvent event) {
-  render_manager_->RemoveShowEventListener(id, event);
-}
-
 bool RenderManagerProxy::ComputeIsLayoutOnly(const std::shared_ptr<DomNode>& node) const {
   return node->GetTagName() == kTagNameView
          && CheckStyleJustLayout(node)
