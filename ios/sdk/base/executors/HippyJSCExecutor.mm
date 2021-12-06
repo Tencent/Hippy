@@ -54,6 +54,7 @@
 #include "core/engine.h"
 #import "HippyOCTurboModule+Inner.h"
 #import "HippyTurboModuleManager.h"
+#import "HippyObjToJSValueProtocol.h"
 
 NSString *const HippyJSCThreadName = @"com.tencent.hippy.JavaScript";
 NSString *const HippyJavaScriptContextCreatedNotification = @"HippyJavaScriptContextCreatedNotification";
@@ -568,8 +569,15 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
                         if (jscContext->IsFunction(method_value)) {
                             std::shared_ptr<hippy::napi::CtxValue> function_params[arguments.count];
                             for (NSUInteger i = 0; i < arguments.count; i++) {
-                                JSValueRef value = [JSValue valueWithObject:arguments[i] inContext:jsContext].JSValueRef;
-                                function_params[i] = std::make_shared<hippy::napi::JSCCtxValue>(globalContextRef, value);
+                                id argument = arguments[i];
+                                JSValueRef valueRef = nil;
+                                if ([argument conformsToProtocol:@protocol(HippyObjToJSValueProtocol)]) {
+                                    valueRef = [argument toJSValueInContext:jsContext].JSValueRef;
+                                }
+                                else {
+                                    valueRef = [JSValue valueWithObject:argument inContext:jsContext].JSValueRef;
+                                }
+                                function_params[i] = std::make_shared<hippy::napi::JSCCtxValue>(globalContextRef, valueRef);
                             }
                             hippy::napi::JSCTryCatch tryCatch(true, jscContext);
                             std::shared_ptr<hippy::napi::CtxValue> resultValue
