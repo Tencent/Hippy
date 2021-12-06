@@ -32,7 +32,7 @@ public class NativeRendererDelegate {
   public NativeRendererDelegate(INativeRenderer nativeRenderer, long runtimeId) {
     this.nativeRenderer = nativeRenderer;
     deserializer = new Deserializer(null, new InternalizedStringTable());
-    //onCreateNativeRendererDelegate(runtimeId);
+    onCreateNativeRendererDelegate(runtimeId);
   }
 
   public void destroy() {
@@ -99,5 +99,5 @@ public class NativeRendererDelegate {
     });
   }
 
-  //public native void onCreateNativeRendererDelegate(long runtimeId);
+  public native void onCreateNativeRendererDelegate(long runtimeId);
 }
