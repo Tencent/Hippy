@@ -67,7 +67,7 @@ class Serializer {
 
   void WriteUint32(uint32_t value);
 
-  void WriteUint64(uint64_t value);
+//  void WriteUint64(uint64_t value);
 
   void WriteInt32(int32_t value);
 
