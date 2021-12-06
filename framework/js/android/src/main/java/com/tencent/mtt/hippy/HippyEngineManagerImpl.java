@@ -338,6 +338,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
               "Hippy: loadModule debugMode=true, loadParams.jsAssetsPath and jsFilePath both null!");
     }
 
+    mEngineContext.setComponentName(loadParams.componentName);
     if (loadParams.jsParams == null) {
       loadParams.jsParams = new HippyMap();
     }
@@ -726,6 +727,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
   }
 
   public class HippyEngineContextImpl implements HippyEngineContext, HippyInstanceLifecycleEventListener {
+    private String componentName;
     private final HippyModuleManager mModuleManager;
     private final HippyBridgeManager mBridgeManager;
     private INativeRendererProxy nativeRendererProxy;
@@ -778,6 +780,14 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
       }
 
       return null;
+    }
+
+    public void setComponentName(String componentName) {
+      this.componentName = componentName;
+    }
+
+    public String getComponentName() {
+      return componentName;
     }
 
     @Override
