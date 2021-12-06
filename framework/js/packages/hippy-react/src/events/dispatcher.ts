@@ -35,7 +35,7 @@ interface NativeEvent {
 const eventHubs = new Map();
 const componentName = ['%c[event]%c', 'color: green', 'color: auto'];
 
-function registerNativeEventHub(eventName: string) {
+function registerNativeEventHub(eventName: any) {
   trace(...componentName, 'registerNativeEventHub', eventName);
   if (typeof eventName !== 'string') {
     throw new TypeError(`Invalid eventName for registerNativeEventHub: ${eventName}`);
@@ -49,14 +49,14 @@ function registerNativeEventHub(eventName: string) {
   return targetEventHub;
 }
 
-function getHippyEventHub(eventName: string) {
+function getHippyEventHub(eventName: any) {
   if (typeof eventName !== 'string') {
     throw new TypeError(`Invalid eventName for getHippyEventHub: ${eventName}`);
   }
   return eventHubs.get(eventName) || null;
 }
 
-function unregisterNativeEventHub(eventName: string) {
+function unregisterNativeEventHub(eventName: any) {
   if (typeof eventName !== 'string') {
     throw new TypeError(`Invalid eventName for unregisterNativeEventHub: ${eventName}`);
   }
@@ -81,7 +81,12 @@ function receiveNativeEvent(nativeEvent: EventParam) {
   currEventHub.notifyEvent(eventParams);
 }
 
-interface ListenerObj { eventName: string, listener: Function, isCapture: boolean, target: Element }
+interface ListenerObj {
+  eventName: string;
+  listener: Function;
+  isCapture: boolean;
+  currentTarget: Element;
+}
 
 /**
  * convertEventName - convert all special event name
@@ -114,7 +119,7 @@ function doCaptureAndBubbleLoop(originalEventName: string, nativeEvent: NativeEv
   const eventQueue: ListenerObj[] = [];
   let nextNodeItem: Fiber | null = nodeItem;
   let eventName = originalEventName;
-  // capture and bubble loop
+  // capture and bubbling loop
   while (nextNodeItem) {
     eventName = convertEventName(eventName, nextNodeItem);
     const captureName = `${eventName}Capture`;
@@ -124,7 +129,7 @@ function doCaptureAndBubbleLoop(originalEventName: string, nativeEvent: NativeEv
         eventName: captureName,
         listener: nextNodeItem.memoizedProps[captureName],
         isCapture: true,
-        target: getElementFromFiber(nextNodeItem),
+        currentTarget: getElementFromFiber(nextNodeItem),
       });
     }
     if (isNodePropFunction(eventName, nextNodeItem)) {
@@ -133,7 +138,7 @@ function doCaptureAndBubbleLoop(originalEventName: string, nativeEvent: NativeEv
         eventName,
         listener: nextNodeItem.memoizedProps[eventName],
         isCapture: false,
-        target: getElementFromFiber(nextNodeItem),
+        currentTarget: getElementFromFiber(nextNodeItem),
       });
     }
     nextNodeItem = nextNodeItem.return;
@@ -145,15 +150,16 @@ function doCaptureAndBubbleLoop(originalEventName: string, nativeEvent: NativeEv
   if (eventQueue.length > 0) {
     let listenerObj: ListenerObj | undefined;
     let isStopBubble: any = false;
-    const targetElementNode = getElementFromFiber(nodeItem);
+    const targetNode = getElementFromFiber(nodeItem);
     while (!isStopBubble && (listenerObj = eventQueue.shift()) !== undefined) {
       try {
-        const syntheticEvent = new Event(listenerObj.eventName, listenerObj.target, targetElementNode);
+        const { eventName, currentTarget: currentTargetNode, listener, isCapture } = listenerObj;
+        const syntheticEvent = new Event(eventName, currentTargetNode, targetNode);
         Object.assign(syntheticEvent, nativeEvent);
-        if (listenerObj.isCapture) {
-          listenerObj.listener(syntheticEvent);
+        if (isCapture) {
+          listener(syntheticEvent);
         } else {
-          isStopBubble = listenerObj.listener(syntheticEvent);
+          isStopBubble = listener(syntheticEvent);
           // If callback have no return, use global bubble config to set isStopBubble.
           if (typeof isStopBubble !== 'boolean') {
             isStopBubble = !isGlobalBubble();
@@ -171,7 +177,7 @@ function doCaptureAndBubbleLoop(originalEventName: string, nativeEvent: NativeEv
 }
 
 /**
- * doBubbleLoop - process only bubble phase
+ * doBubbleLoop - process only bubbling phase
  * @param {string} originalEventName
  * @param {NativeEvent} nativeEvent
  * @param {Fiber} nodeItem
@@ -180,14 +186,14 @@ function doBubbleLoop(originalEventName: string, nativeEvent: NativeEvent, nodeI
   let isStopBubble: any = false;
   let nextNodeItem: Fiber | null = nodeItem;
   let eventName = originalEventName;
-  const targetElementNode = getElementFromFiber(nodeItem);
-  // only bubble loop
+  const targetNode = getElementFromFiber(nodeItem);
+  // only bubbling loop
   do {
     eventName = convertEventName(eventName, nextNodeItem);
     if (isNodePropFunction(eventName, nextNodeItem)) {
       try {
-        const elementNode = getElementFromFiber(nextNodeItem);
-        const syntheticEvent = new Event(eventName, elementNode, targetElementNode);
+        const currentTargetNode = getElementFromFiber(nextNodeItem);
+        const syntheticEvent = new Event(eventName, currentTargetNode, targetNode);
         Object.assign(syntheticEvent, nativeEvent);
         isStopBubble = nextNodeItem.memoizedProps[eventName](syntheticEvent);
         // If callback have no return, use global bubble config to set isStopBubble.
@@ -227,7 +233,7 @@ function receiveNativeGesture(nativeEvent: NativeEvent) {
   eventName = convertEventName(eventName, targetNode);
   const captureName = `${eventName}Capture`;
   const nextNodeItem: Fiber = targetNode;
-  // if current target has no capture listener, only do bubble phase loop to improve performance
+  // if current target has no capture listener, only do bubbling phase loop to improve performance
   if (targetNode.memoizedProps && typeof targetNode.memoizedProps[captureName] !== 'function') {
     hasCapturePhase = false;
   }
@@ -238,7 +244,7 @@ function receiveNativeGesture(nativeEvent: NativeEvent) {
   }
 }
 
-function receiveUIComponentEvent(nativeEvent: string[]) {
+function receiveUIComponentEvent(nativeEvent: any[]) {
   trace(...componentName, 'receiveUIComponentEvent', nativeEvent);
   if (!nativeEvent || !Array.isArray(nativeEvent) || nativeEvent.length < 2) {
     return;
