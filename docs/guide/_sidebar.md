@@ -4,7 +4,7 @@
 * [Android集成](android/integration.md)
 * [iOS集成](ios/integration.md)
 * [前端调试](guide/debug.md)
-* [Core C++ 架构](core/introduction.md)
+* [Core C++ 架构](framework/js/core/introduction.md)
 * [布局与单位](guide/layout.md)
 * [网络请求](guide/network-request.md)
 * [定时器](guide/timer.md)
