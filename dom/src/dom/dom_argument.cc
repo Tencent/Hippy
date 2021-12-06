@@ -2,15 +2,17 @@
 
 #include "base/logging.h"
 
+DomArgument::DomArgument(const DomArgument& source) : argument_type_(source.argument_type_), data_(data) {}
+
 DomArgument::~DomArgument() {}
 
-std::pair<uint8_t*, size_t> DomArgument::ToJson() { TDF_BASE_NOTIMPLEMENTED(); }
+std::string& DomArgument::ToJson() { TDF_BASE_NOTIMPLEMENTED(); }
 
-std::pair<uint8_t*, size_t> DomArgument::ToBison() { TDF_BASE_NOTIMPLEMENTED(); }
+std::pair<uint8_t*, size_t> DomArgument::ToBson() { TDF_BASE_NOTIMPLEMENTED(); }
 
-DomValue& DomArgument::ToDomValue() {
+DomValue& DomArgument::ToObject() {
   if (argument_type_ == ArgumentType::DomValue) {
-    return dom_value_;
+    return std::any_cast<DomValue>(data_);
   } else if (argument_type_ == ArgumentType::JSON) {
     TDF_BASE_NOTIMPLEMENTED();
   } else if (argument_type_ == ArgumentType::BISON) {
@@ -19,4 +21,3 @@ DomValue& DomArgument::ToDomValue() {
     TDF_BASE_NOTREACHED();
   }
 }
-
