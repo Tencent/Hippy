@@ -17,6 +17,7 @@ constexpr const char* kPropsKey = "props";
 constexpr const char* kStylesKey = "styles";
 constexpr const char* kMoveIdListKey = "move_id";
 constexpr const char* kMovePidKey = "move_pid";
+constexpr const char* kLayoutNodesKey = "layout_nodes";
 
 constexpr const char* kTouchTypeKey = "touch_type";
 constexpr const char* kTouchX = "x";

@@ -48,15 +48,28 @@ void VoltronRenderTaskRunner::RunUpdateLayout(const SpList<DomNode>& nodes) {
     auto args_map = EncodableMap();
     auto render_node_list = EncodableList();
 
-//    for (const auto& node : nodes) {
-//      node->LayoutR();
-//    }
-//    if (!node->GetDiffStyle().empty()) {
-//      args_map[EncodableValue(kPropsKey)] = EncodeDomValueMap(node->GetDiffStyle());
-//      auto args = std::make_unique<EncodableValue>(args_map);
-//      auto update_task = std::make_shared<RenderTask>(VoltronRenderOpType::UPDATE_LAYOUT, node->GetId(), std::move(args));
-//      queue_->ProduceRenderOp(update_task);
-//    }
+    for (const auto& node : nodes) {
+      auto layout_node = node->GetLayoutNode();
+      if (layout_node) {
+        auto node_layout_prop_list = EncodableList();
+        node_layout_prop_list.emplace_back(node->GetId());
+        // x
+        node_layout_prop_list.emplace_back(layout_node->GetLeft());
+        // y
+        node_layout_prop_list.emplace_back(layout_node->GetTop());
+        // w
+        node_layout_prop_list.emplace_back(layout_node->GetWidth());
+        // h
+        node_layout_prop_list.emplace_back(layout_node->GetHeight());
+        render_node_list.emplace_back(std::move(node_layout_prop_list));
+      }
+    }
+    if (!render_node_list.empty()) {
+      args_map[EncodableValue(kLayoutNodesKey)] = EncodableValue(std::move(render_node_list));
+      auto args = std::make_unique<EncodableValue>(args_map);
+      auto update_task = std::make_shared<RenderTask>(VoltronRenderOpType::UPDATE_LAYOUT, 0, std::move(args));
+      queue_->ProduceRenderOp(update_task);
+    }
   }
 }
 

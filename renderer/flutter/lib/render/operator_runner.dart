@@ -11,6 +11,12 @@ typedef RenderOpTaskGenerator = RenderOpTask Function(
 const int kInvalidIndex = -1;
 const int kInvalidId = -1;
 
+extension IdIntEx on int {
+  bool isValidId() {
+    return this != kInvalidId;
+  }
+}
+
 class RenderOperatorRunner implements Destroyable {
   final EngineContext _engineContext;
 
@@ -120,7 +126,10 @@ class _UpdateNodeOpTask extends _NodeOpTask {
   @override
   void _run() {
     var propMap = _params[_RenderOpParamsKey.kPropsKey] ?? {};
-    renderManager.updateNode(_instanceId, _nodeId, VoltronMap.fromMap(propMap));
+    renderManager.addUITask(() {
+      renderManager.updateNode(
+          _instanceId, _nodeId, VoltronMap.fromMap(propMap));
+    });
   }
 }
 
@@ -130,15 +139,51 @@ class _UpdateLayoutOpTask extends _NodeOpTask {
 
   @override
   void _run() {
-    // addUITask(() {
-    //   var newLeft = x;
-    //   var newTop = y;
-    //
-    //   _renderManager.updateLayout(domStyle.rootId, domStyle.id, newLeft,
-    //       newTop, domStyle.layoutWidth, domStyle.layoutHeight);
-    // });
+    var layoutNodeList =
+    (_params[_RenderOpParamsKey.kLayoutNodesKey] ?? []) as List;
+    var parseLayoutNodeList = <_LayoutNodeInfo>[];
+    if (layoutNodeList.isNotEmpty) {
+      for (var layoutNode in layoutNodeList) {
+        if (layoutNode is List) {
+          var nodeId = (layoutNode[0] ?? kInvalidId) as int;
+          if (nodeId.isValidId()) {
+            var left = layoutNode[1] ?? 0;
+            var top = layoutNode[2] ?? 0;
+            var width = layoutNode[3] ?? 0;
+            var height = layoutNode[4] ?? 0;
+            parseLayoutNodeList.add(_LayoutNodeInfo(nodeId,
+                left: left, top: top, width: width, height: height));
+          }
+        }
+      }
+    }
+    if (parseLayoutNodeList.isNotEmpty) {
+      renderManager.addUITask(() {
+        for (var parseLayoutNode in parseLayoutNodeList) {
+          renderManager.updateLayout(
+              _instanceId,
+              parseLayoutNode.nodeId,
+              parseLayoutNode.left,
+              parseLayoutNode.top,
+              parseLayoutNode.width,
+              parseLayoutNode.height);
+        }
+      });
+    }
   }
 }
+
+class _LayoutNodeInfo {
+  final int nodeId;
+  final double left;
+  final double top;
+  final double width;
+  final double height;
+
+  _LayoutNodeInfo(this.nodeId,
+      {this.left = 0, this.top = 0, this.width = 0, this.height = 0});
+}
+
 
 class _MoveNodeOpTask extends _NodeOpTask {
   _MoveNodeOpTask(int instanceId, int nodeId, Map params)
@@ -362,6 +407,7 @@ class _RenderOpParamsKey {
   static const String kStylesKey = "styles";
   static const String kMoveIdListKey = "move_id";
   static const String kMovePidKey = "move_pid";
+  static const String kLayoutNodesKey = "layout_nodes";
 
   static const String kTouchTypeKey = "touch_type";
   static const String kTouchX = "x";
