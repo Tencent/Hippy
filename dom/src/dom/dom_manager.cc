@@ -97,13 +97,13 @@ void DomManager::EndBatch() {
 }
 
 void DomManager::CallFunction(int32_t id, const std::string& name,
-                              std::unordered_map<std::string, std::shared_ptr<DomValue>> param,
+                              const DomArgument& param,
                               const CallFunctionCallback& cb) {
   auto node = dom_node_registry_.GetNode(id);
   if (node == nullptr) {
       return;
   }
-  node->CallFunction(name, std::move(param), std::move(cb));
+  node->CallFunction(name, param, std::move(cb));
 }
 
 int32_t DomManager::AddDomTreeEventListener(DomTreeEvent event, OnDomTreeEventListener listener) {

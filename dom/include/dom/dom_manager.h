@@ -33,7 +33,7 @@ class DomManager {
   void BeginBatch();
   void EndBatch();
   void CallFunction(int32_t id, const std::string& name,
-                    std::unordered_map<std::string, std::shared_ptr<DomValue>> param, const CallFunctionCallback& cb);
+                    const DomArgument& param, const CallFunctionCallback& cb);
   int32_t AddDomTreeEventListener(DomTreeEvent event, OnDomTreeEventListener listener);
   void RemoveDomTreeEventListener(DomTreeEvent event, int32_t listener_id);
   std::shared_ptr<RenderManager> GetRenderManager() { return render_manager_; }

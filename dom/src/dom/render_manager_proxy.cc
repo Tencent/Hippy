@@ -92,7 +92,7 @@ void RenderManagerProxy::Batch() {
 
 void RenderManagerProxy::CallFunction(
     std::weak_ptr<DomNode> domNode, const std::string &name,
-    std::unordered_map<std::string, std::shared_ptr<DomValue>> param,
+    const DomArgument& param,
     DispatchFunctionCallback cb) {
   render_manager_->CallFunction(domNode, name, param, cb);
 }

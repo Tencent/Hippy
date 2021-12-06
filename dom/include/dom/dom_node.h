@@ -101,7 +101,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
 
   bool HasTouchEventListeners() const { return !touch_listeners->empty(); }
   void CallFunction(const std::string& name,
-                    std::unordered_map<std::string, std::shared_ptr<DomValue>> param,
+                    const DomArgument& param,
                     const CallFunctionCallback& cb);
   const std::unordered_map<std::string, std::shared_ptr<DomValue>> GetStyle() { return style_map_; }
   const std::unordered_map<std::string, std::shared_ptr<DomValue>> GetExtStyle() { return dom_ext_map_; }

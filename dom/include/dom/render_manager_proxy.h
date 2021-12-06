@@ -18,7 +18,7 @@ class RenderManagerProxy : public RenderManager {
   void Batch() override;
 
   void CallFunction(std::weak_ptr<DomNode> domNode, const std::string& name,
-                        std::unordered_map<std::string, std::shared_ptr<DomValue>> param,
+                        const DomArgument& param,
                         DispatchFunctionCallback cb) override;
 
   void SetClickEventListener(int32_t id, OnClickEventListener listener) override;

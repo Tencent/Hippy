@@ -190,11 +190,11 @@ void DomNode::TransferLayoutOutputsRecursive() {
   }
 }
 
-void DomNode::CallFunction(const std::string& name, std::unordered_map<std::string, std::shared_ptr<DomValue>> param,
+void DomNode::CallFunction(const std::string& name, const DomArgument& param,
                            const CallFunctionCallback& cb) {
   auto dom_manager = dom_manager_.lock();
   if (dom_manager) {
-    dom_manager->GetRenderManager()->CallFunction(shared_from_this(), name, std::move(param), cb);
+    dom_manager->GetRenderManager()->CallFunction(shared_from_this(), name, param, cb);
   }
   if (callbacks_ == nullptr) {
     callbacks_ = std::make_shared<std::unordered_map<std::string, CallFunctionCallback>>();
