@@ -138,8 +138,10 @@ git push --tags # 提交 tag
     OSSRH_PASSWORD=sonatype密码
     ```
 
-  * Gradle Task 先执行 `other` => `assembleRelease`, 再执行 `publishing` => `publish`, 发布成功后SDK会在 sonatype 的 `staging`状态
-  * 在 sonatype 左边 `Staging Repositories` 里找到刚发布的 repository，如果想Release前进行测试，可以在 `Content` 下将 `aar` 下载，替换`examples` => `android-demo` => `example` => `libs` 下的 aar(名字改成 `android-sdk-release.aar`)
+  * 执行 build `Clean Project`
+  * `Android gradle.properties` 将 `#PUBLISH_ARTIFACT_ID=hippy-debug` 注释打开，Gradle Task 先执行 `other` => `assembleDebug`, 再执行 `publishing` => `publish`
+  * `Android gradle.properties` 将 `#PUBLISH_ARTIFACT_ID=hippy-common` 注释打开，Gradle Task 先执行 `other` => `assembleRelease`, 再执行 `publishing` => `publish`
+  * 发布成功后 SDK 会在 sonatype 的 `staging`状态，在 sonatype 左边 `Staging Repositories` 里找到刚发布的 repository，如果想Release前进行测试，可以在 `Content` 下将 `aar` 下载，替换`examples` => `android-demo` => `example` => `libs` 下的 aar(名字改成 `android-sdk-release.aar`)
 
     ```bash
       // 注释 `setting.gradle` 本地 SDK 的引用
