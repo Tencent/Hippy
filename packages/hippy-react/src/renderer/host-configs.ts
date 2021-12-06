@@ -53,7 +53,12 @@ function commitTextUpdate() {}
 function commitUpdate(
   instance: any,
   updatePayload: any,
+  type: string,
+  oldProps: Props,
+  newProps: Props,
+  workInProgress: any,
 ): void {
+  preCacheFiberNode(workInProgress, instance.nodeId);
   Object.keys(updatePayload).forEach(attr => instance.setAttribute(attr, updatePayload[attr]));
 }
 
@@ -155,10 +160,7 @@ function prepareUpdate(
         break;
       }
       default: {
-        // FIXME: Cancel a event listener
-        if (typeof oldPropValue === 'function' && typeof newPropValue === 'function') {
-          // just skip it if meets function
-        } else if (!isEqual(oldPropValue, newPropValue)) {
+        if (!isEqual(oldPropValue, newPropValue)) {
           updatePayload[key] = newPropValue;
         }
       }
