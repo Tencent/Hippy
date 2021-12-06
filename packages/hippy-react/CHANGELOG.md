@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.11.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.11.1...2.11.2) (2021-12-06)
+
+
+### Bug Fixes
+
+* **hippy-react:** fixed cached fiberNode event handler problem ([1ed9a77](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/1ed9a771284096b9001ee181c805d7e84fa9b424))
+* **react,vue:** fixed timeRemaining judge ([8dd993f](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/8dd993f16d83be509019b2d890ed6a9d3095462e))
+
+
+### Features
+
+* **hippy-react:** add system event instance ([bc0e6ac](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/bc0e6ac52638adeac84fcf181da74c9fd7890729))
+* **react:** support event capture phase ([6eba75a](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/6eba75acb2599ddf89fb0dcb25f1f554fd7a7408))
+* **react,vue:** add js node cache to improve event performance ([b72e42c](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/b72e42ca1419891019f937942d45c9a26f9c92e2))
+* **react,vue:** perf node traversing process ([8102057](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/8102057db4743989fc996ec7455226f08b58c81b))
+
+
+
+
+
 ## [2.11.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.11.0...2.11.1) (2021-11-24)
 
 **Note:** Version bump only for package @hippy/react

@@ -3,6 +3,39 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.11.2](https://github.com/Tencent/Hippy/compare/2.11.1...2.11.2) (2021-12-06)
+
+
+### Bug Fixes
+
+* **android:** release engine context when destroy ([4cf275a](https://github.com/Tencent/Hippy/commit/4cf275adfa5b8c9ef652735bb2f5498d23a7320e))
+* **core:** disable rtti and c++ exception ([a2089e4](https://github.com/Tencent/Hippy/commit/a2089e4568c9263aaac50c6a42b587bff98d5c32))
+* **core:** fix inspector crash ([6f4e57b](https://github.com/Tencent/Hippy/commit/6f4e57b2e82e8961c95e7b7d13e40ee26581db5e))
+* **core:** fix lint warning ([b2b6df3](https://github.com/Tencent/Hippy/commit/b2b6df3797c61b002adedc2126438eb2cd038c23))
+* **core:** remove dynamic_pointer_cast and try catch ([c173a13](https://github.com/Tencent/Hippy/commit/c173a13e798fb42e87c357a812f1c62d3bf8e2d9))
+* **core:** remove runtime exception ([6aedb26](https://github.com/Tencent/Hippy/commit/6aedb26d76b545fa0cbf4894ff4581c041e04e08))
+* **hippy-react:** fixed cached fiberNode event handler problem ([1ed9a77](https://github.com/Tencent/Hippy/commit/1ed9a771284096b9001ee181c805d7e84fa9b424))
+* **ios:** check current image url before display ([61dc140](https://github.com/Tencent/Hippy/commit/61dc140dd49fcbaadb9c7d9d458958681f88bd76))
+* **ios:** fix nested text layout error ([#929](https://github.com/Tencent/Hippy/issues/929)) ([87c9a14](https://github.com/Tencent/Hippy/commit/87c9a14efe4e8cc2f76bfc7f8cc3e56441645caf))
+* **react,vue:** fixed timeRemaining judge ([8dd993f](https://github.com/Tencent/Hippy/commit/8dd993f16d83be509019b2d890ed6a9d3095462e))
+
+
+### Features
+
+* **android:** add `__unused` attribute for unused parameters ([b5a50e0](https://github.com/Tencent/Hippy/commit/b5a50e0b156570535c52d7e12e00882e807c3aa4))
+* **android:** add componentName to EngineContext ([750a738](https://github.com/Tencent/Hippy/commit/750a7383c2020c04654a85ef450a2d2676de5204))
+* **android:** add JNI numeric cast function with boundary check ([7d76547](https://github.com/Tencent/Hippy/commit/7d76547bd9046f02ce7d788309f5489ff76d05b6))
+* **android:** numeric cast with boundary checker ([e7761b5](https://github.com/Tencent/Hippy/commit/e7761b52b767ecd734f646f4c7966c2dd7270367))
+* **hippy-react:** add system event instance ([bc0e6ac](https://github.com/Tencent/Hippy/commit/bc0e6ac52638adeac84fcf181da74c9fd7890729))
+* **ios:** add ios chrome dev debug ability ([#1060](https://github.com/Tencent/Hippy/issues/1060)) ([a8a4ec1](https://github.com/Tencent/Hippy/commit/a8a4ec1022363d92d01090dd3be32dbffadfbad4))
+* **react:** support event capture phase ([6eba75a](https://github.com/Tencent/Hippy/commit/6eba75acb2599ddf89fb0dcb25f1f554fd7a7408))
+* **react,vue:** add js node cache to improve event performance ([b72e42c](https://github.com/Tencent/Hippy/commit/b72e42ca1419891019f937942d45c9a26f9c92e2))
+* **react,vue:** perf node traversing process ([8102057](https://github.com/Tencent/Hippy/commit/8102057db4743989fc996ec7455226f08b58c81b))
+
+
+
+
+
 ## [2.11.1](https://github.com/Tencent/Hippy/compare/2.11.0...2.11.1) (2021-11-24)
 
 

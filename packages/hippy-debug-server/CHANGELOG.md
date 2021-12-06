@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.11.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-debug-server/compare/2.11.1...2.11.2) (2021-12-06)
+
+**Note:** Version bump only for package @hippy/debug-server
+
+
+
+
+
 ## [2.11.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-debug-server/compare/2.11.0...2.11.1) (2021-11-24)
 
 **Note:** Version bump only for package @hippy/debug-server
