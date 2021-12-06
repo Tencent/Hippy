@@ -27,7 +27,9 @@
 namespace hippy {
 namespace bridge {
 
-void InitNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_logger);
+void InitNativeLogHandler(JNIEnv* j_env,
+                          __unused jobject j_object,
+                          jobject j_logger);
 
 jlong InitInstance(JNIEnv* j_env,
                    jobject j_object,
@@ -54,6 +56,10 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
                           jstring j_code_cache_dir,
                           jlong j_runtime_id,
                           jobject j_cb);
+
+void CreateNativeRenderDelegate(JNIEnv* j_env,
+                                jobject j_obj,
+                                jlong j_runtime_id);
 
 }  // namespace bridge
 }  // namespace hippy

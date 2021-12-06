@@ -75,10 +75,12 @@ add_compile_options(${ABI_COMPILE_OPTIONS})
 get_filename_component(CORE_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../core" REALPATH)
 get_filename_component(DOM_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../dom" REALPATH)
 get_filename_component(LAYOUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../layout" REALPATH)
+get_filename_component(RENDER_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../renderer" REALPATH)
 
 # region subdirectory
 add_subdirectory(${CORE_SRC_DIR}/third_party/base base_out)
 add_subdirectory(${DOM_SRC_DIR} dom_out)
+add_subdirectory(${RENDER_DIR}/native/android/src/main/jni render_out)
 set(ENABLE_INSPECTOR true)
 if (${JS_ENGINE} STREQUAL "V8")
   get_filename_component(V8_COMPONENT_PATH ${V8_COMPONENT} ABSOLUTE)
@@ -107,7 +109,7 @@ message("CORE_SRC: ${CORE_SRC}")
 message("JNI_SRC: ${JNI_SRC}")
 # endregion
 
-set(HIPPY_DEPS android log tdf_base tdf_base_common dom)
+set(HIPPY_DEPS android log tdf_base tdf_base_common native_render dom)
 
 message("JS_ENGINE:" ${JS_ENGINE})
 if (${JS_ENGINE} STREQUAL "V8")
@@ -149,6 +151,7 @@ include_directories(${CORE_SRC_DIR}/include)
 include_directories(${CORE_SRC_DIR}/third_party/base/include)
 include_directories(${DOM_SRC_DIR}/include)
 include_directories(${LAYOUT_DIR})
+include_directories(${RENDER_DIR}/native/android/src/main/jni/include)
 
 add_library(${CMAKE_PROJECT_NAME} SHARED ${CORE_SRC} ${URL_PARSER_SRC} ${JNI_SRC})
 target_link_libraries(${CMAKE_PROJECT_NAME} ${HIPPY_DEPS})
