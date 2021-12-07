@@ -60,7 +60,7 @@ void Serializer::WriteInt32(int32_t value) {
 
 void Serializer::WriteDouble(double value) { WriteRawBytes(&value, sizeof(value)); }
 
-void Serializer::WriteString(std::string& value) {
+void Serializer::WriteString(const std::string& value) {
   bool oneByteString = true;
   const char* c = value.c_str();
   for (size_t i = 0; i < value.length(); i++) {
@@ -82,7 +82,7 @@ void Serializer::WriteString(std::string& value) {
   }
 }
 
-void Serializer::WriteDenseJSArray(DomValue::DomValueArrayType& dom_value) {
+void Serializer::WriteDenseJSArray(const DomValue::DomValueArrayType& dom_value) {
   uint32_t length = 0;
   length = dom_value.size();
 
@@ -91,65 +91,7 @@ void Serializer::WriteDenseJSArray(DomValue::DomValueArrayType& dom_value) {
   uint32_t i = 0;
 
   for (; i < length; i++) {
-    DomValue::Type type = dom_value[i].GetType();
-    switch (type) {
-      case DomValue::Type::kUndefined:
-      case DomValue::Type::kNull:
-      case DomValue::Type::kBoolean: {
-        Oddball ball = Oddball::kUndefined;
-        if (type == DomValue::Type::kNull) {
-          ball = Oddball::kNull;
-        } else if (type == DomValue::Type::kBoolean && dom_value[i].ToBoolean()) {
-          ball = Oddball::kTrue;
-        } else if (type == DomValue::Type::kBoolean && !dom_value[i].ToBoolean()) {
-          ball = Oddball::kFalse;
-        }
-        WriteOddball(ball);
-        break;
-      }
-      case DomValue::Type::kNumber: {
-        DomValue::NumberType number_type = dom_value[i].GetNumberType();
-        switch (number_type) {
-          case DomValue::NumberType::kInt32: {
-            WriteInt32(dom_value[i].ToInt32());
-            break;
-          }
-          case DomValue::NumberType::kUInt32: {
-            WriteUint32(dom_value[i].ToUint32());
-            break;
-          }
-          case DomValue::NumberType::kInt64: {
-            TDF_BASE_CHECK(false);
-          }
-          case DomValue::NumberType::kUInt64: {
-            WriteUint64(dom_value[i].ToUint64());
-            break;
-          }
-          case DomValue::NumberType::kDouble: {
-            WriteDouble(dom_value[i].ToDouble());
-            break;
-          }
-          default: {
-            TDF_BASE_CHECK(false);
-          }
-        }
-        break;
-      }
-      case DomValue::Type::kString: {
-        WriteString(dom_value[i].ToString());
-        break;
-      }
-      case DomValue::Type::kObject: {
-        WriteJSMap(dom_value[i].ToObject());
-        break;
-      }
-      case DomValue::Type::kArray: {
-        WriteDenseJSArray(dom_value[i].ToArray());
-        break;
-      }
-      default:
-        TDF_BASE_CHECK(true);
-    }
+    WriteObject(dom_value[i]);
   }
 
   uint32_t properties_written = 0;
@@ -158,7 +100,16 @@ void Serializer::WriteDenseJSArray(DomValue::DomValueArrayType& dom_value) {
   WriteVarint<uint32_t>(length);
 }
 
-void Serializer::WriteJSMap(DomValue::DomValueObjectType& dom_value) {}
+void Serializer::WriteJSMap(const DomValue::DomValueObjectType& dom_value) {
+  uint32_t length = dom_value.size();
+  WriteTag(SerializationTag::kBeginJSMap);
+  for (const auto& it : dom_value) {
+    WriteString(it.first);
+    WriteObject(it.second);
+  }
+  WriteTag(SerializationTag::kEndJSMap);
+  WriteVarint<uint32_t>(length * 2);
+}
 
 void Serializer::WriteTag(SerializationTag tag) {
   uint8_t raw_tag = static_cast<uint8_t>(tag);
@@ -211,6 +162,68 @@ void Serializer::WriteRawBytes(const void* source, size_t length) {
   uint8_t* dest;
   dest = ReserveRawBytes(length);
   memcpy(dest, source, length);
+}
+
+void Serializer::WriteObject(const DomValue& dom_value) {
+  DomValue::Type type = dom_value.GetType();
+  switch (type) {
+    case DomValue::Type::kUndefined:
+    case DomValue::Type::kNull:
+    case DomValue::Type::kBoolean: {
+      Oddball ball = Oddball::kUndefined;
+      if (type == DomValue::Type::kNull) {
+        ball = Oddball::kNull;
+      } else if (type == DomValue::Type::kBoolean && dom_value.ToBoolean()) {
+        ball = Oddball::kTrue;
+      } else if (type == DomValue::Type::kBoolean && !dom_value.ToBoolean()) {
+        ball = Oddball::kFalse;
+      }
+      WriteOddball(ball);
+      break;
+    }
+    case DomValue::Type::kNumber: {
+      DomValue::NumberType number_type = dom_value.GetNumberType();
+      switch (number_type) {
+        case DomValue::NumberType::kInt32: {
+          WriteInt32(dom_value.ToInt32());
+          break;
+        }
+        case DomValue::NumberType::kUInt32: {
+          WriteUint32(dom_value.ToUint32());
+          break;
+        }
+        case DomValue::NumberType::kInt64: {
+          TDF_BASE_CHECK(false);
+        }
+        case DomValue::NumberType::kUInt64: {
+          WriteUint64(dom_value.ToUint64());
+          break;
+        }
+        case DomValue::NumberType::kDouble: {
+          WriteDouble(dom_value.ToDouble());
+          break;
+        }
+        default: {
+          TDF_BASE_CHECK(false);
+        }
+      }
+      break;
+    }
+    case DomValue::Type::kString: {
+      WriteString(dom_value.ToString());
+      break;
+    }
+    case DomValue::Type::kObject: {
+      WriteJSMap(dom_value.ToObject());
+      break;
+    }
+    case DomValue::Type::kArray: {
+      WriteDenseJSArray(dom_value.ToArray());
+      break;
+    }
+    default:
+      TDF_BASE_CHECK(true);
+  }
 }
 
 uint8_t* Serializer::ReserveRawBytes(size_t bytes) {

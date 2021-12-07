@@ -73,11 +73,11 @@ class Serializer {
 
   void WriteDouble(double value);
 
-  void WriteString(std::string& value);
+  void WriteString(const std::string& value);
 
-  void WriteDenseJSArray(DomValue::DomValueArrayType& dom_value);
+  void WriteDenseJSArray(const DomValue::DomValueArrayType& dom_value);
 
-  void WriteJSMap(DomValue::DomValueObjectType& dom_value);
+  void WriteJSMap(const DomValue::DomValueObjectType& dom_value);
 
  private:
   void WriteTag(SerializationTag tag);
@@ -93,6 +93,8 @@ class Serializer {
   void WriteTwoByteString(const char16_t* str, size_t length);
 
   void WriteRawBytes(const void* source, size_t length);
+
+  void WriteObject(const DomValue& dom_value);
 
   uint8_t* ReserveRawBytes(size_t bytes);
 
