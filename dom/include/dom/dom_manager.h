@@ -7,11 +7,10 @@
 #include <vector>
 
 #include "base/logging.h"
+#include "dom/dom_event.h"
 #include "dom/dom_listener.h"
-#include "dom/dom_node.h"
 #include "dom/dom_value.h"
 #include "dom/layout_node.h"
-#include "dom/render_manager.h"
 
 namespace hippy {
 inline namespace dom {
@@ -24,42 +23,43 @@ class DomManager {
  public:
   using DomValue = tdf::base::DomValue;
 
-  DomManager(int32_t root_id);
+  DomManager(uint32_t root_id);
   ~DomManager();
 
-  void CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes);
-  void UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes);
-  void DeleteDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes);
+  static void HandleEvent(const std::shared_ptr<DomEvent> &event);
+
+  inline std::shared_ptr<RenderManager> GetRenderManager() { return render_manager_; }
+  inline void SetRenderManager(std::shared_ptr<RenderManager> render_manager) {
+    render_manager_ = render_manager;
+  }
+  inline uint32_t GetRootId() { return root_id_; }
+  inline std::shared_ptr<DomNode> GetNode(uint32_t id) { return dom_node_registry_.GetNode(id); }
+
+  void CreateDomNodes(std::vector<std::shared_ptr<DomNode>> &&nodes);
+  void UpdateDomNodes(std::vector<std::shared_ptr<DomNode>> &&nodes);
+  void DeleteDomNodes(std::vector<std::shared_ptr<DomNode>> &&nodes);
   void BeginBatch();
   void EndBatch();
-  void CallFunction(int32_t id, const std::string& name,
-                    std::unordered_map<std::string, std::shared_ptr<DomValue>> param, const CallFunctionCallback& cb);
-  int32_t AddDomTreeEventListener(DomTreeEvent event, OnDomTreeEventListener listener);
-  void RemoveDomTreeEventListener(DomTreeEvent event, int32_t listener_id);
-  std::shared_ptr<RenderManager> GetRenderManager() { return render_manager_; }
+  // 返回0代表失败，正常id从1开始
+  uint32_t AddEventListener(uint32_t id, const std::string &name, bool use_capture,
+                            const EventCallback &cb);
+  void CallFunction(uint32_t id, const std::string &name,
+                    const DomValue &param, const CallFunctionCallback &cb);
+
   std::tuple<float, float> GetRootSize();
   void SetRootSize(float width, float height);
-  inline int32_t GetRootId() { return root_id_; }
-  std::shared_ptr<DomNode> GetNode(int32_t id) { return dom_node_registry_.GetNode(id); };
-  void SetRenderManager(std::shared_ptr<RenderManager> render_manager) { render_manager_ = render_manager; }
-  void AddLayoutChangedNode(const std::shared_ptr<DomNode>& node);
-
- protected:
-  void OnDomNodeCreated(const std::shared_ptr<DomNode>& node);
-  static void OnDomNodeUpdated(const std::shared_ptr<DomNode>& node);
-  void OnDomNodeDeleted(const std::shared_ptr<DomNode>& node);
+  void AddLayoutChangedNode(const std::shared_ptr<DomNode> &node);
+  void SetRootNode(const std::shared_ptr<DomNode> &root_node);
 
  private:
-  int32_t root_id_;
+  uint32_t root_id_;
   std::shared_ptr<DomNode> root_node_;
   std::shared_ptr<RenderManager> render_manager_;
-  std::unordered_map<DomTreeEvent, std::vector<OnDomTreeEventListener>> dom_tree_event_listeners;
-  std::unordered_map<DomEvent, std::vector<OnDomEventListener>> dom_event_listener_map_;
   std::shared_ptr<TaskRunner> runner_;
 
   class DomNodeRegistry {
    public:
-    void AddNode(const std::shared_ptr<DomNode>& node);
+    void AddNode(const std::shared_ptr<DomNode> &node);
     std::shared_ptr<DomNode> GetNode(int32_t id);
     void RemoveNode(int32_t id);
 

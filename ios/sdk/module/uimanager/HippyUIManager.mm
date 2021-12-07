@@ -1653,6 +1653,9 @@ using DomValueType = tdf::base::DomValue::Type;
 using DomValueNumberType = tdf::base::DomValue::NumberType;
 using LayoutResult = hippy::LayoutResult;
 using RenderInfo = hippy::DomNode::RenderInfo;
+using EventCallback = hippy::EventCallback;
+using DomEvent = hippy::DomEvent;
+using DomNode = hippy::DomNode;
 
 @implementation HippyUIManager (NativeRenderManager)
 
@@ -1855,8 +1858,8 @@ static CGRect CGRectMakeFromLayoutResult(LayoutResult result) {
 
 - (void)dispatchFunction:(const std::string &)functionName
                  forView:(int32_t)hippyTag
-                  params:(const std::unordered_map<std::string, std::shared_ptr<DomValue>> &)params
-                callback:(DispatchFunctionCallback)cb {
+                  params:(const DomValue &)params
+                callback:(CallFunctionCallback)cb {
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     NSString *name = [NSString stringWithUTF8String:functionName.c_str()];
     SEL sel = NSSelectorFromString(name);
@@ -1867,7 +1870,7 @@ static CGRect CGRectMakeFromLayoutResult(LayoutResult result) {
         HippyAssert(sizeof(std::any) == [methodSig methodReturnLength], @"dispatch function failed, function %@ return type is not std::any, return length not matched", name);
         if (view && methodSig) {
             @try {
-                NSDictionary *dicParams = unorderedMapDomValueToDictionary(params);
+                NSDictionary *dicParams = {}; // unorderedMapDomValueToDictionary(params.ToObject());
                 NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSig];
                 [invocation setTarget:view];
                 [invocation setArgument:&dicParams atIndex:2];
@@ -1883,93 +1886,69 @@ static CGRect CGRectMakeFromLayoutResult(LayoutResult result) {
     }
 }
 
-- (void) addClickEventListener:(OnClickEventListener)listener
-                          forView:(int32_t)hippyTag {
+- (void) addClickEventListenerforNode:(std::weak_ptr<DomNode>)weak_node forView:(int32_t)hippyTag {
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
         [view addViewEvent:HippyViewEventTypeClick eventListener:^(CGPoint) {
-            if (listener) {
-                listener();
+            std::shared_ptr<DomNode> node = weak_node.lock();
+            if (node) {
+                node->HandleEvent(std::make_shared<DomEvent>(hippy::kClickEvent, weak_node, nullptr));
             }
         }];
     }
 }
 
-- (void) removeClickEventListener:(int32_t)listenerID forView:(int32_t)hippyTag {
-    UIView *view = [self viewForHippyTag:@(hippyTag)];
-    if (view) {
-        [view removeViewEventByID:listenerID];
-    }
-}
-
-- (void) removeClickEventForView:(int32_t)hippyTag {
-    UIView *view = [self viewForHippyTag:@(hippyTag)];
-    [view removeViewEvent:HippyViewEventTypeClick];
-}
-
-- (void) addLongClickEventListener:(OnLongClickEventListener)listener
-                              forView:(int32_t)hippyTag {
+- (void) addLongClickEventListenerforNode:(std::weak_ptr<DomNode>)weak_node
+                                  forView:(int32_t)hippyTag {
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
         [view addViewEvent:HippyViewEventTypeLongClick eventListener:^(CGPoint) {
-            if (listener) {
-                listener();
+            std::shared_ptr<DomNode> node = weak_node.lock();
+            if (node) {
+                node->HandleEvent(std::make_shared<DomEvent>(hippy::kLongClickEvent, weak_node, nullptr));
             }
         }];
     }
 }
 
-- (void) removeLongClickEventListener:(int32_t)listenerID forView:(int32_t)hippyTag {
+- (void) addTouchEventListenerforNode:(std::weak_ptr<DomNode>)weak_node
+                              forType:(std::string)type
+                              forView:(int32_t)hippyTag {
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
-        [view removeViewEventByID:listenerID];
-    }
-}
-
-- (void) removeLongClickEventForView:(int32_t)hippyTag {
-    UIView *view = [self viewForHippyTag:@(hippyTag)];
-    [view removeViewEvent:HippyViewEventTypeLongClick];
-}
-
-- (void) addTouchEventListener:(OnTouchEventListener)listener
-                    touchEvent:(TouchEvent)event
-                       forView:(int32_t)hippyTag {
-    UIView *view = [self viewForHippyTag:@(hippyTag)];
-    if (view) {
-        [view addViewEvent:static_cast<HippyViewEventType>(event) eventListener:^(CGPoint point) {
-            if (listener) {
-                hippy::TouchEventInfo info = {static_cast<float>(point.x), static_cast<float>(point.y)};
-                listener(event, info);
+        // todo 默认值应该有个值代表未知
+        HippyViewEventType event_type = HippyViewEventType::HippyViewEventTypeTouchStart;
+        if (type == hippy::kTouchStartEvent) {
+            event_type = HippyViewEventType::HippyViewEventTypeTouchStart;
+        } else if (type == hippy::kTouchMoveEvent) {
+            event_type = HippyViewEventType::HippyViewEventTypeTouchMove;
+        } else if (type == hippy::kTouchEndEvent) {
+            event_type = HippyViewEventType::HippyViewEventTypeTouchEnd;
+        } else if (type == hippy::kTouchCancelEvent) {
+            event_type = HippyViewEventType::HippyViewEventTypeTouchCancel;
+        }
+        [view addViewEvent:event_type eventListener:^(CGPoint point) {
+            std::shared_ptr<DomNode> node = weak_node.lock();
+            hippy::TouchEventInfo info = {static_cast<float>(point.x), static_cast<float>(point.y)};
+            if (node) {
+                node->HandleEvent(std::make_shared<DomEvent>(type, weak_node, std::any_cast<hippy::TouchEventInfo>(info)));
             }
         }];
     }
 }
 
-- (void) removeTouchEvent:(TouchEvent)event forView:(int32_t)hippyTag {
-    UIView *view = [self viewForHippyTag:@(hippyTag)];
-    [view removeViewEvent:static_cast<HippyViewEventType>(event)];
-}
-
-- (void) addShowEventListener:(OnShowEventListener)listener
-                    showEvent:(ShowEvent)event
-                      forView:(int32_t)hippyTag {
+- (void) addShowEventListenerForNode:(std::weak_ptr<DomNode>)weak_node
+                             forType:(std::string)type
+                             forView:(int32_t)hippyTag {
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
-        HippyViewEventType type = ShowEvent::Show == event ? HippyViewEventTypeShow : HippyViewEventTypeDismiss;
-        [view addViewEvent:type eventListener:^(CGPoint point) {
-            if (listener) {
-                std::any flag = true;
-                listener(flag);
+        HippyViewEventType event_type = hippy::kShow == type ? HippyViewEventTypeShow : HippyViewEventTypeDismiss;
+        [view addViewEvent:event_type eventListener:^(CGPoint point) {
+            std::shared_ptr<DomNode> node = weak_node.lock();
+            if (node) {
+                node->HandleEvent(std::make_shared<DomEvent>(type, weak_node, std::any_cast<bool>(true)));
             }
         }];
-    }
-}
-
-- (void) removeShowEvent:(ShowEvent)event forView:(int32_t)hippyTag {
-    UIView *view = [self viewForHippyTag:@(hippyTag)];
-    if (view) {
-        HippyViewEventType type = ShowEvent::Show == event ? HippyViewEventTypeShow : HippyViewEventTypeDismiss;
-        [view removeViewEvent:type];
     }
 }
 

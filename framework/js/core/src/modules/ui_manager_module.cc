@@ -29,6 +29,8 @@
 #include "core/base/string_view_utils.h"
 #include "dom/node_props.h"
 #include "dom/dom_node.h"
+#include "dom/dom_event.h"
+
 
 REGISTER_MODULE(UIManagerModule, CreateNodes)
 REGISTER_MODULE(UIManagerModule, UpdateNodes)
@@ -37,11 +39,6 @@ REGISTER_MODULE(UIManagerModule, StartBatch)
 REGISTER_MODULE(UIManagerModule, EndBatch)
 REGISTER_MODULE(UIManagerModule, CallUIFunction)
 
-constexpr char kFuncParamKey[] = "param";
-constexpr char kModalViewName[] = "modal";
-constexpr char kTextViewName[] = "text";
-constexpr char kImageViewName[] = "image";
-
 const char *kNodePropertyId = "id";
 const char *kNodePropertyPid = "pId";
 const char *kNodePropertyIndex = "index";
@@ -49,12 +46,23 @@ const char *kNodePropertyViewName = "name";
 const char *kNodePropertyTagName = "tagName";
 const char *kNodePropertyProps = "props";
 const char *kNodePropertyStyle = "style";
-const char *kNodePropertyOnClick = "onClick";
 const char *kStylePropertyBackgroundColor = "backgroundColor";
 const char *kStylePropertyWidth = "width";
 const char *kStylePropertyHeight = "height";
 const char *kStylePropertyMargin = "margin";
 const char *kStylePropertyDisplay = "display";
+
+constexpr char kClickEvent[] = "Click";
+constexpr char kLongClickEvent[] = "LongClick";
+constexpr char kTouchStartEvent[] = "TouchStart";
+constexpr char kTouchMoveEvent[] = "TouchMove";
+constexpr char kTouchEndEvent[] = "TouchEnd";
+constexpr char kTouchCancelEvent[] = "TouchCancel";
+constexpr char kLayoutEvent[] = "Layout";
+constexpr char kAttachedToWindow[] = "AttachedToWindow";
+constexpr char kDetachedFromWindow[] = "DetachedFromWindow";
+constexpr char kShow[] = "Show";
+constexpr char kDismiss[] = "Dismiss";
 
 const int32_t kInvalidValue = -1;
 
@@ -64,11 +72,13 @@ using unicode_string_view = tdf::base::unicode_string_view;
 using Ctx = hippy::napi::Ctx;
 using CtxValue = hippy::napi::CtxValue;
 using CallbackInfo = hippy::napi::CallbackInfo;
+using DomEvent = hippy::dom::DomEvent;
 using DomManager = hippy::dom::DomManager;
 using DomNode = hippy::dom::DomNode;
 using RegisterFunction = hippy::base::RegisterFunction;
 using RegisterMap = hippy::base::RegisterMap;
 using StringViewUtils = hippy::base::StringViewUtils;
+
 
 UIManagerModule::UIManagerModule() {}
 
@@ -196,7 +206,7 @@ GetNodeExtValue(std::shared_ptr<Ctx> context, std::unordered_map<std::string, Do
     return std::make_tuple(false, std::get<1>(on_click_tuple),
                            std::move(func_set), std::move(dom_ext_map));
   }
-  func_set.insert(hippy::kOnClick);
+  func_set.insert(kClickEvent);
 
   // handle layout listener
   auto on_layout_tuple = HandleFunctionListener(context, hippy::kOnLayout, props);
@@ -204,7 +214,7 @@ GetNodeExtValue(std::shared_ptr<Ctx> context, std::unordered_map<std::string, Do
     return std::make_tuple(false, std::get<1>(on_layout_tuple),
                            std::move(func_set), std::move(dom_ext_map));
   }
-  func_set.insert(hippy::kOnLayout);
+  func_set.insert(kLayoutEvent);
 
   // handle long click listener
   auto on_long_click_tuple = HandleFunctionListener(context, hippy::kOnLongClick, props);
@@ -212,7 +222,7 @@ GetNodeExtValue(std::shared_ptr<Ctx> context, std::unordered_map<std::string, Do
     return std::make_tuple(false, std::get<1>(on_long_click_tuple),
                            std::move(func_set), std::move(dom_ext_map));
   }
-  func_set.insert(hippy::kOnLongClick);
+  func_set.insert(kLongClickEvent);
 
   // handle touch start listener
   auto on_touch_start_tuple = HandleFunctionListener(context, hippy::kOnTouchStart, props);
@@ -220,7 +230,7 @@ GetNodeExtValue(std::shared_ptr<Ctx> context, std::unordered_map<std::string, Do
     return std::make_tuple(false, std::get<1>(on_touch_start_tuple),
                            std::move(func_set), std::move(dom_ext_map));
   }
-  func_set.insert(hippy::kOnTouchStart);
+  func_set.insert(kTouchStartEvent);
 
   // handle touch move listener
   auto on_touch_move_tuple = HandleFunctionListener(context, hippy::kOnTouchMove, props);
@@ -228,7 +238,7 @@ GetNodeExtValue(std::shared_ptr<Ctx> context, std::unordered_map<std::string, Do
     return std::make_tuple(false, std::get<1>(on_touch_move_tuple),
                            std::move(func_set), std::move(dom_ext_map));
   }
-  func_set.insert(hippy::kOnTouchMove);
+  func_set.insert(kTouchMoveEvent);
 
   // handle touch end listener
   auto on_touch_end_tuple = HandleFunctionListener(context, hippy::kOnTouchEnd, props);
@@ -236,7 +246,7 @@ GetNodeExtValue(std::shared_ptr<Ctx> context, std::unordered_map<std::string, Do
     return std::make_tuple(false, std::get<1>(on_touch_end_tuple),
                            std::move(func_set), std::move(dom_ext_map));
   }
-  func_set.insert(hippy::kOnTouchEnd);
+  func_set.insert(kTouchEndEvent);
 
   // handle touch cancel listener
   auto on_touch_cancel_tuple = HandleFunctionListener(context, hippy::kOnTouchCancel, props);
@@ -244,7 +254,7 @@ GetNodeExtValue(std::shared_ptr<Ctx> context, std::unordered_map<std::string, Do
     return std::make_tuple(false, std::get<1>(on_touch_cancel_tuple),
                            std::move(func_set), std::move(dom_ext_map));
   }
-  func_set.insert(hippy::kOnTouchCancel);
+  func_set.insert(kTouchCancelEvent);
 
   // handle attached to window listener
   auto on_attached_to_window_tuple = HandleFunctionListener(context, hippy::kOnAttachedToWindow,
@@ -253,7 +263,7 @@ GetNodeExtValue(std::shared_ptr<Ctx> context, std::unordered_map<std::string, Do
     return std::make_tuple(false, std::get<1>(on_attached_to_window_tuple),
                            std::move(func_set), std::move(dom_ext_map));
   }
-  func_set.insert(hippy::kOnAttachedToWindow);
+  func_set.insert(kAttachedToWindow);
 
   // handle attached from window listener
   auto on_attached_from_window_tuple = HandleFunctionListener(context, hippy::kOnDetachedFromWindow,
@@ -262,7 +272,7 @@ GetNodeExtValue(std::shared_ptr<Ctx> context, std::unordered_map<std::string, Do
     return std::make_tuple(false, std::get<1>(on_attached_from_window_tuple),
                            std::move(func_set), std::move(dom_ext_map));
   }
-  func_set.insert(hippy::kOnDetachedFromWindow);
+  func_set.insert(kDetachedFromWindow);
 
   // handle show listener
   auto on_show_tuple = HandleFunctionListener(context, hippy::kOnShow, props);
@@ -270,7 +280,7 @@ GetNodeExtValue(std::shared_ptr<Ctx> context, std::unordered_map<std::string, Do
     return std::make_tuple(false, std::get<1>(on_show_tuple),
                            std::move(func_set), std::move(dom_ext_map));
   }
-  func_set.insert(hippy::kOnShow);
+  func_set.insert(kShow);
 
   // handle dismiss listener
   auto on_dismiss_tuple = HandleFunctionListener(context, hippy::kOnDismiss, props);
@@ -278,7 +288,7 @@ GetNodeExtValue(std::shared_ptr<Ctx> context, std::unordered_map<std::string, Do
     return std::make_tuple(false, std::get<1>(on_dismiss_tuple),
                            std::move(func_set), std::move(dom_ext_map));
   }
-  func_set.insert(hippy::kOnDismiss);
+  func_set.insert(kDismiss);
 
   // parse ext value
   for (auto p : props) {
@@ -342,7 +352,9 @@ void BindClickEvent(std::shared_ptr<Ctx> context, const std::string &name,
     std::weak_ptr<Ctx> weak_context = context;
     std::weak_ptr<CtxValue> weak_func = func;
     int32_t id = dom_node->GetId();
-    dom_node->AddClickEventListener([weak_context, weak_func, id]() {
+    dom_node->AddEventListener(kClickEvent, false,
+                           [weak_context, weak_func, id]
+                           (const std::shared_ptr<DomEvent>& event) {
       auto context = weak_context.lock();
       if (!context) {
         return;
@@ -351,6 +363,7 @@ void BindClickEvent(std::shared_ptr<Ctx> context, const std::string &name,
       if (!func) {
         return;
       }
+      // todo DomEvent 暴露给前端
       std::string info_json = "{ id: " + std::to_string(id) + " }";
       const std::shared_ptr<CtxValue> argus[] = {
           context->CreateObject(unicode_string_view(info_json))
@@ -367,21 +380,9 @@ void BindTouchEvent(std::shared_ptr<Ctx> context, const std::string &name,
   if (context->IsFunction(func)) {
     std::weak_ptr<Ctx> weak_context = context;
     std::weak_ptr<CtxValue> weak_func = func;
-    hippy::TouchEvent event;
-    if (name == hippy::kOnTouchStart) {
-      event = hippy::TouchEvent::Start;
-    } else if (name == hippy::kOnTouchMove) {
-      event = hippy::TouchEvent::Move;
-    } else if (name == hippy::kOnTouchEnd) {
-      event = hippy::TouchEvent::End;
-    } else if (name == hippy::kOnTouchCancel) {
-      event = hippy::TouchEvent::Cancel;
-    } else {
-      TDF_BASE_NOTREACHED();
-    }
     int32_t id = dom_node->GetId();
-    dom_node->AddTouchEventListener(event, [weak_context, weak_func, id]
-        (hippy::TouchEvent event, hippy::TouchEventInfo info) {
+    dom_node->AddEventListener(name, false, [weak_context, weak_func, id]
+        (const std::shared_ptr<DomEvent>& event) {
       auto context = weak_context.lock();
       if (!context) {
         return;
@@ -390,6 +391,7 @@ void BindTouchEvent(std::shared_ptr<Ctx> context, const std::string &name,
       if (!func) {
         return;
       }
+      auto info = std::any_cast<hippy::TouchEventInfo>(event->GetValue());
       std::string info_json =
           "{ id: " + std::to_string(id) + ", page_x: " + std::to_string(info.x) + ", page_y:"
               + std::to_string(info.y) + " }";
@@ -409,7 +411,8 @@ void SetAttachListener(std::shared_ptr<Ctx> context, const std::string &name,
     std::weak_ptr<Ctx> weak_context = context;
     std::weak_ptr<CtxValue> weak_func = func;
     int32_t id = dom_node->GetId();
-    dom_node->SetOnAttachChangedListener([weak_context, weak_func, name, id](bool is_attach) {
+    dom_node->AddEventListener(name, false, [weak_context, weak_func, name, id]
+      (const std::shared_ptr<DomEvent>& event) {
       auto context = weak_context.lock();
       if (!context) {
         return;
@@ -422,9 +425,10 @@ void SetAttachListener(std::shared_ptr<Ctx> context, const std::string &name,
       const std::shared_ptr<CtxValue> argus[] = {
           context->CreateObject(unicode_string_view(info_json))
       };
-      if (is_attach && name == hippy::kOnAttachedToWindow) {
+      bool is_attach = std::any_cast<bool>(event->GetValue());
+      if (is_attach && name == kAttachedToWindow) {
         context->CallFunction(func, 1, argus);
-      } else if (!is_attach && name == hippy::kOnDetachedFromWindow) {
+      } else if (!is_attach && name == kDetachedFromWindow) {
         context->CallFunction(func, 1, argus);
       } else {
         TDF_BASE_NOTREACHED();
@@ -440,17 +444,9 @@ void BindShowEvent(std::shared_ptr<Ctx> context, const std::string &name,
   if (context->IsFunction(func)) {
     std::weak_ptr<Ctx> weak_context = context;
     std::weak_ptr<CtxValue> weak_func = func;
-    hippy::ShowEvent event;
-    if (name == hippy::kOnShow) {
-      event = hippy::ShowEvent::Show;
-    } else if (name == hippy::kOnDismiss) {
-      event = hippy::ShowEvent::Dismiss;
-    } else {
-      TDF_BASE_NOTREACHED();
-      return;
-    }
     int32_t id = dom_node->GetId();
-    dom_node->AddShowEventListener(event, [weak_context, weak_func, id](const std::any &) {
+    dom_node->AddEventListener(name, false, [weak_context, weak_func, id]
+      (const std::shared_ptr<DomEvent>& event) {
       auto context = weak_context.lock();
       if (!context) {
         return;
@@ -503,27 +499,6 @@ std::tuple<bool, std::string, std::shared_ptr<DomNode>> CreateNode(std::shared_p
   std::string u8_tag_name = StringViewUtils::ToU8StdStr(std::get<2>(tag_name_tuple));
   std::string u8_view_name = StringViewUtils::ToU8StdStr(std::get<2>(view_name_tuple));
 
-  /*
-   * 特殊组件，需要js delegate特殊处理
-   * 1. modal组件需要外部传入宽高，因为大部分modal组件render实现会挂在window上
-   * 2. text组件需要外部传入测量方法
-   * 3. image组件需要外部传入测量方法
-   */
-  bool isModalView = false;
-  if (u8_view_name == kModalViewName) {
-    isModalView = true;
-  }
-
-  bool isTextView = false;
-  if (u8_view_name == kTextViewName) {
-    isTextView = true;
-  }
-
-  bool isImageView = false;
-  if (u8_view_name == kImageViewName) {
-    isImageView = true;
-  }
-
   dom_node = std::make_shared<DomNode>(std::get<2>(id_tuple), std::get<2>(pid_tuple),
     std::get<2>(index_tuple), std::move(u8_tag_name), std::move(u8_view_name),
     std::move(std::get<2>(props_tuple)), std::move(std::get<4>(props_tuple)),
@@ -551,11 +526,6 @@ std::tuple<bool, std::string, std::shared_ptr<DomNode>> CreateNode(std::shared_p
     }
   }
 
-  if (isModalView) {
-    auto size = scope->GetDomManager()->GetRootSize();
-    dom_node->SetLayoutWidth(std::get<0>(size));
-    dom_node->SetLayoutHeight(std::get<1>(size));
-  }
   return std::make_tuple(true, "", dom_node);
 }
 
@@ -661,7 +631,7 @@ void UIManagerModule::CallUIFunction(const hippy::napi::CallbackInfo &info) {
   std::shared_ptr<Ctx> context = scope->GetContext();
   TDF_BASE_CHECK(context);
 
-  int32_t id;
+  int32_t id = 0;
   auto id_value = context->ToDomValue(info[0]);
   if (id_value->IsNumber()) {
     id = id_value->ToInt32();
@@ -674,32 +644,28 @@ void UIManagerModule::CallUIFunction(const hippy::napi::CallbackInfo &info) {
   }
 
   std::unordered_map<std::string, std::shared_ptr<DomValue>> param;
-  auto param_value = context->ToDomValue(info[2]);
-  if (param_value->IsObject()) {
-    auto param_obj = param_value->ToObject();
-    for (auto p: param_obj) {
-      param[p.first] = std::make_shared<DomValue>(std::move(p.second));
-    }
-  } else if (param_value->IsArray()) { // 暂时兼容老版本，后续该处改为协商机制
-    param[kFuncParamKey] = param_value;
-  }
-
+  DomValue param_value = *(context->ToDomValue(info[2]));
   hippy::CallFunctionCallback cb;
   bool flag = context->IsFunction(info[3]);
   if (flag) {
     auto func = info[3];
     std::weak_ptr<Ctx> weak_context = context;
     std::weak_ptr<CtxValue> weak_func = func;
-    cb = [weak_context, weak_func](const std::any &rst) {
+    cb = [weak_context, weak_func](const std::any &param) -> std::any {
       auto context = weak_context.lock();
       if (!context) {
-        return;
+        return nullptr;
       }
       auto func = weak_func.lock();
       if (!func) {
-        return;
+        return nullptr;
       }
+      auto dom_value = std::any_cast<DomValue>(param);
+      auto value = context->CreateCtxValue(std::make_shared<DomValue>(dom_value));
+      const std::shared_ptr<CtxValue> argus[] = {value};
+      context->CallFunction(func, 1, argus);
+      return nullptr;
     };
   }
-  scope->GetDomManager()->CallFunction(id, name, param, cb);
+  scope->GetDomManager()->CallFunction(id, name, param_value, cb);
 }
