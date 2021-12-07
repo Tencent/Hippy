@@ -25,18 +25,11 @@ class RenderManager {
   virtual void Batch() = 0;
 
   using DomValue = tdf::base::DomValue;
-  virtual void CallFunction(std::weak_ptr<DomNode> domNode, const std::string& name,
-                                std::unordered_map<std::string, std::shared_ptr<DomValue>> param,
-                                DispatchFunctionCallback cb) = 0;
-
-  virtual void SetClickEventListener(int32_t id, OnClickEventListener listener) = 0;
-  virtual void RemoveClickEventListener(int32_t id) = 0;
-  virtual void SetLongClickEventListener(int32_t id, OnLongClickEventListener listener) = 0;
-  virtual void RemoveLongClickEventListener(int32_t id) = 0;
-  virtual void SetTouchEventListener(int32_t id, TouchEvent event, OnTouchEventListener listener) = 0;
-  virtual void RemoveTouchEventListener(int32_t id, TouchEvent event) = 0;
-  virtual void SetShowEventListener(int32_t id, ShowEvent event, OnShowEventListener listener) = 0;
-  virtual void RemoveShowEventListener(int32_t id, ShowEvent event) = 0;
+  virtual void AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name,
+                                const DomValue& param) = 0;
+  virtual void CallFunction(std::weak_ptr<DomNode> dom_node, const std::string& name,
+                                const DomValue& param,
+                                CallFunctionCallback cb) = 0;
 };
 
 }  // namespace dom

@@ -173,13 +173,8 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 @end
 
 using DomValue = tdf::base::DomValue;
-using DispatchFunctionCallback = hippy::DispatchFunctionCallback;
-using OnClickEventListener = hippy::OnClickEventListener;
-using OnLongClickEventListener = hippy::OnLongClickEventListener;
-using OnTouchEventListener = hippy::OnTouchEventListener;
-using OnShowEventListener = hippy::OnShowEventListener;
-using TouchEvent = hippy::TouchEvent;
-using ShowEvent = hippy::ShowEvent;
+using EventCallback = hippy::EventCallback;
+using CallFunctionCallback = hippy::CallFunctionCallback;
 using DomManager = hippy::DomManager;
 using DomNode = hippy::DomNode;
 
@@ -213,34 +208,22 @@ using DomNode = hippy::DomNode;
 
 - (void)dispatchFunction:(const std::string &)functionName
                  forView:(int32_t)hippyTag
-                  params:(const std::unordered_map<std::string, std::shared_ptr<DomValue>> &)params
-                callback:(DispatchFunctionCallback)cb;
+                  params:(const DomValue &)params
+                callback:(CallFunctionCallback)cb;
 
-- (void) addClickEventListener:(OnClickEventListener)listener
-                          forView:(int32_t)hippyTag;
-
-- (void) removeClickEventListener:(int32_t)listenerID forView:(int32_t)hippyTag;
-
-- (void) removeClickEventForView:(int32_t)hippyTag;
-
-- (void) addLongClickEventListener:(OnLongClickEventListener)listener
+- (void) addClickEventListenerforNode:(std::weak_ptr<DomNode>)weak_node
                               forView:(int32_t)hippyTag;
 
-- (void) removeLongClickEventListener:(int32_t)listenerID forView:(int32_t)hippyTag;
+- (void) addLongClickEventListenerforNode:(std::weak_ptr<DomNode>)weak_node
+                              forView:(int32_t)hippyTag;
 
-- (void) removeLongClickEventForView:(int32_t)hippyTag;
+- (void) addTouchEventListenerforNode:(std::weak_ptr<DomNode>)weak_node
+                              forType:(std::string)type
+                              forView:(int32_t)hippyTag;
 
-- (void) addTouchEventListener:(OnTouchEventListener)listener
-                    touchEvent:(TouchEvent)event
-                       forView:(int32_t)hippyTag;
-
-- (void) removeTouchEvent:(TouchEvent)event forView:(int32_t)hippyTag;
-
-- (void) addShowEventListener:(OnShowEventListener)listener
-                    showEvent:(ShowEvent)event
-                      forView:(int32_t)hippyTag;
-
-- (void) removeShowEvent:(ShowEvent)event forView:(int32_t)hippyTag;
+- (void) addShowEventListenerforNode:(std::weak_ptr<DomNode>)weak_node
+                             forType:(std::string)type
+                             forView:(int32_t)hippyTag;
 
 @end
 

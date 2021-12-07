@@ -23,6 +23,7 @@
 
 using RenderManager = hippy::RenderManager;
 using DomNode = hippy::DomNode;
+using DomEvent = hippy::DomEvent;
 using LayoutResult = hippy::LayoutResult;
 
 void NativeRenderManager::CreateRenderNode(std::vector<std::shared_ptr<DomNode>> &&nodes) {
@@ -75,59 +76,35 @@ void NativeRenderManager::Batch() {
     [uiManager_ batch];
 }
 
-void NativeRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std::string &name,
-                                    std::unordered_map<std::string, std::shared_ptr<DomValue>> param,
-                                    DispatchFunctionCallback cb) {
-    std::shared_ptr<DomNode> node = domNode.lock();
+void NativeRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name, const DomValue& param) {
+    std::shared_ptr<DomNode> node = dom_node.lock();
+    if (node) {
+        if (name == hippy::kClickEvent) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [uiManager_ addClickEventListenerforNode:dom_node forView:node->GetId()];
+            });
+        } else if (name == hippy::kLongClickEvent) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [uiManager_ addLongClickEventListenerforNode:dom_node forView:node->GetId()];
+            });
+        } else if (name == hippy::kTouchStartEvent || name == hippy::kTouchMoveEvent
+                   || name == hippy::kTouchEndEvent || name == hippy::kTouchCancelEvent) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [uiManager_ addTouchEventListenerforNode:dom_node forType:name forView:node->GetId()];
+            });
+        } else if (name == hippy::kShow || name == hippy::kDismiss) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [uiManager_ addShowEventListenerforNode:dom_node forType:name forView:node->GetId()];
+            });
+        }
+    }
+};
+
+void NativeRenderManager::CallFunction(std::weak_ptr<DomNode> dom_node, const std::string &name,
+                                    const DomValue& param,
+                                    CallFunctionCallback cb) {
+    std::shared_ptr<DomNode> node = dom_node.lock();
     if (node) {
         [uiManager_ dispatchFunction:name forView:node->GetId() params:param callback:cb];
     }
-}
-
-void NativeRenderManager::SetClickEventListener(int32_t id, OnClickEventListener listener) {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [uiManager_ addClickEventListener:listener forView:id];
-    });
-}
-
-void NativeRenderManager::RemoveClickEventListener(int32_t id) {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [uiManager_ removeClickEventForView:id];
-    });
-}
-
-void NativeRenderManager::SetLongClickEventListener(int32_t id, OnLongClickEventListener listener) {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [uiManager_ addLongClickEventListener:listener forView:id];
-    });
-}
-
-void NativeRenderManager::RemoveLongClickEventListener(int32_t id) {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [uiManager_ removeLongClickEventForView:id];
-    });
-}
-
-void NativeRenderManager::SetTouchEventListener(int32_t id, TouchEvent event, OnTouchEventListener listener) {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [uiManager_ addTouchEventListener:listener touchEvent:event forView:id];
-    });
-}
-
-void NativeRenderManager::RemoveTouchEventListener(int32_t id, TouchEvent event) {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [uiManager_ removeTouchEvent:event forView:id];
-    });
-}
-
-void NativeRenderManager::SetShowEventListener(int32_t id, ShowEvent event, OnShowEventListener listener) {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [uiManager_ addShowEventListener:listener showEvent:event forView:id];
-    });
-}
-
-void NativeRenderManager::RemoveShowEventListener(int32_t id, ShowEvent event) {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [uiManager_ removeShowEvent:event forView:id];
-    });
 }

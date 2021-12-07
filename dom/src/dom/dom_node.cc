@@ -1,16 +1,22 @@
 #include "dom/dom_node.h"
 
+#include <algorithm>
 #include <utility>
 #include "base/logging.h"
 #include "dom/node_props.h"
+#include "dom/render_manager.h"
 
 namespace hippy {
 inline namespace dom {
 
-DomNode::DomNode(int32_t id, int32_t pid, int32_t index, std::string tag_name, std::string view_name,
-                 std::unordered_map<std::string, std::shared_ptr<DomValue>>&& style_map,
-                 std::unordered_map<std::string, std::shared_ptr<DomValue>>&& dom_ext_map,
-                 const std::shared_ptr<DomManager>& dom_manager)
+DomNode::DomNode(uint32_t id,
+                 uint32_t pid,
+                 int32_t index,
+                 std::string tag_name,
+                 std::string view_name,
+                 std::unordered_map<std::string, std::shared_ptr<DomValue>> &&style_map,
+                 std::unordered_map<std::string, std::shared_ptr<DomValue>> &&dom_ext_map,
+                 const std::shared_ptr<DomManager> &dom_manager)
     : id_(id),
       pid_(pid),
       index_(index),
@@ -21,38 +27,37 @@ DomNode::DomNode(int32_t id, int32_t pid, int32_t index, std::string tag_name, s
       is_just_layout_(false),
       is_virtual_(false),
       dom_manager_(dom_manager),
-      current_callback_id_(0) {
-        layout_node_ = std::make_shared<TaitankLayoutNode>();
-      }
+      current_callback_id_(0),
+      func_cb_map_(nullptr),
+      event_listener_map_(nullptr) {
+  layout_node_ = std::make_shared<TaitankLayoutNode>();
+}
 
-DomNode::DomNode(int32_t id, int32_t pid, int32_t index)
-    : id_(id), pid_(pid), index_(index), is_just_layout_(false), is_virtual_(false), current_callback_id_(0) {
-      layout_node_ = std::make_shared<TaitankLayoutNode>();
-    }
+DomNode::DomNode(uint32_t id, uint32_t pid, int32_t index)
+    : id_(id),
+      pid_(pid),
+      index_(index),
+      is_just_layout_(false),
+      is_virtual_(false),
+      current_callback_id_(0),
+      func_cb_map_(nullptr),
+      event_listener_map_(nullptr) {
+  layout_node_ = std::make_shared<TaitankLayoutNode>();
+}
 
 DomNode::~DomNode() = default;
 
-void DomNode::SetLayoutWidth(float width) {
-  TDF_BASE_CHECK(layout_node_);
-  layout_node_->SetWidth(width);
-}
-
-void DomNode::SetLayoutHeight(float height) {
-  TDF_BASE_CHECK(layout_node_);
-  layout_node_->SetHeight(height);
-}
-
-int32_t DomNode::IndexOf(const std::shared_ptr<DomNode>& child) {
+int32_t DomNode::IndexOf(const std::shared_ptr<DomNode> &child) {
   for (int i = 0; i < children_.size(); i++) {
     if (children_[i] == child) {
       return i;
     }
   }
-  return -1;
+  return kInvalidIndex;
 }
 
 std::shared_ptr<DomNode> DomNode::GetChildAt(int32_t index) {
-  for (auto& i : children_) {
+  for (auto &i : children_) {
     if (i->index_ == index) {
       return i;
     }
@@ -60,7 +65,7 @@ std::shared_ptr<DomNode> DomNode::GetChildAt(int32_t index) {
   return nullptr;
 }
 
-void DomNode::AddChildAt(const std::shared_ptr<DomNode>& dom_node, int32_t index) {
+void DomNode::AddChildAt(const std::shared_ptr<DomNode> &dom_node, int32_t index) {
   children_.insert(children_.begin() + index, dom_node);
   dom_node->SetParent(shared_from_this());
   layout_node_->InsertChild(dom_node->layout_node_, index);
@@ -75,96 +80,107 @@ std::shared_ptr<DomNode> DomNode::RemoveChildAt(int32_t index) {
 }
 
 void DomNode::DoLayout() {
-  std::shared_ptr<TaitankLayoutNode> node = std::static_pointer_cast<TaitankLayoutNode>(layout_node_);
+  std::shared_ptr<TaitankLayoutNode>
+      node = std::static_pointer_cast<TaitankLayoutNode>(layout_node_);
   node->CalculateLayout(0, 0);
   TransferLayoutOutputsRecursive();
 }
 
-std::tuple<int32_t, int32_t> DomNode::GetSize() {
+void DomNode::HandleEvent(const std::shared_ptr<DomEvent> &event) {
+  DomManager::HandleEvent(event);
+}
+
+std::tuple<float, float> DomNode::GetLayoutSize() {
   return std::make_tuple(layout_node_->GetWidth(), layout_node_->GetHeight());
 }
 
-void DomNode::SetSize(int32_t width, int32_t height) {
+void DomNode::SetLayoutSize(float width, float height) {
   layout_node_->SetWidth(width);
   layout_node_->SetHeight(height);
 }
 
-int32_t DomNode::AddDomEventListener(DomEvent event, OnDomEventListener listener) {
-  auto dom_manager = dom_manager_.lock();
-  int32_t id = ++current_callback_id_;
-  if (dom_event_listeners == nullptr) {
-    dom_event_listeners =
-        std::make_shared<std::unordered_map<DomEvent, std::unordered_map<int32_t, OnDomEventListener>>>();
+uint32_t DomNode::AddEventListener(const std::string &name, bool use_capture,
+                                   const EventCallback &cb) {
+  // taskRunner内置执行确保current_callback_id_无多线程问题
+  current_callback_id_ += 1;
+  TDF_BASE_DCHECK(current_callback_id_ <= std::numeric_limits<uint32_t>::max());
+  if (!event_listener_map_) {
+    event_listener_map_ = std::make_shared<
+        std::unordered_map<std::string,
+                           std::array<std::vector<std::shared_ptr<EventListenerInfo>>, 2>>
+    >();
   }
-  (*dom_event_listeners)[event][id] = std::move(listener);
-  return id;
+  auto it = event_listener_map_->find(name);
+  if (it == event_listener_map_->end()) {
+    (*event_listener_map_)[name] = {};
+  }
+  if (use_capture) {
+    (*event_listener_map_)[name][kCapture].push_back(
+        std::make_shared<EventListenerInfo>(current_callback_id_, cb));
+  } else {
+    (*event_listener_map_)[name][kBubble].push_back(
+        std::make_shared<EventListenerInfo>(current_callback_id_, cb));
+  }
+  return current_callback_id_;
 }
-void DomNode::RemoveDomEventListener(DomEvent event, int32_t listener_id) {
-  auto listeners = dom_event_listeners->find(event);
-  if (dom_event_listeners || listeners == dom_event_listeners->end()) {
+
+void DomNode::RemoveEventListener(const std::string &name, uint32_t id) {
+  if (!event_listener_map_) {
     return;
   }
-  if (listeners->second.find(listener_id) != listeners->second.end()) {
-    listeners->second.erase(listener_id);
+  auto it = event_listener_map_->find(name);
+  if (it == event_listener_map_->end()) {
+    return;
+  }
+  auto captureListeners = it->second[kCapture];
+  auto listener_it = std::find_if(captureListeners.begin(), captureListeners.end(),
+                                  [id](const std::shared_ptr<EventListenerInfo> &item) {
+                                    if (item->id == id) {
+                                      return true;
+                                    }
+                                    return false;
+                                  });
+  if (listener_it != captureListeners.end()) {
+    captureListeners.erase(listener_it);
+  }
+  auto bubbleListeners = it->second[kBubble];
+  listener_it = std::find_if(bubbleListeners.begin(), bubbleListeners.end(),
+                             [id](const std::shared_ptr<EventListenerInfo> &item) {
+                               if (item->id == id) {
+                                 return true;
+                               }
+                               return false;
+                             });
+  if (listener_it != bubbleListeners.end()) {
+    bubbleListeners.erase(listener_it);
   }
 }
 
-void DomNode::OnDomNodeStateChange(DomEvent event) {
-  if (!dom_event_listeners) {
-    return;
+std::vector<std::shared_ptr<DomNode::EventListenerInfo>>
+DomNode::GetEventListener(const std::string &name, bool is_capture) {
+  if (!event_listener_map_) {
+    return {};
   }
-  auto listeners = (*dom_event_listeners).find(event);
-  if (listeners == dom_event_listeners->end()) {
-    return;
+  auto it = event_listener_map_->find(name);
+  if (it == event_listener_map_->end()) {
+    return {};
   }
-  for (const auto& listener : listeners->second) {
-    listener.second();
+  if (is_capture) {
+    return it->second[kCapture];
   }
-}
-
-int32_t DomNode::AddOnLayoutListener(LayoutEvent event, OnLayoutEventListener listener) {
-  auto dom_manager = dom_manager_.lock();
-  int32_t id = ++current_callback_id_;
-  if (layout_listeners == nullptr) {
-    layout_listeners =
-        std::make_shared<std::unordered_map<LayoutEvent, std::unordered_map<int32_t, OnLayoutEventListener>>>();
-  }
-  (*layout_listeners)[event][id] = std::move(listener);
-  return id;
-}
-
-void DomNode::RemoveOnLayoutListener(LayoutEvent event, int32_t listener_id) {
-  auto listeners = layout_listeners->find(event);
-  if (layout_listeners || listeners == layout_listeners->end()) {
-    return;
-  }
-  if (listeners->second.find(listener_id) != listeners->second.end()) {
-    listeners->second.erase(listener_id);
-  }
-}
-
-void DomNode::OnLayout(LayoutEvent event, LayoutResult result) {
-  if (!layout_listeners) {
-    return;
-  }
-  auto listeners = (*layout_listeners).find(event);
-  if (listeners == layout_listeners->end()) {
-    return;
-  }
-  for (const auto& listener : listeners->second) {
-    listener.second(result);
-  }
+  return it->second[kBubble];
 }
 
 void DomNode::ParseLayoutStyleInfo() { layout_node_->SetLayoutStyles(style_map_); }
 
 void DomNode::TransferLayoutOutputsRecursive() {
-  std::shared_ptr<TaitankLayoutNode> node = std::static_pointer_cast<TaitankLayoutNode>(layout_node_);
+  std::shared_ptr<TaitankLayoutNode>
+      node = std::static_pointer_cast<TaitankLayoutNode>(layout_node_);
   if (!node->HasNewLayout()) {
     return;
   }
   bool changed = layout_.left != node->GetLeft() || layout_.top != node->GetTop() ||
-                 layout_.width != node->GetWidth() || layout_.height != node->GetHeight();
+      layout_.width != node->GetWidth() || layout_.height != node->GetHeight();
   layout_.left = node->GetLeft();
   layout_.top = node->GetTop();
   layout_.width = node->GetWidth();
@@ -177,7 +193,10 @@ void DomNode::TransferLayoutOutputsRecursive() {
   layout_.paddingTop = node->GetPadding(TaitankCssDirection::CSSTop);
   layout_.paddingRight = node->GetPadding(TaitankCssDirection::CSSRight);
   layout_.paddingBottom = node->GetPadding(TaitankCssDirection::CSSBottom);
-  OnLayout(LayoutEvent::OnLayout, layout_);
+
+  DomManager::HandleEvent(std::make_shared<DomEvent>(kLayoutEvent, shared_from_this(),
+                                                     true, true,
+                                                     std::make_any<LayoutResult>(layout_)));
   node->SetHasNewLayout(false);
   if (changed) {
     auto dom_manager = dom_manager_.lock();
@@ -185,165 +204,46 @@ void DomNode::TransferLayoutOutputsRecursive() {
       dom_manager->AddLayoutChangedNode(shared_from_this());
     }
   }
-  for (auto& it : children_) {
+  for (auto &it : children_) {
     it->TransferLayoutOutputsRecursive();
   }
 }
 
-void DomNode::CallFunction(const std::string& name, std::unordered_map<std::string, std::shared_ptr<DomValue>> param,
-                           const CallFunctionCallback& cb) {
+void DomNode::CallFunction(const std::string &name, const DomValue &param,
+                           const CallFunctionCallback &cb) {
+  if (!func_cb_map_) {
+    func_cb_map_ = std::make_shared<std::unordered_map<std::string, CallFunctionCallback>>();
+  }
+  (*func_cb_map_)[name] = cb;
   auto dom_manager = dom_manager_.lock();
   if (dom_manager) {
-    dom_manager->GetRenderManager()->CallFunction(shared_from_this(), name, std::move(param), cb);
+    dom_manager->GetRenderManager()->CallFunction(shared_from_this(), name, param, cb);
   }
-  if (callbacks_ == nullptr) {
-    callbacks_ = std::make_shared<std::unordered_map<std::string, CallFunctionCallback>>();
-  }
-  (*callbacks_)[name] = cb;
+
 }
 
-[[maybe_unused]] CallFunctionCallback DomNode::GetCallback(const std::string& name) {
-  if (callbacks_ && callbacks_->find(name) != callbacks_->end()) {
-    return callbacks_->find(name)->second;
+CallFunctionCallback DomNode::GetCallback(const std::string &name) {
+  if (!func_cb_map_) {
+    return nullptr;
+  }
+  auto it = func_cb_map_->find(name);
+  if (it != func_cb_map_->end()) {
+    return it->second;
   }
   return nullptr;
 }
 
-int32_t DomNode::AddClickEventListener(OnClickEventListener listener) {
-  auto dom_manager = dom_manager_.lock();
-  int32_t id = ++current_callback_id_;
-  if (click_listeners == nullptr) {
-    click_listeners = std::make_shared<std::unordered_map<int32_t, OnClickEventListener>>();
+bool DomNode::HasTouchEventListeners() {
+  if (!event_listener_map_) {
+    return false;
   }
-  (*click_listeners)[id] = std::move(listener);
-  std::weak_ptr<std::unordered_map<int32_t, OnClickEventListener>> weak_listeners = click_listeners;
-  auto function = [weak_listeners]() {
-    auto listeners = weak_listeners.lock();
-    if (!listeners) {
-      return;
-    }
-    for (const auto& func : *listeners) {
-      func.second();
-    }
-  };
-  if (dom_manager) {
-    dom_manager->GetRenderManager()->SetClickEventListener(id_, function);
+  if (event_listener_map_->find(kTouchStartEvent) != event_listener_map_->end()
+      || event_listener_map_->find(kTouchMoveEvent) != event_listener_map_->end()
+      || event_listener_map_->find(kTouchEndEvent) != event_listener_map_->end()
+      || event_listener_map_->find(kTouchCancelEvent) != event_listener_map_->end()) {
+    return true;
   }
-  return id;
-}
-
-void DomNode::RemoveClickEventListener(int32_t listener_id) {
-  if (click_listeners && click_listeners->find(listener_id) != click_listeners->end()) {
-    click_listeners->erase(click_listeners->find(listener_id));
-    auto dom_manager = dom_manager_.lock();
-    if (click_listeners->empty() && dom_manager) {
-      dom_manager->GetRenderManager()->RemoveClickEventListener(id_);
-    }
-  }
-}
-
-int32_t DomNode::AddLongClickEventListener(OnLongClickEventListener listener) {
-  int32_t id = ++current_callback_id_;
-  if (long_click_listeners == nullptr) {
-    long_click_listeners = std::make_shared<std::unordered_map<int32_t, OnLongClickEventListener>>();
-  }
-  (*long_click_listeners)[id] = std::move(listener);
-  std::weak_ptr<std::unordered_map<int32_t, OnLongClickEventListener>> weak_listeners = long_click_listeners;
-  auto function = [weak_listeners]() {
-    auto listeners = weak_listeners.lock();
-    if (!listeners) {
-      return;
-    }
-    for (const auto& func : *listeners) {
-      func.second();
-    }
-  };
-  auto dom_manager = dom_manager_.lock();
-  if (dom_manager) {
-    dom_manager->GetRenderManager()->SetLongClickEventListener(id_, function);
-  }
-  return id;
-}
-
-void DomNode::RemoveLongClickEventListener(int32_t listener_id) {
-  if (long_click_listeners && long_click_listeners->find(listener_id) != long_click_listeners->end()) {
-    long_click_listeners->erase(long_click_listeners->find(listener_id));
-    auto dom_manager = dom_manager_.lock();
-    if (long_click_listeners->empty() && dom_manager) {
-      dom_manager->GetRenderManager()->RemoveLongClickEventListener(id_);
-    }
-  }
-}
-
-int32_t DomNode::AddTouchEventListener(TouchEvent event, OnTouchEventListener listener) {
-  int32_t id = ++current_callback_id_;
-  if (touch_listeners == nullptr) {
-    touch_listeners = std::make_shared<std::unordered_map<int32_t, OnTouchEventListener>>();
-  }
-  (*touch_listeners)[id] = std::move(listener);
-  std::weak_ptr<std::unordered_map<int32_t, OnTouchEventListener>> weak_listeners = touch_listeners;
-  auto function = [weak_listeners](TouchEvent event, TouchEventInfo info) {
-    auto listeners = weak_listeners.lock();
-    if (!listeners) {
-      return;
-    }
-    for (const auto& func : *listeners) {
-      func.second(event, info);
-    }
-  };
-  auto dom_manager = dom_manager_.lock();
-  if (dom_manager) {
-    dom_manager->GetRenderManager()->SetTouchEventListener(id_, event, function);
-  }
-  return id;
-}
-
-void DomNode::RemoveTouchEventListener(TouchEvent event, int32_t listener_id) {
-  if (touch_listeners && touch_listeners->find(listener_id) != touch_listeners->end()) {
-    touch_listeners->erase(touch_listeners->find(listener_id));
-    auto dom_manager = dom_manager_.lock();
-    if (dom_manager && touch_listeners->empty()) {
-      dom_manager->GetRenderManager()->RemoveTouchEventListener(id_, event);
-    }
-  }
-}
-
-int32_t DomNode::SetOnAttachChangedListener(OnAttachChangedListener listener) {
-  TDF_BASE_NOTIMPLEMENTED();
-  return 0;
-}
-
-int32_t DomNode::AddShowEventListener(ShowEvent event, OnShowEventListener listener) {
-  auto dom_manager = dom_manager_.lock();
-  int32_t id = ++current_callback_id_;
-  if (show_listeners == nullptr) {
-    show_listeners = std::make_shared<std::unordered_map<int32_t, OnShowEventListener>>();
-  }
-  (*show_listeners)[id] = std::move(listener);
-  std::weak_ptr<std::unordered_map<int32_t, OnShowEventListener>> weak_listeners = show_listeners;
-  auto function = [weak_listeners](const std::any& args) {
-    auto listeners = weak_listeners.lock();
-    if (!listeners) {
-      return;
-    }
-    for (const auto& func : *listeners) {
-      func.second(args);
-    }
-  };
-  if (dom_manager) {
-    dom_manager->GetRenderManager()->SetShowEventListener(id_, event, function);
-  }
-  return id;
-}
-
-void DomNode::RemoveShowEventListener(ShowEvent event, int32_t listener_id) {
-  if (show_listeners != nullptr && show_listeners->find(listener_id) != show_listeners->end()) {
-    show_listeners->erase(show_listeners->find(listener_id));
-    auto dom_manager = dom_manager_.lock();
-    if (show_listeners->empty() && dom_manager) {
-      dom_manager->GetRenderManager()->RemoveShowEventListener(id_, event);
-    }
-  }
+  return false;
 }
 
 }  // namespace dom

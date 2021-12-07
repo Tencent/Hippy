@@ -12,7 +12,7 @@ RenderManagerProxy::RenderManagerProxy(std::shared_ptr<RenderManager> render_man
 
 void RenderManagerProxy::CreateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   std::vector<std::shared_ptr<DomNode>> nodes_to_create;
-  for (auto node : nodes) {
+  for (const auto& node : nodes) {
     node->SetIsJustLayout(ComputeIsLayoutOnly(node));
 
     if (!node->IsJustLayout() && !node->IsVirtual() && UpdateRenderInfo(node)) {
@@ -43,9 +43,7 @@ void RenderManagerProxy::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&
   if (!nodes_to_create.empty()) {
     // step1: create child
     render_manager_->CreateRenderNode(std::vector<std::shared_ptr<DomNode>>(nodes_to_create));
-    for (auto it = nodes_to_create.begin(); it != nodes_to_create.end(); it++) {
-      std::shared_ptr<DomNode> node = *it;
-
+    for (auto node : nodes_to_create) {
       // step2: move child
       std::vector<int32_t> moved_ids;
       FindMoveChildren(node, moved_ids);
@@ -91,44 +89,10 @@ void RenderManagerProxy::Batch() {
 }
 
 void RenderManagerProxy::CallFunction(
-    std::weak_ptr<DomNode> domNode, const std::string &name,
-    std::unordered_map<std::string, std::shared_ptr<DomValue>> param,
-    DispatchFunctionCallback cb) {
-  render_manager_->CallFunction(domNode, name, param, cb);
-}
-
-void RenderManagerProxy::SetClickEventListener(int32_t id, OnClickEventListener listener) {
-    render_manager_->SetClickEventListener(id, listener);
-}
-
-void RenderManagerProxy::RemoveClickEventListener(int32_t id) {
-    render_manager_->RemoveClickEventListener(id);
-}
-
-void RenderManagerProxy::SetLongClickEventListener(int32_t id,
-                                                      OnLongClickEventListener listener) {
-    render_manager_->SetLongClickEventListener(id, listener);
-}
-
-void RenderManagerProxy::RemoveLongClickEventListener(int32_t id) {
-    render_manager_->RemoveLongClickEventListener(id);
-}
-void RenderManagerProxy::SetTouchEventListener(int32_t id,
-                                               TouchEvent event,
-                                               OnTouchEventListener listener) {
-  render_manager_->SetTouchEventListener(id, event, listener);
-}
-
-void RenderManagerProxy::RemoveTouchEventListener(int32_t id, TouchEvent event) {
-  render_manager_->RemoveTouchEventListener(id, event);
-}
-
-void RenderManagerProxy::SetShowEventListener(int32_t id, ShowEvent event, OnShowEventListener listener) {
-  render_manager_->SetShowEventListener(id, event, listener);
-}
-
-void RenderManagerProxy::RemoveShowEventListener(int32_t id, ShowEvent event) {
-  render_manager_->RemoveShowEventListener(id, event);
+    std::weak_ptr<DomNode> dom_node, const std::string &name,
+    const DomValue& param,
+    CallFunctionCallback cb) {
+  render_manager_->CallFunction(dom_node, name, param, cb);
 }
 
 bool RenderManagerProxy::ComputeIsLayoutOnly(const std::shared_ptr<DomNode>& node) const {

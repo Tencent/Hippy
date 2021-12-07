@@ -3,37 +3,28 @@
 #include <any>
 #include <functional>
 
+#include "dom/dom_event.h"
+#include "dom/dom_listener.h"
+
 namespace hippy {
 inline namespace dom {
 
-enum class TouchEvent {
-  Start, Move, End, Cancel
-};
+constexpr char kTouchStartEvent[] = "TouchStart";
+constexpr char kTouchMoveEvent[] = "TouchMove";
+constexpr char kTouchEndEvent[] = "TouchEnd";
+constexpr char kTouchCancelEvent[] = "TouchCancel";
+constexpr char kLayoutEvent[] = "Layout";
+constexpr char kClickEvent[] = "Click";
+constexpr char kLongClickEvent[] = "LongClick";
+constexpr char kShow[] = "Show";
+constexpr char kDismiss[] = "Dismiss";
+
+using EventCallback = std::function<void(const std::shared_ptr<DomEvent>&)>;
+using CallFunctionCallback = std::function<std::any(const std::any&)>;
 
 struct TouchEventInfo {
   float x;
   float y;
-};
-
-using OnTouchEventListener = std::function<void(TouchEvent, TouchEventInfo)>;
-
-using OnClickEventListener = std::function<void()>;
-using OnLongClickEventListener = std::function<void()>;
-
-enum class DomTreeEvent {
-  Create, Update, Delete
-};
-
-using OnDomTreeEventListener = std::function<void()>;
-
-enum class DomEvent {
-  Create, Update, Delete
-};
-
-using OnDomEventListener = std::function<void()> ;
-
-enum class LayoutEvent {
-  OnLayout
 };
 
 struct LayoutResult {
@@ -54,19 +45,6 @@ struct LayoutResult {
 enum class LayoutDiffMapKey {
   x, y, w, h
 };
-
-using OnLayoutEventListener = std::function<void(LayoutResult)>;
-
-using DispatchFunctionCallback = std::function<void(std::any)>;
-
-using CallFunctionCallback = std::function<void(std::any)>;
-
-using OnAttachChangedListener = std::function<void(bool)>;
-
-enum class ShowEvent {
-  Show, Dismiss
-};
-using OnShowEventListener = std::function<void(std::any)>;
 
 }
 }
