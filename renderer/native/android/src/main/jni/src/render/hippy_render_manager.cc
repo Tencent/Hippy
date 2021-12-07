@@ -1,6 +1,7 @@
 #include "render/hippy_render_manager.h"
 
 #include <cstdint>
+#include <iostream>
 #include <utility>
 
 #include "base/logging.h"
@@ -9,8 +10,7 @@
 
 // TODO change to serialize
 std::pair<uint8_t *, size_t>
-HandleDomValue(const std::shared_ptr<Runtime> &runtime,
-               const std::vector<std::shared_ptr<hippy::dom::DomNode>> &nodes) {
+HandleDomValue(const std::vector<std::shared_ptr<hippy::dom::DomNode>> &nodes) {
   tdf::base::Serializer serializer;
   serializer.WriteHeader();
 
@@ -47,10 +47,11 @@ void HippyRenderManager::CreateRenderNode(
   JNIEnv *j_env = instance->AttachCurrentThread();
 
   jobject j_buffer;
-  std::pair<uint8_t *, size_t> pair = HandleDomValue(runtime, nodes);
-  j_buffer = j_env->NewDirectByteBuffer(
-      const_cast<void *>(reinterpret_cast<const void *>(pair.first)),
-      pair.second);
+  std::pair<uint8_t *, size_t> buffer_pair = HandleDomValue(nodes);
+  j_buffer = j_env->NewByteArray(buffer_pair.second);
+  j_env->SetByteArrayRegion(reinterpret_cast<jbyteArray>(j_buffer), 0,
+                            buffer_pair.second,
+                            reinterpret_cast<const jbyte *>(buffer_pair.first));
   jobject j_object = render_delegate_->GetObj();
   jclass j_class = j_env->GetObjectClass(j_object);
   if (!j_class) {
@@ -64,7 +65,7 @@ void HippyRenderManager::CreateRenderNode(
     return;
   }
 
-  j_env->CallVoidMethod(render_delegate_->GetObj(), j_method_id, j_buffer);
+  j_env->CallVoidMethod(j_object, j_method_id, j_buffer);
   j_env->DeleteLocalRef(j_buffer);
 };
 
@@ -80,10 +81,12 @@ void HippyRenderManager::UpdateRenderNode(
   JNIEnv *j_env = instance->AttachCurrentThread();
 
   jobject j_buffer;
-  std::pair<uint8_t *, size_t> pair = HandleDomValue(runtime, nodes);
-  j_buffer = j_env->NewDirectByteBuffer(
-      const_cast<void *>(reinterpret_cast<const void *>(pair.first)),
-      pair.second);
+  std::pair<uint8_t *, size_t> buffer_pair = HandleDomValue(nodes);
+  j_buffer = j_env->NewByteArray(buffer_pair.second);
+  j_env->SetByteArrayRegion(reinterpret_cast<jbyteArray>(j_buffer), 0,
+                            buffer_pair.second,
+                            reinterpret_cast<const jbyte *>(buffer_pair.first));
+
   jobject j_object = render_delegate_->GetObj();
   jclass j_class = j_env->GetObjectClass(j_object);
   if (!j_class) {
@@ -113,10 +116,12 @@ void HippyRenderManager::DeleteRenderNode(
   JNIEnv *j_env = instance->AttachCurrentThread();
 
   jobject j_buffer;
-  std::pair<uint8_t *, size_t> pair = HandleDomValue(runtime, nodes);
-  j_buffer = j_env->NewDirectByteBuffer(
-      const_cast<void *>(reinterpret_cast<const void *>(pair.first)),
-      pair.second);
+  std::pair<uint8_t *, size_t> buffer_pair = HandleDomValue(nodes);
+  j_buffer = j_env->NewByteArray(buffer_pair.second);
+  j_env->SetByteArrayRegion(reinterpret_cast<jbyteArray>(j_buffer), 0,
+                            buffer_pair.second,
+                            reinterpret_cast<const jbyte *>(buffer_pair.first));
+
   jobject j_object = render_delegate_->GetObj();
   jclass j_class = j_env->GetObjectClass(j_object);
   if (!j_class) {

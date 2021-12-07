@@ -1,5 +1,6 @@
 #include "dom/serializer.h"
 
+#include <codecvt>
 #include <type_traits>
 
 #include "base/logging.h"
@@ -19,17 +20,143 @@ void Serializer::WriteHeader() {
   WriteVarint(kLatestVersion);
 };
 
-std::pair<uint8_t*, size_t> Serializer::Release() { return std::make_pair(buffer_, buffer_size_); }
+std::pair<uint8_t*, size_t> Serializer::Release() {
+  auto result = std::make_pair(buffer_, buffer_size_);
+  buffer_ = nullptr;
+  buffer_size_ = 0;
+  buffer_capacity_ = 0;
+  return result;
+}
+
+void Serializer::WriteOddball(Oddball oddball) {
+  SerializationTag tag = SerializationTag::kUndefined;
+  switch (oddball) {
+    case Oddball::kUndefined:
+      tag = SerializationTag::kUndefined;
+      break;
+    case Oddball::kFalse:
+      tag = SerializationTag::kFalse;
+      break;
+    case Oddball::kTrue:
+      tag = SerializationTag::kTrue;
+      break;
+    case Oddball::kNull:
+      tag = SerializationTag::kNull;
+      break;
+    default:
+      TDF_BASE_NOTREACHED();
+  }
+  WriteTag(tag);
+};
 
 void Serializer::WriteUint32(uint32_t value) { WriteVarint<uint32_t>(value); }
 
 void Serializer::WriteUint64(uint64_t value) { WriteVarint<uint64_t>(value); }
 
+void Serializer::WriteInt32(int32_t value) {
+  WriteTag(SerializationTag::kInt32);
+  WriteZigZag<int32_t>(value);
+}
+
 void Serializer::WriteDouble(double value) { WriteRawBytes(&value, sizeof(value)); }
 
-void Serializer::WriteUtf8String(std::string& value) {}
+void Serializer::WriteString(std::string& value) {
+  bool oneByteString = true;
+  const char* c = value.c_str();
+  for (size_t i = 0; i < value.length(); i++) {
+    if (*(c + i) >= 0x80) {
+      oneByteString = false;
+      break;
+    }
+  }
 
-void Serializer::WriteDenseJSArray(DomValue::DomValueArrayType& dom_value) {}
+  if (oneByteString) {
+    WriteTag(SerializationTag::kOneByteString);
+    WriteOneByteString(c, value.length());
+  } else {
+    std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> converter;
+    std::u16string u16 = converter.from_bytes(value);
+
+    WriteTag(SerializationTag::kTwoByteString);
+    WriteTwoByteString(u16.c_str(), value.length());
+  }
+}
+
+void Serializer::WriteDenseJSArray(DomValue::DomValueArrayType& dom_value) {
+  uint32_t length = 0;
+  length = dom_value.size();
+
+  WriteTag(SerializationTag::kBeginDenseJSArray);
+  WriteVarint<uint32_t>(length);
+  uint32_t i = 0;
+
+  for (; i < length; i++) {
+    DomValue::Type type = dom_value[i].GetType();
+    switch (type) {
+      case DomValue::Type::kUndefined:
+      case DomValue::Type::kNull:
+      case DomValue::Type::kBoolean: {
+        Oddball ball = Oddball::kUndefined;
+        if (type == DomValue::Type::kNull) {
+          ball = Oddball::kNull;
+        } else if (type == DomValue::Type::kBoolean && dom_value[i].ToBoolean()) {
+          ball = Oddball::kTrue;
+        } else if (type == DomValue::Type::kBoolean && !dom_value[i].ToBoolean()) {
+          ball = Oddball::kFalse;
+        }
+        WriteOddball(ball);
+        break;
+      }
+      case DomValue::Type::kNumber: {
+        DomValue::NumberType number_type = dom_value[i].GetNumberType();
+        switch (number_type) {
+          case DomValue::NumberType::kInt32: {
+            WriteInt32(dom_value[i].ToInt32());
+            break;
+          }
+          case DomValue::NumberType::kUInt32: {
+            WriteUint32(dom_value[i].ToUint32());
+            break;
+          }
+          case DomValue::NumberType::kInt64: {
+            TDF_BASE_CHECK(false);
+          }
+          case DomValue::NumberType::kUInt64: {
+            WriteUint64(dom_value[i].ToUint64());
+            break;
+          }
+          case DomValue::NumberType::kDouble: {
+            WriteDouble(dom_value[i].ToDouble());
+            break;
+          }
+          default: {
+            TDF_BASE_CHECK(false);
+          }
+        }
+        break;
+      }
+      case DomValue::Type::kString: {
+        WriteString(dom_value[i].ToString());
+        break;
+      }
+      case DomValue::Type::kObject: {
+        WriteJSMap(dom_value[i].ToObject());
+        break;
+      }
+      case DomValue::Type::kArray: {
+        WriteDenseJSArray(dom_value[i].ToArray());
+        break;
+      }
+      default:
+        TDF_BASE_CHECK(true);
+    }
+  }
+
+  uint32_t properties_written = 0;
+  WriteTag(SerializationTag::kEndDenseJSArray);
+  WriteVarint<uint32_t>(properties_written);
+  WriteVarint<uint32_t>(length);
+}
 
 void Serializer::WriteJSMap(DomValue::DomValueObjectType& dom_value) {}
 
@@ -67,6 +194,16 @@ void Serializer::WriteZigZag(T value) {
                 "Only signed integer types can be written as zigzag.");
   using UnsignedT = typename std::make_unsigned<T>::type;
   WriteVarint((static_cast<UnsignedT>(value) << 1) ^ (value >> (8 * sizeof(T) - 1)));
+}
+
+void Serializer::WriteOneByteString(const char* chars, size_t length) {
+  WriteVarint<uint32_t>(length);
+  WriteRawBytes(chars, length * sizeof(char));
+}
+
+void Serializer::WriteTwoByteString(const char16_t* chars, size_t length) {
+  WriteVarint<uint32_t>(length * sizeof(char16_t));
+  WriteRawBytes(chars, length * sizeof(char16_t));
 }
 
 void Serializer::WriteRawBytes(const void* source, size_t length) {
