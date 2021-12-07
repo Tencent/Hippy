@@ -103,7 +103,9 @@ for (let i = 0; i < wrapperEndBuffer.length; i += 1) {
  * @param {string} relativePath - relative path
  */
 function getAbsolutePath(relativePath) {
-  return path.resolve(__dirname, relativePath);
+  const x = path.resolve(__dirname, relativePath);
+  console.log(x);
+  return x;
 }
 
 /**
