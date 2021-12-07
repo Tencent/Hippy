@@ -1,37 +1,37 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 import '../common/voltron_array.dart';
 import '../common/voltron_map.dart';
+import '../controller/controller.dart';
 import '../controller/manager.dart';
 import '../controller/props.dart';
-import '../dom/prop.dart';
 import '../engine/context.dart';
 import '../engine/engine_context.dart';
+import '../render/node.dart';
+import '../render/tree.dart';
+import '../style/prop.dart';
 import '../util/image_util.dart';
 import '../util/log_util.dart';
+import '../viewmodel/image.dart';
 import '../widget/image.dart';
-import 'controller.dart';
-import 'node.dart';
-import 'tree.dart';
-import 'view_model.dart';
 
-class ImageController extends VoltronViewController<ImageRenderNode> {
+class ImageController extends BaseViewController<ImageRenderViewModel> {
   static const String className = "Image";
 
   @override
-  ImageRenderNode createRenderNode(int id, VoltronMap? props, String name,
-      RenderTree tree, ControllerManager controllerManager, bool lazy) {
-    return ImageRenderNode(id, name, tree, controllerManager, props);
+  ImageRenderViewModel createRenderViewModel(
+      RenderNode node, EngineContext context) {
+    return ImageRenderViewModel(node.id, node.rootId, node.name, context);
   }
 
   @override
-  Widget createWidget(BuildContext context, ImageRenderNode renderNode) {
-    return ImageWidget(renderNode.renderViewModel);
+  Widget createWidget(
+      BuildContext context, ImageRenderViewModel renderViewModel) {
+    return ImageWidget(renderViewModel);
   }
 
   @override
@@ -54,36 +54,38 @@ class ImageController extends VoltronViewController<ImageRenderNode> {
 
   // for Android
   @ControllerProps(NodeProps.src)
-  void setUrl(ImageRenderNode node, String src) {
+  void setUrl(ImageRenderViewModel renderViewModel, String src) {
     src = getInnerPath(
-        node.renderViewModel.context.getInstance(node.rootId)?.instanceContext,
+        renderViewModel.context
+            .getInstance(renderViewModel.rootId)
+            ?.instanceContext,
         src);
-    if (src != node.renderViewModel.src) {
-      node.renderViewModel.src = getInnerPath(
-          node.renderViewModel.context
-              .getInstance(node.rootId)
+    if (src != renderViewModel.src) {
+      renderViewModel.src = getInnerPath(
+          renderViewModel.context
+              .getInstance(renderViewModel.rootId)
               ?.instanceContext,
           src);
-      loadImage(node);
+      loadImage(renderViewModel);
     }
   }
 
   // for iOS
   @ControllerProps(NodeProps.source)
-  void setSource(ImageRenderNode node, VoltronArray source) {
+  void setSource(ImageRenderViewModel renderViewModel, VoltronArray source) {
     if (source.size() == 0) return;
     VoltronMap firstObj = source.get(0);
     String src = firstObj.get('uri');
     src = getInnerPath(
-        node.renderViewModel.context.getInstance(node.rootId)?.instanceContext,
+        renderViewModel.context.getInstance(renderViewModel.rootId)?.instanceContext,
         src);
-    if (src != node.renderViewModel.src) {
-      node.renderViewModel.src = getInnerPath(
-          node.renderViewModel.context
-              .getInstance(node.rootId)
+    if (src != renderViewModel.src) {
+      renderViewModel.src = getInnerPath(
+          renderViewModel.context
+              .getInstance(renderViewModel.rootId)
               ?.instanceContext,
           src);
-      loadImage(node);
+      loadImage(renderViewModel);
     }
   }
 
@@ -100,8 +102,8 @@ class ImageController extends VoltronViewController<ImageRenderNode> {
     return path;
   }
 
-  void loadImage(ImageRenderNode node) {
-    var viewModel = node.renderViewModel;
+  void loadImage(ImageRenderViewModel renderViewModel) {
+    var viewModel = renderViewModel;
     viewModel.imageEventDispatcher.handleOnLoadStart();
     viewModel.dispatchedEvent = {};
     var src = viewModel.src;
@@ -118,9 +120,6 @@ class ImageController extends VoltronViewController<ImageRenderNode> {
             viewModel.imageEventDispatcher.handleOnLoadEnd();
             viewModel.imageWidth = image.image.width;
             viewModel.imageHeight = image.image.height;
-            if (viewModel.capInsets != null || viewModel.defaultImage != null) {
-              node.update();
-            }
             viewModel.dispatchedEvent.add(NodeProps.onLoad);
             viewModel.dispatchedEvent.add(NodeProps.onLoadEnd);
 
@@ -137,33 +136,33 @@ class ImageController extends VoltronViewController<ImageRenderNode> {
   }
 
   @ControllerProps(NodeProps.resizeMode)
-  void setResizeMode(ImageRenderNode node, String resizeMode) {
+  void setResizeMode(ImageRenderViewModel renderViewModel, String resizeMode) {
     if (resizeMode == 'contain') {
-      node.renderViewModel.fit = BoxFit.contain;
+      renderViewModel.fit = BoxFit.contain;
     } else if (resizeMode == 'cover') {
-      node.renderViewModel.fit = BoxFit.cover;
+      renderViewModel.fit = BoxFit.cover;
     } else if (resizeMode == 'center') {
-      node.renderViewModel.alignment = Alignment.center;
+      renderViewModel.alignment = Alignment.center;
     } else if (resizeMode == 'origin') {
-      node.renderViewModel.alignment = Alignment.topLeft;
+      renderViewModel.alignment = Alignment.topLeft;
     } else if (resizeMode == 'repeat') {
-      node.renderViewModel.repeat = ImageRepeat.repeat;
+      renderViewModel.repeat = ImageRepeat.repeat;
     } else {
-      node.renderViewModel.fit = BoxFit.cover;
+      renderViewModel.fit = BoxFit.cover;
     }
   }
 
   @ControllerProps(NodeProps.tintColor)
-  void setTintColor(ImageRenderNode node, int tintColor) {
-    node.renderViewModel.tintColor = tintColor;
+  void setTintColor(ImageRenderViewModel renderViewModel, int tintColor) {
+    renderViewModel.tintColor = tintColor;
   }
 
   @ControllerProps(NodeProps.defaultSource)
-  void setDefaultSource(ImageRenderNode node, String defaultSource) {
+  void setDefaultSource(ImageRenderViewModel renderViewModel, String defaultSource) {
     if (defaultSource.indexOf('data:image/png;base64,') == 0) {
       var bytesImage = Base64Decoder()
           .convert(defaultSource.replaceFirst('data:image/png;base64,', ''));
-      node.renderViewModel.defaultImage = Image.memory(bytesImage);
+      renderViewModel.defaultImage = Image.memory(bytesImage);
     } else {
       LogUtils.w('ImageController',
           "setDefaultSource error, defaultSource must be base64");
@@ -171,79 +170,44 @@ class ImageController extends VoltronViewController<ImageRenderNode> {
   }
 
   @ControllerProps(NodeProps.onLoad)
-  void setOnLoad(ImageRenderNode node, bool enable) {
-    setEventType(NodeProps.onLoad, node, enable);
+  void setOnLoad(ImageRenderViewModel renderViewModel, bool enable) {
+    setEventType(NodeProps.onLoad, renderViewModel, enable);
   }
 
   @ControllerProps(NodeProps.onLoadEnd)
-  void setOnLoadEnd(ImageRenderNode node, bool enable) {
-    setEventType(NodeProps.onLoadEnd, node, enable);
+  void setOnLoadEnd(ImageRenderViewModel renderViewModel, bool enable) {
+    setEventType(NodeProps.onLoadEnd, renderViewModel, enable);
   }
 
   @ControllerProps(NodeProps.onLoadStart)
-  void setOnLoadStart(ImageRenderNode node, bool enable) {
-    setEventType(NodeProps.onLoadStart, node, enable);
+  void setOnLoadStart(ImageRenderViewModel renderViewModel, bool enable) {
+    setEventType(NodeProps.onLoadStart, renderViewModel, enable);
   }
 
   @ControllerProps(NodeProps.onError)
-  void setOnError(ImageRenderNode node, bool enable) {
-    setEventType(NodeProps.onError, node, enable);
+  void setOnError(ImageRenderViewModel renderViewModel, bool enable) {
+    setEventType(NodeProps.onError, renderViewModel, enable);
   }
 
   @ControllerProps(NodeProps.capInsets)
-  void setCapInsets(ImageRenderNode node, VoltronMap capInsetsMap) {
-    node.renderViewModel.capInsets = CapInsets(
+  void setCapInsets(ImageRenderViewModel renderViewModel, VoltronMap capInsetsMap) {
+    renderViewModel.capInsets = CapInsets(
         left: capInsetsMap.get('left').toDouble(),
         top: capInsetsMap.get('top').toDouble(),
         right: capInsetsMap.get('right').toDouble(),
         bottom: capInsetsMap.get('bottom').toDouble());
   }
 
-  void setEventType(String type, ImageRenderNode node, bool enable) {
+  void setEventType(String type, ImageRenderViewModel renderViewModel, bool enable) {
     if (enable) {
-      node.renderViewModel.imageEventDispatcher.addEventType(type);
+      renderViewModel.imageEventDispatcher.addEventType(type);
     } else {
-      node.renderViewModel.imageEventDispatcher.removeEventType(type);
+      renderViewModel.imageEventDispatcher.removeEventType(type);
     }
   }
 
   @override
   String get name => className;
-}
 
-class ImageRenderViewModel extends RenderViewModel {
-  int tintColor = Colors.transparent.value;
-  String? src;
-  BoxFit? fit;
-  Alignment? alignment;
-  ImageRepeat? repeat;
-  late ImageEventDispatcher imageEventDispatcher;
-  Rect? centerSlice;
-  CapInsets? capInsets;
-  ImageProvider? image;
-  int? imageWidth;
-  int? imageHeight;
-  Image? defaultImage;
-  Set<String> dispatchedEvent = {};
 
-  ImageRenderViewModel(
-      int id, int instanceId, String className, EngineContext context)
-      : super(id, instanceId, className, context) {
-    imageEventDispatcher = createImageEventDispatcher();
-  }
-
-  ImageEventDispatcher createImageEventDispatcher() {
-    return ImageEventDispatcher(id, context);
-  }
-}
-
-class ImageRenderNode extends RenderNode<ImageRenderViewModel> {
-  ImageRenderNode(int id, String className, RenderTree root,
-      ControllerManager controllerManager, VoltronMap? props)
-      : super(id, className, root, controllerManager, props);
-
-  @override
-  ImageRenderViewModel createRenderViewModel(EngineContext context) {
-    return ImageRenderViewModel(id, rootId, name, context);
-  }
 }

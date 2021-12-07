@@ -1,30 +1,13 @@
-import '../common/native_holder.dart';
 import '../util/log_util.dart';
 import '../util/num_util.dart';
-import 'flex_box_bridge.dart';
 import 'flex_define.dart';
 import 'flex_node_style.dart';
 
 typedef FlexMeasureFunc = int Function(FlexNodeAPI node, double width,
     FlexMeasureMode widthMode, double height, FlexMeasureMode heightMode);
 
-abstract class FlexNodeAPI<T> extends INativeHolder {
-  FlexNodeAPI() : super(NodeApi.newFlexNode, NodeApi.freeFlexNode);
-
-  bool get isDirty;
-
-  bool get hasNewLayout;
-
-  T? get parent;
-
-  List<T> get children;
-
-  int get childCount;
-
-  // ignore: avoid_setters_without_getters
-  set measureFunction(FlexMeasureFunc measureFunction);
-
-  bool get isMeasureDefined;
+abstract class FlexNodeAPI<T> {
+  FlexNodeAPI();
 
   FlexDirection get styleDirection;
 
@@ -77,22 +60,6 @@ abstract class FlexNodeAPI<T> extends INativeHolder {
   double get styleMinHeight;
 
   set styleMinHeight(double minHeight);
-
-  T getChildAt(int i);
-
-  void addChildAt(T child, int i);
-
-  T? removeChildAt(int i);
-
-  int indexOf(T child);
-
-  void calculateLayout();
-
-  void dirty();
-
-  void markLayoutSeen();
-
-  bool valuesEqual(double f1, double f2);
 
   set wrap(FlexWrap flexWrap);
 
@@ -148,16 +115,11 @@ abstract class FlexNodeAPI<T> extends INativeHolder {
 }
 
 class FlexNode extends FlexNodeAPI<FlexNode> {
-  FlexNode? _parent;
-  final List<FlexNode> _children = [];
-  late NodeApi _nodeApi;
   late FlexNodeStyle _flexNodeStyle;
 
-  FlexMeasureFunc? _measureFunction;
-
-  static const int marginIndex = 1;
-  static const int paddingIndex = 2;
-  static const int bordreIndex = 4;
+  static const int kMarginIndex = 1;
+  static const int kPaddingIndex = 2;
+  static const int kBorderIndex = 4;
 
   int _edgeSetFlag = 0;
   bool _hasNewLayout = true;
@@ -185,55 +147,8 @@ class FlexNode extends FlexNodeAPI<FlexNode> {
   int get id => 0;
 
   FlexNode() {
-    if (nativePtr == 0) {
-      throw StateError("NewFlexNode failed, Failed to allocate native memory");
-    }
-    _nodeApi = NodeApi(this);
-    _flexNodeStyle = FlexNodeStyle(nativePtr);
+    _flexNodeStyle = FlexNodeStyle();
     reset();
-  }
-
-  @override
-  bool get isMeasureDefined => _measureFunction != null;
-
-  @override
-  void addChildAt(FlexNode child, int i) {
-    if (child._parent != null) {
-      throw StateError("Child already has a parent, it must be removed first.");
-    }
-
-    _children.insert(i, child);
-    child._parent = this;
-    _nodeApi.insertChild(child.nativePtr, i);
-  }
-
-  @override
-  void calculateLayout() {
-    calculateLayoutInner(undefined, undefined, styleDirection);
-  }
-
-  void calculateLayoutInner(
-      double width, double height, FlexDirection direction) {
-    var nativeNodes = <int>[];
-    var n = <FlexNode>[];
-    n.add(this);
-    n.addAll(_children);
-    // 遍历所有子节点
-    for (var i = 0; i < n.length; i++) {
-      var children = n[i]._children;
-      n.addAll(children);
-    }
-
-    for (var i = 0; i < n.length; i++) {
-      nativeNodes.add(n[i].nativePtr);
-    }
-    LogUtils.i("flex_node", "calculateLayout $width, $height");
-    _nodeApi.calculateLayout(width, height, nativeNodes, direction.index);
-  }
-
-  @override
-  void dirty() {
-    _nodeApi.markNodeDirty();
   }
 
   @override
@@ -255,11 +170,6 @@ class FlexNode extends FlexNodeAPI<FlexNode> {
     }
   }
 
-  @override
-  FlexNode getChildAt(int i) {
-    return _children[i];
-  }
-
   // ignore: always_declare_return_types, type_annotate_public_apis
   get data => _data;
 
@@ -272,14 +182,7 @@ class FlexNode extends FlexNodeAPI<FlexNode> {
   FlexNodeStyle get style => _flexNodeStyle;
 
   @override
-  bool get isDirty => _nodeApi.isNodeDirty();
-
-  @override
   void reset() {
-    if (_parent != null || (_children.isNotEmpty)) {
-      return;
-    }
-    _nodeApi.resetNode();
     styleDirection = FlexDirection.LTR;
     styleCssDirection = FlexCSSDirection.COLUMN;
     justifyContent = FlexJustify.FLEX_START;
@@ -292,10 +195,6 @@ class FlexNode extends FlexNodeAPI<FlexNode> {
     flexGrow = 0;
     flexShrink = 0;
     flexBasis = undefined;
-    _measureFunction = null;
-
-    _edgeSetFlag = 0;
-    _hasNewLayout = true;
 
     _width = double.nan;
     _height = double.nan;
@@ -313,39 +212,6 @@ class FlexNode extends FlexNodeAPI<FlexNode> {
     _borderTop = 0;
     _borderRight = 0;
     _borderBottom = 0;
-  }
-
-  @override
-  bool valuesEqual(double f1, double f2) {
-    throw floatsEqual(f1, f2);
-  }
-
-  @override
-  bool get hasNewLayout => _hasNewLayout;
-
-  @override
-  FlexNode? get parent => _parent;
-
-  @override
-  List<FlexNode> get children => _children;
-
-  @override
-  int get childCount => _children.length;
-
-  @override
-  set measureFunction(FlexMeasureFunc measureFunction) {
-    _measureFunction = measureFunction;
-    _nodeApi.setHadMeasureFunc(isMeasureDefined);
-  }
-
-  int measure(double width, int widthMode, double height, int heightMode) {
-    var measureFunction = _measureFunction;
-    if (measureFunction == null) {
-      throw StateError("Measure function isn't defined!");
-    }
-
-    return measureFunction(this, width, flexMeasureModeFromInt(widthMode),
-        height, flexMeasureModeFromInt(heightMode));
   }
 
   String resultToString() {
@@ -369,15 +235,6 @@ class FlexNode extends FlexNodeAPI<FlexNode> {
     result.write(_flexNodeStyle.toString());
     result.write(resultToString());
 
-    if (childCount == 0) {
-      return;
-    }
-
-    result.write(", children: [\n");
-    for (var i = 0; i < childCount; i++) {
-      getChildAt(i).toStringWithIndentation(result, level + 1);
-      result.write("\n");
-    }
     result.write("$indentation]");
   }
 
@@ -512,30 +369,6 @@ class FlexNode extends FlexNodeAPI<FlexNode> {
   }
 
   @override
-  FlexNode? removeChildAt(int i) {
-    if (i < 0 || i >= _children.length) {
-      LogUtils.i(
-          "flex_node", "remove child at:$i error, length:${_children.length}");
-      return null;
-    }
-    final child = _children.removeAt(i);
-    child._parent = null;
-    _nodeApi.removeChild(child.nativePtr);
-    return child;
-  }
-
-  @override
-  int indexOf(FlexNode child) {
-    return _children.indexOf(child);
-  }
-
-  @override
-  void markLayoutSeen() {
-    _hasNewLayout = false;
-    _nodeApi.markNodeLayoutSeen();
-  }
-
-  @override
   set wrap(FlexWrap flexWrap) {
     _flexNodeStyle.flexWrap = flexWrap;
   }
@@ -592,7 +425,7 @@ class FlexNode extends FlexNodeAPI<FlexNode> {
   @override
   void setMargin(int spacingType, double margin) {
     // 注意，设置宽高margin不直接改变flex node的属性值，在native层cssLayout后属性值由底层传上来设置
-    _edgeSetFlag |= marginIndex;
+    _edgeSetFlag |= kMarginIndex;
     _flexNodeStyle.setMargin(flexStyleEdgeFromInt(spacingType), margin);
   }
 
@@ -618,13 +451,13 @@ class FlexNode extends FlexNodeAPI<FlexNode> {
   @override
   void setPadding(int spacingType, double padding) {
     // 注意，设置宽高padding不直接改变flex node的属性值，在native层cssLayout后属性值由底层传上来设置
-    _edgeSetFlag |= paddingIndex;
+    _edgeSetFlag |= kPaddingIndex;
     _flexNodeStyle.setPadding(flexStyleEdgeFromInt(spacingType), padding);
   }
 
   @override
   void setBorder(int spacingType, double border) {
-    _edgeSetFlag |= bordreIndex;
+    _edgeSetFlag |= kBorderIndex;
     _flexNodeStyle.setBorder(flexStyleEdgeFromInt(spacingType), border);
   }
 
@@ -666,12 +499,6 @@ class FlexNode extends FlexNodeAPI<FlexNode> {
   @override
   set overflow(FlexOverflow overflow) {
     _flexNodeStyle.overflow = overflow;
-  }
-
-  @override
-  void free() {
-    super.free();
-    _flexNodeStyle.free();
   }
 
   dynamic getAttrByFiledType(FiledType type) {

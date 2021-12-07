@@ -1,6 +1,6 @@
 import 'dart:collection';
 
-import '../render/controller.dart';
+import 'controller.dart';
 import '../render/node.dart';
 import '../render/tree.dart';
 

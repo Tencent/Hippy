@@ -1,14 +1,32 @@
-import '../flexbox/flex_define.dart';
-import '../flexbox/flex_spacing.dart';
 import '../util/enum_util.dart';
-import 'dom_node.dart';
+import 'flex_define.dart';
+import 'flex_node.dart';
+import 'flex_spacing.dart';
 import 'prop.dart';
 
-class StyleNode extends DomNode {
+class _ProxyStyleProvider extends MethodPropProvider {
   static StyleMethodPropProvider sStyleProvider = StyleMethodPropProvider();
 
-  StyleNode(int instanceId, int id, String name, String tagName)
-      : super(instanceId, id, name, tagName);
+  _ProxyStyleProvider(MethodPropProvider? extraProvider) {
+    pushProvider(sStyleProvider);
+    pushProvider(extraProvider);
+  }
+
+  void pushProvider(MethodPropProvider? provider) {
+    if (provider != null) {
+      provider.styleMethodMap.forEach(pushMethodProp);
+    }
+  }
+}
+
+class StyleNode extends FlexNode with StyleMethodPropConsumer {
+  bool shouldNotifyOnLayout = false;
+  final String name;
+
+  final _ProxyStyleProvider _provider;
+
+  StyleNode(this.name, {MethodPropProvider? extraProvider})
+      : _provider = _ProxyStyleProvider(extraProvider);
 
   void setPropFloat(String name, double value) {
     switch (name) {
@@ -188,7 +206,7 @@ class StyleNode extends DomNode {
   }
 
   @override
-  MethodPropProvider get provider => sStyleProvider;
+  MethodPropProvider get provider => _provider;
 }
 
 class FloatStyleMethodProp extends StyleMethodProp {

@@ -1,55 +1,22 @@
-import 'dart:ui';
-
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import '../adapter/font.dart';
 import '../common/voltron_map.dart';
 import '../controller/props.dart';
-import '../engine/engine_context.dart';
-import '../flexbox/flex_define.dart';
-import '../flexbox/flex_node.dart';
-import '../flexbox/flex_output.dart';
-import '../flexbox/flex_spacing.dart';
+import '../render/node.dart';
 import '../util/log_util.dart';
 import '../util/string_util.dart';
-import 'dom_node.dart';
+import 'flex_define.dart';
 import 'prop.dart';
 import 'style_node.dart';
 
-int textMeasure(FlexNodeAPI node, double width, FlexMeasureMode widthMode,
-    double height, FlexMeasureMode heightMode) {
-  if (node is! TextNode) {
-    return FlexOutput.makeDouble(width, height);
-  }
-  var reactCSSNode = node;
-  TextPainter? painter;
-  var exception = false;
+final TextMethodProvider _sTextMethodProvider = TextMethodProvider();
+const int kDefaultTextShadowColor = 0x55000000;
+const String kEllipsis = "\u2026";
+const int kMaxLineCount = 100000;
 
-  try {
-    painter = reactCSSNode.createPainter(width, widthMode);
-  } catch (e) {
-    LogUtils.e("TextNode", "text createLayout error:%e");
-    exception = true;
-  }
-
-  if (exception || painter == null) {
-    LogUtils.d("TextNode",
-        "measure error:" " w: $width h: $height s:${reactCSSNode._fontSize} ");
-    return FlexOutput.makeDouble(width, height);
-  } else {
-    LogUtils.d(
-        "TextNode", "measure:" " w: ${painter.width} h: ${painter.height}");
-    return FlexOutput.makeDouble(painter.width, painter.height);
-  }
-}
-
-class TextNode extends StyleNode {
-  static const tag = "TextNode";
-  static TextMethodProvider sTextMethodProvider = TextMethodProvider();
-  static const int defaultTextShadowColor = 0x55000000;
-  static const String ellipsis = "\u2026";
-  static const int maxLineCount = 100000;
+mixin TextStyleNode on StyleNode {
+  static const _kTag = "TextNode";
 
   TextSpan? _span;
   String? _sourceText;
@@ -67,7 +34,7 @@ class TextNode extends StyleNode {
   double _textShadowOffsetDx = 0;
   double _textShadowOffsetDy = 0;
   double _textShadowRadius = 1;
-  int _textShadowColor = defaultTextShadowColor;
+  int _textShadowColor = kDefaultTextShadowColor;
 
   bool _isUnderlineTextDecorationSet = false;
   bool _isLineThroughTextDecorationSet = false;
@@ -75,26 +42,11 @@ class TextNode extends StyleNode {
   FontStyle _fontStyle = FontStyle.normal;
   FontWeight? _fontWeight;
 
-  late bool _isVirtual;
   bool _enableScale = false;
 
   final List<String> _gestureTypes = [];
 
   FontScaleAdapter? _fontScaleAdapter;
-
-  TextNode(int instanceId, int id, String name, String tagName, bool isVirtual)
-      : super(instanceId, id, name, tagName) {
-    _isVirtual = isVirtual;
-    if (!_isVirtual) {
-      measureFunction = textMeasure;
-    }
-  }
-
-  @override
-  bool get enableScale => true;
-
-  @override
-  bool get isChildVirtual => true;
 
   TextSpan? get span => _span;
 
@@ -127,9 +79,9 @@ class TextNode extends StyleNode {
 
   static int _parseArgument(String weight) {
     return weight.length == 3 &&
-            weight.endsWith("00") &&
-            weight.codeUnitAt(0) <= '9'.codeUnitAt(0) &&
-            weight.codeUnitAt(0) >= '1'.codeUnitAt(0)
+        weight.endsWith("00") &&
+        weight.codeUnitAt(0) <= '9'.codeUnitAt(0) &&
+        weight.codeUnitAt(0) >= '1'.codeUnitAt(0)
         ? 100 * (weight.codeUnitAt(0) - '0'.codeUnitAt(0))
         : -1;
   }
@@ -229,7 +181,7 @@ class TextNode extends StyleNode {
     _isUnderlineTextDecorationSet = false;
     _isLineThroughTextDecorationSet = false;
     for (var textDecorationLineSubString
-        in textDecorationLineString.split(" ")) {
+    in textDecorationLineString.split(" ")) {
       if ("underline" == textDecorationLineSubString) {
         _isUnderlineTextDecorationSet = true;
       } else if ("line-through" == textDecorationLineSubString) {
@@ -294,7 +246,7 @@ class TextNode extends StyleNode {
     } else if ("justify" == (textAlign)) {
       align = TextAlign.justify;
     } else {
-      LogUtils.e(tag, "Invalid textAlign: $textAlign");
+      LogUtils.e(_kTag, "Invalid textAlign: $textAlign");
     }
     return align;
   }
@@ -326,7 +278,7 @@ class TextNode extends StyleNode {
     } else if ('fade' == (textOverflow)) {
       v = TextOverflow.fade;
     } else {
-      LogUtils.e(tag, "Invalid textOverflow: $textOverflow");
+      LogUtils.e(_kTag, "Invalid textOverflow: $textOverflow");
     }
     return v;
   }
@@ -393,18 +345,6 @@ class TextNode extends StyleNode {
     markUpdated();
   }
 
-  @override
-  void markUpdated() {
-    super.markUpdated();
-    if (!_isVirtual) {
-      super.dirty();
-    }
-  }
-
-  @override
-  bool isVirtual() {
-    return _isVirtual;
-  }
 
   @ControllerProps(NodeProps.numberOfLines)
   void setNumberOfLines(int numberOfLines) {
@@ -412,18 +352,26 @@ class TextNode extends StyleNode {
     markUpdated();
   }
 
-  @override
-  void layoutBefore(EngineContext context) {
-    super.layoutBefore(context);
-    if (_fontScaleAdapter == null && _enableScale) {
-      _fontScaleAdapter = context.globalConfigs.fontScaleAdapter;
-    }
-    if (_isVirtual) {
-      return;
-    }
+  // @override  todo 处理layout before
+  // void layoutBefore(EngineContext context) {
+  //   super.layoutBefore(context);
+  //   if (_fontScaleAdapter == null && _enableScale) {
+  //     _fontScaleAdapter = context.globalConfigs.fontScaleAdapter;
+  //   }
+  //   if (_isVirtual) {
+  //     return;
+  //   }
+  //
+  //   _span = createSpan(_text ?? '', true);
+  // }
 
-    _span = createSpan(_text ?? '', true);
+  void markUpdated() {
+    // empty
   }
+
+  int get childCount;
+
+  RenderNode? getChildAt(int index);
 
   TextSpan createSpan(String text, bool useChild) {
     var curFontSize = _fontSize;
@@ -441,13 +389,14 @@ class TextNode extends StyleNode {
     if (useChild) {
       for (var i = 0; i < childCount; i++) {
         var node = getChildAt(i);
-        if (node is TextNode) {
-          childrenSpan.add(node.createSpan(node._text ?? '', useChild));
-        } else {
-          throw StateError("${node.name} is not support in Text");
+        if (node != null) {
+          if (node is TextStyleNode) {
+            var styleNode = node as TextStyleNode;
+            childrenSpan.add(styleNode.createSpan(styleNode._text ?? '', useChild));
+          } else {
+            throw StateError("${node.name} is not support in Text");
+          }
         }
-
-        node.markUpdateSeen();
       }
     }
 
@@ -483,20 +432,21 @@ class TextNode extends StyleNode {
     return TextSpan(text: "");
   }
 
-  void layoutAfter(EngineContext context) {
-    if (!isVirtual()) {
-      var textData = createData(
-          layoutWidth -
-              getPadding(FlexSpacing.left) -
-              getPadding(FlexSpacing.right),
-          FlexMeasureMode.EXACTLY);
-      data = textData;
-    }
-  }
+  //   // @override  todo 处理layout before
+  // void layoutAfter(EngineContext context) {
+  //   if (!isVirtual()) {
+  //     var textData = createData(
+  //         layoutWidth -
+  //             getPadding(FlexSpacing.left) -
+  //             getPadding(FlexSpacing.right),
+  //         FlexMeasureMode.EXACTLY);
+  //     data = textData;
+  //   }
+  // }
 
-  @override
-  void updateData(EngineContext context) {
-    if (!isVirtual()) {
+  // @override
+  // void updateData(EngineContext context) {
+  //   if (!isVirtual()) {
       // todo update textPadding
       // context.domManager.addUITask(() {
       //   context.renderManager.updateExtra(
@@ -509,13 +459,13 @@ class TextNode extends StyleNode {
       //           getPadding(FlexSpacing.bottom),
       //           getPadding(FlexSpacing.top)));
       // });
-    }
-  }
+  //   }
+  // }
 
   TextData createData(double width, FlexMeasureMode widthMode) {
     var span = _span;
     var text = span == null ? TextSpan(text: "") : span;
-    return TextData(_numberOfLines ?? maxLineCount, text, _textAlign,
+    return TextData(_numberOfLines ?? kMaxLineCount, text, _textAlign,
         _generateTextScale(), _textOverflow);
   }
 
@@ -526,11 +476,11 @@ class TextNode extends StyleNode {
     var span = _span;
     var text = span == null ? TextSpan(text: "") : span;
     var painter = TextPainter(
-        maxLines: _numberOfLines ?? maxLineCount,
+        maxLines: _numberOfLines ?? kMaxLineCount,
         text: text,
         textDirection: TextDirection.ltr,
         textAlign: _textAlign,
-        ellipsis: ellipsis,
+        ellipsis: kEllipsis,
         textScaleFactor: _generateTextScale())
       ..layout(maxWidth: maxWidth);
 
@@ -556,18 +506,7 @@ class TextNode extends StyleNode {
   }
 
   @override
-  MethodPropProvider get provider => sTextMethodProvider;
-}
-
-class TextExtra {
-  final Object extra;
-  final double leftPadding;
-  final double rightPadding;
-  final double bottomPadding;
-  final double topPadding;
-
-  const TextExtra(this.extra, this.leftPadding, this.rightPadding,
-      this.bottomPadding, this.topPadding);
+  MethodPropProvider get provider => _sTextMethodProvider;
 }
 
 class TextMethodProvider extends StyleMethodPropProvider {
@@ -575,175 +514,175 @@ class TextMethodProvider extends StyleMethodPropProvider {
     pushMethodProp(
         NodeProps.fontStyle,
         StyleMethodProp((consumer, value) {
-          if (consumer is TextNode && value is String) {
+          if (consumer is TextStyleNode && value is String) {
             consumer.fontStyle(value);
           }
         }, "normal"));
     pushMethodProp(
         NodeProps.letterSpacing,
         StyleMethodProp((consumer, value) {
-          if (consumer is TextNode && value is double) {
+          if (consumer is TextStyleNode && value is double) {
             consumer.letterSpacing(value);
           }
         }, -1.0));
     pushMethodProp(
         NodeProps.color,
         StyleMethodProp((consumer, value) {
-          if (consumer is TextNode && value is int) {
+          if (consumer is TextStyleNode && value is int) {
             consumer.color(value);
           }
         }, Colors.transparent.value));
     pushMethodProp(
         NodeProps.fontSize,
         StyleMethodProp((consumer, value) {
-          if (consumer is TextNode && value is double) {
+          if (consumer is TextStyleNode && value is double) {
             consumer.fontSize(value);
           }
         }, NodeProps.fontSizeSp));
     pushMethodProp(
         NodeProps.numberOfLines,
         StyleMethodProp((consumer, value) {
-          if (consumer is TextNode && value is int) {
+          if (consumer is TextStyleNode && value is int) {
             consumer.setNumberOfLines(value);
           }
-        }, TextNode.maxLineCount));
+        }, kMaxLineCount));
     pushMethodProp(
         NodeProps.fontFamily,
         StyleMethodProp((consumer, value) {
-          if (consumer is TextNode && value is String) {
+          if (consumer is TextStyleNode && value is String) {
             consumer.fontFamily(value);
           }
         }, ""));
     pushMethodProp(
         NodeProps.fontWeight,
         StyleMethodProp((consumer, value) {
-          if (consumer is TextNode && value is String) {
+          if (consumer is TextStyleNode && value is String) {
             consumer.fontWeight(value);
           }
         }, ""));
     pushMethodProp(
         NodeProps.textDecorationLine,
         StyleMethodProp((consumer, value) {
-          if (consumer is TextNode && value is String) {
+          if (consumer is TextStyleNode && value is String) {
             consumer.textDecorationLine(value);
           }
         }, ""));
     pushMethodProp(
         NodeProps.propShadowOffset,
         StyleMethodProp((consumer, value) {
-          if (consumer is TextNode && value is VoltronMap) {
+          if (consumer is TextStyleNode && value is VoltronMap) {
             consumer.textShadowOffset(value);
           }
         }, null));
     pushMethodProp(
         NodeProps.propShadowRadius,
         StyleMethodProp((consumer, value) {
-          if (consumer is TextNode && value is double) {
+          if (consumer is TextStyleNode && value is double) {
             consumer.textShadowRadius(value);
           }
         }, 0));
     pushMethodProp(
         NodeProps.propShadowColor,
         StyleMethodProp((consumer, value) {
-          if (consumer is TextNode && value is int) {
+          if (consumer is TextStyleNode && value is int) {
             consumer.setTextShadowColor(value);
           }
         }, Colors.transparent.value));
     pushMethodProp(
         NodeProps.lineHeight,
         StyleMethodProp((consumer, value) {
-          if (consumer is TextNode && value is int) {
+          if (consumer is TextStyleNode && value is int) {
             consumer.lineHeight(value);
           }
         }, -1));
     pushMethodProp(
         NodeProps.textAlign,
         StyleMethodProp((consumer, value) {
-          if (consumer is TextNode && value is String) {
+          if (consumer is TextStyleNode && value is String) {
             consumer.setTextAlign(value);
           }
         }, "left"));
     pushMethodProp(
         NodeProps.text,
         StyleMethodProp((consumer, value) {
-          if (consumer is TextNode && value is String) {
+          if (consumer is TextStyleNode && value is String) {
             consumer.text(value);
           }
         }, ""));
     pushMethodProp(
         NodeProps.textOverflow,
         StyleMethodProp((consumer, value) {
-          if (consumer is TextNode && value is String) {
+          if (consumer is TextStyleNode && value is String) {
             consumer.setTextOverflow(value);
           }
         }, ""));
     pushMethodProp(
         NodeProps.onClick,
         StyleMethodProp((consumer, value) {
-          if (consumer is TextNode && value is bool) {
+          if (consumer is TextStyleNode && value is bool) {
             consumer.clickEnable(value);
           }
         }, false));
     pushMethodProp(
         NodeProps.onLongClick,
         StyleMethodProp((consumer, value) {
-          if (consumer is TextNode && value is bool) {
+          if (consumer is TextStyleNode && value is bool) {
             consumer.longClickEnable(value);
           }
         }, false));
     pushMethodProp(
         NodeProps.onPressIn,
         StyleMethodProp((consumer, value) {
-          if (consumer is TextNode && value is bool) {
+          if (consumer is TextStyleNode && value is bool) {
             consumer.pressInEnable(value);
           }
         }, false));
     pushMethodProp(
         NodeProps.onPressOut,
         StyleMethodProp((consumer, value) {
-          if (consumer is TextNode && value is bool) {
+          if (consumer is TextStyleNode && value is bool) {
             consumer.pressOutEnable(value);
           }
         }, false));
     pushMethodProp(
         NodeProps.onTouchDown,
         StyleMethodProp((consumer, value) {
-          if (consumer is TextNode && value is bool) {
+          if (consumer is TextStyleNode && value is bool) {
             consumer.touchDownEnable(value);
           }
         }, false));
     pushMethodProp(
         NodeProps.onTouchMove,
         StyleMethodProp((consumer, value) {
-          if (consumer is TextNode && value is bool) {
+          if (consumer is TextStyleNode && value is bool) {
             consumer.touchUpEnable(value);
           }
         }, false));
     pushMethodProp(
         NodeProps.onTouchEnd,
         StyleMethodProp((consumer, value) {
-          if (consumer is TextNode && value is bool) {
+          if (consumer is TextStyleNode && value is bool) {
             consumer.touchEndEnable(value);
           }
         }, false));
     pushMethodProp(
         NodeProps.onTouchCancel,
         StyleMethodProp((consumer, value) {
-          if (consumer is TextNode && value is bool) {
+          if (consumer is TextStyleNode && value is bool) {
             consumer.touchCancelable(value);
           }
         }, false));
     pushMethodProp(
         NodeProps.propEnableScale,
         StyleMethodProp((consumer, value) {
-          if (consumer is TextNode && value is bool) {
+          if (consumer is TextStyleNode && value is bool) {
             consumer.enableScale = value;
           }
         }, false));
     pushMethodProp(
         NodeProps.whiteSpace,
         StyleMethodProp((consumer, value) {
-          if (consumer is TextNode && value is String) {
+          if (consumer is TextStyleNode && value is String) {
             consumer.whiteSpace(value);
           }
         }, "normal"));
@@ -754,7 +693,7 @@ class TextData {
   final int maxLines;
   final InlineSpan text;
   final TextAlign textAlign;
-  final String ellipsis = TextNode.ellipsis;
+  final String ellipsis = kEllipsis;
   final double textScaleFactor;
   final TextOverflow textOverflow;
 

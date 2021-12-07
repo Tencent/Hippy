@@ -4,10 +4,9 @@ import 'package:provider/provider.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
-import '../render/list.dart';
-import '../render/refresh.dart';
-import '../render/refresh_item.dart';
-import '../render/view_model.dart';
+import '../viewmodel/list.dart';
+import '../viewmodel/refresh.dart';
+import 'base.dart';
 import 'div.dart';
 
 class RefreshWrapperWidget extends FRStatefulWidget {

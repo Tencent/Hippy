@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../render/text_input.dart';
+import '../viewmodel/text_input.dart';
 import 'div.dart';
 
 class TextInputWidget extends StatefulWidget {

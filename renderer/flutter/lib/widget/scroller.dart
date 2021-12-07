@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../gesture/scroll.dart';
-import '../render/scroller.dart';
-import '../render/view_model.dart';
+import '../viewmodel/scroller.dart';
+import '../viewmodel/view_model.dart';
+import 'base.dart';
 import 'div.dart';
 
 class ScrollViewWidget extends FRStatefulWidget {

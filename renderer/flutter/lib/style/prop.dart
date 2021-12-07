@@ -26,7 +26,7 @@ abstract class MethodPropProvider {
   }
 }
 
-abstract class StyleMethodPropConsumer {
+mixin StyleMethodPropConsumer {
   MethodPropProvider get provider;
 }
 

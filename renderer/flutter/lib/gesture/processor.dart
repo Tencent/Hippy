@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 
-import '../dom/prop.dart';
+import '../style/prop.dart';
 
 class NativeGestureProcessor {
   static const int pressIn = 1;

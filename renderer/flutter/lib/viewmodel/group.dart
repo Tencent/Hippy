@@ -2,97 +2,10 @@ import 'dart:collection';
 
 import 'package:collection/collection.dart';
 
-import '../common/voltron_map.dart';
-import '../controller/manager.dart';
-import '../controller/props.dart';
-import '../dom/prop.dart';
 import '../engine/engine_context.dart';
+import '../style/prop.dart';
 import '../util/enum_util.dart';
-import 'controller.dart';
-import 'node.dart';
-import 'tree.dart';
 import 'view_model.dart';
-
-abstract class BaseGroupController<T extends GroupViewModel>
-    extends GroupController<BaseGroupRenderNode<T>> {
-  @override
-  BaseGroupRenderNode<T> createRenderNode(
-      int id,
-      VoltronMap? props,
-      String name,
-      RenderTree tree,
-      ControllerManager controllerManager,
-      bool lazy) {
-    return BaseGroupRenderNode(
-        id, name, tree, controllerManager, props, lazy, createViewModel);
-  }
-
-  @override
-  Map<String, ControllerMethodProp> get groupExtraMethodProp => {};
-
-  GroupViewModel createViewModel(BaseGroupRenderNode renderNode);
-}
-
-abstract class GroupController<T extends GroupRenderNode>
-    extends VoltronViewController<T> {
-  @override
-  Map<String, ControllerMethodProp> get extendRegisteredMethodProp {
-    var extraMap = <String, ControllerMethodProp>{};
-    extraMap[NodeProps.onInterceptTouchEvent] =
-        ControllerMethodProp(setInterceptTouch, false);
-    extraMap[NodeProps.onInterceptPullUpEvent] =
-        ControllerMethodProp(setInterceptPullUp, false);
-    extraMap.addAll(groupExtraMethodProp);
-
-    return extraMap;
-  }
-
-  Map<String, ControllerMethodProp> get groupExtraMethodProp;
-
-  @ControllerProps(NodeProps.onInterceptTouchEvent)
-  void setInterceptTouch(T node, bool flag) {
-    node.renderViewModel.interceptTouch = flag;
-  }
-
-  @ControllerProps(NodeProps.onInterceptPullUpEvent)
-  void setInterceptPullUp(T node, bool flag) {
-    node.renderViewModel.interceptPullUp = flag;
-  }
-}
-
-abstract class GroupRenderNode<T extends GroupViewModel> extends RenderNode<T> {
-  GroupRenderNode(int id, String className, RenderTree root,
-      ControllerManager controllerManager, VoltronMap? props, bool isLazy)
-      : super(id, className, root, controllerManager, props, isLazy);
-}
-
-typedef ViewModelCreator = GroupViewModel Function(
-    BaseGroupRenderNode renderNode);
-
-class BaseGroupRenderNode<V extends GroupViewModel>
-    extends GroupRenderNode<GroupViewModel> {
-  final ViewModelCreator? viewModelCreator;
-
-  BaseGroupRenderNode(
-      int id,
-      String className,
-      RenderTree root,
-      ControllerManager controllerManager,
-      VoltronMap? props,
-      bool isLazy,
-      this.viewModelCreator)
-      : super(id, className, root, controllerManager, props, isLazy);
-
-  @override
-  GroupViewModel createRenderViewModel(EngineContext context) {
-    var curCreator = viewModelCreator;
-    if (curCreator != null) {
-      var viewModel = curCreator(this);
-      return viewModel;
-    }
-    return GroupViewModel(id, rootId, name, context);
-  }
-}
 
 class GroupViewModel extends RenderViewModel {
   // touch/click intercept

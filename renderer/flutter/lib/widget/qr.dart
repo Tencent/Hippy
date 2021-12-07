@@ -3,9 +3,8 @@ import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-import '../render/qr.dart';
-import '../render/view_model.dart';
-
+import '../viewmodel/qr.dart';
+import 'base.dart';
 import 'div.dart';
 
 class QrWidget extends FRStatefulWidget {

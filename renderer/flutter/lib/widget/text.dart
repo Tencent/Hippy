@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
-import '../dom/text.dart';
-import '../render/text.dart';
-import '../render/view_model.dart';
 
+import '../style/text.dart';
+import '../viewmodel/text.dart';
+import 'base.dart';
 import 'div.dart';
 
 class TextWidget extends FRStatefulWidget {

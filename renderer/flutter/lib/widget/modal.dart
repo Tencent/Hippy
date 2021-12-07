@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
-import '../render/group.dart';
-import '../render/modal.dart';
-import '../render/view_model.dart';
 import '../util/log_util.dart';
+import '../viewmodel/group.dart';
+import '../viewmodel/modal.dart';
+import 'base.dart';
 import 'div.dart';
 
 class ModalContainerWidget extends FRStatefulWidget {

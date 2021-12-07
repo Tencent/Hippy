@@ -1,12 +1,8 @@
-import '../common/native_holder.dart';
 import '../util/enum_util.dart';
-import 'flex_box_bridge.dart';
 import 'flex_define.dart';
 import 'flex_value.dart';
 
-class FlexNodeStyle extends INativeHolder {
-  late NodeStyleApi _nodeStyleApi;
-
+class FlexNodeStyle {
   FlexDirection _direction = FlexDirection.INHERIT;
   FlexCSSDirection _flexCSSDirection = FlexCSSDirection.ROW;
   FlexJustify _justifyContent = FlexJustify.FLEX_START;
@@ -34,15 +30,6 @@ class FlexNodeStyle extends INativeHolder {
   final _padding = List.filled(FlexStyleEdge.EDGE_ALL.index + 1, 0.0);
   final _border = List.filled(FlexStyleEdge.EDGE_ALL.index + 1, 0.0);
   final _position = List.filled(FlexStyleEdge.EDGE_ALL.index + 1, 0.0);
-
-  FlexNodeStyle(int flexNodePtr)
-      : super(NodeStyleApi.newFlexNodeStyle, NodeStyleApi.freeFlexNodeStyle) {
-    if (nativePtr == 0) {
-      throw StateError("FlexNodeStyle Failed to allocate native memory");
-    }
-    _nodeStyleApi = NodeStyleApi(nativePtr);
-    _nodeStyleApi.setFlexNode(flexNodePtr);
-  }
 
   @override
   String toString() {
@@ -110,7 +97,6 @@ class FlexNodeStyle extends INativeHolder {
 
   set aspectRadio(double value) {
     _aspectRadio = value;
-    _nodeStyleApi.setStyleAspectRatio(value);
   }
 
   FlexValue get maxHeightFlex => FlexValue.point(_maxHeight);
@@ -119,12 +105,6 @@ class FlexNodeStyle extends INativeHolder {
 
   set maxHeight(double value) {
     _maxHeight = value;
-    _nodeStyleApi.setStyleMaxHeight(value);
-  }
-
-  // ignore: avoid_setters_without_getters
-  set maxHeightPercent(double value) {
-    _nodeStyleApi.setStyleMaxHeightPercent(value);
   }
 
   FlexValue get maxWidthFlex => FlexValue.point(_maxWidth);
@@ -133,11 +113,6 @@ class FlexNodeStyle extends INativeHolder {
 
   set maxWidth(double value) {
     _maxWidth = value;
-    _nodeStyleApi.setStyleMaxWidth(value);
-  }
-
-  set maxWidthPercent(double value) {
-    _nodeStyleApi.setStyleMaxWidthPercent(value);
   }
 
   FlexValue get minHeightFlex => FlexValue.point(_minHeight);
@@ -146,11 +121,6 @@ class FlexNodeStyle extends INativeHolder {
 
   set minHeight(double value) {
     _minHeight = value;
-    _nodeStyleApi.setStyleMinHeight(value);
-  }
-
-  set minHeightPercent(double value) {
-    _nodeStyleApi.setStyleMinHeightPercent(value);
   }
 
   FlexValue get minWidthFlex => FlexValue.point(_minWidth);
@@ -159,11 +129,6 @@ class FlexNodeStyle extends INativeHolder {
 
   set minWidth(double value) {
     _minWidth = value;
-    _nodeStyleApi.setStyleMinWidth(value);
-  }
-
-  set minWidthPercent(double value) {
-    _nodeStyleApi.setStyleMinWidthPercent(value);
   }
 
   FlexValue get heightFlex => FlexValue.point(_height);
@@ -172,15 +137,6 @@ class FlexNodeStyle extends INativeHolder {
 
   set height(double value) {
     _height = value;
-    _nodeStyleApi.setStyleHeight(value);
-  }
-
-  set heightPercent(double value) {
-    _nodeStyleApi.setStyleHeightPercent(value);
-  }
-
-  void setHeightAuto() {
-    _nodeStyleApi.setStyleHeightAuto();
   }
 
   FlexValue get widthFlex => FlexValue.point(_width);
@@ -189,15 +145,6 @@ class FlexNodeStyle extends INativeHolder {
 
   set width(double value) {
     _width = value;
-    _nodeStyleApi.setStyleWidth(value);
-  }
-
-  set widthPercent(double value) {
-    _nodeStyleApi.setStyleWidthPercent(value);
-  }
-
-  void setWidthAuto() {
-    _nodeStyleApi.setStyleWidthAuto();
   }
 
   FlexValue get flexBasisFlex => FlexValue.point(_flexBasis);
@@ -206,85 +153,66 @@ class FlexNodeStyle extends INativeHolder {
 
   set flexBasis(double value) {
     _flexBasis = value;
-    _nodeStyleApi.setStyleFlexBasis(value);
-  }
-
-  set flexBasisPercent(double value) {
-    _nodeStyleApi.setStyleFlexBasisPercent(value);
-  }
-
-  void setFlexBasisAuto() {
-    _nodeStyleApi.setStyleFlexBasisAuto();
   }
 
   double get flexShrink => _flexShrink;
 
   set flexShrink(double value) {
     _flexShrink = value;
-    _nodeStyleApi.setStyleFlexShrink(value);
   }
 
   double get flexGrow => _flexGrow;
 
   set flexGrow(double value) {
     _flexGrow = value;
-    _nodeStyleApi.setStyleFlexGrow(value);
   }
 
   double get flex => _flex;
 
   set flex(double value) {
     _flex = value;
-    _nodeStyleApi.setStyleFlex(value);
   }
 
   FlexDisplay get display => _display;
 
   set display(FlexDisplay value) {
     _display = value;
-    _nodeStyleApi.setStyleDisplay(value.index);
   }
 
   FlexOverflow get overflow => _overflow;
 
   set overflow(FlexOverflow value) {
     _overflow = value;
-    _nodeStyleApi.setStyleOverflow(value.index);
   }
 
   FlexWrap get flexWrap => _flexWrap;
 
   set flexWrap(FlexWrap value) {
     _flexWrap = value;
-    _nodeStyleApi.setStyleFlexWrap(value.index);
   }
 
   FlexPositionType get positionType => _positionType;
 
   set positionType(FlexPositionType value) {
     _positionType = value;
-    _nodeStyleApi.setStylePositionType(value.index);
   }
 
   FlexAlign get alignContent => _alignContent;
 
   set alignContent(FlexAlign value) {
     _alignContent = value;
-    _nodeStyleApi.setStyleAlignContent(value.index);
   }
 
   FlexAlign get alignSelf => _alignSelf;
 
   set alignSelf(FlexAlign value) {
     _alignSelf = value;
-    _nodeStyleApi.setStyleAlignSelf(value.index);
   }
 
   FlexAlign get alignItems => _alignItems;
 
   set alignItems(FlexAlign value) {
     _alignItems = value;
-    _nodeStyleApi.setStyleAlignItems(value.index);
   }
 
   FlexJustify get justifyContent => _justifyContent;
@@ -335,21 +263,18 @@ class FlexNodeStyle extends INativeHolder {
           break;
         }
     }
-    _nodeStyleApi.setStyleJustifyContent(order);
   }
 
   FlexCSSDirection get flexCSSDirection => _flexCSSDirection;
 
   set flexCSSDirection(FlexCSSDirection value) {
     _flexCSSDirection = value;
-    _nodeStyleApi.setStyleFlexDirection(value.index);
   }
 
   FlexDirection get direction => _direction;
 
   set direction(FlexDirection value) {
     _direction = value;
-    _nodeStyleApi.setStyleDirection(value.index);
   }
 
   FlexValue getMargin(FlexStyleEdge edge) {
@@ -358,15 +283,6 @@ class FlexNodeStyle extends INativeHolder {
 
   void setMargin(FlexStyleEdge edge, double margin) {
     _margin[edge.index] = margin;
-    _nodeStyleApi.setStyleMargin(edge.index, margin);
-  }
-
-  void setMarginPercent(FlexStyleEdge edge, double percent) {
-    _nodeStyleApi.setStyleMarginPercent(edge.index, percent);
-  }
-
-  void setMarginAuto(FlexStyleEdge edge) {
-    _nodeStyleApi.setStyleMarginAuto(edge.index);
   }
 
   FlexValue getPadding(FlexStyleEdge edge) {
@@ -375,11 +291,6 @@ class FlexNodeStyle extends INativeHolder {
 
   void setPadding(FlexStyleEdge edge, double padding) {
     _padding[edge.index] = padding;
-    _nodeStyleApi.setStylePadding(edge.index, padding);
-  }
-
-  void setPaddingPercent(FlexStyleEdge edge, double percent) {
-    _nodeStyleApi.setStylePaddingPercent(edge.index, percent);
   }
 
   FlexValue getBorder(FlexStyleEdge edge) {
@@ -388,7 +299,6 @@ class FlexNodeStyle extends INativeHolder {
 
   void setBorder(FlexStyleEdge edge, double border) {
     _border[edge.index] = border;
-    _nodeStyleApi.setStyleBorder(edge.index, border);
   }
 
   FlexValue getPosition(FlexStyleEdge edge) {
@@ -397,10 +307,6 @@ class FlexNodeStyle extends INativeHolder {
 
   void setPosition(FlexStyleEdge edge, double position) {
     _position[edge.index] = position;
-    _nodeStyleApi.setStylePosition(edge.index, position);
   }
 
-  void setPositionPercent(FlexStyleEdge edge, double position) {
-    _nodeStyleApi.setStylePositionPercent(edge.index, position);
-  }
 }

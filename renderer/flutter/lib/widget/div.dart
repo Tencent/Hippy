@@ -6,12 +6,13 @@ import 'package:provider/provider.dart';
 
 import '../common/voltron_map.dart';
 import '../controller/manager.dart';
-import '../dom/prop.dart';
-import '../render/div.dart';
-import '../render/group.dart';
-import '../render/view_model.dart';
+import '../style/prop.dart';
 import '../util/log_util.dart';
+import '../viewmodel/div.dart';
+import '../viewmodel/group.dart';
+import '../viewmodel/view_model.dart';
 import 'animation.dart';
+import 'base.dart';
 
 class DivWidget extends FRStatefulWidget {
   final DivRenderViewModel viewModel;
@@ -99,7 +100,7 @@ Widget generateByViewModel(
       controllerManager.findNode(renderViewModel.rootId, renderViewModel.id);
   var controller = controllerManager.findController(renderViewModel.name);
   if (node != null && controller != null) {
-    var widget = controller.createWidget(context, node);
+    var widget = controller.createWidget(context, renderViewModel);
     return widget;
   }
 

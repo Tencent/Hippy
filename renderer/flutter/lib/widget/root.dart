@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 
 import '../adapter/monitor.dart';
 import '../common/voltron_map.dart';
-import '../dom/prop.dart';
 import '../engine/context.dart';
 import '../engine/engine_context.dart';
 import '../engine/engine_define.dart';
@@ -15,12 +14,13 @@ import '../module/module.dart';
 import '../render/manager.dart';
 import '../render/node.dart';
 import '../render/tree.dart';
-import '../render/view_model.dart';
 import '../render_manager.dart';
+import '../style/prop.dart';
 import '../util/dimension_util.dart';
 import '../util/enum_util.dart';
 import '../util/log_util.dart';
 import '../util/screen_util.dart';
+import 'base.dart';
 
 class RootWidgetViewModel extends ChangeNotifier {
   static const int rootViewTagIncrement = 100000;
@@ -423,7 +423,9 @@ class _VoltronWidgetState extends State<VoltronWidget> {
   }
 
   Widget _generateByRenderNode(BuildContext context, RenderNode childNode) {
-    return childNode.createWidget(context) ?? Container();
+    return childNode
+        .findController()
+        .createWidget(context, childNode.renderViewModel);
   }
 
   void _loadModule() {

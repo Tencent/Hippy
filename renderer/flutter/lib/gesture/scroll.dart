@@ -6,8 +6,8 @@ import '../common/voltron_map.dart';
 import '../engine/engine_context.dart';
 import '../module/event_dispatcher.dart';
 import '../module/module.dart';
-import '../render/view_model.dart';
 import '../util/enum_util.dart';
+import '../viewmodel/view_model.dart';
 import 'dispatcher.dart';
 
 class NativeScrollGestureDispatcher extends NativeGestureDispatcher {

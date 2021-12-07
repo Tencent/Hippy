@@ -3,7 +3,6 @@ import '../adapter/third_party.dart';
 import '../channel/platform_manager.dart';
 import '../common/voltron_map.dart';
 import '../dev/dev.dart';
-import '../flexbox/flex_box_bridge.dart';
 import '../module/device_event.dart';
 import '../module/event_dispatcher.dart';
 import '../module/module.dart';
@@ -473,7 +472,6 @@ class VoltronEngine implements OnSizeChangedListener, OnResumeAndPauseListener {
     if (!_sHasInitBridge) {
       LogUtils.d(_tag, "_initBridge");
       await VoltronApi.initBridge();
-      await NodeApi.initBridge();
       _sHasInitBridge = true;
     }
   }

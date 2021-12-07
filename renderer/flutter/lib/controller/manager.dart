@@ -1,19 +1,18 @@
 import '../common/voltron_array.dart';
 import '../common/voltron_map.dart';
-import '../dom/prop.dart';
-import '../dom/style_node.dart';
 import '../engine/api_provider.dart';
 import '../engine/engine_context.dart';
 import '../module/promise.dart';
-import '../render/controller.dart';
-import '../render/div.dart';
-import '../render/group.dart';
 import '../render/node.dart';
 import '../render/tree.dart';
-import '../render/view_model.dart';
+import '../style/prop.dart';
 import '../util/animation_util.dart';
 import '../util/log_util.dart';
+import '../viewmodel/group.dart';
+import '../viewmodel/view_model.dart';
 import '../voltron/lifecycle.dart';
+import 'controller.dart';
+import 'div.dart';
 import 'registry.dart';
 import 'update.dart';
 
@@ -99,12 +98,6 @@ class ControllerManager implements InstanceLifecycleEventListener {
     }
   }
 
-  StyleNode createStyleNode(
-      String name, String tagName, int instanceId, int id, bool isVirtual) {
-    return findController(name)
-            ?.createStyleNode(name, tagName, instanceId, id, isVirtual) ??
-        StyleNode(instanceId, id, name, tagName);
-  }
 
   bool hasNode(RenderNode node) {
     return findNode(node.rootId, node.id) == node;
@@ -208,7 +201,7 @@ class ControllerManager implements InstanceLifecycleEventListener {
     final controller = findController(name);
 
     if (node != null && controller != null) {
-      controller.dispatchFunction(node, functionName, params,
+      controller.dispatchFunction(node.renderViewModel, functionName, params,
           promise: promise.isCallback() ? promise : null);
     }
   }

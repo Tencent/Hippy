@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
-import '../dom/prop.dart';
 import '../engine/engine_context.dart';
 import '../module/event_dispatcher.dart';
 import '../module/module.dart';
-import '../render/image.dart';
-import '../render/view_model.dart';
+import '../style/prop.dart';
 import '../util/enum_util.dart';
 import '../util/log_util.dart';
+import '../viewmodel/image.dart';
+import 'base.dart';
 import 'div.dart';
 
 class ImageWidget extends FRStatefulWidget {

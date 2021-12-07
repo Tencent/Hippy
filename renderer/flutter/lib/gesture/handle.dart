@@ -1,5 +1,5 @@
 import '../common/voltron_map.dart';
-import '../dom/prop.dart';
+import '../style/prop.dart';
 import '../engine/engine_context.dart';
 import '../module/event_dispatcher.dart';
 import '../module/module.dart';

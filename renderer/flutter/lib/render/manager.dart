@@ -11,10 +11,10 @@ import '../module/promise.dart';
 import '../util/log_util.dart';
 import '../util/render_util.dart';
 import '../util/time_util.dart';
+import '../viewmodel/view_model.dart';
 import '../voltron/lifecycle.dart';
 import 'node.dart';
 import 'operator_runner.dart';
-import 'view_model.dart';
 
 typedef IRenderExecutor = void Function();
 
@@ -233,14 +233,16 @@ class RenderManager
   }
 
   void createNode(int instanceId, int id, int pId, int childIndex, String name,
-      VoltronMap? props) {
+      VoltronMap? styles, VoltronMap? props) {
     var parentNode = controllerManager.findNode(instanceId, pId);
     var tree = controllerManager.findTree(instanceId);
     if (parentNode != null && tree != null) {
       var isLazy = controllerManager.isControllerLazy(name);
       var uiNode = controllerManager.createRenderNode(
           id, props, name, tree, isLazy || parentNode.isLazyLoad);
-
+      if (styles != null) {
+        uiNode?.updateStyle(styles);
+      }
       LogUtils.dRender(
           "createNode ID:$id pID:$pId index:$childIndex className:$name finish:${uiNode.hashCode}");
       parentNode.addChild(uiNode, childIndex);
@@ -313,6 +315,7 @@ class RenderManager
     LogUtils.dRender("update node ID:$id, param:($map)");
     var uiNode = controllerManager.findNode(instanceId, id);
     if (uiNode != null) {
+
       uiNode.updateNode(map);
       addUpdateNodeIfNeeded(uiNode);
     }

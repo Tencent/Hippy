@@ -4,17 +4,20 @@ import 'package:flutter/cupertino.dart';
 
 import '../common/voltron_array.dart';
 import '../common/voltron_map.dart';
+import '../controller/controller.dart';
 import '../controller/manager.dart';
-import '../dom/prop.dart';
 import '../engine/engine_context.dart';
 import '../module/promise.dart';
+import '../style/prop.dart';
+import '../style/style_node.dart';
+import '../style/update.dart';
 import '../util/diff.dart';
 import '../util/log_util.dart';
 import '../util/screen_util.dart';
+import '../viewmodel/group.dart';
+import '../viewmodel/view_model.dart';
 import '../widget/root.dart';
-import 'group.dart';
 import 'tree.dart';
-import 'view_model.dart';
 
 class RootRenderNode extends RenderNode {
   RootRenderNode(int id, String className, RenderTree root,
@@ -41,15 +44,15 @@ class RootRenderViewModel extends GroupViewModel {
   }
 }
 
-abstract class RenderNode<T extends RenderViewModel> {
+class RenderNode extends StyleNode {
   // 唯一标识
   final int _id;
 
   /// 布局属性
-  double? _x;
-  double? _y;
-  double? _width;
-  double? _height;
+  double _x = 0;
+  double _y = 0;
+  double _width = 0;
+  double _height = 0;
 
   /// 基础参数
   final String _className;
@@ -66,7 +69,7 @@ abstract class RenderNode<T extends RenderViewModel> {
   final List<RenderNode> _children = [];
   final List<RenderNode> _childrenPendingList = [];
   final List<MoveHolder> _moveHolders = [];
-  T? _viewModel;
+  RenderViewModel? _viewModel;
 
   /// 更新相关属性
   final HashMap<int, int> _deleteIdIndexMap = HashMap();
@@ -96,13 +99,13 @@ abstract class RenderNode<T extends RenderViewModel> {
 
   RenderTree get root => _root;
 
-  double? get layoutX => _x;
+  double get layoutX => _x;
 
-  double? get layoutY => _y;
+  double get layoutY => _y;
 
-  double? get layoutWidth => _width;
+  double get layoutWidth => _width;
 
-  double? get layoutHeight => _height;
+  double get layoutHeight => _height;
 
   bool get shouldCreateView => !_isLazyLoad && _viewModel == null;
 
@@ -112,8 +115,11 @@ abstract class RenderNode<T extends RenderViewModel> {
 
   List<RenderNode> get children => _children;
 
-  Widget? createWidget(BuildContext context) =>
-      _controllerManager.findController(name)?.createWidget(context, this);
+  VoltronViewController findController() {
+    var controller = _controllerManager.findController(name);
+    assert(controller != null);
+    return controller!;
+  }
 
   set isLazyLoad(bool isLazy) {
     setLazy(this, isLazy);
@@ -132,7 +138,7 @@ abstract class RenderNode<T extends RenderViewModel> {
 
   RenderNode(this._id, this._className, this._root, this._controllerManager,
       this._props,
-      [this._isLazyLoad = false, this._parent]);
+      [this._isLazyLoad = false, this._parent]): super(_className);
 
   @override
   String toString() {
@@ -157,7 +163,7 @@ abstract class RenderNode<T extends RenderViewModel> {
     }
   }
 
-  T get renderViewModel {
+  RenderViewModel get renderViewModel {
     if (_viewModel == null) {
       _viewModel = createRenderViewModel(_controllerManager.context);
     }
@@ -239,7 +245,9 @@ abstract class RenderNode<T extends RenderViewModel> {
     }
   }
 
-  T createRenderViewModel(EngineContext context);
+  RenderViewModel createRenderViewModel(EngineContext context) {
+    return findController().createRenderViewModel(this, context);
+  }
 
   void updateRecursive() {
     update();
@@ -375,6 +383,10 @@ abstract class RenderNode<T extends RenderViewModel> {
     _hasUpdateLayout = true;
   }
 
+  void updateStyle(VoltronMap map) {
+    DomUpdateUtil.updateStyle(this, map);
+  }
+
   void updateNode(VoltronMap map) {
     var propToUpdate = _propToUpdate;
     if (propToUpdate != null) {
@@ -393,7 +405,7 @@ abstract class RenderNode<T extends RenderViewModel> {
                 stylesToUpdate.push(styleKey, styles.get(styleKey));
               }
 
-              propToUpdate.push(key, stylesToUpdate);
+              updateStyle(stylesToUpdate);
             }
           } else {
             propToUpdate.push(key, paramsMap.get(key));

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../render/group.dart';
-import '../render/refresh_item.dart';
-import '../render/view_model.dart';
+import '../viewmodel/group.dart';
+import '../viewmodel/refresh_item.dart';
+import 'base.dart';
 import 'div.dart';
 
 class RefreshWrapperItemWidget extends FRStatefulWidget {

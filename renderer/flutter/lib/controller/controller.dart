@@ -1,20 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 import '../common/voltron_array.dart';
 import '../common/voltron_map.dart';
-import '../controller/manager.dart';
-import '../controller/props.dart';
-import '../dom/prop.dart';
-import '../dom/style_node.dart';
+import '../engine/engine_context.dart';
 import '../module/promise.dart';
+import '../render/node.dart';
+import '../render/tree.dart';
+import '../style/prop.dart';
 import '../util/animation_util.dart';
 import '../util/transform_util.dart';
-import 'node.dart';
-import 'tree.dart';
-import 'view_model.dart';
+import '../viewmodel/view_model.dart';
+import 'manager.dart';
+import 'props.dart';
 
-abstract class VoltronViewController<T extends RenderNode>
+abstract class BaseViewController<T extends RenderViewModel>
+    extends VoltronViewController<T, RenderNode> {
+  @override
+  RenderNode createRenderNode(int id, VoltronMap? props, String name,
+      RenderTree tree, ControllerManager controllerManager, bool lazy) {
+    return RenderNode(id, name, tree, controllerManager, props);
+  }
+}
+
+abstract class VoltronViewController<T extends RenderViewModel, R extends RenderNode>
     implements ControllerMethodPropConsumer<T> {
   String get name;
 
@@ -96,160 +106,160 @@ abstract class VoltronViewController<T extends RenderNode>
   Map<String, ControllerMethodProp> get extendRegisteredMethodProp;
 
   @ControllerProps(NodeProps.transform)
-  void setTransform(T node, VoltronArray? transformArray) {
+  void setTransform(T viewModel, VoltronArray? transformArray) {
     final transform = TransformUtil.getTransformMatrix4(transformArray);
-    node.renderViewModel.transform = transform;
-    node.renderViewModel
+    viewModel.transform = transform;
+    viewModel
         .updateAnimation<Matrix4?>(NodeProps.transform, transform);
   }
 
   @ControllerProps(NodeProps.transformOrigin)
-  void setTransformOrigin(T node, VoltronMap? transformOriginMap) {
+  void setTransformOrigin(T viewModel, VoltronMap? transformOriginMap) {
     final transformOrigin = TransformOrigin(transformOriginMap);
-    node.renderViewModel.transformOrigin = transformOrigin;
-    node.renderViewModel.updateAnimation<TransformOrigin>(
+    viewModel.transformOrigin = transformOrigin;
+    viewModel.updateAnimation<TransformOrigin>(
         NodeProps.transformOrigin, transformOrigin);
   }
 
   /// zIndex
   @ControllerProps(NodeProps.zIndex)
-  void setZIndex(T view, int zIndex) {
-    view.renderViewModel.zIndex = zIndex;
+  void setZIndex(T viewModel, int zIndex) {
+    viewModel.zIndex = zIndex;
   }
 
   @ControllerProps(NodeProps.propAccessibilityLabel)
-  void setAccessibilityLabel(T node, String? accessibilityLabel) {
-    node.renderViewModel.accessibilityLabel =
+  void setAccessibilityLabel(T viewModel, String? accessibilityLabel) {
+    viewModel.accessibilityLabel =
         accessibilityLabel == null ? "" : accessibilityLabel;
   }
 
   @ControllerProps(NodeProps.backgroundColor)
-  void setBackgroundColor(T node, int? backgroundColor) {
+  void setBackgroundColor(T viewModel, int? backgroundColor) {
     final color = backgroundColor == null ? null : Color(backgroundColor);
-    node.renderViewModel.backgroundColor = color;
-    node.renderViewModel
+    viewModel.backgroundColor = color;
+    viewModel
         .updateAnimation<Color?>(NodeProps.backgroundColor, color);
   }
 
   @ControllerProps(NodeProps.opacity)
-  void setOpacity(T node, double opacity) {
-    node.renderViewModel.opacity = opacity;
-    node.renderViewModel.updateAnimation<double>(NodeProps.opacity, opacity);
+  void setOpacity(T viewModel, double opacity) {
+    viewModel.opacity = opacity;
+    viewModel.updateAnimation<double>(NodeProps.opacity, opacity);
   }
 
   @ControllerProps(NodeProps.borderRadius)
-  void setBorderRadius(T node, double borderRadius) {
-    node.renderViewModel.borderRadius = borderRadius;
+  void setBorderRadius(T viewModel, double borderRadius) {
+    viewModel.borderRadius = borderRadius;
   }
 
   @ControllerProps(NodeProps.borderTopLeftRadius)
-  void setTopLeftBorderRadius(T node, double topLeftBorderRadius) {
-    node.renderViewModel.topLeftBorderRadius = topLeftBorderRadius;
+  void setTopLeftBorderRadius(T viewModel, double topLeftBorderRadius) {
+    viewModel.topLeftBorderRadius = topLeftBorderRadius;
   }
 
   @ControllerProps(NodeProps.borderTopRightRadius)
-  void setTopRightBorderRadius(T node, double topRightBorderRadius) {
-    node.renderViewModel.topRightBorderRadius = topRightBorderRadius;
+  void setTopRightBorderRadius(T viewModel, double topRightBorderRadius) {
+    viewModel.topRightBorderRadius = topRightBorderRadius;
   }
 
   @ControllerProps(NodeProps.borderBottomRightRadius)
-  void setBottomRightBorderRadius(T node, double bottomRightBorderRadius) {
-    node.renderViewModel.bottomRightBorderRadius = bottomRightBorderRadius;
+  void setBottomRightBorderRadius(T viewModel, double bottomRightBorderRadius) {
+    viewModel.bottomRightBorderRadius = bottomRightBorderRadius;
   }
 
   @ControllerProps(NodeProps.borderBottomLeftRadius)
-  void setBottomLeftBorderRadius(T node, double bottomLeftBorderRadius) {
-    node.renderViewModel.bottomLeftBorderRadius = bottomLeftBorderRadius;
+  void setBottomLeftBorderRadius(T viewModel, double bottomLeftBorderRadius) {
+    viewModel.bottomLeftBorderRadius = bottomLeftBorderRadius;
   }
 
   @ControllerProps(NodeProps.borderWidth)
-  void setBorderWidth(T node, double borderWidth) {
-    node.renderViewModel.borderWidth = borderWidth;
+  void setBorderWidth(T viewModel, double borderWidth) {
+    viewModel.borderWidth = borderWidth;
   }
 
   @ControllerProps(NodeProps.nextFocusDownId)
-  void setNextFocusDownId(T node, int id) {
-    node.renderViewModel.nexFocusDownId = id;
+  void setNextFocusDownId(T viewModel, int id) {
+    viewModel.nexFocusDownId = id;
   }
 
   @ControllerProps(NodeProps.nextFocusUpId)
-  void setNextFocusUpId(T node, int id) {
-    node.renderViewModel.nextFocusUpId = id;
+  void setNextFocusUpId(T viewModel, int id) {
+    viewModel.nextFocusUpId = id;
   }
 
   @ControllerProps(NodeProps.nextFocusLeftId)
-  void setNextFocusLeftId(T node, int id) {
-    node.renderViewModel.nextFocusLeftId = id;
+  void setNextFocusLeftId(T viewModel, int id) {
+    viewModel.nextFocusLeftId = id;
   }
 
   @ControllerProps(NodeProps.nextFocusRightId)
-  void setNextFocusRightId(T node, int id) {
-    node.renderViewModel.nextFocusRightId = id;
+  void setNextFocusRightId(T viewModel, int id) {
+    viewModel.nextFocusRightId = id;
   }
 
   @ControllerProps(NodeProps.borderLeftWidth)
-  void setLeftBorderWidth(T node, double width) {
-    node.renderViewModel.borderLeftWidth = width;
+  void setLeftBorderWidth(T viewModel, double width) {
+    viewModel.borderLeftWidth = width;
   }
 
   @ControllerProps(NodeProps.borderTopWidth)
-  void setTopBorderWidth(T node, double width) {
-    node.renderViewModel.borderTopWidth = width;
+  void setTopBorderWidth(T viewModel, double width) {
+    viewModel.borderTopWidth = width;
   }
 
   @ControllerProps(NodeProps.borderRightWidth)
-  void setRightBorderWidth(T node, double width) {
-    node.renderViewModel.borderRightWidth = width;
+  void setRightBorderWidth(T viewModel, double width) {
+    viewModel.borderRightWidth = width;
   }
 
   @ControllerProps(NodeProps.borderBottomWidth)
-  void setBottomBorderWidth(T node, double width) {
-    node.renderViewModel.borderBottomWidth = width;
+  void setBottomBorderWidth(T viewModel, double width) {
+    viewModel.borderBottomWidth = width;
   }
 
   @ControllerProps(NodeProps.borderColor)
-  void setBorderColor(T node, int color) {
-    node.renderViewModel.borderColor = color;
+  void setBorderColor(T viewModel, int color) {
+    viewModel.borderColor = color;
   }
 
   @ControllerProps(NodeProps.borderLeftColor)
-  void setBorderLeftColor(T node, int color) {
-    node.renderViewModel.borderLeftColor = color;
+  void setBorderLeftColor(T viewModel, int color) {
+    viewModel.borderLeftColor = color;
   }
 
   @ControllerProps(NodeProps.borderTopColor)
-  void setBorderTopColor(T node, int color) {
-    node.renderViewModel.borderTopColor = color;
+  void setBorderTopColor(T viewModel, int color) {
+    viewModel.borderTopColor = color;
   }
 
   @ControllerProps(NodeProps.borderRightColor)
-  void setBorderRightColor(T node, int color) {
-    node.renderViewModel.borderRightColor = color;
+  void setBorderRightColor(T viewModel, int color) {
+    viewModel.borderRightColor = color;
   }
 
   @ControllerProps(NodeProps.borderBottomColor)
-  void setBorderBottomColor(T node, int color) {
-    node.renderViewModel.borderBottomColor = color;
+  void setBorderBottomColor(T viewModel, int color) {
+    viewModel.borderBottomColor = color;
   }
 
   @ControllerProps(NodeProps.boxShadow)
-  void setBoxShadow(T node, VoltronArray? data) {
-    node.renderViewModel.boxShadow = data;
+  void setBoxShadow(T viewModel, VoltronArray? data) {
+    viewModel.boxShadow = data;
   }
 
   @ControllerProps(NodeProps.transition)
-  void setTransition(T node, VoltronArray? value) {
+  void setTransition(T viewModel, VoltronArray? value) {
     final transitionMap = AnimationUtil.getTransitionMap(value);
     if (transitionMap == null) {
       return;
     }
 
-    node.renderViewModel.transition =
-        CssAnimation.initByTransition(transitionMap, node.renderViewModel);
+    viewModel.transition =
+        CssAnimation.initByTransition(transitionMap, viewModel);
   }
 
   @ControllerProps(NodeProps.animation)
-  void setAnimation(T node, VoltronMap? value) {
+  void setAnimation(T viewModel, VoltronMap? value) {
     final animationPropertyMap =
         value?.get<VoltronMap>(NodeProps.animationKeyFramePropertyMap);
     if (value == null || animationPropertyMap == null) {
@@ -259,96 +269,91 @@ abstract class VoltronViewController<T extends RenderNode>
     final propertyMapSortList =
         AnimationUtil.getAnimationPropertyListSortByKeyframeSelector(
             animationPropertyMap);
-    node.renderViewModel.animation = CssAnimation.initByAnimation(
-        value, propertyMapSortList, node.renderViewModel);
-    node.renderViewModel.animationFillMode =
+    viewModel.animation = CssAnimation.initByAnimation(
+        value, propertyMapSortList, viewModel);
+    viewModel.animationFillMode =
         value.get<String>(NodeProps.animationFillModel) ??
             AnimationFillMode.none;
   }
 
   @ControllerProps(NodeProps.animationEndPropertyMap)
-  void setAnimationEndPropertyMap(T node, VoltronMap? value) {
-    node.renderViewModel.animationEndPropertyMap = VoltronMap.copy(value);
+  void setAnimationEndPropertyMap(T viewModel, VoltronMap? value) {
+    viewModel.animationEndPropertyMap = VoltronMap.copy(value);
   }
 
   @ControllerProps(NodeProps.animationPropertyOptionMap)
-  void setAnimationPropertyOptionMap(T node, VoltronMap? value) {
-    node.renderViewModel.animationPropertyOptionMap = VoltronMap.copy(value);
+  void setAnimationPropertyOptionMap(T viewModel, VoltronMap? value) {
+    viewModel.animationPropertyOptionMap = VoltronMap.copy(value);
   }
 
   @ControllerProps(NodeProps.focusable)
-  void setFocusable(T node, bool focusable) {
-    node.renderViewModel.setFocusable(focusable);
+  void setFocusable(T viewModel, bool focusable) {
+    viewModel.setFocusable(focusable);
   }
 
   @ControllerProps(NodeProps.requestFocus)
-  void requestFocus(T node, bool request) {
-    node.renderViewModel.requestFocus(request);
+  void requestFocus(T viewModel, bool request) {
+    viewModel.requestFocus(request);
   }
 
   @ControllerProps(NodeProps.onClick)
-  void setClickable(T node, bool flag) {
-    node.renderViewModel.setClickable(flag);
+  void setClickable(T viewModel, bool flag) {
+    viewModel.setClickable(flag);
   }
 
   @ControllerProps(NodeProps.onLongClick)
-  void setLongClickable(T node, bool flag) {
-    node.renderViewModel.setLongClickable(flag);
+  void setLongClickable(T viewModel, bool flag) {
+    viewModel.setLongClickable(flag);
   }
 
   @ControllerProps(NodeProps.onPressIn)
-  void setCanPressIn(T node, bool flag) {
-    node.renderViewModel.setCanPressIn(flag);
+  void setCanPressIn(T viewModel, bool flag) {
+    viewModel.setCanPressIn(flag);
   }
 
   @ControllerProps(NodeProps.onPressOut)
-  void setCanPressOut(T node, bool flag) {
-    node.renderViewModel.setCanPressOut(flag);
+  void setCanPressOut(T viewModel, bool flag) {
+    viewModel.setCanPressOut(flag);
   }
 
   @ControllerProps(NodeProps.onTouchDown)
-  void setTouchDownHandle(T node, bool flag) {
-    node.renderViewModel.setTouchDownHandle(flag);
+  void setTouchDownHandle(T viewModel, bool flag) {
+    viewModel.setTouchDownHandle(flag);
   }
 
   @ControllerProps(NodeProps.onTouchMove)
-  void setTouchMoveHandle(T node, bool flag) {
-    node.renderViewModel.setTouchMoveHandle(flag);
+  void setTouchMoveHandle(T viewModel, bool flag) {
+    viewModel.setTouchMoveHandle(flag);
   }
 
   @ControllerProps(NodeProps.onTouchEnd)
-  void setTouchEndHandle(T node, bool flag) {
-    node.renderViewModel.setTouchEndHandle(flag);
+  void setTouchEndHandle(T viewModel, bool flag) {
+    viewModel.setTouchEndHandle(flag);
   }
 
   @ControllerProps(NodeProps.onTouchCancel)
-  void setTouchCancelHandle(T node, bool flag) {
-    node.renderViewModel.setTouchCancelHandle(flag);
+  void setTouchCancelHandle(T viewModel, bool flag) {
+    viewModel.setTouchCancelHandle(flag);
   }
 
   @ControllerProps(NodeProps.onAttachedToWindow)
-  void setAttachedToWindowHandle(T node, bool flag) {
-    node.renderViewModel.setAttachedToWindowHandle(flag);
+  void setAttachedToWindowHandle(T viewModel, bool flag) {
+    viewModel.setAttachedToWindowHandle(flag);
   }
 
   @ControllerProps(NodeProps.onDetachedFromWindow)
-  void setDetachedFromWindowHandle(T node, bool flag) {
-    node.renderViewModel.setDetachedFromWindowHandle(flag);
+  void setDetachedFromWindowHandle(T viewModel, bool flag) {
+    viewModel.setDetachedFromWindowHandle(flag);
   }
 
   @override
-  void setCustomProp(T node, String propName, Object prop) {}
+  void setCustomProp(RenderNode node, String propName, Object prop) {}
 
-  void onAfterUpdateProps(T renderNode) {}
+  void onAfterUpdateProps(R renderNode) {}
 
-  StyleNode createStyleNode(
-      String name, String tagName, int instanceId, int id, bool isVirtual) {
-    return StyleNode(instanceId, id, name, tagName);
-  }
+  Widget createWidget(BuildContext context, T viewModel);
 
-  Widget createWidget(BuildContext context, T renderNode);
-
-  void updateLayout(T node) {
+  void updateLayout(R node) {
     if (shouldInterceptLayout(node)) {
       return;
     }
@@ -357,36 +362,32 @@ abstract class VoltronViewController<T extends RenderNode>
     var layoutY = node.layoutY;
     var layoutWidth = node.layoutWidth;
     var layoutHeight = node.layoutHeight;
-    if (layoutX == null ||
-        layoutY == null ||
-        layoutWidth == null ||
-        layoutHeight == null) {
-      return;
-    }
     node.renderViewModel
         .updateLayout(layoutX, layoutY, layoutWidth, layoutHeight);
   }
 
-  bool shouldInterceptLayout(T node) {
+  bool shouldInterceptLayout(R node) {
     return false;
   }
 
-  void updateExtra(T node, Object updateExtra) {}
+  void updateExtra(R node, Object updateExtra) {}
 
-  T createRenderNode(int id, VoltronMap? props, String name, RenderTree tree,
+  R createRenderNode(int id, VoltronMap? props, String name, RenderTree tree,
       ControllerManager controllerManager, bool lazy);
+
+  T createRenderViewModel(R node, EngineContext context);
 
   // dispatch the js call UI Function.
   // @param node node实例
   // @param functionName 函数名
   // @param array 函数参数
   // @param promise 回调
-  void dispatchFunction(T node, String functionName, VoltronArray array,
+  void dispatchFunction(T viewModel, String functionName, VoltronArray array,
       {Promise? promise}) {}
 
-  void onBatchComplete(T node) {}
+  void onBatchComplete(R node) {}
 
-  void onManageChildComplete(T node) {}
+  void onManageChildComplete(R node) {}
 
   void onViewDestroy(RenderViewModel child) {
     child.onViewModelDestroy();

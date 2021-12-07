@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 
 import '../common/voltron_array.dart';
 import '../common/voltron_map.dart';
-import '../dom/prop.dart';
 import '../render/node.dart';
-import '../render/view_model.dart';
+import '../style/prop.dart';
+import '../viewmodel/view_model.dart';
 import 'transform_util.dart';
 
 /// 动画工具类

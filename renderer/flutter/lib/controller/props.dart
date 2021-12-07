@@ -1,3 +1,5 @@
+import 'package:tencent_voltron_render/viewmodel/view_model.dart';
+
 import '../render/node.dart';
 
 class ControllerMethodProp<T> {
@@ -23,12 +25,12 @@ class ControllerMethodPropProvider {
   }
 }
 
-abstract class ControllerMethodPropConsumer<T extends RenderNode> {
+abstract class ControllerMethodPropConsumer<T extends RenderViewModel> {
   String get name;
 
   ControllerMethodPropProvider generateProvider();
 
-  void setCustomProp(T node, String name, Object prop);
+  void setCustomProp(RenderNode node, String name, Object prop);
 }
 
 class ControllerProps {

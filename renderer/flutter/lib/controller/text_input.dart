@@ -2,24 +2,22 @@ import 'package:flutter/material.dart';
 
 import '../common/voltron_array.dart';
 import '../common/voltron_map.dart';
-import '../controller/manager.dart';
+import '../controller/controller.dart';
 import '../controller/props.dart';
-import '../dom/prop.dart';
-import '../dom/text.dart';
 import '../engine/engine_context.dart';
 import '../module/event_dispatcher.dart';
 import '../module/module.dart';
 import '../module/promise.dart';
+import '../render/node.dart';
+import '../style/prop.dart';
+import '../style/text.dart';
 import '../util/enum_util.dart';
 import '../util/log_util.dart';
 import '../util/string_util.dart';
+import '../viewmodel/text_input.dart';
 import '../widget/text_input.dart';
-import 'controller.dart';
-import 'node.dart';
-import 'tree.dart';
-import 'view_model.dart';
 
-class TextInputController extends VoltronViewController<TextInputRenderNode> {
+class TextInputController extends BaseViewController<TextInputRenderViewModel> {
   static const String className = "TextInput";
   static const String tag = "TextInputController";
 
@@ -54,20 +52,14 @@ class TextInputController extends VoltronViewController<TextInputRenderNode> {
   static const String commandKeyboardDismiss = "dissmiss";
 
   @override
-  TextInputRenderNode createRenderNode(int id, VoltronMap? props, String name,
-      RenderTree tree, ControllerManager controllerManager, bool lazy) {
-    return TextInputRenderNode(
-        id: id,
-        props: props,
-        className: name,
-        root: tree,
-        controllerManager: controllerManager,
-        isLazy: lazy);
+  TextInputRenderViewModel createRenderViewModel(
+      RenderNode node, EngineContext context) {
+    return TextInputRenderViewModel(node.id, node.rootId, name, context);
   }
 
   @override
-  Widget createWidget(BuildContext context, TextInputRenderNode renderNode) {
-    return TextInputWidget(renderNode.renderViewModel);
+  Widget createWidget(BuildContext context, TextInputRenderViewModel renderViewModel) {
+    return TextInputWidget(renderViewModel);
   }
 
   @override
@@ -97,7 +89,7 @@ class TextInputController extends VoltronViewController<TextInputRenderNode> {
             ControllerMethodProp(setTextHitColorVue, 0xFF888888),
         placeholderTextColorReact:
             ControllerMethodProp(setTextHitColorReact, 0xFF888888),
-        numberOfLines: ControllerMethodProp(setMaxLines, TextNode.maxLineCount),
+        numberOfLines: ControllerMethodProp(setMaxLines, kMaxLineCount),
         underlineColor:
             ControllerMethodProp(setUnderlineColor, Colors.transparent.value),
         onChangeText: ControllerMethodProp(setOnChangeText, false),
@@ -121,216 +113,216 @@ class TextInputController extends VoltronViewController<TextInputRenderNode> {
   String get name => className;
 
   @ControllerProps(NodeProps.fontSize)
-  void setFontSize(TextInputRenderNode textInput, double fontSize) {
-    textInput.renderViewModel.fontSize = fontSize;
+  void setFontSize(TextInputRenderViewModel renderViewModel, double fontSize) {
+    renderViewModel.fontSize = fontSize;
   }
 
   @ControllerProps(defaultValue)
-  void setDefaultValue(TextInputRenderNode textInput, String defaultValue) {
-    textInput.renderViewModel.setValue(defaultValue);
+  void setDefaultValue(TextInputRenderViewModel renderViewModel, String defaultValue) {
+    renderViewModel.setValue(defaultValue);
   }
 
   @ControllerProps(validator)
-  void setValidator(TextInputRenderNode textInput, String strValidator) {
-    textInput.renderViewModel.dispatcher.validator = strValidator;
+  void setValidator(TextInputRenderViewModel renderViewModel, String strValidator) {
+    renderViewModel.dispatcher.validator = strValidator;
   }
 
   @ControllerProps(editable)
-  void setEditable(TextInputRenderNode textInput, bool editable) {
-    textInput.renderViewModel.editable = editable;
+  void setEditable(TextInputRenderViewModel renderViewModel, bool editable) {
+    renderViewModel.editable = editable;
   }
 
   // 设置输入光标颜色  RN 语法 caret-color
   @ControllerProps(caretColorReact)
-  void setCaretColor(TextInputRenderNode textInput, int cursorColor) {
-    textInput.renderViewModel.cursorColor = cursorColor;
+  void setCaretColor(TextInputRenderViewModel renderViewModel, int cursorColor) {
+    renderViewModel.cursorColor = cursorColor;
   }
 
   //  设置输入光标颜色
   //For Vue.vue的前端语法，会把caret-color转化成caretColor
   @ControllerProps(caretColorVue)
-  void setCaretColorAlias(TextInputRenderNode textInput, int cursorColor) {
-    textInput.renderViewModel.cursorColor = cursorColor;
+  void setCaretColorAlias(TextInputRenderViewModel renderViewModel, int cursorColor) {
+    renderViewModel.cursorColor = cursorColor;
   }
 
   @ControllerProps(multiline)
-  void multiLine(TextInputRenderNode textInput, bool multiline) {
-    textInput.renderViewModel.setMultiLine(multiline);
+  void multiLine(TextInputRenderViewModel renderViewModel, bool multiline) {
+    renderViewModel.setMultiLine(multiline);
   }
 
   @ControllerProps(returnKeyType)
-  void setReturnKeyType(TextInputRenderNode view, String returnKeyType) {
-    view.renderViewModel.setTextInputType(returnKeyType);
+  void setReturnKeyType(TextInputRenderViewModel renderViewModel, String returnKeyType) {
+    renderViewModel.setTextInputType(returnKeyType);
   }
 
   @ControllerProps(keyboardType)
-  void setKeyboardType(TextInputRenderNode textInput, String keyboardType) {
-    textInput.renderViewModel.setKeyboardType(keyboardType);
+  void setKeyboardType(TextInputRenderViewModel renderViewModel, String keyboardType) {
+    renderViewModel.setKeyboardType(keyboardType);
   }
 
   @ControllerProps(NodeProps.fontStyle)
-  void setFontStyle(TextInputRenderNode view, String fontStyleString) {
-    view.renderViewModel.setFontStyle(fontStyleString);
+  void setFontStyle(TextInputRenderViewModel renderViewModel, String fontStyleString) {
+    renderViewModel.setFontStyle(fontStyleString);
   }
 
   @ControllerProps(NodeProps.fontWeight)
-  void setFontWeight(TextInputRenderNode view, String fontWeightString) {
-    view.renderViewModel.setFontWeight(fontWeightString);
+  void setFontWeight(TextInputRenderViewModel renderViewModel, String fontWeightString) {
+    renderViewModel.setFontWeight(fontWeightString);
   }
 
   @ControllerProps(NodeProps.lineHeight)
-  void setLineHeight(TextInputRenderNode view, double lineHeight) {
-    view.renderViewModel.lineHeight = lineHeight;
+  void setLineHeight(TextInputRenderViewModel renderViewModel, double lineHeight) {
+    renderViewModel.lineHeight = lineHeight;
   }
 
   @ControllerProps(NodeProps.fontFamily)
-  void setFontFamily(TextInputRenderNode view, String fontFamily) {
-    view.renderViewModel.fontFamily = fontFamily;
+  void setFontFamily(TextInputRenderViewModel renderViewModel, String fontFamily) {
+    renderViewModel.fontFamily = fontFamily;
   }
 
   @ControllerProps(maxLengthProp)
-  void maxLength(TextInputRenderNode view, int maxLength) {
-    view.renderViewModel.maxLength = maxLength;
+  void maxLength(TextInputRenderViewModel renderViewModel, int maxLength) {
+    renderViewModel.maxLength = maxLength;
   }
 
   @ControllerProps(onSelectionChange)
-  void setOnSelectionChange(TextInputRenderNode textInput, bool change) {
-    textInput.renderViewModel.dispatcher.listenSelectionChange = change;
+  void setOnSelectionChange(TextInputRenderViewModel renderViewModel, bool change) {
+    renderViewModel.dispatcher.listenSelectionChange = change;
   }
 
   @ControllerProps(NodeProps.letterSpacing)
-  void letterSpacing(TextInputRenderNode view, double letterSpacing) {
-    view.renderViewModel.letterSpacing = letterSpacing;
+  void letterSpacing(TextInputRenderViewModel renderViewModel, double letterSpacing) {
+    renderViewModel.letterSpacing = letterSpacing;
   }
 
   @ControllerProps(valueProp)
-  void value(TextInputRenderNode view, String value) {
-    view.renderViewModel.setValue(value);
+  void value(TextInputRenderViewModel renderViewModel, String value) {
+    renderViewModel.setValue(value);
   }
 
   @ControllerProps(placeholder)
-  void placeHolder(TextInputRenderNode view, String placeholder) {
-    view.renderViewModel.hint = placeholder;
+  void placeHolder(TextInputRenderViewModel renderViewModel, String placeholder) {
+    renderViewModel.hint = placeholder;
   }
 
   @ControllerProps(placeholderTextColorVue)
-  void setTextHitColorVue(TextInputRenderNode input, int color) {
-    input.renderViewModel.hintTextColor = color;
+  void setTextHitColorVue(TextInputRenderViewModel renderViewModel, int color) {
+    renderViewModel.hintTextColor = color;
   }
 
   @ControllerProps(placeholderTextColorReact)
-  void setTextHitColorReact(TextInputRenderNode input, int color) {
-    input.renderViewModel.hintTextColor = color;
+  void setTextHitColorReact(TextInputRenderViewModel renderViewModel, int color) {
+    renderViewModel.hintTextColor = color;
   }
 
   @ControllerProps(numberOfLines)
-  void setMaxLines(TextInputRenderNode input, int numberOfLine) {
-    input.renderViewModel.numberOfLine = numberOfLine;
+  void setMaxLines(TextInputRenderViewModel renderViewModel, int numberOfLine) {
+    renderViewModel.numberOfLine = numberOfLine;
   }
 
   @ControllerProps(underlineColor)
-  void setUnderlineColor(TextInputRenderNode view, int underlineColor) {
-    view.renderViewModel.underLineColor = underlineColor;
+  void setUnderlineColor(TextInputRenderViewModel renderViewModel, int underlineColor) {
+    renderViewModel.underLineColor = underlineColor;
   }
 
   @ControllerProps(onChangeText)
-  void setOnChangeText(TextInputRenderNode textInput, bool change) {
-    textInput.renderViewModel.dispatcher.listenChangeText = change;
+  void setOnChangeText(TextInputRenderViewModel renderViewModel, bool change) {
+    renderViewModel.dispatcher.listenChangeText = change;
   }
 
   @ControllerProps(onEndEditing)
-  void setEndEditing(TextInputRenderNode textInput, bool change) {
-    textInput.renderViewModel.dispatcher.listenEndEditing = change;
+  void setEndEditing(TextInputRenderViewModel renderViewModel, bool change) {
+    renderViewModel.dispatcher.listenEndEditing = change;
   }
 
   @ControllerProps(onFocus)
-  void setOnFocus(TextInputRenderNode textInput, bool change) {
-    textInput.renderViewModel.dispatcher.listenFocus = change;
+  void setOnFocus(TextInputRenderViewModel renderViewModel, bool change) {
+    renderViewModel.dispatcher.listenFocus = change;
   }
 
   @ControllerProps(onBlur)
-  void setBlur(TextInputRenderNode textInput, bool change) {
-    textInput.renderViewModel.dispatcher.listenFocus = change;
+  void setBlur(TextInputRenderViewModel renderViewModel, bool change) {
+    renderViewModel.dispatcher.listenFocus = change;
   }
 
   @ControllerProps(onContentSizeChange)
   void setOnContentSizeChange(
-      TextInputRenderNode textInput, bool contentSizeChange) {
-    textInput.renderViewModel.dispatcher.listenContentSizeChange =
+      TextInputRenderViewModel renderViewModel, bool contentSizeChange) {
+    renderViewModel.dispatcher.listenContentSizeChange =
         contentSizeChange;
   }
 
   @ControllerProps(NodeProps.color)
-  void setColor(TextInputRenderNode textInput, int change) {
-    textInput.renderViewModel.textColor = change;
+  void setColor(TextInputRenderViewModel renderViewModel, int change) {
+    renderViewModel.textColor = change;
   }
 
   @ControllerProps(NodeProps.textAlign)
-  void setTextAlign(TextInputRenderNode view, String textAlign) {
-    view..renderViewModel.setTextAlign(textAlign);
+  void setTextAlign(TextInputRenderViewModel renderViewModel, String textAlign) {
+    renderViewModel.setTextAlign(textAlign);
   }
 
   @ControllerProps(NodeProps.textAlignVertical)
   void setTextAlignVertical(
-      TextInputRenderNode view, String? textAlignVertical) {
+      TextInputRenderViewModel renderViewModel, String? textAlignVertical) {
     if (textAlignVertical == null || "auto" == textAlignVertical) {
-      view.renderViewModel.textAlignVertical = null;
+      renderViewModel.textAlignVertical = null;
     } else if ("top" == textAlignVertical) {
-      view.renderViewModel.textAlignVertical = TextAlignVertical.top;
+      renderViewModel.textAlignVertical = TextAlignVertical.top;
     } else if ("bottom" == textAlignVertical) {
-      view.renderViewModel.textAlignVertical = TextAlignVertical.bottom;
+      renderViewModel.textAlignVertical = TextAlignVertical.bottom;
     } else if ("center" == textAlignVertical) {
-      view.renderViewModel.textAlignVertical = TextAlignVertical.center;
+      renderViewModel.textAlignVertical = TextAlignVertical.center;
     }
   }
 
   @ControllerProps(NodeProps.paddingTop)
-  void setPaddingTop(TextInputRenderNode view, Object? paddingTop) {
+  void setPaddingTop(TextInputRenderViewModel renderViewModel, Object? paddingTop) {
     if (paddingTop is int) {
-      view.renderViewModel.paddingTop = paddingTop.toDouble();
+      renderViewModel.paddingTop = paddingTop.toDouble();
     } else if (paddingTop is double) {
-      view.renderViewModel.paddingTop = paddingTop;
+      renderViewModel.paddingTop = paddingTop;
     } else {
-      view.renderViewModel.paddingTop = 0.0;
+      renderViewModel.paddingTop = 0.0;
     }
   }
 
   @ControllerProps(NodeProps.paddingRight)
-  void setPaddingRight(TextInputRenderNode view, Object? paddingRight) {
+  void setPaddingRight(TextInputRenderViewModel renderViewModel, Object? paddingRight) {
     if (paddingRight is int) {
-      view.renderViewModel.paddingRight = paddingRight.toDouble();
+      renderViewModel.paddingRight = paddingRight.toDouble();
     } else if (paddingRight is double) {
-      view.renderViewModel.paddingRight = paddingRight;
+      renderViewModel.paddingRight = paddingRight;
     } else {
-      view.renderViewModel.paddingRight = 0.0;
+      renderViewModel.paddingRight = 0.0;
     }
   }
 
   @ControllerProps(NodeProps.paddingBottom)
-  void setPaddingBottom(TextInputRenderNode view, Object? paddingBottom) {
+  void setPaddingBottom(TextInputRenderViewModel renderViewModel, Object? paddingBottom) {
     if (paddingBottom is int) {
-      view.renderViewModel.paddingBottom = paddingBottom.toDouble();
+      renderViewModel.paddingBottom = paddingBottom.toDouble();
     } else if (paddingBottom is double) {
-      view.renderViewModel.paddingBottom = paddingBottom;
+      renderViewModel.paddingBottom = paddingBottom;
     } else {
-      view.renderViewModel.paddingBottom = 0.0;
+      renderViewModel.paddingBottom = 0.0;
     }
   }
 
   @ControllerProps(NodeProps.paddingLeft)
-  void setPaddingLeft(TextInputRenderNode view, Object? paddingLeft) {
+  void setPaddingLeft(TextInputRenderViewModel renderViewModel, Object? paddingLeft) {
     if (paddingLeft is int) {
-      view.renderViewModel.paddingLeft = paddingLeft.toDouble();
+      renderViewModel.paddingLeft = paddingLeft.toDouble();
     } else if (paddingLeft is double) {
-      view.renderViewModel.paddingLeft = paddingLeft;
+      renderViewModel.paddingLeft = paddingLeft;
     } else {
-      view.renderViewModel.paddingLeft = 0.0;
+      renderViewModel.paddingLeft = 0.0;
     }
   }
 
   @override
   void dispatchFunction(
-      TextInputRenderNode node, String functionName, VoltronArray array,
+      TextInputRenderViewModel renderViewModel, String functionName, VoltronArray array,
       {Promise? promise}) {
     switch (functionName) {
       case commandSetValue:
@@ -339,334 +331,31 @@ class TextInputController extends VoltronViewController<TextInputRenderNode> {
           int pos = array.get(1);
           LogUtils.i("text_input", "js set value: $value, $pos");
           if (array.size() < 2) pos = array.getString(0)?.length ?? 0;
-          node.renderViewModel.dispatcher.jsSetValue(array.getString(0), pos);
+          renderViewModel.dispatcher.jsSetValue(array.getString(0), pos);
         }
         break;
       case clearFunction:
-        node.renderViewModel.dispatcher.jsSetValue("", 0);
+        renderViewModel.dispatcher.jsSetValue("", 0);
         break;
       case commandFocus:
-        node.renderViewModel.focus();
+        renderViewModel.focus();
         break;
       case commandKeyboardDismiss:
-        node.renderViewModel.dismiss();
+        renderViewModel.dismiss();
         break;
       case commandBlur:
-        node.renderViewModel.blur();
+        renderViewModel.blur();
         break;
       case commandGetValue:
         if (promise != null) {
-          var resultMap = node.renderViewModel.dispatcher.jsGetValue();
+          var resultMap = renderViewModel.dispatcher.jsGetValue();
           promise.resolve(resultMap);
         }
         break;
     }
   }
-}
 
-class TextInputRenderNode extends RenderNode<TextInputRenderViewModel> {
-  TextInputRenderNode(
-      {required int id,
-      required String className,
-      required RenderTree root,
-      required ControllerManager controllerManager,
-      VoltronMap? props,
-      bool isLazy = false})
-      : super(id, className, root, controllerManager, props, isLazy);
 
-  @override
-  TextInputRenderViewModel createRenderViewModel(EngineContext context) {
-    return TextInputRenderViewModel(id, rootId, name, context);
-  }
-}
-
-class TextInputRenderViewModel extends RenderViewModel {
-  static const String keyboardTypeEmailAddress = "email";
-  static const String keyboardTypeNumeric = "numeric";
-  static const String keyboardTypePhonePad = "phone-pad";
-  static const String keyboardTypePassword = "password";
-
-  // 默认值
-  String hint = "";
-
-  // 是否可编辑
-  bool editable = true;
-
-  // 输入键盘相关
-  int cursorColor = Colors.transparent.value; // 输入光标颜色
-  TextInputAction textInputAction = TextInputAction.done;
-  TextInputType textInputType = TextInputType.text;
-
-  // 间距相关
-  double paddingTop = 0.0;
-  double paddingRight = 0.0;
-  double paddingBottom = 0.0;
-  double paddingLeft = 0.0;
-
-  // 字体相关
-  FontStyle fontStyle = FontStyle.normal;
-  double fontSize = NodeProps.fontSizeSp; // 字体大小
-  FontWeight fontWeight = FontWeight.normal;
-  double lineHeight = 0.0;
-  String fontFamily = "normal";
-  double letterSpacing = -1;
-  int hintTextColor = 0xFF888888;
-  int underLineColor = Colors.transparent.value;
-  int textColor = Colors.transparent.value;
-  TextAlign textAlign = TextAlign.start;
-  TextAlignVertical? textAlignVertical = TextAlignVertical.top;
-  int maxLength = 0;
-
-  int numberOfLine = TextNode.maxLineCount;
-
-  late TextInputDispatcher dispatcher;
-
-  bool obscureText = false;
-
-  int _selStart = 0;
-  int _selEnd = 0;
-  String _text = "";
-  FocusNodeProxy node = FocusNodeProxy();
-  TextEditingControllerProxy controller = TextEditingControllerProxy();
-
-  String returnKeyTypeStr = "";
-  String keyboardTypeStr = "";
-  TextAlignVertical? oldAlign = TextAlignVertical.top;
-
-  EdgeInsets contentPadding = EdgeInsets.all(0);
-
-  void onInit() {
-    node.init();
-    controller.init();
-
-    node.addListener(() {
-      dispatcher.onFocusChange(node.hasFocus);
-    });
-  }
-
-  void setTextInputType(String returnKeyType) {
-    returnKeyTypeStr = returnKeyType;
-    var returnKeyFlag = TextInputAction.done;
-    switch (returnKeyType) {
-      case "go":
-        returnKeyFlag = TextInputAction.go;
-        break;
-      case "next":
-        returnKeyFlag = TextInputAction.next;
-        // numberOfLine = 1;
-        break;
-      case "none":
-        returnKeyFlag = TextInputAction.none;
-        break;
-      case "previous":
-        returnKeyFlag = TextInputAction.previous;
-        // numberOfLine = 1;
-        break;
-      case "search":
-        returnKeyFlag = TextInputAction.search;
-        // numberOfLine = 1;
-        break;
-      case "send":
-        returnKeyFlag = TextInputAction.send;
-        // numberOfLine = 1;
-        break;
-      case "done":
-        returnKeyFlag = TextInputAction.done;
-        // numberOfLine = 1;
-        break;
-    }
-    textInputAction = returnKeyFlag;
-  }
-
-  void setKeyboardType(String keyboardType) {
-    keyboardTypeStr = keyboardType;
-    obscureText = false;
-    var flagsToSet = TextInputType.text;
-    if (keyboardTypeNumeric.toLowerCase() == keyboardType.toLowerCase()) {
-      flagsToSet = TextInputType.number;
-    } else if (keyboardTypeEmailAddress.toLowerCase() ==
-        keyboardType.toLowerCase()) {
-      flagsToSet = TextInputType.emailAddress;
-    } else if (keyboardTypePhonePad.toLowerCase() ==
-        keyboardType.toLowerCase()) {
-      flagsToSet = TextInputType.phone;
-    } else if (keyboardTypePassword.toLowerCase() ==
-        keyboardType.toLowerCase()) {
-      flagsToSet = TextInputType.visiblePassword;
-      obscureText = true;
-    }
-    textInputType = flagsToSet;
-  }
-
-  void setMultiLine(bool multiline) {
-    if (multiline) {
-      oldAlign = textAlignVertical;
-      textInputType = TextInputType.multiline;
-      textInputAction = TextInputAction.newline;
-      textAlignVertical = TextAlignVertical.top;
-    } else {
-      textAlignVertical = oldAlign;
-      setTextInputType(returnKeyTypeStr);
-      setKeyboardType(keyboardTypeStr);
-      numberOfLine = 1;
-    }
-  }
-
-  void setTextAlign(String textAlignStr) {
-    textAlign = TextNode.parseTextAlign(textAlignStr);
-  }
-
-  void setFontWeight(String fontWeightStr) {
-    fontWeight = TextNode.parseFontWeight(fontWeightStr);
-  }
-
-  void setFontStyle(String fontStyleStr) {
-    fontStyle = TextNode.parseFontStyle(fontStyleStr);
-  }
-
-  void setValue(String value) {
-    LogUtils.d("text_input", "set value:$value");
-    var selectionStart = controller.selection.start;
-    var selectionEnd = controller.selection.end;
-
-    LogUtils.d("text_input",
-        "setText: selectionStart:$selectionStart selectionEnd:$selectionEnd");
-    var oldValue = controller.text;
-
-    if (value == oldValue) {
-      // 不需要重复设置
-      return;
-    }
-
-    var sub1 = oldValue.substring(0, selectionStart);
-    var sub2 = oldValue.substring(selectionEnd);
-
-    LogUtils.d("text_input", "setText: sub1:[$sub1]  sub2:[$sub2]");
-
-    if (selectionStart == selectionEnd &&
-        value.length > oldValue.length &&
-        value.startsWith(sub1) &&
-        value.endsWith(sub2)) {
-      // 未选中状态 && insert
-      var insertStr =
-          value.substring(selectionStart, value.length - sub2.length);
-      LogUtils.d("text_input", "setText: InsertStr: [$insertStr]");
-      var offset = selectionStart + insertStr.length;
-      if (offset > value.length || offset < 0) {
-        offset = value.length;
-      }
-      controller.value = TextEditingValue(
-          text: value,
-          selection: TextSelection.fromPosition(
-              TextPosition(offset: offset, affinity: TextAffinity.downstream)));
-    } else if (selectionStart < selectionEnd &&
-        value.startsWith(sub1) &&
-        value.endsWith(sub2)) {
-      // 选中状态 && replace选中部分
-      var replaceStr =
-          value.substring(selectionStart, value.length - sub2.length);
-      LogUtils.d("text_input", "setText: ReplaceStr: [$replaceStr]");
-      var offsetStart = selectionStart;
-      var offsetEnd = selectionStart + replaceStr.length;
-      if (offsetEnd < 0 || offsetEnd > value.length) {
-        offsetEnd = value.length;
-      }
-      controller.value = TextEditingValue(
-          text: value,
-          selection:
-              TextSelection(baseOffset: offsetStart, extentOffset: offsetEnd));
-    } else if (selectionStart == selectionEnd &&
-        value.length < oldValue.length &&
-        value.endsWith(sub2) &&
-        value.startsWith(sub1.substring(
-            0, selectionStart - (oldValue.length - value.length)))) {
-      // 未选中状态 && delete
-      var delLen = oldValue.length - value.length;
-      var offset = selectionEnd - delLen;
-      if (offset < 0) {
-        offset = 0;
-      }
-      if (offset > value.length) {
-        offset = value.length;
-      }
-      controller.value = TextEditingValue(
-          text: value,
-          selection: TextSelection.fromPosition(
-              TextPosition(offset: offset, affinity: TextAffinity.downstream)));
-    } else {
-      controller.value = TextEditingValue(
-          text: value,
-          selection: TextSelection.fromPosition(TextPosition(
-              offset: value.length, affinity: TextAffinity.downstream)));
-    }
-  }
-
-  void focus() {
-    LogUtils.i("text_input", "focus text input");
-    node.focus();
-  }
-
-  void dismiss() {
-    var _currentContext = currentContext;
-    if (_currentContext != null) {
-      // 将焦点交回给上一层，隐藏软键盘
-      LogUtils.i("text_input", "dismiss text input");
-      FocusScope.of(_currentContext).requestFocus();
-    }
-  }
-
-  void blur() {
-    node.unfocus();
-    var _currentContext = currentContext;
-    if (_currentContext != null) {
-      LogUtils.i("text_input", "blur text input");
-      // 将焦点交回给上一层，隐藏软键盘
-      FocusScope.of(_currentContext).requestFocus();
-    }
-  }
-
-  TextInputRenderViewModel(
-      int id, int instanceId, String className, EngineContext context)
-      : super(id, instanceId, className, context) {
-    dispatcher = TextInputDispatcher(context, id, controller);
-
-    controller.addListener(() {
-      var curSelStart = controller.selection.start;
-      var curSelEnd = controller.selection.end;
-
-      // 处理光标变化
-      if (_selStart != curSelStart || _selEnd != curSelEnd) {
-        _selStart = curSelStart;
-        _selEnd = curSelEnd;
-        dispatcher.onSelectionChanged(_selStart, _selEnd);
-      }
-
-      // 处理input内容变化
-      var curText = controller.text;
-      var v = controller.controller?.value;
-      // 这里要考虑iOS原生中文输入法中存在候选词的情况，候选词变更不触发前端change事件
-      if (v != null && !v.isComposingRangeValid) {
-        if (_text != curText) {
-          _text = curText;
-          dispatcher.onChangeText(_text);
-        }
-      }
-    });
-  }
-
-  @override
-  void onViewModelDestroy() {
-    super.onViewModelDestroy();
-    node.unfocus();
-    dismiss();
-  }
-
-  @override
-  void onDispose() {
-    super.onDispose();
-    controller.dispose();
-    node.dispose();
-  }
 }
 
 class FocusNodeProxy {

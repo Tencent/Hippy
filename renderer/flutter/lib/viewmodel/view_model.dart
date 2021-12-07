@@ -5,100 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:gradient_like_css/gradient_like_css.dart';
 
 import '../common/voltron_array.dart';
-import '../common/voltron_link.dart';
-import '../dom/prop.dart';
 import '../engine/engine_context.dart';
 import '../flutter_render.dart';
 import '../gesture/dispatcher.dart';
+import '../render/node.dart';
+import '../style/prop.dart';
 import '../util/animation_util.dart';
 import '../util/enum_util.dart';
 import '../util/image_util.dart';
-import 'node.dart';
-
-typedef ContextWrapper = BuildContext? Function();
-
-abstract class FRStatefulWidget extends StatefulWidget {
-  final RenderViewModel _viewModel;
-
-  const FRStatefulWidget(this._viewModel);
-
-  @override
-  RFStatefulElement createElement() {
-    var elementTimePoint =
-        ElementTimePoint(_viewModel.name, '', _viewModel.context);
-    elementTimePoint.start();
-    var result = RFStatefulElement(this);
-    elementTimePoint.end();
-    return result;
-  }
-}
-
-class RFStatefulElement extends StatefulElement {
-  RFStatefulElement(FRStatefulWidget widget) : super(widget);
-
-  @override
-  Widget build() {
-    var fRWidget = widget as FRStatefulWidget;
-    var time = BuildTimePoint(fRWidget._viewModel.name,
-        fRWidget.runtimeType.toString(), fRWidget._viewModel.context);
-    time.start();
-    var result = super.build();
-    time.end();
-    return result;
-  }
-}
-
-abstract class FRState<T extends FRStatefulWidget> extends State<T> {
-  @mustCallSuper
-  @override
-  void initState() {
-    super.initState();
-    widget._viewModel._wrapper = () {
-      return context;
-    };
-  }
-
-  @mustCallSuper
-  @override
-  void dispose() {
-    super.dispose();
-    widget._viewModel._wrapper = null;
-    if (!widget._viewModel.isDispose) {
-      widget._viewModel.onDispose();
-    }
-  }
-}
-
-abstract class FRBaseStatelessWidget extends StatelessWidget {
-  final String _name;
-  final EngineContext _context;
-
-  const FRBaseStatelessWidget(this._name, this._context);
-
-  @override
-  RFStatelessElement createElement() {
-    var elementTime = ElementTimePoint(_name, '', _context);
-    elementTime.start();
-    var result = RFStatelessElement(this);
-    elementTime.end();
-    return result;
-  }
-}
-
-class RFStatelessElement extends StatelessElement {
-  RFStatelessElement(FRBaseStatelessWidget widget) : super(widget);
-
-  @override
-  Widget build() {
-    var fRWidget = widget as FRBaseStatelessWidget;
-    var buildPoint = BuildTimePoint(
-        fRWidget._name, fRWidget.runtimeType.toString(), fRWidget._context);
-    buildPoint.start();
-    var result = super.build();
-    buildPoint.end();
-    return result;
-  }
-}
+import '../widget/base.dart';
 
 class RenderViewModel extends ChangeNotifier {
   ContextWrapper? _wrapper;
@@ -113,6 +28,10 @@ class RenderViewModel extends ChangeNotifier {
   final int _instanceId;
 
   RenderViewModel? parent;
+
+  set wrapper(ContextWrapper? wrapper) {
+    _wrapper = wrapper;
+  }
 
   BuildContext? get currentContext => _wrapper?.call();
 

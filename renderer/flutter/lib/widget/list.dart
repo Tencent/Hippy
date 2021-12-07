@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
-import '../render/list.dart';
-import '../render/list_item.dart';
-import '../render/view_model.dart';
+import '../viewmodel/list.dart';
+import '../viewmodel/list_item.dart';
+import '../viewmodel/view_model.dart';
+import 'base.dart';
 import 'div.dart';
 import 'scroller.dart';
 

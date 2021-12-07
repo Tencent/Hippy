@@ -2,7 +2,7 @@ import 'dart:collection';
 
 import 'package:flutter/cupertino.dart';
 
-import '../dom/prop.dart';
+import '../style/prop.dart';
 import '../engine/engine_context.dart';
 import 'handle.dart';
 import 'processor.dart';

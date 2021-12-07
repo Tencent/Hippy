@@ -1,10 +1,9 @@
 import 'dart:collection';
 
 import '../common/voltron_map.dart';
-import '../dom/prop.dart';
-import '../dom/update.dart';
 import '../render/node.dart';
-import '../util/animation_util.dart';
+import '../style/prop.dart';
+import '../style/update.dart';
 import '../util/log_util.dart';
 import 'props.dart';
 
