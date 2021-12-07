@@ -9,6 +9,14 @@ namespace base {
 // V8 latest version
 static const uint32_t kLatestVersion = 13;
 
+enum class Oddball : uint8_t {
+  kTheHole,
+  kUndefined,
+  kNull,
+  kTrue,
+  kFalse,
+};
+
 enum class SerializationTag : uint8_t {
   // version:uint32_t (if at beginning of data, sets version > 0)
   kVersion = 0xFF,
@@ -31,6 +39,8 @@ enum class SerializationTag : uint8_t {
   kDouble = 'N',
   // byteLength:uint32_t, then raw data
   kUtf8String = 'S',
+  kOneByteString = '"',
+  kTwoByteString = 'c',
   // Beginning of a dense JS array. length:uint32_t
   // |length| elements, followed by properties as key/value pairs
   kBeginDenseJSArray = 'A',
@@ -53,13 +63,17 @@ class Serializer {
 
   std::pair<uint8_t*, size_t> Release();
 
+  void WriteOddball(Oddball oddball);
+
   void WriteUint32(uint32_t value);
 
   void WriteUint64(uint64_t value);
 
+  void WriteInt32(int32_t value);
+
   void WriteDouble(double value);
 
-  void WriteUtf8String(std::string& value);
+  void WriteString(std::string& value);
 
   void WriteDenseJSArray(DomValue::DomValueArrayType& dom_value);
 
@@ -73,6 +87,10 @@ class Serializer {
 
   template <typename T>
   void WriteZigZag(T value);
+
+  void WriteOneByteString(const char* str, size_t length);
+
+  void WriteTwoByteString(const char16_t* str, size_t length);
 
   void WriteRawBytes(const void* source, size_t length);
 
