@@ -786,6 +786,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
       this.componentName = componentName;
     }
 
+    @Override
     public String getComponentName() {
       return componentName;
     }
