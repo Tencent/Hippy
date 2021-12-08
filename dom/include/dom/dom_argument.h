@@ -34,13 +34,13 @@ class DomArgument {
 
  private:
   bool ConvertObjectToJson(const tdf::base::DomValue& dom_value, std::string& json);
-  bool ConvertBsonToJson(const std::vector<uint8_t>& bson, std::string& json);
+  bool ConvertBsonToJson(const std::vector<const uint8_t>& bson, std::string& json);
 
   bool ConvertJsonToBson(const std::string& json, std::vector<uint8_t>& bson);
   bool ConvertObjectToBson(const tdf::base::DomValue& dom_value, std::vector<uint8_t>& bson);
 
   bool ConvertJsonToObject(const std::string& json, tdf::base::DomValue& dom_value);
-  bool ConvertBsonToObject(const std::vector<uint8_t>& bson, tdf::base::DomValue& dom_value);
+  bool ConvertBsonToObject(const std::vector<const uint8_t>& bson, tdf::base::DomValue& dom_value);
 
   std::any data_;
   ArgumentType argument_type_;
