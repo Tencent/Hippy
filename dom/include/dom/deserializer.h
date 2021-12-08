@@ -36,9 +36,9 @@ class Deserializer {
 
   bool ReadUInt32(DomValue& dom_value);
 
-  bool ReadUInt64(uint64_t& value);
+  // bool ReadUInt64(uint64_t& value);
 
-  bool ReadUInt64(DomValue& dom_value);
+  // bool ReadUInt64(DomValue& dom_value);
 
   bool ReadDouble(double& value);
 
@@ -48,9 +48,17 @@ class Deserializer {
 
   bool ReadUtf8String(DomValue& dom_value);
 
-  void ReadDenseJSArray(DomValue& dom_value);
+  bool ReadOneByteString(std::string& value);
 
-  void ReadJSMap(DomValue& dom_value);
+  bool ReadOneByteString(DomValue& dom_value);
+
+  bool ReadTwoByteString(std::string& value);
+
+  bool ReadTwoByteString(DomValue& dom_value);
+
+  bool ReadDenseJSArray(DomValue& dom_value);
+
+  bool ReadJSMap(DomValue& dom_value);
 
  private:
   template <typename T>
@@ -59,9 +67,9 @@ class Deserializer {
   template <typename T>
   T ReadZigZag();
 
-  void ReadObject(DomValue& value);
+  bool ReadObject(DomValue& value);
 
-  uint32_t ReadJSObjectProperties(SerializationTag end_tag);
+  uint32_t ReadObjectProperties(SerializationTag end_tag);
 
  private:
   const uint8_t* position_;
