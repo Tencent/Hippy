@@ -88,6 +88,11 @@ void RenderManagerProxy::Batch() {
   render_manager_->Batch();
 }
 
+void RenderManagerProxy::AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name,
+                                          const DomValue& param) {
+  render_manager_->AddEventListener(dom_node, name, param);
+}
+
 void RenderManagerProxy::CallFunction(
     std::weak_ptr<DomNode> dom_node, const std::string &name,
     const DomValue& param,
