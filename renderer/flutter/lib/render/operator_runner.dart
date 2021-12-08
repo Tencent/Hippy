@@ -101,7 +101,7 @@ class _AddNodeOpTask extends _NodeOpTask {
     var propMap = _params[_RenderOpParamsKey.kPropsKey] ?? {};
 
     renderManager.addUITask(() {
-      renderManager.createNode(_instanceId, _nodeId, parentId, childIndex.index,
+      renderManager.createNode(_instanceId, _nodeId, parentId, childIndex,
           className, VoltronMap.fromMap(styleMap), VoltronMap.fromMap(propMap));
     });
   }

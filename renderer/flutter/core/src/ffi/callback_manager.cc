@@ -1,7 +1,3 @@
-//
-// Created by longquan on 2020/9/1.
-//
-
 #include "ffi/callback_manager.h"
 
 Dart_PostCObjectType dartPostCObject = NULL;

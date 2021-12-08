@@ -42,22 +42,34 @@ EXTERN_C void InitDomFFI(int32_t engine_id, int32_t root_id) {
   dom_manager->SetRenderManager(proxy_render_manager);
   BridgeManager::GetBridgeManager(engine_id)->BindDomManager(root_id, dom_manager);
   BridgeManager::GetBridgeManager(engine_id)->BindRenderManager(root_id, render_manager);
+  auto runtime = BridgeManager::GetBridgeManager(engine_id)->GetRuntime().lock();
+  if (runtime) {
+    auto runtime_id = runtime->GetRuntimeId();
+    BridgeImpl::BindDomManager(runtime_id, dom_manager);
+  }
 }
 
-EXTERN_C int64_t InitJSFrameworkFFI(const char16_t* global_config, int32_t single_thread_mode,
-                                    int32_t bridge_param_json, int32_t is_dev_module, int64_t group_id,
-                                    int32_t engine_id, int32_t callback_id) {
+EXTERN_C int64_t InitJSFrameworkFFI(const char16_t *global_config,
+                                    int32_t single_thread_mode,
+                                    int32_t bridge_param_json,
+                                    int32_t is_dev_module,
+                                    int64_t group_id,
+                                    int32_t engine_id,
+                                    int32_t callback_id) {
   Sp<PlatformRuntime> ffi_runtime = std::make_shared<FFIPlatformRuntime>(engine_id);
   BridgeManager::GetBridgeManager(engine_id)->BindRuntime(ffi_runtime);
 
-  auto result = BridgeImpl::InitJsFrameWork(ffi_runtime, single_thread_mode, bridge_param_json, is_dev_module, group_id,
+  auto result = BridgeImpl::InitJsFrameWork(ffi_runtime,
+                                            single_thread_mode,
+                                            bridge_param_json,
+                                            is_dev_module,
+                                            group_id,
                                             global_config,
-                                            [callback_id](int64_t value) { CallGlobalCallback(callback_id, value); });
-  if (result != 0) {
-    ffi_runtime->BindRuntimeId(result);
-  } else {
-    BridgeManager::Destroy(engine_id);
-  }
+                                            [callback_id](int64_t value) {
+                                              CallGlobalCallback(callback_id,
+                                                                 value);
+                                            });
+  ffi_runtime->SetRuntimeId(result);
 
   return result;
 }
@@ -204,14 +216,17 @@ EXTERN_C int32_t RegisterCallFunc(int32_t type, void* func) {
   } else if (type == POST_RENDER_OP_TYPE) {
     post_render_op_func = reinterpret_cast<post_render_op>(func);
     return true;
+  } else if (type == CALCULATE_NODE_LAYOUT_TYPE) {
+    calculate_node_layout_func = reinterpret_cast<calculate_node_layout>(func);
+    return true;
   }
   RENDER_CORE_LOG(rendercore::LoggingLevel::Error, "register func error, unknown type %d", type);
   return false;
 }
 
-bool CallGlobalCallback(int32_t callbackId, int64_t value) {
+bool CallGlobalCallback(int32_t callback_id, int64_t value) {
   if (global_callback_func) {
-    const Work work = [value, callbackId]() { global_callback_func(callbackId, value); };
+    const Work work = [value, callback_id]() { global_callback_func(callback_id, value); };
     const Work* work_ptr = new Work(work);
     RENDER_CORE_LOG(rendercore::LoggingLevel::Info, "start callback");
     PostWorkToDart(work_ptr);

@@ -35,7 +35,7 @@ void VoltronRenderManager::MoveRenderNode(std::vector<int32_t>&& ids, int32_t pi
 }
 
 void VoltronRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) {
-
+  RunUpdateLayout(nodes);
 }
 
 void VoltronRenderManager::Batch() { RunBatch(); }
@@ -60,7 +60,7 @@ void VoltronRenderManager::SetClickEventListener(int32_t id, OnClickEventListene
   RunAddEventListener(id, kAddClickFuncType, {}, [id, this](const std::any& params) {
     auto node = GetDomNode(root_id_, id);
     if (node) {
-      node->CallClick();
+//      node->CallClick();
     }
   });
 }
@@ -69,7 +69,7 @@ void VoltronRenderManager::SetLongClickEventListener(int32_t id, OnLongClickEven
   RunAddEventListener(id, kAddLongClickFuncType, {}, [id, this](const std::any& params) {
     auto node = GetDomNode(root_id_, id);
     if (node) {
-      node->CallLongClick();
+//      node->CallLongClick();
     }
   });
 }
@@ -111,7 +111,7 @@ void VoltronRenderManager::SetTouchEventListener(int32_t id, TouchEvent event, O
                   touch_info.y = static_cast<float>(*touch_y_ptr);
                 }
               }
-              node->CallTouch(touch_type, touch_info);
+//              node->CallTouch(touch_type, touch_info);
             }
           }
         }
@@ -136,7 +136,7 @@ void VoltronRenderManager::SetShowEventListener(int32_t id, ShowEvent event, OnS
             if (show_type_int >= static_cast<int>(ShowEvent::Show) &&
                 show_type_int <= static_cast<int>(ShowEvent::Dismiss)) {
               auto show_type = ShowEvent(show_type_int);
-              node->CallOnShow(show_type);
+//              node->CallOnShow(show_type);
             }
           }
         }

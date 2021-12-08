@@ -48,7 +48,9 @@ EXTERN_C void ConsumeRenderOpQueue(int32_t engine_id);
 
 EXTERN_C void UpdateNodeSize(int32_t engine_id, int32_t root_id, int32_t node_id, double width, double height);
 
-bool CallGlobalCallback(int32_t callbackId, int64_t value);
+EXTERN_C void SetNodeCustomMeasure(int32_t engine_id, int32_t root_id, int32_t node_id);
+
+bool CallGlobalCallback(int32_t callback_id, int64_t value);
 
 EXTERN_C void Test();
 #ifdef __cplusplus

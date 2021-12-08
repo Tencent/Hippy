@@ -1,6 +1,4 @@
-//
-// Created by longquan on 2020/8/23.
-//
+#include <mutex>
 
 #include "ffi/ffi_platform_runtime.h"
 #include "ffi/callback_manager.h"
@@ -113,6 +111,27 @@ void FFIPlatformRuntime::SendNotification(const uint16_t* source, int len) {
   }
 }
 
+int64_t FFIPlatformRuntime::CalculateNodeLayout(int32_t instance_id, int32_t node_id) {
+  std::mutex mutex;
+  std::unique_lock<std::mutex> lock(mutex);
+
+  std::condition_variable cv;
+  bool notified = false;
+
+  int64_t result;
+  const Work work = [&result, &cv, &notified, engine_id = engine_id_, instance_id, node_id]() {
+    result = calculate_node_layout_func(engine_id, instance_id, node_id);
+    notified = true;
+    cv.notify_one();
+  };
+  const Work* work_ptr = new Work(work);
+  PostWorkToDart(work_ptr);
+  while (!notified) {
+    cv.wait(lock);
+  }
+  return result;
+}
+
 void FFIPlatformRuntime::Destroy() {
   if (destroy_func) {
     const Work work = [engine_id = engine_id_]() { destroy_func(engine_id); };
@@ -133,7 +152,8 @@ const void* FFIPlatformRuntime::copyParamsData(const void* form, uint32_t length
   return nullptr;
 }
 
-void FFIPlatformRuntime::BindRuntimeId(int64_t runtime_id) { runtime_id_ = runtime_id; }
+void FFIPlatformRuntime::SetRuntimeId(int64_t runtime_id) { runtime_id_ = runtime_id; }
 
 int64_t FFIPlatformRuntime::GetRuntimeId() { return runtime_id_; }
+
 }  // namespace voltron

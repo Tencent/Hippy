@@ -50,7 +50,7 @@ class _BridgeFFIManager {
   static _BridgeFFIManager get instance => _getInstance();
 
   final DynamicLibrary _library =
-      loadLibrary("rendercore", isStatic: Platform.isAndroid ? false : false);
+      loadLibrary("voltron_core", isStatic: Platform.isAndroid ? false : false);
 
   final _interactiveCppRequests = ReceivePort()..listen(requestExecuteCallback);
 
@@ -955,13 +955,13 @@ class VoltronBridgeManager implements Destroyable {
       var codeCacheDir =
           sCodeCacheRootDir! + codeCacheTag + Platform.pathSeparator;
       await VoltronApi.runScriptFromAsset(
-          _v8RuntimeId, fileName, codeCacheDir, canUseCodeCache, (value) {
+          _engineId, fileName, codeCacheDir, canUseCodeCache, (value) {
         callback(value);
       });
     } else {
       LogUtils.i(
           "VoltronEngineMonitor", "runScriptFromAssets codeCacheTag is null");
-      await VoltronApi.runScriptFromAsset(_v8RuntimeId, fileName,
+      await VoltronApi.runScriptFromAsset(_engineId, fileName,
           "$codeCacheTag${Platform.pathSeparator}", false, (value) {
         callback(value);
       });
@@ -985,14 +985,14 @@ class VoltronBridgeManager implements Destroyable {
       var codeCacheDir =
           sCodeCacheRootDir! + codeCacheTag + Platform.pathSeparator;
       await VoltronApi.runScriptFromAssetWithData(
-          _v8RuntimeId, fileName, codeCacheDir, canUseCodeCache, assetsData,
+          _engineId, fileName, codeCacheDir, canUseCodeCache, assetsData,
           (value) {
         callback(value);
       });
     } else {
       LogUtils.i("VoltronEngineMonitor",
           "runScriptFromAssetsWithData codeCacheTag is null");
-      await VoltronApi.runScriptFromAssetWithData(_v8RuntimeId, fileName,
+      await VoltronApi.runScriptFromAssetWithData(_engineId, fileName,
           "$codeCacheTag${Platform.pathSeparator}", false, assetsData, (value) {
         callback(value);
       });
@@ -1016,7 +1016,7 @@ class VoltronBridgeManager implements Destroyable {
           sCodeCacheRootDir! + codeCacheTag + Platform.pathSeparator;
 
       await VoltronApi.runScriptFromFile(
-          _v8RuntimeId, filePath, scriptName, codeCacheDir, canUseCodeCache,
+          _engineId, filePath, scriptName, codeCacheDir, canUseCodeCache,
           (value) {
         callback(value);
       });
@@ -1026,7 +1026,7 @@ class VoltronBridgeManager implements Destroyable {
 
       var codeCacheDir = "$codeCacheTag${Platform.pathSeparator}";
       await VoltronApi.runScriptFromFile(
-          _v8RuntimeId, filePath, scriptName, codeCacheDir, false, (value) {
+          _engineId, filePath, scriptName, codeCacheDir, false, (value) {
         callback(value);
       });
     }

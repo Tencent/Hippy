@@ -7,11 +7,11 @@ namespace voltron {
 
 static Map<int32_t, Sp<BridgeManager>> bridge_map_;
 
-std::shared_ptr<BridgeManager> BridgeManager::GetBridgeManager(int32_t root_id) {
-  auto bridge_manager_iter = bridge_map_.find(root_id);
+std::shared_ptr<BridgeManager> BridgeManager::GetBridgeManager(int32_t engine_id) {
+  auto bridge_manager_iter = bridge_map_.find(engine_id);
   if (bridge_manager_iter == bridge_map_.end()) {
-    auto new_bridge_manager = std::make_shared<BridgeManager>(root_id);
-    bridge_map_[root_id] = new_bridge_manager;
+    auto new_bridge_manager = std::make_shared<BridgeManager>(engine_id);
+    bridge_map_[engine_id] = new_bridge_manager;
     return new_bridge_manager;
   } else {
     return bridge_manager_iter->second;
@@ -65,7 +65,7 @@ void BridgeManager::VisitAllRenderManager(const VisitRenderCallback& callback) {
     auto end = render_manager_map_.rbegin();
     auto begin = render_manager_map_.rend();
     while (end != begin) {
-      auto render_manager = (*end.base()).second;
+      auto render_manager = end->second;
       callback(render_manager);
       end++;
     }

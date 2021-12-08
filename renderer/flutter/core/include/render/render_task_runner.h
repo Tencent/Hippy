@@ -29,11 +29,11 @@ class VoltronRenderTaskRunner {
                            const std::function<void(const EncodableValue& params)>& cb);
   void RunRemoveEventListener(const int32_t& node_id, const String& event_name, const EncodableMap& params);
   std::unique_ptr<std::vector<uint8_t>> ConsumeQueue();
-  Sp<DomNode> GetDomNode(int32_t root_id, int32_t node_id);
+  Sp<DomNode> GetDomNode(int32_t root_id, int32_t node_id) const;
 
  private:
   EncodableValue EncodeDomValueMap(const SpMap<DomValue>& value_map);
-  std::unique_ptr<EncodableValue> ParseDomValue(const DomValue& value);
+  EncodableValue ParseDomValue(const DomValue& value);
   Sp<VoltronRenderQueue> queue_;
 
   int32_t engine_id_;

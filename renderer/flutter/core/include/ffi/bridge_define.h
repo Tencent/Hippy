@@ -17,6 +17,7 @@
 #define DESTROY_FUNC_TYPE 7
 #define GLOBAL_CALLBACK_TYPE 8
 #define POST_RENDER_OP_TYPE 9
+#define CALCULATE_NODE_LAYOUT_TYPE 10
 
 // hippy call native方法
 typedef void (*call_native)(int32_t engine_id, const char16_t* module_name, const char16_t* module_func,
@@ -34,6 +35,7 @@ typedef void (*send_notification)(int32_t engine_id, const uint16_t* source, int
 typedef void (*destroy_function)(int32_t engine_id);
 typedef void (*global_callback)(int32_t callback_id, int64_t value);
 typedef void (*post_render_op)(int32_t engine_id, int32_t root_id, const void* data, int64_t length);
+typedef int64_t (*calculate_node_layout)(int32_t engine_id, int32_t root_id, int32_t node_id);
 
 extern call_native call_native_func;
 extern post_code_cache_runnable post_code_cache_runnable_func;
@@ -45,5 +47,6 @@ extern send_notification send_notification_func;
 extern destroy_function destroy_func;
 extern global_callback global_callback_func;
 extern post_render_op post_render_op_func;
+extern calculate_node_layout calculate_node_layout_func;
 
 #endif  // ANDROID_CORE_BRIDGE_DEFINE_H_

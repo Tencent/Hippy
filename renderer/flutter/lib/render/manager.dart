@@ -144,7 +144,6 @@ mixin RenderExecutorDelegate {
     _paddingNullUiTasks.clear();
     _uiTasks.clear();
 
-    postFrameCallback();
     _renderBatchStart();
   }
 
@@ -212,6 +211,7 @@ class RenderManager
   @override
   void onInstanceLoad(final int instanceId) {
     createRootNode(instanceId);
+    postFrameCallback();
   }
 
   void createRootNode(int instanceId) async {
@@ -315,7 +315,6 @@ class RenderManager
     LogUtils.dRender("update node ID:$id, param:($map)");
     var uiNode = controllerManager.findNode(instanceId, id);
     if (uiNode != null) {
-
       uiNode.updateNode(map);
       addUpdateNodeIfNeeded(uiNode);
     }

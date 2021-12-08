@@ -14,3 +14,4 @@ send_notification send_notification_func = nullptr;
 destroy_function destroy_func = nullptr;
 global_callback global_callback_func = nullptr;
 post_render_op post_render_op_func = nullptr;
+calculate_node_layout calculate_node_layout_func = nullptr;

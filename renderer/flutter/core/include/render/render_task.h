@@ -9,13 +9,13 @@ namespace voltron {
 class RenderTask {
  public:
   RenderTask(VoltronRenderOpType type, int32_t node_id);
-  RenderTask(VoltronRenderOpType type, int32_t node_id, std::unique_ptr<EncodableValue> args);
+  RenderTask(VoltronRenderOpType type, int32_t node_id, EncodableMap args);
 
-  std::unique_ptr<EncodableValue> Encode();
+  EncodableValue Encode();
 
  private:
   VoltronRenderOpType type_;
   int32_t node_id_;
-  std::unique_ptr<EncodableValue> args_;
+  EncodableMap args_;
 };
 }  // namespace voltron
