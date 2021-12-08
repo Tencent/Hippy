@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.11.3](https://github.com/Tencent/Hippy/compare/2.11.2...2.11.3) (2021-12-08)
+
+
+### Bug Fixes
+
+* **hippy-react:** don't update node on event handler changed ([0be2968](https://github.com/Tencent/Hippy/commit/0be2968656b6d103492f23c6ee2176baee97b2dc))
+
+
+
+
+
 ## [2.11.2](https://github.com/Tencent/Hippy/compare/2.11.1...2.11.2) (2021-12-06)
 
 
