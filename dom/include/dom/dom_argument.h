@@ -1,4 +1,5 @@
 #include <any>
+#include <vector>
 
 #include "dom/dom_value.h"
 
@@ -27,11 +28,20 @@ class DomArgument {
 
   DomArgument& operator=(const DomArgument& rhs) noexcept;
 
-  std::string ToJson();
-  std::pair<uint8_t*, size_t> ToBson();
-  tdf::base::DomValue ToObject();
+  bool ToJson(std::string& json);
+  bool ToBson(std::vector<uint8_t>& bson);
+  bool ToObject(tdf::base::DomValue& dom_value);
 
  private:
+  bool ConvertObjectToJson(const tdf::base::DomValue& dom_value, std::string& json);
+  bool ConvertBsonToJson(const std::vector<uint8_t>& bson, std::string& json);
+
+  bool ConvertJsonToBson(const std::string& json, std::vector<uint8_t>& bson);
+  bool ConvertObjectToBson(const tdf::base::DomValue& dom_value, std::vector<uint8_t>& bson);
+
+  bool ConvertJsonToObject(const std::string& json, tdf::base::DomValue& dom_value);
+  bool ConvertBsonToObject(const std::vector<uint8_t>& bson, tdf::base::DomValue& dom_value);
+
   std::any data_;
   ArgumentType argument_type_;
 };
