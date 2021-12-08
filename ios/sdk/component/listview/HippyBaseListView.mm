@@ -74,6 +74,10 @@
     return [HippyBaseListViewCell class];
 }
 
+- (NSArray<NSString *> *)listItemViewNames {
+    return @[@"ListViewItem"];
+}
+
 - (void)initTableView {
     if (_tableView == nil) {
         _tableView = [[HippyListTableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
@@ -142,9 +146,23 @@
     }
 }
 
+- (void)setFrame:(CGRect)frame {
+    [super setFrame:frame];
+}
+
 - (void)hippySetFrame:(CGRect)frame {
     [super hippySetFrame:frame];
     _tableView.frame = self.bounds;
+}
+
+- (void)setDomNode:(std::shared_ptr<hippy::DomNode>)domNode {
+    [super setDomNode:domNode];
+    const auto children = domNode->GetChildren();
+    NSArray<NSString *> *itemViewsNames = [self listItemViewNames];
+    std::copy_if(children.begin(), children.end(), std::back_inserter(_itemDomNodes), [itemNames_ = itemViewsNames](const std::shared_ptr<hippy::DomNode> &child){
+        NSString *childViewName = [NSString stringWithUTF8String:child->GetViewName().c_str()];
+        return [itemNames_ containsObject:childViewName];
+    });
 }
 
 - (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
@@ -165,6 +183,10 @@
         _footerRefreshView.delegate = self;
         _footerRefreshView.frame = [self.node.subNodes[atIndex] frame];
     }
+}
+
+- (void)didUpdateHippySubviews {
+    [super didUpdateHippySubviews];
 }
 
 #pragma mark -Scrollable
@@ -237,7 +259,8 @@
 }
 
 - (NSInteger)numberOfSectionsInTableView:(__unused UITableView *)tableView {
-    return [_dataSource numberOfSection];
+//    return [_dataSource numberOfSection];
+    return 1;
 }
 
 - (CGFloat)tableView:(__unused UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
@@ -264,12 +287,15 @@
 
 - (CGFloat)tableView:(__unused UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath;
 {
-    HippyVirtualCell *cell = [_dataSource cellForIndexPath:indexPath];
-    return ceil(CGRectGetHeight(cell.frame));
+    std::shared_ptr<hippy::DomNode> domNode = _itemDomNodes[[indexPath row]];
+    return domNode->GetLayoutResult().height;
+//    HippyVirtualCell *cell = [_dataSource cellForIndexPath:indexPath];
+//    return ceil(CGRectGetHeight(cell.frame));
 }
 
 - (NSInteger)tableView:(__unused UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [_dataSource numberOfCellForSection:section];
+//    return [_dataSource numberOfCellForSection:section];
+    return _itemDomNodes.size();
 }
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -311,30 +337,34 @@
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    std::shared_ptr<hippy::DomNode> domNode = _itemDomNodes[[indexPath row]];
+    
     HippyVirtualCell *indexNode = [_dataSource cellForIndexPath:indexPath];
     NSString *identifier = indexNode.itemViewType;
-    HippyBaseListViewCell *cell = (HippyBaseListViewCell *)[tableView dequeueReusableCellWithIdentifier:identifier];
+    //FIXME
+    HippyBaseListViewCell *cell = (HippyBaseListViewCell *)[tableView dequeueReusableCellWithIdentifier:@"identifier"];
     if (nil == cell) {
         Class cls = [self listViewCellClass];
         NSAssert([cls isSubclassOfClass:[HippyBaseListViewCell class]], @"listViewCellClass must return a subclass of HippyBaseListViewCell");
         cell = [[cls alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
         cell.tableView = tableView;
     }
-    UIView *cellView = nil;
-    if (cell.node.cell) {
-        cellView = [_bridge.uiManager createViewFromNode:indexNode];
-    } else {
-        cellView = [_bridge.uiManager updateNode:cell.node withNode:indexNode];
-        if (nil == cellView) {
-            cellView = [_bridge.uiManager createViewFromNode:indexNode];
-        }
-    }
+    UIView *cellView = [_bridge.uiManager viewForHippyTag:@(domNode->GetId())];
+    cellView.frame = CGRectMake(0, 0, CGRectGetWidth(cellView.frame), CGRectGetHeight(cellView.frame));
+//    if (cell.node.cell) {
+//        cellView = [_bridge.uiManager createViewFromNode:indexNode];
+//    } else {
+//        cellView = [_bridge.uiManager updateNode:cell.node withNode:indexNode];
+//        if (nil == cellView) {
+//            cellView = [_bridge.uiManager createViewFromNode:indexNode];
+//        }
+//    }
     cell.layer.zPosition = [self zPositionOfCell:cell forRowAtIndexPath:indexPath];
     HippyAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
         @"subviews of HippyBaseListViewCell must conform to protocol ViewAppearStateProtocol");
     cell.cellView = (UIView<ViewAppearStateProtocol> *)cellView;
-    cell.node = indexNode;
-    cell.node.cell = cell;
+//    cell.node = indexNode;
+//    cell.node.cell = cell;
     return cell;
 }
 

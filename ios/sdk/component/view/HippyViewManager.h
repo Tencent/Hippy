@@ -27,12 +27,12 @@
 #import "HippyDefines.h"
 #import "HippyEventDispatcher.h"
 #import "HippyLog.h"
-#import "UIView+Hippy.h"
 #import "HippyBundleURLProvider.h"
 
 @class HippyBridge;
 @class HippyShadowView;
 @class HippyUIManager;
+@class HippyVirtualNode;
 
 typedef void (^HippyViewManagerUIBlock)(HippyUIManager *uiManager, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry);
 

@@ -21,6 +21,7 @@
  */
 #import "HippyRefreshWrapperItemView.h"
 #import "UIView+Hippy.h"
+
 @implementation HippyRefreshWrapperItemView
 
 - (void)setFrame:(CGRect)frame {

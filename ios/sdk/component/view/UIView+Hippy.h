@@ -21,9 +21,9 @@
  */
 
 #import <UIKit/UIKit.h>
-
 #import "HippyComponent.h"
 #import "HippyViewEventProtocol.h"
+#include "dom/dom_node.h"
 
 @class HippyShadowView;
 @class HippyVirtualNode;
@@ -48,6 +48,8 @@
  * z-index, used to override sibling order in didUpdateHippySubviews.
  */
 @property (nonatomic, assign) NSInteger hippyZIndex;
+
+@property (nonatomic, assign) std::shared_ptr<hippy::DomNode> domNode;
 
 /**
  * set true when hippy subviews changed, but subviews does not.

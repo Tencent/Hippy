@@ -53,9 +53,11 @@
 @property (nonatomic, strong) HippyListTableView *tableView;
 @property (nonatomic, strong, readonly) HippyBaseListViewDataSource *dataSource;
 @property (nonatomic, assign) NSTimeInterval scrollEventThrottle;
+@property (nonatomic, assign, readonly) std::vector<std::shared_ptr<hippy::DomNode>> itemDomNodes;
 
 - (void)reloadData;
 - (Class)listViewCellClass;
+- (NSArray<NSString *> *)listItemViewNames;
 - (instancetype)initWithBridge:(HippyBridge *)bridge;
 - (void)scrollToContentOffset:(CGPoint)point animated:(BOOL)animated;
 - (void)scrollToIndex:(NSInteger)index animated:(BOOL)animated;

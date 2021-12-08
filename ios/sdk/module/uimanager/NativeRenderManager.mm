@@ -20,6 +20,8 @@
  * limitations under the License.
  */
 #import "NativeRenderManager.h"
+#import "HippyShadowText.h"
+#import "dom/taitank_layout_node.h"
 
 using RenderManager = hippy::RenderManager;
 using DomNode = hippy::DomNode;
@@ -27,6 +29,12 @@ using DomEvent = hippy::DomEvent;
 using LayoutResult = hippy::LayoutResult;
 
 void NativeRenderManager::CreateRenderNode(std::vector<std::shared_ptr<DomNode>> &&nodes) {
+    for (auto it = nodes.begin(); it != nodes.end(); it++) {
+        if (0 == it->get()->GetViewName().compare("Text")) {
+            std::shared_ptr<hippy::TaitankLayoutNode> layoutNode = std::static_pointer_cast<hippy::TaitankLayoutNode>(it->get()->GetLayoutNode());
+            layoutNode->SetMeasureFunction(textMeasureFunc);
+        }
+    }
     auto block = [tmpManager = uiManager_, tmpNodes = std::move(nodes)]() mutable {
         [tmpManager createRenderNodes:std::move(tmpNodes)];
     };

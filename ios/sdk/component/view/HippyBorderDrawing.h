@@ -21,7 +21,7 @@
  */
 
 #import <UIKit/UIKit.h>
-
+#import "HippyDefines.h"
 #import "HippyBorderStyle.h"
 
 typedef struct {
@@ -48,21 +48,21 @@ typedef struct {
 /**
  * Determine if the border widths, colors and radii are all equal.
  */
-BOOL HippyBorderInsetsAreEqual(UIEdgeInsets borderInsets);
-BOOL HippyCornerRadiiAreEqual(HippyCornerRadii cornerRadii);
-BOOL HippyBorderColorsAreEqual(HippyBorderColors borderColors);
+HIPPY_EXTERN BOOL HippyBorderInsetsAreEqual(UIEdgeInsets borderInsets);
+HIPPY_EXTERN BOOL HippyCornerRadiiAreEqual(HippyCornerRadii cornerRadii);
+HIPPY_EXTERN BOOL HippyBorderColorsAreEqual(HippyBorderColors borderColors);
 
 /**
  * Convert HippyCornerRadii to HippyCornerInsets by applying border insets.
  * Effectively, returns radius - inset, with a lower bound of 0.0.
  */
-HippyCornerInsets HippyGetCornerInsets(HippyCornerRadii cornerRadii, UIEdgeInsets borderInsets);
+HIPPY_EXTERN HippyCornerInsets HippyGetCornerInsets(HippyCornerRadii cornerRadii, UIEdgeInsets borderInsets);
 
 /**
  * Create a CGPath representing a rounded rectangle with the specified bounds
  * and corner insets. Note that the CGPathRef must be released by the caller.
  */
-CGPathRef HippyPathCreateWithRoundedRect(CGRect bounds, HippyCornerInsets cornerInsets, const CGAffineTransform *transform);
+HIPPY_EXTERN CGPathRef HippyPathCreateWithRoundedRect(CGRect bounds, HippyCornerInsets cornerInsets, const CGAffineTransform *transform);
 
 /**
  * Draw a CSS-compliant border as an image. You can determine if it's scalable
@@ -70,7 +70,7 @@ CGPathRef HippyPathCreateWithRoundedRect(CGRect bounds, HippyCornerInsets corner
  *
  * `borderInsets` defines the border widths for each edge.
  */
-UIImage *HippyGetBorderImage(HippyBorderStyle borderStyle, CGSize viewSize, HippyCornerRadii cornerRadii, UIEdgeInsets borderInsets,
+HIPPY_EXTERN UIImage *HippyGetBorderImage(HippyBorderStyle borderStyle, CGSize viewSize, HippyCornerRadii cornerRadii, UIEdgeInsets borderInsets,
     HippyBorderColors borderColors, CGColorRef backgroundColor, BOOL drawToEdge, BOOL drawBackgroundColor);
 
-CGPathRef HippyPathCreateOuterOutline(BOOL drawToEdge, CGRect rect, HippyCornerRadii cornerRadii);
+HIPPY_EXTERN CGPathRef HippyPathCreateOuterOutline(BOOL drawToEdge, CGRect rect, HippyCornerRadii cornerRadii);

@@ -276,9 +276,13 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
                     }                                                           \
                     setDefaultValue = YES;                                      \
                 }                                                               \
-                set(target, setter, convert([HippyConvert class], type, json)); \
+                if ([target respondsToSelector:setter]) {                       \
+                    set(target, setter, convert([HippyConvert class], type, json)); \
+                }                                                               \
             } else if (setDefaultValue) {                                       \
-                set(target, setter, defaultValue);                              \
+                if ([target respondsToSelector:setter]) {                       \
+                    set(target, setter, defaultValue);                          \
+                }                                                               \
             }                                                                   \
         };                                                                      \
         break;                                                                  \

@@ -30,6 +30,17 @@
 #import "HPNode.h"
 #import "HippyI18nUtils.h"
 
+CGRect getShadowViewRectFromDomNode(HippyShadowView *shadowView) {
+    if (shadowView) {
+        std::shared_ptr<hippy::DomNode> node = shadowView.domNode;
+        if (node) {
+            const hippy::LayoutResult &layoutResult = node->GetLayoutResult();
+            return CGRectMake(layoutResult.left, layoutResult.top, layoutResult.width, layoutResult.height);
+        }
+    }
+    return CGRectZero;
+}
+
 static NSString *const HippyBackgroundColorProp = @"backgroundColor";
 
 typedef NS_ENUM(unsigned int, meta_prop_t) {
@@ -43,7 +54,7 @@ typedef NS_ENUM(unsigned int, meta_prop_t) {
     META_PROP_COUNT,
 };
 
-@implementation HippyShadowView {
+@interface HippyShadowView () {
     HippyUpdateLifecycle _propagationLifecycle;
     HippyUpdateLifecycle _textLifecycle;
     NSDictionary *_lastParentProperties;
@@ -57,6 +68,10 @@ typedef NS_ENUM(unsigned int, meta_prop_t) {
     float _borderMetaProps[META_PROP_COUNT];
 }
 
+@end
+
+@implementation HippyShadowView
+
 @synthesize hippyTag = _hippyTag;
 @synthesize props = _props;
 @synthesize rootTag = _rootTag;
@@ -68,52 +83,64 @@ typedef NS_ENUM(unsigned int, meta_prop_t) {
 //  HippyShadowView *shadowView = (__bridge HippyShadowView *)context;
 //  printf("%s(%zd), ", shadowView.viewName.UTF8String, shadowView.hippyTag.integerValue);
 //}
-#define DEFINE_PROCESS_META_PROPS(type)                                                                \
-    static void HippyProcessMetaProps##type(const float metaProps[META_PROP_COUNT], HPNodeRef node) { \
-        if (!isnan(metaProps[META_PROP_LEFT])) {                                                       \
-            HPNodeStyleSet##type(node, CSSLeft, metaProps[META_PROP_LEFT]);                           \
-        } else if (!isnan(metaProps[META_PROP_HORIZONTAL])) {                                          \
-            HPNodeStyleSet##type(node, CSSLeft, metaProps[META_PROP_HORIZONTAL]);                     \
-        } else if (!isnan(metaProps[META_PROP_ALL])) {                                                 \
-            HPNodeStyleSet##type(node, CSSLeft, metaProps[META_PROP_ALL]);                            \
-        } else {                                                                                       \
-            HPNodeStyleSet##type(node, CSSLeft, 0);                                                   \
-        }                                                                                              \
-                                                                                                       \
-        if (!isnan(metaProps[META_PROP_RIGHT])) {                                                      \
-            HPNodeStyleSet##type(node, CSSRight, metaProps[META_PROP_RIGHT]);                         \
-        } else if (!isnan(metaProps[META_PROP_HORIZONTAL])) {                                          \
-            HPNodeStyleSet##type(node, CSSRight, metaProps[META_PROP_HORIZONTAL]);                    \
-        } else if (!isnan(metaProps[META_PROP_ALL])) {                                                 \
-            HPNodeStyleSet##type(node, CSSRight, metaProps[META_PROP_ALL]);                           \
-        } else {                                                                                       \
-            HPNodeStyleSet##type(node, CSSRight, 0);                                                  \
-        }                                                                                              \
-                                                                                                       \
-        if (!isnan(metaProps[META_PROP_TOP])) {                                                        \
-            HPNodeStyleSet##type(node, CSSTop, metaProps[META_PROP_TOP]);                             \
-        } else if (!isnan(metaProps[META_PROP_VERTICAL])) {                                            \
-            HPNodeStyleSet##type(node, CSSTop, metaProps[META_PROP_VERTICAL]);                        \
-        } else if (!isnan(metaProps[META_PROP_ALL])) {                                                 \
-            HPNodeStyleSet##type(node, CSSTop, metaProps[META_PROP_ALL]);                             \
-        } else {                                                                                       \
-            HPNodeStyleSet##type(node, CSSTop, 0);                                                    \
-        }                                                                                              \
-                                                                                                       \
-        if (!isnan(metaProps[META_PROP_BOTTOM])) {                                                     \
-            HPNodeStyleSet##type(node, CSSBottom, metaProps[META_PROP_BOTTOM]);                       \
-        } else if (!isnan(metaProps[META_PROP_VERTICAL])) {                                            \
-            HPNodeStyleSet##type(node, CSSBottom, metaProps[META_PROP_VERTICAL]);                     \
-        } else if (!isnan(metaProps[META_PROP_ALL])) {                                                 \
-            HPNodeStyleSet##type(node, CSSBottom, metaProps[META_PROP_ALL]);                          \
-        } else {                                                                                       \
-            HPNodeStyleSet##type(node, CSSBottom, 0);                                                 \
-        }                                                                                              \
-    }
+//#define DEFINE_PROCESS_META_PROPS(type)                                                                \
+//    static void HippyProcessMetaProps##type(const float metaProps[META_PROP_COUNT], HPNodeRef node) { \
+//        if (!isnan(metaProps[META_PROP_LEFT])) {                                                       \
+//            HPNodeStyleSet##type(node, CSSLeft, metaProps[META_PROP_LEFT]);                           \
+//        } else if (!isnan(metaProps[META_PROP_HORIZONTAL])) {                                          \
+//            HPNodeStyleSet##type(node, CSSLeft, metaProps[META_PROP_HORIZONTAL]);                     \
+//        } else if (!isnan(metaProps[META_PROP_ALL])) {                                                 \
+//            HPNodeStyleSet##type(node, CSSLeft, metaProps[META_PROP_ALL]);                            \
+//        } else {                                                                                       \
+//            HPNodeStyleSet##type(node, CSSLeft, 0);                                                   \
+//        }                                                                                              \
+//                                                                                                       \
+//        if (!isnan(metaProps[META_PROP_RIGHT])) {                                                      \
+//            HPNodeStyleSet##type(node, CSSRight, metaProps[META_PROP_RIGHT]);                         \
+//        } else if (!isnan(metaProps[META_PROP_HORIZONTAL])) {                                          \
+//            HPNodeStyleSet##type(node, CSSRight, metaProps[META_PROP_HORIZONTAL]);                    \
+//        } else if (!isnan(metaProps[META_PROP_ALL])) {                                                 \
+//            HPNodeStyleSet##type(node, CSSRight, metaProps[META_PROP_ALL]);                           \
+//        } else {                                                                                       \
+//            HPNodeStyleSet##type(node, CSSRight, 0);                                                  \
+//        }                                                                                              \
+//                                                                                                       \
+//        if (!isnan(metaProps[META_PROP_TOP])) {                                                        \
+//            HPNodeStyleSet##type(node, CSSTop, metaProps[META_PROP_TOP]);                             \
+//        } else if (!isnan(metaProps[META_PROP_VERTICAL])) {                                            \
+//            HPNodeStyleSet##type(node, CSSTop, metaProps[META_PROP_VERTICAL]);                        \
+//        } else if (!isnan(metaProps[META_PROP_ALL])) {                                                 \
+//            HPNodeStyleSet##type(node, CSSTop, metaProps[META_PROP_ALL]);                             \
+//        } else {                                                                                       \
+//            HPNodeStyleSet##type(node, CSSTop, 0);                                                    \
+//        }                                                                                              \
+//                                                                                                       \
+//        if (!isnan(metaProps[META_PROP_BOTTOM])) {                                                     \
+//            HPNodeStyleSet##type(node, CSSBottom, metaProps[META_PROP_BOTTOM]);                       \
+//        } else if (!isnan(metaProps[META_PROP_VERTICAL])) {                                            \
+//            HPNodeStyleSet##type(node, CSSBottom, metaProps[META_PROP_VERTICAL]);                     \
+//        } else if (!isnan(metaProps[META_PROP_ALL])) {                                                 \
+//            HPNodeStyleSet##type(node, CSSBottom, metaProps[META_PROP_ALL]);                          \
+//        } else {                                                                                       \
+//            HPNodeStyleSet##type(node, CSSBottom, 0);                                                 \
+//        }                                                                                              \
+//    }
 
-DEFINE_PROCESS_META_PROPS(Padding);
-DEFINE_PROCESS_META_PROPS(Margin);
-DEFINE_PROCESS_META_PROPS(Border);
+//DEFINE_PROCESS_META_PROPS(Padding);
+//DEFINE_PROCESS_META_PROPS(Margin);
+//DEFINE_PROCESS_META_PROPS(Border);
+
+- (void)collectShadowViewsHaveNewLayoutResults:(NSMutableSet<HippyShadowView *> *)shadowViewsHaveNewLayoutResult {
+    HippyAssert(shadowViewsHaveNewLayoutResult, @"we need shadowViewsNeedToApplyLayout to collect shadow views");
+    if (_hasNewLayout || _visibilityChanged) {
+        _hasNewLayout = NO;
+        _visibilityChanged = NO;
+        [shadowViewsHaveNewLayoutResult addObject:self];
+        for (HippyShadowView *shadowView in self.hippySubviews) {
+            [shadowView collectShadowViewsHaveNewLayoutResults:shadowViewsHaveNewLayoutResult];
+        }
+    }
+}
 
 // The absolute stuff is so that we can take into account our absolute position when rounding in order to
 // snap to the pixel grid. For example, say you have the following structure:
@@ -144,60 +171,60 @@ DEFINE_PROCESS_META_PROPS(Border);
 // width = 213.5 - 106.5 = 107
 // You'll notice that this is the same width we calculated for the parent view because we've taken its position into account.
 
-- (void)applyLayoutNode:(HPNodeRef)node
-      viewsWithNewFrame:(NSMutableSet<HippyShadowView *> *)viewsWithNewFrame
-       absolutePosition:(CGPoint)absolutePosition {
-    if (!HPNodeHasNewLayout(node) && !_visibilityChanged) {
-        return;
-    }
-    HPNodesetHasNewLayout(node, false);
-    float left = HPNodeLayoutGetLeft(node);
-    float top = HPNodeLayoutGetTop(node);
-    HPNodeRef parentNode = _nodeRef->getParent();
-    if (!parentNode) {
-        left = HPNodeLayoutGetLeft(_nodeRef);
-        top = HPNodeLayoutGetTop(_nodeRef);
-        if (isnan(left)) {
-            left = 0;
-        }
-        if (isnan(top)) {
-            top = 0;
-        }
-    }
-    float width = HPNodeLayoutGetWidth(node);
-    float height = HPNodeLayoutGetHeight(node);
-    CGPoint absoluteTopLeft = { absolutePosition.x + left, absolutePosition.y + top };
+//- (void)applyLayoutNode:(HPNodeRef)node
+//      viewsWithNewFrame:(NSMutableSet<HippyShadowView *> *)viewsWithNewFrame
+//       absolutePosition:(CGPoint)absolutePosition {
+//    if (!HPNodeHasNewLayout(node) && !_visibilityChanged) {
+//        return;
+//    }
+//    HPNodesetHasNewLayout(node, false);
+//    float left = HPNodeLayoutGetLeft(node);
+//    float top = HPNodeLayoutGetTop(node);
+//    HPNodeRef parentNode = _nodeRef->getParent();
+//    if (!parentNode) {
+//        left = HPNodeLayoutGetLeft(_nodeRef);
+//        top = HPNodeLayoutGetTop(_nodeRef);
+//        if (isnan(left)) {
+//            left = 0;
+//        }
+//        if (isnan(top)) {
+//            top = 0;
+//        }
+//    }
+//    float width = HPNodeLayoutGetWidth(node);
+//    float height = HPNodeLayoutGetHeight(node);
+//    CGPoint absoluteTopLeft = { absolutePosition.x + left, absolutePosition.y + top };
+//
+//    CGPoint absoluteBottomRight = { absolutePosition.x + left + width,
+//        absolutePosition.y + top + height };
+//
+//    CGRect frame = { {
+//                         HippyRoundPixelValue(left),
+//                         HippyRoundPixelValue(top),
+//                     },
+//        { HippyRoundPixelValue(absoluteBottomRight.x - absoluteTopLeft.x), HippyRoundPixelValue(absoluteBottomRight.y - absoluteTopLeft.y) } };
+//
+//    if (!CGRectEqualToRect(frame, _frame) ||
+//        _visibilityChanged) {
+//        _frame = frame;
+//        [viewsWithNewFrame addObject:self];
+//        _visibilityChanged = NO;
+//    }
+//
+//    absolutePosition.x += HPNodeLayoutGetLeft(node);
+//    absolutePosition.y += HPNodeLayoutGetTop(node);
+//
+//    [self applyLayoutToChildren:node viewsWithNewFrame:viewsWithNewFrame absolutePosition:absolutePosition];
+//}
 
-    CGPoint absoluteBottomRight = { absolutePosition.x + left + width,
-        absolutePosition.y + top + height };
-
-    CGRect frame = { {
-                         HippyRoundPixelValue(left),
-                         HippyRoundPixelValue(top),
-                     },
-        { HippyRoundPixelValue(absoluteBottomRight.x - absoluteTopLeft.x), HippyRoundPixelValue(absoluteBottomRight.y - absoluteTopLeft.y) } };
-
-    if (!CGRectEqualToRect(frame, _frame) ||
-        _visibilityChanged) {
-        _frame = frame;
-        [viewsWithNewFrame addObject:self];
-        _visibilityChanged = NO;
-    }
-
-    absolutePosition.x += HPNodeLayoutGetLeft(node);
-    absolutePosition.y += HPNodeLayoutGetTop(node);
-
-    [self applyLayoutToChildren:node viewsWithNewFrame:viewsWithNewFrame absolutePosition:absolutePosition];
-}
-
-- (void)applyLayoutToChildren:(HPNodeRef)node
-            viewsWithNewFrame:(NSMutableSet<HippyShadowView *> *)viewsWithNewFrame
-             absolutePosition:(CGPoint)absolutePosition {
-    for (unsigned int i = 0; i < HPNodeChildCount(node); ++i) {
-        HippyShadowView *child = (HippyShadowView *)_hippySubviews[i];
-        [child applyLayoutNode:HPNodeGetChild(node, i) viewsWithNewFrame:viewsWithNewFrame absolutePosition:absolutePosition];
-    }
-}
+//- (void)applyLayoutToChildren:(HPNodeRef)node
+//            viewsWithNewFrame:(NSMutableSet<HippyShadowView *> *)viewsWithNewFrame
+//             absolutePosition:(CGPoint)absolutePosition {
+//    for (unsigned int i = 0; i < HPNodeChildCount(node); ++i) {
+//        HippyShadowView *child = (HippyShadowView *)_hippySubviews[i];
+//        [child applyLayoutNode:HPNodeGetChild(node, i) viewsWithNewFrame:viewsWithNewFrame absolutePosition:absolutePosition];
+//    }
+//}
 
 - (NSDictionary<NSString *, id> *)processUpdatedProperties:(NSMutableSet<HippyApplierBlock> *)applierBlocks
                                           parentProperties:(NSDictionary<NSString *, id> *)parentProperties {
@@ -305,34 +332,34 @@ DEFINE_PROCESS_META_PROPS(Border);
     }
 }
 
-- (void)collectUpdatedFrames:(NSMutableSet<HippyShadowView *> *)viewsWithNewFrame
-                   withFrame:(CGRect)frame
-                      hidden:(BOOL)hidden
-            absolutePosition:(CGPoint)absolutePosition {
-    if (_hidden != hidden) {
-        // The hidden state has changed. Even if the frame hasn't changed, add
-        // this ShadowView to viewsWithNewFrame so the UIManager will process
-        // this ShadowView's UIView and update its hidden state.
-        _hidden = hidden;
-        [viewsWithNewFrame addObject:self];
-    }
-
-    if (!CGRectEqualToRect(frame, _frame)) {
-        HPNodeStyleSetPositionType(_nodeRef, PositionTypeAbsolute);
-        HPNodeStyleSetWidth(_nodeRef, CGRectGetWidth(frame));
-        HPNodeStyleSetHeight(_nodeRef, CGRectGetHeight(frame));
-        HPNodeStyleSetPosition(_nodeRef, CSSLeft, frame.origin.x);
-        HPNodeStyleSetPosition(_nodeRef, CSSTop, frame.origin.y);
-    }
-
-    //  CSSNodeCalculateLayout(_cssNode, frame.size.width, frame.size.height, CSSDirectionInherit);
-    NSWritingDirection direction = [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
-    HPDirection nodeDirection = (NSWritingDirectionRightToLeft == direction) ? DirectionRTL : DirectionLTR;
-    nodeDirection = self.layoutDirection != DirectionInherit ? self.layoutDirection : nodeDirection;
-    HPNodeDoLayout(_nodeRef, frame.size.width, frame.size.height, nodeDirection);
-    //  [self applyLayoutNode:_cssNode viewsWithNewFrame:viewsWithNewFrame absolutePosition:absolutePosition];
-    [self applyLayoutNode:_nodeRef viewsWithNewFrame:viewsWithNewFrame absolutePosition:absolutePosition];
-}
+//- (void)collectUpdatedFrames:(NSMutableSet<HippyShadowView *> *)viewsWithNewFrame
+//                   withFrame:(CGRect)frame
+//                      hidden:(BOOL)hidden
+//            absolutePosition:(CGPoint)absolutePosition {
+//    if (_hidden != hidden) {
+//        // The hidden state has changed. Even if the frame hasn't changed, add
+//        // this ShadowView to viewsWithNewFrame so the UIManager will process
+//        // this ShadowView's UIView and update its hidden state.
+//        _hidden = hidden;
+//        [viewsWithNewFrame addObject:self];
+//    }
+//
+//    if (!CGRectEqualToRect(frame, _frame)) {
+//        HPNodeStyleSetPositionType(_nodeRef, PositionTypeAbsolute);
+//        HPNodeStyleSetWidth(_nodeRef, CGRectGetWidth(frame));
+//        HPNodeStyleSetHeight(_nodeRef, CGRectGetHeight(frame));
+//        HPNodeStyleSetPosition(_nodeRef, CSSLeft, frame.origin.x);
+//        HPNodeStyleSetPosition(_nodeRef, CSSTop, frame.origin.y);
+//    }
+//
+//    //  CSSNodeCalculateLayout(_cssNode, frame.size.width, frame.size.height, CSSDirectionInherit);
+//    NSWritingDirection direction = [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
+//    HPDirection nodeDirection = (NSWritingDirectionRightToLeft == direction) ? DirectionRTL : DirectionLTR;
+//    nodeDirection = self.layoutDirection != DirectionInherit ? self.layoutDirection : nodeDirection;
+//    HPNodeDoLayout(_nodeRef, frame.size.width, frame.size.height, nodeDirection);
+//    //  [self applyLayoutNode:_cssNode viewsWithNewFrame:viewsWithNewFrame absolutePosition:absolutePosition];
+//    [self applyLayoutNode:_nodeRef viewsWithNewFrame:viewsWithNewFrame absolutePosition:absolutePosition];
+//}
 
 - (CGRect)measureLayoutRelativeToAncestor:(HippyShadowView *)ancestor {
     CGPoint offset = CGPointZero;
@@ -373,12 +400,8 @@ DEFINE_PROCESS_META_PROPS(Border);
         _newView = YES;
         _propagationLifecycle = HippyUpdateLifecycleUninitialized;
         _textLifecycle = HippyUpdateLifecycleUninitialized;
-
+        _hasNewLayout = YES;
         _hippySubviews = [NSMutableArray array];
-
-        HPConfigRef configRef = new HPConfig();
-        configRef->SetScaleFactor([UIScreen mainScreen].scale);
-        _nodeRef = HPNodeNewWithConfig(configRef);
     }
     return self;
 }
@@ -388,11 +411,6 @@ DEFINE_PROCESS_META_PROPS(Border);
 }
 
 - (void)dealloc {
-    HPConfigRef configRef = _nodeRef->GetConfig();
-    if (configRef) {
-        HPConfigFree(configRef);
-    }
-    HPNodeFree(_nodeRef);
 }
 
 - (BOOL)isCSSLeafNode {
@@ -433,15 +451,14 @@ DEFINE_PROCESS_META_PROPS(Border);
     if (![_visibility isEqualToString:visibility]) {
         _visibility = visibility;
         _visibilityChanged = YES;
-        HPNodeMarkDirty(self.nodeRef);
     }
 }
 
 - (void)insertHippySubview:(HippyShadowView *)subview atIndex:(NSInteger)atIndex {
     [_hippySubviews insertObject:subview atIndex:atIndex];
-    if (![self isCSSLeafNode]) {
-        HPNodeInsertChild(_nodeRef, subview.nodeRef, (uint32_t)atIndex);
-    }
+//    if (![self isCSSLeafNode]) {
+//        HPNodeInsertChild(_nodeRef, subview.nodeRef, (uint32_t)atIndex);
+//    }
     subview->_superview = self;
     _didUpdateSubviews = YES;
     [self dirtyText];
@@ -454,9 +471,9 @@ DEFINE_PROCESS_META_PROPS(Border);
     _didUpdateSubviews = YES;
     subview->_superview = nil;
     [_hippySubviews removeObject:subview];
-    if (![self isCSSLeafNode]) {
-        HPNodeRemoveChild(_nodeRef, subview.nodeRef);
-    }
+//    if (![self isCSSLeafNode]) {
+//        HPNodeRemoveChild(_nodeRef, subview.nodeRef);
+//    }
 }
 
 - (NSArray<HippyShadowView *> *)hippySubviews {
@@ -508,115 +525,112 @@ DEFINE_PROCESS_META_PROPS(Border);
 
 // Margin
 
-#define HIPPY_MARGIN_PROPERTY(prop, metaProp)           \
-    -(void)setMargin##prop : (CGFloat)value {           \
-        _marginMetaProps[META_PROP_##metaProp] = value; \
-        _recomputeMargin = YES;                         \
-    }                                                   \
-    -(CGFloat)margin##prop {                            \
-        return _marginMetaProps[META_PROP_##metaProp];  \
-    }
-
-HIPPY_MARGIN_PROPERTY(, ALL)
-HIPPY_MARGIN_PROPERTY(Vertical, VERTICAL)
-HIPPY_MARGIN_PROPERTY(Horizontal, HORIZONTAL)
-HIPPY_MARGIN_PROPERTY(Top, TOP)
-HIPPY_MARGIN_PROPERTY(Left, LEFT)
-HIPPY_MARGIN_PROPERTY(Bottom, BOTTOM)
-HIPPY_MARGIN_PROPERTY(Right, RIGHT)
+//#define HIPPY_MARGIN_PROPERTY(prop, metaProp)           \
+//    -(void)setMargin##prop : (CGFloat)value {           \
+//        _marginMetaProps[META_PROP_##metaProp] = value; \
+//        _recomputeMargin = YES;                         \
+//    }                                                   \
+//    -(CGFloat)margin##prop {                            \
+//        return _marginMetaProps[META_PROP_##metaProp];  \
+//    }
+//
+//HIPPY_MARGIN_PROPERTY(, ALL)
+//HIPPY_MARGIN_PROPERTY(Vertical, VERTICAL)
+//HIPPY_MARGIN_PROPERTY(Horizontal, HORIZONTAL)
+//HIPPY_MARGIN_PROPERTY(Top, TOP)
+//HIPPY_MARGIN_PROPERTY(Left, LEFT)
+//HIPPY_MARGIN_PROPERTY(Bottom, BOTTOM)
+//HIPPY_MARGIN_PROPERTY(Right, RIGHT)
 
 // Padding
 
-#define HIPPY_PADDING_PROPERTY(prop, metaProp)           \
-    -(void)setPadding##prop : (CGFloat)value {           \
-        _paddingMetaProps[META_PROP_##metaProp] = value; \
-        _recomputePadding = YES;                         \
-    }                                                    \
-    -(CGFloat)padding##prop {                            \
-        return _paddingMetaProps[META_PROP_##metaProp];  \
-    }
-
-HIPPY_PADDING_PROPERTY(, ALL)
-HIPPY_PADDING_PROPERTY(Vertical, VERTICAL)
-HIPPY_PADDING_PROPERTY(Horizontal, HORIZONTAL)
-HIPPY_PADDING_PROPERTY(Top, TOP)
-HIPPY_PADDING_PROPERTY(Left, LEFT)
-HIPPY_PADDING_PROPERTY(Bottom, BOTTOM)
-HIPPY_PADDING_PROPERTY(Right, RIGHT)
-
-- (UIEdgeInsets)paddingAsInsets {
-    CGFloat top = HPNodeLayoutGetPadding(_nodeRef, CSSTop);
-    if (isnan(top)) {
-        top = 0;
-    }
-    CGFloat left = HPNodeLayoutGetPadding(_nodeRef, CSSLeft);
-    if (isnan(left)) {
-        left = 0;
-    }
-    CGFloat bottom = HPNodeLayoutGetPadding(_nodeRef, CSSBottom);
-    if (isnan(bottom)) {
-        bottom = 0;
-    }
-    CGFloat right = HPNodeLayoutGetPadding(_nodeRef, CSSRight);
-    if (isnan(right)) {
-        right = 0;
-    }
-    return UIEdgeInsetsMake(top, left, bottom, right);
-}
-
-// Border
-#define HIPPY_BORDER_PROPERTY(prop, metaProp)           \
-    -(void)setBorder##prop##Width : (CGFloat)value {    \
-        _borderMetaProps[META_PROP_##metaProp] = value; \
-        _recomputeBorder = YES;                         \
-    }                                                   \
-    -(CGFloat)border##prop##Width {                     \
-        return _borderMetaProps[META_PROP_##metaProp];  \
-    }
-
-HIPPY_BORDER_PROPERTY(, ALL)
-HIPPY_BORDER_PROPERTY(Top, TOP)
-HIPPY_BORDER_PROPERTY(Left, LEFT)
-HIPPY_BORDER_PROPERTY(Bottom, BOTTOM)
-HIPPY_BORDER_PROPERTY(Right, RIGHT)
-
-// Dimensions
-#define X5_DIMENSION_PROPERTY(setProp, getProp, cssProp) \
-    -(void)set##setProp : (CGFloat)value {               \
-        HPNodeStyleSet##cssProp(_nodeRef, value);       \
-        [self dirtyText];                                \
-    }                                                    \
-    -(CGFloat)getProp {                                  \
-        return HPNodeLayoutGet##cssProp(_nodeRef);      \
-    }
-X5_DIMENSION_PROPERTY(Width, width, Width)
-X5_DIMENSION_PROPERTY(Height, height, Height)
-X5_DIMENSION_PROPERTY(MinWidth, minWidth, MinWidth)
-X5_DIMENSION_PROPERTY(MinHeight, minHeight, MinHeight)
-X5_DIMENSION_PROPERTY(MaxWidth, maxWidth, MaxWidth)
-X5_DIMENSION_PROPERTY(MaxHeight, maxHeight, MaxHeight)
-
-// Position
-#define X5_POSITION_PROPERTY(setProp, getProp, edge)     \
-    -(void)set##setProp : (CGFloat)value {               \
-        HPNodeStyleSetPosition(_nodeRef, edge, value);  \
-        [self dirtyText];                                \
-    }                                                    \
-    -(CGFloat)getProp {                                  \
-        return _nodeRef->style.position[edge];        \
-    }
-X5_POSITION_PROPERTY(Top, top, CSSTop)
-X5_POSITION_PROPERTY(Right, right, CSSRight)
-X5_POSITION_PROPERTY(Bottom, bottom, CSSBottom)
-X5_POSITION_PROPERTY(Left, left, CSSLeft)
+//#define HIPPY_PADDING_PROPERTY(prop, metaProp)           \
+//    -(void)setPadding##prop : (CGFloat)value {           \
+//        _paddingMetaProps[META_PROP_##metaProp] = value; \
+//        _recomputePadding = YES;                         \
+//    }                                                    \
+//    -(CGFloat)padding##prop {                            \
+//        return _paddingMetaProps[META_PROP_##metaProp];  \
+//    }
+//
+//HIPPY_PADDING_PROPERTY(, ALL)
+//HIPPY_PADDING_PROPERTY(Vertical, VERTICAL)
+//HIPPY_PADDING_PROPERTY(Horizontal, HORIZONTAL)
+//HIPPY_PADDING_PROPERTY(Top, TOP)
+//HIPPY_PADDING_PROPERTY(Left, LEFT)
+//HIPPY_PADDING_PROPERTY(Bottom, BOTTOM)
+//HIPPY_PADDING_PROPERTY(Right, RIGHT)
+//
+//- (UIEdgeInsets)paddingAsInsets {
+//    CGFloat top = HPNodeLayoutGetPadding(_nodeRef, CSSTop);
+//    if (isnan(top)) {
+//        top = 0;
+//    }
+//    CGFloat left = HPNodeLayoutGetPadding(_nodeRef, CSSLeft);
+//    if (isnan(left)) {
+//        left = 0;
+//    }
+//    CGFloat bottom = HPNodeLayoutGetPadding(_nodeRef, CSSBottom);
+//    if (isnan(bottom)) {
+//        bottom = 0;
+//    }
+//    CGFloat right = HPNodeLayoutGetPadding(_nodeRef, CSSRight);
+//    if (isnan(right)) {
+//        right = 0;
+//    }
+//    return UIEdgeInsetsMake(top, left, bottom, right);
+//}
+//
+//// Border
+//#define HIPPY_BORDER_PROPERTY(prop, metaProp)           \
+//    -(void)setBorder##prop##Width : (CGFloat)value {    \
+//        _borderMetaProps[META_PROP_##metaProp] = value; \
+//        _recomputeBorder = YES;                         \
+//    }                                                   \
+//    -(CGFloat)border##prop##Width {                     \
+//        return _borderMetaProps[META_PROP_##metaProp];  \
+//    }
+//
+//HIPPY_BORDER_PROPERTY(, ALL)
+//HIPPY_BORDER_PROPERTY(Top, TOP)
+//HIPPY_BORDER_PROPERTY(Left, LEFT)
+//HIPPY_BORDER_PROPERTY(Bottom, BOTTOM)
+//HIPPY_BORDER_PROPERTY(Right, RIGHT)
+//
+//// Dimensions
+//#define X5_DIMENSION_PROPERTY(setProp, getProp, cssProp) \
+//    -(void)set##setProp : (CGFloat)value {               \
+//        HPNodeStyleSet##cssProp(_nodeRef, value);       \
+//        [self dirtyText];                                \
+//    }                                                    \
+//    -(CGFloat)getProp {                                  \
+//        return HPNodeLayoutGet##cssProp(_nodeRef);      \
+//    }
+//X5_DIMENSION_PROPERTY(Width, width, Width)
+//X5_DIMENSION_PROPERTY(Height, height, Height)
+//X5_DIMENSION_PROPERTY(MinWidth, minWidth, MinWidth)
+//X5_DIMENSION_PROPERTY(MinHeight, minHeight, MinHeight)
+//X5_DIMENSION_PROPERTY(MaxWidth, maxWidth, MaxWidth)
+//X5_DIMENSION_PROPERTY(MaxHeight, maxHeight, MaxHeight)
+//
+//// Position
+//#define X5_POSITION_PROPERTY(setProp, getProp, edge)     \
+//    -(void)set##setProp : (CGFloat)value {               \
+//        HPNodeStyleSetPosition(_nodeRef, edge, value);  \
+//        [self dirtyText];                                \
+//    }                                                    \
+//    -(CGFloat)getProp {                                  \
+//        return _nodeRef->style.position[edge];        \
+//    }
+//X5_POSITION_PROPERTY(Top, top, CSSTop)
+//X5_POSITION_PROPERTY(Right, right, CSSRight)
+//X5_POSITION_PROPERTY(Bottom, bottom, CSSBottom)
+//X5_POSITION_PROPERTY(Left, left, CSSLeft)
 
 - (void)setFrame:(CGRect)frame {
     if (!CGRectEqualToRect(frame, _frame)) {
         _frame = frame;
-        HPNodeStyleSetPosition(_nodeRef, CSSLeft, CGRectGetMinX(frame));
-        HPNodeStyleSetPosition(_nodeRef, CSSTop, CGRectGetMinY(frame));
-        HPNodeStyleSetWidth(_nodeRef, CGRectGetWidth(frame));
-        HPNodeStyleSetHeight(_nodeRef, CGRectGetHeight(frame));
+        self.hasNewLayout = YES;
     }
 }
 
@@ -638,84 +652,84 @@ static inline void x5AssignSuggestedDimension(HPNodeRef cssNode, Dimension dimen
 }
 
 - (void)setIntrinsicContentSize:(CGSize)size {
-    if (HPNodeLayoutGetFlexGrow(_nodeRef) == 0.f && HPNodeLayoutGetFlexShrink(_nodeRef) == 0.f) {
-        x5AssignSuggestedDimension(_nodeRef, DimHeight, size.height);
-        x5AssignSuggestedDimension(_nodeRef, DimWidth, size.width);
-    }
+//    if (HPNodeLayoutGetFlexGrow(_nodeRef) == 0.f && HPNodeLayoutGetFlexShrink(_nodeRef) == 0.f) {
+//        x5AssignSuggestedDimension(_nodeRef, DimHeight, size.height);
+//        x5AssignSuggestedDimension(_nodeRef, DimWidth, size.width);
+//    }
 }
 
-- (void)setTopLeft:(CGPoint)topLeft {
-    HPNodeStyleSetPosition(_nodeRef, CSSLeft, topLeft.x);
-    HPNodeStyleSetPosition(_nodeRef, CSSLeft, topLeft.y);
-}
-
-- (void)setSize:(CGSize)size {
-    HPNodeStyleSetWidth(_nodeRef, size.width);
-    HPNodeStyleSetHeight(_nodeRef, size.height);
-}
-
-- (void)setLayoutDirection:(HPDirection)layoutDirection {
-    _layoutDirection = layoutDirection;
-    HPNodeStyleSetDirection(_nodeRef, layoutDirection);
-}
-
-// Flex
-
-- (void)setFlex:(CGFloat)value {
-    HPNodeStyleSetFlex(_nodeRef, value);
-}
-
-#define X5_STYLE_PROPERTY(setProp, getProp, cssProp, type) \
-    -(void)set##setProp : (type)value {                    \
-        HPNodeStyleSet##cssProp(_nodeRef, value);         \
-    }                                                      \
-    -(type)getProp {                                       \
-        return HPNodeLayoutGet##cssProp(_nodeRef);        \
-    }
-
-X5_STYLE_PROPERTY(FlexGrow, flexGrow, FlexGrow, CGFloat)
-X5_STYLE_PROPERTY(FlexShrink, flexShrink, FlexShrink, CGFloat)
-X5_STYLE_PROPERTY(FlexBasis, flexBasis, FlexBasis, CGFloat)
-X5_STYLE_PROPERTY(FlexDirection, flexDirection, FlexDirection, FlexDirection)
-X5_STYLE_PROPERTY(JustifyContent, justifyContent, JustifyContent, FlexAlign)
-X5_STYLE_PROPERTY(AlignSelf, alignSelf, AlignSelf, FlexAlign)
-X5_STYLE_PROPERTY(AlignItems, alignItems, AlignItems, FlexAlign)
-X5_STYLE_PROPERTY(Position, position, PositionType, PositionType)
-X5_STYLE_PROPERTY(FlexWrap, flexWrap, FlexWrap, FlexWrapMode)
-X5_STYLE_PROPERTY(Overflow, overflow, Overflow, OverflowType)
-X5_STYLE_PROPERTY(DisplayType, displayType, Display, DisplayType)
+//- (void)setTopLeft:(CGPoint)topLeft {
+//    HPNodeStyleSetPosition(_nodeRef, CSSLeft, topLeft.x);
+//    HPNodeStyleSetPosition(_nodeRef, CSSLeft, topLeft.y);
+//}
+//
+//- (void)setSize:(CGSize)size {
+//    HPNodeStyleSetWidth(_nodeRef, size.width);
+//    HPNodeStyleSetHeight(_nodeRef, size.height);
+//}
+//
+//- (void)setLayoutDirection:(HPDirection)layoutDirection {
+//    _layoutDirection = layoutDirection;
+//    HPNodeStyleSetDirection(_nodeRef, layoutDirection);
+//}
+//
+//// Flex
+//
+//- (void)setFlex:(CGFloat)value {
+//    HPNodeStyleSetFlex(_nodeRef, value);
+//}
+//
+//#define X5_STYLE_PROPERTY(setProp, getProp, cssProp, type) \
+//    -(void)set##setProp : (type)value {                    \
+//        HPNodeStyleSet##cssProp(_nodeRef, value);         \
+//    }                                                      \
+//    -(type)getProp {                                       \
+//        return HPNodeLayoutGet##cssProp(_nodeRef);        \
+//    }
+//
+//X5_STYLE_PROPERTY(FlexGrow, flexGrow, FlexGrow, CGFloat)
+//X5_STYLE_PROPERTY(FlexShrink, flexShrink, FlexShrink, CGFloat)
+//X5_STYLE_PROPERTY(FlexBasis, flexBasis, FlexBasis, CGFloat)
+//X5_STYLE_PROPERTY(FlexDirection, flexDirection, FlexDirection, FlexDirection)
+//X5_STYLE_PROPERTY(JustifyContent, justifyContent, JustifyContent, FlexAlign)
+//X5_STYLE_PROPERTY(AlignSelf, alignSelf, AlignSelf, FlexAlign)
+//X5_STYLE_PROPERTY(AlignItems, alignItems, AlignItems, FlexAlign)
+//X5_STYLE_PROPERTY(Position, position, PositionType, PositionType)
+//X5_STYLE_PROPERTY(FlexWrap, flexWrap, FlexWrap, FlexWrapMode)
+//X5_STYLE_PROPERTY(Overflow, overflow, Overflow, OverflowType)
+//X5_STYLE_PROPERTY(DisplayType, displayType, Display, DisplayType)
 
 - (void)setBackgroundColor:(UIColor *)color {
     _backgroundColor = color;
     [self dirtyPropagation];
 }
 
-- (void)setZIndex:(NSInteger)zIndex {
-    _zIndex = zIndex;
-    if (_superview) {
-        // Changing zIndex means the subview order of the parent needs updating
-        _superview->_didUpdateSubviews = YES;
-        [_superview dirtyPropagation];
-    }
-}
+//- (void)setZIndex:(NSInteger)zIndex {
+//    _zIndex = zIndex;
+//    if (_superview) {
+//        // Changing zIndex means the subview order of the parent needs updating
+//        _superview->_didUpdateSubviews = YES;
+//        [_superview dirtyPropagation];
+//    }
+//}
 
 - (void)didUpdateHippySubviews {
     // Does nothing by default
 }
 
 - (void)didSetProps:(__unused NSArray<NSString *> *)changedProps {
-    if (_recomputePadding) {
-        HippyProcessMetaPropsPadding(_paddingMetaProps, _nodeRef);
-    }
-    if (_recomputeMargin) {
-        HippyProcessMetaPropsMargin(_marginMetaProps, _nodeRef);
-    }
-    if (_recomputeBorder) {
-        HippyProcessMetaPropsBorder(_borderMetaProps, _nodeRef);
-    }
-    _recomputeMargin = NO;
-    _recomputePadding = NO;
-    _recomputeBorder = NO;
+//    if (_recomputePadding) {
+//        HippyProcessMetaPropsPadding(_paddingMetaProps, _nodeRef);
+//    }
+//    if (_recomputeMargin) {
+//        HippyProcessMetaPropsMargin(_marginMetaProps, _nodeRef);
+//    }
+//    if (_recomputeBorder) {
+//        HippyProcessMetaPropsBorder(_borderMetaProps, _nodeRef);
+//    }
+//    _recomputeMargin = NO;
+//    _recomputePadding = NO;
+//    _recomputeBorder = NO;
 }
 
 - (void)hippySetFrame:(__unused CGRect)frame {

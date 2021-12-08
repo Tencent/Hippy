@@ -572,10 +572,10 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
         return;
     }
     
-    __weak typeof(self) weakSelf = self;
+    __weak __typeof(self) weakSelf = self;
     [self getLayerContentForColor:nil completionBlock:^(UIImage *contentImage) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            typeof(weakSelf) strongSelf = weakSelf;
+            __typeof(weakSelf) strongSelf = weakSelf;
             CALayer *strongLayer = strongSelf.layer;
             CGRect contentsCenter = ({
                 CGSize size = contentImage.size;

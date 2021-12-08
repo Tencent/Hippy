@@ -29,11 +29,14 @@
 #import "HippyShadowView.h"
 #import "HippyVirtualNode.h"
 
-@interface RNWeakObject : NSObject
+@interface HippyViewPropertyWrapper : NSObject
+
+@property (nonatomic, assign)std::shared_ptr<hippy::DomNode> domNode;
 @property (nonatomic, weak) id<HippyComponent> parent;
+
 @end
 
-@implementation RNWeakObject
+@implementation HippyViewPropertyWrapper
 
 @end
 
@@ -95,14 +98,33 @@
     objc_setAssociatedObject(self, @selector(viewName), viewName, OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
 
+- (NSString *)tagName {
+    return objc_getAssociatedObject(self, _cmd);
+}
+
+- (void)setTagName:(NSString *)tagName {
+    objc_setAssociatedObject(self, @selector(tagName), tagName, OBJC_ASSOCIATION_COPY_NONATOMIC);
+}
+
+- (std::shared_ptr<hippy::DomNode>)domNode {
+    HippyViewPropertyWrapper *wrapper = objc_getAssociatedObject(self, _cmd);
+    return wrapper.domNode;
+}
+
+- (void)setDomNode:(std::shared_ptr<hippy::DomNode>)domNode {
+    HippyViewPropertyWrapper *wrapper = [[HippyViewPropertyWrapper alloc] init];
+    wrapper.domNode = domNode;
+    objc_setAssociatedObject(self, @selector(domNode), wrapper, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
 - (void)setParent:(id<HippyComponent>)parent {
-    RNWeakObject *object = [[RNWeakObject alloc] init];
+    HippyViewPropertyWrapper *object = [[HippyViewPropertyWrapper alloc] init];
     object.parent = parent;
     objc_setAssociatedObject(self, @selector(parent), object, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 - (id<HippyComponent>)parent {
-    RNWeakObject *object = objc_getAssociatedObject(self, @selector(parent));
+    HippyViewPropertyWrapper *object = objc_getAssociatedObject(self, @selector(parent));
     return object.parent;
 }
 

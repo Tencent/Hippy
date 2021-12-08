@@ -38,33 +38,41 @@
     return self;
 }
 
+//- (void)setFrame:(CGRect)frame {
+//    if (!CGRectEqualToRect(self.frame, frame)) {
+//        [super setFrame:frame];
+//        self.hasNewLayout = YES;
+//    }
+//}
+
 - (void)applySizeConstraints {
     switch (_sizeFlexibility) {
         case HippyRootViewSizeFlexibilityNone:
             break;
         case HippyRootViewSizeFlexibilityWidth:
-            HPNodeStyleSetWidth(self.nodeRef, NAN);
+//            HPNodeStyleSetWidth(self.nodeRef, NAN);
             break;
         case HippyRootViewSizeFlexibilityHeight:
-            HPNodeStyleSetHeight(self.nodeRef, NAN);
+//            HPNodeStyleSetHeight(self.nodeRef, NAN);
             break;
         case HippyRootViewSizeFlexibilityWidthAndHeight:
-            HPNodeStyleSetWidth(self.nodeRef, NAN);
-            HPNodeStyleSetHeight(self.nodeRef, NAN);
+//            HPNodeStyleSetWidth(self.nodeRef, NAN);
+//            HPNodeStyleSetHeight(self.nodeRef, NAN);
             break;
     }
 }
 
-- (NSSet<HippyShadowView *> *)collectViewsWithUpdatedFrames {
+- (NSSet<HippyShadowView *> *)collectShadowViewsHaveNewLayoutResultsForRootShadowView {
     [self applySizeConstraints];
     
-    NSWritingDirection direction = [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
-    HPDirection nodeDirection = (NSWritingDirectionRightToLeft == direction) ? DirectionRTL : DirectionLTR;
-    HPNodeDoLayout(self.nodeRef, NAN, NAN, nodeDirection);
-
-    NSMutableSet<HippyShadowView *> *viewsWithNewFrame = [NSMutableSet set];
-    [self applyLayoutNode:self.nodeRef viewsWithNewFrame:viewsWithNewFrame absolutePosition:CGPointZero];
-    return viewsWithNewFrame;
+//    NSWritingDirection direction = [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
+//    HPDirection nodeDirection = (NSWritingDirectionRightToLeft == direction) ? DirectionRTL : DirectionLTR;
+//    HPNodeDoLayout(self.nodeRef, NAN, NAN, nodeDirection);
+    self.hasNewLayout = YES;
+    NSMutableSet<HippyShadowView *> *shadowViewsHaveNewLayoutResults = [NSMutableSet setWithCapacity:256];
+//    [self applyLayoutNode:self.nodeRef viewsWithNewFrame:viewsWithNewFrame absolutePosition:CGPointZero];
+    [self collectShadowViewsHaveNewLayoutResults:shadowViewsHaveNewLayoutResults];
+    return shadowViewsHaveNewLayoutResults;
 }
 
 @end
