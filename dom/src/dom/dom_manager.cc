@@ -1,6 +1,6 @@
 #include "dom/dom_manager.h"
 
-#include <queue>
+#include <stack>
 
 #include "dom/render_manager.h"
 #include "dom/diff_utils.h"
@@ -159,31 +159,48 @@ void DomManager::HandleEvent(const std::shared_ptr<DomEvent> &event) {
   auto event_name = event->GetType();
   auto target = weak_target.lock();
   if (target) {
-    std::queue<std::shared_ptr<DomNode>> capture_list = {};
-    capture_list.push(target);
-    if (!event->IsPreventCapture()) {
-      // 获取捕获列表
-      while (auto parent = target->GetParent()) {
-        capture_list.push(parent);
-        target = parent;
-      }
-      // 执行捕获流程
-      while (auto capture_node = capture_list.front()) {
+    std::stack<std::shared_ptr<DomNode>> capture_list = {};
+    // 执行捕获流程，注：target节点event.StopPropagation并不会阻止捕获流程
+
+    // 获取捕获列表
+    while (auto parent = target->GetParent()) {
+      capture_list.push(parent);
+      target = parent;
+    }
+
+    // 执行捕获流程
+    if (!capture_list.empty()) {
+      while (auto capture_node = capture_list.top()) {
         capture_list.pop();
         event->SetCurrentTarget(capture_node); // 设置当前节点，cb里会用到
         auto listeners = capture_node->GetEventListener(event_name, true);
         for (const auto &listener: listeners) {
-          listener->cb(event);
+          listener->cb(event); // StopPropagation并不会影响同级的回调调用
         }
-        if (event->IsPreventCapture()) {
-          // cb 内部调用了 event.StopPropagation 会阻止捕获
-          break;
+        if (event->IsPreventCapture()) { // cb 内部调用了 event.StopPropagation 会阻止捕获
+          return; // 捕获流中StopPropagation不仅会导致捕获流程结束，后面的目标事件和冒泡都会终止
         }
       }
     }
+    // 执行本身节点回调
+    event->SetCurrentTarget(target);
+    auto target_listeners = target->GetEventListener(event_name, true);
+    for (const auto &listener: target_listeners) {
+      listener->cb(event);
+    }
+    if (event->IsPreventCapture()) {
+      return;
+    }
+    target_listeners = target->GetEventListener(event_name, false);
+    for (const auto &listener: target_listeners) {
+      listener->cb(event);
+    }
+    if (event->IsPreventBubble()) {
+      return;
+    }
+
     // 执行冒泡流程
-    // 注：就算阻止了冒泡，本身节点cb还是要调用的，因此执行完了target的cb再判断是否阻止冒泡
-    while (auto bubble_node = target) {
+    while (auto bubble_node = target->GetParent()) {
       event->SetCurrentTarget(bubble_node);
       auto listeners = bubble_node->GetEventListener(event_name, false);
       for (const auto &listener: listeners) {
