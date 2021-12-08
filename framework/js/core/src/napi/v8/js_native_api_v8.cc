@@ -36,7 +36,6 @@
 #include "core/napi/callback_info.h"
 #include "core/napi/native_source_code.h"
 #include "core/scope.h"
-#include "hippy.h"
 #include "v8/libplatform/libplatform.h"
 
 namespace hippy {
@@ -235,7 +234,7 @@ std::shared_ptr<TryCatch> CreateTryCatchScope(bool enable,
 }
 
 void DetachThread() {
-  JNIEnvironment::GetInstance()->DetachCurrentThread();
+  //JNIEnvironment::GetInstance()->DetachCurrentThread();
 }
 
 V8VM::V8VM(const std::shared_ptr<V8VMInitParam>& param): VM(param) {

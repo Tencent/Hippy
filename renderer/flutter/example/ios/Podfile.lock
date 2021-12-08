@@ -1,0 +1,71 @@
+PODS:
+  - Flutter (1.0.0)
+  - fluttertoast (0.0.2):
+    - Flutter
+    - Toast
+  - FMDB (2.7.5):
+    - FMDB/standard (= 2.7.5)
+  - FMDB/standard (2.7.5)
+  - gradient_like_css (0.0.1):
+    - Flutter
+  - path_provider (0.0.1):
+    - Flutter
+  - shared_preferences (0.0.1):
+    - Flutter
+  - sqflite (0.0.2):
+    - Flutter
+    - FMDB (>= 2.7.5)
+  - system_proxy (0.0.1):
+    - Flutter
+  - tencent_voltron_render (0.0.1):
+    - Flutter
+  - Toast (4.0.0)
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
+  - gradient_like_css (from `.symlinks/plugins/gradient_like_css/ios`)
+  - path_provider (from `.symlinks/plugins/path_provider/ios`)
+  - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
+  - sqflite (from `.symlinks/plugins/sqflite/ios`)
+  - system_proxy (from `.symlinks/plugins/system_proxy/ios`)
+  - tencent_voltron_render (from `.symlinks/plugins/tencent_voltron_render/ios`)
+
+SPEC REPOS:
+  trunk:
+    - FMDB
+    - Toast
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  fluttertoast:
+    :path: ".symlinks/plugins/fluttertoast/ios"
+  gradient_like_css:
+    :path: ".symlinks/plugins/gradient_like_css/ios"
+  path_provider:
+    :path: ".symlinks/plugins/path_provider/ios"
+  shared_preferences:
+    :path: ".symlinks/plugins/shared_preferences/ios"
+  sqflite:
+    :path: ".symlinks/plugins/sqflite/ios"
+  system_proxy:
+    :path: ".symlinks/plugins/system_proxy/ios"
+  tencent_voltron_render:
+    :path: ".symlinks/plugins/tencent_voltron_render/ios"
+
+SPEC CHECKSUMS:
+  Flutter: 434fef37c0980e73bb6479ef766c45957d4b510c
+  fluttertoast: 6122fa75143e992b1d3470f61000f591a798cc58
+  FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
+  gradient_like_css: 5bf90b38d326b3883145898d762735ca07d17991
+  path_provider: abfe2b5c733d04e238b0d8691db0cfd63a27a93c
+  shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
+  sqflite: 6d358c025f5b867b29ed92fc697fd34924e11904
+  system_proxy: bec1a5c5af67dd3e3ebf43979400a8756c04cc44
+  tencent_voltron_render: 909620795ebfa35b34f3a53d1aa6edee77b8427b
+  Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
+
+PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c
+
+COCOAPODS: 1.10.1

@@ -56,13 +56,13 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
    * @brief 获取 left 属性
    * @return left 属性
    */
-  float GetLeft();
+  float GetLeft() override;
 
   /**
    * @brief 获取 top 属性
    * @return top 属性
    */
-  float GetTop();
+  float GetTop() override;
 
   /**
    * @brief 获取 right 属性
