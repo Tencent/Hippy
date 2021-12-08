@@ -96,16 +96,13 @@ void DomManager::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>> &&nodes) {
 void DomManager::BeginBatch() {}
 
 void DomManager::EndBatch() {
-  // 触发布局计算
-  layout_changed_nodes_.clear();
-  root_node_->DoLayout();
-  const auto &udpate_node = layout_changed_nodes_;
-  if (!layout_changed_nodes_.empty()) {
-    batched_operations_.emplace_back(
-        [this, &udpate_node]() { render_manager_->UpdateLayout(udpate_node); });
-  }
-  for (auto &batch_operation : batched_operations_) {
+  for (auto& batch_operation : batched_operations_) {
     batch_operation();
+  }
+  // 触发布局计算
+  root_node_->DoLayout();
+  if (!layout_changed_nodes_.empty()) {
+    render_manager_->UpdateLayout(layout_changed_nodes_);
   }
   batched_operations_.clear();
   render_manager_->Batch();
