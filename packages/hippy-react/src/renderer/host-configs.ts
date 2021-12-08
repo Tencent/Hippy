@@ -58,8 +58,46 @@ function commitUpdate(
   newProps: Props,
   workInProgress: any,
 ): void {
+  if (!updatePayload) return;
   preCacheFiberNode(workInProgress, instance.nodeId);
-  Object.keys(updatePayload).forEach(attr => instance.setAttribute(attr, updatePayload[attr]));
+  const processedUpdatePayload: any[] = Object.entries(updatePayload).filter(([, value]) => typeof value !== 'function');
+  if (processedUpdatePayload.length === 0) return;
+  processedUpdatePayload.forEach(([propKey, propValue]) => instance.setAttribute(propKey, propValue));
+}
+
+function prepareUpdate(
+  instance: Element,
+  type: Type,
+  oldProps: Props,
+  newProps: Props,
+): UpdatePayload {
+  const updatePayload: {
+    [key: string]: any;
+  } = {};
+  Object.keys(newProps).forEach((key: string) => {
+    const oldPropValue = oldProps[key];
+    const newPropValue = newProps[key];
+    switch (key) {
+      case 'children': {
+        if (oldPropValue !== newPropValue
+            && (typeof newPropValue === 'number'
+                || typeof newPropValue === 'string'
+            )) {
+          updatePayload[key] = newPropValue;
+        }
+        break;
+      }
+      default: {
+        if (!isEqual(oldPropValue, newPropValue)) {
+          updatePayload[key] = newPropValue;
+        }
+      }
+    }
+  });
+  if (!Object.keys(updatePayload).length) {
+    return null;
+  }
+  return updatePayload;
 }
 
 function createContainerChildSet() {}
@@ -135,41 +173,6 @@ function insertBefore(
 
 function prepareForCommit() {
   return null;
-}
-
-function prepareUpdate(
-  instance: Element,
-  type: Type,
-  oldProps: Props,
-  newProps: Props,
-): UpdatePayload {
-  const updatePayload: {
-    [key: string]: any;
-  } = {};
-  Object.keys(newProps).forEach((key: string) => {
-    const oldPropValue = oldProps[key];
-    const newPropValue = newProps[key];
-    switch (key) {
-      case 'children': {
-        if (oldPropValue !== newPropValue
-          && (typeof newPropValue === 'number'
-            || typeof newPropValue === 'string'
-          )) {
-          updatePayload[key] = newPropValue;
-        }
-        break;
-      }
-      default: {
-        if (!isEqual(oldPropValue, newPropValue)) {
-          updatePayload[key] = newPropValue;
-        }
-      }
-    }
-  });
-  if (!Object.keys(updatePayload).length) {
-    return null;
-  }
-  return updatePayload;
 }
 
 function replaceContainerChildren() {}
