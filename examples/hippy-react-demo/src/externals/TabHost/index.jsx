@@ -80,7 +80,7 @@ export default class TabHostExample extends React.Component {
     this.scrollSV();
   }
 
-  onViewPagerChange(position) {
+  onViewPagerChange({ position }) {
     this.setState({
       curIndex: position,
     });
@@ -166,7 +166,7 @@ export default class TabHostExample extends React.Component {
           }}
           style={{ flex: 1 }}
           initialPage={0}
-          onPageSelected={e => this.onViewPagerChange(e.position)}
+          onPageSelected={this.onViewPagerChange}
         >
           {navList.map((v, idx) => TabHostExample.getPage(v, idx))}
         </ViewPager>
