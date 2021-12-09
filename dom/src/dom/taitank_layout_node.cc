@@ -268,6 +268,10 @@ bool TaitankLayoutNode::SetMeasureFunction(TaitankMeasureFunction measure_functi
   return engine_node_->setMeasureFunc(measure_function);
 }
 
+void TaitankLayoutNode::SetLayoutContext(void *context) {
+    engine_node_->setContext(context);
+}
+
 float TaitankLayoutNode::GetLeft() {
   assert(engine_node_ != nullptr);
   return engine_node_->result.position[CSSLeft];
