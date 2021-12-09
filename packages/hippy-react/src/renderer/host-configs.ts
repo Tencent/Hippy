@@ -58,11 +58,10 @@ function commitUpdate(
   newProps: Props,
   workInProgress: any,
 ): void {
-  if (!updatePayload) return;
   preCacheFiberNode(workInProgress, instance.nodeId);
-  const processedUpdatePayload: any[] = Object.entries(updatePayload).filter(([, value]) => typeof value !== 'function');
-  if (processedUpdatePayload.length === 0) return;
-  processedUpdatePayload.forEach(([propKey, propValue]) => instance.setAttribute(propKey, propValue));
+  const updatePayloadPropList: string[] = Object.keys(updatePayload);
+  if (updatePayloadPropList.length === 0) return;
+  updatePayloadPropList.forEach(propKey => instance.setAttribute(propKey, updatePayload[propKey]));
 }
 
 function prepareUpdate(
@@ -74,6 +73,7 @@ function prepareUpdate(
   const updatePayload: {
     [key: string]: any;
   } = {};
+  let hasFunctionProp = false;
   Object.keys(newProps).forEach((key: string) => {
     const oldPropValue = oldProps[key];
     const newPropValue = newProps[key];
@@ -88,13 +88,29 @@ function prepareUpdate(
         break;
       }
       default: {
-        if (!isEqual(oldPropValue, newPropValue)) {
+        if (typeof oldPropValue === 'function'
+            && typeof newPropValue === 'function'
+            && !isEqual(oldPropValue, newPropValue)
+        ) {
+          hasFunctionProp = true;
+        } else if (!isEqual(oldPropValue, newPropValue)) {
           updatePayload[key] = newPropValue;
         }
       }
     }
   });
-  if (!Object.keys(updatePayload).length) {
+  const isUpdatePayloadEmpty = Object.keys(updatePayload).length === 0;
+  if (isUpdatePayloadEmpty && hasFunctionProp) {
+    /**
+     * if updatePayload only has function property,
+     * return empty object to trigger commitUpdate for updating fiberNode Cache
+     */
+    return {};
+  }
+  if (isUpdatePayloadEmpty) {
+    /**
+     * prepareUpdate returning null would not trigger commitUpdate
+     */
     return null;
   }
   return updatePayload;
@@ -108,7 +124,7 @@ function createInstance(
   rootContainerInstance: Document,
   currentHostContext: object,
   workInProgress: any,
-) {
+): Element {
   const element = rootContainerInstance.createElement(type);
   Object.keys(newProps).forEach((attr) => {
     switch (attr) {
@@ -136,7 +152,7 @@ function createTextInstance(
   rootContainerInstance: Document,
   hostContext: object,
   workInProgress: any,
-) {
+): Element {
   const element = rootContainerInstance.createElement('p');
   element.setAttribute('text', unicodeToChar(newText));
   element.meta = {
