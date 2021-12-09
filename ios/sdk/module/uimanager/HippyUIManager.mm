@@ -487,9 +487,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 }
 
 - (void)addUIBlock:(HippyViewManagerUIBlock)block {
-    HippyAssertThread(HippyGetUIManagerQueue(), @"-[HippyUIManager addUIBlock:] should only be called from the "
-                                                 "UIManager's queue (get this using `HippyGetUIManagerQueue()`)");
-
     if (!block || !_viewRegistry) {
         return;
     }
@@ -850,7 +847,6 @@ HIPPY_EXPORT_METHOD(manageChildren:(nonnull NSNumber *)containerTag
 }
 
 - (void)createShadowViewFromDomNode:(const std::shared_ptr<DomNode> &)domNode inRootTag:(NSNumber *)rootTag {
-    HippyAssertThread(HippyGetUIManagerQueue(), @"createShadowView can only be called from the shadow queue");
     NSString *viewName = [NSString stringWithUTF8String:domNode->GetViewName().c_str()];
     NSNumber *hippyTag = @(domNode->GetId());
     HippyComponentData *componentData = _componentDataByName[viewName];
@@ -880,13 +876,11 @@ HIPPY_EXPORT_METHOD(manageChildren:(nonnull NSNumber *)containerTag
 }
 
 - (void)createUIViewFromNode:(const std::shared_ptr<DomNode> &)domNode inRootTag:(NSNumber *)rootTag {
-    HippyAssertThread(HippyGetUIManagerQueue(), @"createUIView can only be called from the shadow queue");
 }
 
 - (void)createView:(nonnull NSNumber *)hippyTag viewName:(NSString *)viewName
            rootTag:(nonnull NSNumber *)rootTag tagName:(NSString *)tagName
              props:(NSDictionary *)props domNode:(const std::shared_ptr<hippy::DomNode> &)domNode {
-    HippyAssertThread(HippyGetUIManagerQueue(), @"createView can only be called from the shadow queue");
     HippyComponentData *componentData = _componentDataByName[viewName];
     HippyShadowView *shadowView = [componentData createShadowViewWithTag:hippyTag];
     if (componentData == nil) {
@@ -916,10 +910,10 @@ HIPPY_EXPORT_METHOD(manageChildren:(nonnull NSNumber *)containerTag
         [componentData setProps:newProps forShadowView:shadowView];
         _shadowViewRegistry[hippyTag] = shadowView;
     }
-    
+    std::shared_ptr<hippy::DomNode> node_ = domNode;
     [self addUIBlock:^(HippyUIManager *uiManager, __unused NSDictionary<NSNumber *,UIView *> *viewRegistry) {
         UIView *view = [uiManager createViewByComponentData:componentData hippyTag:hippyTag rootTag:rootTag properties:newProps viewName:viewName];
-        view.domNode = domNode;
+        view.domNode = node_;
     }];
 }
 
@@ -1051,10 +1045,10 @@ HIPPY_EXPORT_METHOD(updateView:(nonnull NSNumber *)hippyTag
     }
 
     
-    [self addVirtulNodeBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,HippyVirtualNode *> *virtualNodeRegistry) {
-        HippyVirtualNode *node = virtualNodeRegistry[hippyTag];
-        node.props = virtualProps;
-    }];
+//    [self addVirtulNodeBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,HippyVirtualNode *> *virtualNodeRegistry) {
+//        HippyVirtualNode *node = virtualNodeRegistry[hippyTag];
+//        node.props = virtualProps;
+//    }];
     
     [self addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         UIView *view = viewRegistry[hippyTag];
@@ -1182,7 +1176,6 @@ HIPPY_EXPORT_METHOD(dispatchViewManagerCommand:(nonnull NSNumber *)hippyTag
 }
 
 - (void)flushUIBlocks {
-    HippyAssertThread(HippyGetUIManagerQueue(), @"flushUIBlocks can only be called from the shadow queue");
 
     // First copy the previous blocks into a temporary variable, then reset the
     // pending blocks to a new array. This guards against mutation while
@@ -1612,7 +1605,6 @@ static UIView *_jsResponder;
  *
  */
 - (void)createRenderNodes:(std::vector<std::shared_ptr<DomNode>> &&)nodes {
-    HippyAssertThread(HippyGetUIManagerQueue(), @"createRenderNodes can only be called from the shadow queue");
     HippyViewsRelation *manager = [[HippyViewsRelation alloc] init];
     int32_t rootviewTag = [[self rootHippyTag] intValue];
     for (const std::shared_ptr<DomNode> &node : nodes) {
@@ -1662,16 +1654,39 @@ static UIView *_jsResponder;
 }
 
 - (void)renderNodesUpdateLayout:(const std::vector<std::shared_ptr<DomNode>> &)nodes {
-    HippyAssertThread(HippyGetUIManagerQueue(), @"renderNodesUpdateLayout can only be called from the shadow queue");
-//    for (const auto &node : nodes) {
-//        int32_t tag = node->GetId();
-//        [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-//            UIView *view = viewRegistry[@(tag)];
-//            HippyAssert(view, @"renderNodesUpdateLayout finds no view");
-//            CGRect rect = CGRectMakeFromLayoutResult(node->GetLayoutResult());
-//            view.frame = rect;
-//        }];
-//    }
+    for (const auto &node : nodes) {
+        NSNumber *hippyTag = @(node->GetId());
+        NSString *viewName = [NSString stringWithUTF8String:node->GetViewName().c_str()];
+        NSDictionary *styleProps = unorderedMapDomValueToDictionary(node->GetStyleMap());
+        NSDictionary *extProps = unorderedMapDomValueToDictionary(node->GetExtStyle());
+        NSMutableDictionary *combinedProps = [NSMutableDictionary dictionaryWithDictionary:styleProps];
+        [combinedProps addEntriesFromDictionary:extProps];
+        NSDictionary *props = [combinedProps copy];
+        CGRect frame = CGRectMakeFromDomNode(node);
+        HippyShadowView *shadowView = _shadowViewRegistry[hippyTag];
+        HippyComponentData *componentData = _componentDataByName[shadowView.viewName ?: viewName];
+        id isAnimated = props[@"useAnimation"];
+        if (isAnimated && [isAnimated isKindOfClass: [NSNumber class]]) {
+            HippyExtAnimationModule *animationModule = self.bridge.animationModule;
+            props = [animationModule bindAnimaiton:props viewTag:hippyTag rootTag: shadowView.rootTag];
+            shadowView.animated = [(NSNumber *)isAnimated boolValue];;
+        } else {
+            shadowView.animated = NO;
+        }
+            
+        NSDictionary *newProps = props;
+        NSDictionary *virtualProps = props;
+        if (shadowView) {
+            newProps = [shadowView mergeProps: props];
+            virtualProps = shadowView.props;
+            shadowView.frame = frame;
+            [componentData setProps:newProps forShadowView:shadowView];
+        }
+        [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+            UIView *view = viewRegistry[hippyTag];
+            [componentData setProps:newProps forView:view];
+        }];
+    }
 }
 
 -(void)batch {

@@ -45,20 +45,17 @@ CGFloat const HippyTextAutoSizeGranularity = 0.001f;
 // MTTlayout
 HPSize textMeasureFunc(
     HPNodeRef node, float width, MeasureMode widthMeasureMode, __unused float height, __unused MeasureMode heightMeasureMode, void *layoutContext) {
-//    HippyShadowText *shadowText = (__bridge HippyShadowText *)node->getContext();
-//    NSTextStorage *textStorage = [shadowText buildTextStorageForWidth:width widthMode:widthMeasureMode];
-//    [shadowText calculateTextFrame:textStorage];
-//    NSLayoutManager *layoutManager = textStorage.layoutManagers.firstObject;
-//    NSTextContainer *textContainer = layoutManager.textContainers.firstObject;
-//    CGSize computedSize = [layoutManager usedRectForTextContainer:textContainer].size;
-//
-//    HPSize result;
-//    result.width = HippyCeilPixelValue(computedSize.width);
-//    if (shadowText->_effectiveLetterSpacing < 0) {
-//        result.width -= shadowText->_effectiveLetterSpacing;
-//    }
-//    result.height = HippyCeilPixelValue(computedSize.height);
-    return {0,0};
+    hippy::DomNode *pNode = static_cast<hippy::DomNode *>(HPNodeGetContext(node));
+    NSDictionary *props = unorderedMapDomValueToDictionary(pNode->GetExtStyle());
+    NSDictionary *styleProps = unorderedMapDomValueToDictionary(pNode->GetStyle());
+    NSNumber *fontSize = styleProps[@"fontSize"];
+    NSString *text = props[@"text"];
+    UIFont *font = [UIFont systemFontOfSize:[fontSize floatValue]];
+    CGSize size = [text sizeWithFont:font];
+    HPSize retSize;
+    retSize.width = HippyCeilPixelValue(size.width);
+    retSize.height = HippyCeilPixelValue(size.height);
+    return retSize;
 }
 
 static void resetFontAttribute(NSTextStorage *textStorage) {

@@ -33,12 +33,10 @@ void NativeRenderManager::CreateRenderNode(std::vector<std::shared_ptr<DomNode>>
         if (0 == it->get()->GetViewName().compare("Text")) {
             std::shared_ptr<hippy::TaitankLayoutNode> layoutNode = std::static_pointer_cast<hippy::TaitankLayoutNode>(it->get()->GetLayoutNode());
             layoutNode->SetMeasureFunction(textMeasureFunc);
+            HPNodeSetContext(layoutNode->GetLayoutEngineNodeRef(), it->get());
         }
     }
-    auto block = [tmpManager = uiManager_, tmpNodes = std::move(nodes)]() mutable {
-        [tmpManager createRenderNodes:std::move(tmpNodes)];
-    };
-    dispatch_async(HippyGetUIManagerQueue(), block);
+    [uiManager_ createRenderNodes:std::move(nodes)];
 }
 
 void NativeRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
@@ -68,10 +66,7 @@ void NativeRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>
 }
 
 void NativeRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) {
-    auto block = [tmpManager = uiManager_, tmpNodes = std::move(nodes)]() {
-        [tmpManager renderNodesUpdateLayout:tmpNodes];
-    };
-    dispatch_async(HippyGetUIManagerQueue(), block);
+    [uiManager_ renderNodesUpdateLayout:nodes];
 }
 
 void NativeRenderManager::MoveRenderNode(std::vector<int32_t>&& ids,

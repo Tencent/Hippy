@@ -487,6 +487,10 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : unused)
     }
 }
 
+- (void)setFrame:(CGRect)frame {
+    [super setFrame:frame];
+}
+
 - (HippyBorderColors)borderColors {
     return (HippyBorderColors) {
         _borderTopColor ?: _borderColor,
