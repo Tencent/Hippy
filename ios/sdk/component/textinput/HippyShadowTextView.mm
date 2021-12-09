@@ -51,8 +51,6 @@ static HPSize x5MeasureFunc(
 - (instancetype)init {
     self = [super init];
     if (self) {
-        HPNodeSetMeasureFunc(self.nodeRef, x5MeasureFunc);
-        self.nodeRef->setContext((__bridge void *)self);
     }
     return self;
 }

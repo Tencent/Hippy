@@ -26,14 +26,18 @@
 #include "Hippy.h"
 #import "HippyComponent.h"
 #import "HippyRootView.h"
-
+#include "dom/dom_listener.h"
+#include "dom/dom_node.h"
 #import "HippyVirtualNode.h"
+#import "HippyDomNodeUtils.h"
 
 typedef NS_ENUM(NSUInteger, HippyUpdateLifecycle) {
     HippyUpdateLifecycleUninitialized = 0,
     HippyUpdateLifecycleComputed,
     HippyUpdateLifecycleDirtied,
 };
+
+HIPPY_EXTERN CGRect getShadowViewRectFromDomNode(HippyShadowView *shadowView);
 
 typedef void (^HippyApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegistry);
 
@@ -61,7 +65,7 @@ typedef void (^HippyApplierVirtualBlock)(NSDictionary<NSNumber *, HippyVirtualNo
 
 @property (nonatomic, weak, readonly) HippyShadowView *superview;
 //@property (nonatomic, assign, readonly) CSSNodeRef cssNode;
-@property (nonatomic, assign, readonly) HPNodeRef nodeRef;
+//@property (nonatomic, assign, readonly) HPNodeRef nodeRef;
 @property (nonatomic, copy) NSString *viewName;
 @property (nonatomic, strong) UIColor *backgroundColor;  // Used to propagate to children
 @property (nonatomic, copy) HippyDirectEventBlock onLayout;
@@ -70,6 +74,8 @@ typedef void (^HippyApplierVirtualBlock)(NSDictionary<NSNumber *, HippyVirtualNo
 @property (nonatomic, assign) HPDirection layoutDirection;
 @property (nonatomic, copy) NSString *visibility;
 @property (nonatomic, assign) BOOL visibilityChanged;
+@property (nonatomic, assign) BOOL hasNewLayout;
+@property (nonatomic, assign) std::shared_ptr<hippy::DomNode> domNode;
 
 /**
  * isNewView - Used to track the first time the view is introduced into the hierarchy.  It is initialized YES, then is
@@ -88,23 +94,23 @@ typedef void (^HippyApplierVirtualBlock)(NSDictionary<NSNumber *, HippyVirtualNo
  * Position and dimensions.
  * Defaults to { 0, 0, NAN, NAN }.
  */
-@property (nonatomic, assign) CGFloat top;
-@property (nonatomic, assign) CGFloat left;
-@property (nonatomic, assign) CGFloat bottom;
-@property (nonatomic, assign) CGFloat right;
-
-@property (nonatomic, assign) CGFloat width;
-@property (nonatomic, assign) CGFloat height;
-
-@property (nonatomic, assign) CGFloat minWidth;
-@property (nonatomic, assign) CGFloat maxWidth;
-@property (nonatomic, assign) CGFloat minHeight;
-@property (nonatomic, assign) CGFloat maxHeight;
+//@property (nonatomic, assign) CGFloat top;
+//@property (nonatomic, assign) CGFloat left;
+//@property (nonatomic, assign) CGFloat bottom;
+//@property (nonatomic, assign) CGFloat right;
+//
+//@property (nonatomic, assign) CGFloat width;
+//@property (nonatomic, assign) CGFloat height;
+//
+//@property (nonatomic, assign) CGFloat minWidth;
+//@property (nonatomic, assign) CGFloat maxWidth;
+//@property (nonatomic, assign) CGFloat minHeight;
+//@property (nonatomic, assign) CGFloat maxHeight;
 
 @property (nonatomic, assign) CGRect frame;
 
-- (void)setTopLeft:(CGPoint)topLeft;
-- (void)setSize:(CGSize)size;
+//- (void)setTopLeft:(CGPoint)topLeft;
+//- (void)setSize:(CGSize)size;
 
 /**
  * Set the natural size of the view, which is used when no explicit size is set.
@@ -115,50 +121,50 @@ typedef void (^HippyApplierVirtualBlock)(NSDictionary<NSNumber *, HippyVirtualNo
 /**
  * Border. Defaults to { 0, 0, 0, 0 }.
  */
-@property (nonatomic, assign) CGFloat borderWidth;
-@property (nonatomic, assign) CGFloat borderTopWidth;
-@property (nonatomic, assign) CGFloat borderLeftWidth;
-@property (nonatomic, assign) CGFloat borderBottomWidth;
-@property (nonatomic, assign) CGFloat borderRightWidth;
+//@property (nonatomic, assign) CGFloat borderWidth;
+//@property (nonatomic, assign) CGFloat borderTopWidth;
+//@property (nonatomic, assign) CGFloat borderLeftWidth;
+//@property (nonatomic, assign) CGFloat borderBottomWidth;
+//@property (nonatomic, assign) CGFloat borderRightWidth;
 
 /**
  * Margin. Defaults to { 0, 0, 0, 0 }.
  */
-@property (nonatomic, assign) CGFloat margin;
-@property (nonatomic, assign) CGFloat marginVertical;
-@property (nonatomic, assign) CGFloat marginHorizontal;
-@property (nonatomic, assign) CGFloat marginTop;
-@property (nonatomic, assign) CGFloat marginLeft;
-@property (nonatomic, assign) CGFloat marginBottom;
-@property (nonatomic, assign) CGFloat marginRight;
+//@property (nonatomic, assign) CGFloat margin;
+//@property (nonatomic, assign) CGFloat marginVertical;
+//@property (nonatomic, assign) CGFloat marginHorizontal;
+//@property (nonatomic, assign) CGFloat marginTop;
+//@property (nonatomic, assign) CGFloat marginLeft;
+//@property (nonatomic, assign) CGFloat marginBottom;
+//@property (nonatomic, assign) CGFloat marginRight;
 
 /**
  * Padding. Defaults to { 0, 0, 0, 0 }.
  */
-@property (nonatomic, assign) CGFloat padding;
-@property (nonatomic, assign) CGFloat paddingVertical;
-@property (nonatomic, assign) CGFloat paddingHorizontal;
-@property (nonatomic, assign) CGFloat paddingTop;
-@property (nonatomic, assign) CGFloat paddingLeft;
-@property (nonatomic, assign) CGFloat paddingBottom;
-@property (nonatomic, assign) CGFloat paddingRight;
+//@property (nonatomic, assign) CGFloat padding;
+//@property (nonatomic, assign) CGFloat paddingVertical;
+//@property (nonatomic, assign) CGFloat paddingHorizontal;
+//@property (nonatomic, assign) CGFloat paddingTop;
+//@property (nonatomic, assign) CGFloat paddingLeft;
+//@property (nonatomic, assign) CGFloat paddingBottom;
+//@property (nonatomic, assign) CGFloat paddingRight;
 
 - (UIEdgeInsets)paddingAsInsets;
 
 /**
  * Flexbox properties. All zero/disabled by default
  */
-@property (nonatomic, assign) FlexDirection flexDirection;
-@property (nonatomic, assign) FlexAlign justifyContent;
-@property (nonatomic, assign) FlexAlign alignSelf;
-@property (nonatomic, assign) FlexAlign alignItems;
-@property (nonatomic, assign) PositionType position;
-@property (nonatomic, assign) FlexWrapMode flexWrap;
-@property (nonatomic, assign) DisplayType displayType;
-@property (nonatomic, assign) CGFloat flex;
-@property (nonatomic, assign) CGFloat flexGrow;
-@property (nonatomic, assign) CGFloat flexShrink;
-@property (nonatomic, assign) CGFloat flexBasis;
+//@property (nonatomic, assign) FlexDirection flexDirection;
+//@property (nonatomic, assign) FlexAlign justifyContent;
+//@property (nonatomic, assign) FlexAlign alignSelf;
+//@property (nonatomic, assign) FlexAlign alignItems;
+//@property (nonatomic, assign) PositionType position;
+//@property (nonatomic, assign) FlexWrapMode flexWrap;
+//@property (nonatomic, assign) DisplayType displayType;
+//@property (nonatomic, assign) CGFloat flex;
+//@property (nonatomic, assign) CGFloat flexGrow;
+//@property (nonatomic, assign) CGFloat flexShrink;
+//@property (nonatomic, assign) CGFloat flexBasis;
 
 @property (nonatomic, assign) BOOL animated;
 
@@ -195,16 +201,19 @@ typedef void (^HippyApplierVirtualBlock)(NSDictionary<NSNumber *, HippyVirtualNo
 - (NSDictionary<NSString *, id> *)processUpdatedProperties:(NSMutableSet<HippyApplierBlock> *)applierBlocks
                                           parentProperties:(NSDictionary<NSString *, id> *)parentProperties NS_REQUIRES_SUPER;
 
+
 /**
  * Can be called by a parent on a child in order to calculate all views whose frame needs
  * updating in that branch. Adds these frames to `viewsWithNewFrame`. Useful if layout
  * enters a view where flex doesn't apply (e.g. Text) and then you want to resume flex
  * layout on a subview.
  */
-- (void)collectUpdatedFrames:(NSMutableSet<HippyShadowView *> *)viewsWithNewFrame
-                   withFrame:(CGRect)frame
-                      hidden:(BOOL)hidden
-            absolutePosition:(CGPoint)absolutePosition;
+//- (void)collectUpdatedFrames:(NSMutableSet<HippyShadowView *> *)viewsWithNewFrame
+//                   withFrame:(CGRect)frame
+//                      hidden:(BOOL)hidden
+//            absolutePosition:(CGPoint)absolutePosition;
+
+- (void)collectShadowViewsHaveNewLayoutResults:(NSMutableSet<HippyShadowView *> *)shadowViewsNeedToApplyLayout;
 
 /**
  * Apply the CSS layout.
@@ -212,16 +221,16 @@ typedef void (^HippyApplierVirtualBlock)(NSDictionary<NSNumber *, HippyVirtualNo
  * is split into two methods so subclasses can override `applyLayoutToChildren:`
  * while using default implementation of `applyLayoutNode:`.
  */
-- (void)applyLayoutNode:(HPNodeRef)node
-      viewsWithNewFrame:(NSMutableSet<HippyShadowView *> *)viewsWithNewFrame
-       absolutePosition:(CGPoint)absolutePosition NS_REQUIRES_SUPER;
+//- (void)applyLayoutNode:(HPNodeRef)node
+//      viewsWithNewFrame:(NSMutableSet<HippyShadowView *> *)viewsWithNewFrame
+//       absolutePosition:(CGPoint)absolutePosition NS_REQUIRES_SUPER;
 
 /**
  * Enumerate the child nodes and tell them to apply layout.
  */
-- (void)applyLayoutToChildren:(HPNodeRef)node
-            viewsWithNewFrame:(NSMutableSet<HippyShadowView *> *)viewsWithNewFrame
-             absolutePosition:(CGPoint)absolutePosition;
+//- (void)applyLayoutToChildren:(HPNodeRef)node
+//            viewsWithNewFrame:(NSMutableSet<HippyShadowView *> *)viewsWithNewFrame
+//             absolutePosition:(CGPoint)absolutePosition;
 
 /**
  * Return whether or not this node acts as a leaf node in the eyes of CSSLayout. For example

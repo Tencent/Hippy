@@ -20,17 +20,24 @@
  * limitations under the License.
  */
 #import "NativeRenderManager.h"
+#import "HippyShadowText.h"
+#import "dom/taitank_layout_node.h"
 
 using RenderManager = hippy::RenderManager;
 using DomNode = hippy::DomNode;
 using DomEvent = hippy::DomEvent;
 using LayoutResult = hippy::LayoutResult;
+using CallFunctionCallback = hippy::CallFunctionCallback;
 
 void NativeRenderManager::CreateRenderNode(std::vector<std::shared_ptr<DomNode>> &&nodes) {
-    auto block = [tmpManager = uiManager_, tmpNodes = std::move(nodes)]() mutable {
-        [tmpManager createRenderNodes:std::move(tmpNodes)];
-    };
-    dispatch_async(HippyGetUIManagerQueue(), block);
+    for (auto it = nodes.begin(); it != nodes.end(); it++) {
+        if (0 == it->get()->GetViewName().compare("Text")) {
+            std::shared_ptr<hippy::TaitankLayoutNode> layoutNode = std::static_pointer_cast<hippy::TaitankLayoutNode>(it->get()->GetLayoutNode());
+            layoutNode->SetMeasureFunction(textMeasureFunc);
+            HPNodeSetContext(layoutNode->GetLayoutEngineNodeRef(), it->get());
+        }
+    }
+    [uiManager_ createRenderNodes:std::move(nodes)];
 }
 
 void NativeRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
@@ -60,10 +67,7 @@ void NativeRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>
 }
 
 void NativeRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) {
-    auto block = [tmpManager = uiManager_, tmpNodes = std::move(nodes)]() {
-        [tmpManager renderNodesUpdateLayout:tmpNodes];
-    };
-    dispatch_async(HippyGetUIManagerQueue(), block);
+    [uiManager_ renderNodesUpdateLayout:nodes];
 }
 
 void NativeRenderManager::MoveRenderNode(std::vector<int32_t>&& ids,
@@ -94,7 +98,7 @@ void NativeRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node, cons
             });
         } else if (name == hippy::kShow || name == hippy::kDismiss) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                [uiManager_ addShowEventListenerforNode:dom_node forType:name forView:node->GetId()];
+                [uiManager_ addShowEventListenerForNode:dom_node forType:name forView:node->GetId()];
             });
         }
     }

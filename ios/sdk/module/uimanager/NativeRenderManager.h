@@ -30,7 +30,14 @@
 #import "HippyUIManager.h"
 
 class NativeRenderManager : public hippy::RenderManager {
-    
+    using DomValue = tdf::base::DomValue;
+    using DomManager = hippy::DomManager;
+    using DomNode = hippy::DomNode;
+    using LayoutResult = hippy::LayoutResult;
+    using DomValueType = tdf::base::DomValue::Type;
+    using DomValueNumberType = tdf::base::DomValue::NumberType;
+    using RenderInfo = hippy::DomNode::RenderInfo;
+    using CallFunctionCallback = hippy::CallFunctionCallback;
 public:
     NativeRenderManager(HippyUIManager *uiManager):uiManager_(uiManager){}
     

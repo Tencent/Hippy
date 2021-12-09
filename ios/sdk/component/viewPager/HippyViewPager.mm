@@ -21,11 +21,11 @@
  */
 
 #import "HippyViewPager.h"
-#import "UIView+Hippy.h"
 #import "HippyLog.h"
 #import "float.h"
 #import "HippyViewPagerItem.h"
 #import "HippyI18nUtils.h"
+#import "UIView+Hippy.h"
 
 @interface HippyViewPager ()
 @property (nonatomic, strong) NSMutableArray<UIView *> *viewPagerItems;

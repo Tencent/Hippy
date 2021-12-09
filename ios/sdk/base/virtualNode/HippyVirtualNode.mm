@@ -21,6 +21,7 @@
  */
 
 #import "HippyVirtualNode.h"
+#import "UIView+Hippy.h"
 
 @implementation UIView (HippyRemoveNode)
 - (void)removeView:(HippyRemoveViewForShadow)removeBlock {

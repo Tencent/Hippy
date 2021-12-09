@@ -27,6 +27,7 @@
 #import "HippyReusableNodeCache.h"
 #import "HippyWaterfallItemView.h"
 #import "HippyVirtualList.h"
+#import "UIView+Hippy.h"
 
 #define CELL_TAG 10089
 

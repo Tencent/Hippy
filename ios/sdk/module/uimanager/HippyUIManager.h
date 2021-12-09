@@ -29,10 +29,12 @@
 #import "HippyRootView.h"
 #include <memory>
 #include <unordered_map>
+#import "HippyDomNodeUtils.h"
 #include "dom/dom_value.h"
 #include "dom/dom_listener.h"
 #include "dom/dom_manager.h"
 #include "dom/dom_node.h"
+#import "HippyDomNodeUtils.h"
 
 @class HippyVirtualNode;
 @class HippyExtAnimationViewParams;
@@ -82,7 +84,9 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 /**
  * The HippyUIManager is the module responsible for updating the view hierarchy.
  */
+
 @interface HippyUIManager : NSObject <HippyBridgeModule, HippyInvalidating>
+
 
 /**
  * Register a root view with the HippyUIManager.
@@ -170,58 +174,45 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 - (void)removeNativeNodeView:(UIView *)nodeView;
 - (void)updateViewsFromParams:(NSArray<HippyExtAnimationViewParams *> *)params completion:(HippyViewUpdateCompletedBlock)block;
 - (void)updateViewWithHippyTag:(NSNumber *)hippyTag props:(NSDictionary *)pros;
-@end
 
-using DomValue = tdf::base::DomValue;
-using EventCallback = hippy::EventCallback;
-using CallFunctionCallback = hippy::CallFunctionCallback;
-using DomManager = hippy::DomManager;
-using DomNode = hippy::DomNode;
+- (void)setDomManager:(std::shared_ptr<hippy::DomManager>)domManager;
 
-@interface HippyUIManager(NativeRenderManager)
+- (std::shared_ptr<hippy::DomManager>)domManager;
 
-- (void)setDomManager:(std::shared_ptr<DomManager>)domManager;
-
-- (std::shared_ptr<DomManager>)domManager;
-
-- (const std::map<int32_t, std::shared_ptr<DomNode>> &)domNodes;
+- (const std::map<int32_t, std::shared_ptr<hippy::DomNode>> &)domNodes;
 
 - (void)renderCreateView:(int32_t)hippyTag
                 viewName:(const std::string &)name
                  rootTag:(int32_t)rootTag
                  tagName:(const std::string &)tagName
                    frame:(CGRect)frame
-                   props:(const std::unordered_map<std::string, std::shared_ptr<DomValue>> &)styleMap;
-- (void)createRenderNodes:(std::vector<std::shared_ptr<DomNode>> &&)nodes;
+                   props:(const std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>> &)styleMap;
+- (void)createRenderNodes:(std::vector<std::shared_ptr<hippy::DomNode>> &&)nodes;
 - (void)renderUpdateView:(int32_t)hippyTag
                 viewName:(const std::string &)name
-                   props:(const std::unordered_map<std::string, std::shared_ptr<DomValue>> &)styleMap;
+                   props:(const std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>> &)styleMap;
 
 - (void)renderDeleteViewFromContainer:(int32_t)hippyTag
                            forIndices:(const std::vector<int32_t> &)indices;
 
 - (void)renderMoveViews:(const std::vector<int32_t> &)ids fromContainer:(int32_t)fromContainer toContainer:(int32_t)toContainer;
 
-- (void)renderNodesUpdateLayout:(const std::vector<std::shared_ptr<DomNode>> &)nodes;
+- (void)renderNodesUpdateLayout:(const std::vector<std::shared_ptr<hippy::DomNode>> &)nodes;
 
 - (void)batch;
 
 - (void)dispatchFunction:(const std::string &)functionName
                  forView:(int32_t)hippyTag
-                  params:(const DomValue &)params
-                callback:(CallFunctionCallback)cb;
+                  params:(const tdf::base::DomValue &)params
+                callback:(hippy::CallFunctionCallback)cb;
 
-- (void) addClickEventListenerforNode:(std::weak_ptr<DomNode>)weak_node
-                              forView:(int32_t)hippyTag;
-
-- (void) addLongClickEventListenerforNode:(std::weak_ptr<DomNode>)weak_node
-                              forView:(int32_t)hippyTag;
-
-- (void) addTouchEventListenerforNode:(std::weak_ptr<DomNode>)weak_node
+- (void) addClickEventListenerforNode:(std::weak_ptr<hippy::DomNode>)weak_node forView:(int32_t)hippyTag;
+- (void) addLongClickEventListenerforNode:(std::weak_ptr<hippy::DomNode>)weak_node forView:(int32_t)hippyTag;
+- (void) addTouchEventListenerforNode:(std::weak_ptr<hippy::DomNode>)weak_node
                               forType:(std::string)type
                               forView:(int32_t)hippyTag;
 
-- (void) addShowEventListenerforNode:(std::weak_ptr<DomNode>)weak_node
+- (void) addShowEventListenerForNode:(std::weak_ptr<hippy::DomNode>)weak_node
                              forType:(std::string)type
                              forView:(int32_t)hippyTag;
 

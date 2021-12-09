@@ -20,9 +20,22 @@
  * limitations under the License.
  */
 
-#import <UIKit/UIKit.h>
-#import "HippyViewEventProtocol.h"
+#import "HippyShadowView.h"
+#import "HippyDefines.h"
+#include "dom/dom_node.h"
+#include "dom/dom_listener.h"
+#include "dom/dom_value.h"
 
-@interface UIImageView (Hippy) <HippyViewEventProtocol>
+NS_ASSUME_NONNULL_BEGIN
 
-@end
+HIPPY_EXTERN id domValueToOCType(const tdf::base::DomValue *const pDomValue);
+
+HIPPY_EXTERN NSDictionary *unorderedMapDomValueToDictionary(const std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>> &domValuesObject);
+
+HIPPY_EXTERN CGRect CGRectMakeFromLayoutResult(hippy::LayoutResult result);
+
+HIPPY_EXTERN CGRect CGRectMakeFromDomNode(const std::shared_ptr<hippy::DomNode> &domNode);
+
+HIPPY_EXTERN NSNumber *domValueToNumber(const tdf::base::DomValue *const pDomValue);
+
+NS_ASSUME_NONNULL_END

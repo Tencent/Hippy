@@ -33,6 +33,8 @@ extern NSString *const HippyIsHighlightedAttributeName;
 extern NSString *const HippyHippyTagAttributeName;
 extern NSString *const HippyShadowViewAttributeName;
 
+HIPPY_EXTERN HPSize textMeasureFunc(HPNodeRef node, float width, MeasureMode widthMeasureMode, __unused float height, __unused MeasureMode heightMeasureMode, void *layoutContext);
+
 @interface HippyShadowText : HippyShadowView {
 @protected
     NSTextStorage *_cachedTextStorage;

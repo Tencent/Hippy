@@ -24,6 +24,7 @@
 #import "HippyBaseListView.h"
 #import "HippyVirtualNode.h"
 #import "HippyVirtualList.h"
+#import "HippyBaseListShadowView.h"
 
 @implementation HippyBaseListViewManager
 
@@ -52,6 +53,10 @@ HIPPY_EXPORT_VIEW_PROPERTY(scrollEnabled, BOOL)
 
 - (HippyVirtualNode *)node:(NSNumber *)tag name:(NSString *)name props:(NSDictionary *)props {
     return [HippyVirtualList createNode:tag viewName:name props:props];
+}
+
+- (HippyShadowView *)shadowView {
+    return [[HippyBaseListShadowView alloc] init];
 }
 
 // clang-format off

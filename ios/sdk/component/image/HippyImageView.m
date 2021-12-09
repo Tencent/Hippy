@@ -23,7 +23,6 @@
 #import "HippyImageView.h"
 #import <objc/runtime.h>
 #import "HippyUtils.h"
-#import "UIView+Hippy.h"
 #import "HippyImageViewCustomLoader.h"
 #import "HippyBridge+LocalFileSource.h"
 #import "HippyImageCacheManager.h"
@@ -415,7 +414,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
             return;
         }
 
-        __weak typeof(self) weakSelf = self;
+        __weak __typeof(self) weakSelf = self;
 
         typedef void (^HandleBase64CompletedBlock)(NSString *);
         HandleBase64CompletedBlock handleBase64CompletedBlock = ^void(NSString *base64Data) {

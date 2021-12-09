@@ -29,6 +29,7 @@
 #import <objc/runtime.h>
 #import <UIKit/UIKit.h>
 #import "CALayer+HippyAnimation.h"
+#import "UIView+Hippy.h"
 
 @implementation HippyExtAnimationIdCount {
     NSMutableDictionary *_animationIdDic;
