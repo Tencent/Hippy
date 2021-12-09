@@ -49,16 +49,22 @@ void Serializer::WriteOddball(Oddball oddball) {
   WriteTag(tag);
 };
 
-void Serializer::WriteUint32(uint32_t value) { WriteVarint<uint32_t>(value); }
+void Serializer::WriteUint32(uint32_t value) {
+  WriteTag(SerializationTag::kUint32);
+  WriteVarint<uint32_t>(value);
+}
 
-//void Serializer::WriteUint64(uint64_t value) { WriteVarint<uint64_t>(value); }
+// void Serializer::WriteUint64(uint64_t value) { WriteVarint<uint64_t>(value); }
 
 void Serializer::WriteInt32(int32_t value) {
   WriteTag(SerializationTag::kInt32);
   WriteZigZag<int32_t>(value);
 }
 
-void Serializer::WriteDouble(double value) { WriteRawBytes(&value, sizeof(value)); }
+void Serializer::WriteDouble(double value) {
+  WriteTag(SerializationTag::kDouble);
+  WriteRawBytes(&value, sizeof(value));
+}
 
 void Serializer::WriteString(const std::string& value) {
   bool oneByteString = true;
