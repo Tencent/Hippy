@@ -29,6 +29,7 @@ const {
   createContainer,
   updateContainer,
   getPublicRootInstance,
+  injectIntoDevTools,
 } = renderer;
 
 interface HippyReactConfig {
@@ -74,7 +75,7 @@ interface HippyReact {
 
 class HippyReact implements HippyReact {
   // version
-  static version = process.env.HIPPY_REACT_VERSION;
+  static version = process.env.HIPPY_REACT_VERSION as string;
 
   // Native methods
   static get Native() {
@@ -124,6 +125,14 @@ class HippyReact implements HippyReact {
     } = this.config;
     const { __instanceId__: rootViewId } = superProps;
     trace(...componentName, 'Start', appName, 'with rootViewId', rootViewId, superProps);
+
+    if (process.env.NODE_ENV === 'development') {
+      injectIntoDevTools({
+        bundleType: 1,
+        version: HippyReact.version,
+        rendererPackageName: 'hippy-react',
+      });
+    }
 
     // Update nodeId for container
     this.rootContainer.containerInfo.nodeId = rootViewId;

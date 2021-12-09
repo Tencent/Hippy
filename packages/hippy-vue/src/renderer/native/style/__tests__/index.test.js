@@ -33,6 +33,7 @@ test('TypeSelector test', (t) => {
 
 test('AppendSelector test', (t) => {
   const APPEND_AST = [{
+    hash: 'chunk-1',
     selectors: [
       '#id',
       '*',

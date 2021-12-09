@@ -27,7 +27,7 @@ function exec(cmd, argv, options = {}) {
     const command = spawn(cmd, argv);
     if (!disableOutput) {
       command.stdout.on('data', log => logger.info(log.toString()));
-      command.stderr.on('data', err => logger.error(err.toString()));
+      command.stderr.on('data', err => logger.warn(err.toString()));
     }
     command.on('error', err => reject(err));
     command.on('close', (code) => {
