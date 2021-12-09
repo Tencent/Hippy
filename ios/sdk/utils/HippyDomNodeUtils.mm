@@ -23,13 +23,6 @@
 #import "HippyDomNodeUtils.h"
 
 using DomValue = tdf::base::DomValue;
-using DispatchFunctionCallback = hippy::DispatchFunctionCallback;
-using OnClickEventListener = hippy::OnClickEventListener;
-using OnLongClickEventListener = hippy::OnLongClickEventListener;
-using OnTouchEventListener = hippy::OnTouchEventListener;
-using OnShowEventListener = hippy::OnShowEventListener;
-using TouchEvent = hippy::TouchEvent;
-using ShowEvent = hippy::ShowEvent;
 using DomManager = hippy::DomManager;
 using DomNode = hippy::DomNode;
 using LayoutResult = hippy::LayoutResult;

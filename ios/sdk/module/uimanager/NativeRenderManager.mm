@@ -27,6 +27,7 @@ using RenderManager = hippy::RenderManager;
 using DomNode = hippy::DomNode;
 using DomEvent = hippy::DomEvent;
 using LayoutResult = hippy::LayoutResult;
+using CallFunctionCallback = hippy::CallFunctionCallback;
 
 void NativeRenderManager::CreateRenderNode(std::vector<std::shared_ptr<DomNode>> &&nodes) {
     for (auto it = nodes.begin(); it != nodes.end(); it++) {
@@ -97,7 +98,7 @@ void NativeRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node, cons
             });
         } else if (name == hippy::kShow || name == hippy::kDismiss) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                [uiManager_ addShowEventListenerforNode:dom_node forType:name forView:node->GetId()];
+                [uiManager_ addShowEventListenerForNode:dom_node forType:name forView:node->GetId()];
             });
         }
     }

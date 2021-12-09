@@ -203,34 +203,18 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 
 - (void)dispatchFunction:(const std::string &)functionName
                  forView:(int32_t)hippyTag
-                  params:(const std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>> &)params
-                callback:(hippy::DispatchFunctionCallback)cb;
+                  params:(const tdf::base::DomValue &)params
+                callback:(hippy::CallFunctionCallback)cb;
 
-- (void) addClickEventListener:(hippy::OnClickEventListener)listener
-                          forView:(int32_t)hippyTag;
-
-- (void) removeClickEventListener:(int32_t)listenerID forView:(int32_t)hippyTag;
-
-- (void) removeClickEventForView:(int32_t)hippyTag;
-
-- (void) addLongClickEventListener:(hippy::OnLongClickEventListener)listener
+- (void) addClickEventListenerforNode:(std::weak_ptr<hippy::DomNode>)weak_node forView:(int32_t)hippyTag;
+- (void) addLongClickEventListenerforNode:(std::weak_ptr<hippy::DomNode>)weak_node forView:(int32_t)hippyTag;
+- (void) addTouchEventListenerforNode:(std::weak_ptr<hippy::DomNode>)weak_node
+                              forType:(std::string)type
                               forView:(int32_t)hippyTag;
 
-- (void) removeLongClickEventListener:(int32_t)listenerID forView:(int32_t)hippyTag;
-
-- (void) removeLongClickEventForView:(int32_t)hippyTag;
-
-- (void) addTouchEventListener:(hippy::OnTouchEventListener)listener
-                    touchEvent:(hippy::TouchEvent)event
-                       forView:(int32_t)hippyTag;
-
-- (void) removeTouchEvent:(hippy::TouchEvent)event forView:(int32_t)hippyTag;
-
-- (void) addShowEventListener:(hippy::OnShowEventListener)listener
-                    showEvent:(hippy::ShowEvent)event
-                      forView:(int32_t)hippyTag;
-
-- (void) removeShowEvent:(hippy::ShowEvent)event forView:(int32_t)hippyTag;
+- (void) addShowEventListenerForNode:(std::weak_ptr<hippy::DomNode>)weak_node
+                             forType:(std::string)type
+                             forView:(int32_t)hippyTag;
 
 @end
 

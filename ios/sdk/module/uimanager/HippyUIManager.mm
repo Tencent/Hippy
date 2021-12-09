@@ -53,13 +53,6 @@
 #import "HippyVirtualList.h"
 
 using DomValue = tdf::base::DomValue;
-using DispatchFunctionCallback = hippy::DispatchFunctionCallback;
-using OnClickEventListener = hippy::OnClickEventListener;
-using OnLongClickEventListener = hippy::OnLongClickEventListener;
-using OnTouchEventListener = hippy::OnTouchEventListener;
-using OnShowEventListener = hippy::OnShowEventListener;
-using TouchEvent = hippy::TouchEvent;
-using ShowEvent = hippy::ShowEvent;
 using DomManager = hippy::DomManager;
 using DomNode = hippy::DomNode;
 using LayoutResult = hippy::LayoutResult;
@@ -67,6 +60,8 @@ using DomValueType = tdf::base::DomValue::Type;
 using DomValueNumberType = tdf::base::DomValue::NumberType;
 using LayoutResult = hippy::LayoutResult;
 using RenderInfo = hippy::DomNode::RenderInfo;
+using CallFunctionCallback = hippy::CallFunctionCallback;
+using DomEvent = hippy::DomEvent;
 
 @interface HippyViewsRelation : NSObject {
     NSMutableDictionary<NSNumber *, NSPointerArray *> *_viewsRelation;
@@ -1731,7 +1726,7 @@ static UIView *_jsResponder;
         [view addViewEvent:HippyViewEventTypeClick eventListener:^(CGPoint) {
             std::shared_ptr<DomNode> node = weak_node.lock();
             if (node) {
-                node->HandleEvent(std::make_shared<DomEvent>(hippy::kClickEvent, weak_node, nullptr));
+                node->HandleEvent(std::make_shared<hippy::DomEvent>(hippy::kClickEvent, weak_node, nullptr));
             }
         }];
     }
@@ -1744,7 +1739,7 @@ static UIView *_jsResponder;
         [view addViewEvent:HippyViewEventTypeLongClick eventListener:^(CGPoint) {
             std::shared_ptr<DomNode> node = weak_node.lock();
             if (node) {
-                node->HandleEvent(std::make_shared<DomEvent>(hippy::kLongClickEvent, weak_node, nullptr));
+                node->HandleEvent(std::make_shared<hippy::DomEvent>(hippy::kLongClickEvent, weak_node, nullptr));
             }
         }];
     }
