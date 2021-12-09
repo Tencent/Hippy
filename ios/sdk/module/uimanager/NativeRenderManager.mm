@@ -80,7 +80,7 @@ void NativeRenderManager::Batch() {
     [uiManager_ batch];
 }
 
-void NativeRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name, const DomValue& param) {
+void NativeRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {
     std::shared_ptr<DomNode> node = dom_node.lock();
     if (node) {
         if (name == hippy::kClickEvent) {
@@ -103,6 +103,10 @@ void NativeRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node, cons
         }
     }
 };
+
+void NativeRenderManager::RemoveEventListener(std::weak_ptr<DomNode> dom_node, const std::string &name) {
+    return;
+}
 
 void NativeRenderManager::CallFunction(std::weak_ptr<DomNode> dom_node, const std::string &name,
                                     const DomValue& param,

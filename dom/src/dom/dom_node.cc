@@ -113,6 +113,13 @@ uint32_t DomNode::AddEventListener(const std::string &name, bool use_capture,
   auto it = event_listener_map_->find(name);
   if (it == event_listener_map_->end()) {
     (*event_listener_map_)[name] = {};
+    auto dom_manager = dom_manager_.lock();
+    TDF_BASE_DCHECK(dom_manager);
+    if (dom_manager) {
+      auto render_manager = dom_manager->GetRenderManager();
+      TDF_BASE_DCHECK(render_manager);
+      render_manager->AddEventListener(shared_from_this(), name);
+    }
   }
   if (use_capture) {
     (*event_listener_map_)[name][kCapture].push_back(
@@ -133,26 +140,35 @@ void DomNode::RemoveEventListener(const std::string &name, uint32_t id) {
     return;
   }
   auto captureListeners = it->second[kCapture];
-  auto listener_it = std::find_if(captureListeners.begin(), captureListeners.end(),
-                                  [id](const std::shared_ptr<EventListenerInfo> &item) {
+  auto capture_it = std::find_if(captureListeners.begin(), captureListeners.end(),
+                                 [id](const std::shared_ptr<EventListenerInfo> &item) {
                                     if (item->id == id) {
                                       return true;
                                     }
                                     return false;
                                   });
-  if (listener_it != captureListeners.end()) {
-    captureListeners.erase(listener_it);
+  if (capture_it != captureListeners.end()) {
+    captureListeners.erase(capture_it);
   }
   auto bubbleListeners = it->second[kBubble];
-  listener_it = std::find_if(bubbleListeners.begin(), bubbleListeners.end(),
-                             [id](const std::shared_ptr<EventListenerInfo> &item) {
+  auto bubble_it = std::find_if(bubbleListeners.begin(), bubbleListeners.end(),
+                            [id](const std::shared_ptr<EventListenerInfo> &item) {
                                if (item->id == id) {
                                  return true;
                                }
                                return false;
                              });
-  if (listener_it != bubbleListeners.end()) {
-    bubbleListeners.erase(listener_it);
+  if (bubble_it != bubbleListeners.end()) {
+    bubbleListeners.erase(bubble_it);
+  }
+  if (captureListeners.empty() && bubbleListeners.empty()) {
+    auto dom_manager = dom_manager_.lock();
+    TDF_BASE_DCHECK(dom_manager);
+    if (dom_manager) {
+      auto render_manager = dom_manager->GetRenderManager();
+      TDF_BASE_DCHECK(render_manager);
+      render_manager->RemoveEventListener(shared_from_this(), name);
+    }
   }
 }
 
