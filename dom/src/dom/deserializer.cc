@@ -57,16 +57,6 @@ bool Deserializer::ReadInt32(DomValue& dom_value) {
   return true;
 };
 
-// bool Deserializer::ReadInt64(int64_t& value) {
-//   value = ReadZigZag<int64_t>();
-//   return true;
-// };
-
-// bool Deserializer::ReadInt64(DomValue& dom_value) {
-//   dom_value = DomValue(ReadZigZag<int64_t>());
-//   return true;
-// };
-
 bool Deserializer::ReadUInt32(uint32_t& value) {
   value = ReadVarint<uint32_t>();
   return true;
@@ -76,16 +66,6 @@ bool Deserializer::ReadUInt32(DomValue& dom_value) {
   dom_value = DomValue(ReadVarint<uint32_t>());
   return true;
 };
-
-// bool Deserializer::ReadUInt64(uint64_t& value) {
-//   value = ReadVarint<uint64_t>();
-//   return true;
-// };
-
-// bool Deserializer::ReadUInt64(DomValue& dom_value) {
-//   dom_value = DomValue(ReadVarint<uint64_t>());
-//   return true;
-// };
 
 bool Deserializer::ReadDouble(double& value) {
   if (sizeof(double) > static_cast<unsigned>(end_ - position_)) return false;

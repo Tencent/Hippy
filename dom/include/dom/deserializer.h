@@ -28,17 +28,9 @@ class Deserializer {
 
   bool ReadInt32(DomValue& dom_value);
 
-  // bool ReadInt64(int64_t& value);
-
-  // bool ReadInt64(DomValue& dom_value);
-
   bool ReadUInt32(uint32_t& value);
 
   bool ReadUInt32(DomValue& dom_value);
-
-  // bool ReadUInt64(uint64_t& value);
-
-  // bool ReadUInt64(DomValue& dom_value);
 
   bool ReadDouble(double& value);
 

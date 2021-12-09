@@ -51,7 +51,7 @@ void Serializer::WriteOddball(Oddball oddball) {
 
 void Serializer::WriteUint32(uint32_t value) { WriteVarint<uint32_t>(value); }
 
-void Serializer::WriteUint64(uint64_t value) { WriteVarint<uint64_t>(value); }
+//void Serializer::WriteUint64(uint64_t value) { WriteVarint<uint64_t>(value); }
 
 void Serializer::WriteInt32(int32_t value) {
   WriteTag(SerializationTag::kInt32);
@@ -190,13 +190,6 @@ void Serializer::WriteObject(const DomValue& dom_value) {
         }
         case DomValue::NumberType::kUInt32: {
           WriteUint32(dom_value.ToUint32());
-          break;
-        }
-        case DomValue::NumberType::kInt64: {
-          TDF_BASE_CHECK(false);
-        }
-        case DomValue::NumberType::kUInt64: {
-          WriteUint64(dom_value.ToUint64());
           break;
         }
         case DomValue::NumberType::kDouble: {
