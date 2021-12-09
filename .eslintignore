@@ -1,3 +1,5 @@
 node_modules*
 dist/
 coverage
+packages/hippy-debug-server/webpack-dev-server/client
+framework/js/packages/hippy-debug-server/webpack-dev-server/client
