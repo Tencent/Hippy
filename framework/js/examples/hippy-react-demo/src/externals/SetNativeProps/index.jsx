@@ -59,6 +59,11 @@ export default class SetNativePropsDemo extends React.Component {
     };
     this.isDemon1Layouted = false;
     this.idDemon2Layouted = false;
+    this.onTouchDown1 = this.onTouchDown1.bind(this);
+    this.onDemon1Layout = this.onDemon1Layout.bind(this);
+    this.onTouchMove1 = this.onTouchMove1.bind(this);
+    this.onTouchDown2 = this.onTouchDown2.bind(this);
+    this.onTouchMove2 = this.onTouchMove2.bind(this);
   }
 
   componentDidMount() {}
@@ -127,11 +132,11 @@ export default class SetNativePropsDemo extends React.Component {
         </Text>
         <View
           style={styleObj.nativeDemo1Drag}
-          onTouchDown={e => this.onTouchDown1(e)}
-          onTouchMove={e => this.onTouchMove1(e)}
+          onTouchDown={this.onTouchDown1}
+          onTouchMove={this.onTouchMove1}
         >
           <View
-            onLayout={() => this.onDemon1Layout()}
+            onLayout={this.onDemon1Layout}
             style={styleObj.nativeDemo1Point}
             ref={this.demon1Point}
           />
@@ -140,8 +145,8 @@ export default class SetNativePropsDemo extends React.Component {
         <Text>普通渲染实现拖动效果</Text>
         <View
           style={styleObj.nativeDemo2Drag}
-          onTouchDown={e => this.onTouchDown2(e)}
-          onTouchMove={e => this.onTouchMove2(e)}
+          onTouchDown={this.onTouchDown2}
+          onTouchMove={this.onTouchMove2}
         >
           <View style={[styleObj.nativeDemo2Point, { left: demo2Left }]} />
         </View>

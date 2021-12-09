@@ -86,7 +86,6 @@ export default class PagerExample extends React.Component {
       // eslint-disable-next-line no-console
       console.log('onPageScroll', offset, position);
     }
-
     render() {
       const { selectedIndex } = this.state;
       return (

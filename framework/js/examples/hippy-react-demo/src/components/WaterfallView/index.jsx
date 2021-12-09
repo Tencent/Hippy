@@ -72,6 +72,7 @@ export default class ListExample extends React.Component {
     this.getRefresh = this.getRefresh.bind(this);
     this.renderPullFooter = this.renderPullFooter.bind(this);
     this.renderBanner = this.renderBanner.bind(this);
+    this.getItemStyle = this.getItemStyle.bind(this);
     // TODO: PullHeader is not supported on Android yet
     // this.renderPullHeader = this.renderPullHeader.bind(this);
     // this.onHeaderReleased = this.onHeaderReleased.bind(this);
@@ -325,7 +326,7 @@ export default class ListExample extends React.Component {
               getItemType={this.getItemType}
               getItemKey={this.getItemKey}
               contentInset={contentInset}
-              getItemStyle={() => this.getItemStyle()}
+              getItemStyle={this.getItemStyle}
               containPullFooter={true}
               // renderPullHeader={this.renderPullHeader}
               // onHeaderReleased={this.onHeaderReleased}

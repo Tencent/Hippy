@@ -117,6 +117,11 @@ export default class ListExample extends React.Component {
     this.getRowKey = this.getRowKey.bind(this);
     this.getRowStyle = this.getRowStyle.bind(this);
     this.onDelete = this.onDelete.bind(this);
+    this.onAppear = this.onAppear.bind(this);
+    this.onDisappear = this.onDisappear.bind(this);
+    this.onWillAppear = this.onWillAppear.bind(this);
+    this.onWillDisappear = this.onWillDisappear.bind(this);
+    this.rowShouldSticky = this.rowShouldSticky.bind(this);
   }
 
   onDelete({ index }) {
@@ -143,35 +148,33 @@ export default class ListExample extends React.Component {
     const newDataSource = dataSource.concat(newData);
     this.setState({ dataSource: newDataSource });
   }
-
   // item完全曝光
   // eslint-disable-next-line class-methods-use-this
   onAppear(index) {
     // eslint-disable-next-line no-console
     console.log('onAppear', index);
   }
-
   // item完全隐藏
   // eslint-disable-next-line class-methods-use-this
   onDisappear(index) {
     // eslint-disable-next-line no-console
     console.log('onDisappear', index);
   }
-
   // item至少一个像素曝光
   // eslint-disable-next-line class-methods-use-this
   onWillAppear(index) {
     // eslint-disable-next-line no-console
     console.log('onWillAppear', index);
   }
-
   // item至少一个像素隐藏
   // eslint-disable-next-line class-methods-use-this
   onWillDisappear(index) {
     // eslint-disable-next-line no-console
     console.log('onWillDisappear', index);
   }
-
+  rowShouldSticky(index) {
+    return index === 2;
+  }
   getRowType(index) {
     const self = this;
     const item = self.state.dataSource[index];
@@ -271,11 +274,11 @@ export default class ListExample extends React.Component {
         // getRowStyle={this.getRowStyle}
         getRowKey={this.getRowKey}
         initialListSize={15}
-        rowShouldSticky={index => index === 2}
-        onAppear={index => this.onAppear(index)}
-        onDisappear={index => this.onDisappear(index)}
-        onWillAppear={index => this.onWillAppear(index)}
-        onWillDisappear={index => this.onWillDisappear(index)}
+        rowShouldSticky={this.rowShouldSticky}
+        onAppear={this.onAppear}
+        onDisappear={this.onDisappear}
+        onWillAppear={this.onWillAppear}
+        onWillDisappear={this.onWillDisappear}
       />
     );
   }
