@@ -16,8 +16,9 @@ class RenderManagerProxy : public RenderManager {
   void MoveRenderNode(std::vector<int32_t>&& moved_ids, int32_t from_pid, int32_t to_pid) override;
 
   void Batch() override;
-  void AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name,
-                        const DomValue& param) override;
+  void AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) override;
+  void RemoveEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) override;
+
   void CallFunction(std::weak_ptr<DomNode> dom_node, const std::string& name,
                         const DomValue& param,
                         CallFunctionCallback cb) override;

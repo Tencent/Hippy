@@ -117,6 +117,14 @@ uint32_t DomManager::AddEventListener(uint32_t id, const std::string &name, bool
   return node->AddEventListener(name, use_capture, cb);
 }
 
+void DomManager::RemoveEventListener(uint32_t id, const std::string &name, bool use_capture) {
+  auto node = dom_node_registry_.GetNode(id);
+  if (!node) {
+    return;
+  }
+  return node->RemoveEventListener(name, use_capture);
+}
+
 void DomManager::CallFunction(uint32_t id, const std::string &name,
                               const DomValue &param,
                               const CallFunctionCallback &cb) {

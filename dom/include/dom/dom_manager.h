@@ -43,6 +43,7 @@ class DomManager {
   // 返回0代表失败，正常id从1开始
   uint32_t AddEventListener(uint32_t id, const std::string &name, bool use_capture,
                             const EventCallback &cb);
+  void RemoveEventListener(uint32_t id, const std::string &name, bool use_capture);
   void CallFunction(uint32_t id, const std::string &name,
                     const DomValue &param, const CallFunctionCallback &cb);
 

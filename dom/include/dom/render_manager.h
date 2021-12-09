@@ -25,8 +25,8 @@ class RenderManager {
   virtual void Batch() = 0;
 
   using DomValue = tdf::base::DomValue;
-  virtual void AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name,
-                                const DomValue& param) = 0;
+  virtual void AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) = 0;
+  virtual void RemoveEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) = 0;
   virtual void CallFunction(std::weak_ptr<DomNode> dom_node, const std::string& name,
                                 const DomValue& param,
                                 CallFunctionCallback cb) = 0;

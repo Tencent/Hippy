@@ -51,8 +51,8 @@ public:
 
     void Batch() override;
     
-    void AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name,
-                          const DomValue& param) override;
+    void AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) override;
+    void RemoveEventListener(std::weak_ptr<DomNode> dom_node, const std::string &name) override;
 
     void CallFunction(std::weak_ptr<DomNode> dom_node, const std::string &name,
                       const DomValue& param,
