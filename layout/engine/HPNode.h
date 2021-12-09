@@ -24,6 +24,9 @@
 #include "HPLayoutCache.h"
 #include "HPStyle.h"
 #include "HPUtil.h"
+#include "HPConfig.h"
+
+HPConfigRef HPConfigGetDefault();
 
 class HPNode;
 typedef HPNode *HPNodeRef;
@@ -37,7 +40,8 @@ typedef void (*HPDirtiedFunc)(HPNodeRef node);
 
 class HPNode {
  public:
-  HPNode();
+  HPNode() : HPNode{HPConfigGetDefault()} {}
+  HPNode(HPConfigRef config);
   virtual ~HPNode();
   void initLayoutResult();
   bool reset();
@@ -93,6 +97,7 @@ class HPNode {
   float boundAxis(FlexDirection axis, float value);
   void layout(float parentWidth,
               float parentHeight,
+              HPConfigRef config,
               HPDirection parentDirection = DirectionLTR,
               void *layoutContext = nullptr);
   float getMainAxisDim();
@@ -102,6 +107,8 @@ class HPNode {
   void setLayoutDirection(HPDirection direction);
   HPDirection getLayoutDirection();
   FlexAlign getNodeAlign(HPNodeRef item);
+  void SetConfig(HPConfigRef config);
+  HPConfigRef GetConfig();
 
  protected:
   HPDirection resolveDirection(HPDirection parentDirection);
@@ -135,7 +142,7 @@ class HPNode {
   void layoutFixedItems(HPSizeMode measureMode, void *layoutContext);
   void calculateFixedItemPosition(HPNodeRef item, FlexDirection axis);
 
-  void convertLayoutResult(float absLeft, float absTop);
+  void convertLayoutResult(float absLeft, float absTop, float scaleFactor);
 
  public:
   HPStyle style;
@@ -155,6 +162,8 @@ class HPNode {
   HPLayoutCache layoutCache;
   // layout result is in initial state or not
   bool inInitailState;
+  HPConfigRef _config = nullptr;
+
 #ifdef LAYOUT_TIME_ANALYZE
   int fetchCount;
 #endif

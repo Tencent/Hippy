@@ -1,3 +1,23 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /* eslint-disable no-param-reassign */
 
 import { arrayCount, warn, convertImageLocalPath } from '../util';
@@ -24,6 +44,47 @@ const INPUT_VALUE_MAP = {
   search: 'web-search',
 };
 
+const accessibilityAttrMaps = {
+  role: 'accessibilityRole',
+  'aria-label': 'accessibilityLabel',
+  'aria-disabled': {
+    jointKey: 'accessibilityState',
+    name: 'disabled',
+  },
+  'aria-selected': {
+    jointKey: 'accessibilityState',
+    name: 'selected',
+  },
+  'aria-checked': {
+    jointKey: 'accessibilityState',
+    name: 'checked',
+  },
+  'aria-busy': {
+    jointKey: 'accessibilityState',
+    name: 'busy',
+  },
+  'aria-expanded': {
+    jointKey: 'accessibilityState',
+    name: 'expanded',
+  },
+  'aria-valuemin': {
+    jointKey: 'accessibilityValue',
+    name: 'min',
+  },
+  'aria-valuemax': {
+    jointKey: 'accessibilityValue',
+    name: 'max',
+  },
+  'aria-valuenow': {
+    jointKey: 'accessibilityValue',
+    name: 'now',
+  },
+  'aria-valuetext': {
+    jointKey: 'accessibilityValue',
+    name: 'text',
+  },
+};
+
 // View area
 const div = {
   symbol: components.View,
@@ -36,6 +97,9 @@ const div = {
       ['touchend', 'onTouchEnd'],
       ['touchcancel', 'onTouchCancel'],
     ]),
+    attributeMaps: {
+      ...accessibilityAttrMaps,
+    },
     processEventData(event, nativeEventName, nativeEventParams) {
       switch (nativeEventName) {
         case 'onScroll':
@@ -71,9 +135,7 @@ const button = {
   component: {
     ...div.component,
     name: NATIVE_COMPONENT_NAME_MAP[components.View],
-    defaultNativeStyle: {
-      // TODO: Fill border style.
-    },
+    defaultNativeStyle: {},
   },
 };
 
@@ -110,11 +172,11 @@ const img = {
       /**
        * For Android, will use src property
        * For iOS, will convert to use source property
-       * At line: hippy-vue/renderer/native/index.js line 196.
        */
       src(value) {
         return convertImageLocalPath(value);
       },
+      ...accessibilityAttrMaps,
     },
   },
 };
@@ -131,6 +193,9 @@ const ul = {
       numberOfRows(node) {
         return arrayCount(node.childNodes, childNode => !childNode.meta.skipAddToDom);
       },
+    },
+    attributeMaps: {
+      ...accessibilityAttrMaps,
     },
     eventNamesMap: mapEvent('listReady', 'initialListReady'),
     processEventData(event, nativeEventName, nativeEventParams) {
@@ -153,6 +218,9 @@ const li = {
   symbol: components.ListViewItem,
   component: {
     name: NATIVE_COMPONENT_NAME_MAP[components.ListViewItem],
+    attributeMaps: {
+      ...accessibilityAttrMaps,
+    },
   },
   eventNamesMap: mapEvent([
     ['disappear', (__PLATFORM__ === 'android' || Native.Platform === 'android') ? 'onDisAppear' : 'onDisappear'],
@@ -223,6 +291,7 @@ const input = {
       },
       value: 'defaultValue',
       maxlength: 'maxLength',
+      ...accessibilityAttrMaps,
     },
     nativeProps: {
       numberOfLines: 1,

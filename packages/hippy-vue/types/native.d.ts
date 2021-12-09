@@ -1,4 +1,4 @@
-/* !
+/*
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
@@ -119,8 +119,8 @@ interface Native {
    * Class native methods
    */
   callNative: (
-    moduleName: callNativeModuleName,
-    methodName: callNativeMethodName,
+    moduleName: CallNativeModuleName,
+    methodName: CallNativeMethodName,
     ...args: any[]
   ) => void;
 
@@ -128,8 +128,8 @@ interface Native {
    * Call native methods with a promise response.
    */
   callNativeWithPromise: (
-    moduleName: callNativeModuleName,
-    methodName: callNativeMethodName,
+    moduleName: CallNativeModuleName,
+    methodName: CallNativeMethodName,
     ...args: any[]
   ) => Promise<any>;
 
@@ -137,8 +137,8 @@ interface Native {
    * Call native with callId returns
    */
   callNativeWithCallbackId: (
-    moduleName: callNativeModuleName,
-    methodName: callNativeMethodName,
+    moduleName: CallNativeModuleName,
+    methodName: CallNativeMethodName,
     ...args: any[]
   ) => any;
 
@@ -169,8 +169,8 @@ interface UIManagerModule {
   sendRenderError: (error: Error) => void;
 }
 
-type callNativeModuleName = 'UIManagerModule' | string;
-type callNativeMethodName =
+type CallNativeModuleName = 'UIManagerModule' | string;
+type CallNativeMethodName =
   | 'callUIFunction'
   | 'createNode'
   | 'updateNode'

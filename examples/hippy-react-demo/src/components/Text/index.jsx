@@ -53,12 +53,17 @@ const styles = StyleSheet.create({
     fontFamily: 'TTTGB',
   },
 });
-
+let i = 0;
 export default class TextExpo extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       fontSize: 16,
+      textShadowColor: 'grey',
+      textShadowOffset: {
+        x: 1,
+        y: 1,
+      },
     };
     this.incrementFontSize = this.incrementFontSize.bind(this);
     this.decrementFontSize = this.decrementFontSize.bind(this);
@@ -87,7 +92,7 @@ export default class TextExpo extends React.Component {
   }
 
   render() {
-    const { fontSize } = this.state;
+    const { fontSize, textShadowColor, textShadowOffset } = this.state;
     const renderTitle = title => (
       <View style={styles.itemTitle}>
         <Text style>{title}</Text>
@@ -95,6 +100,30 @@ export default class TextExpo extends React.Component {
     );
     return (
       <ScrollView style={{ padding: 10 }}>
+        {renderTitle('shadow')}
+        <View style={[styles.itemContent]} onClick={() => {
+          let textShadowColor = 'red';
+          let textShadowOffset = { x: 10, y: 1 };
+          if (i % 2 === 1) {
+            textShadowColor = 'grey';
+            textShadowOffset = { x: 1, y: 1 };
+          }
+          i += 1;
+          this.setState({
+            textShadowColor,
+            textShadowOffset,
+          });
+        }}>
+          <Text style={[styles.normalText,
+            { color: '#242424',
+              textShadowOffset,
+              // support declare textShadowOffsetX & textShadowOffsetY separately
+              // textShadowOffsetX: 1,
+              // textShadowOffsetY: 1,
+              textShadowRadius: 3,
+              textShadowColor,
+            }]}>Text shadow is grey with radius 3 and offset 1</Text>
+        </View>
         {renderTitle('color')}
         <View style={[styles.itemContent]}>
           <Text style={[styles.normalText, { color: '#242424' }]}>Text color is black</Text>
@@ -129,6 +158,15 @@ export default class TextExpo extends React.Component {
             two lines just two lines
             just two lines just two lines just two lines just two lines just two lines just two
             lines just two lines just two lines just two lines just two lines just two lines
+          </Text>
+        </View>
+        {renderTitle('textDecoration')}
+        <View style={styles.itemContent}>
+          <Text numberOfLines={1} style={[styles.normalText, { textDecorationLine: 'underline', textDecorationStyle: 'dotted' }]}>
+            underline
+          </Text>
+          <Text numberOfLines={1} style={[styles.normalText, { textDecorationLine: 'line-through', textDecorationColor: 'red' }]}>
+            line-through
           </Text>
         </View>
         {renderTitle('Nest Text')}

@@ -2,6 +2,7 @@
   <div
     id="demo-vue-native"
     ref="rect"
+    @layout="onLayout"
   >
     <div>
       <!-- 操作系统平台 -->
@@ -172,10 +173,10 @@
 
       <!-- 测量一个元素尺寸的范例，其实它是 measureInWindow 的封装 -->
       <div
-        v-if="Vue.Native.measureInWindow"
+        v-if="Vue.Native.measureInAppWindow"
         class="native-block"
       >
-        <label class="vue-native-title">Element.getBoundingClientRect</label>
+        <label class="vue-native-title">Vue.Native.measureInAppWindow</label>
         <p>{{ rect }}</p>
       </div>
 
@@ -293,6 +294,7 @@ export default {
       clipboardValue: '',
       imageSize: '',
       netInfoText: '正在获取..',
+      hasLayout: false,
     };
   },
   async created() {
@@ -314,9 +316,6 @@ export default {
     this.app.$on(TEST_EVENT_NAME, () => {
       this.eventTriggeredTimes += 1;
     });
-    // ref="rect" 可以移动到任一元素上测试尺寸，除了 measureInWindow 在 android 上拿不到，别的都可以正常获取。
-    const rect = await this.$refs.rect.getBoundingClientRect();
-    this.rect = `Container rect: ${JSON.stringify(rect)}`;
   },
   beforeDestroy() {
     // 取消 mounted 里监听的自定义事件
@@ -325,6 +324,14 @@ export default {
     delete this.app;
   },
   methods: {
+    async onLayout() {
+      if (!this.hasLayout) {
+        this.hasLayout = true;
+        // ref="rect" 可以移动到任一元素上测试尺寸，除了 measureInWindow 在 android 上拿不到，别的都可以正常获取。
+        const rect = await Vue.Native.measureInAppWindow(this.$refs.rect);
+        this.rect = `Container rect: ${JSON.stringify(rect)}`;
+      }
+    },
     // 通过界面，触发经过 app 中转的事件，其实就是个假的终端事件。
     triggerAppEvent() {
       this.app.$emit(TEST_EVENT_NAME);

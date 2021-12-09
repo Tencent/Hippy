@@ -51,6 +51,11 @@ module.exports = {
     // new webpack.optimize.LimitChunkCountPlugin({
     //   maxChunks: 1,
     // }),
+    // use SourceMapDevToolPlugin can generate sourcemap file while setting devtool to false
+    // new webpack.SourceMapDevToolPlugin({
+    //   test: /\.(js|jsbundle|css|bundle)($|\?)/i,
+    //   filename: '[file].map',
+    // }),
   ],
   module: {
     rules: [
@@ -59,7 +64,6 @@ module.exports = {
         use: [
           'vue-loader',
           'scope-loader',
-          'unicode-loader',
         ],
       },
       {
@@ -85,7 +89,6 @@ module.exports = {
               ],
             },
           },
-          'unicode-loader',
         ],
       },
       {

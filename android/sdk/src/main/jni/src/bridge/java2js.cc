@@ -36,17 +36,18 @@ enum CALLFUNCTION_CB_STATE {
   SUCCESS = 0,
 };
 
-REGISTER_JNI(
-    "com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
-    "callFunction",
-    "(Ljava/lang/String;JLcom/tencent/mtt/hippy/bridge/NativeCallback;[BII)V",
-    CallFunctionByHeapBuffer)
+REGISTER_JNI( // NOLINT(cert-err58-cpp)
+        "com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
+        "callFunction",
+        "(Ljava/lang/String;JLcom/tencent/mtt/hippy/bridge/NativeCallback;[BII)V",
+        CallFunctionByHeapBuffer)
 
-REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
-             "callFunction",
-             "(Ljava/lang/String;JLcom/tencent/mtt/hippy/bridge/"
-             "NativeCallback;Ljava/nio/ByteBuffer;II)V",
-             CallFunctionByDirectBuffer)
+REGISTER_JNI( // NOLINT(cert-err58-cpp)
+        "com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
+        "callFunction",
+        "(Ljava/lang/String;JLcom/tencent/mtt/hippy/bridge/"
+        "NativeCallback;Ljava/nio/ByteBuffer;II)V",
+        CallFunctionByDirectBuffer)
 
 using unicode_string_view = tdf::base::unicode_string_view;
 using bytes = std::string;
@@ -54,22 +55,23 @@ using bytes = std::string;
 using Ctx = hippy::napi::Ctx;
 using CtxValue = hippy::napi::CtxValue;
 using StringViewUtils = hippy::base::StringViewUtils;
-#ifdef V8_HAS_INSPECTOR
+#ifdef ENABLE_INSPECTOR
 using V8InspectorClientImpl = hippy::inspector::V8InspectorClientImpl;
+extern std::mutex inspector_mutex;
 extern std::shared_ptr<V8InspectorClientImpl> global_inspector;
 #endif
 
 const char kHippyBridgeName[] = "hippyBridge";
 
 void CallFunction(JNIEnv* j_env,
-                  jobject j_obj,
+                  __unused jobject j_obj,
                   jstring j_action,
                   jlong j_runtime_id,
                   jobject j_callback,
                   bytes buffer_data,
                   std::shared_ptr<JavaRef> buffer_owner) {
   TDF_BASE_DLOG(INFO) << "CallFunction j_runtime_id = " << j_runtime_id;
-  std::shared_ptr<Runtime> runtime = Runtime::Find(j_runtime_id);
+  std::shared_ptr<Runtime> runtime = Runtime::Find(JniUtils::CheckedNumericCast<jlong, int32_t>(j_runtime_id));
   if (!runtime) {
     TDF_BASE_DLOG(WARNING) << "CallFunction j_runtime_id invalid";
     return;
@@ -114,12 +116,13 @@ void CallFunction(JNIEnv* j_env,
     TDF_BASE_DCHECK(action_name.encoding() ==
                     unicode_string_view::Encoding::Utf16);
     if (runtime->IsDebug() &&
-        !action_name.utf16_value().compare(u"onWebsocketMsg")) {
-#ifdef V8_HAS_INSPECTOR
+        action_name.utf16_value() == u"onWebsocketMsg") {
+#ifdef ENABLE_INSPECTOR
+      std::lock_guard<std::mutex> lock(inspector_mutex);
       std::u16string str(reinterpret_cast<const char16_t*>(&buffer_data_[0]),
                          buffer_data_.length() / sizeof(char16_t));
       global_inspector->SendMessageToV8(
-          std::move(unicode_string_view(std::move(str))));
+          unicode_string_view(std::move(str)));
 #endif
       CallJavaMethod(cb_->GetObj(), CALLFUNCTION_CB_STATE::SUCCESS);
       return;
@@ -204,7 +207,7 @@ void CallFunctionByDirectBuffer(JNIEnv* j_env,
       static_cast<char*>(j_env->GetDirectBufferAddress(j_buffer));
   TDF_BASE_CHECK(buffer_address != nullptr);
   CallFunction(j_env, j_obj, j_action, j_runtime_id, j_callback,
-               bytes(buffer_address + j_offset, j_length),
+               bytes(buffer_address + j_offset, JniUtils::CheckedNumericCast<jint, size_t>(j_length)),
                std::make_shared<JavaRef>(j_env, j_buffer));
 }
 
@@ -230,9 +233,7 @@ void CallJavaMethod(jobject j_obj, jlong j_value, jstring j_msg) {
 
   j_env->CallVoidMethod(j_obj, j_cb_id, j_value, j_msg);
   JNIEnvironment::ClearJEnvException(j_env);
-  if (j_class) {
-    j_env->DeleteLocalRef(j_class);
-  }
+  j_env->DeleteLocalRef(j_class);
 }
 
 }  // namespace bridge

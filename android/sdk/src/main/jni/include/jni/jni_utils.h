@@ -27,9 +27,8 @@
 #include <string>
 
 #include "base/unicode_string_view.h"
+#include "core/core.h"
 #include "v8/v8.h"
-
-struct HippyBuffer;
 
 class JniUtils {
   using unicode_string_view = tdf::base::unicode_string_view;
@@ -51,10 +50,15 @@ class JniUtils {
                                                  jbyteArray byte_array,
                                                  jsize j_offset = 0,
                                                  jsize j_length = -1);
-  static std::u16string CovertJStringToChars(JNIEnv* j_env, jstring j_str);
 
   static unicode_string_view::u8string ToU8String(JNIEnv* j_env, jstring j_str);
 
   static unicode_string_view ToStrView(JNIEnv* j_env, jstring j_str);
-  static void printCurrentThreadID();
+
+  template<typename SourceType, typename TargetType>
+  static constexpr TargetType CheckedNumericCast(SourceType value) {
+      using source_type_limits = typename std::numeric_limits<SourceType>;
+      TDF_BASE_CHECK(value <= source_type_limits::max() && value >= source_type_limits::min());
+      return static_cast<TargetType>(value);
+  }
 };

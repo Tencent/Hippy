@@ -6,7 +6,7 @@ hippy-vue 通过在 Vue 上绑定了一个 `Native` 属性，实现获取终端�
 
 > 对应 Demo: [demo-vue-native.vue](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-vue-native.vue)
 
-# 获取设备信息
+# Vue.Native 获取终端信息
 
 它无需任何方法，直接取值即可。
 
@@ -14,7 +14,7 @@ hippy-vue 通过在 Vue 上绑定了一个 `Native` 属性，实现获取终端�
 
 获取 hippy-vue 的版本
 
-## 示例
+* 示例
 
 ```javascript
 console.log(Vue.Native.version); // => 2.0.0
@@ -40,7 +40,7 @@ Hippy 终端 SDK 版本。
 
 获取操作系统类型。
 
-## 示例
+* 示例
 
 ```javascript
 console.log(Vue.Native.Platform); // => android
@@ -50,7 +50,7 @@ console.log(Vue.Native.Platform); // => android
 
 获取屏幕分辨率。
 
-## 示例
+* 示例
 
 ```javascript
 const { window, screen } = Vue.Native.Dimensions;
@@ -62,7 +62,7 @@ console.log(`带状态栏的窗口尺寸：${window.height}x${window.width}`); /
 
 获取设备像素比例。
 
-## 示例
+* 示例
 
 ```javascript
 console.log(Vue.Native.PixelRatio); // => 3
@@ -97,7 +97,7 @@ console.log(Vue.Native.PixelRatio); // => 3
 
 AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系统。
 
-示例：
+* 示例：
 
 ``` js
 Vue.Native.AsyncStorage.setItem('itemKey', 'itemValue');
@@ -182,6 +182,16 @@ Vue.Native.AsyncStorage.getItem('itemKey');
 
 调用终端模块的方法，`callNative` 一般用于无返回的模块方法调用，`callNativeWithPromise` 一般用于有返回的模块方法调用，它会返回一个带着结果的 Promise。
 
+# callUIFunction
+
+调用组件定义的终端方法
+
+`callUIFunction(instance: ref, method: string, options: Array)`
+
+> * instance: 组件的引用 Ref
+> * method：方法名称，如 ListView 的 `scrollToIndex`
+> * options: 需传递的数据，如 ListView 的 `[xIndex, yIndex, animated]`
+
 ---
 
 # Clipboard
@@ -201,6 +211,35 @@ Vue.Native.AsyncStorage.getItem('itemKey');
 | 参数 | 类型     | 必需 | 参数意义 |
 | --------  | -------- | -------- |  -------- |
 | content | string | 是       | 保存进入剪贴板的内容 |
+
+---
+
+# ConsoleModule
+
+> 最低支持版本 2.10.0
+
+提供了将前端日志输出到 iOS 终端日志和 [Android logcat](//developer.android.com/studio/command-line/logcat) 的能力
+
+## 方法
+
+### ConsoleModule.log
+
+`(...value: string) => void`
+
+### ConsoleModule.info
+
+`(...value: string) => void`
+
+### ConsoleModule.warn
+
+`(...value: string) => void`
+
+### ConsoleModule.error
+
+`(...value: string) => void`
+
+> * `log` 和 `info` 默认都输出为终端 INFO 级别日志
+> * Hippy 2.10.0 版本之后将原始 js 的 `console` 方法与 `ConsoleModule` 方法进行分离，`console` 不再输出日志到终端
 
 ---
 
@@ -232,6 +271,23 @@ Hippy 中通过 fetch 服务返回的 `set-cookie` Header 会自动将 Cookie �
 
 ---
 
+# getElemCss
+
+获取具体节点的 CSS 样式。
+
+> 最低支持版本 2.10.1
+
+`(ref: ElementNode) => {}`
+
+* 示例：
+
+```js
+this.demon1Point = this.$refs['demo-1-point'];
+console.log(Vue.Native.getElemCss(this.demon1Point)) // => { height: 80, left: 0, position: "absolute" }
+```
+
+---
+
 # ImageLoaderModule
 
 通过该模块可以对远程图片进行相应操作
@@ -254,20 +310,15 @@ Hippy 中通过 fetch 服务返回的 `set-cookie` Header 会自动将 Cookie �
 
 ---
 
-# measureInWindow
-
-> * Deprecated.
-> * iOS 仅可以获取 Hippy 容器的布局, 所以建议统一采用 measureInAppWindow 方法。
-
----
-
 # measureInAppWindow
 
-测量在 App 窗口范围内某个组件的尺寸和位置，如果出错 callback 参数可能为字符串或者 -1
+> 最低支持版本 2.11.0
 
-`(ref, callback: Function) => Promise`
+测量在 App 窗口范围内某个组件的尺寸和位置，注意需要保证节点实例真正上屏后（layout事件后）才能调用该方法。
 
-> * callback: ({ x, y, width, height } | string | -1) => void - 回调函数, 参数可以获取到引用组件在 App 窗口范围内的坐标值和宽高，如果出错可能返回 -1 或者 `this view is null` 字符串
+`(ref) => Promise<{top: number, left: number, right: number, bottom: number, width: number, height: number}>`
+
+> * Promise resolve 的参数可以获取到引用组件在 App 窗口范围内的坐标值和宽高，如果出错会返回 { top: -1, left: -1, right: -1, bottom: -1, width: -1, height: -1 }
 
 ---
 
@@ -326,7 +377,7 @@ Hippy 中通过 fetch 服务返回的 `set-cookie` Header 会自动将 Cookie �
 
 * `number`: 返回值为终端可识别的 `int32Color`
 
-示例：
+* 示例：
 
 ``` js
 const int32Color = Vue.Native.parseColor('#40b883') // int32Color: 4282431619

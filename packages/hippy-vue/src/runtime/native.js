@@ -1,3 +1,23 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import colorParser from '@css-loader/color-parser';
 import { isDef } from 'shared/util';
 import {
@@ -6,6 +26,9 @@ import {
   trace,
   isFunction,
 } from '../util';
+import {
+  getCssMap,
+} from '../renderer/native/index';
 
 import BackAndroid from './backAndroid';
 import * as NetInfo from './netInfo';
@@ -48,15 +71,9 @@ const measureInWindowByMethod = function measureInWindowByMethod(el, method) {
     return Promise.resolve(empty);
   }
   const { nodeId } = el;
-  // FIXME: callNativeWithPromise was broken in iOS, it response
-  // UIManager was called with 3 arguments, but expect 2.
-  // So wrap the function with a Promise.
-  const timeout = new Promise(resolve => setTimeout(() => {
-    resolve(empty);
-  }, 100));
-  const measure = new Promise(resolve => callNative('UIManagerModule', method, nodeId, (pos) => {
+  return new Promise(resolve => callNative.call(this, 'UIManagerModule', method, nodeId, (pos) => {
     // Android error handler.
-    if (!pos || pos === 'this view is null') {
+    if (!pos || pos === 'this view is null' || typeof nodeId === 'undefined') {
       return resolve(empty);
     }
     return resolve({
@@ -68,7 +85,25 @@ const measureInWindowByMethod = function measureInWindowByMethod(el, method) {
       height: pos.height,
     });
   }));
-  return Promise.race([timeout, measure]);
+};
+
+/**
+ * getElemCss
+ * @param {ElementNode} element
+ * @returns {{}}
+ */
+const getElemCss = function getElemCss(element) {
+  const style = Object.create(null);
+  try {
+    getCssMap().query(element).selectors.forEach((matchedSelector) => {
+      matchedSelector.ruleSet.declarations.forEach((cssStyle) => {
+        style[cssStyle.property] = cssStyle.value;
+      });
+    });
+  } catch (err) {
+    console.error('getDomCss Error:', err);
+  }
+  return style;
 };
 
 /**
@@ -183,8 +218,7 @@ const Native = {
       let isIPhoneX = false;
       if (Native.Platform === 'ios') {
         // iOS12 - iPhone11: 48 Phone12/12 pro/12 pro max: 47 other: 44
-        const statusBarHeightList = [44, 47, 48];
-        isIPhoneX = statusBarHeightList.indexOf(Native.Dimensions.screen.statusBarHeight) > -1;
+        isIPhoneX = Native.Dimensions.screen.statusBarHeight !== 20;
       }
       CACHE.isIPhoneX = isIPhoneX;
     }
@@ -403,6 +437,11 @@ const Native = {
    * Network operations
    */
   NetInfo,
+  /**
+   * console log to native
+   */
+  ConsoleModule: global.ConsoleModule || global.console,
+  getElemCss,
 };
 
 // Public export

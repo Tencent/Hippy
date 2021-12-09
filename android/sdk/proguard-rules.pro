@@ -169,6 +169,7 @@ public void removeActionInterceptor(com.tencent.mtt.hippy.dom.node.DomActionInte
 -keep class com.tencent.mtt.hippy.dom.node.TypeFaceUtil {*;}
 -keep class com.tencent.mtt.hippy.adapter.image.HippyImageLoader {*;}
 -keep class com.tencent.mtt.hippy.dom.node.DomActionInterceptor {*;}
+-keep class com.tencent.mtt.hippy.dom.node.DomNodeRecord {*;}
 
 -keepclasseswithmembers class com.tencent.mtt.supportui.** {
 public <methods>;
@@ -202,3 +203,18 @@ public <fields>;
 protected <fields>;
 }
 
+# turbo
+-keep class com.tencent.mtt.hippy.annotation.HippyTurboObj
+
+-keep @com.tencent.mtt.hippy.annotation.HippyTurboObj class * {*;}
+
+-keep class com.tencent.mtt.hippy.annotation.HippyTurboProp
+
+-keepclasseswithmembers class * {
+    @com.tencent.mtt.hippy.annotation.HippyTurboProp <methods>;
+}
+
+-keep public class com.tencent.mtt.hippy.bridge.jsi.TurboModuleManager {
+public <fields>;
+public <methods>;
+}

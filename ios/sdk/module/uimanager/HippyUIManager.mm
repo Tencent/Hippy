@@ -70,6 +70,7 @@ NSString *const HippyUIManagerWillUpdateViewsDueToContentSizeMultiplierChangeNot
 NSString *const HippyUIManagerDidRegisterRootViewNotification = @"HippyUIManagerDidRegisterRootViewNotification";
 NSString *const HippyUIManagerDidRemoveRootViewNotification = @"HippyUIManagerDidRemoveRootViewNotification";
 NSString *const HippyUIManagerRootViewKey = @"HippyUIManagerRootViewKey";
+NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBatchNotification";
 
 @implementation HippyUIManager {
     // Root views are only mutated on the shadow queue
@@ -758,14 +759,16 @@ static void HippySetChildren(NSNumber *containerTag, NSArray<NSNumber *> *hippyT
 }
 
 // clang-format off
-HIPPY_EXPORT_METHOD(startBatch:(__unused NSString *)batchID) {
+HIPPY_EXPORT_METHOD(startBatch) {
 }
 // clang-format on
 
 // clang-format off
-HIPPY_EXPORT_METHOD(endBatch:(__unused NSString *)batchID) {
+HIPPY_EXPORT_METHOD(endBatch) {
     if (_pendingUIBlocks.count) {
         [self batchDidComplete];
+        [[NSNotificationCenter defaultCenter] postNotificationName:HippyUIManagerDidEndBatchNotification
+                                                            object:self];
     }
 }
 // clang-format on
@@ -873,7 +876,8 @@ HIPPY_EXPORT_METHOD(manageChildren:(nonnull NSNumber *)containerTag
 // clang-format off
 HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
                   viewName:(NSString *)viewName
-                  rootTag:(__unused NSNumber *)rootTag
+                  rootTag:(nonnull NSNumber *)rootTag
+                  tagName:(NSString *)tagName
                   props:(NSDictionary *)props) {
     HippyComponentData *componentData = _componentDataByName[viewName];
     HippyShadowView *shadowView = [componentData createShadowViewWithTag:hippyTag];
@@ -929,6 +933,7 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
         HippyVirtualNode *node = [componentData createVirtualNode: hippyTag props: newProps];
         if(node) {
             node.rootTag = rootTag;
+            node.tagName = tagName;
             node.bridge = [uiManager bridge];
             uiManager->_nodeRegistry[hippyTag] = node;
         }
@@ -960,6 +965,7 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
     }
     if (view) {
         view.viewName = viewName;
+        view.rootTag = node.rootTag;
         [componentData setProps:props forView:view];  // Must be done before bgColor to prevent wrong default
 
         if ([view respondsToSelector:@selector(hippyBridgeDidFinishTransaction)]) {
@@ -1000,6 +1006,7 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
 
 - (void)updateViewWithHippyTag:(NSNumber *)hippyTag props:(NSDictionary *)pros {
     [self updateView:hippyTag viewName:nil props:pros];
+    [self batchDidComplete];
 }
 
 // clang-format off
@@ -1374,6 +1381,10 @@ HIPPY_EXPORT_METHOD(measureInAppWindow:(nonnull NSNumber *)hippyTag
     });
 }
 
+- (NSNumber *)rootHippyTag {
+    return _rootViewTags.count > 0 ? _rootViewTags.allObjects.firstObject : @(0);
+}
+
 - (NSNumber *)_rootTagForHippyTag:(NSNumber *)hippyTag {
     HippyAssert(!HippyIsMainQueue(), @"Should be called on shadow queue");
 
@@ -1511,9 +1522,7 @@ static UIView *_jsResponder;
 - (UIView *)createViewFromNode:(HippyVirtualNode *)node {
     UIView *result = nil;
     NSMutableArray *tranctions = [NSMutableArray new];
-#ifndef HIPPY_DEBUG
     @try {
-#endif
         result = [node createView:^UIView *(HippyVirtualNode *subNode) {
             NSString *viewName = subNode.viewName;
             NSNumber *tag = subNode.hippyTag;
@@ -1541,11 +1550,9 @@ static UIView *_jsResponder;
         for (UIView *view in tranctions) {
             [view hippyBridgeDidFinishTransaction];
         }
-#ifndef HIPPY_DEBUG
     } @catch (NSException *exception) {
         MttHippyException(exception);
     }
-#endif
     return result;
 }
 

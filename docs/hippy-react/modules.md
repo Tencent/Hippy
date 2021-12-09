@@ -235,6 +235,33 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 ---
 
+# ConsoleModule
+
+提供了将前端日志输出到 iOS 终端日志和 [Android logcat](//developer.android.com/studio/command-line/logcat) 的能力
+
+## 方法
+
+### ConsoleModule.log
+
+`(...value: string) => void`
+
+### ConsoleModule.info
+
+`(...value: string) => void`
+
+### ConsoleModule.warn
+
+`(...value: string) => void`
+
+### ConsoleModule.error
+
+`(...value: string) => void`
+
+> - `log` 和 `info` 默认都输出为终端 INFO 级别日志。
+> - Hippy 2.10.0 版本之后将原始 js 的 `console` 方法与 `ConsoleModule` 方法进行分离，`console` 不再输出日志到终端。
+
+---
+
 # Dimensions
 
 用于获取当前设备的宽高。
@@ -408,9 +435,28 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 ## 方法
 
+### UIManagerModule.callUIFunction
+
+调用组件定义的终端方法
+
+`callUIFunction(instance: ref, method: string, options: Array)`
+
+> - instance: 组件的引用 Ref
+> - method：方法名称，如 ListView 的 `scrollToIndex`
+> - options: 需传递的数据，如 ListView 的 `[xIndex, yIndex, animated]`，空时显式写 `[]`
+
+### UIManagerModule.getElementFromFiberRef
+
+获取元素 Ref 对应的 Element(类似DOM)
+
+`getElementFromFiberRef(instance: ref): ElementNode`
+
+> - instance: 组件的引用 Ref
+> - ElementNode：类似DOM，可以调用 setNativeProps 等方法
+
 ### UIManagerModule.measureInAppWindow
 
-测量在 App 窗口范围内某个组件的尺寸和位置，如果出错 callback 参数可能为字符串或者 -1
+测量在 App 窗口范围内某个组件的尺寸和位置，如果出错 callback 参数可能为字符串或者 -1，注意需要保证节点实例真正上屏后（onLayout事件后）才能调用该方法。
 
 `(ref, callback: Function) => Promise`
 

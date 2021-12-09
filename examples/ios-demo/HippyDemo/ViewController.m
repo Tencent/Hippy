@@ -23,6 +23,7 @@
 #import "ViewController.h"
 #import "HippyRootView.h"
 #import "HippyLog.h"
+#import "HippyBundleURLProvider.h"
 
 @interface ViewController ()<HippyBridgeDelegate>
 
@@ -44,10 +45,33 @@
         isSimulator = YES;
     #endif
 
+    
+//release macro below if use debug mode
+//#define HIPPYDEBUG
+    
+#ifdef HIPPYDEBUG
+    NSDictionary *launchOptions = @{@"EnableTurbo": @YES, @"DebugMode": @(YES)};
+    NSString *localhost = [HippyBundleURLProvider sharedInstance].localhost ?: @"localhost:38989";
+    NSString *bundleStr = [NSString stringWithFormat:@"http://%@%@", localhost, [HippyBundleURLProvider sharedInstance].debugPathUrl];
+    NSURL *bundleUrl = [NSURL URLWithString:bundleStr];
+    HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:self
+                                                      bundleURL:bundleUrl
+                                                 moduleProvider:nil
+                                                  launchOptions:launchOptions
+                                                    executorKey:@"Demo"];
+    HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:bridge moduleName:@"Demo" initialProperties:@{@"isSimulator": @(isSimulator)} shareOptions:@{@"DebugMode": @(YES)} delegate:nil];
+#else
     NSString *commonBundlePath = [[NSBundle mainBundle] pathForResource:@"vendor.ios" ofType:@"js" inDirectory:@"res"];
     NSString *businessBundlePath = [[NSBundle mainBundle] pathForResource:@"index.ios" ofType:@"js" inDirectory:@"res"];
-    HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:self bundleURL:[NSURL fileURLWithPath:commonBundlePath] moduleProvider:nil launchOptions:nil executorKey:@"Demo"];
+    NSDictionary *launchOptions = @{@"EnableTurbo": @YES};
+    HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:self
+                                                      bundleURL:[NSURL fileURLWithPath:commonBundlePath]
+                                                 moduleProvider:nil
+                                                  launchOptions:launchOptions
+                                                    executorKey:@"Demo"];
     HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:bridge businessURL:[NSURL fileURLWithPath:businessBundlePath] moduleName:@"Demo" initialProperties:  @{@"isSimulator": @(isSimulator)} launchOptions:nil shareOptions:nil debugMode:NO delegate:nil];
+#endif
+    
     
     
 //    HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:self bundleURL:[NSURL URLWithString:@"http://localhost:38989/index.bundle?platform=ios&dev=true&minify=false"] moduleProvider:nil launchOptions:nil executorKey:@"Demo"];
@@ -92,6 +116,14 @@
     //简单处理，直接返回。
 //    completion(@"var a = 1");
     return false;
+}
+
+- (BOOL)shouldStartInspector:(HippyBridge *)bridge {
+    return bridge.debugMode;
+}
+
+- (NSURL *)inspectorSourceURLForBridge:(HippyBridge *)bridge {
+    return bridge.bundleURL;
 }
 
 @end

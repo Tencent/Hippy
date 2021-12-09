@@ -91,16 +91,16 @@ class ADRLoader : public hippy::base::UriLoader {
     runner_ = runner;
   }
   std::function<void(u8string)> GetRequestCB(int64_t request_id);
-  int64_t SetRequestCB(std::function<void(u8string)> cb);
+  int64_t SetRequestCB(const std::function<void(u8string)>& cb);
 
  private:
   bool LoadByFile(const unicode_string_view& path,
-                  std::function<void(u8string)> cb);
+                  const std::function<void(u8string)>& cb);
   bool LoadByAsset(const unicode_string_view& file_path,
-                   std::function<void(u8string)> cb,
+                   const std::function<void(u8string)>& cb,
                    bool is_auto_fill = false);
   bool LoadByHttp(const unicode_string_view& uri,
-                  std::function<void(u8string)> cb);
+                  const std::function<void(u8string)>& cb);
 
   std::shared_ptr<JavaRef> bridge_;
   AAssetManager* aasset_manager_;

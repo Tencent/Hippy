@@ -42,6 +42,10 @@
     <ClInclude Include="include\jni\jni_utils.h" />
     <ClInclude Include="include\jni\scoped_java_ref.h" />
     <ClInclude Include="include\jni\uri.h" />
+    <ClInclude Include="include\jni\java_turbo_module.h" />
+    <ClInclude Include="include\jni\turbo_module_runtime.h" />
+    <ClInclude Include="include\jni\turbo_module_manager.h" />
+    <ClInclude Include="include\jni\convert_utils.h" />
     <ClInclude Include="include\loader\adr_loader.h" />
     <ClInclude Include="third_party\v8\maintenance\x5-lite\include\v8\libplatform\libplatform-export.h" />
     <ClInclude Include="third_party\v8\maintenance\x5-lite\include\v8\libplatform\libplatform.h" />
@@ -77,6 +81,9 @@
     <ClCompile Include="src\jni\jni_utils.cc" />
     <ClCompile Include="src\jni\scoped_java_ref.cc" />
     <ClCompile Include="src\jni\uri.cc" />
+    <ClCompile Include="src\jni\java_turbo_module.cc" />
+    <ClCompile Include="src\jni\turbo_module_manager.cc" />
+    <ClCompile Include="src\jni\convert_utils.cc" />
     <ClCompile Include="src\loader\adr_loader.cc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

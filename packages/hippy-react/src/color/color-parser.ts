@@ -1,4 +1,22 @@
-/* eslint-disable no-bitwise */
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 import {
   colors,
@@ -54,7 +72,6 @@ function hslToRgb(h: number, s: number, l: number) {
   const r = hue2rgb(p, q, h + 1 / 3);
   const g = hue2rgb(p, q, h);
   const b = hue2rgb(p, q, h - 1 / 3);
-
   return (
     (Math.round(r * 255) << 24)
     | (Math.round(g * 255) << 16)
@@ -87,16 +104,13 @@ function baseColor(color: string | keyof Colors) {
     }
     return null;
   }
-
   match = matchers.hex6.exec(color);
   if (Array.isArray(match)) {
     return parseInt(`${match[1]}ff`, 16) >>> 0;
   }
-
   if (Object.hasOwnProperty.call(colors, color)) {
     return colors[color];
   }
-
   match = matchers.rgb.exec(color);
   if (Array.isArray(match)) {
     return (
@@ -106,7 +120,6 @@ function baseColor(color: string | keyof Colors) {
       | 0x000000ff // a
     ) >>> 0;
   }
-
   match = matchers.rgba.exec(color);
   if (match) {
     return (
@@ -116,7 +129,6 @@ function baseColor(color: string | keyof Colors) {
       | parse1(match[4]) // a
     ) >>> 0;
   }
-
   match = matchers.hex3.exec(color);
   if (match) {
     return parseInt(
@@ -127,12 +139,10 @@ function baseColor(color: string | keyof Colors) {
       16,
     ) >>> 0;
   }
-
   match = matchers.hex8.exec(color);
   if (match) {
     return parseInt(match[1], 16) >>> 0;
   }
-
   match = matchers.hex4.exec(color);
   if (match) {
     return parseInt(
@@ -143,7 +153,6 @@ function baseColor(color: string | keyof Colors) {
       16,
     ) >>> 0;
   }
-
   match = matchers.hsl.exec(color);
   if (match) {
     return (
@@ -155,7 +164,6 @@ function baseColor(color: string | keyof Colors) {
       | 0x000000ff // a
     ) >>> 0;
   }
-
   match = matchers.hsla.exec(color);
   if (match) {
     return (
@@ -167,7 +175,6 @@ function baseColor(color: string | keyof Colors) {
       | parse1(match[4]) // a
     ) >>> 0;
   }
-
   return null;
 }
 

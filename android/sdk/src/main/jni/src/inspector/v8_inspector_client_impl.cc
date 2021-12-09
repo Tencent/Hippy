@@ -28,7 +28,7 @@ namespace hippy {
 namespace inspector {
 
 V8InspectorClientImpl::V8InspectorClientImpl(std::shared_ptr<Scope> scope)
-    : scope_(scope) {
+    : scope_(std::move(scope)) {
   std::shared_ptr<hippy::napi::V8Ctx> ctx =
       std::static_pointer_cast<hippy::napi::V8Ctx>(scope_->GetContext());
   v8::Isolate* isolate = ctx->isolate_;
@@ -38,11 +38,11 @@ V8InspectorClientImpl::V8InspectorClientImpl(std::shared_ptr<Scope> scope)
 
 void V8InspectorClientImpl::Reset(std::shared_ptr<Scope> scope,
                                   std::shared_ptr<JavaRef> bridge) {
-  scope_ = scope;
-  channel_->SetBridge(bridge);
+  scope_ = std::move(scope);
+  channel_->SetBridge(std::move(bridge));
 }
 
-void V8InspectorClientImpl::Connect(std::shared_ptr<JavaRef> bridge) {
+void V8InspectorClientImpl::Connect(const std::shared_ptr<JavaRef>& bridge) {
   channel_ = std::make_unique<V8ChannelImpl>(bridge);
   session_ = inspector_->connect(1, channel_.get(), v8_inspector::StringView());
 }
@@ -66,8 +66,8 @@ void V8InspectorClientImpl::SendMessageToV8(const unicode_string_view& params) {
     v8_inspector::StringView message_view;
     switch (encoding) {
       case unicode_string_view::Encoding::Latin1: {
-        std::string str = params.latin1_value();
-        if (!str.compare("chrome_socket_closed")) {
+        const std::string& str = params.latin1_value();
+        if (str == "chrome_socket_closed") {
           session_ = inspector_->connect(1, channel_.get(),
                                          v8_inspector::StringView());
           return;
@@ -77,8 +77,8 @@ void V8InspectorClientImpl::SendMessageToV8(const unicode_string_view& params) {
         break;
       }
       case unicode_string_view::Encoding::Utf16: {
-        std::u16string str = params.utf16_value();
-        if (!str.compare(u"chrome_socket_closed")) {
+        const std::u16string& str = params.utf16_value();
+        if (str == u"chrome_socket_closed") {
           session_ = inspector_->connect(1, channel_.get(),
                                          v8_inspector::StringView());
           return;
@@ -90,7 +90,6 @@ void V8InspectorClientImpl::SendMessageToV8(const unicode_string_view& params) {
       default:
         TDF_BASE_DLOG(INFO) << "encoding = " << static_cast<int>(encoding);
         TDF_BASE_NOTREACHED();
-        break;
     }
     session_->dispatchProtocolMessage(message_view);
   }
@@ -115,7 +114,7 @@ void V8InspectorClientImpl::DestroyContext() {
 }
 
 v8::Local<v8::Context> V8InspectorClientImpl::ensureDefaultContextInGroup(
-    int contextGroupId) {
+    __unused int contextGroupId) {
   std::shared_ptr<hippy::napi::V8Ctx> ctx =
       std::static_pointer_cast<hippy::napi::V8Ctx>(scope_->GetContext());
   v8::Isolate* isolate = ctx->isolate_;
@@ -134,7 +133,7 @@ void V8InspectorClientImpl::quitMessageLoopOnPause() {
   scope_->GetTaskRunner()->ResumeThreadForInspector();
 }
 
-void V8InspectorClientImpl::runIfWaitingForDebugger(int contextGroupId) {
+void V8InspectorClientImpl::runIfWaitingForDebugger(__unused int contextGroupId) {
   scope_->GetTaskRunner()->ResumeThreadForInspector();
 }
 

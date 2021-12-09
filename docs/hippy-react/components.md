@@ -39,8 +39,8 @@ import icon from './qb_icon_new.png';
 />
 ```
 
->* 本地图片可通过[加载时定义 Loader](//webpack.js.org/concepts/loaders/#inline)，或者 webpack 配置 `url-loader` 转换成 base64加载。
->* `2.8.1` 版本后支持终端本地图片能力，可通过 webpack `file-loader` 加载。
+>* 本地图片可通过[加载时定义 Loader](//webpack.js.org/concepts/loaders/#inline)，或者 webpack 配置 `url-loader` 转换成 base64 加载。
+>* `2.8.1` 版本后支持终端本地图片能力，可通过配置 webpack `file-loader` 加载。
 
 ## 参数
 
@@ -122,7 +122,6 @@ import icon from './qb_icon_new.png';
 | editable   | 是否可编辑，开启侧滑删除时需要设置为 `true`。`最低支持版本2.9.0` | `boolean`                                                   | `iOS`    |
 | delText   | 侧滑删除文本。`最低支持版本2.9.0` | `string`                                                   | `iOS`    |
 | onDelete   | 在列表项侧滑删除时调起。`最低支持版本2.9.0` | `( nativeEvent: { index: number} ) => void`                                                   | `iOS`    |
-
 
 ## 方法
 
@@ -412,8 +411,8 @@ import icon from './qb_icon_new.png';
 
 | 参数               | 描述                                                         | 类型                                 | 支持平台  |
 | ------------------ | ------------------------------------------------------------ | ------------------------------------ | --------- |
+| accessible         | 当此属性为 `true` 时，表示此视图时一个启用了无障碍功能的元素。启用无障碍的其他属性时，必须优先设置 `accessible` 为 `true`。 | `boolean` | `ALL`     |
 | accessibilityLabel | 设置当用户与此元素交互时，“读屏器”（对视力障碍人士的辅助功能）阅读的文字。默认情况下，这个文字会通过遍历所有的子元素并累加所有的文本标签来构建。 | `node`                               | `ALL`     |
-| accessible         | 当此属性为 `true` 时，表示此视图时一个启用了无障碍功能的元素。默认情况下，所有可触摸操作的元素都是无障碍功能元素。 | `boolean`                            | `ALL`     |
 | style              | -                                                            | [`View Styles`](style/layout.md) | `ALL`     |
 | opacity            | 配置 `View` 的透明度，同时会影响子节点的透明度               | `number`                             | `ALL`     |
 | overflow           | 指定当子节点内容溢出其父级 `View` 容器时, 是否剪辑内容       | `enum`(visible, hidden)         | `ALL`     |
@@ -511,3 +510,23 @@ import icon from './qb_icon_new.png';
 > * `xOffset`: number - 滑动到 X 方向的 offset
 > * `yOffset`: number - 滑动到 Y 方向的 offset
 > * `animated`: boolean - 滑动过程是否使用动画，默认 `true`
+
+---
+
+# WebView
+
+[[WebView 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/WebView/index.jsx)
+
+WebView组件。
+
+## 参数
+
+| 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
+| --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
+| source | Webview 内嵌地址 | `{ uri: string }` | `ALL` |
+| userAgent | Webview userAgent | `string` | `ALL`|
+| method     | 请求方式， `get`、`post` | `string`   | `ALL`    |
+| onLoadStart  | 网页开始加载时触发 | `(object: { url:string }) => void`   | `ALL`  |
+| onLoad  | 网页加载时触发  | `(object: { url:string }) => void`   | `ALL`  |
+| onLoadEnd  | 网页加载结束时触发 | `(object: { url:string }) => void`   | `ALL`  |
+| style  | Webview 容器样式  | `Object`   | `ALL`  |

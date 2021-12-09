@@ -1,7 +1,24 @@
-/* eslint-disable no-bitwise */
-/* eslint-disable no-cond-assign */
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /* eslint-disable no-use-before-define */
-/* eslint-disable no-shadow */
 /* eslint-disable no-param-reassign */
 
 import { camelize } from 'shared/util';
@@ -63,7 +80,6 @@ function addParent(obj, parent) {
       addParent(value, childParent);
     }
   });
-
   if (isNode) {
     Object.defineProperty(obj, 'parent', {
       configurable: true,
@@ -72,7 +88,6 @@ function addParent(obj, parent) {
       value: parent || null,
     });
   }
-
   return obj;
 }
 
@@ -104,14 +119,12 @@ function parseCSS(css, options) {
   /**
    * Positional.
    */
-
   let lineno = 1;
   let column = 1;
 
   /**
    * Update lineno and column based on `str`.
    */
-
   function updatePosition(str) {
     const lines = str.match(/\n/g);
     if (lines) lineno += lines.length;
@@ -122,7 +135,6 @@ function parseCSS(css, options) {
   /**
    * Mark position and patch `node.position`.
    */
-
   function position() {
     const start = { line: lineno, column };
     return (node) => {
@@ -147,9 +159,7 @@ function parseCSS(css, options) {
   /**
    * Error `msg`.
    */
-
   const errorsList = [];
-
   function error(msg) {
     const err = new Error(`${options.source}:${lineno}:${column}: ${msg}`);
     err.reason = msg;
@@ -157,7 +167,6 @@ function parseCSS(css, options) {
     err.line = lineno;
     err.column = column;
     err.source = css;
-
     if (options.silent) {
       errorsList.push(err);
     } else {
@@ -168,7 +177,6 @@ function parseCSS(css, options) {
   /**
    * Parse stylesheet.
    */
-
   function stylesheet() {
     const rulesList = rules();
 
@@ -185,7 +193,6 @@ function parseCSS(css, options) {
   /**
    * Opening brace.
    */
-
   function open() {
     return match(/^{\s*/);
   }
@@ -193,7 +200,6 @@ function parseCSS(css, options) {
   /**
    * Closing brace.
    */
-
   function close() {
     return match(/^}/);
   }
@@ -201,12 +207,12 @@ function parseCSS(css, options) {
   /**
    * Parse ruleset.
    */
-
   function rules() {
     let node;
     const rules = [];
     whitespace();
     comments(rules);
+    // eslint-disable-next-line no-cond-assign
     while (css.length && css.charAt(0) !== '}' && (node = atrule() || rule())) {
       if (node !== false) {
         rules.push(node);
@@ -219,7 +225,6 @@ function parseCSS(css, options) {
   /**
    * Match `re` and return captures.
    */
-
   function match(re) {
     const m = re.exec(css);
     if (!m) {
@@ -234,7 +239,6 @@ function parseCSS(css, options) {
   /**
    * Parse whitespace.
    */
-
   function whitespace() {
     match(/^\s*/);
   }
@@ -242,11 +246,10 @@ function parseCSS(css, options) {
   /**
    * Parse comments;
    */
-
   function comments(rules = []) {
     let c;
     rules = rules || [];
-    while (c = comment()) {
+    while ((c = comment()) !== null) {
       if (c !== false) {
         rules.push(c);
       }
@@ -257,29 +260,24 @@ function parseCSS(css, options) {
   /**
    * Parse comment.
    */
-
   function comment() {
     const pos = position();
     if (css.charAt(0) !== '/' || css.charAt(1) !== '*') {
       return null;
     }
-
     let i = 2;
     while (css.charAt(i) !== '' && (css.charAt(i) !== '*' || css.charAt(i + 1) !== '/')) {
       i += 1;
     }
     i += 2;
-
     if (css.charAt(i - 1) === '') {
       return error('End of comment missing');
     }
-
     const str = css.slice(2, i - 2);
     column += 2;
     updatePosition(str);
     css = css.slice(i);
     column += 2;
-
     return pos({
       type: 'comment',
       comment: str,
@@ -423,19 +421,16 @@ function parseCSS(css, options) {
    */
   function declaration() {
     const pos = position();
-
     // prop
     let prop = match(/^(\*?[-#/*\\\w]+(\[[0-9a-z_-]+\])?)\s*/);
     if (!prop) {
       return null;
     }
     prop = trim(prop[0]);
-
     // :
     if (!match(/^:\s*/)) {
       return error('property missing \':\'');
     }
-
     // val
     const propertyName = prop.replace(commentRegexp, '');
     const camelizedProperty = camelize(propertyName);
@@ -448,7 +443,6 @@ function parseCSS(css, options) {
     })();
     const val = match(/^((?:'(?:\\'|.)*?'|"(?:\\"|.)*?"|\([^)]*?\)|[^};])+)/);
     let value = val ? trim(val[0]).replace(commentRegexp, '') : '';
-
     switch (property) {
       case 'backgroundImage': {
         [property, value] = parseBackgroundImage(property, value);
@@ -481,6 +475,21 @@ function parseCSS(css, options) {
       case 'fontWeight':
         // Keep string and going on.
         break;
+      case 'textShadowOffset': {
+        const pos = value.split(' ')
+          .filter(v => v)
+          .map(v => convertPxUnitToPt(v));
+        const [width] = pos;
+        let [, height] = pos;
+        if (!height) {
+          height = width;
+        }
+        value = {
+          width,
+          height,
+        };
+        break;
+      }
       case 'shadowOffset': {
         const pos = value.split(' ')
           .filter(v => v)
@@ -499,6 +508,7 @@ function parseCSS(css, options) {
       }
       case 'collapsable':
         value = Boolean(value);
+        break;
       default: {
         value = tryConvertNumber(value);
         // Convert the px to pt for specific properties
@@ -514,26 +524,21 @@ function parseCSS(css, options) {
       value,
       property,
     });
-
     // ;
     match(/^[;\s]*/);
-
     return ret;
   }
 
   /**
    * Parse declarations.
    */
-
   function declarations() {
     let decls = [];
-
     if (!open()) return error('missing \'{\'');
     comments(decls);
-
     // declarations
     let decl;
-    while (decl = declaration()) {
+    while ((decl = declaration()) !== null) {
       if (decl !== false) {
         if (Array.isArray(decl)) {
           decls = decls.concat(decl);
@@ -543,7 +548,6 @@ function parseCSS(css, options) {
         comments(decls);
       }
     }
-
     if (!close()) return error('missing \'}\'');
     return decls;
   }
@@ -551,21 +555,17 @@ function parseCSS(css, options) {
   /**
    * Parse keyframe.
    */
-
   function keyframe() {
     let m;
     const vals = [];
     const pos = position();
-
-    while (m = match(/^((\d+\.\d+|\.\d+|\d+)%?|[a-z]+)\s*/)) {
+    while ((m = match(/^((\d+\.\d+|\.\d+|\d+)%?|[a-z]+)\s*/)) !== null) {
       vals.push(m[1]);
       match(/^,\s*/);
     }
-
     if (!vals.length) {
       return null;
     }
-
     return pos({
       type: 'keyframe',
       values: vals,
@@ -576,34 +576,27 @@ function parseCSS(css, options) {
   /**
    * Parse keyframes.
    */
-
   function atkeyframes() {
     const pos = position();
     let m = match(/^@([-\w]+)?keyframes\s*/);
-
     if (!m) {
       return null;
     }
     const vendor = m[1];
-
     // identifier
     m = match(/^([-\w]+)\s*/);
     if (!m) {
       return error('@keyframes missing name');
     }
     const name = m[1];
-
     if (!open()) return error('@keyframes missing \'{\'');
-
     let frame;
     let frames = comments();
-    while (frame = keyframe()) {
+    while ((frame = keyframe()) !== null) {
       frames.push(frame);
       frames = frames.concat(comments());
     }
-
     if (!close()) return error('@keyframes missing \'}\'');
-
     return pos({
       type: 'keyframes',
       name,
@@ -615,22 +608,16 @@ function parseCSS(css, options) {
   /**
    * Parse supports.
    */
-
   function atsupports() {
     const pos = position();
     const m = match(/^@supports *([^{]+)/);
-
     if (!m) {
       return null;
     }
     const supports = trim(m[1]);
-
     if (!open()) return error('@supports missing \'{\'');
-
     const style = comments().concat(rules());
-
     if (!close()) return error('@supports missing \'}\'');
-
     return pos({
       type: 'supports',
       supports,
@@ -641,25 +628,19 @@ function parseCSS(css, options) {
   /**
    * Parse host.
    */
-
   function athost() {
     const pos = position();
     const m = match(/^@host\s*/);
-
     if (!m) {
       return null;
     }
-
     if (!open()) {
       return error('@host missing \'{\'');
     }
-
     const style = comments().concat(rules());
-
     if (!close()) {
       return error('@host missing \'}\'');
     }
-
     return pos({
       type: 'host',
       rules: style,
@@ -669,26 +650,20 @@ function parseCSS(css, options) {
   /**
    * Parse media.
    */
-
   function atmedia() {
     const pos = position();
     const m = match(/^@media *([^{]+)/);
-
     if (!m) {
       return null;
     }
     const media = trim(m[1]);
-
     if (!open()) {
       return error('@media missing \'{\'');
     }
-
     const style = comments().concat(rules());
-
     if (!close()) {
       return error('@media missing \'}\'');
     }
-
     return pos({
       type: 'media',
       media,
@@ -700,7 +675,6 @@ function parseCSS(css, options) {
   /**
    * Parse custom-media.
    */
-
   function atcustommedia() {
     const pos = position();
     const m = match(/^@custom-media\s+(--[^\s]+)\s*([^{;]+);/);
@@ -718,32 +692,26 @@ function parseCSS(css, options) {
   /**
    * Parse paged media.
    */
-
   function atpage() {
     const pos = position();
     const m = match(/^@page */);
     if (!m) {
       return null;
     }
-
     const sel = selector() || [];
-
     if (!open()) {
       return error('@page missing \'{\'');
     }
     let decls = comments();
-
     // declarations
     let decl;
-    while (decl = declaration()) {
+    while ((decl = declaration()) !== null) {
       decls.push(decl);
       decls = decls.concat(comments());
     }
-
     if (!close()) {
       return error('@page missing \'}\'');
     }
-
     return pos({
       type: 'page',
       selectors: sel,
@@ -754,27 +722,21 @@ function parseCSS(css, options) {
   /**
    * Parse document.
    */
-
   function atdocument() {
     const pos = position();
     const m = match(/^@([-\w]+)?document *([^{]+)/);
     if (!m) {
       return null;
     }
-
     const vendor = trim(m[1]);
     const doc = trim(m[2]);
-
     if (!open()) {
       return error('@document missing \'{\'');
     }
-
     const style = comments().concat(rules());
-
     if (!close()) {
       return error('@document missing \'}\'');
     }
-
     return pos({
       type: 'document',
       document: doc,
@@ -786,30 +748,25 @@ function parseCSS(css, options) {
   /**
    * Parse font-face.
    */
-
   function atfontface() {
     const pos = position();
     const m = match(/^@font-face\s*/);
     if (!m) {
       return null;
     }
-
     if (!open()) {
       return error('@font-face missing \'{\'');
     }
     let decls = comments();
-
     // declarations
     let decl;
-    while (decl = declaration()) {
+    while ((decl = declaration()) !== null) {
       decls.push(decl);
       decls = decls.concat(comments());
     }
-
     if (!close()) {
       return error('@font-face missing \'}\'');
     }
-
     return pos({
       type: 'font-face',
       declarations: decls,
@@ -819,26 +776,21 @@ function parseCSS(css, options) {
   /**
    * Parse import
    */
-
   const atimport = compileAtRule('import');
 
   /**
    * Parse charset
    */
-
   const atcharset = compileAtRule('charset');
 
   /**
    * Parse namespace
    */
-
   const atnamespace = compileAtRule('namespace');
 
   /**
    * Parse non-block at-rules
    */
-
-
   function compileAtRule(name) {
     const re = new RegExp(`^@${name}\\s*([^;]+);`);
     return () => {
@@ -856,12 +808,10 @@ function parseCSS(css, options) {
   /**
    * Parse at rule.
    */
-
   function atrule() {
     if (css[0] !== '@') {
       return null;
     }
-
     return atkeyframes()
       || atmedia()
       || atcustommedia()
@@ -878,21 +828,17 @@ function parseCSS(css, options) {
   /**
    * Parse rule.
    */
-
   function rule() {
     const pos = position();
     const sel = selector();
-
     if (!sel) return error('selector missing');
     comments();
-
     return pos({
       type: 'rule',
       selectors: sel,
       declarations: declarations(),
     });
   }
-
   return addParent(stylesheet());
 }
 

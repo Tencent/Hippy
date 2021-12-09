@@ -5,6 +5,7 @@ import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.common.Provider;
 import com.tencent.mtt.hippy.example.module.MyModule;
 import com.tencent.mtt.hippy.example.module.TestModule;
+import com.tencent.mtt.hippy.example.module.turbo.DemoJavaTurboModule;
 import com.tencent.mtt.hippy.example.view.MyCustomViewController;
 import com.tencent.mtt.hippy.example.view.MyViewController;
 import com.tencent.mtt.hippy.modules.javascriptmodules.HippyJavaScriptModule;
@@ -43,6 +44,14 @@ public class MyAPIProvider implements HippyAPIProvider
 				return new TestModule(context);
 			}
 		});
+
+    // TurboModule
+    modules.put(DemoJavaTurboModule.class, new Provider<HippyNativeModuleBase>() {
+      @Override
+      public HippyNativeModuleBase get() {
+        return new DemoJavaTurboModule(context);
+      }
+    });
 
 		return modules;
 	}

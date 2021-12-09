@@ -66,6 +66,11 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidRemoveRootViewNotification;
  */
 HIPPY_EXTERN NSString *const HippyUIManagerRootViewKey;
 
+/**
+ * Posted whenever endBatch is called
+ */
+HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
+
 @protocol HippyScrollableProtocol;
 
 /**
@@ -124,6 +129,11 @@ HIPPY_EXTERN NSString *const HippyUIManagerRootViewKey;
  *
  */
 - (void)rootViewForHippyTag:(NSNumber *)hippyTag withCompletion:(void (^)(UIView *view))completion;
+
+/**
+ * Get root view hippyTag
+ */
+- (NSNumber *)rootHippyTag;
 
 /**
  * The view that is currently first responder, according to the JS context.

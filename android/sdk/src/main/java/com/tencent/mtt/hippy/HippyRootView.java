@@ -17,7 +17,9 @@ package com.tencent.mtt.hippy;
 
 import android.content.Context;
 import android.os.Build;
+import android.os.Parcelable;
 import android.util.DisplayMetrics;
+import android.util.SparseArray;
 import android.view.Display;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -68,6 +70,15 @@ public class HippyRootView extends FrameLayout {
   private TimeMonitor mTimeMonitor;
 
   protected boolean mLoadCompleted = false;
+
+  public HippyRootView(Context context, HippyEngine.ModuleLoadParams loadParams) {
+    super(context);
+    mInstanceId = -10;
+    setId(mInstanceId);
+    HippyMap tagMap = HippyTag.createTagMap(NodeProps.ROOT_NODE, null);
+    setTag(tagMap);
+    mLoadParams = loadParams;
+  }
 
   public HippyRootView(HippyEngine.ModuleLoadParams loadParams) {
     super(loadParams.hippyContext != null ? loadParams.hippyContext
@@ -138,6 +149,11 @@ public class HippyRootView extends FrameLayout {
 
   public void setOnLoadCompleteListener(OnLoadCompleteListener listener) {
     this.mOnLoadCompleteListener = listener;
+  }
+
+  @Override
+  protected void dispatchRestoreInstanceState(SparseArray<Parcelable> container) {
+    // No-op do not onRestoreInstanceState for sub views
   }
 
   @Override

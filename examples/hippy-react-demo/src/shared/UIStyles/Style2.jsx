@@ -68,7 +68,7 @@ export default function Style2(props) {
     );
   }
   return (
-    <View style={styles.container}>
+    <View {...props} style={styles.container}>
       <View style={styles.leftContainer}>
         <Text style={styles.title} numberOfLines={2} enableScale>{title}</Text>
         {

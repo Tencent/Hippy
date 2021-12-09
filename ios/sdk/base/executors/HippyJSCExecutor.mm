@@ -52,7 +52,8 @@
 #include "core/scope.h"
 #include "core/task/javascript_task_runner.h"
 #include "core/engine.h"
-
+#import "HippyOCTurboModule+Inner.h"
+#import "HippyTurboModuleManager.h"
 
 NSString *const HippyJSCThreadName = @"com.tencent.hippy.JavaScript";
 NSString *const HippyJavaScriptContextCreatedNotification = @"HippyJavaScriptContextCreatedNotification";
@@ -82,13 +83,13 @@ struct RandomAccessBundleData {
 };
 
 static bool defaultDynamicLoadAction(const unicode_string_view& uri, std::function<void(u8string)> cb) {
-  std::u16string u16Uri = StringViewUtils::Convert(uri, unicode_string_view::Encoding::Utf16).utf16_value();
-  HippyLogInfo(@"[Hippy_OC_Log][Dynamic_Load], to default dynamic load action:%S", (const unichar*)u16Uri.c_str());
+    std::u16string u16Uri = StringViewUtils::Convert(uri, unicode_string_view::Encoding::Utf16).utf16_value();
+    HippyLogInfo(@"[Hippy_OC_Log][Dynamic_Load], to default dynamic load action:%S", (const unichar*)u16Uri.c_str());
     NSString *URIString = [NSString stringWithCharacters:(const unichar*)u16Uri.c_str() length:(u16Uri.length())];
     NSURL *url = HippyURLWithString(URIString, NULL);
     if ([url isFileURL]) {
         NSString *result = [NSString stringWithContentsOfURL:url encoding:NSUTF8StringEncoding error:nil];
-        u8string content(reinterpret_cast<const unicode_string_view::char8_t_*>([result UTF8String]));
+        u8string content(reinterpret_cast<const unicode_string_view::char8_t_*>([result UTF8String]?:""));
         cb(std::move(content));;
     }
     else {
@@ -99,7 +100,7 @@ static bool defaultDynamicLoadAction(const unicode_string_view& uri, std::functi
             }
             else {
                 NSString *result = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                u8string content(reinterpret_cast<const unicode_string_view::char8_t_*>([result UTF8String]));
+                u8string content(reinterpret_cast<const unicode_string_view::char8_t_*>([result UTF8String]?:""));
                 cb(std::move(content));
             }
         }] resume];
@@ -114,8 +115,8 @@ static bool loadFunc(const unicode_string_view& uri, std::function<void(u8string
     if ([strongBridge.delegate respondsToSelector:@selector(dynamicLoad:URI:completion:)]) {
         NSString *URIString = [NSString stringWithCharacters:(const unichar *)u16Uri.c_str() length:u16Uri.length()];
         BOOL delegateCallRet = [strongBridge.delegate dynamicLoad:strongBridge URI:URIString completion:^(NSString *result) {
-          u8string content(reinterpret_cast<const unicode_string_view::char8_t_*>([result UTF8String]));
-          cb(std::move(content));
+            u8string content(reinterpret_cast<const unicode_string_view::char8_t_*>([result UTF8String]?:""));
+            cb(std::move(content));
         }];
         return delegateCallRet?:defaultDynamicLoadAction(uri, cb);
     }
@@ -131,6 +132,8 @@ static bool loadFunc(const unicode_string_view& uri, std::function<void(u8string
     // Set as needed:
     RandomAccessBundleData _randomAccessBundle;
     JSValueRef _batchedBridgeRef;
+    
+    std::unique_ptr<hippy::napi::ObjcTurboEnv> _turboRuntime;
 }
 
 @synthesize valid = _valid;
@@ -280,6 +283,17 @@ static unicode_string_view NSStringToU8(NSString* str) {
                 JSStringRelease(execJSString);
             };
 #endif
+            
+            strongSelf->_turboRuntime = std::make_unique<hippy::napi::ObjcTurboEnv>(scope->GetContext());
+            jsContext[@"getTurboModule"] = ^id (NSString *name, NSString *args) {
+                HippyJSCExecutor *strongSelf = weakSelf;
+                if (!strongSelf.valid) {
+                    return nil;
+                }
+                JSValueRef value_ = [strongSelf JSTurboObjectWithName:name];
+                JSValue *objc_value = [JSValue valueWithJSValueRef:value_ inContext:[strongSelf JSContext]];
+                return objc_value;
+            };
         }
     };
   
@@ -297,6 +311,22 @@ static unicode_string_view NSStringToU8(NSString* str) {
     ptr->insert(std::make_pair(hippy::base::kContextCreatedCBKey, ctxCreateCB));
     ptr->insert(std::make_pair(hippy::base::KScopeInitializedCBKey, scopeInitializedCB));
     return ptr;
+}
+
+- (JSValueRef)JSTurboObjectWithName:(NSString *)name {
+    //create HostObject by name
+    HippyOCTurboModule *turboModule = [self->_bridge turboModuleWithName:name];
+    if (!turboModule) {
+        JSGlobalContextRef ctx = [self JSGlobalContextRef];
+        return JSValueMakeNull(ctx);
+    }
+
+    // create jsProxy
+    std::shared_ptr<hippy::napi::HippyTurboModule> ho = [turboModule getTurboModule];
+    //should be function!!!!!
+    std::shared_ptr<hippy::napi::CtxValue> obj = self->_turboRuntime->CreateObject(ho);
+    std::shared_ptr<hippy::napi::JSCCtxValue> jscObj = std::static_pointer_cast<hippy::napi::JSCCtxValue>(obj);
+    return jscObj->value_;
 }
 
 - (JSContext *)JSContext {
@@ -409,6 +439,9 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
 HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
     [self executeBlockOnJavaScriptQueue:^{
         [[self JSContext] setName:contextName];
+        dispatch_async(dispatch_get_global_queue(0, 0), ^{
+            [self.bridge setUpDevClientWithName:contextName];
+        });
     }];
 }
 // clang-format on
@@ -421,7 +454,15 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
 }
 
 - (void)secondBundleLoadCompleted:(BOOL)success {
-    std::shared_ptr<hippy::napi::JSCCtx> context = std::static_pointer_cast<hippy::napi::JSCCtx>(self.pScope->GetContext());
+    std::shared_ptr<Scope> scope = self.pScope;
+    if (!scope) {
+        return;
+    }
+    std::shared_ptr<hippy::napi::JSCCtx> context = std::static_pointer_cast<hippy::napi::JSCCtx>(scope->GetContext());
+    HippyAssert(context != nullptr, @"secondBundleLoadCompleted get null context");
+    if (nullptr == context) {
+        return;
+    }
     NSString *workFolder = [self.bridge workFolder2];
     HippyAssert(workFolder, @"work folder path should not be null");
     if (workFolder) {

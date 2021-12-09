@@ -17,7 +17,10 @@
       id="iframe"
       ref="iframe"
       :src="url"
+      method="get"
       @load="onLoad"
+      @loadStart="onLoadStart"
+      @loadEnd="onLoadEnd"
     />
   </div>
 </template>
@@ -44,6 +47,14 @@ export default {
       if (url !== this.url) {
         this.displayUrl = url;
       }
+    },
+    onLoadStart(evt) {
+      const { url } = evt;
+      console.log('onLoadStart', url);
+    },
+    onLoadEnd(evt) {
+      const { url } = evt;
+      console.log('onLoadEnd', url);
     },
     // Web compatible
     onKeyUp(evt) {

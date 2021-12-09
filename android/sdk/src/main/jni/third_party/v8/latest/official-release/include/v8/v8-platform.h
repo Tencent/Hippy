@@ -181,9 +181,8 @@ class JobDelegate {
   /**
    * Returns true if the current task is called from the thread currently
    * running JobHandle::Join().
-   * TODO(etiennep): Make pure virtual once custom embedders implement it.
    */
-  virtual bool IsJoiningThread() const { return false; }
+  virtual bool IsJoiningThread() const = 0;
 };
 
 /**
@@ -220,18 +219,13 @@ class JobHandle {
    * Forces all existing workers to yield ASAP but doesn’t wait for them.
    * Warning, this is dangerous if the Job's callback is bound to or has access
    * to state which may be deleted after this call.
-   * TODO(etiennep): Cleanup once implemented by all embedders.
    */
-  virtual void CancelAndDetach() { Cancel(); }
+  virtual void CancelAndDetach() = 0;
 
   /**
    * Returns true if there's any work pending or any worker running.
    */
   virtual bool IsActive() = 0;
-
-  // TODO(etiennep): Clean up once all overrides are removed.
-  V8_DEPRECATED("Use !IsActive() instead.")
-  virtual bool IsCompleted() { return !IsActive(); }
 
   /**
    * Returns true if associated with a Job and other methods may be called.
@@ -239,10 +233,6 @@ class JobHandle {
    * even if no workers are running and IsCompleted() returns true
    */
   virtual bool IsValid() = 0;
-
-  // TODO(etiennep): Clean up once all overrides are removed.
-  V8_DEPRECATED("Use IsValid() instead.")
-  virtual bool IsRunning() { return IsValid(); }
 
   /**
    * Returns true if job priority can be changed.
@@ -272,10 +262,6 @@ class JobTask {
    * it must not call back any JobHandle methods.
    */
   virtual size_t GetMaxConcurrency(size_t worker_count) const = 0;
-
-  // TODO(1114823): Clean up once all overrides are removed.
-  V8_DEPRECATED("Use the version that takes |worker_count|.")
-  virtual size_t GetMaxConcurrency() const { return 0; }
 };
 
 /**
@@ -408,7 +394,6 @@ class PageAllocator {
     kNoAccess,
     kRead,
     kReadWrite,
-    // TODO(hpayer): Remove this flag. Memory should never be rwx.
     kReadWriteExecute,
     kReadExecute,
     // Set this when reserving memory that will later require kReadWriteExecute
@@ -445,9 +430,21 @@ class PageAllocator {
   /**
    * Frees memory in the given [address, address + size) range. address and size
    * should be operating system page-aligned. The next write to this
-   * memory area brings the memory transparently back.
+   * memory area brings the memory transparently back. This should be treated as
+   * a hint to the OS that the pages are no longer needed. It does not guarantee
+   * that the pages will be discarded immediately or at all.
    */
   virtual bool DiscardSystemPages(void* address, size_t size) { return true; }
+
+  /**
+   * Decommits any wired memory pages in the given range, allowing the OS to
+   * reclaim them, and marks the region as inacessible (kNoAccess). The address
+   * range stays reserved and can be accessed again later by changing its
+   * permissions. However, in that case the memory content is guaranteed to be
+   * zero-initialized again. The memory must have been previously allocated by a
+   * call to AllocatePages. Returns true on success, false otherwise.
+   */
+  virtual bool DecommitPages(void* address, size_t size) = 0;
 
   /**
    * INTERNAL ONLY: This interface has not been stabilised and may change
@@ -514,6 +511,18 @@ class PageAllocator {
 };
 
 /**
+ * V8 Allocator used for allocating zone backings.
+ */
+class ZoneBackingAllocator {
+ public:
+  using MallocFn = void* (*)(size_t);
+  using FreeFn = void (*)(void*);
+
+  virtual MallocFn GetMallocFn() const { return ::malloc; }
+  virtual FreeFn GetFreeFn() const { return ::free; }
+};
+
+/**
  * V8 Platform abstraction layer.
  *
  * The embedder has to provide an implementation of this interface before
@@ -529,6 +538,14 @@ class Platform {
   virtual PageAllocator* GetPageAllocator() {
     // TODO(bbudge) Make this abstract after all embedders implement this.
     return nullptr;
+  }
+
+  /**
+   * Allows the embedder to specify a custom allocator used for zones.
+   */
+  virtual ZoneBackingAllocator* GetZoneBackingAllocator() {
+    static ZoneBackingAllocator default_allocator;
+    return &default_allocator;
   }
 
   /**

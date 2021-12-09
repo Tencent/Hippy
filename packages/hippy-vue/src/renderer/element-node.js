@@ -1,3 +1,23 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 
@@ -71,7 +91,7 @@ function getLinearGradientAngle(value) {
   const reg = /^([+-]?\d+\.?\d*)+(deg|turn|rad)|(to\w+)$/g;
   const valueList = reg.exec(processedValue);
   if (!Array.isArray(valueList)) return;
-  // default direction is to bottom, i.e. 180degree
+  // if default direction is to bottom, i.e. 180degree
   let angle = '180';
   const [direction, angleValue, angleUnit] = valueList;
   if (angleValue && angleUnit) { // angle value
@@ -150,31 +170,42 @@ function parseBackgroundImage(property, value) {
   return [processedProperty, processedValue];
 }
 
+/**
+ * parse text shadow offset
+ * @param property
+ * @param value
+ * @param style
+ * @returns {(*|number)[]}
+ */
+function parseTextShadowOffset(property, value = 0, style) {
+  const offsetMap = {
+    textShadowOffsetX: 'width',
+    textShadowOffsetY: 'height',
+  };
+  style.textShadowOffset = style.textShadowOffset || {};
+  Object.assign(style.textShadowOffset, {
+    [offsetMap[property]]: value,
+  });
+  return ['textShadowOffset', style.textShadowOffset];
+}
+
 class ElementNode extends ViewNode {
   constructor(tagName) {
     super();
-
     // Tag name
     this.tagName = tagName;
-
     // ID attribute in template.
     this.id = '';
-
     // style attribute in template.
     this.style = {};
-
     // Vue style scope id.
     this._styleScopeId = null;
-
     // Class attribute in template.
     this.classList = new Set(); // Fake DOMTokenLis
-
     // Other attributes in template.
     this.attributes = {};
-
     // Event observer.
     this._emitter = null;
-
     // Style pre-processor
     this.beforeLoadStyle = getBeforeLoadStyle();
   }
@@ -211,7 +242,6 @@ class ElementNode extends ViewNode {
     return this.attributes[key];
   }
 
-  /* istanbul ignore next */
   setAttribute(key, value) {
     try {
       // detect expandable attrs for boolean values
@@ -223,7 +253,6 @@ class ElementNode extends ViewNode {
         updateChild(this);
         return;
       }
-
       switch (key) {
         case 'class': {
           const newClassList = new Set(value.split(' ').filter(x => x.trim()));
@@ -272,9 +301,8 @@ class ElementNode extends ViewNode {
           this.attributes['caret-color'] = Native.parseColor(value);
           break;
         default:
-          this.attributes[key] = tryConvertNumber(value);
+          this.attributes[key] = value;
       }
-
       updateChild(this);
     } catch (err) {
       // Throw error in development mode
@@ -293,7 +321,6 @@ class ElementNode extends ViewNode {
       delete this.style[property];
       return;
     }
-
     // Preprocess the style
     let {
       property: p,
@@ -302,8 +329,7 @@ class ElementNode extends ViewNode {
       property,
       value,
     });
-
-    // Process the specifc style value
+    // Process the specific style value
     switch (p) {
       case 'fontWeight':
         if (typeof v !== 'string') {
@@ -315,6 +341,16 @@ class ElementNode extends ViewNode {
         break;
       case 'backgroundImage': {
         [p, v] = parseBackgroundImage(p, v);
+        break;
+      }
+      case 'textShadowOffsetX':
+      case 'textShadowOffsetY': {
+        [p, v] = parseTextShadowOffset(p, v, this.style);
+        break;
+      }
+      case 'textShadowOffset': {
+        const { x = 0, width = 0, y = 0, height = 0 } = v || {};
+        v = { width: x || width, height: y || height };
         break;
       }
       default: {
@@ -337,7 +373,6 @@ class ElementNode extends ViewNode {
         }
       }
     }
-
     if (v === undefined || v === null || this.style[p] === v) {
       return;
     }
@@ -371,7 +406,6 @@ class ElementNode extends ViewNode {
 
   appendChild(childNode) {
     super.appendChild(childNode);
-
     if (childNode.meta.symbol === Text) {
       this.setText(childNode.text);
     }
@@ -379,7 +413,6 @@ class ElementNode extends ViewNode {
 
   insertBefore(childNode, referenceNode) {
     super.insertBefore(childNode, referenceNode);
-
     if (childNode.meta.symbol === Text) {
       this.setText(childNode.text);
     }
@@ -387,7 +420,6 @@ class ElementNode extends ViewNode {
 
   moveChild(childNode, referenceNode) {
     super.moveChild(childNode, referenceNode);
-
     if (childNode.meta.symbol === Text) {
       this.setText(childNode.text);
     }
@@ -395,7 +427,6 @@ class ElementNode extends ViewNode {
 
   removeChild(childNode) {
     super.removeChild(childNode);
-
     if (childNode.meta.symbol === Text) {
       this.setText('');
     }
@@ -414,7 +445,6 @@ class ElementNode extends ViewNode {
       this._emitter = new EventEmitter(this);
     }
     this._emitter.addEventListener(eventNames, callback, options);
-
     // Added default scrollEventThrottle when scroll event is added.
     if (eventNames === 'scroll' && !(this.getAttribute('scrollEventThrottle') > 0)) {
       const scrollEventThrottle = 200;
@@ -422,11 +452,9 @@ class ElementNode extends ViewNode {
         this.attributes.scrollEventThrottle = scrollEventThrottle;
       }
     }
-
     if (this.polyFillNativeEvents) {
       this.polyFillNativeEvents('addEvent', eventNames, callback, options);
     }
-
     updateChild(this);
   }
 
@@ -434,11 +462,9 @@ class ElementNode extends ViewNode {
     if (!this._emitter) {
       return null;
     }
-
     if (this.polyFillNativeEvents) {
       this.polyFillNativeEvents('removeEvent', eventNames, callback, options);
     }
-
     return this._emitter.removeEventListener(eventNames, callback, options);
   }
 
@@ -446,10 +472,8 @@ class ElementNode extends ViewNode {
     if (!(eventInstance instanceof Event)) {
       throw new Error('dispatchEvent method only accept Event instance');
     }
-
     // Current Target always be the event listener.
     eventInstance.currentTarget = this;
-
     // But target be the first target.
     // Be careful, here's different than Browser,
     // because Hippy can't callback without element _emitter.
@@ -460,11 +484,9 @@ class ElementNode extends ViewNode {
         eventInstance.target.value = eventInstance.value;
       }
     }
-
     if (this._emitter) {
       this._emitter.emit(eventInstance);
     }
-
     if (this.parentNode && eventInstance.bubbles) {
       this.parentNode.dispatchEvent.call(this.parentNode, eventInstance);
     }

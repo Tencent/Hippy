@@ -1,3 +1,23 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 
@@ -18,6 +38,7 @@ import {
 import {
   isRTL,
 } from '../../util/i18n';
+import { preCacheNode } from '../../util/node';
 import { fromAstNodes, SelectorsMap } from './style';
 
 const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
@@ -122,13 +143,17 @@ function endBatch(app) {
 }
 
 function getCssMap() {
-  // To support dynamic import. __cssMap can be loaded from differnet js file.
-  // __cssMap should be create/append if global[GLOBAL_STYLE_NAME] exists;
+  /**
+   * To support dynamic import, __cssMap can be loaded from different js file.
+   * __cssMap should be create/append if global[GLOBAL_STYLE_NAME] exists;
+   */
   if (__cssMap && !global[GLOBAL_STYLE_NAME]) {
     return __cssMap;
   }
-  // HERE IS A SECRET STARTUP OPTION: beforeStyleLoadHook
-  // Usage for process the styles while styles loading.
+  /**
+   *  Here is a secret startup option: beforeStyleLoadHook.
+   *  Usage for process the styles while styles loading.
+   */
   const cssRules = fromAstNodes(global[GLOBAL_STYLE_NAME]);
   if (__cssMap) {
     __cssMap.append(cssRules);
@@ -145,7 +170,6 @@ function getCssMap() {
 function getNativeProps(node) {
   // Initial the props with empty
   const props = {};
-
   // Get the default native props from meta
   if (node.meta.component.defaultNativeProps) {
     Object.keys(node.meta.component.defaultNativeProps).forEach((key) => {
@@ -162,40 +186,39 @@ function getNativeProps(node) {
       }
     });
   }
-
   // Get the proceed props from node attributes
   Object.keys(node.attributes).forEach((key) => {
     let value = node.getAttribute(key);
-
     // No defined map
-    if (!node.meta.component.attributeMaps) {
+    if (!node.meta.component.attributeMaps || !node.meta.component.attributeMaps[key]) {
       props[key] = value;
       return;
     }
-    if (!node.meta.component.attributeMaps[key]) {
-      props[key] = value;
-      return;
-    }
-
     // Defined mapped props.
     const map = node.meta.component.attributeMaps[key];
     if (typeof map === 'string') {
       props[map] = value;
       return;
     }
-
     // Define mapped props is a function.
     if (isFunction(map)) {
       props[key] = map(value);
       return;
     }
-
     // Defined object map with value
-    const { name: propsKey, propsValue } = map;
+    const { name: propsKey, propsValue, jointKey } = map;
     if (isFunction(propsValue)) {
       value = propsValue(value);
     }
-    props[propsKey] = value;
+    // if jointKey set, multi attributes will be assigned to the same jointKey object.
+    if (jointKey) {
+      props[jointKey] = props[jointKey] || {};
+      Object.assign(props[jointKey], {
+        [propsKey]: value,
+      });
+    } else {
+      props[propsKey] = value;
+    }
   });
 
   // Get the force props from meta, it's can't be override
@@ -270,7 +293,7 @@ function parseViewComponent(targetNode, nativeNode, style) {
 /**
  * Get target node attributes, use to chrome devTool tag attribute show while debugging
  * @param targetNode
- * @returns attributes
+ * @returns attributes|{}
  */
 function getTargetNodeAttributes(targetNode) {
   try {
@@ -301,13 +324,11 @@ function renderToNative(rootViewId, targetNode) {
   if (!targetNode.meta.component) {
     throw new Error(`Specific tag is not supported yet: ${targetNode.tagName}`);
   }
-
   let style = {};
   // Apply styles when the targetNode attach to document at first time.
   if (targetNode.meta.component.defaultNativeStyle) {
     style = { ...targetNode.meta.component.defaultNativeStyle };
   }
-
   // Apply styles from CSS
   const matchedSelectors = getCssMap().query(targetNode);
   matchedSelectors.selectors.forEach((matchedSelector) => {
@@ -315,10 +336,8 @@ function renderToNative(rootViewId, targetNode) {
       style[cssStyle.property] = cssStyle.value;
     });
   });
-
   // Apply style from style attribute.
   style = { ...style, ...targetNode.style };
-
   // Convert to real native event
   const events = {};
   // FIXME: Bad accessing the private property.
@@ -340,7 +359,6 @@ function renderToNative(rootViewId, targetNode) {
       });
     }
   }
-
   // Translate to native node
   const nativeNode = {
     id: targetNode.nodeId,
@@ -353,26 +371,32 @@ function renderToNative(rootViewId, targetNode) {
       style,
     },
   };
-  // Add nativeNode attributes info for debugging
+  // Add nativeNode attributes info for Element debugging
   if (process.env.NODE_ENV !== 'production') {
     nativeNode.tagName = targetNode.tagName;
     nativeNode.props.attributes = getTargetNodeAttributes(targetNode);
   }
-
   parseViewComponent(targetNode, nativeNode, style);
   parseTextInputComponent(targetNode, style);
   return nativeNode;
 }
 
 /**
- * Render Element with child to native
+ * Render Element with children to native
+ * @param {number} rootViewId - root view id
+ * @param {ViewNode} node - target node to be traversed
+ * @param {Function} [callback] - function called on each traversing process
+ * @returns {[]}
  */
-function renderToNativeWithChildren(rootViewId, node) {
+function renderToNativeWithChildren(rootViewId, node, callback) {
   const nativeLanguages = [];
   node.traverseChildren((targetNode) => {
     const nativeNode = renderToNative(rootViewId, targetNode);
     if (nativeNode) {
       nativeLanguages.push(nativeNode);
+    }
+    if (typeof callback === 'function') {
+      callback(targetNode);
     }
   });
   return nativeLanguages;
@@ -396,18 +420,15 @@ function isLayout(node, rootView) {
 }
 
 function insertChild(parentNode, childNode, atIndex = -1) {
-  if (!parentNode) {
+  if (!parentNode || !childNode) {
     return;
   }
-
   if (parentNode.meta && isFunction(parentNode.meta.insertChild)) {
     parentNode.meta.insertChild(parentNode, childNode, atIndex);
   }
-
   if (childNode.meta.skipAddToDom) {
     return;
   }
-
   const app = getApp();
   if (!app) {
     return;
@@ -416,62 +437,51 @@ function insertChild(parentNode, childNode, atIndex = -1) {
   // Render the root node
   if (isLayout(parentNode, rootView) && !parentNode.isMounted) {
     // Start real native work.
-    const translated = renderToNativeWithChildren(rootViewId, parentNode);
+    const translated = renderToNativeWithChildren(rootViewId, parentNode, (node) => {
+      if (!node.isMounted) {
+        node.isMounted = true;
+      }
+      preCacheNode(node, node.nodeId);
+    });
     startBatch();
     __batchNodes.push({
       type: NODE_OPERATION_TYPES.createNode,
       nodes: translated,
     });
     endBatch(app);
-    parentNode.traverseChildren((node) => {
-      if (!node.isMounted) {
-        node.isMounted = true;
-      }
-    });
   // Render others child nodes.
   } else if (parentNode.isMounted && !childNode.isMounted) {
-    const translated = renderToNativeWithChildren(rootViewId, childNode);
+    const translated = renderToNativeWithChildren(rootViewId, childNode, (node) => {
+      if (!node.isMounted) {
+        node.isMounted = true;
+      }
+      preCacheNode(node, node.nodeId);
+    });
     startBatch();
     __batchNodes.push({
       type: NODE_OPERATION_TYPES.createNode,
       nodes: translated,
     });
     endBatch(app);
-    childNode.traverseChildren((node) => {
-      if (!node.isMounted) {
-        node.isMounted = true;
-      }
-    });
   }
 }
 
-function removeChild(parentNode, childNode) {
+function removeChild(parentNode, childNode, index) {
   if (parentNode && parentNode.meta && isFunction(parentNode.meta.removeChild)) {
     parentNode.meta.removeChild(parentNode, childNode);
   }
-
   if (!childNode || childNode.meta.skipAddToDom) {
     return;
   }
-
   childNode.isMounted = false;
-  childNode.traverseChildren((node) => {
-    if (node.isMounted) {
-      node.isMounted = false;
-    }
-  });
+  childNode.index = index;
   const app = getApp();
-  const deleteNodeIds = [];
-  childNode.traverseChildren((targetNode) => {
-    if (targetNode.meta.skipAddToDom) {
-      return;
-    }
-    deleteNodeIds.push({
-      id: targetNode.nodeId,
-      index: targetNode.index,
-      pId: targetNode.parentNode.nodeId,
-    });
-  });
+  const { $options: { rootViewId } } = app;
+  const deleteNodeIds = [{
+    id: childNode.nodeId,
+    pId: childNode.parentNode ? childNode.parentNode.nodeId : rootViewId,
+    index: childNode.index,
+  }];
   startBatch();
   __batchNodes.push({
     type: NODE_OPERATION_TYPES.deleteNode,
@@ -513,6 +523,7 @@ function updateWithChildren(parentNode) {
 }
 
 export {
+  getCssMap,
   renderToNative,
   renderToNativeWithChildren,
   insertChild,

@@ -343,8 +343,47 @@
 }
 
 - (void)setContentOffset:(CGPoint)contentOffset animated:(BOOL)animated {
+    if (CGPointEqualToPoint(contentOffset, self.contentOffset)) {
+        return;
+    }
     _targetOffset = contentOffset;
-    [super setContentOffset:contentOffset animated:animated];
+    
+    /**
+     * A protential bug
+     * It seems that adding subviews onto UIScrollView or changing property
+     * may cause UIScrollView to stop performing 'setContentOffset' animation in ios 15
+     * still figure out why
+     * so we use keyframes animation to simulate 'setContentOffset' animation for now
+     */
+    if (@available(iOS 15, *)) {
+        if (animated) {
+            static NSUInteger viewPagerSetContentoffsetFrames = 10;
+            static CGFloat keyFramesAnimatonDuration = .54f;
+            CGFloat eachXOffset = (contentOffset.x - self.contentOffset.x) / viewPagerSetContentoffsetFrames;
+            CGFloat eachYOffset = (contentOffset.y - self.contentOffset.y) / viewPagerSetContentoffsetFrames;
+            CGPoint currentOffset = self.contentOffset;
+            [UIView animateKeyframesWithDuration:keyFramesAnimatonDuration delay:0 options:UIViewKeyframeAnimationOptionCalculationModeLinear animations:^{
+                CGFloat durationForEachKeyFrameAnimation = keyFramesAnimatonDuration / viewPagerSetContentoffsetFrames;
+                for (NSUInteger i = 0; i < viewPagerSetContentoffsetFrames; i++) {
+                    CGFloat startTimeForAnimation = i * (keyFramesAnimatonDuration / viewPagerSetContentoffsetFrames);
+                    CGPoint keyFrameContentOffset =
+                        CGPointMake(currentOffset.x + eachXOffset * (i + 1),
+                                    currentOffset.y + eachYOffset * (i + 1));
+                    [UIView addKeyframeWithRelativeStartTime:startTimeForAnimation
+                                            relativeDuration:durationForEachKeyFrameAnimation
+                                                  animations:^{
+                        [super setContentOffset:keyFrameContentOffset];
+                    }];
+                }
+            } completion:NULL];
+        }
+        else {
+            [super setContentOffset:contentOffset];
+        }
+    }
+    else {
+        [super setContentOffset:contentOffset animated:animated];
+    }
 }
 
 - (void)hippyBridgeDidFinishTransaction {

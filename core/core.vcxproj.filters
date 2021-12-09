@@ -37,6 +37,9 @@
     <ClInclude Include="third_party\base\include\base\log_settings.h" />
     <ClInclude Include="third_party\base\include\base\macros.h" />
     <ClInclude Include="third_party\base\include\base\unicode_string_view.h" />
+    <ClInclude Include="include\core\napi\v8\js_native_turbo_v8.h" />
+    <ClInclude Include="include\napi\js_native_turbo.h" />
+
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\base\file.cc" />
@@ -62,5 +65,7 @@
     <ClCompile Include="third_party\base\src\base\log_settings_state.cc" />
     <ClCompile Include="third_party\base\src\base\unicode_string_view.cc" />
     <ClCompile Include="third_party\base\src\platform\adr\logging.cc" />
+    <ClCompile Include="src\napi\v8\js_native_turbo_v8.cc" />
+    <ClCompile Include="src\napi\js_native_turbo.cc" />
   </ItemGroup>
 </Project>

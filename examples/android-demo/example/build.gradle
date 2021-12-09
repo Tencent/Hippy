@@ -5,21 +5,41 @@ def propFileDir = "$projectDir.absolutePath/../../../android/sdk/gradle.properti
 def propFile = new File(propFileDir)
 def verifyReleaseAar = false
 def includeSupportui = true
+def include_abi_armeabi_v7a = true
+def include_abi_arm64_v8a = true
+def include_abi_x86 = true
+def include_abi_x86_64 = true
 if (propFile.exists()) {
     gradleProperties.load(propFile.newDataInputStream())
     includeSupportui = gradleProperties.getProperty('INCLUDE_SUPPORT_UI')
+    include_abi_armeabi_v7a = gradleProperties.getProperty('INCLUDE_ABI_ARMEABI_V7A')
+    include_abi_arm64_v8a = gradleProperties.getProperty('INCLUDE_ABI_ARM64_V8A')
+    include_abi_x86 = gradleProperties.getProperty('INCLUDE_ABI_X86')
+    include_abi_x86_64 = gradleProperties.getProperty('INCLUDE_ABI_X86_64')
 }
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     defaultConfig {
         applicationId "com.tencent.mtt.hippy.example"
         minSdkVersion 19
         // noinspection ExpiredTargetSdkVersion
         //noinspection OldTargetApi
-        targetSdkVersion 29
+        targetSdkVersion 30
         ndk  {
-            abiFilters 'arm64-v8a'
+            if (include_abi_armeabi_v7a.toBoolean()) {
+                abiFilters 'armeabi-v7a'
+            }
+            if (include_abi_arm64_v8a.toBoolean()) {
+                abiFilters 'arm64-v8a'
+            }
+            if (include_abi_x86.toBoolean()) {
+                abiFilters 'x86'
+            }
+            if (include_abi_x86_64.toBoolean()) {
+                abiFilters 'x86_64'
+            }
+
         }
     }
 

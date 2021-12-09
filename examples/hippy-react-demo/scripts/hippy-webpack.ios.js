@@ -39,6 +39,11 @@ module.exports = {
     // new webpack.optimize.LimitChunkCountPlugin({
     //   maxChunks: 1,
     // }),
+    // use SourceMapDevToolPlugin can generate sourcemap file
+    // new webpack.SourceMapDevToolPlugin({
+    //   test: /\.(js|jsbundle|css|bundle)($|\?)/i,
+    //   filename: '[file].map',
+    // }),
   ],
   module: {
     rules: [
@@ -67,7 +72,6 @@ module.exports = {
               ],
             },
           },
-          'unicode-loader',
         ],
       },
       {

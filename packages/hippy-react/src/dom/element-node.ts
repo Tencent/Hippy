@@ -1,4 +1,23 @@
-/* eslint-disable no-underscore-dangle */
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /* eslint-disable no-param-reassign */
 
 import Hippy from '@localTypes/hippy';
@@ -14,6 +33,7 @@ import {
   isNumber,
   warn,
   convertImgUrl,
+  isCaptureEvent,
 } from '../utils';
 import ViewNode from './view-node';
 import '@localTypes/global';
@@ -175,6 +195,24 @@ function parseBackgroundImage(styleKey: string, styleValue: string, style: any) 
   return style;
 }
 
+/**
+ * parse text shadow offset
+ * @param {string} styleKey
+ * @param {number} styleValue
+ * @param {any} style
+ */
+function parseTextShadowOffset(styleKey: string, styleValue: number, style: any) {
+  const offsetMap: PropertiesMap = {
+    textShadowOffsetX: 'width',
+    textShadowOffsetY: 'height',
+  };
+  style.textShadowOffset = style.textShadowOffset || {};
+  Object.assign(style.textShadowOffset, {
+    [offsetMap[styleKey]]: styleValue || 0,
+  });
+  return style;
+}
+
 class ElementNode extends ViewNode {
   tagName: string;
 
@@ -310,6 +348,11 @@ class ElementNode extends ViewNode {
         (this.style as any)[styleKey] = colorParse((styleValue as Color));
       } else if (styleKey === 'backgroundImage' && styleValue) {
         this.style = parseBackgroundImage(styleKey, styleValue, this.style);
+      } else if (styleKey === 'textShadowOffset') {
+        const { x = 0, width = 0, y = 0, height = 0 } = styleValue || {};
+        (this.style as any)[styleKey] = { width: x || width, height: y || height };
+      } else if (['textShadowOffsetX', 'textShadowOffsetY'].indexOf(styleKey) >= 0) {
+        this.style = parseTextShadowOffset(styleKey as string, styleValue as number, this.style);
       } else {
         (this.style as any)[styleKey] = styleValue;
       }
@@ -384,6 +427,9 @@ class ElementNode extends ViewNode {
           match: () => true,
           action: () => {
             if (typeof value === 'function') {
+              if (isCaptureEvent(key)) {
+                key = key.replace('Capture', '');
+              }
               this.attributes[key] = true;
             } else {
               this.attributes[key] = value;
@@ -438,7 +484,7 @@ class ElementNode extends ViewNode {
 
       updateChild(this);
     } catch (e) {
-      // ignore
+      // noop
     }
   }
 

@@ -35,6 +35,7 @@
 #import "HippyUIManager.h"
 #import "HippyExtAnimationModule.h"
 #import "HippyRedBox.h"
+#import "HippyTurboModule.h"
 
 NSString *const HippyReloadNotification = @"HippyReloadNotification";
 NSString *const HippyJavaScriptWillStartLoadingNotification = @"HippyJavaScriptWillStartLoadingNotification";
@@ -71,11 +72,16 @@ void HippyRegisterModule(Class moduleClass) {
  * This function returns the module name for a given class.
  */
 NSString *HippyBridgeModuleNameForClass(Class cls) {
+    NSString *name = nil;
 #if HIPPY_DEBUG
-    HippyAssert([cls conformsToProtocol:@protocol(HippyBridgeModule)], @"Bridge module `%@` does not conform to HippyBridgeModule", cls);
+    if ([cls conformsToProtocol:@protocol(HippyBridgeModule)]) {
+        name = [cls moduleName];
+    } else if ([cls conformsToProtocol:@protocol(HippyTurboModule)]) {
+        name = [cls turoboModuleName];
+    } else {
+        HippyAssert(NO, @"Bridge module `%@` does not conform to HippyBridgeModule or HippyTurboModule", cls);
+    }
 #endif
-
-    NSString *name = [cls moduleName];
     if (name.length == 0) {
         name = NSStringFromClass(cls);
     }
@@ -186,6 +192,7 @@ static HippyBridge *HippyCurrentBridgeInstance = nil;
         _bundleURL = bundleURL;
         _moduleProvider = block;
         _debugMode = [launchOptions[@"DebugMode"] boolValue];
+        _enableTurbo = [launchOptions[@"EnableTurbo"] boolValue];
         _shareOptions = [NSMutableDictionary new];
         _appVerson = @"";
         _executorKey = executorKey;
@@ -331,16 +338,16 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 
     // Sanitize the bundle URL
     _bundleURL = [HippyConvert NSURL:_bundleURL.absoluteString];
-#ifndef HIPPY_DEBUG
     @try {
-#endif
         [self createBatchedBridge];
         [self.batchedBridge start];
-#ifndef HIPPY_DEBUG
     } @catch (NSException *exception) {
         MttHippyException(exception);
     }
-#endif
+}
+
+- (void)setUpDevClientWithName:(NSString *)name {
+    [self.batchedBridge setUpDevClientWithName:name];
 }
 
 - (void)createBatchedBridge {

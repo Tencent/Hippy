@@ -28,8 +28,9 @@
 #include <memory>
 
 #include "core/core.h"
+#include "jni/turbo_module_runtime.h"
 #include "jni/scoped_java_ref.h"
-#ifdef V8_HAS_INSPECTOR
+#ifdef ENABLE_INSPECTOR
 #include "inspector/v8_inspector_client_impl.h"
 #endif
 
@@ -39,7 +40,7 @@ class Runtime {
 
   inline bool IsEnableV8Serialization() { return enable_v8_serialization_; }
   inline bool IsDebug() { return is_debug_; }
-  inline int64_t GetId() { return id_; }
+  inline int32_t GetId() { return id_; }
   inline int64_t GetGroupId() { return group_id_; }
   inline std::shared_ptr<JavaRef> GetBridge() { return bridge_; }
   inline std::shared_ptr<Engine> GetEngine() { return engine_; }
@@ -56,12 +57,19 @@ class Runtime {
   inline void SetEngine(std::shared_ptr<Engine> engine) { engine_ = engine; }
   inline void SetScope(std::shared_ptr<Scope> scope) { scope_ = scope; }
 
-  static void Insert(std::shared_ptr<Runtime> runtime);
-  static std::shared_ptr<Runtime> Find(int64_t id);
-  static bool Erase(int64_t id);
-  static bool Erase(std::shared_ptr<Runtime> runtime);
-  static std::shared_ptr<int64_t> GetKey(std::shared_ptr<Runtime> runtime);
-  static bool ReleaseKey(int64_t id);
+  inline std::shared_ptr<TurboModuleRuntime> GetTurboModuleRuntime() {
+    return turbo_module_runtime_;
+  }
+  inline void SetTurboModuleRuntime(
+      std::shared_ptr<TurboModuleRuntime> turbo_module_runtime) {
+    turbo_module_runtime_ = turbo_module_runtime;
+  }
+
+  static void Insert(const std::shared_ptr<Runtime>& runtime);
+  static std::shared_ptr<Runtime> Find(int32_t id);
+  static std::shared_ptr<Runtime> Find(v8::Isolate* isolate);
+  static bool Erase(int32_t id);
+  static bool Erase(const std::shared_ptr<Runtime>& runtime);
 
  private:
   bool enable_v8_serialization_;
@@ -72,5 +80,6 @@ class Runtime {
   std::shared_ptr<Engine> engine_;
   std::shared_ptr<Scope> scope_;
   std::shared_ptr<hippy::napi::CtxValue> bridge_func_;
-  int64_t id_;
+  int32_t id_;
+  std::shared_ptr<TurboModuleRuntime> turbo_module_runtime_;
 };

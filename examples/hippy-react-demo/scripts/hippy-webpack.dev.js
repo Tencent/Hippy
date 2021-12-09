@@ -31,6 +31,11 @@ module.exports = {
       __PLATFORM__: null,
     }),
     new HippyDynamicImportPlugin(),
+    // use SourceMapDevToolPlugin can generate sourcemap file while setting devtool to false
+    // new webpack.SourceMapDevToolPlugin({
+    //   test: /\.(js|jsbundle|css|bundle)($|\?)/i,
+    //   filename: '[file].map',
+    // }),
   ],
   module: {
     rules: [
@@ -60,7 +65,6 @@ module.exports = {
               ],
             },
           },
-          'unicode-loader',
         ],
       },
       {

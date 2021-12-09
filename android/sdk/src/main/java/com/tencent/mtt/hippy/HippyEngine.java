@@ -44,6 +44,7 @@ import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
 import com.tencent.mtt.hippy.bridge.libraryloader.LibraryLoader;
 import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.dom.node.DomNodeRecord;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
@@ -202,6 +203,13 @@ public abstract class HippyEngine {
 
   public abstract HippyEngineContext getEngineContext();
 
+  public abstract void saveInstanceState();
+
+  public abstract HippyRootView restoreInstanceState(ArrayList<DomNodeRecord> domNodeRecordList,
+      HippyEngine.ModuleLoadParams loadParams);
+
+  public abstract void destroyInstanceState(HippyRootView rootView);
+
   public interface BackPressHandler {
 
     void handleBackPress();
@@ -214,6 +222,11 @@ public abstract class HippyEngine {
     INITERRORED,
     INITED,
     DESTROYED
+  }
+
+  public static class V8InitParams {
+    public long initialHeapSize;
+    public long maximumHeapSize;
   }
 
   // Hippy 引擎初始化时的参数设置
@@ -275,6 +288,8 @@ public abstract class HippyEngine {
     @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
     public HippyLogAdapter logAdapter;
+    public V8InitParams v8InitParams;
+    public boolean enableTurbo;
 
     protected void check() {
       if (context == null) {

@@ -1,4 +1,23 @@
-/* eslint-disable import/no-unresolved */
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 
@@ -91,7 +110,8 @@ Vue.prototype.$mount = function $mount(el, hydrating) {
 /**
  * Register the Hippy-Vue app to Native.
  *
- * @param {function} callback - Callback after register completed.
+ * @param {function} afterCallback - Callback after register completed.
+ * @param {function} beforeCallback - Callback before register completed.
  */
 Vue.prototype.$start = function $start(afterCallback, beforeCallback) {
   setApp(this);
@@ -108,15 +128,13 @@ Vue.prototype.$start = function $start(afterCallback, beforeCallback) {
   });
 
   // Register the entry point into Hippy
-  // The callback will be exectue when Native trigger loadInstance
+  // The callback will be execute when Native trigger loadInstance
   // or runApplication event.
   HippyRegister.regist(this.$options.appName, (superProps) => {
     const { __instanceId__: rootViewId } = superProps;
     this.$options.$superProps = superProps;
     this.$options.rootViewId = rootViewId;
-
     trace(...componentName, 'Start', this.$options.appName, 'with rootViewId', rootViewId, superProps);
-
     // Destroy the old instance and set the new one when restart the app
     if (this.$el) {
       this.$destroy();
@@ -124,15 +142,12 @@ Vue.prototype.$start = function $start(afterCallback, beforeCallback) {
       const newApp = new AppConstructor(this.$options);
       setApp(newApp);
     }
-
     // Call the callback before $mount
     if (isFunction(beforeCallback)) {
       beforeCallback(this, superProps);
     }
-
     // Draw the app.
     this.$mount();
-
     // Draw the iPhone status bar background.
     // It should execute after $mount, otherwise this.$el will be undefined.
     if (Native.Platform === 'ios') {
@@ -145,7 +160,6 @@ Vue.prototype.$start = function $start(afterCallback, beforeCallback) {
         }
       }
     }
-
     // Call the callback after $mount
     if (isFunction(afterCallback)) {
       afterCallback(this, superProps);
@@ -188,9 +202,7 @@ Vue.extend = function hippyExtend(extendOptions) {
   if (cachedCtors[SuperId]) {
     return cachedCtors[SuperId];
   }
-
   const name = extendOptions.name || Super.options.name;
-
   const Sub = function VueComponent(options) {
     this._init(options);
   };
@@ -200,7 +212,6 @@ Vue.extend = function hippyExtend(extendOptions) {
   Sub.cid = cid;
   Sub.options = mergeOptions(Super.options, extendOptions);
   Sub.super = Super;
-
   // For props and computed properties, we define the proxy getters on
   // the Vue instances at extension time, on the extended prototype. This
   // avoids Object.defineProperty calls for each instance created.
@@ -210,12 +221,10 @@ Vue.extend = function hippyExtend(extendOptions) {
   if (Sub.options.computed) {
     initComputed(Sub);
   }
-
   // allow further extension/mixin/plugin usage
   Sub.extend = Super.extend;
   Sub.mixin = Super.mixin;
   Sub.use = Super.use;
-
   // create asset registers, so extended classes
   // can have their private assets too.
   ASSET_TYPES.forEach((type) => {
@@ -225,14 +234,12 @@ Vue.extend = function hippyExtend(extendOptions) {
   if (name) {
     Sub.options.components[name] = Sub;
   }
-
   // keep a reference to the super options at extension time.
   // later at instantiation we can check if Super's options have
   // been updated.
   Sub.superOptions = Super.options;
   Sub.extendOptions = extendOptions;
   Sub.sealedOptions = extend({}, Sub.options);
-
   // cache constructor
   cachedCtors[SuperId] = Sub;
   return Sub;

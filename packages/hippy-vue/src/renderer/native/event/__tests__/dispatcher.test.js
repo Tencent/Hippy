@@ -2,6 +2,7 @@ import test, { before } from 'ava';
 import { registerBuiltinElements } from '../../../../elements';
 import { EventDispatcher } from '../dispatcher';
 import { setApp, getApp } from '../../../../util';
+import { preCacheNode } from '../../../../util/node';
 import ElementNode from '../../../element-node';
 
 let childNode;
@@ -12,10 +13,15 @@ let iframe;
 before(() => {
   registerBuiltinElements();
   const rootNode = new ElementNode('div');
+  preCacheNode(rootNode, rootNode.nodeId);
   childNode = new ElementNode('div');
+  preCacheNode(childNode, childNode.nodeId);
   textareaNode = new ElementNode('textarea');
+  preCacheNode(textareaNode, textareaNode.nodeId);
   listview = new ElementNode('ul');
+  preCacheNode(listview, listview.nodeId);
   iframe = new ElementNode('iframe');
+  preCacheNode(iframe, iframe.nodeId);
   rootNode.appendChild(childNode);
   childNode.appendChild(textareaNode);
   childNode.appendChild(listview);
@@ -186,6 +192,14 @@ test('receiveUIComponentEvent onTouch test', (t) => {
   EventDispatcher.receiveUIComponentEvent([
     childNode.nodeId,
     'onTouchDown',
+    {
+      page_x: 1,
+      page_y: 2,
+    },
+  ]);
+  EventDispatcher.receiveUIComponentEvent([
+    childNode.nodeId,
+    'onTouchMove',
     {
       page_x: 1,
       page_y: 2,

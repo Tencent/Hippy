@@ -1,6 +1,28 @@
-import { findNodeById } from '../utils/node';
-import { trace, warn } from '../utils';
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { Fiber } from 'react-reconciler';
+import { getFiberNodeFromId, getElementFromFiber } from '../utils/node';
+import { trace, isGlobalBubble, isHostComponent } from '../utils';
 import HippyEventHub from './hub';
+import Event from './event';
 import '@localTypes/global';
 
 type EventParam = string[] | number[];
@@ -13,7 +35,7 @@ interface NativeEvent {
 const eventHubs = new Map();
 const componentName = ['%c[event]%c', 'color: green', 'color: auto'];
 
-function registerNativeEventHub(eventName: string) {
+function registerNativeEventHub(eventName: any) {
   trace(...componentName, 'registerNativeEventHub', eventName);
   if (typeof eventName !== 'string') {
     throw new TypeError(`Invalid eventName for registerNativeEventHub: ${eventName}`);
@@ -27,14 +49,14 @@ function registerNativeEventHub(eventName: string) {
   return targetEventHub;
 }
 
-function getHippyEventHub(eventName: string) {
+function getHippyEventHub(eventName: any) {
   if (typeof eventName !== 'string') {
     throw new TypeError(`Invalid eventName for getHippyEventHub: ${eventName}`);
   }
   return eventHubs.get(eventName) || null;
 }
 
-function unregisterNativeEventHub(eventName: string) {
+function unregisterNativeEventHub(eventName: any) {
   if (typeof eventName !== 'string') {
     throw new TypeError(`Invalid eventName for unregisterNativeEventHub: ${eventName}`);
   }
@@ -59,6 +81,142 @@ function receiveNativeEvent(nativeEvent: EventParam) {
   currEventHub.notifyEvent(eventParams);
 }
 
+interface ListenerObj {
+  eventName: string;
+  listener: Function;
+  isCapture: boolean;
+  currentTarget: Element;
+}
+
+/**
+ * convertEventName - convert all special event name
+ * @param eventName
+ * @param nodeItem
+ */
+function convertEventName(eventName: string, nodeItem: Fiber) {
+  let processedEvenName = eventName;
+  if (nodeItem.memoizedProps
+      && !nodeItem.memoizedProps[eventName]
+      && eventName === 'onClick'
+      && nodeItem.memoizedProps.onPress) {
+    // Compatible with React Native
+    processedEvenName = 'onPress';
+  }
+  return processedEvenName;
+}
+
+function isNodePropFunction(prop: string, nextNodeItem: Fiber) {
+  return !!(nextNodeItem.memoizedProps && typeof nextNodeItem.memoizedProps[prop] === 'function');
+}
+
+/**
+ * doCaptureAndBubbleLoop - process capture phase and bubbling phase
+ * @param {string} originalEventName
+ * @param {NativeEvent} nativeEvent
+ * @param {Fiber} nodeItem
+ */
+function doCaptureAndBubbleLoop(originalEventName: string, nativeEvent: NativeEvent, nodeItem: Fiber) {
+  const eventQueue: ListenerObj[] = [];
+  let nextNodeItem: Fiber | null = nodeItem;
+  let eventName = originalEventName;
+  // capture and bubbling loop
+  while (nextNodeItem) {
+    eventName = convertEventName(eventName, nextNodeItem);
+    const captureName = `${eventName}Capture`;
+    if (isNodePropFunction(captureName, nextNodeItem)) {
+      // capture phase to add listener at queue head
+      eventQueue.unshift({
+        eventName: captureName,
+        listener: nextNodeItem.memoizedProps[captureName],
+        isCapture: true,
+        currentTarget: getElementFromFiber(nextNodeItem),
+      });
+    }
+    if (isNodePropFunction(eventName, nextNodeItem)) {
+      // bubbling phase to add listener at queue tail
+      eventQueue.push({
+        eventName,
+        listener: nextNodeItem.memoizedProps[eventName],
+        isCapture: false,
+        currentTarget: getElementFromFiber(nextNodeItem),
+      });
+    }
+    nextNodeItem = nextNodeItem.return;
+    while (nextNodeItem && !isHostComponent(nextNodeItem.tag)) {
+      // only handle HostComponent
+      nextNodeItem = nextNodeItem.return;
+    }
+  }
+  if (eventQueue.length > 0) {
+    let listenerObj: ListenerObj | undefined;
+    let isStopBubble: any = false;
+    const targetNode = getElementFromFiber(nodeItem);
+    while (!isStopBubble && (listenerObj = eventQueue.shift()) !== undefined) {
+      try {
+        const { eventName, currentTarget: currentTargetNode, listener, isCapture } = listenerObj;
+        const syntheticEvent = new Event(eventName, currentTargetNode, targetNode);
+        Object.assign(syntheticEvent, nativeEvent);
+        if (isCapture) {
+          listener(syntheticEvent);
+        } else {
+          isStopBubble = listener(syntheticEvent);
+          // If callback have no return, use global bubble config to set isStopBubble.
+          if (typeof isStopBubble !== 'boolean') {
+            isStopBubble = !isGlobalBubble();
+          }
+          // event bubbles flag has higher priority
+          if (!syntheticEvent.bubbles) {
+            isStopBubble = true;
+          }
+        }
+      } catch (err) {
+        (console as any).reportUncaughtException(err);
+      }
+    }
+  }
+}
+
+/**
+ * doBubbleLoop - process only bubbling phase
+ * @param {string} originalEventName
+ * @param {NativeEvent} nativeEvent
+ * @param {Fiber} nodeItem
+ */
+function doBubbleLoop(originalEventName: string, nativeEvent: NativeEvent, nodeItem: Fiber) {
+  let isStopBubble: any = false;
+  let nextNodeItem: Fiber | null = nodeItem;
+  let eventName = originalEventName;
+  const targetNode = getElementFromFiber(nodeItem);
+  // only bubbling loop
+  do {
+    eventName = convertEventName(eventName, nextNodeItem);
+    if (isNodePropFunction(eventName, nextNodeItem)) {
+      try {
+        const currentTargetNode = getElementFromFiber(nextNodeItem);
+        const syntheticEvent = new Event(eventName, currentTargetNode, targetNode);
+        Object.assign(syntheticEvent, nativeEvent);
+        isStopBubble = nextNodeItem.memoizedProps[eventName](syntheticEvent);
+        // If callback have no return, use global bubble config to set isStopBubble.
+        if (typeof isStopBubble !== 'boolean') {
+          isStopBubble = !isGlobalBubble();
+        }
+        // event bubbles flag has higher priority
+        if (!syntheticEvent.bubbles) {
+          isStopBubble = true;
+        }
+      } catch (err) {
+        (console as any).reportUncaughtException(err);
+      }
+    }
+    if (isStopBubble === false) {
+      nextNodeItem = nextNodeItem.return;
+      while (nextNodeItem && !isHostComponent(nextNodeItem.tag)) {
+        // only handle HostComponent
+        nextNodeItem = nextNodeItem.return;
+      }
+    }
+  } while (!isStopBubble && nextNodeItem);
+}
 
 function receiveNativeGesture(nativeEvent: NativeEvent) {
   trace(...componentName, 'receiveNativeGesture', nativeEvent);
@@ -66,50 +224,27 @@ function receiveNativeGesture(nativeEvent: NativeEvent) {
     return;
   }
   const { id: targetNodeId } = nativeEvent;
-  const targetNode = findNodeById(targetNodeId);
+  const targetNode = getFiberNodeFromId(targetNodeId);
   if (!targetNode) {
     return;
   }
-
-  let eventHandled = false;
-  let nextNodeItem = targetNode;
+  let hasCapturePhase: boolean = true;
   let { name: eventName } = nativeEvent;
-  do {
-    if (nextNodeItem.memoizedProps
-      && !nextNodeItem.memoizedProps[eventName]
-      && eventName === 'onClick'
-      && nextNodeItem.memoizedProps.onPress) {
-      // Compatible with React Native
-      eventName = 'onPress';
-    }
-
-    if (nextNodeItem.memoizedProps
-      && nextNodeItem.memoizedProps[eventName]
-      && typeof nextNodeItem.memoizedProps[eventName] === 'function') {
-      try {
-        eventHandled = nextNodeItem.memoizedProps[eventName](nativeEvent);
-      } catch (err) {
-        (console as any).reportUncaughtException(err); // eslint-disable-line
-      }
-    }
-
-    // If callback have no return is meaning no need the event bubbling
-    if (typeof eventHandled !== 'boolean') {
-      eventHandled = true;
-    }
-
-    if (eventHandled === false) {
-      // @ts-ignore
-      nextNodeItem = nextNodeItem.return;
-      while (nextNodeItem && nextNodeItem.tag !== 5) {
-        // @ts-ignore
-        nextNodeItem = nextNodeItem.return;
-      }
-    }
-  } while (!eventHandled && nextNodeItem);
+  eventName = convertEventName(eventName, targetNode);
+  const captureName = `${eventName}Capture`;
+  const nextNodeItem: Fiber = targetNode;
+  // if current target has no capture listener, only do bubbling phase loop to improve performance
+  if (targetNode.memoizedProps && typeof targetNode.memoizedProps[captureName] !== 'function') {
+    hasCapturePhase = false;
+  }
+  if (hasCapturePhase) {
+    doCaptureAndBubbleLoop(eventName, nativeEvent, nextNodeItem);
+  } else {
+    doBubbleLoop(eventName, nativeEvent, nextNodeItem);
+  }
 }
 
-function receiveUIComponentEvent(nativeEvent: string[]) {
+function receiveUIComponentEvent(nativeEvent: any[]) {
   trace(...componentName, 'receiveUIComponentEvent', nativeEvent);
   if (!nativeEvent || !Array.isArray(nativeEvent) || nativeEvent.length < 2) {
     return;
@@ -118,13 +253,11 @@ function receiveUIComponentEvent(nativeEvent: string[]) {
   if (typeof targetNodeId !== 'number' || typeof eventName !== 'string') {
     return;
   }
-  const targetNode = findNodeById(targetNodeId);
+  const targetNode = getFiberNodeFromId(targetNodeId);
   if (!targetNode) {
     return;
   }
-  if (targetNode.memoizedProps
-    && targetNode.memoizedProps[eventName]
-    && typeof targetNode.memoizedProps[eventName] === 'function') {
+  if (isNodePropFunction(eventName, targetNode)) {
     targetNode.memoizedProps[eventName](eventParam);
   }
 }
