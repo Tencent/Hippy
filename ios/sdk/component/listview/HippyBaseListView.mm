@@ -158,6 +158,7 @@
 - (void)setDomNode:(std::shared_ptr<hippy::DomNode>)domNode {
     [super setDomNode:domNode];
     const auto children = domNode->GetChildren();
+    _itemDomNodes.clear();
     NSArray<NSString *> *itemViewsNames = [self listItemViewNames];
     std::copy_if(children.begin(), children.end(), std::back_inserter(_itemDomNodes), [itemNames_ = itemViewsNames](const std::shared_ptr<hippy::DomNode> &child){
         NSString *childViewName = [NSString stringWithUTF8String:child->GetViewName().c_str()];
