@@ -111,7 +111,7 @@ function fromAstNodes(astRules = []) {
       .filter(isDeclaration)
       .map(createDeclaration(beforeLoadStyle));
     const selectors = rule.selectors.map(createSelector);
-    return new RuleSet(selectors, declarations);
+    return new RuleSet(selectors, declarations, rule.hash);
   });
 }
 

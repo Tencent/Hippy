@@ -31,6 +31,10 @@ class SelectorCore {
   lookupSort(sorter, base) {
     sorter.sortAsUniversal(base || this);
   }
+
+  removeSort(sorter, base) {
+    sorter.removeAsUniversal(base || this);
+  }
 }
 
 class SimpleSelector extends SelectorCore {
@@ -82,6 +86,10 @@ class SimpleSelectorSequence extends SimpleSelector {
   lookupSort(sorter, base) {
     this.head.lookupSort(sorter, base || this);
   }
+
+  removeSort(sorter, base) {
+    this.head.removeSort(sorter, base || this);
+  }
 }
 
 /**
@@ -127,6 +135,10 @@ class IdSelector extends SimpleSelector {
   lookupSort(sorter, base) {
     sorter.sortById(this.id, base || this);
   }
+
+  removeSort(sorter, base) {
+    sorter.removeById(this.id, base || this);
+  }
 }
 
 
@@ -153,6 +165,10 @@ class TypeSelector extends SimpleSelector {
   lookupSort(sorter, base) {
     sorter.sortByType(this.cssType, base || this);
   }
+
+  removeSort(sorter, base) {
+    sorter.removeByType(this.cssType, base || this);
+  }
 }
 
 /**
@@ -177,6 +193,10 @@ class ClassSelector extends SimpleSelector {
 
   lookupSort(sorter, base) {
     sorter.sortByClass(this.className, base || this);
+  }
+
+  removeSort(sorter, base) {
+    sorter.removeByClass(this.className, base || this);
   }
 }
 
@@ -308,6 +328,10 @@ class InvalidSelector extends SimpleSelector {
   }
 
   lookupSort() {
+    return null;
+  }
+
+  removeSort() {
     return null;
   }
 }
@@ -442,6 +466,10 @@ class Selector extends SelectorCore {
     this.last.lookupSort(sorter, this);
   }
 
+  removeSort(sorter) {
+    this.last.removeSort(sorter, this);
+  }
+
   accumulateChanges(node, map) {
     if (!this.dynamic) {
       return this.match(node);
@@ -500,11 +528,12 @@ Selector.SiblingGroup = SiblingGroup;
  * Rule Set
  */
 class RuleSet {
-  constructor(selectors, declarations) {
+  constructor(selectors, declarations, hash) {
     selectors.forEach((sel) => {
       sel.ruleSet = this; // FIXME: It makes circular dependency
       return null;
     });
+    this.hash = hash;
     this.selectors = selectors;
     this.declarations = declarations;
   }
@@ -517,6 +546,10 @@ class RuleSet {
 
   lookupSort(sorter) {
     this.selectors.forEach(sel => sel.lookupSort(sorter));
+  }
+
+  removeSort(sorter) {
+    this.selectors.forEach(sel => sel.removeSort(sorter));
   }
 }
 
