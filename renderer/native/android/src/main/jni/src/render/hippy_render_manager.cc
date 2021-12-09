@@ -151,33 +151,18 @@ void HippyRenderManager::MoveRenderNode(std::vector<int32_t> &&moved_ids,
 
 void HippyRenderManager::Batch() { TDF_BASE_NOTIMPLEMENTED(); };
 
-void HippyRenderManager::CallFunction(
-    std::weak_ptr<DomNode> domNode, const std::string &name,
-    std::unordered_map<std::string, std::shared_ptr<DomValue>> param,
-    DispatchFunctionCallback cb) {
+void HippyRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node,
+                                          const std::string &name,
+                                          const DomValue &param) {
+  TDF_BASE_NOTIMPLEMENTED();
+}
+
+void HippyRenderManager::CallFunction(std::weak_ptr<DomNode> domNode,
+                                      const std::string &name,
+                                      const DomValue &param,
+                                      CallFunctionCallback cb) {
   TDF_BASE_NOTIMPLEMENTED();
 };
-
-void HippyRenderManager::SetClickEventListener(int32_t id,
-                                               OnClickEventListener listener){};
-
-void HippyRenderManager::RemoveClickEventListener(int32_t id){};
-
-void HippyRenderManager::SetLongClickEventListener(
-    int32_t id, OnLongClickEventListener listener){};
-
-void HippyRenderManager::RemoveLongClickEventListener(int32_t id){};
-
-void HippyRenderManager::SetTouchEventListener(int32_t id, TouchEvent event,
-                                               OnTouchEventListener listener){};
-
-void HippyRenderManager::RemoveTouchEventListener(int32_t id,
-                                                  TouchEvent event){};
-
-void HippyRenderManager::SetShowEventListener(int32_t id, ShowEvent event,
-                                              OnShowEventListener listener){};
-
-void HippyRenderManager::RemoveShowEventListener(int32_t id, ShowEvent event){};
 
 } // namespace dom
 } // namespace hippy
