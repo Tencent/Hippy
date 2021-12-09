@@ -81,7 +81,6 @@ class WebSocket {
       url,
     };
     Native.callNativeWithPromise(WEB_SOCKET_MODULE_NAME, 'connect', params).then((resp) => {
-      console.log(`connect to ws url: ${url}`, resp);
       if (!resp || resp.code !== 0 || typeof resp.id !== 'number') {
         warn('Fail to create websocket connection', resp);
         return;

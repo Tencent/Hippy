@@ -1,0 +1,10 @@
+example
+test
+*.yml
+*.log
+yarn.lock
+tsconfig.json
+docs
+.github
+.vscode
+TODOS

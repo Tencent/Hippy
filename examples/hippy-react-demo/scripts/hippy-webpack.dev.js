@@ -2,7 +2,10 @@ const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
 const HippyDynamicImportPlugin = require('@hippy/hippy-dynamic-import-plugin');
+const HippyHMRPlugin = require('@hippy/hippy-hmr-plugin');
+const ReactRefreshWebpackPlugin = require('@hippy/hippy-react-refresh-webpack-plugin');
 const pkg = require('../package.json');
+
 module.exports = {
   mode: 'development',
   devtool: 'eval-source-map',
@@ -10,8 +13,21 @@ module.exports = {
   watchOptions: {
     aggregateTimeout: 1500,
   },
+  devServer: {
+    port: 38988,
+    // by default hot and liveReload option are true, you could set only liveReload to true
+    // to use live reload
+    hot: true,
+    liveReload: true,
+    devMiddleware: {
+      writeToDisk: true,
+    },
+    client: {
+      overlay: false,
+    },
+  },
   entry: {
-    index: ['regenerator-runtime', path.resolve(pkg.main), '@hippy/hippy-live-reload-polyfill'],
+    index: ['regenerator-runtime', path.resolve(pkg.main)],
   },
   output: {
     filename: 'index.bundle',
@@ -36,6 +52,13 @@ module.exports = {
     //   test: /\.(js|jsbundle|css|bundle)($|\?)/i,
     //   filename: '[file].map',
     // }),
+    new HippyHMRPlugin({
+      // HMR [hash].hot-update.json will fetch from this path
+      hotManifestPublicPath: 'http://localhost:38989/',
+    }),
+    new ReactRefreshWebpackPlugin({
+      overlay: false,
+    }),
   ],
   module: {
     rules: [
@@ -62,6 +85,7 @@ module.exports = {
                 ['@babel/plugin-proposal-class-properties'],
                 ['@babel/plugin-proposal-decorators', { legacy: true }],
                 ['@babel/plugin-transform-runtime', { regenerator: true }],
+                require.resolve('react-refresh/babel'),
               ],
             },
           },
