@@ -74,7 +74,6 @@ export class Text extends React.Component {
     this.state = {};
   }
 
-
   getChildContext() {
     return { isInAParentText: true };
   }
