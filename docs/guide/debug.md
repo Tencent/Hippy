@@ -92,39 +92,227 @@ Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Ins
 <br />
 <br />
 
-# Live-Reload 能力
+# HMR & Live-Reload 能力
 
-> 最低支持版本 2.9.0
+> 最低支持版本 2.12.0
 
-当开发者修改了前端代码后，我们可以通过 `live-reload` 能力帮助我们在代码变更时自动重载业务实例，步骤如下：
-
-+ webpack 配置文件在 entry 末端引入 `@hippy/hippy-live-reload-polyfill`
-
-```javascript
-module.exports = {
-  mode: 'development',
-  entry: {
-    index: ['regenerator-runtime', 'index.js', '@hippy/hippy-live-reload-polyfill'],
-  }
-}
-```
-
-+ 启动调试 server 增加 `--live` 参数，这时候会启动一个 `38999` 端口的 Websocket
-
-```json
-{
-   "scripts": {
-      "hippy:debug": "hippy-debug --live"
-   }  
-} 
-```
-
-+ 对于 Android 调试，打开 `Enable Live Reload` 开关，（`2.9.1` 版本后业务代码启动后会自动监听，无需再用该开关）
-
-<img src="https://user-images.githubusercontent.com/12878546/132832119-b1b7e042-da9d-4792-a21c-ff4773f3cca0.jpg" alt="Android Debug" width="25%"/>
+<img src="https://img.gamecenter.qq.com/xgame/gm/1640318737484_8116362472a24eb51a5e01b2fcd35687.gif" alt="HMR preview" width="80%" />
+<br />
 <br />
 
-+ 对于 iOS 调试，业务代码启动后会自动监听
+当开发者修改了前端代码后，我们可以通过 `Hot Module Replacement (HMR)` 保留状态刷新组件视图，或通过 `live-reload` 重载业务实例，步骤如下：
+
+## Hippy-Vue
+
+1. 安装热更新依赖
+
+   ```bash
+   npm i @hippy/vue@^2.12.0
+   npm i -D @hippy/debug-server@^2.12.0 @hippy/hippy-hmr-plugin @hippy/vue-loader @hippy/vue-css-loader
+   ```
+
+2. webpack 配置示例
+
+   ```javascript
+   const HippyHMRPlugin = require('@hippy/hippy-hmr-plugin');
+   const VueLoaderPlugin = require('@hippy/vue-loader/lib/plugin');
+   const vueLoader = '@hippy/vue-loader';
+ 
+   module.exports = {
+    devServer: {
+      // 默认 HMR 端口为38988
+      host: 38988,
+      // 默认 hot, liveReload 都为 true，如果只想使用 live-reload 功能，请将 hot 设为 false，liveReload 设为 true
+      hot: true,
+      liveReload: true,
+      devMiddleware: {
+        writeToDisk: true,
+      },
+      client: {
+        // 暂不支持错误提示蒙层
+        overlay: false,
+      },
+    },
+    plugins: [
+      new VueLoaderPlugin(),
+      new HippyHMRPlugin({
+        // HMR [hash].hot-update.json will fetch from this path
+        hotManifestPublicPath: 'http://localhost:38989/',
+      }),
+      // add other plugin ...
+    ],
+    module: {
+      rules: [
+        {
+          test: /\.vue$/,
+          use: [
+            vueLoader,
+          ],
+        },
+      ],
+      // add other loaders ...
+    }
+   }
+   ```
+
+3. package.json 配置：
+
+   ```json
+   {
+     "scripts": {
+        "hippy:debug": "hippy-debug",
+        // -c or --config: Provide path to a webpack configuration file
+        "hippy:dev": "hippy-dev -c ./scripts/hippy-webpack.dev.js",
+     }  
+   } 
+   ```
+  
+4. 启动开发：`npm run hippy:debug`，`npm run hippy:dev`
+5. **如果安卓设备断连，需要手动用adb转发端口**
+
+   ```bash
+   # port for debug
+   adb reverse tcp:38989 tcp:38989
+   # port for HMR
+   adb reverse tcp:38988 tcp:38988
+   ```
+
+6. iOS的热更新
+   - iOS 设备需要代理到开发机上，或处于同一网段，才能使用 HMR 能力。对于模拟器，本就和开发机处于同一网段，ip 写 `localhost` 就能访问到。
+   - 修改 webpack 配置：
+ 
+    ```javascript
+    module.exports = {
+      devServer: {
+        host: '<your_ip_or_localhost_with_proxy>',
+      },
+      plugins: [
+        new HippyHMRPlugin({
+          // HMR [hash].hot-update.json will fetch from this path
+          hotManifestPublicPath: 'http://<your_ip_or_localhost_with_proxy>:38989/',
+        }),
+      ],
+    }
+    ```
+
+
+## Hippy-React
+
+1. 安装热更新依赖
+
+   ```bash
+   npm i @hippy/react@^2.12.0
+   npm i -D @hippy/debug-server@^2.12.0 @hippy/hippy-hmr-plugin @hippy/hippy-react-refresh-webpack-plugin react-refresh
+   ```
+
+2. webpack 配置示例
+
+   ```javascript
+   const HippyHMRPlugin = require('@hippy/hippy-hmr-plugin');
+   const ReactRefreshWebpackPlugin = require('@hippy/hippy-react-refresh-webpack-plugin');
+ 
+   module.exports = {
+     devServer: {
+       // 默认 HMR 端口为38988
+       host: 38988,
+       // 默认 hot, liveReload 都为 true，如果只想使用 live-reload 功能，请将 hot 设为 false，liveReload 设为 true
+       hot: true,
+       liveReload: true,
+       devMiddleware: {
+         writeToDisk: true,
+       },
+       client: {
+         // 暂不支持错误提示蒙层
+         overlay: false,
+       },
+     },
+     plugins: [
+       new HippyHMRPlugin({
+        // HMR [hash].hot-update.json will fetch from this path
+         hotManifestPublicPath: 'http://localhost:38989/',
+       }),
+       new ReactRefreshWebpackPlugin({
+         // 暂不支持错误提示蒙层
+         overlay: false,
+       }),
+     ],
+     module: {
+       rules: [
+         {
+           test: /\.(jsx?)$/,
+           use: [
+             {
+               loader: 'babel-loader',
+               options: {
+                 sourceType: 'unambiguous',
+                 presets: [
+                  '@babel/preset-react',
+                  [
+                    '@babel/preset-env',
+                    {
+                      targets: {
+                        chrome: 57,
+                        ios: 9,
+                      },
+                    },
+                  ],
+                 ],
+                 plugins: [
+                   ['@babel/plugin-proposal-class-properties'],
+                   ['@babel/plugin-proposal-decorators', { legacy: true }],
+                   ['@babel/plugin-transform-runtime', { regenerator: true }],
+                   // add react-refresh babel plugin
+                   require.resolve('react-refresh/babel'),
+                 ],
+               },
+             },
+           ],
+         },
+       // other loader ...
+       ],
+     },
+   };
+   ```
+
+3. package.json 配置：
+
+   ```json
+   {
+      "scripts": {
+        "hippy:debug": "hippy-debug",
+        // -c or --config: Provide path to a webpack configuration file
+        "hippy:dev": "hippy-dev -c ./scripts/hippy-webpack.dev.js",
+      }
+   }
+   ```
+
+4. 启动开发：`npm run hippy:debug`，`npm run hippy:dev`
+5. **如果安卓设备断连，需要手动用adb转发端口**
+
+   ```bash
+   # port for debug
+   adb reverse tcp:38989 tcp:38989
+   # port for HMR
+   adb reverse tcp:38988 tcp:38988
+   ```
+
+6. iOS的热更新
+   - iOS 设备需要代理到开发机上，或处于同一网段，才能使用 HMR 能力。对于模拟器，本就和开发机处于同一网段，ip 写 `localhost` 就能访问到。
+   - 修改 webpack 配置：
+ 
+    ```javascript
+    module.exports = {
+      devServer: {
+        host: '<your_ip_or_localhost_with_proxy>',
+      },
+      plugins: [
+        new HippyHMRPlugin({
+          // HMR [hash].hot-update.json will fetch from this path
+          hotManifestPublicPath: 'http://<your_ip_or_localhost_with_proxy>:38989/',
+        }),
+      ],
+    }
+    ```
 
 # 框架日志输出
 

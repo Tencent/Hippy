@@ -65,8 +65,17 @@ class SelectorsMap {
   }
 
   append(appendRules) {
-    this.ruleSets.concat(appendRules);
+    this.ruleSets = this.ruleSets.concat(appendRules);
     appendRules.forEach(rule => rule.lookupSort(this));
+  }
+
+  delete(hash) {
+    const removedRuleSets = [];
+    this.ruleSets = this.ruleSets.filter((rule) => {
+      if (rule.hash !== hash) return true;
+      removedRuleSets.push(rule);
+    });
+    removedRuleSets.forEach(rule => rule.removeSort(this));
   }
 
   query(node) {
@@ -105,8 +114,27 @@ class SelectorsMap {
     this.addToMap(this.type, cssType, sel);
   }
 
+  removeById(id, sel) {
+    this.removeFromMap(this.id, id, sel);
+  }
+
+  removeByClass(cssClass, sel) {
+    this.removeFromMap(this.class, cssClass, sel);
+  }
+
+  removeByType(cssType, sel) {
+    this.removeFromMap(this.type, cssType, sel);
+  }
+
   sortAsUniversal(sel) {
     this.universal.push(this.makeDocSelector(sel));
+  }
+
+  removeAsUniversal(sel) {
+    const index = this.universal.findIndex(item => item.sel.ruleSet.hash === sel.ruleSet.hash);
+    if (index !== -1) {
+      this.universal.splice(index);
+    }
   }
 
   addToMap(map, head, sel) {
@@ -116,6 +144,14 @@ class SelectorsMap {
       list.push(this.makeDocSelector(sel));
     } else {
       map[head] = [this.makeDocSelector(sel)];
+    }
+  }
+
+  removeFromMap(map, head, sel) {
+    const list = map[head];
+    const index = list.findIndex(item => item.sel.ruleSet.hash === sel.ruleSet.hash);
+    if (index !== -1) {
+      list.splice(index, 1);
     }
   }
 

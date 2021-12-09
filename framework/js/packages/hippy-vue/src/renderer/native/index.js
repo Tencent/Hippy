@@ -26,7 +26,7 @@
  */
 
 import Native, { UIManagerModule } from '../../runtime/native';
-import { GLOBAL_STYLE_NAME } from '../../runtime/constants';
+import { GLOBAL_STYLE_NAME, GLOBAL_DISPOSE_STYLE_NAME } from '../../runtime/constants';
 import {
   getApp,
   trace,
@@ -147,20 +147,27 @@ function getCssMap() {
    * To support dynamic import, __cssMap can be loaded from different js file.
    * __cssMap should be create/append if global[GLOBAL_STYLE_NAME] exists;
    */
-  if (__cssMap && !global[GLOBAL_STYLE_NAME]) {
-    return __cssMap;
+  if (!__cssMap || global[GLOBAL_STYLE_NAME]) {
+    /**
+     *  Here is a secret startup option: beforeStyleLoadHook.
+     *  Usage for process the styles while styles loading.
+     */
+    const cssRules = fromAstNodes(global[GLOBAL_STYLE_NAME]);
+    if (__cssMap) {
+      __cssMap.append(cssRules);
+    } else {
+      __cssMap = new SelectorsMap(cssRules);
+    }
+    global[GLOBAL_STYLE_NAME] = undefined;
   }
-  /**
-   *  Here is a secret startup option: beforeStyleLoadHook.
-   *  Usage for process the styles while styles loading.
-   */
-  const cssRules = fromAstNodes(global[GLOBAL_STYLE_NAME]);
-  if (__cssMap) {
-    __cssMap.append(cssRules);
-  } else {
-    __cssMap = new SelectorsMap(cssRules);
+
+  if (global[GLOBAL_DISPOSE_STYLE_NAME]) {
+    global[GLOBAL_DISPOSE_STYLE_NAME].forEach((id) => {
+      __cssMap.delete(id);
+    });
+    global[GLOBAL_DISPOSE_STYLE_NAME] = undefined;
   }
-  global[GLOBAL_STYLE_NAME] = undefined;
+
   return __cssMap;
 }
 

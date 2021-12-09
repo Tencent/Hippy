@@ -1,87 +1,95 @@
 [
   {
+    "hash": "chunk-1",
     "selectors": [],
     "declarations": []
   },
-  {  
-    "selectors":[  
+  {
+    "hash": "chunk-1",
+    "selectors":[
       "*"
     ],
-    "declarations":[  
-      {  
+    "declarations":[
+      {
         "type":"declaration",
         "property":"UniversalSelector",
         "value":"UniversalSelector"
       }
     ]
   },
-  {  
-    "selectors":[  
+  {
+    "hash": "chunk-1",
+    "selectors":[
       "#id"
     ],
-    "declarations":[  
-      {  
+    "declarations":[
+      {
         "type":"declaration",
         "property":"IdSelector",
         "value":"IdSelector"
       }
     ]
   },
-  {  
-    "selectors":[  
+  {
+    "hash": "chunk-1",
+    "selectors":[
       "tag"
     ],
-    "declarations":[  
-      {  
+    "declarations":[
+      {
         "type":"declaration",
         "property":"TypeSelector",
         "value":"TypeSelector"
       }
     ]
   },
-  {  
-    "selectors":[  
+  {
+    "hash": "chunk-1",
+    "selectors":[
       ".class"
     ],
-    "declarations":[  
-      {  
+    "declarations":[
+      {
         "type":"declaration",
         "property":"ClassSelector",
         "value":"ClassSelector"
       }
     ]
   },
-  {  
-    "selectors":[  
+  {
+    "hash": "chunk-1",
+    "selectors":[
       "#id:hover"
     ],
-    "declarations":[  
-      {  
+    "declarations":[
+      {
         "type":"declaration",
         "property":"PseudoClassSelector",
         "value":"PseudoClassSelector"
       }
     ]
   },
-  {  
-    "selectors":[  
+  {
+    "hash": "chunk-1",
+    "selectors":[
       "#id[attr=\"test\"]"
     ],
-    "declarations":[  
-      {  
+    "declarations":[
+      {
         "type":"declaration",
         "property":"AttributeSelector",
         "value":"AttributeSelector"
       }
     ]
   },
-  {  
-    "selectors":[  
+  {
+    "hash": "chunk-1",
+    "selectors":[
       "#id",
       "*"
     ],
-    "declarations":[  
-      {  
+    "declarations":[
+      {
         "type":"declaration",
         "property":"IdSelector",
         "value":"IdSelector"
@@ -93,13 +101,14 @@
       }
     ]
   },
-  {  
-    "selectors":[  
+  {
+    "hash": "chunk-1",
+    "selectors":[
       ".class",
       "*"
     ],
-    "declarations":[  
-      {  
+    "declarations":[
+      {
         "type":"declaration",
         "property":"ClassSelector",
         "value":"ClassSelector"
