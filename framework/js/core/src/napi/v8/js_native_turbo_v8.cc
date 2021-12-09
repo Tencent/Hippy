@@ -23,9 +23,6 @@
 #include "core/napi/v8/js_native_turbo_v8.h"
 
 #include <core/base/string_view_utils.h>
-#include <jni/java_turbo_module.h>
-
-#include "hippy.h"
 
 using unicode_string_view = tdf::base::unicode_string_view;
 
@@ -92,7 +89,7 @@ std::shared_ptr<CtxValue> V8TurboEnv::CreateObject(
   if (!host_object_constructor_.Get(isolate)
            ->NewInstance(context)
            .ToLocal(&new_object)) {
-    ConvertUtils::ThrowException(context_, "CreateObject Fail.");
+    //ConvertUtils::ThrowException(context_, "CreateObject Fail.");
     return context_->CreateUndefined();
   }
 
@@ -126,7 +123,7 @@ std::shared_ptr<napi::CtxValue> V8TurboEnv::CreateFunction(
                isolate, v8::External::New(isolate, host_function_proxy)),
            param_count)
            .ToLocal(&new_function)) {
-    ConvertUtils::ThrowException(context_, "CreateFunction Fail.");
+    //ConvertUtils::ThrowException(context_, "CreateFunction Fail.");
     return context_->CreateUndefined();
   }
 
