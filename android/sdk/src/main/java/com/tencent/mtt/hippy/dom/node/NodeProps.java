@@ -155,8 +155,12 @@ public class NodeProps {
   public static final String CUSTOM_PROP = "customProp";
   public static final String CUSTOM_PROP_ISGIF = "isGif";
   public static final String CUSTOM_PROP_IMAGE_TYPE = "imageType";
-
-  public static final String PROP_ACCESSIBILITY_LABEL = "accessibilityLabel";
+  public static final String ACCESSIBILITY_LABEL = "accessibilityLabel";
+  public static final String ACCESSIBILITY_HINT = "accessibilityHint";
+  public static final String ACCESSIBILITY_ROLE = "accessibilityRole";
+  public static final String ACCESSIBILITY_STATE = "accessibilityState";
+  public static final String ACCESSIBILITY_VALUE = "accessibilityValue";
+  public static final String ACCESSIBILITY_ACTIONS = "accessibilityActions";
   public static final String FOCUSABLE = "focusable";
   public static final String NEXT_FOCUS_DOWN_ID = "nextFocusDownId";
   public static final String NEXT_FOCUS_UP_ID = "nextFocusUpId";

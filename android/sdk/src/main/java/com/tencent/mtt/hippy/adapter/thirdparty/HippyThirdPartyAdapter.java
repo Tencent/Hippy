@@ -1,5 +1,6 @@
 package com.tencent.mtt.hippy.adapter.thirdparty;
 
+import androidx.core.view.AccessibilityDelegateCompat;
 import com.tencent.mtt.hippy.dom.node.DomNodeRecord;
 import java.util.ArrayList;
 import org.json.JSONObject;
@@ -22,6 +23,8 @@ public abstract class HippyThirdPartyAdapter {
   public abstract void setPageUrl(String url);
 
   public abstract String getPageUrl();
+
+  public abstract AccessibilityDelegateCompat getAccessibilityDelegate();
 
   public abstract void setExtraData(JSONObject extraData);
 

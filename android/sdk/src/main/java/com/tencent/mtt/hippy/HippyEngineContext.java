@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy;
 
+import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
 import com.tencent.mtt.hippy.bridge.HippyBridgeManager;
 import com.tencent.mtt.hippy.common.ThreadExecutor;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
@@ -45,6 +46,8 @@ public interface HippyEngineContext {
   RenderManager getRenderManager();
 
   HippyRootView getInstance(int id);
+
+  HippyThirdPartyAdapter getThirdPartyAdapter();
 
   void addInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);
 

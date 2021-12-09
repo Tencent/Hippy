@@ -34,6 +34,10 @@ public class HippyMap {
     return mDatas.toString();
   }
 
+  public HashMap<String, Object> getInternalMap() {
+    return mDatas;
+  }
+
   public HippyMap() {
     mDatas = new HashMap<>();
   }

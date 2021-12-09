@@ -993,6 +993,11 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     @Override
+    public HippyThirdPartyAdapter getThirdPartyAdapter() {
+      return mThirdPartyAdapter;
+    }
+
+    @Override
     public void addInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener) {
       if (mInstanceLifecycleEventListeners == null) {
         synchronized (HippyEngineContextImpl.class) {

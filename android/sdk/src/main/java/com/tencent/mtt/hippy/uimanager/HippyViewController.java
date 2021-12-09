@@ -15,17 +15,27 @@
  */
 package com.tencent.mtt.hippy.uimanager;
 
+import static com.tencent.mtt.hippy.uimanager.HippyAccessibilityDelegate.STATE_BUSY;
+import static com.tencent.mtt.hippy.uimanager.HippyAccessibilityDelegate.STATE_CHECKED;
+import static com.tencent.mtt.hippy.uimanager.HippyAccessibilityDelegate.STATE_EXPANDED;
+import static com.tencent.mtt.hippy.uimanager.HippyAccessibilityDelegate.STATE_MIXED;
+
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Looper;
 import android.os.MessageQueue;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.view.accessibility.AccessibilityEvent;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.HippyRootView;
+import com.tencent.mtt.hippy.R;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
@@ -33,6 +43,7 @@ import com.tencent.mtt.hippy.common.HippyTag;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.dom.node.StyleNode;
 import com.tencent.mtt.hippy.modules.Promise;
+import com.tencent.mtt.hippy.uimanager.HippyAccessibilityDelegate.AccessibilityRole;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.common.CommonBorder;
@@ -45,6 +56,8 @@ import com.tencent.mtt.supportui.views.IShadow;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings({"deprecation", "unused"})
@@ -109,7 +122,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
   }
 
   public void onAfterUpdateProps(T v) {
-
+    HippyAccessibilityDelegate.setDelegate(v);
   }
 
   //	public void updateProps(View view, HippyMap props)
@@ -207,12 +220,112 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
     }
   }
 
-  @HippyControllerProps(name = NodeProps.PROP_ACCESSIBILITY_LABEL)
+  @HippyControllerProps(name = NodeProps.ACCESSIBILITY_LABEL, defaultType = HippyControllerProps.STRING)
   public void setAccessibilityLabel(T view, String accessibilityLabel) {
-    if (accessibilityLabel == null) {
-      accessibilityLabel = "";
+    view.setTag(R.id.hippy_accessibility_label, accessibilityLabel);
+    updateViewContentDescription(view);
+  }
+
+  @HippyControllerProps(name = NodeProps.ACCESSIBILITY_HINT, defaultType = HippyControllerProps.STRING)
+  public void setAccessibilityHint(T view, String accessibilityHint) {
+    view.setTag(R.id.hippy_accessibility_hint, accessibilityHint);
+    updateViewContentDescription(view);
+  }
+
+  @HippyControllerProps(name = NodeProps.ACCESSIBILITY_ROLE, defaultType = HippyControllerProps.STRING)
+  public void setAccessibilityRole(T view, String accessibilityRole) {
+    if (accessibilityRole == null) {
+      return;
     }
-    view.setContentDescription(accessibilityLabel);
+    view.setTag(R.id.hippy_accessibility_role, AccessibilityRole.fromValue(accessibilityRole));
+  }
+
+  @HippyControllerProps(name = NodeProps.ACCESSIBILITY_VALUE, defaultType = HippyControllerProps.MAP)
+  public void setAccessibilityValue(T view, HippyMap accessibilityValue) {
+    if (accessibilityValue == null) {
+      return;
+    }
+    view.setTag(R.id.hippy_accessibility_value, accessibilityValue.getInternalMap());
+    if (accessibilityValue.containsKey("text")) {
+      updateViewContentDescription(view);
+    }
+  }
+
+  @HippyControllerProps(name = NodeProps.ACCESSIBILITY_STATE, defaultType = HippyControllerProps.MAP)
+  public void setAccessibilityState(T view, HippyMap accessibilityState) {
+    if (accessibilityState == null) {
+      return;
+    }
+    view.setTag(R.id.hippy_accessibility_state, accessibilityState.getInternalMap());
+    view.setSelected(false);
+    view.setEnabled(true);
+
+    for (Map.Entry<String, Object> entry : accessibilityState.entrySet()) {
+      String state = entry.getKey();
+      Object value = entry.getValue();
+      if (state.equals(STATE_BUSY)
+          || state.equals(STATE_EXPANDED)
+          || (state.equals(STATE_CHECKED) && value instanceof String)) {
+        updateViewContentDescription(view);
+        break;
+      } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (view.isAccessibilityFocused()) {
+          view.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_CLICKED);
+        }
+      }
+    }
+  }
+
+  @HippyControllerProps(name = NodeProps.ACCESSIBILITY_ACTIONS, defaultType = HippyControllerProps.ARRAY)
+  public void setAccessibilityActions(T view, HippyArray accessibilityActions) {
+    if (accessibilityActions == null) {
+      return;
+    }
+
+    view.setTag(R.id.hippy_accessibility_actions, accessibilityActions.getInternalArray());
+  }
+
+  protected void updateViewContentDescription(@NonNull T view) {
+    final String accessibilityLabel = (String) view.getTag(R.id.hippy_accessibility_label);
+    final String accessibilityHint = (String) view.getTag(R.id.hippy_accessibility_hint);
+    final HashMap<String, Object> accessibilityState =
+        (HashMap<String, Object>) view.getTag(R.id.hippy_accessibility_state);
+    final HashMap<String, Object> accessibilityValue =
+        (HashMap<String, Object>) view.getTag(R.id.hippy_accessibility_value);
+    final List<String> contentDescription = new ArrayList<>();
+    if (accessibilityLabel != null) {
+      contentDescription.add(accessibilityLabel);
+    }
+    if (accessibilityState != null) {
+      for (Map.Entry<String, Object> entry : accessibilityState.entrySet()) {
+        String state = entry.getKey();
+        Object value = entry.getValue();
+        if (state.equals(STATE_CHECKED)
+            && value instanceof String
+            && value.equals(STATE_MIXED)) {
+          contentDescription.add(STATE_MIXED);
+        } else if (state.equals(STATE_BUSY)
+            && value instanceof Boolean
+            && ((Boolean) value).booleanValue()) {
+          contentDescription.add(STATE_BUSY);
+        } else if (state.equals(STATE_EXPANDED)
+            && value instanceof Boolean) {
+          contentDescription.add(((Boolean) value).booleanValue() ? "expanded" : "collapsed");
+        }
+      }
+    }
+    if (accessibilityValue != null && accessibilityValue.containsKey("text")) {
+      final Object text = accessibilityValue.get("text");
+      if (text instanceof String) {
+        contentDescription.add((String) text);
+      }
+    }
+    if (accessibilityHint != null) {
+      contentDescription.add(accessibilityHint);
+    }
+    if (contentDescription.size() > 0) {
+      view.setContentDescription(TextUtils.join(", ", contentDescription));
+    }
   }
 
   /**
