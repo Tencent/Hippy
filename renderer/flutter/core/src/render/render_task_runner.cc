@@ -153,7 +153,7 @@ void VoltronRenderTaskRunner::RunCallFunction(const std::weak_ptr<DomNode> &dom_
                                               const std::string &name,
                                               const std::unordered_map<std::string,
                                                                        std::shared_ptr<DomValue>> &param,
-                                              const DispatchFunctionCallback &cb) {
+                                              const hippy::CallFunctionCallback &cb) {
   auto node = dom_node.lock();
   auto bridge_manager = BridgeManager::GetBridgeManager(engine_id_);
   if (node && bridge_manager) {

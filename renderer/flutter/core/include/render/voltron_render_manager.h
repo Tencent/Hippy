@@ -6,16 +6,10 @@
 
 namespace voltron {
 
-using hippy::DispatchFunctionCallback;
+using hippy::CallFunctionCallback;
 using hippy::LayoutDiffMapKey;
 using hippy::LayoutResult;
-using hippy::OnClickEventListener;
-using hippy::OnLongClickEventListener;
-using hippy::OnTouchEventListener;
 using hippy::RenderManager;
-using hippy::TouchEvent;
-using hippy::OnShowEventListener;
-using hippy::ShowEvent;
 
 class VoltronRenderManager : public RenderManager, private VoltronRenderTaskRunner {
  public:
@@ -29,18 +23,9 @@ class VoltronRenderManager : public RenderManager, private VoltronRenderTaskRunn
 
   void Batch() override;
 
-  void CallFunction(std::weak_ptr<DomNode> domNode, const std::string& name,
-                    std::unordered_map<std::string, std::shared_ptr<DomValue>> param,
-                    DispatchFunctionCallback cb) override;
-
-  void SetClickEventListener(int32_t id, OnClickEventListener listener) override;
-  void RemoveClickEventListener(int32_t id) override;
-  void SetLongClickEventListener(int32_t id, OnLongClickEventListener listener) override;
-  void RemoveLongClickEventListener(int32_t id) override;
-  void SetTouchEventListener(int32_t id, TouchEvent event, OnTouchEventListener listener) override;
-  void RemoveTouchEventListener(int32_t id, TouchEvent event) override;
-  void SetShowEventListener(int32_t id, ShowEvent event, OnShowEventListener listener) override;
-  void RemoveShowEventListener(int32_t id, ShowEvent event) override;
+  void AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name, const DomValue& param) override;
+  void CallFunction(std::weak_ptr<DomNode> dom_node, const std::string& name, const DomValue& param,
+                    CallFunctionCallback cb) override;
 
   int32_t GetRootId() {
     return root_id_;
