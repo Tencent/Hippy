@@ -135,7 +135,7 @@ interface WebStyle {
 }
 
 function handleBoxStyle(webStyle: WebStyle) {
-  // 处理普通border
+  // handle border
   borderPropsArray.every((borderProp) => {
     if (hasOwnProperty(webStyle, borderProp)) {
       // eslint-disable-next-line no-param-reassign
@@ -145,7 +145,7 @@ function handleBoxStyle(webStyle: WebStyle) {
     return true;
   });
 
-  // 处理marginHorizontal
+  // handle marginHorizontal
   if (hasOwnProperty(webStyle, 'marginHorizontal')) {
     const val = toPx(webStyle.marginHorizontal);
     /* eslint-disable no-param-reassign */
@@ -153,19 +153,19 @@ function handleBoxStyle(webStyle: WebStyle) {
     webStyle.marginRight = val;
   }
 
-  // 处理marginVertical
+  // handle marginVertical
   if (hasOwnProperty(webStyle, 'marginVertical')) {
     const val = toPx(webStyle.marginVertical);
     webStyle.marginTop = val;
     webStyle.marginBottom = val;
   }
-  // 处理paddingHorizontal
+  // handle paddingHorizontal
   if (hasOwnProperty(webStyle, 'paddingHorizontal')) {
     const val = toPx(webStyle.paddingHorizontal);
     webStyle.paddingLeft = val;
     webStyle.paddingRight = val;
   }
-  // 处理paddingVertical
+  // handle paddingVertical
   if (hasOwnProperty(webStyle, 'paddingVertical')) {
     const val = toPx(webStyle.paddingVertical);
     webStyle.paddingTop = val;
@@ -173,7 +173,7 @@ function handleBoxStyle(webStyle: WebStyle) {
   }
 }
 
-// 处理颜色数组（QQ浏览器专有）
+// handle special color array
 function handleSpecialColor(webStyle: WebStyle) {
   const colorStyleArr = [
     ['color', 'colors'],
@@ -193,7 +193,7 @@ function handleSpecialColor(webStyle: WebStyle) {
 }
 
 function handle8BitHexColor(webStyle: WebStyle) {
-  // 处理八位16进制的颜色值为rgba颜色值
+  // covert color from hex to rgba
   if (is8DigitHexColor(webStyle.backgroundColor)) {
     webStyle.backgroundColor = transformHexToRgba(webStyle.backgroundColor);
   }
@@ -247,7 +247,7 @@ function hackWebStyle(webStyle_: any) {
 
   webStyle.boxSizing = 'border-box';
 
-  // 处理特殊 border
+  // handle special border
   borderSpecialPropsArray.forEach((borderProp) => {
     if (hasOwnProperty(webStyle, borderProp)) {
       webStyle.borderStyle = null;
@@ -268,7 +268,7 @@ function hackWebStyle(webStyle_: any) {
     webStyle.height = '1px';
   }
   handleSpecialColor(webStyle);
-  // 处理八位16进制的颜色值为rgba颜色值
+  // convert 8bit color from hex rgba
   handle8BitHexColor(webStyle);
 
   Object.keys(webStyle)
@@ -276,11 +276,11 @@ function hackWebStyle(webStyle_: any) {
       const value = webStyle[key];
       if (value) {
         if (value instanceof Animation) {
-          // 动画给初始值
+          // start value for animation
           webStyle[key] = value.startValue;
           value.setStyleAttribute(key);
         } else if (value instanceof AnimationSet && value.children && value.children.length > 0) {
-          // 确认AnimationSet是确实有children
+          // ensure animation set children existing
           const firstAnimation = value.children[0];
           webStyle[key] = firstAnimation.startValue;
           value.setStyleAttribute(key);
@@ -288,7 +288,7 @@ function hackWebStyle(webStyle_: any) {
       }
     });
 
-  // 处理transform
+  // handle transform
   if (webStyle.transform) {
     const finalTransformStyleResult = resolveTransform(webStyle.transform);
     if (typeof finalTransformStyleResult !== 'string') {
