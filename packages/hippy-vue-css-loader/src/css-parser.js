@@ -34,6 +34,7 @@ const PROPERTIES_MAP = {
   boxShadowRadius: 'shadowRadius',
   boxShadowSpread: 'shadowSpread',
   boxShadowColor: 'shadowColor',
+  caretColor: 'caret-color',
 };
 
 // linear-gradient direction description map

@@ -342,6 +342,8 @@ class ElementNode extends ViewNode {
           animationId: styleValue.animationId,
         };
         // Translate color
+      } else if (['caretColor', 'caret-color'].indexOf(styleKey) >= 0) {
+        this.attributes['caret-color'] = colorParse((styleValue as Color));
       } else if (styleKey.toLowerCase().indexOf('colors') > -1) {
         (this.style as any)[styleKey] = colorArrayParse((styleValue as Color[]));
       } else if (styleKey.toLowerCase().indexOf('color') > -1) {
@@ -404,6 +406,13 @@ class ElementNode extends ViewNode {
           action: () => {
             this.attributes[key] = value;
             return Device.platform.OS !== 'ios';
+          },
+        },
+        {
+          match: () => ['caretColor', 'caret-color'].indexOf(key) >= 0,
+          action: () => {
+            this.attributes['caret-color'] = colorParse(value);
+            return false;
           },
         },
         {
