@@ -18,6 +18,8 @@ class Deserializer {
 
   void ReadHeader();
 
+  bool ReadObject(DomValue& value);
+
   bool PeekTag(SerializationTag& tag);
 
   bool ReadTag(SerializationTag& tag);
@@ -58,8 +60,6 @@ class Deserializer {
 
   template <typename T>
   T ReadZigZag();
-
-  bool ReadObject(DomValue& value);
 
   uint32_t ReadObjectProperties(SerializationTag end_tag);
 
