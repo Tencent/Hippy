@@ -154,10 +154,10 @@ void HPNode::setStyle(const HPStyle& st) {
   // TODO(ianwang): layout if needed???
 }
 
-bool HPNode::setMeasureFunc(HPMeasureFunc _measure) {
-  if (measure == _measure) {
-    return true;
-  }
+bool HPNode::setMeasureFunc(LayoutMesureFunction _measure) {
+//  if (*measure == _measure) {
+//    return true;
+//  }
 
   // not leaf node , not set measure
   if (childCount() > 0) {
@@ -283,13 +283,13 @@ void HPNode::setDirtiedFunc(HPDirtiedFunc _dirtiedFunc) {
   dirtiedFunc = _dirtiedFunc;
 }
 
-void HPNode::setContext(void* _context) {
-  context = _context;
-}
+// void HPNode::setContext(void* _context) {
+//   context = _context;
+// }
 
-void* HPNode::getContext() {
-  return context;
-}
+// void* HPNode::getContext() {
+//   return context;
+// }
 
 bool HPNode::isLayoutDimDefined(FlexDirection axis) {
   return isDefined(result.dim[axisDim[axis]]);

@@ -73,7 +73,7 @@ void HPNodeStyleSetHeight(HPNodeRef node, float height) {
   node->markAsDirty();
 }
 
-bool HPNodeSetMeasureFunc(HPNodeRef node, HPMeasureFunc _measure) {
+bool HPNodeSetMeasureFunc(HPNodeRef node, LayoutMesureFunction _measure) {
   if (node == nullptr)
     return false;
 
@@ -387,18 +387,18 @@ HPConfigRef HPConfigGetDefault() {
   return defaultConfig;
 }
 
-void HPNodeSetContext(HPNodeRef node, void *context) {
-  if (node) {
-    node->setContext(context);
-  }
-}
+//void HPNodeSetContext(HPNodeRef node, void *context) {
+//  if (node) {
+//    node->setContext(context);
+//  }
+//}
 
-void *HPNodeGetContext(HPNodeRef node) {
-  if (node) {
-    return node->getContext();
-  }
-  return nullptr;
-}
+//void *HPNodeGetContext(HPNodeRef node) {
+//  if (node) {
+//    return node->getContext();
+//  }
+//  return nullptr;
+//}
 
 void HPNodeStyleSetDisplay(HPNodeRef node, DisplayType displayType) {
   if (node == nullptr)

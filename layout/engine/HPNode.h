@@ -17,6 +17,7 @@
 
 #pragma once
 
+#include <functional>
 #include <vector>
 
 #include "Flex.h"
@@ -30,12 +31,11 @@ HPConfigRef HPConfigGetDefault();
 
 class HPNode;
 typedef HPNode *HPNodeRef;
-typedef HPSize (*HPMeasureFunc)(HPNodeRef node,
-                                float width,
-                                MeasureMode widthMeasureMode,
-                                float height,
-                                MeasureMode heightMeasureMode,
-                                void *layoutContext);
+
+using LayoutMesureFunction = std::function<HPSize(
+    HPNodeRef node, float width, MeasureMode widthMeasureMode, float height,
+    MeasureMode heightMeasureMode, void *layoutContext)>;
+
 typedef void (*HPDirtiedFunc)(HPNodeRef node);
 
 class HPNode {
@@ -48,7 +48,7 @@ class HPNode {
   void printNode(uint32_t indent = 0);
   HPStyle getStyle();
   void setStyle(const HPStyle &st);
-  bool setMeasureFunc(HPMeasureFunc _measure);
+  bool setMeasureFunc(LayoutMesureFunction _measure);
   void setParent(HPNodeRef _parent);
   HPNodeRef getParent();
   void addChild(HPNodeRef item);
@@ -65,8 +65,8 @@ class HPNode {
   void setDirty(bool dirtyOrNot);
   void setDirtiedFunc(HPDirtiedFunc _dirtiedFunc);
 
-  void setContext(void *_context);
-  void *getContext();
+  // void setContext(void *_context);
+  // void *getContext();
 
   float getStartBorder(FlexDirection axis);
   float getEndBorder(FlexDirection axis);
@@ -151,7 +151,7 @@ class HPNode {
   void *context;
   std::vector<HPNodeRef> children;
   HPNodeRef parent;
-  HPMeasureFunc measure;
+  LayoutMesureFunction measure;
 
   bool isFrozen;
   bool isDirty;
