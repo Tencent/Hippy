@@ -526,7 +526,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         for (HippyShadowView *shadowView in viewsWithNewFrames) {
             NSNumber *hippyTag = shadowView.hippyTag;
             UIView *view = viewRegistry[hippyTag];
-            view.frame = shadowView.frame;
+            [view hippySetFrame:shadowView.frame];
             [view clearSortedSubviews];
             [view didUpdateHippySubviews];
         }
@@ -536,18 +536,12 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 - (void)_amendPendingUIBlocksWithStylePropagationUpdateForShadowView:(HippyShadowView *)topView {
     NSMutableSet<HippyApplierBlock> *applierBlocks = [NSMutableSet setWithCapacity:1];
 
-    NSMutableSet<HippyApplierVirtualBlock> *virtualApplierBlocks = [NSMutableSet setWithCapacity:1];
-    [topView collectUpdatedProperties:applierBlocks virtualApplierBlocks:virtualApplierBlocks parentProperties:@{}];
+//    NSMutableSet<HippyApplierVirtualBlock> *virtualApplierBlocks = [NSMutableSet setWithCapacity:1];
+    [topView collectUpdatedProperties:applierBlocks parentProperties:@{}];
     if (applierBlocks.count) {
         [self addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
             for (HippyApplierBlock block in applierBlocks) {
                 block(viewRegistry);
-            }
-        }];
-
-        [self addVirtulNodeBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, HippyVirtualNode *> *virtualNodeRegistry) {
-            for (HippyApplierVirtualBlock block in virtualApplierBlocks) {
-                block(virtualNodeRegistry);
             }
         }];
     }
@@ -1100,8 +1094,9 @@ HIPPY_EXPORT_METHOD(dispatchViewManagerCommand:(nonnull NSNumber *)hippyTag
 //    // Perform layout
     for (NSNumber *hippyTag in _rootViewTags) {
         HippyRootShadowView *rootView = (HippyRootShadowView *)_shadowViewRegistry[hippyTag];
+        //collect shadow views which layout changed, and add application of frame-set to UIBlock
         [self addUIBlock:[self uiBlockWithLayoutUpdateForRootView:rootView]];
-//        [self _amendPendingUIBlocksWithStylePropagationUpdateForShadowView:rootView];
+        [self _amendPendingUIBlocksWithStylePropagationUpdateForShadowView:rootView];
     }
 //
 //    [self addUIBlock:^(HippyUIManager *uiManager, __unused NSDictionary<NSNumber *, UIView *> *viewRegistry) {

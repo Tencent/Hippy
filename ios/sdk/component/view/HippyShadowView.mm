@@ -317,21 +317,6 @@ typedef NS_ENUM(unsigned int, meta_prop_t) {
     return parentProperties;
 }
 
-- (void)collectUpdatedProperties:(NSMutableSet<HippyApplierBlock> *)applierBlocks
-            virtualApplierBlocks:(NSMutableSet<HippyApplierVirtualBlock> *)virtualApplierBlocks
-                parentProperties:(NSDictionary<NSString *, id> *)parentProperties {
-    if (_propagationLifecycle == HippyUpdateLifecycleComputed && [parentProperties isEqualToDictionary:_lastParentProperties]) {
-        return;
-    }
-    _propagationLifecycle = HippyUpdateLifecycleComputed;
-    _lastParentProperties = parentProperties;
-    NSDictionary<NSString *, id> *nextProps = [self processUpdatedProperties:applierBlocks virtualApplierBlocks:virtualApplierBlocks
-                                                            parentProperties:parentProperties];
-    for (HippyShadowView *child in _hippySubviews) {
-        [child collectUpdatedProperties:applierBlocks virtualApplierBlocks:virtualApplierBlocks parentProperties:nextProps];
-    }
-}
-
 //- (void)collectUpdatedFrames:(NSMutableSet<HippyShadowView *> *)viewsWithNewFrame
 //                   withFrame:(CGRect)frame
 //                      hidden:(BOOL)hidden
@@ -561,25 +546,9 @@ typedef NS_ENUM(unsigned int, meta_prop_t) {
 //HIPPY_PADDING_PROPERTY(Bottom, BOTTOM)
 //HIPPY_PADDING_PROPERTY(Right, RIGHT)
 //
-//- (UIEdgeInsets)paddingAsInsets {
-//    CGFloat top = HPNodeLayoutGetPadding(_nodeRef, CSSTop);
-//    if (isnan(top)) {
-//        top = 0;
-//    }
-//    CGFloat left = HPNodeLayoutGetPadding(_nodeRef, CSSLeft);
-//    if (isnan(left)) {
-//        left = 0;
-//    }
-//    CGFloat bottom = HPNodeLayoutGetPadding(_nodeRef, CSSBottom);
-//    if (isnan(bottom)) {
-//        bottom = 0;
-//    }
-//    CGFloat right = HPNodeLayoutGetPadding(_nodeRef, CSSRight);
-//    if (isnan(right)) {
-//        right = 0;
-//    }
-//    return UIEdgeInsetsMake(top, left, bottom, right);
-//}
+- (UIEdgeInsets)paddingAsInsets {
+    return UIEdgeInsetsFromLayoutResult(self.domNode->GetLayoutResult());
+}
 //
 //// Border
 //#define HIPPY_BORDER_PROPERTY(prop, metaProp)           \

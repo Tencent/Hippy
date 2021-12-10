@@ -86,6 +86,10 @@ CGRect CGRectMakeFromLayoutResult(hippy::LayoutResult result) {
     return CGRectMake(result.left, result.top, result.width, result.height);
 }
 
+UIEdgeInsets UIEdgeInsetsFromLayoutResult(hippy::LayoutResult result) {
+    return UIEdgeInsetsMake(result.paddingTop, result.paddingLeft, result.paddingBottom, result.paddingRight);
+}
+
 CGRect CGRectMakeFromDomNode(const std::shared_ptr<hippy::DomNode> &domNode) {
     return CGRectMakeFromLayoutResult(domNode->GetLayoutResult());
 }
