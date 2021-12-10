@@ -7,8 +7,8 @@
 namespace hippy {
 inline namespace dom {
 
-typedef CSSDirection TaitankCssDirection;
-typedef HPMeasureFunc TaitankMeasureFunction;
+using TaitankCssDirection = CSSDirection;
+using TaitankMeasureFunction = LayoutMesureFunction;
 
 class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this<TaitankLayoutNode> {
  public:

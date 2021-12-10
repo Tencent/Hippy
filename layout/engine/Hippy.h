@@ -32,7 +32,7 @@ void HPNodeFreeRecursive(HPNodeRef node);
 void HPNodeStyleSetDirection(HPNodeRef node, HPDirection direction);
 void HPNodeStyleSetWidth(HPNodeRef node, float width);
 void HPNodeStyleSetHeight(HPNodeRef node, float height);
-bool HPNodeSetMeasureFunc(HPNodeRef node, HPMeasureFunc _measure);
+bool HPNodeSetMeasureFunc(HPNodeRef node, LayoutMesureFunction _measure);
 void HPNodeStyleSetFlex(HPNodeRef node, float flex);
 void HPNodeStyleSetFlexGrow(HPNodeRef node, float flexGrow);
 void HPNodeStyleSetFlexShrink(HPNodeRef node, float flexShrink);
@@ -92,8 +92,8 @@ void HPNodeSetConfig(HPNodeRef node, HPConfigRef config);
 void HPConfigFree(HPConfigRef);
 HPConfigRef HPConfigGetDefault();
 
-void HPNodeSetContext(HPNodeRef node, void *context);
-void *HPNodeGetContext(HPNodeRef node);
+//void HPNodeSetContext(HPNodeRef node, void *context);
+//void *HPNodeGetContext(HPNodeRef node);
 
 bool HPNodeInsertChild(HPNodeRef node, HPNodeRef child, uint32_t index);
 bool HPNodeRemoveChild(HPNodeRef node, HPNodeRef child);
