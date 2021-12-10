@@ -123,18 +123,9 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
 
   /**
    * 设置输入光标颜色
-   **///RN 语法 caret-color
+   **/
   @HippyControllerProps(name = "caret-color", defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.TRANSPARENT)
   public void setCaretColor(HippyTextInput hippyTextInput, int cursorColor) {
-    hippyTextInput.setCursorColor(cursorColor);
-  }
-
-  /**
-   * 设置输入光标颜色
-   **/
-  //For Vue.vue的前端语法，会把caret-color转化成caretColor
-  @HippyControllerProps(name = "caretColor", defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.TRANSPARENT)
-  public void setCaretColorAlias(HippyTextInput hippyTextInput, int cursorColor) {
     hippyTextInput.setCursorColor(cursorColor);
   }
 
