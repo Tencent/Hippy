@@ -113,6 +113,7 @@ export default class TextInputExpo extends Component {
         />
         {renderTitle('maxLength')}
         <TextInput
+          caretColor={'yellow'}
           style={styles.input_style}
           placeholder="maxLength=5"
           maxLength={5}
