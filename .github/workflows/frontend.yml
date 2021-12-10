@@ -3,10 +3,10 @@ name: '[FrontEnd] check js code'
 on:
   push:
     paths:
-      - 'packages/**'
-      - 'examples/hippy-*-demo/**'
+      - 'framework/js/packages/**'
+      - 'framework/js/examples/hippy-*-demo/**'
       - 'scripts/**/*.js'
-      - 'core/js/**/*.js'
+      - 'framework/js/core/js/**/*.js'
     branches:
       # Push events on main branch
       - main
@@ -16,10 +16,10 @@ on:
       - '**'
   pull_request:
     paths:
-      - 'packages/**'
-      - 'examples/hippy-*-demo/**'
+      - 'framework/js/packages/**'
+      - 'framework/js/examples/hippy-*-demo/**'
       - 'scripts/**/*.js'
-      - 'core/js/**/*.js'
+      - 'framework/js/core/js/**/*.js'
     branches:
       # Pull request events to main branch
       - main
