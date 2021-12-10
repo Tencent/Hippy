@@ -34,6 +34,8 @@ HIPPY_EXTERN NSDictionary *unorderedMapDomValueToDictionary(const std::unordered
 
 HIPPY_EXTERN CGRect CGRectMakeFromLayoutResult(hippy::LayoutResult result);
 
+HIPPY_EXTERN UIEdgeInsets UIEdgeInsetsFromLayoutResult(hippy::LayoutResult result);
+
 HIPPY_EXTERN CGRect CGRectMakeFromDomNode(const std::shared_ptr<hippy::DomNode> &domNode);
 
 HIPPY_EXTERN NSNumber *domValueToNumber(const tdf::base::DomValue *const pDomValue);

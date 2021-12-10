@@ -71,6 +71,7 @@
     self.hasNewLayout = YES;
     NSMutableSet<HippyShadowView *> *shadowViewsHaveNewLayoutResults = [NSMutableSet setWithCapacity:256];
 //    [self applyLayoutNode:self.nodeRef viewsWithNewFrame:viewsWithNewFrame absolutePosition:CGPointZero];
+    //Get shadowviews that layout has changed
     [self collectShadowViewsHaveNewLayoutResults:shadowViewsHaveNewLayoutResults];
     return shadowViewsHaveNewLayoutResults;
 }

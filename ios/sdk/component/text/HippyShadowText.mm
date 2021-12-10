@@ -179,51 +179,6 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     return parentProperties;
 }
 
-- (NSDictionary<NSString *, id> *)processUpdatedProperties:(NSMutableSet<HippyApplierBlock> *)applierBlocks
-                                      virtualApplierBlocks:(__unused NSMutableSet<HippyApplierVirtualBlock> *)virtualApplierBlocks
-                                          parentProperties:(NSDictionary<NSString *, id> *)parentProperties {
-    if ([[self hippySuperview] isKindOfClass:[HippyShadowText class]]) {
-        return parentProperties;
-    }
-
-    parentProperties = [super processUpdatedProperties:applierBlocks virtualApplierBlocks:virtualApplierBlocks parentProperties:parentProperties];
-
-    UIEdgeInsets padding = self.paddingAsInsets;
-    CGFloat width = self.frame.size.width - (padding.left + padding.right);
-
-    NSNumber *parentTag = [[self hippySuperview] hippyTag];
-    // MTTlayout
-    NSTextStorage *textStorage = [self buildTextStorageForWidth:width widthMode:MeasureModeExactly];
-    UIColor *color = self.color ?: [UIColor blackColor];
-    CGRect textFrame = [self calculateTextFrame:textStorage];
-    [applierBlocks addObject:^(NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-        HippyText *view = (HippyText *)viewRegistry[self.hippyTag];
-        view.textFrame = textFrame;
-        view.textStorage = textStorage;
-        view.textColor = color;
-        /**
-         * NOTE: this logic is included to support rich text editing inside multiline
-         * `<TextInput>` controls. It is required in order to ensure that the
-         * textStorage (aka attributed string) is copied over from the HippyShadowText
-         * to the HippyText view in time to be used to update the editable text content.
-         * TODO: we should establish a delegate relationship betweeen HippyTextView
-         * and its contaned HippyText element when they get inserted and get rid of this
-         */
-        UIView *parentView = viewRegistry[parentTag];
-        if ([parentView respondsToSelector:@selector(performTextUpdate)]) {
-            [(HippyTextView *)parentView performTextUpdate];
-        }
-    }];
-
-    [virtualApplierBlocks addObject:^(NSDictionary<NSNumber *, HippyVirtualNode *> *virtualRegistry) {
-        HippyVirtualTextNode *node = (HippyVirtualTextNode *)virtualRegistry[self.hippyTag];
-        node.textFrame = textFrame;
-        node.textStorage = textStorage;
-        node.textColor = color;
-    }];
-
-    return parentProperties;
-}
 // MTTlayout
 //- (void)applyLayoutNode:(HPNodeRef)node
 //      viewsWithNewFrame:(NSMutableSet<HippyShadowView *> *)viewsWithNewFrame
