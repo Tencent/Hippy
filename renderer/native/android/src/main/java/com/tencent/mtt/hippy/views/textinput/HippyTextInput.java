@@ -15,6 +15,8 @@
  */
 package com.tencent.mtt.hippy.views.textinput;
 
+import android.graphics.BlendMode;
+import android.graphics.BlendModeColorFilter;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
@@ -44,6 +46,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
+import androidx.appcompat.widget.AppCompatEditText;
 
 import com.tencent.renderer.INativeRenderer;
 import com.tencent.renderer.NativeRendererContext;
@@ -51,7 +54,7 @@ import com.tencent.renderer.NativeRendererManager;
 import java.lang.reflect.Field;
 
 @SuppressWarnings({"deprecation", "unused"})
-public class HippyTextInput extends EditText implements HippyViewBase, CommonBorder,
+public class HippyTextInput extends AppCompatEditText implements HippyViewBase, CommonBorder,
     TextView.OnEditorActionListener, View.OnFocusChangeListener {
 
   private CommonBackgroundDrawable mReactBackgroundDrawable;
@@ -624,7 +627,20 @@ public class HippyTextInput extends EditText implements HippyViewBase, CommonBor
 
   @SuppressWarnings("JavaReflectionMemberAccess")
   public void setCursorColor(int color) {
-    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+    if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
+      // Pre-Android 10, there was no supported API to change the cursor color programmatically.
+      // In Android 9.0, they changed the underlying implementation,
+      // but also "dark greylisted" the new field, rendering it unusable.
+      return;
+    }
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+      Drawable cursorDrawable = getTextCursorDrawable();
+      if (cursorDrawable != null) {
+        cursorDrawable.setColorFilter(new BlendModeColorFilter(color, BlendMode.SRC_IN));
+        setTextCursorDrawable(cursorDrawable);
+      }
+    } else {
       try {
         Field field = TextView.class.getDeclaredField("mCursorDrawableRes");
         field.setAccessible(true);
