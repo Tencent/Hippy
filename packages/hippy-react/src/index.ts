@@ -65,6 +65,7 @@ const {
   ImageLoader: ImageLoaderModule,
   NetworkInfo: NetInfo,
   UIManager: UIManagerModule,
+  flushSync,
 } = Native;
 
 const {
@@ -100,6 +101,7 @@ const PixelRatio = {
 };
 
 export {
+  flushSync,
   colorParse,
   callNative,
   callNativeWithPromise,
