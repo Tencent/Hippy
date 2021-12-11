@@ -216,6 +216,10 @@ function getChildHostContext(): Context {
   return {};
 }
 
+export function getCurrentEventPriority(): number {
+  return 0b0000000000000000000000000010000;
+}
+
 function shouldDeprioritizeSubtree(): boolean {
   return true;
 }
@@ -303,8 +307,13 @@ function preparePortalMount(): void {
   // noop
 }
 
+function detachDeletedInstance(node: Element): void {
+  // noop
+}
+
 export const scheduleTimeout = setTimeout;
 export const cancelTimeout = clearTimeout;
+export const noTimeout = -1;
 
 export {
   afterActiveInstanceBlur,
@@ -319,6 +328,7 @@ export {
   createContainerChildSet,
   createInstance,
   createTextInstance,
+  detachDeletedInstance,
   finalizeContainerChildren,
   finalizeInitialChildren,
   getChildHostContext,
