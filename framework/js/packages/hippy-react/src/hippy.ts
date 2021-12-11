@@ -100,7 +100,7 @@ class HippyReact implements HippyReact {
 
     // Start Render
     const rootDocument = new Document();
-    this.rootContainer = createContainer(rootDocument, false, false);
+    this.rootContainer = createContainer(rootDocument, 0, false);
   }
 
   /**
