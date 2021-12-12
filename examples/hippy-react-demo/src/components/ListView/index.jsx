@@ -216,6 +216,14 @@ export default class ListExample extends React.Component {
     }
     return (
       <View style={styles.container}
+            onClickCapture={(event) => {
+              console.log('onClickCapture style outer', event.target.nodeId, event.currentTarget.nodeId);
+            }}
+            onTouchDown={(event) => {
+              // outer onTouchDown would not be called, because style1 invoked event.stopPropagation();
+              console.log('onTouchDown style outer', event.target.nodeId, event.currentTarget.nodeId);
+              return false;
+            }}
             onClick={(event) => {
               console.log('click style outer', event.target.nodeId, event.currentTarget.nodeId);
               // return false means trigger bubble
@@ -252,12 +260,15 @@ export default class ListExample extends React.Component {
             console.log('onTouchDown ListView', event.target.nodeId, event.currentTarget.nodeId);
           }}
           onClickCapture={(event) => {
+            // if calling capture event stopPropagation in one of node,
+            // all capture phase left, target phase and bubbling phase would stop.
+            // event.stopPropagation();
             console.log('onClickCapture listview', event.target.nodeId, event.currentTarget.nodeId);
           }}
           onClick={(event) => {
             console.log('click listview', event.target.nodeId, event.currentTarget.nodeId);
             // return false means trigger bubble
-            return false;
+            return true;
           }}
         bounces={true}
         overScrollEnabled={true}
