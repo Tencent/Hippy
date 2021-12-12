@@ -141,10 +141,14 @@ function doCaptureAndBubbleLoop(originalEventName: string, nativeEvent: NativeEv
         currentTarget: getElementFromFiber(nextNodeItem),
       });
     }
-    nextNodeItem = nextNodeItem.return;
-    while (nextNodeItem && !isHostComponent(nextNodeItem.tag)) {
-      // only handle HostComponent
+    if (eventQueue.length === 0) {
+      nextNodeItem = null;
+    } else {
       nextNodeItem = nextNodeItem.return;
+      while (nextNodeItem && !isHostComponent(nextNodeItem.tag)) {
+        // only handle HostComponent
+        nextNodeItem = nextNodeItem.return;
+      }
     }
   }
   if (eventQueue.length > 0) {
@@ -156,8 +160,13 @@ function doCaptureAndBubbleLoop(originalEventName: string, nativeEvent: NativeEv
         const { eventName, currentTarget: currentTargetNode, listener, isCapture } = listenerObj;
         const syntheticEvent = new Event(eventName, currentTargetNode, targetNode);
         Object.assign(syntheticEvent, nativeEvent);
+        // whether it is capture or bubbling event, returning false or calling stopPropagation would both stop phase
         if (isCapture) {
           listener(syntheticEvent);
+          // event bubbles flag has higher priority
+          if (!syntheticEvent.bubbles) {
+            isStopBubble = true;
+          }
         } else {
           isStopBubble = listener(syntheticEvent);
           // If callback have no return, use global bubble config to set isStopBubble.
