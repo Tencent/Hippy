@@ -42,6 +42,7 @@ import com.tencent.mtt.hippy.adapter.storage.HippyStorageAdapter;
 import com.tencent.mtt.hippy.bridge.HippyCoreAPI;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
 import com.tencent.mtt.hippy.bridge.libraryloader.LibraryLoader;
+import com.tencent.mtt.hippy.common.Callback;
 import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.DomNodeRecord;
@@ -206,7 +207,7 @@ public abstract class HippyEngine {
   public abstract void saveInstanceState();
 
   public abstract HippyRootView restoreInstanceState(ArrayList<DomNodeRecord> domNodeRecordList,
-      HippyEngine.ModuleLoadParams loadParams);
+      HippyEngine.ModuleLoadParams loadParams, Callback<Boolean> callback);
 
   public abstract void destroyInstanceState(HippyRootView rootView);
 
