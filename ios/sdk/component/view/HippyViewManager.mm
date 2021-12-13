@@ -90,13 +90,15 @@ HIPPY_EXPORT_VIEW_PROPERTY(onDetachedFromWindow, HippyDirectEventBlock)
 HIPPY_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, HippyView) {
     if (json) {
         NSString *backgroundImage = [HippyConvert NSString:json];
-        if ([backgroundImage hasPrefix:@"http"] ||
-            [backgroundImage hasPrefix:@"data:image/"] ||
-            [backgroundImage hasPrefix:@"hpfile://"]) {
-            view.backgroundImageUrl = backgroundImage;
-        }
-        else {
-            HippyAssert(NO, @"backgroundImage %@ not supported", backgroundImage);
+        if ([backgroundImage length] > 0) {
+            if ([backgroundImage hasPrefix:@"http"] ||
+                [backgroundImage hasPrefix:@"data:image/"] ||
+                [backgroundImage hasPrefix:@"hpfile://"]) {
+                view.backgroundImageUrl = backgroundImage;
+            }
+            else {
+                HippyAssert(NO, @"backgroundImage %@ not supported", backgroundImage);
+            }
         }
     }
 }
