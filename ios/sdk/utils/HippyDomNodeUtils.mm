@@ -104,12 +104,6 @@ NSNumber *domValueToNumber(const DomValue *const pDomValue) {
         case DomValueNumberType::kUInt32:
             number = @(pDomValue->ToUint32());
             break;
-        case DomValueNumberType::kInt64:
-            number = @(pDomValue->ToInt64());
-            break;
-        case DomValueNumberType::kUInt64:
-            number = @(pDomValue->ToUint64());
-            break;
         case DomValueNumberType::kDouble:
             number = @(pDomValue->ToDouble());
             break;
