@@ -31,6 +31,27 @@ framework/js/examples/android-demo/example/.cxx/
 framework/js/android/cmake-build-debug/*
 framework/js/android/src/main/jni/cmake-build-debug/*
 
+examples/*/res/vendor-manifest.json
+android/sdk/src/main/jni/.vs
+android/sdk/maven-auth.properties
+android/sdk/local.properties
+android/sdk/.cxx/*
+android/sdk/libs/armeabi-v7a/libhippybridge.so
+android/sdk/libs/arm64-v8a/libhippybridge.so
+android/sdk/libs/x86/libhippybridge.so
+android/sdk/libs/x86_64/libhippybridge.so
+examples/android-demo/example/src/main/assets/
+examples/android-demo/example/libs/*
+examples/ios-demo/HippyDemo.xcodeproj/project.xcworkspace/xcuserdata/*
+examples/ios-demo/HippyDemo.xcodeproj/xcuserdata/*
+examples/hippy-react-demo/package-lock.json
+examples/hippy-vue-demo/package-lock.json
+examples/android-demo/maven-auth.properties
+examples/android-demo/example/.cxx/
+
+android/cmake-build-debug/*
+android/src/main/jni/cmake-build-debug/*
+
 dom/lib/*
 
 renderer/native/android/src/main/jni/lib/*
