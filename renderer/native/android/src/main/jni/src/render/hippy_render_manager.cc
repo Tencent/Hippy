@@ -151,10 +151,12 @@ void HippyRenderManager::MoveRenderNode(std::vector<int32_t> &&moved_ids,
 
 void HippyRenderManager::Batch() { TDF_BASE_NOTIMPLEMENTED(); };
 
-void HippyRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node,
-                                          const std::string &name,
-                                          const DomValue &param) {
+void HippyRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {
   TDF_BASE_NOTIMPLEMENTED();
+}
+
+void HippyRenderManager::RemoveEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {
+    TDF_BASE_NOTIMPLEMENTED();
 }
 
 void HippyRenderManager::CallFunction(std::weak_ptr<DomNode> domNode,
