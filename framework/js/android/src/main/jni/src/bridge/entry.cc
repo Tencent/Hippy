@@ -39,6 +39,8 @@
 #include "core/base/string_view_utils.h"
 #include "core/core.h"
 #include "dom/dom_manager.h"
+#include "dom/render_manager.h"
+#include "render/hippy_render_manager.h"
 #include "jni/turbo_module_manager.h"
 #include "jni/exception_handler.h"
 #include "jni/java_turbo_module.h"
@@ -71,6 +73,11 @@ REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err5
              "destroy",
              "(JZLcom/tencent/mtt/hippy/bridge/NativeCallback;)V",
              DestroyInstance)
+
+REGISTER_JNI("com/tencent/renderer/NativeRendererDelegate",
+             "onCreateNativeRendererDelegate",
+             "(J)V",
+             CreateNativeRenderDelegate)
 
 using unicode_string_view = tdf::base::unicode_string_view;
 using u8string = unicode_string_view::u8string;
@@ -581,6 +588,18 @@ void DestroyInstance(__unused JNIEnv* j_env,
   }
   hippy::bridge::CallJavaMethod(j_callback, INIT_CB_STATE::SUCCESS);
   TDF_BASE_DLOG(INFO) << "destroy end";
+}
+
+void CreateNativeRenderDelegate(JNIEnv* j_env, jobject j_object, jlong j_runtime_id) {
+  std::shared_ptr<Runtime> runtime = Runtime::Find(j_runtime_id);
+  if (!runtime) {
+    TDF_BASE_DLOG(WARNING) << "CreateNativeRenderDelegate j_runtime_id invalid";
+    return;
+  }
+
+  std::shared_ptr<DomManager> dom_manager = runtime->GetScope()->GetDomManager();
+  std::shared_ptr<RenderManager> render_manager = std::make_shared<HippyRenderManager>(j_runtime_id, std::make_shared<JavaRef>(j_env, j_object));
+  dom_manager->SetRenderManager(render_manager);
 }
 
 }  // namespace bridge
