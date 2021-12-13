@@ -21,130 +21,130 @@ static FlexDirection GetFlexDirection(const std::string& flex_direction) {
   if (flex_direction.empty()) {
     return FlexDirection::FLexDirectionColumn;
   }
-  if (flex_direction.compare("row") == 0) {
+  if (flex_direction == "row") {
     return FlexDirection::FLexDirectionRow;
   }
-  if (flex_direction.compare("row-reverse") == 0) {
+  if (flex_direction == "row-reverse") {
     return FlexDirection::FLexDirectionRowReverse;
   }
-  if (flex_direction.compare("column") == 0) {
+  if (flex_direction == "column") {
     return FlexDirection::FLexDirectionColumn;
   }
-  if (flex_direction.compare("column-reverse") == 0) {
+  if (flex_direction == "column-reverse") {
     return FlexDirection::FLexDirectionColumnReverse;
   }
   return FlexDirection::FLexDirectionColumn;
 }
 
-static FlexWrapMode GetFlexWrapMode(std::string wrap_mode) {
-  if (wrap_mode.empty() || wrap_mode == "nowrap") {
+static FlexWrapMode GetFlexWrapMode(const std::string& wrap_mode) {
+  if (wrap_mode == "nowrap") {
     return FlexWrapMode::FlexNoWrap;
-  } else if (wrap_mode.compare("wrap") == 0) {
+  } else if (wrap_mode == "wrap") {
     return FlexWrapMode::FlexWrap;
-  } else if (wrap_mode.compare("wrap-reverse") == 0) {
+  } else if (wrap_mode == "wrap-reverse") {
     return FlexWrapMode::FlexWrapReverse;
-  } else {
-    // error wrap mode
-    return FlexWrapMode::FlexNoWrap;
   }
+
+  // error wrap mode
+  return FlexWrapMode::FlexNoWrap;
 }
 
 static FlexAlign GetFlexJustify(const std::string& justify_content) {
   if (justify_content.empty()) {
     return FlexAlign::FlexAlignStart;
   }
-  if (justify_content.compare("flex-start") == 0) {
+  if (justify_content == "flex-start") {
     return FlexAlign::FlexAlignStart;
   }
-  if (justify_content.compare("center") == 0) {
+  if (justify_content == "center") {
     return FlexAlign::FlexAlignCenter;
   }
-  if (justify_content.compare("flex-end") == 0) {
+  if (justify_content == "flex-end") {
     return FlexAlign::FlexAlignEnd;
   }
-  if (justify_content.compare("space-between") == 0) {
+  if (justify_content == "space-between") {
     return FlexAlign::FlexAlignSpaceBetween;
   }
-  if (justify_content.compare("space-around") == 0) {
+  if (justify_content == "space-around") {
     return FlexAlign::FlexAlignSpaceEvenly;
   }
   return FlexAlign::FlexAlignStart;
 }
 
-static FlexAlign GetFlexAlign(std::string align) {
+static FlexAlign GetFlexAlign(const std::string& align) {
   if (align.empty()) {
     return FlexAlign::FlexAlignStretch;
   }
-  if (align.compare("auto") == 0) {
+  if (align == "auto") {
     return FlexAlign::FlexAlignAuto;
   }
   if (align == "flex-start") {
     return FlexAlign::FlexAlignStart;
   }
-  if (align.compare("center") == 0) {
+  if (align == "center") {
     return FlexAlign::FlexAlignCenter;
   }
-  if (align.compare("flex-end") == 0) {
+  if (align == "flex-end") {
     return FlexAlign::FlexAlignEnd;
   }
-  if (align.compare("stretch") == 0) {
+  if (align == "stretch") {
     return FlexAlign::FlexAlignStretch;
   }
-  if (align.compare("baseline") == 0) {
+  if (align == "baseline") {
     return FlexAlign::FlexAlignBaseline;
   }
-  if (align.compare("space-between") == 0) {
+  if (align == "space-between") {
     return FlexAlign::FlexAlignSpaceBetween;
   }
-  if (align.compare("space-around") == 0) {
+  if (align == "space-around") {
     return FlexAlign::FlexAlignSpaceAround;
   }
   return FlexAlign::FlexAlignStretch;
 }
 
-static CSSDirection GetCSSDirection(std::string direction) {
+static CSSDirection GetCSSDirection(const std::string& direction) {
   if (direction.empty()) {
     return CSSDirection::CSSNONE;
   }
-  if (direction.compare(kMargin) == 0) {
+  if (direction == kMargin) {
     return CSSDirection::CSSAll;
   }
-  if (direction.compare(kMarginVertical) == 0) {
+  if (direction == kMarginVertical) {
     return CSSDirection::CSSVertical;
   }
-  if (direction.compare(kMarginHorizontal) == 0) {
+  if (direction == kMarginHorizontal) {
     return CSSDirection::CSSHorizontal;
   }
-  if (direction.compare(kMarginLeft) == 0 || direction.compare(kLeft)) {
+  if (direction == kMarginLeft || direction == kLeft) {
     return CSSDirection::CSSLeft;
   }
-  if (direction.compare(kMarginTop) == 0 || direction.compare(kTop)) {
+  if (direction == kMarginTop || direction == kTop) {
     return CSSDirection::CSSTop;
   }
-  if (direction.compare(kMarginRight) == 0 || direction.compare(kRight) == 0) {
+  if (direction == kMarginRight || direction == kRight) {
     return CSSDirection::CSSRight;
   }
-  if (direction.compare(kMarginBottom) == 0 || direction.compare(kBottom) == 0) {
+  if (direction == kMarginBottom || direction == kBottom) {
     return CSSDirection::CSSBottom;
   }
   return CSSDirection::CSSNONE;
 }
 
-static PositionType GetPositionType(std::string position) {
+static PositionType GetPositionType(const std::string& position) {
   if (position.empty()) {
     return PositionType::PositionTypeRelative;
   }
-  if (position.compare("relative") == 0) {
+  if (position == "relative") {
     return PositionType::PositionTypeRelative;
   }
-  if (position.compare("absolute") == 0) {
+  if (position == "absolute") {
     return PositionType::PositionTypeAbsolute;
   }
   return PositionType::PositionTypeRelative;
 }
 
-static DisplayType GetDisplayType(std::string display) {
-  if (display.compare("none") == 0) {
+static DisplayType GetDisplayType(const std::string& display) {
+  if (display == "none") {
     return DisplayType::DisplayTypeNone;
   }
   return DisplayType::DisplayTypeFlex;
@@ -172,7 +172,7 @@ void TaitankLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<t
     SetAlignContent(GetFlexAlign(style_map.find(kAlignContent)->second->ToString()));
   }
   if (style_map.find(kFlex) != style_map.end()) {
-    SetFlex(style_map.find(kFlex)->second->ToDouble());
+    SetFlex(static_cast<float>(style_map.find(kFlex)->second->ToDouble()));
   }
   if (style_map.find(kFlexDirection) != style_map.end()) {
     SetFlexDirection(GetFlexDirection(style_map.find(kFlexDirection)->second->ToString()));
@@ -181,46 +181,46 @@ void TaitankLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<t
     SetFlexWrap(GetFlexWrapMode(style_map.find(kFlexWrap)->second->ToString()));
   }
   if (style_map.find(kFlexGrow) != style_map.end()) {
-    SetFlexGrow(style_map.find(kFlexGrow)->second->ToDouble());
+    SetFlexGrow(static_cast<float>(style_map.find(kFlexGrow)->second->ToDouble()));
   }
   if (style_map.find(kFlexShrink) != style_map.end()) {
-    SetFlexShrink(style_map.find(kFlexShrink)->second->ToDouble());
+    SetFlexShrink(static_cast<float>(style_map.find(kFlexShrink)->second->ToDouble()));
   }
   if (style_map.find(kFlexBasis) != style_map.end()) {
-    SetFlexBasis(style_map.find(kFlexBasis)->second->ToDouble());
+    SetFlexBasis(static_cast<float>(style_map.find(kFlexBasis)->second->ToDouble()));
   }
   if (style_map.find(kWidth) != style_map.end()) {
-    SetWidth(style_map.find(kWidth)->second->ToDouble());
+    SetWidth(static_cast<float>(style_map.find(kWidth)->second->ToDouble()));
   }
   if (style_map.find(kHeight) != style_map.end()) {
-    SetHeight(style_map.find(kHeight)->second->ToDouble());
+    SetHeight(static_cast<float>(style_map.find(kHeight)->second->ToDouble()));
   }
   if (style_map.find(kMaxWidth) != style_map.end()) {
-    SetMaxWidth(style_map.find(kMaxWidth)->second->ToDouble());
+    SetMaxWidth(static_cast<float>(style_map.find(kMaxWidth)->second->ToDouble()));
   }
   if (style_map.find(kMaxHeight) != style_map.end()) {
-    SetMaxHeight(style_map.find(kMaxHeight)->second->ToDouble());
+    SetMaxHeight(static_cast<float>(style_map.find(kMaxHeight)->second->ToDouble()));
   }
   if (style_map.find(kMinWidth) != style_map.end()) {
-    SetMinWidth(style_map.find(kMinWidth)->second->ToDouble());
+    SetMinWidth(static_cast<float>(style_map.find(kMinWidth)->second->ToDouble()));
   }
   if (style_map.find(kMinHeight) != style_map.end()) {
-    SetMinHeight(style_map.find(kMinHeight)->second->ToDouble());
+    SetMinHeight(static_cast<float>(style_map.find(kMinHeight)->second->ToDouble()));
   }
   if (style_map.find(kJustifyContent) != style_map.end()) {
     SetJustifyContent(GetFlexJustify(style_map.find(kJustifyContent)->second->ToString()));
   }
   if (style_map.find(kLeft) != style_map.end()) {
-    SetPosition(GetCSSDirection(kLeft), style_map.find(kLeft)->second->ToDouble());
+    SetPosition(GetCSSDirection(kLeft), static_cast<float>(style_map.find(kLeft)->second->ToDouble()));
   }
   if (style_map.find(kRight) != style_map.end()) {
-    SetPosition(GetCSSDirection(kRight), style_map.find(kRight)->second->ToDouble());
+    SetPosition(GetCSSDirection(kRight), static_cast<float>(style_map.find(kRight)->second->ToDouble()));
   }
   if (style_map.find(kTop) != style_map.end()) {
-    SetPosition(GetCSSDirection(kTop), style_map.find(kTop)->second->ToDouble());
+    SetPosition(GetCSSDirection(kTop), static_cast<float>(style_map.find(kTop)->second->ToDouble()));
   }
   if (style_map.find(kBottom) != style_map.end()) {
-    SetPosition(GetCSSDirection(kBottom), style_map.find(kBottom)->second->ToDouble());
+    SetPosition(GetCSSDirection(kBottom), static_cast<float>(style_map.find(kBottom)->second->ToDouble()));
   }
   if (style_map.find(kPosition) != style_map.end()) {
     SetPositionType(GetPositionType(style_map.find(kPosition)->second->ToString()));
@@ -232,34 +232,34 @@ void TaitankLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<t
     SetOverflow(GetFlexOverflow(style_map.find(kOverflow)->second->ToInt32()));
   }
   if (style_map.find(kMargin) != style_map.end()) {
-    SetMargin(GetCSSDirection(kMargin), style_map.find(kMargin)->second->ToDouble());
+    SetMargin(GetCSSDirection(kMargin), static_cast<float>(style_map.find(kMargin)->second->ToDouble()));
   }
   if (style_map.find(kMarginLeft) != style_map.end()) {
-    SetMargin(GetCSSDirection(kMarginLeft), style_map.find(kMarginLeft)->second->ToDouble());
+    SetMargin(GetCSSDirection(kMarginLeft), static_cast<float>(style_map.find(kMarginLeft)->second->ToDouble()));
   }
   if (style_map.find(kMarginTop) != style_map.end()) {
-    SetMargin(GetCSSDirection(kMarginTop), style_map.find(kMarginTop)->second->ToDouble());
+    SetMargin(GetCSSDirection(kMarginTop), static_cast<float>(style_map.find(kMarginTop)->second->ToDouble()));
   }
   if (style_map.find(kMarginRight) != style_map.end()) {
-    SetMargin(GetCSSDirection(kMarginRight), style_map.find(kMarginRight)->second->ToDouble());
+    SetMargin(GetCSSDirection(kMarginRight), static_cast<float>(style_map.find(kMarginRight)->second->ToDouble()));
   }
   if (style_map.find(kMarginBottom) != style_map.end()) {
-    SetMargin(GetCSSDirection(kMarginBottom), style_map.find(kMarginBottom)->second->ToDouble());
+    SetMargin(GetCSSDirection(kMarginBottom), static_cast<float>(style_map.find(kMarginBottom)->second->ToDouble()));
   }
   if (style_map.find(kPadding) != style_map.end()) {
-    SetPadding(GetCSSDirection(kPadding), style_map.find(kPadding)->second->ToDouble());
+    SetPadding(GetCSSDirection(kPadding), static_cast<float>(style_map.find(kPadding)->second->ToDouble()));
   }
   if (style_map.find(kPaddingLeft) != style_map.end()) {
-    SetPadding(GetCSSDirection(kPaddingLeft), style_map.find(kPaddingLeft)->second->ToDouble());
+    SetPadding(GetCSSDirection(kPaddingLeft), static_cast<float>(style_map.find(kPaddingLeft)->second->ToDouble()));
   }
   if (style_map.find(kPaddingTop) != style_map.end()) {
-    SetPadding(GetCSSDirection(kPaddingTop), style_map.find(kPaddingTop)->second->ToDouble());
+    SetPadding(GetCSSDirection(kPaddingTop), static_cast<float>(style_map.find(kPaddingTop)->second->ToDouble()));
   }
   if (style_map.find(kPaddingRight) != style_map.end()) {
-    SetPadding(GetCSSDirection(kPaddingRight), style_map.find(kPaddingRight)->second->ToDouble());
+    SetPadding(GetCSSDirection(kPaddingRight), static_cast<float>(style_map.find(kPaddingRight)->second->ToDouble()));
   }
   if (style_map.find(kPaddingBottom) != style_map.end()) {
-    SetPadding(GetCSSDirection(kPaddingBottom), style_map.find(kPaddingBottom)->second->ToDouble());
+    SetPadding(GetCSSDirection(kPaddingBottom), static_cast<float>(style_map.find(kPaddingBottom)->second->ToDouble()));
   }
 }
 
