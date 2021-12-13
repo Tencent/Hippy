@@ -12,18 +12,14 @@ class DomValue final {
   using DomValueObjectType = typename std::unordered_map<std::string, DomValue>;
   using DomValueArrayType = typename std::vector<DomValue>;
   enum class Type { kUndefined, kNull, kNumber, kBoolean, kString, kObject, kArray };
-  enum class NumberType { kInt32, kUInt32, kInt64, kUInt64, kDouble, kNaN };
+  enum class NumberType { kInt32, kUInt32, kDouble, kNaN };
 
   union Number {
     int32_t i32_;
     uint32_t u32_;
-    int64_t i64_;
-    uint64_t u64_;
     double d_;
     Number(int32_t i32) : i32_(i32){};
     Number(uint32_t u32) : u32_(u32){};
-    Number(int64_t i64) : i64_(i64){};
-    Number(uint64_t u64) : u64_(u64){};
     Number(float f) : d_(f){};
     Number(double d) : d_(d){};
   };
@@ -45,18 +41,6 @@ class DomValue final {
    * @param u32 uint32_t 的值
    */
   explicit DomValue(uint32_t u32) : type_(Type::kNumber), number_type_(NumberType::kUInt32), num_(u32) {}
-
-  /**
-   * @brief 构造 int64_t 类型的 dom value
-   * @param i64 int64_t 的值
-   */
-  explicit DomValue(int64_t i64) : type_(Type::kNumber), number_type_(NumberType::kInt64), num_(i64) {}
-
-  /**
-   * @brief 构造 uint64_t 类型的  dom value
-   * @param u64 uint64_t 的值
-   */
-  explicit DomValue(uint64_t u64) : type_(Type::kNumber), number_type_(NumberType::kUInt64), num_(u64) {}
 
   /**
    * @brief 构造 double 类型的 dom value
@@ -131,8 +115,6 @@ class DomValue final {
   DomValue& operator=(const DomValue& rhs) noexcept;
   DomValue& operator=(const int32_t rhs) noexcept;
   DomValue& operator=(const uint32_t rhs) noexcept;
-  DomValue& operator=(const int64_t rhs) noexcept;
-  DomValue& operator=(const uint64_t rhs) noexcept;
   DomValue& operator=(const double rhs) noexcept;
   DomValue& operator=(const bool rhs) noexcept;
   DomValue& operator=(const std::string& rhs) noexcept;
@@ -213,16 +195,6 @@ class DomValue final {
   bool IsUInt32() const noexcept;
 
   /**
-   * @brief dom value 是否是 int64_t 类型
-   */
-  bool IsInt64() const noexcept;
-
-  /**
-   * @brief dom value 是否是 uint64_t 类型
-   */
-  bool IsUInt64() const noexcept;
-
-  /**
    * @brief dom value 是否是 double 类型
    */
   bool IsDouble() const noexcept;
@@ -238,17 +210,7 @@ class DomValue final {
   uint32_t ToUint32() const;
 
   /**
-   * @brief 转化成 int64_t
-   */
-  int64_t ToInt64() const;
-
-  /**
-   * @brief 转化成 uint64_t
-   */
-  uint64_t ToUint64() const;
-
-  /**
-   * @brief 转化成 double 类型， int32_t\uint32_t\double 可以无损转化， int64_t\uint64_t 有损转化
+   * @brief 转化成 double 类型， int32_t\uint32_t\double 可以无损转化
    */
   double ToDouble() const;
 
