@@ -93,12 +93,14 @@ void NativeRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node, cons
             });
         } else if (name == hippy::kTouchStartEvent || name == hippy::kTouchMoveEvent
                    || name == hippy::kTouchEndEvent || name == hippy::kTouchCancelEvent) {
+            std::string name_ = name;
             dispatch_async(dispatch_get_main_queue(), ^{
-                [uiManager_ addTouchEventListenerforNode:dom_node forType:name forView:node->GetId()];
+                [uiManager_ addTouchEventListenerforNode:dom_node forType:std::move(name_) forView:node->GetId()];
             });
         } else if (name == hippy::kShow || name == hippy::kDismiss) {
+            std::string name_ = name;
             dispatch_async(dispatch_get_main_queue(), ^{
-                [uiManager_ addShowEventListenerForNode:dom_node forType:name forView:node->GetId()];
+                [uiManager_ addShowEventListenerForNode:dom_node forType:std::move(name_) forView:node->GetId()];
             });
         }
     }
