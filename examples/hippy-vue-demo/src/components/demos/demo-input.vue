@@ -8,6 +8,7 @@
     <input
       ref="input"
       v-model="text"
+      caret-color="yellow"
       placeholder="Text"
       class="input"
       @click="stopPropagation"
@@ -122,7 +123,7 @@ export default {
 };
 </script>
 
-<style scope>
+<style scoped>
 .demo-input {
   display: flex;
   flex: 1;
