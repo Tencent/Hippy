@@ -41,10 +41,12 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Get Chrome DOM getBoxModel JSON
  * @param node virtual node
+ * @param rootNode hippy root node
  * @param completion completion block
  * @return sucess or failure
  */
 - (BOOL)domGetBoxModelJSONWithNode:(nullable HippyVirtualNode *)node
+                          rootNode:(nullable HippyVirtualNode *)rootNode
                         completion:(void (^)(NSDictionary *rspObject))completion;
 
 /**
@@ -57,6 +59,18 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)domGetNodeForLocationWithManager:(nullable HippyUIManager *)manager
                                 location:(CGPoint)location
                               completion:(void (^)(NSDictionary *rspObject))completion;
+
+/**
+ * @brief Get NodeId JSON With Path
+ * @param path node path
+ * @param manager Hippy UI Manager
+ * @param completion completion block
+ * @return sucess or failure
+ */
+- (BOOL)domGetNodeIdByPath:(NSString *)path
+                   manager:(nullable HippyUIManager *)manager
+                completion:(void (^)(NSDictionary *rspObject))completion;
+
 @end
 
 NS_ASSUME_NONNULL_END

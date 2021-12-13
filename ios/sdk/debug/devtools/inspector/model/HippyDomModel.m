@@ -78,6 +78,7 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
 - (BOOL)domGetDocumentJSONWithRootNode:(HippyVirtualNode *)rootNode
                             completion:(void (^)(NSDictionary *rspObject))completion {
     if (!completion) {
+        HippyLogWarn(@"DOM Model, getDocument error, completion is nil");
         return NO;
     }
     if (!rootNode) {
@@ -106,18 +107,24 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
     return YES;
 }
 
-- (BOOL)domGetBoxModelJSONWithNode:(HippyVirtualNode *)node
+- (BOOL)domGetBoxModelJSONWithNode:(nullable HippyVirtualNode *)node
+                          rootNode:(nullable HippyVirtualNode *)rootNode
                         completion:(void (^)(NSDictionary *rspObject))completion {
     if (!completion) {
+        HippyLogWarn(@"DOM Model, getBoxModel error, completion is nil");
         return NO;
     }
-    if (!node) {
+    if (!node || !rootNode) {
         HippyLogWarn(@"DOM Model, getBoxModel error, node is nil");
         completion(@{});
         return NO;
     }
     dispatch_async(dispatch_get_main_queue(), ^{
-        CGRect windowFrame = [self windowFrameWithNode:node];
+        CGRect nodeFrame = [self windowFrameWithNode:node];
+        CGRect rootNodeFrame = [self windowFrameWithNode:rootNode];
+        CGRect windowFrame = CGRectMake(nodeFrame.origin.x - rootNodeFrame.origin.x,
+                                        nodeFrame.origin.y - rootNodeFrame.origin.y,
+                                        nodeFrame.size.width, nodeFrame.size.height);
         NSMutableDictionary *boxModelDic = [NSMutableDictionary dictionary];
         NSArray *border = [self assemblyBoxModelBorderWithFrame:windowFrame];
         NSArray *padding = [self assemblyBoxModelPaddingWithProps:node.props border:border];
@@ -138,10 +145,11 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
                                 location:(CGPoint)location
                               completion:(void (^)(NSDictionary *rspObject))completion {
     if (!completion) {
+        HippyLogWarn(@"DOM Model, getNodeForLocation error, completion is nil");
         return NO;
     }
     if (!manager) {
-        HippyLogWarn(@"DOM Model, getNodeForLocation error, manager or completion is nil");
+        HippyLogWarn(@"DOM Model, getNodeForLocation error, manager is nil");
         completion(@{});
         return NO;
     }
@@ -151,15 +159,50 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
         if (!rootNode) {
             HippyLogWarn(@"DOM Model, getNodeForLocation error, root node is nil");
             completion(@{});
+            return;
         }
         self.manager = manager;
         HippyVirtualNode *hitNode = [self maxDepthAndMinAreaHitNodeWithLocation:location
                                                                            node:rootNode];
         if (!hitNode) {
             completion(@{});
+            return;
         }
         resultDic[HippyDOMKeyBackendId] = hitNode.hippyTag;
         resultDic[HippyDOMKeyFrameId] = HippyDOMDefaultFrameID;
+        resultDic[HippyDOMKeyNodeId] = hitNode.hippyTag;
+        completion(resultDic);
+    });
+    return YES;
+}
+
+- (BOOL)domGetNodeIdByPath:(NSString *)path
+                   manager:(HippyUIManager *)manager
+                completion:(void (^)(NSDictionary * _Nonnull))completion {
+    if (!completion) {
+        HippyLogWarn(@"DOM Model, pushNodeByPathToFrontend error, completion is nil");
+        return NO;
+    }
+    if (!manager) {
+        HippyLogWarn(@"DOM Model, pushNodeByPathToFrontend error, manager is nil");
+        completion(@{});
+        return NO;
+    }
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        HippyVirtualNode *rootNode = [manager nodeForHippyTag:[manager rootHippyTag]];
+        if (!rootNode) {
+            HippyLogWarn(@"DOM Model, pushNodeByPathToFrontend error, root node is nil");
+            completion(@{});
+            return;
+        }
+        HippyVirtualNode *hitNode = [self nodeForPath:path rootNode:rootNode];
+        if (!hitNode) {
+            HippyLogWarn(@"DOM Model, pushNodeByPathToFrontend error, hitNode is nil");
+            completion(@{});
+            return;
+        }
+        NSMutableDictionary *resultDic = [NSMutableDictionary dictionary];
         resultDic[HippyDOMKeyNodeId] = hitNode.hippyTag;
         completion(resultDic);
     });
@@ -384,6 +427,33 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
     ];
 }
 
+- (HippyVirtualNode *)nodeForPath:(NSString *)path rootNode:(HippyVirtualNode *)rootNode {
+    if (path.length <= 0 || !rootNode) {
+        return nil;
+    }
+    NSArray<NSString *> *pathTokens = [path componentsSeparatedByString:@","];
+    if (pathTokens.count <= 0) {
+        return nil;
+    }
+    HippyVirtualNode *node = rootNode;
+    for (int index = 0; index < pathTokens.count - 1; index += 2) {
+        NSInteger childNumber = [pathTokens[index] integerValue];
+        if (childNumber >= node.subNodes.count) {
+            return nil;
+        }
+        if (index + 1 >= pathTokens.count) {
+            return nil;
+        }
+        NSString *childName = pathTokens[index + 1];
+        HippyVirtualNode *child = [node.subNodes objectAtIndex:childNumber];
+        if (!child || [child.tagName caseInsensitiveCompare:childName] != NSOrderedSame) {
+            return nil;
+        }
+        node = child;
+    }
+    return node;
+}
+
 - (CGRect)windowFrameWithNode:(HippyVirtualNode *)node {
     if (!node) {
         HippyLogWarn(@"DOM Model, windowFrameWithNode, node is nil");
@@ -395,7 +465,6 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
     }
     UIView *selfView = [manager viewForHippyTag:node.hippyTag];
     if (!selfView) {
-        HippyLogWarn(@"DOM Model, windowFrameWithNode, view is nil");
         return CGRectZero;
     }
     UIWindow *window = [[[UIApplication sharedApplication] delegate] window];
