@@ -239,6 +239,10 @@ public class DomManager implements HippyInstanceLifecycleEventListener,
     mRenderBatchStarted = true;
   }
 
+  public void renderBatchStop() {
+    mRenderBatchStarted = false;
+  }
+
   public void renderBatchEnd() {
     LogUtils.d(TAG, "renderBatchEnd");
     mRenderBatchStarted = false;
