@@ -555,7 +555,7 @@ std::tuple<bool, std::string, std::shared_ptr<DomNode>> CreateNode(std::shared_p
     return std::make_tuple(false, std::get<1>(view_name_tuple), dom_node);
   }
 
-  auto tag_name_tuple = GetNodeViewName(context, node);
+  auto tag_name_tuple = GetNodeTagName(context, node);
   if (!std::get<0>(tag_name_tuple)) {
     return std::make_tuple(false, std::get<1>(tag_name_tuple), dom_node);
   }
