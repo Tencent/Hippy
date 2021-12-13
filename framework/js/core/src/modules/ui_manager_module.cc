@@ -206,7 +206,7 @@ GetNodeExtValue(std::shared_ptr<Ctx> context, std::unordered_map<std::string, Do
     return std::make_tuple(false, std::get<1>(on_click_tuple),
                            std::move(func_set), std::move(dom_ext_map));
   }
-  func_set.insert(kClickEvent);
+  func_set.insert(hippy::kOnClick);
 
   // handle layout listener
   auto on_layout_tuple = HandleFunctionListener(context, hippy::kOnLayout, props);
@@ -214,7 +214,7 @@ GetNodeExtValue(std::shared_ptr<Ctx> context, std::unordered_map<std::string, Do
     return std::make_tuple(false, std::get<1>(on_layout_tuple),
                            std::move(func_set), std::move(dom_ext_map));
   }
-  func_set.insert(kLayoutEvent);
+  func_set.insert(hippy::kOnLayout);
 
   // handle long click listener
   auto on_long_click_tuple = HandleFunctionListener(context, hippy::kOnLongClick, props);
@@ -222,7 +222,7 @@ GetNodeExtValue(std::shared_ptr<Ctx> context, std::unordered_map<std::string, Do
     return std::make_tuple(false, std::get<1>(on_long_click_tuple),
                            std::move(func_set), std::move(dom_ext_map));
   }
-  func_set.insert(kLongClickEvent);
+  func_set.insert(hippy::kOnLongClick);
 
   // handle touch start listener
   auto on_touch_start_tuple = HandleFunctionListener(context, hippy::kOnTouchStart, props);
@@ -230,7 +230,7 @@ GetNodeExtValue(std::shared_ptr<Ctx> context, std::unordered_map<std::string, Do
     return std::make_tuple(false, std::get<1>(on_touch_start_tuple),
                            std::move(func_set), std::move(dom_ext_map));
   }
-  func_set.insert(kTouchStartEvent);
+  func_set.insert(hippy::kOnTouchStart);
 
   // handle touch move listener
   auto on_touch_move_tuple = HandleFunctionListener(context, hippy::kOnTouchMove, props);
@@ -238,7 +238,7 @@ GetNodeExtValue(std::shared_ptr<Ctx> context, std::unordered_map<std::string, Do
     return std::make_tuple(false, std::get<1>(on_touch_move_tuple),
                            std::move(func_set), std::move(dom_ext_map));
   }
-  func_set.insert(kTouchMoveEvent);
+  func_set.insert(hippy::kOnTouchMove);
 
   // handle touch end listener
   auto on_touch_end_tuple = HandleFunctionListener(context, hippy::kOnTouchEnd, props);
@@ -246,7 +246,7 @@ GetNodeExtValue(std::shared_ptr<Ctx> context, std::unordered_map<std::string, Do
     return std::make_tuple(false, std::get<1>(on_touch_end_tuple),
                            std::move(func_set), std::move(dom_ext_map));
   }
-  func_set.insert(kTouchEndEvent);
+  func_set.insert(hippy::kOnTouchEnd);
 
   // handle touch cancel listener
   auto on_touch_cancel_tuple = HandleFunctionListener(context, hippy::kOnTouchCancel, props);
@@ -254,7 +254,7 @@ GetNodeExtValue(std::shared_ptr<Ctx> context, std::unordered_map<std::string, Do
     return std::make_tuple(false, std::get<1>(on_touch_cancel_tuple),
                            std::move(func_set), std::move(dom_ext_map));
   }
-  func_set.insert(kTouchCancelEvent);
+  func_set.insert(hippy::kOnTouchCancel);
 
   // handle attached to window listener
   auto on_attached_to_window_tuple = HandleFunctionListener(context, hippy::kOnAttachedToWindow,
@@ -263,7 +263,7 @@ GetNodeExtValue(std::shared_ptr<Ctx> context, std::unordered_map<std::string, Do
     return std::make_tuple(false, std::get<1>(on_attached_to_window_tuple),
                            std::move(func_set), std::move(dom_ext_map));
   }
-  func_set.insert(kAttachedToWindow);
+  func_set.insert(hippy::kOnAttachedToWindow);
 
   // handle attached from window listener
   auto on_attached_from_window_tuple = HandleFunctionListener(context, hippy::kOnDetachedFromWindow,
@@ -272,7 +272,7 @@ GetNodeExtValue(std::shared_ptr<Ctx> context, std::unordered_map<std::string, Do
     return std::make_tuple(false, std::get<1>(on_attached_from_window_tuple),
                            std::move(func_set), std::move(dom_ext_map));
   }
-  func_set.insert(kDetachedFromWindow);
+  func_set.insert(hippy::kOnDetachedFromWindow);
 
   // handle show listener
   auto on_show_tuple = HandleFunctionListener(context, hippy::kOnShow, props);
@@ -280,7 +280,7 @@ GetNodeExtValue(std::shared_ptr<Ctx> context, std::unordered_map<std::string, Do
     return std::make_tuple(false, std::get<1>(on_show_tuple),
                            std::move(func_set), std::move(dom_ext_map));
   }
-  func_set.insert(kShow);
+  func_set.insert(hippy::kOnShow);
 
   // handle dismiss listener
   auto on_dismiss_tuple = HandleFunctionListener(context, hippy::kOnDismiss, props);
@@ -288,7 +288,7 @@ GetNodeExtValue(std::shared_ptr<Ctx> context, std::unordered_map<std::string, Do
     return std::make_tuple(false, std::get<1>(on_dismiss_tuple),
                            std::move(func_set), std::move(dom_ext_map));
   }
-  func_set.insert(kDismiss);
+  func_set.insert(hippy::kOnDismiss);
 
   // parse ext value
   for (auto p : props) {
