@@ -3,129 +3,89 @@
 
 const UIManagerModule = internalBinding('UIManagerModule');
 
-// 兼容 hippy2.0，hippy3.0 放量一段时间后可删除, __标识 hippy 保留方法
-global.__onClick = (param) => {
-  const targetModule = __GLOBAL__.jsModuleList.EventDispatcher.receiveNativeGesture;
-  if (targetModule) {
-    const targetMethod = targetModule.onClick;
-    if (targetMethod) {
-      targetMethod(param);
-    }
-  }
+const gestureKeyMap = {
+  onClick: 'click',
+  onLongClick: 'longclick',
+  onPressIn: 'touchstart', // 归一化处理
+  onPressOut: 'touchend', // 归一化处理
+  onTouchDown: 'touchstart',  // w3c是touchstart，此处兼容老代码
+  onTouchEnd: 'touchend',
+  onTouchMove: 'touchmove',
+  onTouchCancel: 'touchcancel',
 };
 
-global.__onLongClick = (param) => {
-  const targetModule = __GLOBAL__.jsModuleList.EventDispatcher.receiveNativeGesture;
-  if (targetModule) {
-    const targetMethod = targetModule.onLongClick;
-    if (targetMethod) {
-      targetMethod(param);
-    }
-  }
+const uiEventKeyMap = {
+  onLayout: 'layout',
+  onShow: 'show',
+  onDismiss: 'dismiss',
 };
 
-global.__onTouchStart = (param) => {
-  const targetModule = __GLOBAL__.jsModuleList.EventDispatcher.receiveNativeGesture;
-  if (targetModule) {
-    const targetMethod = targetModule.onTouchStart;
-    if (targetMethod) {
-      targetMethod(param);
+// 兼容 hippy2.0，hippy3.0 放量一段时间后可删除
+function HandleEventListener(node) {
+  for (const [key, value] of Object.entries(node)) {
+    if (typeof value === 'function') {
+      let name;
+      const { id } = node;
+      if (gestureKeyMap[key]) {
+        name = gestureKeyMap[key];
+        const {
+          EventDispatcher: {
+            receiveNativeGesture = null,
+          },
+        } = __GLOBAL__.jsModuleList;
+        node[key] = function (param) {
+          if (receiveNativeGesture) {
+            const event = {
+              id, name,
+            };
+            Object.assign(event, param);
+            receiveNativeGesture(event);
+          }
+        };
+      } else if (uiEventKeyMap[key]) {
+        name = uiEventKeyMap[key];
+        const {
+          EventDispatcher: {
+            receiveUIComponentEvent = null,
+          },
+        } = __GLOBAL__.jsModuleList;
+        node[key] = function (param) {
+          if (receiveUIComponentEvent) {
+            const event = [id, name, param];
+            receiveUIComponentEvent(event);
+          }
+        };
+      }
     }
   }
-};
-
-global.__onTouchMove = (param) => {
-  const targetModule = __GLOBAL__.jsModuleList.EventDispatcher.receiveNativeGesture;
-  if (targetModule) {
-    const targetMethod = targetModule.onTouchMove;
-    if (targetMethod) {
-      targetMethod(param);
-    }
-  }
-};
-
-global.__onTouchEnd = (param) => {
-  const targetModule = __GLOBAL__.jsModuleList.EventDispatcher.receiveNativeGesture;
-  if (targetModule) {
-    const targetMethod = targetModule.onTouchEnd;
-    if (targetMethod) {
-      targetMethod(param);
-    }
-  }
-};
-
-global.__onTouchCancel = (param) => {
-  const targetModule = __GLOBAL__.jsModuleList.EventDispatcher.receiveNativeGesture;
-  if (targetModule) {
-    const targetMethod = targetModule.onTouchCancel;
-    if (targetMethod) {
-      targetMethod(param);
-    }
-  }
-};
-
-global.__onAttachedToWindow = (param) => {
-  const targetModule = __GLOBAL__.jsModuleList.EventDispatcher.receiveUIComponentEvent;
-  if (targetModule) {
-    const targetMethod = targetModule.onAttachedToWindow;
-    if (targetMethod) {
-      targetMethod(param);
-    }
-  }
-};
-
-global.__onDetachedFromWindow = (param) => {
-  const targetModule = __GLOBAL__.jsModuleList.EventDispatcher.receiveUIComponentEvent;
-  if (targetModule) {
-    const targetMethod = targetModule.onDetachedFromWindow;
-    if (targetMethod) {
-      targetMethod(param);
-    }
-  }
-};
-
-global.__onShow = (param) => {
-  const targetModule = __GLOBAL__.jsModuleList.EventDispatcher.receiveUIComponentEvent;
-  if (targetModule) {
-    const targetMethod = targetModule.onShow;
-    if (targetMethod) {
-      targetMethod(param);
-    }
-  }
-};
-
-global.__onDismiss = (param) => {
-  const targetModule = __GLOBAL__.jsModuleList.EventDispatcher.receiveUIComponentEvent;
-  if (targetModule) {
-    const targetMethod = targetModule.onDismiss;
-    if (targetMethod) {
-      targetMethod(param);
-    }
-  }
-};
+}
 
 Hippy.document = {
   createNode(rootViewId, queue) {
     global.ConsoleModule.debug(`rootViewId = ${rootViewId}`);
     global.ConsoleModule.debug(`createNode queue = ${JSON.stringify(queue)}`);
+    queue.forEach(each => HandleEventListener(each));
     UIManagerModule.CreateNodes(rootViewId, queue);
     // Hippy.bridge.callNative('UIManagerModule', 'createNode', rootViewId, queue);
   },
   updateNode(rootViewId, queue) {
     global.ConsoleModule.debug(`rootViewId = ${rootViewId}`);
     global.ConsoleModule.debug(`updateNode queue = ${JSON.stringify(queue)}`);
+    queue.forEach(each => HandleEventListener(each));
     UIManagerModule.UpdateNodes(rootViewId, queue);
     // Hippy.bridge.callNative('UIManagerModule', 'updateNode', rootViewId, queue);
   },
   deleteNode(rootViewId, queue) {
     global.ConsoleModule.debug(`rootViewId = ${rootViewId}`);
     global.ConsoleModule.debug(`deleteNode queue = ${JSON.stringify(queue)}`);
+    queue.forEach(each => HandleEventListener(each));
     UIManagerModule.DeleteNodes(rootViewId, queue);
     // Hippy.bridge.callNative('UIManagerModule', 'deleteNode', rootViewId, queue);
   },
   flushBatch(rootViewId, queue) {
     global.ConsoleModule.debug(`rootViewId = ${rootViewId}`);
     global.ConsoleModule.debug(`flushBatch queue = ${JSON.stringify(queue)}`);
+    queue.forEach(each => HandleEventListener(each));
     UIManagerModule.FlushBatch(rootViewId, queue);
     // Hippy.bridge.callNative('UIManagerModule', 'flushBatch', rootViewId, queue);
   },
