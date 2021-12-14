@@ -5,177 +5,194 @@
 #include <utility>
 
 #include "base/logging.h"
-#include "bridge/runtime.h"
-#include "dom/deserializer.h"
-#include "dom/serializer.h"
 
-std::pair<uint8_t *, size_t>
-HandleDomValue(const std::vector<std::shared_ptr<hippy::dom::DomNode>> &nodes) {
-  tdf::base::Serializer serializer;
-  serializer.WriteHeader();
+namespace hippy {
+inline namespace dom {
+
+void HippyRenderManager::CreateRenderNode(std::vector<std::shared_ptr<hippy::dom::DomNode>>&& nodes) {
+  serializer_->Release();
+  serializer_->WriteHeader();
 
   uint32_t len = nodes.size();
   tdf::base::DomValue::DomValueArrayType dom_node_array;
   dom_node_array.resize(len);
-
   for (uint32_t i = 0; i < len; i++) {
     tdf::base::DomValue::DomValueObjectType dom_node;
     dom_node["id"] = tdf::base::DomValue(nodes[i]->GetId());
     dom_node["pId"] = tdf::base::DomValue(nodes[i]->GetPid());
     dom_node["index"] = tdf::base::DomValue(nodes[i]->GetIndex());
     dom_node["name"] = tdf::base::DomValue(nodes[i]->GetViewName());
-    dom_node["tagName"] = tdf::base::DomValue(nodes[i]->GetTagName());
 
     tdf::base::DomValue::DomValueObjectType props;
+    // 样式属性
     auto style = nodes[i]->GetStyleMap();
     auto iter = style.begin();
     while (iter != style.end()) {
       props[iter->first] = *(iter->second);
       iter++;
     }
+
+    // 用户自定义属性
+    auto dom_ext = nodes[i]->GetExtStyle();
+    iter = dom_ext.begin();
+    while (iter != dom_ext.end()) {
+      props[iter->first] = *(iter->second);
+      iter++;
+    }
+
+    // layout result
+    auto result = nodes[i]->GetLayoutResult();
+    props["width"] = tdf::base::DomValue(result.width);
+    props["height"] = tdf::base::DomValue(result.height);
+    props["left"] = tdf::base::DomValue(result.left);
+    props["top"] = tdf::base::DomValue(result.top);
+
     dom_node["props"] = props;
     dom_node_array[i] = dom_node;
   }
+  serializer_->WriteDenseJSArray(dom_node_array);
+  std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
 
-  serializer.WriteDenseJSArray(dom_node_array);
-  return serializer.Release();
+  CallNativeMethod(buffer_pair, "createNode");
+  return;
 };
 
-namespace hippy {
-inline namespace dom {
+void HippyRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
+  serializer_->Release();
+  serializer_->WriteHeader();
 
-void HippyRenderManager::CreateRenderNode(
-    std::vector<std::shared_ptr<hippy::dom::DomNode>> &&nodes) {
-  std::shared_ptr<Runtime> runtime =
-      Runtime::Find(static_cast<int32_t>(runtime_id_));
-  if (!runtime) {
-    return;
+  uint32_t len = nodes.size();
+  tdf::base::DomValue::DomValueArrayType dom_node_array;
+  dom_node_array.resize(len);
+  for (uint32_t i = 0; i < len; i++) {
+    tdf::base::DomValue::DomValueObjectType dom_node;
+    dom_node["id"] = tdf::base::DomValue(nodes[i]->GetId());
+    dom_node["pId"] = tdf::base::DomValue(nodes[i]->GetPid());
+    dom_node["index"] = tdf::base::DomValue(nodes[i]->GetIndex());
+    dom_node["name"] = tdf::base::DomValue(nodes[i]->GetViewName());
+
+    tdf::base::DomValue::DomValueObjectType props;
+    // diff 属性
+    auto diff = nodes[i]->GetDiffStyle();
+    auto iter = diff.begin();
+    while (iter != diff.end()) {
+      props[iter->first] = *(iter->second);
+      iter++;
+    }
+    dom_node["props"] = props;
+    dom_node_array[i] = dom_node;
   }
+  serializer_->WriteDenseJSArray(dom_node_array);
+  std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
 
+  CallNativeMethod(buffer_pair, "updateNode");
+
+  return;
+};
+
+void HippyRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
-  JNIEnv *j_env = instance->AttachCurrentThread();
+  JNIEnv* j_env = instance->AttachCurrentThread();
 
-  jobject j_buffer;
-  std::pair<uint8_t *, size_t> buffer_pair = HandleDomValue(nodes);
-  j_buffer = j_env->NewByteArray(buffer_pair.second);
-  j_env->SetByteArrayRegion(reinterpret_cast<jbyteArray>(j_buffer), 0,
-                            buffer_pair.second,
-                            reinterpret_cast<const jbyte *>(buffer_pair.first));
+  jintArray j_int_array;
+  j_int_array = j_env->NewIntArray(nodes.size());
+  std::vector<int> id;
+  id.resize(nodes.size());
+  for (size_t i = 0; i < nodes.size(); i++) {
+    id[i] = nodes[i]->GetId();
+  }
+  j_env->SetIntArrayRegion(j_int_array, 0, nodes.size(), &id[0]);
+
   jobject j_object = render_delegate_->GetObj();
   jclass j_class = j_env->GetObjectClass(j_object);
   if (!j_class) {
-    TDF_BASE_LOG(ERROR) << "CreateRenderNode j_class error";
+    TDF_BASE_LOG(ERROR) << "CallNativeMethod j_class error";
     return;
   }
 
-  jmethodID j_method_id = j_env->GetMethodID(j_class, "createNode", "([B)V");
+  jmethodID j_method_id = j_env->GetMethodID(j_class, "deleteNode", "([I)V");
   if (!j_method_id) {
-    TDF_BASE_LOG(ERROR) << "CreateRenderNode j_cb_id error";
+    TDF_BASE_LOG(ERROR) << "deleteNode j_cb_id error";
+    return;
+  }
+
+  j_env->CallVoidMethod(j_object, j_method_id, j_int_array);
+  j_env->DeleteLocalRef(j_int_array);
+
+  return;
+};
+
+void HippyRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) {
+  TDF_BASE_NOTIMPLEMENTED();
+};
+
+void HippyRenderManager::MoveRenderNode(std::vector<int32_t>&& moved_ids, int32_t from_pid, int32_t to_pid) {
+  std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
+  JNIEnv* j_env = instance->AttachCurrentThread();
+
+  jintArray j_int_array;
+  j_int_array = j_env->NewIntArray(moved_ids.size());
+  j_env->SetIntArrayRegion(j_int_array, 0, moved_ids.size(), &moved_ids[0]);
+
+  jobject j_object = render_delegate_->GetObj();
+  jclass j_class = j_env->GetObjectClass(j_object);
+  if (!j_class) {
+    TDF_BASE_LOG(ERROR) << "CallNativeMethod j_class error";
+    return;
+  }
+
+  jmethodID j_method_id = j_env->GetMethodID(j_class, "moveNode", "([III)V");
+  if (!j_method_id) {
+    TDF_BASE_LOG(ERROR) << "moveNode j_cb_id error";
+    return;
+  }
+
+  j_env->CallVoidMethod(j_object, j_method_id, j_int_array, from_pid, to_pid);
+  j_env->DeleteLocalRef(j_int_array);
+
+  return;
+};
+
+void HippyRenderManager::Batch() { TDF_BASE_NOTIMPLEMENTED(); };
+
+void HippyRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {
+  TDF_BASE_NOTIMPLEMENTED();
+}
+
+void HippyRenderManager::RemoveEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {
+  TDF_BASE_NOTIMPLEMENTED();
+}
+
+void HippyRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std::string& name, const DomValue& param,
+                                      CallFunctionCallback cb) {
+  TDF_BASE_NOTIMPLEMENTED();
+};
+
+void HippyRenderManager::CallNativeMethod(const std::pair<uint8_t*, size_t>& buffer, const std::string& method) {
+  std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
+  JNIEnv* j_env = instance->AttachCurrentThread();
+
+  jobject j_buffer;
+  j_buffer = j_env->NewByteArray(buffer.second);
+  j_env->SetByteArrayRegion(reinterpret_cast<jbyteArray>(j_buffer), 0, buffer.second,
+                            reinterpret_cast<const jbyte*>(buffer.first));
+
+  jobject j_object = render_delegate_->GetObj();
+  jclass j_class = j_env->GetObjectClass(j_object);
+  if (!j_class) {
+    TDF_BASE_LOG(ERROR) << "CallNativeMethod j_class error";
+    return;
+  }
+
+  jmethodID j_method_id = j_env->GetMethodID(j_class, method.c_str(), "([B)V");
+  if (!j_method_id) {
+    TDF_BASE_LOG(ERROR) << method << " j_cb_id error";
     return;
   }
 
   j_env->CallVoidMethod(j_object, j_method_id, j_buffer);
   j_env->DeleteLocalRef(j_buffer);
-};
-
-void HippyRenderManager::UpdateRenderNode(
-    std::vector<std::shared_ptr<DomNode>> &&nodes) {
-  std::shared_ptr<Runtime> runtime =
-      Runtime::Find(static_cast<int32_t>(runtime_id_));
-  if (!runtime) {
-    return;
-  }
-
-  std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
-  JNIEnv *j_env = instance->AttachCurrentThread();
-
-  jobject j_buffer;
-  std::pair<uint8_t *, size_t> buffer_pair = HandleDomValue(nodes);
-  j_buffer = j_env->NewByteArray(buffer_pair.second);
-  j_env->SetByteArrayRegion(reinterpret_cast<jbyteArray>(j_buffer), 0,
-                            buffer_pair.second,
-                            reinterpret_cast<const jbyte *>(buffer_pair.first));
-
-  jobject j_object = render_delegate_->GetObj();
-  jclass j_class = j_env->GetObjectClass(j_object);
-  if (!j_class) {
-    TDF_BASE_LOG(ERROR) << "UpdateRenderNode j_class error";
-    return;
-  }
-
-  jmethodID j_method_id = j_env->GetMethodID(j_class, "updateNode", "([B)V");
-  if (!j_method_id) {
-    TDF_BASE_LOG(ERROR) << "UpdateRenderNode j_cb_id error";
-    return;
-  }
-
-  j_env->CallVoidMethod(render_delegate_->GetObj(), j_method_id, j_buffer);
-  j_env->DeleteLocalRef(j_buffer);
-};
-
-void HippyRenderManager::DeleteRenderNode(
-    std::vector<std::shared_ptr<DomNode>> &&nodes) {
-  std::shared_ptr<Runtime> runtime =
-      Runtime::Find(static_cast<int32_t>(runtime_id_));
-  if (!runtime) {
-    return;
-  }
-
-  std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
-  JNIEnv *j_env = instance->AttachCurrentThread();
-
-  jobject j_buffer;
-  std::pair<uint8_t *, size_t> buffer_pair = HandleDomValue(nodes);
-  j_buffer = j_env->NewByteArray(buffer_pair.second);
-  j_env->SetByteArrayRegion(reinterpret_cast<jbyteArray>(j_buffer), 0,
-                            buffer_pair.second,
-                            reinterpret_cast<const jbyte *>(buffer_pair.first));
-
-  jobject j_object = render_delegate_->GetObj();
-  jclass j_class = j_env->GetObjectClass(j_object);
-  if (!j_class) {
-    TDF_BASE_LOG(ERROR) << "UpdateRenderNode j_class error";
-    return;
-  }
-
-  jmethodID j_method_id = j_env->GetMethodID(j_class, "deleteNode", "([B)V");
-  if (!j_method_id) {
-    TDF_BASE_LOG(ERROR) << "UpdateRenderNode j_cb_id error";
-    return;
-  }
-
-  j_env->CallVoidMethod(render_delegate_->GetObj(), j_method_id, j_buffer);
-  j_env->DeleteLocalRef(j_buffer);
-};
-
-void HippyRenderManager::UpdateLayout(
-    const std::vector<std::shared_ptr<DomNode>> &nodes) {
-  TDF_BASE_NOTIMPLEMENTED();
-};
-
-void HippyRenderManager::MoveRenderNode(std::vector<int32_t> &&moved_ids,
-                                        int32_t from_pid, int32_t to_pid) {
-  TDF_BASE_NOTIMPLEMENTED();
-};
-
-void HippyRenderManager::Batch() { TDF_BASE_NOTIMPLEMENTED(); };
-
-void HippyRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node,
-                                          const std::string &name) {
-  TDF_BASE_NOTIMPLEMENTED();
 }
 
-void HippyRenderManager::RemoveEventListener(std::weak_ptr<DomNode> dom_node,
-                                             const std::string &name) {
-  TDF_BASE_NOTIMPLEMENTED();
-}
-
-void HippyRenderManager::CallFunction(std::weak_ptr<DomNode> domNode,
-                                      const std::string &name,
-                                      const DomValue &param,
-                                      CallFunctionCallback cb) {
-  TDF_BASE_NOTIMPLEMENTED();
-};
-
-} // namespace dom
-} // namespace hippy
+}  // namespace dom
+}  // namespace hippy
