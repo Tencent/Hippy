@@ -97,7 +97,6 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   void CallFunction(const std::string &name,
                     const DomValue &param,
                     const CallFunctionCallback &cb);
-  const std::unordered_map<std::string, std::shared_ptr<DomValue>> GetStyle() { return style_map_; }
   const std::unordered_map<std::string,
                            std::shared_ptr<DomValue>> GetExtStyle() { return dom_ext_map_; }
   const std::unordered_map<std::string, std::shared_ptr<DomValue>> GetDiffStyle() { return diff_; }

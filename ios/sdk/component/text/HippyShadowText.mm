@@ -47,7 +47,7 @@ HPSize textMeasureFunc(
     HPNodeRef node, float width, MeasureMode widthMeasureMode, __unused float height, __unused MeasureMode heightMeasureMode, void *layoutContext) {
     hippy::DomNode *pNode = static_cast<hippy::DomNode *>(HPNodeGetContext(node));
     NSDictionary *props = unorderedMapDomValueToDictionary(pNode->GetExtStyle());
-    NSDictionary *styleProps = unorderedMapDomValueToDictionary(pNode->GetStyle());
+    NSDictionary *styleProps = unorderedMapDomValueToDictionary(pNode->GetStyleMap());
     NSNumber *fontSize = styleProps[@"fontSize"];
     NSString *text = props[@"text"];
     UIFont *font = [UIFont systemFontOfSize:[fontSize floatValue]];

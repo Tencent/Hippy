@@ -42,7 +42,9 @@ void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>> &&nodes) {
 
   if (!nodes.empty()) {
     batched_operations_.emplace_back([this, moved_nodes = std::move(nodes)]() mutable {
-      render_manager_->CreateRenderNode(std::move(moved_nodes));
+        if (render_manager_) {
+            render_manager_->CreateRenderNode(std::move(moved_nodes));
+        }
     });
   }
 }
@@ -55,7 +57,7 @@ void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>> &&nodes) {
       continue;
     }
     // diff props
-    DomValueMap style_diff = DiffUtils::DiffProps(node->GetStyle(), it->get()->GetStyle());
+    DomValueMap style_diff = DiffUtils::DiffProps(node->GetStyleMap(), it->get()->GetStyleMap());
     DomValueMap ext_diff = DiffUtils::DiffProps(node->GetExtStyle(), it->get()->GetExtStyle());
     style_diff.insert(ext_diff.begin(), ext_diff.end());
     it->get()->SetDiffStyle(std::move(style_diff));
@@ -99,12 +101,15 @@ void DomManager::EndBatch() {
   for (auto& batch_operation : batched_operations_) {
     batch_operation();
   }
+  layout_changed_nodes_.clear();
   // 触发布局计算
   root_node_->DoLayout();
-  if (!layout_changed_nodes_.empty()) {
-    render_manager_->UpdateLayout(layout_changed_nodes_);
+  if (!render_manager_) {
+      return;
   }
-  batched_operations_.clear();
+  if (!layout_changed_nodes_.empty()) {
+      render_manager_->UpdateLayout(layout_changed_nodes_);
+  }
   render_manager_->Batch();
 }
 
