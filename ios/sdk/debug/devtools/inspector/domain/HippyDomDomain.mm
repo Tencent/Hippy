@@ -106,8 +106,7 @@ NSString *const HippyDOMParamsKeyPath = @"path";
         return NO;
     }
     dispatch_async(dispatch_get_main_queue(), ^{
-        HippyVirtualNode *rootNode = [manager nodeForHippyTag:[manager rootHippyTag]];
-        [self->_domModel domGetDocumentJSONWithRootNode:rootNode completion:^(NSDictionary * rspObject) {
+        [self->_domModel domGetDocumentJSONWithManager:manager completion:^(NSDictionary * _Nonnull rspObject) {
             [self handleRspDataWithCmd:command dataJSON:rspObject completion:completion];
         }];
     });
@@ -134,7 +133,7 @@ NSString *const HippyDOMParamsKeyPath = @"path";
     }
     dispatch_async(dispatch_get_main_queue(), ^{
         HippyVirtualNode *node = [manager nodeForHippyTag:nodeId];
-        [self->_domModel domGetBoxModelJSONWithNode:node completion:^(NSDictionary * rspObject) {
+        [self->_domModel domGetBoxModelJSONWithNode:node manager:manager completion:^(NSDictionary * rspObject) {
             [self handleRspDataWithCmd:command dataJSON:rspObject completion:completion];
         }];
     });
