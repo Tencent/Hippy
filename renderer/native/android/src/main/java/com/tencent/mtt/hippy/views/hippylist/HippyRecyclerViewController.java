@@ -29,8 +29,8 @@ import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.uimanager.ListViewRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
-import com.tencent.renderer.INativeRenderer;
-import com.tencent.renderer.NativeRendererContext;
+import com.tencent.renderer.INativeRender;
+import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
 @HippyController(name = HippyRecyclerViewController.CLASS_NAME)
@@ -83,8 +83,8 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
       layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
     }
     recyclerView.setLayoutManager(layoutManager);
-    if (context instanceof NativeRendererContext) {
-      int instanceId = ((NativeRendererContext)context).getInstanceId();
+    if (context instanceof NativeRenderContext) {
+      int instanceId = ((NativeRenderContext)context).getInstanceId();
       recyclerView.setNativeRenderer(NativeRendererManager.getNativeRenderer(instanceId));
     }
     recyclerView.initRecyclerView();

@@ -29,15 +29,15 @@ import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.IHeaderHost;
-import com.tencent.renderer.INativeRenderer;
-import com.tencent.renderer.NativeRendererContext;
+import com.tencent.renderer.INativeRender;
+import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
 public class HippyRecyclerViewWrapper<HRCV extends HippyRecyclerView> extends FrameLayout implements
     HippyViewBase,
     IHeaderHost {
 
-  protected INativeRenderer hpContext = null;
+  protected INativeRender hpContext = null;
   protected HRCV recyclerView;
   private NativeGestureDispatcher nativeGestureDispatcher;
 
@@ -45,8 +45,8 @@ public class HippyRecyclerViewWrapper<HRCV extends HippyRecyclerView> extends Fr
     super(context);
     this.recyclerView = recyclerView;
     addView(recyclerView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-    if (context instanceof NativeRendererContext) {
-      int instanceId = ((NativeRendererContext)context).getInstanceId();
+    if (context instanceof NativeRenderContext) {
+      int instanceId = ((NativeRenderContext)context).getInstanceId();
       hpContext = NativeRendererManager.getNativeRenderer(instanceId);
     }
     HippyRecyclerExtension cacheExtension = new HippyRecyclerExtension(recyclerView, hpContext,

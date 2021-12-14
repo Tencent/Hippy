@@ -15,22 +15,24 @@
  */
 package com.tencent.mtt.hippy.uimanager;
 
+import static com.tencent.renderer.NativeRenderException.INVALID_NODE_DATA_ERR;
+
+import com.tencent.mtt.hippy.views.modal.HippyModalHostManager;
+import com.tencent.renderer.NativeRenderException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import android.text.TextUtils;
 import android.util.SparseArray;
-
 import android.view.ViewGroup;
 import com.tencent.hippy.support.HippyBaseController;
-import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.DomNode;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.utils.LogUtils;
-
-import com.tencent.renderer.INativeRenderer;
-import java.util.ArrayList;
-import java.util.List;
+import com.tencent.renderer.INativeRender;
 
 @SuppressWarnings({"deprecation", "unused"})
 public class RenderManager {
@@ -45,7 +47,7 @@ public class RenderManager {
 
   final ControllerManager mControllerManager;
 
-  public RenderManager(INativeRenderer nativeRenderer, List<Class<? extends HippyBaseController>> controllers) {
+  public RenderManager(INativeRender nativeRenderer, List<Class<? extends HippyBaseController>> controllers) {
     mControllerManager = new ControllerManager(nativeRenderer, controllers);
   }
 
@@ -66,40 +68,34 @@ public class RenderManager {
     getControllerManager().destroy();
   }
 
-  public void createNode(ViewGroup hippyRootView, int id, int pId, int childIndex,
-      String className, HippyMap props) {
-    LogUtils.d("RenderManager",
-        "createNode ID " + id + " mParentId " + pId + " index " + childIndex + "className"
-            + className);
-
-    RenderNode parentNode = mNodes.get(pId);
-
+  public void createNode(ViewGroup rootView, int id, int pid, int index,
+      String className, HashMap<String, Object> props) {
+    HippyMap localProps = new HippyMap(props);
     boolean isLazy = mControllerManager.isControllerLazy(className);
-    RenderNode uiNode = mControllerManager
-        .createRenderNode(id, props, className, hippyRootView, isLazy || parentNode.mIsLazyLoad);
+    RenderNode parentNode = mNodes.get(pid);
+    if (parentNode == null) {
+      throw new NativeRenderException(INVALID_NODE_DATA_ERR,
+          "parentNode is null: " + "id=" + id + ", pId=" + pid);
+    }
 
-    mNodes.put(id, uiNode);
-
+    RenderNode node = mControllerManager.createRenderNode(id, localProps, className,
+        rootView, isLazy || parentNode.mIsLazyLoad);
+    mNodes.put(id, node);
     mPreIsLazy.remove(id);
-
-    parentNode.addChild(uiNode, childIndex);
-
+    parentNode.addChild(node, index);
     addUpdateNodeIfNeeded(parentNode);
-
-    addUpdateNodeIfNeeded(uiNode);
+    addUpdateNodeIfNeeded(node);
   }
 
-  public void addUpdateNodeIfNeeded(RenderNode renderNode) {
-    if (!mUIUpdateNodes.contains(renderNode)) {
-      if (null != renderNode) {
-        mUIUpdateNodes.add(renderNode);
-      }
+  public void addUpdateNodeIfNeeded(RenderNode node) {
+    if (!mUIUpdateNodes.contains(node)) {
+      mUIUpdateNodes.add(node);
     }
   }
 
-  void addNullUINodeIfNeeded(RenderNode renderNode) {
-    if (!mNullUIUpdateNodes.contains(renderNode)) {
-      mNullUIUpdateNodes.add(renderNode);
+  void addNullUINodeIfNeeded(RenderNode node) {
+    if (!mNullUIUpdateNodes.contains(node)) {
+      mNullUIUpdateNodes.add(node);
     }
   }
 

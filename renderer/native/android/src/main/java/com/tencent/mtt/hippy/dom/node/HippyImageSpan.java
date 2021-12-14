@@ -39,7 +39,7 @@ import com.tencent.mtt.hippy.utils.UrlUtils;
 import com.tencent.mtt.hippy.views.image.HippyImageView.ImageEvent;
 import com.tencent.mtt.supportui.adapters.image.IDrawableTarget;
 import com.tencent.mtt.supportui.adapters.image.IImageLoaderAdapter;
-import com.tencent.renderer.INativeRenderer;
+import com.tencent.renderer.INativeRender;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 
@@ -59,13 +59,13 @@ public class HippyImageSpan extends ImageSpan {
   private int mImageLoadState = STATE_UNLOAD;
   private int mVerticalAlignment;
   private final IImageLoaderAdapter mImageAdapter;
-  private final INativeRenderer nativeRenderer;
+  private final INativeRender nativeRenderer;
   private Movie mGifMovie = null;
   private int mGifProgress = 0;
   private long mGifLastPlayTime = -1;
 
   public HippyImageSpan(Drawable d, String source, ImageNode node,
-          IImageLoaderAdapter imageAdapter, INativeRenderer nativeRenderer) {
+          IImageLoaderAdapter imageAdapter, INativeRender nativeRenderer) {
     super(d, source, node.getVerticalAlignment());
     this.nativeRenderer = nativeRenderer;
     mImageNodeWeakRefrence = new WeakReference<>(node);

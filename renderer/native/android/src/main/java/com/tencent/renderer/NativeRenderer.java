@@ -15,38 +15,37 @@
  */
 package com.tencent.renderer;
 
+import static com.tencent.renderer.NativeRenderException.INVALID_NODE_DATA_ERR;
+
 import android.content.Context;
 import android.view.ViewGroup;
+import com.tencent.mtt.hippy.utils.LogUtils;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 import com.tencent.hippy.support.HippyBaseController;
 import com.tencent.hippy.support.IFrameworkProxy;
 import com.tencent.hippy.support.IJSFrameworkProxy;
-import com.tencent.hippy.support.INativeRendererProxy;
+import com.tencent.hippy.support.INativeRenderProxy;
 import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.adapter.font.HippyFontScaleAdapter;
-import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.common.ThreadExecutor;
 import com.tencent.mtt.hippy.dom.DomManager;
-import com.tencent.mtt.hippy.modules.Promise;
-import com.tencent.mtt.hippy.uimanager.HippyCustomViewCreator;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
-import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.supportui.adapters.image.IImageLoaderAdapter;
 
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
+public class NativeRenderer implements INativeRender, INativeRenderProxy, INativeRenderDelegate {
+  public static final String TAG = "NativeRenderer";
 
-public class NativeRenderer implements INativeRenderer, INativeRendererProxy {
-  final String ID = "id";
-  final String PID = "pId";
-  final String INDEX = "index";
-  final String NAME = "name";
-  final String PROPS = "props";
-  final String TAG_NAME = "tagName";
-
+  private final String ID = "id";
+  private final String PID = "pId";
+  private final String INDEX = "index";
+  private final String NAME = "name";
+  private final String PROPS = "props";
   private static final int ROOT_VIEW_TAG_INCREMENT = 10;
   private static final AtomicInteger ID_COUNTER = new AtomicInteger(0);
 
@@ -57,7 +56,7 @@ public class NativeRenderer implements INativeRenderer, INativeRendererProxy {
   private DomManager domManager;
   private HippyRootView rootView;
   private IFrameworkProxy frameworkProxy;
-  private NativeRendererDelegate delegate;
+  private NativeRenderProvider renderProvider;
   volatile CopyOnWriteArrayList<HippyInstanceLifecycleEventListener> instanceLifecycleEventListeners;
 
   @Override
@@ -127,8 +126,12 @@ public class NativeRenderer implements INativeRenderer, INativeRendererProxy {
   }
 
   @Override
+  public void handleRenderException(Exception exception) {
+    handleNativeException(exception, true);
+  }
+
+  @Override
   public void setFrameworkProxy(IFrameworkProxy proxy) {
-    assert proxy != null;
     frameworkProxy = proxy;
   }
 
@@ -148,9 +151,9 @@ public class NativeRenderer implements INativeRenderer, INativeRendererProxy {
     if (renderManager != null) {
       renderManager.destroy();
     }
-    if (delegate != null) {
-      delegate.destroy();
-      delegate = null;
+    if (renderProvider != null) {
+      renderProvider.destroy();
+      renderProvider = null;
     }
     if (instanceLifecycleEventListeners != null) {
       instanceLifecycleEventListeners.clear();
@@ -162,8 +165,12 @@ public class NativeRenderer implements INativeRenderer, INativeRendererProxy {
 
   @Override
   public ViewGroup createRootView(Context context) {
-    assert context != null;
+    if (context == null) {
+      return null;
+    }
     rootView = new HippyRootView(context, instanceId, rootId);
+    renderManager.createRootNode(rootId);
+    renderManager.addRootView(rootView);
     return rootView;
   }
 
@@ -206,26 +213,10 @@ public class NativeRenderer implements INativeRenderer, INativeRendererProxy {
 
   @Override
   public void onSizeChanged(int w, int h, int oldw, int oldh) {
-    HippyMap hippyMap = new HippyMap();
-    hippyMap.pushDouble("width", PixelUtil.px2dp(w));
-    hippyMap.pushDouble("height", PixelUtil.px2dp(h));
-    hippyMap.pushDouble("oldWidth", PixelUtil.px2dp(oldw));
-    hippyMap.pushDouble("oldHeight", PixelUtil.px2dp(oldh));
-    if(frameworkProxy != null) {
-      frameworkProxy.onSizeChanged(w, h, oldw, oldh);
-    }
-
-    ThreadExecutor threadExecutor = getJSEngineThreadExecutor();
-    if (threadExecutor != null) {
-      final int width = w;
-      final int height = h;
-      final int rootId = rootView.getId();
-      threadExecutor.postOnDomThread(new Runnable() {
-        @Override
-        public void run() {
-          getDomManager().updateNodeSize(rootId, width, height);
-        }
-      });
+    if (renderProvider != null) {
+      LogUtils.d(TAG, "onSizeChanged: w=" + w + ", h=" + h + ", oldw="
+          + oldw + ", oldh=" + oldh);
+      renderProvider.updateRootSize(w, h);
     }
   }
 
@@ -267,21 +258,7 @@ public class NativeRenderer implements INativeRenderer, INativeRendererProxy {
 
   @Override
   public void onInstanceLoad() {
-    assert rootView != null;
-    ThreadExecutor threadExecutor = getJSEngineThreadExecutor();
-    if (threadExecutor != null && rootView != null) {
-      final int rootId = rootView.getId();
-      final int width = rootView.getWidth();
-      final int height = rootView.getHeight();
-      threadExecutor.postOnDomThread(new Runnable() {
-        @Override
-        public void run() {
-          getDomManager().createRootNode(rootId, width, height);
-        }
-      });
-    }
 
-    renderManager.addRootView(rootView);
   }
 
   @Override
@@ -313,7 +290,7 @@ public class NativeRenderer implements INativeRenderer, INativeRendererProxy {
 
   @Override
   public void onRuntimeInitialized(long runtimeId) {
-    delegate = new NativeRendererDelegate(this, runtimeId);
+    renderProvider = new NativeRenderProvider(this, runtimeId);
   }
 
   @Override
@@ -332,103 +309,48 @@ public class NativeRenderer implements INativeRenderer, INativeRendererProxy {
   }
 
   @Override
-  public void createNode(int rootID, HippyArray hippyArray) {
-    if (hippyArray != null && rootView != null && domManager != null) {
-      int len = hippyArray.size();
-      for (int i = 0; i < len; i++) {
-        HippyMap nodeArray = hippyArray.getMap(i);
-        int tag = ((Number)nodeArray.get(ID)).intValue();
-        int pTag = ((Number)nodeArray.get(PID)).intValue();
-        int index = ((Number)nodeArray.get(INDEX)).intValue();
-        if (tag < 0 || pTag < 0 || index < 0) {
-          throw new IllegalArgumentException(
-                  "createNode invalid value: " + "id=" + tag + ", pId=" + pTag + ", index=" + index);
-        }
-
-        String className = (String) nodeArray.get(NAME);
-        String tagName = (String) nodeArray.get(TAG_NAME);
-        HippyMap props = (HippyMap) nodeArray.get(PROPS);
-        domManager.createNode(rootView, rootID, tag, pTag, index, className, tagName, props);
+  public void createNode(ArrayList nodeList) {
+    if (nodeList == null || rootView == null) {
+      return;
+    }
+    for (int i = 0; i < nodeList.size(); i++) {
+      Object object = nodeList.get(i);
+      if (!(object instanceof HashMap)) {
+        throw new NativeRenderException(INVALID_NODE_DATA_ERR,
+            "createNode invalid value: " + "object=" + object);
       }
-    }
-  }
-
-  @Override
-  public void updateNode(int rootID, HippyArray updateArray) {
-    if (updateArray != null && updateArray.size() > 0 && rootView != null
-            && domManager != null) {
-      int len = updateArray.size();
-      for (int i = 0; i < len; i++) {
-        HippyMap nodemap = updateArray.getMap(i);
-        int id = ((Number)nodemap.get(ID)).intValue();
-        if (id < 0) {
-          throw new IllegalArgumentException("updateNode invalid value: " + "id=" + id);
-        }
-        HippyMap props = (HippyMap) nodemap.get(PROPS);
-        domManager.updateNode(id, props, rootView);
+      HashMap<String, Object> node = (HashMap)object;
+      int id = ((Number)node.get(ID)).intValue();
+      int pid = ((Number)node.get(PID)).intValue();
+      int index = ((Number)node.get(INDEX)).intValue();
+      if (id < 0 || pid < 0 || index < 0) {
+        throw new NativeRenderException(INVALID_NODE_DATA_ERR,
+            "createNode invalid value: " + "id=" + id + ", pId=" + pid + ", index=" + index);
       }
+      String className = (String) node.get(NAME);
+      HashMap<String, Object> props = (HashMap) node.get(PROPS);
+      renderManager.createNode(rootView, id, pid, index, className, props);
     }
   }
 
   @Override
-  public void deleteNode(int rootId, HippyArray delete) {
-    if (delete != null && delete.size() > 0 && domManager != null) {
-      int len = delete.size();
-      for (int i = 0; i < len; i++) {
-        HippyMap nodemap = delete.getMap(i);
-        int id = ((Number)nodemap.get(ID)).intValue();
-        if (id < 0) {
-          throw new IllegalArgumentException("deleteNode invalid value: " + "id=" + id);
-        }
-        domManager.deleteNode(id);
-      }
-    }
+  public void updateNode(ArrayList nodeList) {
+
   }
 
   @Override
-  public void callUIFunction(HippyArray hippyArray, Promise promise) {
-    if (hippyArray != null && hippyArray.size() > 0 && domManager != null) {
-      int id = hippyArray.getInt(0);
-      String functionName = hippyArray.getString(1);
-      HippyArray array = hippyArray.getArray(2);
-      domManager.dispatchUIFunction(id, functionName, array, promise);
-    }
-  }
+  public void deleteNode(ArrayList nodeList) {
 
-  @Override
-  public void measureInWindow(int id, Promise promise) {
-    if (domManager != null) {
-      domManager.measureInWindow(id, promise);
-    }
   }
 
   @Override
   public void startBatch() {
-    if (domManager != null) {
-      domManager.renderBatchStart();
-    }
+
   }
 
   @Override
   public void endBatch() {
-    if (domManager != null) {
-      domManager.renderBatchEnd();
-    }
-  }
-
-  @Override
-  public void createNode(HippyArray hippyArray) {
-
-  }
-
-  @Override
-  public void updateNode(HippyArray updateArray) {
-
-  }
-
-  @Override
-  public void deleteNode(HippyArray deleteArray) {
-
+    renderManager.batch();
   }
 
   public ThreadExecutor getJSEngineThreadExecutor() {

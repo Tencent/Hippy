@@ -37,7 +37,6 @@ import com.tencent.mtt.hippy.modules.nativemodules.network.NetworkModule;
 import com.tencent.mtt.hippy.modules.nativemodules.network.WebSocketModule;
 import com.tencent.mtt.hippy.modules.nativemodules.storage.StorageModule;
 import com.tencent.mtt.hippy.modules.nativemodules.timer.TimerModule;
-import com.tencent.mtt.hippy.modules.nativemodules.uimanager.UIManagerModule;
 import com.tencent.mtt.hippy.modules.nativemodules.utils.UtilsModule;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.utils.LogUtils;
@@ -89,12 +88,6 @@ public class HippyCoreAPI implements HippyAPIProvider {
       @Override
       public HippyNativeModuleBase get() {
         return new ExceptionModule(context);
-      }
-    });
-    modules.put(UIManagerModule.class, new Provider<HippyNativeModuleBase>() {
-      @Override
-      public HippyNativeModuleBase get() {
-        return new UIManagerModule(context);
       }
     });
     modules.put(AnimationModule.class, new Provider<HippyNativeModuleBase>() {

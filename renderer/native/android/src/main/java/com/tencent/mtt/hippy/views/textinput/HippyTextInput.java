@@ -48,8 +48,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import androidx.appcompat.widget.AppCompatEditText;
 
-import com.tencent.renderer.INativeRenderer;
-import com.tencent.renderer.NativeRendererContext;
+import com.tencent.renderer.INativeRender;
+import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 import java.lang.reflect.Field;
 
@@ -58,7 +58,7 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase, 
     TextView.OnEditorActionListener, View.OnFocusChangeListener {
 
   private CommonBackgroundDrawable mReactBackgroundDrawable;
-  INativeRenderer nativeRenderer = null;
+  INativeRender nativeRenderer = null;
   boolean mHasAddWatcher = false;
   private String mPreviousText;
   TextWatcher mTextWatcher = null;
@@ -75,8 +75,8 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase, 
   public HippyTextInput(Context context) {
     super(context);
 
-    if (context instanceof  NativeRendererContext) {
-      int instanceId = ((NativeRendererContext) context).getInstanceId();
+    if (context instanceof  NativeRenderContext) {
+      int instanceId = ((NativeRenderContext) context).getInstanceId();
       nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
     }
 

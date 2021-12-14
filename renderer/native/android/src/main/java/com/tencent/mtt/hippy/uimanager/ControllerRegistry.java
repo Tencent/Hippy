@@ -18,7 +18,7 @@ package com.tencent.mtt.hippy.uimanager;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
-import com.tencent.renderer.INativeRenderer;
+import com.tencent.renderer.INativeRender;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,9 +27,9 @@ public class ControllerRegistry {
   private final SparseArray<View> mViews;    // store all views here
   private final SparseArray<View> mRoots;    // store all root views here
   private final Map<String, ControllerHolder> mControllers;  // store all viewManager instance here
-  final INativeRenderer nativeRenderer;
+  final INativeRender nativeRenderer;
 
-  public ControllerRegistry(INativeRenderer nativeRenderer) {
+  public ControllerRegistry(INativeRender nativeRenderer) {
     mViews = new SparseArray<>();
     mRoots = new SparseArray<>();
     mControllers = new HashMap<>();

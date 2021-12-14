@@ -23,7 +23,7 @@ import com.tencent.mtt.hippy.modules.Promise;
 
 import java.util.List;
 
-public interface INativeRendererProxy extends HippyInstanceLifecycleEventListener {
+public interface INativeRenderProxy extends HippyInstanceLifecycleEventListener {
   void init(int instanceId, List<Class<? extends HippyBaseController>> controllers,
       boolean isDebugMode, ViewGroup rootView);
 
@@ -40,18 +40,4 @@ public interface INativeRendererProxy extends HippyInstanceLifecycleEventListene
   Object getDomManagerObject();
 
   Object getRenderManagerObject();
-
-  void createNode(int rootId, HippyArray hippyArray);
-
-  void updateNode(int rootId, HippyArray updateArray);
-
-  void deleteNode(int rootId, HippyArray deleteArray);
-
-  void callUIFunction(HippyArray hippyArray, Promise promise);
-
-  void measureInWindow(int id, Promise promise);
-
-  void startBatch();
-
-  void endBatch();
 }

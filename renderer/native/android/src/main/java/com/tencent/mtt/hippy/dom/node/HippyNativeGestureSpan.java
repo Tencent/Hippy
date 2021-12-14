@@ -25,8 +25,8 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.hippy.uimanager.NativeGestureProcessor;
-import com.tencent.renderer.INativeRenderer;
-import com.tencent.renderer.NativeRendererContext;
+import com.tencent.renderer.INativeRender;
+import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
 import java.util.ArrayList;
@@ -46,7 +46,7 @@ public class HippyNativeGestureSpan implements NativeGestureProcessor.Callback {
 
   private NativeGestureProcessor mGestureProcessor;
   private Handler mHandler;
-  private INativeRenderer nativeRenderer;
+  private INativeRender nativeRenderer;
 
   private final boolean mIsVirtual;
 
@@ -77,8 +77,8 @@ public class HippyNativeGestureSpan implements NativeGestureProcessor.Callback {
   public boolean handleDispatchTouchEvent(View view, MotionEvent event) {
     if (nativeRenderer == null) {
       final Context context = view.getContext();
-      if (context instanceof NativeRendererContext) {
-        int instanceId = ((NativeRendererContext)context).getInstanceId();
+      if (context instanceof NativeRenderContext) {
+        int instanceId = ((NativeRenderContext)context).getInstanceId();
         nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
       }
     }

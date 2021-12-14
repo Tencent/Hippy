@@ -45,8 +45,8 @@ import com.tencent.mtt.supportui.adapters.image.IDrawableTarget;
 import com.tencent.mtt.supportui.views.asyncimage.AsyncImageView;
 import com.tencent.mtt.supportui.views.asyncimage.BackgroundDrawable;
 import com.tencent.mtt.supportui.views.asyncimage.ContentDrawable;
-import com.tencent.renderer.INativeRenderer;
-import com.tencent.renderer.NativeRendererContext;
+import com.tencent.renderer.INativeRender;
+import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
 import java.util.Arrays;
@@ -116,13 +116,13 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
   private OnLoadStartEvent mOnLoadStartEvent;
   private final boolean[] mShouldSendImageEvent;
   private Rect mNinePatchRect;
-  private INativeRenderer nativeRenderer;
+  private INativeRender nativeRenderer;
 
   public HippyImageView(Context context) {
     super(context);
     mShouldSendImageEvent = new boolean[ImageEvent.values().length];
-    if (context instanceof NativeRendererContext) {
-      int instanceId = ((NativeRendererContext)context).getInstanceId();
+    if (context instanceof NativeRenderContext) {
+      int instanceId = ((NativeRenderContext)context).getInstanceId();
       nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
       if (nativeRenderer != null) {
         setImageAdapter(nativeRenderer.getImageLoaderAdapter());

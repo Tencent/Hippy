@@ -29,7 +29,7 @@ import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.dom.node.TextNode;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.PixelUtil;
-import com.tencent.renderer.INativeRenderer;
+import com.tencent.renderer.INativeRender;
 
 @SuppressWarnings({"deprecation", "unused"})
 public class TextInputNode extends TextNode implements FlexNodeAPI.MeasureFunction {
@@ -49,7 +49,7 @@ public class TextInputNode extends TextNode implements FlexNodeAPI.MeasureFuncti
   }
 
   @Override
-  public void layoutBefore(INativeRenderer nativeRenderer) {
+  public void layoutBefore(INativeRender nativeRenderer) {
 
     if (mEditText == null) {
       mEditText = new EditText(ContextHolder.getAppContext());
@@ -66,7 +66,7 @@ public class TextInputNode extends TextNode implements FlexNodeAPI.MeasureFuncti
   }
 
   @Override
-  public void layoutAfter(INativeRenderer nativeRenderer) {
+  public void layoutAfter(INativeRender nativeRenderer) {
     // 不能删
   }
 

@@ -13,10 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tencent.hippy.support;
+package com.tencent.renderer;
 
-public interface IFrameworkProxy {
-  void onFirstViewAdded();
+import org.w3c.dom.DOMException;
 
-  void handleNativeException(Exception exception, boolean haveCaught);
+public class NativeRenderException extends DOMException {
+  public NativeRenderException(short code, String message) {
+    super(code, message);
+    this.code = code;
+  }
+
+  /**
+   * If get an invalid or illegal node data from C dom manager,
+   * such as node id or parent id is negative number
+   */
+  public static final short INVALID_NODE_DATA_ERR = 100;
+
+  /**
+   * If get an exception of Deserialize node data from C dom manager
+   */
+  public static final short DESERIALIZER_DATA_ERR = 101;
 }

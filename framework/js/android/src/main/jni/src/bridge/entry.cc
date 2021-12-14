@@ -74,8 +74,8 @@ REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err5
              "(JZLcom/tencent/mtt/hippy/bridge/NativeCallback;)V",
              DestroyInstance)
 
-REGISTER_JNI("com/tencent/renderer/NativeRendererDelegate",
-             "onCreateNativeRendererDelegate",
+REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
+             "onCreateNativeRenderProvider",
              "(J)V",
              CreateNativeRenderDelegate)
 

@@ -39,19 +39,19 @@ import com.tencent.mtt.hippy.views.list.HippyRecycler;
 import com.tencent.mtt.hippy.views.scroll.HippyHorizontalScrollView;
 import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
 
-import com.tencent.renderer.INativeRenderer;
+import com.tencent.renderer.INativeRender;
 import java.lang.reflect.Field;
 import java.util.List;
 
 @SuppressWarnings({"deprecation", "unchecked", "rawtypes", "unused"})
 public class ControllerManager {
 
-  final INativeRenderer nativeRenderer;
+  final INativeRender nativeRenderer;
   final ControllerRegistry mControllerRegistry;
   final ControllerUpdateManger<HippyViewController, View> mControllerUpdateManger;
   final SparseArray<View> mPreCacheView = new SparseArray<>();
 
-  public ControllerManager(INativeRenderer nativeRenderer, List<Class<? extends HippyBaseController>> controllers) {
+  public ControllerManager(INativeRender nativeRenderer, List<Class<? extends HippyBaseController>> controllers) {
     this.nativeRenderer = nativeRenderer;
     mControllerRegistry = new ControllerRegistry(nativeRenderer);
     mControllerUpdateManger = new ControllerUpdateManger();

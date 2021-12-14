@@ -42,8 +42,8 @@ import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 
-import com.tencent.renderer.INativeRenderer;
-import com.tencent.renderer.NativeRendererContext;
+import com.tencent.renderer.INativeRender;
+import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -69,7 +69,7 @@ public class HippyModalHostView extends HippyViewGroup implements
 
   @Override
   public void onInstanceDestroy() {
-    INativeRenderer nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
+    INativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
     if (nativeRenderer != null) {
       nativeRenderer.removeInstanceLifecycleEventListener(this);
     }
@@ -103,9 +103,9 @@ public class HippyModalHostView extends HippyViewGroup implements
   public HippyModalHostView(Context context) {
     super(context);
     mAniType = STYLE_THEME_FULL_SCREEN_DIALOG;
-    if (context instanceof NativeRendererContext) {
-      instanceId = ((NativeRendererContext)context).getInstanceId();
-      INativeRenderer nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
+    if (context instanceof NativeRenderContext) {
+      instanceId = ((NativeRenderContext)context).getInstanceId();
+      INativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
       if (nativeRenderer != null) {
         nativeRenderer.addInstanceLifecycleEventListener(this);
       }
@@ -250,7 +250,7 @@ public class HippyModalHostView extends HippyViewGroup implements
   }
 
   private boolean isActivityFinishing() {
-    NativeRendererContext nativeRendererContext = (NativeRendererContext)getContext();
+    NativeRenderContext nativeRendererContext = (NativeRenderContext)getContext();
 
     Context context = nativeRendererContext.getBaseContext();
     if (!(context instanceof Activity)) {
@@ -329,8 +329,8 @@ public class HippyModalHostView extends HippyViewGroup implements
             mOnRequestCloseListener.onRequestClose(dialog);
             return true;
           } else {
-            if (((NativeRendererContext)getContext()).getBaseContext() instanceof Activity) {
-              Activity currentActivity = (Activity)((NativeRendererContext)getContext())
+            if (((NativeRenderContext)getContext()).getBaseContext() instanceof Activity) {
+              Activity currentActivity = (Activity)((NativeRenderContext)getContext())
                   .getBaseContext();
               if (currentActivity != null) {
                 return currentActivity.onKeyUp(keyCode, event);
@@ -465,7 +465,7 @@ public class HippyModalHostView extends HippyViewGroup implements
                   getChildAt(0).getTop() + h);
         }
 
-        INativeRenderer nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
+        INativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
         if (nativeRenderer != null) {
           final int id = getChildAt(0).getId();
           nativeRenderer.updateModalHostNodeSize(id, w, h);

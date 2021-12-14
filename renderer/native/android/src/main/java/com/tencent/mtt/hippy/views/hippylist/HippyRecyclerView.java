@@ -32,12 +32,12 @@ import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.IHeaderAttachListener;
 import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.IHeaderHost;
 import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.StickyHeaderHelper;
-import com.tencent.renderer.INativeRenderer;
+import com.tencent.renderer.INativeRender;
 
 public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends HippyRecyclerViewBase
     implements IHeaderAttachListener, IHippyViewAboundListener {
 
-  protected INativeRenderer nativeRenderer;
+  protected INativeRender nativeRenderer;
   protected ADP listAdapter;
   protected boolean isEnableScroll = true;    //使能ListView的滚动功能
   protected StickyHeaderHelper stickyHeaderHelper;        //支持吸顶
@@ -84,7 +84,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     this.headerHost = headerHost;
   }
 
-  public void setNativeRenderer(INativeRenderer nativeRenderer) {
+  public void setNativeRenderer(INativeRender nativeRenderer) {
     this.nativeRenderer = nativeRenderer;
   }
 
