@@ -6,6 +6,16 @@
 
 #include "base/logging.h"
 
+const std::string kId = "id";
+const std::string kPid = "pId";
+const std::string kIndex = "index";
+const std::string kName = "name";
+const std::string kWidth = "width";
+const std::string kHeight = "height";
+const std::string kLeft = "left";
+const std::string kRight = "right";
+const std::string kProps = "props";
+
 namespace hippy {
 inline namespace dom {
 
@@ -18,10 +28,17 @@ void HippyRenderManager::CreateRenderNode(std::vector<std::shared_ptr<hippy::dom
   dom_node_array.resize(len);
   for (uint32_t i = 0; i < len; i++) {
     tdf::base::DomValue::DomValueObjectType dom_node;
-    dom_node["id"] = tdf::base::DomValue(nodes[i]->GetId());
-    dom_node["pId"] = tdf::base::DomValue(nodes[i]->GetPid());
-    dom_node["index"] = tdf::base::DomValue(nodes[i]->GetIndex());
-    dom_node["name"] = tdf::base::DomValue(nodes[i]->GetViewName());
+    dom_node[kId] = tdf::base::DomValue(nodes[i]->GetId());
+    dom_node[kPid] = tdf::base::DomValue(nodes[i]->GetPid());
+    dom_node[kIndex] = tdf::base::DomValue(nodes[i]->GetIndex());
+    dom_node[kName] = tdf::base::DomValue(nodes[i]->GetViewName());
+
+    // layout result
+    auto result = nodes[i]->GetLayoutResult();
+    dom_node[kWidth] = tdf::base::DomValue(result.width);
+    dom_node[kHeight] = tdf::base::DomValue(result.height);
+    dom_node[kLeft] = tdf::base::DomValue(result.left);
+    dom_node[kTop] = tdf::base::DomValue(result.top);
 
     tdf::base::DomValue::DomValueObjectType props;
     // 样式属性
@@ -40,14 +57,7 @@ void HippyRenderManager::CreateRenderNode(std::vector<std::shared_ptr<hippy::dom
       iter++;
     }
 
-    // layout result
-    auto result = nodes[i]->GetLayoutResult();
-    props["width"] = tdf::base::DomValue(result.width);
-    props["height"] = tdf::base::DomValue(result.height);
-    props["left"] = tdf::base::DomValue(result.left);
-    props["top"] = tdf::base::DomValue(result.top);
-
-    dom_node["props"] = props;
+    dom_node[kProps] = props;
     dom_node_array[i] = dom_node;
   }
   serializer_->WriteDenseJSArray(dom_node_array);
@@ -66,10 +76,10 @@ void HippyRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&
   dom_node_array.resize(len);
   for (uint32_t i = 0; i < len; i++) {
     tdf::base::DomValue::DomValueObjectType dom_node;
-    dom_node["id"] = tdf::base::DomValue(nodes[i]->GetId());
-    dom_node["pId"] = tdf::base::DomValue(nodes[i]->GetPid());
-    dom_node["index"] = tdf::base::DomValue(nodes[i]->GetIndex());
-    dom_node["name"] = tdf::base::DomValue(nodes[i]->GetViewName());
+    dom_node[kId] = tdf::base::DomValue(nodes[i]->GetId());
+    dom_node[kPid] = tdf::base::DomValue(nodes[i]->GetPid());
+    dom_node[kIndex] = tdf::base::DomValue(nodes[i]->GetIndex());
+    dom_node[kName] = tdf::base::DomValue(nodes[i]->GetViewName());
 
     tdf::base::DomValue::DomValueObjectType props;
     // diff 属性
@@ -79,14 +89,13 @@ void HippyRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&
       props[iter->first] = *(iter->second);
       iter++;
     }
-    dom_node["props"] = props;
+    dom_node[kProps] = props;
     dom_node_array[i] = dom_node;
   }
   serializer_->WriteDenseJSArray(dom_node_array);
   std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
 
   CallNativeMethod(buffer_pair, "updateNode");
-
   return;
 };
 
@@ -118,7 +127,6 @@ void HippyRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&
 
   j_env->CallVoidMethod(j_object, j_method_id, j_int_array);
   j_env->DeleteLocalRef(j_int_array);
-
   return;
 };
 
