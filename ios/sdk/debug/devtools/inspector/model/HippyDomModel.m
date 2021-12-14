@@ -66,23 +66,23 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
     HippyDOMNodeTypeDocumentFragmentNode = 9
 };
 
-@interface HippyDomModel ()
-
-@property (nonatomic, weak) HippyUIManager *manager;
-
-@end
-
 @implementation HippyDomModel
 
 #pragma mark - DOM Protocol
-- (BOOL)domGetDocumentJSONWithRootNode:(HippyVirtualNode *)rootNode
-                            completion:(void (^)(NSDictionary *rspObject))completion {
+- (BOOL)domGetDocumentJSONWithManager:(nullable HippyUIManager *)manager
+                           completion:(void (^)(NSDictionary *rspObject))completion {
     if (!completion) {
         HippyLogWarn(@"DOM Model, getDocument error, completion is nil");
         return NO;
     }
+    if (!manager) {
+        HippyLogWarn(@"DOM Model, getDocument error, manager is nil");
+        completion(@{});
+        return NO;
+    }
+    HippyVirtualNode *rootNode = [manager nodeForHippyTag:[manager rootHippyTag]];
     if (!rootNode) {
-        HippyLogWarn(@"DOM Model, getDocument error, rootNode is nil");
+        HippyLogWarn(@"DOM Model, getDocument error, root node is nil");
         completion(@{});
         return NO;
     }
@@ -108,6 +108,7 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
 }
 
 - (BOOL)domGetBoxModelJSONWithNode:(nullable HippyVirtualNode *)node
+                           manager:(nullable HippyUIManager *)manager
                         completion:(void (^)(NSDictionary *rspObject))completion {
     if (!completion) {
         HippyLogWarn(@"DOM Model, getBoxModel error, completion is nil");
@@ -119,7 +120,7 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
         return NO;
     }
     dispatch_async(dispatch_get_main_queue(), ^{
-        CGRect nodeFrame = [self windowFrameWithNode:node];
+        CGRect nodeFrame = [self windowFrameWithNode:node manager:manager];
         NSMutableDictionary *boxModelDic = [NSMutableDictionary dictionary];
         NSArray *border = [self assemblyBoxModelBorderWithFrame:nodeFrame];
         NSArray *padding = [self assemblyBoxModelPaddingWithProps:node.props border:border];
@@ -156,9 +157,9 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
             completion(@{});
             return;
         }
-        self.manager = manager;
         HippyVirtualNode *hitNode = [self maxDepthAndMinAreaHitNodeWithLocation:location
-                                                                           node:rootNode];
+                                                                           node:rootNode
+                                                                        manager:manager];
         if (!hitNode) {
             completion(@{});
             return;
@@ -183,7 +184,6 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
         completion(@{});
         return NO;
     }
-    
     dispatch_async(dispatch_get_main_queue(), ^{
         HippyVirtualNode *rootNode = [manager nodeForHippyTag:[manager rootHippyTag]];
         if (!rootNode) {
@@ -449,15 +449,15 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
     return node;
 }
 
-- (CGRect)windowFrameWithNode:(HippyVirtualNode *)node {
+- (CGRect)windowFrameWithNode:(HippyVirtualNode *)node
+                      manager:(HippyUIManager *)manager {
     if (!node) {
         HippyLogWarn(@"DOM Model, windowFrameWithNode, node is nil");
         return CGRectZero;
     }
-    HippyUIManager *manager = self.manager;
-    if (node.bridge.uiManager) {
-        manager = node.bridge.uiManager;
-        self.manager = manager;
+    if (!manager) {
+        HippyLogWarn(@"DOM Model, windowFrameWithNode, manager is nil");
+        return CGRectZero;
     }
     UIView *selfView = [manager viewForHippyTag:node.hippyTag];
     if (!selfView) {
@@ -476,27 +476,31 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
 }
 
 - (HippyVirtualNode *)maxDepthAndMinAreaHitNodeWithLocation:(CGPoint)location
-                                                       node:(HippyVirtualNode *)node {
-    if (!node || ![self isLocationHitNode:location node:node]) {
+                                                       node:(HippyVirtualNode *)node
+                                                    manager:(HippyUIManager *)manager {
+    if (!node || ![self isLocationHitNode:location node:node manager:manager]) {
         return nil;
     }
     HippyVirtualNode *hitNode = nil;
     for (HippyVirtualNode *childNode in node.subNodes) {
-        if (![self isLocationHitNode:location node:childNode]) {
+        if (![self isLocationHitNode:location node:childNode manager:manager]) {
             continue;
         }
         HippyVirtualNode *newHitNode = [self maxDepthAndMinAreaHitNodeWithLocation:location
-                                                                              node:childNode];
+                                                                              node:childNode
+                                                                           manager:manager];
         hitNode = [self smallerAreaNodeWithOldNode:hitNode newNode:newHitNode];
     }
     return hitNode != nil ? hitNode : node;
 }
 
-- (BOOL)isLocationHitNode:(CGPoint)location node:(HippyVirtualNode *)node {
-    if (!node) {
+- (BOOL)isLocationHitNode:(CGPoint)location
+                     node:(HippyVirtualNode *)node
+                  manager:(HippyUIManager *)manager {
+    if (!node || !manager) {
         return false;
     }
-    CGRect windowFrame = [self windowFrameWithNode:node];
+    CGRect windowFrame = [self windowFrameWithNode:node manager:manager];
     BOOL isInTopOffset = (location.x >= windowFrame.origin.x) && (location.y >= windowFrame.origin.y);
     BOOL isInBottomOffset = (location.x <= (windowFrame.origin.x + windowFrame.size.width)) &&
                             (location.y <= (windowFrame.origin.y + windowFrame.size.height));
