@@ -6,9 +6,9 @@
 
 #include "base/logging.h"
 #include "bridge/runtime.h"
+#include "dom/deserializer.h"
 #include "dom/serializer.h"
 
-// TODO change to serialize
 std::pair<uint8_t *, size_t>
 HandleDomValue(const std::vector<std::shared_ptr<hippy::dom::DomNode>> &nodes) {
   tdf::base::Serializer serializer;
@@ -19,12 +19,21 @@ HandleDomValue(const std::vector<std::shared_ptr<hippy::dom::DomNode>> &nodes) {
   dom_node_array.resize(len);
 
   for (uint32_t i = 0; i < len; i++) {
-    tdf::base::DomValue::DomValueArrayType dom_node;
-    dom_node.push_back(tdf::base::DomValue(nodes[i]->GetId()));
-    dom_node.push_back(tdf::base::DomValue(nodes[i]->GetPid()));
-    dom_node.push_back(tdf::base::DomValue(nodes[i]->GetIndex()));
-    dom_node.push_back(tdf::base::DomValue(nodes[i]->GetViewName()));
-    dom_node.push_back(tdf::base::DomValue(nodes[i]->GetTagName()));
+    tdf::base::DomValue::DomValueObjectType dom_node;
+    dom_node["id"] = tdf::base::DomValue(nodes[i]->GetId());
+    dom_node["pId"] = tdf::base::DomValue(nodes[i]->GetPid());
+    dom_node["index"] = tdf::base::DomValue(nodes[i]->GetIndex());
+    dom_node["name"] = tdf::base::DomValue(nodes[i]->GetViewName());
+    dom_node["tagName"] = tdf::base::DomValue(nodes[i]->GetTagName());
+
+    tdf::base::DomValue::DomValueObjectType props;
+    auto style = nodes[i]->GetStyleMap();
+    auto iter = style.begin();
+    while (iter != style.end()) {
+      props[iter->first] = *(iter->second);
+      iter++;
+    }
+    dom_node["props"] = props;
     dom_node_array[i] = dom_node;
   }
 
@@ -151,12 +160,14 @@ void HippyRenderManager::MoveRenderNode(std::vector<int32_t> &&moved_ids,
 
 void HippyRenderManager::Batch() { TDF_BASE_NOTIMPLEMENTED(); };
 
-void HippyRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {
+void HippyRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node,
+                                          const std::string &name) {
   TDF_BASE_NOTIMPLEMENTED();
 }
 
-void HippyRenderManager::RemoveEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {
-    TDF_BASE_NOTIMPLEMENTED();
+void HippyRenderManager::RemoveEventListener(std::weak_ptr<DomNode> dom_node,
+                                             const std::string &name) {
+  TDF_BASE_NOTIMPLEMENTED();
 }
 
 void HippyRenderManager::CallFunction(std::weak_ptr<DomNode> domNode,
