@@ -60,6 +60,10 @@ void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>> &&nodes) {
     DomValueMap style_diff = DiffUtils::DiffProps(node->GetStyleMap(), it->get()->GetStyleMap());
     DomValueMap ext_diff = DiffUtils::DiffProps(node->GetExtStyle(), it->get()->GetExtStyle());
     style_diff.insert(ext_diff.begin(), ext_diff.end());
+    if (style_diff.size() > 0) {
+      dom_node_registry_.RemoveNode((*it)->GetId());
+      dom_node_registry_.AddNode(*it);
+    }
     it->get()->SetDiffStyle(std::move(style_diff));
 
     HandleEvent(std::make_shared<DomEvent>(kOnDomUpdated, node, true, true));
