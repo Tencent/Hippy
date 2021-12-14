@@ -383,7 +383,6 @@ void BindClickEvent(std::shared_ptr<Ctx> context, const std::string &name,
       func = context->GetGlobalObjVar(unicode_string_view("__" + name));
   if (context->IsFunction(func)) {
     std::weak_ptr<Ctx> weak_context = context;
-    std::weak_ptr<CtxValue> weak_func = func;
     int32_t id = dom_node->GetId();
     std::string event;
     if (name == hippy::kOnClick) {
@@ -393,15 +392,12 @@ void BindClickEvent(std::shared_ptr<Ctx> context, const std::string &name,
     } else {
       TDF_BASE_NOTREACHED();
     }
+    // dom_node 持有 func
     dom_node->AddEventListener(event, false,
-                           [weak_context, weak_func, id]
+                           [weak_context, func, id]
                            (const std::shared_ptr<DomEvent>& event) {
       auto context = weak_context.lock();
       if (!context) {
-        return;
-      }
-      auto func = weak_func.lock();
-      if (!func) {
         return;
       }
       // todo DomEvent 暴露给前端
@@ -420,7 +416,6 @@ void BindTouchEvent(std::shared_ptr<Ctx> context, const std::string &name,
       func = context->GetGlobalObjVar(unicode_string_view("__" + name));
   if (context->IsFunction(func)) {
     std::weak_ptr<Ctx> weak_context = context;
-    std::weak_ptr<CtxValue> weak_func = func;
     int32_t id = dom_node->GetId();
     std::string event;
     if (name == hippy::kOnTouchStart) {
@@ -434,14 +429,10 @@ void BindTouchEvent(std::shared_ptr<Ctx> context, const std::string &name,
     } else {
       TDF_BASE_NOTREACHED();
     }
-    dom_node->AddEventListener(event, false, [weak_context, weak_func, id]
+    dom_node->AddEventListener(event, false, [weak_context, func, id]
         (const std::shared_ptr<DomEvent>& event) {
       auto context = weak_context.lock();
       if (!context) {
-        return;
-      }
-      auto func = weak_func.lock();
-      if (!func) {
         return;
       }
       auto info = std::any_cast<hippy::TouchEventInfo>(event->GetValue());
@@ -462,7 +453,6 @@ void SetAttachListener(std::shared_ptr<Ctx> context, const std::string &name,
   std::shared_ptr<CtxValue> func = context->GetGlobalObjVar(unicode_string_view("__" + name));
   if (context->IsFunction(func)) {
     std::weak_ptr<Ctx> weak_context = context;
-    std::weak_ptr<CtxValue> weak_func = func;
     int32_t id = dom_node->GetId();
     std::string event;
     if (name == hippy::kOnAttachedToWindow) {
@@ -472,14 +462,10 @@ void SetAttachListener(std::shared_ptr<Ctx> context, const std::string &name,
     } else {
       TDF_BASE_NOTREACHED();
     }
-    dom_node->AddEventListener(event, false, [weak_context, weak_func, name, id]
+    dom_node->AddEventListener(event, false, [weak_context, func, name, id]
       (const std::shared_ptr<DomEvent>& event) {
       auto context = weak_context.lock();
       if (!context) {
-        return;
-      }
-      auto func = weak_func.lock();
-      if (!func) {
         return;
       }
       std::string info_json = "{ id: " + std::to_string(id) + " }";
@@ -504,7 +490,6 @@ void BindShowEvent(std::shared_ptr<Ctx> context, const std::string &name,
       func = context->GetGlobalObjVar(unicode_string_view("__" + name));
   if (context->IsFunction(func)) {
     std::weak_ptr<Ctx> weak_context = context;
-    std::weak_ptr<CtxValue> weak_func = func;
     int32_t id = dom_node->GetId();
     std::string event;
     if (name == hippy::kOnShow) {
@@ -514,14 +499,10 @@ void BindShowEvent(std::shared_ptr<Ctx> context, const std::string &name,
     } else {
       TDF_BASE_NOTREACHED();
     }
-    dom_node->AddEventListener(event, false, [weak_context, weak_func, id]
+    dom_node->AddEventListener(event, false, [weak_context, func, id]
       (const std::shared_ptr<DomEvent>& event) {
       auto context = weak_context.lock();
       if (!context) {
-        return;
-      }
-      auto func = weak_func.lock();
-      if (!func) {
         return;
       }
       std::string info_json = "{ id: " + std::to_string(id) + " }";
@@ -539,16 +520,11 @@ void BindLayoutEvent(std::shared_ptr<Ctx> context, const std::string &name,
       func = context->GetGlobalObjVar(unicode_string_view("__" + name));
   if (context->IsFunction(func)) {
     std::weak_ptr<Ctx> weak_context = context;
-    std::weak_ptr<CtxValue> weak_func = func;
     int32_t id = dom_node->GetId();
-    dom_node->AddEventListener(kLayoutEvent, false, [weak_context, weak_func, id]
+    dom_node->AddEventListener(kLayoutEvent, false, [weak_context, func, id]
         (const std::shared_ptr<DomEvent>& event) {
       auto context = weak_context.lock();
       if (!context) {
-        return;
-      }
-      auto func = weak_func.lock();
-      if (!func) {
         return;
       }
       auto info = std::any_cast<hippy::LayoutResult>(event->GetValue());
