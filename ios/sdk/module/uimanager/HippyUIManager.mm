@@ -750,16 +750,16 @@ HIPPY_EXPORT_METHOD(manageChildren:(nonnull NSNumber *)containerTag
           removeAtIndices:removeAtIndices
                  registry:(NSMutableDictionary<NSNumber *, id<HippyComponent>> *)_shadowViewRegistry];
     
-    [self addVirtulNodeBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,HippyVirtualNode *> *virtualNodeRegistry) {
-        [uiManager _manageChildren:containerTag
-                   moveFromIndices:moveFromIndices
-                     moveToIndices:moveToIndices
-                 addChildHippyTags:addChildHippyTags
-                      addAtIndices:addAtIndices
-                   removeAtIndices:removeAtIndices
-                          registry:(NSMutableDictionary<NSNumber *, id<HippyComponent>> *)virtualNodeRegistry];
-        
-    }];
+//    [self addVirtulNodeBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,HippyVirtualNode *> *virtualNodeRegistry) {
+//        [uiManager _manageChildren:containerTag
+//                   moveFromIndices:moveFromIndices
+//                     moveToIndices:moveToIndices
+//                 addChildHippyTags:addChildHippyTags
+//                      addAtIndices:addAtIndices
+//                   removeAtIndices:removeAtIndices
+//                          registry:(NSMutableDictionary<NSNumber *, id<HippyComponent>> *)virtualNodeRegistry];
+//
+//    }];
     
     [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         [uiManager _manageChildren:containerTag
@@ -1620,12 +1620,22 @@ static UIView *_jsResponder;
     }];
 }
 
+- (void)updateRenderNodes:(std::vector<std::shared_ptr<DomNode>>&&)nodes {
+    for (const auto &node : nodes) {
+        NSNumber *hippyTag = @(node->GetId());
+        NSString *viewName = [NSString stringWithUTF8String:node->GetViewName().c_str()];
+        NSDictionary *styleProps = unorderedMapDomValueToDictionary(node->GetStyleMap());
+        NSDictionary *extProps = unorderedMapDomValueToDictionary(node->GetExtStyle());
+        NSMutableDictionary *props = [NSMutableDictionary dictionaryWithDictionary:styleProps];
+        [props addEntriesFromDictionary:extProps];
+        [self updateView:hippyTag viewName:viewName props:props];
+    }
+}
+
 - (void)renderUpdateView:(int32_t)hippyTag
                 viewName:(const std::string &)name
                    props:(const std::unordered_map<std::string, std::shared_ptr<DomValue>> &)styleMap {
-    dispatch_async(HippyGetUIManagerQueue(), ^{
-//        [self updateView:@(hippyTag) viewName:[NSString stringWithUTF8String:name.c_str()] props:unorderedMapDomValueToDictionary(styleMap)];
-    });
+    
 }
 
 - (void)renderDeleteViewFromContainer:(int32_t)hippyTag

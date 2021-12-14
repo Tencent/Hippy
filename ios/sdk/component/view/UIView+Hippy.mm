@@ -352,14 +352,23 @@ HippyEventMethod(OnDetachedFromWindow, onDetachedFromWindow, HippyDirectEventBlo
     return YES;
 }
 
-struct HippyViewEventInfo {
-    NSInteger index;
-    HippyViewEventType touchType;
-    onTouchEventListener listener;
-};
+@end
 
+@interface HippyViewEventInfo : NSObject
 
-- (NSMutableArray<NSData *> *)allTouchInfos {
+@property(nonatomic, assign) NSInteger index;
+@property(nonatomic, assign) HippyViewEventType touchType;
+@property(nonatomic, copy) onTouchEventListener listener;
+
+@end
+
+@implementation HippyViewEventInfo
+
+@end
+
+@implementation UIView(HippyEvent)
+
+- (NSMutableArray<HippyViewEventInfo *> *)allTouchInfos {
     return objc_getAssociatedObject(self, _cmd);
 }
 
@@ -367,34 +376,45 @@ struct HippyViewEventInfo {
     if (!touchInfo) {
         return -1;
     }
-    NSMutableArray<NSData *> *values = [self allTouchInfos];
+    NSMutableArray<HippyViewEventInfo *> *values = [self allTouchInfos];
     if (!values) {
         values = [NSMutableArray arrayWithCapacity:8];
         objc_setAssociatedObject(self, @selector(allTouchInfos), values, OBJC_ASSOCIATION_RETAIN);
     }
-    NSData *touchInfoValue = [values lastObject];
+    HippyViewEventInfo *touchInfoValue = [values lastObject];
     NSInteger index = 0;
     if (touchInfoValue) {
-        const HippyViewEventInfo *lastTouchInfo = reinterpret_cast<const HippyViewEventInfo *>(touchInfoValue.bytes);
-        index = lastTouchInfo->index + 1;
+        index = touchInfoValue.index + 1;
     }
-    touchInfo->index = index;
-    NSData *touchInfoData = [NSData dataWithBytes:touchInfo length:sizeof(HippyViewEventInfo)];
-    [values addObject:touchInfoData];
+    touchInfo.index = index;
+    [values addObject:touchInfo];
     return index;
 }
 
 - (NSInteger)addViewEvent:(HippyViewEventType)touchEvent eventListener:(onTouchEventListener)listener {
-    HippyViewEventInfo touchInfo = {0, touchEvent, listener};
-    return [self addTouchInfo:&touchInfo];
+    HippyViewEventInfo *touchInfo = [[HippyViewEventInfo alloc] init];
+    touchInfo.touchType = touchEvent;
+    touchInfo.listener = listener;
+    return [self addTouchInfo:touchInfo];
+}
+
+- (onTouchEventListener)eventListenerForEventType:(HippyViewEventType)eventType {
+    NSMutableArray<HippyViewEventInfo *> *values = [self allTouchInfos];
+    __block onTouchEventListener listener = NULL;
+    [values enumerateObjectsUsingBlock:^(HippyViewEventInfo * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if (eventType == obj.touchType) {
+            listener = obj.listener;
+            *stop = YES;
+        }
+    }];
+    return listener;
 }
 
 - (void)removeViewEvent:(HippyViewEventType)touchEvent {
-    NSMutableArray<NSData *> *values = [self allTouchInfos];
+    NSMutableArray<HippyViewEventInfo *> *values = [self allTouchInfos];
     NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
-    [values enumerateObjectsUsingBlock:^(NSData * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        const HippyViewEventInfo *lastTouchInfo = reinterpret_cast<const HippyViewEventInfo *>(obj.bytes);
-        if (touchEvent == lastTouchInfo->touchType) {
+    [values enumerateObjectsUsingBlock:^(HippyViewEventInfo * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if (touchEvent == obj.touchType) {
             [indexSet addIndex:idx];
         }
     }];
@@ -402,28 +422,15 @@ struct HippyViewEventInfo {
 }
 
 - (void)removeViewEventByID:(NSInteger)touchID {
-    NSMutableArray<NSData *> *values = [self allTouchInfos];
+    NSMutableArray<HippyViewEventInfo *> *values = [self allTouchInfos];
     NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
-    [values enumerateObjectsUsingBlock:^(NSData * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        const HippyViewEventInfo *lastTouchInfo = reinterpret_cast<const HippyViewEventInfo *>(obj.bytes);
-        if (touchID == lastTouchInfo->index) {
+    [values enumerateObjectsUsingBlock:^(HippyViewEventInfo * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if (touchID == obj.index) {
             [indexSet addIndex:idx];
             *stop = YES;
         }
     }];
     [values removeObjectsAtIndexes:indexSet];
-}
-
-- (void)enumTouchInfoByTouchEvent:(HippyViewEventType)touchEvent usingBlock:(void (^)(const HippyViewEventInfo *touchInfo, BOOL *stop))block {
-    NSMutableArray<NSData *> *values = [self allTouchInfos];
-    __block BOOL stopFlag = NO;
-    [values enumerateObjectsUsingBlock:^(NSData * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        const HippyViewEventInfo *lastTouchInfo = reinterpret_cast<const HippyViewEventInfo *>(obj.bytes);
-        if (touchEvent == lastTouchInfo->touchType) {
-            block(lastTouchInfo, &stopFlag);
-            *stop = stopFlag;
-        }
-    }];
 }
 
 @end
