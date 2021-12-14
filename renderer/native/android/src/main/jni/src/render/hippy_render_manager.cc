@@ -6,15 +6,15 @@
 
 #include "base/logging.h"
 
-const std::string kId = "id";
-const std::string kPid = "pId";
-const std::string kIndex = "index";
-const std::string kName = "name";
-const std::string kWidth = "width";
-const std::string kHeight = "height";
-const std::string kLeft = "left";
-const std::string kRight = "right";
-const std::string kProps = "props";
+constexpr char kId[] = "id";
+constexpr char kPid[] = "pId";
+constexpr char kIndex[] = "index";
+constexpr char kName[] = "name";
+constexpr char kWidth[] = "width";
+constexpr char kHeight[] = "height";
+constexpr char kLeft[] = "left";
+constexpr char kTop[] = "top";
+constexpr char kProps[] = "props";
 
 namespace hippy {
 inline namespace dom {
