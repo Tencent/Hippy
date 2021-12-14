@@ -4,17 +4,20 @@
 namespace hippy {
 inline namespace dom {
 
-static OverflowType GetFlexOverflow(int overflow) {
-  switch (overflow) {
-    case 0:
-      return OverflowType::OverflowVisible;
-    case 1:
-      return OverflowType::OverflowHidden;
-    case 2:
-      return OverflowType::OverflowScroll;
-    default:
-      return OverflowType::OverflowVisible;
+static OverflowType GetFlexOverflow(const std::string& overflow) {
+  if (overflow.empty()) {
+    return OverflowType::OverflowVisible;
   }
+  if (overflow.compare("visible") == 0) {
+    return OverflowType::OverflowVisible;
+  }
+  if (overflow.compare("hidden") == 0) {
+    return OverflowType::OverflowHidden;
+  }
+  if (overflow.compare("scroll") == 0) {
+    return OverflowType::OverflowScroll;
+  }
+  return OverflowType::OverflowVisible;
 }
 
 static FlexDirection GetFlexDirection(const std::string& flex_direction) {
@@ -229,7 +232,7 @@ void TaitankLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<t
     SetDisplay(GetDisplayType(style_map.find(kDisplay)->second->ToString()));
   }
   if (style_map.find(kOverflow) != style_map.end()) {
-    SetOverflow(GetFlexOverflow(style_map.find(kOverflow)->second->ToInt32()));
+    SetOverflow(GetFlexOverflow(style_map.find(kOverflow)->second->ToString()));
   }
   if (style_map.find(kMargin) != style_map.end()) {
     SetMargin(GetCSSDirection(kMargin), static_cast<float>(style_map.find(kMargin)->second->ToDouble()));
