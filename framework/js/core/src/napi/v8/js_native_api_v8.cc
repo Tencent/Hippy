@@ -39,8 +39,7 @@
 #include "hippy.h"
 #include "v8/libplatform/libplatform.h"
 
-namespace hippy {
-namespace napi {
+namespace hippy::napi {
 
 using unicode_string_view = tdf::base::unicode_string_view;
 using DomValue = tdf::base::DomValue;
@@ -652,10 +651,12 @@ std::shared_ptr<CtxValue> V8Ctx::GetProperty(
   v8::Local<v8::Value> str = CreateV8String(name);
   v8::Local<v8::Value> handle_value =
       v8::Local<v8::Value>::New(isolate_, persistent_value);
-  v8::Local<v8::Value> value = v8::Local<v8::Object>::Cast(handle_value)
-                                   ->Get(context, str)
-                                   .ToLocalChecked();
-  return std::make_shared<V8CtxValue>(isolate_, value);
+  v8::MaybeLocal<v8::Value> value = v8::Local<v8::Object>::Cast(handle_value)
+                                   ->Get(context, str);
+  if (value.IsEmpty()) {
+    return nullptr;
+  }
+  return std::make_shared<V8CtxValue>(isolate_, value.ToLocalChecked());
 }
 
 void V8Ctx::RegisterGlobalModule(const std::shared_ptr<Scope>& scope,
@@ -1814,5 +1815,4 @@ unicode_string_view V8Ctx::CopyFunctionName(
   return result;
 }
 
-}  // namespace napi
 }  // namespace hippy
