@@ -177,23 +177,23 @@ void DomManager::HandleEvent(const std::shared_ptr<DomEvent> &event) {
     // 执行捕获流程，注：target节点event.StopPropagation并不会阻止捕获流程
 
     // 获取捕获列表
-    while (auto parent = target->GetParent()) {
+    auto parent = target->GetParent();
+    while (parent) {
       capture_list.push(parent);
-      target = parent;
+      parent = parent->GetParent();
     }
 
     // 执行捕获流程
-    if (!capture_list.empty()) {
-      while (auto capture_node = capture_list.top()) {
-        capture_list.pop();
-        event->SetCurrentTarget(capture_node); // 设置当前节点，cb里会用到
-        auto listeners = capture_node->GetEventListener(event_name, true);
-        for (const auto &listener: listeners) {
-          listener->cb(event); // StopPropagation并不会影响同级的回调调用
-        }
-        if (event->IsPreventCapture()) { // cb 内部调用了 event.StopPropagation 会阻止捕获
-          return; // 捕获流中StopPropagation不仅会导致捕获流程结束，后面的目标事件和冒泡都会终止
-        }
+    while (!capture_list.empty()) {
+      auto capture_node = capture_list.top();
+      capture_list.pop();
+      event->SetCurrentTarget(capture_node); // 设置当前节点，cb里会用到
+      auto listeners = capture_node->GetEventListener(event_name, true);
+      for (const auto &listener: listeners) {
+        listener->cb(event); // StopPropagation并不会影响同级的回调调用
+      }
+      if (event->IsPreventCapture()) { // cb 内部调用了 event.StopPropagation 会阻止捕获
+        return; // 捕获流中StopPropagation不仅会导致捕获流程结束，后面的目标事件和冒泡都会终止
       }
     }
     // 执行本身节点回调
@@ -214,7 +214,8 @@ void DomManager::HandleEvent(const std::shared_ptr<DomEvent> &event) {
     }
 
     // 执行冒泡流程
-    while (auto bubble_node = target->GetParent()) {
+    auto bubble_node = target->GetParent();
+    while (bubble_node) {
       event->SetCurrentTarget(bubble_node);
       auto listeners = bubble_node->GetEventListener(event_name, false);
       for (const auto &listener: listeners) {
@@ -223,6 +224,7 @@ void DomManager::HandleEvent(const std::shared_ptr<DomEvent> &event) {
       if (event->IsPreventBubble()) {
         break;
       }
+      bubble_node = bubble_node->GetParent();
     }
   }
 }
