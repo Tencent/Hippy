@@ -5,7 +5,7 @@ const UIManagerModule = internalBinding('UIManagerModule');
 
 // 兼容 hippy2.0，hippy3.0 放量一段时间后可删除, __标识 hippy 保留方法
 global.__onClick = (param) => {
-  const targetModule = __GLOBAL__.jsModuleList.receiveNativeGesture;
+  const targetModule = __GLOBAL__.jsModuleList.EventDispatcher.receiveNativeGesture;
   if (targetModule) {
     const targetMethod = targetModule.onClick;
     if (targetMethod) {
@@ -15,7 +15,7 @@ global.__onClick = (param) => {
 };
 
 global.__onLongClick = (param) => {
-  const targetModule = __GLOBAL__.jsModuleList.receiveNativeGesture;
+  const targetModule = __GLOBAL__.jsModuleList.EventDispatcher.receiveNativeGesture;
   if (targetModule) {
     const targetMethod = targetModule.onLongClick;
     if (targetMethod) {
@@ -25,7 +25,7 @@ global.__onLongClick = (param) => {
 };
 
 global.__onTouchStart = (param) => {
-  const targetModule = __GLOBAL__.jsModuleList.receiveNativeGesture;
+  const targetModule = __GLOBAL__.jsModuleList.EventDispatcher.receiveNativeGesture;
   if (targetModule) {
     const targetMethod = targetModule.onTouchStart;
     if (targetMethod) {
@@ -35,7 +35,7 @@ global.__onTouchStart = (param) => {
 };
 
 global.__onTouchMove = (param) => {
-  const targetModule = __GLOBAL__.jsModuleList.receiveNativeGesture;
+  const targetModule = __GLOBAL__.jsModuleList.EventDispatcher.receiveNativeGesture;
   if (targetModule) {
     const targetMethod = targetModule.onTouchMove;
     if (targetMethod) {
@@ -45,7 +45,7 @@ global.__onTouchMove = (param) => {
 };
 
 global.__onTouchEnd = (param) => {
-  const targetModule = __GLOBAL__.jsModuleList.receiveNativeGesture;
+  const targetModule = __GLOBAL__.jsModuleList.EventDispatcher.receiveNativeGesture;
   if (targetModule) {
     const targetMethod = targetModule.onTouchEnd;
     if (targetMethod) {
@@ -55,7 +55,7 @@ global.__onTouchEnd = (param) => {
 };
 
 global.__onTouchCancel = (param) => {
-  const targetModule = __GLOBAL__.jsModuleList.receiveNativeGesture;
+  const targetModule = __GLOBAL__.jsModuleList.EventDispatcher.receiveNativeGesture;
   if (targetModule) {
     const targetMethod = targetModule.onTouchCancel;
     if (targetMethod) {
@@ -65,7 +65,7 @@ global.__onTouchCancel = (param) => {
 };
 
 global.__onAttachedToWindow = (param) => {
-  const targetModule = __GLOBAL__.jsModuleList.receiveUIComponentEvent;
+  const targetModule = __GLOBAL__.jsModuleList.EventDispatcher.receiveUIComponentEvent;
   if (targetModule) {
     const targetMethod = targetModule.onAttachedToWindow;
     if (targetMethod) {
@@ -75,7 +75,7 @@ global.__onAttachedToWindow = (param) => {
 };
 
 global.__onDetachedFromWindow = (param) => {
-  const targetModule = __GLOBAL__.jsModuleList.receiveUIComponentEvent;
+  const targetModule = __GLOBAL__.jsModuleList.EventDispatcher.receiveUIComponentEvent;
   if (targetModule) {
     const targetMethod = targetModule.onDetachedFromWindow;
     if (targetMethod) {
@@ -85,7 +85,7 @@ global.__onDetachedFromWindow = (param) => {
 };
 
 global.__onShow = (param) => {
-  const targetModule = __GLOBAL__.jsModuleList.receiveUIComponentEvent;
+  const targetModule = __GLOBAL__.jsModuleList.EventDispatcher.receiveUIComponentEvent;
   if (targetModule) {
     const targetMethod = targetModule.onShow;
     if (targetMethod) {
@@ -95,7 +95,7 @@ global.__onShow = (param) => {
 };
 
 global.__onDismiss = (param) => {
-  const targetModule = __GLOBAL__.jsModuleList.receiveUIComponentEvent;
+  const targetModule = __GLOBAL__.jsModuleList.EventDispatcher.receiveUIComponentEvent;
   if (targetModule) {
     const targetMethod = targetModule.onDismiss;
     if (targetMethod) {
