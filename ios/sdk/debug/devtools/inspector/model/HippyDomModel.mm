@@ -108,30 +108,25 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
 }
 
 - (BOOL)domGetBoxModelJSONWithNode:(nullable HippyVirtualNode *)node
-                          rootNode:(nullable HippyVirtualNode *)rootNode
                         completion:(void (^)(NSDictionary *rspObject))completion {
     if (!completion) {
         HippyLogWarn(@"DOM Model, getBoxModel error, completion is nil");
         return NO;
     }
-    if (!node || !rootNode) {
+    if (!node) {
         HippyLogWarn(@"DOM Model, getBoxModel error, node is nil");
         completion(@{});
         return NO;
     }
     dispatch_async(dispatch_get_main_queue(), ^{
         CGRect nodeFrame = [self windowFrameWithNode:node];
-        CGRect rootNodeFrame = [self windowFrameWithNode:rootNode];
-        CGRect windowFrame = CGRectMake(nodeFrame.origin.x - rootNodeFrame.origin.x,
-                                        nodeFrame.origin.y - rootNodeFrame.origin.y,
-                                        nodeFrame.size.width, nodeFrame.size.height);
         NSMutableDictionary *boxModelDic = [NSMutableDictionary dictionary];
-        NSArray *border = [self assemblyBoxModelBorderWithFrame:windowFrame];
+        NSArray *border = [self assemblyBoxModelBorderWithFrame:nodeFrame];
         NSArray *padding = [self assemblyBoxModelPaddingWithProps:node.props border:border];
         NSArray *content = [self assemblyBoxModelContentWithProps:node.props padding:padding];
         NSArray *margin = [self assemblyBoxModelMarginWithProps:node.props border:border];
-        boxModelDic[HippyDevtoolsCSSPropWidth] = @(windowFrame.size.width);
-        boxModelDic[HippyDevtoolsCSSPropHeight] = @(windowFrame.size.height);
+        boxModelDic[HippyDevtoolsCSSPropWidth] = @(nodeFrame.size.width);
+        boxModelDic[HippyDevtoolsCSSPropHeight] = @(nodeFrame.size.height);
         boxModelDic[HippyDevtoolsCSSPropBorder] = border;
         boxModelDic[HippyDevtoolsCSSPropPadding] = padding;
         boxModelDic[HippyDOMKeyBoxModelContent] = content;
@@ -462,13 +457,22 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
     HippyUIManager *manager = self.manager;
     if (node.bridge.uiManager) {
         manager = node.bridge.uiManager;
+        self.manager = manager;
     }
     UIView *selfView = [manager viewForHippyTag:node.hippyTag];
     if (!selfView) {
         return CGRectZero;
     }
     UIWindow *window = [[[UIApplication sharedApplication] delegate] window];
-    return [selfView.superview convertRect:selfView.frame toView:window];
+    CGRect nodeLocation = [selfView.superview convertRect:selfView.frame toView:window];
+    UIView *rootView = [manager viewForHippyTag:[manager rootHippyTag]];
+    if (rootView) {
+        CGRect rootLocation = [rootView.superview convertRect:rootView.frame toView:window];
+        nodeLocation = CGRectMake(nodeLocation.origin.x - rootLocation.origin.x,
+                                  nodeLocation.origin.y - rootLocation.origin.y,
+                                  nodeLocation.size.width, nodeLocation.size.height);
+    }
+    return nodeLocation;
 }
 
 - (HippyVirtualNode *)maxDepthAndMinAreaHitNodeWithLocation:(CGPoint)location
