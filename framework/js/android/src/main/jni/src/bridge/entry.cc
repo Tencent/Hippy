@@ -598,7 +598,7 @@ void CreateNativeRenderDelegate(JNIEnv* j_env, jobject j_object, jlong j_runtime
   }
 
   std::shared_ptr<DomManager> dom_manager = runtime->GetScope()->GetDomManager();
-  std::shared_ptr<RenderManager> render_manager = std::make_shared<HippyRenderManager>(j_runtime_id, std::make_shared<JavaRef>(j_env, j_object));
+  std::shared_ptr<RenderManager> render_manager = std::make_shared<HippyRenderManager>(std::make_shared<JavaRef>(j_env, j_object));
   dom_manager->SetRenderManager(render_manager);
 }
 
