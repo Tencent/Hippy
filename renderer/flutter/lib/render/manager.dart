@@ -8,6 +8,7 @@ import '../controller/manager.dart';
 import '../engine/api_provider.dart';
 import '../engine/engine_context.dart';
 import '../module/promise.dart';
+import '../style/flex_define.dart';
 import '../util/log_util.dart';
 import '../util/render_util.dart';
 import '../util/time_util.dart';
@@ -276,6 +277,17 @@ class RenderManager
 
       addUpdateNodeIfNeeded(uiNode);
     }
+  }
+
+  int calculateLayout(int instanceId, int id, FlexLayoutParams layoutParams) {
+    var node = getNode(instanceId, id);
+    if (node != null) {
+      node.layoutBefore(context);
+      var result = node.calculateLayout(layoutParams);
+      node.layoutAfter(context);
+      return result;
+    }
+    return layoutParams.defaultOutput();
   }
 
   RenderNode? getNode(int? instanceId, int? nodeId) {

@@ -7,7 +7,6 @@
 namespace voltron {
 
 using hippy::CallFunctionCallback;
-using hippy::DispatchFunctionCallback;
 using hippy::DomNode;
 using hippy::DomManager;
 using tdf::base::DomValue;
@@ -24,7 +23,7 @@ class VoltronRenderTaskRunner {
   void RunBatch();
   void RunCallFunction(const std::weak_ptr<DomNode>& dom_node, const std::string& name,
                        const std::unordered_map<std::string, std::shared_ptr<DomValue>>& param,
-                       const DispatchFunctionCallback& cb);
+                       const CallFunctionCallback& cb);
   void RunAddEventListener(const int32_t& node_id, const String& event_name, const EncodableMap& params,
                            const std::function<void(const EncodableValue& params)>& cb);
   void RunRemoveEventListener(const int32_t& node_id, const String& event_name, const EncodableMap& params);

@@ -80,6 +80,11 @@ typedef UpdateNodeSizeFfiNativeType = Void Function(
 typedef UpdateNodeSizeFfiDartType = void Function(
     int engineId, int rootId, int nodeId, double width, double height);
 
+typedef SetNodeCustomMeasureNativeType = Void Function(
+    Int32 engineId, Int32 rootId, Int32 nodeId);
+typedef SetNodeCustomMeasureDartType = void Function(
+    int engineId, int rootId, int nodeId);
+
 typedef GetCrashMessageFfiType = Pointer<Utf8> Function();
 
 typedef DestroyFfiNativeType = Void Function(
@@ -137,6 +142,11 @@ typedef RegisterPostRenderOpFfiNativeType = Int32 Function(
 typedef RegisterPostRenderOpFfiDartType = int Function(
     int type, Pointer<NativeFunction<PostRenderOpNativeType>> func);
 
+typedef RegisterCalculateNodeLayoutFfiNativeType = Int32 Function(
+    Int32 type, Pointer<NativeFunction<CalculateNodeLayoutNativeType>> func);
+typedef RegisterCalculateNodeLayoutFfiDartType = int Function(
+    int type, Pointer<NativeFunction<CalculateNodeLayoutNativeType>> func);
+
 typedef RegisterDartPostCObjectNativeType = Void Function(
     Pointer<NativeFunction<Int8 Function(Int64, Pointer<Dart_CObject>)>>
         functionPointer,
@@ -160,6 +170,7 @@ enum FuncType {
   destroy,
   globalCallback,
   postRenderOp,
+  calculateNodeLayout,
 }
 
 typedef CallNativeFfiNativeType = Void Function(
@@ -196,5 +207,14 @@ typedef PostRenderOpNativeType = Void Function(
 
 typedef LoggerFunctionNativeType = Void Function(
     Int32 level, Pointer<Utf8> print);
+
+typedef CalculateNodeLayoutNativeType = Pointer<Int64> Function(
+    Int32 engineId,
+    Int32 rootId,
+    Int32 nodeId,
+    Double width,
+    Int32 widthMode,
+    Double height,
+    Int32 heightMode);
 
 typedef GlobalCallbackNativeType = Void Function(Int32 callbackId, Int64 value);

@@ -27,7 +27,8 @@ class EXPORT PlatformRuntime {
   EXPORT virtual void CheckCodeCacheSanity(const char* scriptMd5) = 0;
   EXPORT virtual void SendResponse(const uint16_t* source, int len) = 0;
   EXPORT virtual void SendNotification(const uint16_t* source, int len) = 0;
-  EXPORT virtual int64_t CalculateNodeLayout(int32_t instance_id, int32_t node_id) = 0;
+  EXPORT virtual int64_t CalculateNodeLayout(int32_t instance_id, int32_t node_id, double width, int32_t width_mode,
+                                             double height, int32_t height_mode) = 0;
   EXPORT virtual void Destroy() = 0;
   virtual void SetRuntimeId(int64_t runtime_id) = 0;
   virtual int64_t GetRuntimeId() = 0;

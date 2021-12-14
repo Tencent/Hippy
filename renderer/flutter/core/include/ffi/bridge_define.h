@@ -35,7 +35,8 @@ typedef void (*send_notification)(int32_t engine_id, const uint16_t* source, int
 typedef void (*destroy_function)(int32_t engine_id);
 typedef void (*global_callback)(int32_t callback_id, int64_t value);
 typedef void (*post_render_op)(int32_t engine_id, int32_t root_id, const void* data, int64_t length);
-typedef int64_t (*calculate_node_layout)(int32_t engine_id, int32_t root_id, int32_t node_id);
+typedef int64_t* (*calculate_node_layout)(int32_t engine_id, int32_t root_id, int32_t node_id, double width,
+                                         int32_t width_mode, double height, int32_t height_mode);
 
 extern call_native call_native_func;
 extern post_code_cache_runnable post_code_cache_runnable_func;

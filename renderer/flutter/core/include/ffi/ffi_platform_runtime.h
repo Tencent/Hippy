@@ -25,7 +25,8 @@ class FFIPlatformRuntime : public PlatformRuntime {
   void CheckCodeCacheSanity(const char* scriptMd5) override;
   void SendResponse(const uint16_t* source, int len) override;
   void SendNotification(const uint16_t* source, int len) override;
-  int64_t CalculateNodeLayout(int32_t instance_id, int32_t node_id) override;
+  int64_t CalculateNodeLayout(int32_t instance_id, int32_t node_id, double width, int32_t width_mode, double height,
+                              int32_t height_mode) override;
   void Destroy() override;
   void SetRuntimeId(int64_t runtime_id) override;
   int64_t GetRuntimeId() override;

@@ -52,7 +52,9 @@ EXTERN_C void SetNodeCustomMeasure(int32_t engine_id, int32_t root_id, int32_t n
 
 bool CallGlobalCallback(int32_t callback_id, int64_t value);
 
-EXTERN_C void Test();
+HPSize VoltronMeasureFunction(HPNodeRef node, float width, MeasureMode widthMeasureMode, float height,
+                            MeasureMode heightMeasureMode, void* layoutContext);
+
 #ifdef __cplusplus
 }
 #endif

@@ -1,19 +1,19 @@
-import 'engine/engine_define.dart';
-import 'engine/init_params.dart';
-import 'engine/module_params.dart';
-import 'engine/voltron_engine.dart';
-import 'util/log_util.dart';
-import 'widget/root.dart';
+import '../engine/engine_define.dart';
+import '../engine/init_params.dart';
+import '../engine/module_params.dart';
+import '../engine/voltron_engine.dart';
+import '../util/log_util.dart';
+import '../widget/root.dart';
 
 typedef ModuleExecutor = Function();
 
 // 对外暴露接口
-class FlutterRenderManager {
+class VoltronRenderManager {
   late VoltronEngine _engine;
 
   final List<ModuleExecutor> pendingExecutor = [];
 
-  FlutterRenderManager(EngineInitParams params) {
+  VoltronRenderManager(EngineInitParams params) {
     _engine = VoltronEngine.create(params);
   }
 
@@ -32,9 +32,9 @@ class FlutterRenderManager {
   }
 
   // 框架初始化
-  static FlutterRenderManager initRender(
+  static VoltronRenderManager initRender(
       EngineInitParams params, EngineListener listener) {
-    var render = FlutterRenderManager(params);
+    var render = VoltronRenderManager(params);
     render._init((status, msg) {
       LogUtils.i("flutter_render", "init engine status($status), msg($msg)");
       listener(status, msg);

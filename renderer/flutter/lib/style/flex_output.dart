@@ -1,5 +1,5 @@
 class FlexOutput {
-  static int makeDouble(double width, double height) {
+  static int makeMeasureResult(double width, double height) {
     return makeInt(width.toInt(), height.toInt());
   }
 

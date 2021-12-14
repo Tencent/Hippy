@@ -1,8 +1,8 @@
 import 'dart:collection';
 
-import 'controller.dart';
 import '../render/node.dart';
 import '../render/tree.dart';
+import 'controller.dart';
 
 class ControllerRegistry {
   final HashMap<int, RenderTree> _renderTree = HashMap();

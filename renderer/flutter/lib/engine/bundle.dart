@@ -5,7 +5,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../util/log_util.dart';
 import '../util/string_util.dart';
-import '../voltron/voltron_bridge.dart';
+import '../bridge/voltron_bridge.dart';
 
 abstract class VoltronBundleLoader {
   Future<bool> load(VoltronBridgeManager bridge, Callback callback);

@@ -8,6 +8,8 @@ import '../controller/controller.dart';
 import '../controller/manager.dart';
 import '../engine/engine_context.dart';
 import '../module/promise.dart';
+import '../style/flex_define.dart';
+import '../style/flex_output.dart';
 import '../style/prop.dart';
 import '../style/style_node.dart';
 import '../style/update.dart';
@@ -18,6 +20,7 @@ import '../viewmodel/group.dart';
 import '../viewmodel/view_model.dart';
 import '../widget/root.dart';
 import 'tree.dart';
+
 
 class RootRenderNode extends RenderNode {
   RootRenderNode(int id, String className, RenderTree root,
@@ -39,7 +42,7 @@ class RootRenderViewModel extends GroupViewModel {
       : super(id, instanceId, className, context);
 
   @override
-  void update(RenderNode node) {
+  void update() {
     _rootWidgetViewModel?.notifyChange();
   }
 }
@@ -113,6 +116,10 @@ class RenderNode extends StyleNode {
 
   int get childCount => _children.length;
 
+  bool get hasCustomLayout => false;
+
+  bool get isVirtual => false;
+
   List<RenderNode> get children => _children;
 
   VoltronViewController findController() {
@@ -138,7 +145,26 @@ class RenderNode extends StyleNode {
 
   RenderNode(this._id, this._className, this._root, this._controllerManager,
       this._props,
-      [this._isLazyLoad = false, this._parent]): super(_className);
+      [this._isLazyLoad = false, this._parent])
+      : super(_className) {
+    if (hasCustomLayout) {
+      _controllerManager.context.bridgeManager
+          .setNodeHasCustomLayout(rootId, _id);
+    }
+  }
+
+  int calculateLayout(FlexLayoutParams layoutParams) {
+    return FlexOutput.makeMeasureResult(
+        layoutParams.width, layoutParams.height);
+  }
+
+  void layoutBefore(EngineContext context) {
+    // empty
+  }
+
+  void layoutAfter(EngineContext context) {
+    // empty
+  }
 
   @override
   String toString() {
@@ -364,7 +390,7 @@ class RenderNode extends StyleNode {
         }
         _measureInWindows.clear();
       }
-      renderViewModel.update(this);
+      renderViewModel.update();
 
       if (_notifyManageChildren) {
         manageChildrenComplete();

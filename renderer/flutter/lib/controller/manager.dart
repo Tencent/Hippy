@@ -182,7 +182,7 @@ class ControllerManager implements InstanceLifecycleEventListener {
   void updateExtra(RenderNode node, Object updateExtra) {
     final controller = findController(node.name);
     if (controller != null) {
-      controller.updateExtra(node, updateExtra);
+      controller.updateExtra(node.renderViewModel, updateExtra);
     }
   }
 

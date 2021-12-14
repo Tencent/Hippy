@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tencent_voltron_render/flutter_render.dart';
 
-FlutterRenderManager generateManager(BuildContext context, {bool? debugMode}) {
+VoltronRenderManager generateManager(BuildContext context, {bool? debugMode}) {
   var initParams = EngineInitParams();
   initParams.iEngineType = EngineType.vue;
   // 可选，是否开启voltron debug模式
@@ -14,7 +14,7 @@ FlutterRenderManager generateManager(BuildContext context, {bool? debugMode}) {
   // 可选：Engine Monitor adapter
   initParams.engineMonitor = Monitor();
 
-  return FlutterRenderManager.initRender(initParams, (code, msg) {
+  return VoltronRenderManager.initRender(initParams, (code, msg) {
     LogUtils.i('loadEngine', 'code($code), msg($msg)');
   });
 }
@@ -50,7 +50,7 @@ class PageTestWidget extends StatefulWidget {
 }
 
 class _PageTestWidgetState extends State<PageTestWidget> {
-  FlutterRenderManager? _renderManager;
+  VoltronRenderManager? _renderManager;
   late String _bundle;
   late bool _debugMode;
   Offset offsetA = Offset(20, 300);

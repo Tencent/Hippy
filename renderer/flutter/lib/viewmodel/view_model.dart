@@ -308,7 +308,7 @@ class RenderViewModel extends ChangeNotifier {
     transition?.updateTransitionAnimation(key, value);
   }
 
-  void update(RenderNode node) {
+  void update() {
     notifyListeners();
   }
 

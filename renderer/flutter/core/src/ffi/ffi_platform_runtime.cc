@@ -1,7 +1,7 @@
 #include <mutex>
 
-#include "ffi/ffi_platform_runtime.h"
 #include "ffi/callback_manager.h"
+#include "ffi/ffi_platform_runtime.h"
 #include "ffi/logging.h"
 
 namespace voltron {
@@ -58,7 +58,7 @@ void FFIPlatformRuntime::ReportJSONException(const char* jsonValue) {
 
 void FFIPlatformRuntime::ReportJSException(const char16_t* description_stream, const char16_t* stack_stream) {
   if (report_js_exception_func) {
-    const Work work = [engine_id = engine_id_,  description_stream, stack_stream]() {
+    const Work work = [engine_id = engine_id_, description_stream, stack_stream]() {
       report_js_exception_func(engine_id, description_stream, stack_stream);
 
       if (description_stream) {
@@ -111,7 +111,8 @@ void FFIPlatformRuntime::SendNotification(const uint16_t* source, int len) {
   }
 }
 
-int64_t FFIPlatformRuntime::CalculateNodeLayout(int32_t instance_id, int32_t node_id) {
+int64_t FFIPlatformRuntime::CalculateNodeLayout(int32_t instance_id, int32_t node_id, double width, int32_t width_mode,
+                                                double height, int32_t height_mode) {
   std::mutex mutex;
   std::unique_lock<std::mutex> lock(mutex);
 
@@ -119,8 +120,16 @@ int64_t FFIPlatformRuntime::CalculateNodeLayout(int32_t instance_id, int32_t nod
   bool notified = false;
 
   int64_t result;
-  const Work work = [&result, &cv, &notified, engine_id = engine_id_, instance_id, node_id]() {
-    result = calculate_node_layout_func(engine_id, instance_id, node_id);
+  const Work work = [&result, &cv, &notified, engine_id = engine_id_, instance_id, node_id, width, width_mode, height,
+                     height_mode]() {
+    auto result_ptr =
+        calculate_node_layout_func(engine_id, instance_id, node_id, width, width_mode, height, height_mode);
+    if (result_ptr) {
+      result = *result_ptr;
+    } else {
+      result = 0;
+    }
+    delete result_ptr;
     notified = true;
     cv.notify_one();
   };

@@ -1,6 +1,5 @@
-import 'package:tencent_voltron_render/viewmodel/view_model.dart';
-
 import '../render/node.dart';
+import '../viewmodel/view_model.dart';
 
 class ControllerMethodProp<T> {
   final Function method;

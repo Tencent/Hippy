@@ -370,7 +370,7 @@ abstract class VoltronViewController<T extends RenderViewModel, R extends Render
     return false;
   }
 
-  void updateExtra(R node, Object updateExtra) {}
+  void updateExtra(T renderViewModel, Object updateExtra) {}
 
   R createRenderNode(int id, VoltronMap? props, String name, RenderTree tree,
       ControllerManager controllerManager, bool lazy);

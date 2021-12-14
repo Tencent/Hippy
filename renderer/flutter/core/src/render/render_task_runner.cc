@@ -12,6 +12,7 @@ VoltronRenderTaskRunner::VoltronRenderTaskRunner(int32_t engine_id) : engine_id_
 }
 
 void VoltronRenderTaskRunner::RunCreateDomNode(const Sp<DomNode> &node) {
+  TDF_BASE_DLOG(INFO) << "RunCreateDomNode id" << node->GetId();
   auto args_map = EncodableMap();
   args_map[EncodableValue(kChildIndexKey)] = EncodableValue(node->GetIndex());
   args_map[EncodableValue(kClassNameKey)] = EncodableValue(node->GetViewName());

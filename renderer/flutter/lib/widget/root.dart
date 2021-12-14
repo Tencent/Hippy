@@ -14,12 +14,12 @@ import '../module/module.dart';
 import '../render/manager.dart';
 import '../render/node.dart';
 import '../render/tree.dart';
-import '../render_manager.dart';
 import '../style/prop.dart';
 import '../util/dimension_util.dart';
 import '../util/enum_util.dart';
 import '../util/log_util.dart';
 import '../util/screen_util.dart';
+import '../voltron/manager.dart';
 import 'base.dart';
 
 class RootWidgetViewModel extends ChangeNotifier {
@@ -202,7 +202,7 @@ class RootWidgetViewModel extends ChangeNotifier {
   }
 }
 
-typedef FlutterRenderGetter = FlutterRenderManager Function();
+typedef FlutterRenderGetter = VoltronRenderManager Function();
 
 class VoltronWidget extends StatefulWidget {
   // load参数

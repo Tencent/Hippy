@@ -1,8 +1,30 @@
 import 'dart:ffi';
 
+import 'package:tencent_voltron_render/style/flex_output.dart';
+
 import 'flex_value.dart';
 
 const double undefined = double.nan;
+
+class FlexLayoutParams {
+  final double width;
+  final double height;
+  final FlexMeasureMode widthMode;
+  final FlexMeasureMode heightMode;
+
+  FlexLayoutParams(this.width, this.height, int widthMode, int heightMode)
+      : widthMode = flexMeasureModeFromInt(widthMode),
+        heightMode = flexMeasureModeFromInt(heightMode);
+
+  @override
+  String toString() {
+    return '{width:$width($widthMode), height: $height($heightMode)}';
+  }
+
+  int defaultOutput() {
+    return FlexOutput.makeMeasureResult(width, height);
+  }
+}
 
 enum FiledType {
   edgeSetFlagField,
@@ -35,6 +57,9 @@ enum ExportFunctionType {
   intFiledGetter,
   intFiledSetter
 }
+
+/// 注意，由于需要把枚举值直接转换成对应的key，所以这里枚举必须跟C++侧的枚举定义保持一致
+/// 因此需要使用大写英文+下划线方式
 
 // ignore: constant_identifier_names
 enum FlexDirection { INHERIT, LTR, RTL }

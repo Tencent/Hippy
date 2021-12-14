@@ -18,43 +18,46 @@ const int kMaxLineCount = 100000;
 mixin TextStyleNode on StyleNode {
   static const _kTag = "TextNode";
 
+  // 文本转换后的span，组合各种css样式
   TextSpan? _span;
+  // 原文本
   String? _sourceText;
 
+  // 文本基础属性
   int? _numberOfLines;
   double _fontSize = NodeProps.fontSizeSp;
   double? _lineHeight;
   double? _letterSpacing;
-
   int _color = Colors.black.value;
-
   String? _fontFamily;
   TextAlign _textAlign = TextAlign.start;
+  FontStyle _fontStyle = FontStyle.normal;
+  FontWeight? _fontWeight;
+  String? _whiteSpace;
+  TextOverflow _textOverflow = TextOverflow.visible;
 
+  // 文本阴影属性
   double _textShadowOffsetDx = 0;
   double _textShadowOffsetDy = 0;
   double _textShadowRadius = 1;
   int _textShadowColor = kDefaultTextShadowColor;
 
+  // 下划线
   bool _isUnderlineTextDecorationSet = false;
+  // 删除线
   bool _isLineThroughTextDecorationSet = false;
 
-  FontStyle _fontStyle = FontStyle.normal;
-  FontWeight? _fontWeight;
-
+  // 系统文本缩放尺寸
   bool _enableScale = false;
+  FontScaleAdapter? fontScaleAdapter;
 
+  // 手势
   final List<String> _gestureTypes = [];
 
-  FontScaleAdapter? _fontScaleAdapter;
-
   TextSpan? get span => _span;
+  bool get enableScale => _enableScale;
 
-  String? _whiteSpace;
-
-  TextOverflow _textOverflow = TextOverflow.visible;
-
-  String? get _text {
+  String get _text {
     if (_whiteSpace == null ||
         _whiteSpace == 'normal' ||
         _whiteSpace == 'nowrap') {
@@ -62,19 +65,19 @@ mixin TextStyleNode on StyleNode {
       return _sourceText
           ?.replaceAll(RegExp(r' +'), ' ')
           .replaceAll('\n', ' ')
-          .replaceAll(RegExp(r'<br\s*/?>'), ' ');
+          .replaceAll(RegExp(r'<br\s*/?>'), ' ')??'';
     }
     if (_whiteSpace == 'pre-line') {
       // 连续的空白符会被合并。在遇到换行符或者<br>元素，才换行
       return _sourceText
           ?.replaceAll(RegExp(r' +'), ' ')
-          .replaceAll(RegExp(r'<br\s*/?>'), '\n');
+          .replaceAll(RegExp(r'<br\s*/?>'), '\n')??'';
     }
     if (_whiteSpace == 'pre') {
       // 连续的空白符会被保留。在遇到换行符或者<br>元素，才换行
-      return _sourceText?.replaceAll(RegExp(r'<br\s*/?>'), '\n');
+      return _sourceText?.replaceAll(RegExp(r'<br\s*/?>'), '\n')??'';
     }
-    return _sourceText;
+    return _sourceText??'';
   }
 
   static int _parseArgument(String weight) {
@@ -373,7 +376,7 @@ mixin TextStyleNode on StyleNode {
 
   RenderNode? getChildAt(int index);
 
-  TextSpan createSpan(String text, bool useChild) {
+  TextSpan createSpan({bool useChild = true}) {
     var curFontSize = _fontSize;
 
     var shadowList = <Shadow>[];
@@ -392,7 +395,7 @@ mixin TextStyleNode on StyleNode {
         if (node != null) {
           if (node is TextStyleNode) {
             var styleNode = node as TextStyleNode;
-            childrenSpan.add(styleNode.createSpan(styleNode._text ?? '', useChild));
+            childrenSpan.add(styleNode.createSpan(useChild: useChild));
           } else {
             throw StateError("${node.name} is not support in Text");
           }
@@ -413,9 +416,9 @@ mixin TextStyleNode on StyleNode {
       }
     }
 
-    if (!isEmpty(text) || childrenSpan.isNotEmpty) {
+    if (!isEmpty(_text) || childrenSpan.isNotEmpty) {
       return TextSpan(
-          text: text,
+          text: _text,
           style: TextStyle(
               leadingDistribution: TextLeadingDistribution.even,
               color: Color(_color),
@@ -431,36 +434,6 @@ mixin TextStyleNode on StyleNode {
     }
     return TextSpan(text: "");
   }
-
-  //   // @override  todo 处理layout before
-  // void layoutAfter(EngineContext context) {
-  //   if (!isVirtual()) {
-  //     var textData = createData(
-  //         layoutWidth -
-  //             getPadding(FlexSpacing.left) -
-  //             getPadding(FlexSpacing.right),
-  //         FlexMeasureMode.EXACTLY);
-  //     data = textData;
-  //   }
-  // }
-
-  // @override
-  // void updateData(EngineContext context) {
-  //   if (!isVirtual()) {
-      // todo update textPadding
-      // context.domManager.addUITask(() {
-      //   context.renderManager.updateExtra(
-      //       rootId,
-      //       id,
-      //       TextExtra(
-      //           data,
-      //           getPadding(FlexSpacing.start),
-      //           getPadding(FlexSpacing.end),
-      //           getPadding(FlexSpacing.bottom),
-      //           getPadding(FlexSpacing.top)));
-      // });
-  //   }
-  // }
 
   TextData createData(double width, FlexMeasureMode widthMode) {
     var span = _span;
@@ -497,9 +470,8 @@ mixin TextStyleNode on StyleNode {
 
   double _generateTextScale() {
     var textScaleFactor = 1.0;
-    var fontScaleAdapter = _fontScaleAdapter;
     if (fontScaleAdapter != null && _enableScale) {
-      textScaleFactor = fontScaleAdapter.getFontScale();
+      textScaleFactor = fontScaleAdapter?.getFontScale() ?? 1.0;
     }
 
     return textScaleFactor;

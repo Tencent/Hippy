@@ -49,6 +49,7 @@ class TextInputController extends BaseViewController<TextInputRenderViewModel> {
   static const String commandBlur = "blurTextInput";
   static const String commandGetValue = "getValue";
   static const String commandSetValue = "setValue";
+  // 注意这里由于js侧使用了错误拼写，这里暂时不能修改成正确的拼写，否则会导致无法成功调用
   static const String commandKeyboardDismiss = "dissmiss";
 
   @override
@@ -58,7 +59,8 @@ class TextInputController extends BaseViewController<TextInputRenderViewModel> {
   }
 
   @override
-  Widget createWidget(BuildContext context, TextInputRenderViewModel renderViewModel) {
+  Widget createWidget(
+      BuildContext context, TextInputRenderViewModel renderViewModel) {
     return TextInputWidget(renderViewModel);
   }
 
@@ -118,12 +120,14 @@ class TextInputController extends BaseViewController<TextInputRenderViewModel> {
   }
 
   @ControllerProps(defaultValue)
-  void setDefaultValue(TextInputRenderViewModel renderViewModel, String defaultValue) {
+  void setDefaultValue(
+      TextInputRenderViewModel renderViewModel, String defaultValue) {
     renderViewModel.setValue(defaultValue);
   }
 
   @ControllerProps(validator)
-  void setValidator(TextInputRenderViewModel renderViewModel, String strValidator) {
+  void setValidator(
+      TextInputRenderViewModel renderViewModel, String strValidator) {
     renderViewModel.dispatcher.validator = strValidator;
   }
 
@@ -134,14 +138,16 @@ class TextInputController extends BaseViewController<TextInputRenderViewModel> {
 
   // 设置输入光标颜色  RN 语法 caret-color
   @ControllerProps(caretColorReact)
-  void setCaretColor(TextInputRenderViewModel renderViewModel, int cursorColor) {
+  void setCaretColor(
+      TextInputRenderViewModel renderViewModel, int cursorColor) {
     renderViewModel.cursorColor = cursorColor;
   }
 
   //  设置输入光标颜色
   //For Vue.vue的前端语法，会把caret-color转化成caretColor
   @ControllerProps(caretColorVue)
-  void setCaretColorAlias(TextInputRenderViewModel renderViewModel, int cursorColor) {
+  void setCaretColorAlias(
+      TextInputRenderViewModel renderViewModel, int cursorColor) {
     renderViewModel.cursorColor = cursorColor;
   }
 
@@ -151,32 +157,38 @@ class TextInputController extends BaseViewController<TextInputRenderViewModel> {
   }
 
   @ControllerProps(returnKeyType)
-  void setReturnKeyType(TextInputRenderViewModel renderViewModel, String returnKeyType) {
+  void setReturnKeyType(
+      TextInputRenderViewModel renderViewModel, String returnKeyType) {
     renderViewModel.setTextInputType(returnKeyType);
   }
 
   @ControllerProps(keyboardType)
-  void setKeyboardType(TextInputRenderViewModel renderViewModel, String keyboardType) {
+  void setKeyboardType(
+      TextInputRenderViewModel renderViewModel, String keyboardType) {
     renderViewModel.setKeyboardType(keyboardType);
   }
 
   @ControllerProps(NodeProps.fontStyle)
-  void setFontStyle(TextInputRenderViewModel renderViewModel, String fontStyleString) {
+  void setFontStyle(
+      TextInputRenderViewModel renderViewModel, String fontStyleString) {
     renderViewModel.setFontStyle(fontStyleString);
   }
 
   @ControllerProps(NodeProps.fontWeight)
-  void setFontWeight(TextInputRenderViewModel renderViewModel, String fontWeightString) {
+  void setFontWeight(
+      TextInputRenderViewModel renderViewModel, String fontWeightString) {
     renderViewModel.setFontWeight(fontWeightString);
   }
 
   @ControllerProps(NodeProps.lineHeight)
-  void setLineHeight(TextInputRenderViewModel renderViewModel, double lineHeight) {
+  void setLineHeight(
+      TextInputRenderViewModel renderViewModel, double lineHeight) {
     renderViewModel.lineHeight = lineHeight;
   }
 
   @ControllerProps(NodeProps.fontFamily)
-  void setFontFamily(TextInputRenderViewModel renderViewModel, String fontFamily) {
+  void setFontFamily(
+      TextInputRenderViewModel renderViewModel, String fontFamily) {
     renderViewModel.fontFamily = fontFamily;
   }
 
@@ -186,12 +198,14 @@ class TextInputController extends BaseViewController<TextInputRenderViewModel> {
   }
 
   @ControllerProps(onSelectionChange)
-  void setOnSelectionChange(TextInputRenderViewModel renderViewModel, bool change) {
+  void setOnSelectionChange(
+      TextInputRenderViewModel renderViewModel, bool change) {
     renderViewModel.dispatcher.listenSelectionChange = change;
   }
 
   @ControllerProps(NodeProps.letterSpacing)
-  void letterSpacing(TextInputRenderViewModel renderViewModel, double letterSpacing) {
+  void letterSpacing(
+      TextInputRenderViewModel renderViewModel, double letterSpacing) {
     renderViewModel.letterSpacing = letterSpacing;
   }
 
@@ -201,7 +215,8 @@ class TextInputController extends BaseViewController<TextInputRenderViewModel> {
   }
 
   @ControllerProps(placeholder)
-  void placeHolder(TextInputRenderViewModel renderViewModel, String placeholder) {
+  void placeHolder(
+      TextInputRenderViewModel renderViewModel, String placeholder) {
     renderViewModel.hint = placeholder;
   }
 
@@ -211,7 +226,8 @@ class TextInputController extends BaseViewController<TextInputRenderViewModel> {
   }
 
   @ControllerProps(placeholderTextColorReact)
-  void setTextHitColorReact(TextInputRenderViewModel renderViewModel, int color) {
+  void setTextHitColorReact(
+      TextInputRenderViewModel renderViewModel, int color) {
     renderViewModel.hintTextColor = color;
   }
 
@@ -221,7 +237,8 @@ class TextInputController extends BaseViewController<TextInputRenderViewModel> {
   }
 
   @ControllerProps(underlineColor)
-  void setUnderlineColor(TextInputRenderViewModel renderViewModel, int underlineColor) {
+  void setUnderlineColor(
+      TextInputRenderViewModel renderViewModel, int underlineColor) {
     renderViewModel.underLineColor = underlineColor;
   }
 
@@ -248,8 +265,7 @@ class TextInputController extends BaseViewController<TextInputRenderViewModel> {
   @ControllerProps(onContentSizeChange)
   void setOnContentSizeChange(
       TextInputRenderViewModel renderViewModel, bool contentSizeChange) {
-    renderViewModel.dispatcher.listenContentSizeChange =
-        contentSizeChange;
+    renderViewModel.dispatcher.listenContentSizeChange = contentSizeChange;
   }
 
   @ControllerProps(NodeProps.color)
@@ -258,7 +274,8 @@ class TextInputController extends BaseViewController<TextInputRenderViewModel> {
   }
 
   @ControllerProps(NodeProps.textAlign)
-  void setTextAlign(TextInputRenderViewModel renderViewModel, String textAlign) {
+  void setTextAlign(
+      TextInputRenderViewModel renderViewModel, String textAlign) {
     renderViewModel.setTextAlign(textAlign);
   }
 
@@ -277,7 +294,8 @@ class TextInputController extends BaseViewController<TextInputRenderViewModel> {
   }
 
   @ControllerProps(NodeProps.paddingTop)
-  void setPaddingTop(TextInputRenderViewModel renderViewModel, Object? paddingTop) {
+  void setPaddingTop(
+      TextInputRenderViewModel renderViewModel, Object? paddingTop) {
     if (paddingTop is int) {
       renderViewModel.paddingTop = paddingTop.toDouble();
     } else if (paddingTop is double) {
@@ -288,7 +306,8 @@ class TextInputController extends BaseViewController<TextInputRenderViewModel> {
   }
 
   @ControllerProps(NodeProps.paddingRight)
-  void setPaddingRight(TextInputRenderViewModel renderViewModel, Object? paddingRight) {
+  void setPaddingRight(
+      TextInputRenderViewModel renderViewModel, Object? paddingRight) {
     if (paddingRight is int) {
       renderViewModel.paddingRight = paddingRight.toDouble();
     } else if (paddingRight is double) {
@@ -299,7 +318,8 @@ class TextInputController extends BaseViewController<TextInputRenderViewModel> {
   }
 
   @ControllerProps(NodeProps.paddingBottom)
-  void setPaddingBottom(TextInputRenderViewModel renderViewModel, Object? paddingBottom) {
+  void setPaddingBottom(
+      TextInputRenderViewModel renderViewModel, Object? paddingBottom) {
     if (paddingBottom is int) {
       renderViewModel.paddingBottom = paddingBottom.toDouble();
     } else if (paddingBottom is double) {
@@ -310,7 +330,8 @@ class TextInputController extends BaseViewController<TextInputRenderViewModel> {
   }
 
   @ControllerProps(NodeProps.paddingLeft)
-  void setPaddingLeft(TextInputRenderViewModel renderViewModel, Object? paddingLeft) {
+  void setPaddingLeft(
+      TextInputRenderViewModel renderViewModel, Object? paddingLeft) {
     if (paddingLeft is int) {
       renderViewModel.paddingLeft = paddingLeft.toDouble();
     } else if (paddingLeft is double) {
@@ -321,8 +342,8 @@ class TextInputController extends BaseViewController<TextInputRenderViewModel> {
   }
 
   @override
-  void dispatchFunction(
-      TextInputRenderViewModel renderViewModel, String functionName, VoltronArray array,
+  void dispatchFunction(TextInputRenderViewModel renderViewModel,
+      String functionName, VoltronArray array,
       {Promise? promise}) {
     switch (functionName) {
       case commandSetValue:
@@ -354,8 +375,6 @@ class TextInputController extends BaseViewController<TextInputRenderViewModel> {
         break;
     }
   }
-
-
 }
 
 class FocusNodeProxy {

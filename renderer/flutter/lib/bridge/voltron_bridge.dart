@@ -10,7 +10,6 @@ import 'dart:typed_data';
 import 'package:ffi/ffi.dart';
 import 'package:flutter/services.dart' show StandardMessageCodec, rootBundle;
 import 'package:path_provider/path_provider.dart';
-
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:web_socket_channel/io.dart';
 
@@ -24,24 +23,21 @@ import '../common/voltron_map.dart';
 import '../engine/bundle.dart';
 import '../engine/engine_context.dart';
 import '../engine/engine_define.dart';
-import '../ffi/ffi_util.dart';
 import '../module/module.dart';
-import '../module/network.dart';
 import '../serialization/deserializer.dart';
 import '../serialization/reader/binary_reader.dart';
 import '../serialization/string/internalized_string_table.dart';
+import '../style/flex_define.dart';
 import '../util/dimension_util.dart';
+import '../util/ffi_util.dart';
 import '../util/file_util.dart';
 import '../util/log_util.dart';
 import '../util/string_util.dart';
 import '../widget/root.dart';
 import 'bridge_define.dart';
 import 'global_callback.dart';
-import 'inspector/inspector.dart';
 
-typedef TestFunctionDartType = void Function();
-typedef TestFunctionNativeType = Void Function();
-
+/// 管理dart to c++方法调用以及c++ to dart方法注册逻辑
 class _BridgeFFIManager {
   static _BridgeFFIManager? _instance;
 
@@ -79,6 +75,8 @@ class _BridgeFFIManager {
   // 更新节点宽高
   late UpdateNodeSizeFfiDartType updateNodeSize;
 
+  late SetNodeCustomMeasureDartType setNodeHasCustomLayout;
+
   // 初始化native dom
   late InitDomFfiDartType initDom;
 
@@ -96,14 +94,13 @@ class _BridgeFFIManager {
   late RegisterSendNotificationFfiDartType registerSendNotification;
   late RegisterDestroyFfiDartType registerDestroy;
   late RegisterPostRenderOpFfiDartType registerPostRenderOp;
+  late RegisterCalculateNodeLayoutFfiDartType registerCalculateNode;
 
   // 注册回调port和post指针
   late RegisterDartPostCObjectDartType registerDartPostCObject;
 
   // 执行回调任务
   late ExecuteCallbackDartType executeCallback;
-
-  late TestFunctionDartType testFunc;
 
   static _BridgeFFIManager _getInstance() {
     // 只能有一个实例
@@ -155,6 +152,9 @@ class _BridgeFFIManager {
     updateNodeSize = _library.lookupFunction<UpdateNodeSizeFfiNativeType,
         UpdateNodeSizeFfiDartType>('UpdateNodeSize');
 
+    setNodeHasCustomLayout = _library.lookupFunction<SetNodeCustomMeasureNativeType,
+        SetNodeCustomMeasureDartType>('SetNodeCustomMeasure');
+
     destroy = _library
         .lookupFunction<DestroyFfiNativeType, DestroyFfiDartType>("DestroyFFI");
 
@@ -185,15 +185,13 @@ class _BridgeFFIManager {
     registerPostRenderOp = _library.lookupFunction<
         RegisterPostRenderOpFfiNativeType,
         RegisterPostRenderOpFfiDartType>("RegisterCallFunc");
-    testFunc = _library
-        .lookupFunction<TestFunctionNativeType, TestFunctionDartType>("Test");
+    registerCalculateNode = _library.lookupFunction<
+        RegisterCalculateNodeLayoutFfiNativeType,
+        RegisterCalculateNodeLayoutFfiDartType>("RegisterCallFunc");
   }
 }
 
-void testNativeCall() {
-  _BridgeFFIManager.instance.testFunc();
-}
-
+/// 封装dart to c++的api调用，处理各种中间数据
 class VoltronApi {
   // ------------------ dart call native方法 start ---------------------
   static Future<int> initJsFrameWork(
@@ -261,6 +259,16 @@ class VoltronApi {
         .updateNodeSize(engineId, rootId, nodeId, width, height);
     stopwatch.stop();
     LogUtils.profile("update node size cost", stopwatch.elapsedMilliseconds);
+  }
+
+  static Future setNodeHasCustomLayout(int engineId, int rootId, int nodeId) async {
+    var stopwatch = Stopwatch();
+
+    stopwatch.start();
+    _BridgeFFIManager.instance
+        .setNodeHasCustomLayout(engineId, rootId, nodeId);
+    stopwatch.stop();
+    LogUtils.profile("set node has custom layout cost", stopwatch.elapsedMilliseconds);
   }
 
   static Future<dynamic> runScriptFromAssetWithData(
@@ -470,6 +478,13 @@ class VoltronApi {
         Pointer.fromFunction<PostRenderOpNativeType>(postRenderOp);
     _BridgeFFIManager.instance
         .registerPostRenderOp(FuncType.postRenderOp.index, postRenderOpFunc);
+
+    // 注册postRenderOp回调
+    var calculateNodeLayoutFunc =
+        Pointer.fromFunction<CalculateNodeLayoutNativeType>(
+            calculateNodeLayout);
+    _BridgeFFIManager.instance.registerCalculateNode(
+        FuncType.calculateNodeLayout.index, calculateNodeLayoutFunc);
   }
 }
 
@@ -499,7 +514,7 @@ void callNative(
 
   final bridge = VoltronBridgeManager.bridgeMap[engineId];
   if (bridge != null) {
-    bridge.callNatives(
+    bridge._callNatives(
         moduleName, moduleFunc, callId, dataList, bridgeParamJson);
   }
 }
@@ -587,18 +602,37 @@ void postRenderOp(int engineId, int rootId, Pointer<Void> data, int len) {
         StandardMessageCodec().decodeMessage(dataList.buffer.asByteData());
     final bridge = VoltronBridgeManager.bridgeMap[engineId];
     if (bridge != null) {
-      bridge.postRenderOp(renderOpList);
+      bridge._postRenderOp(renderOpList);
     }
   }
 }
 
+Pointer<Int64> calculateNodeLayout(int engineId, int rootId, int nodeId, double width,
+    int widthMode, double height, int heightMode) {
+  final bridge = VoltronBridgeManager.bridgeMap[engineId];
+  var layoutParams = FlexLayoutParams(width, height, widthMode, heightMode);
+  var result = layoutParams.defaultOutput();
+  if (bridge != null) {
+    result = bridge._calculateNodeLayout(
+        rootId, nodeId, layoutParams);
+  }
+
+  final resultPtr = malloc<Int64>(1);
+  resultPtr.asTypedList(1)[0] = result;
+  return resultPtr;
+}
+
 // ------------------ native call dart方法 end ---------------------
+
 
 const bool useNewCommType = false;
 
 typedef Callback = void Function(dynamic param, Error? e);
 
+/// voltron外层业务逻辑对c++调用逻辑的bridge封装
 class VoltronBridgeManager implements Destroyable {
+  static const String _kTag = 'Voltron_bridge';
+
   static const int bridgeTypeSingleThread = 2;
   static const int bridgeTypeNormal = 1;
   static const int bridgeTypeRemoteDebug = 0;
@@ -650,42 +684,8 @@ class VoltronBridgeManager implements Destroyable {
     initCodeCacheDir();
   }
 
-  void _handleVoltronInspectorInit() {
-    // todo 处理调试器初始化
-    // if (_isDevModule) {
-    //   bridgeMap[0] = this;
-    //   final webSocketUri = Uri.parse(
-    //       'ws://localhost:38989/debugger-proxy?role=android_client&id=$_platformRuntimeId');
-    //   _webSocketChannel = IOWebSocketChannel.connect(webSocketUri);
-    //   _sendDebugInfo({'platformRuntimeId': _platformRuntimeId});
-    //   final networkModel =
-    //       _context.moduleManager.nativeModule[NetworkModule.networkModuleName];
-    //   // 1.Inspector拦截网络请求和响应
-    //   if (networkModel is NetworkModule) {
-    //     networkModel.requestWillBeSentHook = Inspector().requestWillBeSent;
-    //     networkModel.responseReceivedHook = Inspector().responseReceived;
-    //   }
-    //   // 2、同步更新dom元素的数据
-    //   _context.domManager.batchHook = Inspector().updateDocument;
-    //   _webSocketChannel?.stream.listen((message) {
-    //     try {
-    //       // 优先处理VoltronInspector定义的事件。处理不成功，如果为安卓客户端，就通过V8转发事件信息
-    //       final isSuccessful =
-    //           Inspector().receiveFromFrontend(_context, json.decode(message));
-    //       if (!isSuccessful && PlatformManager.getInstance().isAndroid) {
-    //         VoltronApi.callFunction(
-    //             _v8RuntimeId, "onWebsocketMsg", message, (value) {});
-    //       }
-    //     } catch (e) {
-    //       LogUtils.e('Voltron_bridge', 'receive web socket message error: $e');
-    //     }
-    //   });
-    // }
-  }
-
   Future<dynamic> initBridge(Callback callback) async {
     try {
-      _handleVoltronInspectorInit();
       _context.startTimeMonitor
           .startEvent(EngineMonitorEvent.engineLoadEventInitBridge);
       _v8RuntimeId = await VoltronApi.initJsFrameWork(
@@ -727,7 +727,7 @@ class VoltronBridgeManager implements Destroyable {
       _isFrameWorkInit = false;
       _isBridgeInit = false;
       if (e is Error) {
-        LogUtils.e('Voltron_bridge', '${e.stackTrace}');
+        LogUtils.e(_kTag, '${e.stackTrace}');
       }
       callback(false, StateError(e.toString()));
     }
@@ -772,7 +772,7 @@ class VoltronBridgeManager implements Destroyable {
     await loader.load(this, (param, e) {
       var success = param == 1;
       if (success) {
-        LogUtils.i("Voltron_bridge", "load module success");
+        LogUtils.i(_kTag, "load module success");
         _loadBundleInfo.add(bundleUniKey!);
         if (rootWidget != null) {
           notifyModuleLoaded(EngineStatus.ok, null, rootWidget);
@@ -797,12 +797,16 @@ class VoltronBridgeManager implements Destroyable {
         _engineId, instanceId, nodeId, width, height);
   }
 
+  Future setNodeHasCustomLayout(int instanceId, int nodeId) async {
+
+  }
+
   Future<dynamic> loadInstance(String name, int id, VoltronMap? params) async {
     if (!_isFrameWorkInit) {
       return;
     }
 
-    LogUtils.i("VoltronBridge", "loadInstance start");
+    LogUtils.i(_kTag, "loadInstance start");
 
     var map = VoltronMap();
     map.push("name", name);
@@ -950,7 +954,7 @@ class VoltronBridgeManager implements Destroyable {
     }
 
     if (!isEmpty(codeCacheTag) && !isEmpty(sCodeCacheRootDir)) {
-      LogUtils.i("VoltronEngineMonitor",
+      LogUtils.i(_kTag,
           "runScriptFromAssets ======core====== $codeCacheTag${", canUseCodeCache == $canUseCodeCache"}");
       var codeCacheDir =
           sCodeCacheRootDir! + codeCacheTag + Platform.pathSeparator;
@@ -960,7 +964,7 @@ class VoltronBridgeManager implements Destroyable {
       });
     } else {
       LogUtils.i(
-          "VoltronEngineMonitor", "runScriptFromAssets codeCacheTag is null");
+          _kTag, "runScriptFromAssets codeCacheTag is null");
       await VoltronApi.runScriptFromAsset(_engineId, fileName,
           "$codeCacheTag${Platform.pathSeparator}", false, (value) {
         callback(value);
@@ -980,7 +984,7 @@ class VoltronBridgeManager implements Destroyable {
     }
 
     if (!isEmpty(codeCacheTag) && !isEmpty(sCodeCacheRootDir)) {
-      LogUtils.i("VoltronEngineMonitor",
+      LogUtils.i(_kTag,
           "runScriptFromAssetsWithData ======core====== $codeCacheTag${", canUseCodeCache == $canUseCodeCache"}");
       var codeCacheDir =
           sCodeCacheRootDir! + codeCacheTag + Platform.pathSeparator;
@@ -990,7 +994,7 @@ class VoltronBridgeManager implements Destroyable {
         callback(value);
       });
     } else {
-      LogUtils.i("VoltronEngineMonitor",
+      LogUtils.i(_kTag,
           "runScriptFromAssetsWithData codeCacheTag is null");
       await VoltronApi.runScriptFromAssetWithData(_engineId, fileName,
           "$codeCacheTag${Platform.pathSeparator}", false, assetsData, (value) {
@@ -1010,7 +1014,7 @@ class VoltronBridgeManager implements Destroyable {
       return false;
     }
     if (!isEmpty(codeCacheTag) && !isEmpty(sCodeCacheRootDir)) {
-      LogUtils.i("VoltronEngineMonitor",
+      LogUtils.i(_kTag,
           "runScriptFromFile ======core====== $codeCacheTag${", canUseCodeCache == $canUseCodeCache"}");
       var codeCacheDir =
           sCodeCacheRootDir! + codeCacheTag + Platform.pathSeparator;
@@ -1022,9 +1026,9 @@ class VoltronBridgeManager implements Destroyable {
       });
     } else {
       LogUtils.i(
-          "VoltronEngineMonitor", "runScriptFromFile codeCacheTag is null");
+          _kTag, 'runScriptFromFile codeCacheTag is null');
 
-      var codeCacheDir = "$codeCacheTag${Platform.pathSeparator}";
+      var codeCacheDir = '$codeCacheTag${Platform.pathSeparator}';
       await VoltronApi.runScriptFromFile(
           _engineId, filePath, scriptName, codeCacheDir, false, (value) {
         callback(value);
@@ -1034,16 +1038,25 @@ class VoltronBridgeManager implements Destroyable {
     return true;
   }
 
-  void postRenderOp(dynamic renderOp) {
-    LogUtils.dBridge("call post render op ($renderOp)");
+  void _postRenderOp(dynamic renderOp) {
+    LogUtils.dBridge('call post render op ($renderOp)');
     if (_isBridgeInit) {
       _context.moduleManager.consumeRenderOp(_engineId, renderOp);
     }
   }
 
-  void callNatives(String moduleName, String moduleFunc, String callId,
+  int _calculateNodeLayout(int instanceId, int nodeId, FlexLayoutParams layoutParams) {
+    LogUtils.dBridge(
+        'call calculate node layout(page:$instanceId, node:$nodeId, layout:$layoutParams)');
+    if (_isBridgeInit) {
+      return _context.renderManager.calculateLayout(instanceId, nodeId, layoutParams);
+    }
+    return layoutParams.defaultOutput();
+  }
+
+  void _callNatives(String moduleName, String moduleFunc, String callId,
       Uint8List paramsList, bool bridgeParseJson) {
-    LogUtils.dBridge("call native ($moduleName.$moduleFunc)");
+    LogUtils.dBridge('call native ($moduleName.$moduleFunc)');
 
     if (_isBridgeInit) {
       VoltronArray paramsArray;

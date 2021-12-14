@@ -14,6 +14,7 @@
 #include "ffi/logging.h"
 #include "render/common.h"
 #include "standard_message_codec.h"
+#include "render/layout.h"
 
 #if defined(__ANDROID__) || defined(_WIN32)
 #include "bridge_impl.h"
@@ -34,6 +35,7 @@ using voltron::Sp;
 using voltron::VoltronRenderManager;
 using voltron::StandardMessageCodec;
 using voltron::EncodableValue;
+using voltron::VoltronLayoutContext;
 
 EXTERN_C void InitDomFFI(int32_t engine_id, int32_t root_id) {
   auto render_manager = std::make_shared<VoltronRenderManager>(engine_id, root_id);
@@ -156,6 +158,49 @@ EXTERN_C void UpdateNodeSize(int32_t engine_id, int32_t root_id, int32_t node_id
   }
 }
 
+EXTERN_C void SetNodeCustomMeasure(int32_t engine_id, int32_t root_id, int32_t node_id) {
+  auto bridge_manager = BridgeManager::GetBridgeManager(engine_id);
+  if (bridge_manager) {
+    auto dom_manager = bridge_manager->GetDomManager(root_id);
+    if (dom_manager) {
+      auto dom_node = dom_manager->GetNode(node_id);
+      if (dom_node) {
+        auto layout_node = dom_node->GetLayoutNode();
+        if (layout_node) {
+          auto taitank_layout_node = std::static_pointer_cast<hippy::TaitankLayoutNode>(layout_node);
+          auto voltronLayoutContext = new VoltronLayoutContext();
+          voltronLayoutContext->node_id = node_id;
+          voltronLayoutContext->engine_id = engine_id;
+          voltronLayoutContext->root_id = root_id;
+          taitank_layout_node->SetLayoutContext(voltronLayoutContext);
+          taitank_layout_node->SetMeasureFunction(VoltronMeasureFunction);
+        }
+      }
+    }
+  }
+}
+
+HPSize VoltronMeasureFunction(HPNodeRef node, float width, MeasureMode widthMeasureMode, float height,
+                            MeasureMode heightMeasureMode, void* layoutContext) {
+  if (layoutContext) {
+    auto voltronLayoutContext = reinterpret_cast<VoltronLayoutContext *>(layoutContext);
+    auto bridge_manager = BridgeManager::GetBridgeManager(voltronLayoutContext->engine_id);
+    if (bridge_manager) {
+      auto runtime = bridge_manager->GetRuntime().lock();
+      if (runtime) {
+        auto measure_result = runtime->CalculateNodeLayout(voltronLayoutContext->root_id,
+                                                           voltronLayoutContext->node_id, width,
+                                     widthMeasureMode, height, heightMeasureMode);
+        int32_t w_bits = 0xFFFFFFFF & (measure_result >> 32);
+        int32_t h_bits = 0xFFFFFFFF & measure_result;
+        return HPSize{(float) w_bits, (float) h_bits};
+      }
+    }
+  }
+
+  return HPSize{0, 0};
+}
+
 EXTERN_C void RunNativeRunnableFFI(int32_t engine_id, const char16_t* code_cache_path,
                                    int64_t runnable_id, int32_t callback_id) {
   auto runtime = BridgeManager::GetBridgeManager(engine_id)->GetRuntime().lock();
@@ -235,50 +280,6 @@ bool CallGlobalCallback(int32_t callback_id, int64_t value) {
     RENDER_CORE_LOG(rendercore::LoggingLevel::Error, "call callback error, func not found");
   }
   return false;
-}
-
-EXTERN_C void Test() {
-  //  const char16_t *params =
-  //      "[10,[{\"index\":0,\"props\":{\"onPressIn\":true,\"style\":{\"width\":250,\"marginTop\":30,\"borderColor\":-11756806,\"alignItems\":\"center\",\"borderRadius\":8,\"height\":50,\"opacity\":1.0,\"borderWidth\":2,\"justifyContent\":\"center\"},\"onPressOut\":true,\"onClick\":true},\"name\":\"View\",\"id\":108,\"pId\":109}]]";
-  //  int paramLen = strlen(params);
-  //  const void *params_data = reinterpret_cast<const void *>(params);
-  //  callNativeFunc(0,
-  //                 "module_name",
-  //                 "module_func",
-  //                 "call_id",
-  //                 params_data,
-  //                 paramLen,
-  //                 true);
-  //
-  //  const int length = 223;
-  //  int8_t a[length] =
-  //      {6, 2, 4, 20, 6, 1, 7, 5, 2, 105, 100, 4, -40, 1, 3, 112, 73, 100, 4, -38,
-  //       1, 5, 105, 110, 100, 101, 120, 4, 0, 4, 110, 97, 109, 101, 8, 4, 86, 105,
-  //       101, 119, 5, 112, 114, 111, 112, 115, 7, 4, 9, 111, 110, 80, 114, 101,
-  //       115, 115, 73, 110, 2, 10, 111, 110, 80, 114, 101, 115, 115, 79, 117, 116,
-  //       2, 7, 111, 110, 67, 108, 105, 99, 107, 2, 5, 115, 116, 121, 108, 101, 7,
-  //       9, 11, 98, 111, 114, 100, 101, 114, 67, 111, 108, 111, 114, 4, -117,
-  //       -108, -101, 11, 11, 98, 111, 114, 100, 101, 114, 87, 105, 100, 116, 104,
-  //       4, 4, 12, 98, 111, 114, 100, 101, 114, 82, 97, 100, 105, 117, 115, 4, 16,
-  //       14, 106, 117, 115, 116, 105, 102, 121, 67, 111, 110, 116, 101, 110, 116,
-  //       8, 6, 99, 101, 110, 116, 101, 114, 10, 97, 108, 105, 103, 110, 73, 116,
-  //       101, 109, 115, 8, 6, 99, 101, 110, 116, 101, 114, 5, 119, 105, 100, 116,
-  //       104, 4, -12, 3, 6, 104, 101, 105, 103, 104, 116, 4, 100, 9, 109, 97, 114,
-  //       103, 105, 110, 84, 111, 112, 4, 60, 7, 111, 112, 97, 99, 105, 116, 121,
-  //       5, 63, -16, 0, 0, 0, 0, 0, 0};
-  //  int8_t *data = new int8_t[length];
-  //  for (int i = 0; i < length; i++) {
-  //    data[i] = a[i];
-  //  }
-  //  int paramLenData = length;
-  //  const void *paramsDataByte = reinterpret_cast<const void *>(data);
-  //  callNativeFunc(0,
-  //                 "module_name",
-  //                 "module_func",
-  //                 "call_id",
-  //                 paramsDataByte,
-  //                 paramLenData,
-  //                 false);
 }
 
 #ifdef __cplusplus

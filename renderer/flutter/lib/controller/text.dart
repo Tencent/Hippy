@@ -9,6 +9,7 @@ import '../render/text.dart';
 import '../render/tree.dart';
 import '../style/flex_define.dart';
 import '../style/prop.dart';
+import '../style/text.dart';
 import '../util/enum_util.dart';
 import '../viewmodel/text.dart';
 import '../widget/text.dart';
@@ -75,16 +76,16 @@ class TextController
   @override
   String get name => className;
 
-// @override
-// void updateExtra(TextRenderViewModel renderViewModel, Object updateExtra) {
-//   if (updateExtra is TextExtra && updateExtra.extra is TextData) {
-//     renderViewModel.padding = EdgeInsets.only(
-//         left: updateExtra.leftPadding,
-//         top: updateExtra.topPadding,
-//         bottom: updateExtra.bottomPadding,
-//         right: updateExtra.rightPadding);
-//     renderViewModel.data = updateExtra.extra as TextData;
-//     renderViewModel.update(node);
-//   }
-// }
+  @override
+  void updateExtra(TextRenderViewModel renderViewModel, Object updateExtra) {
+    if (updateExtra is TextExtra && updateExtra.extra is TextData) {
+      renderViewModel.padding = EdgeInsets.only(
+          left: updateExtra.leftPadding,
+          top: updateExtra.topPadding,
+          bottom: updateExtra.bottomPadding,
+          right: updateExtra.rightPadding);
+      renderViewModel.data = updateExtra.extra as TextData;
+      renderViewModel.update();
+    }
+  }
 }
