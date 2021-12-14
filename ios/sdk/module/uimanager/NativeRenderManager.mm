@@ -41,11 +41,7 @@ void NativeRenderManager::CreateRenderNode(std::vector<std::shared_ptr<DomNode>>
 }
 
 void NativeRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
-    for (const std::shared_ptr<DomNode> &node : nodes) {
-        int32_t tag = node->GetId();
-        const std::string &viewName = node->GetViewName();
-        [uiManager_ renderUpdateView:tag viewName:viewName props:node->GetStyleMap()];
-    }
+    [uiManager_ updateRenderNodes:std::move(nodes)];
 }
 
 void NativeRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
@@ -84,24 +80,24 @@ void NativeRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node, cons
     std::shared_ptr<DomNode> node = dom_node.lock();
     if (node) {
         if (name == hippy::kClickEvent) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [uiManager_ addClickEventListenerforNode:dom_node forView:node->GetId()];
-            });
+            [uiManager_ addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+                [uiManager addClickEventListenerforNode:dom_node forView:node->GetId()];
+            }];
         } else if (name == hippy::kLongClickEvent) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [uiManager_ addLongClickEventListenerforNode:dom_node forView:node->GetId()];
-            });
+            [uiManager_ addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+                [uiManager addLongClickEventListenerforNode:dom_node forView:node->GetId()];
+            }];
         } else if (name == hippy::kTouchStartEvent || name == hippy::kTouchMoveEvent
                    || name == hippy::kTouchEndEvent || name == hippy::kTouchCancelEvent) {
             std::string name_ = name;
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [uiManager_ addTouchEventListenerforNode:dom_node forType:std::move(name_) forView:node->GetId()];
-            });
+            [uiManager_ addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+                [uiManager addTouchEventListenerforNode:dom_node forType:std::move(name_) forView:node->GetId()];
+            }];
         } else if (name == hippy::kShow || name == hippy::kDismiss) {
             std::string name_ = name;
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [uiManager_ addShowEventListenerForNode:dom_node forType:std::move(name_) forView:node->GetId()];
-            });
+            [uiManager_ addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+                [uiManager addShowEventListenerForNode:dom_node forType:std::move(name_) forView:node->GetId()];
+            }];
         }
     }
 };

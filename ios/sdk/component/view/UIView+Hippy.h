@@ -116,6 +116,21 @@
 - (void)sendAttachedToWindowEvent;
 - (void)sendDetachedFromWindowEvent;
 
+
+#if HIPPY_DEV
+
+/**
+ Tools for debugging
+ */
+
+@property (nonatomic, strong, setter=_DEBUG_setHippyShadowView:) HippyShadowView *_DEBUG_hippyShadowView;
+
+#endif
+
+@end
+
+
+@interface UIView(HippyEvent)
 /**
  * gesture event
  */
@@ -136,17 +151,8 @@ typedef NS_ENUM(NSUInteger, HippyViewEventType) {
     HippyViewEventTypeLongClick,
 };
 - (NSInteger)addViewEvent:(HippyViewEventType)touchEvent eventListener:(onTouchEventListener)listener;
+- (onTouchEventListener)eventListenerForEventType:(HippyViewEventType)eventType;
 - (void)removeViewEvent:(HippyViewEventType)touchEvent;
 - (void)removeViewEventByID:(NSInteger)touchID;
-
-#if HIPPY_DEV
-
-/**
- Tools for debugging
- */
-
-@property (nonatomic, strong, setter=_DEBUG_setHippyShadowView:) HippyShadowView *_DEBUG_hippyShadowView;
-
-#endif
 
 @end

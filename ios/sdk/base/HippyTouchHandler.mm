@@ -128,9 +128,10 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
             if (clickView == nil || (index <= clickIndex && clickIndex != NSNotFound)) {
                 CGPoint point = [touch locationInView:view];
                 point = [view convertPoint:point toView:_rootView];
-                if (view.onTouchDown) {
+                onTouchEventListener listener = [view eventListenerForEventType:HippyViewEventTypeTouchStart];
+                if (listener) {
                     if ([self checkViewBelongToTouchHandler:view]) {
-                        view.onTouchDown(@{ @"page_x": @(point.x), @"page_y": @(point.y) });
+                        listener(point);
                     }
                 }
             }
@@ -185,9 +186,10 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
             if (clickView == nil || (index <= clickIndex && clickIndex != NSNotFound)) {
                 CGPoint point = [touch locationInView:view];
                 point = [view convertPoint:point toView:_rootView];
-                if (view.onTouchEnd) {
+                onTouchEventListener listener = [view eventListenerForEventType:HippyViewEventTypeTouchEnd];
+                if (listener) {
                     if ([self checkViewBelongToTouchHandler:view]) {
-                        view.onTouchEnd(@{ @"page_x": @(point.x), @"page_y": @(point.y) });
+                        listener(point);
                     }
                 }
             }
@@ -198,9 +200,10 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
                     UIView *theView = bundle[@"view"];
                     CGPoint point = [touch locationInView:theView];
                     point = [theView convertPoint:point toView:_rootView];
-                    if (theView.onTouchEnd) {
+                    onTouchEventListener listener = [theView eventListenerForEventType:HippyViewEventTypeTouchEnd];
+                    if (listener) {
                         if ([self checkViewBelongToTouchHandler:theView]) {
-                            theView.onTouchEnd(@{ @"page_x": @(point.x), @"page_y": @(point.y) });
+                            listener(point);
                         }
                     }
                 }
@@ -219,9 +222,10 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
         }
 
         if (clickView && clickView == _onClickView) {
-            if (!_bLongClick && clickView.onClick) {
+            onTouchEventListener listener = [clickView eventListenerForEventType:HippyViewEventTypeClick];
+            if (!_bLongClick && listener) {
                 if ([self checkViewBelongToTouchHandler:clickView]) {
-                    clickView.onClick(@{});
+                    listener({0, 0});
                 }
             }
             [self clearTimer];
@@ -264,9 +268,10 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
             if (clickView == nil || (index <= clickIndex && clickIndex != NSNotFound)) {
                 CGPoint point = [touch locationInView:view];
                 point = [view convertPoint:point toView:_rootView];
-                if (view.onTouchCancel) {
+                onTouchEventListener listener = [view eventListenerForEventType:HippyViewEventTypeTouchCancel];
+                if (listener) {
                     if ([self checkViewBelongToTouchHandler:view]) {
-                        view.onTouchCancel(@{ @"page_x": @(point.x), @"page_y": @(point.y) });
+                        listener(point);
                     }
                 }
             }
@@ -336,11 +341,12 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
             }
 
             if (clickView == nil || (index <= clickIndex && clickIndex != NSNotFound)) {
-                if (view.onTouchMove) {
+                onTouchEventListener listener = [view eventListenerForEventType:HippyViewEventTypeTouchCancel];
+                if (listener) {
                     CGPoint point = [touch locationInView:view];
                     point = [view convertPoint:point toView:_rootView];
                     if ([self checkViewBelongToTouchHandler:view]) {
-                        view.onTouchMove(@{ @"page_x": @(point.x), @"page_y": @(point.y) });
+                        listener(point);
                     }
                 }
             }
@@ -392,9 +398,10 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
 - (void)longClickTimer:(__unused NSTimer *)timer {
     if (!_bLongClick) {
         _bLongClick = YES;
-        if (_onLongClickView && _onLongClickView.onLongClick) {
+        onTouchEventListener listener = [_onLongClickView eventListenerForEventType:HippyViewEventTypeLongClick];
+        if (_onLongClickView && listener) {
             if ([self checkViewBelongToTouchHandler:_onLongClickView]) {
-                _onLongClickView.onLongClick(@{});
+                listener({0, 0});
             }
         }
     }
@@ -446,6 +453,7 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
         if ((touchInterceptEvent && findActions.count == 0) || [view isKindOfClass:NSClassFromString(@"HippyRootContentView")]) {
             break;
         } else {
+            
             if ([findActions containsObject:@"onPressIn"] && view.onPressIn) {
                 if (!result[@"onClick"]) {
                     [result setValue:@{ @"view": view, @"index": @(index) } forKey:@"onPressIn"];
@@ -457,34 +465,35 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
                 [result setValue:@{ @"view": view, @"index": @(index) } forKey:@"onPressOut"];
                 [findActions removeObject:@"onPressOut"];
             }
-
-            if ([findActions containsObject:@"onClick"] && view.onClick) {
+            onTouchEventListener listener = [view eventListenerForEventType:HippyViewEventTypeClick];
+            if ([findActions containsObject:@"onClick"] && listener) {
                 if (![view interceptTouchEvent]) {
                     [result setValue:@{ @"view": view, @"index": @(index) } forKey:@"onClick"];
                 }
                 [findActions removeObject:@"onClick"];
             }
-
-            if ([findActions containsObject:@"onLongClick"] && view.onLongClick) {
+            listener = [view eventListenerForEventType:HippyViewEventTypeLongClick];
+            if ([findActions containsObject:@"onLongClick"] && listener) {
                 [result setValue:@{ @"view": view, @"index": @(index) } forKey:@"onLongClick"];
                 [findActions removeObject:@"onLongClick"];
             }
-
-            if ([findActions containsObject:@"onTouchDown"] && view.onTouchDown) {
+            listener = [view eventListenerForEventType:HippyViewEventTypeTouchStart];
+            if ([findActions containsObject:@"onTouchDown"] && listener) {
                 [result setValue:@{ @"view": view, @"index": @(index) } forKey:@"onTouchDown"];
                 [findActions removeObject:@"onTouchDown"];
             }
-
-            if ([findActions containsObject:@"onTouchMove"] && view.onTouchMove) {
+            listener = [view eventListenerForEventType:HippyViewEventTypeTouchMove];
+            if ([findActions containsObject:@"onTouchMove"] && listener) {
                 [result setValue:@{ @"view": view, @"index": @(index) } forKey:@"onTouchMove"];
                 [findActions removeObject:@"onTouchMove"];
             }
-            if ([findActions containsObject:@"onTouchCancel"] && view.onTouchCancel) {
+            listener = [view eventListenerForEventType:HippyViewEventTypeTouchCancel];
+            if ([findActions containsObject:@"onTouchCancel"] && listener) {
                 [result setValue:@{ @"view": view, @"index": @(index) } forKey:@"onTouchCancel"];
                 [findActions removeObject:@"onTouchCancel"];
             }
-
-            if ([findActions containsObject:@"onTouchEnd"] && view.onTouchEnd) {
+            listener = [view eventListenerForEventType:HippyViewEventTypeTouchEnd];
+            if ([findActions containsObject:@"onTouchEnd"] && listener) {
                 [result setValue:@{ @"view": view, @"index": @(index) } forKey:@"onTouchEnd"];
                 [findActions removeObject:@"onTouchEnd"];
             }

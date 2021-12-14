@@ -191,7 +191,7 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 - (void)renderUpdateView:(int32_t)hippyTag
                 viewName:(const std::string &)name
                    props:(const std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>> &)styleMap;
-
+- (void)updateRenderNodes:(std::vector<std::shared_ptr<hippy::DomNode>>&&)nodes;
 - (void)renderDeleteViewFromContainer:(int32_t)hippyTag
                            forIndices:(const std::vector<int32_t> &)indices;
 
