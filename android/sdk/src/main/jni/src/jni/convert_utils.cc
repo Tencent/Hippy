@@ -22,6 +22,7 @@
 
 #include "jni/convert_utils.h"
 
+#include <memory>
 #include <tuple>
 
 #include "core/napi/v8/js_native_turbo_v8.h"
@@ -78,7 +79,8 @@ std::tuple<bool, std::string, std::shared_ptr<JNIArgs>> ConvertUtils::ConvertJSI
     // basic type
     auto base_tuple = HandleBasicType(turbo_env, type, *j_args, value);
     if (!std::get<0>(base_tuple)) {
-      return std::make_tuple(false, std::get<1>(base_tuple), nullptr);
+      return std::make_tuple(false, std::get<1>(base_tuple),
+          static_cast<std::shared_ptr<JNIArgs>>(nullptr));
     }
     if (std::get<2>(base_tuple)) {
       continue;
@@ -86,7 +88,8 @@ std::tuple<bool, std::string, std::shared_ptr<JNIArgs>> ConvertUtils::ConvertJSI
 
     // unSupport Object type
     if (kUnSupportedType == type) {
-      return std::make_tuple(false, "Unsupported type: " + type, nullptr);
+      return std::make_tuple(false, "Unsupported type: " + type,
+                             static_cast<std::shared_ptr<JNIArgs>>(nullptr));
     }
 
     // NullOrUndefined
@@ -99,13 +102,15 @@ std::tuple<bool, std::string, std::shared_ptr<JNIArgs>> ConvertUtils::ConvertJSI
     auto obj_tuple = HandleObjectType(turbo_env, module_name, method_name, type, *j_args,
                                       value, global_refs);
     if (!std::get<0>(obj_tuple)) {
-      return std::make_tuple(false, std::get<1>(obj_tuple), nullptr);
+      return std::make_tuple(false, std::get<1>(obj_tuple),
+          static_cast<std::shared_ptr<JNIArgs>>(nullptr));
     }
   }
 
   JNIEnv *env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   if (JNIEnvironment::ClearJEnvException(env)) {
-    return std::make_tuple(false, "JNI Exception occurred when convertJSIArgsToJNIArgs ", nullptr);
+    return std::make_tuple(false, "JNI Exception occurred when convertJSIArgsToJNIArgs ",
+                           static_cast<std::shared_ptr<JNIArgs>>(nullptr));
   }
 
   return std::make_tuple(true, "", jni_args);
@@ -299,7 +304,7 @@ std::tuple<bool, std::string, jobject> ConvertUtils::ToHippyMap(TurboEnv &turbo_
     if (turbo_env.context_->GetValueString(key, &str_view)) {
       key_str = StringViewUtils::ToU8StdStr(str_view);
     } else {
-      return std::make_tuple(false, "Key must be String in Map.", nullptr);
+      return std::make_tuple(false, "Key must be String in Map.", static_cast<jobject>(nullptr));
     }
 
     jobject key_j_obj = env->NewStringUTF(key_str.c_str());
@@ -309,7 +314,7 @@ std::tuple<bool, std::string, jobject> ConvertUtils::ToHippyMap(TurboEnv &turbo_
     std::shared_ptr<CtxValue> item = context->CopyArrayElement(array, i + 1);
     auto to_jobject_tuple = ToJObject(turbo_env, item);
     if (!std::get<0>(to_jobject_tuple)) {
-      return std::make_tuple(false, std::get<1>(to_jobject_tuple), nullptr);
+      return std::make_tuple(false, std::get<1>(to_jobject_tuple), static_cast<jobject>(nullptr));
     }
     jobject value_j_obj = std::get<2>(to_jobject_tuple);
     env->CallVoidMethod(obj, hippy_map_push_object, key_j_obj, value_j_obj);
@@ -374,7 +379,8 @@ std::tuple<bool, std::string, jobject> ConvertUtils::ToJObject(TurboEnv &turbo_e
   } else if (context->IsNullOrUndefined(value)) {
     result = nullptr;
   } else {
-    return std::make_tuple(false, "UnSupported Type in HippyArray or HippyMap.", nullptr);
+    return std::make_tuple(false, "UnSupported Type in HippyArray or HippyMap.",
+                           static_cast<jobject>(nullptr));
   }
   return std::make_tuple(true, "", result);
 }
@@ -574,7 +580,8 @@ std::tuple<bool,
   TDF_BASE_DLOG(INFO) << "toJsValueInArray " << signature.c_str();
 
   if (kUnSupportedType == signature) {
-    return std::make_tuple(false, "toJsValueInArray error", nullptr);
+    return std::make_tuple(false, "toJsValueInArray error",
+                           static_cast<std::shared_ptr<CtxValue>>(nullptr));
   }
 
   auto obj = env->CallObjectMethod(array, hippy_array_get, index);
@@ -603,7 +610,8 @@ std::tuple<bool,
   } else if (!obj) {
     result = turbo_env.context_->CreateNull();
   } else {
-    return std::make_tuple(false, "UnSupported Type in HippyArray or HippyMap", nullptr);
+    return std::make_tuple(false, "UnSupported Type in HippyArray or HippyMap",
+                           static_cast<std::shared_ptr<CtxValue>>(nullptr));
   }
 
   env->DeleteLocalRef(obj);
