@@ -774,9 +774,15 @@ void HPNode::layoutSingleNode(float availableWidth,
     if (!needMeasure) {
       dim.width = availableWidth;
       dim.height = availableHeight;
-    } else if (measure != nullptr && needMeasure) {
-      dim = measure(this, availableWidth, widthMeasureMode, availableHeight, heightMeasureMode,
-                    layoutContext);
+    } else if (measure != nullptr) {
+      if (layoutContext) {
+        dim = measure(this, availableWidth, widthMeasureMode, availableHeight, heightMeasureMode,
+                      layoutContext);
+      } else {
+        dim = measure(this, availableWidth, widthMeasureMode, availableHeight, heightMeasureMode,
+                      getContext());
+      }
+
     }
 
     result.dim[DimWidth] =

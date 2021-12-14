@@ -27,6 +27,7 @@ DomManager::~DomManager() = default;
 void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>> &&nodes) {
   for (const auto& node : nodes) {
     std::shared_ptr<DomNode> parent_node = dom_node_registry_.GetNode(node->GetPid());
+    TDF_BASE_DLOG(INFO) << "Dom CreateDomNodes id" << node->GetId();
     if (parent_node == nullptr) {
       // it = nodes.erase(it);
       continue;

@@ -52,6 +52,8 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
    */
   bool SetMeasureFunction(TaitankMeasureFunction measure_function);
 
+  void SetLayoutContext(void* layout_context);
+
   /**
    * @brief 获取 left 属性
    * @return left 属性
