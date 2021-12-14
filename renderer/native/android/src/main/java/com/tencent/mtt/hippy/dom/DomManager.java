@@ -32,7 +32,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 
-import com.tencent.renderer.INativeRenderer;
+import com.tencent.renderer.INativeRender;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -56,12 +56,12 @@ public class DomManager {
   final RenderManager mRenderManager;
   volatile CopyOnWriteArrayList<DomActionInterceptor> mActionInterceptors;
   final LayoutHelper mLayoutHelper;
-  private final WeakReference<INativeRenderer> nativeRendererWeakReference;
+  private final WeakReference<INativeRender> nativeRendererWeakReference;
   private volatile boolean mIsDestroyed = false;
   private volatile boolean mEnginePaused = false;
   private BatchListener mBatchListener;
 
-  public DomManager(INativeRenderer context) {
+  public DomManager(INativeRender context) {
     nativeRendererWeakReference = new WeakReference<>(context);
     mNodeRegistry = new DomNodeRegistry();
 
@@ -294,14 +294,14 @@ public class DomManager {
           }
         }
 
-        addUITask(new IDomExecutor() {
-          @Override
-          public void exec() {
-            mRenderManager
-                .createNode(hippyRootView, id, nativeParentNode.getId(), childIndex.mIndex,
-                    className, newProps);
-          }
-        });
+//        addUITask(new IDomExecutor() {
+//          @Override
+//          public void exec() {
+//            mRenderManager
+//                .createNode(hippyRootView, id, nativeParentNode.getId(), childIndex.mIndex,
+//                    className, newProps);
+//          }
+//        });
       }
     } else {
       LogUtils.d("DomManager", "Create Node DomManager Parent IS Null");
@@ -420,17 +420,17 @@ public class DomManager {
 
     final ViewIndex viewIndex = findNativeViewIndex(reallyParent, node, 0);
 
-    if (!node.isVirtual()) {
-      addUITask(new IDomExecutor() {
-        @Override
-        public void exec() {
-          mRenderManager
-              .createNode(hippyRootView, node.getId(), reallyParent.getId(), viewIndex.mIndex,
-                  node.getViewClass(),
-                  hippyMap);
-        }
-      });
-    }
+//    if (!node.isVirtual()) {
+//      addUITask(new IDomExecutor() {
+//        @Override
+//        public void exec() {
+//          mRenderManager
+//              .createNode(hippyRootView, node.getId(), reallyParent.getId(), viewIndex.mIndex,
+//                  node.getViewClass(),
+//                  hippyMap);
+//        }
+//      });
+//    }
     //step2: move child
     final ArrayList<Integer> moveIds = new ArrayList<>();
     node.markUpdated();

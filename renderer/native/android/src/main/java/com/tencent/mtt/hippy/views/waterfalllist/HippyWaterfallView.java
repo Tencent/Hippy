@@ -42,8 +42,8 @@ import com.tencent.mtt.supportui.views.recyclerview.RecyclerAdapter;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerView;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewBase;
 import com.tencent.mtt.supportui.views.recyclerview.Scroller;
-import com.tencent.renderer.INativeRenderer;
-import com.tencent.renderer.NativeRendererContext;
+import com.tencent.renderer.INativeRender;
+import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
 import java.util.ArrayList;
@@ -54,7 +54,7 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
   static final String TAG = "HippyWaterfallView";
 
   HippyWaterfallAdapter mAdapter;
-  private INativeRenderer nativeRenderer;
+  private INativeRender nativeRenderer;
   private NativeGestureDispatcher mGestureDispatcher;
   private Runnable mDispatchLayout = null;
 
@@ -81,8 +81,8 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
 
   public HippyWaterfallView(Context context) {
     super(context);
-    if (context instanceof NativeRendererContext) {
-      int instanceId = ((NativeRendererContext)context).getInstanceId();
+    if (context instanceof NativeRenderContext) {
+      int instanceId = ((NativeRenderContext)context).getInstanceId();
       nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
     }
 
@@ -100,7 +100,7 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
 
   @Override
   protected HippyWaterfallAdapter createAdapter(RecyclerView hippyRecyclerView,
-          INativeRenderer nativeRenderer) {
+          INativeRender nativeRenderer) {
     return new HippyWaterfallAdapter(this);
   }
 

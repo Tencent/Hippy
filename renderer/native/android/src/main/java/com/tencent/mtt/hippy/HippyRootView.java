@@ -32,8 +32,8 @@ import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
-import com.tencent.renderer.INativeRenderer;
-import com.tencent.renderer.NativeRendererContext;
+import com.tencent.renderer.INativeRender;
+import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -47,7 +47,7 @@ public class HippyRootView extends FrameLayout {
   protected boolean firstViewAdded = false;
 
   public HippyRootView(Context context, int instanceId, int rootId) {
-    super(new NativeRendererContext(context, instanceId));
+    super(new NativeRenderContext(context, instanceId));
 
     this.instanceId = instanceId;
     setId(rootId);
@@ -62,7 +62,7 @@ public class HippyRootView extends FrameLayout {
     if (!firstViewAdded) {
       firstViewAdded = true;
 
-      INativeRenderer nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
+      INativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
       if (nativeRenderer != null) {
         nativeRenderer.onFirstViewAdded();
       }
@@ -92,7 +92,7 @@ public class HippyRootView extends FrameLayout {
 
     if (w != oldw || h != oldh) {
       getGlobalLayoutListener().checkUpdateDimension(w, h, false, false);
-      INativeRenderer nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
+      INativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
       if (nativeRenderer != null) {
         nativeRenderer.onSizeChanged(w, h, oldw, oldh);
       }
@@ -207,7 +207,7 @@ public class HippyRootView extends FrameLayout {
       }
 
       boolean shouldRevise = (windowHeight < 0 || dimensionW == dimensionH) ? true : false;
-      INativeRenderer nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
+      INativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
       if (nativeRenderer != null) {
         nativeRenderer.updateDimension(shouldRevise, dimensionMap,
             shouldUseScreenDisplay, systemUiVisibilityChanged);

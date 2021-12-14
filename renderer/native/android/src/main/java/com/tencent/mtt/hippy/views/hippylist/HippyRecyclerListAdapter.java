@@ -34,14 +34,14 @@ import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.views.list.IRecycleItemTypeChange;
 import com.tencent.mtt.hippy.views.refresh.HippyPullHeaderView;
 import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.IStickyItemsProvider;
-import com.tencent.renderer.INativeRenderer;
+import com.tencent.renderer.INativeRender;
 import java.util.ArrayList;
 
 public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends
     Adapter<HippyRecyclerViewHolder>
     implements IRecycleItemTypeChange, IStickyItemsProvider, IItemLayoutParams {
 
-  protected final INativeRenderer hpContext;
+  protected final INativeRender hpContext;
   protected final HRCV hippyRecyclerView;
   protected final HippyItemTypeHelper hippyItemTypeHelper;
   protected int positionToCreateHolder;
@@ -49,7 +49,7 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends
   protected PullHeaderEventHelper headerEventHelper;
   protected PreloadHelper preloadHelper;
 
-  public HippyRecyclerListAdapter(HRCV hippyRecyclerView, INativeRenderer hpContext) {
+  public HippyRecyclerListAdapter(HRCV hippyRecyclerView, INativeRender hpContext) {
     this.hpContext = hpContext;
     this.hippyRecyclerView = hippyRecyclerView;
     hippyItemTypeHelper = new HippyItemTypeHelper(hippyRecyclerView);

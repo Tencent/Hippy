@@ -35,8 +35,8 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.views.common.CommonBackgroundDrawable;
 import com.tencent.mtt.hippy.views.common.CommonBorder;
 import com.tencent.mtt.hippy.views.list.HippyRecycler;
-import com.tencent.renderer.INativeRenderer;
-import com.tencent.renderer.NativeRendererContext;
+import com.tencent.renderer.INativeRender;
+import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
 @SuppressWarnings({"unused"})
@@ -83,9 +83,9 @@ public class HippyTextView extends View implements CommonBorder, HippyViewBase, 
     super.setId(id);
 
     Context context = getContext();
-    if (context instanceof NativeRendererContext) {
-      int instanceId = ((NativeRendererContext)context).getInstanceId();
-      INativeRenderer nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
+    if (context instanceof NativeRenderContext) {
+      int instanceId = ((NativeRenderContext)context).getInstanceId();
+      INativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
       if (nativeRenderer != null) {
         DomNode node = nativeRenderer.getDomManager().getNode(id);
         if (node instanceof TextNode) {
@@ -162,9 +162,9 @@ public class HippyTextView extends View implements CommonBorder, HippyViewBase, 
       }
     } catch (Throwable e) {
       Context context = getContext();
-      if (context instanceof NativeRendererContext) {
-        int instanceId = ((NativeRendererContext)context).getInstanceId();
-        INativeRenderer nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
+      if (context instanceof NativeRenderContext) {
+        int instanceId = ((NativeRenderContext)context).getInstanceId();
+        INativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
         if (nativeRenderer != null) {
           nativeRenderer.handleNativeException(new RuntimeException("hippyTextView onDraw" +
                   e.getMessage()), true);

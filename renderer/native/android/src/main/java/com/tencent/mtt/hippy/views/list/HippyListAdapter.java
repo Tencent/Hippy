@@ -28,14 +28,14 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.views.refresh.HippyPullFooterView;
 import com.tencent.mtt.hippy.views.refresh.HippyPullHeaderView;
 import com.tencent.mtt.supportui.views.recyclerview.*;
-import com.tencent.renderer.INativeRenderer;
+import com.tencent.renderer.INativeRender;
 
 import java.util.ArrayList;
 
 @SuppressWarnings("deprecation")
 public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTypeChange {
 
-  protected final INativeRenderer nativeRenderer;
+  protected final INativeRender nativeRenderer;
   private RecyclerViewBase.Recycler mRecycler;
   private HippyViewEvent onEndReachedEvent;
   private HippyViewEvent onLoadMoreEvent;
@@ -43,7 +43,7 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
   // harryguo: 给hippy sdk提供API：设置提前预加载的条目数量，默认为0
   private int mPreloadItemNum = 0;
 
-  public HippyListAdapter(RecyclerView recyclerView, INativeRenderer nativeRenderer) {
+  public HippyListAdapter(RecyclerView recyclerView, INativeRender nativeRenderer) {
     super(recyclerView);
     this.nativeRenderer = nativeRenderer;
   }

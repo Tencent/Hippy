@@ -20,16 +20,16 @@ import android.view.View;
 
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewItem;
-import com.tencent.renderer.INativeRenderer;
-import com.tencent.renderer.NativeRendererContext;
+import com.tencent.renderer.INativeRender;
+import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
 public class HippyViewUtil {
   public static RenderNode getRenderNode(View view) {
     Context context = view.getContext();
-    if (context instanceof NativeRendererContext) {
-      int instanceId = ((NativeRendererContext)view.getContext()).getInstanceId();
-      INativeRenderer nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
+    if (context instanceof NativeRenderContext) {
+      int instanceId = ((NativeRenderContext)view.getContext()).getInstanceId();
+      INativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
       //noinspection ConstantConditions
       if (nativeRenderer != null) {
         return nativeRenderer.getRenderManager().getRenderNode(getNodeId(view));

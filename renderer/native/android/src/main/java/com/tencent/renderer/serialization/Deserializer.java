@@ -15,8 +15,8 @@
  */
 package com.tencent.renderer.serialization;
 
-import com.tencent.mtt.hippy.common.HippyArray;
-import com.tencent.mtt.hippy.common.HippyMap;
+import static com.tencent.renderer.NativeRenderer.TAG;
+
 import com.tencent.mtt.hippy.serialization.exception.DataCloneOutOfRangeException;
 import com.tencent.mtt.hippy.exception.UnexpectedException;
 import com.tencent.mtt.hippy.serialization.PrimitiveValueDeserializer;
@@ -24,7 +24,7 @@ import com.tencent.mtt.hippy.serialization.SerializationTag;
 import com.tencent.mtt.hippy.serialization.StringLocation;
 import com.tencent.mtt.hippy.serialization.nio.reader.BinaryReader;
 import com.tencent.mtt.hippy.serialization.string.StringTable;
-
+import com.tencent.mtt.hippy.utils.LogUtils;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,7 +34,6 @@ import java.util.HashMap;
  */
 @SuppressWarnings("unused")
 public class Deserializer extends PrimitiveValueDeserializer {
-
   public Deserializer(BinaryReader reader) {
     this(reader, null);
   }
@@ -80,19 +79,37 @@ public class Deserializer extends PrimitiveValueDeserializer {
   }
 
   @Override
-  protected HippyMap readJSObject() {
-    //HashMap<String, Object> map = new HashMap<>();
-    HippyMap map = new HippyMap();
+  protected HashMap readJSObject() {
+    HashMap<String, Object> map = new HashMap<>();
     assignId(map);
-    int read = readProperties(map);
-    int expected = (int)reader.getVarint();
+    int read = readObjectProperties(map);
+    int expected = (int) reader.getVarint();
     if (read != expected) {
       throw new UnexpectedException("unexpected number of properties");
     }
     return map;
   }
 
-  private int readProperties(HippyMap map) {
+  /**
+   * dense array from dom value not support array properties,
+   * but should read value until END_DENSE_JS_ARRAY, otherwise will get unexpected length.
+   */
+  private int readArrayProperties() {
+    final StringLocation keyLocation = StringLocation.DENSE_ARRAY_KEY;
+    final StringLocation valueLocation = StringLocation.DENSE_ARRAY_ITEM;
+
+    SerializationTag tag;
+    int count = 0;
+    while ((tag = readTag()) != SerializationTag.END_DENSE_JS_ARRAY) {
+      count++;
+      Object key = readValue(tag, keyLocation, null);
+      Object value = readValue(valueLocation, key);
+      LogUtils.d(TAG, "readArrayProperties: key" + key + ", value=" + value);
+    }
+    return count;
+  }
+
+  private int readObjectProperties(HashMap<String, Object> map) {
     final StringLocation keyLocation = StringLocation.OBJECT_KEY;
     final StringLocation valueLocation = StringLocation.OBJECT_VALUE;
 
@@ -101,20 +118,19 @@ public class Deserializer extends PrimitiveValueDeserializer {
     while ((tag = readTag()) != SerializationTag.END_JS_OBJECT) {
       count++;
       Object key = readValue(tag, keyLocation, null);
-      if (key instanceof String) {
-        Object value = readValue(valueLocation, key);
-        map.pushObject((String)key, value);
+      Object value = readValue(valueLocation, key);
+      if (key instanceof String || key instanceof Integer) {
+        map.put(key.toString(), value);
       } else {
-        throw new AssertionError("Object key is not of String");
+        throw new AssertionError("Object key is not of String nor Integer type");
       }
     }
     return count;
   }
 
   @Override
-  protected HippyMap readJSMap() {
-    //HashMap<Object, Object> map = new HashMap<>();
-    HippyMap map = new HippyMap();
+  protected HashMap readJSMap() {
+    HashMap<Object, Object> map = new HashMap<>();
     assignId(map);
     SerializationTag tag;
     int read = 0;
@@ -122,13 +138,9 @@ public class Deserializer extends PrimitiveValueDeserializer {
       read++;
       Object key = readValue(tag, StringLocation.MAP_KEY, null);
       Object value = readValue(StringLocation.MAP_VALUE, key);
-      if (key == null) {
-        map.pushObject(null, value);
-      } else {
-        map.pushObject(key.toString(), value);
-      }
+      map.put(key, value);
     }
-    int expected = (int)reader.getVarint();
+    int expected = (int) reader.getVarint();
     if (2 * read != expected) {
       throw new UnexpectedException("unexpected number of entries");
     }
@@ -136,22 +148,27 @@ public class Deserializer extends PrimitiveValueDeserializer {
   }
 
   @Override
-  protected HippyArray readDenseArray() {
-    int length = (int)reader.getVarint();
-    if (length < 0) {
-      throw new DataCloneOutOfRangeException(length);
+  protected ArrayList readDenseArray() {
+    int totalLength = (int)reader.getVarint();
+    if (totalLength < 0) {
+      throw new DataCloneOutOfRangeException(totalLength);
     }
-    //ArrayList array = new ArrayList(length);
-    HippyArray array = new HippyArray();
+    ArrayList array = new ArrayList(totalLength);
     assignId(array);
-    for (int i = 0; i < length; i++) {
+    for (int i = 0; i < totalLength; i++) {
       SerializationTag tag = readTag();
-      Object object = readValue(tag, StringLocation.DENSE_ARRAY_ITEM, i);
-      array.setObject(i, object);
+      if (tag != SerializationTag.THE_HOLE) {
+        array.add(readValue(tag, StringLocation.DENSE_ARRAY_ITEM, i));
+      }
     }
 
-    int read = (int)reader.getVarint();
-    if (length != read) {
+    int propsLength = readArrayProperties();
+    int expected = (int) reader.getVarint();
+    if (propsLength != expected) {
+      throw new UnexpectedException("unexpected number of properties");
+    }
+    expected = (int) reader.getVarint();
+    if (totalLength != expected) {
       throw new AssertionError("length ambiguity");
     }
     return array;

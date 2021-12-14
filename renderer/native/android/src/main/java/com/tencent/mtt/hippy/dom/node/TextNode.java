@@ -39,7 +39,7 @@ import com.tencent.mtt.hippy.views.text.HippyTextView;
 
 import com.tencent.mtt.supportui.adapters.image.IDrawableTarget;
 import com.tencent.mtt.supportui.adapters.image.IImageLoaderAdapter;
-import com.tencent.renderer.INativeRenderer;
+import com.tencent.renderer.INativeRender;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -400,11 +400,11 @@ public class TextNode extends StyleNode {
   }
 
   protected HippyFontScaleAdapter mFontScaleAdapter;
-  protected INativeRenderer nativeRenderer;
+  protected INativeRender nativeRenderer;
   protected IImageLoaderAdapter mImageAdapter;
 
   @Override
-  public void layoutBefore(INativeRenderer nativeRenderer) {
+  public void layoutBefore(INativeRender nativeRenderer) {
     super.layoutBefore(nativeRenderer);
 
     this.nativeRenderer = nativeRenderer;
@@ -614,7 +614,7 @@ public class TextNode extends StyleNode {
     }
   };
 
-  public void layoutAfter(INativeRenderer nativeRenderer) {
+  public void layoutAfter(INativeRender nativeRenderer) {
     if (!isVirtual() && nativeRenderer != null) {
       LogUtils.d("TextNode",
           "measure:layoutAfter" + " w: " + getLayoutWidth() + " h: " + getLayoutHeight());

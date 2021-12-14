@@ -18,8 +18,8 @@ package com.tencent.mtt.hippy.views.custom;
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
-import com.tencent.renderer.INativeRenderer;
-import com.tencent.renderer.NativeRendererContext;
+import com.tencent.renderer.INativeRender;
+import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
 import android.content.Context;
@@ -45,9 +45,9 @@ public class HippyCustomPropsController extends HippyViewController {
     }
 
     Context context = view.getContext();
-    if (context instanceof NativeRendererContext) {
-      int instanceId = ((NativeRendererContext)view.getContext()).getInstanceId();
-      INativeRenderer nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
+    if (context instanceof NativeRenderContext) {
+      int instanceId = ((NativeRenderContext)view.getContext()).getInstanceId();
+      INativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
       //noinspection ConstantConditions
       if (nativeRenderer == null) {
         return;

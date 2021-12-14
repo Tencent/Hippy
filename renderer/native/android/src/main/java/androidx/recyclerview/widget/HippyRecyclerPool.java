@@ -22,17 +22,17 @@ import android.view.ViewGroup;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewHolder;
 import com.tencent.mtt.hippy.views.hippylist.NodePositionHelper;
-import com.tencent.renderer.INativeRenderer;
+import com.tencent.renderer.INativeRender;
 
 public class HippyRecyclerPool extends RecyclerView.RecycledViewPool {
 
   private final View recyclerView;
   private final HippyRecyclerExtension viewCacheExtension;
-  private final INativeRenderer hpContext;
+  private final INativeRender hpContext;
   private final NodePositionHelper nodePositionHelper;
   private IHippyViewAboundListener viewAboundListener;
 
-  public HippyRecyclerPool(INativeRenderer hpContext, View recyclerView,
+  public HippyRecyclerPool(INativeRender hpContext, View recyclerView,
       HippyRecyclerExtension viewCacheExtension, NodePositionHelper nodePositionHelper) {
     this.nodePositionHelper = nodePositionHelper;
     this.hpContext = hpContext;

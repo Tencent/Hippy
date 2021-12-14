@@ -20,8 +20,8 @@ import android.view.ViewGroup;
 
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.utils.PixelUtil;
-import com.tencent.renderer.INativeRenderer;
-import com.tencent.renderer.NativeRendererContext;
+import com.tencent.renderer.INativeRender;
+import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
 @SuppressWarnings({"deprecation", "unused"})
@@ -85,9 +85,9 @@ public class HippyScrollViewEventHelper {
     event.pushMap("layoutMeasurement", layoutMeasurement);
 
     Context context = view.getContext();
-    if (context instanceof NativeRendererContext) {
-      int instanceId = ((NativeRendererContext)view.getContext()).getInstanceId();
-      INativeRenderer nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
+    if (context instanceof NativeRenderContext) {
+      int instanceId = ((NativeRenderContext)view.getContext()).getInstanceId();
+      INativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
       //noinspection ConstantConditions
       if (nativeRenderer != null) {
         nativeRenderer.dispatchUIComponentEvent(view.getId(), scrollEventType, event);

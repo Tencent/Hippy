@@ -18,9 +18,10 @@ package com.tencent.renderer;
 import android.content.Context;
 import android.content.ContextWrapper;
 
-public final class NativeRendererContext extends ContextWrapper {
+public final class NativeRenderContext extends ContextWrapper {
   private int instanceId;
-  public NativeRendererContext(Context context, int instanceId) {
+
+  public NativeRenderContext(Context context, int instanceId) {
     super(context);
     this.instanceId = instanceId;
   }

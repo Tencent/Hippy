@@ -13,10 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tencent.hippy.support;
+package com.tencent.renderer;
 
-public interface IFrameworkProxy {
-  void onFirstViewAdded();
+import java.util.ArrayList;
 
-  void handleNativeException(Exception exception, boolean haveCaught);
+public interface INativeRenderDelegate {
+
+  void createNode(ArrayList list);
+
+  void updateNode(ArrayList list);
+
+  void deleteNode(ArrayList list);
+
+  void startBatch();
+
+  void endBatch();
+
+  void handleRenderException(Exception exception);
 }

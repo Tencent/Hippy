@@ -20,11 +20,10 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
-
 import android.view.ViewGroup;
 import com.tencent.hippy.support.HippyBaseController;
 import com.tencent.hippy.support.IJSFrameworkProxy;
-import com.tencent.hippy.support.INativeRendererProxy;
+import com.tencent.hippy.support.INativeRenderProxy;
 import com.tencent.mtt.hippy.adapter.device.HippyDeviceAdapter;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.dom.DomManager;
@@ -59,7 +58,6 @@ import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @SuppressWarnings({"deprecation", "unused"})
@@ -283,24 +281,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     return null;
-  }
-
-  @Override
-  public void onSizeChanged(int w, int h, int oldw, int oldh) {
-    if (mEngineContext == null) {
-      return;
-    }
-
-    HippyModuleManager moduleManager = mEngineContext.getModuleManager();
-    if (moduleManager != null) {
-      HippyMap hippyMap = new HippyMap();
-      hippyMap.pushDouble("width", PixelUtil.px2dp(w));
-      hippyMap.pushDouble("height", PixelUtil.px2dp(h));
-      hippyMap.pushDouble("oldWidth", PixelUtil.px2dp(oldw));
-      hippyMap.pushDouble("oldHeight", PixelUtil.px2dp(oldh));
-      moduleManager.getJavaScriptModule(EventDispatcher.class)
-          .receiveNativeEvent("onSizeChanged", hippyMap);
-    }
   }
 
   @Override
@@ -642,8 +622,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     int rootId = rootView.getId();
-    mEngineContext.onInstanceLoad();
-
     HippyMap launchParams = loadParams.jsParams;
     if (!mDebugMode) {
       if (jsBundleLoader != null) {
@@ -730,7 +708,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     private String componentName;
     private final HippyModuleManager mModuleManager;
     private final HippyBridgeManager mBridgeManager;
-    private INativeRendererProxy nativeRendererProxy;
+    private INativeRenderProxy nativeRendererProxy;
     volatile CopyOnWriteArrayList<HippyEngineLifecycleEventListener> mEngineLifecycleEventListeners;
 
     public HippyEngineContextImpl()
@@ -741,7 +719,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
           mServerHost, mGroupId, mThirdPartyAdapter, v8InitParams);
       try {
         Class nativeRendererClass = Class.forName("com.tencent.renderer.NativeRenderer");
-        nativeRendererProxy = (INativeRendererProxy)(nativeRendererClass.newInstance());
+        nativeRendererProxy = (INativeRenderProxy)(nativeRendererClass.newInstance());
         List<Class<? extends HippyBaseController>> controllers = null;
         for (HippyAPIProvider hippyPackage : mAPIProviders) {
           if (controllers == null) {
@@ -837,9 +815,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
     @Override
     public void onInstanceLoad() {
-      if (nativeRendererProxy != null) {
-        nativeRendererProxy.onInstanceLoad();
-      }
+
     }
 
     @Override
@@ -908,57 +884,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
       return rootView;
     }
 
-    @Override
-    public void createNode(int rootId, HippyArray hippyArray) {
-      if (nativeRendererProxy != null) {
-        nativeRendererProxy.createNode(rootId, hippyArray);
-      }
-    }
-
-    @Override
-    public void updateNode(int rootId, HippyArray updateArray) {
-      if (nativeRendererProxy != null) {
-        nativeRendererProxy.updateNode(rootId, updateArray);
-      }
-    }
-
-    @Override
-    public void deleteNode(int rootId, HippyArray deleteArray) {
-      if (nativeRendererProxy != null) {
-        nativeRendererProxy.deleteNode(rootId, deleteArray);
-      }
-    }
-
-    @Override
-    public void callUIFunction(HippyArray hippyArray, Promise promise) {
-      if (nativeRendererProxy != null) {
-        nativeRendererProxy.callUIFunction(hippyArray, promise);
-      }
-    }
-
-    @Override
-    public void measureInWindow(int id, Promise promise) {
-      if (nativeRendererProxy != null) {
-        nativeRendererProxy.measureInWindow(id, promise);
-      }
-    }
-
-    @Override
-    public void startBatch() {
-      if (nativeRendererProxy != null) {
-        nativeRendererProxy.startBatch();
-      }
-    }
-
-    @Override
-    public void endBatch() {
-      if (nativeRendererProxy != null) {
-        nativeRendererProxy.endBatch();
-      }
-    }
-
     public ViewGroup createRootView(Context context) {
-      assert nativeRendererProxy != null;
       rootView = nativeRendererProxy.createRootView(context);
       return rootView;
     }

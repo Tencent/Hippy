@@ -22,7 +22,7 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 
 import com.tencent.mtt.hippy.utils.LogUtils;
-import com.tencent.renderer.INativeRenderer;
+import com.tencent.renderer.INativeRender;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
