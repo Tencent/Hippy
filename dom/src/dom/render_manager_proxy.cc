@@ -13,6 +13,7 @@ RenderManagerProxy::RenderManagerProxy(std::shared_ptr<RenderManager> render_man
 void RenderManagerProxy::CreateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   std::vector<std::shared_ptr<DomNode>> nodes_to_create;
   for (const auto& node : nodes) {
+    TDF_BASE_DLOG(INFO) << "Proxy CreateDomNodes id" << node->GetId();
     node->SetIsJustLayout(ComputeIsLayoutOnly(node));
 
     if (!node->IsJustLayout() && !node->IsVirtual() && UpdateRenderInfo(node)) {
@@ -31,6 +32,7 @@ void RenderManagerProxy::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&
   for (const auto& node : nodes) {
     bool old_just_layout = node->IsJustLayout();
     node->SetIsJustLayout(ComputeIsLayoutOnly(node));
+    TDF_BASE_DLOG(INFO) << "Proxy UpdateDomNode id" << node->GetId();
     if (old_just_layout && !node->IsJustLayout()) {
       if (!node->IsVirtual() && UpdateRenderInfo(node)) {
         nodes_to_create.push_back(node);
