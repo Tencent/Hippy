@@ -134,8 +134,7 @@ NSString *const HippyDOMParamsKeyPath = @"path";
     }
     dispatch_async(dispatch_get_main_queue(), ^{
         HippyVirtualNode *node = [manager nodeForHippyTag:nodeId];
-        HippyVirtualNode *rootNode = [manager nodeForHippyTag:[manager rootHippyTag]];
-        [self->_domModel domGetBoxModelJSONWithNode:node rootNode:rootNode completion:^(NSDictionary * rspObject) {
+        [self->_domModel domGetBoxModelJSONWithNode:node completion:^(NSDictionary * rspObject) {
             [self handleRspDataWithCmd:command dataJSON:rspObject completion:completion];
         }];
     });
