@@ -260,9 +260,9 @@
 
 > 最低支持版本 2.10.0
 
-[Hippy-React 范例](https://github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/components/Text/index.jsx)
+[Hippy-React 范例](https://github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-react-demo/src/components/Text/index.jsx)
 
-[Hippy-Vue 范例](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-p.vue)
+[Hippy-Vue 范例](https://github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/components/demos/demo-p.vue)
 
 文字阴影半径
 

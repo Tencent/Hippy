@@ -21,6 +21,6 @@ JSI 并非适用于所有场景:
 
 ## 使用例子
 
-[HippyReact Demo](https://github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/externals/Turbo/index.jsx)
+[HippyReact Demo](https://github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-react-demo/src/externals/Turbo/index.jsx)
 
-[HippyVue Demo](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-turbo.vue)
+[HippyVue Demo](https://github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/components/demos/demo-turbo.vue)

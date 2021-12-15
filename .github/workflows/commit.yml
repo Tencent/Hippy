@@ -12,7 +12,7 @@ jobs:
       - name: setup-node
         uses: actions/setup-node@master
         with:
-          node-version: 16.x
+          node-version: 14.x
       - name: Install
         run: npm install commitlint-plugin-function-rules@1.4.0 @commitlint/cli@15.0.0 @commitlint/config-conventional@15.0.0 @commitlint/lint@15.0.0 @commitlint/prompt-cli@15.0.0 --save
       - name: commitlint

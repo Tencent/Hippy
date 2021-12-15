@@ -1,24 +1,22 @@
 # 开始接入
 
-Hippy 已经提供了完整的[前端和终端范例](//github.com/Tencent/Hippy/tree/master/framework/js/examples)，可直接基于我们现有的范例开始 App 开发。若想快速体验 Hippy，可按照 [README 步骤](https://github.com/Tencent/Hippy/blob/master/README.zh_CN.md#-%E5%BC%80%E5%A7%8B) 将 DEMO 运行起来 。
+Hippy 采用 `monorepo` 进行代码管理，版本前端和终端统一，前端可以直接引入对应的 NPM 包，终端可通过发布分支源码接入或通过对应的包管理仓库引入。
 
-如果要在已有的 App 里整合 Hippy，请继续阅读下面的`终端集成`章节。需要提醒的是，在 Hippy 体系下，终端开发转变为`平台开发`，前端开发变成`业务开发`，`平台开发`提供通用的能力，供`业务开发`完成实际交互。
+Hippy 已经提供了完整的[前端和终端范例](//github.com/Tencent/Hippy/tree/master/framework/js/examples)，可直接基于我们现有的范例开始 App 开发。若想快速体验 Hippy，可按照 [README 步骤](https://github.com/Tencent/Hippy/blob/master/README.zh_CN.md#-%E5%BC%80%E5%A7%8B) 将 DEMO 运行起来 。 如果要在已有的 App 里整合 Hippy，请继续阅读下面的`终端集成`章节。
 
-# 终端集成
+# 终端接入
 
-如果要接入 Hippy 到现有终端项目，请参考 [Android](android/integration.md) 和 [iOS](ios/integration.md) 集成教程。
+如果要接入 Hippy 到现有终端项目，请参考 [Android集成](android/integration.md) 和 [iOS集成](ios/integration.md) 教程。
 
 # 前端接入
 
-Hippy 同时支持 React 和 Vue 两种语法框架，通过 [@hippy/react](//www.npmjs.com/package/@hippy/react) 和 [@hippy/vue](//www.npmjs.com/package/@hippy/vue) 两个包提供实现。
-
-> 从工程上我们依然称呼它们为 `hippy-react` 和 `hippy-vue`。
+Hippy 同时支持 React 和 Vue 两种 UI 框架，通过 [@hippy/react](//www.npmjs.com/package/@hippy/react) 和 [@hippy/vue](//www.npmjs.com/package/@hippy/vue) 两个包提供实现。
 
 ## hippy-react
 
 [[hippy-react 介绍]](hippy-react/introduction.md) [[范例工程]](//github.com/Tencent/Hippy/tree/master/framework/js/examples/hippy-react-demo)
 
-hippy-react 工程暂时只能通过手工配置初始化（后期会提供基于 [yeoman](//yeoman.io/) 的脚手架），建议直接 clone 范例工程并基于它进行修改。
+hippy-react 工程暂时只能通过手工配置初始化，建议直接 clone 范例工程并基于它进行修改。
 
 当然，也可以从头开始进行配置。
 
@@ -219,7 +217,7 @@ hippy-vue 相对简单很多，hippy-vue 只是 [Vue](//vuejs.org) 在终端上�
 
 ### hippy-vue 入口文件
 
-hippy-cli 初始化的项目自带了一个 [Web 端入口文件](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/main.js)，可以保留着用来启动 Web 端网页，但是因为 hippy-vue 的启动参数不一样，需要专门的 [终端入口文件](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/main-native.js)来加载一些终端上用到的模块。
+hippy-cli 初始化的项目自带了一个 [Web 端入口文件](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/main.js)，可以保留着用来启动 Web 端网页，但是因为 hippy-vue 的启动参数不一样，需要专门的 [终端入口文件](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/main-native.js)来加载一些终端上用到的模块。
 
 ```js
 import Vue from 'vue';
@@ -294,7 +292,7 @@ setApp(app);
 
 ### hippy-vue npm script
 
-最后在 [package.json](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/package.json#L13) 中补上几个快速的 npm 脚本就可以了，这里以 `hippy:`开头做好了范例，这里顺道做了一个到 [hippy-debug-server](//www.npmjs.com/package/hippy-debug-server) 的快速启动命令。
+最后在 [package.json](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/package.json#L13) 中补上几个快速的 npm 脚本就可以了，这里以 `hippy:`开头做好了范例，这里顺道做了一个到 [hippy-debug-server](//www.npmjs.com/package/hippy-debug-server) 的快速启动命令。
 
 ```json
   "scripts": {
