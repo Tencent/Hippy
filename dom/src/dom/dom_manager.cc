@@ -110,15 +110,8 @@ void DomManager::EndBatch() {
     batch_operation();
   }
   add_listener_operations_.clear();
-  layout_changed_nodes_.clear();
   // 触发布局计算
-  root_node_->DoLayout();
-  if (!render_manager_) {
-      return;
-  }
-  if (!layout_changed_nodes_.empty()) {
-      render_manager_->UpdateLayout(layout_changed_nodes_);
-  }
+  DoLayout();
   render_manager_->Batch();
 }
 
@@ -177,6 +170,18 @@ void DomManager::SetRootNode(const std::shared_ptr<DomNode> &root_node) {
     }
     root_node_ = root_node;
     dom_node_registry_.AddNode(root_node);
+  }
+}
+
+void DomManager::DoLayout() {
+  layout_changed_nodes_.clear();
+  // 触发布局计算
+  root_node_->DoLayout();
+  if (!render_manager_) {
+    return;
+  }
+  if (!layout_changed_nodes_.empty()) {
+    render_manager_->UpdateLayout(layout_changed_nodes_);
   }
 }
 
