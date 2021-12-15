@@ -46,7 +46,7 @@ class DomManager {
   void RemoveEventListener(uint32_t id, const std::string &name, bool use_capture);
   void CallFunction(uint32_t id, const std::string &name,
                     const DomValue &param, const CallFunctionCallback &cb);
-
+  void AddListenerOperation(std::shared_ptr<DomNode> node, const std::string& name);
   std::tuple<float, float> GetRootSize();
   void SetRootSize(float width, float height);
   void AddLayoutChangedNode(const std::shared_ptr<DomNode> &node);
@@ -72,6 +72,7 @@ class DomManager {
 
   using DomOperation = std::function<void(void)>;
   std::vector<DomOperation> batched_operations_;
+  std::vector<DomOperation> add_listener_operations_;
   std::vector<std::shared_ptr<DomNode>> layout_changed_nodes_;
 };
 

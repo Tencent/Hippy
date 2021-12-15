@@ -116,9 +116,7 @@ uint32_t DomNode::AddEventListener(const std::string &name, bool use_capture,
     auto dom_manager = dom_manager_.lock();
     TDF_BASE_DCHECK(dom_manager);
     if (dom_manager) {
-      auto render_manager = dom_manager->GetRenderManager();
-      TDF_BASE_DCHECK(render_manager);
-      render_manager->AddEventListener(shared_from_this(), name);
+      dom_manager->AddListenerOperation(shared_from_this(), name);
     }
   }
   if (use_capture) {

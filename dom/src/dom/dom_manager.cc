@@ -105,6 +105,11 @@ void DomManager::EndBatch() {
   for (auto& batch_operation : batched_operations_) {
     batch_operation();
   }
+  batched_operations_.clear();
+  for (auto& batch_operation : add_listener_operations_) {
+    batch_operation();
+  }
+  add_listener_operations_.clear();
   layout_changed_nodes_.clear();
   // 触发布局计算
   root_node_->DoLayout();
@@ -142,6 +147,13 @@ void DomManager::CallFunction(uint32_t id, const std::string &name,
     return;
   }
   node->CallFunction(name, param, cb);
+}
+
+void DomManager::AddListenerOperation(std::shared_ptr<DomNode> node, const std::string& name) {
+  add_listener_operations_.emplace_back([this, node, name]() {
+    TDF_BASE_DCHECK(render_manager_);
+    render_manager_->AddEventListener(node, name);
+  });
 }
 
 std::tuple<float, float> DomManager::GetRootSize() {
