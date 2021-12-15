@@ -22,6 +22,9 @@ const uiEventKeyMap = {
 
 // 兼容 hippy2.0，hippy3.0 放量一段时间后可删除
 function HandleEventListener(node) {
+  if (!node.props) {
+    return;
+  }
   for (const [key, value] of Object.entries(node.props)) {
     if ((gestureKeyMap[key] || uiEventKeyMap[key]) && value === true) {
       let name;
@@ -79,7 +82,7 @@ Hippy.document = {
   deleteNode(rootViewId, queue) {
     global.ConsoleModule.debug(`rootViewId = ${rootViewId}`);
     global.ConsoleModule.debug(`deleteNode queue = ${JSON.stringify(queue)}`);
-    queue.forEach(each => HandleEventListener(each));
+    // queue.forEach(each => HandleEventListener(each));
     UIManagerModule.DeleteNodes(rootViewId, queue);
     // Hippy.bridge.callNative('UIManagerModule', 'deleteNode', rootViewId, queue);
   },
