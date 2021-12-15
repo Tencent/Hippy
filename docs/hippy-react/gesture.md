@@ -69,7 +69,7 @@ render()
 
 ## 事件冒泡
 
-[[事件冒泡范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/ListView)
+[[事件冒泡范例]](//github.com/Tencent/Hippy/tree/master/framework/js/examples/hippy-react-demo/src/components/ListView)
 
 点击事件和触屏事件均可以在回调函数中定义是否需要冒泡该事件到上层组件，点击或触屏事件发生时，终端会寻找该触屏点下声明了要处理该事件的最小控件：
 
@@ -144,7 +144,7 @@ new Hippy({
 
 > 最低支持版本 2.11.5
 
-[[事件捕获范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/ListView)
+[[事件捕获范例]](//github.com/Tencent/Hippy/tree/master/framework/js/examples/hippy-react-demo/src/components/ListView)
 
 点击事件和触屏事件支持事件捕获，如需注册捕获阶段的事件处理函数，则应在目标元素事件名添加 `Capture` 后缀，如 `onClickCapture`、`onTouchDownCapture`。
 

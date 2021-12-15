@@ -4,7 +4,7 @@
 
 ## 继承 ModuleBase
 
-在 [core/modules/](//github.com/Tencent/Hippy/tree/master/core/modules) 下创建 test-module.h
+在 [core/modules/](//github.com/Tencent/Hippy/tree/master/framework/js/core/modules) 下创建 test-module.h
 
 ```cpp
 #ifndef CORE_MODULES_TEST_MODULE_H_
@@ -23,7 +23,7 @@ class TestModule : public ModuleBase {
 #endif // CORE_MODULES_TEST_MODULE_H_
 ```
 
-在 [core/modules/](//github.com/Tencent/Hippy/tree/master/core/modules) 下创建 test-module.cc
+在 [core/modules/](//github.com/Tencent/Hippy/tree/master/framework/js/core/modules) 下创建 test-module.cc
 
 ```cpp
 #include "core/modules/module-register.h"
@@ -54,7 +54,7 @@ void TestModule::Print(const hippy::napi::CallbackInfo& info) {
 
 # JS 桥接
 
-双平台通用模块一般放在 [core/js/global](//github.com/Tencent/Hippy/tree/master/core/js/global) 下，我们在 global 下 增加 TestModule.js
+双平台通用模块一般放在 [core/js/global](//github.com/Tencent/Hippy/tree/master/framework/js/core/js/global) 下，我们在 global 下 增加 TestModule.js
 
 ```js
 const TestModule = internalBinding('TestModule');
@@ -62,7 +62,7 @@ const TestModule = internalBinding('TestModule');
 global.TestModule = TestModule;
 ```
 
-[core/js/entry/](//github.com/Tencent/Hippy/tree/master/core/js/entry) 下双平台 hippy.js 里增加
+[core/js/entry/](//github.com/Tencent/Hippy/tree/master/framework/js/core/js/entry) 下双平台 hippy.js 里增加
 
 ```js
 require('../../global/TestModule.js');
