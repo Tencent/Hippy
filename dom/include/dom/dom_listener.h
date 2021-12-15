@@ -9,15 +9,15 @@
 namespace hippy {
 inline namespace dom {
 
-constexpr char kTouchStartEvent[] = "TouchStart";
-constexpr char kTouchMoveEvent[] = "TouchMove";
-constexpr char kTouchEndEvent[] = "TouchEnd";
-constexpr char kTouchCancelEvent[] = "TouchCancel";
-constexpr char kLayoutEvent[] = "Layout";
-constexpr char kClickEvent[] = "Click";
-constexpr char kLongClickEvent[] = "LongClick";
-constexpr char kShow[] = "Show";
-constexpr char kDismiss[] = "Dismiss";
+constexpr char kClickEvent[] = "click";
+constexpr char kLongClickEvent[] = "longclick";
+constexpr char kTouchStartEvent[] = "touchstart";
+constexpr char kTouchMoveEvent[] = "tourchmove";
+constexpr char kTouchEndEvent[] = "touchend";
+constexpr char kTouchCancelEvent[] = "touchcancel";
+constexpr char kLayoutEvent[] = "layout";
+constexpr char kShowEvent[] = "show";
+constexpr char kDismissEvent[] = "dismiss";
 
 using EventCallback = std::function<void(const std::shared_ptr<DomEvent>&)>;
 using CallFunctionCallback = std::function<std::any(const std::any&)>;
