@@ -463,10 +463,10 @@ JSStringRef JSCCtx::CreateJSCString(const unicode_string_view& str_view) {
       break;
     }
     case unicode_string_view::Encoding::Utf8: {
-      std::string aaa(
+      std::string temp(
           reinterpret_cast<const char*>(str_view.utf8_value().c_str()),
           str_view.utf8_value().length());
-      ret = JSStringCreateWithUTF8CString(aaa.c_str());
+      ret = JSStringCreateWithUTF8CString(temp.c_str());
       break;
     }
     case unicode_string_view::Encoding::Utf16: {
