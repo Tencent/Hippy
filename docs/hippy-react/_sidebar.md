@@ -4,7 +4,7 @@
 * [组件](hippy-react/components.md)
 * [模块](hippy-react/modules.md)
 * [样式](hippy-react/style.md)
-* [终端事件](hippy-react/native-event.md)
+* [事件](hippy-react/native-event.md)
 * [动画方案](hippy-react/animation.md)
 * [手势系统](hippy-react/gesture.md)
 * [自定义组件和模块](hippy-react/customize.md)

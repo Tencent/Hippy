@@ -1,12 +1,12 @@
 <!-- markdownlint-disable no-duplicate-header -->
 
-# 终端能力
+# 模块
 
 hippy-vue 通过在 Vue 上绑定了一个 `Native` 属性，实现获取终端设备信息、以及调用终端模块。也可以用来监测是否在 Hippy 环境下运行。
 
 > 对应 Demo: [demo-vue-native.vue](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-vue-native.vue)
 
-# Vue.Native 获取终端信息
+# 获取终端信息
 
 它无需任何方法，直接取值即可。
 
@@ -318,7 +318,7 @@ console.log(Vue.Native.getElemCss(this.demon1Point)) // => { height: 80, left: 0
 
 `(ref) => Promise<{top: number, left: number, right: number, bottom: number, width: number, height: number}>`
 
-> * Promise resolve 的参数可以获取到引用组件在 App 窗口范围内的坐标值和宽高，如果出错会返回 { top: -1, left: -1, right: -1, bottom: -1, width: -1, height: -1 }
+> * Promise resolve 的参数可以获取到引用组件在 App 窗口范围内的坐标值和宽高，如果出错或 [节点被优化（仅在Android）](hippy-vue/components?id=样式内特殊属性) 会返回 { top: -1, left: -1, right: -1, bottom: -1, width: -1, height: -1 }
 
 ---
 
