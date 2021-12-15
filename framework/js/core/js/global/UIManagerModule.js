@@ -22,10 +22,11 @@ const uiEventKeyMap = {
 
 // 兼容 hippy2.0，hippy3.0 放量一段时间后可删除
 function HandleEventListener(node) {
-  for (const [key, value] of Object.entries(node)) {
-    if (typeof value === 'function') {
+  for (const [key, value] of Object.entries(node.props)) {
+    if ((gestureKeyMap[key] || uiEventKeyMap[key]) && value === true) {
       let name;
       const { id } = node;
+      global.ConsoleModule.debug(`HandleEventListener id = ${id}, key = ${key}`);
       if (gestureKeyMap[key]) {
         name = gestureKeyMap[key];
         const {
