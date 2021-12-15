@@ -61,5 +61,7 @@ void CreateNativeRenderDelegate(JNIEnv* j_env,
                                 jobject j_obj,
                                 jlong j_runtime_id);
 
+void UpdateRootSize(JNIEnv* j_env, jobject j_obj, jlong j_runtime_id, jint width, jint height);
+
 }  // namespace bridge
 }  // namespace hippy

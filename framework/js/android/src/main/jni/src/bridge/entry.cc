@@ -79,6 +79,11 @@ REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              "(J)V",
              CreateNativeRenderDelegate)
 
+REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
+             "updateRootSize",
+             "(JII)V",
+             UpdateRootSize)
+
 using unicode_string_view = tdf::base::unicode_string_view;
 using u8string = unicode_string_view::u8string;
 using RegisterMap = hippy::base::RegisterMap;
@@ -597,9 +602,25 @@ void CreateNativeRenderDelegate(JNIEnv* j_env, jobject j_object, jlong j_runtime
     return;
   }
 
-  std::shared_ptr<DomManager> dom_manager = runtime->GetScope()->GetDomManager();
   std::shared_ptr<RenderManager> render_manager = std::make_shared<HippyRenderManager>(std::make_shared<JavaRef>(j_env, j_object));
+  runtime->GetScope()->SetRenderManager(render_manager);
+  std::shared_ptr<DomManager> dom_manager = runtime->GetScope()->GetDomManager(); 
   dom_manager->SetRenderManager(render_manager);
+}
+
+void UpdateRootSize(JNIEnv* j_env, jobject j_object, jlong j_runtime_id, jint j_width, jint j_height) {
+  std::shared_ptr<Runtime> runtime = Runtime::Find(j_runtime_id);
+  if (!runtime) {
+    TDF_BASE_DLOG(WARNING) << "UpdateRootSize j_runtime_id invalid";
+    return;
+  }
+
+  std::shared_ptr<DomManager> dom_manager = runtime->GetScope()->GetDomManager();
+  if(dom_manager == nullptr) {
+    TDF_BASE_DLOG(WARNING) << "UpdateRootSize dom_manager is nullptr";
+    return;
+  }
+  dom_manager->SetRootSize(j_width, j_height);
 }
 
 }  // namespace bridge
