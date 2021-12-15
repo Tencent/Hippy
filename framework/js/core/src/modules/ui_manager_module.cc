@@ -229,7 +229,7 @@ void BindClickEvent(const std::shared_ptr<Ctx> &context, const std::string &name
   int32_t id = dom_node->GetId();
   // dom_node 持有 func
   dom_node->AddEventListener(name,
-                             false,
+                             true,
                              [weak_context, func, id](const std::shared_ptr<DomEvent> &event) {
                                auto context = weak_context.lock();
                                if (!context) {
@@ -249,7 +249,7 @@ void BindTouchEvent(const std::shared_ptr<Ctx> &context, const std::string &name
                     const std::shared_ptr<CtxValue> &func) {
   std::weak_ptr<Ctx> weak_context = context;
   int32_t id = dom_node->GetId();
-  dom_node->AddEventListener(name, false, [weak_context, func, id]
+  dom_node->AddEventListener(name, true, [weak_context, func, id]
       (const std::shared_ptr<DomEvent> &event) {
     auto context = weak_context.lock();
     if (!context) {
@@ -279,7 +279,7 @@ void BindTouchEvent(const std::shared_ptr<Ctx> &context, const std::string &name
 //  } else {
 //    TDF_BASE_NOTREACHED();
 //  }
-//  dom_node->AddEventListener(event, false, [weak_context, func, name, id]
+//  dom_node->AddEventListener(event, true, [weak_context, func, name, id]
 //      (const std::shared_ptr<DomEvent> &event) {
 //    auto context = weak_context.lock();
 //    if (!context) {
@@ -306,7 +306,7 @@ void BindShowEvent(const std::shared_ptr<Ctx>& context,
                    const std::shared_ptr<CtxValue>& func) {
   std::weak_ptr<Ctx> weak_context = context;
   int32_t id = dom_node->GetId();
-  dom_node->AddEventListener(name, false, [weak_context, func, id]
+  dom_node->AddEventListener(name, true, [weak_context, func, id]
       (const std::shared_ptr<DomEvent> &event) {
     auto context = weak_context.lock();
     if (!context) {
@@ -326,7 +326,7 @@ void BindLayoutEvent(const std::shared_ptr<Ctx>& context,
                      const std::shared_ptr<CtxValue>& func) {
   std::weak_ptr<Ctx> weak_context = context;
   int32_t id = dom_node->GetId();
-  dom_node->AddEventListener(kLayoutEvent, false, [weak_context, func, id]
+  dom_node->AddEventListener(kLayoutEvent, true, [weak_context, func, id]
       (const std::shared_ptr<DomEvent> &event) {
     auto context = weak_context.lock();
     if (!context) {
