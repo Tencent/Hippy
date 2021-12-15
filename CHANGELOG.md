@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.11.5](https://github.com/Tencent/Hippy/compare/2.11.4...2.11.5) (2021-12-15)
+
+
+### Bug Fixes
+
+* **android:** add getComponentName to engine context interface ([92809fc](https://github.com/Tencent/Hippy/commit/92809fc4dfb9e87f06455d190f6b1109e865eca8))
+* **android:** adjust dispatchExposureEvent call of list view ([c9d6502](https://github.com/Tencent/Hippy/commit/c9d6502176073eb88cf3b463fd7e6c7e0cd396d8))
+* **android:** set text cursor of input for android 12 ([6725483](https://github.com/Tencent/Hippy/commit/6725483cd053b2aecdea6bd7e7f996d98e4bf103))
+* **ios:** check image url length before use it ([d109fbf](https://github.com/Tencent/Hippy/commit/d109fbfd380c65a0674b2f7d69377b77e2e461f0))
+* **ios:** fix chrome elements bug and add websocket close ([#1210](https://github.com/Tencent/Hippy/issues/1210)) ([8366882](https://github.com/Tencent/Hippy/commit/836688204c6aa8cdf6f1aefb5fa5339146032b10))
+* **ios:** revert scroll animation fix for ios15 ([c6dc24b](https://github.com/Tencent/Hippy/commit/c6dc24b18ca43eb6c111fdd5400d3ecb98a83369))
+
+
+### Features
+
+* **hippy-react:** change event capture handle ([fb73c63](https://github.com/Tencent/Hippy/commit/fb73c639824be97625ae45fcb67a9671f1570ad1))
+* **hippy-react:** compatible for react18 ([1b300ea](https://github.com/Tencent/Hippy/commit/1b300ea9b35d11c9493709fa2d0cb46d331f0b71))
+* **react,vue:** add caret color parser ([68ef4a5](https://github.com/Tencent/Hippy/commit/68ef4a526dd72fda2ce184848d12e37e06c862e3))
+
+
+
+
+
 ## [2.11.4](https://github.com/Tencent/Hippy/compare/2.11.3...2.11.4) (2021-12-10)
 
 **Note:** Version bump only for package hippy

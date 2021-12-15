@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.11.5](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/compare/2.11.4...2.11.5) (2021-12-15)
+
+
+### Features
+
+* **react,vue:** add caret color parser ([68ef4a5](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/commit/68ef4a526dd72fda2ce184848d12e37e06c862e3))
+
+
+
+
+
 ## [2.11.4](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react-web/compare/2.11.3...2.11.4) (2021-12-10)
 
 **Note:** Version bump only for package @hippy/react-web

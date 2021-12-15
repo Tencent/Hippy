@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.11.5](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.11.4...2.11.5) (2021-12-15)
+
+
+### Features
+
+* **hippy-react:** change event capture handle ([fb73c63](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/fb73c639824be97625ae45fcb67a9671f1570ad1))
+* **hippy-react:** compatible for react18 ([1b300ea](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/1b300ea9b35d11c9493709fa2d0cb46d331f0b71))
+* **react,vue:** add caret color parser ([68ef4a5](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/68ef4a526dd72fda2ce184848d12e37e06c862e3))
+
+
+
+
+
 ## [2.11.4](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.11.3...2.11.4) (2021-12-10)
 
 **Note:** Version bump only for package @hippy/react
