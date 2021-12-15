@@ -762,6 +762,9 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     if ([HippyBridge currentBridge] == self) {
         [HippyBridge setCurrentBridge:nil];
     }
+    if (_devManager) {
+        [_devManager closeWebSocket];
+    }
 
     // Invalidate modules
     dispatch_group_t group = dispatch_group_create();

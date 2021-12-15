@@ -53,6 +53,8 @@ typedef NS_ENUM(unsigned int, HippyDevWebSocketState) {
 
 - (void)sendData:(id)data;
 
+- (void)close;
+
 @end
 
 NS_ASSUME_NONNULL_END

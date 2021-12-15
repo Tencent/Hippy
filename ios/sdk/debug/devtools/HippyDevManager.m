@@ -55,6 +55,13 @@
     }
 }
 
+- (void)closeWebSocket {
+    if (!_devWSClient) {
+        return;
+    }
+    [_devWSClient close];
+}
+
 #pragma mark WS Delegate
 - (void)devClient:(HippyDevWebSocketClient *)devClient didReceiveMessage:(NSString *)message {
     HippyInspector *inspector = [HippyInspector sharedInstance];

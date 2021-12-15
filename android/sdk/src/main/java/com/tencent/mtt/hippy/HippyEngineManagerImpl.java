@@ -515,7 +515,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
   }
 
   public HippyRootView restoreInstanceState(final ArrayList<DomNodeRecord> domNodeRecordList,
-      HippyEngine.ModuleLoadParams loadParams) {
+      HippyEngine.ModuleLoadParams loadParams, final Callback<Boolean> callback) {
     if (domNodeRecordList == null || domNodeRecordList.isEmpty() || mEngineContext == null) {
       return null;
     }
@@ -549,8 +549,16 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             pid = 0 - pid;
           }
           int id = 0 - domNodeRecord.id;
-          domManager.createNode(tempRootView, tempRootId, id, pid, domNodeRecord.index,
-              domNodeRecord.className, domNodeRecord.tagName, domNodeRecord.props);
+          try {
+            domManager.createNode(tempRootView, tempRootId, id, pid, domNodeRecord.index,
+                    domNodeRecord.className, domNodeRecord.tagName, domNodeRecord.props);
+          } catch (Exception exception) {
+            domManager.renderBatchStop();
+            if (callback != null) {
+              callback.callback(false, exception);
+            }
+            return;
+          }
         }
         domManager.renderBatchEnd();
       }
@@ -864,6 +872,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
       this.componentName = componentName;
     }
 
+    @Override
     public String getComponentName() {
       return componentName;
     }
