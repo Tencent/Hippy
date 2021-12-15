@@ -1781,7 +1781,7 @@ static UIView *_jsResponder;
                              forView:(int32_t)hippyTag {
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
-        HippyViewEventType event_type = hippy::kShow == type ? HippyViewEventTypeShow : HippyViewEventTypeDismiss;
+        HippyViewEventType event_type = hippy::kShowEvent == type ? HippyViewEventTypeShow : HippyViewEventTypeDismiss;
         [view addViewEvent:event_type eventListener:^(CGPoint point) {
             std::shared_ptr<DomNode> node = weak_node.lock();
             if (node) {

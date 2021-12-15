@@ -93,7 +93,7 @@ void NativeRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node, cons
             [uiManager_ addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
                 [uiManager addTouchEventListenerforNode:dom_node forType:std::move(name_) forView:node->GetId()];
             }];
-        } else if (name == hippy::kShow || name == hippy::kDismiss) {
+        } else if (name == hippy::kShowEvent || name == hippy::kDismissEvent) {
             std::string name_ = name;
             [uiManager_ addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
                 [uiManager addShowEventListenerForNode:dom_node forType:std::move(name_) forView:node->GetId()];
