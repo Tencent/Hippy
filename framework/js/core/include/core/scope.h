@@ -34,6 +34,7 @@
 #include "core/napi/js_native_api_types.h"
 #include "core/task/worker_task_runner.h"
 #include "dom/dom_manager.h"
+#include "dom/render_manager.h"
 
 class JavaScriptTaskRunner;
 class ModuleBase;
@@ -54,6 +55,7 @@ class Scope {
   using CtxValue = hippy::napi::CtxValue;
   using Ctx = hippy::napi::Ctx;
   using DomManager = hippy::dom::DomManager;
+  using RenderManager = hippy::dom::RenderManager;
   using UriLoader = hippy::base::UriLoader;
   using FunctionData = hippy::napi::FunctionData;
   using BindingData = hippy::napi::BindingData;
@@ -123,6 +125,14 @@ class Scope {
     return dom_manager_;
   }
 
+  inline void SetRenderManager(std::shared_ptr<RenderManager> render_manager) {
+    render_manager_ = render_manager;
+  }
+
+  inline std::shared_ptr<RenderManager> GetRenderManager() {
+    return render_manager_;
+  }
+
  private:
   friend class Engine;
   void Initialized();
@@ -141,4 +151,5 @@ class Scope {
   std::unique_ptr<ScopeWrapper> wrapper_;
   std::shared_ptr<UriLoader> loader_;
   std::shared_ptr<DomManager> dom_manager_;
+  std::shared_ptr<RenderManager> render_manager_;
 };

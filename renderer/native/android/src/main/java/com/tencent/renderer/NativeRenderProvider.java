@@ -25,11 +25,13 @@ import java.util.ArrayList;
 
 public class NativeRenderProvider {
   private final INativeRenderDelegate renderDelegate;
+  private long runtimeId;
   private final Deserializer deserializer;
   private BinaryReader safeHeapReader;
 
   public NativeRenderProvider(INativeRenderDelegate renderDelegate, long runtimeId) {
     this.renderDelegate = renderDelegate;
+    this.runtimeId = runtimeId;
     deserializer = new Deserializer(null, new InternalizedStringTable());
     onCreateNativeRenderProvider(runtimeId);
   }
@@ -144,7 +146,11 @@ public class NativeRenderProvider {
     });
   }
 
+  public void updateRootSize(int width, int height) {
+    updateRootSize(this.runtimeId, width, height);
+  }
+
   public native void onCreateNativeRenderProvider(long runtimeId);
 
-  public native void updateRootSize(int width, int height);
+  public native void updateRootSize(long runtimeId, int width, int height);
 }
