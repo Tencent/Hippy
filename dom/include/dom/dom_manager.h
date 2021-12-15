@@ -51,6 +51,7 @@ class DomManager {
   void SetRootSize(float width, float height);
   void AddLayoutChangedNode(const std::shared_ptr<DomNode> &node);
   void SetRootNode(const std::shared_ptr<DomNode> &root_node);
+  void DoLayout();
 
  private:
   uint32_t root_id_;
