@@ -280,9 +280,7 @@ const EventDispatcher = {
   receiveUIComponentEvent,
 };
 
-// @ts-ignore
 if (global.__GLOBAL__) {
-  // @ts-ignore
   global.__GLOBAL__.jsModuleList.EventDispatcher = EventDispatcher;
 }
 

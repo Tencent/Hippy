@@ -85,8 +85,8 @@
 | 参数          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | animated              | 弹出时是否需要带动画                                                            | `boolean`                                                    | `ALL`    |
-| animationType         | 动画效果                                                            | `enum`(none, slide, fade, slide_fade) | `ALL`    |
-| supportedOrientations | 支持屏幕翻转方向                                                            | `enum`(portrait, portrait-upside-down, landscape, landscape-left, landscape-right)[] | `ALL`    |
+| animationType         | 动画效果                                                            | `enum(none, slide, fade, slide_fade)` | `ALL`    |
+| supportedOrientations | 支持屏幕翻转方向                                                            | `enum(portrait, portrait-upside-down, landscape, landscape-left, landscape-right)[]` | `ALL`    |
 | immersionStatusBar    | 是否是沉浸式状态栏。                                         | `boolean`                                                    | `ALL`    |
 | darkStatusBarText     | 是否是亮色主体文字，默认字体是黑色的，改成 true 后会认为 Modal 背景为暗色调，字体就会改成白色。 | `boolean`                                                    | `ALL`    |
 
