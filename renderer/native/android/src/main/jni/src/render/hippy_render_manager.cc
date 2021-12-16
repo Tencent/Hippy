@@ -131,7 +131,27 @@ void HippyRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&
 };
 
 void HippyRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) {
-  TDF_BASE_NOTIMPLEMENTED();
+  serializer_->Release();
+  serializer_->WriteHeader();
+
+  uint32_t len = nodes.size();
+  tdf::base::DomValue::DomValueArrayType dom_node_array;
+  dom_node_array.resize(len);
+  for (uint32_t i = 0; i < len; i++) {
+    tdf::base::DomValue::DomValueObjectType dom_node;
+    dom_node[kId] = tdf::base::DomValue(nodes[i]->GetId());
+    auto result = nodes[i]->GetLayoutResult();
+    dom_node[kWidth] = tdf::base::DomValue(result.width);
+    dom_node[kHeight] = tdf::base::DomValue(result.height);
+    dom_node[kLeft] = tdf::base::DomValue(result.left);
+    dom_node[kTop] = tdf::base::DomValue(result.top);
+    dom_node_array[i] = dom_node;
+  }
+  serializer_->WriteDenseJSArray(dom_node_array);
+  std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
+
+  CallNativeMethod(buffer_pair, "updateLayout");
+  return;
 };
 
 void HippyRenderManager::MoveRenderNode(std::vector<int32_t>&& moved_ids, int32_t from_pid, int32_t to_pid) {
@@ -161,7 +181,10 @@ void HippyRenderManager::MoveRenderNode(std::vector<int32_t>&& moved_ids, int32_
   return;
 };
 
-void HippyRenderManager::Batch() { TDF_BASE_NOTIMPLEMENTED(); };
+void HippyRenderManager::Batch() {
+  CallNativeMethod("endBatch");
+  return;
+};
 
 void HippyRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {
   TDF_BASE_NOTIMPLEMENTED();
@@ -200,6 +223,26 @@ void HippyRenderManager::CallNativeMethod(const std::pair<uint8_t*, size_t>& buf
 
   j_env->CallVoidMethod(j_object, j_method_id, j_buffer);
   j_env->DeleteLocalRef(j_buffer);
+}
+
+void HippyRenderManager::CallNativeMethod(const std::string& method) {
+  std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
+  JNIEnv* j_env = instance->AttachCurrentThread();
+
+  jobject j_object = render_delegate_->GetObj();
+  jclass j_class = j_env->GetObjectClass(j_object);
+  if (!j_class) {
+    TDF_BASE_LOG(ERROR) << "CallNativeMethod j_class error";
+    return;
+  }
+
+  jmethodID j_method_id = j_env->GetMethodID(j_class, method.c_str(), "()V");
+  if (!j_method_id) {
+    TDF_BASE_LOG(ERROR) << method << " j_cb_id error";
+    return;
+  }
+
+  j_env->CallVoidMethod(j_object, j_method_id);
 }
 
 }  // namespace dom
