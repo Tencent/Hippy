@@ -84,7 +84,7 @@ class WebSocket implements WebSocket {
    *                                          string is assumed.
    * @param {Object} extrasHeaders - Http headers will append to connection.
    */
-  constructor(url: string, protocols: string[] | string, extrasHeaders: {[key: string]: string}) {
+  constructor(url: any, protocols: string[] | string, extrasHeaders: {[key: string]: string}) {
     this.onWebSocketEvent = this.onWebSocketEvent.bind(this);
 
     if (!websocketEventHub) {
@@ -122,7 +122,7 @@ class WebSocket implements WebSocket {
     this.webSocketCallbackId = websocketEventHub.addCallback(this.onWebSocketEvent);
 
     Bridge.callNativeWithPromise(WEB_SOCKET_MODULE_NAME, 'connect', params)
-      .then((resp: { code: number, id: number }) => {
+      .then((resp: { code: number, id: number | undefined } | any) => {
         if (!resp || resp.code !== 0 || typeof resp.id !== 'number') {
           warn('Fail to create websocket connection', resp);
           return;
@@ -162,7 +162,7 @@ class WebSocket implements WebSocket {
    *
    * @param {string} data - The data to send to the server. Hippy supports string type only.
    */
-  public send(data: string) {
+  public send(data: string | undefined) {
     if (this.readyState !== ReadyState.OPEN) {
       warn('WebSocket is not connected');
       return;

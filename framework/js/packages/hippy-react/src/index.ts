@@ -51,7 +51,6 @@ import WaterfallView from './components/waterfall-view';
 import * as Native from './native';
 import * as StyleSheet from './modules/stylesheet';
 
-// @ts-ignore
 global.WebSocket = WebSocket;
 
 const {
