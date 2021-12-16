@@ -39,6 +39,8 @@ class HippyRenderManager : public RenderManager {
  private:
   void CallNativeMethod(const std::pair<uint8_t*, size_t>& buffer, const std::string& method);
 
+  void CallNativeMethod(const std::string& method);
+
   std::shared_ptr<JavaRef> render_delegate_;
   std::shared_ptr<tdf::base::Serializer> serializer_;
 };

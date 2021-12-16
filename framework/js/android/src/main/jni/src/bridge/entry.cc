@@ -621,6 +621,7 @@ void UpdateRootSize(JNIEnv* j_env, jobject j_object, jlong j_runtime_id, jint j_
     return;
   }
   dom_manager->SetRootSize(j_width, j_height);
+  dom_manager->DoLayout();
 }
 
 }  // namespace bridge
