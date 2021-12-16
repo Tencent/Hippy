@@ -19,15 +19,48 @@ import java.util.ArrayList;
 
 public interface INativeRenderDelegate {
 
-  void createNode(ArrayList list);
+    /**
+     * Create render node
+     *
+     * @param list {@link ArrayList} The node list array
+     */
+    void createNode(ArrayList list);
 
-  void updateNode(ArrayList list);
+    /**
+     * Update render node
+     *
+     * @param list {@link ArrayList} The node list array
+     */
+    void updateNode(ArrayList list);
 
-  void deleteNode(ArrayList list);
+    /**
+     * Delete render node
+     *
+     * @param list {@link ArrayList} The node list array
+     */
+    void deleteNode(ArrayList list);
 
-  void startBatch();
+    /**
+     * Update render node layout
+     *
+     * @param list {@link ArrayList} The node list array
+     */
+    void updateLayout(ArrayList list);
 
-  void endBatch();
+    /**
+     * Mark will execute node update command
+     */
+    void startBatch();
 
-  void handleRenderException(Exception exception);
+    /**
+     * Mark all node update command execute completed
+     */
+    void endBatch();
+
+    /**
+     * Report render exception to host
+     *
+     * @param exception {@link Exception} The render exception
+     */
+    void handleRenderException(Exception exception);
 }
