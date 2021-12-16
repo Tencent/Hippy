@@ -27,11 +27,9 @@ function HandleEventListener(node) {
   }
   for (const [key, value] of Object.entries(node.props)) {
     if ((gestureKeyMap[key] || uiEventKeyMap[key]) && value === true) {
-      let name;
       const { id } = node;
       global.ConsoleModule.debug(`HandleEventListener id = ${id}, key = ${key}`);
       if (gestureKeyMap[key]) {
-        name = gestureKeyMap[key];
         const {
           EventDispatcher: {
             receiveNativeGesture = null,
@@ -40,14 +38,13 @@ function HandleEventListener(node) {
         node[key] = function (param) {
           if (receiveNativeGesture) {
             const event = {
-              id, name,
+              id, name: key,
             };
             Object.assign(event, param);
             receiveNativeGesture(event);
           }
         };
       } else if (uiEventKeyMap[key]) {
-        name = uiEventKeyMap[key];
         const {
           EventDispatcher: {
             receiveUIComponentEvent = null,
@@ -55,7 +52,7 @@ function HandleEventListener(node) {
         } = __GLOBAL__.jsModuleList;
         node[key] = function (param) {
           if (receiveUIComponentEvent) {
-            const event = [id, name, param];
+            const event = [id, key, param];
             receiveUIComponentEvent(event);
           }
         };
