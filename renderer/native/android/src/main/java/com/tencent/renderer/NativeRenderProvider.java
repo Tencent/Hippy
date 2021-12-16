@@ -24,133 +24,153 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 public class NativeRenderProvider {
-  private final INativeRenderDelegate renderDelegate;
-  private long runtimeId;
-  private final Deserializer deserializer;
-  private BinaryReader safeHeapReader;
+    private final long runtimeId;
+    private final INativeRenderDelegate renderDelegate;
+    private final Deserializer deserializer;
+    private BinaryReader safeHeapReader;
 
-  public NativeRenderProvider(INativeRenderDelegate renderDelegate, long runtimeId) {
-    this.renderDelegate = renderDelegate;
-    this.runtimeId = runtimeId;
-    deserializer = new Deserializer(null, new InternalizedStringTable());
-    onCreateNativeRenderProvider(runtimeId);
-  }
-
-  public void destroy() {
-    deserializer.getStringTable().release();
-  }
-
-  /**
-   * Deserialize dom node data wrap by ByteBuffer
-   * just support heap buffer reader, direct buffer reader not fit for dom data
-   *
-   * @param buffer The byte array from c DOM wrap by ByteBuffer
-   * @return The ArrayList of deserialize result
-   */
-  private ArrayList bytesToArgument(ByteBuffer buffer) {
-    Object paramsObj = null;
-    try {
-      final BinaryReader binaryReader;
-      if (safeHeapReader == null) {
-        safeHeapReader = new SafeHeapReader();
-      }
-      binaryReader = safeHeapReader;
-      binaryReader.reset(buffer);
-      deserializer.setReader(binaryReader);
-      deserializer.reset();
-      deserializer.readHeader();
-      paramsObj = deserializer.readValue();
-    } catch (Throwable throwable) {
-      throwable.printStackTrace();
-      if (renderDelegate != null) {
-        renderDelegate.handleRenderException(new RuntimeException(throwable));
-      }
+    public NativeRenderProvider(INativeRenderDelegate renderDelegate, long runtimeId) {
+        this.renderDelegate = renderDelegate;
+        this.runtimeId = runtimeId;
+        deserializer = new Deserializer(null, new InternalizedStringTable());
+        onCreateNativeRenderProvider(runtimeId);
     }
 
-    return (paramsObj instanceof ArrayList) ? (ArrayList)paramsObj : new ArrayList();
-  }
+    public void destroy() {
+        deserializer.getStringTable().release();
+    }
 
-  public void createNode(byte[] buffer) {
-    final ArrayList list = bytesToArgument(ByteBuffer.wrap(buffer));
-    UIThreadUtils.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        if (renderDelegate == null) {
-          return;
-        }
+    /**
+     * Deserialize dom node data wrap by ByteBuffer just support heap buffer reader, direct buffer
+     * reader not fit for dom data
+     *
+     * @param buffer The byte array from c DOM wrap by ByteBuffer
+     * @return The ArrayList of deserialize result
+     */
+    private ArrayList bytesToArgument(ByteBuffer buffer) {
+        Object paramsObj = null;
         try {
-          renderDelegate.createNode(list);
+            final BinaryReader binaryReader;
+            if (safeHeapReader == null) {
+                safeHeapReader = new SafeHeapReader();
+            }
+            binaryReader = safeHeapReader;
+            binaryReader.reset(buffer);
+            deserializer.setReader(binaryReader);
+            deserializer.reset();
+            deserializer.readHeader();
+            paramsObj = deserializer.readValue();
         } catch (Exception exception) {
-          exception.printStackTrace();
-          renderDelegate.handleRenderException(exception);
+            exception.printStackTrace();
+            if (renderDelegate != null) {
+                renderDelegate.handleRenderException(exception);
+            }
         }
-      }
-    });
-  }
 
-  public void updateNode(byte[] buffer) {
-    final ArrayList list = bytesToArgument(ByteBuffer.wrap(buffer));
-    UIThreadUtils.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        if (renderDelegate == null) {
-          return;
-        }
-        try {
-          renderDelegate.updateNode(list);
-        } catch (Exception exception) {
-          exception.printStackTrace();
-          renderDelegate.handleRenderException(exception);
-        }
-      }
-    });
-  }
+        return (paramsObj instanceof ArrayList) ? (ArrayList) paramsObj : new ArrayList();
+    }
 
-  public void deleteNode(byte[] buffer) {
-    final ArrayList list = bytesToArgument(ByteBuffer.wrap(buffer));
-    UIThreadUtils.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        if (renderDelegate == null) {
-          return;
-        }
-        try {
-          renderDelegate.deleteNode(list);
-        } catch (Exception exception) {
-          exception.printStackTrace();
-          renderDelegate.handleRenderException(exception);
-        }
-      }
-    });
-  }
+    public void createNode(byte[] buffer) {
+        final ArrayList list = bytesToArgument(ByteBuffer.wrap(buffer));
+        UIThreadUtils.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    renderDelegate.createNode(list);
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                    renderDelegate.handleRenderException(exception);
+                }
+            }
+        });
+    }
 
-  public void startBatch() {
-    UIThreadUtils.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        if (renderDelegate != null) {
-          renderDelegate.startBatch();
-        }
-      }
-    });
-  }
+    public void updateNode(byte[] buffer) {
+        final ArrayList list = bytesToArgument(ByteBuffer.wrap(buffer));
+        UIThreadUtils.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    renderDelegate.updateNode(list);
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                    renderDelegate.handleRenderException(exception);
+                }
+            }
+        });
+    }
 
-  public void endBatch() {
-    UIThreadUtils.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        if (renderDelegate != null) {
-          renderDelegate.endBatch();
-        }
-      }
-    });
-  }
+    public void deleteNode(byte[] buffer) {
+        final ArrayList list = bytesToArgument(ByteBuffer.wrap(buffer));
+        UIThreadUtils.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    renderDelegate.deleteNode(list);
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                    renderDelegate.handleRenderException(exception);
+                }
+            }
+        });
+    }
 
-  public void updateRootSize(int width, int height) {
-    updateRootSize(this.runtimeId, width, height);
-  }
+    public void updateLayout(byte[] buffer) {
+        final ArrayList list = bytesToArgument(ByteBuffer.wrap(buffer));
+        UIThreadUtils.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    renderDelegate.updateLayout(list);
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                    renderDelegate.handleRenderException(exception);
+                }
+            }
+        });
+    }
 
-  public native void onCreateNativeRenderProvider(long runtimeId);
+    public void startBatch() {
+        UIThreadUtils.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (renderDelegate != null) {
+                    renderDelegate.startBatch();
+                }
+            }
+        });
+    }
 
-  public native void updateRootSize(long runtimeId, int width, int height);
+    public void endBatch() {
+        UIThreadUtils.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (renderDelegate != null) {
+                    renderDelegate.endBatch();
+                }
+            }
+        });
+    }
+
+    public void onSizeChanged(int width, int height) {
+        onRootSizeChanged(runtimeId, width, height);
+    }
+
+    /**
+     * Create render provider when native renderer init, should call this jni interface to notify c
+     * adadpter
+     *
+     * @param runtimeId v8 instance id
+     */
+    public native void onCreateNativeRenderProvider(long runtimeId);
+
+    /**
+     * Call from Android system call back when size changed, just like horizontal and vertical
+     * screen switching call this jni interface to invoke dom tree relayout
+     *
+     * @param runtimeId v8 instance id
+     * @param width root view new width
+     * @param height root view new height
+     */
+    public native void onRootSizeChanged(long runtimeId, int width, int height);
 }

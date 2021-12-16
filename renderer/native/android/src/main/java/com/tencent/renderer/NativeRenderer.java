@@ -15,7 +15,7 @@
  */
 package com.tencent.renderer;
 
-import static com.tencent.renderer.NativeRenderException.INVALID_NODE_DATA_ERR;
+import static com.tencent.renderer.NativeRenderException.ExceptionCode.INVALID_NODE_DATA_ERR;
 
 import android.content.Context;
 import android.view.ViewGroup;
@@ -39,331 +39,365 @@ import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.supportui.adapters.image.IImageLoaderAdapter;
 
 public class NativeRenderer implements INativeRender, INativeRenderProxy, INativeRenderDelegate {
-  public static final String TAG = "NativeRenderer";
 
-  private final String ID = "id";
-  private final String PID = "pId";
-  private final String INDEX = "index";
-  private final String NAME = "name";
-  private final String PROPS = "props";
-  private static final int ROOT_VIEW_TAG_INCREMENT = 10;
-  private static final AtomicInteger ID_COUNTER = new AtomicInteger(0);
+    public static final String TAG = "NativeRenderer";
 
-  private int instanceId;
-  private int rootId;
-  private boolean isDebugMode;
-  private RenderManager renderManager;
-  private DomManager domManager;
-  private HippyRootView rootView;
-  private IFrameworkProxy frameworkProxy;
-  private NativeRenderProvider renderProvider;
-  volatile CopyOnWriteArrayList<HippyInstanceLifecycleEventListener> instanceLifecycleEventListeners;
+    private final String NODE_ID = "id";
+    private final String NODE_PID = "pId";
+    private final String NODE_INDEX = "index";
+    private final String NODE_PROPS = "props";
+    private final String CLASS_NAME = "name";
+    private final String LAYOUT_LEFT = "left";
+    private final String LAYOUT_TOP = "top";
+    private final String LAYOUT_WIDTH = "width";
+    private final String LAYOUT_HEIGHT = "height";
+    private static final int ROOT_VIEW_TAG_INCREMENT = 10;
+    private static final AtomicInteger ID_COUNTER = new AtomicInteger(0);
 
-  @Override
-  public void init(int instanceId, List<Class<? extends HippyBaseController>> controllers,
-      boolean isDebugMode, ViewGroup rootView) {
-    renderManager = new RenderManager(this, controllers);
-    domManager = new DomManager(this);
-    if (rootView instanceof HippyRootView) {
-      rootId = rootView.getId();
-      this.rootView = (HippyRootView)rootView;
-    } else {
-      rootId = ID_COUNTER.addAndGet(ROOT_VIEW_TAG_INCREMENT);
-    }
-    this.instanceId = instanceId;
-    this.isDebugMode = isDebugMode;
-    NativeRendererManager.addNativeRendererInstance(instanceId, this);
-  }
+    private int instanceId;
+    private int rootId;
+    private boolean isDebugMode;
+    private RenderManager renderManager;
+    private DomManager domManager;
+    private HippyRootView rootView;
+    private IFrameworkProxy frameworkProxy;
+    private NativeRenderProvider renderProvider;
+    volatile CopyOnWriteArrayList<HippyInstanceLifecycleEventListener> instanceLifecycleEventListeners;
 
-  @Override
-  public Object getCustomViewCreator() {
-    if (checkJSFrameworkProxy()) {
-      return ((IJSFrameworkProxy)frameworkProxy).getCustomViewCreator();
-    }
-    return null;
-  }
-
-  @Override
-  public String getBundlePath() {
-    if (checkJSFrameworkProxy()) {
-      return ((IJSFrameworkProxy)frameworkProxy).getBundlePath();
-    }
-    return null;
-  }
-
-  @Override
-  public IImageLoaderAdapter getImageLoaderAdapter() {
-    if (checkJSFrameworkProxy()) {
-      Object adapterObj = ((IJSFrameworkProxy)frameworkProxy).getImageLoaderAdapter();
-      if (adapterObj instanceof IImageLoaderAdapter) {
-        return (IImageLoaderAdapter)adapterObj;
-      }
-    }
-    return null;
-  }
-
-  @Override
-  public HippyFontScaleAdapter getFontScaleAdapter() {
-    if (checkJSFrameworkProxy()) {
-      Object adapterObj = ((IJSFrameworkProxy)frameworkProxy).getFontScaleAdapter();
-      if (adapterObj instanceof HippyFontScaleAdapter) {
-        return (HippyFontScaleAdapter)adapterObj;
-      }
-    }
-    return null;
-  }
-
-  @Override
-  public boolean isDebugMode() {
-    return isDebugMode;
-  }
-
-  @Override
-  public void handleNativeException(Exception exception, boolean haveCaught) {
-    if(frameworkProxy != null) {
-      frameworkProxy.handleNativeException(exception, haveCaught);
-    }
-  }
-
-  @Override
-  public void handleRenderException(Exception exception) {
-    handleNativeException(exception, true);
-  }
-
-  @Override
-  public void setFrameworkProxy(IFrameworkProxy proxy) {
-    frameworkProxy = proxy;
-  }
-
-  @Override
-  public void destroy() {
-    if (domManager != null) {
-      ThreadExecutor threadExecutor = getJSEngineThreadExecutor();
-      if (threadExecutor != null) {
-        threadExecutor.postOnDomThread(new Runnable() {
-          @Override
-          public void run() {
-            domManager.destroy();
-          }
-        });
-      }
-    }
-    if (renderManager != null) {
-      renderManager.destroy();
-    }
-    if (renderProvider != null) {
-      renderProvider.destroy();
-      renderProvider = null;
-    }
-    if (instanceLifecycleEventListeners != null) {
-      instanceLifecycleEventListeners.clear();
-    }
-    rootView = null;
-    frameworkProxy = null;
-    NativeRendererManager.removeNativeRendererInstance(instanceId);
-  }
-
-  @Override
-  public ViewGroup createRootView(Context context) {
-    if (context == null) {
-      return null;
-    }
-    rootView = new HippyRootView(context, instanceId, rootId);
-    renderManager.createRootNode(rootId);
-    renderManager.addRootView(rootView);
-    return rootView;
-  }
-
-  @Override
-  public Object getDomManagerObject() {
-    return getDomManager();
-  }
-
-  @Override
-  public Object getRenderManagerObject() {
-    return getRenderManager();
-  }
-
-  @Override
-  public RenderManager getRenderManager() {
-    return renderManager;
-  }
-
-  @Override
-  public DomManager getDomManager() {
-    return domManager;
-  }
-
-  @Override
-  public ViewGroup getRootView() {
-    return rootView;
-  }
-
-  @Override
-  public int getRootId() {
-    return rootId;
-  }
-
-  @Override
-  public void onFirstViewAdded(){
-    if(frameworkProxy != null) {
-      frameworkProxy.onFirstViewAdded();
-    }
-  }
-
-  @Override
-  public void onSizeChanged(int w, int h, int oldw, int oldh) {
-    if (renderProvider != null) {
-      LogUtils.d(TAG, "onSizeChanged: w=" + w + ", h=" + h + ", oldw="
-          + oldw + ", oldh=" + oldh);
-      renderProvider.updateRootSize(w, h);
-    }
-  }
-
-  @Override
-  public void updateModalHostNodeSize(final int id, final int width, final int height) {
-    ThreadExecutor threadExecutor = getJSEngineThreadExecutor();
-    if (threadExecutor != null) {
-      threadExecutor.postOnDomThread(new Runnable() {
-        @Override
-        public void run() {
-          getDomManager().updateNodeSize(id, width, height);
+    @Override
+    public void init(int instanceId, List<Class<? extends HippyBaseController>> controllers,
+            boolean isDebugMode, ViewGroup rootView) {
+        renderManager = new RenderManager(this, controllers);
+        domManager = new DomManager(this);
+        if (rootView instanceof HippyRootView) {
+            rootId = rootView.getId();
+            renderManager.createRootNode(rootId);
+            renderManager.addRootView(rootView);
+            this.rootView = (HippyRootView) rootView;
+        } else {
+            rootId = ID_COUNTER.addAndGet(ROOT_VIEW_TAG_INCREMENT);
         }
-      });
+        this.instanceId = instanceId;
+        this.isDebugMode = isDebugMode;
+        NativeRendererManager.addNativeRendererInstance(instanceId, this);
     }
-  }
 
-  @Override
-  public void updateDimension(boolean shouldRevise, HippyMap dimension,
-      boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged) {
-    if (checkJSFrameworkProxy()) {
-      ((IJSFrameworkProxy)frameworkProxy).updateDimension(shouldRevise, dimension,
-          shouldUseScreenDisplay, systemUiVisibilityChanged);
+    @Override
+    public Object getCustomViewCreator() {
+        if (checkJSFrameworkProxy()) {
+            return ((IJSFrameworkProxy) frameworkProxy).getCustomViewCreator();
+        }
+        return null;
     }
-  }
 
-  @Override
-  public void dispatchUIComponentEvent(int id, String eventName, Object params) {
-    if (checkJSFrameworkProxy()) {
-      ((IJSFrameworkProxy)frameworkProxy).dispatchUIComponentEvent(id, eventName, params);
+    @Override
+    public String getBundlePath() {
+        if (checkJSFrameworkProxy()) {
+            return ((IJSFrameworkProxy) frameworkProxy).getBundlePath();
+        }
+        return null;
     }
-  }
 
-  @Override
-  public void dispatchNativeGestureEvent(HippyMap params) {
-    if (checkJSFrameworkProxy()) {
-      ((IJSFrameworkProxy)frameworkProxy).dispatchNativeGestureEvent(params);
+    @Override
+    public IImageLoaderAdapter getImageLoaderAdapter() {
+        if (checkJSFrameworkProxy()) {
+            Object adapterObj = ((IJSFrameworkProxy) frameworkProxy).getImageLoaderAdapter();
+            if (adapterObj instanceof IImageLoaderAdapter) {
+                return (IImageLoaderAdapter) adapterObj;
+            }
+        }
+        return null;
     }
-  }
 
-  @Override
-  public void onInstanceLoad() {
-
-  }
-
-  @Override
-  public void onInstanceResume() {
-    if (instanceLifecycleEventListeners != null) {
-      for (HippyInstanceLifecycleEventListener listener : instanceLifecycleEventListeners) {
-        listener.onInstanceResume();
-      }
+    @Override
+    public HippyFontScaleAdapter getFontScaleAdapter() {
+        if (checkJSFrameworkProxy()) {
+            Object adapterObj = ((IJSFrameworkProxy) frameworkProxy).getFontScaleAdapter();
+            if (adapterObj instanceof HippyFontScaleAdapter) {
+                return (HippyFontScaleAdapter) adapterObj;
+            }
+        }
+        return null;
     }
-  }
 
-  @Override
-  public void onInstancePause() {
-    if (instanceLifecycleEventListeners != null) {
-      for (HippyInstanceLifecycleEventListener listener : instanceLifecycleEventListeners) {
-        listener.onInstancePause();
-      }
+    @Override
+    public boolean isDebugMode() {
+        return isDebugMode;
     }
-  }
 
-  @Override
-  public void onInstanceDestroy() {
-    if (instanceLifecycleEventListeners != null) {
-      for (HippyInstanceLifecycleEventListener listener : instanceLifecycleEventListeners) {
-        listener.onInstanceDestroy();
-      }
+    @Override
+    public void handleNativeException(Exception exception, boolean haveCaught) {
+        if (frameworkProxy != null) {
+            frameworkProxy.handleNativeException(exception, haveCaught);
+        }
     }
-  }
 
-  @Override
-  public void onRuntimeInitialized(long runtimeId) {
-    renderProvider = new NativeRenderProvider(this, runtimeId);
-  }
-
-  @Override
-  public void addInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener) {
-    if (instanceLifecycleEventListeners == null) {
-      instanceLifecycleEventListeners = new CopyOnWriteArrayList<>();
+    @Override
+    public void handleRenderException(Exception exception) {
+        handleNativeException(exception, true);
     }
-    instanceLifecycleEventListeners.add(listener);
-  }
 
-  @Override
-  public void removeInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener) {
-    if (instanceLifecycleEventListeners != null) {
-      instanceLifecycleEventListeners.remove(listener);
+    @Override
+    public void setFrameworkProxy(IFrameworkProxy proxy) {
+        frameworkProxy = proxy;
     }
-  }
 
-  @Override
-  public void createNode(ArrayList nodeList) {
-    if (nodeList == null || rootView == null) {
-      return;
+    @Override
+    public void destroy() {
+        if (domManager != null) {
+            ThreadExecutor threadExecutor = getJSEngineThreadExecutor();
+            if (threadExecutor != null) {
+                threadExecutor.postOnDomThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        domManager.destroy();
+                    }
+                });
+            }
+        }
+        if (renderManager != null) {
+            renderManager.destroy();
+        }
+        if (renderProvider != null) {
+            renderProvider.destroy();
+            renderProvider = null;
+        }
+        if (instanceLifecycleEventListeners != null) {
+            instanceLifecycleEventListeners.clear();
+        }
+        rootView = null;
+        frameworkProxy = null;
+        NativeRendererManager.removeNativeRendererInstance(instanceId);
     }
-    for (int i = 0; i < nodeList.size(); i++) {
-      Object object = nodeList.get(i);
-      if (!(object instanceof HashMap)) {
-        throw new NativeRenderException(INVALID_NODE_DATA_ERR,
-            "createNode invalid value: " + "object=" + object);
-      }
-      HashMap<String, Object> node = (HashMap)object;
-      int id = ((Number)node.get(ID)).intValue();
-      int pid = ((Number)node.get(PID)).intValue();
-      int index = ((Number)node.get(INDEX)).intValue();
-      if (id < 0 || pid < 0 || index < 0) {
-        throw new NativeRenderException(INVALID_NODE_DATA_ERR,
-            "createNode invalid value: " + "id=" + id + ", pId=" + pid + ", index=" + index);
-      }
-      String className = (String) node.get(NAME);
-      HashMap<String, Object> props = (HashMap) node.get(PROPS);
-      renderManager.createNode(rootView, id, pid, index, className, props);
+
+    @Override
+    public ViewGroup createRootView(Context context) {
+        if (context == null) {
+            return null;
+        }
+        if (rootView == null) {
+            rootView = new HippyRootView(context, instanceId, rootId);
+            renderManager.createRootNode(rootId);
+            renderManager.addRootView(rootView);
+        }
+        return rootView;
     }
-  }
 
-  @Override
-  public void updateNode(ArrayList nodeList) {
-
-  }
-
-  @Override
-  public void deleteNode(ArrayList nodeList) {
-
-  }
-
-  @Override
-  public void startBatch() {
-
-  }
-
-  @Override
-  public void endBatch() {
-    renderManager.batch();
-  }
-
-  public ThreadExecutor getJSEngineThreadExecutor() {
-    if (!checkJSFrameworkProxy()) {
-      return null;
+    @Override
+    public Object getDomManagerObject() {
+        return getDomManager();
     }
-    return ((IJSFrameworkProxy)frameworkProxy).getJSEngineThreadExecutor();
-  }
 
-  private boolean checkJSFrameworkProxy() {
-    if (!(frameworkProxy instanceof IJSFrameworkProxy)) {
-      return false;
+    @Override
+    public Object getRenderManagerObject() {
+        return getRenderManager();
     }
-    return true;
-  }
+
+    @Override
+    public RenderManager getRenderManager() {
+        return renderManager;
+    }
+
+    @Override
+    public DomManager getDomManager() {
+        return domManager;
+    }
+
+    @Override
+    public ViewGroup getRootView() {
+        return rootView;
+    }
+
+    @Override
+    public int getRootId() {
+        return rootId;
+    }
+
+    @Override
+    public void onFirstViewAdded() {
+        if (frameworkProxy != null) {
+            frameworkProxy.onFirstViewAdded();
+        }
+    }
+
+    @Override
+    public void onSizeChanged(int w, int h, int oldw, int oldh) {
+        if (renderProvider != null) {
+            LogUtils.d(TAG, "onSizeChanged: w=" + w + ", h=" + h + ", oldw="
+                    + oldw + ", oldh=" + oldh);
+            renderProvider.onSizeChanged(w, h);
+        }
+    }
+
+    @Override
+    public void updateModalHostNodeSize(final int id, final int width, final int height) {
+        ThreadExecutor threadExecutor = getJSEngineThreadExecutor();
+        if (threadExecutor != null) {
+            threadExecutor.postOnDomThread(new Runnable() {
+                @Override
+                public void run() {
+                    getDomManager().updateNodeSize(id, width, height);
+                }
+            });
+        }
+    }
+
+    @Override
+    public void updateDimension(boolean shouldRevise, HippyMap dimension,
+            boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged) {
+        if (checkJSFrameworkProxy()) {
+            ((IJSFrameworkProxy) frameworkProxy).updateDimension(shouldRevise, dimension,
+                    shouldUseScreenDisplay, systemUiVisibilityChanged);
+        }
+    }
+
+    @Override
+    public void dispatchUIComponentEvent(int id, String eventName, Object params) {
+        if (checkJSFrameworkProxy()) {
+            ((IJSFrameworkProxy) frameworkProxy).dispatchUIComponentEvent(id, eventName, params);
+        }
+    }
+
+    @Override
+    public void dispatchNativeGestureEvent(HippyMap params) {
+        if (checkJSFrameworkProxy()) {
+            ((IJSFrameworkProxy) frameworkProxy).dispatchNativeGestureEvent(params);
+        }
+    }
+
+    @Override
+    public void onInstanceLoad() {
+
+    }
+
+    @Override
+    public void onInstanceResume() {
+        if (instanceLifecycleEventListeners != null) {
+            for (HippyInstanceLifecycleEventListener listener : instanceLifecycleEventListeners) {
+                listener.onInstanceResume();
+            }
+        }
+    }
+
+    @Override
+    public void onInstancePause() {
+        if (instanceLifecycleEventListeners != null) {
+            for (HippyInstanceLifecycleEventListener listener : instanceLifecycleEventListeners) {
+                listener.onInstancePause();
+            }
+        }
+    }
+
+    @Override
+    public void onInstanceDestroy() {
+        if (instanceLifecycleEventListeners != null) {
+            for (HippyInstanceLifecycleEventListener listener : instanceLifecycleEventListeners) {
+                listener.onInstanceDestroy();
+            }
+        }
+    }
+
+    @Override
+    public void onRuntimeInitialized(long runtimeId) {
+        renderProvider = new NativeRenderProvider(this, runtimeId);
+    }
+
+    @Override
+    public void addInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener) {
+        if (instanceLifecycleEventListeners == null) {
+            instanceLifecycleEventListeners = new CopyOnWriteArrayList<>();
+        }
+        instanceLifecycleEventListeners.add(listener);
+    }
+
+    @Override
+    public void removeInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener) {
+        if (instanceLifecycleEventListeners != null) {
+            instanceLifecycleEventListeners.remove(listener);
+        }
+    }
+
+    @Override
+    public void createNode(ArrayList nodeList) {
+        if (rootView == null) {
+            return;
+        }
+        for (int i = 0; i < nodeList.size(); i++) {
+            Object object = nodeList.get(i);
+            if (!(object instanceof HashMap)) {
+                throw new NativeRenderException(INVALID_NODE_DATA_ERR,
+                        "createNode invalid value: " + "object=" + object);
+            }
+            HashMap<String, Object> node = (HashMap) object;
+            int id = ((Number) node.get(NODE_ID)).intValue();
+            int pid = ((Number) node.get(NODE_PID)).intValue();
+            int index = ((Number) node.get(NODE_INDEX)).intValue();
+            if (id < 0 || pid < 0 || index < 0) {
+                throw new NativeRenderException(INVALID_NODE_DATA_ERR,
+                        "createNode invalid value: " + "id=" + id + ", pId=" + pid + ", index="
+                                + index);
+            }
+            String className = (String) node.get(CLASS_NAME);
+            HashMap<String, Object> props = (HashMap) node.get(NODE_PROPS);
+            renderManager.createNode(rootView, id, pid, index, className, props);
+
+            int left = ((Number) node.get(LAYOUT_LEFT)).intValue();
+            int top = ((Number) node.get(LAYOUT_TOP)).intValue();
+            int width = ((Number) node.get(LAYOUT_WIDTH)).intValue();
+            int height = ((Number) node.get(LAYOUT_HEIGHT)).intValue();
+            renderManager.updateLayout(id, left, top, width, height);
+        }
+    }
+
+    @Override
+    public void updateNode(ArrayList nodeList) {
+
+    }
+
+    @Override
+    public void deleteNode(ArrayList nodeList) {
+
+    }
+
+    @Override
+    public void updateLayout(ArrayList nodeList) {
+        for (int i = 0; i < nodeList.size(); i++) {
+            Object object = nodeList.get(i);
+            if (!(object instanceof HashMap)) {
+                throw new NativeRenderException(INVALID_NODE_DATA_ERR,
+                        "updateLayout invalid value: " + "object=" + object);
+            }
+            HashMap<String, Object> node = (HashMap) object;
+            int id = ((Number) node.get(NODE_ID)).intValue();
+            int left = ((Number) node.get(LAYOUT_LEFT)).intValue();
+            int top = ((Number) node.get(LAYOUT_TOP)).intValue();
+            int width = ((Number) node.get(LAYOUT_WIDTH)).intValue();
+            int height = ((Number) node.get(LAYOUT_HEIGHT)).intValue();
+            renderManager.updateLayout(id, left, top, width, height);
+        }
+    }
+
+    @Override
+    public void startBatch() {
+
+    }
+
+    @Override
+    public void endBatch() {
+        renderManager.batch();
+    }
+
+    public ThreadExecutor getJSEngineThreadExecutor() {
+        if (!checkJSFrameworkProxy()) {
+            return null;
+        }
+        return ((IJSFrameworkProxy) frameworkProxy).getJSEngineThreadExecutor();
+    }
+
+    private boolean checkJSFrameworkProxy() {
+        if (!(frameworkProxy instanceof IJSFrameworkProxy)) {
+            return false;
+        }
+        return true;
+    }
 }

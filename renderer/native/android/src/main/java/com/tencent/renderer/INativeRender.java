@@ -24,38 +24,39 @@ import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.supportui.adapters.image.IImageLoaderAdapter;
 
 public interface INativeRender {
-  RenderManager getRenderManager();
 
-  DomManager getDomManager();
+    RenderManager getRenderManager();
 
-  ViewGroup getRootView();
+    DomManager getDomManager();
 
-  Object getCustomViewCreator();
+    ViewGroup getRootView();
 
-  String getBundlePath();
+    Object getCustomViewCreator();
 
-  IImageLoaderAdapter getImageLoaderAdapter();
+    String getBundlePath();
 
-  HippyFontScaleAdapter getFontScaleAdapter();
+    IImageLoaderAdapter getImageLoaderAdapter();
 
-  boolean isDebugMode();
+    HippyFontScaleAdapter getFontScaleAdapter();
 
-  void onFirstViewAdded();
+    boolean isDebugMode();
 
-  void onSizeChanged(int w, int h, int oldw, int oldh);
+    void onFirstViewAdded();
 
-  void updateModalHostNodeSize(int id, int width, int height);
+    void onSizeChanged(int w, int h, int oldw, int oldh);
 
-  void updateDimension(boolean shouldRevise, HippyMap dimension,
-      boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged);
+    void updateModalHostNodeSize(int id, int width, int height);
 
-  void dispatchUIComponentEvent(int id, String eventName, Object param);
+    void updateDimension(boolean shouldRevise, HippyMap dimension,
+            boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged);
 
-  void dispatchNativeGestureEvent(HippyMap params);
+    void dispatchUIComponentEvent(int id, String eventName, Object param);
 
-  void addInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);
+    void dispatchNativeGestureEvent(HippyMap params);
 
-  void removeInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);
+    void addInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);
 
-  void handleNativeException(Exception exception, boolean haveCaught);
+    void removeInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);
+
+    void handleNativeException(Exception exception, boolean haveCaught);
 }

@@ -346,8 +346,6 @@ public abstract class HippyEngine {
     public HippyMap jsParams;
     // 可选参数 目前只有一个用处：映射："CustomViewCreator" <==> 宿主自定义的一个HippyCustomViewCreator(这个creator还得通过ModuleParams.Builder.setCustomViewCreator来指定才行)
     public Map nativeParams;
-    // 可选参数 方便对将本View和hippyContext进行绑定。对于这种场景时有用：某些View组件的创建先于业务模块初始化的时机（也就是View组件的预先创建、预加载）。
-    public HippyInstanceContext hippyContext;
     // 可选参数 Bundle加载器，老式用法，不建议使用（若一定要使用，则会覆盖jsAssetsPath，jsFilePath的值）。参见jsAssetsPath，jsFilePath
     // 可选参数 code cache的名字，如果设置为空，则不启用code cache，默认为 ""
     public String codeCacheTag = "";
@@ -365,7 +363,6 @@ public abstract class HippyEngine {
       componentName = params.componentName;
       jsParams = params.jsParams;
       nativeParams = params.nativeParams;
-      hippyContext = params.hippyContext;
       codeCacheTag = params.codeCacheTag;
       bundleLoader = params.bundleLoader;
     }

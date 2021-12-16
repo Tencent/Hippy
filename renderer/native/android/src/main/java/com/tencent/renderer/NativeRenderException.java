@@ -15,22 +15,37 @@
  */
 package com.tencent.renderer;
 
-import org.w3c.dom.DOMException;
+public class NativeRenderException extends RuntimeException {
 
-public class NativeRenderException extends DOMException {
-  public NativeRenderException(short code, String message) {
-    super(code, message);
-    this.code = code;
-  }
+    public enum ExceptionCode {
+        /**
+         * If get an invalid or illegal node data from C dom manager, such as node id or parent id
+         * is negative number
+         */
+        INVALID_NODE_DATA_ERR(100),
 
-  /**
-   * If get an invalid or illegal node data from C dom manager,
-   * such as node id or parent id is negative number
-   */
-  public static final short INVALID_NODE_DATA_ERR = 100;
+        /**
+         * If get an exception of Deserialize node data from C dom manager
+         */
+        DESERIALIZE_DATA_ERR(101);
 
-  /**
-   * If get an exception of Deserialize node data from C dom manager
-   */
-  public static final short DESERIALIZER_DATA_ERR = 101;
+        private final int iValue;
+
+        ExceptionCode(int value) {
+            iValue = value;
+        }
+
+        @SuppressWarnings("unused")
+        public int value() {
+            return iValue;
+        }
+    }
+
+    public ExceptionCode code;
+
+    public NativeRenderException(ExceptionCode code, String message) {
+        super(message);
+        this.code = code;
+    }
+
 }

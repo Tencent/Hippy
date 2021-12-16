@@ -18,17 +18,18 @@ package com.tencent.renderer;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class NativeRendererManager {
-  private static final ConcurrentHashMap<Integer, INativeRender> nativeRendererMap = new ConcurrentHashMap<>();
 
-  public static void addNativeRendererInstance(Integer instanceId, INativeRender nativeRenderer) {
-    nativeRendererMap.put(instanceId, nativeRenderer);
-  }
+    private static final ConcurrentHashMap<Integer, INativeRender> nativeRendererMap = new ConcurrentHashMap<>();
 
-  public static void removeNativeRendererInstance(Integer instanceId) {
-    nativeRendererMap.remove(instanceId);
-  }
+    public static void addNativeRendererInstance(Integer instanceId, INativeRender nativeRenderer) {
+        nativeRendererMap.put(instanceId, nativeRenderer);
+    }
 
-  public static INativeRender getNativeRenderer(Integer instanceId) {
-    return nativeRendererMap.get(instanceId);
-  }
+    public static void removeNativeRendererInstance(Integer instanceId) {
+        nativeRendererMap.remove(instanceId);
+    }
+
+    public static INativeRender getNativeRenderer(Integer instanceId) {
+        return nativeRendererMap.get(instanceId);
+    }
 }

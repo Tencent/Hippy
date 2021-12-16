@@ -19,14 +19,15 @@ import android.content.Context;
 import android.content.ContextWrapper;
 
 public final class NativeRenderContext extends ContextWrapper {
-  private int instanceId;
 
-  public NativeRenderContext(Context context, int instanceId) {
-    super(context);
-    this.instanceId = instanceId;
-  }
+    private int instanceId;
 
-  public int getInstanceId() {
-    return instanceId;
-  }
+    public NativeRenderContext(Context context, int instanceId) {
+        super(context);
+        this.instanceId = instanceId;
+    }
+
+    public int getInstanceId() {
+        return instanceId;
+    }
 }

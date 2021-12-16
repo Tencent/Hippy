@@ -80,7 +80,7 @@ REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              CreateNativeRenderDelegate)
 
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
-             "updateRootSize",
+             "onRootSizeChanged",
              "(JII)V",
              UpdateRootSize)
 

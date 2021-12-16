@@ -15,9 +15,8 @@
  */
 package com.tencent.mtt.hippy.uimanager;
 
-import static com.tencent.renderer.NativeRenderException.INVALID_NODE_DATA_ERR;
+import static com.tencent.renderer.NativeRenderException.ExceptionCode.INVALID_NODE_DATA_ERR;
 
-import com.tencent.mtt.hippy.views.modal.HippyModalHostManager;
 import com.tencent.renderer.NativeRenderException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -99,12 +98,10 @@ public class RenderManager {
     }
   }
 
-  public void updateLayout(int id, int x, int y, int w, int h) {
-    LogUtils.d("RenderManager", "updateLayout ID " + id);
-    RenderNode uiNode = mNodes.get(id);
-    uiNode.updateLayout(x, y, w, h);
-
-    addUpdateNodeIfNeeded(uiNode);
+  public void updateLayout(int id, int left, int top, int width, int height) {
+    RenderNode node = mNodes.get(id);
+    node.updateLayout(left, top, width, height);
+    addUpdateNodeIfNeeded(node);
   }
 
   public void updateNode(int id, HippyMap map) {
