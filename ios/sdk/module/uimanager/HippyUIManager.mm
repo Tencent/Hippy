@@ -71,6 +71,8 @@ using DomEvent = hippy::DomEvent;
 
 - (void)enumerateViewsRelation:(void (^)(NSNumber *superviewTag, NSArray<NSNumber *> *subviewTags))block;
 
+- (void)removeAllObjects;
+
 @end
 
 @implementation HippyViewsRelation
@@ -85,12 +87,30 @@ using DomEvent = hippy::DomEvent;
 
 - (void)addViewTag:(NSNumber *)viewTag forSuperViewTag:(NSNumber *)superviewTag atIndex:(NSUInteger)index {
     if (superviewTag) {
-        NSPointerArray *views = _viewsRelation[superviewTag];
-        if (!views) {
-            views = [NSPointerArray pointerArrayWithOptions:NSPointerFunctionsStrongMemory];
-            _viewsRelation[superviewTag] = views;
+        NSPointerArray *viewsPoints = _viewsRelation[superviewTag];
+        if (!viewsPoints) {
+            viewsPoints = [NSPointerArray pointerArrayWithOptions:NSPointerFunctionsStrongMemory];
+            _viewsRelation[superviewTag] = viewsPoints;
         }
-        [views insertPointer:(__bridge void *)viewTag atIndex:index];
+        NSUInteger count =  [viewsPoints count];
+        if (index > count) {
+            for (NSInteger i = 0; i < index - count; i++) {
+                [viewsPoints addPointer:NULL];
+            }
+            [viewsPoints addPointer:(__bridge void *)viewTag];
+        }
+        else if (index < count) {
+            void *p = [viewsPoints pointerAtIndex:index];
+            if (NULL == p) {
+                [viewsPoints replacePointerAtIndex:index withPointer:(__bridge void *)viewTag];
+            }
+            else {
+                HippyAssert(NO, @"index %zd already exists", index);
+            }
+        }
+        else {
+            [viewsPoints addPointer:(__bridge void *)viewTag];
+        }
     }
 }
 
@@ -102,6 +122,10 @@ using DomEvent = hippy::DomEvent;
         NSArray<NSNumber *> *subviewsTags = [arrays allObjects];
         block(superviewTag, subviewsTags);
     }
+}
+
+- (void)removeAllObjects {
+    [_viewsRelation removeAllObjects];
 }
 
 @end
@@ -899,7 +923,7 @@ HIPPY_EXPORT_METHOD(manageChildren:(nonnull NSNumber *)containerTag
         [componentData setProps:newProps forShadowView:shadowView];
         _shadowViewRegistry[hippyTag] = shadowView;
     }
-    std::shared_ptr<hippy::DomNode> node_ = domNode;
+    std::shared_ptr<hippy::DomNode> node_ = std::move(domNode);
     [self addUIBlock:^(HippyUIManager *uiManager, __unused NSDictionary<NSNumber *,UIView *> *viewRegistry) {
         UIView *view = [uiManager createViewByComponentData:componentData hippyTag:hippyTag rootTag:rootTag properties:newProps viewName:viewName];
         view.domNode = node_;
@@ -1596,7 +1620,6 @@ static UIView *_jsResponder;
  */
 - (void)createRenderNodes:(std::vector<std::shared_ptr<DomNode>> &&)nodes {
     HippyViewsRelation *manager = [[HippyViewsRelation alloc] init];
-    int32_t rootviewTag = [[self rootHippyTag] intValue];
     for (const std::shared_ptr<DomNode> &node : nodes) {
         NSNumber *hippyTag = @(node->GetId());
         NSString *viewName = [NSString stringWithUTF8String:node->GetViewName().c_str()];
@@ -1606,13 +1629,7 @@ static UIView *_jsResponder;
         NSMutableDictionary *props = [NSMutableDictionary dictionaryWithDictionary:styleProps];
         [props addEntriesFromDictionary:extProps];
         NSNumber *rootTag = [_rootViewTags anyObject];
-        const std::vector<std::shared_ptr<DomNode>> &children = node->GetChildren();
-        for (const std::shared_ptr<DomNode> &child : children) {
-            [manager addViewTag:@(child->GetId()) forSuperViewTag:@(node->GetId()) atIndex:child->GetIndex()];
-        }
-        if (node->GetPid() == rootviewTag) {
-            [manager addViewTag:@(node->GetId()) forSuperViewTag:rootTag atIndex:node->GetIndex()];
-        }
+        [manager addViewTag:@(node->GetId()) forSuperViewTag:@(node->GetPid()) atIndex:node->GetIndex()];
         [self createView:hippyTag viewName:viewName rootTag:rootTag tagName:tagName props:props domNode:node];
     }
     [manager enumerateViewsRelation:^(NSNumber *superviewTag, NSArray<NSNumber *> *subviewTags) {
@@ -1644,9 +1661,7 @@ static UIView *_jsResponder;
     for (const int32_t &index : indices) {
         [numbers addObject:@(index)];
     }
-    dispatch_async(HippyGetUIManagerQueue(), ^{
-        [self manageChildren:@(hippyTag) moveFromIndices:nil moveToIndices:nil addChildHippyTags:nil addAtIndices:nil removeAtIndices:numbers];
-    });
+    [self manageChildren:@(hippyTag) moveFromIndices:nil moveToIndices:nil addChildHippyTags:nil addAtIndices:nil removeAtIndices:numbers];
 }
 
 - (void)renderMoveViews:(const std::vector<int32_t> &)ids fromContainer:(int32_t)fromContainer toContainer:(int32_t)toContainer {

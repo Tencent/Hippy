@@ -48,14 +48,13 @@ void NativeRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>
     std::vector<int32_t> indices;
     int32_t rootTag = INT32_MIN;
     for (const std::shared_ptr<DomNode> &node : nodes) {
-        DomNode::RenderInfo info = node->GetRenderInfo();
         if (INT32_MIN == rootTag) {
-            rootTag = info.pid;
+            rootTag = node->GetPid();
         }
         else {
-            HippyAssert(rootTag == info.pid, @"DeleteRenderNode ,nodes not on the same parent node");
+            HippyAssert(rootTag == node->GetPid(), @"DeleteRenderNode ,nodes not on the same parent node");
         }
-        indices.push_back(info.index);
+        indices.push_back(node->GetIndex());
     }
     if (INT32_MIN != rootTag) {
         [uiManager_ renderDeleteViewFromContainer:rootTag forIndices:indices];
