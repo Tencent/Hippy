@@ -48,7 +48,7 @@ class HippyEventEmitter {
     return this.hippyEventListeners;
   }
 
-  public addListener(event: string, callback: (data?: any) => void, context?: any) {
+  public addListener(event: string | undefined, callback: (data?: any) => void, context?: any) {
     if (typeof event !== 'string' || typeof callback !== 'function') {
       throw new TypeError('Invalid arguments');
     }
@@ -67,7 +67,7 @@ class HippyEventEmitter {
     return new EventEmitterRevoker(listenerId, registedListener);
   }
 
-  removeAllListeners(event: string) {
+  removeAllListeners(event: string | undefined) {
     if (typeof event !== 'string') {
       throw new TypeError('Invalid arguments');
     }
@@ -80,7 +80,7 @@ class HippyEventEmitter {
   }
 
   /* eslint-disable-next-line class-methods-use-this */
-  emit(event: string, param: any) {
+  emit(event: string | undefined, param: any) {
     if (typeof event !== 'string') {
       return false;
     }
@@ -92,7 +92,7 @@ class HippyEventEmitter {
     return true;
   }
 
-  listenerSize(event: string) {
+  listenerSize(event: string | undefined) {
     if (typeof event !== 'string') {
       throw new TypeError('Invalid arguments');
     }
