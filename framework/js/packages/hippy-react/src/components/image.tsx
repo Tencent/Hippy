@@ -62,7 +62,7 @@ interface ImageProps extends LayoutableProps, ClickableProps {
    * Fill color to the image
    */
   tintColor?: number | string;
-  tintColors?: number[] | string[];
+  tintColors?: (number | string)[];
 
   /**
    * Image style when `Image` have other children.
@@ -152,7 +152,7 @@ class Image extends React.Component<ImageProps, {}> {
     }
     const size = getSize(url);
     if (typeof success === 'function') {
-      size.then((result: Size) => success(result.width, result.height));
+      size.then((result: Size | any) => success(result.width, result.height));
     }
     if (typeof failure === 'function') {
       size.catch(failure);
