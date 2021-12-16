@@ -5,9 +5,6 @@ namespace hippy {
 inline namespace dom {
 
 static OverflowType GetFlexOverflow(const std::string& overflow) {
-  if (overflow.empty()) {
-    return OverflowType::OverflowVisible;
-  }
   if (overflow.compare("visible") == 0) {
     return OverflowType::OverflowVisible;
   }
@@ -21,9 +18,6 @@ static OverflowType GetFlexOverflow(const std::string& overflow) {
 }
 
 static FlexDirection GetFlexDirection(const std::string& flex_direction) {
-  if (flex_direction.empty()) {
-    return FlexDirection::FLexDirectionColumn;
-  }
   if (flex_direction == "row") {
     return FlexDirection::FLexDirectionRow;
   }
@@ -53,9 +47,6 @@ static FlexWrapMode GetFlexWrapMode(const std::string& wrap_mode) {
 }
 
 static FlexAlign GetFlexJustify(const std::string& justify_content) {
-  if (justify_content.empty()) {
-    return FlexAlign::FlexAlignStart;
-  }
   if (justify_content == "flex-start") {
     return FlexAlign::FlexAlignStart;
   }
@@ -75,9 +66,6 @@ static FlexAlign GetFlexJustify(const std::string& justify_content) {
 }
 
 static FlexAlign GetFlexAlign(const std::string& align) {
-  if (align.empty()) {
-    return FlexAlign::FlexAlignStretch;
-  }
   if (align == "auto") {
     return FlexAlign::FlexAlignAuto;
   }
@@ -106,37 +94,31 @@ static FlexAlign GetFlexAlign(const std::string& align) {
 }
 
 static CSSDirection GetCSSDirection(const std::string& direction) {
-  if (direction.empty()) {
-    return CSSDirection::CSSNONE;
-  }
-  if (direction == kMargin) {
+  if (direction == kMargin || direction == kPadding) {
     return CSSDirection::CSSAll;
   }
-  if (direction == kMarginVertical) {
+  if (direction == kMarginVertical || direction == kPaddingVertical) {
     return CSSDirection::CSSVertical;
   }
-  if (direction == kMarginHorizontal) {
+  if (direction == kMarginHorizontal || direction == kPaddingHorizontal) {
     return CSSDirection::CSSHorizontal;
   }
-  if (direction == kMarginLeft || direction == kLeft) {
+  if (direction == kMarginLeft || direction == kPaddingLeft || direction == kLeft) {
     return CSSDirection::CSSLeft;
   }
-  if (direction == kMarginTop || direction == kTop) {
+  if (direction == kMarginTop || direction == kPaddingTop || direction == kTop) {
     return CSSDirection::CSSTop;
   }
-  if (direction == kMarginRight || direction == kRight) {
+  if (direction == kMarginRight || direction == kPaddingRight || direction == kRight) {
     return CSSDirection::CSSRight;
   }
-  if (direction == kMarginBottom || direction == kBottom) {
+  if (direction == kMarginBottom || direction == kPaddingBottom || direction == kBottom) {
     return CSSDirection::CSSBottom;
   }
   return CSSDirection::CSSNONE;
 }
 
 static PositionType GetPositionType(const std::string& position) {
-  if (position.empty()) {
-    return PositionType::PositionTypeRelative;
-  }
   if (position == "relative") {
     return PositionType::PositionTypeRelative;
   }
@@ -237,6 +219,14 @@ void TaitankLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<t
   if (style_map.find(kMargin) != style_map.end()) {
     SetMargin(GetCSSDirection(kMargin), static_cast<float>(style_map.find(kMargin)->second->ToDouble()));
   }
+  if (style_map.find(kMarginVertical) != style_map.end()) {
+    SetMargin(GetCSSDirection(kMarginVertical),
+              static_cast<float>(style_map.find(kMarginVertical)->second->ToDouble()));
+  }
+  if (style_map.find(kMarginHorizontal) != style_map.end()) {
+    SetMargin(GetCSSDirection(kMarginHorizontal),
+              static_cast<float>(style_map.find(kMarginHorizontal)->second->ToDouble()));
+  }
   if (style_map.find(kMarginLeft) != style_map.end()) {
     SetMargin(GetCSSDirection(kMarginLeft), static_cast<float>(style_map.find(kMarginLeft)->second->ToDouble()));
   }
@@ -251,6 +241,14 @@ void TaitankLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<t
   }
   if (style_map.find(kPadding) != style_map.end()) {
     SetPadding(GetCSSDirection(kPadding), static_cast<float>(style_map.find(kPadding)->second->ToDouble()));
+  }
+  if (style_map.find(kPaddingVertical) != style_map.end()) {
+    SetPadding(GetCSSDirection(kPaddingVertical),
+               static_cast<float>(style_map.find(kPaddingVertical)->second->ToDouble()));
+  }
+  if (style_map.find(kPaddingHorizontal) != style_map.end()) {
+    SetPadding(GetCSSDirection(kPaddingHorizontal),
+               static_cast<float>(style_map.find(kPaddingHorizontal)->second->ToDouble()));
   }
   if (style_map.find(kPaddingLeft) != style_map.end()) {
     SetPadding(GetCSSDirection(kPaddingLeft), static_cast<float>(style_map.find(kPaddingLeft)->second->ToDouble()));
