@@ -48,9 +48,12 @@ HPSize textMeasureFunc(
     hippy::DomNode *pNode = static_cast<hippy::DomNode *>(HPNodeGetContext(node));
     NSDictionary *props = unorderedMapDomValueToDictionary(pNode->GetExtStyle());
     NSDictionary *styleProps = unorderedMapDomValueToDictionary(pNode->GetStyleMap());
-    NSNumber *fontSize = styleProps[@"fontSize"];
+    CGFloat fontSize = [styleProps[@"fontSize"] floatValue];
     NSString *text = props[@"text"];
-    UIFont *font = [UIFont systemFontOfSize:[fontSize floatValue]];
+    if (0 == fontSize) {
+        fontSize = [UIFont systemFontSize];
+    }
+    UIFont *font = [UIFont systemFontOfSize:fontSize];
     CGSize size = [text sizeWithFont:font];
     HPSize retSize;
     retSize.width = HippyCeilPixelValue(size.width);
