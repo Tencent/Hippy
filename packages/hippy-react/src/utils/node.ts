@@ -140,7 +140,6 @@ function recursivelyUnCacheFiberNode(node: ElementNode | number): void {
  * @param {{timeout: number}} [options]
  */
 function requestIdleCallback(cb: Function, options?: { timeout: number }): ReturnType<typeof setTimeout> {
-  // @ts-ignore
   if (!global.requestIdleCallback) {
     return setTimeout(() => {
       cb({
@@ -151,7 +150,6 @@ function requestIdleCallback(cb: Function, options?: { timeout: number }): Retur
       });
     }, 1);
   }
-  // @ts-ignore
   return global.requestIdleCallback(cb, options);
 }
 
@@ -160,11 +158,9 @@ function requestIdleCallback(cb: Function, options?: { timeout: number }): Retur
  * @param {ReturnType<typeof setTimeout>} id
  */
 function cancelIdleCallback(id: ReturnType<typeof setTimeout>): void {
-  // @ts-ignore
   if (!global.cancelIdleCallback) {
     clearTimeout(id);
   } else {
-    // @ts-ignore
     global.cancelIdleCallback(id);
   }
 }

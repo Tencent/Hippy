@@ -307,12 +307,13 @@ function preparePortalMount(): void {
   // noop
 }
 
-function detachDeletedInstance(node: Element): void {
+function detachDeletedInstance(): void {
   // noop
 }
 
 export const scheduleTimeout = setTimeout;
 export const cancelTimeout = clearTimeout;
+// @ts-ignore
 export const noTimeout = -1;
 
 export {
