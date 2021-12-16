@@ -5,6 +5,7 @@
 #include <utility>
 
 #include "base/logging.h"
+#include "jni/jni_env.h"
 
 constexpr char kId[] = "id";
 constexpr char kPid[] = "pId";
@@ -222,6 +223,7 @@ void HippyRenderManager::CallNativeMethod(const std::pair<uint8_t*, size_t>& buf
   }
 
   j_env->CallVoidMethod(j_object, j_method_id, j_buffer);
+  JNIEnvironment::ClearJEnvException(j_env);
   j_env->DeleteLocalRef(j_buffer);
 }
 
@@ -243,6 +245,7 @@ void HippyRenderManager::CallNativeMethod(const std::string& method) {
   }
 
   j_env->CallVoidMethod(j_object, j_method_id);
+  JNIEnvironment::ClearJEnvException(j_env);
 }
 
 }  // namespace dom
