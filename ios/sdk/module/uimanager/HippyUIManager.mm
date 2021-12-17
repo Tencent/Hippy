@@ -1807,9 +1807,14 @@ static UIView *_jsResponder;
         }
         [view addViewEvent:event_type eventListener:^(CGPoint point) {
             std::shared_ptr<DomNode> node = weak_node.lock();
-            hippy::TouchEventInfo info = {static_cast<float>(point.x), static_cast<float>(point.y)};
             if (node) {
-                node->HandleEvent(std::make_shared<DomEvent>(type, weak_node, std::any_cast<hippy::TouchEventInfo>(info)));
+                tdf::base::DomValue::DomValueObjectType domValue;
+                domValue["x"] = tdf::base::DomValue(point.x);
+                domValue["y"] = tdf::base::DomValue(point.y);
+                std::shared_ptr<tdf::base::DomValue> value = std::make_shared<tdf::base::DomValue>(domValue);
+                if (node) {
+                   node->HandleEvent(std::make_shared<DomEvent>(type, weak_node, value));
+                }
             }
         }];
     }

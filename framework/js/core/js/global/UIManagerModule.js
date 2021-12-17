@@ -6,8 +6,10 @@ const UIManagerModule = internalBinding('UIManagerModule');
 const gestureKeyMap = {
   onClick: 'click',
   onLongClick: 'longclick',
-  onPressIn: 'touchstart', // 归一化处理
-  onPressOut: 'touchend', // 归一化处理
+  // onPressIn: 'touchstart', // 归一化处理
+  // onPressOut: 'touchend', // 归一化处理
+  onPressIn: 'pressin',
+  onPressOut: 'pressout',
   onTouchDown: 'touchstart',  // w3c是touchstart，此处兼容老代码
   onTouchEnd: 'touchend',
   onTouchMove: 'touchmove',
@@ -20,10 +22,15 @@ const uiEventKeyMap = {
   onDismiss: 'dismiss',
 };
 
+const kEventsListsKey = '__events';
+
 // 兼容 hippy2.0，hippy3.0 放量一段时间后可删除
 function HandleEventListener(node) {
   if (!node.props) {
     return;
+  }
+  if (typeof node[kEventsListsKey] === 'undefined') {
+    node[kEventsListsKey] = [];
   }
   for (const [key, value] of Object.entries(node.props)) {
     if ((gestureKeyMap[key] || uiEventKeyMap[key]) && value === true) {
@@ -35,27 +42,35 @@ function HandleEventListener(node) {
             receiveNativeGesture = null,
           },
         } = __GLOBAL__.jsModuleList;
-        node[key] = function (param) {
-          if (receiveNativeGesture) {
-            const event = {
-              id, name: key,
-            };
-            Object.assign(event, param);
-            receiveNativeGesture(event);
-          }
-        };
+        node[kEventsListsKey].push({
+          name: gestureKeyMap[key],
+          cb(param) {
+            global.ConsoleModule.debug(`param = ${param}`);
+            global.ConsoleModule.debug(`id = ${id}`);
+            if (receiveNativeGesture) {
+              const event = {
+                id, name: key,
+              };
+              Object.assign(event, param);
+              receiveNativeGesture(event);
+            }
+          },
+        });
       } else if (uiEventKeyMap[key]) {
         const {
           EventDispatcher: {
             receiveUIComponentEvent = null,
           },
         } = __GLOBAL__.jsModuleList;
-        node[key] = function (param) {
-          if (receiveUIComponentEvent) {
-            const event = [id, key, param];
-            receiveUIComponentEvent(event);
-          }
-        };
+        node[kEventsListsKey].push({
+          name: uiEventKeyMap[key],
+          cb(param) {
+            if (receiveUIComponentEvent) {
+              const event = [id, key, param];
+              receiveUIComponentEvent(event);
+            }
+          },
+        });
       }
     }
   }
