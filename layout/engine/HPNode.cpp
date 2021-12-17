@@ -193,12 +193,7 @@ bool HPNode::insertChild(HPNodeRef item, uint32_t index) {
     return false;
   }
   item->setParent(this);
-  auto size = children.size();
-  if (index >= size) {
-    children.push_back(item);
-  } else {
-    children.insert(children.begin() + index, item);
-  }
+  children.insert(children.begin() + index, item);
   markAsDirty();
   return true;
 }
