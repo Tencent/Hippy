@@ -10,17 +10,19 @@ const gestureKeyMap = {
   // onPressOut: 'touchend', // 归一化处理
   onPressIn: 'pressin',
   onPressOut: 'pressout',
-  onTouchDown: 'touchstart',  // w3c是touchstart，此处兼容老代码
+  onTouchDown: 'touchstart', // w3c是touchstart，此处兼容老代码
+  onTouchStart: 'touchstart',
   onTouchEnd: 'touchend',
   onTouchMove: 'touchmove',
   onTouchCancel: 'touchcancel',
 };
 
-const uiEventKeyMap = {
-  onLayout: 'layout',
-  onShow: 'show',
-  onDismiss: 'dismiss',
-};
+// const uiEventKeyMap = {
+//   onLayout: 'layout',
+//   onShow: 'show',
+//   onDismiss: 'dismiss',
+// };
+
 
 const kEventsListsKey = '__events';
 
@@ -56,14 +58,16 @@ function HandleEventListener(node) {
             }
           },
         });
-      } else if (uiEventKeyMap[key]) {
+      } else {
+        const name = key.replace(/^(on)/g, '').toLocaleLowerCase();
+        global.ConsoleModule.debug(`HandleEventListener id = ${id}, key = ${key}, name = ${name}`);
         const {
           EventDispatcher: {
             receiveUIComponentEvent = null,
           },
         } = __GLOBAL__.jsModuleList;
         node[kEventsListsKey].push({
-          name: uiEventKeyMap[key],
+          name,
           cb(param) {
             if (receiveUIComponentEvent) {
               const event = [id, key, param];
