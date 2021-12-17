@@ -91,7 +91,7 @@ public abstract class HippyEngine {
     }
     params.check();
     LogUtils.enableDebugLog(params.enableLog);
-    ContextHolder.initAppContext(params.context);
+    ContextHolder.setContext(params.context);
 
     HippyEngine hippyEngine;
     if (params.groupId == -1) {

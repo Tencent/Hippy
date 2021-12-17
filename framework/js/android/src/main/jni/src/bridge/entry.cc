@@ -76,12 +76,12 @@ REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err5
 
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              "onCreateNativeRenderProvider",
-             "(J)V",
+             "(JF)V",
              CreateNativeRenderDelegate)
 
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              "onRootSizeChanged",
-             "(JII)V",
+             "(JFF)V",
              UpdateRootSize)
 
 using unicode_string_view = tdf::base::unicode_string_view;
@@ -595,7 +595,7 @@ void DestroyInstance(__unused JNIEnv* j_env,
   TDF_BASE_DLOG(INFO) << "destroy end";
 }
 
-void CreateNativeRenderDelegate(JNIEnv* j_env, jobject j_object, jlong j_runtime_id, jlong j_density) {
+void CreateNativeRenderDelegate(JNIEnv* j_env, jobject j_object, jlong j_runtime_id, jfloat j_density) {
   std::shared_ptr<Runtime> runtime = Runtime::Find(j_runtime_id);
   if (!runtime) {
     TDF_BASE_DLOG(WARNING) << "CreateNativeRenderDelegate j_runtime_id invalid";
@@ -613,7 +613,7 @@ void CreateNativeRenderDelegate(JNIEnv* j_env, jobject j_object, jlong j_runtime
   dom_manager->SetRenderManager(render_manager);
 }
 
-void UpdateRootSize(JNIEnv* j_env, jobject j_object, jlong j_runtime_id, jint j_width, jint j_height) {
+void UpdateRootSize(JNIEnv* j_env, jobject j_object, jlong j_runtime_id, jfloat j_width, jfloat j_height) {
   std::shared_ptr<Runtime> runtime = Runtime::Find(j_runtime_id);
   if (!runtime) {
     TDF_BASE_DLOG(WARNING) << "UpdateRootSize j_runtime_id invalid";

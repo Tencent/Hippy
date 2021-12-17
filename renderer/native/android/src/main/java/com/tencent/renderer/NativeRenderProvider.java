@@ -18,6 +18,7 @@ package com.tencent.renderer;
 import com.tencent.mtt.hippy.serialization.nio.reader.BinaryReader;
 import com.tencent.mtt.hippy.serialization.nio.reader.SafeHeapReader;
 import com.tencent.mtt.hippy.serialization.string.InternalizedStringTable;
+import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.renderer.serialization.Deserializer;
 import java.nio.ByteBuffer;
@@ -33,7 +34,7 @@ public class NativeRenderProvider {
         this.renderDelegate = renderDelegate;
         this.runtimeId = runtimeId;
         deserializer = new Deserializer(null, new InternalizedStringTable());
-        onCreateNativeRenderProvider(runtimeId);
+        onCreateNativeRenderProvider(runtimeId, PixelUtil.getDensity());
     }
 
     public void destroy() {
@@ -153,7 +154,7 @@ public class NativeRenderProvider {
     }
 
     public void onSizeChanged(int width, int height) {
-        onRootSizeChanged(runtimeId, width, height);
+        onRootSizeChanged(runtimeId, PixelUtil.px2dp(width), PixelUtil.px2dp(height));
     }
 
     /**
@@ -161,16 +162,17 @@ public class NativeRenderProvider {
      * adadpter
      *
      * @param runtimeId v8 instance id
+     * @param density screen displayMetrics density
      */
-    public native void onCreateNativeRenderProvider(long runtimeId);
+    public native void onCreateNativeRenderProvider(long runtimeId, float density);
 
     /**
      * Call from Android system call back when size changed, just like horizontal and vertical
      * screen switching call this jni interface to invoke dom tree relayout
      *
      * @param runtimeId v8 instance id
-     * @param width root view new width
-     * @param height root view new height
+     * @param width root view new width use dp unit
+     * @param height root view new height use dp unit
      */
-    public native void onRootSizeChanged(long runtimeId, int width, int height);
+    public native void onRootSizeChanged(long runtimeId, float width, float height);
 }

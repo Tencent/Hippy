@@ -19,15 +19,16 @@ import android.content.Context;
 
 public class ContextHolder {
 
-  private static Context appContext;
+  private static Context applicationContext = null;
 
-  public static void initAppContext(Context context) {
-    if (context != null && appContext == null) {
-      appContext = context.getApplicationContext();
+  public static void setContext(Context context) {
+    if (context != null && applicationContext == null) {
+      applicationContext = context.getApplicationContext();
+      PixelUtil.initDisplayMetrics(applicationContext);
     }
   }
 
   public static Context getAppContext() {
-    return appContext;
+    return applicationContext;
   }
 }
