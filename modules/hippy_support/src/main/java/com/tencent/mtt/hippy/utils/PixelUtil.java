@@ -15,25 +15,34 @@
  */
 package com.tencent.mtt.hippy.utils;
 
+import android.content.Context;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
+import android.view.Display;
+import android.view.WindowManager;
 
-@SuppressWarnings({"unused"})
 public class PixelUtil {
+  private static DisplayMetrics displayMetrics = null;
 
-  static DisplayMetrics sMetrics = null;
-
-
-  private static DisplayMetrics getMetrics() {
-    if (sMetrics == null) {
-      sMetrics = ContextHolder.getAppContext().getResources().getDisplayMetrics();
+  public static void initDisplayMetrics(Context appContext) {
+    if (appContext == null) {
+      return;
     }
-    return sMetrics;
+
+    if (displayMetrics == null) {
+      displayMetrics = new DisplayMetrics();
+      WindowManager windowManager = (WindowManager) appContext
+              .getSystemService(Context.WINDOW_SERVICE);
+      Display defaultDisplay = windowManager.getDefaultDisplay();
+      defaultDisplay.getRealMetrics(displayMetrics);
+    }
   }
 
-
   public static float dp2px(float value) {
-    return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, getMetrics());
+    if (displayMetrics == null) {
+      return value;
+    }
+    return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, displayMetrics);
   }
 
   public static float dp2px(double value) {
@@ -41,18 +50,13 @@ public class PixelUtil {
   }
 
   public static float px2dp(float value) {
-    return value / getMetrics().density;
-  }
-
-  public static float sp2px(float value) {
-    return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, value, getMetrics());
-  }
-
-  public static float px2sp(float value) {
-    return value / getMetrics().scaledDensity;
+    return value / getDensity();
   }
 
   public static float getDensity() {
-    return getMetrics().density;
+    if (displayMetrics == null) {
+      return 1.0f;
+    }
+    return displayMetrics.density;
   }
 }

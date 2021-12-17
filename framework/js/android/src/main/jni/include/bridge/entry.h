@@ -59,9 +59,10 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
 
 void CreateNativeRenderDelegate(JNIEnv* j_env,
                                 jobject j_obj,
-                                jlong j_runtime_id);
+                                jlong j_runtime_id,
+                                jfloat j_density);
 
-void UpdateRootSize(JNIEnv* j_env, jobject j_obj, jlong j_runtime_id, jint width, jint height);
+void UpdateRootSize(JNIEnv* j_env, jobject j_obj, jlong j_runtime_id, jfloat width, jfloat height);
 
 }  // namespace bridge
 }  // namespace hippy

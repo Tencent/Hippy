@@ -710,7 +710,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
           mServerHost, mGroupId, mThirdPartyAdapter, v8InitParams);
       try {
         Class nativeRendererClass = Class.forName("com.tencent.renderer.NativeRenderer");
-        nativeRendererProxy = (INativeRenderProxy)(nativeRendererClass.newInstance());
+        nativeRendererProxy = (INativeRenderProxy) (nativeRendererClass.newInstance());
         List<Class<? extends HippyBaseController>> controllers = null;
         for (HippyAPIProvider hippyPackage : mAPIProviders) {
           if (controllers == null) {
