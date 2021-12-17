@@ -396,6 +396,13 @@ void TaitankLayoutNode::SetHeight(float height) {
   engine_node_->markAsDirty();
 }
 
+void TaitankLayoutNode::SetScaleFactor(float sacle_factor) {
+  assert(engine_node_ != nullptr);
+  HPConfigRef config = engine_node_->GetConfig();
+  config->SetScaleFactor(sacle_factor);
+}
+
+
 void TaitankLayoutNode::SetMaxWidth(float max_width) {
   assert(engine_node_ != nullptr);
   if (FloatIsEqual(engine_node_->style.maxDim[DimWidth], max_width)) return;

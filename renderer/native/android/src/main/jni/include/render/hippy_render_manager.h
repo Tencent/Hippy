@@ -36,13 +36,18 @@ class HippyRenderManager : public RenderManager {
   void CallFunction(std::weak_ptr<DomNode> dom_node, const std::string& name, const DomValue& param,
                     CallFunctionCallback cb) override;
 
+  void SetDensity(float density) { density_ = density; };
+
  private:
+  inline float DpToPx(float dp);
+
   void CallNativeMethod(const std::pair<uint8_t*, size_t>& buffer, const std::string& method);
 
   void CallNativeMethod(const std::string& method);
 
   std::shared_ptr<JavaRef> render_delegate_;
   std::shared_ptr<tdf::base::Serializer> serializer_;
+  float density_ = 1.0f;
 };
 }  // namespace dom
 }  // namespace hippy

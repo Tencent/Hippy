@@ -19,6 +19,7 @@ class LayoutNode {
   virtual float GetHeight() = 0;
   virtual void SetWidth(float width) = 0;
   virtual void SetHeight(float height) = 0;
+  virtual void SetScaleFactor(float scale_factor) = 0;
 
   /**
    * @brief 插入子节点
