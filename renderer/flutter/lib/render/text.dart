@@ -41,7 +41,7 @@ class TextRenderNode extends RenderNode with TextStyleNode {
       return FlexOutput.makeMeasureResult(
           layoutParams.width, layoutParams.height);
     } else {
-      LogUtils.d(_kTag, 'measure: w: ${painter.width} h: ${painter.height}');
+      LogUtils.d(_kTag, 'measure($id):[${painter.width}, ${painter.height}]');
       return FlexOutput.makeMeasureResult(painter.width, painter.height);
     }
   }
@@ -56,7 +56,7 @@ class TextRenderNode extends RenderNode with TextStyleNode {
       return;
     }
 
-    createSpan();
+    span = createSpan();
   }
 
   void layoutAfter(EngineContext context) {

@@ -122,6 +122,8 @@ class RenderViewModel extends ChangeNotifier {
 
   EngineContext get context => _engineContext;
 
+  Key get renderKey => ValueKey('$_className[$_id]');
+
   int get childCount => 0;
 
   RenderViewModel? childFromId(int id) => null;

@@ -1,3 +1,5 @@
+import 'package:tencent_voltron_render/style/prop.dart';
+
 import '../common/destroy.dart';
 import '../common/voltron_array.dart';
 import '../engine/engine_context.dart';
@@ -39,6 +41,8 @@ class RenderOperatorRunner implements Destroyable {
         _AddEventOpTask(instanceId, nodeId, params),
     _RenderOpType.removeEvent.index: (instanceId, nodeId, params) =>
         _RemoveEventOpTask(instanceId, nodeId, params),
+    _RenderOpType.layoutBatch.index: (instanceId, nodeId, params) =>
+        _LayoutBatchOpTask(instanceId),
   };
 
   RenderOperatorRunner(this._engineContext);
@@ -99,10 +103,11 @@ class _AddNodeOpTask extends _NodeOpTask {
     var parentId = _params[_RenderOpParamsKey.kParentNodeIdKey] ?? kInvalidId;
     var styleMap = _params[_RenderOpParamsKey.kStylesKey] ?? {};
     var propMap = _params[_RenderOpParamsKey.kPropsKey] ?? {};
-
+    var composePropMap = VoltronMap.fromMap(propMap);
+    composePropMap.push(NodeProps.style, VoltronMap.fromMap(styleMap));
     renderManager.addUITask(() {
       renderManager.createNode(_instanceId, _nodeId, parentId, childIndex,
-          className, VoltronMap.fromMap(styleMap), VoltronMap.fromMap(propMap));
+          className, composePropMap);
     });
   }
 }
@@ -204,6 +209,18 @@ class _BatchOpTask extends RenderOpTask {
 
   @override
   void _run() {
+    renderManager.renderBatchEnd();
+  }
+}
+
+class _LayoutBatchOpTask extends RenderOpTask {
+  _LayoutBatchOpTask(int instanceId) : super(instanceId);
+
+  @override
+  void _run() {
+    renderManager.addUITask(() {
+      renderManager.layoutBatchEnd();
+    });
     renderManager.renderBatchEnd();
   }
 }
@@ -391,6 +408,7 @@ enum _RenderOpType {
   dispatchUiFunc,
   addEvent,
   removeEvent,
+  layoutBatch,
 }
 
 class _RenderOpParamsKey {

@@ -1,4 +1,5 @@
 import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 
 import '../common/destroy.dart';
@@ -134,6 +135,10 @@ mixin RenderExecutorDelegate {
     _batch();
   }
 
+  void layoutBatchEnd() {
+    _layoutBatch();
+  }
+
   void _batch() {
     for (final task in _uiTasks) {
       addDispatchTask(task);
@@ -147,6 +152,10 @@ mixin RenderExecutorDelegate {
 
     _renderBatchStart();
   }
+
+  void _layoutBatch();
+
+  void notifyDom();
 
   void flushPendingBatches() {
     if (isPause) {
@@ -183,7 +192,10 @@ mixin RenderExecutorDelegate {
     if (shouldBatch) {
       doRenderBatch();
     }
+
+    notifyDom();
   }
+
 }
 
 class RenderManager
@@ -197,6 +209,7 @@ class RenderManager
         EngineLifecycleEventListener {
   final List<RenderNode> _uiUpdateNodes = [];
   final List<RenderNode> _nullUiUpdateNodes = [];
+  final Set<RenderNode> _updateRenderNodes = {};
 
   final ControllerManager _controllerManager;
   final EngineContext context;
@@ -212,7 +225,6 @@ class RenderManager
   @override
   void onInstanceLoad(final int instanceId) {
     createRootNode(instanceId);
-    postFrameCallback();
   }
 
   void createRootNode(int instanceId) async {
@@ -233,17 +245,13 @@ class RenderManager
     }
   }
 
-  void createNode(int instanceId, int id, int pId, int childIndex, String name,
-      VoltronMap? styles, VoltronMap? props) {
+  void createNode(int instanceId, int id, int pId, int childIndex, String name, VoltronMap? props) {
     var parentNode = controllerManager.findNode(instanceId, pId);
     var tree = controllerManager.findTree(instanceId);
     if (parentNode != null && tree != null) {
       var isLazy = controllerManager.isControllerLazy(name);
       var uiNode = controllerManager.createRenderNode(
           id, props, name, tree, isLazy || parentNode.isLazyLoad);
-      if (styles != null) {
-        uiNode?.updateStyle(styles);
-      }
       LogUtils.dRender(
           "createNode ID:$id pID:$pId index:$childIndex className:$name finish:${uiNode.hashCode}");
       parentNode.addChild(uiNode, childIndex);
@@ -258,6 +266,21 @@ class RenderManager
   void addUpdateNodeIfNeeded(RenderNode? renderNode) {
     if (renderNode != null && !_uiUpdateNodes.contains(renderNode)) {
       _uiUpdateNodes.add(renderNode);
+    }
+  }
+
+  @override
+  void notifyDom() {
+    context.bridgeManager.notifyDom();
+  }
+
+  @override
+  void _layoutBatch() {
+    if (_updateRenderNodes.isNotEmpty) {
+      for (var node in _updateRenderNodes) {
+        node.updateRender();
+      }
+      _updateRenderNodes.clear();
     }
   }
 
@@ -282,6 +305,10 @@ class RenderManager
   int calculateLayout(int instanceId, int id, FlexLayoutParams layoutParams) {
     var node = getNode(instanceId, id);
     if (node != null) {
+      if (node.isVirtual) {
+        // text子节点不需要单独layout，父节点内部已经完成layout了
+        return layoutParams.zero();
+      }
       node.layoutBefore(context);
       var result = node.calculateLayout(layoutParams);
       node.layoutAfter(context);
@@ -374,14 +401,6 @@ class RenderManager
 
   }
 
-  @override
-  void doFrame() {
-    super.doFrame();
-    if (!_isDestroyed) {
-      context.bridgeManager.consumeRenderOp();
-    }
-  }
-
   void deleteNode(int instanceId, int id) {
     var uiNode = controllerManager.findNode(instanceId, id);
     if (uiNode != null) {
@@ -397,7 +416,7 @@ class RenderManager
       _deleteSelfFromParent(uiNode);
       LogUtils.dRender("delete node ID:$id finish, ${uiNode.hashCode}");
     } else {
-      LogUtils.w("RenderManager", "delete node id:$id error, node not found");
+      LogUtils.w(_kTag, "delete node id:$id error, node not found");
     }
   }
 
@@ -418,7 +437,7 @@ class RenderManager
       renderNode.dispatchUIFunction(funcName, array, promise);
       addNullUINodeIfNeeded(renderNode);
     } else {
-      LogUtils.e("RenderManager", "dispatchUIFunction Node Null");
+      LogUtils.e(_kTag, "dispatchUIFunction Node Null");
     }
   }
 
@@ -438,6 +457,7 @@ class RenderManager
     }
   }
 
+
   @override
   void destroy() {
     controllerManager.destroy();
@@ -447,8 +467,9 @@ class RenderManager
 
   @override
   void doRenderBatch() {
-    LogUtils.d("RenderManager", "do batch size: ${_uiUpdateNodes.length}");
-    //		mContext.getGlobalConfigs().getLogAdapter().log(TAG,"do batch size " + mShouldUpdateNodes.size());
+    LogUtils.d(_kTag, "do batch size: ${_uiUpdateNodes.length}");
+    _updateRenderNodes.addAll(_uiUpdateNodes);
+    _updateRenderNodes.addAll(_nullUiUpdateNodes);
 
     for (var renderNode in _uiUpdateNodes) {
       renderNode.createViewModel();

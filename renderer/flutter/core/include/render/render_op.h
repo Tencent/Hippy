@@ -14,6 +14,7 @@ enum VoltronRenderOpType {
   DISPATCH_UI_FUNC,
   ADD_EVENT,
   REMOVE_EVENT,
+  LAYOUT_BATCH,
 };
 
 }  // namespace voltron

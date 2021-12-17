@@ -3,17 +3,17 @@ typedef LogListener = Function(String tag, LogLevel level, String msg);
 enum LogLevel { debug, verbose, info, profile, warn, error }
 
 class LogUtils {
-  static const String defaultTag = "flutter_render";
+  static const String kDefaultTag = "voltron";
   static bool _sDebugEnable = false;
   static bool _sProfileEnable = false;
   static LogListener? _sLogListener;
 
-  static bool sDebugLogDomEnable = true;
-  static bool sDebugLogWidgetEnable = false;
-  static bool sDebugLogRenderEnable = true;
-  static bool sDebugLogRenderNodeEnable = true;
-  static bool sDebugLogBridgeEnable = false;
-  static bool sDebugLogLayoutEnable = true;
+  static bool kDebugLogDomEnable = true;
+  static bool kDebugLogWidgetEnable = true;
+  static bool kDebugLogRenderEnable = true;
+  static bool kDebugLogRenderNodeEnable = true;
+  static bool kDebugLogBridgeEnable = true;
+  static bool kDebugLogLayoutEnable = true;
 
   // ignore: use_setters_to_change_properties
   static void enableDebugLog(bool enable) {
@@ -31,37 +31,37 @@ class LogUtils {
   }
 
   static void dRenderNode(String msg) {
-    if (sDebugLogRenderNodeEnable && _sDebugEnable) {
+    if (kDebugLogRenderNodeEnable && _sDebugEnable) {
       printLog("UINode", LogLevel.debug, msg);
     }
   }
 
   static void dRender(String msg) {
-    if (sDebugLogRenderEnable && _sDebugEnable) {
+    if (kDebugLogRenderEnable && _sDebugEnable) {
       printLog("Render", LogLevel.debug, msg);
     }
   }
 
   static void dLayout(String msg) {
-    if (sDebugLogLayoutEnable && _sDebugEnable) {
+    if (kDebugLogLayoutEnable && _sDebugEnable) {
       printLog("RenderLayout", LogLevel.debug, msg);
     }
   }
 
   static void dDom(String msg) {
-    if (sDebugLogDomEnable && _sDebugEnable) {
+    if (kDebugLogDomEnable && _sDebugEnable) {
       printLog("DOM", LogLevel.debug, msg);
     }
   }
 
   static void dWidget(String tag, String msg) {
-    if (sDebugLogWidgetEnable && _sDebugEnable) {
+    if (kDebugLogWidgetEnable && _sDebugEnable) {
       printLog(tag, LogLevel.debug, msg);
     }
   }
 
   static void dBridge(String msg) {
-    if (sDebugLogBridgeEnable && _sDebugEnable) {
+    if (kDebugLogBridgeEnable && _sDebugEnable) {
       printLog("Bridge", LogLevel.debug, msg);
     }
   }
@@ -75,7 +75,7 @@ class LogUtils {
 
   static void log(String msg) {
     if (_sDebugEnable) {
-      printLog(defaultTag, LogLevel.info, msg);
+      printLog(kDefaultTag, LogLevel.info, msg);
     }
   }
 
@@ -130,9 +130,9 @@ class LogUtils {
   static void printLog(String tag, LogLevel level, String msg) {
     var sLogListener = _sLogListener;
     if (sLogListener != null) {
-      sLogListener("FlutterRender_$tag", level, msg);
+      sLogListener("$kDefaultTag _ $tag", level, msg);
     } else {
-      print('FlutterRender_$tag($level): $msg');
+      print('$kDefaultTag _ $tag($level): $msg');
     }
   }
 }

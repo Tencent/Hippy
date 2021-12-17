@@ -29,6 +29,28 @@ class DomUpdateUtil {
       });
     }
   }
+
+  static void updateStyleProp<T extends StyleMethodPropConsumer>(
+      T t, String key, Object value) {
+    final provider = t.provider;
+    final Map<String, StyleMethodProp>? methodMap = provider.styleMethodMap;
+
+    if (methodMap != null) {
+      var styleMethodHolder = methodMap[key];
+      if (styleMethodHolder != null) {
+        var realValue = checkValueType(value, styleMethodHolder.defaultValue);
+        if (realValue != null) {
+          styleMethodHolder.method(t, realValue);
+        } else {
+          styleMethodHolder.method(t, styleMethodHolder.defaultValue);
+        }
+      } else {
+        if (value is VoltronMap && key == NodeProps.style) {
+          updateStyle(t, value);
+        }
+      }
+    }
+  }
 }
 
 Object? checkValueType(Object? value, Object? defaultValue) {

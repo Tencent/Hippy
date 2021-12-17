@@ -390,7 +390,6 @@ class RenderNode extends StyleNode {
         }
         _measureInWindows.clear();
       }
-      renderViewModel.update();
 
       if (_notifyManageChildren) {
         manageChildrenComplete();
@@ -398,6 +397,10 @@ class RenderNode extends StyleNode {
       }
     }
     LogUtils.dRenderNode("($hashCode)  Id:$id end updateStyle");
+  }
+
+  void updateRender() {
+    renderViewModel.update();
   }
 
   void updateLayout(double x, double y, double w, double h) {
@@ -409,7 +412,7 @@ class RenderNode extends StyleNode {
     _hasUpdateLayout = true;
   }
 
-  void updateStyle(VoltronMap map) {
+  void _updateStyle(VoltronMap map) {
     DomUpdateUtil.updateStyle(this, map);
   }
 
@@ -431,7 +434,7 @@ class RenderNode extends StyleNode {
                 stylesToUpdate.push(styleKey, styles.get(styleKey));
               }
 
-              updateStyle(stylesToUpdate);
+              _updateStyle(stylesToUpdate);
             }
           } else {
             propToUpdate.push(key, paramsMap.get(key));

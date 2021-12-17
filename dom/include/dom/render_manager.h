@@ -23,6 +23,7 @@ class RenderManager {
   virtual void UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) = 0;
   virtual void MoveRenderNode(std::vector<int32_t>&& moved_ids, int32_t from_pid, int32_t to_pid) = 0;
   virtual void Batch() = 0;
+  virtual void LayoutBatch() = 0;
 
   using DomValue = tdf::base::DomValue;
   virtual void AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) = 0;

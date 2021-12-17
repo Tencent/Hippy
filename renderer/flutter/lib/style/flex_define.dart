@@ -24,6 +24,11 @@ class FlexLayoutParams {
   int defaultOutput() {
     return FlexOutput.makeMeasureResult(width, height);
   }
+
+
+  int zero() {
+    return FlexOutput.makeMeasureResult(0, 0);
+  }
 }
 
 enum FiledType {

@@ -44,11 +44,11 @@ EXTERN_C void DestroyFFI(int32_t engine_id, bool single_thread_mode, int32_t cal
 
 EXTERN_C int32_t RegisterCallFunc(int32_t type, void* func);
 
-EXTERN_C void ConsumeRenderOpQueue(int32_t engine_id);
-
 EXTERN_C void UpdateNodeSize(int32_t engine_id, int32_t root_id, int32_t node_id, double width, double height);
 
 EXTERN_C void SetNodeCustomMeasure(int32_t engine_id, int32_t root_id, int32_t node_id);
+
+EXTERN_C void NotifyRenderManager(int32_t engine_id);
 
 bool CallGlobalCallback(int32_t callback_id, int64_t value);
 

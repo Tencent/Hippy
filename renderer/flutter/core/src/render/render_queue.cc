@@ -18,7 +18,7 @@ std::unique_ptr<std::vector<uint8_t>> VoltronRenderQueue::ConsumeRenderOp() {
   if (op_list.empty()) {
     return nullptr;
   }
-  return StandardMessageCodec::GetInstance().EncodeMessage(EncodableValue(op_list));
+  return std::move(StandardMessageCodec::GetInstance().EncodeMessage(EncodableValue(op_list)));
 }
 
 VoltronRenderQueue::~VoltronRenderQueue() { queue_.clear(); }

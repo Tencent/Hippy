@@ -1,6 +1,6 @@
 #include <variant>
 
-#include "render/const.h"
+#include "ffi/bridge_define.h"
 #include "render/voltron_render_manager.h"
 
 namespace voltron {
@@ -8,7 +8,7 @@ namespace voltron {
 using hippy::TouchEventInfo;
 
 VoltronRenderManager::VoltronRenderManager(int32_t root_id, int32_t engine_id)
-    : VoltronRenderTaskRunner(engine_id), root_id_(root_id) {}
+    : VoltronRenderTaskRunner(engine_id, root_id), root_id_(root_id) {}
 
 VoltronRenderManager::~VoltronRenderManager() = default;
 
@@ -38,17 +38,33 @@ void VoltronRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNod
   RunUpdateLayout(nodes);
 }
 
-void VoltronRenderManager::Batch() { RunBatch(); }
+void VoltronRenderManager::Batch() {
+  RunBatch();
+
+  std::unique_lock<std::mutex> lock(mutex_);
+  while (!notified_) {
+    cv_.wait(lock);
+  }
+}
 
 void VoltronRenderManager::CallFunction(std::weak_ptr<DomNode> dom_node, const std::string& name, const DomValue& param,
-                                        CallFunctionCallback cb) {
+                                        CallFunctionCallback cb) {}
 
+void VoltronRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {}
+
+void VoltronRenderManager::RemoveEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {}
+
+void VoltronRenderManager::Notify() {
+  if (!notified_) {
+    notified_ = true;
+    cv_.notify_one();
+  }
 }
 
-void VoltronRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name,
-                                            const DomValue& param) {
-
+void VoltronRenderManager::LayoutBatch() {
+  RunLayoutBatch();
 }
+
 //
 //void VoltronRenderManager::RemoveTouchEventListener(int32_t id, TouchEvent event) {
 //  auto params = EncodableMap();

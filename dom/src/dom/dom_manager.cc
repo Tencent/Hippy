@@ -27,7 +27,6 @@ DomManager::~DomManager() = default;
 void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>> &&nodes) {
   for (const auto& node : nodes) {
     std::shared_ptr<DomNode> parent_node = dom_node_registry_.GetNode(node->GetPid());
-    TDF_BASE_DLOG(INFO) << "Dom CreateDomNodes id" << node->GetId();
     if (parent_node == nullptr) {
       // it = nodes.erase(it);
       continue;
@@ -100,13 +99,14 @@ void DomManager::EndBatch() {
   for (auto& batch_operation : batched_operations_) {
     batch_operation();
   }
+  render_manager_->Batch();
   // 触发布局计算
   root_node_->DoLayout();
   if (!layout_changed_nodes_.empty()) {
     render_manager_->UpdateLayout(layout_changed_nodes_);
   }
   batched_operations_.clear();
-  render_manager_->Batch();
+  render_manager_->LayoutBatch();
 }
 
 uint32_t DomManager::AddEventListener(uint32_t id, const std::string &name, bool use_capture,

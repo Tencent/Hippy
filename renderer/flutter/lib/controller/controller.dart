@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:tencent_voltron_render/style/update.dart';
 
 import '../common/voltron_array.dart';
 import '../common/voltron_map.dart';
@@ -347,7 +348,10 @@ abstract class VoltronViewController<T extends RenderViewModel, R extends Render
   }
 
   @override
-  void setCustomProp(RenderNode node, String propName, Object prop) {}
+  @mustCallSuper
+  void setCustomProp(RenderNode node, String propName, Object prop) {
+    DomUpdateUtil.updateStyleProp(node, propName, prop);
+  }
 
   void onAfterUpdateProps(R renderNode) {}
 

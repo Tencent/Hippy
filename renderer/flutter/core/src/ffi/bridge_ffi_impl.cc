@@ -129,25 +129,6 @@ EXTERN_C void CallNativeFunctionFFI(int32_t engine_id, const char16_t* call_id, 
   }
 }
 
-EXTERN_C void ConsumeRenderOpQueue(int32_t engine_id) {
-  auto bridge_manager = BridgeManager::GetBridgeManager(engine_id);
-  if (bridge_manager) {
-    bridge_manager->VisitAllRenderManager([engine_id](const std::weak_ptr<VoltronRenderManager>& render_manager_ptr) {
-      auto render_manager = render_manager_ptr.lock();
-      if (render_manager && post_render_op_func) {
-        auto render_op_buffer = render_manager->Consume();
-        if (render_op_buffer) {
-          auto buffer_length = static_cast<int64_t>(render_op_buffer->size());
-          if (buffer_length > 0) {
-            auto ptr = reinterpret_cast<const void*>(render_op_buffer->data());
-            post_render_op_func(engine_id, render_manager->GetRootId(), ptr, buffer_length);
-          }
-        }
-      }
-    });
-  }
-}
-
 EXTERN_C void UpdateNodeSize(int32_t engine_id, int32_t root_id, int32_t node_id, double width, double height) {
   auto bridge_manager = BridgeManager::GetBridgeManager(engine_id);
   if (bridge_manager) {
@@ -199,6 +180,18 @@ HPSize VoltronMeasureFunction(HPNodeRef node, float width, MeasureMode widthMeas
   }
 
   return HPSize{0, 0};
+}
+
+EXTERN_C void NotifyRenderManager(int32_t engine_id) {
+  auto bridge_manager = BridgeManager::GetBridgeManager(engine_id);
+  if (bridge_manager) {
+    bridge_manager->VisitAllRenderManager([](const std::weak_ptr<VoltronRenderManager>& render_manager_ptr) {
+      auto render_manager = render_manager_ptr.lock();
+      if (render_manager) {
+        render_manager->Notify();
+      }
+    });
+  }
 }
 
 EXTERN_C void RunNativeRunnableFFI(int32_t engine_id, const char16_t* code_cache_path,

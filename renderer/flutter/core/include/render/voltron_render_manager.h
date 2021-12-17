@@ -22,21 +22,24 @@ class VoltronRenderManager : public RenderManager, private VoltronRenderTaskRunn
   void MoveRenderNode(std::vector<int32_t>&& ids, int32_t pid, int32_t id) override;
 
   void Batch() override;
+  void LayoutBatch() override;
 
-  void AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name, const DomValue& param) override;
+  void AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) override;
+  void RemoveEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) override;
   void CallFunction(std::weak_ptr<DomNode> dom_node, const std::string& name, const DomValue& param,
                     CallFunctionCallback cb) override;
+  void Notify();
 
-  int32_t GetRootId() {
+  int32_t GetRootId() const {
     return root_id_;
-  }
-
-  std::unique_ptr<std::vector<uint8_t>> Consume() {
-    return ConsumeQueue();
   }
 
  private:
   int32_t root_id_;
+
+  std::mutex mutex_;
+  std::condition_variable cv_;
+  bool notified_ = false;
 };
 
 }  // namespace voltron

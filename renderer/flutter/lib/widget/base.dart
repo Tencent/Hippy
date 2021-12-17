@@ -9,7 +9,7 @@ typedef ContextWrapper = BuildContext? Function();
 abstract class FRStatefulWidget extends StatefulWidget {
   final RenderViewModel _viewModel;
 
-  const FRStatefulWidget(this._viewModel);
+  FRStatefulWidget(this._viewModel): super(key: _viewModel.renderKey);
 
   @override
   RFStatefulElement createElement() {

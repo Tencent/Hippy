@@ -72,9 +72,6 @@ typedef RunNativeRunnableFfiNativeType = Void Function(Int32 engineId,
 typedef RunNativeRunnableFfiDartType = void Function(
     int engineId, Pointer<Utf16> codeCachePath, int runnableId, int callbackId);
 
-typedef ConsumeRenderOpFfiNativeType = Void Function(Int32 engineId);
-typedef ConsumeRenderOpFfiDartType = void Function(int engineId);
-
 typedef UpdateNodeSizeFfiNativeType = Void Function(
     Int32 engineId, Int32 rootId, Int32 nodeId, Double width, Double height);
 typedef UpdateNodeSizeFfiDartType = void Function(
@@ -84,6 +81,11 @@ typedef SetNodeCustomMeasureNativeType = Void Function(
     Int32 engineId, Int32 rootId, Int32 nodeId);
 typedef SetNodeCustomMeasureDartType = void Function(
     int engineId, int rootId, int nodeId);
+
+typedef NotifyDomNativeType = Void Function(
+    Int32 engineId);
+typedef NotifyDomDartType = void Function(
+    int engineId);
 
 typedef GetCrashMessageFfiType = Pointer<Utf8> Function();
 

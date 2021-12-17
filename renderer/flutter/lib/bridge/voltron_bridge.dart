@@ -69,13 +69,12 @@ class _BridgeFFIManager {
   late RunNativeRunnableFfiDartType runNativeRunnable;
   late GetCrashMessageFfiType getCrashMessage;
 
-  // 消费native dom传入的renderOp队列
-  late ConsumeRenderOpFfiDartType consumeRenderOp;
-
   // 更新节点宽高
   late UpdateNodeSizeFfiDartType updateNodeSize;
 
   late SetNodeCustomMeasureDartType setNodeHasCustomLayout;
+
+  late NotifyDomDartType notifyDom;
 
   // 初始化native dom
   late InitDomFfiDartType initDom;
@@ -146,14 +145,13 @@ class _BridgeFFIManager {
         _library.lookupFunction<GetCrashMessageFfiType, GetCrashMessageFfiType>(
             "GetCrashMessageFFI");
 
-    consumeRenderOp = _library.lookupFunction<ConsumeRenderOpFfiNativeType,
-        ConsumeRenderOpFfiDartType>('ConsumeRenderOpQueue');
-
     updateNodeSize = _library.lookupFunction<UpdateNodeSizeFfiNativeType,
         UpdateNodeSizeFfiDartType>('UpdateNodeSize');
 
     setNodeHasCustomLayout = _library.lookupFunction<SetNodeCustomMeasureNativeType,
         SetNodeCustomMeasureDartType>('SetNodeCustomMeasure');
+
+    notifyDom = _library.lookupFunction<NotifyDomNativeType, NotifyDomDartType>('NotifyRenderManager');
 
     destroy = _library
         .lookupFunction<DestroyFfiNativeType, DestroyFfiDartType>("DestroyFFI");
@@ -241,15 +239,6 @@ class VoltronApi {
     return result == 1;
   }
 
-  static Future consumeRenderOpQueue(int engineId) async {
-    var stopwatch = Stopwatch();
-
-    stopwatch.start();
-    _BridgeFFIManager.instance.consumeRenderOp(engineId);
-    stopwatch.stop();
-    LogUtils.profile("consume render op cost", stopwatch.elapsedMilliseconds);
-  }
-
   static Future updateNodeSize(
       int engineId, int rootId, int nodeId, double width, double height) async {
     var stopwatch = Stopwatch();
@@ -283,7 +272,7 @@ class VoltronApi {
     stopwatch.reset();
     stopwatch.start();
     var assetNamePtr = assetName.toNativeUtf16();
-    var assetStrPtr = byteDataToPointer(assetData);
+    var assetStrPtr = strByteDataToPointer(assetData);
     var codeCacheDirPtr = codeCacheDir.toNativeUtf16();
     stopwatch.stop();
 
@@ -329,7 +318,7 @@ class VoltronApi {
     }
   }
 
-  static Pointer<Utf16> byteDataToPointer(ByteData data) {
+  static Pointer<Utf16> strByteDataToPointer(ByteData data) {
     var units = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
     var result = utf8.decode(units);
     return result.toNativeUtf16();
@@ -337,6 +326,10 @@ class VoltronApi {
 
   static Future initDom(int engineId, int rootId) async {
     _BridgeFFIManager.instance.initDom(engineId, rootId);
+  }
+
+  static Future notifyDom(int engineId) async {
+    _BridgeFFIManager.instance.notifyDom(engineId);
   }
 
   static Future<dynamic> callFunction(int engineId, String action,
@@ -798,7 +791,7 @@ class VoltronBridgeManager implements Destroyable {
   }
 
   Future setNodeHasCustomLayout(int instanceId, int nodeId) async {
-
+    await VoltronApi.setNodeHasCustomLayout(_engineId, instanceId, nodeId);
   }
 
   Future<dynamic> loadInstance(String name, int id, VoltronMap? params) async {
@@ -833,6 +826,10 @@ class VoltronBridgeManager implements Destroyable {
             ?.startEvent(EngineMonitorEvent.moduleLoadEventCreateView);
       }
     });
+  }
+
+  Future notifyDom() async {
+    await VoltronApi.notifyDom(_engineId);
   }
 
   Future<dynamic> resumeInstance(int id) async {
@@ -901,10 +898,6 @@ class VoltronBridgeManager implements Destroyable {
     _voltronBuffer.release();
     bridgeMap.remove(_engineId);
     await VoltronApi.destroy(_engineId, _isSingleThread, (value) {});
-  }
-
-  Future consumeRenderOp() async {
-    await VoltronApi.consumeRenderOpQueue(_engineId);
   }
 
   Future<dynamic> callJavaScriptModule(

@@ -19,7 +19,7 @@ mixin TextStyleNode on StyleNode {
   static const _kTag = "TextNode";
 
   // 文本转换后的span，组合各种css样式
-  TextSpan? _span;
+  TextSpan? span;
   // 原文本
   String? _sourceText;
 
@@ -54,7 +54,6 @@ mixin TextStyleNode on StyleNode {
   // 手势
   final List<String> _gestureTypes = [];
 
-  TextSpan? get span => _span;
   bool get enableScale => _enableScale;
 
   String get _text {
@@ -90,11 +89,11 @@ mixin TextStyleNode on StyleNode {
   }
 
   @ControllerProps(NodeProps.fontStyle)
+  // ignore: use_setters_to_change_properties
   void fontStyle(String fontStyleString) {
     var fontStyle = parseFontStyle(fontStyleString);
     if (fontStyle != _fontStyle) {
       _fontStyle = fontStyle;
-      markUpdated();
     }
   }
 
@@ -110,29 +109,29 @@ mixin TextStyleNode on StyleNode {
   }
 
   @ControllerProps(NodeProps.letterSpacing)
+  // ignore: use_setters_to_change_properties
   void letterSpacing(double letterSpace) {
     if (letterSpace != -1.0) {
       _letterSpacing = letterSpace;
-      markUpdated();
     }
   }
 
   @ControllerProps(NodeProps.color)
+  // ignore: use_setters_to_change_properties
   void color(int color) {
     _color = color;
-    markUpdated();
   }
 
   @ControllerProps(NodeProps.fontSize)
+  // ignore: use_setters_to_change_properties
   void fontSize(double fontSize) {
     _fontSize = fontSize;
-    markUpdated();
   }
 
   @ControllerProps(NodeProps.fontFamily)
+  // ignore: use_setters_to_change_properties
   void fontFamily(String fontFamily) {
     _fontFamily = fontFamily;
-    markUpdated();
   }
 
   @ControllerProps(NodeProps.fontWeight)
@@ -141,7 +140,6 @@ mixin TextStyleNode on StyleNode {
 
     if (fontWeight != _fontWeight) {
       _fontWeight = fontWeight;
-      markUpdated();
     }
   }
 
@@ -191,7 +189,6 @@ mixin TextStyleNode on StyleNode {
         _isLineThroughTextDecorationSet = true;
       }
     }
-    markUpdated();
   }
 
   @ControllerProps(NodeProps.propShadowOffset)
@@ -205,14 +202,12 @@ mixin TextStyleNode on StyleNode {
       _textShadowOffsetDy = offsetMap.get(NodeProps.propShadowOffsetHeight);
     }
 
-    markUpdated();
   }
 
   @ControllerProps(NodeProps.propShadowRadius)
   void textShadowRadius(double textShadowRadius) {
     if (textShadowRadius != _textShadowRadius) {
       _textShadowRadius = textShadowRadius;
-      markUpdated();
     }
   }
 
@@ -220,20 +215,17 @@ mixin TextStyleNode on StyleNode {
   void setTextShadowColor(int textShadowColor) {
     if (textShadowColor != _textShadowColor) {
       _textShadowColor = textShadowColor;
-      markUpdated();
     }
   }
 
   @ControllerProps(NodeProps.lineHeight)
   void lineHeight(int lineHeight) {
     _lineHeight = (lineHeight == -1.0 ? null : lineHeight)?.toDouble();
-    markUpdated();
   }
 
   @ControllerProps(NodeProps.textAlign)
   void setTextAlign(String textAlign) {
     _textAlign = parseTextAlign(textAlign);
-    markUpdated();
   }
 
   static TextAlign parseTextAlign(String textAlign) {
@@ -255,21 +247,20 @@ mixin TextStyleNode on StyleNode {
   }
 
   @ControllerProps(NodeProps.text)
+  // ignore: use_setters_to_change_properties
   void text(String text) {
     _sourceText = text;
-    markUpdated();
   }
 
   @ControllerProps(NodeProps.whiteSpace)
+  // ignore: use_setters_to_change_properties
   void whiteSpace(String whiteSpace) {
     _whiteSpace = whiteSpace;
-    markUpdated();
   }
 
   @ControllerProps(NodeProps.textOverflow)
   void setTextOverflow(String textOverflow) {
     _textOverflow = parseTextOverflow(textOverflow);
-    markUpdated();
   }
 
   static TextOverflow parseTextOverflow(String textOverflow) {
@@ -345,31 +336,12 @@ mixin TextStyleNode on StyleNode {
   @ControllerProps(NodeProps.propEnableScale)
   set enableScale(bool flag) {
     _enableScale = flag;
-    markUpdated();
   }
 
 
   @ControllerProps(NodeProps.numberOfLines)
   void setNumberOfLines(int numberOfLines) {
     _numberOfLines = numberOfLines <= 0 ? 0 : numberOfLines;
-    markUpdated();
-  }
-
-  // @override  todo 处理layout before
-  // void layoutBefore(EngineContext context) {
-  //   super.layoutBefore(context);
-  //   if (_fontScaleAdapter == null && _enableScale) {
-  //     _fontScaleAdapter = context.globalConfigs.fontScaleAdapter;
-  //   }
-  //   if (_isVirtual) {
-  //     return;
-  //   }
-  //
-  //   _span = createSpan(_text ?? '', true);
-  // }
-
-  void markUpdated() {
-    // empty
   }
 
   int get childCount;
@@ -436,8 +408,7 @@ mixin TextStyleNode on StyleNode {
   }
 
   TextData createData(double width, FlexMeasureMode widthMode) {
-    var span = _span;
-    var text = span == null ? TextSpan(text: "") : span;
+    var text = span ?? TextSpan(text: "");
     return TextData(_numberOfLines ?? kMaxLineCount, text, _textAlign,
         _generateTextScale(), _textOverflow);
   }
@@ -446,8 +417,7 @@ mixin TextStyleNode on StyleNode {
     var unconstrainedWidth =
         widthMode == FlexMeasureMode.UNDEFINED || width < 0;
     var maxWidth = unconstrainedWidth ? double.infinity : width;
-    var span = _span;
-    var text = span == null ? TextSpan(text: "") : span;
+    var text = span ?? TextSpan(text: "");
     var painter = TextPainter(
         maxLines: _numberOfLines ?? kMaxLineCount,
         text: text,
