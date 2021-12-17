@@ -2,18 +2,11 @@ import 'package:flutter/widgets.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
+import '../controller.dart';
 import '../engine.dart';
-import '../module.dart';
-import '../style.dart';
-import '../util.dart';
 import 'list.dart';
 import 'refresh_item.dart';
 import 'view_model.dart';
-
-enum RefreshState {
-  init,
-  loading,
-}
 
 class RefreshWrapperRenderViewModel extends ScrollableModel {
   RefreshWrapperItemRenderViewModel? _refreshWrapperItemRenderViewModel;
@@ -27,7 +20,7 @@ class RefreshWrapperRenderViewModel extends ScrollableModel {
   RefreshWrapperItemRenderViewModel? get header =>
       _refreshWrapperItemRenderViewModel;
   RefreshController get controller =>
-      refreshEventDispatcher._refreshController;
+      refreshEventDispatcher.refreshController;
   RefreshEventDispatcher get dispatcher => refreshEventDispatcher;
 
   late RefreshWrapperRenderContentViewModel
@@ -115,30 +108,4 @@ class RefreshWrapperRenderContentViewModel {
       content == other.content &&
       controller == other.controller &&
       dispatcher == other.dispatcher;
-}
-
-class RefreshEventDispatcher {
-  final int _id;
-  final EngineContext _context;
-
-  final RefreshController _refreshController =
-      RefreshController(initialRefresh: false);
-
-  RefreshEventDispatcher(this._id, this._context);
-
-  void _handleEvent(String type) {
-    _context.moduleManager
-        .getJavaScriptModule<EventDispatcher>(
-            enumValueToString(JavaScriptModuleType.EventDispatcher))
-        ?.receiveUIComponentEvent(_id, type, null);
-  }
-
-  void refreshComplected() {
-    _refreshController.refreshCompleted();
-  }
-
-  void startRefresh() {
-    _refreshController.requestRefresh(needMove: true);
-    _handleEvent(NodeProps.onRefresh);
-  }
 }

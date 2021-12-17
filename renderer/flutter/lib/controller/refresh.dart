@@ -92,6 +92,8 @@ class RefreshEventDispatcher {
   final RefreshController _refreshController =
       RefreshController(initialRefresh: false);
 
+  RefreshController get refreshController => _refreshController;
+
   RefreshEventDispatcher(this._id, this._context);
 
   void _handleEvent(String type) {
