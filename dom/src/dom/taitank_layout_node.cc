@@ -575,5 +575,10 @@ void TaitankLayoutNode::Deallocate() {
   delete engine_node_;
 }
 
+void TaitankLayoutNode::SetLayoutContext(void* layout_context) {
+  if (engine_node_ == nullptr) return;
+  engine_node_->setContext(layout_context);
+}
+
 }  // namespace dom
 }  // namespace hippy
