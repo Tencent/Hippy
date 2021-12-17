@@ -36,10 +36,10 @@ void HippyRenderManager::CreateRenderNode(std::vector<std::shared_ptr<hippy::dom
 
     // layout result
     auto result = nodes[i]->GetLayoutResult();
-    dom_node[kWidth] = tdf::base::DomValue(result.width);
-    dom_node[kHeight] = tdf::base::DomValue(result.height);
-    dom_node[kLeft] = tdf::base::DomValue(result.left);
-    dom_node[kTop] = tdf::base::DomValue(result.top);
+    dom_node[kWidth] = tdf::base::DomValue(DpToPx(result.width));
+    dom_node[kHeight] = tdf::base::DomValue(DpToPx(result.height));
+    dom_node[kLeft] = tdf::base::DomValue(DpToPx(result.left));
+    dom_node[kTop] = tdf::base::DomValue(DpToPx(result.top));
 
     tdf::base::DomValue::DomValueObjectType props;
     // 样式属性
@@ -142,11 +142,18 @@ void HippyRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>
     tdf::base::DomValue::DomValueObjectType dom_node;
     dom_node[kId] = tdf::base::DomValue(nodes[i]->GetId());
     auto result = nodes[i]->GetLayoutResult();
-    dom_node[kWidth] = tdf::base::DomValue(result.width);
-    dom_node[kHeight] = tdf::base::DomValue(result.height);
-    dom_node[kLeft] = tdf::base::DomValue(result.left);
-    dom_node[kTop] = tdf::base::DomValue(result.top);
+    dom_node[kWidth] = tdf::base::DomValue(DpToPx(result.width));
+    dom_node[kHeight] = tdf::base::DomValue(DpToPx(result.height));
+    dom_node[kLeft] = tdf::base::DomValue(DpToPx(result.left));
+    dom_node[kTop] = tdf::base::DomValue(DpToPx(result.top));
     dom_node_array[i] = dom_node;
+
+    TDF_BASE_LOG(INFO) << "id : " << nodes[i]->GetId() << ", "
+                       << "pid : " << nodes[i]->GetPid() << ", "
+                       << "width : " << DpToPx(result.width) << ", "
+                       << "height : " << DpToPx(result.height) << ", "
+                       << "left : " << DpToPx(result.left) << ", "
+                       << "top : " << DpToPx(result.top) << std::endl;
   }
   serializer_->WriteDenseJSArray(dom_node_array);
   std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
@@ -199,6 +206,10 @@ void HippyRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std:
                                       CallFunctionCallback cb) {
   TDF_BASE_NOTIMPLEMENTED();
 };
+
+float HippyRenderManager::DpToPx(float dp) {
+  return dp * density_;
+}
 
 void HippyRenderManager::CallNativeMethod(const std::pair<uint8_t*, size_t>& buffer, const std::string& method) {
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();

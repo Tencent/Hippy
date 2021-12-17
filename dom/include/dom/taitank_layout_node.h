@@ -45,6 +45,13 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
    * @param height 高度
    */
   void SetHeight(float height) override;
+
+  /**
+   * @brief 设置 sacle factor
+   * @param sacle_factor 缩放比例
+   */
+  void SetScaleFactor(float sacle_factor) override;
+
   /**
    * @brief 设置测量函数
    * @param measure_function 测量函数
@@ -179,7 +186,6 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
    * @param direction 方向(DirectionInherit|DirectionLTR|DirectionRTL)
    */
   void SetDirection(HPDirection direction);
-
 
   /**
    * @brief 设置 max width 属性
