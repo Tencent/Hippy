@@ -21,13 +21,12 @@
  */
 
 #import "UIView+Hippy.h"
-
 #import <objc/runtime.h>
-
 #import "HippyAssert.h"
 #import "HippyLog.h"
 #import "HippyShadowView.h"
 #import "HippyVirtualNode.h"
+#import "dom/dom_listener.h"
 
 @interface HippyViewPropertyWrapper : NSObject
 
@@ -365,6 +364,38 @@ HippyEventMethod(OnDetachedFromWindow, onDetachedFromWindow, HippyDirectEventBlo
 @implementation HippyViewEventInfo
 
 @end
+
+HIPPY_EXTERN HippyViewEventType viewEventTypeFromName(const std::string &name) {
+    HippyViewEventType type = HippyViewEventTypeUnknown;
+    if (hippy::kClickEvent == name) {
+        type = HippyViewEventTypeClick;
+    }
+    else if (hippy::kLongClickEvent == name) {
+        type = HippyViewEventTypeLongClick;
+    }
+    else if (hippy::kTouchStartEvent == name) {
+        type = HippyViewEventTypeTouchStart;
+    }
+    else if (hippy::kTouchMoveEvent == name) {
+        type = HippyViewEventTypeTouchMove;
+    }
+    else if (hippy::kTouchEndEvent == name) {
+        type = HippyViewEventTypeTouchEnd;
+    }
+    else if (hippy::kTouchCancelEvent == name) {
+        type = HippyViewEventTypeTouchCancel;
+    }
+    else if (hippy::kLayoutEvent == name) {
+        type = HippyViewEventTypeLayout;
+    }
+    else if (hippy::kShowEvent == name) {
+        type = HippyViewEventTypeShow;
+    }
+    else if (hippy::kDismissEvent == name) {
+        type = HippyViewEventTypeDismiss;
+    }
+    return type;
+}
 
 @implementation UIView(HippyEvent)
 

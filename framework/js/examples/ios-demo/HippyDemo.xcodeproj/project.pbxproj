@@ -207,6 +207,10 @@
 		F48291AC274E5BB600D91128 /* NSObject+HippyTurbo.mm in Sources */ = {isa = PBXBuildFile; fileRef = F48291A9274E5BB500D91128 /* NSObject+HippyTurbo.mm */; };
 		F4D0028F2675C7D5004A43B6 /* HippyGradientObject.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D0028E2675C7D5004A43B6 /* HippyGradientObject.m */; };
 		F4E2AD79271FC23500E36EFB /* HippyDevWebSocketClient.m in Sources */ = {isa = PBXBuildFile; fileRef = F4E2AD78271FC23500E36EFB /* HippyDevWebSocketClient.m */; };
+		F4E7B43D276C61EB00F17139 /* dom_argument.cc in Sources */ = {isa = PBXBuildFile; fileRef = F4E7B439276C61EA00F17139 /* dom_argument.cc */; };
+		F4E7B43E276C61EB00F17139 /* dom_event.cc in Sources */ = {isa = PBXBuildFile; fileRef = F4E7B43A276C61EB00F17139 /* dom_event.cc */; };
+		F4E7B43F276C61EB00F17139 /* deserializer.cc in Sources */ = {isa = PBXBuildFile; fileRef = F4E7B43B276C61EB00F17139 /* deserializer.cc */; };
+		F4E7B440276C61EB00F17139 /* serializer.cc in Sources */ = {isa = PBXBuildFile; fileRef = F4E7B43C276C61EB00F17139 /* serializer.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -652,6 +656,15 @@
 		F4D0028E2675C7D5004A43B6 /* HippyGradientObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyGradientObject.m; sourceTree = "<group>"; };
 		F4E2AD77271FC23500E36EFB /* HippyDevWebSocketClient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyDevWebSocketClient.h; sourceTree = "<group>"; };
 		F4E2AD78271FC23500E36EFB /* HippyDevWebSocketClient.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyDevWebSocketClient.m; sourceTree = "<group>"; };
+		F4E7B434276C61DC00F17139 /* dom_argument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dom_argument.h; sourceTree = "<group>"; };
+		F4E7B435276C61DC00F17139 /* deserializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = deserializer.h; sourceTree = "<group>"; };
+		F4E7B436276C61DC00F17139 /* serializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = serializer.h; sourceTree = "<group>"; };
+		F4E7B437276C61DC00F17139 /* diff_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = diff_utils.h; sourceTree = "<group>"; };
+		F4E7B438276C61DC00F17139 /* dom_event.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dom_event.h; sourceTree = "<group>"; };
+		F4E7B439276C61EA00F17139 /* dom_argument.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dom_argument.cc; sourceTree = "<group>"; };
+		F4E7B43A276C61EB00F17139 /* dom_event.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dom_event.cc; sourceTree = "<group>"; };
+		F4E7B43B276C61EB00F17139 /* deserializer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = deserializer.cc; sourceTree = "<group>"; };
+		F4E7B43C276C61EB00F17139 /* serializer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = serializer.cc; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1372,6 +1385,11 @@
 		D84AB8D9273A5AAD00987D03 /* dom */ = {
 			isa = PBXGroup;
 			children = (
+				F4E7B435276C61DC00F17139 /* deserializer.h */,
+				F4E7B437276C61DC00F17139 /* diff_utils.h */,
+				F4E7B434276C61DC00F17139 /* dom_argument.h */,
+				F4E7B438276C61DC00F17139 /* dom_event.h */,
+				F4E7B436276C61DC00F17139 /* serializer.h */,
 				F419C381274634DB003E242A /* taitank_layout_node.h */,
 				D84AB8DA273A5AAD00987D03 /* layout_node.h */,
 				D84AB8DB273A5AAD00987D03 /* dom_listener.h */,
@@ -1396,6 +1414,10 @@
 		D84AB8E4273A5AAD00987D03 /* dom */ = {
 			isa = PBXGroup;
 			children = (
+				F4E7B43B276C61EB00F17139 /* deserializer.cc */,
+				F4E7B439276C61EA00F17139 /* dom_argument.cc */,
+				F4E7B43A276C61EB00F17139 /* dom_event.cc */,
+				F4E7B43C276C61EB00F17139 /* serializer.cc */,
 				F43A2D08275882650056F36C /* diff_utils.cc */,
 				F419C382274634E9003E242A /* taitank_layout_node.cc */,
 				D84AB8E5273A5AAD00987D03 /* dom_manager.cc */,
@@ -1891,6 +1913,7 @@
 				064C5A4A23AB1A51001E80DD /* HippyModuleMethod.mm in Sources */,
 				D84AB9C6273A618B00987D03 /* thread.cc in Sources */,
 				06FF8BD62511BC0400C03900 /* HippyImageProviderProtocol.m in Sources */,
+				F4E7B43E276C61EB00F17139 /* dom_event.cc in Sources */,
 				D84AB9BF273A618B00987D03 /* timer_module.cc in Sources */,
 				D84AB9C5273A618B00987D03 /* task.cc in Sources */,
 				D84AB8EF273A5AAD00987D03 /* layout_node.cc in Sources */,
@@ -1917,8 +1940,10 @@
 				064C5A5623AB1A51001E80DD /* HippyModuleData.mm in Sources */,
 				064C5A4723AB1A51001E80DD /* HippyTouchHandler.mm in Sources */,
 				0640D25824AC75DD00F122A0 /* UIView+AppearEvent.m in Sources */,
+				F4E7B43D276C61EB00F17139 /* dom_argument.cc in Sources */,
 				066EF46E26243E5A00F56F35 /* UIView+HippyAnimationProtocol.m in Sources */,
 				064C5A3023AB1A51001E80DD /* HippyNavigatorViewManager.mm in Sources */,
+				F4E7B440276C61EB00F17139 /* serializer.cc in Sources */,
 				064C5A3F23AB1A51001E80DD /* NSNumber+HippyNumberDeepCopy.m in Sources */,
 				064C59F723AB1A51001E80DD /* HippyExtAnimationGroup.m in Sources */,
 				F48291AA274E5BB600D91128 /* HippyOCTurboModule.mm in Sources */,
@@ -1975,6 +2000,7 @@
 				D84AB9C3273A618B00987D03 /* thread_id.cc in Sources */,
 				0680B4F02625480100F83EAB /* HippyView+HippyViewAnimation.m in Sources */,
 				064C5A2E23AB1A51001E80DD /* HippyNavigatorHostView.mm in Sources */,
+				F4E7B43F276C61EB00F17139 /* deserializer.cc in Sources */,
 				F440E26E26B80A990069436B /* HippyReusableNodeCache.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

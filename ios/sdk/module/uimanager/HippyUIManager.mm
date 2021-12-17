@@ -1705,9 +1705,7 @@ static UIView *_jsResponder;
 }
 
 -(void)batch {
-    dispatch_async(HippyGetUIManagerQueue(), ^{
-        [self batchDidComplete];
-    });
+    [self batchDidComplete];
 }
 
 - (void)dispatchFunction:(const std::string &)functionName
@@ -1736,6 +1734,32 @@ static UIView *_jsResponder;
             } @catch (NSException *exception) {
                 HippyAssert(NO, @"exception happened:%@", [exception description]);
             }
+        }
+    }
+}
+
+- (void) addEventName:(const std::string &)name forDomNode:(std::weak_ptr<hippy::DomNode>)weak_node {
+    std::shared_ptr<DomNode> node = weak_node.lock();
+    if (node) {
+        if (name == hippy::kClickEvent) {
+            [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+                [uiManager addClickEventListenerforNode:node forView:node->GetId()];
+            }];
+        } else if (name == hippy::kLongClickEvent) {
+            [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+                [uiManager addLongClickEventListenerforNode:node forView:node->GetId()];
+            }];
+        } else if (name == hippy::kTouchStartEvent || name == hippy::kTouchMoveEvent
+                   || name == hippy::kTouchEndEvent || name == hippy::kTouchCancelEvent) {
+            std::string name_ = name;
+            [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+                [uiManager addTouchEventListenerforNode:node forType:std::move(name_) forView:node->GetId()];
+            }];
+        } else if (name == hippy::kShowEvent || name == hippy::kDismissEvent) {
+            std::string name_ = name;
+            [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+                [uiManager addShowEventListenerForNode:node forType:std::move(name_) forView:node->GetId()];
+            }];
         }
     }
 }
@@ -1802,6 +1826,16 @@ static UIView *_jsResponder;
             if (node) {
                 node->HandleEvent(std::make_shared<DomEvent>(type, weak_node, std::any_cast<bool>(true)));
             }
+        }];
+    }
+}
+
+- (void) removeEventName:(const std::string &)eventName forDomNode:(std::weak_ptr<DomNode>)weak_node {
+    std::shared_ptr<DomNode> domNode = weak_node.lock();
+    if (domNode) {
+        [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+            UIView *view = [uiManager viewForHippyTag:@(domNode->GetId())];
+            [view removeViewEvent:viewEventTypeFromName(eventName)];
         }];
     }
 }
