@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.4.1)
 project("hippy")
 
 set(CMAKE_VERBOSE_MAKEFILE on)
-set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
 if (${ANDROID_STL} STREQUAL "c++_static")
   string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--exclude-libs,libc++_static.a")
@@ -64,7 +63,7 @@ else()
 endif()
 
 if (${HIDDEN_LIBRARY_SYMBOL} STREQUAL "true")
-  set(ABI_COMPILE_OPTIONS ${ABI_COMPILE_OPTIONS} -fvisibility=hidden)
+  set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 endif()
 
 message("ABI_COMPILE_OPTIONS: ${ABI_COMPILE_OPTIONS}")
