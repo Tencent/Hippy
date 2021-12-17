@@ -23,6 +23,7 @@
 #import <UIKit/UIKit.h>
 #import "HippyComponent.h"
 #import "HippyViewEventProtocol.h"
+#import "HippyDefines.h"
 #include "dom/dom_node.h"
 
 @class HippyShadowView;
@@ -129,18 +130,18 @@
 
 @end
 
-
-@interface UIView(HippyEvent)
 /**
  * gesture event
  */
 typedef void(^onTouchEventListener)(CGPoint);
-typedef NS_ENUM(NSUInteger, HippyViewEventType) {
+typedef NS_ENUM(NSInteger, HippyViewEventType) {
     //touche event
     HippyViewEventTypeTouchStart,
     HippyViewEventTypeTouchMove,
     HippyViewEventTypeTouchEnd,
     HippyViewEventTypeTouchCancel,
+    
+    HippyViewEventTypeLayout,
     
     //show event
     HippyViewEventTypeShow,
@@ -149,7 +150,14 @@ typedef NS_ENUM(NSUInteger, HippyViewEventType) {
     //click event
     HippyViewEventTypeClick,
     HippyViewEventTypeLongClick,
+    
+    HippyViewEventTypeUnknown = -1,
 };
+
+HIPPY_EXTERN HippyViewEventType viewEventTypeFromName(const std::string &name);
+
+@interface UIView(HippyEvent)
+
 - (NSInteger)addViewEvent:(HippyViewEventType)touchEvent eventListener:(onTouchEventListener)listener;
 - (onTouchEventListener)eventListenerForEventType:(HippyViewEventType)eventType;
 - (void)removeViewEvent:(HippyViewEventType)touchEvent;
