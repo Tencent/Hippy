@@ -56,6 +56,10 @@ constexpr char kLayoutEvent[] = "layout";
 constexpr char kShowEvent[] = "show";
 constexpr char kDismissEvent[] = "dismiss";
 
+constexpr char kEventsListsKey[] = "__events";
+constexpr char kEventNameKey[] = "name";
+constexpr char kEventCBKey[] = "cb";
+
 const int32_t kInvalidValue = -1;
 
 using DomValue = tdf::base::DomValue;
@@ -177,7 +181,7 @@ GetNodeExtValue(const std::shared_ptr<Ctx> &context,
                 std::unordered_map<std::string, DomValue> &props) {
   std::unordered_map<std::string, std::shared_ptr<DomValue>> dom_ext_map;
   // parse ext value
-  for (const auto& p : props) {
+  for (const auto &p : props) {
     dom_ext_map[p.first] = std::make_shared<DomValue>(std::move(p.second));
   }
   return std::make_tuple(true, "", std::move(dom_ext_map));
@@ -300,10 +304,10 @@ void BindTouchEvent(const std::shared_ptr<Ctx> &context, const std::string &name
 //  });
 //}
 
-void BindShowEvent(const std::shared_ptr<Ctx>& context,
+void BindShowEvent(const std::shared_ptr<Ctx> &context,
                    const std::string &name,
-                   const std::shared_ptr<DomNode>& dom_node,
-                   const std::shared_ptr<CtxValue>& func) {
+                   const std::shared_ptr<DomNode> &dom_node,
+                   const std::shared_ptr<CtxValue> &func) {
   std::weak_ptr<Ctx> weak_context = context;
   int32_t id = dom_node->GetId();
   dom_node->AddEventListener(name, true, [weak_context, func, id]
@@ -320,10 +324,10 @@ void BindShowEvent(const std::shared_ptr<Ctx>& context,
   });
 }
 
-void BindLayoutEvent(const std::shared_ptr<Ctx>& context,
+void BindLayoutEvent(const std::shared_ptr<Ctx> &context,
                      const std::string &name,
-                     const std::shared_ptr<DomNode>& dom_node,
-                     const std::shared_ptr<CtxValue>& func) {
+                     const std::shared_ptr<DomNode> &dom_node,
+                     const std::shared_ptr<CtxValue> &func) {
   std::weak_ptr<Ctx> weak_context = context;
   int32_t id = dom_node->GetId();
   dom_node->AddEventListener(kLayoutEvent, true, [weak_context, func, id]
@@ -347,56 +351,92 @@ void BindLayoutEvent(const std::shared_ptr<Ctx>& context,
 void HandleEventListeners(const std::shared_ptr<Ctx> &context,
                           const std::shared_ptr<CtxValue> &node,
                           const std::shared_ptr<DomNode> &dom_node) {
-  auto on_click_func = context->GetProperty(node, hippy::kOnClick);
-  if (on_click_func && context->IsFunction(on_click_func)) {
-    BindClickEvent(context, kClickEvent, dom_node, on_click_func);
+  auto events = context->GetProperty(node, kEventsListsKey);
+  if (events && context->IsArray(events)) {
+    auto len = context->GetArrayLength(events);
+    for (auto i = 0; i < len; ++i) {
+      auto event = context->CopyArrayElement(events, i);
+      auto name_prop = context->GetProperty(event, kEventNameKey);
+      auto cb = context->GetProperty(event, kEventCBKey);
+      unicode_string_view name;
+      auto flag = context->GetValueString(name_prop, &name);
+      TDF_BASE_DCHECK(flag) << "get event name failed";
+      TDF_BASE_DCHECK(context->IsFunction(cb)) << "get event cb failed";
+      if (flag && context->IsFunction(cb)) {
+        std::string name_str = StringViewUtils::ToU8StdStr(name);
+        std::weak_ptr<Ctx> weak_context = context;
+        // dom_node 持有 cb
+        dom_node->AddEventListener(name_str,
+                                   true,
+                                   [weak_context, cb](const std::shared_ptr<DomEvent> &event) {
+                                     auto context = weak_context.lock();
+                                     if (!context) {
+                                       return;
+                                     }
+                                     auto param = context->CreateCtxValue(event->GetValue());
+                                     if (param) {
+                                       const std::shared_ptr<CtxValue> argus[] = { param };
+                                       context->CallFunction(cb, 1, argus);
+                                     } else {
+                                       const std::shared_ptr<CtxValue> argus[] = {};
+                                       context->CallFunction(cb, 0, argus);
+                                     }
+                                   });
+      }
+    }
+
   }
 
-  auto on_long_click_func = context->GetProperty(node, hippy::kOnLongClick);
-  if (on_long_click_func && context->IsFunction(on_long_click_func)) {
-    BindClickEvent(context, kLongClickEvent, dom_node, on_long_click_func);
-  }
-
-  auto on_touch_start_func = context->GetProperty(node, hippy::kOnTouchStart);
-  if (on_touch_start_func && context->IsFunction(on_touch_start_func)) {
-    BindTouchEvent(context, kTouchStartEvent, dom_node, on_touch_start_func);
-  }
-
-  auto on_touch_move_func = context->GetProperty(node, hippy::kOnTouchMove);
-  if (on_touch_move_func && context->IsFunction(on_touch_move_func)) {
-    BindTouchEvent(context, kTouchMoveEvent, dom_node, on_touch_move_func);
-  }
-
-  auto on_touch_end_func = context->GetProperty(node, hippy::kOnTouchEnd);
-  if (on_touch_end_func && context->IsFunction(on_touch_end_func)) {
-    BindTouchEvent(context, kTouchEndEvent, dom_node, on_touch_end_func);
-  }
-
-  auto on_touch_cancel_func = context->GetProperty(node, hippy::kOnTouchCancel);
-  if (on_touch_cancel_func && context->IsFunction(on_touch_cancel_func)) {
-    BindTouchEvent(context, kTouchCancelEvent, dom_node, on_touch_cancel_func);
-  }
-
-  auto on_show_func = context->GetProperty(node, hippy::kOnShow);
-  if (on_show_func && context->IsFunction(on_show_func)) {
-    BindShowEvent(context, kShowEvent, dom_node, on_show_func);
-  }
-
-  auto on_dismiss_func = context->GetProperty(node, hippy::kOnDismiss);
-  if (on_dismiss_func && context->IsFunction(on_dismiss_func)) {
-    BindShowEvent(context, kDismissEvent, dom_node, on_dismiss_func);
-  }
-
-  auto on_layout_func = context->GetProperty(node, hippy::kOnLayout);
-  if (on_layout_func && context->IsFunction(on_layout_func)) {
-    BindLayoutEvent(context, kLayoutEvent, dom_node, on_layout_func);
-  }
+//  auto on_click_func = context->GetProperty(node, hippy::kOnClick);
+//  if (on_click_func && context->IsFunction(on_click_func)) {
+//    BindClickEvent(context, kClickEvent, dom_node, on_click_func);
+//  }
+//
+//  auto on_long_click_func = context->GetProperty(node, hippy::kOnLongClick);
+//  if (on_long_click_func && context->IsFunction(on_long_click_func)) {
+//    BindClickEvent(context, kLongClickEvent, dom_node, on_long_click_func);
+//  }
+//
+//  auto on_touch_start_func = context->GetProperty(node, hippy::kOnTouchStart);
+//  if (on_touch_start_func && context->IsFunction(on_touch_start_func)) {
+//    BindTouchEvent(context, kTouchStartEvent, dom_node, on_touch_start_func);
+//  }
+//
+//  auto on_touch_move_func = context->GetProperty(node, hippy::kOnTouchMove);
+//  if (on_touch_move_func && context->IsFunction(on_touch_move_func)) {
+//    BindTouchEvent(context, kTouchMoveEvent, dom_node, on_touch_move_func);
+//  }
+//
+//  auto on_touch_end_func = context->GetProperty(node, hippy::kOnTouchEnd);
+//  if (on_touch_end_func && context->IsFunction(on_touch_end_func)) {
+//    BindTouchEvent(context, kTouchEndEvent, dom_node, on_touch_end_func);
+//  }
+//
+//  auto on_touch_cancel_func = context->GetProperty(node, hippy::kOnTouchCancel);
+//  if (on_touch_cancel_func && context->IsFunction(on_touch_cancel_func)) {
+//    BindTouchEvent(context, kTouchCancelEvent, dom_node, on_touch_cancel_func);
+//  }
+//
+//  auto on_show_func = context->GetProperty(node, hippy::kOnShow);
+//  if (on_show_func && context->IsFunction(on_show_func)) {
+//    BindShowEvent(context, kShowEvent, dom_node, on_show_func);
+//  }
+//
+//  auto on_dismiss_func = context->GetProperty(node, hippy::kOnDismiss);
+//  if (on_dismiss_func && context->IsFunction(on_dismiss_func)) {
+//    BindShowEvent(context, kDismissEvent, dom_node, on_dismiss_func);
+//  }
+//
+//  auto on_layout_func = context->GetProperty(node, hippy::kOnLayout);
+//  if (on_layout_func && context->IsFunction(on_layout_func)) {
+//    BindLayoutEvent(context, kLayoutEvent, dom_node, on_layout_func);
+//  }
 }
 
 std::tuple<bool, std::string, std::shared_ptr<DomNode>>
 CreateNode(const std::shared_ptr<Ctx> &context,
            const std::shared_ptr<CtxValue> &node,
-           const std::shared_ptr<Scope>& scope) {
+           const std::shared_ptr<Scope> &scope) {
   std::shared_ptr<DomNode> dom_node = nullptr;
   auto id_tuple = GetNodeId(context, node);
   if (!std::get<0>(id_tuple)) {

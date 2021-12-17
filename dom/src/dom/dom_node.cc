@@ -221,9 +221,10 @@ void DomNode::TransferLayoutOutputsRecursive() {
   layout_.paddingRight = node->GetPadding(TaitankCssDirection::CSSRight);
   layout_.paddingBottom = node->GetPadding(TaitankCssDirection::CSSBottom);
 
-  DomManager::HandleEvent(std::make_shared<DomEvent>(kLayoutEvent, shared_from_this(),
-                                                     true, true,
-                                                     std::make_any<LayoutResult>(layout_)));
+//  
+//  DomManager::HandleEvent(std::make_shared<DomEvent>(kLayoutEvent, shared_from_this(),
+//                                                     true, true,
+//                                                     std::make_any<LayoutResult>(layout_)));
   node->SetHasNewLayout(false);
   if (changed) {
     auto dom_manager = dom_manager_.lock();
