@@ -67,11 +67,13 @@ std::shared_ptr<DomNode> DomNode::GetChildAt(int32_t index) {
 
 void DomNode::AddChildAt(const std::shared_ptr<DomNode>& dom_node, int32_t index) {
   auto it = children_.begin();
+  auto insertIndex = 0;
   while (it != children_.end()) {
     if (index < it->get()->GetIndex()) {
       break;
     }
     it++;
+    insertIndex++;
   }
   if (it == children_.end()) {
     children_.push_back(dom_node);
@@ -79,7 +81,7 @@ void DomNode::AddChildAt(const std::shared_ptr<DomNode>& dom_node, int32_t index
     children_.insert(it, dom_node);
   }
   dom_node->SetParent(shared_from_this());
-  layout_node_->InsertChild(dom_node->layout_node_, index);
+  layout_node_->InsertChild(dom_node->layout_node_, insertIndex);
 }
 
 std::shared_ptr<DomNode> DomNode::RemoveChildAt(int32_t index) {
