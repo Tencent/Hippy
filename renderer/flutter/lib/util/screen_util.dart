@@ -1,7 +1,8 @@
 import 'dart:ui' as ui show window;
 
 import 'package:flutter/material.dart';
-import '../channel/platform_manager.dart';
+
+import '../channel.dart';
 
 class ScreenUtil {
   double _screenWidth = 0.0;

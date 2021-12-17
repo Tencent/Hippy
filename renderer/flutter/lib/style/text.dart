@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../adapter/font.dart';
-import '../common/voltron_map.dart';
-import '../controller/props.dart';
-import '../render/node.dart';
-import '../util/log_util.dart';
-import '../util/string_util.dart';
+import '../adapter.dart';
+import '../common.dart';
+import '../controller.dart';
+import '../render.dart';
+import '../util.dart';
 import 'flex_define.dart';
 import 'prop.dart';
 import 'style_node.dart';

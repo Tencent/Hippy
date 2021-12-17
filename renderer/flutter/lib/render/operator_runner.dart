@@ -1,10 +1,8 @@
-import 'package:tencent_voltron_render/style/prop.dart';
-
-import '../common/destroy.dart';
-import '../common/voltron_array.dart';
-import '../engine/engine_context.dart';
+import '../common.dart';
+import '../engine.dart';
+import '../module.dart';
+import '../style.dart';
 import '../voltron_render.dart';
-import '../module/promise.dart';
 import 'manager.dart';
 
 typedef RenderOpTaskGenerator = RenderOpTask Function(

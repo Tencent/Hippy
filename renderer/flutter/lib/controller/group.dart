@@ -1,11 +1,8 @@
-import '../common/voltron_map.dart';
-import '../controller/controller.dart';
-import '../controller/manager.dart';
-import '../controller/props.dart';
-import '../render/node.dart';
-import '../render/tree.dart';
-import '../style/prop.dart';
-import '../viewmodel/group.dart';
+import '../common.dart';
+import '../controller.dart';
+import '../render.dart';
+import '../style.dart';
+import '../viewmodel.dart';
 
 abstract class BaseGroupController<T extends GroupViewModel>
     extends GroupController<T, RenderNode> {

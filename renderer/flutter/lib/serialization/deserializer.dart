@@ -1,5 +1,4 @@
-import '../common/voltron_array.dart';
-import '../common/voltron_map.dart';
+import '../common.dart';
 import 'primitive_value_deserializer.dart';
 import 'reader/binary_reader.dart';
 import 'serialization_tag.dart';

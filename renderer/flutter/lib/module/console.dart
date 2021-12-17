@@ -1,5 +1,5 @@
-import '../engine/engine_context.dart';
-import '../util/log_util.dart';
+import '../engine.dart';
+import '../util.dart';
 import 'module.dart';
 import 'promise.dart';
 

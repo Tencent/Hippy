@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
-import '../style/text.dart';
-import '../viewmodel/text.dart';
+import '../style.dart';
+import '../viewmodel.dart';
 import 'base.dart';
 import 'div.dart';
 

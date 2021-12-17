@@ -4,11 +4,9 @@ import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:system_proxy/system_proxy.dart';
 
-import '../channel/cookie_manager.dart' as cookie;
-import '../channel/platform_manager.dart';
-import '../common/destroy.dart';
-import '../common/voltron_array.dart';
-import '../util/log_util.dart';
+import '../channel.dart' as channel;
+import '../common.dart';
+import '../util.dart';
 
 class HttpAdapter with Destroyable {
   Future<Response> sendRequest(HttpRequest request) async {
@@ -53,7 +51,7 @@ class HttpAdapter with Destroyable {
     }
 
     dio.interceptors
-        .add(CookieManager(cookie.CookieManager.getInstance().cookieJar));
+        .add(CookieManager(channel.CookieManager.getInstance().cookieJar));
     try {
       var response =
           await dio.request(request.url ?? '', data: request.getBody());
@@ -170,7 +168,7 @@ class HttpRequest {
   void _initUserAgent() {
     if (_userAgent == null) {
       var info = '';
-      final platInfo = PlatformManager.getInstance();
+      final platInfo = channel.PlatformManager.getInstance();
       info += '${platInfo.osVersion}; ';
 
       info += (platInfo.language);

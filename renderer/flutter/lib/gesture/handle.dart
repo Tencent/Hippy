@@ -1,10 +1,8 @@
-import '../common/voltron_map.dart';
-import '../style/prop.dart';
-import '../engine/engine_context.dart';
-import '../module/event_dispatcher.dart';
-import '../module/module.dart';
-import '../util/enum_util.dart';
-import '../util/log_util.dart';
+import '../common.dart';
+import '../engine.dart';
+import '../module.dart';
+import '../style.dart';
+import '../util.dart';
 
 class NativeGestureHandle {
   static const String tag = "NativeGestureHandle";

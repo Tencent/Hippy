@@ -1,7 +1,6 @@
 import 'dart:ffi';
 
-import 'package:tencent_voltron_render/style/flex_output.dart';
-
+import '../style.dart';
 import 'flex_value.dart';
 
 const double undefined = double.nan;

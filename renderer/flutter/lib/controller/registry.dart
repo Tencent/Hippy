@@ -1,7 +1,6 @@
 import 'dart:collection';
 
-import '../render/node.dart';
-import '../render/tree.dart';
+import '../render.dart';
 import 'controller.dart';
 
 class ControllerRegistry {

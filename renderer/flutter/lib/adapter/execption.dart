@@ -1,4 +1,4 @@
-import '../common/error.dart';
+import '../common.dart';
 
 class ExceptionHandlerAdapter {
   void handleJsException(JsError exception) {}

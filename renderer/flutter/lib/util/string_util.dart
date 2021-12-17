@@ -2,8 +2,7 @@ import 'dart:convert';
 
 import 'package:sprintf/sprintf.dart';
 
-import '../common/voltron_array.dart';
-import '../common/voltron_map.dart';
+import '../common.dart';
 import 'log_util.dart';
 
 bool isEmpty(String? value) {

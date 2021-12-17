@@ -1,6 +1,5 @@
-import '../common/voltron_array.dart';
-import '../common/voltron_map.dart';
-import '../style/prop.dart';
+import '../common.dart';
+import '../style.dart';
 
 VoltronMap diffProps(VoltronMap? from, VoltronMap to, int diffLevel) {
   if (from == null) {

@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-import '../common/voltron_map.dart';
-import '../controller/manager.dart';
-import '../controller/props.dart';
-import '../engine/engine_context.dart';
-import '../render/modal.dart';
-import '../render/tree.dart';
-import '../viewmodel/modal.dart';
-import '../widget/modal.dart';
+import '../common.dart';
+import '../controller.dart';
+import '../engine.dart';
+import '../render.dart';
+import '../viewmodel.dart';
+import '../widget.dart';
 import 'group.dart';
 
 class ModalController

@@ -1,8 +1,7 @@
 import 'package:flutter/widgets.dart';
 
-import '../engine/engine_context.dart';
-import '../style/flex_define.dart';
-import '../style/text.dart';
+import '../engine.dart';
+import '../style.dart';
 import 'view_model.dart';
 
 class TextRenderViewModel extends RenderViewModel {

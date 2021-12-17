@@ -2,9 +2,8 @@ import 'dart:math';
 
 import 'package:sqflite/sqflite.dart';
 
-import '../common/destroy.dart';
-import '../common/voltron_array.dart';
-import '../util/log_util.dart';
+import '../common.dart';
+import '../util.dart';
 
 typedef StorageCallback = void Function(
     bool success, Object data, String errorMsg);
@@ -218,6 +217,7 @@ class SQLiteHelper {
   }
 
   void deleteDatabase() {}
+
   void destroy() {
     var db = _db;
     if (db != null && db.isOpen) {

@@ -1,8 +1,7 @@
-import './event_dispatcher.dart';
-// ignore: directives_ordering
-import '../adapter/websocket.dart';
-import '../common/voltron_map.dart';
-import '../engine/engine_context.dart';
+import '../adapter.dart';
+import '../common.dart';
+import '../engine.dart';
+import 'event_dispatcher.dart';
 import 'module.dart';
 import 'promise.dart';
 

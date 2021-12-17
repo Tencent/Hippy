@@ -1,4 +1,4 @@
-import '../util/enum_util.dart';
+import '../util.dart';
 import 'flex_define.dart';
 import 'flex_node.dart';
 import 'flex_spacing.dart';

@@ -2,13 +2,11 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 
-import '../adapter/http.dart';
-import '../channel/cookie_manager.dart';
-import '../common/voltron_array.dart';
-import '../common/voltron_map.dart';
-import '../engine/engine_context.dart';
-import '../util/log_util.dart';
-import '../util/string_util.dart';
+import '../adapter.dart';
+import '../channel.dart';
+import '../common.dart';
+import '../engine.dart';
+import '../util.dart';
 import 'module.dart';
 import 'promise.dart';
 

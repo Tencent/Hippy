@@ -1,4 +1,4 @@
-import '../util/string_util.dart';
+import '../util.dart';
 import 'bundle.dart';
 import 'engine_context.dart';
 import 'module_params.dart';

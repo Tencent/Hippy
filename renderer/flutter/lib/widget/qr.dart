@@ -3,7 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-import '../viewmodel/qr.dart';
+import '../viewmodel.dart';
 import 'base.dart';
 import 'div.dart';
 

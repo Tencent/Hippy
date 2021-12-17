@@ -3,7 +3,7 @@ import 'dart:math';
 
 import 'package:web_socket_channel/io.dart';
 
-import '../common/destroy.dart';
+import '../common.dart';
 
 class WebSocketManager {
   static final WebSocketManager _instance = WebSocketManager._internal();

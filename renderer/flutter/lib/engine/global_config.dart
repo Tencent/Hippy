@@ -1,12 +1,6 @@
-import '../adapter/device.dart';
-import '../adapter/execption.dart';
-import '../adapter/font.dart';
-import '../adapter/http.dart';
-import '../adapter/monitor.dart';
-import '../adapter/preferences.dart';
-import '../adapter/storage.dart';
-import '../common/destroy.dart';
-import '../util/log_util.dart';
+import '../adapter.dart';
+import '../common.dart';
+import '../util.dart';
 import 'init_params.dart';
 
 class GlobalConfigs implements Destroyable {

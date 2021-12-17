@@ -1,6 +1,5 @@
-import '../engine/engine_context.dart';
-import '../engine/voltron_engine.dart';
-import '../util/enum_util.dart';
+import '../engine.dart';
+import '../util.dart';
 import 'event_dispatcher.dart';
 import 'module.dart';
 import 'promise.dart';

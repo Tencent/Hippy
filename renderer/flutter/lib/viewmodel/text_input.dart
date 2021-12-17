@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../common/voltron_map.dart';
-import '../engine/engine_context.dart';
-import '../module/event_dispatcher.dart';
-import '../module/module.dart';
-import '../style/prop.dart';
-import '../style/text.dart';
-import '../util/enum_util.dart';
-import '../util/log_util.dart';
-import '../util/string_util.dart';
+import '../common.dart';
+import '../engine.dart';
+import '../module.dart';
+import '../style.dart';
+import '../util.dart';
 import 'view_model.dart';
 
 const String _kTag = "TextInput";

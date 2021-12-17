@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-import '../controller/controller.dart';
-import '../controller/props.dart';
-import '../engine/engine_context.dart';
-import '../render/node.dart';
-import '../style/prop.dart';
-import '../viewmodel/qr.dart';
-import '../widget/qr.dart';
+import '../controller.dart';
+import '../engine.dart';
+import '../render.dart';
+import '../style.dart';
+import '../viewmodel.dart';
+import '../widget.dart';
 
 class QrController extends BaseViewController<QrRenderViewModel> {
   static const String className = "QrImage";

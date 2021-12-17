@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
-import '../common/voltron_map.dart';
+import '../common.dart';
 
 class DeviceAdapter {
   void reviseDimensionIfNeed(BuildContext? context, VoltronMap dimensionMap,

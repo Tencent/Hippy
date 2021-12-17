@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 
-import '../adapter/monitor.dart';
-import '../engine/engine_context.dart';
-import '../viewmodel/view_model.dart';
+import '../adapter.dart';
+import '../engine.dart';
+import '../viewmodel.dart';
 
 typedef ContextWrapper = BuildContext? Function();
 

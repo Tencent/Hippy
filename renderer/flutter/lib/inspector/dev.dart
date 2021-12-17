@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import '../engine/global_config.dart';
-import '../widget/root.dart';
+import '../engine.dart';
+import '../widget.dart';
 
 class DevSupportManager {
   DevServerInterface? _devImp;

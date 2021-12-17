@@ -1,8 +1,5 @@
-import 'dart:collection';
-
-import '../common/voltron_map.dart';
-
-import '../engine/engine_context.dart';
+import '../common.dart';
+import '../engine.dart';
 import 'module.dart';
 import 'promise.dart';
 

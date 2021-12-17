@@ -1,6 +1,5 @@
-import '../common/voltron_array.dart';
-import '../common/voltron_map.dart';
-import '../engine/engine_context.dart';
+import '../common.dart';
+import '../engine.dart';
 import 'module.dart';
 
 class EventDispatcher extends JavaScriptModule {

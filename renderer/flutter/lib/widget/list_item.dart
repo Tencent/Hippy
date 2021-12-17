@@ -1,9 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
-import '../viewmodel/group.dart';
-import '../viewmodel/list.dart';
-import '../viewmodel/list_item.dart';
+import '../viewmodel.dart';
 import 'base.dart';
 import 'div.dart';
 

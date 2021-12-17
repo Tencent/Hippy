@@ -1,18 +1,13 @@
 import 'package:flutter/widgets.dart';
 
-import '../common/voltron_map.dart';
-import '../controller/controller.dart';
-import '../controller/manager.dart';
-import '../controller/props.dart';
-import '../engine/engine_context.dart';
-import '../render/text.dart';
-import '../render/tree.dart';
-import '../style/flex_define.dart';
-import '../style/prop.dart';
-import '../style/text.dart';
-import '../util/enum_util.dart';
-import '../viewmodel/text.dart';
-import '../widget/text.dart';
+import '../common.dart';
+import '../controller.dart';
+import '../engine.dart';
+import '../render.dart';
+import '../style.dart';
+import '../util.dart';
+import '../viewmodel.dart';
+import '../widget.dart';
 
 class TextController
     extends VoltronViewController<TextRenderViewModel, TextRenderNode> {

@@ -2,12 +2,11 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 
-import '../common/voltron_map.dart';
-import '../engine/engine_context.dart';
-import '../module/event_dispatcher.dart';
-import '../module/module.dart';
-import '../util/enum_util.dart';
-import '../viewmodel/view_model.dart';
+import '../common.dart';
+import '../engine.dart';
+import '../module.dart';
+import '../util.dart';
+import '../viewmodel.dart';
 import 'dispatcher.dart';
 
 class NativeScrollGestureDispatcher extends NativeGestureDispatcher {

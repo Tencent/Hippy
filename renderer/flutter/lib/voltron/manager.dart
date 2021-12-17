@@ -1,9 +1,6 @@
-import '../engine/engine_define.dart';
-import '../engine/init_params.dart';
-import '../engine/module_params.dart';
-import '../engine/voltron_engine.dart';
-import '../util/log_util.dart';
-import '../widget/root.dart';
+import '../engine.dart';
+import '../util.dart';
+import '../widget.dart';
 
 typedef ModuleExecutor = Function();
 

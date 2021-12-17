@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../common/voltron_map.dart';
-import '../style/prop.dart';
-import '../util/animation_util.dart';
-import '../viewmodel/view_model.dart';
+import '../common.dart';
+import '../style.dart';
+import '../util.dart';
+import '../viewmodel.dart';
 import 'div.dart';
 
 /// 动画组件

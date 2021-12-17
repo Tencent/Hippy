@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
 
-import '../util/log_util.dart';
+import '../util.dart';
 import 'lru_cache.dart';
 import 'voltron_array.dart';
 import 'voltron_map.dart';

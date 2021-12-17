@@ -1,4 +1,4 @@
-import '../common/voltron_map.dart';
+import '../common.dart';
 import 'prop.dart';
 
 class DomUpdateUtil {

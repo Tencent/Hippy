@@ -1,6 +1,6 @@
-import '../common/voltron_map.dart';
-import '../controller/manager.dart';
-import '../style/prop.dart';
+import '../common.dart';
+import '../controller.dart';
+import '../style.dart';
 import 'node.dart';
 import 'tree.dart';
 

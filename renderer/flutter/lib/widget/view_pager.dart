@@ -1,11 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
-import '../style/prop.dart';
-import '../util/log_util.dart';
-import '../viewmodel/group.dart';
-import '../viewmodel/view_model.dart';
-import '../viewmodel/view_pager.dart';
+import '../style.dart';
+import '../util.dart';
+import '../viewmodel.dart';
 import 'base.dart';
 import 'div.dart';
 

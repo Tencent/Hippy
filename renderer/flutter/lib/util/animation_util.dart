@@ -2,11 +2,10 @@ import 'package:flutter/animation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../common/voltron_array.dart';
-import '../common/voltron_map.dart';
-import '../render/node.dart';
-import '../style/prop.dart';
-import '../viewmodel/view_model.dart';
+import '../common.dart';
+import '../render.dart';
+import '../style.dart';
+import '../viewmodel.dart';
 import 'transform_util.dart';
 
 /// 动画工具类

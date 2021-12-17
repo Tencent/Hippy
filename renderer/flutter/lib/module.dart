@@ -7,6 +7,7 @@ export 'module/dialog.dart';
 export 'module/dimensions.dart';
 export 'module/event_dispatcher.dart';
 export 'module/exception.dart';
+export 'module/module.dart';
 export 'module/monitor.dart';
 export 'module/network.dart';
 export 'module/promise.dart';

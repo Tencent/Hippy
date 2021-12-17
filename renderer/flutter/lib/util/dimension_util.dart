@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import '../common/voltron_map.dart';
+import '../common.dart';
 import 'screen_util.dart';
 
 VoltronMap getDimensions(int windowWidth, int windowHeight,

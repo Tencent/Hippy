@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
-import '../common/voltron_array.dart';
-import '../common/voltron_map.dart';
+import '../common.dart';
 import 'log_util.dart';
 import 'matrix_util.dart';
 

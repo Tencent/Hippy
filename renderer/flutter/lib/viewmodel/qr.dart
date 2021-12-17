@@ -1,7 +1,6 @@
-
 import 'package:qr_flutter/qr_flutter.dart';
 
-import '../engine/engine_context.dart';
+import '../engine.dart';
 import 'view_model.dart';
 
 class QrRenderViewModel extends RenderViewModel {

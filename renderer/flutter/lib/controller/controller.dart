@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
-import 'package:tencent_voltron_render/style/update.dart';
 
-import '../common/voltron_array.dart';
-import '../common/voltron_map.dart';
-import '../engine/engine_context.dart';
-import '../module/promise.dart';
-import '../render/node.dart';
-import '../render/tree.dart';
-import '../style/prop.dart';
-import '../util/animation_util.dart';
-import '../util/transform_util.dart';
-import '../viewmodel/view_model.dart';
+import '../common.dart';
+import '../engine.dart';
+import '../module.dart';
+import '../render.dart';
+import '../style.dart';
+import '../util.dart';
+import '../viewmodel.dart';
 import 'manager.dart';
 import 'props.dart';
 

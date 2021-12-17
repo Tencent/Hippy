@@ -1,8 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
 
-import '../engine/engine_context.dart';
-import '../voltron/lifecycle.dart';
+import '../engine.dart';
 import 'module.dart';
 import 'promise.dart';
 

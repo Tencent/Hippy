@@ -1,9 +1,8 @@
 import 'dart:collection';
 
-import '../adapter/monitor.dart';
-import '../engine/engine_context.dart';
-import '../util/log_util.dart';
-import '../util/time_util.dart';
+import '../adapter.dart';
+import '../engine.dart';
+import '../util.dart';
 
 class ModuleAnrMonitor {
   static const int anrTime = 100;

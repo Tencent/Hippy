@@ -1,18 +1,16 @@
 import 'dart:collection';
 
-import '../adapter/monitor.dart';
-import '../adapter/third_party.dart';
-import '../common/destroy.dart';
-import '../inspector/dev.dart';
-import '../module/module.dart';
-import '../render/manager.dart';
-import '../render/operator_runner.dart';
-import '../voltron/lifecycle.dart';
-import '../bridge/voltron_bridge.dart';
-import '../widget/root.dart';
+import '../adapter.dart';
+import '../bridge.dart';
+import '../common.dart';
+import '../inspector.dart';
+import '../module.dart';
+import '../render.dart';
+import '../widget.dart';
 import 'api_provider.dart';
 import 'bundle.dart';
 import 'global_config.dart';
+import 'lifecycle.dart';
 
 class EngineContext implements Destroyable {
   // UI Manager

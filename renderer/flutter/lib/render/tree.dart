@@ -1,7 +1,7 @@
 import 'dart:collection';
 
-import '../util/log_util.dart';
-import '../widget/root.dart';
+import '../util.dart';
+import '../widget.dart';
 import 'node.dart';
 
 class RenderTree {

@@ -1,7 +1,7 @@
-import '../adapter/storage.dart';
-import '../common/voltron_array.dart';
-import '../engine/engine_context.dart';
-import '../util/log_util.dart';
+import '../adapter.dart';
+import '../common.dart';
+import '../engine.dart';
+import '../util.dart';
 import 'module.dart';
 import 'promise.dart';
 

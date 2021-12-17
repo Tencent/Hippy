@@ -1,4 +1,4 @@
-import '../util/num_util.dart';
+import '../util.dart';
 import 'flex_define.dart';
 
 class FlexSpacing {

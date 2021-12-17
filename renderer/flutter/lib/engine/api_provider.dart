@@ -1,29 +1,5 @@
-import '../controller/controller.dart';
-import '../controller/div.dart';
-import '../controller/image.dart';
-import '../controller/list.dart';
-import '../controller/list_item.dart';
-import '../controller/modal.dart';
-import '../controller/qr.dart';
-import '../controller/refresh.dart';
-import '../controller/refresh_item.dart';
-import '../controller/scroller.dart';
-import '../controller/text.dart';
-import '../controller/text_input.dart';
-import '../controller/view_pager.dart';
-import '../module/clipboard.dart';
-import '../module/console.dart';
-import '../module/device_event.dart';
-import '../module/dialog.dart';
-import '../module/dimensions.dart';
-import '../module/event_dispatcher.dart';
-import '../module/exception.dart';
-import '../module/module.dart';
-import '../module/network.dart';
-import '../module/storage.dart';
-import '../module/time.dart';
-import '../module/utils.dart';
-import '../module/websocket.dart';
+import '../controller.dart';
+import '../module.dart';
 import 'engine_context.dart';
 
 abstract class APIProvider {

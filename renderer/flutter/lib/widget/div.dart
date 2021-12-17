@@ -4,13 +4,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../common/voltron_map.dart';
-import '../controller/manager.dart';
-import '../style/prop.dart';
-import '../util/log_util.dart';
-import '../viewmodel/div.dart';
-import '../viewmodel/group.dart';
-import '../viewmodel/view_model.dart';
+import '../common.dart';
+import '../controller.dart';
+import '../style.dart';
+import '../util.dart';
+import '../viewmodel.dart';
 import 'animation.dart';
 import 'base.dart';
 

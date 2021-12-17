@@ -1,10 +1,9 @@
 import 'package:flutter/widgets.dart';
 
-import '../common/voltron_map.dart';
-import '../engine/engine_context.dart';
-import '../module/event_dispatcher.dart';
-import '../module/module.dart';
-import '../util/enum_util.dart';
+import '../common.dart';
+import '../engine.dart';
+import '../module.dart';
+import '../util.dart';
 import 'group.dart';
 
 class ViewPagerRenderViewModel extends GroupViewModel {

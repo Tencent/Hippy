@@ -1,7 +1,7 @@
 import 'dart:collection';
 import 'dart:typed_data';
 
-import '../../common/lru_cache.dart';
+import '../../common.dart';
 import 'direct_string_table.dart';
 import 'string_encoding.dart';
 import 'string_location.dart';

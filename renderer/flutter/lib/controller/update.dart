@@ -1,10 +1,9 @@
 import 'dart:collection';
 
-import '../common/voltron_map.dart';
-import '../render/node.dart';
-import '../style/prop.dart';
-import '../style/update.dart';
-import '../util/log_util.dart';
+import '../common.dart';
+import '../render.dart';
+import '../style.dart';
+import '../util.dart';
 import 'props.dart';
 
 class ControllerUpdateUtil {

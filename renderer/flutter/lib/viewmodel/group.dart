@@ -2,9 +2,9 @@ import 'dart:collection';
 
 import 'package:collection/collection.dart';
 
-import '../engine/engine_context.dart';
-import '../style/prop.dart';
-import '../util/enum_util.dart';
+import '../engine.dart';
+import '../style.dart';
+import '../util.dart';
 import 'view_model.dart';
 
 class GroupViewModel extends RenderViewModel {

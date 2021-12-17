@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../gesture/scroll.dart';
-import '../viewmodel/scroller.dart';
-import '../viewmodel/view_model.dart';
+import '../gesture.dart';
+import '../viewmodel.dart';
 import 'base.dart';
 import 'div.dart';
 

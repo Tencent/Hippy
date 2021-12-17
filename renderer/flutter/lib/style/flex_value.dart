@@ -1,6 +1,6 @@
 import 'dart:ffi';
 
-import '../util/ffi_util.dart';
+import '../util.dart';
 
 // ignore: constant_identifier_names
 enum FlexUnit { UNDEFINED, POINT, PERCENT, AUTO }

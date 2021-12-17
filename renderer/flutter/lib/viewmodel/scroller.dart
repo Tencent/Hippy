@@ -1,10 +1,10 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
 
-import '../common/voltron_map.dart';
-import '../controller/manager.dart';
-import '../engine/engine_context.dart';
-import '../gesture/scroll.dart';
+import '../common.dart';
+import '../controller.dart';
+import '../engine.dart';
+import '../gesture.dart';
 import 'list.dart';
 import 'view_model.dart';
 

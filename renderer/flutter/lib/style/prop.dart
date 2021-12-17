@@ -2,9 +2,8 @@ import 'dart:collection';
 
 import 'package:flutter/widgets.dart';
 
-import '../common/voltron_map.dart';
-import '../util/enum_util.dart';
-import '../util/string_util.dart';
+import '../common.dart';
+import '../util.dart';
 
 class StyleMethodProp {
   final Function(StyleMethodPropConsumer consumer, Object? value) method;

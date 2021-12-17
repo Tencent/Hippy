@@ -1,5 +1,5 @@
-import '../render/node.dart';
-import '../viewmodel/view_model.dart';
+import '../render.dart';
+import '../viewmodel.dart';
 
 class ControllerMethodProp<T> {
   final Function method;

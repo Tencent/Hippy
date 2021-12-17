@@ -1,9 +1,8 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-import '../engine/engine_context.dart';
-import '../widget/image.dart';
+import '../engine.dart';
+import '../widget.dart';
 import 'view_model.dart';
 
 class ImageRenderViewModel extends RenderViewModel {

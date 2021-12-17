@@ -1,6 +1,5 @@
-import '../common/voltron_map.dart';
-
-import '../engine/engine_context.dart';
+import '../common.dart';
+import '../engine.dart';
 
 class _JSPromiseImpl extends JSPromise {
   final String _moduleName;
