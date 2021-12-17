@@ -3,7 +3,7 @@ import 'package:tencent_voltron_render/style/prop.dart';
 import '../common/destroy.dart';
 import '../common/voltron_array.dart';
 import '../engine/engine_context.dart';
-import '../flutter_render.dart';
+import '../voltron_render.dart';
 import '../module/promise.dart';
 import 'manager.dart';
 
@@ -41,8 +41,10 @@ class RenderOperatorRunner implements Destroyable {
         _AddEventOpTask(instanceId, nodeId, params),
     _RenderOpType.removeEvent.index: (instanceId, nodeId, params) =>
         _RemoveEventOpTask(instanceId, nodeId, params),
-    _RenderOpType.layoutBatch.index: (instanceId, nodeId, params) =>
-        _LayoutBatchOpTask(instanceId),
+    _RenderOpType.layoutBefore.index: (instanceId, nodeId, params) =>
+        _LayoutBeforeOpTask(instanceId),
+    _RenderOpType.layoutFinish.index: (instanceId, nodeId, params) =>
+        _LayoutFinishOpTask(instanceId),
   };
 
   RenderOperatorRunner(this._engineContext);
@@ -213,15 +215,23 @@ class _BatchOpTask extends RenderOpTask {
   }
 }
 
-class _LayoutBatchOpTask extends RenderOpTask {
-  _LayoutBatchOpTask(int instanceId) : super(instanceId);
+class _LayoutBeforeOpTask extends RenderOpTask {
+  _LayoutBeforeOpTask(int instanceId) : super(instanceId);
+
+  @override
+  void _run() {
+    renderManager.layoutBefore();
+  }
+}
+
+class _LayoutFinishOpTask extends RenderOpTask {
+  _LayoutFinishOpTask(int instanceId) : super(instanceId);
 
   @override
   void _run() {
     renderManager.addUITask(() {
-      renderManager.layoutBatchEnd();
+      renderManager.layoutBatch();
     });
-    renderManager.renderBatchEnd();
   }
 }
 
@@ -404,11 +414,12 @@ enum _RenderOpType {
   moveNode,
   updateNode,
   updateLayout,
+  layoutBefore,
+  layoutFinish,
   batch,
   dispatchUiFunc,
   addEvent,
   removeEvent,
-  layoutBatch,
 }
 
 class _RenderOpParamsKey {

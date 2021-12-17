@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../bridge/voltron_bridge.dart';
 import '../util/log_util.dart';
 import '../util/string_util.dart';
-import '../bridge/voltron_bridge.dart';
 
 abstract class VoltronBundleLoader {
   Future<bool> load(VoltronBridgeManager bridge, Callback callback);

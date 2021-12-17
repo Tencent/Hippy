@@ -6,7 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
 
 import '../../../engine/engine_context.dart';
-import '../../../flutter_render.dart';
+import '../../../voltron_render.dart';
 import 'model.dart';
 
 class ScreencastFrame implements InspectorModel {

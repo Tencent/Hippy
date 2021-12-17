@@ -40,11 +40,20 @@ void VoltronRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNod
 
 void VoltronRenderManager::Batch() {
   RunBatch();
+}
 
+void VoltronRenderManager::OnLayoutBefore() {
+  RunLayoutBefore();
+
+  // 在dom的css layout开始前，要保证dom op全部执行完成，否则自定义测量的节点测量数据会不准确
   std::unique_lock<std::mutex> lock(mutex_);
   while (!notified_) {
     cv_.wait(lock);
   }
+}
+
+void VoltronRenderManager::OnLayoutFinish() {
+  RunLayoutFinish();
 }
 
 void VoltronRenderManager::CallFunction(std::weak_ptr<DomNode> dom_node, const std::string& name, const DomValue& param,
@@ -59,10 +68,6 @@ void VoltronRenderManager::Notify() {
     notified_ = true;
     cv_.notify_one();
   }
-}
-
-void VoltronRenderManager::LayoutBatch() {
-  RunLayoutBatch();
 }
 
 //

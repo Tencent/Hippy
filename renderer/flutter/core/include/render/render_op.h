@@ -10,11 +10,12 @@ enum VoltronRenderOpType {
   MOVE_NODE,
   UPDATE_NODE,
   UPDATE_LAYOUT,
+  LAYOUT_BEFORE,
+  LAYOUT_FINISH,
   BATCH,
   DISPATCH_UI_FUNC,
   ADD_EVENT,
   REMOVE_EVENT,
-  LAYOUT_BATCH,
 };
 
 }  // namespace voltron

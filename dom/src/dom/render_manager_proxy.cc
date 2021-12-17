@@ -88,10 +88,6 @@ void RenderManagerProxy::Batch() {
   render_manager_->Batch();
 }
 
-void RenderManagerProxy::LayoutBatch() {
-  render_manager_->LayoutBatch();
-}
-
 void RenderManagerProxy::AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {
   render_manager_->AddEventListener(dom_node, name);
 }
@@ -101,6 +97,13 @@ void RenderManagerProxy::RemoveEventListener(std::weak_ptr<DomNode> dom_node,
   render_manager_->RemoveEventListener(dom_node, name);
 }
 
+void RenderManagerProxy::OnLayoutBefore() {
+  render_manager_->OnLayoutBefore();
+}
+
+void RenderManagerProxy::OnLayoutFinish() {
+  render_manager_->OnLayoutFinish();
+}
 
 void RenderManagerProxy::CallFunction(
     std::weak_ptr<DomNode> dom_node, const std::string &name,

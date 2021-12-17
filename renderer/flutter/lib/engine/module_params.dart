@@ -1,7 +1,7 @@
 import '../common/voltron_map.dart';
 
 import 'bundle.dart';
-import 'context.dart';
+import 'instance_context.dart';
 
 class ModuleLoadParams {
   //

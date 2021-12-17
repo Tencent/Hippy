@@ -130,14 +130,16 @@ mixin RenderExecutorDelegate {
     _renderBatchStarted = true;
   }
 
+  void layoutBefore() {
+    _batch();
+  }
+
   void renderBatchEnd() {
     _renderBatchStarted = false;
     _batch();
   }
 
-  void layoutBatchEnd() {
-    _layoutBatch();
-  }
+  void layoutBatch();
 
   void _batch() {
     for (final task in _uiTasks) {
@@ -152,8 +154,6 @@ mixin RenderExecutorDelegate {
 
     _renderBatchStart();
   }
-
-  void _layoutBatch();
 
   void notifyDom();
 
@@ -275,7 +275,7 @@ class RenderManager
   }
 
   @override
-  void _layoutBatch() {
+  void layoutBatch() {
     if (_updateRenderNodes.isNotEmpty) {
       for (var node in _updateRenderNodes) {
         node.updateRender();

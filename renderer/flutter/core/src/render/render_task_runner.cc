@@ -96,10 +96,15 @@ void VoltronRenderTaskRunner::RunBatch() {
   ConsumeQueue();
 }
 
-void VoltronRenderTaskRunner::RunLayoutBatch() {
-  auto batch_task = std::make_shared<RenderTask>(VoltronRenderOpType::LAYOUT_BATCH, 0);
+void VoltronRenderTaskRunner::RunLayoutBefore() {
+  auto batch_task = std::make_shared<RenderTask>(VoltronRenderOpType::LAYOUT_BEFORE, 0);
   queue_->ProduceRenderOp(batch_task);
   ConsumeQueue();
+}
+
+void VoltronRenderTaskRunner::RunLayoutFinish() {
+  auto batch_task = std::make_shared<RenderTask>(VoltronRenderOpType::LAYOUT_FINISH, 0);
+  queue_->ProduceRenderOp(batch_task);
 }
 
 EncodableValue VoltronRenderTaskRunner::ParseDomValue(const DomValue& value) {

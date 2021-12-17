@@ -22,7 +22,8 @@ class VoltronRenderManager : public RenderManager, private VoltronRenderTaskRunn
   void MoveRenderNode(std::vector<int32_t>&& ids, int32_t pid, int32_t id) override;
 
   void Batch() override;
-  void LayoutBatch() override;
+  void OnLayoutBefore() override;
+  void OnLayoutFinish() override;
 
   void AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) override;
   void RemoveEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) override;

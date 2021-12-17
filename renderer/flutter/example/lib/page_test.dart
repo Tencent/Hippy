@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tencent_voltron_render/flutter_render.dart';
+import 'package:tencent_voltron_render/voltron_render.dart';
 
 VoltronRenderManager generateManager(BuildContext context, {bool? debugMode}) {
   var initParams = EngineInitParams();

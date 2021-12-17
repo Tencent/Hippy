@@ -110,8 +110,10 @@ void DomManager::EndBatch() {
     batch_operation();
   }
   add_listener_operations_.clear();
+  render_manager_->OnLayoutBefore();
   // 触发布局计算
   DoLayout();
+  render_manager_->OnLayoutFinish();
   render_manager_->Batch();
 }
 

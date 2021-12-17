@@ -1,4 +1,4 @@
-library flutter_render;
+library voltron_render;
 
 export 'adapter/monitor.dart';
 export "common/voltron_map.dart";
