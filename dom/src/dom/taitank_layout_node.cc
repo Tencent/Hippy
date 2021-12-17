@@ -327,7 +327,12 @@ void TaitankLayoutNode::InsertChild(std::shared_ptr<LayoutNode> child, uint32_t 
   auto node = std::static_pointer_cast<TaitankLayoutNode>(child);
   assert(node->GetLayoutEngineNodeRef() != nullptr);
   engine_node_->insertChild(node->GetLayoutEngineNodeRef(), index);
-  children_.insert(children_.begin() + index, node);
+  auto size = children_.size();
+  if (index >= size) {
+    children_.push_back(node);
+  } else {
+    children_.insert(children_.begin() + index, node);
+  }
   node->parent_ = shared_from_this();
 }
 
