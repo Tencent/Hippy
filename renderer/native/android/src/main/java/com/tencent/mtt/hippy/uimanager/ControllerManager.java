@@ -406,7 +406,7 @@ public class ControllerManager {
           + " renderNodeClass " + renderNodeClass + " id " + id
           + " childTag " + childTag
           + " childClass " + childClass);
-      nativeRenderer.handleNativeException(exception, true);
+      nativeRenderer.handleRenderException(exception);
     }
   }
 

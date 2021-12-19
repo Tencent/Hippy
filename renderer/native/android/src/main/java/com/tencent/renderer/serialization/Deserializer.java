@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.renderer.serialization;
 
-import static com.tencent.renderer.NativeRenderException.ExceptionCode.DESERIALIZE_DATA_ERR;
-import static com.tencent.renderer.NativeRenderer.TAG;
+import static com.tencent.renderer.NativeRenderException.ExceptionCode.DESERIALIZE_NOT_SUPPORTED_ERR;
+import static com.tencent.renderer.NativeRenderException.ExceptionCode.DESERIALIZE_READ_LENGTH_ERR;
 
 import com.tencent.mtt.hippy.serialization.exception.DataCloneOutOfRangeException;
 import com.tencent.mtt.hippy.serialization.PrimitiveValueDeserializer;
@@ -26,6 +27,7 @@ import com.tencent.mtt.hippy.serialization.nio.reader.BinaryReader;
 import com.tencent.mtt.hippy.serialization.string.StringTable;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.renderer.NativeRenderException;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,6 +37,8 @@ import java.util.HashMap;
  */
 @SuppressWarnings("unused")
 public class Deserializer extends PrimitiveValueDeserializer {
+
+    public static final String TAG = "NativeRenderDeserializer";
 
     public Deserializer(BinaryReader reader) {
         this(reader, null);
@@ -72,8 +76,8 @@ public class Deserializer extends PrimitiveValueDeserializer {
         int read = readObjectProperties(map);
         int expected = (int) reader.getVarint();
         if (read != expected) {
-            throw new NativeRenderException(DESERIALIZE_DATA_ERR,
-                    "readJSObject: unexpected number of properties");
+            throw new NativeRenderException(DESERIALIZE_READ_LENGTH_ERR,
+                    TAG + ": readJSObject: unexpected number of properties");
         }
         return map;
     }
@@ -110,8 +114,8 @@ public class Deserializer extends PrimitiveValueDeserializer {
             if (key instanceof String || key instanceof Integer) {
                 map.put(key.toString(), value);
             } else {
-                throw new NativeRenderException(DESERIALIZE_DATA_ERR,
-                        "readObjectProperties: Object key is not of String nor Integer type");
+                throw new NativeRenderException(DESERIALIZE_READ_LENGTH_ERR,
+                        TAG + ": readObjectProperties: Object key is not of String nor Integer type");
             }
         }
         return count;
@@ -131,8 +135,8 @@ public class Deserializer extends PrimitiveValueDeserializer {
         }
         int expected = (int) reader.getVarint();
         if (2 * read != expected) {
-            throw new NativeRenderException(DESERIALIZE_DATA_ERR,
-                    "readJSMap: unexpected number of entries");
+            throw new NativeRenderException(DESERIALIZE_READ_LENGTH_ERR,
+                    TAG + ": readJSMap: unexpected number of entries");
         }
         return map;
     }
@@ -155,13 +159,13 @@ public class Deserializer extends PrimitiveValueDeserializer {
         int propsLength = readArrayProperties();
         int expected = (int) reader.getVarint();
         if (propsLength != expected) {
-            throw new NativeRenderException(DESERIALIZE_DATA_ERR,
-                    "readDenseArray: unexpected number of properties");
+            throw new NativeRenderException(DESERIALIZE_READ_LENGTH_ERR,
+                    TAG + ": readDenseArray: unexpected number of properties");
         }
         expected = (int) reader.getVarint();
         if (totalLength != expected) {
-            throw new NativeRenderException(DESERIALIZE_DATA_ERR,
-                    "readDenseArray: length ambiguity");
+            throw new NativeRenderException(DESERIALIZE_READ_LENGTH_ERR,
+                    TAG + ": readDenseArray: length ambiguity");
         }
         return array;
     }
@@ -183,51 +187,61 @@ public class Deserializer extends PrimitiveValueDeserializer {
 
     @Override
     protected Object readJSRegExp() {
-        return null;
+        throw new NativeRenderException(DESERIALIZE_NOT_SUPPORTED_ERR,
+                TAG + ": readJSRegExp: native renderer not support for this object type");
     }
 
     @Override
     protected Object readJSArrayBuffer() {
-        return null;
+        throw new NativeRenderException(DESERIALIZE_NOT_SUPPORTED_ERR,
+                TAG + ": readJSArrayBuffer: native renderer not support for this object type");
     }
 
     @Override
     protected Object readJSSet() {
-        return null;
+        throw new NativeRenderException(DESERIALIZE_NOT_SUPPORTED_ERR,
+                TAG + ": readJSSet: native renderer not support for this object type");
     }
 
     @Override
     protected Object readSparseArray() {
-        return null;
+        throw new NativeRenderException(DESERIALIZE_NOT_SUPPORTED_ERR,
+                TAG + ": readSparseArray: native renderer not support for this object type");
     }
 
     @Override
     protected Object readJSError() {
-        return null;
+        throw new NativeRenderException(DESERIALIZE_NOT_SUPPORTED_ERR,
+                TAG + ": readJSError: native renderer not support for this object type");
     }
 
     @Override
     protected Object readHostObject() {
-        return null;
+        throw new NativeRenderException(DESERIALIZE_NOT_SUPPORTED_ERR,
+                TAG + ": readHostObject: native renderer not support for this object type");
     }
 
     @Override
     protected Object readTransferredJSArrayBuffer() {
-        return null;
+        throw new NativeRenderException(DESERIALIZE_NOT_SUPPORTED_ERR,
+                TAG + ": readTransferredJSArrayBuffer: native renderer not support for this object type");
     }
 
     @Override
     protected Object readSharedArrayBuffer() {
-        return null;
+        throw new NativeRenderException(DESERIALIZE_NOT_SUPPORTED_ERR,
+                TAG + ": readSharedArrayBuffer: native renderer not support for this object type");
     }
 
     @Override
     protected Object readTransferredWasmModule() {
-        return null;
+        throw new NativeRenderException(DESERIALIZE_NOT_SUPPORTED_ERR,
+                TAG + ": readTransferredWasmModule: native renderer not support for this object type");
     }
 
     @Override
     protected Object readTransferredWasmMemory() {
-        return null;
+        throw new NativeRenderException(DESERIALIZE_NOT_SUPPORTED_ERR,
+                TAG + ": readTransferredWasmMemory: native renderer not support for this object type");
     }
 }

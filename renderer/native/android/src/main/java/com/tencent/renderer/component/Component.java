@@ -14,21 +14,7 @@
  * limitations under the License.
  */
 
-package com.tencent.renderer;
+package com.tencent.renderer.component;
 
-import android.content.Context;
-import android.content.ContextWrapper;
-
-public final class NativeRenderContext extends ContextWrapper {
-
-    private int mInstanceId;
-
-    public NativeRenderContext(Context context, int instanceId) {
-        super(context);
-        this.mInstanceId = instanceId;
-    }
-
-    public int getInstanceId() {
-        return mInstanceId;
-    }
+public abstract class Component {
 }

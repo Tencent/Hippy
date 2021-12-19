@@ -50,7 +50,7 @@ public class HippyNativeGestureSpan implements NativeGestureProcessor.Callback {
 
   private final boolean mIsVirtual;
 
-  HippyNativeGestureSpan(int tagId, boolean isVirtual) {
+  public HippyNativeGestureSpan(int tagId, boolean isVirtual) {
     this.mTagId = tagId;
     this.mIsVirtual = isVirtual;
     mGestureTypes = new ArrayList<>();

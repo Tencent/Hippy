@@ -13,18 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.renderer;
 
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.INVALID_NODE_DATA_ERR;
 
 import android.content.Context;
 import android.view.ViewGroup;
-import com.tencent.mtt.hippy.utils.LogUtils;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.tencent.mtt.hippy.dom.flex.FlexOutput;
+import com.tencent.mtt.hippy.dom.node.NodeProps;
+import com.tencent.mtt.hippy.utils.UIThreadUtils;
+import com.tencent.renderer.NativeRenderProvider.MeasureParams;
+import com.tencent.renderer.component.text.VirtualNode;
+import com.tencent.renderer.component.text.VirtualNodeManager;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.hippy.support.HippyBaseController;
 import com.tencent.hippy.support.IFrameworkProxy;
 import com.tencent.hippy.support.IJSFrameworkProxy;
@@ -51,6 +65,8 @@ public class NativeRenderer implements INativeRender, INativeRenderProxy, INativ
     private final String LAYOUT_TOP = "top";
     private final String LAYOUT_WIDTH = "width";
     private final String LAYOUT_HEIGHT = "height";
+    private final int MAX_UITASK_QUEUE_CAPACITY = 10000;
+    private final int MAX_UITASK_QUEUE_EXEC_TIME = 400;
     private static final int ROOT_VIEW_TAG_INCREMENT = 10;
     private static final AtomicInteger ID_COUNTER = new AtomicInteger(0);
 
@@ -58,16 +74,19 @@ public class NativeRenderer implements INativeRender, INativeRenderProxy, INativ
     private int rootId;
     private boolean isDebugMode;
     private RenderManager renderManager;
+    private VirtualNodeManager virtualNodeManager;
     private DomManager domManager;
     private HippyRootView rootView;
     private IFrameworkProxy frameworkProxy;
     private NativeRenderProvider renderProvider;
     volatile CopyOnWriteArrayList<HippyInstanceLifecycleEventListener> instanceLifecycleEventListeners;
+    private BlockingQueue<IUITaskExecutor> uiTaskQueue;
 
     @Override
     public void init(int instanceId, List<Class<? extends HippyBaseController>> controllers,
-            boolean isDebugMode, ViewGroup rootView) {
+            boolean isDebugMode, @Nullable ViewGroup rootView) {
         renderManager = new RenderManager(this, controllers);
+        virtualNodeManager = new VirtualNodeManager(this);
         domManager = new DomManager(this);
         if (rootView instanceof HippyRootView) {
             rootId = rootView.getId();
@@ -79,6 +98,7 @@ public class NativeRenderer implements INativeRender, INativeRenderProxy, INativ
         }
         this.instanceId = instanceId;
         this.isDebugMode = isDebugMode;
+        uiTaskQueue = new LinkedBlockingQueue<>(MAX_UITASK_QUEUE_CAPACITY);
         NativeRendererManager.addNativeRendererInstance(instanceId, this);
     }
 
@@ -126,15 +146,9 @@ public class NativeRenderer implements INativeRender, INativeRenderProxy, INativ
     }
 
     @Override
-    public void handleNativeException(Exception exception, boolean haveCaught) {
-        if (frameworkProxy != null) {
-            frameworkProxy.handleNativeException(exception, haveCaught);
-        }
-    }
-
-    @Override
     public void handleRenderException(Exception exception) {
-        handleNativeException(exception, true);
+        LogUtils.e(TAG, "Received native render exception: " + exception.getMessage());
+        reportException(exception);
     }
 
     @Override
@@ -171,7 +185,7 @@ public class NativeRenderer implements INativeRender, INativeRenderProxy, INativ
     }
 
     @Override
-    public ViewGroup createRootView(Context context) {
+    public ViewGroup createRootView(@NonNull Context context) {
         if (context == null) {
             return null;
         }
@@ -317,34 +331,73 @@ public class NativeRenderer implements INativeRender, INativeRenderProxy, INativ
         }
     }
 
+    private void executeUIOperation() {
+        UIThreadUtils.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                LogUtils.d(TAG, "UI task queue size=" + uiTaskQueue.size());
+                try {
+                    long start = System.currentTimeMillis();
+                    IUITaskExecutor task = uiTaskQueue.poll();
+                    while (task != null) {
+                        task.exec();
+                        // If there has large number node operation task in queue,
+                        // it is possible cause ANR because of takes a lot of time to handle the task,
+                        // so we should interrupt it and re-run in next event cycle again.
+                        if (System.currentTimeMillis() - start > MAX_UITASK_QUEUE_EXEC_TIME) {
+                            LogUtils.e(TAG, "execute ui task exceed 400ms!!!");
+                            break;
+                        }
+                        task = uiTaskQueue.poll();
+                    }
+                } catch (Exception exception) {
+                    handleRenderException(exception);
+                }
+                if (!uiTaskQueue.isEmpty()) {
+                    executeUIOperation();
+                }
+            }
+        });
+    }
+
     @Override
-    public void createNode(ArrayList nodeList) {
-        if (rootView == null) {
-            return;
-        }
+    public void createNode(@NonNull ArrayList nodeList) throws Exception {
         for (int i = 0; i < nodeList.size(); i++) {
             Object object = nodeList.get(i);
             if (!(object instanceof HashMap)) {
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
-                        "createNode invalid value: " + "object=" + object);
+                        TAG + ": createNode: invalid object");
             }
             HashMap<String, Object> node = (HashMap) object;
-            int id = ((Number) node.get(NODE_ID)).intValue();
-            int pid = ((Number) node.get(NODE_PID)).intValue();
-            int index = ((Number) node.get(NODE_INDEX)).intValue();
+            final int id = ((Number) node.get(NODE_ID)).intValue();
+            final int pid = ((Number) node.get(NODE_PID)).intValue();
+            final int index = ((Number) node.get(NODE_INDEX)).intValue();
             if (id < 0 || pid < 0 || index < 0) {
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
-                        "createNode invalid value: " + "id=" + id + ", pId=" + pid + ", index="
+                        TAG + ": createNode: " + "id=" + id + ", pId=" + pid + ", index="
                                 + index);
             }
-            String className = (String) node.get(CLASS_NAME);
-            HashMap<String, Object> props = (HashMap) node.get(NODE_PROPS);
-            renderManager.createNode(rootView, id, pid, index, className, props);
+            final String className = (String) node.get(CLASS_NAME);
+            final HashMap<String, Object> props = (HashMap) node.get(NODE_PROPS);
+            VirtualNode virtualParent = virtualNodeManager.getVirtualNode(pid);
+            if (className.equals(NodeProps.TEXT_CLASS_NAME) || virtualParent != null) {
+                virtualNodeManager.createVirtualNode(id, pid, index, className, props);
+            }
+            if (virtualParent != null) {
+                continue;
+            }
+            uiTaskQueue.add(new IUITaskExecutor() {
+                @Override
+                public void exec() {
+                    renderManager.createNode(rootView, id, pid, index, className, props);
+                }
+            });
         }
+        executeUIOperation();
     }
 
     @Override
-    public void updateNode(ArrayList nodeList) {
+    public void updateNode(@NonNull ArrayList nodeList) throws Exception {
 
     }
 
@@ -354,21 +407,40 @@ public class NativeRenderer implements INativeRender, INativeRenderProxy, INativ
     }
 
     @Override
-    public void updateLayout(ArrayList nodeList) {
+    public void updateLayout(@NonNull ArrayList nodeList) throws Exception {
         for (int i = 0; i < nodeList.size(); i++) {
             Object object = nodeList.get(i);
             if (!(object instanceof HashMap)) {
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
-                        "updateLayout invalid value: " + "object=" + object);
+                        TAG + ": updateLayout: " + "object=" + object);
             }
             HashMap<String, Object> node = (HashMap) object;
-            int id = ((Number) node.get(NODE_ID)).intValue();
-            int left = ((Number) node.get(LAYOUT_LEFT)).intValue();
-            int top = ((Number) node.get(LAYOUT_TOP)).intValue();
-            int width = ((Number) node.get(LAYOUT_WIDTH)).intValue();
-            int height = ((Number) node.get(LAYOUT_HEIGHT)).intValue();
-            renderManager.updateLayout(id, left, top, width, height);
+            final int id = ((Number) node.get(NODE_ID)).intValue();
+            final int left = ((Number) node.get(LAYOUT_LEFT)).intValue();
+            final int top = ((Number) node.get(LAYOUT_TOP)).intValue();
+            final int width = ((Number) node.get(LAYOUT_WIDTH)).intValue();
+            final int height = ((Number) node.get(LAYOUT_HEIGHT)).intValue();
+            boolean needDoUpdate = virtualNodeManager.updateLayoutIfNeeded(id, width);
+            if (needDoUpdate) {
+                uiTaskQueue.add(new IUITaskExecutor() {
+                    @Override
+                    public void exec() {
+                        renderManager.updateLayout(id, left, top, width, height);
+                    }
+                });
+            }
         }
+        executeUIOperation();
+    }
+
+    @Override
+    public long measure(MeasureParams params) {
+        try {
+            return virtualNodeManager.measure(params);
+        } catch (Exception exception) {
+            handleRenderException(exception);
+        }
+        return FlexOutput.make(params.width, params.height);
     }
 
     @Override
@@ -378,7 +450,23 @@ public class NativeRenderer implements INativeRender, INativeRenderProxy, INativ
 
     @Override
     public void endBatch() {
-        renderManager.batch();
+        try {
+            uiTaskQueue.add(new IUITaskExecutor() {
+                @Override
+                public void exec() {
+                    renderManager.batch();
+                }
+            });
+        } catch (Exception exception) {
+            handleRenderException(exception);
+        }
+        executeUIOperation();
+    }
+
+    public void reportException(Exception exception) {
+        if (frameworkProxy != null) {
+            frameworkProxy.handleNativeException(exception, true);
+        }
     }
 
     public ThreadExecutor getJSEngineThreadExecutor() {

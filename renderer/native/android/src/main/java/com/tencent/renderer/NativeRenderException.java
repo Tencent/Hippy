@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.renderer;
 
 public class NativeRenderException extends RuntimeException {
@@ -25,27 +26,37 @@ public class NativeRenderException extends RuntimeException {
         INVALID_NODE_DATA_ERR(100),
 
         /**
-         * If get an exception of Deserialize node data from C dom manager
+         * If the data length read by deserializer not equal to expected length
          */
-        DESERIALIZE_DATA_ERR(101);
+        DESERIALIZE_READ_LENGTH_ERR(101),
 
-        private final int iValue;
+        /**
+         * If the node data object type not support by native renderer
+         */
+        DESERIALIZE_NOT_SUPPORTED_ERR(102),
+
+        /**
+         * If the class name use to create virtual node is not recognized
+         */
+        INVALID_VIRTUAL_NODE_TYPE_ERR(103);
+
+        private final int mValue;
 
         ExceptionCode(int value) {
-            iValue = value;
+            mValue = value;
         }
 
         @SuppressWarnings("unused")
         public int value() {
-            return iValue;
+            return mValue;
         }
     }
 
-    public ExceptionCode code;
+    public ExceptionCode mCode;
 
     public NativeRenderException(ExceptionCode code, String message) {
         super(message);
-        this.code = code;
+        mCode = code;
     }
 
 }

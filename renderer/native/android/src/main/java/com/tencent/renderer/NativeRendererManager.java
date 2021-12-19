@@ -13,23 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.renderer;
 
 import java.util.concurrent.ConcurrentHashMap;
 
 public class NativeRendererManager {
 
-    private static final ConcurrentHashMap<Integer, INativeRender> nativeRendererMap = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<Integer, INativeRender> sNativeRendererMap = new ConcurrentHashMap<>();
 
     public static void addNativeRendererInstance(Integer instanceId, INativeRender nativeRenderer) {
-        nativeRendererMap.put(instanceId, nativeRenderer);
+        sNativeRendererMap.put(instanceId, nativeRenderer);
     }
 
     public static void removeNativeRendererInstance(Integer instanceId) {
-        nativeRendererMap.remove(instanceId);
+        sNativeRendererMap.remove(instanceId);
     }
 
     public static INativeRender getNativeRenderer(Integer instanceId) {
-        return nativeRendererMap.get(instanceId);
+        return sNativeRendererMap.get(instanceId);
     }
 }

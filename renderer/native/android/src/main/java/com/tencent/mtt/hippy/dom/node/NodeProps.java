@@ -119,6 +119,9 @@ public class NodeProps {
   public static final String TEXT_ALIGN = "textAlign";
   public static final String TEXT_ALIGN_VERTICAL = "textAlignVertical";
   public static final String TEXT_DECORATION_LINE = "textDecorationLine";
+  public static final String TEXT_SHADOW_OFFSET = "textShadowOffset";
+  public static final String TEXT_SHADOW_RADIUS = "textShadowRadius";
+  public static final String TEXT_SHADOW_COLOR = "textShadowColor";
   public static final String ON_CLICK = "onClick";
   public static final String ON_LONG_CLICK = "onLongClick";
   public static final String ON_PRESS_IN = "onPressIn";
@@ -146,6 +149,7 @@ public class NodeProps {
   public static final String VIEW_CLASS_NAME = "View";
   public static final String TEXT_CLASS_NAME = "Text";
   public static final String IMAGE_CLASS_NAME = "Image";
+  public static final String IMAGE_SPAN_TEXT = "[img]";
 
   public static final String STYLE = "style";
   public static final String PROPS = "props";

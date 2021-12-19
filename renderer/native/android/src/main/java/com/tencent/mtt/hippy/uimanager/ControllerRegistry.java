@@ -52,7 +52,7 @@ public class ControllerRegistry {
       if (nativeRenderer != null) {
         String message = "getViewController: error className=" + className;
         Exception exception = new RuntimeException(message);
-        nativeRenderer.handleNativeException(exception, true);
+        nativeRenderer.handleRenderException(exception);
       }
     }
     return null;
