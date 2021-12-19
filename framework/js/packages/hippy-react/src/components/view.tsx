@@ -21,7 +21,7 @@
 import React from 'react';
 import Style from '@localTypes/style';
 import { FocusEvent } from '@localTypes/event';
-import { Fiber } from 'react-reconciler';
+import { Fiber } from '@hippy/react-reconciler';
 import { LayoutableProps, ClickableProps, TouchableProps } from '../types';
 
 interface ViewProps extends LayoutableProps, ClickableProps, TouchableProps {

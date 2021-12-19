@@ -22,7 +22,7 @@
 
 import React from 'react';
 import Style from '@localTypes/style';
-import { Fiber } from 'react-reconciler';
+import { Fiber } from '@hippy/react-reconciler';
 import { LayoutEvent } from '@localTypes/event';
 import { callUIFunction } from '../modules/ui-manager-module';
 import { warn } from '../utils';
