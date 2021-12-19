@@ -166,8 +166,8 @@ public class HippyTextView extends View implements CommonBorder, HippyViewBase, 
         int instanceId = ((NativeRenderContext)context).getInstanceId();
         INativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
         if (nativeRenderer != null) {
-          nativeRenderer.handleNativeException(new RuntimeException("hippyTextView onDraw" +
-                  e.getMessage()), true);
+          nativeRenderer.handleRenderException(new RuntimeException("hippyTextView onDraw" +
+                  e.getMessage()));
         }
       }
     }

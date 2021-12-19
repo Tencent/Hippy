@@ -40,6 +40,7 @@ import com.tencent.mtt.hippy.views.image.HippyImageView.ImageEvent;
 import com.tencent.mtt.supportui.adapters.image.IDrawableTarget;
 import com.tencent.mtt.supportui.adapters.image.IImageLoaderAdapter;
 import com.tencent.renderer.INativeRender;
+import com.tencent.renderer.component.text.ImageVirtualNode;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 
@@ -55,7 +56,7 @@ public class HippyImageSpan extends ImageSpan {
   private int mWidth;
   private int mHeight;
   private String mUrl;
-  private final WeakReference<ImageNode> mImageNodeWeakRefrence;
+  private final WeakReference<ImageVirtualNode> mImageNodeWeakRefrence;
   private int mImageLoadState = STATE_UNLOAD;
   private int mVerticalAlignment;
   private final IImageLoaderAdapter mImageAdapter;
@@ -64,9 +65,9 @@ public class HippyImageSpan extends ImageSpan {
   private int mGifProgress = 0;
   private long mGifLastPlayTime = -1;
 
-  public HippyImageSpan(Drawable d, String source, ImageNode node,
+  public HippyImageSpan(Drawable drawable, String source, ImageVirtualNode node,
           IImageLoaderAdapter imageAdapter, INativeRender nativeRenderer) {
-    super(d, source, node.getVerticalAlignment());
+    super(drawable, source, node.getVerticalAlignment());
     this.nativeRenderer = nativeRenderer;
     mImageNodeWeakRefrence = new WeakReference<>(node);
     mImageAdapter = imageAdapter;
@@ -74,23 +75,23 @@ public class HippyImageSpan extends ImageSpan {
   }
 
   private void updateBoundsAttribute() {
-    if (mImageNodeWeakRefrence != null) {
-      ImageNode node = mImageNodeWeakRefrence.get();
-      if (node != null) {
-        int width = Math.round(node.getStyleWidth());
-        int height = Math.round(node.getStyleHeight());
-        float y = node.getPosition(FlexSpacing.TOP);
-        float x = node.getPosition(FlexSpacing.LEFT);
-        int left = (Float.isNaN(x)) ? 0 : Math.round(x);
-        int top = (Float.isNaN(y)) ? 0 : Math.round(y);
-
-        mLeft = left;
-        mTop = top;
-        mWidth = width;
-        mHeight = height;
-        mVerticalAlignment = node.getVerticalAlignment();
-      }
-    }
+//    if (mImageNodeWeakRefrence != null) {
+//      ImageVirtualNode node = mImageNodeWeakRefrence.get();
+//      if (node != null) {
+//        int width = Math.round(node.getStyleWidth());
+//        int height = Math.round(node.getStyleHeight());
+//        float y = node.getPosition(FlexSpacing.TOP);
+//        float x = node.getPosition(FlexSpacing.LEFT);
+//        int left = (Float.isNaN(x)) ? 0 : Math.round(x);
+//        int top = (Float.isNaN(y)) ? 0 : Math.round(y);
+//
+//        mLeft = left;
+//        mTop = top;
+//        mWidth = width;
+//        mHeight = height;
+//        mVerticalAlignment = node.getVerticalAlignment();
+//      }
+//    }
   }
 
   protected boolean shouldUseFetchImageMode(String url) {
@@ -201,15 +202,6 @@ public class HippyImageSpan extends ImageSpan {
   }
 
   private void postInvalidateDelayed(long delayMilliseconds) {
-    if (mImageNodeWeakRefrence != null) {
-      ImageNode node = mImageNodeWeakRefrence.get();
-      if (node != null) {
-        DomNode parent = node.getParent();
-        if (parent instanceof TextNode) {
-          ((TextNode) parent).postInvalidateDelayed(delayMilliseconds);
-        }
-      }
-    }
   }
 
   private void shouldReplaceDrawable(HippyDrawable hippyDrawable) {
@@ -255,7 +247,7 @@ public class HippyImageSpan extends ImageSpan {
       return;
     }
 
-    ImageNode node = mImageNodeWeakRefrence.get();
+    ImageVirtualNode node = mImageNodeWeakRefrence.get();
     if (node == null) {
       return;
     }
@@ -267,10 +259,10 @@ public class HippyImageSpan extends ImageSpan {
       eventName = "onError";
     }
 
-    if (!TextUtils.isEmpty(eventName) && node.isEnableImageEvent(eventType)) {
-      HippyViewEvent event = new HippyViewEvent(eventName);
-      event.send(node.getId(), nativeRenderer, null);
-    }
+//    if (!TextUtils.isEmpty(eventName) && node.isEnableImageEvent(eventType)) {
+//      HippyViewEvent event = new HippyViewEvent(eventName);
+//      event.send(node.getId(), nativeRenderer, null);
+//    }
   }
 
   private void doFetchImage(String url, HippyMap props, IImageLoaderAdapter imageAdapter) {

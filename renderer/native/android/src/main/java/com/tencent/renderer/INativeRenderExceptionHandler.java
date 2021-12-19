@@ -16,19 +16,11 @@
 
 package com.tencent.renderer;
 
-import android.content.Context;
-import android.content.ContextWrapper;
-
-public final class NativeRenderContext extends ContextWrapper {
-
-    private int mInstanceId;
-
-    public NativeRenderContext(Context context, int instanceId) {
-        super(context);
-        this.mInstanceId = instanceId;
-    }
-
-    public int getInstanceId() {
-        return mInstanceId;
-    }
+public interface INativeRenderExceptionHandler {
+    /**
+     * Report render exception to host
+     *
+     * @param exception {@link Exception} The render exception
+     */
+    void handleRenderException(Exception exception);
 }

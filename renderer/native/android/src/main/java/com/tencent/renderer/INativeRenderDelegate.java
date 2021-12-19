@@ -13,54 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.renderer;
 
+import androidx.annotation.NonNull;
+
+import com.tencent.renderer.NativeRenderProvider.MeasureParams;
 import java.util.ArrayList;
 
-public interface INativeRenderDelegate {
+public interface INativeRenderDelegate extends INativeRenderExceptionHandler {
 
-    /**
-     * Create render node
-     *
-     * @param list {@link ArrayList} The node list array
-     */
-    void createNode(ArrayList list);
+    void createNode(@NonNull ArrayList list) throws Exception;
 
-    /**
-     * Update render node
-     *
-     * @param list {@link ArrayList} The node list array
-     */
-    void updateNode(ArrayList list);
+    void updateNode(@NonNull ArrayList list) throws Exception;
 
-    /**
-     * Delete render node
-     *
-     * @param list {@link ArrayList} The node list array
-     */
-    void deleteNode(ArrayList list);
+    void deleteNode(@NonNull ArrayList list);
 
-    /**
-     * Update render node layout
-     *
-     * @param list {@link ArrayList} The node list array
-     */
-    void updateLayout(ArrayList list);
+    void updateLayout(@NonNull ArrayList list) throws Exception;
 
-    /**
-     * Mark will execute node update command
-     */
+    long measure(MeasureParams params);
+
     void startBatch();
 
-    /**
-     * Mark all node update command execute completed
-     */
     void endBatch();
-
-    /**
-     * Report render exception to host
-     *
-     * @param exception {@link Exception} The render exception
-     */
-    void handleRenderException(Exception exception);
 }

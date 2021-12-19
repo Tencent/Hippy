@@ -13,22 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.tencent.renderer;
 
-import android.content.Context;
-import android.content.ContextWrapper;
+public interface IUITaskExecutor {
 
-public final class NativeRenderContext extends ContextWrapper {
-
-    private int mInstanceId;
-
-    public NativeRenderContext(Context context, int instanceId) {
-        super(context);
-        this.mInstanceId = instanceId;
-    }
-
-    public int getInstanceId() {
-        return mInstanceId;
-    }
+    void exec();
 }

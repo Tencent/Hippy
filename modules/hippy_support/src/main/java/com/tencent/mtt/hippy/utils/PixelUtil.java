@@ -38,6 +38,10 @@ public class PixelUtil {
     }
   }
 
+  public static void setDisplayMetrics(DisplayMetrics metrics) {
+    displayMetrics = metrics;
+  }
+
   public static float dp2px(float value) {
     if (displayMetrics == null) {
       return value;

@@ -15,6 +15,8 @@
  */
 package com.tencent.mtt.hippy.dom.node;
 
+import static com.tencent.mtt.hippy.dom.node.NodeProps.IMAGE_SPAN_TEXT;
+
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -86,8 +88,6 @@ public class TextNode extends StyleNode {
   public static final String PROP_SHADOW_OFFSET_HEIGHT = "height";
   public static final String PROP_SHADOW_RADIUS = "textShadowRadius";
   public static final String PROP_SHADOW_COLOR = "textShadowColor";
-
-  public static final String IMAGE_SPAN_TEXT = "[img]";
 
   final TextPaint sTextPaintInstance = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
 
@@ -456,46 +456,46 @@ public class TextNode extends StyleNode {
 
   private void createImageSpanOperation(List<SpanOperation> ops, SpannableStringBuilder sb,
       ImageNode imageNode) {
-    String url = null;
-    String defaultSource = null;
-    HippyMap props = imageNode.getTotalProps();
-    if (props != null) {
-      url = props.getString("src");
-      defaultSource = props.getString("defaultSource");
-    }
-
-    Drawable drawable = null;
-    if (!TextUtils.isEmpty(defaultSource) && mImageAdapter != null) {
-      assert defaultSource != null;
-      IDrawableTarget hippyDrawable = mImageAdapter.getImage(defaultSource, null);
-      Bitmap bitmap = hippyDrawable.getBitmap();
-      if (bitmap != null) {
-        drawable = new BitmapDrawable(bitmap);
-      }
-    }
-
-    if (drawable == null) {
-      drawable = new ColorDrawable(Color.parseColor("#00000000"));
-    }
-
-    int width = Math.round(imageNode.getStyleWidth());
-    int height = Math.round(imageNode.getStyleHeight());
-    drawable.setBounds(0, 0, width, height);
-
-    HippyImageSpan imageSpan = new HippyImageSpan(drawable, url, imageNode, mImageAdapter,
-            nativeRenderer);
-    imageNode.setImageSpan(imageSpan);
-
-    int start = sb.length();
-    sb.append(IMAGE_SPAN_TEXT);
-    int end = start + IMAGE_SPAN_TEXT.length();
-    ops.add(new SpanOperation(start, end, imageSpan));
-
-    if (imageNode.getGestureTypes() != null && imageNode.getGestureTypes().size() > 0) {
-      HippyNativeGestureSpan span = new HippyNativeGestureSpan(imageNode.getId(), true);
-      span.addGestureTypes(imageNode.getGestureTypes());
-      ops.add(new SpanOperation(start, end, span));
-    }
+//    String url = null;
+//    String defaultSource = null;
+//    HippyMap props = imageNode.getTotalProps();
+//    if (props != null) {
+//      url = props.getString("src");
+//      defaultSource = props.getString("defaultSource");
+//    }
+//
+//    Drawable drawable = null;
+//    if (!TextUtils.isEmpty(defaultSource) && mImageAdapter != null) {
+//      assert defaultSource != null;
+//      IDrawableTarget hippyDrawable = mImageAdapter.getImage(defaultSource, null);
+//      Bitmap bitmap = hippyDrawable.getBitmap();
+//      if (bitmap != null) {
+//        drawable = new BitmapDrawable(bitmap);
+//      }
+//    }
+//
+//    if (drawable == null) {
+//      drawable = new ColorDrawable(Color.parseColor("#00000000"));
+//    }
+//
+//    int width = Math.round(imageNode.getStyleWidth());
+//    int height = Math.round(imageNode.getStyleHeight());
+//    drawable.setBounds(0, 0, width, height);
+//
+//    HippyImageSpan imageSpan = new HippyImageSpan(drawable, url, imageNode, mImageAdapter,
+//            nativeRenderer);
+//    imageNode.setImageSpan(imageSpan);
+//
+//    int start = sb.length();
+//    sb.append(IMAGE_SPAN_TEXT);
+//    int end = start + IMAGE_SPAN_TEXT.length();
+//    ops.add(new SpanOperation(start, end, imageSpan));
+//
+//    if (imageNode.getGestureTypes() != null && imageNode.getGestureTypes().size() > 0) {
+//      HippyNativeGestureSpan span = new HippyNativeGestureSpan(imageNode.getId(), true);
+//      span.addGestureTypes(imageNode.getGestureTypes());
+//      ops.add(new SpanOperation(start, end, span));
+//    }
   }
 
   private void createSpanOperations(List<SpanOperation> ops, SpannableStringBuilder sb,

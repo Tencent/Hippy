@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.renderer;
 
 import android.view.ViewGroup;
+
 import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
 import com.tencent.mtt.hippy.adapter.font.HippyFontScaleAdapter;
 import com.tencent.mtt.hippy.common.HippyMap;
@@ -23,7 +25,7 @@ import com.tencent.mtt.hippy.dom.DomManager;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.supportui.adapters.image.IImageLoaderAdapter;
 
-public interface INativeRender {
+public interface INativeRender extends INativeRenderExceptionHandler {
 
     RenderManager getRenderManager();
 
@@ -57,6 +59,4 @@ public interface INativeRender {
     void addInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);
 
     void removeInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);
-
-    void handleNativeException(Exception exception, boolean haveCaught);
 }
