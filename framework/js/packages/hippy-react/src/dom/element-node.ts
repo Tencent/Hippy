@@ -25,7 +25,7 @@ import { Transform } from '@localTypes/style';
 import Animation from '../modules/animation';
 import AnimationSet from '../modules/animation-set';
 import { colorParse, colorArrayParse, Color } from '../color';
-import { updateChild, updateWithChildren } from '../renderer/render';
+import { updateChild, updateWithChildren, endBatch } from '../renderer/render';
 import { Device } from '../native';
 import {
   unicodeToChar,
@@ -416,13 +416,6 @@ class ElementNode extends ViewNode {
           },
         },
         {
-          match: () => ['onPress'].indexOf(key) >= 0,
-          action: () => {
-            this.attributes.onClick = true;
-            return false;
-          },
-        },
-        {
           match: () => ['style'].indexOf(key) >= 0,
           action: () => {
             if (typeof value !== 'object' || value === undefined || value === null) {
@@ -439,7 +432,11 @@ class ElementNode extends ViewNode {
               if (isCaptureEvent(key)) {
                 key = key.replace('Capture', '');
               }
-              this.attributes[key] = true;
+              if (['onPress'].indexOf(key) >= 0) {
+                this.attributes.onClick = true;
+              } else {
+                this.attributes[key] = true;
+              }
             } else {
               this.attributes[key] = value;
             }
@@ -544,6 +541,7 @@ class ElementNode extends ViewNode {
           this.setStyle(key, styleProps[key], true);
         });
         updateChild(this);
+        endBatch(true);
       }
     }
   }
