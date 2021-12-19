@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-import { Fiber } from 'react-reconciler';
+import { Fiber } from '@hippy/react-reconciler';
 import { getFiberNodeFromId, getElementFromFiber } from '../utils/node';
 import { trace, isGlobalBubble, isHostComponent } from '../utils';
 import HippyEventHub from './hub';

@@ -19,7 +19,7 @@
  */
 
 import React, { CSSProperties, ReactElement } from 'react';
-import { Fiber } from 'react-reconciler';
+import { Fiber } from '@hippy/react-reconciler';
 import { callUIFunction } from '../modules/ui-manager-module';
 import Element from '../dom/element-node';
 

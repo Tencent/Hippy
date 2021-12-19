@@ -55,6 +55,7 @@ const builds = {
       return !![
         'react',
         'react-reconciler',
+        '@hippy/react-reconciler',
       ].find(ext => id.startsWith(ext));
     },
   },
