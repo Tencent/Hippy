@@ -69,57 +69,80 @@ function chunkNodes(batchNodes: BatchChunk[]) {
   return result;
 }
 
-function startBatch() {
+function startBatch(): void {
   if (batchIdle) {
     UIManagerModule.startBatch();
   }
 }
 
-function endBatch(rootViewId: number) {
-  if (!batchIdle) {
+/**
+ * batch Updates from js to native
+ * @param {number} rootViewId
+ */
+function batchUpdate(rootViewId: number): void {
+  const chunks = chunkNodes(batchNodes);
+  chunks.forEach((chunk) => {
+    switch (chunk.type) {
+      case NODE_OPERATION_TYPES.createNode:
+        trace(...componentName, 'createNode', chunk.nodes);
+        UIManagerModule.createNode(rootViewId, chunk.nodes);
+        break;
+      case NODE_OPERATION_TYPES.updateNode:
+        trace(...componentName, 'updateNode', chunk.nodes);
+        // FIXME: iOS should be able to update multiple nodes at once.
+        // @ts-ignore
+        if (__PLATFORM__ === 'ios' || Device.platform.OS === 'ios') {
+          chunk.nodes.forEach(node => (
+            UIManagerModule.updateNode(rootViewId, [node])
+          ));
+        } else {
+          UIManagerModule.updateNode(rootViewId, chunk.nodes);
+        }
+        break;
+      case NODE_OPERATION_TYPES.deleteNode:
+        trace(...componentName, 'deleteNode', chunk.nodes);
+        // FIXME: iOS should be able to delete mutiple nodes at once.
+        // @ts-ignore
+        if (__PLATFORM__ === 'ios' || Device.platform.OS === 'ios') {
+          chunk.nodes.forEach(node => (
+            UIManagerModule.deleteNode(rootViewId, [node])
+          ));
+        } else {
+          UIManagerModule.deleteNode(rootViewId, chunk.nodes);
+        }
+        break;
+      default:
+        // pass
+    }
+  });
+}
+
+/**
+ * endBatch - end batch update
+ * @param {boolean} isHookUsed - whether used commitEffects hook
+ */
+function endBatch(isHookUsed = false): void {
+  if (!batchIdle) return;
+  batchIdle = false;
+  if (batchNodes.length === 0) {
+    batchIdle = true;
     return;
   }
-  batchIdle = false;
-  Promise.resolve().then(() => {
-    const chunks = chunkNodes(batchNodes);
-    chunks.forEach((chunk) => {
-      switch (chunk.type) {
-        case NODE_OPERATION_TYPES.createNode:
-          trace(...componentName, 'createNode', chunk.nodes);
-          UIManagerModule.createNode(rootViewId, chunk.nodes);
-          break;
-        case NODE_OPERATION_TYPES.updateNode:
-          trace(...componentName, 'updateNode', chunk.nodes);
-          // FIXME: iOS should be able to update multiple nodes at once.
-          // @ts-ignore
-          if (__PLATFORM__ === 'ios' || Device.platform.OS === 'ios') {
-            chunk.nodes.forEach(node => (
-              UIManagerModule.updateNode(rootViewId, [node])
-            ));
-          } else {
-            UIManagerModule.updateNode(rootViewId, chunk.nodes);
-          }
-          break;
-        case NODE_OPERATION_TYPES.deleteNode:
-          trace(...componentName, 'deleteNode', chunk.nodes);
-          // FIXME: iOS should be able to delete mutiple nodes at once.
-          // @ts-ignore
-          if (__PLATFORM__ === 'ios' || Device.platform.OS === 'ios') {
-            chunk.nodes.forEach(node => (
-              UIManagerModule.deleteNode(rootViewId, [node])
-            ));
-          } else {
-            UIManagerModule.deleteNode(rootViewId, chunk.nodes);
-          }
-          break;
-        default:
-          // pass
-      }
-    });
+  const rootViewId = getRootViewId();
+  // if commitEffectsHook used, call batchUpdate synchronously
+  if (isHookUsed) {
+    batchUpdate(rootViewId);
     UIManagerModule.endBatch();
     batchNodes = [];
     batchIdle = true;
-  });
+  } else {
+    Promise.resolve().then(() => {
+      batchUpdate(rootViewId);
+      UIManagerModule.endBatch();
+      batchNodes = [];
+      batchIdle = true;
+    });
+  }
 }
 
 /**
@@ -250,7 +273,7 @@ function insertChild(parentNode: ViewNode, childNode: ViewNode, atIndex = -1) {
       type: NODE_OPERATION_TYPES.createNode,
       nodes: translated,
     });
-    endBatch(rootViewId);
+    // endBatch();
     // Render others child nodes.
   } else if (parentNode.isMounted && !childNode.isMounted) {
     const translated = renderToNativeWithChildren(
@@ -268,7 +291,7 @@ function insertChild(parentNode: ViewNode, childNode: ViewNode, atIndex = -1) {
       type: NODE_OPERATION_TYPES.createNode,
       nodes: translated,
     });
-    endBatch(rootViewId);
+    // endBatch();
   }
 }
 
@@ -289,7 +312,7 @@ function removeChild(parentNode: ViewNode, childNode: ViewNode | null, index: nu
     type: NODE_OPERATION_TYPES.deleteNode,
     nodes: deleteNodeIds,
   });
-  endBatch(rootViewId);
+  // endBatch();
 }
 
 function updateChild(parentNode: Element) {
@@ -305,7 +328,7 @@ function updateChild(parentNode: Element) {
       nodes: [translated],
     });
   }
-  endBatch(rootViewId);
+  // endBatch();
 }
 
 function updateWithChildren(parentNode: ViewNode) {
@@ -319,10 +342,11 @@ function updateWithChildren(parentNode: ViewNode) {
     type: NODE_OPERATION_TYPES.updateNode,
     nodes: translated,
   });
-  endBatch(rootViewId);
+  // endBatch();
 }
 
 export {
+  endBatch,
   renderToNative,
   renderToNativeWithChildren,
   insertChild,

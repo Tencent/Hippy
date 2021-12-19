@@ -19,7 +19,7 @@
  */
 
 import React from 'react';
-import { Fiber } from 'react-reconciler';
+import { Fiber } from '@hippy/react-reconciler';
 import Style from '@localTypes/style';
 import { FocusEvent } from '@localTypes/event';
 import { getNodeIdByRef } from '../modules/ui-manager-module';

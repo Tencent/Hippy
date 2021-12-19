@@ -20,7 +20,7 @@
 
 import React from 'react';
 import { PullingEvent } from '@localTypes/event';
-import { Fiber } from 'react-reconciler';
+import { Fiber } from '@hippy/react-reconciler';
 import { LayoutableProps } from '../types';
 import { callUIFunction } from '../modules/ui-manager-module';
 import { Device } from '../native';
