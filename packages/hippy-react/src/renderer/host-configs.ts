@@ -30,6 +30,7 @@ import {
   UpdatePayload,
   Context,
 } from '../types';
+import { endBatch } from './render';
 
 function appendChild(parent: Element, child: Element): void {
   if (parent.childNodes.indexOf(child) >= 0) {
@@ -62,6 +63,16 @@ function commitUpdate(
   const updatePayloadPropList: string[] = Object.keys(updatePayload);
   if (updatePayloadPropList.length === 0) return;
   updatePayloadPropList.forEach(propKey => instance.setAttribute(propKey, updatePayload[propKey]));
+}
+
+// this is the hook when commitEffects started
+export function commitEffectsStart(): void {
+  // noop
+}
+
+// this is the hook when unit work commitEffects finished
+export function commitEffectsComplete(): void {
+  endBatch(true);
 }
 
 function prepareUpdate(

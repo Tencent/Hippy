@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-import { Fiber } from 'react-reconciler';
+import { Fiber } from '@hippy/react-reconciler';
 import '@localTypes/global';
 import ElementNode from '../dom/element-node';
 

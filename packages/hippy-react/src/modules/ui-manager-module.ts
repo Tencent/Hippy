@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-import { Fiber } from 'react-reconciler';
+import { Fiber } from '@hippy/react-reconciler';
 // @ts-ignore
 import { LayoutContent } from '@localTypes/events';
 import { Bridge, Device, UIManager } from '../global';
