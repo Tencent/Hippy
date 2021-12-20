@@ -88,7 +88,7 @@ jobs:
     - name: Generate ${{ matrix.arch }}
       working-directory: ./v8
       run: |
-        gn gen out/${{ matrix.arch }} --args="target_os=\"android\" target_cpu=\"${{ matrix.cpu }}\" v8_target_cpu=\"${{ matrix.cpu }}\" android_ndk_root=\"${ANDROID_NDK_HOME}\" ${{ github.event.inputs.build_args }}"
+        gn gen out/${{ matrix.arch }} --args="target_os=\"android\" target_cpu=\"${{ matrix.cpu }}\" v8_target_cpu=\"${{ matrix.cpu }}\" android_ndk_root=\"${ANDROID_NDK_HOME}\" clang_base_path = \"${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64\" ${{ github.event.inputs.build_args }}"
     - name: Compile ${{ matrix.arch }}
       working-directory: ./v8
       run: |
