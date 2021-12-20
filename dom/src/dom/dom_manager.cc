@@ -52,6 +52,7 @@ void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>> &&nodes) {
 }
 
 void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>> &&nodes) {
+  std::vector<std::shared_ptr<DomNode>> update_nodes;
   for (auto it = nodes.begin(); it != nodes.end(); it++) {
     std::shared_ptr<DomNode> node = dom_node_registry_.GetNode((*it)->GetId());
     if (node == nullptr) {
@@ -62,17 +63,15 @@ void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>> &&nodes) {
     DomValueMap style_diff = DiffUtils::DiffProps(node->GetStyleMap(), it->get()->GetStyleMap());
     DomValueMap ext_diff = DiffUtils::DiffProps(node->GetExtStyle(), it->get()->GetExtStyle());
     style_diff.insert(ext_diff.begin(), ext_diff.end());
-    if (style_diff.size() > 0) {
-      dom_node_registry_.RemoveNode((*it)->GetId());
-      dom_node_registry_.AddNode(*it);
-    }
-    it->get()->SetDiffStyle(std::move(style_diff));
-    it->get()->SetRenderInfo(node->GetRenderInfo());
+    node->SetStyleMap(std::move(it->get()->GetStyleMap()));
+    node->SetExtStyleMap(std::move(it->get()->GetExtStyle()));
+    node->SetDiffStyle(std::move(style_diff));
+    update_nodes.push_back(node);
     HandleEvent(std::make_shared<DomEvent>(kOnDomUpdated, node, true, true));
   }
 
-  if (!nodes.empty()) {
-    batched_operations_.emplace_back([this, moved_nodes = std::move(nodes)]() mutable {
+  if (!update_nodes.empty()) {
+    batched_operations_.emplace_back([this, moved_nodes = std::move(update_nodes)]() mutable {
       auto render_manager = render_manager_.lock();
       TDF_BASE_DCHECK(render_manager);
       if (render_manager) {
@@ -83,7 +82,8 @@ void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>> &&nodes) {
 }
 
 void DomManager::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>> &&nodes) {
-  for (auto it = nodes.begin(); it != nodes.end(); it++) {
+    std::vector<std::shared_ptr<DomNode>> delete_nodes;
+    for (auto it = nodes.begin(); it != nodes.end(); it++) {
     std::shared_ptr<DomNode> node = dom_node_registry_.GetNode((*it)->GetId());
     if (node == nullptr) {
       it = nodes.erase(it);
@@ -93,13 +93,13 @@ void DomManager::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>> &&nodes) {
     if (parent_node != nullptr) {
       parent_node->RemoveChildAt(parent_node->IndexOf(node));
     }
-    it->get()->SetRenderInfo(node->GetRenderInfo());
     dom_node_registry_.RemoveNode(node->GetId());
+    delete_nodes.push_back(node);
     HandleEvent(std::make_shared<DomEvent>(kOnDomDeleted, node, true, true));
   }
 
-  if (!nodes.empty()) {
-    batched_operations_.emplace_back([this, moved_nodes = std::move(nodes)]() mutable {
+  if (!delete_nodes.empty()) {
+    batched_operations_.emplace_back([this, moved_nodes = std::move(delete_nodes)]() mutable {
       auto render_manager = render_manager_.lock();
       TDF_BASE_DCHECK(render_manager);
       if (render_manager) {
