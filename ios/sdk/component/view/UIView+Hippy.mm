@@ -30,7 +30,7 @@
 
 @interface HippyViewPropertyWrapper : NSObject
 
-@property (nonatomic, assign)std::shared_ptr<hippy::DomNode> domNode;
+@property (nonatomic, assign)std::weak_ptr<hippy::DomNode> domNode;
 @property (nonatomic, weak) id<HippyComponent> parent;
 
 @end
@@ -105,12 +105,12 @@
     objc_setAssociatedObject(self, @selector(tagName), tagName, OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
 
-- (std::shared_ptr<hippy::DomNode>)domNode {
+- (std::weak_ptr<hippy::DomNode>)domNode {
     HippyViewPropertyWrapper *wrapper = objc_getAssociatedObject(self, _cmd);
     return wrapper.domNode;
 }
 
-- (void)setDomNode:(std::shared_ptr<hippy::DomNode>)domNode {
+- (void)setDomNode:(std::weak_ptr<hippy::DomNode>)domNode {
     HippyViewPropertyWrapper *wrapper = [[HippyViewPropertyWrapper alloc] init];
     wrapper.domNode = domNode;
     objc_setAssociatedObject(self, @selector(domNode), wrapper, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
@@ -462,6 +462,12 @@ HIPPY_EXTERN HippyViewEventType viewEventTypeFromName(const std::string &name) {
         }
     }];
     [values removeObjectsAtIndexes:indexSet];
+}
+
+- (void)addComonentEvent:(const std::string &)eventName{
+}
+
+- (void)removeComponentEvent:(const std::string &)eventName {
 }
 
 @end

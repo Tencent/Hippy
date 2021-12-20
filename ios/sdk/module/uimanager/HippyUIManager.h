@@ -206,9 +206,11 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
                   params:(const tdf::base::DomValue &)params
                 callback:(hippy::CallFunctionCallback)cb;
 
-- (void) addEventName:(const std::string &)name forDomNode:(std::weak_ptr<hippy::DomNode>)weak_node;
+- (void)addEventName:(const std::string &)name forDomNode:(std::weak_ptr<hippy::DomNode>)weak_node;
 
-- (void) removeEventName:(const std::string &)eventName forDomNode:(std::weak_ptr<hippy::DomNode>)weak_node;
+- (void)removeEventName:(const std::string &)eventName forDomNode:(std::weak_ptr<hippy::DomNode>)weak_node;
+
+- (void)addComponentEvent:(const std::string &)name forDomNode:(std::weak_ptr<hippy::DomNode>)weak_node;
 @end
 
 /**
