@@ -5,9 +5,9 @@
 namespace hippy {
 inline namespace dom {
 
-class RenderManagerProxy : public RenderManager {
+class LayerOptimizedRenderManager : public RenderManager {
  public:
-  RenderManagerProxy(std::shared_ptr<RenderManager> render_manager);
+  LayerOptimizedRenderManager(std::shared_ptr<RenderManager> render_manager);
 
   void CreateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) override;
   void UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) override;

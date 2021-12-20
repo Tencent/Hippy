@@ -1,4 +1,4 @@
-#include "dom/render_manager_proxy.h"
+#include "dom/layer_optimized_render_manager.h"
 
 #include <unordered_set>
 
@@ -7,10 +7,11 @@
 namespace hippy {
 inline namespace dom {
 
-RenderManagerProxy::RenderManagerProxy(std::shared_ptr<RenderManager> render_manager)
+LayerOptimizedRenderManager::LayerOptimizedRenderManager(
+        std::shared_ptr<RenderManager> render_manager)
         : render_manager_(render_manager) {}
 
-void RenderManagerProxy::CreateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
+void LayerOptimizedRenderManager::CreateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   std::vector<std::shared_ptr<DomNode>> nodes_to_create;
   for (const auto& node : nodes) {
     node->SetIsJustLayout(ComputeIsLayoutOnly(node));
@@ -25,7 +26,7 @@ void RenderManagerProxy::CreateRenderNode(std::vector<std::shared_ptr<DomNode>>&
   }
 }
 
-void RenderManagerProxy::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
+void LayerOptimizedRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   std::vector<std::shared_ptr<DomNode>> nodes_to_create;
   std::vector<std::shared_ptr<DomNode>> nodes_to_update;
   for (const auto& node : nodes) {
@@ -56,7 +57,7 @@ void RenderManagerProxy::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&
   }
 }
 
-void RenderManagerProxy::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
+void LayerOptimizedRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   std::vector<std::shared_ptr<DomNode>> nodes_to_delete;
   for (const auto& node : nodes) {
     if (!node->IsJustLayout() && !node->IsVirtual() && node->GetRenderInfo().created) {
@@ -68,7 +69,7 @@ void RenderManagerProxy::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&
   }
 }
 
-void RenderManagerProxy::UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) {
+void LayerOptimizedRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) {
     std::vector<std::shared_ptr<DomNode>> nodes_to_update;
     for (const auto& node : nodes) {
         if (!node->IsJustLayout() && !node->IsVirtual() && node->GetRenderInfo().created) {
@@ -78,40 +79,40 @@ void RenderManagerProxy::UpdateLayout(const std::vector<std::shared_ptr<DomNode>
     render_manager_->UpdateLayout(std::move(nodes_to_update));
 }
 
-void RenderManagerProxy::MoveRenderNode(std::vector<int32_t>&& moved_ids,
-                                        int32_t from_pid,
-                                        int32_t to_pid) {
+void LayerOptimizedRenderManager::MoveRenderNode(std::vector<int32_t>&& moved_ids,
+                                                 int32_t from_pid,
+                                                 int32_t to_pid) {
   render_manager_->MoveRenderNode(std::move(moved_ids), from_pid, to_pid);
 }
 
-void RenderManagerProxy::Batch() {
+void LayerOptimizedRenderManager::Batch() {
   render_manager_->Batch();
 }
 
-void RenderManagerProxy::AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {
+void LayerOptimizedRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node,
+                                                   const std::string &name) {
   render_manager_->AddEventListener(dom_node, name);
 }
 
-void RenderManagerProxy::RemoveEventListener(std::weak_ptr<DomNode> dom_node,
-                                             const std::string& name) {
+void LayerOptimizedRenderManager::RemoveEventListener(std::weak_ptr<DomNode> dom_node,
+                                                      const std::string &name) {
   render_manager_->RemoveEventListener(dom_node, name);
 }
 
-
-void RenderManagerProxy::CallFunction(
-    std::weak_ptr<DomNode> dom_node, const std::string &name,
-    const DomValue& param,
-    CallFunctionCallback cb) {
+void LayerOptimizedRenderManager::CallFunction(
+        std::weak_ptr<DomNode> dom_node, const std::string &name,
+        const DomValue &param,
+        CallFunctionCallback cb) {
   render_manager_->CallFunction(dom_node, name, param, cb);
 }
 
-bool RenderManagerProxy::ComputeIsLayoutOnly(const std::shared_ptr<DomNode>& node) const {
+bool LayerOptimizedRenderManager::ComputeIsLayoutOnly(const std::shared_ptr<DomNode>& node) const {
   return node->GetTagName() == kTagNameView
          && CheckStyleJustLayout(node)
          && !node->HasTouchEventListeners();
 }
 
-bool RenderManagerProxy::CheckStyleJustLayout(std::shared_ptr<DomNode> node) const {
+bool LayerOptimizedRenderManager::CheckStyleJustLayout(std::shared_ptr<DomNode> node) const {
   const auto &style_map = node->GetStyleMap();
   for (const auto &entry : style_map) {
     const auto &key = entry.first;
@@ -182,27 +183,25 @@ bool RenderManagerProxy::CheckStyleJustLayout(std::shared_ptr<DomNode> node) con
   return true;
 }
 
-static std::unordered_set<std::string> kJustLayoutProps;
+static constexpr std::array<const char*, 32> kJustLayoutProps = {
+        kAilgnSelf, kAlignItems, kFlex, kFlexDirection, kFlexWrap, kJustifyContent,
+        // position
+        kPosition, kRight, kTop, kBottom, kLeft,
+        // dimensions
+        kWidth, kHeight, kMinWidth, kMaxWidth, kMinHeight, kMaxHeight,
+        // margins
+        kMargin, kMarginVertical, kMarginHorizontal,
+        kMarginLeft, kMarginRight, kMarginTop, kMarginBottom,
+        // paddings
+        kPadding, kPaddingVertical, kPaddingHorizontal,
+        kPaddingLeft, kPaddingRight, kPaddingTop, kPaddingBottom};
 
-bool RenderManagerProxy::IsJustLayoutProp(const char *prop_name) const {
-  if (kJustLayoutProps.empty()) {
-    kJustLayoutProps.insert(
-        {kAilgnSelf, kAlignItems, kFlex, kFlexDirection, kFlexWrap, kJustifyContent,
-         // position
-         kPosition, kRight, kTop, kBottom, kLeft,
-         // dimensions
-         kWidth, kHeight, kMinWidth, kMaxWidth, kMinHeight, kMaxHeight,
-         // margins
-         kMargin, kMarginVertical, kMarginHorizontal,
-         kMarginLeft, kMarginRight, kMarginTop, kMarginBottom,
-         // paddings
-         kPadding, kPaddingVertical, kPaddingHorizontal,
-         kPaddingLeft, kPaddingRight, kPaddingTop, kPaddingBottom});
-  }
-  return kJustLayoutProps.find(prop_name) != kJustLayoutProps.end();
+bool LayerOptimizedRenderManager::IsJustLayoutProp(const char *prop_name) const {
+  return std::find(std::begin(kJustLayoutProps), std::end(kJustLayoutProps), prop_name)
+         != std::end(kJustLayoutProps);
 }
 
-bool RenderManagerProxy::UpdateRenderInfo(const std::shared_ptr<DomNode>& node) {
+bool LayerOptimizedRenderManager::UpdateRenderInfo(const std::shared_ptr<DomNode>& node) {
   DomNode::RenderInfo render_info;
   auto render_parent = GetRenderParent(node);
   if (render_parent) {
@@ -219,7 +218,8 @@ bool RenderManagerProxy::UpdateRenderInfo(const std::shared_ptr<DomNode>& node) 
   return render_info.created;
 }
 
-std::shared_ptr<DomNode> RenderManagerProxy::GetRenderParent(const std::shared_ptr<DomNode>& node) {
+std::shared_ptr<DomNode> LayerOptimizedRenderManager::GetRenderParent(
+        const std::shared_ptr<DomNode> &node) {
   auto parent = node->GetParent();
   while (parent && parent->IsJustLayout()) {
     parent = parent->GetParent();
@@ -227,16 +227,17 @@ std::shared_ptr<DomNode> RenderManagerProxy::GetRenderParent(const std::shared_p
   return parent;
 }
 
-int32_t RenderManagerProxy::CalculateRenderNodeIndex(const std::shared_ptr<DomNode>& parent,
-                                                     const std::shared_ptr<DomNode>& node) {
+int32_t LayerOptimizedRenderManager::CalculateRenderNodeIndex(
+        const std::shared_ptr<DomNode> &parent,
+        const std::shared_ptr<DomNode> &node) {
   assert(parent != nullptr);
   return CalculateRenderNodeIndex(parent, node, 0).second;
 }
 
 std::pair<bool, int32_t>
-RenderManagerProxy::CalculateRenderNodeIndex(const std::shared_ptr<DomNode>& parent,
-                                             const std::shared_ptr<DomNode>& node,
-                                             int32_t index) {
+LayerOptimizedRenderManager::CalculateRenderNodeIndex(const std::shared_ptr<DomNode>& parent,
+                                                      const std::shared_ptr<DomNode> &node,
+                                                      int32_t index) {
   for (int i = 0; i < parent->GetChildCount(); i++) {
     std::shared_ptr<DomNode> child_node = parent->GetChildAt(i);
     if (child_node == node) {
@@ -257,7 +258,7 @@ RenderManagerProxy::CalculateRenderNodeIndex(const std::shared_ptr<DomNode>& par
   return std::make_pair(false, index);
 }
 
-void RenderManagerProxy::FindMoveChildren(const std::shared_ptr<DomNode>& node,
+void LayerOptimizedRenderManager::FindMoveChildren(const std::shared_ptr<DomNode>& node,
                                           std::vector<int32_t> &removes) {
   for (int32_t i = 0; i < node->GetChildCount(); i++) {
     auto child_node = node->GetChildAt(i);
@@ -269,7 +270,7 @@ void RenderManagerProxy::FindMoveChildren(const std::shared_ptr<DomNode>& node,
   }
 }
 
-void RenderManagerProxy::ApplyLayoutRecursive(const std::shared_ptr<DomNode>& node) {
+void LayerOptimizedRenderManager::ApplyLayoutRecursive(const std::shared_ptr<DomNode>& node) {
   // TODO: 处理因为层级优化导致的布局信息变化
 }
 
