@@ -163,6 +163,12 @@ function getTargetNodeAttributes(targetNode: Element) {
       id: targetNode.id,
       ...targetNodeAttributes,
     };
+    // delete special __bind__event attribute, which is used in C DOM
+    Object.keys(attributes).forEach((key) => {
+      if (key.indexOf('__bind__') === 0 && attributes[key] === true) {
+        delete attributes[key];
+      }
+    });
     delete attributes.text;
     delete attributes.value;
     return attributes;
