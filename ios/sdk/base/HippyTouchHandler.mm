@@ -212,9 +212,11 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
 
         if (result[@"onPressOut"][@"view"]) {
             UIView *pressOutView = result[@"onPressOut"][@"view"];
-            if (pressOutView == _onPressInView && pressOutView.onPressOut) {
+            onTouchEventListener listener = [_onLongClickView eventListenerForEventType:HippyViewEventTypePressOut];
+            if (pressOutView == _onPressInView && listener) {
                 if ([self checkViewBelongToTouchHandler:pressOutView]) {
-                    pressOutView.onPressOut(@{});
+//                    pressOutView.onPressOut(@{});
+                    listener(CGPointZero);
                     _onPressInView = nil;
                     _bPressIn = NO;
                 }
@@ -279,9 +281,11 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
 
         if (result[@"onPressOut"][@"view"]) {
             UIView *pressOutView = result[@"onPressOut"][@"view"];
-            if (pressOutView == _onPressInView && pressOutView.onPressOut) {
+            onTouchEventListener listener = [_onLongClickView eventListenerForEventType:HippyViewEventTypePressOut];
+            if (pressOutView == _onPressInView && listener) {
                 if ([self checkViewBelongToTouchHandler:pressOutView]) {
-                    pressOutView.onPressOut(@{});
+//                    pressOutView.onPressOut(@{});
+                    listener(CGPointZero);
                 }
             }
         }
@@ -384,9 +388,11 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
 
 - (void)scheduleTimer:(__unused NSTimer *)timer {
     if (!_bPressIn) {
+        onTouchEventListener listener = [_onLongClickView eventListenerForEventType:HippyViewEventTypePressIn];
         if (_onPressInView && _onPressInView.onPressIn) {
             if ([self checkViewBelongToTouchHandler:_onPressInView]) {
-                _onPressInView.onPressIn(@{});
+//                _onPressInView.onPressIn(@{});
+                listener(CGPointZero);
             }
         }
         _bPressIn = YES;
@@ -453,19 +459,19 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
         if ((touchInterceptEvent && findActions.count == 0) || [view isKindOfClass:NSClassFromString(@"HippyRootContentView")]) {
             break;
         } else {
-            
-            if ([findActions containsObject:@"onPressIn"] && view.onPressIn) {
+            onTouchEventListener listener = [view eventListenerForEventType:HippyViewEventTypePressIn];
+            if ([findActions containsObject:@"onPressIn"] && listener) {
                 if (!result[@"onClick"]) {
                     [result setValue:@{ @"view": view, @"index": @(index) } forKey:@"onPressIn"];
                 }
                 [findActions removeObject:@"onPressIn"];
             }
-
-            if ([findActions containsObject:@"onPressOut"] && view.onPressOut) {
+            listener = [view eventListenerForEventType:HippyViewEventTypePressOut];
+            if ([findActions containsObject:@"onPressOut"] && listener) {
                 [result setValue:@{ @"view": view, @"index": @(index) } forKey:@"onPressOut"];
                 [findActions removeObject:@"onPressOut"];
             }
-            onTouchEventListener listener = [view eventListenerForEventType:HippyViewEventTypeClick];
+            listener = [view eventListenerForEventType:HippyViewEventTypeClick];
             if ([findActions containsObject:@"onClick"] && listener) {
                 if (![view interceptTouchEvent]) {
                     [result setValue:@{ @"view": view, @"index": @(index) } forKey:@"onClick"];
@@ -555,9 +561,11 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
 - (void)cancelTouch {
     if (_onPressInView) {
         _bPressIn = NO;
-        if (_onPressInView.onPressOut) {
+        onTouchEventListener listener = [_onLongClickView eventListenerForEventType:HippyViewEventTypePressOut];
+        if (listener) {
             if ([self checkViewBelongToTouchHandler:_onPressInView]) {
-                _onPressInView.onPressOut(@{});
+//                _onPressInView.onPressOut(@{});
+                listener(CGPointZero);
             }
         }
     }
@@ -578,9 +586,11 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
 
     if (_onPressInView) {
         _bPressIn = NO;
-        if (_onPressInView.onPressOut) {
+        onTouchEventListener listener = [_onLongClickView eventListenerForEventType:HippyViewEventTypePressOut];
+        if (listener) {
             if ([self checkViewBelongToTouchHandler:_onPressInView]) {
-                _onPressInView.onPressOut(@{});
+//                _onPressInView.onPressOut(@{});
+                listener(CGPointZero);
             }
         }
     }

@@ -1789,6 +1789,21 @@ static UIView *_jsResponder;
     }
 }
 
+- (void) addPressEventListenerforNode:(std::weak_ptr<DomNode>)weak_node
+                              forType:(std::string)type
+                              forView:(int32_t)hippyTag {
+    UIView *view = [self viewForHippyTag:@(hippyTag)];
+    HippyViewEventType eventType = hippy::kPressIn == type ? HippyViewEventType::HippyViewEventTypePressIn : HippyViewEventType::HippyViewEventTypePressOut;
+    if (view) {
+        [view addViewEvent:eventType eventListener:^(CGPoint) {
+            std::shared_ptr<DomNode> node = weak_node.lock();
+            if (node) {
+                node->HandleEvent(std::make_shared<hippy::DomEvent>(hippy::kClickEvent, weak_node, nullptr));
+            }
+        }];
+    }
+}
+
 - (void) addTouchEventListenerforNode:(std::weak_ptr<DomNode>)weak_node
                               forType:(std::string)type
                               forView:(int32_t)hippyTag {
