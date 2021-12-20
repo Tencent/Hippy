@@ -84,7 +84,7 @@ jobs:
       working-directory: ./v8/build
       continue-on-error: true
       run: |
-        git apply ../../${{ github.repository }}/.github/workflows/tools/v8_build.patch
+        git apply --reject ../../${{ github.repository }}/.github/workflows/tools/v8_build.patch
     - name: Generate ${{ matrix.arch }}
       working-directory: ./v8
       run: |
