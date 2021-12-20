@@ -53,3 +53,18 @@ index 701c66082..bc33b7cd1 100644
  } else if (is_linux && use_sysroot) {
    # By default build against a sysroot image downloaded from Cloud Storage
    # during gclient runhooks.
+diff --git a/config/compiler/BUILD.gn b/config/compiler/BUILD.gn
+index 219a2be0e..7d9a95ffc 100644
+--- a/config/compiler/BUILD.gn
++++ b/config/compiler/BUILD.gn
+@@ -1261,10 +1261,6 @@ config("compiler_deterministic") {
+         "-Xclang",
+         ".",
+       ]
+-    } else {
+-      # -ffile-compilation-dir is an alias for both -fdebug-compilation-dir=
+-      # and -fcoverage-compilation-dir=.
+-      cflags += [ "-ffile-compilation-dir=." ]
+     }
+     if (!is_win) {
+       # We don't use clang -cc1as on Windows (yet? https://crbug.com/762167)
