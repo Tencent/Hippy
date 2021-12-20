@@ -43,6 +43,7 @@ void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>> &&nodes) {
   if (!nodes.empty()) {
     batched_operations_.emplace_back([this, moved_nodes = std::move(nodes)]() mutable {
         auto render_manager = render_manager_.lock();
+        TDF_BASE_DCHECK(render_manager);
         if (render_manager) {
             render_manager->CreateRenderNode(std::move(moved_nodes));
         }
@@ -66,16 +67,17 @@ void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>> &&nodes) {
       dom_node_registry_.AddNode(*it);
     }
     it->get()->SetDiffStyle(std::move(style_diff));
-
+    it->get()->SetRenderInfo(node->GetRenderInfo());
     HandleEvent(std::make_shared<DomEvent>(kOnDomUpdated, node, true, true));
   }
 
   if (!nodes.empty()) {
     batched_operations_.emplace_back([this, moved_nodes = std::move(nodes)]() mutable {
-        auto render_manager = render_manager_.lock();
-        if (render_manager) {
-            render_manager->UpdateRenderNode(std::move(moved_nodes));
-        }
+      auto render_manager = render_manager_.lock();
+      TDF_BASE_DCHECK(render_manager);
+      if (render_manager) {
+        render_manager->UpdateRenderNode(std::move(moved_nodes));
+      }
     });
   }
 }
@@ -91,7 +93,7 @@ void DomManager::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>> &&nodes) {
     if (parent_node != nullptr) {
       parent_node->RemoveChildAt(parent_node->IndexOf(node));
     }
-
+    it->get()->SetRenderInfo(node->GetRenderInfo());
     dom_node_registry_.RemoveNode(node->GetId());
     HandleEvent(std::make_shared<DomEvent>(kOnDomDeleted, node, true, true));
   }
@@ -99,6 +101,7 @@ void DomManager::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>> &&nodes) {
   if (!nodes.empty()) {
     batched_operations_.emplace_back([this, moved_nodes = std::move(nodes)]() mutable {
       auto render_manager = render_manager_.lock();
+      TDF_BASE_DCHECK(render_manager);
       if (render_manager) {
         render_manager->DeleteRenderNode(std::move(moved_nodes));
       }
@@ -120,6 +123,7 @@ void DomManager::EndBatch() {
   // 触发布局计算
   DoLayout();
   auto render_manager = render_manager_.lock();
+  TDF_BASE_DCHECK(render_manager);
   if (render_manager) {
     render_manager->Batch();
   }
@@ -155,6 +159,7 @@ void DomManager::CallFunction(uint32_t id, const std::string &name,
 void DomManager::AddListenerOperation(std::shared_ptr<DomNode> node, const std::string& name) {
   add_listener_operations_.emplace_back([this, node, name]() {
     auto render_manager = render_manager_.lock();
+    TDF_BASE_DCHECK(render_manager);
     if (render_manager) {
       render_manager->AddEventListener(node, name);
     }
@@ -190,6 +195,7 @@ void DomManager::DoLayout() {
   // 触发布局计算
   root_node_->DoLayout();
   auto render_manager = render_manager_.lock();
+  TDF_BASE_DCHECK(render_manager);
   if (!render_manager) {
     return;
   }
