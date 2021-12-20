@@ -141,6 +141,9 @@ typedef NS_ENUM(NSInteger, HippyViewEventType) {
     HippyViewEventTypeTouchEnd,
     HippyViewEventTypeTouchCancel,
     
+    HippyViewEventTypePressIn,
+    HippyViewEventTypePressOut,
+    
     HippyViewEventTypeLayout,
     
     //show event

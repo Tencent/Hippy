@@ -79,6 +79,8 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     HippyDisplayLink *_displayLink;
     NSDictionary *_dimDic;
     HippyDevManager *_devManager;
+    std::shared_ptr<hippy::DomManager> _domManager;
+    std::shared_ptr<NativeRenderManager> _nativeRenderManager;
 }
 
 @synthesize flowID = _flowID;
@@ -755,11 +757,11 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     HippyUIManager *uiManager = [self moduleForName:@"UIManager"];
     UIView *rootView = [[notification userInfo] objectForKey:HippyUIManagerRootViewKey];
     int32_t rootTag = [[rootView hippyTag] intValue];
-    std::shared_ptr<hippy::DomManager> domManager = std::make_shared<hippy::DomManager>(rootTag);
-    domManager->SetRootSize(CGRectGetWidth(rootView.bounds), CGRectGetHeight(rootView.bounds));
-    std::shared_ptr<NativeRenderManager> nativeRenderManager = std::make_shared<NativeRenderManager>(uiManager);
-    domManager->SetRenderManager(nativeRenderManager);
-    self.javaScriptExecutor.pScope->SetDomManager(domManager);
+    _domManager = std::make_shared<hippy::DomManager>(rootTag);
+    _domManager->SetRootSize(CGRectGetWidth(rootView.bounds), CGRectGetHeight(rootView.bounds));
+    _nativeRenderManager = std::make_shared<NativeRenderManager>(uiManager);
+    _domManager->SetRenderManager(_nativeRenderManager);
+    self.javaScriptExecutor.pScope->SetDomManager(_domManager);
 }
 
 #pragma mark - HippyInvalidating
