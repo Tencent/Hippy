@@ -50,7 +50,7 @@
  */
 @property (nonatomic, assign) NSInteger hippyZIndex;
 
-@property (nonatomic, assign) std::shared_ptr<hippy::DomNode> domNode;
+@property (nonatomic, assign) std::weak_ptr<hippy::DomNode> domNode;
 
 /**
  * set true when hippy subviews changed, but subviews does not.
@@ -165,5 +165,8 @@ HIPPY_EXTERN HippyViewEventType viewEventTypeFromName(const std::string &name);
 - (onTouchEventListener)eventListenerForEventType:(HippyViewEventType)eventType;
 - (void)removeViewEvent:(HippyViewEventType)touchEvent;
 - (void)removeViewEventByID:(NSInteger)touchID;
+//event must be std::function<void(std::shared_ptr<tdf::base::DomValue> value)> eventCallBack type
+- (void)addComonentEvent:(const std::string &)eventName;
+- (void)removeComponentEvent:(const std::string &)eventName;
 
 @end

@@ -81,13 +81,16 @@ NSDictionary *unorderedMapDomValueToDictionary(const std::unordered_map<std::str
     return [dic copy];
 }
 
-
 CGRect CGRectMakeFromLayoutResult(hippy::LayoutResult result) {
     return CGRectMake(result.left, result.top, result.width, result.height);
 }
 
 UIEdgeInsets UIEdgeInsetsFromLayoutResult(hippy::LayoutResult result) {
     return UIEdgeInsetsMake(result.paddingTop, result.paddingLeft, result.paddingBottom, result.paddingRight);
+}
+
+CGSize CGSizeMakeFromLayoutResult(hippy::LayoutResult result) {
+    return CGSizeMake(result.width, result.height);
 }
 
 CGRect CGRectMakeFromDomNode(const std::shared_ptr<hippy::DomNode> &domNode) {

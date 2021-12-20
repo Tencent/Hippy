@@ -1761,6 +1761,12 @@ static UIView *_jsResponder;
                 [uiManager addShowEventListenerForNode:node forType:std::move(name_) forView:node->GetId()];
             }];
         }
+        else {
+            std::string name_ = name;
+            [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+                [uiManager addComponentEvent:std::move(name_) forView:node->GetId()];
+            }];
+        }
     }
 }
 
@@ -1835,7 +1841,7 @@ static UIView *_jsResponder;
     }
 }
 
-- (void) addShowEventListenerForNode:(std::weak_ptr<DomNode>)weak_node
+- (void)addShowEventListenerForNode:(std::weak_ptr<DomNode>)weak_node
                              forType:(std::string)type
                              forView:(int32_t)hippyTag {
     UIView *view = [self viewForHippyTag:@(hippyTag)];
@@ -1850,7 +1856,12 @@ static UIView *_jsResponder;
     }
 }
 
-- (void) removeEventName:(const std::string &)eventName forDomNode:(std::weak_ptr<DomNode>)weak_node {
+- (void)addComponentEvent:(const std::string &)name forView:(int32_t)hippyTag {
+    UIView *view = [self viewForHippyTag:@(hippyTag)];
+    [view addComonentEvent:std::move(name)];
+}
+
+- (void)removeEventName:(const std::string &)eventName forDomNode:(std::weak_ptr<DomNode>)weak_node {
     std::shared_ptr<DomNode> domNode = weak_node.lock();
     if (domNode) {
         [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {

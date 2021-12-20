@@ -164,6 +164,7 @@
         NSString *childViewName = [NSString stringWithUTF8String:child->GetViewName().c_str()];
         return [itemNames_ containsObject:childViewName];
     });
+    [self reloadData];
 }
 
 - (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
@@ -350,6 +351,7 @@
         cell = [[cls alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
         cell.tableView = tableView;
     }
+    //FIXME use cache for cell view creation
     UIView *cellView = [_bridge.uiManager viewForHippyTag:@(domNode->GetId())];
     cellView.frame = CGRectMake(0, 0, CGRectGetWidth(cellView.frame), CGRectGetHeight(cellView.frame));
 //    if (cell.node.cell) {
