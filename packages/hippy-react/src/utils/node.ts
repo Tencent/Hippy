@@ -165,7 +165,23 @@ function cancelIdleCallback(id: ReturnType<typeof setTimeout>): void {
   }
 }
 
+interface EventNamesMap {
+  [propName: string]: string[];
+}
+
+// Event Names map
+const NATIVE_EVENT = 1;
+const eventNamesMap: EventNamesMap = {
+  // TODO pressIn, pressOut will be deprecated in future
+  // onPressIn: ['onPressIn', 'onTouchDown'],
+  // onPressOut: ['onPressOut', 'onTouchEnd'],
+  onTouchStart: ['onTouchStart', 'onTouchDown'],
+  onPress: ['onPress', 'onClick'],
+};
+
 export {
+  NATIVE_EVENT,
+  eventNamesMap,
   requestIdleCallback,
   cancelIdleCallback,
   setRootContainer,

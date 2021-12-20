@@ -80,6 +80,7 @@ namespace Hippy {
       cancelVibrate(): void;
       vibrate(pattern: number, repeatTimes?: number): void;
       platform: {
+        Localization: { country: string, language: string, direction: number } | undefined;
         OS: Platform;
         APILevel: number; // Android Only
       };
@@ -118,7 +119,7 @@ namespace Hippy {
      * Trigger a event with arguments.
      *
      * @param {string} eventName - The event name will be trigger.
-     * @param  {any} args - Event callback arguments.
+     * @param  {[]} args - Event callback arguments.
      */
     emit(eventName: string, ...args: any[]): void;
 
