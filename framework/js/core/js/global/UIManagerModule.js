@@ -6,11 +6,11 @@ const UIManagerModule = internalBinding('UIManagerModule');
 const gestureKeyMap = {
   onClick: 'click',
   onLongClick: 'longclick',
-  // onPressIn: 'touchstart', // 归一化处理
-  // onPressOut: 'touchend', // 归一化处理
+  // onPressIn: 'touchstart', // normalization
+  // onPressOut: 'touchend', // normalization
   onPressIn: 'pressin',
   onPressOut: 'pressout',
-  onTouchDown: 'touchstart', // w3c是touchstart，此处兼容老代码
+  onTouchDown: 'touchstart', // compatible with w3c standard name touchstart
   onTouchStart: 'touchstart',
   onTouchEnd: 'touchend',
   onTouchMove: 'touchmove',
@@ -26,57 +26,59 @@ const gestureKeyMap = {
 
 const kEventsListsKey = '__events';
 
-// 兼容 hippy2.0，hippy3.0 放量一段时间后可删除
+// compatible with hippy2.0
 function HandleEventListener(node) {
   if (!node.props) {
     return;
   }
   if (typeof node[kEventsListsKey] === 'undefined') {
+    // eslint-disable-next-line no-param-reassign
     node[kEventsListsKey] = [];
   }
-  for (const [key, value] of Object.entries(node.props)) {
-    if (/^(on)/g.test(key)) {
-      if (value === true) {
-        const { id } = node;
-        global.ConsoleModule.debug(`HandleEventListener id = ${id}, key = ${key}`);
-        if (gestureKeyMap[key]) {
-          const {
-            EventDispatcher: {
-              receiveNativeGesture = null,
-            },
-          } = __GLOBAL__.jsModuleList;
-          node[kEventsListsKey].push({
-            name: gestureKeyMap[key],
-            cb(param) {
-              global.ConsoleModule.debug(`param = ${param}`);
-              global.ConsoleModule.debug(`id = ${id}`);
-              if (receiveNativeGesture) {
-                const event = {
-                  id, name: key,
-                };
-                Object.assign(event, param);
-                receiveNativeGesture(event);
-              }
-            },
-          });
-        } else {
-          const name = key.replace(/^(on)/g, '').toLocaleLowerCase();
-          global.ConsoleModule.debug(`HandleEventListener id = ${id}, key = ${key}, name = ${name}`);
-          const {
-            EventDispatcher: {
-              receiveUIComponentEvent = null,
-            },
-          } = __GLOBAL__.jsModuleList;
-          node[kEventsListsKey].push({
-            name,
-            cb(param) {
-              if (receiveUIComponentEvent) {
-                const event = [id, key, param];
-                receiveUIComponentEvent(event);
-              }
-            },
-          });
-        }
+  for (const originalKey of Object.keys(node.props)) {
+    const value = node.props[originalKey];
+    if (/^__bind__.+/g.test(originalKey) && value === true) {
+      const key = originalKey.replace(/^__bind__+/g, '');
+      const { id } = node;
+      const standardEventName = gestureKeyMap[key];
+      if (standardEventName) {
+        global.ConsoleModule.debug(`HandleEventListener gestureKeyMap id = ${id}, key = ${key}`);
+        const {
+          EventDispatcher: {
+            receiveNativeGesture = null,
+          },
+        } = __GLOBAL__.jsModuleList;
+        node[kEventsListsKey].push({
+          name: standardEventName,
+          cb(param) {
+            global.ConsoleModule.debug(`param = ${param}`);
+            global.ConsoleModule.debug(`id = ${id}`);
+            if (receiveNativeGesture) {
+              const event = {
+                id, name: key,
+              };
+              Object.assign(event, param);
+              receiveNativeGesture(event);
+            }
+          },
+        });
+      } else {
+        const normalEventName = key.replace(/^(on)?/g, '').toLocaleLowerCase();
+        global.ConsoleModule.debug(`HandleEventListener other id = ${id}, key = ${key}, name = ${normalEventName}`);
+        const {
+          EventDispatcher: {
+            receiveUIComponentEvent = null,
+          },
+        } = __GLOBAL__.jsModuleList;
+        node[kEventsListsKey].push({
+          name: normalEventName,
+          cb(param) {
+            if (receiveUIComponentEvent) {
+              const event = [id, key, param];
+              receiveUIComponentEvent(event);
+            }
+          },
+        });
       }
     }
   }
