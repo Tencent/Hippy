@@ -19,7 +19,7 @@
  */
 
 import { Fiber } from '@hippy/react-reconciler';
-import { getFiberNodeFromId, getElementFromFiber } from '../utils/node';
+import { getFiberNodeFromId, getElementFromFiber, eventNamesMap, NATIVE_EVENT } from '../utils/node';
 import { trace, isGlobalBubble, isHostComponent } from '../utils';
 import HippyEventHub from './hub';
 import Event from './event';
@@ -95,12 +95,16 @@ interface ListenerObj {
  */
 function convertEventName(eventName: string, nodeItem: Fiber) {
   let processedEvenName = eventName;
-  if (nodeItem.memoizedProps
-      && !nodeItem.memoizedProps[eventName]
-      && eventName === 'onClick'
-      && nodeItem.memoizedProps.onPress) {
-    // Compatible with React Native
-    processedEvenName = 'onPress';
+  if (nodeItem.memoizedProps && !nodeItem.memoizedProps[eventName]) {
+    const eventNameList = Object.keys(eventNamesMap);
+    for (let i = 0; i < eventNameList.length; i += 1) {
+      const uiEvent = eventNameList[i];
+      const eventList = eventNamesMap[uiEvent];
+      if (nodeItem.memoizedProps[uiEvent] && eventName === eventList[NATIVE_EVENT]) {
+        processedEvenName = uiEvent;
+        break;
+      }
+    }
   }
   return processedEvenName;
 }

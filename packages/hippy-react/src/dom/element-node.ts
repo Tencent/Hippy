@@ -35,6 +35,7 @@ import {
   convertImgUrl,
   isCaptureEvent,
 } from '../utils';
+import { eventNamesMap, NATIVE_EVENT } from '../utils/node';
 import ViewNode from './view-node';
 import '@localTypes/global';
 
@@ -432,10 +433,12 @@ class ElementNode extends ViewNode {
               if (isCaptureEvent(key)) {
                 key = key.replace('Capture', '');
               }
-              if (['onPress'].indexOf(key) >= 0) {
-                this.attributes.onClick = true;
+              if (eventNamesMap[key]) {
+                this.attributes[eventNamesMap[key][NATIVE_EVENT]] = true;
+                this.attributes[`__bind__${eventNamesMap[key][NATIVE_EVENT]}`] = true;
               } else {
                 this.attributes[key] = true;
+                this.attributes[`__bind__${key}`] = true;
               }
             } else {
               this.attributes[key] = value;
