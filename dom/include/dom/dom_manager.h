@@ -28,7 +28,7 @@ class DomManager {
 
   static void HandleEvent(const std::shared_ptr<DomEvent> &event);
 
-  inline std::shared_ptr<RenderManager> GetRenderManager() { return render_manager_; }
+  inline std::shared_ptr<RenderManager> GetRenderManager() { return render_manager_.lock(); }
   inline void SetRenderManager(std::shared_ptr<RenderManager> render_manager) {
     render_manager_ = render_manager;
   }
@@ -56,7 +56,7 @@ class DomManager {
  private:
   uint32_t root_id_;
   std::shared_ptr<DomNode> root_node_;
-  std::shared_ptr<RenderManager> render_manager_;
+  std::weak_ptr<RenderManager> render_manager_;
   std::shared_ptr<TaskRunner> runner_;
 
   class DomNodeRegistry {

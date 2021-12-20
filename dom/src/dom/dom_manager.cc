@@ -42,8 +42,9 @@ void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>> &&nodes) {
 
   if (!nodes.empty()) {
     batched_operations_.emplace_back([this, moved_nodes = std::move(nodes)]() mutable {
-        if (render_manager_) {
-            render_manager_->CreateRenderNode(std::move(moved_nodes));
+        auto render_manager = render_manager_.lock();
+        if (render_manager) {
+            render_manager->CreateRenderNode(std::move(moved_nodes));
         }
     });
   }
@@ -71,7 +72,10 @@ void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>> &&nodes) {
 
   if (!nodes.empty()) {
     batched_operations_.emplace_back([this, moved_nodes = std::move(nodes)]() mutable {
-      render_manager_->UpdateRenderNode(std::move(moved_nodes));
+        auto render_manager = render_manager_.lock();
+        if (render_manager) {
+            render_manager->UpdateRenderNode(std::move(moved_nodes));
+        }
     });
   }
 }
@@ -94,7 +98,10 @@ void DomManager::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>> &&nodes) {
 
   if (!nodes.empty()) {
     batched_operations_.emplace_back([this, moved_nodes = std::move(nodes)]() mutable {
-      render_manager_->DeleteRenderNode(std::move(moved_nodes));
+      auto render_manager = render_manager_.lock();
+      if (render_manager) {
+        render_manager->DeleteRenderNode(std::move(moved_nodes));
+      }
     });
   }
 }
@@ -112,7 +119,10 @@ void DomManager::EndBatch() {
   add_listener_operations_.clear();
   // 触发布局计算
   DoLayout();
-  render_manager_->Batch();
+  auto render_manager = render_manager_.lock();
+  if (render_manager) {
+    render_manager->Batch();
+  }
 }
 
 uint32_t DomManager::AddEventListener(uint32_t id, const std::string &name, bool use_capture,
@@ -144,8 +154,10 @@ void DomManager::CallFunction(uint32_t id, const std::string &name,
 
 void DomManager::AddListenerOperation(std::shared_ptr<DomNode> node, const std::string& name) {
   add_listener_operations_.emplace_back([this, node, name]() {
-    TDF_BASE_DCHECK(render_manager_);
-    render_manager_->AddEventListener(node, name);
+    auto render_manager = render_manager_.lock();
+    if (render_manager) {
+      render_manager->AddEventListener(node, name);
+    }
   });
 }
 
@@ -177,11 +189,12 @@ void DomManager::DoLayout() {
   layout_changed_nodes_.clear();
   // 触发布局计算
   root_node_->DoLayout();
-  if (!render_manager_) {
+  auto render_manager = render_manager_.lock();
+  if (!render_manager) {
     return;
   }
   if (!layout_changed_nodes_.empty()) {
-    render_manager_->UpdateLayout(layout_changed_nodes_);
+      render_manager->UpdateLayout(layout_changed_nodes_);
   }
 }
 
