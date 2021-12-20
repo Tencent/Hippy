@@ -92,7 +92,6 @@ class ControllerManager implements InstanceLifecycleEventListener {
     }
   }
 
-
   bool hasNode(RenderNode node) {
     return findNode(node.rootId, node.id) == node;
   }

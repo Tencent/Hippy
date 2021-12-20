@@ -12,7 +12,6 @@ class TextInputRenderViewModel extends RenderViewModel {
   static const String keyboardTypePhonePad = "phone-pad";
   static const String keyboardTypePassword = "password";
 
-
   // 默认值
   String hint = "";
 

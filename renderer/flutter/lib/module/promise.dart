@@ -7,7 +7,9 @@ class _JSPromiseImpl extends JSPromise {
 
   bool get hasCall => _hasCall;
 
-  _JSPromiseImpl(EngineContext context, this._moduleName, this._moduleFunc, String callId): super(context, callId);
+  _JSPromiseImpl(
+      EngineContext context, this._moduleName, this._moduleFunc, String callId)
+      : super(context, callId);
 
   void call(int code, Object? obj) {
     var map = VoltronMap();
@@ -18,7 +20,6 @@ class _JSPromiseImpl extends JSPromise {
     map.push("params", obj);
     _context.bridgeManager.execJsCallback(map);
   }
-
 }
 
 class _NativePromiseImpl extends Promise {
@@ -48,8 +49,7 @@ abstract class Promise {
 
   Promise(this._context, this._callId);
 
-  factory Promise.native(EngineContext context,
-      {required String callId}) =>
+  factory Promise.native(EngineContext context, {required String callId}) =>
       _NativePromiseImpl(context, callId);
 
   bool isCallback() => _callId != callIdNoCallback;
@@ -62,7 +62,7 @@ abstract class JSPromise extends Promise {
   static const int promiseCodeNormanError = 1;
   static const int promiseCodeOtherError = 2;
 
-  JSPromise(EngineContext context, String callId): super(context, callId);
+  JSPromise(EngineContext context, String callId) : super(context, callId);
 
   factory JSPromise.js(EngineContext context,
           {required String module,
@@ -73,7 +73,6 @@ abstract class JSPromise extends Promise {
   void resolve(Object? value) {
     _doCallback(promiseCodeSuccess, value);
   }
-
 
   void reject(Object error) {
     _doCallback(promiseCodeOtherError, error);

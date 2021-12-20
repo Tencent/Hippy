@@ -81,7 +81,6 @@ class TextRenderNode extends RenderNode with TextStyleNode {
       });
     }
   }
-
 }
 
 class TextExtra {

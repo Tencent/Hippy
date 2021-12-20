@@ -7,7 +7,7 @@ import 'tree.dart';
 class ListItemRenderNode extends RenderNode {
   bool? _shouldSticky;
 
-  bool get shouldSticky => _shouldSticky??false;
+  bool get shouldSticky => _shouldSticky ?? false;
 
   ListItemRenderNode(
       int id,

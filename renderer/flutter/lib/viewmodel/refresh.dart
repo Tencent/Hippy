@@ -19,8 +19,7 @@ class RefreshWrapperRenderViewModel extends ScrollableModel {
   RenderViewModel? get content => _content;
   RefreshWrapperItemRenderViewModel? get header =>
       _refreshWrapperItemRenderViewModel;
-  RefreshController get controller =>
-      refreshEventDispatcher.refreshController;
+  RefreshController get controller => refreshEventDispatcher.refreshController;
   RefreshEventDispatcher get dispatcher => refreshEventDispatcher;
 
   late RefreshWrapperRenderContentViewModel

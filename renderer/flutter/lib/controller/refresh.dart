@@ -26,8 +26,10 @@ class RefreshWrapperController
   static const String startRefresh = "startRefresh";
 
   @override
-  RefreshWrapperRenderViewModel createRenderViewModel(RenderNode node, EngineContext context) {
-    return RefreshWrapperRenderViewModel(node.id, node.rootId, node.name, context);
+  RefreshWrapperRenderViewModel createRenderViewModel(
+      RenderNode node, EngineContext context) {
+    return RefreshWrapperRenderViewModel(
+        node.id, node.rootId, node.name, context);
   }
 
   @override
@@ -50,12 +52,14 @@ class RefreshWrapperController
   String get name => className;
 
   @ControllerProps(NodeProps.bounceTime)
-  void bounceTime(RefreshWrapperRenderViewModel renderViewModel, int bounceTime) {
+  void bounceTime(
+      RefreshWrapperRenderViewModel renderViewModel, int bounceTime) {
     renderViewModel.bounceTime = bounceTime;
   }
 
   @ControllerProps(NodeProps.onScrollEnable)
-  void setOnScrollEventEnable(RefreshWrapperRenderViewModel renderViewModel, bool flag) {
+  void setOnScrollEventEnable(
+      RefreshWrapperRenderViewModel renderViewModel, bool flag) {
     renderViewModel.scrollGestureDispatcher.scrollEnable = flag;
   }
 
@@ -73,10 +77,11 @@ class RefreshWrapperController
   }
 
   @override
-  void dispatchFunction(
-      RefreshWrapperRenderViewModel renderViewModel, String functionName, VoltronArray array,
+  void dispatchFunction(RefreshWrapperRenderViewModel renderViewModel,
+      String functionName, VoltronArray array,
       {Promise? promise}) {
-    super.dispatchFunction(renderViewModel, functionName, array, promise: promise);
+    super.dispatchFunction(renderViewModel, functionName, array,
+        promise: promise);
     if (refreshComplected == functionName) {
       renderViewModel.refreshEventDispatcher.refreshComplected();
     } else if (startRefresh == functionName) {

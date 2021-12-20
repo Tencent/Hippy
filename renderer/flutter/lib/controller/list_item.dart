@@ -8,7 +8,8 @@ import '../viewmodel.dart';
 import '../widget.dart';
 import 'group.dart';
 
-class ListItemViewController extends GroupController<ListItemViewModel, ListItemRenderNode> {
+class ListItemViewController
+    extends GroupController<ListItemViewModel, ListItemRenderNode> {
   static const String className = "ListViewItem";
 
   @override
@@ -17,8 +18,10 @@ class ListItemViewController extends GroupController<ListItemViewModel, ListItem
   }
 
   @override
-  ListItemViewModel createRenderViewModel(ListItemRenderNode node, EngineContext context) {
-    return ListItemViewModel(node.id, node.rootId, node.name, node.shouldSticky, context);
+  ListItemViewModel createRenderViewModel(
+      ListItemRenderNode node, EngineContext context) {
+    return ListItemViewModel(
+        node.id, node.rootId, node.name, node.shouldSticky, context);
   }
 
   @override
@@ -32,6 +35,4 @@ class ListItemViewController extends GroupController<ListItemViewModel, ListItem
 
   @override
   Map<String, ControllerMethodProp> get groupExtraMethodProp => {};
-
-
 }

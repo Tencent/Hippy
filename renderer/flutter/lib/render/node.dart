@@ -12,7 +12,6 @@ import '../viewmodel.dart';
 import '../widget.dart';
 import 'tree.dart';
 
-
 class RootRenderNode extends RenderNode {
   RootRenderNode(int id, String className, RenderTree root,
       ControllerManager controllerManager, VoltronMap? props)

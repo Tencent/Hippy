@@ -136,10 +136,12 @@ class _BridgeFFIManager {
     updateNodeSize = _library.lookupFunction<UpdateNodeSizeFfiNativeType,
         UpdateNodeSizeFfiDartType>('UpdateNodeSize');
 
-    setNodeHasCustomLayout = _library.lookupFunction<SetNodeCustomMeasureNativeType,
+    setNodeHasCustomLayout = _library.lookupFunction<
+        SetNodeCustomMeasureNativeType,
         SetNodeCustomMeasureDartType>('SetNodeCustomMeasure');
 
-    notifyDom = _library.lookupFunction<NotifyDomNativeType, NotifyDomDartType>('NotifyRenderManager');
+    notifyDom = _library.lookupFunction<NotifyDomNativeType, NotifyDomDartType>(
+        'NotifyRenderManager');
 
     destroy = _library
         .lookupFunction<DestroyFfiNativeType, DestroyFfiDartType>("DestroyFFI");
@@ -238,14 +240,15 @@ class VoltronApi {
     LogUtils.profile("update node size cost", stopwatch.elapsedMilliseconds);
   }
 
-  static Future setNodeHasCustomLayout(int engineId, int rootId, int nodeId) async {
+  static Future setNodeHasCustomLayout(
+      int engineId, int rootId, int nodeId) async {
     var stopwatch = Stopwatch();
 
     stopwatch.start();
-    _BridgeFFIManager.instance
-        .setNodeHasCustomLayout(engineId, rootId, nodeId);
+    _BridgeFFIManager.instance.setNodeHasCustomLayout(engineId, rootId, nodeId);
     stopwatch.stop();
-    LogUtils.profile("set node has custom layout cost", stopwatch.elapsedMilliseconds);
+    LogUtils.profile(
+        "set node has custom layout cost", stopwatch.elapsedMilliseconds);
   }
 
   static Future<dynamic> runScriptFromAssetWithData(
@@ -363,12 +366,11 @@ class VoltronApi {
     free(callIdU16);
   }
 
-  static Future<dynamic> runNativeRunnable(int engineId,
-      String codeCachePath, int runnableId, CommonCallback callback) async {
+  static Future<dynamic> runNativeRunnable(int engineId, String codeCachePath,
+      int runnableId, CommonCallback callback) async {
     var codeCachePathPtr = codeCachePath.toNativeUtf16();
-    _BridgeFFIManager.instance
-        .runNativeRunnable(engineId, codeCachePathPtr, runnableId,
-            generateCallback((value) {
+    _BridgeFFIManager.instance.runNativeRunnable(
+        engineId, codeCachePathPtr, runnableId, generateCallback((value) {
       callback(value);
     }));
     free(codeCachePathPtr);
@@ -500,8 +502,8 @@ void callNative(
   }
 }
 
-void postCodeCacheRunnable(int engineId,
-    Pointer<Utf8> codeCacheDirChar, int runnableId, int needClearException) {
+void postCodeCacheRunnable(int engineId, Pointer<Utf8> codeCacheDirChar,
+    int runnableId, int needClearException) {
   var codeCacheDir = codeCacheDirChar.toDartString();
   final bridge = VoltronBridgeManager.bridgeMap[engineId];
   if (bridge != null) {
@@ -560,8 +562,7 @@ VoltronBridgeManager? getCurrentBridge(int engineId) {
   return bridge;
 }
 
-void sendNotification(
-    int engineId, Pointer<Uint16> source, int len) {
+void sendNotification(int engineId, Pointer<Uint16> source, int len) {
   var bytes = source.asTypedList(len);
   var msg = utf8.decode(bytes);
   print('sendNotification utf8: $msg');
@@ -588,14 +589,13 @@ void postRenderOp(int engineId, int rootId, Pointer<Void> data, int len) {
   }
 }
 
-Pointer<Int64> calculateNodeLayout(int engineId, int rootId, int nodeId, double width,
-    int widthMode, double height, int heightMode) {
+Pointer<Int64> calculateNodeLayout(int engineId, int rootId, int nodeId,
+    double width, int widthMode, double height, int heightMode) {
   final bridge = VoltronBridgeManager.bridgeMap[engineId];
   var layoutParams = FlexLayoutParams(width, height, widthMode, heightMode);
   var result = layoutParams.defaultOutput();
   if (bridge != null) {
-    result = bridge._calculateNodeLayout(
-        rootId, nodeId, layoutParams);
+    result = bridge._calculateNodeLayout(rootId, nodeId, layoutParams);
   }
 
   final resultPtr = malloc<Int64>(1);
@@ -604,7 +604,6 @@ Pointer<Int64> calculateNodeLayout(int engineId, int rootId, int nodeId, double 
 }
 
 // ------------------ native call dart方法 end ---------------------
-
 
 const bool useNewCommType = false;
 
@@ -850,9 +849,7 @@ class VoltronBridgeManager implements Destroyable {
     await VoltronApi.callFunction(_engineId, action, paramsJsonStr, (value) {});
   }
 
-  Future<dynamic> callNativeFunction(String callbackId, Object params) async {
-
-  }
+  Future<dynamic> callNativeFunction(String callbackId, Object params) async {}
 
   Future<dynamic> execJsCallback(Object params) async {
     var action = "callBack";
@@ -944,10 +941,10 @@ class VoltronBridgeManager implements Destroyable {
         callback(value);
       });
     } else {
-      LogUtils.i(
-          _kTag, "runScriptFromAssets codeCacheTag is null");
-      await VoltronApi.runScriptFromAsset(_engineId, fileName,
-          "$codeCacheTag${Platform.pathSeparator}", false, (value) {
+      LogUtils.i(_kTag, "runScriptFromAssets codeCacheTag is null");
+      await VoltronApi.runScriptFromAsset(
+          _engineId, fileName, "$codeCacheTag${Platform.pathSeparator}", false,
+          (value) {
         callback(value);
       });
     }
@@ -975,8 +972,7 @@ class VoltronBridgeManager implements Destroyable {
         callback(value);
       });
     } else {
-      LogUtils.i(_kTag,
-          "runScriptFromAssetsWithData codeCacheTag is null");
+      LogUtils.i(_kTag, "runScriptFromAssetsWithData codeCacheTag is null");
       await VoltronApi.runScriptFromAssetWithData(_engineId, fileName,
           "$codeCacheTag${Platform.pathSeparator}", false, assetsData, (value) {
         callback(value);
@@ -1006,8 +1002,7 @@ class VoltronBridgeManager implements Destroyable {
         callback(value);
       });
     } else {
-      LogUtils.i(
-          _kTag, 'runScriptFromFile codeCacheTag is null');
+      LogUtils.i(_kTag, 'runScriptFromFile codeCacheTag is null');
 
       var codeCacheDir = '$codeCacheTag${Platform.pathSeparator}';
       await VoltronApi.runScriptFromFile(
@@ -1026,11 +1021,13 @@ class VoltronBridgeManager implements Destroyable {
     }
   }
 
-  int _calculateNodeLayout(int instanceId, int nodeId, FlexLayoutParams layoutParams) {
+  int _calculateNodeLayout(
+      int instanceId, int nodeId, FlexLayoutParams layoutParams) {
     LogUtils.dBridge(
         'call calculate node layout(page:$instanceId, node:$nodeId, layout:$layoutParams)');
     if (_isBridgeInit) {
-      return _context.renderManager.calculateLayout(instanceId, nodeId, layoutParams);
+      return _context.renderManager
+          .calculateLayout(instanceId, nodeId, layoutParams);
     }
     return layoutParams.defaultOutput();
   }
@@ -1069,7 +1066,7 @@ class VoltronBridgeManager implements Destroyable {
 
   void reportException(String exception, String stackTrace) {}
 
-  Future<dynamic> runCacheRunnable( String path, int nativeId) async {
+  Future<dynamic> runCacheRunnable(String path, int nativeId) async {
     if (isEmpty(path)) {
       return;
     }

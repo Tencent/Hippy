@@ -144,7 +144,7 @@ class _UpdateLayoutOpTask extends _NodeOpTask {
   @override
   void _run() {
     var layoutNodeList =
-    (_params[_RenderOpParamsKey.kLayoutNodesKey] ?? []) as List;
+        (_params[_RenderOpParamsKey.kLayoutNodesKey] ?? []) as List;
     var parseLayoutNodeList = <_LayoutNodeInfo>[];
     if (layoutNodeList.isNotEmpty) {
       for (var layoutNode in layoutNodeList) {
@@ -187,7 +187,6 @@ class _LayoutNodeInfo {
   _LayoutNodeInfo(this.nodeId,
       {this.left = 0, this.top = 0, this.width = 0, this.height = 0});
 }
-
 
 class _MoveNodeOpTask extends _NodeOpTask {
   _MoveNodeOpTask(int instanceId, int nodeId, Map params)

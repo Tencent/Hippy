@@ -24,7 +24,6 @@ class FlexLayoutParams {
     return FlexOutput.makeMeasureResult(width, height);
   }
 
-
   int zero() {
     return FlexOutput.makeMeasureResult(0, 0);
   }

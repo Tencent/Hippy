@@ -65,8 +65,7 @@ class ModuleManager implements Destroyable {
           method: params._moduleFunc,
           callId: params._callId);
       // 这里跟hippy不一致，我们要主动暴露模块未找到的错误
-      promise.error(
-          JSPromise.promiseCodeOtherError, "module can not be found");
+      promise.error(JSPromise.promiseCodeOtherError, "module can not be found");
       return;
     }
 
@@ -89,8 +88,8 @@ class ModuleManager implements Destroyable {
       module.initialize();
       var function = module.funcMap[params._moduleFunc];
       if (function == null) {
-        promise.error(
-            JSPromise.promiseCodeNormanError, "module function can not be found");
+        promise.error(JSPromise.promiseCodeNormanError,
+            "module function can not be found");
         return;
       }
       _invokeMethod(_context, module, params._params ?? VoltronArray(), promise,

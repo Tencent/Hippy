@@ -71,7 +71,9 @@ class ImageController extends BaseViewController<ImageRenderViewModel> {
     VoltronMap firstObj = source.get(0);
     String src = firstObj.get('uri');
     src = getInnerPath(
-        renderViewModel.context.getInstance(renderViewModel.rootId)?.instanceContext,
+        renderViewModel.context
+            .getInstance(renderViewModel.rootId)
+            ?.instanceContext,
         src);
     if (src != renderViewModel.src) {
       renderViewModel.src = getInnerPath(
@@ -152,7 +154,8 @@ class ImageController extends BaseViewController<ImageRenderViewModel> {
   }
 
   @ControllerProps(NodeProps.defaultSource)
-  void setDefaultSource(ImageRenderViewModel renderViewModel, String defaultSource) {
+  void setDefaultSource(
+      ImageRenderViewModel renderViewModel, String defaultSource) {
     if (defaultSource.indexOf('data:image/png;base64,') == 0) {
       var bytesImage = Base64Decoder()
           .convert(defaultSource.replaceFirst('data:image/png;base64,', ''));
@@ -184,7 +187,8 @@ class ImageController extends BaseViewController<ImageRenderViewModel> {
   }
 
   @ControllerProps(NodeProps.capInsets)
-  void setCapInsets(ImageRenderViewModel renderViewModel, VoltronMap capInsetsMap) {
+  void setCapInsets(
+      ImageRenderViewModel renderViewModel, VoltronMap capInsetsMap) {
     renderViewModel.capInsets = CapInsets(
         left: capInsetsMap.get('left').toDouble(),
         top: capInsetsMap.get('top').toDouble(),
@@ -192,7 +196,8 @@ class ImageController extends BaseViewController<ImageRenderViewModel> {
         bottom: capInsetsMap.get('bottom').toDouble());
   }
 
-  void setEventType(String type, ImageRenderViewModel renderViewModel, bool enable) {
+  void setEventType(
+      String type, ImageRenderViewModel renderViewModel, bool enable) {
     if (enable) {
       renderViewModel.imageEventDispatcher.addEventType(type);
     } else {
@@ -202,6 +207,4 @@ class ImageController extends BaseViewController<ImageRenderViewModel> {
 
   @override
   String get name => className;
-
-
 }

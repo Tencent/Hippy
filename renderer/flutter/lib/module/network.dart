@@ -130,7 +130,8 @@ class NetworkModule extends VoltronNativeModule {
   /// * @param expires 默认为空，过期时间，格式与http协议头response里的Set-Cookie相同，如：Thu, 08-Jan-2020 00:00:00 GMT
   /// *
   @VoltronMethod(setCookieMethodName)
-  bool setCookie(String url, String keyValue, String expires, JSPromise promise) {
+  bool setCookie(
+      String url, String keyValue, String expires, JSPromise promise) {
     var cookies = <Cookie>[];
     var keyValueList = keyValue.split(';');
     for (var item in keyValueList) {

@@ -15,12 +15,14 @@ class DivController extends BaseGroupController<DivRenderViewModel> {
   static const String className = "View";
 
   @override
-  Widget createWidget(BuildContext context, DivRenderViewModel renderViewModel) {
+  Widget createWidget(
+      BuildContext context, DivRenderViewModel renderViewModel) {
     return DivWidget(renderViewModel);
   }
 
   @override
-  DivRenderViewModel createRenderViewModel(RenderNode node, EngineContext context) {
+  DivRenderViewModel createRenderViewModel(
+      RenderNode node, EngineContext context) {
     return DivRenderViewModel(node.id, node.rootId, node.name, context);
   }
 
@@ -49,9 +51,7 @@ class DivController extends BaseGroupController<DivRenderViewModel> {
   void setBackgroundImage(DivRenderViewModel viewModel, Object data) {
     if (data is String) {
       viewModel.backgroundImg = getInnerPath(
-          viewModel.context
-              .getInstance(viewModel.rootId)
-              ?.instanceContext,
+          viewModel.context.getInstance(viewModel.rootId)?.instanceContext,
           data);
     } else {
       viewModel.backgroundImg = data;
@@ -72,17 +72,20 @@ class DivController extends BaseGroupController<DivRenderViewModel> {
   }
 
   @ControllerProps(NodeProps.backgroundSize)
-  void setBackgroundImageSize(DivRenderViewModel viewModel, String resizeModeValue) {
+  void setBackgroundImageSize(
+      DivRenderViewModel viewModel, String resizeModeValue) {
     viewModel.backgroundImgSize = resizeModeValue;
   }
 
   @ControllerProps(NodeProps.backgroundPositionX)
-  void setBackgroundImagePositionX(DivRenderViewModel viewModel, String positionX) {
+  void setBackgroundImagePositionX(
+      DivRenderViewModel viewModel, String positionX) {
     viewModel.imagePositionX = positionX;
   }
 
   @ControllerProps(NodeProps.backgroundPositionY)
-  void setBackgroundImagePositionY(DivRenderViewModel viewModel, String positionY) {
+  void setBackgroundImagePositionY(
+      DivRenderViewModel viewModel, String positionY) {
     viewModel.imagePositionY = positionY;
   }
 
@@ -93,5 +96,4 @@ class DivController extends BaseGroupController<DivRenderViewModel> {
 
   @override
   String get name => className;
-
 }

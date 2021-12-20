@@ -106,7 +106,8 @@ class DialogModule extends VoltronNativeModule {
   }
 
   @VoltronMethod(funcConfirm)
-  Future<bool> confirm(int rootId, VoltronMap message, JSPromise promise) async {
+  Future<bool> confirm(
+      int rootId, VoltronMap message, JSPromise promise) async {
     var text = message.get('message') ?? '';
     var textOK = message.get('textOK') ?? '确定';
     var textCancel = message.get('textOK') ?? '取消';

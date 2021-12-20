@@ -9,12 +9,12 @@ typedef ContextWrapper = BuildContext? Function();
 abstract class FRStatefulWidget extends StatefulWidget {
   final RenderViewModel _viewModel;
 
-  FRStatefulWidget(this._viewModel): super(key: _viewModel.renderKey);
+  FRStatefulWidget(this._viewModel) : super(key: _viewModel.renderKey);
 
   @override
   RFStatefulElement createElement() {
     var elementTimePoint =
-    ElementTimePoint(_viewModel.name, '', _viewModel.context);
+        ElementTimePoint(_viewModel.name, '', _viewModel.context);
     elementTimePoint.start();
     var result = RFStatefulElement(this);
     elementTimePoint.end();

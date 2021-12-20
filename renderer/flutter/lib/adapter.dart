@@ -1,7 +1,7 @@
 library adapter;
 
 export 'adapter/device.dart';
-export 'adapter/execption.dart';
+export 'adapter/exception.dart';
 export 'adapter/font.dart';
 export 'adapter/http.dart';
 export 'adapter/monitor.dart';

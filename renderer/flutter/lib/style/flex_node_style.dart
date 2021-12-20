@@ -308,5 +308,4 @@ class FlexNodeStyle {
   void setPosition(FlexStyleEdge edge, double position) {
     _position[edge.index] = position;
   }
-
 }

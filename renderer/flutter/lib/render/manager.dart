@@ -188,7 +188,6 @@ mixin RenderExecutorDelegate {
 
     notifyDom();
   }
-
 }
 
 class RenderManager
@@ -238,7 +237,8 @@ class RenderManager
     }
   }
 
-  void createNode(int instanceId, int id, int pId, int childIndex, String name, VoltronMap? props) {
+  void createNode(int instanceId, int id, int pId, int childIndex, String name,
+      VoltronMap? props) {
     var parentNode = controllerManager.findNode(instanceId, pId);
     var tree = controllerManager.findTree(instanceId);
     if (parentNode != null && tree != null) {
@@ -386,13 +386,10 @@ class RenderManager
     }
   }
 
-  void setEventListener(int instanceId, int id, EventType type, Promise promise) {
+  void setEventListener(
+      int instanceId, int id, EventType type, Promise promise) {}
 
-  }
-
-  void removeEventListener(int instanceId, int id, EventType type) {
-
-  }
+  void removeEventListener(int instanceId, int id, EventType type) {}
 
   void deleteNode(int instanceId, int id) {
     var uiNode = controllerManager.findNode(instanceId, id);
@@ -449,7 +446,6 @@ class RenderManager
       }
     }
   }
-
 
   @override
   void destroy() {

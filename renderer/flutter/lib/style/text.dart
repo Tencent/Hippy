@@ -61,28 +61,30 @@ mixin TextStyleNode on StyleNode {
         _whiteSpace == 'nowrap') {
       // 连续的空白符会被合并，换行符会被当作空白符来处理
       return _sourceText
-          ?.replaceAll(RegExp(r' +'), ' ')
-          .replaceAll('\n', ' ')
-          .replaceAll(RegExp(r'<br\s*/?>'), ' ')??'';
+              ?.replaceAll(RegExp(r' +'), ' ')
+              .replaceAll('\n', ' ')
+              .replaceAll(RegExp(r'<br\s*/?>'), ' ') ??
+          '';
     }
     if (_whiteSpace == 'pre-line') {
       // 连续的空白符会被合并。在遇到换行符或者<br>元素，才换行
       return _sourceText
-          ?.replaceAll(RegExp(r' +'), ' ')
-          .replaceAll(RegExp(r'<br\s*/?>'), '\n')??'';
+              ?.replaceAll(RegExp(r' +'), ' ')
+              .replaceAll(RegExp(r'<br\s*/?>'), '\n') ??
+          '';
     }
     if (_whiteSpace == 'pre') {
       // 连续的空白符会被保留。在遇到换行符或者<br>元素，才换行
-      return _sourceText?.replaceAll(RegExp(r'<br\s*/?>'), '\n')??'';
+      return _sourceText?.replaceAll(RegExp(r'<br\s*/?>'), '\n') ?? '';
     }
-    return _sourceText??'';
+    return _sourceText ?? '';
   }
 
   static int _parseArgument(String weight) {
     return weight.length == 3 &&
-        weight.endsWith("00") &&
-        weight.codeUnitAt(0) <= '9'.codeUnitAt(0) &&
-        weight.codeUnitAt(0) >= '1'.codeUnitAt(0)
+            weight.endsWith("00") &&
+            weight.codeUnitAt(0) <= '9'.codeUnitAt(0) &&
+            weight.codeUnitAt(0) >= '1'.codeUnitAt(0)
         ? 100 * (weight.codeUnitAt(0) - '0'.codeUnitAt(0))
         : -1;
   }
@@ -181,7 +183,7 @@ mixin TextStyleNode on StyleNode {
     _isUnderlineTextDecorationSet = false;
     _isLineThroughTextDecorationSet = false;
     for (var textDecorationLineSubString
-    in textDecorationLineString.split(" ")) {
+        in textDecorationLineString.split(" ")) {
       if ("underline" == textDecorationLineSubString) {
         _isUnderlineTextDecorationSet = true;
       } else if ("line-through" == textDecorationLineSubString) {
@@ -200,7 +202,6 @@ mixin TextStyleNode on StyleNode {
     if (offsetMap.get(NodeProps.propShadowOffsetHeight) != null) {
       _textShadowOffsetDy = offsetMap.get(NodeProps.propShadowOffsetHeight);
     }
-
   }
 
   @ControllerProps(NodeProps.propShadowRadius)
@@ -336,7 +337,6 @@ mixin TextStyleNode on StyleNode {
   set enableScale(bool flag) {
     _enableScale = flag;
   }
-
 
   @ControllerProps(NodeProps.numberOfLines)
   void setNumberOfLines(int numberOfLines) {

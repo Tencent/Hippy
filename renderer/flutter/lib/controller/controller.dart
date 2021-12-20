@@ -21,8 +21,8 @@ abstract class BaseViewController<T extends RenderViewModel>
   }
 }
 
-abstract class VoltronViewController<T extends RenderViewModel, R extends RenderNode>
-    implements ControllerMethodPropConsumer<T> {
+abstract class VoltronViewController<T extends RenderViewModel,
+    R extends RenderNode> implements ControllerMethodPropConsumer<T> {
   String get name;
 
   ControllerMethodPropProvider generateProvider() {
@@ -106,8 +106,7 @@ abstract class VoltronViewController<T extends RenderViewModel, R extends Render
   void setTransform(T viewModel, VoltronArray? transformArray) {
     final transform = TransformUtil.getTransformMatrix4(transformArray);
     viewModel.transform = transform;
-    viewModel
-        .updateAnimation<Matrix4?>(NodeProps.transform, transform);
+    viewModel.updateAnimation<Matrix4?>(NodeProps.transform, transform);
   }
 
   @ControllerProps(NodeProps.transformOrigin)
@@ -134,8 +133,7 @@ abstract class VoltronViewController<T extends RenderViewModel, R extends Render
   void setBackgroundColor(T viewModel, int? backgroundColor) {
     final color = backgroundColor == null ? null : Color(backgroundColor);
     viewModel.backgroundColor = color;
-    viewModel
-        .updateAnimation<Color?>(NodeProps.backgroundColor, color);
+    viewModel.updateAnimation<Color?>(NodeProps.backgroundColor, color);
   }
 
   @ControllerProps(NodeProps.opacity)
@@ -266,8 +264,8 @@ abstract class VoltronViewController<T extends RenderViewModel, R extends Render
     final propertyMapSortList =
         AnimationUtil.getAnimationPropertyListSortByKeyframeSelector(
             animationPropertyMap);
-    viewModel.animation = CssAnimation.initByAnimation(
-        value, propertyMapSortList, viewModel);
+    viewModel.animation =
+        CssAnimation.initByAnimation(value, propertyMapSortList, viewModel);
     viewModel.animationFillMode =
         value.get<String>(NodeProps.animationFillModel) ??
             AnimationFillMode.none;

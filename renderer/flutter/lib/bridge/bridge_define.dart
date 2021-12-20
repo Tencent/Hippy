@@ -82,10 +82,8 @@ typedef SetNodeCustomMeasureNativeType = Void Function(
 typedef SetNodeCustomMeasureDartType = void Function(
     int engineId, int rootId, int nodeId);
 
-typedef NotifyDomNativeType = Void Function(
-    Int32 engineId);
-typedef NotifyDomDartType = void Function(
-    int engineId);
+typedef NotifyDomNativeType = Void Function(Int32 engineId);
+typedef NotifyDomDartType = void Function(int engineId);
 
 typedef GetCrashMessageFfiType = Pointer<Utf8> Function();
 

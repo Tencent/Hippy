@@ -33,10 +33,11 @@ class ControllerUpdateUtil {
         final realValue = checkValueType(value, propMethodHolder.defaultValue);
         try {
           if (realValue != null) {
-            Function.apply(propMethodHolder.method, [node.renderViewModel, realValue]);
-          } else {
             Function.apply(
-                propMethodHolder.method, [node.renderViewModel, propMethodHolder.defaultValue]);
+                propMethodHolder.method, [node.renderViewModel, realValue]);
+          } else {
+            Function.apply(propMethodHolder.method,
+                [node.renderViewModel, propMethodHolder.defaultValue]);
           }
         } catch (e) {
           LogUtils.e(tag,
