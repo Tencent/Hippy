@@ -179,6 +179,7 @@ jobs:
               _Do NOT modify this release manually._
 
               Refs: [v8/v8@${{ steps.merge_all_artifact.outputs.head_lite }}][1]
+
               Branch/Tag: ${{ github.event.inputs.v8_revision }}
 
               [1]: https://github.com/v8/v8/tree/${{ steps.merge_all_artifact.outputs.head_full }}
