@@ -251,11 +251,11 @@ static unicode_string_view NSStringToU8(NSString* str) {
             };
 
             jsContext[@"nativeFlushQueueImmediate"] = ^(NSArray<NSArray *> *calls) {
-//                HippyJSCExecutor *strongSelf = weakSelf;
-//                if (!strongSelf.valid || !calls) {
-//                    return;
-//                }
-//                [strongSelf->_bridge handleBuffer:calls batchEnded:NO];
+                HippyJSCExecutor *strongSelf = weakSelf;
+                if (!strongSelf.valid || !calls) {
+                    return;
+                }
+                [strongSelf->_bridge handleBuffer:calls batchEnded:NO];
             };
 
             jsContext[@"nativeCallSyncHook"] = ^id(NSUInteger module, NSUInteger method, NSArray *args) {
