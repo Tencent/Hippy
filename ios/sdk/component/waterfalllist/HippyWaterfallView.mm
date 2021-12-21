@@ -208,7 +208,6 @@ using WaterfallViewEvent = std::function<void(const std::string &event_name,
 }
 
 - (void)didUpdateHippySubviews {
-//    std::shared_ptr<hippy::DomNode> domNode = self.domNode;
     [self refreshItemNodes];
     [self flush];
 }
