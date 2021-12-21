@@ -127,6 +127,10 @@ Hippy.document = {
       flushQueueImmediate();
     }
   },
+  callUIFunction(id, name, param, cb) {
+    global.ConsoleModule.debug(`callUIFunction id = ${id}, name = ${name}, param = ${JSON.stringify(param)}`);
+    UIManagerModule.CallUIFunction(id, name, param, cb);
+  },
   sendRenderError(error) {
     if (error) {
       throw error;

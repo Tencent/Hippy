@@ -136,18 +136,7 @@ function callUIFunction(ref: Element | Fiber, funcName: string, ...options: any[
     return;
   }
 
-  if (Device.platform.OS === 'ios') {
-    if (isFunction(callback) && Array.isArray(paramList)) {
-      paramList.push(callback);
-    }
-    Bridge.callNative('UIManagerModule', 'callUIFunction', [componentName, nodeId, funcName, paramList]);
-  } else if (Device.platform.OS === 'android') {
-    if (isFunction(callback)) {
-      Bridge.callNative('UIManagerModule', 'callUIFunction', [nodeId, funcName, paramList], callback);
-    } else {
-      Bridge.callNative('UIManagerModule', 'callUIFunction', [nodeId, funcName, paramList]);
-    }
-  }
+  UIManager.callUIFunction(nodeId, funcName, paramList, callback);
 }
 
 /**
