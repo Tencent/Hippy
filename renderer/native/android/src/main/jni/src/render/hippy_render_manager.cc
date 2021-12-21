@@ -7,6 +7,8 @@
 #include "base/logging.h"
 #include "jni/jni_env.h"
 
+#include "dom/taitank_layout_node.h"
+
 constexpr char kId[] = "id";
 constexpr char kPid[] = "pId";
 constexpr char kIndex[] = "index";
@@ -34,12 +36,19 @@ void HippyRenderManager::CreateRenderNode(std::vector<std::shared_ptr<hippy::dom
     dom_node[kIndex] = tdf::base::DomValue(nodes[i]->GetIndex());
     dom_node[kName] = tdf::base::DomValue(nodes[i]->GetViewName());
 
-    // layout result
-    auto result = nodes[i]->GetLayoutResult();
-    dom_node[kWidth] = tdf::base::DomValue(DpToPx(result.width));
-    dom_node[kHeight] = tdf::base::DomValue(DpToPx(result.height));
-    dom_node[kLeft] = tdf::base::DomValue(DpToPx(result.left));
-    dom_node[kTop] = tdf::base::DomValue(DpToPx(result.top));
+    if (nodes[i]->GetViewName() == "Text") {
+      int32_t id = nodes[i]->GetId();
+      TaitankMeasureFunction measure_function = [id](HPNodeRef node, float width, MeasureMode widthMeasureMode, float height,
+                                          MeasureMode heightMeasureMode, void* layoutContext) -> TaitankResult {
+        // TODO Call Jni
+        TDF_BASE_LOG(INFO) << "text measure node id :" << id << std::endl;
+        TaitankResult result;
+        result.width = 20;
+        result.height = 20;
+        return result;
+      };
+      std::static_pointer_cast<TaitankLayoutNode>(nodes[i]->GetLayoutNode())->SetMeasureFunction(measure_function);
+    }
 
     tdf::base::DomValue::DomValueObjectType props;
     // 样式属性
@@ -147,13 +156,6 @@ void HippyRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>
     dom_node[kLeft] = tdf::base::DomValue(DpToPx(result.left));
     dom_node[kTop] = tdf::base::DomValue(DpToPx(result.top));
     dom_node_array[i] = dom_node;
-
-    TDF_BASE_LOG(INFO) << "id : " << nodes[i]->GetId() << ", "
-                       << "pid : " << nodes[i]->GetPid() << ", "
-                       << "width : " << DpToPx(result.width) << ", "
-                       << "height : " << DpToPx(result.height) << ", "
-                       << "left : " << DpToPx(result.left) << ", "
-                       << "top : " << DpToPx(result.top) << std::endl;
   }
   serializer_->WriteDenseJSArray(dom_node_array);
   std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
@@ -207,9 +209,7 @@ void HippyRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std:
   TDF_BASE_NOTIMPLEMENTED();
 };
 
-float HippyRenderManager::DpToPx(float dp) {
-  return dp * density_;
-}
+float HippyRenderManager::DpToPx(float dp) { return dp * density_; }
 
 void HippyRenderManager::CallNativeMethod(const std::pair<uint8_t*, size_t>& buffer, const std::string& method) {
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
