@@ -212,7 +212,7 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
 
         if (result[@"onPressOut"][@"view"]) {
             UIView *pressOutView = result[@"onPressOut"][@"view"];
-            onTouchEventListener listener = [_onLongClickView eventListenerForEventType:HippyViewEventTypePressOut];
+            onTouchEventListener listener = [pressOutView eventListenerForEventType:HippyViewEventTypePressOut];
             if (pressOutView == _onPressInView && listener) {
                 if ([self checkViewBelongToTouchHandler:pressOutView]) {
 //                    pressOutView.onPressOut(@{});
@@ -281,7 +281,7 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
 
         if (result[@"onPressOut"][@"view"]) {
             UIView *pressOutView = result[@"onPressOut"][@"view"];
-            onTouchEventListener listener = [_onLongClickView eventListenerForEventType:HippyViewEventTypePressOut];
+            onTouchEventListener listener = [pressOutView eventListenerForEventType:HippyViewEventTypePressOut];
             if (pressOutView == _onPressInView && listener) {
                 if ([self checkViewBelongToTouchHandler:pressOutView]) {
 //                    pressOutView.onPressOut(@{});
@@ -388,8 +388,8 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
 
 - (void)scheduleTimer:(__unused NSTimer *)timer {
     if (!_bPressIn) {
-        onTouchEventListener listener = [_onLongClickView eventListenerForEventType:HippyViewEventTypePressIn];
-        if (_onPressInView && _onPressInView.onPressIn) {
+        onTouchEventListener listener = [_onPressInView eventListenerForEventType:HippyViewEventTypePressIn];
+        if (_onPressInView && listener) {
             if ([self checkViewBelongToTouchHandler:_onPressInView]) {
 //                _onPressInView.onPressIn(@{});
                 listener(CGPointZero);
@@ -561,7 +561,7 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
 - (void)cancelTouch {
     if (_onPressInView) {
         _bPressIn = NO;
-        onTouchEventListener listener = [_onLongClickView eventListenerForEventType:HippyViewEventTypePressOut];
+        onTouchEventListener listener = [_onPressInView eventListenerForEventType:HippyViewEventTypePressOut];
         if (listener) {
             if ([self checkViewBelongToTouchHandler:_onPressInView]) {
 //                _onPressInView.onPressOut(@{});
@@ -586,7 +586,7 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
 
     if (_onPressInView) {
         _bPressIn = NO;
-        onTouchEventListener listener = [_onLongClickView eventListenerForEventType:HippyViewEventTypePressOut];
+        onTouchEventListener listener = [_onPressInView eventListenerForEventType:HippyViewEventTypePressOut];
         if (listener) {
             if ([self checkViewBelongToTouchHandler:_onPressInView]) {
 //                _onPressInView.onPressOut(@{});
