@@ -533,7 +533,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 }
 
 - (HippyViewManagerUIBlock)uiBlockWithLayoutUpdateForRootView:(HippyRootShadowView *)rootShadowView {
-    HippyAssert(!HippyIsMainQueue(), @"Should be called on shadow queue");
+//    HippyAssert(!HippyIsMainQueue(), @"Should be called on shadow queue");
 
     // This is nuanced. In the JS thread, we create a new update buffer
     // `frameTags`/`frames` that is created/mutated in the JS thread. We access
@@ -1760,6 +1760,11 @@ static UIView *_jsResponder;
             [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
                 [uiManager addShowEventListenerForNode:node forType:std::move(name_) forView:node->GetId()];
             }];
+        } else if (name == hippy::kPressIn || name == hippy::kPressOut) {
+            std::string name_ = name;
+            [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+                [uiManager addPressEventListenerforNode:node forType:std::move(name_) forView:node->GetId()];
+            }];
         }
         else {
             std::string name_ = name;
@@ -1804,7 +1809,7 @@ static UIView *_jsResponder;
         [view addViewEvent:eventType eventListener:^(CGPoint) {
             std::shared_ptr<DomNode> node = weak_node.lock();
             if (node) {
-                node->HandleEvent(std::make_shared<hippy::DomEvent>(hippy::kClickEvent, weak_node, nullptr));
+                node->HandleEvent(std::make_shared<hippy::DomEvent>(type, weak_node, nullptr));
             }
         }];
     }
