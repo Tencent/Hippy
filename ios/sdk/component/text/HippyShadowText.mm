@@ -44,21 +44,27 @@ CGFloat const HippyTextAutoSizeGranularity = 0.001f;
 @implementation HippyShadowText
 // MTTlayout
 HPSize textMeasureFunc(
-    HPNodeRef node, float width, MeasureMode widthMeasureMode, __unused float height, __unused MeasureMode heightMeasureMode, void *layoutContext) {
-    hippy::DomNode *pNode = static_cast<hippy::DomNode *>(HPNodeGetContext(node));
-    NSDictionary *props = unorderedMapDomValueToDictionary(pNode->GetExtStyle());
-    NSDictionary *styleProps = unorderedMapDomValueToDictionary(pNode->GetStyleMap());
-    CGFloat fontSize = [styleProps[@"fontSize"] floatValue];
-    NSString *text = props[@"text"];
-    if (0 == fontSize) {
-        fontSize = [UIFont systemFontSize];
+    HippyShadowText *shadowText, HPNodeRef node, float width,
+                       MeasureMode widthMeasureMode, float height,
+                       MeasureMode heightMeasureMode, void *layoutContext) {
+//    hippy::DomNode *pNode = static_cast<hippy::DomNode *>(HPNodeGetContext(node));
+    std::shared_ptr<hippy::DomNode> domNode = [shadowText domNode].lock();
+    if (domNode) {
+        NSDictionary *props = unorderedMapDomValueToDictionary(domNode->GetExtStyle());
+        NSDictionary *styleProps = unorderedMapDomValueToDictionary(domNode->GetStyleMap());
+        CGFloat fontSize = [styleProps[@"fontSize"] floatValue];
+        NSString *text = props[@"text"];
+        if (0 == fontSize) {
+            fontSize = [UIFont systemFontSize];
+        }
+        UIFont *font = [UIFont systemFontOfSize:fontSize];
+        CGSize size = [text sizeWithFont:font];
+        HPSize retSize;
+        retSize.width = HippyCeilPixelValue(size.width);
+        retSize.height = HippyCeilPixelValue(size.height);
+        return retSize;
     }
-    UIFont *font = [UIFont systemFontOfSize:fontSize];
-    CGSize size = [text sizeWithFont:font];
-    HPSize retSize;
-    retSize.width = HippyCeilPixelValue(size.width);
-    retSize.height = HippyCeilPixelValue(size.height);
-    return retSize;
+    return HPSize{0, 0};
 }
 
 static void resetFontAttribute(NSTextStorage *textStorage) {
@@ -353,11 +359,12 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             NSWritingDirection direction = [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
             HPDirection nodeDirection = (NSWritingDirectionRightToLeft == direction) ? DirectionRTL : DirectionLTR;
             nodeDirection = self.layoutDirection != DirectionInherit ? self.layoutDirection : nodeDirection;
-//            HPNodeDoLayout(child.nodeRef, NAN, NAN, nodeDirection);
-            float width = child.domNode->GetLayoutResult().width;
-            //HPNodeLayoutGetWidth(child.nodeRef);
-            float height = child.domNode->GetLayoutResult().height;
-//            HPNodeLayoutGetHeight(child.nodeRef);
+            auto domNode = child.domNode.lock();
+            float width = 0, height = 0;
+            if (domNode) {
+                width = domNode->GetLayoutResult().width;
+                height = domNode->GetLayoutResult().height;
+            }
             if (isnan(width) || isnan(height)) {
                 HippyLogError(@"Views nested within a <Text> must have a width and height");
             }
@@ -682,6 +689,23 @@ HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
         newProps = dic;
     }
     return newProps;
+}
+
+- (void)setDomNode:(std::weak_ptr<hippy::DomNode>)domNode {
+    [super setDomNode:domNode];
+    std::shared_ptr<hippy::DomNode> node = domNode.lock();
+    if (node) {
+        hippy::TaitankMeasureFunction measureFunc =
+            [shadow_view = self](HPNodeRef node, float width,
+                                 MeasureMode widthMeasureMode, float height,
+                                 MeasureMode heightMeasureMode, void *layoutContext){
+            return textMeasureFunc(shadow_view, node, width, widthMeasureMode,
+                                   height, heightMeasureMode, layoutContext);
+        };
+        std::shared_ptr<hippy::TaitankLayoutNode>layoutNode =
+            std::static_pointer_cast<hippy::TaitankLayoutNode>(node->GetLayoutNode());
+        layoutNode->SetMeasureFunction(measureFunc);
+    }
 }
 
 - (void)setText:(NSString *)text {

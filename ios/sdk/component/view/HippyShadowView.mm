@@ -32,7 +32,7 @@
 
 CGRect getShadowViewRectFromDomNode(HippyShadowView *shadowView) {
     if (shadowView) {
-        std::shared_ptr<hippy::DomNode> node = shadowView.domNode;
+        std::shared_ptr<hippy::DomNode> node = shadowView.domNode.lock();
         if (node) {
             const hippy::LayoutResult &layoutResult = node->GetLayoutResult();
             return CGRectMake(layoutResult.left, layoutResult.top, layoutResult.width, layoutResult.height);
@@ -66,6 +66,7 @@ typedef NS_ENUM(unsigned int, meta_prop_t) {
     float _paddingMetaProps[META_PROP_COUNT];
     float _marginMetaProps[META_PROP_COUNT];
     float _borderMetaProps[META_PROP_COUNT];
+    std::weak_ptr<hippy::DomNode> _domNode;
 }
 
 @end
@@ -427,6 +428,14 @@ typedef NS_ENUM(unsigned int, meta_prop_t) {
     return _textLifecycle != HippyUpdateLifecycleComputed;
 }
 
+- (void)setDomNode:(std::weak_ptr<hippy::DomNode>)domNode {
+    _domNode = domNode;
+}
+
+- (const std::weak_ptr<hippy::DomNode> &)domNode {
+    return _domNode;
+}
+
 - (void)setTextComputed {
     _textLifecycle = HippyUpdateLifecycleComputed;
 }
@@ -550,7 +559,12 @@ typedef NS_ENUM(unsigned int, meta_prop_t) {
 //HIPPY_PADDING_PROPERTY(Right, RIGHT)
 //
 - (UIEdgeInsets)paddingAsInsets {
-    return UIEdgeInsetsFromLayoutResult(self.domNode->GetLayoutResult());
+    UIEdgeInsets insets = UIEdgeInsetsZero;
+    auto domNode = self.domNode.lock();
+    if (domNode) {
+        insets = UIEdgeInsetsFromLayoutResult(domNode->GetLayoutResult());
+    }
+    return insets;
 }
 //
 //// Border
