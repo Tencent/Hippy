@@ -75,7 +75,6 @@ typedef void (^HippyApplierVirtualBlock)(NSDictionary<NSNumber *, HippyVirtualNo
 @property (nonatomic, copy) NSString *visibility;
 @property (nonatomic, assign) BOOL visibilityChanged;
 @property (nonatomic, assign) BOOL hasNewLayout;
-@property (nonatomic, assign) std::shared_ptr<hippy::DomNode> domNode;
 
 /**
  * isNewView - Used to track the first time the view is introduced into the hierarchy.  It is initialized YES, then is
@@ -177,6 +176,9 @@ typedef void (^HippyApplierVirtualBlock)(NSDictionary<NSNumber *, HippyVirtualNo
  * Clipping properties
  */
 @property (nonatomic, assign) OverflowType overflow;
+
+- (void)setDomNode:(std::weak_ptr<hippy::DomNode>)domNode;
+- (const std::weak_ptr<hippy::DomNode> &)domNode;
 
 /**
  * Calculate property changes that need to be propagated to the view.

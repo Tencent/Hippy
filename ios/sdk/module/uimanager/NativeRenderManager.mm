@@ -30,13 +30,6 @@ using LayoutResult = hippy::LayoutResult;
 using CallFunctionCallback = hippy::CallFunctionCallback;
 
 void NativeRenderManager::CreateRenderNode(std::vector<std::shared_ptr<DomNode>> &&nodes) {
-    for (auto it = nodes.begin(); it != nodes.end(); it++) {
-        if (0 == it->get()->GetViewName().compare("Text")) {
-            std::shared_ptr<hippy::TaitankLayoutNode> layoutNode = std::static_pointer_cast<hippy::TaitankLayoutNode>(it->get()->GetLayoutNode());
-            layoutNode->SetMeasureFunction(textMeasureFunc);
-            HPNodeSetContext(layoutNode->GetLayoutEngineNodeRef(), it->get());
-        }
-    }
     [uiManager_ createRenderNodes:std::move(nodes)];
 }
 

@@ -30,8 +30,9 @@
 @end
 
 static HPSize x5MeasureFunc(
-    HPNodeRef node, float width, MeasureMode widthMeasureMode, __unused float height, __unused MeasureMode heightMeasureMode, void *layoutContext) {
-    HippyShadowTextView *shadowText = (__bridge HippyShadowTextView *)node->getContext();
+                            HippyShadowTextView *shadowText, HPNodeRef node,
+                            float width, MeasureMode widthMeasureMode, float height,
+                            MeasureMode heightMeasureMode, void *layoutContext) {
     NSString *text = shadowText.text ?: shadowText.placeholder;
     if (nil == shadowText.dicAttributes) {
         if (shadowText.font == nil) {
@@ -53,6 +54,23 @@ static HPSize x5MeasureFunc(
     if (self) {
     }
     return self;
+}
+
+- (void)setDomNode:(std::weak_ptr<hippy::DomNode>)domNode {
+    [super setDomNode:domNode];
+    std::shared_ptr<hippy::DomNode> node = domNode.lock();
+    if (node) {
+        hippy::TaitankMeasureFunction measureFunc =
+            [shadow_view = self](HPNodeRef node, float width,
+                                 MeasureMode widthMeasureMode, float height,
+                                 MeasureMode heightMeasureMode, void *layoutContext){
+            return x5MeasureFunc(shadow_view, node, width, widthMeasureMode,
+                                   height, heightMeasureMode, layoutContext);
+        };
+        std::shared_ptr<hippy::TaitankLayoutNode>layoutNode =
+            std::static_pointer_cast<hippy::TaitankLayoutNode>(node->GetLayoutNode());
+        layoutNode->SetMeasureFunction(measureFunc);
+    }
 }
 
 /*
