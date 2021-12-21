@@ -14,9 +14,15 @@ void RenderManagerProxy::CreateRenderNode(std::vector<std::shared_ptr<DomNode>>&
   std::vector<std::shared_ptr<DomNode>> nodes_to_create;
   for (const auto& node : nodes) {
     node->SetIsJustLayout(ComputeIsLayoutOnly(node));
+    auto is_just_layout = node->IsJustLayout();
+    auto is_virtual = node->IsVirtual();
 
     if (!node->IsJustLayout() && !node->IsVirtual() && UpdateRenderInfo(node)) {
+      TDF_BASE_DLOG(INFO) << "Proxy RunCreateDomNode id" << node->GetId() << " pid:" << node->GetPid() << ", " << node->GetRenderInfo().pid << " parent" << (int64_t) node->GetParent().get();
       nodes_to_create.push_back(node);
+    } else {
+      TDF_BASE_DLOG(INFO) << "Proxy RunCreateDomNode id " << node->GetId() << " pid:" << node->GetPid() << ", " << node->GetRenderInfo().pid << " failed justLayout:"
+                          << is_just_layout << " virtual:" << is_virtual << " parent" << (int64_t) node->GetParent().get();
     }
   }
 
@@ -217,11 +223,7 @@ bool RenderManagerProxy::UpdateRenderInfo(const std::shared_ptr<DomNode>& node) 
     render_info.pid = render_parent->GetId();
     render_info.index = index;
   }
-  if (!node->IsJustLayout() && !node->IsVirtual()) {
-    render_info.created = true;
-  } else {
-    render_info.created = false;
-  }
+  render_info.created = !node->IsJustLayout() && !node->IsVirtual();
   node->SetRenderInfo(render_info);
   return render_info.created;
 }

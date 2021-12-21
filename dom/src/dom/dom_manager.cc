@@ -27,6 +27,7 @@ DomManager::~DomManager() = default;
 void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>> &&nodes) {
   for (const auto& node : nodes) {
     std::shared_ptr<DomNode> parent_node = dom_node_registry_.GetNode(node->GetPid());
+
     if (parent_node == nullptr) {
       // it = nodes.erase(it);
       continue;
@@ -60,10 +61,10 @@ void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>> &&nodes) {
     DomValueMap style_diff = DiffUtils::DiffProps(node->GetStyleMap(), it->get()->GetStyleMap());
     DomValueMap ext_diff = DiffUtils::DiffProps(node->GetExtStyle(), it->get()->GetExtStyle());
     style_diff.insert(ext_diff.begin(), ext_diff.end());
-    if (style_diff.size() > 0) {
-      dom_node_registry_.RemoveNode((*it)->GetId());
-      dom_node_registry_.AddNode(*it);
-    }
+//    if (style_diff.size() > 0) {
+//      dom_node_registry_.RemoveNode((*it)->GetId());
+//      dom_node_registry_.AddNode(node);
+//    }
     it->get()->SetDiffStyle(std::move(style_diff));
 
     HandleEvent(std::make_shared<DomEvent>(kOnDomUpdated, node, true, true));
