@@ -5,6 +5,12 @@ import 'package:sprintf/sprintf.dart';
 import '../common.dart';
 import 'log_util.dart';
 
+extension StringEx on String {
+  String replaceKey() {
+    return toUpperCase().replaceAll("-", "_");
+  }
+}
+
 bool isEmpty(String? value) {
   return value == null || value.isEmpty;
 }

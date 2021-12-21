@@ -38,7 +38,7 @@ class _NativePromiseImpl extends Promise {
 }
 
 abstract class Promise {
-  static const String callIdNoCallback = "-1";
+  static const String kCallIdNoCallback = "-1";
 
   final EngineContext _context;
   final String _callId;
@@ -52,15 +52,15 @@ abstract class Promise {
   factory Promise.native(EngineContext context, {required String callId}) =>
       _NativePromiseImpl(context, callId);
 
-  bool isCallback() => _callId != callIdNoCallback;
+  bool isCallback() => _callId != kCallIdNoCallback;
 
   void resolve(Object? value);
 }
 
 abstract class JSPromise extends Promise {
-  static const int promiseCodeSuccess = 0;
-  static const int promiseCodeNormanError = 1;
-  static const int promiseCodeOtherError = 2;
+  static const int kPromiseCodeSuccess = 0;
+  static const int kPromiseCodeNormanError = 1;
+  static const int kPromiseCodeOtherError = 2;
 
   JSPromise(EngineContext context, String callId) : super(context, callId);
 
@@ -71,11 +71,11 @@ abstract class JSPromise extends Promise {
       _JSPromiseImpl(context, module, method, callId);
 
   void resolve(Object? value) {
-    _doCallback(promiseCodeSuccess, value);
+    _doCallback(kPromiseCodeSuccess, value);
   }
 
   void reject(Object error) {
-    _doCallback(promiseCodeOtherError, error);
+    _doCallback(kPromiseCodeOtherError, error);
   }
 
   void error(int code, Object error) {

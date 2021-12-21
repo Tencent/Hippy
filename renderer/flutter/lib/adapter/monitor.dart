@@ -6,11 +6,11 @@ import '../util.dart';
 import '../widget.dart';
 
 class EngineMonitorAdapter {
-  static const int engineLoadResultSuccess = 0;
-  static const int engineLoadResultError = 1;
-  static const int engineLoadResultTimeout = 2;
+  static const int kEngineLoadResultSuccess = 0;
+  static const int kEngineLoadResultError = 1;
+  static const int kEngineLoadResultTimeout = 2;
   late VoltronMap jsParams;
-  final String tag = 'EngineMonitorAdapter';
+  static final String kTag = 'EngineMonitorAdapter';
 
   bool enableBuildTime = false; // 是否统计build耗时
   bool enableCreateElementTime = false; // 是否统计element创建耗时
@@ -65,14 +65,14 @@ class EngineMonitorAdapter {
           currentMicroseconds() - _startRenderTime; // 本次绘制时间
       _performanceData.batchTime += _batchTime;
       _clearData(); //清理数据
-      LogUtils.d(tag, ' postFrameCallback ${_startRenderTime.toString()}');
+      LogUtils.d(kTag, ' postFrameCallback ${_startRenderTime.toString()}');
       _startRenderTime = 0;
       _timer?.cancel();
       _timer = Timer(Duration(milliseconds: 50), () {
         // 等50毫秒再上报，合并渲染数据，
         if (!_hasAddPostFrameCall) {
-          LogUtils.d(tag, '标签耗时 ${_performanceData.toString()}');
-          LogUtils.d(tag, '组件耗时 ${_performanceData.widgetToString()}');
+          LogUtils.d(kTag, '标签耗时 ${_performanceData.toString()}');
+          LogUtils.d(kTag, '组件耗时 ${_performanceData.widgetToString()}');
           _reportCount++;
           performanceCallback(_performanceData, _reportCount);
           _performanceData = PerformanceData(); // 上报后清数据

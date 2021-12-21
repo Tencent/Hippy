@@ -58,8 +58,6 @@ class DivContainerWidget extends FRBaseStatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // LogUtils.dWidget('div',
-    //     "type: DivContainerWidget id: ${_viewModel.id} name: ${_viewModel.name}");
     var result;
     if (_viewModel.sortedIdList.isEmpty) {
       result = Container();
@@ -146,9 +144,9 @@ class _BoxWidgetState extends FRState<BoxWidget> {
           arguments: timelineArgumentsIndicatingLandmarkEvent);
     }
 
-    var height = animationProperty?.get<num>(NodeProps.height)?.toDouble() ??
+    var height = animationProperty?.get<num>(NodeProps.kHeight)?.toDouble() ??
         widget._viewModel.height;
-    var width = animationProperty?.get<num>(NodeProps.width)?.toDouble() ??
+    var width = animationProperty?.get<num>(NodeProps.kWidth)?.toDouble() ??
         widget._viewModel.width;
     if (widget.isInfinitySize) {
       if (height == null) {
@@ -174,7 +172,7 @@ class _BoxWidgetState extends FRState<BoxWidget> {
     }
 
     var current = widget.child;
-    final color = animationProperty?.get<Color>(NodeProps.backgroundColor) ??
+    final color = animationProperty?.get<Color>(NodeProps.kBackgroundColor) ??
         widget._viewModel.backgroundColor;
     final decoration = widget._viewModel.getDecoration(backgroundColor: color);
     if (decoration != null) {
@@ -187,7 +185,7 @@ class _BoxWidgetState extends FRState<BoxWidget> {
         constraints: BoxConstraints.tightFor(width: width, height: height),
         child: current);
 
-    var opacity = animationProperty?.get<num>(NodeProps.opacity)?.toDouble() ??
+    var opacity = animationProperty?.get<num>(NodeProps.kOpacity)?.toDouble() ??
         widget._viewModel.opacity;
     if (opacity != null) {
       current = Opacity(child: current, opacity: opacity);
@@ -226,11 +224,11 @@ class _BoxWidgetState extends FRState<BoxWidget> {
 
     // fix: GestureDetector fails, https://github.com/flutter/flutter/issues/6606
     final animationTransform =
-        animationProperty?.get<Matrix4>(NodeProps.transform);
+        animationProperty?.get<Matrix4>(NodeProps.kTransform);
     final transform = animationTransform ?? widget._viewModel.transform;
     if (transform != null) {
       final animationTransformOrigin =
-          animationProperty?.get<TransformOrigin>(NodeProps.transformOrigin);
+          animationProperty?.get<TransformOrigin>(NodeProps.kTransformOrigin);
       final transformOrigin =
           animationTransformOrigin ?? widget._viewModel.transformOrigin;
       final origin = transformOrigin.offset;

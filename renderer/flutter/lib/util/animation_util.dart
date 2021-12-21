@@ -15,23 +15,23 @@ class AnimationUtil {
   /// ------------
   /// 动画属性初始值
   static final Map<String, dynamic> _animationSupportPropertyInitValueMap = {
-    NodeProps.width: 0.0,
-    NodeProps.height: 0.0,
-    NodeProps.top: 0.0,
-    NodeProps.left: 0.0,
-    NodeProps.opacity: 1.0,
-    NodeProps.backgroundColor: Colors.transparent,
-    NodeProps.transform:
+    NodeProps.kWidth: 0.0,
+    NodeProps.kHeight: 0.0,
+    NodeProps.kTop: 0.0,
+    NodeProps.kLeft: 0.0,
+    NodeProps.kOpacity: 1.0,
+    NodeProps.kBackgroundColor: Colors.transparent,
+    NodeProps.kTransform:
         Matrix4.fromList([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]),
-    NodeProps.transformOrigin: TransformOrigin(null),
+    NodeProps.kTransformOrigin: TransformOrigin(null),
   };
 
   /// 格式化style中的animation属性，将from,to转换成百分比的形式：from => 0%, to => 100%
   static void _handleFormatStyleAnimation(VoltronMap animationPropertyMap) {
-    animationPropertyMap.replaceKey(NodeProps.animationKeyFrameZeroPercent,
-        NodeProps.animationKeyFrameFrom);
-    animationPropertyMap.replaceKey(NodeProps.animationKeyFrameHundredPercent,
-        NodeProps.animationKeyFrameTo);
+    animationPropertyMap.replaceKey(NodeProps.kAnimationKeyFrameZeroPercent,
+        NodeProps.kAnimationKeyFrameFrom);
+    animationPropertyMap.replaceKey(NodeProps.kAnimationKeyFrameHundredPercent,
+        NodeProps.kAnimationKeyFrameTo);
   }
 
   /// 属性初始值的补缺处理
@@ -61,15 +61,15 @@ class AnimationUtil {
     final initValueMap = styleWithAnimationProperty.data;
     // 2.处理0%(from)的样式补缺
     animationPropertyMap.pushIfNotExist(
-        NodeProps.animationKeyFrameZeroPercent, VoltronMap());
+        NodeProps.kAnimationKeyFrameZeroPercent, VoltronMap());
     final zeroPercentProperty = animationPropertyMap
-        .get<VoltronMap>(NodeProps.animationKeyFrameZeroPercent);
+        .get<VoltronMap>(NodeProps.kAnimationKeyFrameZeroPercent);
     _handleSupplyPropertyInitValue(zeroPercentProperty, initValueMap);
     // 3.100%(to)的样式补缺
     animationPropertyMap.pushIfNotExist(
-        NodeProps.animationKeyFrameHundredPercent, VoltronMap());
+        NodeProps.kAnimationKeyFrameHundredPercent, VoltronMap());
     final hundredPercentProperty = animationPropertyMap
-        .get<VoltronMap>(NodeProps.animationKeyFrameHundredPercent);
+        .get<VoltronMap>(NodeProps.kAnimationKeyFrameHundredPercent);
     _handleSupplyPropertyInitValue(hundredPercentProperty, initValueMap);
   }
 
@@ -77,13 +77,13 @@ class AnimationUtil {
   static VoltronMap? _getAnimationStartStyleMap(
       VoltronMap animation, VoltronMap animationPropertyMap) {
     final animationDirection =
-        animation.get<String>(NodeProps.animationDirection) ??
-            AnimationDirection.normal;
+        animation.get<String>(NodeProps.kAnimationDirection) ??
+            AnimationDirection.kNormal;
     final startStyleMapStrategyMap = {
-      AnimationDirection.normal: () => animationPropertyMap
-          .get<VoltronMap>(NodeProps.animationKeyFrameZeroPercent),
-      AnimationDirection.reverse: () => animationPropertyMap
-          .get<VoltronMap>(NodeProps.animationKeyFrameHundredPercent),
+      AnimationDirection.kNormal: () => animationPropertyMap
+          .get<VoltronMap>(NodeProps.kAnimationKeyFrameZeroPercent),
+      AnimationDirection.kReverse: () => animationPropertyMap
+          .get<VoltronMap>(NodeProps.kAnimationKeyFrameHundredPercent),
     };
     final animationStartStyleMap =
         startStyleMapStrategyMap[animationDirection]?.call();
@@ -95,13 +95,13 @@ class AnimationUtil {
   static VoltronMap? _getAnimationEndStyleMap(
       VoltronMap animation, VoltronMap animationPropertyMap) {
     final animationDirection =
-        animation.get<String>(NodeProps.animationDirection) ??
-            AnimationDirection.normal;
+        animation.get<String>(NodeProps.kAnimationDirection) ??
+            AnimationDirection.kNormal;
     final endStyleMapStrategyMap = {
-      AnimationDirection.normal: () => animationPropertyMap
-          .get<VoltronMap>(NodeProps.animationKeyFrameHundredPercent),
-      AnimationDirection.reverse: () => animationPropertyMap
-          .get<VoltronMap>(NodeProps.animationKeyFrameZeroPercent),
+      AnimationDirection.kNormal: () => animationPropertyMap
+          .get<VoltronMap>(NodeProps.kAnimationKeyFrameHundredPercent),
+      AnimationDirection.kReverse: () => animationPropertyMap
+          .get<VoltronMap>(NodeProps.kAnimationKeyFrameZeroPercent),
     };
     final animationEndStyleMap =
         endStyleMapStrategyMap[animationDirection]?.call();
@@ -114,17 +114,17 @@ class AnimationUtil {
       VoltronMap? animationStartStyleMap, VoltronMap? animationEndStyleMap) {
     final propertyKeyList = <String>[];
     final animationPlayState =
-        animation.get<String>(NodeProps.animationPlayState) ??
-            AnimationPlayState.running;
+        animation.get<String>(NodeProps.kAnimationPlayState) ??
+            AnimationPlayState.kRunning;
     final animationFillMode =
-        animation.get<String>(NodeProps.animationFillModel) ??
-            AnimationFillMode.none;
+        animation.get<String>(NodeProps.kAnimationFillModel) ??
+            AnimationFillMode.kNone;
     final isAnimationPlayStatePaused =
-        animationPlayState == AnimationPlayState.paused;
+        animationPlayState == AnimationPlayState.lPaused;
     if (isAnimationPlayStatePaused && animationStartStyleMap != null) {
       // 1.当前的animation-play-state: paused，且animation设定的开始style不为空，则开始的style需要根据规则操作
       propertyKeyList.addAll(animationStartStyleMap.keySet());
-    } else if (animationFillMode == AnimationFillMode.forwards &&
+    } else if (animationFillMode == AnimationFillMode.kForwards &&
         animationEndStyleMap != null) {
       // 2.当前的animation-fill-mode: forwards，且animation设定的结束style不为空，则结束的style需要根据规则操作
       propertyKeyList.addAll(animationEndStyleMap.keySet());
@@ -133,14 +133,14 @@ class AnimationUtil {
     for (final key in propertyKeyList) {
       map.push(key, AnimationPropertyOption(isAnimationPlayStatePaused));
     }
-    if (propertyKeyList.contains(NodeProps.width)) {
+    if (propertyKeyList.contains(NodeProps.kWidth)) {
       // 1.如果宽度不变，布局的left也会被锁定，不然会影响布局
       map.push(
-          NodeProps.left, AnimationPropertyOption(isAnimationPlayStatePaused));
-    } else if (propertyKeyList.contains(NodeProps.height)) {
+          NodeProps.kLeft, AnimationPropertyOption(isAnimationPlayStatePaused));
+    } else if (propertyKeyList.contains(NodeProps.kHeight)) {
       // 2.如果高度不变，布局的top也会被锁定，不然会影响布局
       map.push(
-          NodeProps.top, AnimationPropertyOption(isAnimationPlayStatePaused));
+          NodeProps.kTop, AnimationPropertyOption(isAnimationPlayStatePaused));
     }
 
     return map;
@@ -151,9 +151,9 @@ class AnimationUtil {
       VoltronMap animation, VoltronMap style) {
     // 当animationFillModel不为forwards的时候，动画播完完，相关的属性，需要重置为原始的属性(由NodeProps.animationEndPropertyMap记录)
     final animationFillMode =
-        animation.get<String>(NodeProps.animationFillModel) ??
-            AnimationFillMode.none;
-    if (animationFillMode == AnimationFillMode.forwards) {
+        animation.get<String>(NodeProps.kAnimationFillModel) ??
+            AnimationFillMode.kNone;
+    if (animationFillMode == AnimationFillMode.kForwards) {
       return;
     }
 
@@ -162,7 +162,7 @@ class AnimationUtil {
       final value = style.get(property);
       animationEndPropertyMap.push(property, value);
     }
-    style.push(NodeProps.animationEndPropertyMap, animationEndPropertyMap);
+    style.push(NodeProps.kAnimationEndPropertyMap, animationEndPropertyMap);
   }
 
   /// 将animation的初始style，同步更新到property的style中
@@ -181,11 +181,11 @@ class AnimationUtil {
   /// 根据animation规则，同步更新相关的animation和transition相关属性到style中，并将节点更新对比的diffStyle也同步更新到style中
   static void handleSyncAnimationStyle(
       VoltronMap? property, VoltronMap? diffProperty) {
-    final style = property?.get<VoltronMap>(NodeProps.style);
-    final diffStyle = diffProperty?.get<VoltronMap>(NodeProps.style);
-    final animation = style?.get<VoltronMap>(NodeProps.animation);
+    final style = property?.get<VoltronMap>(NodeProps.kStyle);
+    final diffStyle = diffProperty?.get<VoltronMap>(NodeProps.kStyle);
+    final animation = style?.get<VoltronMap>(NodeProps.kAnimation);
     final animationPropertyMap =
-        animation?.get<VoltronMap>(NodeProps.animationKeyFramePropertyMap);
+        animation?.get<VoltronMap>(NodeProps.kAnimationKeyFramePropertyMap);
     if (style == null || animation == null || animationPropertyMap == null) {
       return;
     }
@@ -198,7 +198,7 @@ class AnimationUtil {
     final animationEndStyleMap =
         _getAnimationEndStyleMap(animation, animationPropertyMap);
     style.push(
-        NodeProps.animationPropertyOptionMap,
+        NodeProps.kAnimationPropertyOptionMap,
         _getAnimationPropertyOptionMap(
             animation, animationStartStyleMap, animationEndStyleMap));
     // 3.更新style中的animationEndPropertyMap，用于动画播放结束后的属性还原
@@ -228,15 +228,15 @@ class AnimationUtil {
       if (value is VoltronMap) {
         final newValue = VoltronMap.copy(value);
         newValue.push<double>(
-            NodeProps.animationKeyFrameSelectorPercent, double.parse(percent));
+            NodeProps.kAnimationKeyFrameSelectorPercent, double.parse(percent));
         list.add(newValue);
       }
     }
     list.sort((a, b) {
       final aPercent =
-          a.get<double>(NodeProps.animationKeyFrameSelectorPercent) ?? 0.0;
+          a.get<double>(NodeProps.kAnimationKeyFrameSelectorPercent) ?? 0.0;
       final bPercent =
-          b.get<double>(NodeProps.animationKeyFrameSelectorPercent) ?? 0.0;
+          b.get<double>(NodeProps.kAnimationKeyFrameSelectorPercent) ?? 0.0;
       return aPercent.compareTo(bPercent);
     });
 
@@ -276,9 +276,9 @@ class AnimationUtil {
   /// 获取格式化后的动画属性值，将CSS的动画属性值，转换为Flutter的动画属性值
   static dynamic _getFormatAnimationPropertyValue(String key, dynamic value) {
     final strategyMap = {
-      NodeProps.backgroundColor: _getColor,
-      NodeProps.transform: _getTransform,
-      NodeProps.transformOrigin: _getTransformOrigin,
+      NodeProps.kBackgroundColor: _getColor,
+      NodeProps.kTransform: _getTransform,
+      NodeProps.kTransformOrigin: _getTransformOrigin,
     };
 
     return strategyMap[key]?.call(value) ?? value;
@@ -316,7 +316,7 @@ class AnimationUtil {
         final lastTwoTotalWeight =
             itemList.getLastItemByOrder<AnimationTween>(2)?.totalWeight ?? 0;
         final lastOneTotalWeight = propertyMap
-                .get<double>(NodeProps.animationKeyFrameSelectorPercent) ??
+                .get<double>(NodeProps.kAnimationKeyFrameSelectorPercent) ??
             100.0;
         lastItem.weight = lastOneTotalWeight - lastTwoTotalWeight;
         lastItem.totalWeight = lastOneTotalWeight;
@@ -367,9 +367,9 @@ class AnimationUtil {
   /// 根据animation规则，获取可以更新的domNode的style
   static VoltronMap getDomNodeStyleByAnimationRule(VoltronMap property,
       RenderNode? renderNode, VoltronMap? forceUpdateProps) {
-    final style = property.get<VoltronMap>(NodeProps.style);
+    final style = property.get<VoltronMap>(NodeProps.kStyle);
     if (style == null && forceUpdateProps != null) {
-      property.push(NodeProps.style, forceUpdateProps);
+      property.push(NodeProps.kStyle, forceUpdateProps);
     } else if (style != null) {
       style.pushAll(forceUpdateProps);
     }
@@ -399,15 +399,15 @@ class AnimationUtil {
 
   /// 根据animation规则，获取可以更新的renderNode的style
   static VoltronMap getRenderNodeStyleByAnimationRule(VoltronMap property) {
-    final style = property.get<VoltronMap>(NodeProps.style);
+    final style = property.get<VoltronMap>(NodeProps.kStyle);
     if (style == null) {
       return property;
     }
 
     // 当animation没有更新，animationEndPropertyMap也无需要更新
-    if (style.get(NodeProps.animation) == null &&
-        style.get(NodeProps.animationEndPropertyMap) != null) {
-      style.remove(NodeProps.animationEndPropertyMap);
+    if (style.get(NodeProps.kAnimation) == null &&
+        style.get(NodeProps.kAnimationEndPropertyMap) != null) {
+      style.remove(NodeProps.kAnimationEndPropertyMap);
     }
     return property;
   }
@@ -452,13 +452,13 @@ class AnimationUtil {
     final transitionMap = VoltronMap();
     for (final item in list) {
       if (item is VoltronMap) {
-        final property = item.get<String>(NodeProps.transitionProperty);
+        final property = item.get<String>(NodeProps.kTransitionProperty);
         if (property == '' || property == null) {
           return null;
         }
 
         // all特殊属性处理
-        if (property == NodeProps.transitionPropertyAll) {
+        if (property == NodeProps.kTransitionPropertyAll) {
           for (final childProperty in NodeProps.animationSupportPropertyList) {
             _updateTransition(transitionMap, childProperty, item);
           }
@@ -516,10 +516,11 @@ class AnimationUtil {
     }
 
     final tweenStrategyMap = <String, Tween Function()>{
-      NodeProps.backgroundColor: () =>
+      NodeProps.kBackgroundColor: () =>
           ColorTween(begin: startValue, end: endValue),
-      NodeProps.transform: () => Matrix4Tween(begin: startValue, end: endValue),
-      NodeProps.transformOrigin: () =>
+      NodeProps.kTransform: () =>
+          Matrix4Tween(begin: startValue, end: endValue),
+      NodeProps.kTransformOrigin: () =>
           TransformOriginTween(begin: startValue, end: endValue),
     };
     final tween = tweenStrategyMap[key]?.call() ??

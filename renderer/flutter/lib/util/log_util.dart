@@ -4,9 +4,9 @@ enum LogLevel { debug, verbose, info, profile, warn, error }
 
 class LogUtils {
   static const String kDefaultTag = "voltron";
-  static bool _sDebugEnable = false;
-  static bool _sProfileEnable = false;
-  static LogListener? _sLogListener;
+  static bool _kDebugEnable = false;
+  static bool _kProfileEnable = false;
+  static LogListener? _kLogListener;
 
   static bool kDebugLogDomEnable = true;
   static bool kDebugLogWidgetEnable = true;
@@ -17,70 +17,70 @@ class LogUtils {
 
   // ignore: use_setters_to_change_properties
   static void enableDebugLog(bool enable) {
-    _sDebugEnable = enable;
+    _kDebugEnable = enable;
   }
 
   // ignore: use_setters_to_change_properties
   static void enableProfileLog(bool enable) {
-    _sProfileEnable = enable;
+    _kProfileEnable = enable;
   }
 
   // ignore: use_setters_to_change_properties
   static void setLogMethod(LogListener? logListener) {
-    _sLogListener = logListener;
+    _kLogListener = logListener;
   }
 
   static void dRenderNode(String msg) {
-    if (kDebugLogRenderNodeEnable && _sDebugEnable) {
+    if (kDebugLogRenderNodeEnable && _kDebugEnable) {
       printLog("UINode", LogLevel.debug, msg);
     }
   }
 
   static void dRender(String msg) {
-    if (kDebugLogRenderEnable && _sDebugEnable) {
+    if (kDebugLogRenderEnable && _kDebugEnable) {
       printLog("Render", LogLevel.debug, msg);
     }
   }
 
   static void dLayout(String msg) {
-    if (kDebugLogLayoutEnable && _sDebugEnable) {
+    if (kDebugLogLayoutEnable && _kDebugEnable) {
       printLog("RenderLayout", LogLevel.debug, msg);
     }
   }
 
   static void dDom(String msg) {
-    if (kDebugLogDomEnable && _sDebugEnable) {
+    if (kDebugLogDomEnable && _kDebugEnable) {
       printLog("DOM", LogLevel.debug, msg);
     }
   }
 
   static void dWidget(String tag, String msg) {
-    if (kDebugLogWidgetEnable && _sDebugEnable) {
+    if (kDebugLogWidgetEnable && _kDebugEnable) {
       printLog(tag, LogLevel.debug, msg);
     }
   }
 
   static void dBridge(String msg) {
-    if (kDebugLogBridgeEnable && _sDebugEnable) {
+    if (kDebugLogBridgeEnable && _kDebugEnable) {
       printLog("Bridge", LogLevel.debug, msg);
     }
   }
 
   static void profile(String event, int cost) {
-    if (_sProfileEnable) {
+    if (_kProfileEnable) {
       printLog("voltron_profile", LogLevel.profile,
           "voltron profile event:$event, cost:$cost");
     }
   }
 
   static void log(String msg) {
-    if (_sDebugEnable) {
+    if (_kDebugEnable) {
       printLog(kDefaultTag, LogLevel.info, msg);
     }
   }
 
   static void l(String tag, String msg) {
-    if (_sDebugEnable) {
+    if (_kDebugEnable) {
       var index = 0; // 当前位置
       var max = 3800; // 需要截取的最大长度,别用4000
       String sub; // 进行截取操作的string
@@ -100,25 +100,25 @@ class LogUtils {
   }
 
   static void d(String tag, String msg) {
-    if (_sDebugEnable) {
+    if (_kDebugEnable) {
       printLog(tag, LogLevel.debug, msg);
     }
   }
 
   static void w(String tag, String msg) {
-    if (_sDebugEnable) {
+    if (_kDebugEnable) {
       printLog(tag, LogLevel.warn, msg);
     }
   }
 
   static void i(String tag, String msg) {
-    if (_sDebugEnable) {
+    if (_kDebugEnable) {
       printLog(tag, LogLevel.info, msg);
     }
   }
 
   static void v(String tag, String msg) {
-    if (_sDebugEnable) {
+    if (_kDebugEnable) {
       printLog(tag, LogLevel.verbose, msg);
     }
   }
@@ -128,7 +128,7 @@ class LogUtils {
   }
 
   static void printLog(String tag, LogLevel level, String msg) {
-    var sLogListener = _sLogListener;
+    var sLogListener = _kLogListener;
     if (sLogListener != null) {
       sLogListener("$kDefaultTag _ $tag", level, msg);
     } else {

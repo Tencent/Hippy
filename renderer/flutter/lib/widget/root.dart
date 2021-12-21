@@ -13,15 +13,15 @@ import '../voltron/manager.dart';
 import 'base.dart';
 
 class RootWidgetViewModel extends ChangeNotifier {
-  static const int rootViewTagIncrement = 100000;
+  static const int kRootViewTagIncrement = 100000;
 
-  final GlobalKey rootKey = GlobalKey(debugLabel: NodeProps.rootNode);
+  final GlobalKey rootKey = GlobalKey(debugLabel: NodeProps.kRootNode);
 
   static int sIdCounter = 0;
 
   OnSizeChangedListener? _sizeChangListener;
 
-  final int _instanceId = rootViewTagIncrement + sIdCounter++;
+  final int _instanceId = kRootViewTagIncrement + sIdCounter++;
 
   late ModuleLoadParams _loadParams;
 

@@ -5,9 +5,9 @@ import 'module.dart';
 import 'promise.dart';
 
 class DeviceEventModule extends VoltronNativeModule {
-  static const String deviceModuleName = "DeviceEventModule";
-  static const String deviceSetListenBackPress = "setListenBackPress";
-  static const String deviceInvokeDefaultBackPressHandler =
+  static const String kDeviceModuleName = "DeviceEventModule";
+  static const String kDeviceSetListenBackPress = "setListenBackPress";
+  static const String kDeviceInvokeDefaultBackPressHandler =
       "invokeDefaultBackPressHandler";
 
   bool _isListening = false;
@@ -17,12 +17,12 @@ class DeviceEventModule extends VoltronNativeModule {
 
   @override
   Map<String, Function> get extraFuncMap => {
-        deviceSetListenBackPress: setListenBackPress,
-        deviceInvokeDefaultBackPressHandler: invokeDefaultBackPressHandler
+        kDeviceSetListenBackPress: setListenBackPress,
+        kDeviceInvokeDefaultBackPressHandler: invokeDefaultBackPressHandler
       };
 
   @override
-  String get moduleName => deviceModuleName;
+  String get moduleName => kDeviceModuleName;
 
   bool onBackPressed(BackPressHandler handler) {
     if (_isListening) {
@@ -42,13 +42,13 @@ class DeviceEventModule extends VoltronNativeModule {
 
   // 前端JS告知SDK：我要监听back事件（如果没有告知，则SDK不用把back事件抛给前端，这样可以加快back的处理速度，毕竟大部分Voltron业务是无需监听back事件的）
   // @param listen 是否监听？
-  @VoltronMethod(deviceSetListenBackPress)
+  @VoltronMethod(kDeviceSetListenBackPress)
   bool setListenBackPress(bool listen, JSPromise promise) {
     _isListening = listen;
     return false;
   }
 
-  @VoltronMethod(deviceInvokeDefaultBackPressHandler)
+  @VoltronMethod(kDeviceInvokeDefaultBackPressHandler)
   bool invokeDefaultBackPressHandler(JSPromise promise) {
     _doInvokeHandler();
     return false;

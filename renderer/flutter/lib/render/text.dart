@@ -18,7 +18,7 @@ class TextRenderNode extends RenderNode with TextStyleNode {
   @override
   bool get hasCustomLayout => true;
 
-  bool get isVirtual => parent?.name == TextController.className;
+  bool get isVirtual => parent?.name == TextController.kClassName;
 
   int calculateLayout(FlexLayoutParams layoutParams) {
     TextPainter? painter;
@@ -58,9 +58,9 @@ class TextRenderNode extends RenderNode with TextStyleNode {
     if (!isVirtual) {
       var textData = createData(
           layoutWidth -
-              getPadding(FlexSpacing.left) -
-              getPadding(FlexSpacing.right),
-          FlexMeasureMode.EXACTLY);
+              getPadding(FlexStyleEdge.left) -
+              getPadding(FlexStyleEdge.right),
+          FlexMeasureMode.exactly);
       data = textData;
       _updateData(context);
     }
@@ -74,10 +74,10 @@ class TextRenderNode extends RenderNode with TextStyleNode {
             id,
             TextExtra(
                 data,
-                getPadding(FlexSpacing.start),
-                getPadding(FlexSpacing.end),
-                getPadding(FlexSpacing.bottom),
-                getPadding(FlexSpacing.top)));
+                getPadding(FlexStyleEdge.start),
+                getPadding(FlexStyleEdge.end),
+                getPadding(FlexStyleEdge.bottom),
+                getPadding(FlexStyleEdge.top)));
       });
     }
   }

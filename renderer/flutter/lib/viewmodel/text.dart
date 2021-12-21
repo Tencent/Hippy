@@ -7,7 +7,7 @@ import 'view_model.dart';
 class TextRenderViewModel extends RenderViewModel {
   EdgeInsets? padding;
   TextData? data;
-  FlexCSSDirection flexDirection = FlexCSSDirection.ROW;
+  FlexCSSDirection flexDirection = FlexCSSDirection.row;
   FlexAlign? alignItems;
   FlexAlign? justifyContent;
 
@@ -18,7 +18,7 @@ class TextRenderViewModel extends RenderViewModel {
 
     var x = -1.0;
     var y = -1.0;
-    if (flexDirection == FlexCSSDirection.ROW) {
+    if (flexDirection == FlexCSSDirection.row) {
       x = _getAlignmentValue(alignItems);
       y = _getAlignmentValue(justifyContent);
     } else {
@@ -32,9 +32,9 @@ class TextRenderViewModel extends RenderViewModel {
   }
 
   double _getAlignmentValue(FlexAlign? value) {
-    if (value == FlexAlign.CENTER) {
+    if (value == FlexAlign.center) {
       return 0.0;
-    } else if (value == FlexAlign.FLEX_END) {
+    } else if (value == FlexAlign.flexEnd) {
       return 1.0;
     }
     return -1.0;

@@ -5,10 +5,10 @@ import 'flex_spacing.dart';
 import 'prop.dart';
 
 class _ProxyStyleProvider extends MethodPropProvider {
-  static StyleMethodPropProvider sStyleProvider = StyleMethodPropProvider();
+  static StyleMethodPropProvider kStyleProvider = StyleMethodPropProvider();
 
   _ProxyStyleProvider(MethodPropProvider? extraProvider) {
-    pushProvider(sStyleProvider);
+    pushProvider(kStyleProvider);
     pushProvider(extraProvider);
   }
 
@@ -30,104 +30,104 @@ class StyleNode extends FlexNode with StyleMethodPropConsumer {
 
   void setPropFloat(String name, double value) {
     switch (name) {
-      case NodeProps.width:
+      case NodeProps.kWidth:
         styleWidth = value;
         break;
-      case NodeProps.minWidth:
+      case NodeProps.kMinWidth:
         styleMinWidth = value;
         break;
-      case NodeProps.maxWidth:
+      case NodeProps.kMaxWidth:
         styleMinWidth = value;
         break;
-      case NodeProps.height:
+      case NodeProps.kHeight:
         styleHeight = value;
         break;
-      case NodeProps.minHeight:
+      case NodeProps.kMinHeight:
         styleMinHeight = value;
         break;
-      case NodeProps.maxHeight:
+      case NodeProps.kMaxHeight:
         styleMaxHeight = value;
         break;
-      case NodeProps.flex:
+      case NodeProps.kFlex:
         flex = value;
         break;
-      case NodeProps.flexGrow:
+      case NodeProps.kFlexGrow:
         flexGrow = value;
         break;
-      case NodeProps.flexShrink:
+      case NodeProps.kFlexShrink:
         flexShrink = value;
         break;
-      case NodeProps.flexBasis:
+      case NodeProps.kFlexBasis:
         flexBasis = value;
         break;
-      case NodeProps.margin:
-        setMargin(FlexSpacing.all, value);
+      case NodeProps.kMargin:
+        setMargin(FlexStyleEdge.all, value);
         break;
-      case NodeProps.marginVertical:
-        setMargin(FlexSpacing.vertical, value);
+      case NodeProps.kMarginVertical:
+        setMargin(FlexStyleEdge.vertical, value);
         break;
-      case NodeProps.marginHorizontal:
-        setMargin(FlexSpacing.horizontal, value);
+      case NodeProps.kMarginHorizontal:
+        setMargin(FlexStyleEdge.horizontal, value);
         break;
-      case NodeProps.marginLeft:
-        setMargin(FlexSpacing.left, value);
+      case NodeProps.kMarginLeft:
+        setMargin(FlexStyleEdge.left, value);
         break;
-      case NodeProps.marginRight:
-        setMargin(FlexSpacing.right, value);
+      case NodeProps.kMarginRight:
+        setMargin(FlexStyleEdge.right, value);
         break;
-      case NodeProps.marginTop:
-        setMargin(FlexSpacing.top, value);
+      case NodeProps.kMarginTop:
+        setMargin(FlexStyleEdge.top, value);
         break;
-      case NodeProps.marginBottom:
-        setMargin(FlexSpacing.bottom, value);
+      case NodeProps.kMarginBottom:
+        setMargin(FlexStyleEdge.bottom, value);
         break;
-      case NodeProps.padding:
-        setPadding(FlexSpacing.all, value);
+      case NodeProps.kPadding:
+        setPadding(FlexStyleEdge.all, value);
         break;
-      case NodeProps.paddingVertical:
-        setPadding(FlexSpacing.vertical, value);
+      case NodeProps.kPaddingVertical:
+        setPadding(FlexStyleEdge.vertical, value);
         break;
-      case NodeProps.paddingHorizontal:
-        setPadding(FlexSpacing.horizontal, value);
+      case NodeProps.kPaddingHorizontal:
+        setPadding(FlexStyleEdge.horizontal, value);
         break;
-      case NodeProps.paddingLeft:
-        setPadding(FlexSpacing.left, value);
+      case NodeProps.kPaddingLeft:
+        setPadding(FlexStyleEdge.left, value);
         break;
-      case NodeProps.paddingRight:
-        setPadding(FlexSpacing.right, value);
+      case NodeProps.kPaddingRight:
+        setPadding(FlexStyleEdge.right, value);
         break;
-      case NodeProps.paddingTop:
-        setPadding(FlexSpacing.top, value);
+      case NodeProps.kPaddingTop:
+        setPadding(FlexStyleEdge.top, value);
         break;
-      case NodeProps.paddingBottom:
-        setPadding(FlexSpacing.bottom, value);
+      case NodeProps.kPaddingBottom:
+        setPadding(FlexStyleEdge.bottom, value);
         break;
-      case NodeProps.borderWidth:
-        setBorder(FlexSpacing.all, value);
+      case NodeProps.kBorderWidth:
+        setBorder(FlexStyleEdge.all, value);
         break;
-      case NodeProps.borderLeftWidth:
-        setBorder(FlexSpacing.left, value);
+      case NodeProps.kBorderLeftWidth:
+        setBorder(FlexStyleEdge.left, value);
         break;
-      case NodeProps.borderRightWidth:
-        setBorder(FlexSpacing.right, value);
+      case NodeProps.kBorderRightWidth:
+        setBorder(FlexStyleEdge.right, value);
         break;
-      case NodeProps.borderTopWidth:
-        setBorder(FlexSpacing.top, value);
+      case NodeProps.kBorderTopWidth:
+        setBorder(FlexStyleEdge.top, value);
         break;
-      case NodeProps.borderBottomWidth:
-        setBorder(FlexSpacing.bottom, value);
+      case NodeProps.kBorderBottomWidth:
+        setBorder(FlexStyleEdge.bottom, value);
         break;
-      case NodeProps.left:
-        setPosition(FlexSpacing.left, value);
+      case NodeProps.kLeft:
+        setPosition(FlexStyleEdge.left, value);
         break;
-      case NodeProps.right:
-        setPosition(FlexSpacing.right, value);
+      case NodeProps.kRight:
+        setPosition(FlexStyleEdge.right, value);
         break;
-      case NodeProps.top:
-        setPosition(FlexSpacing.top, value);
+      case NodeProps.kTop:
+        setPosition(FlexStyleEdge.top, value);
         break;
-      case NodeProps.bottom:
-        setPosition(FlexSpacing.bottom, value);
+      case NodeProps.kBottom:
+        setPosition(FlexStyleEdge.bottom, value);
         break;
       default:
         break;
@@ -136,61 +136,47 @@ class StyleNode extends FlexNode with StyleMethodPropConsumer {
 
   void setPropString(String name, String? value) {
     switch (name) {
-      case NodeProps.flexDirection:
+      case NodeProps.kFlexDirection:
         styleCssDirection = value == null
-            ? FlexCSSDirection.COLUMN
-            : enumValueFromString<FlexCSSDirection>(
-                    replaceKey(value), FlexCSSDirection.values) ??
-                FlexCSSDirection.COLUMN;
+            ? FlexCSSDirection.column
+            : flexCssDirectionFromValue(value) ?? FlexCSSDirection.column;
         break;
-      case NodeProps.flexWrap:
+      case NodeProps.kFlexWrap:
         wrap = value == null
-            ? FlexWrap.NOWRAP
-            : enumValueFromString<FlexWrap>(
-                    replaceKey(value), FlexWrap.values) ??
-                FlexWrap.NOWRAP;
+            ? FlexWrap.noWrap
+            : flexWrapFromValue(value) ?? FlexWrap.noWrap;
         break;
-      case NodeProps.alignSelf:
+      case NodeProps.kAlignSelf:
         alignSelf = value == null
-            ? FlexAlign.AUTO
-            : enumValueFromString<FlexAlign>(
-                    replaceKey(value), FlexAlign.values) ??
-                FlexAlign.AUTO;
+            ? FlexAlign.auto
+            : flexAlignFromValue(value) ?? FlexAlign.auto;
         break;
-      case NodeProps.alignItems:
+      case NodeProps.kAlignItems:
         alignItems = value == null
-            ? FlexAlign.STRETCH
-            : enumValueFromString<FlexAlign>(
-                    replaceKey(value), FlexAlign.values) ??
-                FlexAlign.STRETCH;
+            ? FlexAlign.stretch
+            : flexAlignFromValue(value) ?? FlexAlign.stretch;
         break;
-      case NodeProps.justifyContent:
+      case NodeProps.kJustifyContent:
         justifyContent = value == null
-            ? FlexJustify.FLEX_START
-            : enumValueFromString<FlexJustify>(
-                    replaceKey(value), FlexJustify.values) ??
-                FlexJustify.FLEX_START;
+            ? FlexJustify.flexStart
+            : flexJustifyFromValue(value) ?? FlexJustify.flexStart;
         break;
-      case NodeProps.overflow:
+      case NodeProps.kOverflow:
         overflow = value == null
-            ? FlexOverflow.VISIBLE
-            : enumValueFromString<FlexOverflow>(
-                    replaceKey(value), FlexOverflow.values) ??
-                FlexOverflow.VISIBLE;
+            ? FlexOverflow.visible
+            : flexOverflowFromValue(value) ?? FlexOverflow.visible;
         break;
-      case NodeProps.display:
+      case NodeProps.kDisplay:
         if (value == "none") {
-          display = FlexDisplay.DISPLAY_NONE;
+          display = FlexDisplay.displayNode;
         } else {
-          display = FlexDisplay.DISPLAY_FLEX;
+          display = FlexDisplay.displayFlex;
         }
         break;
-      case NodeProps.position:
+      case NodeProps.kPosition:
         var positionType = value == null
-            ? FlexPositionType.RELATIVE
-            : enumValueFromString<FlexPositionType>(
-                    value.toUpperCase(), FlexPositionType.values) ??
-                FlexPositionType.RELATIVE;
+            ? FlexPositionType.relative
+            : flexPositionTypeFromValue(value) ?? FlexPositionType.relative;
         this.positionType = positionType;
         break;
       default:
@@ -229,52 +215,52 @@ class StringStyleMethodProp extends StyleMethodProp {
 
 class StyleMethodPropProvider extends MethodPropProvider {
   StyleMethodPropProvider() {
-    pushFloatMethodProp(NodeProps.width);
-    pushFloatMethodProp(NodeProps.minWidth);
-    pushFloatMethodProp(NodeProps.maxWidth);
-    pushFloatMethodProp(NodeProps.height);
-    pushFloatMethodProp(NodeProps.minHeight);
-    pushFloatMethodProp(NodeProps.maxHeight);
-    pushFloatMethodProp(NodeProps.flex);
-    pushFloatMethodProp(NodeProps.flexGrow);
-    pushFloatMethodProp(NodeProps.flexShrink);
-    pushFloatMethodProp(NodeProps.flexBasis);
-    pushFloatMethodProp(NodeProps.margin);
-    pushFloatMethodProp(NodeProps.marginVertical);
-    pushFloatMethodProp(NodeProps.marginHorizontal);
-    pushFloatMethodProp(NodeProps.marginLeft);
-    pushFloatMethodProp(NodeProps.marginRight);
-    pushFloatMethodProp(NodeProps.marginTop);
-    pushFloatMethodProp(NodeProps.marginBottom);
-    pushFloatMethodProp(NodeProps.padding);
-    pushFloatMethodProp(NodeProps.paddingVertical);
-    pushFloatMethodProp(NodeProps.paddingHorizontal);
-    pushFloatMethodProp(NodeProps.paddingLeft);
-    pushFloatMethodProp(NodeProps.paddingRight);
-    pushFloatMethodProp(NodeProps.paddingTop);
-    pushFloatMethodProp(NodeProps.paddingBottom);
-    pushFloatMethodProp(NodeProps.borderWidth);
-    pushFloatMethodProp(NodeProps.borderLeftWidth);
-    pushFloatMethodProp(NodeProps.borderRightWidth);
-    pushFloatMethodProp(NodeProps.borderTopWidth);
-    pushFloatMethodProp(NodeProps.borderBottomWidth);
-    pushFloatMethodProp(NodeProps.left);
-    pushFloatMethodProp(NodeProps.right);
-    pushFloatMethodProp(NodeProps.top);
-    pushFloatMethodProp(NodeProps.bottom);
+    pushFloatMethodProp(NodeProps.kWidth);
+    pushFloatMethodProp(NodeProps.kMinWidth);
+    pushFloatMethodProp(NodeProps.kMaxWidth);
+    pushFloatMethodProp(NodeProps.kHeight);
+    pushFloatMethodProp(NodeProps.kMinHeight);
+    pushFloatMethodProp(NodeProps.kMaxHeight);
+    pushFloatMethodProp(NodeProps.kFlex);
+    pushFloatMethodProp(NodeProps.kFlexGrow);
+    pushFloatMethodProp(NodeProps.kFlexShrink);
+    pushFloatMethodProp(NodeProps.kFlexBasis);
+    pushFloatMethodProp(NodeProps.kMargin);
+    pushFloatMethodProp(NodeProps.kMarginVertical);
+    pushFloatMethodProp(NodeProps.kMarginHorizontal);
+    pushFloatMethodProp(NodeProps.kMarginLeft);
+    pushFloatMethodProp(NodeProps.kMarginRight);
+    pushFloatMethodProp(NodeProps.kMarginTop);
+    pushFloatMethodProp(NodeProps.kMarginBottom);
+    pushFloatMethodProp(NodeProps.kPadding);
+    pushFloatMethodProp(NodeProps.kPaddingVertical);
+    pushFloatMethodProp(NodeProps.kPaddingHorizontal);
+    pushFloatMethodProp(NodeProps.kPaddingLeft);
+    pushFloatMethodProp(NodeProps.kPaddingRight);
+    pushFloatMethodProp(NodeProps.kPaddingTop);
+    pushFloatMethodProp(NodeProps.kPaddingBottom);
+    pushFloatMethodProp(NodeProps.kBorderWidth);
+    pushFloatMethodProp(NodeProps.kBorderLeftWidth);
+    pushFloatMethodProp(NodeProps.kBorderRightWidth);
+    pushFloatMethodProp(NodeProps.kBorderTopWidth);
+    pushFloatMethodProp(NodeProps.kBorderBottomWidth);
+    pushFloatMethodProp(NodeProps.kLeft);
+    pushFloatMethodProp(NodeProps.kRight);
+    pushFloatMethodProp(NodeProps.kTop);
+    pushFloatMethodProp(NodeProps.kBottom);
 
-    pushStringMethodProp(NodeProps.position);
-    pushStringMethodProp(NodeProps.flexDirection);
-    pushStringMethodProp(NodeProps.flexWrap);
-    pushStringMethodProp(NodeProps.alignSelf);
-    pushStringMethodProp(NodeProps.alignItems);
-    pushStringMethodProp(NodeProps.justifyContent);
-    pushStringMethodProp(NodeProps.overflow);
-    pushStringMethodProp(NodeProps.display);
-    pushStringMethodProp(NodeProps.whiteSpace);
+    pushStringMethodProp(NodeProps.kPosition);
+    pushStringMethodProp(NodeProps.kFlexDirection);
+    pushStringMethodProp(NodeProps.kFlexWrap);
+    pushStringMethodProp(NodeProps.kAlignSelf);
+    pushStringMethodProp(NodeProps.kAlignItems);
+    pushStringMethodProp(NodeProps.kJustifyContent);
+    pushStringMethodProp(NodeProps.kOverflow);
+    pushStringMethodProp(NodeProps.kDisplay);
+    pushStringMethodProp(NodeProps.kWhiteSpace);
 
     pushMethodProp(
-        NodeProps.onLayout,
+        NodeProps.kOnLayout,
         StyleMethodProp((consumer, value) {
           if (consumer is StyleNode && value is bool) {
             consumer.shouldNotifyOnLayout = value;

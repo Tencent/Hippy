@@ -8,7 +8,7 @@ import 'handle.dart';
 import 'processor.dart';
 
 class NativeGestureDispatcher implements GestureHandleCallback {
-  static const String tag = "NativeGestureDispatcher";
+  static const String kTag = "NativeGestureDispatcher";
 
   final int _id;
   final EngineContext _context;
@@ -34,17 +34,17 @@ class NativeGestureDispatcher implements GestureHandleCallback {
 
   @override
   void handle(String type, double x, double y) {
-    if (type == NodeProps.onPressIn) {
+    if (type == NodeProps.kOnPressIn) {
       NativeGestureHandle.handlePressIn(_context, _id);
-    } else if (type == NodeProps.onPressOut) {
+    } else if (type == NodeProps.kOnPressOut) {
       NativeGestureHandle.handlePressOut(_context, _id);
-    } else if (type == NodeProps.onTouchDown) {
+    } else if (type == NodeProps.kOnTouchDown) {
       NativeGestureHandle.handleTouchDown(_context, _id, x, y, _id);
-    } else if (type == NodeProps.onTouchMove) {
+    } else if (type == NodeProps.kOnTouchMove) {
       NativeGestureHandle.handleTouchMove(_context, _id, x, y, _id);
-    } else if (type == NodeProps.onTouchEnd) {
+    } else if (type == NodeProps.kOnTouchEnd) {
       NativeGestureHandle.handleTouchEnd(_context, _id, x, y, _id);
-    } else if (type == NodeProps.onTouchCancel) {
+    } else if (type == NodeProps.kOnTouchCancel) {
       NativeGestureHandle.handleTouchCancel(_context, _id, x, y, _id);
     }
   }
@@ -53,10 +53,10 @@ class NativeGestureDispatcher implements GestureHandleCallback {
   bool needHandle(String type) {
     var result = _gestureTypes.contains(type);
     if (!result &&
-        !(type == NodeProps.onInterceptTouchEvent) &&
-        !(type == NodeProps.onInterceptPullUpEvent)) {
-      if (needHandle(NodeProps.onInterceptTouchEvent) ||
-          needHandle(NodeProps.onInterceptPullUpEvent)) {
+        !(type == NodeProps.kOnInterceptTouchEvent) &&
+        !(type == NodeProps.kOnInterceptPullUpEvent)) {
+      if (needHandle(NodeProps.kOnInterceptTouchEvent) ||
+          needHandle(NodeProps.kOnInterceptPullUpEvent)) {
         return true;
       }
     }

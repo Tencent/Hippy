@@ -131,7 +131,7 @@ class RenderNode extends StyleNode {
 
   VoltronMap? get props => _props;
 
-  bool get isRoot => name == NodeProps.rootNode;
+  bool get isRoot => name == NodeProps.kRootNode;
 
   RenderNode(this._id, this._className, this._root, this._controllerManager,
       this._props,
@@ -245,7 +245,7 @@ class RenderNode extends StyleNode {
     if (_children.isNotEmpty) {
       for (var childNode in _children) {
         childNode.deleteAllChild();
-        _root.removeNode(childNode);
+        _root.unregisterNode(childNode);
       }
       _children.clear();
     }
@@ -257,7 +257,7 @@ class RenderNode extends StyleNode {
         node.deleteAllChild();
       }
       _children.remove(node);
-      _root.removeNode(node);
+      _root.unregisterNode(node);
     }
   }
 
@@ -275,9 +275,14 @@ class RenderNode extends StyleNode {
   void addChild(RenderNode? node, int index) {
     if (node != null) {
       _notifyManageChildren = true;
-      _children.insert(index, node);
+      if (index < 0 || index >= _children.length) {
+        _children.add(node);
+      } else {
+        _children.insert(index, node);
+      }
+
       node._parent = this;
-      root.addNode(node);
+      root.registerNode(node);
     }
   }
 
@@ -413,7 +418,7 @@ class RenderNode extends StyleNode {
       var paramsMap = diffProps(_propToUpdate, map, 0);
       if (paramsMap.size() > 0) {
         for (var key in paramsMap.keySet()) {
-          if (key == NodeProps.style) {
+          if (key == NodeProps.kStyle) {
             var styles = paramsMap.get(key);
             if (styles != null) {
               var stylesToUpdate = propToUpdate.get(key);

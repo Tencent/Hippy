@@ -41,7 +41,7 @@ class _ImageWidgetState extends FRState<ImageWidget> {
     var image = imageViewModel.image;
     var defaultImage = imageViewModel.defaultImage;
     if (defaultImage != null &&
-        !imageViewModel.dispatchedEvent.contains(NodeProps.onLoadEnd)) {
+        !imageViewModel.dispatchedEvent.contains(NodeProps.kOnLoadEnd)) {
       // 默认图
       return defaultImage;
     } else if (imageViewModel.capInsets != null &&
@@ -111,26 +111,26 @@ class ImageEventDispatcher {
   ImageEventDispatcher(this._id, this._context);
 
   void handleOnLoad() {
-    if (_needHandle(NodeProps.onLoad)) {
-      _handleEvent(NodeProps.onLoad);
+    if (_needHandle(NodeProps.kOnLoad)) {
+      _handleEvent(NodeProps.kOnLoad);
     }
   }
 
   void handleOnLoadEnd() {
-    if (_needHandle(NodeProps.onLoadEnd)) {
-      _handleEvent(NodeProps.onLoadEnd);
+    if (_needHandle(NodeProps.kOnLoadEnd)) {
+      _handleEvent(NodeProps.kOnLoadEnd);
     }
   }
 
   void handleOnLoadStart() {
-    if (_needHandle(NodeProps.onLoadStart)) {
-      _handleEvent(NodeProps.onLoadStart);
+    if (_needHandle(NodeProps.kOnLoadStart)) {
+      _handleEvent(NodeProps.kOnLoadStart);
     }
   }
 
   void handleOnError() {
-    if (_needHandle(NodeProps.onError)) {
-      _handleEvent(NodeProps.onError);
+    if (_needHandle(NodeProps.kOnError)) {
+      _handleEvent(NodeProps.kOnError);
     }
   }
 

@@ -9,24 +9,24 @@ import 'string_table.dart';
 
 class InternalizedStringTable extends DirectStringTable {
   // region key
-  static final int _maxKeyCalcLength = 32;
-  static final int _keyTableSize = 2 * 1024;
-  static final List<String?> _keyTable = List.filled(_keyTableSize, null);
+  static final int _kMaxKeyCalcLength = 32;
+  static final int _kKeyTableSize = 2 * 1024;
+  static final List<String?> _kKeyTable = List.filled(_kKeyTableSize, null);
 
   // region value - local
-  static const int _valueCacheSize = 32;
-  final LruCache<int, String> _valueCache = LruCache(_valueCacheSize);
+  static const int _kValueCacheSize = 32;
+  final LruCache<int, String> _valueCache = LruCache(_kValueCacheSize);
 
-  static final List<int> sBase64ImgHeader = "data:image".codeUnits;
+  static final List<int> kBase64ImgHeader = "data:image".codeUnits;
 
-  static const String imgUrlPropName = "uri";
-  static const String imgSrcPropName = "src";
-  static const String imageSourcePropName = "source";
+  static const String kImgUrlPropName = "uri";
+  static const String kImgSrcPropName = "src";
+  static const String kImageSourcePropName = "source";
 
   final Map<String, List<int>> _cacheablesProperty = {
-    imgUrlPropName: sBase64ImgHeader,
-    imgSrcPropName: sBase64ImgHeader,
-    imageSourcePropName: sBase64ImgHeader
+    kImgUrlPropName: kBase64ImgHeader,
+    kImgSrcPropName: kBase64ImgHeader,
+    kImageSourcePropName: kBase64ImgHeader
   };
 
   static int _hashCodeOfBuffer(ByteData byteData) {
@@ -68,19 +68,19 @@ class InternalizedStringTable extends DirectStringTable {
 
   String _lookupKey(
       ByteData byteData, StringEncoding encoding, StringLocation location) {
-    if (byteData.lengthInBytes > _maxKeyCalcLength ||
+    if (byteData.lengthInBytes > _kMaxKeyCalcLength ||
         encoding == StringEncoding.utf8) {
       return super.lookup(byteData, encoding, location, null);
     }
 
     var hashCode = _hashCodeOfBuffer(byteData);
-    var hashIndex = (_keyTableSize - 1) & hashCode;
-    var internalized = _keyTable[hashIndex];
+    var hashIndex = (_kKeyTableSize - 1) & hashCode;
+    var internalized = _kKeyTable[hashIndex];
     if (internalized != null && _equals(byteData, encoding, internalized)) {
       return internalized;
     }
     internalized = super.lookup(byteData, encoding, location, null);
-    _keyTable[hashIndex] = internalized;
+    _kKeyTable[hashIndex] = internalized;
     return internalized;
   }
 

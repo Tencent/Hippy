@@ -7,10 +7,10 @@ import '../util.dart';
 import 'view_model.dart';
 
 class TextInputRenderViewModel extends RenderViewModel {
-  static const String keyboardTypeEmailAddress = "email";
-  static const String keyboardTypeNumeric = "numeric";
-  static const String keyboardTypePhonePad = "phone-pad";
-  static const String keyboardTypePassword = "password";
+  static const String kKeyboardTypeEmailAddress = "email";
+  static const String kKeyboardTypeNumeric = "numeric";
+  static const String kKeyboardTypePhonePad = "phone-pad";
+  static const String kKeyboardTypePassword = "password";
 
   // 默认值
   String hint = "";
@@ -31,7 +31,7 @@ class TextInputRenderViewModel extends RenderViewModel {
 
   // 字体相关
   FontStyle fontStyle = FontStyle.normal;
-  double fontSize = NodeProps.fontSizeSp; // 字体大小
+  double fontSize = NodeProps.kDefaultFontSizeSp; // 字体大小
   FontWeight fontWeight = FontWeight.normal;
   double lineHeight = 0.0;
   String fontFamily = "normal";
@@ -108,15 +108,15 @@ class TextInputRenderViewModel extends RenderViewModel {
     keyboardTypeStr = keyboardType;
     obscureText = false;
     var flagsToSet = TextInputType.text;
-    if (keyboardTypeNumeric.toLowerCase() == keyboardType.toLowerCase()) {
+    if (kKeyboardTypeNumeric.toLowerCase() == keyboardType.toLowerCase()) {
       flagsToSet = TextInputType.number;
-    } else if (keyboardTypeEmailAddress.toLowerCase() ==
+    } else if (kKeyboardTypeEmailAddress.toLowerCase() ==
         keyboardType.toLowerCase()) {
       flagsToSet = TextInputType.emailAddress;
-    } else if (keyboardTypePhonePad.toLowerCase() ==
+    } else if (kKeyboardTypePhonePad.toLowerCase() ==
         keyboardType.toLowerCase()) {
       flagsToSet = TextInputType.phone;
-    } else if (keyboardTypePassword.toLowerCase() ==
+    } else if (kKeyboardTypePassword.toLowerCase() ==
         keyboardType.toLowerCase()) {
       flagsToSet = TextInputType.visiblePassword;
       obscureText = true;

@@ -7,7 +7,7 @@ import '../util.dart';
 import 'props.dart';
 
 class ControllerUpdateUtil {
-  static const String tag = "ControllerUpdateUtil";
+  static const String kTag = "ControllerUpdateUtil";
   static HashMap<String, ControllerMethodPropProvider> sPropsMethodMap =
       HashMap();
 
@@ -40,14 +40,14 @@ class ControllerUpdateUtil {
                 [node.renderViewModel, propMethodHolder.defaultValue]);
           }
         } catch (e) {
-          LogUtils.e(tag,
+          LogUtils.e(kTag,
               "update controller($propertyName) prop($prop) to ($value) error:$e");
         }
-        if (value is VoltronMap && prop == NodeProps.style) {
+        if (value is VoltronMap && prop == NodeProps.kStyle) {
           updateProps(t, node, value);
         }
       } else {
-        if (value is VoltronMap && prop == NodeProps.style) {
+        if (value is VoltronMap && prop == NodeProps.kStyle) {
           updateProps(t, node, value);
         } else {
           t.setCustomProp(node, prop, value);

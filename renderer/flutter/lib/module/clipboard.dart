@@ -6,31 +6,31 @@ import 'module.dart';
 import 'promise.dart';
 
 class ClipboardModule extends VoltronNativeModule {
-  static const String clipboardModuleName = "ClipboardModule";
-  static const String tag = 'ClipboardModule';
+  static const String kClipboardModuleName = "ClipboardModule";
+  static const String kTag = 'ClipboardModule';
 
-  static const String getStringMethodName = "getString";
-  static const String setStringMethodName = "setString";
+  static const String kGetStringMethodName = "getString";
+  static const String kSetStringMethodName = "setString";
 
   ClipboardModule(EngineContext context) : super(context);
 
-  @VoltronMethod(getStringMethodName)
+  @VoltronMethod(kGetStringMethodName)
   bool getString(JSPromise promise) {
     Clipboard.getData('text/plain').then((data) {
       promise.resolve(data?.text ?? '');
     }).catchError((err) {
-      LogUtils.d(tag, err.toString());
+      LogUtils.d(kTag, err.toString());
       promise.reject(err.toString());
     });
     return true;
   }
 
-  @VoltronMethod(setStringMethodName)
+  @VoltronMethod(kSetStringMethodName)
   bool setString(String text, JSPromise promise) {
     Clipboard.setData(ClipboardData(text: text)).then((data) {
       promise.resolve(text);
     }).catchError((err) {
-      LogUtils.d(tag, err.toString());
+      LogUtils.d(kTag, err.toString());
       promise.reject(err.toString());
     });
     return true;
@@ -38,8 +38,8 @@ class ClipboardModule extends VoltronNativeModule {
 
   @override
   Map<String, Function> get extraFuncMap =>
-      {getStringMethodName: getString, setStringMethodName: setString};
+      {kGetStringMethodName: getString, kSetStringMethodName: setString};
 
   @override
-  String get moduleName => clipboardModuleName;
+  String get moduleName => kClipboardModuleName;
 }

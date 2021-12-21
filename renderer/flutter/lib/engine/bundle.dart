@@ -21,7 +21,7 @@ abstract class VoltronBundleLoader {
 }
 
 class AssetBundleLoader implements VoltronBundleLoader {
-  static const String assetsStr = "assets://";
+  static const String kAssetsStr = "assets://";
 
   final String _assetPath;
 
@@ -71,8 +71,8 @@ class AssetBundleLoader implements VoltronBundleLoader {
 
   @override
   String get path {
-    if (!_assetPath.startsWith(assetsStr)) {
-      return assetsStr + _assetPath;
+    if (!_assetPath.startsWith(kAssetsStr)) {
+      return kAssetsStr + _assetPath;
     } else {
       return _assetPath;
     }
@@ -83,7 +83,7 @@ class AssetBundleLoader implements VoltronBundleLoader {
 }
 
 class FileBundleLoader implements VoltronBundleLoader {
-  static const String fileStr = "file://";
+  static const String kFileStr = "file://";
 
   final String? _filePath;
 
@@ -109,8 +109,8 @@ class FileBundleLoader implements VoltronBundleLoader {
   @override
   String? get path {
     var filePath = _filePath;
-    if (filePath != null && !filePath.startsWith(fileStr)) {
-      return fileStr + filePath;
+    if (filePath != null && !filePath.startsWith(kFileStr)) {
+      return kFileStr + filePath;
     } else {
       return filePath;
     }
@@ -143,7 +143,7 @@ class FileBundleLoader implements VoltronBundleLoader {
 }
 
 class HttpBundleLoader implements VoltronBundleLoader {
-  static const String fileStr = "file://";
+  static const String kFileStr = "file://";
 
   String? _filePath;
 
@@ -171,8 +171,8 @@ class HttpBundleLoader implements VoltronBundleLoader {
   @override
   String? get path {
     var filePath = _filePath;
-    if (filePath != null && !filePath.startsWith(fileStr)) {
-      return fileStr + filePath;
+    if (filePath != null && !filePath.startsWith(kFileStr)) {
+      return kFileStr + filePath;
     } else {
       return filePath;
     }

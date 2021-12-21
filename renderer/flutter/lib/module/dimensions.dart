@@ -3,11 +3,11 @@ import '../engine.dart';
 import 'module.dart';
 
 class Dimensions extends JavaScriptModule {
-  static const String moduleName = "Dimensions";
+  static const String kModuleName = "Dimensions";
 
   Dimensions(EngineContext context) : super(context);
 
   void set(VoltronMap dimension) {
-    context.bridgeManager.callJavaScriptModule(moduleName, "set", dimension);
+    context.bridgeManager.callJavaScriptModule(kModuleName, "set", dimension);
   }
 }

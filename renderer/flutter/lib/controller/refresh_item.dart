@@ -9,7 +9,7 @@ import 'group.dart';
 
 class RefreshItemController
     extends BaseGroupController<RefreshWrapperItemRenderViewModel> {
-  static const String className = "RefreshWrapperItemView";
+  static const String kClassName = "RefreshWrapperItemView";
 
   @override
   RefreshWrapperItemRenderViewModel createRenderViewModel(
@@ -28,5 +28,5 @@ class RefreshItemController
   Map<String, ControllerMethodProp> get groupExtraMethodProp => {};
 
   @override
-  String get name => className;
+  String get name => kClassName;
 }

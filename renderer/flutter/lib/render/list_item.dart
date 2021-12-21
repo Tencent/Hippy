@@ -27,6 +27,6 @@ class ListItemRenderNode extends RenderNode {
   }
 
   void _updateShouldSticky() {
-    _shouldSticky = props?.get(NodeProps.itemSticky) ?? false;
+    _shouldSticky = props?.get(NodeProps.kItemSticky) ?? false;
   }
 }

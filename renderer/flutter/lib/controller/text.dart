@@ -11,7 +11,7 @@ import '../widget.dart';
 
 class TextController
     extends VoltronViewController<TextRenderViewModel, TextRenderNode> {
-  static const String className = "Text";
+  static const String kClassName = "Text";
 
   @override
   TextRenderNode createRenderNode(int id, VoltronMap? props, String name,
@@ -34,42 +34,32 @@ class TextController
   @override
   Map<String, ControllerMethodProp> get extendRegisteredMethodProp {
     var extraMap = <String, ControllerMethodProp>{};
-    extraMap[NodeProps.style] = ControllerMethodProp(setStyle, VoltronMap());
+    extraMap[NodeProps.kStyle] = ControllerMethodProp(setStyle, VoltronMap());
     return extraMap;
   }
 
-  @ControllerProps(NodeProps.style)
+  @ControllerProps(NodeProps.kStyle)
   void setStyle(TextRenderViewModel renderViewModel, VoltronMap style) {
-    var flexDirection = style.get('flexDirection');
-    if (flexDirection != null && flexDirection.isNotEmpty) {
-      renderViewModel.flexDirection = enumValueFromString<FlexCSSDirection>(
-              replaceKey(flexDirection), FlexCSSDirection.values) ??
-          FlexCSSDirection.ROW;
+    var flexDirection = style.get<String>('flexDirection') ?? '';
+    if (flexDirection.isNotEmpty) {
+      renderViewModel.flexDirection =
+          flexCssDirectionFromValue(flexDirection) ?? FlexCSSDirection.row;
     }
 
-    var alignItems = style.get('alignItems');
-    if (alignItems != null && alignItems.isNotEmpty) {
-      renderViewModel.alignItems = enumValueFromString<FlexAlign>(
-              replaceKey(alignItems), FlexAlign.values) ??
-          FlexAlign.FLEX_START;
+    var alignItems = style.get<String>('alignItems') ?? '';
+    if (alignItems.isNotEmpty) {
+      renderViewModel.alignItems =
+          flexAlignFromValue(alignItems) ?? FlexAlign.flexStart;
     }
-    var justifyContent = style.get('justifyContent');
-    if (justifyContent != null && justifyContent.isNotEmpty) {
-      renderViewModel.justifyContent = enumValueFromString<FlexAlign>(
-              replaceKey(justifyContent), FlexAlign.values) ??
-          FlexAlign.FLEX_START;
+    var justifyContent = style.get<String>('justifyContent') ?? '';
+    if (justifyContent.isNotEmpty) {
+      renderViewModel.justifyContent =
+          flexAlignFromValue(justifyContent) ?? FlexAlign.flexStart;
     }
-  }
-
-  String replaceKey(String key, [bool needReplaceCross = true]) {
-    if (needReplaceCross) {
-      return key.toUpperCase().replaceAll("-", "_");
-    }
-    return key.toUpperCase();
   }
 
   @override
-  String get name => className;
+  String get name => kClassName;
 
   @override
   void updateExtra(TextRenderViewModel renderViewModel, Object updateExtra) {

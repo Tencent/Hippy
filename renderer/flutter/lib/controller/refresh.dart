@@ -20,10 +20,10 @@ enum RefreshState {
 
 class RefreshWrapperController
     extends BaseGroupController<RefreshWrapperRenderViewModel> {
-  static const preloadItemSize = "preloadItemSize";
-  static const String className = "RefreshWrapper";
-  static const String refreshComplected = "refreshComplected";
-  static const String startRefresh = "startRefresh";
+  static const kPreloadItemSize = "preloadItemSize";
+  static const String kClassName = "RefreshWrapper";
+  static const String kRefreshComplected = "refreshComplected";
+  static const String kStartRefresh = "startRefresh";
 
   @override
   RefreshWrapperRenderViewModel createRenderViewModel(
@@ -40,37 +40,37 @@ class RefreshWrapperController
 
   @override
   Map<String, ControllerMethodProp> get groupExtraMethodProp => {
-        NodeProps.bounceTime: ControllerMethodProp(bounceTime, 300),
-        NodeProps.onScrollEnable:
+        NodeProps.kBounceTime: ControllerMethodProp(bounceTime, 300),
+        NodeProps.kOnScrollEnable:
             ControllerMethodProp(setOnScrollEventEnable, true),
-        NodeProps.scrollEventThrottle:
+        NodeProps.kScrollEventThrottle:
             ControllerMethodProp(setScrollEventThrottle, 400),
-        preloadItemSize: ControllerMethodProp(setPreloadItemSize, 0.0),
+        kPreloadItemSize: ControllerMethodProp(setPreloadItemSize, 0.0),
       };
 
   @override
-  String get name => className;
+  String get name => kClassName;
 
-  @ControllerProps(NodeProps.bounceTime)
+  @ControllerProps(NodeProps.kBounceTime)
   void bounceTime(
       RefreshWrapperRenderViewModel renderViewModel, int bounceTime) {
     renderViewModel.bounceTime = bounceTime;
   }
 
-  @ControllerProps(NodeProps.onScrollEnable)
+  @ControllerProps(NodeProps.kOnScrollEnable)
   void setOnScrollEventEnable(
       RefreshWrapperRenderViewModel renderViewModel, bool flag) {
     renderViewModel.scrollGestureDispatcher.scrollEnable = flag;
   }
 
-  @ControllerProps(NodeProps.scrollEventThrottle)
+  @ControllerProps(NodeProps.kScrollEventThrottle)
   void setScrollEventThrottle(
       RefreshWrapperRenderViewModel renderViewModel, int scrollEventThrottle) {
     renderViewModel.scrollGestureDispatcher.scrollEventThrottle =
         scrollEventThrottle;
   }
 
-  @ControllerProps(preloadItemSize)
+  @ControllerProps(kPreloadItemSize)
   void setPreloadItemSize(
       RefreshWrapperRenderViewModel renderViewModel, double preloadItemSize) {
     renderViewModel.preloadSize = preloadItemSize;
@@ -82,9 +82,9 @@ class RefreshWrapperController
       {Promise? promise}) {
     super.dispatchFunction(renderViewModel, functionName, array,
         promise: promise);
-    if (refreshComplected == functionName) {
+    if (kRefreshComplected == functionName) {
       renderViewModel.refreshEventDispatcher.refreshComplected();
-    } else if (startRefresh == functionName) {
+    } else if (kStartRefresh == functionName) {
       renderViewModel.refreshEventDispatcher.startRefresh();
     }
   }
@@ -114,6 +114,6 @@ class RefreshEventDispatcher {
 
   void startRefresh() {
     _refreshController.requestRefresh(needMove: true);
-    _handleEvent(NodeProps.onRefresh);
+    _handleEvent(NodeProps.kOnRefresh);
   }
 }

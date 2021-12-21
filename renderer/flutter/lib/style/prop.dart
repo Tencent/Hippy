@@ -30,259 +30,260 @@ mixin StyleMethodPropConsumer {
 }
 
 class NodeProps {
-  static const int transparent = 0;
-  static const String alignItems = "alignItems";
-  static const String alignSelf = "alignSelf";
-  static const String overflow = "overflow";
-  static const String bottom = "bottom";
-  static const String collapsable = "collapsable";
-  static const String flex = "flex";
-  static const String flexGrow = "flexGrow";
-  static const String flexShrink = "flexShrink";
-  static const String flexBasis = "flexBasis";
-  static const String flexDirection = "flexDirection";
-  static const String flexWrap = "flexWrap";
-  static const String height = "height";
-  static const String justifyContent = "justifyContent";
-  static const String left = "left";
-  static const String display = "display";
-  static const String onLayout = "onLayout";
-  static const String itemSticky = "sticky";
+  static const int kTransparent = 0;
+  static const String kAlignItems = "alignItems";
+  static const String kAlignSelf = "alignSelf";
+  static const String kOverflow = "overflow";
+  static const String kBottom = "bottom";
+  static const String kCollapsable = "collapsable";
+  static const String kFlex = "flex";
+  static const String kFlexGrow = "flexGrow";
+  static const String kFlexShrink = "flexShrink";
+  static const String kFlexBasis = "flexBasis";
+  static const String kFlexDirection = "flexDirection";
+  static const String kFlexWrap = "flexWrap";
+  static const String kHeight = "height";
+  static const String kJustifyContent = "justifyContent";
+  static const String kLeft = "left";
+  static const String kDisplay = "display";
+  static const String kOnLayout = "onLayout";
+  static const String kItemSticky = "sticky";
 
-  static const String margin = "margin";
-  static const String marginVertical = "marginVertical";
-  static const String marginHorizontal = "marginHorizontal";
-  static const String marginLeft = "marginLeft";
-  static const String marginRight = "marginRight";
-  static const String marginTop = "marginTop";
-  static const String marginBottom = "marginBottom";
+  static const String kMargin = "margin";
+  static const String kMarginVertical = "marginVertical";
+  static const String kMarginHorizontal = "marginHorizontal";
+  static const String kMarginLeft = "marginLeft";
+  static const String kMarginRight = "marginRight";
+  static const String kMarginTop = "marginTop";
+  static const String kMarginBottom = "marginBottom";
 
-  static const String padding = "padding";
-  static const String paddingVertical = "paddingVertical";
-  static const String paddingHorizontal = "paddingHorizontal";
-  static const String paddingLeft = "paddingLeft";
-  static const String paddingRight = "paddingRight";
-  static const String paddingTop = "paddingTop";
-  static const String paddingBottom = "paddingBottom";
+  static const String kPadding = "padding";
+  static const String kPaddingVertical = "paddingVertical";
+  static const String kPaddingHorizontal = "paddingHorizontal";
+  static const String kPaddingLeft = "paddingLeft";
+  static const String kPaddingRight = "paddingRight";
+  static const String kPaddingTop = "paddingTop";
+  static const String kPaddingBottom = "paddingBottom";
 
-  static const String position = "position";
-  static const String right = "right";
-  static const String top = "top";
-  static const String width = "width";
+  static const String kPosition = "position";
+  static const String kRight = "right";
+  static const String kTop = "top";
+  static const String kWidth = "width";
 
-  static const String minWidth = "minWidth";
-  static const String maxWidth = "maxWidth";
-  static const String minHeight = "minHeight";
-  static const String maxHeight = "maxHeight";
+  static const String kMinWidth = "minWidth";
+  static const String kMaxWidth = "maxWidth";
+  static const String kMinHeight = "minHeight";
+  static const String kMaxHeight = "maxHeight";
 
-  static const String borderWidth = "borderWidth";
-  static const String borderLeftWidth = "borderLeftWidth";
-  static const String borderTopWidth = "borderTopWidth";
-  static const String borderRightWidth = "borderRightWidth";
-  static const String borderBottomWidth = "borderBottomWidth";
+  static const String kBorderWidth = "borderWidth";
+  static const String kBorderLeftWidth = "borderLeftWidth";
+  static const String kBorderTopWidth = "borderTopWidth";
+  static const String kBorderRightWidth = "borderRightWidth";
+  static const String kBorderBottomWidth = "borderBottomWidth";
 
-  static const String borderColor = "borderColor";
-  static const String borderLeftColor = "borderLeftColor";
-  static const String borderTopColor = "borderTopColor";
-  static const String borderRightColor = "borderRightColor";
-  static const String borderBottomColor = "borderBottomColor";
-  static const String borderStyles = "borderStyle";
+  static const String kBorderColor = "borderColor";
+  static const String kBorderLeftColor = "borderLeftColor";
+  static const String kBorderTopColor = "borderTopColor";
+  static const String kBorderRightColor = "borderRightColor";
+  static const String kBorderBottomColor = "borderBottomColor";
+  static const String kBorderStyles = "borderStyle";
 
-  static const String boxShadow = "boxShadow";
+  static const String kBoxShadow = "boxShadow";
 
-  static const String enabled = "enabled";
-  static const String opacity = "opacity";
-  static const String backgroundColor = "backgroundColor";
-  static const String backgroundColors = "backgroundColors";
-  static const String colors = "colors";
-  static const String color = "color";
-  static const String backgroundImage = "backgroundImage";
-  static const String backgroundPositionX = "backgroundPositionX";
-  static const String backgroundPositionY = "backgroundPositionY";
-  static const String backgroundSize = "backgroundSize";
-  static const String backgroundRepeat = "backgroundRepeat";
-  static const String fontSize = "fontSize";
-  static const String letterSpacing = "letterSpacing";
-  static const String fontWeight = "fontWeight";
-  static const String fontStyle = "fontStyle";
-  static const String fontFamily = "fontFamily";
-  static const String textOverflow = "textOverflow";
-  static const String lineHeight = "lineHeight";
-  static const String numberOfLines = "numberOfLines";
-  static const String ellipsizeMode = "ellipsizeMode";
-  static const String on = "on";
-  static const String resizeMode = "resizeMode";
-  static const String resizeMethod = "resizeMethod";
-  static const String text = "text";
-  static const String textAlign = "textAlign";
-  static const String whiteSpace = "whiteSpace";
-  static const String textAlignVertical = "textAlignVertical";
-  static const String textDecorationLine = "textDecorationLine";
-  static const String propShadowOffset = "textShadowOffset";
-  static const String propShadowOffsetWidth = "width";
-  static const String propShadowOffsetHeight = "height";
-  static const String propShadowRadius = "textShadowRadius";
-  static const String propShadowColor = "textShadowColor";
-  static const String propEnableScale = "enableScale";
-  static const String src = "src";
-  static const String source = "source";
-  static const String tintColor = "tintColor";
-  static const String bounceTime = "bounceTime";
-  static const String capInsets = "capInsets";
-  static const String defaultSource = "defaultSource";
-  static const String level = "level";
-  static const String version = "version";
+  static const String kEnabled = "enabled";
+  static const String kOpacity = "opacity";
+  static const String kBackgroundColor = "backgroundColor";
+  static const String kBackgroundColors = "backgroundColors";
+  static const String kColors = "colors";
+  static const String kColor = "color";
+  static const String kBackgroundImage = "backgroundImage";
+  static const String kBackgroundPositionX = "backgroundPositionX";
+  static const String kBackgroundPositionY = "backgroundPositionY";
+  static const String kBackgroundSize = "backgroundSize";
+  static const String kBackgroundRepeat = "backgroundRepeat";
+  static const String kFontSize = "fontSize";
+  static const String kLetterSpacing = "letterSpacing";
+  static const String kFontWeight = "fontWeight";
+  static const String kFontStyle = "fontStyle";
+  static const String kFontFamily = "fontFamily";
+  static const String kTextOverflow = "textOverflow";
+  static const String kLineHeight = "lineHeight";
+  static const String kNumberOfLines = "numberOfLines";
+  static const String kEllipsizeMode = "ellipsizeMode";
+  static const String kOn = "on";
+  static const String kResizeMode = "resizeMode";
+  static const String kResizeMethod = "resizeMethod";
+  static const String kText = "text";
+  static const String kTextAlign = "textAlign";
+  static const String kWhiteSpace = "whiteSpace";
+  static const String kTextAlignVertical = "textAlignVertical";
+  static const String kTextDecorationLine = "textDecorationLine";
+  static const String kPropShadowOffset = "textShadowOffset";
+  static const String kPropShadowOffsetWidth = "width";
+  static const String kPropShadowOffsetHeight = "height";
+  static const String kPropShadowRadius = "textShadowRadius";
+  static const String kPropShadowColor = "textShadowColor";
+  static const String kPropEnableScale = "enableScale";
+  static const String kSrc = "src";
+  static const String kSource = "source";
+  static const String kTintColor = "tintColor";
+  static const String kBounceTime = "bounceTime";
+  static const String kCapInsets = "capInsets";
+  static const String kDefaultSource = "defaultSource";
+  static const String kLevel = "level";
+  static const String kVersion = "version";
 
-  static const String onClick = "onClick";
-  static const String onLongClick = "onLongClick";
-  static const String onPressIn = "onPressIn";
-  static const String onPressOut = "onPressOut";
-  static const String onTouchDown = "onTouchDown";
-  static const String onTouchMove = "onTouchMove";
-  static const String onTouchEnd = "onTouchEnd";
-  static const String onTouchCancel = "onTouchCancel";
-  static const String onInterceptTouchEvent = "onInterceptTouchEvent";
-  static const String onInterceptPullUpEvent = "onInterceptPullUpEvent";
-  static const String onAttachedToWindow = "onAttachedToWindow";
-  static const String onDetachedFromWindow = "onDetachedFromWindow";
+  static const String kOnClick = "onClick";
+  static const String kOnLongClick = "onLongClick";
+  static const String kOnPressIn = "onPressIn";
+  static const String kOnPressOut = "onPressOut";
+  static const String kOnTouchDown = "onTouchDown";
+  static const String kOnTouchMove = "onTouchMove";
+  static const String kOnTouchEnd = "onTouchEnd";
+  static const String kOnTouchCancel = "onTouchCancel";
+  static const String kOnInterceptTouchEvent = "onInterceptTouchEvent";
+  static const String kOnInterceptPullUpEvent = "onInterceptPullUpEvent";
+  static const String kOnAttachedToWindow = "onAttachedToWindow";
+  static const String kOnDetachedFromWindow = "onDetachedFromWindow";
 
-  static const String borderRadius = "borderRadius";
-  static const String borderTopLeftRadius = "borderTopLeftRadius";
-  static const String borderTopRightRadius = "borderTopRightRadius";
-  static const String borderBottomLeftRadius = "borderBottomLeftRadius";
-  static const String borderBottomRightRadius = "borderBottomRightRadius";
+  static const String kBorderRadius = "borderRadius";
+  static const String kBorderTopLeftRadius = "borderTopLeftRadius";
+  static const String kBorderTopRightRadius = "borderTopRightRadius";
+  static const String kBorderBottomLeftRadius = "borderBottomLeftRadius";
+  static const String kBorderBottomRightRadius = "borderBottomRightRadius";
 
-  static const onScrollBeginDrag = "onScrollBeginDrag";
-  static const onScrollEndDrag = "onScrollEndDrag";
-  static const onMomentumScrollBegin = "onMomentumScrollBegin";
-  static const onMomentumScrollEnd = "onMomentumScrollEnd";
-  static const onScrollEnable = "onScrollEnable";
-  static const scrollEnable = "scrollEnabled";
-  static const scrollEventThrottle = "scrollEventThrottle";
+  static const String kOnScrollBeginDrag = "onScrollBeginDrag";
+  static const String kOnScrollEndDrag = "onScrollEndDrag";
+  static const String kOnMomentumScrollBegin = "onMomentumScrollBegin";
+  static const String kOnMomentumScrollEnd = "onMomentumScrollEnd";
+  static const String kOnScrollEnable = "onScrollEnable";
+  static const String kScrollEnable = "scrollEnabled";
+  static const String kScrollEventThrottle = "scrollEventThrottle";
 
-  static const String onLoad = "onLoad";
-  static const String onLoadEnd = "onLoadEnd";
-  static const String onLoadStart = "onLoadStart";
-  static const String onError = "onError";
+  static const String kOnLoad = "onLoad";
+  static const String kOnLoadEnd = "onLoadEnd";
+  static const String kOnLoadStart = "onLoadStart";
+  static const String kOnError = "onError";
 
-  static const String onRefresh = "onRefresh";
+  static const String kOnRefresh = "onRefresh";
 
-  static const String transform = "transform";
-  static const String transformOrigin = "transformOrigin";
-  static const String zIndex = "zIndex";
+  static const String kTransform = "transform";
+  static const String kTransformOrigin = "transformOrigin";
+  static const String kZIndex = "zIndex";
 
-  static const double fontSizeSp = 14.0;
+  static const double kDefaultFontSizeSp = 14.0;
 
-  static const String viewClassName = "View";
-  static const String textClassName = "Text";
+  static const String kViewClassName = "View";
+  static const String kTextClassName = "Text";
 
   /// 节点样式，包含内联样式
-  static const String style = "style";
-  static const String attributes = 'attributes';
-  static const String props = "props";
-  static const String rootNode = "RootNode";
-  static const String customProp = "customProp";
+  static const String kStyle = "style";
+  static const String kAttributes = 'attributes';
+  static const String kProps = "props";
+  static const String kRootNode = "RootNode";
+  static const String kCustomProp = "customProp";
 
-  static const String propAccessibilityLabel = "accessibilityLabel";
-  static const String focusable = "focusable";
-  static const String nextFocusDownId = "nextFocusDownId";
-  static const String nextFocusUpId = "nextFocusUpId";
-  static const String nextFocusLeftId = "nextFocusLeftId";
-  static const String nextFocusRightId = "nextFocusRightId";
-  static const String requestFocus = "requestFocus";
+  static const String kPropAccessibilityLabel = "accessibilityLabel";
+  static const String kFocusable = "focusable";
+  static const String kNextFocusDownId = "nextFocusDownId";
+  static const String kNextFocusUpId = "nextFocusUpId";
+  static const String kNextFocusLeftId = "nextFocusLeftId";
+  static const String kNextFocusRightId = "nextFocusRightId";
+  static const String kRequestFocus = "requestFocus";
 
-  static const String visible = "visible";
-  static const String repeatCount = "repeatCount";
+  static const String kVisible = "visible";
+  static const String kRepeatCount = "repeatCount";
 
   /// 动画相关
   // animation
-  static const String animation = 'animation';
-  static const String animationKeyFramePropertyMap = 'animationPropertyMap';
-  static const String animationKeyFramePropertyName = 'propertyName';
-  static const String animationKeyFramePropertyValue = 'value';
-  static const String animationKeyFrameFrom = 'from';
-  static const String animationKeyFrameTo = 'to';
-  static const String animationKeyFrameZeroPercent = '0%';
-  static const String animationKeyFrameHundredPercent = '100%';
+  static const String kAnimation = 'animation';
+  static const String kAnimationKeyFramePropertyMap = 'animationPropertyMap';
+  static const String kAnimationKeyFramePropertyName = 'propertyName';
+  static const String kAnimationKeyFramePropertyValue = 'value';
+  static const String kAnimationKeyFrameFrom = 'from';
+  static const String kAnimationKeyFrameTo = 'to';
+  static const String kAnimationKeyFrameZeroPercent = '0%';
+  static const String kAnimationKeyFrameHundredPercent = '100%';
 
   /// keyframe selector的百分比数字
-  static const String animationKeyFrameSelectorPercent =
+  static const String kAnimationKeyFrameSelectorPercent =
       'animationKeyFrameSelectorPercent';
 
   /// 需要根据animation规则操作的属性Map
-  static const String animationPropertyOptionMap = 'animationPropertyOptionMap';
+  static const String kAnimationPropertyOptionMap =
+      'animationPropertyOptionMap';
 
   /// animation动画播放结束后，animationFillModel为'none'时，需要设置的属性集
-  static const String animationEndPropertyMap = 'animationEndPropertyMap';
-  static const String animationDuration = 'animationDuration';
-  static const String animationTimingFunction = 'animationTimingFunction';
-  static const String animationDelay = 'animationDelay';
-  static const String animationIterationCount = 'animationIterationCount';
-  static const String animationDirection = 'animationDirection';
-  static const String animationFillModel = 'animationFillModel';
-  static const String animationPlayState = 'animationPlayState';
+  static const String kAnimationEndPropertyMap = 'animationEndPropertyMap';
+  static const String kAnimationDuration = 'animationDuration';
+  static const String kAnimationTimingFunction = 'animationTimingFunction';
+  static const String kAnimationDelay = 'animationDelay';
+  static const String kAnimationIterationCount = 'animationIterationCount';
+  static const String kAnimationDirection = 'animationDirection';
+  static const String kAnimationFillModel = 'animationFillModel';
+  static const String kAnimationPlayState = 'animationPlayState';
   // transition
-  static const String transition = 'transition';
-  static const String transitionPropertyAll = 'all';
-  static const String transitionProperty = 'transitionProperty';
-  static const String transitionDuration = 'transitionDuration';
-  static const String transitionTimingFunction = 'transitionTimingFunction';
-  static const String transitionDelay = 'transitionDelay';
+  static const String kTransition = 'transition';
+  static const String kTransitionPropertyAll = 'all';
+  static const String kTransitionProperty = 'transitionProperty';
+  static const String kTransitionDuration = 'transitionDuration';
+  static const String kTransitionTimingFunction = 'transitionTimingFunction';
+  static const String kTransitionDelay = 'transitionDelay';
 
   /// 当前voltron支持的动画属性集合
   static const List<String> animationSupportPropertyList = [
-    width,
-    height,
-    top,
-    right,
-    bottom,
-    left,
-    opacity,
-    backgroundColor,
-    transform,
-    transformOrigin,
+    kWidth,
+    kHeight,
+    kTop,
+    kRight,
+    kBottom,
+    kLeft,
+    kOpacity,
+    kBackgroundColor,
+    kTransform,
+    kTransformOrigin,
   ];
 
   static final HashSet<String> _justLayoutPropSet = HashSet<String>();
   static HashSet<String> get justLayoutPropSet {
     if (_justLayoutPropSet.isEmpty) {
       _justLayoutPropSet.addAll({
-        alignSelf,
-        alignItems,
-        collapsable,
-        flex,
-        flexDirection,
-        flexWrap,
-        justifyContent,
+        kAlignSelf,
+        kAlignItems,
+        kCollapsable,
+        kFlex,
+        kFlexDirection,
+        kFlexWrap,
+        kJustifyContent,
         //position
-        position,
-        right,
-        top,
-        bottom,
-        left,
+        kPosition,
+        kRight,
+        kTop,
+        kBottom,
+        kLeft,
         //dimensions
-        width,
-        height,
-        minWidth,
-        maxWidth,
-        minHeight,
-        maxHeight,
+        kWidth,
+        kHeight,
+        kMinWidth,
+        kMaxWidth,
+        kMinHeight,
+        kMaxHeight,
         //margin
-        margin,
-        marginVertical,
-        marginHorizontal,
-        marginLeft,
-        marginRight,
-        marginTop,
-        marginBottom,
+        kMargin,
+        kMarginVertical,
+        kMarginHorizontal,
+        kMarginLeft,
+        kMarginRight,
+        kMarginTop,
+        kMarginBottom,
         //padding
-        padding,
-        paddingVertical,
-        paddingHorizontal,
-        paddingLeft,
-        paddingRight,
-        paddingTop,
-        paddingBottom
+        kPadding,
+        kPaddingVertical,
+        kPaddingHorizontal,
+        kPaddingLeft,
+        kPaddingRight,
+        kPaddingTop,
+        kPaddingBottom
       });
     }
     return _justLayoutPropSet;
@@ -293,14 +294,14 @@ class NodeProps {
   static HashSet<String> get touchEventPropSet {
     if (_touchEventPropSet.isEmpty) {
       _touchEventPropSet.addAll({
-        onClick,
-        onLongClick,
-        onPressIn,
-        onPressOut,
-        onTouchCancel,
-        onTouchDown,
-        onTouchEnd,
-        onTouchMove
+        kOnClick,
+        kOnLongClick,
+        kOnPressIn,
+        kOnPressOut,
+        kOnTouchCancel,
+        kOnTouchDown,
+        kOnTouchEnd,
+        kOnTouchMove
       });
     }
     return _touchEventPropSet;
@@ -314,43 +315,43 @@ class NodeProps {
     }
 
     switch (prop) {
-      case opacity:
-        return map.isNull(opacity) || map.get<double>(opacity) == 1;
-      case borderRadius:
-        if (map.containsKey(backgroundColor) &&
-            map.get<int>(backgroundColor) != transparent) {
+      case kOpacity:
+        return map.isNull(kOpacity) || map.get<double>(kOpacity) == 1;
+      case kBorderRadius:
+        if (map.containsKey(kBackgroundColor) &&
+            map.get<int>(kBackgroundColor) != kTransparent) {
           return false;
         }
-        if (map.containsKey(borderWidth) &&
-            !map.isNull(borderWidth) &&
-            map.get<double>(borderWidth) != 0) {
+        if (map.containsKey(kBorderWidth) &&
+            !map.isNull(kBorderWidth) &&
+            map.get<double>(kBorderWidth) != 0) {
           return false;
         }
         return true;
-      case borderLeftColor:
-        return map.get<int>(borderLeftColor) == transparent;
-      case borderRightColor:
-        return map.get<int>(borderRightColor) == transparent;
-      case borderTopColor:
-        return map.get<int>(borderTopColor) == transparent;
-      case borderBottomColor:
-        return map.get<int>(borderBottomColor) == transparent;
-      case borderWidth:
-        return map.isNull(borderWidth) || map.get<double>(borderWidth) == 0;
-      case borderLeftWidth:
-        return map.isNull(borderLeftWidth) ||
-            map.get<double>(borderLeftWidth) == 0;
-      case borderTopWidth:
-        return map.isNull(borderTopWidth) ||
-            map.get<double>(borderTopWidth) == 0;
-      case borderRightWidth:
-        return map.isNull(borderRightWidth) ||
-            map.get<double>(borderRightWidth) == 0;
-      case borderBottomWidth:
-        return map.isNull(borderBottomWidth) ||
-            map.get<double>(borderBottomWidth) == 0;
-      case overflow:
-        return map.isNull(overflow) || visible == map.get<String>(overflow);
+      case kBorderLeftColor:
+        return map.get<int>(kBorderLeftColor) == kTransparent;
+      case kBorderRightColor:
+        return map.get<int>(kBorderRightColor) == kTransparent;
+      case kBorderTopColor:
+        return map.get<int>(kBorderTopColor) == kTransparent;
+      case kBorderBottomColor:
+        return map.get<int>(kBorderBottomColor) == kTransparent;
+      case kBorderWidth:
+        return map.isNull(kBorderWidth) || map.get<double>(kBorderWidth) == 0;
+      case kBorderLeftWidth:
+        return map.isNull(kBorderLeftWidth) ||
+            map.get<double>(kBorderLeftWidth) == 0;
+      case kBorderTopWidth:
+        return map.isNull(kBorderTopWidth) ||
+            map.get<double>(kBorderTopWidth) == 0;
+      case kBorderRightWidth:
+        return map.isNull(kBorderRightWidth) ||
+            map.get<double>(kBorderRightWidth) == 0;
+      case kBorderBottomWidth:
+        return map.isNull(kBorderBottomWidth) ||
+            map.get<double>(kBorderBottomWidth) == 0;
+      case kOverflow:
+        return map.isNull(kOverflow) || kVisible == map.get<String>(kOverflow);
       default:
         return false;
     }
@@ -423,24 +424,24 @@ Clip toOverflow(String overflowString) {
 /// 过渡效果的速度曲线
 class TimingFunction {
   // 规定以相同速度开始至结束的过渡效果（等于 cubic-bezier(0,0,1,1)）
-  static const String linear = 'linear';
+  static const String kLinear = 'linear';
   // 规定慢速开始，然后变快，然后慢速结束的过渡效果（cubic-bezier(0.25,0.1,0.25,1)）
-  static const String ease = 'ease';
+  static const String kEase = 'ease';
   // 规定以慢速开始的过渡效果（等于 cubic-bezier(0.42,0,1,1)）
-  static const String easeIn = 'ease-in';
+  static const String kEaseIn = 'ease-in';
   // 规定以慢速结束的过渡效果（等于 cubic-bezier(0,0,0.58,1)）
-  static const String easeOut = 'ease-out';
+  static const String kEaseOut = 'ease-out';
   // 规定以慢速开始和结束的过渡效果（等于 cubic-bezier(0.42,0,0.58,1)）
-  static const String easeInOut = 'ease-in-out';
+  static const String kEaseInOut = 'ease-in-out';
 }
 
 Curve resizeModeToCurve(String timingFunction) {
   final strategyMap = {
-    TimingFunction.linear: Curves.linear,
-    TimingFunction.ease: Curves.ease,
-    TimingFunction.easeIn: Curves.easeIn,
-    TimingFunction.easeOut: Curves.easeOut,
-    TimingFunction.easeInOut: Curves.easeInOut,
+    TimingFunction.kLinear: Curves.linear,
+    TimingFunction.kEase: Curves.ease,
+    TimingFunction.kEaseIn: Curves.easeIn,
+    TimingFunction.kEaseOut: Curves.easeOut,
+    TimingFunction.kEaseInOut: Curves.easeInOut,
   };
 
   return strategyMap[timingFunction] ?? Curves.linear;
@@ -451,39 +452,39 @@ class AnimationIterationCount {
   // 一个数字，定义应该播放多少次动画
   static const String n = 'n';
   // 指定动画应该播放无限次（永远）
-  static const String infinite = 'infinite';
+  static const String kInfinite = 'infinite';
 }
 
 /// 指定是否应该轮流反向播放动画。
 class AnimationDirection {
   // 动画按正常播放(默认值)
-  static const String normal = 'normal';
+  static const String kNormal = 'normal';
   // 动画反向播放
-  static const String reverse = 'reverse';
+  static const String kReverse = 'reverse';
   // 动画在奇数次（1、3、5...）正向播放，在偶数次（2、4、6...）反向播放 (TODO: 暂不支持)
-  static const String alternate = 'alternate';
+  static const String kAlternate = 'alternate';
   // 动画在奇数次（1、3、5...）反向播放，在偶数次（2、4、6...）正向播放 (TODO: 暂不支持)
-  static const String alternateReverse = 'alternateReverse';
+  static const String kAlternateReverse = 'alternateReverse';
 }
 
 /// 规定当动画不播放时（当动画完成时，或当动画有一个延迟未开始播放时），要应用到元素的样式
 class AnimationFillMode {
   // 动画在动画执行之前和之后不会应用任何样式到目标元素(默认值)
-  static const String none = 'none';
+  static const String kNone = 'none';
   // 在动画结束后（由 animation-iteration-count 决定），动画将应用该属性值
-  static const String forwards = 'forwards';
+  static const String kForwards = 'forwards';
   // 动画将应用在 animation-delay 定义期间启动动画的第一次迭代的关键帧中定义的属性值。
   // 这些都是 from 关键帧中的值（当 animation-direction 为 "normal" 或 "alternate" 时）
   // 或 to 关键帧中的值（当 animation-direction 为 "reverse" 或 "alternate-reverse" 时）。
-  static const String backwards = 'backwards';
+  static const String kBackwards = 'backwards';
   // 动画遵循 forwards 和 backwards 的规则。也就是说，动画会在两个方向上扩展动画属性。
-  static const String both = 'both';
+  static const String kBoth = 'both';
 }
 
 /// 指定动画是否正在运行或已暂停
 class AnimationPlayState {
   // 运行的动画(默认)
-  static const String running = 'running';
+  static const String kRunning = 'running';
   // 暂停动画
-  static const String paused = 'paused';
+  static const String lPaused = 'paused';
 }

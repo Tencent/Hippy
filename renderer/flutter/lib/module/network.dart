@@ -16,10 +16,10 @@ typedef TResponseReceivedHook = void Function(
     EngineContext context, String requestId, Response? response);
 
 class NetworkModule extends VoltronNativeModule {
-  static const String networkModuleName = "network";
-  static const String fetchMethodName = "fetch";
-  static const String setCookieMethodName = "setCookie";
-  static const String getCookieMethodName = "getCookie";
+  static const String kNetworkModuleName = "network";
+  static const String kFetchMethodName = "fetch";
+  static const String kSetCookieMethodName = "setCookie";
+  static const String kGetCookieMethodName = "getCookie";
 
   /// 发送请求前的钩子函数
   TRequestWillBeSentHook? requestWillBeSentHook;
@@ -29,7 +29,7 @@ class NetworkModule extends VoltronNativeModule {
 
   NetworkModule(EngineContext context) : super(context);
 
-  @VoltronMethod(fetchMethodName)
+  @VoltronMethod(kFetchMethodName)
   bool fetch(final VoltronMap request, final JSPromise promise) {
     var url = request.get<String>('url') ?? '';
     final method = request.get<String>("method") ?? '';
@@ -129,7 +129,7 @@ class NetworkModule extends VoltronNativeModule {
   /// * @param keyValue cookie key-value键值对集合，多个以分号";"隔开，如：name=harryguo。或者：name=harryguo;gender:male
   /// * @param expires 默认为空，过期时间，格式与http协议头response里的Set-Cookie相同，如：Thu, 08-Jan-2020 00:00:00 GMT
   /// *
-  @VoltronMethod(setCookieMethodName)
+  @VoltronMethod(kSetCookieMethodName)
   bool setCookie(
       String url, String keyValue, String expires, JSPromise promise) {
     var cookies = <Cookie>[];
@@ -147,7 +147,7 @@ class NetworkModule extends VoltronNativeModule {
     return true;
   }
 
-  @VoltronMethod(getCookieMethodName)
+  @VoltronMethod(kGetCookieMethodName)
   bool getCookie(String url, JSPromise promise) {
     CookieManager.getInstance().getCookie(url).then((value) {
       var cookieList = value;
@@ -164,11 +164,11 @@ class NetworkModule extends VoltronNativeModule {
 
   @override
   Map<String, Function> get extraFuncMap => {
-        fetchMethodName: fetch,
-        setCookieMethodName: setCookie,
-        getCookieMethodName: getCookie
+        kFetchMethodName: fetch,
+        kSetCookieMethodName: setCookie,
+        kGetCookieMethodName: getCookie
       };
 
   @override
-  String get moduleName => networkModuleName;
+  String get moduleName => kNetworkModuleName;
 }

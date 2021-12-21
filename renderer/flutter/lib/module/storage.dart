@@ -7,17 +7,17 @@ import 'promise.dart';
 
 class StorageModule extends VoltronNativeModule {
   StorageAdapter? _storageAdapter;
-  static const String storageModuleName = "StorageModule";
-  static const String funcMultiGet = "multiGet";
-  static const String funcMultiSet = "multiSet";
-  static const String funcMultiRemove = "multiRemove";
-  static const String funcGetAllKeys = "getAllKeys";
+  static const String kStorageModuleName = "StorageModule";
+  static const String kFuncMultiGet = "multiGet";
+  static const String kFuncMultiSet = "multiSet";
+  static const String kFuncMultiRemove = "multiRemove";
+  static const String kFuncGetAllKeys = "getAllKeys";
 
   StorageModule(EngineContext context) : super(context) {
     _storageAdapter = context.globalConfigs.storageAdapter;
   }
 
-  @VoltronMethod(funcMultiGet)
+  @VoltronMethod(kFuncMultiGet)
   bool multiGet(VoltronArray keys, final JSPromise promise) {
     if (keys.size() <= 0) {
       promise.reject("Invalid Key");
@@ -48,7 +48,7 @@ class StorageModule extends VoltronNativeModule {
     return true;
   }
 
-  @VoltronMethod(funcMultiSet)
+  @VoltronMethod(kFuncMultiSet)
   bool multiSet(VoltronArray keyValues, final JSPromise promise) {
     if (keyValues.size() <= 0) {
       promise.reject("Invalid keyValues");
@@ -92,7 +92,7 @@ class StorageModule extends VoltronNativeModule {
     return true;
   }
 
-  @VoltronMethod(funcMultiRemove)
+  @VoltronMethod(kFuncMultiRemove)
   bool multiRemove(VoltronArray keys, final JSPromise promise) {
     if (keys.size() <= 0) {
       promise.reject("Invalid Key");
@@ -110,9 +110,9 @@ class StorageModule extends VoltronNativeModule {
     return true;
   }
 
-  @VoltronMethod(funcGetAllKeys)
+  @VoltronMethod(kFuncGetAllKeys)
   bool getAllKeys(final JSPromise promise) {
-    LogUtils.i('StorageModule', funcGetAllKeys);
+    LogUtils.i('StorageModule', kFuncGetAllKeys);
     var storageAdapter = _storageAdapter;
     if (storageAdapter == null) {
       promise.reject("Database Null");
@@ -127,12 +127,12 @@ class StorageModule extends VoltronNativeModule {
 
   @override
   Map<String, Function> get extraFuncMap => {
-        funcMultiGet: multiGet,
-        funcMultiSet: multiSet,
-        funcMultiRemove: multiRemove,
-        funcGetAllKeys: getAllKeys
+        kFuncMultiGet: multiGet,
+        kFuncMultiSet: multiSet,
+        kFuncMultiRemove: multiRemove,
+        kFuncGetAllKeys: getAllKeys
       };
 
   @override
-  String get moduleName => storageModuleName;
+  String get moduleName => kStorageModuleName;
 }

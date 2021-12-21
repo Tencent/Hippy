@@ -14,7 +14,7 @@ import '../viewmodel.dart';
 import '../widget.dart';
 
 class ImageController extends BaseViewController<ImageRenderViewModel> {
-  static const String className = "Image";
+  static const String kClassName = "Image";
 
   @override
   ImageRenderViewModel createRenderViewModel(
@@ -31,23 +31,23 @@ class ImageController extends BaseViewController<ImageRenderViewModel> {
   @override
   Map<String, ControllerMethodProp> get extendRegisteredMethodProp {
     var extraMap = <String, ControllerMethodProp>{};
-    extraMap[NodeProps.src] = ControllerMethodProp(setUrl, '');
-    extraMap[NodeProps.source] = ControllerMethodProp(setSource, null);
-    extraMap[NodeProps.resizeMode] = ControllerMethodProp(setResizeMode, '');
-    extraMap[NodeProps.onLoad] = ControllerMethodProp(setOnLoad, false);
-    extraMap[NodeProps.onLoadStart] =
+    extraMap[NodeProps.kSrc] = ControllerMethodProp(setUrl, '');
+    extraMap[NodeProps.kSource] = ControllerMethodProp(setSource, null);
+    extraMap[NodeProps.kResizeMode] = ControllerMethodProp(setResizeMode, '');
+    extraMap[NodeProps.kOnLoad] = ControllerMethodProp(setOnLoad, false);
+    extraMap[NodeProps.kOnLoadStart] =
         ControllerMethodProp(setOnLoadStart, false);
-    extraMap[NodeProps.onLoadEnd] = ControllerMethodProp(setOnLoadEnd, false);
-    extraMap[NodeProps.onError] = ControllerMethodProp(setOnError, false);
-    extraMap[NodeProps.capInsets] = ControllerMethodProp(setCapInsets, null);
-    extraMap[NodeProps.defaultSource] =
+    extraMap[NodeProps.kOnLoadEnd] = ControllerMethodProp(setOnLoadEnd, false);
+    extraMap[NodeProps.kOnError] = ControllerMethodProp(setOnError, false);
+    extraMap[NodeProps.kCapInsets] = ControllerMethodProp(setCapInsets, null);
+    extraMap[NodeProps.kDefaultSource] =
         ControllerMethodProp(setDefaultSource, null);
 
     return extraMap;
   }
 
   // for Android
-  @ControllerProps(NodeProps.src)
+  @ControllerProps(NodeProps.kSrc)
   void setUrl(ImageRenderViewModel renderViewModel, String src) {
     src = getInnerPath(
         renderViewModel.context
@@ -65,7 +65,7 @@ class ImageController extends BaseViewController<ImageRenderViewModel> {
   }
 
   // for iOS
-  @ControllerProps(NodeProps.source)
+  @ControllerProps(NodeProps.kSource)
   void setSource(ImageRenderViewModel renderViewModel, VoltronArray source) {
     if (source.size() == 0) return;
     VoltronMap firstObj = source.get(0);
@@ -111,13 +111,13 @@ class ImageController extends BaseViewController<ImageRenderViewModel> {
     image
         .resolve(ImageConfiguration())
         .addListener(ImageStreamListener((image, flag) {
-          if (!viewModel.dispatchedEvent.contains(NodeProps.onLoad)) {
+          if (!viewModel.dispatchedEvent.contains(NodeProps.kOnLoad)) {
             viewModel.imageEventDispatcher.handleOnLoad();
             viewModel.imageEventDispatcher.handleOnLoadEnd();
             viewModel.imageWidth = image.image.width;
             viewModel.imageHeight = image.image.height;
-            viewModel.dispatchedEvent.add(NodeProps.onLoad);
-            viewModel.dispatchedEvent.add(NodeProps.onLoadEnd);
+            viewModel.dispatchedEvent.add(NodeProps.kOnLoad);
+            viewModel.dispatchedEvent.add(NodeProps.kOnLoadEnd);
 
             LogUtils.d('ImageController',
                 "ImageProvider onImage, info: ${image.toString()}");
@@ -131,7 +131,7 @@ class ImageController extends BaseViewController<ImageRenderViewModel> {
     viewModel.image = image;
   }
 
-  @ControllerProps(NodeProps.resizeMode)
+  @ControllerProps(NodeProps.kResizeMode)
   void setResizeMode(ImageRenderViewModel renderViewModel, String resizeMode) {
     if (resizeMode == 'contain') {
       renderViewModel.fit = BoxFit.contain;
@@ -148,12 +148,12 @@ class ImageController extends BaseViewController<ImageRenderViewModel> {
     }
   }
 
-  @ControllerProps(NodeProps.tintColor)
+  @ControllerProps(NodeProps.kTintColor)
   void setTintColor(ImageRenderViewModel renderViewModel, int tintColor) {
     renderViewModel.tintColor = tintColor;
   }
 
-  @ControllerProps(NodeProps.defaultSource)
+  @ControllerProps(NodeProps.kDefaultSource)
   void setDefaultSource(
       ImageRenderViewModel renderViewModel, String defaultSource) {
     if (defaultSource.indexOf('data:image/png;base64,') == 0) {
@@ -166,27 +166,27 @@ class ImageController extends BaseViewController<ImageRenderViewModel> {
     }
   }
 
-  @ControllerProps(NodeProps.onLoad)
+  @ControllerProps(NodeProps.kOnLoad)
   void setOnLoad(ImageRenderViewModel renderViewModel, bool enable) {
-    setEventType(NodeProps.onLoad, renderViewModel, enable);
+    setEventType(NodeProps.kOnLoad, renderViewModel, enable);
   }
 
-  @ControllerProps(NodeProps.onLoadEnd)
+  @ControllerProps(NodeProps.kOnLoadEnd)
   void setOnLoadEnd(ImageRenderViewModel renderViewModel, bool enable) {
-    setEventType(NodeProps.onLoadEnd, renderViewModel, enable);
+    setEventType(NodeProps.kOnLoadEnd, renderViewModel, enable);
   }
 
-  @ControllerProps(NodeProps.onLoadStart)
+  @ControllerProps(NodeProps.kOnLoadStart)
   void setOnLoadStart(ImageRenderViewModel renderViewModel, bool enable) {
-    setEventType(NodeProps.onLoadStart, renderViewModel, enable);
+    setEventType(NodeProps.kOnLoadStart, renderViewModel, enable);
   }
 
-  @ControllerProps(NodeProps.onError)
+  @ControllerProps(NodeProps.kOnError)
   void setOnError(ImageRenderViewModel renderViewModel, bool enable) {
-    setEventType(NodeProps.onError, renderViewModel, enable);
+    setEventType(NodeProps.kOnError, renderViewModel, enable);
   }
 
-  @ControllerProps(NodeProps.capInsets)
+  @ControllerProps(NodeProps.kCapInsets)
   void setCapInsets(
       ImageRenderViewModel renderViewModel, VoltronMap capInsetsMap) {
     renderViewModel.capInsets = CapInsets(
@@ -206,5 +206,5 @@ class ImageController extends BaseViewController<ImageRenderViewModel> {
   }
 
   @override
-  String get name => className;
+  String get name => kClassName;
 }

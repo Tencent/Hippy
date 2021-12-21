@@ -18,9 +18,9 @@ abstract class GroupController<T extends GroupViewModel, R extends RenderNode>
   @override
   Map<String, ControllerMethodProp> get extendRegisteredMethodProp {
     var extraMap = <String, ControllerMethodProp>{};
-    extraMap[NodeProps.onInterceptTouchEvent] =
+    extraMap[NodeProps.kOnInterceptTouchEvent] =
         ControllerMethodProp(setInterceptTouch, false);
-    extraMap[NodeProps.onInterceptPullUpEvent] =
+    extraMap[NodeProps.kOnInterceptPullUpEvent] =
         ControllerMethodProp(setInterceptPullUp, false);
     extraMap.addAll(groupExtraMethodProp);
 
@@ -29,12 +29,12 @@ abstract class GroupController<T extends GroupViewModel, R extends RenderNode>
 
   Map<String, ControllerMethodProp> get groupExtraMethodProp;
 
-  @ControllerProps(NodeProps.onInterceptTouchEvent)
+  @ControllerProps(NodeProps.kOnInterceptTouchEvent)
   void setInterceptTouch(T viewModel, bool flag) {
     viewModel.interceptTouch = flag;
   }
 
-  @ControllerProps(NodeProps.onInterceptPullUpEvent)
+  @ControllerProps(NodeProps.kOnInterceptPullUpEvent)
   void setInterceptPullUp(T viewModel, bool flag) {
     viewModel.interceptPullUp = flag;
   }

@@ -10,7 +10,7 @@ import '../viewmodel.dart';
 import '../widget.dart';
 
 class QrController extends BaseViewController<QrRenderViewModel> {
-  static const String className = "QrImage";
+  static const String kClassName = "QrImage";
 
   @override
   Widget createWidget(BuildContext context, QrRenderViewModel viewModel) {
@@ -26,21 +26,21 @@ class QrController extends BaseViewController<QrRenderViewModel> {
   @override
   Map<String, ControllerMethodProp> get extendRegisteredMethodProp {
     var extraMap = <String, ControllerMethodProp>{};
-    extraMap[NodeProps.text] = ControllerMethodProp(setText, '');
-    extraMap[NodeProps.level] =
+    extraMap[NodeProps.kText] = ControllerMethodProp(setText, '');
+    extraMap[NodeProps.kLevel] =
         ControllerMethodProp(setLevel, QrErrorCorrectLevel.L);
-    extraMap[NodeProps.version] =
+    extraMap[NodeProps.kVersion] =
         ControllerMethodProp(setVersion, QrVersions.auto);
 
     return extraMap;
   }
 
-  @ControllerProps(NodeProps.text)
+  @ControllerProps(NodeProps.kText)
   void setText(QrRenderViewModel viewModel, String text) {
     viewModel.text = text;
   }
 
-  @ControllerProps(NodeProps.level)
+  @ControllerProps(NodeProps.kLevel)
   void setLevel(QrRenderViewModel viewModel, String level) {
     switch (level) {
       case 'l':
@@ -60,11 +60,11 @@ class QrController extends BaseViewController<QrRenderViewModel> {
     }
   }
 
-  @ControllerProps(NodeProps.version)
+  @ControllerProps(NodeProps.kVersion)
   void setVersion(QrRenderViewModel viewModel, int version) {
     viewModel.version = version;
   }
 
   @override
-  String get name => className;
+  String get name => kClassName;
 }

@@ -85,35 +85,35 @@ class NativeScrollGestureDispatcher extends NativeGestureDispatcher {
 }
 
 class _ScrollEventHelper {
-  static const String eventTypeBeginDrag = "onScrollBeginDrag";
-  static const String eventTypeEndDrag = "onScrollEndDrag";
-  static const String eventTypeScroll = "onScroll";
-  static const String eventTypeMomentumBegin = "onMomentumScrollBegin";
-  static const String eventTypeMomentumEnd = "onMomentumScrollEnd";
+  static const String kEventTypeBeginDrag = "onScrollBeginDrag";
+  static const String kEventTypeEndDrag = "onScrollEndDrag";
+  static const String kEventTypeScroll = "onScroll";
+  static const String kEventTypeMomentumBegin = "onMomentumScrollBegin";
+  static const String kEventTypeMomentumEnd = "onMomentumScrollEnd";
 
   static void emitScrollEvent(
       RenderViewModel view, double scrollX, double scrollY) {
-    _doEmitScrollEvent(view, eventTypeScroll, scrollX, scrollY);
+    _doEmitScrollEvent(view, kEventTypeScroll, scrollX, scrollY);
   }
 
   static void emitScrollBeginDragEvent(
       RenderViewModel view, double scrollX, double scrollY) {
-    _doEmitScrollEvent(view, eventTypeBeginDrag, scrollX, scrollY);
+    _doEmitScrollEvent(view, kEventTypeBeginDrag, scrollX, scrollY);
   }
 
   static void emitScrollEndDragEvent(
       RenderViewModel view, double scrollX, double scrollY) {
-    _doEmitScrollEvent(view, eventTypeEndDrag, scrollX, scrollY);
+    _doEmitScrollEvent(view, kEventTypeEndDrag, scrollX, scrollY);
   }
 
   static void emitScrollMomentumBeginEvent(
       RenderViewModel view, double scrollX, double scrollY) {
-    _doEmitScrollEvent(view, eventTypeMomentumBegin, scrollX, scrollY);
+    _doEmitScrollEvent(view, kEventTypeMomentumBegin, scrollX, scrollY);
   }
 
   static void emitScrollMomentumEndEvent(
       RenderViewModel view, double scrollX, double scrollY) {
-    _doEmitScrollEvent(view, eventTypeMomentumEnd, scrollX, scrollY);
+    _doEmitScrollEvent(view, kEventTypeMomentumEnd, scrollX, scrollY);
   }
 
   static void _doEmitScrollEvent(RenderViewModel view, String scrollEventType,

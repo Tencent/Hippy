@@ -5,9 +5,9 @@ import '../engine.dart';
 import '../util.dart';
 
 class ModuleAnrMonitor {
-  static const int anrTime = 100;
-  static const int monitorIdNan = 0;
-  static int sMonitorIdCounter = 0;
+  static const int kAnrTime = 100;
+  static const int kMonitorIdNan = 0;
+  static int kMonitorIdCounter = 0;
 
   final bool _needReportBridgeANR;
   final EngineMonitorAdapter? _engineMonitorAdapter;
@@ -21,12 +21,12 @@ class ModuleAnrMonitor {
 
   int startMonitor(String params1, String params2) {
     if (!_needReportBridgeANR) {
-      return monitorIdNan;
+      return kMonitorIdNan;
     }
     var message = MonitorMessage.obtain(params1, params2, currentTimeMillis());
-    var id = ++sMonitorIdCounter;
-    if (id == monitorIdNan) {
-      id = ++sMonitorIdCounter;
+    var id = ++kMonitorIdCounter;
+    if (id == kMonitorIdNan) {
+      id = ++kMonitorIdCounter;
     }
     _monitorMessages[id] = message;
     return id;
@@ -41,7 +41,7 @@ class ModuleAnrMonitor {
       return;
     }
     var currentTime = currentTimeMillis();
-    if (currentTime - message.startTime > anrTime) {
+    if (currentTime - message.startTime > kAnrTime) {
       var engineMonitorAdapter = _engineMonitorAdapter;
       if (engineMonitorAdapter != null) {
         engineMonitorAdapter
@@ -56,7 +56,7 @@ class ModuleAnrMonitor {
     for (final entry in _monitorMessages.entries) {
       var monitorMessage = entry.value;
       var currentTime = currentTimeMillis();
-      if (currentTime - monitorMessage.startTime > anrTime) {
+      if (currentTime - monitorMessage.startTime > kAnrTime) {
         var engineMonitorAdapter = _engineMonitorAdapter;
         if (engineMonitorAdapter != null) {
           engineMonitorAdapter.reportBridgeANR(

@@ -1,6 +1,9 @@
 import 'dart:ffi';
 
+import 'package:flutter/foundation.dart';
+
 import '../style.dart';
+import '../util.dart';
 import 'flex_value.dart';
 
 const double undefined = double.nan;
@@ -29,268 +32,261 @@ class FlexLayoutParams {
   }
 }
 
-enum FiledType {
-  edgeSetFlagField,
-  hasNewLayoutField,
-  widthFiled,
-  heightField,
-  leftField,
-  topField,
-  rightFiled,
-  bottomFiled,
-  marginLeftField,
-  marginTopField,
-  marginRightField,
-  marginBottomField,
-  paddingLeftField,
-  paddingTopField,
-  paddingRightField,
-  paddingBottomField,
-  borderLeftField,
-  borderTopField,
-  borderRightField,
-  borderBottomField
-}
+enum FlexDirection { inherit, ltr, rtl }
 
-// 注意这里枚举变动后，要同步修改FlexNodeFfiBridge.h中的同名枚举
-enum ExportFunctionType {
-  measureFunc,
-  floatFiledGetter,
-  floatFiledSetter,
-  intFiledGetter,
-  intFiledSetter
-}
-
-/// 注意，由于需要把枚举值直接转换成对应的key，所以这里枚举必须跟C++侧的枚举定义保持一致
-/// 因此需要使用大写英文+下划线方式
-
-// ignore: constant_identifier_names
-enum FlexDirection { INHERIT, LTR, RTL }
-
-FlexDirection flexDirectionFromInt(int value) {
-  switch (value) {
-    case 0:
-      return FlexDirection.INHERIT;
-    case 1:
-      return FlexDirection.LTR;
-    case 2:
-      return FlexDirection.RTL;
-    default:
-      throw ArgumentError("flexDirectionFromInt Unknown enum value: $value");
+void _convertError(String error) {
+  if (kDebugMode) {
+    throw ArgumentError(error);
+  } else {
+    LogUtils.e('flex_define', error);
   }
 }
 
-// ignore: constant_identifier_names
-enum FlexCSSDirection { ROW, ROW_REVERSE, COLUMN, COLUMN_REVERSE }
-
-FlexCSSDirection flexCssDirectionFromInt(int value) {
-  switch (value) {
-    case 0:
-      return FlexCSSDirection.ROW;
-    case 1:
-      return FlexCSSDirection.ROW_REVERSE;
-    case 2:
-      return FlexCSSDirection.COLUMN;
-    case 3:
-      return FlexCSSDirection.COLUMN_REVERSE;
+FlexDirection? flexDirectionFromValue(String? value) {
+  if (value == null) {
+    return null;
+  }
+  switch (value.replaceKey()) {
+    case 'INHERIT':
+      return FlexDirection.inherit;
+    case 'LTR':
+      return FlexDirection.ltr;
+    case 'RTL':
+      return FlexDirection.rtl;
     default:
-      throw ArgumentError("flexCssDirectionFromInt Unknown enum value: $value");
+      _convertError("flexDirectionFromInt Unknown enum value: $value");
+      return null;
+  }
+}
+
+enum FlexCSSDirection { row, rowReverse, column, columnReverse }
+
+FlexCSSDirection? flexCssDirectionFromValue(String? value) {
+  if (value == null) {
+    return null;
+  }
+  switch (value.replaceKey()) {
+    case 'ROW':
+      return FlexCSSDirection.row;
+    case 'ROW_REVERSE':
+      return FlexCSSDirection.rowReverse;
+    case 'COLUMN':
+      return FlexCSSDirection.column;
+    case 'COLUMN_REVERSE':
+      return FlexCSSDirection.columnReverse;
+    default:
+      _convertError("flexCssDirectionFromInt Unknown enum value: $value");
+      return null;
   }
 }
 
 enum FlexJustify {
-  // ignore: constant_identifier_names
-  FLEX_START,
-  // ignore: constant_identifier_names
-  CENTER,
-  // ignore: constant_identifier_names
-  FLEX_END,
-  // ignore: constant_identifier_names
-  SPACE_BETWEEN,
-  // ignore: constant_identifier_names
-  SPACE_AROUND,
-  // ignore: constant_identifier_names
-  SPACE_EVENLY
+  flexStart,
+  center,
+  flexEnd,
+  spaceBetween,
+  spaceAround,
+  spaceEvenly
 }
 
-FlexJustify flexJustifyFromInt(int value) {
-  switch (value) {
-    case 0:
-      return FlexJustify.FLEX_START;
-    case 1:
-      return FlexJustify.CENTER;
-    case 2:
-      return FlexJustify.FLEX_END;
-    case 3:
-      return FlexJustify.SPACE_BETWEEN;
-    case 4:
-      return FlexJustify.SPACE_AROUND;
-    case 5:
-      return FlexJustify.SPACE_EVENLY;
+FlexJustify? flexJustifyFromValue(String? value) {
+  if (value == null) {
+    return null;
+  }
+  switch (value.replaceKey()) {
+    case 'FLEX_START':
+      return FlexJustify.flexStart;
+    case 'CENTER':
+      return FlexJustify.center;
+    case 'FLEX_END':
+      return FlexJustify.flexEnd;
+    case 'SPACE_BETWEEN':
+      return FlexJustify.spaceBetween;
+    case 'SPACE_AROUND':
+      return FlexJustify.spaceAround;
+    case 'SPACE_EVENLY':
+      return FlexJustify.spaceEvenly;
     default:
-      throw ArgumentError("flexJustifyFromInt Unknown enum value: $value");
+      _convertError("flexJustifyFromInt Unknown enum value: $value");
+      return null;
   }
 }
 
 enum FlexAlign {
-  // ignore: constant_identifier_names
-  AUTO,
-  // ignore: constant_identifier_names
-  FLEX_START,
-  // ignore: constant_identifier_names
-  CENTER,
-  // ignore: constant_identifier_names
-  FLEX_END,
-  // ignore: constant_identifier_names
-  STRETCH,
-  // ignore: constant_identifier_names
-  BASELINE,
-  // ignore: constant_identifier_names
-  SPACE_BETWEEN,
-  // ignore: constant_identifier_names
-  SPACE_AROUND
+  auto,
+  flexStart,
+  center,
+  flexEnd,
+  stretch,
+  baseline,
+  spaceBetween,
+  spaceAround
 }
 
-FlexAlign flexAlignFromInt(int value) {
-  switch (value) {
-    case 0:
-      return FlexAlign.AUTO;
-    case 1:
-      return FlexAlign.FLEX_START;
-    case 2:
-      return FlexAlign.CENTER;
-    case 3:
-      return FlexAlign.FLEX_END;
-    case 4:
-      return FlexAlign.STRETCH;
-    case 5:
-      return FlexAlign.BASELINE;
-    case 6:
-      return FlexAlign.SPACE_BETWEEN;
-    case 7:
-      return FlexAlign.SPACE_AROUND;
+FlexAlign? flexAlignFromValue(String? value) {
+  if (value == null) {
+    return null;
+  }
+  switch (value.replaceKey()) {
+    case 'AUTO':
+      return FlexAlign.auto;
+    case 'FLEX_START':
+      return FlexAlign.flexStart;
+    case 'CENTER':
+      return FlexAlign.center;
+    case 'FLEX_END':
+      return FlexAlign.flexEnd;
+    case 'STRETCH':
+      return FlexAlign.stretch;
+    case 'BASELINE':
+      return FlexAlign.baseline;
+    case 'SPACE_BETWEEN':
+      return FlexAlign.spaceBetween;
+    case 'SPACE_AROUND':
+      return FlexAlign.spaceAround;
     default:
-      throw ArgumentError("flexAlignFromInt Unknown enum value: $value");
+      _convertError("flexAlignFromInt Unknown enum value: $value");
+      return null;
+  }
+}
+
+enum FlexPositionType { relative, absolute }
+
+FlexPositionType? flexPositionTypeFromValue(String? value) {
+  if (value == null) {
+    return null;
+  }
+  switch (value.replaceKey()) {
+    case 'RELATIVE':
+      return FlexPositionType.relative;
+    case 'ABSOLUTE':
+      return FlexPositionType.absolute;
+    default:
+      _convertError("flexPositionTypeFromInt Unknown enum value: $value");
+      return null;
+  }
+}
+
+enum FlexWrap { noWrap, wrap, wrapReverse }
+
+FlexWrap? flexWrapFromValue(String? value) {
+  if (value == null) {
+    return null;
+  }
+  switch (value.replaceKey()) {
+    case 'NOWRAP':
+      return FlexWrap.noWrap;
+    case 'WRAP':
+      return FlexWrap.wrap;
+    case 'WRAP_REVERSE':
+      return FlexWrap.wrapReverse;
+    default:
+      _convertError("flexWrapFromInt Unknown enum value: $value");
+      return null;
+  }
+}
+
+enum FlexDisplay { displayFlex, displayNode }
+
+FlexDisplay? flexDisplayFromValue(String? value) {
+  if (value == null) {
+    return null;
+  }
+  switch (value.replaceKey()) {
+    case 'DISPLAY_FLEX':
+      return FlexDisplay.displayFlex;
+    case 'DISPLAY_NONE':
+      return FlexDisplay.displayNode;
+    default:
+      _convertError("flexDisplayFromInt Unknown enum value: $value");
+      return null;
+  }
+}
+
+enum FlexOverflow { visible, hidden, scroll }
+
+FlexOverflow? flexOverflowFromValue(String? value) {
+  if (value == null) {
+    return null;
+  }
+  switch (value.replaceKey()) {
+    case 'VISIBLE':
+      return FlexOverflow.visible;
+    case 'HIDDEN':
+      return FlexOverflow.hidden;
+    case 'SCROLL':
+      return FlexOverflow.scroll;
+    default:
+      _convertError("flexOverflowFromInt Unknown enum value: $value");
+      return null;
   }
 }
 
 // ignore: constant_identifier_names
-enum FlexPositionType { RELATIVE, ABSOLUTE }
+enum FlexMeasureMode { undefined, exactly, atMost }
 
-FlexPositionType flexPositionTypeFromInt(int value) {
-  switch (value) {
-    case 0:
-      return FlexPositionType.RELATIVE;
-    case 1:
-      return FlexPositionType.ABSOLUTE;
+FlexMeasureMode? flexMeasureModeFromValue(String? value) {
+  if (value == null) {
+    return null;
+  }
+  switch (value.replaceKey()) {
+    case 'UNDEFINED':
+      return FlexMeasureMode.undefined;
+    case 'EXACTLY':
+      return FlexMeasureMode.exactly;
+    case 'AT_MOST':
+      return FlexMeasureMode.atMost;
     default:
-      throw ArgumentError("flexPositionTypeFromInt Unknown enum value: $value");
+      _convertError("flexMeasureModeFromInt Unknown enum value: $value");
+      return null;
   }
 }
-
-// ignore: constant_identifier_names
-enum FlexWrap { NOWRAP, WRAP, WRAP_REVERSE }
-
-FlexWrap flexWrapFromInt(int value) {
-  switch (value) {
-    case 0:
-      return FlexWrap.NOWRAP;
-    case 1:
-      return FlexWrap.WRAP;
-    case 2:
-      return FlexWrap.WRAP_REVERSE;
-    default:
-      throw ArgumentError("flexWrapFromInt Unknown enum value: $value");
-  }
-}
-
-// ignore: constant_identifier_names
-enum FlexDisplay { DISPLAY_FLEX, DISPLAY_NONE }
-
-FlexDisplay flexDisplayFromInt(int value) {
-  switch (value) {
-    case 0:
-      return FlexDisplay.DISPLAY_FLEX;
-    case 1:
-      return FlexDisplay.DISPLAY_NONE;
-    default:
-      throw ArgumentError("flexDisplayFromInt Unknown enum value: $value");
-  }
-}
-
-// ignore: constant_identifier_names
-enum FlexOverflow { VISIBLE, HIDDEN, SCROLL }
-
-FlexOverflow flexOverflowFromInt(int value) {
-  switch (value) {
-    case 0:
-      return FlexOverflow.VISIBLE;
-    case 1:
-      return FlexOverflow.HIDDEN;
-    case 2:
-      return FlexOverflow.SCROLL;
-    default:
-      throw ArgumentError("flexOverflowFromInt Unknown enum value: $value");
-  }
-}
-
-// ignore: constant_identifier_names
-enum FlexMeasureMode { UNDEFINED, EXACTLY, AT_MOST }
 
 FlexMeasureMode flexMeasureModeFromInt(int value) {
   switch (value) {
     case 0:
-      return FlexMeasureMode.UNDEFINED;
+      return FlexMeasureMode.undefined;
     case 1:
-      return FlexMeasureMode.EXACTLY;
+      return FlexMeasureMode.exactly;
     case 2:
-      return FlexMeasureMode.AT_MOST;
+      return FlexMeasureMode.atMost;
     default:
       throw ArgumentError("flexMeasureModeFromInt Unknown enum value: $value");
   }
 }
 
 enum FlexStyleEdge {
-  // ignore: constant_identifier_names
-  EDGE_LEFT,
-  // ignore: constant_identifier_names
-  EDGE_TOP,
-  // ignore: constant_identifier_names
-  EDGE_RIGHT,
-  // ignore: constant_identifier_names
-  EDGE_BOTTOM,
-  // ignore: constant_identifier_names
-  EDGE_START,
-  // ignore: constant_identifier_names
-  EDGE_END,
-  // ignore: constant_identifier_names
-  EDGE_HORIZONTAL,
-  // ignore: constant_identifier_names
-  EDGE_VERTICAL,
-  // ignore: constant_identifier_names
-  EDGE_ALL
+  left,
+  top,
+  right,
+  bottom,
+  start,
+  end,
+  horizontal,
+  vertical,
+  all
 }
 
 FlexStyleEdge flexStyleEdgeFromInt(int value) {
   switch (value) {
     case 0:
-      return FlexStyleEdge.EDGE_LEFT;
+      return FlexStyleEdge.left;
     case 1:
-      return FlexStyleEdge.EDGE_TOP;
+      return FlexStyleEdge.top;
     case 2:
-      return FlexStyleEdge.EDGE_RIGHT;
+      return FlexStyleEdge.right;
     case 3:
-      return FlexStyleEdge.EDGE_BOTTOM;
+      return FlexStyleEdge.bottom;
     case 4:
-      return FlexStyleEdge.EDGE_START;
+      return FlexStyleEdge.start;
     case 5:
-      return FlexStyleEdge.EDGE_END;
+      return FlexStyleEdge.end;
     case 6:
-      return FlexStyleEdge.EDGE_HORIZONTAL;
+      return FlexStyleEdge.horizontal;
     case 7:
-      return FlexStyleEdge.EDGE_VERTICAL;
+      return FlexStyleEdge.vertical;
     case 8:
-      return FlexStyleEdge.EDGE_ALL;
+      return FlexStyleEdge.all;
     default:
       throw ArgumentError("flexStyleEdgeFromInt Unknown enum value: $value");
   }

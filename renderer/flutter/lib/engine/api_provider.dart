@@ -56,62 +56,62 @@ class CoreApi implements APIProvider {
   @override
   List<ViewControllerGenerator> get controllerGeneratorList => [
         ViewControllerGenerator(
-            DivController.className, (object) => DivController()),
+            DivController.kClassName, (object) => DivController()),
         ViewControllerGenerator(
-            TextController.className, (object) => TextController()),
+            TextController.kClassName, (object) => TextController()),
         ViewControllerGenerator(
-            ListViewController.className, (object) => ListViewController()),
-        ViewControllerGenerator(ListItemViewController.className,
+            ListViewController.kClassName, (object) => ListViewController()),
+        ViewControllerGenerator(ListItemViewController.kClassName,
             (object) => ListItemViewController()),
-        ViewControllerGenerator(RefreshWrapperController.className,
+        ViewControllerGenerator(RefreshWrapperController.kClassName,
             (object) => RefreshWrapperController()),
-        ViewControllerGenerator(RefreshItemController.className,
+        ViewControllerGenerator(RefreshItemController.kClassName,
             (object) => RefreshItemController()),
+        ViewControllerGenerator(ScrollViewController.kClassName,
+            (object) => ScrollViewController()),
         ViewControllerGenerator(
-            ScrollViewController.className, (object) => ScrollViewController()),
+            ImageController.kClassName, (object) => ImageController()),
         ViewControllerGenerator(
-            ImageController.className, (object) => ImageController()),
+            TextInputController.kClassName, (object) => TextInputController()),
         ViewControllerGenerator(
-            TextInputController.className, (object) => TextInputController()),
+            ModalController.kClassName, (object) => ModalController()),
         ViewControllerGenerator(
-            ModalController.className, (object) => ModalController()),
-        ViewControllerGenerator(
-            ViewPagerController.className, (object) => ViewPagerController()),
-        ViewControllerGenerator(ViewPagerItemController.className,
+            ViewPagerController.kClassName, (object) => ViewPagerController()),
+        ViewControllerGenerator(ViewPagerItemController.kClassName,
             (object) => ViewPagerItemController()),
         ViewControllerGenerator(
-            QrController.className, (object) => QrController()),
+            QrController.kClassName, (object) => QrController()),
       ];
 
   @override
   List<JavaScriptModuleGenerator> get javaScriptModuleGeneratorList => [
         JavaScriptModuleGenerator(
-            EventDispatcher.moduleName, (context) => EventDispatcher(context)),
+            EventDispatcher.kModuleName, (context) => EventDispatcher(context)),
         JavaScriptModuleGenerator(
-            Dimensions.moduleName, (context) => Dimensions(context)),
+            Dimensions.kModuleName, (context) => Dimensions(context)),
       ];
 
   @override
   List<ModuleGenerator> get nativeModuleGeneratorList => [
         ModuleGenerator(
-            TimeModule.timerModuleName, (context) => TimeModule(context)),
-        ModuleGenerator(ConsoleModule.consoleModuleName,
+            TimeModule.kTimerModuleName, (context) => TimeModule(context)),
+        ModuleGenerator(ConsoleModule.kConsoleModuleName,
             (context) => ConsoleModule(context)),
-        ModuleGenerator(ExceptionModule.exceptionModuleName,
+        ModuleGenerator(ExceptionModule.kExceptionModuleName,
             (context) => ExceptionModule(context)),
-        ModuleGenerator(DeviceEventModule.deviceModuleName,
+        ModuleGenerator(DeviceEventModule.kDeviceModuleName,
             (context) => DeviceEventModule(context)),
-        ModuleGenerator(NetworkModule.networkModuleName,
+        ModuleGenerator(NetworkModule.kNetworkModuleName,
             (context) => NetworkModule(context)),
-        ModuleGenerator(StorageModule.storageModuleName,
+        ModuleGenerator(StorageModule.kStorageModuleName,
             (context) => StorageModule(context)),
         ModuleGenerator(
-            UtilsModule.utilsModuleName, (context) => UtilsModule(context)),
+            UtilsModule.kUtilsModuleName, (context) => UtilsModule(context)),
         ModuleGenerator(
-            DialogModule.dialogModuleName, (context) => DialogModule(context)),
-        ModuleGenerator(WebsocketModule.websocketModuleName,
+            DialogModule.kDialogModuleName, (context) => DialogModule(context)),
+        ModuleGenerator(WebsocketModule.kWebSocketModuleName,
             (context) => WebsocketModule(context)),
-        ModuleGenerator(ClipboardModule.clipboardModuleName,
+        ModuleGenerator(ClipboardModule.kClipboardModuleName,
             (context) => ClipboardModule(context))
       ];
 }

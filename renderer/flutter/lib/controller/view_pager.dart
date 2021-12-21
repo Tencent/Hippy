@@ -12,9 +12,9 @@ import 'group.dart';
 
 class ViewPagerController
     extends BaseGroupController<ViewPagerRenderViewModel> {
-  static const String className = "ViewPager";
-  static const initialPage = "initialPage";
-  static const pageMargin = "pageMarginFact";
+  static const String kClassName = "ViewPager";
+  static const kInitialPage = "initialPage";
+  static const kPageMargin = "pageMarginFact";
 
   static const String kFuncSetPage = "setPage";
   static const String kFuncSetPageWidthOutAnim = "setPageWithoutAnimation";
@@ -37,34 +37,34 @@ class ViewPagerController
 
   @override
   Map<String, ControllerMethodProp> get groupExtraMethodProp => {
-        initialPage: ControllerMethodProp(setInitialPage, 0),
-        NodeProps.scrollEnable: ControllerMethodProp(setScrollEnabled, true),
-        pageMargin: ControllerMethodProp(setPageMargin, 0.0),
-        NodeProps.overflow: ControllerMethodProp(setOverflow, "visible")
+        kInitialPage: ControllerMethodProp(setInitialPage, 0),
+        NodeProps.kScrollEnable: ControllerMethodProp(setScrollEnabled, true),
+        kPageMargin: ControllerMethodProp(setPageMargin, 0.0),
+        NodeProps.kOverflow: ControllerMethodProp(setOverflow, "visible")
       };
 
   @override
-  String get name => className;
+  String get name => kClassName;
 
-  @ControllerProps(initialPage)
+  @ControllerProps(kInitialPage)
   void setInitialPage(
       ViewPagerRenderViewModel renderViewModel, int initialPage) {
     renderViewModel.initialPage = initialPage;
   }
 
-  @ControllerProps(NodeProps.scrollEnable)
+  @ControllerProps(NodeProps.kScrollEnable)
   void setScrollEnabled(ViewPagerRenderViewModel renderViewModel, bool value) {
     renderViewModel.scrollEnabled = value;
   }
 
   /// 在Android和iOS中这个属性为pageMargin，传入的是绝对值
   /// flutter中该属性传入的是比例，属性为pageMarginFact
-  @ControllerProps(pageMargin)
+  @ControllerProps(kPageMargin)
   void setPageMargin(ViewPagerRenderViewModel renderViewModel, double margin) {
     renderViewModel.pageMargin = margin;
   }
 
-  @ControllerProps(NodeProps.overflow)
+  @ControllerProps(NodeProps.kOverflow)
   void setOverflow(ViewPagerRenderViewModel renderViewModel, String overflow) {
     renderViewModel.overflow = overflow;
   }
@@ -101,7 +101,7 @@ class ViewPagerController
 
 class ViewPagerItemController
     extends BaseViewController<ViewPagerItemRenderViewModel> {
-  static const String className = "ViewPagerItem";
+  static const String kClassName = "ViewPagerItem";
 
   @override
   ViewPagerItemRenderViewModel createRenderViewModel(
@@ -123,7 +123,7 @@ class ViewPagerItemController
   Map<String, ControllerMethodProp> get extendRegisteredMethodProp => {};
 
   @override
-  String get name => className;
+  String get name => kClassName;
 
   @override
   bool shouldInterceptLayout(RenderNode node) {

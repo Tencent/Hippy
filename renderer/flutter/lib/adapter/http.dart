@@ -68,10 +68,10 @@ class HttpAdapter with Destroyable {
 }
 
 class HttpRequest {
-  static const int defaultTimeoutMs = 3000;
-  int _connectTimeout = defaultTimeoutMs;
-  int _receiveTimeout = defaultTimeoutMs;
-  int _sendTimeout = defaultTimeoutMs;
+  static const int kDefaultTimeoutMs = 3000;
+  int _connectTimeout = kDefaultTimeoutMs;
+  int _receiveTimeout = kDefaultTimeoutMs;
+  int _sendTimeout = kDefaultTimeoutMs;
   bool _useCaches = true;
   bool _followRedirects = true;
   String _method = "GET";
@@ -86,7 +86,7 @@ class HttpRequest {
     _initUserAgent();
     var userAgent = _userAgent;
     if (userAgent != null) {
-      addHeader(HttpHeaderReq.userAgent, userAgent);
+      addHeader(HttpHeaderReq.kUserAgent, userAgent);
       LogUtils.i("HttpRequest user_agent", userAgent);
     } else {
       LogUtils.e("HttpRequest", "user_agent is null!");
@@ -195,52 +195,52 @@ class HttpRequest {
 class HttpResponse {}
 
 class HttpHeaderReq {
-  static const String accept = "Accept";
-  static const String host = "Host";
-  static const String acceptLanguage = "Accept-Language";
-  static const String acceptEncoding = "Accept-Encoding";
-  static const String contentLength = "Content-Length";
-  static const String contentType = "Content-Type";
-  static const String userAgent = "User-Agent";
-  static const String referer = "Referer";
-  static const String range = "Range";
-  static const String connection = "Connection";
-  static const String cookie = "Cookie";
-  static const String qCookie = "QCookie";
-  static const String qua = "Q-UA";
-  static const String qGuid = "Q-GUID";
-  static const String qAuth = "Q-Auth";
-  static const String xOnlineHost = "X-Online-Host";
-  static const String qua2 = "Q-UA2";
-  static const String qEncrypt = "QQ-S-Encrypt";
-  static const String qsZip = "QQ-S-ZIP";
-  static const String qExtInfo = "Q-EXT-INF";
-  static const String contentEncryptKey = "qbkey";
-  static const String qToken = "Q-Token";
+  static const String kAccept = "Accept";
+  static const String kHost = "Host";
+  static const String kAcceptLanguage = "Accept-Language";
+  static const String kAcceptEncoding = "Accept-Encoding";
+  static const String kContentLength = "Content-Length";
+  static const String kContentType = "Content-Type";
+  static const String kUserAgent = "User-Agent";
+  static const String kReferer = "Referer";
+  static const String kRange = "Range";
+  static const String kConnection = "Connection";
+  static const String kCookie = "Cookie";
+  static const String kQCookie = "QCookie";
+  static const String kQua = "Q-UA";
+  static const String kQGuid = "Q-GUID";
+  static const String kQAuth = "Q-Auth";
+  static const String kXOnlineHost = "X-Online-Host";
+  static const String kQua2 = "Q-UA2";
+  static const String kQEncrypt = "QQ-S-Encrypt";
+  static const String kQsZip = "QQ-S-ZIP";
+  static const String kQExtInfo = "Q-EXT-INF";
+  static const String kContentEncryptKey = "qbkey";
+  static const String kQToken = "Q-Token";
 }
 
 class HttpHeaderRsp {
-  static const String location = "Location";
-  static const String setCookie = "Set-Cookie";
-  static const String setCookie2 = "Set-Cookie2";
-  static const String server = "Server";
-  static const String contentType = "Content-Type";
-  static const String contentLength = "Content-Length";
-  static const String contentEncoding = "Content-Encoding";
-  static const String charset = "Charset";
-  static const String transferEncoding = "Transfer-Encoding";
-  static const String lastModify = "Last-Modified";
-  static const String byteRanges = "Byte-Ranges";
-  static const String cacheControl = "Cache-Control";
-  static const String connection = "Connection";
-  static const String contentRange = "Content-Range";
-  static const String contentDisposition = "Content-Disposition";
-  static const String eTag = "ETag";
-  static const String retryAfter = "Retry-After";
+  static const String kLocation = "Location";
+  static const String kSetCookie = "Set-Cookie";
+  static const String kSetCookie2 = "Set-Cookie2";
+  static const String kServer = "Server";
+  static const String kContentType = "Content-Type";
+  static const String kContentLength = "Content-Length";
+  static const String kContentEncoding = "Content-Encoding";
+  static const String kCharset = "Charset";
+  static const String kTransferEncoding = "Transfer-Encoding";
+  static const String kLastModify = "Last-Modified";
+  static const String kByteRanges = "Byte-Ranges";
+  static const String kCacheControl = "Cache-Control";
+  static const String kConnection = "Connection";
+  static const String kContentRange = "Content-Range";
+  static const String kContentDisposition = "Content-Disposition";
+  static const String kETag = "ETag";
+  static const String kRetryAfter = "Retry-After";
 
-  static const String qEncrypt = "QQ-S-Encrypt";
-  static const String qsZip = "QQ-S-ZIP";
-  static const String qToken = "tk";
-  static const String tokenExpireSpan = "maxage";
-  static const String wupEnv = "env";
+  static const String kQEncrypt = "QQ-S-Encrypt";
+  static const String kQsZip = "QQ-S-ZIP";
+  static const String kQToken = "tk";
+  static const String kTokenExpireSpan = "maxage";
+  static const String kWupEnv = "env";
 }

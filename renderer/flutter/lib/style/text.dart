@@ -24,7 +24,7 @@ mixin TextStyleNode on StyleNode {
 
   // 文本基础属性
   int? _numberOfLines;
-  double _fontSize = NodeProps.fontSizeSp;
+  double _fontSize = NodeProps.kDefaultFontSizeSp;
   double? _lineHeight;
   double? _letterSpacing;
   int _color = Colors.black.value;
@@ -89,7 +89,7 @@ mixin TextStyleNode on StyleNode {
         : -1;
   }
 
-  @ControllerProps(NodeProps.fontStyle)
+  @ControllerProps(NodeProps.kFontStyle)
   // ignore: use_setters_to_change_properties
   void fontStyle(String fontStyleString) {
     var fontStyle = parseFontStyle(fontStyleString);
@@ -109,7 +109,7 @@ mixin TextStyleNode on StyleNode {
     return fontStyle;
   }
 
-  @ControllerProps(NodeProps.letterSpacing)
+  @ControllerProps(NodeProps.kLetterSpacing)
   // ignore: use_setters_to_change_properties
   void letterSpacing(double letterSpace) {
     if (letterSpace != -1.0) {
@@ -117,25 +117,25 @@ mixin TextStyleNode on StyleNode {
     }
   }
 
-  @ControllerProps(NodeProps.color)
+  @ControllerProps(NodeProps.kColor)
   // ignore: use_setters_to_change_properties
   void color(int color) {
     _color = color;
   }
 
-  @ControllerProps(NodeProps.fontSize)
+  @ControllerProps(NodeProps.kFontSize)
   // ignore: use_setters_to_change_properties
   void fontSize(double fontSize) {
     _fontSize = fontSize;
   }
 
-  @ControllerProps(NodeProps.fontFamily)
+  @ControllerProps(NodeProps.kFontFamily)
   // ignore: use_setters_to_change_properties
   void fontFamily(String fontFamily) {
     _fontFamily = fontFamily;
   }
 
-  @ControllerProps(NodeProps.fontWeight)
+  @ControllerProps(NodeProps.kFontWeight)
   void fontWeight(String weight) {
     var fontWeight = parseFontWeight(weight);
 
@@ -178,7 +178,7 @@ mixin TextStyleNode on StyleNode {
     return fontWeight;
   }
 
-  @ControllerProps(NodeProps.textDecorationLine)
+  @ControllerProps(NodeProps.kTextDecorationLine)
   void textDecorationLine(String textDecorationLineString) {
     _isUnderlineTextDecorationSet = false;
     _isLineThroughTextDecorationSet = false;
@@ -192,38 +192,38 @@ mixin TextStyleNode on StyleNode {
     }
   }
 
-  @ControllerProps(NodeProps.propShadowOffset)
+  @ControllerProps(NodeProps.kPropShadowOffset)
   void textShadowOffset(VoltronMap offsetMap) {
     _textShadowOffsetDx = 0;
     _textShadowOffsetDy = 0;
-    if (offsetMap.get(NodeProps.propShadowOffsetWidth) != null) {
-      _textShadowOffsetDx = offsetMap.get(NodeProps.propShadowOffsetWidth);
+    if (offsetMap.get(NodeProps.kPropShadowOffsetWidth) != null) {
+      _textShadowOffsetDx = offsetMap.get(NodeProps.kPropShadowOffsetWidth);
     }
-    if (offsetMap.get(NodeProps.propShadowOffsetHeight) != null) {
-      _textShadowOffsetDy = offsetMap.get(NodeProps.propShadowOffsetHeight);
+    if (offsetMap.get(NodeProps.kPropShadowOffsetHeight) != null) {
+      _textShadowOffsetDy = offsetMap.get(NodeProps.kPropShadowOffsetHeight);
     }
   }
 
-  @ControllerProps(NodeProps.propShadowRadius)
+  @ControllerProps(NodeProps.kPropShadowRadius)
   void textShadowRadius(double textShadowRadius) {
     if (textShadowRadius != _textShadowRadius) {
       _textShadowRadius = textShadowRadius;
     }
   }
 
-  @ControllerProps(NodeProps.propShadowColor)
+  @ControllerProps(NodeProps.kPropShadowColor)
   void setTextShadowColor(int textShadowColor) {
     if (textShadowColor != _textShadowColor) {
       _textShadowColor = textShadowColor;
     }
   }
 
-  @ControllerProps(NodeProps.lineHeight)
+  @ControllerProps(NodeProps.kLineHeight)
   void lineHeight(int lineHeight) {
     _lineHeight = (lineHeight == -1.0 ? null : lineHeight)?.toDouble();
   }
 
-  @ControllerProps(NodeProps.textAlign)
+  @ControllerProps(NodeProps.kTextAlign)
   void setTextAlign(String textAlign) {
     _textAlign = parseTextAlign(textAlign);
   }
@@ -246,19 +246,19 @@ mixin TextStyleNode on StyleNode {
     return align;
   }
 
-  @ControllerProps(NodeProps.text)
+  @ControllerProps(NodeProps.kText)
   // ignore: use_setters_to_change_properties
   void text(String text) {
     _sourceText = text;
   }
 
-  @ControllerProps(NodeProps.whiteSpace)
+  @ControllerProps(NodeProps.kWhiteSpace)
   // ignore: use_setters_to_change_properties
   void whiteSpace(String whiteSpace) {
     _whiteSpace = whiteSpace;
   }
 
-  @ControllerProps(NodeProps.textOverflow)
+  @ControllerProps(NodeProps.kTextOverflow)
   void setTextOverflow(String textOverflow) {
     _textOverflow = parseTextOverflow(textOverflow);
   }
@@ -277,68 +277,68 @@ mixin TextStyleNode on StyleNode {
     return v;
   }
 
-  @ControllerProps(NodeProps.onClick)
+  @ControllerProps(NodeProps.kOnClick)
   void clickEnable(bool flag) {
     if (flag) {
-      _gestureTypes.add(NodeProps.onClick);
+      _gestureTypes.add(NodeProps.kOnClick);
     }
   }
 
-  @ControllerProps(NodeProps.onLongClick)
+  @ControllerProps(NodeProps.kOnLongClick)
   void longClickEnable(bool flag) {
     if (flag) {
-      _gestureTypes.add(NodeProps.onLongClick);
+      _gestureTypes.add(NodeProps.kOnLongClick);
     }
   }
 
-  @ControllerProps(NodeProps.onPressIn)
+  @ControllerProps(NodeProps.kOnPressIn)
   void pressInEnable(bool flag) {
     if (flag) {
-      _gestureTypes.add(NodeProps.onPressIn);
+      _gestureTypes.add(NodeProps.kOnPressIn);
     }
   }
 
-  @ControllerProps(NodeProps.onPressOut)
+  @ControllerProps(NodeProps.kOnPressOut)
   void pressOutEnable(bool flag) {
     if (flag) {
-      _gestureTypes.add(NodeProps.onPressOut);
+      _gestureTypes.add(NodeProps.kOnPressOut);
     }
   }
 
-  @ControllerProps(NodeProps.onTouchDown)
+  @ControllerProps(NodeProps.kOnTouchDown)
   void touchDownEnable(bool flag) {
     if (flag) {
-      _gestureTypes.add(NodeProps.onTouchDown);
+      _gestureTypes.add(NodeProps.kOnTouchDown);
     }
   }
 
-  @ControllerProps(NodeProps.onTouchMove)
+  @ControllerProps(NodeProps.kOnTouchMove)
   void touchUpEnable(bool flag) {
     if (flag) {
-      _gestureTypes.add(NodeProps.onTouchMove);
+      _gestureTypes.add(NodeProps.kOnTouchMove);
     }
   }
 
-  @ControllerProps(NodeProps.onTouchEnd)
+  @ControllerProps(NodeProps.kOnTouchEnd)
   void touchEndEnable(bool flag) {
     if (flag) {
-      _gestureTypes.add(NodeProps.onTouchEnd);
+      _gestureTypes.add(NodeProps.kOnTouchEnd);
     }
   }
 
-  @ControllerProps(NodeProps.onTouchCancel)
+  @ControllerProps(NodeProps.kOnTouchCancel)
   void touchCancelable(bool flag) {
     if (flag) {
-      _gestureTypes.add(NodeProps.onTouchCancel);
+      _gestureTypes.add(NodeProps.kOnTouchCancel);
     }
   }
 
-  @ControllerProps(NodeProps.propEnableScale)
+  @ControllerProps(NodeProps.kPropEnableScale)
   set enableScale(bool flag) {
     _enableScale = flag;
   }
 
-  @ControllerProps(NodeProps.numberOfLines)
+  @ControllerProps(NodeProps.kNumberOfLines)
   void setNumberOfLines(int numberOfLines) {
     _numberOfLines = numberOfLines <= 0 ? 0 : numberOfLines;
   }
@@ -414,7 +414,7 @@ mixin TextStyleNode on StyleNode {
 
   TextPainter createPainter(double width, FlexMeasureMode widthMode) {
     var unconstrainedWidth =
-        widthMode == FlexMeasureMode.UNDEFINED || width < 0;
+        widthMode == FlexMeasureMode.undefined || width < 0;
     var maxWidth = unconstrainedWidth ? double.infinity : width;
     var text = span ?? TextSpan(text: "");
     var painter = TextPainter(
@@ -453,175 +453,175 @@ mixin TextStyleNode on StyleNode {
 class TextMethodProvider extends StyleMethodPropProvider {
   TextMethodProvider() {
     pushMethodProp(
-        NodeProps.fontStyle,
+        NodeProps.kFontStyle,
         StyleMethodProp((consumer, value) {
           if (consumer is TextStyleNode && value is String) {
             consumer.fontStyle(value);
           }
         }, "normal"));
     pushMethodProp(
-        NodeProps.letterSpacing,
+        NodeProps.kLetterSpacing,
         StyleMethodProp((consumer, value) {
           if (consumer is TextStyleNode && value is double) {
             consumer.letterSpacing(value);
           }
         }, -1.0));
     pushMethodProp(
-        NodeProps.color,
+        NodeProps.kColor,
         StyleMethodProp((consumer, value) {
           if (consumer is TextStyleNode && value is int) {
             consumer.color(value);
           }
         }, Colors.transparent.value));
     pushMethodProp(
-        NodeProps.fontSize,
+        NodeProps.kFontSize,
         StyleMethodProp((consumer, value) {
           if (consumer is TextStyleNode && value is double) {
             consumer.fontSize(value);
           }
-        }, NodeProps.fontSizeSp));
+        }, NodeProps.kDefaultFontSizeSp));
     pushMethodProp(
-        NodeProps.numberOfLines,
+        NodeProps.kNumberOfLines,
         StyleMethodProp((consumer, value) {
           if (consumer is TextStyleNode && value is int) {
             consumer.setNumberOfLines(value);
           }
         }, kMaxLineCount));
     pushMethodProp(
-        NodeProps.fontFamily,
+        NodeProps.kFontFamily,
         StyleMethodProp((consumer, value) {
           if (consumer is TextStyleNode && value is String) {
             consumer.fontFamily(value);
           }
         }, ""));
     pushMethodProp(
-        NodeProps.fontWeight,
+        NodeProps.kFontWeight,
         StyleMethodProp((consumer, value) {
           if (consumer is TextStyleNode && value is String) {
             consumer.fontWeight(value);
           }
         }, ""));
     pushMethodProp(
-        NodeProps.textDecorationLine,
+        NodeProps.kTextDecorationLine,
         StyleMethodProp((consumer, value) {
           if (consumer is TextStyleNode && value is String) {
             consumer.textDecorationLine(value);
           }
         }, ""));
     pushMethodProp(
-        NodeProps.propShadowOffset,
+        NodeProps.kPropShadowOffset,
         StyleMethodProp((consumer, value) {
           if (consumer is TextStyleNode && value is VoltronMap) {
             consumer.textShadowOffset(value);
           }
         }, null));
     pushMethodProp(
-        NodeProps.propShadowRadius,
+        NodeProps.kPropShadowRadius,
         StyleMethodProp((consumer, value) {
           if (consumer is TextStyleNode && value is double) {
             consumer.textShadowRadius(value);
           }
         }, 0));
     pushMethodProp(
-        NodeProps.propShadowColor,
+        NodeProps.kPropShadowColor,
         StyleMethodProp((consumer, value) {
           if (consumer is TextStyleNode && value is int) {
             consumer.setTextShadowColor(value);
           }
         }, Colors.transparent.value));
     pushMethodProp(
-        NodeProps.lineHeight,
+        NodeProps.kLineHeight,
         StyleMethodProp((consumer, value) {
           if (consumer is TextStyleNode && value is int) {
             consumer.lineHeight(value);
           }
         }, -1));
     pushMethodProp(
-        NodeProps.textAlign,
+        NodeProps.kTextAlign,
         StyleMethodProp((consumer, value) {
           if (consumer is TextStyleNode && value is String) {
             consumer.setTextAlign(value);
           }
         }, "left"));
     pushMethodProp(
-        NodeProps.text,
+        NodeProps.kText,
         StyleMethodProp((consumer, value) {
           if (consumer is TextStyleNode && value is String) {
             consumer.text(value);
           }
         }, ""));
     pushMethodProp(
-        NodeProps.textOverflow,
+        NodeProps.kTextOverflow,
         StyleMethodProp((consumer, value) {
           if (consumer is TextStyleNode && value is String) {
             consumer.setTextOverflow(value);
           }
         }, ""));
     pushMethodProp(
-        NodeProps.onClick,
+        NodeProps.kOnClick,
         StyleMethodProp((consumer, value) {
           if (consumer is TextStyleNode && value is bool) {
             consumer.clickEnable(value);
           }
         }, false));
     pushMethodProp(
-        NodeProps.onLongClick,
+        NodeProps.kOnLongClick,
         StyleMethodProp((consumer, value) {
           if (consumer is TextStyleNode && value is bool) {
             consumer.longClickEnable(value);
           }
         }, false));
     pushMethodProp(
-        NodeProps.onPressIn,
+        NodeProps.kOnPressIn,
         StyleMethodProp((consumer, value) {
           if (consumer is TextStyleNode && value is bool) {
             consumer.pressInEnable(value);
           }
         }, false));
     pushMethodProp(
-        NodeProps.onPressOut,
+        NodeProps.kOnPressOut,
         StyleMethodProp((consumer, value) {
           if (consumer is TextStyleNode && value is bool) {
             consumer.pressOutEnable(value);
           }
         }, false));
     pushMethodProp(
-        NodeProps.onTouchDown,
+        NodeProps.kOnTouchDown,
         StyleMethodProp((consumer, value) {
           if (consumer is TextStyleNode && value is bool) {
             consumer.touchDownEnable(value);
           }
         }, false));
     pushMethodProp(
-        NodeProps.onTouchMove,
+        NodeProps.kOnTouchMove,
         StyleMethodProp((consumer, value) {
           if (consumer is TextStyleNode && value is bool) {
             consumer.touchUpEnable(value);
           }
         }, false));
     pushMethodProp(
-        NodeProps.onTouchEnd,
+        NodeProps.kOnTouchEnd,
         StyleMethodProp((consumer, value) {
           if (consumer is TextStyleNode && value is bool) {
             consumer.touchEndEnable(value);
           }
         }, false));
     pushMethodProp(
-        NodeProps.onTouchCancel,
+        NodeProps.kOnTouchCancel,
         StyleMethodProp((consumer, value) {
           if (consumer is TextStyleNode && value is bool) {
             consumer.touchCancelable(value);
           }
         }, false));
     pushMethodProp(
-        NodeProps.propEnableScale,
+        NodeProps.kPropEnableScale,
         StyleMethodProp((consumer, value) {
           if (consumer is TextStyleNode && value is bool) {
             consumer.enableScale = value;
           }
         }, false));
     pushMethodProp(
-        NodeProps.whiteSpace,
+        NodeProps.kWhiteSpace,
         StyleMethodProp((consumer, value) {
           if (consumer is TextStyleNode && value is String) {
             consumer.whiteSpace(value);

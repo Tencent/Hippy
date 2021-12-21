@@ -239,6 +239,10 @@ class RenderManager
 
   void createNode(int instanceId, int id, int pId, int childIndex, String name,
       VoltronMap? props) {
+    // 父节点为0标识根节点，根节点id跟instanceId相同
+    if (pId == 0) {
+      pId = instanceId;
+    }
     var parentNode = controllerManager.findNode(instanceId, pId);
     var tree = controllerManager.findTree(instanceId);
     if (parentNode != null && tree != null) {

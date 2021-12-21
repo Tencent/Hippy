@@ -176,7 +176,7 @@ class _AnimationChildState extends State<AnimationChild>
     // 2 动画播放完成的处理
     final viewModel = widget.viewModel;
     final animationFillMode = viewModel.animationFillMode;
-    if (animationFillMode == AnimationFillMode.forwards) {
+    if (animationFillMode == AnimationFillMode.kForwards) {
       // 2.1 forwards行为，设置isDisableDom都为true
       AnimationUtil.handleUpdateAllDomNodePropertyIsDisableSetting(
           viewModel.animationPropertyOptionMap);
@@ -257,7 +257,7 @@ class CommonChild extends StatelessWidget {
     final viewModelMargin = EdgeInsets.only(
         top: viewModel.layoutY ?? 0.0, left: viewModel.layoutX ?? 0.0);
     final animationMargin =
-        animationProperty?.get<EdgeInsets>(NodeProps.margin);
+        animationProperty?.get<EdgeInsets>(NodeProps.kMargin);
 
     return Container(
       alignment: Alignment.topLeft,
@@ -278,8 +278,8 @@ class StackChild extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final animationTop = animationProperty?.get<double>(NodeProps.top);
-    final animationLeft = animationProperty?.get<double>(NodeProps.left);
+    final animationTop = animationProperty?.get<double>(NodeProps.kTop);
+    final animationLeft = animationProperty?.get<double>(NodeProps.kLeft);
 
     return Positioned(
       top: animationTop ?? viewModel.layoutY,

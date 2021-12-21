@@ -9,7 +9,7 @@ import 'list_item.dart';
 import 'view_model.dart';
 
 class ListViewModel extends ScrollableModel {
-  static const String wrapperKey = "refresh_wrapper";
+  static const String kWrapperKey = "refresh_wrapper";
 
   bool showScrollIndicator = false;
   bool hasStickyItem = false;
@@ -24,7 +24,7 @@ class ListViewModel extends ScrollableModel {
   late ListViewDetailModel listViewDetailModel;
 
   RefreshWrapperDelegate? get refreshWrapper =>
-      getExtraInfo<RefreshWrapperDelegate>(wrapperKey);
+      getExtraInfo<RefreshWrapperDelegate>(kWrapperKey);
 
   ListViewModel(int id, int instanceId, String className, EngineContext context)
       : super(id, instanceId, className, context);

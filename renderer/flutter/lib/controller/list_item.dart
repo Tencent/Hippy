@@ -10,7 +10,7 @@ import 'group.dart';
 
 class ListItemViewController
     extends GroupController<ListItemViewModel, ListItemRenderNode> {
-  static const String className = "ListViewItem";
+  static const String kClassName = "ListViewItem";
 
   @override
   Widget createWidget(BuildContext context, ListItemViewModel renderViewModel) {
@@ -25,7 +25,7 @@ class ListItemViewController
   }
 
   @override
-  String get name => className;
+  String get name => kClassName;
 
   @override
   ListItemRenderNode createRenderNode(int id, VoltronMap? props, String name,

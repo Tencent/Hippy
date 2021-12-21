@@ -17,11 +17,12 @@ VoltronRenderTaskRunner::VoltronRenderTaskRunner(int32_t engine_id, int32_t root
 }
 
 void VoltronRenderTaskRunner::RunCreateDomNode(const Sp<DomNode>& node) {
-  TDF_BASE_DLOG(INFO) << "RunCreateDomNode id" << node->GetId();
+  TDF_BASE_DLOG(INFO) << "RunCreateDomNode id" << node->GetId() << " pid" << node->GetPid() << " parent addr:" << (int64_t)(node->GetParent().get());
   auto args_map = EncodableMap();
-  args_map[EncodableValue(kChildIndexKey)] = EncodableValue(node->GetIndex());
+  auto render_info = node->GetRenderInfo();
+  args_map[EncodableValue(kChildIndexKey)] = EncodableValue(render_info.index);
   args_map[EncodableValue(kClassNameKey)] = EncodableValue(node->GetViewName());
-  args_map[EncodableValue(kParentNodeIdKey)] = EncodableValue(node->GetPid());
+  args_map[EncodableValue(kParentNodeIdKey)] = EncodableValue(render_info.pid);
   if (!node->GetStyleMap().empty()) {
     args_map[EncodableValue(kStylesKey)] = EncodeDomValueMap(node->GetStyleMap());
   }
@@ -53,6 +54,7 @@ void VoltronRenderTaskRunner::RunUpdateLayout(const SpList<DomNode>& nodes) {
     auto render_node_list = EncodableList();
 
     for (const auto& node : nodes) {
+      TDF_BASE_DLOG(INFO) << "RunUpdateLayout id" << node->GetId();
       auto layout_node = node->GetLayoutNode();
       if (layout_node) {
         auto node_layout_prop_list = EncodableList();

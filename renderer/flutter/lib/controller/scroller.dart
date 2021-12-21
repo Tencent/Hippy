@@ -12,16 +12,16 @@ import 'group.dart';
 
 class ScrollViewController
     extends BaseGroupController<ScrollViewRenderViewModel> {
-  static const String scrollTo = "scrollTo";
-  static const String scrollToWithOptions = "scrollToWithOptions";
+  static const String kScrollTo = "scrollTo";
+  static const String kScrollToWithOptions = "scrollToWithOptions";
 
-  static const String showScrollIndicator = "showScrollIndicator";
-  static const String onScrollAnimationEnd = "onScrollAnimationEnd";
-  static const String flingEnabled = "flingEnabled";
-  static const String contentOffsetForReuse = "contentOffset4Reuse";
-  static const String pagingEnabled = "pagingEnabled";
+  static const String kShowScrollIndicator = "showScrollIndicator";
+  static const String kOnScrollAnimationEnd = "onScrollAnimationEnd";
+  static const String kFlingEnabled = "flingEnabled";
+  static const String kContentOffsetForReuse = "contentOffset4Reuse";
+  static const String kPagingEnabled = "pagingEnabled";
 
-  static const String className = "ScrollView";
+  static const String kClassName = "ScrollView";
 
   @override
   ScrollViewRenderViewModel createRenderViewModel(
@@ -44,98 +44,98 @@ class ScrollViewController
 
   @override
   Map<String, ControllerMethodProp> get groupExtraMethodProp => {
-        NodeProps.onScrollBeginDrag:
+        NodeProps.kOnScrollBeginDrag:
             ControllerMethodProp(setScrollBeginDragEventEnable, false),
-        NodeProps.onScrollEndDrag:
+        NodeProps.kOnScrollEndDrag:
             ControllerMethodProp(setScrollEndDragEventEnable, false),
-        NodeProps.onMomentumScrollBegin:
+        NodeProps.kOnMomentumScrollBegin:
             ControllerMethodProp(setMomentumScrollBeginEventEnable, false),
-        NodeProps.onMomentumScrollEnd:
+        NodeProps.kOnMomentumScrollEnd:
             ControllerMethodProp(setMomentumScrollEndEventEnable, false),
-        NodeProps.onScrollEnable:
+        NodeProps.kOnScrollEnable:
             ControllerMethodProp(setScrollEventThrottle, false),
-        NodeProps.scrollEnable: ControllerMethodProp(setScrollEnabled, true),
-        NodeProps.scrollEventThrottle:
+        NodeProps.kScrollEnable: ControllerMethodProp(setScrollEnabled, true),
+        NodeProps.kScrollEventThrottle:
             ControllerMethodProp(setScrollEventThrottle, 30),
-        showScrollIndicator:
+        kShowScrollIndicator:
             ControllerMethodProp(setShowScrollIndicator, false),
-        onScrollAnimationEnd:
+        kOnScrollAnimationEnd:
             ControllerMethodProp(setScrollAnimationEndEventEnable, false),
-        flingEnabled: ControllerMethodProp(setFlingEnabled, true),
-        contentOffsetForReuse:
+        kFlingEnabled: ControllerMethodProp(setFlingEnabled, true),
+        kContentOffsetForReuse:
             ControllerMethodProp(setContentOffset4Reuse, null),
-        pagingEnabled: ControllerMethodProp(setFlingEnabled, false),
+        kPagingEnabled: ControllerMethodProp(setFlingEnabled, false),
       };
 
   @override
-  String get name => className;
+  String get name => kClassName;
 
-  @ControllerProps(NodeProps.scrollEnable)
+  @ControllerProps(NodeProps.kScrollEnable)
   void setScrollEnabled(ScrollViewRenderViewModel renderViewModel, bool flag) {
     renderViewModel.scrollGestureDispatcher.scrollEnable = flag;
   }
 
-  @ControllerProps(showScrollIndicator)
+  @ControllerProps(kShowScrollIndicator)
   void setShowScrollIndicator(
       ScrollViewRenderViewModel renderViewModel, bool flag) {
     renderViewModel.showScrollIndicator = flag;
   }
 
-  @ControllerProps(NodeProps.onScrollEnable)
+  @ControllerProps(NodeProps.kOnScrollEnable)
   void setScrollEventEnable(
       ScrollViewRenderViewModel renderViewModel, bool flag) {
     renderViewModel.scrollGestureDispatcher.scrollEventEnable = flag;
   }
 
-  @ControllerProps(NodeProps.onScrollBeginDrag)
+  @ControllerProps(NodeProps.kOnScrollBeginDrag)
   void setScrollBeginDragEventEnable(
       ScrollViewRenderViewModel renderViewModel, bool flag) {
     renderViewModel.scrollGestureDispatcher.scrollBeginDragEventEnable = flag;
   }
 
-  @ControllerProps(NodeProps.onScrollEndDrag)
+  @ControllerProps(NodeProps.kOnScrollEndDrag)
   void setScrollEndDragEventEnable(
       ScrollViewRenderViewModel renderViewModel, bool flag) {
     renderViewModel.scrollGestureDispatcher.scrollEndDragEventEnable = flag;
   }
 
-  @ControllerProps(NodeProps.onMomentumScrollBegin)
+  @ControllerProps(NodeProps.kOnMomentumScrollBegin)
   void setMomentumScrollBeginEventEnable(
       ScrollViewRenderViewModel renderViewModel, bool flag) {
     renderViewModel.scrollGestureDispatcher.momentumScrollBeginEventEnable =
         flag;
   }
 
-  @ControllerProps(NodeProps.onMomentumScrollEnd)
+  @ControllerProps(NodeProps.kOnMomentumScrollEnd)
   void setMomentumScrollEndEventEnable(
       ScrollViewRenderViewModel renderViewModel, bool flag) {
     renderViewModel.scrollGestureDispatcher.momentumScrollEndEventEnable = flag;
   }
 
-  @ControllerProps(onScrollAnimationEnd)
+  @ControllerProps(kOnScrollAnimationEnd)
   void setScrollAnimationEndEventEnable(
       ScrollViewRenderViewModel renderViewModel, bool flag) {
     renderViewModel.scrollAnimationEndEventEnable = flag;
   }
 
-  @ControllerProps(flingEnabled)
+  @ControllerProps(kFlingEnabled)
   void setFlingEnabled(ScrollViewRenderViewModel renderViewModel, bool flag) {
     renderViewModel.flingEnable = flag;
   }
 
-  @ControllerProps(contentOffsetForReuse)
+  @ControllerProps(kContentOffsetForReuse)
   void setContentOffset4Reuse(
       ScrollViewRenderViewModel renderViewModel, VoltronMap offsetMap) {
     renderViewModel.setInitOffset(offsetMap);
   }
 
-  @ControllerProps(pagingEnabled)
+  @ControllerProps(kPagingEnabled)
   void setPagingEnabled(
       ScrollViewRenderViewModel renderViewModel, bool pagingEnabled) {
     renderViewModel.pagingEnable = pagingEnabled;
   }
 
-  @ControllerProps(NodeProps.scrollEventThrottle)
+  @ControllerProps(NodeProps.kScrollEventThrottle)
   void setScrollEventThrottle(
       ScrollViewRenderViewModel renderViewModel, int scrollEventThrottle) {
     renderViewModel.scrollGestureDispatcher.scrollEventThrottle =
@@ -149,7 +149,7 @@ class ScrollViewController
     super.dispatchFunction(renderViewModel, functionName, array,
         promise: promise);
     // 滚动事件
-    if (functionName == scrollToWithOptions) {
+    if (functionName == kScrollToWithOptions) {
       // 先确定滚动方向
       var orientation = 'vertical';
       if (renderViewModel.isHorizontal) {

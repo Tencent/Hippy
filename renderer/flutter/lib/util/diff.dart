@@ -33,13 +33,13 @@ VoltronMap diffProps(VoltronMap? from, VoltronMap to, int diffLevel) {
       if ((toValue is VoltronMap)) {
         var diffResult = diffProps(fromValue, toValue, diffLevel + 1);
         if (diffResult.size() > 0) {
-          if (diffLevel == 0 && fromKey == NodeProps.style) {
+          if (diffLevel == 0 && fromKey == NodeProps.kStyle) {
             updateProps.push(fromKey, diffResult);
           } else {
             updateProps.push(fromKey, toValue);
           }
         }
-      } else if (diffLevel == 0 && fromKey == NodeProps.style) {
+      } else if (diffLevel == 0 && fromKey == NodeProps.kStyle) {
         //style is null
         var diffResult = diffProps(fromValue, VoltronMap(), diffLevel + 1);
         updateProps.push(fromKey, diffResult);

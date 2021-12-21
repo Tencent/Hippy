@@ -17,7 +17,7 @@ class RenderTree {
 
   void init(RenderNode rootNode) {
     _rootNode = rootNode;
-    addNode(rootNode);
+    registerNode(rootNode);
   }
 
   RenderNode? getRenderNode(int nodeId) => _nodeMap[nodeId];
@@ -28,8 +28,7 @@ class RenderTree {
 
   RenderNode? get rootNode => _rootNode;
 
-  // ignore: avoid_returning_this
-  RenderTree addNode(RenderNode node) {
+  void registerNode(RenderNode node) {
     if (node.id != id && !_hasNotifyViewAdd) {
       _hasNotifyViewAdd = true;
       _rootWidgetViewModel.onViewAdd();
@@ -37,27 +36,20 @@ class RenderTree {
     _nodeMap[node.id] = node;
     LogUtils.dRenderNode(
         "$hashCode render tree add node(${node.id}, ${node.hashCode})");
-    return this;
   }
 
-  // ignore: avoid_returning_this
-  RenderTree removeNode(RenderNode node) {
+  void unregisterNode(RenderNode node) {
     LogUtils.dRenderNode(
         "$hashCode render tree remove node(${node.id}, ${node.hashCode})");
     _nodeMap.remove(node.id);
-    return this;
   }
 
-  // ignore: avoid_returning_this
-  RenderTree removeNodeById(int id) {
+  void removeNodeById(int id) {
     _nodeMap.remove(id);
-    return this;
   }
 
-  // ignore: avoid_returning_this
-  RenderTree clear() {
+  void clear() {
     rootNode?.deleteAllChild();
     _nodeMap.clear();
-    return this;
   }
 }

@@ -286,10 +286,10 @@ class RenderViewModel extends ChangeNotifier {
     _y = y;
     _width = width;
     _height = height;
-    updateAnimation(NodeProps.left, x);
-    updateAnimation(NodeProps.top, y);
-    updateAnimation(NodeProps.width, width);
-    updateAnimation(NodeProps.height, height);
+    updateAnimation(NodeProps.kLeft, x);
+    updateAnimation(NodeProps.kTop, y);
+    updateAnimation(NodeProps.kWidth, width);
+    updateAnimation(NodeProps.kHeight, height);
     LogUtils.dRender("render view model, after update layout($this)");
   }
 
@@ -338,37 +338,37 @@ class RenderViewModel extends ChangeNotifier {
 
   void setCanPressIn(bool flag) {
     if (!handleGestureBySelf()) {
-      setGestureType(NodeProps.onPressIn, flag);
+      setGestureType(NodeProps.kOnPressIn, flag);
     }
   }
 
   void setCanPressOut(bool flag) {
     if (!handleGestureBySelf()) {
-      setGestureType(NodeProps.onPressOut, flag);
+      setGestureType(NodeProps.kOnPressOut, flag);
     }
   }
 
   void setTouchDownHandle(bool flag) {
     if (!handleGestureBySelf()) {
-      setGestureType(NodeProps.onTouchDown, flag);
+      setGestureType(NodeProps.kOnTouchDown, flag);
     }
   }
 
   void setTouchMoveHandle(bool flag) {
     if (!handleGestureBySelf()) {
-      setGestureType(NodeProps.onTouchMove, flag);
+      setGestureType(NodeProps.kOnTouchMove, flag);
     }
   }
 
   void setTouchEndHandle(bool flag) {
     if (!handleGestureBySelf()) {
-      setGestureType(NodeProps.onTouchEnd, flag);
+      setGestureType(NodeProps.kOnTouchEnd, flag);
     }
   }
 
   void setTouchCancelHandle(bool flag) {
     if (!handleGestureBySelf()) {
-      setGestureType(NodeProps.onTouchCancel, flag);
+      setGestureType(NodeProps.kOnTouchCancel, flag);
     }
   }
 
@@ -714,12 +714,12 @@ class Transition {
 
   Transition(String transitionProperty, VoltronMap params) {
     transitionProperty = transitionProperty;
-    transitionDuration = params.get(NodeProps.transitionDuration) ?? 0;
+    transitionDuration = params.get(NodeProps.kTransitionDuration) ?? 0;
     final originTransitionTimingFunction =
-        params.get(NodeProps.transitionTimingFunction) ?? TimingFunction.ease;
+        params.get(NodeProps.kTransitionTimingFunction) ?? TimingFunction.kEase;
     transitionTimingFunction =
         resizeModeToCurve(originTransitionTimingFunction);
-    transitionDelay = params.get(NodeProps.transitionDelay) ?? 0;
+    transitionDelay = params.get(NodeProps.kTransitionDelay) ?? 0;
   }
 
   @override
@@ -740,14 +740,14 @@ class Transition {
 
   void update(VoltronMap params) {
     transitionDuration =
-        params.get(NodeProps.transitionDuration) ?? transitionDuration;
+        params.get(NodeProps.kTransitionDuration) ?? transitionDuration;
     final originTransitionTimingFunction =
-        params.get(NodeProps.transitionTimingFunction);
+        params.get(NodeProps.kTransitionTimingFunction);
     if (originTransitionTimingFunction != null) {
       transitionTimingFunction =
           resizeModeToCurve(originTransitionTimingFunction);
     }
-    transitionDelay = params.get(NodeProps.transitionDelay) ?? transitionDelay;
+    transitionDelay = params.get(NodeProps.kTransitionDelay) ?? transitionDelay;
   }
 }
 
@@ -763,7 +763,7 @@ class CssAnimation {
   int playCount = 1;
 
   /// 播放方向
-  String direction = AnimationDirection.normal;
+  String direction = AnimationDirection.kNormal;
 
   /// 运行完所有动画所需要的时间(包含动画延迟播放的时间)，用于计算各属性动画tween的interval
   late Duration totalDuration;
@@ -778,14 +778,14 @@ class CssAnimation {
   Map<String, dynamic> _getAnimationStartValueStrategyMap(
       RenderViewModel viewModel) {
     final strategyMap = {
-      NodeProps.width: viewModel.width,
-      NodeProps.height: viewModel.height,
-      NodeProps.top: viewModel.layoutY,
-      NodeProps.left: viewModel.layoutX,
-      NodeProps.opacity: viewModel.opacity,
-      NodeProps.backgroundColor: viewModel.backgroundColor,
-      NodeProps.transform: viewModel.transform,
-      NodeProps.transformOrigin: viewModel.transformOrigin,
+      NodeProps.kWidth: viewModel.width,
+      NodeProps.kHeight: viewModel.height,
+      NodeProps.kTop: viewModel.layoutY,
+      NodeProps.kLeft: viewModel.layoutX,
+      NodeProps.kOpacity: viewModel.opacity,
+      NodeProps.kBackgroundColor: viewModel.backgroundColor,
+      NodeProps.kTransform: viewModel.transform,
+      NodeProps.kTransformOrigin: viewModel.transformOrigin,
     };
 
     return strategyMap;
@@ -794,8 +794,8 @@ class CssAnimation {
   /// 获取特殊动画属性需要转换key值的策略Map
   Map<String, String> get _specialKeyStrategyMap {
     final strategyMap = {
-      NodeProps.right: NodeProps.left,
-      NodeProps.bottom: NodeProps.top,
+      NodeProps.kRight: NodeProps.kLeft,
+      NodeProps.kBottom: NodeProps.kTop,
     };
 
     return strategyMap;
@@ -832,19 +832,19 @@ class CssAnimation {
   CssAnimation.initByAnimation(VoltronMap animation,
       List<VoltronMap> propertyMapSortList, RenderViewModel viewModel) {
     final animationDirection =
-        animation.get<String>(NodeProps.animationDirection) ??
-            AnimationDirection.normal;
+        animation.get<String>(NodeProps.kAnimationDirection) ??
+            AnimationDirection.kNormal;
     final animationIterationCount =
-        animation.get(NodeProps.animationIterationCount);
+        animation.get(NodeProps.kAnimationIterationCount);
     final animationDuration =
-        animation.get<int>(NodeProps.animationDuration) ?? 0;
-    final animationDelay = animation.get<int>(NodeProps.animationDelay) ?? 0;
+        animation.get<int>(NodeProps.kAnimationDuration) ?? 0;
+    final animationDelay = animation.get<int>(NodeProps.kAnimationDelay) ?? 0;
     final animationTotalDuration = animationDuration + animationDelay;
     final startInterval = animationDelay / animationTotalDuration;
     final endInterval = 1.0;
     final originTimingFunction =
-        animation.get<String>(NodeProps.animationTimingFunction) ??
-            TimingFunction.ease;
+        animation.get<String>(NodeProps.kAnimationTimingFunction) ??
+            TimingFunction.kEase;
     final curve = resizeModeToCurve(originTimingFunction);
     final sortListLength = propertyMapSortList.length;
 
@@ -870,7 +870,7 @@ class CssAnimation {
     AnimationUtil.handleRemoveInvalidAnimationTweenSequence(
         animationTweenSequenceMap);
     totalDuration = Duration(milliseconds: animationTotalDuration);
-    if (animationIterationCount == AnimationIterationCount.infinite) {
+    if (animationIterationCount == AnimationIterationCount.kInfinite) {
       canRepeat = true;
     } else if (animationIterationCount.runtimeType == int) {
       playCount = animationIterationCount;

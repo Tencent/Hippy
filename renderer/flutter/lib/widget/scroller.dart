@@ -118,7 +118,7 @@ class ScrollNotificationListener extends StatefulWidget {
 
 class _ScrollNotificationListenerState
     extends State<ScrollNotificationListener> {
-  static const double extraScrollEndOffset = 5;
+  static const double kExtraScrollEndOffset = 5;
   bool _scrollFlingStartHandle = false;
   bool _hasReachEnd = false;
 
@@ -191,7 +191,7 @@ class _ScrollNotificationListenerState
   bool judgeReachEnd(double curScrollOffset, double maxScrollOffset) {
     var preloadNumber = widget.scrollGestureDispatcher.preloadItemNumber;
     if (preloadNumber == 0) {
-      return curScrollOffset + extraScrollEndOffset >= maxScrollOffset;
+      return curScrollOffset + kExtraScrollEndOffset >= maxScrollOffset;
     }
 
     if (widget.viewModel.childCount <= preloadNumber) {
@@ -203,7 +203,7 @@ class _ScrollNotificationListenerState
       extraOffset +=
           widget.viewModel.children?[widget.viewModel.childCount - i].height ??
               0;
-      if (curScrollOffset + extraOffset + extraScrollEndOffset >=
+      if (curScrollOffset + extraOffset + kExtraScrollEndOffset >=
           maxScrollOffset) {
         return true;
       }

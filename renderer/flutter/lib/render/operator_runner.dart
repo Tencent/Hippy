@@ -104,7 +104,7 @@ class _AddNodeOpTask extends _NodeOpTask {
     var styleMap = _params[_RenderOpParamsKey.kStylesKey] ?? {};
     var propMap = _params[_RenderOpParamsKey.kPropsKey] ?? {};
     var composePropMap = VoltronMap.fromMap(propMap);
-    composePropMap.push(NodeProps.style, VoltronMap.fromMap(styleMap));
+    composePropMap.push(NodeProps.kStyle, VoltronMap.fromMap(styleMap));
     renderManager.addUITask(() {
       renderManager.createNode(_instanceId, _nodeId, parentId, childIndex,
           className, composePropMap);
@@ -244,7 +244,7 @@ class _CallUiFunctionOpTask extends _NodeOpTask {
       var realParams = VoltronArray.fromList(
           funcParams[_RenderOpParamsKey.kParamsKey] ?? []);
       String callbackId =
-          _params[_RenderOpParamsKey.kFuncIdKey] ?? Promise.callIdNoCallback;
+          _params[_RenderOpParamsKey.kFuncIdKey] ?? Promise.kCallIdNoCallback;
       var promise = Promise.native(_engineContext, callId: callbackId);
       renderManager.addNulUITask(() {
         renderManager.dispatchUIFunction(
@@ -263,7 +263,7 @@ class _AddEventOpTask extends _NodeOpTask {
     String eventName = _params[_RenderOpParamsKey.kFuncNameKey] ?? '';
     if (eventName.isNotEmpty) {
       String callbackId =
-          _params[_RenderOpParamsKey.kFuncIdKey] ?? Promise.callIdNoCallback;
+          _params[_RenderOpParamsKey.kFuncIdKey] ?? Promise.kCallIdNoCallback;
       var promise = Promise.native(_engineContext, callId: callbackId);
 
       switch (eventName) {

@@ -7,11 +7,11 @@ import 'module.dart';
 import 'promise.dart';
 
 class DialogModule extends VoltronNativeModule {
-  static const String dialogModuleName = "DialogModule";
-  static const String funcToast = "toast";
-  static const String funcAlert = "alert";
-  static const String funcConfirm = "confirm";
-  static const String funcPrompt = "prompt";
+  static const String kDialogModuleName = "DialogModule";
+  static const String kFuncToast = "toast";
+  static const String kFuncAlert = "alert";
+  static const String kFuncConfirm = "confirm";
+  static const String kFuncPrompt = "prompt";
   EngineContext? _context;
 
   DialogModule(EngineContext context) : super(context) {
@@ -76,7 +76,7 @@ class DialogModule extends VoltronNativeModule {
     return ret == null ? false : ret;
   }
 
-  @VoltronMethod(funcToast)
+  @VoltronMethod(kFuncToast)
   bool toast(VoltronMap message, JSPromise promise) {
     var gravity = message.get('gravity') ?? 'bottom';
     var text = message.get('message') ?? '';
@@ -88,7 +88,7 @@ class DialogModule extends VoltronNativeModule {
     return true;
   }
 
-  @VoltronMethod(funcAlert)
+  @VoltronMethod(kFuncAlert)
   Future<bool> alert(int rootId, VoltronMap message, JSPromise promise) async {
     var text = message.get('message') ?? '';
     var textOK = message.get('textOK') ?? '确定';
@@ -105,7 +105,7 @@ class DialogModule extends VoltronNativeModule {
     return true;
   }
 
-  @VoltronMethod(funcConfirm)
+  @VoltronMethod(kFuncConfirm)
   Future<bool> confirm(
       int rootId, VoltronMap message, JSPromise promise) async {
     var text = message.get('message') ?? '';
@@ -125,7 +125,7 @@ class DialogModule extends VoltronNativeModule {
     return true;
   }
 
-  @VoltronMethod(funcPrompt)
+  @VoltronMethod(kFuncPrompt)
   Future<bool> prompt(int rootId, VoltronMap message, JSPromise promise) async {
     var text = message.get('title') ?? '';
     var textOK = message.get('textOK') ?? '确定';
@@ -156,12 +156,12 @@ class DialogModule extends VoltronNativeModule {
 
   @override
   Map<String, Function> get extraFuncMap => {
-        funcToast: toast,
-        funcAlert: alert,
-        funcConfirm: confirm,
-        funcPrompt: prompt
+        kFuncToast: toast,
+        kFuncAlert: alert,
+        kFuncConfirm: confirm,
+        kFuncPrompt: prompt
       };
 
   @override
-  String get moduleName => dialogModuleName;
+  String get moduleName => kDialogModuleName;
 }

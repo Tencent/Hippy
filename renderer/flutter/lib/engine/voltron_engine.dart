@@ -15,7 +15,7 @@ import 'init_params.dart';
 import 'module_params.dart';
 
 class VoltronEngine implements OnSizeChangedListener, OnResumeAndPauseListener {
-  static const String _tag = "EngineManagerImpl";
+  static const String _kTag = "EngineManagerImpl";
   // flutter的engine ID从100000开始
   static int sIdCounter = 100000;
   static bool _sHasInitBridge = false;
@@ -120,9 +120,9 @@ class VoltronEngine implements OnSizeChangedListener, OnResumeAndPauseListener {
   Future<dynamic> initEngine(EngineListener listener) async {
     // 初始化平台相关信息， 必须放到第一位，否则可能run app之后平台信息还未初始化完成
     await PlatformManager.getInstance().initPlatform();
-    LogUtils.d(_tag, "initEngine getPlatform");
+    LogUtils.d(_kTag, "initEngine getPlatform");
     await _initBridge();
-    LogUtils.d(_tag, "initEngine initBridge done");
+    LogUtils.d(_kTag, "initEngine initBridge done");
     if (_currentState != EngineState.unInit) {
       _listen(listener);
       return;
@@ -143,12 +143,12 @@ class VoltronEngine implements OnSizeChangedListener, OnResumeAndPauseListener {
       //   return;
       // }
 
-      LogUtils.d(_tag, "start restartEngineInBackground...");
+      LogUtils.d(_kTag, "start restartEngineInBackground...");
       await _restartEngineInBackground();
     } catch (e) {
       _currentState = EngineState.initError;
       if (e is Error) {
-        LogUtils.e(_tag, "${e.stackTrace}");
+        LogUtils.e(_kTag, "${e.stackTrace}");
       }
       _notifyEngineInitialized(
           EngineStatus.initException, StateError(e.toString()));
@@ -173,7 +173,7 @@ class VoltronEngine implements OnSizeChangedListener, OnResumeAndPauseListener {
   void _notifyEngineInitialized(EngineStatus statusCode, Error? e) {
     var preloadBundleLoader = _preloadBundleLoader;
     if (preloadBundleLoader != null) {
-      LogUtils.d(_tag, "preload bundle loader");
+      LogUtils.d(_kTag, "preload bundle loader");
       preloadModule(preloadBundleLoader);
     }
 
@@ -181,8 +181,8 @@ class VoltronEngine implements OnSizeChangedListener, OnResumeAndPauseListener {
       _startTimeMonitor.end();
       _reportEngineLoadResult(
           _currentState == EngineState.inited
-              ? EngineMonitorAdapter.engineLoadResultSuccess
-              : EngineMonitorAdapter.engineLoadResultError,
+              ? EngineMonitorAdapter.kEngineLoadResultSuccess
+              : EngineMonitorAdapter.kEngineLoadResultError,
           e);
     }
     for (var listener in _eventListenerList) {
@@ -219,7 +219,7 @@ class VoltronEngine implements OnSizeChangedListener, OnResumeAndPauseListener {
     if (_currentState == EngineState.destroyed) {
       var errorMsg =
           "restartEngineInBackground... error STATUS_WRONG_STATE, state=$_currentState";
-      LogUtils.e(_tag, errorMsg);
+      LogUtils.e(_kTag, errorMsg);
       _notifyEngineInitialized(EngineStatus.wrongState, StateError(errorMsg));
       return;
     }
@@ -247,7 +247,7 @@ class VoltronEngine implements OnSizeChangedListener, OnResumeAndPauseListener {
     await _engineContext!.bridgeManager.initBridge((param, e) {
       if (_currentState != EngineState.onInit &&
           _currentState != EngineState.onRestart) {
-        LogUtils.e(_tag,
+        LogUtils.e(_kTag,
             "initBridge callback error STATUS_WRONG_STATE, state=$_currentState");
         _notifyEngineInitialized(EngineStatus.wrongState, e);
         return;
@@ -265,7 +265,7 @@ class VoltronEngine implements OnSizeChangedListener, OnResumeAndPauseListener {
         _notifyEngineInitialized(
             param ? EngineStatus.ok : EngineStatus.errBridge, e);
       } else {
-        LogUtils.e(_tag,
+        LogUtils.e(_kTag,
             "initBridge callback error STATUS_WRONG_STATE, state=$_currentState");
         _notifyEngineInitialized(EngineStatus.wrongState, e);
         _startTimeMonitor.end();
@@ -273,7 +273,7 @@ class VoltronEngine implements OnSizeChangedListener, OnResumeAndPauseListener {
     });
   }
 
-  int get bridgeType => VoltronBridgeManager.bridgeTypeNormal;
+  int get bridgeType => VoltronBridgeManager.kBridgeTypeNormal;
 
   void resetEngine() {
     _engineContext?.destroy();
@@ -290,7 +290,7 @@ class VoltronEngine implements OnSizeChangedListener, OnResumeAndPauseListener {
     }
     // 在通知创建dart侧的 renderManager之前，需要先初始化native的domManager
     await engineContext.bridgeManager.initDom(instance.id);
-    LogUtils.d(_tag, "in internalLoadInstance");
+    LogUtils.d(_kTag, "in internalLoadInstance");
     for (var listener in engineContext.instanceLifecycleEventListener) {
       listener.onInstanceLoad(instance.id);
     }
@@ -308,7 +308,7 @@ class VoltronEngine implements OnSizeChangedListener, OnResumeAndPauseListener {
       return;
     }
     LogUtils.d(
-        _tag, "in internalLoadInstance before loadInstance, $_debugMode");
+        _kTag, "in internalLoadInstance before loadInstance, $_debugMode");
     await engineContext.bridgeManager
         .loadInstance(instance.name, instance.id, launchParams);
     // if (_debugMode) _notifyModuleLoaded(EngineStatus.ok, null, instance);
@@ -358,7 +358,7 @@ class VoltronEngine implements OnSizeChangedListener, OnResumeAndPauseListener {
       _devManagerInited = true;
     }
 
-    LogUtils.d(_tag, "internalLoadInstance start...");
+    LogUtils.d(_kTag, "internalLoadInstance start...");
     if (_currentState == EngineState.inited) {
       _internalLoadInstance(viewModel);
     } else {
@@ -456,7 +456,8 @@ class VoltronEngine implements OnSizeChangedListener, OnResumeAndPauseListener {
 
   bool onBackPressed(BackPressHandler handler) {
     var module = _engineContext?.moduleManager
-        .getNativeModule<DeviceEventModule>(DeviceEventModule.deviceModuleName);
+        .getNativeModule<DeviceEventModule>(
+            DeviceEventModule.kDeviceModuleName);
     if (module != null) {
       return module.onBackPressed(handler);
     }
@@ -465,7 +466,7 @@ class VoltronEngine implements OnSizeChangedListener, OnResumeAndPauseListener {
 
   static Future<dynamic> _initBridge() async {
     if (!_sHasInitBridge) {
-      LogUtils.d(_tag, "_initBridge");
+      LogUtils.d(_kTag, "_initBridge");
       await VoltronApi.initBridge();
       _sHasInitBridge = true;
     }

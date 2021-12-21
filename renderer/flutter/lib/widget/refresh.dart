@@ -53,7 +53,7 @@ class _RefreshWrapperWidgetState extends FRState<RefreshWrapperWidget> {
       header = generateByViewModel(context, headerModel);
     }
     var listChild = content;
-    listChild.pushExtraInfo(ListViewModel.wrapperKey, (context, child) {
+    listChild.pushExtraInfo(ListViewModel.kWrapperKey, (context, child) {
       return SmartRefresher(
         enablePullDown: true,
         controller: viewModel.controller,

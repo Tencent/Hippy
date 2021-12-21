@@ -4,15 +4,15 @@ import 'module.dart';
 import 'promise.dart';
 
 class UtilsModule extends VoltronNativeModule {
-  static const String utilsModuleName = "UtilsModule";
-  static const String funcCheckAPI = "checkApi";
+  static const String kUtilsModuleName = "UtilsModule";
+  static const String kFuncCheckAPI = "checkApi";
   EngineContext? _context;
 
   UtilsModule(EngineContext context) : super(context) {
     _context = context;
   }
 
-  @VoltronMethod(funcCheckAPI)
+  @VoltronMethod(kFuncCheckAPI)
   bool checkApi(VoltronMap message, JSPromise promise) {
     var nativeModuleMap = _context?.moduleManager.nativeModule;
     var jsModuleMap = _context?.moduleManager.jsModule;
@@ -51,8 +51,8 @@ class UtilsModule extends VoltronNativeModule {
   }
 
   @override
-  Map<String, Function> get extraFuncMap => {funcCheckAPI: checkApi};
+  Map<String, Function> get extraFuncMap => {kFuncCheckAPI: checkApi};
 
   @override
-  String get moduleName => utilsModuleName;
+  String get moduleName => kUtilsModuleName;
 }

@@ -78,21 +78,21 @@ abstract class FlexNodeAPI<T> {
 
   set flexBasis(double flexBasis);
 
-  double getMargin(int spacingType);
+  double getMargin(FlexStyleEdge spacingType);
 
-  void setMargin(int spacingType, double margin);
+  void setMargin(FlexStyleEdge spacingType, double margin);
 
-  double getPadding(int spacingType);
+  double getPadding(FlexStyleEdge spacingType);
 
-  void setPadding(int spacingType, double padding);
+  void setPadding(FlexStyleEdge spacingType, double padding);
 
-  double getBorder(int spacingType);
+  double getBorder(FlexStyleEdge spacingType);
 
-  void setBorder(int spacingType, double border);
+  void setBorder(FlexStyleEdge spacingType, double border);
 
-  double getPosition(int spacingType);
+  double getPosition(FlexStyleEdge spacingType);
 
-  void setPosition(int spacingType, double position);
+  void setPosition(FlexStyleEdge spacingType, double position);
 
   double get layoutX;
 
@@ -120,26 +120,10 @@ class FlexNode extends FlexNodeAPI<FlexNode> {
   static const int kPaddingIndex = 2;
   static const int kBorderIndex = 4;
 
-  int _edgeSetFlag = 0;
-  bool _hasNewLayout = true;
   double _width = double.nan;
   double _height = double.nan;
   double _top = double.nan;
   double _left = double.nan;
-  double _bottom = double.nan;
-  double _right = double.nan;
-  double _marginLeft = 0;
-  double _marginTop = 0;
-  double _marginRight = 0;
-  double _marginBottom = 0;
-  double _paddingLeft = 0;
-  double _paddingTop = 0;
-  double _paddingRight = 0;
-  double _paddingBottom = 0;
-  double _borderLeft = 0;
-  double _borderTop = 0;
-  double _borderRight = 0;
-  double _borderBottom = 0;
 
   dynamic _data;
 
@@ -151,22 +135,8 @@ class FlexNode extends FlexNodeAPI<FlexNode> {
   }
 
   @override
-  double getBorder(int spacingType) {
-    var edge = flexStyleEdgeFromInt(spacingType);
-    switch (edge) {
-      case FlexStyleEdge.EDGE_LEFT:
-      case FlexStyleEdge.EDGE_START:
-        return _borderLeft;
-      case FlexStyleEdge.EDGE_TOP:
-        return _borderTop;
-      case FlexStyleEdge.EDGE_RIGHT:
-      case FlexStyleEdge.EDGE_END:
-        return _borderRight;
-      case FlexStyleEdge.EDGE_BOTTOM:
-        return _borderBottom;
-      default:
-        return _flexNodeStyle.getBorder(edge).value;
-    }
+  double getBorder(FlexStyleEdge spacingType) {
+    return _flexNodeStyle.getBorder(spacingType).value;
   }
 
   // ignore: always_declare_return_types, type_annotate_public_apis
@@ -182,15 +152,15 @@ class FlexNode extends FlexNodeAPI<FlexNode> {
 
   @override
   void reset() {
-    styleDirection = FlexDirection.LTR;
-    styleCssDirection = FlexCSSDirection.COLUMN;
-    justifyContent = FlexJustify.FLEX_START;
-    alignContent = FlexAlign.FLEX_START;
-    alignItems = FlexAlign.STRETCH;
-    alignSelf = FlexAlign.AUTO;
-    positionType = FlexPositionType.RELATIVE;
-    wrap = FlexWrap.NOWRAP;
-    overflow = FlexOverflow.VISIBLE;
+    styleDirection = FlexDirection.ltr;
+    styleCssDirection = FlexCSSDirection.column;
+    justifyContent = FlexJustify.flexStart;
+    alignContent = FlexAlign.flexStart;
+    alignItems = FlexAlign.stretch;
+    alignSelf = FlexAlign.auto;
+    positionType = FlexPositionType.relative;
+    wrap = FlexWrap.noWrap;
+    overflow = FlexOverflow.visible;
     flexGrow = 0;
     flexShrink = 0;
     flexBasis = undefined;
@@ -199,18 +169,6 @@ class FlexNode extends FlexNodeAPI<FlexNode> {
     _height = double.nan;
     _top = double.nan;
     _left = double.nan;
-    _marginLeft = 0;
-    _marginTop = 0;
-    _marginRight = 0;
-    _marginBottom = 0;
-    _paddingLeft = 0;
-    _paddingTop = 0;
-    _paddingRight = 0;
-    _paddingBottom = 0;
-    _borderLeft = 0;
-    _borderTop = 0;
-    _borderRight = 0;
-    _borderBottom = 0;
   }
 
   String resultToString() {
@@ -403,71 +361,40 @@ class FlexNode extends FlexNodeAPI<FlexNode> {
   }
 
   @override
-  double getMargin(int spacingType) {
-    final edge = flexStyleEdgeFromInt(spacingType);
-    switch (edge) {
-      case FlexStyleEdge.EDGE_LEFT:
-      case FlexStyleEdge.EDGE_START:
-        return _marginLeft;
-      case FlexStyleEdge.EDGE_TOP:
-        return _marginTop;
-      case FlexStyleEdge.EDGE_RIGHT:
-      case FlexStyleEdge.EDGE_END:
-        return _marginRight;
-      case FlexStyleEdge.EDGE_BOTTOM:
-        return _marginBottom;
-      default:
-        return _flexNodeStyle.getMargin(edge).value;
-    }
+  double getMargin(FlexStyleEdge spacingType) {
+    return _flexNodeStyle.getMargin(spacingType).value;
   }
 
   @override
-  void setMargin(int spacingType, double margin) {
+  void setMargin(FlexStyleEdge spacingType, double margin) {
     // 注意，设置宽高margin不直接改变flex node的属性值，在native层cssLayout后属性值由底层传上来设置
-    _edgeSetFlag |= kMarginIndex;
-    _flexNodeStyle.setMargin(flexStyleEdgeFromInt(spacingType), margin);
+    _flexNodeStyle.setMargin(spacingType, margin);
   }
 
   @override
-  double getPadding(int spacingType) {
-    final edge = flexStyleEdgeFromInt(spacingType);
-    switch (edge) {
-      case FlexStyleEdge.EDGE_LEFT:
-      case FlexStyleEdge.EDGE_START:
-        return _paddingLeft;
-      case FlexStyleEdge.EDGE_TOP:
-        return _paddingTop;
-      case FlexStyleEdge.EDGE_RIGHT:
-      case FlexStyleEdge.EDGE_END:
-        return _paddingRight;
-      case FlexStyleEdge.EDGE_BOTTOM:
-        return _paddingBottom;
-      default:
-        return _flexNodeStyle.getPadding(edge).value;
-    }
+  double getPadding(FlexStyleEdge spacingType) {
+    return _flexNodeStyle.getPadding(spacingType).value;
   }
 
   @override
-  void setPadding(int spacingType, double padding) {
+  void setPadding(FlexStyleEdge spacingType, double padding) {
     // 注意，设置宽高padding不直接改变flex node的属性值，在native层cssLayout后属性值由底层传上来设置
-    _edgeSetFlag |= kPaddingIndex;
-    _flexNodeStyle.setPadding(flexStyleEdgeFromInt(spacingType), padding);
+    _flexNodeStyle.setPadding(spacingType, padding);
   }
 
   @override
-  void setBorder(int spacingType, double border) {
-    _edgeSetFlag |= kBorderIndex;
-    _flexNodeStyle.setBorder(flexStyleEdgeFromInt(spacingType), border);
+  void setBorder(FlexStyleEdge spacingType, double border) {
+    _flexNodeStyle.setBorder(spacingType, border);
   }
 
   @override
-  double getPosition(int spacingType) {
-    return _flexNodeStyle.getPosition(flexStyleEdgeFromInt(spacingType)).value;
+  double getPosition(FlexStyleEdge spacingType) {
+    return _flexNodeStyle.getPosition(spacingType).value;
   }
 
   @override
-  void setPosition(int spacingType, double position) {
-    _flexNodeStyle.setPosition(flexStyleEdgeFromInt(spacingType), position);
+  void setPosition(FlexStyleEdge spacingType, double position) {
+    _flexNodeStyle.setPosition(spacingType, position);
   }
 
   @override
@@ -498,115 +425,5 @@ class FlexNode extends FlexNodeAPI<FlexNode> {
   @override
   set overflow(FlexOverflow overflow) {
     _flexNodeStyle.overflow = overflow;
-  }
-
-  dynamic getAttrByFiledType(FiledType type) {
-    switch (type) {
-      case FiledType.edgeSetFlagField:
-        return _edgeSetFlag;
-      case FiledType.hasNewLayoutField:
-        return _hasNewLayout;
-      case FiledType.widthFiled:
-        return _width;
-      case FiledType.heightField:
-        return _height;
-      case FiledType.leftField:
-        return _left;
-      case FiledType.topField:
-        return _top;
-      case FiledType.rightFiled:
-        return _right;
-      case FiledType.bottomFiled:
-        return _bottom;
-      case FiledType.marginLeftField:
-        return _marginLeft;
-      case FiledType.marginTopField:
-        return _marginTop;
-      case FiledType.marginRightField:
-        return _marginRight;
-      case FiledType.marginBottomField:
-        return _marginBottom;
-      case FiledType.paddingLeftField:
-        return _paddingLeft;
-      case FiledType.paddingTopField:
-        return _paddingTop;
-      case FiledType.paddingRightField:
-        return _paddingRight;
-      case FiledType.paddingBottomField:
-        return _paddingBottom;
-      case FiledType.borderLeftField:
-        return _borderLeft;
-      case FiledType.borderTopField:
-        return _borderTop;
-      case FiledType.borderRightField:
-        return _borderRight;
-      case FiledType.borderBottomField:
-        return _borderBottom;
-    }
-  }
-
-  void setAttrByFiledType(FiledType filedType, dynamic value) {
-    switch (filedType) {
-      case FiledType.edgeSetFlagField:
-        _edgeSetFlag = value;
-        break;
-      case FiledType.hasNewLayoutField:
-        _hasNewLayout = value == 1;
-        break;
-      case FiledType.widthFiled:
-        _width = value;
-        break;
-      case FiledType.heightField:
-        _height = value;
-        break;
-      case FiledType.leftField:
-        _left = value;
-        break;
-      case FiledType.topField:
-        _top = value;
-        break;
-      case FiledType.rightFiled:
-        _right = value;
-        break;
-      case FiledType.bottomFiled:
-        _bottom = value;
-        break;
-      case FiledType.marginLeftField:
-        _marginLeft = value;
-        break;
-      case FiledType.marginTopField:
-        _marginTop = value;
-        break;
-      case FiledType.marginRightField:
-        _marginRight = value;
-        break;
-      case FiledType.marginBottomField:
-        _marginBottom = value;
-        break;
-      case FiledType.paddingLeftField:
-        _paddingLeft = value;
-        break;
-      case FiledType.paddingTopField:
-        _paddingTop = value;
-        break;
-      case FiledType.paddingRightField:
-        _paddingRight = value;
-        break;
-      case FiledType.paddingBottomField:
-        _paddingBottom = value;
-        break;
-      case FiledType.borderLeftField:
-        _borderLeft = value;
-        break;
-      case FiledType.borderTopField:
-        _borderTop = value;
-        break;
-      case FiledType.borderRightField:
-        _borderRight = value;
-        break;
-      case FiledType.borderBottomField:
-        _borderBottom = value;
-        break;
-    }
   }
 }

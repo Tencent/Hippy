@@ -22,7 +22,7 @@ class DomUpdateUtil {
             styleMethodHolder.method(t, styleMethodHolder.defaultValue);
           }
         } else {
-          if (value is VoltronMap && key == NodeProps.style) {
+          if (value is VoltronMap && key == NodeProps.kStyle) {
             updateStyle(t, value);
           }
         }
@@ -45,7 +45,7 @@ class DomUpdateUtil {
           styleMethodHolder.method(t, styleMethodHolder.defaultValue);
         }
       } else {
-        if (value is VoltronMap && key == NodeProps.style) {
+        if (value is VoltronMap && key == NodeProps.kStyle) {
           updateStyle(t, value);
         }
       }

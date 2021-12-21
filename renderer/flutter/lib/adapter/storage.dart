@@ -9,7 +9,7 @@ typedef StorageCallback = void Function(
     bool success, Object data, String errorMsg);
 
 class StorageAdapter with Destroyable {
-  static final int maxSqlKeys = 999;
+  static final int kMaxSqlKeys = 999;
   late SQLiteHelper _sqLiteHelper;
 
   //
@@ -26,14 +26,14 @@ class StorageAdapter with Destroyable {
     if (database == null) {
       throw 'Database Error';
     }
-    var columns = <String>[SQLiteHelper.columnKey, SQLiteHelper.columnValue];
+    var columns = <String>[SQLiteHelper.kColumnKey, SQLiteHelper.kColumnValue];
     var finalData = <dynamic>[];
     var resultList = <StorageKeyValue>[];
     StorageKeyValue kv;
     try {
       // 批量获取 一次性最多获取MAX_SQL_KEYS条
-      for (var keyStart = 0; keyStart < keys.size(); keyStart += maxSqlKeys) {
-        var keyCount = min(keys.size() - keyStart, maxSqlKeys);
+      for (var keyStart = 0; keyStart < keys.size(); keyStart += kMaxSqlKeys) {
+        var keyCount = min(keys.size() - keyStart, kMaxSqlKeys);
         var args = <String>[];
         for (var i = 0; i < keyCount; i++) {
           args.add(keys.get(keyStart + i));
@@ -42,7 +42,7 @@ class StorageAdapter with Destroyable {
         for (var arg in args) {
           batch.query(_sqLiteHelper.getTableName(),
               columns: columns,
-              where: '${SQLiteHelper.columnKey} = ?',
+              where: '${SQLiteHelper.kColumnKey} = ?',
               whereArgs: [arg]);
         }
         List<dynamic> result = await batch.commit();
@@ -52,7 +52,7 @@ class StorageAdapter with Destroyable {
       for (List list in finalData) {
         for (Map<String, dynamic> map in list) {
           kv = StorageKeyValue(
-              map[SQLiteHelper.columnKey], map[SQLiteHelper.columnValue]);
+              map[SQLiteHelper.kColumnKey], map[SQLiteHelper.kColumnValue]);
           resultList.add(kv);
         }
       }
@@ -106,8 +106,8 @@ class StorageAdapter with Destroyable {
     try {
       var resultList = <dynamic>[];
       // 批量移除，最多一次性移除MAX_SQL_KEYS行
-      for (var keyStart = 0; keyStart < keys.size(); keyStart += maxSqlKeys) {
-        var keyCount = min(keys.size() - keyStart, maxSqlKeys);
+      for (var keyStart = 0; keyStart < keys.size(); keyStart += kMaxSqlKeys) {
+        var keyCount = min(keys.size() - keyStart, kMaxSqlKeys);
         var args = <String>[];
         for (var i = 0; i < keyCount; i++) {
           args.add(keys.get(keyStart + i));
@@ -115,7 +115,7 @@ class StorageAdapter with Destroyable {
         var batch = database.batch();
         for (var arg in args) {
           batch.delete(_sqLiteHelper.getTableName(),
-              where: '${SQLiteHelper.columnKey} = ?', whereArgs: [arg]);
+              where: '${SQLiteHelper.kColumnKey} = ?', whereArgs: [arg]);
         }
         List<dynamic> result = await batch.commit();
         resultList.addAll(result);
@@ -135,9 +135,9 @@ class StorageAdapter with Destroyable {
     try {
       var resultList = VoltronArray();
       dynamic result = await database.query(_sqLiteHelper.getTableName(),
-          columns: [SQLiteHelper.columnKey]);
+          columns: [SQLiteHelper.kColumnKey]);
       for (Map<String, dynamic> keyMap in result) {
-        resultList.push(keyMap[SQLiteHelper.columnKey]);
+        resultList.push(keyMap[SQLiteHelper.kColumnKey]);
       }
       return resultList;
     } catch (e) {
@@ -160,25 +160,25 @@ class StorageKeyValue {
 }
 
 class SQLiteHelper {
-  static final String columnKey = "key";
-  static final String columnValue = "value";
-  static final String tableStorage = "Voltron_engine_storage";
-  static final String databaseName = "VoltronStorage";
-  static final int databaseVersion = 1;
-  static final String statementCreateTable =
-      "CREATE TABLE IF NOT EXISTS $tableStorage($columnKey TEXT PRIMARY KEY , $columnValue TEXT NOT NULL,UNIQUE($columnValue))";
+  static final String kColumnKey = "key";
+  static final String kColumnValue = "value";
+  static final String kTableStorage = "Voltron_engine_storage";
+  static final String kDatabaseName = "VoltronStorage";
+  static final int kDatabaseVersion = 1;
+  static final String kStatementCreateTable =
+      "CREATE TABLE IF NOT EXISTS $kTableStorage($kColumnKey TEXT PRIMARY KEY , $kColumnValue TEXT NOT NULL,UNIQUE($kColumnValue))";
   Database? _db;
 
   SQLiteHelper();
 
   Future<Database> open(String path) async {
     var db =
-        await openDatabase(path, version: databaseVersion, onCreate: onCreate);
+        await openDatabase(path, version: kDatabaseVersion, onCreate: onCreate);
     return db;
   }
 
   Future<void> onCreate(Database db, int version) async {
-    db.execute(statementCreateTable);
+    db.execute(kStatementCreateTable);
   }
 
   void onUpgrade(Database db, int oldVersion, int newVersion) {
@@ -194,7 +194,7 @@ class SQLiteHelper {
   }
 
   String getTableName() {
-    return tableStorage;
+    return kTableStorage;
   }
 
   Future<void> ensureDatabase() async {
@@ -203,16 +203,16 @@ class SQLiteHelper {
       return;
     }
 
-    _db = await open(databaseName);
+    _db = await open(kDatabaseName);
     db = _db;
     if (db != null) {
       List<Map>? result = await db.rawQuery(
-          "SELECT DISTINCT tbl_name FROM sqlite_master WHERE tbl_name = '$tableStorage'",
+          "SELECT DISTINCT tbl_name FROM sqlite_master WHERE tbl_name = '$kTableStorage'",
           null);
       if (result.isNotEmpty) {
         return;
       }
-      db.execute(statementCreateTable);
+      db.execute(kStatementCreateTable);
     }
   }
 

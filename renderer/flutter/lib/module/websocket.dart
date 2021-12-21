@@ -6,28 +6,28 @@ import 'module.dart';
 import 'promise.dart';
 
 class WebsocketModule extends VoltronNativeModule {
-  static const String websocketModuleName = "websocket";
-  static const String funcConnect = "connect";
-  static const String funcClose = "close";
-  static const String funcSend = "send";
+  static const String kWebSocketModuleName = "websocket";
+  static const String kFuncConnect = "connect";
+  static const String kFuncClose = "close";
+  static const String kFuncSend = "send";
   EventDispatcher? _event;
 
   WebsocketModule(EngineContext context) : super(context) {
     _event = EventDispatcher(context);
   }
 
-  @VoltronMethod(funcConnect)
+  @VoltronMethod(kFuncConnect)
   bool connect(VoltronMap params, final JSPromise promise) {
     var headers = params.get<VoltronMap>('headers');
     var url = params.get<String>('url');
-    var protocals = headers?.get<String>('Sec-WebSocket-Protocol')?.split(',');
+    var protocols = headers?.get<String>('Sec-WebSocket-Protocol')?.split(',');
     if (url == null) {
       promise.reject('The `url` parameter is empty.');
       return false;
     }
-    // 实例化一个 websocket 实例
+    // 实例化一个 web socket 实例
     var ws = WebsocketAdapter(
-        url: url, protocols: protocals, headers: headers?.toMap());
+        url: url, protocols: protocols, headers: headers?.toMap());
     // 进行事件监听
     _attachEvent(ws);
     // 开始连接
@@ -43,7 +43,7 @@ class WebsocketModule extends VoltronNativeModule {
     return true;
   }
 
-  @VoltronMethod(funcClose)
+  @VoltronMethod(kFuncClose)
   bool close(VoltronMap params, final JSPromise promise) {
     var id = params.get('id')?.toInt();
     var code = params.get('code')?.toInt();
@@ -53,7 +53,7 @@ class WebsocketModule extends VoltronNativeModule {
     return true;
   }
 
-  @VoltronMethod(funcSend)
+  @VoltronMethod(kFuncSend)
   bool send(VoltronMap params, final JSPromise promise) {
     var id = params.get('id')?.toInt();
     var data = params.get<String>('data') ?? '';
@@ -97,11 +97,11 @@ class WebsocketModule extends VoltronNativeModule {
 
   @override
   Map<String, Function> get extraFuncMap => {
-        funcConnect: connect,
-        funcClose: close,
-        funcSend: send,
+        kFuncConnect: connect,
+        kFuncClose: close,
+        kFuncSend: send,
       };
 
   @override
-  String get moduleName => websocketModuleName;
+  String get moduleName => kWebSocketModuleName;
 }

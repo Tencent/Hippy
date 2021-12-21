@@ -7,11 +7,11 @@ import 'promise.dart';
 
 class TimeModule extends VoltronNativeModule
     implements EngineLifecycleEventListener {
-  static const timerModuleName = "TimerModule";
-  static const String funcSetTimeout = "setTimeout";
-  static const String funcClearTimeout = "clearTimeout";
-  static const String funcSetInterval = "setInterval";
-  static const String funcClearInterval = "clearInterval";
+  static const kTimerModuleName = "TimerModule";
+  static const String kFuncSetTimeout = "setTimeout";
+  static const String kFuncClearTimeout = "clearTimeout";
+  static const String kFuncSetInterval = "setInterval";
+  static const String kFuncClearInterval = "clearInterval";
 
   final HashMap<String, TimerTask> _timeInfo = HashMap();
 
@@ -21,14 +21,14 @@ class TimeModule extends VoltronNativeModule
 
   @override
   Map<String, Function> get extraFuncMap => {
-        funcSetTimeout: setTimeout,
-        funcClearTimeout: clearTimeout,
-        funcSetInterval: setInterval,
-        funcClearInterval: clearInterval
+        kFuncSetTimeout: setTimeout,
+        kFuncClearTimeout: clearTimeout,
+        kFuncSetInterval: setInterval,
+        kFuncClearInterval: clearInterval
       };
 
   @override
-  String get moduleName => timerModuleName;
+  String get moduleName => kTimerModuleName;
 
   @override
   void onEnginePause() {
@@ -51,7 +51,7 @@ class TimeModule extends VoltronNativeModule
     super.destroy();
   }
 
-  @VoltronMethod(funcSetTimeout)
+  @VoltronMethod(kFuncSetTimeout)
   bool setTimeout(int timeOut, String callId, JSPromise promise) {
     var timer = TimerTask(timeOut, false, callId, (task) {
       promise.resolve("");
@@ -62,7 +62,7 @@ class TimeModule extends VoltronNativeModule
     return true;
   }
 
-  @VoltronMethod(funcClearTimeout)
+  @VoltronMethod(kFuncClearTimeout)
   bool clearTimeout(String callId, JSPromise promise) {
     var task = _timeInfo[callId];
     task?.stop();
@@ -70,7 +70,7 @@ class TimeModule extends VoltronNativeModule
     return false;
   }
 
-  @VoltronMethod(funcSetInterval)
+  @VoltronMethod(kFuncSetInterval)
   bool setInterval(int interval, String callId, JSPromise promise) {
     var timer = TimerTask(interval, true, callId, (task) {
       promise.resolve("");
@@ -80,7 +80,7 @@ class TimeModule extends VoltronNativeModule
     return true;
   }
 
-  @VoltronMethod(funcClearInterval)
+  @VoltronMethod(kFuncClearInterval)
   bool clearInterval(String callId, JSPromise promise) {
     var task = _timeInfo[callId];
     task?.stop();

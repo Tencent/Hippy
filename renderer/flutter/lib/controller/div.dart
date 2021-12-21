@@ -12,7 +12,7 @@ import '../widget.dart';
 import 'group.dart';
 
 class DivController extends BaseGroupController<DivRenderViewModel> {
-  static const String className = "View";
+  static const String kClassName = "View";
 
   @override
   Widget createWidget(
@@ -28,26 +28,26 @@ class DivController extends BaseGroupController<DivRenderViewModel> {
 
   @override
   Map<String, ControllerMethodProp> get groupExtraMethodProp => {
-        NodeProps.overflow: ControllerMethodProp(
+        NodeProps.kOverflow: ControllerMethodProp(
             setOverflow, enumValueToString(ContainOverflow.visible)),
-        NodeProps.backgroundImage:
+        NodeProps.kBackgroundImage:
             ControllerMethodProp(setBackgroundImage, null),
-        NodeProps.backgroundSize: ControllerMethodProp(
+        NodeProps.kBackgroundSize: ControllerMethodProp(
             setBackgroundImageSize, enumValueToString(ImageResizeMode.auto)),
-        NodeProps.backgroundPositionX:
+        NodeProps.kBackgroundPositionX:
             ControllerMethodProp(setBackgroundImagePositionX, ''),
-        NodeProps.backgroundPositionY:
+        NodeProps.kBackgroundPositionY:
             ControllerMethodProp(setBackgroundImagePositionY, ''),
-        NodeProps.backgroundRepeat:
+        NodeProps.kBackgroundRepeat:
             ControllerMethodProp(setBackgroundImageRepeat, ''),
       };
 
-  @ControllerProps(NodeProps.overflow)
+  @ControllerProps(NodeProps.kOverflow)
   void setOverflow(DivRenderViewModel viewModel, String overflow) {
     viewModel.overflow = overflow;
   }
 
-  @ControllerProps(NodeProps.backgroundImage)
+  @ControllerProps(NodeProps.kBackgroundImage)
   void setBackgroundImage(DivRenderViewModel viewModel, Object data) {
     if (data is String) {
       viewModel.backgroundImg = getInnerPath(
@@ -71,29 +71,29 @@ class DivController extends BaseGroupController<DivRenderViewModel> {
     return path;
   }
 
-  @ControllerProps(NodeProps.backgroundSize)
+  @ControllerProps(NodeProps.kBackgroundSize)
   void setBackgroundImageSize(
       DivRenderViewModel viewModel, String resizeModeValue) {
     viewModel.backgroundImgSize = resizeModeValue;
   }
 
-  @ControllerProps(NodeProps.backgroundPositionX)
+  @ControllerProps(NodeProps.kBackgroundPositionX)
   void setBackgroundImagePositionX(
       DivRenderViewModel viewModel, String positionX) {
     viewModel.imagePositionX = positionX;
   }
 
-  @ControllerProps(NodeProps.backgroundPositionY)
+  @ControllerProps(NodeProps.kBackgroundPositionY)
   void setBackgroundImagePositionY(
       DivRenderViewModel viewModel, String positionY) {
     viewModel.imagePositionY = positionY;
   }
 
-  @ControllerProps(NodeProps.backgroundRepeat)
+  @ControllerProps(NodeProps.kBackgroundRepeat)
   void setBackgroundImageRepeat(DivRenderViewModel viewModel, String value) {
     viewModel.backgroundImgRepeat = value;
   }
 
   @override
-  String get name => className;
+  String get name => kClassName;
 }

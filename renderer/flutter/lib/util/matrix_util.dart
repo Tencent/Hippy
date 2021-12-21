@@ -1,13 +1,13 @@
 import 'dart:math';
 
 class MatrixUtil {
-  static const double epsilon = 0.00001;
+  static const double kEpsilon = 0.00001;
 
   static bool _isZero(double value) {
     if (value.isNaN) {
       return false;
     }
-    return value.abs() < epsilon;
+    return value.abs() < kEpsilon;
   }
 
   // 四维矩阵运算：out = matrixA * matrixB

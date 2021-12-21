@@ -613,9 +613,9 @@ typedef Callback = void Function(dynamic param, Error? e);
 class VoltronBridgeManager implements Destroyable {
   static const String _kTag = 'Voltron_bridge';
 
-  static const int bridgeTypeSingleThread = 2;
-  static const int bridgeTypeNormal = 1;
-  static const int bridgeTypeRemoteDebug = 0;
+  static const int kBridgeTypeSingleThread = 2;
+  static const int kBridgeTypeNormal = 1;
+  static const int kBridgeTypeRemoteDebug = 0;
 
   static String? sCodeCacheRootDir;
   static int sBridgeNum = 0;
@@ -649,7 +649,7 @@ class VoltronBridgeManager implements Destroyable {
   VoltronBridgeManager(EngineContext context,
       VoltronBundleLoader? coreBundleLoader, int groupId, int id,
       {VoltronThirdPartyAdapter? thirdPartyAdapter,
-      int bridgeType = bridgeTypeNormal,
+      int bridgeType = kBridgeTypeNormal,
       bool enableVoltronBuffer = false,
       bool isDevModule = false})
       : _context = context,
@@ -659,7 +659,7 @@ class VoltronBridgeManager implements Destroyable {
         _isDevModule = isDevModule,
         _enableVoltronBuffer = enableVoltronBuffer,
         _thirdPartyAdapter = thirdPartyAdapter,
-        _isSingleThread = bridgeType == bridgeTypeSingleThread {
+        _isSingleThread = bridgeType == kBridgeTypeSingleThread {
     sBridgeNum++;
     initCodeCacheDir();
   }

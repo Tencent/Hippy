@@ -3,13 +3,13 @@ import '../engine.dart';
 import 'module.dart';
 
 class EventDispatcher extends JavaScriptModule {
-  static const String moduleName = "EventDispatcher";
+  static const String kModuleName = "EventDispatcher";
 
   EventDispatcher(EngineContext context) : super(context);
 
   void receiveNativeGesture(VoltronMap param) {
     context.bridgeManager
-        .callJavaScriptModule(moduleName, "receiveNativeGesture", param);
+        .callJavaScriptModule(kModuleName, "receiveNativeGesture", param);
   }
 
   void receiveUIComponentEvent(int tagId, String eventName, Object? param) {
@@ -18,7 +18,7 @@ class EventDispatcher extends JavaScriptModule {
     array.push(eventName);
     array.push(param);
     context.bridgeManager
-        .callJavaScriptModule(moduleName, "receiveUIComponentEvent", array);
+        .callJavaScriptModule(kModuleName, "receiveUIComponentEvent", array);
   }
 
   void receiveNativeEvent(String eventName, Object? param) {
@@ -26,6 +26,6 @@ class EventDispatcher extends JavaScriptModule {
     array.push(eventName);
     array.push(param);
     context.bridgeManager
-        .callJavaScriptModule(moduleName, "receiveNativeEvent", array);
+        .callJavaScriptModule(kModuleName, "receiveNativeEvent", array);
   }
 }

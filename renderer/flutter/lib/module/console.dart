@@ -4,33 +4,33 @@ import 'module.dart';
 import 'promise.dart';
 
 class ConsoleModule extends VoltronNativeModule {
-  static const String consoleModuleName = "ConsoleModule";
-  static const String consoleLog = "log";
-  static const String consoleWarn = "warn";
-  static const String consoleInfo = "info";
-  static const String consoleError = "error";
+  static const String kConsoleModuleName = "ConsoleModule";
+  static const String kConsoleLog = "log";
+  static const String kConsoleWarn = "warn";
+  static const String kConsoleInfo = "info";
+  static const String kConsoleError = "error";
 
   ConsoleModule(EngineContext context) : super(context);
 
-  @VoltronMethod(consoleLog)
+  @VoltronMethod(kConsoleLog)
   bool log(String message, JSPromise promise) {
     LogUtils.d("Voltron_console", message);
     return false;
   }
 
-  @VoltronMethod(consoleWarn)
+  @VoltronMethod(kConsoleWarn)
   bool warn(String message, JSPromise promise) {
     LogUtils.w("Voltron_console", message);
     return false;
   }
 
-  @VoltronMethod(consoleInfo)
+  @VoltronMethod(kConsoleInfo)
   bool info(String message, JSPromise promise) {
     LogUtils.i("Voltron_console", message);
     return false;
   }
 
-  @VoltronMethod(consoleError)
+  @VoltronMethod(kConsoleError)
   bool error(String message, JSPromise promise) {
     LogUtils.e("Voltron_console", message);
     return false;
@@ -38,12 +38,12 @@ class ConsoleModule extends VoltronNativeModule {
 
   @override
   Map<String, Function> get extraFuncMap => {
-        consoleLog: log,
-        consoleWarn: warn,
-        consoleInfo: info,
-        consoleError: error
+        kConsoleLog: log,
+        kConsoleWarn: warn,
+        kConsoleInfo: info,
+        kConsoleError: error
       };
 
   @override
-  String get moduleName => consoleModuleName;
+  String get moduleName => kConsoleModuleName;
 }

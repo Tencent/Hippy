@@ -9,32 +9,32 @@ import 'voltron_array.dart';
 import 'voltron_map.dart';
 
 class VoltronBuffer {
-  static const int typeNull = 0x00;
+  static const int kTypeNull = 0x00;
 
-  static const int typeString = 0x01;
+  static const int kTypeString = 0x01;
 
-  static const int typeBoolTrue = 0x02;
+  static const int kTypeBoolTrue = 0x02;
 
-  static const int typeBoolFalse = 0x03;
+  static const int kTypeBoolFalse = 0x03;
 
-  static const int typeInt = 0x04;
+  static const int kTypeInt = 0x04;
 
-  static const int typeDouble = 0x05;
+  static const int kTypeDouble = 0x05;
 
-  static const int typeArray = 0x06;
+  static const int kTypeArray = 0x06;
 
-  static const int typeMap = 0x07;
+  static const int kTypeMap = 0x07;
 
-  static const int typeOneByteString = 0x08;
+  static const int kTypeOneByteString = 0x08;
 
-  static const int typeUnknown = 0xFF;
+  static const int kTypeUnknown = 0xFF;
 
-  static final Object sValueUndefined = Object();
+  static final Object kValueUndefined = Object();
 
-  static const String imgUrlPropName = "uri";
-  static const String imgSrcPropName = "src";
+  static const String kImgUrlPropName = "uri";
+  static const String kImgSrcPropName = "src";
 
-  static final List<int> sBase64ImgHeader = "data:image".codeUnits;
+  static final List<int> kBase64ImgHeader = "data:image".codeUnits;
 
   final LruCache<int, CacheItem> imgStringCache = LruCache(32);
 
@@ -80,32 +80,32 @@ class _Parser {
 
   Object? _parse() {
     var value = readObject();
-    return value == VoltronBuffer.sValueUndefined ? null : value;
+    return value == VoltronBuffer.kValueUndefined ? null : value;
   }
 
   Object? readObject([String? key]) {
     var type = readDataType();
     switch (type) {
-      case VoltronBuffer.typeString:
+      case VoltronBuffer.kTypeString:
         return readString(key, false);
-      case VoltronBuffer.typeOneByteString:
+      case VoltronBuffer.kTypeOneByteString:
         return readString(key, true);
-      case VoltronBuffer.typeInt:
+      case VoltronBuffer.kTypeInt:
         return readInteger();
-      case VoltronBuffer.typeMap:
+      case VoltronBuffer.kTypeMap:
         return readMap();
-      case VoltronBuffer.typeArray:
+      case VoltronBuffer.kTypeArray:
         return readArray();
-      case VoltronBuffer.typeDouble:
+      case VoltronBuffer.kTypeDouble:
         return readDouble();
-      case VoltronBuffer.typeBoolFalse:
+      case VoltronBuffer.kTypeBoolFalse:
         return false;
-      case VoltronBuffer.typeBoolTrue:
+      case VoltronBuffer.kTypeBoolTrue:
         return true;
-      case VoltronBuffer.typeNull:
+      case VoltronBuffer.kTypeNull:
         return null;
-      case VoltronBuffer.typeUnknown:
-        return VoltronBuffer.sValueUndefined;
+      case VoltronBuffer.kTypeUnknown:
+        return VoltronBuffer.kValueUndefined;
       default:
         throw ArgumentError(
             "unknown Voltron-buffer type $type at $_position, total buffer length =${_byteData.lengthInBytes}");
@@ -129,7 +129,7 @@ class _Parser {
     for (var i = 0; i < size; i++) {
       var key = readProperty();
       var value = readObject(key);
-      if (value != VoltronBuffer.sValueUndefined) {
+      if (value != VoltronBuffer.kValueUndefined) {
         map.push(key, value);
       }
     }
@@ -157,19 +157,19 @@ class _Parser {
   String readString([String? key, bool isOneByte = false]) {
     var length = readUnsignedInt();
 
-    if (key == VoltronBuffer.imgSrcPropName ||
-        key == VoltronBuffer.imgUrlPropName) {
+    if (key == VoltronBuffer.kImgSrcPropName ||
+        key == VoltronBuffer.kImgUrlPropName) {
       // 图片
 
       // 图片文件较大，需要使用lru缓存每次解码结果，避免同样图片重复加载
-      if (length >= VoltronBuffer.sBase64ImgHeader.length) {
+      if (length >= VoltronBuffer.kBase64ImgHeader.length) {
         var canCache = true;
         // 检查base64头：
         if (_byteData.getUint8(_position) ==
-            VoltronBuffer.sBase64ImgHeader[0]) {
-          for (var i = 1; i < VoltronBuffer.sBase64ImgHeader.length; i++) {
+            VoltronBuffer.kBase64ImgHeader[0]) {
+          for (var i = 1; i < VoltronBuffer.kBase64ImgHeader.length; i++) {
             if (_byteData.getUint8(_position + i) !=
-                VoltronBuffer.sBase64ImgHeader[i]) {
+                VoltronBuffer.kBase64ImgHeader[i]) {
               canCache = false;
               break;
             }
@@ -248,9 +248,9 @@ class _Parser {
 }
 
 class _Builder {
-  static const int defaultBufferSize = 2048;
+  static const int kDefaultBufferSize = 2048;
   int _position = 0;
-  Uint8List _byteData = Uint8List(defaultBufferSize);
+  Uint8List _byteData = Uint8List(kDefaultBufferSize);
   // 记录对象应用，避免环形应用导致的栈溢出
   List<Object> refStack = [];
   final Object _writeObject;
@@ -267,7 +267,7 @@ class _Builder {
   void writeObject(Object? object) {
     if (object is String) {
       ensureBufferSize(2);
-      writeDataType(VoltronBuffer.typeString);
+      writeDataType(VoltronBuffer.kTypeString);
       writeString(object);
     } else if (object is VoltronMap) {
       if (refStack.contains(object)) {
@@ -285,7 +285,7 @@ class _Builder {
       refStack.add(object);
       ensureBufferSize(8);
       var paramsArray = object;
-      writeDataType(VoltronBuffer.typeArray);
+      writeDataType(VoltronBuffer.kTypeArray);
       var arraySize = paramsArray.size();
       writeUnsignedInt(arraySize);
       for (var i = 0; i < arraySize; i++) {
@@ -299,13 +299,13 @@ class _Builder {
       ensureBufferSize(2);
       var value = object;
       if (value) {
-        writeDataType(VoltronBuffer.typeBoolTrue);
+        writeDataType(VoltronBuffer.kTypeBoolTrue);
       } else {
-        writeDataType(VoltronBuffer.typeBoolFalse);
+        writeDataType(VoltronBuffer.kTypeBoolFalse);
       }
     } else if (object == null) {
       ensureBufferSize(2);
-      writeDataType(VoltronBuffer.typeNull);
+      writeDataType(VoltronBuffer.kTypeNull);
     }
   }
 
@@ -362,10 +362,10 @@ class _Builder {
   void writeNumber(num number) {
     ensureBufferSize(12);
     if (number is int) {
-      writeDataType(VoltronBuffer.typeInt);
+      writeDataType(VoltronBuffer.kTypeInt);
       writeInteger(number);
     } else if (number is double) {
-      writeDataType(VoltronBuffer.typeDouble);
+      writeDataType(VoltronBuffer.kTypeDouble);
       writeDouble(number);
     }
   }
@@ -383,7 +383,7 @@ class _Builder {
 
   void writeMap(VoltronMap map) {
     ensureBufferSize(8);
-    writeDataType(VoltronBuffer.typeMap);
+    writeDataType(VoltronBuffer.kTypeMap);
     writeUnsignedInt(map.size());
     final entries = map.entrySet();
     for (final entry in entries) {

@@ -3,16 +3,16 @@ import 'flex_define.dart';
 import 'flex_value.dart';
 
 class FlexNodeStyle {
-  FlexDirection _direction = FlexDirection.INHERIT;
-  FlexCSSDirection _flexCSSDirection = FlexCSSDirection.ROW;
-  FlexJustify _justifyContent = FlexJustify.FLEX_START;
-  FlexAlign _alignItems = FlexAlign.AUTO;
-  FlexAlign _alignSelf = FlexAlign.AUTO;
-  FlexAlign _alignContent = FlexAlign.AUTO;
-  FlexPositionType _positionType = FlexPositionType.RELATIVE;
-  FlexWrap _flexWrap = FlexWrap.NOWRAP;
-  FlexOverflow _overflow = FlexOverflow.VISIBLE;
-  FlexDisplay _display = FlexDisplay.DISPLAY_NONE;
+  FlexDirection _direction = FlexDirection.inherit;
+  FlexCSSDirection _flexCSSDirection = FlexCSSDirection.row;
+  FlexJustify _justifyContent = FlexJustify.flexStart;
+  FlexAlign _alignItems = FlexAlign.auto;
+  FlexAlign _alignSelf = FlexAlign.auto;
+  FlexAlign _alignContent = FlexAlign.auto;
+  FlexPositionType _positionType = FlexPositionType.relative;
+  FlexWrap _flexWrap = FlexWrap.noWrap;
+  FlexOverflow _overflow = FlexOverflow.visible;
+  FlexDisplay _display = FlexDisplay.displayNode;
 
   double _flex = 0;
   double _flexGrow = 0;
@@ -26,10 +26,10 @@ class FlexNodeStyle {
   double _maxHeight = 0;
   double _aspectRadio = 0;
 
-  final _margin = List.filled(FlexStyleEdge.EDGE_ALL.index + 1, 0.0);
-  final _padding = List.filled(FlexStyleEdge.EDGE_ALL.index + 1, 0.0);
-  final _border = List.filled(FlexStyleEdge.EDGE_ALL.index + 1, 0.0);
-  final _position = List.filled(FlexStyleEdge.EDGE_ALL.index + 1, 0.0);
+  final _margin = List.filled(FlexStyleEdge.all.index + 1, 0.0);
+  final _padding = List.filled(FlexStyleEdge.all.index + 1, 0.0);
+  final _border = List.filled(FlexStyleEdge.all.index + 1, 0.0);
+  final _position = List.filled(FlexStyleEdge.all.index + 1, 0.0);
 
   @override
   String toString() {
@@ -44,35 +44,35 @@ class FlexNodeStyle {
 
     if (flexShrink != 0) buffer.write("flex-shrink: $flexShrink, ");
 
-    if (justifyContent != FlexJustify.FLEX_START) {
+    if (justifyContent != FlexJustify.flexStart) {
       buffer.write(
-          "justifycontent: ${enumValueToString(justifyContent).toLowerCase()}, ");
+          "justify_content: ${enumValueToString(justifyContent).toLowerCase()}, ");
     }
 
-    if (alignContent != FlexAlign.FLEX_START) {
+    if (alignContent != FlexAlign.flexStart) {
       buffer.write(
-          "aligncontent: ${enumValueToString(alignContent).toLowerCase()}, ");
+          "align_content: ${enumValueToString(alignContent).toLowerCase()}, ");
     }
 
-    if (alignItems != FlexAlign.STRETCH) {
+    if (alignItems != FlexAlign.stretch) {
       buffer.write(
-          "alignitems: ${enumValueToString(alignItems).toLowerCase()}, ");
+          "align_items: ${enumValueToString(alignItems).toLowerCase()}, ");
     }
 
-    if (alignSelf != FlexAlign.AUTO) {
+    if (alignSelf != FlexAlign.auto) {
       buffer
-          .write("alignself: ${enumValueToString(alignSelf).toLowerCase()}, ");
+          .write("align_self: ${enumValueToString(alignSelf).toLowerCase()}, ");
     }
 
-    if (flexWrap != FlexWrap.NOWRAP) {
+    if (flexWrap != FlexWrap.noWrap) {
       buffer.write("wrap: ${enumValueToString(flexWrap).toLowerCase()}, ");
     }
 
-    if (overflow != FlexOverflow.VISIBLE) {
+    if (overflow != FlexOverflow.visible) {
       buffer.write("overflow: ${enumValueToString(overflow).toLowerCase()}, ");
     }
 
-    if (positionType != FlexPositionType.RELATIVE) {
+    if (positionType != FlexPositionType.relative) {
       buffer.write(
           "positionType: ${enumValueToString(positionType).toLowerCase()}, ");
     }
