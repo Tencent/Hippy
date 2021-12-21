@@ -340,12 +340,6 @@ public class NativeRenderer implements INativeRender, INativeRenderProxy, INativ
             String className = (String) node.get(CLASS_NAME);
             HashMap<String, Object> props = (HashMap) node.get(NODE_PROPS);
             renderManager.createNode(rootView, id, pid, index, className, props);
-
-            int left = ((Number) node.get(LAYOUT_LEFT)).intValue();
-            int top = ((Number) node.get(LAYOUT_TOP)).intValue();
-            int width = ((Number) node.get(LAYOUT_WIDTH)).intValue();
-            int height = ((Number) node.get(LAYOUT_HEIGHT)).intValue();
-            renderManager.updateLayout(id, left, top, width, height);
         }
     }
 

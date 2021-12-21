@@ -9,6 +9,7 @@ inline namespace dom {
 
 using TaitankCssDirection = CSSDirection;
 using TaitankMeasureFunction = LayoutMesureFunction;
+using TaitankResult = HPSize;
 
 class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this<TaitankLayoutNode> {
  public:
