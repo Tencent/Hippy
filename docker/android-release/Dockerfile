@@ -12,7 +12,7 @@ unzip -d /opt gradle-7.3-bin.zip && \
 curl -O https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip && \
 unzip -d /opt commandlinetools-linux-7583922_latest.zip && \
 yes | /opt/cmdline-tools/bin/sdkmanager --sdk_root=/opt/sdk-root --licenses && \
-/opt/cmdline-tools/bin/sdkmanager --sdk_root=/opt/sdk-root --install "ndk;21.4.7075529" "cmake;3.10.2.4988404" "build-tools;30.0.2" "platforms;android-29" && \
+/opt/cmdline-tools/bin/sdkmanager --sdk_root=/opt/sdk-root --install "ndk;23.1.7779620" "cmake;3.10.2.4988404" "build-tools;30.0.2" "platforms;android-29" && \
 rm -rf /tmp && mkdir /tmp
 
 ENV PATH="/opt/gradle-7.3/bin:/opt/depot_tools:${PATH}" JAVA_HOME=/usr/lib/jvm/jre ANDROID_SDK_ROOT=/opt/sdk-root ANDROID_NDK_HOME=/opt/sdk-root/ndk/21.4.7075529/
