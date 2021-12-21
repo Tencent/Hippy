@@ -1055,6 +1055,7 @@ HIPPY_EXPORT_METHOD(updateView:(nonnull NSNumber *)hippyTag
         newProps = [shadowView mergeProps: props];
         virtualProps = shadowView.props;
         [componentData setProps:newProps forShadowView:shadowView];
+        [shadowView dirtyPropagation];
     }
 
     
