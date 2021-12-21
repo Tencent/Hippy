@@ -94,6 +94,7 @@ namespace Hippy {
       flushBatch(rootViewId: number, queue: NativeNode[]): void;
       sendRenderError(err: Error): void;
       startBatch(): void;
+      callUIFunction(id: number, name: string, param: any[], cb: Function): void;
       updateNode(rootViewId: number, queue: NativeNode[]): void;
     };
 

@@ -412,7 +412,6 @@ void UIManagerModule::EndBatch(const hippy::napi::CallbackInfo &info) {
 }
 
 void UIManagerModule::CallUIFunction(const hippy::napi::CallbackInfo &info) {
-  assert(info.Length() == 2);
   std::shared_ptr<Scope> scope = info.GetScope();
   std::shared_ptr<Ctx> context = scope->GetContext();
   TDF_BASE_CHECK(context);
@@ -420,7 +419,7 @@ void UIManagerModule::CallUIFunction(const hippy::napi::CallbackInfo &info) {
   int32_t id = 0;
   auto id_value = context->ToDomValue(info[0]);
   if (id_value->IsNumber()) {
-    id = id_value->ToInt32();
+    id = static_cast<int32_t>(id_value->ToDouble());
   }
 
   std::string name;
