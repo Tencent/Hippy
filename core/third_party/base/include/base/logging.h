@@ -1,5 +1,6 @@
 // Copyright 2020 Tencent
 #pragma once
+#include <cassert>
 #include <codecvt>
 #include <sstream>
 
