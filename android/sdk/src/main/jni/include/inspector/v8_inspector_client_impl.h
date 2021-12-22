@@ -62,9 +62,14 @@ class V8InspectorClientImpl : public v8_inspector::V8InspectorClient {
       v8::Local<v8::Value>) override {
     return nullptr;
   }
+#if \
+(V8_MAJOR_VERSION < 9) || \
+(V8_MAJOR_VERSION == 9 && V8_MINOR_VERSION < 4) || \
+(V8_MAJOR_VERSION == 9 && V8_MINOR_VERSION == 4 && V8_BUILD_NUMBER <= 130)
   bool formatAccessorsAsProperties(v8::Local<v8::Value>) override {
     return false;
   }
+#endif
   bool isInspectableHeapObject(v8::Local<v8::Object>) override { return true; }
 
   void beginEnsureAllContextsInGroup(int contextGroupId) override {}
