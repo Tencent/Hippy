@@ -72,16 +72,17 @@ void HippyRegisterModule(Class moduleClass) {
  * This function returns the module name for a given class.
  */
 NSString *HippyBridgeModuleNameForClass(Class cls) {
-    NSString *name = nil;
 #if HIPPY_DEBUG
+    HippyAssert([cls conformsToProtocol:@protocol(HippyBridgeModule)] || [cls conformsToProtocol:@protocol(HippyTurboModule)],
+                @"Bridge module `%@` does not conform to HippyBridgeModule or HippyTurboModule", cls);
+#endif
+    NSString *name = nil;
+    // The two protocols(HippyBridgeModule and HippyTurboModule)  should be mutually exclusive.
     if ([cls conformsToProtocol:@protocol(HippyBridgeModule)]) {
         name = [cls moduleName];
     } else if ([cls conformsToProtocol:@protocol(HippyTurboModule)]) {
         name = [cls turoboModuleName];
-    } else {
-        HippyAssert(NO, @"Bridge module `%@` does not conform to HippyBridgeModule or HippyTurboModule", cls);
     }
-#endif
     if (name.length == 0) {
         name = NSStringFromClass(cls);
     }
