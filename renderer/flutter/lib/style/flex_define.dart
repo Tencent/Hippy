@@ -43,7 +43,7 @@ void _convertError(String error) {
 }
 
 FlexDirection? flexDirectionFromValue(String? value) {
-  if (value == null) {
+  if (value == null || value.isEmpty) {
     return null;
   }
   switch (value.replaceKey()) {
@@ -62,7 +62,7 @@ FlexDirection? flexDirectionFromValue(String? value) {
 enum FlexCSSDirection { row, rowReverse, column, columnReverse }
 
 FlexCSSDirection? flexCssDirectionFromValue(String? value) {
-  if (value == null) {
+  if (value == null || value.isEmpty) {
     return null;
   }
   switch (value.replaceKey()) {
@@ -90,7 +90,7 @@ enum FlexJustify {
 }
 
 FlexJustify? flexJustifyFromValue(String? value) {
-  if (value == null) {
+  if (value == null || value.isEmpty) {
     return null;
   }
   switch (value.replaceKey()) {
@@ -124,7 +124,7 @@ enum FlexAlign {
 }
 
 FlexAlign? flexAlignFromValue(String? value) {
-  if (value == null) {
+  if (value == null || value.isEmpty) {
     return null;
   }
   switch (value.replaceKey()) {
@@ -153,7 +153,7 @@ FlexAlign? flexAlignFromValue(String? value) {
 enum FlexPositionType { relative, absolute }
 
 FlexPositionType? flexPositionTypeFromValue(String? value) {
-  if (value == null) {
+  if (value == null || value.isEmpty) {
     return null;
   }
   switch (value.replaceKey()) {
@@ -170,7 +170,7 @@ FlexPositionType? flexPositionTypeFromValue(String? value) {
 enum FlexWrap { noWrap, wrap, wrapReverse }
 
 FlexWrap? flexWrapFromValue(String? value) {
-  if (value == null) {
+  if (value == null || value.isEmpty) {
     return null;
   }
   switch (value.replaceKey()) {
@@ -189,7 +189,7 @@ FlexWrap? flexWrapFromValue(String? value) {
 enum FlexDisplay { displayFlex, displayNode }
 
 FlexDisplay? flexDisplayFromValue(String? value) {
-  if (value == null) {
+  if (value == null || value.isEmpty) {
     return null;
   }
   switch (value.replaceKey()) {
@@ -206,7 +206,7 @@ FlexDisplay? flexDisplayFromValue(String? value) {
 enum FlexOverflow { visible, hidden, scroll }
 
 FlexOverflow? flexOverflowFromValue(String? value) {
-  if (value == null) {
+  if (value == null || value.isEmpty) {
     return null;
   }
   switch (value.replaceKey()) {
@@ -226,7 +226,7 @@ FlexOverflow? flexOverflowFromValue(String? value) {
 enum FlexMeasureMode { undefined, exactly, atMost }
 
 FlexMeasureMode? flexMeasureModeFromValue(String? value) {
-  if (value == null) {
+  if (value == null || value.isEmpty) {
     return null;
   }
   switch (value.replaceKey()) {

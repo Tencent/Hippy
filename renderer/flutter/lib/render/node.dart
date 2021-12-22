@@ -415,7 +415,7 @@ class RenderNode extends StyleNode {
     var propToUpdate = _propToUpdate;
     if (propToUpdate != null) {
       //mProps do not syc to UI
-      var paramsMap = diffProps(_propToUpdate, map, 0);
+      var paramsMap = combineProps(propToUpdate, map);
       if (paramsMap.size() > 0) {
         for (var key in paramsMap.keySet()) {
           if (key == NodeProps.kStyle) {
@@ -437,10 +437,12 @@ class RenderNode extends StyleNode {
         }
       }
     } else {
-      _propToUpdate = diffProps(_props, map, 0);
+      var curProps = _props;
+      if (curProps != null) {
+        _propToUpdate = combineProps(curProps, map);
+      }
     }
 
-    _props = map;
   }
 
   void measureInWindow(JSPromise promise) {
