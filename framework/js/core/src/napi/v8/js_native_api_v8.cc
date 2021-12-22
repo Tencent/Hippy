@@ -1194,6 +1194,19 @@ std::shared_ptr<DomValue> V8Ctx::ToDomValue(
   return nullptr;
 }
 
+std::shared_ptr<DomArgument> V8Ctx::ToDomArgument(
+    const std::shared_ptr<CtxValue>& value) {
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  std::shared_ptr<V8CtxValue> ctx_value = std::static_pointer_cast<V8CtxValue>(value);
+  const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value = v8::Local<v8::Value>::New(isolate_, global_value);
+  Serializer serializer(isolate_, context, v8_reused_buffer_);
+  serializer.WriteHeader();
+  serializer.WriteValue(handle_value);
+  std::pair<uint8_t *, size_t> pair = serializer.Release();
+  return std::make_shared<DomArgument>(pair);
+}
+
 std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
     const std::shared_ptr<JSValueWrapper>& wrapper) {
   TDF_BASE_DCHECK(wrapper);

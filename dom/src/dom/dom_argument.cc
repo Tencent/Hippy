@@ -13,7 +13,7 @@ DomArgument::DomArgument(const DomArgument& source) : data_(source.data_), argum
 
 DomArgument::~DomArgument() {}
 
-bool DomArgument::ToBson(std::vector<uint8_t>& bson) {
+bool DomArgument::ToBson(std::vector<uint8_t>& bson) const {
   if (argument_type_ == ArgumentType::OBJECT) {
     auto dom_value = std::any_cast<tdf::base::DomValue>(data_);
     return ConvertObjectToBson(dom_value, bson);
@@ -24,7 +24,7 @@ bool DomArgument::ToBson(std::vector<uint8_t>& bson) {
   return false;
 }
 
-bool DomArgument::ToObject(tdf::base::DomValue& dom_value) {
+bool DomArgument::ToObject(tdf::base::DomValue& dom_value) const {
   if (argument_type_ == ArgumentType::OBJECT) {
     dom_value = std::any_cast<tdf::base::DomValue>(data_);
     return true;
@@ -35,7 +35,7 @@ bool DomArgument::ToObject(tdf::base::DomValue& dom_value) {
   return false;
 }
 
-bool DomArgument::ConvertObjectToBson(const tdf::base::DomValue& dom_value, std::vector<uint8_t>& bson) {
+bool DomArgument::ConvertObjectToBson(const tdf::base::DomValue& dom_value, std::vector<uint8_t>& bson) const {
   tdf::base::Serializer serializer;
   serializer.WriteHeader();
 
@@ -92,7 +92,7 @@ bool DomArgument::ConvertObjectToBson(const tdf::base::DomValue& dom_value, std:
   return true;
 };
 
-bool DomArgument::ConvertBsonToObject(const std::vector<const uint8_t>& bson, tdf::base::DomValue& dom_value) {
+bool DomArgument::ConvertBsonToObject(const std::vector<const uint8_t>& bson, tdf::base::DomValue& dom_value) const {
   tdf::base::Deserializer deserializer(bson);
   deserializer.ReadHeader();
 

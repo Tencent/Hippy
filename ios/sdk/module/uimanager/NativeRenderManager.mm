@@ -77,10 +77,13 @@ void NativeRenderManager::RemoveEventListener(std::weak_ptr<DomNode> dom_node, c
 }
 
 void NativeRenderManager::CallFunction(std::weak_ptr<DomNode> dom_node, const std::string &name,
-                                    const DomValue& param,
+                                    const DomArgument& param,
                                     CallFunctionCallback cb) {
     std::shared_ptr<DomNode> node = dom_node.lock();
     if (node) {
-        [uiManager_ dispatchFunction:name forView:node->GetId() params:param callback:cb];
+        //TODO 等待ios实现ocdomvalue
+        DomValue dom_value;
+        param.ToObject(dom_value);
+        [uiManager_ dispatchFunction:name forView:node->GetId() params:dom_value callback:cb];
     }
 }

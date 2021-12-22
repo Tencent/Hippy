@@ -31,6 +31,7 @@
 #include "core/base/common.h"
 #include "core/base/js_value_wrapper.h"
 #include "dom/dom_value.h"
+#include "dom/dom_argument.h"
 
 class Scope;
 
@@ -176,6 +177,8 @@ class Ctx {
       const std::shared_ptr<JSValueWrapper>& wrapper) = 0;
 
   virtual std::shared_ptr<DomValue> ToDomValue(
+      const std::shared_ptr<CtxValue>& value) = 0;
+  virtual std::shared_ptr<DomArgument> ToDomArgument(
       const std::shared_ptr<CtxValue>& value) = 0;
   virtual std::shared_ptr<CtxValue> CreateCtxValue(
       const std::shared_ptr<DomValue>& value) = 0;

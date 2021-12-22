@@ -204,7 +204,7 @@ void HippyRenderManager::RemoveEventListener(std::weak_ptr<DomNode> dom_node, co
   TDF_BASE_NOTIMPLEMENTED();
 }
 
-void HippyRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std::string& name, const DomValue& param,
+void HippyRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std::string& name, const DomArgument& param,
                                       CallFunctionCallback cb) {
   TDF_BASE_NOTIMPLEMENTED();
 };

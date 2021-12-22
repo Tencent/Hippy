@@ -30,6 +30,7 @@
 #include "dom/node_props.h"
 #include "dom/dom_node.h"
 #include "dom/dom_event.h"
+#include "dom/dom_argument.h"
 
 REGISTER_MODULE(UIManagerModule, CreateNodes)
 REGISTER_MODULE(UIManagerModule, UpdateNodes)
@@ -63,6 +64,7 @@ constexpr char kEventCBKey[] = "cb";
 const int32_t kInvalidValue = -1;
 
 using DomValue = tdf::base::DomValue;
+using DomArgument = hippy::dom::DomArgument;
 using unicode_string_view = tdf::base::unicode_string_view;
 
 using Ctx = hippy::napi::Ctx;
@@ -429,7 +431,7 @@ void UIManagerModule::CallUIFunction(const hippy::napi::CallbackInfo &info) {
   }
 
   std::unordered_map<std::string, std::shared_ptr<DomValue>> param;
-  DomValue param_value = *(context->ToDomValue(info[2]));
+  DomArgument param_value = *(context->ToDomArgument(info[2]));
   hippy::CallFunctionCallback cb;
   bool flag = context->IsFunction(info[3]);
   if (flag) {

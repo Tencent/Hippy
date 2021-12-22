@@ -645,6 +645,15 @@ TDF_BASE_NOTIMPLEMENTED();
 return nullptr;
 }
 
+std::shared_ptr<DomArgument> JSCCtx::ToDomArgument(const std::shared_ptr<CtxValue>& value) {
+  //TODO 等待ios实现ocdomvalue
+  std::shared_ptr<DomValue> dom_value = ToDomValue(value);
+  if(dom_value != nullptr) {
+    return std::make_shared<DomArgument>(*dom_value);
+  }
+  return nullptr;
+}
+
 std::shared_ptr<CtxValue> JSCCtx::CreateCtxValue(const std::shared_ptr<DomValue>& wrapper) {
   if (!wrapper) {
     return nullptr;

@@ -11,6 +11,7 @@
 #include "dom/dom_listener.h"
 #include "dom/dom_value.h"
 #include "dom/layout_node.h"
+#include "dom/dom_argument.h"
 
 namespace hippy {
 inline namespace dom {
@@ -45,7 +46,7 @@ class DomManager {
                             const EventCallback &cb);
   void RemoveEventListener(uint32_t id, const std::string &name, bool use_capture);
   void CallFunction(uint32_t id, const std::string &name,
-                    const DomValue &param, const CallFunctionCallback &cb);
+                    const DomArgument &param, const CallFunctionCallback &cb);
   void AddListenerOperation(std::shared_ptr<DomNode> node, const std::string& name);
   std::tuple<float, float> GetRootSize();
   void SetRootSize(float width, float height);
