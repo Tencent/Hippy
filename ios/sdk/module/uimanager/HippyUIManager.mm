@@ -1685,7 +1685,17 @@ static UIView *_jsResponder;
         if (isAnimated && [isAnimated isKindOfClass: [NSNumber class]]) {
             HippyExtAnimationModule *animationModule = self.bridge.animationModule;
             props = [animationModule bindAnimaiton:props viewTag:hippyTag rootTag: shadowView.rootTag];
-            shadowView.animated = [(NSNumber *)isAnimated boolValue];;
+            shadowView.animated = [(NSNumber *)isAnimated boolValue];
+            //TODO 2.0中，如果props中包含有height或者width，那[componentData setProps:newProps forShadowView:shadowView]逻辑
+            //会为shadowview.node布局节点设置高或者宽
+            //3.0中由于shadowview没有布局节点，且frame已经计算，只能手动覆写从layoutnode中获取的宽高
+//            if ([props objectForKey:@"height"]) {
+//                frame.size.height = [props[@"height"] floatValue];
+//            }
+//            if ([props objectForKey:@"width"]) {
+//                frame.size.width = [props[@"width"] floatValue];
+//            }
+            
         } else {
             shadowView.animated = NO;
         }
