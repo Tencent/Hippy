@@ -175,37 +175,63 @@ void TaitankLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<t
     SetFlexBasis(static_cast<float>(style_map.find(kFlexBasis)->second->ToDouble()));
   }
   if (style_map.find(kWidth) != style_map.end()) {
-    SetWidth(static_cast<float>(style_map.find(kWidth)->second->ToDouble()));
+    float width =
+        style_map.find(kWidth)->second->IsNumber() ? static_cast<float>(style_map.find(kWidth)->second->ToDouble()) : 0;
+    SetWidth(width);
   }
   if (style_map.find(kHeight) != style_map.end()) {
-    SetHeight(static_cast<float>(style_map.find(kHeight)->second->ToDouble()));
+    float height = style_map.find(kHeight)->second->IsNumber()
+                       ? static_cast<float>(style_map.find(kHeight)->second->ToDouble())
+                       : 0;
+    SetHeight(height);
   }
   if (style_map.find(kMaxWidth) != style_map.end()) {
-    SetMaxWidth(static_cast<float>(style_map.find(kMaxWidth)->second->ToDouble()));
+    float max_width = style_map.find(kMaxWidth)->second->IsNumber()
+                          ? static_cast<float>(style_map.find(kMaxWidth)->second->ToDouble())
+                          : 0;
+    SetMaxWidth(max_width);
   }
   if (style_map.find(kMaxHeight) != style_map.end()) {
-    SetMaxHeight(static_cast<float>(style_map.find(kMaxHeight)->second->ToDouble()));
+    float max_height = style_map.find(kMaxHeight)->second->IsNumber()
+                           ? static_cast<float>(style_map.find(kMaxHeight)->second->ToDouble())
+                           : 0;
+    SetMaxHeight(max_height);
   }
   if (style_map.find(kMinWidth) != style_map.end()) {
-    SetMinWidth(static_cast<float>(style_map.find(kMinWidth)->second->ToDouble()));
+    float min_width = style_map.find(kMinWidth)->second->IsNumber()
+                          ? static_cast<float>(style_map.find(kMinWidth)->second->ToDouble())
+                          : 0;
+    SetMinWidth(min_width);
   }
   if (style_map.find(kMinHeight) != style_map.end()) {
-    SetMinHeight(static_cast<float>(style_map.find(kMinHeight)->second->ToDouble()));
+    float min_height = style_map.find(kMinHeight)->second->IsNumber()
+                           ? static_cast<float>(style_map.find(kMinHeight)->second->ToDouble())
+                           : 0;
+    SetMinHeight(min_height);
   }
   if (style_map.find(kJustifyContent) != style_map.end()) {
     SetJustifyContent(GetFlexJustify(style_map.find(kJustifyContent)->second->ToString()));
   }
   if (style_map.find(kLeft) != style_map.end()) {
-    SetPosition(GetCSSDirection(kLeft), static_cast<float>(style_map.find(kLeft)->second->ToDouble()));
+    float left =
+        style_map.find(kLeft)->second->IsNumber() ? static_cast<float>(style_map.find(kLeft)->second->ToDouble()) : 0;
+    SetPosition(GetCSSDirection(kLeft), left);
   }
   if (style_map.find(kRight) != style_map.end()) {
-    SetPosition(GetCSSDirection(kRight), static_cast<float>(style_map.find(kRight)->second->ToDouble()));
+    float right =
+        style_map.find(kRight)->second->IsNumber() ? static_cast<float>(style_map.find(kRight)->second->ToDouble()) : 0;
+    SetPosition(GetCSSDirection(kRight), right);
   }
   if (style_map.find(kTop) != style_map.end()) {
-    SetPosition(GetCSSDirection(kTop), static_cast<float>(style_map.find(kTop)->second->ToDouble()));
+    float top =
+        style_map.find(kTop)->second->IsNumber() ? static_cast<float>(style_map.find(kTop)->second->ToDouble()) : 0;
+    SetPosition(GetCSSDirection(kTop), top);
   }
   if (style_map.find(kBottom) != style_map.end()) {
-    SetPosition(GetCSSDirection(kBottom), static_cast<float>(style_map.find(kBottom)->second->ToDouble()));
+    float bottom = style_map.find(kBottom)->second->IsNumber()
+                       ? static_cast<float>(style_map.find(kBottom)->second->ToDouble())
+                       : 0;
+    SetPosition(GetCSSDirection(kBottom), bottom);
   }
   if (style_map.find(kPosition) != style_map.end()) {
     SetPositionType(GetPositionType(style_map.find(kPosition)->second->ToString()));
@@ -217,50 +243,88 @@ void TaitankLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<t
     SetOverflow(GetFlexOverflow(style_map.find(kOverflow)->second->ToString()));
   }
   if (style_map.find(kMargin) != style_map.end()) {
-    SetMargin(GetCSSDirection(kMargin), static_cast<float>(style_map.find(kMargin)->second->ToDouble()));
+    float margin = style_map.find(kMargin)->second->IsNumber()
+                       ? static_cast<float>(style_map.find(kMargin)->second->ToDouble())
+                       : 0;
+    SetMargin(GetCSSDirection(kMargin), margin);
   }
   if (style_map.find(kMarginVertical) != style_map.end()) {
-    SetMargin(GetCSSDirection(kMarginVertical),
-              static_cast<float>(style_map.find(kMarginVertical)->second->ToDouble()));
+    float margin_vertical = style_map.find(kMarginVertical)->second->IsNumber()
+                                ? static_cast<float>(style_map.find(kMarginVertical)->second->ToDouble())
+                                : 0;
+    SetMargin(GetCSSDirection(kMarginVertical), margin_vertical);
   }
   if (style_map.find(kMarginHorizontal) != style_map.end()) {
-    SetMargin(GetCSSDirection(kMarginHorizontal),
-              static_cast<float>(style_map.find(kMarginHorizontal)->second->ToDouble()));
+    float margin_horizontal = style_map.find(kMarginHorizontal)->second->IsNumber()
+                                  ? static_cast<float>(style_map.find(kMarginHorizontal)->second->ToDouble())
+                                  : 0;
+    SetMargin(GetCSSDirection(kMarginHorizontal), margin_horizontal);
   }
   if (style_map.find(kMarginLeft) != style_map.end()) {
-    SetMargin(GetCSSDirection(kMarginLeft), static_cast<float>(style_map.find(kMarginLeft)->second->ToDouble()));
+    float margin_left = style_map.find(kMarginLeft)->second->IsNumber()
+                            ? static_cast<float>(style_map.find(kMarginLeft)->second->ToDouble())
+                            : 0;
+    SetMargin(GetCSSDirection(kMarginLeft), margin_left);
   }
   if (style_map.find(kMarginTop) != style_map.end()) {
-    SetMargin(GetCSSDirection(kMarginTop), static_cast<float>(style_map.find(kMarginTop)->second->ToDouble()));
+    float margin_top = style_map.find(kMarginTop)->second->IsNumber()
+                           ? static_cast<float>(style_map.find(kMarginTop)->second->ToDouble())
+                           : 0;
+    SetMargin(GetCSSDirection(kMarginTop), margin_top);
   }
   if (style_map.find(kMarginRight) != style_map.end()) {
-    SetMargin(GetCSSDirection(kMarginRight), static_cast<float>(style_map.find(kMarginRight)->second->ToDouble()));
+    float margin_right = style_map.find(kMarginRight)->second->IsNumber()
+                             ? static_cast<float>(style_map.find(kMarginRight)->second->ToDouble())
+                             : 0;
+    SetMargin(GetCSSDirection(kMarginRight), margin_right);
   }
   if (style_map.find(kMarginBottom) != style_map.end()) {
-    SetMargin(GetCSSDirection(kMarginBottom), static_cast<float>(style_map.find(kMarginBottom)->second->ToDouble()));
+    float margin_bottom = style_map.find(kMarginBottom)->second->IsNumber()
+                              ? static_cast<float>(style_map.find(kMarginBottom)->second->ToDouble())
+                              : 0;
+    SetMargin(GetCSSDirection(kMarginBottom), margin_bottom);
   }
   if (style_map.find(kPadding) != style_map.end()) {
-    SetPadding(GetCSSDirection(kPadding), static_cast<float>(style_map.find(kPadding)->second->ToDouble()));
+    float padding = style_map.find(kPadding)->second->IsNumber()
+                        ? static_cast<float>(style_map.find(kPadding)->second->ToDouble())
+                        : 0;
+    SetPadding(GetCSSDirection(kPadding), padding);
   }
   if (style_map.find(kPaddingVertical) != style_map.end()) {
-    SetPadding(GetCSSDirection(kPaddingVertical),
-               static_cast<float>(style_map.find(kPaddingVertical)->second->ToDouble()));
+    float padding_vertical = style_map.find(kPaddingVertical)->second->IsNumber()
+                                 ? static_cast<float>(style_map.find(kPaddingVertical)->second->ToDouble())
+                                 : 0;
+    SetPadding(GetCSSDirection(kPaddingVertical), padding_vertical);
   }
   if (style_map.find(kPaddingHorizontal) != style_map.end()) {
-    SetPadding(GetCSSDirection(kPaddingHorizontal),
-               static_cast<float>(style_map.find(kPaddingHorizontal)->second->ToDouble()));
+    float padding_horizontal = style_map.find(kPaddingHorizontal)->second->IsNumber()
+                                   ? static_cast<float>(style_map.find(kPaddingHorizontal)->second->ToDouble())
+                                   : 0;
+    SetPadding(GetCSSDirection(kPaddingHorizontal), padding_horizontal);
   }
   if (style_map.find(kPaddingLeft) != style_map.end()) {
-    SetPadding(GetCSSDirection(kPaddingLeft), static_cast<float>(style_map.find(kPaddingLeft)->second->ToDouble()));
+    float padding_left = style_map.find(kPaddingLeft)->second->IsNumber()
+                             ? static_cast<float>(style_map.find(kPaddingLeft)->second->ToDouble())
+                             : 0;
+    SetPadding(GetCSSDirection(kPaddingLeft), padding_left);
   }
   if (style_map.find(kPaddingTop) != style_map.end()) {
-    SetPadding(GetCSSDirection(kPaddingTop), static_cast<float>(style_map.find(kPaddingTop)->second->ToDouble()));
+    float padding_top = style_map.find(kPaddingTop)->second->IsNumber()
+                            ? static_cast<float>(style_map.find(kPaddingTop)->second->ToDouble())
+                            : 0;
+    SetPadding(GetCSSDirection(kPaddingTop), padding_top);
   }
   if (style_map.find(kPaddingRight) != style_map.end()) {
-    SetPadding(GetCSSDirection(kPaddingRight), static_cast<float>(style_map.find(kPaddingRight)->second->ToDouble()));
+    float padding_right = style_map.find(kPaddingRight)->second->IsNumber()
+                              ? static_cast<float>(style_map.find(kPaddingRight)->second->ToDouble())
+                              : 0;
+    SetPadding(GetCSSDirection(kPaddingRight), padding_right);
   }
   if (style_map.find(kPaddingBottom) != style_map.end()) {
-    SetPadding(GetCSSDirection(kPaddingBottom), static_cast<float>(style_map.find(kPaddingBottom)->second->ToDouble()));
+    float padding_bottom = style_map.find(kPaddingBottom)->second->IsNumber()
+                               ? static_cast<float>(style_map.find(kPaddingBottom)->second->ToDouble())
+                               : 0;
+    SetPadding(GetCSSDirection(kPaddingBottom), padding_bottom);
   }
 }
 
@@ -401,7 +465,6 @@ void TaitankLayoutNode::SetScaleFactor(float sacle_factor) {
   HPConfigRef config = engine_node_->GetConfig();
   config->SetScaleFactor(sacle_factor);
 }
-
 
 void TaitankLayoutNode::SetMaxWidth(float max_width) {
   assert(engine_node_ != nullptr);
