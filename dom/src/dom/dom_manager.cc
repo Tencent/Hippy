@@ -120,8 +120,10 @@ void DomManager::EndBatch() {
     batch_operation();
   }
   add_listener_operations_.clear();
+  render_manager_->OnLayoutBefore();
   // 触发布局计算
   DoLayout();
+  git@github.com:Tencent/Hippy.git
   auto render_manager = render_manager_.lock();
   TDF_BASE_DCHECK(render_manager);
   if (render_manager) {

@@ -106,6 +106,14 @@ void LayerOptimizedRenderManager::CallFunction(
   render_manager_->CallFunction(dom_node, name, param, cb);
 }
 
+void LayerOptimizedRenderManager::OnLayoutBefore() {
+  render_manager_->OnLayoutBefore();
+}
+
+void LayerOptimizedRenderManager::OnLayoutFinish() {
+  render_manager_->OnLayoutFinish();
+}
+
 bool LayerOptimizedRenderManager::ComputeIsLayoutOnly(const std::shared_ptr<DomNode>& node) const {
   return node->GetTagName() == kTagNameView
          && CheckStyleJustLayout(node)
@@ -209,11 +217,7 @@ bool LayerOptimizedRenderManager::UpdateRenderInfo(const std::shared_ptr<DomNode
     render_info.pid = render_parent->GetId();
     render_info.index = index;
   }
-  if (!node->IsJustLayout() && !node->IsVirtual()) {
-    render_info.created = true;
-  } else {
-    render_info.created = false;
-  }
+  render_info.created = !node->IsJustLayout() && !node->IsVirtual();
   node->SetRenderInfo(render_info);
   return render_info.created;
 }
