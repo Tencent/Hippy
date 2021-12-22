@@ -66,6 +66,7 @@ void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>> &&nodes) {
     node->SetStyleMap(std::move(it->get()->GetStyleMap()));
     node->SetExtStyleMap(std::move(it->get()->GetExtStyle()));
     node->SetDiffStyle(std::move(style_diff));
+    node->ParseLayoutStyleInfo();
     update_nodes.push_back(node);
     HandleEvent(std::make_shared<DomEvent>(kOnDomUpdated, node, true, true));
   }
@@ -120,11 +121,11 @@ void DomManager::EndBatch() {
     batch_operation();
   }
   add_listener_operations_.clear();
-  render_manager_->OnLayoutBefore();
+  auto render_manager = render_manager_.lock();
+  render_manager->OnLayoutBefore();
   // 触发布局计算
   DoLayout();
-  git@github.com:Tencent/Hippy.git
-  auto render_manager = render_manager_.lock();
+  render_manager->OnLayoutFinish();
   TDF_BASE_DCHECK(render_manager);
   if (render_manager) {
     render_manager->Batch();

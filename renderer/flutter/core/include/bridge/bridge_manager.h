@@ -33,7 +33,7 @@ class BridgeManager {
   void CallNativeCallback(const String& callback_id, std::unique_ptr<EncodableValue> params, bool keep);
  private:
   std::weak_ptr<PlatformRuntime> runtime_;
-  std::map<int, std::weak_ptr<VoltronRenderManager>> render_manager_map_;
+  std::map<int, Sp<VoltronRenderManager>> render_manager_map_;
   Map<int, Sp<DomManager>> dom_manager_map_;
   Map<String, NativeCallback> native_callback_map_;
 

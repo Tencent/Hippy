@@ -57,7 +57,7 @@ void BridgeManager::BindRuntime(const voltron::Sp<PlatformRuntime>& runtime) {
 
 void BridgeManager::BindRenderManager(int32_t root_id,
                                       const voltron::Sp<voltron::VoltronRenderManager>& render_manager) {
-  render_manager_map_[root_id] = std::weak_ptr<VoltronRenderManager>(render_manager);
+  render_manager_map_[root_id] = render_manager;
 }
 
 void BridgeManager::VisitAllRenderManager(const VisitRenderCallback& callback) {

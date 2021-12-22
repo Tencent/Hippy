@@ -46,10 +46,10 @@ void VoltronRenderManager::OnLayoutBefore() {
   RunLayoutBefore();
 
   // 在dom的css layout开始前，要保证dom op全部执行完成，否则自定义测量的节点测量数据会不准确
-//  std::unique_lock<std::mutex> lock(mutex_);
-//  while (!notified_) {
-//    cv_.wait(lock);
-//  }
+  std::unique_lock<std::mutex> lock(mutex_);
+  while (!notified_) {
+    cv_.wait(lock);
+  }
 }
 
 void VoltronRenderManager::OnLayoutFinish() {
@@ -64,10 +64,10 @@ void VoltronRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node, con
 void VoltronRenderManager::RemoveEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {}
 
 void VoltronRenderManager::Notify() {
-//  if (!notified_) {
-//    notified_ = true;
-//    cv_.notify_one();
-//  }
+  if (!notified_) {
+    notified_ = true;
+    cv_.notify_one();
+  }
 }
 
 //

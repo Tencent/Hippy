@@ -7,14 +7,12 @@
 #include "bridge/bridge_manager.h"
 #include "bridge/string_util.h"
 #include "dom/dom_manager.h"
-#include "dom/render_manager_proxy.h"
 #include "ffi/bridge_ffi_impl.h"
 #include "ffi/callback_manager.h"
 #include "ffi/ffi_platform_runtime.h"
 #include "ffi/logging.h"
 #include "render/common.h"
 #include "standard_message_codec.h"
-#include "render/layout.h"
 
 #if defined(__ANDROID__) || defined(_WIN32)
 #include "bridge_impl.h"
@@ -27,7 +25,6 @@ extern "C" {
 #endif
 
 using hippy::DomManager;
-using hippy::RenderManagerProxy;
 using voltron::BridgeManager;
 using voltron::FFIPlatformRuntime;
 using voltron::PlatformRuntime;
@@ -35,11 +32,9 @@ using voltron::Sp;
 using voltron::VoltronRenderManager;
 using voltron::StandardMessageCodec;
 using voltron::EncodableValue;
-using voltron::VoltronLayoutContext;
 
 EXTERN_C void InitDomFFI(int32_t engine_id, int32_t root_id) {
   auto render_manager = std::make_shared<VoltronRenderManager>(engine_id, root_id);
-//  auto proxy_render_manager = std::make_shared<RenderManagerProxy>(render_manager);
   Sp<DomManager> dom_manager = std::make_shared<DomManager>(engine_id);
   dom_manager->SetRenderManager(render_manager);
   BridgeManager::GetBridgeManager(engine_id)->BindDomManager(root_id, dom_manager);
@@ -149,37 +144,26 @@ EXTERN_C void SetNodeCustomMeasure(int32_t engine_id, int32_t root_id, int32_t n
         auto layout_node = dom_node->GetLayoutNode();
         if (layout_node) {
           auto taitank_layout_node = std::static_pointer_cast<hippy::TaitankLayoutNode>(layout_node);
-          auto voltronLayoutContext = new VoltronLayoutContext();
-          voltronLayoutContext->node_id = node_id;
-          voltronLayoutContext->engine_id = engine_id;
-          voltronLayoutContext->root_id = root_id;
-          taitank_layout_node->SetLayoutContext(voltronLayoutContext);
-          taitank_layout_node->SetMeasureFunction(VoltronMeasureFunction);
+          taitank_layout_node->SetMeasureFunction(
+              [engine_id, root_id, node_id](HPNodeRef node, float width, MeasureMode widthMeasureMode, float height,
+                                            MeasureMode heightMeasureMode, void* layoutContext) {
+                auto bridge_manager = BridgeManager::GetBridgeManager(engine_id);
+                if (bridge_manager) {
+                  auto runtime = bridge_manager->GetRuntime().lock();
+                  if (runtime) {
+                    auto measure_result = runtime->CalculateNodeLayout(root_id, node_id, width, widthMeasureMode,
+                                                                       height, heightMeasureMode);
+                    int32_t w_bits = 0xFFFFFFFF & (measure_result >> 32);
+                    int32_t h_bits = 0xFFFFFFFF & measure_result;
+                    return HPSize{(float)w_bits, (float)h_bits};
+                  }
+                }
+                return HPSize{0, 0};
+              });
         }
       }
     }
   }
-}
-
-HPSize VoltronMeasureFunction(HPNodeRef node, float width, MeasureMode widthMeasureMode, float height,
-                            MeasureMode heightMeasureMode, void* layoutContext) {
-  if (layoutContext) {
-    auto voltronLayoutContext = reinterpret_cast<VoltronLayoutContext *>(layoutContext);
-    auto bridge_manager = BridgeManager::GetBridgeManager(voltronLayoutContext->engine_id);
-    if (bridge_manager) {
-      auto runtime = bridge_manager->GetRuntime().lock();
-      if (runtime) {
-        auto measure_result = runtime->CalculateNodeLayout(voltronLayoutContext->root_id,
-                                                           voltronLayoutContext->node_id, width,
-                                     widthMeasureMode, height, heightMeasureMode);
-        int32_t w_bits = 0xFFFFFFFF & (measure_result >> 32);
-        int32_t h_bits = 0xFFFFFFFF & measure_result;
-        return HPSize{(float) w_bits, (float) h_bits};
-      }
-    }
-  }
-
-  return HPSize{0, 0};
 }
 
 EXTERN_C void NotifyRenderManager(int32_t engine_id) {
