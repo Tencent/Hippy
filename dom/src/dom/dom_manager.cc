@@ -147,7 +147,7 @@ void DomManager::RemoveEventListener(uint32_t id, const std::string &name, bool 
 }
 
 void DomManager::CallFunction(uint32_t id, const std::string &name,
-                              const DomValue &param,
+                              const DomArgument &param,
                               const CallFunctionCallback &cb) {
   auto node = dom_node_registry_.GetNode(id);
   if (node == nullptr) {

@@ -226,6 +226,8 @@ class V8Ctx : public Ctx {
 
   virtual std::shared_ptr<DomValue> ToDomValue(
       const std::shared_ptr<CtxValue>& value) override;
+  virtual std::shared_ptr<DomArgument> ToDomArgument(
+      const std::shared_ptr<CtxValue>& value) override;
   virtual std::shared_ptr<CtxValue> CreateCtxValue(
       const std::shared_ptr<DomValue>& value) override;
 
@@ -246,6 +248,8 @@ class V8Ctx : public Ctx {
       const unicode_string_view& file_name,
       bool is_use_code_cache,
       unicode_string_view* cache);
+
+  std::string v8_reused_buffer_;
 };
 
 struct V8CtxValue : public CtxValue {

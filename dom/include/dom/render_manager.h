@@ -6,6 +6,7 @@
 
 #include "dom/dom_listener.h"
 #include "dom/dom_value.h"
+#include "dom/dom_argument.h"
 #include "dom/dom_node.h"
 
 namespace hippy {
@@ -24,11 +25,11 @@ class RenderManager {
   virtual void MoveRenderNode(std::vector<int32_t>&& moved_ids, int32_t from_pid, int32_t to_pid) = 0;
   virtual void Batch() = 0;
 
-  using DomValue = tdf::base::DomValue;
+  using DomArgument = hippy::dom::DomArgument;
   virtual void AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) = 0;
   virtual void RemoveEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) = 0;
   virtual void CallFunction(std::weak_ptr<DomNode> dom_node, const std::string& name,
-                                const DomValue& param,
+                                const DomArgument& param,
                                 CallFunctionCallback cb) = 0;
 };
 

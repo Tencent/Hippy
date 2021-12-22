@@ -192,6 +192,8 @@ class JSCCtx : public Ctx {
     
   virtual std::shared_ptr<DomValue> ToDomValue(
       const std::shared_ptr<CtxValue>& value) override;
+  virtual std::shared_ptr<DomArgument> ToDomArgument(
+    const std::shared_ptr<CtxValue>& value) override;
   virtual std::shared_ptr<CtxValue> CreateCtxValue(
       const std::shared_ptr<DomValue>& value) override;
 

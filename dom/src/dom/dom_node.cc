@@ -237,7 +237,7 @@ void DomNode::TransferLayoutOutputsRecursive() {
   }
 }
 
-void DomNode::CallFunction(const std::string &name, const DomValue &param,
+void DomNode::CallFunction(const std::string &name, const DomArgument &param,
                            const CallFunctionCallback &cb) {
   if (!func_cb_map_) {
     func_cb_map_ = std::make_shared<std::unordered_map<std::string, CallFunctionCallback>>();
