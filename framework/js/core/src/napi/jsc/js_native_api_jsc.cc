@@ -646,12 +646,70 @@ return nullptr;
 }
 
 std::shared_ptr<DomArgument> JSCCtx::ToDomArgument(const std::shared_ptr<CtxValue>& value) {
-  //TODO 等待ios实现ocdomvalue
-  std::shared_ptr<DomValue> dom_value = ToDomValue(value);
-  if(dom_value != nullptr) {
-    return std::make_shared<DomArgument>(*dom_value);
-  }
-  return nullptr;
+  #ifdef IOS
+    //TODO 等待OCDomvalue完成,和OCDomvalue一起修改编译宏
+  #else
+    std::shared_ptr<JSCCtxValue> ctx_value = std::static_pointer_cast<JSCCtxValue>(value);
+    JSValueRef value_ref = ctx_value->value_;
+    if (JSValueIsUndefined(context_, value_ref)) {
+      return std::make_shared<DomArgument>(DomValue::Undefined());
+    } else if (JSValueIsNull(context_, value_ref)) {
+      return std::make_shared<DomArgument>(DomValue::Null());
+    } else if (JSValueIsBoolean(context_, value_ref)) {
+      bool jsc_value = JSValueToBoolean(context_, value_ref);
+      return std::make_shared<DomArgument>(DomValue(jsc_value));
+    } else if (JSValueIsString(context_, value_ref)) {
+      JSStringRef str_ref = JSValueToStringCopy(context_, value_ref, nullptr);
+      size_t size = JSStringGetMaximumUTF8CStringSize(str_ref);
+      std::vector<char> buffer(size);
+      JSStringGetUTF8CString(str_ref, buffer.data(), size);
+      std::shared_ptr<DomArgument> ret = std::make_shared<DomArgument>(DomValue(buffer.data()));
+      JSStringRelease(str_ref);
+      return ret;
+    } else if (JSValueIsNumber(context_, value_ref)) {
+      double jsc_value = JSValueToNumber(context_, value_ref, nullptr);
+      return std::make_shared<DomArgument>(DomValue(jsc_value));
+    } else if (JSValueIsArray(context_, value_ref)) {
+      JSObjectRef array_ref = JSValueToObject(context_, value_ref, nullptr);
+      JSStringRef prop_name = JSStringCreateWithCharacters(
+        reinterpret_cast<const JSChar*>(kLengthStr), arraysize(kLengthStr) - 1);
+      JSValueRef val = JSObjectGetProperty(context_, array_ref, prop_name, nullptr);
+      JSStringRelease(prop_name);
+      uint32_t count = JSValueToNumber(context_, val, nullptr);
+      DomValue::DomValueArrayType ret;
+      for (uint32_t i = 0; i < count; ++i) {
+        JSValueRef element = JSObjectGetPropertyAtIndex(context_, array_ref, i, nullptr);
+        std::shared_ptr<DomValue> value_obj = ToDomValue(
+          std::make_shared<JSCCtxValue>(context_, element));
+        ret.push_back(*value_obj);
+      }
+      return std::make_shared<DomArgument>(DomValue(std::move(ret)));
+    } else if (JSValueIsObject(context_, value_ref)) {
+      JSObjectRef obj_value = JSValueToObject(context_, value_ref, nullptr);
+      JSPropertyNameArrayRef name_arry = JSObjectCopyPropertyNames(context_, obj_value);
+      size_t len = JSPropertyNameArrayGetCount(name_arry);
+      DomValue::DomValueObjectType ret;
+      for (uint32_t i = 0; i < len; ++i) {
+        JSStringRef props_key = JSPropertyNameArrayGetNameAtIndex(name_arry, i);
+        JSValueRef props_value =
+          JSObjectGetProperty(context_, obj_value, props_key, nullptr);
+        size_t size = JSStringGetMaximumUTF8CStringSize(props_key);
+        std::vector<char> buffer(size);
+        JSStringGetUTF8CString(props_key, buffer.data(), size);
+        std::string key_obj(buffer.data());
+        std::shared_ptr<JSCCtxValue> props_value_obj =
+          std::make_shared<JSCCtxValue>(context_, props_value);
+        std::shared_ptr<DomValue> value_obj =
+          ToDomValue(props_value_obj);
+        ret[key_obj] = *value_obj;
+      }
+      JSPropertyNameArrayRelease(name_arry);
+      return std::make_shared<DomArgument>(DomValue(std::move(ret)));
+    }
+
+    TDF_BASE_NOTIMPLEMENTED();
+    return nullptr;
+  #endif
 }
 
 std::shared_ptr<CtxValue> JSCCtx::CreateCtxValue(const std::shared_ptr<DomValue>& wrapper) {
