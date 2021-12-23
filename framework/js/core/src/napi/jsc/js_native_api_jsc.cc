@@ -535,6 +535,9 @@ std::shared_ptr<JSValueWrapper> JSCCtx::ToJsValueWrapper(
 
 std::shared_ptr<CtxValue> JSCCtx::CreateCtxValue(
     const std::shared_ptr<JSValueWrapper>& wrapper) {
+  if (!wrapper) {
+    return nullptr;
+  }
   if (wrapper->IsUndefined()) {
     return CreateUndefined();
   } else if (wrapper->IsNull()) {
