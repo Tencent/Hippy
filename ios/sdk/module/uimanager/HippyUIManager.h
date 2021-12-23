@@ -179,8 +179,6 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 
 - (std::shared_ptr<hippy::DomManager>)domManager;
 
-- (const std::map<int32_t, std::shared_ptr<hippy::DomNode>> &)domNodes;
-
 - (void)renderCreateView:(int32_t)hippyTag
                 viewName:(const std::string &)name
                  rootTag:(int32_t)rootTag
@@ -202,7 +200,8 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 - (void)batch;
 
 - (void)dispatchFunction:(const std::string &)functionName
-                 forView:(int32_t)hippyTag
+                viewName:(const std::string &)viewName
+                 viewTag:(int32_t)hippyTag
                   params:(const tdf::base::DomValue &)params
                 callback:(hippy::CallFunctionCallback)cb;
 
@@ -210,7 +209,6 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 
 - (void)removeEventName:(const std::string &)eventName forDomNode:(std::weak_ptr<hippy::DomNode>)weak_node;
 
-- (void)addComponentEvent:(const std::string &)name forDomNode:(std::weak_ptr<hippy::DomNode>)weak_node;
 @end
 
 /**

@@ -1040,7 +1040,9 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     }
 
     @autoreleasepool {
-        NSMapTable *buckets = [[NSMapTable alloc] initWithKeyOptions:NSPointerFunctionsStrongMemory valueOptions:NSPointerFunctionsStrongMemory
+        NSMapTable *buckets = [[NSMapTable alloc]
+                               initWithKeyOptions:NSPointerFunctionsStrongMemory
+                                                        valueOptions:NSPointerFunctionsStrongMemory
                                                             capacity:_moduleDataByName.count];
 
         [moduleIDs enumerateObjectsUsingBlock:^(NSNumber *moduleID, NSUInteger i, __unused BOOL *stop) {
@@ -1147,6 +1149,34 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
 
         NSString *message = [NSString stringWithFormat:@"Exception '%@' was thrown while invoking %@ on target %@ with params %@", exception,
                                       method.JSMethodName, moduleData.name, params];
+        NSError *error = HippyErrorWithMessageAndModuleName(message, self.moduleName);
+        if (self.parentBridge.useCommonBridge) {
+            NSDictionary *errorInfo = @{ NSLocalizedDescriptionKey: message, @"module": self.parentBridge.moduleName ?: @"" };
+            error = [[NSError alloc] initWithDomain:HippyErrorDomain code:0 userInfo:errorInfo];
+        }
+        HippyFatal(error);
+        return nil;
+    }
+}
+
+- (id)callNativeModuleName:(NSString *)moduleName methodName:(NSString *)methodName params:(NSArray *)params {
+    NSDictionary<NSString *, HippyModuleData *> * moduleByName = [_moduleDataByName copy];
+    HippyModuleData *module = moduleByName[moduleName];
+    if (!module) {
+        return nil;
+    }
+    id<HippyBridgeMethod> method = module.methodsByName[methodName];
+    if (!method) {
+        return nil;
+    }
+    @try {
+        return [method invokeWithBridge:self module:module.instance arguments:params];
+    } @catch (NSException *exception) {
+        if ([exception.name hasPrefix:HippyFatalExceptionName]) {
+            @throw exception;
+        }
+
+        NSString *message = [NSString stringWithFormat:@"Exception '%@' was thrown while invoking %@ on target %@ with params %@", exception, method.JSMethodName, module.name, params];
         NSError *error = HippyErrorWithMessageAndModuleName(message, self.moduleName);
         if (self.parentBridge.useCommonBridge) {
             NSDictionary *errorInfo = @{ NSLocalizedDescriptionKey: message, @"module": self.parentBridge.moduleName ?: @"" };

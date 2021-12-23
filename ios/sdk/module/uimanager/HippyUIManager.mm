@@ -1720,36 +1720,29 @@ static UIView *_jsResponder;
 }
 
 - (void)dispatchFunction:(const std::string &)functionName
-                 forView:(int32_t)hippyTag
+                viewName:(const std::string &)viewName
+                 viewTag:(int32_t)hippyTag
                   params:(const DomValue &)params
                 callback:(CallFunctionCallback)cb {
-    UIView *view = [self viewForHippyTag:@(hippyTag)];
+    HippyAssert(DomValueType::kArray == params.GetType(), @"params in dispatchFunction must be array type");
     NSString *name = [NSString stringWithUTF8String:functionName.c_str()];
-    SEL sel = NSSelectorFromString(name);
-    HippyAssert([view respondsToSelector:sel], @"dispatch function failed, object %@ does not respond to function %@", NSStringFromClass([view class]), name);
-    if (sel) {
-        NSMethodSignature *methodSig = [view methodSignatureForSelector:sel];
-        HippyAssert(0 == strcmp([methodSig methodReturnType], @encode(std::any)), @"dispatch function failed, function %@ return type is not std::any, return type not matched", name);
-        HippyAssert(sizeof(std::any) == [methodSig methodReturnLength], @"dispatch function failed, function %@ return type is not std::any, return length not matched", name);
-        if (view && methodSig) {
-            @try {
-                NSDictionary *dicParams = {}; // unorderedMapDomValueToDictionary(params.ToObject());
-                NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSig];
-                [invocation setTarget:view];
-                [invocation setArgument:&dicParams atIndex:2];
-                [invocation invoke];
-                //method return type is always std::any
-                std::any ret;
-                [invocation getReturnValue:&ret];
-                cb(ret);
-            } @catch (NSException *exception) {
-                HippyAssert(NO, @"exception happened:%@", [exception description]);
-            }
-        }
+    NSArray * paramsArray = domValueToOCType(&params);
+    NSMutableArray *finalParams = [NSMutableArray arrayWithCapacity:2 + [paramsArray count]];
+    [finalParams addObject:@(hippyTag)];
+    for (id param in paramsArray) {
+        [finalParams addObject:param];
     }
+    if (cb) {
+        HippyResponseSenderBlock senderBlock = ^(NSArray *senderParams) {
+    //        cb
+        };
+        [finalParams addObject:senderBlock];
+    }
+    NSString *nativeModuleName = [NSString stringWithUTF8String:viewName.c_str()];
+    [self.bridge callNativeModuleName:nativeModuleName methodName:name params:finalParams];
 }
 
-- (void) addEventName:(const std::string &)name forDomNode:(std::weak_ptr<hippy::DomNode>)weak_node {
+- (void)addEventName:(const std::string &)name forDomNode:(std::weak_ptr<hippy::DomNode>)weak_node {
     std::shared_ptr<DomNode> node = weak_node.lock();
     if (node) {
         if (name == hippy::kClickEvent) {

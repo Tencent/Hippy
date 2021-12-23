@@ -132,6 +132,12 @@ typedef UIView * (^CreateHippyViewWithPropsBlock)(HippyBridge *bridge, NSString 
 
 @end
 
-@interface HippyViewManager (Props)
+@interface HippyViewManager (InitProps)
 @property (nonatomic, strong) NSDictionary *props;
+@end
+
+@interface UIView(ViewManager)
+
+@property(nonatomic, weak)HippyViewManager *viewManager;
+
 @end
