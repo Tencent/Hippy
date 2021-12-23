@@ -190,13 +190,19 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
 
     __weak HippyModuleMethod *weakSelf = self;
     void (^addBlockArgument)(void) = ^{
-        HIPPY_ARG_BLOCK(if (HIPPY_DEBUG && json && ![json isKindOfClass:[NSNumber class]]) {
+        HIPPY_ARG_BLOCK(if (HIPPY_DEBUG && json && ![json isKindOfClass:[NSNumber class]] && ![json isKindOfClass:NSClassFromString(@"NSBlock")]) {
             HippyLogArgumentError(weakSelf, index, json, "should be a function");
             return NO;
         }
 
                         Hippy_BLOCK_ARGUMENT(^(NSArray *args) {
-                            [bridge enqueueCallback:json args:args];
+            if ([json isKindOfClass:[NSNumber class]]) {
+                [bridge enqueueCallback:json args:args];
+            }
+            else if ([json isKindOfClass:NSClassFromString(@"NSBlock")]) {
+                HippyResponseSenderBlock jsonBlock = (HippyResponseSenderBlock)json;
+                jsonBlock(args);
+            }
                         });)
     };
 

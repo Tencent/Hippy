@@ -51,6 +51,7 @@
 #import "HippyMemoryOpt.h"
 #import "HippyDeviceBaseInfo.h"
 #import "HippyVirtualList.h"
+#import "OCTypeToDomArgument.h"
 
 using DomValue = tdf::base::DomValue;
 using DomManager = hippy::DomManager;
@@ -1734,7 +1735,8 @@ static UIView *_jsResponder;
     }
     if (cb) {
         HippyResponseSenderBlock senderBlock = ^(NSArray *senderParams) {
-    //        cb
+            std::shared_ptr<hippy::DomArgument> domArgument = std::make_shared<hippy::DomArgument>([senderParams toDomArgument]);
+            cb(domArgument);
         };
         [finalParams addObject:senderBlock];
     }

@@ -83,7 +83,7 @@ void NativeRenderManager::CallFunction(std::weak_ptr<DomNode> dom_node, const st
     if (node) {
         DomValue dom_value;
         param.ToObject(dom_value);
-        [uiManager_ dispatchFunction:name viewName:node->GetViewName() viewTag:node->GetId() params:param callback:cb];
+        [uiManager_ dispatchFunction:name viewName:node->GetViewName() viewTag:node->GetId() params:dom_value callback:cb];
     }
     Batch();
 }
