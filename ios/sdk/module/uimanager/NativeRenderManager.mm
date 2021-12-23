@@ -81,9 +81,9 @@ void NativeRenderManager::CallFunction(std::weak_ptr<DomNode> dom_node, const st
                                     CallFunctionCallback cb) {
     std::shared_ptr<DomNode> node = dom_node.lock();
     if (node) {
-        //TODO 等待ios实现ocdomvalue
         DomValue dom_value;
         param.ToObject(dom_value);
-        [uiManager_ dispatchFunction:name forView:node->GetId() params:dom_value callback:cb];
+        [uiManager_ dispatchFunction:name viewName:node->GetViewName() viewTag:node->GetId() params:dom_value callback:cb];
     }
+    Batch();
 }

@@ -127,6 +127,8 @@ HIPPY_EXTERN void HippyVerifyAllModulesExported(NSArray *extraModules);
  */
 - (id)callNativeModule:(NSUInteger)moduleID method:(NSUInteger)methodID params:(NSArray *)params;
 
+- (id)callNativeModuleName:(NSString *)moduleName methodName:(NSString *)methodName params:(NSArray *)params;
+
 /**
  * Exposed for the HippyJSCExecutor for lazily loading native modules
  */

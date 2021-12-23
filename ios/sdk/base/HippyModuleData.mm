@@ -43,6 +43,7 @@
 @synthesize methods = _methods;
 @synthesize instance = _instance;
 @synthesize methodQueue = _methodQueue;
+@synthesize methodsByName = _methodsByName;
 
 - (void)setUp {
     _implementsBatchDidComplete = [_moduleClass instancesRespondToSelector:@selector(batchDidComplete)];
@@ -245,36 +246,43 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init);
 - (NSArray<id<HippyBridgeMethod>> *)methods {
     if (!_methods) {
         NSMutableArray<id<HippyBridgeMethod>> *moduleMethods = [NSMutableArray new];
-
+        NSMutableDictionary<NSString *, id<HippyBridgeMethod>> *methodsDic = [NSMutableDictionary dictionary];
         if ([_moduleClass instancesRespondToSelector:@selector(methodsToExport)]) {
             [moduleMethods addObjectsFromArray:[self.instance methodsToExport]];
         }
-
         unsigned int methodCount;
         Class cls = _moduleClass;
         while (cls && cls != [NSObject class] && cls != [NSProxy class]) {
             Method *methods = class_copyMethodList(object_getClass(cls), &methodCount);
-
             for (unsigned int i = 0; i < methodCount; i++) {
                 Method method = methods[i];
                 SEL selector = method_getName(method);
                 if ([NSStringFromSelector(selector) hasPrefix:@"__hippy_export__"]) {
                     IMP imp = method_getImplementation(method);
                     NSArray<NSString *> *entries = ((NSArray<NSString *> * (*)(id, SEL)) imp)(_moduleClass, selector);
-                    id<HippyBridgeMethod> moduleMethod = [[HippyModuleMethod alloc] initWithMethodSignature:entries[1] JSMethodName:entries[0]
-                                                                                                moduleClass:_moduleClass];
-
+                    id<HippyBridgeMethod> moduleMethod =
+                        [[HippyModuleMethod alloc] initWithMethodSignature:entries[1]
+                                                              JSMethodName:entries[0]
+                                                               moduleClass:_moduleClass];
                     [moduleMethods addObject:moduleMethod];
+                    [methodsDic setObject:moduleMethod forKey:moduleMethod.JSMethodName];
                 }
             }
 
             free(methods);
             cls = class_getSuperclass(cls);
         }
-
         _methods = [moduleMethods copy];
+        _methodsByName = [methodsDic copy];
     }
     return _methods;
+}
+
+- (NSDictionary<NSString *, id<HippyBridgeMethod>> *)methodsByName {
+    if (!_methodsByName) {
+        [self methods];
+    }
+    return [_methodsByName copy];
 }
 
 - (void)gatherConstants {
