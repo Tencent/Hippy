@@ -438,20 +438,32 @@ void UIManagerModule::CallUIFunction(const hippy::napi::CallbackInfo &info) {
     auto func = info[3];
     std::weak_ptr<Ctx> weak_context = context;
     std::weak_ptr<CtxValue> weak_func = func;
-    cb = [weak_context, weak_func](const std::any &param) -> std::any {
+    cb = [weak_context, func](const std::shared_ptr<DomArgument>& argument) -> void {
       auto context = weak_context.lock();
       if (!context) {
-        return nullptr;
+        return;
       }
-      auto func = weak_func.lock();
+
       if (!func) {
-        return nullptr;
+        return;
       }
-      auto dom_value = std::any_cast<DomValue>(param);
-      auto value = context->CreateCtxValue(std::make_shared<DomValue>(dom_value));
-      const std::shared_ptr<CtxValue> argus[] = {value};
-      context->CallFunction(func, 1, argus);
-      return nullptr;
+
+      DomValue value;
+      bool flag = argument->ToObject(value);
+      if (flag) {
+        auto param = context->CreateCtxValue(std::make_shared<DomValue>(std::move(value)));
+        if (param) {
+          const std::shared_ptr<CtxValue> argus[] = {param};
+          context->CallFunction(func, 1, argus);
+        } else {
+          const std::shared_ptr<CtxValue> argus[] = {};
+          context->CallFunction(func, 0, argus);
+        }
+        return;
+      } else {
+        context->ThrowExceptionToJS(context->CreateJsError(
+            unicode_string_view("param ToObject failed")));
+      }
     };
   }
   scope->GetDomManager()->CallFunction(id, name, param_value, cb);

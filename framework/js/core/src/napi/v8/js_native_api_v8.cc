@@ -1211,7 +1211,9 @@ std::shared_ptr<DomArgument> V8Ctx::ToDomArgument(
 
 std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
     const std::shared_ptr<JSValueWrapper>& wrapper) {
-  TDF_BASE_DCHECK(wrapper);
+  if (!wrapper) {
+    return nullptr;
+  }
   if (wrapper->IsUndefined()) {
     return CreateUndefined();
   } else if (wrapper->IsNull()) {
@@ -1266,7 +1268,9 @@ std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
 
 std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
     const std::shared_ptr<DomValue>& value) {
-  TDF_BASE_DCHECK(value);
+  if (!value) {
+    return nullptr;
+  }
   if (value->IsUndefined()) {
     return CreateUndefined();
   } else if (value->IsNull()) {
