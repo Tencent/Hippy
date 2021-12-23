@@ -77,6 +77,8 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
     
     NSHashTable<UIView *> *_onInterceptTouchEventView;
     NSHashTable<UIView *> *_onInterceptPullUpEventView;
+    
+    UIView *_touchBeginView;
 }
 
 - (instancetype)initWithRootView:(UIView *)view {
@@ -109,13 +111,15 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
             return;
         }
     }
-
+    
     UITouch *touch = [touches anyObject];
     _startPoint = [touch locationInView:touch.view];
     for (UITouch *touch in touches) {
-        NSDictionary *result = [self responseViewForAction:@[@"onPressIn", @"onTouchDown", @"onClick", @"onLongClick"] inView:touch.view
+        _touchBeginView = touch.view;
+        NSDictionary *result = [self responseViewForAction:
+                                @[@"onPressIn", @"onTouchDown", @"onClick", @"onLongClick"]
+                                                    inView:touch.view
                                                    atPoint:[touch locationInView:touch.view]];
-
         UIView *view = result[@"onTouchDown"][@"view"];
         UIView *clickView = result[@"onClick"][@"view"];
         if (view) {
@@ -171,8 +175,11 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
     }
 
     for (UITouch *touch in touches) {
-        NSDictionary *result = [self responseViewForAction:@[@"onTouchEnd", @"onPressOut", @"onClick"] inView:touch.view
-                                                   atPoint:[touch locationInView:touch.view]];
+        UIView *touchView = touch.view ?:_touchBeginView;
+        NSDictionary *result = [self responseViewForAction:
+                                @[@"onTouchEnd", @"onPressOut", @"onClick"]
+                                                    inView:touchView
+                                                   atPoint:[touch locationInView:touchView]];
 
         UIView *view = result[@"onTouchEnd"][@"view"];
         UIView *clickView = result[@"onClick"][@"view"];
@@ -256,8 +263,11 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
     [_moveTouches removeAllObjects];
 
     for (UITouch *touch in touches) {
-        NSDictionary *result = [self responseViewForAction:@[@"onTouchCancel", @"onPressOut", @"onClick"] inView:touch.view
-                                                   atPoint:[touch locationInView:touch.view]];
+        UIView *touchView = touch.view ?:_touchBeginView;
+        NSDictionary *result = [self responseViewForAction:
+                                @[@"onTouchCancel", @"onPressOut", @"onClick"]
+                                                    inView:touchView
+                                                   atPoint:[touch locationInView:touchView]];
         UIView *clickView = result[@"onClick"][@"view"];
         UIView *view = result[@"onTouchCancel"][@"view"];
         if (view) {
@@ -307,8 +317,8 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
     }
 
     UITouch *touch = [touches anyObject];
-    CGPoint point = [touch locationInView:touch.view];
-
+    UIView *touchView = touch.view ?:_touchBeginView;
+    CGPoint point = [touch locationInView:touchView];
     float dis = hypotf(_startPoint.x - point.x, _startPoint.y - point.y);
     if (dis < 1.f) {
         return;
@@ -322,8 +332,10 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
         if (index != NSNotFound) {
             result = _moveViews[index];
         } else {
-            NSDictionary *result = [self responseViewForAction:@[@"onTouchMove", @"onPressOut", @"onClick"] inView:touch.view
-                                                       atPoint:[touch locationInView:touch.view]];
+            NSDictionary *result = [self responseViewForAction:
+                                    @[@"onTouchMove", @"onPressOut", @"onClick"]
+                                                        inView:touchView
+                                                       atPoint:[touch locationInView:touchView]];
             [_moveTouches addObject:touch];
             [_moveViews addObject:result];
         }
