@@ -1,5 +1,4 @@
 #include "dom/taitank_layout_node.h"
-
 #include "base/logging.h"
 #include "dom/node_props.h"
 
@@ -227,16 +226,22 @@ void TaitankLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<t
     SetJustifyContent(GetFlexJustify(style_map.find(kJustifyContent)->second->ToString()));
   }
   if (style_map.find(kLeft) != style_map.end()) {
+    tdf::base::DomValue::Type type = style_map.find(kLeft)->second->GetType();
+    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
     float left =
         style_map.find(kLeft)->second->IsNumber() ? static_cast<float>(style_map.find(kLeft)->second->ToDouble()) : 0;
     SetPosition(GetCSSDirection(kLeft), left);
   }
   if (style_map.find(kRight) != style_map.end()) {
+    tdf::base::DomValue::Type type = style_map.find(kRight)->second->GetType();
+    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
     float right =
         style_map.find(kRight)->second->IsNumber() ? static_cast<float>(style_map.find(kRight)->second->ToDouble()) : 0;
     SetPosition(GetCSSDirection(kRight), right);
   }
   if (style_map.find(kTop) != style_map.end()) {
+    tdf::base::DomValue::Type type = style_map.find(kTop)->second->GetType();
+    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
     float top =
         style_map.find(kTop)->second->IsNumber() ? static_cast<float>(style_map.find(kTop)->second->ToDouble()) : 0;
     SetPosition(GetCSSDirection(kTop), top);
