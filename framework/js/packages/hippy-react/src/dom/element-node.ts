@@ -40,7 +40,7 @@ import ViewNode from './view-node';
 import '@localTypes/global';
 
 interface Attributes {
-  [key: string]: string | number | true | undefined;
+  [key: string]: string | number | boolean | undefined;
 }
 
 interface NativePropsStyle {
@@ -212,6 +212,20 @@ function parseTextShadowOffset(styleKey: string, styleValue: number, style: any)
     [offsetMap[styleKey]]: styleValue || 0,
   });
   return style;
+}
+
+/**
+ * get final key sent to native
+ * @param key
+ */
+function getEventPropKey(key: string) {
+  if (isCaptureEvent(key)) {
+    key = key.replace('Capture', '');
+  }
+  if (eventNamesMap[key]) {
+    return eventNamesMap[key][NATIVE_EVENT];
+  }
+  return key;
 }
 
 class ElementNode extends ViewNode {
@@ -430,18 +444,17 @@ class ElementNode extends ViewNode {
           match: () => true,
           action: () => {
             if (typeof value === 'function') {
-              if (isCaptureEvent(key)) {
-                key = key.replace('Capture', '');
-              }
-              if (eventNamesMap[key]) {
-                this.attributes[eventNamesMap[key][NATIVE_EVENT]] = true;
-                this.attributes[`__bind__${eventNamesMap[key][NATIVE_EVENT]}`] = true;
-              } else {
-                this.attributes[key] = true;
-                this.attributes[`__bind__${key}`] = true;
-              }
+              const processedKey = getEventPropKey(key);
+              this.attributes[processedKey] = true;
+              this.attributes[`__bind__${processedKey}`] = true;
             } else {
               this.attributes[key] = value;
+              const processedKey = getEventPropKey(key);
+              if (this.attributes[`__bind__${processedKey}`] === true
+                  && typeof value !== 'function') {
+                delete this.attributes[processedKey];
+                this.attributes[`__bind__${processedKey}`] = false;
+              }
             }
             return false;
           },
