@@ -21,8 +21,8 @@ class NativeScrollGestureDispatcher extends NativeGestureDispatcher {
   Stopwatch stopwatch = Stopwatch();
 
   NativeScrollGestureDispatcher(
-      {required int id, required EngineContext context})
-      : super(id: id, context: context);
+      {required int rootId, required int id, required EngineContext context})
+      : super(rootId: rootId, id: id, context: context);
 
   @override
   bool get enableScroll => scrollEnable;
@@ -118,36 +118,33 @@ class _ScrollEventHelper {
 
   static void _doEmitScrollEvent(RenderViewModel view, String scrollEventType,
       double scrollX, double scrollY) {
-    var contentInset = VoltronMap();
-    contentInset.push("top", 0);
-    contentInset.push("bottom", 0);
-    contentInset.push("left", 0);
-    contentInset.push("right", 0);
+    var contentInset = {};
+    contentInset["top"] = 0;
+    contentInset["bottom"] = 0;
+    contentInset["left"] = 0;
+    contentInset["right"] = 0;
 
-    var contentOffset = VoltronMap();
-    contentOffset.push("x", scrollX);
-    contentOffset.push("y", scrollY);
+    var contentOffset = {};
+    contentOffset["x"] = scrollX;
+    contentOffset["y"] = scrollY;
 
     var firstChildSize = _firstChildSize(view);
     var currentSize = _currentSize(view);
-    var contentSize = VoltronMap();
-    contentSize.push("width", firstChildSize.width);
-    contentSize.push("height", firstChildSize.height);
+    var contentSize = {};
+    contentSize["width"] = firstChildSize.width;
+    contentSize["height"] = firstChildSize.height;
 
-    var layoutMeasurement = VoltronMap();
-    layoutMeasurement.push("width", currentSize.width);
-    layoutMeasurement.push("height", currentSize.height);
+    var layoutMeasurement = {};
+    layoutMeasurement['width'] = currentSize.width;
+    layoutMeasurement['height'] = currentSize.height;
 
-    var event = VoltronMap();
-    event.push("contentInset", contentInset);
-    event.push("contentOffset", contentOffset);
-    event.push("contentSize", contentSize);
-    event.push("layoutMeasurement", layoutMeasurement);
+    var event = {};
+    event["contentInset"] = contentInset;
+    event["contentOffset"] = contentOffset;
+    event["contentSize"] = contentSize;
+    event["layoutMeasurement"] = layoutMeasurement;
 
-    view.context.moduleManager
-        .getJavaScriptModule<EventDispatcher>(
-            enumValueToString(JavaScriptModuleType.EventDispatcher))
-        ?.receiveUIComponentEvent(view.id, scrollEventType, event);
+    view.context.bridgeManager.execNativeEvent(view.rootId, view.id, scrollEventType, event);
   }
 
   static Size _firstChildSize(RenderViewModel viewModel) {

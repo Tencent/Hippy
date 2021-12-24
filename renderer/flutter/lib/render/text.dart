@@ -41,20 +41,17 @@ class TextRenderNode extends RenderNode with TextStyleNode {
     }
   }
 
-  @override
-  void layoutBefore(EngineContext context) {
-    super.layoutBefore(context);
+  void generateSpan(EngineContext context) {
     if (fontScaleAdapter == null && enableScale) {
       fontScaleAdapter = context.globalConfigs.fontScaleAdapter;
     }
     if (isVirtual) {
       return;
     }
-
     span = createSpan();
   }
 
-  void layoutAfter(EngineContext context) {
+  void updateData(EngineContext context) {
     if (!isVirtual) {
       var textData = createData(
           layoutWidth -
@@ -62,23 +59,15 @@ class TextRenderNode extends RenderNode with TextStyleNode {
               getPadding(FlexStyleEdge.right),
           FlexMeasureMode.exactly);
       data = textData;
-      _updateData(context);
-    }
-  }
-
-  void _updateData(EngineContext context) {
-    if (!isVirtual) {
-      context.renderManager.addUITask(() {
-        context.renderManager.updateExtra(
-            rootId,
-            id,
-            TextExtra(
-                data,
-                getPadding(FlexStyleEdge.start),
-                getPadding(FlexStyleEdge.end),
-                getPadding(FlexStyleEdge.bottom),
-                getPadding(FlexStyleEdge.top)));
-      });
+      context.renderManager.updateExtra(
+          rootId,
+          id,
+          TextExtra(
+              data,
+              getPadding(FlexStyleEdge.start),
+              getPadding(FlexStyleEdge.end),
+              getPadding(FlexStyleEdge.bottom),
+              getPadding(FlexStyleEdge.top)));
     }
   }
 }

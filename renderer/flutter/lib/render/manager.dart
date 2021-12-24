@@ -132,8 +132,6 @@ mixin RenderExecutorDelegate {
     _batch();
   }
 
-  void layoutBatch();
-
   void _batch() {
     for (final task in _uiTasks) {
       addDispatchTask(task);
@@ -271,8 +269,7 @@ class RenderManager
     context.bridgeManager.notifyDom();
   }
 
-  @override
-  void layoutBatch() {
+  void layoutAfter() {
     if (_updateRenderNodes.isNotEmpty) {
       for (var node in _updateRenderNodes) {
         node.updateRender();
@@ -306,9 +303,7 @@ class RenderManager
         // text子节点不需要单独layout，父节点内部已经完成layout了
         return layoutParams.zero();
       }
-      node.layoutBefore(context);
       var result = node.calculateLayout(layoutParams);
-      node.layoutAfter(context);
       return result;
     }
     return layoutParams.defaultOutput();
@@ -391,9 +386,13 @@ class RenderManager
   }
 
   void setEventListener(
-      int instanceId, int id, EventType type, Promise promise) {}
+      int instanceId, int id, String eventName) {
 
-  void removeEventListener(int instanceId, int id, EventType type) {}
+  }
+
+  void removeEventListener(int instanceId, int id, String eventName) {
+
+  }
 
   void deleteNode(int instanceId, int id) {
     var uiNode = controllerManager.findNode(instanceId, id);

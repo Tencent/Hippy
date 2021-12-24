@@ -31,6 +31,18 @@ class TextController
     return TextWidget(renderViewModel);
   }
 
+
+  @override
+  void onAfterUpdateProps(EngineContext context, TextRenderNode renderNode) {
+    renderNode.generateSpan(context);
+  }
+
+  @override
+  void updateLayout(EngineContext context, TextRenderNode renderNode) {
+    renderNode.updateData(context);
+    super.updateLayout(context, renderNode);
+  }
+
   @override
   Map<String, ControllerMethodProp> get extendRegisteredMethodProp {
     var extraMap = <String, ControllerMethodProp>{};

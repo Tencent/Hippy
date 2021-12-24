@@ -277,7 +277,7 @@ class RenderViewModel extends ChangeNotifier {
   }
 
   NativeGestureDispatcher createDispatcher() {
-    return NativeGestureDispatcher(id: id, context: _engineContext);
+    return NativeGestureDispatcher(rootId: rootId, id: id, context: _engineContext);
   }
 
   void updateLayout(double x, double y, double width, double height) {

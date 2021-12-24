@@ -347,11 +347,11 @@ abstract class VoltronViewController<T extends RenderViewModel,
     DomUpdateUtil.updateStyleProp(node, propName, prop);
   }
 
-  void onAfterUpdateProps(R renderNode) {}
+  void onAfterUpdateProps(EngineContext context, R renderNode) {}
 
   Widget createWidget(BuildContext context, T viewModel);
 
-  void updateLayout(R node) {
+  void updateLayout(EngineContext context, R node) {
     if (shouldInterceptLayout(node)) {
       return;
     }

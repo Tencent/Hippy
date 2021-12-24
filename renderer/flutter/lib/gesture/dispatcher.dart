@@ -11,6 +11,7 @@ class NativeGestureDispatcher implements GestureHandleCallback {
   static const String kTag = "NativeGestureDispatcher";
 
   final int _id;
+  final int _rootId;
   final EngineContext _context;
   NativeGestureProcessor? _gestureProcessor;
 
@@ -28,24 +29,24 @@ class NativeGestureDispatcher implements GestureHandleCallback {
 
   final HashSet<String> _gestureTypes = HashSet();
 
-  NativeGestureDispatcher({required int id, required EngineContext context})
-      : _id = id,
+  NativeGestureDispatcher({required int rootId, required int id, required EngineContext context})
+      : _id = id, _rootId = rootId,
         _context = context;
 
   @override
   void handle(String type, double x, double y) {
     if (type == NodeProps.kOnPressIn) {
-      NativeGestureHandle.handlePressIn(_context, _id);
+      NativeGestureHandle.handlePressIn(_context, _id, _rootId);
     } else if (type == NodeProps.kOnPressOut) {
-      NativeGestureHandle.handlePressOut(_context, _id);
+      NativeGestureHandle.handlePressOut(_context, _id, _rootId);
     } else if (type == NodeProps.kOnTouchDown) {
-      NativeGestureHandle.handleTouchDown(_context, _id, x, y, _id);
+      NativeGestureHandle.handleTouchDown(_context, _id, _rootId, x, y);
     } else if (type == NodeProps.kOnTouchMove) {
-      NativeGestureHandle.handleTouchMove(_context, _id, x, y, _id);
+      NativeGestureHandle.handleTouchMove(_context, _id, _rootId, x, y);
     } else if (type == NodeProps.kOnTouchEnd) {
-      NativeGestureHandle.handleTouchEnd(_context, _id, x, y, _id);
+      NativeGestureHandle.handleTouchEnd(_context, _id, _rootId, x, y);
     } else if (type == NodeProps.kOnTouchCancel) {
-      NativeGestureHandle.handleTouchCancel(_context, _id, x, y, _id);
+      NativeGestureHandle.handleTouchCancel(_context, _id, _rootId, x, y);
     }
   }
 
@@ -73,25 +74,25 @@ class NativeGestureDispatcher implements GestureHandleCallback {
 
   void handleClick() {
     if (clickable) {
-      NativeGestureHandle.handleClick(_context, _id);
+      NativeGestureHandle.handleClick(_context, _id, _rootId);
     }
   }
 
   void handleLongClick() {
     if (longClickable) {
-      NativeGestureHandle.handleLongClick(_context, _id);
+      NativeGestureHandle.handleLongClick(_context, _id, _rootId);
     }
   }
 
   void handleOnAttached() {
     if (listenAttachedToWindow) {
-      NativeGestureHandle.handleAttachedToWindow(_context, _id);
+      NativeGestureHandle.handleAttachedToWindow(_context, _id, _rootId);
     }
   }
 
   void handleOnDetached() {
     if (listenDetachedFromWindow) {
-      NativeGestureHandle.handleDetachedFromWindow(_context, _id);
+      NativeGestureHandle.handleDetachedFromWindow(_context, _id, _rootId);
     }
   }
 

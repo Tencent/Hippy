@@ -124,6 +124,28 @@ EXTERN_C void CallNativeFunctionFFI(int32_t engine_id, const char16_t* call_id, 
   }
 }
 
+EXTERN_C void CallNativeEventFFI(int32_t engine_id, int32_t root_id, int node_id, const char16_t* event,
+                                 const uint8_t* params, int32_t params_len) {
+  auto bridge_manager = BridgeManager::GetBridgeManager(engine_id);
+  if (bridge_manager) {
+    auto dom_manager = bridge_manager->GetDomManager(root_id);
+    auto render_manager = bridge_manager->GetRenderManager(root_id);
+    if (dom_manager && render_manager) {
+      auto dom_node = dom_manager->GetNode(node_id);
+      if (dom_node) {
+        std::string event_name = C16CharToString(event);
+        if (params && params_len > 0) {
+          std::unique_ptr<EncodableValue> decode_params =
+              StandardMessageCodec::GetInstance().DecodeMessage(params, params_len);
+          render_manager->CallEvent(dom_node, event_name, decode_params);
+        } else {
+          render_manager->CallEvent(dom_node, event_name, nullptr);
+        }
+      }
+    }
+  }
+}
+
 EXTERN_C void UpdateNodeSize(int32_t engine_id, int32_t root_id, int32_t node_id, double width, double height) {
   auto bridge_manager = BridgeManager::GetBridgeManager(engine_id);
   if (bridge_manager) {

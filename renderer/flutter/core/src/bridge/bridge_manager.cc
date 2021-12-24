@@ -31,7 +31,7 @@ BridgeManager::BridgeManager(int32_t engine_id) : engine_id_(engine_id) {
 
 std::weak_ptr<PlatformRuntime> BridgeManager::GetRuntime() { return runtime_; }
 
-std::weak_ptr<VoltronRenderManager> BridgeManager::GetRenderManager(int32_t root_id) {
+std::shared_ptr<VoltronRenderManager> BridgeManager::GetRenderManager(int32_t root_id) {
   auto render_manager = render_manager_map_.find(root_id);
   if (render_manager != render_manager_map_.end()) {
     return render_manager->second;

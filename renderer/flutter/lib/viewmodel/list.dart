@@ -216,7 +216,7 @@ abstract class ScrollableModel extends GroupViewModel {
   @override
   NativeGestureDispatcher createDispatcher() {
     scrollGestureDispatcher =
-        NativeScrollGestureDispatcher(id: id, context: context);
+        NativeScrollGestureDispatcher(rootId: rootId, id: id, context: context);
     return scrollGestureDispatcher;
   }
 

@@ -227,7 +227,7 @@ class _LayoutFinishOpTask extends RenderOpTask {
   @override
   void _run() {
     renderManager.addUITask(() {
-      renderManager.layoutBatch();
+      renderManager.layoutAfter();
     });
   }
 }
@@ -261,66 +261,10 @@ class _AddEventOpTask extends _NodeOpTask {
   @override
   void _run() {
     String eventName = _params[_RenderOpParamsKey.kFuncNameKey] ?? '';
-    if (eventName.isNotEmpty) {
-      String callbackId =
-          _params[_RenderOpParamsKey.kFuncIdKey] ?? Promise.kCallIdNoCallback;
-      var promise = Promise.native(_engineContext, callId: callbackId);
-
-      switch (eventName) {
-        case _RenderOpParamsKey.kAddClickFuncType: // 点击事件
-          renderManager.addNulUITask(() {
-            renderManager.setEventListener(
-                _instanceId, _nodeId, EventType.click, promise);
-          });
-          break;
-        case _RenderOpParamsKey.kAddLongClickFuncType: // 长按事件
-          renderManager.addNulUITask(() {
-            renderManager.setEventListener(
-                _instanceId, _nodeId, EventType.longClick, promise);
-          });
-          break;
-        case _RenderOpParamsKey.kAddTouchFuncType: // 触摸事件
-          Map funcParams = _params[_RenderOpParamsKey.kFuncParamsKey] ?? {};
-          int touchType = funcParams[_RenderOpParamsKey.kTouchTypeKey] ?? -1;
-          if (touchType == _TouchType.start.index) {
-            renderManager.addNulUITask(() {
-              renderManager.setEventListener(
-                  _instanceId, _nodeId, EventType.touchStart, promise);
-            });
-          } else if (touchType == _TouchType.move.index) {
-            renderManager.addNulUITask(() {
-              renderManager.setEventListener(
-                  _instanceId, _nodeId, EventType.touchMove, promise);
-            });
-          } else if (touchType == _TouchType.end.index) {
-            renderManager.addNulUITask(() {
-              renderManager.setEventListener(
-                  _instanceId, _nodeId, EventType.touchEnd, promise);
-            });
-          } else if (touchType == _TouchType.cancel) {
-            renderManager.addNulUITask(() {
-              renderManager.setEventListener(
-                  _instanceId, _nodeId, EventType.touchCancel, promise);
-            });
-          }
-          break;
-        case _RenderOpParamsKey.kAddShowFuncType: // 显示隐藏事件
-          Map funcParams = _params[_RenderOpParamsKey.kFuncParamsKey] ?? {};
-          int showType = funcParams[_RenderOpParamsKey.kShowEventKey] ?? -1;
-          if (showType == _ShowType.show.index) {
-            renderManager.addNulUITask(() {
-              renderManager.setEventListener(
-                  _instanceId, _nodeId, EventType.show, promise);
-            });
-          } else if (showType == _ShowType.dismiss.index) {
-            renderManager.addNulUITask(() {
-              renderManager.setEventListener(
-                  _instanceId, _nodeId, EventType.dismiss, promise);
-            });
-          }
-          break;
-      }
-    }
+    renderManager.addNulUITask(() {
+      renderManager.setEventListener(
+          _instanceId, _nodeId, eventName);
+    });
   }
 }
 
@@ -331,62 +275,10 @@ class _RemoveEventOpTask extends _NodeOpTask {
   @override
   void _run() {
     String eventName = _params[_RenderOpParamsKey.kFuncNameKey] ?? '';
-    if (eventName.isNotEmpty) {
-      switch (eventName) {
-        case _RenderOpParamsKey.kRemoveClickFuncType: // 点击事件
-          renderManager.addNulUITask(() {
-            renderManager.removeEventListener(
-                _instanceId, _nodeId, EventType.click);
-          });
-          break;
-        case _RenderOpParamsKey.kRemoveLongClickFuncType: // 长按事件
-          renderManager.addNulUITask(() {
-            renderManager.removeEventListener(
-                _instanceId, _nodeId, EventType.longClick);
-          });
-          break;
-        case _RenderOpParamsKey.kRemoveTouchFuncType: // 触摸事件
-          Map funcParams = _params[_RenderOpParamsKey.kFuncParamsKey] ?? {};
-          int touchType = funcParams[_RenderOpParamsKey.kTouchTypeKey] ?? -1;
-          if (touchType == _TouchType.start.index) {
-            renderManager.addNulUITask(() {
-              renderManager.removeEventListener(
-                  _instanceId, _nodeId, EventType.touchStart);
-            });
-          } else if (touchType == _TouchType.move.index) {
-            renderManager.addNulUITask(() {
-              renderManager.removeEventListener(
-                  _instanceId, _nodeId, EventType.touchMove);
-            });
-          } else if (touchType == _TouchType.end.index) {
-            renderManager.addNulUITask(() {
-              renderManager.removeEventListener(
-                  _instanceId, _nodeId, EventType.touchEnd);
-            });
-          } else if (touchType == _TouchType.cancel) {
-            renderManager.addNulUITask(() {
-              renderManager.removeEventListener(
-                  _instanceId, _nodeId, EventType.touchCancel);
-            });
-          }
-          break;
-        case _RenderOpParamsKey.kRemoveShowFuncType: // 显示隐藏事件
-          Map funcParams = _params[_RenderOpParamsKey.kFuncParamsKey] ?? {};
-          int showType = funcParams[_RenderOpParamsKey.kShowEventKey] ?? -1;
-          if (showType == _ShowType.show.index) {
-            renderManager.addNulUITask(() {
-              renderManager.removeEventListener(
-                  _instanceId, _nodeId, EventType.show);
-            });
-          } else if (showType == _ShowType.dismiss.index) {
-            renderManager.addNulUITask(() {
-              renderManager.removeEventListener(
-                  _instanceId, _nodeId, EventType.dismiss);
-            });
-          }
-          break;
-      }
-    }
+    renderManager.addNulUITask(() {
+      renderManager.removeEventListener(
+          _instanceId, _nodeId, eventName);
+    });
   }
 }
 
@@ -400,10 +292,6 @@ enum EventType {
   show,
   dismiss
 }
-
-enum _TouchType { start, move, end, cancel }
-
-enum _ShowType { show, dismiss }
 
 enum _RenderOpType {
   addNode,
@@ -433,20 +321,4 @@ class _RenderOpParamsKey {
   static const String kMoveIdListKey = "move_id";
   static const String kMovePidKey = "move_pid";
   static const String kLayoutNodesKey = "layout_nodes";
-
-  static const String kTouchTypeKey = "touch_type";
-  static const String kTouchX = "x";
-  static const String kTouchY = "y";
-
-  static const String kShowEventKey = "show";
-
-  static const String kCallUiFuncType = "call_ui";
-  static const String kAddClickFuncType = "add_click";
-  static const String kAddLongClickFuncType = "add_long_click";
-  static const String kAddTouchFuncType = "add_touch";
-  static const String kAddShowFuncType = "add_show";
-  static const String kRemoveClickFuncType = "remove_click";
-  static const String kRemoveLongClickFuncType = "remove_long_click";
-  static const String kRemoveTouchFuncType = "remove_touch";
-  static const String kRemoveShowFuncType = "remove_show";
 }

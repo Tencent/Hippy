@@ -251,7 +251,7 @@ void HandleEventListeners(const std::shared_ptr<Ctx> &context,
                                      if (!context) {
                                        return;
                                      }
-                                     auto param = context->CreateCtxValue(event->GetValue());
+                                     auto param = context->CreateCtxValue(std::make_shared<DomValue>(""));
                                      if (param) {
                                        const std::shared_ptr<CtxValue> argus[] = {param};
                                        context->CallFunction(cb, 1, argus);

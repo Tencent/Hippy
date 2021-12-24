@@ -67,6 +67,16 @@ typedef CallNativeFunctionFfiNativeType = Void Function(Int32 engineId,
 typedef CallNativeFunctionFfiDartType = void Function(int engineId,
     Pointer<Utf16> callId, Pointer<Uint8> params, int paramsLen, int keep);
 
+typedef CallNativeEventFfiNativeType = Void Function(
+    Int32 engineId,
+    Int32 rootId,
+    Int32 nodeId,
+    Pointer<Utf16> event,
+    Pointer<Uint8> params,
+    Int32 paramsLen);
+typedef CallNativeEventFfiDartType = void Function(int engineId, int rootId,
+    int nodeId, Pointer<Utf16> event, Pointer<Uint8> params, int paramsLen);
+
 typedef RunNativeRunnableFfiNativeType = Void Function(Int32 engineId,
     Pointer<Utf16> codeCachePath, Int64 runnableId, Int32 callbackId);
 typedef RunNativeRunnableFfiDartType = void Function(

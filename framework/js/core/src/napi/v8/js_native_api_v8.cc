@@ -1250,6 +1250,9 @@ std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
 
 std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
     const std::shared_ptr<DomValue>& value) {
+  if (value == nullptr) {
+    return nullptr;
+  }
   TDF_BASE_DCHECK(value);
   if (value->IsUndefined()) {
     return CreateUndefined();

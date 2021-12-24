@@ -24,13 +24,14 @@ class BridgeManager {
   void BindRenderManager(int32_t root_id, const Sp<VoltronRenderManager>& render_manager);
   void BindDomManager(int32_t root_id, const Sp<DomManager>& dom_manager);
   std::weak_ptr<PlatformRuntime> GetRuntime();
-  std::weak_ptr<VoltronRenderManager> GetRenderManager(int32_t root_id);
+  std::shared_ptr<VoltronRenderManager> GetRenderManager(int32_t root_id);
   Sp<DomManager> GetDomManager(int32_t root_id);
   void VisitAllRenderManager(const VisitRenderCallback& callback);
 
   String AddNativeCallback(const String& tag, const NativeCallback& callback);
   void RemoveNativeCallback(const String& callback_id);
   void CallNativeCallback(const String& callback_id, std::unique_ptr<EncodableValue> params, bool keep);
+  void CallNativeEvent();
  private:
   std::weak_ptr<PlatformRuntime> runtime_;
   std::map<int, Sp<VoltronRenderManager>> render_manager_map_;

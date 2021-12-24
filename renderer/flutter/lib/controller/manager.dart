@@ -88,7 +88,7 @@ class ControllerManager implements InstanceLifecycleEventListener {
     var controller = findController(node.name);
     if (controller != null && node.checkRenderViewModel()) {
       ControllerUpdateUtil.updateProps(controller, node, initialProps);
-      controller.onAfterUpdateProps(node);
+      controller.onAfterUpdateProps(_context, node);
     }
   }
 
@@ -130,7 +130,7 @@ class ControllerManager implements InstanceLifecycleEventListener {
         final validProps =
             AnimationUtil.getRenderNodeStyleByAnimationRule(newProps);
         ControllerUpdateUtil.updateProps(controller, node, validProps);
-        controller.onAfterUpdateProps(node);
+        controller.onAfterUpdateProps(_context, node);
       }
     }
   }
@@ -168,7 +168,7 @@ class ControllerManager implements InstanceLifecycleEventListener {
   void updateLayout(RenderNode node) {
     final controller = findController(node.name);
     if (controller != null) {
-      controller.updateLayout(node);
+      controller.updateLayout(_context, node);
     }
   }
 

@@ -148,14 +148,6 @@ class RenderNode extends StyleNode {
         layoutParams.width, layoutParams.height);
   }
 
-  void layoutBefore(EngineContext context) {
-    // empty
-  }
-
-  void layoutAfter(EngineContext context) {
-    // empty
-  }
-
   @override
   String toString() {
     var buffer = StringBuffer();
