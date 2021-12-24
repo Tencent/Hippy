@@ -13,15 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tencent.mtt.hippy.adapter.font;
 
-@SuppressWarnings("SameReturnValue")
-public interface HippyFontScaleAdapter {
+package com.tencent.renderer;
 
-  float getFontScale();
+import androidx.annotation.NonNull;
 
-  @SuppressWarnings("unused")
-  CharSequence getEmoticonText(CharSequence text, int fontSize);
+import java.util.ArrayList;
 
-  String getCustomFontFilePath(String fontFamilyName, int style);
+public interface NativeRenderDelegate extends NativeRenderExceptionHandler {
+
+    void createNode(@NonNull ArrayList list) throws NativeRenderException;
+
+    void updateNode(@NonNull ArrayList list) throws Exception;
+
+    void deleteNode(@NonNull ArrayList list);
+
+    void updateLayout(@NonNull ArrayList list) throws NativeRenderException;
+
+    long measure(int id, float width, int widthMode, float height, int heightMode);
+
+    void startBatch();
+
+    void endBatch();
 }

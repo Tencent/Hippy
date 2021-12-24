@@ -45,7 +45,7 @@ import com.tencent.mtt.supportui.adapters.image.IDrawableTarget;
 import com.tencent.mtt.supportui.views.asyncimage.AsyncImageView;
 import com.tencent.mtt.supportui.views.asyncimage.BackgroundDrawable;
 import com.tencent.mtt.supportui.views.asyncimage.ContentDrawable;
-import com.tencent.renderer.INativeRender;
+import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
@@ -116,7 +116,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
   private OnLoadStartEvent mOnLoadStartEvent;
   private final boolean[] mShouldSendImageEvent;
   private Rect mNinePatchRect;
-  private INativeRender nativeRenderer;
+  private NativeRender nativeRenderer;
 
   public HippyImageView(Context context) {
     super(context);

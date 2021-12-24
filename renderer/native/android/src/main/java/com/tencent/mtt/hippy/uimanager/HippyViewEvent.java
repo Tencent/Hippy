@@ -17,7 +17,7 @@ package com.tencent.mtt.hippy.uimanager;
 
 import android.view.View;
 
-import com.tencent.renderer.INativeRender;
+import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
@@ -32,12 +32,12 @@ public class HippyViewEvent {
   public void send(View view, Object param) {
     if (view != null && view.getContext() instanceof NativeRenderContext) {
       int instanceId = ((NativeRenderContext)view.getContext()).getInstanceId();
-      INativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
+      NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
       send(view.getId(), nativeRenderer, param);
     }
   }
 
-  public void send(int id, INativeRender nativeRenderer, Object param) {
+  public void send(int id, NativeRender nativeRenderer, Object param) {
     if (nativeRenderer != null) {
       nativeRenderer.dispatchUIComponentEvent(id, mEventName, param);
     }

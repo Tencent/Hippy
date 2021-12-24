@@ -21,7 +21,7 @@ import android.graphics.Typeface;
 import android.text.TextUtils;
 import android.util.Base64;
 
-import com.tencent.mtt.hippy.adapter.font.HippyFontScaleAdapter;
+import com.tencent.hippy.support.FontAdapter;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
@@ -43,7 +43,7 @@ public class TypeFaceUtil {
   private static final Map<String, Typeface> mFontCache = new HashMap<>();
 
   public static Typeface getTypeface(String fontFamilyName, int style,
-      HippyFontScaleAdapter fontAdapter) {
+      FontAdapter fontAdapter) {
     String cache = fontFamilyName + style;
     Typeface typeface = mFontCache.get(cache);
     if (typeface == null) {
@@ -58,7 +58,7 @@ public class TypeFaceUtil {
   }
 
   private static Typeface createTypeface(String fontFamilyName, int style,
-      HippyFontScaleAdapter fontAdapter) {
+      FontAdapter fontAdapter) {
     Typeface typeface = null;
     String extension = EXTENSIONS[style];
     for (String fileExtension : FONT_EXTENSIONS) {
@@ -133,7 +133,7 @@ public class TypeFaceUtil {
   }
 
   public static void apply(Paint paint, int style, int weight, String family,
-      HippyFontScaleAdapter fontAdapter) {
+          FontAdapter fontAdapter) {
     int oldStyle;
     Typeface typeface = paint.getTypeface();
     if (typeface == null) {

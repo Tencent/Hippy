@@ -31,7 +31,7 @@ import com.tencent.mtt.supportui.views.recyclerview.LinearLayoutManager;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerAdapter;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerView;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewItem;
-import com.tencent.renderer.INativeRender;
+import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
@@ -95,7 +95,7 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
   private OnScrollFlingStartedEvent mOnScrollFlingStartedEvent;
   private OnScrollFlingEndedEvent mOnScrollFlingEndedEvent;
   private OnScrollEvent mOnScrollEvent;
-  private INativeRender nativeRenderer;
+  private NativeRender nativeRenderer;
 
   private void init(Context context, int orientation) {
     if (context instanceof NativeRenderContext) {
@@ -122,7 +122,7 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
   }
 
   protected RecyclerAdapter createAdapter(RecyclerView hippyRecyclerView,
-          INativeRender nativeRenderer) {
+          NativeRender nativeRenderer) {
     return new HippyListAdapter(hippyRecyclerView, nativeRenderer);
   }
 

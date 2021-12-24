@@ -32,10 +32,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-/**
- * Implementation of {@code v8::(internal::)ValueDeserializer}.
- */
-@SuppressWarnings("unused")
 public class Deserializer extends PrimitiveValueDeserializer {
 
     public static final String TAG = "NativeRenderDeserializer";

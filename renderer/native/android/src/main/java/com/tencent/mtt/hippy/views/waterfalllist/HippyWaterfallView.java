@@ -42,7 +42,7 @@ import com.tencent.mtt.supportui.views.recyclerview.RecyclerAdapter;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerView;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewBase;
 import com.tencent.mtt.supportui.views.recyclerview.Scroller;
-import com.tencent.renderer.INativeRender;
+import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
@@ -54,7 +54,7 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
   static final String TAG = "HippyWaterfallView";
 
   HippyWaterfallAdapter mAdapter;
-  private INativeRender nativeRenderer;
+  private NativeRender nativeRenderer;
   private NativeGestureDispatcher mGestureDispatcher;
   private Runnable mDispatchLayout = null;
 
@@ -100,7 +100,7 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
 
   @Override
   protected HippyWaterfallAdapter createAdapter(RecyclerView hippyRecyclerView,
-          INativeRender nativeRenderer) {
+          NativeRender nativeRenderer) {
     return new HippyWaterfallAdapter(this);
   }
 

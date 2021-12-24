@@ -24,12 +24,15 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.tencent.hippy.support.FontAdapter;
+import com.tencent.mtt.hippy.dom.flex.FlexMeasureMode;
 import com.tencent.mtt.hippy.dom.flex.FlexOutput;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
-import com.tencent.renderer.NativeRenderProvider.MeasureParams;
+import com.tencent.renderer.component.text.TextRenderSupply;
 import com.tencent.renderer.component.text.VirtualNode;
 import com.tencent.renderer.component.text.VirtualNodeManager;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,20 +42,18 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.tencent.mtt.hippy.utils.LogUtils;
-import com.tencent.hippy.support.HippyBaseController;
-import com.tencent.hippy.support.IFrameworkProxy;
-import com.tencent.hippy.support.IJSFrameworkProxy;
-import com.tencent.hippy.support.INativeRenderProxy;
+import com.tencent.hippy.support.FrameworkProxy;
+import com.tencent.hippy.support.JSFrameworkProxy;
+import com.tencent.hippy.support.NativeRenderProxy;
 import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
 import com.tencent.mtt.hippy.HippyRootView;
-import com.tencent.mtt.hippy.adapter.font.HippyFontScaleAdapter;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.common.ThreadExecutor;
 import com.tencent.mtt.hippy.dom.DomManager;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.supportui.adapters.image.IImageLoaderAdapter;
 
-public class NativeRenderer implements INativeRender, INativeRenderProxy, INativeRenderDelegate {
+public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRenderDelegate {
 
     public static final String TAG = "NativeRenderer";
 
@@ -68,44 +69,45 @@ public class NativeRenderer implements INativeRender, INativeRenderProxy, INativ
     private final int MAX_UITASK_QUEUE_CAPACITY = 10000;
     private final int MAX_UITASK_QUEUE_EXEC_TIME = 400;
     private static final int ROOT_VIEW_TAG_INCREMENT = 10;
-    private static final AtomicInteger ID_COUNTER = new AtomicInteger(0);
-
-    private int instanceId;
-    private int rootId;
-    private boolean isDebugMode;
-    private RenderManager renderManager;
-    private VirtualNodeManager virtualNodeManager;
+    private static final AtomicInteger sCounter = new AtomicInteger(0);
+    private int mInstanceId;
+    private int mRootId;
+    private boolean mIsDebugMode;
+    private RenderManager mRenderManager;
+    private VirtualNodeManager mVirtualNodeManager;
     private DomManager domManager;
-    private HippyRootView rootView;
-    private IFrameworkProxy frameworkProxy;
-    private NativeRenderProvider renderProvider;
-    volatile CopyOnWriteArrayList<HippyInstanceLifecycleEventListener> instanceLifecycleEventListeners;
-    private BlockingQueue<IUITaskExecutor> uiTaskQueue;
+    private HippyRootView mRootView;
+    private FrameworkProxy mFrameworkProxy;
+    private NativeRenderProvider mRenderProvider;
+    private volatile CopyOnWriteArrayList<HippyInstanceLifecycleEventListener> mInstanceLifecycleEventListeners;
+    private BlockingQueue<UITaskExecutor> mUITaskQueue;
 
     @Override
-    public void init(int instanceId, List<Class<? extends HippyBaseController>> controllers,
+    public void init(int instanceId, @Nullable List<Class> controllers,
             boolean isDebugMode, @Nullable ViewGroup rootView) {
-        renderManager = new RenderManager(this, controllers);
-        virtualNodeManager = new VirtualNodeManager(this);
+        mRenderManager = new RenderManager(this, controllers);
+        mVirtualNodeManager = new VirtualNodeManager(this);
         domManager = new DomManager(this);
         if (rootView instanceof HippyRootView) {
-            rootId = rootView.getId();
-            renderManager.createRootNode(rootId);
-            renderManager.addRootView(rootView);
-            this.rootView = (HippyRootView) rootView;
+            mRootId = rootView.getId();
+            mRenderManager.createRootNode(mRootId);
+            mRenderManager.addRootView(rootView);
+            this.mRootView = (HippyRootView) rootView;
         } else {
-            rootId = ID_COUNTER.addAndGet(ROOT_VIEW_TAG_INCREMENT);
+            mRootId = sCounter.addAndGet(ROOT_VIEW_TAG_INCREMENT);
         }
-        this.instanceId = instanceId;
-        this.isDebugMode = isDebugMode;
-        uiTaskQueue = new LinkedBlockingQueue<>(MAX_UITASK_QUEUE_CAPACITY);
+        mInstanceId = instanceId;
+        mIsDebugMode = isDebugMode;
+        // Should restrictions the capacity of ui task queue, to prevent js make huge amount of
+        // node operation cause OOM.
+        mUITaskQueue = new LinkedBlockingQueue<>(MAX_UITASK_QUEUE_CAPACITY);
         NativeRendererManager.addNativeRendererInstance(instanceId, this);
     }
 
     @Override
     public Object getCustomViewCreator() {
         if (checkJSFrameworkProxy()) {
-            return ((IJSFrameworkProxy) frameworkProxy).getCustomViewCreator();
+            return ((JSFrameworkProxy) mFrameworkProxy).getCustomViewCreator();
         }
         return null;
     }
@@ -113,7 +115,7 @@ public class NativeRenderer implements INativeRender, INativeRenderProxy, INativ
     @Override
     public String getBundlePath() {
         if (checkJSFrameworkProxy()) {
-            return ((IJSFrameworkProxy) frameworkProxy).getBundlePath();
+            return ((JSFrameworkProxy) mFrameworkProxy).getBundlePath();
         }
         return null;
     }
@@ -121,7 +123,7 @@ public class NativeRenderer implements INativeRender, INativeRenderProxy, INativ
     @Override
     public IImageLoaderAdapter getImageLoaderAdapter() {
         if (checkJSFrameworkProxy()) {
-            Object adapterObj = ((IJSFrameworkProxy) frameworkProxy).getImageLoaderAdapter();
+            Object adapterObj = ((JSFrameworkProxy) mFrameworkProxy).getImageLoaderAdapter();
             if (adapterObj instanceof IImageLoaderAdapter) {
                 return (IImageLoaderAdapter) adapterObj;
             }
@@ -130,19 +132,16 @@ public class NativeRenderer implements INativeRender, INativeRenderProxy, INativ
     }
 
     @Override
-    public HippyFontScaleAdapter getFontScaleAdapter() {
-        if (checkJSFrameworkProxy()) {
-            Object adapterObj = ((IJSFrameworkProxy) frameworkProxy).getFontScaleAdapter();
-            if (adapterObj instanceof HippyFontScaleAdapter) {
-                return (HippyFontScaleAdapter) adapterObj;
-            }
+    public FontAdapter getFontAdapter() {
+        if (mFrameworkProxy != null) {
+            return mFrameworkProxy.getFontAdapter();
         }
         return null;
     }
 
     @Override
     public boolean isDebugMode() {
-        return isDebugMode;
+        return mIsDebugMode;
     }
 
     @Override
@@ -152,8 +151,8 @@ public class NativeRenderer implements INativeRender, INativeRenderProxy, INativ
     }
 
     @Override
-    public void setFrameworkProxy(IFrameworkProxy proxy) {
-        frameworkProxy = proxy;
+    public void setFrameworkProxy(FrameworkProxy proxy) {
+        mFrameworkProxy = proxy;
     }
 
     @Override
@@ -169,32 +168,30 @@ public class NativeRenderer implements INativeRender, INativeRenderProxy, INativ
                 });
             }
         }
-        if (renderManager != null) {
-            renderManager.destroy();
+        if (mRenderManager != null) {
+            mRenderManager.destroy();
         }
-        if (renderProvider != null) {
-            renderProvider.destroy();
-            renderProvider = null;
+        if (mRenderProvider != null) {
+            mRenderProvider.destroy();
+            mRenderProvider = null;
         }
-        if (instanceLifecycleEventListeners != null) {
-            instanceLifecycleEventListeners.clear();
+        if (mInstanceLifecycleEventListeners != null) {
+            mInstanceLifecycleEventListeners.clear();
         }
-        rootView = null;
-        frameworkProxy = null;
-        NativeRendererManager.removeNativeRendererInstance(instanceId);
+        mRootView = null;
+        mFrameworkProxy = null;
+        NativeRendererManager.removeNativeRendererInstance(mInstanceId);
     }
 
     @Override
-    public ViewGroup createRootView(@NonNull Context context) {
-        if (context == null) {
-            return null;
+    public @NonNull
+    ViewGroup createRootView(@NonNull Context context) {
+        if (mRootView == null) {
+            mRootView = new HippyRootView(context, mInstanceId, mRootId);
+            mRenderManager.createRootNode(mRootId);
+            mRenderManager.addRootView(mRootView);
         }
-        if (rootView == null) {
-            rootView = new HippyRootView(context, instanceId, rootId);
-            renderManager.createRootNode(rootId);
-            renderManager.addRootView(rootView);
-        }
-        return rootView;
+        return mRootView;
     }
 
     @Override
@@ -209,7 +206,7 @@ public class NativeRenderer implements INativeRender, INativeRenderProxy, INativ
 
     @Override
     public RenderManager getRenderManager() {
-        return renderManager;
+        return mRenderManager;
     }
 
     @Override
@@ -219,27 +216,27 @@ public class NativeRenderer implements INativeRender, INativeRenderProxy, INativ
 
     @Override
     public ViewGroup getRootView() {
-        return rootView;
+        return mRootView;
     }
 
     @Override
     public int getRootId() {
-        return rootId;
+        return mRootId;
     }
 
     @Override
     public void onFirstViewAdded() {
-        if (frameworkProxy != null) {
-            frameworkProxy.onFirstViewAdded();
+        if (mFrameworkProxy != null) {
+            mFrameworkProxy.onFirstViewAdded();
         }
     }
 
     @Override
     public void onSizeChanged(int w, int h, int oldw, int oldh) {
-        if (renderProvider != null) {
+        if (mRenderProvider != null) {
             LogUtils.d(TAG, "onSizeChanged: w=" + w + ", h=" + h + ", oldw="
                     + oldw + ", oldh=" + oldh);
-            renderProvider.onSizeChanged(w, h);
+            mRenderProvider.onSizeChanged(w, h);
         }
     }
 
@@ -260,23 +257,19 @@ public class NativeRenderer implements INativeRender, INativeRenderProxy, INativ
     public void updateDimension(boolean shouldRevise, HippyMap dimension,
             boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged) {
         if (checkJSFrameworkProxy()) {
-            ((IJSFrameworkProxy) frameworkProxy).updateDimension(shouldRevise, dimension,
+            ((JSFrameworkProxy) mFrameworkProxy).updateDimension(shouldRevise, dimension,
                     shouldUseScreenDisplay, systemUiVisibilityChanged);
         }
     }
 
     @Override
     public void dispatchUIComponentEvent(int id, String eventName, Object params) {
-        if (checkJSFrameworkProxy()) {
-            ((IJSFrameworkProxy) frameworkProxy).dispatchUIComponentEvent(id, eventName, params);
-        }
+
     }
 
     @Override
     public void dispatchNativeGestureEvent(HippyMap params) {
-        if (checkJSFrameworkProxy()) {
-            ((IJSFrameworkProxy) frameworkProxy).dispatchNativeGestureEvent(params);
-        }
+
     }
 
     @Override
@@ -286,8 +279,8 @@ public class NativeRenderer implements INativeRender, INativeRenderProxy, INativ
 
     @Override
     public void onInstanceResume() {
-        if (instanceLifecycleEventListeners != null) {
-            for (HippyInstanceLifecycleEventListener listener : instanceLifecycleEventListeners) {
+        if (mInstanceLifecycleEventListeners != null) {
+            for (HippyInstanceLifecycleEventListener listener : mInstanceLifecycleEventListeners) {
                 listener.onInstanceResume();
             }
         }
@@ -295,8 +288,8 @@ public class NativeRenderer implements INativeRender, INativeRenderProxy, INativ
 
     @Override
     public void onInstancePause() {
-        if (instanceLifecycleEventListeners != null) {
-            for (HippyInstanceLifecycleEventListener listener : instanceLifecycleEventListeners) {
+        if (mInstanceLifecycleEventListeners != null) {
+            for (HippyInstanceLifecycleEventListener listener : mInstanceLifecycleEventListeners) {
                 listener.onInstancePause();
             }
         }
@@ -304,8 +297,8 @@ public class NativeRenderer implements INativeRender, INativeRenderProxy, INativ
 
     @Override
     public void onInstanceDestroy() {
-        if (instanceLifecycleEventListeners != null) {
-            for (HippyInstanceLifecycleEventListener listener : instanceLifecycleEventListeners) {
+        if (mInstanceLifecycleEventListeners != null) {
+            for (HippyInstanceLifecycleEventListener listener : mInstanceLifecycleEventListeners) {
                 listener.onInstanceDestroy();
             }
         }
@@ -313,21 +306,21 @@ public class NativeRenderer implements INativeRender, INativeRenderProxy, INativ
 
     @Override
     public void onRuntimeInitialized(long runtimeId) {
-        renderProvider = new NativeRenderProvider(this, runtimeId);
+        mRenderProvider = new NativeRenderProvider(this, runtimeId);
     }
 
     @Override
     public void addInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener) {
-        if (instanceLifecycleEventListeners == null) {
-            instanceLifecycleEventListeners = new CopyOnWriteArrayList<>();
+        if (mInstanceLifecycleEventListeners == null) {
+            mInstanceLifecycleEventListeners = new CopyOnWriteArrayList<>();
         }
-        instanceLifecycleEventListeners.add(listener);
+        mInstanceLifecycleEventListeners.add(listener);
     }
 
     @Override
     public void removeInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener) {
-        if (instanceLifecycleEventListeners != null) {
-            instanceLifecycleEventListeners.remove(listener);
+        if (mInstanceLifecycleEventListeners != null) {
+            mInstanceLifecycleEventListeners.remove(listener);
         }
     }
 
@@ -335,10 +328,10 @@ public class NativeRenderer implements INativeRender, INativeRenderProxy, INativ
         UIThreadUtils.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                LogUtils.d(TAG, "UI task queue size=" + uiTaskQueue.size());
+                LogUtils.d(TAG, "UI task queue size=" + mUITaskQueue.size());
                 try {
                     long start = System.currentTimeMillis();
-                    IUITaskExecutor task = uiTaskQueue.poll();
+                    UITaskExecutor task = mUITaskQueue.poll();
                     while (task != null) {
                         task.exec();
                         // If there has large number node operation task in queue,
@@ -348,12 +341,12 @@ public class NativeRenderer implements INativeRender, INativeRenderProxy, INativ
                             LogUtils.e(TAG, "execute ui task exceed 400ms!!!");
                             break;
                         }
-                        task = uiTaskQueue.poll();
+                        task = mUITaskQueue.poll();
                     }
                 } catch (Exception exception) {
                     handleRenderException(exception);
                 }
-                if (!uiTaskQueue.isEmpty()) {
+                if (!mUITaskQueue.isEmpty()) {
                     executeUIOperation();
                 }
             }
@@ -361,7 +354,7 @@ public class NativeRenderer implements INativeRender, INativeRenderProxy, INativ
     }
 
     @Override
-    public void createNode(@NonNull ArrayList nodeList) throws Exception {
+    public void createNode(@NonNull ArrayList nodeList) throws NativeRenderException {
         for (int i = 0; i < nodeList.size(); i++) {
             Object object = nodeList.get(i);
             if (!(object instanceof HashMap)) {
@@ -379,25 +372,36 @@ public class NativeRenderer implements INativeRender, INativeRenderProxy, INativ
             }
             final String className = (String) node.get(CLASS_NAME);
             final HashMap<String, Object> props = (HashMap) node.get(NODE_PROPS);
-            VirtualNode virtualParent = virtualNodeManager.getVirtualNode(pid);
+            VirtualNode virtualParent = mVirtualNodeManager.getVirtualNode(pid);
             if (className.equals(NodeProps.TEXT_CLASS_NAME) || virtualParent != null) {
-                virtualNodeManager.createVirtualNode(id, pid, index, className, props);
+                mVirtualNodeManager.createVirtualNode(id, pid, index, className, props);
             }
+            // If the node has virtual parent, not need to create render node.
             if (virtualParent != null) {
                 continue;
             }
-            uiTaskQueue.add(new IUITaskExecutor() {
-                @Override
-                public void exec() {
-                    renderManager.createNode(rootView, id, pid, index, className, props);
-                }
-            });
+            try {
+                mUITaskQueue.add(new UITaskExecutor() {
+                    @Override
+                    public void exec() {
+                        mRenderManager.createNode(mRootView, id, pid, index, className, props);
+                    }
+                });
+            } catch (ClassCastException | NullPointerException | IllegalArgumentException exception) {
+                // If the element can not being added to this queue, just try next.
+                handleRenderException(exception);
+            } catch (IllegalStateException illegalStateException) {
+                // If the element cannot be added at this time due to capacity restrictions,
+                // when this unexpected happened, should break right now.
+                handleRenderException(illegalStateException);
+                break;
+            }
         }
         executeUIOperation();
     }
 
     @Override
-    public void updateNode(@NonNull ArrayList nodeList) throws Exception {
+    public void updateNode(@NonNull ArrayList nodeList) {
 
     }
 
@@ -407,40 +411,59 @@ public class NativeRenderer implements INativeRender, INativeRenderProxy, INativ
     }
 
     @Override
-    public void updateLayout(@NonNull ArrayList nodeList) throws Exception {
+    public void updateLayout(@NonNull ArrayList nodeList) throws NativeRenderException {
         for (int i = 0; i < nodeList.size(); i++) {
             Object object = nodeList.get(i);
             if (!(object instanceof HashMap)) {
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
                         TAG + ": updateLayout: " + "object=" + object);
             }
-            HashMap<String, Object> node = (HashMap) object;
-            final int id = ((Number) node.get(NODE_ID)).intValue();
-            final int left = ((Number) node.get(LAYOUT_LEFT)).intValue();
-            final int top = ((Number) node.get(LAYOUT_TOP)).intValue();
-            final int width = ((Number) node.get(LAYOUT_WIDTH)).intValue();
-            final int height = ((Number) node.get(LAYOUT_HEIGHT)).intValue();
-            boolean needDoUpdate = virtualNodeManager.updateLayoutIfNeeded(id, width);
-            if (needDoUpdate) {
-                uiTaskQueue.add(new IUITaskExecutor() {
+            HashMap<String, Object> layoutInfo = (HashMap) object;
+            final int id = ((Number) layoutInfo.get(NODE_ID)).intValue();
+            final int left = ((Number) layoutInfo.get(LAYOUT_LEFT)).intValue();
+            final int top = ((Number) layoutInfo.get(LAYOUT_TOP)).intValue();
+            final int width = ((Number) layoutInfo.get(LAYOUT_WIDTH)).intValue();
+            final int height = ((Number) layoutInfo.get(LAYOUT_HEIGHT)).intValue();
+            boolean invisible = mVirtualNodeManager.isInvisibleNode(id);
+            // If the node is invisible, there is no corresponding render node,
+            // also no need to update layout.
+            if (invisible) {
+                continue;
+            }
+            final TextRenderSupply supply = mVirtualNodeManager
+                    .updateLayout(id, width, layoutInfo);
+            try {
+                mUITaskQueue.add(new UITaskExecutor() {
                     @Override
                     public void exec() {
-                        renderManager.updateLayout(id, left, top, width, height);
+                        if (supply != null) {
+                            mRenderManager.updateExtra(id, supply);
+                        }
+                        mRenderManager.updateLayout(id, left, top, width, height);
                     }
                 });
+            } catch (ClassCastException | NullPointerException | IllegalArgumentException exception) {
+                // If the element can not being added to this queue, just try next.
+                handleRenderException(exception);
+            } catch (IllegalStateException illegalStateException) {
+                // If the element cannot be added at this time due to capacity restrictions,
+                // when this unexpected happened, should return right now.
+                handleRenderException(illegalStateException);
+                return;
             }
         }
         executeUIOperation();
     }
 
     @Override
-    public long measure(MeasureParams params) {
+    public long measure(int id, float width, int widthMode, float height, int heightMode) {
         try {
-            return virtualNodeManager.measure(params);
-        } catch (Exception exception) {
+            FlexMeasureMode flexMeasureMode = FlexMeasureMode.fromInt(widthMode);
+            return mVirtualNodeManager.measure(id, width, flexMeasureMode);
+        } catch (IllegalStateException | IllegalArgumentException exception) {
             handleRenderException(exception);
         }
-        return FlexOutput.make(params.width, params.height);
+        return FlexOutput.make(width, height);
     }
 
     @Override
@@ -451,21 +474,22 @@ public class NativeRenderer implements INativeRender, INativeRenderProxy, INativ
     @Override
     public void endBatch() {
         try {
-            uiTaskQueue.add(new IUITaskExecutor() {
+            mUITaskQueue.add(new UITaskExecutor() {
                 @Override
                 public void exec() {
-                    renderManager.batch();
+                    mRenderManager.batch();
                 }
             });
-        } catch (Exception exception) {
+            executeUIOperation();
+        } catch (IllegalStateException | ClassCastException
+                | NullPointerException | IllegalArgumentException exception) {
             handleRenderException(exception);
         }
-        executeUIOperation();
     }
 
     public void reportException(Exception exception) {
-        if (frameworkProxy != null) {
-            frameworkProxy.handleNativeException(exception, true);
+        if (mFrameworkProxy != null) {
+            mFrameworkProxy.handleNativeException(exception, true);
         }
     }
 
@@ -473,11 +497,11 @@ public class NativeRenderer implements INativeRender, INativeRenderProxy, INativ
         if (!checkJSFrameworkProxy()) {
             return null;
         }
-        return ((IJSFrameworkProxy) frameworkProxy).getJSEngineThreadExecutor();
+        return ((JSFrameworkProxy) mFrameworkProxy).getJSEngineThreadExecutor();
     }
 
     private boolean checkJSFrameworkProxy() {
-        if (!(frameworkProxy instanceof IJSFrameworkProxy)) {
+        if (!(mFrameworkProxy instanceof JSFrameworkProxy)) {
             return false;
         }
         return true;

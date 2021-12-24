@@ -13,24 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.tencent.hippy.support;
 
-package com.tencent.renderer;
+import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.common.ThreadExecutor;
 
-import java.util.concurrent.ConcurrentHashMap;
+public interface JSFrameworkProxy extends FrameworkProxy {
+  ThreadExecutor getJSEngineThreadExecutor();
 
-public class NativeRendererManager {
+  void updateDimension(boolean shouldRevise, HippyMap dimension,
+      boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged);
 
-    private static final ConcurrentHashMap<Integer, NativeRender> sNativeRendererMap = new ConcurrentHashMap<>();
+  Object getImageLoaderAdapter();
 
-    public static void addNativeRendererInstance(Integer instanceId, NativeRender nativeRenderer) {
-        sNativeRendererMap.put(instanceId, nativeRenderer);
-    }
+  Object getCustomViewCreator();
 
-    public static void removeNativeRendererInstance(Integer instanceId) {
-        sNativeRendererMap.remove(instanceId);
-    }
-
-    public static NativeRender getNativeRenderer(Integer instanceId) {
-        return sNativeRendererMap.get(instanceId);
-    }
+  String getBundlePath();
 }

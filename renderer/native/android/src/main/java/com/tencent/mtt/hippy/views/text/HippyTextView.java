@@ -35,7 +35,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.views.common.CommonBackgroundDrawable;
 import com.tencent.mtt.hippy.views.common.CommonBorder;
 import com.tencent.mtt.hippy.views.list.HippyRecycler;
-import com.tencent.renderer.INativeRender;
+import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
@@ -85,7 +85,7 @@ public class HippyTextView extends View implements CommonBorder, HippyViewBase, 
     Context context = getContext();
     if (context instanceof NativeRenderContext) {
       int instanceId = ((NativeRenderContext)context).getInstanceId();
-      INativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
+      NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
       if (nativeRenderer != null) {
         DomNode node = nativeRenderer.getDomManager().getNode(id);
         if (node instanceof TextNode) {
@@ -164,7 +164,7 @@ public class HippyTextView extends View implements CommonBorder, HippyViewBase, 
       Context context = getContext();
       if (context instanceof NativeRenderContext) {
         int instanceId = ((NativeRenderContext)context).getInstanceId();
-        INativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
+        NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
         if (nativeRenderer != null) {
           nativeRenderer.handleRenderException(new RuntimeException("hippyTextView onDraw" +
                   e.getMessage()));

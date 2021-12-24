@@ -15,7 +15,9 @@
  */
 package com.tencent.hippy.support;
 
-public interface IFrameworkProxy {
+public interface FrameworkProxy {
+  FontAdapter getFontAdapter();
+
   void onFirstViewAdded();
 
   void handleNativeException(Exception exception, boolean haveCaught);

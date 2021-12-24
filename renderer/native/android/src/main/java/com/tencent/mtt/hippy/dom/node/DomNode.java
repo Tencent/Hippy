@@ -16,7 +16,7 @@
 package com.tencent.mtt.hippy.dom.node;
 
 import com.tencent.mtt.hippy.common.HippyMap;
-import com.tencent.renderer.INativeRender;
+import com.tencent.renderer.NativeRender;
 import com.tencent.smtt.flexbox.FlexNode;
 
 @SuppressWarnings("deprecation")
@@ -192,10 +192,10 @@ public class DomNode extends FlexNode {
   }
 
 
-  public void layoutBefore(INativeRender nativeRenderer) {
+  public void layoutBefore(NativeRender nativeRenderer) {
   }
 
-  public void layoutAfter(INativeRender nativeRenderer) {
+  public void layoutAfter(NativeRender nativeRenderer) {
   }
 
   public final int getId() {

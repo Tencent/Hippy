@@ -157,7 +157,7 @@ public abstract class HippyEngineManager extends HippyEngine {
         throw new RuntimeException(
             "Hippy: CoreBundleLoader is neither a HippyAssetBundleLoader nor a HippyFileBundleLoader!");
       }
-      params.providers = mPackages;
+      params.moduleProviders = mPackages;
       params.enableV8Serialization = enableV8Serialization;
       if (mCoreBundleLoader != null) {
         params.codeCacheTag = mCoreBundleLoader.getCodeCacheTag();

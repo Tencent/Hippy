@@ -42,7 +42,7 @@ void HippyRenderManager::CreateRenderNode(std::vector<std::shared_ptr<hippy::dom
                                                            float height, MeasureMode heightMeasureMode,
                                                            void* layoutContext) -> TaitankResult {
         int64_t result;
-        this->CallNativeMeasureMethod(id, width, widthMeasureMode, height, heightMeasureMode, 0, 0, 0, 0, result);
+        this->CallNativeMeasureMethod(id, width, widthMeasureMode, height, heightMeasureMode, result);
         TaitankResult layout_result;
         layout_result.width = (int32_t)(0xFFFFFFFF & (result >> 32));
         layout_result.height = (int32_t)(0xFFFFFFFF & result);
@@ -263,8 +263,6 @@ void HippyRenderManager::CallNativeMethod(const std::string& method) {
 
 void HippyRenderManager::CallNativeMeasureMethod(const int32_t id, const float width, const int32_t width_mode,
                                                  const float height, const int32_t height_mode,
-                                                 const float left_padding, const float top_padding,
-                                                 const float right_padding, const float bottom_padding,
                                                  int64_t& result) {
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
   JNIEnv* j_env = instance->AttachCurrentThread();
@@ -282,8 +280,7 @@ void HippyRenderManager::CallNativeMeasureMethod(const int32_t id, const float w
     return;
   }
 
-  jlong measure_result = j_env->CallLongMethod(j_object, j_method_id, id, width, width_mode, height, height_mode,
-                                               left_padding, top_padding, right_padding, bottom_padding);
+  jlong measure_result = j_env->CallLongMethod(j_object, j_method_id, id, width, width_mode, height, height_mode);
   JNIEnvironment::ClearJEnvException(j_env);
 
   result = (int64_t)measure_result;

@@ -32,7 +32,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 
-import com.tencent.renderer.INativeRender;
+import com.tencent.renderer.NativeRender;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -56,12 +56,12 @@ public class DomManager {
   final RenderManager mRenderManager;
   volatile CopyOnWriteArrayList<DomActionInterceptor> mActionInterceptors;
   final LayoutHelper mLayoutHelper;
-  private final WeakReference<INativeRender> nativeRendererWeakReference;
+  private final WeakReference<NativeRender> nativeRendererWeakReference;
   private volatile boolean mIsDestroyed = false;
   private volatile boolean mEnginePaused = false;
   private BatchListener mBatchListener;
 
-  public DomManager(INativeRender context) {
+  public DomManager(NativeRender context) {
     nativeRendererWeakReference = new WeakReference<>(context);
     mNodeRegistry = new DomNodeRegistry();
 

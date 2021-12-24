@@ -15,7 +15,6 @@
  */
 package com.tencent.mtt.hippy.bridge;
 
-import com.tencent.hippy.support.HippyBaseController;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyAPIProvider;
 import com.tencent.mtt.hippy.common.Provider;
@@ -38,27 +37,6 @@ import com.tencent.mtt.hippy.modules.nativemodules.network.WebSocketModule;
 import com.tencent.mtt.hippy.modules.nativemodules.storage.StorageModule;
 import com.tencent.mtt.hippy.modules.nativemodules.timer.TimerModule;
 import com.tencent.mtt.hippy.modules.nativemodules.utils.UtilsModule;
-import com.tencent.mtt.hippy.uimanager.HippyViewController;
-import com.tencent.mtt.hippy.utils.LogUtils;
-import com.tencent.mtt.hippy.views.custom.HippyCustomPropsController;
-import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewController;
-import com.tencent.mtt.hippy.views.image.HippyImageViewController;
-import com.tencent.mtt.hippy.views.list.HippyListItemViewController;
-import com.tencent.mtt.hippy.views.list.HippyListViewController;
-import com.tencent.mtt.hippy.views.modal.HippyModalHostManager;
-import com.tencent.mtt.hippy.views.refresh.HippyPullFooterViewController;
-import com.tencent.mtt.hippy.views.refresh.HippyPullHeaderViewController;
-import com.tencent.mtt.hippy.views.refresh.RefreshWrapperController;
-import com.tencent.mtt.hippy.views.refresh.RefreshWrapperItemController;
-import com.tencent.mtt.hippy.views.scroll.HippyScrollViewController;
-import com.tencent.mtt.hippy.views.text.HippyTextViewController;
-import com.tencent.mtt.hippy.views.textinput.HippyTextInputController;
-import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
-import com.tencent.mtt.hippy.views.viewpager.HippyViewPagerController;
-import com.tencent.mtt.hippy.views.viewpager.HippyViewPagerItemController;
-import com.tencent.mtt.hippy.views.waterfalllist.HippyWaterfallItemViewController;
-import com.tencent.mtt.hippy.views.waterfalllist.HippyWaterfallViewController;
-import com.tencent.mtt.hippy.views.webview.HippyWebViewController;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -171,43 +149,5 @@ public class HippyCoreAPI implements HippyAPIProvider {
     jsModules.add(EventDispatcher.class);
     jsModules.add(Dimensions.class);
     return jsModules;
-  }
-
-  @Override
-  public List<Class<? extends HippyBaseController>> getControllers() {
-    List<Class<? extends HippyBaseController>> components = new ArrayList<>();
-    components.add(HippyTextViewController.class);
-    components.add(HippyViewGroupController.class);
-    components.add(HippyImageViewController.class);
-    components.add(HippyListViewController.class);
-    components.add(HippyRecyclerViewController.class);
-    components.add(HippyListItemViewController.class);
-    components.add(HippyTextInputController.class);
-    components.add(HippyScrollViewController.class);
-    components.add(HippyViewPagerController.class);
-    components.add(HippyViewPagerItemController.class);
-    components.add(HippyModalHostManager.class);
-    components.add(RefreshWrapperController.class);
-    components.add(RefreshWrapperItemController.class);
-    components.add(HippyPullHeaderViewController.class);
-    components.add(HippyPullFooterViewController.class);
-    components.add(HippyWebViewController.class);
-    components.add(HippyCustomPropsController.class);
-    components.add(HippyWaterfallViewController.class);
-    components.add(HippyWaterfallItemViewController.class);
-
-    return components;
-  }
-
-  @SuppressWarnings("SameParameterValue")
-  private void addControllerWithClassName(String className,
-      List<Class<? extends HippyViewController>> components) {
-    try {
-      Class videoControllerClass = Class.forName(className);
-      //noinspection unchecked
-      components.add(videoControllerClass);
-    } catch (ClassNotFoundException ignore) {
-      LogUtils.d("HippyCoreAPI", "not contain video component, make sure current project config!");
-    }
   }
 }

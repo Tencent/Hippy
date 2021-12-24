@@ -13,31 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.hippy.support;
 
 import android.content.Context;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
-import com.tencent.mtt.hippy.common.HippyArray;
-import com.tencent.mtt.hippy.modules.Promise;
 
 import java.util.List;
 
-public interface INativeRenderProxy extends HippyInstanceLifecycleEventListener {
-  void init(int instanceId, List<Class<? extends HippyBaseController>> controllers,
-      boolean isDebugMode, ViewGroup rootView);
+public interface NativeRenderProxy extends HippyInstanceLifecycleEventListener {
 
-  void setFrameworkProxy(IFrameworkProxy proxy);
+    void init(int instanceId, @Nullable List<Class> controllers, boolean isDebugMode,
+            @Nullable ViewGroup rootView);
 
-  void onRuntimeInitialized(long runtimeId);
+    void setFrameworkProxy(FrameworkProxy proxy);
 
-  void destroy();
+    void onRuntimeInitialized(long runtimeId);
 
-  ViewGroup createRootView(Context context);
+    void destroy();
 
-  int getRootId();
+    @NonNull
+    ViewGroup createRootView(Context context);
 
-  Object getDomManagerObject();
+    int getRootId();
 
-  Object getRenderManagerObject();
+    Object getDomManagerObject();
+
+    Object getRenderManagerObject();
 }

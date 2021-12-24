@@ -18,14 +18,14 @@ package com.tencent.renderer;
 
 import android.view.ViewGroup;
 
+import com.tencent.hippy.support.FontAdapter;
 import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
-import com.tencent.mtt.hippy.adapter.font.HippyFontScaleAdapter;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.DomManager;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.supportui.adapters.image.IImageLoaderAdapter;
 
-public interface INativeRender extends INativeRenderExceptionHandler {
+public interface NativeRender extends NativeRenderExceptionHandler {
 
     RenderManager getRenderManager();
 
@@ -39,7 +39,7 @@ public interface INativeRender extends INativeRenderExceptionHandler {
 
     IImageLoaderAdapter getImageLoaderAdapter();
 
-    HippyFontScaleAdapter getFontScaleAdapter();
+    FontAdapter getFontAdapter();
 
     boolean isDebugMode();
 

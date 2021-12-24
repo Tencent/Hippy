@@ -13,24 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.tencent.mtt.hippy.example;
 
-package com.tencent.renderer;
+import com.tencent.hippy.support.ControllerProvider;
+import com.tencent.mtt.hippy.example.view.MyCustomViewController;
+import com.tencent.mtt.hippy.example.view.MyViewController;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
+import java.util.List;
 
-public class NativeRendererManager {
+public class MyControllerProvider implements ControllerProvider {
 
-    private static final ConcurrentHashMap<Integer, NativeRender> sNativeRendererMap = new ConcurrentHashMap<>();
-
-    public static void addNativeRendererInstance(Integer instanceId, NativeRender nativeRenderer) {
-        sNativeRendererMap.put(instanceId, nativeRenderer);
-    }
-
-    public static void removeNativeRendererInstance(Integer instanceId) {
-        sNativeRendererMap.remove(instanceId);
-    }
-
-    public static NativeRender getNativeRenderer(Integer instanceId) {
-        return sNativeRendererMap.get(instanceId);
+    @Override
+    public List<Class> getControllers() {
+        List<Class> controllers = new ArrayList<>();
+		controllers.add(MyViewController.class);
+		controllers.add(MyCustomViewController.class);
+        return controllers;
     }
 }

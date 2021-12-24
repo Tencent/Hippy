@@ -32,7 +32,7 @@ import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
-import com.tencent.renderer.INativeRender;
+import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 import java.lang.reflect.Method;
@@ -62,7 +62,7 @@ public class HippyRootView extends FrameLayout {
     if (!firstViewAdded) {
       firstViewAdded = true;
 
-      INativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
+      NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
       if (nativeRenderer != null) {
         nativeRenderer.onFirstViewAdded();
       }
@@ -92,7 +92,7 @@ public class HippyRootView extends FrameLayout {
 
     if (w != oldw || h != oldh) {
       getGlobalLayoutListener().checkUpdateDimension(w, h, false, false);
-      INativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
+      NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
       if (nativeRenderer != null) {
         nativeRenderer.onSizeChanged(w, h, oldw, oldh);
       }
@@ -207,7 +207,7 @@ public class HippyRootView extends FrameLayout {
       }
 
       boolean shouldRevise = (windowHeight < 0 || dimensionW == dimensionH) ? true : false;
-      INativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
+      NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
       if (nativeRenderer != null) {
         nativeRenderer.updateDimension(shouldRevise, dimensionMap,
             shouldUseScreenDisplay, systemUiVisibilityChanged);

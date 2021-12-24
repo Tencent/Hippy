@@ -46,8 +46,7 @@ class HippyRenderManager : public RenderManager {
   void CallNativeMethod(const std::string& method);
 
   void CallNativeMeasureMethod(const int32_t id, const float width, const int32_t width_mode, const float height,
-                               const int32_t height_mode, const float left_padding, const float top_padding,
-                               const float right_padding, const float bottom_padding, int64_t& result);
+                               const int32_t height_mode, int64_t& result);
 
   std::shared_ptr<JavaRef> render_delegate_;
   std::shared_ptr<tdf::base::Serializer> serializer_;

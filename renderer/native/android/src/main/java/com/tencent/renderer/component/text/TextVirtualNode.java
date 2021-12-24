@@ -35,10 +35,10 @@ import android.text.style.CharacterStyle;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StrikethroughSpan;
 import android.text.style.UnderlineSpan;
-import com.tencent.mtt.hippy.adapter.font.HippyFontScaleAdapter;
+
+import com.tencent.hippy.support.FontAdapter;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.dom.flex.FlexMeasureMode;
-import com.tencent.mtt.hippy.dom.flex.FlexSpacing;
 import com.tencent.mtt.hippy.dom.node.HippyLetterSpacingSpan;
 import com.tencent.mtt.hippy.dom.node.HippyLineHeightSpan;
 import com.tencent.mtt.hippy.dom.node.HippyShadowSpan;
@@ -80,10 +80,6 @@ public class TextVirtualNode extends VirtualNode {
     private float mShadowRadius = 1.0f;
     private float mLineHeight;
     private float mLetterSpacing;
-    private float mLeftPadding;
-    private float mBottomPadding;
-    private float mTopPadding;
-    private float mRightPadding;
     private boolean mHasUnderlineTextDecoration = false;
     private boolean mHasLineThroughTextDecoration = false;
     private boolean mEnableScale = false;
@@ -93,11 +89,10 @@ public class TextVirtualNode extends VirtualNode {
     private Layout.Alignment mAlignment = Layout.Alignment.ALIGN_NORMAL;
     private final TextUtils.TruncateAt mTruncateAt = TextUtils.TruncateAt.END;
     private TextPaint mTextPaint = null;
-    private Layout mLayout = null;
     private ArrayList<String> mGestureTypes = null;
-    private HippyFontScaleAdapter mFontAdapter;
+    private FontAdapter mFontAdapter;
 
-    public TextVirtualNode(int id, int pid, int index, HippyFontScaleAdapter fontAdapter) {
+    public TextVirtualNode(int id, int pid, int index, FontAdapter fontAdapter) {
         super(id, pid, index);
         mFontAdapter = fontAdapter;
         if (I18nUtil.isRTL()) {
@@ -181,20 +176,20 @@ public class TextVirtualNode extends VirtualNode {
     }
 
     @SuppressWarnings("unused")
-    @HippyControllerProps(name = TEXT_SHADOW_OFFSET)
+    @HippyControllerProps(name = TEXT_SHADOW_OFFSET, defaultType = HippyControllerProps.MAP)
     public void textShadowOffset(HashMap offsetMap) {
         mShadowOffsetDx = 0.0f;
         mShadowOffsetDy = 0.0f;
         if (offsetMap == null) {
             return;
         }
-        try {
-            Object widthObj = offsetMap.get(NodeProps.WIDTH);
-            Object heightObj = offsetMap.get(NodeProps.HEIGHT);
+        Object widthObj = offsetMap.get(NodeProps.WIDTH);
+        Object heightObj = offsetMap.get(NodeProps.HEIGHT);
+        if (widthObj instanceof Number) {
             mShadowOffsetDx = PixelUtil.dp2px(((Number) widthObj).doubleValue());
+        }
+        if (heightObj instanceof Number) {
             mShadowOffsetDy = PixelUtil.dp2px(((Number) heightObj).doubleValue());
-        } catch (Exception ignored) {
-            LogUtils.d(TAG, "textShadowOffset: " + ignored.getMessage());
         }
         markDirty();
     }
@@ -260,14 +255,6 @@ public class TextVirtualNode extends VirtualNode {
     @HippyControllerProps(name = "enableScale", defaultType = HippyControllerProps.BOOLEAN)
     public void enableScale(boolean enable) {
         mEnableScale = enable;
-    }
-
-    public void setPadding(float leftPadding, float topPadding, float rightPadding,
-            float bottomPadding) {
-        mLeftPadding = leftPadding;
-        mTopPadding = topPadding;
-        mRightPadding = rightPadding;
-        mBottomPadding = bottomPadding;
     }
 
     private SpannableStringBuilder createSpan(CharSequence text, boolean useChild) {
@@ -344,10 +331,6 @@ public class TextVirtualNode extends VirtualNode {
             // so we should set useChild to false here
             child.createSpanOperation(ops, builder, false);
         }
-    }
-
-    public void updateLayout(float width) {
-        mLayout = createLayout(width - mLeftPadding - mRightPadding, FlexMeasureMode.EXACTLY);
     }
 
     public Layout createLayout(float width, FlexMeasureMode widthMode) {

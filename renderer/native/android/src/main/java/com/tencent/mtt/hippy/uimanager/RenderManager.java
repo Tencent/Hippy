@@ -28,14 +28,14 @@ import android.text.TextUtils;
 import android.util.SparseArray;
 import android.view.ViewGroup;
 
-import com.tencent.hippy.support.HippyBaseController;
+import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.DomNode;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.utils.LogUtils;
-import com.tencent.renderer.INativeRender;
+import com.tencent.renderer.NativeRender;
 
 @SuppressWarnings({"deprecation", "unused"})
 public class RenderManager {
@@ -50,8 +50,7 @@ public class RenderManager {
 
     final ControllerManager mControllerManager;
 
-    public RenderManager(INativeRender nativeRenderer,
-            List<Class<? extends HippyBaseController>> controllers) {
+    public RenderManager(NativeRender nativeRenderer, @Nullable List<Class> controllers) {
         mControllerManager = new ControllerManager(nativeRenderer, controllers);
     }
 
@@ -135,11 +134,11 @@ public class RenderManager {
     }
 
     public void updateExtra(int id, Object object) {
-        LogUtils.d("RenderManager", "updateExtra ID " + id);
-        RenderNode uiNode = mNodes.get(id);
-        uiNode.updateExtra(object);
-
-        addUpdateNodeIfNeeded(uiNode);
+        RenderNode node = mNodes.get(id);
+        if (node != null) {
+            node.updateExtra(object);
+            addUpdateNodeIfNeeded(node);
+        }
     }
 
     public void deleteNode(int id) {

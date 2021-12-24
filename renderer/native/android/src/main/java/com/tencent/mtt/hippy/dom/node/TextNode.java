@@ -28,7 +28,7 @@ import android.text.*;
 import android.text.Layout.Alignment;
 import android.text.style.*;
 
-import com.tencent.mtt.hippy.adapter.font.HippyFontScaleAdapter;
+import com.tencent.hippy.support.FontAdapter;
 import com.tencent.mtt.hippy.adapter.image.HippyDrawable;
 import com.tencent.mtt.hippy.adapter.image.HippyImageLoader;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
@@ -41,7 +41,7 @@ import com.tencent.mtt.hippy.views.text.HippyTextView;
 
 import com.tencent.mtt.supportui.adapters.image.IDrawableTarget;
 import com.tencent.mtt.supportui.adapters.image.IImageLoaderAdapter;
-import com.tencent.renderer.INativeRender;
+import com.tencent.renderer.NativeRender;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -399,17 +399,17 @@ public class TextNode extends StyleNode {
     markUpdated();
   }
 
-  protected HippyFontScaleAdapter mFontScaleAdapter;
-  protected INativeRender nativeRenderer;
+  protected FontAdapter mFontScaleAdapter;
+  protected NativeRender nativeRenderer;
   protected IImageLoaderAdapter mImageAdapter;
 
   @Override
-  public void layoutBefore(INativeRender nativeRenderer) {
+  public void layoutBefore(NativeRender nativeRenderer) {
     super.layoutBefore(nativeRenderer);
 
     this.nativeRenderer = nativeRenderer;
     if (mFontScaleAdapter == null) {
-      mFontScaleAdapter = nativeRenderer.getFontScaleAdapter();
+      mFontScaleAdapter = nativeRenderer.getFontAdapter();
     }
 
     if (mImageAdapter == null) {
@@ -614,7 +614,7 @@ public class TextNode extends StyleNode {
     }
   };
 
-  public void layoutAfter(INativeRender nativeRenderer) {
+  public void layoutAfter(NativeRender nativeRenderer) {
     if (!isVirtual() && nativeRenderer != null) {
       LogUtils.d("TextNode",
           "measure:layoutAfter" + " w: " + getLayoutWidth() + " h: " + getLayoutHeight());
