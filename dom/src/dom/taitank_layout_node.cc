@@ -1,17 +1,19 @@
 #include "dom/taitank_layout_node.h"
+
+#include "base/logging.h"
 #include "dom/node_props.h"
 
 namespace hippy {
 inline namespace dom {
 
 static OverflowType GetFlexOverflow(const std::string& overflow) {
-  if (overflow.compare("visible") == 0) {
+  if (overflow == "visible") {
     return OverflowType::OverflowVisible;
   }
-  if (overflow.compare("hidden") == 0) {
+  if (overflow == "hidden") {
     return OverflowType::OverflowHidden;
   }
-  if (overflow.compare("scroll") == 0) {
+  if (overflow == "scroll") {
     return OverflowType::OverflowScroll;
   }
   return OverflowType::OverflowVisible;
@@ -175,35 +177,47 @@ void TaitankLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<t
     SetFlexBasis(static_cast<float>(style_map.find(kFlexBasis)->second->ToDouble()));
   }
   if (style_map.find(kWidth) != style_map.end()) {
+    tdf::base::DomValue::Type type = style_map.find(kWidth)->second->GetType();
+    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
     float width =
         style_map.find(kWidth)->second->IsNumber() ? static_cast<float>(style_map.find(kWidth)->second->ToDouble()) : 0;
     SetWidth(width);
   }
   if (style_map.find(kHeight) != style_map.end()) {
+    tdf::base::DomValue::Type type = style_map.find(kHeight)->second->GetType();
+    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
     float height = style_map.find(kHeight)->second->IsNumber()
                        ? static_cast<float>(style_map.find(kHeight)->second->ToDouble())
                        : 0;
     SetHeight(height);
   }
   if (style_map.find(kMaxWidth) != style_map.end()) {
+    tdf::base::DomValue::Type type = style_map.find(kMaxWidth)->second->GetType();
+    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
     float max_width = style_map.find(kMaxWidth)->second->IsNumber()
                           ? static_cast<float>(style_map.find(kMaxWidth)->second->ToDouble())
                           : 0;
     SetMaxWidth(max_width);
   }
   if (style_map.find(kMaxHeight) != style_map.end()) {
+    tdf::base::DomValue::Type type = style_map.find(kMaxHeight)->second->GetType();
+    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
     float max_height = style_map.find(kMaxHeight)->second->IsNumber()
                            ? static_cast<float>(style_map.find(kMaxHeight)->second->ToDouble())
                            : 0;
     SetMaxHeight(max_height);
   }
   if (style_map.find(kMinWidth) != style_map.end()) {
+    tdf::base::DomValue::Type type = style_map.find(kMinWidth)->second->GetType();
+    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
     float min_width = style_map.find(kMinWidth)->second->IsNumber()
                           ? static_cast<float>(style_map.find(kMinWidth)->second->ToDouble())
                           : 0;
     SetMinWidth(min_width);
   }
   if (style_map.find(kMinHeight) != style_map.end()) {
+    tdf::base::DomValue::Type type = style_map.find(kMinHeight)->second->GetType();
+    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
     float min_height = style_map.find(kMinHeight)->second->IsNumber()
                            ? static_cast<float>(style_map.find(kMinHeight)->second->ToDouble())
                            : 0;
@@ -228,6 +242,8 @@ void TaitankLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<t
     SetPosition(GetCSSDirection(kTop), top);
   }
   if (style_map.find(kBottom) != style_map.end()) {
+    tdf::base::DomValue::Type type = style_map.find(kBottom)->second->GetType();
+    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
     float bottom = style_map.find(kBottom)->second->IsNumber()
                        ? static_cast<float>(style_map.find(kBottom)->second->ToDouble())
                        : 0;
@@ -243,84 +259,112 @@ void TaitankLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<t
     SetOverflow(GetFlexOverflow(style_map.find(kOverflow)->second->ToString()));
   }
   if (style_map.find(kMargin) != style_map.end()) {
+    tdf::base::DomValue::Type type = style_map.find(kMargin)->second->GetType();
+    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
     float margin = style_map.find(kMargin)->second->IsNumber()
                        ? static_cast<float>(style_map.find(kMargin)->second->ToDouble())
                        : 0;
     SetMargin(GetCSSDirection(kMargin), margin);
   }
   if (style_map.find(kMarginVertical) != style_map.end()) {
+    tdf::base::DomValue::Type type = style_map.find(kMarginVertical)->second->GetType();
+    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
     float margin_vertical = style_map.find(kMarginVertical)->second->IsNumber()
                                 ? static_cast<float>(style_map.find(kMarginVertical)->second->ToDouble())
                                 : 0;
     SetMargin(GetCSSDirection(kMarginVertical), margin_vertical);
   }
   if (style_map.find(kMarginHorizontal) != style_map.end()) {
+    tdf::base::DomValue::Type type = style_map.find(kMarginHorizontal)->second->GetType();
+    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
     float margin_horizontal = style_map.find(kMarginHorizontal)->second->IsNumber()
                                   ? static_cast<float>(style_map.find(kMarginHorizontal)->second->ToDouble())
                                   : 0;
     SetMargin(GetCSSDirection(kMarginHorizontal), margin_horizontal);
   }
   if (style_map.find(kMarginLeft) != style_map.end()) {
+    tdf::base::DomValue::Type type = style_map.find(kMarginLeft)->second->GetType();
+    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
     float margin_left = style_map.find(kMarginLeft)->second->IsNumber()
                             ? static_cast<float>(style_map.find(kMarginLeft)->second->ToDouble())
                             : 0;
     SetMargin(GetCSSDirection(kMarginLeft), margin_left);
   }
   if (style_map.find(kMarginTop) != style_map.end()) {
+    tdf::base::DomValue::Type type = style_map.find(kMarginTop)->second->GetType();
+    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
     float margin_top = style_map.find(kMarginTop)->second->IsNumber()
                            ? static_cast<float>(style_map.find(kMarginTop)->second->ToDouble())
                            : 0;
     SetMargin(GetCSSDirection(kMarginTop), margin_top);
   }
   if (style_map.find(kMarginRight) != style_map.end()) {
+    tdf::base::DomValue::Type type = style_map.find(kMarginRight)->second->GetType();
+    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
     float margin_right = style_map.find(kMarginRight)->second->IsNumber()
                              ? static_cast<float>(style_map.find(kMarginRight)->second->ToDouble())
                              : 0;
     SetMargin(GetCSSDirection(kMarginRight), margin_right);
   }
   if (style_map.find(kMarginBottom) != style_map.end()) {
+    tdf::base::DomValue::Type type = style_map.find(kMarginBottom)->second->GetType();
+    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
     float margin_bottom = style_map.find(kMarginBottom)->second->IsNumber()
                               ? static_cast<float>(style_map.find(kMarginBottom)->second->ToDouble())
                               : 0;
     SetMargin(GetCSSDirection(kMarginBottom), margin_bottom);
   }
   if (style_map.find(kPadding) != style_map.end()) {
+    tdf::base::DomValue::Type type = style_map.find(kPadding)->second->GetType();
+    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
     float padding = style_map.find(kPadding)->second->IsNumber()
                         ? static_cast<float>(style_map.find(kPadding)->second->ToDouble())
                         : 0;
     SetPadding(GetCSSDirection(kPadding), padding);
   }
   if (style_map.find(kPaddingVertical) != style_map.end()) {
+    tdf::base::DomValue::Type type = style_map.find(kPaddingVertical)->second->GetType();
+    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
     float padding_vertical = style_map.find(kPaddingVertical)->second->IsNumber()
                                  ? static_cast<float>(style_map.find(kPaddingVertical)->second->ToDouble())
                                  : 0;
     SetPadding(GetCSSDirection(kPaddingVertical), padding_vertical);
   }
   if (style_map.find(kPaddingHorizontal) != style_map.end()) {
+    tdf::base::DomValue::Type type = style_map.find(kPaddingHorizontal)->second->GetType();
+    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
     float padding_horizontal = style_map.find(kPaddingHorizontal)->second->IsNumber()
                                    ? static_cast<float>(style_map.find(kPaddingHorizontal)->second->ToDouble())
                                    : 0;
     SetPadding(GetCSSDirection(kPaddingHorizontal), padding_horizontal);
   }
   if (style_map.find(kPaddingLeft) != style_map.end()) {
+    tdf::base::DomValue::Type type = style_map.find(kPaddingLeft)->second->GetType();
+    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
     float padding_left = style_map.find(kPaddingLeft)->second->IsNumber()
                              ? static_cast<float>(style_map.find(kPaddingLeft)->second->ToDouble())
                              : 0;
     SetPadding(GetCSSDirection(kPaddingLeft), padding_left);
   }
   if (style_map.find(kPaddingTop) != style_map.end()) {
+    tdf::base::DomValue::Type type = style_map.find(kPaddingTop)->second->GetType();
+    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
     float padding_top = style_map.find(kPaddingTop)->second->IsNumber()
                             ? static_cast<float>(style_map.find(kPaddingTop)->second->ToDouble())
                             : 0;
     SetPadding(GetCSSDirection(kPaddingTop), padding_top);
   }
   if (style_map.find(kPaddingRight) != style_map.end()) {
+    tdf::base::DomValue::Type type = style_map.find(kPaddingRight)->second->GetType();
+    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
     float padding_right = style_map.find(kPaddingRight)->second->IsNumber()
                               ? static_cast<float>(style_map.find(kPaddingRight)->second->ToDouble())
                               : 0;
     SetPadding(GetCSSDirection(kPaddingRight), padding_right);
   }
   if (style_map.find(kPaddingBottom) != style_map.end()) {
+    tdf::base::DomValue::Type type = style_map.find(kPaddingBottom)->second->GetType();
+    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
     float padding_bottom = style_map.find(kPaddingBottom)->second->IsNumber()
                                ? static_cast<float>(style_map.find(kPaddingBottom)->second->ToDouble())
                                : 0;
