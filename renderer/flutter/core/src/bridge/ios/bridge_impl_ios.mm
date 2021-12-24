@@ -8,6 +8,7 @@
 #import "bridge_impl_ios.h"
 #import "VoltronFlutterBridge.h"
 #import "bridge/code-cache-runnable.h"
+#import "core/scope.h"
 
 #define Addr2Str(addr) (addr?[NSString stringWithFormat:@"%ld", (long)addr]:@"0")
 
@@ -142,4 +143,12 @@ void BridgeImpl::CallFunction(int64_t runtime_id,
         BOOL succ = (error == nil);
         callback(succ ? 1 : 0);
     }];
+}
+
+void BridgeImpl::BindDomManager(int64_t runtime_id, const std::shared_ptr<DomManager>& dom_manager) {
+    VoltronFlutterBridge *bridge = (__bridge VoltronFlutterBridge *)((void *)runtime_id);
+    auto scope = bridge.jscExecutor.pScope;
+    if (scope) {
+        scope->SetDomManager(dom_manager);
+    }
 }

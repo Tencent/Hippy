@@ -9,7 +9,9 @@
 #define bridge_impl_ios_h
 
 #include "bridge/bridge_runtime.h"
+#include "dom/dom_manager.h"
 
+using hippy::DomManager;
 class BridgeImpl {
  public:
   BridgeImpl() = default;
@@ -47,7 +49,7 @@ class BridgeImpl {
                            const char16_t *params,
                            std::function<void(int64_t)> callback);
 
-//  static void BindDomManager(int64_t runtime_id, const std::shared_ptr<DomManager>& dom_manager);
+  static void BindDomManager(int64_t runtime_id, const std::shared_ptr<DomManager>& dom_manager);
 
  private:
   static bool RunScript(int64_t runtime_id,

@@ -18,16 +18,6 @@
 		D955189E0BADBB96E715948E /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CEFAA276EF2826900EB7A248 /* Pods_Runner.framework */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		ADCEEAFF272BF62000483B77 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = ADCEEAFA272BF62000483B77 /* RenderCore.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 4CA09B7425A9D83000D6DBBF;
-			remoteInfo = RenderCore;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXCopyFilesBuildPhase section */
 		3EE0CBB6262D8386005CEE65 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -59,7 +49,11 @@
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A4C247B741516BC4289E341B /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
-		ADCEEAFA272BF62000483B77 /* RenderCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RenderCore.xcodeproj; path = ../../RenderCore/RenderCore.xcodeproj; sourceTree = "<group>"; };
+		BC870F302775720B007080AE /* libtdf_base_common.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libtdf_base_common.a; path = ../../build/ios/arm64/libtdf_base_common.a; sourceTree = "<group>"; };
+		BC870F322775720B007080AE /* voltron_core.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = voltron_core.framework; path = ../../build/ios/arm64/voltron_core.framework; sourceTree = "<group>"; };
+		BC870F332775720B007080AE /* libdom.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libdom.a; path = ../../build/ios/arm64/libdom.a; sourceTree = "<group>"; };
+		BC870F342775720B007080AE /* liblayout.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblayout.a; path = ../../build/ios/arm64/liblayout.a; sourceTree = "<group>"; };
+		BC870F352775720B007080AE /* libtdf_base.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libtdf_base.a; path = ../../build/ios/arm64/libtdf_base.a; sourceTree = "<group>"; };
 		CEFAA276EF2826900EB7A248 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E63C63D4F44A757FFF578F29 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -90,6 +84,11 @@
 		18D8F8BE904A618DB4DE5D20 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				BC870F332775720B007080AE /* libdom.a */,
+				BC870F342775720B007080AE /* liblayout.a */,
+				BC870F302775720B007080AE /* libtdf_base_common.a */,
+				BC870F352775720B007080AE /* libtdf_base.a */,
+				BC870F322775720B007080AE /* voltron_core.framework */,
 				3EE496F525B92538004154DA /* libc++.1.tbd */,
 				CEFAA276EF2826900EB7A248 /* Pods_Runner.framework */,
 			);
@@ -110,7 +109,6 @@
 		97C146E51CF9000F007C117D = {
 			isa = PBXGroup;
 			children = (
-				ADCEEAFA272BF62000483B77 /* RenderCore.xcodeproj */,
 				3EFE7CE625ADCB9D00BAC367 /* jsbundle */,
 				9740EEB11CF90186004384FC /* Flutter */,
 				97C146F01CF9000F007C117D /* Runner */,
@@ -149,14 +147,6 @@
 			children = (
 			);
 			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		ADCEEAFB272BF62000483B77 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				ADCEEB00272BF62000483B77 /* rendercore.framework */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -210,28 +200,12 @@
 			mainGroup = 97C146E51CF9000F007C117D;
 			productRefGroup = 97C146EF1CF9000F007C117D /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = ADCEEAFB272BF62000483B77 /* Products */;
-					ProjectRef = ADCEEAFA272BF62000483B77 /* RenderCore.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				97C146ED1CF9000F007C117D /* Runner */,
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		ADCEEB00272BF62000483B77 /* rendercore.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = rendercore.framework;
-			remoteRef = ADCEEAFF272BF62000483B77 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		97C146EC1CF9000F007C117D /* Resources */ = {

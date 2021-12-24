@@ -387,11 +387,19 @@ class RenderManager
 
   void setEventListener(
       int instanceId, int id, String eventName) {
-
+    LogUtils.dRender("set event ID:$id, event:$eventName");
+    var uiNode = controllerManager.findNode(instanceId, id);
+    if (uiNode != null) {
+      uiNode.addEvent(eventName);
+    }
   }
 
   void removeEventListener(int instanceId, int id, String eventName) {
-
+    LogUtils.dRender("remove event ID:$id, event:$eventName");
+    var uiNode = controllerManager.findNode(instanceId, id);
+    if (uiNode != null) {
+      uiNode.removeEvent(eventName);
+    }
   }
 
   void deleteNode(int instanceId, int id) {

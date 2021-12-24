@@ -7,12 +7,15 @@
 
 #import <Foundation/Foundation.h>
 #import "bridge/bridge_runtime.h"
+#import "VoltronJSCExecutor.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 typedef void (^VoltronFlutterCallback)(id _Nullable result, NSError * _Nullable error);
 
 @interface VoltronFlutterBridge : NSObject
+
+@property (nonatomic, strong) VoltronJSCExecutor *jscExecutor;
 
 @property (nonatomic, assign) std::shared_ptr<voltron::PlatformRuntime> platformRuntime;
 

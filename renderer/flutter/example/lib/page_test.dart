@@ -9,7 +9,7 @@ VoltronRenderManager generateManager(BuildContext context, {bool? debugMode}) {
   // 可选：是否打印引擎的完整的log。默认为false
   initParams.enableLog = true;
   // 可选：debugMode = false 时必须设置coreJSAssetsPath或coreJSFilePath（debugMode = true时，所有jsbundle都是从debug server上下载）
-  initParams.coreJSAssetsPath = "jsbundle/vendor.android.js";
+  initParams.coreJSAssetsPath = "jsbundle/vendor.js";
 
   // 可选：Engine Monitor adapter
   initParams.engineMonitor = Monitor();
@@ -57,7 +57,7 @@ class _PageTestWidgetState extends State<PageTestWidget> {
 
   @override
   void initState() {
-    _bundle = widget.bundle ?? 'jsbundle/index.android.js';
+    _bundle = widget.bundle ?? 'jsbundle/index.js';
     _debugMode = widget.debugMode;
     super.initState();
   }

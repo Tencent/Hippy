@@ -62,6 +62,7 @@ class RenderNode extends StyleNode {
   final List<RenderNode> _children = [];
   final List<RenderNode> _childrenPendingList = [];
   final List<MoveHolder> _moveHolders = [];
+  final List<EventHolder> _eventHolders = [];
   RenderViewModel? _viewModel;
 
   /// 更新相关属性
@@ -289,6 +290,14 @@ class RenderNode extends StyleNode {
     }
   }
 
+  void addEvent(String eventName) {
+    _eventHolders.add(EventHolder(eventName));
+  }
+
+  void removeEvent(String eventName) {
+    _eventHolders.add(EventHolder(eventName, isAdd: false));
+  }
+
   RenderNode? getChildAt(int index) {
     if (0 <= index && index < childCount) {
       return _children[index];
@@ -355,6 +364,11 @@ class RenderNode extends StyleNode {
       if (extraToUpdate != null) {
         _controllerManager.updateExtra(this, extraToUpdate);
         _extraToUpdate = null;
+      }
+
+      if (_eventHolders.isNotEmpty) {
+        _controllerManager.updateEvents(this, _eventHolders);
+        _eventHolders.clear();
       }
 
       if (_uiFunction.isNotEmpty) {
@@ -514,4 +528,11 @@ class MoveHolder {
   final RenderNode _moveToNode;
 
   MoveHolder(this._moveRenders, this._moveToNode);
+}
+
+class EventHolder {
+  final String eventName;
+  final bool isAdd;
+
+  EventHolder(this.eventName, {this.isAdd = true});
 }

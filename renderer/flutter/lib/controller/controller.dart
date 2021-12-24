@@ -4,11 +4,14 @@ import 'package:flutter/widgets.dart';
 
 import '../common.dart';
 import '../engine.dart';
+import '../gesture.dart';
+import '../gesture/handle.dart';
 import '../module.dart';
 import '../render.dart';
 import '../style.dart';
 import '../util.dart';
 import '../viewmodel.dart';
+import '../voltron_render.dart';
 import 'manager.dart';
 import 'props.dart';
 
@@ -293,52 +296,72 @@ abstract class VoltronViewController<T extends RenderViewModel,
 
   @ControllerProps(NodeProps.kOnClick)
   void setClickable(T viewModel, bool flag) {
-    viewModel.setClickable(flag);
+    if (NativeGestureHandle.kUseOldTouch) {
+      viewModel.setClickable(flag);
+    }
   }
 
   @ControllerProps(NodeProps.kOnLongClick)
   void setLongClickable(T viewModel, bool flag) {
-    viewModel.setLongClickable(flag);
+    if (NativeGestureHandle.kUseOldTouch) {
+      viewModel.setLongClickable(flag);
+    }
   }
 
   @ControllerProps(NodeProps.kOnPressIn)
   void setCanPressIn(T viewModel, bool flag) {
-    viewModel.setCanPressIn(flag);
+    if (NativeGestureHandle.kUseOldTouch) {
+      viewModel.setCanPressIn(flag);
+    }
   }
 
   @ControllerProps(NodeProps.kOnPressOut)
   void setCanPressOut(T viewModel, bool flag) {
-    viewModel.setCanPressOut(flag);
+    if (NativeGestureHandle.kUseOldTouch) {
+      viewModel.setCanPressOut(flag);
+    }
   }
 
   @ControllerProps(NodeProps.kOnTouchDown)
   void setTouchDownHandle(T viewModel, bool flag) {
-    viewModel.setTouchDownHandle(flag);
+    if (NativeGestureHandle.kUseOldTouch) {
+      viewModel.setTouchDownHandle(flag);
+    }
   }
 
   @ControllerProps(NodeProps.kOnTouchMove)
   void setTouchMoveHandle(T viewModel, bool flag) {
-    viewModel.setTouchMoveHandle(flag);
+    if (NativeGestureHandle.kUseOldTouch) {
+      viewModel.setTouchMoveHandle(flag);
+    }
   }
 
   @ControllerProps(NodeProps.kOnTouchEnd)
   void setTouchEndHandle(T viewModel, bool flag) {
-    viewModel.setTouchEndHandle(flag);
+    if (NativeGestureHandle.kUseOldTouch) {
+      viewModel.setTouchEndHandle(flag);
+    }
   }
 
   @ControllerProps(NodeProps.kOnTouchCancel)
   void setTouchCancelHandle(T viewModel, bool flag) {
-    viewModel.setTouchCancelHandle(flag);
+    if (NativeGestureHandle.kUseOldTouch) {
+      viewModel.setTouchCancelHandle(flag);
+    }
   }
 
   @ControllerProps(NodeProps.kOnAttachedToWindow)
   void setAttachedToWindowHandle(T viewModel, bool flag) {
-    viewModel.setAttachedToWindowHandle(flag);
+    if (NativeGestureHandle.kUseOldTouch) {
+      viewModel.setAttachedToWindowHandle(flag);
+    }
   }
 
   @ControllerProps(NodeProps.kOnDetachedFromWindow)
   void setDetachedFromWindowHandle(T viewModel, bool flag) {
-    viewModel.setDetachedFromWindowHandle(flag);
+    if (NativeGestureHandle.kUseOldTouch) {
+      viewModel.setDetachedFromWindowHandle(flag);
+    }
   }
 
   @override
@@ -369,6 +392,45 @@ abstract class VoltronViewController<T extends RenderViewModel,
   }
 
   void updateExtra(T renderViewModel, Object updateExtra) {}
+
+  void updateEvents(T renderViewModel, List<EventHolder> holders) {
+    if (!NativeGestureHandle.kUseOldTouch && holders.isNotEmpty) {
+      for (var holder in holders) {
+        switch (holder.eventName) {
+          case NativeGestureHandle.kClick:
+            renderViewModel.setClickable(holder.isAdd);
+            break;
+          case NativeGestureHandle.kLongClick:
+            renderViewModel.setLongClickable(holder.isAdd);
+            break;
+          case NativeGestureHandle.kTouchDown:
+            renderViewModel.setTouchDownHandle(holder.isAdd);
+            break;
+          case NativeGestureHandle.kTouchMove:
+            renderViewModel.setTouchMoveHandle(holder.isAdd);
+            break;
+          case NativeGestureHandle.kTouchEnd:
+            renderViewModel.setTouchEndHandle(holder.isAdd);
+            break;
+          case NativeGestureHandle.kTouchCancel:
+            renderViewModel.setTouchCancelHandle(holder.isAdd);
+            break;
+          case NativeGestureHandle.kShow:
+            renderViewModel.setAttachedToWindowHandle(holder.isAdd);
+            break;
+          case NativeGestureHandle.kDismiss:
+            renderViewModel.setDetachedFromWindowHandle(holder.isAdd);
+            break;
+          case NativeGestureHandle.kPressIn:
+            renderViewModel.setCanPressIn(holder.isAdd);
+            break;
+          case NativeGestureHandle.kPressOut:
+            renderViewModel.setCanPressOut(holder.isAdd);
+            break;
+        }
+      }
+    }
+  }
 
   R createRenderNode(int id, VoltronMap? props, String name, RenderTree tree,
       ControllerManager controllerManager, bool lazy);

@@ -13,7 +13,6 @@
 #import <sys/utsname.h>
 
 #import "VoltronFlutterBridge.h"
-#import "VoltronJSCExecutor.h"
 #import "utils/VoltronLog.h"
 #import "utils/VoltronUtils.h"
 #include "core/base/string_view_utils.h"
@@ -24,8 +23,6 @@ using StringViewUtils = hippy::base::StringViewUtils;
 static NSString *const _VoltronSDKVersion = @"1.0.0";
 
 @interface VoltronFlutterBridge () <VoltronJSCExecutorProvider>
-@property (nonatomic, strong) VoltronJSCExecutor *jscExecutor;
-
 @end
 
 

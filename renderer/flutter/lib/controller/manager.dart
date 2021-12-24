@@ -179,6 +179,13 @@ class ControllerManager implements InstanceLifecycleEventListener {
     }
   }
 
+  void updateEvents(RenderNode node, List<EventHolder> holders) {
+    final controller = findController(node.name);
+    if (controller != null) {
+      controller.updateEvents(node.renderViewModel, holders);
+    }
+  }
+
   RenderNode? createRenderNode(
       int id, VoltronMap? props, String name, RenderTree tree, bool lazy) {
     final controller = findController(name);
