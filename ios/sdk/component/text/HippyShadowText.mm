@@ -50,15 +50,12 @@ HPSize textMeasureFunc(
 //    hippy::DomNode *pNode = static_cast<hippy::DomNode *>(HPNodeGetContext(node));
     std::shared_ptr<hippy::DomNode> domNode = [shadowText domNode].lock();
     if (domNode) {
-        NSDictionary *props = unorderedMapDomValueToDictionary(domNode->GetExtStyle());
-        NSDictionary *styleProps = unorderedMapDomValueToDictionary(domNode->GetStyleMap());
-        CGFloat fontSize = [styleProps[@"fontSize"] floatValue];
-        NSString *text = props[@"text"];
-        if (0 == fontSize) {
-            fontSize = [UIFont systemFontSize];
-        }
-        UIFont *font = [UIFont systemFontOfSize:fontSize];
-        CGSize size = [text sizeWithFont:font];
+        NSTextStorage *textStorage = [shadowText buildTextStorageForWidth:width widthMode:widthMeasureMode];
+        [shadowText calculateTextFrame:textStorage];
+        NSLayoutManager *layoutManager = textStorage.layoutManagers.firstObject;
+        NSTextContainer *textContainer = layoutManager.textContainers.firstObject;
+        CGSize size = [layoutManager usedRectForTextContainer:textContainer].size;
+
         HPSize retSize;
         retSize.width = HippyCeilPixelValue(size.width);
         retSize.height = HippyCeilPixelValue(size.height);
@@ -287,6 +284,12 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 - (void)dirtyText {
     [super dirtyText];
     _cachedTextStorage = nil;
+    std::shared_ptr<hippy::DomNode> node = self.domNode.lock();
+    if (node) {
+        std::shared_ptr<hippy::TaitankLayoutNode>layoutNode =
+            std::static_pointer_cast<hippy::TaitankLayoutNode>(node->GetLayoutNode());
+        layoutNode->MarkDirty();
+    }
 }
 
 - (void)recomputeText {
