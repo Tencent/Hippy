@@ -38,14 +38,16 @@ void HippyRenderManager::CreateRenderNode(std::vector<std::shared_ptr<hippy::dom
 
     if (nodes[i]->GetViewName() == "Text") {
       int32_t id = nodes[i]->GetId();
-      TaitankMeasureFunction measure_function = [id](HPNodeRef node, float width, MeasureMode widthMeasureMode, float height,
-                                          MeasureMode heightMeasureMode, void* layoutContext) -> TaitankResult {
-        // TODO Call Jni
-        TDF_BASE_LOG(INFO) << "text measure node id :" << id << std::endl;
-        TaitankResult result;
-        result.width = 20;
-        result.height = 20;
-        return result;
+      TaitankMeasureFunction measure_function = [this, id](HPNodeRef node, float width, MeasureMode widthMeasureMode,
+                                                           float height, MeasureMode heightMeasureMode,
+                                                           void* layoutContext) -> TaitankResult {
+        int64_t result;
+        this->CallNativeMeasureMethod(id, width, widthMeasureMode, height, heightMeasureMode, 0, 0, 0, 0, result);
+        TaitankResult layout_result;
+        layout_result.width = (int32_t)(0xFFFFFFFF & (result >> 32));
+        layout_result.height = (int32_t)(0xFFFFFFFF & result);
+        TDF_BASE_LOG(INFO) << "measure width: " << layout_result.width << ", height: " << layout_result.height << ", result: " << result;
+        return layout_result;
       };
       std::static_pointer_cast<TaitankLayoutNode>(nodes[i]->GetLayoutNode())->SetMeasureFunction(measure_function);
     }
@@ -229,7 +231,7 @@ void HippyRenderManager::CallNativeMethod(const std::pair<uint8_t*, size_t>& buf
 
   jmethodID j_method_id = j_env->GetMethodID(j_class, method.c_str(), "([B)V");
   if (!j_method_id) {
-    TDF_BASE_LOG(ERROR) << method << " j_cb_id error";
+    TDF_BASE_LOG(ERROR) << method << " j_method_id error";
     return;
   }
 
@@ -251,12 +253,40 @@ void HippyRenderManager::CallNativeMethod(const std::string& method) {
 
   jmethodID j_method_id = j_env->GetMethodID(j_class, method.c_str(), "()V");
   if (!j_method_id) {
-    TDF_BASE_LOG(ERROR) << method << " j_cb_id error";
+    TDF_BASE_LOG(ERROR) << method << " j_method_id error";
     return;
   }
 
   j_env->CallVoidMethod(j_object, j_method_id);
   JNIEnvironment::ClearJEnvException(j_env);
+}
+
+void HippyRenderManager::CallNativeMeasureMethod(const int32_t id, const float width, const int32_t width_mode,
+                                                 const float height, const int32_t height_mode,
+                                                 const float left_padding, const float top_padding,
+                                                 const float right_padding, const float bottom_padding,
+                                                 int64_t& result) {
+  std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
+  JNIEnv* j_env = instance->AttachCurrentThread();
+
+  jobject j_object = render_delegate_->GetObj();
+  jclass j_class = j_env->GetObjectClass(j_object);
+  if (!j_class) {
+    TDF_BASE_LOG(ERROR) << "CallNativeMethod j_class error";
+    return;
+  }
+
+  jmethodID j_method_id = j_env->GetMethodID(j_class, "measure", "(IFIFIFFFF)J");
+  if (!j_method_id) {
+    TDF_BASE_LOG(ERROR) << "measure j_method_id error";
+    return;
+  }
+
+  jlong measure_result = j_env->CallLongMethod(j_object, j_method_id, id, width, width_mode, height, height_mode,
+                                               left_padding, top_padding, right_padding, bottom_padding);
+  JNIEnvironment::ClearJEnvException(j_env);
+
+  result = (int64_t)measure_result;
 }
 
 }  // namespace dom

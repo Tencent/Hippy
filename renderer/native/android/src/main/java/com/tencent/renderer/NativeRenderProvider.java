@@ -137,11 +137,11 @@ public class NativeRenderProvider {
      * @param bottomPadding bottom padding of text
      * @return the measure result, convert to long type by FlexOutput
      */
-    public long measure(int id, float width, FlexMeasureMode widthMode, float height,
-            FlexMeasureMode heightMode, float leftPadding, float topPadding, float rightPadding,
+    public long measure(int id, float width, int widthMode, float height,
+            int heightMode, float leftPadding, float topPadding, float rightPadding,
             float bottomPadding) {
         return mRenderDelegate
-                .measure(new MeasureParams(id, width, widthMode, height, heightMode, leftPadding,
+                .measure(new MeasureParams(id, width, FlexMeasureMode.fromInt(widthMode), height, FlexMeasureMode.fromInt(heightMode), leftPadding,
                         topPadding,
                         rightPadding,
                         bottomPadding));
