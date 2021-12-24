@@ -16,11 +16,11 @@
 
 package com.tencent.renderer;
 
-public interface INativeRenderExceptionHandler {
+public interface NativeRenderExceptionHandler {
     /**
      * Report render exception to host
      *
-     * @param exception {@link Exception} The render exception
+     * @param exception {@link Exception} the render exception
      */
     void handleRenderException(Exception exception);
 }

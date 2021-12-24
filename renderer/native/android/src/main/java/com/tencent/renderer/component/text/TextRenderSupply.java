@@ -13,26 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tencent.hippy.support;
+package com.tencent.renderer.component.text;
 
-import com.tencent.mtt.hippy.common.HippyMap;
-import com.tencent.mtt.hippy.common.ThreadExecutor;
+import android.text.Layout;
 
-public interface IJSFrameworkProxy extends IFrameworkProxy {
-  ThreadExecutor getJSEngineThreadExecutor();
+/**
+ * Used for save layout info of text node, should send it to text view
+ * after update layout complete.
+ */
+public class TextRenderSupply {
 
-  void updateDimension(boolean shouldRevise, HippyMap dimension,
-      boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged);
+  public final Layout layout;
+  public final float leftPadding;
+  public final float rightPadding;
+  public final float bottomPadding;
+  public final float topPadding;
 
-  void dispatchUIComponentEvent(int id, String eventName, Object params);
-
-  void dispatchNativeGestureEvent(HippyMap params);
-
-  Object getImageLoaderAdapter();
-
-  Object getFontScaleAdapter();
-
-  Object getCustomViewCreator();
-
-  String getBundlePath();
+  public TextRenderSupply(Layout layout, float left, float top, float right, float bottom) {
+    this.layout = layout;
+    this.leftPadding = left;
+    this.rightPadding = right;
+    this.bottomPadding = bottom;
+    this.topPadding = top;
+  }
 }

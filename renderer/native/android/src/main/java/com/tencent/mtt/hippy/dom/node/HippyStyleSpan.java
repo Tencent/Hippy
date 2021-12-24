@@ -17,7 +17,8 @@ package com.tencent.mtt.hippy.dom.node;
 
 import android.text.TextPaint;
 import android.text.style.MetricAffectingSpan;
-import com.tencent.mtt.hippy.adapter.font.HippyFontScaleAdapter;
+
+import com.tencent.hippy.support.FontAdapter;
 
 @SuppressWarnings({"unused"})
 public class HippyStyleSpan extends MetricAffectingSpan {
@@ -25,10 +26,10 @@ public class HippyStyleSpan extends MetricAffectingSpan {
   private final int mStyle;
   private final int mWeight;
   private final String mFontFamily;
-  private final HippyFontScaleAdapter fontAdapter;
+  private final FontAdapter fontAdapter;
 
   public HippyStyleSpan(int fontStyle, int fontWeight, String fontFamily,
-      HippyFontScaleAdapter adapter) {
+          FontAdapter adapter) {
     mStyle = fontStyle;
     mWeight = fontWeight;
     mFontFamily = fontFamily;

@@ -25,7 +25,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.hippy.uimanager.NativeGestureProcessor;
-import com.tencent.renderer.INativeRender;
+import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
@@ -46,7 +46,7 @@ public class HippyNativeGestureSpan implements NativeGestureProcessor.Callback {
 
   private NativeGestureProcessor mGestureProcessor;
   private Handler mHandler;
-  private INativeRender nativeRenderer;
+  private NativeRender nativeRenderer;
 
   private final boolean mIsVirtual;
 

@@ -19,6 +19,8 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import android.view.ViewGroup;
+
+import com.tencent.hippy.support.ControllerProvider;
 import com.tencent.mtt.hippy.adapter.DefaultLogAdapter;
 import com.tencent.mtt.hippy.adapter.HippyLogAdapter;
 import com.tencent.mtt.hippy.adapter.device.DefaultDeviceAdapter;
@@ -236,7 +238,8 @@ public abstract class HippyEngine {
     // 可选参数 Hippy Server的Host。默认为"localhost:38989"。debugMode = true时有效
     public String debugServerHost = "localhost:38989";
     // 可选参数 自定义的，用来提供Native modules、JavaScript modules、View controllers的管理器。1个或多个
-    public List<HippyAPIProvider> providers;
+    public List<HippyAPIProvider> moduleProviders;
+    public List<ControllerProvider> controllerProviders;
     //Optional  is use V8 serialization or json
     public boolean enableV8Serialization = true;
     // 可选参数 是否打印引擎的完整的log。默认为false
@@ -313,10 +316,10 @@ public abstract class HippyEngine {
       if (logAdapter == null) {
         logAdapter = new DefaultLogAdapter();
       }
-      if (providers == null) {
-        providers = new ArrayList<>();
+      if (moduleProviders == null) {
+        moduleProviders = new ArrayList<>();
       }
-      providers.add(0, new HippyCoreAPI());
+      moduleProviders.add(0, new HippyCoreAPI());
       if (!debugMode) {
         if (TextUtils.isEmpty(coreJSAssetsPath) && TextUtils.isEmpty(coreJSFilePath)) {
           throw new RuntimeException(

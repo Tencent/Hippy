@@ -38,10 +38,12 @@ public class PixelUtil {
     }
   }
 
+  /** Set display metrics */
   public static void setDisplayMetrics(DisplayMetrics metrics) {
     displayMetrics = metrics;
   }
 
+  /** Convert from dp to px impl */
   public static float dp2px(float value) {
     if (displayMetrics == null) {
       return value;
@@ -49,10 +51,12 @@ public class PixelUtil {
     return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, displayMetrics);
   }
 
+  /** Convert from dp to px */
   public static float dp2px(double value) {
     return dp2px((float) value);
   }
 
+  /** Convert from px to dp */
   public static float px2dp(float value) {
     return value / getDensity();
   }

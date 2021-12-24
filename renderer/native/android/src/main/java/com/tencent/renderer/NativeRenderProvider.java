@@ -23,26 +23,23 @@ import com.tencent.mtt.hippy.serialization.nio.reader.BinaryReader;
 import com.tencent.mtt.hippy.serialization.nio.reader.SafeHeapReader;
 import com.tencent.mtt.hippy.serialization.string.InternalizedStringTable;
 import com.tencent.mtt.hippy.utils.PixelUtil;
-import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.renderer.serialization.Deserializer;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 /**
- * Implementation of render provider, communicate with native (C++) render manager, deserialize and
- * virtual node operation will run in JS thread.
+ * Implementation of render provider, communicate with native (C++) render manager,
+ * deserialize and virtual node operation will run in JS thread.
  */
 public class NativeRenderProvider {
 
     private final long mRuntimeId;
-    private final INativeRenderDelegate mRenderDelegate;
+    private final NativeRenderDelegate mRenderDelegate;
     private final Deserializer mDeserializer;
     private BinaryReader mSafeHeapReader;
 
-    public NativeRenderProvider(@NonNull INativeRenderDelegate renderDelegate, long runtimeId) {
+    public NativeRenderProvider(@NonNull NativeRenderDelegate renderDelegate, long runtimeId) {
         mRenderDelegate = renderDelegate;
         mRuntimeId = runtimeId;
         mDeserializer = new Deserializer(null, new InternalizedStringTable());
@@ -57,8 +54,8 @@ public class NativeRenderProvider {
      * Deserialize dom node data wrap by ByteBuffer just support heap buffer reader, direct buffer
      * reader not fit for dom data
      *
-     * @param buffer The byte array from native (C++) DOM wrap by ByteBuffer
-     * @return The ArrayList of deserialize result
+     * @param buffer The byte array from native (C++) DOM wrap by {@link ByteBuffer}
+     * @return The result {@link ArrayList} of deserialize
      */
     private @NonNull
     ArrayList bytesToArgument(ByteBuffer buffer) {
@@ -84,7 +81,7 @@ public class NativeRenderProvider {
         try {
             final ArrayList list = bytesToArgument(ByteBuffer.wrap(buffer));
             mRenderDelegate.createNode(list);
-        } catch (Exception exception) {
+        } catch (NativeRenderException exception) {
             mRenderDelegate.handleRenderException(exception);
         }
     }
@@ -118,7 +115,7 @@ public class NativeRenderProvider {
         try {
             final ArrayList list = bytesToArgument(ByteBuffer.wrap(buffer));
             mRenderDelegate.updateLayout(list);
-        } catch (Exception exception) {
+        } catch (NativeRenderException exception) {
             mRenderDelegate.handleRenderException(exception);
         }
     }
@@ -131,51 +128,10 @@ public class NativeRenderProvider {
      * @param widthMode flex measure mode of width
      * @param height pre setting of text height
      * @param heightMode flex measure mode of height
-     * @param leftPadding left padding of text
-     * @param topPadding top padding of text
-     * @param rightPadding right padding of text
-     * @param bottomPadding bottom padding of text
      * @return the measure result, convert to long type by FlexOutput
      */
-    public long measure(int id, float width, int widthMode, float height,
-            int heightMode, float leftPadding, float topPadding, float rightPadding,
-            float bottomPadding) {
-        return mRenderDelegate
-                .measure(new MeasureParams(id, width, FlexMeasureMode.fromInt(widthMode), height, FlexMeasureMode.fromInt(heightMode), leftPadding,
-                        topPadding,
-                        rightPadding,
-                        bottomPadding));
-    }
-
-    /**
-     * Wrap measure params into this class and pass to render delegate, finally consume by virtual
-     * node manager use to measure text width and height
-     */
-    public static class MeasureParams {
-
-        public final int id;
-        public final float width;
-        public final float height;
-        public final float leftPadding;
-        public final float topPadding;
-        public final float rightPadding;
-        public final float bottomPadding;
-        public final FlexMeasureMode widthMode;
-        public final FlexMeasureMode heightMode;
-
-        public MeasureParams(int id, float width, FlexMeasureMode widthMode, float height,
-                FlexMeasureMode heightMode, float leftPadding, float topPadding, float rightPadding,
-                float bottomPadding) {
-            this.id = id;
-            this.width = width;
-            this.height = height;
-            this.leftPadding = leftPadding;
-            this.topPadding = topPadding;
-            this.rightPadding = rightPadding;
-            this.bottomPadding = bottomPadding;
-            this.widthMode = widthMode;
-            this.heightMode = heightMode;
-        }
+    public long measure(int id, float width, int widthMode, float height, int heightMode) {
+        return mRenderDelegate.measure(id, width, widthMode, height, heightMode);
     }
 
     /**

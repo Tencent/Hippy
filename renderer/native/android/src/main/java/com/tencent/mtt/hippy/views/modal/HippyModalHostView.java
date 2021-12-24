@@ -42,7 +42,7 @@ import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 
-import com.tencent.renderer.INativeRender;
+import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 import java.lang.reflect.Field;
@@ -69,7 +69,7 @@ public class HippyModalHostView extends HippyViewGroup implements
 
   @Override
   public void onInstanceDestroy() {
-    INativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
+    NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
     if (nativeRenderer != null) {
       nativeRenderer.removeInstanceLifecycleEventListener(this);
     }
@@ -105,7 +105,7 @@ public class HippyModalHostView extends HippyViewGroup implements
     mAniType = STYLE_THEME_FULL_SCREEN_DIALOG;
     if (context instanceof NativeRenderContext) {
       instanceId = ((NativeRenderContext)context).getInstanceId();
-      INativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
+      NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
       if (nativeRenderer != null) {
         nativeRenderer.addInstanceLifecycleEventListener(this);
       }
@@ -465,7 +465,7 @@ public class HippyModalHostView extends HippyViewGroup implements
                   getChildAt(0).getTop() + h);
         }
 
-        INativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
+        NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
         if (nativeRenderer != null) {
           final int id = getChildAt(0).getId();
           nativeRenderer.updateModalHostNodeSize(id, w, h);

@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tencent.hippy.support;
+package com.tencent.mtt.hippy.adapter.font;
 
+import com.tencent.hippy.support.FontAdapter;
 
-public abstract class HippyBaseController {
+public interface HippyFontScaleAdapter extends FontAdapter {
 
 }

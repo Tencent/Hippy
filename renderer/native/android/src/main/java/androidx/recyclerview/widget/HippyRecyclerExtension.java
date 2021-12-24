@@ -23,17 +23,17 @@ import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewHolder;
 import com.tencent.mtt.hippy.views.hippylist.NodePositionHelper;
-import com.tencent.renderer.INativeRender;
+import com.tencent.renderer.NativeRender;
 import java.util.ArrayList;
 
 public class HippyRecyclerExtension extends RecyclerView.ViewCacheExtension {
 
-  private final INativeRender hpContext;
+  private final NativeRender hpContext;
   private final NodePositionHelper nodePositionHelper;
   private HippyRecyclerViewBase recyclerView;
   private int currentPosition;
 
-  public HippyRecyclerExtension(HippyRecyclerViewBase recyclerView, INativeRender hpContext,
+  public HippyRecyclerExtension(HippyRecyclerViewBase recyclerView, NativeRender hpContext,
       NodePositionHelper nodePositionHelper) {
     this.nodePositionHelper = nodePositionHelper;
     this.recyclerView = recyclerView;

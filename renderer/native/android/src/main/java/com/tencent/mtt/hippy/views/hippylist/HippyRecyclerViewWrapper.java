@@ -29,7 +29,7 @@ import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.IHeaderHost;
-import com.tencent.renderer.INativeRender;
+import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
@@ -37,7 +37,7 @@ public class HippyRecyclerViewWrapper<HRCV extends HippyRecyclerView> extends Fr
     HippyViewBase,
     IHeaderHost {
 
-  protected INativeRender hpContext = null;
+  protected NativeRender hpContext = null;
   protected HRCV recyclerView;
   private NativeGestureDispatcher nativeGestureDispatcher;
 

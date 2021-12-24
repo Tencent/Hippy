@@ -13,27 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.tencent.renderer;
 
-import androidx.annotation.NonNull;
+public interface UITaskExecutor {
 
-import com.tencent.renderer.NativeRenderProvider.MeasureParams;
-import java.util.ArrayList;
-
-public interface INativeRenderDelegate extends INativeRenderExceptionHandler {
-
-    void createNode(@NonNull ArrayList list) throws Exception;
-
-    void updateNode(@NonNull ArrayList list) throws Exception;
-
-    void deleteNode(@NonNull ArrayList list);
-
-    void updateLayout(@NonNull ArrayList list) throws Exception;
-
-    long measure(MeasureParams params);
-
-    void startBatch();
-
-    void endBatch();
+    void exec();
 }

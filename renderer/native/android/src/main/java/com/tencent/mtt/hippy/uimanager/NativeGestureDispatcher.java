@@ -24,7 +24,7 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
-import com.tencent.renderer.INativeRender;
+import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
@@ -54,7 +54,7 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
           public void run() {
             int tagId = view.getId();
             int instanceId = ((NativeRenderContext) context).getInstanceId();
-            INativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
+            NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
             handleClick(view, nativeRenderer, tagId, false);
           }
         }, TAP_TIMEOUT);
@@ -76,7 +76,7 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
           public void run() {
             int tagId = view.getId();
             int instanceId = ((NativeRenderContext)context).getInstanceId();
-            INativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
+            NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
             handleLongClick(nativeRenderer, tagId);
           }
         }, TAP_TIMEOUT);
@@ -97,7 +97,7 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
       if (context instanceof NativeRenderContext) {
         int tagId = view.getId();
         int instanceId = ((NativeRenderContext)context).getInstanceId();
-        INativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
+        NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
         handleAttachedToWindow(nativeRenderer, tagId);
       }
     }
@@ -125,7 +125,7 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
       if (context instanceof NativeRenderContext) {
         int tagId = view.getId();
         int instanceId = ((NativeRenderContext)context).getInstanceId();
-        INativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
+        NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
         handleDetachedFromWindow(nativeRenderer, tagId);
       }
     }
@@ -134,7 +134,7 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
   private final View mTargetView;
   private HashSet<String> mGestureTypes = null;
   private NativeGestureProcessor mGestureProcessor;
-  private INativeRender nativeRenderer;
+  private NativeRender nativeRenderer;
 
   public NativeGestureDispatcher(View view) {
     mTargetView = view;
@@ -160,7 +160,7 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
     return mOnDetachedFromWindowListener;
   }
 
-  public static void handleClick(View target, INativeRender nativeRenderer, int tagId,
+  public static void handleClick(View target, NativeRender nativeRenderer, int tagId,
       boolean isCustomEvent) {
     if (nativeRenderer != null) {
       HippyMap params = new HippyMap();
@@ -170,7 +170,7 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
     }
   }
 
-  public static void handleLongClick(INativeRender nativeRenderer, int tagId) {
+  public static void handleLongClick(NativeRender nativeRenderer, int tagId) {
     if (nativeRenderer != null) {
       HippyMap params = new HippyMap();
       params.pushString(KEY_EVENT_NAME, NodeProps.ON_LONG_CLICK);
@@ -179,19 +179,19 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
     }
   }
 
-  public static void handleAttachedToWindow(INativeRender nativeRenderer, int tagId) {
+  public static void handleAttachedToWindow(NativeRender nativeRenderer, int tagId) {
     if (nativeRenderer != null) {
       nativeRenderer.dispatchUIComponentEvent(tagId, NodeProps.ON_ATTACHED_TO_WINDOW, null);
     }
   }
 
-  public static void handleDetachedFromWindow(INativeRender nativeRenderer, int tagId) {
+  public static void handleDetachedFromWindow(NativeRender nativeRenderer, int tagId) {
     if (nativeRenderer != null) {
       nativeRenderer.dispatchUIComponentEvent(tagId, NodeProps.ON_DETACHED_FROM_WINDOW, null);
     }
   }
 
-  public static void handlePressIn(INativeRender nativeRenderer, int tagId) {
+  public static void handlePressIn(NativeRender nativeRenderer, int tagId) {
     if (nativeRenderer != null) {
       HippyMap params = new HippyMap();
       params.pushString(KEY_EVENT_NAME, NodeProps.ON_PRESS_IN);
@@ -200,7 +200,7 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
     }
   }
 
-  public static void handlePressOut(INativeRender nativeRenderer, int tagId) {
+  public static void handlePressOut(NativeRender nativeRenderer, int tagId) {
     if (nativeRenderer != null) {
       HippyMap params = new HippyMap();
       params.pushString(KEY_EVENT_NAME, NodeProps.ON_PRESS_OUT);
@@ -209,7 +209,7 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
     }
   }
 
-  public static void handleTouchDown(INativeRender nativeRenderer, int mTagId, float x, float y,
+  public static void handleTouchDown(NativeRender nativeRenderer, int mTagId, float x, float y,
       int viewId) {
     if (nativeRenderer != null) {
       int[] viewCoords = new int[2];
@@ -223,7 +223,7 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
     }
   }
 
-  public static void handleTouchMove(INativeRender nativeRenderer, int mTagId, float x, float y,
+  public static void handleTouchMove(NativeRender nativeRenderer, int mTagId, float x, float y,
       int viewId) {
     if (nativeRenderer != null) {
       int[] viewCoords = new int[2];
@@ -237,7 +237,7 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
     }
   }
 
-  public static void handleTouchEnd(INativeRender nativeRenderer, int mTagId, float x, float y,
+  public static void handleTouchEnd(NativeRender nativeRenderer, int mTagId, float x, float y,
       int viewId) {
     if (nativeRenderer != null) {
       int[] viewCoords = new int[2];
@@ -251,7 +251,7 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
     }
   }
 
-  public static void handleTouchCancel(INativeRender nativeRenderer, int mTagId, float x, float y,
+  public static void handleTouchCancel(NativeRender nativeRenderer, int mTagId, float x, float y,
       int viewId) {
     if (nativeRenderer != null) {
       int[] viewCoords = new int[2];
@@ -265,7 +265,7 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
     }
   }
 
-  private static void getLocationInWindow(INativeRender nativeRenderer, int id, int[] viewCoords) {
+  private static void getLocationInWindow(NativeRender nativeRenderer, int id, int[] viewCoords) {
     if (id >= 0) {
       View view = nativeRenderer.getRenderManager().getControllerManager().findView(id);
       if (view != null) {
