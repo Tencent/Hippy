@@ -39,6 +39,8 @@ typedef NS_ENUM(NSUInteger, HippyUpdateLifecycle) {
 
 HIPPY_EXTERN CGRect getShadowViewRectFromDomNode(HippyShadowView *shadowView);
 
+HIPPY_EXTERN hippy::TaitankLayoutNode *layoutNodeFromShadowView(HippyShadowView *shadowView);
+
 typedef void (^HippyApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegistry);
 
 typedef void (^HippyApplierVirtualBlock)(NSDictionary<NSNumber *, HippyVirtualNode *> *virtualNodeRegistry);
@@ -180,6 +182,7 @@ typedef void (^HippyApplierVirtualBlock)(NSDictionary<NSNumber *, HippyVirtualNo
 - (void)setDomNode:(std::weak_ptr<hippy::DomNode>)domNode;
 - (const std::weak_ptr<hippy::DomNode> &)domNode;
 
+- (void)setLayoutFrame:(CGRect)frame;
 /**
  * Calculate property changes that need to be propagated to the view.
  * The applierBlocks set contains HippyApplierBlock functions that must be applied

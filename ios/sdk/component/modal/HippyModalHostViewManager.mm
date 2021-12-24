@@ -38,7 +38,7 @@
     [super insertHippySubview:subview atIndex:atIndex];
     if ([subview isKindOfClass:[HippyShadowView class]]) {
         CGRect frame = { .origin = CGPointZero, .size = HippyScreenSize() };
-        [(HippyShadowView *)subview setFrame:frame];
+        [(HippyShadowView *)subview setLayoutFrame:frame];
     }
 }
 
