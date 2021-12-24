@@ -397,6 +397,15 @@ HIPPY_EXPORT_MODULE()
         if (!self->_window) {
             self->_window = [[HippyRedBoxWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
             self->_window.actionDelegate = self;
+            // fix window is not visible in info.plist configured windowscene configuration.
+            if (@available(iOS 13.0, *)) {
+                for (UIWindowScene *windowScene in [UIApplication sharedApplication].connectedScenes) {
+                    if (windowScene.activationState == UISceneActivationStateForegroundActive) {
+                        self->_window.windowScene = windowScene;
+                        break;
+                    }
+                }
+            }
         }
         HippyErrorInfo *errorInfo = [[HippyErrorInfo alloc] initWithErrorMessage:message stack:stack];
         errorInfo = [self _customizeError:errorInfo];
