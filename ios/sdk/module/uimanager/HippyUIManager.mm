@@ -1841,8 +1841,8 @@ static UIView *_jsResponder;
             std::shared_ptr<DomNode> node = weak_node.lock();
             if (node) {
                 tdf::base::DomValue::DomValueObjectType domValue;
-                domValue["x"] = tdf::base::DomValue(point.x);
-                domValue["y"] = tdf::base::DomValue(point.y);
+                domValue["page_x"] = tdf::base::DomValue(point.x);
+                domValue["page_y"] = tdf::base::DomValue(point.y);
                 std::shared_ptr<tdf::base::DomValue> value = std::make_shared<tdf::base::DomValue>(domValue);
                 if (node) {
                    node->HandleEvent(std::make_shared<DomEvent>(type, weak_node, value));
