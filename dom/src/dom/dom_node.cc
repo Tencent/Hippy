@@ -112,6 +112,7 @@ void DomNode::SetLayoutSize(float width, float height) {
   layout_node_->SetHeight(height);
 }
 
+// listener_id >= 1 为有效值
 uint32_t DomNode::AddEventListener(const std::string &name, bool use_capture,
                                    const EventCallback &cb) {
   // taskRunner内置执行确保current_callback_id_无多线程问题
@@ -221,7 +222,7 @@ void DomNode::TransferLayoutOutputsRecursive() {
   layout_.paddingRight = node->GetPadding(TaitankCssDirection::CSSRight);
   layout_.paddingBottom = node->GetPadding(TaitankCssDirection::CSSBottom);
 
-//  
+//
 //  DomManager::HandleEvent(std::make_shared<DomEvent>(kLayoutEvent, shared_from_this(),
 //                                                     true, true,
 //                                                     std::make_any<LayoutResult>(layout_)));

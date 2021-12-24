@@ -37,48 +37,56 @@ function HandleEventListener(node) {
   }
   for (const originalKey of Object.keys(node.props)) {
     const value = node.props[originalKey];
-    if (/^__bind__.+/g.test(originalKey) && value === true) {
+    if (/^__bind__.+/g.test(originalKey)) {
       const key = originalKey.replace(/^__bind__+/g, '');
       const { id } = node;
       const standardEventName = gestureKeyMap[key];
-      if (standardEventName) {
-        global.ConsoleModule.debug(`HandleEventListener gestureKeyMap id = ${id}, key = ${key}`);
-        const {
-          EventDispatcher: {
-            receiveNativeGesture = null,
-          },
-        } = __GLOBAL__.jsModuleList;
+      if (value === false) {
+        global.ConsoleModule.debug(`RemoveEventListener gestureKeyMap id = ${id}, key = ${key}`);
         node[kEventsListsKey].push({
           name: standardEventName,
-          cb(param) {
-            global.ConsoleModule.debug(`param = ${param}`);
-            global.ConsoleModule.debug(`id = ${id}`);
-            if (receiveNativeGesture) {
-              const event = {
-                id, name: key,
-              };
-              Object.assign(event, param);
-              receiveNativeGesture(event);
-            }
-          },
+          cb: null,
         });
-      } else {
-        const normalEventName = key.replace(/^(on)?/g, '').toLocaleLowerCase();
-        global.ConsoleModule.debug(`HandleEventListener other id = ${id}, key = ${key}, name = ${normalEventName}`);
-        const {
-          EventDispatcher: {
-            receiveUIComponentEvent = null,
-          },
-        } = __GLOBAL__.jsModuleList;
-        node[kEventsListsKey].push({
-          name: normalEventName,
-          cb(param) {
-            if (receiveUIComponentEvent) {
-              const event = [id, key, param];
-              receiveUIComponentEvent(event);
-            }
-          },
-        });
+      } else if (value === true) {
+        if (standardEventName) {
+          global.ConsoleModule.debug(`AddEventListener gestureKeyMap id = ${id}, key = ${key}`);
+          const {
+            EventDispatcher: {
+              receiveNativeGesture = null,
+            },
+          } = __GLOBAL__.jsModuleList;
+          node[kEventsListsKey].push({
+            name: standardEventName,
+            cb(param) {
+              global.ConsoleModule.debug(`param = ${param}`);
+              global.ConsoleModule.debug(`id = ${id}`);
+              if (receiveNativeGesture) {
+                const event = {
+                  id, name: key,
+                };
+                Object.assign(event, param);
+                receiveNativeGesture(event);
+              }
+            },
+          });
+        } else {
+          const normalEventName = key.replace(/^(on)?/g, '').toLocaleLowerCase();
+          global.ConsoleModule.debug(`AddEventListener other id = ${id}, key = ${key}, name = ${normalEventName}`);
+          const {
+            EventDispatcher: {
+              receiveUIComponentEvent = null,
+            },
+          } = __GLOBAL__.jsModuleList;
+          node[kEventsListsKey].push({
+            name: normalEventName,
+            cb(param) {
+              if (receiveUIComponentEvent) {
+                const event = [id, key, param];
+                receiveUIComponentEvent(event);
+              }
+            },
+          });
+        }
       }
     }
   }

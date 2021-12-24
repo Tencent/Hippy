@@ -62,6 +62,7 @@ constexpr char kEventNameKey[] = "name";
 constexpr char kEventCBKey[] = "cb";
 
 const int32_t kInvalidValue = -1;
+const uint32_t kInvalidListenerId = 0;
 
 using DomValue = tdf::base::DomValue;
 using DomArgument = hippy::dom::DomArgument;
@@ -230,7 +231,8 @@ GetNodeProps(const std::shared_ptr<Ctx> &context, const std::shared_ptr<CtxValue
 
 void HandleEventListeners(const std::shared_ptr<Ctx> &context,
                           const std::shared_ptr<CtxValue> &node,
-                          const std::shared_ptr<DomNode> &dom_node) {
+                          const std::shared_ptr<DomNode> &dom_node,
+                          const std::shared_ptr<Scope> &scope) {
   auto events = context->GetProperty(node, kEventsListsKey);
   if (events && context->IsArray(events)) {
     auto len = context->GetArrayLength(events);
@@ -242,26 +244,39 @@ void HandleEventListeners(const std::shared_ptr<Ctx> &context,
       auto flag = context->GetValueString(name_prop, &name);
       TDF_BASE_DCHECK(flag) << "get event name failed";
       TDF_BASE_DCHECK(context->IsFunction(cb)) << "get event cb failed";
-      if (flag && context->IsFunction(cb)) {
+      if (flag) { // 线上有问题的时候可以兼容，debug包会命中上面DCHECK
         std::string name_str = StringViewUtils::ToU8StdStr(name);
         std::weak_ptr<Ctx> weak_context = context;
-        // dom_node 持有 cb
-        dom_node->AddEventListener(name_str,
-                                   true,
-                                   [weak_context, cb](const std::shared_ptr<DomEvent> &event) {
-                                     auto context = weak_context.lock();
-                                     if (!context) {
-                                       return;
-                                     }
-                                     auto param = context->CreateCtxValue(event->GetValue());
-                                     if (param) {
-                                       const std::shared_ptr<CtxValue> argus[] = {param};
-                                       context->CallFunction(cb, 1, argus);
-                                     } else {
-                                       const std::shared_ptr<CtxValue> argus[] = {};
-                                       context->CallFunction(cb, 0, argus);
-                                     }
-                                   });
+
+        auto dom_id = dom_node->GetId();
+        if (context->IsNullOrUndefined(cb) || context->IsFunction(cb)) {
+          // cb null 代表移除
+          auto listener_id = scope->GetEventListenerId(dom_id, name_str);
+          if (listener_id != kInvalidListenerId) {
+            // 目前hippy上层还不支持绑定多个回调，有更新时先移除老的监听，再绑定新的
+            scope->GetDomManager()->RemoveEventListener(dom_id, name_str, listener_id);
+          }
+        }
+        if (context->IsFunction(cb)) {
+          // dom_node 持有 cb
+          auto listener_id = dom_node->AddEventListener(name_str,
+                                     true,
+                                     [weak_context, cb](const std::shared_ptr<DomEvent> &event) {
+                                       auto context = weak_context.lock();
+                                       if (!context) {
+                                         return;
+                                       }
+                                       auto param = context->CreateCtxValue(event->GetValue());
+                                       if (param) {
+                                         const std::shared_ptr<CtxValue> argus[] = {param};
+                                         context->CallFunction(cb, 1, argus);
+                                       } else {
+                                         const std::shared_ptr<CtxValue> argus[] = {};
+                                         context->CallFunction(cb, 0, argus);
+                                       }
+                                     });
+          scope->AddEventListener(dom_id, name_str, listener_id);
+        }
       }
     }
 
@@ -312,7 +327,7 @@ CreateNode(const std::shared_ptr<Ctx> &context,
                                        std::move(std::get<2>(props_tuple)),
                                        std::move(std::get<3>(props_tuple)),
                                        scope->GetDomManager());
-  HandleEventListeners(context, node, dom_node);
+  HandleEventListeners(context, node, dom_node, scope);
 
   return std::make_tuple(true, "", dom_node);
 }
@@ -394,6 +409,7 @@ void UIManagerModule::DeleteNodes(const hippy::napi::CallbackInfo &info) {
                                                   std::get<2>(pid_tuple),
                                                   std::get<2>(index_tuple)));
   }
+  // 节点都删除了，其上的eventListener自然也销毁了，此处不用显式RemoveEventListener
   scope->GetDomManager()->DeleteDomNodes(std::move(dom_nodes));
 }
 
@@ -438,7 +454,7 @@ void UIManagerModule::CallUIFunction(const hippy::napi::CallbackInfo &info) {
     auto func = info[3];
     std::weak_ptr<Ctx> weak_context = context;
     std::weak_ptr<CtxValue> weak_func = func;
-    cb = [weak_context, func](const std::shared_ptr<DomArgument>& argument) -> void {
+    cb = [weak_context, func](const std::shared_ptr<DomArgument> &argument) -> void {
       auto context = weak_context.lock();
       if (!context) {
         return;

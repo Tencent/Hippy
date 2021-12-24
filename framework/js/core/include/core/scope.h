@@ -88,6 +88,9 @@ class Scope {
     return binding_data_;
   }
 
+  void AddEventListener(uint32_t node_id, const std::string& event_name, uint32_t listener_id);
+  uint32_t GetEventListenerId(uint32_t node_id, const std::string& event_name);
+
   void RunJS(const unicode_string_view& js,
              const unicode_string_view& name,
              bool is_copy = true);
@@ -146,6 +149,7 @@ class Scope {
       module_value_map_;
   std::unordered_map<unicode_string_view, std::unique_ptr<ModuleBase>>
       module_class_map_;
+  std::unordered_map<uint32_t, std::unordered_map<std::string, uint32_t>> listener_id_map_;
   std::vector<std::unique_ptr<FunctionData>> function_data_;
   std::unique_ptr<BindingData> binding_data_;
   std::unique_ptr<ScopeWrapper> wrapper_;
