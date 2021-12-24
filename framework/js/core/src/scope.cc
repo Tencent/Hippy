@@ -43,8 +43,9 @@ using ModuleClassMap = hippy::napi::ModuleClassMap;
 using CtxValue = hippy::napi::CtxValue;
 using TryCatch = hippy::napi::TryCatch;
 
-const char kdeallocFuncName[] = "HippyDealloc";
-const char kHippyBootstrapJSName[] = "bootstrap.js";
+constexpr char kDeallocFuncName[] = "HippyDealloc";
+constexpr char kHippyBootstrapJSName[] = "bootstrap.js";
+const uint32_t kInvalidListenerId = 0;
 
 Scope::Scope(Engine* engine,
              std::string name,
@@ -67,7 +68,7 @@ void Scope::WillExit() {
         std::shared_ptr<CtxValue> rst = nullptr;
         std::shared_ptr<Ctx> context = weak_context.lock();
         if (context) {
-          std::shared_ptr<CtxValue> fn = context->GetJsFn(kdeallocFuncName);
+          std::shared_ptr<CtxValue> fn = context->GetJsFn(kDeallocFuncName);
           bool is_fn = context->IsFunction(fn);
           if (is_fn) {
             context->CallFunction(fn, 0, nullptr);
@@ -172,6 +173,30 @@ void Scope::AddModuleValue(const unicode_string_view& name,
 
 void Scope::SaveFunctionData(std::unique_ptr<hippy::napi::FunctionData> data) {
   function_data_.push_back(std::move(data));
+}
+
+void Scope::AddEventListener(uint32_t node_id, const std::string& event_name, uint32_t listener_id) {
+  auto id_it = listener_id_map_.find(node_id);
+  if (id_it != listener_id_map_.end()) {
+    auto name_it = id_it->second.find(event_name);
+    TDF_BASE_DCHECK(name_it != id_it->second.end()); // 目前hippy上层还不支持绑定多个回调
+    id_it->second[event_name] = listener_id;
+  } else {
+    listener_id_map_[node_id] = std::unordered_map<std::string, uint32_t>();
+    listener_id_map_[node_id][event_name] = listener_id;
+  }
+}
+
+uint32_t Scope::GetEventListenerId(uint32_t node_id, const std::string& event_name) {
+  auto id_it = listener_id_map_.find(node_id);
+  if (id_it == listener_id_map_.end()) {
+    return kInvalidListenerId;
+  }
+  auto name_it = id_it->second.find(event_name);
+  if (name_it == id_it->second.end()) {
+    return kInvalidListenerId;
+  }
+  return name_it->second;
 }
 
 void Scope::RunJS(const unicode_string_view& data,
