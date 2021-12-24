@@ -22,6 +22,7 @@ _ORIGIN_PATH: str = os.path.abspath(os.path.dirname(__file__))
 _SRC_TOP_PATH: str = os.path.join(_ORIGIN_PATH, '../core')
 _CMAKE_PATH: str = os.path.join(_SRC_TOP_PATH)
 _OUTPUT_DIR: str = os.path.join(_ORIGIN_PATH, '../build')
+_IOS_FRAMEWORK_DIR: str = os.path.join(_ORIGIN_PATH, '../ios')
 
 def main():
     parser = ArgumentParser(description='Build the crossing lib for android|ios|macosx')
@@ -134,6 +135,12 @@ def build_ios(args):
     check_result(os.system(f'xcodebuild -create-xcframework '
                            f'{frameworks} '
                            f'-output {lib_output_dir_base}/{_LIB_NAME}.xcframework '))
+
+    dstdir = os.path.join(_IOS_FRAMEWORK_DIR, '{}.xcframework'.format(_LIB_NAME))
+    if os.path.exists(dstdir) is True:
+      shutil.rmtree(dstdir)
+    shutil.copytree(os.path.join(lib_output_dir_base, '{}.xcframework'.format(_LIB_NAME)), dstdir, symlinks=True)
+
 
 def build_macosx(args):
     lib_output_dir_base = os.path.join(_OUTPUT_DIR, _BUILD_OS)

@@ -15,8 +15,47 @@
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
+		AD0D661D2775C09300FAD911 /* voltron_core.framework/voltron_core in Frameworks */ = {isa = PBXBuildFile; fileRef = AD0D66152775C02600FAD911 /* voltron_core.framework/voltron_core */; };
 		D955189E0BADBB96E715948E /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CEFAA276EF2826900EB7A248 /* Pods_Runner.framework */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		AD0D660C2775C02600FAD911 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AD0D66022775C02600FAD911 /* VoltronCore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 6AFD013202CE42D6B54D08DA;
+			remoteInfo = dom;
+		};
+		AD0D660E2775C02600FAD911 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AD0D66022775C02600FAD911 /* VoltronCore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 1FCBF6A395304B179DA67274;
+			remoteInfo = layout;
+		};
+		AD0D66102775C02600FAD911 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AD0D66022775C02600FAD911 /* VoltronCore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CA09D4B49B3540DAB1149B82;
+			remoteInfo = tdf_base;
+		};
+		AD0D66122775C02600FAD911 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AD0D66022775C02600FAD911 /* VoltronCore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 1F79626172F84FDBBFBD8D39;
+			remoteInfo = tdf_base_common;
+		};
+		AD0D66142775C02600FAD911 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AD0D66022775C02600FAD911 /* VoltronCore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8E97DF297E9D42068F902CFA;
+			remoteInfo = voltron_core;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		3EE0CBB6262D8386005CEE65 /* Embed Frameworks */ = {
@@ -49,6 +88,7 @@
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A4C247B741516BC4289E341B /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
+		AD0D66022775C02600FAD911 /* VoltronCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = VoltronCore.xcodeproj; path = ../../build/CMakeOutput/ios/arm64/VoltronCore.xcodeproj; sourceTree = "<group>"; };
 		BC870F302775720B007080AE /* libtdf_base_common.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libtdf_base_common.a; path = ../../build/ios/arm64/libtdf_base_common.a; sourceTree = "<group>"; };
 		BC870F322775720B007080AE /* voltron_core.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = voltron_core.framework; path = ../../build/ios/arm64/voltron_core.framework; sourceTree = "<group>"; };
 		BC870F332775720B007080AE /* libdom.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libdom.a; path = ../../build/ios/arm64/libdom.a; sourceTree = "<group>"; };
@@ -65,6 +105,7 @@
 			files = (
 				D955189E0BADBB96E715948E /* Pods_Runner.framework in Frameworks */,
 				3EE496F625B9253E004154DA /* libc++.1.tbd in Frameworks */,
+				AD0D661D2775C09300FAD911 /* voltron_core.framework/voltron_core in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -109,6 +150,7 @@
 		97C146E51CF9000F007C117D = {
 			isa = PBXGroup;
 			children = (
+				AD0D66022775C02600FAD911 /* VoltronCore.xcodeproj */,
 				3EFE7CE625ADCB9D00BAC367 /* jsbundle */,
 				9740EEB11CF90186004384FC /* Flutter */,
 				97C146F01CF9000F007C117D /* Runner */,
@@ -147,6 +189,18 @@
 			children = (
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		AD0D66032775C02600FAD911 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AD0D660D2775C02600FAD911 /* libdom.a */,
+				AD0D660F2775C02600FAD911 /* liblayout.a */,
+				AD0D66112775C02600FAD911 /* libtdf_base.a */,
+				AD0D66132775C02600FAD911 /* libtdf_base_common.a */,
+				AD0D66152775C02600FAD911 /* voltron_core.framework/voltron_core */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -200,12 +254,57 @@
 			mainGroup = 97C146E51CF9000F007C117D;
 			productRefGroup = 97C146EF1CF9000F007C117D /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = AD0D66032775C02600FAD911 /* Products */;
+					ProjectRef = AD0D66022775C02600FAD911 /* VoltronCore.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				97C146ED1CF9000F007C117D /* Runner */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		AD0D660D2775C02600FAD911 /* libdom.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libdom.a;
+			remoteRef = AD0D660C2775C02600FAD911 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		AD0D660F2775C02600FAD911 /* liblayout.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = liblayout.a;
+			remoteRef = AD0D660E2775C02600FAD911 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		AD0D66112775C02600FAD911 /* libtdf_base.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libtdf_base.a;
+			remoteRef = AD0D66102775C02600FAD911 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		AD0D66132775C02600FAD911 /* libtdf_base_common.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libtdf_base_common.a;
+			remoteRef = AD0D66122775C02600FAD911 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		AD0D66152775C02600FAD911 /* voltron_core.framework/voltron_core */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			name = voltron_core.framework/voltron_core;
+			path = voltron_core.framework;
+			remoteRef = AD0D66142775C02600FAD911 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		97C146EC1CF9000F007C117D /* Resources */ = {
