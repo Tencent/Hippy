@@ -64,13 +64,14 @@ using RenderInfo = hippy::DomNode::RenderInfo;
 using CallFunctionCallback = hippy::CallFunctionCallback;
 using DomEvent = hippy::DomEvent;
 
+using HPViewBinding = std::unordered_map<int32_t, std::tuple<std::vector<int32_t>, std::vector<int32_t>>>;
 @interface HippyViewsRelation : NSObject {
-    NSMutableDictionary<NSNumber *, NSPointerArray *> *_viewsRelation;
+    HPViewBinding _viewRelation;
 }
 
-- (void)addViewTag:(NSNumber *)viewTag forSuperViewTag:(NSNumber *)superviewTag atIndex:(NSUInteger)index;
+- (void)addViewTag:(int32_t)viewTag forSuperViewTag:(int32_t)superviewTag atIndex:(int32_t)index;
 
-- (void)enumerateViewsRelation:(void (^)(NSNumber *superviewTag, NSArray<NSNumber *> *subviewTags))block;
+- (void)enumerateViewsRelation:(void (^)(NSNumber *, NSArray<NSNumber *> *, NSArray<NSNumber *> *))block;
 
 - (void)removeAllObjects;
 
@@ -78,55 +79,36 @@ using DomEvent = hippy::DomEvent;
 
 @implementation HippyViewsRelation
 
-- (instancetype)init {
-    self = [super init];
-    if (self) {
-        _viewsRelation = [NSMutableDictionary dictionaryWithCapacity:128];
-    }
-    return self;
-}
-
-- (void)addViewTag:(NSNumber *)viewTag forSuperViewTag:(NSNumber *)superviewTag atIndex:(NSUInteger)index {
+- (void)addViewTag:(int32_t)viewTag forSuperViewTag:(int32_t)superviewTag atIndex:(int32_t)index {
     if (superviewTag) {
-        NSPointerArray *viewsPoints = _viewsRelation[superviewTag];
-        if (!viewsPoints) {
-            viewsPoints = [NSPointerArray pointerArrayWithOptions:NSPointerFunctionsStrongMemory];
-            _viewsRelation[superviewTag] = viewsPoints;
-        }
-        NSUInteger count =  [viewsPoints count];
-        if (index > count) {
-            for (NSInteger i = 0; i < index - count; i++) {
-                [viewsPoints addPointer:NULL];
-            }
-            [viewsPoints addPointer:(__bridge void *)viewTag];
-        }
-        else if (index < count) {
-            void *p = [viewsPoints pointerAtIndex:index];
-            if (NULL == p) {
-                [viewsPoints replacePointerAtIndex:index withPointer:(__bridge void *)viewTag];
-            }
-            else {
-                HippyAssert(NO, @"index %zd already exists", index);
-            }
-        }
-        else {
-            [viewsPoints addPointer:(__bridge void *)viewTag];
-        }
+        auto &viewTuple = _viewRelation[superviewTag];
+        auto &subviewTagTuple = std::get<0>(viewTuple);
+        auto &subviewIndexTuple = std::get<1>(viewTuple);
+        subviewTagTuple.push_back(viewTag);
+        subviewIndexTuple.push_back(index);
     }
 }
 
-- (void)enumerateViewsRelation:(void (^)(NSNumber *, NSArray<NSNumber *> *))block {
-    NSArray<NSNumber *> *superviewTags = [[_viewsRelation allKeys] copy];
-    for (NSNumber *superviewTag in superviewTags) {
-        NSPointerArray *arrays = [_viewsRelation[superviewTag] copy];
-        [arrays compact];
-        NSArray<NSNumber *> *subviewsTags = [arrays allObjects];
-        block(superviewTag, subviewsTags);
+- (void)enumerateViewsRelation:(void (^)(NSNumber *, NSArray<NSNumber *> *, NSArray<NSNumber *> *))block {
+    for (const auto &element : _viewRelation) {
+        NSNumber *superviewTag = @(element.first);
+        const auto &subviewTuple = element.second;
+        const auto &subviewTags = std::get<0>(subviewTuple);
+        NSMutableArray<NSNumber *> *subviewTagsArray = [NSMutableArray arrayWithCapacity:subviewTags.size()];
+        for (const auto &subviewTag : subviewTags) {
+            [subviewTagsArray addObject:@(subviewTag)];
+        }
+        const auto &subviewIndex = std::get<1>(subviewTuple);
+        NSMutableArray<NSNumber *> *subviewIndexArray = [NSMutableArray arrayWithCapacity:subviewIndex.size()];
+        for (const auto &subviewIndex : subviewIndex) {
+            [subviewIndexArray addObject:@(subviewIndex)];
+        }
+        block(superviewTag, [subviewTagsArray copy], [subviewIndexArray copy]);
     }
 }
 
 - (void)removeAllObjects {
-    [_viewsRelation removeAllObjects];
+    _viewRelation.clear();
 }
 
 @end
@@ -1631,11 +1613,11 @@ static UIView *_jsResponder;
         NSMutableDictionary *props = [NSMutableDictionary dictionaryWithDictionary:styleProps];
         [props addEntriesFromDictionary:extProps];
         NSNumber *rootTag = [_rootViewTags anyObject];
-        [manager addViewTag:@(node->GetId()) forSuperViewTag:@(node->GetPid()) atIndex:node->GetIndex()];
+        [manager addViewTag:node->GetId() forSuperViewTag:node->GetPid() atIndex:node->GetIndex()];
         [self createView:hippyTag viewName:viewName rootTag:rootTag tagName:tagName props:props domNode:node];
     }
-    [manager enumerateViewsRelation:^(NSNumber *superviewTag, NSArray<NSNumber *> *subviewTags) {
-        [self setChildren:superviewTag hippyTags:subviewTags];
+    [manager enumerateViewsRelation:^(NSNumber *superviewTags, NSArray<NSNumber *> *subviewTags, NSArray<NSNumber *> *subviewIndices) {
+        [self manageChildren:superviewTags moveFromIndices:nil moveToIndices:nil addChildHippyTags:subviewTags addAtIndices:subviewIndices removeAtIndices:nil];
     }];
 }
 
@@ -1668,6 +1650,8 @@ static UIView *_jsResponder;
 
 - (void)renderMoveViews:(const std::vector<int32_t> &)ids fromContainer:(int32_t)fromContainer toContainer:(int32_t)toContainer {
     //这个方法疑点很多，比如移动之后被移动的node属性是否变化，否则位置可能会与原住民重叠。或者移动之后索引值如何变化。
+    //TODO
+    HippyAssert(NO, @"no implementation for this method");
 }
 
 - (void)renderNodesUpdateLayout:(const std::vector<std::shared_ptr<DomNode>> &)nodes {
