@@ -66,6 +66,7 @@ void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>> &&nodes) {
     node->SetStyleMap(std::move(it->get()->GetStyleMap()));
     node->SetExtStyleMap(std::move(it->get()->GetExtStyle()));
     node->SetDiffStyle(std::move(style_diff));
+    node->ParseLayoutStyleInfo();
     update_nodes.push_back(node);
     HandleEvent(std::make_shared<DomEvent>(kOnDomUpdated, node, true, true));
   }
