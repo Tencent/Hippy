@@ -1639,13 +1639,25 @@ static UIView *_jsResponder;
     
 }
 
-- (void)renderDeleteViewFromContainer:(int32_t)hippyTag
-                           forIndices:(const std::vector<int32_t> &)indices {
-    NSMutableArray<NSNumber *> *numbers = [NSMutableArray arrayWithCapacity:indices.size()];
-    for (const int32_t &index : indices) {
-        [numbers addObject:@(index)];
+- (void)renderDeleteNodes:(const std::vector<std::shared_ptr<DomNode>> &)nodes {
+    NSMutableDictionary<NSNumber *, NSMutableArray<NSNumber *> *> *nodesToDelete = [NSMutableDictionary dictionaryWithCapacity:16];
+    for (const auto &node : nodes) {
+        int32_t tag = node->GetId();
+        int32_t parentTag = node->GetPid();
+        HippyShadowView *shadowView = _shadowViewRegistry[@(tag)];
+        HippyShadowView *parentShadowView = _shadowViewRegistry[@(parentTag)];
+        NSArray<HippyShadowView *> *subShadowViews = [parentShadowView hippySubviews];
+        NSUInteger index = [subShadowViews indexOfObject:shadowView];
+        NSMutableArray<NSNumber *> *indecies = nodesToDelete[@(parentTag)];
+        if (nil == indecies) {
+            indecies = [NSMutableArray arrayWithCapacity:16];
+            [nodesToDelete setObject:indecies forKey:@(parentTag)];
+        }
+        [indecies addObject:@(index)];
     }
-    [self manageChildren:@(hippyTag) moveFromIndices:nil moveToIndices:nil addChildHippyTags:nil addAtIndices:nil removeAtIndices:numbers];
+    [nodesToDelete enumerateKeysAndObjectsUsingBlock:^(NSNumber * _Nonnull key, NSMutableArray<NSNumber *> * _Nonnull obj, BOOL * _Nonnull stop) {
+        [self manageChildren:key moveFromIndices:nil moveToIndices:nil addChildHippyTags:nil addAtIndices:nil removeAtIndices:obj];
+    }];
 }
 
 - (void)renderMoveViews:(const std::vector<int32_t> &)ids fromContainer:(int32_t)fromContainer toContainer:(int32_t)toContainer {
