@@ -13,7 +13,7 @@
     "hippy:local-debug": "node ../../packages/hippy-debug-server/index.js",
     "hippy:local-dev": "node ../../packages/hippy-debug-server/hippy-dev.js -c ./scripts/hippy-webpack.dev.js",
     "hippy:debug": "hippy-debug",
-    "hippy:dev": "hippy-dev -c ./scripts/hippy-webpack.dev.js",
+    "hippy:dev": "hippy-dev -c ./scripts/hippy-webpack.dev.js | node ../../packages/hippy-debug-server/hippy-dev.js -c ./scripts/hippy-webpack.dev.js",
     "hippy:vendor": "webpack --config ./scripts/hippy-webpack.ios-vendor.js --config ./scripts/hippy-webpack.android-vendor.js",
     "hippy:build": "webpack --config ./scripts/hippy-webpack.ios.js --config ./scripts/hippy-webpack.android.js"
   },
