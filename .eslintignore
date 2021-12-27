@@ -2,3 +2,5 @@ node_modules*
 dist/
 coverage
 packages/hippy-debug-server/webpack-dev-server/client
+packages/hippy-debug-server/webpack-dev-server/lib
+packages/hippy-vue-loader/lib
