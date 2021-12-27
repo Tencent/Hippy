@@ -57,9 +57,13 @@ constexpr char kNodePropertyStyle[] = "style";
 //constexpr char kShowEvent[] = "show";
 //constexpr char kDismissEvent[] = "dismiss";
 
-constexpr char kEventsListsKey[] = "__events";
+constexpr char kEventListsKey[] = "__events";
 constexpr char kEventNameKey[] = "name";
 constexpr char kEventCBKey[] = "cb";
+
+constexpr char kRenderListsKey[] = "__renders";
+constexpr char kRenderNameKey[] = "name";
+constexpr char kRenderCBKey[] = "cb";
 
 const int32_t kInvalidValue = -1;
 const uint32_t kInvalidListenerId = 0;
@@ -233,7 +237,7 @@ void HandleEventListeners(const std::shared_ptr<Ctx> &context,
                           const std::shared_ptr<CtxValue> &node,
                           const std::shared_ptr<DomNode> &dom_node,
                           const std::shared_ptr<Scope> &scope) {
-  auto events = context->GetProperty(node, kEventsListsKey);
+  auto events = context->GetProperty(node, kEventListsKey);
   if (events && context->IsArray(events)) {
     auto len = context->GetArrayLength(events);
     for (auto i = 0; i < len; ++i) {
@@ -251,7 +255,7 @@ void HandleEventListeners(const std::shared_ptr<Ctx> &context,
         auto dom_id = dom_node->GetId();
         if (context->IsNullOrUndefined(cb) || context->IsFunction(cb)) {
           // cb null 代表移除
-          auto listener_id = scope->GetEventListenerId(dom_id, name_str);
+          auto listener_id = scope->GetListenerId(dom_id, name_str);
           if (listener_id != kInvalidListenerId) {
             // 目前hippy上层还不支持绑定多个回调，有更新时先移除老的监听，再绑定新的
             scope->GetDomManager()->RemoveEventListener(dom_id, name_str, listener_id);
@@ -259,27 +263,85 @@ void HandleEventListeners(const std::shared_ptr<Ctx> &context,
         }
         if (context->IsFunction(cb)) {
           // dom_node 持有 cb
-          auto listener_id = dom_node->AddEventListener(name_str,
-                                     true,
-                                     [weak_context, cb](const std::shared_ptr<DomEvent> &event) {
-                                       auto context = weak_context.lock();
-                                       if (!context) {
-                                         return;
-                                       }
-                                       auto param = context->CreateCtxValue(event->GetValue());
-                                       if (param) {
-                                         const std::shared_ptr<CtxValue> argus[] = {param};
-                                         context->CallFunction(cb, 1, argus);
-                                       } else {
-                                         const std::shared_ptr<CtxValue> argus[] = {};
-                                         context->CallFunction(cb, 0, argus);
-                                       }
-                                     });
-          scope->AddEventListener(dom_id, name_str, listener_id);
+          auto listener_id =
+              dom_node->AddEventListener(name_str, true, [weak_context, cb]
+                  (const std::shared_ptr<DomEvent> &event) {
+                auto context = weak_context.lock();
+                if (!context) {
+                  return;
+                }
+                auto param =
+                    context->CreateCtxValue(event->GetValue());
+                if (param) {
+                  const std::shared_ptr<CtxValue>
+                      argus[] = {param};
+                  context->CallFunction(cb, 1, argus);
+                } else {
+                  const std::shared_ptr<CtxValue>
+                      argus[] = {};
+                  context->CallFunction(cb, 0, argus);
+                }
+              });
+          scope->AddListener(dom_id, name_str, listener_id);
         }
       }
     }
+  }
+}
 
+void HandleRenderListeners(const std::shared_ptr<Ctx> &context,
+                           const std::shared_ptr<CtxValue> &node,
+                           const std::shared_ptr<DomNode> &dom_node,
+                           const std::shared_ptr<Scope> &scope) {
+  auto listeners = context->GetProperty(node, kRenderListsKey);
+  if (listeners && context->IsArray(listeners)) {
+    auto len = context->GetArrayLength(listeners);
+    for (auto i = 0; i < len; ++i) {
+      auto listener = context->CopyArrayElement(listeners, i);
+      auto name_prop = context->GetProperty(listener, kRenderNameKey);
+      auto cb = context->GetProperty(listener, kRenderCBKey);
+      unicode_string_view name;
+      auto flag = context->GetValueString(name_prop, &name);
+      TDF_BASE_DCHECK(flag) << "get name failed";
+      TDF_BASE_DCHECK(context->IsFunction(cb)) << "get render cb failed";
+      if (flag) {
+        std::string name_str = StringViewUtils::ToU8StdStr(name);
+        std::weak_ptr<Ctx> weak_context = context;
+
+        auto dom_id = dom_node->GetId();
+        if (context->IsNullOrUndefined(cb) || context->IsFunction(cb)) {
+          // cb null 代表移除
+          auto listener_id = scope->GetListenerId(dom_id, name_str);
+          if (listener_id != kInvalidListenerId) {
+            // 目前hippy上层还不支持绑定多个回调，有更新时先移除老的监听，再绑定新的
+            scope->GetDomManager()->RemoveRenderListener(dom_id, name_str, listener_id);
+          }
+        }
+        if (context->IsFunction(cb)) {
+          // dom_node 持有 cb
+          auto listener_id =
+              dom_node->AddRenderListener(name_str, [weak_context, cb]
+                  (const std::shared_ptr<DomEvent> &event) {
+                auto context = weak_context.lock();
+                if (!context) {
+                  return;
+                }
+                auto param =
+                    context->CreateCtxValue(event->GetValue());
+                if (param) {
+                  const std::shared_ptr<CtxValue>
+                      argus[] = {param};
+                  context->CallFunction(cb, 1, argus);
+                } else {
+                  const std::shared_ptr<CtxValue>
+                      argus[] = {};
+                  context->CallFunction(cb, 0, argus);
+                }
+              });
+          scope->AddListener(dom_id, name_str, listener_id);
+        }
+      }
+    }
   }
 }
 
@@ -328,7 +390,7 @@ CreateNode(const std::shared_ptr<Ctx> &context,
                                        std::move(std::get<3>(props_tuple)),
                                        scope->GetDomManager());
   HandleEventListeners(context, node, dom_node, scope);
-
+  HandleRenderListeners(context, node, dom_node, scope);
   return std::make_tuple(true, "", dom_node);
 }
 

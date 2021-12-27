@@ -29,6 +29,10 @@ class DomManager {
 
   static void HandleEvent(const std::shared_ptr<DomEvent> &event);
 
+  static void HandleListener(const std::weak_ptr<DomNode>& weak_target,
+                             const std::string& name,
+                             std::shared_ptr<DomEvent> param);
+
   inline std::shared_ptr<RenderManager> GetRenderManager() { return render_manager_.lock(); }
   inline void SetRenderManager(std::shared_ptr<RenderManager> render_manager) {
     render_manager_ = render_manager;
@@ -43,11 +47,16 @@ class DomManager {
   void EndBatch();
   // 返回0代表失败，正常id从1开始
   uint32_t AddEventListener(uint32_t id, const std::string &name, bool use_capture,
-                            const EventCallback &cb);
-  void RemoveEventListener(uint32_t id, const std::string &name, bool use_capture);
+                            const RenderCallback &cb);
+  void RemoveEventListener(uint32_t id, const std::string &name, uint32_t listener_id);
+  // RenderListener 没有捕获冒泡流程，EventListener 拥有捕获冒泡流程
+  uint32_t AddRenderListener(uint32_t id, const std::string &name,
+                             const RenderCallback &cb);
+  void RemoveRenderListener(uint32_t id, const std::string &name, uint32_t listener_id);
   void CallFunction(uint32_t id, const std::string &name,
                     const DomArgument &param, const CallFunctionCallback &cb);
-  void AddListenerOperation(std::shared_ptr<DomNode> node, const std::string& name);
+  void AddEventListenerOperation(const std::shared_ptr<DomNode>& node, const std::string& name);
+  void AddRenderListenerOperation(const std::shared_ptr<DomNode>& node, const std::string& name);
   std::tuple<float, float> GetRootSize();
   void SetRootSize(float width, float height);
   void AddLayoutChangedNode(const std::shared_ptr<DomNode> &node);

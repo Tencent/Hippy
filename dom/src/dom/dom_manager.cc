@@ -37,7 +37,7 @@ void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>> &&nodes) {
     parent_node->AddChildAt(node, node->GetIndex());
 
     dom_node_registry_.AddNode(node);
-    HandleEvent(std::make_shared<DomEvent>(kOnDomCreated, node, true, true));
+    HandleListener(node, kOnDomCreated, nullptr);
   }
 
   if (!nodes.empty()) {
@@ -63,12 +63,12 @@ void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>> &&nodes) {
     DomValueMap style_diff = DiffUtils::DiffProps(node->GetStyleMap(), it->get()->GetStyleMap());
     DomValueMap ext_diff = DiffUtils::DiffProps(node->GetExtStyle(), it->get()->GetExtStyle());
     style_diff.insert(ext_diff.begin(), ext_diff.end());
-    node->SetStyleMap(std::move(it->get()->GetStyleMap()));
-    node->SetExtStyleMap(std::move(it->get()->GetExtStyle()));
+    node->SetStyleMap(it->get()->GetStyleMap());
+    node->SetExtStyleMap(it->get()->GetExtStyle());
     node->SetDiffStyle(std::move(style_diff));
     node->ParseLayoutStyleInfo();
     update_nodes.push_back(node);
-    HandleEvent(std::make_shared<DomEvent>(kOnDomUpdated, node, true, true));
+    HandleListener(node, kOnDomUpdated, nullptr);
   }
 
   if (!update_nodes.empty()) {
@@ -96,7 +96,7 @@ void DomManager::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>> &&nodes) {
     }
     dom_node_registry_.RemoveNode(node->GetId());
     delete_nodes.push_back(node);
-    HandleEvent(std::make_shared<DomEvent>(kOnDomDeleted, node, true, true));
+    HandleListener(node, kOnDomDeleted, nullptr);
   }
 
   if (!delete_nodes.empty()) {
@@ -139,12 +139,30 @@ uint32_t DomManager::AddEventListener(uint32_t id, const std::string &name, bool
   return node->AddEventListener(name, use_capture, cb);
 }
 
-void DomManager::RemoveEventListener(uint32_t id, const std::string &name, bool use_capture) {
+void DomManager::RemoveEventListener(uint32_t id, const std::string &name, uint32_t listener_id) {
   auto node = dom_node_registry_.GetNode(id);
   if (!node) {
     return;
   }
-  return node->RemoveEventListener(name, use_capture);
+  return node->RemoveEventListener(name, listener_id);
+}
+
+uint32_t DomManager::AddRenderListener(uint32_t id,
+                                       const std::string &name,
+                                       const RenderCallback &cb) {
+  auto node = dom_node_registry_.GetNode(id);
+  if (!node) {
+    return kInvalidListenerId;
+  }
+  return node->AddRenderListener(name, cb);
+}
+
+void DomManager::RemoveRenderListener(uint32_t id, const std::string &name, uint32_t listener_id) {
+  auto node = dom_node_registry_.GetNode(id);
+  if (!node) {
+    return;
+  }
+  return node->RemoveRenderListener(name, listener_id);
 }
 
 void DomManager::CallFunction(uint32_t id, const std::string &name,
@@ -157,12 +175,22 @@ void DomManager::CallFunction(uint32_t id, const std::string &name,
   node->CallFunction(name, param, cb);
 }
 
-void DomManager::AddListenerOperation(std::shared_ptr<DomNode> node, const std::string& name) {
+void DomManager::AddEventListenerOperation(const std::shared_ptr<DomNode>& node, const std::string& name) {
   add_listener_operations_.emplace_back([this, node, name]() {
     auto render_manager = render_manager_.lock();
     TDF_BASE_DCHECK(render_manager);
     if (render_manager) {
       render_manager->AddEventListener(node, name);
+    }
+  });
+}
+
+void DomManager::AddRenderListenerOperation(const std::shared_ptr<DomNode>& node, const std::string& name) {
+  add_listener_operations_.emplace_back([this, node, name]() {
+    auto render_manager = render_manager_.lock();
+    TDF_BASE_DCHECK(render_manager);
+    if (render_manager) {
+      render_manager->AddRenderListener(node, name);
     }
   });
 }
@@ -263,6 +291,16 @@ void DomManager::HandleEvent(const std::shared_ptr<DomEvent> &event) {
       }
       bubble_node = bubble_node->GetParent();
     }
+  }
+}
+
+void DomManager::HandleListener(const std::weak_ptr<DomNode>& weak_target,
+                                const std::string& name,
+                                std::shared_ptr<DomEvent> param) {
+  auto target = weak_target.lock();
+  auto target_listeners = target->GetRenderListener(name);
+  for (const auto &listener: target_listeners) {
+    listener->cb(param);
   }
 }
 

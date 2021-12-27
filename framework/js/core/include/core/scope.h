@@ -88,8 +88,8 @@ class Scope {
     return binding_data_;
   }
 
-  void AddEventListener(uint32_t node_id, const std::string& event_name, uint32_t listener_id);
-  uint32_t GetEventListenerId(uint32_t node_id, const std::string& event_name);
+  void AddListener(uint32_t node_id, const std::string& event_name, uint32_t listener_id);
+  uint32_t GetListenerId(uint32_t node_id, const std::string& event_name);
 
   void RunJS(const unicode_string_view& js,
              const unicode_string_view& name,
