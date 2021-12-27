@@ -38,15 +38,16 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 public class VirtualNodeManager {
 
     private static final String TAG = "VirtualNodeManager";
-    private final String LEFT_PADDING = "leftPadding";
-    private final String TOP_PADDING = "topPadding";
-    private final String RIGHT_PADDING = "rightPadding";
-    private final String BOTTOM_PADDING = "bottomPadding";
+    private final String PADDING_LEFT = "paddingLeft";
+    private final String PADDING_TOP = "paddingTop";
+    private final String PADDING_RIGHT = "paddingRight";
+    private final String PADDING_BOTTOM = "paddingBottom";
     private static final Map<Class, Map<String, PropertyMethod>> sClassPropertyMethod = new HashMap<>();
     private final SparseArray<VirtualNode> mVirtualNodes = new SparseArray<>();
     private @NonNull final NativeRender mNativeRender;
@@ -71,6 +72,26 @@ public class VirtualNodeManager {
         return false;
     }
 
+    public boolean updateGestureEventListener(int id, @NonNull HashMap<String, Object> props) {
+        VirtualNode node = mVirtualNodes.get(id);
+        if (node == null) {
+            return false;
+        }
+        for (Entry<String, Object> entry : props.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+            if (!(value instanceof Boolean)) {
+                continue;
+            }
+            if (((Boolean) value).booleanValue()) {
+                node.addGesture(key);
+            } else {
+                node.removeGesture(key);
+            }
+        }
+        return true;
+    }
+
     public @Nullable
     TextRenderSupply updateLayout(int id, int width, HashMap<String, Object> layoutInfo) {
         VirtualNode node = mVirtualNodes.get(id);
@@ -81,17 +102,17 @@ public class VirtualNodeManager {
         float topPadding = 0;
         float rightPadding = 0;
         float bottomPadding = 0;
-        if (layoutInfo.containsKey(LEFT_PADDING)) {
-            leftPadding = ((Number) layoutInfo.get(LEFT_PADDING)).floatValue();
+        if (layoutInfo.containsKey(PADDING_LEFT)) {
+            leftPadding = ((Number) layoutInfo.get(PADDING_LEFT)).floatValue();
         }
-        if (layoutInfo.containsKey(TOP_PADDING)) {
-            topPadding = ((Number) layoutInfo.get(TOP_PADDING)).floatValue();
+        if (layoutInfo.containsKey(PADDING_TOP)) {
+            topPadding = ((Number) layoutInfo.get(PADDING_TOP)).floatValue();
         }
-        if (layoutInfo.containsKey(RIGHT_PADDING)) {
-            rightPadding = ((Number) layoutInfo.get(RIGHT_PADDING)).floatValue();
+        if (layoutInfo.containsKey(PADDING_RIGHT)) {
+            rightPadding = ((Number) layoutInfo.get(PADDING_RIGHT)).floatValue();
         }
-        if (layoutInfo.containsKey(BOTTOM_PADDING)) {
-            bottomPadding = ((Number) layoutInfo.get(BOTTOM_PADDING)).floatValue();
+        if (layoutInfo.containsKey(PADDING_BOTTOM)) {
+            bottomPadding = ((Number) layoutInfo.get(PADDING_BOTTOM)).floatValue();
         }
         Layout layout = ((TextVirtualNode) node)
                 .createLayout((width - leftPadding - rightPadding), FlexMeasureMode.EXACTLY);

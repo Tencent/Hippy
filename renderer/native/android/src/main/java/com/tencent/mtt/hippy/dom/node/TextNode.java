@@ -492,7 +492,7 @@ public class TextNode extends StyleNode {
 //    ops.add(new SpanOperation(start, end, imageSpan));
 //
 //    if (imageNode.getGestureTypes() != null && imageNode.getGestureTypes().size() > 0) {
-//      HippyNativeGestureSpan span = new HippyNativeGestureSpan(imageNode.getId(), true);
+//      TextGestureSpan span = new TextGestureSpan(imageNode.getId(), true);
 //      span.addGestureTypes(imageNode.getGestureTypes());
 //      ops.add(new SpanOperation(start, end, span));
 //    }
@@ -550,11 +550,11 @@ public class TextNode extends StyleNode {
         ops.add(new SpanOperation(start, end, new HippyLineHeightSpan(lineHeight)));
       }
 
-      if (textNode.mGestureTypes != null && textNode.mGestureTypes.size() > 0) {
-        HippyNativeGestureSpan span = new HippyNativeGestureSpan(textNode.getId(), isVirtual());
-        span.addGestureTypes(textNode.mGestureTypes);
-        ops.add(new SpanOperation(start, end, span));
-      }
+//      if (textNode.mGestureTypes != null && textNode.mGestureTypes.size() > 0) {
+//        TextGestureSpan span = new TextGestureSpan(textNode.getId(), isVirtual());
+//        span.addGestureTypes(textNode.mGestureTypes);
+//        ops.add(new SpanOperation(start, end, span));
+//      }
     }
 
     if (useChild) {

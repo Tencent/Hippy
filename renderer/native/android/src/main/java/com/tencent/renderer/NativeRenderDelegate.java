@@ -22,13 +22,15 @@ import java.util.ArrayList;
 
 public interface NativeRenderDelegate extends NativeRenderExceptionHandler {
 
-    void createNode(@NonNull ArrayList list) throws NativeRenderException;
+    void createNode(@NonNull ArrayList nodeList) throws NativeRenderException;
 
-    void updateNode(@NonNull ArrayList list) throws Exception;
+    void updateNode(@NonNull ArrayList nodeList) throws Exception;
 
-    void deleteNode(@NonNull ArrayList list);
+    void deleteNode(@NonNull ArrayList nodeList);
 
     void updateLayout(@NonNull ArrayList list) throws NativeRenderException;
+
+    void updateGestureEventListener(@NonNull ArrayList eventList);
 
     long measure(int id, float width, int widthMode, float height, int heightMode);
 

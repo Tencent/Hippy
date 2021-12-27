@@ -28,11 +28,16 @@ import com.tencent.hippy.support.FontAdapter;
 import com.tencent.mtt.hippy.dom.flex.FlexMeasureMode;
 import com.tencent.mtt.hippy.dom.flex.FlexOutput;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
+import com.tencent.mtt.hippy.serialization.nio.reader.BinaryReader;
+import com.tencent.mtt.hippy.serialization.nio.reader.SafeHeapReader;
+import com.tencent.mtt.hippy.serialization.nio.writer.SafeHeapWriter;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.renderer.component.text.TextRenderSupply;
 import com.tencent.renderer.component.text.VirtualNode;
 import com.tencent.renderer.component.text.VirtualNodeManager;
 
+import com.tencent.renderer.serialization.Serializer;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -81,6 +86,8 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     private NativeRenderProvider mRenderProvider;
     private volatile CopyOnWriteArrayList<HippyInstanceLifecycleEventListener> mInstanceLifecycleEventListeners;
     private BlockingQueue<UITaskExecutor> mUITaskQueue;
+    private SafeHeapWriter mSafeHeapWriter;
+    private Serializer mSerializer;
 
     @Override
     public void init(int instanceId, @Nullable List<Class> controllers,
@@ -98,9 +105,10 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         }
         mInstanceId = instanceId;
         mIsDebugMode = isDebugMode;
-        // Should restrictions the capacity of ui task queue, to prevent js make huge amount of
+        // Should restrictions the capacity of ui task queue, to avoid js make huge amount of
         // node operation cause OOM.
         mUITaskQueue = new LinkedBlockingQueue<>(MAX_UITASK_QUEUE_CAPACITY);
+        mSerializer = new Serializer();
         NativeRendererManager.addNativeRendererInstance(instanceId, this);
     }
 
@@ -262,14 +270,50 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         }
     }
 
-    @Override
-    public void dispatchUIComponentEvent(int id, String eventName, Object params) {
-
+    private @NonNull ByteBuffer argumentToBytes(@NonNull Object params) {
+        if (mSafeHeapWriter == null) {
+            mSafeHeapWriter = new SafeHeapWriter();
+        } else {
+            mSafeHeapWriter.reset();
+        }
+        mSerializer.setWriter(mSafeHeapWriter);
+        mSerializer.reset();
+        mSerializer.writeHeader();
+        mSerializer.writeValue(params);
+        ByteBuffer buffer = mSafeHeapWriter.chunked();
+        return buffer;
     }
 
     @Override
-    public void dispatchNativeGestureEvent(HippyMap params) {
+    public void dispatchUIComponentEvent(int id, String eventName, Object params) {
+        if (mRenderProvider == null) {
+            return;
+        }
+        ArrayList<Object> list = new ArrayList<>();
+        try {
+            list.add(id);
+            list.add(eventName);
+            if (params != null) {
+                list.add(params);
+            }
+            ByteBuffer buffer = argumentToBytes(list);
+            mRenderProvider.dispatchUIEvent(buffer);
+        } catch (Exception exception) {
+            handleRenderException(exception);
+        }
+    }
 
+    @Override
+    public void dispatchNativeGestureEvent(@NonNull HashMap<String, Object> params) {
+        if (mRenderProvider == null) {
+            return;
+        }
+        try {
+            ByteBuffer buffer = argumentToBytes(params);
+            mRenderProvider.dispatchUIEvent(buffer);
+        } catch (Exception exception) {
+            handleRenderException(exception);
+        }
     }
 
     @Override
@@ -440,6 +484,42 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
                             mRenderManager.updateExtra(id, supply);
                         }
                         mRenderManager.updateLayout(id, left, top, width, height);
+                    }
+                });
+            } catch (ClassCastException | NullPointerException | IllegalArgumentException exception) {
+                // If the element can not being added to this queue, just try next.
+                handleRenderException(exception);
+            } catch (IllegalStateException illegalStateException) {
+                // If the element cannot be added at this time due to capacity restrictions,
+                // when this unexpected happened, should return right now.
+                handleRenderException(illegalStateException);
+                return;
+            }
+        }
+        executeUIOperation();
+    }
+
+    @Override
+    public void updateGestureEventListener(@NonNull ArrayList eventList) {
+        for (int i = 0; i < eventList.size(); i++) {
+            Object object = eventList.get(i);
+            if (!(object instanceof HashMap)) {
+                throw new NativeRenderException(INVALID_NODE_DATA_ERR,
+                        TAG + ": updateLayout: " + "object=" + object);
+            }
+            HashMap<String, Object> events = (HashMap) object;
+            final int id = ((Number) events.get(NODE_ID)).intValue();
+            final HashMap<String, Object> props = (HashMap) events.get(NODE_PROPS);
+            boolean hasUpate = mVirtualNodeManager.updateGestureEventListener(id, props);
+            // Gesture event status of virtual node update by itself, no need to update render node.
+            if (hasUpate) {
+                continue;
+            }
+            try {
+                mUITaskQueue.add(new UITaskExecutor() {
+                    @Override
+                    public void exec() {
+                        mRenderManager.updateGestureEventListener(id, props);
                     }
                 });
             } catch (ClassCastException | NullPointerException | IllegalArgumentException exception) {

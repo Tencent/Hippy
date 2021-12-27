@@ -38,7 +38,8 @@ public class PixelUtil {
     }
   }
 
-  /** Set display metrics */
+  /** Set display metrics, call by host app */
+  @SuppressWarnings("unused")
   public static void setDisplayMetrics(DisplayMetrics metrics) {
     displayMetrics = metrics;
   }

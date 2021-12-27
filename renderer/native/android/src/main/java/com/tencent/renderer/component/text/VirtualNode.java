@@ -32,6 +32,7 @@ public abstract class VirtualNode {
     protected @Nullable List<VirtualNode> mChildren;
     protected @Nullable VirtualNode mParent;
     protected boolean mDirty = true;
+    protected ArrayList<String> mGestureTypes = null;
 
     public VirtualNode(int id, int pid, int index) {
         mId = id;
@@ -41,6 +42,19 @@ public abstract class VirtualNode {
 
     protected abstract void createSpanOperation(List<SpanOperation> ops,
             SpannableStringBuilder builder, boolean useChild);
+
+    public void addGesture(String event) {
+        if (mGestureTypes == null) {
+            mGestureTypes = new ArrayList<>();
+        }
+        mGestureTypes.add(event);
+    }
+
+    public void removeGesture(String event) {
+        if (mGestureTypes != null) {
+            mGestureTypes.remove(event);
+        }
+    }
 
     public void markDirty() {
         if (mParent != null) {

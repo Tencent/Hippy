@@ -18,12 +18,16 @@ package com.tencent.renderer;
 
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+
+import androidx.annotation.Nullable;
 import com.tencent.hippy.support.FontAdapter;
 import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.DomManager;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.supportui.adapters.image.IImageLoaderAdapter;
+import java.util.HashMap;
 
 public interface NativeRender extends NativeRenderExceptionHandler {
 
@@ -52,9 +56,9 @@ public interface NativeRender extends NativeRenderExceptionHandler {
     void updateDimension(boolean shouldRevise, HippyMap dimension,
             boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged);
 
-    void dispatchUIComponentEvent(int id, String eventName, Object param);
+    void dispatchUIComponentEvent(int id, String eventName, @Nullable Object param);
 
-    void dispatchNativeGestureEvent(HippyMap params);
+    void dispatchNativeGestureEvent(@NonNull HashMap<String, Object> params);
 
     void addInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);
 

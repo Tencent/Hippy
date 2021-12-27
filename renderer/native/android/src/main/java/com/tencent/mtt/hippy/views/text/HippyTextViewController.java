@@ -16,15 +16,13 @@
 package com.tencent.mtt.hippy.views.text;
 
 import android.content.Context;
-import android.text.Layout;
 import android.text.Spannable;
 import android.view.View;
 import com.tencent.mtt.hippy.annotation.HippyController;
-import com.tencent.mtt.hippy.dom.node.HippyNativeGestureSpan;
 import com.tencent.mtt.hippy.dom.node.StyleNode;
-import com.tencent.mtt.hippy.dom.node.TextExtra;
 import com.tencent.mtt.hippy.dom.node.TextNode;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
+import com.tencent.renderer.component.text.TextGestureSpan;
 import com.tencent.renderer.component.text.TextRenderSupply;
 
 @SuppressWarnings({"unused"})
@@ -46,8 +44,8 @@ public class HippyTextViewController extends HippyViewController<HippyTextView> 
       CharSequence textSequence = supply.layout.getText();
       if (textSequence instanceof Spannable) {
         Spannable spannable = (Spannable) textSequence;
-        HippyNativeGestureSpan[] spans = spannable
-            .getSpans(0, spannable.length(), HippyNativeGestureSpan.class);
+        TextGestureSpan[] spans = spannable
+            .getSpans(0, spannable.length(), TextGestureSpan.class);
         hippyTextView.setNativeGestureEnable(spans != null && spans.length > 0);
       }
       hippyTextView.setPadding((int) Math.floor(supply.leftPadding),

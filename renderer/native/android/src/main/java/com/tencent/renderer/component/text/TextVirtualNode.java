@@ -67,8 +67,6 @@ public class TextVirtualNode extends VirtualNode {
     private static final String TEXT_ALIGN_CENTER = "center";
     private static final String ELLIPSIS = "\u2026";
 
-    private int mStart;
-    private int mEnd;
     private int mColor = Color.BLACK;
     private int mNumberOfLines;
     private int mFontStyle = Typeface.NORMAL;
@@ -89,7 +87,6 @@ public class TextVirtualNode extends VirtualNode {
     private Layout.Alignment mAlignment = Layout.Alignment.ALIGN_NORMAL;
     private final TextUtils.TruncateAt mTruncateAt = TextUtils.TruncateAt.END;
     private TextPaint mTextPaint = null;
-    private ArrayList<String> mGestureTypes = null;
     private FontAdapter mFontAdapter;
 
     public TextVirtualNode(int id, int pid, int index, FontAdapter fontAdapter) {
@@ -289,34 +286,34 @@ public class TextVirtualNode extends VirtualNode {
         createSpanOperationImpl(ops, builder, mText, useChild);
     }
 
-    protected void createSpanOperationImpl(List<SpanOperation> ops, SpannableStringBuilder builder,
+    private void createSpanOperationImpl(List<SpanOperation> ops, SpannableStringBuilder builder,
             CharSequence text, boolean useChild) {
-        mStart = builder.length();
+        int start = builder.length();
         builder.append(getEmoticonText(text));
-        mEnd = builder.length();
-        if (mStart > mEnd) {
+        int end = builder.length();
+        if (start > end) {
             return;
         }
-        ops.add(new SpanOperation(mStart, mEnd, new ForegroundColorSpan(mColor)));
+        ops.add(new SpanOperation(start, end, new ForegroundColorSpan(mColor)));
         if (mLetterSpacing != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            ops.add(new SpanOperation(mStart, mEnd,
+            ops.add(new SpanOperation(start, end,
                     new HippyLetterSpacingSpan(mLetterSpacing)));
         }
         int size = mFontSize;
         if (mFontAdapter != null && mEnableScale) {
             size = (int) (size * mFontAdapter.getFontScale());
         }
-        ops.add(new SpanOperation(mStart, mEnd, new AbsoluteSizeSpan(size)));
-        ops.add(new SpanOperation(mStart, mEnd,
+        ops.add(new SpanOperation(start, end, new AbsoluteSizeSpan(size)));
+        ops.add(new SpanOperation(start, end,
                 new HippyStyleSpan(mFontStyle, mFontWeight, mFontFamily, mFontAdapter)));
         if (mHasUnderlineTextDecoration) {
-            ops.add(new SpanOperation(mStart, mEnd, new UnderlineSpan()));
+            ops.add(new SpanOperation(start, end, new UnderlineSpan()));
         }
         if (mHasLineThroughTextDecoration) {
-            ops.add(new SpanOperation(mStart, mEnd, new StrikethroughSpan()));
+            ops.add(new SpanOperation(start, end, new StrikethroughSpan()));
         }
         if (mShadowOffsetDx != 0 || mShadowOffsetDy != 0) {
-            ops.add(new SpanOperation(mStart, mEnd,
+            ops.add(new SpanOperation(start, end,
                     new HippyShadowSpan(mShadowOffsetDx, mShadowOffsetDy, mShadowRadius,
                             mShadowColor)));
         }
@@ -325,7 +322,12 @@ public class TextVirtualNode extends VirtualNode {
             if (mFontAdapter != null && mEnableScale) {
                 lh = (lh * mFontAdapter.getFontScale());
             }
-            ops.add(new SpanOperation(mStart, mEnd, new HippyLineHeightSpan(lh)));
+            ops.add(new SpanOperation(start, end, new HippyLineHeightSpan(lh)));
+        }
+        if (mGestureTypes != null && mGestureTypes.size() > 0) {
+            TextGestureSpan span = new TextGestureSpan(mId);
+            span.addGestureTypes(mGestureTypes);
+            ops.add(new SpanOperation(start, end, span));
         }
         if (!useChild) {
             return;

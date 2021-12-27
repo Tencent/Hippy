@@ -16,6 +16,7 @@
 
 package com.tencent.renderer;
 
+import android.text.TextUtils;
 import androidx.annotation.NonNull;
 
 import com.tencent.mtt.hippy.dom.flex.FlexMeasureMode;
@@ -23,6 +24,7 @@ import com.tencent.mtt.hippy.serialization.nio.reader.BinaryReader;
 import com.tencent.mtt.hippy.serialization.nio.reader.SafeHeapReader;
 import com.tencent.mtt.hippy.serialization.string.InternalizedStringTable;
 import com.tencent.mtt.hippy.utils.PixelUtil;
+import com.tencent.renderer.annotation.CalledByNative;
 import com.tencent.renderer.serialization.Deserializer;
 
 import java.nio.ByteBuffer;
@@ -30,7 +32,9 @@ import java.util.ArrayList;
 
 /**
  * Implementation of render provider, communicate with native (C++) render manager,
- * deserialize and virtual node operation will run in JS thread.
+ * deserialize and virtual node operation will run in JS thread, the order of native call is
+ * startBatch -> createNode(updateNode or deleteNode) -> measure -> updateGestureEventListener ->
+ * updateLayout -> endBatch
  */
 public class NativeRenderProvider {
 
@@ -54,7 +58,7 @@ public class NativeRenderProvider {
      * Deserialize dom node data wrap by ByteBuffer just support heap buffer reader, direct buffer
      * reader not fit for dom data
      *
-     * @param buffer The byte array from native (C++) DOM wrap by {@link ByteBuffer}
+     * @param buffer The byte array from native (C++) DOM wrapped by {@link ByteBuffer}
      * @return The result {@link ArrayList} of deserialize
      */
     private @NonNull
@@ -73,11 +77,12 @@ public class NativeRenderProvider {
     }
 
     /**
-     * This method provide for native (C++) call to create render node
+     * Call from native (C++) render manager to create render node
      *
      * @param buffer The byte array serialize by native (C++)
      */
-    public void createNode(byte[] buffer) {
+    @CalledByNative
+    private void createNode(byte[] buffer) {
         try {
             final ArrayList list = bytesToArgument(ByteBuffer.wrap(buffer));
             mRenderDelegate.createNode(list);
@@ -87,11 +92,12 @@ public class NativeRenderProvider {
     }
 
     /**
-     * This method provide for native (C++) call to updateNode render node
+     * Call from native (C++) render manager to updateNode render node
      *
      * @param buffer The byte array serialize by native (C++)
      */
-    public void updateNode(byte[] buffer) {
+    @CalledByNative
+    private void updateNode(byte[] buffer) {
         try {
             final ArrayList list = bytesToArgument(ByteBuffer.wrap(buffer));
 
@@ -101,11 +107,12 @@ public class NativeRenderProvider {
     }
 
     /**
-     * This method provide for native (C++) call to delete render node
+     * Call from native (C++) render manager to delete render node
      *
      * @param buffer The byte array serialize by native (C++)
      */
-    public void deleteNode(byte[] buffer) {
+    @CalledByNative
+    private void deleteNode(byte[] buffer) {
         try {
             final ArrayList list = bytesToArgument(ByteBuffer.wrap(buffer));
 
@@ -115,11 +122,12 @@ public class NativeRenderProvider {
     }
 
     /**
-     * This method provide for native (C++) call to update layout of render node
+     * Call from native (C++) render manager to update layout of render node
      *
      * @param buffer The byte array serialize by native (C++)
      */
-    public void updateLayout(byte[] buffer) {
+    @CalledByNative
+    private void updateLayout(byte[] buffer) {
         try {
             final ArrayList list = bytesToArgument(ByteBuffer.wrap(buffer));
             mRenderDelegate.updateLayout(list);
@@ -129,7 +137,22 @@ public class NativeRenderProvider {
     }
 
     /**
-     * This method provide for native (C++) call to measure text width and height
+     * Call from native (C++) render manager to add or remove gesture event listener
+     *
+     * @param buffer The byte array serialize by native (C++)
+     */
+    @CalledByNative
+    private void updateGestureEventListener(byte[] buffer) {
+        try {
+            final ArrayList list = bytesToArgument(ByteBuffer.wrap(buffer));
+            mRenderDelegate.updateGestureEventListener(list);
+        } catch (NativeRenderException exception) {
+            mRenderDelegate.handleRenderException(exception);
+        }
+    }
+
+    /**
+     * Call from native (C++) render manager to measure text width and height
      *
      * @param id node id
      * @param width pre setting of text width
@@ -138,21 +161,24 @@ public class NativeRenderProvider {
      * @param heightMode flex measure mode of height
      * @return the measure result, convert to long type by FlexOutput
      */
-    public long measure(int id, float width, int widthMode, float height, int heightMode) {
+    @CalledByNative
+    private long measure(int id, float width, int widthMode, float height, int heightMode) {
         return mRenderDelegate.measure(id, width, widthMode, height, heightMode);
     }
 
     /**
-     * This method provide for native (C++) call to mark batch start
+     * Call from native (C++) render manager to mark batch start
      */
-    public void startBatch() {
+    @CalledByNative
+    private void startBatch() {
         mRenderDelegate.startBatch();
     }
 
     /**
-     * This method provide for native (C++) call to mark batch end
+     * Call from native (C++) render manager to mark batch end
      */
-    public void endBatch() {
+    @CalledByNative
+    private void endBatch() {
         mRenderDelegate.endBatch();
     }
 
@@ -160,12 +186,14 @@ public class NativeRenderProvider {
         onRootSizeChanged(mRuntimeId, PixelUtil.px2dp(width), PixelUtil.px2dp(height));
     }
 
-    public void updateGestureEventListener(byte[] buffer) {
-        try {
-            final ArrayList list = bytesToArgument(ByteBuffer.wrap(buffer));
-        } catch (NativeRenderException exception) {
-            mRenderDelegate.handleRenderException(exception);
+    public void dispatchUIEvent(@NonNull ByteBuffer buffer) {
+        if (buffer == null || buffer.limit() == 0) {
+            return;
         }
+        int offset = buffer.position();
+        int length = buffer.limit() - buffer.position();
+        offset += buffer.arrayOffset();
+        //callUIFunction(mRuntimeId, buffer.array(), offset, length);
     }
 
     /**
@@ -185,4 +213,15 @@ public class NativeRenderProvider {
      * @param height root view new height use dp unit
      */
     public native void onRootSizeChanged(long runtimeId, float width, float height);
+
+    /**
+     * Dispatch ui event generated by native renderer to (C++) dom manager,
+     * include ui component event and gesture event
+     *
+     * @param runtimeId v8 instance id
+     * @param buffer params encoded by serializer
+     * @param offset available offset of buffer
+     * @param length available total length of buffer
+     */
+    //public native void callUIFunction(long runtimeId, byte[] buffer, int offset, int length);
 }
