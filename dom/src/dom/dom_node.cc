@@ -9,6 +9,14 @@
 namespace hippy {
 inline namespace dom {
 
+constexpr char kLayoutLayoutKey[] = "layout";
+constexpr char kLayoutXKey[] = "x";
+constexpr char kLayoutYKey[] = "y";
+constexpr char kLayoutWidthKey[] = "width";
+constexpr char kLayoutHeightKey[] = "height";
+
+using DomValueObjectType = tdf::base::DomValue::DomValueObjectType;
+
 DomNode::DomNode(uint32_t id,
                  uint32_t pid,
                  int32_t index,
@@ -222,7 +230,14 @@ void DomNode::TransferLayoutOutputsRecursive() {
   layout_.paddingRight = node->GetPadding(TaitankCssDirection::CSSRight);
   layout_.paddingBottom = node->GetPadding(TaitankCssDirection::CSSBottom);
 
-  DomManager::HandleEvent(std::make_shared<DomEvent>(kLayoutEvent, shared_from_this(), true, true));
+  DomValueObjectType layout_param;
+  layout_param[kLayoutXKey] = DomValue(layout_.left);
+  layout_param[kLayoutYKey] = DomValue(layout_.top);
+  layout_param[kLayoutWidthKey] = DomValue(layout_.width);
+  layout_param[kLayoutHeightKey] = DomValue(layout_.height);
+  DomValueObjectType layout_obj;
+  layout_obj[kLayoutLayoutKey] = std::move(layout_param);
+  DomManager::HandleEvent(std::make_shared<DomEvent>(kLayoutEvent, shared_from_this(), false, false, std::make_shared<DomValue>(std::move(layout_obj))));
 
   node->SetHasNewLayout(false);
   if (changed) {
