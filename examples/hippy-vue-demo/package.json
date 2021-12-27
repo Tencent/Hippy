@@ -12,9 +12,10 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "hippy:local-debug": "node ../../packages/hippy-debug-server/index.js --live",
-    "hippy:debug": "hippy-debug --live",
-    "hippy:dev": "webpack --config ./scripts/hippy-webpack.dev.js",
+    "hippy:local-debug": "node ../../packages/hippy-debug-server/index.js",
+    "hippy:local-dev": "node ../../packages/hippy-debug-server/hippy-dev.js -c ./scripts/hippy-webpack.dev.js",
+    "hippy:debug": "hippy-debug",
+    "hippy:dev": "hippy-dev -c ./scripts/hippy-webpack.dev.js",
     "hippy:vendor": "webpack --config ./scripts/hippy-webpack.ios-vendor.js --config ./scripts/hippy-webpack.android-vendor.js",
     "hippy:build": "webpack --config ./scripts/hippy-webpack.ios.js --config ./scripts/hippy-webpack.android.js"
   },
@@ -39,8 +40,9 @@
     "@babel/preset-env": "^7.12.0",
     "@hippy/debug-server": "^2.1.2",
     "@hippy/hippy-dynamic-import-plugin": "^2.0.0",
-    "@hippy/hippy-live-reload-polyfill": "^1.0.4",
+    "@hippy/hippy-hmr-plugin": "^0.0.2",
     "@hippy/vue-css-loader": "^2.0.1",
+    "@hippy/vue-loader": "^0.0.1-alpha.2",
     "@vue/cli-plugin-babel": "^4.1.0",
     "@vue/cli-plugin-eslint": "^4.1.0",
     "@vue/cli-service": "^4.1.0",
@@ -55,10 +57,8 @@
     "scope-loader": "^1.0.3",
     "unicode-loader": "^1.0.7",
     "url-loader": "^4.0.0",
-    "vue-loader": "^15.9.6",
     "vue-template-compiler": "^2.6.10",
     "webpack": "^4.43.0",
-    "webpack-cli": "^3.3.11",
-    "webpack-dev-server": "^3.10.3"
+    "webpack-cli": "^4.7.2"
   }
 }
