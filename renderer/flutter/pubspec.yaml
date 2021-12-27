@@ -1,0 +1,78 @@
+name: tencent_voltron_render
+description: A flutter plugin project to render hippy page.
+version: 0.2.6
+homepage: https://git.woa.com/Voltron/VoltronRender.git
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+  flutter: ">=2.5.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  shared_preferences: ^2.0.5
+  path_provider: 2.0.1
+  benchmark_harness: ^2.0.0
+  ffi: ^1.0.0
+  sprintf: ^6.0.0
+  provider: ^5.0.0
+  dio: ^4.0.0
+  sqflite: ^2.0.0+3
+  dio_cookie_manager: ^2.0.0
+  cookie_jar: ^3.0.1
+  pull_to_refresh: ^2.0.0
+  collection: ^1.15.0
+  path: ^1.8.0
+  web_socket_channel: ^2.0.0
+  utf: ^0.9.0+5
+  fluttertoast: ^8.0.6
+  gradient_like_css: ^0.5.1
+  qr_flutter: ^4.0.0
+  system_proxy: ^0.0.2
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter.
+flutter:
+  # This section identifies this Flutter project as a plugin project.
+  # The 'pluginClass' and Android 'package' identifiers should not ordinarily
+  # be modified. They are used by the tooling to maintain consistency when
+  # adding or updating assets for this project.
+  plugin:
+    platforms:
+      android:
+        package: com.tencent.flutter_render
+        pluginClass: FlutterRenderPlugin
+      ios:
+        pluginClass: FlutterRenderPlugin
+      macos:
+        pluginClass: TencentVoltronRenderPlugin
+      windows:
+        pluginClass: TencentVoltronRenderPlugin
+
+  # To add custom fonts to your plugin package, add a fonts section here,
+  # in this "flutter" section. Each entry in this list should have a
+  # "family" key with the font family name, and a "fonts" key with a
+  # list giving the asset and other descriptors for the font. For
+  # example:
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+  # For details regarding fonts in packages, see
+  # https://flutter.dev/custom-fonts/#from-packages

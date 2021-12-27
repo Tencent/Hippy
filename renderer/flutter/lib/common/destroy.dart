@@ -1,0 +1,3 @@
+mixin Destroyable {
+  void destroy();
+}
