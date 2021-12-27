@@ -74,6 +74,7 @@ class SelectorsMap {
     this.ruleSets = this.ruleSets.filter((rule) => {
       if (rule.hash !== hash) return true;
       removedRuleSets.push(rule);
+      return false;
     });
     removedRuleSets.forEach(rule => rule.removeSort(this));
   }
