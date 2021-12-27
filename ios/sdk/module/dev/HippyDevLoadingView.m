@@ -90,6 +90,14 @@ HIPPY_EXPORT_METHOD(showMessage:(NSString *)message color:(UIColor *)color backg
             self->_window.windowLevel = UIWindowLevelStatusBar + 1;
             // set a root VC so rotation is supported
             self->_window.rootViewController = [UIViewController new];
+            if (@available(iOS 13.0, *)) {
+                for (UIWindowScene *windowScene in [UIApplication sharedApplication].connectedScenes) {
+                    if (windowScene.activationState == UISceneActivationStateForegroundActive) {
+                        self->_window.windowScene = windowScene;
+                        break;
+                    }
+                }
+            }
             
             self->_label = [[UILabel alloc] initWithFrame:self->_window.bounds];
             self->_label.font = [UIFont systemFontOfSize:12.0];
