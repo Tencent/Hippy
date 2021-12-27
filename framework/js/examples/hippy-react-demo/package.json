@@ -8,7 +8,7 @@
   "description": "Demo app for hippy-react",
   "repository": "https://github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo",
   "scripts": {
-    "serve": "webpack-dev-server --config ./scripts/hippy-webpack.web.dev.js",
+    "serve": "webpack serve --config ./scripts/hippy-webpack.web.dev.js",
     "build": "webpack --config ./scripts/hippy-webpack.web.js",
     "hippy:local-debug": "node ../../packages/hippy-debug-server/index.js",
     "hippy:local-dev": "node ../../packages/hippy-debug-server/hippy-dev.js -c ./scripts/hippy-webpack.dev.js",
@@ -61,6 +61,6 @@
     "url-loader": "^4.0.0",
     "webpack": "^4.43.0",
     "webpack-cli": "^4.7.2",
-    "webpack-dev-server": "^3.10.3"
+    "webpack-dev-server": "^4.7.1"
   }
 }
