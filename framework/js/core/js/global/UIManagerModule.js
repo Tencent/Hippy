@@ -23,6 +23,11 @@ const gestureKeyMap = {
 //   onDismiss: 'dismiss',
 // };
 
+const kNewEventMap = {
+  layout: 'adduitask',
+  layoutevent: 'layout',
+};
+
 
 const kEventsListsKey = '__events';
 
@@ -40,7 +45,10 @@ function HandleEventListener(node) {
     if (/^__bind__.+/g.test(originalKey)) {
       const key = originalKey.replace(/^__bind__+/g, '');
       const { id } = node;
-      const standardEventName = gestureKeyMap[key];
+      let standardEventName = gestureKeyMap[key];
+      if (kNewEventMap[standardEventName]) { // compatible with old layout
+        standardEventName = kNewEventMap[standardEventName];
+      }
       if (value === false) {
         global.ConsoleModule.debug(`RemoveEventListener gestureKeyMap id = ${id}, key = ${key}`);
         node[kEventsListsKey].push({
