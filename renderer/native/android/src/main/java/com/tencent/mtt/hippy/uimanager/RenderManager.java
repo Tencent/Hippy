@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy.uimanager;
 
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.INVALID_NODE_DATA_ERR;
 
+import androidx.annotation.NonNull;
 import com.tencent.renderer.NativeRenderException;
 
 import java.util.ArrayList;
@@ -106,6 +107,14 @@ public class RenderManager {
         RenderNode node = mNodes.get(id);
         if (node != null) {
             node.updateLayout(left, top, width, height);
+            addUpdateNodeIfNeeded(node);
+        }
+    }
+
+    public void updateGestureEventListener(int id, @NonNull HashMap<String, Object> props) {
+        RenderNode node = mNodes.get(id);
+        if (node != null) {
+            node.updateGestureEventListener(props);
             addUpdateNodeIfNeeded(node);
         }
     }

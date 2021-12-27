@@ -16,13 +16,16 @@
 
 package com.tencent.renderer;
 
+import android.content.Context;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class NativeRendererManager {
 
     private static final ConcurrentHashMap<Integer, NativeRender> sNativeRendererMap = new ConcurrentHashMap<>();
 
-    public static void addNativeRendererInstance(Integer instanceId, NativeRender nativeRenderer) {
+    public static void addNativeRendererInstance(Integer instanceId, @NonNull NativeRender nativeRenderer) {
         sNativeRendererMap.put(instanceId, nativeRenderer);
     }
 
@@ -30,7 +33,16 @@ public class NativeRendererManager {
         sNativeRendererMap.remove(instanceId);
     }
 
-    public static NativeRender getNativeRenderer(Integer instanceId) {
+    public @Nullable static NativeRender getNativeRenderer(Integer instanceId) {
         return sNativeRendererMap.get(instanceId);
+    }
+
+    public @Nullable
+    static NativeRender getNativeRenderer(@Nullable Context context) {
+        if (context instanceof NativeRenderContext) {
+            final int instanceId = ((NativeRenderContext) context).getInstanceId();
+            return getNativeRenderer(instanceId);
+        }
+        return null;
     }
 }
