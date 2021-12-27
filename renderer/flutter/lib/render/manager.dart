@@ -409,7 +409,7 @@ class RenderManager
 
       var parent = uiNode.parent;
       if (parent != null) {
-        parent.addDeleteId(id, uiNode);
+        parent.addDeleteId(id);
         addUpdateNodeIfNeeded(parent);
       } else if (uiNode.isRoot) {
         addUpdateNodeIfNeeded(uiNode);

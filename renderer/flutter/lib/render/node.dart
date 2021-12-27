@@ -63,10 +63,11 @@ class RenderNode extends StyleNode {
   final List<RenderNode> _childrenPendingList = [];
   final List<MoveHolder> _moveHolders = [];
   final List<EventHolder> _eventHolders = [];
+  final Set<int> _deleteIds = {};
   RenderViewModel? _viewModel;
 
   /// 更新相关属性
-  final HashMap<int, int> _deleteIdIndexMap = HashMap();
+
   final List<JSPromise> _measureInWindows = [];
   final List<UIFunction> _uiFunction = [];
 
@@ -166,9 +167,9 @@ class RenderNode extends StyleNode {
     return buffer.toString();
   }
 
-  void addDeleteId(int id, RenderNode node) {
+  void addDeleteId(int id) {
     if (_shouldUpdateView()) {
-      _deleteIdIndexMap[id] = node.id;
+      _deleteIds.add(id);
     }
   }
 
@@ -206,12 +207,12 @@ class RenderNode extends StyleNode {
   }
 
   void createViewModel() {
-    if (_deleteIdIndexMap.isNotEmpty) {
-      for (final deleteId in _deleteIdIndexMap.values) {
+    if (_deleteIds.isNotEmpty) {
+      for (final deleteId in _deleteIds) {
         _controllerManager.deleteChild(
             _viewModel, _viewModel?.childFromId(deleteId));
       }
-      _deleteIdIndexMap.clear();
+      _deleteIds.clear();
       _notifyManageChildren = true;
     }
 

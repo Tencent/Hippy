@@ -19,8 +19,7 @@ VoltronRenderTaskRunner::VoltronRenderTaskRunner(int32_t engine_id, int32_t root
 }
 
 void VoltronRenderTaskRunner::RunCreateDomNode(const Sp<DomNode>& node) {
-  TDF_BASE_DLOG(INFO) << "RunCreateDomNode id" << node->GetId() << " pid" << node->GetPid()
-                      << " parent addr:" << (int64_t)(node->GetParent().get());
+  TDF_BASE_DLOG(INFO) << "RunCreateDomNode id" << node->GetId() << " pid" << node->GetPid();
   auto args_map = EncodableMap();
   auto render_info = node->GetRenderInfo();
   args_map[EncodableValue(kChildIndexKey)] = EncodableValue(render_info.index);
@@ -38,11 +37,13 @@ void VoltronRenderTaskRunner::RunCreateDomNode(const Sp<DomNode>& node) {
 }
 
 void VoltronRenderTaskRunner::RunDeleteDomNode(const Sp<DomNode>& node) {
+  TDF_BASE_DLOG(INFO) << "RunDeleteDomNode id" << node->GetId();
   auto delete_task = std::make_shared<RenderTask>(VoltronRenderOpType::DELETE_NODE, node->GetId());
   queue_->ProduceRenderOp(delete_task);
 }
 
 void VoltronRenderTaskRunner::RunUpdateDomNode(const Sp<DomNode>& node) {
+  TDF_BASE_DLOG(INFO) << "RunUpdateDomNode id" << node->GetId();
   auto args_map = EncodableMap();
   if (!node->GetDiffStyle().empty()) {
     args_map[EncodableValue(kPropsKey)] = DecodeDomValueMap(node->GetDiffStyle());
