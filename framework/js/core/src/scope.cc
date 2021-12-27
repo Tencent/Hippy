@@ -175,7 +175,7 @@ void Scope::SaveFunctionData(std::unique_ptr<hippy::napi::FunctionData> data) {
   function_data_.push_back(std::move(data));
 }
 
-void Scope::AddEventListener(uint32_t node_id, const std::string& event_name, uint32_t listener_id) {
+void Scope::AddListener(uint32_t node_id, const std::string& event_name, uint32_t listener_id) {
   auto id_it = listener_id_map_.find(node_id);
   if (id_it != listener_id_map_.end()) {
     auto name_it = id_it->second.find(event_name);
@@ -187,7 +187,7 @@ void Scope::AddEventListener(uint32_t node_id, const std::string& event_name, ui
   }
 }
 
-uint32_t Scope::GetEventListenerId(uint32_t node_id, const std::string& event_name) {
+uint32_t Scope::GetListenerId(uint32_t node_id, const std::string& event_name) {
   auto id_it = listener_id_map_.find(node_id);
   if (id_it == listener_id_map_.end()) {
     return kInvalidListenerId;

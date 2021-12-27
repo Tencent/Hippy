@@ -23,6 +23,7 @@ constexpr char kShowEvent[] = "show";
 constexpr char kDismissEvent[] = "dismiss";
 
 using EventCallback = std::function<void(const std::shared_ptr<DomEvent>&)>;
+using RenderCallback = std::function<void(const std::shared_ptr<DomEvent>&)>;
 using CallFunctionCallback = std::function<void(std::shared_ptr<DomArgument>)>;
 
 struct TouchEventInfo {

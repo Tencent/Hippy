@@ -30,6 +30,7 @@ const kNewEventMap = {
 
 
 const kEventsListsKey = '__events';
+const kRenderListsKey = '__renders';
 
 // compatible with hippy2.0
 function HandleEventListener(node) {
@@ -40,23 +41,24 @@ function HandleEventListener(node) {
     // eslint-disable-next-line no-param-reassign
     node[kEventsListsKey] = [];
   }
+  if (typeof node[kRenderListsKey] === 'undefined') {
+    // eslint-disable-next-line no-param-reassign
+    node[kRenderListsKey] = [];
+  }
   for (const originalKey of Object.keys(node.props)) {
     const value = node.props[originalKey];
     if (/^__bind__.+/g.test(originalKey)) {
       const key = originalKey.replace(/^__bind__+/g, '');
       const { id } = node;
-      let standardEventName = gestureKeyMap[key];
-      if (kNewEventMap[standardEventName]) { // compatible with old layout
-        standardEventName = kNewEventMap[standardEventName];
-      }
-      if (value === false) {
-        global.ConsoleModule.debug(`RemoveEventListener gestureKeyMap id = ${id}, key = ${key}`);
-        node[kEventsListsKey].push({
-          name: standardEventName,
-          cb: null,
-        });
-      } else if (value === true) {
-        if (standardEventName) {
+      const standardEventName = gestureKeyMap[key];
+      if (standardEventName) {
+        if (value === false) {
+          global.ConsoleModule.debug(`RemoveEventListener gestureKeyMap id = ${id}, key = ${key}`);
+          node[kEventsListsKey].push({
+            name: standardEventName,
+            cb: null,
+          });
+        } else if (value === true) {
           global.ConsoleModule.debug(`AddEventListener gestureKeyMap id = ${id}, key = ${key}`);
           const {
             EventDispatcher: {
@@ -77,15 +79,26 @@ function HandleEventListener(node) {
               }
             },
           });
-        } else {
-          const normalEventName = key.replace(/^(on)?/g, '').toLocaleLowerCase();
-          global.ConsoleModule.debug(`AddEventListener other id = ${id}, key = ${key}, name = ${normalEventName}`);
+        }
+      } else {
+        let normalEventName = key.replace(/^(on)?/g, '').toLocaleLowerCase();
+        if (kNewEventMap[normalEventName]) { // compatible with old layout
+          normalEventName = kNewEventMap[normalEventName];
+        }
+        if (value === false) {
+          global.ConsoleModule.debug(`RemoveRenderListener id = ${id}, key = ${key}`);
+          node[kEventsListsKey].push({
+            name: normalEventName,
+            cb: null,
+          });
+        } else if (value === true) {
+          global.ConsoleModule.debug(`AddRenderListener id = ${id}, key = ${key}, name = ${normalEventName}`);
           const {
             EventDispatcher: {
               receiveUIComponentEvent = null,
             },
           } = __GLOBAL__.jsModuleList;
-          node[kEventsListsKey].push({
+          node[kRenderListsKey].push({
             name: normalEventName,
             cb(param) {
               if (receiveUIComponentEvent) {

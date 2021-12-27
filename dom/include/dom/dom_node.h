@@ -54,6 +54,13 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
     EventListenerInfo(uint32_t id, EventCallback cb) : id(id), cb(std::move(cb)) {}
   };
 
+  struct RenderListenerInfo {
+    uint32_t id;
+    RenderCallback cb;
+
+    RenderListenerInfo(uint32_t id, RenderCallback cb) : id(id), cb(std::move(cb)) {}
+  };
+
   inline std::shared_ptr<DomNode> GetParent() { return parent_.lock(); }
   inline void SetParent(std::shared_ptr<DomNode> parent) { parent_ = parent; }
   inline uint32_t GetChildCount() const { return children_.size(); }
@@ -81,6 +88,8 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   std::shared_ptr<DomNode> RemoveChildAt(int32_t index);
   void DoLayout();
   void HandleEvent(const std::shared_ptr<DomEvent> &event);
+  void HandleListener(const std::string& name,
+                      std::shared_ptr<DomEvent> param);
   void ParseLayoutStyleInfo();
   void TransferLayoutOutputsRecursive();
   std::tuple<float, float> GetLayoutSize();
@@ -89,17 +98,25 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
 
   uint32_t AddEventListener(const std::string &name, bool use_capture, const EventCallback &cb);
   void RemoveEventListener(const std::string &name, uint32_t id);
+  // RenderListener 没有捕获冒泡流程，EventListener 拥有捕获冒泡流程
+  uint32_t AddRenderListener(const std::string &name, const RenderCallback &cb);
+  void RemoveRenderListener(const std::string &name, uint32_t id);
   std::vector<std::shared_ptr<DomNode::EventListenerInfo>> GetEventListener(const std::string &name,
                                                                             bool is_capture);
+  std::vector<std::shared_ptr<DomNode::RenderListenerInfo>> GetRenderListener(const std::string &name);
   const std::unordered_map<std::string,
                            std::shared_ptr<DomValue>> &GetStyleMap() const { return style_map_; }
-  void SetStyleMap(std::unordered_map<std::string, std::shared_ptr<DomValue>> style) { style_map_ = style; }
+  void SetStyleMap(std::unordered_map<std::string, std::shared_ptr<DomValue>> style) {
+    style_map_ = style;
+  }
   void CallFunction(const std::string &name,
                     const DomArgument &param,
                     const CallFunctionCallback &cb);
   const std::unordered_map<std::string,
                            std::shared_ptr<DomValue>> &GetExtStyle() { return dom_ext_map_; }
-  void SetExtStyleMap(std::unordered_map<std::string, std::shared_ptr<DomValue>> style) { dom_ext_map_ = style; }
+  void SetExtStyleMap(std::unordered_map<std::string, std::shared_ptr<DomValue>> style) {
+    dom_ext_map_ = style;
+  }
   const std::unordered_map<std::string, std::shared_ptr<DomValue>> GetDiffStyle() { return diff_; }
   void SetDiffStyle(std::unordered_map<std::string, std::shared_ptr<DomValue>> diff) {
     diff_ = std::move(diff);
@@ -138,6 +155,8 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
                                      std::array<std::vector<std::shared_ptr<EventListenerInfo>>,
                                                 2>>>
       event_listener_map_;
+  std::shared_ptr<std::unordered_map<std::string, std::vector<std::shared_ptr<RenderListenerInfo>>>>
+      render_listener_map_;
 };
 
 }  // namespace dom

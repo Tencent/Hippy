@@ -111,6 +111,10 @@ void DomNode::HandleEvent(const std::shared_ptr<DomEvent> &event) {
   DomManager::HandleEvent(event);
 }
 
+void DomNode::HandleListener(const std::string& name, std::shared_ptr<DomEvent> param) {
+  DomManager::HandleListener(shared_from_this(), name, std::move(param));
+}
+
 std::tuple<float, float> DomNode::GetLayoutSize() {
   return std::make_tuple(layout_node_->GetWidth(), layout_node_->GetHeight());
 }
@@ -138,7 +142,7 @@ uint32_t DomNode::AddEventListener(const std::string &name, bool use_capture,
     auto dom_manager = dom_manager_.lock();
     TDF_BASE_DCHECK(dom_manager);
     if (dom_manager) {
-      dom_manager->AddListenerOperation(shared_from_this(), name);
+      dom_manager->AddEventListenerOperation(shared_from_this(), name);
     }
   }
   if (use_capture) {
@@ -159,35 +163,89 @@ void DomNode::RemoveEventListener(const std::string &name, uint32_t id) {
   if (it == event_listener_map_->end()) {
     return;
   }
-  auto captureListeners = it->second[kCapture];
-  auto capture_it = std::find_if(captureListeners.begin(), captureListeners.end(),
+  auto capture_listeners = it->second[kCapture];
+  auto capture_it = std::find_if(capture_listeners.begin(), capture_listeners.end(),
                                  [id](const std::shared_ptr<EventListenerInfo> &item) {
                                     if (item->id == id) {
                                       return true;
                                     }
                                     return false;
                                   });
-  if (capture_it != captureListeners.end()) {
-    captureListeners.erase(capture_it);
+  if (capture_it != capture_listeners.end()) {
+    capture_listeners.erase(capture_it);
   }
-  auto bubbleListeners = it->second[kBubble];
-  auto bubble_it = std::find_if(bubbleListeners.begin(), bubbleListeners.end(),
-                            [id](const std::shared_ptr<EventListenerInfo> &item) {
+  auto bubble_listeners = it->second[kBubble];
+  auto bubble_it = std::find_if(bubble_listeners.begin(), bubble_listeners.end(),
+                                [id](const std::shared_ptr<EventListenerInfo> &item) {
                                if (item->id == id) {
                                  return true;
                                }
                                return false;
                              });
-  if (bubble_it != bubbleListeners.end()) {
-    bubbleListeners.erase(bubble_it);
+  if (bubble_it != bubble_listeners.end()) {
+    bubble_listeners.erase(bubble_it);
   }
-  if (captureListeners.empty() && bubbleListeners.empty()) {
+  if (capture_listeners.empty() && bubble_listeners.empty()) {
     auto dom_manager = dom_manager_.lock();
     TDF_BASE_DCHECK(dom_manager);
     if (dom_manager) {
       auto render_manager = dom_manager->GetRenderManager();
       TDF_BASE_DCHECK(render_manager);
       render_manager->RemoveEventListener(shared_from_this(), name);
+    }
+  }
+}
+
+uint32_t DomNode::AddRenderListener(const std::string &name, const RenderCallback &cb) {
+  // taskRunner内置执行确保current_callback_id_无多线程问题
+  current_callback_id_ += 1;
+  TDF_BASE_DCHECK(current_callback_id_ <= std::numeric_limits<uint32_t>::max());
+  if (!render_listener_map_) {
+    render_listener_map_ = std::make_shared<
+        std::unordered_map<std::string,
+                          std::vector<std::shared_ptr<RenderListenerInfo>>>
+    >();
+  }
+  auto it = render_listener_map_->find(name);
+  if (it == render_listener_map_->end()) {
+    (*render_listener_map_)[name] = {};
+    auto dom_manager = dom_manager_.lock();
+    TDF_BASE_DCHECK(dom_manager);
+    if (dom_manager) {
+      dom_manager->AddRenderListenerOperation(shared_from_this(), name);
+    }
+  }
+  (*render_listener_map_)[name].push_back(
+      std::make_shared<RenderListenerInfo>(current_callback_id_, cb));
+  return current_callback_id_;
+}
+
+void DomNode::RemoveRenderListener(const std::string &name, uint32_t id) {
+  if (!render_listener_map_) {
+    return;
+  }
+  auto it = render_listener_map_->find(name);
+  if (it == render_listener_map_->end()) {
+    return;
+  }
+  auto render_listeners = it->second;
+  auto listener_it = std::find_if(render_listeners.begin(), render_listeners.end(),
+                                  [id](const std::shared_ptr<RenderListenerInfo> &item) {
+                                   if (item->id == id) {
+                                     return true;
+                                   }
+                                   return false;
+                                 });
+  if (listener_it != render_listeners.end()) {
+    render_listeners.erase(listener_it);
+  }
+  if (render_listeners.empty()) {
+    auto dom_manager = dom_manager_.lock();
+    TDF_BASE_DCHECK(dom_manager);
+    if (dom_manager) {
+      auto render_manager = dom_manager->GetRenderManager();
+      TDF_BASE_DCHECK(render_manager);
+      render_manager->RemoveRenderListener(shared_from_this(), name);
     }
   }
 }
@@ -205,6 +263,18 @@ DomNode::GetEventListener(const std::string &name, bool is_capture) {
     return it->second[kCapture];
   }
   return it->second[kBubble];
+}
+
+std::vector<std::shared_ptr<DomNode::RenderListenerInfo>>
+DomNode::GetRenderListener(const std::string &name) {
+  if (!render_listener_map_) {
+    return {};
+  }
+  auto it = render_listener_map_->find(name);
+  if (it == render_listener_map_->end()) {
+    return {};
+  }
+  return it->second;
 }
 
 void DomNode::ParseLayoutStyleInfo() { layout_node_->SetLayoutStyles(style_map_); }
