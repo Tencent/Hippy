@@ -255,7 +255,7 @@ static unicode_string_view NSStringToU8(NSString* str) {
                 if (!strongSelf.valid || !calls) {
                     return;
                 }
-                [strongSelf->_bridge handleBuffer:calls batchEnded:NO];
+                [strongSelf->_bridge handleBuffer:calls batchEnded:YES];
             };
 
             jsContext[@"nativeCallSyncHook"] = ^id(NSUInteger module, NSUInteger method, NSArray *args) {

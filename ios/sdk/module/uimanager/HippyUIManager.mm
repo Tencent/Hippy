@@ -1721,13 +1721,21 @@ static UIView *_jsResponder;
                  viewTag:(int32_t)hippyTag
                   params:(const DomValue &)params
                 callback:(CallFunctionCallback)cb {
-    HippyAssert(DomValueType::kArray == params.GetType(), @"params in dispatchFunction must be array type");
     NSString *name = [NSString stringWithUTF8String:functionName.c_str()];
-    NSArray * paramsArray = domValueToOCType(&params);
-    NSMutableArray *finalParams = [NSMutableArray arrayWithCapacity:2 + [paramsArray count]];
+    DomValueType type = params.GetType();
+    NSMutableArray *finalParams = [NSMutableArray arrayWithCapacity:8];
     [finalParams addObject:@(hippyTag)];
-    for (id param in paramsArray) {
-        [finalParams addObject:param];
+    if (DomValueType::kArray == type) {
+        NSArray * paramsArray = domValueToOCType(&params);
+        HippyAssert([paramsArray isKindOfClass:[NSArray class]], @"dispatch function method params type error");
+        if ([paramsArray isKindOfClass:[NSArray class]]) {
+            for (id param in paramsArray) {
+                [finalParams addObject:param];
+            }
+        }
+    }
+    else {
+        [finalParams addObject:[NSNull null]];
     }
     if (cb) {
         HippyResponseSenderBlock senderBlock = ^(NSArray *senderParams) {
