@@ -274,7 +274,7 @@ void HippyRenderManager::CallNativeMeasureMethod(const int32_t id, const float w
     return;
   }
 
-  jmethodID j_method_id = j_env->GetMethodID(j_class, "measure", "(IFIFIFFFF)J");
+  jmethodID j_method_id = j_env->GetMethodID(j_class, "measure", "(IFIFI)J");
   if (!j_method_id) {
     TDF_BASE_LOG(ERROR) << "measure j_method_id error";
     return;

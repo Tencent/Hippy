@@ -263,7 +263,7 @@ public class TextVirtualNode extends VirtualNode {
         }
         SpannableStringBuilder spannable = new SpannableStringBuilder();
         List<SpanOperation> ops = new ArrayList<>();
-        createSpanOperation(ops, spannable, useChild);
+        createSpanOperationImpl(ops, spannable, text, useChild);
         for (int i = ops.size() - 1; i >= 0; i--) {
             SpanOperation operation = ops.get(i);
             operation.execute(spannable);
@@ -272,22 +272,27 @@ public class TextVirtualNode extends VirtualNode {
     }
 
     private SpannableStringBuilder createSpan(boolean useChild) {
-        return createSpan(mSpanned, useChild);
+        return createSpan(mText, useChild);
     }
 
-    private CharSequence getEmoticonText() {
+    private CharSequence getEmoticonText(CharSequence text) {
         CharSequence emoticonText = null;
-        if (mFontAdapter != null && !TextUtils.isEmpty(mText)) {
-            emoticonText = mFontAdapter.getEmoticonText(mText, mFontSize);
+        if (mFontAdapter != null && !TextUtils.isEmpty(text)) {
+            emoticonText = mFontAdapter.getEmoticonText(text, mFontSize);
         }
-        return (emoticonText != null) ? emoticonText : mText;
+        return (emoticonText != null) ? emoticonText : text;
     }
 
     @Override
     protected void createSpanOperation(List<SpanOperation> ops, SpannableStringBuilder builder,
             boolean useChild) {
+        createSpanOperationImpl(ops, builder, mText, useChild);
+    }
+
+    protected void createSpanOperationImpl(List<SpanOperation> ops, SpannableStringBuilder builder,
+            CharSequence text, boolean useChild) {
         mStart = builder.length();
-        builder.append(getEmoticonText());
+        builder.append(getEmoticonText(text));
         mEnd = builder.length();
         if (mStart > mEnd) {
             return;
