@@ -65,13 +65,13 @@ function commitUpdate(
   updatePayloadPropList.forEach(propKey => instance.setAttribute(propKey, updatePayload[propKey]));
 }
 
-// this is the hook when commitEffects started
-export function commitEffectsStart(): void {
+// this is the hook when commitMutationEffects begin
+export function commitMutationEffectsBegin(): void {
   // noop
 }
 
-// this is the hook when unit work commitEffects finished
-export function commitEffectsComplete(): void {
+// this is the hook when commitMutationEffects finish
+export function commitMutationEffectsComplete(): void {
   endBatch(true);
 }
 
