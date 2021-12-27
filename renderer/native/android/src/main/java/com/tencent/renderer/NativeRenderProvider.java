@@ -92,8 +92,12 @@ public class NativeRenderProvider {
      * @param buffer The byte array serialize by native (C++)
      */
     public void updateNode(byte[] buffer) {
-        final ArrayList list = bytesToArgument(ByteBuffer.wrap(buffer));
+        try {
+            final ArrayList list = bytesToArgument(ByteBuffer.wrap(buffer));
 
+        } catch (NativeRenderException exception) {
+            mRenderDelegate.handleRenderException(exception);
+        }
     }
 
     /**
@@ -102,8 +106,12 @@ public class NativeRenderProvider {
      * @param buffer The byte array serialize by native (C++)
      */
     public void deleteNode(byte[] buffer) {
-        final ArrayList list = bytesToArgument(ByteBuffer.wrap(buffer));
+        try {
+            final ArrayList list = bytesToArgument(ByteBuffer.wrap(buffer));
 
+        } catch (NativeRenderException exception) {
+            mRenderDelegate.handleRenderException(exception);
+        }
     }
 
     /**
