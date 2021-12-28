@@ -137,9 +137,12 @@ void DomManager::EndBatch() {
     self->add_listener_operations_.clear();
     // 触发布局计算
     self->layout_changed_nodes_.clear();
+    auto render_manager = self->render_manager_.lock();
+    render_manager->OnLayoutBefore();
     // 触发布局计算
     self->root_node_->DoLayout();
-    auto render_manager = self->render_manager_.lock();
+
+    render_manager->OnLayoutFinish();
     TDF_BASE_DCHECK(render_manager);
     if (!render_manager) {
       return;

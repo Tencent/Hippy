@@ -27,6 +27,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <serializer.h>
 
 #include "base/logging.h"
 #include "core/base/common.h"
@@ -36,7 +37,6 @@
 #include "core/napi/callback_info.h"
 #include "core/napi/native_source_code.h"
 #include "core/scope.h"
-#include "hippy.h"
 #include "v8/libplatform/libplatform.h"
 
 namespace hippy::napi {
@@ -231,6 +231,10 @@ std::shared_ptr<VM> CreateVM(const std::shared_ptr<VMInitParam>& param) {
 std::shared_ptr<TryCatch> CreateTryCatchScope(bool enable,
                                               std::shared_ptr<Ctx> ctx) {
   return std::make_shared<V8TryCatch>(enable, ctx);
+}
+
+void DetachThread() {
+  // JNIEnvironment::GetInstance()->DetachCurrentThread();
 }
 
 V8VM::V8VM(const std::shared_ptr<V8VMInitParam>& param): VM(param) {
