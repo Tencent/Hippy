@@ -357,7 +357,7 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
             }
 
             if (clickView == nil || (index <= clickIndex && clickIndex != NSNotFound)) {
-                onTouchEventListener listener = [view eventListenerForEventType:HippyViewEventTypeTouchCancel];
+                onTouchEventListener listener = [view eventListenerForEventType:HippyViewEventTypeTouchMove];
                 if (listener) {
                     CGPoint point = [touch locationInView:view];
                     point = [view convertPoint:point toView:_rootView];

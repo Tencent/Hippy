@@ -13,7 +13,7 @@ inline namespace dom {
 constexpr char kClickEvent[] = "click";
 constexpr char kLongClickEvent[] = "longclick";
 constexpr char kTouchStartEvent[] = "touchstart";
-constexpr char kTouchMoveEvent[] = "tourchmove";
+constexpr char kTouchMoveEvent[] = "touchmove";
 constexpr char kTouchEndEvent[] = "touchend";
 constexpr char kPressIn[] = "pressin";
 constexpr char kPressOut[] = "pressout";
