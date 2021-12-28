@@ -12,8 +12,7 @@
 #include "dom/dom_value.h"
 #include "dom/layout_node.h"
 #include "dom/dom_argument.h"
-#include "core/task/javascript_task_runner.h"
-#include "core/task/javascript_task.h"
+#include "core/base/task_runner.h"
 #include "core/task/common_task.h"
 
 namespace hippy {
@@ -39,8 +38,6 @@ class DomManager: public std::enable_shared_from_this<DomManager> {
   inline void SetRenderManager(std::shared_ptr<RenderManager> render_manager) {
     render_manager_ = render_manager;
   }
-  inline void SetJsRunner(std::shared_ptr<JavaScriptTaskRunner> runner) { js_runner_ = runner; }
-  inline std::shared_ptr<JavaScriptTaskRunner> GetJsRunner() { return js_runner_.lock(); }
   inline uint32_t GetRootId() { return root_id_; }
   inline std::shared_ptr<DomNode> GetNode(uint32_t id) { return dom_node_registry_.GetNode(id); }
 
@@ -69,7 +66,6 @@ class DomManager: public std::enable_shared_from_this<DomManager> {
   uint32_t root_id_;
   std::shared_ptr<DomNode> root_node_;
   std::weak_ptr<RenderManager> render_manager_;
-  std::weak_ptr<JavaScriptTaskRunner> js_runner_;
   std::shared_ptr<hippy::base::TaskRunner> dom_task_runner_;
 
   class DomNodeRegistry {

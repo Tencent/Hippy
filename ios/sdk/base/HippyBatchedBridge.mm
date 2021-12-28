@@ -762,7 +762,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     _domManager->SetRootSize(CGRectGetWidth(rootView.bounds), CGRectGetHeight(rootView.bounds));
     _nativeRenderManager = std::make_shared<NativeRenderManager>(uiManager);
     _domManager->SetRenderManager(_nativeRenderManager);
-    _domManager->SetJsRunner(self.javaScriptExecutor.pScope->GetTaskRunner());
     self.javaScriptExecutor.pScope->SetDomManager(_domManager);
 }
 
