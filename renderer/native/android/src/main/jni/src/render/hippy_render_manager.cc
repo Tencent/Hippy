@@ -143,6 +143,9 @@ void HippyRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&
 };
 
 void HippyRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) {
+  // 更新布局信息前处理事件监听
+  HandleEventListenerOps();
+
   serializer_->Release();
   serializer_->WriteHeader();
 
@@ -199,11 +202,11 @@ void HippyRenderManager::Batch() {
 };
 
 void HippyRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {
-  TDF_BASE_NOTIMPLEMENTED();
+  event_listener_ops_.emplace_back(EventListenerOp(true, dom_node, name));
 }
 
 void HippyRenderManager::RemoveEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {
-  TDF_BASE_NOTIMPLEMENTED();
+  event_listener_ops_.emplace_back(EventListenerOp(false, dom_node, name));
 }
 
 void HippyRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std::string& name, const DomArgument& param,
@@ -284,6 +287,55 @@ void HippyRenderManager::CallNativeMeasureMethod(const int32_t id, const float w
   JNIEnvironment::ClearJEnvException(j_env);
 
   result = (int64_t)measure_result;
+}
+
+void HippyRenderManager::HandleEventListenerOps() {
+  if (event_listener_ops_.empty()) {
+    return;
+  }
+
+  uint32_t len = event_listener_ops_.size();
+  tdf::base::DomValue::DomValueArrayType event_listener_ops;
+  int index = 0;
+  while (index < len) {
+    std::shared_ptr<DomNode> dom_node = event_listener_ops_[index].dom_node.lock();
+    if (dom_node == nullptr) {
+      continue;
+    }
+
+    int current_id = dom_node->GetId();
+    bool current_add = event_listener_ops_[index].add;
+    tdf::base::DomValue::DomValueObjectType op;
+    op[kId] = tdf::base::DomValue(current_id);
+    tdf::base::DomValue::DomValueObjectType events;
+    events[event_listener_ops_[index].name] = tdf::base::DomValue(current_add);
+    index++;
+
+    while (index < len) {
+      if (event_listener_ops_[index].dom_node.lock()->GetId() == current_id
+          && event_listener_ops_[index].add == current_add) {
+        // batch add or remove operations with the same nodes together.
+        events[event_listener_ops_[index].name] = tdf::base::DomValue(current_add);
+        index++;
+      } else {
+        break;
+      }
+    }
+
+    op[kProps] = events;
+    event_listener_ops.emplace_back(op);
+  }
+
+  event_listener_ops_.clear();
+  if (event_listener_ops.empty()) {
+    return;
+  }
+
+  serializer_->Release();
+  serializer_->WriteHeader();
+  serializer_->WriteDenseJSArray(event_listener_ops);
+  std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
+  CallNativeMethod(buffer_pair, "updateGestureEventListener");
 }
 
 }  // namespace dom
