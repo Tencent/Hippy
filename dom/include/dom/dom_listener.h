@@ -19,7 +19,6 @@ constexpr char kPressIn[] = "pressin";
 constexpr char kPressOut[] = "pressout";
 constexpr char kTouchCancelEvent[] = "touchcancel";
 constexpr char kLayoutEvent[] = "layout";
-constexpr char kAddUITask[] = "adduitask";
 constexpr char kShowEvent[] = "show";
 constexpr char kDismissEvent[] = "dismiss";
 
