@@ -233,10 +233,6 @@ std::shared_ptr<TryCatch> CreateTryCatchScope(bool enable,
   return std::make_shared<V8TryCatch>(enable, ctx);
 }
 
-void DetachThread() {
-  JNIEnvironment::GetInstance()->DetachCurrentThread();
-}
-
 V8VM::V8VM(const std::shared_ptr<V8VMInitParam>& param): VM(param) {
   TDF_BASE_DLOG(INFO) << "V8VM begin";
   {
