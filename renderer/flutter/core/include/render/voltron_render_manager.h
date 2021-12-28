@@ -27,6 +27,8 @@ class VoltronRenderManager : public RenderManager, private VoltronRenderTaskRunn
 
   void AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) override;
   void RemoveEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) override;
+  void AddRenderListener(std::weak_ptr<DomNode> dom_node, const std::string& name) override;
+  void RemoveRenderListener(std::weak_ptr<DomNode> dom_node, const std::string& name) override;
   void CallFunction(std::weak_ptr<DomNode> dom_node, const std::string& name, const DomArgument& param,
                     CallFunctionCallback cb) override;
   void CallEvent(std::weak_ptr<DomNode> dom_node, const std::string& name, const std::unique_ptr<EncodableValue>& params);

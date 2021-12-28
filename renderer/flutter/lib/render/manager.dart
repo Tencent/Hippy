@@ -248,7 +248,7 @@ class RenderManager
       var uiNode = controllerManager.createRenderNode(
           id, props, name, tree, isLazy || parentNode.isLazyLoad);
       LogUtils.dRender(
-          "createNode ID:$id pID:$pId index:$childIndex className:$name finish:${uiNode.hashCode}");
+          "createNode ID:$id pID:$pId index:$childIndex className:$name finish:${uiNode.hashCode} prop:$props");
       parentNode.addChild(uiNode, childIndex);
       addUpdateNodeIfNeeded(parentNode);
       addUpdateNodeIfNeeded(uiNode);

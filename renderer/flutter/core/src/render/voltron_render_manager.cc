@@ -38,6 +38,16 @@ void VoltronRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNod
   RunUpdateLayout(nodes);
 }
 
+void VoltronRenderManager::AddRenderListener(std::weak_ptr<DomNode> dom_node,
+                                             const std::string &name) {
+
+}
+
+void VoltronRenderManager::RemoveRenderListener(std::weak_ptr<DomNode> dom_node,
+                                                const std::string &name) {
+
+}
+
 void VoltronRenderManager::Batch() { RunBatch(); }
 
 void VoltronRenderManager::OnLayoutBefore() {

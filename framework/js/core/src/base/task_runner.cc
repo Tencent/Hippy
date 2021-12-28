@@ -31,9 +31,9 @@
 #include "core/base/task.h"
 #include "core/base/thread_id.h"
 #include "core/napi/js_native_api.h"
-#ifdef ANDROID
-#include "jni/jni_env.h"
-#endif
+//#ifdef ANDROID
+//#include "jni/jni_env.h"
+//#endif
 
 
 namespace hippy::base {
@@ -145,9 +145,9 @@ std::shared_ptr<Task> TaskRunner::GetNext() {
     }
 
     if (is_terminated_) {
-#ifdef ANDROID
-      JNIEnvironment::GetInstance()->DetachCurrentThread();
-#endif
+//#ifdef ANDROID
+//      JNIEnvironment::GetInstance()->DetachCurrentThread();
+//#endif
       TDF_BASE_DLOG(INFO) << "TaskRunner terminate";
       return nullptr;
     }

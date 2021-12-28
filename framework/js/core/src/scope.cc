@@ -179,8 +179,10 @@ void Scope::AddListener(uint32_t node_id, const std::string& event_name, uint32_
   auto id_it = listener_id_map_.find(node_id);
   if (id_it != listener_id_map_.end()) {
     auto name_it = id_it->second.find(event_name);
-    TDF_BASE_DCHECK(name_it != id_it->second.end()); // 目前hippy上层还不支持绑定多个回调
-    id_it->second[event_name] = listener_id;
+    if (name_it != id_it->second.end()) {  // 目前hippy上层还不支持绑定多个回调
+      id_it->second[event_name] = listener_id;
+    }
+//    TDF_BASE_DCHECK(name_it != id_it->second.end());
   } else {
     listener_id_map_[node_id] = std::unordered_map<std::string, uint32_t>();
     listener_id_map_[node_id][event_name] = listener_id;
