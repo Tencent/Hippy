@@ -55,6 +55,22 @@ class HippyRenderManager : public RenderManager {
   std::shared_ptr<JavaRef> render_delegate_;
   std::shared_ptr<tdf::base::Serializer> serializer_;
   float density_ = 1.0f;
+
+  struct EventListenerOp {
+    bool add;
+    std::weak_ptr<DomNode> dom_node;
+    std::string name;
+
+    EventListenerOp(bool add, std::weak_ptr<DomNode> dom_node, const std::string& name) {
+      this->add = add;
+      this->dom_node = dom_node;
+      this->name = name;
+    }
+  };
+
+  void HandleEventListenerOps();
+
+  std::vector<EventListenerOp> event_listener_ops_;
 };
 }  // namespace dom
 }  // namespace hippy

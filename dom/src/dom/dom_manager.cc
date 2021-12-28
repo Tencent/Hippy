@@ -131,10 +131,10 @@ void DomManager::EndBatch() {
       batch_operation();
     }
     self->batched_operations_.clear();
-    for (auto& batch_operation : self->add_listener_operations_) {
-      batch_operation();
+    for (auto& listener_operation : self->listener_operations_) {
+      listener_operation();
     }
-    self->add_listener_operations_.clear();
+    self->listener_operations_.clear();
     // 触发布局计算
     self->layout_changed_nodes_.clear();
     // 触发布局计算
@@ -210,7 +210,7 @@ void DomManager::CallFunction(uint32_t id, const std::string& name, const DomArg
 }
 
 void DomManager::AddEventListenerOperation(const std::shared_ptr<DomNode>& node, const std::string& name) {
-  add_listener_operations_.emplace_back([this, node, name]() {
+  listener_operations_.emplace_back([this, node, name]() {
     auto render_manager = render_manager_.lock();
     TDF_BASE_DCHECK(render_manager);
     if (render_manager) {
@@ -220,7 +220,7 @@ void DomManager::AddEventListenerOperation(const std::shared_ptr<DomNode>& node,
 }
 
 void DomManager::AddRenderListenerOperation(const std::shared_ptr<DomNode>& node, const std::string& name) {
-  add_listener_operations_.emplace_back([this, node, name]() {
+  listener_operations_.emplace_back([this, node, name]() {
     auto render_manager = render_manager_.lock();
     TDF_BASE_DCHECK(render_manager);
     if (render_manager) {

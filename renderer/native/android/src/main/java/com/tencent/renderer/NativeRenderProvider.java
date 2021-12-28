@@ -160,6 +160,14 @@ public class NativeRenderProvider {
         onRootSizeChanged(mRuntimeId, PixelUtil.px2dp(width), PixelUtil.px2dp(height));
     }
 
+    public void updateGestureEventListener(byte[] buffer) {
+        try {
+            final ArrayList list = bytesToArgument(ByteBuffer.wrap(buffer));
+        } catch (NativeRenderException exception) {
+            mRenderDelegate.handleRenderException(exception);
+        }
+    }
+
     /**
      * Create provider when renderer init, and should notify native (C++) to build render manager
      *
