@@ -23,11 +23,6 @@ const gestureKeyMap = {
 //   onDismiss: 'dismiss',
 // };
 
-const kNewEventMap = {
-  layout: 'adduitask',
-  layoutevent: 'layout',
-};
-
 
 const kEventsListsKey = '__events';
 const kRenderListsKey = '__renders';
@@ -81,10 +76,7 @@ function HandleEventListener(node) {
           });
         }
       } else {
-        let normalEventName = key.replace(/^(on)?/g, '').toLocaleLowerCase();
-        if (kNewEventMap[normalEventName]) { // compatible with old layout
-          normalEventName = kNewEventMap[normalEventName];
-        }
+        const normalEventName = key.replace(/^(on)?/g, '').toLocaleLowerCase();
         if (value === false) {
           global.ConsoleModule.debug(`RemoveRenderListener id = ${id}, key = ${key}`);
           node[kEventsListsKey].push({
