@@ -13,7 +13,7 @@
     "hippy:local-debug": "node ../../packages/hippy-debug-server/index.js",
     "hippy:local-dev": "node ../../packages/hippy-debug-server/hippy-dev.js -c ./scripts/hippy-webpack.dev.js",
     "hippy:debug": "hippy-debug",
-    "hippy:dev": "hippy-dev -c ./scripts/hippy-webpack.dev.js | node ../../packages/hippy-debug-server/hippy-dev.js -c ./scripts/hippy-webpack.dev.js",
+    "hippy:dev": "hippy-dev -c ./scripts/hippy-webpack.dev.js",
     "hippy:vendor": "webpack --config ./scripts/hippy-webpack.ios-vendor.js --config ./scripts/hippy-webpack.android-vendor.js",
     "hippy:build": "webpack --config ./scripts/hippy-webpack.ios.js --config ./scripts/hippy-webpack.android.js"
   },
@@ -24,7 +24,7 @@
   "dependencies": {
     "@hippy/react": "latest",
     "@hippy/react-reconciler": "react17",
-    "@hippy/react-web": "^2.0.2",
+    "@hippy/react-web": "latest",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-router": "~5.1.2",
@@ -45,7 +45,7 @@
     "@babel/polyfill": "^7.12.0",
     "@babel/preset-env": "^7.12.0",
     "@babel/preset-react": "^7.9.4",
-    "@hippy/debug-server": "^2.1.2",
+    "@hippy/debug-server": "alpha",
     "@hippy/hippy-dynamic-import-plugin": "^2.0.0",
     "@hippy/hippy-hmr-plugin": "^0.0.2",
     "@hippy/hippy-react-refresh-webpack-plugin": "^0.5.5",
