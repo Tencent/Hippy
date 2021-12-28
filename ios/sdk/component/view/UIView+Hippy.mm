@@ -277,8 +277,6 @@ HippyEventMethod(OnDetachedFromWindow, onDetachedFromWindow, HippyDirectEventBlo
     }
 }
 
-- (void)didUpdateLayout {}
-
 - (void)hippySetFrame:(CGRect)frame {
     // These frames are in terms of anchorPoint = topLeft, but internally the
     // views are anchorPoint = center for easier scale and rotation animations.

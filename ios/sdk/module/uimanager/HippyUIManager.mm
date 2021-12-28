@@ -1713,9 +1713,6 @@ static UIView *_jsResponder;
             newProps = [shadowView mergeProps: props];
             virtualProps = shadowView.props;
             shadowView.frame = frame;
-            dispatch_async(renderQueue(), ^{
-                [shadowView didUpdateLayout];
-            });
             [componentData setProps:newProps forShadowView:shadowView];
         }
         [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
@@ -1900,37 +1897,9 @@ static UIView *_jsResponder;
 }
 
 - (void)addRenderEvent:(const std::string &)name forDomNode:(std::weak_ptr<hippy::DomNode>)weak_node {
-    auto node = weak_node.lock();
-    if (node) {
-        HippyShadowView *shadowView = _shadowViewRegistry[@(node->GetId())];
-//        dispatch_async(renderQueue(), ^{
-        //FIXME hippy::kAddUITask消息必须在前端didComponentMount后发送才能达到效果
-        //这个消息尽量放在上屏前一刻再发送
-        //当前先使用magic number 1
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [shadowView setUITaskListener:^(CGRect frame) {
-                DomValue::DomValueObjectType object;
-                object["x"] = frame.origin.x;
-                object["y"] = frame.origin.y;
-                object["width"] = frame.size.width;
-                object["height"] = frame.size.height;
-                DomValue::DomValueObjectType taskObject;
-                taskObject[hippy::kLayoutEvent] = object;
-                DomValue domValue(taskObject);
-                std::shared_ptr<DomArgument> domArgument = std::make_shared<DomArgument>(std::move(domValue));
-                node->HandleListener(hippy::kAddUITask, domArgument);
-            }];
-//         });
-        });
-    }
 }
 
 - (void)removeRenderEvent:(const std::string &)name forDomNode:(std::weak_ptr<hippy::DomNode>)weak_node {
-    auto node = weak_node.lock();
-    if (node) {
-        HippyShadowView *shadowView = _shadowViewRegistry[@(node->GetId())];
-        shadowView.uiTaskListener = NULL;
-    }
 }
 
 @end

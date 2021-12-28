@@ -71,8 +71,6 @@ typedef void (^HippyDirectEventBlock)(NSDictionary *body);
 
 - (void)hippyBridgeDidFinishTransaction;
 
-- (void)didUpdateLayout;
-
 @end
 
 // hippy use multiple of 10 as tag of root view
