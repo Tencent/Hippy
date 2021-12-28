@@ -1,0 +1,6 @@
+framework module flexbox {
+  umbrella header "flexbox.h"
+
+  export *
+  module * { export * }
+}

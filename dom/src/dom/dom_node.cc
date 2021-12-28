@@ -280,6 +280,7 @@ DomNode::GetRenderListener(const std::string &name) {
 void DomNode::ParseLayoutStyleInfo() { layout_node_->SetLayoutStyles(style_map_); }
 
 void DomNode::TransferLayoutOutputsRecursive() {
+  TDF_BASE_DLOG(INFO) << "AddLayoutChangedNode start id" << GetId();
   std::shared_ptr<TaitankLayoutNode>
       node = std::static_pointer_cast<TaitankLayoutNode>(layout_node_);
   if (!node->HasNewLayout()) {
@@ -313,8 +314,11 @@ void DomNode::TransferLayoutOutputsRecursive() {
   if (changed) {
     auto dom_manager = dom_manager_.lock();
     if (dom_manager) {
+      TDF_BASE_DLOG(INFO) << "AddLayoutChangedNode id" << GetId();
       dom_manager->AddLayoutChangedNode(shared_from_this());
     }
+  } else {
+    TDF_BASE_DLOG(INFO) << "AddLayoutChangedNode no change id" << GetId();
   }
   for (auto &it : children_) {
     it->TransferLayoutOutputsRecursive();

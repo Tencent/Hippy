@@ -121,9 +121,11 @@ void DomManager::EndBatch() {
     batch_operation();
   }
   add_listener_operations_.clear();
+  auto render_manager = render_manager_.lock();
+  render_manager->OnLayoutBefore();
   // 触发布局计算
   DoLayout();
-  auto render_manager = render_manager_.lock();
+  render_manager->OnLayoutFinish();
   TDF_BASE_DCHECK(render_manager);
   if (render_manager) {
     render_manager->Batch();
