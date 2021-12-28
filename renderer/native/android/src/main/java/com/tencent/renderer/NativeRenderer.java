@@ -289,28 +289,19 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         if (mRenderProvider == null) {
             return;
         }
-        ArrayList<Object> list = new ArrayList<>();
         try {
-            list.add(id);
-            list.add(eventName);
-            if (params != null) {
-                list.add(params);
-            }
-            ByteBuffer buffer = argumentToBytes(list);
+            ByteBuffer buffer = argumentToBytes(params);
             if (buffer == null || buffer.limit() == 0) {
                 return;
             }
-            int offset = buffer.position();
-            int length = buffer.limit() - buffer.position();
-            offset += buffer.arrayOffset();
-            mRenderProvider.dispatchUIComponentEvent(buffer, offset, length);
+            mRenderProvider.dispatchUIComponentEvent(id, eventName, buffer);
         } catch (Exception exception) {
             handleRenderException(exception);
         }
     }
 
     @Override
-    public void dispatchNativeGestureEvent(@NonNull HashMap<String, Object> params) {
+    public void dispatchNativeGestureEvent(int domId, String eventName, Object params) {
         if (mRenderProvider == null) {
             return;
         }
@@ -319,10 +310,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
             if (buffer == null || buffer.limit() == 0) {
                 return;
             }
-            int offset = buffer.position();
-            int length = buffer.limit() - buffer.position();
-            offset += buffer.arrayOffset();
-            mRenderProvider.dispatchNativeGestureEvent(buffer, offset, length);
+            mRenderProvider.dispatchNativeGestureEvent(domId, eventName, buffer);
         } catch (Exception exception) {
             handleRenderException(exception);
         }
