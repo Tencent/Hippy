@@ -64,6 +64,15 @@ using RenderInfo = hippy::DomNode::RenderInfo;
 using CallFunctionCallback = hippy::CallFunctionCallback;
 using DomEvent = hippy::DomEvent;
 
+static dispatch_queue_t renderQueue() {
+    static dispatch_once_t onceToken;
+    static dispatch_queue_t renderQueue = nil;
+    dispatch_once(&onceToken, ^{
+        renderQueue = dispatch_queue_create("com.tencent.hippy.renderQueue", DISPATCH_QUEUE_SERIAL);
+    });
+    return renderQueue;
+}
+
 using HPViewBinding = std::unordered_map<int32_t, std::tuple<std::vector<int32_t>, std::vector<int32_t>>>;
 @interface HippyViewsRelation : NSObject {
     HPViewBinding _viewRelation;
@@ -1703,6 +1712,9 @@ static UIView *_jsResponder;
             newProps = [shadowView mergeProps: props];
             virtualProps = shadowView.props;
             shadowView.frame = frame;
+            dispatch_async(renderQueue(), ^{
+                [shadowView didUpdateLayout];
+            });
             [componentData setProps:newProps forShadowView:shadowView];
         }
         [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
@@ -1883,6 +1895,39 @@ static UIView *_jsResponder;
             UIView *view = [uiManager viewForHippyTag:@(domNode->GetId())];
             [view removeViewEvent:viewEventTypeFromName(eventName)];
         }];
+    }
+}
+
+- (void)addRenderEvent:(const std::string &)name forDomNode:(std::weak_ptr<hippy::DomNode>)weak_node {
+    auto node = weak_node.lock();
+    if (node) {
+        HippyShadowView *shadowView = _shadowViewRegistry[@(node->GetId())];
+//        dispatch_async(renderQueue(), ^{
+        //FIXME hippy::kAddUITask消息必须在前端didComponentMount后发送才能达到效果
+        //这个消息尽量放在上屏前一刻再发送
+        //当前先使用magic number 1
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [shadowView setUITaskListener:^(CGRect frame) {
+                DomValue::DomValueObjectType object;
+                object["x"] = frame.origin.x;
+                object["y"] = frame.origin.y;
+                object["width"] = frame.size.width;
+                object["height"] = frame.size.height;
+                DomValue::DomValueObjectType taskObject;
+                taskObject[hippy::kLayoutEvent] = object;
+                std::shared_ptr<DomValue> domValue = std::make_shared<DomValue>(taskObject);
+                node->HandleListener(hippy::kAddUITask, domValue);
+            }];
+//         });
+        });
+    }
+}
+
+- (void)removeRenderEvent:(const std::string &)name forDomNode:(std::weak_ptr<hippy::DomNode>)weak_node {
+    auto node = weak_node.lock();
+    if (node) {
+        HippyShadowView *shadowView = _shadowViewRegistry[@(node->GetId())];
+        shadowView.uiTaskListener = NULL;
     }
 }
 

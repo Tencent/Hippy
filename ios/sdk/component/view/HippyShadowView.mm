@@ -79,6 +79,7 @@ typedef NS_ENUM(unsigned int, meta_prop_t) {
     float _marginMetaProps[META_PROP_COUNT];
     float _borderMetaProps[META_PROP_COUNT];
     std::weak_ptr<hippy::DomNode> _domNode;
+    BOOL _didUpdateLayoutOnce;
 }
 
 @end
@@ -89,6 +90,7 @@ typedef NS_ENUM(unsigned int, meta_prop_t) {
 @synthesize props = _props;
 @synthesize rootTag = _rootTag;
 @synthesize parent = _parent;
+@synthesize tagName;
 
 // not used function
 // static void HippyPrint(void *context)
@@ -724,8 +726,22 @@ static inline void x5AssignSuggestedDimension(HPNodeRef cssNode, Dimension dimen
 //    }
 //}
 
+- (void)setUITaskListener:(HippyUITaskListener)uiTaskListener {
+    _uiTaskListener = uiTaskListener;
+    if (uiTaskListener && _didUpdateLayoutOnce) {
+        _uiTaskListener(self.frame);
+    }
+}
+
 - (void)didUpdateHippySubviews {
     // Does nothing by default
+}
+
+- (void)didUpdateLayout {
+    _didUpdateLayoutOnce = YES;
+    if (_uiTaskListener) {
+        _uiTaskListener(self.frame);
+    }
 }
 
 - (void)didSetProps:(__unused NSArray<NSString *> *)changedProps {
@@ -796,4 +812,5 @@ static inline void x5AssignSuggestedDimension(HPNodeRef cssNode, Dimension dimen
     }
     return ret;
 }
+
 @end

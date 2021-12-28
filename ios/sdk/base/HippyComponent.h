@@ -69,10 +69,9 @@ typedef void (^HippyDirectEventBlock)(NSDictionary *body);
  */
 - (void)didUpdateHippySubviews;
 
-// TODO: Deprecate this
-// This method is called after layout has been performed for all views known
-// to the HippyViewManager. It is only called on UIViews, not shadow views.
 - (void)hippyBridgeDidFinishTransaction;
+
+- (void)didUpdateLayout;
 
 @end
 

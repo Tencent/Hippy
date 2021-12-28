@@ -45,6 +45,8 @@ typedef void (^HippyApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegist
 
 typedef void (^HippyApplierVirtualBlock)(NSDictionary<NSNumber *, HippyVirtualNode *> *virtualNodeRegistry);
 
+typedef void (^HippyUITaskListener)(CGRect);
+
 /**
  * ShadowView tree mirrors Hippy view tree. Every node is highly stateful.
  * 1. A node is in one of three lifecycles: uninitialized, computed, dirtied.
@@ -77,6 +79,8 @@ typedef void (^HippyApplierVirtualBlock)(NSDictionary<NSNumber *, HippyVirtualNo
 @property (nonatomic, copy) NSString *visibility;
 @property (nonatomic, assign) BOOL visibilityChanged;
 @property (nonatomic, assign) BOOL hasNewLayout;
+@property (nonatomic, copy, setter=setUITaskListener:) HippyUITaskListener uiTaskListener;
+
 
 /**
  * isNewView - Used to track the first time the view is introduced into the hierarchy.  It is initialized YES, then is

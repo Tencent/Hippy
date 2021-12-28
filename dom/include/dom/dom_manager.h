@@ -31,7 +31,7 @@ class DomManager {
 
   static void HandleListener(const std::weak_ptr<DomNode>& weak_target,
                              const std::string& name,
-                             std::shared_ptr<DomEvent> param);
+                             std::shared_ptr<DomValue> param);
 
   inline std::shared_ptr<RenderManager> GetRenderManager() { return render_manager_.lock(); }
   inline void SetRenderManager(std::shared_ptr<RenderManager> render_manager) {
@@ -47,7 +47,7 @@ class DomManager {
   void EndBatch();
   // 返回0代表失败，正常id从1开始
   uint32_t AddEventListener(uint32_t id, const std::string &name, bool use_capture,
-                            const RenderCallback &cb);
+                            const EventCallback &cb);
   void RemoveEventListener(uint32_t id, const std::string &name, uint32_t listener_id);
   // RenderListener 没有捕获冒泡流程，EventListener 拥有捕获冒泡流程
   uint32_t AddRenderListener(uint32_t id, const std::string &name,

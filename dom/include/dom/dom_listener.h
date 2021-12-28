@@ -6,6 +6,7 @@
 #include "dom/dom_event.h"
 #include "dom/dom_listener.h"
 #include "dom/dom_argument.h"
+#include "dom/dom_value.h"
 
 namespace hippy {
 inline namespace dom {
@@ -19,11 +20,12 @@ constexpr char kPressIn[] = "pressin";
 constexpr char kPressOut[] = "pressout";
 constexpr char kTouchCancelEvent[] = "touchcancel";
 constexpr char kLayoutEvent[] = "layout";
+constexpr char kAddUITask[] = "adduitask";
 constexpr char kShowEvent[] = "show";
 constexpr char kDismissEvent[] = "dismiss";
 
 using EventCallback = std::function<void(const std::shared_ptr<DomEvent>&)>;
-using RenderCallback = std::function<void(const std::shared_ptr<DomEvent>&)>;
+using RenderCallback = std::function<void(const std::shared_ptr<tdf::base::DomValue>&)>;
 using CallFunctionCallback = std::function<void(std::shared_ptr<DomArgument>)>;
 
 struct TouchEventInfo {

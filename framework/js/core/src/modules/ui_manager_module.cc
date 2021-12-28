@@ -321,13 +321,13 @@ void HandleRenderListeners(const std::shared_ptr<Ctx> &context,
           // dom_node 持有 cb
           auto listener_id =
               dom_node->AddRenderListener(name_str, [weak_context, cb]
-                  (const std::shared_ptr<DomEvent> &event) {
+                  (const std::shared_ptr<DomValue> &value) {
                 auto context = weak_context.lock();
                 if (!context) {
                   return;
                 }
                 auto param =
-                    context->CreateCtxValue(event->GetValue());
+                    context->CreateCtxValue(value);
                 if (param) {
                   const std::shared_ptr<CtxValue>
                       argus[] = {param};
