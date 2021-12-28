@@ -523,9 +523,7 @@ jlong InitInstance(JNIEnv* j_env,
   }
   auto scope = runtime->GetEngine()->CreateScope("", std::move(scope_cb_map));
   TDF_BASE_DCHECK(j_root_view_id <= std::numeric_limits<std::int32_t>::max());
-  auto dom_manager = std::make_shared<DomManager>(static_cast<int32_t>(j_root_view_id));
-  dom_manager->SetJsRunner(runtime->GetEngine()->GetJSRunner());
-  scope->SetDomManager(dom_manager);
+  scope->SetDomManager(std::make_shared<DomManager>(static_cast<int32_t>(j_root_view_id)));
   runtime->SetScope(scope);
   TDF_BASE_DLOG(INFO) << "group = " << group;
   runtime->SetGroupId(group);

@@ -10,6 +10,6 @@
 #define DEFINE_SELF(type) HAS_SELF(type);
 #define DEFINE_AND_CHECK_SELF(type) \
   DEFINE_SELF(type)                 \
-  if (!self) {                \
-    return;                   \
+  if (!self) {                      \
+    return;                         \
   }

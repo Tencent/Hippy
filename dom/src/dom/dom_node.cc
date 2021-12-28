@@ -128,11 +128,11 @@ void DomNode::SetLayoutSize(float width, float height) {
 }
 
 void DomNode::AddEventListener(const std::string& name, bool use_capture, const EventCallback& cb,
-                               const CallFunctionCallback& functionCallback) {
+                               const CallFunctionCallback& callback) {
   auto dom_manager = dom_manager_.lock();
   TDF_BASE_DCHECK(dom_manager);
   if (dom_manager) {
-    dom_manager->PostTask([WEAK_THIS, name, use_capture, cb, functionCallback]() {
+    dom_manager->PostTask([WEAK_THIS, name, use_capture, cb, callback]() {
       DEFINE_AND_CHECK_SELF(DomNode)
       // taskRunner内置执行确保current_callback_id_无多线程问题
       self->current_callback_id_ += 1;
@@ -157,9 +157,9 @@ void DomNode::AddEventListener(const std::string& name, bool use_capture, const 
         (*self->event_listener_map_)[name][kBubble].push_back(
             std::make_shared<EventListenerInfo>(self->current_callback_id_, cb));
       }
-      if (functionCallback) {
+      if (callback) {
         auto arg = std::make_shared<DomArgument>(DomValue(self->current_callback_id_));
-        functionCallback(arg);
+          callback(arg);
       }
     });
   }
@@ -214,11 +214,11 @@ void DomNode::RemoveEventListener(const std::string& name, uint32_t id) {
 }
 
 void DomNode::AddRenderListener(const std::string& name, const RenderCallback& cb,
-                                const CallFunctionCallback& functionCallback) {
+                                const CallFunctionCallback& callback) {
   auto dom_manager = dom_manager_.lock();
   TDF_BASE_DCHECK(dom_manager);
   if (dom_manager) {
-    dom_manager->PostTask([WEAK_THIS, name, cb, functionCallback]() {
+    dom_manager->PostTask([WEAK_THIS, name, cb, callback]() {
       DEFINE_AND_CHECK_SELF(DomNode)
       // taskRunner内置执行确保current_callback_id_无多线程问题
       self->current_callback_id_ += 1;
@@ -238,9 +238,9 @@ void DomNode::AddRenderListener(const std::string& name, const RenderCallback& c
       }
       (*self->render_listener_map_)[name].push_back(
           std::make_shared<RenderListenerInfo>(self->current_callback_id_, cb));
-      if (functionCallback) {
+      if (callback) {
         auto arg = std::make_shared<DomArgument>(DomValue(self->current_callback_id_));
-        functionCallback(arg);
+          callback(arg);
       }
     });
   }
