@@ -91,7 +91,7 @@ void Engine::CreateVM(const std::shared_ptr<VMInitParam>& param) {
   TDF_BASE_DLOG(INFO) << "Engine CreateVM";
   vm_ = hippy::napi::CreateVM(param);
 
-  RegisterMap::const_iterator it = map_->find(hippy::base::kVMCreateCBKey);
+  auto it = map_->find(hippy::base::kVMCreateCBKey);
   if (it != map_->end()) {
     RegisterFunction f = it->second;
     if (f) {
