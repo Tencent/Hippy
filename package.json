@@ -47,7 +47,6 @@
     "flow-remove-types": "^1.2.3",
     "husky": "^7.0.1",
     "is-ci": "^2.0.0",
-    "lerna": "^3.16.4",
     "lint-staged": "^11.0.1",
     "markdownlint-cli": "^0.28.1",
     "module-alias": "^2.2.1",
@@ -70,6 +69,9 @@
     "typescript": "^3.7.4",
     "vue": "^2.6.10",
     "watch": "^1.0.2"
+  },
+  "dependencies": {
+    "lerna": "^3.16.4"
   },
   "_moduleAliases": {
     "vue": "node_modules/vue/src/core/index",
