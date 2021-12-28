@@ -175,9 +175,7 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 - (void)updateViewsFromParams:(NSArray<HippyExtAnimationViewParams *> *)params completion:(HippyViewUpdateCompletedBlock)block;
 - (void)updateViewWithHippyTag:(NSNumber *)hippyTag props:(NSDictionary *)pros;
 
-- (void)setDomManager:(std::shared_ptr<hippy::DomManager>)domManager;
-
-- (std::shared_ptr<hippy::DomManager>)domManager;
+- (void)setDomManager:(std::weak_ptr<hippy::DomManager>)domManager;
 
 - (void)renderCreateView:(int32_t)hippyTag
                 viewName:(const std::string &)name

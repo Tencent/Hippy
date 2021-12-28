@@ -162,7 +162,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     NSMutableArray<HippyViewUpdateCompletedBlock> *_completeBlocks;
 
     NSMutableSet<NSNumber *> *_listAnimatedViewTags;
-    std::shared_ptr<DomManager> _domManager;
+    std::weak_ptr<DomManager> _domManager;
 }
 
 //store container views tags with their subview tags for every time views created or updated
@@ -1599,12 +1599,17 @@ static UIView *_jsResponder;
     return tmpProps;
 }
 
-- (void)setDomManager:(std::shared_ptr<DomManager>)domManager {
+- (void)setDomManager:(std::weak_ptr<DomManager>)domManager {
     _domManager = domManager;
 }
 
-- (std::shared_ptr<DomManager>)domManager {
-    return _domManager;
+- (std::shared_ptr<DomNode>)domNodeFromHippyTag:(int32_t)hippyTag {
+    auto domManager = _domManager.lock();
+    if (domManager) {
+        auto domNode = domManager->GetNode(hippyTag);
+        return domNode;
+    }
+    return nullptr;
 }
 
 /**
@@ -1763,27 +1768,27 @@ static UIView *_jsResponder;
     if (node) {
         if (name == hippy::kClickEvent) {
             [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-                [uiManager addClickEventListenerforNode:node forView:node->GetId()];
+                [uiManager addClickEventListenerForView:node->GetId()];
             }];
         } else if (name == hippy::kLongClickEvent) {
             [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-                [uiManager addLongClickEventListenerforNode:node forView:node->GetId()];
+                [uiManager addLongClickEventListenerForView:node->GetId()];
             }];
         } else if (name == hippy::kTouchStartEvent || name == hippy::kTouchMoveEvent
                    || name == hippy::kTouchEndEvent || name == hippy::kTouchCancelEvent) {
             std::string name_ = name;
             [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-                [uiManager addTouchEventListenerforNode:node forType:std::move(name_) forView:node->GetId()];
+                [uiManager addTouchEventListenerForType:std::move(name_) forView:node->GetId()];
             }];
         } else if (name == hippy::kShowEvent || name == hippy::kDismissEvent) {
             std::string name_ = name;
             [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-                [uiManager addShowEventListenerForNode:node forType:std::move(name_) forView:node->GetId()];
+                [uiManager addShowEventListenerForType:std::move(name_) forView:node->GetId()];
             }];
         } else if (name == hippy::kPressIn || name == hippy::kPressOut) {
             std::string name_ = name;
             [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-                [uiManager addPressEventListenerforNode:node forType:std::move(name_) forView:node->GetId()];
+                [uiManager addPressEventListenerForType:std::move(name_) forView:node->GetId()];
             }];
         }
         else {
@@ -1795,48 +1800,45 @@ static UIView *_jsResponder;
     }
 }
 
-- (void) addClickEventListenerforNode:(std::weak_ptr<DomNode>)weak_node forView:(int32_t)hippyTag {
+- (void) addClickEventListenerForView:(int32_t)hippyTag {
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
         [view addViewEvent:HippyViewEventTypeClick eventListener:^(CGPoint) {
-            std::shared_ptr<DomNode> node = weak_node.lock();
+            auto node = [self domNodeFromHippyTag:hippyTag];
             if (node) {
-                node->HandleEvent(std::make_shared<hippy::DomEvent>(hippy::kClickEvent, weak_node, nullptr));
+                node->HandleEvent(std::make_shared<hippy::DomEvent>(hippy::kClickEvent, node, nullptr));
             }
         }];
     }
 }
 
-- (void) addLongClickEventListenerforNode:(std::weak_ptr<DomNode>)weak_node
-                                  forView:(int32_t)hippyTag {
+- (void) addLongClickEventListenerForView:(int32_t)hippyTag {
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
         [view addViewEvent:HippyViewEventTypeLongClick eventListener:^(CGPoint) {
-            std::shared_ptr<DomNode> node = weak_node.lock();
+            auto node = [self domNodeFromHippyTag:hippyTag];
             if (node) {
-                node->HandleEvent(std::make_shared<hippy::DomEvent>(hippy::kLongClickEvent, weak_node, nullptr));
+                node->HandleEvent(std::make_shared<hippy::DomEvent>(hippy::kLongClickEvent, node, nullptr));
             }
         }];
     }
 }
 
-- (void) addPressEventListenerforNode:(std::weak_ptr<DomNode>)weak_node
-                              forType:(std::string)type
+- (void) addPressEventListenerForType:(std::string)type
                               forView:(int32_t)hippyTag {
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     HippyViewEventType eventType = hippy::kPressIn == type ? HippyViewEventType::HippyViewEventTypePressIn : HippyViewEventType::HippyViewEventTypePressOut;
     if (view) {
         [view addViewEvent:eventType eventListener:^(CGPoint) {
-            std::shared_ptr<DomNode> node = weak_node.lock();
+            auto node = [self domNodeFromHippyTag:hippyTag];
             if (node) {
-                node->HandleEvent(std::make_shared<hippy::DomEvent>(type, weak_node, nullptr));
+                node->HandleEvent(std::make_shared<hippy::DomEvent>(type, node, nullptr));
             }
         }];
     }
 }
 
-- (void) addTouchEventListenerforNode:(std::weak_ptr<DomNode>)weak_node
-                              forType:(std::string)type
+- (void) addTouchEventListenerForType:(std::string)type
                               forView:(int32_t)hippyTag {
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
@@ -1852,30 +1854,29 @@ static UIView *_jsResponder;
             event_type = HippyViewEventType::HippyViewEventTypeTouchCancel;
         }
         [view addViewEvent:event_type eventListener:^(CGPoint point) {
-            std::shared_ptr<DomNode> node = weak_node.lock();
+            auto node = [self domNodeFromHippyTag:hippyTag];
             if (node) {
                 tdf::base::DomValue::DomValueObjectType domValue;
                 domValue["page_x"] = tdf::base::DomValue(point.x);
                 domValue["page_y"] = tdf::base::DomValue(point.y);
                 std::shared_ptr<tdf::base::DomValue> value = std::make_shared<tdf::base::DomValue>(domValue);
                 if (node) {
-                   node->HandleEvent(std::make_shared<DomEvent>(type, weak_node, value));
+                   node->HandleEvent(std::make_shared<DomEvent>(type, node, value));
                 }
             }
         }];
     }
 }
 
-- (void)addShowEventListenerForNode:(std::weak_ptr<DomNode>)weak_node
-                             forType:(std::string)type
-                             forView:(int32_t)hippyTag {
+- (void)addShowEventListenerForType:(std::string)type
+                            forView:(int32_t)hippyTag {
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
         HippyViewEventType event_type = hippy::kShowEvent == type ? HippyViewEventTypeShow : HippyViewEventTypeDismiss;
         [view addViewEvent:event_type eventListener:^(CGPoint point) {
-            std::shared_ptr<DomNode> node = weak_node.lock();
+            auto node = [self domNodeFromHippyTag:hippyTag];
             if (node) {
-                node->HandleEvent(std::make_shared<DomEvent>(type, weak_node, std::any_cast<bool>(true)));
+                node->HandleEvent(std::make_shared<DomEvent>(type, node, std::any_cast<bool>(true)));
             }
         }];
     }
@@ -1889,8 +1890,9 @@ static UIView *_jsResponder;
 - (void)removeEventName:(const std::string &)eventName forDomNode:(std::weak_ptr<DomNode>)weak_node {
     std::shared_ptr<DomNode> domNode = weak_node.lock();
     if (domNode) {
+        int32_t hippyTag = domNode->GetId();
         [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-            UIView *view = [uiManager viewForHippyTag:@(domNode->GetId())];
+            UIView *view = [uiManager viewForHippyTag:@(hippyTag)];
             [view removeViewEvent:viewEventTypeFromName(eventName)];
         }];
     }
