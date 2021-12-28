@@ -341,7 +341,8 @@ void DomNode::TransferLayoutOutputsRecursive() {
       layout_param[kLayoutHeightKey] = DomValue(layout_.height);
       DomValueObjectType layout_obj;
       layout_obj[kLayoutLayoutKey] = std::move(layout_param);
-      dom_manager->HandleEvent(std::make_shared<DomEvent>(kLayoutEvent, shared_from_this(), false, false, std::make_shared<DomValue>(layout_obj)));
+      dom_manager->HandleListener(shared_from_this(), kLayoutEvent, std::make_shared<DomArgument>(
+          DomValue(std::move(layout_obj))));
     }
   }
   for (auto& it : children_) {
