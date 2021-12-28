@@ -54,6 +54,7 @@
 #import "OCTypeToDomArgument.h"
 
 using DomValue = tdf::base::DomValue;
+using DomArgument = hippy::dom::DomArgument;
 using DomManager = hippy::DomManager;
 using DomNode = hippy::DomNode;
 using LayoutResult = hippy::LayoutResult;
@@ -1751,7 +1752,7 @@ static UIView *_jsResponder;
     }
     if (cb) {
         HippyResponseSenderBlock senderBlock = ^(NSArray *senderParams) {
-            std::shared_ptr<hippy::DomArgument> domArgument = std::make_shared<hippy::DomArgument>([senderParams toDomArgument]);
+            std::shared_ptr<DomArgument> domArgument = std::make_shared<DomArgument>([senderParams toDomArgument]);
             cb(domArgument);
         };
         [finalParams addObject:senderBlock];
@@ -1915,8 +1916,9 @@ static UIView *_jsResponder;
                 object["height"] = frame.size.height;
                 DomValue::DomValueObjectType taskObject;
                 taskObject[hippy::kLayoutEvent] = object;
-                std::shared_ptr<DomValue> domValue = std::make_shared<DomValue>(taskObject);
-                node->HandleListener(hippy::kAddUITask, domValue);
+                DomValue domValue(taskObject);
+                std::shared_ptr<DomArgument> domArgument = std::make_shared<DomArgument>(std::move(domValue));
+                node->HandleListener(hippy::kAddUITask, domArgument);
             }];
 //         });
         });

@@ -1,6 +1,7 @@
 #include "dom/dom_manager.h"
 
 #include <stack>
+#include <utility>
 
 #include "dom/render_manager.h"
 #include "dom/diff_utils.h"
@@ -196,7 +197,7 @@ void DomManager::CallFunction(uint32_t id, const std::string& name, const DomArg
       return;
     }
     auto runner = self->js_runner_;
-    CallFunctionCallback callback = [runner, cb](std::shared_ptr<DomArgument> param) {
+    CallFunctionCallback callback = [runner, cb](const std::shared_ptr<DomArgument>& param) {
       auto js_runner = runner.lock();
       if (js_runner) {
         std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
@@ -343,7 +344,7 @@ void DomManager::HandleEvent(const std::shared_ptr<DomEvent>& event) {
 
 void DomManager::HandleListener(const std::weak_ptr<DomNode>& weak_target,
                                 const std::string& name,
-                                std::shared_ptr<DomValue> param) {
+                                const std::shared_ptr<DomArgument>& param) {
   auto target = weak_target.lock();
   auto target_listeners = target->GetRenderListener(name);
   for (const auto &listener: target_listeners) {
@@ -367,7 +368,7 @@ void DomManager::DomNodeRegistry::RemoveNode(int32_t id) { nodes_.erase(id); }
 
 void DomManager::PostTask(std::function<void()> func) {
   std::shared_ptr<CommonTask> task = std::make_shared<CommonTask>();
-  task->func_ = func;
+  task->func_ = std::move(func);
   dom_task_runner_->PostTask(std::move(task));
 }
 
