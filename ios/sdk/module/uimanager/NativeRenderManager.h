@@ -53,8 +53,8 @@ public:
     
     void AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) override;
     void RemoveEventListener(std::weak_ptr<DomNode> dom_node, const std::string &name) override;
-    void AddRenderListener(std::weak_ptr<DomNode> dom_node, const std::string& name) override {};
-    void RemoveRenderListener(std::weak_ptr<DomNode> dom_node, const std::string& name) override {};
+    void AddRenderListener(std::weak_ptr<DomNode> dom_node, const std::string& name) override;
+    void RemoveRenderListener(std::weak_ptr<DomNode> dom_node, const std::string& name) override;
 
     void CallFunction(std::weak_ptr<DomNode> dom_node, const std::string &name,
                       const DomArgument& param,

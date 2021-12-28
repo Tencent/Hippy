@@ -296,7 +296,7 @@ void DomManager::HandleEvent(const std::shared_ptr<DomEvent> &event) {
 
 void DomManager::HandleListener(const std::weak_ptr<DomNode>& weak_target,
                                 const std::string& name,
-                                std::shared_ptr<DomEvent> param) {
+                                std::shared_ptr<DomValue> param) {
   auto target = weak_target.lock();
   auto target_listeners = target->GetRenderListener(name);
   for (const auto &listener: target_listeners) {

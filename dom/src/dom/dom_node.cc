@@ -111,7 +111,7 @@ void DomNode::HandleEvent(const std::shared_ptr<DomEvent> &event) {
   DomManager::HandleEvent(event);
 }
 
-void DomNode::HandleListener(const std::string& name, std::shared_ptr<DomEvent> param) {
+void DomNode::HandleListener(const std::string& name, std::shared_ptr<DomValue> param) {
   DomManager::HandleListener(shared_from_this(), name, std::move(param));
 }
 

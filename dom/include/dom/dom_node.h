@@ -89,7 +89,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   void DoLayout();
   void HandleEvent(const std::shared_ptr<DomEvent> &event);
   void HandleListener(const std::string& name,
-                      std::shared_ptr<DomEvent> param);
+                      std::shared_ptr<DomValue> param);
   void ParseLayoutStyleInfo();
   void TransferLayoutOutputsRecursive();
   std::tuple<float, float> GetLayoutSize();
