@@ -15,14 +15,14 @@
     "hippy:local-debug": "node ../../packages/hippy-debug-server/index.js",
     "hippy:local-dev": "node ../../packages/hippy-debug-server/hippy-dev.js -c ./scripts/hippy-webpack.dev.js",
     "hippy:debug": "hippy-debug",
-    "hippy:dev": "hippy-dev -c ./scripts/hippy-webpack.dev.js | node ../../packages/hippy-debug-server/hippy-dev.js -c ./scripts/hippy-webpack.dev.js",
+    "hippy:dev": "hippy-dev -c ./scripts/hippy-webpack.dev.js",
     "hippy:vendor": "webpack --config ./scripts/hippy-webpack.ios-vendor.js --config ./scripts/hippy-webpack.android-vendor.js",
     "hippy:build": "webpack --config ./scripts/hippy-webpack.ios.js --config ./scripts/hippy-webpack.android.js"
   },
   "dependencies": {
-    "@hippy/vue": "^2.1.2",
-    "@hippy/vue-native-components": "^2.0.1",
-    "@hippy/vue-router": "^2.0.1",
+    "@hippy/vue": "latest",
+    "@hippy/vue-native-components": "latest",
+    "@hippy/vue-router": "latest",
     "core-js": "3.11.0",
     "vue": "^2.6.10",
     "vue-router": "^3.1.3"
@@ -38,7 +38,7 @@
     "@babel/plugin-transform-runtime": "^7.11.0",
     "@babel/polyfill": "^7.12.0",
     "@babel/preset-env": "^7.12.0",
-    "@hippy/debug-server": "^2.1.2",
+    "@hippy/debug-server": "alpha",
     "@hippy/hippy-dynamic-import-plugin": "^2.0.0",
     "@hippy/hippy-hmr-plugin": "^0.0.2",
     "@hippy/vue-css-loader": "^2.0.1",
