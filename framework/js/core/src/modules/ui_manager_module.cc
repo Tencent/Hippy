@@ -263,26 +263,28 @@ void HandleEventListeners(const std::shared_ptr<Ctx> &context,
         }
         if (context->IsFunction(cb)) {
           // dom_node 持有 cb
-          auto listener_id =
-              dom_node->AddEventListener(name_str, true, [weak_context, cb]
-                  (const std::shared_ptr<DomEvent> &event) {
+          dom_node->AddEventListener(
+              name_str, true,
+              [weak_context, cb](const std::shared_ptr<DomEvent> &event) {
                 auto context = weak_context.lock();
                 if (!context) {
                   return;
                 }
-                auto param =
-                    context->CreateCtxValue(event->GetValue());
+                auto param = context->CreateCtxValue(event->GetValue());
                 if (param) {
-                  const std::shared_ptr<CtxValue>
-                      argus[] = {param};
+                  const std::shared_ptr<CtxValue> argus[] = {param};
                   context->CallFunction(cb, 1, argus);
                 } else {
-                  const std::shared_ptr<CtxValue>
-                      argus[] = {};
+                  const std::shared_ptr<CtxValue> argus[] = {};
                   context->CallFunction(cb, 0, argus);
                 }
+              },
+              [scope, dom_id, name_str](std::shared_ptr<DomArgument> arg) {
+                DomValue domValue;
+                if (arg->ToObject(domValue) && domValue.IsUInt32()) {
+                  scope->AddListener(dom_id, name_str, domValue.ToUint32());
+                }
               });
-          scope->AddListener(dom_id, name_str, listener_id);
         }
       }
     }
@@ -319,26 +321,28 @@ void HandleRenderListeners(const std::shared_ptr<Ctx> &context,
         }
         if (context->IsFunction(cb)) {
           // dom_node 持有 cb
-          auto listener_id =
-              dom_node->AddRenderListener(name_str, [weak_context, cb]
-                  (const std::shared_ptr<DomValue> &value) {
+          dom_node->AddRenderListener(
+              name_str,
+              [weak_context, cb](const std::shared_ptr<DomValue> &value) {
                 auto context = weak_context.lock();
                 if (!context) {
                   return;
                 }
-                auto param =
-                    context->CreateCtxValue(value);
+                auto param = context->CreateCtxValue(value);
                 if (param) {
-                  const std::shared_ptr<CtxValue>
-                      argus[] = {param};
+                  const std::shared_ptr<CtxValue> argus[] = {param};
                   context->CallFunction(cb, 1, argus);
                 } else {
-                  const std::shared_ptr<CtxValue>
-                      argus[] = {};
+                  const std::shared_ptr<CtxValue> argus[] = {};
                   context->CallFunction(cb, 0, argus);
                 }
+              },
+              [scope, dom_id, name_str](std::shared_ptr<DomArgument> arg) {
+                DomValue domValue;
+                if (arg->ToObject(domValue) && domValue.IsUInt32()) {
+                  scope->AddListener(dom_id, name_str, domValue.ToUint32());
+                }
               });
-          scope->AddListener(dom_id, name_str, listener_id);
         }
       }
     }

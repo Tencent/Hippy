@@ -96,11 +96,14 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   void SetLayoutSize(float width, float height);
   const LayoutResult &GetLayoutResult() { return layout_; }
 
-  uint32_t AddEventListener(const std::string &name, bool use_capture, const EventCallback &cb);
+  void AddEventListener(const std::string &name, bool use_capture, const EventCallback &cb,
+                        const CallFunctionCallback& functionCallback);
   void RemoveEventListener(const std::string &name, uint32_t id);
+
   // RenderListener 没有捕获冒泡流程，EventListener 拥有捕获冒泡流程
-  uint32_t AddRenderListener(const std::string &name, const RenderCallback &cb);
-  void RemoveRenderListener(const std::string &name, uint32_t id);
+  void AddRenderListener(const std::string& name, const RenderCallback& cb,
+                             const CallFunctionCallback& functionCallback);
+  void RemoveRenderListener(const std::string& name, uint32_t id);
   std::vector<std::shared_ptr<DomNode::EventListenerInfo>> GetEventListener(const std::string &name,
                                                                             bool is_capture);
   std::vector<std::shared_ptr<DomNode::RenderListenerInfo>> GetRenderListener(const std::string &name);
