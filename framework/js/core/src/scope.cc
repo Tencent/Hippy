@@ -161,8 +161,8 @@ void Scope::AddModuleClass(const unicode_string_view& name,
 }
 
 std::shared_ptr<hippy::napi::CtxValue> Scope::GetModuleValue(
-    const unicode_string_view& moduleName) {
-  auto it = module_value_map_.find(moduleName);
+    const unicode_string_view& module_name) {
+  auto it = module_value_map_.find(module_name);
   return it != module_value_map_.end() ? it->second : nullptr;
 }
 
@@ -178,9 +178,7 @@ void Scope::SaveFunctionData(std::unique_ptr<hippy::napi::FunctionData> data) {
 void Scope::AddListener(uint32_t node_id, const std::string& event_name, uint32_t listener_id) {
   auto id_it = listener_id_map_.find(node_id);
   if (id_it != listener_id_map_.end()) {
-    auto name_it = id_it->second.find(event_name);
-    TDF_BASE_DCHECK(name_it != id_it->second.end()); // 目前hippy上层还不支持绑定多个回调
-    id_it->second[event_name] = listener_id;
+    id_it->second[event_name] = listener_id; // 目前hippy上层还不支持绑定多个回调，update时替换原有回调
   } else {
     listener_id_map_[node_id] = std::unordered_map<std::string, uint32_t>();
     listener_id_map_[node_id][event_name] = listener_id;

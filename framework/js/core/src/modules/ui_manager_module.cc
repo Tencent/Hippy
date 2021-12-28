@@ -321,28 +321,44 @@ void HandleRenderListeners(const std::shared_ptr<Ctx> &context,
         }
         if (context->IsFunction(cb)) {
           // dom_node 持有 cb
-          dom_node->AddRenderListener(
-              name_str,
-              [weak_context, cb](const std::shared_ptr<DomValue> &value) {
-                auto context = weak_context.lock();
-                if (!context) {
-                  return;
-                }
-                auto param = context->CreateCtxValue(value);
-                if (param) {
-                  const std::shared_ptr<CtxValue> argus[] = {param};
-                  context->CallFunction(cb, 1, argus);
-                } else {
-                  const std::shared_ptr<CtxValue> argus[] = {};
-                  context->CallFunction(cb, 0, argus);
-                }
-              },
-              [scope, dom_id, name_str](std::shared_ptr<DomArgument> arg) {
-                DomValue domValue;
-                if (arg->ToObject(domValue) && domValue.IsUInt32()) {
-                  scope->AddListener(dom_id, name_str, domValue.ToUint32());
-                }
-              });
+          std::weak_ptr<Scope> weak_scope = scope;
+          dom_node->AddRenderListener(name_str, [weak_context, cb]
+              (const std::shared_ptr<DomArgument> &dom_argus) {
+            auto context = weak_context.lock();
+            if (!context) {
+              return;
+            }
+            DomValue value;
+            bool flag = dom_argus->ToObject(value);
+            if (!flag) {
+              context->ThrowExceptionToJS(context->CreateJsError(
+                  unicode_string_view("argus ToObject failed")));
+              return;
+            }
+            auto param = context->CreateCtxValue(std::make_shared<DomValue>(std::move(value)));
+            if (param) {
+              const std::shared_ptr<CtxValue> argus[] = {param};
+              context->CallFunction(cb, 1, argus);
+            } else {
+              const std::shared_ptr<CtxValue> argus[] = {};
+              context->CallFunction(cb, 0, argus);
+            }
+          },
+          [weak_scope, dom_id, name_str](const std::shared_ptr<
+              DomArgument> &arg) {
+            auto scope = weak_scope.lock();
+            if (!scope) {
+              return;
+            }
+            DomValue dom_value;
+            TDF_BASE_DCHECK(
+                arg->ToObject(dom_value) && dom_value.IsUInt32());
+            if (arg->ToObject(dom_value) && dom_value.IsUInt32()) {
+              scope->AddListener(dom_id,
+                                 name_str,
+                                 dom_value.ToUint32());
+            }
+          });
         }
       }
     }

@@ -33,7 +33,7 @@ class DomManager: public std::enable_shared_from_this<DomManager> {
 
   static void HandleListener(const std::weak_ptr<DomNode>& weak_target,
                              const std::string& name,
-                             std::shared_ptr<DomValue> param);
+                             const std::shared_ptr<DomArgument>& param);
 
   inline std::shared_ptr<RenderManager> GetRenderManager() { return render_manager_.lock(); }
   inline void SetRenderManager(std::shared_ptr<RenderManager> render_manager) {

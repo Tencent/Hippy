@@ -24,9 +24,6 @@
 
 #include "base/logging.h"
 #include "core/napi/js_native_api.h"
-#ifdef ANDROID
-#include "jni/jni_env.h"
-#endif
 
 const uint32_t WorkerTaskRunner::kDefaultTaskPriority = 10000;
 const uint32_t WorkerTaskRunner::kHighPriorityTaskPriority = 5000;
@@ -61,9 +58,6 @@ std::unique_ptr<CommonTask> WorkerTaskRunner::GetNext() {
     }
 
     if (terminated_) {
-#ifdef ANDROID
-      JNIEnvironment::GetInstance()->DetachCurrentThread();
-#endif
       cv_.notify_all();
       TDF_BASE_DLOG(INFO) << "WorkerTaskRunner Terminate";
       return nullptr;

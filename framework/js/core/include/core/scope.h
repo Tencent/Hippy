@@ -74,7 +74,7 @@ class Scope {
   void AddModuleClass(const unicode_string_view& name,
                       std::unique_ptr<ModuleBase> module);
   std::shared_ptr<CtxValue> GetModuleValue(
-      const unicode_string_view& moduleName);
+      const unicode_string_view& module_name);
   void AddModuleValue(const unicode_string_view& name,
                       const std::shared_ptr<CtxValue>& value);
 

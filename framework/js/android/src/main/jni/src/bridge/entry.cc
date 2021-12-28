@@ -571,7 +571,8 @@ void DestroyInstance(__unused JNIEnv* j_env,
   if (group == kDebuggerEngineId) {
     runtime->GetScope()->WillExit();
   }
-  runtime->GetEngine()->GetJSRunner()->PostTask(task);
+  auto runner = runtime->GetEngine()->GetJSRunner();
+  runner->PostTask(task);
   TDF_BASE_DLOG(INFO) << "destroy, group = " << group;
   if (group == kDebuggerEngineId) {
   } else if (group == kDefaultEngineId) {
@@ -585,6 +586,11 @@ void DestroyInstance(__unused JNIEnv* j_env,
       TDF_BASE_DLOG(INFO) << "reuse_engine_map cnt = " << cnt;
       if (cnt == 1) {
         reuse_engine_map.erase(it);
+        auto detach_task = std::make_shared<JavaScriptTask>();
+        detach_task->callback = [] {
+          JNIEnvironment::GetInstance()->DetachCurrentThread();
+        };
+        runner->PostTask(detach_task);
         engine->TerminateRunner();
       } else {
         std::get<uint32_t>(it->second) = cnt - 1;
