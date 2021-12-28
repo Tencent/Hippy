@@ -242,14 +242,16 @@ void VoltronRenderTaskRunner::ConsumeQueue() {
 }
 
 void VoltronRenderTaskRunner::RunCallFunction(const std::weak_ptr<DomNode>& dom_node, const std::string& name,
-                                              const DomValue& param, const hippy::CallFunctionCallback& cb) {
+                                              const DomArgument& param, const hippy::CallFunctionCallback& cb) {
   auto node = dom_node.lock();
   auto bridge_manager = BridgeManager::GetBridgeManager(engine_id_);
   if (node && bridge_manager) {
     auto args_map = EncodableMap();
     args_map[EncodableValue(kFuncNameKey)] = EncodableValue(name);
-    if (!param.IsNull() || !param.IsUndefined()) {
-      args_map[EncodableValue(kFuncParamsKey)] = DecodeDomValue(param);
+    DomValue param_value;
+    param.ToObject(param_value);
+    if (!param_value.IsNull() || !param_value.IsUndefined()) {
+      args_map[EncodableValue(kFuncParamsKey)] = DecodeDomValue(param_value);
     }
     auto callback_id =
         bridge_manager->AddNativeCallback(kCallUiFuncType, [dom_node, name](const EncodableValue& params) {
@@ -258,7 +260,7 @@ void VoltronRenderTaskRunner::RunCallFunction(const std::weak_ptr<DomNode>& dom_
             auto callback = inner_node->GetCallback(name);
             auto encode_params = EncodeDomValue(params);
             if (callback) {
-              callback(encode_params);
+              callback(std::make_shared<DomArgument>(encode_params));
             }
           }
         });

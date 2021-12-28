@@ -9,6 +9,7 @@ namespace voltron {
 using hippy::CallFunctionCallback;
 using hippy::DomManager;
 using hippy::DomNode;
+using hippy::DomArgument;
 using tdf::base::DomValue;
 
 class VoltronRenderTaskRunner {
@@ -23,7 +24,7 @@ class VoltronRenderTaskRunner {
   void RunBatch();
   void RunLayoutBefore();
   void RunLayoutFinish();
-  void RunCallFunction(const std::weak_ptr<DomNode>& dom_node, const std::string& name, const DomValue& param,
+  void RunCallFunction(const std::weak_ptr<DomNode>& dom_node, const std::string& name, const DomArgument& param,
                        const CallFunctionCallback& cb);
   void RunCallEvent(const std::weak_ptr<DomNode>& dom_node, const std::string& name,
                     const std::unique_ptr<EncodableValue>& params);

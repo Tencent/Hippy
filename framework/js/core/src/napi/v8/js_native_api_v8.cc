@@ -27,6 +27,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <serializer.h>
 
 #include "base/logging.h"
 #include "core/base/common.h"

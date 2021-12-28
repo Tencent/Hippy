@@ -25,7 +25,7 @@ dependencies:
   path: ^1.8.0
   web_socket_channel: ^2.0.0
   utf: ^0.9.0+5
-  fluttertoast: ^8.0.6
+  fluttertoast: ^8.0.8
   gradient_like_css: ^0.5.1
   qr_flutter: ^4.0.0
   system_proxy: ^0.0.2
