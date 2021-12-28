@@ -156,37 +156,6 @@ EXTERN_C void UpdateNodeSize(int32_t engine_id, int32_t root_id, int32_t node_id
   }
 }
 
-EXTERN_C void SetNodeCustomMeasure(int32_t engine_id, int32_t root_id, int32_t node_id) {
-  auto bridge_manager = BridgeManager::GetBridgeManager(engine_id);
-  if (bridge_manager) {
-    auto dom_manager = bridge_manager->GetDomManager(root_id);
-    if (dom_manager) {
-      auto dom_node = dom_manager->GetNode(node_id);
-      if (dom_node) {
-        auto layout_node = dom_node->GetLayoutNode();
-        if (layout_node) {
-          auto taitank_layout_node = std::static_pointer_cast<hippy::TaitankLayoutNode>(layout_node);
-          taitank_layout_node->SetMeasureFunction(
-              [engine_id, root_id, node_id](HPNodeRef node, float width, MeasureMode widthMeasureMode, float height,
-                                            MeasureMode heightMeasureMode, void* layoutContext) {
-                auto bridge_manager = BridgeManager::GetBridgeManager(engine_id);
-                if (bridge_manager) {
-                  auto runtime = bridge_manager->GetRuntime().lock();
-                  if (runtime) {
-                    auto measure_result = runtime->CalculateNodeLayout(root_id, node_id, width, widthMeasureMode,
-                                                                       height, heightMeasureMode);
-                    int32_t w_bits = 0xFFFFFFFF & (measure_result >> 32);
-                    int32_t h_bits = 0xFFFFFFFF & measure_result;
-                    return HPSize{(float)w_bits, (float)h_bits};
-                  }
-                }
-                return HPSize{0, 0};
-              });
-        }
-      }
-    }
-  }
-}
 
 EXTERN_C void NotifyRenderManager(int32_t engine_id) {
   auto bridge_manager = BridgeManager::GetBridgeManager(engine_id);

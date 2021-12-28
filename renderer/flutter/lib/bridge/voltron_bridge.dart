@@ -63,8 +63,6 @@ class _BridgeFFIManager {
   // 更新节点宽高
   late UpdateNodeSizeFfiDartType updateNodeSize;
 
-  late SetNodeCustomMeasureDartType setNodeHasCustomLayout;
-
   late NotifyDomDartType notifyDom;
 
   // 初始化native dom
@@ -141,10 +139,6 @@ class _BridgeFFIManager {
 
     updateNodeSize = _library.lookupFunction<UpdateNodeSizeFfiNativeType,
         UpdateNodeSizeFfiDartType>('UpdateNodeSize');
-
-    setNodeHasCustomLayout = _library.lookupFunction<
-        SetNodeCustomMeasureNativeType,
-        SetNodeCustomMeasureDartType>('SetNodeCustomMeasure');
 
     notifyDom = _library.lookupFunction<NotifyDomNativeType, NotifyDomDartType>(
         'NotifyRenderManager');
@@ -244,17 +238,6 @@ class VoltronApi {
         .updateNodeSize(engineId, rootId, nodeId, width, height);
     stopwatch.stop();
     LogUtils.profile("update node size cost", stopwatch.elapsedMilliseconds);
-  }
-
-  static Future setNodeHasCustomLayout(
-      int engineId, int rootId, int nodeId) async {
-    var stopwatch = Stopwatch();
-
-    stopwatch.start();
-    _BridgeFFIManager.instance.setNodeHasCustomLayout(engineId, rootId, nodeId);
-    stopwatch.stop();
-    LogUtils.profile(
-        "set node has custom layout cost", stopwatch.elapsedMilliseconds);
   }
 
   static Future<dynamic> runScriptFromAssetWithData(
@@ -805,10 +788,6 @@ class VoltronBridgeManager implements Destroyable {
       {int nodeId = 0, double width = 0, double height = 0}) async {
     await VoltronApi.updateNodeSize(
         _engineId, instanceId, nodeId, width, height);
-  }
-
-  Future setNodeHasCustomLayout(int instanceId, int nodeId) async {
-    await VoltronApi.setNodeHasCustomLayout(_engineId, instanceId, nodeId);
   }
 
   Future<dynamic> loadInstance(String name, int id, VoltronMap? params) async {

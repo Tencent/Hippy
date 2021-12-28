@@ -31,13 +31,13 @@ class VoltronRenderTaskRunner {
   void RunAddEventListener(const int32_t& node_id, const String& event_name);
   void RunRemoveEventListener(const int32_t& node_id, const String& event_name);
 
-  Sp<DomNode> GetDomNode(int32_t root_id, int32_t node_id) const;
-
  private:
   void ConsumeQueue();
   static EncodableValue DecodeDomValueMap(const SpMap<DomValue>& value_map);
   static EncodableValue DecodeDomValue(const DomValue& value);
   static DomValue EncodeDomValue(const EncodableValue& value);
+  void SetNodeCustomMeasure(const Sp<DomNode>& dom_node);
+  static Sp<DomNode> GetDomNode(int32_t engine_id, int32_t root_id, int32_t node_id);
   Sp<VoltronRenderQueue> queue_;
 
   int32_t engine_id_;

@@ -87,11 +87,6 @@ typedef UpdateNodeSizeFfiNativeType = Void Function(
 typedef UpdateNodeSizeFfiDartType = void Function(
     int engineId, int rootId, int nodeId, double width, double height);
 
-typedef SetNodeCustomMeasureNativeType = Void Function(
-    Int32 engineId, Int32 rootId, Int32 nodeId);
-typedef SetNodeCustomMeasureDartType = void Function(
-    int engineId, int rootId, int nodeId);
-
 typedef NotifyDomNativeType = Void Function(Int32 engineId);
 typedef NotifyDomDartType = void Function(int engineId);
 

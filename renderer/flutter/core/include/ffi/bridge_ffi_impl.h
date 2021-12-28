@@ -55,9 +55,6 @@ EXTERN_C void NotifyRenderManager(int32_t engine_id);
 
 bool CallGlobalCallback(int32_t callback_id, int64_t value);
 
-HPSize VoltronMeasureFunction(HPNodeRef node, float width, MeasureMode widthMeasureMode, float height,
-                            MeasureMode heightMeasureMode, void* layoutContext);
-
 #ifdef __cplusplus
 }
 #endif

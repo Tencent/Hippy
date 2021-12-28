@@ -45,7 +45,7 @@ mixin RenderExecutorDelegate {
   bool _hasAddFrameCallback = false;
   bool _isDestroyed = false;
   bool _isDispatchUiFrameEnqueued = false;
-  bool _renderBatchStarted = false;
+  bool _renderBatchStarted = true;
 
   final List<IRenderExecutor> _uiTasks = [];
   final List<IRenderExecutor> _paddingNullUiTasks = [];
@@ -142,8 +142,6 @@ mixin RenderExecutorDelegate {
 
     _paddingNullUiTasks.clear();
     _uiTasks.clear();
-
-    _renderBatchStart();
   }
 
   void notifyDom();
@@ -270,6 +268,10 @@ class RenderManager
   }
 
   void layoutAfter() {
+    // updateRender();
+  }
+
+  void updateRender() {
     if (_updateRenderNodes.isNotEmpty) {
       for (var node in _updateRenderNodes) {
         node.updateRender();
@@ -498,6 +500,11 @@ class RenderManager
     }
 
     _nullUiUpdateNodes.clear();
+
+    if (!_renderBatchStarted) {
+      _renderBatchStart();
+      updateRender();
+    }
   }
 
   @override

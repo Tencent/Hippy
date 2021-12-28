@@ -20,10 +20,14 @@ VoltronRenderTaskRunner::VoltronRenderTaskRunner(int32_t engine_id, int32_t root
 
 void VoltronRenderTaskRunner::RunCreateDomNode(const Sp<DomNode>& node) {
   TDF_BASE_DLOG(INFO) << "RunCreateDomNode id" << node->GetId() << " pid" << node->GetPid();
+  auto view_name = node->GetViewName();
+  if (view_name == "Text") {
+    SetNodeCustomMeasure(node);
+  }
   auto args_map = EncodableMap();
   auto render_info = node->GetRenderInfo();
   args_map[EncodableValue(kChildIndexKey)] = EncodableValue(render_info.index);
-  args_map[EncodableValue(kClassNameKey)] = EncodableValue(node->GetViewName());
+  args_map[EncodableValue(kClassNameKey)] = EncodableValue(view_name);
   args_map[EncodableValue(kParentNodeIdKey)] = EncodableValue(render_info.pid);
   if (!node->GetStyleMap().empty()) {
     args_map[EncodableValue(kStylesKey)] = DecodeDomValueMap(node->GetStyleMap());
@@ -307,8 +311,41 @@ void VoltronRenderTaskRunner::RunRemoveEventListener(const int32_t& node_id, con
   }
 }
 
-Sp<DomNode> VoltronRenderTaskRunner::GetDomNode(int32_t root_id, int32_t node_id) const {
-  auto bridge_manager = BridgeManager::GetBridgeManager(engine_id_);
+void VoltronRenderTaskRunner::SetNodeCustomMeasure(const Sp<DomNode> &dom_node) {
+  if (dom_node) {
+    auto layout_node = dom_node->GetLayoutNode();
+    if (layout_node) {
+      auto taitank_layout_node = std::static_pointer_cast<hippy::TaitankLayoutNode>(layout_node);
+      auto root_id = root_id_;
+      auto engine_id = engine_id_;
+      auto node_id = dom_node->GetId();
+      taitank_layout_node->SetMeasureFunction(
+          [engine_id, root_id, node_id](HPNodeRef node,
+                                        float width,
+                                        MeasureMode widthMeasureMode,
+                                        float height,
+                                        MeasureMode heightMeasureMode,
+                                        void *layoutContext) {
+            auto bridge_manager = BridgeManager::GetBridgeManager(engine_id);
+            if (bridge_manager) {
+              auto runtime = bridge_manager->GetRuntime().lock();
+              if (runtime) {
+                auto measure_result =
+                    runtime->CalculateNodeLayout(root_id, node_id, width, widthMeasureMode,
+                                                 height, heightMeasureMode);
+                int32_t w_bits = 0xFFFFFFFF & (measure_result >> 32);
+                int32_t h_bits = 0xFFFFFFFF & measure_result;
+                return HPSize{(float) w_bits, (float) h_bits};
+              }
+            }
+            return HPSize{0, 0};
+          });
+    }
+  }
+}
+
+Sp<DomNode> VoltronRenderTaskRunner::GetDomNode(int32_t engine_id, int32_t root_id, int32_t node_id) {
+  auto bridge_manager = BridgeManager::GetBridgeManager(engine_id);
   if (bridge_manager) {
     auto dom_manager = bridge_manager->GetDomManager(root_id);
     if (dom_manager) {

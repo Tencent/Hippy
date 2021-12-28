@@ -15,9 +15,6 @@ class TextRenderNode extends RenderNode with TextStyleNode {
       ControllerManager controllerManager, VoltronMap? props)
       : super(id, className, root, controllerManager, props);
 
-  @override
-  bool get hasCustomLayout => true;
-
   bool get isVirtual => parent?.name == TextController.kClassName;
 
   int calculateLayout(FlexLayoutParams layoutParams) {

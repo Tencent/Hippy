@@ -52,15 +52,21 @@ void VoltronRenderManager::Batch() { RunBatch(); }
 
 void VoltronRenderManager::OnLayoutBefore() {
   RunLayoutBefore();
+  TDF_BASE_DLOG(INFO) << "RunLayoutBefore";
 
   // 在dom的css layout开始前，要保证dom op全部执行完成，否则自定义测量的节点测量数据会不准确
+  notified_ = false;
   std::unique_lock<std::mutex> lock(mutex_);
   while (!notified_) {
+    TDF_BASE_DLOG(INFO) << "RunLayoutWait";
     cv_.wait(lock);
   }
 }
 
-void VoltronRenderManager::OnLayoutFinish() { RunLayoutFinish(); }
+void VoltronRenderManager::OnLayoutFinish() {
+  RunLayoutFinish();
+  TDF_BASE_DLOG(INFO) << "RunLayoutFinish";
+}
 
 void VoltronRenderManager::CallFunction(std::weak_ptr<DomNode> dom_node,
                                         const std::string &name,
@@ -95,6 +101,7 @@ void VoltronRenderManager::Notify() {
   if (!notified_) {
     notified_ = true;
     cv_.notify_one();
+    TDF_BASE_DLOG(INFO) << "RunLayoutNotify";
   }
 }
 

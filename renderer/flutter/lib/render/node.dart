@@ -138,12 +138,7 @@ class RenderNode extends StyleNode {
   RenderNode(this._id, this._className, this._root, this._controllerManager,
       this._props,
       [this._isLazyLoad = false, this._parent])
-      : super(_className) {
-    if (hasCustomLayout) {
-      _controllerManager.context.bridgeManager
-          .setNodeHasCustomLayout(rootId, _id);
-    }
-  }
+      : super(_className);
 
   int calculateLayout(FlexLayoutParams layoutParams) {
     return FlexOutput.makeMeasureResult(
